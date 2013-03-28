@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.4 2013-03-28 16:23:14 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.5 2013-03-28 16:35:09 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -179,7 +179,7 @@ value gen_string_of_tree (k : field _) airy opt vx vy =
         else if opt then sprintf "%s%s" vy (sup_string_of_string (soi n))
         else sprintf "%s^%d" vy n
     | Const c →
-        k.k_to_string c
+        k.to_string c
     | Plus _ _ | Minus _ _ | Neg _ | Mult _ _ as t →
         sprintf "(%s)" (expr "" t) ]
   in
@@ -251,27 +251,27 @@ value compare_descr td₁ td₂ =
   else 1
 ;
 
-value merge_const_px (c, px) cpl =
+value merge_const_px k (c, px) cpl =
   match cpl with
   [ [(c₁, px₁) :: cpl₁] →
       if Q.eq px px₁ then
-        let c = C.norm (C.add c c₁) in
-        if C.eq c C.zero then cpl₁
+        let c = k.norm (k.add c c₁) in
+        if k.eq c k.zero then cpl₁
         else [(c, px) :: cpl₁]
-      else if C.eq c C.zero then cpl
+      else if k.eq c k.zero then cpl
       else [(c, px) :: cpl]
   | [] →
-      if C.eq c C.zero then [] else [(c, px)] ]
+      if k.eq c k.zero then [] else [(c, px)] ]
 ;
 
-value group_term_descr tdl =
+value group_term_descr k tdl =
   List.fold_right
     (fun td cplpl →
        let cp = (td.const, td.xpow) in
        match cplpl with
        [ [(cpl, py) :: cplpl₁] →
            if td.ypow = py then
-             let cpl = merge_const_px cp cpl in
+             let cpl = merge_const_px k cp cpl in
              if cpl = [] then cplpl₁ else [(cpl, py) :: cplpl₁]
            else [([cp], td.ypow) :: cplpl]
        | [] → [([cp], td.ypow)] ])
@@ -300,7 +300,7 @@ value rec without_initial_neg k =
 
 value term_of_const_xpow_list k t (c, px) =
   let (is_neg, c) =
-    match C.neg_factor c with
+    match k.neg_factor c with
     [ Some c → (True, c)
     | None → (False, c) ]
   in
@@ -308,14 +308,14 @@ value term_of_const_xpow_list k t (c, px) =
     if Q.eq px Q.zero then Const c
     else
       let tx = Xpower (I.to_int (Q.rnum px)) (I.to_int (Q.rden px)) in
-      if C.eq c C.one then tx
-      else if C.eq c C.minus_one then Neg tx
+      if k.eq c k.one then tx
+      else if k.eq c k.minus_one then Neg tx
       else Mult (Const c) tx
   in
   let t₂ = if is_neg then Neg t₂ else t₂ in
   let t_is_null =
     match t with
-    [ Const c₀ → C.eq c₀ C.zero
+    [ Const c₀ → k.eq c₀ k.zero
     | _ → False ]
   in
   if t_is_null then t₂
@@ -325,7 +325,7 @@ value term_of_const_xpow_list k t (c, px) =
     | None → Plus t t₂ ]
 ;
 
-value expr_of_term_ypow_list k t₁ (t₂, py) =
+value expr_of_term_ypow_list (k : field _) t₁ (t₂, py) =
   let t₂ =
     if py = 0 then t₂
     else
@@ -344,7 +344,7 @@ value expr_of_term_ypow_list k t₁ (t₂, py) =
   in
   let t_is_null =
     match t₁ with
-    [ Const c₀ → C.eq c₀ C.zero
+    [ Const c₀ → k.eq c₀ k.zero
     | _ → False ]
   in
   if t_is_null then t₂
@@ -356,7 +356,7 @@ value expr_of_term_ypow_list k t₁ (t₂, py) =
 
 value debug_n = False;
 
-value group k t =
+value group (k : field _) t =
   let _ =
     if debug_n then
       printf "    tree: %s\n%!" (string_of_tree k True "x" "y" t)
@@ -377,7 +377,7 @@ value group k t =
       List.iter
         (fun td →
            printf "  const %s xpow %s ypow %d\n%!"
-             (C.to_string False td.const) (Q.to_string td.xpow) td.ypow)
+             (k.to_string td.const) (Q.to_string td.xpow) td.ypow)
         tdl
     else ()
   in
@@ -386,10 +386,10 @@ value group k t =
 let _ = printf "normalize compare_descr\n%!" in
 let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
 *)
-  group_term_descr tdl
+  group_term_descr k tdl
 ;
 
-value normalize k t =
+value normalize (k : field _) t =
   let cplpl = group k t in
   let _ = if debug_n then printf "normalize group_term_descr\n%!" else () in
   let _ =
@@ -399,7 +399,7 @@ value normalize k t =
            printf "  py %d\n%!" py;
            List.iter
              (fun (cst, px) →
-                printf "    cst %s px %s\n%!" (C.to_string False cst)
+                printf "    cst %s px %s\n%!" (k.to_string cst)
                   (Q.to_string px))
              cpl
          })
@@ -410,7 +410,7 @@ value normalize k t =
     List.map
       (fun (cpl, py) →
          let t =
-           List.fold_left (term_of_const_xpow_list k) (Const C.zero) cpl
+           List.fold_left (term_of_const_xpow_list k) (Const k.zero) cpl
          in
          (t, py))
       cplpl
@@ -426,7 +426,7 @@ value normalize k t =
         tpl
     else ()
   in
-  let t = List.fold_left (expr_of_term_ypow_list k) (Const C.zero) tpl in
+  let t = List.fold_left (expr_of_term_ypow_list k) (Const k.zero) tpl in
   t
 ;
 
