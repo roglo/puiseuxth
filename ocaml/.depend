@@ -15,8 +15,8 @@ puiseux.cmo: field.cmi pnums.cmi poly_lex.cmo poly_parse.cmo poly_print.cmo \
     poly_tree.cmi roots.cmi version.cmo
 puiseux.cmx: field.cmi pnums.cmx poly_lex.cmx poly_parse.cmx poly_print.cmx \
     poly_tree.cmx roots.cmx version.cmx
-roots.cmo: pnums.cmi poly_fun.cmi poly_tree.cmi roots.cmi
-roots.cmx: pnums.cmx poly_fun.cmx poly_tree.cmx roots.cmi
+roots.cmo: field.cmi pnums.cmi poly_fun.cmi poly_tree.cmi roots.cmi
+roots.cmx: field.cmi pnums.cmx poly_fun.cmx poly_tree.cmx roots.cmi
 roots.cmi: field.cmi pnums.cmi
 ugly.cmo: field.cmi pnums.cmi poly_parse.cmo poly_print.cmo poly_tree.cmi
 ugly.cmx: field.cmi pnums.cmx poly_parse.cmx poly_print.cmx poly_tree.cmx
