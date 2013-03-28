@@ -1,7 +1,4 @@
-(* $Id: pnums_sig.mli,v 1.7 2013-03-28 20:01:35 deraugla Exp $ *)
-
-type complex_a α = Cpoly.complex α == { re : α; im : α };
-type complex = complex_a float;
+(* $Id: pnums_sig.mli,v 1.8 2013-03-28 20:06:16 deraugla Exp $ *)
 
 module type Csig =
   sig

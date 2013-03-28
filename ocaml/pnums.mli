@@ -1,6 +1,4 @@
-(* $Id: pnums.mli,v 1.2 2013-03-28 16:07:39 deraugla Exp $ *)
-
-open Pnums_sig;
+(* $Id: pnums.mli,v 1.3 2013-03-28 20:06:16 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -102,12 +100,45 @@ module A₂ :
   end
 ;
 
+type complex_a α = Cpoly.complex α == { re : α; im : α };
+type complex = complex_a float;
 value complex_zero : complex;
 value complex_mul : complex → complex → complex;
 value complex_power : complex → complex → complex;
 value complex_to_string : bool → complex → string;
 
-module C : Csig with type i = I.t and type q = Q.t and type a₂ = A₂.t;
+module C :
+  sig
+    type t = α;
+    value zero : t;
+    value one : t;
+    value minus_one : t;
+    value neg : t → t;
+    value add : t → t → t;
+    value sub : t → t → t;
+    value mul : t → t → t;
+    value muli : t → I.t → t;
+    value mulq : t → Q.t → t;
+    value mula : t → A₂.t → t;
+    value div : t → t → t;
+    value power : t → t → t;
+    value gcd : t → t → t;
+    value norm : t → t;
+    value eq : t → t → bool;
+    value neg_factor : t → option t;
+    value to_expr : t → MLast.expr;
+    value to_string : bool → t → string;
+    value to_complex : t → complex;
+    value to_q : t → option Q.t;
+    value to_a : t → option A₂.t;
+    value of_i : I.t → t;
+    value of_q : Q.t → t;
+    value of_a : A₂.t → t;
+    value of_expr : MLast.expr → t;
+    value of_float_string : string → t;
+    value of_complex : complex → t;
+    value check : t → unit;
+  end;
 
 value factor : I.t → list I.t;
 
