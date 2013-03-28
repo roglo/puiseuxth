@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.3 2013-03-28 16:16:42 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.4 2013-03-28 16:23:14 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -278,27 +278,27 @@ value group_term_descr tdl =
     tdl []
 ;
 
-value rec without_initial_neg =
+value rec without_initial_neg k =
   fun
   [ Minus t₁ t₂ →
-      match without_initial_neg t₁ with
+      match without_initial_neg k t₁ with
       [ Some t₁ → Some (Plus t₁ t₂)
       | None → None ]
   | Neg t →
       Some t
   | Mult t₁ t₂ →
-      match without_initial_neg t₁ with
+      match without_initial_neg k t₁ with
       [ Some t₁ → Some (Mult t₁ t₂)
       | None → None ]
   | Const c →
-      match C.neg_factor c with
+      match k.neg_factor c with
       [ Some c → Some (Const c)
       | None → None ]
   | _ →
       None ]
 ;
 
-value term_of_const_xpow_list t (c, px) =
+value term_of_const_xpow_list k t (c, px) =
   let (is_neg, c) =
     match C.neg_factor c with
     [ Some c → (True, c)
@@ -320,23 +320,23 @@ value term_of_const_xpow_list t (c, px) =
   in
   if t_is_null then t₂
   else
-    match without_initial_neg t₂ with
+    match without_initial_neg k t₂ with
     [ Some t₂ → Minus t t₂
     | None → Plus t t₂ ]
 ;
 
-value expr_of_term_ypow_list t₁ (t₂, py) =
+value expr_of_term_ypow_list k t₁ (t₂, py) =
   let t₂ =
     if py = 0 then t₂
     else
       let (is_neg, t₂) =
-        match without_initial_neg t₂ with
+        match without_initial_neg k t₂ with
         [ Some t₂ → (True, t₂)
         | None → (False, t₂) ]
       in
       let t₂_is_one =
         match t₂ with
-        [ Const c → C.eq c C.one
+        [ Const c → k.eq c k.one
         | _ →  False ]
       in
       let t₂ = if t₂_is_one then Ypower py else Mult t₂ (Ypower py) in
@@ -349,7 +349,7 @@ value expr_of_term_ypow_list t₁ (t₂, py) =
   in
   if t_is_null then t₂
   else
-    match without_initial_neg t₂ with
+    match without_initial_neg k t₂ with
     [ Some t₂ → Minus t₁ t₂
     | None → Plus t₁ t₂ ]
 ;
@@ -409,7 +409,9 @@ value normalize k t =
   let tpl =
     List.map
       (fun (cpl, py) →
-         let t = List.fold_left term_of_const_xpow_list (Const C.zero) cpl in
+         let t =
+           List.fold_left (term_of_const_xpow_list k) (Const C.zero) cpl
+         in
          (t, py))
       cplpl
   in
@@ -424,7 +426,7 @@ value normalize k t =
         tpl
     else ()
   in
-  let t = List.fold_left expr_of_term_ypow_list (Const C.zero) tpl in
+  let t = List.fold_left (expr_of_term_ypow_list k) (Const C.zero) tpl in
   t
 ;
 

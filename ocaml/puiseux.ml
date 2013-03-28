@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.4 2013-03-28 16:16:42 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.5 2013-03-28 16:23:14 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -97,7 +97,7 @@ value end_red = "\027[m";
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
-value rebuild_add_list_x cpl =
+value rebuild_add_list_x k cpl =
   let rebuild_add t (c₁, p₁) =
     if C.eq c₁ C.zero then t
     else
@@ -110,7 +110,7 @@ value rebuild_add_list_x cpl =
            else Mult (Const c₁) xp
        in
        let t₁ =
-         match without_initial_neg t₁ with
+         match without_initial_neg k t₁ with
          [ Some t₁ → Neg t₁
          | None → t₁ ]
        in
@@ -121,7 +121,7 @@ value rebuild_add_list_x cpl =
        in
        if t_is_null then t₁
        else
-         match without_initial_neg t₁ with
+         match without_initial_neg k t₁ with
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
@@ -144,7 +144,7 @@ value print_solution k vx vy finite nth cγl =
          ([(c, γsum) :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
-  let sol = rebuild_add_list_x (List.rev rev_sol) in
+  let sol = rebuild_add_list_x k (List.rev rev_sol) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if not quiet.val then start_red else "") vy
     (inf_string_of_string (soi nth))
@@ -525,7 +525,7 @@ value main () = do {
       let imul i a = C.muli a (I.of_int i) in
       {zero = C.zero; one = C.one; add = C.add; sub = C.add; neg = C.neg;
        mul = C.mul; div = C.div; eq = C.eq; imul = imul;
-       k_to_string = C.to_string arg_lang.val}
+       neg_factor = C.neg_factor; k_to_string = C.to_string arg_lang.val}
     in
     let t = tree_of_ast k vx vy p in
     let t = normalize k t in

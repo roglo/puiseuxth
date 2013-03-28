@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.2 2013-03-28 16:23:14 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -8,7 +8,7 @@ open Pnums_sig;
 
 value quiet = ref True;
 
-value rebuild_add_list_z cpl =
+value rebuild_add_list_z k cpl =
   let rebuild_add t (c₁, p₁) =
     if C.eq c₁ C.zero then t
     else
@@ -25,7 +25,7 @@ value rebuild_add_list_z cpl =
        in
        if t_is_null then t₁
        else
-         match without_initial_neg t₁ with
+         match without_initial_neg k t₁ with
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
@@ -365,7 +365,7 @@ value roots_of_c_coeffs k cpl coeffs =
       [ (Some a, Some b, Some c) →
           roots_of_2nd_deg_polynom_with_algebraic_coeffs a b c
       | _ →
-          let polyn = rebuild_add_list_z cpl in
+          let polyn = rebuild_add_list_z k cpl in
           failwith
             (sprintf "cannot compute roots of '%s'"
                (string_of_tree k True "x" "y" polyn)) ]
@@ -374,7 +374,7 @@ value roots_of_c_coeffs k cpl coeffs =
       match algeb_nb with
       [ Some x →
           let t = Mult (Const (C.of_a x)) (Ypower 1) in
-          let polyn = rebuild_add_list_z cpl in
+          let polyn = rebuild_add_list_z k cpl in
           let polyn₂ = substitute_y k t polyn in
           let polyn₂ = normalize k polyn₂ in
           let cplpl = group k polyn₂ in
@@ -396,7 +396,7 @@ value roots_of_c_coeffs k cpl coeffs =
           in
           match cnl_opt with
           [ Some cnl →
-              let polyn = rebuild_add_list_z cnl in
+              let polyn = rebuild_add_list_z k cnl in
               failwith
                 (sprintf "not impl substituted polynomial %s"
                    (string_of_tree k True "x" "y" polyn))
@@ -405,7 +405,7 @@ value roots_of_c_coeffs k cpl coeffs =
                 (sprintf "cannot compute roots of '%s'\n%!"
                    (string_of_tree k True "x" "y" polyn)) ]
       | None →
-          let polyn = rebuild_add_list_z cpl in
+          let polyn = rebuild_add_list_z k cpl in
           failwith
             (sprintf "cannot compute roots of '%s'\n%!"
                (string_of_tree k True "x" "y" polyn)) ];
@@ -546,7 +546,7 @@ value roots k cpl = do {
   let g = List.fold_left (fun g (c, _) → C.gcd g c) C.zero cpl in
   let cpl = List.map (fun (c, p) → (C.div c g, p / power_gcd)) cpl in
   if not quiet.val then do {
-    let polyn = rebuild_add_list_z cpl in
+    let polyn = rebuild_add_list_z k cpl in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" polyn)
     else
