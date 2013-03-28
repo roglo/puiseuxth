@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.2 2013-03-28 16:07:39 deraugla Exp $ *)
 
 open Pnums_sig;
 
@@ -97,7 +97,7 @@ module A₂ :
     value of_i : I.t → t;
     value of_q : Q.t → t;
     value of_expr : MLast.expr → option t;
-    value to_string : t → string;
+    value to_string : bool → t → string;
     value to_expr : t → MLast.expr;
   end
 ;

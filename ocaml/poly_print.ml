@@ -1,4 +1,4 @@
-(* $Id: poly_print.ml,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+(* $Id: poly_print.ml,v 1.2 2013-03-28 16:07:39 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -76,14 +76,14 @@ value gen_string_of_expr airy opt =
     match e with
     [ << $e₁$ + $e₂$ >> →
         match a₂_type e with
-        [ Some a → A₂.to_string a
+        [ Some a → A₂.to_string (not opt) a
         | None →
             match without_initial_neg e₂ with
             [ Some e₂ → sprintf "%s%s-%s%s" (expr ai e₁) ai ai (expr₁ e₂)
             | None → sprintf "%s%s+%s%s" (expr ai e₁) ai ai (expr₁ e₂) ] ]
     | << $e₁$ - $e₂$ >> →
         match a₂_type e with
-        [ Some a → A₂.to_string a
+        [ Some a → A₂.to_string (not opt) a
         | None → sprintf "%s%s-%s%s" (expr ai e₁) ai ai (expr₁ e₂) ]
     | e →
         expr₁ e ]

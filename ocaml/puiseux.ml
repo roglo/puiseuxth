@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.2 2013-03-28 15:59:50 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.3 2013-03-28 16:07:39 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -426,7 +426,7 @@ value arg_parse () =
       eprintf "-f, --file <name>     Read polynomial in file, 1 monom/line\n";
       eprintf "-n, --nb-steps <num>  Number of steps (default: 5)\n";
       eprintf "-v, --verbose         Display computation details\n";
-      eprintf "-l, --prog-lang       Display prog lang style with * and ^\n";
+      eprintf "-l, --prog-lang       Display prog lang style with *, ^\n";
       eprintf "-w, --with-sqrt-x     Display x¹ᐟ² and x¹ᐟ³ as √x and ∛x\n";
       eprintf "-c, --cut-long        Cut too long lines in verbose mode\n";
       eprintf "-d, --debug           Debug mode\n";

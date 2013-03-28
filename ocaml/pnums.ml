@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.2 2013-03-28 16:07:39 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -299,12 +299,13 @@ module A₂ =
     value zero = make Q.zero Q.zero I.zero;
     value one = make Q.one Q.zero I.zero;
     value minus_one = make Q.minus_one Q.zero I.zero;
-    value to_string x =
+    value to_string prog_lang x =
       let sa = Q.to_string x.a in
       let sr =
         if I.eq (Q.rnum x.b) I.zero then ""
         else if I.lt x.d I.zero then
           if I.eq x.d I.minus_one then "i"
+          else if prog_lang then sprintf "i*sqrt(%s)" (I.ts (I.neg x.d))
           else sprintf "i√%s" (I.ts (I.neg x.d))
         else
           sprintf "√%s" (I.ts x.d)
@@ -396,7 +397,8 @@ module A₂ =
         norm {a = Q.zero; b = Q.mul x.b y.b; d = I.mul x.d y.d}
       else
         failwith
-          (sprintf "A₂.mul : à voir (%s)(%s)" (to_string x) (to_string y))
+          (sprintf "A₂.mul : à voir (%s)(%s)" (to_string False x)
+             (to_string False y))
     ;
     value div x y =
       if I.eq x.d y.d then
@@ -562,7 +564,7 @@ module C =
     ;
     value to_string prog_lang =
       fun
-      [ Nalg x → A₂.to_string x
+      [ Nalg x → A₂.to_string prog_lang x
       | Ncpl c → complex_to_string prog_lang c ]
     ;
     value power_rat x r =
