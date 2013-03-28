@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.8 2013-03-28 20:26:34 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.9 2013-03-28 21:37:59 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -54,8 +54,10 @@ value main () = do {
     let imul i a = C.muli a (I.of_int i) in
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
      mul = C.mul; div = C.div; minus_one = C.minus_one; eq = C.eq;
-     imul = imul; norm = C.norm; neg_factor = C.neg_factor;
-     of_i = C.of_i; of_a = C.of_a; of_float_string = C.of_float_string;
+     imul = imul; gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor;
+     of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
+     of_float_string = C.of_float_string;
+     to_q = C.to_q; to_a = C.to_a; to_complex = C.to_complex;
      to_string = C.to_string False}
   in
   let p = parse_poly s in

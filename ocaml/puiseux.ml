@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.10 2013-03-28 21:37:59 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.11 2013-03-28 21:41:13 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -99,14 +99,14 @@ value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
 value rebuild_add_list_x k cpl =
   let rebuild_add t (c₁, p₁) =
-    if C.eq c₁ C.zero then t
+    if k.eq c₁ k.zero then t
     else
        let t₁ =
          if Q.eq p₁ Q.zero then Const c₁
          else
            let xp = xpower p₁ in
-           if C.eq c₁ C.one then xp
-           else if C.eq c₁ C.minus_one then Neg xp
+           if k.eq c₁ k.one then xp
+           else if k.eq c₁ k.minus_one then Neg xp
            else Mult (Const c₁) xp
        in
        let t₁ =
@@ -116,7 +116,7 @@ value rebuild_add_list_x k cpl =
        in
        let t_is_null =
          match t with
-         [ Const c → C.eq c C.zero
+         [ Const c → k.eq c k.zero
          | _ → False ]
        in
        if t_is_null then t₁
@@ -125,7 +125,7 @@ value rebuild_add_list_x k cpl =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const C.zero) cpl
+  List.fold_left rebuild_add (Const k.zero) cpl
 ;
 
 value arg_polynom = ref None;
@@ -160,7 +160,7 @@ value cancel_constant_term_if_any k t =
       if Q.eq td.xpow Q.zero && td.ypow = 0 then do {
         if not quiet.val then
           printf "Warning: cancelling constant term: %s\n%!"
-            (C.to_string False td.const)
+            (k.to_string td.const)
         else ();
         match tl₁ with
         [ [t₂ :: tl₂] → List.fold_left (fun t₁ t₂ → Plus t₁ t₂) t₂ tl₂
@@ -183,7 +183,7 @@ type branch α =
 value puiseux_iteration k br r m γ β nth_sol = do {
   let ss = inf_string_of_string (string_of_int br.step) in
   if not quiet.val then
-    printf "\nc%s = %s  r%s = %d\n\n%!" ss (C.to_string False r) ss m
+    printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
   else ();
   let y =
     let cpy = Plus (Const r) (Ypower 1) in
@@ -280,7 +280,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   else
     List.iter
       (fun (r, m) →
-         if C.eq r C.zero then ()
+         if k.eq r k.zero then ()
          else
            match puiseux_iteration k br r m γ β nth_sol with
            [ Some (t, cγl) → next_step k br nth_sol t cγl
