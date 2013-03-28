@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2013-03-28 13:24:19 deraugla Exp $
+# $Id: Makefile,v 1.2 2013-03-28 13:34:22 deraugla Exp $
 
 TARGET=puiseux.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo puiseux.cmo
@@ -15,8 +15,6 @@ OCAMLC=ocamlc.opt -g
 OCAMLOPT=ocamlopt.opt
 
 all: opt ugly
-	@echo
-	@echo 'available commands: puiseux, ugly'
 
 out: q_def_expr.cmo $(TARGET)
 	cp puiseux.out puiseux

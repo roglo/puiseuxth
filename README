@@ -1,7 +1,9 @@
 OVERVIEW
 
 Computation of roots of polynomials of Puiseux's series.
-Libra
+
+Also building of a library function computing float complex roots of
+any polynomial. See in directory 'cpoly' for details.
 
 COMPILATION
 
