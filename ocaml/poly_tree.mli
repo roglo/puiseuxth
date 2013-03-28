@@ -1,7 +1,7 @@
-(* $Id: poly_tree.mli,v 1.4 2013-03-28 16:35:09 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.5 2013-03-28 20:01:35 deraugla Exp $ *)
 
 open Pnums;
-open Pnums_sig;
+open Field;
 
 type tree α =
   [ Plus of tree α and tree α

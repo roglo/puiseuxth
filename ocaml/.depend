@@ -1,6 +1,5 @@
 pnums.cmo: pnums.cmi
 pnums.cmx: pnums.cmi
-pnums.cmi: pnums_sig.cmi
 poly_fun.cmo: pnums.cmi poly_fun.cmi
 poly_fun.cmx: pnums.cmx poly_fun.cmi
 poly_fun.cmi: pnums.cmi
@@ -15,8 +14,8 @@ puiseux.cmo: field.cmo pnums.cmi poly_lex.cmo poly_parse.cmo poly_print.cmo \
     poly_tree.cmi roots.cmi version.cmo
 puiseux.cmx: field.cmx pnums.cmx poly_lex.cmx poly_parse.cmx poly_print.cmx \
     poly_tree.cmx roots.cmx version.cmx
-roots.cmo: pnums.cmi pnums_sig.cmi poly_fun.cmi poly_tree.cmi roots.cmi
-roots.cmx: pnums.cmx pnums_sig.cmi poly_fun.cmx poly_tree.cmx roots.cmi
+roots.cmo: pnums.cmi poly_fun.cmi poly_tree.cmi roots.cmi
+roots.cmx: pnums.cmx poly_fun.cmx poly_tree.cmx roots.cmi
 roots.cmi: field.cmo pnums.cmi
 ugly.cmo: field.cmo pnums.cmi poly_parse.cmo poly_print.cmo poly_tree.cmi
 ugly.cmx: field.cmx pnums.cmx poly_parse.cmx poly_print.cmx poly_tree.cmx

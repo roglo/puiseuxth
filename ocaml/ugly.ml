@@ -1,9 +1,9 @@
-(* $Id: ugly.ml,v 1.5 2013-03-28 16:35:09 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.6 2013-03-28 20:01:35 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
 open Pnums;
-open Pnums_sig;
+open Field;
 open Poly_parse;
 open Poly_print;
 open Poly_tree;
