@@ -1,24 +1,7 @@
-(* $Id: pnums_sig.mli,v 1.5 2013-03-28 16:35:09 deraugla Exp $ *)
+(* $Id: pnums_sig.mli,v 1.6 2013-03-28 16:47:34 deraugla Exp $ *)
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
-
-type field α =
-  { zero : α;
-    one : α;
-    add : α → α → α;
-    sub : α → α → α;
-    neg : α → α;
-    mul : α → α → α;
-    div : α → α → α;
-    (* extra *)
-    minus_one : α;
-    norm : α → α;
-    eq : α → α → bool;
-    imul : int → α → α;
-    neg_factor : α → option α;
-    to_string : α → string }
-;
 
 module type Csig =
   sig
@@ -55,3 +38,20 @@ module type Csig =
     value of_complex : complex → t;
     value check : t → unit;
   end;
+
+type field α =
+  { zero : α;
+    one : α;
+    add : α → α → α;
+    sub : α → α → α;
+    neg : α → α;
+    mul : α → α → α;
+    div : α → α → α;
+    (* extra *)
+    minus_one : α;
+    norm : α → α;
+    eq : α → α → bool;
+    imul : int → α → α;
+    neg_factor : α → option α;
+    to_string : α → string }
+;

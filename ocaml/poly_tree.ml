@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.5 2013-03-28 16:35:09 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.6 2013-03-28 16:45:28 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -437,6 +437,15 @@ value mult k t₁ t₂ =
   | (t₁, t₂) → Mult t₁ t₂ ]
 ;
 
+value multi k i t =
+  match t with
+  [ Const c → Const (k.mul (C.of_i i) c)
+  | t →
+      if I.eq i I.zero then Const k.zero
+      else if I.eq i I.one then t
+      else Mult (Const (C.of_i i)) t ]
+;
+
 value power_int k a b =
   if b ≥ 0 then
     loop b k.one where rec loop b r =
@@ -465,7 +474,7 @@ value tree_power (k : field _) t p =
       let c = comb n i in
       let t₁ = expr_power t₁ (n - i) in
       let t₂ = expr_power t₂ i in
-      let t = mult k (mult k (Const (C.of_i c)) t₁) t₂ in
+      let t = mult k (multi k c t₁) t₂ in
       if i = 0 then t
       else Plus (loop (i - 1)) t
   in
