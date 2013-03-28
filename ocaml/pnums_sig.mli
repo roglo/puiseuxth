@@ -1,15 +1,16 @@
-(* $Id: pnums_sig.mli,v 1.2 2013-03-28 15:59:50 deraugla Exp $ *)
+(* $Id: pnums_sig.mli,v 1.3 2013-03-28 16:16:42 deraugla Exp $ *)
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
 
 type field α =
-  { add : α → α → α;
+  { zero : α;
+    one : α;
+    add : α → α → α;
     sub : α → α → α;
     neg : α → α;
     mul : α → α → α;
     div : α → α → α;
-    one : α;
     (* extra *)
     eq : α → α → bool;
     imul : int → α → α;

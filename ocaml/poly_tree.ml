@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.2 2013-03-28 15:59:50 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.3 2013-03-28 16:16:42 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -510,7 +510,7 @@ value rec tree_with_pow_y (k : field _) t =
 
 value compare_expr_pow cmp (_, n₁) (_, n₂) = cmp n₁ n₂;
 
-value uniq_expr_pow cmp =
+value uniq_expr_pow k cmp =
   loop where rec loop =
     fun
     [ [(t₁, p₁); (t₂, p₂) :: tnl] →
@@ -518,8 +518,8 @@ value uniq_expr_pow cmp =
         if c = 0 then
           match (t₁, t₂) with
           [ (Const tn₁, Const tn₂) →
-              let n = C.add tn₁ tn₂ in
-              if C.eq n C.zero then tnl
+              let n = k.add tn₁ tn₂ in
+              if k.eq n k.zero then tnl
               else loop [(Const n, p₁) :: tnl]
           | _ →
               loop [(Plus t₁ t₂, p₁) :: tnl] ]
@@ -540,7 +540,7 @@ value tree_pow_list_y (k : field _) t =
   let tl = sum_tree_of_tree t in
   let tnl = List.map (tree_with_pow_y k) tl in
   let tnl = List.sort (compare_expr_pow \-) tnl in
-  let tnl = uniq_expr_pow \- tnl in
+  let tnl = uniq_expr_pow k \- tnl in
   if is_neg then List.map (fun (t, n) → (Neg t, n)) tnl
   else tnl
 ;
@@ -553,7 +553,7 @@ value rec expr_with_pow_x k t =
   | Mult t₁ (Xpower n d) →
       (t₁, Q.make (I.of_int n) (I.of_int d))
   | Xpower n d →
-      (Const C.one, Q.make (I.of_int n) (I.of_int d))
+      (Const k.one, Q.make (I.of_int n) (I.of_int d))
   | Const _ →
       (t, Q.zero)
   | t →
@@ -562,14 +562,14 @@ value rec expr_with_pow_x k t =
            (string_of_tree k False "x" "y" t)) ]
 ;
 
-value rec const_of_tree =
+value rec const_of_tree k =
   fun
   [ Const c → c
-  | Neg t → C.neg (const_of_tree t)
+  | Neg t → k.neg (const_of_tree k t)
   | _ → failwith "const_of_tree" ]
 ;
 
-value const_pow_list_x k t =
+value const_pow_list_x (k : field _) t =
   let (is_neg, t) =
     match t with
     [ Neg t → (True, t)
@@ -578,8 +578,8 @@ value const_pow_list_x k t =
   let tl = sum_tree_of_tree t in
   let tpl = List.map (expr_with_pow_x k) tl in
   let tpl = List.sort (compare_expr_pow Q.compare) tpl in
-  let tpl = uniq_expr_pow Q.compare tpl in
-  let cpl = List.map (fun (t, p) → (const_of_tree t, p)) tpl in
-  if is_neg then List.map (fun (c, n) → (C.neg c, n)) cpl
+  let tpl = uniq_expr_pow k Q.compare tpl in
+  let cpl = List.map (fun (t, p) → (const_of_tree k t, p)) tpl in
+  if is_neg then List.map (fun (c, n) → (k.neg c, n)) cpl
   else cpl
 ;

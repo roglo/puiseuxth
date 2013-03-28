@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.3 2013-03-28 16:07:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.4 2013-03-28 16:16:42 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -523,8 +523,8 @@ value main () = do {
     in
     let k =
       let imul i a = C.muli a (I.of_int i) in
-      {one = C.one; add = C.add; sub = C.add; neg = C.neg; mul = C.mul;
-       div = C.div; eq = C.eq; imul = imul;
+      {zero = C.zero; one = C.one; add = C.add; sub = C.add; neg = C.neg;
+       mul = C.mul; div = C.div; eq = C.eq; imul = imul;
        k_to_string = C.to_string arg_lang.val}
     in
     let t = tree_of_ast k vx vy p in
