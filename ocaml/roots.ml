@@ -1,10 +1,9 @@
-(* $Id: roots.ml,v 1.2 2013-03-28 16:23:14 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.3 2013-03-28 20:06:16 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
 open Poly_fun;
 open Poly_tree;
-open Pnums_sig;
 
 value quiet = ref True;
 
