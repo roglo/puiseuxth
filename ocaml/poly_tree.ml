@@ -1,0 +1,577 @@
+(* $Id: poly_tree.ml,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+
+#load "q_MLast.cmo";
+#load "pa_macro.cmo";
+
+IFDEF CAMLP5_6_09 THEN
+#option "-dquot" "expr";
+ELSE
+#load "./q_def_expr.cmo";
+END;
+
+open Printf;
+open Pnums;
+open Pnums_sig;
+
+type tree α =
+  [ Plus of tree α and tree α
+  | Minus of tree α and tree α
+  | Neg of tree α
+  | Mult of tree α and tree α
+  | Xpower of int and int
+  | Ypower of int
+  | Const of α ]
+;
+
+type term_descr α = { const : α; xpow : Q.t; ypow : int };
+
+value rec comb n k =
+  if n ≤ 0 || k < 0 || k > n then invalid_arg (sprintf "comb n=%d k=%d" n k)
+  else if n = 1 || k = 0 || k = n then I.one
+  else I.add (comb (n-1) (k-1)) (comb (n-1) k)
+;
+
+value rec expr_power t n d =
+  match t with
+  [ Plus t₁ t₂ →
+      if d <> 1 then failwith "bad sum power"
+      else if n = 0 then Const C.one
+      else expr_plus_power t₁ t₂ n
+  | Minus t₁ t₂ →
+      if d <> 1 then failwith "bad diff power"
+      else if n = 0 then Const C.one
+      else expr_plus_power t₁ (Neg t₂) n
+  | Neg t →
+      let t = expr_power t n d in
+      if d = 1 then if n mod 2 = 0 then t else Neg t
+      else failwith "not impl expr_power Neg"
+  | Mult t₁ t₂ →
+      Mult (expr_power t₁ n d) (expr_power t₂ n d)
+  | Xpower n₁ d₁ →
+      let n = n₁ * n in
+      let d = d₁ * d in
+      let g = gcd n d in
+      Xpower (n / g) (d / g) 
+  | Ypower n₁ →
+      let n = n₁ * n in
+      let g = gcd n d in
+      let n = n / g in
+      let d = d / g in
+      if n < 0 || d <> 1 then failwith "bad y power"
+      else Ypower n
+  | Const c →
+      if d = 1 then Const (C.power c (C.of_q (Q.of_i (I.of_int n))))
+      else failwith "not impl expr_power Const" ]
+and expr_plus_power t₁ t₂ n =
+  loop n where rec loop k =
+    let c = comb n k in
+    let t₁ = expr_power t₁ (n - k) 1 in
+    let t₂ = expr_power t₂ k 1 in
+    let t = Mult (Mult (Const (C.of_i c)) t₁) t₂ in
+    if k = 0 then t
+    else Plus (loop (k - 1)) t
+;
+
+value tree_of_ast k vx vy =
+  let rec expr =
+    fun
+    [ << $e₁$ + $e₂$ >> →
+        match (expr e₁, expr e₂) with
+        [ (Const c₁, Const c₂) → Const (k.add c₁ c₂)
+        | (t₁, t₂) → Plus t₁ t₂ ]
+    | << $e₁$ - $e₂$ >> →
+        match (expr e₁, expr e₂) with
+        [ (Const c₁, Const c₂) → Const (k.sub c₁ c₂)
+        | (t₁, t₂) → Minus t₁ t₂ ]
+    | << - $e$ >> →
+        match expr e with
+        [ Const c → Const (k.neg c)
+        | t → Neg t ]
+    | << $e₁$ * $e₂$ >> →
+        match (expr e₁, expr e₂) with
+        [ (Const c₁, Const c₂) → Const (k.mul c₁ c₂)
+        | (t₁, t₂) → Mult t₁ t₂ ]
+    | << $e$ / $int:n$ >> →
+        match expr e with
+        [ Const c → Const (k.div c (C.of_i (I.os n)))
+        | x → not_impl (sprintf "toa ?/%s" n) x ]
+    | << $e₁$ ** $e₂$ >> →
+        match e₂ with
+        [ << $int:n$ >> → expr_power (expr e₁) (ios n) 1
+        | << $int:n$ / $int:d$ >> → expr_power (expr e₁) (ios n) (ios d)
+        | _ → failwith "toa ** not int" ]
+    | << $lid:s$ >> →
+        if s = vx then Xpower 1 1
+        else if s = vy then Ypower 1
+        else if s = "i" then Const (C.of_a (A₂.make Q.zero Q.one I.minus_one))
+        else failwith (sprintf "toa lid %s" s)
+    | << $int:s$ >> →
+        Const (C.of_i (I.os s))
+    | << $flo:s$ >> →
+        Const (C.of_float_string s)
+    | << $lid:s$ $_$ $_$ >> →
+        failwith (sprintf "toa op %s" s)
+    | << $lid:s$ $_$ >> →
+        failwith (sprintf "toa unop %s" s)
+    | e →
+        not_impl "tree_of_ast" e ]
+  in
+  expr
+;
+
+value gen_string_of_tree (k : field _) airy opt vx vy =
+  let rec expr ai =
+    fun
+    [ Plus t₁ t₂ → sprintf "%s%s+%s%s" (expr ai t₁) ai ai (expr₁ t₂)
+    | Minus t₁ t₂ → sprintf "%s%s-%s%s" (expr ai t₁) ai ai (expr₁ t₂)
+    | t → expr₁ t ]
+  and expr₁ =
+    fun
+    [ Neg t → sprintf "-%s" (expr₁ t)
+    | t → expr₂ t ]
+  and expr₂ =
+    fun
+    [ Mult t₁ t₂ →
+        let op = if opt then "" else "*" in
+        sprintf "%s%s%s" (expr₂ t₁) op (expr₃ t₂)
+    | t → expr₃ t ]
+  and expr₃ =
+    fun
+    [ Xpower n d →
+        if d = 1 then
+          if n = 1 then vx
+          else if opt then sprintf "%s%s" vx (sup_string_of_string (soi n))
+          else sprintf "%s^%d" vx n
+        else if n > 0 && Poly_print.with_sqrt_x.val && d ≤ 3 then
+          if d = 2 then
+            if n = 1 then sprintf "√%s" vx
+            else
+              match n mod 2 with
+              [ 1 →
+                  let n = n / 2 in
+                  if n = 1 then sprintf "%s√%s" vx vx
+                  else sprintf "%s%s√%s" vx (sup_string_of_string (soi n)) vx
+              | _ →
+                  let _ = printf "n %d d %d\n%!" n d in
+                  match () with [] ]
+          else
+            if n = 1 then sprintf "∛%s" vx
+            else if n = 2 then sprintf "∛%s²" vx
+            else
+              match n mod 3 with
+              [ 1 →
+                  let n = n / 3 in
+                  if n = 1 then sprintf "%s∛%s" vx vx
+                  else sprintf "%s%s∛%s" vx (sup_string_of_string (soi n)) vx
+              | 2 →
+                  let n = n / 3 in
+                  if n = 1 then sprintf "%s∛%s²" vx vx
+                  else sprintf "%s%s∛%s²" vx (sup_string_of_string (soi n)) vx
+              | _ →
+                  let _ = printf "n %d d %d\n%!" n d in
+                  match () with [] ]
+        else if opt then
+          sprintf "%s%s" vx (sup_string_of_string (soi n ^ "/" ^ soi d))
+        else
+          sprintf "%s^(%d/%d)" vx n d
+    | Ypower n →
+        if n = 1 then vy
+        else if opt then sprintf "%s%s" vy (sup_string_of_string (soi n))
+        else sprintf "%s^%d" vy n
+    | Const c →
+        k.k_to_string c
+    | Plus _ _ | Minus _ _ | Neg _ | Mult _ _ as t →
+        sprintf "(%s)" (expr "" t) ]
+  in
+  expr (if airy then " " else "")
+;
+
+value string_of_tree k = gen_string_of_tree k False;
+value airy_string_of_tree k = gen_string_of_tree k True;
+
+value rec is_factor =
+  fun
+  [ Plus _ _ → False
+  | Minus _ _ → False
+  | Neg t → is_factor t
+  | Mult t₁ t₂ → is_factor t₁ && is_factor t₂
+  | Xpower _ _ → True
+  | Ypower _ → True
+  | Const _ → True ]
+;
+
+value rec flatten t tl =
+  if is_factor t then [t :: tl]
+  else
+    match t with
+    [ Plus t₁ t₂ →
+        flatten t₁ (flatten t₂ tl)
+    | Minus t₁ t₂ →
+        flatten t₁ (flatten (Neg t₂) tl)
+    | Neg t →
+        let tl₁ = List.map (fun t → Neg t) (flatten t []) in
+        tl₁ @ tl
+    | Mult t₁ t₂ →
+        let tl₁ = flatten t₁ [] in
+        let tl₂ = flatten t₂ [] in
+        List.fold_right
+          (fun t₂ → List.fold_right (fun t₁ → flatten (Mult t₁ t₂)) tl₁)
+          tl₂ tl
+    | Xpower _ _ | Ypower _ | Const _ →
+        [t :: tl] ]
+;
+
+value term_descr_of_term k =
+  let rec term td =
+    fun
+    [ Plus _ _ → match () with []
+    | Minus _ _ → match () with []
+    | Neg t →
+        let td = term td t in
+        {(td) with const = k.neg td.const}
+    | Mult t₁ t₂ →
+        let td = term td t₁ in
+        term td t₂
+    | Xpower p q →
+        let xpow = Q.norm (Q.add td.xpow (Q.make (I.of_int p) (I.of_int q))) in
+        {(td) with xpow = xpow}
+    | Ypower i →
+        {(td) with ypow = td.ypow + i}
+    | Const c →
+        {(td) with const = k.mul td.const c} ]
+  in
+  term {const = k.one; xpow = Q.zero; ypow = 0}
+;
+
+value compare_descr td₁ td₂ =
+  if td₁.ypow < td₂.ypow then -1
+  else if td₁.ypow > td₂.ypow then 1
+  else if Q.eq td₁.xpow td₂.xpow then 0
+  else if Q.le td₁.xpow td₂.xpow then -1
+  else 1
+;
+
+value merge_const_px (c, px) cpl =
+  match cpl with
+  [ [(c₁, px₁) :: cpl₁] →
+      if Q.eq px px₁ then
+        let c = C.norm (C.add c c₁) in
+        if C.eq c C.zero then cpl₁
+        else [(c, px) :: cpl₁]
+      else if C.eq c C.zero then cpl
+      else [(c, px) :: cpl]
+  | [] →
+      if C.eq c C.zero then [] else [(c, px)] ]
+;
+
+value group_term_descr tdl =
+  List.fold_right
+    (fun td cplpl →
+       let cp = (td.const, td.xpow) in
+       match cplpl with
+       [ [(cpl, py) :: cplpl₁] →
+           if td.ypow = py then
+             let cpl = merge_const_px cp cpl in
+             if cpl = [] then cplpl₁ else [(cpl, py) :: cplpl₁]
+           else [([cp], td.ypow) :: cplpl]
+       | [] → [([cp], td.ypow)] ])
+    tdl []
+;
+
+value rec without_initial_neg =
+  fun
+  [ Minus t₁ t₂ →
+      match without_initial_neg t₁ with
+      [ Some t₁ → Some (Plus t₁ t₂)
+      | None → None ]
+  | Neg t →
+      Some t
+  | Mult t₁ t₂ →
+      match without_initial_neg t₁ with
+      [ Some t₁ → Some (Mult t₁ t₂)
+      | None → None ]
+  | Const c →
+      match C.neg_factor c with
+      [ Some c → Some (Const c)
+      | None → None ]
+  | _ →
+      None ]
+;
+
+value term_of_const_xpow_list t (c, px) =
+  let (is_neg, c) =
+    match C.neg_factor c with
+    [ Some c → (True, c)
+    | None → (False, c) ]
+  in
+  let t₂ =
+    if Q.eq px Q.zero then Const c
+    else
+      let tx = Xpower (I.to_int (Q.rnum px)) (I.to_int (Q.rden px)) in
+      if C.eq c C.one then tx
+      else if C.eq c C.minus_one then Neg tx
+      else Mult (Const c) tx
+  in
+  let t₂ = if is_neg then Neg t₂ else t₂ in
+  let t_is_null =
+    match t with
+    [ Const c₀ → C.eq c₀ C.zero
+    | _ → False ]
+  in
+  if t_is_null then t₂
+  else
+    match without_initial_neg t₂ with
+    [ Some t₂ → Minus t t₂
+    | None → Plus t t₂ ]
+;
+
+value expr_of_term_ypow_list t₁ (t₂, py) =
+  let t₂ =
+    if py = 0 then t₂
+    else
+      let (is_neg, t₂) =
+        match without_initial_neg t₂ with
+        [ Some t₂ → (True, t₂)
+        | None → (False, t₂) ]
+      in
+      let t₂_is_one =
+        match t₂ with
+        [ Const c → C.eq c C.one
+        | _ →  False ]
+      in
+      let t₂ = if t₂_is_one then Ypower py else Mult t₂ (Ypower py) in
+      if is_neg then Neg t₂ else t₂
+  in
+  let t_is_null =
+    match t₁ with
+    [ Const c₀ → C.eq c₀ C.zero
+    | _ → False ]
+  in
+  if t_is_null then t₂
+  else
+    match without_initial_neg t₂ with
+    [ Some t₂ → Minus t₁ t₂
+    | None → Plus t₁ t₂ ]
+;
+
+value debug_n = False;
+
+value group k t =
+  let _ =
+    if debug_n then
+      printf "    tree: %s\n%!" (string_of_tree k True "x" "y" t)
+    else ()
+  in
+  let tl = flatten t [] in
+  let _ = if debug_n then printf "normalize flatten\n%!" else () in
+  let _ =
+    if debug_n then
+      List.iter
+        (fun t → printf "  %s\n%!" (string_of_tree k True "x" "y" t)) tl
+    else ()
+  in
+  let tdl = List.map (term_descr_of_term k) tl in
+  let _ = if debug_n then printf "normalize term_descr_of_term\n%!" else () in
+  let _ =
+    if debug_n then
+      List.iter
+        (fun td →
+           printf "  const %s xpow %s ypow %d\n%!"
+             (C.to_string False td.const) (Q.to_string td.xpow) td.ypow)
+        tdl
+    else ()
+  in
+  let tdl = List.sort compare_descr tdl in
+(*
+let _ = printf "normalize compare_descr\n%!" in
+let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
+*)
+  group_term_descr tdl
+;
+
+value normalize k t =
+  let cplpl = group k t in
+  let _ = if debug_n then printf "normalize group_term_descr\n%!" else () in
+  let _ =
+    if debug_n then
+      List.iter
+        (fun (cpl, py) → do {
+           printf "  py %d\n%!" py;
+           List.iter
+             (fun (cst, px) →
+                printf "    cst %s px %s\n%!" (C.to_string False cst)
+                  (Q.to_string px))
+             cpl
+         })
+        cplpl
+    else ()
+  in
+  let tpl =
+    List.map
+      (fun (cpl, py) →
+         let t = List.fold_left term_of_const_xpow_list (Const C.zero) cpl in
+         (t, py))
+      cplpl
+  in
+  let _ =
+    if debug_n then printf "normalize term_of_const_xpow_list\n%!" else ()
+  in
+  let _ =
+    if debug_n then
+      List.iter
+        (fun (t, py) →
+           printf "  t %s py %d\n%!" (string_of_tree k True "x" "y" t) py)
+        tpl
+    else ()
+  in
+  let t = List.fold_left expr_of_term_ypow_list (Const C.zero) tpl in
+  t
+;
+
+value mult t₁ t₂ =
+  match (t₁, t₂) with
+  [ (Const c₁, Const c₂) → Const (C.mul c₁ c₂)
+  | (Const c, t₂) → if C.eq c C.one then t₂ else Mult t₁ t₂
+  | (t₁, t₂) → Mult t₁ t₂ ]
+;
+
+value tree_power k t p =
+  let rec expr_power t p =
+    match t with
+    [ Plus t₁ t₂ → plus_power t₁ t₂ p
+    | Mult t₁ t₂ → mult (expr_power t₁ p) (expr_power t₂ p)
+    | Const c → Const (C.power c (C.of_i (I.of_int p)))
+    | Xpower n d →
+        let n = n * p in
+        let g = gcd n d in
+        Xpower (n / g) (d / g)
+    | Ypower n →
+        let n = n * p in
+        if n = 0 then Const C.one else Ypower n
+    | t →
+        failwith (sprintf "tree_power %s" (string_of_tree k True "x" "y" t)) ]
+  and plus_power t₁ t₂ n =
+    loop n where rec loop k =
+      let c = comb n k in
+      let t₁ = expr_power t₁ (n - k) in
+      let t₂ = expr_power t₂ k in
+      let t = mult (mult (Const (C.of_i c)) t₁) t₂ in
+      if k = 0 then t
+      else Plus (loop (k - 1)) t
+  in
+  expr_power t p
+;
+
+value substitute_y k y t =
+  let rec tree t =
+    match t with
+    [ Plus t₁ t₂ → Plus (tree t₁) (tree t₂)
+    | Minus t₁ t₂ → Minus (tree t₁) (tree t₂)
+    | Neg t → Neg (tree t)
+    | Mult t₁ t₂ → Mult (tree t₁) (tree t₂)
+    | Ypower py → tree_power k y py
+    | Xpower _ _ | Const _ → t ]
+  in
+  tree t
+;
+
+value sum_tree_of_tree t =
+  expr [] t where rec expr list =
+    fun
+    [ Plus t₁ t₂ → expr [t₂ :: list] t₁
+    | Minus t₁ t₂ → expr [Neg t₂ :: list] t₁
+    | t → [t :: list] ]
+;
+
+value rec tree_with_pow_y (k : field _) t =
+  match t with
+  [ Neg t →
+      let (t, n) = tree_with_pow_y k t in
+      (Neg t, n)
+  | Mult t₁ (Ypower n) →
+      (t₁, n)
+  | Ypower n →
+      (Const k.one, n)
+  | Xpower _ _ | Mult _ _ | Const _ →
+      (t, 0)
+  | t →
+      failwith
+        (sprintf "not_impl \"tree_with_pow_y\" %s"
+           (string_of_tree k False "x" "y" t)) ]
+;
+
+value compare_expr_pow cmp (_, n₁) (_, n₂) = cmp n₁ n₂;
+
+value uniq_expr_pow cmp =
+  loop where rec loop =
+    fun
+    [ [(t₁, p₁); (t₂, p₂) :: tnl] →
+        let c = cmp p₁ p₂ in
+        if c = 0 then
+          match (t₁, t₂) with
+          [ (Const tn₁, Const tn₂) →
+              let n = C.add tn₁ tn₂ in
+              if C.eq n C.zero then tnl
+              else loop [(Const n, p₁) :: tnl]
+          | _ →
+              loop [(Plus t₁ t₂, p₁) :: tnl] ]
+        else if c < 0 then
+          [(t₁, p₁) :: loop [(t₂, p₂) :: tnl]]
+        else
+          match () with []
+    | [tn] → [tn]
+    | [] → [] ]
+;
+
+value tree_pow_list_y (k : field _) t =
+  let (is_neg, t) =
+    match t with
+    [ Neg t → (True, t)
+    | _ → (False, t) ]
+  in
+  let tl = sum_tree_of_tree t in
+  let tnl = List.map (tree_with_pow_y k) tl in
+  let tnl = List.sort (compare_expr_pow \-) tnl in
+  let tnl = uniq_expr_pow \- tnl in
+  if is_neg then List.map (fun (t, n) → (Neg t, n)) tnl
+  else tnl
+;
+
+value rec expr_with_pow_x k t =
+  match t with
+  [ Neg t →
+      let (t, n) = expr_with_pow_x k t in
+      (Neg t, n)
+  | Mult t₁ (Xpower n d) →
+      (t₁, Q.make (I.of_int n) (I.of_int d))
+  | Xpower n d →
+      (Const C.one, Q.make (I.of_int n) (I.of_int d))
+  | Const _ →
+      (t, Q.zero)
+  | t →
+      failwith
+        (sprintf "not_impl \"expr_with_pow_x\" %s"
+           (string_of_tree k False "x" "y" t)) ]
+;
+
+value rec const_of_tree =
+  fun
+  [ Const c → c
+  | Neg t → C.neg (const_of_tree t)
+  | _ → failwith "const_of_tree" ]
+;
+
+value const_pow_list_x k t =
+  let (is_neg, t) =
+    match t with
+    [ Neg t → (True, t)
+    | _ → (False, t) ]
+  in
+  let tl = sum_tree_of_tree t in
+  let tpl = List.map (expr_with_pow_x k) tl in
+  let tpl = List.sort (compare_expr_pow Q.compare) tpl in
+  let tpl = uniq_expr_pow Q.compare tpl in
+  let cpl = List.map (fun (t, p) → (const_of_tree t, p)) tpl in
+  if is_neg then List.map (fun (c, n) → (C.neg c, n)) cpl
+  else cpl
+;

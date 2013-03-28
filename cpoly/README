@@ -1,0 +1,44 @@
+OVERVIEW
+
+Computation of roots of polynomials.
+
+COMPILATION
+
+You need ocaml, camlp5 and the library mpfr (dev) to compile. Do:
+        make
+
+This builds the commands
+        cpolyc          test program
+        ocaml_mpfr      ocaml toplevel
+
+More explanations to come. For the moment, well, you must know the code.
+
+LITTLE EXAMPLE OF USE IN THE OCAML TOPLEVEL
+
+If you have ledit:
+
+$ ledit -u ./ocaml_mpfr -I +camlp5 camlp5r.cma
+
+Or if you don't have it:
+
+$ ./ocaml_mpfr -I +camlp5 camlp5r.cma
+        OCaml version 4.00.2
+
+	Camlp5 parsing version 6.09
+
+# open Cpoly;
+# iroots [1;3;2];
+- : list (Cpoly.complex float) =
+[{re=-1; im=8.9121100941e-18}; {re=-2; im=-8.9121100941e-18}]
+# Mfl.set_prec 150;
+- : unit = ()
+# iroots [1;3;2];  
+- : list (Cpoly.complex float) =
+[{re=-1; im=-4.83355692833e-45}; {re=-2; im=4.83355692833e-45}]
+# Mfl.set_prec 500;  
+- : unit = ()
+# iroots [1;3;2];  
+- : list (Cpoly.complex float) = [{re=-1; im=0}; {re=-2; im=0}]
+# froots [1.5;3.22;-2.43]; 
+- : list (Cpoly.complex float) =
+[{re=0.591612444896; im=0}; {re=-2.73827911156; im=0}]

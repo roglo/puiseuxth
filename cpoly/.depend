@@ -1,0 +1,6 @@
+cex.cmo: cpoly.cmi
+cex.cmx: cpoly.cmx
+cpoly.cmo: cpoly.cmi mpfr.cmi
+cpoly.cmx: cpoly.cmi mpfr.cmi
+main.cmo: cpoly.cmi
+main.cmx: cpoly.cmx
