@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.2 2013-03-28 15:59:50 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -428,36 +428,44 @@ value normalize k t =
   t
 ;
 
-value mult t₁ t₂ =
+value mult k t₁ t₂ =
   match (t₁, t₂) with
-  [ (Const c₁, Const c₂) → Const (C.mul c₁ c₂)
-  | (Const c, t₂) → if C.eq c C.one then t₂ else Mult t₁ t₂
+  [ (Const c₁, Const c₂) → Const (k.mul c₁ c₂)
+  | (Const c, t₂) → if k.eq c k.one then t₂ else Mult t₁ t₂
   | (t₁, t₂) → Mult t₁ t₂ ]
 ;
 
-value tree_power k t p =
+value power_int k a b =
+  if b ≥ 0 then
+    loop b k.one where rec loop b r =
+      if b = 0 then r else loop (b - 1) (k.mul r a)
+  else
+    failwith "not impl power_int"
+;
+
+value tree_power (k : field _) t p =
   let rec expr_power t p =
     match t with
-    [ Plus t₁ t₂ → plus_power t₁ t₂ p
-    | Mult t₁ t₂ → mult (expr_power t₁ p) (expr_power t₂ p)
-    | Const c → Const (C.power c (C.of_i (I.of_int p)))
+    [ Plus t₁ t₂ → plus_power k t₁ t₂ p
+    | Mult t₁ t₂ → mult k (expr_power t₁ p) (expr_power t₂ p)
+    | Const c → Const (power_int k c p)
     | Xpower n d →
         let n = n * p in
         let g = gcd n d in
         Xpower (n / g) (d / g)
     | Ypower n →
         let n = n * p in
-        if n = 0 then Const C.one else Ypower n
+        if n = 0 then Const k.one else Ypower n
     | t →
         failwith (sprintf "tree_power %s" (string_of_tree k True "x" "y" t)) ]
-  and plus_power t₁ t₂ n =
-    loop n where rec loop k =
-      let c = comb n k in
-      let t₁ = expr_power t₁ (n - k) in
-      let t₂ = expr_power t₂ k in
-      let t = mult (mult (Const (C.of_i c)) t₁) t₂ in
-      if k = 0 then t
-      else Plus (loop (k - 1)) t
+  and plus_power k t₁ t₂ n =
+    loop n where rec loop i =
+      let c = comb n i in
+      let t₁ = expr_power t₁ (n - i) in
+      let t₂ = expr_power t₂ i in
+      let t = mult k (mult k (Const (C.of_i c)) t₁) t₂ in
+      if i = 0 then t
+      else Plus (loop (i - 1)) t
   in
   expr_power t p
 ;

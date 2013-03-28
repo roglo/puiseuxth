@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.1 2013-03-28 13:24:20 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.2 2013-03-28 15:59:50 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -51,8 +51,9 @@ value main () = do {
   let vx = "x" in
   let vy = "y" in
   let k =
+    let imul i a = C.muli a (I.of_int i) in
     {one = C.one; add = C.add; sub = C.sub; neg = C.neg; mul = C.mul;
-     div = C.div; k_to_string = C.to_string False}
+     div = C.div; eq = C.eq; imul = imul; k_to_string = C.to_string False}
   in
   let p = parse_poly s in
   let t = tree_of_ast k vx vy p in
