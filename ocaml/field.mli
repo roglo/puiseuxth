@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.2 2013-03-28 20:10:11 deraugla Exp $ *)
+(* $Id: field.mli,v 1.3 2013-03-28 20:26:34 deraugla Exp $ *)
 
 open Pnums;
 
@@ -17,5 +17,7 @@ type field α =
     imul : int → α → α;
     neg_factor : α → option α;
     of_i : I.t → α;
+    of_a : A₂.t → α;
+    of_float_string : string → α;
     to_string : α → string }
 ;

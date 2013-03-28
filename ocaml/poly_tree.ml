@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.8 2013-03-28 20:10:11 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.9 2013-03-28 20:26:34 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -31,22 +31,46 @@ value rec comb n k =
   else I.add (comb (n-1) (k-1)) (comb (n-1) k)
 ;
 
-value rec expr_power t n d =
+value power_int k a b =
+  if b ≥ 0 then
+    loop b k.one where rec loop b r =
+      if b = 0 then r else loop (b - 1) (k.mul r a)
+  else
+    failwith "not impl power_int"
+;
+
+value mult k t₁ t₂ =
+  match (t₁, t₂) with
+  [ (Const c₁, Const c₂) → Const (k.mul c₁ c₂)
+  | (Const c, t₂) → if k.eq c k.one then t₂ else Mult t₁ t₂
+  | (t₁, t₂) → Mult t₁ t₂ ]
+;
+
+value multi k i t =
+  match t with
+  [ Const c → Const (k.mul (k.of_i i) c)
+  | t →
+      if I.eq i I.zero then Const k.zero
+      else if I.eq i I.one then t
+      else Mult (Const (k.of_i i)) t ]
+;
+
+value rec tree_power k t n d =
   match t with
   [ Plus t₁ t₂ →
       if d <> 1 then failwith "bad sum power"
-      else if n = 0 then Const C.one
-      else expr_plus_power t₁ t₂ n
+      else if n = 0 then Const k.one
+      else expr_plus_power k t₁ t₂ n
   | Minus t₁ t₂ →
       if d <> 1 then failwith "bad diff power"
-      else if n = 0 then Const C.one
-      else expr_plus_power t₁ (Neg t₂) n
+      else if n = 0 then Const k.one
+      else expr_plus_power k t₁ (Neg t₂) n
   | Neg t →
-      let t = expr_power t n d in
+      let t = tree_power k t n d in
       if d = 1 then if n mod 2 = 0 then t else Neg t
-      else failwith "not impl expr_power Neg"
+      else failwith "not impl tree_power Neg"
   | Mult t₁ t₂ →
-      Mult (expr_power t₁ n d) (expr_power t₂ n d)
+      Mult (tree_power k t₁ n d) (tree_power k t₂ n d)
   | Xpower n₁ d₁ →
       let n = n₁ * n in
       let d = d₁ * d in
@@ -60,19 +84,19 @@ value rec expr_power t n d =
       if n < 0 || d <> 1 then failwith "bad y power"
       else Ypower n
   | Const c →
-      if d = 1 then Const (C.power c (C.of_q (Q.of_i (I.of_int n))))
-      else failwith "not impl expr_power Const" ]
-and expr_plus_power t₁ t₂ n =
-  loop n where rec loop k =
-    let c = comb n k in
-    let t₁ = expr_power t₁ (n - k) 1 in
-    let t₂ = expr_power t₂ k 1 in
-    let t = Mult (Mult (Const (C.of_i c)) t₁) t₂ in
-    if k = 0 then t
-    else Plus (loop (k - 1)) t
+      if d = 1 then Const (power_int k c n)
+      else failwith "not impl tree_power Const" ]
+and expr_plus_power k t₁ t₂ n =
+  loop n where rec loop i =
+    let c = comb n i in
+    let t₁ = tree_power k t₁ (n - i) 1 in
+    let t₂ = tree_power k t₂ i 1 in
+    let t = mult k (multi k c t₁) t₂ in
+    if i = 0 then t
+    else Plus (loop (i - 1)) t
 ;
 
-value tree_of_ast k vx vy =
+value tree_of_ast (k : field _) vx vy =
   let rec expr =
     fun
     [ << $e₁$ + $e₂$ >> →
@@ -97,18 +121,18 @@ value tree_of_ast k vx vy =
         | x → not_impl (sprintf "toa ?/%s" n) x ]
     | << $e₁$ ** $e₂$ >> →
         match e₂ with
-        [ << $int:n$ >> → expr_power (expr e₁) (ios n) 1
-        | << $int:n$ / $int:d$ >> → expr_power (expr e₁) (ios n) (ios d)
+        [ << $int:n$ >> → tree_power k (expr e₁) (ios n) 1
+        | << $int:n$ / $int:d$ >> → tree_power k (expr e₁) (ios n) (ios d)
         | _ → failwith "toa ** not int" ]
     | << $lid:s$ >> →
         if s = vx then Xpower 1 1
         else if s = vy then Ypower 1
-        else if s = "i" then Const (C.of_a (A₂.make Q.zero Q.one I.minus_one))
+        else if s = "i" then Const (k.of_a (A₂.make Q.zero Q.one I.minus_one))
         else failwith (sprintf "toa lid %s" s)
     | << $int:s$ >> →
-        Const (C.of_i (I.os s))
+        Const (k.of_i (I.os s))
     | << $flo:s$ >> →
-        Const (C.of_float_string s)
+        Const (k.of_float_string s)
     | << $lid:s$ $_$ $_$ >> →
         failwith (sprintf "toa op %s" s)
     | << $lid:s$ $_$ >> →
@@ -430,57 +454,6 @@ value normalize (k : field _) t =
   t
 ;
 
-value mult k t₁ t₂ =
-  match (t₁, t₂) with
-  [ (Const c₁, Const c₂) → Const (k.mul c₁ c₂)
-  | (Const c, t₂) → if k.eq c k.one then t₂ else Mult t₁ t₂
-  | (t₁, t₂) → Mult t₁ t₂ ]
-;
-
-value multi k i t =
-  match t with
-  [ Const c → Const (k.mul (C.of_i i) c)
-  | t →
-      if I.eq i I.zero then Const k.zero
-      else if I.eq i I.one then t
-      else Mult (Const (C.of_i i)) t ]
-;
-
-value power_int k a b =
-  if b ≥ 0 then
-    loop b k.one where rec loop b r =
-      if b = 0 then r else loop (b - 1) (k.mul r a)
-  else
-    failwith "not impl power_int"
-;
-
-value tree_power (k : field _) t p =
-  let rec expr_power t p =
-    match t with
-    [ Plus t₁ t₂ → plus_power k t₁ t₂ p
-    | Mult t₁ t₂ → mult k (expr_power t₁ p) (expr_power t₂ p)
-    | Const c → Const (power_int k c p)
-    | Xpower n d →
-        let n = n * p in
-        let g = gcd n d in
-        Xpower (n / g) (d / g)
-    | Ypower n →
-        let n = n * p in
-        if n = 0 then Const k.one else Ypower n
-    | t →
-        failwith (sprintf "tree_power %s" (string_of_tree k True "x" "y" t)) ]
-  and plus_power k t₁ t₂ n =
-    loop n where rec loop i =
-      let c = comb n i in
-      let t₁ = expr_power t₁ (n - i) in
-      let t₂ = expr_power t₂ i in
-      let t = mult k (multi k c t₁) t₂ in
-      if i = 0 then t
-      else Plus (loop (i - 1)) t
-  in
-  expr_power t p
-;
-
 value substitute_y k y t =
   let rec tree t =
     match t with
@@ -488,7 +461,7 @@ value substitute_y k y t =
     | Minus t₁ t₂ → Minus (tree t₁) (tree t₂)
     | Neg t → Neg (tree t)
     | Mult t₁ t₂ → Mult (tree t₁) (tree t₂)
-    | Ypower py → tree_power k y py
+    | Ypower py → tree_power k y py 1
     | Xpower _ _ | Const _ → t ]
   in
   tree t
