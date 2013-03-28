@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.5 2013-03-28 20:01:35 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.6 2013-03-28 20:10:11 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -15,9 +15,12 @@ type tree α =
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 
+value string_of_tree :
+  field α → bool → string → string → tree α → string;
+value airy_string_of_tree :
+  field α → bool → string → string → tree α → string;
+
 value tree_of_ast : field C.t → string → string → MLast.expr → tree C.t;
-value string_of_tree : field α → bool → string → string → tree α → string;
-value airy_string_of_tree : field α → bool → string → string → tree α → string;
 value flatten : tree α → list (tree α) → list (tree α);
 value term_descr_of_term : field α → tree α → term_descr α;
 value without_initial_neg : field α → tree α → option (tree α);

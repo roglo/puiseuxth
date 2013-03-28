@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.7 2013-03-28 20:01:35 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.8 2013-03-28 20:10:11 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -93,7 +93,7 @@ value tree_of_ast k vx vy =
         | (t₁, t₂) → Mult t₁ t₂ ]
     | << $e$ / $int:n$ >> →
         match expr e with
-        [ Const c → Const (k.div c (C.of_i (I.os n)))
+        [ Const c → Const (k.div c (k.of_i (I.os n)))
         | x → not_impl (sprintf "toa ?/%s" n) x ]
     | << $e₁$ ** $e₂$ >> →
         match e₂ with
