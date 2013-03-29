@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.23 2013-03-29 19:23:54 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.24 2013-03-29 19:46:40 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -495,14 +495,14 @@ value sum_tree_of_tree t =
 value rec tree_with_pow_y (k : field _) t =
   match t with
   [ Neg t →
-      let (t, n) = tree_with_pow_y k t in
-      (Neg t, n)
+      let my = tree_with_pow_y k t in
+      {coeff = Neg my.coeff; power = my.power}
   | Mult t₁ (Ypower n) →
-      (t₁, n)
+      {coeff = t₁; power = n}
   | Ypower n →
-      (Const k.one, n)
+      {coeff = Const k.one; power = n}
   | Xpower _ _ | Mult _ _ | Const _ →
-      (t, 0)
+      {coeff = t; power = 0}
   | t →
       failwith
         (sprintf "not_impl \"tree_with_pow_y\" %s"
@@ -523,29 +523,32 @@ value list_sort cmp =
   sort []
 ;
 
-value compare_expr_pow cmp (_, n₁) (_, n₂) = cmp n₁ n₂;
+value compare_expr_pow cmp m₁ m₂ = cmp m₁.power m₂.power;
 
 value merge_expr_pow k eq =
   loop [] where rec loop rev_list =
     fun
-    [ [(t₁, p₁) :: tnl₁] →
+    [ [m₁ :: ml₁] →
         let rev_list₁ =
           match rev_list with
-          [ [(t₂, p₂) :: rev_list₂] →
-              if eq p₁ p₂ then
-                match (t₁, t₂) with
+          [ [m₂ :: rev_list₂] →
+              if eq m₁.power m₂.power then
+                match (m₁.coeff, m₂.coeff) with
                 [ (Const c₁, Const c₂) →
                     let c = k.add c₁ c₂ in
                     if k.eq c k.zero then rev_list₂
-                    else [(Const c, p₁) :: rev_list₂]
+                    else [{coeff = Const c; power = m₁.power} :: rev_list₂]
                 | _ →
-                    [(Plus t₂ t₁, p₁) :: rev_list₂] ]
+                    let m =
+                      {coeff = Plus m₂.coeff m₁.coeff; power = m₁.power}
+                    in
+                    [m :: rev_list₂] ]
               else
-                [(t₁, p₁) :: rev_list]
+                [m₁ :: rev_list]
           | [] →
-              [(t₁, p₁)] ]
+              [m₁] ]
         in
-        loop rev_list₁ tnl₁
+        loop rev_list₁ ml₁
     | [] →
         List.rev rev_list ]
 ;
@@ -557,24 +560,24 @@ value tree_pow_list_y (k : field _) t =
     | _ → (False, t) ]
   in
   let tl = sum_tree_of_tree t in
-  let tnl = List.map (tree_with_pow_y k) tl in
-  let tnl = List.sort (compare_expr_pow \-) tnl in
-  let tnl = merge_expr_pow k \= tnl in
-  if is_neg then List.map (fun (t, n) → (Neg t, n)) tnl
-  else tnl
+  let myl = List.map (tree_with_pow_y k) tl in
+  let myl = List.sort (compare_expr_pow \-) myl in
+  let myl = merge_expr_pow k \= myl in
+  if is_neg then List.map (fun my → {coeff = my.coeff; power = my.power}) myl
+  else myl
 ;
 
 value rec expr_with_pow_x k t =
   match t with
   [ Neg t →
-      let (t, n) = expr_with_pow_x k t in
-      (Neg t, n)
+      let mx = expr_with_pow_x k t in
+      {coeff = Neg mx.coeff; power = mx.power}
   | Mult t₁ (Xpower n d) →
-      (t₁, Q.make (I.of_int n) (I.of_int d))
+      {coeff = t₁; power = Q.make (I.of_int n) (I.of_int d)}
   | Xpower n d →
-      (Const k.one, Q.make (I.of_int n) (I.of_int d))
+      {coeff = Const k.one; power = Q.make (I.of_int n) (I.of_int d)}
   | Const _ →
-      (t, Q.zero)
+      {coeff = t; power = Q.zero}
   | t →
       failwith
         (sprintf "not_impl \"expr_with_pow_x\" %s"
@@ -595,11 +598,12 @@ value const_pow_list_x (k : field _) t =
     | _ → (False, t) ]
   in
   let tl = sum_tree_of_tree t in
-  let tpl = List.map (expr_with_pow_x k) tl in
-  let tpl = List.sort (compare_expr_pow Q.compare) tpl in
-  let tpl = merge_expr_pow k Q.eq tpl in
+  let mxl = List.map (expr_with_pow_x k) tl in
+  let mxl = List.sort (compare_expr_pow Q.compare) mxl in
+  let mxl = merge_expr_pow k Q.eq mxl in
   let mxl =
-    List.map (fun (t, p) → {coeff = const_of_tree k t; power = p}) tpl
+    List.map (fun mx → {coeff = const_of_tree k mx.coeff; power = mx.power})
+      mxl
   in
   if is_neg then
     List.map (fun mx → {coeff = k.neg mx.coeff; power = mx.power}) mxl
