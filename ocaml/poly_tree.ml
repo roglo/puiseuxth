@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.20 2013-03-29 17:22:28 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.21 2013-03-29 17:29:22 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -336,33 +336,33 @@ value rec without_initial_neg k =
       None ]
 ;
 
-value add_x_monomial k t mx =
-  let (is_neg, c) =
+value add_x_monomial k c₁ mx =
+  let (is_neg, c₂) =
     match k.neg_factor mx.coeff with
     [ Some c → (True, c)
     | None → (False, mx.coeff) ]
   in
-  let t₂ =
-    if Q.eq mx.power Q.zero then Const c
+  let c₂ =
+    if Q.eq mx.power Q.zero then Const c₂
     else
       let tx =
         Xpower (I.to_int (Q.rnum mx.power)) (I.to_int (Q.rden mx.power))
       in
-      if k.eq c k.one then tx
-      else if k.eq c k.minus_one then Neg tx
-      else Mult (Const c) tx
+      if k.eq c₂ k.one then tx
+      else if k.eq c₂ k.minus_one then Neg tx
+      else Mult (Const c₂) tx
   in
-  let t₂ = if is_neg then Neg t₂ else t₂ in
-  let t_is_null =
-    match t with
+  let c₂ = if is_neg then Neg c₂ else c₂ in
+  let c₁_is_null =
+    match c₁ with
     [ Const c₀ → k.eq c₀ k.zero
     | _ → False ]
   in
-  if t_is_null then t₂
+  if c₁_is_null then c₂
   else
-    match without_initial_neg k t₂ with
-    [ Some t₂ → Minus t t₂
-    | None → Plus t t₂ ]
+    match without_initial_neg k c₂ with
+    [ Some c₂ → Minus c₁ c₂
+    | None → Plus c₁ c₂ ]
 ;
 
 value expr_of_term_ypow_list (k : field _) t₁ my =
