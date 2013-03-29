@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.12 2013-03-29 05:40:06 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.13 2013-03-29 06:03:37 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -508,12 +508,11 @@ value list_sort cmp =
 
 value compare_expr_pow cmp (_, n₁) (_, n₂) = cmp n₁ n₂;
 
-value merge_expr_pow k cmp =
+value merge_expr_pow k eq =
   loop where rec loop =
     fun
     [ [(t₁, p₁); (t₂, p₂) :: tnl] →
-        let c = cmp p₁ p₂ in
-        if c = 0 then
+        if eq p₁ p₂ then
           match (t₁, t₂) with
           [ (Const tn₁, Const tn₂) →
               let n = k.add tn₁ tn₂ in
@@ -521,10 +520,8 @@ value merge_expr_pow k cmp =
               else loop [(Const n, p₁) :: tnl]
           | _ →
               loop [(Plus t₁ t₂, p₁) :: tnl] ]
-        else if c < 0 then
-          [(t₁, p₁) :: loop [(t₂, p₂) :: tnl]]
         else
-          match () with []
+          [(t₁, p₁) :: loop [(t₂, p₂) :: tnl]]
     | [tn] → [tn]
     | [] → [] ]
 ;
@@ -538,7 +535,7 @@ value tree_pow_list_y (k : field _) t =
   let tl = sum_tree_of_tree t in
   let tnl = List.map (tree_with_pow_y k) tl in
   let tnl = List.sort (compare_expr_pow \-) tnl in
-  let tnl = merge_expr_pow k \- tnl in
+  let tnl = merge_expr_pow k \= tnl in
   if is_neg then List.map (fun (t, n) → (Neg t, n)) tnl
   else tnl
 ;
@@ -576,7 +573,7 @@ value const_pow_list_x (k : field _) t =
   let tl = sum_tree_of_tree t in
   let tpl = List.map (expr_with_pow_x k) tl in
   let tpl = List.sort (compare_expr_pow Q.compare) tpl in
-  let tpl = merge_expr_pow k Q.compare tpl in
+  let tpl = merge_expr_pow k Q.eq tpl in
   let cpl = List.map (fun (t, p) → (const_of_tree k t, p)) tpl in
   if is_neg then List.map (fun (c, n) → (k.neg c, n)) cpl
   else cpl
