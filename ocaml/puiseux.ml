@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.16 2013-03-29 13:52:30 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.17 2013-03-29 19:23:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -9,16 +9,16 @@ open Poly_tree;
 open Roots;
 
 value valuation k t =
-  let tnl = const_pow_list_x k t in
-  match tnl with
-  [ [(_, n) :: _] → n
+  let mxl = const_pow_list_x k t in
+  match mxl with
+  [ [mx :: _] → mx.power
   | [] → match () with [] ]
 ;
 
 value valuation_coeff k t =
-  let tnl = const_pow_list_x k t in
-  match tnl with
-  [ [(t, n) :: _] → t
+  let mxl = const_pow_list_x k t in
+  match mxl with
+  [ [mx :: _] → mx.coeff
   | [] → match () with [] ]
 ;
 
@@ -97,17 +97,17 @@ value end_red = "\027[m";
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
-value rebuild_add_list_x k cpl =
-  let rebuild_add t (c₁, p₁) =
-    if k.eq c₁ k.zero then t
+value rebuild_add_list_x k mxl =
+  let rebuild_add t mx =
+    if k.eq mx.coeff k.zero then t
     else
        let t₁ =
-         if Q.eq p₁ Q.zero then Const c₁
+         if Q.eq mx.power Q.zero then Const mx.coeff
          else
-           let xp = xpower p₁ in
-           if k.eq c₁ k.one then xp
-           else if k.eq c₁ k.minus_one then Neg xp
-           else Mult (Const c₁) xp
+           let xp = xpower mx.power in
+           if k.eq mx.coeff k.one then xp
+           else if k.eq mx.coeff k.minus_one then Neg xp
+           else Mult (Const mx.coeff) xp
        in
        let t₁ =
          match without_initial_neg k t₁ with
@@ -125,7 +125,7 @@ value rebuild_add_list_x k cpl =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const k.zero) cpl
+  List.fold_left rebuild_add (Const k.zero) mxl
 ;
 
 value arg_polynom = ref None;
@@ -174,7 +174,7 @@ value print_solution k br finite nth cγl = do {
     List.fold_left
       (fun (sol, γsum) (c, γ) →
          let γsum = Q.norm (Q.add γsum γ) in
-         ([(c, γsum) :: sol], γsum))
+         ([{coeff = c; power = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
   let sol = rebuild_add_list_x k (List.rev rev_sol) in
@@ -194,15 +194,11 @@ value print_solution k br finite nth cγl = do {
       let tnl = tree_pow_list_y k t in
       match tnl with
       [ [(t, 0)] →
-          let cpl = const_pow_list_x k t in
-          let cpl₂ =
-            if nb_terms > 0 then list_take nb_terms cpl
-            else cpl
-          in
-          let t = rebuild_add_list_x k cpl₂ in
+          let mxl = const_pow_list_x k t in
+          let mxl₂ = if nb_terms > 0 then list_take nb_terms mxl else mxl in
+          let t = rebuild_add_list_x k mxl₂ in
           let ellipses =
-            if List.length cpl > nb_terms then " + ..."
-            else ""
+            if List.length mxl > nb_terms then " + ..." else ""
           in
           printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
             (string_of_tree k (not arg_lang.val) br.vx br.vy t)

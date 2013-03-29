@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.22 2013-03-29 19:09:16 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.23 2013-03-29 19:23:54 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -598,7 +598,11 @@ value const_pow_list_x (k : field _) t =
   let tpl = List.map (expr_with_pow_x k) tl in
   let tpl = List.sort (compare_expr_pow Q.compare) tpl in
   let tpl = merge_expr_pow k Q.eq tpl in
-  let cpl = List.map (fun (t, p) → (const_of_tree k t, p)) tpl in
-  if is_neg then List.map (fun (c, n) → (k.neg c, n)) cpl
-  else cpl
+  let mxl =
+    List.map (fun (t, p) → {coeff = const_of_tree k t; power = p}) tpl
+  in
+  if is_neg then
+    List.map (fun mx → {coeff = k.neg mx.coeff; power = mx.power}) mxl
+  else
+    mxl
 ;
