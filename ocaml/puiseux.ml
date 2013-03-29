@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.14 2013-03-29 10:28:33 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.15 2013-03-29 10:38:52 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -148,12 +148,15 @@ type branch α =
     tnl : list (tree α * int) }
 ;
 
-value cut_long s =
+value cut_long at_middle s =
   if cut_long_strings.val then
     let len = utf8_strlen s in
     if len > 73 then
-      sprintf "%s ... %s" (utf8_sub_string s 0 35)
-        (utf8_sub_string s (len - 35) 35)
+      if at_middle then
+        sprintf "%s ... %s" (utf8_sub_string s 0 35)
+          (utf8_sub_string s (len - 35) 35)
+      else
+        sprintf "%s ..." (utf8_sub_string s 0 70)
     else s
   else s
 ;
@@ -178,8 +181,8 @@ value print_solution k br finite nth cγl = do {
     let t = normalize k t in
     let t = tree_map C.float_round_zero t in
     let t = normalize k t in
-    printf "f(%s%s) = %s\n\n%!" br.vy inf_nth
-      (string_of_tree k True br.vx br.vy t)
+    printf "f(%s,%s%s) = %s\n\n%!" br.vx br.vy inf_nth
+      (cut_long False (string_of_tree k (not arg_lang.val) br.vx br.vy t))
   }
   else ()
 };
@@ -229,7 +232,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
   [ Some t → do {
       if not quiet.val then
         let s = string_of_tree k True br.vx br.vy t in
-        let s = cut_long s in
+        let s = cut_long True s in
         printf "  %s\n%!" s
       else ();
       let t = cancel_constant_term_if_any k t in
