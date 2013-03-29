@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.18 2013-03-29 15:09:40 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.19 2013-03-29 17:19:34 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -308,9 +308,9 @@ value group_term_descr k tdl =
        match myl with
        [ [my :: myl₁] →
            if td.ypow = my.power then
-             let cpl = merge_const_px k mx my.coeff in
-             if cpl = [] then myl₁
-             else [{coeff = cpl; power = my.power} :: myl₁]
+             let mxl = merge_const_px k mx my.coeff in
+             if mxl = [] then myl₁
+             else [{coeff = mxl; power = my.power} :: myl₁]
            else [{coeff = [mx]; power = td.ypow} :: myl]
        | [] → [{coeff = [mx]; power = td.ypow}] ])
     tdl []
