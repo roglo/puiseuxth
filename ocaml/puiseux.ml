@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.15 2013-03-29 10:38:52 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.16 2013-03-29 13:52:30 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -133,7 +133,7 @@ value arg_y = ref "y";
 value arg_fname = ref "";
 value arg_nb_steps = ref 5;
 value arg_lang = ref False;
-value arg_eval_sol = ref False;
+value arg_eval_sol = ref None;
 value arg_debug = ref False;
 value arg_end = ref False;
 
@@ -161,6 +161,14 @@ value cut_long at_middle s =
   else s
 ;
 
+value rec list_take n l =
+  if n ≤ 0 then []
+  else
+    match l with
+    [ [x :: l] → [x :: list_take (n-1) l]
+    | [] → [] ]
+;
+
 value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
@@ -172,19 +180,35 @@ value print_solution k br finite nth cγl = do {
   let sol = rebuild_add_list_x k (List.rev rev_sol) in
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
-    (if arg_eval_sol.val || not quiet.val then start_red else "") br.vy inf_nth
+    (if arg_eval_sol.val <> None || not quiet.val then start_red else "")
+    br.vy inf_nth
     (airy_string_of_tree k (not arg_lang.val) br.vx br.vy sol)
     (if finite then "" else " + ...")
-    (if arg_eval_sol.val || not quiet.val then end_red else "");
-  if arg_eval_sol.val then do {
-    let t = substitute_y k sol br.initial_polynom in
-    let t = normalize k t in
-    let t = tree_map C.float_round_zero t in
-    let t = normalize k t in
-    printf "f(%s,%s%s) = %s\n\n%!" br.vx br.vy inf_nth
-      (cut_long False (string_of_tree k (not arg_lang.val) br.vx br.vy t))
-  }
-  else ()
+    (if arg_eval_sol.val <> None || not quiet.val then end_red else "");
+  match arg_eval_sol.val with
+  [ Some nb_terms →
+      let t = substitute_y k sol br.initial_polynom in
+      let t = normalize k t in
+      let t = tree_map C.float_round_zero t in
+      let t = normalize k t in
+      let tnl = tree_pow_list_y k t in
+      match tnl with
+      [ [(t, 0)] →
+          let cpl = const_pow_list_x k t in
+          let cpl₂ =
+            if nb_terms > 0 then list_take nb_terms cpl
+            else cpl
+          in
+          let t = rebuild_add_list_x k cpl₂ in
+          let ellipses =
+            if List.length cpl > nb_terms then " + ..."
+            else ""
+          in
+          printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
+            (string_of_tree k (not arg_lang.val) br.vx br.vy t)
+            ellipses
+      | _ → () ]
+  | None → () ]
 };
 
 value cancel_constant_term_if_any k t =
@@ -386,6 +410,21 @@ value arg_parse () =
       loop (i + 2)
     }
     else if
+      List.mem Sys.argv.(i) ["--eval-sol"; "-e"] &&
+      i + 1 < Array.length Sys.argv
+    then do {
+      match
+        try Some (int_of_string Sys.argv.(i+1)) with [ Failure _ → None ]
+      with
+      [ Some nb_terms → arg_eval_sol.val := Some nb_terms
+      | None → do {
+          eprintf "puiseux: option --eval-sol requires a number\n";
+          eprintf "use option --help for usage\n%!";
+          exit 2
+        } ];
+      loop (i + 2)
+    }
+    else if
       List.mem Sys.argv.(i) ["--file"; "-f"] &&
       i + 1 < Array.length Sys.argv
     then do {
@@ -417,10 +456,6 @@ value arg_parse () =
       arg_debug.val := True;
       loop (i + 1)
     }
-    else if List.mem Sys.argv.(i) ["--eval-sol"; "-e"] then do {
-      arg_eval_sol.val := True;
-      loop (i + 1)
-    }
     else if List.mem Sys.argv.(i) ["--prog-lang"; "-l"] then do {
       arg_lang.val := True;
       loop (i + 1)
@@ -445,7 +480,7 @@ value arg_parse () =
       eprintf "Options:\n";
       eprintf "-c, --cut-long        Cut too long lines in verbose mode\n";
       eprintf "-d, --debug           Debug mode\n";
-      eprintf "-e, --eval-sol        Evaluate polynom on solutions\n";
+      eprintf "-e, --eval-sol <n>    Eval <n> terms of polyn on solutions\n";
       eprintf "-f, --file <name>     Read polynomial in file, 1 monom/line\n";
       eprintf "-h, --help            Display this list of options\n";
       eprintf "-l, --prog-lang       Display prog lang style with *, ^\n";
