@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.19 2013-03-29 17:19:34 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.20 2013-03-29 17:22:28 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -336,7 +336,7 @@ value rec without_initial_neg k =
       None ]
 ;
 
-value term_of_const_xpow_list k t mx =
+value add_x_monomial k t mx =
   let (is_neg, c) =
     match k.neg_factor mx.coeff with
     [ Some c → (True, c)
@@ -451,9 +451,7 @@ value normalize (k : field _) t =
   let myl =
     List.map
       (fun my →
-         let t =
-           List.fold_left (term_of_const_xpow_list k) (Const k.zero) my.coeff
-         in
+         let t = List.fold_left (add_x_monomial k) (Const k.zero) my.coeff in
          {coeff = t; power = my.power})
       myl
   in
