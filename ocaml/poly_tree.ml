@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.13 2013-03-29 06:03:37 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.14 2013-03-29 06:10:21 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -508,6 +508,7 @@ value list_sort cmp =
 
 value compare_expr_pow cmp (_, n₁) (_, n₂) = cmp n₁ n₂;
 
+(**)
 value merge_expr_pow k eq =
   loop where rec loop =
     fun
@@ -525,6 +526,32 @@ value merge_expr_pow k eq =
     | [tn] → [tn]
     | [] → [] ]
 ;
+(*
+value merge_expr_pow k eq =
+  loop [] where rec loop rev_list =
+    fun
+    [ [(t₁, p₁) :: tnl₁] →
+        let rev_list₁ =
+          match rev_list with
+          [ [(t₂, p₂) :: rev_list₂] →
+              if eq p₁ p₂ then
+                match (t₁, t₂) with
+                [ (Const c₁, Const c₂) →
+                    let n = k.add c₁ c₂ in
+                    if k.eq n k.zero then rev_list₂
+                    else [(Const n, p₁) :: rev_list₂]
+                | _ →
+                    [(Plus t₁ t₂, p₁) :: rev_list₂] ]
+              else
+                [(t₁, p₁) :: rev_list]
+          | [] →
+              [(t₁, p₁)] ]
+        in
+        loop rev_list₁ tnl₁
+    | [] →
+        List.rev rev_list ]
+;
+*)
 
 value tree_pow_list_y (k : field _) t =
   let (is_neg, t) =
