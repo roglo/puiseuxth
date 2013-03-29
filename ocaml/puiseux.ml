@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.11 2013-03-28 21:41:13 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.12 2013-03-29 09:44:46 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -136,7 +136,17 @@ value arg_lang = ref False;
 value arg_debug = ref False;
 value arg_end = ref False;
 
-value print_solution k vx vy finite nth cγl =
+type branch α =
+  { cγl : list (α * Q.t);
+    step : int;
+    rem_steps : int;
+    vx : string;
+    vy : string;
+    t : tree α;
+    tnl : list (tree α * int) }
+;
+
+value print_solution k br finite nth cγl =
   let (rev_sol, _) =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
@@ -146,9 +156,9 @@ value print_solution k vx vy finite nth cγl =
   in
   let sol = rebuild_add_list_x k (List.rev rev_sol) in
   printf "solution: %s%s%s = %s%s%s\n%!"
-    (if not quiet.val then start_red else "") vy
+    (if not quiet.val then start_red else "") br.vy
     (inf_string_of_string (soi nth))
-    (airy_string_of_tree k (not arg_lang.val) vx vy sol)
+    (airy_string_of_tree k (not arg_lang.val) br.vx br.vy sol)
     (if finite then "" else " + ...")
     (if not quiet.val then end_red else "")
 ;
@@ -168,16 +178,6 @@ value cancel_constant_term_if_any k t =
       }
       else t
   | [] → t ]
-;
-
-type branch α =
-  { cγl : list (α * Q.t);
-    step : int;
-    rem_steps : int;
-    vx : string;
-    vy : string;
-    t : tree α;
-    tnl : list (tree α * int) }
 ;
 
 value puiseux_iteration k br r m γ β nth_sol = do {
@@ -229,7 +229,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
         }
         else (); 
         incr nth_sol;
-        print_solution k br.vx br.vy finite nth_sol.val cγl;
+        print_solution k br finite nth_sol.val cγl;
         None
       }
       else if br.rem_steps > 0 then Some (t, cγl)
@@ -243,7 +243,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
       }
       else ();
       incr nth_sol;
-      print_solution k br.vx br.vy False nth_sol.val cγl;
+      print_solution k br False nth_sol.val cγl;
       None
     } ]
 };
@@ -275,7 +275,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   let rl = roots k cpl in
   if rl = [] then do {
     incr nth_sol;
-    print_solution k br.vx br.vy False nth_sol.val br.cγl;
+    print_solution k br False nth_sol.val br.cγl;
   }
   else
     List.iter
