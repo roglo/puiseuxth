@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.11 2013-03-29 05:12:26 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.12 2013-03-29 05:40:06 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -517,7 +517,7 @@ value merge_expr_pow k cmp =
           match (t₁, t₂) with
           [ (Const tn₁, Const tn₂) →
               let n = k.add tn₁ tn₂ in
-              if k.eq n k.zero then tnl
+              if k.eq n k.zero then loop tnl
               else loop [(Const n, p₁) :: tnl]
           | _ →
               loop [(Plus t₁ t₂, p₁) :: tnl] ]
