@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.14 2013-03-29 06:10:21 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.15 2013-03-29 06:23:47 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -537,9 +537,9 @@ value merge_expr_pow k eq =
               if eq p₁ p₂ then
                 match (t₁, t₂) with
                 [ (Const c₁, Const c₂) →
-                    let n = k.add c₁ c₂ in
-                    if k.eq n k.zero then rev_list₂
-                    else [(Const n, p₁) :: rev_list₂]
+                    let c = k.add c₁ c₂ in
+                    if k.eq c k.zero then rev_list₂
+                    else [(Const c, p₁) :: rev_list₂]
                 | _ →
                     [(Plus t₁ t₂, p₁) :: rev_list₂] ]
               else
