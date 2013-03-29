@@ -1,4 +1,5 @@
 Puiseux Version 0.01:
 ---------------------
 
+* [29 Mar 2013] Added option -e to evaluate polynom on solutions.
 * [28 Mar 2013] Added displaying of sqrt in puiseux option -l.

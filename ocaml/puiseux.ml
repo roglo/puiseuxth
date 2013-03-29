@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.13 2013-03-29 10:21:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.14 2013-03-29 10:28:33 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -178,7 +178,7 @@ value print_solution k br finite nth cγl = do {
     let t = normalize k t in
     let t = tree_map C.float_round_zero t in
     let t = normalize k t in
-    printf "f(%s%s) = %s\n%!" br.vy inf_nth
+    printf "f(%s%s) = %s\n\n%!" br.vy inf_nth
       (string_of_tree k True br.vx br.vy t)
   }
   else ()
@@ -406,24 +406,28 @@ value arg_parse () =
         } ];
       loop (i + 2)
     }
-    else if List.mem Sys.argv.(i) ["--prog-lang"; "-l"] then do {
-      arg_lang.val := True;
-      loop (i + 1)
-    }
-    else if List.mem Sys.argv.(i) ["--with-sqrt-x"; "-w"] then do {
-      with_sqrt_x.val := True;
-      loop (i + 1)
-    }
-    else if List.mem Sys.argv.(i) ["--verbose"; "-v"] then do {
-      quiet.val := False;
-      loop (i + 1)
-    }
     else if List.mem Sys.argv.(i) ["--cut-long"; "-c"] then do {
       cut_long_strings.val := True;
       loop (i + 1)
     }
     else if List.mem Sys.argv.(i) ["--debug"; "-d"] then do {
       arg_debug.val := True;
+      loop (i + 1)
+    }
+    else if List.mem Sys.argv.(i) ["--eval-sol"; "-e"] then do {
+      arg_eval_sol.val := True;
+      loop (i + 1)
+    }
+    else if List.mem Sys.argv.(i) ["--prog-lang"; "-l"] then do {
+      arg_lang.val := True;
+      loop (i + 1)
+    }
+    else if List.mem Sys.argv.(i) ["--verbose"; "-v"] then do {
+      quiet.val := False;
+      loop (i + 1)
+    }
+    else if List.mem Sys.argv.(i) ["--with-sqrt-x"; "-w"] then do {
+      with_sqrt_x.val := True;
       loop (i + 1)
     }
     else if List.mem Sys.argv.(i) ["--version"] then do {
@@ -436,15 +440,16 @@ value arg_parse () =
     else if List.mem Sys.argv.(i) ["-h"; "--help"] then do {
       eprintf "%s\n" usage;
       eprintf "Options:\n";
-      eprintf "-y, --y-var <char>    Name of y variable\n";
-      eprintf "-f, --file <name>     Read polynomial in file, 1 monom/line\n";
-      eprintf "-n, --nb-steps <num>  Number of steps (default: 5)\n";
-      eprintf "-v, --verbose         Display computation details\n";
-      eprintf "-l, --prog-lang       Display prog lang style with *, ^\n";
-      eprintf "-w, --with-sqrt-x     Display x¹ᐟ² and x¹ᐟ³ as √x and ∛x\n";
       eprintf "-c, --cut-long        Cut too long lines in verbose mode\n";
       eprintf "-d, --debug           Debug mode\n";
+      eprintf "-e, --eval-sol        Evaluate polynom on solutions\n";
+      eprintf "-f, --file <name>     Read polynomial in file, 1 monom/line\n";
       eprintf "-h, --help            Display this list of options\n";
+      eprintf "-l, --prog-lang       Display prog lang style with *, ^\n";
+      eprintf "-n, --nb-steps <num>  Number of steps (default: 5)\n";
+      eprintf "-v, --verbose         Display computation details\n";
+      eprintf "-w, --with-sqrt-x     Display x¹ᐟ² and x¹ᐟ³ as √x and ∛x\n";
+      eprintf "-y, --y-var <char>    Name of y variable\n";
       eprintf "--                    End of options\n";
       eprintf "--version             Display version and exit\n";
       eprintf "\n";
