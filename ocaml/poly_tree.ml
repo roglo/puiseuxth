@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.9 2013-03-28 20:26:34 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.10 2013-03-29 04:57:05 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -513,6 +513,20 @@ value uniq_expr_pow k cmp =
           match () with []
     | [tn] → [tn]
     | [] → [] ]
+;
+
+value list_sort cmp =
+  let rec insert x =
+    fun
+    [ [y :: l] → if cmp x y < 0 then [x; y :: l] else [y :: insert x l]
+    | [] → [x] ]
+  in
+  let rec sort sorted =
+    fun
+    [ [x :: l] → sort (insert x sorted) l
+    | [] → sorted ]
+  in
+  sort []
 ;
 
 value tree_pow_list_y (k : field _) t =
