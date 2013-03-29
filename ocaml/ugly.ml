@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.9 2013-03-28 21:37:59 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.10 2013-03-29 15:09:40 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -27,20 +27,22 @@ value iter_with_sep s f l =
   let _ = List.fold_left (fun s x → do { f s x; " " }) "" l in ()
 ;
 
-value print_term n (cpl, py) = do {
-  while n.val < py do {
+value print_term n my = do {
+  while n.val < my.power do {
     printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z',[0;1],[0])  //s%d\n"
       n.val n.val;
     incr n;
   };
   printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," n.val;
   printf "[";
-  iter_with_sep " " (fun s (c, px) → printf "%s%s" s (I.ts (Q.rnum px))) cpl;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power)))
+    my.coeff;
   printf ";";
-  iter_with_sep " " (fun s (c, px) → printf "%s%s" s (I.ts (Q.rden px))) cpl;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power)))
+    my.coeff;
   printf "],[";
-  iter_with_sep " " (fun s (c, px) → printf "%s%s" s (C.to_string False c))
-    cpl;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (C.to_string False mx.coeff))
+    my.coeff;
   printf "]";
   printf ")  //s%d\n" n.val;
   incr n
@@ -68,9 +70,9 @@ value main () = do {
   eprintf "%s\n%!" si;
   if sn <> si then eprintf "%s\n%!" sn else ();
   eprintf "\n%!";
-  let cplpl = group k t in
+  let myl = group k t in
   let n = ref 0 in
-  List.iter (print_term n) cplpl;
+  List.iter (print_term n) myl;
   printf "\n";
   printf "Walker=mlist(['psfz','dg','cofs'],%d," (pred n.val);
   printf "list(";

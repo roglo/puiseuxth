@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.6 2013-03-29 13:52:30 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.7 2013-03-29 15:09:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -371,18 +371,22 @@ value roots_of_c_coeffs k cpl coeffs =
           let polyn = rebuild_add_list_y k cpl in
           let polyn₂ = substitute_y k t polyn in
           let polyn₂ = normalize k polyn₂ in
-          let cplpl = group k polyn₂ in
+          let myl = group k polyn₂ in
           let cnl_opt =
             try
               let cnl =
                 List.map
-                  (fun (cpl, py) →
+                  (fun my →
+                     let cpl = my.coeff in
+                     let py = my.power in
                      match cpl with
-                     [ [(c, px)] →
+                     [ [mx] →
+                         let c = mx.coeff in
+                         let px = mx.power in
                          if Q.eq px Q.zero then (c, py) else raise Exit
                      | _ →
                          raise Exit ])
-                  cplpl
+                  myl
               in
               Some cnl
             with

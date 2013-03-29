@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.17 2013-03-29 10:21:54 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.18 2013-03-29 15:09:40 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -22,6 +22,8 @@ type tree α =
   | Ypower of int
   | Const of α ]
 ;
+
+type monomial α β = { coeff : α; power : β };
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 
@@ -286,30 +288,31 @@ value compare_descr td₁ td₂ =
   else 1
 ;
 
-value merge_const_px k (c, px) cpl =
-  match cpl with
-  [ [(c₁, px₁) :: cpl₁] →
-      if Q.eq px px₁ then
-        let c = k.norm (k.add c c₁) in
-        if k.eq c k.zero then cpl₁
-        else [(c, px) :: cpl₁]
-      else if k.eq c k.zero then cpl
-      else [(c, px) :: cpl]
+value merge_const_px k m ml =
+  match ml with
+  [ [m₁ :: ml₁] →
+      if Q.eq m.power m₁.power then
+        let c = k.norm (k.add m.coeff m₁.coeff) in
+        if k.eq c k.zero then ml₁
+        else [{coeff = c; power = m.power} :: ml₁]
+      else if k.eq m.coeff k.zero then ml
+      else [m :: ml]
   | [] →
-      if k.eq c k.zero then [] else [(c, px)] ]
+      if k.eq m.coeff k.zero then [] else [m] ]
 ;
 
 value group_term_descr k tdl =
   List.fold_right
-    (fun td cplpl →
-       let cp = (td.const, td.xpow) in
-       match cplpl with
-       [ [(cpl, py) :: cplpl₁] →
-           if td.ypow = py then
-             let cpl = merge_const_px k cp cpl in
-             if cpl = [] then cplpl₁ else [(cpl, py) :: cplpl₁]
-           else [([cp], td.ypow) :: cplpl]
-       | [] → [([cp], td.ypow)] ])
+    (fun td myl →
+       let mx = {coeff = td.const; power = td.xpow} in
+       match myl with
+       [ [my :: myl₁] →
+           if td.ypow = my.power then
+             let cpl = merge_const_px k mx my.coeff in
+             if cpl = [] then myl₁
+             else [{coeff = cpl; power = my.power} :: myl₁]
+           else [{coeff = [mx]; power = td.ypow} :: myl]
+       | [] → [{coeff = [mx]; power = td.ypow}] ])
     tdl []
 ;
 
@@ -333,16 +336,18 @@ value rec without_initial_neg k =
       None ]
 ;
 
-value term_of_const_xpow_list k t (c, px) =
+value term_of_const_xpow_list k t mx =
   let (is_neg, c) =
-    match k.neg_factor c with
+    match k.neg_factor mx.coeff with
     [ Some c → (True, c)
-    | None → (False, c) ]
+    | None → (False, mx.coeff) ]
   in
   let t₂ =
-    if Q.eq px Q.zero then Const c
+    if Q.eq mx.power Q.zero then Const c
     else
-      let tx = Xpower (I.to_int (Q.rnum px)) (I.to_int (Q.rden px)) in
+      let tx =
+        Xpower (I.to_int (Q.rnum mx.power)) (I.to_int (Q.rden mx.power))
+      in
       if k.eq c k.one then tx
       else if k.eq c k.minus_one then Neg tx
       else Mult (Const c) tx
@@ -360,21 +365,23 @@ value term_of_const_xpow_list k t (c, px) =
     | None → Plus t t₂ ]
 ;
 
-value expr_of_term_ypow_list (k : field _) t₁ (t₂, py) =
+value expr_of_term_ypow_list (k : field _) t₁ my =
   let t₂ =
-    if py = 0 then t₂
+    if my.power = 0 then my.coeff
     else
       let (is_neg, t₂) =
-        match without_initial_neg k t₂ with
+        match without_initial_neg k my.coeff with
         [ Some t₂ → (True, t₂)
-        | None → (False, t₂) ]
+        | None → (False, my.coeff) ]
       in
       let t₂_is_one =
         match t₂ with
         [ Const c → k.eq c k.one
         | _ →  False ]
       in
-      let t₂ = if t₂_is_one then Ypower py else Mult t₂ (Ypower py) in
+      let t₂ =
+        if t₂_is_one then Ypower my.power else Mult t₂ (Ypower my.power)
+      in
       if is_neg then Neg t₂ else t₂
   in
   let t_is_null =
@@ -425,30 +432,30 @@ let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_stri
 ;
 
 value normalize (k : field _) t =
-  let cplpl = group k t in
+  let myl = group k t in
   let _ = if debug_n then printf "normalize group_term_descr\n%!" else () in
   let _ =
     if debug_n then
       List.iter
-        (fun (cpl, py) → do {
-           printf "  py %d\n%!" py;
+        (fun my → do {
+           printf "  py %d\n%!" my.power;
            List.iter
-             (fun (cst, px) →
-                printf "    cst %s px %s\n%!" (k.to_string cst)
-                  (Q.to_string px))
-             cpl
+             (fun mx →
+                printf "    cst %s px %s\n%!" (k.to_string mx.coeff)
+                  (Q.to_string mx.power))
+             my.coeff
          })
-        cplpl
+        myl
     else ()
   in
-  let tpl =
+  let myl =
     List.map
-      (fun (cpl, py) →
+      (fun my →
          let t =
-           List.fold_left (term_of_const_xpow_list k) (Const k.zero) cpl
+           List.fold_left (term_of_const_xpow_list k) (Const k.zero) my.coeff
          in
-         (t, py))
-      cplpl
+         {coeff = t; power = my.power})
+      myl
   in
   let _ =
     if debug_n then printf "normalize term_of_const_xpow_list\n%!" else ()
@@ -456,12 +463,13 @@ value normalize (k : field _) t =
   let _ =
     if debug_n then
       List.iter
-        (fun (t, py) →
-           printf "  t %s py %d\n%!" (string_of_tree k True "x" "y" t) py)
-        tpl
+        (fun my →
+           printf "  t %s py %d\n%!" (string_of_tree k True "x" "y" my.coeff)
+             my.power)
+        myl
     else ()
   in
-  let t = List.fold_left (expr_of_term_ypow_list k) (Const k.zero) tpl in
+  let t = List.fold_left (expr_of_term_ypow_list k) (Const k.zero) myl in
   t
 ;
 
