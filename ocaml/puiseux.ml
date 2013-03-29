@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.12 2013-03-29 09:44:46 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.13 2013-03-29 10:21:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -133,11 +133,13 @@ value arg_y = ref "y";
 value arg_fname = ref "";
 value arg_nb_steps = ref 5;
 value arg_lang = ref False;
+value arg_eval_sol = ref False;
 value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { cγl : list (α * Q.t);
+  { initial_polynom: tree α;
+    cγl : list (α * Q.t);
     step : int;
     rem_steps : int;
     vx : string;
@@ -146,7 +148,17 @@ type branch α =
     tnl : list (tree α * int) }
 ;
 
-value print_solution k br finite nth cγl =
+value cut_long s =
+  if cut_long_strings.val then
+    let len = utf8_strlen s in
+    if len > 73 then
+      sprintf "%s ... %s" (utf8_sub_string s 0 35)
+        (utf8_sub_string s (len - 35) 35)
+    else s
+  else s
+;
+
+value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
@@ -155,13 +167,22 @@ value print_solution k br finite nth cγl =
       ([], Q.zero) (List.rev cγl)
   in
   let sol = rebuild_add_list_x k (List.rev rev_sol) in
+  let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
-    (if not quiet.val then start_red else "") br.vy
-    (inf_string_of_string (soi nth))
+    (if arg_eval_sol.val || not quiet.val then start_red else "") br.vy inf_nth
     (airy_string_of_tree k (not arg_lang.val) br.vx br.vy sol)
     (if finite then "" else " + ...")
-    (if not quiet.val then end_red else "")
-;
+    (if arg_eval_sol.val || not quiet.val then end_red else "");
+  if arg_eval_sol.val then do {
+    let t = substitute_y k sol br.initial_polynom in
+    let t = normalize k t in
+    let t = tree_map C.float_round_zero t in
+    let t = normalize k t in
+    printf "f(%s%s) = %s\n%!" br.vy inf_nth
+      (string_of_tree k True br.vx br.vy t)
+  }
+  else ()
+};
 
 value cancel_constant_term_if_any k t =
   match Poly_tree.flatten t [] with
@@ -208,15 +229,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
   [ Some t → do {
       if not quiet.val then
         let s = string_of_tree k True br.vx br.vy t in
-        let s =
-          if cut_long_strings.val then
-            let len = utf8_strlen s in
-            if len > 73 then
-              sprintf "%s ... %s" (utf8_sub_string s 0 35)
-                (utf8_sub_string s (len - 35) 35)
-            else s
-          else s
-        in
+        let s = cut_long s in
         printf "  %s\n%!" s
       else ();
       let t = cancel_constant_term_if_any k t in
@@ -305,7 +318,8 @@ and next_step k br nth_sol t cγl =
       (fun (γ, β) → do {
          if not quiet.val then printf "\n%!" else ();
          let br =
-           {cγl = cγl; step = br.step + 1;
+           {initial_polynom = br.initial_polynom;
+            cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; t = t; tnl = tnl}
          in
@@ -329,8 +343,8 @@ value puiseux k nb_steps vx vy t =
     (fun (γ₁, β₁) → do {
        print_line_equal ();
        let br =
-         {cγl = []; step = 1; rem_steps = rem_steps; vx = vx; vy = vy;
-          t = t; tnl = tnl}
+         {initial_polynom = t; cγl = []; step = 1; rem_steps = rem_steps;
+          vx = vx; vy = vy; t = t; tnl = tnl}
        in
        puiseux_branch k br nth_sol (γ₁, β₁)
      })

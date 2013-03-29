@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.7 2013-03-28 20:26:34 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.8 2013-03-29 10:21:54 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -14,6 +14,8 @@ type tree α =
 ;
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
+
+value tree_map : (α → β) → tree α → tree β;
 
 value string_of_tree :
   field α → bool → string → string → tree α → string;

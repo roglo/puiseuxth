@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.4 2013-03-28 21:37:59 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.5 2013-03-29 10:21:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -40,12 +40,6 @@ value list_of_deg_list zero cnl =
         else if n = deg then [c :: loop (deg + 1) cnl]
         else invalid_arg "list_of_deg_list"
     | [] -> [] ]
-;
-
-value epsilon_round eps r =
-  let re = if abs_float r.re ≤ eps then 0. else r.re in
-  let im = if abs_float r.im ≤ eps then 0. else r.im in
-  {re = re; im = im}
 ;
 
 value wrap_prec prec f a = do {

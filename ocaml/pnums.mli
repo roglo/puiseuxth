@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.3 2013-03-28 20:06:16 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.4 2013-03-29 10:21:54 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -102,6 +102,7 @@ module A₂ :
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
+value epsilon_round : float → complex → complex;
 value complex_zero : complex;
 value complex_mul : complex → complex → complex;
 value complex_power : complex → complex → complex;
@@ -137,6 +138,7 @@ module C :
     value of_expr : MLast.expr → t;
     value of_float_string : string → t;
     value of_complex : complex → t;
+    value float_round_zero : t → t;
     value check : t → unit;
   end;
 

@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.16 2013-03-29 09:42:46 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.17 2013-03-29 10:21:54 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -24,6 +24,17 @@ type tree α =
 ;
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
+
+value rec tree_map f =
+  fun
+  [ Plus t₁ t₂ → Plus (tree_map f t₁) (tree_map f t₂)
+  | Minus t₁ t₂ → Minus (tree_map f t₁) (tree_map f t₂)
+  | Neg t → Neg (tree_map f t)
+  | Mult t₁ t₂ → Mult (tree_map f t₁) (tree_map f t₂)
+  | Xpower n d → Xpower n d
+  | Ypower n → Ypower n
+  | Const c → Const (f c) ]
+;
 
 value rec comb n k =
   if n ≤ 0 || k < 0 || k > n then invalid_arg (sprintf "comb n=%d k=%d" n k)
