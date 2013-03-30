@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.20 2013-03-30 08:56:54 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.21 2013-03-30 09:21:15 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -13,8 +13,8 @@ type tree α =
   | Const of α ]
 ;
 
-type polynomial α β = { monoms : list (monomial α β) }
-and monomial α β = { coeff : α; power : β };
+type monomial α β = { coeff : α; power : β };
+type polynomial α β = { monoms : list (monomial α β) };
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 

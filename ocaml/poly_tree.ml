@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.38 2013-03-30 09:21:15 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.39 2013-03-30 09:24:50 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -561,21 +561,10 @@ value merge_expr_pow k eq =
 ;
 
 value y_polyn_of_tree (k : field _) t =
-  let (is_neg, t) =
-    match t with
-    [ Neg t → (True, t)
-    | _ → (False, t) ]
-  in
   let tl = sum_tree_of_tree t in
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
   let myl = merge_expr_pow k \= myl in
-  let myl =
-    if is_neg then
-      List.map (fun my → {coeff = my.coeff; power = my.power}) myl
-    else
-      myl
-  in
   {monoms = myl}
 ;
 
