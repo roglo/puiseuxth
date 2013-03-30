@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.36 2013-03-30 08:52:39 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.37 2013-03-30 08:56:54 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -463,18 +463,17 @@ value tree_of_y_polyn k pol =
   List.fold_left rebuild_add (Const k.zero) pol.monoms
 ;
 
-value tree_polyn_of_polyn k pol =
+value tree_of_xy_polyn k pol =
   let ml =
     List.map (fun m → {coeff = tree_of_x_polyn k m.coeff; power = m.power})
       pol.monoms
   in
-  {monoms = ml}
+  tree_of_tree_y_polyn k {monoms = ml}
 ;
 
 value normalise (k : field _) t =
   let pol = xy_polyn_of_tree k t in
-  let pol = tree_polyn_of_polyn k pol in
-  tree_of_tree_y_polyn k pol
+  tree_of_xy_polyn k pol
 ;
 
 value substitute_y k y t =
