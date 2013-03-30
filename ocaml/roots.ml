@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.20 2013-03-30 03:21:44 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.21 2013-03-30 03:38:23 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -8,7 +8,18 @@ open Field;
 
 value quiet = ref True;
 
-value list_of_deg_list zero cnl =
+value list_of_polynomial zero pol =
+  loop 0 pol.monoms where rec loop deg =
+    fun
+    [ [m :: ml] →
+        if m.power > deg then [zero :: loop (deg + 1) [m :: ml]]
+        else if m.power = deg then [m.coeff :: loop (deg + 1) ml]
+        else invalid_arg "list_of_polynomial"
+    | [] -> [] ]
+;
+
+(* to be replaced by 'list_of_polynomial' *)
+value list_of_deg_list₂ zero cnl =
   loop 0 cnl where rec loop deg =
     fun
     [ [(c, n) :: cnl] →
@@ -30,7 +41,8 @@ value wrap_prec prec f a = do {
 };
 
 value float_roots_of_unity prec pow = do {
-  let fnl = list_of_deg_list 0 [(-1, 0); (1, pow)] in
+  let pol = {monoms = [{coeff = -1; power = 0}; {coeff = 1; power = pow}]} in
+  let fnl = list_of_polynomial 0 pol in
   wrap_prec prec Cpoly.iroots fnl
 };
 
@@ -389,8 +401,11 @@ value roots_of_c_coeffs k bad_pol coeffs =
 
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let prec = 200 in
-  let cpl = List.map (fun m → (k.to_complex m.coeff, m.power)) pol.monoms in
-  let fpl = list_of_deg_list complex_zero cpl in
+  let ml =
+    List.map (fun m → {coeff = k.to_complex m.coeff; power = m.power})
+      pol.monoms
+  in
+  let fpl = list_of_polynomial complex_zero {monoms = ml} in
   let rl = wrap_prec prec Cpoly.roots (List.rev fpl) in
   if not quiet.val then do {
     List.iter
@@ -441,7 +456,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   rl
 };
 
-value roots_of_polynom_with_algebraic_coeffs k power_gcd bad_pol apl = do {
+value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl = do {
   let degree = snd (List.hd (List.rev apl)) in
   let rl =
     match degree with
@@ -458,7 +473,8 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd bad_pol apl = do {
     | _ →
         match int_coeffs_of_polyn apl with
         [ Some cnl → do {
-            let coeffs = list_of_deg_list I.zero cnl in
+            let ml = List.map (fun (c, p) → {coeff = c; power = p}) cnl in
+            let coeffs = list_of_polynomial I.zero {monoms = ml} in
             let rl = roots_of_int_coeffs k coeffs in
             let nb_roots = List.fold_left (fun c (_, m) → c + m) 0 rl in
             assert (nb_roots < List.length coeffs);
@@ -474,8 +490,8 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd bad_pol apl = do {
             rl
           }
         | None → do {
-            let cpl = List.map (fun m → (m.coeff, m.power)) bad_pol.monoms in
-            let coeffs = list_of_deg_list k.zero (List.rev cpl) in
+            let coeffs = list_of_polynomial k.zero pol in
+            let bad_pol = {monoms = List.rev pol.monoms} in
             roots_of_c_coeffs k bad_pol coeffs
           } ] ]
   in
@@ -512,9 +528,8 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
     with
     [ Exit → None ]
   in
-  let bad_pol = {monoms = List.rev pol.monoms} in
   match apl_opt with
-  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd bad_pol apl
+  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl
   | None → roots_of_polynom_with_float_coeffs k power_gcd pol ]
 ;
 
