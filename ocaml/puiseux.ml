@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.37 2013-03-30 15:10:26 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.38 2013-03-30 16:31:16 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -137,28 +137,24 @@ value polyn_of_tree k t =
 ;
 
 (**)
-value merge_x_pol ml₁ ml₂ =
-  loop [] ml₁ ml₂ where rec loop rev_ml ml₁ ml₂ =
-    match (ml₁, ml₂) with
-    [ ([m₁ :: ml1], [m₂ :: ml₂]) →
-  failwith "not impl merge_x_pol 42"
-    | ([], ml₂) → List.rev (List.rev_append ml₂ rev_ml)
-    | (ml₁, []) → List.rev (List.rev_append ml₁ rev_ml) ]
+value horner add mul zero x pol =
+  loop zero (List.hd pol).power pol where rec loop a deg ml =
+    match ml with
+    [ [m :: ml] →
+        if deg = m.power then loop (add (mul a x) m.coeff) (deg - 1) ml
+        else if deg < m.power then invalid_arg "horner"
+        else loop (mul a x) (deg - 1) [m :: ml]
+    | [] →
+        if deg = 0 then a
+        else if deg < 0 then invalid_arg "horner"
+        else loop (mul a x) (deg - 1) [] ]
 ;
 
-value horner xpol xypol =
-  let xml =
-    loop [] 0 xypol.monoms where rec loop xml deg =
-      fun
-      [ [m :: ml] →
-          if m.power = deg then
-            let xml = merge_x_pol m.coeff.monoms xml in
-            loop xml deg ml
-          else
-            failwith "2"
-      | [] → xml ]
-  in
-  {monoms = xml}
+value pol_add k p₁ p₂ = failwith "not impl pol_add";
+value pol_mul k p₁ p₂ = failwith "not impl pol_mul";
+
+value horner_pol k xpol xypol =
+  {monoms = horner (pol_add k) (pol_mul k) [] xpol xypol.monoms}
 ;
 (**)
 
@@ -181,7 +177,20 @@ value print_solution k br finite nth cγl = do {
     (if arg_eval_sol.val <> None || not quiet.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-(**)
+(*
+      let pol = horner_pol k sol br.initial_polynom in
+      let pol₂ =
+        if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
+        else pol
+      in
+      let t = tree_of_x_polyn k pol₂ in
+      let ellipses =
+        if List.length pol.monoms > nb_terms then " + ..." else ""
+      in
+      printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
+        (string_of_tree k (not arg_lang.val) br.vx br.vy t)
+        ellipses
+*)
       let t = substitute_y k tsol br.initial_tree in
       let t = normalise k t in
       let t = tree_map C.float_round_zero t in
@@ -201,20 +210,7 @@ value print_solution k br finite nth cγl = do {
             (string_of_tree k (not arg_lang.val) br.vx br.vy t)
             ellipses
       | _ → () ]
-(*
-      let pol = horner sol br.initial_polynom in
-      let pol₂ =
-        if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
-        else pol
-      in
-      let t = tree_of_x_polyn k pol₂ in
-      let ellipses =
-        if List.length pol.monoms > nb_terms then " + ..." else ""
-      in
-      printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_tree k (not arg_lang.val) br.vx br.vy t)
-        ellipses
-*)
+(**)
   | None → () ]
 };
 
