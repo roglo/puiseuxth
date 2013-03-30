@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.28 2013-03-30 09:44:52 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.29 2013-03-30 09:54:58 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -8,13 +8,13 @@ open Poly_print;
 open Poly_tree;
 open Roots;
 
-value valuation k pol =
+value valuation pol =
   match pol.monoms with
   [ [mx :: _] → mx.power
   | [] → match () with [] ]
 ;
 
-value valuation_coeff k pol =
+value valuation_coeff pol =
   match pol.monoms with
   [ [mx :: _] → mx.coeff
   | [] → match () with [] ]
@@ -75,12 +75,12 @@ value gamma_beta_list_of_lower_convex_hull =
         List.rev rev_gbl ]
 ;
 
-value gamma_beta_list (k : field _) pol =
+value gamma_beta_list k pol =
   let xyl =
     List.map
       (fun my →
          let xpol = x_polyn_of_tree k my.coeff in
-         (Q.of_i (I.of_int my.power), valuation k xpol))
+         (Q.of_i (I.of_int my.power), valuation xpol))
       pol.monoms
   in
   let ch = lower_convex_hull xyl in
@@ -278,7 +278,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
     List.filter
       (fun m →
          let xpol = x_polyn_of_tree k m.coeff in
-         let αi = valuation k xpol in
+         let αi = valuation xpol in
          let βi = Q.norm (Q.add (Q.muli γ (I.of_int m.power)) αi) in
          Q.eq β βi)
       br.pol.monoms
@@ -300,7 +300,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
     List.map
       (fun m →
          let pol = x_polyn_of_tree k m.coeff in
-         {coeff = valuation_coeff k pol; power = m.power - j})
+         {coeff = valuation_coeff pol; power = m.power - j})
       hl
   in
   let rl = roots k {monoms = ml} in
