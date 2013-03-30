@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.25 2013-03-30 04:13:59 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.26 2013-03-30 07:38:31 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -354,7 +354,7 @@ value roots_of_c_coeffs k pol coeffs =
           let yt = Mult (Const (k.of_a x)) (Ypower 1) in
           let polyn = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
           let polyn₂ = substitute_y k yt polyn in
-          let polyn₂ = normalize k polyn₂ in
+          let polyn₂ = normalise k polyn₂ in
           let pol = xy_polyn_of_tree k polyn₂ in
           let pol_opt =
             try

@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.13 2013-03-30 01:52:40 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.14 2013-03-30 07:38:31 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -65,7 +65,7 @@ value main () = do {
   let p = parse_poly s in
   let t = tree_of_ast k vx vy p in
   let si = string_of_tree k False vx vy t in
-  let t = normalize k t in
+  let t = normalise k t in
   let sn = string_of_tree k False vx vy t in
   eprintf "%s\n%!" si;
   if sn <> si then eprintf "%s\n%!" sn else ();

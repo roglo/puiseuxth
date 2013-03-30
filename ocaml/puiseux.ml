@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.25 2013-03-30 03:09:23 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.26 2013-03-30 07:38:31 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -156,9 +156,9 @@ value print_solution k br finite nth cγl = do {
   match arg_eval_sol.val with
   [ Some nb_terms →
       let t = substitute_y k sol br.initial_polynom in
-      let t = normalize k t in
+      let t = normalise k t in
       let t = tree_map C.float_round_zero t in
-      let t = normalize k t in
+      let t = normalise k t in
       let pol = y_polyn_of_tree k t in
       match pol.monoms with
       [ [{coeff = t; power = 0}] →
@@ -219,7 +219,7 @@ value puiseux_iteration k br r m γ β nth_sol = do {
 let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
 *)
   let cγl = [(r, γ) :: br.cγl] in
-  match try Some (normalize k t) with [ Overflow → None ] with
+  match try Some (normalise k t) with [ Overflow → None ] with
   [ Some t → do {
       if not quiet.val then
         let s = string_of_tree k True br.vx br.vy t in
@@ -559,10 +559,10 @@ value main () = do {
        to_string = C.to_string arg_lang.val}
     in
     let t = tree_of_ast k vx vy p in
-    let t = normalize k t in
+    let t = normalise k t in
     let norm_txt = string_of_tree k True vx vy t in
     if not quiet.val then do {
-      printf "normalized:\n";
+      printf "normalised:\n";
       printf "%s\n%!" norm_txt;
     }
     else do {

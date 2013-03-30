@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.30 2013-03-30 02:04:06 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.31 2013-03-30 07:38:31 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -406,7 +406,7 @@ value xy_polyn_of_tree k t =
     else ()
   in
   let tl = flatten t [] in
-  let _ = if debug_n then printf "normalize flatten\n%!" else () in
+  let _ = if debug_n then printf "normalise flatten\n%!" else () in
   let _ =
     if debug_n then
       List.iter
@@ -414,7 +414,7 @@ value xy_polyn_of_tree k t =
     else ()
   in
   let tdl = List.map (term_descr_of_term k) tl in
-  let _ = if debug_n then printf "normalize term_descr_of_term\n%!" else () in
+  let _ = if debug_n then printf "normalise term_descr_of_term\n%!" else () in
   let _ =
     if debug_n then
       List.iter
@@ -426,7 +426,7 @@ value xy_polyn_of_tree k t =
   in
   let tdl = List.sort compare_descr tdl in
 (*
-let _ = printf "normalize compare_descr\n%!" in
+let _ = printf "normalise compare_descr\n%!" in
 let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
 *)
   {monoms = group_term_descr k tdl}
@@ -491,9 +491,9 @@ value tree_of_y_polyn k pol =
   List.fold_left rebuild_add (Const k.zero) pol.monoms
 ;
 
-value normalize (k : field _) t =
+value normalise (k : field _) t =
   let pol = xy_polyn_of_tree k t in
-  let _ = if debug_n then printf "normalize group_term_descr\n%!" else () in
+  let _ = if debug_n then printf "normalise group_term_descr\n%!" else () in
   let _ =
     if debug_n then
       List.iter
@@ -518,7 +518,7 @@ value normalize (k : field _) t =
       pol.monoms
   in
   let _ =
-    if debug_n then printf "normalize term_of_const_xpow_list\n%!" else ()
+    if debug_n then printf "normalise term_of_const_xpow_list\n%!" else ()
   in
   let _ =
     if debug_n then
@@ -571,7 +571,7 @@ value rec tree_with_pow_y (k : field _) t =
            (string_of_tree k False "x" "y" t)) ]
 ;
 
-value list_sort cmp =
+value _list_sort cmp =
   let rec insert x =
     fun
     [ [y :: l] → if cmp x y < 0 then [x; y :: l] else [y :: insert x l]

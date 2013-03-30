@@ -2,7 +2,7 @@ $ ./puiseux '(-x3+x4)-2x2y-xy2+2xy4+y5'
 input:
 -x³+x⁴-2x²y-xy²+2xy⁴+y⁵
 
-normalized:
+normalised:
 -x³+x⁴-2x²y-xy²+2xy⁴+y⁵
 
 ============================================================
@@ -51,7 +51,7 @@ $ ./puiseux 'x4-x3y+3x2y3-3xy5+y7'
 input:
 x⁴-x³y+3x²y³-3xy⁵+y⁷
 
-normalized:
+normalised:
 x⁴-x³y+3x²y³-3xy⁵+y⁷
 
 ============================================================
@@ -92,7 +92,7 @@ $ ./puiseux '2x5-x3y+2x2y2-xy3+2y5'
 input:
 2x⁵-x³y+2x²y²-xy³+2y⁵
 
-normalized:
+normalised:
 2x⁵-x³y+2x²y²-xy³+2y⁵
 
 ============================================================
@@ -146,7 +146,7 @@ $ ./puiseux '(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4'
 input:
 x²+4x³+6x⁴-4x⁴y-(2x+4x²+2x³)y²+y⁴
 
-normalized:
+normalised:
 x²+4x³+6x⁴-4x⁴y-(2x+4x²+2x³)y²+y⁴
 
 ============================================================
@@ -174,7 +174,7 @@ $ ./puiseux -y X 't2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3'
 input:
 t²X⁶+6t²X⁵+(8t³-2t²+t)X³+(7t⁴-t²-2t)X²+(8t³-3t)X-t⁸+t³
 
-normalized:
+normalised:
 t³-t⁸+(-3t+8t³)X+(-2t-t²+7t⁴)X²+(t-2t²+8t³)X³+6t²X⁵+t²X⁶
 
 ============================================================
@@ -244,7 +244,7 @@ $ ./puiseux 'y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3'
 input:
 y⁵-4y⁴+4y³+2x²y²-xy²+2x²y+2xy+x⁴+x³
 
-normalized:
+normalised:
 x³+x⁴+(2x+2x²)y+(-x+2x²)y²+4y³-4y⁴+y⁵
 
 ============================================================
@@ -298,7 +298,7 @@ $ ./puiseux 'y2-x3+2x2-x'
 input:
 y²-x³+2x²-x
 
-normalized:
+normalised:
 -x+2x²-x³+y²
 
 ============================================================
@@ -326,7 +326,7 @@ $ ./puiseux '2x5-x3y+2x2y2-xy3+2y5'
 input:
 2x⁵-x³y+2x²y²-xy³+2y⁵
 
-normalized:
+normalised:
 2x⁵-x³y+2x²y²-xy³+2y⁵
 
 ============================================================
@@ -380,7 +380,7 @@ $ ./puiseux 'y4-(2x3+2x2)y2+(x6+2x5+x4)'
 input:
 y⁴-(2x³+2x²)y²+(x⁶+2x⁵+x⁴)
 
-normalized:
+normalised:
 x⁴+2x⁵+x⁶-(2x²+2x³)y²+y⁴
 
 ============================================================
@@ -408,7 +408,7 @@ $ ./puiseux 'y4-2x3y2-2x2y2+x6+2x5+x4'
 input:
 y⁴-2x³y²-2x²y²+x⁶+2x⁵+x⁴
 
-normalized:
+normalised:
 x⁴+2x⁵+x⁶-(2x²+2x³)y²+y⁴
 
 ============================================================
@@ -436,7 +436,7 @@ $ ./puiseux ' -x3+x4-2x2y-xy2+2xy4+y5'
 input:
 -x³+x⁴-2x²y-xy²+2xy⁴+y⁵
 
-normalized:
+normalised:
 -x³+x⁴-2x²y-xy²+2xy⁴+y⁵
 
 ============================================================
@@ -485,7 +485,7 @@ $ ./puiseux 'x2+xy+y2+x+y'
 input:
 x²+xy+y²+x+y
 
-normalized:
+normalised:
 x+x²+(1+x)y+y²
 
 ============================================================
@@ -518,7 +518,7 @@ $ ./puiseux 'x2+xy+y2+y'
 input:
 x²+xy+y²+y
 
-normalized:
+normalised:
 x²+(1+x)y+y²
 
 ============================================================
@@ -551,7 +551,7 @@ $ ./puiseux 'x2+xy+y2+x'
 input:
 x²+xy+y²+x
 
-normalized:
+normalised:
 x+x²+xy+y²
 
 ============================================================
@@ -579,7 +579,7 @@ $ ./puiseux 'x2+4xy+y2'
 input:
 x²+4xy+y²
 
-normalized:
+normalised:
 x²+4xy+y²
 
 ============================================================
@@ -609,7 +609,7 @@ $ ./puiseux 'x2+xy+y2'
 input:
 x²+xy+y²
 
-normalized:
+normalised:
 x²+xy+y²
 
 ============================================================
@@ -639,7 +639,7 @@ $ ./puiseux 'x2+2xy+y2'
 input:
 x²+2xy+y²
 
-normalized:
+normalised:
 x²+2xy+y²
 
 ============================================================
@@ -660,7 +660,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+x+y'
 input:
 x³+x²y+xy²+y³+x²+xy+y²+x+y
 
-normalized:
+normalised:
 x+x²+x³+(1+x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -701,7 +701,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+y'
 input:
 x³+x²y+xy²+y³+x²+xy+y²+y
 
-normalized:
+normalised:
 x²+x³+(1+x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -742,7 +742,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+x'
 input:
 x³+x²y+xy²+y³+x²+xy+y²+x
 
-normalized:
+normalised:
 x+x²+x³+(x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -783,7 +783,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2'
 input:
 x³+x²y+xy²+y³+x²
 
-normalized:
+normalised:
 x²+x³+x²y+xy²+y³
 
 ============================================================
@@ -819,7 +819,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+y2'
 input:
 x³+x²y+xy²+y³+y²
 
-normalized:
+normalised:
 x³+x²y+(1+x)y²+y³
 
 ============================================================
@@ -860,7 +860,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+xy'
 input:
 x³+x²y+xy²+y³+x²+xy
 
-normalized:
+normalised:
 x²+x³+(x+x²)y+xy²+y³
 
 ============================================================
@@ -902,7 +902,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+xy+y2'
 input:
 x³+x²y+xy²+y³+xy+y²
 
-normalized:
+normalised:
 x³+(x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -949,7 +949,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+xy'
 input:
 x³+x²y+xy²+y³+xy
 
-normalized:
+normalised:
 x³+(x+x²)y+xy²+y³
 
 ============================================================
@@ -990,7 +990,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+xy+y'
 input:
 x³+x²y+xy²+y³+xy+y
 
-normalized:
+normalised:
 x³+(1+x+x²)y+xy²+y³
 
 ============================================================
@@ -1031,7 +1031,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+xy+x'
 input:
 x³+x²y+xy²+y³+xy+x
 
-normalized:
+normalised:
 x+x³+(x+x²)y+xy²+y³
 
 ============================================================
@@ -1067,7 +1067,7 @@ $ ./puiseux 'yx2-y3'
 input:
 yx²-y³
 
-normalized:
+normalised:
 x²y-y³
 
 ============================================================
@@ -1097,7 +1097,7 @@ $ ./puiseux 'x3+x2y+xy2+y3'
 input:
 x³+x²y+xy²+y³
 
-normalized:
+normalised:
 x³+x²y+xy²+y³
 
 ============================================================
@@ -1136,7 +1136,7 @@ $ ./puiseux 'yx2-2xy2+y3'
 input:
 yx²-2xy²+y³
 
-normalized:
+normalised:
 x²y-2xy²+y³
 
 ============================================================
@@ -1157,7 +1157,7 @@ $ ./puiseux 'x3-3yx2+3xy2-y3'
 input:
 x³-3yx²+3xy²-y³
 
-normalized:
+normalised:
 x³-3x²y+3xy²-y³
 
 ============================================================
@@ -1178,7 +1178,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+4xy+y2'
 input:
 x³+x²y+xy²+y³+x²+4xy+y²
 
-normalized:
+normalised:
 x²+x³+(4x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -1219,7 +1219,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2'
 input:
 x³+x²y+xy²+y³+x²+xy+y²
 
-normalized:
+normalised:
 x²+x³+(x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -1260,7 +1260,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+2xy+y2'
 input:
 x³+x²y+xy²+y³+x²+2xy+y²
 
-normalized:
+normalised:
 x²+x³+(2x+x²)y+(1+x)y²+y³
 
 ============================================================
@@ -1294,7 +1294,7 @@ $ ./puiseux 'x3+x2y+xy2+y3+x2+4xy+4y2'
 input:
 x³+x²y+xy²+y³+x²+4xy+4y²
 
-normalized:
+normalised:
 x²+x³+(4x+x²)y+(4+x)y²+y³
 
 ============================================================
@@ -1327,7 +1327,7 @@ $ ./puiseux 'x4+x3y+x2y2+xy3+y4+x+y'
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x+y
 
-normalized:
+normalised:
 x+x⁴+(1+x³)y+x²y²+xy³+y⁴
 
 ============================================================
@@ -1376,7 +1376,7 @@ $ ./puiseux 'x4+x3y+x2y2+xy3+y4+x2+y'
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x²+y
 
-normalized:
+normalised:
 x²+x⁴+(1+x³)y+x²y²+xy³+y⁴
 
 ============================================================
@@ -1425,7 +1425,7 @@ $ ./puiseux 'x4+x3y+x2y2+xy3+y4+x+y2'
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x+y²
 
-normalized:
+normalised:
 x+x⁴+x³y+(1+x²)y²+xy³+y⁴
 
 ============================================================
@@ -1474,7 +1474,7 @@ $ ./puiseux 'x4+x3y+x2y2+xy3+y4+x3+y'
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x³+y
 
-normalized:
+normalised:
 x³+x⁴+(1+x³)y+x²y²+xy³+y⁴
 
 ============================================================
@@ -1523,7 +1523,7 @@ $ ./puiseux 'x4+x3y+x2y2+xy3+y4+y3+x'
 input:
 x⁴+x³y+x²y²+xy³+y⁴+y³+x
 
-normalized:
+normalised:
 x+x⁴+x³y+x²y²+(1+x)y³+y⁴
 
 ============================================================
@@ -1572,7 +1572,7 @@ $ ./puiseux 'x4+x3y+x2y2+xy3+y4+y3+x2'
 input:
 x⁴+x³y+x²y²+xy³+y⁴+y³+x²
 
-normalized:
+normalised:
 x²+x⁴+x³y+x²y²+(1+x)y³+y⁴
 
 ============================================================
