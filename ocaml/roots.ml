@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.8 2013-03-30 00:52:28 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.9 2013-03-30 01:02:13 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -8,7 +8,33 @@ open Field;
 
 value quiet = ref True;
 
-value rebuild_add_list_y k cpl =
+value rebuild_add_list_y k ml =
+  let rebuild_add t m =
+    let c₁ = m.coeff in
+    let p₁ = m.power in
+    if k.eq c₁ k.zero then t
+    else
+       let t₁ =
+         if p₁ = 0 then Const c₁
+         else if k.eq c₁ k.one then Ypower p₁
+         else if k.eq c₁ k.minus_one then Neg (Ypower p₁)
+         else Mult (Const c₁) (Ypower p₁)
+       in
+       let t_is_null =
+         match t with
+         [ Const c → k.eq c k.zero
+         | _ → False ]
+       in
+       if t_is_null then t₁
+       else
+         match without_initial_neg k t₁ with
+         [ Some t₁ → Minus t t₁
+         | None → Plus t t₁ ]
+  in
+  List.fold_left rebuild_add (Const k.zero) ml
+;
+
+value rebuild_add_list_y₂ k cpl =
   let rebuild_add t (c₁, p₁) =
     if k.eq c₁ k.zero then t
     else
@@ -359,7 +385,7 @@ value roots_of_c_coeffs k cpl coeffs =
       [ (Some a, Some b, Some c) →
           roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
       | _ →
-          let polyn = rebuild_add_list_y k cpl in
+          let polyn = rebuild_add_list_y₂ k cpl in
           failwith
             (sprintf "cannot compute roots of '%s'"
                (string_of_tree k True "x" "y" polyn)) ]
@@ -368,7 +394,7 @@ value roots_of_c_coeffs k cpl coeffs =
       match algeb_nb with
       [ Some x →
           let t = Mult (Const (k.of_a x)) (Ypower 1) in
-          let polyn = rebuild_add_list_y k cpl in
+          let polyn = rebuild_add_list_y₂ k cpl in
           let polyn₂ = substitute_y k t polyn in
           let polyn₂ = normalize k polyn₂ in
           let myl = group k polyn₂ in
@@ -394,7 +420,7 @@ value roots_of_c_coeffs k cpl coeffs =
           in
           match cnl_opt with
           [ Some cnl →
-              let polyn = rebuild_add_list_y k cnl in
+              let polyn = rebuild_add_list_y₂ k cnl in
               failwith
                 (sprintf "not impl substituted polynomial %s"
                    (string_of_tree k True "x" "y" polyn))
@@ -403,16 +429,16 @@ value roots_of_c_coeffs k cpl coeffs =
                 (sprintf "cannot compute roots of '%s'\n%!"
                    (string_of_tree k True "x" "y" polyn)) ]
       | None →
-          let polyn = rebuild_add_list_y k cpl in
+          let polyn = rebuild_add_list_y₂ k cpl in
           failwith
             (sprintf "cannot compute roots of '%s'\n%!"
                (string_of_tree k True "x" "y" polyn)) ];
     } ]
 ;
 
-value roots_of_polynom_with_float_coeffs k power_gcd cpl = do {
+value roots_of_polynom_with_float_coeffs k power_gcd ml = do {
   let prec = 200 in
-  let cpl = List.rev_map (fun (n, p) → (k.to_complex n, p)) cpl in
+  let cpl = List.rev_map (fun m → (k.to_complex m.coeff, m.power)) ml in
   let fpl = list_of_deg_list complex_zero cpl in
   let rl = wrap_prec prec Cpoly.roots (List.rev fpl) in
   if not quiet.val then do {
@@ -464,7 +490,8 @@ value roots_of_polynom_with_float_coeffs k power_gcd cpl = do {
   rl
 };
 
-value roots_of_polynom_with_algebraic_coeffs k power_gcd cpl apl = do {
+value roots_of_polynom_with_algebraic_coeffs k power_gcd ml apl = do {
+  let cpl = List.map (fun m → (m.coeff, m.power)) ml in
   let degree = snd (List.hd (List.rev apl)) in
   let rl =
     match degree with
@@ -519,32 +546,35 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd cpl apl = do {
   rl
 };
 
-value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd cpl =
+value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd ml =
   let apl_opt =
     try
       let apl =
         List.rev_map
-          (fun (c, p) →
-             match k.to_a c with
-             [ Some a → (a, p)
+          (fun m →
+             match k.to_a m.coeff with
+             [ Some a → (a, m.power)
              | None → raise Exit ])
-          cpl
+          ml
       in
       Some apl
     with
     [ Exit → None ]
   in
   match apl_opt with
-  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd cpl apl
-  | None → roots_of_polynom_with_float_coeffs k power_gcd cpl ]
+  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd ml apl
+  | None → roots_of_polynom_with_float_coeffs k power_gcd ml ]
 ;
 
 value roots k ml = do {
   let power_gcd = List.fold_left (fun gp m → gcd gp m.power) 0 ml in
   let g = List.fold_left (fun g m → k.gcd g m.coeff) k.zero ml in
-  let cpl = List.map (fun m → (k.div m.coeff g, m.power / power_gcd)) ml in
+  let ml =
+    List.map (fun m → {coeff = k.div m.coeff g; power = m.power / power_gcd})
+      ml
+  in
   if not quiet.val then do {
-    let polyn = rebuild_add_list_y k cpl in
+    let polyn = rebuild_add_list_y k ml in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" polyn)
     else
@@ -553,5 +583,5 @@ value roots k ml = do {
         (sup_string_of_string ("1/" ^ soi power_gcd))
   }
   else ();
-  roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd cpl
+  roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd ml
 };
