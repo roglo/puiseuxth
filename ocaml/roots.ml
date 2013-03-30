@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.16 2013-03-30 02:20:49 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.17 2013-03-30 03:09:24 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -518,15 +518,16 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
 ;
 
 value roots k pol = do {
-  let power_gcd = List.fold_left (fun gp m → gcd gp m.power) 0 pol.monoms in
-  let g = List.fold_left (fun g m → k.gcd g m.coeff) k.zero pol.monoms in
+  let bad_pol = {monoms = List.rev pol.monoms} in
+  let power_gcd = List.fold_left (fun gp m → gcd gp m.power) 0 bad_pol.monoms in
+  let g = List.fold_left (fun g m → k.gcd g m.coeff) k.zero bad_pol.monoms in
   let ml =
     List.map (fun m → {coeff = k.div m.coeff g; power = m.power / power_gcd})
-      pol.monoms
+      bad_pol.monoms
   in
-  let pol = {monoms = ml} in
+  let bad_pol = {monoms = ml} in
   if not quiet.val then do {
-    let polyn = tree_of_y_polyn k pol in
+    let polyn = tree_of_y_polyn k bad_pol in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" polyn)
     else
@@ -535,5 +536,5 @@ value roots k pol = do {
         (sup_string_of_string ("1/" ^ soi power_gcd))
   }
   else ();
-  roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol
+  roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd bad_pol
 };
