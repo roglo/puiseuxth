@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.39 2013-03-30 16:50:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.40 2013-03-30 16:55:42 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -150,8 +150,17 @@ value horner add mul zero x pol =
         else loop (mul a x) (deg - 1) [] ]
 ;
 
-value pol_add k p₁ p₂ = failwith "not impl pol_add";
-value pol_mul k p₁ p₂ = failwith "not impl pol_mul";
+value merge_x_pol ml₁ ml₂ =
+  loop [] ml₁ ml₂ where rec loop rev_ml ml₁ ml₂ =
+    match (ml₁, ml₂) with
+    [ ([m₁ :: ml1], [m₂ :: ml₂]) →
+  failwith "not impl merge_x_pol 42"
+    | ([], ml₂) → List.rev (List.rev_append ml₂ rev_ml)
+    | (ml₁, []) → List.rev (List.rev_append ml₁ rev_ml) ]
+;
+
+value pol_add k ml p = merge_x_pol ml p.monoms;
+value pol_mul k ml p = failwith "not impl pol_mul";
 
 value horner_pol k x pol =
   let rml = List.rev pol.monoms in
