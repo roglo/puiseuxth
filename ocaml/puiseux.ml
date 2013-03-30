@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.31 2013-03-30 10:33:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.32 2013-03-30 10:41:55 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -60,8 +60,8 @@ value lower_convex_hull xyl =
   | [] → [] ]
 ;
 
-value gamma_beta_list_of_lower_convex_hull =
-  loop [] where rec loop rev_gbl =
+value gamma_beta_list pol =
+  let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: xyl₁] →
         match xyl₁ with
@@ -73,15 +73,13 @@ value gamma_beta_list_of_lower_convex_hull =
             List.rev rev_gbl ]
     | [] →
         List.rev rev_gbl ]
-;
-
-value gamma_beta_list pol =
+  in
   let xyl =
     List.map (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
   let ch = lower_convex_hull xyl in
-  gamma_beta_list_of_lower_convex_hull ch
+  loop [] ch
 ;
 
 value zero_is_root p =
