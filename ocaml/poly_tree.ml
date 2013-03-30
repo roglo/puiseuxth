@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.31 2013-03-30 07:38:31 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.32 2013-03-30 07:55:18 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -467,15 +467,13 @@ value tree_of_x_polyn k pol =
 
 value tree_of_y_polyn k pol =
   let rebuild_add t m =
-    let c₁ = m.coeff in
-    let p₁ = m.power in
-    if k.eq c₁ k.zero then t
+    if k.eq m.coeff k.zero then t
     else
        let t₁ =
-         if p₁ = 0 then Const c₁
-         else if k.eq c₁ k.one then Ypower p₁
-         else if k.eq c₁ k.minus_one then Neg (Ypower p₁)
-         else Mult (Const c₁) (Ypower p₁)
+         if m.power = 0 then Const m.coeff
+         else if k.eq m.coeff k.one then Ypower m.power
+         else if k.eq m.coeff k.minus_one then Neg (Ypower m.power)
+         else Mult (Const m.coeff) (Ypower m.power)
        in
        let t_is_null =
          match t with
