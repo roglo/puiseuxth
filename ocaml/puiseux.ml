@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.26 2013-03-30 07:38:31 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.27 2013-03-30 09:05:02 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -179,6 +179,22 @@ value print_solution k br finite nth cγl = do {
 };
 
 value cancel_constant_term_if_any k t =
+(*
+  let pol = xy_polyn_of_tree k t in
+  match pol.monoms with
+  [ [{coeff = t₁; power = p₁} :: ml₁] →
+      if p₁ = 0 then do {
+        if not quiet.val then
+          printf "Warning: cancelling constant term: %s\n%!"
+            (k.to_string td.const)
+        else ();
+        match ml₁ with
+        [ [m₂ :: ml₂] → List.fold_left (fun t₁ t₂ → Plus t₁ t₂) t₂ tl₂
+        | [] → t₁ ]
+      }
+      else t
+  | [] → t ]
+*)
   match Poly_tree.flatten t [] with
   [ [t₁ :: tl₁] →
       let td = term_descr_of_term k t₁ in
@@ -193,6 +209,7 @@ value cancel_constant_term_if_any k t =
       }
       else t
   | [] → t ]
+(**)
 ;
 
 value puiseux_iteration k br r m γ β nth_sol = do {
