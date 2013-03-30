@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.12 2013-03-30 01:26:44 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.13 2013-03-30 01:52:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -403,7 +403,7 @@ value roots_of_c_coeffs k cpl coeffs =
               let cnl =
                 List.map
                   (fun my →
-                     let cpl = my.coeff in
+                     let cpl = my.coeff.monoms in
                      let py = my.power in
                      match cpl with
                      [ [mx] →

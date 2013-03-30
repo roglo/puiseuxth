@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.28 2013-03-30 01:25:07 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.29 2013-03-30 01:52:40 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -309,11 +309,11 @@ value group_term_descr k tdl =
        match myl with
        [ [my :: myl₁] →
            if td.ypow = my.power then
-             let mxl = merge_const_px k mx my.coeff in
+             let mxl = merge_const_px k mx my.coeff.monoms in
              if mxl = [] then myl₁
-             else [{coeff = mxl; power = my.power} :: myl₁]
-           else [{coeff = [mx]; power = td.ypow} :: myl]
-       | [] → [{coeff = [mx]; power = td.ypow}] ])
+             else [{coeff = {monoms = mxl}; power = my.power} :: myl₁]
+           else [{coeff = {monoms = [mx]}; power = td.ypow} :: myl]
+       | [] → [{coeff = {monoms = [mx]}; power = td.ypow}] ])
     tdl []
 ;
 
@@ -444,7 +444,7 @@ value normalize (k : field _) t =
              (fun mx →
                 printf "    cst %s px %s\n%!" (k.to_string mx.coeff)
                   (Q.to_string mx.power))
-             my.coeff
+             my.coeff.monoms
          })
         pol.monoms
     else ()
@@ -452,7 +452,9 @@ value normalize (k : field _) t =
   let myl =
     List.map
       (fun my →
-         let t = List.fold_left (add_x_monomial k) (Const k.zero) my.coeff in
+         let t =
+           List.fold_left (add_x_monomial k) (Const k.zero) my.coeff.monoms
+         in
          {coeff = t; power = my.power})
       pol.monoms
   in
