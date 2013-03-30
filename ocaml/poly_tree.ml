@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.32 2013-03-30 07:55:18 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.33 2013-03-30 08:06:33 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -366,35 +366,38 @@ value add_x_monomial k t₁ mx =
     | None → Plus t₁ t₂ ]
 ;
 
-value expr_of_term_ypow_list (k : field _) t₁ my =
-  let t₂ =
-    if my.power = 0 then my.coeff
+value tree_of_tree_y_polyn k pol =
+  let expr_of_term_ypow_list (k : field _) t₁ my =
+    let t₂ =
+      if my.power = 0 then my.coeff
+      else
+        let (is_neg, t₂) =
+          match without_initial_neg k my.coeff with
+          [ Some t₂ → (True, t₂)
+          | None → (False, my.coeff) ]
+        in
+        let t₂_is_one =
+          match t₂ with
+          [ Const c → k.eq c k.one
+          | _ →  False ]
+        in
+        let t₂ =
+          if t₂_is_one then Ypower my.power else Mult t₂ (Ypower my.power)
+        in
+        if is_neg then Neg t₂ else t₂
+    in
+    let t_is_null =
+      match t₁ with
+      [ Const c → k.eq c k.zero
+      | _ → False ]
+    in
+    if t_is_null then t₂
     else
-      let (is_neg, t₂) =
-        match without_initial_neg k my.coeff with
-        [ Some t₂ → (True, t₂)
-        | None → (False, my.coeff) ]
-      in
-      let t₂_is_one =
-        match t₂ with
-        [ Const c → k.eq c k.one
-        | _ →  False ]
-      in
-      let t₂ =
-        if t₂_is_one then Ypower my.power else Mult t₂ (Ypower my.power)
-      in
-      if is_neg then Neg t₂ else t₂
+      match without_initial_neg k t₂ with
+      [ Some t₂ → Minus t₁ t₂
+      | None → Plus t₁ t₂ ]
   in
-  let t_is_null =
-    match t₁ with
-    [ Const c₀ → k.eq c₀ k.zero
-    | _ → False ]
-  in
-  if t_is_null then t₂
-  else
-    match without_initial_neg k t₂ with
-    [ Some t₂ → Minus t₁ t₂
-    | None → Plus t₁ t₂ ]
+  List.fold_left (expr_of_term_ypow_list k) (Const k.zero) pol.monoms
 ;
 
 value debug_n = False;
@@ -527,8 +530,7 @@ value normalise (k : field _) t =
         myl
     else ()
   in
-  let t = List.fold_left (expr_of_term_ypow_list k) (Const k.zero) myl in
-  t
+  tree_of_tree_y_polyn k {monoms = myl}
 ;
 
 value substitute_y k y t =
