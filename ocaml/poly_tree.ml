@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.29 2013-03-30 01:52:40 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.30 2013-03-30 02:04:06 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -430,6 +430,65 @@ let _ = printf "normalize compare_descr\n%!" in
 let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
 *)
   {monoms = group_term_descr k tdl}
+;
+
+value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
+
+value tree_of_x_polyn k pol =
+  let rebuild_add t mx =
+    if k.eq mx.coeff k.zero then t
+    else
+       let t₁ =
+         if Q.eq mx.power Q.zero then Const mx.coeff
+         else
+           let xp = xpower mx.power in
+           if k.eq mx.coeff k.one then xp
+           else if k.eq mx.coeff k.minus_one then Neg xp
+           else Mult (Const mx.coeff) xp
+       in
+       let t₁ =
+         match without_initial_neg k t₁ with
+         [ Some t₁ → Neg t₁
+         | None → t₁ ]
+       in
+       let t_is_null =
+         match t with
+         [ Const c → k.eq c k.zero
+         | _ → False ]
+       in
+       if t_is_null then t₁
+       else
+         match without_initial_neg k t₁ with
+         [ Some t₁ → Minus t t₁
+         | None → Plus t t₁ ]
+  in
+  List.fold_left rebuild_add (Const k.zero) pol.monoms
+;
+
+value tree_of_y_polyn k pol =
+  let rebuild_add t m =
+    let c₁ = m.coeff in
+    let p₁ = m.power in
+    if k.eq c₁ k.zero then t
+    else
+       let t₁ =
+         if p₁ = 0 then Const c₁
+         else if k.eq c₁ k.one then Ypower p₁
+         else if k.eq c₁ k.minus_one then Neg (Ypower p₁)
+         else Mult (Const c₁) (Ypower p₁)
+       in
+       let t_is_null =
+         match t with
+         [ Const c → k.eq c k.zero
+         | _ → False ]
+       in
+       if t_is_null then t₁
+       else
+         match without_initial_neg k t₁ with
+         [ Some t₁ → Minus t t₁
+         | None → Plus t t₁ ]
+  in
+  List.fold_left rebuild_add (Const k.zero) pol.monoms
 ;
 
 value normalize (k : field _) t =

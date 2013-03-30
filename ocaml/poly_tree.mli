@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.17 2013-03-30 01:52:40 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.18 2013-03-30 02:04:06 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -30,11 +30,15 @@ value flatten : tree α → list (tree α) → list (tree α);
 value term_descr_of_term : field α → tree α → term_descr α;
 value without_initial_neg : field α → tree α → option (tree α);
 value substitute_y : field α → tree α → tree α → tree α;
+value xpower : Q.t → tree α;
 
 value y_polyn_of_tree : field α → tree α → polynomial (tree α) int;
 value x_polyn_of_tree : field α → tree α → polynomial α Q.t;
 
 value xy_polyn_of_tree :
   field α → tree α → polynomial (polynomial α Q.t) int;
+
+value tree_of_x_polyn : field α → polynomial α Q.t → tree α;
+value tree_of_y_polyn : field α → polynomial α int → tree α;
 
 value normalize : field α → tree α → tree α;

@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.13 2013-03-30 01:52:40 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.14 2013-03-30 02:04:06 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -7,32 +7,6 @@ open Poly_tree;
 open Field;
 
 value quiet = ref True;
-
-value rebuild_add_list_y k ml =
-  let rebuild_add t m =
-    let c₁ = m.coeff in
-    let p₁ = m.power in
-    if k.eq c₁ k.zero then t
-    else
-       let t₁ =
-         if p₁ = 0 then Const c₁
-         else if k.eq c₁ k.one then Ypower p₁
-         else if k.eq c₁ k.minus_one then Neg (Ypower p₁)
-         else Mult (Const c₁) (Ypower p₁)
-       in
-       let t_is_null =
-         match t with
-         [ Const c → k.eq c k.zero
-         | _ → False ]
-       in
-       if t_is_null then t₁
-       else
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Minus t t₁
-         | None → Plus t t₁ ]
-  in
-  List.fold_left rebuild_add (Const k.zero) ml
-;
 
 value rebuild_add_list_y₂ k cpl =
   let rebuild_add t (c₁, p₁) =
@@ -574,7 +548,7 @@ value roots k pol = do {
       pol.monoms
   in
   if not quiet.val then do {
-    let polyn = rebuild_add_list_y k ml in
+    let polyn = tree_of_y_polyn k {monoms = ml} in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" polyn)
     else

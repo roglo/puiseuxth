@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.23 2013-03-30 01:26:44 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.24 2013-03-30 02:04:06 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -96,39 +96,6 @@ value zero_is_root p =
 value start_red = "\027[31m";
 value end_red = "\027[m";
 
-value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
-
-value rebuild_add_list_x k mxl =
-  let rebuild_add t mx =
-    if k.eq mx.coeff k.zero then t
-    else
-       let t₁ =
-         if Q.eq mx.power Q.zero then Const mx.coeff
-         else
-           let xp = xpower mx.power in
-           if k.eq mx.coeff k.one then xp
-           else if k.eq mx.coeff k.minus_one then Neg xp
-           else Mult (Const mx.coeff) xp
-       in
-       let t₁ =
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Neg t₁
-         | None → t₁ ]
-       in
-       let t_is_null =
-         match t with
-         [ Const c → k.eq c k.zero
-         | _ → False ]
-       in
-       if t_is_null then t₁
-       else
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Minus t t₁
-         | None → Plus t t₁ ]
-  in
-  List.fold_left rebuild_add (Const k.zero) mxl
-;
-
 value arg_polynom = ref None;
 value arg_y = ref "y";
 value arg_fname = ref "";
@@ -178,7 +145,7 @@ value print_solution k br finite nth cγl = do {
          ([{coeff = c; power = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
-  let sol = rebuild_add_list_x k (List.rev rev_sol) in
+  let sol = tree_of_x_polyn k {monoms = List.rev rev_sol} in
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || not quiet.val then start_red else "")
@@ -196,11 +163,11 @@ value print_solution k br finite nth cγl = do {
       match pol.monoms with
       [ [{coeff = t; power = 0}] →
           let pol = x_polyn_of_tree k t in
-          let mxl₂ =
-            if nb_terms > 0 then list_take nb_terms pol.monoms
-            else pol.monoms
+          let pol₂ =
+            if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
+            else pol
           in
-          let t = rebuild_add_list_x k mxl₂ in
+          let t = tree_of_x_polyn k pol₂ in
           let ellipses =
             if List.length pol.monoms > nb_terms then " + ..." else ""
           in
