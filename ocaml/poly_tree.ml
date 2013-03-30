@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.34 2013-03-30 08:18:32 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.35 2013-03-30 08:48:39 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -337,47 +337,6 @@ value rec without_initial_neg k =
       None ]
 ;
 
-value tree_y_polyn_of_polyn k pol =
-  let add_x_monomial k t₁ mx =
-    let (is_neg, c) =
-      match k.neg_factor mx.coeff with
-      [ Some c → (True, c)
-      | None → (False, mx.coeff) ]
-    in
-    let t₂ =
-      if Q.eq mx.power Q.zero then Const c
-      else
-        let tx =
-          Xpower (I.to_int (Q.rnum mx.power)) (I.to_int (Q.rden mx.power))
-        in
-        if k.eq c k.one then tx
-        else if k.eq c k.minus_one then Neg tx
-        else Mult (Const c) tx
-    in
-    let t₂ = if is_neg then Neg t₂ else t₂ in
-    let t₁_is_null =
-      match t₁ with
-      [ Const c₀ → k.eq c₀ k.zero
-      | _ → False ]
-    in
-    if t₁_is_null then t₂
-    else
-      match without_initial_neg k t₂ with
-      [ Some t₂ → Minus t₁ t₂
-      | None → Plus t₁ t₂ ]
-  in
-  let ml =
-    List.map
-      (fun my →
-         let t =
-           List.fold_left (add_x_monomial k) (Const k.zero) my.coeff.monoms
-         in
-         {coeff = t; power = my.power})
-      pol.monoms
-  in
-  {monoms = ml}
-;
-
 value tree_of_tree_y_polyn k pol =
   let expr_of_term_ypow_list (k : field _) t₁ my =
     let t₂ =
@@ -521,20 +480,11 @@ value normalise (k : field _) t =
         pol.monoms
     else ()
   in
-  let xpol = tree_y_polyn_of_polyn k pol in
-  let _ =
-    if debug_n then printf "normalise term_of_const_xpow_list\n%!" else ()
+  let ml =
+    List.map (fun m → {coeff = tree_of_x_polyn k m.coeff; power = m.power})
+      pol.monoms
   in
-  let _ =
-    if debug_n then
-      List.iter
-        (fun my →
-           printf "  t %s py %d\n%!" (string_of_tree k True "x" "y" my.coeff)
-             my.power)
-        xpol.monoms
-    else ()
-  in
-  tree_of_tree_y_polyn k xpol
+  tree_of_tree_y_polyn k {monoms = ml}
 ;
 
 value substitute_y k y t =
