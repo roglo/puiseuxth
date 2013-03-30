@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.25 2013-03-30 01:13:40 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.26 2013-03-30 01:16:32 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -611,8 +611,11 @@ value const_pow_list_x (k : field _) t =
     List.map (fun mx → {coeff = const_of_tree k mx.coeff; power = mx.power})
       mxl
   in
-  if is_neg then
-    List.map (fun mx → {coeff = k.neg mx.coeff; power = mx.power}) mxl
-  else
-    mxl
+  let mxl =
+    if is_neg then
+      List.map (fun mx → {coeff = k.neg mx.coeff; power = mx.power}) mxl
+    else
+      mxl
+  in
+  {monoms = mxl}
 ;

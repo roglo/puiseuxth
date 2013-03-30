@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.19 2013-03-30 00:52:28 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.20 2013-03-30 01:13:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -78,17 +78,17 @@ value gamma_beta_list_of_lower_convex_hull =
 ;
 
 value gamma_beta_list (k : field _) t =
-  let myl = tree_pow_list_y k t in
+  let pol = tree_pow_list_y k t in
   let xyl =
     List.map (fun my → (Q.of_i (I.of_int my.power), valuation k my.coeff))
-      myl
+      pol.monoms
   in
   let ch = lower_convex_hull xyl in
   gamma_beta_list_of_lower_convex_hull ch
 ;
 
-value zero_is_root =
-  fun
+value zero_is_root p =
+  match p.monoms with
   [ [m :: _] → m.power > 0
   | [] → False ]
 ;
@@ -146,7 +146,7 @@ type branch α =
     vx : string;
     vy : string;
     t : tree α;
-    ml : list (monomial (tree α) int) }
+    pol : polynomial (tree α) int }
 ;
 
 value cut_long at_middle s =
@@ -192,8 +192,8 @@ value print_solution k br finite nth cγl = do {
       let t = normalize k t in
       let t = tree_map C.float_round_zero t in
       let t = normalize k t in
-      let myl = tree_pow_list_y k t in
-      match myl with
+      let pol = tree_pow_list_y k t in
+      match pol.monoms with
       [ [{coeff = t; power = 0}] →
           let mxl = const_pow_list_x k t in
           let mxl₂ = if nb_terms > 0 then list_take nb_terms mxl else mxl in
@@ -257,8 +257,8 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
         printf "  %s\n%!" s
       else ();
       let t = cancel_constant_term_if_any k t in
-      let myl = tree_pow_list_y k t in
-      let finite = zero_is_root myl in
+      let pol = tree_pow_list_y k t in
+      let finite = zero_is_root pol in
       if br.rem_steps = 0 || finite then do {
         if not quiet.val then do {
           printf "\n";
@@ -293,7 +293,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
          let αi = valuation k m.coeff in
          let βi = Q.norm (Q.add (Q.muli γ (I.of_int m.power)) αi) in
          Q.eq β βi)
-      br.ml
+      br.pol.monoms
   in
   let j = (List.hd hl).power in
   let q = List.fold_left (fun q m → gcd q (m.power - j)) 0 hl in
@@ -329,7 +329,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
 
 and next_step k br nth_sol t cγl =
   let gbl = gamma_beta_list k t in
-  let myl = tree_pow_list_y k t in
+  let pol = tree_pow_list_y k t in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if not quiet.val then do {
@@ -348,7 +348,7 @@ and next_step k br nth_sol t cγl =
            {initial_polynom = br.initial_polynom;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
-            vx = br.vx; vy = br.vy; t = t; ml = myl}
+            vx = br.vx; vy = br.vy; t = t; pol = pol}
          in
          puiseux_branch k br nth_sol (γ, β)
        })
@@ -363,7 +363,7 @@ value print_line_equal () =
 
 value puiseux k nb_steps vx vy t =
   let gbl = gamma_beta_list k t in
-  let myl = tree_pow_list_y k t in
+  let pol = tree_pow_list_y k t in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
@@ -371,7 +371,7 @@ value puiseux k nb_steps vx vy t =
        print_line_equal ();
        let br =
          {initial_polynom = t; cγl = []; step = 1; rem_steps = rem_steps;
-          vx = vx; vy = vy; t = t; ml = myl}
+          vx = vx; vy = vy; t = t; pol = pol}
        in
        puiseux_branch k br nth_sol (γ₁, β₁)
      })
