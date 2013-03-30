@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.29 2013-03-30 09:54:58 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.30 2013-03-30 10:31:07 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -77,10 +77,7 @@ value gamma_beta_list_of_lower_convex_hull =
 
 value gamma_beta_list k pol =
   let xyl =
-    List.map
-      (fun my →
-         let xpol = x_polyn_of_tree k my.coeff in
-         (Q.of_i (I.of_int my.power), valuation xpol))
+    List.map (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
   let ch = lower_convex_hull xyl in
@@ -113,7 +110,7 @@ type branch α =
     vx : string;
     vy : string;
     t : tree α;
-    pol : polynomial (tree α) int }
+    pol : polynomial (polynomial α Q.t) int }
 ;
 
 value cut_long at_middle s =
@@ -277,8 +274,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   let hl =
     List.filter
       (fun m →
-         let xpol = x_polyn_of_tree k m.coeff in
-         let αi = valuation xpol in
+         let αi = valuation m.coeff in
          let βi = Q.norm (Q.add (Q.muli γ (I.of_int m.power)) αi) in
          Q.eq β βi)
       br.pol.monoms
@@ -297,10 +293,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
     else ()
   in
   let ml =
-    List.map
-      (fun m →
-         let pol = x_polyn_of_tree k m.coeff in
-         {coeff = valuation_coeff pol; power = m.power - j})
+    List.map (fun m → {coeff = valuation_coeff m.coeff; power = m.power - j})
       hl
   in
   let rl = roots k {monoms = ml} in
@@ -320,7 +313,12 @@ value rec puiseux_branch k br nth_sol (γ, β) =
 
 and next_step k br nth_sol t cγl =
   let pol = y_polyn_of_tree k t in
-  let gbl = gamma_beta_list k pol in
+  let ppol =
+    {monoms =
+     List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
+       pol.monoms}
+  in
+  let gbl = gamma_beta_list k ppol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if not quiet.val then do {
@@ -339,7 +337,7 @@ and next_step k br nth_sol t cγl =
            {initial_polynom = br.initial_polynom;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
-            vx = br.vx; vy = br.vy; t = t; pol = pol}
+            vx = br.vx; vy = br.vy; t = t; pol = ppol}
          in
          puiseux_branch k br nth_sol (γ, β)
        })
@@ -354,7 +352,12 @@ value print_line_equal () =
 
 value puiseux k nb_steps vx vy t =
   let pol = y_polyn_of_tree k t in
-  let gbl = gamma_beta_list k pol in
+  let ppol =
+    {monoms =
+     List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
+       pol.monoms}
+  in
+  let gbl = gamma_beta_list k ppol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
@@ -362,7 +365,7 @@ value puiseux k nb_steps vx vy t =
        print_line_equal ();
        let br =
          {initial_polynom = t; cγl = []; step = 1; rem_steps = rem_steps;
-          vx = vx; vy = vy; t = t; pol = pol}
+          vx = vx; vy = vy; t = t; pol = ppol}
        in
        puiseux_branch k br nth_sol (γ₁, β₁)
      })
