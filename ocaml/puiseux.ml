@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.32 2013-03-30 10:41:55 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.33 2013-03-30 10:49:07 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -63,15 +63,11 @@ value lower_convex_hull xyl =
 value gamma_beta_list pol =
   let rec loop rev_gbl =
     fun
-    [ [(x₁, y₁) :: xyl₁] →
-        match xyl₁ with
-        [ [(x₂, y₂) :: xyl₂] →
-            let γ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
-            let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
-            loop [(γ, β) :: rev_gbl] xyl₁
-        | [] →
-            List.rev rev_gbl ]
-    | [] →
+    [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
+        let γ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
+        let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
+        loop [(γ, β) :: rev_gbl] xyl₁
+    | [_] | [] →
         List.rev rev_gbl ]
   in
   let xyl =
