@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.19 2013-03-30 03:11:06 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.20 2013-03-30 03:21:44 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -324,7 +324,7 @@ value find_algebr_nb k pol =
     | [] → None ]
 ;
 
-value roots_of_c_coeffs k pol coeffs =
+value roots_of_c_coeffs k bad_pol coeffs =
   match coeffs with
   [ [] | [_] → []
   | [b; a] →
@@ -335,16 +335,16 @@ value roots_of_c_coeffs k pol coeffs =
       [ (Some a, Some b, Some c) →
           roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
       | _ →
-          let t = tree_of_y_polyn k pol in
+          let t = tree_of_y_polyn k bad_pol in
           failwith
             (sprintf "cannot compute roots of '%s'"
                (string_of_tree k True "x" "y" t)) ]
   | _ → do {
-      let algeb_nb = find_algebr_nb k pol in
+      let algeb_nb = find_algebr_nb k bad_pol in
       match algeb_nb with
       [ Some x →
           let yt = Mult (Const (k.of_a x)) (Ypower 1) in
-          let polyn = tree_of_y_polyn k pol in
+          let polyn = tree_of_y_polyn k bad_pol in
           let polyn₂ = substitute_y k yt polyn in
           let polyn₂ = normalize k polyn₂ in
           let pol = xy_polyn_of_tree k polyn₂ in
@@ -380,16 +380,16 @@ value roots_of_c_coeffs k pol coeffs =
                 (sprintf "cannot compute roots of '%s'\n%!"
                    (string_of_tree k True "x" "y" polyn)) ]
       | None →
-          let t = tree_of_y_polyn k pol in
+          let t = tree_of_y_polyn k bad_pol in
           failwith
             (sprintf "cannot compute roots of '%s'\n%!"
                (string_of_tree k True "x" "y" t)) ];
     } ]
 ;
 
-value roots_of_polynom_with_float_coeffs k power_gcd ml = do {
+value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let prec = 200 in
-  let cpl = List.rev_map (fun m → (k.to_complex m.coeff, m.power)) ml in
+  let cpl = List.map (fun m → (k.to_complex m.coeff, m.power)) pol.monoms in
   let fpl = list_of_deg_list complex_zero cpl in
   let rl = wrap_prec prec Cpoly.roots (List.rev fpl) in
   if not quiet.val then do {
@@ -441,8 +441,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd ml = do {
   rl
 };
 
-value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl = do {
-  let cpl = List.map (fun m → (m.coeff, m.power)) pol.monoms in
+value roots_of_polynom_with_algebraic_coeffs k power_gcd bad_pol apl = do {
   let degree = snd (List.hd (List.rev apl)) in
   let rl =
     match degree with
@@ -475,8 +474,9 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl = do {
             rl
           }
         | None → do {
+            let cpl = List.map (fun m → (m.coeff, m.power)) bad_pol.monoms in
             let coeffs = list_of_deg_list k.zero (List.rev cpl) in
-            roots_of_c_coeffs k pol coeffs
+            roots_of_c_coeffs k bad_pol coeffs
           } ] ]
   in
   let rl =
@@ -501,7 +501,7 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
   let apl_opt =
     try
       let apl =
-        List.rev_map
+        List.map
           (fun m →
              match k.to_a m.coeff with
              [ Some a → (a, m.power)
@@ -512,29 +512,30 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
     with
     [ Exit → None ]
   in
+  let bad_pol = {monoms = List.rev pol.monoms} in
   match apl_opt with
-  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl
-  | None → roots_of_polynom_with_float_coeffs k power_gcd pol.monoms ]
+  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd bad_pol apl
+  | None → roots_of_polynom_with_float_coeffs k power_gcd pol ]
 ;
 
 value roots k pol = do {
   let power_gcd = List.fold_left (fun gp m → gcd gp m.power) 0 pol.monoms in
   let g = List.fold_left (fun g m → k.gcd g m.coeff) k.zero pol.monoms in
   let ml =
-    List.rev_map
+    List.map
       (fun m → {coeff = k.div m.coeff g; power = m.power / power_gcd})
       pol.monoms
   in
-  let bad_pol = {monoms = ml} in
   if not quiet.val then do {
-    let polyn = tree_of_y_polyn k bad_pol in
+    let rev_pol = {monoms = List.rev ml} in
+    let t = tree_of_y_polyn k rev_pol in
     if power_gcd = 1 then
-      printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" polyn)
+      printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" t)
     else
-      printf "resolving %s=0 and c=z%s\n%!"
-        (string_of_tree k True "x" "z" polyn)
+      printf "resolving %s=0 and c=z%s\n%!" (string_of_tree k True "x" "z" t)
         (sup_string_of_string ("1/" ^ soi power_gcd))
   }
   else ();
-  roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd bad_pol
+  let pol = {monoms = ml} in
+  roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol
 };
