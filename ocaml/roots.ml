@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.24 2013-03-30 04:11:22 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.25 2013-03-30 04:13:59 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -317,8 +317,8 @@ value roots_of_int_coeffs k coeffs =
   rl₁ @ rl₂
 ;
 
-value coeff_of_degree n anl =
-  try fst (List.find (fun (_, d) → d = n) anl) with
+value coeff_of_degree n pol =
+  try (List.find (fun m → m.power = n) pol.monoms).coeff with
   [ Not_found → A₂.zero ]
 ;
 
@@ -457,16 +457,14 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
   let rl =
     match degree with
     [ 1 →
-        let apl = List.map (fun m → (m.coeff, m.power)) apol.monoms in
-        let a = coeff_of_degree 1 apl in
-        let b = coeff_of_degree 0 apl in
+        let a = coeff_of_degree 1 apol in
+        let b = coeff_of_degree 0 apol in
         let r = A₂.div (A₂.neg b) a in
         [(k.of_a r, 1)]
     | 2 →
-        let apl = List.map (fun m → (m.coeff, m.power)) apol.monoms in
-        let a = coeff_of_degree 2 apl in
-        let b = coeff_of_degree 1 apl in
-        let c = coeff_of_degree 0 apl in
+        let a = coeff_of_degree 2 apol in
+        let b = coeff_of_degree 1 apol in
+        let c = coeff_of_degree 0 apol in
         roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
     | _ →
         match int_polyn_of_polyn apol with
