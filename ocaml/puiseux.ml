@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.33 2013-03-30 10:49:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.34 2013-03-30 14:17:26 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -306,13 +306,13 @@ value rec puiseux_branch k br nth_sol (γ, β) =
       rl
 
 and next_step k br nth_sol t cγl =
-  let pol = y_polyn_of_tree k t in
-  let ppol =
+  let pol =
+    let pol = y_polyn_of_tree k t in
     {monoms =
      List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
        pol.monoms}
   in
-  let gbl = gamma_beta_list ppol in
+  let gbl = gamma_beta_list pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if not quiet.val then do {
@@ -331,7 +331,7 @@ and next_step k br nth_sol t cγl =
            {initial_polynom = br.initial_polynom;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
-            vx = br.vx; vy = br.vy; t = t; pol = ppol}
+            vx = br.vx; vy = br.vy; t = t; pol = pol}
          in
          puiseux_branch k br nth_sol (γ, β)
        })
@@ -345,13 +345,13 @@ value print_line_equal () =
 ;
 
 value puiseux k nb_steps vx vy t =
-  let pol = y_polyn_of_tree k t in
-  let ppol =
+  let pol =
+    let pol = y_polyn_of_tree k t in
     {monoms =
      List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
        pol.monoms}
   in
-  let gbl = gamma_beta_list ppol in
+  let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
@@ -359,7 +359,7 @@ value puiseux k nb_steps vx vy t =
        print_line_equal ();
        let br =
          {initial_polynom = t; cγl = []; step = 1; rem_steps = rem_steps;
-          vx = vx; vy = vy; t = t; pol = ppol}
+          vx = vx; vy = vy; t = t; pol = pol}
        in
        puiseux_branch k br nth_sol (γ₁, β₁)
      })
