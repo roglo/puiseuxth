@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.37 2013-03-30 08:56:54 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.38 2013-03-30 09:21:15 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -23,8 +23,8 @@ type tree α =
   | Const of α ]
 ;
 
-type polynomial α β = { monoms : list (monomial α β) }
-and monomial α β = { coeff : α; power : β };
+type monomial α β = { coeff : α; power : β };
+type polynomial α β = { monoms : list (monomial α β) };
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 
@@ -542,7 +542,9 @@ value merge_expr_pow k eq =
                 [ (Const c₁, Const c₂) →
                     let c = k.add c₁ c₂ in
                     if k.eq c k.zero then rev_list₂
-                    else [{coeff = Const c; power = m₁.power} :: rev_list₂]
+                    else
+                      let m = {coeff = Const c; power = m₁.power} in
+                      [m :: rev_list₂]
                 | _ →
                     let m =
                       {coeff = Plus m₂.coeff m₁.coeff; power = m₁.power}
