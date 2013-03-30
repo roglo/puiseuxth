@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.24 2013-03-29 19:46:40 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.25 2013-03-30 01:13:40 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -23,7 +23,8 @@ type tree α =
   | Const of α ]
 ;
 
-type monomial α β = { coeff : α; power : β };
+type polynomial α β = { monoms : list (monomial α β) }
+and monomial α β = { coeff : α; power : β };
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 
@@ -563,8 +564,13 @@ value tree_pow_list_y (k : field _) t =
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
   let myl = merge_expr_pow k \= myl in
-  if is_neg then List.map (fun my → {coeff = my.coeff; power = my.power}) myl
-  else myl
+  let myl =
+    if is_neg then
+      List.map (fun my → {coeff = my.coeff; power = my.power}) myl
+    else
+      myl
+  in
+  {monoms = myl}
 ;
 
 value rec expr_with_pow_x k t =
