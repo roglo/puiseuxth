@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.21 2013-03-30 09:21:15 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.22 2013-03-30 21:49:51 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -31,6 +31,10 @@ value term_descr_of_term : field α → tree α → term_descr α;
 value without_initial_neg : field α → tree α → option (tree α);
 value substitute_y : field α → tree α → tree α → tree α;
 value xpower : Q.t → tree α;
+value merge_expr_pow :
+  field α → (β → β → bool) →
+    (field α → γ → γ → β → list (monomial γ β) → list (monomial γ β)) →
+    list (monomial γ β) → list (monomial γ β);
 
 value y_polyn_of_tree : field α → tree α → polynomial (tree α) int;
 value x_polyn_of_tree : field α → tree α → polynomial α Q.t;

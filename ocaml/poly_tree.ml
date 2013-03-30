@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.39 2013-03-30 09:24:50 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.40 2013-03-30 21:49:51 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -530,26 +530,15 @@ value _list_sort cmp =
 
 value compare_expr_pow cmp m₁ m₂ = cmp m₁.power m₂.power;
 
-value merge_expr_pow k eq =
+value merge_expr_pow k power_eq merge_coeffs =
   loop [] where rec loop rev_list =
     fun
     [ [m₁ :: ml₁] →
         let rev_list₁ =
           match rev_list with
           [ [m₂ :: rev_list₂] →
-              if eq m₁.power m₂.power then
-                match (m₁.coeff, m₂.coeff) with
-                [ (Const c₁, Const c₂) →
-                    let c = k.add c₁ c₂ in
-                    if k.eq c k.zero then rev_list₂
-                    else
-                      let m = {coeff = Const c; power = m₁.power} in
-                      [m :: rev_list₂]
-                | _ →
-                    let m =
-                      {coeff = Plus m₂.coeff m₁.coeff; power = m₁.power}
-                    in
-                    [m :: rev_list₂] ]
+              if power_eq m₁.power m₂.power then
+                merge_coeffs k m₁.coeff m₂.coeff m₁.power rev_list₂
               else
                 [m₁ :: rev_list]
           | [] →
@@ -560,11 +549,21 @@ value merge_expr_pow k eq =
         List.rev rev_list ]
 ;
 
+value merge_coeffs k t₁ t₂ p ml =
+  match (t₁, t₂) with
+  [ (Const c₁, Const c₂) →
+      let c = k.add c₁ c₂ in
+      if k.eq c k.zero then ml
+      else [{coeff = Const c; power = p} :: ml]
+  | _ →
+      [{coeff = Plus t₂ t₁; power = p} :: ml ] ]
+;
+
 value y_polyn_of_tree (k : field _) t =
   let tl = sum_tree_of_tree t in
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
-  let myl = merge_expr_pow k \= myl in
+  let myl = merge_expr_pow k \= merge_coeffs myl in
   {monoms = myl}
 ;
 
@@ -601,7 +600,7 @@ value x_polyn_of_tree (k : field _) t =
   let tl = sum_tree_of_tree t in
   let mxl = List.map (expr_with_pow_x k) tl in
   let mxl = List.sort (compare_expr_pow Q.compare) mxl in
-  let mxl = merge_expr_pow k Q.eq mxl in
+  let mxl = merge_expr_pow k Q.eq merge_coeffs mxl in
   let mxl =
     List.map (fun mx → {coeff = const_of_tree k mx.coeff; power = mx.power})
       mxl

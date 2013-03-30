@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.40 2013-03-30 16:55:42 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.41 2013-03-30 21:49:51 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -137,30 +137,63 @@ value polyn_of_tree k t =
 ;
 
 (**)
-value horner add mul zero x pol =
-  loop zero (List.hd pol).power pol where rec loop a deg ml =
+value horner add mul zero x rpol =
+(*
+  let _ = printf "horner deg %d\n%!" (List.hd rpol).power in
+*)
+  loop zero (List.hd rpol).power rpol where rec loop a deg ml =
+(*
+    let _ = printf "  deg %d\n%!" deg in
+*)
     match ml with
     [ [m :: ml] →
         if deg = m.power then loop (add (mul a x) m.coeff) (deg - 1) ml
-        else if deg < m.power then invalid_arg "horner"
+        else if deg < m.power then invalid_arg "horner 1"
         else loop (mul a x) (deg - 1) [m :: ml]
     | [] →
-        if deg = 0 then a
-        else if deg < 0 then invalid_arg "horner"
+        if deg = 0 || deg = -1 then a
+        else if deg < 0 then invalid_arg "horner 2"
         else loop (mul a x) (deg - 1) [] ]
 ;
 
-value merge_x_pol ml₁ ml₂ =
+value merge_x_pol k ml₁ ml₂ =
   loop [] ml₁ ml₂ where rec loop rev_ml ml₁ ml₂ =
     match (ml₁, ml₂) with
-    [ ([m₁ :: ml1], [m₂ :: ml₂]) →
-  failwith "not impl merge_x_pol 42"
+    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
+        if Q.lt m₁.power m₂.power then
+          loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
+        else if Q.eq m₁.power m₂.power then
+          let m = {coeff = k.add m₁.coeff m₂.coeff; power = m₁.power} in
+          loop [m :: rev_ml] ml₁ ml₂
+        else
+          assert False
     | ([], ml₂) → List.rev (List.rev_append ml₂ rev_ml)
     | (ml₁, []) → List.rev (List.rev_append ml₁ rev_ml) ]
 ;
 
-value pol_add k ml p = merge_x_pol ml p.monoms;
-value pol_mul k ml p = failwith "not impl pol_mul";
+value merge_coeffs k c₁ c₂ p ml =
+  let c = k.add c₁ c₂ in
+  if k.eq c k.zero then ml
+  else [{coeff = c; power = p} :: ml]
+;
+
+value pol_add k ml p = merge_x_pol k ml p.monoms;
+
+value pol_mul k (ml : list (monomial _ _)) p =
+  let ml =
+    List.fold_left
+      (fun a m₁ →
+         List.fold_left
+           (fun a m₂ →
+              let c = k.norm (k.mul m₁.coeff m₂.coeff) in
+              let p = Q.norm (Q.add m₁.power m₂.power) in
+              [{coeff = c; power = p} :: a])
+           ml p.monoms)
+      [] ml
+  in
+  let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
+  merge_expr_pow k Q.eq merge_coeffs ml
+;
 
 value horner_pol k x pol =
   let rml = List.rev pol.monoms in
@@ -215,7 +248,9 @@ value print_solution k br finite nth cγl = do {
           in
           let t = tree_of_x_polyn k pol₂ in
           let ellipses =
-            if List.length pol.monoms > nb_terms then " + ..." else ""
+            if nb_terms = 0 then ""
+            else if List.length pol.monoms > nb_terms then " + ..."
+            else ""
           in
           printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
             (string_of_tree k (not arg_lang.val) br.vx br.vy t)
