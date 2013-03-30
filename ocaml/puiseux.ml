@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.18 2013-03-29 19:46:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.19 2013-03-30 00:52:28 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -309,7 +309,8 @@ value rec puiseux_branch k br nth_sol (γ, β) =
     else ()
   in
   let ml =
-    List.rev_map (fun m → (valuation_coeff k m.coeff, m.power - j)) hl
+    List.rev_map
+      (fun m → {coeff = valuation_coeff k m.coeff; power = m.power - j}) hl
   in
   let rl = roots k ml in
   if rl = [] then do {
