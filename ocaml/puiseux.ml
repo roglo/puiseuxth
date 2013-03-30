@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.27 2013-03-30 09:05:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.28 2013-03-30 09:44:52 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -8,15 +8,13 @@ open Poly_print;
 open Poly_tree;
 open Roots;
 
-value valuation k t =
-  let pol = x_polyn_of_tree k t in
+value valuation k pol =
   match pol.monoms with
   [ [mx :: _] → mx.power
   | [] → match () with [] ]
 ;
 
-value valuation_coeff k t =
-  let pol = x_polyn_of_tree k t in
+value valuation_coeff k pol =
   match pol.monoms with
   [ [mx :: _] → mx.coeff
   | [] → match () with [] ]
@@ -77,10 +75,12 @@ value gamma_beta_list_of_lower_convex_hull =
         List.rev rev_gbl ]
 ;
 
-value gamma_beta_list (k : field _) t =
-  let pol = y_polyn_of_tree k t in
+value gamma_beta_list (k : field _) pol =
   let xyl =
-    List.map (fun my → (Q.of_i (I.of_int my.power), valuation k my.coeff))
+    List.map
+      (fun my →
+         let xpol = x_polyn_of_tree k my.coeff in
+         (Q.of_i (I.of_int my.power), valuation k xpol))
       pol.monoms
   in
   let ch = lower_convex_hull xyl in
@@ -277,7 +277,8 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   let hl =
     List.filter
       (fun m →
-         let αi = valuation k m.coeff in
+         let xpol = x_polyn_of_tree k m.coeff in
+         let αi = valuation k xpol in
          let βi = Q.norm (Q.add (Q.muli γ (I.of_int m.power)) αi) in
          Q.eq β βi)
       br.pol.monoms
@@ -297,7 +298,10 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   in
   let ml =
     List.map
-      (fun m → {coeff = valuation_coeff k m.coeff; power = m.power - j}) hl
+      (fun m →
+         let pol = x_polyn_of_tree k m.coeff in
+         {coeff = valuation_coeff k pol; power = m.power - j})
+      hl
   in
   let rl = roots k {monoms = ml} in
   if rl = [] then do {
@@ -315,8 +319,8 @@ value rec puiseux_branch k br nth_sol (γ, β) =
       rl
 
 and next_step k br nth_sol t cγl =
-  let gbl = gamma_beta_list k t in
   let pol = y_polyn_of_tree k t in
+  let gbl = gamma_beta_list k pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if not quiet.val then do {
@@ -349,8 +353,8 @@ value print_line_equal () =
 ;
 
 value puiseux k nb_steps vx vy t =
-  let gbl = gamma_beta_list k t in
   let pol = y_polyn_of_tree k t in
+  let gbl = gamma_beta_list k pol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
