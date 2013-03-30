@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.15 2013-03-30 02:17:35 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.16 2013-03-30 02:20:49 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -7,31 +7,6 @@ open Poly_tree;
 open Field;
 
 value quiet = ref True;
-
-(* to be replaced by tree_of_y_polyn *)
-value rebuild_add_list_y₂ k cpl =
-  let rebuild_add t (c₁, p₁) =
-    if k.eq c₁ k.zero then t
-    else
-       let t₁ =
-         if p₁ = 0 then Const c₁
-         else if k.eq c₁ k.one then Ypower p₁
-         else if k.eq c₁ k.minus_one then Neg (Ypower p₁)
-         else Mult (Const c₁) (Ypower p₁)
-       in
-       let t_is_null =
-         match t with
-         [ Const c → k.eq c k.zero
-         | _ → False ]
-       in
-       if t_is_null then t₁
-       else
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Minus t t₁
-         | None → Plus t t₁ ]
-  in
-  List.fold_left rebuild_add (Const k.zero) cpl
-;
 
 value list_of_deg_list zero cnl =
   loop 0 cnl where rec loop deg =
@@ -373,7 +348,7 @@ value roots_of_c_coeffs k pol coeffs =
           let polyn₂ = substitute_y k yt polyn in
           let polyn₂ = normalize k polyn₂ in
           let pol = xy_polyn_of_tree k polyn₂ in
-          let cnl_opt =
+          let pol_opt =
             try
               let cnl =
                 List.map
@@ -382,23 +357,24 @@ value roots_of_c_coeffs k pol coeffs =
                      let py = my.power in
                      match cpl with
                      [ [mx] →
-                         let c = mx.coeff in
-                         let px = mx.power in
-                         if Q.eq px Q.zero then (c, py) else raise Exit
+                         if Q.eq mx.power Q.zero then
+                           {coeff = mx.coeff; power = py}
+                         else
+                           raise Exit
                      | _ →
                          raise Exit ])
                   pol.monoms
               in
-              Some cnl
+              Some {monoms = cnl}
             with
             [ Exit → None ]
           in
-          match cnl_opt with
-          [ Some cnl →
-              let polyn = rebuild_add_list_y₂ k cnl in
+          match pol_opt with
+          [ Some pol →
+              let t = tree_of_y_polyn k pol in
               failwith
                 (sprintf "not impl substituted polynomial %s"
-                   (string_of_tree k True "x" "y" polyn))
+                   (string_of_tree k True "x" "y" t))
           | None →
               failwith
                 (sprintf "cannot compute roots of '%s'\n%!"
