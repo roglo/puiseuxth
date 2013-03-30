@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.23 2013-03-30 03:57:14 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.24 2013-03-30 04:11:22 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -102,28 +102,35 @@ value subst_roots_of_unity k pow (r, n) =
       failwith (sprintf "not impl subst_roots_of_unity %d" pow) ]
 ;
 
-value int_coeffs_of_polyn anl =
-  let qnl_opt =
+value int_polyn_of_polyn apol =
+  let qpol_opt =
     try
-      let qnl =
+      let ml =
         List.map
-          (fun (x, p) →
-             if Q.eq x.A₂.b Q.zero then (x.A₂.a, p) else raise Exit)
-          anl
+          (fun m →
+             if Q.eq m.coeff.A₂.b Q.zero then
+               {coeff = m.coeff.A₂.a; power = m.power}
+             else
+               raise Exit)
+          apol.monoms
       in
-      Some qnl
+      Some {monoms = ml}
     with
     [ Exit → None ]
   in
-  match qnl_opt with
-  [ Some qnl →
+  match qpol_opt with
+  [ Some qpol →
       let l =
-        List.fold_left (fun l (q, _) → I.lcm l (Q.rden q)) I.one qnl
+        List.fold_left (fun l m → I.lcm l (Q.rden m.coeff)) I.one qpol.monoms
       in
-      let cnl =
-        List.map (fun (c, n) → (I.mul (Q.rnum c) (I.div l (Q.rden c)), n)) qnl
+      let ml =
+        List.map
+          (fun m →
+             {coeff = I.mul (Q.rnum m.coeff) (I.div l (Q.rden m.coeff));
+              power = m.power})
+          qpol.monoms
       in
-      Some cnl
+      Some {monoms = ml}
   | None → None ]
 ;
 
@@ -445,25 +452,26 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   rl
 };
 
-value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl = do {
-  let degree = snd (List.hd (List.rev apl)) in
+value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
+  let degree = (List.hd (List.rev apol.monoms)).power in
   let rl =
     match degree with
     [ 1 →
+        let apl = List.map (fun m → (m.coeff, m.power)) apol.monoms in
         let a = coeff_of_degree 1 apl in
         let b = coeff_of_degree 0 apl in
         let r = A₂.div (A₂.neg b) a in
         [(k.of_a r, 1)]
     | 2 →
+        let apl = List.map (fun m → (m.coeff, m.power)) apol.monoms in
         let a = coeff_of_degree 2 apl in
         let b = coeff_of_degree 1 apl in
         let c = coeff_of_degree 0 apl in
         roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
     | _ →
-        match int_coeffs_of_polyn apl with
-        [ Some cnl → do {
-            let ml = List.map (fun (c, p) → {coeff = c; power = p}) cnl in
-            let coeffs = list_of_polynomial I.zero {monoms = ml} in
+        match int_polyn_of_polyn apol with
+        [ Some ipol → do {
+            let coeffs = list_of_polynomial I.zero ipol in
             let rl = roots_of_int_coeffs k coeffs in
             let nb_roots = List.fold_left (fun c (_, m) → c + m) 0 rl in
             assert (nb_roots < List.length coeffs);
@@ -502,22 +510,22 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl = do {
 };
 
 value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
-  let apl_opt =
+  let apol_opt =
     try
-      let apl =
+      let ml =
         List.map
           (fun m →
              match k.to_a m.coeff with
-             [ Some a → (a, m.power)
+             [ Some a → {coeff = a; power = m.power}
              | None → raise Exit ])
           pol.monoms
       in
-      Some apl
+      Some {monoms = ml}
     with
     [ Exit → None ]
   in
-  match apl_opt with
-  [ Some apl → roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl
+  match apol_opt with
+  [ Some apol → roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol
   | None → roots_of_polynom_with_float_coeffs k power_gcd pol ]
 ;
 
