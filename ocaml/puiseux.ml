@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.38 2013-03-30 16:31:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.39 2013-03-30 16:50:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -153,8 +153,10 @@ value horner add mul zero x pol =
 value pol_add k p₁ p₂ = failwith "not impl pol_add";
 value pol_mul k p₁ p₂ = failwith "not impl pol_mul";
 
-value horner_pol k xpol xypol =
-  {monoms = horner (pol_add k) (pol_mul k) [] xpol xypol.monoms}
+value horner_pol k x pol =
+  let rml = List.rev pol.monoms in
+  let rml = horner (pol_add k) (pol_mul k) [] x rml in
+  {monoms = List.rev rml}
 ;
 (**)
 
