@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.11 2013-03-30 01:25:07 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.12 2013-03-30 01:26:44 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -566,12 +566,12 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd ml =
   | None → roots_of_polynom_with_float_coeffs k power_gcd ml ]
 ;
 
-value roots k ml = do {
-  let power_gcd = List.fold_left (fun gp m → gcd gp m.power) 0 ml in
-  let g = List.fold_left (fun g m → k.gcd g m.coeff) k.zero ml in
+value roots k pol = do {
+  let power_gcd = List.fold_left (fun gp m → gcd gp m.power) 0 pol.monoms in
+  let g = List.fold_left (fun g m → k.gcd g m.coeff) k.zero pol.monoms in
   let ml =
     List.map (fun m → {coeff = k.div m.coeff g; power = m.power / power_gcd})
-      ml
+      pol.monoms
   in
   if not quiet.val then do {
     let polyn = rebuild_add_list_y k ml in
