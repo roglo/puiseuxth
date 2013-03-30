@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.14 2013-03-30 01:16:32 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.15 2013-03-30 01:19:38 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -34,5 +34,5 @@ value substitute_y : field α → tree α → tree α → tree α;
 value tree_pow_list_y : field α → tree α → polynomial (tree α) int;
 value const_pow_list_x : field α → tree α → polynomial α Q.t;
 
-value group : field α → tree α → list (monomial (list (monomial α Q.t)) int);
+value group : field α → tree α → polynomial (list (monomial α Q.t)) int;
 value normalize : field α → tree α → tree α;

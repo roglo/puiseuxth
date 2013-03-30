@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.20 2013-03-30 01:13:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.21 2013-03-30 01:16:32 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -9,15 +9,15 @@ open Poly_tree;
 open Roots;
 
 value valuation k t =
-  let mxl = const_pow_list_x k t in
-  match mxl with
+  let pol = const_pow_list_x k t in
+  match pol.monoms with
   [ [mx :: _] → mx.power
   | [] → match () with [] ]
 ;
 
 value valuation_coeff k t =
-  let mxl = const_pow_list_x k t in
-  match mxl with
+  let pol = const_pow_list_x k t in
+  match pol.monoms with
   [ [mx :: _] → mx.coeff
   | [] → match () with [] ]
 ;
@@ -195,11 +195,14 @@ value print_solution k br finite nth cγl = do {
       let pol = tree_pow_list_y k t in
       match pol.monoms with
       [ [{coeff = t; power = 0}] →
-          let mxl = const_pow_list_x k t in
-          let mxl₂ = if nb_terms > 0 then list_take nb_terms mxl else mxl in
+          let pol = const_pow_list_x k t in
+          let mxl₂ =
+            if nb_terms > 0 then list_take nb_terms pol.monoms
+            else pol.monoms
+          in
           let t = rebuild_add_list_x k mxl₂ in
           let ellipses =
-            if List.length mxl > nb_terms then " + ..." else ""
+            if List.length pol.monoms > nb_terms then " + ..." else ""
           in
           printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
             (string_of_tree k (not arg_lang.val) br.vx br.vy t)

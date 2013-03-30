@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.10 2013-03-29 15:09:40 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.11 2013-03-30 01:19:38 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -70,9 +70,9 @@ value main () = do {
   eprintf "%s\n%!" si;
   if sn <> si then eprintf "%s\n%!" sn else ();
   eprintf "\n%!";
-  let myl = group k t in
+  let pol = group k t in
   let n = ref 0 in
-  List.iter (print_term n) myl;
+  List.iter (print_term n) pol.monoms;
   printf "\n";
   printf "Walker=mlist(['psfz','dg','cofs'],%d," (pred n.val);
   printf "list(";

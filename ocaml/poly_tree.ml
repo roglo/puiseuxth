@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.26 2013-03-30 01:16:32 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.27 2013-03-30 01:19:38 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -429,11 +429,11 @@ value group (k : field _) t =
 let _ = printf "normalize compare_descr\n%!" in
 let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
 *)
-  group_term_descr k tdl
+  {monoms = group_term_descr k tdl}
 ;
 
 value normalize (k : field _) t =
-  let myl = group k t in
+  let pol = group k t in
   let _ = if debug_n then printf "normalize group_term_descr\n%!" else () in
   let _ =
     if debug_n then
@@ -446,7 +446,7 @@ value normalize (k : field _) t =
                   (Q.to_string mx.power))
              my.coeff
          })
-        myl
+        pol.monoms
     else ()
   in
   let myl =
@@ -454,7 +454,7 @@ value normalize (k : field _) t =
       (fun my →
          let t = List.fold_left (add_x_monomial k) (Const k.zero) my.coeff in
          {coeff = t; power = my.power})
-      myl
+      pol.monoms
   in
   let _ =
     if debug_n then printf "normalize term_of_const_xpow_list\n%!" else ()

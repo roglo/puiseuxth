@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.9 2013-03-30 01:02:13 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.10 2013-03-30 01:19:38 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -397,7 +397,7 @@ value roots_of_c_coeffs k cpl coeffs =
           let polyn = rebuild_add_list_y₂ k cpl in
           let polyn₂ = substitute_y k t polyn in
           let polyn₂ = normalize k polyn₂ in
-          let myl = group k polyn₂ in
+          let pol = group k polyn₂ in
           let cnl_opt =
             try
               let cnl =
@@ -412,7 +412,7 @@ value roots_of_c_coeffs k cpl coeffs =
                          if Q.eq px Q.zero then (c, py) else raise Exit
                      | _ →
                          raise Exit ])
-                  myl
+                  pol.monoms
               in
               Some cnl
             with
