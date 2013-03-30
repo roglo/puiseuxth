@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.22 2013-03-30 03:44:31 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.23 2013-03-30 03:57:14 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -325,7 +325,7 @@ value find_algebr_nb k pol =
     | [] → None ]
 ;
 
-value roots_of_c_coeffs k bad_pol coeffs =
+value roots_of_c_coeffs k pol coeffs =
   match coeffs with
   [ [] | [_] → []
   | [b; a] →
@@ -336,16 +336,16 @@ value roots_of_c_coeffs k bad_pol coeffs =
       [ (Some a, Some b, Some c) →
           roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
       | _ →
-          let t = tree_of_y_polyn k bad_pol in
+          let t = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
           failwith
             (sprintf "cannot compute roots of '%s'"
                (string_of_tree k True "x" "y" t)) ]
   | _ → do {
-      let algeb_nb = find_algebr_nb k bad_pol in
+      let algeb_nb = find_algebr_nb k pol in
       match algeb_nb with
       [ Some x →
           let yt = Mult (Const (k.of_a x)) (Ypower 1) in
-          let polyn = tree_of_y_polyn k bad_pol in
+          let polyn = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
           let polyn₂ = substitute_y k yt polyn in
           let polyn₂ = normalize k polyn₂ in
           let pol = xy_polyn_of_tree k polyn₂ in
@@ -381,7 +381,7 @@ value roots_of_c_coeffs k bad_pol coeffs =
                 (sprintf "cannot compute roots of '%s'\n%!"
                    (string_of_tree k True "x" "y" polyn)) ]
       | None →
-          let t = tree_of_y_polyn k bad_pol in
+          let t = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
           failwith
             (sprintf "cannot compute roots of '%s'\n%!"
                (string_of_tree k True "x" "y" t)) ];
@@ -480,8 +480,7 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apl = do {
           }
         | None → do {
             let coeffs = list_of_polynomial k.zero pol in
-            let bad_pol = {monoms = List.rev pol.monoms} in
-            roots_of_c_coeffs k bad_pol coeffs
+            roots_of_c_coeffs k pol coeffs
           } ] ]
   in
   let rl =
