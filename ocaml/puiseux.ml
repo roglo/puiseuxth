@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.30 2013-03-30 10:31:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.31 2013-03-30 10:33:14 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -75,7 +75,7 @@ value gamma_beta_list_of_lower_convex_hull =
         List.rev rev_gbl ]
 ;
 
-value gamma_beta_list k pol =
+value gamma_beta_list pol =
   let xyl =
     List.map (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
@@ -318,7 +318,7 @@ and next_step k br nth_sol t cγl =
      List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
        pol.monoms}
   in
-  let gbl = gamma_beta_list k ppol in
+  let gbl = gamma_beta_list ppol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if not quiet.val then do {
@@ -357,7 +357,7 @@ value puiseux k nb_steps vx vy t =
      List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
        pol.monoms}
   in
-  let gbl = gamma_beta_list k ppol in
+  let gbl = gamma_beta_list ppol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
