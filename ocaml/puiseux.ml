@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.35 2013-03-30 14:29:49 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.36 2013-03-30 14:43:32 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -97,7 +97,8 @@ value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { initial_polynom: tree α;
+  { initial_polynom : polynomial (polynomial α Q.t) int;
+    initial_tree: tree α;
     cγl : list (α * Q.t);
     step : int;
     rem_steps : int;
@@ -135,6 +136,23 @@ value polyn_of_tree k t =
      pol.monoms}
 ;
 
+(*
+value horner xpol xypol =
+  let xml =
+    loop [] 0 xypol.monoms where rec loop rev_xml deg =
+      fun
+      [ [m :: ml] →
+          if m.power = deg then
+            let xm = ....
+            loop [xm :: rev_xml] (deg + 1)
+          else
+            failwith "2"
+      | [] → List.rev rev_xml ]
+  in
+  {monoms = xml}
+;
+*)
+
 value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
@@ -143,21 +161,26 @@ value print_solution k br finite nth cγl = do {
          ([{coeff = c; power = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
-  let sol = tree_of_x_polyn k {monoms = List.rev rev_sol} in
+  let sol = {monoms = List.rev rev_sol} in
+  let tsol = tree_of_x_polyn k sol in
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || not quiet.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_tree k (not arg_lang.val) br.vx br.vy sol)
+    (airy_string_of_tree k (not arg_lang.val) br.vx br.vy tsol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || not quiet.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-      let t = substitute_y k sol br.initial_polynom in
+(**)
+      let t = substitute_y k tsol br.initial_tree in
       let t = normalise k t in
       let t = tree_map C.float_round_zero t in
       let t = normalise k t in
       let pol = polyn_of_tree k t in
+(*
+      let pol = horner sol br.initial_polynom in
+*)
       match pol.monoms with
       [ [{coeff = pol; power = 0}] →
           let pol₂ =
@@ -330,6 +353,7 @@ and next_step k br nth_sol t cγl =
          if not quiet.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
+            initial_tree = br.initial_tree;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; t = t; pol = pol}
@@ -354,8 +378,8 @@ value puiseux k nb_steps vx vy t =
     (fun (γ₁, β₁) → do {
        print_line_equal ();
        let br =
-         {initial_polynom = t; cγl = []; step = 1; rem_steps = rem_steps;
-          vx = vx; vy = vy; t = t; pol = pol}
+         {initial_polynom = pol; initial_tree = t; cγl = []; step = 1;
+          rem_steps = rem_steps; vx = vx; vy = vy; t = t; pol = pol}
        in
        puiseux_branch k br nth_sol (γ₁, β₁)
      })
