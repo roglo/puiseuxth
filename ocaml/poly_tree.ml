@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.27 2013-03-30 01:19:38 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.28 2013-03-30 01:25:07 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -399,7 +399,7 @@ value expr_of_term_ypow_list (k : field _) t₁ my =
 
 value debug_n = False;
 
-value group (k : field _) t =
+value xy_polyn_of_tree k t =
   let _ =
     if debug_n then
       printf "    tree: %s\n%!" (string_of_tree k True "x" "y" t)
@@ -433,7 +433,7 @@ let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_stri
 ;
 
 value normalize (k : field _) t =
-  let pol = group k t in
+  let pol = xy_polyn_of_tree k t in
   let _ = if debug_n then printf "normalize group_term_descr\n%!" else () in
   let _ =
     if debug_n then
@@ -554,7 +554,7 @@ value merge_expr_pow k eq =
         List.rev rev_list ]
 ;
 
-value tree_pow_list_y (k : field _) t =
+value y_polyn_of_tree (k : field _) t =
   let (is_neg, t) =
     match t with
     [ Neg t → (True, t)
@@ -597,7 +597,7 @@ value rec const_of_tree k =
   | _ → failwith "const_of_tree" ]
 ;
 
-value const_pow_list_x (k : field _) t =
+value x_polyn_of_tree (k : field _) t =
   let (is_neg, t) =
     match t with
     [ Neg t → (True, t)
