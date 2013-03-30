@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.21 2013-03-30 03:38:23 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.22 2013-03-30 03:44:31 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -15,17 +15,6 @@ value list_of_polynomial zero pol =
         if m.power > deg then [zero :: loop (deg + 1) [m :: ml]]
         else if m.power = deg then [m.coeff :: loop (deg + 1) ml]
         else invalid_arg "list_of_polynomial"
-    | [] -> [] ]
-;
-
-(* to be replaced by 'list_of_polynomial' *)
-value list_of_deg_list₂ zero cnl =
-  loop 0 cnl where rec loop deg =
-    fun
-    [ [(c, n) :: cnl] →
-        if n > deg then [zero :: loop (deg + 1) [(c, n) :: cnl]]
-        else if n = deg then [c :: loop (deg + 1) cnl]
-        else invalid_arg "list_of_deg_list"
     | [] -> [] ]
 ;
 

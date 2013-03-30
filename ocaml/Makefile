@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2013-03-28 13:34:22 deraugla Exp $
+# $Id: Makefile,v 1.3 2013-03-30 03:44:31 deraugla Exp $
 
 TARGET=puiseux.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo puiseux.cmo
@@ -12,7 +12,7 @@ LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp
 
 OCOPT=-I ../cpoly
 OCAMLC=ocamlc.opt -g
-OCAMLOPT=ocamlopt.opt
+OCAMLOPT=ocamlopt.opt -w +32
 
 all: opt ugly
 
