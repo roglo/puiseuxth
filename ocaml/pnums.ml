@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.13 2013-03-31 22:26:48 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.14 2013-03-31 22:37:21 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -619,7 +619,6 @@ module C_func (F : Float) =
       [ (Nalg x, Nalg y) → Nalg (A₂.gcd x y)
       | _ → Nalg (A₂.one) ]
     ;
-    value abs = F.abs;
     value eq x y =
       match (x, y) with
       [ (Nalg x, Nalg y) → A₂.eq x y

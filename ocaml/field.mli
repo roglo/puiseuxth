@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.9 2013-03-31 22:26:48 deraugla Exp $ *)
+(* $Id: field.mli,v 1.10 2013-03-31 22:37:21 deraugla Exp $ *)
 
 open Pnums;
 
@@ -11,7 +11,6 @@ type field α β =
     mul : α → α → α;
     div : α → α → α;
     (* extra *)
-    abs : β → β;
     minus_one : α;
     norm : α → α;
     compare : α → α → int;
@@ -29,5 +28,6 @@ type field α β =
     to_a : α → option A₂.t;
     to_complex : α → complex_a β;
     to_string : α → string;
-    float_round_zero : α → α }
+    float_round_zero : α → α;
+    complex_round_zero : complex_a β → complex_a β }
 ;

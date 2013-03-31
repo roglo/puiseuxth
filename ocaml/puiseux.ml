@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.57 2013-03-31 22:26:48 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.58 2013-03-31 22:37:21 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -580,14 +580,15 @@ value kq : field Q.t unit =
   {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
    mul = Q.mul; div = Q.div;
    minus_one = Q.neg Q.one ; norm = Q.norm; compare = Q.compare; eq = Q.eq;
-   le = Q.le; lt = Q.lt; gcd _ = failwith "kq.gcd"; abs _ = failwith "kq.abs";
+   le = Q.le; lt = Q.lt; gcd _ = failwith "kq.gcd";
    neg_factor _ = failwith "kq.neg_factor";
    of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
    of_complex _ = failwith "kq.of_complex";
    of_float_string _ = failwith "kq.of_float_string";
    to_q x = Some x; to_a _ = failwith "kq.to_a";
    to_complex _ = failwith "kq.to_complex"; to_string = Q.to_string;
-   float_round_zero _ = failwith "kq.float_round_zero"}
+   float_round_zero _ = failwith "kq.float_round_zero";
+   complex_round_zero _ = failwith "kq.complex_round_zero"}
 ;
 
 value kc () =
@@ -595,14 +596,14 @@ value kc () =
    mul = C.mul; div = C.div;
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
    le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; gcd = C.gcd;
-   abs = C.abs; norm = C.norm; neg_factor = C.neg_factor; of_i = C.of_i;
+   norm = C.norm; neg_factor = C.neg_factor; of_i = C.of_i;
    of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
-   float_round_zero = C.float_round_zero}
+   float_round_zero = C.float_round_zero;
+   complex_round_zero = C.complex_round_zero}
 ;
 
-(*
 value km () =
   {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
    mul = M.mul; div = M.div;
@@ -612,9 +613,9 @@ value km () =
    of_a = M.of_a; of_complex = M.of_complex;
    of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
    to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
-   float_round_zero = M.float_round_zero}
+   float_round_zero = M.float_round_zero;
+   complex_round_zero = M.complex_round_zero}
 ;
-*)
 
 value main () = do {
   arg_parse ();

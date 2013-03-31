@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.29 2013-03-31 22:14:48 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.30 2013-03-31 22:37:21 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -18,23 +18,16 @@ value list_of_polynomial zero pol =
     | [] -> [] ]
 ;
 
-value epsilon_round eps r =
-  let re = if abs_float r.re ≤ eps then 0. else r.re in
-  let im = if abs_float r.im ≤ eps then 0. else r.im in
-  {re = re; im = im}
-;
-
-value wrap_prec prec f a = do {
+value wrap_prec k prec f a = do {
   Cpoly.Mfl.set_prec prec;
-  let eps = sqrt epsilon_float in
   let rl = f a in
-  List.map (epsilon_round eps) rl
+  List.map k.complex_round_zero rl
 };
 
-value float_roots_of_unity prec pow = do {
+value float_roots_of_unity k prec pow = do {
   let pol = {monoms = [{coeff = -1; power = 0}; {coeff = 1; power = pow}]} in
   let fnl = list_of_polynomial 0 pol in
-  wrap_prec prec Cpoly.iroots fnl
+  wrap_prec k prec Cpoly.iroots fnl
 };
 
 value cubic_root n =
@@ -405,7 +398,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   in
   let complex_zero = k.to_complex k.zero in
   let fpl = list_of_polynomial complex_zero {monoms = ml} in
-  let rl = wrap_prec prec Cpoly.roots (List.rev fpl) in
+  let rl = wrap_prec k prec Cpoly.roots (List.rev fpl) in
   if not quiet.val then do {
     List.iter
       (fun r → printf "cpoly root: %s\n%!" (complex_to_string False r)) rl;
@@ -414,7 +407,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let rl =
     if power_gcd = 1 then rl
     else do {
-      let rou = float_roots_of_unity prec power_gcd in
+      let rou = float_roots_of_unity k prec power_gcd in
       if not quiet.val then do {
         List.iter
           (fun r → printf "root of unity: %s\n%!" (complex_to_string False r))
@@ -430,7 +423,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
           rl
       in
       let rl = List.concat rll in
-      List.map (epsilon_round epsilon_float) rl
+      List.map k.complex_round_zero rl
     }
   in
   let rl = List.map k.of_complex rl in
