@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.7 2013-03-31 14:27:57 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.8 2013-03-31 15:00:38 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -265,9 +265,16 @@ value complex_mul c d =
    im = c.re *. d.im +. c.im *. d.re}
 ;
 value complex_div x y =
-  let x = to_ocaml_complex x in
-  let y = to_ocaml_complex y in
-  from_ocaml_complex (Complex.div x y)
+  if abs_float y.re >= abs_float y.im then
+    let r = y.im /. y.re in
+    let d = y.re +. r *. y.im in
+    { re = (x.re +. r *. x.im) /. d;
+      im = (x.im -. r *. x.re) /. d }
+  else
+    let r = y.re /. y.im in
+    let d = y.im +. r *. y.re in
+    { re = (r *. x.re +. x.im) /. d;
+      im = (r *. x.im -. x.re) /. d }
 ;
 value complex_power x y =
   let x = to_ocaml_complex x in
@@ -576,18 +583,34 @@ module C_func (F : Float) =
       [ (Nalg x, Nalg y) → Nalg (A₂.sub x y)
       | _ → Ncpl (map_complex F.sub (to_complex x) (to_complex y)) ]
     ;
+    value complex_mul c d =
+      {re = F.sub (F.mul c.re d.re) (F.mul c.im d.im);
+       im = F.add (F.mul c.re d.im) (F.mul c.im d.re)}
+    ;
     value mul x y =
       match (x, y) with
       [ (Nalg x, Nalg y) → Nalg (A₂.mul x y)
-      | _ → Ncpl (map_complex F.mul (to_complex x) (to_complex y)) ]
+      | _ → Ncpl (complex_mul (to_complex x) (to_complex y)) ]
     ;
     value muli x i = mul x (Nalg (A₂.of_i i));
     value mulq x q = mul x (Nalg (A₂.of_q q));
     value mula x a = mul x (Nalg a);
+    value complex_div x y =
+      if F.compare (F.abs y.re) (F.abs y.im) ≥ 0 then
+        let r = F.div y.im y.re in
+        let d = F.add y.re (F.mul r y.im) in
+        { re = F.div (F.add x.re (F.mul r x.im)) d;
+          im = F.div (F.sub x.im (F.mul r x.re)) d }
+      else
+        let r = F.div y.re y.im in
+        let d = F.add y.im (F.mul r y.re) in
+        { re = F.div (F.add (F.mul r x.re) x.im) d;
+          im = F.div (F.sub (F.mul r x.im) x.re) d }
+    ;
     value div x y =
       match (x, y) with
       [ (Nalg x, Nalg y) → Nalg (A₂.div x y)
-      | _ → Ncpl (map_complex F.div (to_complex x) (to_complex y)) ]
+      | _ → Ncpl (complex_div (to_complex x) (to_complex y)) ]
     ;
     value to_string prog_lang =
       fun
@@ -631,8 +654,9 @@ module C_func (F : Float) =
     value to_expr =
       fun
       [ Nalg x → A₂.to_expr x
-      | Ncpl {re = re; im = im} when im = F.zero → << $flo:sof re$ >>
-      | Ncpl c → << $flo:sof c.re$ + i * $flo:sof c.im$ >> ]
+      | Ncpl {re = re; im = im} →
+          if F.compare im F.zero = 0 then << $flo:sof re$ >>
+          else << $flo:sof re$ + i * $flo:sof im$ >> ]
     ;
     value to_a =
       fun
@@ -754,12 +778,6 @@ module C =
       fun
       [ Nalg x → A₂.to_string prog_lang x
       | Ncpl c → complex_to_string prog_lang c ]
-    ;
-    value power_rat x r =
-      if I.eq r.Q.rden I.one && I.ge r.Q.rnum I.zero then
-        loop (I.to_int r.Q.rnum) one where rec loop k r =
-          if k = 0 then r else loop (k - 1) (mul r x)
-      else failwith "N.power_rat"
     ;
     value gcd x y =
       match (x, y) with
