@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.43 2013-03-31 00:11:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.44 2013-03-31 00:35:06 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -573,19 +573,22 @@ value arg_parse () =
       eprintf "Options:\n";
       eprintf "-c, --cut-long        Cut too long lines in verbose mode\n";
       eprintf "-d, --debug           Debug mode\n";
-      eprintf "-e, --eval-sol <n>    Eval <n> terms of polyn on solutions\n";
-      eprintf "-f, --file <name>     Read polynomial in file, 1 monom/line\n";
+      eprintf "-e, --eval-sol <n>    ";
+      eprintf "Eval polynial on solutions; display <n> terms\n";
+      eprintf "-f, --file <name>     ";
+      eprintf "Read polynomial in file, 1 monomial by line\n";
       eprintf "-h, --help            Display this list of options\n";
-      eprintf "-l, --prog-lang       Display prog lang style with *, ^\n";
+      eprintf "-l, --prog-lang       ";
+      eprintf "Display in programming language style, with * and ^\n";
       eprintf "-n, --nb-steps <num>  Number of steps (default: 5)\n";
       eprintf "-v, --verbose         Display computation details\n";
       eprintf "-w, --with-sqrt-x     Display x¹ᐟ² and x¹ᐟ³ as √x and ∛x\n";
       eprintf "-y, --y-var <char>    Name of y variable\n";
       eprintf "--                    End of options\n";
-      eprintf "--version             Display version and exit\n";
+      eprintf "--version             Display program version and exit\n";
       eprintf "\n";
       eprintf "If the polynomial starts with '-', use a leading space.\n%!";
-      eprintf "E.g. write it ' -x+2xy' instead of '-x+2xy'.\n%!";
+      eprintf "E.g. write ' -x+2xy' instead of '-x+2xy'.\n%!";
       eprintf "Or use option '--'.\n%!";
       flush stderr;
       exit 0;
