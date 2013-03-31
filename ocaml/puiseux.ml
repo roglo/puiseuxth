@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.51 2013-03-31 11:55:36 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.52 2013-03-31 11:59:12 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -204,6 +204,20 @@ value horner_pol k kq x pol =
   {monoms = ml}
 ;
 
+value float_round_zero k pol =
+  let ml =
+    List.fold_left
+      (fun ml m →
+         let c = k.float_round_zero m.coeff in
+         if k.eq c k.zero then ml
+         else
+           let m = {coeff = c; power = m.power} in
+           [m :: ml])
+       [] pol.monoms
+  in
+  {monoms = List.rev ml}
+;
+
 value print_solution k kq br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
@@ -224,18 +238,7 @@ value print_solution k kq br finite nth cγl = do {
   match arg_eval_sol.val with
   [ Some nb_terms →
       let pol = horner_pol k kq sol br.initial_polynom in
-      let pol =
-        {monoms =
-           List.rev
-             (List.fold_left
-                (fun ml m →
-                   let c = k.float_round_zero m.coeff in
-                   if k.eq c k.zero then ml
-                   else
-                     let m = {coeff = c; power = m.power} in
-                     [m :: ml])
-                [] pol.monoms)}
-      in
+      let pol = float_round_zero k pol in
       let pol₂ =
         if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
         else pol

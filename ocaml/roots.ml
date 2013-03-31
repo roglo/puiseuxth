@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.26 2013-03-30 07:38:31 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.27 2013-03-31 11:55:36 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -401,6 +401,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
     List.map (fun m → {coeff = k.to_complex m.coeff; power = m.power})
       pol.monoms
   in
+  let complex_zero = k.to_complex k.zero in
   let fpl = list_of_polynomial complex_zero {monoms = ml} in
   let rl = wrap_prec prec Cpoly.roots (List.rev fpl) in
   if not quiet.val then do {
