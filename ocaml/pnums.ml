@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.10 2013-03-31 16:03:40 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.11 2013-03-31 20:09:47 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -681,7 +681,8 @@ module C_func (F : Float) =
     ;
     value of_float_string s = Ncpl {re = F.of_string s; im = F.zero};
     value of_complex c = Ncpl c;
-    value epsilon_round eps r =
+    value eps = F.sqrt F.epsilon;
+    value complex_round_zero r =
       let re = if F.compare (F.abs r.re) eps ≤ 0 then F.zero else r.re in
       let im = if F.compare (F.abs r.im) eps ≤ 0 then F.zero else r.im in
       {re = re; im = im}
@@ -689,9 +690,7 @@ module C_func (F : Float) =
     value float_round_zero =
       fun
       [ Nalg x → Nalg x
-      | Ncpl c →
-          let eps = F.sqrt F.epsilon in
-          Ncpl (epsilon_round eps c) ]
+      | Ncpl c → Ncpl (complex_round_zero c) ]
     ;
   end;
 
@@ -715,7 +714,6 @@ module C =
      end)
 ;
 
-(*
 module M =
   C_func
     (struct
@@ -742,7 +740,6 @@ module M =
        value a₂_to_complex _ = failwith "M.a₂_to_complex";
      end)
 ;
-*)
 
 value factor a =
   if I.lt a I.zero then invalid_arg "factor"

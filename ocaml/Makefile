@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2013-03-31 11:55:36 deraugla Exp $
+# $Id: Makefile,v 1.7 2013-03-31 20:01:04 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo puiseux.cmo
@@ -33,10 +33,10 @@ puiseux.opt: $(FILES:.cmo=.cmx)
 	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(FILES:.cmo=.cmx) $(LINKFLAGS) -o $@
 
 ugly.out: $(UFILES)
-	$(OCAMLC) -I +camlp5 $(LIB) $(UFILES) -o $@
+	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(UFILES) $(LINKFLAGS) -o $@
 
 ugly.opt: $(UFILES:.cmo=.cmx)
-	$(OCAMLOPT) -I +camlp5 $(LIB:.cma=.cmxa) $(UFILES:.cmo=.cmx) -o $@
+	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(UFILES:.cmo=.cmx) $(LINKFLAGS) -o $@
 
 clean:
 	rm -f *.cm[iox] *.o *.out *.opt puiseux ugly

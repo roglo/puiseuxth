@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.40 2013-03-30 21:49:51 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.41 2013-03-31 20:12:04 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -110,7 +110,7 @@ and expr_plus_power k t₁ t₂ n =
     else Plus (loop (i - 1)) t
 ;
 
-value tree_of_ast (k : field _) vx vy =
+value tree_of_ast k vx vy =
   let rec expr =
     fun
     [ << $e₁$ + $e₂$ >> →
@@ -157,7 +157,7 @@ value tree_of_ast (k : field _) vx vy =
   expr
 ;
 
-value gen_string_of_tree (k : field _) airy opt vx vy =
+value gen_string_of_tree k airy opt vx vy =
   let rec expr ai =
     fun
     [ Plus t₁ t₂ → sprintf "%s%s+%s%s" (expr ai t₁) ai ai (expr₁ t₂)
@@ -338,7 +338,7 @@ value rec without_initial_neg k =
 ;
 
 value tree_of_tree_y_polyn k pol =
-  let expr_of_term_ypow_list (k : field _) t₁ my =
+  let expr_of_term_ypow_list k t₁ my =
     let t₂ =
       if my.power = 0 then my.coeff
       else
@@ -471,7 +471,7 @@ value tree_of_xy_polyn k pol =
   tree_of_tree_y_polyn k {monoms = ml}
 ;
 
-value normalise (k : field _) t =
+value normalise k t =
   let pol = xy_polyn_of_tree k t in
   tree_of_xy_polyn k pol
 ;
@@ -497,7 +497,7 @@ value sum_tree_of_tree t =
     | t → [t :: list] ]
 ;
 
-value rec tree_with_pow_y (k : field _) t =
+value rec tree_with_pow_y k t =
   match t with
   [ Neg t →
       let my = tree_with_pow_y k t in
@@ -559,7 +559,7 @@ value merge_coeffs k t₁ t₂ p ml =
       [{coeff = Plus t₂ t₁; power = p} :: ml ] ]
 ;
 
-value y_polyn_of_tree (k : field _) t =
+value y_polyn_of_tree k t =
   let tl = sum_tree_of_tree t in
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
@@ -591,7 +591,7 @@ value rec const_of_tree k =
   | _ → failwith "const_of_tree" ]
 ;
 
-value x_polyn_of_tree (k : field _) t =
+value x_polyn_of_tree k t =
   let (is_neg, t) =
     match t with
     [ Neg t → (True, t)

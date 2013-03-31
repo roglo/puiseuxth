@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.7 2013-03-31 14:27:57 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.8 2013-03-31 20:09:47 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -101,6 +101,9 @@ module A₂ :
 ;
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
+value complex_a_to_string :
+  (α → string) → α → (α → α → int) → bool → complex_a α → string;
+
 type complex = complex_a float;
 value epsilon_round : float → complex → complex;
 value complex_zero : complex;
@@ -128,7 +131,7 @@ module C :
     value neg_factor : t → option (t);
     value to_expr : t → MLast.expr;
     value to_string : bool → t → string;
-    value to_complex : t → complex;
+    value to_complex : t → complex_a float;
     value to_q : t → option Q.t;
     value to_a : t → option A₂.t;
     value of_i : I.t → t;
@@ -136,9 +139,44 @@ module C :
     value of_a : A₂.t → t;
     value of_expr : MLast.expr → t;
     value of_float_string : string → t;
-    value of_complex : complex → t;
-    value float_round_zero : t → t;
+    value of_complex : complex_a float → t;
     value check : t → unit;
+    value float_round_zero : t → t;
+    value complex_round_zero : complex_a float → complex_a float;
+  end;
+
+module M :
+  sig
+    type t = 'abstract;
+    value zero : t;
+    value one : t;
+    value minus_one : t;
+    value neg : t → t;
+    value add : t → t → t;
+    value sub : t → t → t;
+    value mul : t → t → t;
+    value muli : t → I.t → t;
+    value mulq : t → Q.t → t;
+    value mula : t → A₂.t → t;
+    value div : t → t → t;
+    value gcd : t → t → t;
+    value norm : t → t;
+    value eq : t → t → bool;
+    value neg_factor : t → option (t);
+    value to_expr : t → MLast.expr;
+    value to_string : bool → t → string;
+    value to_complex : t → complex_a Mpfr.t;
+    value to_q : t → option Q.t;
+    value to_a : t → option A₂.t;
+    value of_i : I.t → t;
+    value of_q : Q.t → t;
+    value of_a : A₂.t → t;
+    value of_expr : MLast.expr → t;
+    value of_float_string : string → t;
+    value of_complex : complex_a Mpfr.t → t;
+    value check : t → unit;
+    value float_round_zero : t → t;
+    value complex_round_zero : complex_a Mpfr.t → complex_a Mpfr.t;
   end;
 
 value factor : I.t → list I.t;

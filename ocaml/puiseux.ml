@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.54 2013-03-31 16:03:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.55 2013-03-31 20:15:16 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -604,17 +604,15 @@ value kc () =
 
 (*
 value km () =
-  {zero = Mfl.zero; one = Mfl.one; add = Mfl.add; sub = Mfl.sub;
-   neg = Mfl.neg; mul = Mfl.mul; div = Mfl.div;
-   minus_one = Mfl.neg Mfl.one; compare _ = failwith "km.compare";
-   eq = Mfl.eq; le _ = failwith "km.le"; lt _ = failwith "km.lt";
-   gcd _ _ = Mfl.one; norm _ = failwith "km.norm"; neg_factor _ = None;
-   of_i i = Mfl.int (I.to_int i); of_q _ = failwith "km.of_q";
-   of_a _ = failwith "km.of_a"; of_complex _ = failwith "km.of_complex";
-   of_float_string _ = failwith "km.of_float_string";
-   to_q _ = failwith "km.to_q"; to_a x = None;
-   to_complex _ = failwith "km.to_complex"; to_string = Mfl.to_string;
-   float_round_zero _ = failwith "km.float_round_zero"}
+  {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
+   mul = M.mul; div = M.div;
+   minus_one = M.minus_one; compare _ = failwith "km.compare"; eq = M.eq;
+   le _ = failwith "km.le"; lt _ = failwith "km.lt"; gcd = M.gcd;
+   norm = M.norm; neg_factor = M.neg_factor; of_i = M.of_i; of_q = M.of_q;
+   of_a = M.of_a; of_complex = M.of_complex;
+   of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
+   to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
+   float_round_zero = M.float_round_zero}
 ;
 *)
 
