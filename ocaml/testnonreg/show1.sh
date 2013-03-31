@@ -1,5 +1,5 @@
 #!/bin/bash
-# $Id: show.sh,v 1.2 2013-03-31 05:45:45 deraugla Exp $
+# $Id: show1.sh,v 1.1 2013-03-31 05:58:33 deraugla Exp $
 
 arg=
 

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.44 2013-03-31 00:35:06 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.45 2013-03-31 05:55:19 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -156,12 +156,10 @@ value merge_x_pol k ml₁ ml₂ =
         if Q.lt m₁.power m₂.power then
           loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
         else if Q.eq m₁.power m₂.power then
-          let c = k.add m₁.coeff m₂.coeff in
+          let c = k.norm (k.add m₁.coeff m₂.coeff) in
           let rev_ml =
             if k.eq c k.zero then rev_ml
-            else
-              let m = {coeff = k.add m₁.coeff m₂.coeff; power = m₁.power} in
-              [m :: rev_ml]
+            else [{coeff = c; power = m₁.power} :: rev_ml]
           in
           loop rev_ml ml₁ ml₂
         else
@@ -171,7 +169,7 @@ value merge_x_pol k ml₁ ml₂ =
 ;
 
 value merge_coeffs k c₁ c₂ p ml =
-  let c = k.add c₁ c₂ in
+  let c = k.norm (k.add c₁ c₂) in
   if k.eq c k.zero then ml
   else [{coeff = c; power = p} :: ml]
 ;
