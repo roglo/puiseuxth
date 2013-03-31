@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.1 2013-03-28 13:24:19 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.2 2013-03-31 12:06:03 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -669,6 +669,14 @@ value cpoly op =
           }
       }
   }
+;
+
+value mroots p =
+  if List.length p ≤ 1 then []
+  else
+    match cpoly (Array.of_list p) with
+    [ Some z → Array.to_list z
+    | None → failwith "Cpoly.mroots" ]
 ;
 
 value roots p =
