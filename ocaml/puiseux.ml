@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.42 2013-03-30 23:28:24 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.43 2013-03-31 00:11:05 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -136,15 +136,8 @@ value polyn_of_tree k t =
      pol.monoms}
 ;
 
-(**)
 value horner add mul zero x rpol =
-(*
-  let _ = printf "horner deg %d\n%!" (List.hd rpol).power in
-*)
   loop zero (List.hd rpol).power rpol where rec loop a deg ml =
-(*
-    let _ = printf "  deg %d\n%!" deg in
-*)
     match ml with
     [ [m :: ml] →
         if deg = m.power then loop (add (mul a x) m.coeff) (deg - 1) ml
@@ -163,8 +156,14 @@ value merge_x_pol k ml₁ ml₂ =
         if Q.lt m₁.power m₂.power then
           loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
         else if Q.eq m₁.power m₂.power then
-          let m = {coeff = k.add m₁.coeff m₂.coeff; power = m₁.power} in
-          loop [m :: rev_ml] ml₁ ml₂
+          let c = k.add m₁.coeff m₂.coeff in
+          let rev_ml =
+            if k.eq c k.zero then rev_ml
+            else
+              let m = {coeff = k.add m₁.coeff m₂.coeff; power = m₁.power} in
+              [m :: rev_ml]
+          in
+          loop rev_ml ml₁ ml₂
         else
           loop [m₂ :: rev_ml] [m₁ :: ml₁] ml₂
     | ([], ml₂) → List.rev (List.rev_append ml₂ rev_ml)
@@ -178,23 +177,14 @@ value merge_coeffs k c₁ c₂ p ml =
 ;
 
 value string_of_pol k pol =
-  string_of_tree k False "x" "y" (tree_of_x_polyn k pol)
+  string_of_tree k True "x" "y" (tree_of_x_polyn k pol)
 ;
 
 value pol_add k ml p =
-(*
-let _ = printf "pol_add\n%!" in
-*)
   merge_x_pol k ml p.monoms
 ;
 
 value pol_mul k (ml : list (monomial _ _)) p =
-(*
-let _ =
-  printf "pol_mul (%s) (%s) (len %d %d)\n%!" (string_of_pol k {monoms = ml}) (string_of_pol k p) (List.length ml) (List.length p.monoms)
-in
-let r =
-*)
   let ml =
     List.fold_left
       (fun a m₁ →
@@ -208,10 +198,6 @@ let r =
   in
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
   merge_expr_pow k Q.eq merge_coeffs ml
-(*
-in
-let _ = printf "  result %s\n%!" (string_of_pol k {monoms = r}) in r
-*)
 ;
 
 value horner_pol k x pol =
@@ -219,9 +205,8 @@ value horner_pol k x pol =
   let ml = horner (pol_add k) (pol_mul k) [] x rml in
   {monoms = ml}
 ;
-(**)
 
-value arg_horner = ref False;
+value arg_horner = ref True;
 
 value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
@@ -242,42 +227,55 @@ value print_solution k br finite nth cγl = do {
     (if arg_eval_sol.val <> None || not quiet.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-(**)
-if arg_horner.val then
-      let pol = horner_pol k sol br.initial_polynom in
-      let pol₂ =
-        if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
-        else pol
-      in
-      let t = tree_of_x_polyn k pol₂ in
-      let ellipses =
-        if List.length pol.monoms > nb_terms then " + ..." else ""
-      in
-      printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_tree k (not arg_lang.val) br.vx br.vy t)
-        ellipses
-else
-      let t = substitute_y k tsol br.initial_tree in
-      let t = normalise k t in
-      let t = tree_map C.float_round_zero t in
-      let t = normalise k t in
-      let pol = polyn_of_tree k t in
-      match pol.monoms with
-      [ [{coeff = pol; power = 0}] →
-          let pol₂ =
-            if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
-            else pol
-          in
-          let t = tree_of_x_polyn k pol₂ in
-          let ellipses =
-            if nb_terms = 0 then ""
-            else if List.length pol.monoms > nb_terms then " + ..."
-            else ""
-          in
-          printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-            (string_of_tree k (not arg_lang.val) br.vx br.vy t)
-            ellipses
-      | _ → () ]
+      if arg_horner.val then
+        let pol = horner_pol k sol br.initial_polynom in
+        let pol =
+          {monoms =
+             List.rev
+               (List.fold_left
+                  (fun ml m →
+                     let c = C.float_round_zero m.coeff in
+                     if C.eq c C.zero then ml
+                     else
+                       let m = {coeff = c; power = m.power} in
+                       [m :: ml])
+                  [] pol.monoms)}
+        in
+        let pol₂ =
+          if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
+          else pol
+        in
+        let t = tree_of_x_polyn k pol₂ in
+        let ellipses =
+          if nb_terms = 0 then ""
+          else if List.length pol.monoms > nb_terms then " + ..."
+          else ""
+        in
+        printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
+          (string_of_tree k (not arg_lang.val) br.vx br.vy t)
+          ellipses
+      else
+        let t = substitute_y k tsol br.initial_tree in
+        let t = normalise k t in
+        let t = tree_map C.float_round_zero t in
+        let t = normalise k t in
+        let pol = polyn_of_tree k t in
+        match pol.monoms with
+        [ [{coeff = pol; power = 0}] →
+            let pol₂ =
+              if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
+              else pol
+            in
+            let t = tree_of_x_polyn k pol₂ in
+            let ellipses =
+              if nb_terms = 0 then ""
+              else if List.length pol.monoms > nb_terms then " + ..."
+              else ""
+            in
+            printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
+              (string_of_tree k (not arg_lang.val) br.vx br.vy t)
+              ellipses
+        | _ → () ]
   | None → () ]
 };
 
@@ -566,8 +564,9 @@ value arg_parse () =
     else if Sys.argv.(i) = "--" then do {
       arg_end.val := True;
     }
-    else if Sys.argv.(i) = "-r" then do {
-      arg_horner.val := True;
+    else if Sys.argv.(i) = "-o" then do {
+      arg_horner.val := False;
+      loop (i + 1)
     }
     else if List.mem Sys.argv.(i) ["-h"; "--help"] then do {
       eprintf "%s\n" usage;
