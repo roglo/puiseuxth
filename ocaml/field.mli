@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.8 2013-03-31 22:09:23 deraugla Exp $ *)
+(* $Id: field.mli,v 1.9 2013-03-31 22:26:48 deraugla Exp $ *)
 
 open Pnums;
 
@@ -11,6 +11,7 @@ type field α β =
     mul : α → α → α;
     div : α → α → α;
     (* extra *)
+    abs : β → β;
     minus_one : α;
     norm : α → α;
     compare : α → α → int;
