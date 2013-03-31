@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.4 2013-03-30 07:38:31 deraugla Exp $
+# $Id: Makefile,v 1.5 2013-03-31 07:48:00 deraugla Exp $
 
-TARGET=puiseux.out
+TARGET=puiseux.out ugly.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo puiseux.cmo
 UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
@@ -15,22 +15,21 @@ OCAMLC=ocamlc.opt -g
 OCAMLOPT=ocamlopt.opt -w +32
 OCAMLOPT=ocamlopt.opt
 
-all: opt ugly
+all: opt
 
 out: q_def_expr.cmo $(TARGET)
 	cp puiseux.out puiseux
+	cp ugly.out ugly
 
 opt: q_def_expr.cmo $(TARGET:.out=.opt)
 	cp puiseux.opt puiseux
+	cp ugly.opt ugly
 
 puiseux.out: $(FILES)
 	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(FILES) $(LINKFLAGS) -o $@
 
 puiseux.opt: $(FILES:.cmo=.cmx)
 	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(FILES:.cmo=.cmx) $(LINKFLAGS) -o $@
-
-ugly: ugly.out
-	cp $< $@
 
 ugly.out: $(UFILES)
 	$(OCAMLC) -I +camlp5 $(LIB) $(UFILES) -o $@
