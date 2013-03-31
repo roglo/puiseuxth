@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.45 2013-03-31 05:55:19 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.46 2013-03-31 06:17:01 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -95,6 +95,7 @@ value arg_lang = ref False;
 value arg_eval_sol = ref None;
 value arg_debug = ref False;
 value arg_end = ref False;
+value arg_horner = ref True;
 
 type branch α =
   { initial_polynom : polynomial (polynomial α Q.t) int;
@@ -203,8 +204,6 @@ value horner_pol k x pol =
   let ml = horner (pol_add k) (pol_mul k) [] x rml in
   {monoms = ml}
 ;
-
-value arg_horner = ref True;
 
 value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
