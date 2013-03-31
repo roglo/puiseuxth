@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.46 2013-03-31 06:17:01 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.47 2013-03-31 06:50:39 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -22,59 +22,59 @@ value valuation_coeff pol =
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-value rec minimise_slope (x₁, y₁) slt_min₁ skip₁ =
+value rec minimise_slope k (x₁, y₁) slt_min₁ skip₁ =
   fun
   [ [(x₂, y₂) :: xyl₂] →
-      let sl₁₂ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
+      let sl₁₂ = k.norm (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
       let slt_min =
-        if Q.le sl₁₂ slt_min₁.slope then
+        if k.le sl₁₂ slt_min₁.slope then
           {xy₂ = (x₂, y₂); slope = sl₁₂; skip = skip₁}
         else
           slt_min₁
       in
-      minimise_slope (x₁, y₁) slt_min (succ skip₁) xyl₂
+      minimise_slope k (x₁, y₁) slt_min (succ skip₁) xyl₂
   | [] →
       slt_min₁ ]
 ;
 
-value rec next_points rev_list nb_pts_to_skip (x₁, y₁) =
+value rec next_points k rev_list nb_pts_to_skip (x₁, y₁) =
   fun
   [ [(x₂, y₂) :: xyl₂] →
       match nb_pts_to_skip with
       [ 0 →
           let slt_min =
-            let sl₁₂ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
+            let sl₁₂ = k.norm (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
             let slt_min = {xy₂ = (x₂, y₂); slope = sl₁₂; skip = 0} in
-            minimise_slope (x₁, y₁) slt_min 1 xyl₂
+            minimise_slope k (x₁, y₁) slt_min 1 xyl₂
           in
-          next_points [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂ xyl₂
+          next_points k [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂ xyl₂
       | n →
-          next_points rev_list (n - 1) (x₁, y₁) xyl₂ ]
+          next_points k rev_list (n - 1) (x₁, y₁) xyl₂ ]
   | [] →
       List.rev rev_list ]
 ;
 
-value lower_convex_hull xyl =
+value lower_convex_hull k xyl =
   match xyl with
-  [ [xy₁ :: xyl₁] → [xy₁ :: next_points [] 0 xy₁ xyl₁]
+  [ [xy₁ :: xyl₁] → [xy₁ :: next_points k [] 0 xy₁ xyl₁]
   | [] → [] ]
 ;
 
-value gamma_beta_list pol =
+value gamma_beta_list k pol =
   let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
-        let γ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
-        let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
+        let γ = k.norm (k.div (k.sub y₂ y₁) (k.sub x₁ x₂)) in
+        let β = k.norm (k.add (k.mul γ x₁) y₁) in
         loop [(γ, β) :: rev_gbl] xyl₁
     | [_] | [] →
         List.rev rev_gbl ]
   in
   let xyl =
-    List.map (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
+    List.map (fun my → (k.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
-  let ch = lower_convex_hull xyl in
+  let ch = lower_convex_hull k xyl in
   loop [] ch
 ;
 
@@ -97,16 +97,16 @@ value arg_debug = ref False;
 value arg_end = ref False;
 value arg_horner = ref True;
 
-type branch α =
-  { initial_polynom : polynomial (polynomial α Q.t) int;
+type branch α β =
+  { initial_polynom : polynomial (polynomial α β) int;
     initial_tree: tree α;
-    cγl : list (α * Q.t);
+    cγl : list (α * β);
     step : int;
     rem_steps : int;
     vx : string;
     vy : string;
     t : tree α;
-    pol : polynomial (polynomial α Q.t) int }
+    pol : polynomial (polynomial α β) int }
 ;
 
 value cut_long at_middle s =
@@ -231,8 +231,8 @@ value print_solution k br finite nth cγl = do {
              List.rev
                (List.fold_left
                   (fun ml m →
-                     let c = C.float_round_zero m.coeff in
-                     if C.eq c C.zero then ml
+                     let c = k.float_round_zero m.coeff in
+                     if k.eq c k.zero then ml
                      else
                        let m = {coeff = c; power = m.power} in
                        [m :: ml])
@@ -254,7 +254,7 @@ value print_solution k br finite nth cγl = do {
       else
         let t = substitute_y k tsol br.initial_tree in
         let t = normalise k t in
-        let t = tree_map C.float_round_zero t in
+        let t = tree_map k.float_round_zero t in
         let t = normalise k t in
         let pol = polyn_of_tree k t in
         match pol.monoms with
@@ -370,6 +370,34 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
     } ]
 };
 
+value kq =
+  let imul i a = Q.muli a (I.of_int i) in
+  {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
+   mul = Q.mul; div = Q.div;
+   minus_one = Q.neg Q.one ; norm = Q.norm; eq = Q.eq; le = Q.le;
+   imul = imul; gcd _ = failwith "Q.gcd";
+   neg_factor _ = failwith "Q.neg_factor";
+   of_i = Q.of_i; of_q x = x; of_a _ = failwith "Q.of_a";
+   of_complex _ = failwith "Q.of_complex";
+   of_float_string _ = failwith "Q.of_float_string";
+   to_q x = Some x; to_a _ = failwith "Q.to_a";
+   to_complex _ = failwith "Q.to_complex"; to_string = Q.to_string;
+   float_round_zero _ = failwith "Q.float_round_zero"}
+;
+
+value kc =
+  let imul i a = C.muli a (I.of_int i) in
+  {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
+   mul = C.mul; div = C.div;
+   minus_one = C.minus_one; eq = C.eq; le _ = failwith "C.le";
+   imul = imul; gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor;
+   of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
+   of_float_string = C.of_float_string;
+   to_q = C.to_q; to_a = C.to_a; to_complex = C.to_complex;
+   to_string = C.to_string arg_lang.val;
+   float_round_zero = C.float_round_zero}
+;
+
 value rec puiseux_branch k br nth_sol (γ, β) =
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
@@ -414,7 +442,7 @@ value rec puiseux_branch k br nth_sol (γ, β) =
 
 and next_step k br nth_sol t cγl =
   let pol = polyn_of_tree k t in
-  let gbl = gamma_beta_list pol in
+  let gbl = gamma_beta_list kq pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if not quiet.val then do {
@@ -449,7 +477,7 @@ value print_line_equal () =
 
 value puiseux k nb_steps vx vy t =
   let pol = polyn_of_tree k t in
-  let gbl = gamma_beta_list pol in
+  let gbl = gamma_beta_list kq pol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
@@ -671,16 +699,7 @@ value main () = do {
           exit 2
         } ]
     in
-    let k =
-      let imul i a = C.muli a (I.of_int i) in
-      {zero = C.zero; one = C.one; add = C.add; sub = C.add; neg = C.neg;
-       mul = C.mul; div = C.div; minus_one = C.minus_one; eq = C.eq;
-       imul = imul; gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor;
-       of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
-       of_float_string = C.of_float_string;
-       to_q = C.to_q; to_a = C.to_a; to_complex = C.to_complex;
-       to_string = C.to_string arg_lang.val}
-    in
+    let k = kc in
     let t = tree_of_ast k vx vy p in
     let t = normalise k t in
     let norm_txt = string_of_tree k True vx vy t in

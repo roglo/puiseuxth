@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.14 2013-03-30 07:38:31 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.15 2013-03-31 06:50:40 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -48,20 +48,24 @@ value print_term n my = do {
   incr n
 };
 
+value kc =
+  let imul i a = C.muli a (I.of_int i) in
+  {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
+   mul = C.mul; div = C.div;
+   minus_one = C.minus_one; eq = C.eq; le _ = failwith "C.le";
+   imul = imul; gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor;
+   of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
+   of_float_string = C.of_float_string;
+   to_q = C.to_q; to_a = C.to_a; to_complex = C.to_complex;
+   to_string = C.to_string False;
+   float_round_zero = C.float_round_zero}
+;
+
 value main () = do {
   let s = Sys.argv.(1) in
   let vx = "x" in
   let vy = "y" in
-  let k =
-    let imul i a = C.muli a (I.of_int i) in
-    {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-     mul = C.mul; div = C.div; minus_one = C.minus_one; eq = C.eq;
-     imul = imul; gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor;
-     of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
-     of_float_string = C.of_float_string;
-     to_q = C.to_q; to_a = C.to_a; to_complex = C.to_complex;
-     to_string = C.to_string False}
-  in
+  let k = kc in
   let p = parse_poly s in
   let t = tree_of_ast k vx vy p in
   let si = string_of_tree k False vx vy t in
