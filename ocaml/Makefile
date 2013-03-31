@@ -1,9 +1,10 @@
-# $Id: Makefile,v 1.5 2013-03-31 07:48:00 deraugla Exp $
+# $Id: Makefile,v 1.6 2013-03-31 11:55:36 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo puiseux.cmo
 UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
+TEST_DIR=test `basename "$<"` = "$<" || { echo "File \"$<\" needs to be recompiled."; echo "Please run 'make' in directory '$$(dirname "$<")' first."; exit 1; }
 LIB=nums.cma gramlib.cma
 
 MPFR_DIR=
@@ -44,20 +45,23 @@ depend:
 	mv .depend .depend.bak
 	@ > .depend
 	@for i in $(FILESFORDEP); do \
-	  echo "camlp5r pr_depend.cmo -I . $$i" 1>&2; \
-	  camlp5r pr_depend.cmo -I . $$i; \
+	  echo "camlp5r pr_depend.cmo -- -I ../cpoly $$i" 1>&2; \
+	  camlp5r pr_depend.cmo -- -I ../cpoly $$i; \
 	done > .depend
 
 .PHONY: all out opt clean depend
 .SUFFIXES: .mli .ml .cmi .cmo .cmx
 
 .mli.cmi:
+	@$(TEST_DIR)
 	$(OCAMLC) $(OCOPT) -pp camlp5r -I +camlp5 -c $<
 
 .ml.cmo:
+	@$(TEST_DIR)
 	$(OCAMLC) $(OCOPT) -pp camlp5r -I +camlp5 -c $<
 
 .ml.cmx:
+	@$(TEST_DIR)
 	$(OCAMLOPT) $(OCOPT) -pp camlp5r -I +camlp5 -c $<
 
 include .depend

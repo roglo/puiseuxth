@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.50 2013-03-31 11:02:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.51 2013-03-31 11:55:36 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -597,6 +597,22 @@ value kc =
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
    float_round_zero = C.float_round_zero}
+;
+
+open Cpoly;
+
+value km () =
+  {zero = Mfl.zero; one = Mfl.one; add = Mfl.add; sub = Mfl.sub;
+   neg = Mfl.neg; mul = Mfl.mul; div = Mfl.div;
+   minus_one = Mfl.neg Mfl.one; compare _ = failwith "km.compare";
+   eq = Mfl.eq; le _ = failwith "km.le"; lt _ = failwith "km.lt";
+   gcd _ _ = Mfl.one; norm _ = failwith "km.norm"; neg_factor _ = None;
+   of_i i = Mfl.int (I.to_int i); of_q _ = failwith "km.of_q";
+   of_a _ = failwith "km.of_a"; of_complex _ = failwith "km.of_complex";
+   of_float_string _ = failwith "km.of_float_string";
+   to_q _ = failwith "km.to_q"; to_a x = None;
+   to_complex _ = failwith "km.to_complex"; to_string = Mfl.to_string;
+   float_round_zero _ = failwith "km.float_round_zero"}
 ;
 
 value main () = do {
