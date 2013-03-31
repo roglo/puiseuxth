@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.53 2013-03-31 12:13:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.54 2013-03-31 16:03:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -602,8 +602,7 @@ value kc () =
    float_round_zero = C.float_round_zero}
 ;
 
-open Cpoly;
-
+(*
 value km () =
   {zero = Mfl.zero; one = Mfl.one; add = Mfl.add; sub = Mfl.sub;
    neg = Mfl.neg; mul = Mfl.mul; div = Mfl.div;
@@ -617,6 +616,7 @@ value km () =
    to_complex _ = failwith "km.to_complex"; to_string = Mfl.to_string;
    float_round_zero _ = failwith "km.float_round_zero"}
 ;
+*)
 
 value main () = do {
   arg_parse ();
