@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.28 2013-03-31 20:05:04 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.29 2013-03-31 22:14:48 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -18,13 +18,15 @@ value list_of_polynomial zero pol =
     | [] -> [] ]
 ;
 
+value epsilon_round eps r =
+  let re = if abs_float r.re ≤ eps then 0. else r.re in
+  let im = if abs_float r.im ≤ eps then 0. else r.im in
+  {re = re; im = im}
+;
+
 value wrap_prec prec f a = do {
   Cpoly.Mfl.set_prec prec;
-(*
-  let eps = Cpoly.Mfl.to_float (Cpoly.Mfl.epsilon_float prec) in
-*)
   let eps = sqrt epsilon_float in
-(**)
   let rl = f a in
   List.map (epsilon_round eps) rl
 };

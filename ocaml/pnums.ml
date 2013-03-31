@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.11 2013-03-31 20:09:47 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.12 2013-03-31 22:14:48 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -248,11 +248,6 @@ value find_sqrt a =
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
-value epsilon_round eps r =
-  let re = if abs_float r.re ≤ eps then 0. else r.re in
-  let im = if abs_float r.im ≤ eps then 0. else r.im in
-  {re = re; im = im}
-;
 value from_ocaml_complex c = {re = c.Complex.re; im = c.Complex.im};
 value to_ocaml_complex c = {Complex.re = c.re; im = c.im};
 value complex_zero = {re = 0.; im = 0.};
