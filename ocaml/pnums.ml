@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.8 2013-03-31 15:00:38 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.9 2013-03-31 15:39:57 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -695,7 +695,6 @@ module C_func (F : Float) =
     ;
   end;
 
-(*
 module C =
   C_func
     (struct
@@ -715,132 +714,6 @@ module C =
        value a₂_to_complex = A₂.to_complex;
      end)
 ;
-*)
-module C =
-  struct
-    type t =
-      [ Nalg of A₂.t
-      | Ncpl of complex ]
-    ;
-    type i = I.t;
-    type q = Q.t;
-    type a₂ = A₂.t;
-    value zero = Nalg (A₂.zero);
-    value one = Nalg (A₂.one);
-    value minus_one = Nalg (A₂.minus_one);
-    value of_i i = Nalg (A₂.of_i i);
-    value of_q q = Nalg (A₂.of_q q);
-    value of_a a = Nalg a;
-    value check =
-      fun
-      [ Nalg x → A₂.check x
-      | Ncpl c → () ]
-    ;
-    value to_complex =
-      fun
-      [ Nalg x → A₂.to_complex x
-      | Ncpl c → c ]
-    ;
-    value norm =
-      fun
-      [ Nalg x → Nalg (A₂.norm x)
-      | Ncpl c → Ncpl c ]
-    ;
-    value neg =
-      fun
-      [ Nalg x → Nalg (A₂.neg x)
-      | Ncpl c → Ncpl (complex_neg c) ]
-    ;
-    value add x y =
-      match (x, y) with
-      [ (Nalg x, Nalg y) → Nalg (A₂.add x y)
-      | _ → Ncpl (complex_add (to_complex x) (to_complex y)) ]
-    ;
-    value sub x y =
-      match (x, y) with
-      [ (Nalg x, Nalg y) → Nalg (A₂.sub x y)
-      | _ → Ncpl (complex_sub (to_complex x) (to_complex y)) ]
-    ;
-    value mul x y =
-      match (x, y) with
-      [ (Nalg x, Nalg y) → Nalg (A₂.mul x y)
-      | _ → Ncpl (complex_mul (to_complex x) (to_complex y)) ]
-    ;
-    value muli x i = mul x (Nalg (A₂.of_i i));
-    value mulq x q = mul x (Nalg (A₂.of_q q));
-    value mula x a = mul x (Nalg a);
-    value div x y =
-      match (x, y) with
-      [ (Nalg x, Nalg y) → Nalg (A₂.div x y)
-      | _ → Ncpl (complex_div (to_complex x) (to_complex y)) ]
-    ;
-    value to_string prog_lang =
-      fun
-      [ Nalg x → A₂.to_string prog_lang x
-      | Ncpl c → complex_to_string prog_lang c ]
-    ;
-    value gcd x y =
-      match (x, y) with
-      [ (Nalg x, Nalg y) → Nalg (A₂.gcd x y)
-      | _ → Nalg (A₂.one) ]
-    ;
-    value eq x y =
-      match (x, y) with
-      [ (Nalg x, Nalg y) → A₂.eq x y
-      | _ → complex_eq (to_complex x) (to_complex y) ]
-    ;
-    value neg_factor x =
-      match x with
-      [ Nalg a →
-          if Q.is_neg a.A₂.a then
-            if I.eq a.A₂.d I.zero then Some (neg x)
-            else if Q.is_neg a.A₂.b then Some (neg x)
-            else None
-          else if Q.eq a.A₂.a Q.zero then
-            if Q.is_neg a.A₂.b then Some (neg x)
-            else None
-          else None
-      | Ncpl c →
-          if c.re < 0. && c.im = 0. then Some (neg x) else None ]
-    ;
-    value to_expr =
-      fun
-      [ Nalg x → A₂.to_expr x
-      | Ncpl {re = re; im = 0.} → << $flo:sof re$ >>
-      | Ncpl c → << $flo:sof c.re$ + i * $flo:sof c.im$ >> ]
-    ;
-    value to_a =
-      fun
-      [ Nalg x → Some x
-      | Ncpl c → None ]
-    ;
-    value to_q =
-      fun
-      [ Nalg x → A₂.to_q x
-      | Ncpl c → None ]
-    ;
-   value of_expr =
-      fun
-      [ << $flo:re$ >> →
-          Ncpl {re = float_of_string re; im = 0.0}
-      | << $flo:re$ + i * $flo:im$ >> →
-          Ncpl {re = float_of_string re; im = float_of_string im}
-      | e →
-          match A₂.of_expr e with
-          [ Some a → Nalg a
-          | None → not_impl "N.of_expr" e ] ]
-    ;
-    value of_float_string s = Ncpl {re = float_of_string s; im = 0.0};
-    value of_complex c = Ncpl c;
-    value float_round_zero =
-      fun
-      [ Nalg x → Nalg x
-      | Ncpl c →
-          let eps = sqrt epsilon_float in
-          Ncpl (epsilon_round eps c) ]
-    ;
-  end;
-(**)
 
 value factor a =
   if I.lt a I.zero then invalid_arg "factor"
