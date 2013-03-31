@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.17 2013-03-31 11:02:39 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.18 2013-03-31 12:13:39 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -48,7 +48,7 @@ value print_term n my = do {
   incr n
 };
 
-value kc =
+value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
    mul = C.mul; div = C.div;
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
@@ -64,7 +64,7 @@ value main () = do {
   let s = Sys.argv.(1) in
   let vx = "x" in
   let vy = "y" in
-  let k = kc in
+  let k = kc () in
   let p = parse_poly s in
   let t = tree_of_ast k vx vy p in
   let si = string_of_tree k False vx vy t in

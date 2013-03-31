@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.52 2013-03-31 11:59:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.53 2013-03-31 12:13:39 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -590,7 +590,7 @@ value kq =
    float_round_zero _ = failwith "kq.float_round_zero"}
 ;
 
-value kc =
+value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
    mul = C.mul; div = C.div;
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
@@ -688,7 +688,7 @@ value main () = do {
           exit 2
         } ]
     in
-    let k = kc in
+    let k = kc () in
     let t = tree_of_ast k vx vy p in
     let t = normalise k t in
     let norm_txt = string_of_tree k True vx vy t in
