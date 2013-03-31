@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.4 2013-03-31 12:13:38 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.5 2013-03-31 12:39:36 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -511,7 +511,7 @@ module A₂ =
 
 module C =
   struct
-    type t α =
+    type t =
       [ Nalg of A₂.t
       | Ncpl of complex ]
     ;

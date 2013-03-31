@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.5 2013-03-31 12:13:38 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.6 2013-03-31 12:39:36 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -110,36 +110,36 @@ value complex_to_string : bool → complex → string;
 
 module C :
   sig
-    type t α = 'abstract;
-    value zero : t α;
-    value one : t α;
-    value minus_one : t α;
-    value neg : t α → t α;
-    value add : t α → t α → t α;
-    value sub : t α → t α → t α;
-    value mul : t α → t α → t α;
-    value muli : t α → I.t → t α;
-    value mulq : t α → Q.t → t α;
-    value mula : t α → A₂.t → t α;
-    value div : t α → t α → t α;
-    value power : t α → t α → t α;
-    value gcd : t α → t α → t α;
-    value norm : t α → t α;
-    value eq : t α → t α → bool;
-    value neg_factor : t α → option (t α);
-    value to_expr : t α → MLast.expr;
-    value to_string : bool → t α → string;
-    value to_complex : t α → complex;
-    value to_q : t α → option Q.t;
-    value to_a : t α → option A₂.t;
-    value of_i : I.t → t α;
-    value of_q : Q.t → t α;
-    value of_a : A₂.t → t α;
-    value of_expr : MLast.expr → t α;
-    value of_float_string : string → t α;
-    value of_complex : complex → t α;
-    value float_round_zero : t α → t α;
-    value check : t α → unit;
+    type t = 'abstract;
+    value zero : t;
+    value one : t;
+    value minus_one : t;
+    value neg : t → t;
+    value add : t → t → t;
+    value sub : t → t → t;
+    value mul : t → t → t;
+    value muli : t → I.t → t;
+    value mulq : t → Q.t → t;
+    value mula : t → A₂.t → t;
+    value div : t → t → t;
+    value power : t → t → t;
+    value gcd : t → t → t;
+    value norm : t → t;
+    value eq : t → t → bool;
+    value neg_factor : t → option (t);
+    value to_expr : t → MLast.expr;
+    value to_string : bool → t → string;
+    value to_complex : t → complex;
+    value to_q : t → option Q.t;
+    value to_a : t → option A₂.t;
+    value of_i : I.t → t;
+    value of_q : Q.t → t;
+    value of_a : A₂.t → t;
+    value of_expr : MLast.expr → t;
+    value of_float_string : string → t;
+    value of_complex : complex → t;
+    value float_round_zero : t → t;
+    value check : t → unit;
   end;
 
 value factor : I.t → list I.t;
