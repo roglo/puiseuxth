@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.16 2013-03-31 07:02:58 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.17 2013-03-31 11:02:39 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -49,13 +49,12 @@ value print_term n my = do {
 };
 
 value kc =
-  let imul i a = C.muli a (I.of_int i) in
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
    mul = C.mul; div = C.div;
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
-   le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; imul = imul; gcd = C.gcd;
-   norm = C.norm; neg_factor = C.neg_factor; of_i = C.of_i; of_q = C.of_q;
-   of_a = C.of_a; of_complex = C.of_complex;
+   le _ = failwith "kc.le"; lt _ = failwith "kc.lt";
+   gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor; of_i = C.of_i;
+   of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string False;
    float_round_zero = C.float_round_zero}
