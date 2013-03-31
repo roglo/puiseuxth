@@ -1,8 +1,8 @@
-(* $Id: roots.mli,v 1.5 2013-03-30 01:26:44 deraugla Exp $ *)
+(* $Id: roots.mli,v 1.6 2013-03-31 22:09:23 deraugla Exp $ *)
 
 open Pnums;
 open Field;
 open Poly_tree;
 
 value quiet : ref bool;
-value roots : field α → polynomial α int → list (α * int);
+value roots : field α float → polynomial α int → list (α * int);

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.55 2013-03-31 20:15:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.56 2013-03-31 22:09:23 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -576,7 +576,7 @@ value arg_parse () =
     }
 ;
 
-value kq =
+value kq : field Q.t unit =
   {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
    mul = Q.mul; div = Q.div;
    minus_one = Q.neg Q.one ; norm = Q.norm; compare = Q.compare; eq = Q.eq;
