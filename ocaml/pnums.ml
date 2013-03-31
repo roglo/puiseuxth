@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.6 2013-03-31 14:04:49 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.7 2013-03-31 14:27:57 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -521,7 +521,6 @@ module type Float =
     value sub : t → t → t;
     value mul : t → t → t;
     value div : t → t → t;
-    value power : t → t → t;
     value sqrt : t → t;
     value zero : t;
     value epsilon : t;
@@ -596,20 +595,6 @@ module C_func (F : Float) =
           A₂.to_string prog_lang x
       | Ncpl c →
           complex_a_to_string F.to_string F.zero F.compare prog_lang c ]
-    ;
-    value power_rat x r =
-      if I.eq r.Q.rden I.one && I.ge r.Q.rnum I.zero then
-        loop (I.to_int r.Q.rnum) one where rec loop k r =
-          if k = 0 then r else loop (k - 1) (mul r x)
-      else failwith "N.power_rat"
-    ;
-    value power x y =
-      match y with
-      [ Nalg a →
-          if I.eq a.A₂.d I.zero then power_rat x a.A₂.a
-          else Ncpl (map_complex F.power (to_complex x) (to_complex y))
-      | _ →
-          Ncpl (map_complex F.power (to_complex x) (to_complex y)) ]
     ;
     value gcd x y =
       match (x, y) with
@@ -686,6 +671,27 @@ module C_func (F : Float) =
     ;
   end;
 
+(*
+module C =
+  C_func
+    (struct
+       type t = float;
+       value abs = abs_float;
+       value neg = \~-.;
+       value add = \+.;
+       value sub = \-.;
+       value mul = \*.;
+       value div = \/.;
+       value sqrt = sqrt;
+       value zero = 0.0;
+       value epsilon = epsilon_float;
+       value compare = compare;
+       value to_string = string_of_float;
+       value of_string = float_of_string;
+       value a₂_to_complex = A₂.to_complex;
+     end)
+;
+*)
 module C =
   struct
     type t =
@@ -755,19 +761,6 @@ module C =
           if k = 0 then r else loop (k - 1) (mul r x)
       else failwith "N.power_rat"
     ;
-    value power x y =
-      match y with
-      [ Nalg a →
-          if I.eq a.A₂.d I.zero then power_rat x a.A₂.a
-          else
-            let x = to_complex x in
-            let y = to_complex y in
-            Ncpl (complex_power x y)
-      | _ →
-          let x = to_complex x in
-          let y = to_complex y in
-          Ncpl (complex_power x y) ]
-    ;
     value gcd x y =
       match (x, y) with
       [ (Nalg x, Nalg y) → Nalg (A₂.gcd x y)
@@ -829,6 +822,7 @@ module C =
           Ncpl (epsilon_round eps c) ]
     ;
   end;
+(**)
 
 value factor a =
   if I.lt a I.zero then invalid_arg "factor"
