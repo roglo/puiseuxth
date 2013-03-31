@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.5 2013-03-31 12:39:36 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.6 2013-03-31 14:04:49 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -279,17 +279,20 @@ value complex_eq x y =
   let y = to_ocaml_complex y in
   x = y
 ;
-value complex_to_string prog_lang c =
+value complex_a_to_string string_of_float zero compare prog_lang c =
   let m = if prog_lang then "*" else "" in
-  if c.im = 0. then
-    if c.re < 0. then sprintf "(%F)" c.re else sprintf "%F" c.re
-  else if c.re = 0. then
-    if c.im < 0. then sprintf "(%F%si)" c.im m else sprintf "%F%si" c.im m
-  else if c.im < 0. then
-    sprintf "(%F-%F%si)" c.re (-. c.im) m
+  let s = {re = string_of_float c.re; im = string_of_float c.im} in
+  if compare c.im zero = 0 then
+    if compare c.re zero < 0 then sprintf "(%s)" s.re else s.re
+  else if compare c.re zero = 0 then
+    if compare c.im zero < 0 then sprintf "(%s%si)" s.im m
+    else sprintf "%s%si" s.im m
+  else if compare c.im zero < 0 then
+    sprintf "(%s%s%si)" s.re s.im m
   else
-    sprintf "(%F+%F%si)" c.re c.im m
+    sprintf "(%s+%s%si)" s.re s.im m
 ;
+value complex_to_string = complex_a_to_string string_of_float 0. compare;
 
 module A₂ =
   struct
@@ -506,6 +509,180 @@ module A₂ =
         let sr = << $int:I.ts a.d$ ** (1/2) >> in
         if I.eq bn I.one then << $Q.to_expr a.a$ + $sr$ / $int:I.ts bd$ >>
         else << $Q.to_expr a.a$ + $int:I.ts bn$ * $sr$ / $int:I.ts bd$ >>
+    ;
+  end;
+
+module type Float =
+  sig
+    type t = α;
+    value abs : t → t;
+    value neg : t → t;
+    value add : t → t → t;
+    value sub : t → t → t;
+    value mul : t → t → t;
+    value div : t → t → t;
+    value power : t → t → t;
+    value sqrt : t → t;
+    value zero : t;
+    value epsilon : t;
+    value compare : t → t → int;
+    value to_string : t → string;
+    value of_string : string → t;
+    value a₂_to_complex : A₂.t → complex_a t;
+  end;
+
+module C_func (F : Float) =
+  struct
+    type t =
+      [ Nalg of A₂.t
+      | Ncpl of complex_a F.t ]
+    ;
+    type i = I.t;
+    type q = Q.t;
+    type a₂ = A₂.t;
+    value zero = Nalg (A₂.zero);
+    value one = Nalg (A₂.one);
+    value minus_one = Nalg (A₂.minus_one);
+    value of_i i = Nalg (A₂.of_i i);
+    value of_q q = Nalg (A₂.of_q q);
+    value of_a a = Nalg a;
+    value check =
+      fun
+      [ Nalg x → A₂.check x
+      | Ncpl c → () ]
+    ;
+    value to_complex =
+      fun
+      [ Nalg x → F.a₂_to_complex x
+      | Ncpl c → c ]
+    ;
+    value norm =
+      fun
+      [ Nalg x → Nalg (A₂.norm x)
+      | Ncpl c → Ncpl c ]
+    ;
+    value neg =
+      fun
+      [ Nalg x → Nalg (A₂.neg x)
+      | Ncpl c → Ncpl {re = F.neg c.re; im = F.neg c.im} ]
+    ;
+    value map_complex f x y = {re = f x.re y.re; im = f x.im y.im};
+    value add x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → Nalg (A₂.add x y)
+      | _ → Ncpl (map_complex F.add (to_complex x) (to_complex y)) ]
+    ;
+    value sub x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → Nalg (A₂.sub x y)
+      | _ → Ncpl (map_complex F.sub (to_complex x) (to_complex y)) ]
+    ;
+    value mul x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → Nalg (A₂.mul x y)
+      | _ → Ncpl (map_complex F.mul (to_complex x) (to_complex y)) ]
+    ;
+    value muli x i = mul x (Nalg (A₂.of_i i));
+    value mulq x q = mul x (Nalg (A₂.of_q q));
+    value mula x a = mul x (Nalg a);
+    value div x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → Nalg (A₂.div x y)
+      | _ → Ncpl (map_complex F.div (to_complex x) (to_complex y)) ]
+    ;
+    value to_string prog_lang =
+      fun
+      [ Nalg x →
+          A₂.to_string prog_lang x
+      | Ncpl c →
+          complex_a_to_string F.to_string F.zero F.compare prog_lang c ]
+    ;
+    value power_rat x r =
+      if I.eq r.Q.rden I.one && I.ge r.Q.rnum I.zero then
+        loop (I.to_int r.Q.rnum) one where rec loop k r =
+          if k = 0 then r else loop (k - 1) (mul r x)
+      else failwith "N.power_rat"
+    ;
+    value power x y =
+      match y with
+      [ Nalg a →
+          if I.eq a.A₂.d I.zero then power_rat x a.A₂.a
+          else Ncpl (map_complex F.power (to_complex x) (to_complex y))
+      | _ →
+          Ncpl (map_complex F.power (to_complex x) (to_complex y)) ]
+    ;
+    value gcd x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → Nalg (A₂.gcd x y)
+      | _ → Nalg (A₂.one) ]
+    ;
+    value eq x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → A₂.eq x y
+      | _ →
+           let x = to_complex x in
+           let y = to_complex y in
+           F.compare x.re y.re = 0 && F.compare x.im y.im = 0 ]
+    ;
+    value neg_factor x =
+      match x with
+      [ Nalg a →
+          if Q.is_neg a.A₂.a then
+            if I.eq a.A₂.d I.zero then Some (neg x)
+            else if Q.is_neg a.A₂.b then Some (neg x)
+            else None
+          else if Q.eq a.A₂.a Q.zero then
+            if Q.is_neg a.A₂.b then Some (neg x)
+            else None
+          else None
+      | Ncpl _ →
+          let c = to_complex x in
+          if F.compare c.re F.zero < 0 && F.compare c.im F.zero = 0 then
+            Some (neg x)
+          else
+            None ]
+    ;
+    value sof = F.to_string;
+    value to_expr =
+      fun
+      [ Nalg x → A₂.to_expr x
+      | Ncpl {re = re; im = im} when im = F.zero → << $flo:sof re$ >>
+      | Ncpl c → << $flo:sof c.re$ + i * $flo:sof c.im$ >> ]
+    ;
+    value to_a =
+      fun
+      [ Nalg x → Some x
+      | Ncpl c → None ]
+    ;
+    value to_q =
+      fun
+      [ Nalg x → A₂.to_q x
+      | Ncpl c → None ]
+    ;
+   value of_expr =
+      fun
+      [ << $flo:re$ >> →
+          Ncpl {re = F.of_string re; im = F.zero}
+      | << $flo:re$ + i * $flo:im$ >> →
+          Ncpl {re = F.of_string re; im = F.of_string im}
+      | e →
+          match A₂.of_expr e with
+          [ Some a → Nalg a
+          | None → not_impl "N.of_expr" e ] ]
+    ;
+    value of_float_string s = Ncpl {re = F.of_string s; im = F.zero};
+    value of_complex c = Ncpl c;
+    value epsilon_round eps r =
+      let re = if F.compare (F.abs r.re) eps ≤ 0 then F.zero else r.re in
+      let im = if F.compare (F.abs r.im) eps ≤ 0 then F.zero else r.im in
+      {re = re; im = im}
+    ;
+    value float_round_zero =
+      fun
+      [ Nalg x → Nalg x
+      | Ncpl c →
+          let eps = F.sqrt F.epsilon in
+          Ncpl (epsilon_round eps c) ]
     ;
   end;
 
