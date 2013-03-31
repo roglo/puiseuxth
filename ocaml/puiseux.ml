@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.47 2013-03-31 06:50:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.48 2013-03-31 07:02:58 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -150,13 +150,13 @@ value horner add mul zero x rpol =
         else loop (mul a x) (deg - 1) [] ]
 ;
 
-value merge_x_pol k ml₁ ml₂ =
+value merge_x_pol k kq ml₁ ml₂ =
   loop [] ml₁ ml₂ where rec loop rev_ml ml₁ ml₂ =
     match (ml₁, ml₂) with
     [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-        if Q.lt m₁.power m₂.power then
+        if kq.lt m₁.power m₂.power then
           loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
-        else if Q.eq m₁.power m₂.power then
+        else if kq.eq m₁.power m₂.power then
           let c = k.norm (k.add m₁.coeff m₂.coeff) in
           let rev_ml =
             if k.eq c k.zero then rev_ml
@@ -179,39 +179,39 @@ value string_of_pol k pol =
   string_of_tree k True "x" "y" (tree_of_x_polyn k pol)
 ;
 
-value pol_add k ml p =
-  merge_x_pol k ml p.monoms
+value pol_add k kq ml p =
+  merge_x_pol k kq ml p.monoms
 ;
 
-value pol_mul k (ml : list (monomial _ _)) p =
+value pol_mul k kq (ml : list (monomial _ _)) p =
   let ml =
     List.fold_left
       (fun a m₁ →
          List.fold_left
            (fun a m₂ →
               let c = k.norm (k.mul m₁.coeff m₂.coeff) in
-              let p = Q.norm (Q.add m₁.power m₂.power) in
+              let p = kq.norm (kq.add m₁.power m₂.power) in
               [{coeff = c; power = p} :: a])
            a p.monoms)
       [] ml
   in
-  let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
-  merge_expr_pow k Q.eq merge_coeffs ml
+  let ml = List.sort (fun m₁ m₂ → kq.compare m₁.power m₂.power) ml in
+  merge_expr_pow k kq.eq merge_coeffs ml
 ;
 
-value horner_pol k x pol =
+value horner_pol k kq x pol =
   let rml = List.rev pol.monoms in
-  let ml = horner (pol_add k) (pol_mul k) [] x rml in
+  let ml = horner (pol_add k kq) (pol_mul k kq) [] x rml in
   {monoms = ml}
 ;
 
-value print_solution k br finite nth cγl = do {
+value print_solution k kq br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
-         let γsum = Q.norm (Q.add γsum γ) in
+         let γsum = kq.norm (kq.add γsum γ) in
          ([{coeff = c; power = γsum} :: sol], γsum))
-      ([], Q.zero) (List.rev cγl)
+      ([], kq.zero) (List.rev cγl)
   in
   let sol = {monoms = List.rev rev_sol} in
   let tsol = tree_of_x_polyn k sol in
@@ -225,7 +225,7 @@ value print_solution k br finite nth cγl = do {
   match arg_eval_sol.val with
   [ Some nb_terms →
       if arg_horner.val then
-        let pol = horner_pol k sol br.initial_polynom in
+        let pol = horner_pol k kq sol br.initial_polynom in
         let pol =
           {monoms =
              List.rev
@@ -310,7 +310,7 @@ value cancel_constant_term_if_any k t =
 (**)
 ;
 
-value puiseux_iteration k br r m γ β nth_sol = do {
+value puiseux_iteration k kq br r m γ β nth_sol = do {
   let ss = inf_string_of_string (string_of_int br.step) in
   if not quiet.val then
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
@@ -351,7 +351,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
         }
         else (); 
         incr nth_sol;
-        print_solution k br finite nth_sol.val cγl;
+        print_solution k kq br finite nth_sol.val cγl;
         None
       }
       else if br.rem_steps > 0 then Some (t, cγl)
@@ -365,40 +365,12 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
       }
       else ();
       incr nth_sol;
-      print_solution k br False nth_sol.val cγl;
+      print_solution k kq br False nth_sol.val cγl;
       None
     } ]
 };
 
-value kq =
-  let imul i a = Q.muli a (I.of_int i) in
-  {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
-   mul = Q.mul; div = Q.div;
-   minus_one = Q.neg Q.one ; norm = Q.norm; eq = Q.eq; le = Q.le;
-   imul = imul; gcd _ = failwith "Q.gcd";
-   neg_factor _ = failwith "Q.neg_factor";
-   of_i = Q.of_i; of_q x = x; of_a _ = failwith "Q.of_a";
-   of_complex _ = failwith "Q.of_complex";
-   of_float_string _ = failwith "Q.of_float_string";
-   to_q x = Some x; to_a _ = failwith "Q.to_a";
-   to_complex _ = failwith "Q.to_complex"; to_string = Q.to_string;
-   float_round_zero _ = failwith "Q.float_round_zero"}
-;
-
-value kc =
-  let imul i a = C.muli a (I.of_int i) in
-  {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-   mul = C.mul; div = C.div;
-   minus_one = C.minus_one; eq = C.eq; le _ = failwith "C.le";
-   imul = imul; gcd = C.gcd; norm = C.norm; neg_factor = C.neg_factor;
-   of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
-   of_float_string = C.of_float_string;
-   to_q = C.to_q; to_a = C.to_a; to_complex = C.to_complex;
-   to_string = C.to_string arg_lang.val;
-   float_round_zero = C.float_round_zero}
-;
-
-value rec puiseux_branch k br nth_sol (γ, β) =
+value rec puiseux_branch k kq br nth_sol (γ, β) =
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -428,19 +400,19 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   let rl = roots k {monoms = ml} in
   if rl = [] then do {
     incr nth_sol;
-    print_solution k br False nth_sol.val br.cγl;
+    print_solution k kq br False nth_sol.val br.cγl;
   }
   else
     List.iter
       (fun (r, m) →
          if k.eq r k.zero then ()
          else
-           match puiseux_iteration k br r m γ β nth_sol with
-           [ Some (t, cγl) → next_step k br nth_sol t cγl
+           match puiseux_iteration k kq br r m γ β nth_sol with
+           [ Some (t, cγl) → next_step k kq br nth_sol t cγl
            | None → () ])
       rl
 
-and next_step k br nth_sol t cγl =
+and next_step k kq br nth_sol t cγl =
   let pol = polyn_of_tree k t in
   let gbl = gamma_beta_list kq pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
@@ -464,7 +436,7 @@ and next_step k br nth_sol t cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; t = t; pol = pol}
          in
-         puiseux_branch k br nth_sol (γ, β)
+         puiseux_branch k kq br nth_sol (γ, β)
        })
       gbl_f
 ;
@@ -475,7 +447,7 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux k nb_steps vx vy t =
+value puiseux k kq nb_steps vx vy t =
   let pol = polyn_of_tree k t in
   let gbl = gamma_beta_list kq pol in
   let rem_steps = nb_steps - 1 in
@@ -487,7 +459,7 @@ value puiseux k nb_steps vx vy t =
          {initial_polynom = pol; initial_tree = t; cγl = []; step = 1;
           rem_steps = rem_steps; vx = vx; vy = vy; t = t; pol = pol}
        in
-       puiseux_branch k br nth_sol (γ₁, β₁)
+       puiseux_branch k kq br nth_sol (γ₁, β₁)
      })
     gbl
 ;
@@ -629,6 +601,34 @@ value arg_parse () =
     }
 ;
 
+value kq =
+  let imul i a = Q.muli a (I.of_int i) in
+  {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
+   mul = Q.mul; div = Q.div;
+   minus_one = Q.neg Q.one ; norm = Q.norm; compare = Q.compare; eq = Q.eq;
+   le = Q.le; lt = Q.lt; imul = imul; gcd _ = failwith "kq.gcd";
+   neg_factor _ = failwith "kq.neg_factor";
+   of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
+   of_complex _ = failwith "kq.of_complex";
+   of_float_string _ = failwith "kq.of_float_string";
+   to_q x = Some x; to_a _ = failwith "kq.to_a";
+   to_complex _ = failwith "kq.to_complex"; to_string = Q.to_string;
+   float_round_zero _ = failwith "kq.float_round_zero"}
+;
+
+value kc =
+  let imul i a = C.muli a (I.of_int i) in
+  {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
+   mul = C.mul; div = C.div;
+   minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
+   le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; imul = imul; gcd = C.gcd;
+   norm = C.norm; neg_factor = C.neg_factor; of_i = C.of_i; of_q = C.of_q;
+   of_a = C.of_a; of_complex = C.of_complex;
+   of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
+   to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
+   float_round_zero = C.float_round_zero}
+;
+
 value main () = do {
   arg_parse ();
   if arg_polynom.val <> None && arg_fname.val <> "" then do {
@@ -710,7 +710,7 @@ value main () = do {
     else do {
       printf "equation: %s = 0\n\n%!" norm_txt;
     };
-    puiseux k arg_nb_steps.val vx vy t;
+    puiseux k kq arg_nb_steps.val vx vy t;
   }
   with e →
     match e with
