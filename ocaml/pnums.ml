@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.30 2013-04-01 11:37:20 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.31 2013-04-01 11:37:56 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -582,7 +582,7 @@ module C_func (F : Float) =
       let s = {re = F.to_string c.re; im = F.to_string c.im} in
       if F.compare c.im F.zero = 0 then
         if F.compare c.re F.zero < 0 then sprintf "(%s)" s.re else s.re
-      else if compare c.re F.zero = 0 then
+      else if F.compare c.re F.zero = 0 then
         if F.compare c.im F.zero < 0 then sprintf "(%s%si)" s.im m
         else sprintf "%s%si" s.im m
       else if F.compare c.im F.zero < 0 then
