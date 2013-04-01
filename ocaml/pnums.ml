@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.18 2013-04-01 05:43:40 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.19 2013-04-01 05:46:48 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -266,9 +266,9 @@ value complex_div x y =
     { re = (r *. x.re +. x.im) /. d;
       im = (r *. x.im -. x.re) /. d }
 ;
-value complex_power_float x y =
+value complex_nth_root x n =
   let x = to_ocaml_complex x in
-  let y = to_ocaml_complex {re = y; im = 0.0} in
+  let y = to_ocaml_complex {re = 1. /. float n; im = 0.0} in
   from_ocaml_complex (Complex.pow x y)
 ;
 value complex_a_to_string string_of_float zero compare prog_lang c =

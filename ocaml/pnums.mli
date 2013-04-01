@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.14 2013-04-01 05:43:41 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.15 2013-04-01 05:46:49 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -106,7 +106,7 @@ value complex_a_to_string :
 
 type complex = complex_a float;
 value complex_mul : complex → complex → complex;
-value complex_power_float : complex → float → complex;
+value complex_nth_root : complex → int → complex;
 value complex_to_string : bool → complex → string;
 
 module C :
