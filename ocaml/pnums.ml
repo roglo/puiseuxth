@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.26 2013-04-01 10:44:39 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.27 2013-04-01 10:51:45 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -590,12 +590,11 @@ module C_func (F : Float) =
       [ (Nalg x, Nalg y) → Nalg (A₂.div x y)
       | _ → Ncpl (complex_div (to_complex x) (to_complex y)) ]
     ;
+    value complex_to_string = complex_to_string F.to_string F.zero F.compare;
     value to_string prog_lang =
       fun
-      [ Nalg x →
-          A₂.to_string prog_lang x
-      | Ncpl c →
-          complex_to_string F.to_string F.zero F.compare prog_lang c ]
+      [ Nalg x → A₂.to_string prog_lang x
+      | Ncpl c → complex_to_string prog_lang c ]
     ;
     value gcd x y =
       match (x, y) with

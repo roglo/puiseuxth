@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.63 2013-04-01 10:44:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.64 2013-04-01 10:51:45 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -591,7 +591,8 @@ value kq : field Q.t unit =
    float_round_zero _ = failwith "kq.float_round_zero";
    complex_round_zero _ = failwith "kq.complex_round_zero";
    complex_mul _ = failwith "kq.complex_mul";
-   cpoly_roots _ = failwith "kq.cpoly_roots"}
+   cpoly_roots _ = failwith "kq.cpoly_roots";
+   complex_to_string _ = failwith "kq.complex_to_string"}
 ;
 
 value kc () =
@@ -605,7 +606,7 @@ value kc () =
    to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
    float_round_zero = C.float_round_zero;
    complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
-   cpoly_roots = C.cpoly_roots}
+   cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
 ;
 
 value km () =
@@ -619,7 +620,7 @@ value km () =
    to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
    float_round_zero = M.float_round_zero;
    complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
-   cpoly_roots = M.cpoly_roots}
+   cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
 ;
 
 value main () = do {

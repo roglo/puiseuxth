@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.14 2013-04-01 10:44:39 deraugla Exp $ *)
+(* $Id: field.mli,v 1.15 2013-04-01 10:51:45 deraugla Exp $ *)
 
 open Pnums;
 
@@ -32,5 +32,6 @@ type field α β =
     float_round_zero : α → α;
     complex_round_zero : complex β → complex β;
     complex_mul : complex β → complex β → complex β;
-    cpoly_roots : list (complex β) → list (complex β) }
+    cpoly_roots : list (complex β) → list (complex β);
+    complex_to_string : bool → complex β → string }
 ;

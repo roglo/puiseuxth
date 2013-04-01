@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.48 2013-04-01 10:44:39 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.49 2013-04-01 10:51:45 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -439,14 +439,6 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
   rl
 };
 
-(**)
-value complex_to_string = complex_to_string string_of_float 0. compare;
-(*
-value complex_to_string =
-  complex_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
-;
-*)
-
 value float_roots_of_unity k prec pow = do {
   let pol =
     let m₁ = {coeff = k.minus_one; power = 0} in
@@ -468,7 +460,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let rl = wrap_prec k prec k.cpoly_roots (List.rev fpl) in
   if not quiet.val then do {
     List.iter
-      (fun r → printf "cpoly root: %s\n%!" (complex_to_string False r)) rl;
+      (fun r → printf "cpoly root: %s\n%!" (k.complex_to_string False r)) rl;
   }
   else ();
   let rl =
@@ -477,7 +469,8 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       let rou = float_roots_of_unity k prec power_gcd in
       if not quiet.val then do {
         List.iter
-          (fun r → printf "root of unity: %s\n%!" (complex_to_string False r))
+          (fun r →
+             printf "root of unity: %s\n%!" (k.complex_to_string False r))
           rou
       }
       else ();
