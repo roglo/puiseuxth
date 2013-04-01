@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.53 2013-04-01 23:33:05 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.54 2013-04-01 23:42:10 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -323,20 +323,23 @@ value find_algebr_nb k pol =
 
 value roots_of_c_coeffs k pol coeffs =
   match coeffs with
-  [ [] | [_] → []
+  [ [] | [_] → Some []
   | [b; a] →
       let r = k.div (k.neg b) a in
-      [(r, 1)]
+      Some [(r, 1)]
   | [c; b; a] →
       match (k.to_a a, k.to_a b, k.to_a c) with
       [ (Some a, Some b, Some c) →
-          roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
+          Some (roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c)
       | _ →
           let t = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
           failwith
             (sprintf "cannot compute roots of '%s'"
                (string_of_tree k True "x" "y" t)) ]
   | _ → do {
+(**)
+      None
+(*
       let algeb_nb = find_algebr_nb k pol in
       match algeb_nb with
       [ Some x →
@@ -381,23 +384,24 @@ value roots_of_c_coeffs k pol coeffs =
           failwith
             (sprintf "cannot compute roots of '%s'\n%!"
                (string_of_tree k True "x" "y" t)) ];
+*)
     } ]
 ;
 
 value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
   let degree = (List.hd (List.rev apol.monoms)).power in
-  let rl =
+  let rl_opt =
     match degree with
     [ 1 →
         let a = coeff_of_degree 1 apol in
         let b = coeff_of_degree 0 apol in
         let r = A₂.div (A₂.neg b) a in
-        [(k.of_a r, 1)]
+        Some [(k.of_a r, 1)]
     | 2 →
         let a = coeff_of_degree 2 apol in
         let b = coeff_of_degree 1 apol in
         let c = coeff_of_degree 0 apol in
-        roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c
+        Some (roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c)
     | _ →
         match int_polyn_of_polyn apol with
         [ Some ipol → do {
@@ -414,49 +418,52 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
               else ();
             }
             else ();
-            rl
+            Some rl
           }
         | None → do {
             let coeffs = list_of_polynomial k.zero pol in
             roots_of_c_coeffs k pol coeffs
           } ] ]
   in
-  (* not happy of that code: perhaps should call 'subst_roots_of_unity'
-     just once *)
-  let rl_opt =
-    if power_gcd = 1 then Some rl
-    else
-      let rll_opt =
-        try
-          let rll =
-            List.map
-              (fun r →
-                 match subst_roots_of_unity k power_gcd r with
-                 [ Some rl → rl
-                 | None → raise Exit ])
-              rl
-          in
-          Some rll
-        with
-        [ Exit → None ]
-      in
-      match rll_opt with
-      [ Some rll → Some (List.concat rll)
-      | None → None ]
-  in
   match rl_opt with
-  [ Some rl → do {
-      if verbose.val then do {
-        if rl <> [] then printf "roots:\n%!" else ();
-        List.iter
-          (fun (r, m) →
-             printf "  c = %s%s\n%!" (k.to_string r)
-               (if m > 1 then sprintf " (multiplicity %d)" m else ""))
-          rl;
-      }
-      else ();
-      Some rl
-    }
+  [ Some rl →
+      (* not happy of that code: perhaps should call 'subst_roots_of_unity'
+         just once *)
+      let rl_opt =
+        if power_gcd = 1 then Some rl
+        else
+          let rll_opt =
+            try
+              let rll =
+                List.map
+                  (fun r →
+                     match subst_roots_of_unity k power_gcd r with
+                     [ Some rl → rl
+                     | None → raise Exit ])
+                  rl
+              in
+              Some rll
+            with
+            [ Exit → None ]
+          in
+          match rll_opt with
+          [ Some rll → Some (List.concat rll)
+          | None → None ]
+      in
+      match rl_opt with
+      [ Some rl → do {
+          if verbose.val then do {
+            if rl <> [] then printf "roots:\n%!" else ();
+            List.iter
+              (fun (r, m) →
+                 printf "  c = %s%s\n%!" (k.to_string r)
+                   (if m > 1 then sprintf " (multiplicity %d)" m else ""))
+              rl;
+          }
+          else ();
+          Some rl
+        }
+      | None → None ]
   | None → None ]
 };
 
