@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.50 2013-04-01 15:04:41 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.51 2013-04-01 15:18:01 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -500,7 +500,11 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
              if k.eq r r₁ then [(r₁, n₁+1) :: rnl₁]
              else [(r, 1) :: rnl]
          | [] → [(r, 1) :: rnl] ])
+(*
+      rl []
+*)
       (List.sort compare rl) []
+(**)
   in
   if not quiet.val then do {
     if rl <> [] then printf "roots:\n%!" else ();
