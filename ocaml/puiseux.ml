@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.64 2013-04-01 10:51:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.65 2013-04-01 11:01:32 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -93,6 +93,7 @@ value arg_fname = ref "";
 value arg_nb_steps = ref 5;
 value arg_lang = ref False;
 value arg_eval_sol = ref None;
+value arg_all_mpfr = ref False;
 value arg_debug = ref False;
 value arg_end = ref False;
 
@@ -513,6 +514,11 @@ value arg_parse () =
         } ];
       loop (i + 2)
     }
+    else if List.mem Sys.argv.(i) ["--all-mpfr"; "-a"] then do {
+      (* undocumented *)
+      arg_all_mpfr.val := True;
+      loop (i + 1)
+    }
     else if List.mem Sys.argv.(i) ["--cut-long"; "-c"] then do {
       cut_long_strings.val := True;
       loop (i + 1)
@@ -693,22 +699,34 @@ value main () = do {
           exit 2
         } ]
     in
-(**)
-    let k = kc () in
-(*
-    let k = km () in
-*)
-    let t = tree_of_ast k vx vy p in
-    let t = normalise k t in
-    let norm_txt = string_of_tree k True vx vy t in
-    if not quiet.val then do {
-      printf "normalised:\n";
-      printf "%s\n%!" norm_txt;
+    if arg_all_mpfr.val then do {
+      let k = km () in
+      let t = tree_of_ast k vx vy p in
+      let t = normalise k t in
+      let norm_txt = string_of_tree k True vx vy t in
+      if not quiet.val then do {
+        printf "normalised:\n";
+        printf "%s\n%!" norm_txt;
+      }
+      else do {
+        printf "equation: %s = 0\n\n%!" norm_txt;
+      };
+      puiseux k kq arg_nb_steps.val vx vy t;
     }
     else do {
-      printf "equation: %s = 0\n\n%!" norm_txt;
-    };
-    puiseux k kq arg_nb_steps.val vx vy t;
+      let k = kc () in
+      let t = tree_of_ast k vx vy p in
+      let t = normalise k t in
+      let norm_txt = string_of_tree k True vx vy t in
+      if not quiet.val then do {
+        printf "normalised:\n";
+        printf "%s\n%!" norm_txt;
+      }
+      else do {
+        printf "equation: %s = 0\n\n%!" norm_txt;
+      };
+      puiseux k kq arg_nb_steps.val vx vy t;
+    }
   }
   with e →
     match e with
