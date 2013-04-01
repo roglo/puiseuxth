@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.20 2013-03-31 22:37:21 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.21 2013-04-01 06:16:28 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -53,7 +53,7 @@ value kc () =
    mul = C.mul; div = C.div;
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
    le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; gcd = C.gcd;
-   norm = C.norm; neg_factor = C.neg_factor; of_i = C.of_i;
+   norm = C.normalise; neg_factor = C.neg_factor; of_i = C.of_i;
    of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string False;

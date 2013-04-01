@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.15 2013-04-01 05:46:49 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.16 2013-04-01 06:16:28 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -124,7 +124,8 @@ module C :
     value mula : t → A₂.t → t;
     value div : t → t → t;
     value gcd : t → t → t;
-    value norm : t → t;
+    value normalise : t → t;
+    value nth_root : t → int → t;
     value eq : t → t → bool;
     value neg_factor : t → option (t);
     value to_expr : t → MLast.expr;
@@ -159,7 +160,8 @@ module M :
     value mula : t → A₂.t → t;
     value div : t → t → t;
     value gcd : t → t → t;
-    value norm : t → t;
+    value normalise : t → t;
+    value nth_root : t → int → t;
     value eq : t → t → bool;
     value neg_factor : t → option (t);
     value to_expr : t → MLast.expr;

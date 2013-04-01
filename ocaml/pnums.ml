@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.20 2013-04-01 06:03:54 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.21 2013-04-01 06:16:28 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -543,10 +543,15 @@ module C_func (F : Float) =
       [ Nalg x → F.a₂_to_complex x
       | Ncpl c → c ]
     ;
-    value norm =
+    value normalise =
       fun
       [ Nalg x → Nalg (A₂.norm x)
       | Ncpl c → Ncpl c ]
+    ;
+    value nth_root c n =
+      match c with
+      [ Nalg x → failwith "C_func.nth_root Nalg x"
+      | Ncpl c → failwith "C_func.nth_root Ncpl c" ]
     ;
     value neg =
       fun
