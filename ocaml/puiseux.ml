@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.61 2013-04-01 06:40:29 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.62 2013-04-01 09:57:58 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -689,7 +689,11 @@ value main () = do {
           exit 2
         } ]
     in
+(**)
     let k = kc () in
+(*
+    let k = km () in
+*)
     let t = tree_of_ast k vx vy p in
     let t = normalise k t in
     let norm_txt = string_of_tree k True vx vy t in

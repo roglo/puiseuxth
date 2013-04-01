@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.22 2013-04-01 09:35:26 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.23 2013-04-01 09:57:58 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -712,10 +712,13 @@ module M =
        value sqrt = Mfl.sqrt;
        value zero = Mfl.float 1.0;
        value epsilon = Mfl.float epsilon_float;
-       value compare = compare;
+       value compare = Mfl.cmp;
        value to_string = Mfl.to_string;
        value of_string = Mfl.of_string;
-       value a₂_to_complex _ = failwith "M.a₂_to_complex";
+       value a₂_to_complex a =
+         let c = A₂.to_complex a in
+         {re = Mfl.float c.re; im = Mfl.float c.im}
+       ;
        value complex_nth_root _ = failwith "M.complex_nth_root";
      end)
 ;
