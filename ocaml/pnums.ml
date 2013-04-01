@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.24 2013-04-01 10:35:11 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.25 2013-04-01 10:38:08 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -246,8 +246,8 @@ value find_sqrt a =
       else loop (I.succ d) a
 ;
 
-type complex_a α = Cpoly.complex α == { re : α; im : α };
-type complex = complex_a float;
+type complex α = Cpoly.complex α == { re : α; im : α };
+
 value complex_norm x =
   let r = abs_float x.re and i = abs_float x.im in
   if r = 0.0 then i
@@ -258,7 +258,7 @@ value complex_norm x =
     let q = r /. i in i *. sqrt(1.0 +. q *. q)
 ;
 value complex_polar n a = { re = cos a *. n; im = sin a *. n };
-value complex_a_to_string string_of_float zero compare prog_lang c =
+value complex_to_string string_of_float zero compare prog_lang c =
   let m = if prog_lang then "*" else "" in
   let s = {re = string_of_float c.re; im = string_of_float c.im} in
   if compare c.im zero = 0 then
@@ -505,15 +505,15 @@ module type Float =
     value compare : t → t → int;
     value to_string : t → string;
     value of_string : string → t;
-    value a₂_to_complex : A₂.t → complex_a t;
-    value complex_nth_root : complex_a t → int → complex_a t;
+    value a₂_to_complex : A₂.t → complex t;
+    value complex_nth_root : complex t → int → complex t;
   end;
 
 module C_func (F : Float) =
   struct
     type t =
       [ Nalg of A₂.t
-      | Ncpl of complex_a F.t ]
+      | Ncpl of complex F.t ]
     ;
     type i = I.t;
     type q = Q.t;
@@ -594,7 +594,7 @@ module C_func (F : Float) =
       [ Nalg x →
           A₂.to_string prog_lang x
       | Ncpl c →
-          complex_a_to_string F.to_string F.zero F.compare prog_lang c ]
+          complex_to_string F.to_string F.zero F.compare prog_lang c ]
     ;
     value gcd x y =
       match (x, y) with

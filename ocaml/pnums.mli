@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.19 2013-04-01 10:35:11 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.20 2013-04-01 10:38:08 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -100,11 +100,9 @@ module A₂ :
   end
 ;
 
-type complex_a α = Cpoly.complex α == { re : α; im : α };
-value complex_a_to_string :
-  (α → string) → α → (α → α → int) → bool → complex_a α → string;
-
-type complex = complex_a float;
+type complex α = Cpoly.complex α == { re : α; im : α };
+value complex_to_string :
+  (α → string) → α → (α → α → int) → bool → complex α → string;
 
 module C :
   sig
@@ -127,7 +125,7 @@ module C :
     value neg_factor : t → option (t);
     value to_expr : t → MLast.expr;
     value to_string : bool → t → string;
-    value to_complex : t → complex_a float;
+    value to_complex : t → complex float;
     value to_q : t → option Q.t;
     value to_a : t → option A₂.t;
     value of_i : I.t → t;
@@ -135,12 +133,12 @@ module C :
     value of_a : A₂.t → t;
     value of_expr : MLast.expr → t;
     value of_float_string : string → t;
-    value of_complex : complex_a float → t;
+    value of_complex : complex float → t;
     value check : t → unit;
     value float_round_zero : t → t;
-    value complex_round_zero : complex_a float → complex_a float;
-    value complex_mul : complex_a float → complex_a float → complex_a float;
-    value complex_nth_root : complex_a float → int → complex_a float;
+    value complex_round_zero : complex float → complex float;
+    value complex_mul : complex float → complex float → complex float;
+    value complex_nth_root : complex float → int → complex float;
   end;
 
 module M :
@@ -165,7 +163,7 @@ module M :
     value neg_factor : t → option (t);
     value to_expr : t → MLast.expr;
     value to_string : bool → t → string;
-    value to_complex : t → complex_a Mfl.t;
+    value to_complex : t → complex Mfl.t;
     value to_q : t → option Q.t;
     value to_a : t → option A₂.t;
     value of_i : I.t → t;
@@ -173,12 +171,12 @@ module M :
     value of_a : A₂.t → t;
     value of_expr : MLast.expr → t;
     value of_float_string : string → t;
-    value of_complex : complex_a Mfl.t → t;
+    value of_complex : complex Mfl.t → t;
     value check : t → unit;
     value float_round_zero : t → t;
-    value complex_round_zero : complex_a Mfl.t → complex_a Mfl.t;
-    value complex_mul : complex_a Mfl.t → complex_a Mfl.t → complex_a Mfl.t;
-    value complex_nth_root : complex_a Mfl.t → int → complex_a Mfl.t;
+    value complex_round_zero : complex Mfl.t → complex Mfl.t;
+    value complex_mul : complex Mfl.t → complex Mfl.t → complex Mfl.t;
+    value complex_nth_root : complex Mfl.t → int → complex Mfl.t;
   end;
 
 value factor : I.t → list I.t;

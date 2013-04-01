@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.46 2013-04-01 10:35:11 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.47 2013-04-01 10:38:08 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -441,11 +441,11 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
 
 (**)
 value cpoly_roots = Cpoly.roots;
-value complex_to_string = complex_a_to_string string_of_float 0. compare;
+value complex_to_string = complex_to_string string_of_float 0. compare;
 (*
 value cpoly_roots = Cpoly.mroots;
 value complex_to_string =
-  complex_a_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
+  complex_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
 ;
 *)
 
