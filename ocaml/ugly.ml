@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.22 2013-04-01 06:22:40 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.23 2013-04-01 06:40:29 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -59,7 +59,7 @@ value kc () =
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string False;
    float_round_zero = C.float_round_zero;
-   complex_round_zero = C.complex_round_zero}
+   complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul}
 ;
 
 value main () = do {

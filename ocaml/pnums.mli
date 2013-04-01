@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.16 2013-04-01 06:16:28 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.17 2013-04-01 06:40:29 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -142,6 +142,7 @@ module C :
     value check : t → unit;
     value float_round_zero : t → t;
     value complex_round_zero : complex_a float → complex_a float;
+    value complex_mul : complex_a float → complex_a float → complex_a float;
   end;
 
 module M :
@@ -178,6 +179,7 @@ module M :
     value check : t → unit;
     value float_round_zero : t → t;
     value complex_round_zero : complex_a Mfl.t → complex_a Mfl.t;
+    value complex_mul : complex_a Mfl.t → complex_a Mfl.t → complex_a Mfl.t;
   end;
 
 value factor : I.t → list I.t;
