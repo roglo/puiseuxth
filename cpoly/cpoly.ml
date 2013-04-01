@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.2 2013-03-31 12:06:03 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.3 2013-04-01 05:30:15 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -32,6 +32,7 @@ module type Mfl =
     value log : t → t;
     value min : t → t → t;
     value max : t → t → t;
+    value cmp : t → t → int;
     value eq : t → t → bool;
     value neq : t → t → bool;
     value lt : t → t → bool;
@@ -50,6 +51,7 @@ module type Mfl =
     value min_float : unit → t;
     value to_string : t → string;
     value to_float : t → float;
+    value of_string : string → t;
   end;
 
 module Mfl_mpfr : Mfl =
@@ -93,6 +95,7 @@ module Mfl_mpfr : Mfl =
       sprintf "%5s.%sE%+03d" sign s e
     ;
     value to_float = Mpfr.to_float;
+    value of_string = Mpfr.of_string 10;
   end;
 
 module Mfl_float : Mfl =
@@ -110,6 +113,7 @@ module Mfl_float : Mfl =
     value log = log;
     value min = min;
     value max = max;
+    value cmp = compare;
     value eq x y = x = y;
     value neq x y = x <> y;
     value lt x y = x < y;
@@ -128,6 +132,7 @@ module Mfl_float : Mfl =
     value min_float () = min_float;
     value to_string f = sprintf "%26.16E" f;
     value to_float f = f;
+    value of_string = float_of_string;
   end;
 
 module Mfl = Mfl_mpfr;

@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.35 2013-04-01 05:22:05 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.36 2013-04-01 05:30:15 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -24,6 +24,7 @@ value wrap_prec k prec f a = do {
   List.map k.complex_round_zero rl
 };
 
+(**)
 value float_roots_of_unity k prec pow = do {
   let pol = {monoms = [{coeff = -1; power = 0}; {coeff = 1; power = pow}]} in
   let fnl = list_of_polynomial 0 pol in
@@ -31,7 +32,6 @@ value float_roots_of_unity k prec pow = do {
 };
 value complex_to_string = complex_to_string False;
 value cpoly_roots = Cpoly.roots;
-
 (*
 value float_roots_of_unity k prec pow = do {
   let pol =
@@ -42,10 +42,9 @@ value float_roots_of_unity k prec pow = do {
   let fnl = list_of_polynomial k.zero pol in
   wrap_prec k prec Cpoly.mroots (List.map k.to_complex fnl)
 };
-value complex_to_string x =
-  let re = Cpoly.Mfl.to_string x.re in
-  let im = Cpoly.Mfl.to_string x.im in
-  sprintf "%s+%s" re im
+value complex_to_string =
+  complex_a_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
+    False
 ;
 value cpoly_roots = Cpoly.mroots;
 *)

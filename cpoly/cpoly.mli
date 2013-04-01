@@ -1,4 +1,4 @@
-(* $Id: cpoly.mli,v 1.2 2013-03-31 12:06:03 deraugla Exp $ *)
+(* $Id: cpoly.mli,v 1.3 2013-04-01 05:30:15 deraugla Exp $ *)
 
 (* Jenkins-Traub's algorithm for computing roots *)
 
@@ -15,6 +15,7 @@ module Mfl :
     value sqrt : t → t;
     value exp : t → t;
     value log : t → t;
+    value cmp : t → t → int;
     value eq : t → t → bool;
     value int : int → t;
     value float : float → t;
@@ -26,6 +27,7 @@ module Mfl :
     value min_float : unit → t;
     value to_string : t → string;
     value to_float : t → float;
+    value of_string : string → t;
   end;
 
 type complex α = { re : α; im : α };
