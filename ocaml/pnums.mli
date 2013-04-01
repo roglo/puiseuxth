@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.11 2013-03-31 22:37:21 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.12 2013-04-01 04:05:24 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -146,6 +146,7 @@ module C :
 
 module M :
   sig
+    open Cpoly;
     type t = 'abstract;
     value zero : t;
     value one : t;
@@ -164,7 +165,7 @@ module M :
     value neg_factor : t → option (t);
     value to_expr : t → MLast.expr;
     value to_string : bool → t → string;
-    value to_complex : t → complex_a Mpfr.t;
+    value to_complex : t → complex_a Mfl.t;
     value to_q : t → option Q.t;
     value to_a : t → option A₂.t;
     value of_i : I.t → t;
@@ -172,10 +173,10 @@ module M :
     value of_a : A₂.t → t;
     value of_expr : MLast.expr → t;
     value of_float_string : string → t;
-    value of_complex : complex_a Mpfr.t → t;
+    value of_complex : complex_a Mfl.t → t;
     value check : t → unit;
     value float_round_zero : t → t;
-    value complex_round_zero : complex_a Mpfr.t → complex_a Mpfr.t;
+    value complex_round_zero : complex_a Mfl.t → complex_a Mfl.t;
   end;
 
 value factor : I.t → list I.t;

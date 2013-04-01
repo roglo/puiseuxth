@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.14 2013-03-31 22:37:21 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.15 2013-04-01 04:05:24 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -712,26 +712,20 @@ module C =
 module M =
   C_func
     (struct
-       type t = Mpfr.t;
-       value abs = Mpfr.abs;
-       value neg = Mpfr.neg;
-       value add = Mpfr.add;
-       value sub = Mpfr.sub;
-       value mul = Mpfr.mul;
-       value div = Mpfr.div;
-       value sqrt = Mpfr.sqrt;
-       value zero = Mpfr.of_float 1.0;
-       value epsilon = Mpfr.of_float epsilon_float;
+       open Cpoly;
+       type t = Mfl.t;
+       value abs = Mfl.abs;
+       value neg = Mfl.neg;
+       value add = Mfl.add;
+       value sub = Mfl.sub;
+       value mul = Mfl.mul;
+       value div = Mfl.div;
+       value sqrt = Mfl.sqrt;
+       value zero = Mfl.float 1.0;
+       value epsilon = Mfl.float epsilon_float;
        value compare = compare;
-       value to_string f =
-         let (s, e) = Mpfr.to_string 10 16 f in
-         let (sign, s) =
-           if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
-           else (" ", s)
-         in
-         sprintf "%5s.%sE%+03d" sign s e
-       ;
-       value of_string = Mpfr.of_string 10;
+       value to_string = Mfl.to_string;
+       value of_string = Mfl.of_string;
        value a₂_to_complex _ = failwith "M.a₂_to_complex";
      end)
 ;
