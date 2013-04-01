@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.39 2013-04-01 06:03:54 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.40 2013-04-01 06:22:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -79,7 +79,7 @@ value subst_roots_of_unity k pow (r, n) =
             if I.eq rd I.one && I.eq rn I.one then k.one
             else
               let d = I.mul rn rd in
-              k.norm (k.of_a (A₂.make Q.zero (Q.make I.one rd) d))
+              k.normalise (k.of_a (A₂.make Q.zero (Q.make I.one rd) d))
           in
           let r₁ = r in
           let r₂ = k.neg r in
@@ -445,7 +445,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       let rll =
         List.map
           (fun r →
-             let r = k.complex_nth_root r power_gcd in
+             let r = k.nth_root r power_gcd in
              List.map (k.complex_mul r) rou)
           rl
       in

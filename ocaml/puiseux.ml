@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.59 2013-04-01 06:16:28 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.60 2013-04-01 06:22:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -25,7 +25,7 @@ type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 value rec minimise_slope k (x₁, y₁) slt_min₁ skip₁ =
   fun
   [ [(x₂, y₂) :: xyl₂] →
-      let sl₁₂ = k.norm (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
+      let sl₁₂ = k.normalise (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
       let slt_min =
         if k.le sl₁₂ slt_min₁.slope then
           {xy₂ = (x₂, y₂); slope = sl₁₂; skip = skip₁}
@@ -43,7 +43,7 @@ value rec next_points k rev_list nb_pts_to_skip (x₁, y₁) =
       match nb_pts_to_skip with
       [ 0 →
           let slt_min =
-            let sl₁₂ = k.norm (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
+            let sl₁₂ = k.normalise (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
             let slt_min = {xy₂ = (x₂, y₂); slope = sl₁₂; skip = 0} in
             minimise_slope k (x₁, y₁) slt_min 1 xyl₂
           in
@@ -64,8 +64,8 @@ value gamma_beta_list k pol =
   let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
-        let γ = k.norm (k.div (k.sub y₂ y₁) (k.sub x₁ x₂)) in
-        let β = k.norm (k.add (k.mul γ x₁) y₁) in
+        let γ = k.normalise (k.div (k.sub y₂ y₁) (k.sub x₁ x₂)) in
+        let β = k.normalise (k.add (k.mul γ x₁) y₁) in
         loop [(γ, β) :: rev_gbl] xyl₁
     | [_] | [] →
         List.rev rev_gbl ]
@@ -156,7 +156,7 @@ value merge_x_pol k kq ml₁ ml₂ =
         if kq.lt m₁.power m₂.power then
           loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
         else if kq.eq m₁.power m₂.power then
-          let c = k.norm (k.add m₁.coeff m₂.coeff) in
+          let c = k.normalise (k.add m₁.coeff m₂.coeff) in
           let rev_ml =
             if k.eq c k.zero then rev_ml
             else [{coeff = c; power = m₁.power} :: rev_ml]
@@ -169,7 +169,7 @@ value merge_x_pol k kq ml₁ ml₂ =
 ;
 
 value merge_coeffs k c₁ c₂ p ml =
-  let c = k.norm (k.add c₁ c₂) in
+  let c = k.normalise (k.add c₁ c₂) in
   if k.eq c k.zero then ml
   else [{coeff = c; power = p} :: ml]
 ;
@@ -188,8 +188,8 @@ value pol_mul k kq ml p =
       (fun a m₁ →
          List.fold_left
            (fun a m₂ →
-              let c = k.norm (k.mul m₁.coeff m₂.coeff) in
-              let p = kq.norm (kq.add m₁.power m₂.power) in
+              let c = k.normalise (k.mul m₁.coeff m₂.coeff) in
+              let p = kq.normalise (kq.add m₁.power m₂.power) in
               [{coeff = c; power = p} :: a])
            a p.monoms)
       [] ml
@@ -222,7 +222,7 @@ value print_solution k kq br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
-         let γsum = kq.norm (kq.add γsum γ) in
+         let γsum = kq.normalise (kq.add γsum γ) in
          ([{coeff = c; power = γsum} :: sol], γsum))
       ([], kq.zero) (List.rev cγl)
   in
@@ -579,8 +579,9 @@ value arg_parse () =
 value kq : field Q.t unit =
   {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
    mul = Q.mul; div = Q.div;
-   minus_one = Q.neg Q.one ; norm = Q.norm; compare = Q.compare; eq = Q.eq;
-   le = Q.le; lt = Q.lt; gcd _ = failwith "kq.gcd";
+   minus_one = Q.neg Q.one ; normalise = Q.norm;
+   nth_root _ = failwith "kq.nth_root"; compare = Q.compare;
+   eq = Q.eq; le = Q.le; lt = Q.lt; gcd _ = failwith "kq.gcd";
    neg_factor _ = failwith "kq.neg_factor";
    of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
    of_complex _ = failwith "kq.of_complex";
@@ -596,8 +597,8 @@ value kc () =
    mul = C.mul; div = C.div;
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
    le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; gcd = C.gcd;
-   norm = C.normalise; neg_factor = C.neg_factor; of_i = C.of_i;
-   of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
+   normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
+   of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
    float_round_zero = C.float_round_zero;
@@ -609,8 +610,8 @@ value km () =
    mul = M.mul; div = M.div;
    minus_one = M.minus_one; compare _ = failwith "km.compare"; eq = M.eq;
    le _ = failwith "km.le"; lt _ = failwith "km.lt"; gcd = M.gcd;
-   norm = M.normalise; neg_factor = M.neg_factor; of_i = M.of_i;
-   of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
+   normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
+   of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
    of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
    to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
    float_round_zero = M.float_round_zero;

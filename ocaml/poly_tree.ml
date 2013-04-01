@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.41 2013-03-31 20:12:04 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.42 2013-04-01 06:22:40 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -293,7 +293,7 @@ value merge_const_px k m ml =
   match ml with
   [ [m₁ :: ml₁] →
       if Q.eq m.power m₁.power then
-        let c = k.norm (k.add m.coeff m₁.coeff) in
+        let c = k.normalise (k.add m.coeff m₁.coeff) in
         if k.eq c k.zero then ml₁
         else [{coeff = c; power = m.power} :: ml₁]
       else if k.eq m.coeff k.zero then ml
