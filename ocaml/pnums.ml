@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.33 2013-04-01 12:03:16 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.34 2013-04-01 12:09:29 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -247,17 +247,6 @@ value find_sqrt a =
 ;
 
 type complex α = Cpoly.complex α == { re : α; im : α };
-
-value complex_norm x =
-  let r = abs_float x.re and i = abs_float x.im in
-  if r = 0.0 then i
-  else if i = 0.0 then r
-  else if r >= i then
-    let q = i /. r in r *. sqrt(1.0 +. q *. q)
-  else
-    let q = r /. i in i *. sqrt(1.0 +. q *. q)
-;
-value complex_polar n a = { re = cos a *. n; im = sin a *. n };
 
 module A₂ =
   struct
@@ -689,6 +678,16 @@ module C =
        value to_string = string_of_float;
        value of_string = float_of_string;
        value a₂_to_complex = A₂.to_complex;
+       value complex_norm x =
+         let r = abs_float x.re and i = abs_float x.im in
+         if r = 0.0 then i
+         else if i = 0.0 then r
+         else if r >= i then
+           let q = i /. r in r *. sqrt(1.0 +. q *. q)
+         else
+           let q = r /. i in i *. sqrt(1.0 +. q *. q)
+       ;
+       value complex_polar n a = { re = cos a *. n; im = sin a *. n };
        value complex_nth_root x n =
          let arg = atan2 x.im x.re in
          let norm = complex_norm x in
