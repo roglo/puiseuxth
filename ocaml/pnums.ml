@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.21 2013-04-01 06:16:28 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.22 2013-04-01 09:35:26 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -248,10 +248,6 @@ value find_sqrt a =
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
-value complex_mul c d =
-  {re = c.re *. d.re -. c.im *. d.im;
-   im = c.re *. d.im +. c.im *. d.re}
-;
 value complex_norm x =
   let r = abs_float x.re and i = abs_float x.im in
   if r = 0.0 then i
@@ -262,11 +258,6 @@ value complex_norm x =
     let q = r /. i in i *. sqrt(1.0 +. q *. q)
 ;
 value complex_polar n a = { re = cos a *. n; im = sin a *. n };
-value complex_nth_root x n =
-  let arg = atan2 x.im x.re in
-  let norm = complex_norm x in
-  complex_polar (norm ** (1. /. float n)) (arg /. float n)
-;
 value complex_a_to_string string_of_float zero compare prog_lang c =
   let m = if prog_lang then "*" else "" in
   let s = {re = string_of_float c.re; im = string_of_float c.im} in
@@ -516,6 +507,7 @@ module type Float =
     value to_string : t → string;
     value of_string : string → t;
     value a₂_to_complex : A₂.t → complex_a t;
+    value complex_nth_root : complex_a t → int → complex_a t;
   end;
 
 module C_func (F : Float) =
@@ -550,8 +542,8 @@ module C_func (F : Float) =
     ;
     value nth_root c n =
       match c with
-      [ Nalg x → failwith "C_func.nth_root Nalg x"
-      | Ncpl c → failwith "C_func.nth_root Ncpl c" ]
+      [ Nalg x → failwith "C_func.nth_root Nalg x not impl"
+      | Ncpl c → Ncpl (F.complex_nth_root c n) ]
     ;
     value neg =
       fun
@@ -678,6 +670,7 @@ module C_func (F : Float) =
       [ Nalg x → Nalg x
       | Ncpl c → Ncpl (complex_round_zero c) ]
     ;
+    value complex_nth_root = F.complex_nth_root;
   end;
 
 module C =
@@ -697,6 +690,11 @@ module C =
        value to_string = string_of_float;
        value of_string = float_of_string;
        value a₂_to_complex = A₂.to_complex;
+       value complex_nth_root x n =
+         let arg = atan2 x.im x.re in
+         let norm = complex_norm x in
+         complex_polar (norm ** (1. /. float n)) (arg /. float n)
+       ;
      end)
 ;
 
@@ -718,6 +716,7 @@ module M =
        value to_string = Mfl.to_string;
        value of_string = Mfl.of_string;
        value a₂_to_complex _ = failwith "M.a₂_to_complex";
+       value complex_nth_root _ = failwith "M.complex_nth_root";
      end)
 ;
 
