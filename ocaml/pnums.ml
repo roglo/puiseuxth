@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.31 2013-04-01 11:37:56 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.32 2013-04-01 11:43:29 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -710,7 +710,7 @@ module M =
        value mul = Mfl.mul;
        value div = Mfl.div;
        value sqrt = Mfl.sqrt;
-       value zero = Mfl.float 1.0;
+       value zero = Mfl.float 0.0;
        value epsilon = Mfl.float epsilon_float;
        value compare = Mfl.cmp;
        value to_string f =
