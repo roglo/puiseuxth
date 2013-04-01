@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.16 2013-04-01 05:04:01 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.17 2013-04-01 05:22:05 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -250,9 +250,6 @@ type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
 value from_ocaml_complex c = {re = c.Complex.re; im = c.Complex.im};
 value to_ocaml_complex c = {Complex.re = c.re; im = c.im};
-value complex_neg c = {re = -. c.re; im = -. c.im};
-value complex_add c d = {re = c.re +. d.re; im = c.im +. d.im};
-value complex_sub c d = {re = c.re -. d.re; im = c.im -. d.im};
 value complex_mul c d =
   {re = c.re *. d.re -. c.im *. d.im;
    im = c.re *. d.im +. c.im *. d.re}
@@ -273,11 +270,6 @@ value complex_power x y =
   let x = to_ocaml_complex x in
   let y = to_ocaml_complex y in
   from_ocaml_complex (Complex.pow x y)
-;
-value complex_eq x y =
-  let x = to_ocaml_complex x in
-  let y = to_ocaml_complex y in
-  x = y
 ;
 value complex_a_to_string string_of_float zero compare prog_lang c =
   let m = if prog_lang then "*" else "" in
