@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.29 2013-04-01 11:21:43 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.30 2013-04-01 11:37:20 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -258,19 +258,6 @@ value complex_norm x =
     let q = r /. i in i *. sqrt(1.0 +. q *. q)
 ;
 value complex_polar n a = { re = cos a *. n; im = sin a *. n };
-value complex_to_string string_of_float zero compare prog_lang c =
-  let m = if prog_lang then "*" else "" in
-  let s = {re = string_of_float c.re; im = string_of_float c.im} in
-  if compare c.im zero = 0 then
-    if compare c.re zero < 0 then sprintf "(%s)" s.re else s.re
-  else if compare c.re zero = 0 then
-    if compare c.im zero < 0 then sprintf "(%s%si)" s.im m
-    else sprintf "%s%si" s.im m
-  else if compare c.im zero < 0 then
-    sprintf "(%s%s%si)" s.re s.im m
-  else
-    sprintf "(%s+%s%si)" s.re s.im m
-;
 
 module A₂ =
   struct
@@ -590,7 +577,19 @@ module C_func (F : Float) =
       [ (Nalg x, Nalg y) → Nalg (A₂.div x y)
       | _ → Ncpl (complex_div (to_complex x) (to_complex y)) ]
     ;
-    value complex_to_string = complex_to_string F.to_string F.zero F.compare;
+    value complex_to_string prog_lang c =
+      let m = if prog_lang then "*" else "" in
+      let s = {re = F.to_string c.re; im = F.to_string c.im} in
+      if F.compare c.im F.zero = 0 then
+        if F.compare c.re F.zero < 0 then sprintf "(%s)" s.re else s.re
+      else if compare c.re F.zero = 0 then
+        if F.compare c.im F.zero < 0 then sprintf "(%s%si)" s.im m
+        else sprintf "%s%si" s.im m
+      else if F.compare c.im F.zero < 0 then
+        sprintf "(%s%s%si)" s.re s.im m
+      else
+        sprintf "(%s+%s%si)" s.re s.im m
+    ;
     value to_string prog_lang =
       fun
       [ Nalg x → A₂.to_string prog_lang x
@@ -715,12 +714,24 @@ module M =
        value epsilon = Mfl.float epsilon_float;
        value compare = Mfl.cmp;
        value to_string f =
+(*
          let (s, e) = Mfl.to_nice_string 10 16 f in
          let (sign, s) =
            if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
            else (" ", s)
          in      
          sprintf "%5s.%sE%+03d" sign s e
+*)
+         let (s, e) = Mfl.to_nice_string 10 16 f in
+         let (sign, s) =
+           if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
+           else ("", s)
+         in      
+         if e = 0 then
+           sprintf "%s0.%s" sign s
+         else
+           sprintf "%s.%sE%+03d" sign s e
+(**)
        ;
        value of_string = Mfl.of_string;
        value a₂_to_complex a =
