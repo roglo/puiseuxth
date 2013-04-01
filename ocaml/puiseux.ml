@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.66 2013-04-01 17:37:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.67 2013-04-01 23:33:05 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -231,11 +231,11 @@ value print_solution k kq br finite nth cγl = do {
   let tsol = tree_of_x_polyn k sol in
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
-    (if arg_eval_sol.val <> None || not quiet.val then start_red else "")
+    (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
     (airy_string_of_tree k (not arg_lang.val) br.vx br.vy tsol)
     (if finite then "" else " + ...")
-    (if arg_eval_sol.val <> None || not quiet.val then end_red else "");
+    (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
       let pol = horner_pol k kq sol br.initial_polynom in
@@ -262,7 +262,7 @@ value cancel_constant_term_if_any k t =
   match pol.monoms with
   [ [{coeff = t₁; power = p₁} :: ml₁] →
       if p₁ = 0 then do {
-        if not quiet.val then
+        if verbose.val then
           printf "Warning: cancelling constant term: %s\n%!"
             (k.to_string td.const)
         else ();
@@ -277,7 +277,7 @@ value cancel_constant_term_if_any k t =
   [ [t₁ :: tl₁] →
       let td = term_descr_of_term k t₁ in
       if Q.eq td.xpow Q.zero && td.ypow = 0 then do {
-        if not quiet.val then
+        if verbose.val then
           printf "Warning: cancelling constant term: %s\n%!"
             (k.to_string td.const)
         else ();
@@ -292,7 +292,7 @@ value cancel_constant_term_if_any k t =
 
 value puiseux_iteration k kq br r m γ β nth_sol = do {
   let ss = inf_string_of_string (string_of_int br.step) in
-  if not quiet.val then
+  if verbose.val then
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
   else ();
   let y =
@@ -302,7 +302,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   in
   let xmβ = xpower (Q.neg β) in
   let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
-  if not quiet.val then
+  if verbose.val then
     printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
       (string_of_tree k True br.vx br.vy xmβ)
       (if br.step = 1 then "" else ss₁) br.vx
@@ -316,7 +316,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
   let cγl = [(r, γ) :: br.cγl] in
   match try Some (normalise k t) with [ Overflow → None ] with
   [ Some t → do {
-      if not quiet.val then
+      if verbose.val then
         let s = string_of_tree k True br.vx br.vy t in
         let s = cut_long True s in
         printf "  %s\n%!" s
@@ -325,7 +325,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
       let pol = y_polyn_of_tree k t in
       let finite = zero_is_root pol in
       if br.rem_steps = 0 || finite then do {
-        if not quiet.val then do {
+        if verbose.val then do {
           printf "\n";
           if finite then printf "zero is root !\n%!" else ();
         }
@@ -338,7 +338,7 @@ let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
       else None
     }
   | None → do {
-      if not quiet.val then do {
+      if verbose.val then do {
         printf "\noverflow!\n";
         printf "displaying solution up to previous step\n";
         printf "\n%!";
@@ -363,7 +363,7 @@ value rec puiseux_branch k kq br nth_sol (γ, β) =
   let j = (List.hd hl).power in
   let q = List.fold_left (fun q m → gcd q (m.power - j)) 0 hl in
   let _ =
-    if not quiet.val then do {
+    if verbose.val then do {
       printf "γ%s = %-4s" ss (Q.to_string γ);
       printf "  β%s = %-3s" ss (Q.to_string β);
       printf "  %d pts" (List.length hl);
@@ -397,7 +397,7 @@ and next_step k kq br nth_sol t cγl =
   let gbl = gamma_beta_list kq pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
-    if not quiet.val then do {
+    if verbose.val then do {
       List.iter
         (fun (γ, β) → printf "γ %s β %s\n%!" (Q.to_string γ) (Q.to_string β))
         gbl
@@ -408,7 +408,7 @@ and next_step k kq br nth_sol t cγl =
   else
     List.iter
       (fun (γ, β) → do {
-         if not quiet.val then printf "\n%!" else ();
+         if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
             initial_tree = br.initial_tree;
@@ -422,7 +422,7 @@ and next_step k kq br nth_sol t cγl =
 ;
 
 value print_line_equal () =
-  if not quiet.val then
+  if verbose.val then
     printf "\n============================================================\n"
   else ()
 ;
@@ -532,7 +532,7 @@ value arg_parse () =
       loop (i + 1)
     }
     else if List.mem Sys.argv.(i) ["--verbose"; "-v"] then do {
-      quiet.val := False;
+      verbose.val := True;
       loop (i + 1)
     }
     else if List.mem Sys.argv.(i) ["--with-sqrt-x"; "-w"] then do {
@@ -671,7 +671,7 @@ value main () = do {
             raise e;
           } ]
     in
-    if not quiet.val then do {
+    if verbose.val then do {
       let inp_txt = string_of_expr True p in
       printf "input:\n";
       printf "%s\n\n%!" inp_txt;
@@ -704,7 +704,7 @@ value main () = do {
       let t = tree_of_ast k vx vy p in
       let t = normalise k t in
       let norm_txt = string_of_tree k True vx vy t in
-      if not quiet.val then do {
+      if verbose.val then do {
         printf "normalised:\n";
         printf "%s\n%!" norm_txt;
       }
@@ -718,7 +718,7 @@ value main () = do {
       let t = tree_of_ast k vx vy p in
       let t = normalise k t in
       let norm_txt = string_of_tree k True vx vy t in
-      if not quiet.val then do {
+      if verbose.val then do {
         printf "normalised:\n";
         printf "%s\n%!" norm_txt;
       }

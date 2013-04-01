@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.52 2013-04-01 17:37:05 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.53 2013-04-01 23:33:05 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -6,7 +6,7 @@ open Poly_fun;
 open Poly_tree;
 open Field;
 
-value quiet = ref True;
+value verbose = ref False;
 
 value list_of_polynomial zero pol =
   loop 0 pol.monoms where rec loop deg =
@@ -58,7 +58,7 @@ value subst_roots_of_unity k pow (r, n) =
           in
           let r₁ = r in
           let r₂ = k.neg r in
-          [(r₁, n); (r₂, n)]
+          Some [(r₁, n); (r₂, n)]
       | None →
           failwith (sprintf "cannot compute √%s" (k.to_string r)) ]
   | 3 →
@@ -84,11 +84,11 @@ value subst_roots_of_unity k pow (r, n) =
           let r₁ = r in
           let r₂ = k.mul r ω in
           let r₃ = k.mul r ω₂ in
-          [(r₁, n); (r₂, n); (r₃, n)]
+          Some [(r₁, n); (r₂, n); (r₃, n)]
       | None →
           failwith (sprintf "cannot compute ∛%s" (k.to_string r)) ]
   | pow →
-      failwith (sprintf "not impl subst_roots_of_unity %d" pow) ]
+      None ]
 ;
 
 value int_polyn_of_polyn apol =
@@ -406,7 +406,7 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
             let nb_roots = List.fold_left (fun c (_, m) → c + m) 0 rl in
             assert (nb_roots < List.length coeffs);
             if nb_roots < List.length coeffs - 1 then do {
-              if not quiet.val then do {
+              if verbose.val then do {
                 printf
                   "found only %d root(s) in polynomial of degree %d\n%!"
                   nb_roots (List.length coeffs - 1);
@@ -421,22 +421,43 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
             roots_of_c_coeffs k pol coeffs
           } ] ]
   in
-  let rl =
-    if power_gcd = 1 then rl
+  (* not happy of that code: perhaps should call 'subst_roots_of_unity'
+     just once *)
+  let rl_opt =
+    if power_gcd = 1 then Some rl
     else
-      let rll = List.map (subst_roots_of_unity k power_gcd) rl in
-      List.concat rll
+      let rll_opt =
+        try
+          let rll =
+            List.map
+              (fun r →
+                 match subst_roots_of_unity k power_gcd r with
+                 [ Some rl → rl
+                 | None → raise Exit ])
+              rl
+          in
+          Some rll
+        with
+        [ Exit → None ]
+      in
+      match rll_opt with
+      [ Some rll → Some (List.concat rll)
+      | None → None ]
   in
-  if not quiet.val then do {
-    if rl <> [] then printf "roots:\n%!" else ();
-    List.iter
-      (fun (r, m) →
-         printf "  c = %s%s\n%!" (k.to_string r)
-           (if m > 1 then sprintf " (multiplicity %d)" m else ""))
-      rl;
-  }
-  else ();
-  rl
+  match rl_opt with
+  [ Some rl → do {
+      if verbose.val then do {
+        if rl <> [] then printf "roots:\n%!" else ();
+        List.iter
+          (fun (r, m) →
+             printf "  c = %s%s\n%!" (k.to_string r)
+               (if m > 1 then sprintf " (multiplicity %d)" m else ""))
+          rl;
+      }
+      else ();
+      Some rl
+    }
+  | None → None ]
 };
 
 value float_roots_of_unity k prec pow = do {
@@ -458,7 +479,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let complex_zero = k.to_complex k.zero in
   let fpl = list_of_polynomial complex_zero {monoms = ml} in
   let rl = wrap_prec k prec k.cpoly_roots (List.rev fpl) in
-  if not quiet.val then do {
+  if verbose.val then do {
     List.iter
       (fun r → printf "cpoly root: %s\n%!" (k.complex_to_string False r)) rl;
   }
@@ -467,7 +488,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
     if power_gcd = 1 then rl
     else do {
       let rou = float_roots_of_unity k prec power_gcd in
-      if not quiet.val then do {
+      if verbose.val then do {
         List.iter
           (fun r →
              printf "root of unity: %s\n%!" (k.complex_to_string False r))
@@ -506,7 +527,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       (List.sort k.compare rl) []
 (**)
   in
-  if not quiet.val then do {
+  if verbose.val then do {
     if rl <> [] then printf "roots:\n%!" else ();
     List.iter
       (fun (r, m) →
@@ -534,7 +555,15 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
     [ Exit → None ]
   in
   match apol_opt with
-  [ Some apol → roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol
+  [ Some apol →
+      match roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol with
+      [ Some rl → rl
+      | None → do {
+          if verbose.val then
+            printf "Failed formal resolving roots: now using floats\n%!"
+          else ();
+          roots_of_polynom_with_float_coeffs k power_gcd pol
+        } ]
   | None → roots_of_polynom_with_float_coeffs k power_gcd pol ]
 ;
 
@@ -546,7 +575,7 @@ value roots k pol = do {
       (fun m → {coeff = k.div m.coeff g; power = m.power / power_gcd})
       pol.monoms
   in
-  if not quiet.val then do {
+  if verbose.val then do {
     let rev_pol = {monoms = List.rev ml} in
     let t = tree_of_y_polyn k rev_pol in
     if power_gcd = 1 then
