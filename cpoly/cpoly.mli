@@ -1,4 +1,4 @@
-(* $Id: cpoly.mli,v 1.3 2013-04-01 05:30:15 deraugla Exp $ *)
+(* $Id: cpoly.mli,v 1.4 2013-04-01 11:18:59 deraugla Exp $ *)
 
 (* Jenkins-Traub's algorithm for computing roots *)
 
@@ -25,7 +25,8 @@ module Mfl :
     value epsilon_float : int → t;
     value max_float : unit → t;
     value min_float : unit → t;
-    value to_string : t → string;
+    value to_raw_string : t → string;
+    value to_nice_string : int → int → t → (string * int);
     value to_float : t → float;
     value of_string : string → t;
   end;

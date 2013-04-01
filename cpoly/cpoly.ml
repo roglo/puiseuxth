@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.3 2013-04-01 05:30:15 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.4 2013-04-01 11:18:59 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -49,7 +49,8 @@ module type Mfl =
     value epsilon_float : int → t;
     value max_float : unit → t;
     value min_float : unit → t;
-    value to_string : t → string;
+    value to_raw_string : t → string;
+    value to_nice_string : int → int → t → (string * int);
     value to_float : t → float;
     value of_string : string → t;
   end;
@@ -86,7 +87,7 @@ module Mfl_mpfr : Mfl =
     value epsilon_float prec = pow two (sub one (int prec));
     value max_float () = float max_float;
     value min_float () = float min_float;
-    value to_string f =
+    value to_raw_string f =
       let (s, e) = Mpfr.to_string 10 16 f in
       let (sign, s) =
         if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
@@ -94,6 +95,7 @@ module Mfl_mpfr : Mfl =
       in
       sprintf "%5s.%sE%+03d" sign s e
     ;
+    value to_nice_string = Mpfr.to_string;
     value to_float = Mpfr.to_float;
     value of_string = Mpfr.of_string 10;
   end;
@@ -130,7 +132,8 @@ module Mfl_float : Mfl =
     value epsilon_float _ = epsilon_float;
     value max_float () = max_float;
     value min_float () = min_float;
-    value to_string f = sprintf "%26.16E" f;
+    value to_raw_string f = sprintf "%26.16E" f;
+    value to_nice_string f = failwith "Mfl.float.to_nice_string not impl";
     value to_float f = f;
     value of_string = float_of_string;
   end;

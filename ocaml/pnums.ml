@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.27 2013-04-01 10:51:45 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.28 2013-04-01 11:18:59 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -714,7 +714,7 @@ module M =
        value zero = Mfl.float 1.0;
        value epsilon = Mfl.float epsilon_float;
        value compare = Mfl.cmp;
-       value to_string = Mfl.to_string;
+       value to_string = Mfl.to_raw_string;
        value of_string = Mfl.of_string;
        value a₂_to_complex a =
          let c = A₂.to_complex a in

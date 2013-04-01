@@ -1,4 +1,4 @@
-(* $Id: main.ml,v 1.1 2013-03-28 13:24:19 deraugla Exp $ *)
+(* $Id: main.ml,v 1.2 2013-04-01 11:18:59 deraugla Exp $ *)
 
 open Printf;
 open Cpoly;
@@ -12,14 +12,16 @@ open Cpoly;
 value prtc p = do {
   printf "\n\n COEFFICIENTS\n";
   for i = 0 to Array.length p - 1 do {
-    printf "%s%s\n%!" (Mfl.to_string p.(i).re) (Mfl.to_string p.(i).im)
+    printf "%s%s\n%!" (Mfl.to_raw_string p.(i).re)
+      (Mfl.to_raw_string p.(i).im)
   }
 };
 
 value prtz z = do {
   printf "\n\n ZEROS\n";
   for i = 0 to Array.length z - 1 do {
-    printf "%s%s\n%!" (Mfl.to_string z.(i).re) (Mfl.to_string z.(i).im)
+    printf "%s%s\n%!" (Mfl.to_raw_string z.(i).re)
+      (Mfl.to_raw_string z.(i).im)
   }
 };
 
