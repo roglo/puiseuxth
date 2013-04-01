@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.38 2013-04-01 05:46:49 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.39 2013-04-01 06:03:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -442,11 +442,10 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
           rl
       in
 (*
-      let p = k.div k.one (k.of_i (I.of_int power_gcd)) in
       let rll =
         List.map
           (fun r →
-             let r = k.complex_power r p in
+             let r = k.complex_nth_root r power_gcd in
              List.map (k.complex_mul r) rou)
           rl
       in

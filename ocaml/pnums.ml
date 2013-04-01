@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.19 2013-04-01 05:46:48 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.20 2013-04-01 06:03:54 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -248,28 +248,24 @@ value find_sqrt a =
 
 type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
-value from_ocaml_complex c = {re = c.Complex.re; im = c.Complex.im};
-value to_ocaml_complex c = {Complex.re = c.re; im = c.im};
 value complex_mul c d =
   {re = c.re *. d.re -. c.im *. d.im;
    im = c.re *. d.im +. c.im *. d.re}
 ;
-value complex_div x y =
-  if abs_float y.re >= abs_float y.im then
-    let r = y.im /. y.re in
-    let d = y.re +. r *. y.im in
-    { re = (x.re +. r *. x.im) /. d;
-      im = (x.im -. r *. x.re) /. d }
+value complex_norm x =
+  let r = abs_float x.re and i = abs_float x.im in
+  if r = 0.0 then i
+  else if i = 0.0 then r
+  else if r >= i then
+    let q = i /. r in r *. sqrt(1.0 +. q *. q)
   else
-    let r = y.re /. y.im in
-    let d = y.im +. r *. y.re in
-    { re = (r *. x.re +. x.im) /. d;
-      im = (r *. x.im -. x.re) /. d }
+    let q = r /. i in i *. sqrt(1.0 +. q *. q)
 ;
+value complex_polar n a = { re = cos a *. n; im = sin a *. n };
 value complex_nth_root x n =
-  let x = to_ocaml_complex x in
-  let y = to_ocaml_complex {re = 1. /. float n; im = 0.0} in
-  from_ocaml_complex (Complex.pow x y)
+  let arg = atan2 x.im x.re in
+  let norm = complex_norm x in
+  complex_polar (norm ** (1. /. float n)) (arg /. float n)
 ;
 value complex_a_to_string string_of_float zero compare prog_lang c =
   let m = if prog_lang then "*" else "" in
