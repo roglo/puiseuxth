@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.44 2013-04-01 10:16:47 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.45 2013-04-01 10:29:44 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -385,14 +385,16 @@ value roots_of_c_coeffs k pol coeffs =
 ;
 
 (**)
-value float_roots_of_unity k prec pow = do {
-  let pol = {monoms = [{coeff = -1; power = 0}; {coeff = 1; power = pow}]} in
-  let fnl = list_of_polynomial 0 pol in
-  wrap_prec k prec Cpoly.iroots fnl
-};
-value complex_to_string = complex_to_string False;
 value cpoly_roots = Cpoly.roots;
+value complex_to_string = complex_to_string False;
 (*
+value cpoly_roots = Cpoly.mroots;
+value complex_to_string =
+  complex_a_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
+    False
+;
+*)
+
 value float_roots_of_unity k prec pow = do {
   let pol =
     let m₁ = {coeff = k.minus_one; power = 0} in
@@ -400,14 +402,8 @@ value float_roots_of_unity k prec pow = do {
     {monoms = [m₁; m₂]}
   in
   let fnl = list_of_polynomial k.zero pol in
-  wrap_prec k prec Cpoly.mroots (List.map k.to_complex fnl)
+  wrap_prec k prec cpoly_roots (List.map k.to_complex fnl)
 };
-value complex_to_string =
-  complex_a_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
-    False
-;
-value cpoly_roots = Cpoly.mroots;
-*)
 
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let prec = 200 in
