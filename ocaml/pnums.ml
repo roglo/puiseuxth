@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.34 2013-04-01 12:09:29 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.35 2013-04-01 14:50:46 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -679,13 +679,16 @@ module C =
        value of_string = float_of_string;
        value a₂_to_complex = A₂.to_complex;
        value complex_norm x =
-         let r = abs_float x.re and i = abs_float x.im in
+         let r = abs_float x.re in
+         let i = abs_float x.im in
          if r = 0.0 then i
          else if i = 0.0 then r
          else if r >= i then
-           let q = i /. r in r *. sqrt(1.0 +. q *. q)
+           let q = i /. r in
+           r *. sqrt (1.0 +. q *. q)
          else
-           let q = r /. i in i *. sqrt(1.0 +. q *. q)
+           let q = r /. i in
+           i *. sqrt (1.0 +. q *. q)
        ;
        value complex_polar n a = { re = cos a *. n; im = sin a *. n };
        value complex_nth_root x n =
@@ -709,9 +712,16 @@ module M =
        value mul = Mfl.mul;
        value div = Mfl.div;
        value sqrt = Mfl.sqrt;
+       value power = Mfl.pow;
+       value sin = Mfl.sin;
+       value cos = Mfl.cos;
+       value atan2 _ _ = failwith "M.atan2";
        value zero = Mfl.float 0.0;
+       value one = Mfl.float 1.0;
        value epsilon = Mfl.float epsilon_float;
        value compare = Mfl.cmp;
+       value eq x y = compare x y = 0;
+       value ge x y = compare x y ≥ 0;
        value remove_trailing_zeros s =
          let len =
            loop (String.length s - 1) where rec loop i =
@@ -743,7 +753,25 @@ module M =
          let c = A₂.to_complex a in
          {re = Mfl.float c.re; im = Mfl.float c.im}
        ;
-       value complex_nth_root _ = failwith "M.complex_nth_root";
+       value complex_norm x =
+         let r = abs x.re in
+         let i = abs x.im in
+         if eq r zero then i
+         else if eq i zero then r
+         else if ge r i then
+           let q = div i r in
+           mul r (sqrt (add one (mul q q)))
+         else
+           let q = div r i in
+           mul i (sqrt (add one (mul q q)))
+       ;
+       value complex_polar n a = { re = mul (cos a) n; im = mul (sin a) n };
+       value complex_nth_root x n =
+         let arg = atan2 x.im x.re in
+         let norm = complex_norm x in
+         complex_polar (power norm (div one (Mfl.float (float n))))
+           (div arg (Mfl.float (float n)))
+       ;
        value cpoly_roots = Cpoly.mroots;
      end)
 ;
