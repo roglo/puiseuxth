@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.15 2013-04-01 04:05:24 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.16 2013-04-01 05:04:01 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -250,8 +250,6 @@ type complex_a α = Cpoly.complex α == { re : α; im : α };
 type complex = complex_a float;
 value from_ocaml_complex c = {re = c.Complex.re; im = c.Complex.im};
 value to_ocaml_complex c = {Complex.re = c.re; im = c.im};
-value complex_zero = {re = 0.; im = 0.};
-value complex_one = {re = 1.; im = 0.};
 value complex_neg c = {re = -. c.re; im = -. c.im};
 value complex_add c d = {re = c.re +. d.re; im = c.im +. d.im};
 value complex_sub c d = {re = c.re -. d.re; im = c.im -. d.im};

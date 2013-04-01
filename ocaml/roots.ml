@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.33 2013-04-01 04:38:01 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.34 2013-04-01 05:04:01 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -29,8 +29,11 @@ value float_roots_of_unity k prec pow = do {
   let fnl = list_of_polynomial 0 pol in
   wrap_prec k prec Cpoly.iroots fnl
 };
+value complex_to_string = complex_to_string False;
+value cpoly_roots = Cpoly.roots;
 
-value future_float_roots_of_unity k prec pow = do {
+(*
+value float_roots_of_unity k prec pow = do {
   let pol =
     let m₁ = {coeff = k.minus_one; power = 0} in
     let m₂ = {coeff = k.one; power = pow} in
@@ -39,6 +42,13 @@ value future_float_roots_of_unity k prec pow = do {
   let fnl = list_of_polynomial k.zero pol in
   wrap_prec k prec Cpoly.mroots (List.map k.to_complex fnl)
 };
+value complex_to_string x =
+  let re = Cpoly.Mfl.to_string x.re in
+  let im = Cpoly.Mfl.to_string x.im in
+  sprintf "%s+%s" re im
+;
+value cpoly_roots = Cpoly.mroots;
+*)
 
 value cubic_root n =
   let (is_neg, n) = if I.lt n I.zero then (True, I.neg n) else (False, n) in
@@ -400,8 +410,6 @@ value roots_of_c_coeffs k pol coeffs =
     } ]
 ;
 
-value complex_to_string = complex_to_string False;
-
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let prec = 200 in
   let ml =
@@ -410,7 +418,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   in
   let complex_zero = k.to_complex k.zero in
   let fpl = list_of_polynomial complex_zero {monoms = ml} in
-  let rl = wrap_prec k prec Cpoly.roots (List.rev fpl) in
+  let rl = wrap_prec k prec cpoly_roots (List.rev fpl) in
   if not quiet.val then do {
     List.iter
       (fun r → printf "cpoly root: %s\n%!" (complex_to_string r)) rl;
@@ -426,7 +434,11 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
           rou
       }
       else ();
+(**)
       let p = {re = 1. /. float power_gcd; im = 0.} in
+(*
+      let p = k.div k.one (k.of_i (I.of_int power_gcd)) in
+*)
       let rll =
         List.map
           (fun r →
