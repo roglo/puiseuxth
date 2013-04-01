@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.45 2013-04-01 10:29:44 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.46 2013-04-01 10:35:11 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -384,91 +384,6 @@ value roots_of_c_coeffs k pol coeffs =
     } ]
 ;
 
-(**)
-value cpoly_roots = Cpoly.roots;
-value complex_to_string = complex_to_string False;
-(*
-value cpoly_roots = Cpoly.mroots;
-value complex_to_string =
-  complex_a_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
-    False
-;
-*)
-
-value float_roots_of_unity k prec pow = do {
-  let pol =
-    let m₁ = {coeff = k.minus_one; power = 0} in
-    let m₂ = {coeff = k.one; power = pow} in
-    {monoms = [m₁; m₂]}
-  in
-  let fnl = list_of_polynomial k.zero pol in
-  wrap_prec k prec cpoly_roots (List.map k.to_complex fnl)
-};
-
-value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
-  let prec = 200 in
-  let ml =
-    List.map (fun m → {coeff = k.to_complex m.coeff; power = m.power})
-      pol.monoms
-  in
-  let complex_zero = k.to_complex k.zero in
-  let fpl = list_of_polynomial complex_zero {monoms = ml} in
-  let rl = wrap_prec k prec cpoly_roots (List.rev fpl) in
-  if not quiet.val then do {
-    List.iter
-      (fun r → printf "cpoly root: %s\n%!" (complex_to_string r)) rl;
-  }
-  else ();
-  let rl =
-    if power_gcd = 1 then rl
-    else do {
-      let rou = float_roots_of_unity k prec power_gcd in
-      if not quiet.val then do {
-        List.iter
-          (fun r → printf "root of unity: %s\n%!" (complex_to_string r))
-          rou
-      }
-      else ();
-      let rll =
-        List.map
-          (fun r →
-             let r = k.of_complex r in
-             let r = k.nth_root r power_gcd in
-             List.map
-               (fun ru →
-                  let ru = k.of_complex ru in
-                  k.mul r ru)
-               rou)
-          rl
-      in
-      let rl = List.concat rll in
-      let rl = List.map k.float_round_zero rl in
-      List.map k.to_complex rl
-    }
-  in
-  let rl = List.map k.of_complex rl in
-  let rl =
-    List.fold_right
-      (fun r rnl →
-         match rnl with
-         [ [(r₁, n₁) :: rnl₁] →
-             if r = r₁ then [(r₁, n₁+1) :: rnl₁]
-             else [(r, 1) :: rnl]
-         | [] → [(r, 1) :: rnl] ])
-      (List.sort compare rl) []
-  in
-  if not quiet.val then do {
-    if rl <> [] then printf "roots:\n%!" else ();
-    List.iter
-      (fun (r, m) →
-         printf "  c = %s%s\n%!" (k.to_string r)
-           (if m > 1 then sprintf " (multiplicity %d)" m else ""))
-      rl;
-  }
-  else ();
-  rl
-};
-
 value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
   let degree = (List.hd (List.rev apol.monoms)).power in
   let rl =
@@ -511,6 +426,90 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
     else
       let rll = List.map (subst_roots_of_unity k power_gcd) rl in
       List.concat rll
+  in
+  if not quiet.val then do {
+    if rl <> [] then printf "roots:\n%!" else ();
+    List.iter
+      (fun (r, m) →
+         printf "  c = %s%s\n%!" (k.to_string r)
+           (if m > 1 then sprintf " (multiplicity %d)" m else ""))
+      rl;
+  }
+  else ();
+  rl
+};
+
+(**)
+value cpoly_roots = Cpoly.roots;
+value complex_to_string = complex_a_to_string string_of_float 0. compare;
+(*
+value cpoly_roots = Cpoly.mroots;
+value complex_to_string =
+  complex_a_to_string Cpoly.Mfl.to_string Cpoly.Mfl.zero Cpoly.Mfl.cmp
+;
+*)
+
+value float_roots_of_unity k prec pow = do {
+  let pol =
+    let m₁ = {coeff = k.minus_one; power = 0} in
+    let m₂ = {coeff = k.one; power = pow} in
+    {monoms = [m₁; m₂]}
+  in
+  let fnl = list_of_polynomial k.zero pol in
+  wrap_prec k prec cpoly_roots (List.map k.to_complex fnl)
+};
+
+value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
+  let prec = 200 in
+  let ml =
+    List.map (fun m → {coeff = k.to_complex m.coeff; power = m.power})
+      pol.monoms
+  in
+  let complex_zero = k.to_complex k.zero in
+  let fpl = list_of_polynomial complex_zero {monoms = ml} in
+  let rl = wrap_prec k prec cpoly_roots (List.rev fpl) in
+  if not quiet.val then do {
+    List.iter
+      (fun r → printf "cpoly root: %s\n%!" (complex_to_string False r)) rl;
+  }
+  else ();
+  let rl =
+    if power_gcd = 1 then rl
+    else do {
+      let rou = float_roots_of_unity k prec power_gcd in
+      if not quiet.val then do {
+        List.iter
+          (fun r → printf "root of unity: %s\n%!" (complex_to_string False r))
+          rou
+      }
+      else ();
+      let rll =
+        List.map
+          (fun r →
+             let r = k.of_complex r in
+             let r = k.nth_root r power_gcd in
+             List.map
+               (fun ru →
+                  let ru = k.of_complex ru in
+                  k.mul r ru)
+               rou)
+          rl
+      in
+      let rl = List.concat rll in
+      let rl = List.map k.float_round_zero rl in
+      List.map k.to_complex rl
+    }
+  in
+  let rl = List.map k.of_complex rl in
+  let rl =
+    List.fold_right
+      (fun r rnl →
+         match rnl with
+         [ [(r₁, n₁) :: rnl₁] →
+             if r = r₁ then [(r₁, n₁+1) :: rnl₁]
+             else [(r, 1) :: rnl]
+         | [] → [(r, 1) :: rnl] ])
+      (List.sort compare rl) []
   in
   if not quiet.val then do {
     if rl <> [] then printf "roots:\n%!" else ();

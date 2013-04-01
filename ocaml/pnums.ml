@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.23 2013-04-01 09:57:58 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.24 2013-04-01 10:35:11 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -271,7 +271,6 @@ value complex_a_to_string string_of_float zero compare prog_lang c =
   else
     sprintf "(%s+%s%si)" s.re s.im m
 ;
-value complex_to_string = complex_a_to_string string_of_float 0. compare;
 
 module A₂ =
   struct
