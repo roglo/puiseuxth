@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.65 2013-04-01 11:01:32 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.66 2013-04-01 17:37:05 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -604,7 +604,7 @@ value kq : field Q.t unit =
 value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
    mul = C.mul; div = C.div;
-   minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
+   minus_one = C.minus_one; compare = C.compare; eq = C.eq;
    le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; gcd = C.gcd;
    normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
    of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
@@ -618,7 +618,7 @@ value kc () =
 value km () =
   {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
    mul = M.mul; div = M.div;
-   minus_one = M.minus_one; compare _ = failwith "km.compare"; eq = M.eq;
+   minus_one = M.minus_one; compare = M.compare; eq = M.eq;
    le _ = failwith "km.le"; lt _ = failwith "km.lt"; gcd = M.gcd;
    normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
    of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;

@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.36 2013-04-01 15:04:41 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.37 2013-04-01 17:37:05 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -549,6 +549,15 @@ module C_func (F : Float) =
     value muli x i = mul x (Nalg (A₂.of_i i));
     value mulq x q = mul x (Nalg (A₂.of_q q));
     value mula x a = mul x (Nalg a);
+    value compare x y =
+      match (x, y) with
+      [ (Nalg x, Nalg y) → compare x y
+      | _ →
+          let x = to_complex x in
+          let y = to_complex y in
+          let r = F.compare x.re y.re in
+          if r = 0 then F.compare x.im y.im else r ]
+    ;
     value complex_div x y =
       if F.compare (F.abs y.re) (F.abs y.im) ≥ 0 then
         let r = F.div y.im y.re in
@@ -719,7 +728,7 @@ module M =
        value zero = Mfl.float 0.0;
        value one = Mfl.float 1.0;
        value epsilon = Mfl.float epsilon_float;
-       value compare = Mfl.cmp;
+       value compare x y = compare (Mfl.to_float x) (Mfl.to_float y);
        value eq x y = compare x y = 0;
        value ge x y = compare x y ≥ 0;
        value remove_trailing_zeros s =
