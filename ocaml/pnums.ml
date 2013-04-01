@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.28 2013-04-01 11:18:59 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.29 2013-04-01 11:21:43 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -714,7 +714,14 @@ module M =
        value zero = Mfl.float 1.0;
        value epsilon = Mfl.float epsilon_float;
        value compare = Mfl.cmp;
-       value to_string = Mfl.to_raw_string;
+       value to_string f =
+         let (s, e) = Mfl.to_nice_string 10 16 f in
+         let (sign, s) =
+           if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
+           else (" ", s)
+         in      
+         sprintf "%5s.%sE%+03d" sign s e
+       ;
        value of_string = Mfl.of_string;
        value a₂_to_complex a =
          let c = A₂.to_complex a in
