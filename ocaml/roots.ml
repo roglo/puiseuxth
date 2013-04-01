@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.32 2013-04-01 04:05:24 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.33 2013-04-01 04:38:01 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -24,23 +24,20 @@ value wrap_prec k prec f a = do {
   List.map k.complex_round_zero rl
 };
 
-(**)
-value future_float_roots_of_unity (k : field _ _) prec pow = do {
+value float_roots_of_unity k prec pow = do {
+  let pol = {monoms = [{coeff = -1; power = 0}; {coeff = 1; power = pow}]} in
+  let fnl = list_of_polynomial 0 pol in
+  wrap_prec k prec Cpoly.iroots fnl
+};
+
+value future_float_roots_of_unity k prec pow = do {
   let pol =
     let m₁ = {coeff = k.minus_one; power = 0} in
     let m₂ = {coeff = k.one; power = pow} in
     {monoms = [m₁; m₂]}
   in
   let fnl = list_of_polynomial k.zero pol in
-  Cpoly.Mfl.set_prec prec;
-  Cpoly.mroots (List.map k.to_complex fnl)
-};
-(**)
-
-value float_roots_of_unity k prec pow = do {
-  let pol = {monoms = [{coeff = -1; power = 0}; {coeff = 1; power = pow}]} in
-  let fnl = list_of_polynomial 0 pol in
-  wrap_prec k prec Cpoly.iroots fnl
+  wrap_prec k prec Cpoly.mroots (List.map k.to_complex fnl)
 };
 
 value cubic_root n =
@@ -403,6 +400,8 @@ value roots_of_c_coeffs k pol coeffs =
     } ]
 ;
 
+value complex_to_string = complex_to_string False;
+
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let prec = 200 in
   let ml =
@@ -414,7 +413,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let rl = wrap_prec k prec Cpoly.roots (List.rev fpl) in
   if not quiet.val then do {
     List.iter
-      (fun r → printf "cpoly root: %s\n%!" (complex_to_string False r)) rl;
+      (fun r → printf "cpoly root: %s\n%!" (complex_to_string r)) rl;
   }
   else ();
   let rl =
@@ -423,7 +422,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       let rou = float_roots_of_unity k prec power_gcd in
       if not quiet.val then do {
         List.iter
-          (fun r → printf "root of unity: %s\n%!" (complex_to_string False r))
+          (fun r → printf "root of unity: %s\n%!" (complex_to_string r))
           rou
       }
       else ();
