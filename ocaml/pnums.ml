@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.25 2013-04-01 10:38:08 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.26 2013-04-01 10:44:39 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -507,6 +507,7 @@ module type Float =
     value of_string : string → t;
     value a₂_to_complex : A₂.t → complex t;
     value complex_nth_root : complex t → int → complex t;
+    value cpoly_roots : list (complex t) → list (complex t);
   end;
 
 module C_func (F : Float) =
@@ -670,6 +671,7 @@ module C_func (F : Float) =
       | Ncpl c → Ncpl (complex_round_zero c) ]
     ;
     value complex_nth_root = F.complex_nth_root;
+    value cpoly_roots = F.cpoly_roots;
   end;
 
 module C =
@@ -694,6 +696,7 @@ module C =
          let norm = complex_norm x in
          complex_polar (norm ** (1. /. float n)) (arg /. float n)
        ;
+       value cpoly_roots = Cpoly.roots;
      end)
 ;
 
@@ -719,6 +722,7 @@ module M =
          {re = Mfl.float c.re; im = Mfl.float c.im}
        ;
        value complex_nth_root _ = failwith "M.complex_nth_root";
+       value cpoly_roots = Cpoly.mroots;
      end)
 ;
 

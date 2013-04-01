@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.62 2013-04-01 09:57:58 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.63 2013-04-01 10:44:39 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -590,7 +590,8 @@ value kq : field Q.t unit =
    to_complex _ = failwith "kq.to_complex"; to_string = Q.to_string;
    float_round_zero _ = failwith "kq.float_round_zero";
    complex_round_zero _ = failwith "kq.complex_round_zero";
-   complex_mul _ = failwith "kq.complex_mul"}
+   complex_mul _ = failwith "kq.complex_mul";
+   cpoly_roots _ = failwith "kq.cpoly_roots"}
 ;
 
 value kc () =
@@ -603,7 +604,8 @@ value kc () =
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
    to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
    float_round_zero = C.float_round_zero;
-   complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul}
+   complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
+   cpoly_roots = C.cpoly_roots}
 ;
 
 value km () =
@@ -616,7 +618,8 @@ value km () =
    of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
    to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
    float_round_zero = M.float_round_zero;
-   complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul}
+   complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
+   cpoly_roots = M.cpoly_roots}
 ;
 
 value main () = do {
