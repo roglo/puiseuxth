@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.5 2013-04-01 14:50:46 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.6 2013-04-01 15:04:41 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -29,6 +29,7 @@ module type Mfl =
     value pow : t → t → t;
     value sin : t → t;
     value cos : t → t;
+    value atan2 : t → t → t;
     value sqrt : t → t;
     value exp : t → t;
     value log : t → t;
@@ -69,6 +70,7 @@ module Mfl_mpfr : Mfl =
     value pow = Mpfr.pow;
     value sin = Mpfr.sin;
     value cos = Mpfr.cos;
+    value atan2 = Mpfr.atan2;
     value sqrt = Mpfr.sqrt;
     value exp = Mpfr.exp;
     value log = Mpfr.log;
@@ -116,6 +118,7 @@ module Mfl_float : Mfl =
     value pow x y = x ** y;
     value sin = sin;
     value cos = cos;
+    value atan2 = atan2;
     value sqrt = sqrt;
     value exp = exp;
     value log = log;

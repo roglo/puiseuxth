@@ -1,4 +1,4 @@
-/* $Id: ml_mpfr.c,v 1.1 2013-03-28 13:24:19 deraugla Exp $ */
+/* $Id: ml_mpfr.c,v 1.2 2013-04-01 15:04:41 deraugla Exp $ */
 
 #include <stdio.h>
 #include <string.h>
@@ -196,6 +196,19 @@ value ml_mpfr_pow(value x_v, value y_v)
   y = Mpfr_val(y_v);
   r = alloc_mpfr();
   mpfr_pow(*r, *x, *y, GMP_RNDN);
+  r_v = caml_alloc_mpfr(r);
+  CAMLreturn(r_v);
+}
+
+value ml_mpfr_atan2(value x_v, value y_v)
+{
+  CAMLparam2(x_v, y_v);
+  CAMLlocal1(r_v);
+  mpfr_t *r, *x, *y;
+  x = Mpfr_val(x_v);
+  y = Mpfr_val(y_v);
+  r = alloc_mpfr();
+  mpfr_atan2(*r, *x, *y, GMP_RNDN);
   r_v = caml_alloc_mpfr(r);
   CAMLreturn(r_v);
 }

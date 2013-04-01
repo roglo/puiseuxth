@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.35 2013-04-01 14:50:46 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.36 2013-04-01 15:04:41 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -715,7 +715,7 @@ module M =
        value power = Mfl.pow;
        value sin = Mfl.sin;
        value cos = Mfl.cos;
-       value atan2 _ _ = failwith "M.atan2";
+       value atan2 = Mfl.atan2;
        value zero = Mfl.float 0.0;
        value one = Mfl.float 1.0;
        value epsilon = Mfl.float epsilon_float;
