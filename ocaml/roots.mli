@@ -1,4 +1,4 @@
-(* $Id: roots.mli,v 1.7 2013-04-01 06:40:29 deraugla Exp $ *)
+(* $Id: roots.mli,v 1.8 2013-04-01 08:53:23 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -6,7 +6,7 @@ open Poly_tree;
 
 value quiet : ref bool;
 (**)
-value roots : field α float → polynomial α int → list (α * int);
+value roots : field C.t float → polynomial C.t int → list (C.t * int);
 (*
 value roots : field M.t Cpoly.Mfl.t → polynomial M.t int → list (M.t * int);
 *)
