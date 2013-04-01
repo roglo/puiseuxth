@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.37 2013-04-01 17:37:05 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.38 2013-04-01 19:02:03 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -755,7 +755,7 @@ module M =
            let d = if d = "" then "0" else d in
            sprintf "%c.%s" i d
          else
-           sprintf "%s.%sE%+03d" sign s e
+           sprintf "%s0.%sE%+03d" sign s e
        ;
        value of_string = Mfl.of_string;
        value a₂_to_complex a =
