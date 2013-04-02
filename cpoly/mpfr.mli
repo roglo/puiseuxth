@@ -1,4 +1,4 @@
-(* $Id: mpfr.mli,v 1.2 2013-04-01 15:04:41 deraugla Exp $ *)
+(* $Id: mpfr.mli,v 1.3 2013-04-02 16:15:30 deraugla Exp $ *)
 
 type t = 'abstract;
 
@@ -24,8 +24,9 @@ external of_float : float → t = "ml_mpfr_of_float";
 external set_default_prec : int → unit = "ml_mpfr_set_default_prec";
 external get_prec : t → int = "ml_mpfr_get_prec";
 external with_prec : int → t → t = "ml_mpfr_with_prec";
-external of_string : int → string → t = "ml_mpfr_of_string";
 
+external of_string : int → string → t = "ml_mpfr_of_string";
+(** [of_string p s] returns the mpfr float of [s] with precision [p] *)
 external to_string : int → int → t → (string * int) = "ml_mpfr_to_string";
 (** [to_string base size x]. When [size] is zero, the significand is
     chosen large enough so that re-reading the printed value with the
