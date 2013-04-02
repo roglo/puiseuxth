@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.6 2013-04-01 15:04:41 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.7 2013-04-02 15:39:13 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -103,7 +103,7 @@ module Mfl_mpfr : Mfl =
     ;
     value to_nice_string = Mpfr.to_string;
     value to_float = Mpfr.to_float;
-    value of_string = Mpfr.of_string 10;
+    value of_string x = Mpfr.of_string 200 x;
   end;
 
 module Mfl_float : Mfl =
