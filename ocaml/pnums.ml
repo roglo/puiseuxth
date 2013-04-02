@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.39 2013-04-02 08:22:50 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.40 2013-04-02 08:24:50 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -756,7 +756,9 @@ module M =
            let d = remove_trailing_zeros d in
            sprintf "%s.%s" i d
          else
-           sprintf "%s0.%sE%+03d" sign s e
+           let i = s.[0] in
+           let d = String.sub s 1 (String.length s - 1) in
+           sprintf "%s%c.%se%+03d" sign i d (e - 1)
        ;
        value of_string = Mfl.of_string;
        value a₂_to_complex a =
