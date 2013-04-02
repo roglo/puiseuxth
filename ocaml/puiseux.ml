@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.70 2013-04-02 09:49:55 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.71 2013-04-02 13:04:03 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -322,7 +322,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
         printf "  %s\n%!" s
       else ();
       let t = cancel_constant_term_if_any k t in
-      let pol = y_polyn_of_tree k t in
+      let pol = polyn_of_tree k t in
       let finite = zero_is_root pol in
       if br.rem_steps = 0 || finite then do {
         if verbose.val then do {
@@ -334,7 +334,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
         print_solution k kq br finite nth_sol.val cγl;
         None
       }
-      else if br.rem_steps > 0 then Some (t, cγl)
+      else if br.rem_steps > 0 then Some (pol, cγl)
       else None
     }
   | None → do {
@@ -388,12 +388,11 @@ value rec puiseux_branch k kq br nth_sol (γ, β) =
          if k.eq r k.zero then ()
          else
            match puiseux_iteration k kq br r m γ β nth_sol with
-           [ Some (t, cγl) → next_step k kq br nth_sol t cγl
+           [ Some (pol, cγl) → next_step k kq br nth_sol pol cγl
            | None → () ])
       rl
 
-and next_step k kq br nth_sol t cγl =
-  let pol = polyn_of_tree k t in
+and next_step k kq br nth_sol pol cγl =
   let gbl = gamma_beta_list kq pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
