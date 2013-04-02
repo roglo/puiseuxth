@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.40 2013-04-02 08:24:50 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.41 2013-04-02 09:06:54 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -749,6 +749,19 @@ module M =
          let s = remove_trailing_zeros s in
          if e = 0 then
            sprintf "%s0.%s" sign s
+         else if e < 0 then
+           if e = -1 then
+             let d = "0" ^ s in
+             let d = remove_trailing_zeros d in
+             sprintf "0.%s" d
+           else if e = -2 then
+             let d = "00" ^ s in
+             let d = remove_trailing_zeros d in
+             sprintf "0.%s" d
+           else
+             let i = s.[0] in
+             let d = String.sub s 1 (String.length s - 1) in
+             sprintf "%s%c.%se%+03d" sign i d (e - 1)
          else if e ≤ 12 then
            let s = s ^ String.make e '0' in
            let i = String.sub s 0 e in

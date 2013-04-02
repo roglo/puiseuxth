@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.67 2013-04-01 23:33:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.68 2013-04-02 09:08:35 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -310,9 +310,6 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   else ();
   let t = substitute_y k y br.t in
   let t = Mult xmβ t in
-(*
-let _ = printf "t = %s\n%!" (string_of_tree True "x" "y" t) in
-*)
   let cγl = [(r, γ) :: br.cγl] in
   match try Some (normalise k t) with [ Overflow → None ] with
   [ Some t → do {

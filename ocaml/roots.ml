@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.56 2013-04-02 08:52:44 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.57 2013-04-02 09:06:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -565,7 +565,7 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
       [ Some rl → rl
       | None → do {
           if verbose.val then
-            printf "Failed formal resolving roots: now using floats\n%!"
+            printf "Failed formally resolving roots: now using floats\n\n%!"
           else ();
           roots_of_polynom_with_float_coeffs k power_gcd pol
         } ]
