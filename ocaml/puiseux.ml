@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.71 2013-04-02 13:04:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.72 2013-04-02 13:10:24 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -368,6 +368,7 @@ value rec puiseux_branch k kq br nth_sol (γ, β) =
       printf "  β%s = %-3s" ss (Q.to_string β);
       printf "  %d pts" (List.length hl);
       printf "  j%s=%d" ss j;
+      printf "  k%s=%d" ss (List.hd (List.rev hl)).power;
       printf "  q%s=%d" ss q;
       printf "\n%!";
     }

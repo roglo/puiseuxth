@@ -1,6 +1,9 @@
 Puiseux Version 0.02:
 ---------------------
 
+* [02 Apr 2013] In displaying with option -v, in the lines with γ, β, j and q,
+  now also display k (Walker's notations).
+
 Puiseux Version 0.01:
 ---------------------
 
