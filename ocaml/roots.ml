@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.54 2013-04-01 23:42:10 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.55 2013-04-02 00:55:17 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -427,8 +427,6 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
   in
   match rl_opt with
   [ Some rl →
-      (* not happy of that code: perhaps should call 'subst_roots_of_unity'
-         just once *)
       let rl_opt =
         if power_gcd = 1 then Some rl
         else
