@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.73 2013-04-02 14:36:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.74 2013-04-02 19:31:13 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -716,6 +716,7 @@ value main () = do {
         } ]
     in
     if arg_all_mpfr.val then do {
+      Cpoly.Mfl.set_prec 200;
       let k = km () in
       let t = tree_of_ast k vx vy p in
       let t = normalise k t in

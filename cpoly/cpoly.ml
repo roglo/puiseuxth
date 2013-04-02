@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.8 2013-04-02 16:05:50 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.9 2013-04-02 19:31:29 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -589,6 +589,11 @@ value cpoly op =
   let prec = Mfl.get_prec op.(0).re in
 (*
   let _ = printf "prec %d\n%!" prec in
+let _ = printf "Cpoly\n%!" in
+let _ = Array.iter (fun c →
+let (xs, xp) = Mfl.to_nice_string 10 0 c.re in
+let (ys, yp) = Mfl.to_nice_string 10 0 c.im in
+ printf "  %sE%d %sE%d\n%!" xs xp ys yp) op in
 *)
   let degree = Array.length op - 1 in
   (* INITIALIZATION OF CONSTANTS *)
@@ -652,9 +657,10 @@ value cpoly op =
         (* OUTER LOOP TO CONTROL 2 MAJOR PASSES WITH DIFFERENT SEQUENCES
            OF SHIFTS. *)
         loop100 xx yy 1 where rec loop100 xx yy cnt1 =
-          if cnt1 > 2 then
+          if cnt1 > (*2*)3(**) then
             (* THE ZEROFINDER HAS FAILED ON TWO MAJOR PASSES.
                RETURN EMPTY HANDED. *)
+let _ = printf "*** zerofinder has failed\n%!" in
             None
           else do {
             (* FIRST STAGE CALCULATION, NO SHIFT. *)
