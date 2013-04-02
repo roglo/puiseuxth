@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.69 2013-04-02 09:31:22 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.70 2013-04-02 09:49:55 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -127,25 +127,6 @@ value rec list_take n l =
     match l with
     [ [x :: l] → [x :: list_take (n-1) l]
     | [] → [] ]
-;
-
-value eq_xy_polynom k p₁ p₂ =
-  loop p₁.monoms p₂.monoms where rec loop ml₁ ml₂ =
-    match (ml₁, ml₂) with
-    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-        if m₁.power = m₂.power && loop ml₁ ml₂ then
-          loop_x m₁.coeff.monoms m₂.coeff.monoms
-          where rec loop_x ml₁ ml₂ =
-            match (ml₁, ml₂) with
-            [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-                if Q.eq m₁.power m₂.power && loop_x ml₁ ml₂ then
-                  k.eq m₁.coeff m₂.coeff
-                else False
-            | ([], []) → True
-            | _ → False ]
-        else False
-    | ([], []) → True
-    | _ → False ]
 ;
 
 value polyn_of_tree k t =
@@ -326,22 +307,15 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
       (if br.step = 1 then "" else ss₁) br.vx
       (string_of_tree k True br.vx br.vy y)
   else ();
-(*
-  printf "\npolyn_of_tree k br.t\n  %s\n"
-    (string_of_tree k False "x" "y"
-       (tree_of_xy_polyn k (polyn_of_tree k br.t)));
-  printf "br.pol\n  %s\n\n%!"
-    (string_of_tree k False "x" "y"
-       (tree_of_xy_polyn k br.pol));
-  assert (eq_xy_polynom k (polyn_of_tree k br.t) br.pol);
-*)
+  let cγl = [(r, γ) :: br.cγl] in
   let t = tree_of_xy_polyn k br.pol in
-(**)
   let t = substitute_y k y t in
   let t = Mult xmβ t in
-  let cγl = [(r, γ) :: br.cγl] in
   match try Some (normalise k t) with [ Overflow → None ] with
   [ Some t → do {
+(*
+      let t = tree_map k.float_round_zero t in
+*)
       if verbose.val then
         let s = string_of_tree k True br.vx br.vy t in
         let s = cut_long True s in
