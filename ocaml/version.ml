@@ -1,3 +1,3 @@
-(* $Id: version.ml,v 1.3 2013-03-28 15:34:33 deraugla Exp $ *)
+(* $Id: version.ml,v 1.4 2013-04-02 08:04:33 deraugla Exp $ *)
 
-value id = "0.01-exp";
+value id = "0.01";
