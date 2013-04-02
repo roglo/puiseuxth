@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.55 2013-04-02 00:55:17 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.56 2013-04-02 08:52:44 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -60,7 +60,7 @@ value subst_roots_of_unity k pow (r, n) =
           let r₂ = k.neg r in
           Some [(r₁, n); (r₂, n)]
       | None →
-          failwith (sprintf "cannot compute √%s" (k.to_string r)) ]
+          None ]
   | 3 →
       match k.to_q r with
       [ Some rq →
