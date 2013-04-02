@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.72 2013-04-02 13:10:24 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.73 2013-04-02 14:36:25 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -204,6 +204,41 @@ value horner_pol k kq x pol =
   {monoms = ml}
 ;
 
+value map_polynom k f pol =
+  let rev_ml =
+    List.fold_left
+      (fun rev_ml m →
+         let c =
+           let rev_ml =
+             List.fold_left
+               (fun rev_ml m →
+                  let c = f k m.coeff in
+                  if k.eq c k.zero then do {
+                    if verbose.val then do {
+                      printf "Warning: cancelling small coefficient: %s\n%!"
+                        (k.to_string m.coeff)
+                    }
+                    else ();
+                    rev_ml
+                  }
+                  else [m :: rev_ml])
+               [] m.coeff.monoms
+           in
+           {monoms = List.rev rev_ml}
+         in
+         if c.monoms = [] then rev_ml
+         else
+           let m = {coeff = c; power = m.power} in
+           [m :: rev_ml])
+       [] pol.monoms
+  in
+  {monoms = List.rev rev_ml}
+;
+
+value xy_float_round_zero k pol =
+  map_polynom k (fun k c → k.float_round_zero c) pol
+;
+
 value float_round_zero k pol =
   let ml =
     List.fold_left
@@ -256,22 +291,6 @@ value print_solution k kq br finite nth cγl = do {
 };
 
 value cancel_constant_term_if_any k t =
-(*
-  let pol = xy_polyn_of_tree k t in
-  match pol.monoms with
-  [ [{coeff = t₁; power = p₁} :: ml₁] →
-      if p₁ = 0 then do {
-        if verbose.val then
-          printf "Warning: cancelling constant term: %s\n%!"
-            (k.to_string td.const)
-        else ();
-        match ml₁ with
-        [ [m₂ :: ml₂] → List.fold_left (fun t₁ t₂ → Plus t₁ t₂) t₂ tl₂
-        | [] → t₁ ]
-      }
-      else t
-  | [] → t ]
-*)
   match Poly_tree.flatten t [] with
   [ [t₁ :: tl₁] →
       let td = term_descr_of_term k t₁ in
@@ -286,7 +305,6 @@ value cancel_constant_term_if_any k t =
       }
       else t
   | [] → t ]
-(**)
 ;
 
 value puiseux_iteration k kq br r m γ β nth_sol = do {
@@ -313,16 +331,14 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   let t = Mult xmβ t in
   match try Some (normalise k t) with [ Overflow → None ] with
   [ Some t → do {
-(*
-      let t = tree_map k.float_round_zero t in
-*)
+      let t = cancel_constant_term_if_any k t in
       if verbose.val then
         let s = string_of_tree k True br.vx br.vy t in
         let s = cut_long True s in
         printf "  %s\n%!" s
       else ();
-      let t = cancel_constant_term_if_any k t in
       let pol = polyn_of_tree k t in
+      let pol = xy_float_round_zero k pol in
       let finite = zero_is_root pol in
       if br.rem_steps = 0 || finite then do {
         if verbose.val then do {
