@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.7 2013-04-02 15:39:13 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.8 2013-04-02 16:05:50 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -88,7 +88,11 @@ module Mfl_mpfr : Mfl =
     value zero = Mpfr.of_float 0.0;
     value one = Mpfr.of_float 1.0;
     value two = Mpfr.of_float 2.0;
-    value set_prec = Mpfr.set_default_prec;
+    value default_prec = ref 53;
+    value set_prec prec = do {
+      default_prec.val := prec;
+      Mpfr.set_default_prec prec
+    };
     value get_prec = Mpfr.get_prec;
     value epsilon_float prec = pow two (sub one (int prec));
     value max_float () = float max_float;
@@ -103,7 +107,7 @@ module Mfl_mpfr : Mfl =
     ;
     value to_nice_string = Mpfr.to_string;
     value to_float = Mpfr.to_float;
-    value of_string x = Mpfr.of_string 200 x;
+    value of_string x = Mpfr.of_string default_prec.val x;
   end;
 
 module Mfl_float : Mfl =
