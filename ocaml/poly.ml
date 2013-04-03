@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.2 2013-04-03 09:17:31 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.3 2013-04-03 09:30:47 deraugla Exp $ *)
 
 type monomial α β = { coeff : α; power : β };
 type polynomial α β = { monoms : list (monomial α β) };
@@ -60,4 +60,21 @@ value pol_mul add_coeff mul_coeff is_null_coeff add_power cmp_power
   in
   let ml = List.sort (fun m₁ m₂ → cmp_power m₁.power m₂.power) ml in
   {monoms = merge_pow add_coeff is_null_coeff cmp_power ml}
+;
+
+value horner zero_coeff add_coeff mul_coeff x pol =
+  let rml = List.rev pol.monoms in
+  loop zero_coeff (List.hd rml).power rml where rec loop a deg ml =
+    match ml with
+    [ [m :: ml] →
+        if deg = m.power then
+          loop (add_coeff (mul_coeff a x) m.coeff) (deg - 1) ml
+        else if deg < m.power then
+          invalid_arg "horner 1"
+        else
+          loop (mul_coeff a x) (deg - 1) [m :: ml]
+    | [] →
+        if deg = 0 || deg = -1 then a
+        else if deg < 0 then invalid_arg "horner 2"
+        else loop (mul_coeff a x) (deg - 1) [] ]
 ;
