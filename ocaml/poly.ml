@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.6 2013-04-03 15:53:35 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.7 2013-04-03 18:04:51 deraugla Exp $ *)
 
 type monomial α β = { coeff : α; power : β };
 type polynomial α β = { monoms : list (monomial α β) };
@@ -45,7 +45,7 @@ value pol_add add_coeff is_null_coeff cmp_power pol₁ pol₂ =
 ;
 
 value pol_mul add_coeff mul_coeff is_null_coeff add_power cmp_power
-  (p₁ : polynomial α β) (p₂ : polynomial α β) : polynomial α β
+  pol₁ pol₂
 =
   let ml =
     List.fold_left
@@ -55,28 +55,29 @@ value pol_mul add_coeff mul_coeff is_null_coeff add_power cmp_power
               let c = mul_coeff m₁.coeff m₂.coeff in
               let p = add_power m₁.power m₂.power in
               [{coeff = c; power = p} :: a])
-           a p₂.monoms)
-      [] p₁.monoms
+           a pol₂.monoms)
+      [] pol₁.monoms
   in
   let ml = List.sort (fun m₁ m₂ → cmp_power m₁.power m₂.power) ml in
   {monoms = merge_pow add_coeff is_null_coeff cmp_power ml}
 ;
 
-value horner zero_coeff add_coeff_y mul_coeff_x pol x =
-  let rml = List.rev pol.monoms in
-  loop zero_coeff (List.hd rml).power rml where rec loop a deg ml =
-    match ml with
-    [ [m :: ml] →
-        if deg = m.power then
-          loop (add_coeff_y (mul_coeff_x a x) m.coeff) (deg - 1) ml
-        else if deg < m.power then
-          invalid_arg "horner 1"
-        else
-          loop (mul_coeff_x a x) (deg - 1) [m :: ml]
-    | [] →
-        if deg = 0 || deg = -1 then a
-        else if deg < 0 then invalid_arg "horner 2"
-        else loop (mul_coeff_x a x) (deg - 1) [] ]
+value apply_poly zero_v add_v_coeff mul_v_x pol x =
+  match List.rev pol.monoms with
+  [ [m₁ :: _] as rml →
+      loop zero_v m₁.power rml where rec loop v deg ml =
+        match ml with
+        [ [m :: ml] →
+            if deg = m.power then
+              loop (add_v_coeff (mul_v_x v x) m.coeff) (deg - 1) ml
+            else if deg < m.power then
+              invalid_arg "apply_poly polynom ill ordered"
+            else
+              loop (mul_v_x v x) (deg - 1) [m :: ml]
+        | [] →
+            if deg ≤ 0 then v else loop (mul_v_x v x) (deg - 1) [] ]
+  | [] →
+      invalid_arg "apply_poly empty polynom" ]
 ;
 
-value horner₂ = horner;
+value apply_poly₂ = apply_poly;

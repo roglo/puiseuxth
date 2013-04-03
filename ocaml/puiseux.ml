@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.86 2013-04-03 16:10:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.87 2013-04-03 18:04:51 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -152,12 +152,12 @@ value x_pol_mul k kq =
   pol_mul (norm_add k) (norm_mul k) (k.eq k.zero) (norm_add kq) kq.compare
 ;
 
-value horner_x_pol k kq =
-  horner {monoms = []} (x_pol_add k kq) (x_pol_mul k kq)
+value apply_poly_x_pol k kq =
+  apply_poly {monoms = []} (x_pol_add k kq) (x_pol_mul k kq)
 ;
 
-value horner_xy_pol k kq =
-  horner
+value apply_poly_xy_pol k kq =
+  apply_poly
     {monoms = []}
     (fun f c →
        let fc = {monoms = [{coeff = c; power = 0}]} in
@@ -241,7 +241,7 @@ value print_solution k kq br finite nth cγl = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-      let pol = horner_x_pol k kq br.initial_polynom sol in
+      let pol = apply_poly_x_pol k kq br.initial_polynom sol in
       let pol = float_round_zero k pol in
       let pol₂ =
         if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
@@ -303,7 +303,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
          [{coeff = {monoms = [{coeff = r; power = γ}]}; power = 0};
           {coeff = {monoms = [{coeff = k.one; power = γ}]}; power = 1}]}
     in
-    horner_xy_pol k kq br.pol y
+    apply_poly_xy_pol k kq br.pol y
   in
   let t = tree_of_xy_polyn k pol in
   printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
