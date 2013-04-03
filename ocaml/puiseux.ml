@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.93 2013-04-03 21:53:20 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.94 2013-04-03 21:56:25 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -137,9 +137,11 @@ value polyn_of_tree k t =
      pol.monoms}
 ;
 
+(*
 value string_of_pol k pol =
   string_of_tree k True "x" "y" (tree_of_x_polyn k pol)
 ;
+*)
 
 value norm f k x y = k.normalise (f x y);
 
@@ -260,6 +262,7 @@ value print_solution k kq br finite nth cγl = do {
   | None → () ]
 };
 
+(*
 value cancel_constant_term_if_any k t =
   match Poly_tree.flatten t [] with
   [ [t₁ :: tl₁] →
@@ -276,6 +279,7 @@ value cancel_constant_term_if_any k t =
       else t
   | [] → t ]
 ;
+*)
 
 value cancel_pol_constant_term_if_any k kq pol =
   match pol.monoms with
@@ -298,6 +302,7 @@ value cancel_pol_constant_term_if_any k kq pol =
   | [] → pol ]
 ;
 
+(*
 value eq_xy_poly k kq p₁ p₂ =
   loop p₁.monoms p₂.monoms where rec loop ml₁ ml₂ =
     match (ml₁, ml₂) with
@@ -310,32 +315,16 @@ value eq_xy_poly k kq p₁ p₂ =
                 if kq.to_string m₁.power = kq.to_string m₂.power &&
                    loop_x ml₁ ml₂
                 then
-let r =
                   k.to_string m₁.coeff = k.to_string m₂.coeff
-in
-let _ = if r then () else printf "--- m₁.coeff %s\n--- m₂.coeff %s\n%!" (k.to_string m₁.coeff) (k.to_string m₂.coeff) in r
                 else
-(*
-let _ = printf "--- (x) m₁.power %s m₂.power %s\n%!" (kq.to_string m₁.power) (kq.to_string m₂.power) in
-*)
                   False
             | ([], []) → True
-            | _ →
-(*
-let _ = printf "--- different lengths (x)\n%!" in
-*)
-                False ]
-        else do {
-(*
-let _ = printf "--- (y) m₁.power %d m₂.power %d\n%!" m₁.power m₂.power in
-*)
-          False
-        }
+            | _ → False ]
+        else False
     | ([], []) → True
-    | _ →
-let _ = printf "--- different lengths (y)\n%!" in
-        False ]
+    | _ → False ]
 ;
+*)
 
 value pol_div_x_power kq pol p =
   let ml =
