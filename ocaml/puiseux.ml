@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.89 2013-04-03 19:48:11 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.90 2013-04-03 20:07:31 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -295,6 +295,21 @@ value eq_xy_poly k kq p₁ p₂ =
     | _ → False ]
 ;
 
+value pol_div_x_power kq pol p =
+  let ml =
+    List.map
+      (fun pol →
+         let ml =
+           List.map
+             (fun m → {coeff = m.coeff; power = kq.sub m.power p})
+             pol.coeff.monoms
+         in
+         {coeff = {monoms = ml}; power = pol.power})
+      pol.monoms
+  in
+  {monoms = ml}
+;
+
 value puiseux_iteration k kq br r m γ β nth_sol = do {
   if verbose.val then
     let ss = inf_string_of_string (string_of_int br.step) in
@@ -322,57 +337,42 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
          [{coeff = {monoms = [{coeff = r; power = γ}]}; power = 0};
           {coeff = {monoms = [{coeff = k.one; power = γ}]}; power = 1}]}
     in
-    apply_poly_xy_pol k kq br.pol y
+    pol_div_x_power kq (apply_poly_xy_pol k kq br.pol y) β
   in
 *)
   let t = tree_of_xy_polyn k br.pol in
   let t = substitute_y k y t in
+  let t = normalise k (Mult xmβ t) in
 (*
-  if eq_xy_poly k kq pol (polyn_of_tree k (normalise k t)) then ()
+  if eq_xy_poly k kq pol (polyn_of_tree k t) then ()
   else do {
     let t₁ = tree_of_xy_polyn k pol in
-    let t₂ = normalise k t in
     printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t₁);
-    printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" t₂);
+    printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" t);
     assert False;
   };
 *)
-  let t = Mult xmβ t in
-  match try Some (normalise k t) with [ Overflow → None ] with
-  [ Some t → do {
-      let t = cancel_constant_term_if_any k t in
-      if verbose.val then
-        let s = string_of_tree k True br.vx br.vy t in
-        let s = cut_long True s in
-        printf "  %s\n%!" s
-      else ();
-      let pol = polyn_of_tree k t in
-      let pol = xy_float_round_zero k pol in
-      let finite = zero_is_root pol in
-      if br.rem_steps = 0 || finite then do {
-        if verbose.val then do {
-          printf "\n";
-          if finite then printf "zero is root !\n%!" else ();
-        }
-        else (); 
-        incr nth_sol;
-        print_solution k kq br finite nth_sol.val cγl;
-        None
-      }
-      else if br.rem_steps > 0 then Some (pol, cγl)
-      else None
+  let t = cancel_constant_term_if_any k t in
+  if verbose.val then
+    let s = string_of_tree k True br.vx br.vy t in
+    let s = cut_long True s in
+    printf "  %s\n%!" s
+  else ();
+  let pol = polyn_of_tree k t in
+  let pol = xy_float_round_zero k pol in
+  let finite = zero_is_root pol in
+  if br.rem_steps = 0 || finite then do {
+    if verbose.val then do {
+      printf "\n";
+      if finite then printf "zero is root !\n%!" else ();
     }
-  | None → do {
-      if verbose.val then do {
-        printf "\noverflow!\n";
-        printf "displaying solution up to previous step\n";
-        printf "\n%!";
-      }
-      else ();
-      incr nth_sol;
-      print_solution k kq br False nth_sol.val cγl;
-      None
-    } ]
+    else (); 
+    incr nth_sol;
+    print_solution k kq br finite nth_sol.val cγl;
+    None
+  }
+  else if br.rem_steps > 0 then Some (pol, cγl)
+  else None
 };
 
 value rec puiseux_branch k kq br nth_sol (γ, β) =
