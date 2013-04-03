@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.43 2013-04-02 16:12:48 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.44 2013-04-03 09:19:38 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -45,10 +45,10 @@ value rec gcd p q = if q = 0 then p else gcd q (p mod q);
 value lcm p q = p / gcd p q * q;
 value ios s = try int_of_string s with [ Failure _ → failwith ("ios " ^ s) ];
 value soi = string_of_int;
-value sof = string_of_float;
 
 exception Overflow;
 
+(*
 module I_min =
   struct
     type t = int;
@@ -108,6 +108,7 @@ module I_min =
     value os = int_of_string;
     value ts = string_of_int;
   end;
+*)
 
 module I_bignum =
   struct
@@ -401,10 +402,6 @@ module A₂ =
           else one
         else one
       else one
-    ;
-    value to_float x =
-      if I.lt x.d I.zero then invalid_arg "A₂.to_float"
-      else Q.to_float x.a +. Q.to_float x.b *. sqrt (I.to_float x.d)
     ;
     value to_complex x =
       if I.lt x.d I.zero then

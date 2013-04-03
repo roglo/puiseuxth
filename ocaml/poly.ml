@@ -1,9 +1,9 @@
-(* $Id: poly.ml,v 1.1 2013-04-03 08:51:42 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.2 2013-04-03 09:17:31 deraugla Exp $ *)
 
 type monomial α β = { coeff : α; power : β };
 type polynomial α β = { monoms : list (monomial α β) };
 
-value merge_pow₄₂ zero_coeff add_coeff cmp_coeff cmp_power =
+value merge_pow add_coeff is_null_coeff cmp_power =
   loop [] where rec loop rev_list =
     fun
     [ [m₁ :: ml₁] →
@@ -12,7 +12,7 @@ value merge_pow₄₂ zero_coeff add_coeff cmp_coeff cmp_power =
           [ [m₂ :: rev_list₂] →
               if cmp_power m₁.power m₂.power = 0 then
                 let c = add_coeff m₁.coeff m₂.coeff in
-                if cmp_coeff c zero_coeff = 0 then rev_list₂
+                if is_null_coeff c then rev_list₂
                 else [{coeff = c; power = m₁.power} :: rev_list₂]
               else
                 [m₁ :: rev_list]
@@ -24,7 +24,29 @@ value merge_pow₄₂ zero_coeff add_coeff cmp_coeff cmp_power =
         List.rev rev_list ]
 ;
 
-value pol_mul₄₂ zero_coeff add_coeff mul_coeff cmp_coeff add_power cmp_power m₁ m₂ =
+value pol_add add_coeff is_null_coeff cmp_power pol₁ pol₂ =
+  loop [] pol₁.monoms pol₂.monoms where rec loop rev_ml ml₁ ml₂ =
+    match (ml₁, ml₂) with
+    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
+        let cmp = cmp_power m₁.power m₂.power in
+        if cmp < 0 then
+          loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
+        else if cmp = 0 then
+          let c = add_coeff m₁.coeff m₂.coeff in
+          let rev_ml =
+            if is_null_coeff c then rev_ml
+            else [{coeff = c; power = m₁.power} :: rev_ml]
+          in
+          loop rev_ml ml₁ ml₂
+        else
+          loop [m₂ :: rev_ml] [m₁ :: ml₁] ml₂
+    | ([], ml₂) → {monoms = List.rev (List.rev_append ml₂ rev_ml)}
+    | (ml₁, []) → {monoms = List.rev (List.rev_append ml₁ rev_ml)} ]
+;
+
+value pol_mul add_coeff mul_coeff is_null_coeff add_power cmp_power
+  (p₁ : polynomial α β) (p₂ : polynomial α β) : polynomial α β
+=
   let ml =
     List.fold_left
       (fun a m₁ →
@@ -33,9 +55,9 @@ value pol_mul₄₂ zero_coeff add_coeff mul_coeff cmp_coeff add_power cmp_power
               let c = mul_coeff m₁.coeff m₂.coeff in
               let p = add_power m₁.power m₂.power in
               [{coeff = c; power = p} :: a])
-           a m₂.monoms)
-      [] m₁.monoms
+           a p₂.monoms)
+      [] p₁.monoms
   in
   let ml = List.sort (fun m₁ m₂ → cmp_power m₁.power m₂.power) ml in
-  merge_pow₄₂ zero_coeff add_coeff cmp_coeff cmp_power ml
+  {monoms = merge_pow add_coeff is_null_coeff cmp_power ml}
 ;

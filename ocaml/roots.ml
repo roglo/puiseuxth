@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.59 2013-04-03 08:51:42 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.60 2013-04-03 09:19:38 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -306,6 +306,7 @@ value coeff_of_degree n pol =
   [ Not_found → A₂.zero ]
 ;
 
+(*
 value find_algebr_nb k pol =
   loop pol.monoms where rec loop =
     fun
@@ -315,6 +316,7 @@ value find_algebr_nb k pol =
         | None → loop ml ]
     | [] → None ]
 ;
+*)
 
 value roots_of_c_coeffs k pol coeffs =
   match coeffs with
