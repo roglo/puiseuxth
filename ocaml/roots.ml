@@ -1,9 +1,10 @@
-(* $Id: roots.ml,v 1.58 2013-04-03 01:52:40 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.59 2013-04-03 08:51:42 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
 open Poly_fun;
 open Poly_tree;
+open Poly;
 open Field;
 
 value verbose = ref False;

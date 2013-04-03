@@ -9,17 +9,17 @@ poly_parse.cmo: pnums.cmi poly_lex.cmo
 poly_parse.cmx: pnums.cmx poly_lex.cmx
 poly_print.cmo: pnums.cmi
 poly_print.cmx: pnums.cmx
-poly_tree.cmo: field.cmi pnums.cmi poly_print.cmo poly_tree.cmi
-poly_tree.cmx: field.cmi pnums.cmx poly_print.cmx poly_tree.cmi
-poly_tree.cmi: field.cmi pnums.cmi
-puiseux.cmo: field.cmi pnums.cmi poly_lex.cmo poly_parse.cmo poly_print.cmo \
-    poly_tree.cmi roots.cmi version.cmo
-puiseux.cmx: field.cmi pnums.cmx poly_lex.cmx poly_parse.cmx poly_print.cmx \
-    poly_tree.cmx roots.cmx version.cmx
-roots.cmo: ../cpoly/cpoly.cmi field.cmi pnums.cmi poly_fun.cmi poly_tree.cmi \
-    roots.cmi
-roots.cmx: ../cpoly/cpoly.cmx field.cmi pnums.cmx poly_fun.cmx poly_tree.cmx \
-    roots.cmi
-roots.cmi: field.cmi pnums.cmi poly_tree.cmi
-ugly.cmo: field.cmi pnums.cmi poly_parse.cmo poly_print.cmo poly_tree.cmi
-ugly.cmx: field.cmi pnums.cmx poly_parse.cmx poly_print.cmx poly_tree.cmx
+poly_tree.cmo: field.cmi pnums.cmi poly.cmo poly_print.cmo poly_tree.cmi
+poly_tree.cmx: field.cmi pnums.cmx poly.cmx poly_print.cmx poly_tree.cmi
+poly_tree.cmi: field.cmi pnums.cmi poly.cmo
+puiseux.cmo: ../cpoly/cpoly.cmi field.cmi pnums.cmi poly.cmo poly_lex.cmo \
+    poly_parse.cmo poly_print.cmo poly_tree.cmi roots.cmi version.cmo
+puiseux.cmx: ../cpoly/cpoly.cmx field.cmi pnums.cmx poly.cmx poly_lex.cmx \
+    poly_parse.cmx poly_print.cmx poly_tree.cmx roots.cmx version.cmx
+roots.cmo: field.cmi pnums.cmi poly.cmo poly_fun.cmi poly_tree.cmi roots.cmi
+roots.cmx: field.cmi pnums.cmx poly.cmx poly_fun.cmx poly_tree.cmx roots.cmi
+roots.cmi: field.cmi pnums.cmi poly.cmo
+ugly.cmo: field.cmi pnums.cmi poly.cmo poly_parse.cmo poly_print.cmo \
+    poly_tree.cmi
+ugly.cmx: field.cmi pnums.cmx poly.cmx poly_parse.cmx poly_print.cmx \
+    poly_tree.cmx

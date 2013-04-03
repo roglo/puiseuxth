@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.25 2013-04-01 10:51:45 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.26 2013-04-03 08:51:42 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -7,6 +7,7 @@ open Field;
 open Poly_parse;
 open Poly_print;
 open Poly_tree;
+open Poly;
 open Printf;
 
 (*

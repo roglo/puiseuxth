@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.77 2013-04-03 03:33:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.78 2013-04-03 08:51:42 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -6,6 +6,7 @@ open Field;
 open Poly_parse;
 open Poly_print;
 open Poly_tree;
+open Poly;
 open Roots;
 
 value valuation pol =

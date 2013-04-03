@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.42 2013-04-01 06:22:40 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.43 2013-04-03 08:51:42 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -12,6 +12,7 @@ END;
 open Printf;
 open Pnums;
 open Field;
+open Poly;
 
 type tree α =
   [ Plus of tree α and tree α
@@ -22,9 +23,6 @@ type tree α =
   | Ypower of int
   | Const of α ]
 ;
-
-type monomial α β = { coeff : α; power : β };
-type polynomial α β = { monoms : list (monomial α β) };
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 
