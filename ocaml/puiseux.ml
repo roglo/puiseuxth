@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.88 2013-04-03 18:08:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.89 2013-04-03 19:48:11 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -276,6 +276,25 @@ value cancel_constant_term_if_any k t =
   | [] → t ]
 ;
 
+value eq_xy_poly k kq p₁ p₂ =
+  loop p₁.monoms p₂.monoms where rec loop ml₁ ml₂ =
+    match (ml₁, ml₂) with
+    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
+        if m₁.power = m₂.power && loop ml₁ ml₂ then
+          loop_x m₁.coeff.monoms m₂.coeff.monoms
+          where rec loop_x ml₁ ml₂ =
+            match (ml₁, ml₂) with
+            [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
+                if kq.eq m₁.power m₂.power && loop_x ml₁ ml₂ then
+                  k.eq m₁.coeff m₂.coeff
+                else False
+            | ([], []) → True
+            | _ → False ]
+        else False
+    | ([], []) → True
+    | _ → False ]
+;
+
 value puiseux_iteration k kq br r m γ β nth_sol = do {
   if verbose.val then
     let ss = inf_string_of_string (string_of_int br.step) in
@@ -305,13 +324,18 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     in
     apply_poly_xy_pol k kq br.pol y
   in
-  let t = tree_of_xy_polyn k pol in
-  printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
 *)
   let t = tree_of_xy_polyn k br.pol in
   let t = substitute_y k y t in
 (*
-  printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" (normalise k t));
+  if eq_xy_poly k kq pol (polyn_of_tree k (normalise k t)) then ()
+  else do {
+    let t₁ = tree_of_xy_polyn k pol in
+    let t₂ = normalise k t in
+    printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t₁);
+    printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" t₂);
+    assert False;
+  };
 *)
   let t = Mult xmβ t in
   match try Some (normalise k t) with [ Overflow → None ] with
