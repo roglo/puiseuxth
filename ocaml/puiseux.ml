@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.83 2013-04-03 13:38:13 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.84 2013-04-03 15:31:59 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -157,32 +157,18 @@ value horner_x_pol k kq =
   horner {monoms = []} (x_pol_add k kq) (x_pol_mul k kq)
 ;
 
-(*
-value xy_pol_add k kq ml p = failwith "xy_pol_add";
-
-value xy_pol_mul k kq ml p : list (monomial (polynomial _ Q.t) int) =
-  failwith "xy_pol_mul"
+value horner_xy_pol k kq =
+  horner {monoms = []}
+    (fun f c →
+       let m = {coeff = c; power = 0} in
+       {monoms = [m :: f.monoms]})
+    (pol_mul
+       (pol_add k.add (k.eq k.zero) kq.compare)
+       (pol_mul k.add k.mul (k.eq k.zero) kq.add kq.compare)
+       (fun f → f.monoms = [])
+       kq.add
+       kq.compare)
 ;
-
-value horner_xy_pol k kq polf polx =
-  horner₂ {monoms = []}
-    (fun c pol →
-       let ml =
-         match pol.monoms with
-         [ [m₁ :: ml₁] →
-             if Q.eq m₁.power Q.zero then
-               let m₁ = {coeff = c + m₁.coeff; power = Q.zero} in
-               [m₁ :: ml₁]
-             else
-               let m = {coeff = c; power = Q.zero} in
-               [m; m₁ :: ml₁]
-         | [] →             
-             let m = {coeff = c; power = Q.zero} in
-             [m] ]
-       in
-       {monoms = ml})
-;
-*)
 
 value map_polynom k f pol =
   let rev_ml =
