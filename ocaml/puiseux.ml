@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.76 2013-04-03 03:11:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.77 2013-04-03 03:33:35 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -182,7 +182,7 @@ value pol_add k kq ml p =
   merge_x_pol k kq ml p.monoms
 ;
 
-value pol_mul k kq ml p =
+value pol_mul k kq ml p : list (monomial _ Q.t) =
   let ml =
     List.fold_left
       (fun a m₁ →
@@ -201,6 +201,18 @@ value pol_mul k kq ml p =
 value horner_pol k kq x pol =
   let rml = List.rev pol.monoms in
   let ml = horner (pol_add k kq) (pol_mul k kq) [] x rml in
+  {monoms = ml}
+;
+
+value xy_pol_add k kq ml p = failwith "xy_pol_add";
+
+value xy_pol_mul k kq ml p : list (monomial (polynomial _ Q.t) int) =
+  failwith "xy_pol_mul"
+;
+
+value horner_xy_pol k kq y pol =
+  let rml = List.rev pol.monoms in
+  let ml = horner (xy_pol_add k kq) (xy_pol_mul k kq) [] y rml in
   {monoms = ml}
 ;
 
@@ -329,8 +341,12 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   let cγl = [(r, γ) :: br.cγl] in
 (*
   let pol =
-    let y = {monoms = [{coeff = r; power = γ}]} in
-    horner_pol k kq y br.pol
+    let y =
+      {monoms =
+         [{coeff = {monoms = [{coeff = r; power = Q.zero}]}; power = 0};
+          {coeff = {monoms = [{coeff = k.one; power = Q.one}]}; power = 1}]}
+    in
+    horner_xy_pol k kq y br.pol
   in
   let t = tree_of_xy_polyn k pol in
   printf "*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
