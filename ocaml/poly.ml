@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.8 2013-04-03 19:48:11 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.9 2013-04-03 21:59:21 deraugla Exp $ *)
 
 type monomial α β = { coeff : α; power : β };
 type polynomial α β = { monoms : list (monomial α β) };
@@ -79,5 +79,3 @@ value apply_poly zero_v add_v_coeff mul_v_x pol x =
   | [] →
       invalid_arg "apply_poly empty polynom" ]
 ;
-
-value apply_poly₂ = apply_poly;

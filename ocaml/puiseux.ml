@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.94 2013-04-03 21:56:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.95 2013-04-03 21:58:38 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -369,7 +369,8 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     in
     let pol = apply_poly_xy_pol k kq br.pol y in
     let pol = pol_div_x_power kq pol β in
-    cancel_pol_constant_term_if_any k kq pol
+    let pol = cancel_pol_constant_term_if_any k kq pol in
+    xy_float_round_zero k pol
   in
   if verbose.val then
     let t = tree_of_xy_polyn k pol in
@@ -377,7 +378,6 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
-  let pol = xy_float_round_zero k pol in
   let finite = zero_is_root pol in
   let cγl = [(r, γ) :: br.cγl] in
   if br.rem_steps = 0 || finite then do {

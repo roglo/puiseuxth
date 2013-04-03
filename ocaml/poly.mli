@@ -1,4 +1,4 @@
-(* $Id: poly.mli,v 1.9 2013-04-03 21:46:12 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.10 2013-04-03 21:59:21 deraugla Exp $ *)
 
 type monomial α β = { coeff : α; power : β };
 type polynomial α β = { monoms : list (monomial α β) };
@@ -16,12 +16,3 @@ value pol_mul :
 value apply_poly :
   α → (α → β → α) → (α → γ → α) → polynomial β int → γ → α;
 (** [apply_poly zero_v add_v_coeff mul_v_x pol x] *)
-
-value apply_poly₂ :
-  polynomial α int
-  → (polynomial α int → α → polynomial α int)
-    → (polynomial α int → polynomial α int → polynomial α int)
-      → polynomial α int
-        → polynomial α int
-          → polynomial α int;
-(** [apply_poly₂ zero_pol add_pol_coeff mul_pol_pol pol₁ pol₂] *)
