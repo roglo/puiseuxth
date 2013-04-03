@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.81 2013-04-03 11:17:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.82 2013-04-03 11:29:22 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -238,7 +238,7 @@ value print_solution k kq br finite nth cγl = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-      let pol = horner_x_pol k kq sol br.initial_polynom in
+      let pol = horner_x_pol k kq br.initial_polynom sol in
       let pol = float_round_zero k pol in
       let pol₂ =
         if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
