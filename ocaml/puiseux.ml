@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.75 2013-04-03 02:22:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.76 2013-04-03 03:11:53 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -308,8 +308,8 @@ value cancel_constant_term_if_any k t =
 ;
 
 value puiseux_iteration k kq br r m γ β nth_sol = do {
-  let ss = inf_string_of_string (string_of_int br.step) in
   if verbose.val then
+    let ss = inf_string_of_string (string_of_int br.step) in
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
   else ();
   let y =
@@ -319,6 +319,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   in
   let xmβ = xpower (Q.neg β) in
   if verbose.val then
+    let ss = inf_string_of_string (string_of_int br.step) in
     let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
     printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
       (string_of_tree k True br.vx br.vy xmβ)
