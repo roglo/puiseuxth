@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.57 2013-04-02 09:06:54 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.58 2013-04-03 01:52:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -17,12 +17,6 @@ value list_of_polynomial zero pol =
         else invalid_arg "list_of_polynomial"
     | [] -> [] ]
 ;
-
-value wrap_prec k prec f a = do {
-  Cpoly.Mfl.set_prec prec;
-  let rl = f a in
-  List.map k.complex_round_zero rl
-};
 
 value cubic_root n =
   let (is_neg, n) = if I.lt n I.zero then (True, I.neg n) else (False, n) in
@@ -465,25 +459,26 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
   | None → None ]
 };
 
-value float_roots_of_unity k prec pow = do {
+value float_roots_of_unity k pow = do {
   let pol =
     let m₁ = {coeff = k.minus_one; power = 0} in
     let m₂ = {coeff = k.one; power = pow} in
     {monoms = [m₁; m₂]}
   in
   let fnl = list_of_polynomial k.zero pol in
-  wrap_prec k prec k.cpoly_roots (List.map k.to_complex fnl)
+  let rl = k.cpoly_roots (List.map k.to_complex fnl) in
+  List.map k.complex_round_zero rl
 };
 
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
-  let prec = 200 in
   let ml =
     List.map (fun m → {coeff = k.to_complex m.coeff; power = m.power})
       pol.monoms
   in
   let complex_zero = k.to_complex k.zero in
   let fpl = list_of_polynomial complex_zero {monoms = ml} in
-  let rl = wrap_prec k prec k.cpoly_roots (List.rev fpl) in
+  let rl = k.cpoly_roots (List.rev fpl) in
+  let rl = List.map k.complex_round_zero rl in
   if verbose.val then do {
     List.iter
       (fun r → printf "cpoly root: %s\n%!" (k.complex_to_string False r)) rl;
@@ -492,7 +487,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
   let rl =
     if power_gcd = 1 then rl
     else do {
-      let rou = float_roots_of_unity k prec power_gcd in
+      let rou = float_roots_of_unity k power_gcd in
       if verbose.val then do {
         List.iter
           (fun r →
