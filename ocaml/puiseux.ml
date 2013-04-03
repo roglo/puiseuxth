@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.74 2013-04-02 19:31:13 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.75 2013-04-03 02:22:16 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -318,14 +318,22 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     else Mult (xpower γ) cpy
   in
   let xmβ = xpower (Q.neg β) in
-  let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
   if verbose.val then
+    let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
     printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
       (string_of_tree k True br.vx br.vy xmβ)
       (if br.step = 1 then "" else ss₁) br.vx
       (string_of_tree k True br.vx br.vy y)
   else ();
   let cγl = [(r, γ) :: br.cγl] in
+(*
+  let pol =
+    let y = {monoms = [{coeff = r; power = γ}]} in
+    horner_pol k kq y br.pol
+  in
+  let t = tree_of_xy_polyn k pol in
+  printf "*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
+*)
   let t = tree_of_xy_polyn k br.pol in
   let t = substitute_y k y t in
   let t = Mult xmβ t in
