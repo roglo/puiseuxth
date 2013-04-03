@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.80 2013-04-03 09:30:47 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.81 2013-04-03 11:17:16 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -165,9 +165,8 @@ value xy_pol_mul k kq ml p : list (monomial (polynomial _ Q.t) int) =
 ;
 
 value horner_xy_pol k kq y pol =
-  let rml = List.rev pol.monoms in
-  let ml = horner (xy_pol_add k kq) (xy_pol_mul k kq) [] y rml in
-  {monoms = ml}
+  horner {monoms = []}
+    (fun pol₁ pol₂ → pol_add k.add (k.eq k.zero) kq.compare pol₁ pol₂)
 ;
 *)
 
