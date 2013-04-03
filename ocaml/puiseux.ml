@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.84 2013-04-03 15:31:59 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.85 2013-04-03 15:53:35 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -141,16 +141,15 @@ value string_of_pol k pol =
   string_of_tree k True "x" "y" (tree_of_x_polyn k pol)
 ;
 
+value norm_add k x y = k.normalise (k.add x y);
+value norm_mul k x y = k.normalise (k.mul x y);
+
 value x_pol_add k kq =
-  pol_add (fun c₁ c₂ → k.normalise (k.add c₁ c₂)) (fun c → k.eq c k.zero)
-    kq.compare
+  pol_add (norm_add k) (fun c → k.eq c k.zero) kq.compare
 ;
 
 value x_pol_mul k kq =
-  pol_mul (fun c₁ c₂ → k.normalise (k.add c₁ c₂))
-    (fun c₁ c₂ → k.normalise (k.mul c₁ c₂)) (fun c → k.eq c k.zero)
-    (fun p₁ p₂ → kq.normalise (kq.add p₁ p₂))
-    kq.compare
+  pol_mul (norm_add k) (norm_mul k) (k.eq k.zero) (norm_add kq) kq.compare
 ;
 
 value horner_x_pol k kq =
@@ -164,10 +163,9 @@ value horner_xy_pol k kq =
        {monoms = [m :: f.monoms]})
     (pol_mul
        (pol_add k.add (k.eq k.zero) kq.compare)
-       (pol_mul k.add k.mul (k.eq k.zero) kq.add kq.compare)
+       (pol_mul k.add k.mul (k.eq k.zero) (norm_add kq) kq.compare)
        (fun f → f.monoms = [])
-       kq.add
-       kq.compare)
+       \+ compare)
 ;
 
 value map_polynom k f pol =
@@ -297,16 +295,19 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   let pol =
     let y =
       {monoms =
-         [{coeff = {monoms = [{coeff = r; power = Q.zero}]}; power = 0};
-          {coeff = {monoms = [{coeff = k.one; power = Q.one}]}; power = 1}]}
+         [{coeff = {monoms = [{coeff = r; power = γ}]}; power = 0};
+          {coeff = {monoms = [{coeff = k.one; power = γ}]}; power = 1}]}
     in
-    horner_xy_pol k kq y br.pol
+    horner_xy_pol k kq br.pol y
   in
   let t = tree_of_xy_polyn k pol in
   printf "*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
 *)
   let t = tree_of_xy_polyn k br.pol in
   let t = substitute_y k y t in
+(*
+  printf "*** tpl = %s\n%!" (string_of_tree k True "x" "y" (normalise k t));
+*)
   let t = Mult xmβ t in
   match try Some (normalise k t) with [ Overflow → None ] with
   [ Some t → do {

@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.5 2013-04-03 15:31:59 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.6 2013-04-03 15:53:35 deraugla Exp $ *)
 
 type monomial α β = { coeff : α; power : β };
 type polynomial α β = { monoms : list (monomial α β) };
@@ -78,3 +78,5 @@ value horner zero_coeff add_coeff_y mul_coeff_x pol x =
         else if deg < 0 then invalid_arg "horner 2"
         else loop (mul_coeff_x a x) (deg - 1) [] ]
 ;
+
+value horner₂ = horner;
