@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.91 2013-04-03 20:16:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.92 2013-04-03 21:46:12 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -141,15 +141,15 @@ value string_of_pol k pol =
   string_of_tree k True "x" "y" (tree_of_x_polyn k pol)
 ;
 
-value norm_add k x y = k.normalise (k.add x y);
-value norm_mul k x y = k.normalise (k.mul x y);
+value norm f k x y = k.normalise (f x y);
 
 value x_pol_add k kq =
-  pol_add (norm_add k) (fun c → k.eq c k.zero) kq.compare
+  pol_add (norm k.add k) (fun c → k.eq c k.zero) kq.compare
 ;
 
 value x_pol_mul k kq =
-  pol_mul (norm_add k) (norm_mul k) (k.eq k.zero) (norm_add kq) kq.compare
+  pol_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) (norm kq.add kq)
+    kq.compare
 ;
 
 value apply_poly_x_pol k kq =
@@ -168,7 +168,8 @@ value apply_poly_xy_pol k kq =
          pol polc)
     (pol_mul
        (pol_add k.add (k.eq k.zero) kq.compare)
-       (pol_mul k.add (norm_mul k) (k.eq k.zero) (norm_add kq) kq.compare)
+       (pol_mul k.add (norm k.mul k) (k.eq k.zero) (norm kq.add kq)
+          kq.compare)
        (fun pol → pol.monoms = [])
        \+ compare)
 ;
@@ -276,6 +277,23 @@ value cancel_constant_term_if_any k t =
   | [] → t ]
 ;
 
+value cancel_pol_constant_term_if_any kq pol =
+  match pol.monoms with
+  [ [m :: ml] →
+      if m.power = 0 then
+        match m.coeff.monoms with
+        [ [m₁ :: ml₁] →
+            if kq.eq m₁.power kq.zero then do {
+              let p₁ = {monoms = ml₁} in
+              let m = {coeff = p₁; power = m.power} in
+              {monoms = [m :: ml]}
+            }
+            else pol
+        | [] → pol ]
+      else pol
+  | [] → pol ]
+;
+
 value eq_xy_poly k kq p₁ p₂ =
   loop p₁.monoms p₂.monoms where rec loop ml₁ ml₂ =
     match (ml₁, ml₂) with
@@ -285,14 +303,34 @@ value eq_xy_poly k kq p₁ p₂ =
           where rec loop_x ml₁ ml₂ =
             match (ml₁, ml₂) with
             [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-                if kq.eq m₁.power m₂.power && loop_x ml₁ ml₂ then
-                  k.eq m₁.coeff m₂.coeff
-                else False
+                if kq.to_string m₁.power = kq.to_string m₂.power &&
+                   loop_x ml₁ ml₂
+                then
+let r =
+                  k.to_string m₁.coeff = k.to_string m₂.coeff
+in
+let _ = if r then () else printf "--- m₁.coeff %s\n--- m₂.coeff %s\n%!" (k.to_string m₁.coeff) (k.to_string m₂.coeff) in r
+                else
+(*
+let _ = printf "--- (x) m₁.power %s m₂.power %s\n%!" (kq.to_string m₁.power) (kq.to_string m₂.power) in
+*)
+                  False
             | ([], []) → True
-            | _ → False ]
-        else False
+            | _ →
+(*
+let _ = printf "--- different lengths (x)\n%!" in
+*)
+                False ]
+        else do {
+(*
+let _ = printf "--- (y) m₁.power %d m₂.power %d\n%!" m₁.power m₂.power in
+*)
+          False
+        }
     | ([], []) → True
-    | _ → False ]
+    | _ →
+let _ = printf "--- different lengths (y)\n%!" in
+        False ]
 ;
 
 value pol_div_x_power kq pol p =
@@ -301,7 +339,8 @@ value pol_div_x_power kq pol p =
       (fun pol →
          let ml =
            List.map
-             (fun m → {coeff = m.coeff; power = kq.sub m.power p})
+             (fun m →
+                {coeff = m.coeff; power = kq.normalise (kq.sub m.power p)})
              pol.coeff.monoms
          in
          {coeff = {monoms = ml}; power = pol.power})
@@ -337,20 +376,25 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
          [{coeff = {monoms = [{coeff = r; power = γ}]}; power = 0};
           {coeff = {monoms = [{coeff = k.one; power = γ}]}; power = 1}]}
     in
-    pol_div_x_power kq (apply_poly_xy_pol k kq br.pol y) β
+    let pol = apply_poly_xy_pol k kq br.pol y in
+    let pol = pol_div_x_power kq pol β in
+    cancel_pol_constant_term_if_any kq pol
   in
 *)
   let t = tree_of_xy_polyn k br.pol in
   let t = substitute_y k y t in
   let t = normalise k (Mult xmβ t) in
   let t = cancel_constant_term_if_any k t in
+  let t = normalise k t in
 (*
   if eq_xy_poly k kq pol (polyn_of_tree k t) then ()
   else do {
     let t₁ = tree_of_xy_polyn k pol in
     printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t₁);
     printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" t);
+(*
     assert False;
+*)
   };
 *)
   if verbose.val then
