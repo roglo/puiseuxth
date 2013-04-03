@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.87 2013-04-03 18:04:51 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.88 2013-04-03 18:08:07 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -159,17 +159,17 @@ value apply_poly_x_pol k kq =
 value apply_poly_xy_pol k kq =
   apply_poly
     {monoms = []}
-    (fun f c →
-       let fc = {monoms = [{coeff = c; power = 0}]} in
+    (fun pol c →
+       let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
          (pol_add k.add (k.eq k.zero) kq.compare)
-         (fun f → f.monoms = [])
+         (fun pol → pol.monoms = [])
          compare
-         f fc)
+         pol polc)
     (pol_mul
        (pol_add k.add (k.eq k.zero) kq.compare)
        (pol_mul k.add (norm_mul k) (k.eq k.zero) (norm_add kq) kq.compare)
-       (fun f → f.monoms = [])
+       (fun pol → pol.monoms = [])
        \+ compare)
 ;
 
