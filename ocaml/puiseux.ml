@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.92 2013-04-03 21:46:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.93 2013-04-03 21:53:20 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -277,13 +277,17 @@ value cancel_constant_term_if_any k t =
   | [] → t ]
 ;
 
-value cancel_pol_constant_term_if_any kq pol =
+value cancel_pol_constant_term_if_any k kq pol =
   match pol.monoms with
   [ [m :: ml] →
       if m.power = 0 then
         match m.coeff.monoms with
         [ [m₁ :: ml₁] →
             if kq.eq m₁.power kq.zero then do {
+              if verbose.val then
+                printf "Warning: cancelling constant term: %s\n%!"
+                  (k.to_string m₁.coeff)
+              else ();
               let p₁ = {monoms = ml₁} in
               let m = {coeff = p₁; power = m.power} in
               {monoms = [m :: ml]}
@@ -354,13 +358,13 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     let ss = inf_string_of_string (string_of_int br.step) in
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
   else ();
-  let y =
-    let cpy = Plus (Const r) (Ypower 1) in
-    if I.eq (Q.rnum γ) I.zero then cpy
-    else Mult (xpower γ) cpy
-  in
-  let xmβ = xpower (Q.neg β) in
   if verbose.val then
+    let y =
+      let cpy = Plus (Const r) (Ypower 1) in
+      if I.eq (Q.rnum γ) I.zero then cpy
+      else Mult (xpower γ) cpy
+    in
+    let xmβ = xpower (Q.neg β) in
     let ss = inf_string_of_string (string_of_int br.step) in
     let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
     printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
@@ -368,8 +372,6 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
       (if br.step = 1 then "" else ss₁) br.vx
       (string_of_tree k True br.vx br.vy y)
   else ();
-  let cγl = [(r, γ) :: br.cγl] in
-(*
   let pol =
     let y =
       {monoms =
@@ -378,33 +380,17 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     in
     let pol = apply_poly_xy_pol k kq br.pol y in
     let pol = pol_div_x_power kq pol β in
-    cancel_pol_constant_term_if_any kq pol
+    cancel_pol_constant_term_if_any k kq pol
   in
-*)
-  let t = tree_of_xy_polyn k br.pol in
-  let t = substitute_y k y t in
-  let t = normalise k (Mult xmβ t) in
-  let t = cancel_constant_term_if_any k t in
-  let t = normalise k t in
-(*
-  if eq_xy_poly k kq pol (polyn_of_tree k t) then ()
-  else do {
-    let t₁ = tree_of_xy_polyn k pol in
-    printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t₁);
-    printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" t);
-(*
-    assert False;
-*)
-  };
-*)
   if verbose.val then
+    let t = tree_of_xy_polyn k pol in
     let s = string_of_tree k True br.vx br.vy t in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
-  let pol = polyn_of_tree k t in
   let pol = xy_float_round_zero k pol in
   let finite = zero_is_root pol in
+  let cγl = [(r, γ) :: br.cγl] in
   if br.rem_steps = 0 || finite then do {
     if verbose.val then do {
       printf "\n";
