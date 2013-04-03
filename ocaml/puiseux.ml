@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.85 2013-04-03 15:53:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.86 2013-04-03 16:10:03 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -157,13 +157,18 @@ value horner_x_pol k kq =
 ;
 
 value horner_xy_pol k kq =
-  horner {monoms = []}
+  horner
+    {monoms = []}
     (fun f c →
-       let m = {coeff = c; power = 0} in
-       {monoms = [m :: f.monoms]})
+       let fc = {monoms = [{coeff = c; power = 0}]} in
+       pol_add
+         (pol_add k.add (k.eq k.zero) kq.compare)
+         (fun f → f.monoms = [])
+         compare
+         f fc)
     (pol_mul
        (pol_add k.add (k.eq k.zero) kq.compare)
-       (pol_mul k.add k.mul (k.eq k.zero) (norm_add kq) kq.compare)
+       (pol_mul k.add (norm_mul k) (k.eq k.zero) (norm_add kq) kq.compare)
        (fun f → f.monoms = [])
        \+ compare)
 ;
@@ -301,12 +306,12 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     horner_xy_pol k kq br.pol y
   in
   let t = tree_of_xy_polyn k pol in
-  printf "*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
+  printf "\n*** pol = %s\n%!" (string_of_tree k True "x" "y" t);
 *)
   let t = tree_of_xy_polyn k br.pol in
   let t = substitute_y k y t in
 (*
-  printf "*** tpl = %s\n%!" (string_of_tree k True "x" "y" (normalise k t));
+  printf "*** tpl = %s\n\n%!" (string_of_tree k True "x" "y" (normalise k t));
 *)
   let t = Mult xmβ t in
   match try Some (normalise k t) with [ Overflow → None ] with
