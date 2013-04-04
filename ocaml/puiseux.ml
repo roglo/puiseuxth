@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.106 2013-04-04 09:20:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.107 2013-04-04 09:48:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -266,7 +266,8 @@ value print_solution k br finite nth cγl = do {
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
         (string_of_x_polyn k (not arg_lang.val) br.vx pol₂)
         ellipses
-  | None → () ]
+  | None → () ];
+  (sol, finite)
 };
 
 value cancel_pol_constant_term_if_any k pol =
@@ -311,7 +312,7 @@ type choice α β =
   | Right of β ]
 ;
 
-value puiseux_iteration k br r m γ β nth_sol = do {
+value puiseux_iteration k br r m γ β sol_list = do {
   if verbose.val then
     let ss = inf_string_of_string (string_of_int br.step) in
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
@@ -353,15 +354,15 @@ value puiseux_iteration k br r m γ β nth_sol = do {
       printf "\n";
       if finite then printf "zero is root !\n%!" else ();
     }
-    else (); 
-    print_solution k br finite nth_sol cγl;
-    Left (succ nth_sol)
+    else ();
+    let sol = print_solution k br finite (succ (List.length sol_list)) cγl in
+    Left [sol :: sol_list]
   }
   else if br.rem_steps > 0 then Right (pol, cγl)
-  else Left nth_sol
+  else Left sol_list
 };
 
-value rec puiseux_branch k br nth_sol (γ, β) =
+value rec puiseux_branch k br sol_list (γ, β) =
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -391,20 +392,22 @@ value rec puiseux_branch k br nth_sol (γ, β) =
   in
   let rl = roots k {monoms = ml} in
   if rl = [] then do {
-    print_solution k br False nth_sol br.cγl;
-    succ nth_sol
+    let sol =
+       print_solution k br False (succ (List.length sol_list)) br.cγl
+    in
+    [sol :: sol_list]
   }
   else
     List.fold_left
-      (fun nth_sol (r, m) →
-         if k.eq r k.zero then nth_sol
+      (fun sol_list (r, m) →
+         if k.eq r k.zero then sol_list
          else
-           match puiseux_iteration k br r m γ β nth_sol with
-           [ Right (pol, cγl) → next_step k br nth_sol pol cγl
-           | Left nth_sol → nth_sol ])
-      nth_sol rl
+           match puiseux_iteration k br r m γ β sol_list with
+           [ Right (pol, cγl) → next_step k br sol_list pol cγl
+           | Left sol_list → sol_list ])
+      sol_list rl
 
-and next_step k br nth_sol pol cγl =
+and next_step k br sol_list pol cγl =
   let gbl = gamma_beta_list pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
@@ -418,7 +421,7 @@ and next_step k br nth_sol pol cγl =
   }
   else
     List.fold_left
-      (fun nth_sol (γ, β) → do {
+      (fun sol_list (γ, β) → do {
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
@@ -426,9 +429,9 @@ and next_step k br nth_sol pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k br nth_sol (γ, β)
+         puiseux_branch k br sol_list (γ, β)
        })
-      nth_sol gbl_f
+      sol_list gbl_f
 ;
 
 value print_line_equal () =
@@ -440,19 +443,26 @@ value print_line_equal () =
 value puiseux k nb_steps vx vy pol =
   let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
-  let _ =
+  let _rev_sol_list =
     List.fold_left
-      (fun nth_sol (γ₁, β₁) → do {
+      (fun sol_list (γ₁, β₁) → do {
          print_line_equal ();
          let br =
            {initial_polynom = pol; cγl = []; step = 1;
             rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
          in
-         puiseux_branch k br nth_sol (γ₁, β₁)
+         puiseux_branch k br sol_list (γ₁, β₁)
        })
-      1 gbl
+      [] gbl
   in
   ()
+(*
+  List.iter
+    (fun (pol, finite) →
+       printf "sol %s%s\n%!" (airy_string_of_x_polyn k True "x" pol)
+         (if finite then "" else " + ..."))
+    (List.rev rev_sol_list)
+*)
 ;
 
 value polyn_of_tree k t =
