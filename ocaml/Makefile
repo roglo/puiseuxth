@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2013-04-03 09:17:31 deraugla Exp $
+# $Id: Makefile,v 1.9 2013-04-04 01:34:04 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo poly.cmo puiseux.cmo
@@ -25,6 +25,8 @@ out: q_def_expr.cmo $(TARGET)
 opt: q_def_expr.cmo $(TARGET:.out=.opt)
 	cp puiseux.opt puiseux
 	cp ugly.opt ugly
+
+puiseux.cmx: pa_coq.cmo
 
 puiseux.out: $(FILES)
 	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(FILES) $(LINKFLAGS) -o $@

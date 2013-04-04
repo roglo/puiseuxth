@@ -1,4 +1,6 @@
-(* $Id: puiseux.ml,v 1.95 2013-04-03 21:58:38 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.96 2013-04-04 01:34:04 deraugla Exp $ *)
+
+#load "./pa_coq.cmo";
 
 open Printf;
 open Pnums;
@@ -23,41 +25,43 @@ value valuation_coeff pol =
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-value rec minimise_slope k (x₁, y₁) slt_min₁ skip₁ =
-  fun
-  [ [(x₂, y₂) :: xyl₂] →
-      let sl₁₂ = k.normalise (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
-      let slt_min =
-        if k.le sl₁₂ slt_min₁.slope then
-          {xy₂ = (x₂, y₂); slope = sl₁₂; skip = skip₁}
+Fixpoint minimise_slope kq (x₁, y₁) slt_min₁ skip₁ xyl :=
+  match xyl with
+  | [(x₂, y₂) :: xyl₂] =>
+      let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
+      let slt_min :=
+        if kq.le sl₁₂ slt_min₁.slope then
+          {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := skip₁ |}
         else
           slt_min₁
       in
-      minimise_slope k (x₁, y₁) slt_min (succ skip₁) xyl₂
-  | [] →
-      slt_min₁ ]
+      minimise_slope kq (x₁, y₁) slt_min (succ skip₁) xyl₂
+  | [] =>
+      slt_min₁
+  end
 ;
 
-value rec next_points k rev_list nb_pts_to_skip (x₁, y₁) =
+value rec next_points kq rev_list nb_pts_to_skip (x₁, y₁) =
   fun
   [ [(x₂, y₂) :: xyl₂] →
       match nb_pts_to_skip with
       [ 0 →
           let slt_min =
-            let sl₁₂ = k.normalise (k.div (k.sub y₂ y₁) (k.sub x₂ x₁)) in
+            let sl₁₂ = kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
             let slt_min = {xy₂ = (x₂, y₂); slope = sl₁₂; skip = 0} in
-            minimise_slope k (x₁, y₁) slt_min 1 xyl₂
+            minimise_slope kq (x₁, y₁) slt_min 1 xyl₂
           in
-          next_points k [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂ xyl₂
+          next_points kq [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂
+            xyl₂
       | n →
-          next_points k rev_list (n - 1) (x₁, y₁) xyl₂ ]
+          next_points kq rev_list (n - 1) (x₁, y₁) xyl₂ ]
   | [] →
       List.rev rev_list ]
 ;
 
-value lower_convex_hull k xyl =
+value lower_convex_hull kq xyl =
   match xyl with
-  [ [xy₁ :: xyl₁] → [xy₁ :: next_points k [] 0 xy₁ xyl₁]
+  [ [xy₁ :: xyl₁] → [xy₁ :: next_points kq [] 0 xy₁ xyl₁]
   | [] → [] ]
 ;
 

@@ -1,0 +1,50 @@
+(* $Id: pa_coq.ml,v 1.1 2013-04-04 01:34:04 deraugla Exp $ *)
+
+#load "pa_extend.cmo";
+#load "q_MLast.cmo";
+
+open Pcaml;
+
+EXTEND
+  GLOBAL: str_item;
+  str_item:
+    [ [ "Fixpoint"; l = V (LIST1 coq_binding SEP "and") →
+          <:str_item< value rec $_list:l$ >> ] ]
+  ;
+  coq_binding:
+    [ [ p = ipatt; e = coq_fun_binding → (p, e) ] ]
+  ;
+  coq_fun_binding:
+    [ RIGHTA
+      [ p = ipatt; e = SELF -> <:expr< fun $p$ -> $e$ >>
+      | ":="; e = coq_expr -> <:expr< $e$ >>
+      | ":"; t = ctyp; ":="; e = coq_expr -> <:expr< ($e$ : $t$) >> ] ]
+  ;
+  coq_expr:
+    [ [ "match"; e = SELF; "with"; l = V (LIST0 coq_match_case); "end" ->
+          <:expr< match $e$ with [ $_list:l$ ] >>
+      | "let"; r = V (FLAG "fix"); l = V (LIST1 coq_binding SEP "and"); "in";
+        x = SELF ->
+          <:expr< let $_flag:r$ $_list:l$ in $x$ >>
+      | "if"; e1 = SELF; "then"; e2 = SELF; "else"; e3 = SELF ->
+          <:expr< if $e1$ then $e2$ else $e3$ >>
+      | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" ->
+          <:expr< { $_list:lel$ } >>
+      | e = expr →
+          e ] ]
+  ;
+  coq_match_case:
+    [ [ "|"; p = patt; "=>"; e = coq_expr -> (p, <:vala< None >>, e) ] ]
+  ;
+  coq_label_expr:
+    [ [ i = patt_label_ident; e = coq_fun_binding -> (i, e) ] ]
+  ;
+  patt_label_ident:
+    [ LEFTA
+      [ p1 = SELF; "."; p2 = SELF -> <:patt< $p1$ . $p2$ >> ]
+    | "simple" RIGHTA
+      [ i = V UIDENT -> <:patt< $_uid:i$ >>
+      | i = V LIDENT -> <:patt< $_lid:i$ >>
+      | "_" -> <:patt< _ >> ] ]
+  ;
+END;
