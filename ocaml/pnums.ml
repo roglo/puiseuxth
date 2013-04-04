@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.44 2013-04-03 09:19:38 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.45 2013-04-04 12:04:31 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -163,7 +163,7 @@ module Q =
     value to_string r =
       if I.eq r.rden I.one then I.ts r.rnum
       else sprintf "%s/%s" (I.ts r.rnum) (I.ts r.rden)
-    ; 
+    ;
     value of_i n = {rnum = n; rden = I.one};
     value zero = of_i I.zero;
     value one = of_i I.one;
@@ -742,7 +742,7 @@ module M =
          let (sign, s) =
            if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
            else ("", s)
-         in      
+         in
          let s = remove_trailing_zeros s in
          if e = 0 then
            sprintf "%s0.%s" sign s

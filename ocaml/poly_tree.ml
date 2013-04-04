@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.43 2013-04-03 08:51:42 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.44 2013-04-04 12:04:31 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -87,7 +87,7 @@ value rec tree_power k t n d =
       let n = n₁ * n in
       let d = d₁ * d in
       let g = gcd n d in
-      Xpower (n / g) (d / g) 
+      Xpower (n / g) (d / g)
   | Ypower n₁ →
       let n = n₁ * n in
       let g = gcd n d in

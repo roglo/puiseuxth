@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.23 2013-04-01 17:37:05 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.24 2013-04-04 12:04:31 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -41,7 +41,7 @@ module I :
     value ts : t → string;
     value to_float : t → float;
   end;
-    
+
 module Q :
   sig
     type t = α;

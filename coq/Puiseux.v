@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.2 2013-04-04 08:36:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.3 2013-04-04 12:05:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,3 +34,15 @@ Definition gamma_beta_list {α} (pol : polynomial (polynomial α Q) Z) :=
   in
   let ch := lower_convex_hull xyl in
   loop [] ch.
+
+Definition puiseux k nb_steps vx vy pol :=
+  let gbl := gamma_beta_list pol in
+  let rem_steps := (nb_steps - 1)%nat in
+  List.fold_left
+    (λ sol_list γβ₁,
+       let br :=
+         {| initial_polynom := pol; cγl := []; step := 1%nat;
+            rem_steps := rem_steps; vx := vx; vy := vy; pol := pol |}
+       in
+       puiseux_branch k br sol_list γβ₁)
+    [] gbl.
