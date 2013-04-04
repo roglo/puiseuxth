@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.60 2013-04-03 09:19:38 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.61 2013-04-04 19:07:05 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -329,10 +329,7 @@ value roots_of_c_coeffs k pol coeffs =
       [ (Some a, Some b, Some c) →
           Some (roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c)
       | _ →
-          let t = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
-          failwith
-            (sprintf "cannot compute roots of '%s'"
-               (string_of_tree k True "x" "y" t)) ]
+          None ]
   | _ → do {
 (**)
       None

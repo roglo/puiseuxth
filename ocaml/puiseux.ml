@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.111 2013-04-04 16:56:11 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.112 2013-04-04 19:07:05 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -365,6 +365,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
 };
 
 value rec puiseux_branch k br sol_list (γ, β) =
+  let f = k.acf_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -390,21 +391,21 @@ value rec puiseux_branch k br sol_list (γ, β) =
   in
   let ml =
     List.map
-      (fun m → {coeff = valuation_coeff k m.coeff; power = m.power - j})
+      (fun m → {coeff = valuation_coeff f m.coeff; power = m.power - j})
       hl
   in
-  let rl = k.roots {monoms = ml} in
+  let rl = k.acf_roots {monoms = ml} in
   if rl = [] then do {
     let sol = make_solution br.cγl in
-    print_solution k br (succ (List.length sol_list)) br.cγl False sol;
+    print_solution f br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) :: sol_list]
   }
   else
     List.fold_left
       (fun sol_list (r, m) →
-         if k.eq r k.zero then sol_list
+         if f.eq r f.zero then sol_list
          else
-           match puiseux_iteration k br r m γ β sol_list with
+           match puiseux_iteration f br r m γ β sol_list with
            [ Right (pol, cγl) → next_step k br sol_list pol cγl
            | Left sol_list → sol_list ])
       sol_list rl
@@ -612,30 +613,36 @@ value arg_parse () =
     }
 ;
 
-value rec kc () =
-  {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-   mul = C.mul; div = C.div; roots pol = roots (kc ()) pol;
-   minus_one = C.minus_one; compare = C.compare; eq = C.eq; gcd = C.gcd;
-   normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
-   of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
-   of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
-   to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
-   float_round_zero = C.float_round_zero;
-   complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
-   cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
+value kc () =
+  let fc =
+    {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
+     mul = C.mul; div = C.div;
+     minus_one = C.minus_one; compare = C.compare; eq = C.eq; gcd = C.gcd;
+     normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
+     of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
+     of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
+     to_complex = C.to_complex; to_string = C.to_string arg_lang.val;
+     float_round_zero = C.float_round_zero;
+     complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
+     cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
+  in
+  {acf_field = fc; acf_roots = roots fc}
 ;
 
-value rec km () =
-  {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
-   mul = M.mul; div = M.div; roots pol = roots (km ()) pol;
-   minus_one = M.minus_one; compare = M.compare; eq = M.eq; gcd = M.gcd;
-   normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
-   of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
-   of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
-   to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
-   float_round_zero = M.float_round_zero;
-   complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
-   cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
+value km () =
+  let fm =
+    {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
+     mul = M.mul; div = M.div;
+     minus_one = M.minus_one; compare = M.compare; eq = M.eq; gcd = M.gcd;
+     normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
+     of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
+     of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
+     to_complex = M.to_complex; to_string = M.to_string arg_lang.val;
+     float_round_zero = M.float_round_zero;
+     complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
+     cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
+  in
+  {acf_field = fm; acf_roots = roots fm}
 ;
 
 value main () = do {
@@ -711,9 +718,10 @@ value main () = do {
     if arg_all_mpfr.val then do {
       Cpoly.Mfl.set_prec 200;
       let k = km () in
-      let t = tree_of_ast k vx vy p in
-      let t = normalise k t in
-      let norm_txt = string_of_tree k True vx vy t in
+      let f = k.acf_field in
+      let t = tree_of_ast f vx vy p in
+      let t = normalise f t in
+      let norm_txt = string_of_tree f True vx vy t in
       if verbose.val then do {
         printf "normalised:\n";
         printf "%s\n%!" norm_txt;
@@ -721,14 +729,15 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      let pol = polyn_of_tree k t in
+      let pol = polyn_of_tree f t in
       puiseux k arg_nb_steps.val vx vy pol;
     }
     else do {
       let k = kc () in
-      let t = tree_of_ast k vx vy p in
-      let t = normalise k t in
-      let norm_txt = string_of_tree k True vx vy t in
+      let f = k.acf_field in
+      let t = tree_of_ast f vx vy p in
+      let t = normalise f t in
+      let norm_txt = string_of_tree f True vx vy t in
       if verbose.val then do {
         printf "normalised:\n";
         printf "%s\n%!" norm_txt;
@@ -736,7 +745,7 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      let pol = polyn_of_tree k t in
+      let pol = polyn_of_tree f t in
       puiseux k arg_nb_steps.val vx vy pol;
     }
   }

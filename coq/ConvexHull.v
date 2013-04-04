@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.6 2013-04-04 16:56:11 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.7 2013-04-04 19:08:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,16 +19,20 @@ Arguments power : default implicits.
 Record polynomial α β := { monoms : list (monomial α β) }.
 Arguments monoms : default implicits.
 
-Record alg_cl_field α :=
+Record field α :=
   { zero : α;
     one : α;
     sub : α → α → α;
-    div : α → α → α;
-    roots : polynomial α nat → list (α * nat) }.
+    div : α → α → α }.
 Arguments zero : default implicits.
 Arguments sub : default implicits.
 Arguments div : default implicits. 
-Arguments roots : default implicits. 
+
+Record alg_cl_field α :=
+  { acf_field : field α;
+    acf_roots : polynomial α nat → list (α * nat) }.
+Arguments acf_field : default implicits. 
+Arguments acf_roots : default implicits. 
 
 Fixpoint minimise_slope xy₁ slt_min₁ skip₁ xyl :=
   let (x₁, y₁) := (xy₁ : Q * Q) in
