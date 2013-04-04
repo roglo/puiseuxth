@@ -1,4 +1,4 @@
-(* $Id: cpoly.ml,v 1.9 2013-04-02 19:31:29 deraugla Exp $ *)
+(* $Id: cpoly.ml,v 1.10 2013-04-04 14:26:27 deraugla Exp $ *)
 (*
     ALGORITHM 419 COLLECTED ALGORITHMS FROM ACM.
     ALGORITHM APPEARED IN COMM. ACM, VOL. 15, NO. 02,
@@ -612,8 +612,9 @@ let (ys, yp) = Mfl.to_nice_string 10 0 c.im in
   let yy = -. xx in
   let fmul = Pervasives.\*. in
   let fdiv = Pervasives.\/. in
-  let cosr = Mfl.float (cos (fmul (fdiv 94. 180.) pi)) in
-  let sinr = Mfl.float (sin (fmul (fdiv 94. 180.) pi)) in
+  let r = fmul (fdiv 94. 180.) pi in
+  let cosr = Mfl.float (cos r) in
+  let sinr = Mfl.float (sin r) in
   (* ALGORITHM FAILS IF THE LEADING COEFFICIENT IS ZERO. *)
   if complex_eq op.(0) complex_zero then None
   else do {
