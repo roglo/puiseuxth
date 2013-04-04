@@ -1,0 +1,3 @@
+ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v
+Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo
+T.vo T.glob T.v.beautified: T.v
