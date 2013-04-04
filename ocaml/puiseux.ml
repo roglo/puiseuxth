@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.104 2013-04-04 08:58:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.105 2013-04-04 09:10:06 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -224,6 +224,11 @@ value string_of_x_polyn k opt vx pol =
   string_of_tree k opt vx "?" t
 ;
 
+value airy_string_of_x_polyn k opt vx pol =
+  let t = tree_of_x_polyn k pol in
+  airy_string_of_tree k opt vx "?" t
+;
+
 value string_of_xy_polyn k opt vx vy pol =
   let t = tree_of_xy_polyn k pol in
   string_of_tree k opt vx vy t
@@ -238,12 +243,11 @@ value print_solution k br finite nth cγl = do {
       ([], Q.zero) (List.rev cγl)
   in
   let sol = {monoms = List.rev rev_sol} in
-  let tsol = tree_of_x_polyn k sol in
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_tree k (not arg_lang.val) br.vx br.vy tsol)
+    (airy_string_of_x_polyn k (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
