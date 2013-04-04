@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.101 2013-04-04 08:36:26 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.102 2013-04-04 08:44:27 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -80,8 +80,7 @@ Definition gamma_beta_list (pol : polynomial (polynomial α Q.t) int) :=
     end
   in
   let xyl :=
-    List.map
-      (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
+    List.map (λ my, (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
   let ch := lower_convex_hull xyl in
