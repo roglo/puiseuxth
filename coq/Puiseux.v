@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.5 2013-04-04 16:21:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.6 2013-04-04 16:56:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,6 +52,28 @@ Definition phony_monom {α β} : monomial (polynomial α β) nat :=
   {| coeff := {| monoms := [] |}; power := 0%nat |}.
 Arguments phony_monom : default implicits.
 
+Definition puiseux_iteration k br r m γ β sol_list :=
+  let pol :=
+    let y :=
+      {| monoms :=
+           [{| coeff := {| monoms := [{| coeff := r; power := γ |}] |};
+               power := 0 |},
+            {| coeff := {| monoms := [{| coeff := one k; power := γ |}] |};
+               power := 1 |} … [] ] |}
+    in
+    let pol := apply_poly_xy_pol k br.pol y in
+    let pol := pol_div_x_power pol β in
+    let pol := cancel_pol_constant_term_if_any k pol in
+    xy_float_round_zero k pol
+  in
+  let finite := zero_is_root pol in
+  let cγl := [(r, γ) … br.cγl] in
+  if br.rem_steps = 0 || finite then
+    let sol := make_solution cγl in
+    Left [(sol, finite) … sol_list]
+  else if br.rem_steps > 0 then Right (pol, cγl)
+  else Left sol_list.
+
 Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
     (sol_list : list (polynomial α Q * bool)) (γβ : Q * Q) :=
   let (γ, β) := γβ in
@@ -72,9 +94,17 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
       hl
   in
   let rl := roots k {| monoms := ml |} in
-  rl.
+  List.fold_left
+    (λ sol_list rm,
+       let (r, m) := rm in
+       if eq k r (zero k) then sol_list
+       else
+         match puiseux_iteration k br r m γ β sol_list with
+         | Right (pol, cγl) => next_step k br sol_list col cγl
+         | Left sol_list => sol_list
+         end)
+    rl sol_list.
 
-(*
 Definition puiseux k nb_steps pol :=
   let gbl := gamma_beta_list pol in
   let rem_steps := (nb_steps - 1)%nat in
@@ -86,4 +116,3 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
-*)

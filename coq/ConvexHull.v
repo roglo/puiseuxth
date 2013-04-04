@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.5 2013-04-04 16:21:09 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.6 2013-04-04 16:56:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,6 +21,7 @@ Arguments monoms : default implicits.
 
 Record alg_cl_field α :=
   { zero : α;
+    one : α;
     sub : α → α → α;
     div : α → α → α;
     roots : polynomial α nat → list (α * nat) }.

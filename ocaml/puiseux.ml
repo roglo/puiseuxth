@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.110 2013-04-04 16:21:09 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.111 2013-04-04 16:56:11 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -316,23 +316,21 @@ value make_solution cγl =
 ;
 
 value puiseux_iteration k br r m γ β sol_list = do {
-  if verbose.val then
+  if verbose.val then do {
     let ss = inf_string_of_string (string_of_int br.step) in
-    printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
-  else ();
-  if verbose.val then
+    printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m;
     let y =
       let cpy = Plus (Const r) (Ypower 1) in
       if I.eq (Q.rnum γ) I.zero then cpy
       else Mult (xpower γ) cpy
     in
     let xmβ = xpower (Q.neg β) in
-    let ss = inf_string_of_string (string_of_int br.step) in
     let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
     printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
       (string_of_tree k True br.vx br.vy xmβ)
       (if br.step = 1 then "" else ss₁) br.vx
       (string_of_tree k True br.vx br.vy y)
+  }
   else ();
   let pol =
     let y =
