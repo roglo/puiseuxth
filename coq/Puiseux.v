@@ -1,0 +1,35 @@
+(* $Id: Puiseux.v,v 1.1 2013-04-04 01:43:06 deraugla Exp $ *)
+
+Require Import Utf8.
+Require Import QArith.
+Require Import ConvexHull.
+
+Record monomial α β := { coeff : α; power : β }.
+Arguments coeff : default implicits.
+Arguments power : default implicits.
+
+Record polynomial α β := { monoms : list (monomial α β) }.
+Arguments monoms : default implicits.
+
+Definition valuation {α} (pol : polynomial α Q) :=
+  match monoms pol with
+  | [mx … _] => power mx
+  | [] => 0
+  end.
+
+Definition gamma_beta_list {α} kq (pol : polynomial (polynomial α Q) Z) :=
+  let fix loop rev_gbl xyl :=
+    match xyl with
+    | [(x₁, y₁) … [(x₂, y₂) … _] as xyl₁] =>
+        let γ := (y₂ - y₁) / (x₁ - x₂) in
+        let β := γ * x₁ + y₁ in
+        loop [(γ, β) … rev_gbl] xyl₁
+    | [_] | [] =>
+        List.rev rev_gbl
+    end
+  in
+  let xyl :=
+    List.map (λ my, (power my # 1, valuation (coeff my))) (monoms pol)
+  in
+  let ch := lower_convex_hull kq xyl in
+  loop [] ch.
