@@ -1,6 +1,7 @@
-(* $Id: field.mli,v 1.19 2013-04-04 07:09:50 deraugla Exp $ *)
+(* $Id: field.mli,v 1.20 2013-04-04 16:21:09 deraugla Exp $ *)
 
 open Pnums;
+open Poly;
 
 type field α β =
   { zero : α;
@@ -10,6 +11,7 @@ type field α β =
     neg : α → α;
     mul : α → α → α;
     div : α → α → α;
+    roots : polynomial α int → list (α * int);
     (* extra *)
     minus_one : α;
     normalise : α → α;

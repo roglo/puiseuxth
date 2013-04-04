@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.109 2013-04-04 15:45:09 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.110 2013-04-04 16:21:09 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -235,15 +235,7 @@ value string_of_xy_polyn k opt vx vy pol =
   string_of_tree k opt vx vy t
 ;
 
-value print_solution k br finite nth cγl = do {
-  let (rev_sol, _) =
-    List.fold_left
-      (fun (sol, γsum) (c, γ) →
-         let γsum = Q.norm (Q.add γsum γ) in
-         ([{coeff = c; power = γsum} :: sol], γsum))
-      ([], Q.zero) (List.rev cγl)
-  in
-  let sol = {monoms = List.rev rev_sol} in
+value print_solution k br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
@@ -267,8 +259,7 @@ value print_solution k br finite nth cγl = do {
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
         (string_of_x_polyn k (not arg_lang.val) br.vx pol₂)
         ellipses
-  | None → () ];
-  (sol, finite)
+  | None → () ]
 };
 
 value cancel_pol_constant_term_if_any k pol =
@@ -311,6 +302,17 @@ value pol_div_x_power pol p =
 type choice α β =
   [ Left of α
   | Right of β ]
+;
+
+value make_solution cγl =
+  let (rev_sol, _) =
+    List.fold_left
+      (fun (sol, γsum) (c, γ) →
+         let γsum = Q.norm (Q.add γsum γ) in
+         ([{coeff = c; power = γsum} :: sol], γsum))
+      ([], Q.zero) (List.rev cγl)
+  in
+  {monoms = List.rev rev_sol}
 ;
 
 value puiseux_iteration k br r m γ β sol_list = do {
@@ -356,8 +358,9 @@ value puiseux_iteration k br r m γ β sol_list = do {
       if finite then printf "zero is root !\n%!" else ();
     }
     else ();
-    let sol = print_solution k br finite (succ (List.length sol_list)) cγl in
-    Left [sol :: sol_list]
+    let sol = make_solution cγl in
+    print_solution k br (succ (List.length sol_list)) cγl finite sol;
+    Left [(sol, finite) :: sol_list]
   }
   else if br.rem_steps > 0 then Right (pol, cγl)
   else Left sol_list
@@ -392,12 +395,11 @@ value rec puiseux_branch k br sol_list (γ, β) =
       (fun m → {coeff = valuation_coeff k m.coeff; power = m.power - j})
       hl
   in
-  let rl = roots k {monoms = ml} in
+  let rl = k.roots {monoms = ml} in
   if rl = [] then do {
-    let sol =
-       print_solution k br False (succ (List.length sol_list)) br.cγl
-    in
-    [sol :: sol_list]
+    let sol = make_solution br.cγl in
+    print_solution k br (succ (List.length sol_list)) br.cγl False sol;
+    [(sol, False) :: sol_list]
   }
   else
     List.fold_left
@@ -612,9 +614,9 @@ value arg_parse () =
     }
 ;
 
-value kc () =
+value rec kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-   mul = C.mul; div = C.div;
+   mul = C.mul; div = C.div; roots pol = roots (kc ()) pol;
    minus_one = C.minus_one; compare = C.compare; eq = C.eq; gcd = C.gcd;
    normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
    of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
@@ -625,9 +627,9 @@ value kc () =
    cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
 ;
 
-value km () =
+value rec km () =
   {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
-   mul = M.mul; div = M.div;
+   mul = M.mul; div = M.div; roots pol = roots (km ()) pol;
    minus_one = M.minus_one; compare = M.compare; eq = M.eq; gcd = M.gcd;
    normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
    of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;

@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.27 2013-04-04 02:04:04 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.28 2013-04-04 16:21:09 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -51,7 +51,7 @@ value print_term n my = do {
 
 value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-   mul = C.mul; div = C.div;
+   mul = C.mul; div = C.div; roots _ = failwith "kc.roots";
    minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
    gcd = C.gcd; normalise = C.normalise; nth_root = C.nth_root;
    neg_factor = C.neg_factor; of_i = C.of_i;

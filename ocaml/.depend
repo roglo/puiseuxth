@@ -1,4 +1,4 @@
-field.cmi: pnums.cmi
+field.cmi: pnums.cmi poly.cmi
 pnums.cmo: ../cpoly/cpoly.cmi pnums.cmi
 pnums.cmx: ../cpoly/cpoly.cmx pnums.cmi
 pnums.cmi: ../cpoly/cpoly.cmi

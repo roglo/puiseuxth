@@ -1,15 +1,8 @@
-(* $Id: Puiseux.v,v 1.4 2013-04-04 15:45:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.5 2013-04-04 16:21:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import ConvexHull.
-
-Record monomial α β := { coeff : α; power : β }.
-Arguments coeff : default implicits.
-Arguments power : default implicits.
-
-Record polynomial α β := { monoms : list (monomial α β) }.
-Arguments monoms : default implicits.
 
 Definition valuation {α} (pol : polynomial α Q) :=
   match monoms pol with
@@ -59,7 +52,7 @@ Definition phony_monom {α β} : monomial (polynomial α β) nat :=
   {| coeff := {| monoms := [] |}; power := 0%nat |}.
 Arguments phony_monom : default implicits.
 
-Fixpoint puiseux_branch {α} (k : field α) (br : branch α Q)
+Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
     (sol_list : list (polynomial α Q * bool)) (γβ : Q * Q) :=
   let (γ, β) := γβ in
   let hl :=
@@ -79,8 +72,9 @@ Fixpoint puiseux_branch {α} (k : field α) (br : branch α Q)
       hl
   in
   let rl := roots k {| monoms := ml |} in
-  ml.
+  rl.
 
+(*
 Definition puiseux k nb_steps pol :=
   let gbl := gamma_beta_list pol in
   let rem_steps := (nb_steps - 1)%nat in
@@ -92,3 +86,4 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
+*)
