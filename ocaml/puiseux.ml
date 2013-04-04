@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.99 2013-04-04 02:41:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.100 2013-04-04 07:09:50 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -25,66 +25,62 @@ value valuation_coeff pol =
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-Fixpoint minimise_slope okq (x₁, y₁) slt_min₁ skip₁ xyl :=
-  let {ord = oq; fld = kq} := okq in
+Fixpoint minimise_slope (x₁, y₁) slt_min₁ skip₁ xyl :=
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
-      let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
+      let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
       let slt_min :=
-        if oq.le sl₁₂ slt_min₁.slope then
+        if Q.le sl₁₂ slt_min₁.slope then
           {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := skip₁ |}
         else
           slt_min₁
       in
-      minimise_slope okq (x₁, y₁) slt_min (succ skip₁) xyl₂
+      minimise_slope (x₁, y₁) slt_min (succ skip₁) xyl₂
   | [] =>
       slt_min₁
   end
 ;
 
-Fixpoint next_points okq rev_list nb_pts_to_skip (x₁, y₁) xyl₁ :=
-  let kq := okq.fld in
+Fixpoint next_points rev_list nb_pts_to_skip (x₁, y₁) xyl₁ :=
   match xyl₁ with
   | [(x₂, y₂) :: xyl₂] =>
       match nb_pts_to_skip with
       | 0 =>
           let slt_min :=
-            let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
+            let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
             let slt_min := {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} in
-            minimise_slope okq (x₁, y₁) slt_min 1 xyl₂
+            minimise_slope (x₁, y₁) slt_min 1 xyl₂
           in
-          next_points okq [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂
-            xyl₂
+          next_points [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂ xyl₂
       | n =>
-          next_points okq rev_list (n - 1) (x₁, y₁) xyl₂
+          next_points rev_list (n - 1) (x₁, y₁) xyl₂
       end
   | [] =>
       List.rev rev_list
   end
 ;
 
-value lower_convex_hull okq xyl =
+value lower_convex_hull xyl =
   match xyl with
-  [ [xy₁ :: xyl₁] → [xy₁ :: next_points okq [] 0 xy₁ xyl₁]
+  [ [xy₁ :: xyl₁] → [xy₁ :: next_points [] 0 xy₁ xyl₁]
   | [] → [] ]
 ;
 
-value gamma_beta_list okq pol =
-  let kq = okq.fld in
+value gamma_beta_list pol =
   let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
-        let γ = kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₁ x₂)) in
-        let β = kq.normalise (kq.add (kq.mul γ x₁) y₁) in
+        let γ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
+        let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
         loop [(γ, β) :: rev_gbl] xyl₁
     | [_] | [] →
         List.rev rev_gbl ]
   in
   let xyl =
-    List.map (fun my → (kq.of_i (I.of_int my.power), valuation my.coeff))
+    List.map (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
-  let ch = lower_convex_hull okq xyl in
+  let ch = lower_convex_hull xyl in
   loop [] ch
 ;
 
@@ -153,34 +149,34 @@ value string_of_pol k pol =
 *)
 
 value norm f k x y = k.normalise (f x y);
+value norm_Q f x y = Q.norm (f x y);
 
-value x_pol_add k kq =
-  pol_add (norm k.add k) (fun c → k.eq c k.zero) kq.compare
+value x_pol_add k =
+  pol_add (norm k.add k) (fun c → k.eq c k.zero) Q.compare
 ;
 
-value x_pol_mul k kq =
-  pol_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) (norm kq.add kq)
-    kq.compare
+value x_pol_mul k =
+  pol_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) (norm_Q Q.add)
+    Q.compare
 ;
 
-value apply_poly_x_pol k kq =
-  apply_poly {monoms = []} (x_pol_add k kq) (x_pol_mul k kq)
+value apply_poly_x_pol k =
+  apply_poly {monoms = []} (x_pol_add k) (x_pol_mul k)
 ;
 
-value apply_poly_xy_pol k kq =
+value apply_poly_xy_pol k =
   apply_poly
     {monoms = []}
     (fun pol c →
        let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
-         (pol_add k.add (k.eq k.zero) kq.compare)
+         (pol_add k.add (k.eq k.zero) Q.compare)
          (fun pol → pol.monoms = [])
          compare
          pol polc)
     (pol_mul
-       (pol_add k.add (k.eq k.zero) kq.compare)
-       (pol_mul k.add (norm k.mul k) (k.eq k.zero) (norm kq.add kq)
-          kq.compare)
+       (pol_add k.add (k.eq k.zero) Q.compare)
+       (pol_mul k.add (norm k.mul k) (k.eq k.zero) (norm_Q Q.add) Q.compare)
        (fun pol → pol.monoms = [])
        \+ compare)
 ;
@@ -234,13 +230,13 @@ value float_round_zero k pol =
   {monoms = List.rev ml}
 ;
 
-value print_solution k kq br finite nth cγl = do {
+value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
-         let γsum = kq.normalise (kq.add γsum γ) in
+         let γsum = Q.norm (Q.add γsum γ) in
          ([{coeff = c; power = γsum} :: sol], γsum))
-      ([], kq.zero) (List.rev cγl)
+      ([], Q.zero) (List.rev cγl)
   in
   let sol = {monoms = List.rev rev_sol} in
   let tsol = tree_of_x_polyn k sol in
@@ -253,7 +249,7 @@ value print_solution k kq br finite nth cγl = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-      let pol = apply_poly_x_pol k kq br.initial_polynom sol in
+      let pol = apply_poly_x_pol k br.initial_polynom sol in
       let pol = float_round_zero k pol in
       let pol₂ =
         if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
@@ -290,13 +286,13 @@ value cancel_constant_term_if_any k t =
 ;
 *)
 
-value cancel_pol_constant_term_if_any k kq pol =
+value cancel_pol_constant_term_if_any k pol =
   match pol.monoms with
   [ [m :: ml] →
       if m.power = 0 then
         match m.coeff.monoms with
         [ [m₁ :: ml₁] →
-            if kq.eq m₁.power kq.zero then do {
+            if Q.eq m₁.power Q.zero then do {
               if verbose.val then
                 printf "Warning: cancelling constant term: %s\n%!"
                   (k.to_string m₁.coeff)
@@ -312,7 +308,7 @@ value cancel_pol_constant_term_if_any k kq pol =
 ;
 
 (*
-value eq_xy_poly k kq p₁ p₂ =
+value eq_xy_poly k p₁ p₂ =
   loop p₁.monoms p₂.monoms where rec loop ml₁ ml₂ =
     match (ml₁, ml₂) with
     [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
@@ -321,7 +317,7 @@ value eq_xy_poly k kq p₁ p₂ =
           where rec loop_x ml₁ ml₂ =
             match (ml₁, ml₂) with
             [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-                if kq.to_string m₁.power = kq.to_string m₂.power &&
+                if Q.to_string m₁.power = Q.to_string m₂.power &&
                    loop_x ml₁ ml₂
                 then
                   k.to_string m₁.coeff = k.to_string m₂.coeff
@@ -335,14 +331,14 @@ value eq_xy_poly k kq p₁ p₂ =
 ;
 *)
 
-value pol_div_x_power kq pol p =
+value pol_div_x_power pol p =
   let ml =
     List.map
       (fun pol →
          let ml =
            List.map
              (fun m →
-                {coeff = m.coeff; power = kq.normalise (kq.sub m.power p)})
+                {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
              pol.coeff.monoms
          in
          {coeff = {monoms = ml}; power = pol.power})
@@ -351,7 +347,7 @@ value pol_div_x_power kq pol p =
   {monoms = ml}
 ;
 
-value puiseux_iteration k kq br r m γ β nth_sol = do {
+value puiseux_iteration k br r m γ β nth_sol = do {
   if verbose.val then
     let ss = inf_string_of_string (string_of_int br.step) in
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m
@@ -376,9 +372,9 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
          [{coeff = {monoms = [{coeff = r; power = γ}]}; power = 0};
           {coeff = {monoms = [{coeff = k.one; power = γ}]}; power = 1}]}
     in
-    let pol = apply_poly_xy_pol k kq br.pol y in
-    let pol = pol_div_x_power kq pol β in
-    let pol = cancel_pol_constant_term_if_any k kq pol in
+    let pol = apply_poly_xy_pol k br.pol y in
+    let pol = pol_div_x_power pol β in
+    let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
   in
   if verbose.val then
@@ -396,15 +392,14 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
     }
     else (); 
     incr nth_sol;
-    print_solution k kq br finite nth_sol.val cγl;
+    print_solution k br finite nth_sol.val cγl;
     None
   }
   else if br.rem_steps > 0 then Some (pol, cγl)
   else None
 };
 
-value rec puiseux_branch k okq br nth_sol (γ, β) =
-  let kq = okq.fld in
+value rec puiseux_branch k br nth_sol (γ, β) =
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -435,20 +430,20 @@ value rec puiseux_branch k okq br nth_sol (γ, β) =
   let rl = roots k {monoms = ml} in
   if rl = [] then do {
     incr nth_sol;
-    print_solution k kq br False nth_sol.val br.cγl;
+    print_solution k br False nth_sol.val br.cγl;
   }
   else
     List.iter
       (fun (r, m) →
          if k.eq r k.zero then ()
          else
-           match puiseux_iteration k kq br r m γ β nth_sol with
-           [ Some (pol, cγl) → next_step k okq br nth_sol pol cγl
+           match puiseux_iteration k br r m γ β nth_sol with
+           [ Some (pol, cγl) → next_step k br nth_sol pol cγl
            | None → () ])
       rl
 
-and next_step k okq br nth_sol pol cγl =
-  let gbl = gamma_beta_list okq pol in
+and next_step k br nth_sol pol cγl =
+  let gbl = gamma_beta_list pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -470,7 +465,7 @@ and next_step k okq br nth_sol pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k okq br nth_sol (γ, β)
+         puiseux_branch k br nth_sol (γ, β)
        })
       gbl_f
 ;
@@ -481,9 +476,9 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux k kq nb_steps vx vy t =
+value puiseux k nb_steps vx vy t =
   let pol = polyn_of_tree k t in
-  let gbl = gamma_beta_list kq pol in
+  let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
   List.iter
@@ -493,7 +488,7 @@ value puiseux k kq nb_steps vx vy t =
          {initial_polynom = pol; initial_tree = t; cγl = []; step = 1;
           rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
        in
-       puiseux_branch k kq br nth_sol (γ₁, β₁)
+       puiseux_branch k br nth_sol (γ₁, β₁)
      })
     gbl
 ;
@@ -636,29 +631,6 @@ value arg_parse () =
     }
 ;
 
-value okq =
-  let kq : field Q.t unit =
-    {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
-     mul = Q.mul; div = Q.div;
-     minus_one = Q.neg Q.one ; normalise = Q.norm;
-     nth_root _ = failwith "kq.nth_root"; compare = Q.compare;
-     eq = Q.eq; gcd _ = failwith "kq.gcd";
-     neg_factor _ = failwith "kq.neg_factor";
-     of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
-     of_complex _ = failwith "kq.of_complex";
-     of_float_string _ = failwith "kq.of_float_string";
-     to_q x = Some x; to_a _ = failwith "kq.to_a";
-     to_complex _ = failwith "kq.to_complex"; to_string = Q.to_string;
-     float_round_zero _ = failwith "kq.float_round_zero";
-     complex_round_zero _ = failwith "kq.complex_round_zero";
-     complex_mul _ = failwith "kq.complex_mul";
-     cpoly_roots _ = failwith "kq.cpoly_roots";
-     complex_to_string _ = failwith "kq.complex_to_string"}
-  in
-  let oq = {le = Q.le; lt = Q.lt} in
-  {ord = oq; fld = kq}
-;
-
 value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
    mul = C.mul; div = C.div;
@@ -768,7 +740,7 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      puiseux k okq arg_nb_steps.val vx vy t;
+      puiseux k arg_nb_steps.val vx vy t;
     }
     else do {
       let k = kc () in
@@ -782,7 +754,7 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      puiseux k okq arg_nb_steps.val vx vy t;
+      puiseux k arg_nb_steps.val vx vy t;
     }
   }
   with e →
