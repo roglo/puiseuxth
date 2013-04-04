@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.102 2013-04-04 08:44:27 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.103 2013-04-04 08:49:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -108,7 +108,6 @@ value arg_end = ref False;
 
 type branch α β =
   { initial_polynom : polynomial (polynomial α β) int;
-    initial_tree: tree α;
     cγl : list (α * β);
     step : int;
     rem_steps : int;
@@ -463,7 +462,6 @@ and next_step k br nth_sol pol cγl =
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
-            initial_tree = br.initial_tree;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
@@ -479,8 +477,7 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux k nb_steps vx vy t =
-  let pol = polyn_of_tree k t in
+value puiseux k nb_steps vx vy pol =
   let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
   let nth_sol = ref 0 in
@@ -488,7 +485,7 @@ value puiseux k nb_steps vx vy t =
     (fun (γ₁, β₁) → do {
        print_line_equal ();
        let br =
-         {initial_polynom = pol; initial_tree = t; cγl = []; step = 1;
+         {initial_polynom = pol; cγl = []; step = 1;
           rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
        in
        puiseux_branch k br nth_sol (γ₁, β₁)
@@ -743,7 +740,8 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      puiseux k arg_nb_steps.val vx vy t;
+      let pol = polyn_of_tree k t in
+      puiseux k arg_nb_steps.val vx vy pol;
     }
     else do {
       let k = kc () in
@@ -757,7 +755,8 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      puiseux k arg_nb_steps.val vx vy t;
+      let pol = polyn_of_tree k t in
+      puiseux k arg_nb_steps.val vx vy pol;
     }
   }
   with e →
