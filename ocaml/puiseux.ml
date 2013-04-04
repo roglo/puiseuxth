@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.98 2013-04-04 02:06:29 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.99 2013-04-04 02:41:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -26,7 +26,7 @@ value valuation_coeff pol =
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
 Fixpoint minimise_slope okq (x₁, y₁) slt_min₁ skip₁ xyl :=
-  let {ordered = oq; field = kq} := okq in
+  let {ord = oq; fld = kq} := okq in
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
       let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
@@ -42,23 +42,25 @@ Fixpoint minimise_slope okq (x₁, y₁) slt_min₁ skip₁ xyl :=
   end
 ;
 
-value rec next_points okq rev_list nb_pts_to_skip (x₁, y₁) xyl₁ =
-  let kq = okq.field in
+Fixpoint next_points okq rev_list nb_pts_to_skip (x₁, y₁) xyl₁ :=
+  let kq := okq.fld in
   match xyl₁ with
-  [ [(x₂, y₂) :: xyl₂] →
+  | [(x₂, y₂) :: xyl₂] =>
       match nb_pts_to_skip with
-      [ 0 →
-          let slt_min =
-            let sl₁₂ = kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
-            let slt_min = {xy₂ = (x₂, y₂); slope = sl₁₂; skip = 0} in
+      | 0 =>
+          let slt_min :=
+            let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
+            let slt_min := {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} in
             minimise_slope okq (x₁, y₁) slt_min 1 xyl₂
           in
           next_points okq [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂
             xyl₂
-      | n →
-          next_points okq rev_list (n - 1) (x₁, y₁) xyl₂ ]
-  | [] →
-      List.rev rev_list ]
+      | n =>
+          next_points okq rev_list (n - 1) (x₁, y₁) xyl₂
+      end
+  | [] =>
+      List.rev rev_list
+  end
 ;
 
 value lower_convex_hull okq xyl =
@@ -68,7 +70,7 @@ value lower_convex_hull okq xyl =
 ;
 
 value gamma_beta_list okq pol =
-  let kq = okq.field in
+  let kq = okq.fld in
   let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
@@ -402,7 +404,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
 };
 
 value rec puiseux_branch k okq br nth_sol (γ, β) =
-  let kq = okq.field in
+  let kq = okq.fld in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -654,7 +656,7 @@ value okq =
      complex_to_string _ = failwith "kq.complex_to_string"}
   in
   let oq = {le = Q.le; lt = Q.lt} in
-  {ordered = oq; field = kq}
+  {ord = oq; fld = kq}
 ;
 
 value kc () =

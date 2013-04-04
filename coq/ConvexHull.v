@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.1 2013-04-04 01:43:06 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.2 2013-04-04 02:41:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,24 +14,34 @@ Arguments skip : default implicits.
 
 Record field α :=
   { sub : α → α → α;
-    div : α → α → α;
-    le : α → α → bool }.
+    div : α → α → α }.
 Arguments sub : default implicits.
-Arguments div : default implicits.
+Arguments div : default implicits. 
+
+Record ordered α :=
+  { le : α → α → bool }.
 Arguments le : default implicits.
 
-Fixpoint minimise_slope kq xy₁ slt_min₁ skip₁ xyl :=
+Record ordered_field α :=
+  { ord : ordered α;
+    fld : field α }.
+Arguments ord : default implicits.
+Arguments fld : default implicits.
+
+Fixpoint minimise_slope okq xy₁ slt_min₁ skip₁ xyl :=
   let (x₁, y₁) := (xy₁ : Q * Q) in
+  let oq := ord okq in
+  let kq := fld okq in
   match xyl with
   | [(x₂, y₂) … xyl₂] =>
       let sl₁₂ := div kq (sub kq y₂ y₁) (sub kq x₂ x₁) in
       let slt_min :=
-        if le kq sl₁₂ (slope slt_min₁) then
+        if le oq sl₁₂ (slope slt_min₁) then
           {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := skip₁ |}
         else
           slt_min₁
       in
-      minimise_slope kq xy₁ slt_min (S skip₁) xyl₂
+      minimise_slope okq xy₁ slt_min (S skip₁) xyl₂
   | [] =>
       slt_min₁
   end.
