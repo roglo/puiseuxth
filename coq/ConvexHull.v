@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.3 2013-04-04 08:36:13 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.4 2013-04-04 15:45:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -13,8 +13,10 @@ Arguments slope : default implicits.
 Arguments skip : default implicits.
 
 Record field α :=
-  { sub : α → α → α;
+  { zero : α;
+    sub : α → α → α;
     div : α → α → α }.
+Arguments zero : default implicits.
 Arguments sub : default implicits.
 Arguments div : default implicits. 
 

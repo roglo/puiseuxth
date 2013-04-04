@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.108 2013-04-04 11:59:13 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.109 2013-04-04 15:45:09 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -62,10 +62,11 @@ Definition valuation (pol : polynomial α Q.t) :=
   end
 ;
 
-value valuation_coeff pol =
+Definition valuation_coeff k (pol : polynomial α Q.t) :=
   match pol.monoms with
-  [ [mx :: _] → mx.coeff
-  | [] → match () with [] ]
+  | [mx :: _] => mx.coeff
+  | [] => k.zero
+  end
 ;
 
 Definition gamma_beta_list (pol : polynomial (polynomial α Q.t) int) :=
@@ -387,7 +388,8 @@ value rec puiseux_branch k br sol_list (γ, β) =
     else ()
   in
   let ml =
-    List.map (fun m → {coeff = valuation_coeff m.coeff; power = m.power - j})
+    List.map
+      (fun m → {coeff = valuation_coeff k m.coeff; power = m.power - j})
       hl
   in
   let rl = roots k {monoms = ml} in
