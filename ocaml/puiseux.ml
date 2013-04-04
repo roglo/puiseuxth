@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.97 2013-04-04 02:04:04 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.98 2013-04-04 02:06:29 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -26,7 +26,7 @@ value valuation_coeff pol =
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
 Fixpoint minimise_slope okq (x₁, y₁) slt_min₁ skip₁ xyl :=
-  let {ord = oq; fld = kq} := okq in
+  let {ordered = oq; field = kq} := okq in
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
       let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
@@ -43,7 +43,7 @@ Fixpoint minimise_slope okq (x₁, y₁) slt_min₁ skip₁ xyl :=
 ;
 
 value rec next_points okq rev_list nb_pts_to_skip (x₁, y₁) xyl₁ =
-  let kq = okq.fld in
+  let kq = okq.field in
   match xyl₁ with
   [ [(x₂, y₂) :: xyl₂] →
       match nb_pts_to_skip with
@@ -68,7 +68,7 @@ value lower_convex_hull okq xyl =
 ;
 
 value gamma_beta_list okq pol =
-  let {fld = kq} = okq in
+  let kq = okq.field in
   let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
@@ -402,7 +402,7 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
 };
 
 value rec puiseux_branch k okq br nth_sol (γ, β) =
-  let kq = okq.fld in
+  let kq = okq.field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -634,30 +634,28 @@ value arg_parse () =
     }
 ;
 
-value kq : field Q.t unit =
-  {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
-   mul = Q.mul; div = Q.div;
-   minus_one = Q.neg Q.one ; normalise = Q.norm;
-   nth_root _ = failwith "kq.nth_root"; compare = Q.compare;
-   eq = Q.eq; gcd _ = failwith "kq.gcd";
-   neg_factor _ = failwith "kq.neg_factor";
-   of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
-   of_complex _ = failwith "kq.of_complex";
-   of_float_string _ = failwith "kq.of_float_string";
-   to_q x = Some x; to_a _ = failwith "kq.to_a";
-   to_complex _ = failwith "kq.to_complex"; to_string = Q.to_string;
-   float_round_zero _ = failwith "kq.float_round_zero";
-   complex_round_zero _ = failwith "kq.complex_round_zero";
-   complex_mul _ = failwith "kq.complex_mul";
-   cpoly_roots _ = failwith "kq.cpoly_roots";
-   complex_to_string _ = failwith "kq.complex_to_string"}
+value okq =
+  let kq : field Q.t unit =
+    {zero = Q.zero; one = Q.one; add = Q.add; sub = Q.sub; neg = Q.neg;
+     mul = Q.mul; div = Q.div;
+     minus_one = Q.neg Q.one ; normalise = Q.norm;
+     nth_root _ = failwith "kq.nth_root"; compare = Q.compare;
+     eq = Q.eq; gcd _ = failwith "kq.gcd";
+     neg_factor _ = failwith "kq.neg_factor";
+     of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
+     of_complex _ = failwith "kq.of_complex";
+     of_float_string _ = failwith "kq.of_float_string";
+     to_q x = Some x; to_a _ = failwith "kq.to_a";
+     to_complex _ = failwith "kq.to_complex"; to_string = Q.to_string;
+     float_round_zero _ = failwith "kq.float_round_zero";
+     complex_round_zero _ = failwith "kq.complex_round_zero";
+     complex_mul _ = failwith "kq.complex_mul";
+     cpoly_roots _ = failwith "kq.cpoly_roots";
+     complex_to_string _ = failwith "kq.complex_to_string"}
+  in
+  let oq = {le = Q.le; lt = Q.lt} in
+  {ordered = oq; field = kq}
 ;
-
-value oq =
-  {le = Q.le; lt = Q.lt}
-;
-
-value okq = {ord = oq; fld = kq};
 
 value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;

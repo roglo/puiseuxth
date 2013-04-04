@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.16 2013-04-04 02:04:04 deraugla Exp $ *)
+(* $Id: field.mli,v 1.17 2013-04-04 02:06:29 deraugla Exp $ *)
 
 open Pnums;
 
@@ -40,7 +40,7 @@ type ordered α =
 ;
 
 type ordered_field α β =
-  { ord : ordered α;
-    fld : field α β }
+  { ordered : ordered α;
+    field : field α β }
 ;
 
