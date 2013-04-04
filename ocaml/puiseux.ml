@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.107 2013-04-04 09:48:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.108 2013-04-04 11:59:13 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -461,7 +461,7 @@ value puiseux k nb_steps vx vy pol =
     (fun (pol, finite) →
        printf "sol %s%s\n%!" (airy_string_of_x_polyn k True "x" pol)
          (if finite then "" else " + ..."))
-    (List.rev rev_sol_list)
+    (List.rev _rev_sol_list)
 *)
 ;
 
