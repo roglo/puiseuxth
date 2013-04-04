@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1 2013-04-04 01:43:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.2 2013-04-04 08:36:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,8 +16,9 @@ Definition valuation {α} (pol : polynomial α Q) :=
   | [mx … _] => power mx
   | [] => 0
   end.
+Arguments valuation : default implicits.
 
-Definition gamma_beta_list {α} kq (pol : polynomial (polynomial α Q) Z) :=
+Definition gamma_beta_list {α} (pol : polynomial (polynomial α Q) Z) :=
   let fix loop rev_gbl xyl :=
     match xyl with
     | [(x₁, y₁) … [(x₂, y₂) … _] as xyl₁] =>
@@ -31,5 +32,5 @@ Definition gamma_beta_list {α} kq (pol : polynomial (polynomial α Q) Z) :=
   let xyl :=
     List.map (λ my, (power my # 1, valuation (coeff my))) (monoms pol)
   in
-  let ch := lower_convex_hull kq xyl in
+  let ch := lower_convex_hull xyl in
   loop [] ch.

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.100 2013-04-04 07:09:50 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.101 2013-04-04 08:36:26 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -10,18 +10,6 @@ open Poly_print;
 open Poly_tree;
 open Poly;
 open Roots;
-
-value valuation pol =
-  match pol.monoms with
-  [ [mx :: _] → mx.power
-  | [] → match () with [] ]
-;
-
-value valuation_coeff pol =
-  match pol.monoms with
-  [ [mx :: _] → mx.coeff
-  | [] → match () with [] ]
-;
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
@@ -60,27 +48,43 @@ Fixpoint next_points rev_list nb_pts_to_skip (x₁, y₁) xyl₁ :=
   end
 ;
 
-value lower_convex_hull xyl =
+Definition lower_convex_hull xyl :=
   match xyl with
-  [ [xy₁ :: xyl₁] → [xy₁ :: next_points [] 0 xy₁ xyl₁]
-  | [] → [] ]
+  | [xy₁ :: xyl₁] => [xy₁ :: next_points [] 0 xy₁ xyl₁]
+  | [] => []
+  end
 ;
 
-value gamma_beta_list pol =
-  let rec loop rev_gbl =
-    fun
-    [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
-        let γ = Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
-        let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
+Definition valuation (pol : polynomial α Q.t) :=
+  match pol.monoms with
+  | [mx :: _] => mx.power
+  | [] => Q.zero
+  end
+;
+
+value valuation_coeff pol =
+  match pol.monoms with
+  [ [mx :: _] → mx.coeff
+  | [] → match () with [] ]
+;
+
+Definition gamma_beta_list (pol : polynomial (polynomial α Q.t) int) :=
+  let fix loop rev_gbl xyl :=
+    match xyl with
+    | [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] =>
+        let γ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
+        let β := Q.norm (Q.add (Q.mul γ x₁) y₁) in
         loop [(γ, β) :: rev_gbl] xyl₁
-    | [_] | [] →
-        List.rev rev_gbl ]
+    | [_] | [] =>
+        List.rev rev_gbl
+    end
   in
-  let xyl =
-    List.map (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
+  let xyl :=
+    List.map
+      (fun my → (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
-  let ch = lower_convex_hull xyl in
+  let ch := lower_convex_hull xyl in
   loop [] ch
 ;
 
