@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.96 2013-04-04 01:34:04 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.97 2013-04-04 02:04:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -25,61 +25,64 @@ value valuation_coeff pol =
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-Fixpoint minimise_slope kq (x₁, y₁) slt_min₁ skip₁ xyl :=
+Fixpoint minimise_slope okq (x₁, y₁) slt_min₁ skip₁ xyl :=
+  let {ord = oq; fld = kq} := okq in
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
       let sl₁₂ := kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
       let slt_min :=
-        if kq.le sl₁₂ slt_min₁.slope then
+        if oq.le sl₁₂ slt_min₁.slope then
           {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := skip₁ |}
         else
           slt_min₁
       in
-      minimise_slope kq (x₁, y₁) slt_min (succ skip₁) xyl₂
+      minimise_slope okq (x₁, y₁) slt_min (succ skip₁) xyl₂
   | [] =>
       slt_min₁
   end
 ;
 
-value rec next_points kq rev_list nb_pts_to_skip (x₁, y₁) =
-  fun
+value rec next_points okq rev_list nb_pts_to_skip (x₁, y₁) xyl₁ =
+  let kq = okq.fld in
+  match xyl₁ with
   [ [(x₂, y₂) :: xyl₂] →
       match nb_pts_to_skip with
       [ 0 →
           let slt_min =
             let sl₁₂ = kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₂ x₁)) in
             let slt_min = {xy₂ = (x₂, y₂); slope = sl₁₂; skip = 0} in
-            minimise_slope kq (x₁, y₁) slt_min 1 xyl₂
+            minimise_slope okq (x₁, y₁) slt_min 1 xyl₂
           in
-          next_points kq [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂
+          next_points okq [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂
             xyl₂
       | n →
-          next_points kq rev_list (n - 1) (x₁, y₁) xyl₂ ]
+          next_points okq rev_list (n - 1) (x₁, y₁) xyl₂ ]
   | [] →
       List.rev rev_list ]
 ;
 
-value lower_convex_hull kq xyl =
+value lower_convex_hull okq xyl =
   match xyl with
-  [ [xy₁ :: xyl₁] → [xy₁ :: next_points kq [] 0 xy₁ xyl₁]
+  [ [xy₁ :: xyl₁] → [xy₁ :: next_points okq [] 0 xy₁ xyl₁]
   | [] → [] ]
 ;
 
-value gamma_beta_list k pol =
+value gamma_beta_list okq pol =
+  let {fld = kq} = okq in
   let rec loop rev_gbl =
     fun
     [ [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] →
-        let γ = k.normalise (k.div (k.sub y₂ y₁) (k.sub x₁ x₂)) in
-        let β = k.normalise (k.add (k.mul γ x₁) y₁) in
+        let γ = kq.normalise (kq.div (kq.sub y₂ y₁) (kq.sub x₁ x₂)) in
+        let β = kq.normalise (kq.add (kq.mul γ x₁) y₁) in
         loop [(γ, β) :: rev_gbl] xyl₁
     | [_] | [] →
         List.rev rev_gbl ]
   in
   let xyl =
-    List.map (fun my → (k.of_i (I.of_int my.power), valuation my.coeff))
+    List.map (fun my → (kq.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
-  let ch = lower_convex_hull k xyl in
+  let ch = lower_convex_hull okq xyl in
   loop [] ch
 ;
 
@@ -398,7 +401,8 @@ value puiseux_iteration k kq br r m γ β nth_sol = do {
   else None
 };
 
-value rec puiseux_branch k kq br nth_sol (γ, β) =
+value rec puiseux_branch k okq br nth_sol (γ, β) =
+  let kq = okq.fld in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -437,12 +441,12 @@ value rec puiseux_branch k kq br nth_sol (γ, β) =
          if k.eq r k.zero then ()
          else
            match puiseux_iteration k kq br r m γ β nth_sol with
-           [ Some (pol, cγl) → next_step k kq br nth_sol pol cγl
+           [ Some (pol, cγl) → next_step k okq br nth_sol pol cγl
            | None → () ])
       rl
 
-and next_step k kq br nth_sol pol cγl =
-  let gbl = gamma_beta_list kq pol in
+and next_step k okq br nth_sol pol cγl =
+  let gbl = gamma_beta_list okq pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -464,7 +468,7 @@ and next_step k kq br nth_sol pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k kq br nth_sol (γ, β)
+         puiseux_branch k okq br nth_sol (γ, β)
        })
       gbl_f
 ;
@@ -635,7 +639,7 @@ value kq : field Q.t unit =
    mul = Q.mul; div = Q.div;
    minus_one = Q.neg Q.one ; normalise = Q.norm;
    nth_root _ = failwith "kq.nth_root"; compare = Q.compare;
-   eq = Q.eq; le = Q.le; lt = Q.lt; gcd _ = failwith "kq.gcd";
+   eq = Q.eq; gcd _ = failwith "kq.gcd";
    neg_factor _ = failwith "kq.neg_factor";
    of_i = Q.of_i; of_q x = x; of_a _ = failwith "kq.of_a";
    of_complex _ = failwith "kq.of_complex";
@@ -649,11 +653,16 @@ value kq : field Q.t unit =
    complex_to_string _ = failwith "kq.complex_to_string"}
 ;
 
+value oq =
+  {le = Q.le; lt = Q.lt}
+;
+
+value okq = {ord = oq; fld = kq};
+
 value kc () =
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
    mul = C.mul; div = C.div;
-   minus_one = C.minus_one; compare = C.compare; eq = C.eq;
-   le _ = failwith "kc.le"; lt _ = failwith "kc.lt"; gcd = C.gcd;
+   minus_one = C.minus_one; compare = C.compare; eq = C.eq; gcd = C.gcd;
    normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
    of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
    of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
@@ -666,8 +675,7 @@ value kc () =
 value km () =
   {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
    mul = M.mul; div = M.div;
-   minus_one = M.minus_one; compare = M.compare; eq = M.eq;
-   le _ = failwith "km.le"; lt _ = failwith "km.lt"; gcd = M.gcd;
+   minus_one = M.minus_one; compare = M.compare; eq = M.eq; gcd = M.gcd;
    normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
    of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
    of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
@@ -760,7 +768,7 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      puiseux k kq arg_nb_steps.val vx vy t;
+      puiseux k okq arg_nb_steps.val vx vy t;
     }
     else do {
       let k = kc () in
@@ -774,7 +782,7 @@ value main () = do {
       else do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
-      puiseux k kq arg_nb_steps.val vx vy t;
+      puiseux k okq arg_nb_steps.val vx vy t;
     }
   }
   with e →

@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.15 2013-04-01 10:51:45 deraugla Exp $ *)
+(* $Id: field.mli,v 1.16 2013-04-04 02:04:04 deraugla Exp $ *)
 
 open Pnums;
 
@@ -16,8 +16,6 @@ type field α β =
     nth_root : α → int → α;
     compare : α → α → int;
     eq : α → α → bool;
-    le : α → α → bool;
-    lt : α → α → bool;
     gcd : α → α → α;
     neg_factor : α → option α;
     of_i : I.t → α;
@@ -35,3 +33,14 @@ type field α β =
     cpoly_roots : list (complex β) → list (complex β);
     complex_to_string : bool → complex β → string }
 ;
+
+type ordered α =
+  { le : α → α → bool;
+    lt : α → α → bool }
+;
+
+type ordered_field α β =
+  { ord : ordered α;
+    fld : field α β }
+;
+
