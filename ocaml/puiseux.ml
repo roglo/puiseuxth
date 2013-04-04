@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.103 2013-04-04 08:49:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.104 2013-04-04 08:58:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -137,19 +137,6 @@ value rec list_take n l =
     | [] → [] ]
 ;
 
-value polyn_of_tree k t =
-  let pol = y_polyn_of_tree k t in
-  {monoms =
-   List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
-     pol.monoms}
-;
-
-(*
-value string_of_pol k pol =
-  string_of_tree k True "x" "y" (tree_of_x_polyn k pol)
-;
-*)
-
 value norm f k x y = k.normalise (f x y);
 value norm_Q f x y = Q.norm (f x y);
 
@@ -232,6 +219,16 @@ value float_round_zero k pol =
   {monoms = List.rev ml}
 ;
 
+value string_of_x_polyn k opt vx pol =
+  let t = tree_of_x_polyn k pol in
+  string_of_tree k opt vx "?" t
+;
+
+value string_of_xy_polyn k opt vx vy pol =
+  let t = tree_of_xy_polyn k pol in
+  string_of_tree k opt vx vy t
+;
+
 value print_solution k br finite nth cγl = do {
   let (rev_sol, _) =
     List.fold_left
@@ -257,36 +254,16 @@ value print_solution k br finite nth cγl = do {
         if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
         else pol
       in
-      let t = tree_of_x_polyn k pol₂ in
       let ellipses =
         if nb_terms = 0 then ""
         else if List.length pol.monoms > nb_terms then " + ..."
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_tree k (not arg_lang.val) br.vx br.vy t)
+        (string_of_x_polyn k (not arg_lang.val) br.vx pol₂)
         ellipses
   | None → () ]
 };
-
-(*
-value cancel_constant_term_if_any k t =
-  match Poly_tree.flatten t [] with
-  [ [t₁ :: tl₁] →
-      let td = term_descr_of_term k t₁ in
-      if Q.eq td.xpow Q.zero && td.ypow = 0 then do {
-        if verbose.val then
-          printf "Warning: cancelling constant term: %s\n%!"
-            (k.to_string td.const)
-        else ();
-        match tl₁ with
-        [ [t₂ :: tl₂] → List.fold_left (fun t₁ t₂ → Plus t₁ t₂) t₂ tl₂
-        | [] → t₁ ]
-      }
-      else t
-  | [] → t ]
-;
-*)
 
 value cancel_pol_constant_term_if_any k pol =
   match pol.monoms with
@@ -308,30 +285,6 @@ value cancel_pol_constant_term_if_any k pol =
       else pol
   | [] → pol ]
 ;
-
-(*
-value eq_xy_poly k p₁ p₂ =
-  loop p₁.monoms p₂.monoms where rec loop ml₁ ml₂ =
-    match (ml₁, ml₂) with
-    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-        if m₁.power = m₂.power && loop ml₁ ml₂ then
-          loop_x m₁.coeff.monoms m₂.coeff.monoms
-          where rec loop_x ml₁ ml₂ =
-            match (ml₁, ml₂) with
-            [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-                if Q.to_string m₁.power = Q.to_string m₂.power &&
-                   loop_x ml₁ ml₂
-                then
-                  k.to_string m₁.coeff = k.to_string m₂.coeff
-                else
-                  False
-            | ([], []) → True
-            | _ → False ]
-        else False
-    | ([], []) → True
-    | _ → False ]
-;
-*)
 
 value pol_div_x_power pol p =
   let ml =
@@ -380,8 +333,7 @@ value puiseux_iteration k br r m γ β nth_sol = do {
     xy_float_round_zero k pol
   in
   if verbose.val then
-    let t = tree_of_xy_polyn k pol in
-    let s = string_of_tree k True br.vx br.vy t in
+    let s = string_of_xy_polyn k True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
@@ -491,6 +443,13 @@ value puiseux k nb_steps vx vy pol =
        puiseux_branch k br nth_sol (γ₁, β₁)
      })
     gbl
+;
+
+value polyn_of_tree k t =
+  let pol = y_polyn_of_tree k t in
+  {monoms =
+   List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
+     pol.monoms}
 ;
 
 value anon_fun s =
