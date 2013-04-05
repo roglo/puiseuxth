@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.15 2013-04-05 18:24:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.16 2013-04-05 20:07:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -79,21 +79,19 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma at_least_one_point : ∀ α k deg cl cn,
-  cn ≠ zero k → points_of_pol α k deg cl cn ≠ [].
+Lemma at_least_one_point : ∀ α k deg cl cn, points_of_pol α k deg cl cn ≠ [].
 Proof.
-intros α k deg cl cn Hcn.
+intros α k deg cl cn.
 revert deg.
 induction cl as [| c]; intros; [ intros H; discriminate H | simpl ].
 destruct (k_eq_dec k c (zero k)); [ apply IHcl | intros H; discriminate H ].
 Qed.
 
 Lemma at_least_two_points : ∀ α k deg cl cn,
-  cn ≠ zero k
-  → (∃ c, c ∈ cl ∧ c ≠ zero k)
-    → List.length (points_of_pol α k deg cl cn) ≥ 2.
+  (∃ c, c ∈ cl ∧ c ≠ zero k)
+  → List.length (points_of_pol α k deg cl cn) ≥ 2.
 Proof.
-intros α k deg cl cn Hcn Hcl.
+intros α k deg cl cn Hcl.
 revert deg.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
@@ -103,10 +101,32 @@ induction cl as [| c]; intros.
   simpl.
   destruct (k_eq_dec k c (zero k)); [ contradiction | simpl ].
   apply le_n_S.
-  eapply le_trans; [ apply le_n_Sn | idtac ].
-  apply IHcl.
-  exists c.
-bbb.
+  remember (length (points_of_pol α k (S deg) cl cn)) as len.
+  destruct len.
+   remember (points_of_pol α k (S deg) cl cn) as l.
+   destruct l; [ idtac | discriminate Heqlen ].
+   exfalso; symmetry in Heql; revert Heql.
+   apply at_least_one_point.
+
+   apply le_n_S, le_0_n.
+
+  simpl.
+  destruct (k_eq_dec k c (zero k)).
+   apply IHcl.
+   exists c₁.
+   split; assumption.
+
+   simpl.
+   apply le_n_S.
+   remember (length (points_of_pol α k (S deg) cl cn)) as len.
+   destruct len.
+    remember (points_of_pol α k (S deg) cl cn) as l.
+    destruct l; [ idtac | discriminate Heqlen ].
+    exfalso; symmetry in Heql; revert Heql.
+    apply at_least_one_point.
+
+    apply le_n_S, le_0_n.
+Qed.
 
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
   an pol ≠ zero k
