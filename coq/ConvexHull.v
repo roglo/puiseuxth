@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.7 2013-04-04 19:08:51 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.8 2013-04-05 04:36:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,28 +11,6 @@ Record slope_to (α : Set) := { xy₂ : (α * α); slope : α; skip : nat }.
 Arguments xy₂ : default implicits.
 Arguments slope : default implicits.
 Arguments skip : default implicits.
-
-Record monomial α β := { coeff : α; power : β }.
-Arguments coeff : default implicits.
-Arguments power : default implicits.
-
-Record polynomial α β := { monoms : list (monomial α β) }.
-Arguments monoms : default implicits.
-
-Record field α :=
-  { zero : α;
-    one : α;
-    sub : α → α → α;
-    div : α → α → α }.
-Arguments zero : default implicits.
-Arguments sub : default implicits.
-Arguments div : default implicits. 
-
-Record alg_cl_field α :=
-  { acf_field : field α;
-    acf_roots : polynomial α nat → list (α * nat) }.
-Arguments acf_field : default implicits. 
-Arguments acf_roots : default implicits. 
 
 Fixpoint minimise_slope xy₁ slt_min₁ skip₁ xyl :=
   let (x₁, y₁) := (xy₁ : Q * Q) in

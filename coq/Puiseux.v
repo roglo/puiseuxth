@@ -1,24 +1,48 @@
-(* $Id: Puiseux.v,v 1.6 2013-04-04 16:56:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.7 2013-04-05 04:36:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Streams.
 Require Import ConvexHull.
 
-Definition valuation {α} (pol : polynomial α Q) :=
-  match monoms pol with
-  | [mx … _] => power mx
-  | [] => 0
-  end.
+Record polynomial α := { monoms : list α }.
+Arguments monoms : default implicits.
+
+Definition degree {α} (pol : polynomial α) := pred (List.length (monoms pol)).
+Arguments degree : default implicits.
+
+Record field α :=
+  { zero : α;
+    one : α;
+    sub : α → α → α;
+    div : α → α → α }.
+Arguments zero : default implicits.
+Arguments sub : default implicits.
+Arguments div : default implicits. 
+
+Record alg_cl_field α :=
+  { ac_field : field α;
+    ac_root : ∀ pol : polynomial α, degree pol ≥ 1 → α }.
+Arguments ac_field : default implicits. 
+Arguments ac_root : default implicits. 
+
+Record Qpos := { x : Q; pos : x > 0 }.
+
+Record puiseux_series α :=
+  { ps_1 : α * Q;
+    ps_n : Streams.Stream (α * Qpos) }.
+Arguments ps_1 : default implicits.
+Arguments ps_n : default implicits.
+
+Definition valuation {α} (ps : puiseux_series α) := snd (ps_1 ps).
 Arguments valuation : default implicits.
 
-Definition valuation_coeff {α} k (pol : polynomial α Q) :=
-  match monoms pol with
-  | [mx … _] => coeff mx
-  | [] => zero k
-  end.
+Definition valuation_coeff {α} (ps : puiseux_series α) := fst (ps_1 ps).
+Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
-Definition gamma_beta_list {α} (pol : polynomial (polynomial α Q) nat) :=
+(*
+Definition gamma_beta_list {α} (pol : polynomial (puiseux_series α)) :=
   let fix loop rev_gbl xyl :=
     match xyl with
     | [(x₁, y₁) … [(x₂, y₂) … _] as xyl₁] =>
@@ -29,7 +53,10 @@ Definition gamma_beta_list {α} (pol : polynomial (polynomial α Q) nat) :=
         List.rev rev_gbl
     end
   in
-  let xyl :=
+  let (_, l) :=
+    List.fold_left
+      (λ (deg, xyl) m,
+
     List.map (λ my, (Z.of_nat (power my) # 1, valuation (coeff my)))
       (monoms pol)
   in
@@ -116,3 +143,4 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
+*)
