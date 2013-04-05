@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.9 2013-04-05 09:57:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.10 2013-04-05 10:01:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,7 +52,9 @@ Definition valuation_coeff {α} (ps : puiseux_series α) := fst (ps_1 ps).
 Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
-Definition gamma_beta {α} k (pol : polynomial (puiseux_series α)) :=
+Definition gamma_beta {α} k (pol : polynomial (puiseux_series α))
+  (deg_ge_1 : degree pol ≥ 1)
+:=
   let fix points deg cl :=
     match cl with
     | [c₁ … cl₁] =>
