@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.8 2013-04-05 09:48:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.9 2013-04-05 09:57:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -53,16 +53,18 @@ Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
 Definition gamma_beta {α} k (pol : polynomial (puiseux_series α)) :=
-  let (xyl, _) :=
-    List.fold_left
-      (λ xyl_deg coeff,
-         let (xyl, deg) := (xyl_deg : list (Q * Q) * nat) in
-         if k_eq k coeff (zero k) then (xyl, S deg)
-         else
-           let xy := (Z.of_nat deg # 1, valuation coeff) in
-           ([xy … xyl], S deg))
-      (monoms pol) ([], 0%nat)
+  let fix points deg cl :=
+    match cl with
+    | [c₁ … cl₁] =>
+        if k_eq k c₁ (zero k) then points (S deg) cl₁
+        else
+          let xy := (Z.of_nat deg # 1, valuation c₁) in
+          [xy … points (S deg) cl₁]
+    | [] =>
+        []
+    end
   in
+  let xyl := points 0%nat (monoms pol) in
   match lower_convex_hull xyl with
   | [(x₁, y₁), (x₂, y₂) … _] =>
       let γ := (y₂ - y₁) / (x₁ - x₂) in
