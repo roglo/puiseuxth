@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.7 2013-04-05 04:36:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.8 2013-04-05 09:48:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,17 +14,28 @@ Arguments degree : default implicits.
 Record field α :=
   { zero : α;
     one : α;
+    add : α → α → α;
     sub : α → α → α;
-    div : α → α → α }.
+    mul : α → α → α;
+    div : α → α → α;
+    k_eq : α → α → bool }.
 Arguments zero : default implicits.
+Arguments add : default implicits.
 Arguments sub : default implicits.
+Arguments mul : default implicits.
 Arguments div : default implicits. 
+Arguments k_eq : default implicits. 
+
+Definition eval_poly {α} k pol (x : α) :=
+  List.fold_right (λ accu coeff, add k accu (mul k coeff x)) (zero k)
+    (monoms pol).
 
 Record alg_cl_field α :=
   { ac_field : field α;
-    ac_root : ∀ pol : polynomial α, degree pol ≥ 1 → α }.
+    ac_alg_cl : ∀ pol : polynomial α,
+      degree pol ≥ 1 → ∃ x : α, eval_poly ac_field pol x = zero ac_field }.
 Arguments ac_field : default implicits. 
-Arguments ac_root : default implicits. 
+Arguments ac_alg_cl : default implicits. 
 
 Record Qpos := { x : Q; pos : x > 0 }.
 
@@ -41,28 +52,28 @@ Definition valuation_coeff {α} (ps : puiseux_series α) := fst (ps_1 ps).
 Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
-(*
-Definition gamma_beta_list {α} (pol : polynomial (puiseux_series α)) :=
-  let fix loop rev_gbl xyl :=
-    match xyl with
-    | [(x₁, y₁) … [(x₂, y₂) … _] as xyl₁] =>
-        let γ := (y₂ - y₁) / (x₁ - x₂) in
-        let β := γ * x₁ + y₁ in
-        loop [(γ, β) … rev_gbl] xyl₁
-    | [_] | [] =>
-        List.rev rev_gbl
-    end
-  in
-  let (_, l) :=
+Definition gamma_beta {α} k (pol : polynomial (puiseux_series α)) :=
+  let (xyl, _) :=
     List.fold_left
-      (λ (deg, xyl) m,
-
-    List.map (λ my, (Z.of_nat (power my) # 1, valuation (coeff my)))
-      (monoms pol)
+      (λ xyl_deg coeff,
+         let (xyl, deg) := (xyl_deg : list (Q * Q) * nat) in
+         if k_eq k coeff (zero k) then (xyl, S deg)
+         else
+           let xy := (Z.of_nat deg # 1, valuation coeff) in
+           ([xy … xyl], S deg))
+      (monoms pol) ([], 0%nat)
   in
-  let ch := lower_convex_hull xyl in
-  loop [] ch.
+  match lower_convex_hull xyl with
+  | [(x₁, y₁), (x₂, y₂) … _] =>
+      let γ := (y₂ - y₁) / (x₁ - x₂) in
+      let β := γ * x₁ + y₁ in
+      Some (γ, β)
+  | [_] | [] =>
+      None
+  end.
+Arguments gamma_beta : default implicits.
 
+(*
 Record branch α β :=
   { initial_polynom : polynomial (polynomial α β) nat;
     cγl : list (α * β);
