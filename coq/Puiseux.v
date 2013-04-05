@@ -1,9 +1,11 @@
-(* $Id: Puiseux.v,v 1.12 2013-04-05 13:51:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.13 2013-04-05 15:54:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import ConvexHull.
 Require Streams.
+
+Notation "x ∈ l" := (List.In x l) (at level 70).
 
 Record field α :=
   { zero : α;
@@ -12,26 +14,25 @@ Record field α :=
     sub : α → α → α;
     mul : α → α → α;
     div : α → α → α;
-    k_eq : α → α → bool }.
+    k_eq_dec : ∀ x y : α, {x = y} + {x ≠ y} }.
 Arguments zero : default implicits.
 Arguments add : default implicits.
 Arguments sub : default implicits.
 Arguments mul : default implicits.
 Arguments div : default implicits. 
-Arguments k_eq : default implicits. 
+Arguments k_eq_dec : default implicits. 
 
 (* polynomial of degree ≥ 1 *)
-Record polynomial α := { a₀ : α; al : list α; an : α }.
-Arguments a₀ : default implicits.
+Record polynomial α := { al : list α; an : α }.
 Arguments al : default implicits.
 Arguments an : default implicits.
 
-Definition degree {α} (pol : polynomial α) := S (List.length (al pol)).
+Definition degree {α} (pol : polynomial α) := List.length (al pol).
 Arguments degree : default implicits.
 
 Definition eval_poly {α} k pol (x : α) :=
-  List.fold_right (λ accu coeff, add k accu (mul k coeff x))
-    (an pol) [a₀ pol … al pol].
+  List.fold_right (λ accu coeff, add k accu (mul k coeff x)) (an pol)
+    (al pol).
 Arguments eval_poly : default implicits. 
 
 Record alg_closed_field α :=
@@ -58,7 +59,7 @@ Arguments valuation_coeff : default implicits.
 Fixpoint points_of_pol α k deg cl cn :=
   match cl with
   | [c₁ … cl₁] =>
-      if k_eq k c₁ (zero k) then points_of_pol α k (S deg) cl₁ cn
+      if k_eq_dec k c₁ (zero k) then points_of_pol α k (S deg) cl₁ cn
       else
         let xy := (Z.of_nat deg # 1, @valuation α c₁) in
         [xy … points_of_pol α k (S deg) cl₁ cn]
@@ -68,7 +69,7 @@ Fixpoint points_of_pol α k deg cl cn :=
 Arguments points_of_pol : default implicits.
 
 Definition gamma_beta {α} k pol :=
-  let xyl := @points_of_pol α k 0%nat [a₀ pol … al pol] (an pol) in
+  let xyl := @points_of_pol α k 0%nat (al pol) (an pol) in
   match lower_convex_hull xyl with
   | [(x₁, y₁), (x₂, y₂) … _] =>
       let γ := (y₂ - y₁) / (x₁ - x₂) in
@@ -80,20 +81,18 @@ Definition gamma_beta {α} k pol :=
 Arguments gamma_beta : default implicits.
 
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
-  k_eq k (an pol) (zero k) = false
-  → gamma_beta k pol ≠ None.
+  an pol ≠ zero k
+    → (∃ c, c ∈ al pol ∧ c ≠ zero k)
+      → gamma_beta k pol ≠ None.
 Proof.
-intros α k pol an_nz.
+intros α k pol an_nz ai_nz.
 unfold gamma_beta.
-remember (points_of_pol α k 0 [a₀ pol … al pol] (an pol)) as pts.
+destruct ai_nz as (c, (Hc, c_nz)).
+remember (points_of_pol k 0 (al pol) (an pol)) as pts.
 remember (lower_convex_hull pts) as chp.
 destruct chp.
- exfalso.
- unfold lower_convex_hull in Heqchp.
- destruct pts.
 bbb.
 
-(*
 Record branch α β :=
   { initial_polynom : polynomial (polynomial α β) nat;
     cγl : list (α * β);
@@ -174,4 +173,3 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
-*)
