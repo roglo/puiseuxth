@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.13 2013-04-05 15:54:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.14 2013-04-05 17:41:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -66,10 +66,9 @@ Fixpoint points_of_pol α k deg cl cn :=
   | [] =>
       [(Z.of_nat deg # 1, @valuation α cn)]
   end.
-Arguments points_of_pol : default implicits.
 
 Definition gamma_beta {α} k pol :=
-  let xyl := @points_of_pol α k 0%nat (al pol) (an pol) in
+  let xyl := points_of_pol α k 0%nat (al pol) (an pol) in
   match lower_convex_hull xyl with
   | [(x₁, y₁), (x₂, y₂) … _] =>
       let γ := (y₂ - y₁) / (x₁ - x₂) in
@@ -80,6 +79,15 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
+Lemma at_least_one_point : ∀ α k deg cl cn,
+  cn ≠ zero k → points_of_pol α k deg cl cn ≠ [].
+Proof.
+intros α k deg cl cn Hcn.
+revert deg.
+induction cl as [| c]; intros; [ intros H; discriminate H | simpl ].
+destruct (k_eq_dec k c (zero k)); [ apply IHcl | intros H; discriminate H ].
+Qed.
+
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
   an pol ≠ zero k
     → (∃ c, c ∈ al pol ∧ c ≠ zero k)
@@ -88,9 +96,14 @@ Proof.
 intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
-remember (points_of_pol k 0 (al pol) (an pol)) as pts.
+remember (points_of_pol α k 0 (al pol) (an pol)) as pts.
 remember (lower_convex_hull pts) as chp.
 destruct chp.
+ destruct pts; [ idtac | discriminate Heqchp ].
+ symmetry in Heqpts.
+ exfalso; revert Heqpts.
+ apply at_least_one_point; assumption.
+
 bbb.
 
 Record branch α β :=
