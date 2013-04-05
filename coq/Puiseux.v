@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.14 2013-04-05 17:41:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.15 2013-04-05 18:24:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -88,6 +88,26 @@ induction cl as [| c]; intros; [ intros H; discriminate H | simpl ].
 destruct (k_eq_dec k c (zero k)); [ apply IHcl | intros H; discriminate H ].
 Qed.
 
+Lemma at_least_two_points : ∀ α k deg cl cn,
+  cn ≠ zero k
+  → (∃ c, c ∈ cl ∧ c ≠ zero k)
+    → List.length (points_of_pol α k deg cl cn) ≥ 2.
+Proof.
+intros α k deg cl cn Hcn Hcl.
+revert deg.
+induction cl as [| c]; intros.
+ destruct Hcl as (c, (Hc, Hz)); contradiction.
+
+ destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
+  subst c₁.
+  simpl.
+  destruct (k_eq_dec k c (zero k)); [ contradiction | simpl ].
+  apply le_n_S.
+  eapply le_trans; [ apply le_n_Sn | idtac ].
+  apply IHcl.
+  exists c.
+bbb.
+
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
   an pol ≠ zero k
     → (∃ c, c ∈ al pol ∧ c ≠ zero k)
@@ -104,6 +124,8 @@ destruct chp.
  exfalso; revert Heqpts.
  apply at_least_one_point; assumption.
 
+ destruct p as (x₁, y₁).
+ destruct chp.
 bbb.
 
 Record branch α β :=
