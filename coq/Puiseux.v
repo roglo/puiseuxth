@@ -1,15 +1,9 @@
-(* $Id: Puiseux.v,v 1.10 2013-04-05 10:01:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.11 2013-04-05 10:05:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
-Require Streams.
 Require Import ConvexHull.
-
-Record polynomial α := { monoms : list α }.
-Arguments monoms : default implicits.
-
-Definition degree {α} (pol : polynomial α) := pred (List.length (monoms pol)).
-Arguments degree : default implicits.
+Require Streams.
 
 Record field α :=
   { zero : α;
@@ -25,6 +19,12 @@ Arguments sub : default implicits.
 Arguments mul : default implicits.
 Arguments div : default implicits. 
 Arguments k_eq : default implicits. 
+
+Record polynomial α := { monoms : list α }.
+Arguments monoms : default implicits.
+
+Definition degree {α} (pol : polynomial α) := pred (List.length (monoms pol)).
+Arguments degree : default implicits.
 
 Definition eval_poly {α} k pol (x : α) :=
   List.fold_right (λ accu coeff, add k accu (mul k coeff x)) (zero k)
