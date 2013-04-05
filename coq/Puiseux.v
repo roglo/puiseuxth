@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.16 2013-04-05 20:07:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.17 2013-04-05 20:42:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -96,10 +96,16 @@ revert deg.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
- destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
-  subst c₁.
+ simpl.
+ destruct (k_eq_dec k c (zero k)).
+  destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
+   subst c₁; contradiction.
+
+   apply IHcl.
+   exists c₁.
+   split; assumption.
+
   simpl.
-  destruct (k_eq_dec k c (zero k)); [ contradiction | simpl ].
   apply le_n_S.
   remember (length (points_of_pol α k (S deg) cl cn)) as len.
   destruct len.
@@ -109,23 +115,6 @@ induction cl as [| c]; intros.
    apply at_least_one_point.
 
    apply le_n_S, le_0_n.
-
-  simpl.
-  destruct (k_eq_dec k c (zero k)).
-   apply IHcl.
-   exists c₁.
-   split; assumption.
-
-   simpl.
-   apply le_n_S.
-   remember (length (points_of_pol α k (S deg) cl cn)) as len.
-   destruct len.
-    remember (points_of_pol α k (S deg) cl cn) as l.
-    destruct l; [ idtac | discriminate Heqlen ].
-    exfalso; symmetry in Heql; revert Heql.
-    apply at_least_one_point.
-
-    apply le_n_S, le_0_n.
 Qed.
 
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
@@ -146,6 +135,28 @@ destruct chp.
 
  destruct p as (x₁, y₁).
  destruct chp.
+  destruct pts; [ discriminate Heqchp | idtac ].
+  simpl in Heqchp.
+  injection Heqchp; intros H₁ H₂.
+  subst p; clear Heqchp.
+  destruct pts.
+   remember (length (points_of_pol α k 0 (al pol) (an pol))) as len.
+   destruct len.
+    rewrite <- Heqpts in Heqlen.
+    discriminate Heqlen.
+
+    destruct len.
+     pose proof (at_least_two_points α k 0 (al pol) (an pol)) as H.
+     rewrite <- Heqlen in H.
+     unfold ge in H.
+     assert (2 ≤ 1) as HH.
+      apply H.
+      exists c; split; assumption.
+
+      apply le_not_lt in HH.
+      exfalso; apply HH, lt_n_Sn.
+
+     rewrite <- Heqpts in Heqlen; discriminate Heqlen.
 bbb.
 
 Record branch α β :=
