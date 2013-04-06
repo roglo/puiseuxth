@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.67 2013-04-06 19:47:41 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.68 2013-04-06 19:54:40 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -480,6 +480,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
 };
 
 value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
+  let opol = op_of_p (k.eq k.zero) pol in
   let apol_opt =
     try
       let ml =
@@ -488,7 +489,7 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
              match k.to_a m.coeff with
              [ Some a → {coeff = a; power = m.power}
              | None → raise Exit ])
-          pol.monoms
+          opol.monoms
       in
       Some {monoms = ml}
     with
@@ -496,15 +497,15 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
   in
   match apol_opt with
   [ Some apol →
-      match roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol with
+      match roots_of_polynom_with_algebraic_coeffs k power_gcd opol apol with
       [ Some rl → rl
       | None → do {
           if verbose.val then
             printf "Failed formally resolving roots: now using floats\n\n%!"
           else ();
-          roots_of_polynom_with_float_coeffs k power_gcd pol
+          roots_of_polynom_with_float_coeffs k power_gcd opol
         } ]
-  | None → roots_of_polynom_with_float_coeffs k power_gcd pol ]
+  | None → roots_of_polynom_with_float_coeffs k power_gcd opol ]
 ;
 
 value roots k pol = do {
@@ -516,14 +517,20 @@ value roots k pol = do {
       (0, 0) pol.al
   in
   let g = List.fold_left (fun g c → k.gcd g c) k.zero pol.al in
-  let opol = op_of_p (k.eq k.zero) pol in
   let ml =
-    List.map
-      (fun m → {coeff = k.div m.coeff g; power = m.power / power_gcd})
-      opol.monoms
+    let (rev_ml, _) =
+      List.fold_left
+        (fun (rev_ml, deg) m →
+           let rev_ml =
+             if deg mod power_gcd = 0 then [k.div m g :: rev_ml] else rev_ml
+           in
+           (rev_ml, deg + 1))
+        ([], 0) pol.al
+    in
+    List.rev rev_ml
   in
   if verbose.val then do {
-    let pol = p_of_op k.zero {monoms = ml} in
+    let pol = {al = ml} in
     let t = rev_tree_of_polyn k pol in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" t)
@@ -532,6 +539,6 @@ value roots k pol = do {
         (sup_string_of_string ("1/" ^ soi power_gcd))
   }
   else ();
-  let pol = {monoms = ml} in
+  let pol = {al = ml} in
   roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol
 };
