@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.147 2013-04-06 21:48:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.148 2013-04-06 22:00:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -360,13 +360,13 @@ value rec puiseux_branch k br sol_list (γ, β) =
   let hl =
     let (rev_hl, _) =
       List.fold_left
-        (fun (rev_hl, deg) c →
+        (fun (rev_hl, deg) ps →
            let rev_hl =
-             if c.ps_monoms = [] then rev_hl
+             if ps.ps_monoms = [] then rev_hl
              else
-               let αi = valuation c in
+               let αi = valuation ps in
                let βi = Q.norm (Q.add (Q.muli γ (I.of_int deg)) αi) in
-               if Q.eq β βi then [(c, deg) :: rev_hl] else rev_hl
+               if Q.eq β βi then [(ps, deg) :: rev_hl] else rev_hl
            in
            (rev_hl, deg + 1))
         ([], 0) br.pol.al
@@ -389,7 +389,7 @@ value rec puiseux_branch k br sol_list (γ, β) =
   in
   let ml =
     List.map
-      (fun (c, deg) → {coeff = valuation_coeff f c; power = deg - j})
+      (fun (ps, deg) → {coeff = valuation_coeff f ps; power = deg - j})
       hl
   in
   let rl = k.ac_roots (p_of_op f.zero {monoms = ml}) in
