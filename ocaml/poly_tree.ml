@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.51 2013-04-06 12:29:37 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.52 2013-04-06 12:35:56 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -402,7 +402,7 @@ value ps_polyn_of_tree k t =
 let _ = printf "normalise compare_descr\n%!" in
 let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
 *)
-  {monoms = group_term_descr k tdl}
+  p_of_op {ps_monoms = []} {monoms = group_term_descr k tdl}
 ;
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
@@ -473,7 +473,7 @@ value tree_of_ps_polyn k pol =
 
 value normalise k t =
   let pol = ps_polyn_of_tree k t in
-  tree_of_ps_polyn k pol
+  tree_of_ps_polyn k (op_of_p (fun ps → ps.ps_monoms = []) pol)
 ;
 
 value substitute_y k y t =

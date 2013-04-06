@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.33 2013-04-06 12:07:53 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.34 2013-04-06 12:35:56 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -79,7 +79,7 @@ value main () = do {
   eprintf "\n%!";
   let pol = ps_polyn_of_tree k t in
   let n = ref 0 in
-  List.iter (print_term n) pol.monoms;
+  List.iter (print_term n) (op_of_p (fun ps → ps.ps_monoms = []) pol).monoms;
   printf "\n";
   printf "Walker=mlist(['psfz','dg','cofs'],%d," (pred n.val);
   printf "list(";
