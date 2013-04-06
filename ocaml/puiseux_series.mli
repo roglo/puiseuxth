@@ -1,7 +1,7 @@
-(* $Id: puiseux_series.mli,v 1.2 2013-04-06 09:16:17 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.3 2013-04-06 12:07:53 deraugla Exp $ *)
 
 type monomial₂ α = { coeff₂ : α; power₂ : Pnums.Q.t };
-type puiseux_series α = { monoms₂ : list (monomial₂ α) };
+type puiseux_series α = { ps_monoms : list (monomial₂ α) };
 
 value ps_add :
   (α → α → α) → (α → bool)

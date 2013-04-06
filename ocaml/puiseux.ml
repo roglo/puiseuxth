@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.129 2013-04-06 12:04:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.130 2013-04-06 12:07:53 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -53,14 +53,14 @@ Definition lower_convex_hull xyl :=
 ;
 
 Definition valuation (ps : puiseux_series α) :=
-  match ps.monoms₂ with
+  match ps.ps_monoms with
   | [mx :: _] => mx.power₂
   | [] => match () with end
   end
 ;
 
 Definition valuation_coeff k (ps : puiseux_series α) :=
-  match ps.monoms₂ with
+  match ps.ps_monoms with
   | [mx :: _] => mx.coeff₂
   | [] => match () with end
   end
@@ -138,38 +138,38 @@ value rec list_take n l =
 value norm f k x y = k.normalise (f x y);
 
 value apply_poly_x_pol k opol =
-  let pol = p_of_op {monoms₂ = []} opol in
-  apply_poly {monoms₂ = []} (fun ps → ps.monoms₂ = [])
+  let pol = p_of_op {ps_monoms = []} opol in
+  apply_poly {ps_monoms = []} (fun ps → ps.ps_monoms = [])
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
 value apply_poly_xy_pol k opol =
-  let pol = p_of_op {monoms₂ = []} opol in
+  let pol = p_of_op {ps_monoms = []} opol in
   apply_poly
     {monoms = []}    
-    (fun ps → ps.monoms₂ = [])
+    (fun ps → ps.ps_monoms = [])
     (fun opol ps →
        let pol =
          pol_add
-           {monoms₂ = []}
+           {ps_monoms = []}
            (ps_add k.add (k.eq k.zero))
-           (fun ps → ps.monoms₂ = [])
-           (p_of_op {monoms₂ = []} opol)
+           (fun ps → ps.ps_monoms = [])
+           (p_of_op {ps_monoms = []} opol)
            {al = [ps]}
        in
-       op_of_p (fun ps → ps.monoms₂ = []) pol)
+       op_of_p (fun ps → ps.ps_monoms = []) pol)
     (fun opol₁ opol₂ →
        let pol =
          pol_mul
-           {monoms₂ = []}
+           {ps_monoms = []}
            (ps_add k.add (k.eq k.zero))
            (ps_mul k.add (norm k.mul k) (k.eq k.zero))
-           (fun ps → ps.monoms₂ = [])
-           (p_of_op {monoms₂ = []} opol₁)
-           (p_of_op {monoms₂ = []} opol₂)
+           (fun ps → ps.ps_monoms = [])
+           (p_of_op {ps_monoms = []} opol₁)
+           (p_of_op {ps_monoms = []} opol₂)
        in
-       op_of_p (fun ps → ps.monoms₂ = []) pol)
+       op_of_p (fun ps → ps.ps_monoms = []) pol)
     pol
 ;
 
@@ -191,11 +191,11 @@ value map_polynom k f pol =
                     rev_ml
                   }
                   else [m :: rev_ml])
-               [] m.coeff.monoms₂
+               [] m.coeff.ps_monoms
            in
-           {monoms₂ = List.rev rev_ml}
+           {ps_monoms = List.rev rev_ml}
          in
-         if c.monoms₂ = [] then rev_ml
+         if c.ps_monoms = [] then rev_ml
          else
            let m = {coeff = c; power = m.power} in
            [m :: rev_ml])
@@ -217,9 +217,9 @@ value float_round_zero k ps =
          else
            let m = {coeff₂ = c; power₂ = m.power₂} in
            [m :: ml])
-       [] ps.monoms₂
+       [] ps.ps_monoms
   in
-  {monoms₂ = List.rev ml}
+  {ps_monoms = List.rev ml}
 ;
 
 value string_of_puiseux_series k opt vx ps =
@@ -250,12 +250,12 @@ value print_solution k br nth cγl finite sol = do {
       let ps = apply_poly_x_pol k br.initial_polynom sol in
       let ps = float_round_zero k ps in
       let ps₂ =
-        if nb_terms > 0 then {monoms₂ = list_take nb_terms ps.monoms₂}
+        if nb_terms > 0 then {ps_monoms = list_take nb_terms ps.ps_monoms}
         else ps
       in
       let ellipses =
         if nb_terms = 0 then ""
-        else if List.length ps.monoms₂ > nb_terms then " + ..."
+        else if List.length ps.ps_monoms > nb_terms then " + ..."
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
@@ -268,14 +268,14 @@ value cancel_pol_constant_term_if_any k pol =
   match pol.monoms with
   [ [m :: ml] →
       if m.power = 0 then
-        match m.coeff.monoms₂ with
+        match m.coeff.ps_monoms with
         [ [m₁ :: ml₁] →
             if Q.eq m₁.power₂ Q.zero then do {
               if verbose.val then
                 printf "Warning: cancelling constant term: %s\n%!"
                   (k.to_string m₁.coeff₂)
               else ();
-              let p₁ = {monoms₂ = ml₁} in
+              let p₁ = {ps_monoms = ml₁} in
               let m = {coeff = p₁; power = m.power} in
               {monoms = [m :: ml]}
             }
@@ -293,9 +293,9 @@ value pol_div_x_power pol p =
            List.map
              (fun m →
                 {coeff₂ = m.coeff₂; power₂ = Q.norm (Q.sub m.power₂ p)})
-             pol.coeff.monoms₂
+             pol.coeff.ps_monoms
          in
-         {coeff = {monoms₂ = ml}; power = pol.power})
+         {coeff = {ps_monoms = ml}; power = pol.power})
       pol.monoms
   in
   {monoms = ml}
@@ -314,7 +314,7 @@ value make_solution cγl =
          ([{coeff₂ = c; power₂ = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
-  {monoms₂ = List.rev rev_sol}
+  {ps_monoms = List.rev rev_sol}
 ;
 
 value puiseux_iteration k br r m γ β sol_list = do {
@@ -337,8 +337,8 @@ value puiseux_iteration k br r m γ β sol_list = do {
   let pol =
     let y =
       {monoms =
-         [{coeff = {monoms₂ = [{coeff₂ = r; power₂ = γ}]}; power = 0};
-          {coeff = {monoms₂ = [{coeff₂ = k.one; power₂ = γ}]}; power = 1}]}
+         [{coeff = {ps_monoms = [{coeff₂ = r; power₂ = γ}]}; power = 0};
+          {coeff = {ps_monoms = [{coeff₂ = k.one; power₂ = γ}]}; power = 1}]}
     in
     let pol = apply_poly_xy_pol k br.pol y in
     let pol = pol_div_x_power pol β in

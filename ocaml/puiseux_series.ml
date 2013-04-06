@@ -1,9 +1,9 @@
-(* $Id: puiseux_series.ml,v 1.2 2013-04-06 09:16:17 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.3 2013-04-06 12:07:53 deraugla Exp $ *)
 
 open Pnums;
 
 type monomial₂ α = { coeff₂ : α; power₂ : Q.t };
-type puiseux_series α = { monoms₂ : list (monomial₂ α) };
+type puiseux_series α = { ps_monoms : list (monomial₂ α) };
 
 value merge_pow₂ add_coeff is_null_coeff =
   loop [] where rec loop rev_list =
@@ -27,7 +27,7 @@ value merge_pow₂ add_coeff is_null_coeff =
 ;
 
 value ps_add add_coeff is_null_coeff ps₁ ps₂ =
-  loop [] ps₁.monoms₂ ps₂.monoms₂ where rec loop rev_ml ml₁ ml₂ =
+  loop [] ps₁.ps_monoms ps₂.ps_monoms where rec loop rev_ml ml₁ ml₂ =
     match (ml₁, ml₂) with
     [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
         let cmp = Q.compare m₁.power₂ m₂.power₂ in
@@ -42,8 +42,8 @@ value ps_add add_coeff is_null_coeff ps₁ ps₂ =
           loop rev_ml ml₁ ml₂
         else
           loop [m₂ :: rev_ml] [m₁ :: ml₁] ml₂
-    | ([], ml₂) → {monoms₂ = List.rev (List.rev_append ml₂ rev_ml)}
-    | (ml₁, []) → {monoms₂ = List.rev (List.rev_append ml₁ rev_ml)} ]
+    | ([], ml₂) → {ps_monoms = List.rev (List.rev_append ml₂ rev_ml)}
+    | (ml₁, []) → {ps_monoms = List.rev (List.rev_append ml₁ rev_ml)} ]
 ;
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
@@ -55,9 +55,9 @@ value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
               let c = mul_coeff m₁.coeff₂ m₂.coeff₂ in
               let p = Q.norm (Q.add m₁.power₂ m₂.power₂) in
               [{coeff₂ = c; power₂ = p} :: a])
-           a ps₂.monoms₂)
-      [] ps₁.monoms₂
+           a ps₂.ps_monoms)
+      [] ps₁.ps_monoms
   in
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power₂ m₂.power₂) ml in
-  {monoms₂ = merge_pow₂ add_coeff is_null_coeff ml}
+  {ps_monoms = merge_pow₂ add_coeff is_null_coeff ml}
 ;
