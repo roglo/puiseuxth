@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.18 2013-04-06 01:56:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.19 2013-04-06 02:40:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -6,6 +6,7 @@ Require Import ConvexHull.
 Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
+Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Record field α :=
   { zero : α;
@@ -117,6 +118,42 @@ induction cl as [| c]; intros.
    apply le_n_S, le_0_n.
 Qed.
 
+Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
+Proof.
+intros x l₁ l₂.
+revert x l₂.
+induction l₁ as [| y]; intros x l₂.
+ intros H; discriminate H.
+
+ simpl; rewrite <- List.app_assoc; simpl.
+ apply IHl₁.
+Qed.
+
+Lemma convex_hull_not_empty : ∀ rl xy xy₁ xyl₁,
+  next_points rl 0 xy [xy₁ … xyl₁] ≠ [].
+Proof.
+intros rl xy xy₁ xyl₁.
+revert rl xy xy₁.
+induction xyl₁ as [| xy₃]; intros.
+ simpl.
+ destruct xy as (x₁, y₁).
+ destruct xy₁ as (x₂, y₂).
+ remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
+ remember {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} as slt_min₁.
+ destruct (xy₂ slt_min₁).
+ remember (q, q0) as x.
+ clear.
+ apply rev_app_not_nil.
+
+ remember [xy₃ … xyl₁] as xyl.
+ simpl.
+ destruct xy as (x₁, y₁).
+ destruct xy₁ as (x₂, y₂).
+ remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
+ remember {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} as slt_min₁.
+ remember (minimise_slope (x₁, y₁) slt_min₁ 1 xyl) as slt_min.
+bbb.
+
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
   an pol ≠ zero k
     → (∃ c, c ∈ al pol ∧ c ≠ zero k)
@@ -158,6 +195,7 @@ destruct chp.
 
      rewrite <- Heqpts in Heqlen; discriminate Heqlen.
 
+bbb.
    simpl in H₁.
    destruct p as (x₂, y₂).
    remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
