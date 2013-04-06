@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.143 2013-04-06 19:25:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.144 2013-04-06 19:31:18 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -256,24 +256,20 @@ value print_solution k br nth cγl finite sol = do {
 };
 
 value cancel_pol_constant_term_if_any k pol =
-  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
-  match opol.monoms with
+  match pol.al with
   [ [m :: ml] →
-      if m.power = 0 then
-        match m.coeff.ps_monoms with
-        [ [m₁ :: ml₁] →
-            if Q.eq m₁.power₂ Q.zero then do {
-              if verbose.val then
-                printf "Warning: cancelling constant term: %s\n%!"
-                  (k.to_string m₁.coeff₂)
-              else ();
-              let p₁ = {ps_monoms = ml₁} in
-              let m = {coeff = p₁; power = m.power} in
-              p_of_op {ps_monoms = []} {monoms = [m :: ml]}
-            }
-            else pol
-        | [] → pol ]
-      else pol
+      match m.ps_monoms with
+      [ [m₁ :: ml₁] →
+          if Q.eq m₁.power₂ Q.zero then do {
+            if verbose.val then
+              printf "Warning: cancelling constant term: %s\n%!"
+                (k.to_string m₁.coeff₂)
+            else ();
+            let m = {ps_monoms = ml₁} in
+            {al = [m :: ml]}
+          }
+          else pol
+      | [] → pol ]
   | [] → pol ]
 ;
 
