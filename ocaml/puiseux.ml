@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.149 2013-04-06 22:08:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.150 2013-04-06 22:22:10 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -156,12 +156,7 @@ value apply_poly_xy_pol k pol =
   apply_poly
     {al = []}    
     (fun pol ps →
-       pol_add
-         {ps_monoms = []}
-         (ps_add k.add (k.eq k.zero))
-         (fun ps → ps.ps_monoms = [])
-         pol
-         {al = [ps]})
+       pol_add (ps_add k.add (k.eq k.zero)) pol {al = [ps]})
     (pol_mul
        {ps_monoms = []}
        (ps_add k.add (k.eq k.zero))

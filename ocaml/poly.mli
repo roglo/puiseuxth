@@ -1,11 +1,10 @@
-(* $Id: poly.mli,v 1.25 2013-04-06 22:13:06 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.26 2013-04-06 22:22:10 deraugla Exp $ *)
 
 type polynomial α = { al : list α };
 
 value pol_add :
-  α → (α → α → α) → (α → bool)
-  → polynomial α → polynomial α → polynomial α;
-(** [pol_add zero_coeff add_coeff is_zero_coeff p₁ p₂] *)
+  (α → α → α) → polynomial α → polynomial α → polynomial α;
+(** [pol_add add_coeff p₁ p₂] *)
 
 value pol_mul :
   α → (α → α → α) → (α → α → α) → (α → bool)

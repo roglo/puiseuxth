@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.23 2013-04-06 22:13:05 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.24 2013-04-06 22:22:10 deraugla Exp $ *)
 
 type polynomial α = { al : list α };
 
@@ -45,28 +45,18 @@ value merge_pow add_coeff is_null_coeff =
         List.rev rev_list ]
 ;
 
-value pol_add zero_coeff add_coeff is_zero_coeff pol₁ pol₂ =
-  let ml₁ = op_of_p is_zero_coeff pol₁ in
-  let ml₂ = op_of_p is_zero_coeff pol₂ in
-  loop [] ml₁ ml₂ where rec loop rev_ml ml₁ ml₂ =
-    match (ml₁, ml₂) with
-    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-        let cmp = compare m₁.power m₂.power in
-        if cmp < 0 then
-          loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
-        else if cmp = 0 then
-          let c = add_coeff m₁.coeff m₂.coeff in
-          let rev_ml =
-            if is_zero_coeff c then rev_ml
-            else [{coeff = c; power = m₁.power} :: rev_ml]
-          in
-          loop rev_ml ml₁ ml₂
-        else
-          loop [m₂ :: rev_ml] [m₁ :: ml₁] ml₂
-    | ([], ml₂) →
-        p_of_op zero_coeff (List.rev (List.rev_append ml₂ rev_ml))
-    | (ml₁, []) →
-        p_of_op zero_coeff (List.rev (List.rev_append ml₁ rev_ml)) ]
+value pol_add add_coeff pol₁ pol₂ =
+  loop [] pol₁.al pol₂.al where rec loop rev_al al₁ al₂ =
+    match (al₁, al₂) with
+    [ ([a₁ :: al₁], [a₂ :: al₂]) →
+        let a = add_coeff a₁ a₂ in
+        loop [a :: rev_al] al₁ al₂
+    | ([], [a₂ :: al₂]) →
+        {al = List.rev (List.rev_append al₂ [a₂ :: rev_al])}
+    | ([a₁ :: al₁], []) →
+        {al = List.rev (List.rev_append al₁ [a₁ :: rev_al])}
+    | ([], []) →
+        {al = List.rev rev_al} ]
 ;
 
 value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
