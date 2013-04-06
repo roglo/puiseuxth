@@ -1,8 +1,8 @@
-# $Id: Makefile,v 1.10 2013-04-06 09:07:58 deraugla Exp $
+# $Id: Makefile,v 1.11 2013-04-06 12:29:37 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
-FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly_tree.cmo roots.cmo poly.cmo puiseux_series.cmo puiseux.cmo
-UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo poly_tree.cmo ugly.cmo
+FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly.cmo poly_tree.cmo roots.cmo puiseux_series.cmo puiseux.cmo
+UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo poly.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
 TEST_DIR=test `basename "$<"` = "$<" || { echo "File \"$<\" needs to be recompiled."; echo "Please run 'make' in directory '$$(dirname "$<")' first."; exit 1; }
 LIB=nums.cma gramlib.cma

@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.50 2013-04-06 12:07:53 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.51 2013-04-06 12:29:37 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -594,7 +594,7 @@ value tree_polyn_of_tree k t =
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
   let myl = merge_expr_pow k \= merge_coeffs myl in
-  {monoms = myl}
+  p_of_op (Const k.zero) {monoms = myl}
 ;
 
 value rec expr_with_pow_x k t =
