@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.72 2013-04-06 20:18:05 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.73 2013-04-06 20:29:00 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -306,7 +306,7 @@ value coeff_of_degree n pol =
   [ Not_found → A₂.zero ]
 ;
 
-value roots_of_c_coeffs k pol coeffs =
+value roots_of_c_coeffs k coeffs =
   match coeffs with
   [ [] | [_] → Some []
   | [b; a] →
@@ -354,10 +354,8 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
             else ();
             Some rl
           }
-        | None → do {
-            let opol = op_of_p (k.eq k.zero) pol in
-            roots_of_c_coeffs k opol pol.al
-          } ] ]
+        | None →
+            roots_of_c_coeffs k pol.al ] ]
   in
   match rl_opt with
   [ Some rl →
