@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.54 2013-04-06 12:47:18 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.55 2013-04-06 12:55:24 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -439,29 +439,34 @@ value tree_of_puiseux_series k ps =
 ;
 
 value rev_tree_of_polyn k pol =
-  let opol = op_of_p (k.eq k.zero) pol in
-  let opol = {monoms = List.rev opol.monoms} in
-  let rebuild_add t m =
-    if k.eq m.coeff k.zero then t
-    else
-       let t₁ =
-         if m.power = 0 then Const m.coeff
-         else if k.eq m.coeff k.one then Ypower m.power
-         else if k.eq m.coeff k.minus_one then Neg (Ypower m.power)
-         else Mult (Const m.coeff) (Ypower m.power)
+  let rebuild_add (t, deg) m =
+    let t =
+      if k.eq m k.zero then t
+      else
+         let t₁ =
+           if deg = 0 then Const m
+           else if k.eq m k.one then Ypower deg
+           else if k.eq m k.minus_one then Neg (Ypower deg)
+           else Mult (Const m) (Ypower deg)
+         in
+         let t_is_null =
+           match t with
+           [ Const c → k.eq c k.zero
+           | _ → False ]
+         in
+         if t_is_null then t₁
+         else
+           match without_initial_neg k t₁ with
+           [ Some t₁ → Minus t t₁
+           | None → Plus t t₁ ]
        in
-       let t_is_null =
-         match t with
-         [ Const c → k.eq c k.zero
-         | _ → False ]
-       in
-       if t_is_null then t₁
-       else
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Minus t t₁
-         | None → Plus t t₁ ]
+       (t, deg - 1)
   in
-  List.fold_left rebuild_add (Const k.zero) opol.monoms
+  let deg = List.length pol.al - 1 in
+  let (t, _) =
+    List.fold_left rebuild_add (Const k.zero, deg) (List.rev pol.al)
+  in
+  t
 ;
 
 value tree_of_ps_polyn k pol =
