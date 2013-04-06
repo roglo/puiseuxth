@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.17 2013-04-06 11:07:28 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.18 2013-04-06 11:17:39 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type old_polynomial α = { monoms : list (monomial α) };
@@ -45,7 +45,9 @@ value merge_pow add_coeff is_null_coeff =
         List.rev rev_list ]
 ;
 
-value pol_add add_coeff is_null_coeff pol₁ pol₂ =
+value pol_add zero_coeff add_coeff is_zero_coeff pol₁ pol₂ =
+  let pol₁ = op_of_p is_zero_coeff pol₁ in
+  let pol₂ = op_of_p is_zero_coeff pol₂ in
   loop [] pol₁.monoms pol₂.monoms where rec loop rev_ml ml₁ ml₂ =
     match (ml₁, ml₂) with
     [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
@@ -55,14 +57,16 @@ value pol_add add_coeff is_null_coeff pol₁ pol₂ =
         else if cmp = 0 then
           let c = add_coeff m₁.coeff m₂.coeff in
           let rev_ml =
-            if is_null_coeff c then rev_ml
+            if is_zero_coeff c then rev_ml
             else [{coeff = c; power = m₁.power} :: rev_ml]
           in
           loop rev_ml ml₁ ml₂
         else
           loop [m₂ :: rev_ml] [m₁ :: ml₁] ml₂
-    | ([], ml₂) → {monoms = List.rev (List.rev_append ml₂ rev_ml)}
-    | (ml₁, []) → {monoms = List.rev (List.rev_append ml₁ rev_ml)} ]
+    | ([], ml₂) →
+        p_of_op zero_coeff {monoms = List.rev (List.rev_append ml₂ rev_ml)}
+    | (ml₁, []) →
+        p_of_op zero_coeff {monoms = List.rev (List.rev_append ml₁ rev_ml)} ]
 ;
 
 value pol_mul add_coeff mul_coeff is_null_coeff pol₁ pol₂ =
