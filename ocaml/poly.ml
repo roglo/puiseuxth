@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.15 2013-04-06 10:42:36 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.16 2013-04-06 11:03:48 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type polynomial α = { monoms : list (monomial α) };
@@ -81,7 +81,8 @@ value pol_mul add_coeff mul_coeff is_null_coeff pol₁ pol₂ =
   {monoms = merge_pow add_coeff is_null_coeff ml}
 ;
 
-value apply_poly zero_v add_v_coeff mul_v_x pol x =
+value apply_poly zero_v is_zero_v add_v_coeff mul_v_x pol x =
+  let pol = p_of_np is_zero_v pol in
   match List.rev pol.monoms with
   [ [m₁ :: _] as rml →
       loop zero_v m₁.power rml where rec loop v deg ml =

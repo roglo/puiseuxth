@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.125 2013-04-06 09:36:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.126 2013-04-06 11:03:48 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -137,15 +137,18 @@ value rec list_take n l =
 
 value norm f k x y = k.normalise (f x y);
 
-value apply_poly_x_pol k =
-  apply_poly {monoms₂ = []}
-    (ps_add (norm k.add k) (k.eq k.zero))
-    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero))
+value apply_poly_x_pol k opol =
+  let pol = np_of_p {monoms₂ = []} opol in
+  apply_poly {monoms₂ = []} (fun ps → ps.monoms₂ = [])
+    (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
+    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
-value apply_poly_xy_pol k =
+value apply_poly_xy_pol k opol =
+  let pol = np_of_p {monoms₂ = []} opol in
   apply_poly
     {monoms = []}
+    (fun ps → ps.monoms₂ = [])
     (fun pol c →
        let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
@@ -156,6 +159,7 @@ value apply_poly_xy_pol k =
        (ps_add k.add (k.eq k.zero))
        (ps_mul k.add (norm k.mul k) (k.eq k.zero))
        (fun ps → ps.monoms₂ = []))
+    pol
 ;
 
 value map_polynom k f pol =
