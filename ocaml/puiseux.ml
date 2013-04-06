@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.140 2013-04-06 17:51:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.141 2013-04-06 17:56:02 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -94,8 +94,8 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   loop [] ch
 ;
 
-value zero_is_root p =
-  match p.monoms with
+value zero_is_root opol =
+  match opol.monoms with
   [ [m :: _] → m.power > 0
   | [] → False ]
 ;
@@ -170,7 +170,7 @@ value apply_poly_xy_pol k pol =
     pol
 ;
 
-value map_polynom k f pol =
+value map_old_polynom k f opol =
   let rev_ml =
     List.fold_left
       (fun rev_ml m →
@@ -196,14 +196,14 @@ value map_polynom k f pol =
          else
            let m = {coeff = c; power = m.power} in
            [m :: rev_ml])
-       [] pol.monoms
+       [] opol.monoms
   in
   {monoms = List.rev rev_ml}
 ;
 
 value xy_float_round_zero k pol =
   let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
-  map_polynom k (fun k c → k.float_round_zero c) opol
+  map_old_polynom k (fun k c → k.float_round_zero c) opol
 ;
 
 value float_round_zero k ps =
@@ -334,7 +334,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
       (string_of_tree k True br.vx br.vy y)
   }
   else ();
-  let pol =
+  let opol =
     let y =
       {monoms =
          [{coeff = {ps_monoms = [{coeff₂ = r; power₂ = γ}]}; power = 0};
@@ -347,12 +347,12 @@ value puiseux_iteration k br r m γ β sol_list = do {
     xy_float_round_zero k pol
   in
   if verbose.val then
-    let pol = p_of_op {ps_monoms = []} pol in
+    let pol = p_of_op {ps_monoms = []} opol in
     let s = string_of_ps_polyn k True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
-  let finite = zero_is_root pol in
+  let finite = zero_is_root opol in
   let cγl = [(r, γ) :: br.cγl] in
   if br.rem_steps = 0 || finite then do {
     if verbose.val then do {
@@ -364,7 +364,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
     print_solution k br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) :: sol_list]
   }
-  else if br.rem_steps > 0 then Right (pol, cγl)
+  else if br.rem_steps > 0 then Right (opol, cγl)
   else Left sol_list
 };
 
