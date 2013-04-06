@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.17 2013-04-05 20:42:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.18 2013-04-06 01:56:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -157,6 +157,16 @@ destruct chp.
       exfalso; apply HH, lt_n_Sn.
 
      rewrite <- Heqpts in Heqlen; discriminate Heqlen.
+
+   simpl in H₁.
+   destruct p as (x₂, y₂).
+   remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
+   remember {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} as slt_min₁.
+   remember (minimise_slope (x₁, y₁) slt_min₁ 1 pts) as slt_min.
+   clear Heqpts.
+   induction pts as [| xy₃ pts].
+    simpl in H₁.
+    destruct xy₂; discriminate H₁.
 bbb.
 
 Record branch α β :=
