@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.145 2013-04-06 19:33:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.146 2013-04-06 19:43:56 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -475,14 +475,12 @@ value is_zero_tree k =
 
 value polyn_of_tree k t =
   let pol = tree_polyn_of_tree k t in
-  let opol = op_of_p (is_zero_tree k) pol in
-  let opol =
-    {monoms =
+  {al =
      List.map
-       (fun m → {coeff = puiseux_series_of_tree k m.coeff; power = m.power})
-       opol.monoms}
-  in
-  p_of_op {ps_monoms = []} opol
+       (fun t →
+          if is_zero_tree k t then {ps_monoms = []}
+          else puiseux_series_of_tree k t)
+       pol.al}
 ;
 
 value anon_fun s =
