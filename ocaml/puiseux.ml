@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.123 2013-04-06 09:28:01 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.124 2013-04-06 09:32:12 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -150,12 +150,12 @@ value apply_poly_xy_pol k =
        let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
          (ps_add k.add (k.eq k.zero))
-         (fun pol → pol.monoms₂ = [])
+         (fun ps → ps.monoms₂ = [])
          pol polc)
     (pol_mul
        (ps_add k.add (k.eq k.zero))
        (ps_mul k.add (norm k.mul k) (k.eq k.zero))
-       (fun pol → pol.monoms₂ = []))
+       (fun ps → ps.monoms₂ = []))
 ;
 
 value map_polynom k f pol =
@@ -193,7 +193,7 @@ value xy_float_round_zero k pol =
   map_polynom k (fun k c → k.float_round_zero c) pol
 ;
 
-value float_round_zero k pol =
+value float_round_zero k ps =
   let ml =
     List.fold_left
       (fun ml m →
@@ -202,7 +202,7 @@ value float_round_zero k pol =
          else
            let m = {coeff₂ = c; power₂ = m.power₂} in
            [m :: ml])
-       [] pol.monoms₂
+       [] ps.monoms₂
   in
   {monoms₂ = List.rev ml}
 ;
@@ -232,19 +232,19 @@ value print_solution k br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   [ Some nb_terms →
-      let pol = apply_poly_x_pol k br.initial_polynom sol in
-      let pol = float_round_zero k pol in
-      let pol₂ =
-        if nb_terms > 0 then {monoms₂ = list_take nb_terms pol.monoms₂}
-        else pol
+      let ps = apply_poly_x_pol k br.initial_polynom sol in
+      let ps = float_round_zero k ps in
+      let ps₂ =
+        if nb_terms > 0 then {monoms₂ = list_take nb_terms ps.monoms₂}
+        else ps
       in
       let ellipses =
         if nb_terms = 0 then ""
-        else if List.length pol.monoms₂ > nb_terms then " + ..."
+        else if List.length ps.monoms₂ > nb_terms then " + ..."
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_puiseux_series k (not arg_lang.val) br.vx pol₂)
+        (string_of_puiseux_series k (not arg_lang.val) br.vx ps₂)
         ellipses
   | None → () ]
 };

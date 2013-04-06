@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.47 2013-04-06 09:28:01 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.48 2013-04-06 09:32:12 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -407,7 +407,7 @@ let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_stri
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
-value tree_of_puiseux_series k pol =
+value tree_of_puiseux_series k ps =
   let rebuild_add t mx =
     if k.eq mx.coeff₂ k.zero then t
     else
@@ -435,7 +435,7 @@ value tree_of_puiseux_series k pol =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const k.zero) pol.monoms₂
+  List.fold_left rebuild_add (Const k.zero) ps.monoms₂
 ;
 
 value tree_of_polyn k pol =
@@ -632,7 +632,8 @@ value puiseux_series_of_tree k t =
   let mxl = List.sort (compare_expr_pow₂ Q.compare) mxl in
   let mxl = merge_expr_pow₂ k Q.eq merge_coeffs₂ mxl in
   let mxl =
-    List.map (fun mx → {coeff₂ = const_of_tree k mx.coeff₂; power₂ = mx.power₂})
+    List.map
+      (fun mx → {coeff₂ = const_of_tree k mx.coeff₂; power₂ = mx.power₂})
       mxl
   in
   let mxl =

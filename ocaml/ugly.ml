@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.31 2013-04-06 09:07:58 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.32 2013-04-06 09:28:01 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -77,7 +77,7 @@ value main () = do {
   eprintf "%s\n%!" si;
   if sn <> si then eprintf "%s\n%!" sn else ();
   eprintf "\n%!";
-  let pol = xy_polyn_of_tree k t in
+  let pol = ps_polyn_of_tree k t in
   let n = ref 0 in
   List.iter (print_term n) pol.monoms;
   printf "\n";
