@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.63 2013-04-06 09:36:35 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.64 2013-04-06 12:43:58 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -516,8 +516,8 @@ value roots k pol = do {
       pol.monoms
   in
   if verbose.val then do {
-    let rev_pol = {monoms = List.rev ml} in
-    let t = tree_of_polyn k rev_pol in
+    let pol = p_of_op k.zero {monoms = ml} in
+    let t = rev_tree_of_polyn k pol in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" t)
     else

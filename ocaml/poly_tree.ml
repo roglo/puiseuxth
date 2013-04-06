@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.52 2013-04-06 12:35:56 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.53 2013-04-06 12:43:58 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -438,7 +438,9 @@ value tree_of_puiseux_series k ps =
   List.fold_left rebuild_add (Const k.zero) ps.ps_monoms
 ;
 
-value tree_of_polyn k pol =
+value rev_tree_of_polyn k pol =
+  let opol = op_of_p (k.eq k.zero) pol in
+  let opol = {monoms = List.rev opol.monoms} in
   let rebuild_add t m =
     if k.eq m.coeff k.zero then t
     else
@@ -459,7 +461,7 @@ value tree_of_polyn k pol =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const k.zero) pol.monoms
+  List.fold_left rebuild_add (Const k.zero) opol.monoms
 ;
 
 value tree_of_ps_polyn k pol =
