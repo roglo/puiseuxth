@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.68 2013-04-06 19:54:40 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.69 2013-04-06 19:56:57 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -411,9 +411,10 @@ value float_roots_of_unity k pow = do {
 };
 
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
+  let opol = op_of_p (k.eq k.zero) pol in
   let ml =
     List.map (fun m → {coeff = k.to_complex m.coeff; power = m.power})
-      pol.monoms
+      opol.monoms
   in
   let complex_zero = k.to_complex k.zero in
   let fpl = list_of_polynomial complex_zero {monoms = ml} in
@@ -503,9 +504,9 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
           if verbose.val then
             printf "Failed formally resolving roots: now using floats\n\n%!"
           else ();
-          roots_of_polynom_with_float_coeffs k power_gcd opol
+          roots_of_polynom_with_float_coeffs k power_gcd pol
         } ]
-  | None → roots_of_polynom_with_float_coeffs k power_gcd opol ]
+  | None → roots_of_polynom_with_float_coeffs k power_gcd pol ]
 ;
 
 value roots k pol = do {
