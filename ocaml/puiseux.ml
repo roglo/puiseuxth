@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.114 2013-04-06 03:36:58 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.115 2013-04-06 03:45:40 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -366,7 +366,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
 };
 
 value rec puiseux_branch k br sol_list (γ, β) =
-  let f = k.acf_field in
+  let f = k.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
     List.filter
@@ -395,7 +395,7 @@ value rec puiseux_branch k br sol_list (γ, β) =
       (fun m → {coeff = valuation_coeff f m.coeff; power = m.power - j})
       hl
   in
-  let rl = k.acf_roots {monoms = ml} in
+  let rl = k.ac_roots {monoms = ml} in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;
@@ -627,7 +627,7 @@ value kc () =
      complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
   in
-  {acf_field = fc; acf_roots = roots fc}
+  {ac_field = fc; ac_roots = roots fc}
 ;
 
 value km () =
@@ -643,7 +643,7 @@ value km () =
      complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
      cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
   in
-  {acf_field = fm; acf_roots = roots fm}
+  {ac_field = fm; ac_roots = roots fm}
 ;
 
 value main () = do {
@@ -719,7 +719,7 @@ value main () = do {
     if arg_all_mpfr.val then do {
       Cpoly.Mfl.set_prec 200;
       let k = km () in
-      let f = k.acf_field in
+      let f = k.ac_field in
       let t = tree_of_ast f vx vy p in
       let t = normalise f t in
       let norm_txt = string_of_tree f True vx vy t in
@@ -735,7 +735,7 @@ value main () = do {
     }
     else do {
       let k = kc () in
-      let f = k.acf_field in
+      let f = k.ac_field in
       let t = tree_of_ast f vx vy p in
       let t = normalise f t in
       let norm_txt = string_of_tree f True vx vy t in

@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.21 2013-04-04 19:07:05 deraugla Exp $ *)
+(* $Id: field.mli,v 1.22 2013-04-06 03:45:40 deraugla Exp $ *)
 
 open Pnums;
 open Poly;
@@ -36,6 +36,6 @@ type field α β =
 ;
 
 type alg_cl_field α β =
-  { acf_field : field α β;
-    acf_roots : polynomial α int → list (α * int) }
+  { ac_field : field α β;
+    ac_roots : polynomial α int → list (α * int) }
 ;
