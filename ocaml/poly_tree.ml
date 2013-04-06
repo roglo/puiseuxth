@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.53 2013-04-06 12:43:58 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.54 2013-04-06 12:47:18 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -465,17 +465,18 @@ value rev_tree_of_polyn k pol =
 ;
 
 value tree_of_ps_polyn k pol =
+  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
   let ml =
     List.map
       (fun m → {coeff = tree_of_puiseux_series k m.coeff; power = m.power})
-      pol.monoms
+      opol.monoms
   in
   tree_of_tree_polyn k {monoms = ml}
 ;
 
 value normalise k t =
   let pol = ps_polyn_of_tree k t in
-  tree_of_ps_polyn k (op_of_p (fun ps → ps.ps_monoms = []) pol)
+  tree_of_ps_polyn k pol
 ;
 
 value substitute_y k y t =

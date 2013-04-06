@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.31 2013-04-06 12:43:58 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.32 2013-04-06 12:47:18 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -42,6 +42,6 @@ value ps_polyn_of_tree : field α _ → tree α → polynomial (puiseux_series �
 
 value tree_of_puiseux_series : field α _ → puiseux_series α → tree α;
 value rev_tree_of_polyn : field α _ → polynomial α → tree α;
-value tree_of_ps_polyn : field α _ → old_polynomial (puiseux_series α) → tree α;
+value tree_of_ps_polyn : field α _ → polynomial (puiseux_series α) → tree α;
 
 value normalise : field α _ → tree α → tree α;

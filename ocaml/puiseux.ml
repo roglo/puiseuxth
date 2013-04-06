@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.132 2013-04-06 12:29:37 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.133 2013-04-06 12:47:18 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -346,6 +346,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
     xy_float_round_zero k pol
   in
   if verbose.val then
+    let pol = p_of_op {ps_monoms = []} pol in
     let s = string_of_ps_polyn k True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
