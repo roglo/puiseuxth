@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.130 2013-04-06 12:07:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.131 2013-04-06 12:18:03 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -396,7 +396,7 @@ value rec puiseux_branch k br sol_list (γ, β) =
       (fun m → {coeff = valuation_coeff f m.coeff; power = m.power - j})
       hl
   in
-  let rl = k.ac_roots {monoms = ml} in
+  let rl = k.ac_roots (p_of_op f.zero {monoms = ml}) in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;
@@ -629,7 +629,7 @@ value kc () =
      complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
   in
-  {ac_field = fc; ac_roots = roots fc}
+  {ac_field = fc; ac_roots pol = roots fc (op_of_p (fc.eq fc.zero) pol)}
 ;
 
 value km () =
@@ -645,7 +645,7 @@ value km () =
      complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
      cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
   in
-  {ac_field = fm; ac_roots = roots fm}
+  {ac_field = fm; ac_roots pol = roots fm (op_of_p (fm.eq fm.zero) pol)}
 ;
 
 value main () = do {
