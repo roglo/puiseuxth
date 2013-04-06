@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.142 2013-04-06 18:01:22 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.143 2013-04-06 19:25:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -94,9 +94,9 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   loop [] ch
 ;
 
-value zero_is_root opol =
-  match opol.monoms with
-  [ [m :: _] → m.power > 0
+value zero_is_root pol =
+  match pol.al with
+  [ [ps :: _] → ps.ps_monoms = []
   | [] → False ]
 ;
 
@@ -170,40 +170,33 @@ value apply_poly_xy_pol k pol =
     pol
 ;
 
-value map_old_polynom k f opol =
-  let rev_ml =
-    List.fold_left
-      (fun rev_ml m →
-         let c =
-           let rev_ml =
-             List.fold_left
-               (fun rev_ml m →
-                  let c = f k m.coeff₂ in
-                  if k.eq c k.zero then do {
-                    if verbose.val then do {
-                      printf "Warning: cancelling small coefficient: %s\n%!"
-                        (k.to_string m.coeff₂)
-                    }
-                    else ();
-                    rev_ml
+value map_polynom k f pol =
+  let al =
+    List.map
+      (fun ps →
+         let rev_ml =
+           List.fold_left
+             (fun rev_ml m →
+                let c = f k m.coeff₂ in
+                if k.eq c k.zero then do {
+                  if verbose.val then do {
+                    printf "Warning: cancelling small coefficient: %s\n%!"
+                      (k.to_string m.coeff₂)
                   }
-                  else [m :: rev_ml])
-               [] m.coeff.ps_monoms
-           in
-           {ps_monoms = List.rev rev_ml}
+                  else ();
+                  rev_ml
+                }
+                else [m :: rev_ml])
+            [] ps.ps_monoms
          in
-         if c.ps_monoms = [] then rev_ml
-         else
-           let m = {coeff = c; power = m.power} in
-           [m :: rev_ml])
-       [] opol.monoms
+         {ps_monoms = List.rev rev_ml})
+      pol.al
   in
-  {monoms = List.rev rev_ml}
+  {al = al}
 ;
 
 value xy_float_round_zero k pol =
-  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
-  map_old_polynom k (fun k c → k.float_round_zero c) opol
+  map_polynom k (fun k c → k.float_round_zero c) pol
 ;
 
 value float_round_zero k ps =
@@ -334,7 +327,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
       (string_of_tree k True br.vx br.vy y)
   }
   else ();
-  let opol =
+  let pol =
     let y =
       {monoms =
          [{coeff = {ps_monoms = [{coeff₂ = r; power₂ = γ}]}; power = 0};
@@ -347,12 +340,11 @@ value puiseux_iteration k br r m γ β sol_list = do {
     xy_float_round_zero k pol
   in
   if verbose.val then
-    let pol = p_of_op {ps_monoms = []} opol in
     let s = string_of_ps_polyn k True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
-  let finite = zero_is_root opol in
+  let finite = zero_is_root pol in
   let cγl = [(r, γ) :: br.cγl] in
   if br.rem_steps = 0 || finite then do {
     if verbose.val then do {
@@ -364,7 +356,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
     print_solution k br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) :: sol_list]
   }
-  else if br.rem_steps > 0 then Right (opol, cγl)
+  else if br.rem_steps > 0 then Right (pol, cγl)
   else Left sol_list
 };
 
@@ -422,8 +414,7 @@ value rec puiseux_branch k br sol_list (γ, β) =
            | Left sol_list → sol_list ])
       sol_list rl
 
-and next_step k br sol_list opol cγl =
-  let pol = p_of_op {ps_monoms = []} opol in
+and next_step k br sol_list pol cγl =
   let gbl = gamma_beta_list pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
