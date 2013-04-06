@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.148 2013-04-06 22:00:43 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.149 2013-04-06 22:08:14 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -392,7 +392,8 @@ value rec puiseux_branch k br sol_list (γ, β) =
       (fun (ps, deg) → {coeff = valuation_coeff f ps; power = deg - j})
       hl
   in
-  let rl = k.ac_roots (p_of_op f.zero {monoms = ml}) in
+  let pol = p_of_op f.zero ml in
+  let rl = k.ac_roots pol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;

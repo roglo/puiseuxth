@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.75 2013-04-06 20:44:21 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.76 2013-04-06 22:13:06 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -9,8 +9,8 @@ open Field;
 
 value verbose = ref False;
 
-value list_of_polynomial zero pol =
-  loop 0 pol.monoms where rec loop deg =
+value list_of_polynomial zero ml =
+  loop 0 ml where rec loop deg =
     fun
     [ [m :: ml] →
         if m.power > deg then [zero :: loop (deg + 1) [m :: ml]]
@@ -387,12 +387,12 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
 };
 
 value float_roots_of_unity k pow = do {
-  let pol =
+  let ml =
     let m₁ = {coeff = k.minus_one; power = 0} in
     let m₂ = {coeff = k.one; power = pow} in
-    {monoms = [m₁; m₂]}
+    [m₁; m₂]
   in
-  let fnl = list_of_polynomial k.zero pol in
+  let fnl = list_of_polynomial k.zero ml in
   let rl = k.cpoly_roots (List.map k.to_complex fnl) in
   List.map k.complex_round_zero rl
 };

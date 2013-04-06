@@ -1,9 +1,8 @@
-(* $Id: poly.ml,v 1.22 2013-04-06 22:08:14 deraugla Exp $ *)
-
-type monomial α = { coeff : α; power : int };
-type old_polynomial α = { monoms : list (monomial α) };
+(* $Id: poly.ml,v 1.23 2013-04-06 22:13:05 deraugla Exp $ *)
 
 type polynomial α = { al : list α };
+
+type old_monomial α = { coeff : α; power : int };
 
 value p_of_op zero_coeff ml =
   loop [] 0 ml where rec loop rev_np deg ml =
@@ -22,7 +21,7 @@ value op_of_p is_zero_coeff pol =
         if is_zero_coeff c then loop rev_ml (deg + 1) cl₁
         else loop [{coeff = c; power = deg} :: rev_ml] (deg + 1) cl₁
     | [] →
-        {monoms = List.rev rev_ml} ]
+        List.rev rev_ml ]
 ;
 
 value merge_pow add_coeff is_null_coeff =
@@ -47,9 +46,9 @@ value merge_pow add_coeff is_null_coeff =
 ;
 
 value pol_add zero_coeff add_coeff is_zero_coeff pol₁ pol₂ =
-  let opol₁ = op_of_p is_zero_coeff pol₁ in
-  let opol₂ = op_of_p is_zero_coeff pol₂ in
-  loop [] opol₁.monoms opol₂.monoms where rec loop rev_ml ml₁ ml₂ =
+  let ml₁ = op_of_p is_zero_coeff pol₁ in
+  let ml₂ = op_of_p is_zero_coeff pol₂ in
+  loop [] ml₁ ml₂ where rec loop rev_ml ml₁ ml₂ =
     match (ml₁, ml₂) with
     [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
         let cmp = compare m₁.power m₂.power in
@@ -71,8 +70,8 @@ value pol_add zero_coeff add_coeff is_zero_coeff pol₁ pol₂ =
 ;
 
 value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
-  let opol₁ = op_of_p is_zero_coeff pol₁ in
-  let opol₂ = op_of_p is_zero_coeff pol₂ in
+  let ml₁ = op_of_p is_zero_coeff pol₁ in
+  let ml₂ = op_of_p is_zero_coeff pol₂ in
   let ml =
     List.fold_left
       (fun a m₁ →
@@ -81,8 +80,8 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
               let c = mul_coeff m₁.coeff m₂.coeff in
               let p = m₁.power + m₂.power in
               [{coeff = c; power = p} :: a])
-           a opol₂.monoms)
-      [] opol₁.monoms
+           a ml₂)
+      [] ml₁
   in
   let ml = List.sort (fun m₁ m₂ → compare m₁.power m₂.power) ml in
   p_of_op zero_coeff (merge_pow add_coeff is_zero_coeff ml)
