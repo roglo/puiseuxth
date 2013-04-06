@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.146 2013-04-06 19:43:56 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.147 2013-04-06 21:48:02 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -324,11 +324,10 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else ();
   let pol =
     let y =
-      {monoms =
-         [{coeff = {ps_monoms = [{coeff₂ = r; power₂ = γ}]}; power = 0};
-          {coeff = {ps_monoms = [{coeff₂ = k.one; power₂ = γ}]}; power = 1}]}
+      {al =
+         [{ps_monoms = [{coeff₂ = r; power₂ = γ}]};
+          {ps_monoms = [{coeff₂ = k.one; power₂ = γ}]}]}
     in
-    let y = p_of_op {ps_monoms = []} y in
     let pol = apply_poly_xy_pol k br.pol y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
