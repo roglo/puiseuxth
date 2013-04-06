@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.113 2013-04-06 03:23:04 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.114 2013-04-06 03:36:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -11,42 +11,43 @@ open Poly_tree;
 open Poly;
 open Roots;
 
+type puiseux_series α =
+  { ps_1 : (α * Q.t);
+    ps_n : Stream.t (α * Q.t) }
+;
+
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-Fixpoint minimise_slope (x₁, y₁) slt_min₁ skip₁ xyl :=
+Fixpoint minimise_slope xy₁ xy_min sl_min sk_min skip₁ xyl :=
+  let (x₁, y₁) := (xy₁ : (Q.t * Q.t)) in
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
       let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
-      let slt_min :=
-        if Q.le sl₁₂ slt_min₁.slope then
-          {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := skip₁ |}
-        else
-          slt_min₁
-      in
-      minimise_slope (x₁, y₁) slt_min (succ skip₁) xyl₂
+      if Q.le sl₁₂ sl_min then
+        minimise_slope xy₁ (x₂, y₂) sl₁₂ skip₁ (succ skip₁) xyl₂
+      else
+        minimise_slope xy₁ xy_min sl_min sk_min (succ skip₁) xyl₂
   | [] =>
-      slt_min₁
-  end
-;
+      (xy_min, sk_min)
+  end;
 
-Fixpoint next_points rev_list nb_pts_to_skip (x₁, y₁) xyl₁ :=
+Fixpoint next_points rev_list nb_pts_to_skip xy₁ xyl₁ :=
+  let (x₁, y₁) := (xy₁ : (Q.t * Q.t)) in
   match xyl₁ with
   | [(x₂, y₂) :: xyl₂] =>
       match nb_pts_to_skip with
       | 0 =>
-          let slt_min :=
-            let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
-            let slt_min := {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} in
-            minimise_slope (x₁, y₁) slt_min 1 xyl₂
+          let (xy, skip) :=
+           let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
+            minimise_slope xy₁ (x₂, y₂) sl₁₂ 0 1 xyl₂
           in
-          next_points [slt_min.xy₂ :: rev_list] slt_min.skip slt_min.xy₂ xyl₂
+          next_points [xy :: rev_list] skip xy xyl₂
       | n =>
-          next_points rev_list (n - 1) (x₁, y₁) xyl₂
+          next_points rev_list (n - 1) xy₁ xyl₂
       end
   | [] =>
       List.rev rev_list
-  end
-;
+  end;
 
 Definition lower_convex_hull xyl :=
   match xyl with
