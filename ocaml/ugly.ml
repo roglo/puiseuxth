@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.29 2013-04-04 19:07:05 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.30 2013-04-06 08:33:57 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -36,14 +36,14 @@ value print_term n my = do {
   };
   printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," n.val;
   printf "[";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power)))
-    my.coeff.monoms;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power₂)))
+    my.coeff.monoms₂;
   printf ";";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power)))
-    my.coeff.monoms;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power₂)))
+    my.coeff.monoms₂;
   printf "],[";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (C.to_string False mx.coeff))
-    my.coeff.monoms;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (C.to_string False mx.coeff₂))
+    my.coeff.monoms₂;
   printf "]";
   printf ")  //s%d\n" n.val;
   incr n

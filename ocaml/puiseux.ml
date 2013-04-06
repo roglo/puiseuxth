@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.118 2013-04-06 08:33:57 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.119 2013-04-06 08:37:30 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -158,13 +158,11 @@ value apply_poly_xy_pol k =
        pol_add
          (pol_add₂ k.add (k.eq k.zero) Q.compare)
          (fun pol → pol.monoms₂ = [])
-         compare
          pol polc)
     (pol_mul
        (pol_add₂ k.add (k.eq k.zero) Q.compare)
        (pol_mul₂ k.add (norm k.mul k) (k.eq k.zero) (norm_Q Q.add) Q.compare)
-       (fun pol → pol.monoms₂ = [])
-       \+ compare)
+       (fun pol → pol.monoms₂ = []))
 ;
 
 value map_polynom k f pol =
