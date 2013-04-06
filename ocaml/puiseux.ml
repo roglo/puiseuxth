@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.137 2013-04-06 17:34:59 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.138 2013-04-06 17:40:28 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -67,10 +67,18 @@ Definition valuation_coeff k (ps : puiseux_series α) :=
 ;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
-  let opol := op_of_p (fun ps → ps.ps_monoms = []) pol in
   let xyl :=
-    List.map (λ my, (Q.of_i (I.of_int my.power), valuation my.coeff))
-      opol.monoms
+    let (rev_xyl, _) :=
+      List.fold_left
+        (fun (rev_xyl, deg) ps →
+           let rev_xyl =
+             if ps.ps_monoms = [] then rev_xyl
+             else [(Q.of_i (I.of_int deg), valuation ps) :: rev_xyl]
+           in
+           (rev_xyl, deg + 1))
+        ([], 0) pol.al
+    in
+    List.rev rev_xyl
   in
   let fix loop rev_gbl xyl :=
     match xyl with
