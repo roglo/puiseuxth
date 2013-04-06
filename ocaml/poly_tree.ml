@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.55 2013-04-06 12:55:24 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.56 2013-04-06 13:06:39 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -336,7 +336,14 @@ value rec without_initial_neg k =
       None ]
 ;
 
-value tree_of_tree_polyn k pol =
+value is_zero_tree k =
+  fun
+  [ Const c → k.eq k.zero c
+  | _ → False ]
+;
+
+value tree_of_tree_polyn k npol =
+  let opol = op_of_p (is_zero_tree k) npol in
   let expr_of_term_ypow_list k t₁ my =
     let t₂ =
       if my.power = 0 then my.coeff
@@ -367,7 +374,7 @@ value tree_of_tree_polyn k pol =
       [ Some t₂ → Minus t₁ t₂
       | None → Plus t₁ t₂ ]
   in
-  List.fold_left (expr_of_term_ypow_list k) (Const k.zero) pol.monoms
+  List.fold_left (expr_of_term_ypow_list k) (Const k.zero) opol.monoms
 ;
 
 value debug_n = False;
@@ -470,13 +477,8 @@ value rev_tree_of_polyn k pol =
 ;
 
 value tree_of_ps_polyn k pol =
-  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
-  let ml =
-    List.map
-      (fun m → {coeff = tree_of_puiseux_series k m.coeff; power = m.power})
-      opol.monoms
-  in
-  tree_of_tree_polyn k {monoms = ml}
+  let cl = List.map (tree_of_puiseux_series k) pol.al in
+  tree_of_tree_polyn k {al = cl}
 ;
 
 value normalise k t =

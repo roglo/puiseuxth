@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.19 2013-04-06 12:04:45 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.20 2013-04-06 13:08:35 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type old_polynomial α = { monoms : list (monomial α) };
@@ -88,20 +88,6 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
 ;
 
 value apply_poly zero_v is_zero_v add_v_coeff mul_v_x pol x =
-  let pol = op_of_p is_zero_v pol in
-  match List.rev pol.monoms with
-  [ [m₁ :: _] as rml →
-      loop zero_v m₁.power rml where rec loop v deg ml =
-        match ml with
-        [ [m :: ml] →
-            if deg = m.power then
-              loop (add_v_coeff (mul_v_x v x) m.coeff) (deg - 1) ml
-            else if deg < m.power then
-              invalid_arg "apply_poly polynom ill ordered"
-            else
-              loop (mul_v_x v x) (deg - 1) [m :: ml]
-        | [] →
-            if deg < 0 then v else loop (mul_v_x v x) (deg - 1) [] ]
-  | [] →
-      invalid_arg "apply_poly empty polynom" ]
+  List.fold_right (fun c accu → add_v_coeff (mul_v_x accu x) c) pol.al
+    zero_v
 ;
