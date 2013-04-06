@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.20 2013-04-06 02:56:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.21 2013-04-06 03:16:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -129,6 +129,28 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
+Lemma next_points_not_empty : ∀ xy xyl sk xy₁ xyl₁,
+  next_points [xy … xyl] sk xy₁ xyl₁ ≠ [ ].
+Proof.
+intros.
+revert xy xyl sk xy₁.
+induction xyl₁ as [| xy₂]; intros.
+ simpl.
+ destruct xy₁.
+ apply rev_app_not_nil.
+
+ simpl.
+ destruct xy₁ as (x₁, y₁).
+ destruct xy₂ as (x₂, y₂).
+ destruct sk.
+  remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
+  remember (minimise_slope (x₁, y₁) (x₂, y₂) sl₁₂ 0 1 xyl₁) as xs.
+  destruct xs as (xy₃, sk).
+  apply IHxyl₁.
+
+  apply IHxyl₁.
+Qed.
+
 Lemma convex_hull_not_empty : ∀ rl xy xy₁ xyl₁,
   next_points rl 0 xy [xy₁ … xyl₁] ≠ [].
 Proof.
@@ -147,12 +169,13 @@ induction xyl₁ as [| xy₃]; intros.
  remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
  remember (minimise_slope (x₁, y₁) (x₂, y₂) sl₁₂ 0 1 xyl) as xys.
  destruct xys as (xy, skip).
-bbb.
+ apply next_points_not_empty.
+Qed.
 
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
   an pol ≠ zero k
-    → (∃ c, c ∈ al pol ∧ c ≠ zero k)
-      → gamma_beta k pol ≠ None.
+  → (∃ c, c ∈ al pol ∧ c ≠ zero k)
+    → gamma_beta k pol ≠ None.
 Proof.
 intros α k pol an_nz ai_nz.
 unfold gamma_beta.
@@ -190,30 +213,26 @@ destruct chp.
 
      rewrite <- Heqpts in Heqlen; discriminate Heqlen.
 
-bbb.
-   simpl in H₁.
-   destruct p as (x₂, y₂).
-   remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
-   remember {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} as slt_min₁.
-   remember (minimise_slope (x₁, y₁) slt_min₁ 1 pts) as slt_min.
-   clear Heqpts.
-   induction pts as [| xy₃ pts].
-    simpl in H₁.
-    destruct xy₂; discriminate H₁.
-bbb.
+   exfalso; symmetry in H₁; revert H₁.
+   apply convex_hull_not_empty.
 
-Record branch α β :=
-  { initial_polynom : polynomial (polynomial α β) nat;
-    cγl : list (α * β);
+  destruct p.
+  intros H; discriminate H.
+Qed.
+
+Record branch α :=
+  { initial_polynom : polynomial (puiseux_series α);
+    cγl : list (α * Q);
     step : nat;
     rem_steps : nat;
-    pol : polynomial (polynomial α β) nat }.
+    pol : polynomial (puiseux_series α) }.
 Arguments initial_polynom : default implicits.
 Arguments cγl : default implicits.
 Arguments step : default implicits.
 Arguments rem_steps : default implicits.
 Arguments pol : default implicits.
 
+(*
 Definition phony_monom {α β} : monomial (polynomial α β) nat :=
   {| coeff := {| monoms := [] |}; power := 0%nat |}.
 Arguments phony_monom : default implicits.
@@ -282,3 +301,4 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
+*)
