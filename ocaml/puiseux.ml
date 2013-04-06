@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.139 2013-04-06 17:47:22 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.140 2013-04-06 17:51:53 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -202,7 +202,8 @@ value map_polynom k f pol =
 ;
 
 value xy_float_round_zero k pol =
-  map_polynom k (fun k c → k.float_round_zero c) pol
+  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
+  map_polynom k (fun k c → k.float_round_zero c) opol
 ;
 
 value float_round_zero k ps =
@@ -262,7 +263,8 @@ value print_solution k br nth cγl finite sol = do {
 };
 
 value cancel_pol_constant_term_if_any k pol =
-  match pol.monoms with
+  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
+  match opol.monoms with
   [ [m :: ml] →
       if m.power = 0 then
         match m.coeff.ps_monoms with
@@ -274,18 +276,12 @@ value cancel_pol_constant_term_if_any k pol =
               else ();
               let p₁ = {ps_monoms = ml₁} in
               let m = {coeff = p₁; power = m.power} in
-              {monoms = [m :: ml]}
+              p_of_op {ps_monoms = []} {monoms = [m :: ml]}
             }
             else pol
         | [] → pol ]
       else pol
   | [] → pol ]
-;
-
-value is_zero_tree k =
-  fun
-  [ Const c → k.eq k.zero c
-  | _ → False ]
 ;
 
 value pol_div_x_power pol p =
@@ -302,7 +298,7 @@ value pol_div_x_power pol p =
          {coeff = {ps_monoms = ml}; power = pol.power})
       opol.monoms
   in
-  {monoms = ml}
+  p_of_op {ps_monoms = []} {monoms = ml}
 ;
 
 type choice α β =
@@ -484,6 +480,12 @@ value puiseux k nb_steps vx vy opol =
          (if finite then "" else " + ..."))
     (List.rev _rev_sol_list)
 *)
+;
+
+value is_zero_tree k =
+  fun
+  [ Const c → k.eq k.zero c
+  | _ → False ]
 ;
 
 value polyn_of_tree k t =
