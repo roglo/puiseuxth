@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.115 2013-04-06 03:45:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.116 2013-04-06 03:51:24 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -70,23 +70,23 @@ Definition valuation_coeff k (pol : polynomial α Q.t) :=
   end
 ;
 
+Fixpoint points_of_pol rev_gbl xyl :=
+  match xyl with
+  | [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] =>
+      let γ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
+      let β := Q.norm (Q.add (Q.mul γ x₁) y₁) in
+      points_of_pol [(γ, β) :: rev_gbl] xyl₁
+  | [_] | [] =>
+      List.rev rev_gbl
+  end;
+
 Definition gamma_beta_list (pol : polynomial (polynomial α Q.t) int) :=
-  let fix loop rev_gbl xyl :=
-    match xyl with
-    | [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] =>
-        let γ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
-        let β := Q.norm (Q.add (Q.mul γ x₁) y₁) in
-        loop [(γ, β) :: rev_gbl] xyl₁
-    | [_] | [] =>
-        List.rev rev_gbl
-    end
-  in
   let xyl :=
     List.map (λ my, (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
   in
   let ch := lower_convex_hull xyl in
-  loop [] ch
+  points_of_pol [] ch
 ;
 
 value zero_is_root p =
