@@ -1,9 +1,9 @@
-(* $Id: puiseux_series.ml,v 1.4 2013-04-06 22:51:30 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.5 2013-04-06 22:53:57 deraugla Exp $ *)
 
 open Pnums;
 
-type monomial α = { coeff : α; power : Q.t };
-type puiseux_series α = { ps_monoms : list (monomial α) };
+type ps_monomial α = { coeff : α; power : Q.t };
+type puiseux_series α = { ps_monoms : list (ps_monomial α) };
 
 value merge_pow₂ add_coeff is_null_coeff =
   loop [] where rec loop rev_list =

@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.35 2013-04-06 13:29:13 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.36 2013-04-06 22:51:31 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -32,15 +32,15 @@ value iter_with_sep s f l =
 value print_term deg m = do {
   printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," deg;
   let ml =
-    if m.ps_monoms = [] then [{coeff₂ = C.zero; power₂ = Q.zero}]
+    if m.ps_monoms = [] then [{coeff = C.zero; power = Q.zero}]
     else m.ps_monoms
   in
   printf "[";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power₂))) ml;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power))) ml;
   printf ";";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power₂))) ml;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power))) ml;
   printf "],[";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (C.to_string False mx.coeff₂))
+  iter_with_sep " " (fun s mx → printf "%s%s" s (C.to_string False mx.coeff))
     ml;
   printf "]";
   printf ")  //s%d\n" deg;
