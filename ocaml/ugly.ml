@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.34 2013-04-06 12:35:56 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.35 2013-04-06 13:29:13 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -29,25 +29,21 @@ value iter_with_sep s f l =
   let _ = List.fold_left (fun s x → do { f s x; " " }) "" l in ()
 ;
 
-value print_term n my = do {
-  while n.val < my.power do {
-    printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z',[0;1],[0])  //s%d\n"
-      n.val n.val;
-    incr n;
-  };
-  printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," n.val;
+value print_term deg m = do {
+  printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," deg;
+  let ml =
+    if m.ps_monoms = [] then [{coeff₂ = C.zero; power₂ = Q.zero}]
+    else m.ps_monoms
+  in
   printf "[";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power₂)))
-    my.coeff.ps_monoms;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power₂))) ml;
   printf ";";
-  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power₂)))
-    my.coeff.ps_monoms;
+  iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rden mx.power₂))) ml;
   printf "],[";
   iter_with_sep " " (fun s mx → printf "%s%s" s (C.to_string False mx.coeff₂))
-    my.coeff.ps_monoms;
+    ml;
   printf "]";
-  printf ")  //s%d\n" n.val;
-  incr n
+  printf ")  //s%d\n" deg;
 };
 
 value kc () =
@@ -78,14 +74,14 @@ value main () = do {
   if sn <> si then eprintf "%s\n%!" sn else ();
   eprintf "\n%!";
   let pol = ps_polyn_of_tree k t in
-  let n = ref 0 in
-  List.iter (print_term n) (op_of_p (fun ps → ps.ps_monoms = []) pol).monoms;
+  List.iteri print_term pol.al;
   printf "\n";
-  printf "Walker=mlist(['psfz','dg','cofs'],%d," (pred n.val);
+  let deg = List.length pol.al - 1 in
+  printf "Walker=mlist(['psfz','dg','cofs'],%d," deg;
   printf "list(";
   let s = ref "" in
   loop 0 where rec loop i =
-    if i < n.val then do {
+    if i ≤ deg then do {
       printf "%sa%d" s.val i;
       s.val := ",";
       loop (succ i);
