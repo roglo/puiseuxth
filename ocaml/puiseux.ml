@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.128 2013-04-06 11:17:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.129 2013-04-06 12:04:45 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -147,22 +147,29 @@ value apply_poly_x_pol k opol =
 value apply_poly_xy_pol k opol =
   let pol = p_of_op {monoms₂ = []} opol in
   apply_poly
-    {monoms = []}
+    {monoms = []}    
     (fun ps → ps.monoms₂ = [])
-    (fun pol c →
-       let polc = {al = [c]} in
+    (fun opol ps →
        let pol =
          pol_add
            {monoms₂ = []}
            (ps_add k.add (k.eq k.zero))
            (fun ps → ps.monoms₂ = [])
-           (p_of_op {monoms₂ = []} pol) polc
+           (p_of_op {monoms₂ = []} opol)
+           {al = [ps]}
        in
        op_of_p (fun ps → ps.monoms₂ = []) pol)
-    (pol_mul
-       (ps_add k.add (k.eq k.zero))
-       (ps_mul k.add (norm k.mul k) (k.eq k.zero))
-       (fun ps → ps.monoms₂ = []))
+    (fun opol₁ opol₂ →
+       let pol =
+         pol_mul
+           {monoms₂ = []}
+           (ps_add k.add (k.eq k.zero))
+           (ps_mul k.add (norm k.mul k) (k.eq k.zero))
+           (fun ps → ps.monoms₂ = [])
+           (p_of_op {monoms₂ = []} opol₁)
+           (p_of_op {monoms₂ = []} opol₂)
+       in
+       op_of_p (fun ps → ps.monoms₂ = []) pol)
     pol
 ;
 

@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.49 2013-04-06 09:36:35 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.50 2013-04-06 12:07:53 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -308,11 +308,11 @@ value group_term_descr k tdl =
        match myl with
        [ [my :: myl₁] →
            if td.ypow = my.power then
-             let mxl = merge_const_px k mx my.coeff.monoms₂ in
+             let mxl = merge_const_px k mx my.coeff.ps_monoms in
              if mxl = [] then myl₁
-             else [{coeff = {monoms₂ = mxl}; power = my.power} :: myl₁]
-           else [{coeff = {monoms₂ = [mx]}; power = td.ypow} :: myl]
-       | [] → [{coeff = {monoms₂ = [mx]}; power = td.ypow}] ])
+             else [{coeff = {ps_monoms = mxl}; power = my.power} :: myl₁]
+           else [{coeff = {ps_monoms = [mx]}; power = td.ypow} :: myl]
+       | [] → [{coeff = {ps_monoms = [mx]}; power = td.ypow}] ])
     tdl []
 ;
 
@@ -435,7 +435,7 @@ value tree_of_puiseux_series k ps =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const k.zero) ps.monoms₂
+  List.fold_left rebuild_add (Const k.zero) ps.ps_monoms
 ;
 
 value tree_of_polyn k pol =
@@ -642,5 +642,5 @@ value puiseux_series_of_tree k t =
     else
       mxl
   in
-  {monoms₂ = mxl}
+  {ps_monoms = mxl}
 ;
