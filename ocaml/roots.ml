@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.76 2013-04-06 22:13:06 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.77 2013-04-06 22:36:54 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -8,16 +8,6 @@ open Poly;
 open Field;
 
 value verbose = ref False;
-
-value list_of_polynomial zero ml =
-  loop 0 ml where rec loop deg =
-    fun
-    [ [m :: ml] →
-        if m.power > deg then [zero :: loop (deg + 1) [m :: ml]]
-        else if m.power = deg then [m.coeff :: loop (deg + 1) ml]
-        else invalid_arg "list_of_polynomial"
-    | [] -> [] ]
-;
 
 value cubic_root n =
   let (is_neg, n) = if I.lt n I.zero then (True, I.neg n) else (False, n) in
@@ -392,8 +382,8 @@ value float_roots_of_unity k pow = do {
     let m₂ = {coeff = k.one; power = pow} in
     [m₁; m₂]
   in
-  let fnl = list_of_polynomial k.zero ml in
-  let rl = k.cpoly_roots (List.map k.to_complex fnl) in
+  let pol = p_of_op k.zero ml in
+  let rl = k.cpoly_roots (List.map k.to_complex pol.al) in
   List.map k.complex_round_zero rl
 };
 
