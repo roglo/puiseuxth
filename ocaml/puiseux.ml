@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.135 2013-04-06 13:10:49 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.136 2013-04-06 17:14:27 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -66,10 +66,11 @@ Definition valuation_coeff k (ps : puiseux_series α) :=
   end
 ;
 
-Definition gamma_beta_list (pol : old_polynomial (puiseux_series α)) :=
+Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
+  let opol := op_of_p (fun ps → ps.ps_monoms = []) pol in
   let xyl :=
     List.map (λ my, (Q.of_i (I.of_int my.power), valuation my.coeff))
-      pol.monoms
+      opol.monoms
   in
   let fix loop rev_gbl xyl :=
     match xyl with
@@ -412,7 +413,8 @@ value rec puiseux_branch k br sol_list (γ, β) =
            | Left sol_list → sol_list ])
       sol_list rl
 
-and next_step k br sol_list pol cγl =
+and next_step k br sol_list opol cγl =
+  let pol = p_of_op {ps_monoms = []} opol in
   let gbl = gamma_beta_list pol in
   let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
@@ -432,7 +434,7 @@ and next_step k br sol_list pol cγl =
            {initial_polynom = br.initial_polynom;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
-            vx = br.vx; vy = br.vy; pol = pol}
+            vx = br.vx; vy = br.vy; pol = opol}
          in
          puiseux_branch k br sol_list (γ, β)
        })
@@ -445,7 +447,8 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux k nb_steps vx vy pol =
+value puiseux k nb_steps vx vy opol =
+  let pol = p_of_op {ps_monoms = []} opol in
   let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
   let _rev_sol_list =
@@ -453,8 +456,8 @@ value puiseux k nb_steps vx vy pol =
       (fun sol_list (γ₁, β₁) → do {
          print_line_equal ();
          let br =
-           {initial_polynom = pol; cγl = []; step = 1;
-            rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
+           {initial_polynom = opol; cγl = []; step = 1;
+            rem_steps = rem_steps; vx = vx; vy = vy; pol = opol}
          in
          puiseux_branch k br sol_list (γ₁, β₁)
        })
