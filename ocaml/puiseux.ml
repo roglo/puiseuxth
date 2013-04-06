@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.144 2013-04-06 19:31:18 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.145 2013-04-06 19:33:05 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -274,20 +274,19 @@ value cancel_pol_constant_term_if_any k pol =
 ;
 
 value pol_div_x_power pol p =
-  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
   let ml =
     List.map
-      (fun pol →
+      (fun ps →
          let ml =
            List.map
              (fun m →
                 {coeff₂ = m.coeff₂; power₂ = Q.norm (Q.sub m.power₂ p)})
-             pol.coeff.ps_monoms
+             ps.ps_monoms
          in
-         {coeff = {ps_monoms = ml}; power = pol.power})
-      opol.monoms
+         {ps_monoms = ml})
+      pol.al
   in
-  p_of_op {ps_monoms = []} {monoms = ml}
+  {al = ml}
 ;
 
 type choice α β =
