@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.133 2013-04-06 12:47:18 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.134 2013-04-06 12:49:39 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -637,7 +637,7 @@ value kc () =
      complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
   in
-  {ac_field = fc; ac_roots pol = roots fc (op_of_p (fc.eq fc.zero) pol)}
+  {ac_field = fc; ac_roots = roots fc}
 ;
 
 value km () =
@@ -653,7 +653,7 @@ value km () =
      complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
      cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
   in
-  {ac_field = fm; ac_roots pol = roots fm (op_of_p (fm.eq fm.zero) pol)}
+  {ac_field = fm; ac_roots = roots fm}
 ;
 
 value main () = do {
