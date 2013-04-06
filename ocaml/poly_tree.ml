@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.46 2013-04-06 09:07:58 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.47 2013-04-06 09:28:01 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -372,7 +372,7 @@ value tree_of_tree_y_polyn k pol =
 
 value debug_n = False;
 
-value xy_polyn_of_tree k t =
+value ps_polyn_of_tree k t =
   let _ =
     if debug_n then
       printf "    tree: %s\n%!" (string_of_tree k True "x" "y" t)
@@ -407,7 +407,7 @@ let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_stri
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
-value tree_of_x_polyn k pol =
+value tree_of_puiseux_series k pol =
   let rebuild_add t mx =
     if k.eq mx.coeff₂ k.zero then t
     else
@@ -438,7 +438,7 @@ value tree_of_x_polyn k pol =
   List.fold_left rebuild_add (Const k.zero) pol.monoms₂
 ;
 
-value tree_of_y_polyn k pol =
+value tree_of_polyn k pol =
   let rebuild_add t m =
     if k.eq m.coeff k.zero then t
     else
@@ -462,17 +462,18 @@ value tree_of_y_polyn k pol =
   List.fold_left rebuild_add (Const k.zero) pol.monoms
 ;
 
-value tree_of_xy_polyn k pol =
+value tree_of_ps_polyn k pol =
   let ml =
-    List.map (fun m → {coeff = tree_of_x_polyn k m.coeff; power = m.power})
+    List.map
+      (fun m → {coeff = tree_of_puiseux_series k m.coeff; power = m.power})
       pol.monoms
   in
   tree_of_tree_y_polyn k {monoms = ml}
 ;
 
 value normalise k t =
-  let pol = xy_polyn_of_tree k t in
-  tree_of_xy_polyn k pol
+  let pol = ps_polyn_of_tree k t in
+  tree_of_ps_polyn k pol
 ;
 
 value substitute_y k y t =
@@ -588,7 +589,7 @@ value merge_coeffs₂ k t₁ t₂ p ml =
       [{coeff₂ = Plus t₂ t₁; power₂ = p} :: ml ] ]
 ;
 
-value y_polyn_of_tree k t =
+value tree_polyn_of_tree k t =
   let tl = sum_tree_of_tree t in
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
@@ -620,7 +621,7 @@ value rec const_of_tree k =
   | _ → failwith "const_of_tree" ]
 ;
 
-value x_polyn_of_tree k t =
+value puiseux_series_of_tree k t =
   let (is_neg, t) =
     match t with
     [ Neg t → (True, t)

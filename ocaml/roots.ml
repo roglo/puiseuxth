@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.61 2013-04-04 19:07:05 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.62 2013-04-06 09:28:01 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -338,7 +338,7 @@ value roots_of_c_coeffs k pol coeffs =
       match algeb_nb with
       [ Some x →
           let yt = Mult (Const (k.of_a x)) (Ypower 1) in
-          let polyn = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
+          let polyn = tree_of_polyn k {monoms = List.rev pol.monoms} in
           let polyn₂ = substitute_y k yt polyn in
           let polyn₂ = normalise k polyn₂ in
           let pol = xy_polyn_of_tree k polyn₂ in
@@ -365,7 +365,7 @@ value roots_of_c_coeffs k pol coeffs =
           in
           match pol_opt with
           [ Some pol →
-              let t = tree_of_y_polyn k pol in
+              let t = tree_of_polyn k pol in
               failwith
                 (sprintf "not impl substituted polynomial %s"
                    (string_of_tree k True "x" "y" t))
@@ -374,7 +374,7 @@ value roots_of_c_coeffs k pol coeffs =
                 (sprintf "cannot compute roots of '%s'\n%!"
                    (string_of_tree k True "x" "y" polyn)) ]
       | None →
-          let t = tree_of_y_polyn k {monoms = List.rev pol.monoms} in
+          let t = tree_of_polyn k {monoms = List.rev pol.monoms} in
           failwith
             (sprintf "cannot compute roots of '%s'\n%!"
                (string_of_tree k True "x" "y" t)) ];
@@ -577,7 +577,7 @@ value roots k pol = do {
   in
   if verbose.val then do {
     let rev_pol = {monoms = List.rev ml} in
-    let t = tree_of_y_polyn k rev_pol in
+    let t = tree_of_polyn k rev_pol in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" t)
     else

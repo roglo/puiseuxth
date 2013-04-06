@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.122 2013-04-06 09:16:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.123 2013-04-06 09:28:01 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -207,18 +207,18 @@ value float_round_zero k pol =
   {monoms₂ = List.rev ml}
 ;
 
-value string_of_x_polyn k opt vx pol =
-  let t = tree_of_x_polyn k pol in
+value string_of_puiseux_series k opt vx ps =
+  let t = tree_of_puiseux_series k ps in
   string_of_tree k opt vx "?" t
 ;
 
-value airy_string_of_x_polyn k opt vx pol =
-  let t = tree_of_x_polyn k pol in
+value airy_string_of_puiseux_series k opt vx pol =
+  let t = tree_of_puiseux_series k pol in
   airy_string_of_tree k opt vx "?" t
 ;
 
 value string_of_xy_polyn k opt vx vy pol =
-  let t = tree_of_xy_polyn k pol in
+  let t = tree_of_ps_polyn k pol in
   string_of_tree k opt vx vy t
 ;
 
@@ -227,7 +227,7 @@ value print_solution k br nth cγl finite sol = do {
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_x_polyn k (not arg_lang.val) br.vx sol)
+    (airy_string_of_puiseux_series k (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
@@ -244,7 +244,7 @@ value print_solution k br nth cγl finite sol = do {
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_x_polyn k (not arg_lang.val) br.vx pol₂)
+        (string_of_puiseux_series k (not arg_lang.val) br.vx pol₂)
         ellipses
   | None → () ]
 };
@@ -449,16 +449,17 @@ value puiseux k nb_steps vx vy pol =
 (*
   List.iter
     (fun (pol, finite) →
-       printf "sol %s%s\n%!" (airy_string_of_x_polyn k True "x" pol)
+       printf "sol %s%s\n%!" (airy_string_of_puiseux_series k True "x" pol)
          (if finite then "" else " + ..."))
     (List.rev _rev_sol_list)
 *)
 ;
 
 value polyn_of_tree k t =
-  let pol = y_polyn_of_tree k t in
+  let pol = tree_polyn_of_tree k t in
   {monoms =
-   List.map (fun m → {coeff = x_polyn_of_tree k m.coeff; power = m.power})
+   List.map
+     (fun m → {coeff = puiseux_series_of_tree k m.coeff; power = m.power})
      pol.monoms}
 ;
 
