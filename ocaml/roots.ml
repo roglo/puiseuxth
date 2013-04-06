@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.74 2013-04-06 20:42:46 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.75 2013-04-06 20:44:21 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -462,7 +462,6 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
 };
 
 value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
-
   let apol_opt =
     try
       let ml =
