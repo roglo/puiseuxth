@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.138 2013-04-06 17:40:28 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.139 2013-04-06 17:47:22 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -154,28 +154,19 @@ value apply_poly_x_pol k pol =
 
 value apply_poly_xy_pol k pol =
   apply_poly
-    {monoms = []}    
-    (fun opol ps →
-       let pol =
-         pol_add
-           {ps_monoms = []}
-           (ps_add k.add (k.eq k.zero))
-           (fun ps → ps.ps_monoms = [])
-           (p_of_op {ps_monoms = []} opol)
-           {al = [ps]}
-       in
-       op_of_p (fun ps → ps.ps_monoms = []) pol)
-    (fun opol₁ opol₂ →
-       let pol =
-         pol_mul
-           {ps_monoms = []}
-           (ps_add k.add (k.eq k.zero))
-           (ps_mul k.add (norm k.mul k) (k.eq k.zero))
-           (fun ps → ps.ps_monoms = [])
-           (p_of_op {ps_monoms = []} opol₁)
-           (p_of_op {ps_monoms = []} opol₂)
-       in
-       op_of_p (fun ps → ps.ps_monoms = []) pol)
+    {al = []}    
+    (fun pol ps →
+       pol_add
+         {ps_monoms = []}
+         (ps_add k.add (k.eq k.zero))
+         (fun ps → ps.ps_monoms = [])
+         pol
+         {al = [ps]})
+    (pol_mul
+       {ps_monoms = []}
+       (ps_add k.add (k.eq k.zero))
+       (ps_mul k.add (norm k.mul k) (k.eq k.zero))
+       (fun ps → ps.ps_monoms = []))
     pol
 ;
 
@@ -291,7 +282,14 @@ value cancel_pol_constant_term_if_any k pol =
   | [] → pol ]
 ;
 
+value is_zero_tree k =
+  fun
+  [ Const c → k.eq k.zero c
+  | _ → False ]
+;
+
 value pol_div_x_power pol p =
+  let opol = op_of_p (fun ps → ps.ps_monoms = []) pol in
   let ml =
     List.map
       (fun pol →
@@ -302,7 +300,7 @@ value pol_div_x_power pol p =
              pol.coeff.ps_monoms
          in
          {coeff = {ps_monoms = ml}; power = pol.power})
-      pol.monoms
+      opol.monoms
   in
   {monoms = ml}
 ;
@@ -346,6 +344,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
          [{coeff = {ps_monoms = [{coeff₂ = r; power₂ = γ}]}; power = 0};
           {coeff = {ps_monoms = [{coeff₂ = k.one; power₂ = γ}]}; power = 1}]}
     in
+    let y = p_of_op {ps_monoms = []} y in
     let pol = apply_poly_xy_pol k br.pol y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
@@ -485,12 +484,6 @@ value puiseux k nb_steps vx vy opol =
          (if finite then "" else " + ..."))
     (List.rev _rev_sol_list)
 *)
-;
-
-value is_zero_tree k =
-  fun
-  [ Const c → k.eq k.zero c
-  | _ → False ]
 ;
 
 value polyn_of_tree k t =
