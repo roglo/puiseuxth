@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.19 2013-04-06 02:40:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.20 2013-04-06 02:56:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -136,13 +136,8 @@ intros rl xy xy₁ xyl₁.
 revert rl xy xy₁.
 induction xyl₁ as [| xy₃]; intros.
  simpl.
- destruct xy as (x₁, y₁).
+ destruct xy.
  destruct xy₁ as (x₂, y₂).
- remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
- remember {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} as slt_min₁.
- destruct (xy₂ slt_min₁).
- remember (q, q0) as x.
- clear.
  apply rev_app_not_nil.
 
  remember [xy₃ … xyl₁] as xyl.
@@ -150,8 +145,8 @@ induction xyl₁ as [| xy₃]; intros.
  destruct xy as (x₁, y₁).
  destruct xy₁ as (x₂, y₂).
  remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
- remember {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0 |} as slt_min₁.
- remember (minimise_slope (x₁, y₁) slt_min₁ 1 xyl) as slt_min.
+ remember (minimise_slope (x₁, y₁) (x₂, y₂) sl₁₂ 0 1 xyl) as xys.
+ destruct xys as (xy, skip).
 bbb.
 
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),

@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.8 2013-04-05 04:36:00 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.9 2013-04-06 02:56:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,25 +7,17 @@ Notation "[ ]" := nil.
 Notation "[ x , .. , y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
-Record slope_to (α : Set) := { xy₂ : (α * α); slope : α; skip : nat }.
-Arguments xy₂ : default implicits.
-Arguments slope : default implicits.
-Arguments skip : default implicits.
-
-Fixpoint minimise_slope xy₁ slt_min₁ skip₁ xyl :=
+Fixpoint minimise_slope xy₁ xy_min sl_min sk_min skip₁ xyl :=
   let (x₁, y₁) := (xy₁ : Q * Q) in
   match xyl with
   | [(x₂, y₂) … xyl₂] =>
       let sl₁₂ := (y₂ - y₁) / (x₂ - x₁) in
-      let slt_min :=
-        if Qle_bool sl₁₂ (slope slt_min₁) then
-          {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := skip₁ |}
-        else
-          slt_min₁
-      in
-      minimise_slope xy₁ slt_min (S skip₁) xyl₂
+      if Qle_bool sl₁₂ sl_min then
+        minimise_slope xy₁ (x₂, y₂) sl₁₂ skip₁ (S skip₁) xyl₂
+      else
+        minimise_slope xy₁ xy_min sl_min sk_min (S skip₁) xyl₂
   | [] =>
-      slt_min₁
+      (xy_min, sk_min)
   end.
 
 Fixpoint next_points rev_list nb_pts_to_skip xy₁ xyl₁ :=
@@ -34,15 +26,11 @@ Fixpoint next_points rev_list nb_pts_to_skip xy₁ xyl₁ :=
   | [(x₂, y₂) … xyl₂] =>
       match nb_pts_to_skip with
       | 0%nat =>
-          let slt_min :=
+          let (xy, skip) :=
             let sl₁₂ := (y₂ - y₁) / (x₂ - x₁) in
-            let slt_min :=
-              {| xy₂ := (x₂, y₂); slope := sl₁₂; skip := 0%nat |}
-            in
-            minimise_slope xy₁ slt_min 1%nat xyl₂
+            minimise_slope xy₁ (x₂, y₂) sl₁₂ 0%nat 1%nat xyl₂
           in
-          next_points [xy₂ slt_min … rev_list] (skip slt_min) (xy₂ slt_min)
-            xyl₂
+          next_points [xy … rev_list] skip xy xyl₂
       | S n =>
           next_points rev_list n xy₁ xyl₂
       end
