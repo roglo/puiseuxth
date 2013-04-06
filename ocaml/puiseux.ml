@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.117 2013-04-06 03:55:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.118 2013-04-06 08:33:57 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -10,11 +10,6 @@ open Poly_print;
 open Poly_tree;
 open Poly;
 open Roots;
-
-type puiseux_series α =
-  { ps_1 : (α * Q.t);
-    ps_n : Stream.t (α * Q.t) }
-;
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
@@ -56,21 +51,21 @@ Definition lower_convex_hull xyl :=
   end
 ;
 
-Definition valuation (pol : polynomial α Q.t) :=
-  match pol.monoms with
-  | [mx :: _] => mx.power
+Definition valuation (pol : puiseux_series α) :=
+  match pol.monoms₂ with
+  | [mx :: _] => mx.power₂
   | [] => match () with end
   end
 ;
 
-Definition valuation_coeff k (pol : polynomial α Q.t) :=
-  match pol.monoms with
-  | [mx :: _] => mx.coeff
+Definition valuation_coeff k (pol : puiseux_series α) :=
+  match pol.monoms₂ with
+  | [mx :: _] => mx.coeff₂
   | [] => match () with end
   end
 ;
 
-Definition gamma_beta_list (pol : polynomial (polynomial α Q.t) int) :=
+Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let xyl :=
     List.map (λ my, (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
@@ -108,14 +103,14 @@ value arg_all_mpfr = ref False;
 value arg_debug = ref False;
 value arg_end = ref False;
 
-type branch α β =
-  { initial_polynom : polynomial (polynomial α β) int;
-    cγl : list (α * β);
+type branch α =
+  { initial_polynom : polynomial (puiseux_series α);
+    cγl : list (α * Q.t);
     step : int;
     rem_steps : int;
     vx : string;
     vy : string;
-    pol : polynomial (polynomial α β) int }
+    pol : polynomial (puiseux_series α) }
 ;
 
 value cut_long at_middle s =
@@ -143,16 +138,16 @@ value norm f k x y = k.normalise (f x y);
 value norm_Q f x y = Q.norm (f x y);
 
 value x_pol_add k =
-  pol_add (norm k.add k) (fun c → k.eq c k.zero) Q.compare
+  pol_add₂ (norm k.add k) (fun c → k.eq c k.zero) Q.compare
 ;
 
 value x_pol_mul k =
-  pol_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) (norm_Q Q.add)
+  pol_mul₂ (norm k.add k) (norm k.mul k) (k.eq k.zero) (norm_Q Q.add)
     Q.compare
 ;
 
 value apply_poly_x_pol k =
-  apply_poly {monoms = []} (x_pol_add k) (x_pol_mul k)
+  apply_poly {monoms₂ = []} (x_pol_add k) (x_pol_mul k)
 ;
 
 value apply_poly_xy_pol k =
@@ -161,14 +156,14 @@ value apply_poly_xy_pol k =
     (fun pol c →
        let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
-         (pol_add k.add (k.eq k.zero) Q.compare)
-         (fun pol → pol.monoms = [])
+         (pol_add₂ k.add (k.eq k.zero) Q.compare)
+         (fun pol → pol.monoms₂ = [])
          compare
          pol polc)
     (pol_mul
-       (pol_add k.add (k.eq k.zero) Q.compare)
-       (pol_mul k.add (norm k.mul k) (k.eq k.zero) (norm_Q Q.add) Q.compare)
-       (fun pol → pol.monoms = [])
+       (pol_add₂ k.add (k.eq k.zero) Q.compare)
+       (pol_mul₂ k.add (norm k.mul k) (k.eq k.zero) (norm_Q Q.add) Q.compare)
+       (fun pol → pol.monoms₂ = [])
        \+ compare)
 ;
 
@@ -180,21 +175,21 @@ value map_polynom k f pol =
            let rev_ml =
              List.fold_left
                (fun rev_ml m →
-                  let c = f k m.coeff in
+                  let c = f k m.coeff₂ in
                   if k.eq c k.zero then do {
                     if verbose.val then do {
                       printf "Warning: cancelling small coefficient: %s\n%!"
-                        (k.to_string m.coeff)
+                        (k.to_string m.coeff₂)
                     }
                     else ();
                     rev_ml
                   }
                   else [m :: rev_ml])
-               [] m.coeff.monoms
+               [] m.coeff.monoms₂
            in
-           {monoms = List.rev rev_ml}
+           {monoms₂ = List.rev rev_ml}
          in
-         if c.monoms = [] then rev_ml
+         if c.monoms₂ = [] then rev_ml
          else
            let m = {coeff = c; power = m.power} in
            [m :: rev_ml])
@@ -211,14 +206,14 @@ value float_round_zero k pol =
   let ml =
     List.fold_left
       (fun ml m →
-         let c = k.float_round_zero m.coeff in
+         let c = k.float_round_zero m.coeff₂ in
          if k.eq c k.zero then ml
          else
-           let m = {coeff = c; power = m.power} in
+           let m = {coeff₂ = c; power₂ = m.power₂} in
            [m :: ml])
-       [] pol.monoms
+       [] pol.monoms₂
   in
-  {monoms = List.rev ml}
+  {monoms₂ = List.rev ml}
 ;
 
 value string_of_x_polyn k opt vx pol =
@@ -249,12 +244,12 @@ value print_solution k br nth cγl finite sol = do {
       let pol = apply_poly_x_pol k br.initial_polynom sol in
       let pol = float_round_zero k pol in
       let pol₂ =
-        if nb_terms > 0 then {monoms = list_take nb_terms pol.monoms}
+        if nb_terms > 0 then {monoms₂ = list_take nb_terms pol.monoms₂}
         else pol
       in
       let ellipses =
         if nb_terms = 0 then ""
-        else if List.length pol.monoms > nb_terms then " + ..."
+        else if List.length pol.monoms₂ > nb_terms then " + ..."
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
@@ -267,14 +262,14 @@ value cancel_pol_constant_term_if_any k pol =
   match pol.monoms with
   [ [m :: ml] →
       if m.power = 0 then
-        match m.coeff.monoms with
+        match m.coeff.monoms₂ with
         [ [m₁ :: ml₁] →
-            if Q.eq m₁.power Q.zero then do {
+            if Q.eq m₁.power₂ Q.zero then do {
               if verbose.val then
                 printf "Warning: cancelling constant term: %s\n%!"
-                  (k.to_string m₁.coeff)
+                  (k.to_string m₁.coeff₂)
               else ();
-              let p₁ = {monoms = ml₁} in
+              let p₁ = {monoms₂ = ml₁} in
               let m = {coeff = p₁; power = m.power} in
               {monoms = [m :: ml]}
             }
@@ -291,10 +286,10 @@ value pol_div_x_power pol p =
          let ml =
            List.map
              (fun m →
-                {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-             pol.coeff.monoms
+                {coeff₂ = m.coeff₂; power₂ = Q.norm (Q.sub m.power₂ p)})
+             pol.coeff.monoms₂
          in
-         {coeff = {monoms = ml}; power = pol.power})
+         {coeff = {monoms₂ = ml}; power = pol.power})
       pol.monoms
   in
   {monoms = ml}
@@ -310,10 +305,10 @@ value make_solution cγl =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
          let γsum = Q.norm (Q.add γsum γ) in
-         ([{coeff = c; power = γsum} :: sol], γsum))
+         ([{coeff₂ = c; power₂ = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
-  {monoms = List.rev rev_sol}
+  {monoms₂ = List.rev rev_sol}
 ;
 
 value puiseux_iteration k br r m γ β sol_list = do {
@@ -336,8 +331,8 @@ value puiseux_iteration k br r m γ β sol_list = do {
   let pol =
     let y =
       {monoms =
-         [{coeff = {monoms = [{coeff = r; power = γ}]}; power = 0};
-          {coeff = {monoms = [{coeff = k.one; power = γ}]}; power = 1}]}
+         [{coeff = {monoms₂ = [{coeff₂ = r; power₂ = γ}]}; power = 0};
+          {coeff = {monoms₂ = [{coeff₂ = k.one; power₂ = γ}]}; power = 1}]}
     in
     let pol = apply_poly_xy_pol k br.pol y in
     let pol = pol_div_x_power pol β in

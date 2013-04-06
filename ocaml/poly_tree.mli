@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.24 2013-04-03 08:51:42 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.25 2013-04-06 08:33:57 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -29,21 +29,21 @@ value term_descr_of_term : field α _ → tree α → term_descr α;
 value without_initial_neg : field α _ → tree α → option (tree α);
 value substitute_y : field α _ → tree α → tree α → tree α;
 value xpower : Q.t → tree α;
-value merge_expr_pow :
-  field α β → (γ → γ → bool) →
-    (field α β → δ → δ → γ → list (monomial δ γ) → list (monomial δ γ)) →
-    list (monomial δ γ) → list (monomial δ γ);
+value merge_expr_pow₂ :
+  field α β → (Q.t → Q.t → bool) →
+    (field α β → δ → δ → Q.t → list (monomial₂ δ) → list (monomial₂ δ)) →
+    list (monomial₂ δ) → list (monomial₂ δ);
 
-value y_polyn_of_tree : field α _ → tree α → polynomial (tree α) int;
-value x_polyn_of_tree : field α _ → tree α → polynomial α Q.t;
+value y_polyn_of_tree : field α _ → tree α → polynomial (tree α);
+value x_polyn_of_tree : field α _ → tree α → puiseux_series α;
 
 value xy_polyn_of_tree :
-  field α _ → tree α → polynomial (polynomial α Q.t) int;
+  field α _ → tree α → polynomial (puiseux_series α);
 
-value tree_of_x_polyn : field α _ → polynomial α Q.t → tree α;
-value tree_of_y_polyn : field α _ → polynomial α int → tree α;
+value tree_of_x_polyn : field α _ → puiseux_series α → tree α;
+value tree_of_y_polyn : field α _ → polynomial α → tree α;
 
 value tree_of_xy_polyn :
-  field α _ → polynomial (polynomial α Q.t) int → tree α;
+  field α _ → polynomial (puiseux_series α) → tree α;
 
 value normalise : field α _ → tree α → tree α;

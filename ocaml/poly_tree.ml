@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.44 2013-04-04 12:04:31 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.45 2013-04-06 08:33:57 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -290,28 +290,28 @@ value compare_descr td₁ td₂ =
 value merge_const_px k m ml =
   match ml with
   [ [m₁ :: ml₁] →
-      if Q.eq m.power m₁.power then
-        let c = k.normalise (k.add m.coeff m₁.coeff) in
+      if Q.eq m.power₂ m₁.power₂ then
+        let c = k.normalise (k.add m.coeff₂ m₁.coeff₂) in
         if k.eq c k.zero then ml₁
-        else [{coeff = c; power = m.power} :: ml₁]
-      else if k.eq m.coeff k.zero then ml
+        else [{coeff₂ = c; power₂ = m.power₂} :: ml₁]
+      else if k.eq m.coeff₂ k.zero then ml
       else [m :: ml]
   | [] →
-      if k.eq m.coeff k.zero then [] else [m] ]
+      if k.eq m.coeff₂ k.zero then [] else [m] ]
 ;
 
 value group_term_descr k tdl =
   List.fold_right
     (fun td myl →
-       let mx = {coeff = td.const; power = td.xpow} in
+       let mx = {coeff₂ = td.const; power₂ = td.xpow} in
        match myl with
        [ [my :: myl₁] →
            if td.ypow = my.power then
-             let mxl = merge_const_px k mx my.coeff.monoms in
+             let mxl = merge_const_px k mx my.coeff.monoms₂ in
              if mxl = [] then myl₁
-             else [{coeff = {monoms = mxl}; power = my.power} :: myl₁]
-           else [{coeff = {monoms = [mx]}; power = td.ypow} :: myl]
-       | [] → [{coeff = {monoms = [mx]}; power = td.ypow}] ])
+             else [{coeff = {monoms₂ = mxl}; power = my.power} :: myl₁]
+           else [{coeff = {monoms₂ = [mx]}; power = td.ypow} :: myl]
+       | [] → [{coeff = {monoms₂ = [mx]}; power = td.ypow}] ])
     tdl []
 ;
 
@@ -408,15 +408,15 @@ value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
 value tree_of_x_polyn k pol =
   let rebuild_add t mx =
-    if k.eq mx.coeff k.zero then t
+    if k.eq mx.coeff₂ k.zero then t
     else
        let t₁ =
-         if Q.eq mx.power Q.zero then Const mx.coeff
+         if Q.eq mx.power₂ Q.zero then Const mx.coeff₂
          else
-           let xp = xpower mx.power in
-           if k.eq mx.coeff k.one then xp
-           else if k.eq mx.coeff k.minus_one then Neg xp
-           else Mult (Const mx.coeff) xp
+           let xp = xpower mx.power₂ in
+           if k.eq mx.coeff₂ k.one then xp
+           else if k.eq mx.coeff₂ k.minus_one then Neg xp
+           else Mult (Const mx.coeff₂) xp
        in
        let t₁ =
          match without_initial_neg k t₁ with
@@ -434,7 +434,7 @@ value tree_of_x_polyn k pol =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const k.zero) pol.monoms
+  List.fold_left rebuild_add (Const k.zero) pol.monoms₂
 ;
 
 value tree_of_y_polyn k pol =
@@ -527,6 +527,7 @@ value _list_sort cmp =
 ;
 
 value compare_expr_pow cmp m₁ m₂ = cmp m₁.power m₂.power;
+value compare_expr_pow₂ cmp m₁ m₂ = cmp m₁.power₂ m₂.power₂;
 
 value merge_expr_pow k power_eq merge_coeffs =
   loop [] where rec loop rev_list =
@@ -547,6 +548,25 @@ value merge_expr_pow k power_eq merge_coeffs =
         List.rev rev_list ]
 ;
 
+value merge_expr_pow₂ k power_eq merge_coeffs =
+  loop [] where rec loop rev_list =
+    fun
+    [ [m₁ :: ml₁] →
+        let rev_list₁ =
+          match rev_list with
+          [ [m₂ :: rev_list₂] →
+              if power_eq m₁.power₂ m₂.power₂ then
+                merge_coeffs k m₁.coeff₂ m₂.coeff₂ m₁.power₂ rev_list₂
+              else
+                [m₁ :: rev_list]
+          | [] →
+              [m₁] ]
+        in
+        loop rev_list₁ ml₁
+    | [] →
+        List.rev rev_list ]
+;
+
 value merge_coeffs k t₁ t₂ p ml =
   match (t₁, t₂) with
   [ (Const c₁, Const c₂) →
@@ -555,6 +575,16 @@ value merge_coeffs k t₁ t₂ p ml =
       else [{coeff = Const c; power = p} :: ml]
   | _ →
       [{coeff = Plus t₂ t₁; power = p} :: ml ] ]
+;
+
+value merge_coeffs₂ k t₁ t₂ p ml =
+  match (t₁, t₂) with
+  [ (Const c₁, Const c₂) →
+      let c = k.add c₁ c₂ in
+      if k.eq c k.zero then ml
+      else [{coeff₂ = Const c; power₂ = p} :: ml]
+  | _ →
+      [{coeff₂ = Plus t₂ t₁; power₂ = p} :: ml ] ]
 ;
 
 value y_polyn_of_tree k t =
@@ -569,13 +599,13 @@ value rec expr_with_pow_x k t =
   match t with
   [ Neg t →
       let mx = expr_with_pow_x k t in
-      {coeff = Neg mx.coeff; power = mx.power}
+      {coeff₂ = Neg mx.coeff₂; power₂ = mx.power₂}
   | Mult t₁ (Xpower n d) →
-      {coeff = t₁; power = Q.make (I.of_int n) (I.of_int d)}
+      {coeff₂ = t₁; power₂ = Q.make (I.of_int n) (I.of_int d)}
   | Xpower n d →
-      {coeff = Const k.one; power = Q.make (I.of_int n) (I.of_int d)}
+      {coeff₂ = Const k.one; power₂ = Q.make (I.of_int n) (I.of_int d)}
   | Const _ →
-      {coeff = t; power = Q.zero}
+      {coeff₂ = t; power₂ = Q.zero}
   | t →
       failwith
         (sprintf "not_impl \"expr_with_pow_x\" %s"
@@ -597,17 +627,17 @@ value x_polyn_of_tree k t =
   in
   let tl = sum_tree_of_tree t in
   let mxl = List.map (expr_with_pow_x k) tl in
-  let mxl = List.sort (compare_expr_pow Q.compare) mxl in
-  let mxl = merge_expr_pow k Q.eq merge_coeffs mxl in
+  let mxl = List.sort (compare_expr_pow₂ Q.compare) mxl in
+  let mxl = merge_expr_pow₂ k Q.eq merge_coeffs₂ mxl in
   let mxl =
-    List.map (fun mx → {coeff = const_of_tree k mx.coeff; power = mx.power})
+    List.map (fun mx → {coeff₂ = const_of_tree k mx.coeff₂; power₂ = mx.power₂})
       mxl
   in
   let mxl =
     if is_neg then
-      List.map (fun mx → {coeff = k.neg mx.coeff; power = mx.power}) mxl
+      List.map (fun mx → {coeff₂ = k.neg mx.coeff₂; power₂ = mx.power₂}) mxl
     else
       mxl
   in
-  {monoms = mxl}
+  {monoms₂ = mxl}
 ;

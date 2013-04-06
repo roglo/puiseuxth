@@ -2,8 +2,9 @@ field.cmi: pnums.cmi poly.cmi
 pnums.cmo: ../cpoly/cpoly.cmi pnums.cmi
 pnums.cmx: ../cpoly/cpoly.cmx pnums.cmi
 pnums.cmi: ../cpoly/cpoly.cmi
-poly.cmo: poly.cmi
-poly.cmx: poly.cmi
+poly.cmo: pnums.cmi poly.cmi
+poly.cmx: pnums.cmx poly.cmi
+poly.cmi: pnums.cmi
 poly_fun.cmo: pnums.cmi poly_fun.cmi
 poly_fun.cmx: pnums.cmx poly_fun.cmi
 poly_fun.cmi: pnums.cmi
