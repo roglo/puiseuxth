@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.136 2013-04-06 17:14:27 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.137 2013-04-06 17:34:59 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -106,13 +106,13 @@ value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { initial_polynom : old_polynomial (puiseux_series α);
+  { initial_polynom : polynomial (puiseux_series α);
     cγl : list (α * Q.t);
     step : int;
     rem_steps : int;
     vx : string;
     vy : string;
-    pol : old_polynomial (puiseux_series α) }
+    pol : polynomial (puiseux_series α) }
 ;
 
 value cut_long at_middle s =
@@ -138,15 +138,13 @@ value rec list_take n l =
 
 value norm f k x y = k.normalise (f x y);
 
-value apply_poly_x_pol k opol =
-  let pol = p_of_op {ps_monoms = []} opol in
+value apply_poly_x_pol k pol =
   apply_poly {ps_monoms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
-value apply_poly_xy_pol k opol =
-  let pol = p_of_op {ps_monoms = []} opol in
+value apply_poly_xy_pol k pol =
   apply_poly
     {monoms = []}    
     (fun opol ps →
@@ -371,22 +369,30 @@ value rec puiseux_branch k br sol_list (γ, β) =
   let f = k.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
-    List.filter
-      (fun m →
-         let αi = valuation m.coeff in
-         let βi = Q.norm (Q.add (Q.muli γ (I.of_int m.power)) αi) in
-         Q.eq β βi)
-      br.pol.monoms
+    let (rev_hl, _) =
+      List.fold_left
+        (fun (rev_hl, deg) c →
+           let rev_hl =
+             if c.ps_monoms = [] then rev_hl
+             else
+               let αi = valuation c in
+               let βi = Q.norm (Q.add (Q.muli γ (I.of_int deg)) αi) in
+               if Q.eq β βi then [(c, deg) :: rev_hl] else rev_hl
+           in
+           (rev_hl, deg + 1))
+        ([], 0) br.pol.al
+    in
+    List.rev rev_hl
   in
-  let j = (List.hd hl).power in
-  let q = List.fold_left (fun q m → gcd q (m.power - j)) 0 hl in
+  let j = snd (List.hd hl) in
+  let q = List.fold_left (fun q h → gcd q (snd h - j)) 0 hl in
   let _ =
     if verbose.val then do {
       printf "γ%s = %-4s" ss (Q.to_string γ);
       printf "  β%s = %-3s" ss (Q.to_string β);
       printf "  %d pts" (List.length hl);
       printf "  j%s=%d" ss j;
-      printf "  k%s=%d" ss (List.hd (List.rev hl)).power;
+      printf "  k%s=%d" ss (snd (List.hd (List.rev hl)));
       printf "  q%s=%d" ss q;
       printf "\n%!";
     }
@@ -394,7 +400,7 @@ value rec puiseux_branch k br sol_list (γ, β) =
   in
   let ml =
     List.map
-      (fun m → {coeff = valuation_coeff f m.coeff; power = m.power - j})
+      (fun (c, deg) → {coeff = valuation_coeff f c; power = deg - j})
       hl
   in
   let rl = k.ac_roots (p_of_op f.zero {monoms = ml}) in
@@ -434,7 +440,7 @@ and next_step k br sol_list opol cγl =
            {initial_polynom = br.initial_polynom;
             cγl = cγl; step = br.step + 1;
             rem_steps = br.rem_steps - 1;
-            vx = br.vx; vy = br.vy; pol = opol}
+            vx = br.vx; vy = br.vy; pol = pol}
          in
          puiseux_branch k br sol_list (γ, β)
        })
@@ -456,8 +462,8 @@ value puiseux k nb_steps vx vy opol =
       (fun sol_list (γ₁, β₁) → do {
          print_line_equal ();
          let br =
-           {initial_polynom = opol; cγl = []; step = 1;
-            rem_steps = rem_steps; vx = vx; vy = vy; pol = opol}
+           {initial_polynom = pol; cγl = []; step = 1;
+            rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
          in
          puiseux_branch k br sol_list (γ₁, β₁)
        })
