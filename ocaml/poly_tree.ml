@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.56 2013-04-06 13:06:39 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.57 2013-04-06 13:16:32 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -342,39 +342,46 @@ value is_zero_tree k =
   | _ → False ]
 ;
 
-value tree_of_tree_polyn k npol =
-  let opol = op_of_p (is_zero_tree k) npol in
-  let expr_of_term_ypow_list k t₁ my =
-    let t₂ =
-      if my.power = 0 then my.coeff
+value tree_of_tree_polyn k pol =
+  let expr_of_term_ypow_list k (t₁, deg) m =
+    let t =
+      if is_zero_tree k m then t₁
       else
-        let (is_neg, t₂) =
-          match without_initial_neg k my.coeff with
-          [ Some t₂ → (True, t₂)
-          | None → (False, my.coeff) ]
-        in
-        let t₂_is_one =
-          match t₂ with
-          [ Const c → k.eq c k.one
-          | _ →  False ]
-        in
         let t₂ =
-          if t₂_is_one then Ypower my.power else Mult t₂ (Ypower my.power)
+          if deg = 0 then m
+          else
+            let (is_neg, t₂) =
+              match without_initial_neg k m with
+              [ Some t₂ → (True, t₂)
+              | None → (False, m) ]
+            in
+            let t₂_is_one =
+              match t₂ with
+              [ Const c → k.eq c k.one
+              | _ →  False ]
+            in
+            let t₂ =
+              if t₂_is_one then Ypower deg else Mult t₂ (Ypower deg)
+            in
+            if is_neg then Neg t₂ else t₂
         in
-        if is_neg then Neg t₂ else t₂
+        let t_is_null =
+          match t₁ with
+          [ Const c → k.eq c k.zero
+          | _ → False ]
+        in
+        if t_is_null then t₂
+        else
+          match without_initial_neg k t₂ with
+          [ Some t₂ → Minus t₁ t₂
+          | None → Plus t₁ t₂ ]
     in
-    let t_is_null =
-      match t₁ with
-      [ Const c → k.eq c k.zero
-      | _ → False ]
-    in
-    if t_is_null then t₂
-    else
-      match without_initial_neg k t₂ with
-      [ Some t₂ → Minus t₁ t₂
-      | None → Plus t₁ t₂ ]
+    (t, deg + 1)
   in
-  List.fold_left (expr_of_term_ypow_list k) (Const k.zero) opol.monoms
+  let (t, _) =
+    List.fold_left (expr_of_term_ypow_list k) (Const k.zero, 0) pol.al
+  in
+  t
 ;
 
 value debug_n = False;
