@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.73 2013-04-06 20:29:00 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.74 2013-04-06 20:42:46 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -91,30 +91,20 @@ value int_polyn_of_polyn apol =
     try
       let ml =
         List.map
-          (fun m →
-             if Q.eq m.coeff.A₂.b Q.zero then
-               {coeff = m.coeff.A₂.a; power = m.power}
-             else
-               raise Exit)
-          apol.monoms
+          (fun m → if Q.eq m.A₂.b Q.zero then m.A₂.a else raise Exit)
+          apol.al
       in
-      Some {monoms = ml}
+      Some {al = ml}
     with
     [ Exit → None ]
   in
   match qpol_opt with
   [ Some qpol →
-      let l =
-        List.fold_left (fun l m → I.lcm l (Q.rden m.coeff)) I.one qpol.monoms
-      in
+      let l = List.fold_left (fun l m → I.lcm l (Q.rden m)) I.one qpol.al in
       let ml =
-        List.map
-          (fun m →
-             {coeff = I.mul (Q.rnum m.coeff) (I.div l (Q.rden m.coeff));
-              power = m.power})
-          qpol.monoms
+        List.map (fun m → I.mul (Q.rnum m) (I.div l (Q.rden m))) qpol.al
       in
-      Some {monoms = ml}
+      Some {al = ml}
   | None → None ]
 ;
 
@@ -302,8 +292,8 @@ value roots_of_int_coeffs k coeffs =
 ;
 
 value coeff_of_degree n pol =
-  try (List.find (fun m → m.power = n) pol.monoms).coeff with
-  [ Not_found → A₂.zero ]
+  try List.nth pol.al n with
+  [ Failure _ → A₂.zero ]
 ;
 
 value roots_of_c_coeffs k coeffs =
@@ -323,7 +313,7 @@ value roots_of_c_coeffs k coeffs =
 ;
 
 value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
-  let degree = (List.hd (List.rev apol.monoms)).power in
+  let degree = List.length apol.al - 1 in
   let rl_opt =
     match degree with
     [ 1 →
@@ -339,15 +329,14 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
     | _ →
         match int_polyn_of_polyn apol with
         [ Some ipol → do {
-            let coeffs = list_of_polynomial I.zero ipol in
-            let rl = roots_of_int_coeffs k coeffs in
+            let rl = roots_of_int_coeffs k ipol.al in
             let nb_roots = List.fold_left (fun c (_, m) → c + m) 0 rl in
-            assert (nb_roots < List.length coeffs);
-            if nb_roots < List.length coeffs - 1 then do {
+            assert (nb_roots < List.length ipol.al);
+            if nb_roots < List.length ipol.al - 1 then do {
               if verbose.val then do {
                 printf
                   "found only %d root(s) in polynomial of degree %d\n%!"
-                  nb_roots (List.length coeffs - 1);
+                  nb_roots (List.length ipol.al - 1);
               }
               else ();
             }
@@ -473,18 +462,18 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
 };
 
 value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
-  let opol = op_of_p (k.eq k.zero) pol in
+
   let apol_opt =
     try
       let ml =
         List.map
           (fun m →
-             match k.to_a m.coeff with
-             [ Some a → {coeff = a; power = m.power}
+             match k.to_a m with
+             [ Some a → a
              | None → raise Exit ])
-          opol.monoms
+          pol.al
       in
-      Some {monoms = ml}
+      Some {al = ml}
     with
     [ Exit → None ]
   in
