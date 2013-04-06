@@ -1,13 +1,28 @@
-(* $Id: poly.ml,v 1.14 2013-04-06 09:40:51 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.15 2013-04-06 10:42:36 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type polynomial α = { monoms : list (monomial α) };
 
 type new_polynomial α = { al : list α };
-(*
-value np_of_p pol =
+value np_of_p zero_coeff pol =
+  loop [] 0 pol.monoms where rec loop rev_np deg ml =
+    match ml with
+    [ [m :: ml₁] →
+        if m.power > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
+        else if m.power < deg then invalid_arg "np_of_p"
+        else loop [m.coeff :: rev_np] (deg + 1) ml₁
+    | [] →
+        {al = List.rev rev_np} ]
 ;
-*)
+value p_of_np is_zero_coeff pol =
+  loop [] 0 pol.al where rec loop rev_ml deg cl =
+    match cl with
+    [ [c :: cl₁] →
+        if is_zero_coeff c then loop rev_ml (deg + 1) cl₁
+        else loop [{coeff = c; power = deg} :: rev_ml] (deg + 1) cl₁
+    | [] →
+        {monoms = List.rev rev_ml} ]
+;
 
 value merge_pow add_coeff is_null_coeff =
   loop [] where rec loop rev_list =
