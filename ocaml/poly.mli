@@ -1,4 +1,4 @@
-(* $Id: poly.mli,v 1.26 2013-04-06 22:22:10 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.27 2013-04-06 22:51:30 deraugla Exp $ *)
 
 type polynomial α = { al : list α };
 
@@ -16,5 +16,5 @@ value apply_poly : α → (α → β → α) → (α → γ → α) → polynomi
 
 (**)
 
-type old_monomial α = { coeff : α; power : int };
+type old_monomial α = { old_coeff : α; old_power : int };
 value p_of_op : α → list (old_monomial α) → polynomial α;

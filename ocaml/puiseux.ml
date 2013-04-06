@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.150 2013-04-06 22:22:10 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.151 2013-04-06 22:51:30 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -54,14 +54,14 @@ Definition lower_convex_hull xyl :=
 
 Definition valuation (ps : puiseux_series α) :=
   match ps.ps_monoms with
-  | [mx :: _] => mx.power₂
+  | [mx :: _] => mx.power
   | [] => match () with end
   end
 ;
 
 Definition valuation_coeff k (ps : puiseux_series α) :=
   match ps.ps_monoms with
-  | [mx :: _] => mx.coeff₂
+  | [mx :: _] => mx.coeff
   | [] => match () with end
   end
 ;
@@ -172,11 +172,11 @@ value map_polynom k f pol =
          let rev_ml =
            List.fold_left
              (fun rev_ml m →
-                let c = f k m.coeff₂ in
+                let c = f k m.coeff in
                 if k.eq c k.zero then do {
                   if verbose.val then do {
                     printf "Warning: cancelling small coefficient: %s\n%!"
-                      (k.to_string m.coeff₂)
+                      (k.to_string m.coeff)
                   }
                   else ();
                   rev_ml
@@ -198,10 +198,10 @@ value float_round_zero k ps =
   let ml =
     List.fold_left
       (fun ml m →
-         let c = k.float_round_zero m.coeff₂ in
+         let c = k.float_round_zero m.coeff in
          if k.eq c k.zero then ml
          else
-           let m = {coeff₂ = c; power₂ = m.power₂} in
+           let m = {coeff = c; power = m.power} in
            [m :: ml])
        [] ps.ps_monoms
   in
@@ -255,10 +255,10 @@ value cancel_pol_constant_term_if_any k pol =
   [ [m :: ml] →
       match m.ps_monoms with
       [ [m₁ :: ml₁] →
-          if Q.eq m₁.power₂ Q.zero then do {
+          if Q.eq m₁.power Q.zero then do {
             if verbose.val then
               printf "Warning: cancelling constant term: %s\n%!"
-                (k.to_string m₁.coeff₂)
+                (k.to_string m₁.coeff)
             else ();
             let m = {ps_monoms = ml₁} in
             {al = [m :: ml]}
@@ -275,7 +275,7 @@ value pol_div_x_power pol p =
          let ml =
            List.map
              (fun m →
-                {coeff₂ = m.coeff₂; power₂ = Q.norm (Q.sub m.power₂ p)})
+                {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
              ps.ps_monoms
          in
          {ps_monoms = ml})
@@ -294,7 +294,7 @@ value make_solution cγl =
     List.fold_left
       (fun (sol, γsum) (c, γ) →
          let γsum = Q.norm (Q.add γsum γ) in
-         ([{coeff₂ = c; power₂ = γsum} :: sol], γsum))
+         ([{coeff = c; power = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
   {ps_monoms = List.rev rev_sol}
@@ -320,8 +320,8 @@ value puiseux_iteration k br r m γ β sol_list = do {
   let pol =
     let y =
       {al =
-         [{ps_monoms = [{coeff₂ = r; power₂ = γ}]};
-          {ps_monoms = [{coeff₂ = k.one; power₂ = γ}]}]}
+         [{ps_monoms = [{coeff = r; power = γ}]};
+          {ps_monoms = [{coeff = k.one; power = γ}]}]}
     in
     let pol = apply_poly_xy_pol k br.pol y in
     let pol = pol_div_x_power pol β in
@@ -384,7 +384,8 @@ value rec puiseux_branch k br sol_list (γ, β) =
   in
   let ml =
     List.map
-      (fun (ps, deg) → {coeff = valuation_coeff f ps; power = deg - j})
+      (fun (ps, deg) →
+         {old_coeff = valuation_coeff f ps; old_power = deg - j})
       hl
   in
   let pol = p_of_op f.zero ml in
