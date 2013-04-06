@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.112 2013-04-04 19:07:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.113 2013-04-06 03:23:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -58,14 +58,14 @@ Definition lower_convex_hull xyl :=
 Definition valuation (pol : polynomial α Q.t) :=
   match pol.monoms with
   | [mx :: _] => mx.power
-  | [] => Q.zero
+  | [] => match () with end
   end
 ;
 
 Definition valuation_coeff k (pol : polynomial α Q.t) :=
   match pol.monoms with
   | [mx :: _] => mx.coeff
-  | [] => k.zero
+  | [] => match () with end
   end
 ;
 
