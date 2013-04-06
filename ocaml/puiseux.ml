@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.119 2013-04-06 08:37:30 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.120 2013-04-06 08:45:50 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -135,16 +135,10 @@ value rec list_take n l =
 ;
 
 value norm f k x y = k.normalise (f x y);
-value norm_Q f x y = Q.norm (f x y);
 
-value x_pol_add k =
-  pol_add₂ (norm k.add k) (fun c → k.eq c k.zero) Q.compare
-;
+value x_pol_add k = pol_add₂ (norm k.add k) (fun c → k.eq c k.zero);
 
-value x_pol_mul k =
-  pol_mul₂ (norm k.add k) (norm k.mul k) (k.eq k.zero) (norm_Q Q.add)
-    Q.compare
-;
+value x_pol_mul k = pol_mul₂ (norm k.add k) (norm k.mul k) (k.eq k.zero);
 
 value apply_poly_x_pol k =
   apply_poly {monoms₂ = []} (x_pol_add k) (x_pol_mul k)
@@ -156,12 +150,12 @@ value apply_poly_xy_pol k =
     (fun pol c →
        let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
-         (pol_add₂ k.add (k.eq k.zero) Q.compare)
+         (pol_add₂ k.add (k.eq k.zero))
          (fun pol → pol.monoms₂ = [])
          pol polc)
     (pol_mul
-       (pol_add₂ k.add (k.eq k.zero) Q.compare)
-       (pol_mul₂ k.add (norm k.mul k) (k.eq k.zero) (norm_Q Q.add) Q.compare)
+       (pol_add₂ k.add (k.eq k.zero))
+       (pol_mul₂ k.add (norm k.mul k) (k.eq k.zero))
        (fun pol → pol.monoms₂ = []))
 ;
 
