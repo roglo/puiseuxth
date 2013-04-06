@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.121 2013-04-06 09:07:58 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.122 2013-04-06 09:16:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -52,15 +52,15 @@ Definition lower_convex_hull xyl :=
   end
 ;
 
-Definition valuation (pol : puiseux_series α) :=
-  match pol.monoms₂ with
+Definition valuation (ps : puiseux_series α) :=
+  match ps.monoms₂ with
   | [mx :: _] => mx.power₂
   | [] => match () with end
   end
 ;
 
-Definition valuation_coeff k (pol : puiseux_series α) :=
-  match pol.monoms₂ with
+Definition valuation_coeff k (ps : puiseux_series α) :=
+  match ps.monoms₂ with
   | [mx :: _] => mx.coeff₂
   | [] => match () with end
   end
@@ -137,12 +137,10 @@ value rec list_take n l =
 
 value norm f k x y = k.normalise (f x y);
 
-value x_pol_add k = pol_add₂ (norm k.add k) (fun c → k.eq c k.zero);
-
-value x_pol_mul k = pol_mul₂ (norm k.add k) (norm k.mul k) (k.eq k.zero);
-
 value apply_poly_x_pol k =
-  apply_poly {monoms₂ = []} (x_pol_add k) (x_pol_mul k)
+  apply_poly {monoms₂ = []}
+    (ps_add (norm k.add k) (k.eq k.zero))
+    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero))
 ;
 
 value apply_poly_xy_pol k =
@@ -151,12 +149,12 @@ value apply_poly_xy_pol k =
     (fun pol c →
        let polc = {monoms = [{coeff = c; power = 0}]} in
        pol_add
-         (pol_add₂ k.add (k.eq k.zero))
+         (ps_add k.add (k.eq k.zero))
          (fun pol → pol.monoms₂ = [])
          pol polc)
     (pol_mul
-       (pol_add₂ k.add (k.eq k.zero))
-       (pol_mul₂ k.add (norm k.mul k) (k.eq k.zero))
+       (ps_add k.add (k.eq k.zero))
+       (ps_mul k.add (norm k.mul k) (k.eq k.zero))
        (fun pol → pol.monoms₂ = []))
 ;
 
