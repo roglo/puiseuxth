@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.57 2013-04-06 13:16:32 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.58 2013-04-06 21:03:03 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -302,18 +302,21 @@ value merge_const_px k m ml =
 ;
 
 value group_term_descr k tdl =
-  List.fold_right
-    (fun td myl →
-       let mx = {coeff₂ = td.const; power₂ = td.xpow} in
-       match myl with
-       [ [my :: myl₁] →
-           if td.ypow = my.power then
-             let mxl = merge_const_px k mx my.coeff.ps_monoms in
-             if mxl = [] then myl₁
-             else [{coeff = {ps_monoms = mxl}; power = my.power} :: myl₁]
-           else [{coeff = {ps_monoms = [mx]}; power = td.ypow} :: myl]
-       | [] → [{coeff = {ps_monoms = [mx]}; power = td.ypow}] ])
-    tdl []
+  let ml =
+    List.fold_right
+      (fun td myl →
+         let mx = {coeff₂ = td.const; power₂ = td.xpow} in
+         match myl with
+         [ [my :: myl₁] →
+             if td.ypow = my.power then
+               let mxl = merge_const_px k mx my.coeff.ps_monoms in
+               if mxl = [] then myl₁
+               else [{coeff = {ps_monoms = mxl}; power = my.power} :: myl₁]
+             else [{coeff = {ps_monoms = [mx]}; power = td.ypow} :: myl]
+         | [] → [{coeff = {ps_monoms = [mx]}; power = td.ypow}] ])
+      tdl []
+  in
+  p_of_op {ps_monoms = []} {monoms = ml}
 ;
 
 value rec without_initial_neg k =
@@ -416,7 +419,7 @@ value ps_polyn_of_tree k t =
 let _ = printf "normalise compare_descr\n%!" in
 let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
 *)
-  p_of_op {ps_monoms = []} {monoms = group_term_descr k tdl}
+  group_term_descr k tdl
 ;
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
