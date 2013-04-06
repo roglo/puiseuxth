@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.45 2013-04-06 08:33:57 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.46 2013-04-06 09:07:58 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -13,6 +13,7 @@ open Printf;
 open Pnums;
 open Field;
 open Poly;
+open Puiseux_series;
 
 type tree α =
   [ Plus of tree α and tree α

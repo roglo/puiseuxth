@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.120 2013-04-06 08:45:50 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.121 2013-04-06 09:07:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -9,6 +9,7 @@ open Poly_parse;
 open Poly_print;
 open Poly_tree;
 open Poly;
+open Puiseux_series;
 open Roots;
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
