@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.27 2013-04-06 09:28:01 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.28 2013-04-06 11:07:28 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -35,14 +35,14 @@ value merge_expr_pow₂ :
     (field α β → δ → δ → Q.t → list (monomial₂ δ) → list (monomial₂ δ)) →
     list (monomial₂ δ) → list (monomial₂ δ);
 
-value tree_polyn_of_tree : field α _ → tree α → polynomial (tree α);
+value tree_polyn_of_tree : field α _ → tree α → old_polynomial (tree α);
 value puiseux_series_of_tree : field α _ → tree α → puiseux_series α;
 
 value ps_polyn_of_tree :
-  field α _ → tree α → polynomial (puiseux_series α);
+  field α _ → tree α → old_polynomial (puiseux_series α);
 
 value tree_of_puiseux_series : field α _ → puiseux_series α → tree α;
-value tree_of_polyn : field α _ → polynomial α → tree α;
-value tree_of_ps_polyn : field α _ → polynomial (puiseux_series α) → tree α;
+value tree_of_polyn : field α _ → old_polynomial α → tree α;
+value tree_of_ps_polyn : field α _ → old_polynomial (puiseux_series α) → tree α;
 
 value normalise : field α _ → tree α → tree α;

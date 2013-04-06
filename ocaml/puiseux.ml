@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.126 2013-04-06 11:03:48 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.127 2013-04-06 11:07:28 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -66,7 +66,7 @@ Definition valuation_coeff k (ps : puiseux_series α) :=
   end
 ;
 
-Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
+Definition gamma_beta_list (pol : old_polynomial (puiseux_series α)) :=
   let xyl :=
     List.map (λ my, (Q.of_i (I.of_int my.power), valuation my.coeff))
       pol.monoms
@@ -105,13 +105,13 @@ value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { initial_polynom : polynomial (puiseux_series α);
+  { initial_polynom : old_polynomial (puiseux_series α);
     cγl : list (α * Q.t);
     step : int;
     rem_steps : int;
     vx : string;
     vy : string;
-    pol : polynomial (puiseux_series α) }
+    pol : old_polynomial (puiseux_series α) }
 ;
 
 value cut_long at_middle s =
@@ -138,14 +138,14 @@ value rec list_take n l =
 value norm f k x y = k.normalise (f x y);
 
 value apply_poly_x_pol k opol =
-  let pol = np_of_p {monoms₂ = []} opol in
+  let pol = p_of_op {monoms₂ = []} opol in
   apply_poly {monoms₂ = []} (fun ps → ps.monoms₂ = [])
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
 value apply_poly_xy_pol k opol =
-  let pol = np_of_p {monoms₂ = []} opol in
+  let pol = p_of_op {monoms₂ = []} opol in
   apply_poly
     {monoms = []}
     (fun ps → ps.monoms₂ = [])
