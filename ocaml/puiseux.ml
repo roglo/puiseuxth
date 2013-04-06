@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.134 2013-04-06 12:49:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.135 2013-04-06 13:10:49 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -139,7 +139,7 @@ value norm f k x y = k.normalise (f x y);
 
 value apply_poly_x_pol k opol =
   let pol = p_of_op {ps_monoms = []} opol in
-  apply_poly {ps_monoms = []} (fun ps → ps.ps_monoms = [])
+  apply_poly {ps_monoms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
@@ -148,7 +148,6 @@ value apply_poly_xy_pol k opol =
   let pol = p_of_op {ps_monoms = []} opol in
   apply_poly
     {monoms = []}    
-    (fun ps → ps.ps_monoms = [])
     (fun opol ps →
        let pol =
          pol_add

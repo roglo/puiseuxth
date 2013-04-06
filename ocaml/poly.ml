@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.20 2013-04-06 13:08:35 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.21 2013-04-06 13:10:49 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type old_polynomial α = { monoms : list (monomial α) };
@@ -87,7 +87,7 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
   p_of_op zero_coeff {monoms = merge_pow add_coeff is_zero_coeff ml}
 ;
 
-value apply_poly zero_v is_zero_v add_v_coeff mul_v_x pol x =
+value apply_poly zero_v add_v_coeff mul_v_x pol x =
   List.fold_right (fun c accu → add_v_coeff (mul_v_x accu x) c) pol.al
     zero_v
 ;
