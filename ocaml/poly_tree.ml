@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.48 2013-04-06 09:32:12 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.49 2013-04-06 09:36:35 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -336,7 +336,7 @@ value rec without_initial_neg k =
       None ]
 ;
 
-value tree_of_tree_y_polyn k pol =
+value tree_of_tree_polyn k pol =
   let expr_of_term_ypow_list k t₁ my =
     let t₂ =
       if my.power = 0 then my.coeff
@@ -468,7 +468,7 @@ value tree_of_ps_polyn k pol =
       (fun m → {coeff = tree_of_puiseux_series k m.coeff; power = m.power})
       pol.monoms
   in
-  tree_of_tree_y_polyn k {monoms = ml}
+  tree_of_tree_polyn k {monoms = ml}
 ;
 
 value normalise k t =

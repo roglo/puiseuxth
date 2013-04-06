@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.62 2013-04-06 09:28:01 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.63 2013-04-06 09:36:35 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -306,18 +306,6 @@ value coeff_of_degree n pol =
   [ Not_found → A₂.zero ]
 ;
 
-(*
-value find_algebr_nb k pol =
-  loop pol.monoms where rec loop =
-    fun
-    [ [m :: ml] →
-        match k.to_a m.coeff with
-        [ Some x → if I.eq x.A₂.d I.zero then loop ml else Some x
-        | None → loop ml ]
-    | [] → None ]
-;
-*)
-
 value roots_of_c_coeffs k pol coeffs =
   match coeffs with
   [ [] | [_] → Some []
@@ -331,55 +319,7 @@ value roots_of_c_coeffs k pol coeffs =
       | _ →
           None ]
   | _ → do {
-(**)
-      None
-(*
-      let algeb_nb = find_algebr_nb k pol in
-      match algeb_nb with
-      [ Some x →
-          let yt = Mult (Const (k.of_a x)) (Ypower 1) in
-          let polyn = tree_of_polyn k {monoms = List.rev pol.monoms} in
-          let polyn₂ = substitute_y k yt polyn in
-          let polyn₂ = normalise k polyn₂ in
-          let pol = xy_polyn_of_tree k polyn₂ in
-          let pol_opt =
-            try
-              let cnl =
-                List.map
-                  (fun my →
-                     let cpl = my.coeff.monoms in
-                     let py = my.power in
-                     match cpl with
-                     [ [mx] →
-                         if Q.eq mx.power Q.zero then
-                           {coeff = mx.coeff; power = py}
-                         else
-                           raise Exit
-                     | _ →
-                         raise Exit ])
-                  pol.monoms
-              in
-              Some {monoms = cnl}
-            with
-            [ Exit → None ]
-          in
-          match pol_opt with
-          [ Some pol →
-              let t = tree_of_polyn k pol in
-              failwith
-                (sprintf "not impl substituted polynomial %s"
-                   (string_of_tree k True "x" "y" t))
-          | None →
-              failwith
-                (sprintf "cannot compute roots of '%s'\n%!"
-                   (string_of_tree k True "x" "y" polyn)) ]
-      | None →
-          let t = tree_of_polyn k {monoms = List.rev pol.monoms} in
-          failwith
-            (sprintf "cannot compute roots of '%s'\n%!"
-               (string_of_tree k True "x" "y" t)) ];
-*)
-    } ]
+      None } ]
 ;
 
 value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {

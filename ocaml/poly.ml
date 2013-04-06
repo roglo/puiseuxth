@@ -1,7 +1,13 @@
-(* $Id: poly.ml,v 1.13 2013-04-06 09:07:58 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.14 2013-04-06 09:40:51 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type polynomial α = { monoms : list (monomial α) };
+
+type new_polynomial α = { al : list α };
+(*
+value np_of_p pol =
+;
+*)
 
 value merge_pow add_coeff is_null_coeff =
   loop [] where rec loop rev_list =

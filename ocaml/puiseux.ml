@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.124 2013-04-06 09:32:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.125 2013-04-06 09:36:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -217,7 +217,7 @@ value airy_string_of_puiseux_series k opt vx pol =
   airy_string_of_tree k opt vx "?" t
 ;
 
-value string_of_xy_polyn k opt vx vy pol =
+value string_of_ps_polyn k opt vx vy pol =
   let t = tree_of_ps_polyn k pol in
   string_of_tree k opt vx vy t
 ;
@@ -331,7 +331,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
     xy_float_round_zero k pol
   in
   if verbose.val then
-    let s = string_of_xy_polyn k True br.vx br.vy pol in
+    let s = string_of_ps_polyn k True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();

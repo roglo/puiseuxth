@@ -1,7 +1,13 @@
-(* $Id: poly.mli,v 1.14 2013-04-06 09:07:58 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.15 2013-04-06 09:40:51 deraugla Exp $ *)
 
 type monomial α = { coeff : α; power : int };
 type polynomial α = { monoms : list (monomial α) };
+
+type new_polynomial α = { al : list α };
+(*
+value np_of_p : polynomial α → new_polynomial α;
+value p_of_np : new_polynomial α → polynomial α;
+*)
 
 value pol_add :
   (α → α → α) → (α → bool)
