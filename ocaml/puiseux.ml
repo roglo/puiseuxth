@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.141 2013-04-06 17:56:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.142 2013-04-06 18:01:22 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -456,8 +456,7 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux k nb_steps vx vy opol =
-  let pol = p_of_op {ps_monoms = []} opol in
+value puiseux k nb_steps vx vy pol =
   let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
   let _rev_sol_list =
@@ -491,10 +490,13 @@ value is_zero_tree k =
 value polyn_of_tree k t =
   let pol = tree_polyn_of_tree k t in
   let opol = op_of_p (is_zero_tree k) pol in
-  {monoms =
-   List.map
-     (fun m → {coeff = puiseux_series_of_tree k m.coeff; power = m.power})
-     opol.monoms}
+  let opol =
+    {monoms =
+     List.map
+       (fun m → {coeff = puiseux_series_of_tree k m.coeff; power = m.power})
+       opol.monoms}
+  in
+  p_of_op {ps_monoms = []} opol
 ;
 
 value anon_fun s =
