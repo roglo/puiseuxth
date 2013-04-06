@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.70 2013-04-06 20:12:02 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.71 2013-04-06 20:14:10 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -323,6 +323,7 @@ value roots_of_c_coeffs k pol coeffs =
 ;
 
 value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
+  let opol = op_of_p (k.eq k.zero) pol in
   let degree = (List.hd (List.rev apol.monoms)).power in
   let rl_opt =
     match degree with
@@ -355,8 +356,8 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
             Some rl
           }
         | None → do {
-            let coeffs = list_of_polynomial k.zero pol in
-            roots_of_c_coeffs k pol coeffs
+            let coeffs = list_of_polynomial k.zero opol in
+            roots_of_c_coeffs k opol coeffs
           } ] ]
   in
   match rl_opt with
@@ -492,7 +493,7 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
   in
   match apol_opt with
   [ Some apol →
-      match roots_of_polynom_with_algebraic_coeffs k power_gcd opol apol with
+      match roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol with
       [ Some rl → rl
       | None → do {
           if verbose.val then
