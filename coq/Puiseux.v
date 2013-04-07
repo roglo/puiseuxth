@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.23 2013-04-07 11:02:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.24 2013-04-07 11:20:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -233,10 +233,21 @@ Proof.
 intros α k pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta k pol) as gb.
-destruct gb; [ idtac | exfalso; apply ai_nz; reflexivity ].
-clear ai_nz.
+destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
 destruct p as (γ, β).
 exists γ.
+unfold gamma_beta in Heqgb.
+rewrite <- Hlch in Heqgb.
+destruct lch; [ discriminate Heqgb | idtac ].
+destruct p as (x₁, y₁).
+destruct lch; [ discriminate Heqgb | idtac ].
+destruct p as (x₂, y₂).
+injection Heqgb; intros H₁ H₂; clear Heqgb.
+exists x₁, y₁, x₂, y₂.
+split; [ left; reflexivity | idtac ].
+split; [ right; left; reflexivity | idtac ].
+split.
+ subst γ.
 bbb.
 
 Record branch α :=
