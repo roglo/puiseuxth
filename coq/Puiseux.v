@@ -1,8 +1,9 @@
-(* $Id: Puiseux.v,v 1.25 2013-04-07 14:29:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.26 2013-04-07 18:29:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import ConvexHull.
+Require Import Sorting.
 Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
@@ -235,6 +236,17 @@ destruct chp.
   intros H; discriminate H.
 Qed.
 
+Lemma LocallySorted_1st_two : ∀ A R (a b : A) l,
+  LocallySorted R [a, b … l] → R a b.
+Proof.
+intros A R a b l H; inversion H; assumption.
+Qed.
+
+Lemma yyy : ∀ pts,
+  LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull pts)).
+Proof.
+Admitted.
+
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
@@ -263,6 +275,15 @@ split.
  subst γ.
  field.
  remember (valuation_points α k pol) as pts.
+ pose proof (yyy pts) as Hsort.
+ rewrite <- Hlch in Hsort.
+ simpl in Hsort.
+ apply LocallySorted_1st_two in Hsort.
+ apply Qlt_not_eq in Hsort.
+ intros H; apply Hsort; clear Hsort.
+(*
+ apply Qlt_minus_iff in Hsort.
+*)
 bbb.
 
 Record branch α :=
