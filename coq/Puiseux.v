@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.24 2013-04-07 11:20:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.25 2013-04-07 14:29:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -58,19 +58,22 @@ Definition valuation_coeff {α} ps := fst (@ps_1 α ps).
 Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
-Fixpoint valuation_points α k deg cl cn :=
+Fixpoint valuation_points_loop α k deg cl cn :=
   match cl with
   | [c₁ … cl₁] =>
-      if k_eq_dec k c₁ (zero k) then valuation_points α k (S deg) cl₁ cn
+      if k_eq_dec k c₁ (zero k) then valuation_points_loop α k (S deg) cl₁ cn
       else
         let xy := (Z.of_nat deg # 1, @valuation α c₁) in
-        [xy … valuation_points α k (S deg) cl₁ cn]
+        [xy … valuation_points_loop α k (S deg) cl₁ cn]
   | [] =>
       [(Z.of_nat deg # 1, @valuation α cn)]
   end.
 
+Definition valuation_points α k pol :=
+  valuation_points_loop α k 0%nat (al pol) (an pol).
+
 Definition gamma_beta {α} k pol :=
-  let xyl := valuation_points α k 0%nat (al pol) (an pol) in
+  let xyl := valuation_points α k pol in
   match lower_convex_hull xyl with
   | [(x₁, y₁), (x₂, y₂) … _] =>
       let γ := (y₂ - y₁) / (x₁ - x₂) in
@@ -81,8 +84,7 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma at_least_one_point : ∀ α k deg cl cn,
-  valuation_points α k deg cl cn ≠ [].
+Lemma one_vp_loop : ∀ α k deg cl cn, valuation_points_loop α k deg cl cn ≠ [].
 Proof.
 intros α k deg cl cn.
 revert deg.
@@ -90,9 +92,13 @@ induction cl as [| c]; intros; [ intros H; discriminate H | simpl ].
 destruct (k_eq_dec k c (zero k)); [ apply IHcl | intros H; discriminate H ].
 Qed.
 
-Lemma at_least_two_points : ∀ α k deg cl cn,
-  (∃ c, c ∈ cl ∧ c ≠ zero k)
-  → List.length (valuation_points α k deg cl cn) ≥ 2.
+Lemma at_least_one_valuation_point : ∀ α k pol, valuation_points α k pol ≠ [].
+Proof.
+intros; apply one_vp_loop.
+Qed.
+
+Lemma two_vp_loop : ∀ α k deg cl cn, (∃ c, c ∈ cl ∧ c ≠ zero k)
+  → List.length (valuation_points_loop α k deg cl cn) ≥ 2.
 Proof.
 intros α k deg cl cn Hcl.
 revert deg.
@@ -110,14 +116,21 @@ induction cl as [| c]; intros.
 
   simpl.
   apply le_n_S.
-  remember (length (valuation_points α k (S deg) cl cn)) as len.
+  remember (length (valuation_points_loop α k (S deg) cl cn)) as len.
   destruct len.
-   remember (valuation_points α k (S deg) cl cn) as l.
+   remember (valuation_points_loop α k (S deg) cl cn) as l.
    destruct l; [ idtac | discriminate Heqlen ].
    exfalso; symmetry in Heql; revert Heql.
-   apply at_least_one_point.
+   apply one_vp_loop.
 
    apply le_n_S, le_0_n.
+Qed.
+
+Lemma at_least_two_valuation_points : ∀ α k pol,
+  (∃ c, c ∈ (al pol) ∧ c ≠ zero k)
+  → List.length (valuation_points α k pol) ≥ 2.
+Proof.
+intros; apply two_vp_loop; assumption.
 Qed.
 
 Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
@@ -182,13 +195,13 @@ Proof.
 intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
-remember (valuation_points α k 0 (al pol) (an pol)) as pts.
+remember (valuation_points α k pol) as pts.
 remember (lower_convex_hull pts) as chp.
 destruct chp.
  destruct pts; [ idtac | discriminate Heqchp ].
  symmetry in Heqpts.
  exfalso; revert Heqpts.
- apply at_least_one_point; assumption.
+ apply at_least_one_valuation_point; assumption.
 
  destruct p as (x₁, y₁).
  destruct chp.
@@ -197,13 +210,13 @@ destruct chp.
   injection Heqchp; intros H₁ H₂.
   subst p; clear Heqchp.
   destruct pts.
-   remember (length (valuation_points α k 0 (al pol) (an pol))) as len.
+   remember (length (valuation_points α k pol)) as len.
    destruct len.
     rewrite <- Heqpts in Heqlen.
     discriminate Heqlen.
 
     destruct len.
-     pose proof (at_least_two_points α k 0 (al pol) (an pol)) as H.
+     pose proof (at_least_two_valuation_points α k pol) as H.
      rewrite <- Heqlen in H.
      unfold ge in H.
      assert (le 2 1) as HH.
@@ -225,9 +238,9 @@ Qed.
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
-    → lch = lower_convex_hull (valuation_points α k 0%nat (al pol) (an pol))
+    → lch = lower_convex_hull (valuation_points α k pol)
       → ∃ γ x₁ y₁ x₂ y₂, (x₁, y₁) ∈ lch ∧ (x₂, y₂) ∈ lch ∧
-         γ * x₁ + y₁ = γ * x₂ + y₂ ∧
+         γ * x₁ + y₁ == γ * x₂ + y₂ ∧
          ∀ x y, (x, y) ∈ lch → γ * x₁ + y₁ ≤ γ * x + y.
 Proof.
 intros α k pol lch an_nz ai_nz Hlch.
@@ -248,6 +261,8 @@ split; [ left; reflexivity | idtac ].
 split; [ right; left; reflexivity | idtac ].
 split.
  subst γ.
+ field.
+ remember (valuation_points α k pol) as pts.
 bbb.
 
 Record branch α :=
