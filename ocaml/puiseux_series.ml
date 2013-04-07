@@ -1,11 +1,11 @@
-(* $Id: puiseux_series.ml,v 1.5 2013-04-06 22:53:57 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.6 2013-04-07 06:56:42 deraugla Exp $ *)
 
 open Pnums;
 
 type ps_monomial α = { coeff : α; power : Q.t };
 type puiseux_series α = { ps_monoms : list (ps_monomial α) };
 
-value merge_pow₂ add_coeff is_null_coeff =
+value merge_pow add_coeff is_null_coeff =
   loop [] where rec loop rev_list =
     fun
     [ [m₁ :: ml₁] →
@@ -59,5 +59,5 @@ value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
       [] ps₁.ps_monoms
   in
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
-  {ps_monoms = merge_pow₂ add_coeff is_null_coeff ml}
+  {ps_monoms = merge_pow add_coeff is_null_coeff ml}
 ;
