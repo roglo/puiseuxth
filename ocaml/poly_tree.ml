@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.67 2013-04-07 09:23:15 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.68 2013-04-07 09:24:49 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -503,6 +503,8 @@ value sum_tree_of_tree t =
     | Minus t₁ t₂ → expr [Neg t₂ :: list] t₁
     | t → [t :: list] ]
 ;
+
+type old_monomial α = { old_coeff : α; old_power : int };
 
 value rec tree_with_pow_y k t =
   match t with
