@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.22 2013-04-07 10:14:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.23 2013-04-07 11:02:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,6 +7,7 @@ Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
+Notation "x ≤ y" := (Qle x y) (at level 70).
 
 Record field α :=
   { zero : α;
@@ -57,19 +58,19 @@ Definition valuation_coeff {α} ps := fst (@ps_1 α ps).
 Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
-Fixpoint points_of_pol α k deg cl cn :=
+Fixpoint valuation_points α k deg cl cn :=
   match cl with
   | [c₁ … cl₁] =>
-      if k_eq_dec k c₁ (zero k) then points_of_pol α k (S deg) cl₁ cn
+      if k_eq_dec k c₁ (zero k) then valuation_points α k (S deg) cl₁ cn
       else
         let xy := (Z.of_nat deg # 1, @valuation α c₁) in
-        [xy … points_of_pol α k (S deg) cl₁ cn]
+        [xy … valuation_points α k (S deg) cl₁ cn]
   | [] =>
       [(Z.of_nat deg # 1, @valuation α cn)]
   end.
 
 Definition gamma_beta {α} k pol :=
-  let xyl := points_of_pol α k 0%nat (al pol) (an pol) in
+  let xyl := valuation_points α k 0%nat (al pol) (an pol) in
   match lower_convex_hull xyl with
   | [(x₁, y₁), (x₂, y₂) … _] =>
       let γ := (y₂ - y₁) / (x₁ - x₂) in
@@ -80,7 +81,8 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma at_least_one_point : ∀ α k deg cl cn, points_of_pol α k deg cl cn ≠ [].
+Lemma at_least_one_point : ∀ α k deg cl cn,
+  valuation_points α k deg cl cn ≠ [].
 Proof.
 intros α k deg cl cn.
 revert deg.
@@ -90,7 +92,7 @@ Qed.
 
 Lemma at_least_two_points : ∀ α k deg cl cn,
   (∃ c, c ∈ cl ∧ c ≠ zero k)
-  → List.length (points_of_pol α k deg cl cn) ≥ 2.
+  → List.length (valuation_points α k deg cl cn) ≥ 2.
 Proof.
 intros α k deg cl cn Hcl.
 revert deg.
@@ -108,9 +110,9 @@ induction cl as [| c]; intros.
 
   simpl.
   apply le_n_S.
-  remember (length (points_of_pol α k (S deg) cl cn)) as len.
+  remember (length (valuation_points α k (S deg) cl cn)) as len.
   destruct len.
-   remember (points_of_pol α k (S deg) cl cn) as l.
+   remember (valuation_points α k (S deg) cl cn) as l.
    destruct l; [ idtac | discriminate Heqlen ].
    exfalso; symmetry in Heql; revert Heql.
    apply at_least_one_point.
@@ -180,7 +182,7 @@ Proof.
 intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
-remember (points_of_pol α k 0 (al pol) (an pol)) as pts.
+remember (valuation_points α k 0 (al pol) (an pol)) as pts.
 remember (lower_convex_hull pts) as chp.
 destruct chp.
  destruct pts; [ idtac | discriminate Heqchp ].
@@ -195,7 +197,7 @@ destruct chp.
   injection Heqchp; intros H₁ H₂.
   subst p; clear Heqchp.
   destruct pts.
-   remember (length (points_of_pol α k 0 (al pol) (an pol))) as len.
+   remember (length (valuation_points α k 0 (al pol) (an pol))) as len.
    destruct len.
     rewrite <- Heqpts in Heqlen.
     discriminate Heqlen.
@@ -204,7 +206,7 @@ destruct chp.
      pose proof (at_least_two_points α k 0 (al pol) (an pol)) as H.
      rewrite <- Heqlen in H.
      unfold ge in H.
-     assert (2 ≤ 1) as HH.
+     assert (le 2 1) as HH.
       apply H.
       exists c; split; assumption.
 
@@ -219,6 +221,23 @@ destruct chp.
   destruct p.
   intros H; discriminate H.
 Qed.
+
+Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
+  an pol ≠ zero k
+  → (∃ c, c ∈ al pol ∧ c ≠ zero k)
+    → lch = lower_convex_hull (valuation_points α k 0%nat (al pol) (an pol))
+      → ∃ γ x₁ y₁ x₂ y₂, (x₁, y₁) ∈ lch ∧ (x₂, y₂) ∈ lch ∧
+         γ * x₁ + y₁ = γ * x₂ + y₂ ∧
+         ∀ x y, (x, y) ∈ lch → γ * x₁ + y₁ ≤ γ * x + y.
+Proof.
+intros α k pol lch an_nz ai_nz Hlch.
+apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
+remember (gamma_beta k pol) as gb.
+destruct gb; [ idtac | exfalso; apply ai_nz; reflexivity ].
+clear ai_nz.
+destruct p as (γ, β).
+exists γ.
+bbb.
 
 Record branch α :=
   { initial_polynom : polynomial (puiseux_series α);
