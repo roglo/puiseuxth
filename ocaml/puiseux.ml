@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.152 2013-04-07 07:29:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.153 2013-04-07 07:33:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -382,35 +382,20 @@ value rec puiseux_branch k br sol_list (γ, β) =
     }
     else ()
   in
-(**)
-  let ml = List.map (fun (ps, deg) → (valuation_coeff f ps, deg - j)) hl in
-  let pol =
-    loop [] 0 ml where rec loop rev_cl deg ml =
-      match ml with
-      [ [(v, hdeg) :: ml₁] →
-          if hdeg > deg then loop [f.zero :: rev_cl] (deg + 1) ml
-          else if hdeg < deg then invalid_arg "p_of_op"
-          else loop [v :: rev_cl] (deg + 1) ml₁
-      | [] →
-          {al = List.rev rev_cl} ]
-  in
-(**)
-(*
   let pol =
     loop [] 0 hl where rec loop rev_cl deg hl =
       match hl with
-      [ [(ps, hdeg) :: hl] →
+      [ [(ps, hdeg) :: hl₁] →
           if hdeg - j > deg then
             loop [f.zero :: rev_cl] (deg + 1) hl
           else if hdeg - j < deg then
             match () with []
           else
             let c = valuation_coeff f ps in
-            loop [c :: rev_cl] (deg + 1) hl
+            loop [c :: rev_cl] (deg + 1) hl₁
       | [] →
           {al = List.rev rev_cl} ]
   in
-*)
   let rl = k.ac_roots pol in
   if rl = [] then do {
     let sol = make_solution br.cγl in

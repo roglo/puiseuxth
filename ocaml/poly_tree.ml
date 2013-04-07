@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.61 2013-04-06 22:51:30 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.62 2013-04-07 07:37:32 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -324,12 +324,17 @@ value group_term_descr k tdl =
   in
   let ml =
     List.rev_map
-      (fun m →
-         {old_coeff = {ps_monoms = List.rev m.old_coeff.ps_monoms};
-          old_power = m.old_power})
+      (fun m → ({ps_monoms = List.rev m.old_coeff.ps_monoms}, m.old_power))
       rev_ml
   in
-  p_of_op {ps_monoms = []} ml
+  loop [] 0 ml where rec loop rev_cl deg ml =
+    match ml with
+    [ [(c, p) :: ml₁] →
+        if p > deg then loop [{ps_monoms = []} :: rev_cl] (deg + 1) ml
+        else if p < deg then match () with []
+        else loop [c :: rev_cl] (deg + 1) ml₁
+    | [] →
+        {al = List.rev rev_cl} ]
 ;
 
 value rec without_initial_neg k =
