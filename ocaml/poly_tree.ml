@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.62 2013-04-07 07:37:32 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.63 2013-04-07 07:43:09 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -307,24 +307,21 @@ value group_term_descr k tdl =
       (fun rev_myl td →
          let mx = {coeff = td.const; power = td.xpow} in
          match rev_myl with
-         [ [my :: rev_myl₁] →
-             if td.ypow = my.old_power then
-               let mxl = merge_const_px k mx my.old_coeff.ps_monoms in
+         [ [(ps, p) :: rev_myl₁] →
+             if td.ypow = p then
+               let mxl = merge_const_px k mx ps.ps_monoms in
                if mxl = [] then
                  rev_myl₁
                else
-                 [{old_coeff = {ps_monoms = mxl}; old_power = my.old_power} ::
-                  rev_myl₁]
+                 [({ps_monoms = mxl}, p) :: rev_myl₁]
              else
-               [{old_coeff = {ps_monoms = [mx]}; old_power = td.ypow} ::
-                rev_myl]
+               [({ps_monoms = [mx]}, td.ypow) :: rev_myl]
          | [] →
-             [{old_coeff = {ps_monoms = [mx]}; old_power = td.ypow}] ])
+             [({ps_monoms = [mx]}, td.ypow)] ])
       [] tdl
   in
   let ml =
-    List.rev_map
-      (fun m → ({ps_monoms = List.rev m.old_coeff.ps_monoms}, m.old_power))
+    List.rev_map (fun (ps, p) → ({ps_monoms = List.rev ps.ps_monoms}, p))
       rev_ml
   in
   loop [] 0 ml where rec loop rev_cl deg ml =
