@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.21 2013-04-06 03:16:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.22 2013-04-07 10:14:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -31,14 +31,14 @@ Arguments an : default implicits.
 Definition degree {α} (pol : polynomial α) := List.length (al pol).
 Arguments degree : default implicits.
 
-Definition eval_poly {α} k pol (x : α) :=
-  List.fold_right (λ accu coeff, add k accu (mul k coeff x)) (an pol)
+Definition apply_poly {α} k pol (x : α) :=
+  List.fold_right (λ accu coeff, add k (mul k accu x) coeff) (an pol)
     (al pol).
-Arguments eval_poly : default implicits. 
+Arguments apply_poly : default implicits. 
 
 Record alg_closed_field α :=
   { ac_field : field α;
-    ac_prop : ∀ pol x, @eval_poly α ac_field pol x = zero ac_field }.
+    ac_prop : ∀ pol x, @apply_poly α ac_field pol x = zero ac_field }.
 Arguments ac_field : default implicits. 
 Arguments ac_prop : default implicits. 
 

@@ -1,20 +1,9 @@
-(* $Id: poly.ml,v 1.27 2013-04-07 09:38:06 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.28 2013-04-07 10:14:35 deraugla Exp $ *)
 
 type polynomial α = { al : list α };
 type old_monomial α = { old_coeff : α; old_power : int };
 
-value p_of_op zero_coeff ml =
-  loop [] 0 ml where rec loop rev_np deg ml =
-    match ml with
-    [ [m :: ml₁] →
-        if m.old_power > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
-        else if m.old_power < deg then invalid_arg "p_of_op"
-        else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
-    | [] →
-        {al = List.rev rev_np} ]
-;
-
-value merge_pow add_coeff is_null_coeff =
+value merge_pow add_coeff is_zero_coeff =
   loop [] where rec loop rev_list =
     fun
     [ [m₁ :: ml₁] →
@@ -23,7 +12,7 @@ value merge_pow add_coeff is_null_coeff =
           [ [m₂ :: rev_list₂] →
               if compare m₁.old_power m₂.old_power = 0 then
                 let c = add_coeff m₁.old_coeff m₂.old_coeff in
-                if is_null_coeff c then rev_list₂
+                if is_zero_coeff c then rev_list₂
                 else [{old_coeff = c; old_power = m₁.old_power} :: rev_list₂]
               else
                 [m₁ :: rev_list]
@@ -65,8 +54,15 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
       ([], 0) pol₁.al
   in
   let ml = List.sort (fun m₁ m₂ → compare m₁.old_power m₂.old_power) ml in
-  let opol = merge_pow add_coeff is_zero_coeff ml in
-  p_of_op zero_coeff opol
+  let ml = merge_pow add_coeff is_zero_coeff ml in
+  loop [] 0 ml where rec loop rev_np deg ml =
+    match ml with
+    [ [m :: ml₁] →
+        if m.old_power > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
+        else if m.old_power < deg then invalid_arg "pol_mul"
+        else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
+    | [] →
+        {al = List.rev rev_np} ]
 ;
 
 value apply_poly zero_v add_v_coeff mul_v_x pol x =
