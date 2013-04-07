@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.26 2013-04-07 18:29:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.27 2013-04-07 18:36:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -247,6 +247,10 @@ Lemma yyy : ∀ pts,
 Proof.
 Admitted.
 
+Lemma xxx : ∀ x y, x - y == 0 → x == y.
+Proof.
+Admitted.
+
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
@@ -281,9 +285,10 @@ split.
  apply LocallySorted_1st_two in Hsort.
  apply Qlt_not_eq in Hsort.
  intros H; apply Hsort; clear Hsort.
-(*
- apply Qlt_minus_iff in Hsort.
-*)
+ apply xxx; assumption.
+
+ intros x y Hin.
+ subst γ.
 bbb.
 
 Record branch α :=
