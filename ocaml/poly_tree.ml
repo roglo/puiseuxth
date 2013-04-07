@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.66 2013-04-07 08:06:18 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.67 2013-04-07 09:23:15 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -591,8 +591,15 @@ value tree_polyn_of_tree k t =
   let tl = sum_tree_of_tree t in
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
-  let opol = old_merge_expr_pow k myl in
-  p_of_op (Const k.zero) opol
+  let myl = old_merge_expr_pow k myl in
+  loop [] 0 myl where rec loop rev_np deg ml =
+    match ml with
+    [ [m :: ml₁] →
+        if m.old_power > deg then loop [Const k.zero :: rev_np] (deg + 1) ml
+        else if m.old_power < deg then match () with []
+        else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
+    | [] →
+        {al = List.rev rev_np} ]
 ;
 
 value rec expr_with_pow_x k t =
