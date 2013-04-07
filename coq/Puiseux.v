@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.27 2013-04-07 18:36:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.28 2013-04-07 18:46:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,7 +8,6 @@ Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
-Notation "x ≤ y" := (Qle x y) (at level 70).
 
 Record field α :=
   { zero : α;
@@ -242,12 +241,18 @@ Proof.
 intros A R a b l H; inversion H; assumption.
 Qed.
 
+Lemma Qlt_minus : ∀ x y, x < y → x - y < 0.
+Proof.
+intros x y H.
+apply Qnot_le_lt.
+apply Qlt_not_le in H.
+intros HH; apply H; clear H.
+apply Qle_minus_iff.
+assumption.
+Qed.
+
 Lemma yyy : ∀ pts,
   LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull pts)).
-Proof.
-Admitted.
-
-Lemma xxx : ∀ x y, x - y == 0 → x == y.
 Proof.
 Admitted.
 
@@ -257,7 +262,7 @@ Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
     → lch = lower_convex_hull (valuation_points α k pol)
       → ∃ γ x₁ y₁ x₂ y₂, (x₁, y₁) ∈ lch ∧ (x₂, y₂) ∈ lch ∧
          γ * x₁ + y₁ == γ * x₂ + y₂ ∧
-         ∀ x y, (x, y) ∈ lch → γ * x₁ + y₁ ≤ γ * x + y.
+         ∀ x y, (x, y) ∈ lch → γ * x₁ + y₁ <= γ * x + y.
 Proof.
 intros α k pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
@@ -283,9 +288,7 @@ split.
  rewrite <- Hlch in Hsort.
  simpl in Hsort.
  apply LocallySorted_1st_two in Hsort.
- apply Qlt_not_eq in Hsort.
- intros H; apply Hsort; clear Hsort.
- apply xxx; assumption.
+ apply Qlt_not_eq, Qlt_minus; assumption.
 
  intros x y Hin.
  subst γ.
