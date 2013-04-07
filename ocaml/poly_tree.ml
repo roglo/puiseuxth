@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.63 2013-04-07 07:43:09 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.64 2013-04-07 07:55:19 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -310,26 +310,22 @@ value group_term_descr k tdl =
          [ [(ps, p) :: rev_myl₁] →
              if td.ypow = p then
                let mxl = merge_const_px k mx ps.ps_monoms in
-               if mxl = [] then
-                 rev_myl₁
-               else
-                 [({ps_monoms = mxl}, p) :: rev_myl₁]
-             else
-               [({ps_monoms = [mx]}, td.ypow) :: rev_myl]
+               if mxl = [] then rev_myl₁
+               else [({ps_monoms = mxl}, p) :: rev_myl₁]
+             else [({ps_monoms = [mx]}, td.ypow) :: rev_myl]
          | [] →
              [({ps_monoms = [mx]}, td.ypow)] ])
       [] tdl
-  in
-  let ml =
-    List.rev_map (fun (ps, p) → ({ps_monoms = List.rev ps.ps_monoms}, p))
-      rev_ml
-  in
-  loop [] 0 ml where rec loop rev_cl deg ml =
+  in 
+  loop [] 0 (List.rev rev_ml) where rec loop rev_cl deg ml =
     match ml with
-    [ [(c, p) :: ml₁] →
-        if p > deg then loop [{ps_monoms = []} :: rev_cl] (deg + 1) ml
-        else if p < deg then match () with []
-        else loop [c :: rev_cl] (deg + 1) ml₁
+    [ [(ps, p) :: ml₁] →
+        if p > deg then
+          loop [{ps_monoms = []} :: rev_cl] (deg + 1) ml
+        else if p < deg then
+          match () with []
+        else
+          loop [{ps_monoms = List.rev ps.ps_monoms} :: rev_cl] (deg + 1) ml₁
     | [] →
         {al = List.rev rev_cl} ]
 ;
