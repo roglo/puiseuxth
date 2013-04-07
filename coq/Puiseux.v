@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.29 2013-04-07 19:37:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.30 2013-04-07 20:42:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,9 +28,7 @@ Arguments k_eq_dec : default implicits.
 Record polynomial α := { al : list α; an : α }.
 Arguments al : default implicits.
 Arguments an : default implicits.
-
-Definition degree {α} (pol : polynomial α) := List.length (al pol).
-Arguments degree : default implicits.
+Arguments polynomial : default implicits.
 
 Definition apply_poly {α} k pol (x : α) :=
   List.fold_right (λ accu coeff, add k (mul k accu x) coeff) (an pol)
@@ -58,19 +56,22 @@ Definition valuation_coeff {α} ps := fst (@ps_1 α ps).
 Arguments valuation : default implicits.
 Arguments valuation_coeff : default implicits.
 
-Fixpoint valuation_points_loop α k deg cl cn :=
+Fixpoint coeff_power_list_of_pol α pow cl (cn : puiseux_series α) :=
   match cl with
-  | [c₁ … cl₁] =>
-      if k_eq_dec k c₁ (zero k) then valuation_points_loop α k (S deg) cl₁ cn
-      else
-        let xy := (Z.of_nat deg # 1, @valuation α c₁) in
-        [xy … valuation_points_loop α k (S deg) cl₁ cn]
-  | [] =>
-      [(Z.of_nat deg # 1, @valuation α cn)]
+  | [c₁ … cl₁] => [(c₁, pow) … coeff_power_list_of_pol α (S pow) cl₁ cn]
+  | [] => [(cn, pow)]
   end.
 
+Definition valuation_points_gen α k pow cl cn :=
+  let cpl := coeff_power_list_of_pol α pow cl cn in
+  let scpl :=
+    List.filter (λ cp, if k_eq_dec k (fst cp) (zero k) then false else true)
+      cpl
+  in
+  List.map (λ cp, (Z.of_nat (snd cp) # 1, @valuation α (fst cp))) scpl.
+
 Definition valuation_points α k pol :=
-  valuation_points_loop α k 0%nat (al pol) (an pol).
+  valuation_points_gen α k 0%nat (al pol) (an pol).
 
 Definition gamma_beta {α} k pol :=
   let xyl := valuation_points α k pol in
@@ -84,10 +85,34 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma one_vp_loop : ∀ α k deg cl cn, valuation_points_loop α k deg cl cn ≠ [].
+Lemma cpl_not_empty : ∀ α pow cl cn, coeff_power_list_of_pol α pow cl cn ≠ [].
 Proof.
-intros α k deg cl cn.
-revert deg.
+intros; destruct cl; intros H; discriminate H.
+Qed.
+
+Lemma one_vp_gen : ∀ α k pow cl cn,
+  cn ≠ zero k → valuation_points_gen α k pow cl cn ≠ [].
+Proof.
+intros α k pow cl cn Hcn.
+unfold valuation_points_gen.
+remember (coeff_power_list_of_pol α pow cl cn) as cpl.
+destruct cpl as [| cp cpl].
+ exfalso; symmetry in Heqcpl; revert Heqcpl; apply cpl_not_empty.
+
+ simpl.
+bbb.
+
+intros α k pow cl cn Hcn.
+revert pow.
+induction cl as [| c]; intros.
+ unfold valuation_points_gen.
+ simpl.
+ destruct (k_eq_dec k cn (zero k)); [ contradiction | idtac ].
+ intros H; discriminate H.
+bbb.
+
+(*
+revert pow.
 induction cl as [| c]; intros; [ intros H; discriminate H | simpl ].
 destruct (k_eq_dec k c (zero k)); [ apply IHcl | intros H; discriminate H ].
 Qed.
@@ -402,4 +427,5 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
+*)
 *)
