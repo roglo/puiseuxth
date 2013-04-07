@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.64 2013-04-07 07:55:19 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.65 2013-04-07 08:01:09 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -26,17 +26,6 @@ type tree α =
 ;
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
-
-value rec tree_map f =
-  fun
-  [ Plus t₁ t₂ → Plus (tree_map f t₁) (tree_map f t₂)
-  | Minus t₁ t₂ → Minus (tree_map f t₁) (tree_map f t₂)
-  | Neg t → Neg (tree_map f t)
-  | Mult t₁ t₂ → Mult (tree_map f t₁) (tree_map f t₂)
-  | Xpower n d → Xpower n d
-  | Ypower n → Ypower n
-  | Const c → Const (f c) ]
-;
 
 value rec comb n k =
   if n ≤ 0 || k < 0 || k > n then invalid_arg (sprintf "comb n=%d k=%d" n k)
@@ -507,19 +496,6 @@ value normalise k t =
   tree_of_ps_polyn k pol
 ;
 
-value substitute_y k y t =
-  let rec tree t =
-    match t with
-    [ Plus t₁ t₂ → Plus (tree t₁) (tree t₂)
-    | Minus t₁ t₂ → Minus (tree t₁) (tree t₂)
-    | Neg t → Neg (tree t)
-    | Mult t₁ t₂ → Mult (tree t₁) (tree t₂)
-    | Ypower py → tree_power k y py 1
-    | Xpower _ _ | Const _ → t ]
-  in
-  tree t
-;
-
 value sum_tree_of_tree t =
   expr [] t where rec expr list =
     fun
@@ -562,7 +538,7 @@ value _list_sort cmp =
 value compare_expr_pow cmp m₁ m₂ = cmp m₁.old_power m₂.old_power;
 value compare_expr_pow₂ cmp m₁ m₂ = cmp m₁.power m₂.power;
 
-value merge_expr_pow k power_eq merge_old_coeffs =
+value old_merge_expr_pow k power_eq merge_old_coeffs =
   loop [] where rec loop rev_list =
     fun
     [ [m₁ :: ml₁] →
@@ -581,7 +557,7 @@ value merge_expr_pow k power_eq merge_old_coeffs =
         List.rev rev_list ]
 ;
 
-value merge_expr_pow₂ k power_eq merge_old_coeffs =
+value merge_expr_pow k power_eq merge_old_coeffs =
   loop [] where rec loop rev_list =
     fun
     [ [m₁ :: ml₁] →
@@ -624,8 +600,8 @@ value tree_polyn_of_tree k t =
   let tl = sum_tree_of_tree t in
   let myl = List.map (tree_with_pow_y k) tl in
   let myl = List.sort (compare_expr_pow \-) myl in
-  let myl = merge_expr_pow k \= merge_old_coeffs myl in
-  p_of_op (Const k.zero) myl
+  let opol = old_merge_expr_pow k \= merge_old_coeffs myl in
+  p_of_op (Const k.zero) opol
 ;
 
 value rec expr_with_pow_x k t =
@@ -661,7 +637,7 @@ value puiseux_series_of_tree k t =
   let tl = sum_tree_of_tree t in
   let mxl = List.map (expr_with_pow_x k) tl in
   let mxl = List.sort (compare_expr_pow₂ Q.compare) mxl in
-  let mxl = merge_expr_pow₂ k Q.eq merge_old_coeffs₂ mxl in
+  let mxl = merge_expr_pow k Q.eq merge_old_coeffs₂ mxl in
   let mxl =
     List.map
       (fun mx → {coeff = const_of_tree k mx.coeff; power = mx.power})
