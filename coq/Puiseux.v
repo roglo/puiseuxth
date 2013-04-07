@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.28 2013-04-07 18:46:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.29 2013-04-07 19:37:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -250,6 +250,33 @@ intros HH; apply H; clear H.
 apply Qle_minus_iff.
 assumption.
 Qed.
+
+Lemma www : ∀ α k deg al an,
+  LocallySorted Qlt
+    (List.map (λ xy, fst xy) (valuation_points_loop α k deg al an)).
+Proof.
+intros α k deg al an.
+revert deg.
+induction al as [| a al]; intros; [ constructor | simpl ].
+destruct (k_eq_dec k a (zero k)) as [| Hne]; [ apply IHal | simpl ].
+destruct al as [| b al]; simpl.
+ constructor; [ constructor | idtac ].
+ unfold Qlt; simpl.
+ rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_1_r.
+ rewrite Zpos_P_of_succ_nat.
+ apply Z.lt_succ_diag_r.
+bbb.
+
+Lemma xxx : ∀ α k pol,
+  LocallySorted Qlt (List.map (λ xy, fst xy) (valuation_points α k pol)).
+Proof.
+intros α k pol.
+destruct pol as (al, an).
+unfold valuation_points.
+simpl.
+induction al as [| a al]; [ constructor | simpl ].
+bbb.
 
 Lemma yyy : ∀ pts,
   LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull pts)).
