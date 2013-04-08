@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.39 2013-04-08 19:55:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.40 2013-04-08 20:31:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -420,6 +420,34 @@ induction cl as [| c cl]; intros; unfold valuation_points_gen; simpl.
 bbb.
 *)
 
+Lemma www : ∀ α k pow cl cn rl n xy₁ v₁,
+  LocallySorted Qlt
+    (List.map (λ xy, fst xy)
+       (next_points rl n (xy₁, v₁)
+          (valuation_points_gen α k (S pow) cl cn)))
+  → LocallySorted Qlt
+      [xy₁
+      … List.map (λ xy, fst xy)
+          (next_points rl n (xy₁, v₁)
+             (valuation_points_gen α k (S pow) cl cn))].
+Proof.
+intros.
+rename H into Hsort.
+destruct cl as [| c₁].
+ unfold valuation_points_gen in Hsort |- *.
+ simpl.
+ simpl in Hsort.
+ destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
+  simpl in Hsort |- *.
+  remember (List.rev rl) as l.
+  clear rl Heql.
+  revert xy₁.
+  induction l as [| xy]; intros; [ constructor | simpl ].
+  constructor.
+   apply IHl.
+   inversion Hsort; [ constructor | assumption ].
+bbb.
+
 Lemma xxx : ∀ α k pow cl cn xyl,
   xyl = valuation_points_gen α k pow cl cn
   → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
@@ -428,8 +456,7 @@ intros α k pow cl cn xyl Hxyl.
 subst xyl.
 revert pow cn.
 induction cl as [| c]; intros.
- unfold valuation_points_gen.
- simpl.
+ unfold valuation_points_gen; simpl.
  destruct (k_eq_dec k cn (zero k)) as [| Hne]; constructor.
 
  unfold valuation_points_gen; simpl.
