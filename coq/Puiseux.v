@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.38 2013-04-08 19:24:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.39 2013-04-08 19:55:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -418,30 +418,31 @@ induction cl as [| c cl]; intros; unfold valuation_points_gen; simpl.
   destruct (k_eq_dec k b (zero k)).
    rewrite fold_valuation_points_gen.
 bbb.
-
-Lemma xxx : ∀ α k pol,
-  LocallySorted Qlt (List.map (λ xy, fst xy) (valuation_points α k pol)).
-Proof.
-intros α k pol.
-destruct pol as (al, an).
-unfold valuation_points.
-simpl.
-induction al as [| a al]; [ constructor | simpl ].
-bbb.
 *)
 
-Lemma xxx : ∀ α k pol xyl,
-  xyl = valuation_points α k pol
-  ∧ LocallySorted Qlt (List.map (λ xy, fst xy) xyl)
-    → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
+Lemma xxx : ∀ α k pow cl cn xyl,
+  xyl = valuation_points_gen α k pow cl cn
+  → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
 Proof.
-Admitted.
+intros α k pow cl cn xyl Hxyl.
+subst xyl.
+revert pow cn.
+induction cl as [| c]; intros.
+ unfold valuation_points_gen.
+ simpl.
+ destruct (k_eq_dec k cn (zero k)) as [| Hne]; constructor.
+
+ unfold valuation_points_gen; simpl.
+ destruct (k_eq_dec k c (zero k)) as [| Hne]; [ apply IHcl | simpl ].
+ rewrite fold_valuation_points_gen.
+bbb.
 
 Lemma yyy : ∀ α k pol xyl,
   xyl = valuation_points α k pol
   → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
 Proof.
 intros α k pol xyl₁ Hxyl₁.
+bbb.
 induction xyl₁ as [| xy₁]; [ constructor | simpl ].
 destruct xyl₁ as [| xyl₂].
  simpl.
