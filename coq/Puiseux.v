@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.36 2013-04-08 11:53:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.37 2013-04-08 17:48:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -319,6 +319,19 @@ constructor.
  left; reflexivity.
 Qed.
 
+Lemma LocallySorted_map_iff : ∀ α β f (g : α → β) l,
+  LocallySorted (λ x y, f (g x) (g y)) l ↔ LocallySorted f (List.map g l).
+Proof.
+intros; split; intros H.
+ induction l as [| x]; [ constructor | simpl ].
+ destruct l as [| y]; [ constructor | simpl ].
+ inversion H; constructor; [ apply IHl | idtac ]; assumption.
+
+ induction l as [| x]; [ constructor | simpl ].
+ destruct l as [| y]; [ constructor | simpl ].
+ inversion H; constructor; [ apply IHl | idtac ]; assumption.
+Qed.
+
 (*
 Lemma uuu : ∀ α k cpl,
   LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂)) cpl
@@ -326,17 +339,35 @@ Lemma uuu : ∀ α k cpl,
       (filter_non_zero_coeffs α k cpl).
 Proof.
 intros α k cpl Hsort.
+apply LocallySorted_map in Hsort.
+apply LocallySorted_map.
 induction cpl as [| cp]; [ constructor | simpl ].
-destruct (k_eq_dec k (fst cp) (zero k)) as [Heq| Hne].
+destruct (k_eq_dec k (fst cp) (zero k)).
  apply IHcpl.
  inversion Hsort; [ constructor | assumption ].
 
- remember (filter_non_zero_coeffs α k cpl) as scpl.
- destruct scpl as [| cp₂]; constructor.
-  apply IHcpl.
-  inversion Hsort; [ constructor | assumption ].
+ destruct cpl as [| cp₂]; [ constructor | simpl ].
+ destruct (k_eq_dec k (fst cp₂) (zero k)).
+  simpl in Hsort.
+  Focus 2.
+  simpl.
+  constructor.
+   simpl in IHcpl.
+   destruct (k_eq_dec k (fst cp₂) (zero k)); [ contradiction | idtac ].
+   apply IHcpl.
+   simpl in Hsort.
+   inversion Hsort.
+   assumption.
+
+   inversion Hsort.
+   assumption.
+
+  inversion Hsort.
+  subst a b l.
+  apply IHcpl in H1.
+  simpl in H1.
+  destruct (k_eq_dec k (fst cp₂) (zero k)); [ idtac | contradiction ].
 bbb.
-*)
 
 Lemma vvv : ∀ α k f cpl,
   LocallySorted f cpl → LocallySorted f (filter_non_zero_coeffs α k cpl).
@@ -360,7 +391,6 @@ induction cpl as [| cp].
    constructor.
     apply IHcpl.
     inversion Hsort; [ constructor | assumption ].
-(* I think f must be transitive *)
 bbb.
 
 Lemma www : ∀ α k pow cl cn,
@@ -398,11 +428,23 @@ unfold valuation_points.
 simpl.
 induction al as [| a al]; [ constructor | simpl ].
 bbb.
+*)
 
 Lemma yyy : ∀ pts,
   LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull pts)).
 Proof.
-Admitted.
+intros xyl₁.
+induction xyl₁ as [| xy₁]; [ constructor | simpl ].
+destruct xyl₁ as [| xyl₂].
+ simpl.
+ destruct xy₁; constructor.
+
+ simpl.
+ destruct xy₁ as (x₁, y₁).
+ destruct xyl₂ as (x₂, y₂).
+ simpl.
+ simpl in IHxyl₁.
+bbb.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
