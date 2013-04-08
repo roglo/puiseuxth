@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.31 2013-04-08 02:50:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.32 2013-04-08 08:22:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -116,17 +116,25 @@ Proof.
 intros; apply one_vp_gen; assumption.
 Qed.
 
-Lemma two_vp_gen : ∀ α k deg cl cn,
+Lemma fold_valuation_points_gen : ∀ α k pow cl cn,
+  List.map
+   (λ cp, (Z.of_nat (snd cp) # 1, valuation (fst cp)))
+   (List.filter (λ cp, if k_eq_dec k (fst cp) (zero k) then false else true)
+     (coeff_power_list_of_pol α pow cl cn)) =
+  valuation_points_gen α k pow cl cn.
+Proof. reflexivity. Qed.
+
+Lemma two_vp_gen : ∀ α k pow cl cn,
   cn ≠ zero k
   → (∃ c, c ∈ cl ∧ c ≠ zero k)
-    → List.length (valuation_points_gen α k deg cl cn) ≥ 2.
+    → List.length (valuation_points_gen α k pow cl cn) ≥ 2.
 Proof.
-intros α k deg cl cn Hcn Hcl.
-revert deg.
+intros α k pow cl cn Hcn Hcl.
+revert pow.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
- simpl.
+ unfold valuation_points_gen; simpl.
  destruct (k_eq_dec k c (zero k)).
   destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
    subst c₁; contradiction.
@@ -137,21 +145,23 @@ induction cl as [| c]; intros.
 
   simpl.
   apply le_n_S.
-  remember (length (valuation_points_loop α k (S deg) cl cn)) as len.
+  rewrite fold_valuation_points_gen.
+  remember (length (valuation_points_gen α k (S pow) cl cn)) as len.
   destruct len.
-   remember (valuation_points_loop α k (S deg) cl cn) as l.
+   remember (valuation_points_gen α k (S pow) cl cn) as l.
    destruct l; [ idtac | discriminate Heqlen ].
    exfalso; symmetry in Heql; revert Heql.
-   apply one_vp_loop.
+   apply one_vp_gen; assumption.
 
    apply le_n_S, le_0_n.
 Qed.
 
 Lemma at_least_two_valuation_points : ∀ α k pol,
-  (∃ c, c ∈ (al pol) ∧ c ≠ zero k)
-  → List.length (valuation_points α k pol) ≥ 2.
+  an pol ≠ zero k
+  → (∃ c, c ∈ (al pol) ∧ c ≠ zero k)
+    → List.length (valuation_points α k pol) ≥ 2.
 Proof.
-intros; apply two_vp_loop; assumption.
+intros; apply two_vp_gen; assumption.
 Qed.
 
 Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
@@ -240,7 +250,7 @@ destruct chp.
      pose proof (at_least_two_valuation_points α k pol) as H.
      rewrite <- Heqlen in H.
      unfold ge in H.
-     assert (le 2 1) as HH.
+     assert (2 ≤ 1) as HH.
       apply H.
       exists c; split; assumption.
 
@@ -272,12 +282,12 @@ apply Qle_minus_iff.
 assumption.
 Qed.
 
-Lemma www : ∀ α k deg al an,
+Lemma www : ∀ α k pow al an,
   LocallySorted Qlt
-    (List.map (λ xy, fst xy) (valuation_points_loop α k deg al an)).
+    (List.map (λ xy, fst xy) (valuation_points_loop α k pow al an)).
 Proof.
-intros α k deg al an.
-revert deg.
+intros α k pow al an.
+revert pow.
 induction al as [| a al]; intros; [ constructor | simpl ].
 destruct (k_eq_dec k a (zero k)) as [| Hne]; [ apply IHal | simpl ].
 destruct al as [| b al]; simpl.
