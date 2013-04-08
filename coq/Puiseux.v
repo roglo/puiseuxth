@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.32 2013-04-08 08:22:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.33 2013-04-08 08:25:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -251,8 +251,7 @@ destruct chp.
      rewrite <- Heqlen in H.
      unfold ge in H.
      assert (2 ≤ 1) as HH.
-      apply H.
-      exists c; split; assumption.
+      apply H; [ assumption | exists c; split; assumption ].
 
       apply le_not_lt in HH.
       exfalso; apply HH, lt_n_Sn.
@@ -284,7 +283,7 @@ Qed.
 
 Lemma www : ∀ α k pow al an,
   LocallySorted Qlt
-    (List.map (λ xy, fst xy) (valuation_points_loop α k pow al an)).
+    (List.map (λ xy, fst xy) (valuation_points_gen α k pow al an)).
 Proof.
 intros α k pow al an.
 revert pow.
