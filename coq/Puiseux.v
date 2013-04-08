@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.30 2013-04-07 20:42:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.31 2013-04-08 02:50:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -96,36 +96,32 @@ Proof.
 intros α k pow cl cn Hcn.
 unfold valuation_points_gen.
 remember (coeff_power_list_of_pol α pow cl cn) as cpl.
-destruct cpl as [| cp cpl].
- exfalso; symmetry in Heqcpl; revert Heqcpl; apply cpl_not_empty.
-
- simpl.
-bbb.
-
-intros α k pow cl cn Hcn.
-revert pow.
-induction cl as [| c]; intros.
- unfold valuation_points_gen.
- simpl.
- destruct (k_eq_dec k cn (zero k)); [ contradiction | idtac ].
+revert pow cpl Heqcpl.
+induction cl as [| c cl]; intros.
+ subst cpl; simpl.
+ destruct (k_eq_dec k cn (zero k)); [ contradiction | simpl ].
  intros H; discriminate H.
-bbb.
 
-(*
-revert pow.
-induction cl as [| c]; intros; [ intros H; discriminate H | simpl ].
-destruct (k_eq_dec k c (zero k)); [ apply IHcl | intros H; discriminate H ].
+ subst cpl; simpl.
+ destruct (k_eq_dec k c (zero k)).
+  eapply IHcl; reflexivity.
+
+  simpl.
+  intros H; discriminate H.
 Qed.
 
-Lemma at_least_one_valuation_point : ∀ α k pol, valuation_points α k pol ≠ [].
+Lemma at_least_one_valuation_point : ∀ α k pol,
+  an pol ≠ zero k → valuation_points α k pol ≠ [].
 Proof.
-intros; apply one_vp_loop.
+intros; apply one_vp_gen; assumption.
 Qed.
 
-Lemma two_vp_loop : ∀ α k deg cl cn, (∃ c, c ∈ cl ∧ c ≠ zero k)
-  → List.length (valuation_points_loop α k deg cl cn) ≥ 2.
+Lemma two_vp_gen : ∀ α k deg cl cn,
+  cn ≠ zero k
+  → (∃ c, c ∈ cl ∧ c ≠ zero k)
+    → List.length (valuation_points_gen α k deg cl cn) ≥ 2.
 Proof.
-intros α k deg cl cn Hcl.
+intros α k deg cl cn Hcn Hcl.
 revert deg.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
