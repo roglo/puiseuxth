@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.35 2013-04-08 09:25:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.36 2013-04-08 11:53:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,12 +62,13 @@ Fixpoint coeff_power_list_of_pol α pow cl (cn : puiseux_series α) :=
   | [] => [(cn, pow)]
   end.
 
+Definition filter_non_zero_coeffs α k (cpl : list (puiseux_series α * nat)) :=
+  List.filter (λ cp, if k_eq_dec k (fst cp) (zero k) then false else true)
+    cpl.
+
 Definition valuation_points_gen α k pow cl cn :=
   let cpl := coeff_power_list_of_pol α pow cl cn in
-  let scpl :=
-    List.filter (λ cp, if k_eq_dec k (fst cp) (zero k) then false else true)
-      cpl
-  in
+  let scpl := filter_non_zero_coeffs α k cpl in
   List.map (λ cp, (Z.of_nat (snd cp) # 1, @valuation α (fst cp))) scpl.
 
 Definition valuation_points α k pol :=
@@ -119,8 +120,7 @@ Qed.
 Lemma fold_valuation_points_gen : ∀ α k pow cl cn,
   List.map
    (λ cp, (Z.of_nat (snd cp) # 1, valuation (fst cp)))
-   (List.filter (λ cp, if k_eq_dec k (fst cp) (zero k) then false else true)
-     (coeff_power_list_of_pol α pow cl cn)) =
+   (filter_non_zero_coeffs α k (coeff_power_list_of_pol α pow cl cn)) =
   valuation_points_gen α k pow cl cn.
 Proof. reflexivity. Qed.
 
@@ -319,12 +319,58 @@ constructor.
  left; reflexivity.
 Qed.
 
+(*
+Lemma uuu : ∀ α k cpl,
+  LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂)) cpl
+  → LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂))
+      (filter_non_zero_coeffs α k cpl).
+Proof.
+intros α k cpl Hsort.
+induction cpl as [| cp]; [ constructor | simpl ].
+destruct (k_eq_dec k (fst cp) (zero k)) as [Heq| Hne].
+ apply IHcpl.
+ inversion Hsort; [ constructor | assumption ].
+
+ remember (filter_non_zero_coeffs α k cpl) as scpl.
+ destruct scpl as [| cp₂]; constructor.
+  apply IHcpl.
+  inversion Hsort; [ constructor | assumption ].
+bbb.
+*)
+
+Lemma vvv : ∀ α k f cpl,
+  LocallySorted f cpl → LocallySorted f (filter_non_zero_coeffs α k cpl).
+Proof.
+intros α k f cpl Hsort.
+induction cpl as [| cp].
+ constructor.
+
+ simpl.
+ destruct (k_eq_dec k (fst cp) (zero k)) as [Heq| Hne].
+  apply IHcpl.
+  inversion Hsort.
+   constructor.
+
+   assumption.
+
+  remember (filter_non_zero_coeffs α k cpl) as scpl.
+  destruct scpl as [| cp₂].
+   constructor.
+
+   constructor.
+    apply IHcpl.
+    inversion Hsort; [ constructor | assumption ].
+(* I think f must be transitive *)
+bbb.
+
 Lemma www : ∀ α k pow cl cn,
   cn ≠ zero k
   → LocallySorted Qlt
       (List.map (λ xy, fst xy) (valuation_points_gen α k pow cl cn)).
 Proof.
 intros α k pow cl cn Han.
+unfold valuation_points_gen.
+bbb.
 revert pow.
 induction cl as [| c cl]; intros; unfold valuation_points_gen; simpl.
  destruct (k_eq_dec k cn (zero k)); [ contradiction | constructor ].
