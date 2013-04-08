@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.33 2013-04-08 08:25:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.34 2013-04-08 08:35:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -282,20 +282,24 @@ assumption.
 Qed.
 
 Lemma www : ∀ α k pow al an,
-  LocallySorted Qlt
-    (List.map (λ xy, fst xy) (valuation_points_gen α k pow al an)).
+  an ≠ zero k
+  → LocallySorted Qlt
+      (List.map (λ xy, fst xy) (valuation_points_gen α k pow al an)).
 Proof.
-intros α k pow al an.
+intros α k pow al an Han.
 revert pow.
-induction al as [| a al]; intros; [ constructor | simpl ].
-destruct (k_eq_dec k a (zero k)) as [| Hne]; [ apply IHal | simpl ].
-destruct al as [| b al]; simpl.
- constructor; [ constructor | idtac ].
- unfold Qlt; simpl.
- rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_1_r.
- rewrite Zpos_P_of_succ_nat.
- apply Z.lt_succ_diag_r.
+induction al as [| a al]; intros; unfold valuation_points_gen; simpl.
+ destruct (k_eq_dec k an (zero k)); [ contradiction | constructor ].
+
+ destruct (k_eq_dec k a (zero k)) as [| Hne]; [ apply IHal | simpl ].
+ destruct al as [| b al]; simpl.
+  destruct (k_eq_dec k an (zero k)); [ contradiction | idtac ].
+  constructor; [ constructor | idtac ].
+  unfold Qlt; simpl.
+  rewrite Pos2Z.inj_mul.
+  do 2 rewrite Z.mul_1_r.
+  rewrite Zpos_P_of_succ_nat.
+  apply Z.lt_succ_diag_r.
 bbb.
 
 Lemma xxx : ∀ α k pol,
