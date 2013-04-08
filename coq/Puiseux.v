@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.37 2013-04-08 17:48:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.38 2013-04-08 19:24:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -430,10 +430,18 @@ induction al as [| a al]; [ constructor | simpl ].
 bbb.
 *)
 
-Lemma yyy : ∀ pts,
-  LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull pts)).
+Lemma xxx : ∀ α k pol xyl,
+  xyl = valuation_points α k pol
+  ∧ LocallySorted Qlt (List.map (λ xy, fst xy) xyl)
+    → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
 Proof.
-intros xyl₁.
+Admitted.
+
+Lemma yyy : ∀ α k pol xyl,
+  xyl = valuation_points α k pol
+  → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
+Proof.
+intros α k pol xyl₁ Hxyl₁.
 induction xyl₁ as [| xy₁]; [ constructor | simpl ].
 destruct xyl₁ as [| xyl₂].
  simpl.
@@ -474,11 +482,13 @@ split.
  subst γ.
  field.
  remember (valuation_points α k pol) as pts.
- pose proof (yyy pts) as Hsort.
+ pose proof (yyy α k pol pts) as Hsort.
  rewrite <- Hlch in Hsort.
  simpl in Hsort.
  apply LocallySorted_1st_two in Hsort.
  apply Qlt_not_eq, Qlt_minus; assumption.
+
+ assumption.
 
  intros x y Hin.
  subst γ.
