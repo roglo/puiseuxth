@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.34 2013-04-08 08:35:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.35 2013-04-08 09:25:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -281,25 +281,66 @@ apply Qle_minus_iff.
 assumption.
 Qed.
 
-Lemma www : ∀ α k pow al an,
-  an ≠ zero k
-  → LocallySorted Qlt
-      (List.map (λ xy, fst xy) (valuation_points_gen α k pow al an)).
+Lemma pow_le_cpl : ∀ α pow cl cn cp,
+  cp ∈ coeff_power_list_of_pol α pow cl cn
+  → pow ≤ snd cp.
 Proof.
-intros α k pow al an Han.
-revert pow.
-induction al as [| a al]; intros; unfold valuation_points_gen; simpl.
- destruct (k_eq_dec k an (zero k)); [ contradiction | constructor ].
+intros α pos cl cn cp Hcp.
+revert pos cp Hcp.
+induction cl as [| c cl]; intros pos cp Hcp.
+ simpl in Hcp.
+ destruct Hcp; [ idtac | contradiction ].
+ subst cp; apply le_n.
 
- destruct (k_eq_dec k a (zero k)) as [| Hne]; [ apply IHal | simpl ].
- destruct al as [| b al]; simpl.
-  destruct (k_eq_dec k an (zero k)); [ contradiction | idtac ].
+ simpl in Hcp.
+ destruct Hcp as [Hcp| Hcp].
+  subst cp; apply le_n.
+
+  apply lt_le_weak.
+  apply IHcl; assumption.
+Qed.
+
+Lemma cpl_sorted : ∀ α k pow cl cn,
+  cn ≠ zero k
+  → LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂))
+      (coeff_power_list_of_pol α pow cl cn).
+Proof.
+intros α k pow cl cn Hcn.
+revert pow cn Hcn.
+induction cl as [| c cl]; intros; [ constructor | simpl ].
+remember (coeff_power_list_of_pol α (S pow) cl cn) as cpl.
+destruct cpl as [| cp cpl]; [ constructor | idtac ].
+constructor.
+ rewrite Heqcpl; apply IHcl; assumption.
+
+ simpl.
+ apply pow_le_cpl with (cl := cl) (cn := cn).
+ rewrite <- Heqcpl.
+ left; reflexivity.
+Qed.
+
+Lemma www : ∀ α k pow cl cn,
+  cn ≠ zero k
+  → LocallySorted Qlt
+      (List.map (λ xy, fst xy) (valuation_points_gen α k pow cl cn)).
+Proof.
+intros α k pow cl cn Han.
+revert pow.
+induction cl as [| c cl]; intros; unfold valuation_points_gen; simpl.
+ destruct (k_eq_dec k cn (zero k)); [ contradiction | constructor ].
+
+ destruct (k_eq_dec k c (zero k)) as [| Hne]; [ apply IHcl | simpl ].
+ destruct cl as [| b cl]; simpl.
+  destruct (k_eq_dec k cn (zero k)); [ contradiction | idtac ].
   constructor; [ constructor | idtac ].
   unfold Qlt; simpl.
   rewrite Pos2Z.inj_mul.
   do 2 rewrite Z.mul_1_r.
   rewrite Zpos_P_of_succ_nat.
   apply Z.lt_succ_diag_r.
+
+  destruct (k_eq_dec k b (zero k)).
+   rewrite fold_valuation_points_gen.
 bbb.
 
 Lemma xxx : ∀ α k pol,
