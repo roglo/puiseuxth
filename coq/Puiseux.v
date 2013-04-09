@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.50 2013-04-09 12:17:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.51 2013-04-09 12:46:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -403,7 +403,32 @@ Lemma vvv : ∀ α k pow cl cn x₁ y₁ xyl,
   valuation_points_gen α k (S pow) cl cn = [(x₁, y₁) … xyl]
   → Z.of_nat pow # 1 < x₁.
 Proof.
-bbb.
+intros α k pow cl cn x₁ y₁ xyl Hvp.
+revert k pow cn x₁ y₁ xyl Hvp.
+induction cl as [| c]; intros.
+ unfold valuation_points_gen in Hvp.
+ simpl in Hvp.
+ destruct (k_eq_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
+ simpl in Hvp.
+ injection Hvp; clear Hvp; intros; subst x₁ y₁ xyl.
+ unfold Qlt; simpl.
+ rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_1_r.
+ rewrite Zpos_P_of_succ_nat.
+ apply Z.lt_succ_diag_r.
+
+ unfold valuation_points_gen in Hvp.
+ simpl in Hvp.
+ destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
+  rewrite fold_valuation_points_gen in Hvp.
+  apply IHcl in Hvp.
+  simpl in Hvp.
+  unfold Qlt in Hvp |- *; simpl in Hvp |- *.
+  rewrite Pos2Z.inj_mul in Hvp.
+  rewrite Zpos_P_of_succ_nat in Hvp.
+  eapply Zlt_trans; [ idtac | eassumption ].
+  apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
+vvv.
 
 Lemma www : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
   valuation_points_gen α k pow cl cn = [(x₁, y₁), (x₂, y₂) … xyl]
@@ -414,11 +439,7 @@ revert k pow cn x₁ y₁ x₂ y₂ xyl Hvp.
 induction cl as [| c]; intros.
  unfold valuation_points_gen in Hvp.
  simpl in Hvp.
- destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
-  discriminate Hvp.
-
-  simpl in Hvp.
-  discriminate Hvp.
+ destruct (k_eq_dec k cn (zero k)) as [| Hne]; discriminate Hvp.
 
  unfold valuation_points_gen in Hvp.
  simpl in Hvp.
