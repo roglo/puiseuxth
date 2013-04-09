@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.47 2013-04-09 11:22:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.48 2013-04-09 11:47:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -349,28 +349,55 @@ induction xyl as [| xy₂]; intros.
    right; right; assumption.
 Qed.
 
-Lemma xxx : ∀ rl n x₁ y₁ xyl₁ xy lch,
+Lemma next_points_in_list : ∀ rl n x₁ y₁ xyl₁ xy lch,
   next_points rl n x₁ y₁ xyl₁ = [xy … lch]
   → xy ∈ rl ∨ xy ∈ xyl₁.
 Proof.
 intros; rename H into Hnp.
-revert n x₁ y₁ xyl₁ xy lch Hnp.
-induction rl as [| (x₂, y₂)]; intros.
- right.
- revert n x₁ y₁ xy lch Hnp.
- induction xyl₁ as [| (x₂, y₂)]; intros; [ discriminate Hnp | simpl in Hnp ].
+revert rl n x₁ y₁ xy lch Hnp.
+induction xyl₁ as [| (x₂, y₂)]; intros.
+ left.
+ simpl in Hnp.
+ rewrite <- List.rev_involutive.
+ apply List.in_rev.
+ rewrite List.rev_involutive.
+ rewrite Hnp; left; reflexivity.
+
+ simpl in Hnp.
  destruct n.
   remember ((y₂ - y₁) / (x₂ - x₁)) as yyxx.
   remember (minimise_slope x₁ y₁ x₂ y₂ yyxx 0 1 xyl₁) as ms.
   subst yyxx.
-  symmetry in Heqms.
   destruct ms as (xy₃, skip).
+  symmetry in Heqms.
   apply min_slope_in_list in Heqms.
   destruct Heqms as [Hxy| Hxy].
    subst xy₃.
    simpl in Hnp.
+   apply IHxyl₁ in Hnp.
+   destruct Hnp as [Hxy| Hxy].
+    destruct Hxy as [Hxy| Hxy].
+     right; subst xy; left; reflexivity.
 
-bbb.
+     left; assumption.
+
+    right; right; assumption.
+
+   apply IHxyl₁ in Hnp.
+   destruct Hnp as [Hxy₂| Hxy₂].
+    destruct Hxy₂ as [Hxy₂| Hxy₂].
+     right; subst xy; right; assumption.
+
+     left; assumption.
+
+    right; right; assumption.
+
+  apply IHxyl₁ in Hnp.
+  destruct Hnp as [Hxy| Hxy].
+   left; assumption.
+
+   right; right; assumption.
+Qed.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
@@ -386,7 +413,7 @@ rename y₂ into y₃.
 destruct xyl as [| (x₂, y₂)]; [ discriminate Hlch | idtac ].
 simpl in Hlch.
 remember ((y₂ - y₁) / (x₂ - x₁)) as yx.
-remember (minimise_slope (x₁, y₁) (x₂, y₂) yx 0 1 xyl) as m.
+remember (minimise_slope x₁ y₁ x₂ y₂ yx 0 1 xyl) as m.
 subst yx.
 destruct m as (xy, skip).
 symmetry in Heqxyl.
@@ -395,7 +422,11 @@ apply min_slope_in_list in Heqm.
 simpl in Heqm.
 destruct Heqm as [Hxy| Hxy].
  subst xy.
- apply xxx in Hlch.
+ simpl in Hlch.
+ apply next_points_in_list in Hlch.
+ destruct Hlch as [Hxy| Hxy].
+  destruct Hxy; [ idtac | contradiction ].
+  injection H; clear H; intros; subst x₃ y₃.
 bbb.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
