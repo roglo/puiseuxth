@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.48 2013-04-09 11:47:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.49 2013-04-09 11:51:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -399,6 +399,12 @@ induction xyl₁ as [| (x₂, y₂)]; intros.
    right; right; assumption.
 Qed.
 
+Lemma xxx : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
+  valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
+  → x₁ < x₂.
+Proof.
+bbb.
+
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
   → x₁ < x₂.
@@ -427,6 +433,10 @@ destruct Heqm as [Hxy| Hxy].
  destruct Hlch as [Hxy| Hxy].
   destruct Hxy; [ idtac | contradiction ].
   injection H; clear H; intros; subst x₃ y₃.
+  eapply xxx; eassumption.
+
+  apply Qlt_trans with (y := x₂).
+   eapply xxx; eassumption.
 bbb.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
