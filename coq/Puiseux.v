@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.52 2013-04-09 12:56:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.53 2013-04-09 13:06:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -469,6 +469,13 @@ unfold valuation_points in Hvp.
 eapply vp_lt; eassumption.
 Qed.
 
+Lemma xxx : ∀ α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl,
+  valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
+  → (x₃, y₃) ∈ xyl
+    → x₂ < x₃.
+Proof.
+xxx.
+
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
   → x₁ < x₂.
@@ -501,6 +508,14 @@ destruct Heqm as [Hxy| Hxy].
 
   apply Qlt_trans with (y := x₂).
    eapply valuation_points_lt; eassumption.
+
+   eapply xxx; eassumption.
+
+ apply Qlt_trans with (y := x₂).
+  eapply valuation_points_lt; eassumption.
+
+  eapply xxx.
+   eassumption.
 yyy.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
