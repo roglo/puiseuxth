@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.56 2013-04-09 17:29:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.57 2013-04-09 18:05:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -268,59 +268,6 @@ apply Qle_minus_iff.
 assumption.
 Qed.
 
-(*
-Lemma pow_le_cp : ∀ α pow cl cn cp,
-  cp ∈ coeff_power_list_of_pol α pow cl cn
-  → pow ≤ snd cp.
-Proof.
-intros α pos cl cn cp Hcp.
-revert pos cp Hcp.
-induction cl as [| c cl]; intros pos cp Hcp.
- simpl in Hcp.
- destruct Hcp; [ idtac | contradiction ].
- subst cp; apply le_n.
-
- simpl in Hcp.
- destruct Hcp as [Hcp| Hcp].
-  subst cp; apply le_n.
-
-  apply lt_le_weak.
-  apply IHcl; assumption.
-Qed.
-
-Lemma cpl_sorted : ∀ α k pow cl cn,
-  cn ≠ zero k
-  → LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂))
-      (coeff_power_list_of_pol α pow cl cn).
-Proof.
-intros α k pow cl cn Hcn.
-revert pow cn Hcn.
-induction cl as [| c cl]; intros; [ constructor | simpl ].
-remember (coeff_power_list_of_pol α (S pow) cl cn) as cpl.
-destruct cpl as [| cp cpl]; [ constructor | idtac ].
-constructor.
- rewrite Heqcpl; apply IHcl; assumption.
-
- simpl.
- apply pow_le_cp with (cl := cl) (cn := cn).
- rewrite <- Heqcpl.
- left; reflexivity.
-Qed.
-
-Lemma LocallySorted_map_iff : ∀ α β f (g : α → β) l,
-  LocallySorted (λ x y, f (g x) (g y)) l ↔ LocallySorted f (List.map g l).
-Proof.
-intros; split; intros H.
- induction l as [| x]; [ constructor | simpl ].
- destruct l as [| y]; [ constructor | simpl ].
- inversion H; constructor; [ apply IHl | idtac ]; assumption.
-
- induction l as [| x]; [ constructor | simpl ].
- destruct l as [| y]; [ constructor | simpl ].
- inversion H; constructor; [ apply IHl | idtac ]; assumption.
-Qed.
-*)
-
 Lemma min_slope_in_list : ∀ x₁ y₁ x_m y_m sl_m sk_m sk xyl xy skip,
   minimise_slope x₁ y₁ x_m y_m sl_m sk_m sk xyl = (xy, skip)
   → xy ∈ [(x_m, y_m) … xyl].
@@ -396,29 +343,28 @@ induction xyl₁ as [| (x₂, y₂)]; intros.
 Qed.
 
 Lemma vp_pow_lt : ∀ α k pow cl cn x₁ y₁ xyl,
-  valuation_points_gen α k (S pow) cl cn = [(x₁, y₁) … xyl]
-  → Z.of_nat pow # 1 < x₁.
+  valuation_points_gen α k (S pow) cl cn = xyl
+  → (x₁, y₁) ∈ xyl
+    → Z.of_nat pow # 1 < x₁.
 Proof.
-intros α k pow cl cn x₁ y₁ xyl Hvp.
-revert k pow cn x₁ y₁ xyl Hvp.
+intros α k pow cl cn x₁ y₁ xyl Hvp Hxy.
+revert k pow cn x₁ y₁ xyl Hvp Hxy.
 induction cl as [| c]; intros.
- unfold valuation_points_gen in Hvp.
- simpl in Hvp.
- destruct (k_eq_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
- simpl in Hvp.
- injection Hvp; clear Hvp; intros; subst x₁ y₁ xyl.
- unfold Qlt; simpl.
- rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_1_r.
- rewrite Zpos_P_of_succ_nat.
- apply Z.lt_succ_diag_r.
+ unfold valuation_points_gen in Hvp; simpl in Hvp.
+ destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
+  subst xyl; contradiction.
 
- unfold valuation_points_gen in Hvp.
- simpl in Hvp.
+  simpl in Hvp.
+  subst xyl; destruct Hxy as [Hxy| ]; [ idtac | contradiction ].
+  injection Hxy; clear Hxy; intros; subst x₁ y₁.
+  rewrite Zpos_P_of_succ_nat.
+  unfold Qlt; simpl.
+  apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
+
+ unfold valuation_points_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
   rewrite fold_valuation_points_gen in Hvp.
-  apply IHcl in Hvp.
-  simpl in Hvp.
+  eapply IHcl in Hvp; [ idtac | eassumption ].
   unfold Qlt in Hvp |- *; simpl in Hvp |- *.
   rewrite Pos2Z.inj_mul in Hvp.
   rewrite Zpos_P_of_succ_nat in Hvp.
@@ -427,45 +373,23 @@ induction cl as [| c]; intros.
 
   simpl in Hvp.
   rewrite fold_valuation_points_gen in Hvp.
-  injection Hvp; clear Hvp; intros; subst x₁ y₁ xyl.
-  rewrite Zpos_P_of_succ_nat.
-  unfold Qlt; simpl.
-  apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
+  destruct xyl as [| (x₂, y₂)]; [ contradiction | idtac ].
+  injection Hvp; clear Hvp; intros Hvp H₂ Hxyl; subst x₂ y₂.
+  destruct Hxy as [Hxy| Hxy].
+   injection Hxy; clear Hxy; intros; subst x₁ y₁.
+   rewrite Zpos_P_of_succ_nat.
+   unfold Qlt; simpl.
+   apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
+
+   eapply IHcl in Hvp; [ idtac | eassumption ].
+   unfold Qlt in Hvp |- *; simpl in Hvp |- *.
+   rewrite Pos2Z.inj_mul in Hvp.
+   rewrite Zpos_P_of_succ_nat in Hvp.
+   eapply Zlt_trans; [ idtac | eassumption ].
+   apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
 Qed.
 
 Lemma vp_lt : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
-  valuation_points_gen α k pow cl cn = [(x₁, y₁), (x₂, y₂) … xyl]
-  → x₁ < x₂.
-Proof.
-intros; rename H into Hvp.
-revert k pow cn x₁ y₁ x₂ y₂ xyl Hvp.
-induction cl as [| c]; intros.
- unfold valuation_points_gen in Hvp.
- simpl in Hvp.
- destruct (k_eq_dec k cn (zero k)) as [| Hne]; discriminate Hvp.
-
- unfold valuation_points_gen in Hvp.
- simpl in Hvp.
- destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
-  rewrite fold_valuation_points_gen in Hvp.
-  eapply IHcl; eassumption.
-
-  simpl in Hvp.
-  rewrite fold_valuation_points_gen in Hvp.
-  injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst x₁ y₁.
-  eapply vp_pow_lt; eassumption.
-Qed.
-
-Lemma valuation_points_lt : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
-  valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
-  → x₁ < x₂.
-Proof.
-intros; rename H into Hvp.
-unfold valuation_points in Hvp.
-eapply vp_lt; eassumption.
-Qed.
-
-Lemma vvv : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
   valuation_points_gen α k pow cl cn = [(x₁, y₁) … xyl]
   → (x₂, y₂) ∈ xyl
     → x₁ < x₂.
@@ -483,9 +407,20 @@ induction cl as [| c]; intros.
 
   simpl in Hvp.
   injection Hvp; clear Hvp; intros; subst x₁ y₁.
-vvv.
+  rewrite fold_valuation_points_gen in H.
+  eapply vp_pow_lt; eassumption.
+Qed.
 
-Lemma www : ∀ α k pow cl cn x₁ y₁ x₂ y₂ x₃ y₃ xyl,
+Lemma valuation_points_lt : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
+  valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
+  → x₁ < x₂.
+Proof.
+intros; rename H into Hvp.
+unfold valuation_points in Hvp.
+eapply vp_lt; [ eassumption | left; reflexivity ].
+Qed.
+
+Lemma vp_2nd_lt : ∀ α k pow cl cn x₁ y₁ x₂ y₂ x₃ y₃ xyl,
   valuation_points_gen α k pow cl cn = [(x₁, y₁), (x₂, y₂) … xyl]
   → (x₃, y₃) ∈ xyl
     → x₂ < x₃.
@@ -504,25 +439,18 @@ induction cl as [| c]; intros.
   simpl in Hvp.
   rewrite fold_valuation_points_gen in Hvp.
   injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst x₁ y₁.
-  eapply vvv; eassumption.
-www.
+  eapply vp_lt; eassumption.
+Qed.
 
-Lemma xxx : ∀ α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl,
+Lemma valuation_points_2nd_lt : ∀ α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl,
   valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
   → (x₃, y₃) ∈ xyl
     → x₂ < x₃.
 Proof.
 intros α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl Hvp Hxy.
 unfold valuation_points in Hvp.
-eapply www; eassumption.
-xxx.
-
-intros α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl Hvp Hxy.
-revert k pol x₁ y₁ x₂ y₂ x₃ y₃ Hvp Hxy.
-induction xyl as [| (x₄, y₄)]; intros; [ contradiction | idtac ].
-destruct Hxy as [Hxy| Hxy].
- injection Hxy; clear Hxy; intros; subst x₄ y₄.
-xxx.
+eapply vp_2nd_lt; eassumption.
+Qed.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
@@ -557,12 +485,12 @@ destruct Heqm as [Hxy| Hxy].
   apply Qlt_trans with (y := x₂).
    eapply valuation_points_lt; eassumption.
 
-   eapply xxx; eassumption.
+   eapply valuation_points_2nd_lt; eassumption.
 
  apply Qlt_trans with (y := x₂).
   eapply valuation_points_lt; eassumption.
 
-  eapply xxx.
+  eapply valuation_points_2nd_lt.
    eassumption.
 yyy.
 
