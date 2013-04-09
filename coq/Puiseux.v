@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.45 2013-04-09 09:17:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.46 2013-04-09 09:31:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -354,10 +354,19 @@ Lemma xxx : ∀ rl n x₁ y₁ xyl₁ xy lch,
   → xy ∈ rl ∨ xy ∈ xyl₁.
 Proof.
 intros; rename H into Hnp.
-induction rl as [| xy₂].
+revert n x₁ y₁ xyl₁ xy lch Hnp.
+induction rl as [| (x₂, y₂)]; intros.
  right.
- induction xyl₁ as [| xy₂].
-  simpl in Hnp.
+ revert n x₁ y₁ xy lch Hnp.
+ induction xyl₁ as [| (x₂, y₂)]; intros; [ discriminate Hnp | simpl in Hnp ].
+ destruct n.
+  remember ((y₂ - y₁) / (x₂ - x₁)) as yyxx.
+  remember (minimise_slope x₁ y₁ x₂ y₂ yyxx 0 1 xyl₁) as ms.
+  subst yyxx.
+  symmetry in Heqms.
+  destruct ms as (xy₃, skip).
+  apply min_slope_in_list in Heqms.
+
 bbb.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
