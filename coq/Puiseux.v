@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.57 2013-04-09 18:05:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.58 2013-04-09 19:10:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -452,7 +452,7 @@ unfold valuation_points in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
 
-Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
+Lemma lower_convex_hull_lt : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
   → x₁ < x₂.
 Proof.
@@ -490,9 +490,15 @@ destruct Heqm as [Hxy| Hxy].
  apply Qlt_trans with (y := x₂).
   eapply valuation_points_lt; eassumption.
 
-  eapply valuation_points_2nd_lt.
-   eassumption.
-yyy.
+  destruct xy as (x₄, y₄); simpl in Hlch.
+  apply next_points_in_list in Hlch.
+  destruct Hlch as [Hxy₃| Hxy₃].
+   destruct Hxy₃; [ idtac | contradiction ].
+   injection H; clear H; intros; subst x₄ y₄.
+   eapply valuation_points_2nd_lt; eassumption.
+
+   eapply valuation_points_2nd_lt; eassumption.
+Qed.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
@@ -522,11 +528,11 @@ split.
  subst γ.
  field.
  apply Qlt_not_eq, Qlt_minus.
- eapply yyy; symmetry; eassumption.
+ eapply lower_convex_hull_lt; symmetry; eassumption.
 
  intros x y Hin.
  subst γ.
-bbb.
+zzz.
 
 Record branch α :=
   { initial_polynom : polynomial (puiseux_series α);
