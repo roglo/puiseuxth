@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.40 2013-04-08 20:31:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.41 2013-04-09 04:17:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -332,154 +332,55 @@ intros; split; intros H.
  inversion H; constructor; [ apply IHl | idtac ]; assumption.
 Qed.
 
-(*
-Lemma uuu : ∀ α k cpl,
-  LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂)) cpl
-  → LocallySorted (λ xy₁ xy₂, lt (snd xy₁) (snd xy₂))
-      (filter_non_zero_coeffs α k cpl).
+Lemma min_slope_in_list : ∀ xy₁ xy_m sl_m sk_m sk xyl xy skip,
+  minimise_slope xy₁ xy_m sl_m sk_m sk xyl = (xy, skip)
+  → xy ∈ [xy_m … xyl].
 Proof.
-intros α k cpl Hsort.
-apply LocallySorted_map in Hsort.
-apply LocallySorted_map.
-induction cpl as [| cp]; [ constructor | simpl ].
-destruct (k_eq_dec k (fst cp) (zero k)).
- apply IHcpl.
- inversion Hsort; [ constructor | assumption ].
-
- destruct cpl as [| cp₂]; [ constructor | simpl ].
- destruct (k_eq_dec k (fst cp₂) (zero k)).
-  simpl in Hsort.
-  Focus 2.
-  simpl.
-  constructor.
-   simpl in IHcpl.
-   destruct (k_eq_dec k (fst cp₂) (zero k)); [ contradiction | idtac ].
-   apply IHcpl.
-   simpl in Hsort.
-   inversion Hsort.
-   assumption.
-
-   inversion Hsort.
-   assumption.
-
-  inversion Hsort.
-  subst a b l.
-  apply IHcpl in H1.
-  simpl in H1.
-  destruct (k_eq_dec k (fst cp₂) (zero k)); [ idtac | contradiction ].
-bbb.
-
-Lemma vvv : ∀ α k f cpl,
-  LocallySorted f cpl → LocallySorted f (filter_non_zero_coeffs α k cpl).
-Proof.
-intros α k f cpl Hsort.
-induction cpl as [| cp].
- constructor.
-
- simpl.
- destruct (k_eq_dec k (fst cp) (zero k)) as [Heq| Hne].
-  apply IHcpl.
-  inversion Hsort.
-   constructor.
-
-   assumption.
-
-  remember (filter_non_zero_coeffs α k cpl) as scpl.
-  destruct scpl as [| cp₂].
-   constructor.
-
-   constructor.
-    apply IHcpl.
-    inversion Hsort; [ constructor | assumption ].
-bbb.
-
-Lemma www : ∀ α k pow cl cn,
-  cn ≠ zero k
-  → LocallySorted Qlt
-      (List.map (λ xy, fst xy) (valuation_points_gen α k pow cl cn)).
-Proof.
-intros α k pow cl cn Han.
-unfold valuation_points_gen.
-bbb.
-revert pow.
-induction cl as [| c cl]; intros; unfold valuation_points_gen; simpl.
- destruct (k_eq_dec k cn (zero k)); [ contradiction | constructor ].
-
- destruct (k_eq_dec k c (zero k)) as [| Hne]; [ apply IHcl | simpl ].
- destruct cl as [| b cl]; simpl.
-  destruct (k_eq_dec k cn (zero k)); [ contradiction | idtac ].
-  constructor; [ constructor | idtac ].
-  unfold Qlt; simpl.
-  rewrite Pos2Z.inj_mul.
-  do 2 rewrite Z.mul_1_r.
-  rewrite Zpos_P_of_succ_nat.
-  apply Z.lt_succ_diag_r.
-
-  destruct (k_eq_dec k b (zero k)).
-   rewrite fold_valuation_points_gen.
-bbb.
-*)
-
-Lemma www : ∀ α k pow cl cn rl n xy₁ v₁,
-  LocallySorted Qlt
-    (List.map (λ xy, fst xy)
-       (next_points rl n (xy₁, v₁)
-          (valuation_points_gen α k (S pow) cl cn)))
-  → LocallySorted Qlt
-      [xy₁
-      … List.map (λ xy, fst xy)
-          (next_points rl n (xy₁, v₁)
-             (valuation_points_gen α k (S pow) cl cn))].
-Proof.
-intros.
-rename H into Hsort.
-destruct cl as [| c₁].
- unfold valuation_points_gen in Hsort |- *.
- simpl.
- simpl in Hsort.
- destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
-  simpl in Hsort |- *.
-  remember (List.rev rl) as l.
-  clear rl Heql.
-  revert xy₁.
-  induction l as [| xy]; intros; [ constructor | simpl ].
-  constructor.
-   apply IHl.
-   inversion Hsort; [ constructor | assumption ].
-bbb.
-
-Lemma xxx : ∀ α k pow cl cn xyl,
-  xyl = valuation_points_gen α k pow cl cn
-  → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
-Proof.
-intros α k pow cl cn xyl Hxyl.
-subst xyl.
-revert pow cn.
-induction cl as [| c]; intros.
- unfold valuation_points_gen; simpl.
- destruct (k_eq_dec k cn (zero k)) as [| Hne]; constructor.
-
- unfold valuation_points_gen; simpl.
- destruct (k_eq_dec k c (zero k)) as [| Hne]; [ apply IHcl | simpl ].
- rewrite fold_valuation_points_gen.
-bbb.
-
-Lemma yyy : ∀ α k pol xyl,
-  xyl = valuation_points α k pol
-  → LocallySorted Qlt (List.map (λ xy, fst xy) (lower_convex_hull xyl)).
-Proof.
-intros α k pol xyl₁ Hxyl₁.
-bbb.
-induction xyl₁ as [| xy₁]; [ constructor | simpl ].
-destruct xyl₁ as [| xyl₂].
- simpl.
- destruct xy₁; constructor.
-
- simpl.
+intros; rename H into Hmin.
+revert xy₁ xy_m sl_m sk_m sk xy skip Hmin.
+induction xyl as [| xy₂]; intros.
+ simpl in Hmin.
  destruct xy₁ as (x₁, y₁).
- destruct xyl₂ as (x₂, y₂).
- simpl.
- simpl in IHxyl₁.
+ injection Hmin; clear Hmin; intros; subst xy_m sk_m.
+ left; reflexivity.
+
+ simpl in Hmin.
+ destruct xy₁ as (x₁, y₁).
+ destruct xy₂ as (x₂, y₂).
+ destruct (Qle_bool ((y₂ - y₁) / (x₂ - x₁)) sl_m).
+  apply IHxyl in Hmin.
+  right; assumption.
+
+  apply IHxyl in Hmin.
+  destruct Hmin as [Hxy| Hxy].
+   subst xy; left; reflexivity.
+
+   right; right; assumption.
+Qed.
+
+Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
+  lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
+  → x₁ < x₂.
+Proof.
+intros; rename H into Hlch.
+unfold lower_convex_hull in Hlch.
+remember (valuation_points α k pol) as xyl.
+destruct xyl as [| (x₃, y₃)]; [ discriminate Hlch | idtac ].
+injection Hlch; clear Hlch; intros; subst x₃ y₃; rename H into Hlch.
+rename x₂ into x₃.
+rename y₂ into y₃.
+destruct xyl as [| (x₂, y₂)]; [ discriminate Hlch | idtac ].
+simpl in Hlch.
+remember ((y₂ - y₁) / (x₂ - x₁)) as yx.
+remember (minimise_slope (x₁, y₁) (x₂, y₂) yx 0 1 xyl) as m.
+subst yx.
+destruct m as (xy, skip).
+symmetry in Heqxyl.
+symmetry in Heqm.
+apply min_slope_in_list in Heqm.
+simpl in Heqm.
+destruct Heqm as [Hxy| Hxy].
+ subst xy.
 bbb.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
@@ -509,14 +410,8 @@ split; [ right; left; reflexivity | idtac ].
 split.
  subst γ.
  field.
- remember (valuation_points α k pol) as pts.
- pose proof (yyy α k pol pts) as Hsort.
- rewrite <- Hlch in Hsort.
- simpl in Hsort.
- apply LocallySorted_1st_two in Hsort.
- apply Qlt_not_eq, Qlt_minus; assumption.
-
- assumption.
+ apply Qlt_not_eq, Qlt_minus.
+ eapply yyy; symmetry; eassumption.
 
  intros x y Hin.
  subst γ.
