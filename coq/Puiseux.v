@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.46 2013-04-09 09:31:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.47 2013-04-09 11:22:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -366,6 +366,9 @@ induction rl as [| (x₂, y₂)]; intros.
   symmetry in Heqms.
   destruct ms as (xy₃, skip).
   apply min_slope_in_list in Heqms.
+  destruct Heqms as [Hxy| Hxy].
+   subst xy₃.
+   simpl in Hnp.
 
 bbb.
 
