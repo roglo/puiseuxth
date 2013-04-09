@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.51 2013-04-09 12:46:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.52 2013-04-09 12:56:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -399,7 +399,7 @@ induction xyl₁ as [| (x₂, y₂)]; intros.
    right; right; assumption.
 Qed.
 
-Lemma vvv : ∀ α k pow cl cn x₁ y₁ xyl,
+Lemma vp_pow_lt : ∀ α k pow cl cn x₁ y₁ xyl,
   valuation_points_gen α k (S pow) cl cn = [(x₁, y₁) … xyl]
   → Z.of_nat pow # 1 < x₁.
 Proof.
@@ -428,9 +428,16 @@ induction cl as [| c]; intros.
   rewrite Zpos_P_of_succ_nat in Hvp.
   eapply Zlt_trans; [ idtac | eassumption ].
   apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
-vvv.
 
-Lemma www : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
+  simpl in Hvp.
+  rewrite fold_valuation_points_gen in Hvp.
+  injection Hvp; clear Hvp; intros; subst x₁ y₁ xyl.
+  rewrite Zpos_P_of_succ_nat.
+  unfold Qlt; simpl.
+  apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
+Qed.
+
+Lemma vp_lt : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
   valuation_points_gen α k pow cl cn = [(x₁, y₁), (x₂, y₂) … xyl]
   → x₁ < x₂.
 Proof.
@@ -450,17 +457,17 @@ induction cl as [| c]; intros.
   simpl in Hvp.
   rewrite fold_valuation_points_gen in Hvp.
   injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst x₁ y₁.
-  eapply vvv; eassumption.
-bbb.
+  eapply vp_pow_lt; eassumption.
+Qed.
 
-Lemma xxx : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
+Lemma valuation_points_lt : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
   valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
   → x₁ < x₂.
 Proof.
 intros; rename H into Hvp.
 unfold valuation_points in Hvp.
-eapply www; eassumption.
-bbb.
+eapply vp_lt; eassumption.
+Qed.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
@@ -490,11 +497,11 @@ destruct Heqm as [Hxy| Hxy].
  destruct Hlch as [Hxy| Hxy].
   destruct Hxy; [ idtac | contradiction ].
   injection H; clear H; intros; subst x₃ y₃.
-  eapply xxx; eassumption.
+  eapply valuation_points_lt; eassumption.
 
   apply Qlt_trans with (y := x₂).
-   eapply xxx; eassumption.
-bbb.
+   eapply valuation_points_lt; eassumption.
+yyy.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
