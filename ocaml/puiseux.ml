@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.154 2013-04-09 09:11:41 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.155 2013-04-09 09:13:27 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -45,7 +45,7 @@ Fixpoint next_points rev_list nb_pts_to_skip x₁ y₁ xyl₁ :=
 
 Definition lower_convex_hull xyl :=
   match xyl with
-  | [(x₁, y₁) :: xyl₁] => [(x₁, y₁) :: next_points [] 0 x₁ y₁ xyl₁]
+  | [(x₁, y₁) :: xyl₁] => [(x₁, y₁) :: next_points [] 0%nat x₁ y₁ xyl₁]
   | [] => []
   end;
 

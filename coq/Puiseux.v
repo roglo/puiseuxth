@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.43 2013-04-09 08:44:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.44 2013-04-09 09:13:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -175,45 +175,41 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma next_points_not_empty : ∀ xy xyl sk xy₁ xyl₁,
-  next_points [xy … xyl] sk xy₁ xyl₁ ≠ [ ].
+Lemma next_points_not_empty : ∀ xy xyl sk x₁ y₁ xyl₁,
+  next_points [xy … xyl] sk x₁ y₁ xyl₁ ≠ [ ].
 Proof.
 intros.
-revert xy xyl sk xy₁.
+revert xy xyl sk x₁ y₁.
 induction xyl₁ as [| xy₂]; intros.
  simpl.
- destruct xy₁.
  apply rev_app_not_nil.
 
  simpl.
- destruct xy₁ as (x₁, y₁).
  destruct xy₂ as (x₂, y₂).
  destruct sk.
   remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
-  remember (minimise_slope (x₁, y₁) (x₂, y₂) sl₁₂ 0 1 xyl₁) as xs.
+  remember (minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0 1 xyl₁) as xs.
   destruct xs as (xy₃, sk).
   apply IHxyl₁.
 
   apply IHxyl₁.
 Qed.
 
-Lemma convex_hull_not_empty : ∀ rl xy xy₁ xyl₁,
-  next_points rl 0 xy [xy₁ … xyl₁] ≠ [].
+Lemma convex_hull_not_empty : ∀ rl x₁ y₁ xy₂ xyl₁,
+  next_points rl 0 x₁ y₁ [xy₂ … xyl₁] ≠ [].
 Proof.
-intros rl xy xy₁ xyl₁.
-revert rl xy xy₁.
+intros rl x₁ y₁ xy₂ xyl₁.
+revert rl x₁ y₁ xy₂.
 induction xyl₁ as [| xy₃]; intros.
  simpl.
- destruct xy.
- destruct xy₁ as (x₂, y₂).
+ destruct xy₂ as (x₂, y₂).
  apply rev_app_not_nil.
 
  remember [xy₃ … xyl₁] as xyl.
  simpl.
- destruct xy as (x₁, y₁).
- destruct xy₁ as (x₂, y₂).
+ destruct xy₂ as (x₂, y₂).
  remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
- remember (minimise_slope (x₁, y₁) (x₂, y₂) sl₁₂ 0 1 xyl) as xys.
+ remember (minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0 1 xyl) as xys.
  destruct xys as (xy, skip).
  apply next_points_not_empty.
 Qed.
@@ -228,18 +224,16 @@ unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
 remember (valuation_points α k pol) as pts.
 remember (lower_convex_hull pts) as chp.
-destruct chp.
- destruct pts; [ idtac | discriminate Heqchp ].
+destruct chp as [| (x₁, y₁)].
+ destruct pts as [| (x₂, y₂)]; [ idtac | discriminate Heqchp ].
  symmetry in Heqpts.
  exfalso; revert Heqpts.
  apply at_least_one_valuation_point; assumption.
 
- destruct p as (x₁, y₁).
- destruct chp.
-  destruct pts; [ discriminate Heqchp | idtac ].
-  simpl in Heqchp.
-  injection Heqchp; intros H₁ H₂.
-  subst p; clear Heqchp.
+ destruct chp as [| (x₃, y₃)].
+  destruct pts as [| (x₃, y₃)]; [ discriminate Heqchp | simpl in Heqchp ].
+  injection Heqchp; intros H₁ H₂ H₃.
+  subst x₃ y₃; clear Heqchp.
   destruct pts.
    remember (length (valuation_points α k pol)) as len.
    destruct len.
@@ -261,7 +255,6 @@ destruct chp.
    exfalso; symmetry in H₁; revert H₁.
    apply convex_hull_not_empty.
 
-  destruct p.
   intros H; discriminate H.
 Qed.
 
