@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.157 2013-04-09 19:32:04 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.158 2013-04-09 19:34:50 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -355,7 +355,8 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value rec puiseux_branch k br sol_list (γ, β) =
+value rec puiseux_branch k br sol_list (γ, (x₁, y₁), mp, (x₂, y₂)) =
+  let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
   let f = k.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
@@ -434,7 +435,7 @@ and next_step k br sol_list pol cγl =
   }
   else
     List.fold_left
-      (fun sol_list (γ, (x₁, y₁), mp, xy₂) → do {
+      (fun sol_list (γ, xy₁, mp, xy₂) → do {
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
@@ -442,8 +443,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
-         puiseux_branch k br sol_list (γ, β)
+         puiseux_branch k br sol_list (γ, xy₁, mp, xy₂)
        })
       sol_list gbl_f
 ;
@@ -459,14 +459,13 @@ value puiseux k nb_steps vx vy pol =
   let rem_steps = nb_steps - 1 in
   let _rev_sol_list =
     List.fold_left
-      (fun sol_list (γ₁, (x₁, y₁), mp, (x₂, y₂)) → do {
-         let β₁ = Q.norm (Q.add (Q.mul γ₁ x₁) y₁) in
+      (fun sol_list (γ₁, xy₁, mp, xy₂) → do {
          print_line_equal ();
          let br =
            {initial_polynom = pol; cγl = []; step = 1;
             rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
          in
-         puiseux_branch k br sol_list (γ₁, β₁)
+         puiseux_branch k br sol_list (γ₁, xy₁, mp, xy₂)
        })
       [] gbl
   in
