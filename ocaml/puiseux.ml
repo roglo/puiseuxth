@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.156 2013-04-09 19:21:33 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.157 2013-04-09 19:32:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -27,7 +27,7 @@ Fixpoint minimise_slope x₁ y₁ x_min y_min sl_min sk_min skip₁ mid_pts xyl 
         minimise_slope x₁ y₁ x_min y_min sl_min sk_min (succ skip₁) mid_pts
           xyl₂
   | [] =>
-      ((x_min, y_min), sk_min)
+      ((List.rev mid_pts, (x_min, y_min)), sk_min)
   end;
 
 Fixpoint next_points rev_list nb_pts_to_skip x₁ y₁ xyl₁ :=
@@ -39,7 +39,8 @@ Fixpoint next_points rev_list nb_pts_to_skip x₁ y₁ xyl₁ :=
             let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
             minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0%nat 1%nat [] xyl₂
           in
-          next_points [xy₃ :: rev_list] skip (fst xy₃) (snd xy₃) xyl₂
+          next_points [xy₃ :: rev_list] skip (fst (snd xy₃)) (snd (snd xy₃))
+            xyl₂
       | n =>
           next_points rev_list (n - 1) x₁ y₁ xyl₂
       end
@@ -49,7 +50,7 @@ Fixpoint next_points rev_list nb_pts_to_skip x₁ y₁ xyl₁ :=
 
 Definition lower_convex_hull xyl :=
   match xyl with
-  | [(x₁, y₁) :: xyl₁] => [(x₁, y₁) :: next_points [] 0%nat x₁ y₁ xyl₁]
+  | [(x₁, y₁) :: xyl₁] => [([], (x₁, y₁)) :: next_points [] 0%nat x₁ y₁ xyl₁]
   | [] => []
   end;
 
@@ -83,10 +84,14 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   in
   let fix loop rev_gbl xyl :=
     match xyl with
-    | [(x₁, y₁) :: ([(x₂, y₂) :: _] as xyl₁)] =>
+    | [(_, (x₁, y₁)) :: ([(mp, (x₂, y₂)) :: _] as xyl₁)] =>
         let γ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₁ x₂)) in
+(*
         let β := Q.norm (Q.add (Q.mul γ x₁) y₁) in
         loop [(γ, β) :: rev_gbl] xyl₁
+*)
+        loop [(γ, (x₁, y₁), mp, (x₂, y₂)) :: rev_gbl] xyl₁
+(**)
     | [_] | [] =>
         List.rev rev_gbl
     end
@@ -415,11 +420,13 @@ value rec puiseux_branch k br sol_list (γ, β) =
 
 and next_step k br sol_list pol cγl =
   let gbl = gamma_beta_list pol in
-  let gbl_f = List.filter (fun (γ, β) → not (Q.le γ Q.zero)) gbl in
+  let gbl_f = List.filter (fun (γ, xy₁, mp, xy₂) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
       List.iter
-        (fun (γ, β) → printf "γ %s β %s\n%!" (Q.to_string γ) (Q.to_string β))
+        (fun (γ, (x₁, y₁), mp, xy₂) →
+           let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
+           printf "γ %s β %s\n%!" (Q.to_string γ) (Q.to_string β))
         gbl
     }
     else ();
@@ -427,7 +434,7 @@ and next_step k br sol_list pol cγl =
   }
   else
     List.fold_left
-      (fun sol_list (γ, β) → do {
+      (fun sol_list (γ, (x₁, y₁), mp, xy₂) → do {
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
@@ -435,6 +442,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
+         let β = Q.norm (Q.add (Q.mul γ x₁) y₁) in
          puiseux_branch k br sol_list (γ, β)
        })
       sol_list gbl_f
@@ -451,7 +459,8 @@ value puiseux k nb_steps vx vy pol =
   let rem_steps = nb_steps - 1 in
   let _rev_sol_list =
     List.fold_left
-      (fun sol_list (γ₁, β₁) → do {
+      (fun sol_list (γ₁, (x₁, y₁), mp, (x₂, y₂)) → do {
+         let β₁ = Q.norm (Q.add (Q.mul γ₁ x₁) y₁) in
          print_line_equal ();
          let br =
            {initial_polynom = pol; cγl = []; step = 1;
