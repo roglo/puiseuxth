@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.55 2013-04-09 14:37:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.56 2013-04-09 17:29:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -258,12 +258,6 @@ destruct chp as [| (x₁, y₁)].
   intros H; discriminate H.
 Qed.
 
-Lemma LocallySorted_1st_two : ∀ A R (a b : A) l,
-  LocallySorted R [a, b … l] → R a b.
-Proof.
-intros A R a b l H; inversion H; assumption.
-Qed.
-
 Lemma Qlt_minus : ∀ x y, x < y → x - y < 0.
 Proof.
 intros x y H.
@@ -274,7 +268,8 @@ apply Qle_minus_iff.
 assumption.
 Qed.
 
-Lemma pow_le_cpl : ∀ α pow cl cn cp,
+(*
+Lemma pow_le_cp : ∀ α pow cl cn cp,
   cp ∈ coeff_power_list_of_pol α pow cl cn
   → pow ≤ snd cp.
 Proof.
@@ -307,7 +302,7 @@ constructor.
  rewrite Heqcpl; apply IHcl; assumption.
 
  simpl.
- apply pow_le_cpl with (cl := cl) (cn := cn).
+ apply pow_le_cp with (cl := cl) (cn := cn).
  rewrite <- Heqcpl.
  left; reflexivity.
 Qed.
@@ -324,6 +319,7 @@ intros; split; intros H.
  destruct l as [| y]; [ constructor | simpl ].
  inversion H; constructor; [ apply IHl | idtac ]; assumption.
 Qed.
+*)
 
 Lemma min_slope_in_list : ∀ x₁ y₁ x_m y_m sl_m sk_m sk xyl xy skip,
   minimise_slope x₁ y₁ x_m y_m sl_m sk_m sk xyl = (xy, skip)
@@ -474,6 +470,19 @@ Lemma vvv : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
   → (x₂, y₂) ∈ xyl
     → x₁ < x₂.
 Proof.
+intros α k pow cl cn x₁ y₁ x₂ y₂ xyl Hvp Hxy.
+revert k pow cn x₁ y₁ x₂ y₂ xyl Hvp Hxy.
+induction cl as [| c]; intros.
+ unfold valuation_points_gen in Hvp; simpl in Hvp.
+ destruct (k_eq_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
+ injection Hvp; intros; subst; contradiction.
+
+ unfold valuation_points_gen in Hvp; simpl in Hvp.
+ destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
+  eapply IHcl; eassumption.
+
+  simpl in Hvp.
+  injection Hvp; clear Hvp; intros; subst x₁ y₁.
 vvv.
 
 Lemma www : ∀ α k pow cl cn x₁ y₁ x₂ y₂ x₃ y₃ xyl,
