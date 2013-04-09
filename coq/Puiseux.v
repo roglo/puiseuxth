@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.49 2013-04-09 11:51:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.50 2013-04-09 12:17:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -399,10 +399,46 @@ induction xyl₁ as [| (x₂, y₂)]; intros.
    right; right; assumption.
 Qed.
 
+Lemma vvv : ∀ α k pow cl cn x₁ y₁ xyl,
+  valuation_points_gen α k (S pow) cl cn = [(x₁, y₁) … xyl]
+  → Z.of_nat pow # 1 < x₁.
+Proof.
+bbb.
+
+Lemma www : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
+  valuation_points_gen α k pow cl cn = [(x₁, y₁), (x₂, y₂) … xyl]
+  → x₁ < x₂.
+Proof.
+intros; rename H into Hvp.
+revert k pow cn x₁ y₁ x₂ y₂ xyl Hvp.
+induction cl as [| c]; intros.
+ unfold valuation_points_gen in Hvp.
+ simpl in Hvp.
+ destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
+  discriminate Hvp.
+
+  simpl in Hvp.
+  discriminate Hvp.
+
+ unfold valuation_points_gen in Hvp.
+ simpl in Hvp.
+ destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
+  rewrite fold_valuation_points_gen in Hvp.
+  eapply IHcl; eassumption.
+
+  simpl in Hvp.
+  rewrite fold_valuation_points_gen in Hvp.
+  injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst x₁ y₁.
+  eapply vvv; eassumption.
+bbb.
+
 Lemma xxx : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
   valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
   → x₁ < x₂.
 Proof.
+intros; rename H into Hvp.
+unfold valuation_points in Hvp.
+eapply www; eassumption.
 bbb.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
