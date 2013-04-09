@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.41 2013-04-09 04:17:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.42 2013-04-09 08:35:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -358,6 +358,12 @@ induction xyl as [| xy₂]; intros.
    right; right; assumption.
 Qed.
 
+Lemma xxx : ∀ rl n xy₁ xyl₁ xy lch,
+  next_points rl n xy₁ xyl₁ = [xy … lch]
+  → xy ∈ xyl₁.
+Proof.
+bbb.
+
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
   lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
   → x₁ < x₂.
@@ -381,6 +387,7 @@ apply min_slope_in_list in Heqm.
 simpl in Heqm.
 destruct Heqm as [Hxy| Hxy].
  subst xy.
+ apply xxx in Hlch.
 bbb.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
