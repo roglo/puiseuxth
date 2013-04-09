@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.53 2013-04-09 13:06:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.54 2013-04-09 13:14:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -474,6 +474,11 @@ Lemma xxx : ∀ α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl,
   → (x₃, y₃) ∈ xyl
     → x₂ < x₃.
 Proof.
+intros α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl Hvp Hxy.
+revert k pol x₁ y₁ x₂ y₂ x₃ y₃ Hvp Hxy.
+induction xyl as [| (x₄, y₄)]; intros; [ contradiction | idtac ].
+destruct Hxy as [Hxy| Hxy].
+ injection Hxy; clear Hxy; intros; subst x₄ y₄.
 xxx.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
