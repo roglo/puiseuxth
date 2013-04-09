@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.153 2013-04-07 07:33:04 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.154 2013-04-09 09:11:41 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -14,32 +14,30 @@ open Roots;
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-Fixpoint minimise_slope xy₁ xy_min sl_min sk_min skip₁ xyl :=
-  let (x₁, y₁) := (xy₁ : (Q.t * Q.t)) in
+Fixpoint minimise_slope x₁ y₁ x_min y_min sl_min sk_min skip₁ xyl :=
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
       let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
       if Q.le sl₁₂ sl_min then
-        minimise_slope xy₁ (x₂, y₂) sl₁₂ skip₁ (succ skip₁) xyl₂
+        minimise_slope x₁ y₁ x₂ y₂ sl₁₂ skip₁ (succ skip₁) xyl₂
       else
-        minimise_slope xy₁ xy_min sl_min sk_min (succ skip₁) xyl₂
+        minimise_slope x₁ y₁ x_min y_min sl_min sk_min (succ skip₁) xyl₂
   | [] =>
-      (xy_min, sk_min)
+      ((x_min, y_min), sk_min)
   end;
 
-Fixpoint next_points rev_list nb_pts_to_skip xy₁ xyl₁ :=
-  let (x₁, y₁) := (xy₁ : (Q.t * Q.t)) in
+Fixpoint next_points rev_list nb_pts_to_skip x₁ y₁ xyl₁ :=
   match xyl₁ with
   | [(x₂, y₂) :: xyl₂] =>
       match nb_pts_to_skip with
       | 0 =>
-          let (xy, skip) :=
-           let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
-            minimise_slope xy₁ (x₂, y₂) sl₁₂ 0 1 xyl₂
+          let (xy₃, skip) :=
+            let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
+            minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0 1 xyl₂
           in
-          next_points [xy :: rev_list] skip xy xyl₂
+          next_points [xy₃ :: rev_list] skip (fst xy₃) (snd xy₃) xyl₂
       | n =>
-          next_points rev_list (n - 1) xy₁ xyl₂
+          next_points rev_list (n - 1) x₁ y₁ xyl₂
       end
   | [] =>
       List.rev rev_list
@@ -47,10 +45,9 @@ Fixpoint next_points rev_list nb_pts_to_skip xy₁ xyl₁ :=
 
 Definition lower_convex_hull xyl :=
   match xyl with
-  | [xy₁ :: xyl₁] => [xy₁ :: next_points [] 0 xy₁ xyl₁]
+  | [(x₁, y₁) :: xyl₁] => [(x₁, y₁) :: next_points [] 0 x₁ y₁ xyl₁]
   | [] => []
-  end
-;
+  end;
 
 Definition valuation (ps : puiseux_series α) :=
   match ps.ps_monoms with
