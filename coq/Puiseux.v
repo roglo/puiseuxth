@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.42 2013-04-09 08:35:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.43 2013-04-09 08:44:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -360,8 +360,13 @@ Qed.
 
 Lemma xxx : ∀ rl n xy₁ xyl₁ xy lch,
   next_points rl n xy₁ xyl₁ = [xy … lch]
-  → xy ∈ xyl₁.
+  → xy ∈ rl ∨ xy ∈ xyl₁.
 Proof.
+intros; rename H into Hnp.
+induction rl as [| xy₂].
+ right.
+ induction xyl₁ as [| xy₂].
+  simpl in Hnp.
 bbb.
 
 Lemma yyy : ∀ α k pol x₁ y₁ x₂ y₂ lch,
