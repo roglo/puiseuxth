@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.155 2013-04-09 09:13:27 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.156 2013-04-09 19:21:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -14,14 +14,18 @@ open Roots;
 
 type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
 
-Fixpoint minimise_slope x₁ y₁ x_min y_min sl_min sk_min skip₁ xyl :=
+Fixpoint minimise_slope x₁ y₁ x_min y_min sl_min sk_min skip₁ mid_pts xyl :=
   match xyl with
   | [(x₂, y₂) :: xyl₂] =>
       let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
-      if Q.le sl₁₂ sl_min then
-        minimise_slope x₁ y₁ x₂ y₂ sl₁₂ skip₁ (succ skip₁) xyl₂
+      if Q.eq sl₁₂ sl_min then
+        let mid_pts := [(x_min, y_min) :: mid_pts] in
+        minimise_slope x₁ y₁ x₂ y₂ sl₁₂ skip₁ (succ skip₁) mid_pts xyl₂
+      else if Q.le sl₁₂ sl_min then
+        minimise_slope x₁ y₁ x₂ y₂ sl₁₂ skip₁ (succ skip₁) [] xyl₂
       else
-        minimise_slope x₁ y₁ x_min y_min sl_min sk_min (succ skip₁) xyl₂
+        minimise_slope x₁ y₁ x_min y_min sl_min sk_min (succ skip₁) mid_pts
+          xyl₂
   | [] =>
       ((x_min, y_min), sk_min)
   end;
@@ -33,7 +37,7 @@ Fixpoint next_points rev_list nb_pts_to_skip x₁ y₁ xyl₁ :=
       | 0 =>
           let (xy₃, skip) :=
             let sl₁₂ := Q.norm (Q.div (Q.sub y₂ y₁) (Q.sub x₂ x₁)) in
-            minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0 1 xyl₂
+            minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0%nat 1%nat [] xyl₂
           in
           next_points [xy₃ :: rev_list] skip (fst xy₃) (snd xy₃) xyl₂
       | n =>
