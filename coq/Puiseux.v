@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.44 2013-04-09 09:13:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.45 2013-04-09 09:17:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,20 +325,18 @@ intros; split; intros H.
  inversion H; constructor; [ apply IHl | idtac ]; assumption.
 Qed.
 
-Lemma min_slope_in_list : ∀ xy₁ xy_m sl_m sk_m sk xyl xy skip,
-  minimise_slope xy₁ xy_m sl_m sk_m sk xyl = (xy, skip)
-  → xy ∈ [xy_m … xyl].
+Lemma min_slope_in_list : ∀ x₁ y₁ x_m y_m sl_m sk_m sk xyl xy skip,
+  minimise_slope x₁ y₁ x_m y_m sl_m sk_m sk xyl = (xy, skip)
+  → xy ∈ [(x_m, y_m) … xyl].
 Proof.
 intros; rename H into Hmin.
-revert xy₁ xy_m sl_m sk_m sk xy skip Hmin.
+revert x₁ y₁ x_m y_m sl_m sk_m sk xy skip Hmin.
 induction xyl as [| xy₂]; intros.
  simpl in Hmin.
- destruct xy₁ as (x₁, y₁).
- injection Hmin; clear Hmin; intros; subst xy_m sk_m.
+ destruct xy; injection Hmin; clear Hmin; intros; subst x_m y_m sk_m.
  left; reflexivity.
 
  simpl in Hmin.
- destruct xy₁ as (x₁, y₁).
  destruct xy₂ as (x₂, y₂).
  destruct (Qle_bool ((y₂ - y₁) / (x₂ - x₁)) sl_m).
   apply IHxyl in Hmin.
@@ -351,8 +349,8 @@ induction xyl as [| xy₂]; intros.
    right; right; assumption.
 Qed.
 
-Lemma xxx : ∀ rl n xy₁ xyl₁ xy lch,
-  next_points rl n xy₁ xyl₁ = [xy … lch]
+Lemma xxx : ∀ rl n x₁ y₁ xyl₁ xy lch,
+  next_points rl n x₁ y₁ xyl₁ = [xy … lch]
   → xy ∈ rl ∨ xy ∈ xyl₁.
 Proof.
 intros; rename H into Hnp.
