@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.162 2013-04-10 00:50:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.163 2013-04-10 01:17:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -19,7 +19,7 @@ Definition valuation (ps : puiseux_series α) :=
   end
 ;
 
-Definition valuation_coeff k (ps : puiseux_series α) :=
+Definition valuation_coeff (ps : puiseux_series α) :=
   match ps.ps_monoms with
   | [mx :: _] => mx.coeff
   | [] => match () with end
@@ -382,7 +382,7 @@ value rec puiseux_branch k br sol_list (γ, β, dpl) =
           else if hdeg - j < deg then
             match () with []
           else
-            let c = valuation_coeff f ps in
+            let c = valuation_coeff ps in
             loop [c :: rev_cl] (deg + 1) dpl₁
       | [] →
           {al = List.rev rev_cl} ]
