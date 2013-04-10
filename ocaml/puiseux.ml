@@ -1,4 +1,6 @@
-(* $Id: puiseux.ml,v 1.163 2013-04-10 01:17:33 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.164 2013-04-10 02:23:19 deraugla Exp $ *)
+
+(* Most of notations are Robert Walker's ones *)
 
 #load "./pa_coq.cmo";
 

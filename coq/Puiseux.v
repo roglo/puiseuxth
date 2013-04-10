@@ -1,4 +1,6 @@
-(* $Id: Puiseux.v,v 1.59 2013-04-10 02:03:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.60 2013-04-10 02:23:19 deraugla Exp $ *)
+
+(* Most of notations are Robert Walker's ones *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,13 +17,13 @@ Record field α :=
     sub : α → α → α;
     mul : α → α → α;
     div : α → α → α;
-    k_eq_dec : ∀ x y : α, {x = y} + {x ≠ y} }.
+    eq_k_dec : ∀ x y : α, {x = y} + {x ≠ y} }.
 Arguments zero : default implicits.
 Arguments add : default implicits.
 Arguments sub : default implicits.
 Arguments mul : default implicits.
 Arguments div : default implicits. 
-Arguments k_eq_dec : default implicits. 
+Arguments eq_k_dec : default implicits. 
 
 (* polynomial of degree ≥ 1 *)
 Record polynomial α := { al : list α; an : α }.
@@ -47,7 +49,7 @@ Fixpoint power_ps_list_of_pol α pow psl (psn : puiseux_series α) :=
   end.
 
 Definition filter_non_zero_ps α k (dpl : list (nat * puiseux_series α)) :=
-  List.filter (λ dp, if k_eq_dec k (snd dp) (zero k) then false else true)
+  List.filter (λ dp, if eq_k_dec k (snd dp) (zero k) then false else true)
     dpl.
 
 Definition power_puiseux_series_list_gen α k pow cl cn :=
@@ -84,11 +86,11 @@ remember (power_ps_list_of_pol α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
 induction cl as [| c cl]; intros.
  subst cpl; simpl.
- destruct (k_eq_dec k cn (zero k)); [ contradiction | simpl ].
+ destruct (eq_k_dec k cn (zero k)); [ contradiction | simpl ].
  intros H; discriminate H.
 
  subst cpl; simpl.
- destruct (k_eq_dec k c (zero k)).
+ destruct (eq_k_dec k c (zero k)).
   eapply IHcl; reflexivity.
 
   simpl.
@@ -117,7 +119,7 @@ induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
  unfold power_puiseux_series_list_gen; simpl.
- destruct (k_eq_dec k c (zero k)).
+ destruct (eq_k_dec k c (zero k)).
   destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
    subst c₁; contradiction.
 
@@ -210,16 +212,16 @@ unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
 remember (power_puiseux_series_list α k pol) as pts.
 remember (lower_convex_hull α pts) as chp.
-destruct chp as [| (d₁, p₁)].
+destruct chp as [| (mp₁, (d₁, p₁))].
  destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
  symmetry in Heqpts.
  exfalso; revert Heqpts.
  apply at_least_one_valuation_point; assumption.
 
- destruct chp as [| (x₃, y₃)].
-  destruct pts as [| (x₃, y₃)]; [ discriminate Heqchp | simpl in Heqchp ].
+ destruct chp as [| (mp₂₃, (d₃, p₃))].
+  destruct pts as [| (d₃, p₃)]; [ discriminate Heqchp | simpl in Heqchp ].
   injection Heqchp; intros H₁ H₂ H₃.
-  subst x₃ y₃; clear Heqchp.
+  subst d₃ p₃; clear Heqchp.
   destruct pts.
    remember (length (power_puiseux_series_list α k pol)) as len.
    destruct len.
@@ -337,7 +339,7 @@ intros α k pow cl cn d₁ p₁ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
- destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
+ destruct (eq_k_dec k cn (zero k)) as [Heq| Hne].
   subst dpl; contradiction.
 
   simpl in Hvp.
@@ -348,7 +350,7 @@ induction cl as [| c]; intros.
   apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
 
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
- destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
+ destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
   rewrite fold_power_puiseux_series_list_gen in Hvp.
   eapply IHcl in Hvp; [ idtac | eassumption ].
   unfold Qlt in Hvp |- *; simpl in Hvp |- *.
@@ -384,11 +386,11 @@ intros α k pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
- destruct (k_eq_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
+ destruct (eq_k_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
  injection Hvp; intros; subst; contradiction.
 
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
- destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
+ destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   simpl in Hvp.
@@ -406,19 +408,19 @@ unfold power_puiseux_series_list in Hvp.
 eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
 
-Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ x₃ y₃ dpl,
+Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl,
   power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
-  → (x₃, y₃) ∈ dpl
-    → d₂ < x₃.
+  → (d₃, p₃) ∈ dpl
+    → d₂ < d₃.
 Proof.
-intros α k pow cl cn d₁ p₁ d₂ p₂ x₃ y₃ dpl Hvp Hdp.
-revert k pow cn d₁ p₁ d₂ p₂ x₃ y₃ dpl Hvp Hdp.
+intros α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
+revert k pow cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
- destruct (k_eq_dec k cn (zero k)); discriminate Hvp.
+ destruct (eq_k_dec k cn (zero k)); discriminate Hvp.
 
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
- destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
+ destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
   rewrite fold_power_puiseux_series_list_gen in Hvp.
   eapply IHcl; eassumption.
 
@@ -428,12 +430,12 @@ induction cl as [| c]; intros.
   eapply vp_lt; eassumption.
 Qed.
 
-Lemma power_puiseux_series_list_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ x₃ y₃ dpl,
+Lemma power_puiseux_series_list_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl,
   power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
-  → (x₃, y₃) ∈ dpl
-    → d₂ < x₃.
+  → (d₃, p₃) ∈ dpl
+    → d₂ < d₃.
 Proof.
-intros α k pol d₁ p₁ d₂ p₂ x₃ y₃ dpl Hvp Hdp.
+intros α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 unfold power_puiseux_series_list in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
@@ -445,10 +447,10 @@ Proof.
 intros; rename H into Hlch.
 unfold lower_convex_hull in Hlch.
 remember (power_puiseux_series_list α k pol) as dpl.
-destruct dpl as [| (x₃, y₃)]; [ discriminate Hlch | idtac ].
-injection Hlch; clear Hlch; intros; subst x₃ y₃; rename H into Hlch.
-rename d₂ into x₃.
-rename p₂ into y₃.
+destruct dpl as [| (d₃, p₃)]; [ discriminate Hlch | idtac ].
+injection Hlch; clear Hlch; intros; subst d₃ p₃; rename H into Hlch.
+rename d₂ into d₃.
+rename p₂ into p₃.
 destruct dpl as [| (d₂, p₂)]; [ discriminate Hlch | idtac ].
 simpl in Hlch.
 remember ((p₂ - p₁) / (d₂ - d₁)) as yx.
@@ -465,7 +467,7 @@ destruct Heqm as [Hdp| Hdp].
  apply next_points_in_list in Hlch.
  destruct Hlch as [Hdp| Hdp].
   destruct Hdp; [ idtac | contradiction ].
-  injection H; clear H; intros; subst x₃ y₃.
+  injection H; clear H; intros; subst d₃ p₃.
   eapply power_puiseux_series_list_lt; eassumption.
 
   apply Qlt_trans with (y := d₂).
