@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.62 2013-04-10 02:49:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.63 2013-04-10 02:58:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -342,7 +342,7 @@ Qed.
 Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
   power_puiseux_series_list_gen α k (S pow) cl cn = dpl
   → (d₁, p₁) ∈ dpl
-    → Z.of_nat pow # 1 < d₁.
+    → lt pow d₁.
 Proof.
 intros α k pow cl cn d₁ p₁ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ dpl Hvp Hdp.
@@ -354,19 +354,14 @@ induction cl as [| c]; intros.
   simpl in Hvp.
   subst dpl; destruct Hdp as [Hdp| ]; [ idtac | contradiction ].
   injection Hdp; clear Hdp; intros; subst d₁ p₁.
-  rewrite Zpos_P_of_succ_nat.
-  unfold Qlt; simpl.
-  apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
+  apply lt_n_Sn.
 
  unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
   rewrite fold_power_puiseux_series_list_gen in Hvp.
   eapply IHcl in Hvp; [ idtac | eassumption ].
-  unfold Qlt in Hvp |- *; simpl in Hvp |- *.
-  rewrite Pos2Z.inj_mul in Hvp.
-  rewrite Zpos_P_of_succ_nat in Hvp.
-  eapply Zlt_trans; [ idtac | eassumption ].
-  apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
+  eapply lt_trans; [ idtac | eassumption ].
+  apply lt_n_Sn.
 
   simpl in Hvp.
   rewrite fold_power_puiseux_series_list_gen in Hvp.
@@ -374,22 +369,17 @@ induction cl as [| c]; intros.
   injection Hvp; clear Hvp; intros Hvp H₂ Hdpl; subst d₂ p₂.
   destruct Hdp as [Hdp| Hdp].
    injection Hdp; clear Hdp; intros; subst d₁ p₁.
-   rewrite Zpos_P_of_succ_nat.
-   unfold Qlt; simpl.
-   apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
+   apply lt_n_Sn.
 
    eapply IHcl in Hvp; [ idtac | eassumption ].
-   unfold Qlt in Hvp |- *; simpl in Hvp |- *.
-   rewrite Pos2Z.inj_mul in Hvp.
-   rewrite Zpos_P_of_succ_nat in Hvp.
-   eapply Zlt_trans; [ idtac | eassumption ].
-   apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
+   eapply lt_trans; [ idtac | eassumption ].
+   apply lt_n_Sn.
 Qed.
 
 Lemma vp_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ dpl,
   power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁) … dpl]
   → (d₂, p₂) ∈ dpl
-    → d₁ < d₂.
+    → lt d₁ d₂.
 Proof.
 intros α k pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
@@ -410,7 +400,7 @@ Qed.
 
 Lemma power_puiseux_series_list_lt : ∀ α k pol d₁ p₁ d₂ p₂ dpl,
   power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
-  → d₁ < d₂.
+  → lt d₁ d₂.
 Proof.
 intros; rename H into Hvp.
 unfold power_puiseux_series_list in Hvp.
@@ -420,7 +410,7 @@ Qed.
 Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl,
   power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
-    → d₂ < d₃.
+    → lt d₂ d₃.
 Proof.
 intros α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
@@ -442,16 +432,17 @@ Qed.
 Lemma power_puiseux_series_list_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl,
   power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
-    → d₂ < d₃.
+    → lt d₂ d₃.
 Proof.
 intros α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 unfold power_puiseux_series_list in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
 
-Lemma lower_convex_hull_lt : ∀ α k pol d₁ p₁ d₂ p₂ lch,
-  lower_convex_hull (power_puiseux_series_list α k pol) = [(d₁, p₁), (d₂, p₂) … lch]
-  → d₁ < d₂.
+Lemma lower_convex_hull_lt : ∀ α k pol d₁ p₁ d₂ p₂ mp₀ mp₁₂ lch,
+  lower_convex_hull α (power_puiseux_series_list α k pol) =
+    [(mp₀, (d₁, p₁)), (mp₁₂, (d₂, p₂)) … lch]
+  → (d₁ < d₂)%nat.
 Proof.
 intros; rename H into Hlch.
 unfold lower_convex_hull in Hlch.
