@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.71 2013-04-10 11:26:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.72 2013-04-10 11:31:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -246,15 +246,6 @@ destruct chp as [| (mp₁, (d₁, p₁))].
   intros H; discriminate H.
 Qed.
 
-Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
-Proof.
-intros x y H.
-unfold Qlt in H |-*; simpl.
-rewrite Z.mul_1_r, <- Zopp_mult_distr_l.
-apply Zlt_left_lt.
-assumption.
-Qed.
-
 Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip mp mpr,
   minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk mp dpl = ((mpr, dp), skip)
   → dp ∈ [(d_m, p_m) … dpl].
@@ -488,9 +479,22 @@ destruct Heqm as [Hdp| Hdp].
    eapply power_puiseux_series_list_2nd_lt; eassumption.
 Qed.
 
-Lemma yyy : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
+Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
-Admitted.
+intros x y H.
+unfold Qlt in H |-*; simpl.
+rewrite Z.mul_1_r, <- Zopp_mult_distr_l.
+apply Zlt_left_lt.
+assumption.
+Qed.
+
+Lemma QZ_minus : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
+Proof.
+intros.
+unfold Qminus, Qplus, Zminus; simpl.
+do 2 rewrite Z.mul_1_r.
+reflexivity.
+Qed.
 
 Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero fld
@@ -527,7 +531,7 @@ split.
  subst γ.
  unfold Qnat.
  rewrite Nat2Z.inj_sub.
-  rewrite yyy.
+  rewrite QZ_minus.
   field.
   intros H; symmetry in H; revert H.
   apply Qlt_not_eq, Qlt_minus.
