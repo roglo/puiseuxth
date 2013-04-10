@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.65 2013-04-10 03:31:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.66 2013-04-10 04:16:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -64,7 +64,7 @@ Definition gamma_beta {α} k pol :=
   | [(_, (d₁, p₁)), (mp, (d₂, p₂)) … _] =>
       let v₁ := valuation α p₁ in
       let v₂ := valuation α p₂ in
-      let γ := (v₂ - v₁) / ((Z.of_nat (d₂ - d₁)%nat) # 1) in
+      let γ := (v₁ - v₂) / ((Z.of_nat (d₂ - d₁)%nat) # 1) in
       let β := γ * (Z.of_nat d₁ # 1) + v₁ in
       Some (γ, β, dpl)
   | [_] | [] =>
@@ -246,15 +246,15 @@ destruct chp as [| (mp₁, (d₁, p₁))].
   intros H; discriminate H.
 Qed.
 
-Lemma Qlt_minus : ∀ x y, x < y → x - y < 0.
+Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
 intros x y H.
 apply Qnot_le_lt.
 apply Qlt_not_le in H.
 intros HH; apply H; clear H.
-apply Qle_minus_iff.
-assumption.
-Qed.
+apply Qplus_le_compat with (x := x) (y := x) in HH.
+ rewrite Qplus_0_r in HH.
+bbb.
 
 Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip mp mpr,
   minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk mp dpl = ((mpr, dp), skip)
@@ -491,6 +491,10 @@ Qed.
 
 Definition Qnat i := Z.of_nat i # 1.
 
+Lemma yyy : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
+Proof.
+Admitted.
+
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
@@ -504,6 +508,7 @@ Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
            (∀ mp d p, (mp, (d, p)) ∈ lch →
               γ * Qnat d₁ + valuation α p₁ <= γ * Qnat d + valuation α p).
 Proof.
+zzz < Show Script.
 intros α k pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta k pol) as gb.
@@ -524,6 +529,19 @@ split.
  subst γ.
  unfold Qnat.
  rewrite Nat2Z.inj_sub.
+  rewrite yyy.
+  remember (valuation α p₁) as v₁.
+  remember (valuation α p₂) as v₂.
+  remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+  remember (Z.of_nat d₁ # 1) as qd₁.
+  remember (Z.of_nat d₂ # 1) as qd₂.
+  field.
+  intros H.
+  symmetry in H.
+  revert H.
+  apply Qlt_not_eq.
+zzz.
+
  field.
  apply Qlt_not_eq, Qlt_minus.
  eapply lower_convex_hull_lt; symmetry; eassumption.
