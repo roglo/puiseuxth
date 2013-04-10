@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.11 2013-04-10 02:03:21 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.12 2013-04-10 10:00:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,12 +17,14 @@ Record puiseux_series α :=
 Definition valuation α ps := snd (ps_1 α ps).
 Definition valuation_coeff α ps := fst (ps_1 α ps).
 
+Definition Qnat i := Z.of_nat i # 1.
+
 Fixpoint minimise_slope α d₁ p₁ d_min p_min sl_min sk_min skip₁ mid_pts dpl :=
   match dpl with
   | [(d₂, p₂) … dpl₂] =>
       let v₁ := valuation α p₁ in
       let v₂ := valuation α p₂ in
-      let sl₁₂ := (v₂ - v₁) / ((Z.of_nat (d₂ - d₁)%nat) # 1) in
+      let sl₁₂ := (v₂ - v₁) / Qnat (d₂ - d₁) in
       if Qeq_bool sl₁₂ sl_min then
         let mid_pts := [(d_min, p_min) … mid_pts] in
         minimise_slope α d₁ p₁ d₂ p₂ sl₁₂ skip₁ (S skip₁) mid_pts dpl₂
@@ -43,7 +45,7 @@ Fixpoint next_points α rev_list nb_pts_to_skip d₁ p₁ dpl₁ :=
           let (dp₃, skip) :=
             let v₁ := valuation α p₁ in
             let v₂ := valuation α p₂ in
-            let sl₁₂ := (v₂ - v₁) / ((Z.of_nat (d₂ - d₁)%nat) # 1) in
+            let sl₁₂ := (v₂ - v₁) / Qnat (d₂ - d₁) in
             minimise_slope α d₁ p₁ d₂ p₂ sl₁₂ 0%nat 1%nat [] dpl₂
           in
           next_points α [dp₃ … rev_list] skip (fst (snd dp₃)) (snd (snd dp₃))

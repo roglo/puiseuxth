@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.69 2013-04-10 09:47:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.70 2013-04-10 10:00:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -64,8 +64,8 @@ Definition gamma_beta {α} k pol :=
   | [(_, (d₁, p₁)), (mp, (d₂, p₂)) … _] =>
       let v₁ := valuation α p₁ in
       let v₂ := valuation α p₂ in
-      let γ := (v₁ - v₂) / ((Z.of_nat (d₂ - d₁)%nat) # 1) in
-      let β := γ * (Z.of_nat d₁ # 1) + v₁ in
+      let γ := (v₁ - v₂) / Qnat (d₂ - d₁)%nat in
+      let β := v₁ + Qnat d₁ * γ in
       Some (γ, β, dpl)
   | [_] | [] =>
       None
@@ -172,7 +172,7 @@ induction dpl₁ as [| dp₂]; intros.
  destruct dp₂ as (d₂, p₂).
  destruct sk.
   remember (valuation α p₂ - valuation α p₁) as v₂₁.
-  remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+  remember (Qnat (d₂ - d₁)) as d₂₁.
   remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl₁) as xs.
   subst v₂₁ d₂₁.
   destruct xs as (dp₃, sk).
@@ -195,7 +195,7 @@ induction dpl₁ as [| dp₃]; intros.
  simpl.
  destruct dp₂ as (d₂, p₂).
  remember (valuation α p₂ - valuation α p₁) as v₂₁.
- remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+ remember (Qnat (d₂ - d₁)) as d₂₁.
  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl) as dps.
  subst v₂₁ d₂₁.
  destruct dps as (dp, skip).
@@ -269,7 +269,7 @@ induction dpl as [| dp₂]; intros.
  simpl in Hmin.
  destruct dp₂ as (d₂, p₂).
  remember (valuation α p₂ - valuation α p₁) as v₂₁.
- remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+ remember (Qnat (d₂ - d₁)) as d₂₁.
  destruct (Qeq_bool (v₂₁ / d₂₁) sl_m).
   apply IHdpl in Hmin.
   right; assumption.
@@ -302,7 +302,7 @@ induction dpl₁ as [| (d₂, p₂)]; intros.
  simpl in Hnp.
  destruct n.
   remember (valuation α p₂ - valuation α p₁) as v₂₁.
-  remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+  remember (Qnat (d₂ - d₁)) as d₂₁.
   remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl₁) as ms.
   subst v₂₁ d₂₁.
   destruct ms as ((mp₂₃, dp₃), skip).
@@ -453,7 +453,7 @@ rename p₂ into p₃.
 destruct dpl as [| (d₂, p₂)]; [ discriminate Hlch | idtac ].
 simpl in Hlch.
 remember (valuation α p₂ - valuation α p₁) as v₂₁.
-remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+remember (Qnat (d₂ - d₁)) as d₂₁.
 remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl) as m.
 subst v₂₁ d₂₁.
 destruct m as ((mp, dp), skip).
@@ -487,8 +487,6 @@ destruct Heqm as [Hdp| Hdp].
 
    eapply power_puiseux_series_list_2nd_lt; eassumption.
 Qed.
-
-Definition Qnat i := Z.of_nat i # 1.
 
 Lemma yyy : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
 Proof.
