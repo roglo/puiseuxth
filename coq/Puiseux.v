@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.60 2013-04-10 02:23:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.61 2013-04-10 02:35:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -256,28 +256,34 @@ apply Qle_minus_iff.
 assumption.
 Qed.
 
-Lemma min_slope_in_list : ∀ d₁ p₁ x_m y_m sl_m sk_m sk dpl dp skip,
-  minimise_slope d₁ p₁ x_m y_m sl_m sk_m sk dpl = (dp, skip)
-  → dp ∈ [(x_m, y_m) … dpl].
+Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip mp mpr,
+  minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk mp dpl = ((mpr, dp), skip)
+  → dp ∈ [(d_m, p_m) … dpl].
 Proof.
 intros; rename H into Hmin.
-revert d₁ p₁ x_m y_m sl_m sk_m sk dp skip Hmin.
+revert d₁ p₁ d_m p_m sl_m sk_m sk dp skip mp mpr Hmin.
 induction dpl as [| dp₂]; intros.
  simpl in Hmin.
- destruct dp; injection Hmin; clear Hmin; intros; subst x_m y_m sk_m.
+ destruct dp; injection Hmin; clear Hmin; intros; subst d_m p_m sk_m.
  left; reflexivity.
 
  simpl in Hmin.
  destruct dp₂ as (d₂, p₂).
- destruct (Qle_bool ((p₂ - p₁) / (d₂ - d₁)) sl_m).
+ remember (valuation α p₂ - valuation α p₁) as v₂₁.
+ remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+ destruct (Qeq_bool (v₂₁ / d₂₁) sl_m).
   apply IHdpl in Hmin.
   right; assumption.
 
-  apply IHdpl in Hmin.
-  destruct Hmin as [Hdp| Hdp].
-   subst dp; left; reflexivity.
+  destruct (Qle_bool (v₂₁ / d₂₁) sl_m).
+   apply IHdpl in Hmin.
+   right; assumption.
 
-   right; right; assumption.
+   apply IHdpl in Hmin.
+   destruct Hmin as [Hdp| Hdp].
+    subst dp; left; reflexivity.
+
+    right; right; assumption.
 Qed.
 
 Lemma next_points_in_list : ∀ rl n d₁ p₁ dpl₁ dp lch,
@@ -535,9 +541,9 @@ Arguments rem_steps : default implicits.
 Arguments pol : default implicits.
 
 (*
-Definition phony_monom {α β} : monomial (polynomial α β) nat :=
+Definition phonp_monom {α β} : monomial (polynomial α β) nat :=
   {| coeff := {| monoms := [] |}; power := 0%nat |}.
-Arguments phony_monom : default implicits.
+Arguments phonp_monom : default implicits.
 
 Definition puiseux_iteration k br r m γ β sol_list :=
   let pol :=
@@ -572,7 +578,7 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
          Qeq_bool β βi)
       (monoms (pol br))
   in
-  let j := power (List.hd (phony_monom α Q) hl) in
+  let j := power (List.hd (phonp_monom α Q) hl) in
   let ml :=
     List.map
       (λ m,
