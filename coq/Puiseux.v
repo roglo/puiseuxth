@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.63 2013-04-10 02:58:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.64 2013-04-10 03:03:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -453,10 +453,11 @@ rename d₂ into d₃.
 rename p₂ into p₃.
 destruct dpl as [| (d₂, p₂)]; [ discriminate Hlch | idtac ].
 simpl in Hlch.
-remember ((p₂ - p₁) / (d₂ - d₁)) as yx.
-remember (minimise_slope d₁ p₁ d₂ p₂ yx 0 1 dpl) as m.
-subst yx.
-destruct m as (dp, skip).
+remember (valuation α p₂ - valuation α p₁) as v₂₁.
+remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl) as m.
+subst v₂₁ d₂₁.
+destruct m as ((mp, dp), skip).
 symmetry in Heqdpl.
 symmetry in Heqm.
 apply min_slope_in_list in Heqm.
@@ -470,19 +471,19 @@ destruct Heqm as [Hdp| Hdp].
   injection H; clear H; intros; subst d₃ p₃.
   eapply power_puiseux_series_list_lt; eassumption.
 
-  apply Qlt_trans with (y := d₂).
+  eapply lt_trans with (m := d₂).
    eapply power_puiseux_series_list_lt; eassumption.
 
    eapply power_puiseux_series_list_2nd_lt; eassumption.
 
- apply Qlt_trans with (y := d₂).
+ apply lt_trans with (m := d₂).
   eapply power_puiseux_series_list_lt; eassumption.
 
-  destruct dp as (x₄, y₄); simpl in Hlch.
+  destruct dp as (d₄, p₄); simpl in Hlch.
   apply next_points_in_list in Hlch.
   destruct Hlch as [Hdp₃| Hdp₃].
    destruct Hdp₃; [ idtac | contradiction ].
-   injection H; clear H; intros; subst x₄ y₄.
+   injection H; clear H; intros; subst d₄ p₄.
    eapply power_puiseux_series_list_2nd_lt; eassumption.
 
    eapply power_puiseux_series_list_2nd_lt; eassumption.
@@ -491,7 +492,7 @@ Qed.
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
-    → lch = lower_convex_hull (power_puiseux_series_list α k pol)
+    → lch = lower_convex_hull α (power_puiseux_series_list α k pol)
       → ∃ γ d₁ p₁ d₂ p₂, (d₁, p₁) ∈ lch ∧ (d₂, p₂) ∈ lch ∧
          γ * d₁ + p₁ == γ * d₂ + p₂ ∧
          ∀ x y, (x, y) ∈ lch → γ * d₁ + p₁ <= γ * x + y.
