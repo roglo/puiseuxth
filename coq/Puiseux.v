@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.70 2013-04-10 10:00:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.71 2013-04-10 11:26:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -528,13 +528,9 @@ split.
  unfold Qnat.
  rewrite Nat2Z.inj_sub.
   rewrite yyy.
-  remember (Z.of_nat (k - j) # 1) as k₁.
-  remember (Z.of_nat j # 1) as qj.
-  remember (Z.of_nat k # 1) as qk.
   field.
   intros H; symmetry in H; revert H.
   apply Qlt_not_eq, Qlt_minus.
-  subst qj qk.
   unfold Qlt; simpl.
   do 2 rewrite Z.mul_1_r.
   apply inj_lt.
