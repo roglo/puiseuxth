@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.159 2013-04-10 00:21:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.160 2013-04-10 00:31:00 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -11,48 +11,6 @@ open Poly_tree;
 open Poly;
 open Puiseux_series;
 open Roots;
-
-type slope_to α = { xy₂ : (α * α); slope : α; skip : int };
-
-Fixpoint minimise_slope d₁ y₁ d_min y_min sl_min sk_min skip₁ mid_pts dyl :=
-  match dyl with
-  | [(d₂, y₂) :: dyl₂] =>
-      let sl₁₂ := Q.norm (Q.divi (Q.sub y₂ y₁) (I.of_int (d₂ - d₁))) in
-      if Q.eq sl₁₂ sl_min then
-        let mid_pts := [(d_min, y_min) :: mid_pts] in
-        minimise_slope d₁ y₁ d₂ y₂ sl₁₂ skip₁ (succ skip₁) mid_pts dyl₂
-      else if Q.le sl₁₂ sl_min then
-        minimise_slope d₁ y₁ d₂ y₂ sl₁₂ skip₁ (succ skip₁) [] dyl₂
-      else
-        minimise_slope d₁ y₁ d_min y_min sl_min sk_min (succ skip₁) mid_pts
-          dyl₂
-  | [] =>
-      ((List.rev mid_pts, (d_min, y_min)), sk_min)
-  end;
-
-Fixpoint next_points rev_list nb_pts_to_skip d₁ y₁ dyl₁ :=
-  match dyl₁ with
-  | [(d₂, y₂) :: dyl₂] =>
-      match nb_pts_to_skip with
-      | 0 =>
-          let (dy₃, skip) :=
-            let sl₁₂ := Q.norm (Q.divi (Q.sub y₂ y₁) (I.of_int (d₂ - d₁))) in
-            minimise_slope d₁ y₁ d₂ y₂ sl₁₂ 0%nat 1%nat [] dyl₂
-          in
-          next_points [dy₃ :: rev_list] skip (fst (snd dy₃)) (snd (snd dy₃))
-            dyl₂
-      | n =>
-          next_points rev_list (n - 1) d₁ y₁ dyl₂
-      end
-  | [] =>
-      List.rev rev_list
-  end;
-
-Definition lower_convex_hull dyl :=
-  match dyl with
-  | [(d₁, y₁) :: dyl₁] => [([], (d₁, y₁)) :: next_points [] 0%nat d₁ y₁ dyl₁]
-  | [] => []
-  end;
 
 Definition valuation (ps : puiseux_series α) :=
   match ps.ps_monoms with
@@ -68,30 +26,76 @@ Definition valuation_coeff k (ps : puiseux_series α) :=
   end
 ;
 
+Fixpoint minimise_slope d₁ p₁ d_min p_min sl_min sk_min skip₁ mid_pts dpl :=
+  match dpl with
+  | [(d₂, p₂) :: dpl₂] =>
+      let v₁ := valuation p₁ in
+      let v₂ := valuation p₂ in
+      let sl₁₂ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₂ - d₁))) in
+      if Q.eq sl₁₂ sl_min then
+        let mid_pts := [(d_min, p_min) :: mid_pts] in
+        minimise_slope d₁ p₁ d₂ p₂ sl₁₂ skip₁ (succ skip₁) mid_pts dpl₂
+      else if Q.le sl₁₂ sl_min then
+        minimise_slope d₁ p₁ d₂ p₂ sl₁₂ skip₁ (succ skip₁) [] dpl₂
+      else
+        minimise_slope d₁ p₁ d_min p_min sl_min sk_min (succ skip₁) mid_pts
+          dpl₂
+  | [] =>
+      ((List.rev mid_pts, (d_min, p_min)), sk_min)
+  end;
+
+Fixpoint next_points rev_list nb_pts_to_skip d₁ p₁ dpl₁ :=
+  match dpl₁ with
+  | [(d₂, p₂) :: dpl₂] =>
+      match nb_pts_to_skip with
+      | 0 =>
+          let (dp₃, skip) :=
+            let v₁ := valuation p₁ in
+            let v₂ := valuation p₂ in
+            let sl₁₂ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₂ - d₁))) in
+            minimise_slope d₁ p₁ d₂ p₂ sl₁₂ 0%nat 1%nat [] dpl₂
+          in
+          next_points [dp₃ :: rev_list] skip (fst (snd dp₃)) (snd (snd dp₃))
+            dpl₂
+      | n =>
+          next_points rev_list (n - 1) d₁ p₁ dpl₂
+      end
+  | [] =>
+      List.rev rev_list
+  end;
+
+Definition lower_convex_hull dpl :=
+  match dpl with
+  | [(d₁, p₁) :: dpl₁] => [([], (d₁, p₁)) :: next_points [] 0%nat d₁ p₁ dpl₁]
+  | [] => []
+  end;
+
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
-  let dyl :=
-    let (rev_dyl, _) :=
+  let dpl :=
+    let (rev_dpl, _) :=
       List.fold_left
-        (fun (rev_dyl, deg) ps →
-           let rev_dyl =
-             if ps.ps_monoms = [] then rev_dyl
-             else [(deg, valuation ps) :: rev_dyl]
+        (fun (rev_dpl, deg) ps →
+           let rev_dpl =
+             if ps.ps_monoms = [] then rev_dpl
+             else [(deg, ps) :: rev_dpl]
            in
-           (rev_dyl, deg + 1))
+           (rev_dpl, deg + 1))
         ([], 0) pol.al
     in
-    List.rev rev_dyl
+    List.rev rev_dpl
   in
-  let fix loop rev_gbl dyl :=
-    match dyl with
-    | [(_, (d₁, y₁)) :: ([(mp, (d₂, y₂)) :: _] as dyl₁)] =>
-        let γ := Q.norm (Q.divi (Q.sub y₂ y₁) (I.of_int (d₁ - d₂))) in
-        loop [(γ, (d₁, y₁), mp, (d₂, y₂)) :: rev_gbl] dyl₁
+  let fix loop rev_gbl dpl :=
+    match dpl with
+    | [(_, (d₁, p₁)) :: ([(mp, (d₂, p₂)) :: _] as dpl₁)] =>
+        let v₁ := valuation p₁ in
+        let v₂ := valuation p₂ in
+        let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
+        loop [(γ, (d₁, p₁), mp, (d₂, p₂)) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
     end
   in
-  let ch := lower_convex_hull dyl in
+  let ch := lower_convex_hull dpl in
   loop [] ch
 ;
 
@@ -350,8 +354,9 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value rec puiseux_branch k br sol_list (γ, (d₁, y₁), mp, (d₂, y₂)) =
-  let β = Q.norm (Q.add (Q.muli γ (I.of_int d₁)) y₁) in
+value rec puiseux_branch k br sol_list (γ, (d₁, p₁), mp, (d₂, p₂)) =
+  let v₁ = valuation p₁ in
+  let β = Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
   let f = k.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let hl =
@@ -416,12 +421,13 @@ value rec puiseux_branch k br sol_list (γ, (d₁, y₁), mp, (d₂, y₂)) =
 
 and next_step k br sol_list pol cγl =
   let gbl = gamma_beta_list pol in
-  let gbl_f = List.filter (fun (γ, xy₁, mp, xy₂) → not (Q.le γ Q.zero)) gbl in
+  let gbl_f = List.filter (fun (γ, dp₁, mp, dp₂) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
       List.iter
-        (fun (γ, (d₁, y₁), mp, dy₂) →
-           let β = Q.norm (Q.add (Q.muli γ (I.of_int d₁)) y₁) in
+        (fun (γ, (d₁, p₁), mp, dp₂) →
+           let v₁ = valuation p₁ in
+           let β = Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
            printf "γ %s β %s\n%!" (Q.to_string γ) (Q.to_string β))
         gbl
     }
@@ -430,7 +436,7 @@ and next_step k br sol_list pol cγl =
   }
   else
     List.fold_left
-      (fun sol_list (γ, dy₁, mp, dy₂) → do {
+      (fun sol_list (γ, dp₁, mp, dp₂) → do {
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
@@ -438,7 +444,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k br sol_list (γ, dy₁, mp, dy₂)
+         puiseux_branch k br sol_list (γ, dp₁, mp, dp₂)
        })
       sol_list gbl_f
 ;
@@ -454,13 +460,13 @@ value puiseux k nb_steps vx vy pol =
   let rem_steps = nb_steps - 1 in
   let _rev_sol_list =
     List.fold_left
-      (fun sol_list (γ₁, xy₁, mp, xy₂) → do {
+      (fun sol_list (γ₁, dp₁, mp, dp₂) → do {
          print_line_equal ();
          let br =
            {initial_polynom = pol; cγl = []; step = 1;
             rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
          in
-         puiseux_branch k br sol_list (γ₁, xy₁, mp, xy₂)
+         puiseux_branch k br sol_list (γ₁, dp₁, mp, dp₂)
        })
       [] gbl
   in
