@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.68 2013-04-10 09:24:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.69 2013-04-10 09:47:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -494,49 +494,49 @@ Lemma yyy : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
 Proof.
 Admitted.
 
-Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
-  an pol ≠ zero k
-  → (∃ c, c ∈ al pol ∧ c ≠ zero k)
-    → lch = lower_convex_hull α (power_puiseux_series_list α k pol)
-      → ∃ γ mp₀ d₁ p₁ mp₁₂ d₂ p₂,
-           (mp₀, (d₁, p₁)) ∈ lch ∧
-           (mp₁₂, (d₂, p₂)) ∈ lch ∧
-           γ * Qnat d₁ + valuation α p₁ == γ * Qnat d₂ + valuation α p₂ ∧
-           (∀ d p, (d, p) ∈ mp₁₂ →
-              γ * Qnat d + valuation α p == γ * Qnat d₁ + valuation α p₁) ∧
-           (∀ mp d p, (mp, (d, p)) ∈ lch →
-              γ * Qnat d₁ + valuation α p₁ <= γ * Qnat d + valuation α p).
+Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
+  an pol ≠ zero fld
+  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
+    → lch = lower_convex_hull α (power_puiseux_series_list α fld pol)
+      → ∃ γ mp₀ j jt mp₁₂ k kt,
+           (mp₀, (j, jt)) ∈ lch ∧
+           (mp₁₂, (k, kt)) ∈ lch ∧
+           valuation α jt + Qnat j * γ == valuation α kt + Qnat k * γ ∧
+           (∀ i it, (i, it) ∈ mp₁₂ →
+              valuation α it + Qnat i * γ == valuation α jt + Qnat j * γ) ∧
+           (∀ i it, (i, it) ∈ List.map (λ pmi, snd pmi) lch →
+              valuation α jt + Qnat j * γ <= valuation α it + Qnat i * γ).
 Proof.
-intros α k pol lch an_nz ai_nz Hlch.
+intros α fld pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
-remember (gamma_beta k pol) as gb.
+remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
 destruct p as ((γ, β), dpl).
 exists γ.
 unfold gamma_beta in Heqgb.
 rewrite <- Hlch in Heqgb.
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (mp₁, (d₁, p₁)).
+destruct p as (mp₁, (j, jt)).
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (mp₂, (d₂, p₂)).
+destruct p as (mp₂, (k, kt)).
 injection Heqgb; intros H₁ H₂ H₃; clear Heqgb.
-exists mp₁, d₁, p₁, mp₂, d₂, p₂.
+exists mp₁, j, jt, mp₂, k, kt.
 split; [ left; reflexivity | idtac ].
 split; [ right; left; reflexivity | idtac ].
+remember (valuation α jt) as αj.
+remember (valuation α kt) as αk.
 split.
  subst γ.
  unfold Qnat.
  rewrite Nat2Z.inj_sub.
   rewrite yyy.
-  remember (valuation α p₁) as v₁.
-  remember (valuation α p₂) as v₂.
-  remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
-  remember (Z.of_nat d₁ # 1) as qd₁.
-  remember (Z.of_nat d₂ # 1) as qd₂.
+  remember (Z.of_nat (k - j) # 1) as k₁.
+  remember (Z.of_nat j # 1) as qj.
+  remember (Z.of_nat k # 1) as qk.
   field.
   intros H; symmetry in H; revert H.
   apply Qlt_not_eq, Qlt_minus.
-  subst qd₁ qd₂.
+  subst qj qk.
   unfold Qlt; simpl.
   do 2 rewrite Z.mul_1_r.
   apply inj_lt.
@@ -546,7 +546,8 @@ split.
   eapply lower_convex_hull_lt; symmetry; eassumption.
 
  split.
-  intros d p Hdp.
+  intros i it Hiit.
+  remember (valuation α it) as αi.
 zzz.
 
 Record branch α :=
