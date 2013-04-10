@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.74 2013-04-10 11:45:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.75 2013-04-10 12:12:15 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -496,6 +496,7 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
+(*
 Lemma xxx : ∀ α fld mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it pow cl cn,
   lower_convex_hull α (power_puiseux_series_list_gen α fld pow cl cn) =
     [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
@@ -506,6 +507,17 @@ Lemma xxx : ∀ α fld mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it pow cl c
           → αi = valuation α it
             → αi + Qnat i * γ == αj + Qnat j * γ.
 Proof.
+intros α fld mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it pow cl cn.
+intros Hlch Hαj Hαk Hγ Hiit Hαi.
+revert fld Hlch.
+revert mp₁ j Hγ.
+revert jt Hαj.
+revert mp₁₂ Hiit.
+revert k kt Hαk.
+revert lch αi Hαi.
+revert αj αk γ i it pow cn.
+induction cl as [| c]; intros.
+ simpl in Hlch.
 xxx.
 
 Lemma yyy : ∀ α fld pol mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
@@ -521,6 +533,35 @@ Proof.
 intros.
 unfold power_puiseux_series_list in H.
 eapply xxx; eassumption.
+yyy.
+*)
+
+Lemma xxx : ∀ α i j k it jt kt αi αj αk γ mp₁₂ rl n l lt dpl lch,
+  αj = valuation α jt
+  → αk = valuation α kt
+    → γ = (αj - αk) / Qnat (k - j)
+      → (i, it) ∈ mp₁₂
+        → αi = valuation α it
+          → next_points α rl n l lt dpl = [(mp₁₂, (k, kt)) … lch]
+            → αi + Qnat i * γ == αj + Qnat j * γ.
+Proof.
+xxx.
+
+Lemma yyy : ∀ α dpl mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
+  lower_convex_hull α dpl = [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
+  → αj = valuation α jt
+    → αk = valuation α kt
+      → γ = (αj - αk) / Qnat (k - j)
+        → (i, it) ∈ mp₁₂
+          → αi = valuation α it
+            → αi + Qnat i * γ == αj + Qnat j * γ.
+Proof.
+intros α dpl mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it.
+intros Hlch Hαj Hαk Hγ Hiit Hαi.
+destruct dpl as [| (l, jl)]; intros; [ discriminate Hlch | idtac ].
+simpl in Hlch.
+injection Hlch; intros Hnp; intros; subst jl l mp₁; clear Hlch.
+eapply xxx with (αk := αk); eassumption.
 yyy.
 
 Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
