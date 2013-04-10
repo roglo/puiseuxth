@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.72 2013-04-10 11:31:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.73 2013-04-10 11:40:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -496,6 +496,18 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
+Lemma yyy : ∀ α fld pol mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
+  lower_convex_hull α (power_puiseux_series_list α fld pol) =
+    [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
+  → αj = valuation α jt
+    → αk = valuation α kt
+      → γ = (αj - αk) / Qnat (k - j)
+        → (i, it) ∈ mp₁₂
+          → αi = valuation α it
+            → αi + Qnat i * γ == αj + Qnat j * γ.
+Proof.
+bbb.
+
 Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
@@ -520,9 +532,9 @@ rewrite <- Hlch in Heqgb.
 destruct lch; [ discriminate Heqgb | idtac ].
 destruct p as (mp₁, (j, jt)).
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (mp₂, (k, kt)).
+destruct p as (mp₁₂, (k, kt)).
 injection Heqgb; intros H₁ H₂ H₃; clear Heqgb.
-exists mp₁, j, jt, mp₂, k, kt.
+exists mp₁, j, jt, mp₁₂, k, kt.
 split; [ left; reflexivity | idtac ].
 split; [ right; left; reflexivity | idtac ].
 remember (valuation α jt) as αj.
@@ -546,6 +558,8 @@ split.
  split.
   intros i it Hiit.
   remember (valuation α it) as αi.
+  symmetry in Hlch.
+  eapply yyy; eassumption.
 zzz.
 
 Record branch α :=
