@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.75 2013-04-10 12:12:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.76 2013-04-10 12:26:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -545,6 +545,21 @@ Lemma xxx : ∀ α i j k it jt kt αi αj αk γ mp₁₂ rl n l lt dpl lch,
           → next_points α rl n l lt dpl = [(mp₁₂, (k, kt)) … lch]
             → αi + Qnat i * γ == αj + Qnat j * γ.
 Proof.
+intros α i j k it jt kt αi αj αk γ mp₁₂ rl n l lt dpl lch.
+intros Hαj Hαk Hγ Hiit Hαi Hnp.
+revert i Hiit.
+revert j Hγ.
+revert k Hnp.
+revert it Hαi.
+revert jt Hαj.
+revert kt Hαk.
+revert αi αj αk γ mp₁₂ rl n l lt lch.
+induction dpl as [| l jl]; intros.
+ simpl in Hnp.
+ induction mp₁₂ as [| mp]; [ contradiction | idtac ].
+ simpl in Hiit.
+ destruct Hiit as [Hiit| Hiit].
+  subst mp.
 xxx.
 
 Lemma yyy : ∀ α dpl mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
