@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.73 2013-04-10 11:40:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.74 2013-04-10 11:45:44 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -496,6 +496,18 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
+Lemma xxx : ∀ α fld mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it pow cl cn,
+  lower_convex_hull α (power_puiseux_series_list_gen α fld pow cl cn) =
+    [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
+  → αj = valuation α jt
+    → αk = valuation α kt
+      → γ = (αj - αk) / Qnat (k - j)
+        → (i, it) ∈ mp₁₂
+          → αi = valuation α it
+            → αi + Qnat i * γ == αj + Qnat j * γ.
+Proof.
+xxx.
+
 Lemma yyy : ∀ α fld pol mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
   lower_convex_hull α (power_puiseux_series_list α fld pol) =
     [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
@@ -506,7 +518,10 @@ Lemma yyy : ∀ α fld pol mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
           → αi = valuation α it
             → αi + Qnat i * γ == αj + Qnat j * γ.
 Proof.
-bbb.
+intros.
+unfold power_puiseux_series_list in H.
+eapply xxx; eassumption.
+yyy.
 
 Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero fld
