@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.67 2013-04-10 08:55:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.68 2013-04-10 09:24:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -562,9 +562,9 @@ Arguments rem_steps : default implicits.
 Arguments pol : default implicits.
 
 (*
-Definition phonp_monom {α β} : monomial (polynomial α β) nat :=
+Definition phony_monom {α β} : monomial (polynomial α β) nat :=
   {| coeff := {| monoms := [] |}; power := 0%nat |}.
-Arguments phonp_monom : default implicits.
+Arguments phony_monom : default implicits.
 
 Definition puiseux_iteration k br r m γ β sol_list :=
   let pol :=
@@ -599,7 +599,7 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
          Qeq_bool β βi)
       (monoms (pol br))
   in
-  let j := power (List.hd (phonp_monom α Q) hl) in
+  let j := power (List.hd (phony_monom α Q) hl) in
   let ml :=
     List.map
       (λ m,

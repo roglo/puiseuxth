@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.165 2013-04-10 08:58:55 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.166 2013-04-10 09:22:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -632,6 +632,51 @@ value kc () =
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
   in
   {ac_field = fc; ac_roots = roots fc}
+;
+
+value ps_of_int k i =
+  {ps_monoms = [{coeff = k.of_i (I.of_int i); power = Q.zero}]}
+;
+
+value k_ps k =
+  let fc =
+    let f = k.ac_field in
+    let zero = ps_of_int f 0 in
+    let one = ps_of_int f 1 in
+    let sub = ps_add (norm f.sub f) (f.eq f.zero) in
+    let neg = sub zero in
+    {zero = zero; one = one;
+     add = ps_add (norm f.add f) (f.eq f.zero);
+     sub = sub; neg = neg;
+     mul = ps_mul f.add (norm f.mul f) (f.eq f.zero);
+     div _ = failwith "k_ps.div not impl";
+     minus_one = neg one;
+     compare _ = failwith "k_ps.compare not impl";
+     eq _ = failwith "k_ps.eq not impl";
+     gcd _ = failwith "k_ps.gcd not impl";
+     normalise _ = failwith "k_ps.normalise not impl";
+     nth_root _ = failwith "k_ps.nth_root not impl";
+     neg_factor _ = failwith "k_ps.neg_factor not impl";
+     of_i _ = failwith "k_ps.of_i not impl";
+     of_q _ = failwith "k_ps.of_q not impl";
+     of_a _ = failwith "k_ps.of_a not impl";
+     of_complex _ = failwith "k_ps.of_complex not impl";
+     of_float_string _ = failwith "k_ps.of_float_string not impl";
+     to_q _ = failwith "k_ps.to_q not impl";
+     to_a _ = failwith "k_ps.to_a not impl";
+     to_complex _ = failwith "k_ps.to_complex not impl";
+     to_string _ = failwith "k_ps.to_string arg_lang.val not impl";
+     float_round_zero _ = failwith "k_ps.float_round_zero not impl";
+     complex_round_zero _ = failwith "k_ps.complex_round_zero not impl";
+     complex_mul _ = failwith "k_ps.complex_mul not impl";
+     cpoly_roots _ = failwith "k_ps.cpoly_roots not impl";
+     complex_to_string _ = failwith "k_ps.complex_to_string not impl"}
+  in
+  let roots pol =
+    let rl = puiseux k 5 "x" "y" pol in
+    List.map (fun (r, inf) → (r, 0)) rl
+  in
+  {ac_field = fc; ac_roots = roots}
 ;
 
 value km () =
