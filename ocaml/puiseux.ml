@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.164 2013-04-10 02:23:19 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.165 2013-04-10 08:58:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -442,7 +442,7 @@ value print_line_equal () =
 value puiseux k nb_steps vx vy pol =
   let gbl = gamma_beta_list pol in
   let rem_steps = nb_steps - 1 in
-  let _rev_sol_list =
+  let rev_sol_list =
     List.fold_left
       (fun sol_list gbdpl → do {
          print_line_equal ();
@@ -454,7 +454,6 @@ value puiseux k nb_steps vx vy pol =
        })
       [] gbl
   in
-  ()
 (*
   List.iter
     (fun (pol, finite) →
@@ -462,6 +461,7 @@ value puiseux k nb_steps vx vy pol =
          (if finite then "" else " + ..."))
     (List.rev _rev_sol_list)
 *)
+  List.rev rev_sol_list
 ;
 
 value is_zero_tree k =
@@ -735,7 +735,8 @@ value main () = do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
       let pol = polyn_of_tree f t in
-      puiseux k arg_nb_steps.val vx vy pol;
+      let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
+      ()
     }
     else do {
       let k = kc () in
@@ -751,7 +752,8 @@ value main () = do {
         printf "equation: %s = 0\n\n%!" norm_txt;
       };
       let pol = polyn_of_tree f t in
-      puiseux k arg_nb_steps.val vx vy pol;
+      let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
+      ()
     }
   }
   with e →

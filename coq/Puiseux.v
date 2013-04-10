@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.66 2013-04-10 04:16:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.67 2013-04-10 08:55:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -249,12 +249,11 @@ Qed.
 Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
 intros x y H.
-apply Qnot_le_lt.
-apply Qlt_not_le in H.
-intros HH; apply H; clear H.
-apply Qplus_le_compat with (x := x) (y := x) in HH.
- rewrite Qplus_0_r in HH.
-bbb.
+unfold Qlt in H |-*; simpl.
+rewrite Z.mul_1_r, <- Zopp_mult_distr_l.
+apply Zlt_left_lt.
+assumption.
+Qed.
 
 Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip mp mpr,
   minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk mp dpl = ((mpr, dp), skip)
@@ -508,7 +507,6 @@ Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
            (∀ mp d p, (mp, (d, p)) ∈ lch →
               γ * Qnat d₁ + valuation α p₁ <= γ * Qnat d + valuation α p).
 Proof.
-zzz < Show Script.
 intros α k pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta k pol) as gb.
@@ -536,18 +534,19 @@ split.
   remember (Z.of_nat d₁ # 1) as qd₁.
   remember (Z.of_nat d₂ # 1) as qd₂.
   field.
-  intros H.
-  symmetry in H.
-  revert H.
-  apply Qlt_not_eq.
-zzz.
+  intros H; symmetry in H; revert H.
+  apply Qlt_not_eq, Qlt_minus.
+  subst qd₁ qd₂.
+  unfold Qlt; simpl.
+  do 2 rewrite Z.mul_1_r.
+  apply inj_lt.
+  eapply lower_convex_hull_lt; symmetry; eassumption.
 
- field.
- apply Qlt_not_eq, Qlt_minus.
- eapply lower_convex_hull_lt; symmetry; eassumption.
+  apply lt_le_weak.
+  eapply lower_convex_hull_lt; symmetry; eassumption.
 
- intros x y Hin.
- subst γ.
+ split.
+  intros d p Hdp.
 zzz.
 
 Record branch α :=
