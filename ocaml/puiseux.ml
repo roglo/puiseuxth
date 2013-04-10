@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.160 2013-04-10 00:31:00 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.161 2013-04-10 00:35:18 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -375,6 +375,10 @@ value rec puiseux_branch k br sol_list (γ, (d₁, p₁), mp, (d₂, p₂)) =
     in
     List.rev rev_hl
   in
+  let hl₂ =
+    List.map (fun (deg, ps) → (ps, deg)) [(d₁, p₁) :: mp @ [(d₂, p₂)]]
+  in
+  let _ = assert (List.map snd hl = List.map snd hl₂) in
   let j = snd (List.hd hl) in
   let q = List.fold_left (fun q h → gcd q (snd h - j)) 0 hl in
   let _ =
