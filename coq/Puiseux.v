@@ -1,10 +1,9 @@
-(* $Id: Puiseux.v,v 1.58 2013-04-09 19:10:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.59 2013-04-10 02:03:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import ConvexHull.
 Require Import Sorting.
-Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
@@ -41,62 +40,47 @@ Record alg_closed_field α :=
 Arguments ac_field : default implicits. 
 Arguments ac_prop : default implicits. 
 
-Record Qpos := { x : Q; pos : x > 0 }.
-
-Record puiseux_series α :=
-  { ps_1 : α * Q;
-    ps_n : Streams.Stream (α * Qpos) }.
-Arguments ps_1 : default implicits.
-Arguments ps_n : default implicits.
-
-Definition valuation {α} ps := snd (@ps_1 α ps).
-Arguments valuation : default implicits.
-
-Definition valuation_coeff {α} ps := fst (@ps_1 α ps).
-Arguments valuation : default implicits.
-Arguments valuation_coeff : default implicits.
-
-Fixpoint coeff_power_list_of_pol α pow cl (cn : puiseux_series α) :=
-  match cl with
-  | [c₁ … cl₁] => [(c₁, pow) … coeff_power_list_of_pol α (S pow) cl₁ cn]
-  | [] => [(cn, pow)]
+Fixpoint power_ps_list_of_pol α pow psl (psn : puiseux_series α) :=
+  match psl with
+  | [ps₁ … psl₁] => [(pow, ps₁) … power_ps_list_of_pol α (S pow) psl₁ psn]
+  | [] => [(pow, psn)]
   end.
 
-Definition filter_non_zero_coeffs α k (cpl : list (puiseux_series α * nat)) :=
-  List.filter (λ cp, if k_eq_dec k (fst cp) (zero k) then false else true)
-    cpl.
+Definition filter_non_zero_ps α k (dpl : list (nat * puiseux_series α)) :=
+  List.filter (λ dp, if k_eq_dec k (snd dp) (zero k) then false else true)
+    dpl.
 
-Definition valuation_points_gen α k pow cl cn :=
-  let cpl := coeff_power_list_of_pol α pow cl cn in
-  let scpl := filter_non_zero_coeffs α k cpl in
-  List.map (λ cp, (Z.of_nat (snd cp) # 1, @valuation α (fst cp))) scpl.
+Definition power_puiseux_series_list_gen α k pow cl cn :=
+  filter_non_zero_ps α k (power_ps_list_of_pol α pow cl cn).
 
-Definition valuation_points α k pol :=
-  valuation_points_gen α k 0%nat (al pol) (an pol).
+Definition power_puiseux_series_list α k pol :=
+  power_puiseux_series_list_gen α k 0%nat (al pol) (an pol).
 
 Definition gamma_beta {α} k pol :=
-  let xyl := valuation_points α k pol in
-  match lower_convex_hull xyl with
-  | [(x₁, y₁), (x₂, y₂) … _] =>
-      let γ := (y₂ - y₁) / (x₁ - x₂) in
-      let β := γ * x₁ + y₁ in
-      Some (γ, β)
+  let dpl := power_puiseux_series_list α k pol in
+  match lower_convex_hull α dpl with
+  | [(_, (d₁, p₁)), (mp, (d₂, p₂)) … _] =>
+      let v₁ := valuation α p₁ in
+      let v₂ := valuation α p₂ in
+      let γ := (v₂ - v₁) / ((Z.of_nat (d₂ - d₁)%nat) # 1) in
+      let β := γ * (Z.of_nat d₁ # 1) + v₁ in
+      Some (γ, β, dpl)
   | [_] | [] =>
       None
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma cpl_not_empty : ∀ α pow cl cn, coeff_power_list_of_pol α pow cl cn ≠ [].
+Lemma cpl_not_empty : ∀ α pow cl cn, power_ps_list_of_pol α pow cl cn ≠ [].
 Proof.
 intros; destruct cl; intros H; discriminate H.
 Qed.
 
 Lemma one_vp_gen : ∀ α k pow cl cn,
-  cn ≠ zero k → valuation_points_gen α k pow cl cn ≠ [].
+  cn ≠ zero k → power_puiseux_series_list_gen α k pow cl cn ≠ [].
 Proof.
 intros α k pow cl cn Hcn.
-unfold valuation_points_gen.
-remember (coeff_power_list_of_pol α pow cl cn) as cpl.
+unfold power_puiseux_series_list_gen.
+remember (power_ps_list_of_pol α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
 induction cl as [| c cl]; intros.
  subst cpl; simpl.
@@ -112,29 +96,27 @@ induction cl as [| c cl]; intros.
 Qed.
 
 Lemma at_least_one_valuation_point : ∀ α k pol,
-  an pol ≠ zero k → valuation_points α k pol ≠ [].
+  an pol ≠ zero k → power_puiseux_series_list α k pol ≠ [].
 Proof.
 intros; apply one_vp_gen; assumption.
 Qed.
 
-Lemma fold_valuation_points_gen : ∀ α k pow cl cn,
-  List.map
-   (λ cp, (Z.of_nat (snd cp) # 1, valuation (fst cp)))
-   (filter_non_zero_coeffs α k (coeff_power_list_of_pol α pow cl cn)) =
-  valuation_points_gen α k pow cl cn.
+Lemma fold_power_puiseux_series_list_gen : ∀ α k pow cl cn,
+  filter_non_zero_ps α k (power_ps_list_of_pol α pow cl cn) =
+  power_puiseux_series_list_gen α k pow cl cn.
 Proof. reflexivity. Qed.
 
 Lemma two_vp_gen : ∀ α k pow cl cn,
   cn ≠ zero k
   → (∃ c, c ∈ cl ∧ c ≠ zero k)
-    → List.length (valuation_points_gen α k pow cl cn) ≥ 2.
+    → List.length (power_puiseux_series_list_gen α k pow cl cn) ≥ 2.
 Proof.
 intros α k pow cl cn Hcn Hcl.
 revert pow.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
- unfold valuation_points_gen; simpl.
+ unfold power_puiseux_series_list_gen; simpl.
  destruct (k_eq_dec k c (zero k)).
   destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
    subst c₁; contradiction.
@@ -145,10 +127,10 @@ induction cl as [| c]; intros.
 
   simpl.
   apply le_n_S.
-  rewrite fold_valuation_points_gen.
-  remember (length (valuation_points_gen α k (S pow) cl cn)) as len.
+  rewrite fold_power_puiseux_series_list_gen.
+  remember (length (power_puiseux_series_list_gen α k (S pow) cl cn)) as len.
   destruct len.
-   remember (valuation_points_gen α k (S pow) cl cn) as l.
+   remember (power_puiseux_series_list_gen α k (S pow) cl cn) as l.
    destruct l; [ idtac | discriminate Heqlen ].
    exfalso; symmetry in Heql; revert Heql.
    apply one_vp_gen; assumption.
@@ -156,10 +138,10 @@ induction cl as [| c]; intros.
    apply le_n_S, le_0_n.
 Qed.
 
-Lemma at_least_two_valuation_points : ∀ α k pol,
+Lemma at_least_two_power_puiseux_series_list : ∀ α k pol,
   an pol ≠ zero k
   → (∃ c, c ∈ (al pol) ∧ c ≠ zero k)
-    → List.length (valuation_points α k pol) ≥ 2.
+    → List.length (power_puiseux_series_list α k pol) ≥ 2.
 Proof.
 intros; apply two_vp_gen; assumption.
 Qed.
@@ -175,42 +157,46 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma next_points_not_empty : ∀ xy xyl sk x₁ y₁ xyl₁,
-  next_points [xy … xyl] sk x₁ y₁ xyl₁ ≠ [ ].
+Lemma next_points_not_empty : ∀ α dp dpl sk d₁ p₁ dpl₁,
+  next_points α [dp … dpl] sk d₁ p₁ dpl₁ ≠ [ ].
 Proof.
 intros.
-revert xy xyl sk x₁ y₁.
-induction xyl₁ as [| xy₂]; intros.
+revert dp dpl sk d₁ p₁.
+induction dpl₁ as [| dp₂]; intros.
  simpl.
  apply rev_app_not_nil.
 
  simpl.
- destruct xy₂ as (x₂, y₂).
+ destruct dp₂ as (d₂, p₂).
  destruct sk.
-  remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
-  remember (minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0 1 xyl₁) as xs.
-  destruct xs as (xy₃, sk).
-  apply IHxyl₁.
+  remember (valuation α p₂ - valuation α p₁) as v₂₁.
+  remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl₁) as xs.
+  subst v₂₁ d₂₁.
+  destruct xs as (dp₃, sk).
+  apply IHdpl₁.
 
-  apply IHxyl₁.
+  apply IHdpl₁.
 Qed.
 
-Lemma convex_hull_not_empty : ∀ rl x₁ y₁ xy₂ xyl₁,
-  next_points rl 0 x₁ y₁ [xy₂ … xyl₁] ≠ [].
+Lemma convex_hull_not_empty : ∀ α rl d₁ p₁ dp₂ dpl₁,
+  next_points α rl 0 d₁ p₁ [dp₂ … dpl₁] ≠ [].
 Proof.
-intros rl x₁ y₁ xy₂ xyl₁.
-revert rl x₁ y₁ xy₂.
-induction xyl₁ as [| xy₃]; intros.
+intros α rl d₁ p₁ dp₂ dpl₁.
+revert rl d₁ p₁ dp₂.
+induction dpl₁ as [| dp₃]; intros.
  simpl.
- destruct xy₂ as (x₂, y₂).
+ destruct dp₂ as (d₂, p₂).
  apply rev_app_not_nil.
 
- remember [xy₃ … xyl₁] as xyl.
+ remember [dp₃ … dpl₁] as dpl.
  simpl.
- destruct xy₂ as (x₂, y₂).
- remember ((y₂ - y₁) / (x₂ - x₁)) as sl₁₂.
- remember (minimise_slope x₁ y₁ x₂ y₂ sl₁₂ 0 1 xyl) as xys.
- destruct xys as (xy, skip).
+ destruct dp₂ as (d₂, p₂).
+ remember (valuation α p₂ - valuation α p₁) as v₂₁.
+ remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+ remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl) as dps.
+ subst v₂₁ d₂₁.
+ destruct dps as (dp, skip).
  apply next_points_not_empty.
 Qed.
 
@@ -222,10 +208,10 @@ Proof.
 intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
-remember (valuation_points α k pol) as pts.
-remember (lower_convex_hull pts) as chp.
-destruct chp as [| (x₁, y₁)].
- destruct pts as [| (x₂, y₂)]; [ idtac | discriminate Heqchp ].
+remember (power_puiseux_series_list α k pol) as pts.
+remember (lower_convex_hull α pts) as chp.
+destruct chp as [| (d₁, p₁)].
+ destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
  symmetry in Heqpts.
  exfalso; revert Heqpts.
  apply at_least_one_valuation_point; assumption.
@@ -235,13 +221,13 @@ destruct chp as [| (x₁, y₁)].
   injection Heqchp; intros H₁ H₂ H₃.
   subst x₃ y₃; clear Heqchp.
   destruct pts.
-   remember (length (valuation_points α k pol)) as len.
+   remember (length (power_puiseux_series_list α k pol)) as len.
    destruct len.
     rewrite <- Heqpts in Heqlen.
     discriminate Heqlen.
 
     destruct len.
-     pose proof (at_least_two_valuation_points α k pol) as H.
+     pose proof (at_least_two_power_puiseux_series_list α k pol) as H.
      rewrite <- Heqlen in H.
      unfold ge in H.
      assert (2 ≤ 1) as HH.
@@ -268,37 +254,37 @@ apply Qle_minus_iff.
 assumption.
 Qed.
 
-Lemma min_slope_in_list : ∀ x₁ y₁ x_m y_m sl_m sk_m sk xyl xy skip,
-  minimise_slope x₁ y₁ x_m y_m sl_m sk_m sk xyl = (xy, skip)
-  → xy ∈ [(x_m, y_m) … xyl].
+Lemma min_slope_in_list : ∀ d₁ p₁ x_m y_m sl_m sk_m sk dpl dp skip,
+  minimise_slope d₁ p₁ x_m y_m sl_m sk_m sk dpl = (dp, skip)
+  → dp ∈ [(x_m, y_m) … dpl].
 Proof.
 intros; rename H into Hmin.
-revert x₁ y₁ x_m y_m sl_m sk_m sk xy skip Hmin.
-induction xyl as [| xy₂]; intros.
+revert d₁ p₁ x_m y_m sl_m sk_m sk dp skip Hmin.
+induction dpl as [| dp₂]; intros.
  simpl in Hmin.
- destruct xy; injection Hmin; clear Hmin; intros; subst x_m y_m sk_m.
+ destruct dp; injection Hmin; clear Hmin; intros; subst x_m y_m sk_m.
  left; reflexivity.
 
  simpl in Hmin.
- destruct xy₂ as (x₂, y₂).
- destruct (Qle_bool ((y₂ - y₁) / (x₂ - x₁)) sl_m).
-  apply IHxyl in Hmin.
+ destruct dp₂ as (d₂, p₂).
+ destruct (Qle_bool ((p₂ - p₁) / (d₂ - d₁)) sl_m).
+  apply IHdpl in Hmin.
   right; assumption.
 
-  apply IHxyl in Hmin.
-  destruct Hmin as [Hxy| Hxy].
-   subst xy; left; reflexivity.
+  apply IHdpl in Hmin.
+  destruct Hmin as [Hdp| Hdp].
+   subst dp; left; reflexivity.
 
    right; right; assumption.
 Qed.
 
-Lemma next_points_in_list : ∀ rl n x₁ y₁ xyl₁ xy lch,
-  next_points rl n x₁ y₁ xyl₁ = [xy … lch]
-  → xy ∈ rl ∨ xy ∈ xyl₁.
+Lemma next_points_in_list : ∀ rl n d₁ p₁ dpl₁ dp lch,
+  next_points rl n d₁ p₁ dpl₁ = [dp … lch]
+  → dp ∈ rl ∨ dp ∈ dpl₁.
 Proof.
 intros; rename H into Hnp.
-revert rl n x₁ y₁ xy lch Hnp.
-induction xyl₁ as [| (x₂, y₂)]; intros.
+revert rl n d₁ p₁ dp lch Hnp.
+induction dpl₁ as [| (d₂, p₂)]; intros.
  left.
  simpl in Hnp.
  rewrite <- List.rev_involutive.
@@ -308,62 +294,62 @@ induction xyl₁ as [| (x₂, y₂)]; intros.
 
  simpl in Hnp.
  destruct n.
-  remember ((y₂ - y₁) / (x₂ - x₁)) as yyxx.
-  remember (minimise_slope x₁ y₁ x₂ y₂ yyxx 0 1 xyl₁) as ms.
+  remember ((p₂ - p₁) / (d₂ - d₁)) as yyxx.
+  remember (minimise_slope d₁ p₁ d₂ p₂ yyxx 0 1 dpl₁) as ms.
   subst yyxx.
-  destruct ms as (xy₃, skip).
+  destruct ms as (dp₃, skip).
   symmetry in Heqms.
   apply min_slope_in_list in Heqms.
-  destruct Heqms as [Hxy| Hxy].
-   subst xy₃.
+  destruct Heqms as [Hdp| Hdp].
+   subst dp₃.
    simpl in Hnp.
-   apply IHxyl₁ in Hnp.
-   destruct Hnp as [Hxy| Hxy].
-    destruct Hxy as [Hxy| Hxy].
-     right; subst xy; left; reflexivity.
+   apply IHdpl₁ in Hnp.
+   destruct Hnp as [Hdp| Hdp].
+    destruct Hdp as [Hdp| Hdp].
+     right; subst dp; left; reflexivity.
 
      left; assumption.
 
     right; right; assumption.
 
-   apply IHxyl₁ in Hnp.
-   destruct Hnp as [Hxy₂| Hxy₂].
-    destruct Hxy₂ as [Hxy₂| Hxy₂].
-     right; subst xy; right; assumption.
+   apply IHdpl₁ in Hnp.
+   destruct Hnp as [Hdp₂| Hdp₂].
+    destruct Hdp₂ as [Hdp₂| Hdp₂].
+     right; subst dp; right; assumption.
 
      left; assumption.
 
     right; right; assumption.
 
-  apply IHxyl₁ in Hnp.
-  destruct Hnp as [Hxy| Hxy].
+  apply IHdpl₁ in Hnp.
+  destruct Hnp as [Hdp| Hdp].
    left; assumption.
 
    right; right; assumption.
 Qed.
 
-Lemma vp_pow_lt : ∀ α k pow cl cn x₁ y₁ xyl,
-  valuation_points_gen α k (S pow) cl cn = xyl
-  → (x₁, y₁) ∈ xyl
-    → Z.of_nat pow # 1 < x₁.
+Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
+  power_puiseux_series_list_gen α k (S pow) cl cn = dpl
+  → (d₁, p₁) ∈ dpl
+    → Z.of_nat pow # 1 < d₁.
 Proof.
-intros α k pow cl cn x₁ y₁ xyl Hvp Hxy.
-revert k pow cn x₁ y₁ xyl Hvp Hxy.
+intros α k pow cl cn d₁ p₁ dpl Hvp Hdp.
+revert k pow cn d₁ p₁ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold valuation_points_gen in Hvp; simpl in Hvp.
+ unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k cn (zero k)) as [Heq| Hne].
-  subst xyl; contradiction.
+  subst dpl; contradiction.
 
   simpl in Hvp.
-  subst xyl; destruct Hxy as [Hxy| ]; [ idtac | contradiction ].
-  injection Hxy; clear Hxy; intros; subst x₁ y₁.
+  subst dpl; destruct Hdp as [Hdp| ]; [ idtac | contradiction ].
+  injection Hdp; clear Hdp; intros; subst d₁ p₁.
   rewrite Zpos_P_of_succ_nat.
   unfold Qlt; simpl.
   apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
 
- unfold valuation_points_gen in Hvp; simpl in Hvp.
+ unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
-  rewrite fold_valuation_points_gen in Hvp.
+  rewrite fold_power_puiseux_series_list_gen in Hvp.
   eapply IHcl in Hvp; [ idtac | eassumption ].
   unfold Qlt in Hvp |- *; simpl in Hvp |- *.
   rewrite Pos2Z.inj_mul in Hvp.
@@ -372,11 +358,11 @@ induction cl as [| c]; intros.
   apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
 
   simpl in Hvp.
-  rewrite fold_valuation_points_gen in Hvp.
-  destruct xyl as [| (x₂, y₂)]; [ contradiction | idtac ].
-  injection Hvp; clear Hvp; intros Hvp H₂ Hxyl; subst x₂ y₂.
-  destruct Hxy as [Hxy| Hxy].
-   injection Hxy; clear Hxy; intros; subst x₁ y₁.
+  rewrite fold_power_puiseux_series_list_gen in Hvp.
+  destruct dpl as [| (d₂, p₂)]; [ contradiction | idtac ].
+  injection Hvp; clear Hvp; intros Hvp H₂ Hdpl; subst d₂ p₂.
+  destruct Hdp as [Hdp| Hdp].
+   injection Hdp; clear Hdp; intros; subst d₁ p₁.
    rewrite Zpos_P_of_succ_nat.
    unfold Qlt; simpl.
    apply Zmult_lt_compat_r; apply Z.lt_succ_diag_r.
@@ -389,124 +375,124 @@ induction cl as [| c]; intros.
    apply Zmult_lt_compat_r; [ apply Pos2Z.is_pos | apply Z.lt_succ_diag_r ].
 Qed.
 
-Lemma vp_lt : ∀ α k pow cl cn x₁ y₁ x₂ y₂ xyl,
-  valuation_points_gen α k pow cl cn = [(x₁, y₁) … xyl]
-  → (x₂, y₂) ∈ xyl
-    → x₁ < x₂.
+Lemma vp_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ dpl,
+  power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁) … dpl]
+  → (d₂, p₂) ∈ dpl
+    → d₁ < d₂.
 Proof.
-intros α k pow cl cn x₁ y₁ x₂ y₂ xyl Hvp Hxy.
-revert k pow cn x₁ y₁ x₂ y₂ xyl Hvp Hxy.
+intros α k pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
+revert k pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold valuation_points_gen in Hvp; simpl in Hvp.
+ unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
  injection Hvp; intros; subst; contradiction.
 
- unfold valuation_points_gen in Hvp; simpl in Hvp.
+ unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   simpl in Hvp.
-  injection Hvp; clear Hvp; intros; subst x₁ y₁.
-  rewrite fold_valuation_points_gen in H.
+  injection Hvp; clear Hvp; intros; subst d₁ p₁.
+  rewrite fold_power_puiseux_series_list_gen in H.
   eapply vp_pow_lt; eassumption.
 Qed.
 
-Lemma valuation_points_lt : ∀ α k pol x₁ y₁ x₂ y₂ xyl,
-  valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
-  → x₁ < x₂.
+Lemma power_puiseux_series_list_lt : ∀ α k pol d₁ p₁ d₂ p₂ dpl,
+  power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
+  → d₁ < d₂.
 Proof.
 intros; rename H into Hvp.
-unfold valuation_points in Hvp.
+unfold power_puiseux_series_list in Hvp.
 eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
 
-Lemma vp_2nd_lt : ∀ α k pow cl cn x₁ y₁ x₂ y₂ x₃ y₃ xyl,
-  valuation_points_gen α k pow cl cn = [(x₁, y₁), (x₂, y₂) … xyl]
-  → (x₃, y₃) ∈ xyl
-    → x₂ < x₃.
+Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ x₃ y₃ dpl,
+  power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
+  → (x₃, y₃) ∈ dpl
+    → d₂ < x₃.
 Proof.
-intros α k pow cl cn x₁ y₁ x₂ y₂ x₃ y₃ xyl Hvp Hxy.
-revert k pow cn x₁ y₁ x₂ y₂ x₃ y₃ xyl Hvp Hxy.
+intros α k pow cl cn d₁ p₁ d₂ p₂ x₃ y₃ dpl Hvp Hdp.
+revert k pow cn d₁ p₁ d₂ p₂ x₃ y₃ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold valuation_points_gen in Hvp; simpl in Hvp.
+ unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k cn (zero k)); discriminate Hvp.
 
- unfold valuation_points_gen in Hvp; simpl in Hvp.
+ unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
  destruct (k_eq_dec k c (zero k)) as [Heq| Hne].
-  rewrite fold_valuation_points_gen in Hvp.
+  rewrite fold_power_puiseux_series_list_gen in Hvp.
   eapply IHcl; eassumption.
 
   simpl in Hvp.
-  rewrite fold_valuation_points_gen in Hvp.
-  injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst x₁ y₁.
+  rewrite fold_power_puiseux_series_list_gen in Hvp.
+  injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst d₁ p₁.
   eapply vp_lt; eassumption.
 Qed.
 
-Lemma valuation_points_2nd_lt : ∀ α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl,
-  valuation_points α k pol = [(x₁, y₁), (x₂, y₂) … xyl]
-  → (x₃, y₃) ∈ xyl
-    → x₂ < x₃.
+Lemma power_puiseux_series_list_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ x₃ y₃ dpl,
+  power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
+  → (x₃, y₃) ∈ dpl
+    → d₂ < x₃.
 Proof.
-intros α k pol x₁ y₁ x₂ y₂ x₃ y₃ xyl Hvp Hxy.
-unfold valuation_points in Hvp.
+intros α k pol d₁ p₁ d₂ p₂ x₃ y₃ dpl Hvp Hdp.
+unfold power_puiseux_series_list in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
 
-Lemma lower_convex_hull_lt : ∀ α k pol x₁ y₁ x₂ y₂ lch,
-  lower_convex_hull (valuation_points α k pol) = [(x₁, y₁), (x₂, y₂) … lch]
-  → x₁ < x₂.
+Lemma lower_convex_hull_lt : ∀ α k pol d₁ p₁ d₂ p₂ lch,
+  lower_convex_hull (power_puiseux_series_list α k pol) = [(d₁, p₁), (d₂, p₂) … lch]
+  → d₁ < d₂.
 Proof.
 intros; rename H into Hlch.
 unfold lower_convex_hull in Hlch.
-remember (valuation_points α k pol) as xyl.
-destruct xyl as [| (x₃, y₃)]; [ discriminate Hlch | idtac ].
+remember (power_puiseux_series_list α k pol) as dpl.
+destruct dpl as [| (x₃, y₃)]; [ discriminate Hlch | idtac ].
 injection Hlch; clear Hlch; intros; subst x₃ y₃; rename H into Hlch.
-rename x₂ into x₃.
-rename y₂ into y₃.
-destruct xyl as [| (x₂, y₂)]; [ discriminate Hlch | idtac ].
+rename d₂ into x₃.
+rename p₂ into y₃.
+destruct dpl as [| (d₂, p₂)]; [ discriminate Hlch | idtac ].
 simpl in Hlch.
-remember ((y₂ - y₁) / (x₂ - x₁)) as yx.
-remember (minimise_slope x₁ y₁ x₂ y₂ yx 0 1 xyl) as m.
+remember ((p₂ - p₁) / (d₂ - d₁)) as yx.
+remember (minimise_slope d₁ p₁ d₂ p₂ yx 0 1 dpl) as m.
 subst yx.
-destruct m as (xy, skip).
-symmetry in Heqxyl.
+destruct m as (dp, skip).
+symmetry in Heqdpl.
 symmetry in Heqm.
 apply min_slope_in_list in Heqm.
 simpl in Heqm.
-destruct Heqm as [Hxy| Hxy].
- subst xy.
+destruct Heqm as [Hdp| Hdp].
+ subst dp.
  simpl in Hlch.
  apply next_points_in_list in Hlch.
- destruct Hlch as [Hxy| Hxy].
-  destruct Hxy; [ idtac | contradiction ].
+ destruct Hlch as [Hdp| Hdp].
+  destruct Hdp; [ idtac | contradiction ].
   injection H; clear H; intros; subst x₃ y₃.
-  eapply valuation_points_lt; eassumption.
+  eapply power_puiseux_series_list_lt; eassumption.
 
-  apply Qlt_trans with (y := x₂).
-   eapply valuation_points_lt; eassumption.
+  apply Qlt_trans with (y := d₂).
+   eapply power_puiseux_series_list_lt; eassumption.
 
-   eapply valuation_points_2nd_lt; eassumption.
+   eapply power_puiseux_series_list_2nd_lt; eassumption.
 
- apply Qlt_trans with (y := x₂).
-  eapply valuation_points_lt; eassumption.
+ apply Qlt_trans with (y := d₂).
+  eapply power_puiseux_series_list_lt; eassumption.
 
-  destruct xy as (x₄, y₄); simpl in Hlch.
+  destruct dp as (x₄, y₄); simpl in Hlch.
   apply next_points_in_list in Hlch.
-  destruct Hlch as [Hxy₃| Hxy₃].
-   destruct Hxy₃; [ idtac | contradiction ].
+  destruct Hlch as [Hdp₃| Hdp₃].
+   destruct Hdp₃; [ idtac | contradiction ].
    injection H; clear H; intros; subst x₄ y₄.
-   eapply valuation_points_2nd_lt; eassumption.
+   eapply power_puiseux_series_list_2nd_lt; eassumption.
 
-   eapply valuation_points_2nd_lt; eassumption.
+   eapply power_puiseux_series_list_2nd_lt; eassumption.
 Qed.
 
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
-    → lch = lower_convex_hull (valuation_points α k pol)
-      → ∃ γ x₁ y₁ x₂ y₂, (x₁, y₁) ∈ lch ∧ (x₂, y₂) ∈ lch ∧
-         γ * x₁ + y₁ == γ * x₂ + y₂ ∧
-         ∀ x y, (x, y) ∈ lch → γ * x₁ + y₁ <= γ * x + y.
+    → lch = lower_convex_hull (power_puiseux_series_list α k pol)
+      → ∃ γ d₁ p₁ d₂ p₂, (d₁, p₁) ∈ lch ∧ (d₂, p₂) ∈ lch ∧
+         γ * d₁ + p₁ == γ * d₂ + p₂ ∧
+         ∀ x y, (x, y) ∈ lch → γ * d₁ + p₁ <= γ * x + y.
 Proof.
 intros α k pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
@@ -517,11 +503,11 @@ exists γ.
 unfold gamma_beta in Heqgb.
 rewrite <- Hlch in Heqgb.
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (x₁, y₁).
+destruct p as (d₁, p₁).
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (x₂, y₂).
+destruct p as (d₂, p₂).
 injection Heqgb; intros H₁ H₂; clear Heqgb.
-exists x₁, y₁, x₂, y₂.
+exists d₁, p₁, d₂, p₂.
 split; [ left; reflexivity | idtac ].
 split; [ right; left; reflexivity | idtac ].
 split.
@@ -560,10 +546,10 @@ Definition puiseux_iteration k br r m γ β sol_list :=
             {| coeff := {| monoms := [{| coeff := one k; power := γ |}] |};
                power := 1 |} … [] ] |}
     in
-    let pol := apply_poly_xy_pol k br.pol y in
+    let pol := apply_poly_dp_pol k br.pol y in
     let pol := pol_div_x_power pol β in
     let pol := cancel_pol_constant_term_if_any k pol in
-    xy_float_round_zero k pol
+    dp_float_round_zero k pol
   in
   let finite := zero_is_root pol in
   let cγl := [(r, γ) … br.cγl] in
