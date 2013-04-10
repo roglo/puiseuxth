@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.61 2013-04-10 02:35:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.62 2013-04-10 02:49:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -286,9 +286,9 @@ induction dpl as [| dp₂]; intros.
     right; right; assumption.
 Qed.
 
-Lemma next_points_in_list : ∀ rl n d₁ p₁ dpl₁ dp lch,
-  next_points rl n d₁ p₁ dpl₁ = [dp … lch]
-  → dp ∈ rl ∨ dp ∈ dpl₁.
+Lemma next_points_in_list : ∀ α rl n d₁ p₁ dpl₁ dp mp lch,
+  next_points α rl n d₁ p₁ dpl₁ = [(mp, dp) … lch]
+  → (mp, dp) ∈ rl ∨ dp ∈ dpl₁.
 Proof.
 intros; rename H into Hnp.
 revert rl n d₁ p₁ dp lch Hnp.
@@ -302,10 +302,11 @@ induction dpl₁ as [| (d₂, p₂)]; intros.
 
  simpl in Hnp.
  destruct n.
-  remember ((p₂ - p₁) / (d₂ - d₁)) as yyxx.
-  remember (minimise_slope d₁ p₁ d₂ p₂ yyxx 0 1 dpl₁) as ms.
-  subst yyxx.
-  destruct ms as (dp₃, skip).
+  remember (valuation α p₂ - valuation α p₁) as v₂₁.
+  remember (Z.of_nat (d₂ - d₁) # 1) as d₂₁.
+  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl₁) as ms.
+  subst v₂₁ d₂₁.
+  destruct ms as ((mp₂₃, dp₃), skip).
   symmetry in Heqms.
   apply min_slope_in_list in Heqms.
   destruct Heqms as [Hdp| Hdp].
@@ -314,7 +315,8 @@ induction dpl₁ as [| (d₂, p₂)]; intros.
    apply IHdpl₁ in Hnp.
    destruct Hnp as [Hdp| Hdp].
     destruct Hdp as [Hdp| Hdp].
-     right; subst dp; left; reflexivity.
+     injection Hdp; intros; subst mp dp.
+     right; left; reflexivity.
 
      left; assumption.
 
@@ -323,7 +325,8 @@ induction dpl₁ as [| (d₂, p₂)]; intros.
    apply IHdpl₁ in Hnp.
    destruct Hnp as [Hdp₂| Hdp₂].
     destruct Hdp₂ as [Hdp₂| Hdp₂].
-     right; subst dp; right; assumption.
+     injection Hdp₂; intros; subst mp dp.
+     right; right; assumption.
 
      left; assumption.
 
