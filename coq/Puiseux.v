@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.64 2013-04-10 03:03:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.65 2013-04-10 03:31:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -489,32 +489,41 @@ destruct Heqm as [Hdp| Hdp].
    eapply power_puiseux_series_list_2nd_lt; eassumption.
 Qed.
 
+Definition Qnat i := Z.of_nat i # 1.
+
 Lemma zzz : ∀ α k (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero k
   → (∃ c, c ∈ al pol ∧ c ≠ zero k)
     → lch = lower_convex_hull α (power_puiseux_series_list α k pol)
-      → ∃ γ d₁ p₁ d₂ p₂, (d₁, p₁) ∈ lch ∧ (d₂, p₂) ∈ lch ∧
-         γ * d₁ + p₁ == γ * d₂ + p₂ ∧
-         ∀ x y, (x, y) ∈ lch → γ * d₁ + p₁ <= γ * x + y.
+      → ∃ γ mp₀ d₁ p₁ mp₁₂ d₂ p₂,
+           (mp₀, (d₁, p₁)) ∈ lch ∧
+           (mp₁₂, (d₂, p₂)) ∈ lch ∧
+           γ * Qnat d₁ + valuation α p₁ == γ * Qnat d₂ + valuation α p₂ ∧
+           (∀ d p, (d, p) ∈ mp₁₂ →
+              γ * Qnat d + valuation α p == γ * Qnat d₁ + valuation α p₁) ∧
+           (∀ mp d p, (mp, (d, p)) ∈ lch →
+              γ * Qnat d₁ + valuation α p₁ <= γ * Qnat d + valuation α p).
 Proof.
 intros α k pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta k pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as (γ, β).
+destruct p as ((γ, β), dpl).
 exists γ.
 unfold gamma_beta in Heqgb.
 rewrite <- Hlch in Heqgb.
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (d₁, p₁).
+destruct p as (mp₁, (d₁, p₁)).
 destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (d₂, p₂).
-injection Heqgb; intros H₁ H₂; clear Heqgb.
-exists d₁, p₁, d₂, p₂.
+destruct p as (mp₂, (d₂, p₂)).
+injection Heqgb; intros H₁ H₂ H₃; clear Heqgb.
+exists mp₁, d₁, p₁, mp₂, d₂, p₂.
 split; [ left; reflexivity | idtac ].
 split; [ right; left; reflexivity | idtac ].
 split.
  subst γ.
+ unfold Qnat.
+ rewrite Nat2Z.inj_sub.
  field.
  apply Qlt_not_eq, Qlt_minus.
  eapply lower_convex_hull_lt; symmetry; eassumption.
