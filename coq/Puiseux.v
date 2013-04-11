@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.81 2013-04-11 14:54:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.82 2013-04-11 15:10:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -273,61 +273,6 @@ induction dpl as [| dp₂]; intros.
    right; right; assumption.
 Qed.
 
-(*
-Lemma next_points_in_list : ∀ α rl n d₁ p₁ dpl₁ dp lch,
-  next_points α rl n d₁ p₁ dpl₁ = [dp … lch]
-  → dp ∈ rl ∨ dp ∈ dpl₁.
-Proof.
-intros; rename H into Hnp.
-revert rl n d₁ p₁ dp lch Hnp.
-induction dpl₁ as [| (d₂, p₂)]; intros.
- left.
- simpl in Hnp.
- rewrite <- List.rev_involutive.
- apply List.in_rev.
- rewrite List.rev_involutive.
- rewrite Hnp; left; reflexivity.
-
- simpl in Hnp.
- destruct n.
-  remember (valuation α p₂ - valuation α p₁) as v₂₁.
-  remember (Qnat (d₂ - d₁)) as d₂₁.
-  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 dpl₁) as ms.
-  subst v₂₁ d₂₁.
-  destruct ms as ((mp₂₃, dp₃), skip).
-  symmetry in Heqms.
-  apply min_slope_in_list in Heqms.
-  destruct Heqms as [Hdp| Hdp].
-   subst dp₃.
-   simpl in Hnp.
-   apply IHdpl₁ in Hnp.
-   destruct Hnp as [Hdp| Hdp].
-    destruct Hdp as [Hdp| Hdp].
-     injection Hdp; intros; subst mp dp.
-     right; left; reflexivity.
-
-     left; assumption.
-
-    right; right; assumption.
-
-   apply IHdpl₁ in Hnp.
-   destruct Hnp as [Hdp₂| Hdp₂].
-    destruct Hdp₂ as [Hdp₂| Hdp₂].
-     injection Hdp₂; intros; subst mp dp.
-     right; right; assumption.
-
-     left; assumption.
-
-    right; right; assumption.
-
-  apply IHdpl₁ in Hnp.
-  destruct Hnp as [Hdp| Hdp].
-   left; assumption.
-
-   right; right; assumption.
-Qed.
-*)
-
 Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
   power_puiseux_series_list_gen α k (S pow) cl cn = dpl
   → (d₁, p₁) ∈ dpl
@@ -428,58 +373,6 @@ unfold power_puiseux_series_list in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
 
-(*
-Lemma lower_convex_hull_lt : ∀ α k pol d₁ p₁ d₂ p₂ mp₀ mp₁₂ lch,
-  lower_convex_hull α (power_puiseux_series_list α k pol) =
-    [(mp₀, (d₁, p₁)), (mp₁₂, (d₂, p₂)) … lch]
-  → (d₁ < d₂)%nat.
-Proof.
-intros; rename H into Hlch.
-unfold lower_convex_hull in Hlch.
-remember (power_puiseux_series_list α k pol) as dpl.
-destruct dpl as [| (d₃, p₃)]; [ discriminate Hlch | idtac ].
-injection Hlch; clear Hlch; intros; subst d₃ p₃; rename H into Hlch.
-rename d₂ into d₃.
-rename p₂ into p₃.
-destruct dpl as [| (d₂, p₂)]; [ discriminate Hlch | idtac ].
-simpl in Hlch.
-remember (valuation α p₂ - valuation α p₁) as v₂₁.
-remember (Qnat (d₂ - d₁)) as d₂₁.
-remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl) as m.
-subst v₂₁ d₂₁.
-destruct m as ((mp, dp), skip).
-symmetry in Heqdpl.
-symmetry in Heqm.
-apply min_slope_in_list in Heqm.
-simpl in Heqm.
-destruct Heqm as [Hdp| Hdp].
- subst dp.
- simpl in Hlch.
- apply next_points_in_list in Hlch.
- destruct Hlch as [Hdp| Hdp].
-  destruct Hdp; [ idtac | contradiction ].
-  injection H; clear H; intros; subst d₃ p₃.
-  eapply power_puiseux_series_list_lt; eassumption.
-
-  eapply lt_trans with (m := d₂).
-   eapply power_puiseux_series_list_lt; eassumption.
-
-   eapply power_puiseux_series_list_2nd_lt; eassumption.
-
- apply lt_trans with (m := d₂).
-  eapply power_puiseux_series_list_lt; eassumption.
-
-  destruct dp as (d₄, p₄); simpl in Hlch.
-  apply next_points_in_list in Hlch.
-  destruct Hlch as [Hdp₃| Hdp₃].
-   destruct Hdp₃; [ idtac | contradiction ].
-   injection H; clear H; intros; subst d₄ p₄.
-   eapply power_puiseux_series_list_2nd_lt; eassumption.
-
-   eapply power_puiseux_series_list_2nd_lt; eassumption.
-Qed.
-*)
-
 Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
 intros x y H.
@@ -497,25 +390,12 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma yyy : ∀ α fld pol γ β j jt k kt dpl gdpl,
-  an pol ≠ zero fld
-  → gdpl = power_puiseux_series_list α fld pol
-    → gamma_beta fld pol = Some (γ, β, (j, jt), (k, kt), dpl)
-      → (j, jt) ∈ points_in_segment α γ β gdpl.
-Proof.
-intros α fld pol γ β j jt k kt dpl gdpl Han Hgdpl Hgb.
-destruct gdpl as [| (j₁, jt₁)].
- exfalso; symmetry in Hgdpl; revert Hgdpl.
- apply at_least_one_valuation_point; assumption.
-bbb.
-
 Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) gdpl lch,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
     → gdpl = power_puiseux_series_list α fld pol
       → lch = lower_convex_hull_segments α gdpl
         → ∃ γ β,
-            List.length (points_in_segment α γ β gdpl) ≥ 2 ∧
             (∀ i it, (i, it) ∈ points_in_segment α γ β gdpl →
                valuation α it + Qnat i * γ == β) ∧
             (∀ i it, (i, it) ∈ gdpl →
@@ -531,47 +411,23 @@ destruct p as (p, (j, jt)).
 destruct p as (γ, β).
 exists γ, β.
 split.
-zzz.
+ intros i it Hiit.
+ revert Hiit; clear; intros.
+ induction gdpl; [ contradiction | idtac ].
+ simpl in Hiit.
+ remember (Qeq_bool (valuation α (snd a) + Qnat (fst a) * γ) β) as b.
+ symmetry in Heqb.
+ destruct b.
+  destruct Hiit as [Hiit| Hiit].
+   subst a.
+   simpl in Heqb.
+   apply Qeq_bool_iff; assumption.
 
-intros α fld pol gdpl lch an_nz ai_nz Hgdpl Hlch.
-apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
-remember (gamma_beta fld pol) as gb.
-destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as ((γ, β), dpl).
-exists γ.
-unfold gamma_beta in Heqgb.
-rewrite <- Hlch in Heqgb.
-destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (mp₁, (j, jt)).
-destruct lch; [ discriminate Heqgb | idtac ].
-destruct p as (mp₁₂, (k, kt)).
-injection Heqgb; intros H₁ H₂ H₃; clear Heqgb.
-exists mp₁, j, jt, mp₁₂, k, kt.
-split; [ left; reflexivity | idtac ].
-split; [ right; left; reflexivity | idtac ].
-remember (valuation α jt) as αj.
-remember (valuation α kt) as αk.
-split.
- subst γ.
- unfold Qnat.
- rewrite Nat2Z.inj_sub.
-  rewrite QZ_minus.
-  field.
-  intros H; symmetry in H; revert H.
-  apply Qlt_not_eq, Qlt_minus.
-  unfold Qlt; simpl.
-  do 2 rewrite Z.mul_1_r.
-  apply inj_lt.
-  eapply lower_convex_hull_lt; symmetry; eassumption.
+   apply IHgdpl; assumption.
 
-  apply lt_le_weak.
-  eapply lower_convex_hull_lt; symmetry; eassumption.
+  apply IHgdpl; assumption.
 
- split.
-  intros i it Hiit.
-  remember (valuation α it) as αi.
-  symmetry in Hlch.
-  eapply yyy; eassumption.
+ intros i it Hiit.
 zzz.
 
 Record branch α :=
