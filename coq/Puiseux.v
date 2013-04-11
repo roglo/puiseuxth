@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.79 2013-04-11 08:59:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.80 2013-04-11 09:07:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -59,15 +59,14 @@ Definition power_puiseux_series_list α k pol :=
   power_puiseux_series_list_gen α k 0%nat (al pol) (an pol).
 
 Definition gamma_beta {α} k pol :=
-  let gdpl := power_puiseux_series_list α k pol in
-  match lower_convex_hull_segments α gdpl with
-  | [(j, p₁), (k, p₂) … _] =>
-      let αj := valuation α p₁ in
-      let αk := valuation α p₂ in
-      let γ := (αj - αk) / Qnat (k - j)%nat in
-      let β := αj + Qnat j * γ in
-      let dpl := points_in_segment α γ β gdpl in
-      Some (γ, β, (j, αj), (k, αk), dpl)
+  let dpl := power_puiseux_series_list α k pol in
+  match lower_convex_hull α dpl with
+  | [(_, (d₁, p₁)), (mp, (d₂, p₂)) … _] =>
+      let v₁ := valuation α p₁ in
+      let v₂ := valuation α p₂ in
+      let γ := (v₁ - v₂) / Qnat (d₂ - d₁)%nat in
+      let β := v₁ + Qnat d₁ * γ in
+      Some (γ, β, dpl)
   | [_] | [] =>
       None
   end.
@@ -174,7 +173,7 @@ induction dpl₁ as [| dp₂]; intros.
  destruct sk.
   remember (valuation α p₂ - valuation α p₁) as v₂₁.
   remember (Qnat (d₂ - d₁)) as d₂₁.
-  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 dpl₁) as xs.
+  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl₁) as xs.
   subst v₂₁ d₂₁.
   destruct xs as (dp₃, sk).
   apply IHdpl₁.
@@ -197,7 +196,7 @@ induction dpl₁ as [| dp₃]; intros.
  destruct dp₂ as (d₂, p₂).
  remember (valuation α p₂ - valuation α p₁) as v₂₁.
  remember (Qnat (d₂ - d₁)) as d₂₁.
- remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 dpl) as dps.
+ remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl) as dps.
  subst v₂₁ d₂₁.
  destruct dps as (dp, skip).
  apply next_points_not_empty.
@@ -212,8 +211,8 @@ intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
 remember (power_puiseux_series_list α k pol) as pts.
-remember (lower_convex_hull_segments α pts) as chp.
-destruct chp as [| (d₁, p₁)].
+remember (lower_convex_hull α pts) as chp.
+destruct chp as [| (mp₁, (d₁, p₁))].
  destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
  symmetry in Heqpts.
  exfalso; revert Heqpts.
@@ -247,12 +246,12 @@ destruct chp as [| (d₁, p₁)].
   intros H; discriminate H.
 Qed.
 
-Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip,
-  minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk dpl = (dp, skip)
+Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip mp mpr,
+  minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk mp dpl = ((mpr, dp), skip)
   → dp ∈ [(d_m, p_m) … dpl].
 Proof.
 intros; rename H into Hmin.
-revert d₁ p₁ d_m p_m sl_m sk_m sk dp skip Hmin.
+revert d₁ p₁ d_m p_m sl_m sk_m sk dp skip mp mpr Hmin.
 induction dpl as [| dp₂]; intros.
  simpl in Hmin.
  destruct dp; injection Hmin; clear Hmin; intros; subst d_m p_m sk_m.
@@ -262,21 +261,24 @@ induction dpl as [| dp₂]; intros.
  destruct dp₂ as (d₂, p₂).
  remember (valuation α p₂ - valuation α p₁) as v₂₁.
  remember (Qnat (d₂ - d₁)) as d₂₁.
- destruct (Qle_bool (v₂₁ / d₂₁) sl_m).
+ destruct (Qeq_bool (v₂₁ / d₂₁) sl_m).
   apply IHdpl in Hmin.
   right; assumption.
 
-  apply IHdpl in Hmin.
-  destruct Hmin as [Hdp| Hdp].
-   subst dp; left; reflexivity.
+  destruct (Qle_bool (v₂₁ / d₂₁) sl_m).
+   apply IHdpl in Hmin.
+   right; assumption.
 
-   right; right; assumption.
+   apply IHdpl in Hmin.
+   destruct Hmin as [Hdp| Hdp].
+    subst dp; left; reflexivity.
+
+    right; right; assumption.
 Qed.
 
-(*
-Lemma next_points_in_list : ∀ α rl n d₁ p₁ dpl₁ dp lch,
-  next_points α rl n d₁ p₁ dpl₁ = [dp … lch]
-  → dp ∈ rl ∨ dp ∈ dpl₁.
+Lemma next_points_in_list : ∀ α rl n d₁ p₁ dpl₁ dp mp lch,
+  next_points α rl n d₁ p₁ dpl₁ = [(mp, dp) … lch]
+  → (mp, dp) ∈ rl ∨ dp ∈ dpl₁.
 Proof.
 intros; rename H into Hnp.
 revert rl n d₁ p₁ dp lch Hnp.
@@ -292,7 +294,7 @@ induction dpl₁ as [| (d₂, p₂)]; intros.
  destruct n.
   remember (valuation α p₂ - valuation α p₁) as v₂₁.
   remember (Qnat (d₂ - d₁)) as d₂₁.
-  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 dpl₁) as ms.
+  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] dpl₁) as ms.
   subst v₂₁ d₂₁.
   destruct ms as ((mp₂₃, dp₃), skip).
   symmetry in Heqms.
@@ -326,7 +328,6 @@ induction dpl₁ as [| (d₂, p₂)]; intros.
 
    right; right; assumption.
 Qed.
-*)
 
 Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
   power_puiseux_series_list_gen α k (S pow) cl cn = dpl
@@ -428,7 +429,6 @@ unfold power_puiseux_series_list in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
 
-(*
 Lemma lower_convex_hull_lt : ∀ α k pol d₁ p₁ d₂ p₂ mp₀ mp₁₂ lch,
   lower_convex_hull α (power_puiseux_series_list α k pol) =
     [(mp₀, (d₁, p₁)), (mp₁₂, (d₂, p₂)) … lch]
@@ -478,7 +478,6 @@ destruct Heqm as [Hdp| Hdp].
 
    eapply power_puiseux_series_list_2nd_lt; eassumption.
 Qed.
-*)
 
 Lemma Qlt_minus : ∀ x y, x < y → 0 < y - x.
 Proof.
@@ -539,7 +538,6 @@ destruct n.
 xxx.
 *)
 
-(*
 Lemma yyy : ∀ α dpl mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
   lower_convex_hull α dpl = [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
   → αj = valuation α jt
@@ -582,33 +580,21 @@ destruct dpl.
     (minimise_slope α n nt m mt ((αm - αn) / Qnat (m - n)) 0 1 [ ] dpl) as ds.
    destruct ds as (dp₄, skip).
 yyy.
-*)
 
-Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) gdpl lch,
+Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
-    → gdpl = power_puiseux_series_list α fld pol
-      → lch = lower_convex_hull_segments α gdpl
-        → ∃ γ β,
-            List.length (points_in_segment α γ β gdpl) ≥ 2 ∧
-            (∀ i it, (i, it) ∈ points_in_segment α γ β gdpl →
-               valuation α it + Qnat i * γ == β) ∧
-            (∀ i it, (i, it) ∈ gdpl →
-               valuation α it + Qnat i * γ <= β).
+    → lch = lower_convex_hull α (power_puiseux_series_list α fld pol)
+      → ∃ γ mp₀ j jt mp₁₂ k kt,
+           (mp₀, (j, jt)) ∈ lch ∧
+           (mp₁₂, (k, kt)) ∈ lch ∧
+           valuation α jt + Qnat j * γ == valuation α kt + Qnat k * γ ∧
+           (∀ i it, (i, it) ∈ mp₁₂ →
+              valuation α it + Qnat i * γ == valuation α jt + Qnat j * γ) ∧
+           (∀ i it, (i, it) ∈ List.map (λ pmi, snd pmi) lch →
+              valuation α jt + Qnat j * γ <= valuation α it + Qnat i * γ).
 Proof.
-intros α fld pol gdpl lch an_nz ai_nz Hgdpl Hlch.
-apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
-remember (gamma_beta fld pol) as gb.
-destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as (p, dpl).
-destruct p as (p, (k, kt)).
-destruct p as (p, (j, jt)).
-destruct p as (γ, β).
-exists γ, β.
-split.
-zzz.
-
-intros α fld pol gdpl lch an_nz ai_nz Hgdpl Hlch.
+intros α fld pol lch an_nz ai_nz Hlch.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
