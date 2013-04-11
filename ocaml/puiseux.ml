@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.167 2013-04-11 03:23:29 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.168 2013-04-11 07:57:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -745,13 +745,11 @@ value main () = do {
     else ();
     let vl = List.rev (find_vars p) in
     let vl_no_y = List.filter (fun v → v <> vy && v <> "i") vl in
-    let (vx, three) =
+    let (vx, more) =
       match vl_no_y with
-      [ [vx] → (vx, False)
-      | [] → (if vy = "x" then "y" else "x", False)
-(*
-      | [vx; _] → (vx, True)
-*)
+      [ [vx] → (vx, [])
+      | [] → (if vy = "x" then "y" else "x", [])
+      | [vx; v] → (vx, [v])
       | _ → do {
           if List.mem vy vl then do {
             eprintf "Too many variables:%!";
@@ -768,58 +766,62 @@ value main () = do {
           exit 2
         } ]
     in
-    if three then do {
-      let k = k_ps (kc ()) in
-      let f = k.ac_field in
-      let t = tree_of_ast f vx vy p in
-      let t = normalise f t in
-      let norm_txt = string_of_tree f True vx vy t in
-      if verbose.val then do {
-        printf "normalised:\n";
-        printf "%s\n%!" norm_txt;
+    match more with
+    [ [] →
+        if arg_all_mpfr.val then do {
+          Cpoly.Mfl.set_prec 200;
+          let k = km () in
+          let f = k.ac_field in
+          let t = tree_of_ast f vx vy p in
+          let t = normalise f t in
+          let norm_txt = string_of_tree f True vx vy t in
+          if verbose.val then do {
+            printf "normalised:\n";
+            printf "%s\n%!" norm_txt;
+          }
+          else do {
+            printf "equation: %s = 0\n\n%!" norm_txt;
+          };
+          let pol = polyn_of_tree f t in
+          let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
+          ()
+        }
+        else do {
+          let k = kc () in
+          let f = k.ac_field in
+          let t = tree_of_ast f vx vy p in
+          let t = normalise f t in
+          let norm_txt = string_of_tree f True vx vy t in
+          if verbose.val then do {
+            printf "normalised:\n";
+            printf "%s\n%!" norm_txt;
+          }
+          else do {
+            printf "equation: %s = 0\n\n%!" norm_txt;
+          };
+          let pol = polyn_of_tree f t in
+          let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
+          ()
+        }
+    | [_] → do {
+        let k = k_ps (kc ()) in
+        let f = k.ac_field in
+        let t = tree_of_ast f vx vy p in
+        let t = normalise f t in
+        let norm_txt = string_of_tree f True vx vy t in
+        if verbose.val then do {
+          printf "normalised:\n";
+          printf "%s\n%!" norm_txt;
+        }
+        else do {
+          printf "equation: %s = 0\n\n%!" norm_txt;
+        };
+        let pol = polyn_of_tree f t in
+        let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
+        ()
       }
-      else do {
-        printf "equation: %s = 0\n\n%!" norm_txt;
-      };
-      let pol = polyn_of_tree f t in
-      let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
-      ()
-    }
-    else if arg_all_mpfr.val then do {
-      Cpoly.Mfl.set_prec 200;
-      let k = km () in
-      let f = k.ac_field in
-      let t = tree_of_ast f vx vy p in
-      let t = normalise f t in
-      let norm_txt = string_of_tree f True vx vy t in
-      if verbose.val then do {
-        printf "normalised:\n";
-        printf "%s\n%!" norm_txt;
-      }
-      else do {
-        printf "equation: %s = 0\n\n%!" norm_txt;
-      };
-      let pol = polyn_of_tree f t in
-      let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
-      ()
-    }
-    else do {
-      let k = kc () in
-      let f = k.ac_field in
-      let t = tree_of_ast f vx vy p in
-      let t = normalise f t in
-      let norm_txt = string_of_tree f True vx vy t in
-      if verbose.val then do {
-        printf "normalised:\n";
-        printf "%s\n%!" norm_txt;
-      }
-      else do {
-        printf "equation: %s = 0\n\n%!" norm_txt;
-      };
-      let pol = polyn_of_tree f t in
-      let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
-      ()
-    }
+    | [_; _ :: _] →
+        match () with [] ]
   }
   with e →
     match e with
