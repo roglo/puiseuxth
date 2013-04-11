@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.77 2013-04-10 16:51:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.78 2013-04-11 03:53:19 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -508,31 +508,35 @@ Proof.
 www.
 *)
 
-Lemma xxx : ∀ α i j k it jt kt αi αj αk γ mp₁₂ rl n l lt dpl lch,
+(*
+Lemma xxx : ∀ α i j k it jt kt αi αj αk γ mp₁₂ n dpl lch,
   αj = valuation α jt
   → αk = valuation α kt
     → γ = (αj - αk) / Qnat (k - j)
       → (i, it) ∈ mp₁₂
         → αi = valuation α it
-          → next_points α rl n l lt dpl = [(mp₁₂, (k, kt)) … lch]
+          → next_points α [] n j jt dpl = [(mp₁₂, (k, kt)) … lch]
             → αi + Qnat i * γ == αj + Qnat j * γ.
 Proof.
-intros α i j k it jt kt αi αj αk γ mp₁₂ rl n l lt dpl lch.
+intros α i j k it jt kt αi αj αk γ mp₁₂ n dpl lch.
 intros Hαj Hαk Hγ Hiit Hαi Hnp.
 revert i Hiit.
-revert j Hγ.
-revert k Hnp.
-revert it Hαi.
+revert j Hγ Hnp.
+revert k it Hαi.
 revert jt Hαj.
 revert kt Hαk.
-revert αi αj αk γ mp₁₂ rl n l lt lch.
-induction dpl as [| l jl]; intros.
- simpl in Hnp.
- induction mp₁₂ as [| mp]; [ contradiction | idtac ].
- simpl in Hiit.
- destruct Hiit as [Hiit| Hiit].
-  subst mp.
+revert αi αj αk γ mp₁₂ n lch.
+induction dpl as [| l jl]; intros; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct l as (d₂, p₂).
+destruct n.
+ remember (valuation α p₂ - valuation α jt) as v₂₁.
+ remember (Qnat (d₂ - j)) as d₂₁.
+ remember (minimise_slope α j jt d₂ p₂ (v₂₁ / d₂₁) 0 1 [ ] jl) as xs.
+ subst v₂₁ d₂₁.
+ destruct xs as (dp₃, sk).
 xxx.
+*)
 
 Lemma yyy : ∀ α dpl mp₁ j jt mp₁₂ k kt lch αi αj αk γ i it,
   lower_convex_hull α dpl = [(mp₁, (j, jt)), (mp₁₂, (k, kt)) … lch]
@@ -548,7 +552,33 @@ intros Hlch Hαj Hαk Hγ Hiit Hαi.
 destruct dpl as [| (l, jl)]; intros; [ discriminate Hlch | idtac ].
 simpl in Hlch.
 injection Hlch; intros Hnp; intros; subst jl l mp₁; clear Hlch.
-eapply xxx with (αk := αk); eassumption.
+destruct dpl; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct p as (l, lt).
+remember (valuation α lt) as αl.
+rewrite <- Hαj in Hnp.
+remember ((αl - αj) / Qnat (l - j)) as sl.
+remember (minimise_slope α j jt l lt sl 0 1 [ ] dpl) as xs.
+subst sl.
+destruct xs as (dp₃, skip).
+destruct dpl.
+ simpl in Hnp, Heqxs.
+ injection Hnp; clear Hnp; intros; subst dp₃.
+ injection Heqxs; clear Heqxs; intros; subst mp₁₂ skip l lt.
+ contradiction.
+
+ simpl in Hnp, Heqxs.
+ destruct p as (m, mt).
+ rewrite <- Hαj in Heqxs.
+ remember (valuation α mt) as αm.
+ destruct (Qeq_bool ((αm - αj) / Qnat (m - j)) ((αl - αj) / Qnat (l - j))).
+  destruct skip.
+   remember (snd (snd dp₃)) as nt.
+   remember (valuation α nt) as αn.
+   remember (fst (snd dp₃)) as n.
+   remember
+    (minimise_slope α n nt m mt ((αm - αn) / Qnat (m - n)) 0 1 [ ] dpl) as ds.
+   destruct ds as (dp₄, skip).
 yyy.
 
 Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) lch,
