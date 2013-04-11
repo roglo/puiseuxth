@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.82 2013-04-11 15:10:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.83 2013-04-11 16:33:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -9,6 +9,10 @@ Require Import Sorting.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
+
+Definition list_minus α eq_dec (l₁ l₂ : list α) :=
+  List.fold_right (List.remove eq_dec) l₁ l₂.
+Arguments list_minus : default implicits.
 
 Record field α :=
   { zero : α;
@@ -60,7 +64,7 @@ Definition power_puiseux_series_list α k pol :=
 
 Definition gamma_beta {α} k pol :=
   let gdpl := power_puiseux_series_list α k pol in
-  match lower_convex_hull_segments α gdpl with
+  match lower_convex_hull_points α gdpl with
   | [(j, p₁), (k, p₂) … _] =>
       let αj := valuation α p₁ in
       let αk := valuation α p₂ in
@@ -212,7 +216,7 @@ intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
 remember (power_puiseux_series_list α k pol) as pts.
-remember (lower_convex_hull_segments α pts) as chp.
+remember (lower_convex_hull_points α pts) as chp.
 destruct chp as [| (d₁, p₁)].
  destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
  symmetry in Heqpts.
@@ -390,26 +394,32 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma zzz : ∀ α fld (pol : polynomial (puiseux_series α)) gdpl lch,
+Lemma eq_pts_dec {α} : ∀ (n m : nat * puiseux_series α), {n = m} + {n ≠ m}.
+Proof.
+intros (i, it) (j, jt).
+Admitted.
+
+Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
-    → gdpl = power_puiseux_series_list α fld pol
-      → lch = lower_convex_hull_segments α gdpl
-        → ∃ γ β,
-            (∀ i it, (i, it) ∈ points_in_segment α γ β gdpl →
-               valuation α it + Qnat i * γ == β) ∧
-            (∀ i it, (i, it) ∈ gdpl →
-               valuation α it + Qnat i * γ <= β).
+    → pts = power_puiseux_series_list α fld pol
+      → ∃ γ β seg_pts,
+        seg_pts = points_in_segment α γ β pts ∧
+        (∀ i it, (i, it) ∈ seg_pts →
+           valuation α it + Qnat i * γ == β) ∧
+        (∀ i it, (i, it) ∈ list_minus eq_pts_dec pts seg_pts →
+           valuation α it + Qnat i * γ <= β).
 Proof.
-intros α fld pol gdpl lch an_nz ai_nz Hgdpl Hlch.
+intros α fld pol dpl pts an_nz ai_nz Hdpl Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as (p, dpl).
+destruct p as (p, ldpl).
 destruct p as (p, (k, kt)).
 destruct p as (p, (j, jt)).
 destruct p as (γ, β).
-exists γ, β.
+remember (points_in_segment α γ β pts) as seg_pts.
+exists γ, β, seg_pts.
 split.
  intros i it Hiit.
  revert Hiit; clear; intros.

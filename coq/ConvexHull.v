@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.15 2013-04-11 14:54:49 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.16 2013-04-11 16:33:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,7 +52,7 @@ Fixpoint next_points α rev_list nb_pts_to_skip d₁ p₁ dpl₁ :=
       List.rev rev_list
   end.
 
-Definition lower_convex_hull_segments α dpl :=
+Definition lower_convex_hull_points α dpl :=
   match dpl with
   | [(d₁, p₁) … dpl₁] => [(d₁, p₁) … next_points α [] 0%nat d₁ p₁ dpl₁]
   | [] => []
