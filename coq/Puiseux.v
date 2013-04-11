@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.83 2013-04-11 16:33:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.84 2013-04-11 16:34:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -410,7 +410,7 @@ Lemma zzz : ∀ α fld pol pts,
         (∀ i it, (i, it) ∈ list_minus eq_pts_dec pts seg_pts →
            valuation α it + Qnat i * γ <= β).
 Proof.
-intros α fld pol dpl pts an_nz ai_nz Hdpl Hpts.
+intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
@@ -420,9 +420,11 @@ destruct p as (p, (j, jt)).
 destruct p as (γ, β).
 remember (points_in_segment α γ β pts) as seg_pts.
 exists γ, β, seg_pts.
+split; [ assumption | idtac ].
 split.
  intros i it Hiit.
  revert Hiit; clear; intros.
+bbb.
  induction gdpl; [ contradiction | idtac ].
  simpl in Hiit.
  remember (Qeq_bool (valuation α (snd a) + Qnat (fst a) * γ) β) as b.
