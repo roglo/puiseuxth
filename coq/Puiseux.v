@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.91 2013-04-12 12:32:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.92 2013-04-12 12:58:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -420,11 +420,44 @@ destruct b.
  apply IHpts; assumption.
 Qed.
 
+Lemma vvv : ∀ α fld deg cl cn pts j jps k kps lch,
+  pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
+  → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+    → (j < k)%nat.
+Proof.
+bbb.
+
+Lemma www : ∀ α fld deg cl cn pts j jps k kps lch,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+    → (j < k)%nat.
+Proof.
+intros α fld deg cl cn pts j jps k kps lch Hpts Hch.
+revert fld deg cn pts j jps k kps lch Hpts Hch.
+induction cl as [| ps]; intros.
+ unfold points_of_ps_polynom_gen in Hpts.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts; discriminate Hch.
+
+  subst pts; discriminate Hch.
+
+ unfold points_of_ps_polynom_gen in Hpts.
+ simpl in Hpts.
+ destruct (eq_k_dec fld ps (zero fld)) as [Heq| Hne].
+  eapply vvv; eassumption.
+bbb.
+
 Lemma xxx : ∀ α fld pol pts j jps k kps lch,
   pts = points_of_ps_polynom α fld pol
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
     → (j < k)%nat.
 Proof.
+intros α fld pol pts j jps k kps lch Hpts Hch.
+unfold points_of_ps_polynom in Hpts.
+eapply www; eassumption.
+bbb.
+
 intros α fld pol pts j jps k kps lch Hpts Hch.
 destruct pts as [| (l, lps)]; [ discriminate Hch | idtac ].
 destruct pts as [| (m, mps)]; [ discriminate Hch | idtac ].
