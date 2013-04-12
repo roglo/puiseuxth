@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.109 2013-04-12 21:26:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.110 2013-04-12 21:37:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -587,11 +587,6 @@ induction cl as [| c]; intros.
       destruct Hipsn as (H).
       exfalso; apply H; reflexivity.
 
-      symmetry in Heqb.
-      apply Qeq_bool_neq in Heqb.
-      apply Qnot_le_lt.
-      intros H; apply Heqb; clear Heqb.
-      apply Qle_antisym; [ assumption | idtac ].
       Focus 2.
       simpl in Hipsn.
       remember (Qeq_bool (valuation α c + Qnat deg * γ) β) as b.
@@ -607,6 +602,15 @@ induction cl as [| c]; intros.
        destruct (lt_dec l deg); eapply IHcl; eassumption.
 
        destruct (lt_dec l deg); eapply IHcl; eassumption.
+
+     symmetry in Heqb.
+     apply Qeq_bool_neq in Heqb.
+     simpl in Hnp.
+     remember
+      (minimise_slope α l lps (i, ips)
+         ((valuation α ips - valuation α lps) / Qnat (i - l)) pts) as sl.
+     destruct sl as (m, mps).
+     destruct (lt_dec l i) as [Hle| Hgt].
 bbb.
 
 (*
