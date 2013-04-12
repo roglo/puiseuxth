@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.95 2013-04-12 14:11:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.96 2013-04-12 14:33:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -529,14 +529,66 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
-Lemma xxx : ∀ α γ β i ips j jps k kps pts lch,
+Lemma xxx₁ : ∀ α γ β i ips j jps k kps l lps pts lch rl n,
   β = valuation α jps + Qnat j * γ
   → (i, ips) ∈ pts
     → ¬ (i, ips) ∈ points_in_segment α γ β [(j, jps) … pts]
-      → next_points α [ ] 0 j jps pts = [(k, kps) … lch]
+      → next_points α rl n l lps pts = [(k, kps) … lch]
         → valuation α ips + Qnat i * γ < β.
 Proof.
-xxx.
+intros α γ β i ips j jps k kps l lps pts lch rl n Hβ Hpts Hpis Hnp.
+revert γ β i ips j jps k kps l lps lch rl n Hβ Hpts Hpis Hnp.
+induction pts as [| (m, mps)]; intros; [ contradiction | idtac ].
+destruct Hpts as [Hpts| Hpts].
+ injection Hpts; clear Hpts; intros; subst m mps.
+ simpl in Hpis.
+ rewrite <- Hβ in Hpis.
+ remember (Qeq_bool β β) as b.
+ destruct b.
+  clear Heqb.
+  remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
+  destruct b.
+   exfalso; apply Hpis; right; left; reflexivity.
+
+   symmetry in Heqb.
+   apply Qeq_bool_neq in Heqb.
+   Focus 2.
+   symmetry in Heqb.
+   apply Qeq_bool_neq in Heqb.
+   exfalso; apply Heqb; reflexivity.
+
+  Focus 2.
+  simpl in Hnp.
+  destruct n.
+   remember
+    (minimise_slope α l lps m mps
+       ((valuation α mps - valuation α lps) / Qnat (m - l)) 0 1 pts) as ds.
+   destruct ds as ((n, nps), sk).
+   simpl in Hnp.
+   eapply IHpts; try eassumption.
+   intros H.
+   simpl in H.
+   simpl in Hpis.
+   remember (Qeq_bool (valuation α jps + Qnat j * γ) β) as b.
+   destruct b.
+    destruct H as [H| H].
+     injection H; clear H; intros; subst i ips.
+     apply Hpis; left; reflexivity.
+
+     clear Heqb.
+     remember (Qeq_bool (valuation α mps + Qnat m * γ) β) as b.
+     destruct b.
+      apply Hpis.
+      right; right; assumption.
+
+      apply Hpis.
+      right; assumption.
+
+    rewrite <- Hβ in Heqb.
+    symmetry in Heqb.
+    apply Qeq_bool_neq in Heqb.
+    apply Heqb; reflexivity.
+xxx₁.
 
 Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
   pts = points_of_ps_polynom α fld pol
@@ -564,7 +616,7 @@ destruct Hipts as [Hipts| Hipts].
   apply Qeq_bool_neq in Heqb.
   exfalso; apply Heqb; reflexivity.
 
- eapply xxx; eassumption.
+ eapply xxx₁; eassumption.
 yyy₁.
 
 Lemma zzz : ∀ α fld pol pts,
