@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.88 2013-04-12 02:02:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.89 2013-04-12 03:17:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -377,6 +377,7 @@ rewrite Z.mul_1_r, <- Zopp_mult_distr_l.
 apply Zlt_left_lt.
 assumption.
 Qed.
+*)
 
 Lemma QZ_minus : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
 Proof.
@@ -385,8 +386,6 @@ unfold Qminus, Qplus, Zminus; simpl.
 do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
-
-*)
 
 Lemma points_in_newton_segment : ∀ α fld pol pts,
   an pol ≠ zero fld
@@ -468,6 +467,19 @@ destruct ch_pts.
     subst seg_pts.
     exfalso; apply Hout.
     left; reflexivity.
+
+    apply Qeq_bool_neq in Heqb.
+    exfalso; apply Heqb; clear Heqb.
+    rewrite Hβ, Hγ.
+    field.
+    unfold Qnat.
+    unfold Qeq; simpl.
+    rewrite Z.mul_1_r.
+    rewrite Nat2Z.inj_sub.
+     intros Hkj.
+     apply Zminus_eq in Hkj.
+     apply Nat2Z.inj in Hkj.
+     subst k.
 zzz.
 
 Record branch α :=
