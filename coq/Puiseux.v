@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.98 2013-04-12 14:51:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.99 2013-04-12 15:54:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -534,8 +534,9 @@ Lemma xxx₁ : ∀ α γ β i ips j jps k kps l lps pts lch rl n,
   → (i, ips) ∈ pts
     → ¬ (i, ips) ∈ points_in_segment α γ β [(j, jps) … pts]
       → next_points α rl n l lps pts = [(k, kps) … lch]
-        → valuation α ips + Qnat i * γ < β.
+        → β < valuation α ips + Qnat i * γ.
 Proof.
+(* à nettoyer *)
 intros α γ β i ips j jps k kps l lps pts lch rl n Hβ Hpts Hpis Hnp.
 revert γ β i ips j jps k kps l lps lch rl n Hβ Hpts Hpis Hnp.
 induction pts as [| (m, mps)]; intros; [ contradiction | idtac ].
@@ -629,7 +630,7 @@ destruct Hpts as [Hpts| Hpts].
 
  apply Qnot_le_lt.
  intros H; apply Heqb; clear Heqb.
- apply Qle_antisym; [ idtac | assumption ].
+ apply Qle_antisym; [ assumption | idtac ].
 xxx₁.
 
 Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
@@ -638,7 +639,7 @@ Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
     → (i, ips) ∈ pts
       → ¬ (i, ips) ∈ points_in_segment α γ β pts
         → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
-          → valuation α ips + Qnat i * γ < β.
+          → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α fld pol i ips j jps k kps pts lch γ β Hpts Hβ Hipts Hipis Hch.
 clear fld pol Hpts.
@@ -668,7 +669,7 @@ Lemma zzz : ∀ α fld pol pts,
       → ∃ γ β,
         (∀ i ips,
            (i, ips) ∈ pts ∧ not ((i, ips) ∈ points_in_segment α γ β pts)
-           → valuation α ips + Qnat i * γ < β).
+           → β < valuation α ips + Qnat i * γ).
 Proof.
 intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
@@ -692,14 +693,9 @@ symmetry in H5; rename H5 into Hγ.
 rewrite <- Hpts in H.
 rewrite H in Hout.
 rewrite <- Hpts in Heqlch.
-eapply yyy₁.
- eassumption.
-
- eassumption.
-
- subst seg_pts; assumption.
-
- symmetry in Heqlch; eassumption.
+symmetry in Heqlch.
+subst seg_pts.
+eapply yyy₁; eassumption.
 zzz.
 
 Record branch α :=
