@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.101 2013-04-12 17:24:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.102 2013-04-12 17:26:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -673,6 +673,17 @@ induction cl as [| c]; intros.
    injection Hipts; clear Hipts; intros; subst deg c.
 bbb.
 *)
+
+Lemma yyy₄ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → β = valuation α jps + Qnat j * γ
+    → β = valuation α kps + Qnat k * γ
+      → (i, ips) ∈ pts
+        → (i, ips) ∉ points_in_segment α γ β pts
+          → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+            → β < valuation α ips + Qnat i * γ.
+Proof.
+bbb.
 
 Lemma yyy₃ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
   pts = points_of_ps_polynom_gen α fld deg cl cn
