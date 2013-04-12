@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.97 2013-04-12 14:43:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.98 2013-04-12 14:51:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -626,6 +626,10 @@ destruct Hpts as [Hpts| Hpts].
     symmetry in Heqb.
     apply Qeq_bool_neq in Heqb.
     exfalso; apply Heqb; reflexivity.
+
+ apply Qnot_le_lt.
+ intros H; apply Heqb; clear Heqb.
+ apply Qle_antisym; [ idtac | assumption ].
 xxx₁.
 
 Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
