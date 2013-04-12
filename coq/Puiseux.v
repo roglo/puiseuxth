@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.86 2013-04-12 01:37:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.87 2013-04-12 01:43:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -9,10 +9,6 @@ Require Import Sorting.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
-
-Definition list_minus α eq_dec (l₁ l₂ : list α) :=
-  List.fold_right (List.remove eq_dec) l₁ l₂.
-Arguments list_minus : default implicits.
 
 Record field α :=
   { zero : α;
@@ -46,9 +42,9 @@ Record alg_closed_field α :=
 Arguments ac_field : default implicits. 
 Arguments ac_prop : default implicits. 
 
-Fixpoint power_ps_list_of_pol α pow psl (psn : puiseux_series α) :=
+Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
-  | [ps₁ … psl₁] => [(pow, ps₁) … power_ps_list_of_pol α (S pow) psl₁ psn]
+  | [ps₁ … psl₁] => [(pow, ps₁) … all_points_of_ps_polynom α (S pow) psl₁ psn]
   | [] => [(pow, psn)]
   end.
 
@@ -57,7 +53,7 @@ Definition filter_non_zero_ps α k (dpl : list (nat * puiseux_series α)) :=
     dpl.
 
 Definition points_of_ps_polynom_gen α k pow cl cn :=
-  filter_non_zero_ps α k (power_ps_list_of_pol α pow cl cn).
+  filter_non_zero_ps α k (all_points_of_ps_polynom α pow cl cn).
 
 Definition points_of_ps_polynom α k pol :=
   points_of_ps_polynom_gen α k 0%nat (al pol) (an pol).
@@ -77,17 +73,12 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma cpl_not_empty : ∀ α pow cl cn, power_ps_list_of_pol α pow cl cn ≠ [].
-Proof.
-intros; destruct cl; intros H; discriminate H.
-Qed.
-
 Lemma one_vp_gen : ∀ α k pow cl cn,
   cn ≠ zero k → points_of_ps_polynom_gen α k pow cl cn ≠ [].
 Proof.
 intros α k pow cl cn Hcn.
 unfold points_of_ps_polynom_gen.
-remember (power_ps_list_of_pol α pow cl cn) as cpl.
+remember (all_points_of_ps_polynom α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
 induction cl as [| c cl]; intros.
  subst cpl; simpl.
@@ -109,7 +100,7 @@ intros; apply one_vp_gen; assumption.
 Qed.
 
 Lemma fold_points_of_ps_polynom_gen : ∀ α k pow cl cn,
-  filter_non_zero_ps α k (power_ps_list_of_pol α pow cl cn) =
+  filter_non_zero_ps α k (all_points_of_ps_polynom α pow cl cn) =
   points_of_ps_polynom_gen α k pow cl cn.
 Proof. reflexivity. Qed.
 
@@ -251,6 +242,7 @@ destruct chp as [| (d₁, p₁)].
   intros H; discriminate H.
 Qed.
 
+(*
 Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip,
   minimise_slope α d₁ p₁ d_m p_m sl_m sk_m sk dpl = (dp, skip)
   → dp ∈ [(d_m, p_m) … dpl].
@@ -394,11 +386,6 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-(*
-Lemma eq_pts {α} : ∀ (n m : nat * puiseux_series α), {n = m} + {n ≠ m}.
-Proof.
-intros (i, it) (j, jt).
-bbb.
 *)
 
 Lemma points_in_newton_segment : ∀ α fld pol pts,
