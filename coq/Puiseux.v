@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.102 2013-04-12 17:26:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.103 2013-04-12 18:17:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -683,6 +683,18 @@ Lemma yyy₄ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
           → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
             → β < valuation α ips + Qnat i * γ.
 Proof.
+intros α fld deg cl cn i ips j jps k kps pts lch γ β.
+intros Hpts Hβj Hβk Hipts Hipis Hch.
+unfold points_of_ps_polynom_gen in Hpts.
+revert Hpts Hβj Hβk Hipts Hipis Hch.
+revert fld deg cn i ips j jps k kps pts lch γ β.
+induction cl as [| c]; intros.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
+
+ simpl in Hpts.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  eapply IHcl with (j := j); eassumption.
 bbb.
 
 Lemma yyy₃ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
