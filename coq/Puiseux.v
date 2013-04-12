@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.92 2013-04-12 12:58:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.93 2013-04-12 13:08:15 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -420,11 +420,35 @@ destruct b.
  apply IHpts; assumption.
 Qed.
 
+Lemma uuu : ∀ α fld deg cl cn pts rl n j jps k kps lch,
+  pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
+  → next_points α rl n j jps pts = [(k, kps) … lch]
+    → (j < k)%nat.
+Proof.
+bbb.
+
 Lemma vvv : ∀ α fld deg cl cn pts j jps k kps lch,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
     → (j < k)%nat.
 Proof.
+intros α fld deg cl cn pts j jps k kps lch Hpts Hch.
+revert fld deg cn pts j jps k kps lch Hpts Hch.
+induction cl as [| ps]; intros.
+ simpl in Hpts.
+ subst pts.
+ destruct (eq_k_dec fld cn (zero fld)); discriminate Hch.
+
+ simpl in Hpts.
+ destruct (eq_k_dec fld ps (zero fld)) as [Heq| Hne].
+  eapply IHcl; eassumption.
+
+  remember
+   (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
+  subst pts.
+  simpl in Hch.
+  injection Hch; clear Hch; intros; subst deg ps.
+  eapply uuu; eassumption.
 bbb.
 
 Lemma www : ∀ α fld deg cl cn pts j jps k kps lch,
