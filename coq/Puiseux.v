@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.96 2013-04-12 14:33:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.97 2013-04-12 14:43:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -588,6 +588,44 @@ destruct Hpts as [Hpts| Hpts].
     symmetry in Heqb.
     apply Qeq_bool_neq in Heqb.
     apply Heqb; reflexivity.
+
+   simpl in Hpis.
+   rewrite <- Hβ in Hpis.
+   remember (Qeq_bool β β) as b.
+   destruct b.
+    clear Heqb.
+    remember (Qeq_bool (valuation α mps + Qnat m * γ) β) as b.
+    destruct b.
+     eapply IHpts; try eassumption.
+     simpl.
+     rewrite <- Hβ.
+     remember (Qeq_bool β β) as b.
+     destruct b.
+      intros H.
+      apply Hpis.
+      destruct H as [H| H].
+       rewrite <- H.
+       left; reflexivity.
+
+       right; right; assumption.
+
+      symmetry in Heqb0.
+      apply Qeq_bool_neq in Heqb0.
+      exfalso; apply Heqb0; reflexivity.
+
+     eapply IHpts; try eassumption.
+     intros H; apply Hpis.
+     simpl in H.
+     rewrite <- Hβ in H.
+     remember (Qeq_bool β β) as b.
+     destruct b.
+      assumption.
+
+      right; assumption.
+
+    symmetry in Heqb.
+    apply Qeq_bool_neq in Heqb.
+    exfalso; apply Heqb; reflexivity.
 xxx₁.
 
 Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
