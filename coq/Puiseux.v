@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.89 2013-04-12 03:17:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.90 2013-04-12 03:30:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -480,6 +480,7 @@ destruct ch_pts.
      apply Zminus_eq in Hkj.
      apply Nat2Z.inj in Hkj.
      subst k.
+     apply Hout; clear Hout.
 zzz.
 
 Record branch α :=
