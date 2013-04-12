@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.99 2013-04-12 15:54:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.100 2013-04-12 16:52:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -8,6 +8,7 @@ Require Import ConvexHull.
 Require Import Sorting.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
+Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Record field α :=
@@ -529,6 +530,7 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
+(*
 Lemma xxx₁ : ∀ α γ β i ips j jps k kps l lps pts lch rl n,
   β = valuation α jps + Qnat j * γ
   → (i, ips) ∈ pts
@@ -536,7 +538,6 @@ Lemma xxx₁ : ∀ α γ β i ips j jps k kps l lps pts lch rl n,
       → next_points α rl n l lps pts = [(k, kps) … lch]
         → β < valuation α ips + Qnat i * γ.
 Proof.
-(* à nettoyer *)
 intros α γ β i ips j jps k kps l lps pts lch rl n Hβ Hpts Hpis Hnp.
 revert γ β i ips j jps k kps l lps lch rl n Hβ Hpts Hpis Hnp.
 induction pts as [| (m, mps)]; intros; [ contradiction | idtac ].
@@ -631,7 +632,64 @@ destruct Hpts as [Hpts| Hpts].
  apply Qnot_le_lt.
  intros H; apply Heqb; clear Heqb.
  apply Qle_antisym; [ assumption | idtac ].
+ simpl in Hnp.
+ destruct n.
+  remember
+   (minimise_slope α l lps i ips
+      ((valuation α ips - valuation α lps) / Qnat (i - l)) 0 1 pts) as sl.
+  destruct sl as ((m, mps), sk).
+  simpl in Hnp.
 xxx₁.
+*)
+
+(*
+Lemma yyy₂ : ∀ α fld deg cl cn i ips j jps k kps ini_pts pts lch γ β,
+  ini_pts = all_points_of_ps_polynom α deg cl cn
+  → pts = filter_non_zero_ps α fld ini_pts
+    → β = valuation α jps + Qnat j * γ
+      → (i, ips) ∈ ini_pts
+        → (i, ips) ∉ points_in_segment α γ β pts
+          → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+            → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α fld deg cl cn i ips j jps k kps ini_pts pts lch γ β.
+intros Hini Hpts Hβ Hipts Hipis Hch.
+revert Hini Hpts Hβ Hipts Hipis Hch.
+revert fld deg cn i ips j jps k kps ini_pts pts lch γ β.
+induction cl as [| c]; intros.
+ simpl in Hini.
+ subst ini_pts.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
+
+ simpl in Hini.
+ remember (all_points_of_ps_polynom α (S deg) cl cn) as ini_pts₂.
+ subst ini_pts.
+ rename ini_pts₂ into ini_pts.
+ rename Heqini_pts₂ into Heqini_pts.
+ simpl in Hpts.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  destruct Hipts as [Hipts| Hipts].
+   injection Hipts; clear Hipts; intros; subst deg c.
+bbb.
+*)
+
+Lemma yyy₃ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → β = valuation α jps + Qnat j * γ
+    → (i, ips) ∈ pts
+      → (i, ips) ∉ points_in_segment α γ β pts
+        → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+          → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α fld deg cl cn i ips j jps k kps pts lch γ β.
+intros Hpts Hβ Hipts Hipis Hch.
+revert Hpts Hβ Hipts Hipis Hch.
+revert fld deg cn i ips j jps k kps pts lch γ β.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
+bbb.
 
 Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
   pts = points_of_ps_polynom α fld pol
@@ -642,6 +700,7 @@ Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
           → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α fld pol i ips j jps k kps pts lch γ β Hpts Hβ Hipts Hipis Hch.
+bbb.
 clear fld pol Hpts.
 destruct pts as [| (l, lps)]; [ contradiction | idtac ].
 simpl in Hch.
