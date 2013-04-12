@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.94 2013-04-12 13:44:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.95 2013-04-12 14:11:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -529,13 +529,42 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
-Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
-  pts = points_of_ps_polynom α fld pol
+Lemma xxx : ∀ α γ β i ips j jps k kps pts lch,
+  β = valuation α jps + Qnat j * γ
   → (i, ips) ∈ pts
-    → ¬ (i, ips) ∈ points_in_segment α γ β pts
-      → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+    → ¬ (i, ips) ∈ points_in_segment α γ β [(j, jps) … pts]
+      → next_points α [ ] 0 j jps pts = [(k, kps) … lch]
         → valuation α ips + Qnat i * γ < β.
 Proof.
+xxx.
+
+Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
+  pts = points_of_ps_polynom α fld pol
+  → β = valuation α jps + Qnat j * γ
+    → (i, ips) ∈ pts
+      → ¬ (i, ips) ∈ points_in_segment α γ β pts
+        → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+          → valuation α ips + Qnat i * γ < β.
+Proof.
+intros α fld pol i ips j jps k kps pts lch γ β Hpts Hβ Hipts Hipis Hch.
+clear fld pol Hpts.
+destruct pts as [| (l, lps)]; [ contradiction | idtac ].
+simpl in Hch.
+injection Hch; clear Hch; intros; subst l lps.
+destruct Hipts as [Hipts| Hipts].
+ injection Hipts; clear Hipts; intros; subst i ips.
+ exfalso; apply Hipis.
+ simpl.
+ rewrite <- Hβ.
+ remember (Qeq_bool β β) as b.
+ destruct b.
+  left; reflexivity.
+
+  symmetry in Heqb.
+  apply Qeq_bool_neq in Heqb.
+  exfalso; apply Heqb; reflexivity.
+
+ eapply xxx; eassumption.
 yyy₁.
 
 Lemma zzz : ∀ α fld pol pts,
@@ -547,7 +576,6 @@ Lemma zzz : ∀ α fld pol pts,
            (i, ips) ∈ pts ∧ not ((i, ips) ∈ points_in_segment α γ β pts)
            → valuation α ips + Qnat i * γ < β).
 Proof.
-zzz < Show Script.
 intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
