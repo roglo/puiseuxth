@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.85 2013-04-12 01:34:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.86 2013-04-12 01:37:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -445,7 +445,7 @@ intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as ((((γ, β), (j, jps)), (k, kps)), pt_seg).
+destruct p as ((((γ, β), (j, jps)), (k, kps)), seg_pts).
 exists γ, β.
 intros i ips Hiit.
 destruct Hiit as (Hin, Hout).
