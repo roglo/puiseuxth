@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.106 2013-04-12 19:08:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.107 2013-04-12 19:37:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -539,6 +539,83 @@ Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl n,
           → next_points α rl n l lps pts = [(k, kps) … lch]
             → β < valuation α ips + Qnat i * γ.
 Proof.
+intros α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl n.
+intros Hβj Hβk Hpts Hips Hipsn Hnp.
+revert Hpts Hips Hipsn Hnp.
+revert fld deg cn l lps i ips pts lch rl n.
+induction cl as [| c]; intros.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts; contradiction.
+
+  subst pts.
+  destruct Hips as [Hips| ]; [ idtac | contradiction ].
+  injection Hips; clear Hips; intros; subst deg cn.
+  simpl in Hipsn.
+  remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
+  destruct b.
+   simpl in Hipsn.
+   apply Decidable.not_or in Hipsn.
+   destruct Hipsn as (H); exfalso; apply H; reflexivity.
+
+   symmetry in Heqb.
+   apply Qeq_bool_neq in Heqb.
+   apply Qnot_le_lt.
+   intros H; apply Heqb; clear Heqb.
+   apply Qle_antisym; [ assumption | idtac ].
+   Focus 2.
+   simpl in Hpts.
+   destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+    eapply IHcl; eassumption.
+
+    remember
+     (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
+    subst pts.
+    rename pts₁ into pts.
+    rename Heqpts₁ into Heqpts.
+    destruct Hips as [Hips| Hips].
+     injection Hips; clear Hips; intros; subst deg c.
+     simpl in Hipsn.
+     remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
+     destruct b.
+      simpl in Hipsn.
+      apply Decidable.not_or in Hipsn.
+      destruct Hipsn as (H).
+      exfalso; apply H; reflexivity.
+
+      symmetry in Heqb.
+      apply Qeq_bool_neq in Heqb.
+      apply Qnot_le_lt.
+      intros H; apply Heqb; clear Heqb.
+      apply Qle_antisym; [ assumption | idtac ].
+      Focus 2.
+      simpl in Hipsn.
+      remember (Qeq_bool (valuation α c + Qnat deg * γ) β) as b.
+      destruct b.
+       simpl in Hipsn.
+       apply Decidable.not_or in Hipsn.
+       destruct Hipsn as (H, Hipsn).
+       simpl in Hnp.
+       destruct n.
+        remember
+         (minimise_slope α l lps deg c
+            ((valuation α c - valuation α lps) / Qnat (deg - l)) 0 1 pts) as sl.
+        destruct sl as ((m, mps), sk).
+        simpl in Hnp.
+        eapply IHcl; eassumption.
+
+        eapply IHcl; eassumption.
+
+       simpl in Hnp.
+       destruct n.
+        remember
+         (minimise_slope α l lps deg c
+            ((valuation α c - valuation α lps) / Qnat (deg - l)) 0 1 pts) as sl.
+        destruct sl as ((m, mps), sk).
+        simpl in Hnp.
+        eapply IHcl; eassumption.
+
+        eapply IHcl; eassumption.
 bbb.
 
 (*
