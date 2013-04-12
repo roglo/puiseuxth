@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.105 2013-04-12 18:52:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.106 2013-04-12 19:08:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -530,6 +530,17 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
+Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl n,
+  β = valuation α jps + Qnat j * γ
+  → β = valuation α kps + Qnat k * γ
+    → pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
+      → (i, ips) ∈ pts
+        → (i, ips) ∉ points_in_segment α γ β pts
+          → next_points α rl n l lps pts = [(k, kps) … lch]
+            → β < valuation α ips + Qnat i * γ.
+Proof.
+bbb.
+
 (*
 Lemma xxx₁ : ∀ α γ β i ips j jps k kps l lps pts lch rl n,
   β = valuation α jps + Qnat j * γ
@@ -723,57 +734,12 @@ induction cl as [| c]; intros.
     simpl in Hipis.
     apply Decidable.not_or in Hipis.
     destruct Hipis as (Hjps, Hipis).
-    destruct cl as [| c].
-     simpl in Heqpts.
-     destruct (eq_k_dec fld cn (zero fld)); subst pts.
-      discriminate H.
+    destruct Hipis as (Hjps, Hipis).
+    eapply xxx₂; eassumption.
 
-      simpl in H.
-      injection H; clear H; intros; subst k cn.
-      destruct Hips as [Hips| ]; [ idtac | contradiction ].
-      injection Hips; clear Hips; intros; subst i ips.
-      simpl in Hipis.
-      remember (Qeq_bool (valuation α kps + Qnat (S j) * γ) β) as b.
-      destruct b.
-       exfalso; apply Hipis; left; reflexivity.
-
-       subst lch.
-       clear Heqb Hjps Hipis.
-       rewrite <- Hβk in Heqb0.
-       symmetry in Heqb0.
-       apply Qeq_bool_neq in Heqb0.
-       exfalso; apply Heqb0; reflexivity.
+    symmetry in Heqb.
+    apply Qeq_bool_neq in Heqb; exfalso; apply Heqb; reflexivity.
 bbb.
-
-Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
-  pts = points_of_ps_polynom α fld pol
-  → β = valuation α jps + Qnat j * γ
-    → (i, ips) ∈ pts
-      → ¬ (i, ips) ∈ points_in_segment α γ β pts
-        → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
-          → β < valuation α ips + Qnat i * γ.
-Proof.
-intros α fld pol i ips j jps k kps pts lch γ β Hpts Hβ Hipts Hipis Hch.
-bbb.
-clear fld pol Hpts.
-destruct pts as [| (l, lps)]; [ contradiction | idtac ].
-simpl in Hch.
-injection Hch; clear Hch; intros; subst l lps.
-destruct Hipts as [Hipts| Hipts].
- injection Hipts; clear Hipts; intros; subst i ips.
- exfalso; apply Hipis.
- simpl.
- rewrite <- Hβ.
- remember (Qeq_bool β β) as b.
- destruct b.
-  left; reflexivity.
-
-  symmetry in Heqb.
-  apply Qeq_bool_neq in Heqb.
-  exfalso; apply Heqb; reflexivity.
-
- eapply xxx₁; eassumption.
-yyy₁.
 
 Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
