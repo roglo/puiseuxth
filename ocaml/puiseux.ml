@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.170 2013-04-11 09:07:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.171 2013-04-12 20:46:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -28,37 +28,34 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   end
 ;
 
-Fixpoint minimise_slope d₁ p₁ d_min p_min sl_min sk_min skip₁ mid_pts dpl :=
+value qnat i = Q.of_i (I.of_int i);
+
+Fixpoint minimise_slope d₁ p₁ d_min p_min sl_min sk_min skip₁ dpl :=
   match dpl with
   | [(d₂, p₂) :: dpl₂] =>
       let v₁ := valuation p₁ in
       let v₂ := valuation p₂ in
-      let sl₁₂ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₂ - d₁))) in
-      if Q.eq sl₁₂ sl_min then
-        let mid_pts := [(d_min, p_min) :: mid_pts] in
-        minimise_slope d₁ p₁ d₂ p₂ sl₁₂ skip₁ (succ skip₁) mid_pts dpl₂
-      else if Q.le sl₁₂ sl_min then
-        minimise_slope d₁ p₁ d₂ p₂ sl₁₂ skip₁ (succ skip₁) [] dpl₂
+      let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
+      if Q.le sl₁₂ sl_min then
+        minimise_slope d₁ p₁ d₂ p₂ sl₁₂ skip₁ (succ skip₁) dpl₂
       else
-        minimise_slope d₁ p₁ d_min p_min sl_min sk_min (succ skip₁) mid_pts
-          dpl₂
+        minimise_slope d₁ p₁ d_min p_min sl_min sk_min (succ skip₁) dpl₂
   | [] =>
-      ((mid_pts, (d_min, p_min)), sk_min)
+      ((d_min, p_min), sk_min)
   end;
 
 Fixpoint next_points rev_list nb_pts_to_skip d₁ p₁ dpl₁ :=
   match dpl₁ with
   | [(d₂, p₂) :: dpl₂] =>
       match nb_pts_to_skip with
-      | 0 =>
+      | 0%nat =>
           let (dp₃, skip) :=
             let v₁ := valuation p₁ in
             let v₂ := valuation p₂ in
             let sl₁₂ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₂ - d₁))) in
-            minimise_slope d₁ p₁ d₂ p₂ sl₁₂ 0%nat 1%nat [] dpl₂
+            minimise_slope d₁ p₁ d₂ p₂ sl₁₂ 0%nat 1%nat dpl₂
           in
-          next_points [dp₃ :: rev_list] skip (fst (snd dp₃)) (snd (snd dp₃))
-            dpl₂
+          next_points [dp₃ :: rev_list] skip (fst dp₃) (snd dp₃) dpl₂
       | n =>
           next_points rev_list (n - 1) d₁ p₁ dpl₂
       end
@@ -66,14 +63,22 @@ Fixpoint next_points rev_list nb_pts_to_skip d₁ p₁ dpl₁ :=
       List.rev rev_list
   end;
 
-Definition lower_convex_hull dpl :=
+Definition lower_convex_hull_points dpl :=
   match dpl with
-  | [(d₁, p₁) :: dpl₁] => [([], (d₁, p₁)) :: next_points [] 0%nat d₁ p₁ dpl₁]
+  | [(d₁, p₁) :: dpl₁] => [(d₁, p₁) :: next_points [] 0%nat d₁ p₁ dpl₁]
   | [] => []
   end;
 
+Definition points_in_segment γ β dpl :=
+  List.filter
+    (λ dp,
+       let i := fst dp in
+       let αi := valuation (snd dp) in
+       Q.eq (Q.add αi (Q.mul (qnat i) γ)) β)
+    dpl;
+
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
-  let dpl :=
+  let gdpl :=
     let (rev_dpl, _) :=
       List.fold_left
         (fun (rev_dpl, deg) ps →
@@ -88,18 +93,18 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   in
   let fix loop rev_gbl dpl :=
     match dpl with
-    | [(_, (d₁, p₁)) :: ([(mp, (d₂, p₂)) :: _] as dpl₁)] =>
+    | [(d₁, p₁) :: ([(d₂, p₂) :: _] as dpl₁)] =>
         let v₁ := valuation p₁ in
         let v₂ := valuation p₂ in
         let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
         let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-        let dpl := [(d₁, p₁) :: List.rev [(d₂, p₂) ::  mp]] in
+        let dpl := points_in_segment γ β gdpl in
         loop [(γ, β, dpl) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
     end
   in
-  let ch := lower_convex_hull dpl in
+  let ch := lower_convex_hull_points gdpl in
   loop [] ch
 ;
 

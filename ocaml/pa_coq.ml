@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.4 2013-04-09 09:13:27 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.5 2013-04-12 20:46:33 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -43,7 +43,11 @@ EXTEND
           <:expr< fun $p$ -> $e$ >> ] ]
   ;
   coq_match_case:
-    [ [ "|"; p = patt; "=>"; e = coq_expr -> (p, <:vala< None >>, e) ] ]
+    [ [ "|"; p = patt; pnat; "=>"; e = coq_expr -> (p, <:vala< None >>, e) ] ]
+  ;
+  pnat:
+    [ [ "%"; LIDENT "nat" → ()
+      | → () ] ]
   ;
   coq_label_expr:
     [ [ i = patt_label_ident; e = coq_fun_binding -> (i, e) ] ]
