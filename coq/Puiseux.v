@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.93 2013-04-12 13:08:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.94 2013-04-12 13:44:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -420,11 +420,21 @@ destruct b.
  apply IHpts; assumption.
 Qed.
 
+(*
 Lemma uuu : ∀ α fld deg cl cn pts rl n j jps k kps lch,
-  pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
-  → next_points α rl n j jps pts = [(k, kps) … lch]
-    → (j < k)%nat.
+  cn ≠ zero fld
+  → jps ≠ zero fld
+    → pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
+      → next_points α rl n j jps pts = [(k, kps) … lch]
+        → (j < k)%nat.
 Proof.
+intros α fld deg cl cn pts rl n j jps k kps lch Hcn Hjps Hpts Hnp.
+revert fld deg cn pts rl n j jps k kps lch Hcn Hjps Hpts Hnp.
+induction cl as [| ps]; intros.
+ subst pts; simpl in Hnp.
+ destruct (eq_k_dec fld cn (zero fld)) as [| Hne]; [ contradiction | idtac ].
+ simpl in Hnp.
+ destruct n.
 bbb.
 
 Lemma vvv : ∀ α fld deg cl cn pts j jps k kps lch,
@@ -501,8 +511,9 @@ induction pts as [| (p, pps)]; intros.
  eapply points_of_ps_polynom_lt; eassumption.
 bbb.
 
-Lemma yyy : ∀ α (fld : field (puiseux_series α)) pol γ β j jps k kps seg_pts,
-  gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg_pts)
+Lemma yyy : ∀ α fld pol j jps k kps lch,
+  lower_convex_hull_points α (points_of_ps_polynom α fld pol) =
+    [(j, jps), (k, kps) … lch]
   → j ≠ k.
 Proof.
 intros; rename H into Hgb.
@@ -516,6 +527,16 @@ injection Hgb; clear Hgb; intros H₁ H₂ H₃ H₄ H₆ Hβ Hγ.
 subst l lps m mps seg_pts.
 symmetry in Hγ, Hβ.
 yyy.
+*)
+
+Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
+  pts = points_of_ps_polynom α fld pol
+  → (i, ips) ∈ pts
+    → ¬ (i, ips) ∈ points_in_segment α γ β pts
+      → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+        → valuation α ips + Qnat i * γ < β.
+Proof.
+yyy₁.
 
 Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
@@ -526,64 +547,37 @@ Lemma zzz : ∀ α fld pol pts,
            (i, ips) ∈ pts ∧ not ((i, ips) ∈ points_in_segment α γ β pts)
            → valuation α ips + Qnat i * γ < β).
 Proof.
+zzz < Show Script.
 intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
 destruct p as ((((γ, β), (j, jps)), (k, kps)), seg_pts).
-remember Heqgb as Hjk; clear HeqHjk.
-symmetry in Hjk.
-apply yyy in Hjk.
-bbb.
 exists γ, β.
 intros i ips Hiit.
 destruct Hiit as (Hin, Hout).
 symmetry in Heqgb.
 unfold gamma_beta in Heqgb.
-rewrite <- Hpts in Heqgb.
-remember (lower_convex_hull_points α pts) as ch_pts.
-symmetry in Heqch_pts.
-destruct ch_pts.
- discriminate Heqgb.
+remember (lower_convex_hull_points α (points_of_ps_polynom α fld pol)) as lch.
+destruct lch as [| (l, lt)]; [ discriminate Heqgb | idtac ].
+destruct lch as [| (m, mt)]; [ discriminate Heqgb | idtac ].
+injection Heqgb; clear Heqgb; intros; subst l lt m mt.
+rewrite H5 in H.
+rewrite H5 in H4.
+rewrite H4 in H.
+symmetry in H4; rename H4 into Hβ.
+symmetry in H5; rename H5 into Hγ.
+rewrite <- Hpts in H.
+rewrite H in Hout.
+rewrite <- Hpts in Heqlch.
+eapply yyy₁.
+ eassumption.
 
- destruct p as (l, lps).
- destruct ch_pts.
-  discriminate Heqgb.
+ eassumption.
 
-  destruct p as (m, mps).
-  injection Heqgb; clear Heqgb; intros H H₁ H₂ H₃ H₄ Hβ Hγ; subst l lps m mps.
-  symmetry in H, Hβ, Hγ.
-  rewrite <- Hγ in Hβ.
-  rewrite <- Hγ in H.
-  rewrite <- Hβ in H.
-  rewrite <- H in Hout.
-  unfold lower_convex_hull_points in Heqch_pts.
-  destruct pts as [| pt]; [ contradiction | idtac ].
-  destruct pt as (l, lt).
-  injection Heqch_pts; clear Heqch_pts; intros Hnp; intros; subst l lt.
-  destruct Hin as [Hin| Hin].
-   injection Hin; clear Hin; intros; subst i ips.
-   simpl in H.
-   remember (Qeq_bool (valuation α jps + Qnat j * γ) β) as b.
-   symmetry in Heqb.
-   destruct b.
-    subst seg_pts.
-    exfalso; apply Hout.
-    left; reflexivity.
+ subst seg_pts; assumption.
 
-    apply Qeq_bool_neq in Heqb.
-    exfalso; apply Heqb; clear Heqb.
-    rewrite Hβ, Hγ.
-    field.
-    unfold Qnat.
-    unfold Qeq; simpl.
-    rewrite Z.mul_1_r.
-    rewrite Nat2Z.inj_sub.
-     intros Hkj.
-     apply Zminus_eq in Hkj.
-     apply Nat2Z.inj in Hkj.
-     subst k.
-     apply Hout; clear Hout.
+ symmetry in Heqlch; eassumption.
 zzz.
 
 Record branch α :=
