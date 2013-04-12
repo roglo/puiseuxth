@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.87 2013-04-12 01:43:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.88 2013-04-12 02:02:57 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -455,6 +455,19 @@ destruct ch_pts.
   rewrite <- Hγ in H.
   rewrite <- Hβ in H.
   rewrite <- H in Hout.
+  unfold lower_convex_hull_points in Heqch_pts.
+  destruct pts as [| pt]; [ contradiction | idtac ].
+  destruct pt as (l, lt).
+  injection Heqch_pts; clear Heqch_pts; intros Hnp; intros; subst l lt.
+  destruct Hin as [Hin| Hin].
+   injection Hin; clear Hin; intros; subst i ips.
+   simpl in H.
+   remember (Qeq_bool (valuation α jps + Qnat j * γ) β) as b.
+   symmetry in Heqb.
+   destruct b.
+    subst seg_pts.
+    exfalso; apply Hout.
+    left; reflexivity.
 zzz.
 
 Record branch α :=
