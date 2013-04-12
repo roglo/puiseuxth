@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.171 2013-04-12 20:46:33 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.172 2013-04-12 20:49:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -52,7 +52,7 @@ Fixpoint next_points rev_list nb_pts_to_skip d₁ p₁ dpl₁ :=
           let (dp₃, skip) :=
             let v₁ := valuation p₁ in
             let v₂ := valuation p₂ in
-            let sl₁₂ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₂ - d₁))) in
+            let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
             minimise_slope d₁ p₁ d₂ p₂ sl₁₂ 0%nat 1%nat dpl₂
           in
           next_points [dp₃ :: rev_list] skip (fst dp₃) (snd dp₃) dpl₂
