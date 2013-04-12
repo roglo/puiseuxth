@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.103 2013-04-12 18:17:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.104 2013-04-12 18:51:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -686,15 +686,63 @@ Proof.
 intros α fld deg cl cn i ips j jps k kps pts lch γ β.
 intros Hpts Hβj Hβk Hipts Hipis Hch.
 unfold points_of_ps_polynom_gen in Hpts.
-revert Hpts Hβj Hβk Hipts Hipis Hch.
-revert fld deg cn i ips j jps k kps pts lch γ β.
+revert Hpts Hipts Hipis Hch.
+revert fld deg cn i ips pts lch.
 induction cl as [| c]; intros.
  simpl in Hpts.
  destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
 
  simpl in Hpts.
  destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
-  eapply IHcl with (j := j); eassumption.
+  eapply IHcl; eassumption.
+
+  remember
+   (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
+  subst pts.
+  rename pts₁ into pts.
+  rename Heqpts₁ into Heqpts.
+  destruct Hipts as [Hips| Hips].
+   injection Hips; clear Hips; intros; subst deg c.
+   simpl in Hch.
+   injection Hch; clear Hch; intros; subst i ips.
+   simpl in Hipis.
+   rewrite <- Hβj in Hipis.
+   remember (Qeq_bool β β) as b.
+   destruct b.
+    exfalso; apply Hipis; left; reflexivity.
+
+    symmetry in Heqb.
+    apply Qeq_bool_neq in Heqb; exfalso; apply Heqb; reflexivity.
+
+   simpl in Hch.
+   injection Hch; clear Hch; intros; subst deg c.
+   simpl in Hipis.
+   rewrite <- Hβj in Hipis.
+   remember (Qeq_bool β β) as b.
+   destruct b.
+    simpl in Hipis.
+    apply Decidable.not_or in Hipis.
+    destruct Hipis as (Hjps, Hipis).
+    destruct cl as [| c].
+     simpl in Heqpts.
+     destruct (eq_k_dec fld cn (zero fld)); subst pts.
+      discriminate H.
+
+      simpl in H.
+      injection H; clear H; intros; subst k cn.
+      destruct Hips as [Hips| ]; [ idtac | contradiction ].
+      injection Hips; clear Hips; intros; subst i ips.
+      simpl in Hipis.
+      remember (Qeq_bool (valuation α kps + Qnat (S j) * γ) β) as b.
+      destruct b.
+       exfalso; apply Hipis; left; reflexivity.
+
+       subst lch.
+       clear Heqb Hjps Hipis.
+       rewrite <- Hβk in Heqb0.
+       symmetry in Heqb0.
+       apply Qeq_bool_neq in Heqb0.
+       exfalso; apply Heqb0; reflexivity.
 bbb.
 
 Lemma yyy₃ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
