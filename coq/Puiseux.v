@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.104 2013-04-12 18:51:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.105 2013-04-12 18:52:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -743,71 +743,6 @@ induction cl as [| c]; intros.
        symmetry in Heqb0.
        apply Qeq_bool_neq in Heqb0.
        exfalso; apply Heqb0; reflexivity.
-bbb.
-
-Lemma yyy₃ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
-  pts = points_of_ps_polynom_gen α fld deg cl cn
-  → β = valuation α jps + Qnat j * γ
-    → (i, ips) ∈ pts
-      → (i, ips) ∉ points_in_segment α γ β pts
-        → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
-          → β < valuation α ips + Qnat i * γ.
-Proof.
-intros α fld deg cl cn i ips j jps k kps pts lch γ β.
-intros Hpts Hβ Hipts Hipis Hch.
-unfold points_of_ps_polynom_gen in Hpts.
-revert Hpts Hβ Hipts Hipis Hch.
-revert fld deg cn i ips j jps k kps pts lch γ β.
-induction cl as [| c]; intros.
- simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
-
- simpl in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
-  eapply IHcl; eassumption.
-
-  remember
-   (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
-  subst pts.
-  destruct Hipts as [Hips| Hips].
-   injection Hips; clear Hips; intros; subst deg c.
-   simpl in Hch.
-   injection Hch; clear Hch; intros; subst i ips.
-   simpl in Hipis.
-   rewrite <- Hβ in Hipis.
-   remember (Qeq_bool β β) as b.
-   destruct b.
-    exfalso; apply Hipis; left; reflexivity.
-
-    symmetry in Heqb.
-    apply Qeq_bool_neq in Heqb; exfalso; apply Heqb; reflexivity.
-
-   simpl in Hch.
-   injection Hch; clear Hch; intros; subst deg c.
-   simpl in Hipis.
-   rewrite <- Hβ in Hipis.
-   remember (Qeq_bool β β) as b.
-   destruct b.
-    simpl in Hipis.
-    apply Decidable.not_or in Hipis.
-    destruct Hipis as (Hjps, Hipis).
-    destruct cl as [| c].
-     simpl in Heqpts₁.
-     destruct (eq_k_dec fld cn (zero fld)); subst pts₁.
-      discriminate H.
-
-      simpl in H.
-      injection H; clear H; intros; subst k cn.
-      destruct Hips as [Hips| ]; [ idtac | contradiction ].
-      injection Hips; clear Hips; intros; subst i ips.
-      simpl in Hipis.
-      remember (Qeq_bool (valuation α kps + Qnat (S j) * γ) β) as b.
-      destruct b.
-       apply Decidable.not_or in Hipis.
-       destruct Hipis as (Hipis); exfalso; apply Hipis; reflexivity.
-
-       subst lch.
-       clear Heqb Hjps Hipis.
 bbb.
 
 Lemma yyy₁ : ∀ α fld pol i ips j jps k kps pts lch γ β,
