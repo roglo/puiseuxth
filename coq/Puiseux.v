@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.107 2013-04-12 19:37:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.108 2013-04-12 21:07:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -156,11 +156,12 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma next_points_not_empty : ∀ α dp dpl sk d₁ p₁ dpl₁,
-  next_points α [dp … dpl] sk d₁ p₁ dpl₁ ≠ [ ].
+(*
+Lemma next_points_not_empty : ∀ α dp dpl d₁ p₁ dpl₁,
+  next_points α [dp … dpl] d₁ p₁ dpl₁ ≠ [ ].
 Proof.
 intros.
-revert dp dpl sk d₁ p₁.
+revert dp dpl d₁ p₁.
 induction dpl₁ as [| dp₂]; intros.
  simpl.
  apply rev_app_not_nil.
@@ -179,7 +180,7 @@ induction dpl₁ as [| dp₂]; intros.
 Qed.
 
 Lemma convex_hull_not_empty : ∀ α rl d₁ p₁ dp₂ dpl₁,
-  next_points α rl 0 d₁ p₁ [dp₂ … dpl₁] ≠ [].
+  next_points α rl d₁ p₁ [dp₂ … dpl₁] ≠ [].
 Proof.
 intros α rl d₁ p₁ dp₂ dpl₁.
 revert rl d₁ p₁ dp₂.
@@ -242,6 +243,7 @@ destruct chp as [| (d₁, p₁)].
 
   intros H; discriminate H.
 Qed.
+*)
 
 (*
 Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip,
@@ -390,6 +392,7 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
+(*
 Lemma points_in_newton_segment : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
@@ -420,6 +423,7 @@ destruct b.
 
  apply IHpts; assumption.
 Qed.
+*)
 
 (*
 Lemma uuu : ∀ α fld deg cl cn pts rl n j jps k kps lch,
@@ -530,19 +534,19 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
-Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl n,
+Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
   β = valuation α jps + Qnat j * γ
   → β = valuation α kps + Qnat k * γ
     → pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
       → (i, ips) ∈ pts
         → (i, ips) ∉ points_in_segment α γ β pts
-          → next_points α rl n l lps pts = [(k, kps) … lch]
+          → next_points α rl l lps pts = [(k, kps) … lch]
             → β < valuation α ips + Qnat i * γ.
 Proof.
-intros α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl n.
+intros α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl.
 intros Hβj Hβk Hpts Hips Hipsn Hnp.
 revert Hpts Hips Hipsn Hnp.
-revert fld deg cn l lps i ips pts lch rl n.
+revert fld deg cn l lps i ips pts lch rl.
 induction cl as [| c]; intros.
  simpl in Hpts.
  destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
@@ -596,23 +600,23 @@ induction cl as [| c]; intros.
        apply Decidable.not_or in Hipsn.
        destruct Hipsn as (H, Hipsn).
        simpl in Hnp.
-       destruct n.
+       destruct (lt_dec l deg) as [Hlt| Hge].
         remember
          (minimise_slope α l lps deg c
-            ((valuation α c - valuation α lps) / Qnat (deg - l)) 0 1 pts) as sl.
-        destruct sl as ((m, mps), sk).
+            ((valuation α c - valuation α lps) / Qnat (deg - l)) pts) as sl.
+        destruct sl as (m, mps).
         simpl in Hnp.
         eapply IHcl; eassumption.
 
         eapply IHcl; eassumption.
 
        simpl in Hnp.
-       destruct n.
-        remember
-         (minimise_slope α l lps deg c
-            ((valuation α c - valuation α lps) / Qnat (deg - l)) 0 1 pts) as sl.
-        destruct sl as ((m, mps), sk).
-        simpl in Hnp.
+       remember
+        (minimise_slope α l lps deg c
+           ((valuation α c - valuation α lps) / Qnat (deg - l)) pts) as sl.
+       destruct sl as (m, mps).
+       simpl in Hnp.
+       destruct (lt_dec l deg) as [Hlt| Hge].
         eapply IHcl; eassumption.
 
         eapply IHcl; eassumption.
