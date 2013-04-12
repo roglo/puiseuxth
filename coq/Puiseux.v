@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.84 2013-04-11 16:34:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.85 2013-04-12 01:34:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -56,14 +56,14 @@ Definition filter_non_zero_ps α k (dpl : list (nat * puiseux_series α)) :=
   List.filter (λ dp, if eq_k_dec k (snd dp) (zero k) then false else true)
     dpl.
 
-Definition power_puiseux_series_list_gen α k pow cl cn :=
+Definition points_of_ps_polynom_gen α k pow cl cn :=
   filter_non_zero_ps α k (power_ps_list_of_pol α pow cl cn).
 
-Definition power_puiseux_series_list α k pol :=
-  power_puiseux_series_list_gen α k 0%nat (al pol) (an pol).
+Definition points_of_ps_polynom α k pol :=
+  points_of_ps_polynom_gen α k 0%nat (al pol) (an pol).
 
 Definition gamma_beta {α} k pol :=
-  let gdpl := power_puiseux_series_list α k pol in
+  let gdpl := points_of_ps_polynom α k pol in
   match lower_convex_hull_points α gdpl with
   | [(j, p₁), (k, p₂) … _] =>
       let αj := valuation α p₁ in
@@ -83,10 +83,10 @@ intros; destruct cl; intros H; discriminate H.
 Qed.
 
 Lemma one_vp_gen : ∀ α k pow cl cn,
-  cn ≠ zero k → power_puiseux_series_list_gen α k pow cl cn ≠ [].
+  cn ≠ zero k → points_of_ps_polynom_gen α k pow cl cn ≠ [].
 Proof.
 intros α k pow cl cn Hcn.
-unfold power_puiseux_series_list_gen.
+unfold points_of_ps_polynom_gen.
 remember (power_ps_list_of_pol α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
 induction cl as [| c cl]; intros.
@@ -103,27 +103,27 @@ induction cl as [| c cl]; intros.
 Qed.
 
 Lemma at_least_one_valuation_point : ∀ α k pol,
-  an pol ≠ zero k → power_puiseux_series_list α k pol ≠ [].
+  an pol ≠ zero k → points_of_ps_polynom α k pol ≠ [].
 Proof.
 intros; apply one_vp_gen; assumption.
 Qed.
 
-Lemma fold_power_puiseux_series_list_gen : ∀ α k pow cl cn,
+Lemma fold_points_of_ps_polynom_gen : ∀ α k pow cl cn,
   filter_non_zero_ps α k (power_ps_list_of_pol α pow cl cn) =
-  power_puiseux_series_list_gen α k pow cl cn.
+  points_of_ps_polynom_gen α k pow cl cn.
 Proof. reflexivity. Qed.
 
 Lemma two_vp_gen : ∀ α k pow cl cn,
   cn ≠ zero k
   → (∃ c, c ∈ cl ∧ c ≠ zero k)
-    → List.length (power_puiseux_series_list_gen α k pow cl cn) ≥ 2.
+    → List.length (points_of_ps_polynom_gen α k pow cl cn) ≥ 2.
 Proof.
 intros α k pow cl cn Hcn Hcl.
 revert pow.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
- unfold power_puiseux_series_list_gen; simpl.
+ unfold points_of_ps_polynom_gen; simpl.
  destruct (eq_k_dec k c (zero k)).
   destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
    subst c₁; contradiction.
@@ -134,10 +134,10 @@ induction cl as [| c]; intros.
 
   simpl.
   apply le_n_S.
-  rewrite fold_power_puiseux_series_list_gen.
-  remember (length (power_puiseux_series_list_gen α k (S pow) cl cn)) as len.
+  rewrite fold_points_of_ps_polynom_gen.
+  remember (length (points_of_ps_polynom_gen α k (S pow) cl cn)) as len.
   destruct len.
-   remember (power_puiseux_series_list_gen α k (S pow) cl cn) as l.
+   remember (points_of_ps_polynom_gen α k (S pow) cl cn) as l.
    destruct l; [ idtac | discriminate Heqlen ].
    exfalso; symmetry in Heql; revert Heql.
    apply one_vp_gen; assumption.
@@ -145,10 +145,10 @@ induction cl as [| c]; intros.
    apply le_n_S, le_0_n.
 Qed.
 
-Lemma at_least_two_power_puiseux_series_list : ∀ α k pol,
+Lemma at_least_two_points_of_ps_polynom : ∀ α k pol,
   an pol ≠ zero k
   → (∃ c, c ∈ (al pol) ∧ c ≠ zero k)
-    → List.length (power_puiseux_series_list α k pol) ≥ 2.
+    → List.length (points_of_ps_polynom α k pol) ≥ 2.
 Proof.
 intros; apply two_vp_gen; assumption.
 Qed.
@@ -215,7 +215,7 @@ Proof.
 intros α k pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
-remember (power_puiseux_series_list α k pol) as pts.
+remember (points_of_ps_polynom α k pol) as pts.
 remember (lower_convex_hull_points α pts) as chp.
 destruct chp as [| (d₁, p₁)].
  destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
@@ -228,13 +228,13 @@ destruct chp as [| (d₁, p₁)].
   injection Heqchp; intros H₁ H₂ H₃.
   subst d₃ p₃; clear Heqchp.
   destruct pts.
-   remember (length (power_puiseux_series_list α k pol)) as len.
+   remember (length (points_of_ps_polynom α k pol)) as len.
    destruct len.
     rewrite <- Heqpts in Heqlen.
     discriminate Heqlen.
 
     destruct len.
-     pose proof (at_least_two_power_puiseux_series_list α k pol) as H.
+     pose proof (at_least_two_points_of_ps_polynom α k pol) as H.
      rewrite <- Heqlen in H.
      unfold ge in H.
      assert (2 ≤ 1) as HH.
@@ -278,14 +278,14 @@ induction dpl as [| dp₂]; intros.
 Qed.
 
 Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
-  power_puiseux_series_list_gen α k (S pow) cl cn = dpl
+  points_of_ps_polynom_gen α k (S pow) cl cn = dpl
   → (d₁, p₁) ∈ dpl
     → lt pow d₁.
 Proof.
 intros α k pow cl cn d₁ p₁ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k cn (zero k)) as [Heq| Hne].
   subst dpl; contradiction.
 
@@ -294,15 +294,15 @@ induction cl as [| c]; intros.
   injection Hdp; clear Hdp; intros; subst d₁ p₁.
   apply lt_n_Sn.
 
- unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
-  rewrite fold_power_puiseux_series_list_gen in Hvp.
+  rewrite fold_points_of_ps_polynom_gen in Hvp.
   eapply IHcl in Hvp; [ idtac | eassumption ].
   eapply lt_trans; [ idtac | eassumption ].
   apply lt_n_Sn.
 
   simpl in Hvp.
-  rewrite fold_power_puiseux_series_list_gen in Hvp.
+  rewrite fold_points_of_ps_polynom_gen in Hvp.
   destruct dpl as [| (d₂, p₂)]; [ contradiction | idtac ].
   injection Hvp; clear Hvp; intros Hvp H₂ Hdpl; subst d₂ p₂.
   destruct Hdp as [Hdp| Hdp].
@@ -315,65 +315,65 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma vp_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ dpl,
-  power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁) … dpl]
+  points_of_ps_polynom_gen α k pow cl cn = [(d₁, p₁) … dpl]
   → (d₂, p₂) ∈ dpl
     → lt d₁ d₂.
 Proof.
 intros α k pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
  injection Hvp; intros; subst; contradiction.
 
- unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   simpl in Hvp.
   injection Hvp; clear Hvp; intros; subst d₁ p₁.
-  rewrite fold_power_puiseux_series_list_gen in H.
+  rewrite fold_points_of_ps_polynom_gen in H.
   eapply vp_pow_lt; eassumption.
 Qed.
 
-Lemma power_puiseux_series_list_lt : ∀ α k pol d₁ p₁ d₂ p₂ dpl,
-  power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
+Lemma points_of_ps_polynom_lt : ∀ α k pol d₁ p₁ d₂ p₂ dpl,
+  points_of_ps_polynom α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
   → lt d₁ d₂.
 Proof.
 intros; rename H into Hvp.
-unfold power_puiseux_series_list in Hvp.
+unfold points_of_ps_polynom in Hvp.
 eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
 
 Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl,
-  power_puiseux_series_list_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
+  points_of_ps_polynom_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
     → lt d₂ d₃.
 Proof.
 intros α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 revert k pow cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k cn (zero k)); discriminate Hvp.
 
- unfold power_puiseux_series_list_gen in Hvp; simpl in Hvp.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
-  rewrite fold_power_puiseux_series_list_gen in Hvp.
+  rewrite fold_points_of_ps_polynom_gen in Hvp.
   eapply IHcl; eassumption.
 
   simpl in Hvp.
-  rewrite fold_power_puiseux_series_list_gen in Hvp.
+  rewrite fold_points_of_ps_polynom_gen in Hvp.
   injection Hvp; clear Hvp; intros Hvp H₁ H₂; subst d₁ p₁.
   eapply vp_lt; eassumption.
 Qed.
 
-Lemma power_puiseux_series_list_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl,
-  power_puiseux_series_list α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
+Lemma points_of_ps_polynom_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl,
+  points_of_ps_polynom α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
     → lt d₂ d₃.
 Proof.
 intros α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
-unfold power_puiseux_series_list in Hvp.
+unfold points_of_ps_polynom in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
 
@@ -394,52 +394,80 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma eq_pts_dec {α} : ∀ (n m : nat * puiseux_series α), {n = m} + {n ≠ m}.
+(*
+Lemma eq_pts {α} : ∀ (n m : nat * puiseux_series α), {n = m} + {n ≠ m}.
 Proof.
 intros (i, it) (j, jt).
-Admitted.
+bbb.
+*)
 
-Lemma zzz : ∀ α fld pol pts,
+Lemma points_in_newton_segment : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
-    → pts = power_puiseux_series_list α fld pol
-      → ∃ γ β seg_pts,
-        seg_pts = points_in_segment α γ β pts ∧
-        (∀ i it, (i, it) ∈ seg_pts →
-           valuation α it + Qnat i * γ == β) ∧
-        (∀ i it, (i, it) ∈ list_minus eq_pts_dec pts seg_pts →
-           valuation α it + Qnat i * γ <= β).
+    → pts = points_of_ps_polynom α fld pol
+      → ∃ γ β, ∀ i ips,
+          (i, ips) ∈ points_in_segment α γ β pts
+          → valuation α ips + Qnat i * γ == β.
 Proof.
 intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as (p, ldpl).
-destruct p as (p, (k, kt)).
-destruct p as (p, (j, jt)).
-destruct p as (γ, β).
-remember (points_in_segment α γ β pts) as seg_pts.
-exists γ, β, seg_pts.
-split; [ assumption | idtac ].
-split.
- intros i it Hiit.
- revert Hiit; clear; intros.
-bbb.
- induction gdpl; [ contradiction | idtac ].
- simpl in Hiit.
- remember (Qeq_bool (valuation α (snd a) + Qnat (fst a) * γ) β) as b.
- symmetry in Heqb.
- destruct b.
-  destruct Hiit as [Hiit| Hiit].
-   subst a.
-   simpl in Heqb.
-   apply Qeq_bool_iff; assumption.
+destruct p as ((((γ, β), (j, jps)), (k, kps)), dpl).
+exists γ, β.
+intros i ips Hiit.
+clear Hpts.
+induction pts as [| pt]; intros; [ contradiction | idtac ].
+simpl in Hiit.
+remember (Qeq_bool (valuation α (snd pt) + Qnat (fst pt) * γ) β) as b.
+symmetry in Heqb.
+destruct b.
+ destruct Hiit as [Hiit| Hiit].
+  subst pt.
+  simpl in Heqb.
+  apply Qeq_bool_iff; assumption.
 
-   apply IHgdpl; assumption.
+  apply IHpts; assumption.
 
-  apply IHgdpl; assumption.
+ apply IHpts; assumption.
+Qed.
 
- intros i it Hiit.
+Lemma zzz : ∀ α fld pol pts,
+  an pol ≠ zero fld
+  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
+    → pts = points_of_ps_polynom α fld pol
+      → ∃ γ β,
+        (∀ i ips,
+           (i, ips) ∈ pts ∧ not ((i, ips) ∈ points_in_segment α γ β pts)
+           → valuation α ips + Qnat i * γ < β).
+Proof.
+intros α fld pol pts an_nz ai_nz Hpts.
+apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
+remember (gamma_beta fld pol) as gb.
+destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
+destruct p as ((((γ, β), (j, jps)), (k, kps)), pt_seg).
+exists γ, β.
+intros i ips Hiit.
+destruct Hiit as (Hin, Hout).
+symmetry in Heqgb.
+unfold gamma_beta in Heqgb.
+rewrite <- Hpts in Heqgb.
+remember (lower_convex_hull_points α pts) as ch_pts.
+symmetry in Heqch_pts.
+destruct ch_pts.
+ discriminate Heqgb.
+
+ destruct p as (l, lps).
+ destruct ch_pts.
+  discriminate Heqgb.
+
+  destruct p as (m, mps).
+  injection Heqgb; clear Heqgb; intros H H₁ H₂ H₃ H₄ Hβ Hγ; subst l lps m mps.
+  symmetry in H, Hβ, Hγ.
+  rewrite <- Hγ in Hβ.
+  rewrite <- Hγ in H.
+  rewrite <- Hβ in H.
+  rewrite <- H in Hout.
 zzz.
 
 Record branch α :=
