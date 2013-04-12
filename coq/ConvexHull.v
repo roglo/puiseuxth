@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.17 2013-04-12 21:07:11 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.18 2013-04-12 21:26:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,31 +19,32 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Definition Qnat i := Z.of_nat i # 1.
 
-Fixpoint minimise_slope α d₁ p₁ d_min p_min sl_min dpl :=
+Fixpoint minimise_slope α d₁ p₁ dp_min sl_min dpl :=
   match dpl with
   | [(d₂, p₂) … dpl₂] =>
       let v₁ := valuation α p₁ in
       let v₂ := valuation α p₂ in
       let sl₁₂ := (v₂ - v₁) / Qnat (d₂ - d₁) in
-      if Qle_bool sl₁₂ sl_min then
-        minimise_slope α d₁ p₁ d₂ p₂ sl₁₂ dpl₂
-      else
-        minimise_slope α d₁ p₁ d_min p_min sl_min dpl₂
+      let (dp_min, sl_min) :=
+        if Qle_bool sl₁₂ sl_min then ((d₂, p₂), sl₁₂)
+        else (dp_min, sl_min)
+      in
+      minimise_slope α d₁ p₁ dp_min sl_min dpl₂
   | [] =>
-      (d_min, p_min)
+      dp_min
   end.
 
 Fixpoint next_points α rev_list d₁ p₁ dpl₁ :=
   match dpl₁ with
   | [(d₂, p₂) … dpl₂] =>
       if lt_dec d₁ d₂ then
-        let dp₃ :=
+        let (d₃, p₃) :=
           let v₁ := valuation α p₁ in
           let v₂ := valuation α p₂ in
           let sl₁₂ := (v₂ - v₁) / Qnat (d₂ - d₁) in
-          minimise_slope α d₁ p₁ d₂ p₂ sl₁₂ dpl₂
+          minimise_slope α d₁ p₁ (d₂, p₂) sl₁₂ dpl₂
         in
-        next_points α [dp₃ … rev_list] (fst dp₃) (snd dp₃) dpl₂
+        next_points α [(d₃, p₃) … rev_list] d₃ p₃ dpl₂
       else
         next_points α rev_list d₁ p₁ dpl₂
   | [] =>

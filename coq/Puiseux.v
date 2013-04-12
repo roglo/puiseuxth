@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.108 2013-04-12 21:07:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.109 2013-04-12 21:26:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -595,31 +595,18 @@ induction cl as [| c]; intros.
       Focus 2.
       simpl in Hipsn.
       remember (Qeq_bool (valuation α c + Qnat deg * γ) β) as b.
+      simpl in Hnp.
+      remember
+       (minimise_slope α l lps (deg, c)
+          ((valuation α c - valuation α lps) / Qnat (deg - l)) pts) as sl.
+      destruct sl as (m, mps).
       destruct b.
        simpl in Hipsn.
        apply Decidable.not_or in Hipsn.
        destruct Hipsn as (H, Hipsn).
-       simpl in Hnp.
-       destruct (lt_dec l deg) as [Hlt| Hge].
-        remember
-         (minimise_slope α l lps deg c
-            ((valuation α c - valuation α lps) / Qnat (deg - l)) pts) as sl.
-        destruct sl as (m, mps).
-        simpl in Hnp.
-        eapply IHcl; eassumption.
+       destruct (lt_dec l deg); eapply IHcl; eassumption.
 
-        eapply IHcl; eassumption.
-
-       simpl in Hnp.
-       remember
-        (minimise_slope α l lps deg c
-           ((valuation α c - valuation α lps) / Qnat (deg - l)) pts) as sl.
-       destruct sl as (m, mps).
-       simpl in Hnp.
-       destruct (lt_dec l deg) as [Hlt| Hge].
-        eapply IHcl; eassumption.
-
-        eapply IHcl; eassumption.
+       destruct (lt_dec l deg); eapply IHcl; eassumption.
 bbb.
 
 (*

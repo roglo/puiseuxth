@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.173 2013-04-12 20:54:10 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.174 2013-04-12 21:26:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -30,18 +30,19 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 value qnat i = Q.of_i (I.of_int i);
 
-Fixpoint minimise_slope d₁ p₁ d_min p_min sl_min dpl :=
+Fixpoint minimise_slope d₁ p₁ dp_min sl_min dpl :=
   match dpl with
   | [(d₂, p₂) :: dpl₂] =>
       let v₁ := valuation p₁ in
       let v₂ := valuation p₂ in
       let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
-      if Q.le sl₁₂ sl_min then
-        minimise_slope d₁ p₁ d₂ p₂ sl₁₂ dpl₂
-      else
-        minimise_slope d₁ p₁ d_min p_min sl_min dpl₂
+      let (dp_min, sl_min) :=
+        if Q.le sl₁₂ sl_min then ((d₂, p₂), sl₁₂)
+        else (dp_min, sl_min)
+      in
+      minimise_slope d₁ p₁ dp_min sl_min dpl₂
   | [] =>
-      (d_min, p_min)
+      dp_min
   end;
 
 Fixpoint next_points rev_list d₁ p₁ dpl₁ :=
@@ -52,7 +53,7 @@ Fixpoint next_points rev_list d₁ p₁ dpl₁ :=
           let v₁ := valuation p₁ in
           let v₂ := valuation p₂ in
           let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
-          minimise_slope d₁ p₁ d₂ p₂ sl₁₂ dpl₂
+          minimise_slope d₁ p₁ (d₂, p₂) sl₁₂ dpl₂
         in
         next_points [dp₃ :: rev_list] (fst dp₃) (snd dp₃) dpl₂
       else
