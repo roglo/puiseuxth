@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.90 2013-04-12 03:30:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.91 2013-04-12 12:32:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -268,6 +268,7 @@ induction dpl as [| dp₂]; intros.
 
    right; right; assumption.
 Qed.
+*)
 
 Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
   points_of_ps_polynom_gen α k (S pow) cl cn = dpl
@@ -337,6 +338,7 @@ unfold points_of_ps_polynom in Hvp.
 eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
 
+(*
 Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl,
   points_of_ps_polynom_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
@@ -418,6 +420,46 @@ destruct b.
  apply IHpts; assumption.
 Qed.
 
+Lemma xxx : ∀ α fld pol pts j jps k kps lch,
+  pts = points_of_ps_polynom α fld pol
+  → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+    → (j < k)%nat.
+Proof.
+intros α fld pol pts j jps k kps lch Hpts Hch.
+destruct pts as [| (l, lps)]; [ discriminate Hch | idtac ].
+destruct pts as [| (m, mps)]; [ discriminate Hch | idtac ].
+simpl in Hch.
+remember ((valuation α mps - valuation α lps) / Qnat (m - l)) as sl.
+remember (minimise_slope α l lps m mps sl 0 1 pts) as ms.
+destruct ms as ((n, nps), sk).
+simpl in Hch.
+injection Hch; clear Hch; intros; subst l lps.
+revert fld pol m mps j jps k kps lch sl n nps sk H Hpts Heqsl Heqms.
+induction pts as [| (p, pps)]; intros.
+ simpl in H.
+ injection H; clear H; intros; subst lch n nps.
+ simpl in Heqms.
+ injection Heqms; clear Heqms; intros; subst m mps sk.
+ symmetry in Hpts.
+ eapply points_of_ps_polynom_lt; eassumption.
+bbb.
+
+Lemma yyy : ∀ α (fld : field (puiseux_series α)) pol γ β j jps k kps seg_pts,
+  gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg_pts)
+  → j ≠ k.
+Proof.
+intros; rename H into Hgb.
+unfold gamma_beta in Hgb.
+remember (points_of_ps_polynom α fld pol) as pts.
+remember (lower_convex_hull_points α pts) as lch.
+symmetry in Heqlch.
+destruct lch as [| (l, lps)]; [ discriminate Hgb | idtac ].
+destruct lch as [| (m, mps)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros H₁ H₂ H₃ H₄ H₆ Hβ Hγ.
+subst l lps m mps seg_pts.
+symmetry in Hγ, Hβ.
+yyy.
+
 Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
@@ -432,6 +474,10 @@ apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
 destruct p as ((((γ, β), (j, jps)), (k, kps)), seg_pts).
+remember Heqgb as Hjk; clear HeqHjk.
+symmetry in Hjk.
+apply yyy in Hjk.
+bbb.
 exists γ, β.
 intros i ips Hiit.
 destruct Hiit as (Hin, Hout).
