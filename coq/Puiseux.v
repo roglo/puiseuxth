@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.115 2013-04-13 10:13:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.116 2013-04-13 10:29:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -615,7 +615,6 @@ Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
 Proof.
 intros α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl.
 intros Hβj Hβk Hpts Hips Hipsn Hnp.
-bbb.
 revert Hpts Hips Hipsn Hnp.
 revert fld deg cn l lps i ips pts lch rl.
 induction cl as [| c]; intros.
@@ -682,6 +681,9 @@ induction cl as [| c]; intros.
          ((valuation α ips - valuation α lps) / Qnat (i - l)) pts) as sl.
      destruct sl as (m, mps).
      destruct (lt_dec l i) as [Hle| Hgt].
+      apply Qnot_le_lt.
+      intros H; apply Heqb.
+      apply Qle_antisym; [ assumption | idtac ].
 bbb.
 
 Lemma yyy₄ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
