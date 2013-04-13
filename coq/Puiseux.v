@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.118 2013-04-13 15:27:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.119 2013-04-13 15:39:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -200,6 +200,33 @@ induction dpl₁ as [| dp₃]; intros.
  destruct (lt_dec d₁ d₂); [ idtac | contradiction ].
  apply next_points_not_empty.
 Qed.
+
+Lemma yyy : ∀ α fld deg cl cn d₁ p₁ d₂ p₂ pts,
+  points_of_ps_polynom_gen α fld deg cl cn = [(d₁, p₁), (d₂, p₂) … pts]
+  → (d₁ < d₂)%nat.
+Proof.
+intros α fld deg cl cn d₁ p₁ d₂ p₂ pts Hpts.
+revert fld deg cn d₁ p₁ d₂ p₂ pts Hpts.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)); discriminate Hpts.
+
+ unfold points_of_ps_polynom_gen in Hpts.
+ simpl in Hpts.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  eapply IHcl; eassumption.
+
+  injection Hpts; clear Hpts; intros; subst deg c.
+
+bbb.
+
+Lemma zzz : ∀ α fld pol d₁ p₁ d₂ p₂ pts,
+  points_of_ps_polynom α fld pol = [(d₁, p₁), (d₂, p₂) … pts]
+  → (d₁ < d₂)%nat.
+Proof.
+intros α fld pol d₁ p₁ d₂ p₂ pts Hpts.
+bbb.
 
 Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
   an pol ≠ zero k
