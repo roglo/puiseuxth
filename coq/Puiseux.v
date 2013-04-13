@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.111 2013-04-13 03:20:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.112 2013-04-13 03:38:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -534,16 +534,18 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
-Lemma www : ∀ α fld deg cl cn pts β γ i ips j jps k kps rl lch,
+Lemma www : ∀ α fld deg cl cn pts β γ i ips j jps k kps l lps rl lch,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
-  → next_points α rl j jps pts = [(k, kps) … lch]
-    → β = valuation α jps + Qnat j * γ
-      → β = valuation α kps + Qnat k * γ
-        → (i, ips) ∈ pts
-          → β <= valuation α ips + Qnat i * γ.
+  → next_points α rl l lps pts = [(k, kps) … lch]
+    → (∀ m mps, (m, mps) ∈ rl → (j < m ∧ m < k)%nat)
+      → β = valuation α jps + Qnat j * γ
+        → β = valuation α kps + Qnat k * γ
+          → (i, ips) ∈ pts
+            → β <= valuation α ips + Qnat i * γ.
 Proof.
-intros α fld deg cl cn pts β γ i ips j jps k kps rl lch Hpts Hnp Hβj Hβk Hips.
-revert fld deg cn pts i ips rl lch Hnp Hpts Hips.
+intros α fld deg cl cn pts β γ i ips j jps k kps l lps rl lch.
+intros Hpts Hnp Hrng Hβj Hβk Hips.
+revert fld deg cn pts i ips rl lch Hnp Hrng Hpts Hips.
 induction cl as [| c]; intros.
  simpl in Hpts.
  destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
@@ -553,33 +555,25 @@ induction cl as [| c]; intros.
   destruct Hips; [ idtac | contradiction ].
   injection H; clear H; intros; subst deg cn.
   simpl in Hnp.
-  destruct (lt_dec j i) as [Hlt| Hge].
-   Focus 3.
-   simpl in Hpts.
-   destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
-    eapply IHcl; eassumption.
+  destruct (lt_dec l i) as [Hlt| Hge].
+   destruct rl as [| (n, nps)].
+    simpl in Hnp.
+    injection Hnp; clear Hnp; intros; subst i ips lch.
+    rewrite <- Hβk; apply Qle_refl.
 
-    remember
-     (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
-    subst pts.
-    simpl in Hips.
-    destruct Hips.
-     injection H; clear H; intros; subst deg c.
+    simpl in Hnp.
+    destruct rl as [| (o, ops)].
      simpl in Hnp.
-     remember
-      (minimise_slope α j jps (i, ips)
-         ((valuation α ips - valuation α jps) / Qnat (i - j)) pts₁) as dp.
-     destruct dp as (l, lps).
-     destruct (lt_dec j i) as [Hlt| Hge].
-      Focus 3.
-      simpl in Hnp.
-      remember
-       (minimise_slope α j jps (deg, c)
-          ((valuation α c - valuation α jps) / Qnat (deg - j)) pts₁) as dp.
-      destruct dp as (l, lps).
-      destruct (lt_dec j deg) as [Hlt| Hge].
-       Focus 2.
-       eapply IHcl; eassumption.
+     injection Hnp; clear Hnp; intros; subst n nps lch.
+     pose proof (Hrng k kps).
+     assert ((k, kps) ∈ [(k, kps)]).
+      left; reflexivity.
+
+      apply H in H0.
+      destruct H0.
+      apply lt_irrefl in H1; contradiction.
+
+     simpl in Hnp.
 bbb.
 
 Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
