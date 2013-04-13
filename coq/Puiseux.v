@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.117 2013-04-13 11:39:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.118 2013-04-13 15:27:19 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -156,7 +156,6 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-(*
 Lemma next_points_not_empty : ∀ α dp dpl d₁ p₁ dpl₁,
   next_points α [dp … dpl] d₁ p₁ dpl₁ ≠ [ ].
 Proof.
@@ -168,10 +167,10 @@ induction dpl₁ as [| dp₂]; intros.
 
  simpl.
  destruct dp₂ as (d₂, p₂).
- destruct sk.
+ destruct (lt_dec d₁ d₂).
   remember (valuation α p₂ - valuation α p₁) as v₂₁.
   remember (Qnat (d₂ - d₁)) as d₂₁.
-  remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 dpl₁) as xs.
+  remember (minimise_slope α d₁ p₁ (d₂, p₂) (v₂₁ / d₂₁) dpl₁) as xs.
   subst v₂₁ d₂₁.
   destruct xs as (dp₃, sk).
   apply IHdpl₁.
@@ -180,23 +179,25 @@ induction dpl₁ as [| dp₂]; intros.
 Qed.
 
 Lemma convex_hull_not_empty : ∀ α rl d₁ p₁ dp₂ dpl₁,
-  next_points α rl d₁ p₁ [dp₂ … dpl₁] ≠ [].
+  (d₁ < fst dp₂)%nat
+  → next_points α rl d₁ p₁ [dp₂ … dpl₁] ≠ [].
 Proof.
-intros α rl d₁ p₁ dp₂ dpl₁.
-revert rl d₁ p₁ dp₂.
+intros α rl d₁ p₁ dp₂ dpl₁ Hd.
+revert rl d₁ p₁ dp₂ Hd.
 induction dpl₁ as [| dp₃]; intros.
  simpl.
  destruct dp₂ as (d₂, p₂).
- apply rev_app_not_nil.
+ destruct (lt_dec d₁ d₂); [ apply rev_app_not_nil | contradiction ].
 
  remember [dp₃ … dpl₁] as dpl.
  simpl.
  destruct dp₂ as (d₂, p₂).
  remember (valuation α p₂ - valuation α p₁) as v₂₁.
  remember (Qnat (d₂ - d₁)) as d₂₁.
- remember (minimise_slope α d₁ p₁ d₂ p₂ (v₂₁ / d₂₁) 0 1 dpl) as dps.
+ remember (minimise_slope α d₁ p₁ (d₂, p₂) (v₂₁ / d₂₁) dpl) as dps.
  subst v₂₁ d₂₁.
  destruct dps as (dp, skip).
+ destruct (lt_dec d₁ d₂); [ idtac | contradiction ].
  apply next_points_not_empty.
 Qed.
 
@@ -243,7 +244,6 @@ destruct chp as [| (d₁, p₁)].
 
   intros H; discriminate H.
 Qed.
-*)
 
 (*
 Lemma min_slope_in_list : ∀ α d₁ p₁ d_m p_m sl_m sk_m sk dpl dp skip,
@@ -643,6 +643,7 @@ induction pts as [| (k, kps)]; intros.
    right; right; assumption.
 Qed.
 
+(*
 Lemma vvv :
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
   → next_points α rl l lps pts = lch
@@ -821,14 +822,14 @@ induction cl as [| c]; intros.
     symmetry in Heqb.
     apply Qeq_bool_neq in Heqb; exfalso; apply Heqb; reflexivity.
 bbb.
+*)
 
 Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
     → pts = points_of_ps_polynom α fld pol
       → ∃ γ β,
-        (∀ i ips,
-           (i, ips) ∈ pts ∧ not ((i, ips) ∈ points_in_segment α γ β pts)
+        (∀ i ips, (i, ips) ∈ pts ∧ (i, ips) ∉ points_in_segment α γ β pts
            → β < valuation α ips + Qnat i * γ).
 Proof.
 intros α fld pol pts an_nz ai_nz Hpts.
