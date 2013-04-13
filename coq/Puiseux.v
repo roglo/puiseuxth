@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.116 2013-04-13 10:29:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.117 2013-04-13 11:39:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -572,6 +572,86 @@ induction rl as [| (m, mps)]; intros.
 
     right; right; assumption.
 Qed.
+
+Lemma min_sl_in : ∀ α iips j jps kkps sl pts,
+  iips = minimise_slope α j jps kkps sl pts
+  → iips ∈ pts ∨ iips = kkps.
+Proof.
+intros α iips j jps kkps sl pts Hips.
+revert iips j jps kkps sl Hips.
+induction pts as [| (l, lps)]; intros.
+ simpl in Hips.
+ right; assumption.
+
+ simpl in Hips.
+ remember
+  (Qle_bool ((valuation α lps - valuation α jps) / Qnat (l - j)) sl) as b.
+ destruct b.
+  simpl.
+  apply IHpts in Hips.
+  destruct Hips as [Hips| Hips].
+   left; right; assumption.
+
+   subst iips; left; left; reflexivity.
+
+  simpl.
+  apply IHpts in Hips.
+  destruct Hips as [Hips| Hips].
+   left; right; assumption.
+
+   right; assumption.
+Qed.
+
+Lemma np_in : ∀ α rl i ips pts lch,
+  next_points α rl i ips pts = lch
+  → ∀ jjps, jjps ∈ lch → jjps ∈ rl ∨ jjps ∈ pts.
+Proof.
+intros α rl i ips pts lch Hnp (j, jps) Hjps.
+revert rl i ips lch Hnp j jps Hjps.
+induction pts as [| (k, kps)]; intros.
+ simpl in Hnp.
+ subst lch.
+ left.
+ apply List.In_rev; assumption.
+
+ simpl in Hnp.
+ remember
+  (minimise_slope α i ips (k, kps)
+     ((valuation α kps - valuation α ips) / Qnat (k - i)) pts) as x.
+ destruct x as (l, lps).
+ destruct (lt_dec i k) as [Hlt| Hge].
+  simpl.
+  eapply IHpts in Hnp; [ idtac | eassumption ].
+  simpl in Hnp.
+  destruct Hnp as [[Hnp| Hnp]| Hnp].
+   apply min_sl_in in Heqx.
+   rewrite Hnp in Heqx.
+   destruct Heqx as [Heqx| Heqx].
+    right; right; assumption.
+
+    right; left; symmetry; assumption.
+
+   left; assumption.
+
+   right; right; assumption.
+
+  simpl.
+  eapply IHpts in Hnp; [ idtac | eassumption ].
+  destruct Hnp as [Hnp| Hnp].
+   left; assumption.
+
+   right; right; assumption.
+Qed.
+
+Lemma vvv :
+  pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
+  → next_points α rl l lps pts = lch
+    → β = valuation α jps + Qnat j * γ
+      → β = valuation α kps + Qnat k * γ
+        → (∀ m mps, (m, mps) ∈ rl → β <= valuation α mps + Qnat m * γ)
+          → (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ).
+Proof.
+bbb.
 
 Lemma www : ∀ α fld deg cl cn pts β γ j jps k kps l lps rl lch,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
