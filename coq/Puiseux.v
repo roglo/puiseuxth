@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.121 2013-04-13 16:50:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.122 2013-04-13 23:12:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -395,7 +395,6 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-(*
 Lemma points_in_newton_segment : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
@@ -426,7 +425,6 @@ destruct b.
 
  apply IHpts; assumption.
 Qed.
-*)
 
 (*
 Lemma uuu : ∀ α fld deg cl cn pts rl n j jps k kps lch,
