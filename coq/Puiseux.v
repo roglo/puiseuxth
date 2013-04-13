@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.119 2013-04-13 15:39:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.120 2013-04-13 16:30:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -201,6 +201,16 @@ induction dpl₁ as [| dp₃]; intros.
  apply next_points_not_empty.
 Qed.
 
+Lemma xxx : ∀ α fld deg cl cn d p pts,
+  points_of_ps_polynom_gen α fld deg cl cn = [(d, p) … pts]
+  → (deg < d)%nat.
+Proof.
+intros α fld deg cl cn d p pts Hpts.
+revert fld deg cn d p pts Hpts.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts.
+bbb.
+
 Lemma yyy : ∀ α fld deg cl cn d₁ p₁ d₂ p₂ pts,
   points_of_ps_polynom_gen α fld deg cl cn = [(d₁, p₁), (d₂, p₂) … pts]
   → (d₁ < d₂)%nat.
@@ -210,7 +220,10 @@ revert fld deg cn d₁ p₁ d₂ p₂ pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts.
  simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)); discriminate Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  discriminate Hpts.
+
+  discriminate Hpts.
 
  unfold points_of_ps_polynom_gen in Hpts.
  simpl in Hpts.
@@ -218,7 +231,7 @@ induction cl as [| c]; intros.
   eapply IHcl; eassumption.
 
   injection Hpts; clear Hpts; intros; subst deg c.
-
+  eapply lt_trans; [ apply lt_n_Sn | eapply xxx; eassumption ].
 bbb.
 
 Lemma zzz : ∀ α fld pol d₁ p₁ d₂ p₂ pts,
