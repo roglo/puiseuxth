@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.110 2013-04-12 21:37:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.111 2013-04-13 03:20:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -534,6 +534,54 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
+Lemma www : ∀ α fld deg cl cn pts β γ i ips j jps k kps rl lch,
+  pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
+  → next_points α rl j jps pts = [(k, kps) … lch]
+    → β = valuation α jps + Qnat j * γ
+      → β = valuation α kps + Qnat k * γ
+        → (i, ips) ∈ pts
+          → β <= valuation α ips + Qnat i * γ.
+Proof.
+intros α fld deg cl cn pts β γ i ips j jps k kps rl lch Hpts Hnp Hβj Hβk Hips.
+revert fld deg cn pts i ips rl lch Hnp Hpts Hips.
+induction cl as [| c]; intros.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts; contradiction.
+
+  subst pts.
+  destruct Hips; [ idtac | contradiction ].
+  injection H; clear H; intros; subst deg cn.
+  simpl in Hnp.
+  destruct (lt_dec j i) as [Hlt| Hge].
+   Focus 3.
+   simpl in Hpts.
+   destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+    eapply IHcl; eassumption.
+
+    remember
+     (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
+    subst pts.
+    simpl in Hips.
+    destruct Hips.
+     injection H; clear H; intros; subst deg c.
+     simpl in Hnp.
+     remember
+      (minimise_slope α j jps (i, ips)
+         ((valuation α ips - valuation α jps) / Qnat (i - j)) pts₁) as dp.
+     destruct dp as (l, lps).
+     destruct (lt_dec j i) as [Hlt| Hge].
+      Focus 3.
+      simpl in Hnp.
+      remember
+       (minimise_slope α j jps (deg, c)
+          ((valuation α c - valuation α jps) / Qnat (deg - j)) pts₁) as dp.
+      destruct dp as (l, lps).
+      destruct (lt_dec j deg) as [Hlt| Hge].
+       Focus 2.
+       eapply IHcl; eassumption.
+bbb.
+
 Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
   β = valuation α jps + Qnat j * γ
   → β = valuation α kps + Qnat k * γ
@@ -612,150 +660,6 @@ induction cl as [| c]; intros.
      destruct sl as (m, mps).
      destruct (lt_dec l i) as [Hle| Hgt].
 bbb.
-
-(*
-Lemma xxx₁ : ∀ α γ β i ips j jps k kps l lps pts lch rl n,
-  β = valuation α jps + Qnat j * γ
-  → (i, ips) ∈ pts
-    → ¬ (i, ips) ∈ points_in_segment α γ β [(j, jps) … pts]
-      → next_points α rl n l lps pts = [(k, kps) … lch]
-        → β < valuation α ips + Qnat i * γ.
-Proof.
-intros α γ β i ips j jps k kps l lps pts lch rl n Hβ Hpts Hpis Hnp.
-revert γ β i ips j jps k kps l lps lch rl n Hβ Hpts Hpis Hnp.
-induction pts as [| (m, mps)]; intros; [ contradiction | idtac ].
-destruct Hpts as [Hpts| Hpts].
- injection Hpts; clear Hpts; intros; subst m mps.
- simpl in Hpis.
- rewrite <- Hβ in Hpis.
- remember (Qeq_bool β β) as b.
- destruct b.
-  clear Heqb.
-  remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
-  destruct b.
-   exfalso; apply Hpis; right; left; reflexivity.
-
-   symmetry in Heqb.
-   apply Qeq_bool_neq in Heqb.
-   Focus 2.
-   symmetry in Heqb.
-   apply Qeq_bool_neq in Heqb.
-   exfalso; apply Heqb; reflexivity.
-
-  Focus 2.
-  simpl in Hnp.
-  destruct n.
-   remember
-    (minimise_slope α l lps m mps
-       ((valuation α mps - valuation α lps) / Qnat (m - l)) 0 1 pts) as ds.
-   destruct ds as ((n, nps), sk).
-   simpl in Hnp.
-   eapply IHpts; try eassumption.
-   intros H.
-   simpl in H.
-   simpl in Hpis.
-   remember (Qeq_bool (valuation α jps + Qnat j * γ) β) as b.
-   destruct b.
-    destruct H as [H| H].
-     injection H; clear H; intros; subst i ips.
-     apply Hpis; left; reflexivity.
-
-     clear Heqb.
-     remember (Qeq_bool (valuation α mps + Qnat m * γ) β) as b.
-     destruct b.
-      apply Hpis.
-      right; right; assumption.
-
-      apply Hpis.
-      right; assumption.
-
-    rewrite <- Hβ in Heqb.
-    symmetry in Heqb.
-    apply Qeq_bool_neq in Heqb.
-    apply Heqb; reflexivity.
-
-   simpl in Hpis.
-   rewrite <- Hβ in Hpis.
-   remember (Qeq_bool β β) as b.
-   destruct b.
-    clear Heqb.
-    remember (Qeq_bool (valuation α mps + Qnat m * γ) β) as b.
-    destruct b.
-     eapply IHpts; try eassumption.
-     simpl.
-     rewrite <- Hβ.
-     remember (Qeq_bool β β) as b.
-     destruct b.
-      intros H.
-      apply Hpis.
-      destruct H as [H| H].
-       rewrite <- H.
-       left; reflexivity.
-
-       right; right; assumption.
-
-      symmetry in Heqb0.
-      apply Qeq_bool_neq in Heqb0.
-      exfalso; apply Heqb0; reflexivity.
-
-     eapply IHpts; try eassumption.
-     intros H; apply Hpis.
-     simpl in H.
-     rewrite <- Hβ in H.
-     remember (Qeq_bool β β) as b.
-     destruct b.
-      assumption.
-
-      right; assumption.
-
-    symmetry in Heqb.
-    apply Qeq_bool_neq in Heqb.
-    exfalso; apply Heqb; reflexivity.
-
- apply Qnot_le_lt.
- intros H; apply Heqb; clear Heqb.
- apply Qle_antisym; [ assumption | idtac ].
- simpl in Hnp.
- destruct n.
-  remember
-   (minimise_slope α l lps i ips
-      ((valuation α ips - valuation α lps) / Qnat (i - l)) 0 1 pts) as sl.
-  destruct sl as ((m, mps), sk).
-  simpl in Hnp.
-xxx₁.
-*)
-
-(*
-Lemma yyy₂ : ∀ α fld deg cl cn i ips j jps k kps ini_pts pts lch γ β,
-  ini_pts = all_points_of_ps_polynom α deg cl cn
-  → pts = filter_non_zero_ps α fld ini_pts
-    → β = valuation α jps + Qnat j * γ
-      → (i, ips) ∈ ini_pts
-        → (i, ips) ∉ points_in_segment α γ β pts
-          → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
-            → β < valuation α ips + Qnat i * γ.
-Proof.
-intros α fld deg cl cn i ips j jps k kps ini_pts pts lch γ β.
-intros Hini Hpts Hβ Hipts Hipis Hch.
-revert Hini Hpts Hβ Hipts Hipis Hch.
-revert fld deg cn i ips j jps k kps ini_pts pts lch γ β.
-induction cl as [| c]; intros.
- simpl in Hini.
- subst ini_pts.
- simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
-
- simpl in Hini.
- remember (all_points_of_ps_polynom α (S deg) cl cn) as ini_pts₂.
- subst ini_pts.
- rename ini_pts₂ into ini_pts.
- rename Heqini_pts₂ into Heqini_pts.
- simpl in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
-  destruct Hipts as [Hipts| Hipts].
-   injection Hipts; clear Hipts; intros; subst deg c.
-bbb.
-*)
 
 Lemma yyy₄ : ∀ α fld deg cl cn i ips j jps k kps pts lch γ β,
   pts = points_of_ps_polynom_gen α fld deg cl cn
