@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.113 2013-04-13 08:05:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.114 2013-04-13 08:12:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -552,17 +552,17 @@ induction rl as [| (m, mps)]; intros.
  simpl in Hrl.
 bbb.
 
-Lemma www : ∀ α fld deg cl cn pts β γ i ips j jps k kps l lps rl lch,
+Lemma www : ∀ α fld deg cl cn pts β γ j jps k kps l lps rl lch,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
   → next_points α rl l lps pts = [(k, kps) … lch]
     → (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
       → β = valuation α jps + Qnat j * γ
         → β = valuation α kps + Qnat k * γ
-          → (i, ips) ∈ pts
+          → ∀ i ips, (i, ips) ∈ pts
             → β <= valuation α ips + Qnat i * γ.
 Proof.
-intros α fld deg cl cn pts β γ i ips j jps k kps l lps rl lch.
-intros Hpts Hnp Hrng Hβj Hβk Hips.
+intros α fld deg cl cn pts β γ j jps k kps l lps rl lch.
+intros Hpts Hnp Hrng Hβj Hβk i ips Hips.
 revert fld deg cn pts i ips l lps rl lch Hnp Hrng Hpts Hips.
 induction cl as [| c]; intros.
  simpl in Hpts.
@@ -581,47 +581,6 @@ induction cl as [| c]; intros.
     rewrite <- Hβk; apply Qle_refl.
 
     apply Hrng; assumption.
-
-bbb.
-
-   revert lch Hrng Hnp.
-   induction rl as [| (n, nps)]; intros.
-    simpl in Hnp.
-    injection Hnp; clear Hnp; intros; subst i ips lch.
-    rewrite <- Hβk; apply Qle_refl.
-bbb.
-
-intros α fld deg cl cn pts β γ i ips j jps k kps l lps rl lch.
-intros Hpts Hnp Hrng Hβj Hβk Hips.
-revert fld deg cn pts i ips l lps rl lch Hnp Hrng Hpts Hips.
-induction cl as [| c]; intros.
- simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
-  subst pts; contradiction.
-
-  subst pts.
-  destruct Hips; [ idtac | contradiction ].
-  injection H; clear H; intros; subst deg cn.
-  simpl in Hnp.
-  destruct (lt_dec l i) as [Hlt| Hge].
-   destruct rl as [| (n, nps)].
-    simpl in Hnp.
-    injection Hnp; clear Hnp; intros; subst i ips lch.
-    rewrite <- Hβk; apply Qle_refl.
-
-    simpl in Hnp.
-    destruct rl as [| (o, ops)].
-     simpl in Hnp.
-     injection Hnp; clear Hnp; intros; subst n nps lch.
-     pose proof (Hrng k kps).
-     assert ((k, kps) ∈ [(k, kps)]).
-      left; reflexivity.
-
-      apply H in H0.
-      destruct H0.
-      apply lt_irrefl in H1; contradiction.
-
-     simpl in Hnp.
 bbb.
 
 Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
@@ -635,6 +594,7 @@ Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
 Proof.
 intros α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl.
 intros Hβj Hβk Hpts Hips Hipsn Hnp.
+bbb.
 revert Hpts Hips Hipsn Hnp.
 revert fld deg cn l lps i ips pts lch rl.
 induction cl as [| c]; intros.
