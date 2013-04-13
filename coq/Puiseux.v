@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.114 2013-04-13 08:12:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.115 2013-04-13 10:13:23 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -534,7 +534,7 @@ symmetry in Hγ, Hβ.
 yyy.
 *)
 
-Lemma vvv : ∀ α β γ i ips rl l lch,
+Lemma rev_app_le_val : ∀ α β γ i ips rl l lch,
   (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
   → List.rev rl ++ [(i, ips) … l] = lch
     →  β <= valuation α ips + Qnat i * γ.
@@ -550,7 +550,28 @@ induction rl as [| (m, mps)]; intros.
  simpl in Hrl.
  rewrite <- List.app_assoc in Hrl.
  simpl in Hrl.
-bbb.
+ remember (List.rev rl ++ [(i, ips), (m, mps) … l]) as lch₁.
+ symmetry in Heqlch₁.
+ eapply IHrl; [ idtac | eassumption ].
+ intros n nps Hn.
+ apply Hle.
+ subst lch lch₁.
+ apply List.in_app_iff in Hn.
+ apply List.in_app_iff.
+ destruct Hn as [Hn| Hn].
+  left; assumption.
+
+  right.
+  destruct Hn as [Hn| Hn].
+   injection Hn; clear Hn; intros; subst n nps.
+   right; left; reflexivity.
+
+   destruct Hn as [Hn| Hn].
+    injection Hn; clear Hn; intros; subst n nps.
+    left; reflexivity.
+
+    right; right; assumption.
+Qed.
 
 Lemma www : ∀ α fld deg cl cn pts β γ j jps k kps l lps rl lch,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
@@ -574,7 +595,7 @@ induction cl as [| c]; intros.
   injection H; clear H; intros; subst deg cn.
   simpl in Hnp.
   destruct (lt_dec l i) as [Hlt| Hge].
-   eapply vvv; [ idtac | eassumption ].
+   eapply rev_app_le_val; [ idtac | eassumption ].
    intros m mps Hin.
    destruct Hin as [Hin| Hin].
     injection Hin; clear Hin; intros; subst m mps.
