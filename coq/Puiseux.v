@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.120 2013-04-13 16:30:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.121 2013-04-13 16:50:48 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -32,8 +32,8 @@ Arguments al : default implicits.
 Arguments an : default implicits.
 Arguments polynomial : default implicits.
 
-Definition apply_poly {α} k pol (x : α) :=
-  List.fold_right (λ accu coeff, add k (mul k accu x) coeff) (an pol)
+Definition apply_poly {α} fld pol (x : α) :=
+  List.fold_right (λ accu coeff, add fld (mul fld accu x) coeff) (an pol)
     (al pol).
 Arguments apply_poly : default implicits. 
 
@@ -49,18 +49,18 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   | [] => [(pow, psn)]
   end.
 
-Definition filter_non_zero_ps α k (dpl : list (nat * puiseux_series α)) :=
-  List.filter (λ dp, if eq_k_dec k (snd dp) (zero k) then false else true)
+Definition filter_non_zero_ps α fld (dpl : list (nat * puiseux_series α)) :=
+  List.filter (λ dp, if eq_k_dec fld (snd dp) (zero fld) then false else true)
     dpl.
 
-Definition points_of_ps_polynom_gen α k pow cl cn :=
-  filter_non_zero_ps α k (all_points_of_ps_polynom α pow cl cn).
+Definition points_of_ps_polynom_gen α fld pow cl cn :=
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn).
 
-Definition points_of_ps_polynom α k pol :=
-  points_of_ps_polynom_gen α k 0%nat (al pol) (an pol).
+Definition points_of_ps_polynom α fld pol :=
+  points_of_ps_polynom_gen α fld 0%nat (al pol) (an pol).
 
-Definition gamma_beta {α} k pol :=
-  let gdpl := points_of_ps_polynom α k pol in
+Definition gamma_beta {α} fld pol :=
+  let gdpl := points_of_ps_polynom α fld pol in
   match lower_convex_hull_points α gdpl with
   | [(j, p₁), (k, p₂) … _] =>
       let αj := valuation α p₁ in
@@ -74,49 +74,49 @@ Definition gamma_beta {α} k pol :=
   end.
 Arguments gamma_beta : default implicits.
 
-Lemma one_vp_gen : ∀ α k pow cl cn,
-  cn ≠ zero k → points_of_ps_polynom_gen α k pow cl cn ≠ [].
+Lemma one_vp_gen : ∀ α fld pow cl cn,
+  cn ≠ zero fld → points_of_ps_polynom_gen α fld pow cl cn ≠ [].
 Proof.
-intros α k pow cl cn Hcn.
+intros α fld pow cl cn Hcn.
 unfold points_of_ps_polynom_gen.
 remember (all_points_of_ps_polynom α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
 induction cl as [| c cl]; intros.
  subst cpl; simpl.
- destruct (eq_k_dec k cn (zero k)); [ contradiction | simpl ].
+ destruct (eq_k_dec fld cn (zero fld)); [ contradiction | simpl ].
  intros H; discriminate H.
 
  subst cpl; simpl.
- destruct (eq_k_dec k c (zero k)).
+ destruct (eq_k_dec fld c (zero fld)).
   eapply IHcl; reflexivity.
 
   simpl.
   intros H; discriminate H.
 Qed.
 
-Lemma at_least_one_valuation_point : ∀ α k pol,
-  an pol ≠ zero k → points_of_ps_polynom α k pol ≠ [].
+Lemma at_least_one_valuation_point : ∀ α fld pol,
+  an pol ≠ zero fld → points_of_ps_polynom α fld pol ≠ [].
 Proof.
 intros; apply one_vp_gen; assumption.
 Qed.
 
-Lemma fold_points_of_ps_polynom_gen : ∀ α k pow cl cn,
-  filter_non_zero_ps α k (all_points_of_ps_polynom α pow cl cn) =
-  points_of_ps_polynom_gen α k pow cl cn.
+Lemma fold_points_of_ps_polynom_gen : ∀ α fld pow cl cn,
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
+  points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
 
-Lemma two_vp_gen : ∀ α k pow cl cn,
-  cn ≠ zero k
-  → (∃ c, c ∈ cl ∧ c ≠ zero k)
-    → List.length (points_of_ps_polynom_gen α k pow cl cn) ≥ 2.
+Lemma two_vp_gen : ∀ α fld pow cl cn,
+  cn ≠ zero fld
+  → (∃ c, c ∈ cl ∧ c ≠ zero fld)
+    → List.length (points_of_ps_polynom_gen α fld pow cl cn) ≥ 2.
 Proof.
-intros α k pow cl cn Hcn Hcl.
+intros α fld pow cl cn Hcn Hcl.
 revert pow.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
  unfold points_of_ps_polynom_gen; simpl.
- destruct (eq_k_dec k c (zero k)).
+ destruct (eq_k_dec fld c (zero fld)).
   destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
    subst c₁; contradiction.
 
@@ -127,9 +127,9 @@ induction cl as [| c]; intros.
   simpl.
   apply le_n_S.
   rewrite fold_points_of_ps_polynom_gen.
-  remember (length (points_of_ps_polynom_gen α k (S pow) cl cn)) as len.
+  remember (length (points_of_ps_polynom_gen α fld (S pow) cl cn)) as len.
   destruct len.
-   remember (points_of_ps_polynom_gen α k (S pow) cl cn) as l.
+   remember (points_of_ps_polynom_gen α fld (S pow) cl cn) as l.
    destruct l; [ idtac | discriminate Heqlen ].
    exfalso; symmetry in Heql; revert Heql.
    apply one_vp_gen; assumption.
@@ -137,10 +137,10 @@ induction cl as [| c]; intros.
    apply le_n_S, le_0_n.
 Qed.
 
-Lemma at_least_two_points_of_ps_polynom : ∀ α k pol,
-  an pol ≠ zero k
-  → (∃ c, c ∈ (al pol) ∧ c ≠ zero k)
-    → List.length (points_of_ps_polynom α k pol) ≥ 2.
+Lemma at_least_two_points_of_ps_polynom : ∀ α fld pol,
+  an pol ≠ zero fld
+  → (∃ c, c ∈ (al pol) ∧ c ≠ zero fld)
+    → List.length (points_of_ps_polynom α fld pol) ≥ 2.
 Proof.
 intros; apply two_vp_gen; assumption.
 Qed.
@@ -201,55 +201,83 @@ induction dpl₁ as [| dp₃]; intros.
  apply next_points_not_empty.
 Qed.
 
-Lemma xxx : ∀ α fld deg cl cn d p pts,
-  points_of_ps_polynom_gen α fld deg cl cn = [(d, p) … pts]
-  → (deg < d)%nat.
+Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
+  points_of_ps_polynom_gen α fld (S pow) cl cn = dpl
+  → (d₁, p₁) ∈ dpl
+    → lt pow d₁.
 Proof.
-intros α fld deg cl cn d p pts Hpts.
-revert fld deg cn d p pts Hpts.
+intros α fld pow cl cn d₁ p₁ dpl Hvp Hdp.
+revert fld pow cn d₁ p₁ dpl Hvp Hdp.
 induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hpts.
-bbb.
-
-Lemma yyy : ∀ α fld deg cl cn d₁ p₁ d₂ p₂ pts,
-  points_of_ps_polynom_gen α fld deg cl cn = [(d₁, p₁), (d₂, p₂) … pts]
-  → (d₁ < d₂)%nat.
-Proof.
-intros α fld deg cl cn d₁ p₁ d₂ p₂ pts Hpts.
-revert fld deg cn d₁ p₁ d₂ p₂ pts Hpts.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hpts.
- simpl in Hpts.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
-  discriminate Hpts.
+  subst dpl; contradiction.
 
-  discriminate Hpts.
+  simpl in Hvp.
+  subst dpl; destruct Hdp as [Hdp| ]; [ idtac | contradiction ].
+  injection Hdp; clear Hdp; intros; subst d₁ p₁.
+  apply lt_n_Sn.
 
- unfold points_of_ps_polynom_gen in Hpts.
- simpl in Hpts.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  rewrite fold_points_of_ps_polynom_gen in Hvp.
+  eapply IHcl in Hvp; [ idtac | eassumption ].
+  eapply lt_trans; [ idtac | eassumption ].
+  apply lt_n_Sn.
+
+  simpl in Hvp.
+  rewrite fold_points_of_ps_polynom_gen in Hvp.
+  destruct dpl as [| (d₂, p₂)]; [ contradiction | idtac ].
+  injection Hvp; clear Hvp; intros Hvp H₂ Hdpl; subst d₂ p₂.
+  destruct Hdp as [Hdp| Hdp].
+   injection Hdp; clear Hdp; intros; subst d₁ p₁.
+   apply lt_n_Sn.
+
+   eapply IHcl in Hvp; [ idtac | eassumption ].
+   eapply lt_trans; [ idtac | eassumption ].
+   apply lt_n_Sn.
+Qed.
+
+Lemma vp_lt : ∀ α fld pow cl cn d₁ p₁ d₂ p₂ dpl,
+  points_of_ps_polynom_gen α fld pow cl cn = [(d₁, p₁) … dpl]
+  → (d₂, p₂) ∈ dpl
+    → lt d₁ d₂.
+Proof.
+intros α fld pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
+revert fld pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
+ destruct (eq_k_dec fld cn (zero fld)) as [| Hne]; [ discriminate Hvp | idtac ].
+ injection Hvp; intros; subst; contradiction.
+
+ unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
   eapply IHcl; eassumption.
 
-  injection Hpts; clear Hpts; intros; subst deg c.
-  eapply lt_trans; [ apply lt_n_Sn | eapply xxx; eassumption ].
-bbb.
+  simpl in Hvp.
+  injection Hvp; clear Hvp; intros; subst d₁ p₁.
+  rewrite fold_points_of_ps_polynom_gen in H.
+  eapply vp_pow_lt; eassumption.
+Qed.
 
-Lemma zzz : ∀ α fld pol d₁ p₁ d₂ p₂ pts,
-  points_of_ps_polynom α fld pol = [(d₁, p₁), (d₂, p₂) … pts]
+Lemma points_of_ps_polynom_lt : ∀ α fld pol d₁ p₁ d₂ p₂ dpl,
+  points_of_ps_polynom α fld pol = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₁ < d₂)%nat.
 Proof.
-intros α fld pol d₁ p₁ d₂ p₂ pts Hpts.
-bbb.
+intros; rename H into Hvp.
+unfold points_of_ps_polynom in Hvp.
+eapply vp_lt; [ eassumption | left; reflexivity ].
+Qed.
 
-Lemma gamma_beta_not_empty : ∀ α k (pol : polynomial (puiseux_series α)),
-  an pol ≠ zero k
-  → (∃ c, c ∈ al pol ∧ c ≠ zero k)
-    → gamma_beta k pol ≠ None.
+Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),
+  an pol ≠ zero fld
+  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
+    → gamma_beta fld pol ≠ None.
 Proof.
-intros α k pol an_nz ai_nz.
+intros α fld pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
-remember (points_of_ps_polynom α k pol) as pts.
+remember (points_of_ps_polynom α fld pol) as pts.
 remember (lower_convex_hull_points α pts) as chp.
 destruct chp as [| (d₁, p₁)].
  destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
@@ -262,13 +290,13 @@ destruct chp as [| (d₁, p₁)].
   injection Heqchp; intros H₁ H₂ H₃.
   subst d₃ p₃; clear Heqchp.
   destruct pts.
-   remember (length (points_of_ps_polynom α k pol)) as len.
+   remember (length (points_of_ps_polynom α fld pol)) as len.
    destruct len.
     rewrite <- Heqpts in Heqlen.
     discriminate Heqlen.
 
     destruct len.
-     pose proof (at_least_two_points_of_ps_polynom α k pol) as H.
+     pose proof (at_least_two_points_of_ps_polynom α fld pol) as H.
      rewrite <- Heqlen in H.
      unfold ge in H.
      assert (2 ≤ 1) as HH.
@@ -281,6 +309,9 @@ destruct chp as [| (d₁, p₁)].
 
    exfalso; symmetry in H₁; revert H₁.
    apply convex_hull_not_empty.
+   destruct p; simpl.
+   symmetry in Heqpts.
+   eapply points_of_ps_polynom_lt; eassumption.
 
   intros H; discriminate H.
 Qed.
@@ -313,88 +344,20 @@ induction dpl as [| dp₂]; intros.
 Qed.
 *)
 
-Lemma vp_pow_lt : ∀ α k pow cl cn d₁ p₁ dpl,
-  points_of_ps_polynom_gen α k (S pow) cl cn = dpl
-  → (d₁, p₁) ∈ dpl
-    → lt pow d₁.
-Proof.
-intros α k pow cl cn d₁ p₁ dpl Hvp Hdp.
-revert k pow cn d₁ p₁ dpl Hvp Hdp.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec k cn (zero k)) as [Heq| Hne].
-  subst dpl; contradiction.
-
-  simpl in Hvp.
-  subst dpl; destruct Hdp as [Hdp| ]; [ idtac | contradiction ].
-  injection Hdp; clear Hdp; intros; subst d₁ p₁.
-  apply lt_n_Sn.
-
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
-  rewrite fold_points_of_ps_polynom_gen in Hvp.
-  eapply IHcl in Hvp; [ idtac | eassumption ].
-  eapply lt_trans; [ idtac | eassumption ].
-  apply lt_n_Sn.
-
-  simpl in Hvp.
-  rewrite fold_points_of_ps_polynom_gen in Hvp.
-  destruct dpl as [| (d₂, p₂)]; [ contradiction | idtac ].
-  injection Hvp; clear Hvp; intros Hvp H₂ Hdpl; subst d₂ p₂.
-  destruct Hdp as [Hdp| Hdp].
-   injection Hdp; clear Hdp; intros; subst d₁ p₁.
-   apply lt_n_Sn.
-
-   eapply IHcl in Hvp; [ idtac | eassumption ].
-   eapply lt_trans; [ idtac | eassumption ].
-   apply lt_n_Sn.
-Qed.
-
-Lemma vp_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ dpl,
-  points_of_ps_polynom_gen α k pow cl cn = [(d₁, p₁) … dpl]
-  → (d₂, p₂) ∈ dpl
-    → lt d₁ d₂.
-Proof.
-intros α k pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
-revert k pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec k cn (zero k)) as [| Hne]; [ discriminate Hvp | idtac ].
- injection Hvp; intros; subst; contradiction.
-
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
-  eapply IHcl; eassumption.
-
-  simpl in Hvp.
-  injection Hvp; clear Hvp; intros; subst d₁ p₁.
-  rewrite fold_points_of_ps_polynom_gen in H.
-  eapply vp_pow_lt; eassumption.
-Qed.
-
-Lemma points_of_ps_polynom_lt : ∀ α k pol d₁ p₁ d₂ p₂ dpl,
-  points_of_ps_polynom α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
-  → lt d₁ d₂.
-Proof.
-intros; rename H into Hvp.
-unfold points_of_ps_polynom in Hvp.
-eapply vp_lt; [ eassumption | left; reflexivity ].
-Qed.
-
 (*
-Lemma vp_2nd_lt : ∀ α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl,
-  points_of_ps_polynom_gen α k pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
+Lemma vp_2nd_lt : ∀ α fld pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl,
+  points_of_ps_polynom_gen α fld pow cl cn = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
     → lt d₂ d₃.
 Proof.
-intros α k pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
-revert k pow cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
+intros α fld pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
+revert fld pow cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec k cn (zero k)); discriminate Hvp.
+ destruct (eq_k_dec fld cn (zero fld)); discriminate Hvp.
 
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec k c (zero k)) as [Heq| Hne].
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
   rewrite fold_points_of_ps_polynom_gen in Hvp.
   eapply IHcl; eassumption.
 
@@ -404,12 +367,12 @@ induction cl as [| c]; intros.
   eapply vp_lt; eassumption.
 Qed.
 
-Lemma points_of_ps_polynom_2nd_lt : ∀ α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl,
-  points_of_ps_polynom α k pol = [(d₁, p₁), (d₂, p₂) … dpl]
+Lemma points_of_ps_polynom_2nd_lt : ∀ α fld pol d₁ p₁ d₂ p₂ d₃ p₃ dpl,
+  points_of_ps_polynom α fld pol = [(d₁, p₁), (d₂, p₂) … dpl]
   → (d₃, p₃) ∈ dpl
     → lt d₂ d₃.
 Proof.
-intros α k pol d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
+intros α fld pol d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 unfold points_of_ps_polynom in Hvp.
 eapply vp_2nd_lt; eassumption.
 Qed.
@@ -927,8 +890,8 @@ Definition puiseux_iteration k br r m γ β sol_list :=
     in
     let pol := apply_poly_dp_pol k br.pol y in
     let pol := pol_div_x_power pol β in
-    let pol := cancel_pol_constant_term_if_any k pol in
-    dp_float_round_zero k pol
+    let pol := cancel_pol_constant_term_if_any fld pol in
+    dp_float_round_zero fld pol
   in
   let finite := zero_is_root pol in
   let cγl := [(r, γ) … br.cγl] in
@@ -961,7 +924,7 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
   List.fold_left
     (λ sol_list rm,
        let (r, m) := rm in
-       if eq k r (zero k) then sol_list
+       if eq k r (zero fld) then sol_list
        else
          match puiseux_iteration k br r m γ β sol_list with
          | Right (pol, cγl) => next_step k br sol_list col cγl
