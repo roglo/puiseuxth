@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.148 2013-04-14 19:33:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.149 2013-04-14 19:58:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -926,6 +926,35 @@ Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps lch γ β,
                → (i, ips) ∉ points_in_segment α γ β [(deg, c) … pts]
                  → β < valuation α ips + Qnat i * γ.
 Proof.
+intros α fld deg cl cn pts c j jps k kps lch γ β.
+intros Hpts Hnp Hγ Hβ Hc i ips Hips Hnips.
+revert deg cn pts c lch i ips Hpts Hnp Hc Hips Hnips.
+induction cl as [| c₁]; intros.
+ simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts; contradiction.
+
+  subst pts; simpl in Hnp.
+  destruct (lt_dec deg (S deg)) as [Hlt| Hge].
+   clear Hlt.
+   injection Hnp; clear Hnp; intros; subst j jps k kps lch.
+   destruct Hips as [Hips| ]; [ idtac | contradiction ].
+   injection Hips; clear Hips; intros; subst i ips.
+   rewrite minus_Sn_n in Hγ.
+   clear Hnips; subst β γ.
+   unfold Qnat; simpl.
+   unfold Qdiv.
+   simpl.
+   unfold Qinv.
+   simpl.
+   rewrite Qmult_1_r.
+   unfold Qminus.
+   do 2 rewrite Qmult_plus_distr_r.
+   simpl.
+   rewrite Zpos_P_of_succ_nat.
+   rewrite <- Nat2Z.inj_succ.
+   remember (valuation α c) as x.
+   remember (valuation α cn) as y.
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
