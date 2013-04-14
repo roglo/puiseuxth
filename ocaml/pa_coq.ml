@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.5 2013-04-12 20:46:33 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.6 2013-04-14 00:22:32 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -6,7 +6,7 @@
 open Pcaml;
 
 EXTEND
-  GLOBAL: str_item expr;
+  GLOBAL: str_item expr patt;
   str_item:
     [ [ "Fixpoint"; l = V (LIST1 coq_binding SEP "and") →
           <:str_item< value rec $_list:l$ >>

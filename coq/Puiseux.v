@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.122 2013-04-13 23:12:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.123 2013-04-14 00:22:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -825,6 +825,31 @@ induction cl as [| c]; intros.
 bbb.
 *)
 
+(*
+Lemma yyy : ∀ α fld deg cl cn pts,
+  cn ≠ zero fld
+  → (∃ c, c ∈ cl ∧ c ≠ zero fld)
+    → pts = points_of_ps_polynom_gen α fld deg cl cn
+      → ∃ γ β,
+        (∀ i ips, (i, ips) ∈ pts ∧ (i, ips) ∉ points_in_segment α γ β pts
+           → β < valuation α ips + Qnat i * γ).
+Proof.
+intros α fld deg cl cn pts Hcn Hcl Hpts.
+bbb.
+*)
+
+Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → β = valuation α jps + Qnat j * γ
+        → ∀ i ips,
+            (i, ips) ∈ pts
+            → (i, ips) ∉ points_in_segment α γ β pts
+              → β < valuation α ips + Qnat i * γ.
+Proof.
+bbb.
+
 Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
@@ -857,7 +882,24 @@ rewrite H in Hout.
 rewrite <- Hpts in Heqlch.
 symmetry in Heqlch.
 subst seg_pts.
-eapply yyy₁; eassumption.
+bbb.
+eapply yyy; try eassumption.
+ rewrite Hβ; reflexivity.
+
+ rewrite Hβ, Hγ.
+ unfold Qnat.
+ rewrite Nat2Z.inj_sub.
+  rewrite QZ_minus.
+  field.
+  intros H.
+  unfold Qminus in H.
+  unfold Qplus in H.
+  simpl in H.
+  do 2 rewrite Z.mul_1_r in H.
+  unfold Qeq in H.
+  simpl in H.
+  rewrite Z.mul_1_r in H.
+
 zzz.
 
 Record branch α :=
