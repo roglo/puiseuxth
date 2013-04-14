@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.137 2013-04-14 09:46:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.138 2013-04-14 10:11:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -538,33 +538,35 @@ induction rl as [| (m, mps)]; intros.
     right; right; assumption.
 Qed.
 
-Lemma min_sl_in : ∀ α iips j jps kkps sl pts,
-  iips = minimise_slope α j jps kkps sl pts
+Lemma min_sl_in : ∀ α iips jjps kkps sl pts,
+  (iips, sl) = minimise_slope α jjps kkps pts
   → iips ∈ pts ∨ iips = kkps.
 Proof.
-intros α iips j jps kkps sl pts Hips.
-revert iips j jps kkps sl Hips.
-induction pts as [| (l, lps)]; intros.
+intros α iips jjps kkps sl pts Hips.
+revert iips jjps kkps sl Hips.
+induction pts as [| llps]; intros.
  simpl in Hips.
- right; assumption.
+ injection Hips; clear Hips; intros; subst iips sl.
+ right; reflexivity.
 
+ simpl in Hips.
+ remember (minimise_slope α jjps llps pts) as x.
+ destruct x as (mmps, sl₁).
  simpl in Hips.
  remember
-  (Qle_bool ((valuation α lps - valuation α jps) / Qnat (l - j)) sl) as b.
+  (Qle_bool sl₁
+     ((valuation α (snd kkps) - valuation α (snd jjps)) /
+      Qnat (fst kkps - fst jjps))) as b.
  destruct b.
-  simpl.
-  apply IHpts in Hips.
-  destruct Hips as [Hips| Hips].
+  injection Hips; clear Hips; intros; subst mmps sl₁.
+  apply IHpts in Heqx.
+  destruct Heqx as [Heqx| Heqx].
    left; right; assumption.
 
-   subst iips; left; left; reflexivity.
+   left; left; subst iips; reflexivity.
 
-  simpl.
-  apply IHpts in Hips.
-  destruct Hips as [Hips| Hips].
-   left; right; assumption.
-
-   right; assumption.
+  injection Hips; clear Hips; intros; subst kkps sl.
+  right; reflexivity.
 Qed.
 
 Lemma np_in : ∀ α i ips pts lch,
