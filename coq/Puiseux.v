@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.145 2013-04-14 17:09:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.146 2013-04-14 17:15:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -915,7 +915,7 @@ induction cl as [| c₁]; intros.
 bbb.
 *)
 
-(*
+(**)
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -964,7 +964,6 @@ induction cl as [| c]; intros.
     simpl in Hnips.
     apply Decidable.not_or in Hnips.
     destruct Hnips as (Hdeg, Hnips).
-    exfalso; apply Hnips.
 
 bbb.
 *)
