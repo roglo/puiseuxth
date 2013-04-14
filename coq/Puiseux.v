@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.126 2013-04-14 00:47:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.127 2013-04-14 00:52:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -848,9 +848,10 @@ Lemma xxx : ∀ α fld deg cl cn pts j jps k kps lch β γ,
 Proof.
 intros α fld deg cl cn pts j jps k kps lch β γ Hpts Hch Hγ Hβ.
 intros i ips Hips.
-revert deg cl cn pts lch Hpts Hch i ips Hips.
+unfold points_of_ps_polynom_gen in Hpts.
+revert deg cn pts lch Hpts Hch i ips Hips.
 induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ simpl in Hpts.
  destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
   subst pts; contradiction.
 
@@ -858,6 +859,10 @@ induction cl as [| c]; intros.
   destruct Hips as [Hips| ]; [ idtac | contradiction ].
   injection Hips; clear Hips; intros; subst deg cn.
   discriminate Hch.
+
+ simpl in Hpts.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  eapply IHcl; eassumption.
 
 bbb.
 
