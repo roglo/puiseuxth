@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.130 2013-04-14 01:42:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.131 2013-04-14 01:55:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -386,6 +386,14 @@ apply Zlt_left_lt.
 assumption.
 Qed.
 *)
+
+Lemma QZ_plus : ∀ a b, a + b # 1 == (a # 1) + (b # 1).
+Proof.
+intros.
+unfold Qplus; simpl.
+do 2 rewrite Z.mul_1_r.
+reflexivity.
+Qed.
 
 Lemma QZ_minus : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
 Proof.
@@ -904,6 +912,9 @@ induction cl as [| c]; intros.
         Qnat (S j) * ((valuation α jps - valuation α cn) / Qnat 1)).
        unfold Qnat.
        replace (S j) with (1 + j)%nat by reflexivity.
+       rewrite Nat2Z.inj_add.
+       replace (Z.of_nat 1 + Z.of_nat j # 1) with (1 + (Z.of_nat j # 1)).
+        field.
 (*
       unfold Qnat; simpl.
       rewrite Zpos_P_of_succ_nat.
