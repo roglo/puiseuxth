@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.136 2013-04-14 09:27:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.137 2013-04-14 09:46:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -253,48 +253,23 @@ destruct chp as [| (j, jps)].
   apply next_points_not_empty.
 
  destruct chp as [| (k, kps)]; [ idtac | intros H; discriminate H ].
-bbb.
+ destruct pts; [ discriminate Heqchp | idtac ].
+ symmetry in Heqchp; simpl in Heqchp.
+ destruct pts.
+  apply at_least_two_points_of_ps_polynom in ai_nz; [ idtac | assumption ].
+  rewrite <- Heqpts in ai_nz.
+  apply le_not_lt in ai_nz.
+  exfalso; apply ai_nz, lt_n_Sn.
 
-intros α fld pol an_nz ai_nz.
-unfold gamma_beta.
-destruct ai_nz as (c, (Hc, c_nz)).
-remember (points_of_ps_polynom α fld pol) as pts.
-remember (lower_convex_hull_points α pts) as chp.
-destruct chp as [| (d₁, p₁)].
- destruct pts as [| (d₂, p₂)]; [ idtac | discriminate Heqchp ].
- symmetry in Heqpts.
- exfalso; revert Heqpts.
- apply at_least_one_valuation_point; assumption.
+  simpl in Heqchp.
+  destruct (lt_dec (fst p) (fst p0)).
+   injection Heqchp; clear Heqchp; intros; subst p.
+   exfalso; revert H; apply next_points_not_empty.
 
- destruct chp as [| (mp₂₃, (d₃, p₃))].
-  destruct pts as [| (d₃, p₃)]; [ discriminate Heqchp | simpl in Heqchp ].
-  injection Heqchp; intros H₁ H₂ H₃.
-  subst d₃ p₃; clear Heqchp.
-  destruct pts.
-   remember (length (points_of_ps_polynom α fld pol)) as len.
-   destruct len.
-    rewrite <- Heqpts in Heqlen.
-    discriminate Heqlen.
-
-    destruct len.
-     pose proof (at_least_two_points_of_ps_polynom α fld pol) as H.
-     rewrite <- Heqlen in H.
-     unfold ge in H.
-     assert (2 ≤ 1) as HH.
-      apply H; [ assumption | exists c; split; assumption ].
-
-      apply le_not_lt in HH.
-      exfalso; apply HH, lt_n_Sn.
-
-     rewrite <- Heqpts in Heqlen; discriminate Heqlen.
-
-   exfalso; symmetry in H₁; revert H₁.
-   apply convex_hull_not_empty.
-   destruct p; simpl.
+   exfalso; apply n.
+   destruct p, p0.
    symmetry in Heqpts.
-   eapply points_of_ps_polynom_lt; eassumption.
-
-  intros H; discriminate H.
+   eapply points_of_ps_polynom_lt;  eassumption.
 Qed.
 
 (*
