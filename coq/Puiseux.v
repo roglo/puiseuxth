@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.143 2013-04-14 15:59:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.144 2013-04-14 16:07:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -915,7 +915,6 @@ induction cl as [| c₁]; intros.
 bbb.
 *)
 
-(*
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -978,6 +977,31 @@ Lemma zzz₁ : ∀ α fld deg cl cn pts,
            → β < valuation α ips + Qnat i * γ).
 Proof.
 intros α fld deg cl cn pts an_nz ai_nz Hpts.
+eapply gb_gen_not_empty with (deg := deg) in ai_nz; [ idtac | eassumption ].
+remember (gamma_beta_gen α fld deg cl cn) as gb.
+destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
+destruct p as ((((γ, β), (j, jps)), (k, kps)), seg_pts).
+exists γ, β.
+intros i ips Hiit.
+destruct Hiit as (Hin, Hout).
+symmetry in Heqgb.
+unfold gamma_beta_gen in Heqgb.
+remember
+ (lower_convex_hull_points α (points_of_ps_polynom_gen α fld deg cl cn)) as lch.
+destruct lch as [| (l, lt)]; [ discriminate Heqgb | idtac ].
+destruct lch as [| (m, mt)]; [ discriminate Heqgb | idtac ].
+injection Heqgb; clear Heqgb; intros; subst l lt m mt.
+rewrite H5 in H.
+rewrite H5 in H4.
+rewrite H4 in H.
+symmetry in H4; rename H4 into Hβ.
+symmetry in H5; rename H5 into Hγ.
+rewrite <- Hpts in H.
+rewrite H in Hout.
+rewrite <- Hpts in Heqlch.
+symmetry in Heqlch.
+subst seg_pts.
+eapply yyy; eassumption.
 bbb.
 
 Lemma zzz : ∀ α fld pol pts,
