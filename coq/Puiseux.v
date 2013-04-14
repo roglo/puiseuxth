@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.146 2013-04-14 17:15:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.147 2013-04-14 19:26:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -964,6 +964,56 @@ induction cl as [| c]; intros.
     simpl in Hnips.
     apply Decidable.not_or in Hnips.
     destruct Hnips as (Hdeg, Hnips).
+    symmetry in Heqb.
+    apply Qeq_bool_iff in Heqb.
+    symmetry in Heqb.
+    destruct cl as [| c₁].
+     simpl in Heqpts₁.
+     destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+      subst pts₁; contradiction.
+
+      subst pts₁.
+      destruct Hips as [Hips| ]; [ idtac | contradiction ].
+      injection Hips; clear Hips; intros; subst i ips.
+      simpl in Hch.
+      destruct (lt_dec deg (S deg)) as [Hlt| Hge₂].
+       injection Hch; clear Hch; intros; subst j jps k kps lch.
+       clear IHcl.
+       rewrite minus_Sn_n in Hγ.
+       simpl in Hnips.
+       remember (Qeq_bool (valuation α cn + Qnat (S deg) * γ) β) as b.
+       destruct b.
+        simpl in Hnips.
+        apply Decidable.not_or in Hnips.
+        destruct Hnips as (H, _); exfalso; apply H; reflexivity.
+
+        clear Hlt Hnips Hdeg.
+        symmetry in Heqb0.
+        apply Qeq_bool_neq in Heqb0.
+        symmetry in Heqb.
+        symmetry in Hβ.
+        clear Heqb.
+        rewrite <- Hβ in Heqb0.
+        subst γ.
+        exfalso; apply Heqb0; clear Heqb0 Hβ.
+        unfold Qnat.
+        simpl.
+        replace (' Pos.of_succ_nat deg # 1) with ((Z.of_nat deg # 1) + 1).
+         field.
+
+         unfold Qplus.
+         simpl.
+         rewrite Zmult_1_r.
+         rewrite Zplus_comm.
+         rewrite Zpos_P_of_succ_nat.
+         simpl.
+         destruct (Z.of_nat deg); try reflexivity.
+         destruct p; reflexivity.
+
+       discriminate Hch.
+
+     simpl in Heqpts₁.
+     destruct (eq_k_dec fld c₁ (zero fld)) as [Heq| Hne].
 
 bbb.
 *)
