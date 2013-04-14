@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.125 2013-04-14 00:41:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.126 2013-04-14 00:47:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -857,6 +857,8 @@ induction cl as [| c]; intros.
   subst pts.
   destruct Hips as [Hips| ]; [ idtac | contradiction ].
   injection Hips; clear Hips; intros; subst deg cn.
+  discriminate Hch.
+
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
