@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.135 2013-04-14 09:13:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.136 2013-04-14 09:27:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -62,13 +62,13 @@ Definition points_of_ps_polynom α fld pol :=
 Definition gamma_beta {α} fld pol :=
   let gdpl := points_of_ps_polynom α fld pol in
   match lower_convex_hull_points α gdpl with
-  | [(j, p₁), (k, p₂) … _] =>
-      let αj := valuation α p₁ in
-      let αk := valuation α p₂ in
+  | [(j, jps), (k, kps) … _] =>
+      let αj := valuation α jps in
+      let αk := valuation α kps in
       let γ := (αj - αk) / Qnat (k - j)%nat in
       let β := αj + Qnat j * γ in
       let dpl := points_in_segment α γ β gdpl in
-      Some (γ, β, (j, p₁), (k, p₂), dpl)
+      Some (γ, β, (j, jps), (k, kps), dpl)
   | [_] | [] =>
       None
   end.
@@ -242,8 +242,8 @@ intros α fld pol an_nz ai_nz.
 unfold gamma_beta.
 remember (points_of_ps_polynom α fld pol) as pts.
 remember (lower_convex_hull_points α pts) as chp.
-destruct chp as [| (d₁, p₁)].
- destruct pts as [| (d₂, p₂)].
+destruct chp as [| (j, jps)].
+ destruct pts as [| (j, jps)].
   symmetry in Heqpts.
   exfalso; revert Heqpts.
   apply at_least_one_valuation_point; assumption.
@@ -251,6 +251,8 @@ destruct chp as [| (d₁, p₁)].
   symmetry in Heqchp.
   exfalso; revert Heqchp.
   apply next_points_not_empty.
+
+ destruct chp as [| (k, kps)]; [ idtac | intros H; discriminate H ].
 bbb.
 
 intros α fld pol an_nz ai_nz.
