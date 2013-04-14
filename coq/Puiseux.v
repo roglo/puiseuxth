@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.140 2013-04-14 11:49:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.141 2013-04-14 14:33:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -825,6 +825,77 @@ induction pts as [| (l, lps)]; intros.
   eapply IHpts; eassumption.
 Qed.
 
+(*
+Lemma www : ∀ α fld deg c cl cn pts γ β j jps k kps lch,
+  γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+  → β = valuation α jps + Qnat j * γ
+    → pts =
+        filter_non_zero_ps α fld
+          (all_points_of_ps_polynom α (S deg) cl cn)
+      → next_points α (deg, c) pts = [(j, jps), (k, kps) … lch]
+        → ∀ i ips, β <= valuation α ips + Qnat i * γ.
+Proof.
+intros α fld deg c cl cn pts γ β j jps k kps lch Hγ Hβ Hpts Hnp i ips.
+revert deg c cn pts lch Hpts Hnp i ips.
+revert γ β j jps k kps Hγ Hβ.
+induction cl as [| c₁]; intros.
+ simpl in Hpts; subst pts.
+ destruct (eq_k_dec fld cn (zero fld)).
+  simpl in Hnp; discriminate Hnp.
+
+  simpl in Hnp.
+  destruct (lt_dec deg (S deg)) as [Hlt| Hge].
+   injection Hnp; clear Hnp; intros; subst j k jps kps lch.
+   rewrite minus_Sn_n in Hγ.
+bbb.
+*)
+
+Lemma not_seg_le : ∀ α fld deg cl cn pts i ips j jps k kps lch β γ,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → next_points α (i, ips) pts = [(j, jps), (k, kps) … lch]
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → β = valuation α jps + Qnat j * γ
+        → (i, ips) ∉ points_in_segment α γ β pts
+          → β <= valuation α ips + Qnat i * γ.
+Proof.
+intros α fld deg cl cn pts i ips j jps k kps lch β γ Hpts Hnp Hγ Hβ Hips.
+unfold points_of_ps_polynom_gen in Hpts.
+revert deg cn pts i ips lch Hpts Hnp Hips.
+induction cl as [| c]; intros.
+ simpl in Hpts; subst pts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  simpl in Hnp; discriminate Hnp.
+
+  simpl in Hnp.
+  destruct (lt_dec i deg) as [Hlt| Hge].
+   injection Hnp; clear Hnp; intros; subst i ips deg cn lch.
+   subst β; apply Qle_refl.
+
+   discriminate Hnp.
+
+ simpl in Hpts.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  eapply IHcl; eassumption.
+
+  remember
+   (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
+  subst pts.
+  simpl in Hnp.
+  destruct (lt_dec i deg) as [Hlt| Hge].
+   injection Hnp; clear Hnp; intros; subst i ips.
+   subst β; apply Qle_refl.
+
+   simpl in Hips.
+   remember (Qeq_bool (valuation α c + Qnat deg * γ) β) as b.
+   destruct b.
+    eapply IHcl; try eassumption.
+    intros H; apply Hips; clear Hips.
+    right; assumption.
+
+    eapply IHcl; try eassumption.
+Qed.
+
+(*
 Lemma xxx : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -855,82 +926,7 @@ induction cl as [| c]; intros.
    eapply np_beta_le; eassumption.
 
 bbb.
-
-intros α fld deg cl cn pts j jps k kps lch β γ Hpts Hch Hγ Hβ.
-intros i ips Hips.
-unfold points_of_ps_polynom_gen in Hpts.
-revert deg cn pts lch Hpts Hch i ips Hips.
-induction cl as [| c]; intros.
- simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
-  subst pts; contradiction.
-
-  subst pts.
-  destruct Hips as [Hips| ]; [ idtac | contradiction ].
-  injection Hips; clear Hips; intros; subst deg cn.
-  discriminate Hch.
-
- simpl in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
-  eapply IHcl; eassumption.
-
-  remember
-   (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
-  subst pts.
-  simpl in Hch.
-  injection Hch; clear Hch; intros; subst deg c.
-  rename H into Hnp.
-  destruct Hips as [Hips| Hips].
-   injection Hips; clear Hips; intros; subst i ips.
-   rewrite Hβ; apply Qle_refl.
-
-   clear IHcl.
-   rename pts₁ into pts.
-   rename Heqpts₁ into Hpts.
-bbb.
-   revert cn lch pts i ips Hpts Hips Hnp.
-   induction cl as [| c]; intros.
-    simpl in Hpts.
-    destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne₂].
-     subst pts; contradiction.
-
-     subst pts.
-     destruct Hips as [Hips| ]; [ idtac | contradiction ].
-     injection Hips; clear Hips; intros; subst i ips.
-     simpl in Hnp.
-     destruct (lt_dec j (S j)) as [Hlt| Hge].
-      injection Hnp; clear Hnp; intros; subst k kps lch.
-      rewrite minus_Sn_n in Hγ.
-      subst β γ.
-      assert
-       (valuation α jps +
-        Qnat j * ((valuation α jps - valuation α cn) / Qnat 1) ==
-        valuation α cn +
-        Qnat (S j) * ((valuation α jps - valuation α cn) / Qnat 1)).
-       unfold Qnat.
-       replace (S j) with (1 + j)%nat by reflexivity.
-       rewrite Nat2Z.inj_add.
-       replace (Z.of_nat 1 + Z.of_nat j # 1) with (1 + (Z.of_nat j # 1)).
-        field.
-
-        Focus 2.
-        rewrite H; apply Qle_refl.
-
-       Focus 2.
-       discriminate Hnp.
-
-      Focus 2.
-      simpl in Hpts.
-      destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne₂].
-
-*
-      unfold Qnat; simpl.
-      rewrite Zpos_P_of_succ_nat.
-      replace (Z.of_nat j) with (Z.of_nat j + 0)%Z.
-       rewrite Zplus_succ_r_reverse.
-       simpl.
-*
-bbb.
+*)
 
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
@@ -966,33 +962,13 @@ induction cl as [| c]; intros.
    destruct b.
     exfalso; apply Hnips; left; reflexivity.
 
-bbb.
-
-intros α fld deg cl cn pts j jps k kps lch β γ Hpts Hch Hγ Hβ.
-intros i ips Hips Hnips.
-revert deg cn pts lch Hpts Hch i ips Hips Hnips.
-induction cl as [| c]; intros.
- remember Hpts as Hpts₂; clear HeqHpts₂.
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
-  subst pts; contradiction.
-
-  subst pts.
-  destruct Hips as [Hips| ]; [ idtac | contradiction ].
-  injection Hips; clear Hips; intros; subst deg cn.
-  simpl in Hnips.
-  remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
-  destruct b.
-   exfalso; apply Hnips; left; reflexivity.
-
-   clear Hnips.
-   symmetry in Heqb.
-   apply Qeq_bool_neq in Heqb.
-   apply Qnot_le_lt.
-   intros H; apply Heqb; clear Heqb.
-   apply Qle_antisym; [ assumption | idtac ].
-   eapply xxx; try eassumption.
-   left; reflexivity.
+    apply Qnot_le_lt.
+    symmetry in Heqb.
+    apply Qeq_bool_neq in Heqb.
+    intros H; apply Heqb.
+    apply Qeq_sym.
+    apply Qle_antisym; [ idtac | eassumption ].
+    eapply not_seg_le; eassumption.
 
 bbb.
 
