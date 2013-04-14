@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.127 2013-04-14 00:52:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.128 2013-04-14 01:17:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -838,6 +838,12 @@ intros α fld deg cl cn pts Hcn Hcl Hpts.
 bbb.
 *)
 
+Lemma minus_Sn_n : ∀ n, (S n - n = 1)%nat.
+Proof.
+intros n.
+rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
+Qed.
+
 Lemma xxx : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -864,6 +870,32 @@ induction cl as [| c]; intros.
  destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
   eapply IHcl; eassumption.
 
+  remember
+   (filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)) as pts₁.
+  subst pts.
+  simpl in Hch.
+  injection Hch; clear Hch; intros; subst deg c.
+  rename H into Hnp.
+  destruct Hips as [Hips| Hips].
+   injection Hips; clear Hips; intros; subst i ips.
+   rewrite Hβ; apply Qle_refl.
+
+   clear IHcl.
+   rename pts₁ into pts.
+   rename Heqpts₁ into Hpts.
+   revert cn lch pts i ips Hpts Hips Hnp.
+   induction cl as [| c]; intros.
+    simpl in Hpts.
+    destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne₂].
+     subst pts; contradiction.
+
+     subst pts.
+     destruct Hips as [Hips| ]; [ idtac | contradiction ].
+     injection Hips; clear Hips; intros; subst i ips.
+     simpl in Hnp.
+     destruct (lt_dec j (S j)) as [Hlt| Hge].
+      injection Hnp; clear Hnp; intros; subst k kps lch.
+      rewrite minus_Sn_n in Hγ.
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
