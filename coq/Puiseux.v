@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.123 2013-04-14 00:22:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.124 2013-04-14 00:36:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -838,6 +838,16 @@ intros α fld deg cl cn pts Hcn Hcl Hpts.
 bbb.
 *)
 
+Lemma xxx : ∀ α fld deg cl cn pts j jps k kps lch β γ,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → β = valuation α jps + Qnat j * γ
+        → ∀ i ips, (i, ips) ∈ pts
+          → β <= valuation α ips + Qnat i * γ.
+Proof.
+bbb.
+
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -848,6 +858,32 @@ Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
             → (i, ips) ∉ points_in_segment α γ β pts
               → β < valuation α ips + Qnat i * γ.
 Proof.
+intros α fld deg cl cn pts j jps k kps lch β γ Hpts Hch Hγ Hβ.
+intros i ips Hips Hnips.
+revert deg cn pts lch Hpts Hch i ips Hips Hnips.
+induction cl as [| c]; intros.
+ remember Hpts as Hpts₂; clear HeqHpts₂.
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts; contradiction.
+
+  subst pts.
+  destruct Hips as [Hips| ]; [ idtac | contradiction ].
+  injection Hips; clear Hips; intros; subst deg cn.
+  simpl in Hnips.
+  remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
+  destruct b.
+   exfalso; apply Hnips; left; reflexivity.
+
+   clear Hnips.
+   symmetry in Heqb.
+   apply Qeq_bool_neq in Heqb.
+   apply Qnot_le_lt.
+   intros H; apply Heqb; clear Heqb.
+   apply Qle_antisym; [ assumption | idtac ].
+   eapply xxx; try eassumption.
+   left; reflexivity.
+
 bbb.
 
 Lemma zzz : ∀ α fld pol pts,
