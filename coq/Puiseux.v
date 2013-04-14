@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.144 2013-04-14 16:07:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.145 2013-04-14 17:09:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -915,6 +915,7 @@ induction cl as [| c₁]; intros.
 bbb.
 *)
 
+(*
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -977,14 +978,14 @@ Lemma zzz₁ : ∀ α fld deg cl cn pts,
            → β < valuation α ips + Qnat i * γ).
 Proof.
 intros α fld deg cl cn pts an_nz ai_nz Hpts.
-eapply gb_gen_not_empty with (deg := deg) in ai_nz; [ idtac | eassumption ].
+eapply gb_gen_not_empty in ai_nz; [ idtac | eassumption ].
 remember (gamma_beta_gen α fld deg cl cn) as gb.
-destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
+symmetry in Heqgb.
+destruct gb; [ clear ai_nz | exfalso; apply ai_nz; eassumption ].
 destruct p as ((((γ, β), (j, jps)), (k, kps)), seg_pts).
 exists γ, β.
 intros i ips Hiit.
 destruct Hiit as (Hin, Hout).
-symmetry in Heqgb.
 unfold gamma_beta_gen in Heqgb.
 remember
  (lower_convex_hull_points α (points_of_ps_polynom_gen α fld deg cl cn)) as lch.
