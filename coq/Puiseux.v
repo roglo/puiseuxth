@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.138 2013-04-14 10:11:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.139 2013-04-14 10:43:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -569,58 +569,35 @@ induction pts as [| llps]; intros.
   right; reflexivity.
 Qed.
 
-Lemma np_in : ∀ α i ips pts lch,
-  next_points α i ips pts = lch
-  → ∀ jjps, jjps ∈ lch → jjps = (i, ips) ∨ jjps ∈ pts.
+Lemma np_in : ∀ α iips pts lch,
+  next_points α iips pts = lch
+  → ∀ jjps, jjps ∈ lch → jjps = iips ∨ jjps ∈ pts.
 Proof.
-intros α i ips pts lch Hnp (j, jps) Hjps.
-revert i ips lch Hnp j jps Hjps.
-induction pts as [| (k, kps)]; intros.
- simpl in Hnp; subst lch; contradiction.
+intros α iips pts lch Hnp jjps Hjps.
+revert iips lch Hnp jjps Hjps.
+induction pts as [| kkps]; intros.
+ subst lch; simpl in Hjps.
+ destruct Hjps; [ idtac | contradiction ].
+ left; symmetry; assumption.
 
  simpl in Hnp.
- remember
-  (minimise_slope α i ips (k, kps)
-     ((valuation α kps - valuation α ips) / Qnat (k - i)) pts) as x.
- destruct x as (l, lps).
- destruct (lt_dec i k) as [Hlt| Hge].
-  remember (next_points α l lps pts) as lch₁; subst lch.
-  destruct Hjps as [Hjps| Hjps].
-   injection Hjps; clear Hjps; intros; subst l lps.
-   symmetry in Heqlch₁.
-   apply IHpts with (j := k) (jps := kps) in Heqlch₁.
-    destruct Heqlch₁ as [Hips| Hips].
-     injection Hips; clear Hips; intros; subst k kps.
-     right; left; reflexivity.
-bbb.
-
-intros α i ips pts lch Hnp (j, jps) Hjps.
-revert i ips lch Hnp j jps Hjps.
-induction pts as [| (k, kps)]; intros.
- simpl in Hnp; subst lch; contradiction.
-
- simpl in Hnp.
- remember
-  (minimise_slope α i ips (k, kps)
-     ((valuation α kps - valuation α ips) / Qnat (k - i)) pts) as x.
- destruct x as (l, lps).
- destruct (lt_dec i k) as [Hlt| Hge].
-  simpl.
-  eapply IHpts in Hnp; [ idtac | eassumption ].
+ destruct (lt_dec (fst iips) (fst kkps)) as [Hlt| Hge].
+  remember (minimise_slope α iips kkps pts) as ms.
+  destruct ms as (llps, sl).
   simpl in Hnp.
-  destruct Hnp as [[Hnp| Hnp]| Hnp].
-   apply min_sl_in in Heqx.
-   rewrite Hnp in Heqx.
-   destruct Heqx as [Heqx| Heqx].
-    right; right; assumption.
-
-    right; left; symmetry; assumption.
-
-   left; assumption.
-
+  remember (next_points α llps pts) as lch₁.
+  subst lch.
+  destruct Hjps; [ left; symmetry; assumption | idtac ].
+  symmetry in Heqlch₁.
+  eapply IHpts in Heqlch₁; [ idtac | eassumption ].
+  destruct Heqlch₁ as [HH| ]; [ idtac | right; right; assumption ].
+  subst llps.
+  apply min_sl_in in Heqms.
+  destruct Heqms as [HH| HH].
    right; right; assumption.
 
-  simpl.
+   right; left; subst jjps; reflexivity.
+
   eapply IHpts in Hnp; [ idtac | eassumption ].
   destruct Hnp as [Hnp| Hnp].
    left; assumption.
