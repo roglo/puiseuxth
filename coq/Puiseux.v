@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.134 2013-04-14 08:13:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.135 2013-04-14 09:13:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -156,43 +156,13 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-(*
-Lemma next_points_not_empty : ∀ α dp dpl d₁ p₁ dpl₁,
-  next_points α [dp … dpl] d₁ p₁ dpl₁ ≠ [ ].
+Lemma next_points_not_empty : ∀ α dp dpl,
+  next_points α dp dpl ≠ [ ].
 Proof.
 intros.
-revert dp dpl d₁ p₁.
-induction dpl₁ as [| dp₂]; intros.
- simpl.
- apply rev_app_not_nil.
-
- simpl.
- destruct dp₂ as (d₂, p₂).
- destruct (lt_dec d₁ d₂).
-  remember (valuation α p₂ - valuation α p₁) as v₂₁.
-  remember (Qnat (d₂ - d₁)) as d₂₁.
-  remember (minimise_slope α d₁ p₁ (d₂, p₂) (v₂₁ / d₂₁) dpl₁) as xs.
-  subst v₂₁ d₂₁.
-  destruct xs as (dp₃, sk).
-  apply IHdpl₁.
-
-  apply IHdpl₁.
-Qed.
-*)
-
-Lemma convex_hull_not_empty : ∀ α d₁ p₁ d₂ p₂ dpl₂,
-  (d₁ < d₂)%nat
-  → next_points α (d₁, p₁) [(d₂, p₂) … dpl₂] ≠ [].
-Proof.
-intros α d₁ p₁ d₂ p₂ dpl₂ Hd.
-revert d₁ p₁ d₂ p₂ Hd.
-induction dpl₂ as [| dp₃ dpl₃]; intros.
- simpl.
- destruct (lt_dec d₁ d₂); [ intros H; discriminate H | contradiction ].
-
- remember [dp₃ … dpl₃] as dpl₂.
- simpl.
- destruct (lt_dec d₁ d₂); [ intros H; discriminate H | contradiction ].
+induction dpl as [| dp₂ dpl₂]; [ intros H; discriminate H | simpl ].
+destruct (lt_dec (fst dp) (fst dp₂)); [ intros H; discriminate H | idtac ].
+assumption.
 Qed.
 
 Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
@@ -268,6 +238,21 @@ Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
     → gamma_beta fld pol ≠ None.
 Proof.
+intros α fld pol an_nz ai_nz.
+unfold gamma_beta.
+remember (points_of_ps_polynom α fld pol) as pts.
+remember (lower_convex_hull_points α pts) as chp.
+destruct chp as [| (d₁, p₁)].
+ destruct pts as [| (d₂, p₂)].
+  symmetry in Heqpts.
+  exfalso; revert Heqpts.
+  apply at_least_one_valuation_point; assumption.
+
+  symmetry in Heqchp.
+  exfalso; revert Heqchp.
+  apply next_points_not_empty.
+bbb.
+
 intros α fld pol an_nz ai_nz.
 unfold gamma_beta.
 destruct ai_nz as (c, (Hc, c_nz)).
