@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.129 2013-04-14 01:27:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.130 2013-04-14 01:42:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -897,11 +897,20 @@ induction cl as [| c]; intros.
       injection Hnp; clear Hnp; intros; subst k kps lch.
       rewrite minus_Sn_n in Hγ.
       subst β γ.
+      assert
+       (valuation α jps +
+        Qnat j * ((valuation α jps - valuation α cn) / Qnat 1) ==
+        valuation α cn +
+        Qnat (S j) * ((valuation α jps - valuation α cn) / Qnat 1)).
+       unfold Qnat.
+       replace (S j) with (1 + j)%nat by reflexivity.
+(*
       unfold Qnat; simpl.
       rewrite Zpos_P_of_succ_nat.
       replace (Z.of_nat j) with (Z.of_nat j + 0)%Z.
        rewrite Zplus_succ_r_reverse.
        simpl.
+*)
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
