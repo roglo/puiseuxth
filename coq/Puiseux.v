@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.131 2013-04-14 01:55:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.132 2013-04-14 02:09:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -891,6 +891,7 @@ induction cl as [| c]; intros.
    clear IHcl.
    rename pts₁ into pts.
    rename Heqpts₁ into Hpts.
+bbb.
    revert cn lch pts i ips Hpts Hips Hnp.
    induction cl as [| c]; intros.
     simpl in Hpts.
@@ -915,6 +916,17 @@ induction cl as [| c]; intros.
        rewrite Nat2Z.inj_add.
        replace (Z.of_nat 1 + Z.of_nat j # 1) with (1 + (Z.of_nat j # 1)).
         field.
+
+        Focus 2.
+        rewrite H; apply Qle_refl.
+
+       Focus 2.
+       discriminate Hnp.
+
+      Focus 2.
+      simpl in Hpts.
+      destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne₂].
+
 (*
       unfold Qnat; simpl.
       rewrite Zpos_P_of_succ_nat.
