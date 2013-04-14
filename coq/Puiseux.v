@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.142 2013-04-14 15:17:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.143 2013-04-14 15:59:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -59,8 +59,8 @@ Definition points_of_ps_polynom_gen α fld pow cl cn :=
 Definition points_of_ps_polynom α fld pol :=
   points_of_ps_polynom_gen α fld 0%nat (al pol) (an pol).
 
-Definition gamma_beta {α} fld pol :=
-  let gdpl := points_of_ps_polynom α fld pol in
+Definition gamma_beta_gen α fld deg cl cn :=
+  let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
   match lower_convex_hull_points α gdpl with
   | [(j, jps), (k, kps) … _] =>
       let αj := valuation α jps in
@@ -72,6 +72,9 @@ Definition gamma_beta {α} fld pol :=
   | [_] | [] =>
       None
   end.
+
+Definition gamma_beta {α} fld pol :=
+  gamma_beta_gen α fld 0%nat (al pol) (an pol).
 Arguments gamma_beta : default implicits.
 
 Lemma one_vp_gen : ∀ α fld pow cl cn,
@@ -233,20 +236,20 @@ unfold points_of_ps_polynom in Hvp.
 eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
 
-Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),
-  an pol ≠ zero fld
-  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
-    → gamma_beta fld pol ≠ None.
+Lemma gb_gen_not_empty : ∀ α fld deg cl cn,
+  cn ≠ zero fld
+  → (∃ c, c ∈ cl ∧ c ≠ zero fld)
+    → gamma_beta_gen α fld deg cl cn ≠ None.
 Proof.
-intros α fld pol an_nz ai_nz.
-unfold gamma_beta.
-remember (points_of_ps_polynom α fld pol) as pts.
+intros α fld deg cl cn Hcn Hcl.
+unfold gamma_beta_gen.
+remember (points_of_ps_polynom_gen α fld deg cl cn) as pts.
 remember (lower_convex_hull_points α pts) as chp.
 destruct chp as [| (j, jps)].
  destruct pts as [| (j, jps)].
   symmetry in Heqpts.
   exfalso; revert Heqpts.
-  apply at_least_one_valuation_point; assumption.
+  apply one_vp_gen; assumption.
 
   symmetry in Heqchp.
   exfalso; revert Heqchp.
@@ -256,20 +259,30 @@ destruct chp as [| (j, jps)].
  destruct pts; [ discriminate Heqchp | idtac ].
  symmetry in Heqchp; simpl in Heqchp.
  destruct pts.
-  apply at_least_two_points_of_ps_polynom in ai_nz; [ idtac | assumption ].
-  rewrite <- Heqpts in ai_nz.
-  apply le_not_lt in ai_nz.
-  exfalso; apply ai_nz, lt_n_Sn.
+  eapply two_vp_gen with (pow := deg) in Hcl; [ idtac | eassumption ].
+  rewrite <- Heqpts in Hcl.
+  apply le_not_lt in Hcl.
+  exfalso; apply Hcl, lt_n_Sn.
 
   simpl in Heqchp.
   destruct (lt_dec (fst p) (fst p0)).
    injection Heqchp; clear Heqchp; intros; subst p.
    exfalso; revert H; apply next_points_not_empty.
 
-   exfalso; apply n.
-   destruct p, p0.
+   exfalso; apply n; clear n.
+   destruct p, p0; simpl.
    symmetry in Heqpts.
-   eapply points_of_ps_polynom_lt;  eassumption.
+   eapply vp_lt; [ eassumption | left; reflexivity ].
+Qed.
+
+Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),
+  an pol ≠ zero fld
+  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
+    → gamma_beta fld pol ≠ None.
+Proof.
+intros α fld pol an_nz ai_nz.
+unfold gamma_beta.
+apply gb_gen_not_empty; assumption.
 Qed.
 
 (*
@@ -902,6 +915,7 @@ induction cl as [| c₁]; intros.
 bbb.
 *)
 
+(*
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -953,6 +967,18 @@ induction cl as [| c]; intros.
     exfalso; apply Hnips.
 
 bbb.
+*)
+
+Lemma zzz₁ : ∀ α fld deg cl cn pts,
+  cn ≠ zero fld
+  → (∃ c, c ∈ cl ∧ c ≠ zero fld)
+    →  pts = points_of_ps_polynom_gen α fld deg cl cn
+      → ∃ γ β,
+        (∀ i ips, (i, ips) ∈ pts ∧ (i, ips) ∉ points_in_segment α γ β pts
+           → β < valuation α ips + Qnat i * γ).
+Proof.
+intros α fld deg cl cn pts an_nz ai_nz Hpts.
+bbb.
 
 Lemma zzz : ∀ α fld pol pts,
   an pol ≠ zero fld
@@ -963,6 +989,7 @@ Lemma zzz : ∀ α fld pol pts,
            → β < valuation α ips + Qnat i * γ).
 Proof.
 intros α fld pol pts an_nz ai_nz Hpts.
+bbb.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
