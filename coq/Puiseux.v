@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.133 2013-04-14 06:38:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.134 2013-04-14 08:13:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -180,27 +180,19 @@ induction dpl₁ as [| dp₂]; intros.
 Qed.
 *)
 
-Lemma convex_hull_not_empty : ∀ α d₁ p₁ dp₂ dpl₁,
-  (d₁ < fst dp₂)%nat
-  → next_points α d₁ p₁ [dp₂ … dpl₁] ≠ [].
+Lemma convex_hull_not_empty : ∀ α d₁ p₁ d₂ p₂ dpl₂,
+  (d₁ < d₂)%nat
+  → next_points α (d₁, p₁) [(d₂, p₂) … dpl₂] ≠ [].
 Proof.
-intros α d₁ p₁ dp₂ dpl₁ Hd.
-revert d₁ p₁ dp₂ Hd.
-induction dpl₁ as [| dp₃]; intros.
+intros α d₁ p₁ d₂ p₂ dpl₂ Hd.
+revert d₁ p₁ d₂ p₂ Hd.
+induction dpl₂ as [| dp₃ dpl₃]; intros.
  simpl.
- destruct dp₂ as (d₂, p₂).
  destruct (lt_dec d₁ d₂); [ intros H; discriminate H | contradiction ].
 
- remember [dp₃ … dpl₁] as dpl.
+ remember [dp₃ … dpl₃] as dpl₂.
  simpl.
- destruct dp₂ as (d₂, p₂).
- remember (valuation α p₂ - valuation α p₁) as v₂₁.
- remember (Qnat (d₂ - d₁)) as d₂₁.
- remember (minimise_slope α d₁ p₁ (d₂, p₂) (v₂₁ / d₂₁) dpl) as dps.
- subst v₂₁ d₂₁.
- destruct dps as (dp, skip).
- destruct (lt_dec d₁ d₂); [ idtac | contradiction ].
- intros H; discriminate H.
+ destruct (lt_dec d₁ d₂); [ intros H; discriminate H | contradiction ].
 Qed.
 
 Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
@@ -613,17 +605,35 @@ induction pts as [| (l, lps)]; intros.
    right; assumption.
 Qed.
 
-Lemma np_in : ∀ α rl i ips pts lch,
-  next_points α rl i ips pts = lch
-  → ∀ jjps, jjps ∈ lch → jjps ∈ rl ∨ jjps ∈ pts.
+Lemma np_in : ∀ α i ips pts lch,
+  next_points α i ips pts = lch
+  → ∀ jjps, jjps ∈ lch → jjps = (i, ips) ∨ jjps ∈ pts.
 Proof.
-intros α rl i ips pts lch Hnp (j, jps) Hjps.
-revert rl i ips lch Hnp j jps Hjps.
+intros α i ips pts lch Hnp (j, jps) Hjps.
+revert i ips lch Hnp j jps Hjps.
 induction pts as [| (k, kps)]; intros.
+ simpl in Hnp; subst lch; contradiction.
+
  simpl in Hnp.
- subst lch.
- left.
- apply List.In_rev; assumption.
+ remember
+  (minimise_slope α i ips (k, kps)
+     ((valuation α kps - valuation α ips) / Qnat (k - i)) pts) as x.
+ destruct x as (l, lps).
+ destruct (lt_dec i k) as [Hlt| Hge].
+  remember (next_points α l lps pts) as lch₁; subst lch.
+  destruct Hjps as [Hjps| Hjps].
+   injection Hjps; clear Hjps; intros; subst l lps.
+   symmetry in Heqlch₁.
+   apply IHpts with (j := k) (jps := kps) in Heqlch₁.
+    destruct Heqlch₁ as [Hips| Hips].
+     injection Hips; clear Hips; intros; subst k kps.
+     right; left; reflexivity.
+bbb.
+
+intros α i ips pts lch Hnp (j, jps) Hjps.
+revert i ips lch Hnp j jps Hjps.
+induction pts as [| (k, kps)]; intros.
+ simpl in Hnp; subst lch; contradiction.
 
  simpl in Hnp.
  remember

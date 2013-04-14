@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.175 2013-04-14 06:38:58 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.176 2013-04-14 08:13:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -30,41 +30,33 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 value qnat i = Q.of_i (I.of_int i);
 
-Fixpoint minimise_slope d₁ p₁ dp_min sl_min dpl :=
+Fixpoint minimise_slope dp₁ dp₂ dpl :=
+  let v₁ := valuation (snd dp₁) in
+  let v₂ := valuation (snd dp₂) in
+  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst dp₂ - fst dp₁))) in
   match dpl with
-  | [(d₂, p₂) :: dpl₂] =>
-      let v₁ := valuation p₁ in
-      let v₂ := valuation p₂ in
-      let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
-      let (dp_min, sl_min) :=
-        if Q.le sl₁₂ sl_min then ((d₂, p₂), sl₁₂)
-        else (dp_min, sl_min)
-      in
-      minimise_slope d₁ p₁ dp_min sl_min dpl₂
+  | [dp₃ :: dpl₃] =>
+      let min := minimise_slope dp₁ dp₃ dpl₃ in
+      if Q.le (snd min) sl₁₂ then min else (dp₂, sl₁₂)
   | [] =>
-      dp_min
+      (dp₂, sl₁₂)
   end;
 
-Fixpoint next_points d₁ p₁ dpl₁ :=
+Fixpoint next_points dp₁ dpl₁ :=
   match dpl₁ with
-  | [(d₂, p₂) :: dpl₂] =>
-      if d₁ < d₂ then
-        let (d₃, p₃) :=
-          let v₁ := valuation p₁ in
-          let v₂ := valuation p₂ in
-          let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
-          minimise_slope d₁ p₁ (d₂, p₂) sl₁₂ dpl₂
-        in
-        [(d₃, p₃) :: next_points d₃ p₃ dpl₂]
+  | [dp₂ :: dpl₂] =>
+      if fst dp₁ < fst dp₂ then
+        let min := minimise_slope dp₁ dp₂ dpl₂ in
+        [dp₁ :: next_points (fst min) dpl₂]
       else
-        next_points d₁ p₁ dpl₂
+        next_points dp₁ dpl₂
   | [] =>
-      []
+      [dp₁]
   end;
 
 Definition lower_convex_hull_points dpl :=
   match dpl with
-  | [(d₁, p₁) :: dpl₁] => [(d₁, p₁) :: next_points d₁ p₁ dpl₁]
+  | [dp₁ :: dpl₁] => next_points dp₁ dpl₁
   | [] => []
   end;
 
