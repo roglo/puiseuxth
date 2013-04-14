@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.147 2013-04-14 19:26:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.148 2013-04-14 19:33:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -915,7 +915,19 @@ induction cl as [| c₁]; intros.
 bbb.
 *)
 
-(**)
+Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps lch γ β,
+  pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)
+  → next_points α (deg, c) pts = [(j, jps), (k, kps) … lch]
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → β = valuation α jps + Qnat j * γ
+        → c ≠ zero fld
+          → ∀ i ips,
+               (i, ips) ∈ pts
+               → (i, ips) ∉ points_in_segment α γ β [(deg, c) … pts]
+                 → β < valuation α ips + Qnat i * γ.
+Proof.
+bbb.
+
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
@@ -958,6 +970,7 @@ induction cl as [| c]; intros.
     apply Qle_antisym; [ idtac | eassumption ].
     eapply not_seg_le; eassumption.
 
+bbb.
    simpl in Hnips.
    remember (Qeq_bool (valuation α c + Qnat deg * γ) β) as b.
    destruct b.
