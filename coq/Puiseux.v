@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.124 2013-04-14 00:36:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.125 2013-04-14 00:41:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -846,6 +846,17 @@ Lemma xxx : ∀ α fld deg cl cn pts j jps k kps lch β γ,
         → ∀ i ips, (i, ips) ∈ pts
           → β <= valuation α ips + Qnat i * γ.
 Proof.
+intros α fld deg cl cn pts j jps k kps lch β γ Hpts Hch Hγ Hβ.
+intros i ips Hips.
+revert deg cl cn pts lch Hpts Hch i ips Hips.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts; contradiction.
+
+  subst pts.
+  destruct Hips as [Hips| ]; [ idtac | contradiction ].
+  injection Hips; clear Hips; intros; subst deg cn.
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
