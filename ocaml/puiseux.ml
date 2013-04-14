@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.174 2013-04-12 21:26:43 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.175 2013-04-14 06:38:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -45,26 +45,26 @@ Fixpoint minimise_slope d₁ p₁ dp_min sl_min dpl :=
       dp_min
   end;
 
-Fixpoint next_points rev_list d₁ p₁ dpl₁ :=
+Fixpoint next_points d₁ p₁ dpl₁ :=
   match dpl₁ with
   | [(d₂, p₂) :: dpl₂] =>
       if d₁ < d₂ then
-        let dp₃ :=
+        let (d₃, p₃) :=
           let v₁ := valuation p₁ in
           let v₂ := valuation p₂ in
           let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (d₂ - d₁))) in
           minimise_slope d₁ p₁ (d₂, p₂) sl₁₂ dpl₂
         in
-        next_points [dp₃ :: rev_list] (fst dp₃) (snd dp₃) dpl₂
+        [(d₃, p₃) :: next_points d₃ p₃ dpl₂]
       else
-        next_points rev_list d₁ p₁ dpl₂
+        next_points d₁ p₁ dpl₂
   | [] =>
-      List.rev rev_list
+      []
   end;
 
 Definition lower_convex_hull_points dpl :=
   match dpl with
-  | [(d₁, p₁) :: dpl₁] => [(d₁, p₁) :: next_points [] d₁ p₁ dpl₁]
+  | [(d₁, p₁) :: dpl₁] => [(d₁, p₁) :: next_points d₁ p₁ dpl₁]
   | [] => []
   end;
 

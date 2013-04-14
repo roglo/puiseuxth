@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.132 2013-04-14 02:09:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.133 2013-04-14 06:38:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -156,6 +156,7 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
+(*
 Lemma next_points_not_empty : ∀ α dp dpl d₁ p₁ dpl₁,
   next_points α [dp … dpl] d₁ p₁ dpl₁ ≠ [ ].
 Proof.
@@ -177,17 +178,18 @@ induction dpl₁ as [| dp₂]; intros.
 
   apply IHdpl₁.
 Qed.
+*)
 
-Lemma convex_hull_not_empty : ∀ α rl d₁ p₁ dp₂ dpl₁,
+Lemma convex_hull_not_empty : ∀ α d₁ p₁ dp₂ dpl₁,
   (d₁ < fst dp₂)%nat
-  → next_points α rl d₁ p₁ [dp₂ … dpl₁] ≠ [].
+  → next_points α d₁ p₁ [dp₂ … dpl₁] ≠ [].
 Proof.
-intros α rl d₁ p₁ dp₂ dpl₁ Hd.
-revert rl d₁ p₁ dp₂ Hd.
+intros α d₁ p₁ dp₂ dpl₁ Hd.
+revert d₁ p₁ dp₂ Hd.
 induction dpl₁ as [| dp₃]; intros.
  simpl.
  destruct dp₂ as (d₂, p₂).
- destruct (lt_dec d₁ d₂); [ apply rev_app_not_nil | contradiction ].
+ destruct (lt_dec d₁ d₂); [ intros H; discriminate H | contradiction ].
 
  remember [dp₃ … dpl₁] as dpl.
  simpl.
@@ -198,7 +200,7 @@ induction dpl₁ as [| dp₃]; intros.
  subst v₂₁ d₂₁.
  destruct dps as (dp, skip).
  destruct (lt_dec d₁ d₂); [ idtac | contradiction ].
- apply next_points_not_empty.
+ intros H; discriminate H.
 Qed.
 
 Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
