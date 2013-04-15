@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.157 2013-04-15 11:40:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.158 2013-04-15 11:46:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -447,12 +447,11 @@ induction cl as [| c₂]; intros.
    remember ((valuation α c - valuation α jps) / Qnat (deg - j)) as sl.
    remember (Qle_bool (snd min₂) sl) as b.
    destruct b.
-    injection Hms; clear Hms; intros; subst min₂ segjk.
+    injection Hms; clear Hms; intros; subst min₂.
     simpl in Heqb.
-    simpl in IHcl.
+    simpl in H.
     remember (Qeq_bool segmx sl) as b.
     destruct b.
-
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts llps j jps segjk k kps segkx lch,
