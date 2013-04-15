@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.158 2013-04-15 11:46:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.159 2013-04-15 12:02:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -380,6 +380,13 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
+Lemma www : ∀ α fld deg cl cn pts k kps sl seg j jps l lps,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → (l, lps, sl, seg) = minimise_slope α (j, jps) (k, kps) pts
+    → k ≤ l.
+Proof.
+bbb.
+
 Lemma xxx : ∀ α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch,
   c ≠ zero fld
   → pts = points_of_ps_polynom_gen α fld deg₁ cl cn
@@ -448,10 +455,10 @@ induction cl as [| c₂]; intros.
    remember (Qle_bool (snd min₂) sl) as b.
    destruct b.
     injection Hms; clear Hms; intros; subst min₂.
-    simpl in Heqb.
-    simpl in H.
-    remember (Qeq_bool segmx sl) as b.
-    destruct b.
+    eapply www in Hpts; [ idtac | eassumption ].
+    apply le_not_gt in Hpts.
+    contradiction.
+
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts llps j jps segjk k kps segkx lch,
