@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.176 2013-04-14 08:13:30 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.177 2013-04-15 02:43:19 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -36,22 +36,25 @@ Fixpoint minimise_slope dp₁ dp₂ dpl :=
   let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst dp₂ - fst dp₁))) in
   match dpl with
   | [dp₃ :: dpl₃] =>
-      let min := minimise_slope dp₁ dp₃ dpl₃ in
-      if Q.le (snd min) sl₁₂ then min else (dp₂, sl₁₂)
+      let (min, seg) := minimise_slope dp₁ dp₃ dpl₃ in
+      if Q.le (snd min) sl₁₂ then
+        (min, if Q.eq (snd min) sl₁₂ then [dp₂ :: seg] else seg)
+      else
+        ((dp₂, sl₁₂), [])
   | [] =>
-      (dp₂, sl₁₂)
+      ((dp₂, sl₁₂), [])
   end;
 
 Fixpoint next_points dp₁ dpl₁ :=
   match dpl₁ with
   | [dp₂ :: dpl₂] =>
       if fst dp₁ < fst dp₂ then
-        let min := minimise_slope dp₁ dp₂ dpl₂ in
-        [dp₁ :: next_points (fst min) dpl₂]
+        let (min, seg) := minimise_slope dp₁ dp₂ dpl₂ in
+        [(dp₁, seg) :: next_points (fst min) dpl₂]
       else
         next_points dp₁ dpl₂
   | [] =>
-      [dp₁]
+      [(dp₁, [])]
   end;
 
 Definition lower_convex_hull_points dpl :=
@@ -60,6 +63,7 @@ Definition lower_convex_hull_points dpl :=
   | [] => []
   end;
 
+(*
 Definition points_in_segment γ β dpl :=
   List.filter
     (λ dp,
@@ -67,6 +71,7 @@ Definition points_in_segment γ β dpl :=
        let αi := valuation (snd dp) in
        Q.eq (Q.add αi (Q.mul (qnat i) γ)) β)
     dpl;
+*)
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=
@@ -84,12 +89,16 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   in
   let fix loop rev_gbl dpl :=
     match dpl with
-    | [(d₁, p₁) :: ([(d₂, p₂) :: _] as dpl₁)] =>
+    | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
         let v₁ := valuation p₁ in
         let v₂ := valuation p₂ in
         let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
         let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
+(*
         let dpl := points_in_segment γ β gdpl in
+*)
+        let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
+(**)
         loop [(γ, β, dpl) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
@@ -354,25 +363,24 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value rec puiseux_branch k br sol_list (γ, β, dpl) =
-  let f = k.ac_field in
+value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
+  let f = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
-  let j = fst (List.hd dpl) in
-  let q = List.fold_left (fun q h → gcd q (fst h - j)) 0 dpl in
+  let q = List.fold_left (fun q h → gcd q (fst h - j)) (k - j) dpl in
   let _ =
     if verbose.val then do {
       printf "γ%s = %-4s" ss (Q.to_string γ);
       printf "  β%s = %-3s" ss (Q.to_string β);
-      printf "  %d pts" (List.length dpl);
+      printf "  %d pts" (List.length dpl + 2);
       printf "  j%s=%d" ss j;
-      printf "  k%s=%d" ss (fst (List.hd (List.rev dpl)));
+      printf "  k%s=%d" ss k;
       printf "  q%s=%d" ss q;
       printf "\n%!";
     }
     else ()
   in
   let pol =
-    loop [] 0 dpl where rec loop rev_cl deg dpl =
+    loop [] 1 dpl where rec loop rev_cl deg dpl =
       match dpl with
       [ [(hdeg, ps) :: dpl₁] →
           if hdeg - j > deg then
@@ -383,9 +391,15 @@ value rec puiseux_branch k br sol_list (γ, β, dpl) =
             let c = valuation_coeff ps in
             loop [c :: rev_cl] (deg + 1) dpl₁
       | [] →
-          {al = List.rev rev_cl} ]
+          if k - j > deg then
+            loop [f.zero :: rev_cl] (deg + 1) []
+          else if k - j < deg then
+            match () with []
+          else
+            let rev_cl = [(valuation_coeff kps) :: rev_cl] in
+            {al = [valuation_coeff jps :: List.rev rev_cl]} ]
   in
-  let rl = k.ac_roots pol in
+  let rl = af.ac_roots pol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;
@@ -397,7 +411,7 @@ value rec puiseux_branch k br sol_list (γ, β, dpl) =
          if f.eq r f.zero then sol_list
          else
            match puiseux_iteration f br r m γ β sol_list with
-           [ Right (pol, cγl) → next_step k br sol_list pol cγl
+           [ Right (pol, cγl) → next_step af br sol_list pol cγl
            | Left sol_list → sol_list ])
       sol_list rl
 

@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.20 2013-04-14 08:13:30 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.21 2013-04-15 02:43:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -25,17 +25,20 @@ Fixpoint minimise_slope α dp₁ dp₂ dpl :=
   let sl₁₂ := (v₂ - v₁) / Qnat (fst dp₂ - fst dp₁) in
   match dpl with
   | [dp₃ … dpl₃] =>
-      let min := minimise_slope α dp₁ dp₃ dpl₃ in
-      if Qle_bool (snd min) sl₁₂ then min else (dp₂, sl₁₂)
+      let (min, seg) := minimise_slope α dp₁ dp₃ dpl₃ in
+      if Qle_bool (snd min) sl₁₂ then
+        (min, if Qeq_bool (snd min) sl₁₂ then [dp₂ … seg] else seg)
+      else
+        ((dp₂, sl₁₂), [])
   | [] =>
-      (dp₂, sl₁₂)
+      ((dp₂, sl₁₂), [])
   end.
 
 Fixpoint next_points α dp₁ dpl₁ :=
   match dpl₁ with
   | [dp₂ … dpl₂] =>
       if lt_dec (fst dp₁) (fst dp₂) then
-        let min := minimise_slope α dp₁ dp₂ dpl₂ in
+        let (min, _) := minimise_slope α dp₁ dp₂ dpl₂ in
         [dp₁ … next_points α (fst min) dpl₂]
       else
         next_points α dp₁ dpl₂

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.149 2013-04-14 19:58:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.150 2013-04-15 02:43:19 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -164,8 +164,9 @@ Lemma next_points_not_empty : ∀ α dp dpl,
 Proof.
 intros.
 induction dpl as [| dp₂ dpl₂]; [ intros H; discriminate H | simpl ].
-destruct (lt_dec (fst dp) (fst dp₂)); [ intros H; discriminate H | idtac ].
-assumption.
+destruct (lt_dec (fst dp) (fst dp₂)); [ idtac | assumption ].
+destruct (minimise_slope α dp dp₂ dpl₂).
+intros H; discriminate H.
 Qed.
 
 Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
@@ -266,6 +267,8 @@ destruct chp as [| (j, jps)].
 
   simpl in Heqchp.
   destruct (lt_dec (fst p) (fst p0)).
+   remember (minimise_slope α p p0 pts) as ms.
+   destruct ms.
    injection Heqchp; clear Heqchp; intros; subst p.
    exfalso; revert H; apply next_points_not_empty.
 
@@ -551,12 +554,12 @@ induction rl as [| (m, mps)]; intros.
     right; right; assumption.
 Qed.
 
-Lemma min_sl_in : ∀ α iips jjps kkps sl pts,
-  (iips, sl) = minimise_slope α jjps kkps pts
+Lemma min_sl_in : ∀ α iips jjps kkps sl seg pts,
+  (iips, sl, seg) = minimise_slope α jjps kkps pts
   → iips ∈ pts ∨ iips = kkps.
 Proof.
-intros α iips jjps kkps sl pts Hips.
-revert iips jjps kkps sl Hips.
+intros α iips jjps kkps sl seg pts Hips.
+revert iips jjps kkps sl seg Hips.
 induction pts as [| llps]; intros.
  simpl in Hips.
  injection Hips; clear Hips; intros; subst iips sl.
@@ -564,7 +567,7 @@ induction pts as [| llps]; intros.
 
  simpl in Hips.
  remember (minimise_slope α jjps llps pts) as x.
- destruct x as (mmps, sl₁).
+ destruct x as ((mmps, sl₁), seg₁).
  simpl in Hips.
  remember
   (Qle_bool sl₁
@@ -596,7 +599,7 @@ induction pts as [| kkps]; intros.
  simpl in Hnp.
  destruct (lt_dec (fst iips) (fst kkps)) as [Hlt| Hge].
   remember (minimise_slope α iips kkps pts) as ms.
-  destruct ms as (llps, sl).
+  destruct ms as ((llps, sl), seg).
   simpl in Hnp.
   remember (next_points α llps pts) as lch₁.
   subst lch.
@@ -832,6 +835,8 @@ induction pts as [| (l, lps)]; intros.
 
  simpl in Hnp.
  destruct (lt_dec i l) as [Hlt| Hge].
+  remember (minimise_slope α (i, ips) (l, lps) pts) as x.
+  destruct x as (min, seg).
   injection Hnp; clear Hnp; intros; subst i ips.
   subst β; apply Qle_refl.
 
@@ -870,6 +875,8 @@ induction cl as [| c]; intros.
   subst pts.
   simpl in Hnp.
   destruct (lt_dec i deg) as [Hlt| Hge].
+   remember (minimise_slope α (i, ips) (deg, c) pts₁) as x.
+   destruct x as (min, seg).
    injection Hnp; clear Hnp; intros; subst i ips.
    subst β; apply Qle_refl.
 
@@ -1058,7 +1065,6 @@ bbb.
      destruct (eq_k_dec fld c₁ (zero fld)) as [Heq| Hne].
 
 bbb.
-*)
 
 Lemma zzz₁ : ∀ α fld deg cl cn pts,
   cn ≠ zero fld
