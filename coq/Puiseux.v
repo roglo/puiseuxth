@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.156 2013-04-15 10:21:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.157 2013-04-15 11:40:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -430,6 +430,28 @@ induction cl as [| c₂]; intros.
  destruct (eq_k_dec fld c₂ (zero fld)) as [Heq| Hne].
   eapply IHcl; try eassumption.
   apply lt_le_weak, lt_n_S; assumption.
+
+  remember (points_of_ps_polynom_gen α fld (S deg₁) cl cn) as pts₁.
+  subst pts.
+  rename pts₁ into pts.
+  rename Heqpts₁ into Hpts.
+  simpl in Hnp.
+  destruct min as ((m, mps), segmx); simpl in Hnp.
+  destruct (lt_dec m deg₁) as [Hlt₁| Hge].
+   remember (minimise_slope α (m, mps) (deg₁, c₂) pts) as ms.
+   destruct ms as (min₁, seg₁).
+   injection Hnp; clear Hnp; intros; subst m mps seg₁ lch.
+   simpl in Hms.
+   remember (minimise_slope α (j, jps) (deg₁, c₂) pts) as ms.
+   destruct ms as (min₂, seg₂).
+   remember ((valuation α c - valuation α jps) / Qnat (deg - j)) as sl.
+   remember (Qle_bool (snd min₂) sl) as b.
+   destruct b.
+    injection Hms; clear Hms; intros; subst min₂ segjk.
+    simpl in Heqb.
+    simpl in IHcl.
+    remember (Qeq_bool segmx sl) as b.
+    destruct b.
 
 bbb.
 
