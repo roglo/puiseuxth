@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.163 2013-04-15 19:08:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.164 2013-04-15 23:47:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -640,17 +640,17 @@ induction cl as [| c]; intros.
     constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
 Qed.
 
-Lemma minimise_slope_lt : ∀ α i ips j jps k kps pts sl seg,
-  LocallySorted (λ x y, (fst x < fst y)%nat) [(i, ips), (j, jps) … pts]
+Lemma minimise_slope_le : ∀ α i ips j jps k kps pts sl seg,
+  LocallySorted (λ x y, (fst x < fst y)%nat) [(j, jps) … pts]
   → minimise_slope α (i, ips) (j, jps) pts = (((k, kps), sl), seg)
-    → (i < k)%nat.
+    → j ≤ k.
 Proof.
 intros α i ips j jps k kps pts sl seg Hsort Hms.
 revert i ips j jps k kps sl seg Hsort Hms.
 induction pts as [| (l, lps)]; intros.
  simpl in Hms.
  injection Hms; clear Hms; intros; subst k kps sl seg.
- inversion Hsort; assumption.
+ reflexivity.
 
  simpl in Hms.
  remember (minimise_slope α (i, ips) (l, lps) pts) as ms.
@@ -663,20 +663,12 @@ induction pts as [| (l, lps)]; intros.
   symmetry in Heqms.
   inversion Hsort.
   subst a b l0; simpl in H3.
-  eapply IHpts; [ idtac | eassumption ].
-  constructor; [ idtac | simpl ].
-   inversion Hsort.
-   inversion H2.
-   assumption.
-
-   inversion Hsort.
-   subst a b l0; simpl in H5.
-   inversion H2.
-   subst a b l0; simpl in H7.
-   eapply lt_trans; eassumption.
+  apply lt_le_weak.
+  eapply lt_le_trans; [ eassumption | idtac ].
+  eapply IHpts; eassumption.
 
   injection Hms; clear Hms; intros; subst k kps sl₁ seg.
-  inversion Hsort; assumption.
+  reflexivity.
 Qed.
 
 Lemma yyy : ∀ α i ips pts lch,
