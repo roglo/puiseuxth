@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.159 2013-04-15 12:02:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.160 2013-04-15 13:07:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -380,12 +380,50 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
+(*
+Lemma www₁ : ∀ α fld c c₂ pts deg₁ cl cn deg j k sl jps min₁ segkx α
+  c ≠ zero fld
+  → c₂ ≠ zero fld
+    → pts = points_of_ps_polynom_gen α fld (S deg₁) cl cn
+      → (deg < deg₁)%nat
+        → (j < deg)%nat
+          → (k < deg₁)%nat
+            → sl = (valuation α c - valuation α jps) / Qnat (deg - j)
+              → (min₁, segkx) = minimise_slope α (k, kps) (deg₁, c₂) pts
+                → (k, kps, segmx, seg₂) =
+                    minimise_slope α (j, jps) (deg₁, c₂) pts
+                  → true = Qle_bool segmx sl
+                    → segjk =
+                       (if Qeq_bool segmx sl then [(deg, c) … seg₂] else seg₂)
+                      → (j < k)%nat.
+
 Lemma www : ∀ α fld deg cl cn pts k kps sl seg j jps l lps,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → (l, lps, sl, seg) = minimise_slope α (j, jps) (k, kps) pts
-    → k ≤ l.
+  → (k, kps, sl, seg) = minimise_slope α (j, jps) (l, lps) pts
+    → l ≤ k.
 Proof.
+intros α fld deg cl cn pts k kps sl seg j jps l lps Hpts Hms.
+revert deg cn pts k kps sl seg j jps l lps Hpts Hms.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+  subst pts.
+  simpl in Hms.
+  injection Hms; clear Hms; intros; subst l lps sl seg.
+  apply le_n.
+
+  subst pts.
+  simpl in Hms.
+  remember (valuation α jps) as v₁.
+  remember (valuation α lps) as v₂.
+  remember ((v₂ - v₁) / Qnat (l - j)) as sl₁₂.
+  remember ((valuation α cn - v₁) / Qnat (deg - j)) as ms.
+  remember (Qle_bool ms sl₁₂) as b.
+  destruct b.
+   injection Hms; clear Hms; intros; subst deg cn ms seg.
+
 bbb.
+*)
 
 Lemma xxx : ∀ α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch,
   c ≠ zero fld
@@ -399,6 +437,7 @@ Proof.
 intros α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch.
 intros Hc Hpts Hms Hnp Hdd Hjd.
 revert c deg₁ deg cn pts min lch Hc Hpts Hms Hnp Hdd Hjd.
+revert segjk j jps k kps segkx.
 induction cl as [| c₂]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
@@ -455,10 +494,44 @@ induction cl as [| c₂]; intros.
    remember (Qle_bool (snd min₂) sl) as b.
    destruct b.
     injection Hms; clear Hms; intros; subst min₂.
-    eapply www in Hpts; [ idtac | eassumption ].
-    apply le_not_gt in Hpts.
-    contradiction.
+bbb.
+    clear IHcl.
+    clear Heqms.
+    revert deg₁ Hpts Hdd Hlt₁ Heqms0.
+    induction cl as [| c₃]; intros.
+     unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+     destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne₂].
+      subst pts.
+      simpl in Heqms0.
+      injection Heqms0; clear Heqms0; intros; subst deg₁ c₂ segmx seg₂.
+      apply lt_irrefl in Hlt₁; contradiction.
 
+      subst pts.
+      remember (S deg₁) as sdeg.
+      simpl in Heqms0.
+      remember (valuation α c₂) as v₂.
+      remember (valuation α jps) as v₃.
+      remember ((v₂ - v₃) / Qnat (deg₁ - j)) as sl₂₃.
+      remember ((valuation α cn - v₃) / Qnat (sdeg - j)) as ms₂.
+      remember (Qle_bool ms₂ sl₂₃) as b.
+      destruct b.
+       injection Heqms0; clear Heqms0; intros; subst k cn ms₂ seg₂.
+       subst sdeg.
+       eapply lt_trans; [ eassumption | idtac ].
+       eapply lt_le_weak, lt_n_S; assumption.
+
+       injection Heqms0; clear Heqms0; intros; subst deg₁ c₂ sl₂₃ seg₂.
+       apply lt_irrefl in Hlt₁; contradiction.
+
+     unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+     destruct (eq_k_dec fld c₃ (zero fld)) as [Heq| Hne₂].
+      rewrite fold_points_of_ps_polynom_gen in Hpts.
+      apply IHcl in Hpts.
+       assumption.
+
+       eapply lt_trans; [ eassumption | apply lt_n_Sn ].
+
+       eapply lt_trans; [ eassumption | apply lt_n_Sn ].
 bbb.
 
 Lemma yyy : ∀ α fld deg cl cn pts llps j jps segjk k kps segkx lch,
