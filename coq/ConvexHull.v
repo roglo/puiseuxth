@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.22 2013-04-15 03:00:59 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.23 2013-04-15 03:33:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,6 +52,7 @@ Definition lower_convex_hull_points α dpl :=
   | [] => []
   end.
 
+(*
 Definition points_in_segment α γ β dpl :=
   List.filter
     (λ dp,
@@ -59,3 +60,4 @@ Definition points_in_segment α γ β dpl :=
        let αi := valuation α (snd dp) in
        Qeq_bool (αi + Qnat i * γ) β)
     dpl.
+*)

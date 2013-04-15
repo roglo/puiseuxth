@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.151 2013-04-15 03:00:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.152 2013-04-15 03:33:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -67,7 +67,11 @@ Definition gamma_beta_gen α fld deg cl cn :=
       let αk := valuation α kps in
       let γ := (αj - αk) / Qnat (k - j)%nat in
       let β := αj + Qnat j * γ in
+(*
       let dpl := points_in_segment α γ β gdpl in
+*)
+      let dpl := seg in
+(**)
       Some (γ, β, (j, jps), (k, kps), dpl)
   | [_] | [] =>
       None
@@ -380,16 +384,16 @@ Lemma points_in_newton_segment : ∀ α fld pol pts,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
     → pts = points_of_ps_polynom α fld pol
-      → ∃ γ β, ∀ i ips,
-          (i, ips) ∈ points_in_segment α γ β pts
+      → ∃ γ β seg, ∀ i ips,
+          (i, ips) ∈ seg
           → valuation α ips + Qnat i * γ == β.
 Proof.
 intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
 destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as ((((γ, β), (j, jps)), (k, kps)), dpl).
-exists γ, β.
+destruct p as ((((γ, β), (j, jps)), (k, kps)), seg).
+exists γ, β, seg.
 intros i ips Hiit.
 clear Hpts.
 induction pts as [| pt]; intros; [ contradiction | idtac ].
