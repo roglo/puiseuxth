@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.152 2013-04-15 03:33:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.153 2013-04-15 08:08:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -380,14 +380,45 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma points_in_newton_segment : ∀ α fld pol pts,
+Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
     → pts = points_of_ps_polynom α fld pol
-      → ∃ γ β seg, ∀ i ips,
-          (i, ips) ∈ seg
+      → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
+        → ∀ i ips, (i, ips) ∈ [(j, jps), (k, kps) … seg]
           → valuation α ips + Qnat i * γ == β.
 Proof.
+intros α fld pol pts γ β j jps k kps seg Han Hal Hpts Hgb i ips Hips.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+unfold points_of_ps_polynom in Hpts.
+rewrite <- Hpts in Hgb.
+remember (lower_convex_hull_points α pts) as lch.
+destruct lch as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
+destruct lch as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros; subst l lps m mps seg₁.
+rename H4 into Hβ.
+rename H5 into Hγ.
+rewrite Hγ in Hβ.
+symmetry in Hβ, Hγ.
+destruct Hips as [Hips| Hips].
+ injection Hips; clear Hips; intros; subst i ips.
+ rewrite Hβ; reflexivity.
+
+ destruct Hips as [Hips| Hips].
+  injection Hips; clear Hips; intros; subst i ips.
+  rewrite Hβ, Hγ.
+  unfold Qnat.
+  rewrite Nat2Z.inj_sub.
+   rewrite QZ_minus.
+   field.
+   unfold Qminus, Qplus; simpl.
+   do 2 rewrite Z.mul_1_r.
+   unfold Qeq; simpl.
+   rewrite Z.mul_1_r.
+   intros H.
+bbb.
+
 intros α fld pol pts an_nz ai_nz Hpts.
 apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
 remember (gamma_beta fld pol) as gb.
