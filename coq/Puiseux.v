@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.150 2013-04-15 02:43:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.151 2013-04-15 03:00:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -62,7 +62,7 @@ Definition points_of_ps_polynom α fld pol :=
 Definition gamma_beta_gen α fld deg cl cn :=
   let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
   match lower_convex_hull_points α gdpl with
-  | [(j, jps), (k, kps) … _] =>
+  | [((j, jps), seg), ((k, kps), _) … _] =>
       let αj := valuation α jps in
       let αk := valuation α kps in
       let γ := (αj - αk) / Qnat (k - j)%nat in
@@ -256,7 +256,8 @@ destruct chp as [| (j, jps)].
   exfalso; revert Heqchp.
   apply next_points_not_empty.
 
- destruct chp as [| (k, kps)]; [ idtac | intros H; discriminate H ].
+ destruct j.
+ destruct chp as [| ((k, kps), seg)]; [ idtac | intros H; discriminate H ].
  destruct pts; [ discriminate Heqchp | idtac ].
  symmetry in Heqchp; simpl in Heqchp.
  destruct pts.
@@ -266,14 +267,14 @@ destruct chp as [| (j, jps)].
   exfalso; apply Hcl, lt_n_Sn.
 
   simpl in Heqchp.
-  destruct (lt_dec (fst p) (fst p0)).
-   remember (minimise_slope α p p0 pts) as ms.
+  destruct (lt_dec (fst p0) (fst p1)).
+   remember (minimise_slope α p0 p1 pts) as ms.
    destruct ms.
-   injection Heqchp; clear Heqchp; intros; subst p.
+   injection Heqchp; clear Heqchp; intros; subst p0 l0.
    exfalso; revert H; apply next_points_not_empty.
 
-   exfalso; apply n; clear n.
-   destruct p, p0; simpl.
+   exfalso; apply n0; clear n0.
+   destruct p0, p1; simpl.
    symmetry in Heqpts.
    eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
@@ -587,7 +588,8 @@ Qed.
 
 Lemma np_in : ∀ α iips pts lch,
   next_points α iips pts = lch
-  → ∀ jjps, jjps ∈ lch → jjps = iips ∨ jjps ∈ pts.
+  → ∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch
+    → jjps = iips ∨ jjps ∈ pts.
 Proof.
 intros α iips pts lch Hnp jjps Hjps.
 revert iips lch Hnp jjps Hjps.
@@ -821,14 +823,14 @@ intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
 Qed.
 
-Lemma np_beta_le : ∀ α pts γ β j jps k kps lch,
+Lemma np_beta_le : ∀ α pts γ β j jps k kps jk kx lch,
   γ = (valuation α jps - valuation α kps) / Qnat (k - j)
   → β = valuation α jps + Qnat j * γ
     → ∀ i ips,
-        next_points α (i, ips) pts = [(j, jps), (k, kps) … lch]
+        next_points α (i, ips) pts = [((j, jps), jk), ((k, kps), kx) … lch]
         → β <= valuation α ips + Qnat i * γ.
 Proof.
-intros α pts γ β j jps k kps lch Hγ Hβ i ips Hnp.
+intros α pts γ β j jps k kps jk kx lch Hγ Hβ i ips Hnp.
 revert lch i ips Hnp.
 induction pts as [| (l, lps)]; intros.
  discriminate Hnp.
@@ -843,15 +845,16 @@ induction pts as [| (l, lps)]; intros.
   eapply IHpts; eassumption.
 Qed.
 
-Lemma not_seg_le : ∀ α fld deg cl cn pts i ips j jps k kps lch β γ,
+Lemma not_seg_le : ∀ α fld deg cl cn pts i ips j jps k kps jk kx lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → next_points α (i, ips) pts = [(j, jps), (k, kps) … lch]
+  → next_points α (i, ips) pts = [((j, jps), jk), ((k, kps), kx) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
         → (i, ips) ∉ points_in_segment α γ β pts
           → β <= valuation α ips + Qnat i * γ.
 Proof.
-intros α fld deg cl cn pts i ips j jps k kps lch β γ Hpts Hnp Hγ Hβ Hips.
+intros α fld deg cl cn pts i ips j jps k kps jk kx lch β γ.
+intros Hpts Hnp Hγ Hβ Hips.
 unfold points_of_ps_polynom_gen in Hpts.
 revert deg cn pts i ips lch Hpts Hnp Hips.
 induction cl as [| c]; intros.
@@ -922,9 +925,9 @@ induction cl as [| c₁]; intros.
 bbb.
 *)
 
-Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps lch γ β,
+Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps jk kx lch γ β,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)
-  → next_points α (deg, c) pts = [(j, jps), (k, kps) … lch]
+  → next_points α (deg, c) pts = [((j, jps), jk), ((k, kps), kx) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
         → c ≠ zero fld
@@ -933,7 +936,7 @@ Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps lch γ β,
                → (i, ips) ∉ points_in_segment α γ β [(deg, c) … pts]
                  → β < valuation α ips + Qnat i * γ.
 Proof.
-intros α fld deg cl cn pts c j jps k kps lch γ β.
+intros α fld deg cl cn pts c j jps k kps jk kx lch γ β.
 intros Hpts Hnp Hγ Hβ Hc i ips Hips Hnips.
 revert deg cn pts c lch i ips Hpts Hnp Hc Hips Hnips.
 induction cl as [| c₁]; intros.
@@ -964,9 +967,9 @@ induction cl as [| c₁]; intros.
    remember (valuation α cn) as y.
 bbb.
 
-Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
+Lemma yyy : ∀ α fld deg cl cn pts j jps k kps jk kx lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → lower_convex_hull_points α pts = [(j, jps), (k, kps) … lch]
+  → lower_convex_hull_points α pts = [((j, jps), jk), ((k, kps), kx) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
         → ∀ i ips,
@@ -974,7 +977,7 @@ Lemma yyy : ∀ α fld deg cl cn pts j jps k kps lch β γ,
             → (i, ips) ∉ points_in_segment α γ β pts
               → β < valuation α ips + Qnat i * γ.
 Proof.
-intros α fld deg cl cn pts j jps k kps lch β γ Hpts Hch Hγ Hβ.
+intros α fld deg cl cn pts j jps k kps jk kx lch β γ Hpts Hch Hγ Hβ.
 intros i ips Hips Hnips.
 unfold points_of_ps_polynom_gen in Hpts.
 revert deg cn pts lch Hpts Hch i ips Hips Hnips.
@@ -1086,8 +1089,8 @@ destruct Hiit as (Hin, Hout).
 unfold gamma_beta_gen in Heqgb.
 remember
  (lower_convex_hull_points α (points_of_ps_polynom_gen α fld deg cl cn)) as lch.
-destruct lch as [| (l, lt)]; [ discriminate Heqgb | idtac ].
-destruct lch as [| (m, mt)]; [ discriminate Heqgb | idtac ].
+destruct lch as [| ((l, lt), lm)]; [ discriminate Heqgb | idtac ].
+destruct lch as [| ((m, mt), mx)]; [ discriminate Heqgb | idtac ].
 injection Heqgb; clear Heqgb; intros; subst l lt m mt.
 rewrite H5 in H.
 rewrite H5 in H4.

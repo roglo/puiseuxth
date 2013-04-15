@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.21 2013-04-15 02:43:19 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.22 2013-04-15 03:00:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,12 +38,12 @@ Fixpoint next_points α dp₁ dpl₁ :=
   match dpl₁ with
   | [dp₂ … dpl₂] =>
       if lt_dec (fst dp₁) (fst dp₂) then
-        let (min, _) := minimise_slope α dp₁ dp₂ dpl₂ in
-        [dp₁ … next_points α (fst min) dpl₂]
+        let (min, seg) := minimise_slope α dp₁ dp₂ dpl₂ in
+        [(dp₁, seg) … next_points α (fst min) dpl₂]
       else
         next_points α dp₁ dpl₂
   | [] =>
-      [dp₁]
+      [(dp₁, [])]
   end.
 
 Definition lower_convex_hull_points α dpl :=
