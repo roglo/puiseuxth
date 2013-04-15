@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.155 2013-04-15 09:59:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.156 2013-04-15 10:21:44 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -380,17 +380,18 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma xxx : ∀ α fld deg cl cn pts min segjk j jps l lps k kps segkx lch,
-  pts = points_of_ps_polynom_gen α fld (S deg) cl cn
-  → (min, segjk) = minimise_slope α (j, jps) (l, lps) pts
-    → next_points α (fst min) pts = [(k, kps, segkx) … lch]
-      → deg ≤ l
-        → (j < deg)%nat
-          → (j < k)%nat.
+Lemma xxx : ∀ α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch,
+  c ≠ zero fld
+  → pts = points_of_ps_polynom_gen α fld deg₁ cl cn
+    → (min, segjk) = minimise_slope α (j, jps) (deg, c) pts
+      → next_points α (fst min) pts = [(k, kps, segkx) … lch]
+        → (deg < deg₁)%nat
+          → (j < deg)%nat
+            → (j < k)%nat.
 Proof.
-intros α fld deg cl cn pts min segjk j jps l lps k kps segkx lch.
-intros Hpts Hms Hnp Hdl Hjd.
-revert deg cn pts l lps lch Hpts Hms Hnp Hdl Hjd.
+intros α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch.
+intros Hc Hpts Hms Hnp Hdd Hjd.
+revert c deg₁ deg cn pts min lch Hc Hpts Hms Hnp Hdd Hjd.
 induction cl as [| c₂]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
@@ -398,38 +399,37 @@ induction cl as [| c₂]; intros.
   simpl in Hms.
   injection Hms; clear Hms; intros; subst min segjk.
   simpl in Hnp.
-  injection Hnp; clear Hnp; intros; subst l lps segkx lch.
-  eapply lt_le_trans; eassumption.
+  injection Hnp; clear Hnp; intros; subst deg c segkx lch.
+  assumption.
 
   subst pts.
   simpl in Hnp.
   destruct min as ((m, mps), segmx); simpl in Hnp.
-  destruct (lt_dec m (S deg)) as [Hlt₁| Hge].
+  destruct (lt_dec m deg₁) as [Hlt₁| Hge].
    injection Hnp; clear Hnp; intros; subst m mps segkx lch.
-   remember (S deg) as sdeg.
    simpl in Hms.
    remember (valuation α jps) as v₁.
-   remember (valuation α lps) as v₂.
-   remember ((v₂ - v₁) / Qnat (l - j)) as sl₁₂.
-   remember ((valuation α cn - v₁) / Qnat (sdeg - j)) as ms.
+   remember (valuation α c) as v₂.
+   remember ((v₂ - v₁) / Qnat (deg - j)) as sl₁₂.
+   remember ((valuation α cn - v₁) / Qnat (deg₁ - j)) as ms.
    remember (Qle_bool ms sl₁₂) as b.
    destruct b.
-    injection Hms; clear Hms; intros; subst sdeg cn ms segjk.
-    subst k.
+    injection Hms; clear Hms; intros; subst deg₁ cn ms segjk.
     apply lt_irrefl in Hlt₁; contradiction.
 
-    injection Hms; clear Hms; intros; subst l lps sl₁₂ segjk.
-    eapply lt_le_trans; eassumption.
+    injection Hms; clear Hms; intros; subst deg c sl₁₂ segjk.
+    assumption.
 
    injection Hnp; clear Hnp; intros; subst m mps segkx lch.
    apply not_lt in Hge.
-   eapply lt_trans; eassumption.
+   eapply lt_trans; [ eassumption | idtac ].
+   eapply lt_le_trans; eassumption.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
  destruct (eq_k_dec fld c₂ (zero fld)) as [Heq| Hne].
-  destruct (eq_nat_dec deg l) as [Heq₁| Hne].
-   subst deg.
+  eapply IHcl; try eassumption.
+  apply lt_le_weak, lt_n_S; assumption.
 
 bbb.
 
