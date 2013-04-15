@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.160 2013-04-15 13:07:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.161 2013-04-15 17:43:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -425,6 +425,7 @@ induction cl as [| c]; intros.
 bbb.
 *)
 
+(*
 Lemma xxx : ∀ α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch,
   c ≠ zero fld
   → pts = points_of_ps_polynom_gen α fld deg₁ cl cn
@@ -533,7 +534,9 @@ bbb.
 
        eapply lt_trans; [ eassumption | apply lt_n_Sn ].
 bbb.
+*)
 
+(*
 Lemma yyy : ∀ α fld deg cl cn pts llps j jps segjk k kps segkx lch,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → next_points α llps pts = [(j, jps, segjk), (k, kps, segkx) … lch]
@@ -593,6 +596,98 @@ induction cl as [| c]; intros.
   simpl in Hch.
 
 bbb.
+*)
+
+Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → LocallySorted (λ x y, (fst x < fst y)%nat) pts.
+Proof.
+intros α fld deg cl cn pts Hpts.
+revert deg cn pts Hpts.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ destruct (eq_k_dec fld cn (zero fld)); subst pts; constructor.
+
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ rewrite fold_points_of_ps_polynom_gen in Hpts.
+ destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+  eapply IHcl; eassumption.
+
+  remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
+  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
+  clear IHcl.
+  clear Hne.
+  revert c deg cn pts Hpts.
+  induction cl as [| c₂]; intros.
+   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+   destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+    subst pts; constructor.
+
+    subst pts.
+    constructor; [ constructor | apply lt_n_Sn ].
+
+   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+   rewrite fold_points_of_ps_polynom_gen in Hpts.
+   destruct (eq_k_dec fld c₂ (zero fld)) as [Heq| Hne].
+    eapply IHcl with (c := c) in Hpts.
+    inversion Hpts; [ constructor | idtac ].
+    subst a pts.
+    constructor; [ inversion Hpts; assumption | idtac ].
+    simpl in H2 |- *.
+    eapply lt_trans; [ apply lt_n_Sn | eassumption ].
+
+    subst pts.
+    constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
+Qed.
+
+Lemma yyy : ∀ α i ips pts lch,
+  LocallySorted (λ x y, (fst x < fst y)%nat) [(i, ips) … pts]
+  → next_points α (i, ips) pts = lch
+    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
+Proof.
+intros α i ips pts lch Hsort Hnp.
+revert i ips lch Hsort Hnp.
+induction pts as [| (j, jps)]; intros.
+ subst lch; constructor.
+
+ simpl in Hnp.
+ destruct (lt_dec i j) as [Hlt| Hge].
+  remember (minimise_slope α (i, ips) (j, jps) pts) as ms.
+  destruct ms as (min, seg).
+  remember (next_points α (fst min) pts) as lch₁.
+  subst lch; rename lch₁ into lch; rename Heqlch₁ into Hlch.
+  symmetry in Hlch.
+  destruct min as ((k, kps), segkx).
+  simpl in Hlch.
+  inversion Hsort.
+  subst a b l; simpl in H3.
+  destruct pts.
+   simpl in Hlch; subst lch.
+   constructor.
+    constructor.
+
+    simpl.
+    simpl in Heqms.
+    injection Heqms; clear Heqms; intros; subst k kps segkx seg.
+    assumption.
+
+   simpl in Hlch.
+   remember (minimise_slope α (k, kps) p pts) as ms.
+   destruct ms as (min, seg₁).
+   destruct (lt_dec k (fst p)) as [Hlt₁| Hge].
+    remember (next_points α (fst min) pts) as lch₁.
+    subst lch; rename lch₁ into lch; rename Heqlch₁ into Hlch.
+    constructor.
+bbb.
+
+Lemma zzz : ∀ α pts lch,
+  LocallySorted (λ x y, (fst x < fst y)%nat) pts
+  → lower_convex_hull_points α pts = lch
+    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
+Proof.
+intros α pts lch Hsort Hch.
+destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
+bbb.
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
@@ -631,6 +726,7 @@ destruct Hips as [Hips| Hips].
    unfold Qeq; simpl.
    rewrite Z.mul_1_r.
    intros H.
+   apply points_of_polyn_sorted in Hpts.
 bbb.
 
 intros α fld pol pts an_nz ai_nz Hpts.
