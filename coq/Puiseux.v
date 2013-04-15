@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.162 2013-04-15 18:57:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.163 2013-04-15 19:08:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -693,12 +693,13 @@ induction pts as [| (j, jps)]; intros.
  destruct (lt_dec i j) as [Hlt| Hge].
   remember (minimise_slope α (i, ips) (j, jps) pts) as ms.
   destruct ms as (min, seg).
-bbb.
   remember (next_points α (fst min) pts) as lch₁.
   subst lch; rename lch₁ into lch; rename Heqlch₁ into Hlch.
-  symmetry in Hlch.
-  destruct min as ((k, kps), segkx).
+  destruct min as ((k, kps), sl).
   simpl in Hlch.
+  symmetry in Hlch.
+  symmetry in Heqms.
+bbb.
   inversion Hsort.
   subst a b l; simpl in H3.
   destruct pts.
