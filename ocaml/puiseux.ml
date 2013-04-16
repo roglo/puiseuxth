@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.180 2013-04-16 14:08:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.181 2013-04-16 16:51:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -65,44 +65,71 @@ Definition lower_convex_hull_points dpl :=
 
 (**)
 
-Fixpoint min_slope pt₁ pts₁ :=
-  match pts₁ with
-  | [pt₂ :: pts₂] =>
-      let (sl, pt) := min_slope pt₁ pts₂ in
-      let v₁ := valuation (snd pt₁) in
-      let v₂ := valuation (snd pt₂) in
-      let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
-      if Q.le sl sl₁₂ then (sl, pt) else (sl₁₂, pt₂)
+Fixpoint min_slope pt₁ pt₂ pts₂ :=
+  let v₁ := valuation (snd pt₁) in
+  let v₂ := valuation (snd pt₂) in
+  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
+  match pts₂ with
+  | [pt₃ :: pts₃] =>
+      let (sl, _, pt) := min_slope pt₁ pt₃ pts₃ in
+      if Q.le sl sl₁₂ then (sl, [], pt) else (sl₁₂, [], pt₂)
   | [] =>
-      (Q.zero, pt₁)
+      (sl₁₂, [], pt₂)
   end;
 
 Fixpoint assoc_ch_points pts :=
   match pts with
-  | [pt₁ :: pts₁] => [(pt₁, snd (min_slope pt₁ pts₁)) :: assoc_ch_points pts₁]
-  | [] => []
-  end;
-
-Fixpoint filter_ch_points (ach : list ((int * α) * (int * α))) :=
-  match ach with
-  | [(pt₁, pt₂) :: ach₁] =>
-      match filter_ch_points ach₁ with
-      | [(pt₃, seg, pt₄) :: fcp] =>
-          if fst pt₂ = fst pt₄ then
-            [(pt₁, [pt₃ :: seg], pt₂) :: fcp]
-          else
-            [(pt₁, [], pt₂) :: fcp]
+  | [pt₁ :: pts₁] =>
+      match pts₁ with
+      | [pt₂ :: pts₂] =>
+          [(pt₁, min_slope pt₁ pt₂ pts₂) :: assoc_ch_points pts₁]
       | [] =>
-          [(pt₁, [], pt₂)]
+          []
       end
   | [] =>
       []
   end;
 
-Definition lower_convex_hull_points₁ pts :=
-  let ach := assoc_ch_points pts in
-  filter_ch_points ach;
+Fixpoint strip_ch_points pt₁ sl₁₂ seg₁₂ pt₂ ach :=
+  match ach with
+  | [(pt₃, (sl₃₄, seg₃₄, pt₄)) :: ach₁] =>
+      match strip_ch_points pt₃ sl₃₄ seg₃₄ pt₄ ach₁ with
+      | [(pt₅, (sl₅₆, seg₅₆, pt₆)) :: ch] =>
+          if fst pt₆ = fst pt₂ then
+            let seg₁₂ := if Q.eq sl₁₂ sl₅₆ then [pt₆ :: seg₁₂] else seg₁₂ in
+            [(pt₁, (sl₁₂, seg₁₂, pt₂)) :: ch]
+          else if fst pt₅ = fst pt₂ then
+            [(pt₁, (sl₁₂, seg₁₂, pt₂)); (pt₅, (sl₅₆, seg₅₆, pt₆)) :: ch]
+          else
+            strip_ch_points pt₁ sl₁₂ seg₁₂ pt₂ ch
+      | [] =>
+          [(pt₁, (sl₁₂, seg₁₂, pt₂))]
+      end
+  | [] =>
+     [(pt₁, (sl₁₂, seg₁₂, pt₂))]
+  end;
 
+Definition filter_ch_points ach :=
+  match ach with
+  | [(pt₁, (sl₁₂, _, pt₂)) :: ach₁] => strip_ch_points pt₁ sl₁₂ [] pt₂ ach₁
+  | [] => []
+  end;
+
+Definition lower_convex_hull_points₄₂ pts :=
+  let ach := assoc_ch_points pts in
+(**)
+let _ := printf "assoc_ch_points:\n%!" in
+let _ := List.iter (fun ((d₁, p₁), (_, _, (d₂, p₂))) → printf "  (%d, %s) - (%d, %s)\n%!" d₁ (Q.to_string (valuation p₁)) d₂ (Q.to_string (valuation p₂))) ach in
+(**)
+  let ch := filter_ch_points ach in
+(**)
+let r := do {
+(**)
+  List.map (fun (pt₁, (sl, seg, pt₂)) → (pt₁, seg, pt₂)) ch;
+(**)
+} in
+let _ := printf "convex hull:\n%!" in
+let _ := List.iter (fun ((d₁, p₁), seg, (d₂, p₂)) → printf "  %d-%d\n%!" d₁ d₂) r in r;
 (**)
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
