@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.176 2013-04-16 13:47:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.177 2013-04-16 20:36:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -159,11 +159,10 @@ induction l₁ as [| y]; intros x l₂.
 Qed.
 
 Lemma next_ch_points_not_empty : ∀ α dp dpl,
-  next_ch_points α dp dpl ≠ [ ].
+  dpl ≠ [] → next_ch_points α (List.length dpl) dp dpl ≠ [ ].
 Proof.
-intros.
-induction dpl as [| dp₂ dpl₂]; [ intros H; discriminate H | simpl ].
-destruct (lt_dec (fst dp) (fst dp₂)); [ idtac | assumption ].
+intros α dp dpl Hdpl.
+induction dpl as [| dp₂ dpl₂]; [ exfalso; apply Hdpl; reflexivity | simpl ].
 destruct (minimise_slope α dp dp₂ dpl₂).
 intros H; discriminate H.
 Qed.
@@ -251,9 +250,10 @@ destruct chp as [| (j, jps)].
   exfalso; revert Heqpts.
   apply one_vp_gen; assumption.
 
-  symmetry in Heqchp.
-  exfalso; revert Heqchp.
-  apply next_ch_points_not_empty.
+  simpl in Heqchp.
+  destruct pts as [| pt]; [ discriminate Heqchp | idtac ].
+  remember (minimise_slope α (j, jps) pt pts) as ms.
+  destruct ms; discriminate Heqchp.
 
  destruct j.
  destruct chp as [| ((k, kps), seg)]; [ idtac | intros H; discriminate H ].
@@ -265,17 +265,13 @@ destruct chp as [| (j, jps)].
   apply le_not_lt in Hcl.
   exfalso; apply Hcl, lt_n_Sn.
 
-  simpl in Heqchp.
-  destruct (lt_dec (fst p0) (fst p1)).
-   remember (minimise_slope α p0 p1 pts) as ms.
-   destruct ms.
-   injection Heqchp; clear Heqchp; intros; subst p0 l0.
-   exfalso; revert H; apply next_ch_points_not_empty.
-
-   exfalso; apply n0; clear n0.
-   destruct p0, p1; simpl.
-   symmetry in Heqpts.
-   eapply vp_lt; [ eassumption | left; reflexivity ].
+  remember (minimise_slope α p0 p1 pts) as ms.
+  destruct ms as (min, sr).
+  injection Heqchp; clear Heqchp; intros; subst p0 jps.
+  destruct sr as (sl, dpl₁); simpl in H.
+  destruct dpl₁; [ discriminate H | idtac ].
+  remember (minimise_slope α (fst min) p0 dpl₁) as ms.
+  destruct ms; discriminate H.
 Qed.
 
 Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),

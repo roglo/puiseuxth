@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.25 2013-04-16 13:47:08 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.26 2013-04-16 20:36:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,81 +19,37 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Definition Qnat i := Z.of_nat i # 1.
 
-Fixpoint minimise_slope α dp₁ dp₂ dpl :=
+Fixpoint minimise_slope α dp₁ dp₂ dpl₂ :=
   let v₁ := valuation α (snd dp₁) in
   let v₂ := valuation α (snd dp₂) in
   let sl₁₂ := (v₂ - v₁) / Qnat (fst dp₂ - fst dp₁) in
-  match dpl with
+  match dpl₂ with
   | [dp₃ … dpl₃] =>
-      let (min, seg) := minimise_slope α dp₁ dp₃ dpl₃ in
+      let (min, sr) := minimise_slope α dp₁ dp₃ dpl₃ in
       if Qle_bool (snd min) sl₁₂ then
-        (min, if Qeq_bool (snd min) sl₁₂ then [dp₂ … seg] else seg)
+        (min,
+         (if Qeq_bool (snd min) sl₁₂ then [dp₂ … fst sr] else fst sr, snd sr))
       else
-        ((dp₂, sl₁₂), [])
+        ((dp₂, sl₁₂), ([], dpl₂))
   | [] =>
-      ((dp₂, sl₁₂), [])
+      ((dp₂, sl₁₂), ([], []))
   end.
 
-Fixpoint next_ch_points α dp₁ dpl₁ :=
-  match dpl₁ with
-  | [dp₂ … dpl₂] =>
-      if lt_dec (fst dp₁) (fst dp₂) then
-        let (min, seg) := minimise_slope α dp₁ dp₂ dpl₂ in
-        [(dp₁, seg) … next_ch_points α (fst min) dpl₂]
-      else
-        next_ch_points α dp₁ dpl₂
-  | [] =>
-      [(dp₁, [])]
+Fixpoint next_ch_points α n dp₁ dpl₁ :=
+  match n with
+  | O => []
+  | S n =>
+      match dpl₁ with
+      | [dp₂ … dpl₂] =>
+          let (min, sr) := minimise_slope α dp₁ dp₂ dpl₂ in
+          [(dp₁, fst sr) … next_ch_points α n (fst min) (snd sr)]
+      | [] =>
+          [(dp₁, [])]
+      end
   end.
 
 Definition lower_convex_hull_points α dpl :=
   match dpl with
-  | [dp₁ … dpl₁] => next_ch_points α dp₁ dpl₁
+  | [dp₁ … dpl₁] => next_ch_points α (List.length dpl) dp₁ dpl₁
   | [] => []
   end.
-
-(**)
-
-Fixpoint min_slope α pt₁ pt₂ pts :=
-  let v₁ := valuation α (snd pt₁) in
-  let v₂ := valuation α (snd pt₂) in
-  let sl₁₂ := (v₂ - v₁) / Qnat (fst pt₂ - fst pt₁) in
-  match pts with
-  | [pt₃ … pts₃] =>
-      let (pt, sl) := min_slope α pt₁ pt₃ pts₃ in
-      if Qle_bool sl sl₁₂ then (pt, sl) else (pt₂, sl₁₂)
-  | [] =>
-      (pt₂, sl₁₂)
-  end.
-
-Fixpoint assoc_ch_points α pts :=
-  match pts with
-  | [pt₁ … pts₁] =>
-      match pts₁ with
-      | [pt₂ … pts₂] =>
-          [(pt₁, fst (min_slope α pt₁ pt₂ pts₂)) … assoc_ch_points α pts₁]
-      | [] =>
-          []
-      end
-  | [] => []
-  end.
-
-Fixpoint filter_ch_points α (ach : list ((nat * α) * (nat * α))) :=
-  match ach with
-  | [(pt₁, pt₂) … ach₁] =>
-      match filter_ch_points α ach₁ with
-      | [(pt₃, seg, pt₄) … fcp] =>
-          if eq_nat_dec (fst pt₂) (fst pt₄) then
-            [(pt₁, [pt₃ … seg], pt₂) … fcp]
-          else
-            [(pt₁, [], pt₂) … fcp]
-      | [] =>
-          [(pt₁, [], pt₂)]
-      end
-  | [] =>
-      []
-  end.
-
-Definition lower_convex_hull_points₁ α pts :=
-  let ach := assoc_ch_points α pts in
-  filter_ch_points (puiseux_series α) ach.
