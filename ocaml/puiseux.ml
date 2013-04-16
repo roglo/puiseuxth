@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.181 2013-04-16 16:51:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.182 2013-04-16 19:30:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -36,30 +36,33 @@ Fixpoint minimise_slope dp₁ dp₂ dpl :=
   let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst dp₂ - fst dp₁))) in
   match dpl with
   | [dp₃ :: dpl₃] =>
-      let (min, seg) := minimise_slope dp₁ dp₃ dpl₃ in
+      let (min, sr) := minimise_slope dp₁ dp₃ dpl₃ in
       if Q.le (snd min) sl₁₂ then
-        (min, if Q.eq (snd min) sl₁₂ then [dp₂ :: seg] else seg)
+        (min,
+         (if Q.eq (snd min) sl₁₂ then [dp₂ :: fst sr] else fst sr, snd sr))
       else
-        ((dp₂, sl₁₂), [])
+        ((dp₂, sl₁₂), ([], dpl))
   | [] =>
-      ((dp₂, sl₁₂), [])
+      ((dp₂, sl₁₂), ([], []))
   end;
 
-Fixpoint next_points dp₁ dpl₁ :=
-  match dpl₁ with
-  | [dp₂ :: dpl₂] =>
-      if fst dp₁ < fst dp₂ then
-        let (min, seg) := minimise_slope dp₁ dp₂ dpl₂ in
-        [(dp₁, seg) :: next_points (fst min) dpl₂]
-      else
-        next_points dp₁ dpl₂
-  | [] =>
-      [(dp₁, [])]
+Fixpoint next_ch_points n dp₁ dpl₁ :=
+  match n with
+  | 0%nat => failwith "internal error: next_ch_points"
+  | n =>
+      let n := n - 1 in
+      match dpl₁ with
+      | [dp₂ :: dpl₂] =>
+          let (min, sr) := minimise_slope dp₁ dp₂ dpl₂ in
+          [(dp₁, fst sr) :: next_ch_points n (fst min) (snd sr)]
+      | [] =>
+          [(dp₁, [])]
+      end
   end;
 
 Definition lower_convex_hull_points dpl :=
   match dpl with
-  | [dp₁ :: dpl₁] => next_points dp₁ dpl₁
+  | [dp₁ :: dpl₁] => next_ch_points (List.length dpl) dp₁ dpl₁
   | [] => []
   end;
 
