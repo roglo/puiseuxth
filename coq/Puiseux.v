@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.168 2013-04-16 08:16:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.169 2013-04-16 08:20:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -739,7 +739,7 @@ Qed.
 
 (*
 Lemma xxx : ∀ α β (iips : nat * α) pts (lch : list (nat * α * β)),
-  LocallySorted (λ x y, (fst x < fst y)%nat) [iips … pts]
+  LocallySorted fst_lt [iips … pts]
   → (∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch → jjps = iips ∨ jjps ∈ pts)
     → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
 Proof.
@@ -757,7 +757,7 @@ induction lch as [| ((k, kps), sl)]; intros.
 bbb.
 
 Lemma yyy : ∀ α i ips pts lch,
-  LocallySorted (λ x y, (fst x < fst y)%nat) [(i, ips) … pts]
+  LocallySorted fst_lt [(i, ips) … pts]
   → next_ch_points α (i, ips) pts = lch
     → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
 zProof.
@@ -798,16 +798,16 @@ bbb.
     subst lch; rename lch₁ into lch; rename Heqlch₁ into Hlch.
     constructor.
 bbb.
+*)
 
 Lemma zzz : ∀ α pts lch,
-  LocallySorted (λ x y, (fst x < fst y)%nat) pts
+  LocallySorted fst_lt pts
   → lower_convex_hull_points α pts = lch
     → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
 Proof.
 intros α pts lch Hsort Hch.
 destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
 bbb.
-*)
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
