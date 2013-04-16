@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.177 2013-04-16 20:36:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.178 2013-04-16 20:58:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -158,13 +158,16 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma next_ch_points_not_empty : ∀ α dp dpl,
-  dpl ≠ [] → next_ch_points α (List.length dpl) dp dpl ≠ [ ].
+Lemma lower_convex_points_not_empty : ∀ α dpl,
+  dpl ≠ [] → lower_convex_hull_points α dpl ≠ [ ].
 Proof.
-intros α dp dpl Hdpl.
-induction dpl as [| dp₂ dpl₂]; [ exfalso; apply Hdpl; reflexivity | simpl ].
-destruct (minimise_slope α dp dp₂ dpl₂).
-intros H; discriminate H.
+intros α dpl Hdpl.
+unfold lower_convex_hull_points.
+intros H; apply Hdpl; clear Hdpl.
+destruct dpl as [| dp₁ dpl₁]; [ reflexivity | simpl in H ].
+destruct dpl₁; [ discriminate H | idtac ].
+remember (minimise_slope α dp₁ p dpl₁) as ms.
+destruct ms; discriminate H.
 Qed.
 
 Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,

@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.26 2013-04-16 20:36:38 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.27 2013-04-16 20:58:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,21 +35,20 @@ Fixpoint minimise_slope α dp₁ dp₂ dpl₂ :=
       ((dp₂, sl₁₂), ([], []))
   end.
 
-Fixpoint next_ch_points α n dp₁ dpl₁ :=
+Fixpoint next_ch_points α n dpl :=
   match n with
   | O => []
   | S n =>
-      match dpl₁ with
-      | [dp₂ … dpl₂] =>
+      match dpl with
+      | [dp₁, dp₂ … dpl₂] =>
           let (min, sr) := minimise_slope α dp₁ dp₂ dpl₂ in
-          [(dp₁, fst sr) … next_ch_points α n (fst min) (snd sr)]
-      | [] =>
+          [(dp₁, fst sr) … next_ch_points α n [fst min … snd sr]]
+      | [dp₁] =>
           [(dp₁, [])]
+      | [] =>
+          []
       end
   end.
 
 Definition lower_convex_hull_points α dpl :=
-  match dpl with
-  | [dp₁ … dpl₁] => next_ch_points α (List.length dpl) dp₁ dpl₁
-  | [] => []
-  end.
+  next_ch_points α (List.length dpl) dpl.
