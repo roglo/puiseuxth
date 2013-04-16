@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.164 2013-04-15 23:47:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.165 2013-04-16 00:39:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -671,12 +671,99 @@ induction pts as [| (l, lps)]; intros.
   reflexivity.
 Qed.
 
+Lemma min_sl_in : ∀ α iips jjps kkps sl seg pts,
+  (iips, sl, seg) = minimise_slope α jjps kkps pts
+  → iips ∈ pts ∨ iips = kkps.
+Proof.
+intros α iips jjps kkps sl seg pts Hips.
+revert iips jjps kkps sl seg Hips.
+induction pts as [| llps]; intros.
+ simpl in Hips.
+ injection Hips; clear Hips; intros; subst iips sl.
+ right; reflexivity.
+
+ simpl in Hips.
+ remember (minimise_slope α jjps llps pts) as x.
+ destruct x as ((mmps, sl₁), seg₁).
+ simpl in Hips.
+ remember
+  (Qle_bool sl₁
+     ((valuation α (snd kkps) - valuation α (snd jjps)) /
+      Qnat (fst kkps - fst jjps))) as b.
+ destruct b.
+  injection Hips; clear Hips; intros; subst mmps sl₁.
+  apply IHpts in Heqx.
+  destruct Heqx as [Heqx| Heqx].
+   left; right; assumption.
+
+   left; left; subst iips; reflexivity.
+
+  injection Hips; clear Hips; intros; subst kkps sl.
+  right; reflexivity.
+Qed.
+
+Lemma np_in : ∀ α iips pts lch,
+  next_points α iips pts = lch
+  → ∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch
+    → jjps = iips ∨ jjps ∈ pts.
+Proof.
+intros α iips pts lch Hnp jjps Hjps.
+revert iips lch Hnp jjps Hjps.
+induction pts as [| kkps]; intros.
+ subst lch; simpl in Hjps.
+ destruct Hjps; [ idtac | contradiction ].
+ left; symmetry; assumption.
+
+ simpl in Hnp.
+ destruct (lt_dec (fst iips) (fst kkps)) as [Hlt| Hge].
+  remember (minimise_slope α iips kkps pts) as ms.
+  destruct ms as ((llps, sl), seg).
+  simpl in Hnp.
+  remember (next_points α llps pts) as lch₁.
+  subst lch.
+  destruct Hjps; [ left; symmetry; assumption | idtac ].
+  symmetry in Heqlch₁.
+  eapply IHpts in Heqlch₁; [ idtac | eassumption ].
+  destruct Heqlch₁ as [HH| ]; [ idtac | right; right; assumption ].
+  subst llps.
+  apply min_sl_in in Heqms.
+  destruct Heqms as [HH| HH].
+   right; right; assumption.
+
+   right; left; subst jjps; reflexivity.
+
+  eapply IHpts in Hnp; [ idtac | eassumption ].
+  destruct Hnp as [Hnp| Hnp].
+   left; assumption.
+
+   right; right; assumption.
+Qed.
+
+Lemma xxx : ∀ α β (iips : nat * α) pts (lch : list (nat * α * β)),
+  LocallySorted (λ x y, (fst x < fst y)%nat) [iips … pts]
+  → (∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch → jjps = iips ∨ jjps ∈ pts)
+    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
+Proof.
+intros α β (i, ips) pts lch Hsort Hin.
+bbb.
+revert i ips pts Hsort Hin.
+induction lch as [| ((k, kps), sl)]; intros.
+ constructor.
+
+ apply IHlch in Hsort.
+  Focus 2.
+  intros (j, jps) Hjps.
+  apply Hin.
+  simpl.
+bbb.
+
 Lemma yyy : ∀ α i ips pts lch,
   LocallySorted (λ x y, (fst x < fst y)%nat) [(i, ips) … pts]
   → next_points α (i, ips) pts = lch
     → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
-Proof.
+zProof.
 intros α i ips pts lch Hsort Hnp.
+bbb.
 revert i ips lch Hsort Hnp.
 induction pts as [| (j, jps)]; intros.
  subst lch; constructor.
@@ -931,74 +1018,6 @@ induction rl as [| (m, mps)]; intros.
     left; reflexivity.
 
     right; right; assumption.
-Qed.
-
-Lemma min_sl_in : ∀ α iips jjps kkps sl seg pts,
-  (iips, sl, seg) = minimise_slope α jjps kkps pts
-  → iips ∈ pts ∨ iips = kkps.
-Proof.
-intros α iips jjps kkps sl seg pts Hips.
-revert iips jjps kkps sl seg Hips.
-induction pts as [| llps]; intros.
- simpl in Hips.
- injection Hips; clear Hips; intros; subst iips sl.
- right; reflexivity.
-
- simpl in Hips.
- remember (minimise_slope α jjps llps pts) as x.
- destruct x as ((mmps, sl₁), seg₁).
- simpl in Hips.
- remember
-  (Qle_bool sl₁
-     ((valuation α (snd kkps) - valuation α (snd jjps)) /
-      Qnat (fst kkps - fst jjps))) as b.
- destruct b.
-  injection Hips; clear Hips; intros; subst mmps sl₁.
-  apply IHpts in Heqx.
-  destruct Heqx as [Heqx| Heqx].
-   left; right; assumption.
-
-   left; left; subst iips; reflexivity.
-
-  injection Hips; clear Hips; intros; subst kkps sl.
-  right; reflexivity.
-Qed.
-
-Lemma np_in : ∀ α iips pts lch,
-  next_points α iips pts = lch
-  → ∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch
-    → jjps = iips ∨ jjps ∈ pts.
-Proof.
-intros α iips pts lch Hnp jjps Hjps.
-revert iips lch Hnp jjps Hjps.
-induction pts as [| kkps]; intros.
- subst lch; simpl in Hjps.
- destruct Hjps; [ idtac | contradiction ].
- left; symmetry; assumption.
-
- simpl in Hnp.
- destruct (lt_dec (fst iips) (fst kkps)) as [Hlt| Hge].
-  remember (minimise_slope α iips kkps pts) as ms.
-  destruct ms as ((llps, sl), seg).
-  simpl in Hnp.
-  remember (next_points α llps pts) as lch₁.
-  subst lch.
-  destruct Hjps; [ left; symmetry; assumption | idtac ].
-  symmetry in Heqlch₁.
-  eapply IHpts in Heqlch₁; [ idtac | eassumption ].
-  destruct Heqlch₁ as [HH| ]; [ idtac | right; right; assumption ].
-  subst llps.
-  apply min_sl_in in Heqms.
-  destruct Heqms as [HH| HH].
-   right; right; assumption.
-
-   right; left; subst jjps; reflexivity.
-
-  eapply IHpts in Hnp; [ idtac | eassumption ].
-  destruct Hnp as [Hnp| Hnp].
-   left; assumption.
-
-   right; right; assumption.
 Qed.
 
 (*
