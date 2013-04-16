@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.167 2013-04-16 08:12:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.168 2013-04-16 08:16:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -18,13 +18,13 @@ Record field α :=
     sub : α → α → α;
     mul : α → α → α;
     div : α → α → α;
-    eq_k_dec : ∀ x y : α, {x = y} + {x ≠ y} }.
+    is_zero_dec : ∀ x : α, {x = zero} + {x ≠ zero} }.
 Arguments zero : default implicits.
 Arguments add : default implicits.
 Arguments sub : default implicits.
 Arguments mul : default implicits.
 Arguments div : default implicits. 
-Arguments eq_k_dec : default implicits. 
+Arguments is_zero_dec : default implicits. 
 
 (* polynomial of degree ≥ 1 *)
 Record polynomial α := { al : list α; an : α }.
@@ -50,7 +50,7 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   end.
 
 Definition filter_non_zero_ps α fld (dpl : list (nat * puiseux_series α)) :=
-  List.filter (λ dp, if eq_k_dec fld (snd dp) (zero fld) then false else true)
+  List.filter (λ dp, if is_zero_dec fld (snd dp) then false else true)
     dpl.
 
 Definition points_of_ps_polynom_gen α fld pow cl cn :=
@@ -86,11 +86,11 @@ remember (all_points_of_ps_polynom α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
 induction cl as [| c cl]; intros.
  subst cpl; simpl.
- destruct (eq_k_dec fld cn (zero fld)); [ contradiction | simpl ].
+ destruct (is_zero_dec fld cn); [ contradiction | simpl ].
  intros H; discriminate H.
 
  subst cpl; simpl.
- destruct (eq_k_dec fld c (zero fld)).
+ destruct (is_zero_dec fld c).
   eapply IHcl; reflexivity.
 
   simpl.
@@ -119,7 +119,7 @@ induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
 
  unfold points_of_ps_polynom_gen; simpl.
- destruct (eq_k_dec fld c (zero fld)).
+ destruct (is_zero_dec fld c).
   destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
    subst c₁; contradiction.
 
@@ -178,7 +178,7 @@ intros α fld pow cl cn d₁ p₁ dpl Hvp Hdp.
 revert fld pow cn d₁ p₁ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst dpl; contradiction.
 
   simpl in Hvp.
@@ -187,7 +187,7 @@ induction cl as [| c]; intros.
   apply lt_n_Sn.
 
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   rewrite fold_points_of_ps_polynom_gen in Hvp.
   eapply IHcl in Hvp; [ idtac | eassumption ].
   eapply lt_trans; [ idtac | eassumption ].
@@ -215,11 +215,11 @@ intros α fld pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 revert fld pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec fld cn (zero fld)) as [| Hne]; [ discriminate Hvp | idtac ].
+ destruct (is_zero_dec fld cn) as [| Hne]; [ discriminate Hvp | idtac ].
  injection Hvp; intros; subst; contradiction.
 
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   simpl in Hvp.
@@ -327,10 +327,10 @@ intros α fld pow cl cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 revert fld pow cn d₁ p₁ d₂ p₂ d₃ p₃ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec fld cn (zero fld)); discriminate Hvp.
+ destruct (is_zero_dec fld cn); discriminate Hvp.
 
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   rewrite fold_points_of_ps_polynom_gen in Hvp.
   eapply IHcl; eassumption.
 
@@ -402,7 +402,7 @@ intros α fld deg cl cn pts k kps sl seg j jps l lps Hpts Hms.
 revert deg cn pts k kps sl seg j jps l lps Hpts Hms.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst pts.
   simpl in Hms.
   injection Hms; clear Hms; intros; subst l lps sl seg.
@@ -437,7 +437,7 @@ revert c deg₁ deg cn pts min lch Hc Hpts Hms Hnp Hdd Hjd.
 revert segjk j jps k kps segkx.
 induction cl as [| c₂]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst pts.
   simpl in Hms.
   injection Hms; clear Hms; intros; subst min segjk.
@@ -470,7 +470,7 @@ induction cl as [| c₂]; intros.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (eq_k_dec fld c₂ (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c₂) as [Heq| Hne].
   eapply IHcl; try eassumption.
   apply lt_le_weak, lt_n_S; assumption.
 
@@ -497,7 +497,7 @@ bbb.
     revert deg₁ Hpts Hdd Hlt₁ Heqms0.
     induction cl as [| c₃]; intros.
      unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-     destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne₂].
+     destruct (is_zero_dec fld cn) as [Heq| Hne₂].
       subst pts.
       simpl in Heqms0.
       injection Heqms0; clear Heqms0; intros; subst deg₁ c₂ segmx seg₂.
@@ -521,7 +521,7 @@ bbb.
        apply lt_irrefl in Hlt₁; contradiction.
 
      unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-     destruct (eq_k_dec fld c₃ (zero fld)) as [Heq| Hne₂].
+     destruct (is_zero_dec fld c₃) as [Heq| Hne₂].
       rewrite fold_points_of_ps_polynom_gen in Hpts.
       apply IHcl in Hpts.
        assumption.
@@ -542,7 +542,7 @@ intros α fld deg cl cn pts llps j jps segjk k kps segkx lch Hpts Hnp.
 revert deg cn pts llps lch Hpts Hnp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts; subst pts.
- destruct (eq_k_dec fld cn (zero fld)); [ discriminate Hnp | idtac ].
+ destruct (is_zero_dec fld cn); [ discriminate Hnp | idtac ].
  simpl in Hnp.
  destruct (lt_dec (fst llps) deg) as [Hlt| Hge].
   injection Hnp; clear Hnp; intros; subst llps deg cn segjk segkx.
@@ -552,7 +552,7 @@ induction cl as [| c]; intros.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (eq_k_dec fld c (zero fld)).
+ destruct (is_zero_dec fld c).
   eapply IHcl; eassumption.
 
   remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
@@ -578,11 +578,11 @@ intros α fld deg cl cn pts j jps segjk k kps segkx lch Hpts Hch.
 revert deg cn pts lch Hpts Hch.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
+ destruct (is_zero_dec fld cn); subst pts; discriminate Hch.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
@@ -604,11 +604,11 @@ intros α fld deg cl cn pts Hpts.
 revert deg cn pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)); subst pts; constructor.
+ destruct (is_zero_dec fld cn); subst pts; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
@@ -618,7 +618,7 @@ induction cl as [| c]; intros.
   revert c deg cn pts Hpts.
   induction cl as [| c₂]; intros.
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+   destruct (is_zero_dec fld cn) as [Heq| Hne].
     subst pts; constructor.
 
     subst pts.
@@ -626,7 +626,7 @@ induction cl as [| c]; intros.
 
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
    rewrite fold_points_of_ps_polynom_gen in Hpts.
-   destruct (eq_k_dec fld c₂ (zero fld)) as [Heq| Hne].
+   destruct (is_zero_dec fld c₂) as [Heq| Hne].
     eapply IHcl with (c := c) in Hpts.
     inversion Hpts; [ constructor | idtac ].
     subst a pts.
@@ -884,7 +884,7 @@ intros α fld deg cl cn pts rl n j jps k kps lch Hcn Hjps Hpts Hnp.
 revert fld deg cn pts rl n j jps k kps lch Hcn Hjps Hpts Hnp.
 induction cl as [| ps]; intros.
  subst pts; simpl in Hnp.
- destruct (eq_k_dec fld cn (zero fld)) as [| Hne]; [ contradiction | idtac ].
+ destruct (is_zero_dec fld cn) as [| Hne]; [ contradiction | idtac ].
  simpl in Hnp.
  destruct n.
 bbb.
@@ -899,10 +899,10 @@ revert fld deg cn pts j jps k kps lch Hpts Hch.
 induction cl as [| ps]; intros.
  simpl in Hpts.
  subst pts.
- destruct (eq_k_dec fld cn (zero fld)); discriminate Hch.
+ destruct (is_zero_dec fld cn); discriminate Hch.
 
  simpl in Hpts.
- destruct (eq_k_dec fld ps (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld ps) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   remember
@@ -923,14 +923,14 @@ revert fld deg cn pts j jps k kps lch Hpts Hch.
 induction cl as [| ps]; intros.
  unfold points_of_ps_polynom_gen in Hpts.
  simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst pts; discriminate Hch.
 
   subst pts; discriminate Hch.
 
  unfold points_of_ps_polynom_gen in Hpts.
  simpl in Hpts.
- destruct (eq_k_dec fld ps (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld ps) as [Heq| Hne].
   eapply vvv; eassumption.
 bbb.
 
@@ -1045,7 +1045,7 @@ intros Hpts Hnp Hrng Hβj Hβk i ips Hips.
 revert fld deg cn pts i ips l lps rl lch Hnp Hrng Hpts Hips.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst pts; contradiction.
 
   subst pts.
@@ -1077,7 +1077,7 @@ revert Hpts Hips Hipsn Hnp.
 revert fld deg cn l lps i ips pts lch rl.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst pts; contradiction.
 
   subst pts.
@@ -1097,7 +1097,7 @@ induction cl as [| c]; intros.
    apply Qle_antisym; [ assumption | idtac ].
    Focus 2.
    simpl in Hpts.
-   destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+   destruct (is_zero_dec fld c) as [Heq| Hne].
     eapply IHcl; eassumption.
 
     remember
@@ -1160,10 +1160,10 @@ revert Hpts Hipts Hipis Hch.
 revert fld deg cn i ips pts lch.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)); subst pts; discriminate Hch.
+ destruct (is_zero_dec fld cn); subst pts; discriminate Hch.
 
  simpl in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   remember
@@ -1256,7 +1256,7 @@ unfold points_of_ps_polynom_gen in Hpts.
 revert deg cn pts i ips lch Hpts Hnp Hips.
 induction cl as [| c]; intros.
  simpl in Hpts; subst pts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   simpl in Hnp; discriminate Hnp.
 
   simpl in Hnp.
@@ -1267,7 +1267,7 @@ induction cl as [| c]; intros.
    discriminate Hnp.
 
  simpl in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   remember
@@ -1305,7 +1305,7 @@ intros Hpts Hnp Hβ Hips Hnips.
 revert deg cn pts c j jps k kps lch i ips β γ Hpts Hnp Hips Hnips.
 induction cl as [| c₁]; intros.
  simpl in Hpts; subst pts.
- destruct (eq_k_dec fld cn (zero fld)); [ discriminate Hnp | idtac ].
+ destruct (is_zero_dec fld cn); [ discriminate Hnp | idtac ].
  simpl in Hnp.
  destruct (lt_dec deg (S deg)).
   injection Hnp; clear Hnp; intros; subst j jps k kps lch.
@@ -1338,7 +1338,7 @@ intros Hpts Hnp Hγ Hβ Hc i ips Hips Hnips.
 revert deg cn pts c lch i ips Hpts Hnp Hc Hips Hnips.
 induction cl as [| c₁]; intros.
  simpl in Hpts.
- destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+ destruct (is_zero_dec fld cn) as [Heq| Hne].
   subst pts; contradiction.
 
   subst pts; simpl in Hnp.
@@ -1381,10 +1381,10 @@ revert deg cn pts lch Hpts Hch i ips Hips Hnips.
 induction cl as [| c]; intros.
  simpl in Hpts.
  subst pts.
- destruct (eq_k_dec fld cn (zero fld)); [ contradiction | discriminate Hch ].
+ destruct (is_zero_dec fld cn); [ contradiction | discriminate Hch ].
 
  simpl in Hpts.
- destruct (eq_k_dec fld c (zero fld)) as [Hlt| Hge].
+ destruct (is_zero_dec fld c) as [Hlt| Hge].
   eapply IHcl; eassumption.
 
   remember
@@ -1418,7 +1418,7 @@ bbb.
     symmetry in Heqb.
     destruct cl as [| c₁].
      simpl in Heqpts₁.
-     destruct (eq_k_dec fld cn (zero fld)) as [Heq| Hne].
+     destruct (is_zero_dec fld cn) as [Heq| Hne].
       subst pts₁; contradiction.
 
       subst pts₁.
@@ -1462,7 +1462,7 @@ bbb.
        discriminate Hch.
 
      simpl in Heqpts₁.
-     destruct (eq_k_dec fld c₁ (zero fld)) as [Heq| Hne].
+     destruct (is_zero_dec fld c₁) as [Heq| Hne].
 
 bbb.
 
@@ -1617,7 +1617,7 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
   List.fold_left
     (λ sol_list rm,
        let (r, m) := rm in
-       if eq k r (zero fld) then sol_list
+       if eq k r then sol_list
        else
          match puiseux_iteration k br r m γ β sol_list with
          | Right (pol, cγl) => next_step k br sol_list col cγl
