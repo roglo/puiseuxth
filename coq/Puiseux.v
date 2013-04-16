@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.173 2013-04-16 09:13:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.174 2013-04-16 09:19:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -860,6 +860,7 @@ induction pts as [| pt₄]; intros.
       inversion Hsort.
       inversion H1; assumption.
 
+    apply not_gt in Hge.
 bbb.
 
 Lemma yyy : ∀ α i ips pts lch,
