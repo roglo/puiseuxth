@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.175 2013-04-16 09:24:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.176 2013-04-16 13:47:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -67,8 +67,7 @@ Definition gamma_beta_gen α fld deg cl cn :=
       let αk := valuation α kps in
       let γ := (αj - αk) / Qnat (k - j)%nat in
       let β := αj + Qnat j * γ in
-      let dpl := seg in
-      Some (γ, β, (j, jps), (k, kps), dpl)
+      Some (γ, β, (j, jps), (k, kps), seg)
   | [_] | [] =>
       None
   end.
