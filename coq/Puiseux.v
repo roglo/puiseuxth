@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.172 2013-04-16 09:08:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.173 2013-04-16 09:13:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -641,12 +641,12 @@ induction cl as [| c]; intros.
     constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
 Qed.
 
-Lemma minimise_slope_le : ∀ α i ips j jps k kps pts sl seg,
-  LocallySorted fst_lt [(j, jps) … pts]
-  → minimise_slope α (i, ips) (j, jps) pts = (((k, kps), sl), seg)
-    → j ≤ k.
+Lemma minimise_slope_le : ∀ α pt₁ pt₂ pt₃ pts sl seg,
+  LocallySorted fst_lt [pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ((pt₃, sl), seg)
+    → fst pt₂ ≤ fst pt₃.
 Proof.
-intros α i ips j jps k kps pts sl seg Hsort Hms.
+intros α (i, ips) (j, jps) (k, kps) pts sl seg Hsort Hms.
 revert i ips j jps k kps sl seg Hsort Hms.
 induction pts as [| (l, lps)]; intros.
  simpl in Hms.
@@ -849,7 +849,17 @@ induction pts as [| pt₄]; intros.
       assumption.
 
      unfold fst_fst_lt; simpl.
-apply minimise_slope in Heqms.
+     apply minimise_slope_le in Heqms.
+      eapply lt_le_trans; [ idtac | eassumption ].
+      apply lt_trans with (m := fst pt₂).
+       inversion Hsort; assumption.
+
+       inversion Hsort.
+       inversion H1; assumption.
+
+      inversion Hsort.
+      inversion H1; assumption.
+
 bbb.
 
 Lemma yyy : ∀ α i ips pts lch,
