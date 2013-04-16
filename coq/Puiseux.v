@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.165 2013-04-16 00:39:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.166 2013-04-16 08:08:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -598,9 +598,11 @@ induction cl as [| c]; intros.
 bbb.
 *)
 
+Definition fst_lt {α} (x y : nat * puiseux_series α) := (fst x < fst y)%nat.
+
 Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → LocallySorted (λ x y, (fst x < fst y)%nat) pts.
+  → LocallySorted fst_lt pts.
 Proof.
 intros α fld deg cl cn pts Hpts.
 revert deg cn pts Hpts.
@@ -641,7 +643,7 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma minimise_slope_le : ∀ α i ips j jps k kps pts sl seg,
-  LocallySorted (λ x y, (fst x < fst y)%nat) [(j, jps) … pts]
+  LocallySorted fst_lt [(j, jps) … pts]
   → minimise_slope α (i, ips) (j, jps) pts = (((k, kps), sl), seg)
     → j ≤ k.
 Proof.
@@ -739,6 +741,7 @@ induction pts as [| kkps]; intros.
    right; right; assumption.
 Qed.
 
+(*
 Lemma xxx : ∀ α β (iips : nat * α) pts (lch : list (nat * α * β)),
   LocallySorted (λ x y, (fst x < fst y)%nat) [iips … pts]
   → (∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch → jjps = iips ∨ jjps ∈ pts)
@@ -808,6 +811,7 @@ Proof.
 intros α pts lch Hsort Hch.
 destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
 bbb.
+*)
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld

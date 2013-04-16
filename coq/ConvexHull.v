@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.23 2013-04-15 03:33:17 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.24 2013-04-16 08:12:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,30 +34,20 @@ Fixpoint minimise_slope α dp₁ dp₂ dpl :=
       ((dp₂, sl₁₂), [])
   end.
 
-Fixpoint next_points α dp₁ dpl₁ :=
+Fixpoint next_ch_points α dp₁ dpl₁ :=
   match dpl₁ with
   | [dp₂ … dpl₂] =>
       if lt_dec (fst dp₁) (fst dp₂) then
         let (min, seg) := minimise_slope α dp₁ dp₂ dpl₂ in
-        [(dp₁, seg) … next_points α (fst min) dpl₂]
+        [(dp₁, seg) … next_ch_points α (fst min) dpl₂]
       else
-        next_points α dp₁ dpl₂
+        next_ch_points α dp₁ dpl₂
   | [] =>
       [(dp₁, [])]
   end.
 
 Definition lower_convex_hull_points α dpl :=
   match dpl with
-  | [dp₁ … dpl₁] => next_points α dp₁ dpl₁
+  | [dp₁ … dpl₁] => next_ch_points α dp₁ dpl₁
   | [] => []
   end.
-
-(*
-Definition points_in_segment α γ β dpl :=
-  List.filter
-    (λ dp,
-       let i := fst dp in
-       let αi := valuation α (snd dp) in
-       Qeq_bool (αi + Qnat i * γ) β)
-    dpl.
-*)
