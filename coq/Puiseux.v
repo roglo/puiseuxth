@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.171 2013-04-16 08:47:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.172 2013-04-16 09:08:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -594,7 +594,10 @@ induction cl as [| c]; intros.
 bbb.
 *)
 
-Definition fst_lt {α} (x y : nat * α) := (fst x < fst y)%nat.
+Definition fst_lt {α} (x y : nat * α) :=
+  (fst x < fst y)%nat.
+Definition fst_fst_lt {α β} (x y : (nat * α) * β) :=
+  (fst (fst x) < fst (fst y))%nat.
 
 Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
   pts = points_of_ps_polynom_gen α fld deg cl cn
@@ -803,15 +806,56 @@ bbb.
 Lemma xxx : ∀ α pt₁ pt₂ pt₃ pts sl seg,
   LocallySorted fst_lt [pt₁, pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ((pt₃, sl), seg)
-    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat)
-        [(pt₁, seg) … next_ch_points α pt₃ pts].
+    → LocallySorted fst_fst_lt [(pt₁, seg) … next_ch_points α pt₃ pts].
 Proof.
+intros α pt₁ pt₂ pt₃ pts sl seg Hsort Hms.
+revert pt₁ pt₂ pt₃ sl seg Hsort Hms.
+induction pts as [| pt₄]; intros.
+ constructor.
+  constructor.
+
+  simpl.
+  unfold fst_lt in Hsort; inversion Hsort.
+  subst a b l.
+  simpl in Hms.
+  inversion Hms; clear Hms; intros; subst pt₃; assumption.
+
+ simpl in Hms.
+ remember (minimise_slope α pt₁ pt₄ pts) as ms.
+ destruct ms as (min, seg₂).
+ remember
+  ((valuation α (snd pt₂) - valuation α (snd pt₁)) / Qnat (fst pt₂ - fst pt₁)) as sl₂.
+ remember (Qle_bool (snd min) sl₂) as b.
+ destruct b.
+  injection Hms; clear Hms; intros; subst min.
+  simpl in Heqb, H.
+  symmetry in Heqms.
+  remember (Qeq_bool sl sl₂) as b.
+  destruct b as [Heq| Hne].
+   subst seg.
+   simpl.
+   destruct (lt_dec (fst pt₃) (fst pt₄)) as [Hlt| Hge].
+    remember (minimise_slope α pt₃ pt₄ pts) as ms.
+    destruct ms as (min, seg).
+    constructor.
+     destruct min as (pt₅, sl₃).
+     simpl.
+     symmetry in Heqms0.
+     eapply IHpts; try eassumption.
+     constructor.
+      inversion Hsort.
+      inversion H1; assumption.
+
+      assumption.
+
+     unfold fst_fst_lt; simpl.
+apply minimise_slope in Heqms.
 bbb.
 
 Lemma yyy : ∀ α i ips pts lch,
   LocallySorted fst_lt pts
   → next_ch_points α (i, ips) pts = lch
-    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
+    → LocallySorted fst_fst_lt lch.
 Proof.
 intros α i ips pts lch Hsort Hnp.
 revert i ips lch Hsort Hnp.
@@ -846,7 +890,7 @@ bbb.
 Lemma zzz : ∀ α pts lch,
   LocallySorted fst_lt pts
   → lower_convex_hull_points α pts = lch
-    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
+    → LocallySorted fst_fst_lt lch.
 Proof.
 intros α pts lch Hsort Hch.
 destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
