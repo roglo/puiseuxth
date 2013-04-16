@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.166 2013-04-16 08:08:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.167 2013-04-16 08:12:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -67,11 +67,7 @@ Definition gamma_beta_gen α fld deg cl cn :=
       let αk := valuation α kps in
       let γ := (αj - αk) / Qnat (k - j)%nat in
       let β := αj + Qnat j * γ in
-(*
-      let dpl := points_in_segment α γ β gdpl in
-*)
       let dpl := seg in
-(**)
       Some (γ, β, (j, jps), (k, kps), dpl)
   | [_] | [] =>
       None
@@ -163,8 +159,8 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma next_points_not_empty : ∀ α dp dpl,
-  next_points α dp dpl ≠ [ ].
+Lemma next_ch_points_not_empty : ∀ α dp dpl,
+  next_ch_points α dp dpl ≠ [ ].
 Proof.
 intros.
 induction dpl as [| dp₂ dpl₂]; [ intros H; discriminate H | simpl ].
@@ -258,7 +254,7 @@ destruct chp as [| (j, jps)].
 
   symmetry in Heqchp.
   exfalso; revert Heqchp.
-  apply next_points_not_empty.
+  apply next_ch_points_not_empty.
 
  destruct j.
  destruct chp as [| ((k, kps), seg)]; [ idtac | intros H; discriminate H ].
@@ -275,7 +271,7 @@ destruct chp as [| (j, jps)].
    remember (minimise_slope α p0 p1 pts) as ms.
    destruct ms.
    injection Heqchp; clear Heqchp; intros; subst p0 l0.
-   exfalso; revert H; apply next_points_not_empty.
+   exfalso; revert H; apply next_ch_points_not_empty.
 
    exfalso; apply n0; clear n0.
    destruct p0, p1; simpl.
@@ -430,7 +426,7 @@ Lemma xxx : ∀ α fld c deg₁ deg cl cn pts min segjk j jps k kps segkx lch,
   c ≠ zero fld
   → pts = points_of_ps_polynom_gen α fld deg₁ cl cn
     → (min, segjk) = minimise_slope α (j, jps) (deg, c) pts
-      → next_points α (fst min) pts = [(k, kps, segkx) … lch]
+      → next_ch_points α (fst min) pts = [(k, kps, segkx) … lch]
         → (deg < deg₁)%nat
           → (j < deg)%nat
             → (j < k)%nat.
@@ -539,7 +535,7 @@ bbb.
 (*
 Lemma yyy : ∀ α fld deg cl cn pts llps j jps segjk k kps segkx lch,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → next_points α llps pts = [(j, jps, segjk), (k, kps, segkx) … lch]
+  → next_ch_points α llps pts = [(j, jps, segjk), (k, kps, segkx) … lch]
     → (j < k)%nat.
 Proof.
 intros α fld deg cl cn pts llps j jps segjk k kps segkx lch Hpts Hnp.
@@ -705,7 +701,7 @@ induction pts as [| llps]; intros.
 Qed.
 
 Lemma np_in : ∀ α iips pts lch,
-  next_points α iips pts = lch
+  next_ch_points α iips pts = lch
   → ∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch
     → jjps = iips ∨ jjps ∈ pts.
 Proof.
@@ -721,7 +717,7 @@ induction pts as [| kkps]; intros.
   remember (minimise_slope α iips kkps pts) as ms.
   destruct ms as ((llps, sl), seg).
   simpl in Hnp.
-  remember (next_points α llps pts) as lch₁.
+  remember (next_ch_points α llps pts) as lch₁.
   subst lch.
   destruct Hjps; [ left; symmetry; assumption | idtac ].
   symmetry in Heqlch₁.
@@ -762,7 +758,7 @@ bbb.
 
 Lemma yyy : ∀ α i ips pts lch,
   LocallySorted (λ x y, (fst x < fst y)%nat) [(i, ips) … pts]
-  → next_points α (i, ips) pts = lch
+  → next_ch_points α (i, ips) pts = lch
     → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
 zProof.
 intros α i ips pts lch Hsort Hnp.
@@ -775,7 +771,7 @@ induction pts as [| (j, jps)]; intros.
  destruct (lt_dec i j) as [Hlt| Hge].
   remember (minimise_slope α (i, ips) (j, jps) pts) as ms.
   destruct ms as (min, seg).
-  remember (next_points α (fst min) pts) as lch₁.
+  remember (next_ch_points α (fst min) pts) as lch₁.
   subst lch; rename lch₁ into lch; rename Heqlch₁ into Hlch.
   destruct min as ((k, kps), sl).
   simpl in Hlch.
@@ -798,7 +794,7 @@ bbb.
    remember (minimise_slope α (k, kps) p pts) as ms.
    destruct ms as (min, seg₁).
    destruct (lt_dec k (fst p)) as [Hlt₁| Hge].
-    remember (next_points α (fst min) pts) as lch₁.
+    remember (next_ch_points α (fst min) pts) as lch₁.
     subst lch; rename lch₁ into lch; rename Heqlch₁ into Hlch.
     constructor.
 bbb.
@@ -881,7 +877,7 @@ Lemma uuu : ∀ α fld deg cl cn pts rl n j jps k kps lch,
   cn ≠ zero fld
   → jps ≠ zero fld
     → pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
-      → next_points α rl n j jps pts = [(k, kps) … lch]
+      → next_ch_points α rl n j jps pts = [(k, kps) … lch]
         → (j < k)%nat.
 Proof.
 intros α fld deg cl cn pts rl n j jps k kps lch Hcn Hjps Hpts Hnp.
@@ -1027,7 +1023,7 @@ Qed.
 (*
 Lemma vvv :
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
-  → next_points α rl l lps pts = lch
+  → next_ch_points α rl l lps pts = lch
     → β = valuation α jps + Qnat j * γ
       → β = valuation α kps + Qnat k * γ
         → (∀ m mps, (m, mps) ∈ rl → β <= valuation α mps + Qnat m * γ)
@@ -1037,7 +1033,7 @@ bbb.
 
 Lemma www : ∀ α fld deg cl cn pts β γ j jps k kps l lps rl lch,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
-  → next_points α rl l lps pts = [(k, kps) … lch]
+  → next_ch_points α rl l lps pts = [(k, kps) … lch]
     → (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
       → β = valuation α jps + Qnat j * γ
         → β = valuation α kps + Qnat k * γ
@@ -1072,7 +1068,7 @@ Lemma xxx₂ : ∀ α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl,
     → pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α deg cl cn)
       → (i, ips) ∈ pts
         → (i, ips) ∉ points_in_segment α γ β pts
-          → next_points α rl l lps pts = [(k, kps) … lch]
+          → next_ch_points α rl l lps pts = [(k, kps) … lch]
             → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α fld deg cl cn γ β j jps k kps l lps i ips pts lch rl.
@@ -1228,7 +1224,7 @@ Lemma np_beta_le : ∀ α pts γ β j jps k kps jk kx lch,
   γ = (valuation α jps - valuation α kps) / Qnat (k - j)
   → β = valuation α jps + Qnat j * γ
     → ∀ i ips,
-        next_points α (i, ips) pts = [((j, jps), jk), ((k, kps), kx) … lch]
+        next_ch_points α (i, ips) pts = [((j, jps), jk), ((k, kps), kx) … lch]
         → β <= valuation α ips + Qnat i * γ.
 Proof.
 intros α pts γ β j jps k kps jk kx lch Hγ Hβ i ips Hnp.
@@ -1248,7 +1244,7 @@ Qed.
 
 Lemma not_seg_le : ∀ α fld deg cl cn pts i ips j jps k kps jk kx lch β γ,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → next_points α (i, ips) pts = [((j, jps), jk), ((k, kps), kx) … lch]
+  → next_ch_points α (i, ips) pts = [((j, jps), jk), ((k, kps), kx) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
         → (i, ips) ∉ points_in_segment α γ β pts
@@ -1297,7 +1293,7 @@ Qed.
 (*
 Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps lch i ips β γ,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)
-  → next_points α (deg, c) pts = [(j, jps), (k, kps) … lch]
+  → next_ch_points α (deg, c) pts = [(j, jps), (k, kps) … lch]
     → β == valuation α c + Qnat deg * γ
       → (i, ips) ∈ pts
         → (i, ips) ∉ points_in_segment α γ β pts
@@ -1328,7 +1324,7 @@ bbb.
 
 Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps jk kx lch γ β,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)
-  → next_points α (deg, c) pts = [((j, jps), jk), ((k, kps), kx) … lch]
+  → next_ch_points α (deg, c) pts = [((j, jps), jk), ((k, kps), kx) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
         → c ≠ zero fld
