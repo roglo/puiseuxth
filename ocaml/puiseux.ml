@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.177 2013-04-15 02:43:19 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.178 2013-04-16 13:45:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -63,16 +63,6 @@ Definition lower_convex_hull_points dpl :=
   | [] => []
   end;
 
-(*
-Definition points_in_segment γ β dpl :=
-  List.filter
-    (λ dp,
-       let i := fst dp in
-       let αi := valuation (snd dp) in
-       Q.eq (Q.add αi (Q.mul (qnat i) γ)) β)
-    dpl;
-*)
-
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=
     let (rev_dpl, _) :=
@@ -94,11 +84,7 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
         let v₂ := valuation p₂ in
         let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
         let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-(*
-        let dpl := points_in_segment γ β gdpl in
-*)
         let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
-(**)
         loop [(γ, β, dpl) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
