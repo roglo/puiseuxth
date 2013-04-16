@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.170 2013-04-16 08:33:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.171 2013-04-16 08:47:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -594,7 +594,7 @@ induction cl as [| c]; intros.
 bbb.
 *)
 
-Definition fst_lt {α} (x y : nat * puiseux_series α) := (fst x < fst y)%nat.
+Definition fst_lt {α} (x y : nat * α) := (fst x < fst y)%nat.
 
 Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
   pts = points_of_ps_polynom_gen α fld deg cl cn
@@ -800,6 +800,14 @@ bbb.
 bbb.
 *)
 
+Lemma xxx : ∀ α pt₁ pt₂ pt₃ pts sl seg,
+  LocallySorted fst_lt [pt₁, pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ((pt₃, sl), seg)
+    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat)
+        [(pt₁, seg) … next_ch_points α pt₃ pts].
+Proof.
+bbb.
+
 Lemma yyy : ∀ α i ips pts lch,
   LocallySorted fst_lt pts
   → next_ch_points α (i, ips) pts = lch
@@ -820,6 +828,19 @@ induction pts as [| pt]; intros.
   Focus 2.
   eapply IHpts; [ idtac | eassumption ].
   inversion Hsort; [ constructor | assumption ].
+
+  destruct min as ((k, kps), sl).
+  simpl in Heqpts₁.
+  subst pts₁.
+  eapply xxx.
+   constructor.
+    eassumption.
+
+    unfold fst_lt; simpl.
+    assumption.
+
+   symmetry.
+   eassumption.
 bbb.
 
 Lemma zzz : ∀ α pts lch,
