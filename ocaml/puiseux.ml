@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.179 2013-04-16 13:50:37 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.180 2013-04-16 14:08:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -65,27 +65,21 @@ Definition lower_convex_hull_points dpl :=
 
 (**)
 
-Fixpoint min_slope pt₁ pt₂ pts :=
-  let v₁ := valuation (snd pt₁) in
-  let v₂ := valuation (snd pt₂) in
-  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
-  match pts with
-  | [pt₃ :: pts₃] =>
-      let (pt, sl) := min_slope pt₁ pt₃ pts₃ in
-      if sl ≤ sl₁₂ then (pt, sl) else (pt₂, sl₁₂)
+Fixpoint min_slope pt₁ pts₁ :=
+  match pts₁ with
+  | [pt₂ :: pts₂] =>
+      let (sl, pt) := min_slope pt₁ pts₂ in
+      let v₁ := valuation (snd pt₁) in
+      let v₂ := valuation (snd pt₂) in
+      let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
+      if Q.le sl sl₁₂ then (sl, pt) else (sl₁₂, pt₂)
   | [] =>
-      (pt₂, sl₁₂)
+      (Q.zero, pt₁)
   end;
 
 Fixpoint assoc_ch_points pts :=
   match pts with
-  | [pt₁ :: pts₁] =>
-      match pts₁ with
-      | [pt₂ :: pts₂] =>
-          [(pt₁, fst (min_slope pt₁ pt₂ pts₂)) :: assoc_ch_points pts₁]
-      | [] =>
-          []
-      end
+  | [pt₁ :: pts₁] => [(pt₁, snd (min_slope pt₁ pts₁)) :: assoc_ch_points pts₁]
   | [] => []
   end;
 
@@ -127,14 +121,22 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   in
   let fix loop rev_gbl dpl :=
     match dpl with
+(**)
     | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
+(*
+    | [((d₁, p₁), seg, (d₂, p₂)) :: dpl₁] =>
+*)
         let v₁ := valuation p₁ in
         let v₂ := valuation p₂ in
         let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
         let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
         let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
         loop [(γ, β, dpl) :: rev_gbl] dpl₁
+(**)
     | [_] | [] =>
+(*
+    | [] =>
+*)
         List.rev rev_gbl
     end
   in
