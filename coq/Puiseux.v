@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.169 2013-04-16 08:20:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.170 2013-04-16 08:33:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -800,6 +800,28 @@ bbb.
 bbb.
 *)
 
+Lemma yyy : ∀ α i ips pts lch,
+  LocallySorted fst_lt pts
+  → next_ch_points α (i, ips) pts = lch
+    → LocallySorted (λ x y, (fst (fst x) < fst (fst y))%nat) lch.
+Proof.
+intros α i ips pts lch Hsort Hnp.
+revert i ips lch Hsort Hnp.
+induction pts as [| pt]; intros.
+ simpl in Hnp.
+ subst lch; constructor.
+
+ simpl in Hnp.
+ destruct (lt_dec i (fst pt)) as [Hlt| Hge].
+  remember (minimise_slope α (i, ips) pt pts) as ms.
+  destruct ms as (min, seg).
+  remember (next_ch_points α (fst min) pts) as pts₁.
+  subst lch.
+  Focus 2.
+  eapply IHpts; [ idtac | eassumption ].
+  inversion Hsort; [ constructor | assumption ].
+bbb.
+
 Lemma zzz : ∀ α pts lch,
   LocallySorted fst_lt pts
   → lower_convex_hull_points α pts = lch
@@ -807,6 +829,8 @@ Lemma zzz : ∀ α pts lch,
 Proof.
 intros α pts lch Hsort Hch.
 destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
+eapply yyy; [ idtac | eassumption ].
+inversion Hsort; [ constructor | assumption ].
 bbb.
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
