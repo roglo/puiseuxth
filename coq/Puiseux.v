@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.191 2013-04-17 14:13:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.192 2013-04-17 20:59:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -734,6 +734,9 @@ destruct Hips as [Hips| Hips].
    eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
    inversion Hpts.
    unfold fst_fst_lt in H4; simpl in H4.
+   rewrite Z.add_opp_r in H.
+   apply Zminus_eq, Nat2Z.inj in H.
+   subst k; apply lt_irrefl in H4; contradiction.
 bbb.
 
 intros α fld pol pts an_nz ai_nz Hpts.
