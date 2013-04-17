@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.193 2013-04-17 21:16:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.194 2013-04-17 21:34:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -692,6 +692,15 @@ intros α pts lch Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
+Lemma zzz : ∀ α j jps k kps γ β pts segjk segkx lch,
+  β = valuation α jps + Qnat j * γ
+  → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+    → lower_convex_hull_points α pts =
+        [((j, jps), segjk), ((k, kps), segkx) … lch]
+      → ∀ i ips, (i, ips) ∈ segjk → valuation α ips + Qnat i * γ == β.
+Proof.
+bbb.
+
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
@@ -738,30 +747,11 @@ destruct Hips as [Hips| Hips].
   intros H.
   apply Zminus_eq, Nat2Z.inj in H.
   subst k; apply lt_irrefl in H3; contradiction.
+
+  apply points_of_polyn_sorted in Hpts.
+  symmetry in Heqlch.
+  eapply zzz in Heqlch; try eassumption.
 bbb.
-
-intros α fld pol pts an_nz ai_nz Hpts.
-apply gamma_beta_not_empty in ai_nz; [ idtac | assumption ].
-remember (gamma_beta fld pol) as gb.
-destruct gb; [ clear ai_nz | exfalso; apply ai_nz; reflexivity ].
-destruct p as ((((γ, β), (j, jps)), (k, kps)), seg).
-exists γ, β, seg.
-intros i ips Hiit.
-clear Hpts.
-induction pts as [| pt]; intros; [ contradiction | idtac ].
-simpl in Hiit.
-remember (Qeq_bool (valuation α (snd pt) + Qnat (fst pt) * γ) β) as b.
-symmetry in Heqb.
-destruct b.
- destruct Hiit as [Hiit| Hiit].
-  subst pt.
-  simpl in Heqb.
-  apply Qeq_bool_iff; assumption.
-
-  apply IHpts; assumption.
-
- apply IHpts; assumption.
-Qed.
 
 Lemma rev_app_le_val : ∀ α β γ i ips rl l lch,
   (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
