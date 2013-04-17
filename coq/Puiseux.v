@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.188 2013-04-17 13:46:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.189 2013-04-17 14:01:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -620,6 +620,13 @@ simpl in Hnp.
 destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
 Qed.
 
+Lemma xxx : ∀ α pt₁ pt₂ pts ms,
+  LocallySorted fst_lt [pt₁, pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → LocallySorted fst_lt [end_pt ms … rem_pts ms].
+Proof.
+bbb.
+
 Lemma yyy : ∀ α n pts lch,
   LocallySorted fst_lt pts
   → next_ch_points α n pts = lch
@@ -649,6 +656,8 @@ apply IHn in Heqlch₁.
 
    eapply le_trans; [ eassumption | idtac ].
    eapply next_ch_points_le; eassumption.
+
+  inversion Hsort; assumption.
 
 bbb.
 
