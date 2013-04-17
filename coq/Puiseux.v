@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.184 2013-04-17 12:51:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.185 2013-04-17 13:03:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -467,6 +467,26 @@ induction pts₂ as [| pt]; intros.
   left; reflexivity.
 Qed.
 
+Lemma in_rem_pts : ∀ α pt pt₁ pt₂ pts₂,
+  pt ∈ rem_pts (minimise_slope α pt₁ pt₂ pts₂)
+  → pt ∈ [pt₂ … pts₂].
+Proof.
+intros α pt pt₁ pt₂ pts₂ Hpt.
+revert pt₁ pt₂ pt Hpt.
+induction pts₂ as [| pt₃]; intros; [ contradiction | idtac ].
+simpl in Hpt.
+remember (minimise_slope α pt₁ pt₃ pts₂) as ms.
+remember (valuation α (snd pt₁)) as v₁.
+remember (valuation α (snd pt₂)) as v₂.
+remember (Qle_bool (slope ms) ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁))) as b.
+destruct b; simpl in Hpt.
+ subst ms.
+ apply IHpts₂ in Hpt.
+ right; assumption.
+
+ right; assumption.
+Qed.
+
 Lemma np_in : ∀ α n pts lch,
   next_ch_points α n pts = lch
   → ∀ pt, pt ∈ List.map (λ ms, fst ms) lch
@@ -488,38 +508,9 @@ apply IHn in H.
 destruct H as [H| H].
  subst pt.
  right; assumption.
-bbb.
 
-intros α iips pts lch Hnp jjps Hjps.
-revert iips lch Hnp jjps Hjps.
-induction pts as [| kkps]; intros.
- subst lch; simpl in Hjps.
- destruct Hjps; [ idtac | contradiction ].
- left; symmetry; assumption.
-
- simpl in Hnp.
- destruct (lt_dec (fst iips) (fst kkps)) as [Hlt| Hge].
-  remember (minimise_slope α iips kkps pts) as ms.
-  destruct ms as ((llps, sl), seg).
-  simpl in Hnp.
-  remember (next_ch_points α llps pts) as lch₁.
-  subst lch.
-  destruct Hjps; [ left; symmetry; assumption | idtac ].
-  symmetry in Heqlch₁.
-  eapply IHpts in Heqlch₁; [ idtac | eassumption ].
-  destruct Heqlch₁ as [HH| ]; [ idtac | right; right; assumption ].
-  subst llps.
-  apply min_sl_in in Heqms.
-  destruct Heqms as [HH| HH].
-   right; right; assumption.
-
-   right; left; subst jjps; reflexivity.
-
-  eapply IHpts in Hnp; [ idtac | eassumption ].
-  destruct Hnp as [Hnp| Hnp].
-   left; assumption.
-
-   right; right; assumption.
+ subst ms;
+ right; eapply in_rem_pts; eassumption.
 Qed.
 
 Lemma xxx : ∀ α pt₁ pt₂ pt₃ pts sl seg,
