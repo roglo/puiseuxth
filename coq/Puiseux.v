@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.181 2013-04-17 11:40:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.182 2013-04-17 11:48:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -420,31 +420,26 @@ Lemma minimise_slope_le : ∀ α pt₁ pt₂ pts₂ ms,
   → minimise_slope α pt₁ pt₂ pts₂ = ms
     → fst pt₂ ≤ fst (end_pt ms).
 Proof.
-bbb.
-intros α (i, ips) (j, jps) (k, kps) pts sl seg Hsort Hms.
-revert i ips j jps k kps sl seg Hsort Hms.
-induction pts as [| (l, lps)]; intros.
- simpl in Hms.
- injection Hms; clear Hms; intros; subst k kps sl seg.
- reflexivity.
+intros α pt₁ pt₂ pts₂ ms Hsort Hms.
+revert pt₁ pt₂ ms Hsort Hms.
+induction pts₂ as [| pt]; intros.
+ subst ms; apply le_n.
 
  simpl in Hms.
- remember (minimise_slope α (i, ips) (l, lps) pts) as ms.
- destruct ms as (min, seg₁).
- remember ((valuation α jps - valuation α ips) / Qnat (j - i)) as sl₁.
- remember (Qle_bool (snd min) sl₁) as b.
+ remember (minimise_slope α pt₁ pt pts₂) as ms₁.
+ remember (valuation α (snd pt₁)) as v₁.
+ remember (valuation α (snd pt₂)) as v₂.
+ remember ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁)) as sl₁₂.
+ remember (Qle_bool (slope ms₁) sl₁₂) as b.
  destruct b.
-  injection Hms; clear Hms; intros; subst min seg.
-  simpl in Heqb.
-  symmetry in Heqms.
-  inversion Hsort.
-  subst a b l0; simpl in H3.
+  subst ms; simpl.
   apply lt_le_weak.
+  inversion Hsort.
   eapply lt_le_trans; [ eassumption | idtac ].
-  eapply IHpts; eassumption.
+  symmetry in Heqms₁.
+  eapply IHpts₂; eassumption.
 
-  injection Hms; clear Hms; intros; subst k kps sl₁ seg.
-  reflexivity.
+  subst ms; reflexivity.
 Qed.
 
 Lemma min_sl_in : ∀ α pt₁ pt₂ pt₃ pts₂ pts₃ sl seg,
