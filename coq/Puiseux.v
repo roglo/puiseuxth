@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.182 2013-04-17 11:48:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.183 2013-04-17 12:23:29 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -442,36 +442,29 @@ induction pts₂ as [| pt]; intros.
   subst ms; reflexivity.
 Qed.
 
-Lemma min_sl_in : ∀ α pt₁ pt₂ pt₃ pts₂ pts₃ sl seg,
-  minimise_slope α pt₁ pt₂ pts₂ = ((pt₃, sl), (seg, pts₃))
-  → pt₃ ∈ [pt₂ … pts₂].
+Lemma min_sl_in : ∀ α pt₁ pt₂ pts₂ ms,
+  minimise_slope α pt₁ pt₂ pts₂ = ms
+  → end_pt ms ∈ [pt₂ … pts₂].
 Proof.
-bbb.
-intros α pt₁ pt₂ pt₃ sl seg pts Hips.
-revert pt₁ pt₂ pt₃ sl seg Hips.
-induction pts as [| llps]; intros.
- simpl in Hips.
- injection Hips; clear Hips; intros; subst pt₃ sl.
- right; reflexivity.
+intros α pt₁ pt₂ pts₂ ms Hms.
+revert pt₁ pt₂ ms Hms.
+induction pts₂ as [| pt]; intros.
+ subst ms; left; reflexivity.
 
- simpl in Hips.
- remember (minimise_slope α pt₁ llps pts) as x.
- destruct x as ((mmps, sl₁), seg₁).
- simpl in Hips.
- remember
-  (Qle_bool sl₁
-     ((valuation α (snd pt₂) - valuation α (snd pt₁)) /
-      Qnat (fst pt₂ - fst pt₁))) as b.
- destruct b.
-  injection Hips; clear Hips; intros; subst mmps sl₁.
-  apply IHpts in Heqx.
-  destruct Heqx as [Heqx| Heqx].
-   left; right; assumption.
+ simpl in Hms.
+ remember (minimise_slope α pt₁ pt pts₂) as ms₁.
+ remember (valuation α (snd pt₁)) as v₁.
+ remember (valuation α (snd pt₂)) as v₂.
+ remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁))) as b.
+ destruct b; subst ms; simpl.
+  symmetry in Heqms₁.
+  apply IHpts₂ in Heqms₁.
+  destruct Heqms₁.
+   subst pt; right; left; reflexivity.
 
-   left; left; subst pt₃; reflexivity.
+   right; right; assumption.
 
-  injection Hips; clear Hips; intros; subst pt₂ sl.
-  right; reflexivity.
+  left; reflexivity.
 Qed.
 
 Lemma np_in : ∀ α n pts lch,
@@ -479,7 +472,6 @@ Lemma np_in : ∀ α n pts lch,
   → ∀ pt, pt ∈ List.map (λ ms, fst ms) lch
     → pt ∈ pts.
 Proof.
-np_in < Show Script.
 intros α n pts lch Hnp pt Hpt.
 subst lch.
 revert pts pt Hpt.

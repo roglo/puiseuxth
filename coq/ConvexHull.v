@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.29 2013-04-17 11:35:55 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.30 2013-04-17 12:23:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,7 +19,7 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Definition Qnat i := Z.of_nat i # 1.
 
-Record ms α :=
+Record min_sl α :=
   { slope : Q;
     end_pt : nat * α;
     seg : list (nat * α);
