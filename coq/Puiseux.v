@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.180 2013-04-17 11:35:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.181 2013-04-17 11:40:19 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -266,11 +266,8 @@ destruct chp as [| (j, jps)].
   unfold lower_convex_hull_points in Heqchp.
   simpl in Heqchp.
   remember (minimise_slope α p0 p1 pts) as ms.
-  destruct ms as (min, sr).
   injection Heqchp; clear Heqchp; intros; subst p0 jps.
-  destruct sr as (sl, dpl₁); simpl in H.
-  destruct dpl₁; [ discriminate H | idtac ].
-  remember (minimise_slope α (fst min) p0 dpl₁) as ms.
+  destruct (rem_pts ms); [ discriminate H | idtac ].
   discriminate H.
 Qed.
 
@@ -418,10 +415,10 @@ induction cl as [| c]; intros.
     constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
 Qed.
 
-Lemma minimise_slope_le : ∀ α pt₁ pt₂ pt₃ pts₂ sl seg pts₃,
+Lemma minimise_slope_le : ∀ α pt₁ pt₂ pts₂ ms,
   LocallySorted fst_lt [pt₂ … pts₂]
-  → minimise_slope α pt₁ pt₂ pts₂ = ((pt₃, sl), (seg, pts₃))
-    → fst pt₂ ≤ fst pt₃.
+  → minimise_slope α pt₁ pt₂ pts₂ = ms
+    → fst pt₂ ≤ fst (end_pt ms).
 Proof.
 bbb.
 intros α (i, ips) (j, jps) (k, kps) pts sl seg Hsort Hms.
