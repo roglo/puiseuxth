@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.183 2013-04-17 12:23:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.184 2013-04-17 12:51:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -481,24 +481,13 @@ destruct pts as [| pt₂]; [ assumption | idtac ].
 simpl in Hpt.
 destruct Hpt; [ subst pt₁; left; reflexivity | idtac ].
 remember (minimise_slope α pt₁ pt₂ pts) as ms.
-destruct ms as ((iips, sl), seg).
-simpl in H.
+symmetry in Heqms.
 remember Heqms as Hms; clear HeqHms.
 apply min_sl_in in Heqms.
-destruct Heqms as [Heqms| Heqms].
- apply IHn.
- destruct n; [ contradiction | idtac ].
- simpl in H.
- simpl.
- rewrite <- Hms.
- simpl.
- destruct seg as (x, y).
- simpl in H |- *.
- destruct y; simpl in H.
-  destruct H; [ subst iips | contradiction ].
-  destruct n.
-   simpl.
-   left.
+apply IHn in H.
+destruct H as [H| H].
+ subst pt.
+ right; assumption.
 bbb.
 
 intros α iips pts lch Hnp jjps Hjps.
