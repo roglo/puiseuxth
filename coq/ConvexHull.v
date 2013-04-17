@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.28 2013-04-17 10:03:00 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.29 2013-04-17 11:35:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,6 +19,16 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Definition Qnat i := Z.of_nat i # 1.
 
+Record ms α :=
+  { slope : Q;
+    end_pt : nat * α;
+    seg : list (nat * α);
+    rem_pts : list (nat * α) }.
+Arguments slope : default implicits.
+Arguments end_pt : default implicits.
+Arguments seg : default implicits.
+Arguments rem_pts : default implicits.
+
 Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   let v₁ := valuation α (snd pt₁) in
   let v₂ := valuation α (snd pt₂) in
@@ -26,16 +36,17 @@ Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   match pts₂ with
   | [pt₃ … pts₃] =>
       let ms := minimise_slope α pt₁ pt₃ pts₃ in
-      if Qle_bool (snd (fst ms)) sl₁₂ then
-        let pts :=
-          if Qeq_bool (snd (fst ms)) sl₁₂ then [pt₂ … fst (snd ms)]
-          else fst (snd ms)
+      if Qle_bool (slope ms) sl₁₂ then
+        let seg :=
+          if Qeq_bool (slope ms) sl₁₂ then [pt₂ … seg ms]
+          else seg ms
         in
-        (fst ms, (pts, snd (snd ms)))
+        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
+           rem_pts := rem_pts ms |}
       else
-        ((pt₂, sl₁₂), ([], pts₂))
+        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
   | [] =>
-      ((pt₂, sl₁₂), ([], []))
+      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   end.
 
 Fixpoint next_ch_points α n pts :=
@@ -44,9 +55,9 @@ Fixpoint next_ch_points α n pts :=
   | S n =>
       match pts with
       | [pt₁, pt₂ … pts₂] =>
-          let msr := minimise_slope α pt₁ pt₂ pts₂ in
-          let chl := next_ch_points α n [fst (fst msr) … snd (snd msr)] in
-          [(pt₁, fst (snd msr)) … chl]
+          let ms := minimise_slope α pt₁ pt₂ pts₂ in
+          let chl := next_ch_points α n [end_pt ms … rem_pts ms] in
+          [(pt₁, seg ms) … chl]
       | [pt₁] =>
           [(pt₁, [])]
       | [] =>

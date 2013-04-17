@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.185 2013-04-17 10:02:38 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.186 2013-04-17 11:35:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -30,6 +30,16 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 value qnat i = Q.of_i (I.of_int i);
 
+type ms α =
+  { slope : Q.t;
+    end_pt : (int * α);
+    seg : list (int * α);
+    rem_pts : list (int * α) };
+value slope ms = ms.slope;
+value end_pt ms = ms.end_pt;
+value seg ms = ms.seg;
+value rem_pts ms = ms.rem_pts;
+
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   let v₁ := valuation (snd pt₁) in
   let v₂ := valuation (snd pt₂) in
@@ -37,16 +47,17 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
   | [pt₃ :: pts₃] =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
-      if Qle_bool (snd (fst ms)) sl₁₂ then
-        let pts :=
-          if Qeq_bool (snd (fst ms)) sl₁₂ then [pt₂ :: fst (snd ms)]
-          else fst (snd ms)
+      if Qle_bool (slope ms) sl₁₂ then
+        let seg :=
+          if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
+          else seg ms
         in
-        (fst ms, (pts, snd (snd ms)))
+        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
+           rem_pts := rem_pts ms |}
       else
-        ((pt₂, sl₁₂), ([], pts₂))
+        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
   | [] =>
-      ((pt₂, sl₁₂), ([], []))
+      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   end;
 
 Fixpoint next_ch_points n pts :=
@@ -55,9 +66,9 @@ Fixpoint next_ch_points n pts :=
   | S n =>
       match pts with
       | [pt₁; pt₂ :: pts₂] =>
-          let msr := minimise_slope pt₁ pt₂ pts₂ in
-          let chl := next_ch_points n [fst (fst msr) :: snd (snd msr)] in
-          [(pt₁, fst (snd msr)) :: chl]
+          let ms := minimise_slope pt₁ pt₂ pts₂ in
+          let chl := next_ch_points n [end_pt ms :: rem_pts ms] in
+          [(pt₁, seg ms) :: chl]
       | [pt₁] =>
           [(pt₁, [])]
       | [] =>

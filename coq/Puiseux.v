@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.179 2013-04-17 10:03:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.180 2013-04-17 11:35:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -418,11 +418,12 @@ induction cl as [| c]; intros.
     constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
 Qed.
 
-Lemma minimise_slope_le : ∀ α pt₁ pt₂ pt₃ pts sl seg,
-  LocallySorted fst_lt [pt₂ … pts]
-  → minimise_slope α pt₁ pt₂ pts = ((pt₃, sl), seg)
+Lemma minimise_slope_le : ∀ α pt₁ pt₂ pt₃ pts₂ sl seg pts₃,
+  LocallySorted fst_lt [pt₂ … pts₂]
+  → minimise_slope α pt₁ pt₂ pts₂ = ((pt₃, sl), (seg, pts₃))
     → fst pt₂ ≤ fst pt₃.
 Proof.
+bbb.
 intros α (i, ips) (j, jps) (k, kps) pts sl seg Hsort Hms.
 revert i ips j jps k kps sl seg Hsort Hms.
 induction pts as [| (l, lps)]; intros.
