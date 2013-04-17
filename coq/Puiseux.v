@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.186 2013-04-17 13:24:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.187 2013-04-17 13:40:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -610,6 +610,12 @@ induction pts as [| pt]; intros.
 bbb.
 *)
 
+Lemma xxx : ∀ α n pt₁ pt₂ pts₁ sg lch,
+  next_ch_points α n [pt₁ … pts₁] = [(pt₂, sg) … lch]
+  → fst pt₁ ≤ fst pt₂.
+Proof.
+bbb.
+
 Lemma yyy : ∀ α n pts lch,
   LocallySorted fst_lt pts
   → next_ch_points α n pts = lch
@@ -625,16 +631,21 @@ remember (minimise_slope α pt₁ pt₂ pts) as ms₂.
 remember (next_ch_points α n [end_pt ms₂ … rem_pts ms₂]) as lch₁.
 subst lch.
 symmetry in Heqlch₁.
+remember Heqlch₁ as Hch; clear HeqHch.
 apply IHn in Heqlch₁.
- destruct lch₁ as [| (pt₃, sg)].
-  constructor.
+ destruct lch₁ as [| (pt₃, sg)]; [ constructor | idtac ].
+ constructor; [ assumption | idtac ].
+ unfold fst_fst_lt; simpl.
+ symmetry in Heqms₂.
+ remember Heqms₂ as Hms; clear HeqHms.
+ apply minimise_slope_le in Heqms₂.
+  eapply lt_le_trans.
+   inversion Hsort.
+   eassumption.
 
-  constructor.
-   assumption.
+   eapply le_trans; [ eassumption | idtac ].
+   eapply xxx; eassumption.
 
-   unfold fst_fst_lt; simpl.
-   symmetry in Heqms₂.
-   apply minimise_slope_le in Heqms₂.
 bbb.
 
 Lemma zzz : ∀ α pts lch,
