@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.187 2013-04-17 13:40:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.188 2013-04-17 13:46:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -610,11 +610,15 @@ induction pts as [| pt]; intros.
 bbb.
 *)
 
-Lemma xxx : ∀ α n pt₁ pt₂ pts₁ sg lch,
+Lemma next_ch_points_le : ∀ α n pt₁ pt₂ pts₁ sg lch,
   next_ch_points α n [pt₁ … pts₁] = [(pt₂, sg) … lch]
   → fst pt₁ ≤ fst pt₂.
 Proof.
-bbb.
+intros α n pt₁ pt₂ pts₁ sg lch Hnp.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
+Qed.
 
 Lemma yyy : ∀ α n pts lch,
   LocallySorted fst_lt pts
@@ -644,7 +648,7 @@ apply IHn in Heqlch₁.
    eassumption.
 
    eapply le_trans; [ eassumption | idtac ].
-   eapply xxx; eassumption.
+   eapply next_ch_points_le; eassumption.
 
 bbb.
 
