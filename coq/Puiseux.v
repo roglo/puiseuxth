@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.194 2013-04-17 21:34:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.195 2013-04-17 21:58:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -692,6 +692,36 @@ intros α pts lch Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
+Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
+  β = valuation α jps + Qnat j * γ
+  → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+    → minimise_slope α (j, jps) pt pts = ms
+      → next_ch_points α n [end_pt ms … rem_pts ms] = [(k, kps, segkx) … lch]
+        → ∀ i ips, (i, ips) ∈ seg ms
+          → valuation α ips + Qnat i * γ == β.
+Proof.
+bbb.
+
+Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
+  β = valuation α jps + Qnat j * γ
+  → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+    → next_ch_points α n pts =
+        [((j, jps), segjk), ((k, kps), segkx) … lch]
+      → ∀ i ips, (i, ips) ∈ segjk → valuation α ips + Qnat i * γ == β.
+Proof.
+intros α j jps k kps γ β pts segjk segkx lch n Hβ Hγ Hnp i ips Hips.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst pt₁.
+rename H0 into Hjk.
+remember (minimise_slope α (j, jps) pt₂ pts) as ms.
+subst segjk.
+symmetry in Heqms.
+eapply xxx; try eassumption.
+bbb.
+
 Lemma zzz : ∀ α j jps k kps γ β pts segjk segkx lch,
   β = valuation α jps + Qnat j * γ
   → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -699,6 +729,9 @@ Lemma zzz : ∀ α j jps k kps γ β pts segjk segkx lch,
         [((j, jps), segjk), ((k, kps), segkx) … lch]
       → ∀ i ips, (i, ips) ∈ segjk → valuation α ips + Qnat i * γ == β.
 Proof.
+intros α j jps k kps γ β pts segjk segkx lch Hβ Hγ Hch i ips Hips.
+unfold lower_convex_hull_points in Hch.
+eapply yyy; eassumption.
 bbb.
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
