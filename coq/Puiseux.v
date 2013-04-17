@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.192 2013-04-17 20:59:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.193 2013-04-17 21:16:52 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -721,22 +721,23 @@ destruct Hips as [Hips| Hips].
   injection Hips; clear Hips; intros; subst i ips.
   rewrite Hβ, Hγ.
   unfold Qnat.
-  rewrite Nat2Z.inj_sub.
-   rewrite QZ_minus.
-   field.
-   unfold Qminus, Qplus; simpl.
-   do 2 rewrite Z.mul_1_r.
-   unfold Qeq; simpl.
-   rewrite Z.mul_1_r.
-   intros H.
-   apply points_of_polyn_sorted in Hpts.
-   symmetry in Heqlch.
-   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-   inversion Hpts.
-   unfold fst_fst_lt in H4; simpl in H4.
-   rewrite Z.add_opp_r in H.
-   apply Zminus_eq, Nat2Z.inj in H.
-   subst k; apply lt_irrefl in H4; contradiction.
+  apply points_of_polyn_sorted in Hpts.
+  symmetry in Heqlch.
+  eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+  inversion Hpts.
+  subst a b l.
+  unfold fst_fst_lt in H3; simpl in H3.
+  rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+  rewrite QZ_minus.
+  field.
+  unfold Qminus, Qplus; simpl.
+  do 2 rewrite Z.mul_1_r.
+  unfold Qeq; simpl.
+  rewrite Z.mul_1_r.
+  rewrite Z.add_opp_r.
+  intros H.
+  apply Zminus_eq, Nat2Z.inj in H.
+  subst k; apply lt_irrefl in H3; contradiction.
 bbb.
 
 intros α fld pol pts an_nz ai_nz Hpts.
