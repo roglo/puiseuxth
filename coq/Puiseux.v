@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.189 2013-04-17 14:01:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.190 2013-04-17 14:10:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -620,14 +620,34 @@ simpl in Hnp.
 destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
 Qed.
 
-Lemma xxx : ∀ α pt₁ pt₂ pts ms,
+Lemma minimise_slope_sorted : ∀ α pt₁ pt₂ pts ms,
   LocallySorted fst_lt [pt₁, pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → LocallySorted fst_lt [end_pt ms … rem_pts ms].
 Proof.
-bbb.
+intros α pt₁ pt₂ pts ms Hsort Hms.
+revert pt₁ pt₂ ms Hsort Hms.
+induction pts as [| pt₃]; intros; [ subst ms; constructor | idtac ].
+simpl in Hms.
+remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+remember (valuation α (snd pt₁)) as v₁.
+remember (valuation α (snd pt₂)) as v₂.
+remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁))) as b.
+destruct b.
+ subst ms; simpl.
+ symmetry in Heqms₁.
+ eapply IHpts; [ idtac | eassumption ].
+ constructor.
+  inversion Hsort; inversion H1; assumption.
 
-Lemma yyy : ∀ α n pts lch,
+  inversion Hsort; inversion H1.
+  eapply lt_trans; eassumption.
+
+ subst ms; simpl.
+ inversion Hsort; assumption.
+Qed.
+
+Lemma next_points_sorted : ∀ α n pts lch,
   LocallySorted fst_lt pts
   → next_ch_points α n pts = lch
     → LocallySorted fst_fst_lt lch.
@@ -659,25 +679,18 @@ apply IHn in Heqlch₁.
 
   inversion Hsort; assumption.
 
-bbb.
+ symmetry in Heqms₂.
+ eapply minimise_slope_sorted; eassumption.
+Qed.
 
-Lemma zzz : ∀ α pts lch,
+Lemma lower_convex_hull_points_sorted : ∀ α pts lch,
   LocallySorted fst_lt pts
   → lower_convex_hull_points α pts = lch
     → LocallySorted fst_fst_lt lch.
 Proof.
 intros α pts lch Hsort Hch.
-unfold lower_convex_hull_points in Hch.
-bbb.
-
-destruct pts as [| pt]; [ subst lch; constructor | simpl in Hch ].
-bbb.
-
-intros α pts lch Hsort Hch.
-destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
-eapply yyy; [ idtac | eassumption ].
-inversion Hsort; [ constructor | assumption ].
-bbb.
+eapply next_points_sorted; eassumption.
+Qed.
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
