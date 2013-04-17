@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.184 2013-04-16 20:58:26 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.185 2013-04-17 10:02:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -30,40 +30,43 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 value qnat i = Q.of_i (I.of_int i);
 
-Fixpoint minimise_slope dp₁ dp₂ dpl₂ :=
-  let v₁ := valuation (snd dp₁) in
-  let v₂ := valuation (snd dp₂) in
-  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst dp₂ - fst dp₁))) in
-  match dpl₂ with
-  | [dp₃ :: dpl₃] =>
-      let (min, sr) := minimise_slope dp₁ dp₃ dpl₃ in
-      if Q.le (snd min) sl₁₂ then
-        (min,
-         (if Q.eq (snd min) sl₁₂ then [dp₂ :: fst sr] else fst sr, snd sr))
+Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
+  let v₁ := valuation (snd pt₁) in
+  let v₂ := valuation (snd pt₂) in
+  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
+  match pts₂ with
+  | [pt₃ :: pts₃] =>
+      let ms := minimise_slope pt₁ pt₃ pts₃ in
+      if Qle_bool (snd (fst ms)) sl₁₂ then
+        let pts :=
+          if Qeq_bool (snd (fst ms)) sl₁₂ then [pt₂ :: fst (snd ms)]
+          else fst (snd ms)
+        in
+        (fst ms, (pts, snd (snd ms)))
       else
-        ((dp₂, sl₁₂), ([], dpl₂))
+        ((pt₂, sl₁₂), ([], pts₂))
   | [] =>
-      ((dp₂, sl₁₂), ([], []))
+      ((pt₂, sl₁₂), ([], []))
   end;
 
-Fixpoint next_ch_points n dpl :=
+Fixpoint next_ch_points n pts :=
   match n with
-  | 0 => failwith "internal error: next_ch_points"
-  | n =>
-      let n := n - 1 in
-      match dpl with
-      | [dp₁; dp₂ :: dpl₂] =>
-          let (min, sr) := minimise_slope dp₁ dp₂ dpl₂ in
-          [(dp₁, fst sr) :: next_ch_points n [fst min :: snd sr]]
-      | [dp₁] =>
-          [(dp₁, [])]
+  | O => []
+  | S n =>
+      match pts with
+      | [pt₁; pt₂ :: pts₂] =>
+          let msr := minimise_slope pt₁ pt₂ pts₂ in
+          let chl := next_ch_points n [fst (fst msr) :: snd (snd msr)] in
+          [(pt₁, fst (snd msr)) :: chl]
+      | [pt₁] =>
+          [(pt₁, [])]
       | [] =>
           []
       end
   end;
 
-Definition lower_convex_hull_points dpl :=
-  next_ch_points (List.length dpl) dpl;
+Definition lower_convex_hull_points pts :=
+  next_ch_points (List.length pts) pts;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=

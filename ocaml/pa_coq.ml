@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.6 2013-04-14 00:22:32 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.7 2013-04-17 10:02:38 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -18,19 +18,19 @@ EXTEND
   ;
   coq_fun_binding:
     [ RIGHTA
-      [ p = ipatt; e = SELF -> <:expr< fun $p$ -> $e$ >>
-      | ":="; e = coq_expr -> <:expr< $e$ >>
-      | ":"; t = ctyp; ":="; e = coq_expr -> <:expr< ($e$ : $t$) >> ] ]
+      [ p = ipatt; e = SELF → <:expr< fun $p$ → $e$ >>
+      | ":="; e = coq_expr → <:expr< $e$ >>
+      | ":"; t = ctyp; ":="; e = coq_expr → <:expr< ($e$ : $t$) >> ] ]
   ;
   coq_expr:
-    [ [ "match"; e = SELF; "with"; l = V (LIST0 coq_match_case); "end" ->
+    [ [ "match"; e = SELF; "with"; l = V (LIST0 coq_match_case); "end" →
           <:expr< match $e$ with [ $_list:l$ ] >>
       | "let"; r = V (FLAG "fix"); l = V (LIST1 coq_binding SEP "and"); "in";
-        x = SELF ->
+        x = SELF →
           <:expr< let $_flag:r$ $_list:l$ in $x$ >>
-      | "if"; e1 = SELF; "then"; e2 = SELF; "else"; e3 = SELF ->
+      | "if"; e1 = SELF; "then"; e2 = SELF; "else"; e3 = SELF →
           <:expr< if $e1$ then $e2$ else $e3$ >>
-      | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" ->
+      | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" →
           <:expr< { $_list:lel$ } >>
       | e = expr →
           e ] ]
@@ -39,25 +39,37 @@ EXTEND
     [ [ e = expr; "%"; LIDENT "nat" → e ] ]
   ;
   expr: LEVEL "simple"
-    [ [ "("; GIDENT "λ"; p = ipatt; ","; e = coq_expr; ")" ->
-          <:expr< fun $p$ -> $e$ >> ] ]
+    [ [ "("; GIDENT "λ"; p = ipatt; ","; e = coq_expr; ")" →
+          <:expr< fun $p$ → $e$ >>
+      | UIDENT "Qle_bool" →
+          <:expr< Q.le >>
+      | UIDENT "Qeq_bool" →
+          <:expr< Q.eq >> ] ]
+  ;
+  patt: LEVEL "simple"
+    [ [ UIDENT "O" → <:patt< 0 >> ] ]
   ;
   coq_match_case:
-    [ [ "|"; p = patt; pnat; "=>"; e = coq_expr -> (p, <:vala< None >>, e) ] ]
-  ;
-  pnat:
-    [ [ "%"; LIDENT "nat" → ()
-      | → () ] ]
+    [ [ "|"; p = patt; "=>"; e = coq_expr →
+        let (p, e) =
+          match p with
+          [ <:patt< S $lid:n$ >> →
+              (<:patt< $lid:n$ >>,
+               <:expr< let $lid:n$ = pred $lid:n$ in $e$ >>)
+          | _ →
+              (p, e) ]
+        in
+        (p, <:vala< None >>, e) ] ]
   ;
   coq_label_expr:
-    [ [ i = patt_label_ident; e = coq_fun_binding -> (i, e) ] ]
+    [ [ i = patt_label_ident; e = coq_fun_binding → (i, e) ] ]
   ;
   patt_label_ident:
     [ LEFTA
-      [ p1 = SELF; "."; p2 = SELF -> <:patt< $p1$ . $p2$ >> ]
+      [ p1 = SELF; "."; p2 = SELF → <:patt< $p1$ . $p2$ >> ]
     | "simple" RIGHTA
-      [ i = V UIDENT -> <:patt< $_uid:i$ >>
-      | i = V LIDENT -> <:patt< $_lid:i$ >>
-      | "_" -> <:patt< _ >> ] ]
+      [ i = V UIDENT → <:patt< $_uid:i$ >>
+      | i = V LIDENT → <:patt< $_lid:i$ >>
+      | "_" → <:patt< _ >> ] ]
   ;
 END;

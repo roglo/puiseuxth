@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.178 2013-04-16 20:58:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.179 2013-04-17 10:03:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -158,16 +158,14 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma lower_convex_points_not_empty : ∀ α dpl,
-  dpl ≠ [] → lower_convex_hull_points α dpl ≠ [ ].
+Lemma lower_convex_points_empty_iff : ∀ α dpl,
+  lower_convex_hull_points α dpl = [ ] ↔ dpl = [].
 Proof.
-intros α dpl Hdpl.
+intros α dpl.
 unfold lower_convex_hull_points.
-intros H; apply Hdpl; clear Hdpl.
+split; intros H; [ idtac | subst dpl; reflexivity ].
 destruct dpl as [| dp₁ dpl₁]; [ reflexivity | simpl in H ].
-destruct dpl₁; [ discriminate H | idtac ].
-remember (minimise_slope α dp₁ p dpl₁) as ms.
-destruct ms; discriminate H.
+destruct dpl₁; discriminate H.
 Qed.
 
 Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
@@ -253,10 +251,7 @@ destruct chp as [| (j, jps)].
   exfalso; revert Heqpts.
   apply one_vp_gen; assumption.
 
-  simpl in Heqchp.
-  destruct pts as [| pt]; [ discriminate Heqchp | idtac ].
-  remember (minimise_slope α (j, jps) pt pts) as ms.
-  destruct ms; discriminate Heqchp.
+  destruct pts; discriminate Heqchp.
 
  destruct j.
  destruct chp as [| ((k, kps), seg)]; [ idtac | intros H; discriminate H ].
@@ -268,13 +263,15 @@ destruct chp as [| (j, jps)].
   apply le_not_lt in Hcl.
   exfalso; apply Hcl, lt_n_Sn.
 
+  unfold lower_convex_hull_points in Heqchp.
+  simpl in Heqchp.
   remember (minimise_slope α p0 p1 pts) as ms.
   destruct ms as (min, sr).
   injection Heqchp; clear Heqchp; intros; subst p0 jps.
   destruct sr as (sl, dpl₁); simpl in H.
   destruct dpl₁; [ discriminate H | idtac ].
   remember (minimise_slope α (fst min) p0 dpl₁) as ms.
-  destruct ms; discriminate H.
+  discriminate H.
 Qed.
 
 Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),
@@ -452,42 +449,73 @@ induction pts as [| (l, lps)]; intros.
   reflexivity.
 Qed.
 
-Lemma min_sl_in : ∀ α iips jjps kkps sl seg pts,
-  (iips, sl, seg) = minimise_slope α jjps kkps pts
-  → iips ∈ pts ∨ iips = kkps.
+Lemma min_sl_in : ∀ α pt₁ pt₂ pt₃ pts₂ pts₃ sl seg,
+  minimise_slope α pt₁ pt₂ pts₂ = ((pt₃, sl), (seg, pts₃))
+  → pt₃ ∈ [pt₂ … pts₂].
 Proof.
-intros α iips jjps kkps sl seg pts Hips.
-revert iips jjps kkps sl seg Hips.
+bbb.
+intros α pt₁ pt₂ pt₃ sl seg pts Hips.
+revert pt₁ pt₂ pt₃ sl seg Hips.
 induction pts as [| llps]; intros.
  simpl in Hips.
- injection Hips; clear Hips; intros; subst iips sl.
+ injection Hips; clear Hips; intros; subst pt₃ sl.
  right; reflexivity.
 
  simpl in Hips.
- remember (minimise_slope α jjps llps pts) as x.
+ remember (minimise_slope α pt₁ llps pts) as x.
  destruct x as ((mmps, sl₁), seg₁).
  simpl in Hips.
  remember
   (Qle_bool sl₁
-     ((valuation α (snd kkps) - valuation α (snd jjps)) /
-      Qnat (fst kkps - fst jjps))) as b.
+     ((valuation α (snd pt₂) - valuation α (snd pt₁)) /
+      Qnat (fst pt₂ - fst pt₁))) as b.
  destruct b.
   injection Hips; clear Hips; intros; subst mmps sl₁.
   apply IHpts in Heqx.
   destruct Heqx as [Heqx| Heqx].
    left; right; assumption.
 
-   left; left; subst iips; reflexivity.
+   left; left; subst pt₃; reflexivity.
 
-  injection Hips; clear Hips; intros; subst kkps sl.
+  injection Hips; clear Hips; intros; subst pt₂ sl.
   right; reflexivity.
 Qed.
 
-Lemma np_in : ∀ α iips pts lch,
-  next_ch_points α iips pts = lch
-  → ∀ jjps, jjps ∈ List.map (λ ms, fst ms) lch
-    → jjps = iips ∨ jjps ∈ pts.
+Lemma np_in : ∀ α n pts lch,
+  next_ch_points α n pts = lch
+  → ∀ pt, pt ∈ List.map (λ ms, fst ms) lch
+    → pt ∈ pts.
 Proof.
+np_in < Show Script.
+intros α n pts lch Hnp pt Hpt.
+subst lch.
+revert pts pt Hpt.
+induction n; intros; [ contradiction | simpl in Hpt ].
+destruct pts as [| pt₁]; [ contradiction | idtac ].
+destruct pts as [| pt₂]; [ assumption | idtac ].
+simpl in Hpt.
+destruct Hpt; [ subst pt₁; left; reflexivity | idtac ].
+remember (minimise_slope α pt₁ pt₂ pts) as ms.
+destruct ms as ((iips, sl), seg).
+simpl in H.
+remember Heqms as Hms; clear HeqHms.
+apply min_sl_in in Heqms.
+destruct Heqms as [Heqms| Heqms].
+ apply IHn.
+ destruct n; [ contradiction | idtac ].
+ simpl in H.
+ simpl.
+ rewrite <- Hms.
+ simpl.
+ destruct seg as (x, y).
+ simpl in H |- *.
+ destruct y; simpl in H.
+  destruct H; [ subst iips | contradiction ].
+  destruct n.
+   simpl.
+   left.
+bbb.
+
 intros α iips pts lch Hnp jjps Hjps.
 revert iips lch Hnp jjps Hjps.
 induction pts as [| kkps]; intros.

@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.27 2013-04-16 20:58:26 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.28 2013-04-17 10:03:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,36 +19,40 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Definition Qnat i := Z.of_nat i # 1.
 
-Fixpoint minimise_slope α dp₁ dp₂ dpl₂ :=
-  let v₁ := valuation α (snd dp₁) in
-  let v₂ := valuation α (snd dp₂) in
-  let sl₁₂ := (v₂ - v₁) / Qnat (fst dp₂ - fst dp₁) in
-  match dpl₂ with
-  | [dp₃ … dpl₃] =>
-      let (min, sr) := minimise_slope α dp₁ dp₃ dpl₃ in
-      if Qle_bool (snd min) sl₁₂ then
-        (min,
-         (if Qeq_bool (snd min) sl₁₂ then [dp₂ … fst sr] else fst sr, snd sr))
+Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
+  let v₁ := valuation α (snd pt₁) in
+  let v₂ := valuation α (snd pt₂) in
+  let sl₁₂ := (v₂ - v₁) / Qnat (fst pt₂ - fst pt₁) in
+  match pts₂ with
+  | [pt₃ … pts₃] =>
+      let ms := minimise_slope α pt₁ pt₃ pts₃ in
+      if Qle_bool (snd (fst ms)) sl₁₂ then
+        let pts :=
+          if Qeq_bool (snd (fst ms)) sl₁₂ then [pt₂ … fst (snd ms)]
+          else fst (snd ms)
+        in
+        (fst ms, (pts, snd (snd ms)))
       else
-        ((dp₂, sl₁₂), ([], dpl₂))
+        ((pt₂, sl₁₂), ([], pts₂))
   | [] =>
-      ((dp₂, sl₁₂), ([], []))
+      ((pt₂, sl₁₂), ([], []))
   end.
 
-Fixpoint next_ch_points α n dpl :=
+Fixpoint next_ch_points α n pts :=
   match n with
   | O => []
   | S n =>
-      match dpl with
-      | [dp₁, dp₂ … dpl₂] =>
-          let (min, sr) := minimise_slope α dp₁ dp₂ dpl₂ in
-          [(dp₁, fst sr) … next_ch_points α n [fst min … snd sr]]
-      | [dp₁] =>
-          [(dp₁, [])]
+      match pts with
+      | [pt₁, pt₂ … pts₂] =>
+          let msr := minimise_slope α pt₁ pt₂ pts₂ in
+          let chl := next_ch_points α n [fst (fst msr) … snd (snd msr)] in
+          [(pt₁, fst (snd msr)) … chl]
+      | [pt₁] =>
+          [(pt₁, [])]
       | [] =>
           []
       end
   end.
 
-Definition lower_convex_hull_points α dpl :=
-  next_ch_points α (List.length dpl) dpl.
+Definition lower_convex_hull_points α pts :=
+  next_ch_points α (List.length pts) pts.
