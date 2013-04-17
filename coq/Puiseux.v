@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.185 2013-04-17 13:03:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.186 2013-04-17 13:24:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -513,6 +513,7 @@ destruct H as [H| H].
  right; eapply in_rem_pts; eassumption.
 Qed.
 
+(*
 Lemma xxx : ∀ α pt₁ pt₂ pt₃ pts sl seg,
   LocallySorted fst_lt [pt₁, pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ((pt₃, sl), seg)
@@ -607,12 +608,47 @@ induction pts as [| pt]; intros.
    symmetry.
    eassumption.
 bbb.
+*)
+
+Lemma yyy : ∀ α n pts lch,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts = lch
+    → LocallySorted fst_fst_lt lch.
+Proof.
+intros α n pts lch Hsort Hnp.
+revert pts lch Hsort Hnp.
+induction n; intros; [ subst lch; constructor | idtac ].
+simpl in Hnp.
+destruct pts as [| pt₁]; [ subst lch; constructor | idtac ].
+destruct pts as [| pt₂]; [ subst lch; constructor | idtac ].
+remember (minimise_slope α pt₁ pt₂ pts) as ms₂.
+remember (next_ch_points α n [end_pt ms₂ … rem_pts ms₂]) as lch₁.
+subst lch.
+symmetry in Heqlch₁.
+apply IHn in Heqlch₁.
+ destruct lch₁ as [| (pt₃, sg)].
+  constructor.
+
+  constructor.
+   assumption.
+
+   unfold fst_fst_lt; simpl.
+   symmetry in Heqms₂.
+   apply minimise_slope_le in Heqms₂.
+bbb.
 
 Lemma zzz : ∀ α pts lch,
   LocallySorted fst_lt pts
   → lower_convex_hull_points α pts = lch
     → LocallySorted fst_fst_lt lch.
 Proof.
+intros α pts lch Hsort Hch.
+unfold lower_convex_hull_points in Hch.
+bbb.
+
+destruct pts as [| pt]; [ subst lch; constructor | simpl in Hch ].
+bbb.
+
 intros α pts lch Hsort Hch.
 destruct pts as [| (i, ips)]; [ subst lch; constructor | simpl in Hch ].
 eapply yyy; [ idtac | eassumption ].
