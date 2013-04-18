@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.201 2013-04-18 14:18:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.202 2013-04-18 16:21:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -765,6 +765,9 @@ destruct (Qeq_dec z 0) as [Heq| Hne].
  field; assumption.
 Qed.
 
+Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
+Proof. intros; field. Qed.
+
 Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   β = valuation α jps + Qnat j * γ
   → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -808,8 +811,13 @@ induction pts as [| pt₁]; intros.
   do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
   rewrite Qdiv_sub_distr_r.
   apply Qeq_opp_r in Heqms₁.
-  unfold Qminus in Heqms₁.
-  rewrite Qopp_plus in Heqms₁.
+  rewrite Qopp_minus in Heqms₁.
+  rewrite Qopp_minus in Heqms₁.
+  rewrite <- Heqms₁.
+  unfold Qnat.
+  rewrite Nat2Z.inj_sub.
+   rewrite QZ_minus.
+   field.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
