@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.200 2013-04-18 09:29:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.201 2013-04-18 14:18:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -729,6 +729,42 @@ induction pts as [| pt₁]; intros.
   subst v₂; reflexivity.
 Qed.
 
+Lemma Qeq_opp_r : ∀ x y, x == y → - x == - y.
+Proof.
+intros x y H; rewrite H; reflexivity.
+Qed.
+
+Lemma Qeq_opp_l : ∀ x y, - x == - y → x == y.
+Proof.
+intros x y H.
+rewrite <- Qopp_opp, H.
+apply Qopp_opp.
+Qed.
+
+Lemma Qdiv_add_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
+Proof.
+intros x y z.
+destruct (Qeq_dec z 0) as [Heq| Hne].
+ rewrite Heq.
+ unfold Qdiv, Qinv; simpl.
+ do 3 rewrite Qmult_0_r.
+ reflexivity.
+
+ field; assumption.
+Qed.
+
+Lemma Qdiv_sub_distr_r : ∀ x y z, (x - y) / z == x / z - y / z.
+Proof.
+intros x y z.
+destruct (Qeq_dec z 0) as [Heq| Hne].
+ rewrite Heq.
+ unfold Qdiv, Qinv; simpl.
+ do 3 rewrite Qmult_0_r.
+ reflexivity.
+
+ field; assumption.
+Qed.
+
 Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   β = valuation α jps + Qnat j * γ
   → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -769,6 +805,11 @@ induction pts as [| pt₁]; intros.
   subst β.
   remember (valuation α kps) as v₃.
   subst γ.
+  do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
+  rewrite Qdiv_sub_distr_r.
+  apply Qeq_opp_r in Heqms₁.
+  unfold Qminus in Heqms₁.
+  rewrite Qopp_plus in Heqms₁.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
@@ -802,6 +843,7 @@ intros α j jps k kps γ β pts segjk segkx lch Hβ Hγ Hch i ips Hips.
 unfold lower_convex_hull_points in Hch.
 eapply yyy; eassumption.
 bbb.
+*)
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
