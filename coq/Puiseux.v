@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.195 2013-04-17 21:58:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.196 2013-04-18 03:11:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -700,6 +700,30 @@ Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
         → ∀ i ips, (i, ips) ∈ seg ms
           → valuation α ips + Qnat i * γ == β.
 Proof.
+intros α j jps k kps β γ pt pts ms segks lch n Hβ Hγ Hms Hnp i ips Hips.
+bbb.
+revert pt ms lch n i ips Hips Hms Hnp.
+induction pts as [| pt₁]; intros.
+ simpl in Hms.
+ subst ms; simpl in Hnp, Hips.
+ contradiction.
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ remember (valuation α jps) as v₁.
+ remember (valuation α (snd pt)) as v₂.
+ remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt - j))) as b.
+ destruct b.
+  subst ms; simpl in Hnp, Hips.
+  remember (Qeq_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt - j))) as b₁.
+  destruct b₁.
+   destruct Hips as [Hips| Hips].
+    subst pt.
+    simpl in Heqv₂.
+    destruct n; [ discriminate Hnp | idtac ].
+    simpl in Hnp.
+    remember (rem_pts ms₁) as pts₂.
+    destruct pts₂ as [| pt₂].
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
