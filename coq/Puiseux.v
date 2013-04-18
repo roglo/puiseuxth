@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.199 2013-04-18 09:27:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.200 2013-04-18 09:29:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -767,6 +767,8 @@ induction pts as [| pt₁]; intros.
   simpl in Heqv₂.
   rewrite <- Heqv₂.
   subst β.
+  remember (valuation α kps) as v₃.
+  subst γ.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
