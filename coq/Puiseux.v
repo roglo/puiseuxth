@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.198 2013-04-18 09:17:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.199 2013-04-18 09:27:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -702,12 +702,32 @@ induction n; intros; [ discriminate Hnp | simpl in Hnp ].
 destruct pts₂; injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
-Lemma www : ∀ α j jps k kps pt pts ms,
+Lemma minimised_slope : ∀ α j jps k kps pt pts ms,
   minimise_slope α (j, jps) pt pts = ms
   → (k, kps) = end_pt ms
-    → slope ms == (valuation α jps - valuation α kps) / Qnat (k - j).
+    → slope ms == (valuation α kps - valuation α jps) / Qnat (k - j).
 Proof.
-bbb.
+intros α j jps k kps pt pts ms Hms Hkps.
+revert j jps k kps pt ms Hms Hkps.
+induction pts as [| pt₁]; intros.
+ subst ms; simpl in Hkps |- *; subst pt; reflexivity.
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ remember (valuation α jps) as v₁.
+ remember (valuation α (snd pt)) as v₂.
+ destruct pt as (l, lps); simpl in Heqv₂, Hms.
+ remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (l - j))) as b.
+ destruct b.
+  subst ms; simpl in Hkps |- *.
+  subst v₁.
+  symmetry in Heqms₁.
+  eapply IHpts; eassumption.
+
+  subst ms; simpl in Hkps |- *.
+  injection Hkps; clear Hkps; intros; subst l lps.
+  subst v₂; reflexivity.
+Qed.
 
 Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   β = valuation α jps + Qnat j * γ
@@ -738,7 +758,7 @@ induction pts as [| pt₁]; intros.
  apply Qeq_bool_iff in Heqb₁.
  apply next_ch_points_hd in Hnp.
  symmetry in Heqms₁, Hnp.
- eapply www in Heqms₁; [ idtac | eassumption ].
+ eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
  rewrite Heqb₁ in Heqms₁.
  destruct Hips as [Hips| Hips].
   subst pt.
