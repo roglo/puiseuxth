@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.197 2013-04-18 08:29:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.198 2013-04-18 09:17:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -692,6 +692,23 @@ intros α pts lch Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
+Lemma next_ch_points_hd : ∀ α n pt₁ pt₂ pts₁ seg lch,
+  next_ch_points α n [pt₁ … pts₁] = [(pt₂, seg) … lch]
+  → pt₁ = pt₂.
+Proof.
+intros α n pt₁ pt₂ pts₂ seg₂ lch Hnp.
+revert pt₁ pt₂ pts₂ seg₂ lch Hnp.
+induction n; intros; [ discriminate Hnp | simpl in Hnp ].
+destruct pts₂; injection Hnp; intros; subst pt₂; reflexivity.
+Qed.
+
+Lemma www : ∀ α j jps k kps pt pts ms,
+  minimise_slope α (j, jps) pt pts = ms
+  → (k, kps) = end_pt ms
+    → slope ms == (valuation α jps - valuation α kps) / Qnat (k - j).
+Proof.
+bbb.
+
 Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   β = valuation α jps + Qnat j * γ
   → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -700,7 +717,7 @@ Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
         → ∀ i ips, (i, ips) ∈ seg ms
           → valuation α ips + Qnat i * γ == β.
 Proof.
-intros α j jps k kps β γ pt pts ms segks lch n Hβ Hγ Hms Hnp i ips Hips.
+intros α j jps k kps β γ pt pts ms segkx lch n Hβ Hγ Hms Hnp i ips Hips.
 revert pt ms lch n i ips Hips Hms Hnp.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
@@ -716,6 +733,20 @@ induction pts as [| pt₁]; intros.
  subst ms; simpl in Hnp, Hips.
  remember (Qeq_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt - j))) as b₁.
  destruct b₁; [ idtac | symmetry in Heqms₁; eapply IHpts; eassumption ].
+ clear IHpts Heqb.
+ symmetry in Heqb₁.
+ apply Qeq_bool_iff in Heqb₁.
+ apply next_ch_points_hd in Hnp.
+ symmetry in Heqms₁, Hnp.
+ eapply www in Heqms₁; [ idtac | eassumption ].
+ rewrite Heqb₁ in Heqms₁.
+ destruct Hips as [Hips| Hips].
+  subst pt.
+  simpl in Heqb₁, Heqms₁.
+  rewrite <- Heqv₁ in Heqms₁.
+  simpl in Heqv₂.
+  rewrite <- Heqv₂.
+  subst β.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
