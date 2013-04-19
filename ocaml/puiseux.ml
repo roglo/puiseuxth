@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.188 2013-04-19 02:56:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.189 2013-04-19 03:23:29 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -66,9 +66,11 @@ Fixpoint next_ch_points n pts :=
   | S n =>
       match pts with
       | [pt₁; pt₂ :: pts₂] =>
-          let ms := minimise_slope pt₁ pt₂ pts₂ in
-          let chl := next_ch_points n [end_pt ms :: rem_pts ms] in
-          [(pt₁, seg ms) :: chl]
+          if (snd pt₁).ps_monoms = [] then next_ch_points n [pt₂ :: pts₂]
+          else
+            let ms := minimise_slope pt₁ pt₂ pts₂ in
+            let chl := next_ch_points n [end_pt ms :: rem_pts ms] in
+            [(pt₁, seg ms) :: chl]
       | [pt₁] =>
           [(pt₁, [])]
       | [] =>
@@ -85,7 +87,7 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
       List.fold_left
         (fun (rev_dpl, deg) ps →
            let rev_dpl =
-             if ps.ps_monoms = [] then rev_dpl
+             if False && ps.ps_monoms = [] then rev_dpl
              else [(deg, ps) :: rev_dpl]
            in
            (rev_dpl, deg + 1))

@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.46 2013-04-19 02:56:07 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.47 2013-04-19 03:23:29 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -169,7 +169,9 @@ module Q =
     value one = of_i I.one;
     value minus_one = of_i I.minus_one;
     value norm r =
-      if I.eq r.rden I.zero then make (I.of_int 1) (I.of_int 0)
+      if I.eq r.rden I.zero then
+        if I.lt r.rnum I.zero then make I.minus_one I.zero
+        else make I.one I.zero
       else
         let g = I.gcd (I.abs r.rnum) (I.abs r.rden) in
         make (I.div r.rnum g) (I.div r.rden g)
@@ -200,13 +202,10 @@ module Q =
       make r.rnum (I.mul r.rden i)
     ;
     value compare r₁ r₂ =
-      if I.eq r₂.rden I.zero then -1
-      else if I.eq r₁.rden I.zero then 1
-      else
-        let d = I.sub (I.mul r₁.rnum r₂.rden) (I.mul r₁.rden r₂.rnum) in
-        if I.lt d I.zero then -1
-        else if I.gt d I.zero then 1
-        else 0
+      let d = I.sub (I.mul r₁.rnum r₂.rden) (I.mul r₁.rden r₂.rnum) in
+      if I.lt d I.zero then -1
+      else if I.gt d I.zero then 1
+      else 0
     ;
     value eq r₁ r₂ = compare r₁ r₂ = 0;
     value le r₁ r₂ = compare r₁ r₂ ≤ 0;
