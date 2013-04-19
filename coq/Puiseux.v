@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.205 2013-04-19 19:42:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.206 2013-04-19 19:46:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -802,6 +802,12 @@ induction pts as [| pt₁]; intros.
   rewrite Nat2Z.inj_sub.
    rewrite QZ_minus.
    field.
+   unfold Qminus, Qplus; simpl.
+   do 2 rewrite Z.mul_1_r.
+   unfold Qeq; simpl.
+   rewrite Z.mul_1_r, Z.add_opp_r.
+   intros H.
+   apply Zminus_eq, Nat2Z.inj in H.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
