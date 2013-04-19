@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.204 2013-04-19 19:30:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.205 2013-04-19 19:42:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -802,9 +802,7 @@ induction pts as [| pt₁]; intros.
   rewrite Nat2Z.inj_sub.
    rewrite QZ_minus.
    field.
-Admitted. (*
 bbb.
-*)
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
   β = valuation α jps + Qnat j * γ
@@ -824,9 +822,7 @@ remember (minimise_slope α (j, jps) pt₂ pts) as ms.
 subst segjk.
 symmetry in Heqms.
 eapply xxx; try eassumption.
-Qed. (*
 bbb.
-*)
 
 Lemma zzz : ∀ α j jps k kps γ β pts segjk segkx lch,
   β = valuation α jps + Qnat j * γ
@@ -838,9 +834,7 @@ Proof.
 intros α j jps k kps γ β pts segjk segkx lch Hβ Hγ Hch i ips Hips.
 unfold lower_convex_hull_points in Hch.
 eapply yyy; eassumption.
-Qed. (*
 bbb.
-*)
 
 Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   an pol ≠ zero fld
@@ -892,9 +886,7 @@ destruct Hips as [Hips| Hips].
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqlch.
   eapply zzz in Heqlch; try eassumption.
-Qed. (*
 bbb.
-*)
 
 Lemma rev_app_le_val : ∀ α β γ i ips rl l lch,
   (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
@@ -941,6 +933,7 @@ intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
 Qed.
 
+(*
 Lemma np_beta_le : ∀ α pts γ β j jps k kps jk kx lch,
   γ = (valuation α jps - valuation α kps) / Qnat (k - j)
   → β = valuation α jps + Qnat j * γ
@@ -1243,6 +1236,7 @@ eapply yyy; try eassumption.
   rewrite Z.mul_1_r in H.
 
 zzz.
+*)
 
 Record branch α :=
   { initial_polynom : polynomial (puiseux_series α);
@@ -1325,5 +1319,4 @@ Definition puiseux k nb_steps pol :=
        in
        puiseux_branch k br sol_list γβ₁)
     gbl [].
-*)
 *)
