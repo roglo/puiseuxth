@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.203 2013-04-19 19:11:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.204 2013-04-19 19:30:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -773,12 +773,10 @@ induction pts as [| pt₁]; intros.
 
  simpl in Hms.
  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- remember (valuation α jps) as v₁.
- remember (valuation α (snd pt)) as v₂.
- remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt - j))) as b.
+ remember (Qle_bool (slope ms₁) (slope_expr α (j, jps) pt)) as b.
  destruct b; [ idtac | subst ms; contradiction ].
  subst ms; simpl in Hnp, Hips.
- remember (Qeq_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt - j))) as b₁.
+ remember (Qeq_bool (slope ms₁) (slope_expr α (j, jps) pt)) as b₁.
  destruct b₁; [ idtac | symmetry in Heqms₁; eapply IHpts; eassumption ].
  clear IHpts Heqb.
  symmetry in Heqb₁.
@@ -790,12 +788,10 @@ induction pts as [| pt₁]; intros.
  destruct Hips as [Hips| Hips].
   subst pt.
   simpl in Heqb₁, Heqms₁.
-  rewrite <- Heqv₁ in Heqms₁.
-  simpl in Heqv₂.
-  rewrite <- Heqv₂.
   subst β.
   remember (valuation α kps) as v₃.
   subst γ.
+  unfold slope_expr in Heqms₁; simpl in Heqms₁.
   do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
   rewrite Qdiv_sub_distr_r.
   apply Qeq_opp_r in Heqms₁.
@@ -806,7 +802,9 @@ induction pts as [| pt₁]; intros.
   rewrite Nat2Z.inj_sub.
    rewrite QZ_minus.
    field.
+Admitted. (*
 bbb.
+*)
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
   β = valuation α jps + Qnat j * γ
@@ -826,7 +824,9 @@ remember (minimise_slope α (j, jps) pt₂ pts) as ms.
 subst segjk.
 symmetry in Heqms.
 eapply xxx; try eassumption.
+Qed. (*
 bbb.
+*)
 
 Lemma zzz : ∀ α j jps k kps γ β pts segjk segkx lch,
   β = valuation α jps + Qnat j * γ
@@ -838,6 +838,7 @@ Proof.
 intros α j jps k kps γ β pts segjk segkx lch Hβ Hγ Hch i ips Hips.
 unfold lower_convex_hull_points in Hch.
 eapply yyy; eassumption.
+Qed. (*
 bbb.
 *)
 
@@ -891,7 +892,9 @@ destruct Hips as [Hips| Hips].
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqlch.
   eapply zzz in Heqlch; try eassumption.
+Qed. (*
 bbb.
+*)
 
 Lemma rev_app_le_val : ∀ α β γ i ips rl l lch,
   (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
