@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.189 2013-04-19 03:23:29 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.190 2013-04-19 04:01:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -40,13 +40,13 @@ value end_pt ms = ms.end_pt;
 value seg ms = ms.seg;
 value rem_pts ms = ms.rem_pts;
 
-Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
+Fixpoint minimise_slope delta_deg₁ pt₁ pt₂ pts₂ :=
   let v₁ := valuation (snd pt₁) in
   let v₂ := valuation (snd pt₂) in
-  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
+  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (S delta_deg₁))) in
   match pts₂ with
   | [pt₃ :: pts₃] =>
-      let ms := minimise_slope pt₁ pt₃ pts₃ in
+      let ms := minimise_slope (S delta_deg₁) pt₁ pt₃ pts₃ in
       if Qle_bool (slope ms) sl₁₂ then
         let seg :=
           if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
@@ -60,16 +60,17 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
       {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   end;
 
-Fixpoint next_ch_points n pts :=
+Fixpoint next_ch_points n is_zero pts :=
   match n with
   | O => []
   | S n =>
       match pts with
       | [pt₁; pt₂ :: pts₂] =>
-          if (snd pt₁).ps_monoms = [] then next_ch_points n [pt₂ :: pts₂]
+          if is_zero (snd pt₁) then
+            next_ch_points n is_zero [pt₂ :: pts₂]
           else
-            let ms := minimise_slope pt₁ pt₂ pts₂ in
-            let chl := next_ch_points n [end_pt ms :: rem_pts ms] in
+            let ms := minimise_slope 0 pt₁ pt₂ pts₂ in
+            let chl := next_ch_points n is_zero [end_pt ms :: rem_pts ms] in
             [(pt₁, seg ms) :: chl]
       | [pt₁] =>
           [(pt₁, [])]
@@ -78,8 +79,8 @@ Fixpoint next_ch_points n pts :=
       end
   end;
 
-Definition lower_convex_hull_points pts :=
-  next_ch_points (List.length pts) pts;
+Definition lower_convex_hull_points is_zero pts :=
+  next_ch_points (List.length pts) is_zero pts;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=
@@ -98,19 +99,17 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let fix loop rev_gbl dpl :=
     match dpl with
     | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
-        if p₁.ps_monoms = [] then loop rev_gbl dpl₁
-        else
-          let v₁ := valuation p₁ in
-          let v₂ := valuation p₂ in
-          let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
-          let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-          let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
-          loop [(γ, β, dpl) :: rev_gbl] dpl₁
+        let v₁ := valuation p₁ in
+        let v₂ := valuation p₂ in
+        let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
+        let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
+        let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
+        loop [(γ, β, dpl) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
     end
   in
-  let ch := lower_convex_hull_points gdpl in
+  let ch := lower_convex_hull_points (fun ps → ps.ps_monoms = []) gdpl in
   loop [] ch
 ;
 
