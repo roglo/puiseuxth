@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.190 2013-04-19 04:01:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.191 2013-04-19 04:21:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -34,43 +34,49 @@ type ms α =
   { slope : Q.t;
     end_pt : (int * α);
     seg : list (int * α);
-    rem_pts : list (int * α) };
+    rem_pts : list (int * α);
+    ddeg : int };
 value slope ms = ms.slope;
 value end_pt ms = ms.end_pt;
 value seg ms = ms.seg;
 value rem_pts ms = ms.rem_pts;
+value ddeg ms = ms.ddeg;
 
-Fixpoint minimise_slope delta_deg₁ pt₁ pt₂ pts₂ :=
+Fixpoint minimise_slope deg₁ pt₁ ddeg_minus_1 pt₂ pts₂ :=
   let v₁ := valuation (snd pt₁) in
   let v₂ := valuation (snd pt₂) in
-  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (S delta_deg₁))) in
+  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (S ddeg_minus_1))) in
   match pts₂ with
   | [pt₃ :: pts₃] =>
-      let ms := minimise_slope (S delta_deg₁) pt₁ pt₃ pts₃ in
+      let ms := minimise_slope deg₁ pt₁ (S ddeg_minus_1) pt₃ pts₃ in
       if Qle_bool (slope ms) sl₁₂ then
         let seg :=
           if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
           else seg ms
         in
         {| slope := slope ms; end_pt := end_pt ms; seg := seg;
-           rem_pts := rem_pts ms |}
+           rem_pts := rem_pts ms; ddeg := S (ddeg ms) |}
       else
-        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
+        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂;
+           ddeg := S ddeg_minus_1 |}
   | [] =>
-      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
+      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [];
+         ddeg := S ddeg_minus_1 |}
   end;
 
-Fixpoint next_ch_points n is_zero pts :=
+Fixpoint next_ch_points n is_zero deg₁ pts :=
   match n with
   | O => []
   | S n =>
       match pts with
       | [pt₁; pt₂ :: pts₂] =>
           if is_zero (snd pt₁) then
-            next_ch_points n is_zero [pt₂ :: pts₂]
+            next_ch_points n is_zero (S deg₁) [pt₂ :: pts₂]
           else
-            let ms := minimise_slope 0 pt₁ pt₂ pts₂ in
-            let chl := next_ch_points n is_zero [end_pt ms :: rem_pts ms] in
+            let ms := minimise_slope deg₁ pt₁ 0 pt₂ pts₂ in
+            let deg₁ := deg₁ + ddeg ms in
+            let pts := [end_pt ms :: rem_pts ms] in
+            let chl := next_ch_points n is_zero deg₁ pts in
             [(pt₁, seg ms) :: chl]
       | [pt₁] =>
           [(pt₁, [])]
@@ -80,7 +86,7 @@ Fixpoint next_ch_points n is_zero pts :=
   end;
 
 Definition lower_convex_hull_points is_zero pts :=
-  next_ch_points (List.length pts) is_zero pts;
+  next_ch_points (List.length pts) is_zero 0 pts;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=
