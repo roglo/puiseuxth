@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.195 2013-04-19 17:50:20 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.196 2013-04-19 18:38:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -13,6 +13,52 @@ open Poly_tree;
 open Poly;
 open Puiseux_series;
 open Roots;
+
+Record min_sl α :=
+  { slope : Q.t;
+    end_pt : (nat * α);
+    seg : list (nat * α);
+    rem_pts : list (nat * α) };
+
+Fixpoint minimise_slope slope_expr pt₁ pt₂ pts₂ :=
+  let sl₁₂ := slope_expr pt₁ pt₂ in
+  match pts₂ with
+  | [pt₃ :: pts₃] =>
+      let ms := minimise_slope slope_expr pt₁ pt₃ pts₃ in
+      if Qle_bool (slope ms) sl₁₂ then
+        let seg :=
+          if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
+          else seg ms
+        in
+        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
+           rem_pts := rem_pts ms |}
+      else
+        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
+  | [] =>
+      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
+  end;
+
+Fixpoint next_ch_points n slope_expr pts :=
+  match n with
+  | O => []
+  | S n =>
+      match pts with
+      | [pt₁; pt₂ :: pts₂] =>
+          let ms := minimise_slope slope_expr pt₁ pt₂ pts₂ in
+          let pts := [end_pt ms :: rem_pts ms] in
+          let chl := next_ch_points n slope_expr pts in
+          [(pt₁, seg ms) :: chl]
+      | [pt₁] =>
+          [(pt₁, [])]
+      | [] =>
+          []
+      end
+  end;
+
+Definition lower_convex_hull_points slope_expr pts :=
+  next_ch_points (List.length pts) slope_expr pts;
+
+(**)
 
 Definition valuation (ps : puiseux_series α) :=
   match ps.ps_monoms with
@@ -30,50 +76,11 @@ Definition valuation_coeff f (ps : puiseux_series α) :=
 
 value qnat i = Q.of_i (I.of_int i);
 
-Record min_sl α :=
-  { slope : Q.t;
-    end_pt : (int * α);
-    seg : list (int * α);
-    rem_pts : list (int * α) };
-
-Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
-  let v₁ := valuation (snd pt₁) in
-  let v₂ := valuation (snd pt₂) in
-  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
-  match pts₂ with
-  | [pt₃ :: pts₃] =>
-      let ms := minimise_slope pt₁ pt₃ pts₃ in
-      if Qle_bool (slope ms) sl₁₂ then
-        let seg :=
-          if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
-          else seg ms
-        in
-        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
-           rem_pts := rem_pts ms |}
-      else
-        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
-  | [] =>
-      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
-  end;
-
-Fixpoint next_ch_points n pts :=
-  match n with
-  | O => []
-  | S n =>
-      match pts with
-      | [pt₁; pt₂ :: pts₂] =>
-          let ms := minimise_slope pt₁ pt₂ pts₂ in
-          let chl := next_ch_points n [end_pt ms :: rem_pts ms] in
-          [(pt₁, seg ms) :: chl]
-      | [pt₁] =>
-          [(pt₁, [])]
-      | [] =>
-          []
-      end
-  end;
-
-Definition lower_convex_hull_points pts :=
-  next_ch_points (List.length pts) pts;
+value slope_expr pt₁ pt₂ =
+  let v₁ = valuation (snd pt₁) in
+  let v₂ = valuation (snd pt₂) in
+  Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁)))
+;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=
@@ -104,7 +111,7 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
         List.rev rev_gbl
     end
   in
-  let ch := lower_convex_hull_points gdpl in
+  let ch := lower_convex_hull_points slope_expr gdpl in
   loop [] ch
 ;
 
