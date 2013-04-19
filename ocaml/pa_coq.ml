@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.7 2013-04-17 10:02:38 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.8 2013-04-19 01:54:40 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -44,7 +44,9 @@ EXTEND
       | UIDENT "Qle_bool" →
           <:expr< Q.le >>
       | UIDENT "Qeq_bool" →
-          <:expr< Q.eq >> ] ]
+          <:expr< Q.eq >>
+      | UIDENT "S" →
+          <:expr< succ >> ] ]
   ;
   patt: LEVEL "simple"
     [ [ UIDENT "O" → <:patt< 0 >> ] ]
