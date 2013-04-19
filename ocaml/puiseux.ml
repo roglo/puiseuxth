@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.187 2013-04-19 02:02:49 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.188 2013-04-19 02:56:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -21,10 +21,10 @@ Definition valuation (ps : puiseux_series α) :=
   end
 ;
 
-Definition valuation_coeff (ps : puiseux_series α) :=
+Definition valuation_coeff f (ps : puiseux_series α) :=
   match ps.ps_monoms with
   | [mx :: _] => mx.coeff
-  | [] => match () with end
+  | [] => f.zero
   end
 ;
 
@@ -96,12 +96,14 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let fix loop rev_gbl dpl :=
     match dpl with
     | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
-        let v₁ := valuation p₁ in
-        let v₂ := valuation p₂ in
-        let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
-        let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-        let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
-        loop [(γ, β, dpl) :: rev_gbl] dpl₁
+        if p₁.ps_monoms = [] then loop rev_gbl dpl₁
+        else
+          let v₁ := valuation p₁ in
+          let v₂ := valuation p₂ in
+          let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
+          let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
+          let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
+          loop [(γ, β, dpl) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
     end
@@ -390,7 +392,7 @@ value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
           else if hdeg - j < deg then
             match () with []
           else
-            let c = valuation_coeff ps in
+            let c = valuation_coeff f ps in
             loop [c :: rev_cl] (deg + 1) dpl₁
       | [] →
           if k - j > deg then
@@ -398,8 +400,8 @@ value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
           else if k - j < deg then
             match () with []
           else
-            let rev_cl = [(valuation_coeff kps) :: rev_cl] in
-            {al = [valuation_coeff jps :: List.rev rev_cl]} ]
+            let rev_cl = [(valuation_coeff f kps) :: rev_cl] in
+            {al = [valuation_coeff f jps :: List.rev rev_cl]} ]
   in
   let rl = af.ac_roots pol in
   if rl = [] then do {
@@ -453,27 +455,29 @@ value print_line_equal () =
 
 value puiseux k nb_steps vx vy pol =
   let gbl = gamma_beta_list pol in
-  let rem_steps = nb_steps - 1 in
-  let rev_sol_list =
-    List.fold_left
-      (fun sol_list gbdpl → do {
-         print_line_equal ();
-         let br =
-           {initial_polynom = pol; cγl = []; step = 1;
-            rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
-         in
-         puiseux_branch k br sol_list gbdpl
-       })
-      [] gbl
-  in
+  if gbl = [] then failwith "no finite γ value"
+  else
+    let rem_steps = nb_steps - 1 in
+    let rev_sol_list =
+      List.fold_left
+        (fun sol_list gbdpl → do {
+           print_line_equal ();
+           let br =
+             {initial_polynom = pol; cγl = []; step = 1;
+              rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
+           in
+           puiseux_branch k br sol_list gbdpl
+         })
+        [] gbl
+    in
 (*
-  List.iter
-    (fun (pol, finite) →
-       printf "sol %s%s\n%!" (airy_string_of_puiseux_series k True "x" pol)
-         (if finite then "" else " + ..."))
-    (List.rev _rev_sol_list)
+    List.iter
+      (fun (pol, finite) →
+         printf "sol %s%s\n%!" (airy_string_of_puiseux_series k True "x" pol)
+           (if finite then "" else " + ..."))
+      (List.rev _rev_sol_list)
 *)
-  List.rev rev_sol_list
+    List.rev rev_sol_list
 ;
 
 value is_zero_tree k =

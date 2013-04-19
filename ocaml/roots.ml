@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.78 2013-04-06 22:42:22 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.79 2013-04-19 02:56:07 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -55,6 +55,7 @@ value subst_roots_of_unity k pow (r, n) =
             if I.eq rd I.one then
               if I.eq rn I.one then k.one
               else if I.eq rn I.minus_one then k.minus_one
+	      else if I.eq rn I.zero then k.zero
               else failwith (sprintf "<< $int:I.ts %s$ ** (1/3) >>" (I.ts rn))
             else
               let rn = I.mul rn (I.mul rd rd) in

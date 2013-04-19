@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.45 2013-04-04 12:04:31 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.46 2013-04-19 02:56:07 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -169,9 +169,10 @@ module Q =
     value one = of_i I.one;
     value minus_one = of_i I.minus_one;
     value norm r =
-      let g = I.gcd (I.abs r.rnum) (I.abs r.rden) in
-      let _ = assert (not (I.eq g I.zero)) in
-      make (I.div r.rnum g) (I.div r.rden g)
+      if I.eq r.rden I.zero then make (I.of_int 1) (I.of_int 0)
+      else
+        let g = I.gcd (I.abs r.rnum) (I.abs r.rden) in
+        make (I.div r.rnum g) (I.div r.rden g)
     ;
     value neg r = make (I.neg r.rnum) r.rden;
     value is_neg r = I.is_neg r.rnum <> I.is_neg r.rden;
@@ -199,10 +200,13 @@ module Q =
       make r.rnum (I.mul r.rden i)
     ;
     value compare r₁ r₂ =
-      let d = I.sub (I.mul r₁.rnum r₂.rden) (I.mul r₁.rden r₂.rnum) in
-      if I.lt d I.zero then -1
-      else if I.gt d I.zero then 1
-      else 0
+      if I.eq r₂.rden I.zero then -1
+      else if I.eq r₁.rden I.zero then 1
+      else
+        let d = I.sub (I.mul r₁.rnum r₂.rden) (I.mul r₁.rden r₂.rnum) in
+        if I.lt d I.zero then -1
+        else if I.gt d I.zero then 1
+        else 0
     ;
     value eq r₁ r₂ = compare r₁ r₂ = 0;
     value le r₁ r₂ = compare r₁ r₂ ≤ 0;
