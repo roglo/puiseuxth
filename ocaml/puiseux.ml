@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.186 2013-04-17 11:35:30 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.187 2013-04-19 02:02:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -17,7 +17,7 @@ open Roots;
 Definition valuation (ps : puiseux_series α) :=
   match ps.ps_monoms with
   | [mx :: _] => mx.power
-  | [] => match () with end
+  | [] => Q.make (I.of_int 1) (I.of_int 0)
   end
 ;
 
