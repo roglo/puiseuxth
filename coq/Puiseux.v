@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.207 2013-04-19 20:02:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.208 2013-04-19 20:07:57 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -791,6 +791,7 @@ induction pts as [| pt₁]; intros.
   apply Qeq_bool_iff in Heqb₁.
   apply next_ch_points_hd in Hnp.
   symmetry in Hnp.
+  remember Heqms₁ as Hms; clear HeqHms.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
   rewrite Heqb₁ in Heqms₁.
   destruct Hips as [Hips| Hips].
