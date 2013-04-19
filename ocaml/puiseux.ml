@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.196 2013-04-19 18:38:30 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.197 2013-04-19 19:11:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -14,17 +14,38 @@ open Poly;
 open Puiseux_series;
 open Roots;
 
+Definition valuation α (ps : puiseux_series α) :=
+  match ps.ps_monoms with
+  | [mx :: _] => mx.power
+  | [] => Q.make (I.of_int 1) (I.of_int 0)
+  end
+;
+
+Definition valuation_coeff α f (ps : puiseux_series α) :=
+  match ps.ps_monoms with
+  | [mx :: _] => mx.coeff
+  | [] => f.zero
+  end
+;
+
+value qnat i = Q.of_i (I.of_int i);
+
 Record min_sl α :=
   { slope : Q.t;
-    end_pt : (nat * α);
-    seg : list (nat * α);
-    rem_pts : list (nat * α) };
+    end_pt : (int * α);
+    seg : list (int * α);
+    rem_pts : list (int * α) };
 
-Fixpoint minimise_slope slope_expr pt₁ pt₂ pts₂ :=
-  let sl₁₂ := slope_expr pt₁ pt₂ in
+Definition slope_expr α pt₁ pt₂ :=
+  let v₁ := valuation α (snd pt₁) in
+  let v₂ := valuation α (snd pt₂) in
+  Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁)));
+
+Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
+  let sl₁₂ := slope_expr α pt₁ pt₂ in
   match pts₂ with
   | [pt₃ :: pts₃] =>
-      let ms := minimise_slope slope_expr pt₁ pt₃ pts₃ in
+      let ms := minimise_slope α pt₁ pt₃ pts₃ in
       if Qle_bool (slope ms) sl₁₂ then
         let seg :=
           if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
@@ -38,15 +59,14 @@ Fixpoint minimise_slope slope_expr pt₁ pt₂ pts₂ :=
       {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   end;
 
-Fixpoint next_ch_points n slope_expr pts :=
+Fixpoint next_ch_points α n pts :=
   match n with
   | O => []
   | S n =>
       match pts with
       | [pt₁; pt₂ :: pts₂] =>
-          let ms := minimise_slope slope_expr pt₁ pt₂ pts₂ in
-          let pts := [end_pt ms :: rem_pts ms] in
-          let chl := next_ch_points n slope_expr pts in
+          let ms := minimise_slope α pt₁ pt₂ pts₂ in
+          let chl := next_ch_points α n [end_pt ms :: rem_pts ms] in
           [(pt₁, seg ms) :: chl]
       | [pt₁] =>
           [(pt₁, [])]
@@ -55,32 +75,8 @@ Fixpoint next_ch_points n slope_expr pts :=
       end
   end;
 
-Definition lower_convex_hull_points slope_expr pts :=
-  next_ch_points (List.length pts) slope_expr pts;
-
-(**)
-
-Definition valuation (ps : puiseux_series α) :=
-  match ps.ps_monoms with
-  | [mx :: _] => mx.power
-  | [] => Q.make (I.of_int 1) (I.of_int 0)
-  end
-;
-
-Definition valuation_coeff f (ps : puiseux_series α) :=
-  match ps.ps_monoms with
-  | [mx :: _] => mx.coeff
-  | [] => f.zero
-  end
-;
-
-value qnat i = Q.of_i (I.of_int i);
-
-value slope_expr pt₁ pt₂ =
-  let v₁ = valuation (snd pt₁) in
-  let v₂ = valuation (snd pt₂) in
-  Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁)))
-;
+Definition lower_convex_hull_points α pts :=
+  next_ch_points α (List.length pts) pts;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let gdpl :=
@@ -96,13 +92,14 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
     in
     List.rev rev_dpl
   in
+  let α := () in
   let fix loop rev_gbl dpl :=
     match dpl with
     | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
         if p₁.ps_monoms = [] then loop rev_gbl dpl₁
         else
-          let v₁ := valuation p₁ in
-          let v₂ := valuation p₂ in
+          let v₁ := valuation α p₁ in
+          let v₂ := valuation α p₂ in
           let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
           let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
           let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
@@ -111,7 +108,7 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
         List.rev rev_gbl
     end
   in
-  let ch := lower_convex_hull_points slope_expr gdpl in
+  let ch := lower_convex_hull_points α gdpl in
   loop [] ch
 ;
 
@@ -395,7 +392,7 @@ value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
           else if hdeg - j < deg then
             match () with []
           else
-            let c = valuation_coeff f ps in
+            let c = valuation_coeff () f ps in
             loop [c :: rev_cl] (deg + 1) dpl₁
       | [] →
           if k - j > deg then
@@ -403,8 +400,8 @@ value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
           else if k - j < deg then
             match () with []
           else
-            let rev_cl = [(valuation_coeff f kps) :: rev_cl] in
-            {al = [valuation_coeff f jps :: List.rev rev_cl]} ]
+            let rev_cl = [(valuation_coeff () f kps) :: rev_cl] in
+            {al = [valuation_coeff () f jps :: List.rev rev_cl]} ]
   in
   let rl = af.ac_roots pol in
   if rl = [] then do {

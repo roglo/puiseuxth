@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.202 2013-04-18 16:21:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.203 2013-04-19 19:11:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -427,10 +427,7 @@ induction pts₂ as [| pt]; intros.
 
  simpl in Hms.
  remember (minimise_slope α pt₁ pt pts₂) as ms₁.
- remember (valuation α (snd pt₁)) as v₁.
- remember (valuation α (snd pt₂)) as v₂.
- remember ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁)) as sl₁₂.
- remember (Qle_bool (slope ms₁) sl₁₂) as b.
+ remember (Qle_bool (slope ms₁) (slope_expr α pt₁ pt₂)) as b.
  destruct b.
   subst ms; simpl.
   apply lt_le_weak.
@@ -453,9 +450,7 @@ induction pts₂ as [| pt]; intros.
 
  simpl in Hms.
  remember (minimise_slope α pt₁ pt pts₂) as ms₁.
- remember (valuation α (snd pt₁)) as v₁.
- remember (valuation α (snd pt₂)) as v₂.
- remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁))) as b.
+ remember (Qle_bool (slope ms₁) (slope_expr α pt₁ pt₂)) as b.
  destruct b; subst ms; simpl.
   symmetry in Heqms₁.
   apply IHpts₂ in Heqms₁.
@@ -476,9 +471,7 @@ revert pt₁ pt₂ pt Hpt.
 induction pts₂ as [| pt₃]; intros; [ contradiction | idtac ].
 simpl in Hpt.
 remember (minimise_slope α pt₁ pt₃ pts₂) as ms.
-remember (valuation α (snd pt₁)) as v₁.
-remember (valuation α (snd pt₂)) as v₂.
-remember (Qle_bool (slope ms) ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁))) as b.
+remember (Qle_bool (slope ms) (slope_expr α pt₁ pt₂)) as b.
 destruct b; simpl in Hpt.
  subst ms.
  apply IHpts₂ in Hpt.
@@ -630,9 +623,7 @@ revert pt₁ pt₂ ms Hsort Hms.
 induction pts as [| pt₃]; intros; [ subst ms; constructor | idtac ].
 simpl in Hms.
 remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
-remember (valuation α (snd pt₁)) as v₁.
-remember (valuation α (snd pt₂)) as v₂.
-remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (fst pt₂ - fst pt₁))) as b.
+remember (Qle_bool (slope ms₁) (slope_expr α pt₁ pt₂)) as b.
 destruct b.
  subst ms; simpl.
  symmetry in Heqms₁.
@@ -714,19 +705,16 @@ induction pts as [| pt₁]; intros.
 
  simpl in Hms.
  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- remember (valuation α jps) as v₁.
- remember (valuation α (snd pt)) as v₂.
- destruct pt as (l, lps); simpl in Heqv₂, Hms.
- remember (Qle_bool (slope ms₁) ((v₂ - v₁) / Qnat (l - j))) as b.
+ destruct pt as (l, lps); simpl in Hms.
+ remember (Qle_bool (slope ms₁) (slope_expr α (j, jps) (l, lps))) as b.
  destruct b.
   subst ms; simpl in Hkps |- *.
-  subst v₁.
   symmetry in Heqms₁.
   eapply IHpts; eassumption.
 
   subst ms; simpl in Hkps |- *.
   injection Hkps; clear Hkps; intros; subst l lps.
-  subst v₂; reflexivity.
+  reflexivity.
 Qed.
 
 Lemma Qeq_opp_r : ∀ x y, x == y → - x == - y.
