@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.192 2013-04-19 04:34:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.193 2013-04-19 08:18:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -32,15 +32,15 @@ value qnat i = Q.of_i (I.of_int i);
 
 type ms α =
   { slope : Q.t;
-    end_pt : α;
+    end_deg : int;
+    end_ps : α;
     seg : list (int * α);
-    rem_psl : list α;
-    end_deg : int };
+    rem_psl : list α };
 value slope ms = ms.slope;
-value end_pt ms = ms.end_pt;
+value end_deg ms = ms.end_deg;
+value end_ps ms = ms.end_ps;
 value seg ms = ms.seg;
 value rem_psl ms = ms.rem_psl;
-value end_deg ms = ms.end_deg;
 
 Fixpoint minimise_slope deg₁ ps₁ ddeg_minus_1 ps₂ psl₂ :=
   let v₁ := valuation ps₁ in
@@ -55,14 +55,14 @@ Fixpoint minimise_slope deg₁ ps₁ ddeg_minus_1 ps₂ psl₂ :=
           if Qeq_bool (slope ms) sl₁₂ then [(deg₂, ps₂) :: seg ms]
           else seg ms
         in
-        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
-           rem_psl := rem_psl ms; end_deg := end_deg ms |}
+        {| slope := slope ms; end_deg := end_deg ms; end_ps := end_ps ms;
+           seg := seg; rem_psl := rem_psl ms |}
       else
-        {| slope := sl₁₂; end_pt := ps₂; seg := []; rem_psl := psl₂;
-           end_deg := deg₂ |}
+        {| slope := sl₁₂; end_deg := deg₂; end_ps := ps₂; seg := [];
+           rem_psl := psl₂ |}
   | [] =>
-      {| slope := sl₁₂; end_pt := ps₂; seg := []; rem_psl := [];
-         end_deg := deg₂ |}
+      {| slope := sl₁₂; end_deg := deg₂; end_ps := ps₂; seg := [];
+         rem_psl := [] |}
   end;
 
 Fixpoint next_ch_points n is_zero deg₁ psl :=
@@ -75,7 +75,7 @@ Fixpoint next_ch_points n is_zero deg₁ psl :=
             next_ch_points n is_zero (S deg₁) [ps₂ :: psl₂]
           else
             let ms := minimise_slope deg₁ ps₁ 0 ps₂ psl₂ in
-            let psl := [end_pt ms :: rem_psl ms] in
+            let psl := [end_ps ms :: rem_psl ms] in
             let chl := next_ch_points n is_zero (end_deg ms) psl in
             [((deg₁, ps₁), seg ms) :: chl]
       | [ps₁] =>
