@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.194 2013-04-19 08:55:42 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.195 2013-04-19 17:50:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -32,72 +32,79 @@ value qnat i = Q.of_i (I.of_int i);
 
 Record min_sl α :=
   { slope : Q.t;
-    end_deg : nat;
-    end_ps : α;
-    seg : list (nat * α);
-    rem_psl : list α };
+    end_pt : (int * α);
+    seg : list (int * α);
+    rem_pts : list (int * α) };
 
-Fixpoint minimise_slope deg₁ ps₁ ddeg_minus_1 ps₂ psl₂ :=
-  let v₁ := valuation ps₁ in
-  let v₂ := valuation ps₂ in
-  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (S ddeg_minus_1))) in
-  let deg₂ := deg₁ + S ddeg_minus_1 in
-  match psl₂ with
-  | [ps₃ :: psl₃] =>
-      let ms := minimise_slope deg₁ ps₁ (S ddeg_minus_1) ps₃ psl₃ in
+Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
+  let v₁ := valuation (snd pt₁) in
+  let v₂ := valuation (snd pt₂) in
+  let sl₁₂ := Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁))) in
+  match pts₂ with
+  | [pt₃ :: pts₃] =>
+      let ms := minimise_slope pt₁ pt₃ pts₃ in
       if Qle_bool (slope ms) sl₁₂ then
         let seg :=
-          if Qeq_bool (slope ms) sl₁₂ then [(deg₂, ps₂) :: seg ms]
+          if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
           else seg ms
         in
-        {| slope := slope ms; end_deg := end_deg ms; end_ps := end_ps ms;
-           seg := seg; rem_psl := rem_psl ms |}
+        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
+           rem_pts := rem_pts ms |}
       else
-        {| slope := sl₁₂; end_deg := deg₂; end_ps := ps₂; seg := [];
-           rem_psl := psl₂ |}
+        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
   | [] =>
-      {| slope := sl₁₂; end_deg := deg₂; end_ps := ps₂; seg := [];
-         rem_psl := [] |}
+      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   end;
 
-Fixpoint next_ch_points n is_zero deg₁ psl :=
+Fixpoint next_ch_points n pts :=
   match n with
   | O => []
   | S n =>
-      match psl with
-      | [ps₁; ps₂ :: psl₂] =>
-          if is_zero ps₁ then
-            next_ch_points n is_zero (S deg₁) [ps₂ :: psl₂]
-          else
-            let ms := minimise_slope deg₁ ps₁ 0 ps₂ psl₂ in
-            let psl := [end_ps ms :: rem_psl ms] in
-            let chl := next_ch_points n is_zero (end_deg ms) psl in
-            [((deg₁, ps₁), seg ms) :: chl]
-      | [ps₁] =>
-          [((deg₁, ps₁), [])]
+      match pts with
+      | [pt₁; pt₂ :: pts₂] =>
+          let ms := minimise_slope pt₁ pt₂ pts₂ in
+          let chl := next_ch_points n [end_pt ms :: rem_pts ms] in
+          [(pt₁, seg ms) :: chl]
+      | [pt₁] =>
+          [(pt₁, [])]
       | [] =>
           []
       end
   end;
 
-Definition lower_convex_hull_points is_zero psl :=
-  next_ch_points (List.length psl) is_zero 0 psl;
+Definition lower_convex_hull_points pts :=
+  next_ch_points (List.length pts) pts;
 
 Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
+  let gdpl :=
+    let (rev_dpl, _) :=
+      List.fold_left
+        (fun (rev_dpl, deg) ps →
+           let rev_dpl =
+             if ps.ps_monoms = [] then rev_dpl
+             else [(deg, ps) :: rev_dpl]
+           in
+           (rev_dpl, deg + 1))
+        ([], 0) pol.al
+    in
+    List.rev rev_dpl
+  in
   let fix loop rev_gbl dpl :=
     match dpl with
     | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
-        let v₁ := valuation p₁ in
-        let v₂ := valuation p₂ in
-        let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
-        let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-        let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
-        loop [(γ, β, dpl) :: rev_gbl] dpl₁
+        if p₁.ps_monoms = [] then loop rev_gbl dpl₁
+        else
+          let v₁ := valuation p₁ in
+          let v₂ := valuation p₂ in
+          let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
+          let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
+          let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
+          loop [(γ, β, dpl) :: rev_gbl] dpl₁
     | [_] | [] =>
         List.rev rev_gbl
     end
   in
-  let ch := lower_convex_hull_points (fun ps → ps.ps_monoms = []) pol.al in
+  let ch := lower_convex_hull_points gdpl in
   loop [] ch
 ;
 
