@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.193 2013-04-19 08:18:59 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.194 2013-04-19 08:55:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -30,17 +30,12 @@ Definition valuation_coeff f (ps : puiseux_series α) :=
 
 value qnat i = Q.of_i (I.of_int i);
 
-type ms α =
+Record min_sl α :=
   { slope : Q.t;
-    end_deg : int;
+    end_deg : nat;
     end_ps : α;
-    seg : list (int * α);
+    seg : list (nat * α);
     rem_psl : list α };
-value slope ms = ms.slope;
-value end_deg ms = ms.end_deg;
-value end_ps ms = ms.end_ps;
-value seg ms = ms.seg;
-value rem_psl ms = ms.rem_psl;
 
 Fixpoint minimise_slope deg₁ ps₁ ddeg_minus_1 ps₂ psl₂ :=
   let v₁ := valuation ps₁ in

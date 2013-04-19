@@ -1,17 +1,36 @@
-(* $Id: pa_coq.ml,v 1.8 2013-04-19 01:54:40 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.9 2013-04-19 08:55:42 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
 
 open Pcaml;
 
+value fun_decl_of_label (loc, i, _, _) =
+  <:str_item< value $lid:i$ x = x.$lid:i$ >>
+;
+
 EXTEND
-  GLOBAL: str_item expr patt;
+  GLOBAL: str_item expr patt ctyp;
   str_item:
     [ [ "Fixpoint"; l = V (LIST1 coq_binding SEP "and") →
           <:str_item< value rec $_list:l$ >>
       | "Definition"; l = V (LIST1 coq_binding SEP "and") →
-          <:str_item< value $_list:l$ >> ] ]
+          <:str_item< value $_list:l$ >>
+      | "Record"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter); ":=";
+        "{"; ldl = V (LIST1 label_declaration SEP ";"); "}" ->
+          let tk = <:ctyp< { $_list:ldl$ } >> in
+          let d = <:str_item< type $_tp:n$ $_list:tpl$ = $tk$ >> in
+          let dl = List.map fun_decl_of_label (unvala ldl) in
+          <:str_item< declare $list:[d :: dl]$ end >> ] ]
+  ;
+  label_declaration:
+    [ [ i = LIDENT; ":"; t = ctyp -> (loc, i, False, t) ] ]
+  ;
+  type_patt:
+    [ [ n = V LIDENT -> (loc, n) ] ]
+  ;
+  type_parameter:
+    [ [ i = GIDENT -> (<:vala< Some (greek_ascii_equiv i) >>, None) ] ]
   ;
   coq_binding:
     [ [ p = ipatt; e = coq_fun_binding → (p, e) ] ]
@@ -50,6 +69,9 @@ EXTEND
   ;
   patt: LEVEL "simple"
     [ [ UIDENT "O" → <:patt< 0 >> ] ]
+  ;
+  ctyp: LEVEL "simple"
+    [ [ LIDENT "nat" → <:ctyp< int >> ] ]
   ;
   coq_match_case:
     [ [ "|"; p = patt; "=>"; e = coq_expr →
