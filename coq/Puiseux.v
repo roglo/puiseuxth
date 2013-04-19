@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.206 2013-04-19 19:46:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.207 2013-04-19 20:02:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -757,15 +757,18 @@ Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
 Proof. intros; field. Qed.
 
 Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
-  β = valuation α jps + Qnat j * γ
-  → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-    → minimise_slope α (j, jps) pt pts = ms
-      → next_ch_points α n [end_pt ms … rem_pts ms] = [(k, kps, segkx) … lch]
-        → ∀ i ips, (i, ips) ∈ seg ms
-          → valuation α ips + Qnat i * γ == β.
+  LocallySorted fst_lt pts
+  → β = valuation α jps + Qnat j * γ
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → minimise_slope α (j, jps) pt pts = ms
+        → next_ch_points α n [end_pt ms … rem_pts ms] =
+            [(k, kps, segkx) … lch]
+          → ∀ i ips, (i, ips) ∈ seg ms
+            → valuation α ips + Qnat i * γ == β.
 Proof.
-intros α j jps k kps β γ pt pts ms segkx lch n Hβ Hγ Hms Hnp i ips Hips.
-revert pt ms lch n i ips Hips Hms Hnp.
+intros α j jps k kps β γ pt pts ms segkx lch n.
+intros Hsort Hβ Hγ Hms Hnp i ips Hips.
+revert pt ms lch n i ips Hsort Hips Hms Hnp.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
  subst ms; simpl in Hnp, Hips.
@@ -777,37 +780,42 @@ induction pts as [| pt₁]; intros.
  destruct b; [ idtac | subst ms; contradiction ].
  subst ms; simpl in Hnp, Hips.
  remember (Qeq_bool (slope ms₁) (slope_expr α (j, jps) pt)) as b₁.
- destruct b₁; [ idtac | symmetry in Heqms₁; eapply IHpts; eassumption ].
- clear IHpts Heqb.
- symmetry in Heqb₁.
- apply Qeq_bool_iff in Heqb₁.
- apply next_ch_points_hd in Hnp.
- symmetry in Heqms₁, Hnp.
- eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
- rewrite Heqb₁ in Heqms₁.
- destruct Hips as [Hips| Hips].
-  subst pt.
-  simpl in Heqb₁, Heqms₁.
-  subst β.
-  remember (valuation α kps) as v₃.
-  subst γ.
-  unfold slope_expr in Heqms₁; simpl in Heqms₁.
-  do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
-  rewrite Qdiv_sub_distr_r.
-  apply Qeq_opp_r in Heqms₁.
-  rewrite Qopp_minus in Heqms₁.
-  rewrite Qopp_minus in Heqms₁.
-  rewrite <- Heqms₁.
-  unfold Qnat.
-  rewrite Nat2Z.inj_sub.
-   rewrite QZ_minus.
-   field.
-   unfold Qminus, Qplus; simpl.
-   do 2 rewrite Z.mul_1_r.
-   unfold Qeq; simpl.
-   rewrite Z.mul_1_r, Z.add_opp_r.
-   intros H.
-   apply Zminus_eq, Nat2Z.inj in H.
+ symmetry in Heqms₁.
+ destruct b₁.
+  Focus 2.
+  eapply IHpts; try eassumption.
+  inversion Hsort; subst a pts; [ constructor | assumption ].
+
+  clear IHpts Heqb.
+  symmetry in Heqb₁.
+  apply Qeq_bool_iff in Heqb₁.
+  apply next_ch_points_hd in Hnp.
+  symmetry in Hnp.
+  eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
+  rewrite Heqb₁ in Heqms₁.
+  destruct Hips as [Hips| Hips].
+   subst pt.
+   simpl in Heqb₁, Heqms₁.
+   subst β.
+   remember (valuation α kps) as v₃.
+   subst γ.
+   unfold slope_expr in Heqms₁; simpl in Heqms₁.
+   do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
+   rewrite Qdiv_sub_distr_r.
+   apply Qeq_opp_r in Heqms₁.
+   rewrite Qopp_minus in Heqms₁.
+   rewrite Qopp_minus in Heqms₁.
+   rewrite <- Heqms₁.
+   unfold Qnat.
+   rewrite Nat2Z.inj_sub.
+    rewrite QZ_minus.
+    field.
+    unfold Qminus, Qplus; simpl.
+    do 2 rewrite Z.mul_1_r.
+    unfold Qeq; simpl.
+    rewrite Z.mul_1_r, Z.add_opp_r.
+    intros H.
+    apply Zminus_eq, Nat2Z.inj in H.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
@@ -883,8 +891,7 @@ destruct Hips as [Hips| Hips].
   unfold Qminus, Qplus; simpl.
   do 2 rewrite Z.mul_1_r.
   unfold Qeq; simpl.
-  rewrite Z.mul_1_r.
-  rewrite Z.add_opp_r.
+  rewrite Z.mul_1_r, Z.add_opp_r.
   intros H.
   apply Zminus_eq, Nat2Z.inj in H.
   subst k; apply lt_irrefl in H3; contradiction.
