@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.213 2013-04-20 04:35:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.214 2013-04-20 09:23:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -674,7 +674,7 @@ induction pts as [| pt₁]; intros.
   eapply lt_trans; eassumption.
 Qed.
 
-Lemma seg_pt_in_newt_segm : ∀ α j jps k kps γ β pts segjk segkx lch,
+Lemma in_newt_segm : ∀ α j jps k kps γ β pts segjk segkx lch,
   LocallySorted fst_lt pts
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -700,19 +700,16 @@ symmetry in Heqms.
 eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
 
-Lemma points_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
-  an pol ≠ zero fld
-  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
-    → pts = points_of_ps_polynom α fld pol
-      → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-        → ∀ i ips, (i, ips) ∈ [(j, jps), (k, kps) … seg]
-          → valuation α ips + Qnat i * γ == β.
+Lemma points_in_newton_segment : ∀ α fld pol γ β j jps k kps seg,
+  gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
+  → ∀ i ips, (i, ips) ∈ [(j, jps), (k, kps) … seg]
+    → valuation α ips + Qnat i * γ == β.
 Proof.
-intros α fld pol pts γ β j jps k kps seg Han Hal Hpts Hgb i ips Hips.
+intros α fld pol γ β j jps k kps seg Hgb i ips Hips.
 unfold gamma_beta in Hgb.
 unfold gamma_beta_gen in Hgb.
-unfold points_of_ps_polynom in Hpts.
-rewrite <- Hpts in Hgb.
+remember (points_of_ps_polynom_gen α fld 0 (al pol) (an pol)) as pts.
+rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as lch.
 destruct lch as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
 destruct lch as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
@@ -748,7 +745,7 @@ destruct Hips as [Hips| Hips].
 
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqlch.
-  eapply seg_pt_in_newt_segm in Heqlch; eassumption.
+  eapply in_newt_segm in Heqlch; eassumption.
 Qed.
 
 Lemma rev_app_le_val : ∀ α β γ i ips rl l lch,
@@ -796,6 +793,83 @@ intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
 Qed.
 
+Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
+  LocallySorted fst_lt [(j, jps), pt … pts]
+  → LocallySorted fst_fst_lt [(j, jps, seg ms), (k, kps, segkx) … lch]
+    → β = valuation α jps + Qnat j * γ
+      → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+        → minimise_slope α (j, jps) pt pts = ms
+          → next_ch_points α n [end_pt ms … rem_pts ms] =
+              [(k, kps, segkx) … lch]
+            → ∀ i ips,
+              (i, ips) ∈ [pt … pts]
+              → (i, ips) ∉ [(j, jps), (k, kps) … seg ms]
+                → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α j jps k kps β γ pt pts ms segkx lch n.
+intros Hsort Hsort₂ Hβ Hγ Hms Hnp i ips Hips Hnips.
+bbb.
+
+Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
+  LocallySorted fst_lt pts
+  → LocallySorted fst_fst_lt [(j, jps, segjk), (k, kps, segkx) … lch]
+    → β = valuation α jps + Qnat j * γ
+      → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+        → lower_convex_hull_points α pts =
+            [(j, jps, segjk), (k, kps, segkx) … lch]
+          → ∀ i ips,
+            (i, ips) ∈ pts
+            → (i, ips) ∉ [(j, jps), (k, kps) … segjk]
+              → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α pts j jps k kps γ β segjk segkx lch.
+intros Hsort Hsort₂ Hβ Hγ Hch i ips Hips Hnips.
+unfold lower_convex_hull_points in Hch.
+remember (length pts) as n; clear Heqn.
+rename Hch into Hnp.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst pt₁.
+rename H0 into Hjk.
+remember (minimise_slope α (j, jps) pt₂ pts) as ms.
+subst segjk.
+symmetry in Heqms.
+eapply zzz; eassumption.
+bbb.
+
+Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
+  pts = points_of_ps_polynom α fld pol
+  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
+    → ∀ i ips,
+       (i, ips) ∈ pts
+       → (i, ips) ∉ [(j, jps), (k, kps) … seg]
+         → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α fld pol pts γ β j jps k kps seg.
+intros Hpts Hgb i ips Hips Hnips.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+remember Hpts as Hpts₂; clear HeqHpts₂.
+unfold points_of_ps_polynom in Hpts₂.
+rewrite <- Hpts₂ in Hgb.
+remember (lower_convex_hull_points α pts) as lch.
+destruct lch as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
+destruct lch as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros; subst l lps m mps seg₁.
+rename H4 into Hβ.
+rename H5 into Hγ.
+rewrite Hγ in Hβ.
+symmetry in Hβ, Hγ.
+unfold points_of_ps_polynom in Hpts.
+apply points_of_polyn_sorted in Hpts.
+symmetry in Heqlch.
+eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+apply points_of_polyn_sorted in Hpts₂.
+bbb.
+
+(*
 Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps jk kx lch γ β,
   pts = filter_non_zero_ps α fld (all_points_of_ps_polynom α (S deg) cl cn)
   → next_ch_points α (deg, c) pts = [((j, jps), jk), ((k, kps), kx) … lch]
