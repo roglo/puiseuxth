@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.221 2013-04-20 17:43:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.222 2013-04-20 18:24:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -842,6 +842,28 @@ apply Qmult_lt_compat_r with (z := Qnat (j - i)) in H.
     setoid_replace (- z + z) with (z + - z) in H by apply Qplus_comm.
     rewrite Qplus_opp_r in H.
     rewrite Qplus_0_r in H.
+    apply Qplus_lt_l with (z := Qnat i * a) in H.
+    rewrite <- Hb in H.
+    rewrite <- Qmult_plus_distr_r in H.
+    rewrite Qmult_comm in H.
+    rewrite <- Qplus_assoc in H.
+    rewrite <- Qmult_plus_distr_l in H.
+    rewrite <- Qplus_assoc in H.
+    remember (Qnat i) as qi.
+    unfold Qnat in Heqqi.
+    rewrite <- Heqqi in H.
+    setoid_replace (- qi + qi) with (qi + - qi) in H by apply Qplus_comm.
+    rewrite Qplus_opp_r in H.
+    rewrite Qplus_0_r in H.
+    assumption.
+
+    apply lt_le_weak; assumption.
+
+   subst ji.
+   unfold Qnat.
+   rewrite Nat2Z.inj_sub.
+    rewrite QZ_minus.
+    unfold Qminus.
 bbb.
 
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
