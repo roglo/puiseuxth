@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.224 2013-04-20 18:59:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.225 2013-04-20 19:23:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -900,6 +900,7 @@ apply Qmult_lt_compat_r with (z := Qnat (j - i)) in H.
  simpl.
  rewrite Zmult_1_r.
 bbb.
+*)
 
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps), pt … pts]
@@ -972,7 +973,9 @@ destruct Hips as [Hips| Hips].
      symmetry in Hnp.
      eapply minimised_slope in Heqms₁; try eassumption.
      rewrite Heqms₁ in Heqb.
-     eapply yyy; try eassumption.
+     subst β γ.
+     apply yyy; [ idtac | assumption ].
+     split; inversion Hsort; [ idtac | inversion H1 ]; assumption.
 bbb.
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
