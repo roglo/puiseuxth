@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.210 2013-04-20 03:49:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.211 2013-04-20 03:53:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -661,6 +661,11 @@ induction pts as [| pt₁]; intros.
     rewrite Z.mul_1_r, Z.add_opp_r.
     intros H.
     apply Zminus_eq, Nat2Z.inj in H.
+    inversion Hsort.
+    subst i.
+    apply lt_irrefl in H4; contradiction.
+
+    apply lt_le_weak; inversion Hsort; assumption.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
