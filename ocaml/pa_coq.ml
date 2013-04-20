@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.9 2013-04-19 08:55:42 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.10 2013-04-20 20:07:12 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -49,8 +49,6 @@ EXTEND
           <:expr< let $_flag:r$ $_list:l$ in $x$ >>
       | "if"; e1 = SELF; "then"; e2 = SELF; "else"; e3 = SELF →
           <:expr< if $e1$ then $e2$ else $e3$ >>
-      | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" →
-          <:expr< { $_list:lel$ } >>
       | e = expr →
           e ] ]
   ;
@@ -60,6 +58,8 @@ EXTEND
   expr: LEVEL "simple"
     [ [ "("; GIDENT "λ"; p = ipatt; ","; e = coq_expr; ")" →
           <:expr< fun $p$ → $e$ >>
+      | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" →
+          <:expr< { $_list:lel$ } >>
       | UIDENT "Qle_bool" →
           <:expr< Q.le >>
       | UIDENT "Qeq_bool" →
