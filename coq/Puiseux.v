@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.223 2013-04-20 18:39:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.224 2013-04-20 18:59:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -801,6 +801,15 @@ do 2 rewrite Z.mul_opp_l.
 do 2 rewrite Z.opp_involutive.
 assumption.
 Qed.
+
+Lemma yyy : ∀ i j k x y z,
+  i < j < k
+  → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
+    → x + Qnat i * ((x - y) / Qnat (k - i)) <
+      z + Qnat j * ((x - y) / Qnat (k - i)).
+Proof.
+intros i j k x y z (Hij, Hjk) H.
+bbb.
 
 Lemma yyy : ∀ a b i j k x y z,
   i < j < k
