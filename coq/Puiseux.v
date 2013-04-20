@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.215 2013-04-20 10:45:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.216 2013-04-20 10:48:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -822,6 +822,9 @@ destruct Hips as [Hips| Hips].
   destruct Hnips as (Hjk, Hnips).
   apply Decidable.not_or in Hnips.
   destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
+
+  revert ms segkx lch n Hsort₂ Hnp i ips Hnips Hsort Hms Hms₂.
+  induction pts as [| pt₁]; intros; [ contradiction | idtac ].
 bbb.
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
