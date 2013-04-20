@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.214 2013-04-20 09:23:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.215 2013-04-20 10:45:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -808,6 +808,20 @@ Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
 Proof.
 intros α j jps k kps β γ pt pts ms segkx lch n.
 intros Hsort Hsort₂ Hβ Hγ Hms Hnp i ips Hips Hnips.
+destruct Hips as [Hips| Hips].
+ subst pt.
+ remember Hms as Hms₂; clear HeqHms₂.
+ apply min_sl_in in Hms.
+ simpl in Hms.
+ destruct Hms as [Hms| Hms].
+  rewrite <- Hms in Hnp.
+  apply next_ch_points_hd in Hnp.
+  rewrite Hnp in Hnips.
+  simpl in Hnips.
+  apply Decidable.not_or in Hnips.
+  destruct Hnips as (Hjk, Hnips).
+  apply Decidable.not_or in Hnips.
+  destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
 bbb.
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
