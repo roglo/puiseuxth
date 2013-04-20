@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.217 2013-04-20 11:57:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.218 2013-04-20 17:03:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -793,6 +793,15 @@ intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
 Qed.
 
+Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
+Proof.
+intros (a₁, a₂) (b₁, b₂); unfold Qlt; simpl; intros H.
+apply Z.opp_lt_mono.
+do 2 rewrite Z.mul_opp_l.
+do 2 rewrite Z.opp_involutive.
+assumption.
+Qed.
+
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps), pt … pts]
   → LocallySorted fst_fst_lt [(j, jps, seg ms), (k, kps, segkx) … lch]
@@ -864,6 +873,7 @@ destruct Hips as [Hips| Hips].
      symmetry in Hnp.
      eapply minimised_slope in Heqms₁; try eassumption.
      rewrite Heqms₁ in Heqb.
+bbb.
      do 2 rewrite Qdiv_sub_distr_r in Heqb.
      rewrite <- Qopp_minus in Heqb.
      do 2 rewrite <- Qdiv_sub_distr_r in Heqb.
@@ -871,6 +881,27 @@ destruct Hips as [Hips| Hips].
      apply Qlt_not_le in Heqb.
      rewrite <- Qopp_minus in Heqb.
      apply Qnot_le_lt in Heqb.
+     apply Qopp_lt_compat in Heqb.
+     rewrite Qopp_involutive in Heqb.
+     rewrite Qopp_minus in Heqb.
+     rewrite Qdiv_sub_distr_r in Heqb.
+     rewrite Qopp_minus in Heqb.
+     rewrite <- Qdiv_sub_distr_r in Heqb.
+     apply Qmult_lt_compat_r with (z := Qnat (i - j)) in Heqb.
+      unfold Qdiv in Heqb.
+      rewrite <- Qmult_assoc in Heqb.
+      remember (Qnat (i - j)) as ij.
+      setoid_replace (/ ij * ij) with (ij * / ij) in Heqb.
+       rewrite Qmult_inv_r in Heqb.
+        rewrite Qmult_1_r in Heqb.
+        subst ij.
+        unfold Qnat in Heqb.
+        rewrite Nat2Z.inj_sub in Heqb.
+         rewrite QZ_minus in Heqb.
+         unfold Qminus in Heqb.
+         rewrite Qmult_plus_distr_r in Heqb.
+         eapply Qplus_lt_l in Heqb.
+         rewrite <- Qplus_assoc in Heqb.
 bbb.
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
