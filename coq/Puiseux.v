@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.208 2013-04-19 20:07:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.209 2013-04-20 03:46:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -757,7 +757,7 @@ Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
 Proof. intros; field. Qed.
 
 Lemma xxx : ∀ α j jps k kps β γ pt pts ms segkx lch n,
-  LocallySorted fst_lt pts
+  LocallySorted fst_lt [(j, jps), pt … pts]
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → minimise_slope α (j, jps) pt pts = ms
@@ -784,7 +784,10 @@ induction pts as [| pt₁]; intros.
  destruct b₁.
   Focus 2.
   eapply IHpts; try eassumption.
-  inversion Hsort; subst a pts; [ constructor | assumption ].
+  constructor; [ inversion Hsort; inversion H1; assumption | idtac ].
+  inversion Hsort; subst a b l.
+  inversion H1; subst a b l.
+  eapply lt_trans; eassumption.
 
   clear IHpts Heqb.
   symmetry in Heqb₁.
@@ -820,13 +823,15 @@ induction pts as [| pt₁]; intros.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
-  β = valuation α jps + Qnat j * γ
-  → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-    → next_ch_points α n pts =
-        [((j, jps), segjk), ((k, kps), segkx) … lch]
-      → ∀ i ips, (i, ips) ∈ segjk → valuation α ips + Qnat i * γ == β.
+  LocallySorted fst_lt pts
+  → β = valuation α jps + Qnat j * γ
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → next_ch_points α n pts =
+          [((j, jps), segjk), ((k, kps), segkx) … lch]
+        → ∀ i ips, (i, ips) ∈ segjk → valuation α ips + Qnat i * γ == β.
 Proof.
-intros α j jps k kps γ β pts segjk segkx lch n Hβ Hγ Hnp i ips Hips.
+intros α j jps k kps γ β pts segjk segkx lch n.
+intros Hsort Hβ Hγ Hnp i ips Hips.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
