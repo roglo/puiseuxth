@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.218 2013-04-20 17:03:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.219 2013-04-20 17:12:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -802,6 +802,16 @@ do 2 rewrite Z.opp_involutive.
 assumption.
 Qed.
 
+Lemma yyy : ∀ a b i j k x y z,
+  i < j < k
+  → a = (x - y) / Qnat (k - i)
+    → b = x + Qnat i * a
+      → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
+        → b < z + Qnat j * a.
+Proof.
+intros a b i j k x y z (Hij, Hjk) Ha Hb H.
+bbb.
+
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps), pt … pts]
   → LocallySorted fst_fst_lt [(j, jps, seg ms), (k, kps, segkx) … lch]
@@ -873,6 +883,7 @@ destruct Hips as [Hips| Hips].
      symmetry in Hnp.
      eapply minimised_slope in Heqms₁; try eassumption.
      rewrite Heqms₁ in Heqb.
+     eapply yyy; try eassumption.
 bbb.
      do 2 rewrite Qdiv_sub_distr_r in Heqb.
      rewrite <- Qopp_minus in Heqb.
