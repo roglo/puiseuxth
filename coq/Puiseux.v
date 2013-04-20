@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.216 2013-04-20 10:48:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.217 2013-04-20 11:57:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -825,6 +825,52 @@ destruct Hips as [Hips| Hips].
 
   revert ms segkx lch n Hsort₂ Hnp i ips Hnips Hsort Hms Hms₂.
   induction pts as [| pt₁]; intros; [ contradiction | idtac ].
+  simpl in Hms₂.
+  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+  remember (Qle_bool (slope ms₁) (slope_expr α (j, jps) (i, ips))) as b.
+  destruct b.
+   remember (Qeq_bool (slope ms₁) (slope_expr α (j, jps) (i, ips))) as b.
+   destruct b.
+    subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+    apply Decidable.not_or in Hnips.
+    destruct Hnips as (Hji, Hnips).
+    apply Decidable.not_or in Hnips.
+    destruct Hnips as (Hki, Hnips).
+    apply Decidable.not_or in Hnips.
+    destruct Hnips as (Hii, Hnips).
+    exfalso; apply Hii; reflexivity.
+
+    subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+    destruct Hms as [Hms| Hms].
+     destruct pt₁ as (l, lps).
+     symmetry in Heqms₁.
+     apply Decidable.not_or in Hnips.
+     destruct Hnips as (Hji, Hnips).
+     apply Decidable.not_or in Hnips.
+     destruct Hnips as (Hki, Hnips).
+     symmetry in Heqb0.
+     apply Qeq_bool_neq in Heqb0.
+     remember Hnp as Hnp₁; clear HeqHnp₁.
+     apply next_ch_points_hd in Hnp.
+     rewrite Hnp in Hms.
+     injection Hms; clear Hms; intros; subst l lps.
+     symmetry in Heqb.
+     apply Qle_bool_iff in Heqb.
+     apply Qle_lt_or_eq in Heqb.
+     destruct Heqb as [Heqb| ]; [ idtac | contradiction ].
+     clear Heqb0.
+     unfold slope_expr in Heqb.
+     simpl in Heqb.
+     symmetry in Hnp.
+     eapply minimised_slope in Heqms₁; try eassumption.
+     rewrite Heqms₁ in Heqb.
+     do 2 rewrite Qdiv_sub_distr_r in Heqb.
+     rewrite <- Qopp_minus in Heqb.
+     do 2 rewrite <- Qdiv_sub_distr_r in Heqb.
+     rewrite <- Hγ in Heqb.
+     apply Qlt_not_le in Heqb.
+     rewrite <- Qopp_minus in Heqb.
+     apply Qnot_le_lt in Heqb.
 bbb.
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
