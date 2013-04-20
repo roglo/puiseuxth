@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.197 2013-04-19 19:11:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.198 2013-04-20 03:37:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -158,8 +158,9 @@ value rec list_take n l =
   if n ≤ 0 then []
   else
     match l with
-    [ [x :: l] → [x :: list_take (n-1) l]
-    | [] → [] ]
+    | [x :: l] → [x :: list_take (n-1) l]
+    | [] → []
+    end
 ;
 
 value norm f k x y = k.normalise (f x y);
@@ -250,7 +251,7 @@ value print_solution k br nth cγl finite sol = do {
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
-  [ Some nb_terms →
+  | Some nb_terms →
       let ps = apply_poly_x_pol k br.initial_polynom sol in
       let ps = float_round_zero k ps in
       let ps₂ =
@@ -265,7 +266,8 @@ value print_solution k br nth cγl finite sol = do {
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
         (string_of_puiseux_series k (not arg_lang.val) br.vx ps₂)
         ellipses
-  | None → () ]
+  | None → ()
+  end
 };
 
 value cancel_pol_constant_term_if_any k pol =
