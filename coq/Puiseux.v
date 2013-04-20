@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.211 2013-04-20 03:53:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.212 2013-04-20 04:12:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -666,6 +666,10 @@ induction pts as [| pt₁]; intros.
     apply lt_irrefl in H4; contradiction.
 
     apply lt_le_weak; inversion Hsort; assumption.
+
+   unfold slope_expr in Heqb₁; simpl in Heqb₁.
+   destruct pt as (l, lps); simpl in Heqb₁.
+   unfold slope_expr in Heqms₁; simpl in Heqms₁.
 bbb.
 
 Lemma yyy : ∀ α j jps k kps γ β pts segjk segkx lch n,
