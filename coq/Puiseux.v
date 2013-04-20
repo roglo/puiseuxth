@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.219 2013-04-20 17:12:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.220 2013-04-20 17:34:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -810,6 +810,34 @@ Lemma yyy : ∀ a b i j k x y z,
         → b < z + Qnat j * a.
 Proof.
 intros a b i j k x y z (Hij, Hjk) Ha Hb H.
+do 2 rewrite Qdiv_sub_distr_r in H.
+rewrite <- Qopp_minus in H.
+do 2 rewrite <- Qdiv_sub_distr_r in H.
+rewrite <- Ha in H.
+apply Qlt_not_le in H.
+rewrite <- Qopp_minus in H.
+apply Qnot_le_lt in H.
+apply Qopp_lt_compat in H.
+rewrite Qopp_involutive in H.
+rewrite Qopp_minus in H.
+rewrite Qdiv_sub_distr_r in H.
+rewrite Qopp_minus in H.
+rewrite <- Qdiv_sub_distr_r in H.
+apply Qmult_lt_compat_r with (z := Qnat (j - i)) in H.
+ unfold Qdiv in H.
+ rewrite <- Qmult_assoc in H.
+ remember (Qnat (j - i)) as ji.
+ setoid_replace (/ ji * ji) with (ji * / ji) in H.
+  rewrite Qmult_inv_r in H.
+   rewrite Qmult_1_r in H.
+   subst ji.
+   unfold Qnat in H.
+   rewrite Nat2Z.inj_sub in H.
+    rewrite QZ_minus in H.
+    unfold Qminus in H.
+    rewrite Qmult_plus_distr_r in H.
+    eapply Qplus_lt_l in H.
+    rewrite <- Qplus_assoc in H.
 bbb.
 
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
@@ -884,35 +912,6 @@ destruct Hips as [Hips| Hips].
      eapply minimised_slope in Heqms₁; try eassumption.
      rewrite Heqms₁ in Heqb.
      eapply yyy; try eassumption.
-bbb.
-     do 2 rewrite Qdiv_sub_distr_r in Heqb.
-     rewrite <- Qopp_minus in Heqb.
-     do 2 rewrite <- Qdiv_sub_distr_r in Heqb.
-     rewrite <- Hγ in Heqb.
-     apply Qlt_not_le in Heqb.
-     rewrite <- Qopp_minus in Heqb.
-     apply Qnot_le_lt in Heqb.
-     apply Qopp_lt_compat in Heqb.
-     rewrite Qopp_involutive in Heqb.
-     rewrite Qopp_minus in Heqb.
-     rewrite Qdiv_sub_distr_r in Heqb.
-     rewrite Qopp_minus in Heqb.
-     rewrite <- Qdiv_sub_distr_r in Heqb.
-     apply Qmult_lt_compat_r with (z := Qnat (i - j)) in Heqb.
-      unfold Qdiv in Heqb.
-      rewrite <- Qmult_assoc in Heqb.
-      remember (Qnat (i - j)) as ij.
-      setoid_replace (/ ij * ij) with (ij * / ij) in Heqb.
-       rewrite Qmult_inv_r in Heqb.
-        rewrite Qmult_1_r in Heqb.
-        subst ij.
-        unfold Qnat in Heqb.
-        rewrite Nat2Z.inj_sub in Heqb.
-         rewrite QZ_minus in Heqb.
-         unfold Qminus in Heqb.
-         rewrite Qmult_plus_distr_r in Heqb.
-         eapply Qplus_lt_l in Heqb.
-         rewrite <- Qplus_assoc in Heqb.
 bbb.
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
