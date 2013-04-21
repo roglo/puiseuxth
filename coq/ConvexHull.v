@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.34 2013-04-21 01:37:07 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.35 2013-04-21 01:37:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -57,10 +57,8 @@ Fixpoint next_ch_points α n pts :=
   | O => []
   | S n =>
       match pts with
-      | [] =>
-          []
-      | [pt₁] =>
-          [(pt₁, [])]
+      | [] => []
+      | [pt₁] => [(pt₁, [])]
       | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope α pt₁ pt₂ pts₂ in
           let chl := next_ch_points α n [end_pt ms … rem_pts ms] in

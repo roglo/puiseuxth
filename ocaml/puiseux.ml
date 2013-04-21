@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.201 2013-04-21 01:34:27 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.202 2013-04-21 01:37:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -54,17 +54,15 @@ Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr α pt₁ pt₂ in
   match pts₂ with
   | [] =>
-      {| slope := sl₁₂; end_pt := pt₂; seg := [];
-         rem_pts := [] |}
+      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   | [pt₃ :: pts₃] =>
       let ms := minimise_slope α pt₁ pt₃ pts₃ in
       match Qcompare sl₁₂ (slope ms) with
       | Eq =>
-          {| slope := slope ms; end_pt := end_pt ms;
-             seg := [pt₂ :: seg ms]; rem_pts := rem_pts ms |}
+          {| slope := slope ms; end_pt := end_pt ms; seg := [pt₂ :: seg ms];
+             rem_pts := rem_pts ms |}
       | Lt =>
-          {| slope := sl₁₂; end_pt := pt₂; seg := [];
-             rem_pts := pts₂ |}
+          {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
       | Gt =>
           ms
       end
