@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.234 2013-04-21 10:15:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.235 2013-04-21 11:42:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -808,6 +808,7 @@ f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
 induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
+(*
 Lemma yyy : ∀ i j k x y z,
   i < j < k
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -818,7 +819,6 @@ intros i j k x y z (Hij, Hjk) H.
 rewrite Qdiv_nat in H.
  rewrite Qdiv_nat in H.
   rewrite Qdiv_nat.
-Admitted. (*
 bbb.
 
 Lemma yyy : ∀ a b i j k x y z,
@@ -955,16 +955,28 @@ destruct Hips as [| Hips].
 
  rename H into Hnp.
  rename Heqms into Hms.
- revert ms segkx lch pts Hsort₂ Hnp i ips Hips Hnips Hsort Hms.
- induction n; intros; [ discriminate Hnp | idtac ].
- simpl in Hnp.
- remember (rem_pts ms) as pts₁.
- destruct pts₁ as [| pt₁].
-  injection Hnp; clear Hnp; intros; subst lch segkx.
-  eapply IHn; try eassumption.
-  rewrite <- Heqpts₁, H1.
-  destruct n; [ idtac | reflexivity ].
+ revert ms segkx lch n Hsort₂ Hnp i ips Hips Hnips Hsort Hms.
+ induction pts as [| pt₁]; intros.
+  destruct n; [ discriminate Hnp | idtac ].
+  simpl in Hnp.
+  remember (rem_pts ms) as pts₁.
+  destruct pts₁ as [| pt₁ pts₁].
+   injection Hnp; clear Hnp; intros; subst segkx lch.
+   simpl in Hms.
+   subst ms; simpl in Heqpts₁, Hnips, H1, Hsort₂.
+   subst pt₂.
+   destruct Hips as [Hips| ]; [ idtac | contradiction ].
+   injection Hips; clear Hips; intros; subst i ips.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (_, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
 
+   remember (minimise_slope α (end_pt ms) pt₁ pts₁) as ms₁.
+   symmetry in Heqms₁.
+   simpl in Hms.
+   subst ms; simpl in Heqpts₁, Hnips, Hsort₂, Heqms₁, Hnp.
+   discriminate Heqpts₁.
 bbb.
 
 (*
