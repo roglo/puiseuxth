@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.226 2013-04-21 01:01:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.227 2013-04-21 03:25:57 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -794,6 +794,11 @@ do 2 rewrite Z.mul_opp_l.
 do 2 rewrite Z.opp_involutive.
 assumption.
 Qed.
+
+Lemma xxx : ∀ x i, (0 < i)%nat → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
+Proof.
+intros x i Hi.
+bbb.
 
 Lemma yyy : ∀ i j k x y z,
   i < j < k
