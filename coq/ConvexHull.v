@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.32 2013-04-21 01:01:51 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.33 2013-04-21 01:34:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,21 +34,21 @@ Definition slope_expr α pt₁ pt₂ :=
   let v₂ := valuation α (snd pt₂) in
   (v₂ - v₁) / Qnat (fst pt₂ - fst pt₁).
 
-Fixpoint minimise_slope α pt₁ pt₃ pts₃ :=
-  let sl₁₂ := slope_expr α pt₁ pt₃ in
-  match pts₃ with
+Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
+  let sl₁₂ := slope_expr α pt₁ pt₂ in
+  match pts₂ with
   | [] =>
-      {| slope := sl₁₂; end_pt := pt₃; seg := [];
+      {| slope := sl₁₂; end_pt := pt₂; seg := [];
          rem_pts := [] |}
-  | [pt₄ … pts₄] =>
-      let ms := minimise_slope α pt₁ pt₄ pts₄ in
+  | [pt₃ … pts₃] =>
+      let ms := minimise_slope α pt₁ pt₃ pts₃ in
       match Qcompare sl₁₂ (slope ms) with
       | Eq =>
           {| slope := slope ms; end_pt := end_pt ms;
-             seg := [pt₃ … seg ms]; rem_pts := rem_pts ms |}
+             seg := [pt₂ … seg ms]; rem_pts := rem_pts ms |}
       | Lt =>
-          {| slope := sl₁₂; end_pt := pt₃; seg := [];
-             rem_pts := pts₃ |}
+          {| slope := sl₁₂; end_pt := pt₂; seg := [];
+             rem_pts := pts₂ |}
       | Gt =>
           ms
       end
