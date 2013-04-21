@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.229 2013-04-21 07:14:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.230 2013-04-21 07:25:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -987,6 +987,16 @@ destruct Hips as [Hips| Hips].
     subst β γ.
     apply yyy; [ idtac | assumption ].
     split; inversion Hsort; [ idtac | inversion H1 ]; assumption.
+
+    symmetry in Heqms₁.
+    eapply IHpts; try eassumption.
+     constructor.
+      inversion Hsort; subst a b l; inversion H1; subst a b l.
+      inversion H2; subst a pts; [ constructor | idtac ].
+      constructor; [ assumption | idtac ].
+      eapply lt_trans; eassumption.
+
+      inversion Hsort; subst a b l; assumption.
 bbb.
 *)
 
