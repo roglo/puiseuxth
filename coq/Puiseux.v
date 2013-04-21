@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.225 2013-04-20 19:23:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.226 2013-04-21 01:01:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -62,7 +62,7 @@ Definition points_of_ps_polynom α fld pol :=
 Definition gamma_beta_gen α fld deg cl cn :=
   let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
   match lower_convex_hull_points α gdpl with
-  | [((j, jps), seg), ((k, kps), _) … _] =>
+  | [((j, jps), seg); ((k, kps), _) … _] =>
       let αj := valuation α jps in
       let αk := valuation α kps in
       let γ := (αj - αk) / Qnat (k - j)%nat in
@@ -228,7 +228,7 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma points_of_ps_polynom_lt : ∀ α fld pol d₁ p₁ d₂ p₂ dpl,
-  points_of_ps_polynom α fld pol = [(d₁, p₁), (d₂, p₂) … dpl]
+  points_of_ps_polynom α fld pol = [(d₁, p₁); (d₂, p₂) … dpl]
   → (d₁ < d₂)%nat.
 Proof.
 intros; rename H into Hvp.
@@ -365,16 +365,19 @@ induction pts₂ as [| pt]; intros.
 
  simpl in Hms.
  remember (minimise_slope α pt₁ pt pts₂) as ms₁.
- remember (Qle_bool (slope ms₁) (slope_expr α pt₁ pt₂)) as b.
- destruct b.
-  subst ms; simpl.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ destruct c; subst ms; simpl; [ idtac | reflexivity | idtac ].
   apply lt_le_weak.
   inversion Hsort.
   eapply lt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
 
-  subst ms; reflexivity.
+  apply lt_le_weak.
+  inversion Hsort.
+  eapply lt_le_trans; [ eassumption | idtac ].
+  symmetry in Heqms₁.
+  eapply IHpts₂; eassumption.
 Qed.
 
 Lemma min_sl_in : ∀ α pt₁ pt₂ pts₂ ms,
@@ -388,16 +391,16 @@ induction pts₂ as [| pt]; intros.
 
  simpl in Hms.
  remember (minimise_slope α pt₁ pt pts₂) as ms₁.
- remember (Qle_bool (slope ms₁) (slope_expr α pt₁ pt₂)) as b.
- destruct b; subst ms; simpl.
-  symmetry in Heqms₁.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ symmetry in Heqms₁.
+ destruct c; subst ms; simpl; [ idtac | left; reflexivity | idtac ].
   apply IHpts₂ in Heqms₁.
-  destruct Heqms₁.
-   subst pt; right; left; reflexivity.
+  destruct Heqms₁; [ subst pt; right; left; reflexivity | idtac ].
+  right; right; assumption.
 
-   right; right; assumption.
-
-  left; reflexivity.
+  apply IHpts₂ in Heqms₁.
+  destruct Heqms₁; [ subst pt; right; left; reflexivity | idtac ].
+  right; right; assumption.
 Qed.
 
 Lemma in_rem_pts : ∀ α pt pt₁ pt₂ pts₂,
@@ -409,12 +412,14 @@ revert pt₁ pt₂ pt Hpt.
 induction pts₂ as [| pt₃]; intros; [ contradiction | idtac ].
 simpl in Hpt.
 remember (minimise_slope α pt₁ pt₃ pts₂) as ms.
-remember (Qle_bool (slope ms) (slope_expr α pt₁ pt₂)) as b.
-destruct b; simpl in Hpt.
+remember (slope_expr α pt₁ pt₂ ?= slope ms) as c.
+destruct c; simpl in Hpt; [ idtac | right; assumption | idtac ].
  subst ms.
  apply IHpts₂ in Hpt.
  right; assumption.
 
+ subst ms.
+ apply IHpts₂ in Hpt.
  right; assumption.
 Qed.
 
@@ -455,7 +460,7 @@ destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
 Qed.
 
 Lemma minimise_slope_sorted : ∀ α pt₁ pt₂ pts ms,
-  LocallySorted fst_lt [pt₁, pt₂ … pts]
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → LocallySorted fst_lt [end_pt ms … rem_pts ms].
 Proof.
@@ -464,19 +469,15 @@ revert pt₁ pt₂ ms Hsort Hms.
 induction pts as [| pt₃]; intros; [ subst ms; constructor | idtac ].
 simpl in Hms.
 remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
-remember (Qle_bool (slope ms₁) (slope_expr α pt₁ pt₂)) as b.
-destruct b.
- subst ms; simpl.
- symmetry in Heqms₁.
+remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+symmetry in Heqms₁.
+inversion Hsort; inversion H1.
+destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  eapply IHpts; [ idtac | eassumption ].
- constructor.
-  inversion Hsort; inversion H1; assumption.
+ constructor; [ assumption | eapply lt_trans; eassumption ].
 
-  inversion Hsort; inversion H1.
-  eapply lt_trans; eassumption.
-
- subst ms; simpl.
- inversion Hsort; assumption.
+ eapply IHpts; [ idtac | eassumption ].
+ constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
 Lemma next_points_sorted : ∀ α n pts lch,
@@ -546,16 +547,15 @@ induction pts as [| pt₁]; intros.
 
  simpl in Hms.
  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- destruct pt as (l, lps); simpl in Hms.
- remember (Qle_bool (slope ms₁) (slope_expr α (j, jps) (l, lps))) as b.
- destruct b.
-  subst ms; simpl in Hkps |- *.
-  symmetry in Heqms₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ symmetry in Heqms₁.
+ destruct c; subst ms; simpl in Hkps |- *.
   eapply IHpts; eassumption.
 
-  subst ms; simpl in Hkps |- *.
-  injection Hkps; clear Hkps; intros; subst l lps.
-  reflexivity.
+  destruct pt as (l, lps).
+  injection Hkps; clear Hkps; intros; subst l lps; reflexivity.
+
+  eapply IHpts; eassumption.
 Qed.
 
 Lemma Qeq_opp_r : ∀ x y, x == y → - x == - y.
@@ -598,7 +598,7 @@ Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
 Proof. intros; field. Qed.
 
 Lemma min_sl_pt_in_newt_segm : ∀ α j jps k kps β γ pt pts ms segkx lch n,
-  LocallySorted fst_lt [(j, jps), pt … pts]
+  LocallySorted fst_lt [(j, jps); pt … pts]
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → minimise_slope α (j, jps) pt pts = ms
@@ -617,24 +617,19 @@ induction pts as [| pt₁]; intros.
 
  simpl in Hms.
  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- remember (Qle_bool (slope ms₁) (slope_expr α (j, jps) pt)) as b.
- destruct b; [ idtac | subst ms; contradiction ].
- subst ms; simpl in Hnp, Hips.
- remember (Qeq_bool (slope ms₁) (slope_expr α (j, jps) pt)) as b₁.
- symmetry in Heqms₁.
- destruct b₁.
-  clear Heqb.
-  symmetry in Heqb₁.
-  apply Qeq_bool_iff in Heqb₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ destruct c; subst ms; simpl in Hnp, Hips; [ idtac | contradiction | idtac ].
+  symmetry in Heqms₁.
+  symmetry in Heqc.
+  apply Qeq_alt in Heqc.
   remember Hnp as Hnp₁; clear HeqHnp₁.
   apply next_ch_points_hd in Hnp.
   symmetry in Hnp.
   remember Heqms₁ as Hms; clear HeqHms.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
-  rewrite Heqb₁ in Heqms₁.
+  rewrite <- Heqc in Heqms₁.
   destruct Hips as [Hips| Hips].
    subst pt.
-   simpl in Heqb₁, Heqms₁.
    subst β.
    remember (valuation α kps) as v₃.
    subst γ.
@@ -642,8 +637,7 @@ induction pts as [| pt₁]; intros.
    do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
    rewrite Qdiv_sub_distr_r.
    apply Qeq_opp_r in Heqms₁.
-   rewrite Qopp_minus in Heqms₁.
-   rewrite Qopp_minus in Heqms₁.
+   do 2 rewrite Qopp_minus in Heqms₁.
    rewrite <- Heqms₁.
    unfold Qnat.
    rewrite Nat2Z.inj_sub.
@@ -661,16 +655,15 @@ induction pts as [| pt₁]; intros.
 
     apply lt_le_weak; inversion Hsort; assumption.
 
-   eapply IHpts in Hips; try eassumption.
+   eapply IHpts; try eassumption.
    constructor; [ inversion Hsort; inversion H1; assumption | idtac ].
-   inversion Hsort; subst a b l.
-   inversion H1; subst a b l.
+   inversion Hsort; inversion H1.
    eapply lt_trans; eassumption.
 
+  symmetry in Heqms₁.
   eapply IHpts; try eassumption.
-  constructor; [ inversion Hsort; inversion H1; assumption | idtac ].
-  inversion Hsort; subst a b l.
-  inversion H1; subst a b l.
+  constructor; [ inversion Hsort; inversion H1; eassumption | idtac ].
+  inversion Hsort; inversion H1.
   eapply lt_trans; eassumption.
 Qed.
 
@@ -679,7 +672,7 @@ Lemma in_newt_segm : ∀ α j jps k kps γ β pts segjk segkx lch,
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → lower_convex_hull_points α pts =
-          [((j, jps), segjk), ((k, kps), segkx) … lch]
+          [((j, jps), segjk); ((k, kps), segkx) … lch]
         → ∀ i ips, (i, ips) ∈ segjk
           → valuation α ips + Qnat i * γ == β.
 Proof.
@@ -702,7 +695,7 @@ Qed.
 
 Lemma points_in_newton_segment : ∀ α fld pol γ β j jps k kps seg,
   gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-  → ∀ i ips, (i, ips) ∈ [(j, jps), (k, kps) … seg]
+  → ∀ i ips, (i, ips) ∈ [(j, jps); (k, kps) … seg]
     → valuation α ips + Qnat i * γ == β.
 Proof.
 intros α fld pol γ β j jps k kps seg Hgb i ips Hips.
@@ -764,7 +757,7 @@ induction rl as [| (m, mps)]; intros.
  simpl in Hrl.
  rewrite <- List.app_assoc in Hrl.
  simpl in Hrl.
- remember (List.rev rl ++ [(i, ips), (m, mps) … l]) as lch₁.
+ remember (List.rev rl ++ [(i, ips); (m, mps) … l]) as lch₁.
  symmetry in Heqlch₁.
  eapply IHrl; [ idtac | eassumption ].
  intros n nps Hn.
@@ -903,8 +896,8 @@ bbb.
 *)
 
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
-  LocallySorted fst_lt [(j, jps), pt … pts]
-  → LocallySorted fst_fst_lt [(j, jps, seg ms), (k, kps, segkx) … lch]
+  LocallySorted fst_lt [(j, jps); pt … pts]
+  → LocallySorted fst_fst_lt [(j, jps, seg ms); (k, kps, segkx) … lch]
     → β = valuation α jps + Qnat j * γ
       → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
         → minimise_slope α (j, jps) pt pts = ms
@@ -912,7 +905,7 @@ Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
               [(k, kps, segkx) … lch]
             → ∀ i ips,
               (i, ips) ∈ [pt … pts]
-              → (i, ips) ∉ [(j, jps), (k, kps) … seg ms]
+              → (i, ips) ∉ [(j, jps); (k, kps) … seg ms]
                 → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α j jps k kps β γ pt pts ms segkx lch n.
@@ -936,58 +929,53 @@ destruct Hips as [Hips| Hips].
   induction pts as [| pt₁]; intros; [ contradiction | idtac ].
   simpl in Hms₂.
   remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
-  remember (Qle_bool (slope ms₁) (slope_expr α (j, jps) (i, ips))) as b.
-  destruct b.
-   remember (Qeq_bool (slope ms₁) (slope_expr α (j, jps) (i, ips))) as b.
-   destruct b.
-    subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+  remember (slope_expr α (j, jps) (i, ips) ?= slope ms₁) as c.
+  destruct c.
+   subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hji, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hki, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hii, Hnips).
+   exfalso; apply Hii; reflexivity.
+
+   Focus 2.
+   subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+   destruct Hms as [Hms| Hms].
+    destruct pt₁ as (l, lps).
+    symmetry in Heqms₁.
     apply Decidable.not_or in Hnips.
     destruct Hnips as (Hji, Hnips).
     apply Decidable.not_or in Hnips.
     destruct Hnips as (Hki, Hnips).
-    apply Decidable.not_or in Hnips.
-    destruct Hnips as (Hii, Hnips).
-    exfalso; apply Hii; reflexivity.
-
-    subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
-    destruct Hms as [Hms| Hms].
-     destruct pt₁ as (l, lps).
-     symmetry in Heqms₁.
-     apply Decidable.not_or in Hnips.
-     destruct Hnips as (Hji, Hnips).
-     apply Decidable.not_or in Hnips.
-     destruct Hnips as (Hki, Hnips).
-     symmetry in Heqb0.
-     apply Qeq_bool_neq in Heqb0.
-     remember Hnp as Hnp₁; clear HeqHnp₁.
-     apply next_ch_points_hd in Hnp.
-     rewrite Hnp in Hms.
-     injection Hms; clear Hms; intros; subst l lps.
-     symmetry in Heqb.
-     apply Qle_bool_iff in Heqb.
-     apply Qle_lt_or_eq in Heqb.
-     destruct Heqb as [Heqb| ]; [ idtac | contradiction ].
-     clear Heqb0.
-     unfold slope_expr in Heqb.
-     simpl in Heqb.
-     symmetry in Hnp.
-     eapply minimised_slope in Heqms₁; try eassumption.
-     rewrite Heqms₁ in Heqb.
-     subst β γ.
-     apply yyy; [ idtac | assumption ].
-     split; inversion Hsort; [ idtac | inversion H1 ]; assumption.
+    symmetry in Heqc.
+    apply Qgt_alt in Heqc.
+    remember Hnp as Hnp₁; clear HeqHnp₁.
+    apply next_ch_points_hd in Hnp.
+    rewrite Hnp in Hms.
+    injection Hms; clear Hms; intros; subst l lps.
+    unfold slope_expr in Heqc.
+    simpl in Heqc.
+    symmetry in Hnp.
+    eapply minimised_slope in Heqms₁; try eassumption.
+    rewrite Heqms₁ in Heqc.
+    subst β γ.
+    apply yyy; [ idtac | assumption ].
+    split; inversion Hsort; [ idtac | inversion H1 ]; assumption.
 bbb.
+*)
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
   LocallySorted fst_lt pts
-  → LocallySorted fst_fst_lt [(j, jps, segjk), (k, kps, segkx) … lch]
+  → LocallySorted fst_fst_lt [(j, jps, segjk); (k, kps, segkx) … lch]
     → β = valuation α jps + Qnat j * γ
       → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
         → lower_convex_hull_points α pts =
-            [(j, jps, segjk), (k, kps, segkx) … lch]
+            [(j, jps, segjk); (k, kps, segkx) … lch]
           → ∀ i ips,
             (i, ips) ∈ pts
-            → (i, ips) ∉ [(j, jps), (k, kps) … segjk]
+            → (i, ips) ∉ [(j, jps); (k, kps) … segjk]
               → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α pts j jps k kps γ β segjk segkx lch.
@@ -1004,15 +992,21 @@ rename H0 into Hjk.
 remember (minimise_slope α (j, jps) pt₂ pts) as ms.
 subst segjk.
 symmetry in Heqms.
-eapply zzz; eassumption.
+eapply zzz; try eassumption.
+destruct Hips as [Hips| Hips]; [ idtac | assumption ].
+injection Hips; clear Hips; intros; subst i ips.
+simpl in Hnips.
+apply Decidable.not_or in Hnips.
+destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
 bbb.
+*)
 
 Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
     → ∀ i ips,
        (i, ips) ∈ pts
-       → (i, ips) ∉ [(j, jps), (k, kps) … seg]
+       → (i, ips) ∉ [(j, jps); (k, kps) … seg]
          → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α fld pol pts γ β j jps k kps seg.
@@ -1110,13 +1104,13 @@ induction cl as [| c]; intros.
   destruct Hips as [Hips| Hips].
    injection Hips; clear Hips; intros; subst deg c.
    simpl in Hnips.
-   remember (Qeq_bool (valuation α ips + Qnat i * γ) β) as b.
+   remember (Qeq_bool₁ (valuation α ips + Qnat i * γ) β) as b.
    destruct b.
     exfalso; apply Hnips; left; reflexivity.
 
     apply Qnot_le_lt.
     symmetry in Heqb.
-    apply Qeq_bool_neq in Heqb.
+    apply Qeq_bool₁_neq in Heqb.
     intros H; apply Heqb.
     apply Qeq_sym.
     apply Qle_antisym; [ idtac | eassumption ].
@@ -1124,13 +1118,13 @@ induction cl as [| c]; intros.
 
 bbb.
    simpl in Hnips.
-   remember (Qeq_bool (valuation α c + Qnat deg * γ) β) as b.
+   remember (Qeq_bool₁ (valuation α c + Qnat deg * γ) β) as b.
    destruct b.
     simpl in Hnips.
     apply Decidable.not_or in Hnips.
     destruct Hnips as (Hdeg, Hnips).
     symmetry in Heqb.
-    apply Qeq_bool_iff in Heqb.
+    apply Qeq_bool₁_iff in Heqb.
     symmetry in Heqb.
     destruct cl as [| c₁].
      simpl in Heqpts₁.
@@ -1146,7 +1140,7 @@ bbb.
        clear IHcl.
        rewrite minus_Sn_n in Hγ.
        simpl in Hnips.
-       remember (Qeq_bool (valuation α cn + Qnat (S deg) * γ) β) as b.
+       remember (Qeq_bool₁ (valuation α cn + Qnat (S deg) * γ) β) as b.
        destruct b.
         simpl in Hnips.
         apply Decidable.not_or in Hnips.
@@ -1154,7 +1148,7 @@ bbb.
 
         clear Hlt Hnips Hdeg.
         symmetry in Heqb0.
-        apply Qeq_bool_neq in Heqb0.
+        apply Qeq_bool₁_neq in Heqb0.
         symmetry in Heqb.
         symmetry in Hβ.
         clear Heqb.
@@ -1319,7 +1313,7 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
       (λ m,
          let αi := valuation (coeff m) in
          let βi := αi + (Z.of_nat (power m) # 1) * γ in
-         Qeq_bool β βi)
+         Qeq_bool₁ β βi)
       (monoms (pol br))
   in
   let j := power (List.hd (phony_monom α Q) hl) in

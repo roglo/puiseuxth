@@ -1,11 +1,11 @@
-(* $Id: ConvexHull.v,v 1.31 2013-04-19 19:11:40 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.32 2013-04-21 01:01:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Streams.
 
 Notation "[ ]" := nil.
-Notation "[ x , .. , y … l ]" := (cons x .. (cons y l) ..).
+Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
 Record Qpos := { x : Q; pos : x > 0 }.
@@ -34,22 +34,24 @@ Definition slope_expr α pt₁ pt₂ :=
   let v₂ := valuation α (snd pt₂) in
   (v₂ - v₁) / Qnat (fst pt₂ - fst pt₁).
 
-Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
-  let sl₁₂ := slope_expr α pt₁ pt₂ in
-  match pts₂ with
-  | [pt₃ … pts₃] =>
-      let ms := minimise_slope α pt₁ pt₃ pts₃ in
-      if Qle_bool (slope ms) sl₁₂ then
-        let seg :=
-          if Qeq_bool (slope ms) sl₁₂ then [pt₂ … seg ms]
-          else seg ms
-        in
-        {| slope := slope ms; end_pt := end_pt ms; seg := seg;
-           rem_pts := rem_pts ms |}
-      else
-        {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
+Fixpoint minimise_slope α pt₁ pt₃ pts₃ :=
+  let sl₁₂ := slope_expr α pt₁ pt₃ in
+  match pts₃ with
   | [] =>
-      {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
+      {| slope := sl₁₂; end_pt := pt₃; seg := [];
+         rem_pts := [] |}
+  | [pt₄ … pts₄] =>
+      let ms := minimise_slope α pt₁ pt₄ pts₄ in
+      match Qcompare sl₁₂ (slope ms) with
+      | Eq =>
+          {| slope := slope ms; end_pt := end_pt ms;
+             seg := [pt₃ … seg ms]; rem_pts := rem_pts ms |}
+      | Lt =>
+          {| slope := sl₁₂; end_pt := pt₃; seg := [];
+             rem_pts := pts₃ |}
+      | Gt =>
+          ms
+      end
   end.
 
 Fixpoint next_ch_points α n pts :=
@@ -57,14 +59,14 @@ Fixpoint next_ch_points α n pts :=
   | O => []
   | S n =>
       match pts with
-      | [pt₁, pt₂ … pts₂] =>
+      | [] =>
+          []
+      | [pt₁] =>
+          [(pt₁, [])]
+      | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope α pt₁ pt₂ pts₂ in
           let chl := next_ch_points α n [end_pt ms … rem_pts ms] in
           [(pt₁, seg ms) … chl]
-      | [pt₁] =>
-          [(pt₁, [])]
-      | [] =>
-          []
       end
   end.
 

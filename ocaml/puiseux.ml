@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.199 2013-04-20 20:07:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.200 2013-04-21 01:01:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -28,6 +28,15 @@ Definition valuation_coeff α f (ps : puiseux_series α) :=
   end
 ;
 
+type comparison = [ Lt | Eq | Gt ];
+
+value qcompare q₁ q₂ =
+  let c = Q.compare q₁ q₂ in
+  if c < 0 then Lt
+  else if c = 0 then Eq
+  else Gt
+;
+
 value qnat i = Q.of_i (I.of_int i);
 
 Record min_sl α :=
@@ -41,27 +50,23 @@ Definition slope_expr α pt₁ pt₂ :=
   let v₂ := valuation α (snd pt₂) in
   Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁)));
 
-Fixpoint minimise_slope α pt₁ pts₁ :=
-  match pts₁ with
-  | [] => None
-  | [pt₂ :: pts₂] =>
-      let sl₁₂ := slope_expr α pt₁ pt₂ in
-      match minimise_slope α pt₁ pts₂ with
-      | None =>
-          Some {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
-      | Some ms =>
-          if Qle_bool (slope ms) sl₁₂ then
-            let seg :=
-              if Qeq_bool (slope ms) sl₁₂ then [pt₂ :: seg ms]
-              else seg ms
-            in
-            Some
-              {| slope := slope ms; end_pt := end_pt ms; seg := seg;
-                 rem_pts := rem_pts ms |}
-          else
-            Some
-              {| slope := sl₁₂; end_pt := pt₂; seg := [];
-                 rem_pts := pts₂ |}
+Fixpoint minimise_slope α pt₁ pt₃ pts₃ :=
+  let sl₁₂ := slope_expr α pt₁ pt₃ in
+  match pts₃ with
+  | [] =>
+      {| slope := sl₁₂; end_pt := pt₃; seg := [];
+         rem_pts := [] |}
+  | [pt₄ :: pts₄] =>
+      let ms := minimise_slope α pt₁ pt₄ pts₄ in
+      match Qcompare sl₁₂ (slope ms) with
+      | Eq =>
+          {| slope := slope ms; end_pt := end_pt ms;
+             seg := [pt₃ :: seg ms]; rem_pts := rem_pts ms |}
+      | Lt =>
+          {| slope := sl₁₂; end_pt := pt₃; seg := [];
+             rem_pts := pts₃ |}
+      | Gt =>
+          ms
       end
   end;
 
@@ -70,16 +75,14 @@ Fixpoint next_ch_points α n pts :=
   | O => []
   | S n =>
       match pts with
-      | [pt₁ :: pts₁] =>
-          match minimise_slope α pt₁ pts₁ with
-          | None =>
-              [(pt₁, [])]
-          | Some ms =>
-              let chl := next_ch_points α n [end_pt ms :: rem_pts ms] in
-              [(pt₁, seg ms) :: chl]
-          end
       | [] =>
           []
+      | [pt₁] =>
+          [(pt₁, [])]
+      | [pt₁; pt₂ :: pts₂] =>
+          let ms := minimise_slope α pt₁ pt₂ pts₂ in
+          let chl := next_ch_points α n [end_pt ms :: rem_pts ms] in
+          [(pt₁, seg ms) :: chl]
       end
   end;
 
