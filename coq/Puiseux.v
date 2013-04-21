@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.227 2013-04-21 03:25:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.228 2013-04-21 03:41:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -795,10 +795,18 @@ do 2 rewrite Z.opp_involutive.
 assumption.
 Qed.
 
-Lemma xxx : ∀ x i, (0 < i)%nat → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
+Lemma Qdiv_nat : ∀ x i,
+  (0 < i)%nat
+  → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
 Proof.
 intros x i Hi.
-bbb.
+destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
+unfold Qnat, Qeq.
+f_equal; [ apply Z.mul_1_r | f_equal; f_equal ].
+unfold Qdiv, Qmult.
+f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
+induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
+Qed.
 
 Lemma yyy : ∀ i j k x y z,
   i < j < k
@@ -807,6 +815,9 @@ Lemma yyy : ∀ i j k x y z,
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
+rewrite Qdiv_nat in H.
+ rewrite Qdiv_nat in H.
+  rewrite Qdiv_nat.
 bbb.
 
 Lemma yyy : ∀ a b i j k x y z,
