@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.228 2013-04-21 03:41:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.229 2013-04-21 07:14:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -818,6 +818,7 @@ intros i j k x y z (Hij, Hjk) H.
 rewrite Qdiv_nat in H.
  rewrite Qdiv_nat in H.
   rewrite Qdiv_nat.
+Admitted. (*
 bbb.
 
 Lemma yyy : ∀ a b i j k x y z,
@@ -956,7 +957,14 @@ destruct Hips as [Hips| Hips].
    destruct Hnips as (Hii, Hnips).
    exfalso; apply Hii; reflexivity.
 
-   Focus 2.
+   subst ms; simpl in Hsort₂, Hnp, Hnips, Hms.
+   apply next_ch_points_hd in Hnp.
+   symmetry in Hnp.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (_, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips; contradiction.
+
    subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
    destruct Hms as [Hms| Hms].
     destruct pt₁ as (l, lps).
