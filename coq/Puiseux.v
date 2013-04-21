@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.233 2013-04-21 09:23:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.234 2013-04-21 10:15:52 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -941,7 +941,7 @@ Proof.
 intros α n j jps k kps segjk segkx pts lch β γ.
 intros Hsort Hsort₂ Hβ Hγ Hnp i ips Hips Hnips.
 revert pts lch Hsort Hsort₂ Hnp i ips Hips Hnips.
-induction n; intros; [ discriminate Hnp | simpl in Hnp ].
+destruct n; intros; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
 injection Hnp; clear Hnp; intros; subst pt₁.
@@ -952,6 +952,18 @@ symmetry in Heqms.
 destruct Hips as [| Hips].
  apply Decidable.not_or in Hnips.
  destruct Hnips; contradiction.
+
+ rename H into Hnp.
+ rename Heqms into Hms.
+ revert ms segkx lch pts Hsort₂ Hnp i ips Hips Hnips Hsort Hms.
+ induction n; intros; [ discriminate Hnp | idtac ].
+ simpl in Hnp.
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₁].
+  injection Hnp; clear Hnp; intros; subst lch segkx.
+  eapply IHn; try eassumption.
+  rewrite <- Heqpts₁, H1.
+  destruct n; [ idtac | reflexivity ].
 
 bbb.
 
