@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.230 2013-04-21 07:25:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.231 2013-04-21 08:12:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -912,6 +912,20 @@ apply Qmult_lt_compat_r with (z := Qnat (j - i)) in H.
 bbb.
 *)
 
+(*
+Lemma xxx : ∀ α pt₁ pt₂ pt₃ pts ms,
+  minimise_slope α pt₁ pt₂ pts = ms
+  → slope ms < slope_expr α pt₁ pt₃
+    → minimise_slope α pt₁ pt₃ pts = ms.
+Proof.
+intros α pt₁ pt₂ pt₃ pts ms Hms Hlt.
+revert pt₁ pt₂ pt₃ ms Hms Hlt.
+induction pts as [| pt]; intros.
+ subst ms; simpl.
+ simpl in Hlt.
+bbb.
+*)
+
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → LocallySorted fst_fst_lt [(j, jps, seg ms); (k, kps, segkx) … lch]
@@ -966,37 +980,32 @@ destruct Hips as [Hips| Hips].
    destruct Hnips; contradiction.
 
    subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+   destruct pt₁ as (l, lps).
+   symmetry in Heqms₁.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hji, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hki, Hnips).
+   symmetry in Heqc.
+   apply Qgt_alt in Heqc.
+   remember Hnp as Hnp₁; clear HeqHnp₁.
+   apply next_ch_points_hd in Hnp.
+   rewrite Hnp in Hms.
+   unfold slope_expr in Heqc.
+   simpl in Heqc.
+   symmetry in Hnp.
+   eapply minimised_slope in Heqms₁; try eassumption.
+   rewrite Heqms₁ in Heqc.
+   subst β γ.
+   apply yyy; [ idtac | assumption ].
+   split; inversion Hsort; subst a b l0; [ assumption | idtac ].
    destruct Hms as [Hms| Hms].
-    destruct pt₁ as (l, lps).
-    symmetry in Heqms₁.
-    apply Decidable.not_or in Hnips.
-    destruct Hnips as (Hji, Hnips).
-    apply Decidable.not_or in Hnips.
-    destruct Hnips as (Hki, Hnips).
-    symmetry in Heqc.
-    apply Qgt_alt in Heqc.
-    remember Hnp as Hnp₁; clear HeqHnp₁.
-    apply next_ch_points_hd in Hnp.
-    rewrite Hnp in Hms.
     injection Hms; clear Hms; intros; subst l lps.
-    unfold slope_expr in Heqc.
-    simpl in Heqc.
-    symmetry in Hnp.
-    eapply minimised_slope in Heqms₁; try eassumption.
-    rewrite Heqms₁ in Heqc.
-    subst β γ.
-    apply yyy; [ idtac | assumption ].
-    split; inversion Hsort; [ idtac | inversion H1 ]; assumption.
+    inversion H1; assumption.
 
-    symmetry in Heqms₁.
-    eapply IHpts; try eassumption.
-     constructor.
-      inversion Hsort; subst a b l; inversion H1; subst a b l.
-      inversion H2; subst a pts; [ constructor | idtac ].
-      constructor; [ assumption | idtac ].
-      eapply lt_trans; eassumption.
-
-      inversion Hsort; subst a b l; assumption.
+    inversion H1; subst a b l0.
+    eapply lt_trans; [ eassumption | idtac ].
+    simpl.
 bbb.
 *)
 
