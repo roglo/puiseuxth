@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.235 2013-04-21 11:42:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.236 2013-04-21 11:55:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -977,6 +977,28 @@ destruct Hips as [| Hips].
    simpl in Hms.
    subst ms; simpl in Heqpts₁, Hnips, Hsort₂, Heqms₁, Hnp.
    discriminate Heqpts₁.
+
+  simpl in Hms.
+  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+  remember (slope_expr α (j, jps) pt₂ ?= slope ms₁) as c.
+  destruct c.
+   subst ms; simpl in Hnips, Hsort₂, Hnp.
+   destruct Hips as [Hips| Hips].
+    subst pt₂.
+    apply Decidable.not_or in Hnips.
+    destruct Hnips as (Hji, Hnips).
+    apply Decidable.not_or in Hnips.
+    destruct Hnips as (Hki, Hnips).
+    apply Decidable.not_or in Hnips.
+    destruct Hnips as (Hii, Hnips).
+    exfalso; apply Hii; reflexivity.
+
+    destruct Hips as [Hips| Hips].
+     subst pt₁.
+     symmetry in Heqc.
+     apply Qeq_alt in Heqc.
+     unfold slope_expr in Heqc.
+     simpl in Heqc.
 bbb.
 
 (*
