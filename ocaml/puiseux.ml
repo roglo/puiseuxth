@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.202 2013-04-21 01:37:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.203 2013-04-21 01:37:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -73,10 +73,8 @@ Fixpoint next_ch_points α n pts :=
   | O => []
   | S n =>
       match pts with
-      | [] =>
-          []
-      | [pt₁] =>
-          [(pt₁, [])]
+      | [] => []
+      | [pt₁] => [(pt₁, [])]
       | [pt₁; pt₂ :: pts₂] =>
           let ms := minimise_slope α pt₁ pt₂ pts₂ in
           let chl := next_ch_points α n [end_pt ms :: rem_pts ms] in
