@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.237 2013-04-21 15:34:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.238 2013-04-21 16:03:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1005,6 +1005,7 @@ destruct Hips as [| Hips].
 bbb.
 *)
 
+(*
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → LocallySorted fst_fst_lt [(j, jps, seg ms); (k, kps, segkx) … lch]
@@ -1087,7 +1088,9 @@ destruct Hips as [Hips| Hips].
     eapply lt_trans; [ eassumption | idtac ].
     eapply LocallySorted_hd in H2; [ idtac | eassumption ].
     assumption.
+
 bbb.
+*)
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
   LocallySorted fst_lt pts
@@ -1111,7 +1114,8 @@ eapply zzz; eassumption.
 qed.
 *)
 
-destruct n; [ discriminate Hnp | idtac ].
+revert pts lch Hsort Hsort₂ Heqn Hnp i ips Hips Hnips.
+induction n; intros; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
@@ -1121,13 +1125,88 @@ remember (minimise_slope α (j, jps) pt₂ pts) as ms.
 subst segjk.
 symmetry in Heqms.
 simpl in Heqn; apply eq_add_S in Heqn.
-eapply zzz; try eassumption.
-destruct Hips as [Hips| Hips]; [ idtac | assumption ].
-injection Hips; clear Hips; intros; subst i ips.
-simpl in Hnips.
-apply Decidable.not_or in Hnips.
-destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
+destruct Hips as [Hips| Hips].
+ injection Hips; clear Hips; intros; subst i ips.
+ simpl in Hnips.
+ apply Decidable.not_or in Hnips.
+ destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
+
+ rename pt₂ into pt.
+ rename Heqms into Hms.
+ rename H into Hnp.
+ rename Heqn into Hn.
+(*
+ eapply zzz; try eassumption.
 qed.
+*)
+destruct Hips as [Hips| Hips].
+ subst pt.
+ remember Hms as Hms₂; clear HeqHms₂.
+ apply min_sl_in in Hms.
+ simpl in Hms.
+ destruct Hms as [Hms| Hms].
+  rewrite <- Hms in Hnp.
+  apply next_ch_points_hd in Hnp.
+  rewrite Hnp in Hnips.
+  simpl in Hnips.
+  apply Decidable.not_or in Hnips.
+  destruct Hnips as (Hjk, Hnips).
+  apply Decidable.not_or in Hnips.
+  destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
+
+  clear IHn.
+  revert ms segkx lch n Hsort₂ Hn Hnp i ips Hnips Hsort Hms Hms₂.
+  induction pts as [| pt₁]; intros; [ contradiction | idtac ].
+  simpl in Hms₂.
+  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+  remember (slope_expr α (j, jps) (i, ips) ?= slope ms₁) as c.
+  destruct c.
+   subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hji, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hki, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hii, Hnips).
+   exfalso; apply Hii; reflexivity.
+
+   subst ms; simpl in Hsort₂, Hnp, Hnips, Hms.
+   apply next_ch_points_hd in Hnp.
+   symmetry in Hnp.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (_, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips; contradiction.
+
+   subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
+   destruct pt₁ as (l, lps).
+   symmetry in Heqms₁.
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hji, Hnips).
+   apply Decidable.not_or in Hnips.
+   destruct Hnips as (Hki, Hnips).
+   symmetry in Heqc.
+   apply Qgt_alt in Heqc.
+   remember Hnp as Hnp₁; clear HeqHnp₁.
+   apply next_ch_points_hd in Hnp.
+   rewrite Hnp in Hms.
+   unfold slope_expr in Heqc.
+   simpl in Heqc.
+   symmetry in Hnp.
+   eapply minimised_slope in Heqms₁; try eassumption.
+   rewrite Heqms₁ in Heqc.
+   subst β γ.
+   apply yyy; [ idtac | assumption ].
+   split; inversion Hsort; subst a b l0; [ assumption | idtac ].
+   destruct Hms as [Hms| Hms].
+    injection Hms; clear Hms; intros; subst l lps.
+    inversion H1; assumption.
+
+    inversion H1; subst a b l0.
+    eapply lt_trans; [ eassumption | idtac ].
+    eapply LocallySorted_hd in H2; [ idtac | eassumption ].
+    assumption.
+bbb.
 
 Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
