@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.232 2013-04-21 08:37:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.233 2013-04-21 09:23:06 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -927,6 +927,35 @@ inversion H1; subst a pts; [ constructor | idtac ].
 constructor; [ inversion H1 | eapply lt_trans ]; eassumption.
 Qed.
 
+Lemma zzz : ∀ α n j jps k kps segjk segkx pts lch β γ,
+  LocallySorted fst_lt pts
+  → LocallySorted fst_fst_lt [(j, jps, segjk); (k, kps, segkx) … lch]
+    → β = valuation α jps + Qnat j * γ
+      → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+        → next_ch_points α n pts = [(j, jps, segjk); (k, kps, segkx) … lch]
+          → ∀ i ips,
+            (i, ips) ∈ pts
+            → (i, ips) ∉ [(j, jps); (k, kps) … segjk]
+              → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α n j jps k kps segjk segkx pts lch β γ.
+intros Hsort Hsort₂ Hβ Hγ Hnp i ips Hips Hnips.
+revert pts lch Hsort Hsort₂ Hnp i ips Hips Hnips.
+induction n; intros; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst pt₁.
+rename H0 into Hjk.
+remember (minimise_slope α (j, jps) pt₂ pts) as ms.
+subst segjk.
+symmetry in Heqms.
+destruct Hips as [| Hips].
+ apply Decidable.not_or in Hnips.
+ destruct Hnips; contradiction.
+
+bbb.
+
+(*
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → LocallySorted fst_fst_lt [(j, jps, seg ms); (k, kps, segkx) … lch]
@@ -1028,6 +1057,9 @@ intros Hsort Hsort₂ Hβ Hγ Hch i ips Hips Hnips.
 unfold lower_convex_hull_points in Hch.
 remember (length pts) as n; clear Heqn.
 rename Hch into Hnp.
+eapply zzz; eassumption.
+qed.
+
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
