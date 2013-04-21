@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.203 2013-04-21 01:37:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.204 2013-04-21 20:38:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -48,7 +48,7 @@ Record min_sl α :=
 Definition slope_expr α pt₁ pt₂ :=
   let v₁ := valuation α (snd pt₁) in
   let v₂ := valuation α (snd pt₂) in
-  Q.norm (Q.div (Q.sub v₂ v₁) (qnat (fst pt₂ - fst pt₁)));
+  Q.norm (Qdiv (Qminus v₂ v₁) (Qnat (fst pt₂ - fst pt₁)));
 
 Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr α pt₁ pt₂ in
