@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.231 2013-04-21 08:12:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.232 2013-04-21 08:37:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -912,19 +912,20 @@ apply Qmult_lt_compat_r with (z := Qnat (j - i)) in H.
 bbb.
 *)
 
-(*
-Lemma xxx : ∀ α pt₁ pt₂ pt₃ pts ms,
-  minimise_slope α pt₁ pt₂ pts = ms
-  → slope ms < slope_expr α pt₁ pt₃
-    → minimise_slope α pt₁ pt₃ pts = ms.
+Lemma LocallySorted_hd {α} : ∀ (pt₁ pt₂ : nat * α) pts,
+  LocallySorted fst_lt [pt₁ … pts]
+  → pt₂ ∈ pts
+    → (fst pt₁ < fst pt₂)%nat.
 Proof.
-intros α pt₁ pt₂ pt₃ pts ms Hms Hlt.
-revert pt₁ pt₂ pt₃ ms Hms Hlt.
-induction pts as [| pt]; intros.
- subst ms; simpl.
- simpl in Hlt.
-bbb.
-*)
+intros pt₁ pt₂ pts Hsort Hpt.
+revert pt₁ pt₂ Hsort Hpt.
+induction pts as [| pt]; intros; [ contradiction | idtac ].
+destruct Hpt as [| Hpt]; [ subst pt; inversion Hsort; assumption | idtac ].
+eapply IHpts; [ idtac | eassumption ].
+inversion Hsort; subst a b l.
+inversion H1; subst a pts; [ constructor | idtac ].
+constructor; [ inversion H1 | eapply lt_trans ]; eassumption.
+Qed.
 
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps); pt … pts]
@@ -1005,7 +1006,8 @@ destruct Hips as [Hips| Hips].
 
     inversion H1; subst a b l0.
     eapply lt_trans; [ eassumption | idtac ].
-    simpl.
+    eapply LocallySorted_hd in H2; [ idtac | eassumption ].
+    assumption.
 bbb.
 *)
 
