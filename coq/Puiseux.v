@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.236 2013-04-21 11:55:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.237 2013-04-21 15:34:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -808,7 +808,6 @@ f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
 induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
-(*
 Lemma yyy : ∀ i j k x y z,
   i < j < k
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -819,8 +818,11 @@ intros i j k x y z (Hij, Hjk) H.
 rewrite Qdiv_nat in H.
  rewrite Qdiv_nat in H.
   rewrite Qdiv_nat.
+Admitted. (*
 bbb.
+*)
 
+(*
 Lemma yyy : ∀ a b i j k x y z,
   i < j < k
   → a = (x - y) / Qnat (k - i)
@@ -927,6 +929,7 @@ inversion H1; subst a pts; [ constructor | idtac ].
 constructor; [ inversion H1 | eapply lt_trans ]; eassumption.
 Qed.
 
+(*
 Lemma zzz : ∀ α n j jps k kps segjk segkx pts lch β γ,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, segjk); (k, kps, segkx) … lch]
@@ -1000,23 +1003,24 @@ destruct Hips as [| Hips].
      unfold slope_expr in Heqc.
      simpl in Heqc.
 bbb.
+*)
 
-(*
 Lemma zzz : ∀ α j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → LocallySorted fst_fst_lt [(j, jps, seg ms); (k, kps, segkx) … lch]
     → β = valuation α jps + Qnat j * γ
       → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-        → minimise_slope α (j, jps) pt pts = ms
-          → next_ch_points α n [end_pt ms … rem_pts ms] =
-              [(k, kps, segkx) … lch]
-            → ∀ i ips,
-              (i, ips) ∈ [pt … pts]
-              → (i, ips) ∉ [(j, jps); (k, kps) … seg ms]
-                → β < valuation α ips + Qnat i * γ.
+        → n = S (length pts)
+          → minimise_slope α (j, jps) pt pts = ms
+            → next_ch_points α n [end_pt ms … rem_pts ms] =
+                [(k, kps, segkx) … lch]
+              → ∀ i ips,
+                (i, ips) ∈ [pt … pts]
+                → (i, ips) ∉ [(j, jps); (k, kps) … seg ms]
+                  → β < valuation α ips + Qnat i * γ.
 Proof.
 intros α j jps k kps β γ pt pts ms segkx lch n.
-intros Hsort Hsort₂ Hβ Hγ Hms Hnp i ips Hips Hnips.
+intros Hsort Hsort₂ Hβ Hγ Hn Hms Hnp i ips Hips Hnips.
 destruct Hips as [Hips| Hips].
  subst pt.
  remember Hms as Hms₂; clear HeqHms₂.
@@ -1032,7 +1036,7 @@ destruct Hips as [Hips| Hips].
   apply Decidable.not_or in Hnips.
   destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
 
-  revert ms segkx lch n Hsort₂ Hnp i ips Hnips Hsort Hms Hms₂.
+  revert ms segkx lch n Hsort₂ Hn Hnp i ips Hnips Hsort Hms Hms₂.
   induction pts as [| pt₁]; intros; [ contradiction | idtac ].
   simpl in Hms₂.
   remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
@@ -1084,7 +1088,6 @@ destruct Hips as [Hips| Hips].
     eapply LocallySorted_hd in H2; [ idtac | eassumption ].
     assumption.
 bbb.
-*)
 
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
   LocallySorted fst_lt pts
@@ -1101,10 +1104,12 @@ Proof.
 intros α pts j jps k kps γ β segjk segkx lch.
 intros Hsort Hsort₂ Hβ Hγ Hch i ips Hips Hnips.
 unfold lower_convex_hull_points in Hch.
-remember (length pts) as n; clear Heqn.
+remember (length pts) as n. (*; clear Heqn.*)
 rename Hch into Hnp.
+(*
 eapply zzz; eassumption.
 qed.
+*)
 
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
@@ -1115,14 +1120,14 @@ rename H0 into Hjk.
 remember (minimise_slope α (j, jps) pt₂ pts) as ms.
 subst segjk.
 symmetry in Heqms.
+simpl in Heqn; apply eq_add_S in Heqn.
 eapply zzz; try eassumption.
 destruct Hips as [Hips| Hips]; [ idtac | assumption ].
 injection Hips; clear Hips; intros; subst i ips.
 simpl in Hnips.
 apply Decidable.not_or in Hnips.
 destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
-bbb.
-*)
+qed.
 
 Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
@@ -1152,7 +1157,8 @@ apply points_of_polyn_sorted in Hpts.
 symmetry in Heqlch.
 eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
 apply points_of_polyn_sorted in Hpts₂.
-bbb.
+eapply not_in_newt_segm; try eassumption.
+qed.
 
 (*
 Lemma xxx : ∀ α fld deg cl cn pts c j jps k kps jk kx lch γ β,
