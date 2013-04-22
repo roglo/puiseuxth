@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.251 2013-04-22 15:54:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.252 2013-04-22 17:20:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -550,6 +550,11 @@ induction pts as [| pt₁]; intros.
  remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
  symmetry in Heqms₁.
  destruct c; subst ms; simpl in Hkps |- *.
+(*
+  symmetry in Heqc.
+  apply Qeq_alt in Heqc.
+  rewrite Heqc.
+*)
   eapply IHpts; eassumption.
 
   destruct pt as (l, lps).
@@ -974,18 +979,45 @@ destruct Hhps as [Hhps| Hhps].
   apply le_not_lt in Heqms₁.
   contradiction.
 
-bbb.
-  revert n pt₁ pts Hsort Hhps Heqms₁ Hnp.
-  induction lch as [| ch_pt]; intros; [ contradiction | idtac ].
-  destruct Hhch as [Hhch| Hhch].
-   clear IHlch.
-   Focus 2.
-   destruct n; [ discriminate Hnp | idtac ].
-   simpl in Hnp.
-   remember (rem_pts ms₁) as pts₂.
-   destruct pts₂ as [| pt₂]; [ discriminate Hnp | idtac ].
-   remember (minimise_slope α (end_pt ms₁) pt₂ pts₂) as ms₂.
-   injection Hnp; clear Hnp; intros; subst segkx.
+  remember Heqms₁ as H; clear HeqH.
+  symmetry in H.
+  symmetry in Hep₁.
+  apply min_sl_in in H.
+  rewrite <- Hep₁ in H.
+  destruct H as [Hk| Hk].
+   subst pt₁.
+   clear Hsort₂.
+   clear Hnp.
+   revert ms₁ Hep₁ Heqms₁.
+   induction pts as [| pt₂]; intros; [ contradiction | idtac ].
+   destruct Hhps as [| Hhps]; [ subst pt₂; clear IHpts | idtac ].
+    simpl in Heqms₁.
+    remember (minimise_slope α (j, jps) (h, hps) pts) as ms₂.
+    remember (slope_expr α (j, jps) (k, kps) ?= slope ms₂) as c.
+    destruct c.
+     subst ms₁.
+     simpl in Hep₁.
+     symmetry in Heqms₂.
+     apply minimise_slope_le in Heqms₂.
+      rewrite <- Hep₁ in Heqms₂.
+      apply le_not_lt in Heqms₂.
+      contradiction.
+
+      inversion Hsort; inversion H1; assumption.
+
+     subst ms₁; simpl in Hep₁.
+     clear Hep₁.
+     symmetry in Heqc.
+     apply Qlt_alt in Heqc.
+     symmetry in Heqms₂.
+     (* suite : démontrer que si :
+          (h, hps) ∈ List.map (pt_of_ch α) lch
+        alors :
+          minimise_slope α (j, jps) (h, hps) pts = ms₂
+        et appliquer :
+          minimised_slope.
+
+        ah oui, mais je n'ai plus lch, crotte. *)
 
 bbb.
 
