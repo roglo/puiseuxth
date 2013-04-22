@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.254 2013-04-22 18:30:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.255 2013-04-22 19:38:36 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -938,15 +938,53 @@ Definition pt_of_ch α
     (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
   fst item.
 
-Lemma yyy : ∀ α n pts lch j jps k kps h hps ms segkx,
-  next_ch_points α n [(k, kps); (h, hps) … pts] =
-        [(k, kps, segkx) … lch]
+Lemma yyy : ∀ α n pt₁ pts₁ lch j jps k kps h hps ms segkx,
+  next_ch_points α n [(k, kps); pt₁ … pts₁] = [(k, kps, segkx) … lch]
    → (h, hps) ∈ List.map (pt_of_ch α) lch
-     → minimise_slope α (j, jps) (h, hps) pts = ms
+     → minimise_slope α (j, jps) pt₁ pts₁ = ms
        → end_pt ms = (h, hps).
 Proof.
-intros α n pts lch j jps k kps h hps ms segkx Hnp Hhps Hms.
+intros α n pt₁ pts₁ lch j jps k kps h hps ms segkx Hnp Hhps Hms.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+inversion Hnp; clear Hnp; intros; subst segkx.
+remember (minimise_slope α (k, kps) pt₁ pts₁) as ms₁.
+symmetry in Heqms₁.
+revert n pt₁ lch ms ms₁ Hhps Hms Heqms₁ H1.
+induction pts₁ as [| pt₂]; intros.
+ simpl in Hms.
+ subst ms; simpl.
+ simpl in Heqms₁.
+ subst ms₁.
+ simpl in H1.
+ destruct n.
+  simpl in H1.
+  subst lch; contradiction.
+
+  simpl in H1.
+  subst lch.
+  simpl in Hhps.
+  destruct Hhps; [ assumption | contradiction ].
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt₂ pts₁) as ms₂.
+ symmetry in Heqms₂.
+ remember (slope_expr α (j, jps) pt₁ ?= slope ms₂) as c.
+ destruct c.
+  subst ms; simpl.
+  simpl in Heqms₁.
+  remember (minimise_slope α (k, kps) pt₂ pts₁) as ms₃.
+  symmetry in Heqms₃.
+  remember (slope_expr α (k, kps) pt₁ ?= slope ms₃) as c.
+  destruct c.
+   subst ms₁.
+   simpl in H1.
+   eapply IHpts₁; try eassumption.
+
+   subst ms₁.
+   simpl in H1.
 bbb.
+*)
 
 Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
