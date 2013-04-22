@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.246 2013-04-22 10:20:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.247 2013-04-22 14:18:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -808,6 +808,7 @@ f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
 induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
+(*
 Lemma yyy : ∀ i j k x y z,
   i ≠ j ∧ i ≠ k
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -818,7 +819,6 @@ intros i j k x y z (Hij, Hik) H.
 rewrite Qdiv_nat in H.
  rewrite Qdiv_nat in H.
   rewrite Qdiv_nat.
-Admitted. (*
 bbb.
 *)
 
@@ -948,6 +948,7 @@ Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
 Proof.
 intros α n pts j jps k kps segjk segkx lch γ β.
 intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
+bbb.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
