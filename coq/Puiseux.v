@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.238 2013-04-21 16:03:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.239 2013-04-22 04:10:36 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -928,6 +928,52 @@ inversion Hsort; subst a b l.
 inversion H1; subst a pts; [ constructor | idtac ].
 constructor; [ inversion H1 | eapply lt_trans ]; eassumption.
 Qed.
+
+Lemma zzz : ∀ α pts j jps k kps seg seg₂ lch γ β,
+  LocallySorted fst_lt pts
+  → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → β = valuation α jps + Qnat j * γ
+        → ∀ i ips,
+          (k < i)%nat
+          → (i, ips) ∈ pts
+            → lower_convex_hull_points α pts =
+                [(j, jps, seg); (k, kps, seg₂) … lch]
+              → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α pts j jps k kps segjk segkx lch γ β.
+intros Hsort Hsort₂ Hγ Hβ i ips Hki Hips Hch.
+bbb.
+
+Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
+  pts = points_of_ps_polynom α fld pol
+  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
+    → ∀ i ips,
+       (i, ips) ∈ pts
+       → (k < i)%nat
+         → β < valuation α ips + Qnat i * γ.
+Proof.
+intros α fld pol pts γ β j jps k kps seg Hpts Hgb i ip Hips Hki.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+remember Hpts as Hpts₂; clear HeqHpts₂.
+unfold points_of_ps_polynom in Hpts₂.
+rewrite <- Hpts₂ in Hgb.
+remember (lower_convex_hull_points α pts) as lch.
+destruct lch as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
+destruct lch as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros; subst l lps m mps seg₁.
+rename H4 into Hβ.
+rename H5 into Hγ.
+rewrite Hγ in Hβ.
+symmetry in Hβ, Hγ.
+unfold points_of_ps_polynom in Hpts.
+apply points_of_polyn_sorted in Hpts.
+symmetry in Heqlch.
+eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+apply points_of_polyn_sorted in Hpts₂.
+eapply zzz; eassumption.
+qed.
 
 (*
 Lemma zzz : ∀ α n j jps k kps segjk segkx pts lch β γ,
