@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.253 2013-04-22 17:25:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.254 2013-04-22 18:30:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -938,6 +938,16 @@ Definition pt_of_ch α
     (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
   fst item.
 
+Lemma yyy : ∀ α n pts lch j jps k kps h hps ms segkx,
+  next_ch_points α n [(k, kps); (h, hps) … pts] =
+        [(k, kps, segkx) … lch]
+   → (h, hps) ∈ List.map (pt_of_ch α) lch
+     → minimise_slope α (j, jps) (h, hps) pts = ms
+       → end_pt ms = (h, hps).
+Proof.
+intros α n pts lch j jps k kps h hps ms segkx Hnp Hhps Hms.
+bbb.
+
 Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
@@ -1009,13 +1019,7 @@ destruct Hhps as [Hhps| Hhps].
      symmetry in Heqc.
      apply Qlt_alt in Heqc.
      symmetry in Heqms₂.
-     (* suite : faire un lemme pour démontrer que si :
-          (h, hps) ∈ List.map (pt_of_ch α) lch
-        alors :
-          minimise_slope α (j, jps) (h, hps) pts = ms₂
-        et appliquer :
-          eapply minimised_slope in Heqms₂. *)
-
+     eapply yyy in Hnp; try eassumption.
 bbb.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
