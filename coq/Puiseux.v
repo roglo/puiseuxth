@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.252 2013-04-22 17:20:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.253 2013-04-22 17:25:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -987,8 +987,7 @@ destruct Hhps as [Hhps| Hhps].
   destruct H as [Hk| Hk].
    subst pt₁.
    clear Hsort₂.
-   clear Hnp.
-   revert ms₁ Hep₁ Heqms₁.
+   revert ms₁ Hep₁ Heqms₁ Hnp.
    induction pts as [| pt₂]; intros; [ contradiction | idtac ].
    destruct Hhps as [| Hhps]; [ subst pt₂; clear IHpts | idtac ].
     simpl in Heqms₁.
@@ -1005,19 +1004,17 @@ destruct Hhps as [Hhps| Hhps].
 
       inversion Hsort; inversion H1; assumption.
 
-     subst ms₁; simpl in Hep₁.
+     subst ms₁; simpl in Hep₁, Hnp.
      clear Hep₁.
      symmetry in Heqc.
      apply Qlt_alt in Heqc.
      symmetry in Heqms₂.
-     (* suite : démontrer que si :
+     (* suite : faire un lemme pour démontrer que si :
           (h, hps) ∈ List.map (pt_of_ch α) lch
         alors :
           minimise_slope α (j, jps) (h, hps) pts = ms₂
         et appliquer :
-          minimised_slope.
-
-        ah oui, mais je n'ai plus lch, crotte. *)
+          eapply minimised_slope in Heqms₂. *)
 
 bbb.
 
