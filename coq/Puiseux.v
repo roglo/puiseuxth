@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.239 2013-04-22 04:10:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.240 2013-04-22 04:26:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -929,7 +929,7 @@ inversion H1; subst a pts; [ constructor | idtac ].
 constructor; [ inversion H1 | eapply lt_trans ]; eassumption.
 Qed.
 
-Lemma zzz : ∀ α pts j jps k kps seg seg₂ lch γ β,
+Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -937,12 +937,28 @@ Lemma zzz : ∀ α pts j jps k kps seg seg₂ lch γ β,
         → ∀ i ips,
           (k < i)%nat
           → (i, ips) ∈ pts
-            → lower_convex_hull_points α pts =
+            → next_ch_points α n pts =
                 [(j, jps, seg); (k, kps, seg₂) … lch]
               → β < valuation α ips + Qnat i * γ.
 Proof.
-intros α pts j jps k kps segjk segkx lch γ β.
-intros Hsort Hsort₂ Hγ Hβ i ips Hki Hips Hch.
+intros α n pts j jps k kps segjk segkx lch γ β.
+intros Hsort Hsort₂ Hγ Hβ i ips Hki Hips Hnp.
+revert pts lch Hsort Hsort₂ i ips Hki Hips Hnp.
+induction n; intros; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+injection Hnp; clear Hnp; intros; subst pt₁.
+destruct Hips as [Hips| Hips].
+ inversion Hsort; subst a b l.
+ apply next_ch_points_hd in H.
+ symmetry in Heqms₁.
+ eapply minimise_slope_le in Heqms₁; [ idtac | eassumption ].
+ rewrite H in Heqms₁.
+ injection Hips; clear Hips; intros; subst i ips.
+ apply le_not_lt in Heqms₁.
+ exfalso; apply Heqms₁; simpl.
+ eapply lt_trans; eassumption.
 bbb.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
