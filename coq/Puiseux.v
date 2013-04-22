@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.247 2013-04-22 14:18:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.248 2013-04-22 14:40:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -948,7 +948,6 @@ Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
 Proof.
 intros α n pts j jps k kps segjk segkx lch γ β.
 intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
-bbb.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
@@ -973,51 +972,7 @@ destruct Hhps as [Hhps| Hhps].
   remember (rem_pts ms₁) as pts₁.
   destruct pts₁ as [| pt₁].
    injection Hnp; clear Hnp; intros; subst segkx lch.
-   clear n.
-   revert pts h hps ms₁ Hkh Hhch Heqpts₁ Hsort Heqms₁ H1 Hsort₂.
-   induction pts as [| pt]; intros.
-    simpl in Heqms₁; subst ms₁.
-    simpl in Heqpts₁, H1, Hsort₂.
-    injection H1; clear H1; intros; subst h hps.
-    apply lt_irrefl in Hkh; contradiction.
-
-    simpl in Heqms₁.
-    remember (minimise_slope α (j, jps) pt pts) as ms₂.
-    remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
-    destruct c; subst ms₁.
-     simpl in Heqpts₁, H1, Hsort₂.
-     symmetry in Heqc.
-     apply Qeq_alt in Heqc.
-     symmetry in Heqms₂.
-     apply minimise_slope_le in Heqms₂.
-      rewrite H1 in Heqms₂; simpl in Heqms₂.
-      inversion Hsort; subst a b l.
-      inversion H2; subst a b l.
-      exfalso; apply le_not_lt in Heqms₂; apply Heqms₂.
-      eapply lt_trans; eassumption.
-
-      inversion Hsort; subst a b l.
-      inversion H2; subst a b l.
-      assumption.
-
-     simpl in Heqpts₁, H1, Hsort₂.
-     discriminate Heqpts₁.
-
-     symmetry in Heqc.
-     apply Qgt_alt in Heqc.
-     symmetry in Heqms₂.
-     symmetry in H1.
-     eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
-     rewrite Heqms₂ in Heqc.
-     unfold slope_expr in Heqc.
-     subst β γ.
-     apply yyy; [ idtac | assumption ].
-     inversion Hsort; subst a b l.
-     split.
-      apply NPeano.Nat.lt_neq; assumption.
-
-      inversion Hsort₂; subst a b l.
-      apply NPeano.Nat.lt_neq; assumption.
+   contradiction.
 
    injection Hnp; clear Hnp; intros; subst segkx.
    remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
