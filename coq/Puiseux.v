@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.242 2013-04-22 08:36:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.243 2013-04-22 08:40:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -796,11 +796,11 @@ assumption.
 Qed.
 
 Lemma Qdiv_nat : ∀ x i,
-  (0 < i)%nat
+  i ≠ 0%nat
   → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
 Proof.
 intros x i Hi.
-destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
+destruct i; [ exfalso; apply Hi; reflexivity | clear Hi ].
 unfold Qnat, Qeq.
 f_equal; [ apply Z.mul_1_r | f_equal; f_equal ].
 unfold Qdiv, Qmult.
@@ -809,12 +809,12 @@ induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
 Lemma yyy : ∀ i j k x y z,
-  i < j < k
+  i ≠ j ∧ i ≠ k
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
-intros i j k x y z (Hij, Hjk) H.
+intros i j k x y z (Hij, Hik) H.
 rewrite Qdiv_nat in H.
  rewrite Qdiv_nat in H.
   rewrite Qdiv_nat.
