@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.249 2013-04-22 15:06:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.250 2013-04-22 15:19:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -952,8 +952,7 @@ destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember Hnp as H; clear HeqH.
 apply next_ch_points_hd in H.
-subst pt₁.
-simpl in Hnp.
+subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
 injection Hnp; clear Hnp; intros; subst segjk.
@@ -965,39 +964,15 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hkh; contradiction.
 
  rename H into Hnp.
-bbb.
+ destruct Hhps as [Hhps| Hhps]; [ exfalso | idtac ].
+  subst pt₁.
+  symmetry in Heqms₁.
+  apply minimise_slope_le in Heqms₁; [ idtac | inversion Hsort; assumption ].
+  apply next_ch_points_hd in Hnp.
+  rewrite Hnp in Heqms₁.
+  apply le_not_lt in Heqms₁.
+  contradiction.
 
-intros α n pts j jps k kps segjk segkx lch γ β.
-intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-injection Hnp; clear Hnp; intros; subst pt₁.
-destruct Hhps as [Hhps| Hhps].
- inversion Hsort; subst a b l.
- apply next_ch_points_hd in H.
- symmetry in Heqms₁.
- eapply minimise_slope_le in Heqms₁; [ idtac | eassumption ].
- rewrite H in Heqms₁.
- injection Hhps; clear Hhps; intros; subst h hps.
- apply le_not_lt in Heqms₁.
- exfalso; apply Heqms₁; simpl.
- eapply lt_trans; eassumption.
-
- subst segjk.
- rename H into Hnp.
- destruct Hhps as [Hhps| Hhps].
-  subst pt₂.
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms₁) as pts₁.
-  destruct pts₁ as [| pt₁].
-   injection Hnp; clear Hnp; intros; subst segkx lch.
-   contradiction.
-
-   injection Hnp; clear Hnp; intros; subst segkx.
-   remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
-   rewrite H1 in Heqms₂.
 bbb.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
