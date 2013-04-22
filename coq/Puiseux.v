@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.250 2013-04-22 15:19:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.251 2013-04-22 15:54:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -956,22 +956,36 @@ subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
 injection Hnp; clear Hnp; intros; subst segjk.
+remember H as Hnp; clear HeqHnp.
+apply next_ch_points_hd in H.
+rename H into Hep₁.
+rewrite Hep₁ in Hnp.
 destruct Hhps as [Hhps| Hhps].
  injection Hhps; clear Hhps; intros; subst h hps.
  inversion Hsort₂; subst a b l.
- unfold fst_fst_lt in H4; simpl in H4.
  eapply lt_trans in Hkh; [ idtac | eassumption ].
  apply lt_irrefl in Hkh; contradiction.
 
- rename H into Hnp.
  destruct Hhps as [Hhps| Hhps]; [ exfalso | idtac ].
   subst pt₁.
   symmetry in Heqms₁.
   apply minimise_slope_le in Heqms₁; [ idtac | inversion Hsort; assumption ].
-  apply next_ch_points_hd in Hnp.
-  rewrite Hnp in Heqms₁.
+  rewrite Hep₁ in Heqms₁.
   apply le_not_lt in Heqms₁.
   contradiction.
+
+bbb.
+  revert n pt₁ pts Hsort Hhps Heqms₁ Hnp.
+  induction lch as [| ch_pt]; intros; [ contradiction | idtac ].
+  destruct Hhch as [Hhch| Hhch].
+   clear IHlch.
+   Focus 2.
+   destruct n; [ discriminate Hnp | idtac ].
+   simpl in Hnp.
+   remember (rem_pts ms₁) as pts₂.
+   destruct pts₂ as [| pt₂]; [ discriminate Hnp | idtac ].
+   remember (minimise_slope α (end_pt ms₁) pt₂ pts₂) as ms₂.
+   injection Hnp; clear Hnp; intros; subst segkx.
 
 bbb.
 
