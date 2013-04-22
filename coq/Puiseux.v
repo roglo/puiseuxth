@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.245 2013-04-22 08:54:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.246 2013-04-22 10:20:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -929,6 +929,10 @@ inversion H1; subst a pts; [ constructor | idtac ].
 constructor; [ inversion H1 | eapply lt_trans ]; eassumption.
 Qed.
 
+Definition pt_of_ch α
+    (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
+  fst item.
+
 Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
@@ -936,13 +940,14 @@ Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
       → β = valuation α jps + Qnat j * γ
         → ∀ h hps,
           (k < h)%nat
-          → (h, hps) ∈ pts
-            → next_ch_points α n pts =
-                [(j, jps, seg); (k, kps, seg₂) … lch]
-              → β < valuation α hps + Qnat h * γ.
+          → (h, hps) ∈ List.map (pt_of_ch α) lch
+            → (h, hps) ∈ pts
+              → next_ch_points α n pts =
+                  [(j, jps, seg); (k, kps, seg₂) … lch]
+                → β < valuation α hps + Qnat h * γ.
 Proof.
 intros α n pts j jps k kps segjk segkx lch γ β.
-intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhps Hnp.
+intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
@@ -968,7 +973,7 @@ destruct Hhps as [Hhps| Hhps].
   destruct pts₁ as [| pt₁].
    injection Hnp; clear Hnp; intros; subst segkx lch.
    clear n.
-   revert pts h hps ms₁ Hkh Heqpts₁ Hsort Heqms₁ H1 Hsort₂.
+   revert pts h hps ms₁ Hkh Hhch Heqpts₁ Hsort Heqms₁ H1 Hsort₂.
    induction pts as [| pt]; intros.
     simpl in Heqms₁; subst ms₁.
     simpl in Heqpts₁, H1, Hsort₂.
