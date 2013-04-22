@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.243 2013-04-22 08:40:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.244 2013-04-22 08:46:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1004,7 +1004,14 @@ destruct Hhps as [Hhps| Hhps].
      eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
      rewrite Heqms₂ in Heqc.
      unfold slope_expr in Heqc.
-     simpl in Heqc.
+     subst β γ.
+     apply yyy; [ idtac | assumption ].
+     inversion Hsort; subst a b l.
+     split.
+      apply NPeano.Nat.lt_neq; assumption.
+
+      inversion Hsort₂; subst a b l.
+      apply NPeano.Nat.lt_neq; assumption.
 bbb.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
