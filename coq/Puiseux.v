@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.248 2013-04-22 14:40:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.249 2013-04-22 15:06:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -946,6 +946,27 @@ Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
                   [(j, jps, seg); (k, kps, seg₂) … lch]
                 → β < valuation α hps + Qnat h * γ.
 Proof.
+intros α n pts j jps k kps segjk segkx lch γ β.
+intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
+destruct n; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+remember Hnp as H; clear HeqH.
+apply next_ch_points_hd in H.
+subst pt₁.
+simpl in Hnp.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+injection Hnp; clear Hnp; intros; subst segjk.
+destruct Hhps as [Hhps| Hhps].
+ injection Hhps; clear Hhps; intros; subst h hps.
+ inversion Hsort₂; subst a b l.
+ unfold fst_fst_lt in H4; simpl in H4.
+ eapply lt_trans in Hkh; [ idtac | eassumption ].
+ apply lt_irrefl in Hkh; contradiction.
+
+ rename H into Hnp.
+bbb.
+
 intros α n pts j jps k kps segjk segkx lch γ β.
 intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
