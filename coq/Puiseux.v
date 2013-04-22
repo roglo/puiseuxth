@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.255 2013-04-22 19:38:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.256 2013-04-22 20:30:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -938,51 +938,52 @@ Definition pt_of_ch α
     (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
   fst item.
 
-Lemma yyy : ∀ α n pt₁ pts₁ lch j jps k kps h hps ms segkx,
-  next_ch_points α n [(k, kps); pt₁ … pts₁] = [(k, kps, segkx) … lch]
+Lemma yyy : ∀ α n pts lch j jps k kps h hps ms segkx,
+  next_ch_points α n [(k, kps); (h, hps) … pts] = [(k, kps, segkx) … lch]
    → (h, hps) ∈ List.map (pt_of_ch α) lch
-     → minimise_slope α (j, jps) pt₁ pts₁ = ms
-       → end_pt ms = (h, hps).
+     → minimise_slope α (j, jps) (h, hps) pts = ms
+       → slope_expr α (j, jps) (k, kps) < slope ms
+         → end_pt ms = (h, hps).
 Proof.
-intros α n pt₁ pts₁ lch j jps k kps h hps ms segkx Hnp Hhps Hms.
+intros α n pts lch j jps k kps h hps ms segkx Hnp Hhps Hms Hsl.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 inversion Hnp; clear Hnp; intros; subst segkx.
-remember (minimise_slope α (k, kps) pt₁ pts₁) as ms₁.
+remember (minimise_slope α (k, kps) (h, hps) pts) as ms₁.
 symmetry in Heqms₁.
-revert n pt₁ lch ms ms₁ Hhps Hms Heqms₁ H1.
-induction pts₁ as [| pt₂]; intros.
+revert n lch ms ms₁ Hhps Hms Heqms₁ H1 Hsl.
+induction pts as [| pt₁]; intros.
  simpl in Hms.
- subst ms; simpl.
- simpl in Heqms₁.
- subst ms₁.
- simpl in H1.
- destruct n.
-  simpl in H1.
-  subst lch; contradiction.
-
-  simpl in H1.
-  subst lch.
-  simpl in Hhps.
-  destruct Hhps; [ assumption | contradiction ].
+ subst ms; reflexivity.
 
  simpl in Hms.
- remember (minimise_slope α (j, jps) pt₂ pts₁) as ms₂.
+ remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
  symmetry in Heqms₂.
- remember (slope_expr α (j, jps) pt₁ ?= slope ms₂) as c.
+ remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
  destruct c.
   subst ms; simpl.
+  simpl in Hsl.
   simpl in Heqms₁.
-  remember (minimise_slope α (k, kps) pt₂ pts₁) as ms₃.
+  remember (minimise_slope α (k, kps) pt₁ pts) as ms₃.
   symmetry in Heqms₃.
-  remember (slope_expr α (k, kps) pt₁ ?= slope ms₃) as c.
+  remember (slope_expr α (k, kps) (h, hps) ?= slope ms₃) as c.
   destruct c.
    subst ms₁.
    simpl in H1.
-   eapply IHpts₁; try eassumption.
-
-   subst ms₁.
-   simpl in H1.
+   destruct lch; [ contradiction | idtac ].
+   destruct p as (p, seg).
+   eapply next_ch_points_hd in H1.
+   subst p.
+   destruct Hhps as [Hhps| Hhps].
+    unfold pt_of_ch in Hhps.
+    simpl in Hhps.
+    clear IHpts lch.
+    symmetry in Hhps.
+    symmetry in Heqc.
+    apply Qeq_alt in Heqc.
+    symmetry in Heqc0.
+    apply Qeq_alt in Heqc0.
+    rewrite <- Heqc in Hsl.
 bbb.
 *)
 
