@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.257 2013-04-23 02:30:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.258 2013-04-23 02:51:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -813,8 +813,7 @@ f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
 induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
-(*
-Lemma yyy : ∀ i j k x y z,
+Lemma xxx : ∀ i j k x y z,
   i ≠ j ∧ i ≠ k
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
@@ -824,6 +823,7 @@ intros i j k x y z (Hij, Hik) H.
 rewrite Qdiv_nat in H.
  rewrite Qdiv_nat in H.
   rewrite Qdiv_nat.
+Admitted. (*
 bbb.
 *)
 
@@ -950,6 +950,7 @@ simpl in Hnp.
 inversion Hnp; clear Hnp; intros; subst segkx.
 remember (minimise_slope α (k, kps) (h, hps) pts) as ms₁.
 symmetry in Heqms₁.
+Admitted. (*
 bbb.
 revert n lch ms ms₁ Hhps Hms Heqms₁ H1.
 induction pts as [| pt₁]; intros.
@@ -1057,6 +1058,12 @@ destruct Hhps as [Hhps| Hhps].
      apply Qlt_alt in Heqc.
      symmetry in Heqms₂.
      eapply yyy in Hnp; try eassumption.
+     symmetry in Hnp.
+     eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
+     rewrite Heqms₂ in Heqc.
+     unfold slope_expr in Heqc; simpl in Heqc.
+     subst β γ.
+     apply xxx; [ idtac | assumption ].
 bbb.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
