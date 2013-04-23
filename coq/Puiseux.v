@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.271 2013-04-23 13:09:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.272 2013-04-23 13:18:36 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -829,6 +829,12 @@ rewrite Qdiv_nat in H.
   remember (Zpos xd) as xxd; clear xd Heqxxd; rename xxd into xd.
   remember (Zpos yd) as yyd; clear yd Heqyyd; rename yyd into yd.
   remember (Zpos zd) as zzd; clear zd Heqzzd; rename zzd into zd.
+  destruct (zerop i).
+   subst i.
+   do 2 rewrite <- minus_n_O in H.
+   simpl.
+   rewrite <- minus_n_O.
+   rewrite Z.add_0_r.
 bbb.
 *)
 
