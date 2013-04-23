@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.260 2013-04-23 03:20:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.261 2013-04-23 03:30:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1035,6 +1035,7 @@ destruct Hhps as [Hhps| Hhps].
   destruct H as [Hk| Hk].
    subst pt₁.
    clear Hsort₂.
+bbb.
    revert ms₁ Hep₁ Heqms₁ Hnp.
    induction pts as [| pt₂]; intros; [ contradiction | idtac ].
    destruct Hhps as [| Hhps]; [ subst pt₂; clear IHpts | idtac ].
@@ -1076,6 +1077,8 @@ destruct Hhps as [Hhps| Hhps].
       contradiction.
 
       inversion Hsort; inversion H1; assumption.
+
+    simpl.
 bbb.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
