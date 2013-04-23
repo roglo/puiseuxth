@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.263 2013-04-23 09:40:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.264 2013-04-23 09:49:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1044,6 +1044,13 @@ destruct Hhps as [Hhps| Hhps].
    simpl in Hep |- *; clear Hep.
    symmetry in Heqc; apply Qlt_alt in Heqc.
    eapply Qlt_le_trans; [ eassumption | idtac ].
+   eapply minimised_slope_le; eassumption.
+
+   symmetry in Heqc; apply Qgt_alt in Heqc.
+   apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
+   rewrite Hep in Heqms₁; simpl in Heqms₁.
+   apply le_not_lt in Heqms₁.
+   contradiction.
 
 bbb.
 
