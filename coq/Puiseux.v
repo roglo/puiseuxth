@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.267 2013-04-23 10:32:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.268 2013-04-23 10:46:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1058,7 +1058,7 @@ destruct Hhps as [Hhps| Hhps].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma www : ∀ α j jps k kps pt pts ms,
+Lemma minimise_slope_lt : ∀ α j jps k kps pt pts ms,
   LocallySorted fst_lt pts
   → minimise_slope α (j, jps) pt pts = ms
     → end_pt ms = (k, kps)
@@ -1122,9 +1122,11 @@ destruct Hhps as [Hhps| Hhps].
   eapply Qlt_le_trans; [ eassumption | idtac ].
   eapply minimise_slope_pts_le; eassumption.
 
-bbb.
+  eapply IHpts; try eassumption.
+  inversion Hsort; [ constructor | assumption ].
+Qed.
 
-Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
+Lemma pt_aft_k : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -1169,61 +1171,25 @@ destruct Hhps as [Hhps| Hhps].
   symmetry in Hep₁.
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in H; [ idtac | eassumption ].
-
-bbb.
-  remember Heqms₁ as H; clear HeqH.
-  symmetry in H.
   symmetry in Hep₁.
-  apply min_sl_in in H.
-  rewrite <- Hep₁ in H.
-  destruct H as [Hk| Hk].
-   subst pt₁.
-   clear Hsort₂.
-bbb.
-   revert ms₁ Hep₁ Heqms₁ Hnp.
-   induction pts as [| pt₂]; intros; [ contradiction | idtac ].
-   destruct Hhps as [| Hhps]; [ subst pt₂; clear IHpts | idtac ].
-    simpl in Heqms₁.
-    remember (minimise_slope α (j, jps) (h, hps) pts) as ms₂.
-    remember (slope_expr α (j, jps) (k, kps) ?= slope ms₂) as c.
-    destruct c.
-     subst ms₁.
-     simpl in Hep₁.
-     symmetry in Heqms₂.
-     apply minimise_slope_le in Heqms₂.
-      rewrite <- Hep₁ in Heqms₂.
-      apply le_not_lt in Heqms₂.
-      contradiction.
+  eapply minimise_slope_lt in Heqms₁; try eassumption.
+   rewrite H in Heqms₁.
+   subst β γ.
+   apply xxx; [ idtac | assumption ].
+   split.
+    destruct pt₁ as (l, lps).
+    apply lt_trans with (m := l).
+     inversion Hsort; assumption.
 
-      inversion Hsort; inversion H1; assumption.
+     inversion Hsort; subst a b.
+     eapply LocallySorted_hd in H2; [ idtac | eassumption ].
+     assumption.
 
-     subst ms₁; simpl in Hep₁, Hnp.
-     clear Hep₁.
-     symmetry in Heqc.
-     apply Qlt_alt in Heqc.
-     symmetry in Heqms₂.
-     eapply yyy in Hnp; try eassumption.
-     symmetry in Hnp.
-     eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
-     rewrite Heqms₂ in Heqc.
-     unfold slope_expr in Heqc; simpl in Heqc.
-     subst β γ.
-     apply xxx; [ idtac | assumption ].
-     inversion Hsort; subst a b l.
-     split; [ idtac | assumption ].
-     eapply lt_trans; eassumption.
+    inversion Hsort₂; assumption.
 
-     move Heqms₁ at top; subst ms₂.
-     symmetry in Heqms₂.
-     apply minimise_slope_le in Heqms₂.
-      rewrite <- Hep₁ in Heqms₂.
-      apply le_not_lt in Heqms₂.
-      contradiction.
-
-      inversion Hsort; inversion H1; assumption.
-
-    simpl.
-bbb.
+   inversion Hsort.
+   inversion H2; [ constructor | assumption ].
+Qed.
 
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
@@ -1252,7 +1218,7 @@ apply points_of_polyn_sorted in Hpts.
 symmetry in Heqlch.
 eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
 apply points_of_polyn_sorted in Hpts₂.
-eapply zzz; eassumption.
+eapply pt_aft_k; try eassumption.
 qed.
 
 (*
