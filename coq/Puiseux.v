@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.262 2013-04-23 08:40:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.263 2013-04-23 09:40:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -985,6 +985,67 @@ induction pts as [| pt₁]; intros.
     apply Qeq_alt in Heqc0.
 bbb.
 *)
+
+Lemma minimised_slope_le : ∀ α j jps h hps pts ms,
+  minimise_slope α (j, jps) (h, hps) pts = ms
+  → slope ms <= slope_expr α (j, jps) (h, hps).
+Proof.
+intros α j jps h hps pts ms Hms.
+revert ms Hms.
+induction pts as [| pt]; intros.
+ simpl in Hms.
+ subst ms; simpl.
+ apply Qle_refl.
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt pts) as ms₁.
+ remember (slope_expr α (j, jps) (h, hps) ?= slope ms₁) as c.
+ destruct c; subst ms.
+  simpl.
+  symmetry in Heqc; apply Qeq_alt in Heqc.
+  rewrite Heqc; apply Qle_refl.
+
+  simpl.
+  apply Qle_refl.
+
+  symmetry in Heqc; apply Qgt_alt in Heqc.
+  apply Qlt_le_weak; eassumption.
+Qed.
+
+Lemma www : ∀ α j jps k kps pt pts ms,
+  LocallySorted fst_lt pts
+  → minimise_slope α (j, jps) pt pts = ms
+    → end_pt ms = (k, kps)
+      → ∀ h hps,
+        (h, hps) ∈ pts
+        → (k < h)%nat
+          → slope ms < slope_expr α (j, jps) (h, hps).
+Proof.
+intros α j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hkh.
+revert pt ms Hms Hep h Hhps Hkh.
+induction pts as [| pt₁]; [ contradiction | intros ].
+destruct Hhps as [Hhps| Hhps].
+ subst pt₁.
+ remember Hms as H; clear HeqH.
+ apply min_sl_in in Hms.
+ rewrite Hep in Hms.
+ destruct Hms as [Hms| Hms].
+  subst pt.
+  simpl in H.
+  remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
+  symmetry in Heqms₁.
+  remember (slope_expr α (j, jps) (k, kps) ?= slope ms₁) as c.
+  destruct c; subst ms.
+   simpl in Hep |- *.
+   apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
+   rewrite Hep in Heqms₁.
+   apply le_not_lt in Heqms₁; contradiction.
+
+   simpl in Hep |- *; clear Hep.
+   symmetry in Heqc; apply Qlt_alt in Heqc.
+   eapply Qlt_le_trans; [ eassumption | idtac ].
+
+bbb.
 
 Lemma zzz : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
