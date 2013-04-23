@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.256 2013-04-22 20:30:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.257 2013-04-23 02:30:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -942,16 +942,16 @@ Lemma yyy : ∀ α n pts lch j jps k kps h hps ms segkx,
   next_ch_points α n [(k, kps); (h, hps) … pts] = [(k, kps, segkx) … lch]
    → (h, hps) ∈ List.map (pt_of_ch α) lch
      → minimise_slope α (j, jps) (h, hps) pts = ms
-       → slope_expr α (j, jps) (k, kps) < slope ms
-         → end_pt ms = (h, hps).
+       → end_pt ms = (h, hps).
 Proof.
-intros α n pts lch j jps k kps h hps ms segkx Hnp Hhps Hms Hsl.
+intros α n pts lch j jps k kps h hps ms segkx Hnp Hhps Hms.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 inversion Hnp; clear Hnp; intros; subst segkx.
 remember (minimise_slope α (k, kps) (h, hps) pts) as ms₁.
 symmetry in Heqms₁.
-revert n lch ms ms₁ Hhps Hms Heqms₁ H1 Hsl.
+bbb.
+revert n lch ms ms₁ Hhps Hms Heqms₁ H1.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
  subst ms; reflexivity.
@@ -962,7 +962,6 @@ induction pts as [| pt₁]; intros.
  remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
  destruct c.
   subst ms; simpl.
-  simpl in Hsl.
   simpl in Heqms₁.
   remember (minimise_slope α (k, kps) pt₁ pts) as ms₃.
   symmetry in Heqms₃.
@@ -983,7 +982,6 @@ induction pts as [| pt₁]; intros.
     apply Qeq_alt in Heqc.
     symmetry in Heqc0.
     apply Qeq_alt in Heqc0.
-    rewrite <- Heqc in Hsl.
 bbb.
 *)
 
