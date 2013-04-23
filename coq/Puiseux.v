@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.265 2013-04-23 09:58:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.266 2013-04-23 10:13:41 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1060,6 +1060,20 @@ destruct Hhps as [Hhps| Hhps].
    simpl in Hsort.
    eapply lt_trans in Hsort; [ idtac | eassumption ].
    apply lt_irrefl in Hsort; contradiction.
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ symmetry in Heqms₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ destruct c; subst ms.
+  simpl in Hep |- *.
+  eapply IHpts; try eassumption.
+  inversion Hsort; [ constructor | assumption ].
+
+  simpl in Hep |- *.
+  subst pt.
+  symmetry in Heqc; apply Qlt_alt in Heqc.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
 
 bbb.
 
