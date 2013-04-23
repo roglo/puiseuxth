@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.273 2013-04-23 15:57:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.274 2013-04-23 16:51:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -822,32 +822,63 @@ induction i; [ reflexivity | simpl ].
 rewrite IHi; reflexivity.
 Qed.
 
+Lemma Qmutual_shift_div : ∀ a b c d,
+  0 < b
+  → 0 < d
+    → a / b < c / d
+      → a * d < b * c.
+Proof.
+intros a b c d Hb Hd H.
+apply Qmult_lt_compat_r with (z := b) in H; [ idtac | assumption ].
+rewrite Qmult_comm in H.
+rewrite Qmult_div_r in H.
+ rewrite Qmult_comm in H.
+ apply Qmult_lt_compat_r with (z := d) in H; [ idtac | assumption ].
+ rewrite <- Qmult_assoc in H.
+ setoid_replace (c / d * d) with (d * (c / d)) in H by apply Qmult_comm.
+ rewrite Qmult_div_r in H; [ assumption | idtac ].
+ intros HH; rewrite HH in Hd; apply Qlt_irrefl in Hd; contradiction.
+
+ intros HH; rewrite HH in Hb; apply Qlt_irrefl in Hb; contradiction.
+Qed.
+
 Lemma xxx : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
-intros i j k (xn, xd) (yn, yd) (zn, zd) (Hij, Hik) H.
-rewrite Qdiv_nat in H.
- rewrite Qdiv_nat in H |- *.
-  unfold Qlt in H; simpl in H.
+intros i j k x y z (Hij, Hjk) H.
+apply Qmutual_shift_div in H.
+ apply Qmult_lt_l with (z := Qnat (k - i)).
+  unfold Qnat.
+  rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+  rewrite QZ_minus.
+  apply Qlt_minus.
   unfold Qlt; simpl.
-  do 8 rewrite Pos2Z.inj_mul.
-  do 4 rewrite Pos2Z.inj_mul in H.
-  remember (Zpos xd) as xxd; clear xd Heqxxd; rename xxd into xd.
-  remember (Zpos yd) as yyd; clear yd Heqyyd; rename yyd into yd.
-  remember (Zpos zd) as zzd; clear zd Heqzzd; rename zzd into zd.
-  do 2 rewrite Zposnat2Znat in H.
-   rewrite Zposnat2Znat.
-    rewrite Nat2Z.inj_sub in H; [ idtac | apply lt_le_weak; assumption ].
-    rewrite Nat2Z.inj_sub in H; [ idtac | apply lt_le_weak; assumption ].
-    rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-    remember (Z.of_nat i) as ii; clear Heqii.
-    remember (Z.of_nat j) as jj; clear Heqjj.
-    remember (Z.of_nat k) as kk; clear Heqkk.
-    clear i j k Hij Hik.
-    rename ii into i; rename jj into j; rename kk into k.
+  do 2 rewrite Z.mul_1_r.
+  apply inj_lt; assumption.
+
+  do 2 rewrite Qmult_plus_distr_r.
+  remember (Qnat (k - i) * x) as t.
+  rewrite Qmult_comm, Qmult_assoc.
+  unfold Qdiv.
+  do 3 rewrite <- Qmult_assoc.
+  remember (Qnat (k - i)) as u.
+  setoid_replace (/ u * u) with (u * / u) by apply Qmult_comm.
+  rewrite Qmult_inv_r.
+   rewrite Qmult_1_r.
+   remember (Qnat i * (x - y)) as v.
+   remember (u * z) as w.
+   rewrite Qmult_comm.
+   do 2 rewrite <- Qmult_assoc.
+   setoid_replace (/ u * u) with (u * / u) by apply Qmult_comm.
+   rewrite Qmult_inv_r.
+    rewrite Qmult_1_r.
+    subst v.
+    unfold Qminus.
+    do 2 rewrite Qmult_plus_distr_r.
+    do 2 rewrite Qplus_assoc.
 bbb.
 *)
 
