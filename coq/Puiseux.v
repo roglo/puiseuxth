@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.269 2013-04-23 12:02:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.270 2013-04-23 12:08:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -938,6 +938,7 @@ Definition pt_of_ch α
     (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
   fst item.
 
+(*
 Lemma yyy : ∀ α n pts lch j jps k kps h hps ms segkx,
   next_ch_points α n [(k, kps); (h, hps) … pts] = [(k, kps, segkx) … lch]
    → (h, hps) ∈ List.map (pt_of_ch α) lch
@@ -950,7 +951,6 @@ simpl in Hnp.
 inversion Hnp; clear Hnp; intros; subst segkx.
 remember (minimise_slope α (k, kps) (h, hps) pts) as ms₁.
 symmetry in Heqms₁.
-Admitted. (*
 bbb.
 revert n lch ms ms₁ Hhps Hms Heqms₁ H1.
 induction pts as [| pt₁]; intros.
