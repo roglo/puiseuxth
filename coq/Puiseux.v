@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.275 2013-04-23 19:14:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.276 2013-04-23 19:58:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -902,6 +902,30 @@ do 2 rewrite Zmult_1_r.
 apply inj_lt; assumption.
 Qed.
 
+Lemma Qnat_minus_distr : ∀ i j, i ≤ j → Qnat (j - i) == Qnat j - Qnat i.
+Proof.
+intros i j Hij.
+unfold Qeq; simpl.
+do 4 rewrite Zmult_1_r.
+apply Nat2Z.inj_sub; assumption.
+Qed.
+
+Lemma Qmult_opp_r : ∀ x y, x * - y == - (x * y).
+Proof.
+intros x y.
+unfold Qeq, Qmult, Qopp; simpl.
+rewrite Z.mul_opp_r.
+reflexivity.
+Qed.
+
+Lemma Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
+Proof.
+intros x y z.
+unfold Qminus.
+rewrite Qmult_plus_distr_r.
+rewrite Qmult_opp_r; reflexivity.
+Qed.
+
 Lemma xxx : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -913,6 +937,8 @@ do 2 rewrite Qmul_div_assoc.
 rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
 rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
+rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
+do 4 rewrite Qmult_minus_distr_r.
 bbb.
  apply Qmult_lt_l with (z := Qnat (k - i)).
   unfold Qnat.
