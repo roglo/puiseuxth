@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.266 2013-04-23 10:13:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.267 2013-04-23 10:32:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1012,6 +1012,52 @@ induction pts as [| pt]; intros.
   apply Qlt_le_weak; eassumption.
 Qed.
 
+Lemma minimise_slope_pts_le : ∀ α j jps pt pts ms,
+  minimise_slope α (j, jps) pt pts = ms
+  → ∀ h hps,
+     (h, hps) ∈ pts
+     → slope ms <= slope_expr α (j, jps) (h, hps).
+Proof.
+intros α j jps pt pts ms Hms h hps Hhps.
+revert pt ms Hms h hps Hhps.
+induction pts as [| pt₁]; [ contradiction | intros ].
+destruct Hhps as [Hhps| Hhps].
+ subst pt₁.
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
+ symmetry in Heqms₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ destruct c; subst ms.
+  simpl.
+  eapply minimised_slope_le; eassumption.
+
+  simpl.
+  eapply minimised_slope_le in Heqms₁.
+  symmetry in Heqc; apply Qlt_alt in Heqc.
+  apply Qlt_le_weak.
+  eapply Qlt_le_trans; eassumption.
+
+  eapply minimised_slope_le in Heqms₁.
+  assumption.
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ symmetry in Heqms₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ symmetry in Heqc.
+ destruct c; subst ms.
+  simpl.
+  eapply IHpts; eassumption.
+
+  simpl.
+  apply Qlt_alt in Heqc.
+  apply Qlt_le_weak.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  eapply IHpts; eassumption.
+
+  eapply IHpts; eassumption.
+Qed.
+
 Lemma www : ∀ α j jps k kps pt pts ms,
   LocallySorted fst_lt pts
   → minimise_slope α (j, jps) pt pts = ms
@@ -1074,6 +1120,7 @@ destruct Hhps as [Hhps| Hhps].
   subst pt.
   symmetry in Heqc; apply Qlt_alt in Heqc.
   eapply Qlt_le_trans; [ eassumption | idtac ].
+  eapply minimise_slope_pts_le; eassumption.
 
 bbb.
 
