@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.270 2013-04-23 12:08:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.271 2013-04-23 13:09:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -819,11 +819,16 @@ Lemma xxx : ∀ i j k x y z,
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
-intros i j k x y z (Hij, Hik) H.
+intros i j k (xn, xd) (yn, yd) (zn, zd) (Hij, Hik) H.
 rewrite Qdiv_nat in H.
- rewrite Qdiv_nat in H.
-  rewrite Qdiv_nat.
-Admitted. (*
+ rewrite Qdiv_nat in H |- *.
+  unfold Qlt in H; simpl in H.
+  unfold Qlt; simpl.
+  do 8 rewrite Pos2Z.inj_mul.
+  do 4 rewrite Pos2Z.inj_mul in H.
+  remember (Zpos xd) as xxd; clear xd Heqxxd; rename xxd into xd.
+  remember (Zpos yd) as yyd; clear yd Heqyyd; rename yyd into yd.
+  remember (Zpos zd) as zzd; clear zd Heqzzd; rename zzd into zd.
 bbb.
 *)
 
