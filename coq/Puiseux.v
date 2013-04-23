@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.276 2013-04-23 19:58:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.277 2013-04-23 20:54:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -926,6 +926,28 @@ rewrite Qmult_plus_distr_r.
 rewrite Qmult_opp_r; reflexivity.
 Qed.
 
+Lemma Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
+Proof. intros x y z; ring. Qed.
+
+Lemma Qgt_0_not_0 : ∀ a, 0 < a → ¬a == 0.
+Proof.
+intros a Ha.
+intros H.
+rewrite H in Ha.
+apply Qlt_irrefl in Ha; assumption.
+Qed.
+
+Lemma Qlt_shift_mul_r : ∀ a b c, 0 < c → a < b / c → a * c < b.
+Proof.
+intros a b c Hc H.
+apply Qmult_lt_compat_r with (z := c) in H; [ idtac | assumption ].
+unfold Qdiv in H.
+rewrite <- Qmult_assoc in H.
+setoid_replace (/ c * c) with (c * / c) in H by apply Qmult_comm.
+rewrite Qmult_inv_r in H; [ idtac | apply Qgt_0_not_0; assumption ].
+rewrite Qmult_1_r in H; assumption.
+Qed.
+
 Lemma xxx : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -939,36 +961,10 @@ rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
 rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
 do 4 rewrite Qmult_minus_distr_r.
-bbb.
- apply Qmult_lt_l with (z := Qnat (k - i)).
-  unfold Qnat.
-  rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-  rewrite QZ_minus.
-  apply Qlt_minus.
-  unfold Qlt; simpl.
-  do 2 rewrite Z.mul_1_r.
-  apply inj_lt; assumption.
-
-  do 2 rewrite Qmult_plus_distr_r.
-  remember (Qnat (k - i) * x) as t.
-  rewrite Qmult_comm, Qmult_assoc.
-  unfold Qdiv.
-  do 3 rewrite <- Qmult_assoc.
-  remember (Qnat (k - i)) as u.
-  setoid_replace (/ u * u) with (u * / u) by apply Qmult_comm.
-  rewrite Qmult_inv_r.
-   rewrite Qmult_1_r.
-   remember (Qnat i * (x - y)) as v.
-   remember (u * z) as w.
-   rewrite Qmult_comm.
-   do 2 rewrite <- Qmult_assoc.
-   setoid_replace (/ u * u) with (u * / u) by apply Qmult_comm.
-   rewrite Qmult_inv_r.
-    rewrite Qmult_1_r.
-    subst v.
-    unfold Qminus.
-    do 2 rewrite Qmult_plus_distr_r.
-    do 2 rewrite Qplus_assoc.
+do 2 rewrite Qplus_minus_assoc.
+rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
+apply Qlt_shift_mul_r in H; [ idtac | apply Qlt_minus ].
 bbb.
 *)
 
