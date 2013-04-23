@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.258 2013-04-23 02:51:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.259 2013-04-23 03:07:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -814,7 +814,7 @@ induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
 Lemma xxx : ∀ i j k x y z,
-  i ≠ j ∧ i ≠ k
+  (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
