@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.272 2013-04-23 13:18:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.273 2013-04-23 15:57:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -813,6 +813,15 @@ f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
 induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
+Lemma Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
+Proof.
+intros i Hi.
+destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
+simpl; f_equal.
+induction i; [ reflexivity | simpl ].
+rewrite IHi; reflexivity.
+Qed.
+
 Lemma xxx : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -829,12 +838,16 @@ rewrite Qdiv_nat in H.
   remember (Zpos xd) as xxd; clear xd Heqxxd; rename xxd into xd.
   remember (Zpos yd) as yyd; clear yd Heqyyd; rename yyd into yd.
   remember (Zpos zd) as zzd; clear zd Heqzzd; rename zzd into zd.
-  destruct (zerop i).
-   subst i.
-   do 2 rewrite <- minus_n_O in H.
-   simpl.
-   rewrite <- minus_n_O.
-   rewrite Z.add_0_r.
+  do 2 rewrite Zposnat2Znat in H.
+   rewrite Zposnat2Znat.
+    rewrite Nat2Z.inj_sub in H; [ idtac | apply lt_le_weak; assumption ].
+    rewrite Nat2Z.inj_sub in H; [ idtac | apply lt_le_weak; assumption ].
+    rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+    remember (Z.of_nat i) as ii; clear Heqii.
+    remember (Z.of_nat j) as jj; clear Heqjj.
+    remember (Z.of_nat k) as kk; clear Heqkk.
+    clear i j k Hij Hik.
+    rename ii into i; rename jj into j; rename kk into k.
 bbb.
 *)
 
