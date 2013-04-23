@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.261 2013-04-23 03:30:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.262 2013-04-23 08:40:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -538,7 +538,7 @@ Qed.
 Lemma minimised_slope : ∀ α j jps k kps pt pts ms,
   minimise_slope α (j, jps) pt pts = ms
   → (k, kps) = end_pt ms
-    → slope ms == (valuation α kps - valuation α jps) / Qnat (k - j).
+    → slope ms == slope_expr α (j, jps) (k, kps).
 Proof.
 intros α j jps k kps pt pts ms Hms Hkps.
 revert j jps k kps pt ms Hms Hkps.
@@ -636,9 +636,9 @@ induction pts as [| pt₁]; intros.
   destruct Hips as [Hips| Hips].
    subst pt.
    subst β.
+   unfold slope_expr in Heqms₁; simpl in Heqms₁.
    remember (valuation α kps) as v₃.
    subst γ.
-   unfold slope_expr in Heqms₁; simpl in Heqms₁.
    do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
    rewrite Qdiv_sub_distr_r.
    apply Qeq_opp_r in Heqms₁.
@@ -1027,6 +1027,12 @@ destruct Hhps as [Hhps| Hhps].
   apply le_not_lt in Heqms₁.
   contradiction.
 
+  symmetry in Heqms₁.
+  symmetry in Hep₁.
+  remember Heqms₁ as H; clear HeqH.
+  eapply minimised_slope in H; [ idtac | eassumption ].
+
+bbb.
   remember Heqms₁ as H; clear HeqH.
   symmetry in H.
   symmetry in Hep₁.
