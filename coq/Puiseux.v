@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.274 2013-04-23 16:51:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.275 2013-04-23 19:14:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -822,24 +822,84 @@ induction i; [ reflexivity | simpl ].
 rewrite IHi; reflexivity.
 Qed.
 
+Lemma Qmul_div_assoc : ∀ a b c, a * (b / c) == (a * b) / c.
+Proof. intros a b c; unfold Qdiv; apply Qmult_assoc. Qed.
+
+Lemma Qadd_div : ∀ a b c, ¬(c == 0) → a + b / c == (a * c + b) / c.
+Proof.
+intros a b c Hc.
+rewrite Qdiv_add_distr_r.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+
 Lemma Qmutual_shift_div : ∀ a b c d,
   0 < b
   → 0 < d
     → a / b < c / d
-      → a * d < b * c.
+      → a * d < c * b.
 Proof.
 intros a b c d Hb Hd H.
 apply Qmult_lt_compat_r with (z := b) in H; [ idtac | assumption ].
 rewrite Qmult_comm in H.
 rewrite Qmult_div_r in H.
- rewrite Qmult_comm in H.
  apply Qmult_lt_compat_r with (z := d) in H; [ idtac | assumption ].
  rewrite <- Qmult_assoc in H.
- setoid_replace (c / d * d) with (d * (c / d)) in H by apply Qmult_comm.
- rewrite Qmult_div_r in H; [ assumption | idtac ].
- intros HH; rewrite HH in Hd; apply Qlt_irrefl in Hd; contradiction.
+ remember (a * d) as t.
+ rewrite Qmult_comm in H.
+ rewrite <- Qmult_assoc in H.
+ rewrite Qmult_div_r in H.
+  rewrite Qmult_comm; assumption.
+
+  intros HH; rewrite HH in Hd; apply Qlt_irrefl in Hd; contradiction.
 
  intros HH; rewrite HH in Hb; apply Qlt_irrefl in Hb; contradiction.
+Qed.
+
+Lemma Qdiv_lt_reg_r : ∀ a b c, 0 < c → a / c < b / c → a < b.
+Proof.
+intros a b c Hc H.
+apply Qmutual_shift_div in H; [ idtac | assumption | assumption ].
+apply Qmult_lt_r in H; assumption.
+Qed.
+
+Lemma Qdiv_lt_compat_r : ∀ a b c, 0 < c → a < b → a / c < b / c.
+Proof.
+intros a b c Hc H.
+apply Qmult_lt_compat_r; [ idtac | assumption ].
+apply Qinv_lt_0_compat; assumption.
+Qed.
+
+Lemma Qminus_eq : ∀ a b, a - b == 0 → a == b.
+Proof.
+intros a b H.
+apply Qplus_inj_r with (z := - b).
+rewrite Qplus_opp_r.
+assumption.
+Qed.
+
+Lemma Qnat_lt_not_0 : ∀ i j, (i < j)%nat → ¬Z.of_nat (j - i) # 1 == 0.
+Proof.
+intros i j H.
+rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+rewrite QZ_minus.
+intros HH.
+apply Qminus_eq in HH.
+unfold Qeq in HH.
+simpl in HH.
+do 2 rewrite Zmult_1_r in HH.
+apply Nat2Z.inj in HH.
+subst j; apply lt_irrefl in H; assumption.
+Qed.
+
+Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Z.of_nat (j - i) # 1.
+Proof.
+intros i j H.
+rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+rewrite QZ_minus.
+apply Qlt_minus.
+unfold Qlt; simpl.
+do 2 rewrite Zmult_1_r.
+apply inj_lt; assumption.
 Qed.
 
 Lemma xxx : ∀ i j k x y z,
@@ -849,7 +909,11 @@ Lemma xxx : ∀ i j k x y z,
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-apply Qmutual_shift_div in H.
+do 2 rewrite Qmul_div_assoc.
+rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
+bbb.
  apply Qmult_lt_l with (z := Qnat (k - i)).
   unfold Qnat.
   rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
