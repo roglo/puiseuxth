@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.264 2013-04-23 09:49:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.265 2013-04-23 09:58:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1051,6 +1051,15 @@ destruct Hhps as [Hhps| Hhps].
    rewrite Hep in Heqms₁; simpl in Heqms₁.
    apply le_not_lt in Heqms₁.
    contradiction.
+
+  destruct Hms as [Hms| Hms].
+   injection Hms; clear Hms; intros; subst h hps.
+   apply lt_irrefl in Hkh; contradiction.
+
+   eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
+   simpl in Hsort.
+   eapply lt_trans in Hsort; [ idtac | eassumption ].
+   apply lt_irrefl in Hsort; contradiction.
 
 bbb.
 
