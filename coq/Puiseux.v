@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.278 2013-04-23 20:57:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.279 2013-04-23 21:09:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -576,8 +576,8 @@ induction pts as [| pt₁]; intros.
    unfold slope_expr in Heqms₁; simpl in Heqms₁.
    remember (valuation α kps) as v₃.
    subst γ.
-   do 2 rewrite Qdiv_sub_distr_r in Heqms₁.
-   rewrite Qdiv_sub_distr_r.
+   do 2 rewrite Qdiv_minus_distr_r in Heqms₁.
+   rewrite Qdiv_minus_distr_r.
    apply Qeq_opp_r in Heqms₁.
    do 2 rewrite Qopp_minus in Heqms₁.
    rewrite <- Heqms₁.
@@ -765,16 +765,16 @@ Lemma xxx : ∀ i j k x y z,
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-do 2 rewrite Qmul_div_assoc.
-rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-rewrite Qadd_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+do 2 rewrite Qmult_div_assoc.
+rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
 rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
 do 4 rewrite Qmult_minus_distr_r.
 do 2 rewrite Qplus_minus_assoc.
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
-apply Qlt_shift_mul_r in H; [ idtac | apply Qlt_minus ].
+apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus ].
 bbb.
 *)
 
