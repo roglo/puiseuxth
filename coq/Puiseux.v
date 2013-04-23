@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.268 2013-04-23 10:46:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.269 2013-04-23 12:02:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1131,16 +1131,13 @@ Lemma pt_aft_k : ∀ α n pts j jps k kps seg seg₂ lch γ β,
   → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
-        → ∀ h hps,
-          (k < h)%nat
-          → (h, hps) ∈ List.map (pt_of_ch α) lch
-            → (h, hps) ∈ pts
-              → next_ch_points α n pts =
-                  [(j, jps, seg); (k, kps, seg₂) … lch]
-                → β < valuation α hps + Qnat h * γ.
+        → ∀ h hps, (k < h)%nat
+          → (h, hps) ∈ pts
+            → next_ch_points α n pts = [(j, jps, seg); (k, kps, seg₂) … lch]
+              → β < valuation α hps + Qnat h * γ.
 Proof.
 intros α n pts j jps k kps segjk segkx lch γ β.
-intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhch Hhps Hnp.
+intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhps Hnp.
 destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 remember Hnp as H; clear HeqH.
@@ -1194,10 +1191,9 @@ Qed.
 Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-    → ∀ i ips,
-       (i, ips) ∈ pts
-       → (k < i)%nat
-         → β < valuation α ips + Qnat i * γ.
+    → ∀ h hps, (h, hps) ∈ pts
+      → (k < h)%nat
+        → β < valuation α hps + Qnat h * γ.
 Proof.
 intros α fld pol pts γ β j jps k kps seg Hpts Hgb i ip Hips Hki.
 unfold gamma_beta in Hgb.
@@ -1219,7 +1215,7 @@ symmetry in Heqlch.
 eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
 apply points_of_polyn_sorted in Hpts₂.
 eapply pt_aft_k; try eassumption.
-qed.
+Qed.
 
 (*
 Lemma zzz : ∀ α n j jps k kps segjk segkx pts lch β γ,
@@ -1398,6 +1394,7 @@ Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
 Proof.
 intros α pts j jps k kps γ β segjk segkx lch.
 intros Hsort Hsort₂ Hβ Hγ Hch i ips Hips Hnips.
+bbb.
 unfold lower_convex_hull_points in Hch.
 remember (length pts) as n. (*; clear Heqn.*)
 rename Hch into Hnp.
