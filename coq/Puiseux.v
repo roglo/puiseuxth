@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.297 2013-04-24 08:36:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.298 2013-04-24 08:37:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1014,116 +1014,6 @@ apply points_of_polyn_sorted in Hpts₂.
 eapply pt_aft_k; try eassumption.
 Qed.
 
-(*
-Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
-  LocallySorted fst_lt pts
-  → LocallySorted fst_fst_lt [(j, jps, segjk); (k, kps, segkx) … lch]
-    → β = valuation α jps + Qnat j * γ
-      → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-        → lower_convex_hull_points α pts =
-            [(j, jps, segjk); (k, kps, segkx) … lch]
-          → ∀ h hps, (h, hps) ∈ pts
-            → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-              → β < valuation α hps + Qnat h * γ.
-Proof.
-intros α pts j jps k kps γ β segjk segkx lch.
-intros Hsort Hsort₂ Hβ Hγ Hch h hps Hhps Hnhps.
-bbb.
-unfold lower_convex_hull_points in Hch.
-remember (length pts) as n. (*; clear Heqn.*)
-rename Hch into Hnp.
-
-revert pts lch Hsort Hsort₂ Heqn Hnp i ips Hips Hnips.
-induction n; intros; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst pt₁.
-rename H0 into Hjk.
-remember (minimise_slope α (j, jps) pt₂ pts) as ms.
-subst segjk.
-symmetry in Heqms.
-simpl in Heqn; apply eq_add_S in Heqn.
-destruct Hips as [Hips| Hips].
- injection Hips; clear Hips; intros; subst i ips.
- simpl in Hnips.
- apply Decidable.not_or in Hnips.
- destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
-
- rename pt₂ into pt.
- rename Heqms into Hms.
- rename H into Hnp.
- rename Heqn into Hn.
-destruct Hips as [Hips| Hips].
- subst pt.
- remember Hms as Hms₂; clear HeqHms₂.
- apply min_sl_in in Hms.
- simpl in Hms.
- destruct Hms as [Hms| Hms].
-  rewrite <- Hms in Hnp.
-  apply next_ch_points_hd in Hnp.
-  rewrite Hnp in Hnips.
-  simpl in Hnips.
-  apply Decidable.not_or in Hnips.
-  destruct Hnips as (Hjk, Hnips).
-  apply Decidable.not_or in Hnips.
-  destruct Hnips as (Hnips); exfalso; apply Hnips; reflexivity.
-
-  clear IHn.
-  revert ms segkx lch n Hsort₂ Hn Hnp i ips Hnips Hsort Hms Hms₂.
-  induction pts as [| pt₁]; intros; [ contradiction | idtac ].
-  simpl in Hms₂.
-  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
-  remember (slope_expr α (j, jps) (i, ips) ?= slope ms₁) as c.
-  destruct c.
-   subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
-   apply Decidable.not_or in Hnips.
-   destruct Hnips as (Hji, Hnips).
-   apply Decidable.not_or in Hnips.
-   destruct Hnips as (Hki, Hnips).
-   apply Decidable.not_or in Hnips.
-   destruct Hnips as (Hii, Hnips).
-   exfalso; apply Hii; reflexivity.
-
-   subst ms; simpl in Hsort₂, Hnp, Hnips, Hms.
-   apply next_ch_points_hd in Hnp.
-   symmetry in Hnp.
-   apply Decidable.not_or in Hnips.
-   destruct Hnips as (_, Hnips).
-   apply Decidable.not_or in Hnips.
-   destruct Hnips; contradiction.
-
-   subst ms; simpl in Hnips, Hms, Hsort₂, Hnp.
-   destruct pt₁ as (l, lps).
-   symmetry in Heqms₁.
-   apply Decidable.not_or in Hnips.
-   destruct Hnips as (Hji, Hnips).
-   apply Decidable.not_or in Hnips.
-   destruct Hnips as (Hki, Hnips).
-   symmetry in Heqc.
-   apply Qgt_alt in Heqc.
-   remember Hnp as Hnp₁; clear HeqHnp₁.
-   apply next_ch_points_hd in Hnp.
-   rewrite Hnp in Hms.
-   unfold slope_expr in Heqc.
-   simpl in Heqc.
-   symmetry in Hnp.
-   eapply minimised_slope in Heqms₁; try eassumption.
-   rewrite Heqms₁ in Heqc.
-   subst β γ.
-   apply yyy; [ idtac | assumption ].
-   split; inversion Hsort; subst a b l0; [ assumption | idtac ].
-   destruct Hms as [Hms| Hms].
-    injection Hms; clear Hms; intros; subst l lps.
-    inversion H1; assumption.
-
-    inversion H1; subst a b l0.
-    eapply lt_trans; [ eassumption | idtac ].
-    eapply LocallySorted_hd in H2; [ idtac | eassumption ].
-    assumption.
-bbb.
-*)
-
 Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
@@ -1138,29 +1028,6 @@ destruct (lt_dec k h) as [Hlt| Hge].
 
  apply not_gt in Hge.
 bbb.
-
-intros α fld pol pts γ β j jps k kps seg.
-intros Hpts Hgb h hps Hhps Hnhps.
-unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-remember Hpts as Hpts₂; clear HeqHpts₂.
-unfold points_of_ps_polynom in Hpts₂.
-rewrite <- Hpts₂ in Hgb.
-remember (lower_convex_hull_points α pts) as lch.
-destruct lch as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
-destruct lch as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
-injection Hgb; clear Hgb; intros; subst l lps m mps seg₁.
-rename H4 into Hβ.
-rename H5 into Hγ.
-rewrite Hγ in Hβ.
-symmetry in Hβ, Hγ.
-unfold points_of_ps_polynom in Hpts.
-apply points_of_polyn_sorted in Hpts.
-symmetry in Heqlch.
-eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-apply points_of_polyn_sorted in Hpts₂.
-eapply not_in_newt_segm; try eassumption.
-qed.
 
 Record branch α :=
   { initial_polynom : polynomial (puiseux_series α);
