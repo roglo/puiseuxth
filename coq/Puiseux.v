@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.304 2013-04-24 14:41:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.305 2013-04-24 15:16:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1082,12 +1082,43 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma yyy : ∀ pol pts j jps k kps β γ seg,
+Lemma k_in_pts : ∀ pts j jps k kps segjk segkx lch,
+  lower_convex_hull_points α pts = [(j, jps, segjk); (k, kps, segkx) … lch]
+  → (k, kps) ∈ pts.
+Proof.
+intros pts j jps k kps segjk segkx lch Hlch.
+unfold lower_convex_hull_points in Hlch.
+remember (length pts) as n; clear Heqn.
+destruct n; [ discriminate Hlch | simpl in Hlch ].
+destruct pts as [| (l, lps)]; [ discriminate Hlch | idtac ].
+destruct pts as [| (m, mps)]; [ discriminate Hlch | idtac ].
+injection Hlch; clear Hlch; intros; subst l lps.
+remember (minimise_slope α (j, jps) (m, mps) pts) as ms₁.
+symmetry in Heqms₁.
+subst segjk.
+apply min_sl_in in Heqms₁.
+apply next_ch_points_hd in H.
+rewrite H in Heqms₁.
+right; assumption.
+Qed.
+
+Lemma gamma_beta_k_in_pts : ∀ pol pts j jps k kps β γ seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
     → (k, kps) ∈ pts.
 Proof.
-Admitted.
+intros pol pts j jps k kps β γ seg Hpts Hgb.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+unfold points_of_ps_polynom in Hpts.
+rewrite <- Hpts in Hgb.
+remember (lower_convex_hull_points α pts) as lch.
+destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
+destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros; subst γ β l lps m mps seglx.
+symmetry in Heqlch.
+eapply k_in_pts; eassumption.
+Qed.
 
 Lemma points_not_in_newton_segment : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
@@ -1112,7 +1143,7 @@ destruct (lt_dec k h) as [Hlt| Hge].
    destruct Hnhps as (Hnhps, _).
    exfalso; apply Hnhps; reflexivity.
 
-   eapply yyy; eassumption.
+   eapply gamma_beta_k_in_pts; eassumption.
 
   apply le_neq_lt in Hge; [ idtac | assumption ].
   destruct (lt_dec j h) as [Hlt| Hge₂].
