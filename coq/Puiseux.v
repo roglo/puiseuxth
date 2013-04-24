@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.287 2013-04-24 03:11:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.288 2013-04-24 03:12:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -777,16 +777,11 @@ rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
 do 2 rewrite Qmult_minus_distr_r.
 do 2 rewrite Qplus_minus_assoc.
-apply Qlt_plus_minus_lt_r.
-rewrite <- Qplus_minus_swap.
-apply Qlt_plus_minus_lt_r.
-rewrite Qplus_minus_swap.
-do 2 rewrite <- Qplus_assoc.
-rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r.
-rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r.
-do 2 rewrite Qplus_assoc.
+apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
+apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
+do 2 rewrite <- Qplus_assoc; rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r; do 2 rewrite Qplus_assoc.
 rewrite Qplus_comm, Qplus_assoc, Qplus_assoc; apply Qnot_le_lt.
 rewrite <- Qplus_assoc, <- Qplus_assoc, Qplus_comm, Qplus_assoc.
 rewrite Qplus_plus_swap; apply Qlt_not_le.
