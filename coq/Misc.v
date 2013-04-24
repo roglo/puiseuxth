@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.4 2013-04-24 01:34:44 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.5 2013-04-24 01:51:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -114,6 +114,17 @@ apply Zlt_left_lt.
 assumption.
 Qed.
 
+Lemma Qlt_shift_mult_l : ∀ a b c, 0 < c → a / c < b → a < b * c.
+Proof.
+intros a b c Hc H.
+apply Qmult_lt_compat_r with (z := c) in H; [ idtac | assumption ].
+unfold Qdiv in H.
+rewrite <- Qmult_assoc in H.
+setoid_replace (/ c * c) with (c * / c) in H by apply Qmult_comm.
+rewrite Qmult_inv_r in H; [ idtac | apply Qgt_0_not_0; assumption ].
+rewrite Qmult_1_r in H; assumption.
+Qed.
+
 Lemma Qlt_shift_mult_r : ∀ a b c, 0 < c → a < b / c → a * c < b.
 Proof.
 intros a b c Hc H.
@@ -166,6 +177,14 @@ intros.
 unfold Qminus, Qplus, Zminus; simpl.
 do 2 rewrite Z.mul_1_r.
 reflexivity.
+Qed.
+
+Lemma Qnat_lt : ∀ i j, (i < j)%nat → Qnat i < Qnat j.
+Proof.
+intros i j H.
+unfold Qnat, Qlt; simpl.
+do 2 rewrite Zmult_1_r.
+apply inj_lt; assumption.
 Qed.
 
 Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Qnat (j - i).
