@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.281 2013-04-24 01:51:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.282 2013-04-24 02:00:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -741,6 +741,9 @@ rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
 apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+do 2 rewrite Qmult_minus_distr_l in H.
+do 4 rewrite Qmult_minus_distr_r in H.
+do 2 rewrite Qminus_minus_assoc in H.
 bbb.
 *)
 

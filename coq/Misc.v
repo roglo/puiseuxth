@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.5 2013-04-24 01:51:11 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.6 2013-04-24 02:00:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -147,12 +147,28 @@ Qed.
 Lemma Qmult_div_assoc : ∀ a b c, a * (b / c) == (a * b) / c.
 Proof. intros a b c; unfold Qdiv; apply Qmult_assoc. Qed.
 
+Lemma Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
+Proof.
+intros x y.
+unfold Qeq, Qmult, Qopp; simpl.
+rewrite Z.mul_opp_l.
+reflexivity.
+Qed.
+
 Lemma Qmult_opp_r : ∀ x y, x * - y == - (x * y).
 Proof.
 intros x y.
 unfold Qeq, Qmult, Qopp; simpl.
 rewrite Z.mul_opp_r.
 reflexivity.
+Qed.
+
+Lemma Qmult_minus_distr_l : ∀ x y z, (x - y) * z == x * z - y * z.
+Proof.
+intros x y z.
+unfold Qminus.
+rewrite Qmult_plus_distr_l.
+rewrite Qmult_opp_l; reflexivity.
 Qed.
 
 Lemma Qmult_minus_distr_r : ∀ x y z, x * (y - z) == x * y - x * z.
@@ -240,6 +256,9 @@ intros a b c Hc.
 rewrite Qdiv_plus_distr_r.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
+
+Lemma Qminus_minus_assoc : ∀ x y z, x - (y - z) == (x - y) + z.
+Proof. intros x y z; ring. Qed.
 
 Lemma Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
 Proof. intros x y z; ring. Qed.
