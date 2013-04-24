@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.289 2013-04-24 03:21:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.290 2013-04-24 03:33:52 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -723,9 +723,19 @@ Proof. intros; ring. Qed.
 Lemma Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
 Proof. intros; ring. Qed.
 
-Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
+Lemma Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
 Proof.
 Admitted.
+
+Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
+Proof.
+intros x y z H.
+apply Qplus_lt_compat_r with (z := y) in H.
+rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc in H.
+unfold Qminus in H.
+rewrite Qplus_opp_r, Qplus_0_r in H.
+assumption.
+Qed.
 
 Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
 Proof.
