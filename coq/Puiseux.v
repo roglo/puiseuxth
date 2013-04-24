@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.295 2013-04-24 08:27:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.296 2013-04-24 08:28:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -715,76 +715,6 @@ induction rl as [| (m, mps)]; intros.
     left; reflexivity.
 
     right; right; assumption.
-Qed.
-
-Lemma Qplus_plus_swap : ∀ x y z, x + y + z == x + z + y.
-Proof. intros; ring. Qed.
-
-Lemma Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
-Proof. intros; ring. Qed.
-
-Lemma Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
-Proof.
-intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
-unfold Qlt in H; simpl in H.
-unfold Qlt, Qplus; simpl.
-do 2 rewrite Pos2Z.inj_mul.
-do 2 rewrite Z.mul_add_distr_r.
-do 4 rewrite Z.mul_assoc.
-remember (z₁ * ' y₂ * ' x₂ * ' z₂)%Z as t.
-remember (z₁ * ' y₂ * ' x₂)%Z as u.
-rewrite Z.mul_shuffle0 in Hequ.
-subst u.
-rewrite <- Heqt.
-apply Zplus_lt_compat_r.
-clear t Heqt.
-rewrite <- Zmult_assoc.
-rewrite Z.mul_shuffle1.
-remember (y₁ * ' z₂ * ' x₂ * ' z₂)%Z as t.
-rewrite <- Zmult_assoc in Heqt.
-rewrite Z.mul_shuffle1 in Heqt; subst t.
-apply Zmult_lt_compat_r; [ idtac | assumption ].
-rewrite <- Pos2Z.inj_mul.
-apply Pos2Z.is_pos.
-Qed.
-
-Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := y) in H.
-rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc in H.
-unfold Qminus in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
-Qed.
-
-Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := - y) in H.
-rewrite <- Qplus_assoc in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
-Qed.
-
-Lemma Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := z) in H.
-rewrite <- Qplus_minus_swap in H.
-rewrite <- Qplus_minus_assoc in H.
-unfold Qminus in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
-Qed.
-
-Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := - z) in H.
-rewrite <- Qplus_assoc in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
 Qed.
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
