@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.305 2013-04-24 15:16:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.306 2013-04-24 15:34:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1035,7 +1035,36 @@ Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
         → (h, hps) ∉ seg
           → β < valuation α hps + Qnat h * γ.
 Proof.
-Admitted.
+intros pol pts γ β j jps k kps segjk Hpts Hgb h hps Hhps (Hjh, Hhk) Hseg.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+unfold points_of_ps_polynom in Hpts.
+rewrite <- Hpts in Hgb.
+remember (lower_convex_hull_points α pts) as lch.
+destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
+destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros; subst l lps m mps seglx.
+symmetry in H4; rename H4 into Hβ.
+symmetry in H5; rename H5 into Hγ.
+symmetry in Heqlch.
+unfold lower_convex_hull_points in Heqlch.
+remember (length pts) as n; clear Heqn.
+destruct n; [ discriminate Heqlch | simpl in Heqlch ].
+destruct pts as [| (l, lps)]; [ discriminate Heqlch | idtac ].
+destruct pts as [| (m, mps)]; [ discriminate Heqlch | idtac ].
+injection Heqlch; clear Heqlch; intros; subst l lps.
+subst segjk.
+remember (minimise_slope α (j, jps) (m, mps) pts) as ms₂.
+symmetry in Heqms₂.
+apply next_ch_points_hd in H.
+destruct Hhps as [Hhps| Hhps].
+ injection Hhps; clear Hhps; intros; subst h hps.
+ apply lt_irrefl in Hjh; contradiction.
+
+ destruct Hhps as [Hhps| Hhps].
+  injection Hhps; clear Hhps; intros; subst m mps.
+  apply minimise_slope_pts_le with (h := h) (hps := hps) in Heqms₂.
+bbb.
 
 Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
   LocallySorted fst_lt [(k, jps) … pts] → (k, kps) ∉ pts.
