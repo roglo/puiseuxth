@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.2 2013-04-23 21:09:02 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.3 2013-04-24 01:28:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -131,8 +131,6 @@ rewrite Qmult_plus_distr_r.
 rewrite Qmult_opp_r; reflexivity.
 Qed.
 
-(* to put in alphabetic order *)
-
 Lemma QZ_plus : ∀ a b, a + b # 1 == (a # 1) + (b # 1).
 Proof.
 intros.
@@ -149,23 +147,15 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
-Proof. intros; field. Qed.
-
-Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
+Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Z.of_nat (j - i) # 1.
 Proof.
-intros (a₁, a₂) (b₁, b₂); unfold Qlt; simpl; intros H.
-apply Z.opp_lt_mono.
-do 2 rewrite Z.mul_opp_l.
-do 2 rewrite Z.opp_involutive.
-assumption.
-Qed.
-
-Lemma Qplus_div : ∀ a b c, ¬(c == 0) → a + b / c == (a * c + b) / c.
-Proof.
-intros a b c Hc.
-rewrite Qdiv_plus_distr_r.
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+intros i j H.
+rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+rewrite QZ_minus.
+apply Qlt_minus.
+unfold Qlt; simpl.
+do 2 rewrite Zmult_1_r.
+apply inj_lt; assumption.
 Qed.
 
 Lemma Qnat_lt_not_0 : ∀ i j, (i < j)%nat → ¬Z.of_nat (j - i) # 1 == 0.
@@ -182,15 +172,23 @@ apply Nat2Z.inj in HH.
 subst j; apply lt_irrefl in H; assumption.
 Qed.
 
-Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Z.of_nat (j - i) # 1.
+Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
 Proof.
-intros i j H.
-rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-rewrite QZ_minus.
-apply Qlt_minus.
-unfold Qlt; simpl.
-do 2 rewrite Zmult_1_r.
-apply inj_lt; assumption.
+intros (a₁, a₂) (b₁, b₂); unfold Qlt; simpl; intros H.
+apply Z.opp_lt_mono.
+do 2 rewrite Z.mul_opp_l.
+do 2 rewrite Z.opp_involutive.
+assumption.
+Qed.
+
+Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
+Proof. intros; field. Qed.
+
+Lemma Qplus_div : ∀ a b c, ¬(c == 0) → a + b / c == (a * c + b) / c.
+Proof.
+intros a b c Hc.
+rewrite Qdiv_plus_distr_r.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
 Lemma Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
