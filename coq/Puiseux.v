@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.291 2013-04-24 04:23:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.292 2013-04-24 08:19:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -738,7 +738,15 @@ subst u.
 rewrite <- Heqt.
 apply Zplus_lt_compat_r.
 clear t Heqt.
-bbb.
+rewrite <- Zmult_assoc.
+rewrite Z.mul_shuffle1.
+remember (y₁ * ' z₂ * ' x₂ * ' z₂)%Z as t.
+rewrite <- Zmult_assoc in Heqt.
+rewrite Z.mul_shuffle1 in Heqt; subst t.
+apply Zmult_lt_compat_r; [ idtac | assumption ].
+rewrite <- Pos2Z.inj_mul.
+apply Pos2Z.is_pos.
+Qed.
 
 Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.
