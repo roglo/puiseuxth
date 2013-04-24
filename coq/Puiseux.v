@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.286 2013-04-24 03:09:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.287 2013-04-24 03:11:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -632,8 +632,8 @@ Qed.
 
 Lemma points_in_newton_segment : ∀ α fld pol γ β j jps k kps seg,
   gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-  → ∀ i ips, (i, ips) ∈ [(j, jps); (k, kps) … seg]
-    → valuation α ips + Qnat i * γ == β.
+  → ∀ h hps, (h, hps) ∈ [(j, jps); (k, kps) … seg]
+    → valuation α hps + Qnat h * γ == β.
 Proof.
 intros α fld pol γ β j jps k kps seg Hgb i ips Hips.
 unfold gamma_beta in Hgb.
