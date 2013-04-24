@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.298 2013-04-24 08:37:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.299 2013-04-24 09:03:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -11,6 +11,7 @@ Require Import Misc.
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
+Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 
 Record field α :=
   { zero : α;
@@ -1014,6 +1015,24 @@ apply points_of_polyn_sorted in Hpts₂.
 eapply pt_aft_k; try eassumption.
 Qed.
 
+Lemma points_between_j_and_k : ∀ α fld pol pts γ β j jps k kps seg,
+  pts = points_of_ps_polynom α fld pol
+  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
+    → ∀ h hps, (h, hps) ∈ pts
+      → (j < h < k)%nat
+        → (h, hps) ∉ seg
+          → β < valuation α hps + Qnat h * γ.
+Proof.
+Admitted.
+
+(*
+Lemma zzz : ∀ α fld 
+  pts = points_of_ps_polynom α fld pol
+  (j, jps) ∈ pts
+  (k, kps) ∈ pts
+  j = k → jps = kps.
+*)
+
 Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
@@ -1027,6 +1046,10 @@ destruct (lt_dec k h) as [Hlt| Hge].
  eapply points_after_k; eassumption.
 
  apply not_gt in Hge.
+ destruct (eq_nat_dec h k) as [Heq| Hne].
+  subst h.
+  unfold points_of_ps_polynom in Hpts.
+  apply points_of_polyn_sorted in Hpts.
 bbb.
 
 Record branch α :=

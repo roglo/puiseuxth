@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.7 2013-04-24 08:28:51 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.8 2013-04-24 09:03:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,6 +9,14 @@ Lemma minus_Sn_n : ∀ n, (S n - n = 1)%nat.
 Proof.
 intros n.
 rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
+Qed.
+
+Lemma le_neq_lt : ∀ x y : nat, x ≤ y → x ≠ y → (x < y)%nat.
+Proof.
+intros x y Hxy Hnxy.
+apply le_lt_eq_dec in Hxy.
+destruct Hxy; [ assumption | idtac ].
+exfalso; subst x; apply Hnxy; reflexivity.
 Qed.
 
 Lemma Qmutual_shift_div : ∀ a b c d,
