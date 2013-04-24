@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.302 2013-04-24 09:37:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.303 2013-04-24 12:58:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1018,15 +1018,51 @@ Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
 Proof.
 Admitted.
 
-Lemma zzz : ∀ pol pts j jps k kps,
+Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
+  LocallySorted fst_lt [(k, jps) … pts] → (k, kps) ∉ pts.
+Proof.
+intros k jps kps pts H.
+induction pts as [| (h, hps)]; [ intros HH; contradiction | idtac ].
+intros HH.
+destruct HH as [HH| HH].
+ inversion HH; clear HH; intros; subst h hps.
+ inversion H; subst a b l.
+ apply lt_irrefl in H4; assumption.
+
+ revert HH; apply IHpts.
+ inversion H; subst a b l.
+ inversion H2; subst a pts; [ constructor | idtac ].
+ constructor.
+  inversion H2; assumption.
+
+  destruct b as (i, ips).
+  eapply lt_trans; eassumption.
+Qed.
+
+Lemma same_k_same_kps : ∀ pol pts j jps k kps,
   pts = points_of_ps_polynom α fld pol
   → (j, jps) ∈ pts
     → (k, kps) ∈ pts
       → j = k
         → jps = kps.
 Proof.
-intros pol pts j jps k kps Hpts Hjps Hkps.
-bbb.
+intros pol pts j jps k kps Hpts Hjps Hkps Hjk.
+unfold points_of_ps_polynom in Hpts.
+apply points_of_polyn_sorted in Hpts.
+subst j.
+induction pts as [| pt]; intros; [ contradiction | idtac ].
+destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
+ destruct Hkps as [Hkps| Hkps].
+  injection Hkps; clear; intros; subst jps; reflexivity.
+
+  exfalso; revert Hkps; eapply sorted_hd_not_in_tl; eassumption.
+
+ destruct Hkps as [Hkps| Hkps]; [ subst pt | idtac ].
+  exfalso; revert Hjps; eapply sorted_hd_not_in_tl; eassumption.
+
+  inversion Hpts; subst a pts; [ contradiction | idtac ].
+  eapply IHpts; eassumption.
+Qed.
 
 Lemma yyy : ∀ pol pts j jps k kps β γ seg,
   pts = points_of_ps_polynom α fld pol
@@ -1049,7 +1085,7 @@ destruct (lt_dec k h) as [Hlt| Hge].
 
  apply not_gt in Hge.
  destruct (eq_nat_dec h k) as [Heq| Hne].
-  eapply zzz with (kps := kps) in Hhps; try eassumption.
+  eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
    subst h hps.
    simpl in Hnhps.
    apply Decidable.not_or in Hnhps.
