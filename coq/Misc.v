@@ -1,7 +1,12 @@
-(* $Id: Misc.v,v 1.8 2013-04-24 09:03:53 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.9 2013-04-24 09:22:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
+Notation "[ x ]" := (cons x nil).
+Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Definition Qnat i := Z.of_nat i # 1.
 
@@ -17,6 +22,17 @@ intros x y Hxy Hnxy.
 apply le_lt_eq_dec in Hxy.
 destruct Hxy; [ assumption | idtac ].
 exfalso; subst x; apply Hnxy; reflexivity.
+Qed.
+
+Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
+Proof.
+intros x l₁ l₂.
+revert x l₂.
+induction l₁ as [| y]; intros x l₂.
+ intros H; discriminate H.
+
+ simpl; rewrite <- List.app_assoc; simpl.
+ apply IHl₁.
 Qed.
 
 Lemma Qmutual_shift_div : ∀ a b c d,

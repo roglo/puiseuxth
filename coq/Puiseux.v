@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.299 2013-04-24 09:03:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.300 2013-04-24 09:22:06 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -10,7 +10,6 @@ Require Import Misc.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
-Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 
 Record field α :=
@@ -78,10 +77,15 @@ Definition gamma_beta {α} fld pol :=
   gamma_beta_gen α fld 0%nat (al pol) (an pol).
 Arguments gamma_beta : default implicits.
 
-Lemma one_vp_gen : ∀ α fld pow cl cn,
+Section puiseux_field.
+
+Variable α : Type.
+Variable fld : field (puiseux_series α).
+
+Lemma one_vp_gen : ∀ pow cl cn,
   cn ≠ zero fld → points_of_ps_polynom_gen α fld pow cl cn ≠ [].
 Proof.
-intros α fld pow cl cn Hcn.
+intros pow cl cn Hcn.
 unfold points_of_ps_polynom_gen.
 remember (all_points_of_ps_polynom α pow cl cn) as cpl.
 revert pow cpl Heqcpl.
@@ -98,23 +102,23 @@ induction cl as [| c cl]; intros.
   intros H; discriminate H.
 Qed.
 
-Lemma at_least_one_valuation_point : ∀ α fld pol,
+Lemma at_least_one_valuation_point : ∀ pol,
   an pol ≠ zero fld → points_of_ps_polynom α fld pol ≠ [].
 Proof.
 intros; apply one_vp_gen; assumption.
 Qed.
 
-Lemma fold_points_of_ps_polynom_gen : ∀ α fld pow cl cn,
+Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
   filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
   points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
 
-Lemma two_vp_gen : ∀ α fld pow cl cn,
+Lemma two_vp_gen : ∀ pow cl cn,
   cn ≠ zero fld
   → (∃ c, c ∈ cl ∧ c ≠ zero fld)
     → List.length (points_of_ps_polynom_gen α fld pow cl cn) ≥ 2.
 Proof.
-intros α fld pow cl cn Hcn Hcl.
+intros pow cl cn Hcn Hcl.
 revert pow.
 induction cl as [| c]; intros.
  destruct Hcl as (c, (Hc, Hz)); contradiction.
@@ -141,7 +145,7 @@ induction cl as [| c]; intros.
    apply le_n_S, le_0_n.
 Qed.
 
-Lemma at_least_two_points_of_ps_polynom : ∀ α fld pol,
+Lemma at_least_two_points_of_ps_polynom : ∀ pol,
   an pol ≠ zero fld
   → (∃ c, c ∈ (al pol) ∧ c ≠ zero fld)
     → List.length (points_of_ps_polynom α fld pol) ≥ 2.
@@ -149,34 +153,23 @@ Proof.
 intros; apply two_vp_gen; assumption.
 Qed.
 
-Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].
-Proof.
-intros x l₁ l₂.
-revert x l₂.
-induction l₁ as [| y]; intros x l₂.
- intros H; discriminate H.
-
- simpl; rewrite <- List.app_assoc; simpl.
- apply IHl₁.
-Qed.
-
-Lemma lower_convex_points_empty_iff : ∀ α dpl,
+Lemma lower_convex_points_empty_iff : ∀ dpl,
   lower_convex_hull_points α dpl = [ ] ↔ dpl = [].
 Proof.
-intros α dpl.
+intros dpl.
 unfold lower_convex_hull_points.
 split; intros H; [ idtac | subst dpl; reflexivity ].
 destruct dpl as [| dp₁ dpl₁]; [ reflexivity | simpl in H ].
 destruct dpl₁; discriminate H.
 Qed.
 
-Lemma vp_pow_lt : ∀ α fld pow cl cn d₁ p₁ dpl,
+Lemma vp_pow_lt : ∀ pow cl cn d₁ p₁ dpl,
   points_of_ps_polynom_gen α fld (S pow) cl cn = dpl
   → (d₁, p₁) ∈ dpl
     → (pow < d₁)%nat.
 Proof.
-intros α fld pow cl cn d₁ p₁ dpl Hvp Hdp.
-revert fld pow cn d₁ p₁ dpl Hvp Hdp.
+intros pow cl cn d₁ p₁ dpl Hvp Hdp.
+revert pow cn d₁ p₁ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (is_zero_dec fld cn) as [Heq| Hne].
@@ -207,13 +200,13 @@ induction cl as [| c]; intros.
    apply lt_n_Sn.
 Qed.
 
-Lemma vp_lt : ∀ α fld pow cl cn d₁ p₁ d₂ p₂ dpl,
+Lemma vp_lt : ∀ pow cl cn d₁ p₁ d₂ p₂ dpl,
   points_of_ps_polynom_gen α fld pow cl cn = [(d₁, p₁) … dpl]
   → (d₂, p₂) ∈ dpl
     → (d₁ < d₂)%nat.
 Proof.
-intros α fld pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
-revert fld pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
+intros pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
+revert pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
  destruct (is_zero_dec fld cn) as [| Hne]; [ discriminate Hvp | idtac ].
@@ -229,7 +222,7 @@ induction cl as [| c]; intros.
   eapply vp_pow_lt; eassumption.
 Qed.
 
-Lemma points_of_ps_polynom_lt : ∀ α fld pol d₁ p₁ d₂ p₂ dpl,
+Lemma points_of_ps_polynom_lt : ∀ pol d₁ p₁ d₂ p₂ dpl,
   points_of_ps_polynom α fld pol = [(d₁, p₁); (d₂, p₂) … dpl]
   → (d₁ < d₂)%nat.
 Proof.
@@ -238,12 +231,12 @@ unfold points_of_ps_polynom in Hvp.
 eapply vp_lt; [ eassumption | left; reflexivity ].
 Qed.
 
-Lemma gb_gen_not_empty : ∀ α fld deg cl cn,
+Lemma gb_gen_not_empty : ∀ deg cl cn,
   cn ≠ zero fld
   → (∃ c, c ∈ cl ∧ c ≠ zero fld)
     → gamma_beta_gen α fld deg cl cn ≠ None.
 Proof.
-intros α fld deg cl cn Hcn Hcl.
+intros deg cl cn Hcn Hcl.
 unfold gamma_beta_gen.
 remember (points_of_ps_polynom_gen α fld deg cl cn) as pts.
 remember (lower_convex_hull_points α pts) as chp.
@@ -273,12 +266,12 @@ destruct chp as [| (j, jps)].
   discriminate H.
 Qed.
 
-Lemma gamma_beta_not_empty : ∀ α fld (pol : polynomial (puiseux_series α)),
+Lemma gamma_beta_not_empty : ∀ (pol : polynomial (puiseux_series α)),
   an pol ≠ zero fld
   → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
     → gamma_beta fld pol ≠ None.
 Proof.
-intros α fld pol an_nz ai_nz.
+intros pol an_nz ai_nz.
 unfold gamma_beta.
 apply gb_gen_not_empty; assumption.
 Qed.
@@ -288,11 +281,11 @@ Definition fst_lt {α} (x y : nat * α) :=
 Definition fst_fst_lt {α β} (x y : (nat * α) * β) :=
   (fst (fst x) < fst (fst y))%nat.
 
-Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
+Lemma points_of_polyn_sorted : ∀ deg cl cn pts,
   pts = points_of_ps_polynom_gen α fld deg cl cn
   → LocallySorted fst_lt pts.
 Proof.
-intros α fld deg cl cn pts Hpts.
+intros deg cl cn pts Hpts.
 revert deg cn pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
@@ -330,12 +323,12 @@ induction cl as [| c]; intros.
     constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
 Qed.
 
-Lemma minimise_slope_le : ∀ α pt₁ pt₂ pts₂ ms,
+Lemma minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   LocallySorted fst_lt [pt₂ … pts₂]
   → minimise_slope α pt₁ pt₂ pts₂ = ms
     → fst pt₂ ≤ fst (end_pt ms).
 Proof.
-intros α pt₁ pt₂ pts₂ ms Hsort Hms.
+intros pt₁ pt₂ pts₂ ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
 induction pts₂ as [| pt]; intros.
  subst ms; apply le_n.
@@ -357,11 +350,11 @@ induction pts₂ as [| pt]; intros.
   eapply IHpts₂; eassumption.
 Qed.
 
-Lemma min_sl_in : ∀ α pt₁ pt₂ pts₂ ms,
+Lemma min_sl_in : ∀ pt₁ pt₂ pts₂ ms,
   minimise_slope α pt₁ pt₂ pts₂ = ms
   → end_pt ms ∈ [pt₂ … pts₂].
 Proof.
-intros α pt₁ pt₂ pts₂ ms Hms.
+intros pt₁ pt₂ pts₂ ms Hms.
 revert pt₁ pt₂ ms Hms.
 induction pts₂ as [| pt]; intros.
  subst ms; left; reflexivity.
@@ -380,11 +373,11 @@ induction pts₂ as [| pt]; intros.
   right; right; assumption.
 Qed.
 
-Lemma in_rem_pts : ∀ α pt pt₁ pt₂ pts₂,
+Lemma in_rem_pts : ∀ pt pt₁ pt₂ pts₂,
   pt ∈ rem_pts (minimise_slope α pt₁ pt₂ pts₂)
   → pt ∈ [pt₂ … pts₂].
 Proof.
-intros α pt pt₁ pt₂ pts₂ Hpt.
+intros pt pt₁ pt₂ pts₂ Hpt.
 revert pt₁ pt₂ pt Hpt.
 induction pts₂ as [| pt₃]; intros; [ contradiction | idtac ].
 simpl in Hpt.
@@ -400,12 +393,12 @@ destruct c; simpl in Hpt; [ idtac | right; assumption | idtac ].
  right; assumption.
 Qed.
 
-Lemma np_in : ∀ α n pts lch,
+Lemma np_in : ∀ n pts lch,
   next_ch_points α n pts = lch
   → ∀ pt, pt ∈ List.map (λ ms, fst ms) lch
     → pt ∈ pts.
 Proof.
-intros α n pts lch Hnp pt Hpt.
+intros n pts lch Hnp pt Hpt.
 subst lch.
 revert pts pt Hpt.
 induction n; intros; [ contradiction | simpl in Hpt ].
@@ -426,22 +419,22 @@ destruct H as [H| H].
  right; eapply in_rem_pts; eassumption.
 Qed.
 
-Lemma next_ch_points_le : ∀ α n pt₁ pt₂ pts₁ sg lch,
+Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg lch,
   next_ch_points α n [pt₁ … pts₁] = [(pt₂, sg) … lch]
   → fst pt₁ ≤ fst pt₂.
 Proof.
-intros α n pt₁ pt₂ pts₁ sg lch Hnp.
+intros n pt₁ pt₂ pts₁ sg lch Hnp.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
 Qed.
 
-Lemma minimise_slope_sorted : ∀ α pt₁ pt₂ pts ms,
+Lemma minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → LocallySorted fst_lt [end_pt ms … rem_pts ms].
 Proof.
-intros α pt₁ pt₂ pts ms Hsort Hms.
+intros pt₁ pt₂ pts ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
 induction pts as [| pt₃]; intros; [ subst ms; constructor | idtac ].
 simpl in Hms.
@@ -457,12 +450,12 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-Lemma next_points_sorted : ∀ α n pts lch,
+Lemma next_points_sorted : ∀ n pts lch,
   LocallySorted fst_lt pts
   → next_ch_points α n pts = lch
     → LocallySorted fst_fst_lt lch.
 Proof.
-intros α n pts lch Hsort Hnp.
+intros n pts lch Hsort Hnp.
 revert pts lch Hsort Hnp.
 induction n; intros; [ subst lch; constructor | idtac ].
 simpl in Hnp.
@@ -493,31 +486,31 @@ apply IHn in Heqlch₁.
  eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lower_convex_hull_points_sorted : ∀ α pts lch,
+Lemma lower_convex_hull_points_sorted : ∀ pts lch,
   LocallySorted fst_lt pts
   → lower_convex_hull_points α pts = lch
     → LocallySorted fst_fst_lt lch.
 Proof.
-intros α pts lch Hsort Hch.
+intros pts lch Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
-Lemma next_ch_points_hd : ∀ α n pt₁ pt₂ pts₁ seg lch,
+Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg lch,
   next_ch_points α n [pt₁ … pts₁] = [(pt₂, seg) … lch]
   → pt₁ = pt₂.
 Proof.
-intros α n pt₁ pt₂ pts₂ seg₂ lch Hnp.
+intros n pt₁ pt₂ pts₂ seg₂ lch Hnp.
 revert pt₁ pt₂ pts₂ seg₂ lch Hnp.
 induction n; intros; [ discriminate Hnp | simpl in Hnp ].
 destruct pts₂; injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
 
-Lemma minimised_slope : ∀ α j jps k kps pt pts ms,
+Lemma minimised_slope : ∀ j jps k kps pt pts ms,
   minimise_slope α (j, jps) pt pts = ms
   → (k, kps) = end_pt ms
     → slope ms == slope_expr α (j, jps) (k, kps).
 Proof.
-intros α j jps k kps pt pts ms Hms Hkps.
+intros j jps k kps pt pts ms Hms Hkps.
 revert j jps k kps pt ms Hms Hkps.
 induction pts as [| pt₁]; intros.
  subst ms; simpl in Hkps |- *; subst pt; reflexivity.
@@ -535,7 +528,7 @@ induction pts as [| pt₁]; intros.
   eapply IHpts; eassumption.
 Qed.
 
-Lemma min_sl_pt_in_newt_segm : ∀ α j jps k kps β γ pt pts ms segkx lch n,
+Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx lch n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -545,7 +538,7 @@ Lemma min_sl_pt_in_newt_segm : ∀ α j jps k kps β γ pt pts ms segkx lch n,
           → ∀ i ips, (i, ips) ∈ seg ms
             → valuation α ips + Qnat i * γ == β.
 Proof.
-intros α j jps k kps β γ pt pts ms segkx lch n.
+intros j jps k kps β γ pt pts ms segkx lch n.
 intros Hsort Hβ Hγ Hms Hnp i ips Hips.
 revert pt ms lch n i ips Hsort Hips Hms Hnp.
 induction pts as [| pt₁]; intros.
@@ -605,7 +598,7 @@ induction pts as [| pt₁]; intros.
   eapply lt_trans; eassumption.
 Qed.
 
-Lemma in_newt_segm : ∀ α j jps k kps γ β pts segjk segkx lch,
+Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx lch,
   LocallySorted fst_lt pts
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -614,7 +607,7 @@ Lemma in_newt_segm : ∀ α j jps k kps γ β pts segjk segkx lch,
         → ∀ i ips, (i, ips) ∈ segjk
           → valuation α ips + Qnat i * γ == β.
 Proof.
-intros α j jps k kps γ β pts segjk segkx lch.
+intros j jps k kps γ β pts segjk segkx lch.
 intros Hsort Hβ Hγ Hch i ips Hips.
 unfold lower_convex_hull_points in Hch.
 remember (length pts) as n; clear Heqn.
@@ -631,12 +624,12 @@ symmetry in Heqms.
 eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
 
-Lemma points_in_newton_segment : ∀ α fld pol γ β j jps k kps seg,
+Lemma points_in_newton_segment : ∀ pol γ β j jps k kps seg,
   gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
   → ∀ h hps, (h, hps) ∈ [(j, jps); (k, kps) … seg]
     → valuation α hps + Qnat h * γ == β.
 Proof.
-intros α fld pol γ β j jps k kps seg Hgb i ips Hips.
+intros pol γ β j jps k kps seg Hgb i ips Hips.
 unfold gamma_beta in Hgb.
 unfold gamma_beta_gen in Hgb.
 remember (points_of_ps_polynom_gen α fld 0 (al pol) (an pol)) as pts.
@@ -679,12 +672,12 @@ destruct Hips as [Hips| Hips].
   eapply in_newt_segm in Heqlch; eassumption.
 Qed.
 
-Lemma rev_app_le_val : ∀ α β γ i ips rl l lch,
+Lemma rev_app_le_val : ∀ β γ i ips rl l lch,
   (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
   → List.rev rl ++ [(i, ips) … l] = lch
     →  β <= valuation α ips + Qnat i * γ.
 Proof.
-intros α β γ i ips rl l lch Hle Hrl.
+intros β γ i ips rl l lch Hle Hrl.
 revert i ips l lch Hle Hrl.
 induction rl as [| (m, mps)]; intros.
  simpl in Hrl.
@@ -765,7 +758,7 @@ rewrite Qplus_plus_swap; apply Qlt_not_le.
 assumption.
 Qed.
 
-Lemma LocallySorted_hd {α} : ∀ (pt₁ pt₂ : nat * α) pts,
+Lemma LocallySorted_hd {β} : ∀ (pt₁ pt₂ : nat * β) pts,
   LocallySorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
     → (fst pt₁ < fst pt₂)%nat.
@@ -784,11 +777,11 @@ Definition pt_of_ch α
     (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
   fst item.
 
-Lemma minimised_slope_le : ∀ α j jps h hps pts ms,
+Lemma minimised_slope_le : ∀ j jps h hps pts ms,
   minimise_slope α (j, jps) (h, hps) pts = ms
   → slope ms <= slope_expr α (j, jps) (h, hps).
 Proof.
-intros α j jps h hps pts ms Hms.
+intros j jps h hps pts ms Hms.
 revert ms Hms.
 induction pts as [| pt]; intros.
  simpl in Hms.
@@ -810,13 +803,13 @@ induction pts as [| pt]; intros.
   apply Qlt_le_weak; eassumption.
 Qed.
 
-Lemma minimise_slope_pts_le : ∀ α j jps pt pts ms,
+Lemma minimise_slope_pts_le : ∀ j jps pt pts ms,
   minimise_slope α (j, jps) pt pts = ms
   → ∀ h hps,
      (h, hps) ∈ pts
      → slope ms <= slope_expr α (j, jps) (h, hps).
 Proof.
-intros α j jps pt pts ms Hms h hps Hhps.
+intros j jps pt pts ms Hms h hps Hhps.
 revert pt ms Hms h hps Hhps.
 induction pts as [| pt₁]; [ contradiction | intros ].
 destruct Hhps as [Hhps| Hhps].
@@ -856,7 +849,7 @@ destruct Hhps as [Hhps| Hhps].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma minimise_slope_lt : ∀ α j jps k kps pt pts ms,
+Lemma minimise_slope_lt : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
   → minimise_slope α (j, jps) pt pts = ms
     → end_pt ms = (k, kps)
@@ -865,7 +858,7 @@ Lemma minimise_slope_lt : ∀ α j jps k kps pt pts ms,
         → (k < h)%nat
           → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
-intros α j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hkh.
+intros j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hkh.
 revert pt ms Hms Hep h Hhps Hkh.
 induction pts as [| pt₁]; [ contradiction | intros ].
 destruct Hhps as [Hhps| Hhps].
@@ -924,7 +917,7 @@ destruct Hhps as [Hhps| Hhps].
   inversion Hsort; [ constructor | assumption ].
 Qed.
 
-Lemma pt_aft_k : ∀ α n pts j jps k kps seg seg₂ lch γ β,
+Lemma pt_aft_k : ∀ n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, seg); (k, kps, seg₂) … lch]
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -934,7 +927,7 @@ Lemma pt_aft_k : ∀ α n pts j jps k kps seg seg₂ lch γ β,
             → next_ch_points α n pts = [(j, jps, seg); (k, kps, seg₂) … lch]
               → β < valuation α hps + Qnat h * γ.
 Proof.
-intros α n pts j jps k kps segjk segkx lch γ β.
+intros n pts j jps k kps segjk segkx lch γ β.
 intros Hsort Hsort₂ Hγ Hβ h hps Hkh Hhps Hnp.
 destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -986,14 +979,14 @@ destruct Hhps as [Hhps| Hhps].
    inversion H2; [ constructor | assumption ].
 Qed.
 
-Lemma points_after_k : ∀ α fld pol pts γ β j jps k kps seg,
+Lemma points_after_k : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
     → ∀ h hps, (h, hps) ∈ pts
       → (k < h)%nat
         → β < valuation α hps + Qnat h * γ.
 Proof.
-intros α fld pol pts γ β j jps k kps seg Hpts Hgb i ip Hips Hki.
+intros pol pts γ β j jps k kps seg Hpts Hgb i ip Hips Hki.
 unfold gamma_beta in Hgb.
 unfold gamma_beta_gen in Hgb.
 remember Hpts as Hpts₂; clear HeqHpts₂.
@@ -1015,7 +1008,7 @@ apply points_of_polyn_sorted in Hpts₂.
 eapply pt_aft_k; try eassumption.
 Qed.
 
-Lemma points_between_j_and_k : ∀ α fld pol pts γ β j jps k kps seg,
+Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
     → ∀ h hps, (h, hps) ∈ pts
@@ -1026,21 +1019,21 @@ Proof.
 Admitted.
 
 (*
-Lemma zzz : ∀ α fld 
+Lemma zzz : ∀ 
   pts = points_of_ps_polynom α fld pol
   (j, jps) ∈ pts
   (k, kps) ∈ pts
   j = k → jps = kps.
 *)
 
-Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
+Lemma points_not_in_newton_segment : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
     → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … seg]
         → β < valuation α hps + Qnat h * γ.
 Proof.
-intros α fld pol pts γ β j jps k kps seg.
+intros pol pts γ β j jps k kps seg.
 intros Hpts Hgb h hps Hhps Hnhps.
 destruct (lt_dec k h) as [Hlt| Hge].
  eapply points_after_k; eassumption.
