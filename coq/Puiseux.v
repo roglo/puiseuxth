@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.300 2013-04-24 09:22:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.301 2013-04-24 09:36:11 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1018,13 +1018,21 @@ Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
 Proof.
 Admitted.
 
-(*
-Lemma zzz : ∀ 
+Lemma zzz : ∀ pol pts j jps k kps,
   pts = points_of_ps_polynom α fld pol
-  (j, jps) ∈ pts
-  (k, kps) ∈ pts
-  j = k → jps = kps.
-*)
+  → (j, jps) ∈ pts
+    → (k, kps) ∈ pts
+      → j = k
+        → jps = kps.
+Proof.
+Admitted.
+
+Lemma yyy : ∀ pol pts j jps k kps β γ seg,
+  pts = points_of_ps_polynom α fld pol
+  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
+    → (k, kps) ∈ pts.
+Proof.
+Admitted.
 
 Lemma points_not_in_newton_segment : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
@@ -1040,9 +1048,28 @@ destruct (lt_dec k h) as [Hlt| Hge].
 
  apply not_gt in Hge.
  destruct (eq_nat_dec h k) as [Heq| Hne].
-  subst h.
-  unfold points_of_ps_polynom in Hpts.
-  apply points_of_polyn_sorted in Hpts.
+  eapply zzz with (kps := kps) in Hhps; try eassumption.
+   subst h hps.
+   simpl in Hnhps.
+   apply Decidable.not_or in Hnhps.
+   destruct Hnhps as (_, Hnhps).
+   apply Decidable.not_or in Hnhps.
+   destruct Hnhps as (Hnhps, _).
+   exfalso; apply Hnhps; reflexivity.
+
+   eapply yyy; eassumption.
+
+  apply le_neq_lt in Hge; [ idtac | assumption ].
+  destruct (lt_dec j h) as [Hlt| Hge₂].
+   eapply points_between_j_and_k; try eassumption.
+    split; assumption.
+
+    simpl in Hnhps.
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (_, Hnhps).
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (_, Hnhps).
+    assumption.
 bbb.
 
 Record branch α :=
