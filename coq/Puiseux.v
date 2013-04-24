@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.284 2013-04-24 02:50:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.285 2013-04-24 03:06:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -722,7 +722,11 @@ induction rl as [| (m, mps)]; intros.
     right; right; assumption.
 Qed.
 
-Lemma Qplus_minus_swap : ∀ x y z, x + y - z = x - z + y.
+Lemma Qplus_plus_swap : ∀ x y z, x + y + z == x + z + y.
+Proof.
+Admitted.
+
+Lemma Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
 Proof.
 Admitted.
 
@@ -738,31 +742,17 @@ Lemma Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
 Proof.
 Admitted.
 
-Lemma Qlt_plus_minus_lt_l : ∀ x y z, x < y + z → x - y < z.
-Proof.
-Admitted.
-
 Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 Admitted.
 
-Lemma xxx : ∀ i j k x y z,
+Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-do 2 rewrite Qmult_div_assoc.
-rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
-rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
-rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
-do 2 rewrite Qmult_minus_distr_l.
-do 2 rewrite Qmult_minus_distr_r.
-do 2 rewrite Qplus_minus_assoc.
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
@@ -782,6 +772,16 @@ apply Qlt_minus_plus_lt_r in H.
 rewrite <- Qplus_minus_swap in H.
 apply Qlt_minus_plus_lt_r in H.
 do 2 rewrite Qplus_assoc in H.
+do 2 rewrite Qmult_div_assoc.
+rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
+rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
+rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
+do 2 rewrite Qmult_minus_distr_l.
+do 2 rewrite Qmult_minus_distr_r.
+do 2 rewrite Qplus_minus_assoc.
 apply Qlt_plus_minus_lt_r.
 rewrite <- Qplus_minus_swap.
 apply Qlt_plus_minus_lt_r.
@@ -792,100 +792,11 @@ apply Qplus_lt_lt_minus_r.
 rewrite <- Qplus_minus_swap.
 apply Qplus_lt_lt_minus_r.
 do 2 rewrite Qplus_assoc.
-bbb.
-*)
-
-(*
-Lemma yyy : ∀ a b i j k x y z,
-  i < j < k
-  → a = (x - y) / Qnat (k - i)
-    → b = x + Qnat i * a
-      → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
-        → b < z + Qnat j * a.
-Proof.
-intros a b i j k x y z (Hij, Hjk) Ha Hb H.
-do 2 rewrite Qdiv_sub_distr_r in H.
-rewrite <- Qopp_minus in H.
-do 2 rewrite <- Qdiv_sub_distr_r in H.
-rewrite <- Ha in H.
-apply Qlt_not_le in H.
-rewrite <- Qopp_minus in H.
-apply Qnot_le_lt in H.
-apply Qopp_lt_compat in H.
-rewrite Qopp_involutive in H.
-rewrite Qopp_minus in H.
-rewrite Qdiv_sub_distr_r in H.
-rewrite Qopp_minus in H.
-rewrite <- Qdiv_sub_distr_r in H.
-apply Qmult_lt_compat_r with (z := Qnat (j - i)) in H.
- unfold Qdiv in H.
- rewrite <- Qmult_assoc in H.
- remember (Qnat (j - i)) as ji.
- setoid_replace (/ ji * ji) with (ji * / ji) in H.
-  rewrite Qmult_inv_r in H.
-   rewrite Qmult_1_r in H.
-   subst ji.
-   unfold Qnat in H.
-   rewrite Nat2Z.inj_sub in H.
-    rewrite QZ_minus in H.
-    unfold Qminus in H.
-    rewrite Qmult_plus_distr_r in H.
-    apply Qplus_lt_r with (z := z) in H.
-    rewrite Qplus_comm in H.
-    rewrite <- Qplus_assoc in H.
-    setoid_replace (- z + z) with (z + - z) in H by apply Qplus_comm.
-    rewrite Qplus_opp_r in H.
-    rewrite Qplus_0_r in H.
-    apply Qplus_lt_l with (z := Qnat i * a) in H.
-    rewrite <- Hb in H.
-    rewrite <- Qmult_plus_distr_r in H.
-    rewrite Qmult_comm in H.
-    rewrite <- Qplus_assoc in H.
-    rewrite <- Qmult_plus_distr_l in H.
-    rewrite <- Qplus_assoc in H.
-    remember (Qnat i) as qi.
-    unfold Qnat in Heqqi.
-    rewrite <- Heqqi in H.
-    setoid_replace (- qi + qi) with (qi + - qi) in H by apply Qplus_comm.
-    rewrite Qplus_opp_r in H.
-    rewrite Qplus_0_r in H.
-    assumption.
-
-    apply lt_le_weak; assumption.
-
-   subst ji.
-   unfold Qnat.
-   rewrite Nat2Z.inj_sub.
-    rewrite QZ_minus.
-    unfold Qminus.
-    intros HH.
-    apply Qplus_inj_r with (z := Qnat i) in HH.
-    rewrite Qplus_0_l in HH.
-    symmetry in HH.
-    rewrite <- Qplus_assoc in HH.
-    remember (Qnat i) as qi.
-    unfold Qnat in Heqqi.
-    rewrite <- Heqqi in HH.
-    setoid_replace (- qi + qi) with (qi + - qi) in HH by apply Qplus_comm.
-    rewrite Qplus_opp_r in HH.
-    rewrite Qplus_0_r in HH.
-    subst qi.
-    unfold Qeq in HH.
-    simpl in HH.
-    do 2 rewrite Zmult_1_r in HH.
-    apply Nat2Z.inj_iff in HH.
-    subst i; apply lt_irrefl in Hij; contradiction.
-
-    apply lt_le_weak; assumption.
-
-  apply Qmult_comm.
-
- unfold Qnat.
- unfold Qlt.
- simpl.
- rewrite Zmult_1_r.
-bbb.
-*)
+rewrite Qplus_comm, Qplus_assoc, Qplus_assoc; apply Qnot_le_lt.
+rewrite <- Qplus_assoc, <- Qplus_assoc, Qplus_comm, Qplus_assoc.
+rewrite Qplus_plus_swap; apply Qlt_not_le.
+assumption.
+Qed.
 
 Lemma LocallySorted_hd {α} : ∀ (pt₁ pt₂ : nat * α) pts,
   LocallySorted fst_lt [pt₁ … pts]
@@ -1140,7 +1051,7 @@ destruct Hhps as [Hhps| Hhps].
   eapply minimise_slope_lt in Heqms₁; try eassumption.
    rewrite H in Heqms₁.
    subst β γ.
-   apply xxx; [ idtac | assumption ].
+   apply ad_hoc_lt_lt; [ idtac | assumption ].
    split.
     destruct pt₁ as (l, lps).
     apply lt_trans with (m := l).
