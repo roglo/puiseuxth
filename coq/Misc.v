@@ -1,7 +1,15 @@
-(* $Id: Misc.v,v 1.3 2013-04-24 01:28:57 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.4 2013-04-24 01:34:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+
+Definition Qnat i := Z.of_nat i # 1.
+
+Lemma minus_Sn_n : ∀ n, (S n - n = 1)%nat.
+Proof.
+intros n.
+rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
+Qed.
 
 Lemma Qmutual_shift_div : ∀ a b c d,
   0 < b
@@ -50,6 +58,19 @@ destruct (Qeq_dec z 0) as [Heq| Hne].
  reflexivity.
 
  field; assumption.
+Qed.
+
+Lemma Qdiv_nat : ∀ x i,
+  i ≠ 0%nat
+  → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
+Proof.
+intros x i Hi.
+destruct i; [ exfalso; apply Hi; reflexivity | clear Hi ].
+unfold Qnat, Qeq.
+f_equal; [ apply Z.mul_1_r | f_equal; f_equal ].
+unfold Qdiv, Qmult.
+f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
+induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
 Lemma Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
@@ -147,9 +168,10 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Z.of_nat (j - i) # 1.
+Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Qnat (j - i).
 Proof.
 intros i j H.
+unfold Qnat.
 rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
 rewrite QZ_minus.
 apply Qlt_minus.
@@ -158,9 +180,10 @@ do 2 rewrite Zmult_1_r.
 apply inj_lt; assumption.
 Qed.
 
-Lemma Qnat_lt_not_0 : ∀ i j, (i < j)%nat → ¬Z.of_nat (j - i) # 1 == 0.
+Lemma Qnat_lt_not_0 : ∀ i j, (i < j)%nat → ¬Qnat (j - i) == 0.
 Proof.
 intros i j H.
+unfold Qnat.
 rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
 rewrite QZ_minus.
 intros HH.
@@ -170,6 +193,14 @@ simpl in HH.
 do 2 rewrite Zmult_1_r in HH.
 apply Nat2Z.inj in HH.
 subst j; apply lt_irrefl in H; assumption.
+Qed.
+
+Lemma Qnat_minus_distr : ∀ i j, i ≤ j → Qnat (j - i) == Qnat j - Qnat i.
+Proof.
+intros i j Hij.
+unfold Qeq; simpl.
+do 4 rewrite Zmult_1_r.
+apply Nat2Z.inj_sub; assumption.
 Qed.
 
 Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
@@ -193,3 +224,12 @@ Qed.
 
 Lemma Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
 Proof. intros x y z; ring. Qed.
+
+Lemma Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
+Proof.
+intros i Hi.
+destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
+simpl; f_equal.
+induction i; [ reflexivity | simpl ].
+rewrite IHi; reflexivity.
+Qed.

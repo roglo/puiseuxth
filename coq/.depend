@@ -1,4 +1,4 @@
-ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v
+ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Misc.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
 Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo Misc.vo
 T.vo T.glob T.v.beautified: T.v

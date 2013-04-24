@@ -1,8 +1,9 @@
-(* $Id: ConvexHull.v,v 1.36 2013-04-21 20:38:03 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.37 2013-04-24 01:34:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Streams.
+Require Import Misc.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -16,8 +17,6 @@ Record puiseux_series α :=
 
 Definition valuation α ps := snd (ps_1 α ps).
 Definition valuation_coeff α ps := fst (ps_1 α ps).
-
-Definition Qnat i := Z.of_nat i # 1.
 
 Record min_sl α :=
   { slope : Q;

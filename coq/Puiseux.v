@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.279 2013-04-23 21:09:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.280 2013-04-24 01:34:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -720,42 +720,6 @@ induction rl as [| (m, mps)]; intros.
     left; reflexivity.
 
     right; right; assumption.
-Qed.
-
-Lemma minus_Sn_n : ∀ n, (S n - n = 1)%nat.
-Proof.
-intros n.
-rewrite <- minus_Sn_m; [ rewrite minus_diag; reflexivity | apply le_n ].
-Qed.
-
-Lemma Qdiv_nat : ∀ x i,
-  i ≠ 0%nat
-  → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
-Proof.
-intros x i Hi.
-destruct i; [ exfalso; apply Hi; reflexivity | clear Hi ].
-unfold Qnat, Qeq.
-f_equal; [ apply Z.mul_1_r | f_equal; f_equal ].
-unfold Qdiv, Qmult.
-f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
-induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
-Qed.
-
-Lemma Zposnat2Znat : ∀ i, (0 < i)%nat → Zpos (Pos.of_nat i) = Z.of_nat i.
-Proof.
-intros i Hi.
-destruct i; [ apply lt_irrefl in Hi; contradiction | clear Hi ].
-simpl; f_equal.
-induction i; [ reflexivity | simpl ].
-rewrite IHi; reflexivity.
-Qed.
-
-Lemma Qnat_minus_distr : ∀ i j, i ≤ j → Qnat (j - i) == Qnat j - Qnat i.
-Proof.
-intros i j Hij.
-unfold Qeq; simpl.
-do 4 rewrite Zmult_1_r.
-apply Nat2Z.inj_sub; assumption.
 Qed.
 
 Lemma xxx : ∀ i j k x y z,
