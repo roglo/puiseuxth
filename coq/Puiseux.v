@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.283 2013-04-24 02:12:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.284 2013-04-24 02:50:02 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -722,6 +722,30 @@ induction rl as [| (m, mps)]; intros.
     right; right; assumption.
 Qed.
 
+Lemma Qplus_minus_swap : ∀ x y z, x + y - z = x - z + y.
+Proof.
+Admitted.
+
+Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
+Proof.
+Admitted.
+
+Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
+Proof.
+Admitted.
+
+Lemma Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
+Proof.
+Admitted.
+
+Lemma Qlt_plus_minus_lt_l : ∀ x y z, x < y + z → x - y < z.
+Proof.
+Admitted.
+
+Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
+Proof.
+Admitted.
+
 Lemma xxx : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
@@ -748,6 +772,26 @@ rewrite Qmult_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
 do 2 rewrite Qminus_minus_assoc in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qminus_lt_lt_plus_r in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qminus_lt_lt_plus_r in H.
+do 2 rewrite <- Qplus_assoc in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qlt_minus_plus_lt_r in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qlt_minus_plus_lt_r in H.
+do 2 rewrite Qplus_assoc in H.
+apply Qlt_plus_minus_lt_r.
+rewrite <- Qplus_minus_swap.
+apply Qlt_plus_minus_lt_r.
+rewrite Qplus_minus_swap.
+do 2 rewrite <- Qplus_assoc.
+rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r.
+rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r.
+do 2 rewrite Qplus_assoc.
 bbb.
 *)
 
