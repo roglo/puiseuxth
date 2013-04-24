@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.288 2013-04-24 03:12:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.289 2013-04-24 03:21:29 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -718,12 +718,10 @@ induction rl as [| (m, mps)]; intros.
 Qed.
 
 Lemma Qplus_plus_swap : ∀ x y z, x + y + z == x + z + y.
-Proof.
-Admitted.
+Proof. intros; ring. Qed.
 
 Lemma Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
-Proof.
-Admitted.
+Proof. intros; ring. Qed.
 
 Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.
