@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.301 2013-04-24 09:36:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.302 2013-04-24 09:37:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1025,7 +1025,8 @@ Lemma zzz : ∀ pol pts j jps k kps,
       → j = k
         → jps = kps.
 Proof.
-Admitted.
+intros pol pts j jps k kps Hpts Hjps Hkps.
+bbb.
 
 Lemma yyy : ∀ pol pts j jps k kps β γ seg,
   pts = points_of_ps_polynom α fld pol
