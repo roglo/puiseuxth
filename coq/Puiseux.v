@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.282 2013-04-24 02:00:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.283 2013-04-24 02:12:48 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -734,13 +734,17 @@ rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
 rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
 apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
 rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
-do 4 rewrite Qmult_minus_distr_r.
+rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
+rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
+do 2 rewrite Qmult_minus_distr_l.
+do 2 rewrite Qmult_minus_distr_r.
 do 2 rewrite Qplus_minus_assoc.
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
 apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+rewrite Qmult_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
 do 2 rewrite Qminus_minus_assoc in H.
