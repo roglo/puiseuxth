@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.307 2013-04-24 18:01:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.308 2013-04-24 18:27:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1067,7 +1067,9 @@ destruct Hhps as [Hhps| Hhps].
 
  destruct Hhps as [Hhps| Hhps].
   injection Hhps; clear Hhps; intros; subst m mps.
+(*
   apply minimise_slope_pts_le with (h := h) (hps := hps) in Heqms₂.
+*)
 bbb.
 
 Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
