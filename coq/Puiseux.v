@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.292 2013-04-24 08:19:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.293 2013-04-24 08:22:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -760,7 +760,12 @@ Qed.
 
 Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
 Proof.
-Admitted.
+intros x y z H.
+apply Qplus_lt_compat_r with (z := - y) in H.
+rewrite <- Qplus_assoc in H.
+rewrite Qplus_opp_r, Qplus_0_r in H.
+assumption.
+Qed.
 
 Lemma Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
 Proof.
