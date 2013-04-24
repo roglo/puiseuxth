@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.296 2013-04-24 08:28:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.297 2013-04-24 08:36:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1014,6 +1014,7 @@ apply points_of_polyn_sorted in Hpts₂.
 eapply pt_aft_k; try eassumption.
 Qed.
 
+(*
 Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
   LocallySorted fst_lt pts
   → LocallySorted fst_fst_lt [(j, jps, segjk); (k, kps, segkx) … lch]
@@ -1021,21 +1022,16 @@ Lemma not_in_newt_segm : ∀ α pts j jps k kps γ β segjk segkx lch,
       → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
         → lower_convex_hull_points α pts =
             [(j, jps, segjk); (k, kps, segkx) … lch]
-          → ∀ i ips,
-            (i, ips) ∈ pts
-            → (i, ips) ∉ [(j, jps); (k, kps) … segjk]
-              → β < valuation α ips + Qnat i * γ.
+          → ∀ h hps, (h, hps) ∈ pts
+            → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+              → β < valuation α hps + Qnat h * γ.
 Proof.
 intros α pts j jps k kps γ β segjk segkx lch.
-intros Hsort Hsort₂ Hβ Hγ Hch i ips Hips Hnips.
+intros Hsort Hsort₂ Hβ Hγ Hch h hps Hhps Hnhps.
 bbb.
 unfold lower_convex_hull_points in Hch.
 remember (length pts) as n. (*; clear Heqn.*)
 rename Hch into Hnp.
-(*
-eapply zzz; eassumption.
-qed.
-*)
 
 revert pts lch Hsort Hsort₂ Heqn Hnp i ips Hips Hnips.
 induction n; intros; [ discriminate Hnp | idtac ].
@@ -1058,10 +1054,6 @@ destruct Hips as [Hips| Hips].
  rename Heqms into Hms.
  rename H into Hnp.
  rename Heqn into Hn.
-(*
- eapply zzz; try eassumption.
-qed.
-*)
 destruct Hips as [Hips| Hips].
  subst pt.
  remember Hms as Hms₂; clear HeqHms₂.
@@ -1130,17 +1122,25 @@ destruct Hips as [Hips| Hips].
     eapply LocallySorted_hd in H2; [ idtac | eassumption ].
     assumption.
 bbb.
+*)
 
 Lemma points_not_in_newton_segment : ∀ α fld pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-    → ∀ i ips,
-       (i, ips) ∈ pts
-       → (i, ips) ∉ [(j, jps); (k, kps) … seg]
-         → β < valuation α ips + Qnat i * γ.
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … seg]
+        → β < valuation α hps + Qnat h * γ.
 Proof.
 intros α fld pol pts γ β j jps k kps seg.
-intros Hpts Hgb i ips Hips Hnips.
+intros Hpts Hgb h hps Hhps Hnhps.
+destruct (lt_dec k h) as [Hlt| Hge].
+ eapply points_after_k; eassumption.
+
+ apply not_gt in Hge.
+bbb.
+
+intros α fld pol pts γ β j jps k kps seg.
+intros Hpts Hgb h hps Hhps Hnhps.
 unfold gamma_beta in Hgb.
 unfold gamma_beta_gen in Hgb.
 remember Hpts as Hpts₂; clear HeqHpts₂.
