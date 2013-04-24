@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.290 2013-04-24 03:33:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.291 2013-04-24 04:23:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -725,7 +725,20 @@ Proof. intros; ring. Qed.
 
 Lemma Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
 Proof.
-Admitted.
+intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
+unfold Qlt in H; simpl in H.
+unfold Qlt, Qplus; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+do 2 rewrite Z.mul_add_distr_r.
+do 4 rewrite Z.mul_assoc.
+remember (z₁ * ' y₂ * ' x₂ * ' z₂)%Z as t.
+remember (z₁ * ' y₂ * ' x₂)%Z as u.
+rewrite Z.mul_shuffle0 in Hequ.
+subst u.
+rewrite <- Heqt.
+apply Zplus_lt_compat_r.
+clear t Heqt.
+bbb.
 
 Lemma Qminus_lt_lt_plus_r : ∀ x y z, x - y < z → x < z + y.
 Proof.
