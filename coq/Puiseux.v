@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.323 2013-04-25 18:45:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.324 2013-04-25 19:11:57 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1105,6 +1105,7 @@ Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
           → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
 intros j jps k kps pt pts ms h hps Hsort Hms (Hjh, Hhk) Hseg Hep.
+revert ms Hms Hseg Hep.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
  remember (slope_expr α (j, jps) pt ?= slope_expr α (j, jps) (h, hps)) as c.
@@ -1123,7 +1124,36 @@ induction pts as [| pt₁]; intros.
   injection Hep; clear Hep; intros; subst h hps.
   apply lt_irrefl in Hhk; contradiction.
 
-Admitted.
+ remember [pt₁ … pts] as pts₁.
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) (h, hps) pts₁) as ms₁.
+ symmetry in Heqms₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c₁.
+ symmetry in Heqc₁.
+ destruct c₁; subst ms; simpl.
+  simpl in Hseg, Hep.
+  apply Decidable.not_or in Hseg.
+  destruct Hseg as (Hne, Hseg).
+  eapply IHpts; try eassumption.
+   Focus 2.
+   subst pts₁.
+   simpl in Heqms₁.
+   remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
+   symmetry in Heqms₂.
+   remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
+   symmetry in Heqc.
+   remember [(h, hps) … pts] as pts₁.
+   destruct c; subst ms₁; simpl.
+    simpl in Heqc₁, Hseg, Hep.
+    apply Decidable.not_or in Hseg.
+    destruct Hseg as (Hne₂, Hseg).
+    exfalso; apply Hne₂; reflexivity.
+
+    simpl in Heqc₁, Hseg, Hep.
+    injection Hep; clear Hep; intros; subst h hps.
+    apply lt_irrefl in Hhk; contradiction.
+
+bbb.
 
 (*
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
