@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.318 2013-04-25 13:26:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.319 2013-04-25 13:41:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1105,7 +1105,7 @@ Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
           → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
 intros j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hseg.
-revert pt ms Hms Hep Hseg.
+revert h pt ms Hms Hep Hseg Hhps.
 induction pts as [| pt₁]; [ contradiction | intros ].
 destruct Hhps as [Hhps| Hhps].
  subst pt₁.
@@ -1139,6 +1139,19 @@ destruct Hhps as [Hhps| Hhps].
    eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
    rewrite Heqms₁ in Heqc.
    apply Qlt_irrefl in Heqc; contradiction.
+
+  simpl in H.
+  remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
+  symmetry in Heqms₁.
+  remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+  symmetry in Heqc.
+  destruct c; subst ms.
+   simpl in Hep, Hseg |- *.
+   apply Qeq_alt in Heqc.
+   apply Decidable.not_or in Hseg.
+   destruct Hseg as (Hkh, Hseg).
+   destruct Hms as [Hms| Hms].
+    injection Hms; clear Hms; intros; subst h hps.
 bbb.
 *)
 
