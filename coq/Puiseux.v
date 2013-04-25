@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.322 2013-04-25 18:13:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.323 2013-04-25 18:45:06 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1099,11 +1099,31 @@ Qed.
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
   LocallySorted fst_lt [(j, jps); pt; (h, hps) … pts]
   → minimise_slope α (j, jps) pt [(h, hps) … pts] = ms
-    → (h, hps) ∉ seg ms
-      → end_pt ms = (k, kps)
-        → slope ms < slope_expr α (j, jps) (h, hps).
+    → j < h <  k
+      → (h, hps) ∉ seg ms
+        → end_pt ms = (k, kps)
+          → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
-bbb.
+intros j jps k kps pt pts ms h hps Hsort Hms (Hjh, Hhk) Hseg Hep.
+induction pts as [| pt₁]; intros.
+ simpl in Hms.
+ remember (slope_expr α (j, jps) pt ?= slope_expr α (j, jps) (h, hps)) as c.
+ symmetry in Heqc.
+ destruct c; subst ms; simpl.
+  simpl in Hseg, Hep.
+  injection Hep; clear Hep; intros; subst h hps.
+  apply lt_irrefl in Hhk; contradiction.
+
+  simpl in Hseg, Hep.
+  subst pt.
+  apply Qlt_alt in Heqc.
+  assumption.
+
+  simpl in Hseg, Hep.
+  injection Hep; clear Hep; intros; subst h hps.
+  apply lt_irrefl in Hhk; contradiction.
+
+Admitted.
 
 (*
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
@@ -1256,11 +1276,13 @@ destruct Hhps as [Hhps| Hhps].
     eapply minimised_slope in H; [ idtac | eassumption ].
     symmetry in Hep₁.
     eapply not_seg_min_sl_lt in Heqms₁; try eassumption.
-    rewrite H in Heqms₁.
-    subst β γ.
-    apply ad_hoc_lt_lt; [ idtac | assumption ].
-    split; [ assumption | idtac ].
-    eapply lt_trans; eassumption.
+     rewrite H in Heqms₁.
+     subst β γ.
+     apply ad_hoc_lt_lt; [ idtac | assumption ].
+     split; [ assumption | idtac ].
+     eapply lt_trans; eassumption.
+
+     split; assumption.
 
     simpl in Heqms₁.
     remember (minimise_slope α (j, jps) pt₂ pts) as ms₂.
