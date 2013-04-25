@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.316 2013-04-25 12:41:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.317 2013-04-25 13:16:41 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -879,7 +879,62 @@ Lemma min_slope_lt_betw_j_and_k_not_in_seg : ∀ j jps k kps pt pts ms,
       → ∀ h hps, (h, hps) ∈ [pt … pts] ∧ (h, hps) ∉ [(k, kps) … seg ms]
         → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
-Admitted.
+intros j jps k kps pt pts ms Hsort Hms Hep h hps (Hhps, Hnhps).
+revert pt ms h Hms Hep Hhps Hnhps.
+induction pts as [| pt₁]; intros.
+ simpl in Hms.
+ subst ms.
+ simpl in Hep, Hnhps |- *.
+ subst pt.
+ contradiction.
+
+ simpl in Hms.
+ remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ symmetry in Heqms₁.
+ remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ symmetry in Heqc.
+ destruct c; subst ms.
+  simpl in Hep, Hnhps |- *.
+  eapply IHpts; try eassumption.
+   eapply LocallySorted_inv_1; eassumption.
+
+   destruct Hhps as [Hhps| Hhps].
+    subst pt.
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (_, H).
+    apply Decidable.not_or in H.
+    destruct H as (H); exfalso; apply H; reflexivity.
+
+    assumption.
+
+   intros H; apply Hnhps; clear Hnhps.
+   destruct H as [H| H].
+    left; assumption.
+
+    right; right; assumption.
+
+  simpl in Hep, Hnhps |- *.
+  subst pt.
+  apply Qlt_alt in Heqc.
+  apply Decidable.not_or in Hnhps.
+  destruct Hnhps as (H, _).
+  destruct Hhps as [Hhps| Hhps]; [ contradiction | idtac ].
+  destruct Hhps as [Hhps| Hhps].
+   subst pt₁.
+   apply minimised_slope_le in Heqms₁.
+   eapply Qlt_le_trans; eassumption.
+
+   eapply Qlt_le_trans; [ eassumption | idtac ].
+   eapply minimise_slope_pts_le; eassumption.
+
+  destruct Hhps as [Hhps| Hhps].
+   subst pt.
+   apply Qgt_alt in Heqc.
+   assumption.
+
+   eapply IHpts; try eassumption.
+   eapply LocallySorted_inv_1; eassumption.
+Qed.
 
 Lemma min_slope_lt_after_k : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
