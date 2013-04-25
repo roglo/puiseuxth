@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.324 2013-04-25 19:11:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.325 2013-04-25 19:19:06 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1135,7 +1135,23 @@ induction pts as [| pt₁]; intros.
   apply Decidable.not_or in Hseg.
   destruct Hseg as (Hne, Hseg).
   eapply IHpts; try eassumption.
-   Focus 2.
+   subst pts₁.
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₂, Hsort).
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₃, Hsort).
+   constructor; [ idtac | assumption ].
+   constructor; [ idtac | assumption ].
+   destruct pts as [| pt₂]; [ constructor | idtac ].
+   constructor.
+    eapply LocallySorted_inv_1; eassumption.
+
+    eapply LocallySorted_inv_2 in Hsort.
+    destruct Hsort as (Hlt₄, Hsort).
+    eapply lt_trans; eassumption.
+
    subst pts₁.
    simpl in Heqms₁.
    remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
