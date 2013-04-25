@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.319 2013-04-25 13:41:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.320 2013-04-25 15:07:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1099,13 +1099,14 @@ Qed.
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
   → minimise_slope α (j, jps) pt pts = ms
-    → end_pt ms = (k, kps)
-      → ∀ h hps, (h, hps) ∈ pts
-        → (h, hps) ∉ seg ms
-          → slope ms < slope_expr α (j, jps) (h, hps).
+    → pt ∉ seg ms
+      → end_pt ms = (k, kps)
+        → ∀ h hps, (h, hps) ∈ pts
+          → (h, hps) ∉ seg ms
+            → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
-intros j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hseg.
-revert h pt ms Hms Hep Hseg Hhps.
+intros j jps k kps pt pts ms Hsort Hms Hpt Hep h hps Hhps Hseg.
+revert h pt ms Hms Hep Hseg Hhps Hpt.
 induction pts as [| pt₁]; [ contradiction | intros ].
 destruct Hhps as [Hhps| Hhps].
  subst pt₁.
@@ -1146,12 +1147,21 @@ destruct Hhps as [Hhps| Hhps].
   remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
   symmetry in Heqc.
   destruct c; subst ms.
-   simpl in Hep, Hseg |- *.
-   apply Qeq_alt in Heqc.
-   apply Decidable.not_or in Hseg.
-   destruct Hseg as (Hkh, Hseg).
+   simpl in Hep, Hseg, Hpt |- *.
+   apply Decidable.not_or in Hpt.
+   destruct Hpt as (H); exfalso; apply H; reflexivity.
+
+   simpl in Hep, Hseg, Hpt |- *.
+   subst pt.
+   apply Qlt_alt in Heqc.
    destruct Hms as [Hms| Hms].
     injection Hms; clear Hms; intros; subst h hps.
+    apply minimised_slope_le in Heqms₁.
+    eapply Qle_lt_trans in Heqms₁; [ idtac | eassumption ].
+    apply Qlt_irrefl in Heqms₁; contradiction.
+
+    apply minimised_slope_le in Heqms₁.
+    eapply Qlt_le_trans; eassumption.
 bbb.
 *)
 
