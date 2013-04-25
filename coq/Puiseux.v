@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.312 2013-04-25 03:36:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.313 2013-04-25 03:50:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1122,7 +1122,54 @@ destruct Hhps as [Hhps| Hhps].
      destruct Hsort; assumption.
 
      left; reflexivity.
-bbb.
+
+    simpl in Heqms₁.
+    remember (minimise_slope α (j, jps) pt₂ pts) as ms₂.
+    symmetry in Heqms₂.
+    remember (slope_expr α (j, jps) pt₁ ?= slope ms₂) as c.
+    symmetry in Heqc.
+    destruct c; subst ms₁.
+     simpl in Hep₁, Hseg, Hnp.
+     apply Decidable.not_or in Hseg.
+     destruct Hseg as (Hlt₁, Hseg).
+     eapply IHpts; try eassumption.
+     constructor.
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort as (Hlt₂, Hsort).
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort; assumption.
+
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort as (Hlt₂, Hsort).
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort; eapply lt_trans; eassumption.
+
+     simpl in Hep₁, Hseg, Hnp.
+     subst pt₁.
+     apply LocallySorted_inv in Hsort.
+     destruct Hsort as (Hlt₂, Hsort).
+     apply LocallySorted_inv in Hsort.
+     destruct Hsort as (Hlt₃, Hsort).
+     eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
+     unfold fst_lt in Hlt₃.
+     simpl in Hlt₃, Hsort.
+     clear Hlt₂.
+     eapply lt_trans in Hlt₃; [ idtac | eassumption ].
+     eapply lt_trans in Hlt₃; [ idtac | eassumption ].
+     apply lt_irrefl in Hlt₃; contradiction.
+
+     eapply IHpts; try eassumption.
+     constructor.
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort as (Hlt₂, Hsort).
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort; assumption.
+
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort as (Hlt₂, Hsort).
+      apply LocallySorted_inv in Hsort.
+      destruct Hsort; eapply lt_trans; eassumption.
+qed.
 
 Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
