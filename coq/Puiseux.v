@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.311 2013-04-25 03:16:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.312 2013-04-25 03:36:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1103,19 +1103,25 @@ destruct Hhps as [Hhps| Hhps].
    simpl in Hep₁, Hseg, Hnp.
    contradiction.
 
-bbb.
    destruct Hhps as [Hhps| Hhps].
     subst pt₂.
-    simpl in Heqms₁.
-    remember (minimise_slope α (j, jps) (h, hps) pts) as ms₂.
-    symmetry in Heqms₂.
-    remember (slope_expr α (j, jps) pt₁ ?= slope ms₂) as c.
-    symmetry in Heqc.
-    destruct c; subst ms₁.
-     simpl in Hep₁, Hseg, Hnp.
-     apply Decidable.not_or in Hseg.
-     destruct Hseg as (Hne, Hseg).
-     eapply IHpts; try eassumption.
+    symmetry in Hep₁.
+    remember Heqms₁ as H; clear HeqH.
+    eapply minimised_slope in H; [ idtac | eassumption ].
+    symmetry in Hep₁.
+    eapply not_seg_min_sl_lt in Heqms₁; try eassumption.
+     rewrite H in Heqms₁.
+     subst β γ.
+     apply ad_hoc_lt_lt; [ idtac | assumption ].
+     split; [ assumption | idtac ].
+     eapply lt_trans; eassumption.
+
+     apply LocallySorted_inv in Hsort.
+     destruct Hsort as (Hlt₁, Hsort).
+     apply LocallySorted_inv in Hsort.
+     destruct Hsort; assumption.
+
+     left; reflexivity.
 bbb.
 
 Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
