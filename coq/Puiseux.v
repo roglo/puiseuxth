@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.317 2013-04-25 13:16:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.318 2013-04-25 13:26:11 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1127,6 +1127,18 @@ destruct Hhps as [Hhps| Hhps].
     eapply LocallySorted_inv_1; eassumption.
 
     split; [ left; reflexivity | intros H; destruct H; contradiction ].
+
+   simpl in Hep, Hseg |- *.
+   apply Qlt_alt in Heqc.
+   clear Hep Hseg.
+   eapply Qlt_le_trans; [ eassumption | idtac ].
+   eapply minimised_slope_le; eassumption.
+
+   apply Qgt_alt in Heqc.
+   symmetry in Hep.
+   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
+   rewrite Heqms₁ in Heqc.
+   apply Qlt_irrefl in Heqc; contradiction.
 bbb.
 *)
 
