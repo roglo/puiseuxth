@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.315 2013-04-25 09:36:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.316 2013-04-25 12:41:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -876,7 +876,7 @@ Lemma min_slope_lt_betw_j_and_k_not_in_seg : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
   → minimise_slope α (j, jps) pt pts = ms
     → end_pt ms = (k, kps)
-      → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [(k, kps) … seg ms]
+      → ∀ h hps, (h, hps) ∈ [pt … pts] ∧ (h, hps) ∉ [(k, kps) … seg ms]
         → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
 Admitted.
@@ -1068,7 +1068,10 @@ destruct Hhps as [Hhps| Hhps].
    simpl in Hep, Hseg |- *.
    apply Decidable.not_or in Hseg.
    destruct Hseg as (Hkh, Hseg).
-   eapply min_slope_lt_betw_j_and_k_not_in_seg; try eassumption.
+   eapply min_slope_lt_betw_j_and_k_not_in_seg in Heqms₁; try eassumption.
+    eapply LocallySorted_inv_1; eassumption.
+
+    split; [ left; reflexivity | intros H; destruct H; contradiction ].
 bbb.
 *)
 
