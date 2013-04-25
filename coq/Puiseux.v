@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.321 2013-04-25 15:18:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.322 2013-04-25 18:13:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1096,6 +1096,15 @@ unfold fst_fst_lt in Hlt; simpl in Hlt.
 eapply pt_aft_k; eassumption.
 Qed.
 
+Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
+  LocallySorted fst_lt [(j, jps); pt; (h, hps) … pts]
+  → minimise_slope α (j, jps) pt [(h, hps) … pts] = ms
+    → (h, hps) ∉ seg ms
+      → end_pt ms = (k, kps)
+        → slope ms < slope_expr α (j, jps) (h, hps).
+Proof.
+bbb.
+
 (*
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
@@ -1246,20 +1255,12 @@ destruct Hhps as [Hhps| Hhps].
     remember Heqms₁ as H; clear HeqH.
     eapply minimised_slope in H; [ idtac | eassumption ].
     symmetry in Hep₁.
-bbb.
     eapply not_seg_min_sl_lt in Heqms₁; try eassumption.
-     rewrite H in Heqms₁.
-     subst β γ.
-     apply ad_hoc_lt_lt; [ idtac | assumption ].
-     split; [ assumption | idtac ].
-     eapply lt_trans; eassumption.
-
-     apply LocallySorted_inv_2 in Hsort.
-     destruct Hsort as (Hlt₁, Hsort).
-     apply LocallySorted_inv_2 in Hsort.
-     destruct Hsort; assumption.
-
-     left; reflexivity.
+    rewrite H in Heqms₁.
+    subst β γ.
+    apply ad_hoc_lt_lt; [ idtac | assumption ].
+    split; [ assumption | idtac ].
+    eapply lt_trans; eassumption.
 
     simpl in Heqms₁.
     remember (minimise_slope α (j, jps) pt₂ pts) as ms₂.
@@ -1307,7 +1308,7 @@ bbb.
       destruct Hsort as (Hlt₂, Hsort).
       apply LocallySorted_inv_2 in Hsort.
       destruct Hsort; eapply lt_trans; eassumption.
-qed.
+Qed.
 
 Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
@@ -1338,8 +1339,9 @@ unfold fst_fst_lt in Hlt; simpl in Hlt.
 
 eapply pt_betw_j_and_k; try eassumption.
 split; assumption.
-qed.
+Qed.
 
+(*
 unfold lower_convex_hull_points in Heqlch.
 remember (length pts) as n; clear Heqn.
 rename Heqlch into Hnp.
@@ -1433,6 +1435,7 @@ induction pts as [| pt₁]; intros.
      remember Heqms₁0 as H; clear HeqH.
      clear Hlt₁.
 bbb.
+*)
 
 Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
   LocallySorted fst_lt [(k, jps) … pts] → (k, kps) ∉ pts.
@@ -1553,6 +1556,8 @@ destruct (lt_dec k h) as [Hlt| Hge].
     apply Decidable.not_or in Hnhps.
     destruct Hnhps as (_, Hnhps).
     assumption.
+
+   apply not_gt in Hge₂.
 bbb.
 
 Record branch α :=
