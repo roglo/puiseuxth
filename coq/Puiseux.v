@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.320 2013-04-25 15:07:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.321 2013-04-25 15:18:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1096,6 +1096,7 @@ unfold fst_fst_lt in Hlt; simpl in Hlt.
 eapply pt_aft_k; eassumption.
 Qed.
 
+(*
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
   → minimise_slope α (j, jps) pt pts = ms
@@ -1162,6 +1163,11 @@ destruct Hhps as [Hhps| Hhps].
 
     apply minimised_slope_le in Heqms₁.
     eapply Qlt_le_trans; eassumption.
+
+   apply Qgt_alt in Heqc.
+   destruct Hms as [Hms| Hms].
+    injection Hms; clear Hms; intros; subst h hps.
+-- blocked --
 bbb.
 *)
 
@@ -1240,6 +1246,7 @@ destruct Hhps as [Hhps| Hhps].
     remember Heqms₁ as H; clear HeqH.
     eapply minimised_slope in H; [ idtac | eassumption ].
     symmetry in Hep₁.
+bbb.
     eapply not_seg_min_sl_lt in Heqms₁; try eassumption.
      rewrite H in Heqms₁.
      subst β γ.
