@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.329 2013-04-26 02:10:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.330 2013-04-26 03:30:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -82,199 +82,10 @@ Section convex_hull.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Lemma one_vp_gen : ∀ pow cl cn,
-  cn ≠ zero fld → points_of_ps_polynom_gen α fld pow cl cn ≠ [].
-Proof.
-intros pow cl cn Hcn.
-unfold points_of_ps_polynom_gen.
-remember (all_points_of_ps_polynom α pow cl cn) as cpl.
-revert pow cpl Heqcpl.
-induction cl as [| c cl]; intros.
- subst cpl; simpl.
- destruct (is_zero_dec fld cn); [ contradiction | simpl ].
- intros H; discriminate H.
-
- subst cpl; simpl.
- destruct (is_zero_dec fld c).
-  eapply IHcl; reflexivity.
-
-  simpl.
-  intros H; discriminate H.
-Qed.
-
-Lemma at_least_one_valuation_point : ∀ pol,
-  an pol ≠ zero fld → points_of_ps_polynom α fld pol ≠ [].
-Proof.
-intros; apply one_vp_gen; assumption.
-Qed.
-
 Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
   filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
   points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
-
-Lemma two_vp_gen : ∀ pow cl cn,
-  cn ≠ zero fld
-  → (∃ c, c ∈ cl ∧ c ≠ zero fld)
-    → List.length (points_of_ps_polynom_gen α fld pow cl cn) ≥ 2.
-Proof.
-intros pow cl cn Hcn Hcl.
-revert pow.
-induction cl as [| c]; intros.
- destruct Hcl as (c, (Hc, Hz)); contradiction.
-
- unfold points_of_ps_polynom_gen; simpl.
- destruct (is_zero_dec fld c).
-  destruct Hcl as (c₁, ([Hc₁| Hc₁], Hz)).
-   subst c₁; contradiction.
-
-   apply IHcl.
-   exists c₁.
-   split; assumption.
-
-  simpl.
-  apply le_n_S.
-  rewrite fold_points_of_ps_polynom_gen.
-  remember (length (points_of_ps_polynom_gen α fld (S pow) cl cn)) as len.
-  destruct len.
-   remember (points_of_ps_polynom_gen α fld (S pow) cl cn) as l.
-   destruct l; [ idtac | discriminate Heqlen ].
-   exfalso; symmetry in Heql; revert Heql.
-   apply one_vp_gen; assumption.
-
-   apply le_n_S, le_0_n.
-Qed.
-
-Lemma at_least_two_points_of_ps_polynom : ∀ pol,
-  an pol ≠ zero fld
-  → (∃ c, c ∈ (al pol) ∧ c ≠ zero fld)
-    → List.length (points_of_ps_polynom α fld pol) ≥ 2.
-Proof.
-intros; apply two_vp_gen; assumption.
-Qed.
-
-Lemma lower_convex_points_empty_iff : ∀ dpl,
-  lower_convex_hull_points α dpl = [ ] ↔ dpl = [].
-Proof.
-intros dpl.
-unfold lower_convex_hull_points.
-split; intros H; [ idtac | subst dpl; reflexivity ].
-destruct dpl as [| dp₁ dpl₁]; [ reflexivity | simpl in H ].
-destruct dpl₁; discriminate H.
-Qed.
-
-Lemma vp_pow_lt : ∀ pow cl cn d₁ p₁ dpl,
-  points_of_ps_polynom_gen α fld (S pow) cl cn = dpl
-  → (d₁, p₁) ∈ dpl
-    → (pow < d₁)%nat.
-Proof.
-intros pow cl cn d₁ p₁ dpl Hvp Hdp.
-revert pow cn d₁ p₁ dpl Hvp Hdp.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (is_zero_dec fld cn) as [Heq| Hne].
-  subst dpl; contradiction.
-
-  simpl in Hvp.
-  subst dpl; destruct Hdp as [Hdp| ]; [ idtac | contradiction ].
-  injection Hdp; clear Hdp; intros; subst d₁ p₁.
-  apply lt_n_Sn.
-
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (is_zero_dec fld c) as [Heq| Hne].
-  rewrite fold_points_of_ps_polynom_gen in Hvp.
-  eapply IHcl in Hvp; [ idtac | eassumption ].
-  eapply lt_trans; [ idtac | eassumption ].
-  apply lt_n_Sn.
-
-  simpl in Hvp.
-  rewrite fold_points_of_ps_polynom_gen in Hvp.
-  destruct dpl as [| (d₂, p₂)]; [ contradiction | idtac ].
-  injection Hvp; clear Hvp; intros Hvp H₂ Hdpl; subst d₂ p₂.
-  destruct Hdp as [Hdp| Hdp].
-   injection Hdp; clear Hdp; intros; subst d₁ p₁.
-   apply lt_n_Sn.
-
-   eapply IHcl in Hvp; [ idtac | eassumption ].
-   eapply lt_trans; [ idtac | eassumption ].
-   apply lt_n_Sn.
-Qed.
-
-Lemma vp_lt : ∀ pow cl cn d₁ p₁ d₂ p₂ dpl,
-  points_of_ps_polynom_gen α fld pow cl cn = [(d₁, p₁) … dpl]
-  → (d₂, p₂) ∈ dpl
-    → (d₁ < d₂)%nat.
-Proof.
-intros pow cl cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
-revert pow cn d₁ p₁ d₂ p₂ dpl Hvp Hdp.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (is_zero_dec fld cn) as [| Hne]; [ discriminate Hvp | idtac ].
- injection Hvp; intros; subst; contradiction.
-
- unfold points_of_ps_polynom_gen in Hvp; simpl in Hvp.
- destruct (is_zero_dec fld c) as [Heq| Hne].
-  eapply IHcl; eassumption.
-
-  simpl in Hvp.
-  injection Hvp; clear Hvp; intros; subst d₁ p₁.
-  rewrite fold_points_of_ps_polynom_gen in H.
-  eapply vp_pow_lt; eassumption.
-Qed.
-
-Lemma points_of_ps_polynom_lt : ∀ pol d₁ p₁ d₂ p₂ dpl,
-  points_of_ps_polynom α fld pol = [(d₁, p₁); (d₂, p₂) … dpl]
-  → (d₁ < d₂)%nat.
-Proof.
-intros; rename H into Hvp.
-unfold points_of_ps_polynom in Hvp.
-eapply vp_lt; [ eassumption | left; reflexivity ].
-Qed.
-
-Lemma gb_gen_not_empty : ∀ deg cl cn,
-  cn ≠ zero fld
-  → (∃ c, c ∈ cl ∧ c ≠ zero fld)
-    → gamma_beta_gen α fld deg cl cn ≠ None.
-Proof.
-intros deg cl cn Hcn Hcl.
-unfold gamma_beta_gen.
-remember (points_of_ps_polynom_gen α fld deg cl cn) as pts.
-remember (lower_convex_hull_points α pts) as chp.
-destruct chp as [| (j, jps)].
- destruct pts as [| (j, jps)].
-  symmetry in Heqpts.
-  exfalso; revert Heqpts.
-  apply one_vp_gen; assumption.
-
-  destruct pts; discriminate Heqchp.
-
- destruct j.
- destruct chp as [| ((k, kps), seg)]; [ idtac | intros H; discriminate H ].
- destruct pts; [ discriminate Heqchp | idtac ].
- symmetry in Heqchp; simpl in Heqchp.
- destruct pts.
-  eapply two_vp_gen with (pow := deg) in Hcl; [ idtac | eassumption ].
-  rewrite <- Heqpts in Hcl.
-  apply le_not_lt in Hcl.
-  exfalso; apply Hcl, lt_n_Sn.
-
-  unfold lower_convex_hull_points in Heqchp.
-  simpl in Heqchp.
-  remember (minimise_slope α p0 p1 pts) as ms.
-  injection Heqchp; clear Heqchp; intros; subst p0 jps.
-  destruct (rem_pts ms); [ discriminate H | idtac ].
-  discriminate H.
-Qed.
-
-Lemma gamma_beta_not_empty : ∀ (pol : polynomial (puiseux_series α)),
-  an pol ≠ zero fld
-  → (∃ c, c ∈ al pol ∧ c ≠ zero fld)
-    → gamma_beta fld pol ≠ None.
-Proof.
-intros pol an_nz ai_nz.
-unfold gamma_beta.
-apply gb_gen_not_empty; assumption.
-Qed.
 
 Definition fst_lt {α} (x y : nat * α) :=
   (fst x < fst y)%nat.
@@ -405,52 +216,6 @@ induction pts₂ as [| pt]; intros.
   apply IHpts₂ in Heqms₁.
   destruct Heqms₁; [ subst pt; right; left; reflexivity | idtac ].
   right; right; assumption.
-Qed.
-
-Lemma in_rem_pts : ∀ pt pt₁ pt₂ pts₂,
-  pt ∈ rem_pts (minimise_slope α pt₁ pt₂ pts₂)
-  → pt ∈ [pt₂ … pts₂].
-Proof.
-intros pt pt₁ pt₂ pts₂ Hpt.
-revert pt₁ pt₂ pt Hpt.
-induction pts₂ as [| pt₃]; intros; [ contradiction | idtac ].
-simpl in Hpt.
-remember (minimise_slope α pt₁ pt₃ pts₂) as ms.
-remember (slope_expr α pt₁ pt₂ ?= slope ms) as c.
-destruct c; simpl in Hpt; [ idtac | right; assumption | idtac ].
- subst ms.
- apply IHpts₂ in Hpt.
- right; assumption.
-
- subst ms.
- apply IHpts₂ in Hpt.
- right; assumption.
-Qed.
-
-Lemma np_in : ∀ n pts lch,
-  next_ch_points α n pts = lch
-  → ∀ pt, pt ∈ List.map (λ ms, fst ms) lch
-    → pt ∈ pts.
-Proof.
-intros n pts lch Hnp pt Hpt.
-subst lch.
-revert pts pt Hpt.
-induction n; intros; [ contradiction | simpl in Hpt ].
-destruct pts as [| pt₁]; [ contradiction | idtac ].
-destruct pts as [| pt₂]; [ assumption | idtac ].
-simpl in Hpt.
-destruct Hpt; [ subst pt₁; left; reflexivity | idtac ].
-remember (minimise_slope α pt₁ pt₂ pts) as ms.
-symmetry in Heqms.
-remember Heqms as Hms; clear HeqHms.
-apply min_sl_in in Heqms.
-apply IHn in H.
-destruct H as [H| H].
- subst pt.
- right; assumption.
-
- subst ms;
- right; eapply in_rem_pts; eassumption.
 Qed.
 
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg lch,
@@ -663,7 +428,7 @@ symmetry in Heqms.
 eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
 
-Lemma points_in_newton_segment : ∀ pol γ β j jps k kps seg,
+Theorem points_in_newton_segment : ∀ pol γ β j jps k kps seg,
   gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
   → ∀ h hps, (h, hps) ∈ [(j, jps); (k, kps) … seg]
     → valuation α hps + Qnat h * γ == β.
@@ -708,45 +473,6 @@ destruct Hips as [Hips| Hips].
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqlch.
   eapply in_newt_segm in Heqlch; eassumption.
-Qed.
-
-Lemma rev_app_le_val : ∀ β γ i ips rl l lch,
-  (∀ m mps, (m, mps) ∈ lch → β <= valuation α mps + Qnat m * γ)
-  → List.rev rl ++ [(i, ips) … l] = lch
-    →  β <= valuation α ips + Qnat i * γ.
-Proof.
-intros β γ i ips rl l lch Hle Hrl.
-revert i ips l lch Hle Hrl.
-induction rl as [| (m, mps)]; intros.
- simpl in Hrl.
- apply Hle.
- rewrite <- Hrl.
- left; reflexivity.
-
- simpl in Hrl.
- rewrite <- List.app_assoc in Hrl.
- simpl in Hrl.
- remember (List.rev rl ++ [(i, ips); (m, mps) … l]) as lch₁.
- symmetry in Heqlch₁.
- eapply IHrl; [ idtac | eassumption ].
- intros n nps Hn.
- apply Hle.
- subst lch lch₁.
- apply List.in_app_iff in Hn.
- apply List.in_app_iff.
- destruct Hn as [Hn| Hn].
-  left; assumption.
-
-  right.
-  destruct Hn as [Hn| Hn].
-   injection Hn; clear Hn; intros; subst n nps.
-   right; left; reflexivity.
-
-   destruct Hn as [Hn| Hn].
-    injection Hn; clear Hn; intros; subst n nps.
-    left; reflexivity.
-
-    right; right; assumption.
 Qed.
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
@@ -795,10 +521,6 @@ rewrite <- Qplus_assoc, <- Qplus_assoc, Qplus_comm, Qplus_assoc.
 rewrite Qplus_plus_swap; apply Qlt_not_le.
 assumption.
 Qed.
-
-Definition pt_of_ch α
-    (item : (nat * puiseux_series α) * list (nat * puiseux_series α)) :=
-  fst item.
 
 Lemma minimised_slope_le : ∀ j jps h hps pts ms,
   minimise_slope α (j, jps) (h, hps) pts = ms
@@ -870,70 +592,6 @@ destruct Hhps as [Hhps| Hhps].
   eapply IHpts; eassumption.
 
   eapply IHpts; eassumption.
-Qed.
-
-Lemma min_slope_lt_betw_j_and_k_not_in_seg : ∀ j jps k kps pt pts ms,
-  LocallySorted fst_lt pts
-  → minimise_slope α (j, jps) pt pts = ms
-    → end_pt ms = (k, kps)
-      → ∀ h hps, (h, hps) ∈ [pt … pts] ∧ (h, hps) ∉ [(k, kps) … seg ms]
-        → slope ms < slope_expr α (j, jps) (h, hps).
-Proof.
-intros j jps k kps pt pts ms Hsort Hms Hep h hps (Hhps, Hnhps).
-revert pt ms h Hms Hep Hhps Hnhps.
-induction pts as [| pt₁]; intros.
- simpl in Hms.
- subst ms.
- simpl in Hep, Hnhps |- *.
- subst pt.
- contradiction.
-
- simpl in Hms.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- symmetry in Heqms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
- symmetry in Heqc.
- destruct c; subst ms.
-  simpl in Hep, Hnhps |- *.
-  eapply IHpts; try eassumption.
-   eapply LocallySorted_inv_1; eassumption.
-
-   destruct Hhps as [Hhps| Hhps].
-    subst pt.
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (_, H).
-    apply Decidable.not_or in H.
-    destruct H as (H); exfalso; apply H; reflexivity.
-
-    assumption.
-
-   intros H; apply Hnhps; clear Hnhps.
-   destruct H as [H| H].
-    left; assumption.
-
-    right; right; assumption.
-
-  simpl in Hep, Hnhps |- *.
-  subst pt.
-  apply Qlt_alt in Heqc.
-  apply Decidable.not_or in Hnhps.
-  destruct Hnhps as (H, _).
-  destruct Hhps as [Hhps| Hhps]; [ contradiction | idtac ].
-  destruct Hhps as [Hhps| Hhps].
-   subst pt₁.
-   apply minimised_slope_le in Heqms₁.
-   eapply Qlt_le_trans; eassumption.
-
-   eapply Qlt_le_trans; [ eassumption | idtac ].
-   eapply minimise_slope_pts_le; eassumption.
-
-  destruct Hhps as [Hhps| Hhps].
-   subst pt.
-   apply Qgt_alt in Heqc.
-   assumption.
-
-   eapply IHpts; try eassumption.
-   eapply LocallySorted_inv_1; eassumption.
 Qed.
 
 Lemma min_slope_lt_after_k : ∀ j jps k kps pt pts ms,
@@ -1345,25 +1003,7 @@ rewrite H in Heqms₁.
 right; assumption.
 Qed.
 
-Lemma gamma_beta_k_in_pts : ∀ pol pts j jps k kps β γ seg,
-  pts = points_of_ps_polynom α fld pol
-  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-    → (k, kps) ∈ pts.
-Proof.
-intros pol pts j jps k kps β γ seg Hpts Hgb.
-unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-unfold points_of_ps_polynom in Hpts.
-rewrite <- Hpts in Hgb.
-remember (lower_convex_hull_points α pts) as lch.
-destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
-destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
-injection Hgb; clear Hgb; intros; subst γ β l lps m mps seglx.
-symmetry in Heqlch.
-eapply k_in_pts; eassumption.
-Qed.
-
-Lemma points_not_in_newton_segment : ∀ pol pts γ β j jps k kps seg,
+Theorem points_not_in_newton_segment : ∀ pol pts γ β j jps k kps seg,
   pts = points_of_ps_polynom α fld pol
   → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
     → ∀ h hps, (h, hps) ∈ pts
