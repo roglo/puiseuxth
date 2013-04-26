@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.325 2013-04-25 19:19:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.326 2013-04-26 01:07:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1134,6 +1134,30 @@ induction pts as [| pt₁]; intros.
   simpl in Hseg, Hep.
   apply Decidable.not_or in Hseg.
   destruct Hseg as (Hne, Hseg).
+  subst pts₁.
+  simpl in Heqms₁.
+  remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
+  symmetry in Heqms₂.
+  remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
+  symmetry in Heqc.
+  destruct c; subst ms₁; simpl.
+   simpl in Heqc₁, Hseg, Hep.
+   apply Decidable.not_or in Hseg.
+   destruct Hseg as (Hne₂, Hseg).
+   exfalso; apply Hne₂; reflexivity.
+
+   simpl in Heqc₁, Hseg, Hep.
+   injection Hep; clear Hep; intros; subst h hps.
+   apply lt_irrefl in Hhk; contradiction.
+
+   apply Qgt_alt in Heqc; assumption.
+
+  simpl in Hseg, Hep.
+  subst pt.
+  apply Qlt_alt in Heqc₁.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  eapply minimised_slope_le; eassumption.
+bbb.
   eapply IHpts; try eassumption.
    subst pts₁.
    apply LocallySorted_inv_2 in Hsort.
