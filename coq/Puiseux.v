@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.340 2013-04-26 17:29:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.341 2013-04-26 17:47:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -429,80 +429,6 @@ symmetry in Heqms.
 eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
 
-(*
-  pts = points_of_ps_polynom_gen α fld 0 (al pol) (an pol)
-  hsl = lower_convex_hull_points α pts
-  list_map_pairs
-    (λ hsj hsk : hull_seg (puiseux_series α),
-     ((valuation α (snd (pt hsj)) - valuation α (snd (pt hsk))) /
-      Qnat (fst (pt hsk) - fst (pt hsj)),
-     valuation α (snd (pt hsj)) +
-     Qnat (fst (pt hsj)) *
-     ((valuation α (snd (pt hsj)) - valuation α (snd (pt hsk))) /
-      Qnat (fst (pt hsk) - fst (pt hsj))), pt hsj, 
-     pt hsk, oth hsj)) hsl = [(γ, β, jpt, kpt, segjk) … gbl₂]
-  gbl = [(γ, β, jpt, kpt, segjk) … gbl₂]
-  (h, hps) ∈ [jpt; kpt … segjk]
-   → valuation α hps + Qnat h * γ == β
-*)
-
-(*
-Theorem points_in_newton_segment : ∀ pol γ β jpt kpt segjk,
-  (γ, β, jpt, kpt, segjk) ∈ gamma_beta fld pol
-    → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
-      → valuation α hps + Qnat h * γ == β.
-Proof.
-intros pol γ β jpt kpt segjk Hgbjk h hps Hhps.
-remember (gamma_beta fld pol) as gbl.
-rename Heqgbl into Hgb.
-unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-remember (points_of_ps_polynom_gen α fld 0 (al pol) (an pol)) as pts.
-rename Heqpts into Hpts.
-remember (lower_convex_hull_points α pts) as hsl.
-apply List.in_split in Hgbjk.
-destruct Hgbjk as (gbl₁, (gbl₂, Hgbjk)).
-rewrite Hgbjk in Hgb.
-induction gbl₁ as [| gb₁]; intros.
-bbb.
- simpl in Hgb, Hgbjk.
- destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hgb | idtac ].
- destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hgb | idtac ].
- injection Hgb; clear Hgb; intros; subst jpt kpt seg₁.
- rename H into Hhsl.
- rename H3 into Hβ.
- rename H4 into Hγ.
- rewrite <- Hγ in Hβ.
- destruct Hhps as [Hhps| Hhps].
-  injection Hhps; clear Hhps; intros; subst h hps.
-  rewrite Hβ; reflexivity.
-
-  destruct Hhps as [Hhps| Hhps].
-   injection Hhps; clear Hhps; intros; subst h hps.
-   rewrite Hβ, Hγ.
-   apply points_of_polyn_sorted in Hpts.
-   symmetry in Heqhsl.
-   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-   apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-   unfold hs_x_lt in Hlt₁; simpl in Hlt₁.
-   unfold Qnat.
-   rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-   rewrite QZ_minus.
-   field.
-   unfold Qminus, Qplus; simpl.
-   do 2 rewrite Z.mul_1_r.
-   unfold Qeq; simpl.
-   rewrite Z.mul_1_r, Z.add_opp_r.
-   intros H.
-   apply Zminus_eq, Nat2Z.inj in H.
-   subst k; apply lt_irrefl in Hlt₁; contradiction.
-
-   apply points_of_polyn_sorted in Hpts.
-   symmetry in Heqhsl.
-   eapply in_newt_segm in Heqhsl; eassumption.
-bbb.
-*)
-
 Theorem points_in_newton_segment : ∀ pol γ β jpt kpt segjk gbl,
   gamma_beta fld pol = [(γ, β, jpt, kpt, segjk) … gbl]
   → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
@@ -549,6 +475,32 @@ destruct Hhps as [Hhps| Hhps].
   symmetry in Heqhsl.
   eapply in_newt_segm in Heqhsl; eassumption.
 Qed.
+
+(*
+Theorem points_in_any_newton_segment : ∀ pol γ β jpt kpt segjk,
+  (γ, β, jpt, kpt, segjk) ∈ gamma_beta fld pol
+    → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
+      → valuation α hps + Qnat h * γ == β.
+Proof.
+intros pol γ β jpt kpt segjk Hgbjk h hps Hhps.
+remember (gamma_beta fld pol) as gbl.
+apply List.in_split in Hgbjk.
+destruct Hgbjk as (gbl₁, (gbl₂, Hgbjk)).
+rename Heqgbl into Hgb.
+rewrite Hgbjk in Hgb.
+revert gbl Hgbjk pol Hgb.
+induction gbl₁ as [| gb₁]; intros.
+ simpl in Hgb, Hgbjk.
+ symmetry in Hgb.
+ eapply points_in_newton_segment; try eassumption.
+
+ simpl in Hgbjk.
+ eapply IHgbl₁.
+  reflexivity.
+
+  simpl in Hgb.
+bbb.
+*)
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
