@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.328 2013-04-26 01:31:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.329 2013-04-26 02:10:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -77,7 +77,7 @@ Definition gamma_beta {α} fld pol :=
   gamma_beta_gen α fld 0%nat (al pol) (an pol).
 Arguments gamma_beta : default implicits.
 
-Section puiseux_field.
+Section convex_hull.
 
 Variable α : Type.
 Variable fld : field (puiseux_series α).
@@ -1422,7 +1422,28 @@ destruct (lt_dec k h) as [Hlt| Hge].
     assumption.
 
    apply not_gt in Hge₂.
-bbb.
+   apply points_of_polyn_sorted in Hpts.
+   unfold lower_convex_hull_points in Heqlch.
+   remember (length pts) as n; clear Heqn.
+   destruct n.
+    simpl in Heqlch.
+    discriminate Heqlch.
+
+    simpl in Heqlch.
+    destruct pts as [| (l, lps)]; [ discriminate Heqlch | idtac ].
+    destruct pts as [| (m, mps)]; [ discriminate Heqlch | idtac ].
+    injection Heqlch; clear Heqlch; intros; subst l lps.
+    destruct Hhps as [Hhps| Hhps].
+     injection Hhps; clear Hhps; intros; subst h hps.
+     simpl in Hnhps.
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (HH); exfalso; apply HH; reflexivity.
+
+     eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
+     apply le_not_lt in Hge₂; contradiction.
+Qed.
+
+End convex_hull.
 
 Record branch α :=
   { initial_polynom : polynomial (puiseux_series α);
