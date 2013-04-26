@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.334 2013-04-26 13:57:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.335 2013-04-26 14:22:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -433,6 +433,25 @@ subst segjk.
 symmetry in Heqms.
 eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
+
+(*
+Theorem points_in_newton_segment : ∀ pol γ β jpt kpt segjk,
+  (γ, β, jpt, kpt, segjk) ∈ gamma_beta fld pol
+    → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
+      → valuation α hps + Qnat h * γ == β.
+Proof.
+intros pol γ β jpt kpt segjk Hgbjk h hps Hhps.
+remember (gamma_beta fld pol) as gbl.
+rename Heqgbl into Hgb.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+remember (points_of_ps_polynom_gen α fld 0 (al pol) (an pol)) as pts.
+rename Heqpts into Hpts.
+remember (lower_convex_hull_points α pts) as hsl.
+apply List.in_split in Hgbjk.
+destruct Hgbjk as (gbl₁, (gbl₂, Hgbjk)).
+rewrite Hgbjk in Hgb.
+*)
 
 Theorem points_in_newton_segment : ∀ pol γ β jpt kpt segjk gbl,
   gamma_beta fld pol = [(γ, β, jpt, kpt, segjk) … gbl]
