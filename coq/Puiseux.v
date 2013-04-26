@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.336 2013-04-26 14:41:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.337 2013-04-26 15:15:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -455,8 +455,8 @@ rewrite Hgbjk in Hgb.
 
 Theorem points_in_newton_segment : ∀ pol γ β jpt kpt segjk gbl,
   gamma_beta fld pol = [(γ, β, jpt, kpt, segjk) … gbl]
-    → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
-      → valuation α hps + Qnat h * γ == β.
+  → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
+    → valuation α hps + Qnat h * γ == β.
 Proof.
 intros pol γ β jpt kpt segjk gbl Hgb h hps Hhps.
 unfold gamma_beta in Hgb.
