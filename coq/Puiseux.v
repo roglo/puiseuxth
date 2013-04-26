@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.335 2013-04-26 14:22:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.336 2013-04-26 14:41:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -79,7 +79,7 @@ Definition gamma_beta_gen α fld deg cl cn :=
        (γ, β, pt hsj, pt hsk, oth hsj))
     (lower_convex_hull_points α gdpl).
 
-Definition gamma_beta {α} fld pol :=
+Definition gamma_beta α fld pol :=
   gamma_beta_gen α fld 0%nat (al pol) (an pol).
 Arguments gamma_beta : default implicits.
 
