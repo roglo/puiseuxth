@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.338 2013-04-26 17:21:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.339 2013-04-26 17:27:19 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -75,12 +75,9 @@ Definition gamma_beta_of_pair α hsj hsk :=
   let β := αj + Qnat (fst (pt hsj)) * γ in
   (γ, β, pt hsj, pt hsk, oth hsj).
 
-Definition gamma_beta_gen α fld deg cl cn :=
-  let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
-  list_map_pairs (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl).
-
 Definition gamma_beta α fld pol :=
-  gamma_beta_gen α fld 0%nat (al pol) (an pol).
+  let gdpl := points_of_ps_polynom α fld pol in
+  list_map_pairs (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl).
 Arguments gamma_beta : default implicits.
 
 Section convex_hull.
@@ -515,8 +512,7 @@ Theorem points_in_newton_segment : ∀ pol γ β jpt kpt segjk gbl,
 Proof.
 intros pol γ β jpt kpt segjk gbl Hgb h hps Hhps.
 unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-remember (points_of_ps_polynom_gen α fld 0 (al pol) (an pol)) as pts.
+remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as hsl.
 destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hgb | idtac ].
@@ -1094,8 +1090,6 @@ Proof.
 intros pol pts γ β jpt kpt segjk gbl.
 intros Hpts Hgb h hps Hhps Hnhps.
 unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-unfold points_of_ps_polynom in Hpts.
 rewrite <- Hpts in Hgb.
 remember (lower_convex_hull_points α pts) as hsl.
 destruct hsl as [| ((j, jps), segjx)]; [ discriminate Hgb | idtac ].
