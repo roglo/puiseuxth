@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.39 2013-04-26 09:08:10 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.40 2013-04-26 13:57:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -25,7 +25,7 @@ Arguments seg : default implicits.
 Arguments rem_pts : default implicits.
 
 Record hull_seg α := ahs
-  { pt : nat * α;
+  { pt : (nat * α);
     oth : list (nat * α) }.
 Arguments ahs : default implicits.
 Arguments pt : default implicits.

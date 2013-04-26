@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.333 2013-04-26 13:22:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.334 2013-04-26 13:57:48 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -68,20 +68,6 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   end.
 Arguments list_map_pairs : default implicits.
 
-(*
-Definition gamma_beta_gen α fld deg cl cn :=
-  let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
-  match lower_convex_hull_points α gdpl with
-  | [hsj; hsk … _] =>
-      let αj := valuation α (snd (pt hsj)) in
-      let αk := valuation α (snd (pt hsk)) in
-      let γ := (αj - αk) / Qnat (fst (pt hsk) - fst (pt hsj))%nat in
-      let β := αj + Qnat (fst (pt hsj)) * γ in
-      Some (γ, β, pt hsj, pt hsk, oth hsj)
-  | [_] | [] =>
-      None
-  end.
-*)
 Definition gamma_beta_gen α fld deg cl cn :=
   let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
   list_map_pairs
@@ -92,7 +78,6 @@ Definition gamma_beta_gen α fld deg cl cn :=
        let β := αj + Qnat (fst (pt hsj)) * γ in
        (γ, β, pt hsj, pt hsk, oth hsj))
     (lower_convex_hull_points α gdpl).
-(**)
 
 Definition gamma_beta {α} fld pol :=
   gamma_beta_gen α fld 0%nat (al pol) (an pol).
