@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.339 2013-04-26 17:27:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.340 2013-04-26 17:29:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -90,10 +90,8 @@ Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
   points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
 
-Definition fst_lt {α} (x y : nat * α) :=
-  (fst x < fst y)%nat.
-Definition hs_x_lt {α} (x y : hull_seg α) :=
-  (fst (pt x) < fst (pt y))%nat.
+Definition fst_lt {α} (x y : nat * α) := (fst x < fst y)%nat.
+Definition hs_x_lt {α} (x y : hull_seg α) := (fst (pt x) < fst (pt y))%nat.
 
 Lemma LocallySorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   LocallySorted f [x … l]
