@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.327 2013-04-26 01:13:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.328 2013-04-26 01:31:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1005,7 +1005,7 @@ destruct Hhps as [Hhps| Hhps].
   apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
-Lemma pt_aft_k : ∀ n pts j jps k kps seg seg₂ lch γ β,
+Lemma points_after_k : ∀ n pts j jps k kps seg seg₂ lch γ β,
   LocallySorted fst_lt pts
   → (j < k)%nat
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -1064,35 +1064,6 @@ destruct Hhps as [Hhps| Hhps].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
    destruct pts as [| pt₂]; [ constructor | idtac ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
-Qed.
-
-Lemma points_after_k : ∀ pol pts γ β j jps k kps seg,
-  pts = points_of_ps_polynom α fld pol
-  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-    → ∀ h hps, (h, hps) ∈ pts
-      → (k < h)%nat
-        → β < valuation α hps + Qnat h * γ.
-Proof.
-intros pol pts γ β j jps k kps segjk Hpts Hgb h hps Hhps Hki.
-unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-unfold points_of_ps_polynom in Hpts.
-rewrite <- Hpts in Hgb.
-remember (lower_convex_hull_points α pts) as lch.
-destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
-destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
-injection Hgb; clear Hgb; intros; subst l lps m mps seglx.
-symmetry in H4; rename H4 into Hβ.
-symmetry in H5; rename H5 into Hγ.
-rewrite <- Hγ in Hβ.
-symmetry in Heqlch.
-apply points_of_polyn_sorted in Hpts.
-remember Hpts as Hpts₂; clear HeqHpts₂.
-eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt, Hpts).
-unfold fst_fst_lt in Hlt; simpl in Hlt.
-
-eapply pt_aft_k; eassumption.
 Qed.
 
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
@@ -1177,7 +1148,7 @@ induction pts as [| pt₁]; intros.
    apply Qgt_alt in Heqc; assumption.
 Qed.
 
-Lemma pt_betw_j_and_k : ∀ n pts j jps k kps segjk segkx lch γ β,
+Lemma points_between_j_and_k : ∀ n pts j jps k kps segjk segkx lch γ β,
   LocallySorted fst_lt pts
   → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
     → β = valuation α jps + Qnat j * γ
@@ -1309,37 +1280,6 @@ destruct Hhps as [Hhps| Hhps].
       destruct Hsort; eapply lt_trans; eassumption.
 Qed.
 
-Lemma points_between_j_and_k : ∀ pol pts γ β j jps k kps seg,
-  pts = points_of_ps_polynom α fld pol
-  → gamma_beta fld pol = Some (γ, β, (j, jps), (k, kps), seg)
-    → ∀ h hps, (h, hps) ∈ pts
-      → (j < h < k)%nat
-        → (h, hps) ∉ seg
-          → β < valuation α hps + Qnat h * γ.
-Proof.
-intros pol pts γ β j jps k kps segjk Hpts Hgb h hps Hhps (Hjh, Hhk) Hseg.
-unfold gamma_beta in Hgb.
-unfold gamma_beta_gen in Hgb.
-unfold points_of_ps_polynom in Hpts.
-rewrite <- Hpts in Hgb.
-remember (lower_convex_hull_points α pts) as lch.
-destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
-destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
-injection Hgb; clear Hgb; intros; subst l lps m mps seglx.
-symmetry in H4; rename H4 into Hβ.
-symmetry in H5; rename H5 into Hγ.
-rewrite <- Hγ in Hβ.
-symmetry in Heqlch.
-apply points_of_polyn_sorted in Hpts.
-remember Hpts as Hpts₂; clear HeqHpts₂.
-eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt, Hpts).
-unfold fst_fst_lt in Hlt; simpl in Hlt.
-
-eapply pt_betw_j_and_k; try eassumption.
-split; assumption.
-Qed.
-
 Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
   LocallySorted fst_lt [(k, jps) … pts] → (k, kps) ∉ pts.
 Proof.
@@ -1432,7 +1372,24 @@ Lemma points_not_in_newton_segment : ∀ pol pts γ β j jps k kps seg,
 Proof.
 intros pol pts γ β j jps k kps seg.
 intros Hpts Hgb h hps Hhps Hnhps.
+unfold gamma_beta in Hgb.
+unfold gamma_beta_gen in Hgb.
+unfold points_of_ps_polynom in Hpts.
+rewrite <- Hpts in Hgb.
+remember (lower_convex_hull_points α pts) as lch.
+destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
+destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
+injection Hgb; clear Hgb; intros; subst l lps m mps seglx.
+symmetry in H4; rename H4 into Hβ.
+symmetry in H5; rename H5 into Hγ.
+rewrite <- Hγ in Hβ.
+symmetry in Heqlch.
 destruct (lt_dec k h) as [Hlt| Hge].
+ apply points_of_polyn_sorted in Hpts.
+ remember Hpts as Hpts₂; clear HeqHpts₂.
+ eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+ apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
+ unfold fst_fst_lt in Hlt; simpl in Hlt.
  eapply points_after_k; eassumption.
 
  apply not_gt in Hge.
@@ -1446,10 +1403,14 @@ destruct (lt_dec k h) as [Hlt| Hge].
    destruct Hnhps as (Hnhps, _).
    exfalso; apply Hnhps; reflexivity.
 
-   eapply gamma_beta_k_in_pts; eassumption.
+   eapply k_in_pts; eassumption.
 
   apply le_neq_lt in Hge; [ idtac | assumption ].
   destruct (lt_dec j h) as [Hlt| Hge₂].
+   apply points_of_polyn_sorted in Hpts.
+   remember Hpts as Hpts₂; clear HeqHpts₂.
+   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+   unfold fst_fst_lt in Hlt; simpl in Hlt.
    eapply points_between_j_and_k; try eassumption.
     split; assumption.
 
