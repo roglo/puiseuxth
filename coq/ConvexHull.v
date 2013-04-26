@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.38 2013-04-24 09:22:06 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.39 2013-04-26 09:08:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -23,6 +23,13 @@ Arguments slope : default implicits.
 Arguments end_pt : default implicits.
 Arguments seg : default implicits.
 Arguments rem_pts : default implicits.
+
+Record hull_seg α := ahs
+  { pt : nat * α;
+    oth : list (nat * α) }.
+Arguments ahs : default implicits.
+Arguments pt : default implicits.
+Arguments oth : default implicits.
 
 Definition slope_expr α pt₁ pt₂ :=
   let v₁ := valuation α (snd pt₁) in
@@ -53,11 +60,11 @@ Fixpoint next_ch_points α n pts :=
   | S n =>
       match pts with
       | [] => []
-      | [pt₁] => [(pt₁, [])]
+      | [pt₁] => [{| pt := pt₁; oth := [] |}]
       | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope α pt₁ pt₂ pts₂ in
-          let chl := next_ch_points α n [end_pt ms … rem_pts ms] in
-          [(pt₁, seg ms) … chl]
+          let hsl := next_ch_points α n [end_pt ms … rem_pts ms] in
+          [{| pt := pt₁; oth := seg ms |} … hsl]
       end
   end.
 

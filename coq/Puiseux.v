@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.330 2013-04-26 03:30:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.331 2013-04-26 09:08:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -60,6 +60,15 @@ Definition points_of_ps_polynom_gen α fld pow cl cn :=
 Definition points_of_ps_polynom α fld pol :=
   points_of_ps_polynom_gen α fld 0%nat (al pol) (an pol).
 
+Fixpoint list_map_pairs α β (f : α → α → β) l :=
+  match l with
+  | [] => []
+  | [x₁] => []
+  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs α β f l₁]
+  end.
+Arguments list_map_pairs : default implicits.
+
+(*
 Definition gamma_beta_gen α fld deg cl cn :=
   let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
   match lower_convex_hull_points α gdpl with
@@ -69,6 +78,20 @@ Definition gamma_beta_gen α fld deg cl cn :=
       let γ := (αj - αk) / Qnat (k - j)%nat in
       let β := αj + Qnat j * γ in
       Some (γ, β, (j, jps), (k, kps), seg)
+  | [_] | [] =>
+      None
+  end.
+*)
+
+Definition gamma_beta_gen α fld deg cl cn :=
+  let gdpl := points_of_ps_polynom_gen α fld deg cl cn in
+  match lower_convex_hull_points α gdpl with
+  | [hsj; hsk … _] =>
+      let αj := valuation α (snd (pt hsj)) in
+      let αk := valuation α (snd (pt hsk)) in
+      let γ := (αj - αk) / Qnat (fst (pt hsk) - fst (pt hsj))%nat in
+      let β := αj + Qnat (fst (pt hsj)) * γ in
+      Some (γ, β, pt hsj, pt hsk, oth hsj)
   | [_] | [] =>
       None
   end.
@@ -89,8 +112,8 @@ Proof. reflexivity. Qed.
 
 Definition fst_lt {α} (x y : nat * α) :=
   (fst x < fst y)%nat.
-Definition fst_fst_lt {α β} (x y : (nat * α) * β) :=
-  (fst (fst x) < fst (fst y))%nat.
+Definition hs_x_lt {α} (x y : hull_seg α) :=
+  (fst (pt x) < fst (pt y))%nat.
 
 Lemma LocallySorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   LocallySorted f [x … l]
@@ -218,11 +241,11 @@ induction pts₂ as [| pt]; intros.
   right; right; assumption.
 Qed.
 
-Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg lch,
-  next_ch_points α n [pt₁ … pts₁] = [(pt₂, sg) … lch]
+Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg hsl,
+  next_ch_points α n [pt₁ … pts₁] = [{| pt := pt₂; oth := sg |} … hsl]
   → fst pt₁ ≤ fst pt₂.
 Proof.
-intros n pt₁ pt₂ pts₁ sg lch Hnp.
+intros n pt₁ pt₂ pts₁ sg hsl Hnp.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
@@ -254,26 +277,26 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-Lemma next_points_sorted : ∀ n pts lch,
+Lemma next_points_sorted : ∀ n pts hsl,
   LocallySorted fst_lt pts
-  → next_ch_points α n pts = lch
-    → LocallySorted fst_fst_lt lch.
+  → next_ch_points α n pts = hsl
+    → LocallySorted hs_x_lt hsl.
 Proof.
-intros n pts lch Hsort Hnp.
-revert pts lch Hsort Hnp.
-induction n; intros; [ subst lch; constructor | idtac ].
+intros n pts hsl Hsort Hnp.
+revert pts hsl Hsort Hnp.
+induction n; intros; [ subst hsl; constructor | idtac ].
 simpl in Hnp.
-destruct pts as [| pt₁]; [ subst lch; constructor | idtac ].
-destruct pts as [| pt₂]; [ subst lch; constructor | idtac ].
+destruct pts as [| pt₁]; [ subst hsl; constructor | idtac ].
+destruct pts as [| pt₂]; [ subst hsl; constructor | idtac ].
 remember (minimise_slope α pt₁ pt₂ pts) as ms₂.
-remember (next_ch_points α n [end_pt ms₂ … rem_pts ms₂]) as lch₁.
-subst lch.
-symmetry in Heqlch₁.
-remember Heqlch₁ as Hch; clear HeqHch.
-apply IHn in Heqlch₁.
- destruct lch₁ as [| (pt₃, sg)]; [ constructor | idtac ].
+remember (next_ch_points α n [end_pt ms₂ … rem_pts ms₂]) as hsl₁.
+subst hsl.
+symmetry in Heqhsl₁.
+remember Heqhsl₁ as Hch; clear HeqHch.
+apply IHn in Heqhsl₁.
+ destruct hsl₁ as [| (pt₃, sg)]; [ constructor | idtac ].
  constructor; [ assumption | idtac ].
- unfold fst_fst_lt; simpl.
+ unfold hs_x_lt; simpl.
  symmetry in Heqms₂.
  remember Heqms₂ as Hms; clear HeqHms.
  apply minimise_slope_le in Heqms₂.
@@ -289,21 +312,21 @@ apply IHn in Heqlch₁.
  eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lower_convex_hull_points_sorted : ∀ pts lch,
+Lemma lower_convex_hull_points_sorted : ∀ pts hsl,
   LocallySorted fst_lt pts
-  → lower_convex_hull_points α pts = lch
-    → LocallySorted fst_fst_lt lch.
+  → lower_convex_hull_points α pts = hsl
+    → LocallySorted hs_x_lt hsl.
 Proof.
-intros pts lch Hsort Hch.
+intros pts hsl Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
-Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg lch,
-  next_ch_points α n [pt₁ … pts₁] = [(pt₂, seg) … lch]
+Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg hsl,
+  next_ch_points α n [pt₁ … pts₁] = [ahs pt₂ seg … hsl]
   → pt₁ = pt₂.
 Proof.
-intros n pt₁ pt₂ pts₂ seg₂ lch Hnp.
-revert pt₁ pt₂ pts₂ seg₂ lch Hnp.
+intros n pt₁ pt₂ pts₂ seg₂ hsl Hnp.
+revert pt₁ pt₂ pts₂ seg₂ hsl Hnp.
 induction n; intros; [ discriminate Hnp | simpl in Hnp ].
 destruct pts₂; injection Hnp; intros; subst pt₂; reflexivity.
 Qed.
@@ -331,19 +354,19 @@ induction pts as [| pt₁]; intros.
   eapply IHpts; eassumption.
 Qed.
 
-Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx lch n,
+Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx hsl n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → minimise_slope α (j, jps) pt pts = ms
         → next_ch_points α n [end_pt ms … rem_pts ms] =
-            [(k, kps, segkx) … lch]
+            [ahs (k, kps) segkx … hsl]
           → ∀ i ips, (i, ips) ∈ seg ms
             → valuation α ips + Qnat i * γ == β.
 Proof.
-intros j jps k kps β γ pt pts ms segkx lch n.
+intros j jps k kps β γ pt pts ms segkx hsl n.
 intros Hsort Hβ Hγ Hms Hnp i ips Hips.
-revert pt ms lch n i ips Hsort Hips Hms Hnp.
+revert pt ms hsl n i ips Hsort Hips Hms Hnp.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
  subst ms; simpl in Hnp, Hips.
@@ -402,16 +425,16 @@ induction pts as [| pt₁]; intros.
   constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx lch,
+Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl,
   LocallySorted fst_lt pts
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → lower_convex_hull_points α pts =
-          [((j, jps), segjk); ((k, kps), segkx) … lch]
+          [ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
         → ∀ i ips, (i, ips) ∈ segjk
           → valuation α ips + Qnat i * γ == β.
 Proof.
-intros j jps k kps γ β pts segjk segkx lch.
+intros j jps k kps γ β pts segjk segkx hsl.
 intros Hsort Hβ Hγ Hch i ips Hips.
 unfold lower_convex_hull_points in Hch.
 remember (length pts) as n; clear Heqn.
@@ -438,9 +461,9 @@ unfold gamma_beta in Hgb.
 unfold gamma_beta_gen in Hgb.
 remember (points_of_ps_polynom_gen α fld 0 (al pol) (an pol)) as pts.
 rename Heqpts into Hpts.
-remember (lower_convex_hull_points α pts) as lch.
-destruct lch as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
-destruct lch as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
+remember (lower_convex_hull_points α pts) as hsl.
+destruct hsl as [| ((l, lps), seg₁)]; [ discriminate Hgb | idtac ].
+destruct hsl as [| ((m, mps), seg₂)]; [ discriminate Hgb | idtac ].
 injection Hgb; clear Hgb; intros; subst l lps m mps seg₁.
 rename H4 into Hβ.
 rename H5 into Hγ.
@@ -455,10 +478,10 @@ destruct Hips as [Hips| Hips].
   rewrite Hβ, Hγ.
   unfold Qnat.
   apply points_of_polyn_sorted in Hpts.
-  symmetry in Heqlch.
+  symmetry in Heqhsl.
   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
   apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-  unfold fst_fst_lt in Hlt₁; simpl in Hlt₁.
+  unfold hs_x_lt in Hlt₁; simpl in Hlt₁.
   rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
   rewrite QZ_minus.
   field.
@@ -471,8 +494,8 @@ destruct Hips as [Hips| Hips].
   subst k; apply lt_irrefl in Hlt₁; contradiction.
 
   apply points_of_polyn_sorted in Hpts.
-  symmetry in Heqlch.
-  eapply in_newt_segm in Heqlch; eassumption.
+  symmetry in Heqhsl.
+  eapply in_newt_segm in Heqhsl; eassumption.
 Qed.
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
@@ -663,17 +686,17 @@ destruct Hhps as [Hhps| Hhps].
   apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
-Lemma points_after_k : ∀ n pts j jps k kps seg seg₂ lch γ β,
+Lemma points_after_k : ∀ n pts j jps k kps seg seg₂ hsl γ β,
   LocallySorted fst_lt pts
   → (j < k)%nat
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
       → β = valuation α jps + Qnat j * γ
-        → next_ch_points α n pts = [(j, jps, seg); (k, kps, seg₂) … lch]
+        → next_ch_points α n pts = [ahs (j, jps) seg; ahs (k, kps) seg₂ … hsl]
           → ∀ h hps, (k < h)%nat
             → (h, hps) ∈ pts
               → β < valuation α hps + Qnat h * γ.
 Proof.
-intros n pts j jps k kps segjk segkx lch γ β.
+intros n pts j jps k kps segjk segkx hsl γ β.
 intros Hsort Hjk Hγ Hβ Hnp h hps Hkh Hhps.
 destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -806,17 +829,17 @@ induction pts as [| pt₁]; intros.
    apply Qgt_alt in Heqc; assumption.
 Qed.
 
-Lemma points_between_j_and_k : ∀ n pts j jps k kps segjk segkx lch γ β,
+Lemma points_between_j_and_k : ∀ n pts j jps k kps sjk skx hsl γ β,
   LocallySorted fst_lt pts
   → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
     → β = valuation α jps + Qnat j * γ
-      → next_ch_points α n pts = [(j, jps, segjk); (k, kps, segkx) … lch]
+      → next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
         → ∀ h hps, (j < h < k)%nat
           → (h, hps) ∈ pts
-            → (h, hps) ∉ segjk
+            → (h, hps) ∉ sjk
               → β < valuation α hps + Qnat h * γ.
 Proof.
-intros n pts j jps k kps segjk segkx lch γ β.
+intros n pts j jps k kps segjk segkx hsl γ β.
 intros Hsort Hγ Hβ Hnp h hps (Hjh, Hhk) Hhps Hseg.
 destruct n; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -983,17 +1006,17 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma k_in_pts : ∀ pts j jps k kps segjk segkx lch,
-  lower_convex_hull_points α pts = [(j, jps, segjk); (k, kps, segkx) … lch]
+Lemma k_in_pts : ∀ pts j jps k kps sjk skx hsl,
+  lower_convex_hull_points α pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
   → (k, kps) ∈ pts.
 Proof.
-intros pts j jps k kps segjk segkx lch Hlch.
-unfold lower_convex_hull_points in Hlch.
+intros pts j jps k kps segjk segkx hsl Hhsl.
+unfold lower_convex_hull_points in Hhsl.
 remember (length pts) as n; clear Heqn.
-destruct n; [ discriminate Hlch | simpl in Hlch ].
-destruct pts as [| (l, lps)]; [ discriminate Hlch | idtac ].
-destruct pts as [| (m, mps)]; [ discriminate Hlch | idtac ].
-injection Hlch; clear Hlch; intros; subst l lps.
+destruct n; [ discriminate Hhsl | simpl in Hhsl ].
+destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
+destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
+injection Hhsl; clear Hhsl; intros; subst l lps.
 remember (minimise_slope α (j, jps) (m, mps) pts) as ms₁.
 symmetry in Heqms₁.
 subst segjk.
@@ -1016,20 +1039,20 @@ unfold gamma_beta in Hgb.
 unfold gamma_beta_gen in Hgb.
 unfold points_of_ps_polynom in Hpts.
 rewrite <- Hpts in Hgb.
-remember (lower_convex_hull_points α pts) as lch.
-destruct lch as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
-destruct lch as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
+remember (lower_convex_hull_points α pts) as hsl.
+destruct hsl as [| ((l, lps), seglx)]; [ discriminate Hgb | idtac ].
+destruct hsl as [| ((m, mps), segmx)]; [ discriminate Hgb | idtac ].
 injection Hgb; clear Hgb; intros; subst l lps m mps seglx.
 symmetry in H4; rename H4 into Hβ.
 symmetry in H5; rename H5 into Hγ.
 rewrite <- Hγ in Hβ.
-symmetry in Heqlch.
+symmetry in Heqhsl.
 destruct (lt_dec k h) as [Hlt| Hge].
  apply points_of_polyn_sorted in Hpts.
  remember Hpts as Hpts₂; clear HeqHpts₂.
  eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
- unfold fst_fst_lt in Hlt; simpl in Hlt.
+ unfold hs_x_lt in Hlt; simpl in Hlt.
  eapply points_after_k; eassumption.
 
  apply not_gt in Hge.
@@ -1050,7 +1073,7 @@ destruct (lt_dec k h) as [Hlt| Hge].
    apply points_of_polyn_sorted in Hpts.
    remember Hpts as Hpts₂; clear HeqHpts₂.
    eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-   unfold fst_fst_lt in Hlt; simpl in Hlt.
+   unfold hs_x_lt in Hlt; simpl in Hlt.
    eapply points_between_j_and_k; try eassumption.
     split; assumption.
 
@@ -1063,16 +1086,16 @@ destruct (lt_dec k h) as [Hlt| Hge].
 
    apply not_gt in Hge₂.
    apply points_of_polyn_sorted in Hpts.
-   unfold lower_convex_hull_points in Heqlch.
+   unfold lower_convex_hull_points in Heqhsl.
    remember (length pts) as n; clear Heqn.
    destruct n.
-    simpl in Heqlch.
-    discriminate Heqlch.
+    simpl in Heqhsl.
+    discriminate Heqhsl.
 
-    simpl in Heqlch.
-    destruct pts as [| (l, lps)]; [ discriminate Heqlch | idtac ].
-    destruct pts as [| (m, mps)]; [ discriminate Heqlch | idtac ].
-    injection Heqlch; clear Heqlch; intros; subst l lps.
+    simpl in Heqhsl.
+    destruct pts as [| (l, lps)]; [ discriminate Heqhsl | idtac ].
+    destruct pts as [| (m, mps)]; [ discriminate Heqhsl | idtac ].
+    injection Heqhsl; clear Heqhsl; intros; subst l lps.
     destruct Hhps as [Hhps| Hhps].
      injection Hhps; clear Hhps; intros; subst h hps.
      simpl in Hnhps.
