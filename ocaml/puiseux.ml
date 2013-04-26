@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.206 2013-04-26 16:06:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.207 2013-04-26 16:08:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -110,7 +110,7 @@ value points_of_ps_polynom α fld pol =
   List.rev rev_dpl
 ;
 
-Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
+Definition gamma_beta_list pol :=
   let α := () in
   let gdpl := points_of_ps_polynom α () pol in
   list_map_pairs α ()
