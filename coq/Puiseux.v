@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.326 2013-04-26 01:07:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.327 2013-04-26 01:13:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1031,7 +1031,6 @@ rename H into Hep₁.
 rewrite Hep₁ in Hnp.
 destruct Hhps as [Hhps| Hhps].
  injection Hhps; clear Hhps; intros; subst h hps.
-(**)
  eapply lt_trans in Hkh; [ idtac | eassumption ].
  apply lt_irrefl in Hkh; contradiction.
 
@@ -1157,118 +1156,26 @@ induction pts as [| pt₁]; intros.
   apply Qlt_alt in Heqc₁.
   eapply Qlt_le_trans; [ eassumption | idtac ].
   eapply minimised_slope_le; eassumption.
-bbb.
-  eapply IHpts; try eassumption.
-   subst pts₁.
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₁, Hsort).
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₂, Hsort).
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₃, Hsort).
-   constructor; [ idtac | assumption ].
-   constructor; [ idtac | assumption ].
-   destruct pts as [| pt₂]; [ constructor | idtac ].
-   constructor.
-    eapply LocallySorted_inv_1; eassumption.
 
-    eapply LocallySorted_inv_2 in Hsort.
-    destruct Hsort as (Hlt₄, Hsort).
-    eapply lt_trans; eassumption.
-
-   subst pts₁.
-   simpl in Heqms₁.
-   remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
-   symmetry in Heqms₂.
-   remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
-   symmetry in Heqc.
-   remember [(h, hps) … pts] as pts₁.
-   destruct c; subst ms₁; simpl.
-    simpl in Heqc₁, Hseg, Hep.
-    apply Decidable.not_or in Hseg.
-    destruct Hseg as (Hne₂, Hseg).
-    exfalso; apply Hne₂; reflexivity.
-
-    simpl in Heqc₁, Hseg, Hep.
-    injection Hep; clear Hep; intros; subst h hps.
-    apply lt_irrefl in Hhk; contradiction.
-
-bbb.
-
-(*
-Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms,
-  LocallySorted fst_lt pts
-  → minimise_slope α (j, jps) pt pts = ms
-    → pt ∉ seg ms
-      → end_pt ms = (k, kps)
-        → ∀ h hps, (h, hps) ∈ pts
-          → (h, hps) ∉ seg ms
-            → slope ms < slope_expr α (j, jps) (h, hps).
-Proof.
-intros j jps k kps pt pts ms Hsort Hms Hpt Hep h hps Hhps Hseg.
-revert h pt ms Hms Hep Hseg Hhps Hpt.
-induction pts as [| pt₁]; [ contradiction | intros ].
-destruct Hhps as [Hhps| Hhps].
- subst pt₁.
- remember Hms as H; clear HeqH.
- apply min_sl_in in Hms.
- rewrite Hep in Hms.
- destruct Hms as [Hms| Hms].
-  subst pt.
-  simpl in H.
-  remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
-  symmetry in Heqms₁.
-  remember (slope_expr α (j, jps) (k, kps) ?= slope ms₁) as c.
+  subst pts₁.
+  apply Qgt_alt in Heqc₁.
+  simpl in Heqms₁.
+  remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
+  symmetry in Heqms₂.
+  remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
   symmetry in Heqc.
-  destruct c; subst ms.
-   simpl in Hep, Hseg |- *.
+  destruct c; subst ms₁; simpl.
+   simpl in Heqc₁, Hseg, Hep.
    apply Decidable.not_or in Hseg.
-   destruct Hseg as (Hkh, Hseg).
-   eapply min_slope_lt_betw_j_and_k_not_in_seg in Heqms₁; try eassumption.
-    eapply LocallySorted_inv_1; eassumption.
+   destruct Hseg as (Hne₂, Hseg).
+   exfalso; apply Hne₂; reflexivity.
 
-    split; [ left; reflexivity | intros H; destruct H; contradiction ].
+   simpl in Heqc₁, Hseg, Hep.
+   injection Hep; clear Hep; intros; subst h hps.
+   apply lt_irrefl in Hhk; contradiction.
 
-   simpl in Hep, Hseg |- *.
-   apply Qlt_alt in Heqc.
-   clear Hep Hseg.
-   eapply Qlt_le_trans; [ eassumption | idtac ].
-   eapply minimised_slope_le; eassumption.
-
-   apply Qgt_alt in Heqc.
-   symmetry in Hep.
-   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
-   rewrite Heqms₁ in Heqc.
-   apply Qlt_irrefl in Heqc; contradiction.
-
-  simpl in H.
-  remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
-  symmetry in Heqms₁.
-  remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
-  symmetry in Heqc.
-  destruct c; subst ms.
-   simpl in Hep, Hseg, Hpt |- *.
-   apply Decidable.not_or in Hpt.
-   destruct Hpt as (H); exfalso; apply H; reflexivity.
-
-   simpl in Hep, Hseg, Hpt |- *.
-   subst pt.
-   apply Qlt_alt in Heqc.
-   destruct Hms as [Hms| Hms].
-    injection Hms; clear Hms; intros; subst h hps.
-    apply minimised_slope_le in Heqms₁.
-    eapply Qle_lt_trans in Heqms₁; [ idtac | eassumption ].
-    apply Qlt_irrefl in Heqms₁; contradiction.
-
-    apply minimised_slope_le in Heqms₁.
-    eapply Qlt_le_trans; eassumption.
-
-   apply Qgt_alt in Heqc.
-   destruct Hms as [Hms| Hms].
-    injection Hms; clear Hms; intros; subst h hps.
--- blocked --
-bbb.
-*)
+   apply Qgt_alt in Heqc; assumption.
+Qed.
 
 Lemma pt_betw_j_and_k : ∀ n pts j jps k kps segjk segkx lch γ β,
   LocallySorted fst_lt pts
@@ -1432,102 +1339,6 @@ unfold fst_fst_lt in Hlt; simpl in Hlt.
 eapply pt_betw_j_and_k; try eassumption.
 split; assumption.
 Qed.
-
-(*
-unfold lower_convex_hull_points in Heqlch.
-remember (length pts) as n; clear Heqn.
-rename Heqlch into Hnp.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst pt₁.
-remember (minimise_slope α (j, jps) pt₂ pts) as ms₁.
-symmetry in Heqms₁.
-subst segjk.
-remember H as Hnp; clear HeqHnp.
-apply next_ch_points_hd in H.
-rename pt₂ into pt.
-rename ms₁ into ms.
-apply LocallySorted_inv_2 in Hpts₂.
-destruct Hpts₂ as (Hlt₁, Hsort).
-unfold fst_lt in Hlt₁; simpl in Hlt₁.
-bbb.
-revert ms pt Heqms₁ H Hseg Hnp Hhps Hlt₁ Hsort.
-induction pts as [| pt₁]; intros.
- simpl in Heqms₁.
- subst ms.
- simpl in H, Hseg, Hnp.
- clear Hseg.
- subst pt.
- clear Hsort.
- simpl in Hhps.
- destruct Hhps as [H| Hhps].
-  injection H; clear H; intros; subst h hps.
-  apply lt_irrefl in Hjh; contradiction.
-
-  simpl in Hlt₁.
-  destruct Hhps as [H| Hhps].
-   injection H; clear H; intros; subst h hps.
-   apply lt_irrefl in Hhk; contradiction.
-
-   contradiction.
-
- simpl in Heqms₁.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- symmetry in Heqms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
- destruct c; subst ms.
-  simpl in H, Hseg, Hnp, IHpts.
-  apply Decidable.not_or in Hseg.
-  destruct Hseg as (Hpt, Hseg).
-  symmetry in Heqc; apply Qeq_alt in Heqc.
-  symmetry in Heqms₁0.
-  eapply IHpts; try eassumption.
-   simpl in Hhps.
-   destruct Hhps as [HH| Hhps].
-    left; assumption.
-
-    destruct Hhps as [HH| Hhps].
-     contradiction.
-
-     destruct Hhps as [HH| Hhps].
-      right; left; assumption.
-
-      right; right; assumption.
-
-   eapply lt_trans; [ eassumption | idtac ].
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort; assumption.
-
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort; assumption.
-
-  simpl in H, Hseg, Hnp.
-  subst pt.
-  simpl in Hhps.
-  destruct Hhps as [HH| Hhps].
-   injection HH; clear HH; intros; subst h hps.
-   apply lt_irrefl in Hjh; contradiction.
-
-   destruct Hhps as [HH| Hhps].
-    injection HH; clear HH; intros; subst h hps.
-    apply lt_irrefl in Hhk; contradiction.
-
-    destruct Hhps as [HH| Hhps].
-     subst pt₁.
-     apply LocallySorted_inv_2 in Hsort.
-     destruct Hsort as (Hlt₂, Hsort).
-     unfold fst_lt in Hlt₂; simpl in Hlt₂.
-     eapply lt_trans in Hlt₂; [ idtac | eapply Hhk ].
-     apply lt_irrefl in Hlt₂; contradiction.
-
-     symmetry in Heqc; apply Qlt_alt in Heqc.
-     symmetry in Heqms₁0.
-     remember Heqms₁0 as H; clear HeqH.
-     clear Hlt₁.
-bbb.
-*)
 
 Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
   LocallySorted fst_lt [(k, jps) … pts] → (k, kps) ∉ pts.
