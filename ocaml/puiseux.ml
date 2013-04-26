@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.205 2013-04-26 13:45:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.206 2013-04-26 16:06:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -89,39 +89,40 @@ Fixpoint next_ch_points α n pts :=
 Definition lower_convex_hull_points α pts :=
   next_ch_points α (List.length pts) pts;
 
-Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
-  let gdpl :=
-    let (rev_dpl, _) :=
-      List.fold_left
-        (fun (rev_dpl, deg) ps →
-           let rev_dpl =
-             if ps.ps_monoms = [] then rev_dpl
-             else [(deg, ps) :: rev_dpl]
-           in
-           (rev_dpl, deg + 1))
-        ([], 0) pol.al
-    in
-    List.rev rev_dpl
+Fixpoint list_map_pairs α β (f : α → α → β) l :=
+  match l with
+  | [] => []
+  | [x₁] => []
+  | [x₁ :: ([x₂ :: l₂] as l₁)] => [f x₁ x₂ :: list_map_pairs α β f l₁]
+  end;
+
+value points_of_ps_polynom α fld pol =
+  let (rev_dpl, _) =
+    List.fold_left
+      (fun (rev_dpl, deg) ps →
+         let rev_dpl =
+           if ps.ps_monoms = [] then rev_dpl
+           else [(deg, ps) :: rev_dpl]
+         in
+         (rev_dpl, deg + 1))
+      ([], 0) pol.al
   in
-  let α := () in
-  let fix loop rev_gbl dpl :=
-    match dpl with
-    | [hsj :: ([hsk :: _] as chl)] =>
-        let v₁ := valuation α (snd (pt hsj)) in
-        let v₂ := valuation α (snd (pt hsk)) in
-        let d₁ := fst (pt hsj) in
-        let d₂ := fst (pt hsk) in
-        let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
-        let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-        let dpl := (pt hsj, oth hsj, pt hsk) in
-        loop [(γ, β, dpl) :: rev_gbl] chl
-    | [_] | [] =>
-        List.rev rev_gbl
-    end
-  in
-  let ch := lower_convex_hull_points α gdpl in
-  loop [] ch
+  List.rev rev_dpl
 ;
+
+Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
+  let α := () in
+  let gdpl := points_of_ps_polynom α () pol in
+  list_map_pairs α ()
+    (λ hsj hsk,
+        let αj := valuation α (snd (pt hsj)) in
+        let αk := valuation α (snd (pt hsk)) in
+        let j := fst (pt hsj) in
+        let k := fst (pt hsk) in
+        let γ := Q.norm (Q.divi (Q.sub αj αk) (I.of_int (k - j))) in
+        let β := Q.norm (Q.add αj (Q.muli γ (I.of_int j))) in
+        (γ, β, pt hsj, pt hsk, oth hsj))
+    (lower_convex_hull_points α gdpl);
 
 value zero_is_root pol =
   match pol.al with
@@ -380,7 +381,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
+value rec puiseux_branch af br sol_list (γ, β, (j, jps), (k, kps), dpl) =
   let f = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let q = List.fold_left (fun q h → gcd q (fst h - j)) (k - j) dpl in
@@ -434,11 +435,11 @@ value rec puiseux_branch af br sol_list (γ, β, ((j, jps), dpl, (k, kps))) =
 
 and next_step k br sol_list pol cγl =
   let gbl = gamma_beta_list pol in
-  let gbl_f = List.filter (fun (γ, β, pts) → not (Q.le γ Q.zero)) gbl in
+  let gbl_f = List.filter (fun (γ, β, _, _, _) → not (Q.le γ Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
       List.iter
-        (fun (γ, β, pts) →
+        (fun (γ, β, _, _, _) →
            printf "γ %s β %s\n%!" (Q.to_string γ) (Q.to_string β))
         gbl
     }
@@ -447,7 +448,7 @@ and next_step k br sol_list pol cγl =
   }
   else
     List.fold_left
-      (fun sol_list (γ, β, dpl) → do {
+      (fun sol_list (γ, β, jpt, kpt, optl) → do {
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
@@ -455,7 +456,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k br sol_list (γ, β, dpl)
+         puiseux_branch k br sol_list (γ, β, jpt, kpt, optl)
        })
       sol_list gbl_f
 ;
