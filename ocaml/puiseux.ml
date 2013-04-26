@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.204 2013-04-21 20:38:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.205 2013-04-26 13:45:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -45,6 +45,10 @@ Record min_sl α :=
     seg : list (int * α);
     rem_pts : list (int * α) };
 
+Record hull_seg α :=
+  { pt : (nat * α);
+    oth : list (nat * α) };
+
 Definition slope_expr α pt₁ pt₂ :=
   let v₁ := valuation α (snd pt₁) in
   let v₂ := valuation α (snd pt₂) in
@@ -74,11 +78,11 @@ Fixpoint next_ch_points α n pts :=
   | S n =>
       match pts with
       | [] => []
-      | [pt₁] => [(pt₁, [])]
+      | [pt₁] => [{| pt := pt₁; oth := [] |}]
       | [pt₁; pt₂ :: pts₂] =>
           let ms := minimise_slope α pt₁ pt₂ pts₂ in
-          let chl := next_ch_points α n [end_pt ms :: rem_pts ms] in
-          [(pt₁, seg ms) :: chl]
+          let hsl := next_ch_points α n [end_pt ms :: rem_pts ms] in
+          [{| pt := pt₁; oth := seg ms |} :: hsl]
       end
   end;
 
@@ -102,15 +106,15 @@ Definition gamma_beta_list (pol : polynomial (puiseux_series α)) :=
   let α := () in
   let fix loop rev_gbl dpl :=
     match dpl with
-    | [((d₁, p₁), seg) :: ([((d₂, p₂), _) :: _] as dpl₁)] =>
-        if p₁.ps_monoms = [] then loop rev_gbl dpl₁
-        else
-          let v₁ := valuation α p₁ in
-          let v₂ := valuation α p₂ in
-          let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
-          let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
-          let dpl := ((d₁, p₁), seg, (d₂, p₂)) in
-          loop [(γ, β, dpl) :: rev_gbl] dpl₁
+    | [hsj :: ([hsk :: _] as chl)] =>
+        let v₁ := valuation α (snd (pt hsj)) in
+        let v₂ := valuation α (snd (pt hsk)) in
+        let d₁ := fst (pt hsj) in
+        let d₂ := fst (pt hsk) in
+        let γ := Q.norm (Q.divi (Q.sub v₂ v₁) (I.of_int (d₁ - d₂))) in
+        let β := Q.norm (Q.add (Q.muli γ (I.of_int d₁)) v₁) in
+        let dpl := (pt hsj, oth hsj, pt hsk) in
+        loop [(γ, β, dpl) :: rev_gbl] chl
     | [_] | [] =>
         List.rev rev_gbl
     end

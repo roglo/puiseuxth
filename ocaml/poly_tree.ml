@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.68 2013-04-07 09:24:49 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.69 2013-04-26 13:49:06 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -125,6 +125,7 @@ value tree_of_ast k vx vy =
         match e₂ with
         [ << $int:n$ >> → tree_power k (expr e₁) (ios n) 1
         | << $int:n$ / $int:d$ >> → tree_power k (expr e₁) (ios n) (ios d)
+        | << - $int:n$ >> → tree_power k (expr e₁) (- ios n) 1
         | _ → failwith "toa ** not int" ]
     | << $lid:s$ >> →
         if s = vx then Xpower 1 1
