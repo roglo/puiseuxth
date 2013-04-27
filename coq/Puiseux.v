@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.354 2013-04-27 17:53:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.355 2013-04-27 23:33:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -479,17 +479,40 @@ symmetry in Heqms.
 eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
 
+Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
+  LocallySorted hs_x_lt [ahs (j, jps) seg₁; ahs (k, kps) seg₂ … hsl]
+  → valuation α jps +
+    Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) ==
+    valuation α kps +
+    Qnat k * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros j jps seg₁ k kps seg₂ hsl Hsort.
+apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+unfold hs_x_lt in Hlt; simpl in Hlt.
+unfold Qnat.
+rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
+rewrite QZ_minus.
+field.
+unfold Qminus, Qplus; simpl.
+do 2 rewrite Z.mul_1_r.
+unfold Qeq; simpl.
+rewrite Z.mul_1_r, Z.add_opp_r.
+intros H.
+apply Zminus_eq, Nat2Z.inj in H.
+subst k; apply lt_irrefl in Hlt; contradiction.
+Qed.
+
 Theorem points_in_newton_segment : ∀ pol ns nsl,
   gamma_beta_list fld pol = [ns … nsl]
   → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == valuation α hps + Qnat h * (γ ns).
 Proof.
 intros pol ns nsl Hns h hps Hhps.
-(*1*)
 unfold gamma_beta_list in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as hsl.
+(*1*)
 destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
 destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
@@ -504,19 +527,7 @@ destruct Hhps as [Hhps| Hhps].
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqhsl.
   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-  unfold hs_x_lt in Hlt₁; simpl in Hlt₁.
-  unfold Qnat.
-  rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-  rewrite QZ_minus.
-  field.
-  unfold Qminus, Qplus; simpl.
-  do 2 rewrite Z.mul_1_r.
-  unfold Qeq; simpl.
-  rewrite Z.mul_1_r, Z.add_opp_r.
-  intros H.
-  apply Zminus_eq, Nat2Z.inj in H.
-  subst k; apply lt_irrefl in Hlt₁; contradiction.
+  eapply two_pts_slope_form; eassumption.
 
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqhsl |- *.
@@ -537,12 +548,12 @@ destruct gbl₁ as [| gb₁].
 
  destruct gbl₁ as [| gb₂].
   simpl in Hns.
--- 2 --
 unfold gamma_beta_list in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as hsl.
 destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
+-2--
 destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
 destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
@@ -557,22 +568,8 @@ destruct Hhps as [Hhps| Hhps].
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqhsl.
   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-  unfold hs_x_lt in Hlt₁; simpl in Hlt₁.
-  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₂, Hpts).
-  unfold hs_x_lt in Hlt₁; simpl in Hlt₁.
-  unfold hs_x_lt in Hlt₂; simpl in Hlt₂.
-  unfold Qnat.
-  rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-  rewrite QZ_minus.
-  field.
-  unfold Qminus, Qplus; simpl.
-  do 2 rewrite Z.mul_1_r.
-  unfold Qeq; simpl.
-  rewrite Z.mul_1_r, Z.add_opp_r.
-  intros H.
-  apply Zminus_eq, Nat2Z.inj in H.
-  subst k; apply lt_irrefl in Hlt₂; contradiction.
+  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt, Hpts).
+  eapply two_pts_slope_form; eassumption.
 
   apply points_of_polyn_sorted in Hpts.
   symmetry in Heqhsl |- *.
