@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.347 2013-04-27 07:15:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.348 2013-04-27 08:09:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -486,6 +486,17 @@ destruct Hhps as [Hhps| Hhps].
   eapply in_newt_segm in Heqhsl; try eassumption; reflexivity.
 Qed.
 
+Fixpoint list_replace_fst A n v (l : list A) :=
+  match n with
+  | O => l
+  | S n₁ =>
+      match l with
+      | [] => l
+      | [x₁ … l₁] => [v … list_replace_fst A n₁ v l₁]
+      end
+  end.
+Arguments list_replace_fst : default implicits.
+
 (*
 Lemma zzz : ∀ pol gbl₁ gb₂ gbl₂,
   gamma_beta_list fld pol = gbl₁ ++ [gb₂ … gbl₂]
@@ -494,8 +505,9 @@ Proof.
 intros pol gbl₁ gb₂ gbl₂ Hgb.
 remember (fst (ini_pt gb₂)) as j.
 remember (al pol) as cl.
-remember (List.skipn (List.length cl - j)%nat cl) as cl₂.
-Admitted.
+remember (list_replace_fst j (zero fld) cl) as cl₂.
+exists {| al := cl₂; an := an pol |}.
+bbb.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
@@ -513,7 +525,7 @@ apply zzz in Hgb.
 clear pol.
 destruct Hgb as (pol, Hgb).
 eapply points_in_newton_segment; eassumption.
-bbb.
+qed.
 *)
 
 (* points not in newton segment *)
