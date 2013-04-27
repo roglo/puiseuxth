@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.13 2013-04-26 16:06:53 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.14 2013-04-27 01:54:35 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -17,14 +17,45 @@ EXTEND
       | "Definition"; l = V (LIST1 coq_binding SEP "and") →
           <:str_item< value $_list:l$ >>
       | "Record"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter); ":=";
-        "{"; ldl = V (LIST1 label_declaration SEP ";"); "}" ->
+        c = OPT LIDENT; "{"; ldl = V (LIST1 label_declaration SEP ";"); "}" →
           let tk = <:ctyp< { $_list:ldl$ } >> in
           let d = <:str_item< type $_tp:n$ $_list:tpl$ = $tk$ >> in
           let dl = List.map fun_decl_of_label (unvala ldl) in
+          let dl =
+            match c with
+            | Some c →
+                let ll =
+                  List.map
+                    (fun (loc, i, _, _) →
+                       (<:patt< $lid:i$ >>, <:expr< $lid:i$ >>))
+                    (unvala ldl)
+                in
+                let e =
+                  List.fold_right
+                    (fun (loc, i, _, _) e → <:expr< fun $lid:i$ → $e$ >>)
+                    (unvala ldl) <:expr< {$list:ll$} >>
+                in
+                let e =
+                  List.fold_right (fun _ e → <:expr< fun () → $e$ >>)
+                    (unvala tpl) e
+                in
+                let d = <:str_item< value $lid:c$ = $e$ >> in
+                [d :: dl]
+            | None → dl
+            end
+          in
           <:str_item< declare $list:[d :: dl]$ end >> ] ]
   ;
   label_declaration:
-    [ [ i = LIDENT; ":"; t = ctyp -> (loc, i, False, t) ] ]
+    [ [ i = label_ident; ":"; t = coq_ctyp -> (loc, i, False, t) ] ]
+  ;
+  coq_ctyp:
+    [ [ UIDENT "Q" → <:ctyp< Q.t >>
+      | t = ctyp → t ] ]
+  ;
+  label_ident:
+    [ [ i = LIDENT → i
+      | i = GIDENT → i ] ]
   ;
   type_patt:
     [ [ n = V LIDENT -> (loc, n) ] ]

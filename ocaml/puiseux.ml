@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.207 2013-04-26 16:08:18 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.208 2013-04-27 01:54:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -40,12 +40,12 @@ value qcompare q₁ q₂ =
 value qnat i = Q.of_i (I.of_int i);
 
 Record min_sl α :=
-  { slope : Q.t;
+  { slope : Q;
     end_pt : (int * α);
     seg : list (int * α);
     rem_pts : list (int * α) };
 
-Record hull_seg α :=
+Record hull_seg α := ahs
   { pt : (nat * α);
     oth : list (nat * α) };
 
@@ -96,6 +96,13 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   | [x₁ :: ([x₂ :: l₂] as l₁)] => [f x₁ x₂ :: list_map_pairs α β f l₁]
   end;
 
+Record newton_segment α := mkns
+  { γ : Q;
+    β : Q;
+    ini_pt : (nat * puiseux_series α);
+    fin_pt : (nat * puiseux_series α);
+    oth_pts : list (nat * puiseux_series α) };
+
 value points_of_ps_polynom α fld pol =
   let (rev_dpl, _) =
     List.fold_left
@@ -109,6 +116,13 @@ value points_of_ps_polynom α fld pol =
   in
   List.rev rev_dpl
 ;
+
+Definition gamma_beta_of_pair α hsj hsk :=
+  let αj := valuation α (snd (pt hsj)) in
+  let αk := valuation α (snd (pt hsk)) in
+  let γ := Q.norm (Q.div (Q.sub αj αk) (Qnat (fst (pt hsk) - fst (pt hsj)))) in
+  let β := Q.norm (Q.add αj (Q.mul (Qnat (fst (pt hsj))) γ)) in
+  mkns α γ β (pt hsj) (pt hsk) (oth hsj);
 
 Definition gamma_beta_list pol :=
   let α := () in
