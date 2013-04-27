@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.351 2013-04-27 15:53:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.352 2013-04-27 16:27:23 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -346,35 +346,6 @@ Qed.
 
 (* points in newton segment *)
 
-(*
-Lemma zzz : ∀ j jps k kps β γ pt pts ms segkx hsl₁ hsl n,
-  LocallySorted fst_lt [(j, jps); pt … pts]
-  → β = valuation α jps + Qnat j * γ
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-      → minimise_slope α (j, jps) pt pts = ms
-        → next_ch_points α n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [ahs (k, kps) segkx … hsl]
-          → ∀ i ips, (i, ips) ∈ seg ms
-            → valuation α ips + Qnat i * γ == β.
-Proof.
-intros j jps k kps β γ pt pts ms segkx hsl₁ hsl n.
-intros Hsort Hβ Hγ Hms Hnp i ips Hips.
-revert pt ms hsl hsl₁ n i ips Hsort Hips Hms Hnp.
-induction pts as [| pt₁]; intros.
- simpl in Hms.
- subst ms; simpl in Hnp, Hips.
- contradiction.
-
- simpl in Hms.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
- symmetry in Heqc.
- destruct c; subst ms; simpl in Hnp, Hips; [ idtac | contradiction | idtac ].
-  symmetry in Heqms₁.
-  apply Qeq_alt in Heqc.
-bbb.
-*)
-
 Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx hsl n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → β = valuation α jps + Qnat j * γ
@@ -445,6 +416,40 @@ induction pts as [| pt₁]; intros.
   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
   constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
+
+(*
+Lemma zzz : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
+  LocallySorted fst_lt pts
+  → β = valuation α jps + Qnat j * γ
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → lower_convex_hull_points α pts =
+          [hs₀; ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
+        → ∀ i ips, (i, ips) ∈ segjk
+          → valuation α ips + Qnat i * γ == β.
+Proof.
+intros j jps k kps γ β pts segjk segkx hs₀ hsl.
+intros Hsort Hβ Hγ Hch i ips Hips.
+unfold lower_convex_hull_points in Hch.
+remember (length pts) as n; clear Heqn.
+rename Hch into Hnp.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct pts as [| pt₀]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst hs₀.
+rename H into Hnp.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+remember (minimise_slope α pt₀ pt₁ pts) as ms₀.
+remember (rem_pts ms₀) as pts₀.
+destruct pts₀ as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros.
+subst segjk.
+rewrite H1 in H, Hips.
+remember (minimise_slope α (j, jps) pt₂ pts₀) as ms.
+symmetry in Heqms.
+bbb.
+*)
 
 Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl,
   LocallySorted fst_lt pts
