@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.346 2013-04-27 07:15:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.347 2013-04-27 07:15:15 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -486,7 +486,7 @@ destruct Hhps as [Hhps| Hhps].
   eapply in_newt_segm in Heqhsl; try eassumption; reflexivity.
 Qed.
 
-(**)
+(*
 Lemma zzz : ∀ pol gbl₁ gb₂ gbl₂,
   gamma_beta_list fld pol = gbl₁ ++ [gb₂ … gbl₂]
   → ∃ pol₁, gamma_beta_list fld pol₁ = [gb₂ … gbl₂].
