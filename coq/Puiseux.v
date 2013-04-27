@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.349 2013-04-27 08:49:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.350 2013-04-27 08:54:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -497,7 +497,7 @@ Fixpoint list_replace_fst A n v (l : list A) {struct l} :=
   end.
 Arguments list_replace_fst : default implicits.
 
-(**)
+(*
 Lemma zzz : ∀ pol gbl₁ gb₂ gbl₂,
   gamma_beta_list fld pol = gbl₁ ++ [gb₂ … gbl₂]
   → ∃ pol₁, gamma_beta_list fld pol₁ = [gb₂ … gbl₂].
