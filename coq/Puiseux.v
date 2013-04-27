@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.343 2013-04-27 02:03:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.344 2013-04-27 06:25:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -488,42 +488,33 @@ Qed.
 
 (*
 Lemma zzz : ∀ pol gbl₁ gb₂ gbl₂,
-  gamma_beta fld pol = gbl₁ ++ [gb₂ … gbl₂]
-  → ∃ pol₁, gamma_beta fld pol₁ = [gb₂ … gbl₂].
+  gamma_beta_list fld pol = gbl₁ ++ [gb₂ … gbl₂]
+  → ∃ pol₁ gb₃ gbl₃,
+    γ gb₃ = γ gb₂ ∧ β gb₃ = β gb₂ ∧
+    gamma_beta_list fld pol₁ = [gb₃ … gbl₃].
 Proof.
 intros pol gbl₁ gb₂ gbl₂ Hgb.
+remember (fst (ini_pt gb₂)) as j.
+remember (al pol) as cl.
+remember (List.skipn (List.length cl - j)%nat cl) as cl₂.
 bbb.
 
-Theorem points_in_any_newton_segment : ∀ pol γ β jpt kpt segjk,
-  (γ, β, jpt, kpt, segjk) ∈ gamma_beta fld pol
-    → ∀ h hps, (h, hps) ∈ [jpt; kpt … segjk]
-      → valuation α hps + Qnat h * γ == β.
+Theorem points_in_any_newton_segment : ∀ pol ns,
+  ns ∈ gamma_beta_list fld pol
+  → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+    → β ns == valuation α hps + Qnat h * γ ns.
 Proof.
-intros pol γ β jpt kpt segjk Hgbjk h hps Hhps.
-remember (gamma_beta fld pol) as gbl.
-apply List.in_split in Hgbjk.
-destruct Hgbjk as (gbl₁, (gbl₂, Hgbjk)).
+intros pol ns Hns h hps Hhps.
+remember (gamma_beta_list fld pol) as gbl.
+apply List.in_split in Hns.
+destruct Hns as (gbl₁, (gbl₂, Hns)).
 rename Heqgbl into Hgb.
-rewrite Hgbjk in Hgb.
+rewrite Hns in Hgb.
 symmetry in Hgb.
 apply zzz in Hgb.
 clear pol.
-destruct Hgb as (pol, Hgb).
+destruct Hgb as (pol, (gb₃, (gbl₃, (Hγ, (Hβ, Hgb))))).
 eapply points_in_newton_segment; try eassumption.
-qed.
-
-intros pol γ β jpt kpt segjk Hgbjk h hps Hhps.
-remember (gamma_beta fld pol) as gbl.
-apply List.in_split in Hgbjk.
-destruct Hgbjk as (gbl₁, (gbl₂, Hgbjk)).
-rename Heqgbl into Hgb.
-rewrite Hgbjk in Hgb.
-revert gbl Hgbjk pol Hgb.
-induction gbl₁ as [| gb₁]; intros.
- simpl in Hgb, Hgbjk.
- symmetry in Hgb.
- eapply points_in_newton_segment; try eassumption.
-
 bbb.
 *)
 
