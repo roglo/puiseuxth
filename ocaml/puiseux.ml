@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.208 2013-04-27 01:54:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.209 2013-04-27 02:03:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -127,16 +127,7 @@ Definition gamma_beta_of_pair α hsj hsk :=
 Definition gamma_beta_list pol :=
   let α := () in
   let gdpl := points_of_ps_polynom α () pol in
-  list_map_pairs α ()
-    (λ hsj hsk,
-        let αj := valuation α (snd (pt hsj)) in
-        let αk := valuation α (snd (pt hsk)) in
-        let j := fst (pt hsj) in
-        let k := fst (pt hsk) in
-        let γ := Q.norm (Q.divi (Q.sub αj αk) (I.of_int (k - j))) in
-        let β := Q.norm (Q.add αj (Q.muli γ (I.of_int j))) in
-        (γ, β, pt hsj, pt hsk, oth hsj))
-    (lower_convex_hull_points α gdpl);
+  list_map_pairs α () (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl);
 
 value zero_is_root pol =
   match pol.al with
@@ -395,7 +386,12 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value rec puiseux_branch af br sol_list (γ, β, (j, jps), (k, kps), dpl) =
+value rec puiseux_branch af br sol_list ns =
+  let γ = ns.γ in
+  let β = ns.β in
+  let (j, jps) = ns.ini_pt in
+  let (k, kps) = ns.fin_pt in
+  let dpl = ns.oth_pts in
   let f = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let q = List.fold_left (fun q h → gcd q (fst h - j)) (k - j) dpl in
@@ -449,12 +445,12 @@ value rec puiseux_branch af br sol_list (γ, β, (j, jps), (k, kps), dpl) =
 
 and next_step k br sol_list pol cγl =
   let gbl = gamma_beta_list pol in
-  let gbl_f = List.filter (fun (γ, β, _, _, _) → not (Q.le γ Q.zero)) gbl in
+  let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
       List.iter
-        (fun (γ, β, _, _, _) →
-           printf "γ %s β %s\n%!" (Q.to_string γ) (Q.to_string β))
+        (fun ns →
+           printf "γ %s β %s\n%!" (Q.to_string (γ ns)) (Q.to_string (β ns)))
         gbl
     }
     else ();
@@ -462,7 +458,7 @@ and next_step k br sol_list pol cγl =
   }
   else
     List.fold_left
-      (fun sol_list (γ, β, jpt, kpt, optl) → do {
+      (fun sol_list ns → do {
          if verbose.val then printf "\n%!" else ();
          let br =
            {initial_polynom = br.initial_polynom;
@@ -470,7 +466,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k br sol_list (γ, β, jpt, kpt, optl)
+         puiseux_branch k br sol_list ns
        })
       sol_list gbl_f
 ;

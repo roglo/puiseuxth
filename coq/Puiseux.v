@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.342 2013-04-27 00:01:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.343 2013-04-27 02:03:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -87,10 +87,10 @@ Definition gamma_beta_of_pair α hsj hsk :=
   let β := αj + Qnat (fst (pt hsj)) * γ in
   mkns α γ β (pt hsj) (pt hsk) (oth hsj).
 
-Definition gamma_beta α fld pol :=
+Definition gamma_beta_list α fld pol :=
   let gdpl := points_of_ps_polynom α fld pol in
   list_map_pairs (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl).
-Arguments gamma_beta : default implicits.
+Arguments gamma_beta_list : default implicits.
 
 Section convex_hull.
 
@@ -444,12 +444,12 @@ eapply min_sl_pt_in_newt_segm; eassumption.
 Qed.
 
 Theorem points_in_newton_segment : ∀ pol ns nsl,
-  gamma_beta fld pol = [ns … nsl]
+  gamma_beta_list fld pol = [ns … nsl]
   → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == valuation α hps + Qnat h * (γ ns).
 Proof.
 intros pol ns nsl Hgb h hps Hhps.
-unfold gamma_beta in Hgb.
+unfold gamma_beta_list in Hgb.
 remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as hsl.
@@ -1059,12 +1059,12 @@ Qed.
 
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
-  → gamma_beta fld pol = [ns … nsl]
+  → gamma_beta_list fld pol = [ns … nsl]
     → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < valuation α hps + Qnat h * (γ ns).
 Proof.
 intros pol pts ns nsl Hpts Hgb h hps (Hhps, Hnhps).
-unfold gamma_beta in Hgb.
+unfold gamma_beta_list in Hgb.
 rewrite <- Hpts in Hgb.
 remember (lower_convex_hull_points α pts) as hsl.
 destruct hsl as [| ((j, jps), segjx)]; [ discriminate Hgb | idtac ].
