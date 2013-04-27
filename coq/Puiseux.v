@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.345 2013-04-27 06:30:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.346 2013-04-27 07:15:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -486,12 +486,10 @@ destruct Hhps as [Hhps| Hhps].
   eapply in_newt_segm in Heqhsl; try eassumption; reflexivity.
 Qed.
 
-(*
+(**)
 Lemma zzz : ∀ pol gbl₁ gb₂ gbl₂,
   gamma_beta_list fld pol = gbl₁ ++ [gb₂ … gbl₂]
-  → ∃ pol₁ gb₃ gbl₃,
-    γ gb₃ = γ gb₂ ∧ β gb₃ = β gb₂ ∧
-    gamma_beta_list fld pol₁ = [gb₃ … gbl₃].
+  → ∃ pol₁, gamma_beta_list fld pol₁ = [gb₂ … gbl₂].
 Proof.
 intros pol gbl₁ gb₂ gbl₂ Hgb.
 remember (fst (ini_pt gb₂)) as j.
@@ -513,9 +511,8 @@ rewrite Hns in Hgb.
 symmetry in Hgb.
 apply zzz in Hgb.
 clear pol.
-destruct Hgb as (pol, (gb₃, (gbl₃, (Hγ, (Hβ, Hgb))))).
-rewrite <- Hγ, <- Hβ.
-eapply points_in_newton_segment; [ eassumption | idtac ].
+destruct Hgb as (pol, Hgb).
+eapply points_in_newton_segment; eassumption.
 bbb.
 *)
 
