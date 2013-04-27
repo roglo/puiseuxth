@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.356 2013-04-27 23:48:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.357 2013-04-27 23:55:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -518,7 +518,6 @@ destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
 injection Hns; clear Hns; intros; subst ns.
 simpl in H, Heqpts₁ |- *; subst pts₁.
-rename H into Hhsl.
 destruct Hhps as [Hhps| Hhps].
  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
 
@@ -541,23 +540,36 @@ Proof.
 intros pol ns Hns h hps Hhps.
 apply List.in_split in Hns.
 destruct Hns as (gbl₁, (gbl₂, Hns)).
+unfold gamma_beta_list in Hns.
+remember (points_of_ps_polynom α fld pol) as pts.
+rename Heqpts into Hpts.
+remember (lower_convex_hull_points α pts) as hsl.
+symmetry in Heqhsl.
 destruct gbl₁ as [| gb₁].
- eapply points_in_newton_segment; eassumption.
+ destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+ destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+ remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
+ injection Hns; clear Hns; intros; subst ns.
+ simpl in H, Heqpts₁ |- *; subst pts₁.
+ destruct Hhps as [Hhps| Hhps].
+  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+
+  destruct Hhps as [Hhps| Hhps].
+   injection Hhps; clear Hhps; intros; subst h hps.
+   apply points_of_polyn_sorted in Hpts.
+   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+   eapply two_pts_slope_form; eassumption.
+
+   apply points_of_polyn_sorted in Hpts.
+   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 
  destruct gbl₁ as [| gb₂].
-  simpl in Hns.
-  unfold gamma_beta_list in Hns.
-  remember (points_of_ps_polynom α fld pol) as pts.
-  rename Heqpts into Hpts.
-  remember (lower_convex_hull_points α pts) as hsl.
-  symmetry in Heqhsl.
   destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
   remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
   injection Hns; clear Hns; intros; subst ns.
   simpl in H, Heqpts₁ |- *; subst pts₁.
-  rename H into Hhsl.
   destruct Hhps as [Hhps| Hhps].
    injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
 
