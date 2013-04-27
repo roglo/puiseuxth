@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.352 2013-04-27 16:27:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.353 2013-04-27 17:48:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -417,8 +417,7 @@ induction pts as [| pt₁]; intros.
   constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-(*
-Lemma zzz : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
+Lemma  in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
   LocallySorted fst_lt pts
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -448,8 +447,11 @@ subst segjk.
 rewrite H1 in H, Hips.
 remember (minimise_slope α (j, jps) pt₂ pts₀) as ms.
 symmetry in Heqms.
-bbb.
-*)
+eapply min_sl_pt_in_newt_segm; try eassumption.
+symmetry in Heqms₀.
+rewrite <- H1, Heqpts₀.
+eapply minimise_slope_sorted in Hsort; eassumption.
+Qed.
 
 Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl,
   LocallySorted fst_lt pts
@@ -573,6 +575,7 @@ destruct gbl₁ as [| gb₁].
 
     apply points_of_polyn_sorted in Hpts.
     symmetry in Heqhsl |- *.
+    eapply in_newt_segm₁ in Heqhsl; try eassumption; reflexivity.
 bbb.
 *)
 
