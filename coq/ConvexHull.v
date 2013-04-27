@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.40 2013-04-26 13:57:48 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.41 2013-04-27 00:01:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,7 +16,7 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Record min_sl α :=
   { slope : Q;
-    end_pt : nat * α;
+    end_pt : (nat * α);
     seg : list (nat * α);
     rem_pts : list (nat * α) }.
 Arguments slope : default implicits.
