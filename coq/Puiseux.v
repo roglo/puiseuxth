@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.344 2013-04-27 06:25:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.345 2013-04-27 06:30:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -497,7 +497,7 @@ intros pol gbl₁ gb₂ gbl₂ Hgb.
 remember (fst (ini_pt gb₂)) as j.
 remember (al pol) as cl.
 remember (List.skipn (List.length cl - j)%nat cl) as cl₂.
-bbb.
+Admitted.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
@@ -514,7 +514,8 @@ symmetry in Hgb.
 apply zzz in Hgb.
 clear pol.
 destruct Hgb as (pol, (gb₃, (gbl₃, (Hγ, (Hβ, Hgb))))).
-eapply points_in_newton_segment; try eassumption.
+rewrite <- Hγ, <- Hβ.
+eapply points_in_newton_segment; [ eassumption | idtac ].
 bbb.
 *)
 

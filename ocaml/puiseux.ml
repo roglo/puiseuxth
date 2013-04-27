@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.209 2013-04-27 02:03:33 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.210 2013-04-27 06:25:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -128,12 +128,6 @@ Definition gamma_beta_list pol :=
   let α := () in
   let gdpl := points_of_ps_polynom α () pol in
   list_map_pairs α () (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl);
-
-value zero_is_root pol =
-  match pol.al with
-  [ [ps :: _] → ps.ps_monoms = []
-  | [] → False ]
-;
 
 value start_red = "\027[31m";
 value end_red = "\027[m";
@@ -335,6 +329,12 @@ value make_solution cγl =
       ([], Q.zero) (List.rev cγl)
   in
   {ps_monoms = List.rev rev_sol}
+;
+
+value zero_is_root pol =
+  match pol.al with
+  [ [ps :: _] → ps.ps_monoms = []
+  | [] → False ]
 ;
 
 value puiseux_iteration k br r m γ β sol_list = do {
