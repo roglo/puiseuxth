@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.371 2013-04-28 04:31:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.372 2013-04-28 04:47:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -417,8 +417,7 @@ induction pts as [| pt₁]; intros.
   constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-(**)
-Lemma in_newt_segm_n : ∀ j jps k kps γ β pts segjk segkx hsl₁ hsl,
+Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl₁ hsl,
   LocallySorted fst_lt pts
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
@@ -458,34 +457,6 @@ destruct pts as [| pt₁].
     destruct hsl₁; discriminate Hnp.
 
     eapply IHhsl₁; eassumption.
-Qed.
-
-Lemma in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
-  LocallySorted fst_lt pts
-  → β = valuation α jps + Qnat j * γ
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-      → lower_convex_hull_points α pts =
-          [hs₀; ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
-        → ∀ i ips, (i, ips) ∈ segjk
-          → valuation α ips + Qnat i * γ == β.
-Proof.
-intros j jps k kps γ β pts segjk segkx hs₀ hsl.
-intros Hsort Hβ Hγ Hch i ips Hips.
-eapply in_newt_segm_n with (hsl₁ := [hs₀]); simpl; eassumption.
-Qed.
-
-Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl,
-  LocallySorted fst_lt pts
-  → β = valuation α jps + Qnat j * γ
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-      → lower_convex_hull_points α pts =
-          [ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
-        → ∀ i ips, (i, ips) ∈ segjk
-          → valuation α ips + Qnat i * γ == β.
-Proof.
-intros j jps k kps γ β pts segjk segkx hsl.
-intros Hsort Hβ Hγ Hch i ips Hips.
-eapply in_newt_segm_n with (hsl₁ := []); eassumption.
 Qed.
 
 Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
@@ -537,10 +508,11 @@ destruct Hhps as [Hhps| Hhps].
   eapply two_pts_slope_form; eassumption.
 
   apply points_of_polyn_sorted in Hpts.
-  symmetry; eapply in_newt_segm; try eassumption; reflexivity.
+  symmetry.
+  eapply in_newt_segm with (hsl₁ := []); try eassumption; reflexivity.
 Qed.
 
-(*
+(**)
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
   → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
@@ -570,7 +542,8 @@ destruct gbl₁ as [| gb₁].
    eapply two_pts_slope_form; eassumption.
 
    apply points_of_polyn_sorted in Hpts.
-   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
+   symmetry.
+   eapply in_newt_segm with (hsl₁ := []); try eassumption; reflexivity.
 
  destruct gbl₁ as [| gb₂].
   destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
@@ -590,7 +563,11 @@ destruct gbl₁ as [| gb₁].
     eapply two_pts_slope_form; eassumption.
 
     apply points_of_polyn_sorted in Hpts.
-    symmetry; eapply in_newt_segm₁; try eassumption; reflexivity.
+    symmetry.
+    remember {| pt := (j₀, jps₀); oth := seg₀ |} as hs₁.
+    remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as v.
+    eapply in_newt_segm with (hsl₁ := [hs₁]); simpl; try eassumption.
+    reflexivity.
 bbb.
 *)
 
