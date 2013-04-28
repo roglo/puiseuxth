@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.386 2013-04-28 12:35:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.387 2013-04-28 15:17:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -512,7 +512,7 @@ destruct Hhps as [Hhps| Hhps].
   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 Qed.
 
-(*
+(**)
 Lemma zzz : ∀ pol pts hsl₁ hsl nsl₁ ns nsl₂ h hps,
   pts = points_of_ps_polynom α fld pol
   → list_map_pairs (gamma_beta_of_pair α) (hsl₁ ++ hsl) = nsl₁ ++ [ns … nsl₂]
@@ -523,17 +523,34 @@ Lemma zzz : ∀ pol pts hsl₁ hsl nsl₁ ns nsl₂ h hps,
 Proof.
 intros pol pts hsl₁ hsl nsl₁ ns nsl₂ h hps Hpts Hns Hhs Hlen Hhps.
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
+(**)
 remember (List.rev hsl₁) as rev_hsl₁.
 assert (hsl₁ = List.rev rev_hsl₁).
  Focus 2.
  subst hsl₁.
  clear Heqrev_hsl₁.
  rewrite List.rev_length in Hlen.
- revert pts rev_hsl₁ hsl ns nsl₂ Hhs Hns Hhps Hlen Heqpts₁ Hpts.
+ rename rev_hsl₁ into hsl₁.
+(**)
+(*
+ remember ([] ++ nsl₁) as l.
+ remember [] as nsl in Heql.
+ assert (nsl₁ = l) by (subst nsl l; reflexivity).
+ rewrite H in Hns; subst l; clear H Heqnsl.
+*)
+ revert pts hsl₁ hsl ns nsl₂ Hhs Hns Hhps Hlen Heqpts₁ Hpts.
  induction nsl₁ as [| ns₁]; intros.
-  destruct rev_hsl₁; [ clear Hlen | discriminate Hlen ].
+  destruct hsl₁; [ clear Hlen | discriminate Hlen ].
+(**)
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+(*
+  destruct hsl as [| ((j, jps), seg₁)].
+   simpl in Hns; exfalso; revert Hns; apply List.app_cons_not_nil.
+
+   destruct hsl as [| ((k, kps), seg₂)].
+    simpl in Hns; exfalso; revert Hns; apply List.app_cons_not_nil.
+*)
   injection Hns; clear Hns; intros; subst ns.
   simpl in H, Heqpts₁ |- *; subst pts₁.
   destruct Hhps as [Hhps| Hhps].
@@ -553,14 +570,19 @@ assert (hsl₁ = List.rev rev_hsl₁).
     symmetry.
     eapply in_newt_segm with (hsl₁ := []); try eassumption.
 
-  destruct rev_hsl₁ as [| hs₁]; [ discriminate Hlen | simpl in Hlen ].
+bbb.
+  destruct hsl₁ as [| hs₁]; [ discriminate Hlen | simpl in Hlen ].
   apply eq_add_S in Hlen.
   simpl in Hhs.
+(**)
   rewrite <- List.app_assoc in Hhs.
   simpl in Hns.
   rewrite <- List.app_assoc in Hns.
+(**)
   eapply IHnsl₁; try eassumption.
+(**)
   rewrite Hns.
+(**)
 bbb.
 *)
 
