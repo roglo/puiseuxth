@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.379 2013-04-28 08:00:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.380 2013-04-28 09:16:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -528,6 +528,7 @@ remember (lower_convex_hull_points α pts) as hsl.
 symmetry in Heqhsl.
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
 destruct nsl₁ as [| ns₁].
+ remember ([] : list (hull_seg (puiseux_series α))) as hsl₁.
  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
  injection Hns; clear Hns; intros; subst ns.
@@ -545,10 +546,12 @@ destruct nsl₁ as [| ns₁].
    remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
    remember (valuation α jps + Qnat j * u) as v.
    symmetry.
-   eapply in_newt_segm with (hsl₁ := []); eassumption.
+   eapply in_newt_segm with (hsl₁ := hsl₁); try eassumption.
+   subst hsl₁; simpl; eassumption.
 
  destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
  destruct nsl₁ as [| ns₂].
+  remember [hs₁] as hsl₁.
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
   injection Hns; clear Hns; intros; subst ns.
@@ -566,13 +569,13 @@ destruct nsl₁ as [| ns₁].
     apply points_of_polyn_sorted in Hpts.
     remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
     remember (valuation α jps + Qnat j * u) as v.
-    remember [hs₁] as hsl₁.
     symmetry.
     eapply in_newt_segm with (hsl₁ := hsl₁); try eassumption.
     subst hsl₁; simpl; eassumption.
 
   destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
   destruct nsl₁ as [| ns₃].
+   remember [hs₁; hs₂ … []] as hsl₁.
    destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
    destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
    injection Hns; clear Hns; intros; subst ns.
@@ -591,7 +594,6 @@ destruct nsl₁ as [| ns₁].
      apply points_of_polyn_sorted in Hpts.
      remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
      remember (valuation α jps + Qnat j * u) as v.
-     remember [hs₁; hs₂ … []] as hsl₁.
      symmetry.
      eapply in_newt_segm with (hsl₁ := hsl₁); try eassumption.
      subst hsl₁; simpl; eassumption.
