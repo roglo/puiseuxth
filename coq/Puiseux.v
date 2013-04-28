@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.360 2013-04-28 01:14:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.361 2013-04-28 01:26:15 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -432,62 +432,64 @@ intros Hsort Hβ Hγ Hch i ips Hips.
 unfold lower_convex_hull_points in Hch.
 remember (length pts) as n; clear Heqn.
 rename Hch into Hnp.
-destruct n; [ exfalso; revert Hnp; apply List.app_cons_not_nil | idtac ].
+destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
 simpl in Hnp.
-destruct hsl₁ as [| hs₁].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros; subst pt₁ segjk.
- remember (minimise_slope α (j, jps) pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- eapply min_sl_pt_in_newt_segm; eassumption.
+destruct pts as [| pt₁].
+ apply List.app_cons_not_nil in Hnp; contradiction.
 
- destruct hsl₁ as [| hs₂].
-  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂].
+  destruct hsl₁ as [| hs₁]; [ discriminate Hnp | simpl in Hnp ].
   injection Hnp; clear Hnp; intros; subst hs₁.
-  rename H into Hnp.
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-  symmetry in Heqms₁.
-  remember (rem_pts ms₁) as pts₁.
-  destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
-  injection Hnp; clear Hnp; intros; subst segjk.
-  rename H into Hnp.
-  rewrite H1 in Hnp, Hips.
-  remember (minimise_slope α (j, jps) pt₃ pts₁) as ms₂.
-  symmetry in Heqms₂.
-  eapply min_sl_pt_in_newt_segm; try eassumption.
-  rewrite <- H1, Heqpts₁.
-  eapply minimise_slope_sorted in Hsort; eassumption.
+  apply List.app_cons_not_nil in H; contradiction.
 
-  destruct hsl₁ as [| hs₃].
-   destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-   destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-   injection Hnp; clear Hnp; intros; subst hs₁.
-   rename H into Hnp.
-   destruct n; [ discriminate Hnp | simpl in Hnp ].
-   remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+  destruct hsl₁ as [| hs₁].
+   injection Hnp; clear Hnp; intros; subst pt₁ segjk.
+   remember (minimise_slope α (j, jps) pt₂ pts) as ms₁.
    symmetry in Heqms₁.
-   remember (rem_pts ms₁) as pts₁.
-   destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
-   injection Hnp; clear Hnp; intros; subst hs₂.
-   rename H into Hnp.
-   remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
-   symmetry in Heqms₂.
-   destruct n; [ discriminate Hnp | simpl in Hnp ].
-   remember (rem_pts ms₂) as pts₂.
-   destruct pts₂ as [| pt₄]; [ discriminate Hnp | idtac ].
-   injection Hnp; clear Hnp; intros; subst segjk.
-   rename H into Hnp.
-   rewrite H1 in Hnp, Hips.
-   remember (minimise_slope α (j, jps) pt₄ pts₂) as ms₃.
-   symmetry in Heqms₃.
-   eapply min_sl_pt_in_newt_segm; try eassumption.
-   rewrite <- H1, Heqpts₂.
-   eapply minimise_slope_sorted; [ idtac | eassumption ].
-   rewrite Heqpts₁.
-   eapply minimise_slope_sorted; eassumption.
+   eapply min_sl_pt_in_newt_segm; eassumption.
+
+   destruct hsl₁ as [| hs₂].
+    injection Hnp; clear Hnp; intros; subst hs₁.
+    rename H into Hnp.
+    destruct n; [ discriminate Hnp | simpl in Hnp ].
+    remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+    symmetry in Heqms₁.
+    remember (rem_pts ms₁) as pts₁.
+    destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+    injection Hnp; clear Hnp; intros; subst segjk.
+    rename H into Hnp.
+    rewrite H1 in Hnp, Hips.
+    remember (minimise_slope α (j, jps) pt₃ pts₁) as ms₂.
+    symmetry in Heqms₂.
+    eapply min_sl_pt_in_newt_segm; try eassumption.
+    rewrite <- H1, Heqpts₁.
+    eapply minimise_slope_sorted in Hsort; eassumption.
+
+    destruct hsl₁ as [| hs₃].
+     injection Hnp; clear Hnp; intros; subst hs₁.
+     rename H into Hnp.
+     destruct n; [ discriminate Hnp | simpl in Hnp ].
+     remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+     symmetry in Heqms₁.
+     remember (rem_pts ms₁) as pts₁.
+     destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+     injection Hnp; clear Hnp; intros; subst hs₂.
+     rename H into Hnp.
+     remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
+     symmetry in Heqms₂.
+     destruct n; [ discriminate Hnp | simpl in Hnp ].
+     remember (rem_pts ms₂) as pts₂.
+     destruct pts₂ as [| pt₄]; [ discriminate Hnp | idtac ].
+     injection Hnp; clear Hnp; intros; subst segjk.
+     rename H into Hnp.
+     rewrite H1 in Hnp, Hips.
+     remember (minimise_slope α (j, jps) pt₄ pts₂) as ms₃.
+     symmetry in Heqms₃.
+     eapply min_sl_pt_in_newt_segm; try eassumption.
+     rewrite <- H1, Heqpts₂.
+     eapply minimise_slope_sorted; [ idtac | eassumption ].
+     rewrite Heqpts₁.
+     eapply minimise_slope_sorted; eassumption.
 bbb.
 *)
 
