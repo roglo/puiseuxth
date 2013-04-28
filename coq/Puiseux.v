@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.367 2013-04-28 03:08:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.368 2013-04-28 04:04:11 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -417,7 +417,7 @@ induction pts as [| pt₁]; intros.
   constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-(*
+(**)
 Lemma zzz : ∀ A (x y z : A) l m, ¬[x] = l ++ [y; z … m].
 Proof.
 intros A x y z l m H.
@@ -457,7 +457,8 @@ destruct pts as [| pt₁].
   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
   remember (rem_pts ms₁) as pts₁.
   destruct pts₁ as [| pt₃]; [ apply zzz in Hnp; contradiction | idtac ].
-  destruct hsl₁ as [| hs₁].
+  revert n ms₁ pt₁ pt₂ pt₃ pts₁ pts Heqms₁ Heqpts₁ Hnp Hsort.
+  induction hsl₁ as [| hs₁]; intros.
    injection Hnp; clear Hnp; intros; subst segjk.
    rewrite H1 in H, Hips, Hsort.
    eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
@@ -470,25 +471,8 @@ destruct pts as [| pt₁].
    eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
    remember (rem_pts ms₂) as pts₂.
    destruct pts₂ as [| pt₄]; [ apply zzz in Hnp; contradiction | idtac ].
-   destruct hsl₁ as [| hs₁].
-    injection Hnp; clear Hnp; intros; subst segjk.
-    rewrite H1 in H, Hips, Hsort.
-    eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
-
-    injection Hnp; clear Hnp; intros; subst hs₁.
-    rename H into Hnp.
-    destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
-    remember (minimise_slope α (end_pt ms₂) pt₄ pts₂) as ms₃.
-    symmetry in Heqms₃.
-    eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-    remember (rem_pts ms₃) as pts₃.
-    destruct pts₃ as [| pt₅]; [ apply zzz in Hnp; contradiction | idtac ].
-    destruct hsl₁ as [| hs₁].
-     injection Hnp; clear Hnp; intros; subst segjk.
-     rewrite H1 in H, Hips, Hsort.
-     eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
-bbb.
-*)
+   eapply IHhsl₁; eassumption.
+Qed.
 
 Lemma in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
   LocallySorted fst_lt pts
