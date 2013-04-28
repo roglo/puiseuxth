@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.366 2013-04-28 03:05:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.367 2013-04-28 03:08:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -442,7 +442,6 @@ rename Hch into Hnp.
 destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
 destruct pts as [| pt₁].
  apply List.app_cons_not_nil in Hnp; contradiction.
-(**)
 
  destruct pts as [| pt₂]; [ apply zzz in Hnp; contradiction | idtac ].
  destruct hsl₁ as [| hs₁].
@@ -452,15 +451,25 @@ destruct pts as [| pt₁].
 
   injection Hnp; clear Hnp; intros; subst hs₁.
   rename H into Hnp.
-  destruct n.
-   apply List.app_cons_not_nil in Hnp; contradiction.
-(**)
+  destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
+  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+  symmetry in Heqms₁.
+  eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+  remember (rem_pts ms₁) as pts₁.
+  destruct pts₁ as [| pt₃]; [ apply zzz in Hnp; contradiction | idtac ].
+  destruct hsl₁ as [| hs₁].
+   injection Hnp; clear Hnp; intros; subst segjk.
+   rewrite H1 in H, Hips, Hsort.
+   eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
 
-   remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-   symmetry in Heqms₁.
+   injection Hnp; clear Hnp; intros; subst hs₁.
+   rename H into Hnp.
+   destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
+   remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
+   symmetry in Heqms₂.
    eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-   remember (rem_pts ms₁) as pts₁.
-   destruct pts₁ as [| pt₃]; [ apply zzz in Hnp; contradiction | idtac ].
+   remember (rem_pts ms₂) as pts₂.
+   destruct pts₂ as [| pt₄]; [ apply zzz in Hnp; contradiction | idtac ].
    destruct hsl₁ as [| hs₁].
     injection Hnp; clear Hnp; intros; subst segjk.
     rewrite H1 in H, Hips, Hsort.
@@ -468,35 +477,16 @@ destruct pts as [| pt₁].
 
     injection Hnp; clear Hnp; intros; subst hs₁.
     rename H into Hnp.
-    destruct n.
-     apply List.app_cons_not_nil in Hnp; contradiction.
-(**)
-
-     remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
-     symmetry in Heqms₂.
-     eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-     remember (rem_pts ms₂) as pts₂.
-     destruct pts₂ as [| pt₄]; [ apply zzz in Hnp; contradiction | idtac ].
-     destruct hsl₁ as [| hs₁].
-      injection Hnp; clear Hnp; intros; subst segjk.
-      rewrite H1 in H, Hips, Hsort.
-      eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
-
-      injection Hnp; clear Hnp; intros; subst hs₁.
-      rename H into Hnp.
-      destruct n.
-       apply List.app_cons_not_nil in Hnp; contradiction.
-(**)
-
-       remember (minimise_slope α (end_pt ms₂) pt₄ pts₂) as ms₃.
-       symmetry in Heqms₃.
-       eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-       remember (rem_pts ms₃) as pts₃.
-       destruct pts₃ as [| pt₅]; [ apply zzz in Hnp; contradiction | idtac ].
-       destruct hsl₁ as [| hs₁].
-        injection Hnp; clear Hnp; intros; subst segjk.
-        rewrite H1 in H, Hips, Hsort.
-        eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
+    destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
+    remember (minimise_slope α (end_pt ms₂) pt₄ pts₂) as ms₃.
+    symmetry in Heqms₃.
+    eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+    remember (rem_pts ms₃) as pts₃.
+    destruct pts₃ as [| pt₅]; [ apply zzz in Hnp; contradiction | idtac ].
+    destruct hsl₁ as [| hs₁].
+     injection Hnp; clear Hnp; intros; subst segjk.
+     rewrite H1 in H, Hips, Hsort.
+     eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
 bbb.
 *)
 
