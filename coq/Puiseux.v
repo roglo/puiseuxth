@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.391 2013-04-28 19:45:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.392 2013-04-28 20:00:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -606,6 +606,21 @@ induction hsl₁ as [| hs₁]; intros.
  destruct nsl as [| ns₂]; [ clear Hlen | discriminate Hlen ].
 bbb.
 *)
+
+Lemma yyy : ∀ hs₁ hs₂ hs₃ hsl ns₁ ns₂ ns₃ ns nsl₂ h hps,
+  list_map_pairs (gamma_beta_of_pair α) [hs₁; hs₂; hs₃ … hsl] =
+     [ns₁; ns₂; ns₃ … []] ++ [ns … nsl₂]
+  → (h, hps) = ini_pt ns
+    → β ns == valuation α hps + Qnat h * γ ns.
+Proof.
+intros hs₁ hs₂ hs₃ hsl ns₁ ns₂ ns₃ ns nsl₂ h hps.
+intros Hns Hhps.
+destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+injection Hns; clear Hns; intros; subst ns.
+simpl in H, Hhps |- *.
+injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+qed.
 
 Lemma zzz : ∀ pts hs₁ hs₂ hs₃ hsl ns₁ ns₂ ns₃ ns nsl₂ h hps,
   lower_convex_hull_points α pts = [hs₁; hs₂; hs₃ … hsl]
