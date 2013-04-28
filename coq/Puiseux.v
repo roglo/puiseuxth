@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.378 2013-04-28 07:55:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.379 2013-04-28 08:00:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -560,8 +560,8 @@ destruct nsl₁ as [| ns₁].
     injection Hhps; clear Hhps; intros; subst h hps.
     apply points_of_polyn_sorted in Hpts.
     eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-    apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-    eapply two_pts_slope_form; eassumption.
+    eapply two_pts_slope_form; try eassumption.
+    eapply LocallySorted_inv_2; eassumption.
 
     apply points_of_polyn_sorted in Hpts.
     remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
@@ -584,9 +584,9 @@ destruct nsl₁ as [| ns₁].
      injection Hhps; clear Hhps; intros; subst h hps.
      apply points_of_polyn_sorted in Hpts.
      eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-     apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-     apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₂, Hpts).
-     eapply two_pts_slope_form; eassumption.
+     eapply two_pts_slope_form; try eassumption.
+     eapply LocallySorted_inv_2.
+     eapply LocallySorted_inv_2; eassumption.
 
      apply points_of_polyn_sorted in Hpts.
      remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
