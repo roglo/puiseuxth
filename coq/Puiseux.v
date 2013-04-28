@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.383 2013-04-28 11:54:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.384 2013-04-28 12:08:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -616,7 +616,8 @@ destruct nsl₁ as [| ns₁].
     injection Hhps; clear Hhps; intros; subst h hps.
     eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
     eapply two_pts_slope_form; try eassumption.
-    eapply LocallySorted_inv_2; eassumption.
+    eapply LocallySorted_inv_2 in Hpts; destruct Hpts as (_, Hpts).
+    eassumption.
 
     remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
     remember (valuation α jps + Qnat j * u) as v.
@@ -640,8 +641,9 @@ destruct nsl₁ as [| ns₁].
      injection Hhps; clear Hhps; intros; subst h hps.
      eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
      eapply two_pts_slope_form; try eassumption.
-     eapply LocallySorted_inv_2.
-     eapply LocallySorted_inv_2; eassumption.
+     eapply LocallySorted_inv_2 in Hpts; destruct Hpts as (_, Hpts).
+     eapply LocallySorted_inv_2 in Hpts; destruct Hpts as (_, Hpts).
+     eassumption.
 
      remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
      remember (valuation α jps + Qnat j * u) as v.
