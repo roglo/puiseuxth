@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.385 2013-04-28 12:29:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.386 2013-04-28 12:35:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -629,7 +629,6 @@ destruct nsl₁ as [| ns₁].
   remember (hsl₁ ++ [hs₂]) as hsl₂.
   subst hsl₁; rename hsl₂ into hsl₁.
   rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
-bbb.
   destruct nsl₁ as [| ns₃].
    destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
    destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
