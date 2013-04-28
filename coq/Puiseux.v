@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.361 2013-04-28 01:26:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.362 2013-04-28 01:57:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -448,30 +448,25 @@ destruct pts as [| pt₁].
    symmetry in Heqms₁.
    eapply min_sl_pt_in_newt_segm; eassumption.
 
+   remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+   symmetry in Heqms₁.
+   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+   injection Hnp; clear Hnp; intros; subst hs₁.
+   rename H into Hnp.
+   remember (rem_pts ms₁) as pts₁.
    destruct hsl₁ as [| hs₂].
-    injection Hnp; clear Hnp; intros; subst hs₁.
-    rename H into Hnp.
     destruct n; [ discriminate Hnp | simpl in Hnp ].
-    remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-    symmetry in Heqms₁.
-    remember (rem_pts ms₁) as pts₁.
     destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
     injection Hnp; clear Hnp; intros; subst segjk.
     rename H into Hnp.
     rewrite H1 in Hnp, Hips.
     remember (minimise_slope α (j, jps) pt₃ pts₁) as ms₂.
     symmetry in Heqms₂.
-    eapply min_sl_pt_in_newt_segm; try eassumption.
-    rewrite <- H1, Heqpts₁.
-    eapply minimise_slope_sorted in Hsort; eassumption.
+    rewrite H1 in Hsort.
+    eapply min_sl_pt_in_newt_segm; eassumption.
 
     destruct hsl₁ as [| hs₃].
-     injection Hnp; clear Hnp; intros; subst hs₁.
-     rename H into Hnp.
      destruct n; [ discriminate Hnp | simpl in Hnp ].
-     remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-     symmetry in Heqms₁.
-     remember (rem_pts ms₁) as pts₁.
      destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
      injection Hnp; clear Hnp; intros; subst hs₂.
      rename H into Hnp.
@@ -485,11 +480,9 @@ destruct pts as [| pt₁].
      rewrite H1 in Hnp, Hips.
      remember (minimise_slope α (j, jps) pt₄ pts₂) as ms₃.
      symmetry in Heqms₃.
-     eapply min_sl_pt_in_newt_segm; try eassumption.
-     rewrite <- H1, Heqpts₂.
-     eapply minimise_slope_sorted; [ idtac | eassumption ].
-     rewrite Heqpts₁.
-     eapply minimise_slope_sorted; eassumption.
+     eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+     rewrite H1, <- Heqpts₂ in Hsort.
+     eapply min_sl_pt_in_newt_segm; eassumption.
 bbb.
 *)
 
