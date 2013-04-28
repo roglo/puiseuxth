@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.365 2013-04-28 02:44:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.366 2013-04-28 03:05:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -440,9 +440,9 @@ unfold lower_convex_hull_points in Hch.
 remember (length pts) as n; clear Heqn.
 rename Hch into Hnp.
 destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
-simpl in Hnp.
 destruct pts as [| pt₁].
  apply List.app_cons_not_nil in Hnp; contradiction.
+(**)
 
  destruct pts as [| pt₂]; [ apply zzz in Hnp; contradiction | idtac ].
  destruct hsl₁ as [| hs₁].
@@ -452,8 +452,9 @@ destruct pts as [| pt₁].
 
   injection Hnp; clear Hnp; intros; subst hs₁.
   rename H into Hnp.
-  destruct n; simpl in Hnp.
+  destruct n.
    apply List.app_cons_not_nil in Hnp; contradiction.
+(**)
 
    remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
    symmetry in Heqms₁.
@@ -467,8 +468,9 @@ destruct pts as [| pt₁].
 
     injection Hnp; clear Hnp; intros; subst hs₁.
     rename H into Hnp.
-    destruct n; simpl in Hnp.
+    destruct n.
      apply List.app_cons_not_nil in Hnp; contradiction.
+(**)
 
      remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
      symmetry in Heqms₂.
@@ -482,8 +484,9 @@ destruct pts as [| pt₁].
 
       injection Hnp; clear Hnp; intros; subst hs₁.
       rename H into Hnp.
-      destruct n; simpl in Hnp.
+      destruct n.
        apply List.app_cons_not_nil in Hnp; contradiction.
+(**)
 
        remember (minimise_slope α (end_pt ms₂) pt₄ pts₂) as ms₃.
        symmetry in Heqms₃.
