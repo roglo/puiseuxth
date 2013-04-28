@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.377 2013-04-28 07:41:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.378 2013-04-28 07:55:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -526,10 +526,10 @@ remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as hsl.
 symmetry in Heqhsl.
+remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
 destruct nsl₁ as [| ns₁].
  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
- remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
  injection Hns; clear Hns; intros; subst ns.
  simpl in H, Heqpts₁ |- *; subst pts₁.
  destruct Hhps as [Hhps| Hhps].
@@ -551,7 +551,6 @@ destruct nsl₁ as [| ns₁].
  destruct nsl₁ as [| ns₂].
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
-  remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
   injection Hns; clear Hns; intros; subst ns.
   simpl in H, Heqpts₁ |- *; subst pts₁.
   destruct Hhps as [Hhps| Hhps].
@@ -576,7 +575,6 @@ destruct nsl₁ as [| ns₁].
   destruct nsl₁ as [| ns₃].
    destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
    destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
-   remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
    injection Hns; clear Hns; intros; subst ns.
    simpl in H, Heqpts₁ |- *; subst pts₁.
    destruct Hhps as [Hhps| Hhps].
