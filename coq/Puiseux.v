@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.376 2013-04-28 07:01:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.377 2013-04-28 07:41:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -542,10 +542,12 @@ destruct nsl₁ as [| ns₁].
    eapply two_pts_slope_form; eassumption.
 
    apply points_of_polyn_sorted in Hpts.
-   rewrite <- List.app_nil_l in Heqhsl.
-   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
+   remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
+   remember (valuation α jps + Qnat j * u) as v.
+   symmetry.
+   eapply in_newt_segm with (hsl₁ := []); eassumption.
 
- destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
+ destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
  destruct nsl₁ as [| ns₂].
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
@@ -559,15 +561,42 @@ destruct nsl₁ as [| ns₁].
     injection Hhps; clear Hhps; intros; subst h hps.
     apply points_of_polyn_sorted in Hpts.
     eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-    apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt, Hpts).
+    apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
     eapply two_pts_slope_form; eassumption.
 
     apply points_of_polyn_sorted in Hpts.
+    remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
+    remember (valuation α jps + Qnat j * u) as v.
+    remember [hs₁] as hsl₁.
     symmetry.
-    remember {| pt := (j₀, jps₀); oth := seg₀ |} as hs₁.
-    remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as v.
-    eapply in_newt_segm with (hsl₁ := [hs₁]); simpl; try eassumption.
-    reflexivity.
+    eapply in_newt_segm with (hsl₁ := hsl₁); try eassumption.
+    subst hsl₁; simpl; eassumption.
+
+  destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
+  destruct nsl₁ as [| ns₃].
+   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+   remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
+   injection Hns; clear Hns; intros; subst ns.
+   simpl in H, Heqpts₁ |- *; subst pts₁.
+   destruct Hhps as [Hhps| Hhps].
+    injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+
+    destruct Hhps as [Hhps| Hhps].
+     injection Hhps; clear Hhps; intros; subst h hps.
+     apply points_of_polyn_sorted in Hpts.
+     eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+     apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
+     apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₂, Hpts).
+     eapply two_pts_slope_form; eassumption.
+
+     apply points_of_polyn_sorted in Hpts.
+     remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
+     remember (valuation α jps + Qnat j * u) as v.
+     remember [hs₁; hs₂ … []] as hsl₁.
+     symmetry.
+     eapply in_newt_segm with (hsl₁ := hsl₁); try eassumption.
+     subst hsl₁; simpl; eassumption.
 bbb.
 *)
 
