@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.384 2013-04-28 12:08:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.385 2013-04-28 12:29:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -577,10 +577,12 @@ unfold gamma_beta_list in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 apply points_of_polyn_sorted in Hpts.
+remember Hpts as Hpts₂; clear HeqHpts₂.
 remember (lower_convex_hull_points α pts) as hsl.
 symmetry in Heqhsl.
 remember ([] : list (hull_seg (puiseux_series α))) as hsl₁.
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
+eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
 destruct nsl₁ as [| ns₁].
  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
@@ -591,7 +593,6 @@ destruct nsl₁ as [| ns₁].
 
   destruct Hhps as [Hhps| Hhps].
    injection Hhps; clear Hhps; intros; subst h hps.
-   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
    eapply two_pts_slope_form; eassumption.
 
    remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
@@ -601,6 +602,7 @@ destruct nsl₁ as [| ns₁].
    subst hsl₁; simpl; eassumption.
 
  destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
+ eapply LocallySorted_inv_1 in Hpts.
  remember (hsl₁ ++ [hs₁]) as hsl₂.
  subst hsl₁; rename hsl₂ into hsl₁.
  rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
@@ -614,10 +616,7 @@ destruct nsl₁ as [| ns₁].
 
    destruct Hhps as [Hhps| Hhps].
     injection Hhps; clear Hhps; intros; subst h hps.
-    eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-    eapply two_pts_slope_form; try eassumption.
-    eapply LocallySorted_inv_2 in Hpts; destruct Hpts as (_, Hpts).
-    eassumption.
+    eapply two_pts_slope_form; eassumption.
 
     remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
     remember (valuation α jps + Qnat j * u) as v.
@@ -626,9 +625,11 @@ destruct nsl₁ as [| ns₁].
     subst hsl₁; simpl; eassumption.
 
   destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
+  eapply LocallySorted_inv_1 in Hpts.
   remember (hsl₁ ++ [hs₂]) as hsl₂.
   subst hsl₁; rename hsl₂ into hsl₁.
   rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
+bbb.
   destruct nsl₁ as [| ns₃].
    destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
    destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
@@ -639,11 +640,7 @@ destruct nsl₁ as [| ns₁].
 
     destruct Hhps as [Hhps| Hhps].
      injection Hhps; clear Hhps; intros; subst h hps.
-     eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
      eapply two_pts_slope_form; try eassumption.
-     eapply LocallySorted_inv_2 in Hpts; destruct Hpts as (_, Hpts).
-     eapply LocallySorted_inv_2 in Hpts; destruct Hpts as (_, Hpts).
-     eassumption.
 
      remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
      remember (valuation α jps + Qnat j * u) as v.
