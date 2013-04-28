@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.388 2013-04-28 15:19:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.389 2013-04-28 15:34:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -585,6 +585,25 @@ bbb.
 (**)
 bbb.
 *)
+
+Lemma yyy : ∀ pts hsl₁ hsl nsl nsl₁ ns nsl₂ h hps,
+  lower_convex_hull_points α pts = hsl₁ ++ hsl
+  → list_map_pairs (gamma_beta_of_pair α) (hsl₁ ++ hsl) =
+      nsl ++ nsl₁ ++ [ns … nsl₂]
+    → (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+      → LocallySorted fst_lt pts
+        → LocallySorted hs_x_lt hsl
+          → length nsl = S (length hsl₁)
+             → β ns == valuation α hps + Qnat h * γ ns.
+Proof.
+intros pts hsl₁ hsl nsl nsl₁ ns nsl₂ h hps.
+intros Hsl Hns Hhps Hsort₁ Hsort₂ Hlen.
+revert nsl₁ nsl hsl Hns Hlen Hsl Hsort₂.
+induction hsl₁ as [| hs₁]; intros.
+ simpl in Hlen.
+ destruct nsl as [| ns₁]; [ discriminate Hlen | idtac ].
+ destruct nsl as [| ns₂]; [ clear Hlen | discriminate Hlen ].
+bbb.
 
 (**)
 Theorem points_in_any_newton_segment : ∀ pol ns,
