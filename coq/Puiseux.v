@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.368 2013-04-28 04:04:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.369 2013-04-28 04:14:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -444,7 +444,8 @@ destruct pts as [| pt₁].
  apply List.app_cons_not_nil in Hnp; contradiction.
 
  destruct pts as [| pt₂]; [ apply zzz in Hnp; contradiction | idtac ].
- destruct hsl₁ as [| hs₁].
+ revert n pt₁ pt₂ pts Hnp Hsort.
+ induction hsl₁ as [| hs₁]; intros.
   injection Hnp; clear Hnp; intros; subst segjk.
   rewrite H1 in H, Hips, Hsort.
   eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
@@ -457,21 +458,7 @@ destruct pts as [| pt₁].
   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
   remember (rem_pts ms₁) as pts₁.
   destruct pts₁ as [| pt₃]; [ apply zzz in Hnp; contradiction | idtac ].
-  revert n ms₁ pt₁ pt₂ pt₃ pts₁ pts Heqms₁ Heqpts₁ Hnp Hsort.
-  induction hsl₁ as [| hs₁]; intros.
-   injection Hnp; clear Hnp; intros; subst segjk.
-   rewrite H1 in H, Hips, Hsort.
-   eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
-
-   injection Hnp; clear Hnp; intros; subst hs₁.
-   rename H into Hnp.
-   destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
-   remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
-   symmetry in Heqms₂.
-   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-   remember (rem_pts ms₂) as pts₂.
-   destruct pts₂ as [| pt₄]; [ apply zzz in Hnp; contradiction | idtac ].
-   eapply IHhsl₁; eassumption.
+  eapply IHhsl₁; eassumption.
 Qed.
 
 Lemma in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
