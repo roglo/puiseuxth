@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.370 2013-04-28 04:24:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.371 2013-04-28 04:31:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -471,29 +471,7 @@ Lemma in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
 Proof.
 intros j jps k kps γ β pts segjk segkx hs₀ hsl.
 intros Hsort Hβ Hγ Hch i ips Hips.
-unfold lower_convex_hull_points in Hch.
-remember (length pts) as n; clear Heqn.
-rename Hch into Hnp.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-destruct pts as [| pt₀]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst hs₀.
-rename H into Hnp.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-remember (minimise_slope α pt₀ pt₁ pts) as ms₀.
-remember (rem_pts ms₀) as pts₀.
-destruct pts₀ as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros.
-subst segjk.
-rewrite H1 in H, Hips.
-remember (minimise_slope α (j, jps) pt₂ pts₀) as ms.
-symmetry in Heqms.
-eapply min_sl_pt_in_newt_segm; try eassumption.
-symmetry in Heqms₀.
-rewrite <- H1, Heqpts₀.
-eapply minimise_slope_sorted in Hsort; eassumption.
+eapply in_newt_segm_n with (hsl₁ := [hs₀]); simpl; eassumption.
 Qed.
 
 Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl,
@@ -507,19 +485,7 @@ Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl,
 Proof.
 intros j jps k kps γ β pts segjk segkx hsl.
 intros Hsort Hβ Hγ Hch i ips Hips.
-unfold lower_convex_hull_points in Hch.
-remember (length pts) as n; clear Heqn.
-rename Hch into Hnp.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst pt₁.
-rename H0 into Hjk.
-remember (minimise_slope α (j, jps) pt₂ pts) as ms.
-subst segjk.
-symmetry in Heqms.
-eapply min_sl_pt_in_newt_segm; eassumption.
+eapply in_newt_segm_n with (hsl₁ := []); eassumption.
 Qed.
 
 Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
