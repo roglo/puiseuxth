@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.363 2013-04-28 02:29:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.364 2013-04-28 02:36:57 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -446,10 +446,9 @@ destruct pts as [| pt₁].
 
  destruct pts as [| pt₂]; [ apply zzz in Hnp; contradiction | idtac ].
  destruct hsl₁ as [| hs₁].
-  injection Hnp; clear Hnp; intros; subst pt₁ segjk.
-  remember (minimise_slope α (j, jps) pt₂ pts) as ms₁.
-  symmetry in Heqms₁.
-  eapply min_sl_pt_in_newt_segm; eassumption.
+  injection Hnp; clear Hnp; intros; subst segjk.
+  rewrite H1 in H, Hips, Hsort.
+  eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
 
   injection Hnp; clear Hnp; intros; subst hs₁.
   rename H into Hnp.
@@ -463,12 +462,8 @@ destruct pts as [| pt₁].
    destruct pts₁ as [| pt₃]; [ apply zzz in Hnp; contradiction | idtac ].
    destruct hsl₁ as [| hs₂].
     injection Hnp; clear Hnp; intros; subst segjk.
-    rename H into Hnp.
-    rewrite H1 in Hnp, Hips.
-    remember (minimise_slope α (j, jps) pt₃ pts₁) as ms₂.
-    symmetry in Heqms₂.
-    rewrite H1 in Hsort.
-    eapply min_sl_pt_in_newt_segm; eassumption.
+    rewrite H1 in H, Hips, Hsort.
+    eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
 
     injection Hnp; clear Hnp; intros; subst hs₂.
     rename H into Hnp.
@@ -482,12 +477,8 @@ destruct pts as [| pt₁].
      destruct pts₂ as [| pt₄]; [ apply zzz in Hnp; contradiction | idtac ].
      destruct hsl₁ as [| hs₃].
       injection Hnp; clear Hnp; intros; subst segjk.
-      rename H into Hnp.
-      rewrite H1 in Hnp, Hips.
-      remember (minimise_slope α (j, jps) pt₄ pts₂) as ms₃.
-      symmetry in Heqms₃.
-      rewrite H1 in Hsort.
-      eapply min_sl_pt_in_newt_segm; eassumption.
+      rewrite H1 in H, Hips, Hsort.
+      eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
 bbb.
 *)
 
