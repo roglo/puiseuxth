@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.373 2013-04-28 04:47:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.374 2013-04-28 04:51:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -545,8 +545,8 @@ destruct gbl₁ as [| gb₁].
    symmetry.
    eapply in_newt_segm with (hsl₁ := []); try eassumption; reflexivity.
 
+ destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
  destruct gbl₁ as [| gb₂].
-  destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
   remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
