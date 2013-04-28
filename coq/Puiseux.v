@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.358 2013-04-28 00:09:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.359 2013-04-28 00:49:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -460,6 +460,36 @@ destruct hsl₁ as [| hs₀].
   symmetry in Heqms₀.
   rewrite <- H1, Heqpts₀.
   eapply minimise_slope_sorted in Hsort; eassumption.
+
+  destruct hsl₁ as [| hs₀₀₀].
+   destruct pts as [| pt₀]; [ discriminate Hnp | idtac ].
+   destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+   injection Hnp; clear Hnp; intros; subst hs₀.
+   rename H into Hnp.
+   destruct n; [ discriminate Hnp | idtac ].
+   simpl in Hnp.
+   remember (minimise_slope α pt₀ pt₁ pts) as ms₀.
+   remember (rem_pts ms₀) as pts₀.
+   destruct pts₀ as [| pt₂]; [ discriminate Hnp | idtac ].
+   remember (minimise_slope α (end_pt ms₀) pt₂ pts₀) as ms.
+   injection Hnp; clear Hnp; intros; subst hs₀₀.
+   rename H into Hnp.
+   symmetry in Heqms.
+   destruct n; [ discriminate Hnp | idtac ].
+   simpl in Hnp.
+   remember (rem_pts ms) as pts₁.
+   destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+   injection Hnp; clear Hnp; intros.
+   remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₂.
+   symmetry in Heqms₂.
+   subst segjk.
+   rewrite H1 in Heqms₂.
+   eapply min_sl_pt_in_newt_segm; try eassumption.
+   rewrite <- H1, Heqpts₁.
+   eapply minimise_slope_sorted; [ idtac | eassumption ].
+   rewrite Heqpts₀.
+   symmetry in Heqms₀.
+   eapply minimise_slope_sorted; eassumption.
 bbb.
 *)
 
