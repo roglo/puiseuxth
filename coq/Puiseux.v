@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.374 2013-04-28 04:51:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.375 2013-04-28 06:55:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -508,8 +508,8 @@ destruct Hhps as [Hhps| Hhps].
   eapply two_pts_slope_form; eassumption.
 
   apply points_of_polyn_sorted in Hpts.
-  symmetry.
-  eapply in_newt_segm with (hsl₁ := []); try eassumption; reflexivity.
+  rewrite <- List.app_nil_l in Heqhsl.
+  symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 Qed.
 
 (*
@@ -542,8 +542,8 @@ destruct gbl₁ as [| gb₁].
    eapply two_pts_slope_form; eassumption.
 
    apply points_of_polyn_sorted in Hpts.
-   symmetry.
-   eapply in_newt_segm with (hsl₁ := []); try eassumption; reflexivity.
+   rewrite <- List.app_nil_l in Heqhsl.
+   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 
  destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
  destruct gbl₁ as [| gb₂].
