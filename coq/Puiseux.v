@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.357 2013-04-27 23:55:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.358 2013-04-28 00:09:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -417,7 +417,53 @@ induction pts as [| pt₁]; intros.
   constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
 
-Lemma  in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
+(*
+Lemma in_newt_segm_n : ∀ j jps k kps γ β pts segjk segkx hsl₁ hsl,
+  LocallySorted fst_lt pts
+  → β = valuation α jps + Qnat j * γ
+    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+      → lower_convex_hull_points α pts =
+          hsl₁ ++ [ ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
+        → ∀ i ips, (i, ips) ∈ segjk
+          → valuation α ips + Qnat i * γ == β.
+Proof.
+intros j jps k kps γ β pts segjk segkx hsl₁ hsl.
+intros Hsort Hβ Hγ Hch i ips Hips.
+unfold lower_convex_hull_points in Hch.
+remember (length pts) as n; clear Heqn.
+rename Hch into Hnp.
+destruct n; [ exfalso; revert Hnp; apply List.app_cons_not_nil | idtac ].
+simpl in Hnp.
+destruct hsl₁ as [| hs₀].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros; subst pt₁ segjk.
+ remember (minimise_slope α (j, jps) pt₂ pts) as ms.
+ symmetry in Heqms.
+ eapply min_sl_pt_in_newt_segm; eassumption.
+
+ destruct hsl₁ as [| hs₀₀].
+  destruct pts as [| pt₀]; [ discriminate Hnp | idtac ].
+  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros; subst hs₀.
+  rename H into Hnp.
+  destruct n; [ discriminate Hnp | idtac ].
+  simpl in Hnp.
+  remember (minimise_slope α pt₀ pt₁ pts) as ms₀.
+  remember (rem_pts ms₀) as pts₀.
+  destruct pts₀ as [| pt₂]; [ discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros; subst segjk.
+  rewrite H1 in H, Hips.
+  remember (minimise_slope α (j, jps) pt₂ pts₀) as ms.
+  symmetry in Heqms.
+  eapply min_sl_pt_in_newt_segm; try eassumption.
+  symmetry in Heqms₀.
+  rewrite <- H1, Heqpts₀.
+  eapply minimise_slope_sorted in Hsort; eassumption.
+bbb.
+*)
+
+Lemma in_newt_segm₁ : ∀ j jps k kps γ β pts segjk segkx hs₀ hsl,
   LocallySorted fst_lt pts
   → β = valuation α jps + Qnat j * γ
     → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
