@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.387 2013-04-28 15:17:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.388 2013-04-28 15:19:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -512,7 +512,7 @@ destruct Hhps as [Hhps| Hhps].
   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 Qed.
 
-(**)
+(*
 Lemma zzz : ∀ pol pts hsl₁ hsl nsl₁ ns nsl₂ h hps,
   pts = points_of_ps_polynom α fld pol
   → list_map_pairs (gamma_beta_of_pair α) (hsl₁ ++ hsl) = nsl₁ ++ [ns … nsl₂]
