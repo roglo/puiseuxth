@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.375 2013-04-28 06:55:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.376 2013-04-28 07:01:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -520,13 +520,13 @@ Theorem points_in_any_newton_segment : ∀ pol ns,
 Proof.
 intros pol ns Hns h hps Hhps.
 apply List.in_split in Hns.
-destruct Hns as (gbl₁, (gbl₂, Hns)).
+destruct Hns as (nsl₁, (nsl₂, Hns)).
 unfold gamma_beta_list in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 rename Heqpts into Hpts.
 remember (lower_convex_hull_points α pts) as hsl.
 symmetry in Heqhsl.
-destruct gbl₁ as [| gb₁].
+destruct nsl₁ as [| ns₁].
  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
  remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
@@ -546,7 +546,7 @@ destruct gbl₁ as [| gb₁].
    symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 
  destruct hsl as [| ((j₀, jps₀), seg₀)]; [ discriminate Hns | idtac ].
- destruct gbl₁ as [| gb₂].
+ destruct nsl₁ as [| ns₂].
   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
   remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
@@ -1107,14 +1107,14 @@ Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
     → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < valuation α hps + Qnat h * (γ ns).
 Proof.
-intros pol pts ns nsl Hpts Hgb h hps (Hhps, Hnhps).
-unfold gamma_beta_list in Hgb.
-rewrite <- Hpts in Hgb.
+intros pol pts ns nsl Hpts Hns h hps (Hhps, Hnhps).
+unfold gamma_beta_list in Hns.
+rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points α pts) as hsl.
-destruct hsl as [| ((j, jps), segjx)]; [ discriminate Hgb | idtac ].
-destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hgb | idtac ].
+destruct hsl as [| ((j, jps), segjx)]; [ discriminate Hns | idtac ].
+destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hns | idtac ].
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
-injection Hgb; clear Hgb; intros; subst ns.
+injection Hns; clear Hns; intros; subst ns.
 simpl in H, Heqpts₁ |- *; subst pts₁.
 rename H into Hhsl.
 symmetry in Heqhsl.
@@ -1250,7 +1250,7 @@ Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
     rl sol_list.
 
 Definition puiseux k nb_steps pol :=
-  let gbl := gamma_beta_list pol in
+  let nsl := gamma_beta_list pol in
   let rem_steps := (nb_steps - 1)%nat in
   List.fold_left
     (λ sol_list γβ₁,
@@ -1259,5 +1259,5 @@ Definition puiseux k nb_steps pol :=
             rem_steps := rem_steps; pol := pol |}
        in
        puiseux_branch k br sol_list γβ₁)
-    gbl [].
+    nsl [].
 *)
