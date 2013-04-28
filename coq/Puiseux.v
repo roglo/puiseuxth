@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.390 2013-04-28 18:13:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.391 2013-04-28 19:45:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -607,6 +607,72 @@ induction hsl₁ as [| hs₁]; intros.
 bbb.
 *)
 
+Lemma zzz : ∀ pts hs₁ hs₂ hs₃ hsl ns₁ ns₂ ns₃ ns nsl₂ h hps,
+  lower_convex_hull_points α pts = [hs₁; hs₂; hs₃ … hsl]
+  → list_map_pairs (gamma_beta_of_pair α) [hs₁; hs₂; hs₃ … hsl] =
+       [ns₁; ns₂; ns₃ … []] ++ [ns … nsl₂]
+    → (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+      → LocallySorted fst_lt pts
+        → LocallySorted hs_x_lt hsl
+          → β ns == valuation α hps + Qnat h * γ ns.
+Proof.
+intros pts hs₁ hs₂ hs₃ hsl ns₁ ns₂ ns₃ ns nsl₂ h hps.
+intros Hsl Hns Hhps Hpts Hhsl.
+remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
+destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+injection Hns; clear Hns; intros; subst ns.
+simpl in H, Heqpts₁ |- *; subst pts₁.
+destruct Hhps as [Hhps| Hhps].
+ injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+
+ destruct Hhps as [Hhps| Hhps].
+  injection Hhps; clear Hhps; intros; subst h hps.
+  eapply two_pts_slope_form; try eassumption.
+
+  remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
+  remember (valuation α jps + Qnat j * u) as v.
+  symmetry.
+  eapply in_newt_segm with (hsl₁ := [hs₁; hs₂; hs₃ … []]); try eassumption.
+  simpl; eassumption.
+Qed.
+
+(*
+Lemma yyy : ∀ pts hs₁ hs₂ hs₃ hsl₁ hsl ns₁ ns₂ ns₃ ns nsl₁ nsl₂ h hps,
+  lower_convex_hull_points α pts = [hs₁; hs₂; hs₃ … hsl₁ ++ hsl]
+  → list_map_pairs (gamma_beta_of_pair α) [hs₁; hs₂; hs₃ … hsl₁ ++ hsl] =
+       [ns₁; ns₂; ns₃ … nsl₁] ++ [ns … nsl₂]
+    → List.length hsl₁ = List.length nsl₁
+      → (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+        → LocallySorted fst_lt pts
+          → LocallySorted hs_x_lt hsl
+            → β ns == valuation α hps + Qnat h * γ ns.
+Proof.
+intros pts hs₁ hs₂ hs₃ hsl₁ hsl ns₁ ns₂ ns₃ ns nsl₁ nsl₂ h hps.
+intros Hsl Hns Hlen Hhps Hpts Hhsl.
+induction nsl₁ as [| ns₄]; intros.
+ destruct hsl₁; [ clear Hlen | discriminate Hlen ].
+ remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
+ destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+ destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+ injection Hns; clear Hns; intros; subst ns.
+ simpl in H, Heqpts₁ |- *; subst pts₁.
+ destruct Hhps as [Hhps| Hhps].
+  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+
+  destruct Hhps as [Hhps| Hhps].
+   injection Hhps; clear Hhps; intros; subst h hps.
+   eapply two_pts_slope_form; try eassumption.
+
+   remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
+   remember (valuation α jps + Qnat j * u) as v.
+   symmetry.
+   eapply in_newt_segm with (hsl₁ := [hs₁; hs₂; hs₃ … []]); try eassumption.
+   simpl; eassumption.
+bbb.
+*)
+
+
 (**)
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
@@ -696,6 +762,8 @@ destruct nsl₁ as [| ns₁].
    subst hsl₁; rename hsl₂ into hsl₁.
    rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
    destruct nsl₁ as [| ns₄].
+    subst pts₁; eapply zzz; eassumption.
+bbb.
     destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
     destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
     injection Hns; clear Hns; intros; subst ns.
