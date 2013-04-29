@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.410 2013-04-29 18:21:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.411 2013-04-29 18:37:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1216,6 +1216,15 @@ destruct (lt_dec k h) as [Hlt| Hge].
      eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
      apply le_not_lt in Hge₂; contradiction.
 Qed.
+
+Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
+  pts = points_of_ps_polynom α fld pol
+  → ns ∈ newton_segments fld pol
+    → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+      → β ns < valuation α hps + Qnat h * (γ ns).
+Proof.
+intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
+bbb.
 
 End convex_hull.
 
