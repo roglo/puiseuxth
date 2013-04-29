@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.397 2013-04-29 14:02:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.398 2013-04-29 14:08:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -513,7 +513,7 @@ destruct Hhps as [Hhps| Hhps].
 Qed.
 
 (**)
-Theorem zzz : ∀ pol ns,
+Lemma zzz : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
   → ∀ h hps, (h, hps) = ini_pt ns
     → β ns == valuation α hps + Qnat h * γ ns.
@@ -523,10 +523,10 @@ apply List.in_split in Hns.
 destruct Hns as (nsl₁, (nsl₂, Hns)).
 unfold gamma_beta_list in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
-clear Heqpts.
+clear Heqpts pol.
 remember (lower_convex_hull_points α pts) as hsl.
-symmetry in Heqhsl.
-remember ([] : list (hull_seg (puiseux_series α))) as hsl₁.
+clear pts Heqhsl.
+remember ([]:list (hull_seg (puiseux_series α))) as hsl₁.
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
 destruct nsl₁ as [| ns₁].
  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
