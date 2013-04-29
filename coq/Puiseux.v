@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.399 2013-04-29 14:10:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.400 2013-04-29 14:20:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -512,8 +512,7 @@ destruct Hhps as [Hhps| Hhps].
   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 Qed.
 
-(**)
-Lemma zzz : ∀ pol ns,
+Lemma ini_points_in_any_newton_segment : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
   → ∀ h hps, (h, hps) = ini_pt ns
     → β ns == valuation α hps + Qnat h * γ ns.
@@ -527,7 +526,8 @@ clear Heqpts pol.
 remember (lower_convex_hull_points α pts) as hsl.
 clear pts Heqhsl.
 remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
-destruct nsl₁ as [| ns₁].
+revert hsl ns nsl₂ Hns Hhps Heqpts₁.
+induction nsl₁ as [| ns₁]; intros.
  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
  injection Hns; clear Hns; intros; subst ns.
@@ -535,30 +535,12 @@ destruct nsl₁ as [| ns₁].
  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
 
  destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
- destruct nsl₁ as [| ns₂].
-  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
-  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
-  injection Hns; clear Hns; intros; subst ns.
-  simpl in H, Heqpts₁ |- *; subst pts₁.
-  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
-
-  destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
-  destruct nsl₁ as [| ns₃].
-   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
-   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
-   injection Hns; clear Hns; intros; subst ns.
-   simpl in H, Heqpts₁ |- *; subst pts₁.
-   injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
-
-   destruct hsl as [| hs₃]; [ discriminate Hns | idtac ].
-   destruct nsl₁ as [| ns₄].
-    destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
-    destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
-    injection Hns; clear Hns; intros; subst ns.
-    simpl in H, Heqpts₁ |- *; subst pts₁.
-    injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
-bbb.
-*)
+ simpl in Hns.
+ destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
+ remember [hs₂ … hsl] as hsl₁.
+ injection Hns; clear Hns; intros.
+ eapply IHnsl₁; try eassumption.
+Qed.
 
 (**)
 Theorem points_in_any_newton_segment : ∀ pol ns,
@@ -567,6 +549,7 @@ Theorem points_in_any_newton_segment : ∀ pol ns,
     → β ns == valuation α hps + Qnat h * γ ns.
 Proof.
 intros pol ns Hns h hps Hhps.
+bbb.
 apply List.in_split in Hns.
 destruct Hns as (nsl₁, (nsl₂, Hns)).
 unfold gamma_beta_list in Hns.
