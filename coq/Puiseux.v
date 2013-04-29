@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.394 2013-04-29 03:05:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.395 2013-04-29 08:16:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -512,7 +512,7 @@ destruct Hhps as [Hhps| Hhps].
   symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 Qed.
 
-(*
+(**)
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ gamma_beta_list fld pol
   → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
@@ -601,7 +601,6 @@ destruct nsl₁ as [| ns₁].
    subst hsl₁; rename hsl₂ into hsl₁.
    rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
    destruct nsl₁ as [| ns₄].
-    subst pts₁; eapply zzz; eassumption.
     destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
     destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
     injection Hns; clear Hns; intros; subst ns.
