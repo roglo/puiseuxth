@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.210 2013-04-27 06:25:28 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.211 2013-04-29 15:55:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -124,7 +124,7 @@ Definition gamma_beta_of_pair α hsj hsk :=
   let β := Q.norm (Q.add αj (Q.mul (Qnat (fst (pt hsj))) γ)) in
   mkns α γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition gamma_beta_list pol :=
+Definition newton_segments pol :=
   let α := () in
   let gdpl := points_of_ps_polynom α () pol in
   list_map_pairs α () (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl);
@@ -444,7 +444,7 @@ value rec puiseux_branch af br sol_list ns =
       sol_list rl
 
 and next_step k br sol_list pol cγl =
-  let gbl = gamma_beta_list pol in
+  let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -478,7 +478,7 @@ value print_line_equal () =
 ;
 
 value puiseux k nb_steps vx vy pol =
-  let gbl = gamma_beta_list pol in
+  let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in
