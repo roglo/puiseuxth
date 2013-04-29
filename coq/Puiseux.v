@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.392 2013-04-28 20:00:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.393 2013-04-29 03:03:52 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -620,7 +620,7 @@ destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
 injection Hns; clear Hns; intros; subst ns.
 simpl in H, Hhps |- *.
 injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
-qed.
+Qed.
 
 Lemma zzz : ∀ pts hs₁ hs₂ hs₃ hsl ns₁ ns₂ ns₃ ns nsl₂ h hps,
   lower_convex_hull_points α pts = [hs₁; hs₂; hs₃ … hsl]
@@ -687,6 +687,54 @@ induction nsl₁ as [| ns₄]; intros.
 bbb.
 *)
 
+Lemma xxx : ∀ pol ns h hps,
+  ns ∈ gamma_beta_list fld pol
+  → (h, hps) = ini_pt ns
+    → β ns == valuation α hps + Qnat h * γ ns.
+Proof.
+intros pol ns h hps Hns Hhps.
+apply List.in_split in Hns.
+destruct Hns as (nsl₁, (nsl₂, Hns)).
+unfold gamma_beta_list in Hns.
+remember (points_of_ps_polynom α fld pol) as pts.
+rename Heqpts into Hpts.
+apply points_of_polyn_sorted in Hpts.
+remember Hpts as Hpts₂; clear HeqHpts₂.
+remember (lower_convex_hull_points α pts) as hsl.
+symmetry in Heqhsl.
+remember ([]:list (hull_seg (puiseux_series α))) as hsl₁.
+eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+destruct nsl₁ as [| ns₁].
+ destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+ destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+ injection Hns; clear Hns; intros; subst ns.
+ simpl in H, Hhps |- *.
+ injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+
+ destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
+ eapply LocallySorted_inv_1 in Hpts.
+ remember (hsl₁ ++ [hs₁]) as hsl₂.
+ subst hsl₁; rename hsl₂ into hsl₁.
+ rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
+ destruct nsl₁ as [| ns₂].
+  destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+  destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+  injection Hns; clear Hns; intros; subst ns.
+  simpl in H, Hhps |- *.
+  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+
+  destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
+  eapply LocallySorted_inv_1 in Hpts.
+  remember (hsl₁ ++ [hs₂]) as hsl₂.
+  subst hsl₁; rename hsl₂ into hsl₁.
+  rename Heqhsl₂ into Hsl₁; simpl in Hsl₁.
+  destruct nsl₁ as [| ns₃].
+   destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
+   destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
+   injection Hns; clear Hns; intros; subst ns.
+   simpl in H, Hhps |- *.
+   injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+bbb.
 
 (**)
 Theorem points_in_any_newton_segment : ∀ pol ns,
