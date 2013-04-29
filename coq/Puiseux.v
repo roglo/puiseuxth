@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.405 2013-04-29 15:29:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.406 2013-04-29 15:53:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -586,12 +586,10 @@ Theorem points_in_any_newton_segment : ∀ pol ns,
 Proof.
 intros pol ns Hns h hps Hhps.
 destruct Hhps as [Hhps| Hhps].
- symmetry in Hhps.
- eapply ini_points_in_any_newton_segment; try eassumption.
+ symmetry in Hhps; eapply ini_points_in_any_newton_segment; eassumption.
 
  destruct Hhps as [Hhps| Hhps].
-  symmetry in Hhps.
-  eapply fin_points_in_any_newton_segment; eassumption.
+  symmetry in Hhps; eapply fin_points_in_any_newton_segment; eassumption.
 
   apply List.in_split in Hns.
   destruct Hns as (nsl₁, (nsl₂, Hns)).
