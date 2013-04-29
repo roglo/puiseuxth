@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.407 2013-04-29 15:55:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.408 2013-04-29 16:47:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -601,13 +601,12 @@ destruct Hhps as [Hhps| Hhps].
   remember (lower_convex_hull_points α pts) as hsl.
   symmetry in Heqhsl.
   remember ([]:list (hull_seg (puiseux_series α))) as hsl₁.
-  remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
   destruct nsl₁ as [| ns₁].
    destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
    destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
    injection Hns; clear Hns; intros; subst ns.
-   simpl in H, Heqpts₁ |- *; subst pts₁.
+   simpl in H |- *.
    remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
    remember (valuation α jps + Qnat j * u) as v.
    symmetry.
@@ -623,7 +622,7 @@ destruct Hhps as [Hhps| Hhps].
     destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
     destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
     injection Hns; clear Hns; intros; subst ns.
-    simpl in H, Heqpts₁ |- *; subst pts₁.
+    simpl in H |- *.
     remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
     remember (valuation α jps + Qnat j * u) as v.
     symmetry.
@@ -639,7 +638,7 @@ destruct Hhps as [Hhps| Hhps].
      destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
      destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
      injection Hns; clear Hns; intros; subst ns.
-     simpl in H, Heqpts₁ |- *; subst pts₁.
+     simpl in H |- *.
      remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
      remember (valuation α jps + Qnat j * u) as v.
      symmetry.
@@ -655,7 +654,7 @@ destruct Hhps as [Hhps| Hhps].
       destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
       destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
       injection Hns; clear Hns; intros; subst ns.
-      simpl in H, Heqpts₁ |- *; subst pts₁.
+      simpl in H |- *.
       remember ((valuation α jps - valuation α kps) / Qnat (k - j)) as u.
       remember (valuation α jps + Qnat j * u) as v.
       symmetry.
