@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.409 2013-04-29 18:20:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.410 2013-04-29 18:21:29 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -457,50 +457,6 @@ destruct pts as [| pt₁].
     eapply IHhsl₁; eassumption.
 Qed.
 
-(*
-Lemma in_newt_segm : ∀ j jps k kps γ β pts segjk segkx hsl₁ hsl,
-  LocallySorted fst_lt pts
-  → β = valuation α jps + Qnat j * γ
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-      → lower_convex_hull_points α pts =
-          hsl₁ ++ [ ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
-        → ∀ i ips, (i, ips) ∈ segjk
-          → valuation α ips + Qnat i * γ == β.
-Proof.
-intros j jps k kps γ β pts segjk segkx hsl₁ hsl.
-intros Hsort Hβ Hγ Hch i ips Hips.
-unfold lower_convex_hull_points in Hch.
-remember (length pts) as n; clear Heqn.
-rename Hch into Hnp.
-destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
-destruct pts as [| pt₁].
- apply List.app_cons_not_nil in Hnp; contradiction.
-
- destruct pts as [| pt₂].
-  destruct hsl₁ as [| pt₂]; [ discriminate Hnp | idtac ].
-  destruct hsl₁; discriminate Hnp.
-
-  revert n pt₁ pt₂ pts Hnp Hsort.
-  induction hsl₁ as [| hs₁]; intros.
-   injection Hnp; clear Hnp; intros; subst segjk.
-   rewrite H1 in H, Hips, Hsort.
-   eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
-
-   injection Hnp; clear Hnp; intros; subst hs₁.
-   rename H into Hnp.
-   destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
-   remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-   symmetry in Heqms₁.
-   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-   remember (rem_pts ms₁) as pts₁.
-   destruct pts₁ as [| pt₃].
-    destruct hsl₁ as [| pt₃]; [ discriminate Hnp | idtac ].
-    destruct hsl₁; discriminate Hnp.
-
-    eapply IHhsl₁; eassumption.
-Qed.
-*)
-
 Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
   LocallySorted hs_x_lt [ahs (j, jps) seg₁; ahs (k, kps) seg₂ … hsl]
   → valuation α jps +
@@ -522,36 +478,6 @@ rewrite Z.mul_1_r, Z.add_opp_r.
 intros H.
 apply Zminus_eq, Nat2Z.inj in H.
 subst k; apply lt_irrefl in Hlt; contradiction.
-Qed.
-
-Theorem points_in_newton_segment : ∀ pol ns nsl,
-  newton_segments fld pol = [ns … nsl]
-  → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == valuation α hps + Qnat h * (γ ns).
-Proof.
-intros pol ns nsl Hns h hps Hhps.
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom α fld pol) as pts.
-rename Heqpts into Hpts.
-remember (lower_convex_hull_points α pts) as hsl.
-symmetry in Heqhsl.
-destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
-destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
-remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
-injection Hns; clear Hns; intros; subst ns.
-simpl in H, Heqpts₁ |- *; subst pts₁.
-destruct Hhps as [Hhps| Hhps].
- injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
-
- destruct Hhps as [Hhps| Hhps].
-  injection Hhps; clear Hhps; intros; subst h hps.
-  apply points_of_polyn_sorted in Hpts.
-  eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-  eapply two_pts_slope_form; eassumption.
-
-  apply points_of_polyn_sorted in Hpts.
-  rewrite <- List.app_nil_l in Heqhsl.
-  symmetry; eapply in_newt_segm; try eassumption; reflexivity.
 Qed.
 
 Lemma ini_points_in_any_newton_segment : ∀ pol ns,
