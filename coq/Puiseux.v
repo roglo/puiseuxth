@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.423 2013-04-30 19:48:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.424 2013-04-30 20:09:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -213,8 +213,20 @@ Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
   → pt ∈ rem_pts ms
     → pt ∈ pts₂.
 Proof.
-bbb.
-*)
+intros pt₁ pt₂ pts₂ ms pt Hms Hpt.
+revert pt₁ pt₂ ms Hms Hpt.
+induction pts₂ as [| pt₃]; intros; [ subst ms; contradiction | idtac ].
+simpl in Hms.
+remember (minimise_slope α pt₁ pt₃ pts₂) as ms₁.
+symmetry in Heqms₁.
+remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+destruct c; subst ms; simpl in Hpt.
+ right; eapply IHpts₂; eassumption.
+
+ assumption.
+
+ right; eapply IHpts₂; eassumption.
+Qed.
 
 Lemma end_pt_in : ∀ pt₁ pt₂ pts₂ ms,
   minimise_slope α pt₁ pt₂ pts₂ = ms
@@ -1081,27 +1093,7 @@ destruct pts as [| pt₂].
 
    eapply rem_pts_in in H; [ idtac | eassumption ].
    right; right; assumption.
-qed.
-
-(*
-Lemma k_in_pts : ∀ n pts j jps k kps sjk skx hsl,
-  next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
-  → (k, kps) ∈ pts.
-Proof.
-intros n pts j jps k kps segjk segkx hsl Hhsl.
-destruct n; [ discriminate Hhsl | simpl in Hhsl ].
-destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
-destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
-injection Hhsl; clear Hhsl; intros; subst l lps.
-remember (minimise_slope α (j, jps) (m, mps) pts) as ms₁.
-symmetry in Heqms₁.
-subst segjk.
-apply end_pt_in in Heqms₁.
-apply next_ch_points_hd in H.
-rewrite H in Heqms₁.
-right; assumption.
 Qed.
-*)
 
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
@@ -1140,7 +1132,9 @@ destruct (lt_dec k h) as [Hlt| Hge].
    destruct Hnhps as (Hnhps, _).
    exfalso; apply Hnhps; reflexivity.
 
-   eapply k_in_pts; eassumption.
+   eapply in_ch_in_pts with (n := length pts).
+   unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
+   right; left; reflexivity.
 
   apply le_neq_lt in Hge; [ idtac | assumption ].
   destruct (lt_dec j h) as [Hlt| Hge₂].
@@ -1222,7 +1216,9 @@ destruct Hns as [Hns| Hns].
     destruct Hnhps as (Hnhps, _).
     exfalso; apply Hnhps; reflexivity.
 
-    eapply k_in_pts; eassumption.
+    eapply in_ch_in_pts with (n := n).
+    rewrite Hhsl.
+    right; left; reflexivity.
 
    remember Hpts as Hpts₂; clear HeqHpts₂.
    eapply points_after_k; try eassumption; try reflexivity.
@@ -1285,8 +1281,9 @@ destruct Hns as [Hns| Hns].
      destruct Hnhps as (Hnhps, _).
      exfalso; apply Hnhps; reflexivity.
 
-bbb.
-    eapply k_in_pts; eassumption.
+     eapply in_ch_in_pts with (n := n).
+     rewrite Hhsl.
+     right; right; left; reflexivity.
 bbb.
 
 End convex_hull.
