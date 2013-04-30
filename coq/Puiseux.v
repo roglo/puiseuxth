@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.424 2013-04-30 20:09:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.425 2013-04-30 20:24:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1284,6 +1284,14 @@ destruct Hns as [Hns| Hns].
      eapply in_ch_in_pts with (n := n).
      rewrite Hhsl.
      right; right; left; reflexivity.
+
+    destruct n; [ discriminate Hhsl | idtac ].
+    simpl in Hhsl.
+    destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
+    destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
+    injection Hhsl; clear Hhsl; intros.
+    eapply points_after_k; try reflexivity.
+     3: eassumption.
 bbb.
 
 End convex_hull.
