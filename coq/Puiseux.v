@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.413 2013-04-30 00:29:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.414 2013-04-30 00:33:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1073,9 +1073,8 @@ rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points α pts) as hsl.
 destruct hsl as [| ((j, jps), segjx)]; [ discriminate Hns | idtac ].
 destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hns | idtac ].
-remember [ini_pt ns; fin_pt ns … oth_pts ns] as pts₁.
 injection Hns; clear Hns; intros; subst ns.
-simpl in H, Heqpts₁ |- *; subst pts₁.
+simpl in H |- *.
 rename H into Hhsl.
 symmetry in Heqhsl.
 destruct (lt_dec k h) as [Hlt| Hge].
