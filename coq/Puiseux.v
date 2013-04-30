@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.411 2013-04-29 18:37:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.412 2013-04-30 00:18:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -574,10 +574,7 @@ destruct Hns as [Hns| Hns].
  destruct pts as [| pt₁].
   unfold lower_convex_hull_points in Heqhsl.
   simpl in Heqhsl.
-  destruct n.
-   discriminate Heqhsl.
-
-   discriminate Heqhsl.
+  destruct n; discriminate Heqhsl.
 
   symmetry.
   eapply in_newt_segm with (hsl₁ := []); try eassumption; try reflexivity.
@@ -588,12 +585,10 @@ destruct Hns as [Hns| Hns].
  destruct pts as [| pt₂]; [ discriminate Heqhsl | idtac ].
  injection Heqhsl; clear Heqhsl; intros.
  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
  apply LocallySorted_inv_1 in Hpts.
- eapply IHhsl; try eassumption.
- eapply minimise_slope_sorted.
-  eassumption.
-
-  symmetry; eassumption.
+ eapply minimise_slope_sorted in Hpts₂; [ idtac | eassumption ].
+ eapply IHhsl; eassumption.
 Qed.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
