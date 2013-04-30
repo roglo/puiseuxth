@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.417 2013-04-30 08:35:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.418 2013-04-30 08:54:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1208,31 +1208,6 @@ destruct Hns as [Hns| Hns].
      eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
      apply le_not_lt in Hge₂; contradiction.
 
- destruct hsl as [| hs₃]; [ contradiction | idtac ].
- simpl in Hns.
- destruct Hns as [Hns| Hns].
-  destruct hs₂ as ((j, jps), segjk).
-  destruct hs₃ as ((k, kps), segkx).
-  unfold gamma_beta_of_pair in Hns; simpl in Hns.
-  subst ns; simpl in Hnhps |- *.
-  symmetry in Heqhsl.
-  destruct (lt_dec k h) as [Hlt| Hge].
-   apply points_of_polyn_sorted in Hpts.
-   remember Hpts as Hpts₂; clear HeqHpts₂.
-   eapply next_points_sorted in Hpts; [ idtac | eassumption ].
-   apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-   apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₂, Hpts).
-   destruct n; [ discriminate Heqhsl | idtac ].
-   simpl in Heqhsl.
-   destruct pts as [| pt₁]; [ discriminate Heqhsl | idtac ].
-   destruct pts as [| pt₂]; [ discriminate Heqhsl | idtac ].
-   injection Heqhsl; clear Heqhsl; intros.
-   eapply minimise_slope_sorted in Hpts₂; [ idtac | reflexivity ].
-   remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-   eapply points_after_k; try eassumption; try reflexivity.
-   unfold hs_x_lt in Hlt₁, Hlt₂.
-   subst hs₁.
-   simpl in Hlt₁, Hlt₂.
 bbb.
 
 End convex_hull.
