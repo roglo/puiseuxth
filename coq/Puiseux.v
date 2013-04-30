@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.421 2013-04-30 15:02:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.422 2013-04-30 19:13:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1039,6 +1039,14 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   eapply IHpts; eassumption.
 Qed.
 
+Lemma in_ch_in_pts : ∀ n pts i ips six,
+  ahs (i, ips) six ∈ next_ch_points α n pts
+  → (i, ips) ∈ pts.
+Proof.
+intros n pts i ips six Hhs.
+bbb.
+
+(*
 Lemma k_in_pts : ∀ n pts j jps k kps sjk skx hsl,
   next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
   → (k, kps) ∈ pts.
@@ -1056,6 +1064,7 @@ apply next_ch_points_hd in H.
 rewrite H in Heqms₁.
 right; assumption.
 Qed.
+*)
 
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
@@ -1153,7 +1162,7 @@ clear pol.
 remember (list_map_pairs (gamma_beta_of_pair α) hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
-revert pts ns hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
+revert n pts ns hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
 induction nsl as [| ns₁]; [ contradiction | intros ].
 destruct Hns as [Hns| Hns].
  subst ns₁.
@@ -1215,6 +1224,32 @@ destruct Hns as [Hns| Hns].
 
     eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
     apply le_not_lt in Hge₂; contradiction.
+
+ clear IHnsl.
+ revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
+ induction nsl as [| ns₂]; [ contradiction | intros ].
+ destruct Hns as [Hns| Hns].
+  subst ns.
+  clear IHnsl.
+  destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
+  destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
+  destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
+  simpl in Hnsl.
+  injection Hnsl; clear Hnsl; intros.
+  subst ns₁.
+  subst ns₂; simpl in Hnhps |- *.
+  destruct (le_dec k h) as [Hle| Hgt].
+   destruct (eq_nat_dec h k) as [Heq| Hne].
+    eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
+     subst h hps.
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (_, Hnhps).
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (Hnhps, _).
+     exfalso; apply Hnhps; reflexivity.
+
+bbb.
+    eapply k_in_pts; eassumption.
 bbb.
 
 End convex_hull.
