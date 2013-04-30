@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.419 2013-04-30 09:43:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.420 2013-04-30 13:28:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1015,17 +1015,14 @@ destruct HH as [HH| HH].
  eapply lt_trans; eassumption.
 Qed.
 
-Lemma same_k_same_kps : ∀ pol pts j jps k kps,
-  pts = points_of_ps_polynom α fld pol
+Lemma same_k_same_kps : ∀ pts j jps k (kps : puiseux_series α),
+  LocallySorted fst_lt pts
   → (j, jps) ∈ pts
     → (k, kps) ∈ pts
       → j = k
         → jps = kps.
 Proof.
-intros pol pts j jps k kps Hpts Hjps Hkps Hjk.
-bbb.
-unfold points_of_ps_polynom in Hpts.
-apply points_of_polyn_sorted in Hpts.
+intros pts j jps k kps Hpts Hjps Hkps Hjk.
 subst j.
 induction pts as [| pt]; intros; [ contradiction | idtac ].
 destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
@@ -1086,6 +1083,8 @@ destruct (lt_dec k h) as [Hlt| Hge].
 
  apply not_gt in Hge.
  destruct (eq_nat_dec h k) as [Heq| Hne].
+  unfold points_of_ps_polynom in Hpts.
+  apply points_of_polyn_sorted in Hpts.
   eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
    subst h hps.
    simpl in Hnhps.
@@ -1166,36 +1165,8 @@ induction hsl as [| hs₃]; intros.
  destruct (le_dec k h) as [Hle| Hgt].
   destruct (eq_nat_dec h k) as [Heq| Hne].
    eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
-bbb.
-
-intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
-unfold newton_segments in Hns.
-rewrite <- Hpts in Hns.
-remember (lower_convex_hull_points α pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (List.length pts) as n; clear Heqn.
-revert n pts ns Hpts Heqhsl Hns Hhps Hnhps.
-induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-simpl in Hns.
-destruct Hns as [Hns| Hns].
- destruct hs₁ as ((j, jps), segjk).
- destruct hs₂ as ((k, kps), segkx).
- unfold gamma_beta_of_pair in Hns; simpl in Hns.
- subst ns; simpl in Hnhps |- *.
- symmetry in Heqhsl.
- destruct (lt_dec k h) as [Hlt| Hge].
-  apply points_of_polyn_sorted in Hpts.
-  remember Hpts as Hpts₂; clear HeqHpts₂.
-  eapply next_points_sorted in Hpts; [ idtac | eassumption ].
-  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-  unfold hs_x_lt in Hlt; simpl in Hlt.
-  eapply points_after_k; try eassumption; try reflexivity.
-
-  apply not_gt in Hge.
-  destruct (eq_nat_dec h k) as [Heq| Hne].
-   eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
     subst h hps.
+    simpl in Hnhps.
     apply Decidable.not_or in Hnhps.
     destruct Hnhps as (_, Hnhps).
     apply Decidable.not_or in Hnhps.
@@ -1204,38 +1175,43 @@ destruct Hns as [Hns| Hns].
 
     eapply k_in_pts; eassumption.
 
-   apply le_neq_lt in Hge; [ idtac | assumption ].
-   destruct (lt_dec j h) as [Hlt| Hge₂].
-    apply points_of_polyn_sorted in Hpts.
-    remember Hpts as Hpts₂; clear HeqHpts₂.
-    eapply next_points_sorted in Hpts; [ idtac | eassumption ].
-    unfold hs_x_lt in Hlt; simpl in Hlt.
-    eapply points_between_j_and_k; try eassumption; try reflexivity.
-     split; assumption.
+   remember Hpts as Hpts₂; clear HeqHpts₂.
+   eapply points_after_k; try eassumption; try reflexivity.
+    apply next_points_sorted in Hhsl; [ idtac | assumption ].
+    apply LocallySorted_inv_2 in Hhsl.
+    destruct Hhsl; assumption.
 
-     simpl in Hnhps.
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (_, Hnhps).
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (_, Hnhps).
-     assumption.
+    apply not_eq_sym in Hne.
+    apply le_neq_lt; try assumption.
 
-    apply not_gt in Hge₂.
-    apply points_of_polyn_sorted in Hpts.
-    destruct n; [ discriminate Heqhsl | idtac ].
-    simpl in Heqhsl.
-    destruct pts as [| (l, lps)]; [ discriminate Heqhsl | idtac ].
-    destruct pts as [| (m, mps)]; [ discriminate Heqhsl | idtac ].
-    injection Heqhsl; clear Heqhsl; intros; subst l lps.
-    destruct Hhps as [Hhps| Hhps].
-     injection Hhps; clear Hhps; intros; subst h hps.
-     simpl in Hnhps.
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (HH); exfalso; apply HH; reflexivity.
+  apply not_ge in Hgt.
+  destruct (lt_dec j h) as [Hlt| Hge₂].
+   eapply points_between_j_and_k; try eassumption; try reflexivity.
+    split; assumption.
 
-     eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
-     apply le_not_lt in Hge₂; contradiction.
+    simpl in Hnhps.
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (_, Hnhps).
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (_, Hnhps).
+    assumption.
 
+   apply not_gt in Hge₂.
+   destruct n; [ discriminate Hhsl | idtac ].
+   simpl in Hhsl.
+   destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
+   destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
+   injection Hhsl; clear Hhsl; intros; subst l lps.
+   rename H into Hhsl.
+   rename H0 into Hseg.
+   destruct Hhps as [Hhps| Hhps].
+    injection Hhps; clear Hhps; intros; subst h hps.
+    simpl in Hnhps.
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (H); exfalso; apply H; reflexivity.
+
+    eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
+    apply le_not_lt in Hge₂; contradiction.
 bbb.
 
 End convex_hull.
