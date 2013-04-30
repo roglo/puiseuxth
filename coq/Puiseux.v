@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.418 2013-04-30 08:54:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.419 2013-04-30 09:43:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1023,6 +1023,7 @@ Lemma same_k_same_kps : ∀ pol pts j jps k kps,
         → jps = kps.
 Proof.
 intros pol pts j jps k kps Hpts Hjps Hkps Hjk.
+bbb.
 unfold points_of_ps_polynom in Hpts.
 apply points_of_polyn_sorted in Hpts.
 subst j.
@@ -1140,6 +1141,33 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
     → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < valuation α hps + Qnat h * (γ ns).
 Proof.
+intros pol pts ns Hpts Hnsl h hps (Hhps, Hnhps).
+unfold newton_segments in Hnsl.
+rewrite <- Hpts in Hnsl.
+remember (lower_convex_hull_points α pts) as hsl.
+destruct hsl as [| hs₁]; [ contradiction | idtac ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+symmetry in Heqhsl.
+unfold lower_convex_hull_points in Heqhsl.
+rename Heqhsl into Hhsl.
+remember (length pts) as n; clear Heqn.
+apply points_of_polyn_sorted in Hpts.
+clear pol.
+revert pts ns hs₁ hs₂ n Hpts Hhsl Hnsl Hhps Hnhps.
+induction hsl as [| hs₃]; intros.
+ simpl in Hnsl.
+ destruct Hnsl as [Hns| ]; [ idtac | contradiction ].
+ symmetry in Hns.
+ destruct hs₁ as ((j, jps), segjk).
+ destruct hs₂ as ((k, kps), segkx).
+ unfold gamma_beta_of_pair in Hns.
+ simpl in Hns.
+ subst ns; simpl in Hnhps |- *.
+ destruct (le_dec k h) as [Hle| Hgt].
+  destruct (eq_nat_dec h k) as [Heq| Hne].
+   eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
+bbb.
+
 intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
