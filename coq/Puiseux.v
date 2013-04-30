@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.412 2013-04-30 00:18:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.413 2013-04-30 00:29:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -480,75 +480,9 @@ apply Zminus_eq, Nat2Z.inj in H.
 subst k; apply lt_irrefl in Hlt; contradiction.
 Qed.
 
-Lemma ini_points_in_any_newton_segment : ∀ pol ns,
+Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments fld pol
-  → ∀ h hps, (h, hps) = ini_pt ns
-    → β ns == valuation α hps + Qnat h * γ ns.
-Proof.
-intros pol ns Hns h hps Hhps.
-apply List.in_split in Hns.
-destruct Hns as (nsl₁, (nsl₂, Hns)).
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom α fld pol) as pts.
-clear Heqpts pol.
-remember (lower_convex_hull_points α pts) as hsl.
-clear pts Heqhsl.
-revert hsl ns nsl₂ Hns Hhps.
-induction nsl₁ as [| ns₁]; intros.
- destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
- destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
- injection Hns; clear Hns; intros; subst ns.
- simpl in H |- *.
- injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
-
- destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
- simpl in Hns.
- destruct hsl as [| hs₂]; [ discriminate Hns | idtac ].
- remember [hs₂ … hsl] as hsl₁.
- injection Hns; clear Hns; intros.
- eapply IHnsl₁; try eassumption.
-Qed.
-
-Lemma fin_points_in_any_newton_segment : ∀ pol ns,
-  ns ∈ newton_segments fld pol
-  → ∀ h hps, (h, hps) = fin_pt ns
-    → β ns == valuation α hps + Qnat h * γ ns.
-Proof.
-intros pol ns Hns h hps Hhps.
-apply List.in_split in Hns.
-destruct Hns as (nsl₁, (nsl₂, Hns)).
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom α fld pol) as pts.
-rename Heqpts into Hpts.
-apply points_of_polyn_sorted in Hpts.
-remember (lower_convex_hull_points α pts) as hsl.
-symmetry in Heqhsl.
-eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-clear Heqhsl pts.
-revert hsl ns nsl₂ Hns Hhps Hpts.
-induction nsl₁ as [| ns₁]; intros.
- destruct hsl as [| ((j, jps), seg₁)]; [ discriminate Hns | idtac ].
- destruct hsl as [| ((k, kps), seg₂)]; [ discriminate Hns | idtac ].
- injection Hns; clear Hns; intros; subst ns.
- simpl in H |- *.
- injection Hhps; clear Hhps; intros; subst h hps.
- eapply two_pts_slope_form; eassumption.
-
- destruct hsl as [| hs₁]; [ discriminate Hns | idtac ].
- simpl in Hns.
- destruct hsl as [| hs₂].
-  rewrite List.app_comm_cons in Hns.
-  exfalso; revert Hns; apply List.app_cons_not_nil.
-
-  remember [hs₂ … hsl] as hsl₂.
-  injection Hns; clear Hns; intros.
-  apply LocallySorted_inv_1 in Hpts.
-  eapply IHnsl₁; eassumption.
-Qed.
-
-Lemma oth_points_in_any_newton_segment : ∀ pol ns,
-  ns ∈ newton_segments fld pol
-  → ∀ h hps, (h, hps) ∈ oth_pts ns
+  → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == valuation α hps + Qnat h * γ ns.
 Proof.
 intros pol ns Hns h hps Hhps.
@@ -571,13 +505,19 @@ destruct Hns as [Hns| Hns].
  destruct hs₂ as ((k, kps), seg₂).
  subst ns; simpl.
  simpl in Hhps.
- destruct pts as [| pt₁].
-  unfold lower_convex_hull_points in Heqhsl.
-  simpl in Heqhsl.
-  destruct n; discriminate Heqhsl.
+ destruct Hhps as [Hhps| Hhps].
+  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
 
-  symmetry.
-  eapply in_newt_segm with (hsl₁ := []); try eassumption; try reflexivity.
+  destruct Hhps as [Hhps| Hhps].
+   injection Hhps; clear Hhps; intros; subst h hps.
+   eapply two_pts_slope_form; eassumption.
+
+   destruct pts as [| pt₁].
+    unfold lower_convex_hull_points in Heqhsl.
+    destruct n; discriminate Heqhsl.
+
+    symmetry.
+    eapply in_newt_segm with (hsl₁ := []); try eassumption; try reflexivity.
 
  destruct n; [ discriminate Heqhsl | idtac ].
  simpl in Heqhsl.
@@ -589,21 +529,6 @@ destruct Hns as [Hns| Hns].
  apply LocallySorted_inv_1 in Hpts.
  eapply minimise_slope_sorted in Hpts₂; [ idtac | eassumption ].
  eapply IHhsl; eassumption.
-Qed.
-
-Theorem points_in_any_newton_segment : ∀ pol ns,
-  ns ∈ newton_segments fld pol
-  → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == valuation α hps + Qnat h * γ ns.
-Proof.
-intros pol ns Hns h hps Hhps.
-destruct Hhps as [Hhps| Hhps].
- symmetry in Hhps; eapply ini_points_in_any_newton_segment; eassumption.
-
- destruct Hhps as [Hhps| Hhps].
-  symmetry in Hhps; eapply fin_points_in_any_newton_segment; eassumption.
-
-  eapply oth_points_in_any_newton_segment; eassumption.
 Qed.
 
 (* points not in newton segment *)
