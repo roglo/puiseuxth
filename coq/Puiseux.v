@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.422 2013-04-30 19:13:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.423 2013-04-30 19:48:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -208,7 +208,15 @@ induction pts₂ as [| pt]; intros.
   eapply IHpts₂; eassumption.
 Qed.
 
-Lemma min_sl_in : ∀ pt₁ pt₂ pts₂ ms,
+Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
+  minimise_slope α pt₁ pt₂ pts₂ = ms
+  → pt ∈ rem_pts ms
+    → pt ∈ pts₂.
+Proof.
+bbb.
+*)
+
+Lemma end_pt_in : ∀ pt₁ pt₂ pts₂ ms,
   minimise_slope α pt₁ pt₂ pts₂ = ms
   → end_pt ms ∈ [pt₂ … pts₂].
 Proof.
@@ -666,7 +674,7 @@ induction pts as [| pt₁]; [ contradiction | intros ].
 destruct Hhps as [Hhps| Hhps].
  subst pt₁.
  remember Hms as H; clear HeqH.
- apply min_sl_in in Hms.
+ apply end_pt_in in Hms.
  rewrite Hep in Hms.
  destruct Hms as [Hms| Hms].
   subst pt.
@@ -1039,12 +1047,41 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma in_ch_in_pts : ∀ n pts i ips six,
-  ahs (i, ips) six ∈ next_ch_points α n pts
-  → (i, ips) ∈ pts.
+Lemma in_ch_in_pts : ∀ n pts pt s,
+  ahs pt s ∈ next_ch_points α n pts
+  → pt ∈ pts.
 Proof.
-intros n pts i ips six Hhs.
-bbb.
+intros n pts pt s Hhs.
+remember (next_ch_points α n pts) as hsl.
+rename Heqhsl into Hhsl.
+revert n pts pt s Hhsl Hhs.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+destruct n; [ discriminate Hhsl | idtac ].
+simpl in Hhsl.
+destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
+destruct pts as [| pt₂].
+ injection Hhsl; clear Hhsl; intros; subst hs₁ hsl.
+ destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
+ injection Hhs; clear Hhs; intros; subst pt s.
+ left; reflexivity.
+
+ injection Hhsl; clear Hhsl; intros.
+ destruct Hhs as [Hhs| Hhs].
+  subst hs₁.
+  injection H0; clear H0; intros; subst pt₁.
+  left; reflexivity.
+
+  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+  symmetry in Heqms₁.
+  eapply IHhsl in H; [ idtac | eassumption ].
+  destruct H as [H| H].
+   apply end_pt_in in Heqms₁.
+   subst pt.
+   right; assumption.
+
+   eapply rem_pts_in in H; [ idtac | eassumption ].
+   right; right; assumption.
+qed.
 
 (*
 Lemma k_in_pts : ∀ n pts j jps k kps sjk skx hsl,
@@ -1059,7 +1096,7 @@ injection Hhsl; clear Hhsl; intros; subst l lps.
 remember (minimise_slope α (j, jps) (m, mps) pts) as ms₁.
 symmetry in Heqms₁.
 subst segjk.
-apply min_sl_in in Heqms₁.
+apply end_pt_in in Heqms₁.
 apply next_ch_points_hd in H.
 rewrite H in Heqms₁.
 right; assumption.
