@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.415 2013-04-30 01:24:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.416 2013-04-30 03:09:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1041,13 +1041,11 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma k_in_pts : ∀ pts j jps k kps sjk skx hsl,
-  lower_convex_hull_points α pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
+Lemma k_in_pts : ∀ n pts j jps k kps sjk skx hsl,
+  next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
   → (k, kps) ∈ pts.
 Proof.
-intros pts j jps k kps segjk segkx hsl Hhsl.
-unfold lower_convex_hull_points in Hhsl.
-remember (length pts) as n; clear Heqn.
+intros n pts j jps k kps segjk segkx hsl Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
 destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
 destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
@@ -1146,8 +1144,9 @@ intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points α pts) as hsl.
-bbb.
-revert pts ns Hpts Heqhsl Hns Hhps Hnhps.
+unfold lower_convex_hull_points in Heqhsl.
+remember (List.length pts) as n; clear Heqn.
+revert n pts ns Hpts Heqhsl Hns Hhps Hnhps.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 simpl in Hns.
@@ -1160,7 +1159,7 @@ destruct Hns as [Hns| Hns].
  destruct (lt_dec k h) as [Hlt| Hge].
   apply points_of_polyn_sorted in Hpts.
   remember Hpts as Hpts₂; clear HeqHpts₂.
-  eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+  eapply next_points_sorted in Hpts; [ idtac | eassumption ].
   apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
   unfold hs_x_lt in Hlt; simpl in Hlt.
   eapply points_after_k; try eassumption; try reflexivity.
@@ -1181,7 +1180,7 @@ destruct Hns as [Hns| Hns].
    destruct (lt_dec j h) as [Hlt| Hge₂].
     apply points_of_polyn_sorted in Hpts.
     remember Hpts as Hpts₂; clear HeqHpts₂.
-    eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
+    eapply next_points_sorted in Hpts; [ idtac | eassumption ].
     unfold hs_x_lt in Hlt; simpl in Hlt.
     eapply points_between_j_and_k; try eassumption; try reflexivity.
      split; assumption.
@@ -1195,38 +1194,27 @@ destruct Hns as [Hns| Hns].
 
     apply not_gt in Hge₂.
     apply points_of_polyn_sorted in Hpts.
-    unfold lower_convex_hull_points in Heqhsl.
-    remember (length pts) as n; clear Heqn.
-    destruct n.
-     simpl in Heqhsl.
-     discriminate Heqhsl.
+    destruct n; [ discriminate Heqhsl | idtac ].
+    simpl in Heqhsl.
+    destruct pts as [| (l, lps)]; [ discriminate Heqhsl | idtac ].
+    destruct pts as [| (m, mps)]; [ discriminate Heqhsl | idtac ].
+    injection Heqhsl; clear Heqhsl; intros; subst l lps.
+    destruct Hhps as [Hhps| Hhps].
+     injection Hhps; clear Hhps; intros; subst h hps.
+     simpl in Hnhps.
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (HH); exfalso; apply HH; reflexivity.
 
-     simpl in Heqhsl.
-     destruct pts as [| (l, lps)]; [ discriminate Heqhsl | idtac ].
-     destruct pts as [| (m, mps)]; [ discriminate Heqhsl | idtac ].
-     injection Heqhsl; clear Heqhsl; intros; subst l lps.
-     destruct Hhps as [Hhps| Hhps].
-      injection Hhps; clear Hhps; intros; subst h hps.
-      simpl in Hnhps.
-      apply Decidable.not_or in Hnhps.
-      destruct Hnhps as (HH); exfalso; apply HH; reflexivity.
-
-      eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
-      apply le_not_lt in Hge₂; contradiction.
+     eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
+     apply le_not_lt in Hge₂; contradiction.
 
  destruct hsl as [| hs₃]; [ contradiction | idtac ].
- destruct pts as [| pt₁]; [ discriminate Heqhsl | idtac ].
- unfold lower_convex_hull_points in Heqhsl.
+ destruct n; [ discriminate Heqhsl | idtac ].
  simpl in Heqhsl.
+ destruct pts as [| pt₁]; [ discriminate Heqhsl | idtac ].
  destruct pts as [| pt₂]; [ discriminate Heqhsl | idtac ].
- remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
- remember [pt₂ … pts] as pts₁.
  injection Heqhsl; clear Heqhsl; intros.
- subst pts₁.
  eapply IHhsl; try eassumption.
- unfold lower_convex_hull_points.
- simpl.
- rewrite <- Heqms₁.
 bbb.
 
 End convex_hull.
