@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.444 2013-05-01 22:29:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.445 2013-05-01 23:32:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1279,6 +1279,9 @@ right.
 remember Hsort as Hsort₂; clear HeqHsort₂.
 eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
 rewrite Hend, Hrem in Hsort.
+(**)
+revert Hsort₂ Hms Hhps Hrem Heqms₁ Hnp Hkh Hsort Hend; clear; intros.
+(**)
 eapply aft_end_in_rem in Hsort₂; try eassumption.
  rewrite Hrem in Hsort₂.
  destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
