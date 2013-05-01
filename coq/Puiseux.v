@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.435 2013-05-01 11:11:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.436 2013-05-01 11:45:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1245,7 +1245,7 @@ destruct Hhps as [Hhps| Hhps].
      eapply lt_trans; eassumption.
 Qed.
 
-Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
+Lemma aft_k_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → next_ch_points α n [end_pt ms … rem_pts ms] =
@@ -1283,41 +1283,32 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
  destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
  subst pt₃.
  apply minimise_slope_le in Heqms₁.
+  simpl in Hnp.
   destruct pts₂ as [| pt₄].
-   simpl in Hnp.
    injection Hnp; clear Hnp; intros; subst hsl segkx.
-   rename H1 into Hend₁.
-   rewrite Hend₁ in Heqms₁.
-   apply le_not_lt in Heqms₁; contradiction.
+   apply le_not_lt in Heqms₁; rewrite H1 in Heqms₁; contradiction.
 
-   simpl in Hnp.
    injection Hnp; clear Hnp; intros; subst hsl segkx.
-   rename H1 into Hend₁.
-   rewrite Hend₁ in Heqms₁.
-   apply le_not_lt in Heqms₁; contradiction.
+   apply le_not_lt in Heqms₁; rewrite H1 in Heqms₁; contradiction.
 
   eapply LocallySorted_inv_1; eassumption.
 
  rewrite Hend; simpl.
  eapply lt_trans; [ idtac | eassumption ].
  apply minimise_slope_le in Heqms₁.
+  simpl in Hnp.
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort.
   destruct pts₂ as [| pt₄].
-   simpl in Hnp.
    injection Hnp; clear Hnp; intros; subst hsl segkx.
-   rename H1 into Hend₁.
-   rewrite Hend₁ in Heqms₁; simpl in Heqms₁.
-   eapply lt_le_trans; [ idtac | eassumption ].
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+   rewrite H3 in Heqms₁; simpl in Heqms₁.
+   eapply lt_le_trans; eassumption.
 
-   simpl in Hnp.
    injection Hnp; clear Hnp; intros; subst hsl segkx.
-   rename H1 into Hend₁.
-   rewrite Hend₁ in Heqms₁; simpl in Heqms₁.
-   eapply lt_le_trans; [ idtac | eassumption ].
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+   rewrite H3 in Heqms₁; simpl in Heqms₁.
+   eapply lt_le_trans; eassumption.
 
   apply LocallySorted_inv_1 in Hsort; assumption.
-qed.
+Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
@@ -1436,8 +1427,6 @@ destruct Hns as [Hns| Hns].
     destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
     injection Hhsl; clear Hhsl; intros.
     eapply points_after_k; try reflexivity.
-     3: eassumption.
-
      eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 
      apply next_points_sorted in H0.
@@ -1446,15 +1435,18 @@ destruct Hns as [Hns| Hns].
 
       eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 
+     eassumption.
+
      apply not_eq_sym in Hne.
      apply le_neq_lt; try assumption.
 
      right.
      remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
      symmetry in Heqms₁.
-     eapply zzz; try eassumption.
+     eapply aft_k_in_rem; try eassumption.
      apply not_eq_sym in Hne.
      apply le_neq_lt; try assumption.
+
 bbb.
 
 End convex_hull.
