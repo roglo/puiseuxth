@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.441 2013-05-01 18:41:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.442 2013-05-01 22:02:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1245,6 +1245,7 @@ destruct Hhps as [Hhps| Hhps].
      eapply lt_trans; eassumption.
 Qed.
 
+(* similar to 'bet_j_and_k_in_end_or_rem' : some merge somewhere? *)
 Lemma aft_k_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -1310,7 +1311,9 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
-Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps k kps segjk segkx hsl,
+(* similar to 'aft_k_in_rem' : some merge somewhere? *)
+Lemma bet_j_and_k_in_end_or_rem :
+  ∀ n pt₁ pt₂ pts ms j jps k kps segjk segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → next_ch_points α n [end_pt ms … rem_pts ms] =
@@ -1339,24 +1342,15 @@ remember (rem_pts ms₁) as pts₂.
 rename Heqpts₂ into Hrem₁.
 symmetry in Hrem₁.
 subst segjk.
+right.
 remember Hsort as Hsort₂; clear HeqHsort₂.
 eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
 rewrite Hend, Hrem in Hsort.
-right.
-rewrite <- Hrem.
-destruct Hhps as [| Hhps]; [ subst pt₁ | idtac ].
- subst pts₂.
- exfalso.
- apply minimise_slope_le in Hms.
-  rewrite Hend in Hms; simpl in Hms.
-  apply LocallySorted_inv_2 in Hsort₂.
-  destruct Hsort₂ as (Hlt₁).
-  eapply lt_trans in Hlt₁; [ idtac | eassumption ].
-  apply le_not_lt in Hms; contradiction.
+eapply aft_end_in_rem in Hsort₂; try eassumption.
+ rewrite Hrem in Hsort₂; assumption.
 
-  eapply LocallySorted_inv_1; eassumption.
-bbb.
-*)
+ rewrite Hend; assumption.
+Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
@@ -1511,7 +1505,7 @@ destruct Hns as [Hns| Hns].
 
      remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
      symmetry in Heqms₁.
-     eapply zzz; try eassumption.
+     eapply bet_j_and_k_in_end_or_rem; try eassumption.
      split; assumption.
 
      apply Decidable.not_or in Hnhps.
