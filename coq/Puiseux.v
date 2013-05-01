@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.443 2013-05-01 22:13:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.444 2013-05-01 22:29:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1245,7 +1245,7 @@ destruct Hhps as [Hhps| Hhps].
      eapply lt_trans; eassumption.
 Qed.
 
-(* similar to 'bet_j_and_k_in_end_or_rem' : some merge somewhere? *)
+(* similar to 'aft_j_in_end_or_rem' : some merge somewhere? *)
 Lemma aft_k_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -1312,19 +1312,18 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
 Qed.
 
 (* similar to 'aft_k_in_rem' : some merge somewhere? *)
-Lemma bet_j_and_k_in_end_or_rem :
-  ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
+Lemma aft_j_in_end_or_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → next_ch_points α n [end_pt ms … rem_pts ms] =
        [{| pt := (j, jps); oth := segjk |};
         {| pt := (k, kps); oth := segkx |} … hsl]
       → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
-        → j < h < k
+        → (j < h)%nat
           → (h, hps) ∈ [end_pt ms … rem_pts ms].
 Proof.
 intros n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl.
-intros Hsort Hms Hnp h hps Hhps (Hjh, Hhk).
+intros Hsort Hms Hnp h hps Hhps Hjh.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
 remember (rem_pts ms) as pts₁.
@@ -1346,6 +1345,9 @@ right.
 remember Hsort as Hsort₂; clear HeqHsort₂.
 eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
 rewrite Hend, Hrem in Hsort.
+(**)
+revert Hms Hhps Hjh Hend Hsort₂ Hrem; clear; intros.
+(**)
 eapply aft_end_in_rem in Hsort₂; try eassumption.
  rewrite Hrem in Hsort₂; assumption.
 
@@ -1505,8 +1507,7 @@ destruct Hns as [Hns| Hns].
 
      remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
      symmetry in Heqms₁.
-     eapply bet_j_and_k_in_end_or_rem; try eassumption.
-     split; assumption.
+     eapply aft_j_in_end_or_rem; try eassumption.
 
      apply Decidable.not_or in Hnhps.
      destruct Hnhps as (_, Hnhps).
