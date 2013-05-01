@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.431 2013-05-01 08:36:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.432 2013-05-01 08:59:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1174,7 +1174,8 @@ destruct (lt_dec k h) as [Hlt| Hge].
      apply le_not_lt in Hge₂; contradiction.
 Qed.
 
-Lemma yyy : ∀ pt₁ pt₂ pts ms,
+(* is there a way to group together the cases c = Eq and c = Gt? *)
+Lemma aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts] 
@@ -1242,7 +1243,7 @@ destruct Hhps as [Hhps| Hhps].
      apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
      apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
      eapply lt_trans; eassumption.
-qed.
+Qed.
 
 Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
@@ -1282,7 +1283,7 @@ destruct pts₂ as [| pt₄].
  eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
  rewrite Hend, Hrem in Hsort.
  subst segjk.
- eapply yyy in Hsort₂; try eassumption.
+ eapply aft_end_in_rem in Hsort₂; try eassumption.
   Focus 2.
   rewrite Hend; simpl.
   eapply lt_trans; [ idtac | eassumption ].
