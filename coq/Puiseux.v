@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.428 2013-05-01 01:47:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.429 2013-05-01 02:39:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1174,6 +1174,15 @@ destruct (lt_dec k h) as [Hlt| Hge].
      apply le_not_lt in Hge₂; contradiction.
 Qed.
 
+Lemma yyy : ∀ pt₁ pt₂ pts ms,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts] 
+      → (fst (end_pt ms) < h)%nat
+        → (h, hps) ∈ rem_pts ms.
+Proof.
+bbb.
+
 Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -1207,6 +1216,21 @@ destruct pts₂ as [| pt₄].
  injection Hnp; clear Hnp; intros; subst hsl segkx.
  rename H1 into Hend₁.
  rewrite Hend in Heqms₁.
+ right.
+ remember Hsort as Hsort₂; clear HeqHsort₂.
+ eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+ rewrite Hend, Hrem in Hsort.
+ subst segjk.
+ eapply yyy in Hsort₂; try eassumption.
+  Focus 2.
+  rewrite Hend; simpl.
+  eapply lt_trans; [ idtac | eassumption ].
+  apply minimise_slope_le in Heqms₁.
+   rewrite Hend₁ in Heqms₁; simpl in Heqms₁.
+   eapply lt_le_trans; [ idtac | eassumption ].
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+
+   apply LocallySorted_inv_1 in Hsort; assumption.
 bbb.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
