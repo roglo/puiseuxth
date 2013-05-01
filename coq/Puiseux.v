@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.440 2013-05-01 17:35:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.441 2013-05-01 18:41:44 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1342,6 +1342,19 @@ subst segjk.
 remember Hsort as Hsort₂; clear HeqHsort₂.
 eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
 rewrite Hend, Hrem in Hsort.
+right.
+rewrite <- Hrem.
+destruct Hhps as [| Hhps]; [ subst pt₁ | idtac ].
+ subst pts₂.
+ exfalso.
+ apply minimise_slope_le in Hms.
+  rewrite Hend in Hms; simpl in Hms.
+  apply LocallySorted_inv_2 in Hsort₂.
+  destruct Hsort₂ as (Hlt₁).
+  eapply lt_trans in Hlt₁; [ idtac | eassumption ].
+  apply le_not_lt in Hms; contradiction.
+
+  eapply LocallySorted_inv_1; eassumption.
 bbb.
 *)
 
