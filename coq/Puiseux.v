@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.432 2013-05-01 08:59:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.433 2013-05-01 10:28:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1284,7 +1284,16 @@ destruct pts₂ as [| pt₄].
  rewrite Hend, Hrem in Hsort.
  subst segjk.
  eapply aft_end_in_rem in Hsort₂; try eassumption.
-  Focus 2.
+  rewrite Hrem in Hsort₂.
+  destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
+  subst pt₃.
+  exfalso.
+  apply minimise_slope_le in Heqms₁.
+   rewrite Hend₁ in Heqms₁.
+   apply le_not_lt in Heqms₁; contradiction.
+
+   eapply LocallySorted_inv_1; eassumption.
+
   rewrite Hend; simpl.
   eapply lt_trans; [ idtac | eassumption ].
   apply minimise_slope_le in Heqms₁.
