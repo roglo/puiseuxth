@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.438 2013-05-01 16:19:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.439 2013-05-01 17:06:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1310,6 +1310,19 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
+Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps k kps segjk segkx hsl,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → next_ch_points α n [end_pt ms … rem_pts ms] =
+       [{| pt := (j, jps); oth := segjk |};
+        {| pt := (k, kps); oth := segkx |} … hsl]
+      → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
+        → j < h < k
+          → (h, hps) ∈ [end_pt ms … rem_pts ms].
+Proof.
+bbb.
+*)
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1463,6 +1476,15 @@ destruct Hns as [Hns| Hns].
 
      remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
      symmetry in Heqms₁.
+     eapply zzz; try eassumption.
+     split; assumption.
+
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (_, Hnhps).
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps; assumption.
+
+    apply not_gt in Hge₂.
 bbb.
 
 End convex_hull.
