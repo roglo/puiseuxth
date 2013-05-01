@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.430 2013-05-01 02:59:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.431 2013-05-01 08:36:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1198,7 +1198,51 @@ destruct Hhps as [Hhps| Hhps].
    apply le_not_lt in Hms; contradiction.
 
    eapply LocallySorted_inv_1; eassumption.
-bbb.
+
+  revert pt₁ pt₂ ms Hsort Hms Hhps Hlt.
+  induction pts as [| pt₃]; [ contradiction | intros ].
+  simpl in Hms.
+  remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+  symmetry in Heqms₁.
+  remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+  symmetry in Heqc.
+  destruct c; subst ms; simpl in Hlt |- *.
+   destruct Hhps as [Hhps| Hhps].
+    subst pt₃.
+    apply minimise_slope_le in Heqms₁.
+     apply le_not_lt in Heqms₁; contradiction.
+
+     do 2 apply LocallySorted_inv_1 in Hsort.
+     assumption.
+
+    eapply IHpts; try eassumption.
+    constructor.
+     do 2 apply LocallySorted_inv_1 in Hsort.
+     assumption.
+
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+     eapply lt_trans; eassumption.
+
+   assumption.
+
+   destruct Hhps as [Hhps| Hhps].
+    subst pt₃.
+    apply minimise_slope_le in Heqms₁.
+     apply le_not_lt in Heqms₁; contradiction.
+
+     do 2 apply LocallySorted_inv_1 in Hsort.
+     assumption.
+
+    eapply IHpts; try eassumption.
+    constructor.
+     do 2 apply LocallySorted_inv_1 in Hsort.
+     assumption.
+
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+     eapply lt_trans; eassumption.
+qed.
 
 Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
