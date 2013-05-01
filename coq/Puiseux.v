@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.434 2013-05-01 11:04:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.435 2013-05-01 11:11:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1274,62 +1274,49 @@ remember (rem_pts ms₁) as pts₂.
 rename Heqpts₂ into Hrem₁.
 symmetry in Hrem₁.
 subst segjk.
-destruct pts₂ as [| pt₄].
- simpl in Hnp.
- injection Hnp; clear Hnp; intros; subst hsl segkx.
- rename H1 into Hend₁.
- rewrite Hend in Heqms₁.
- right.
- remember Hsort as Hsort₂; clear HeqHsort₂.
- eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
- rewrite Hend, Hrem in Hsort.
- eapply aft_end_in_rem in Hsort₂; try eassumption.
-  rewrite Hrem in Hsort₂.
-  destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
-  subst pt₃.
-  exfalso.
-  apply minimise_slope_le in Heqms₁.
+right.
+remember Hsort as Hsort₂; clear HeqHsort₂.
+eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+rewrite Hend, Hrem in Hsort.
+eapply aft_end_in_rem in Hsort₂; try eassumption.
+ rewrite Hrem in Hsort₂.
+ destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
+ subst pt₃.
+ apply minimise_slope_le in Heqms₁.
+  destruct pts₂ as [| pt₄].
+   simpl in Hnp.
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   rename H1 into Hend₁.
    rewrite Hend₁ in Heqms₁.
    apply le_not_lt in Heqms₁; contradiction.
 
-   eapply LocallySorted_inv_1; eassumption.
+   simpl in Hnp.
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   rename H1 into Hend₁.
+   rewrite Hend₁ in Heqms₁.
+   apply le_not_lt in Heqms₁; contradiction.
 
-  rewrite Hend; simpl.
-  eapply lt_trans; [ idtac | eassumption ].
-  apply minimise_slope_le in Heqms₁.
+  eapply LocallySorted_inv_1; eassumption.
+
+ rewrite Hend; simpl.
+ eapply lt_trans; [ idtac | eassumption ].
+ apply minimise_slope_le in Heqms₁.
+  destruct pts₂ as [| pt₄].
+   simpl in Hnp.
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   rename H1 into Hend₁.
    rewrite Hend₁ in Heqms₁; simpl in Heqms₁.
    eapply lt_le_trans; [ idtac | eassumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
 
-   apply LocallySorted_inv_1 in Hsort; assumption.
-
- simpl in Hnp.
- injection Hnp; clear Hnp; intros; subst hsl segkx.
- rename H1 into Hend₁.
- rewrite Hend in Heqms₁.
- right.
- remember Hsort as Hsort₂; clear HeqHsort₂.
- eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
- rewrite Hend, Hrem in Hsort.
- eapply aft_end_in_rem in Hsort₂; try eassumption.
-  rewrite Hrem in Hsort₂.
-  destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
-  subst pt₃.
-  exfalso.
-  apply minimise_slope_le in Heqms₁.
-   rewrite Hend₁ in Heqms₁.
-   apply le_not_lt in Heqms₁; contradiction.
-
-   eapply LocallySorted_inv_1; eassumption.
-
-  rewrite Hend; simpl.
-  eapply lt_trans; [ idtac | eassumption ].
-  apply minimise_slope_le in Heqms₁.
+   simpl in Hnp.
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   rename H1 into Hend₁.
    rewrite Hend₁ in Heqms₁; simpl in Heqms₁.
    eapply lt_le_trans; [ idtac | eassumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
 
-   apply LocallySorted_inv_1 in Hsort; assumption.
+  apply LocallySorted_inv_1 in Hsort; assumption.
 qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
