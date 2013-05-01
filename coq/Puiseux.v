@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.425 2013-04-30 20:24:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.426 2013-05-01 00:25:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1292,6 +1292,17 @@ destruct Hns as [Hns| Hns].
     injection Hhsl; clear Hhsl; intros.
     eapply points_after_k; try reflexivity.
      3: eassumption.
+
+     eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+     apply next_points_sorted in H0.
+      apply LocallySorted_inv_2 in H0.
+      destruct H0; assumption.
+
+      eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+     apply not_eq_sym in Hne.
+     apply le_neq_lt; try assumption.
 bbb.
 
 End convex_hull.
