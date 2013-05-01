@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.437 2013-05-01 11:55:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.438 2013-05-01 16:19:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1448,6 +1448,21 @@ destruct Hns as [Hns| Hns].
      apply le_neq_lt; try assumption.
 
    apply not_ge in Hgt.
+   destruct (lt_dec j h) as [Hlt| Hge₂].
+    destruct n; [ discriminate Hhsl | idtac ].
+    simpl in Hhsl.
+    destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
+    destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
+    injection Hhsl; clear Hhsl; intros.
+    eapply points_between_j_and_k; try reflexivity.
+     eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+     eassumption.
+
+     split; assumption.
+
+     remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+     symmetry in Heqms₁.
 bbb.
 
 End convex_hull.
