@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.442 2013-05-01 22:02:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.443 2013-05-01 22:13:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1313,7 +1313,7 @@ Qed.
 
 (* similar to 'aft_k_in_rem' : some merge somewhere? *)
 Lemma bet_j_and_k_in_end_or_rem :
-  ∀ n pt₁ pt₂ pts ms j jps k kps segjk segkx hsl,
+  ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → next_ch_points α n [end_pt ms … rem_pts ms] =
@@ -1323,7 +1323,7 @@ Lemma bet_j_and_k_in_end_or_rem :
         → j < h < k
           → (h, hps) ∈ [end_pt ms … rem_pts ms].
 Proof.
-intros n pt₁ pt₂ pts ms j jps k kps segjk segkx hsl.
+intros n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps (Hjh, Hhk).
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
