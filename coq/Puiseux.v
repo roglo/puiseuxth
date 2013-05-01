@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.429 2013-05-01 02:39:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.430 2013-05-01 02:59:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1181,6 +1181,23 @@ Lemma yyy : ∀ pt₁ pt₂ pts ms,
       → (fst (end_pt ms) < h)%nat
         → (h, hps) ∈ rem_pts ms.
 Proof.
+intros pt₁ pt₂ pts ms Hsort Hms h hps Hhps Hlt.
+destruct Hhps as [Hhps| Hhps].
+ subst pt₁.
+ apply minimise_slope_le in Hms.
+  apply LocallySorted_inv_2 in Hsort.
+  destruct Hsort as (Hlt₁).
+  eapply lt_trans in Hlt₁; [ idtac | eassumption ].
+  apply le_not_lt in Hms; contradiction.
+
+  eapply LocallySorted_inv_1; eassumption.
+
+ destruct Hhps as [Hhps| Hhps].
+  subst pt₂.
+  apply minimise_slope_le in Hms.
+   apply le_not_lt in Hms; contradiction.
+
+   eapply LocallySorted_inv_1; eassumption.
 bbb.
 
 Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
