@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.426 2013-05-01 00:25:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.427 2013-05-01 01:24:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1174,6 +1174,18 @@ destruct (lt_dec k h) as [Hlt| Hge].
      apply le_not_lt in Hge₂; contradiction.
 Qed.
 
+Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → next_ch_points α n [end_pt ms … rem_pts ms] =
+        [{| pt := (j, jps); oth := segjk |};
+         {| pt := (k, kps); oth := segkx |} … hsl]
+      → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
+        → (k < h)%nat
+          → (h, hps) ∈ rem_pts ms.
+Proof.
+bbb.
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1301,6 +1313,13 @@ destruct Hns as [Hns| Hns].
 
       eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 
+     apply not_eq_sym in Hne.
+     apply le_neq_lt; try assumption.
+
+     right.
+     remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+     symmetry in Heqms₁.
+     eapply zzz; try eassumption.
      apply not_eq_sym in Hne.
      apply le_neq_lt; try assumption.
 bbb.
