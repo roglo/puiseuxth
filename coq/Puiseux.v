@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.427 2013-05-01 01:24:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.428 2013-05-01 01:47:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1184,6 +1184,29 @@ Lemma zzz : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
         → (k < h)%nat
           → (h, hps) ∈ rem_pts ms.
 Proof.
+intros n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl.
+intros Hsort Hms Hnp h hps Hhps Hkh.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+remember (rem_pts ms) as pts₁.
+rename Heqpts₁ into Hrem.
+symmetry in Hrem.
+destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros.
+rename H into Hnp.
+rename H0 into Hseg.
+rename H1 into Hend.
+remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
+symmetry in Heqms₁.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+remember (rem_pts ms₁) as pts₂.
+rename Heqpts₂ into Hrem₁.
+symmetry in Hrem₁.
+destruct pts₂ as [| pt₄].
+ injection Hnp; clear Hnp; intros; subst hsl segkx.
+ rename H1 into Hend₁.
+ rewrite Hend in Heqms₁.
 bbb.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
