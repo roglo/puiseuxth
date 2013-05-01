@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.436 2013-05-01 11:45:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.437 2013-05-01 11:55:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1447,6 +1447,7 @@ destruct Hns as [Hns| Hns].
      apply not_eq_sym in Hne.
      apply le_neq_lt; try assumption.
 
+   apply not_ge in Hgt.
 bbb.
 
 End convex_hull.
