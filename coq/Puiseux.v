@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.455 2013-05-02 17:16:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.456 2013-05-02 18:30:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1373,6 +1373,65 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
+Lemma aft_j_in_end_or_rem₄₂ :
+  ∀ n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → next_ch_points α n [end_pt ms … rem_pts ms] =
+       hsl₁ ++
+       [{| pt := (j, jps); oth := segjk |};
+        {| pt := (k, kps); oth := segkx |} … hsl]
+      → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
+        → (j < h)%nat
+          → (h, hps) ∈ [end_pt ms … rem_pts ms].
+Proof.
+intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
+intros Hsort Hms Hnp h hps Hhps Hjh.
+induction hsl₁ as [| hs₁]; intros.
+ destruct n; [ discriminate Hnp | idtac ].
+ simpl in Hnp.
+ remember (rem_pts ms) as pts₁.
+ rename Heqpts₁ into Hrem.
+ symmetry in Hrem.
+ destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros.
+ rename H into Hnp.
+ rename H0 into Hseg.
+ rename H1 into Hend.
+ remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
+ symmetry in Heqms₁.
+ destruct n; [ discriminate Hnp | idtac ].
+ remember (rem_pts ms₁) as pts₂.
+ rename Heqpts₂ into Hrem₁.
+ symmetry in Hrem₁.
+ subst segjk.
+ right.
+ remember Hsort as Hsort₂; clear HeqHsort₂.
+ eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+ rewrite Hend, Hrem in Hsort.
+ eapply aft_end_in_rem in Hsort₂; try eassumption.
+  rewrite Hrem in Hsort₂; assumption.
+
+  rewrite Hend; assumption.
+
+bbb.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₃].
+  injection Hnp; clear Hnp; intros.
+  destruct hsl₁; discriminate H.
+
+  injection Hnp; clear Hnp; intros.
+  rename H into Hnp.
+  subst hs₁.
+  rewrite Heqpts₁.
+  remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
+  symmetry in Heqms₁.
+  remember Hnp as Hnp₁; clear HeqHnp₁.
+  eapply IHhsl₁ in Hnp; try eassumption.
+was.
+*)
+
 (* similar to 'aft_k_in_rem' : some merge somewhere? *)
 Lemma aft_j_in_end_or_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
@@ -1484,6 +1543,51 @@ eapply points_after_k; try reflexivity; try eassumption.
  right.
  eapply aft_k_in_rem; try eassumption; reflexivity.
 Qed.
+
+Lemma lt_aft_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      hsl₁ ++
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (k < h)%nat
+        → valuation α jps +
+          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          valuation α hps +
+          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
+revert n pts Hsort Hnp Hhps.
+induction hsl₁ as [| hs₁]; intros.
+ remember Hsort as Hsort₂; clear HeqHsort₂.
+ eapply points_after_k; try reflexivity; try eassumption.
+ apply next_points_sorted in Hnp; [ idtac | assumption ].
+ apply LocallySorted_inv_2 in Hnp.
+ destruct Hnp; assumption.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂].
+  destruct hsl₁ as [| pt₂]; [ discriminate Hnp | idtac ].
+  destruct hsl₁; discriminate Hnp.
+
+  injection Hnp; clear Hnp; intros.
+  remember Hsort as Hsort₂; clear HeqHsort₂.
+  eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
+  eapply IHhsl₁; try eassumption.
+  eapply aft_j_in_end_or_rem₄₂; try eassumption; [ reflexivity | idtac ].
+  eapply lt_trans; [ idtac | eassumption ].
+  apply next_points_sorted in H; [ idtac | assumption ].
+  revert H; clear; intros.
+  induction hsl₁ as [| hs₁].
+   apply LocallySorted_inv_2 in H.
+   destruct H; assumption.
+
+   simpl in H.
+   apply LocallySorted_inv_1 in H.
+   apply IHhsl₁; assumption.
+qed.
 
 (*
 Lemma yyy : ∀ n pts hs₁ hsl₁ hsl j jps segjk k kps segkx,
