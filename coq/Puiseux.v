@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.456 2013-05-02 18:30:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.457 2013-05-02 19:07:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1387,6 +1387,7 @@ Lemma aft_j_in_end_or_rem₄₂ :
 Proof.
 intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps Hjh.
+revert n ms pt₁ pt₂ pts Hms Hnp Hsort Hhps.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | idtac ].
  simpl in Hnp.
