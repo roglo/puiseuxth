@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.446 2013-05-02 00:02:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.447 2013-05-02 00:30:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1415,6 +1415,24 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
 
  rewrite Hend; assumption.
 Qed.
+
+Fixpoint left_shift_convex_hull_oth α ch :=
+  match (ch : list (hull_seg (puiseux_series α))) with
+  | [] => []
+  | [hs₁ … hsl₁] =>
+      match hsl₁ with
+      | [] => [ahs (pt hs₁) []]
+      | [hs₂ … hsl₂] =>
+          let hsl₃ := left_shift_convex_hull_oth α hsl₁ in
+          [ahs (pt hs₁) (List.rev (oth hs₂)) … hsl₃]
+      end
+  end.
+
+Lemma zzz : ∀ pts,
+  lower_convex_hull_points α (List.rev pts) =
+  left_shift_convex_hull_oth α (List.rev (lower_convex_hull_points α pts)).
+Proof.
+bbb.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
