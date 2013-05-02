@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.449 2013-05-02 06:59:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.450 2013-05-02 08:08:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1473,6 +1473,34 @@ eapply points_after_k; try reflexivity.
  eapply aft_k_in_rem; eassumption.
 Qed.
 
+Lemma lt_at_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [hs₁; {| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → h = k
+          → valuation α jps +
+            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            valuation α hps +
+            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hnhps Hhk.
+eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
+ subst h hps.
+ simpl in Hnhps.
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (_, Hnhps).
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (Hnhps, _).
+ exfalso; apply Hnhps; reflexivity.
+
+ eapply in_ch_in_pts with (n := n).
+ rewrite Hnp.
+ right; right; left; reflexivity.
+Qed.
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1574,17 +1602,7 @@ destruct Hns as [Hns| Hns].
    eapply lt_aft_k; eassumption.
 
    destruct (eq_nat_dec h k) as [Heq| Hne].
-    eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
-     subst h hps.
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (_, Hnhps).
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (Hnhps, _).
-     exfalso; apply Hnhps; reflexivity.
-
-     eapply in_ch_in_pts with (n := n).
-     rewrite Hhsl.
-     right; right; left; reflexivity.
+    eapply lt_at_k; eassumption.
 
     apply not_gt in Hge.
     destruct (lt_dec j h) as [Hlt| Hge₂].
