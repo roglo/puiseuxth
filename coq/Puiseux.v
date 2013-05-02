@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.452 2013-05-02 09:03:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.453 2013-05-02 09:12:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1434,6 +1434,28 @@ Lemma zzz : ∀ pts,
   left_shift_convex_hull_oth α (List.rev (lower_convex_hull_points α pts)).
 Proof.
 Admitted.
+bbb.
+*)
+
+Lemma xxx : ∀ n pts hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (k < h)%nat
+        → valuation α jps +
+          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          valuation α hps +
+          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros.
+eapply points_after_k; try reflexivity.
+
 bbb.
 *)
 
