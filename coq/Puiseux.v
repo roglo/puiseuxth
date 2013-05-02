@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.448 2013-05-02 06:40:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.449 2013-05-02 06:59:42 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1436,6 +1436,43 @@ Admitted. (*
 bbb.
 *)
 
+Lemma lt_aft_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [hs₁; {| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (k < h)%nat
+        → valuation α jps +
+          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          valuation α hps +
+          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros.
+eapply points_after_k; try reflexivity.
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+ apply next_points_sorted in H.
+  apply LocallySorted_inv_2 in H.
+  destruct H; assumption.
+
+  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+ eassumption.
+
+ assumption.
+
+ right.
+ remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
+ eapply aft_k_in_rem; eassumption.
+Qed.
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1534,28 +1571,7 @@ destruct Hns as [Hns| Hns].
   subst ns₁.
   subst ns₂; simpl in Hnhps |- *.
   destruct (lt_dec k h) as [Hlt| Hge].
-   destruct n; [ discriminate Hhsl | idtac ].
-   simpl in Hhsl.
-   destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
-   destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
-   injection Hhsl; clear Hhsl; intros.
-   eapply points_after_k; try reflexivity.
-    eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
-    apply next_points_sorted in H0.
-     apply LocallySorted_inv_2 in H0.
-     destruct H0; assumption.
-
-     eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
-    eassumption.
-
-    assumption.
-
-    right.
-    remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-    symmetry in Heqms₁.
-    eapply aft_k_in_rem; eassumption.
+   eapply lt_aft_k; eassumption.
 
    destruct (eq_nat_dec h k) as [Heq| Hne].
     eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
