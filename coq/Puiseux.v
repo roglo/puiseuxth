@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.450 2013-05-02 08:08:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.451 2013-05-02 08:22:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1501,6 +1501,44 @@ eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
  right; right; left; reflexivity.
 Qed.
 
+Lemma lt_bet_j_and_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [hs₁; {| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → j < h < k
+          → valuation α jps +
+            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            valuation α hps +
+            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp.
+intros h hps Hhps Hnhps (Hjh, Hhk).
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros.
+eapply points_between_j_and_k; try reflexivity.
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+ eassumption.
+
+ split; assumption.
+
+ remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
+ eapply aft_j_in_end_or_rem; eassumption.
+
+ simpl in Hnhps.
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (_, Hnhps).
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps; assumption.
+Qed.
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1606,27 +1644,9 @@ destruct Hns as [Hns| Hns].
 
     apply not_gt in Hge.
     destruct (lt_dec j h) as [Hlt| Hge₂].
-     destruct n; [ discriminate Hhsl | idtac ].
-     simpl in Hhsl.
-     destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
-     destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
-     injection Hhsl; clear Hhsl; intros.
-     eapply points_between_j_and_k; try reflexivity.
-      eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
-      eassumption.
-
-      split; [ assumption | idtac ].
-      apply le_neq_lt; assumption.
-
-      remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-      symmetry in Heqms₁.
-      eapply aft_j_in_end_or_rem; eassumption.
-
-      apply Decidable.not_or in Hnhps.
-      destruct Hnhps as (_, Hnhps).
-      apply Decidable.not_or in Hnhps.
-      destruct Hnhps; assumption.
+     apply le_neq_lt in Hge; [ idtac | assumption ].
+     eapply conj in Hge; [ idtac | eassumption ].
+     eapply lt_bet_j_and_k; eassumption.
 
      apply not_gt in Hge₂.
 bbb.
