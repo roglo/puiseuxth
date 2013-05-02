@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.447 2013-05-02 00:30:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.448 2013-05-02 06:40:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1432,7 +1432,9 @@ Lemma zzz : ∀ pts,
   lower_convex_hull_points α (List.rev pts) =
   left_shift_convex_hull_oth α (List.rev (lower_convex_hull_points α pts)).
 Proof.
+Admitted. (*
 bbb.
+*)
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
@@ -1531,7 +1533,30 @@ destruct Hns as [Hns| Hns].
   injection Hnsl; clear Hnsl; intros.
   subst ns₁.
   subst ns₂; simpl in Hnhps |- *.
-  destruct (le_dec k h) as [Hle| Hgt].
+  destruct (lt_dec k h) as [Hlt| Hge].
+   destruct n; [ discriminate Hhsl | idtac ].
+   simpl in Hhsl.
+   destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
+   destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
+   injection Hhsl; clear Hhsl; intros.
+   eapply points_after_k; try reflexivity.
+    eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+    apply next_points_sorted in H0.
+     apply LocallySorted_inv_2 in H0.
+     destruct H0; assumption.
+
+     eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+
+    eassumption.
+
+    assumption.
+
+    right.
+    remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+    symmetry in Heqms₁.
+    eapply aft_k_in_rem; eassumption.
+
    destruct (eq_nat_dec h k) as [Heq| Hne].
     eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
      subst h hps.
@@ -1545,56 +1570,31 @@ destruct Hns as [Hns| Hns].
      rewrite Hhsl.
      right; right; left; reflexivity.
 
-    destruct n; [ discriminate Hhsl | idtac ].
-    simpl in Hhsl.
-    destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
-    destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
-    injection Hhsl; clear Hhsl; intros.
-    eapply points_after_k; try reflexivity.
-     eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
-     apply next_points_sorted in H0.
-      apply LocallySorted_inv_2 in H0.
-      destruct H0; assumption.
-
+    apply not_gt in Hge.
+    destruct (lt_dec j h) as [Hlt| Hge₂].
+     destruct n; [ discriminate Hhsl | idtac ].
+     simpl in Hhsl.
+     destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
+     destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
+     injection Hhsl; clear Hhsl; intros.
+     eapply points_between_j_and_k; try reflexivity.
       eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 
-     eassumption.
+      eassumption.
 
-     apply not_eq_sym in Hne.
-     apply le_neq_lt; try assumption.
+      split; [ assumption | idtac ].
+      apply le_neq_lt; assumption.
 
-     right.
-     remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-     symmetry in Heqms₁.
-     eapply aft_k_in_rem; try eassumption.
-     apply not_eq_sym in Hne.
-     apply le_neq_lt; try assumption.
+      remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+      symmetry in Heqms₁.
+      eapply aft_j_in_end_or_rem; eassumption.
 
-   apply not_ge in Hgt.
-   destruct (lt_dec j h) as [Hlt| Hge₂].
-    destruct n; [ discriminate Hhsl | idtac ].
-    simpl in Hhsl.
-    destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
-    destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
-    injection Hhsl; clear Hhsl; intros.
-    eapply points_between_j_and_k; try reflexivity.
-     eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+      apply Decidable.not_or in Hnhps.
+      destruct Hnhps as (_, Hnhps).
+      apply Decidable.not_or in Hnhps.
+      destruct Hnhps; assumption.
 
-     eassumption.
-
-     split; assumption.
-
-     remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-     symmetry in Heqms₁.
-     eapply aft_j_in_end_or_rem; try eassumption.
-
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (_, Hnhps).
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps; assumption.
-
-    apply not_gt in Hge₂.
+     apply not_gt in Hge₂.
 bbb.
 
 End convex_hull.
