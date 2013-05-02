@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.454 2013-05-02 12:58:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.455 2013-05-02 17:16:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1474,23 +1474,15 @@ destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
 injection Hnp; clear Hnp; intros.
-eapply points_after_k; try reflexivity.
- eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
- apply next_points_sorted in H.
-  apply LocallySorted_inv_2 in H.
-  destruct H; assumption.
-
-  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
- eassumption.
-
- assumption.
+remember Hsort as Hsort₂; clear HeqHsort₂.
+eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
+eapply points_after_k; try reflexivity; try eassumption.
+ apply next_points_sorted in H; [ idtac | assumption ].
+ apply LocallySorted_inv_2 in H.
+ destruct H; assumption.
 
  right.
- remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- eapply aft_k_in_rem; eassumption.
+ eapply aft_k_in_rem; try eassumption; reflexivity.
 Qed.
 
 (*
