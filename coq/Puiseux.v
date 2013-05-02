@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.445 2013-05-01 23:32:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.446 2013-05-02 00:02:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -366,6 +366,15 @@ Qed.
 
 (* points in newton segment *)
 
+Lemma Qnat_minus : ∀ a b, b ≤ a → Qnat a - Qnat b == Qnat (a - b).
+Proof.
+intros a b Hba.
+unfold Qnat, Qminus, Qplus; simpl.
+do 2 rewrite Zmult_1_r.
+rewrite Nat2Z.inj_sub; [ idtac | assumption ].
+unfold Zminus; reflexivity.
+Qed.
+
 Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx hsl n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → β = valuation α jps + Qnat j * γ
@@ -407,23 +416,39 @@ induction pts as [| pt₁]; intros.
    rewrite Qdiv_minus_distr_r.
    apply Qeq_opp_r in Heqms₁.
    do 2 rewrite Qopp_minus in Heqms₁.
-   rewrite <- Heqms₁.
-   unfold Qnat.
-   rewrite Nat2Z.inj_sub.
-    rewrite QZ_minus.
-    field.
-    unfold Qminus, Qplus; simpl.
-    do 2 rewrite Z.mul_1_r.
-    unfold Qeq; simpl.
-    rewrite Z.mul_1_r, Z.add_opp_r.
-    intros H.
-    apply Zminus_eq, Nat2Z.inj in H.
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-    subst i.
-    apply lt_irrefl in Hlt; contradiction.
+   do 2 rewrite Qnat_minus in Heqms₁.
+    rewrite <- Heqms₁.
+    unfold Qnat.
+    rewrite Nat2Z.inj_sub.
+     rewrite QZ_minus.
+     field.
+     unfold Qminus, Qplus; simpl.
+     do 2 rewrite Z.mul_1_r.
+     unfold Qeq; simpl.
+     rewrite Z.mul_1_r, Z.add_opp_r.
+     intros H.
+     apply Zminus_eq, Nat2Z.inj in H.
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+     subst i.
+     apply lt_irrefl in Hlt; contradiction.
 
-    apply lt_le_weak.
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+     apply lt_le_weak.
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+
+    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply minimise_slope_le in Hms; [ idtac | assumption ].
+    rewrite <- Hnp in Hms.
+    eapply le_trans; [ idtac | eassumption ].
+    eapply lt_le_weak.
+    eapply le_lt_trans; [ idtac | eassumption ].
+    eapply lt_le_weak; eassumption.
+
+    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply lt_le_weak; assumption.
+
+    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply lt_le_weak; assumption.
 
    eapply IHpts; try eassumption.
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
@@ -787,15 +812,26 @@ destruct Hhps as [Hhps| Hhps].
   eapply min_slope_lt_after_k in Heqms₁; try eassumption.
    rewrite H in Heqms₁.
    subst β γ.
-   apply ad_hoc_lt_lt; [ idtac | assumption ].
-   split; [ idtac | assumption ].
-   destruct pt₁ as (l, lps).
-   apply lt_trans with (m := l).
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+   apply ad_hoc_lt_lt.
+    split; [ idtac | assumption ].
+    destruct pt₁ as (l, lps).
+    apply lt_trans with (m := l).
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
 
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-    eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
-    assumption.
+     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+     eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
+     assumption.
+
+    unfold slope_expr in Heqms₁; simpl in Heqms₁.
+    do 2 rewrite Qnat_minus in Heqms₁.
+     assumption.
+
+     apply lt_le_weak.
+     eapply lt_trans; eassumption.
+
+     apply lt_le_weak; assumption.
+
+     apply lt_le_weak; assumption.
 
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
    destruct pts as [| pt₂]; [ constructor | idtac ].
@@ -941,9 +977,22 @@ destruct Hhps as [Hhps| Hhps].
     symmetry in Heqc; apply Qgt_alt in Heqc.
     rewrite H in Heqc.
     subst β γ.
-    apply ad_hoc_lt_lt; [ idtac | assumption ].
-    split; [ assumption | idtac ].
-    eapply lt_trans; eassumption.
+    apply ad_hoc_lt_lt.
+     split; [ assumption | idtac ].
+     eapply lt_trans; eassumption.
+
+     unfold slope_expr in Heqc; simpl in Heqc.
+     do 2 rewrite Qnat_minus in Heqc.
+      assumption.
+
+      apply lt_le_weak.
+      assumption.
+
+      apply lt_le_weak.
+      eapply lt_trans; eassumption.
+
+      apply lt_le_weak.
+      eapply lt_trans; eassumption.
 
   symmetry in Heqms₁.
   revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hnp.
@@ -962,9 +1011,19 @@ destruct Hhps as [Hhps| Hhps].
     eapply not_seg_min_sl_lt in Heqms₁; try eassumption.
      rewrite H in Heqms₁.
      subst β γ.
-     apply ad_hoc_lt_lt; [ idtac | assumption ].
-     split; [ assumption | idtac ].
-     eapply lt_trans; eassumption.
+     apply ad_hoc_lt_lt.
+      split; [ assumption | idtac ].
+      eapply lt_trans; eassumption.
+
+      unfold slope_expr in Heqms₁; simpl in Heqms₁.
+      do 2 rewrite Qnat_minus in Heqms₁.
+       assumption.
+
+       apply lt_le_weak; assumption.
+
+       apply lt_le_weak; eapply lt_trans; eassumption.
+
+       apply lt_le_weak; eapply lt_trans; eassumption.
 
      split; assumption.
 

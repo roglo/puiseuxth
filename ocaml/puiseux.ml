@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.211 2013-04-29 15:55:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.212 2013-05-02 00:02:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -52,7 +52,7 @@ Record hull_seg α := ahs
 Definition slope_expr α pt₁ pt₂ :=
   let v₁ := valuation α (snd pt₁) in
   let v₂ := valuation α (snd pt₂) in
-  Q.norm (Qdiv (Qminus v₂ v₁) (Qnat (fst pt₂ - fst pt₁)));
+  Q.norm (Qdiv (Qminus v₂ v₁) (Qminus (Qnat (fst pt₂)) (Qnat (fst pt₁))));
 
 Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr α pt₁ pt₂ in

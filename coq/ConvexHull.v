@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.41 2013-04-27 00:01:39 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.42 2013-05-02 00:02:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,7 +34,7 @@ Arguments oth : default implicits.
 Definition slope_expr α pt₁ pt₂ :=
   let v₁ := valuation α (snd pt₁) in
   let v₂ := valuation α (snd pt₂) in
-  Qdiv (Qminus v₂ v₁) (Qnat (fst pt₂ - fst pt₁)).
+  Qdiv (Qminus v₂ v₁) (Qminus (Qnat (fst pt₂)) (Qnat (fst pt₁))).
 
 Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr α pt₁ pt₂ in
