@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.451 2013-05-02 08:22:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.452 2013-05-02 09:03:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1428,11 +1428,12 @@ Fixpoint left_shift_convex_hull_oth α ch :=
       end
   end.
 
+(*
 Lemma zzz : ∀ pts,
   lower_convex_hull_points α (List.rev pts) =
   left_shift_convex_hull_oth α (List.rev (lower_convex_hull_points α pts)).
 Proof.
-Admitted. (*
+Admitted.
 bbb.
 *)
 
@@ -1449,8 +1450,7 @@ Lemma lt_aft_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
           Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
 Proof.
 intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
+destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
 destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
 injection Hnp; clear Hnp; intros.
@@ -1472,6 +1472,28 @@ eapply points_after_k; try reflexivity.
  symmetry in Heqms₁.
  eapply aft_k_in_rem; eassumption.
 Qed.
+
+Lemma yyy : ∀ n pts hs₁ hsl₁ hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [hs₁ … hsl₁] ++
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (k < h)%nat
+        → valuation α jps +
+          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          valuation α hps +
+          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hs₁ hsl₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
+revert n pts hs₁ j jps segjk k kps segkx hsl Hsort Hnp Hhps Hkh.
+induction hsl₁ as [| hs₂]; intros.
+ simpl in Hnp.
+ eapply lt_aft_k; eassumption.
+
+bbb.
+*)
 
 Lemma lt_at_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
@@ -1634,8 +1656,7 @@ destruct Hns as [Hns| Hns].
   destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
   simpl in Hnsl.
   injection Hnsl; clear Hnsl; intros.
-  subst ns₁.
-  subst ns₂; simpl in Hnhps |- *.
+  subst ns₁ ns₂; simpl in Hnhps |- *.
   destruct (lt_dec k h) as [Hlt| Hge].
    eapply lt_aft_k; eassumption.
 
@@ -1649,6 +1670,22 @@ destruct Hns as [Hns| Hns].
      eapply lt_bet_j_and_k; eassumption.
 
      apply not_gt in Hge₂.
+     Focus 2.
+     clear IHnsl.
+     revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
+     induction nsl as [| ns₃]; [ contradiction | intros ].
+     destruct Hns as [Hns| Hns].
+      subst ns.
+      clear IHnsl.
+      destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
+      destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
+      destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
+      destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
+      simpl in Hnsl.
+      injection Hnsl; clear Hnsl; intros.
+      subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
+      destruct (lt_dec k h) as [Hlt| Hge].
+       eapply lt_aft_k; try eassumption.
 bbb.
 
 End convex_hull.
