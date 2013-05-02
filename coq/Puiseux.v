@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.457 2013-05-02 19:07:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.458 2013-05-02 20:31:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1373,7 +1373,7 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
-Lemma aft_j_in_end_or_rem₄₂ :
+Lemma aft_j_in_rem₄₂ :
   ∀ n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -1383,10 +1383,11 @@ Lemma aft_j_in_end_or_rem₄₂ :
         {| pt := (k, kps); oth := segkx |} … hsl]
       → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
         → (j < h)%nat
-          → (h, hps) ∈ [end_pt ms … rem_pts ms].
+          → (h, hps) ∈ rem_pts ms.
 Proof.
 intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps Hjh.
+bbb.
 revert n ms pt₁ pt₂ pts Hms Hnp Hsort Hhps.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | idtac ].
@@ -1406,7 +1407,6 @@ induction hsl₁ as [| hs₁]; intros.
  rename Heqpts₂ into Hrem₁.
  symmetry in Hrem₁.
  subst segjk.
- right.
  remember Hsort as Hsort₂; clear HeqHsort₂.
  eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
  rewrite Hend, Hrem in Hsort.
@@ -1415,6 +1415,12 @@ induction hsl₁ as [| hs₁]; intros.
 
   rewrite Hend; assumption.
 
+bbb.
+ remember Hnp as Hnp₁; clear HeqHnp₁.
+ simpl in Hnp₁.
+ destruct hs₁ as (pt₃, seg₃).
+ apply next_ch_points_hd in Hnp₁.
+ subst pt₃.
 bbb.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
@@ -1425,7 +1431,6 @@ bbb.
   injection Hnp; clear Hnp; intros.
   rename H into Hnp.
   subst hs₁.
-  rewrite Heqpts₁.
   remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
   symmetry in Heqms₁.
   remember Hnp as Hnp₁; clear HeqHnp₁.
