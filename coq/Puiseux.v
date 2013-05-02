@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.453 2013-05-02 09:12:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.454 2013-05-02 12:58:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1437,7 +1437,7 @@ Admitted.
 bbb.
 *)
 
-Lemma xxx : ∀ n pts hsl j jps segjk k kps segkx,
+Lemma lt_aft_k₀ : ∀ n pts hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
       [{| pt := (j, jps); oth := segjk |};
@@ -1450,16 +1450,14 @@ Lemma xxx : ∀ n pts hsl j jps segjk k kps segkx,
           Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
 Proof.
 intros n pts hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros.
-eapply points_after_k; try reflexivity.
+remember Hsort as Hsort₂; clear HeqHsort₂.
+eapply points_after_k; try reflexivity; try eassumption.
+apply next_points_sorted in Hnp; [ idtac | assumption ].
+apply LocallySorted_inv_2 in Hnp.
+destruct Hnp; assumption.
+Qed.
 
-bbb.
-*)
-
-Lemma lt_aft_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+Lemma lt_aft_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
       [hs₁; {| pt := (j, jps); oth := segjk |};
@@ -1495,6 +1493,7 @@ eapply points_after_k; try reflexivity.
  eapply aft_k_in_rem; eassumption.
 Qed.
 
+(*
 Lemma yyy : ∀ n pts hs₁ hsl₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
@@ -1629,14 +1628,9 @@ destruct Hns as [Hns| Hns].
     rewrite Hhsl.
     right; left; reflexivity.
 
-   remember Hpts as Hpts₂; clear HeqHpts₂.
-   eapply points_after_k; try eassumption; try reflexivity.
-    apply next_points_sorted in Hhsl; [ idtac | assumption ].
-    apply LocallySorted_inv_2 in Hhsl.
-    destruct Hhsl; assumption.
-
-    apply not_eq_sym in Hne.
-    apply le_neq_lt; try assumption.
+   apply not_eq_sym in Hne.
+   apply le_neq_lt in Hle; [ idtac | assumption ].
+   eapply lt_aft_k₀; eassumption.
 
   apply not_ge in Hgt.
   destruct (lt_dec j h) as [Hlt| Hge₂].
@@ -1680,7 +1674,7 @@ destruct Hns as [Hns| Hns].
   injection Hnsl; clear Hnsl; intros.
   subst ns₁ ns₂; simpl in Hnhps |- *.
   destruct (lt_dec k h) as [Hlt| Hge].
-   eapply lt_aft_k; eassumption.
+   eapply lt_aft_k₁; eassumption.
 
    destruct (eq_nat_dec h k) as [Heq| Hne].
     eapply lt_at_k; eassumption.
@@ -1707,7 +1701,7 @@ destruct Hns as [Hns| Hns].
       injection Hnsl; clear Hnsl; intros.
       subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
       destruct (lt_dec k h) as [Hlt| Hge].
-       eapply lt_aft_k; try eassumption.
+       eapply lt_aft_k₁; try eassumption.
 bbb.
 
 End convex_hull.
