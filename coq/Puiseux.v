@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.458 2013-05-02 20:31:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.459 2013-05-03 06:54:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1373,6 +1373,7 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
+(*
 Lemma aft_j_in_rem₄₂ :
   ∀ n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
@@ -1447,7 +1448,7 @@ Lemma aft_j_in_end_or_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl
         {| pt := (k, kps); oth := segkx |} … hsl]
       → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
         → (j < h)%nat
-          → (h, hps) ∈ [end_pt ms … rem_pts ms].
+          → (h, hps) ∈ rem_pts ms.
 Proof.
 intros n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps Hjh.
@@ -1468,7 +1469,6 @@ remember (rem_pts ms₁) as pts₂.
 rename Heqpts₂ into Hrem₁.
 symmetry in Hrem₁.
 subst segjk.
-right.
 remember Hsort as Hsort₂; clear HeqHsort₂.
 eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
 rewrite Hend, Hrem in Hsort.
@@ -1550,6 +1550,7 @@ eapply points_after_k; try reflexivity; try eassumption.
  eapply aft_k_in_rem; try eassumption; reflexivity.
 Qed.
 
+(*
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
@@ -1582,6 +1583,7 @@ induction hsl₁ as [| hs₁]; intros.
   remember Hsort as Hsort₂; clear HeqHsort₂.
   eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
   eapply IHhsl₁; try eassumption.
+  right.
   eapply aft_j_in_end_or_rem₄₂; try eassumption; [ reflexivity | idtac ].
   eapply lt_trans; [ idtac | eassumption ].
   apply next_points_sorted in H; [ idtac | assumption ].
@@ -1594,6 +1596,7 @@ induction hsl₁ as [| hs₁]; intros.
    apply LocallySorted_inv_1 in H.
    apply IHhsl₁; assumption.
 qed.
+*)
 
 (*
 Lemma yyy : ∀ n pts hs₁ hsl₁ hsl j jps segjk k kps segkx,
@@ -1675,6 +1678,7 @@ eapply points_between_j_and_k; try reflexivity.
 
  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
+ right.
  eapply aft_j_in_end_or_rem; eassumption.
 
  simpl in Hnhps.
@@ -1803,7 +1807,8 @@ destruct Hns as [Hns| Hns].
       injection Hnsl; clear Hnsl; intros.
       subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
       destruct (lt_dec k h) as [Hlt| Hge].
-       eapply lt_aft_k₁; try eassumption.
+bbb.
+       eapply lt_aft_k; try eassumption.
 bbb.
 
 End convex_hull.
