@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.459 2013-05-03 06:54:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.460 2013-05-03 06:56:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -1304,7 +1304,7 @@ destruct Hhps as [Hhps| Hhps].
      eapply lt_trans; eassumption.
 Qed.
 
-(* similar to 'aft_j_in_end_or_rem' : some merge somewhere? *)
+(* similar to 'aft_j_in_rem' : some merge somewhere? *)
 Lemma aft_k_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -1373,7 +1373,7 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
-(*
+(**)
 Lemma aft_j_in_rem₄₂ :
   ∀ n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
@@ -1440,7 +1440,7 @@ was.
 *)
 
 (* similar to 'aft_k_in_rem' : some merge somewhere? *)
-Lemma aft_j_in_end_or_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
+Lemma aft_j_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → next_ch_points α n [end_pt ms … rem_pts ms] =
@@ -1550,7 +1550,7 @@ eapply points_after_k; try reflexivity; try eassumption.
  eapply aft_k_in_rem; try eassumption; reflexivity.
 Qed.
 
-(*
+(**)
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
@@ -1584,7 +1584,7 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
   eapply IHhsl₁; try eassumption.
   right.
-  eapply aft_j_in_end_or_rem₄₂; try eassumption; [ reflexivity | idtac ].
+  eapply aft_j_in_rem₄₂; try eassumption; [ reflexivity | idtac ].
   eapply lt_trans; [ idtac | eassumption ].
   apply next_points_sorted in H; [ idtac | assumption ].
   revert H; clear; intros.
@@ -1679,7 +1679,7 @@ eapply points_between_j_and_k; try reflexivity.
  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
  right.
- eapply aft_j_in_end_or_rem; eassumption.
+ eapply aft_j_in_rem; eassumption.
 
  simpl in Hnhps.
  apply Decidable.not_or in Hnhps.
