@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.1 2013-05-03 08:52:51 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.2 2013-05-03 18:48:34 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -38,6 +38,7 @@ intros H.
 apply Zminus_eq, Nat2Z.inj in H.
 subst k; apply lt_irrefl in Hlt; contradiction.
 Qed.
+
 Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx hsl n,
   LocallySorted fst_lt [(j, jps); pt … pts]
   → β = valuation α jps + Qnat j * γ
