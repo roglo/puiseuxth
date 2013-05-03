@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.10 2013-05-03 18:48:34 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.11 2013-05-03 23:18:20 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -854,7 +854,7 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
   apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
-Lemma zzz : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
+Lemma consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms₁
     → minimise_slope α (end_pt ms₁) pt₃ pts₃ = ms₂
@@ -862,7 +862,17 @@ Lemma zzz : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
         → (fst (end_pt ms₁) < fst (end_pt ms₂))%nat.
 Proof.
 intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
-bbb.
+apply minimise_slope_le in Hms₂.
+ eapply lt_le_trans; [ idtac | eassumption ].
+ apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
+ rewrite Hrem₁ in Hms₁.
+ apply LocallySorted_inv_2 in Hms₁.
+ destruct Hms₁; assumption.
+
+ rewrite <- Hrem₁.
+ apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
+ eapply LocallySorted_inv_1; eassumption.
+Qed.
 
 (**)
 Lemma aft_j_in_rem₄₂ :
@@ -928,6 +938,7 @@ destruct pts₁ as [| pt₃].
     rename H1 into Hend.
     replace j with (fst (j, jps)) by reflexivity.
     rewrite <- Hend.
+    eapply consec_end_lt; eassumption.
 bbb.
   revert n ms ms₁ Hms Hrem Heqms₁ Hnp.
   induction hsl₁ as [| hs₁]; intros.
