@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.5 2013-05-03 09:06:39 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.6 2013-05-03 13:21:04 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -869,76 +869,65 @@ Lemma aft_j_in_rem₄₂ :
 Proof.
 intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps Hjh.
-revert n ms pt₁ pt₂ pts Hms Hnp Hsort Hhps.
-induction hsl₁ as [| hs₁]; intros.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms) as pts₁.
- rename Heqpts₁ into Hrem.
- symmetry in Hrem.
- destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros.
- rename H into Hnp.
- rename H0 into Hseg.
- rename H1 into Hend.
+destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
+remember (rem_pts ms) as pts₁.
+rename Heqpts₁ into Hrem.
+symmetry in Hrem.
+destruct pts₁ as [| pt₃].
+ destruct hsl₁ as [| hs₁]; [ discriminate Hnp | simpl in Hnp ].
+ injection Hnp; clear Hnp; intros; subst hs₁.
+ destruct hsl₁; discriminate H.
+
  remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
- subst segjk.
  symmetry in Heqms₁.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms₁) as pts₂.
- rename Heqpts₂ into Hrem₁.
- symmetry in Hrem₁.
- remember Hsort as Hsort₂; clear HeqHsort₂.
- eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
- rewrite Hend, Hrem in Hsort.
- eapply aft_end_in_rem in Hsort₂; try eassumption.
-  rewrite Hrem in Hsort₂; assumption.
-
-  rewrite Hend; assumption.
-
- clear IHhsl₁.
- revert n ms pt₁ pt₂ pts hs₁ Hms Hnp Hsort Hhps.
- induction hsl₁ as [| hs₂]; intros.
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms) as pts₁.
-  rename Heqpts₁ into Hrem.
-  symmetry in Hrem.
-  destruct pts₁ as [| pt₃]; [ discriminate Hnp | simpl in Hnp ].
-  injection Hnp; clear Hnp; intros.
-  rename H into Hnp; subst hs₁.
-  remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
-  symmetry in Heqms₁.
-  rewrite <- Hrem.
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms₁) as pts₂.
-  rename Heqpts₂ into Hrem₂.
-  symmetry in Hrem₂.
-  destruct pts₂ as [| pt₄]; [ discriminate Hnp | idtac ].
+ rewrite <- Hrem.
+ revert ms ms₁ n Hms Hrem Heqms₁ Hnp.
+ induction hsl₁ as [| hs₁]; intros.
   injection Hnp; clear Hnp; intros.
   rename H into Hnp.
-  rename H0 into Hseg.
   rename H1 into Hend.
-  remember (minimise_slope α (end_pt ms₁) pt₄ pts₂) as ms₂.
   subst segjk.
-  symmetry in Heqms₂.
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms₂) as pts₃.
-  rename Heqpts₃ into Hrem₁.
-  symmetry in Hrem₁.
-  eapply aft_end_in_rem; try eassumption.
-  eapply lt_trans; [ idtac | eassumption ].
-  remember Heqms₁ as H; clear HeqH.
-  eapply minimise_slope_le in H.
-   rewrite Hend in H.
-   simpl in H.
-   eapply lt_le_trans; [ idtac | eassumption ].
-   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
-   rewrite Hrem in Hms.
-   apply LocallySorted_inv_2 in Hms.
-   destruct Hms; assumption.
+  remember Hsort as Hsort₂; clear HeqHsort₂.
+  eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+  rewrite Hend, Hrem in Hsort.
+  eapply aft_end_in_rem in Hsort₂; try eassumption.
+  rewrite Hend; assumption.
 
-   rewrite <- Hrem.
-   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
-   eapply LocallySorted_inv_1; eassumption.
+  injection Hnp; clear Hnp; intros.
+  rename H into Hnp.
+  subst hs₁.
+  clear IHhsl₁.
+  revert n ms ms₁ Hms Hrem Heqms₁ Hnp.
+  induction hsl₁ as [| hs₁]; intros.
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   remember (rem_pts ms₁) as pts₂.
+   rename Heqpts₂ into Hrem₂.
+   symmetry in Hrem₂.
+   destruct pts₂ as [| pt₄]; [ discriminate Hnp | idtac ].
+   injection Hnp; clear Hnp; intros.
+   rename H into Hnp.
+   rename H1 into Hend.
+   subst segjk.
+   remember (minimise_slope α (end_pt ms₁) pt₄ pts₂) as ms₂.
+   symmetry in Heqms₂.
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   remember (rem_pts ms₂) as pts₃.
+   rename Heqpts₃ into Hrem₁.
+   symmetry in Hrem₁.
+   eapply aft_end_in_rem; try eassumption.
+   eapply lt_trans; [ idtac | eassumption ].
+   remember Heqms₁ as H; clear HeqH.
+   eapply minimise_slope_le in H.
+    rewrite Hend in H.
+    eapply lt_le_trans; [ idtac | eassumption ].
+    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+    rewrite Hrem in Hms.
+    apply LocallySorted_inv_2 in Hms.
+    destruct Hms; assumption.
+
+    rewrite <- Hrem.
+    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+    eapply LocallySorted_inv_1; eassumption.
 was.
 *)
 
