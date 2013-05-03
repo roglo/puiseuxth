@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.1 2013-05-03 08:52:51 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.2 2013-05-03 08:55:35 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -922,27 +922,21 @@ induction hsl₁ as [| hs₁]; intros.
   remember (rem_pts ms₂) as pts₃.
   rename Heqpts₃ into Hrem₁.
   symmetry in Hrem₁.
-  eapply aft_end_in_rem.
-   2: eassumption.
+  eapply aft_end_in_rem; try eassumption.
+  eapply lt_trans; [ idtac | eassumption ].
+  remember Heqms₁ as H; clear HeqH.
+  eapply minimise_slope_le in H.
+   rewrite Hend in H.
+   simpl in H.
+   eapply lt_le_trans; [ idtac | eassumption ].
+   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+   rewrite <- Heqpts₁ in Hms.
+   apply LocallySorted_inv_2 in Hms.
+   destruct Hms; assumption.
 
-   assumption.
-
-   assumption.
-
-   eapply lt_trans; [ idtac | eassumption ].
-   remember Heqms₁ as H; clear HeqH.
-   eapply minimise_slope_le in H.
-    rewrite Hend in H.
-    simpl in H.
-    eapply lt_le_trans; [ idtac | eassumption ].
-    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
-    rewrite <- Heqpts₁ in Hms.
-    apply LocallySorted_inv_2 in Hms.
-    destruct Hms; assumption.
-
-    rewrite Heqpts₁.
-    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
-    eapply LocallySorted_inv_1; eassumption.
+   rewrite Heqpts₁.
+   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+   eapply LocallySorted_inv_1; eassumption.
 was.
 *)
 
