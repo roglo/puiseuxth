@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.8 2013-05-03 14:40:17 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.9 2013-05-03 15:05:21 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -929,6 +929,39 @@ destruct pts₁ as [| pt₃].
     rewrite <- Hrem.
     apply minimise_slope_sorted in Hms; [ idtac | assumption ].
     eapply LocallySorted_inv_1; eassumption.
+
+bbb.
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   remember (rem_pts ms₁) as pts₂.
+   rename Heqpts₂ into Hrem₂.
+   symmetry in Hrem₂.
+   destruct pts₂ as [| pt₄]; [ destruct hsl₁; discriminate Hnp | idtac ].
+   injection Hnp; clear Hnp; intros.
+   rename H into Hnp.
+   subst hs₁.
+   remember (minimise_slope α (end_pt ms₁) pt₄ pts₂) as ms₂.
+   symmetry in Heqms₂.
+   destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
+   remember (rem_pts ms₂) as pts₃.
+   rename Heqpts₃ into Hrem₁.
+   symmetry in Hrem₁.
+   destruct pts₃ as [| pt₅].
+    destruct hsl₁; [ discriminate Hnp | simpl in Hnp ].
+    injection Hnp; clear Hnp; intros.
+    destruct hsl₁; discriminate H.
+
+    remember (minimise_slope α (end_pt ms₂) pt₅ pts₃) as ms₃.
+    symmetry in Heqms₃.
+    clear IHhsl₁.
+    revert n ms₂ ms₃ Heqms₂ Hrem₁ Heqms₃ Hnp.
+    induction hsl₁ as [| hs₁]; intros.
+     injection Hnp; clear Hnp; intros.
+     rename H into Hnp.
+     rename H1 into Hend.
+     subst segjk.
+     apply end_pt_in in Heqms₂.
+     rewrite Hend in Heqms₂.
+     rewrite <- Hrem₂ in Heqms₂.
 qed.
 *)
 
