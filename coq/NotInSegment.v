@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.12 2013-05-03 23:32:55 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.13 2013-05-03 23:39:11 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -785,75 +785,6 @@ destruct Hhps as [Hhps| Hhps].
      eapply lt_trans; eassumption.
 Qed.
 
-(* similar to 'aft_j_in_rem' : some merge somewhere? *)
-Lemma aft_k_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope α pt₁ pt₂ pts = ms
-    → next_ch_points α n [end_pt ms … rem_pts ms] =
-        [{| pt := (j, jps); oth := segjk |};
-         {| pt := (k, kps); oth := segkx |} … hsl]
-      → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
-        → (k < h)%nat
-          → (h, hps) ∈ rem_pts ms.
-Proof.
-intros n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl.
-intros Hsort Hms Hnp h hps Hhps Hkh.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-remember (rem_pts ms) as pts₁.
-rename Heqpts₁ into Hrem.
-symmetry in Hrem.
-destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros.
-rename H into Hnp.
-rename H0 into Hseg.
-rename H1 into Hend.
-remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
-symmetry in Heqms₁.
-destruct n; [ discriminate Hnp | idtac ].
-remember (rem_pts ms₁) as pts₂.
-rename Heqpts₂ into Hrem₁.
-symmetry in Hrem₁.
-subst segjk.
-right.
-remember Hsort as Hsort₂; clear HeqHsort₂.
-eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
-rewrite Hend, Hrem in Hsort.
-(**)
-revert Hsort₂ Hms Hhps Hrem Heqms₁ Hnp Hkh Hsort Hend; clear; intros.
-(**)
-eapply aft_end_in_rem in Hsort₂; try eassumption.
- rewrite Hrem in Hsort₂.
- destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
- subst pt₃.
- apply minimise_slope_le in Heqms₁.
-  simpl in Hnp.
-  destruct pts₂ as [| pt₄].
-   injection Hnp; clear Hnp; intros; subst hsl segkx.
-   apply le_not_lt in Heqms₁; rewrite H1 in Heqms₁; contradiction.
-
-   injection Hnp; clear Hnp; intros; subst hsl segkx.
-   apply le_not_lt in Heqms₁; rewrite H1 in Heqms₁; contradiction.
-
-  eapply LocallySorted_inv_1; eassumption.
-
- rewrite Hend; simpl.
- eapply lt_trans; [ idtac | eassumption ].
- apply minimise_slope_le in Heqms₁.
-  simpl in Hnp.
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort.
-  destruct pts₂ as [| pt₄].
-   injection Hnp; clear Hnp; intros; subst hsl segkx.
-   rewrite H3 in Heqms₁; simpl in Heqms₁.
-   eapply lt_le_trans; eassumption.
-
-   injection Hnp; clear Hnp; intros; subst hsl segkx.
-   rewrite H3 in Heqms₁; simpl in Heqms₁.
-   eapply lt_le_trans; eassumption.
-
-  apply LocallySorted_inv_1 in Hsort; assumption.
-Qed.
-
 Lemma consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms₁
@@ -992,6 +923,75 @@ eapply aft_end_in_rem in Hsort₂; try eassumption.
  rewrite Hrem in Hsort₂; assumption.
 
  rewrite Hend; assumption.
+Qed.
+
+(* similar to 'aft_j_in_rem' : some merge somewhere? *)
+Lemma aft_k_in_rem : ∀ n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → next_ch_points α n [end_pt ms … rem_pts ms] =
+        [{| pt := (j, jps); oth := segjk |};
+         {| pt := (k, kps); oth := segkx |} … hsl]
+      → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
+        → (k < h)%nat
+          → (h, hps) ∈ rem_pts ms.
+Proof.
+intros n pt₁ pt₂ pts ms j jps segjk k kps segkx hsl.
+intros Hsort Hms Hnp h hps Hhps Hkh.
+destruct n; [ discriminate Hnp | idtac ].
+simpl in Hnp.
+remember (rem_pts ms) as pts₁.
+rename Heqpts₁ into Hrem.
+symmetry in Hrem.
+destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros.
+rename H into Hnp.
+rename H0 into Hseg.
+rename H1 into Hend.
+remember (minimise_slope α (end_pt ms) pt₃ pts₁) as ms₁.
+symmetry in Heqms₁.
+destruct n; [ discriminate Hnp | idtac ].
+remember (rem_pts ms₁) as pts₂.
+rename Heqpts₂ into Hrem₁.
+symmetry in Hrem₁.
+subst segjk.
+right.
+remember Hsort as Hsort₂; clear HeqHsort₂.
+eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
+rewrite Hend, Hrem in Hsort.
+(**)
+revert Hsort₂ Hms Hhps Hrem Heqms₁ Hnp Hkh Hsort Hend; clear; intros.
+(**)
+eapply aft_end_in_rem in Hsort₂; try eassumption.
+ rewrite Hrem in Hsort₂.
+ destruct Hsort₂ as [Hhps₂| ]; [ idtac | assumption ].
+ subst pt₃.
+ apply minimise_slope_le in Heqms₁.
+  simpl in Hnp.
+  destruct pts₂ as [| pt₄].
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   apply le_not_lt in Heqms₁; rewrite H1 in Heqms₁; contradiction.
+
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   apply le_not_lt in Heqms₁; rewrite H1 in Heqms₁; contradiction.
+
+  eapply LocallySorted_inv_1; eassumption.
+
+ rewrite Hend; simpl.
+ eapply lt_trans; [ idtac | eassumption ].
+ apply minimise_slope_le in Heqms₁.
+  simpl in Hnp.
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort.
+  destruct pts₂ as [| pt₄].
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   rewrite H3 in Heqms₁; simpl in Heqms₁.
+   eapply lt_le_trans; eassumption.
+
+   injection Hnp; clear Hnp; intros; subst hsl segkx.
+   rewrite H3 in Heqms₁; simpl in Heqms₁.
+   eapply lt_le_trans; eassumption.
+
+  apply LocallySorted_inv_1 in Hsort; assumption.
 Qed.
 
 Fixpoint left_shift_convex_hull_oth α ch :=
@@ -1213,9 +1213,10 @@ symmetry in Heqhsl.
 unfold lower_convex_hull_points in Heqhsl.
 rename Heqhsl into Hhsl.
 remember (length pts) as n; clear Heqn.
+unfold points_of_ps_polynom in Hpts.
 apply points_of_polyn_sorted in Hpts.
 clear pol.
-remember (list_map_pairs (gamma_beta_of_pair α) hsl) as nsl.
+remember (list_map_pairs (newton_segment_of_pair α) hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
 revert n pts ns hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
@@ -1228,7 +1229,7 @@ destruct Hns as [Hns| Hns].
  simpl in Hnsl.
  injection Hnsl; clear Hnsl; intros.
  rename H0 into Hns.
- unfold gamma_beta_of_pair in Hns; simpl in Hns.
+ unfold newton_segment_of_pair in Hns; simpl in Hns.
  subst ns; simpl in Hnhps |- *.
  destruct (le_dec k h) as [Hle| Hgt].
   destruct (eq_nat_dec h k) as [Heq| Hne].
@@ -1318,8 +1319,7 @@ destruct Hns as [Hns| Hns].
       injection Hnsl; clear Hnsl; intros.
       subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
       destruct (lt_dec k h) as [Hlt| Hge].
-bbb.
-       eapply lt_aft_k; try eassumption.
+       eapply lt_aft_k with (hsl₁ := [hs₁; hs₂ … []]); simpl; try eassumption.
 bbb.
 
 End convex_hull.
