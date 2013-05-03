@@ -1,4 +1,6 @@
-ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Misc.vo
-Misc.vo Misc.glob Misc.v.beautified: Misc.v
-Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo Misc.vo
-T.vo T.glob T.v.beautified: T.v
+ConvexHull.vo: ConvexHull.v Misc.vo
+InSegment.vo: InSegment.v Misc.vo ConvexHull.vo Puiseux.vo
+Misc.vo: Misc.v
+NotInSegment.vo: NotInSegment.v Misc.vo ConvexHull.vo Puiseux.vo
+Puiseux.vo: Puiseux.v ConvexHull.vo Misc.vo
+T.vo: T.v

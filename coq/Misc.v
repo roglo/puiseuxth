@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.9 2013-04-24 09:22:06 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.10 2013-05-03 08:52:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -252,6 +252,15 @@ simpl in HH.
 do 2 rewrite Zmult_1_r in HH.
 apply Nat2Z.inj in HH.
 subst j; apply lt_irrefl in H; assumption.
+Qed.
+
+Lemma Qnat_minus : ∀ a b, b ≤ a → Qnat a - Qnat b == Qnat (a - b).
+Proof.
+intros a b Hba.
+unfold Qnat, Qminus, Qplus; simpl.
+do 2 rewrite Zmult_1_r.
+rewrite Nat2Z.inj_sub; [ idtac | assumption ].
+unfold Zminus; reflexivity.
 Qed.
 
 Lemma Qnat_minus_distr : ∀ i j, i ≤ j → Qnat (j - i) == Qnat j - Qnat i.
