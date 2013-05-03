@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.7 2013-05-03 13:29:22 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.8 2013-05-03 14:40:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -869,13 +869,6 @@ Lemma aft_j_in_rem₄₂ :
 Proof.
 intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps Hjh.
-eapply aft_end_in_rem; try eassumption.
-eapply lt_trans; [ idtac | eassumption ].
-clear h hps Hhps Hjh.
-bbb.
-
-intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
-intros Hsort Hms Hnp h hps Hhps Hjh.
 destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
 remember (rem_pts ms) as pts₁.
 rename Heqpts₁ into Hrem.
@@ -900,10 +893,13 @@ destruct pts₁ as [| pt₃].
   eapply aft_end_in_rem in Hsort₂; try eassumption.
   rewrite Hend; assumption.
 
+  clear IHhsl₁.
+  eapply aft_end_in_rem; try eassumption.
+  eapply lt_trans; [ idtac | eassumption ].
+  clear h Hhps Hjh.
   injection Hnp; clear Hnp; intros.
   rename H into Hnp.
   subst hs₁.
-  clear IHhsl₁.
   revert n ms ms₁ Hms Hrem Heqms₁ Hnp.
   induction hsl₁ as [| hs₁]; intros.
    destruct n; [ discriminate Hnp | simpl in Hnp ].
@@ -921,8 +917,6 @@ destruct pts₁ as [| pt₃].
    remember (rem_pts ms₂) as pts₃.
    rename Heqpts₃ into Hrem₁.
    symmetry in Hrem₁.
-   eapply aft_end_in_rem; try eassumption.
-   eapply lt_trans; [ idtac | eassumption ].
    remember Heqms₁ as H; clear HeqH.
    eapply minimise_slope_le in H.
     rewrite Hend in H.
@@ -935,7 +929,7 @@ destruct pts₁ as [| pt₃].
     rewrite <- Hrem.
     apply minimise_slope_sorted in Hms; [ idtac | assumption ].
     eapply LocallySorted_inv_1; eassumption.
-was.
+qed.
 *)
 
 (* similar to 'aft_k_in_rem' : some merge somewhere? *)
