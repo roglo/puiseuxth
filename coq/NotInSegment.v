@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.3 2013-05-03 09:01:19 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.4 2013-05-03 09:02:33 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -898,7 +898,6 @@ induction hsl₁ as [| hs₁]; intros.
  clear IHhsl₁.
  revert n ms pt₁ pt₂ pts hs₁ Hms Hnp Hsort Hhps.
  induction hsl₁ as [| hs₂]; intros.
-  simpl in Hnp.
   destruct n; [ discriminate Hnp | simpl in Hnp ].
   remember (rem_pts ms) as pts₁.
   destruct pts₁ as [| pt₃]; [ discriminate Hnp | simpl in Hnp ].
