@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.6 2013-05-03 13:21:04 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.7 2013-05-03 13:29:22 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -867,6 +867,13 @@ Lemma aft_j_in_rem₄₂ :
         → (j < h)%nat
           → (h, hps) ∈ rem_pts ms.
 Proof.
+intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
+intros Hsort Hms Hnp h hps Hhps Hjh.
+eapply aft_end_in_rem; try eassumption.
+eapply lt_trans; [ idtac | eassumption ].
+clear h hps Hhps Hjh.
+bbb.
+
 intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
 intros Hsort Hms Hnp h hps Hhps Hjh.
 destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
