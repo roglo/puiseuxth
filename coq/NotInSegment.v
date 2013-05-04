@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.34 2013-05-04 17:33:44 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.35 2013-05-04 18:22:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -385,50 +385,33 @@ destruct hsl₁ as [| h₁].
   right; destruct Hjhk.
   eapply aft_j_in_rem with (hsl₁ := []); simpl; try eassumption.
 
-  remember (end_pt ms₁) as pt₃.
-  remember (rem_pts ms₁) as pts₁.
   destruct n; [ discriminate Hnp | simpl in Hnp ].
-  destruct pts₁ as [| pt₄]; [ destruct hsl₁; discriminate Hnp | idtac ].
-  remember (minimise_slope α pt₃ pt₄ pts₁) as ms₂.
+  remember (rem_pts ms₁) as pts₁.
+  destruct pts₁ as [| pt₃]; [ destruct hsl₁; discriminate Hnp | idtac ].
+  remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
   rename Heqms₂ into Hms₂; symmetry in Hms₂.
   injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
   destruct hsl₁ as [| h₁].
-   eapply points_between_j_and_k; try reflexivity.
-    2: eassumption.
+   remember Hms₁ as Hsort₂; clear HeqHsort₂.
+   eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
+   rewrite <- Heqpts₁ in Hsort₂.
+   remember Hsort₂ as Hsort₃; clear HeqHsort₃.
+   eapply minimise_slope_sorted in Hsort₃; [ idtac | eassumption ].
+   eapply points_between_j_and_k; try eassumption; try reflexivity.
+   right; eapply aft_end_in_rem; try eassumption.
+    rewrite Heqpts₁.
+    right.
+    clear Hsort₂.
+    eapply aft_end_in_rem; try eassumption.
+    eapply lt_trans; [ idtac | destruct Hjhk; eassumption ].
+    apply next_ch_points_hd in Hnp.
+    replace j with (fst (j, jps)) by reflexivity.
+    rewrite <- Hnp.
+    symmetry in Heqpts₁.
+    eapply consec_end_lt; eassumption.
 
-    eapply minimise_slope_sorted; [ idtac | eassumption ].
-    rewrite Heqpt₃, Heqpts₁.
-    eapply minimise_slope_sorted; eassumption.
-
-    assumption.
-
-    right; eapply aft_end_in_rem.
-     2: eassumption.
-
-     rewrite Heqpt₃, Heqpts₁.
-     eapply minimise_slope_sorted; eassumption.
-
-     rewrite Heqpt₃, Heqpts₁.
-     right.
-     eapply aft_end_in_rem; try eassumption.
-     eapply lt_trans; [ idtac | destruct Hjhk; eassumption ].
-     subst pt₃.
-     apply next_ch_points_hd in Hnp.
-     replace j with (fst (j, jps)) by reflexivity.
-     rewrite <- Hnp.
-     eapply consec_end_lt.
-      2: eassumption.
-
-      assumption.
-
-      eassumption.
-
-      symmetry in Heqpts₁; assumption.
-
-     apply next_ch_points_hd in Hnp.
-     rewrite Hnp; destruct Hjhk; assumption.
-
-    assumption.
+    apply next_ch_points_hd in Hnp.
+    rewrite Hnp; destruct Hjhk; assumption.
 bbb.
 
 Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
