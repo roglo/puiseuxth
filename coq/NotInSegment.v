@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.16 2013-05-04 00:05:37 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.17 2013-05-04 00:11:13 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -879,8 +879,7 @@ destruct pts₁ as [| pt₃].
  rewrite <- Hrem.
  destruct hsl₁ as [| hs₁].
   injection Hnp; clear Hnp; intros.
-  rename H into Hnp.
-  rename H1 into Hend.
+  rename H into Hnp; rename H1 into Hend.
   subst segjk.
   remember Hsort as Hsort₂; clear HeqHsort₂.
   eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
@@ -1202,6 +1201,8 @@ destruct Hns as [Hns| Hns].
       subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
       destruct (lt_dec k h) as [Hlt| Hge].
        eapply lt_aft_k with (hsl₁ := [hs₁; hs₂ … []]); simpl; try eassumption.
+
+       apply not_gt in Hge.
 bbb.
 
 End convex_hull.
