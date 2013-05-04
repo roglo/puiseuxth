@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.20 2013-05-04 01:30:22 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.21 2013-05-04 07:39:50 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -16,12 +16,13 @@ Variable fld : field (puiseux_series α).
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
-  → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
-    → x + Qnat i * ((x - y) / (Qnat k - Qnat i)) <
-      z + Qnat j * ((x - y) / (Qnat k - Qnat i)).
+  → (y - x) / (Qnat k - Qnat i) < (z - x) / (Qnat j - Qnat i)
+    → x + Qnat i * ((x - y) / Qnat (k - i)) <
+      z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-rewrite Qnat_minus; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
@@ -272,7 +273,6 @@ destruct Hhps as [Hhps| Hhps].
   eapply min_slope_lt_after_k in Heqms₁; try eassumption.
    rewrite H in Heqms₁.
    subst β γ.
-bbb.
    apply ad_hoc_lt_lt.
     split; [ idtac | assumption ].
     destruct pt₁ as (l, lps).
@@ -284,15 +284,7 @@ bbb.
      assumption.
 
     unfold slope_expr in Heqms₁; simpl in Heqms₁.
-    do 2 rewrite Qnat_minus in Heqms₁.
-     assumption.
-
-     apply lt_le_weak.
-     eapply lt_trans; eassumption.
-
-     apply lt_le_weak; assumption.
-
-     apply lt_le_weak; assumption.
+    assumption.
 
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
    destruct pts as [| pt₂]; [ constructor | idtac ].
@@ -443,17 +435,7 @@ destruct Hhps as [Hhps| Hhps].
      eapply lt_trans; eassumption.
 
      unfold slope_expr in Heqc; simpl in Heqc.
-     do 2 rewrite Qnat_minus in Heqc.
-      assumption.
-
-      apply lt_le_weak.
-      assumption.
-
-      apply lt_le_weak.
-      eapply lt_trans; eassumption.
-
-      apply lt_le_weak.
-      eapply lt_trans; eassumption.
+     assumption.
 
   symmetry in Heqms₁.
   revert pt₁ ms₁ Hsort Heqms₁ Hep₁ Hseg Hnp.
@@ -477,14 +459,7 @@ destruct Hhps as [Hhps| Hhps].
       eapply lt_trans; eassumption.
 
       unfold slope_expr in Heqms₁; simpl in Heqms₁.
-      do 2 rewrite Qnat_minus in Heqms₁.
-       assumption.
-
-       apply lt_le_weak; assumption.
-
-       apply lt_le_weak; eapply lt_trans; eassumption.
-
-       apply lt_le_weak; eapply lt_trans; eassumption.
+      assumption.
 
      split; assumption.
 
