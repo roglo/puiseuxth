@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.18 2013-05-04 01:10:15 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.19 2013-05-04 01:17:06 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1080,11 +1080,30 @@ eapply points_between_j_and_k; try reflexivity.
  destruct Hnhps; assumption.
 Qed.
 
-Lemma zzz : ∀ pt₁ pt₂ pts ms,
+Lemma end_in : ∀ pt₁ pt₂ pts ms,
   minimise_slope α pt₁ pt₂ pts = ms
   → end_pt ms ∈ [pt₂ … pts].
 Proof.
-bbb.
+intros pt₁ pt₂ pts ms Hms.
+revert pt₁ pt₂ ms Hms.
+induction pts as [| pt₃]; intros.
+ subst ms; simpl.
+ left; reflexivity.
+
+ simpl in Hms.
+ remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+ rename Heqms₁ into Hms₁.
+ symmetry in Hms₁.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ symmetry in Heqc.
+ remember (end_pt ms) as pt.
+ destruct c; subst ms; simpl in Heqpt; subst pt.
+  right; eapply IHpts; eassumption.
+
+  left; reflexivity.
+
+  right; eapply IHpts; eassumption.
+Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
@@ -1212,7 +1231,7 @@ destruct Hns as [Hns| Hns].
        remember Hnp as H; clear HeqH.
        apply next_ch_points_hd in H.
        right; rewrite <- H.
-       eapply zzz; eassumption.
+       eapply end_in; eassumption.
 bbb.
      Focus 2.
      clear IHnsl.
