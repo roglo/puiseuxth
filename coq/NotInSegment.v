@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.23 2013-05-04 11:55:17 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.24 2013-05-04 12:23:18 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1110,7 +1110,9 @@ destruct Hns as [Hns| Hns].
  rename H0 into Hns.
  unfold newton_segment_of_pair in Hns; simpl in Hns.
  subst ns; simpl in Hnhps |- *.
- destruct (le_dec k h) as [Hle| Hgt].
+ destruct (lt_dec k h) as [Hgt| Hge].
+  eapply lt_aft_k₀; eassumption.
+
   destruct (eq_nat_dec h k) as [Heq| Hne].
    eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
     subst h hps.
@@ -1125,38 +1127,35 @@ destruct Hns as [Hns| Hns].
     rewrite Hhsl.
     right; left; reflexivity.
 
-   apply not_eq_sym in Hne.
-   apply le_neq_lt in Hle; [ idtac | assumption ].
-   eapply lt_aft_k₀; eassumption.
+   apply not_gt in Hge.
+   apply le_neq_lt in Hge; [ clear Hne | assumption ].
+   destruct (lt_dec j h) as [Hlt| Hge₂].
+    eapply points_between_j_and_k; try eassumption; try reflexivity.
+     split; assumption.
 
-  apply not_ge in Hgt.
-  destruct (lt_dec j h) as [Hlt| Hge₂].
-   eapply points_between_j_and_k; try eassumption; try reflexivity.
-    split; assumption.
+     simpl in Hnhps.
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (_, Hnhps).
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (_, Hnhps).
+     assumption.
 
-    simpl in Hnhps.
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (_, Hnhps).
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (_, Hnhps).
-    assumption.
+    apply not_gt in Hge₂.
+    destruct n; [ discriminate Hhsl | idtac ].
+    simpl in Hhsl.
+    destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
+    destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
+    injection Hhsl; clear Hhsl; intros; subst l lps.
+    rename H into Hhsl.
+    rename H0 into Hseg.
+    destruct Hhps as [Hhps| Hhps].
+     injection Hhps; clear Hhps; intros; subst h hps.
+     simpl in Hnhps.
+     apply Decidable.not_or in Hnhps.
+     destruct Hnhps as (H); exfalso; apply H; reflexivity.
 
-   apply not_gt in Hge₂.
-   destruct n; [ discriminate Hhsl | idtac ].
-   simpl in Hhsl.
-   destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
-   destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
-   injection Hhsl; clear Hhsl; intros; subst l lps.
-   rename H into Hhsl.
-   rename H0 into Hseg.
-   destruct Hhps as [Hhps| Hhps].
-    injection Hhps; clear Hhps; intros; subst h hps.
-    simpl in Hnhps.
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (H); exfalso; apply H; reflexivity.
-
-    eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
-    apply le_not_lt in Hge₂; contradiction.
+     eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
+     apply le_not_lt in Hge₂; contradiction.
 
  clear IHnsl.
  revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
