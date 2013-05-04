@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.39 2013-05-04 19:54:36 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.40 2013-05-04 20:23:46 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -95,6 +95,31 @@ destruct (lt_dec k h) as [Hlt| Hge].
 
      eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
      apply le_not_lt in Hge₂; contradiction.
+Qed.
+
+Lemma end_in : ∀ pt₁ pt₂ pts ms,
+  minimise_slope α pt₁ pt₂ pts = ms
+  → end_pt ms ∈ [pt₂ … pts].
+Proof.
+intros pt₁ pt₂ pts ms Hms.
+revert pt₁ pt₂ ms Hms.
+induction pts as [| pt₃]; intros.
+ subst ms; simpl.
+ left; reflexivity.
+
+ simpl in Hms.
+ remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+ rename Heqms₁ into Hms₁.
+ symmetry in Hms₁.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ symmetry in Heqc.
+ remember (end_pt ms) as pt.
+ destruct c; subst ms; simpl in Heqpt; subst pt.
+  right; eapply IHpts; eassumption.
+
+  left; reflexivity.
+
+  right; eapply IHpts; eassumption.
 Qed.
 
 (* is there a way to group together the cases c = Eq and c = Gt? *)
@@ -439,31 +464,6 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma end_in : ∀ pt₁ pt₂ pts ms,
-  minimise_slope α pt₁ pt₂ pts = ms
-  → end_pt ms ∈ [pt₂ … pts].
-Proof.
-intros pt₁ pt₂ pts ms Hms.
-revert pt₁ pt₂ ms Hms.
-induction pts as [| pt₃]; intros.
- subst ms; simpl.
- left; reflexivity.
-
- simpl in Hms.
- remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
- rename Heqms₁ into Hms₁.
- symmetry in Hms₁.
- remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
- symmetry in Heqc.
- remember (end_pt ms) as pt.
- destruct c; subst ms; simpl in Heqpt; subst pt.
-  right; eapply IHpts; eassumption.
-
-  left; reflexivity.
-
-  right; eapply IHpts; eassumption.
-Qed.
-
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -509,6 +509,7 @@ destruct Hns as [Hns| Hns].
     eapply conj in Hge; [ idtac | eassumption ].
     eapply lt_bet_j_and_k with (hsl₁ := []); eassumption.
 
+bbb.
     apply not_gt in Hge₂.
     destruct n; [ discriminate Hhsl | idtac ].
     simpl in Hhsl.
