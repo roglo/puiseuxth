@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.19 2013-05-04 01:17:06 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.20 2013-05-04 01:30:22 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -17,10 +17,11 @@ Variable fld : field (puiseux_series α).
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
   → (y - x) / Qnat (k - i) < (z - x) / Qnat (j - i)
-    → x + Qnat i * ((x - y) / Qnat (k - i)) <
-      z + Qnat j * ((x - y) / Qnat (k - i)).
+    → x + Qnat i * ((x - y) / (Qnat k - Qnat i)) <
+      z + Qnat j * ((x - y) / (Qnat k - Qnat i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
+rewrite Qnat_minus; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
@@ -271,6 +272,7 @@ destruct Hhps as [Hhps| Hhps].
   eapply min_slope_lt_after_k in Heqms₁; try eassumption.
    rewrite H in Heqms₁.
    subst β γ.
+bbb.
    apply ad_hoc_lt_lt.
     split; [ idtac | assumption ].
     destruct pt₁ as (l, lps).
@@ -1232,6 +1234,15 @@ destruct Hns as [Hns| Hns].
        apply next_ch_points_hd in H.
        right; rewrite <- H.
        eapply end_in; eassumption.
+
+      rename H into Hhsl.
+      remember Hnp as H; clear HeqH.
+      apply next_ch_points_hd in H.
+      rename H into Hend₁.
+      destruct Hhps as [Hhps| Hhps].
+       injection Hhps; clear Hhps; intros; subst l lps.
+       symmetry in Hend₁.
+       eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
 bbb.
      Focus 2.
      clear IHnsl.
