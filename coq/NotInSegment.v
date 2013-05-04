@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.28 2013-05-04 12:47:39 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.29 2013-05-04 12:48:58 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -941,6 +941,24 @@ eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
  apply List.in_or_app.
  right; right; left; reflexivity.
 Qed.
+
+Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      hsl₁ ++
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → j < h < k
+          → valuation α jps +
+            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            valuation α hps +
+            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp.
+intros h hps Hhps Hnhps (Hjh, Hhk).
+bbb.
 
 Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
