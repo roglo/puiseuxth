@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.31 2013-05-04 16:11:19 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.32 2013-05-04 16:34:12 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -372,13 +372,13 @@ destruct Hnhps as (_, Hnhps).
 destruct hsl₁ as [| h₁].
  eapply points_between_j_and_k; try eassumption; try reflexivity.
 
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+ rename Heqms₁ into Hms₁; symmetry in Hms₁.
+ injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
  destruct hsl₁ as [| h₂].
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-  injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
-  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
-  rename Heqms₁ into Hms₁; symmetry in Hms₁.
   remember Hms₁ as Hsort₂; clear HeqHsort₂.
   eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
   eapply points_between_j_and_k; try eassumption; try reflexivity.
