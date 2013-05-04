@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.27 2013-05-04 12:41:33 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.28 2013-05-04 12:47:39 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -942,7 +942,7 @@ eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
  right; right; left; reflexivity.
 Qed.
 
-Lemma lt_bet_j_and_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
       [hs₁; {| pt := (j, jps); oth := segjk |};
@@ -979,6 +979,32 @@ eapply points_between_j_and_k; try reflexivity.
  destruct Hnhps as (_, Hnhps).
  apply Decidable.not_or in Hnhps.
  destruct Hnhps; assumption.
+Qed.
+
+Lemma lt_bet_j_and_k₀ : ∀ n pts hsl j jps segjk k kps segkx,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → j < h < k
+          → valuation α jps +
+            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            valuation α hps +
+            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts hsl j jps segjk k kps segkx Hsort Hnp.
+intros h hps Hhps Hnhps (Hjh, Hhk).
+eapply points_between_j_and_k; try eassumption; try reflexivity.
+ split; assumption.
+
+ simpl in Hnhps.
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (_, Hnhps).
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (_, Hnhps).
+ assumption.
 Qed.
 
 Lemma end_in : ∀ pt₁ pt₂ pts ms,
@@ -1046,17 +1072,10 @@ destruct Hns as [Hns| Hns].
    eapply not_k with (hsl₁ := []); eassumption.
 
    apply not_gt in Hge.
-   apply le_neq_lt in Hge; [ clear Hne | assumption ].
    destruct (lt_dec j h) as [Hlt| Hge₂].
-    eapply points_between_j_and_k; try eassumption; try reflexivity.
-     split; assumption.
-
-     simpl in Hnhps.
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (_, Hnhps).
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (_, Hnhps).
-     assumption.
+    apply le_neq_lt in Hge; [ idtac | assumption ].
+    eapply conj in Hge; [ idtac | eassumption ].
+    eapply lt_bet_j_and_k₀; eassumption.
 
     apply not_gt in Hge₂.
     destruct n; [ discriminate Hhsl | idtac ].
@@ -1098,7 +1117,7 @@ destruct Hns as [Hns| Hns].
     destruct (lt_dec j h) as [Hlt| Hge₂].
      apply le_neq_lt in Hge; [ idtac | assumption ].
      eapply conj in Hge; [ idtac | eassumption ].
-     eapply lt_bet_j_and_k; eassumption.
+     eapply lt_bet_j_and_k₁; eassumption.
 
      apply not_gt in Hge₂.
      clear Hge Hne.
