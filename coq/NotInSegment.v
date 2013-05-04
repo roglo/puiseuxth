@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.25 2013-05-04 12:30:45 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.26 2013-05-04 12:36:07 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -870,80 +870,6 @@ destruct pts₁ as [| pt₃].
   eapply j_aft_prev_end; eassumption.
 Qed.
 
-Fixpoint left_shift_convex_hull_oth α ch :=
-  match (ch : list (hull_seg (puiseux_series α))) with
-  | [] => []
-  | [hs₁ … hsl₁] =>
-      match hsl₁ with
-      | [] => [ahs (pt hs₁) []]
-      | [hs₂ … hsl₂] =>
-          let hsl₃ := left_shift_convex_hull_oth α hsl₁ in
-          [ahs (pt hs₁) (List.rev (oth hs₂)) … hsl₃]
-      end
-  end.
-
-(*
-Lemma zzz : ∀ pts,
-  lower_convex_hull_points α (List.rev pts) =
-  left_shift_convex_hull_oth α (List.rev (lower_convex_hull_points α pts)).
-Proof.
-Admitted.
-bbb.
-*)
-
-Lemma lt_aft_k₀ : ∀ n pts hsl j jps segjk k kps segkx,
-  LocallySorted fst_lt pts
-  → next_ch_points α n pts =
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (k < h)%nat
-        → valuation α jps +
-          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
-          valuation α hps +
-          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
-Proof.
-intros n pts hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
-remember Hsort as Hsort₂; clear HeqHsort₂.
-eapply points_after_k; try reflexivity; try eassumption.
-apply next_points_sorted in Hnp; [ idtac | assumption ].
-apply LocallySorted_inv_2 in Hnp.
-destruct Hnp; assumption.
-Qed.
-
-Lemma lt_aft_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
-  LocallySorted fst_lt pts
-  → next_ch_points α n pts =
-      [hs₁; {| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (k < h)%nat
-        → valuation α jps +
-          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
-          valuation α hps +
-          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
-Proof.
-intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros.
-remember Hsort as Hsort₂; clear HeqHsort₂.
-eapply minimise_slope_sorted in Hsort; [ idtac | reflexivity ].
-eapply points_after_k; try reflexivity; try eassumption.
- apply next_points_sorted in H; [ idtac | assumption ].
- apply LocallySorted_inv_2 in H.
- destruct H; assumption.
-
- right.
- eapply aft_j_in_rem with (hsl₁ := []); simpl; try eassumption.
-  reflexivity.
-
-  eapply lt_trans; [ idtac | eassumption ].
-  apply next_points_sorted in H; [ idtac | assumption ].
-  apply LocallySorted_inv_2 in H; destruct H; assumption.
-Qed.
-
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
@@ -1135,11 +1061,10 @@ destruct Hns as [Hns| Hns].
  unfold newton_segment_of_pair in Hns; simpl in Hns.
  subst ns; simpl in Hnhps |- *.
  destruct (lt_dec k h) as [Hgt| Hge].
-  eapply lt_aft_k₀; eassumption.
+  eapply lt_aft_k with (hsl₁ := []); eassumption.
 
   destruct (eq_nat_dec h k) as [Heq| Hne].
-   exfalso; revert Heq.
-   eapply not_k₀; eassumption.
+   exfalso; revert Heq; eapply not_k₀; eassumption.
 
    apply not_gt in Hge.
    apply le_neq_lt in Hge; [ clear Hne | assumption ].
@@ -1184,11 +1109,10 @@ destruct Hns as [Hns| Hns].
   injection Hnsl; clear Hnsl; intros.
   subst ns₁ ns₂; simpl in Hnhps |- *.
   destruct (lt_dec k h) as [Hlt| Hge].
-   eapply lt_aft_k₁; eassumption.
+   eapply lt_aft_k with (hsl₁ := [hs₁]); simpl; try eassumption.
 
    destruct (eq_nat_dec h k) as [Heq| Hne].
-    exfalso; revert Heq.
-    eapply not_k₁; eassumption.
+    exfalso; revert Heq; eapply not_k₁; eassumption.
 
     apply not_gt in Hge.
     destruct (lt_dec j h) as [Hlt| Hge₂].
