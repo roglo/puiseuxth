@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.17 2013-05-04 00:11:13 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.18 2013-05-04 01:10:15 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1080,6 +1080,12 @@ eapply points_between_j_and_k; try reflexivity.
  destruct Hnhps; assumption.
 Qed.
 
+Lemma zzz : ∀ pt₁ pt₂ pts ms,
+  minimise_slope α pt₁ pt₂ pts = ms
+  → end_pt ms ∈ [pt₂ … pts].
+Proof.
+bbb.
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1185,6 +1191,29 @@ destruct Hns as [Hns| Hns].
      eapply lt_bet_j_and_k; eassumption.
 
      apply not_gt in Hge₂.
+     clear Hge Hne.
+     destruct n; [ discriminate Hhsl | idtac ].
+     simpl in Hhsl.
+     destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
+     destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
+     injection Hhsl; clear Hhsl; intros.
+     rename H0 into Hnp.
+     subst hs₁.
+     remember (minimise_slope α (l, lps) (m, mps) pts) as ms₁.
+     symmetry in Heqms₁.
+     destruct (eq_nat_dec h j) as [Heq| Hne].
+      symmetry in Heq.
+      eapply same_k_same_kps with (jps := jps) in Hhps; try eassumption.
+       subst h hps.
+       apply Decidable.not_or in Hnhps.
+       destruct Hnhps as (Hnhps); exfalso; apply Hnhps; reflexivity.
+
+       rename H into Hhsl.
+       remember Hnp as H; clear HeqH.
+       apply next_ch_points_hd in H.
+       right; rewrite <- H.
+       eapply zzz; eassumption.
+bbb.
      Focus 2.
      clear IHnsl.
      revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
