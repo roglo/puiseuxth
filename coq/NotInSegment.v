@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.22 2013-05-04 08:19:34 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.23 2013-05-04 11:55:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -990,18 +990,14 @@ induction hsl₁ as [| hs₁]; intros.
    apply IHhsl₁; assumption.
 Qed.
 
-Lemma lt_at_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+Lemma not_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
       [hs₁; {| pt := (j, jps); oth := segjk |};
        {| pt := (k, kps); oth := segkx |} … hsl]
     → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-        → h = k
-          → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
-            valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+        → h ≠ k.
 Proof.
 intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hnhps Hhk.
 eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
@@ -1178,7 +1174,7 @@ destruct Hns as [Hns| Hns].
    eapply lt_aft_k₁; eassumption.
 
    destruct (eq_nat_dec h k) as [Heq| Hne].
-    eapply lt_at_k; eassumption.
+    exfalso; revert Heq; eapply not_k; eassumption.
 
     apply not_gt in Hge.
     destruct (lt_dec j h) as [Hlt| Hge₂].
