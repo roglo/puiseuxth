@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.36 2013-05-04 18:37:00 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.37 2013-05-04 19:23:21 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -397,7 +397,56 @@ destruct hsl₁ as [| h₁].
    eapply aft_end_in_rem; try eassumption.
    eapply lt_trans; [ idtac | destruct Hjhk; eassumption ].
    replace j with (fst (j, jps)) by reflexivity.
-bbb.
+   clear IHn.
+   clear Hhps.
+   revert n h₁ pt₁ pt₂ pts ms₁ Hsort Hnp Hms₁.
+   induction hsl₁ as [| h₂]; intros.
+    simpl in Hnp.
+    destruct n; [ discriminate Hnp | simpl in Hnp ].
+    remember (rem_pts ms₁) as pts₁.
+    destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+    injection Hnp; clear Hnp; intros Hnp Hh₁.
+    subst h₁.
+    remember (minimise_slope α (end_pt ms₁) pt₃ pts₁) as ms₂.
+    symmetry in Heqms₂.
+    apply next_ch_points_hd in Hnp.
+    rewrite <- Hnp.
+    eapply consec_end_lt.
+     eassumption.
+
+     assumption.
+
+     eassumption.
+
+     symmetry in Heqpts₁; assumption.
+
+    destruct n; [ discriminate Hnp | idtac ].
+    simpl in Hnp.
+    remember (rem_pts ms₁) as pts₁.
+    destruct pts₁; [ discriminate Hnp | idtac ].
+    injection Hnp; clear Hnp; intros Hnp; intros.
+    subst h₁.
+    remember (minimise_slope α (end_pt ms₁) p pts₁) as ms₂.
+    symmetry in Heqms₂.
+    eapply IHhsl₁ in Hnp.
+     3: eassumption.
+
+     eapply lt_trans; [ idtac | eassumption ].
+     eapply consec_end_lt.
+      2: eassumption.
+
+      2: eassumption.
+
+      assumption.
+
+      symmetry in Heqpts₁; assumption.
+
+     rewrite Heqpts₁.
+     eapply minimise_slope_sorted.
+      2: eassumption.
+
+      assumption.
+qed.
 
 Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
