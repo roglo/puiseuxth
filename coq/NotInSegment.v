@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.32 2013-05-04 16:34:12 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.33 2013-05-04 17:08:51 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -378,12 +378,29 @@ destruct hsl₁ as [| h₁].
  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
  rename Heqms₁ into Hms₁; symmetry in Hms₁.
  injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
- destruct hsl₁ as [| h₂].
+ destruct hsl₁ as [| h₁].
   remember Hms₁ as Hsort₂; clear HeqHsort₂.
   eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
   eapply points_between_j_and_k; try eassumption; try reflexivity.
   right; destruct Hjhk.
   eapply aft_j_in_rem with (hsl₁ := []); simpl; try eassumption.
+
+  remember (end_pt ms₁) as pt₃.
+  remember (rem_pts ms₁) as pts₁.
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  destruct pts₁ as [| pt₄]; [ destruct hsl₁; discriminate Hnp | idtac ].
+  remember (minimise_slope α pt₃ pt₄ pts₁) as ms₂.
+  rename Heqms₂ into Hms₂; symmetry in Hms₂.
+  injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
+  destruct hsl₁ as [| h₁].
+   eapply points_between_j_and_k; try reflexivity.
+    2: eassumption.
+
+    eapply minimise_slope_sorted; [ idtac | eassumption ].
+    rewrite Heqpt₃, Heqpts₁.
+    eapply minimise_slope_sorted; eassumption.
+
+    assumption.
 bbb.
 
 Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
