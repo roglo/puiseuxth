@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.26 2013-05-04 12:36:07 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.27 2013-05-04 12:41:33 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -916,16 +916,17 @@ induction hsl₁ as [| hs₁]; intros.
    apply IHhsl₁; assumption.
 Qed.
 
-Lemma not_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
+Lemma not_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
-      [hs₁; {| pt := (j, jps); oth := segjk |};
+      hsl₁ ++
+      [{| pt := (j, jps); oth := segjk |};
        {| pt := (k, kps); oth := segkx |} … hsl]
     → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → h ≠ k.
 Proof.
-intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hnhps Hhk.
+intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hnhps Hhk.
 eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
  subst h hps.
  simpl in Hnhps.
@@ -937,31 +938,8 @@ eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
+ apply List.in_or_app.
  right; right; left; reflexivity.
-Qed.
-
-Lemma not_k₀ : ∀ n pts hsl j jps segjk k kps segkx,
-  LocallySorted fst_lt pts
-  → next_ch_points α n pts =
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-        → h ≠ k.
-Proof.
-intros n pts hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hnhps Hhk.
-eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
- subst h hps.
- simpl in Hnhps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (_, Hnhps).
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (Hnhps, _).
- exfalso; apply Hnhps; reflexivity.
-
- eapply in_ch_in_pts with (n := n).
- rewrite Hnp;
- right; left; reflexivity.
 Qed.
 
 Lemma lt_bet_j_and_k : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
@@ -1064,7 +1042,8 @@ destruct Hns as [Hns| Hns].
   eapply lt_aft_k with (hsl₁ := []); eassumption.
 
   destruct (eq_nat_dec h k) as [Heq| Hne].
-   exfalso; revert Heq; eapply not_k₀; eassumption.
+   exfalso; revert Heq.
+   eapply not_k with (hsl₁ := []); eassumption.
 
    apply not_gt in Hge.
    apply le_neq_lt in Hge; [ clear Hne | assumption ].
@@ -1112,7 +1091,8 @@ destruct Hns as [Hns| Hns].
    eapply lt_aft_k with (hsl₁ := [hs₁]); simpl; try eassumption.
 
    destruct (eq_nat_dec h k) as [Heq| Hne].
-    exfalso; revert Heq; eapply not_k₁; eassumption.
+    exfalso; revert Heq.
+    eapply not_k with (hsl₁ := [hs₁]); simpl; eassumption.
 
     apply not_gt in Hge.
     destruct (lt_dec j h) as [Hlt| Hge₂].
