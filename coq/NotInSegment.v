@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.38 2013-05-04 19:52:16 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.39 2013-05-04 19:54:36 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -437,71 +437,6 @@ destruct hsl₁ as [| h₁].
   replace j with (fst (j, jps)) by reflexivity.
   apply next_ch_points_sorted in Hnp; [ assumption | idtac ].
   eapply minimise_slope_sorted; eassumption.
-qed.
-
-Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
-  LocallySorted fst_lt pts
-  → next_ch_points α n pts =
-      [hs₁; {| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-        → j < h < k
-          → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
-            valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
-Proof.
-intros n pts hs₁ hsl j jps segjk k kps segkx Hsort Hnp.
-intros h hps Hhps Hnhps (Hjh, Hhk).
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros.
-eapply points_between_j_and_k; try reflexivity.
- eapply minimise_slope_sorted; [ eassumption | reflexivity ].
-
- eassumption.
-
- split; assumption.
-
- remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- right.
- eapply aft_j_in_rem with (hsl₁ := []); simpl; try eassumption.
-
- simpl in Hnhps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (_, Hnhps).
- apply Decidable.not_or in Hnhps.
- destruct Hnhps; assumption.
-Qed.
-
-Lemma lt_bet_j_and_k₀ : ∀ n pts hsl j jps segjk k kps segkx,
-  LocallySorted fst_lt pts
-  → next_ch_points α n pts =
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-        → j < h < k
-          → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
-            valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
-Proof.
-intros n pts hsl j jps segjk k kps segkx Hsort Hnp.
-intros h hps Hhps Hnhps (Hjh, Hhk).
-eapply points_between_j_and_k; try eassumption; try reflexivity.
- split; assumption.
-
- simpl in Hnhps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (_, Hnhps).
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (_, Hnhps).
- assumption.
 Qed.
 
 Lemma end_in : ∀ pt₁ pt₂ pts ms,
@@ -572,7 +507,7 @@ destruct Hns as [Hns| Hns].
    destruct (lt_dec j h) as [Hlt| Hge₂].
     apply le_neq_lt in Hge; [ idtac | assumption ].
     eapply conj in Hge; [ idtac | eassumption ].
-    eapply lt_bet_j_and_k₀; eassumption.
+    eapply lt_bet_j_and_k with (hsl₁ := []); eassumption.
 
     apply not_gt in Hge₂.
     destruct n; [ discriminate Hhsl | idtac ].
@@ -614,7 +549,7 @@ destruct Hns as [Hns| Hns].
     destruct (lt_dec j h) as [Hlt| Hge₂].
      apply le_neq_lt in Hge; [ idtac | assumption ].
      eapply conj in Hge; [ idtac | eassumption ].
-     eapply lt_bet_j_and_k₁; eassumption.
+     eapply lt_bet_j_and_k with (hsl₁ := [hs₁]); simpl; eassumption.
 
      apply not_gt in Hge₂.
      clear Hge Hne.
