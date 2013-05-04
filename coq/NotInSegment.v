@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.30 2013-05-04 15:45:31 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.31 2013-05-04 16:11:19 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -363,7 +363,27 @@ Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
             Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
 Proof.
 intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp.
-intros h hps Hhps Hnhps (Hjh, Hhk).
+intros h hps Hhps Hnhps Hjhk.
+simpl in Hnhps.
+apply Decidable.not_or in Hnhps.
+destruct Hnhps as (_, Hnhps).
+apply Decidable.not_or in Hnhps.
+destruct Hnhps as (_, Hnhps).
+destruct hsl₁ as [| h₁].
+ eapply points_between_j_and_k; try eassumption; try reflexivity.
+
+ destruct hsl₁ as [| h₂].
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros Hnp; intros; subst h₁.
+  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+  rename Heqms₁ into Hms₁; symmetry in Hms₁.
+  remember Hms₁ as Hsort₂; clear HeqHsort₂.
+  eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
+  eapply points_between_j_and_k; try eassumption; try reflexivity.
+  right; destruct Hjhk.
+  eapply aft_j_in_rem with (hsl₁ := []); simpl; try eassumption.
 bbb.
 
 Lemma lt_bet_j_and_k₁ : ∀ n pts hs₁ hsl j jps segjk k kps segkx,
