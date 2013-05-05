@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.5 2013-05-05 07:42:24 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.6 2013-05-05 08:49:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -105,11 +105,11 @@ Section convex_hull.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Lemma minimised_slope_le : ∀ j jps h hps pts ms,
-  minimise_slope α (j, jps) (h, hps) pts = ms
-  → slope ms <= slope_expr α (j, jps) (h, hps).
+Lemma minimised_slope_le : ∀ pt₁ pt₂ pts ms,
+  minimise_slope α pt₁ pt₂ pts = ms
+  → slope ms <= slope_expr α pt₁ pt₂.
 Proof.
-intros j jps h hps pts ms Hms.
+intros pt₁ pt₂ pts ms Hms.
 revert ms Hms.
 induction pts as [| pt]; intros.
  simpl in Hms.
@@ -117,8 +117,8 @@ induction pts as [| pt]; intros.
  apply Qle_refl.
 
  simpl in Hms.
- remember (minimise_slope α (j, jps) pt pts) as ms₁.
- remember (slope_expr α (j, jps) (h, hps) ?= slope ms₁) as c.
+ remember (minimise_slope α pt₁ pt pts) as ms₁.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
  destruct c; subst ms.
   simpl.
   symmetry in Heqc; apply Qeq_alt in Heqc.

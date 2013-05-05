@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.47 2013-05-05 02:43:07 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.48 2013-05-05 08:49:57 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -221,6 +221,43 @@ Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
         → slope ms₁ < slope ms₂.
 Proof.
 intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
+revert pt₁ pt₂ pt₃ pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
+induction pts as [| pt₄]; intros.
+ simpl in Hms₁; subst ms₁.
+ simpl in Hms₂, Hrem₁ |- *.
+ discriminate Hrem₁.
+
+ simpl in Hms₁.
+ remember (minimise_slope α pt₁ pt₄ pts) as ms₃.
+ rename Heqms₃ into Hms₃; symmetry in Hms₃.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₃) as c.
+ symmetry in Heqc.
+ destruct c.
+  subst ms₁.
+  simpl in Hms₂, Hrem₁ |- *.
+  apply Qeq_alt in Heqc.
+  eapply IHpts; try eassumption.
+  constructor.
+   apply LocallySorted_inv_1 in Hsort.
+   apply LocallySorted_inv_1 in Hsort.
+   assumption.
+
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₂, Hsort).
+   eapply lt_trans; eassumption.
+
+  subst ms₁.
+  simpl in Hms₂, Hrem₁ |- *.
+  injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
+  apply Qlt_alt in Heqc.
+  remember Heqc as H; clear HeqH.
+  eapply Qlt_le_trans in H.
+   2: apply minimised_slope_le in Hms₃; eassumption.
+
+   rename ms₃ into ms₁.
+   rename Hms₃ into Hms₁.
 bbb.
 *)
 
