@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.6 2013-05-05 08:49:57 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.7 2013-05-05 14:32:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -177,27 +177,29 @@ destruct Hhps as [Hhps| Hhps].
   eapply IHpts; eassumption.
 Qed.
 
-Lemma end_pt_in : ∀ pt₁ pt₂ pts₂ ms,
-  minimise_slope α pt₁ pt₂ pts₂ = ms
-  → end_pt ms ∈ [pt₂ … pts₂].
+Lemma end_pt_in : ∀ pt₁ pt₂ pts ms,
+  minimise_slope α pt₁ pt₂ pts = ms
+  → end_pt ms ∈ [pt₂ … pts].
 Proof.
-intros pt₁ pt₂ pts₂ ms Hms.
+intros pt₁ pt₂ pts ms Hms.
 revert pt₁ pt₂ ms Hms.
-induction pts₂ as [| pt]; intros.
- subst ms; left; reflexivity.
+induction pts as [| pt₃]; intros.
+ subst ms; simpl.
+ left; reflexivity.
 
  simpl in Hms.
- remember (minimise_slope α pt₁ pt pts₂) as ms₁.
+ remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+ rename Heqms₁ into Hms₁.
+ symmetry in Hms₁.
  remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
- symmetry in Heqms₁.
- destruct c; subst ms; simpl; [ idtac | left; reflexivity | idtac ].
-  apply IHpts₂ in Heqms₁.
-  destruct Heqms₁; [ subst pt; right; left; reflexivity | idtac ].
-  right; right; assumption.
+ symmetry in Heqc.
+ remember (end_pt ms) as pt.
+ destruct c; subst ms; simpl in Heqpt; subst pt.
+  right; eapply IHpts; eassumption.
 
-  apply IHpts₂ in Heqms₁.
-  destruct Heqms₁; [ subst pt; right; left; reflexivity | idtac ].
-  right; right; assumption.
+  left; reflexivity.
+
+  right; eapply IHpts; eassumption.
 Qed.
 
 Lemma min_slope_lt_after_k : ∀ j jps k kps pt pts ms,
