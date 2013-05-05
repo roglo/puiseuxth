@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.41 2013-05-04 21:05:31 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.42 2013-05-05 00:25:49 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -464,16 +464,16 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma not_j₀ : ∀ n pts h hps j jps k kps segjk segkx hsl,
+Lemma not_j₀ : ∀ n pts j jps k kps segjk segkx hsl,
   LocallySorted fst_lt pts
-  → (h, hps) ∈ pts
-    → next_ch_points α n pts =
-        [{| pt := (j, jps); oth := segjk |};
-         {| pt := (k, kps); oth := segkx |} … hsl]
+  → next_ch_points α n pts =
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → h ≠ j.
 Proof.
-intros n pts h hps j jps k kps segjk segkx hsl Hpts Hhps Hnp Hnhps Hne.
+intros n pts j jps k kps segjk segkx hsl Hpts Hnp h hps Hhps Hnhps Hne.
 eapply same_k_same_kps with (kps := jps) in Hhps; try eassumption.
  subst h hps.
  apply Decidable.not_or in Hnhps.
@@ -485,6 +485,38 @@ eapply same_k_same_kps with (kps := jps) in Hhps; try eassumption.
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp; intros; subst pt₁.
  left; reflexivity.
+Qed.
+
+Lemma bef_j₀ : ∀ n pts j jps segjk k kps segkx hsl,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → (h < j)%nat
+          → valuation α jps +
+            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            valuation α hps +
+            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts j jps segjk k kps segkx hsl.
+intros Hpts Hnp h hps Hhps Hnhps Hhj.
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| (l, lps)]; [ discriminate Hnp | idtac ].
+destruct pts as [| (m, mps)]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst l lps.
+rename H into Hnp.
+rename H0 into Hseg.
+destruct Hhps as [Hhps| Hhps].
+ injection Hhps; clear Hhps; intros; subst h hps.
+ simpl in Hnhps.
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (H); exfalso; apply H; reflexivity.
+
+ eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
+ eapply lt_trans in Hhj; [ idtac | eassumption ].
+ apply lt_irrefl in Hhj; contradiction.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
@@ -515,8 +547,7 @@ destruct Hns as [Hns| Hns].
  destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
  destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
  simpl in Hnsl.
- injection Hnsl; clear Hnsl; intros.
- rename H0 into Hns.
+ injection Hnsl; clear Hnsl; intros Hns; intros.
  unfold newton_segment_of_pair in Hns; simpl in Hns.
  subst ns; simpl in Hnhps |- *.
  destruct (lt_dec k h) as [Hgt| Hge].
@@ -537,21 +568,8 @@ destruct Hns as [Hns| Hns].
      exfalso; revert Heq.
      eapply not_j₀; eassumption.
 
-     destruct n; [ discriminate Hhsl | idtac ].
-     simpl in Hhsl.
-     destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
-     destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
-     injection Hhsl; clear Hhsl; intros; subst l lps.
-     rename H into Hhsl.
-     rename H0 into Hseg.
-     destruct Hhps as [Hhps| Hhps].
-      injection Hhps; clear Hhps; intros; subst h hps.
-      simpl in Hnhps.
-      apply Decidable.not_or in Hnhps.
-      destruct Hnhps as (H); exfalso; apply H; reflexivity.
-
-      eapply LocallySorted_hd in Hpts; [ idtac | eassumption ].
-      apply le_not_lt in Hge₂; contradiction.
+     apply le_neq_lt in Hge₂; [ idtac | assumption ].
+     eapply bef_j₀; eassumption.
 
  clear IHnsl.
  revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
