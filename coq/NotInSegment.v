@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.48 2013-05-05 08:49:57 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.49 2013-05-05 13:48:48 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -252,12 +252,12 @@ induction pts as [| pt₄]; intros.
   simpl in Hms₂, Hrem₁ |- *.
   injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
   apply Qlt_alt in Heqc.
+  rename ms₃ into ms₁₃.
+  rename ms₂ into ms₂₃.
+bbb.
   remember Heqc as H; clear HeqH.
   eapply Qlt_le_trans in H.
    2: apply minimised_slope_le in Hms₃; eassumption.
-
-   rename ms₃ into ms₁.
-   rename Hms₃ into Hms₁.
 bbb.
 *)
 
