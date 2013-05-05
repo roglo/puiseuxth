@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.4 2013-05-05 03:12:37 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.5 2013-05-05 07:42:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,10 +16,6 @@ Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hji, Hik) H.
-rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
 apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
