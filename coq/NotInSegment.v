@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.43 2013-05-05 00:45:14 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.44 2013-05-05 01:11:10 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -464,55 +464,29 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma not_j₁ : ∀ n pts hs₁ j jps k kps segjk segkx hsl,
+Lemma not_j : ∀ n pts hsl₁ j jps k kps segjk segkx hsl,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
-      [hs₁; {| pt := (j, jps); oth := segjk |};
+      hsl₁ ++
+      [ {| pt := (j, jps); oth := segjk |};
        {| pt := (k, kps); oth := segkx |} … hsl]
     → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → h ≠ j.
 Proof.
-intros n pts hs₁ j jps k kps segjk segkx hsl.
+intros n pts hsl₁ j jps k kps segjk segkx hsl.
 intros Hpts Hnp h hps Hhps Hnhps Hne.
 eapply same_k_same_kps with (kps := jps) in Hhps; try eassumption.
  subst h hps.
+ simpl in Hnhps.
  apply Decidable.not_or in Hnhps.
  destruct Hnhps as (Hnhps, _).
  exfalso; apply Hnhps; reflexivity.
 
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ contradiction | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
- remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- apply next_ch_points_hd in Hnp.
- rewrite <- Hnp.
- right; eapply end_in; eassumption.
-Qed.
-
-Lemma not_j₀ : ∀ n pts j jps k kps segjk segkx hsl,
-  LocallySorted fst_lt pts
-  → next_ch_points α n pts =
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-        → h ≠ j.
-Proof.
-intros n pts j jps k kps segjk segkx hsl Hpts Hnp h hps Hhps Hnhps Hne.
-eapply same_k_same_kps with (kps := jps) in Hhps; try eassumption.
- subst h hps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (Hnhps, _).
- exfalso; apply Hnhps; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ contradiction | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst pt₁.
- left; reflexivity.
+ eapply in_ch_in_pts with (n := n).
+ rewrite Hnp.
+ apply List.in_or_app.
+ right; left; reflexivity.
 Qed.
 
 Lemma bef_j₀ : ∀ n pts j jps segjk k kps segkx hsl,
@@ -594,7 +568,7 @@ destruct Hns as [Hns| Hns].
     apply not_gt in Hge₂.
     destruct (eq_nat_dec h j) as [Heq| Hne₂].
      exfalso; revert Heq.
-     eapply not_j₀; eassumption.
+     eapply not_j with (hsl₁ := []); eassumption.
 
      apply le_neq_lt in Hge₂; [ idtac | assumption ].
      eapply bef_j₀; eassumption.
@@ -627,7 +601,7 @@ destruct Hns as [Hns| Hns].
      apply not_gt in Hge₂.
      destruct (eq_nat_dec h j) as [Heq| Hne₂].
       exfalso; revert Heq.
-      eapply not_j₁; eassumption.
+      eapply not_j with (hsl₁ := [hs₁]); simpl; eassumption.
 
       clear Hge Hne.
       destruct n; [ discriminate Hhsl | idtac ].
