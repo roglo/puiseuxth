@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.3 2013-05-05 02:43:07 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.4 2013-05-05 03:12:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,6 +7,8 @@ Require Import Misc.
 Require Import ConvexHull.
 Require Import Puiseux.
 
+(* two lemmas very close to each other; another lemma to factorize them,
+   perhaps? the most part is normalization *)
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
   (j < i ∧ i < k)%nat
   → (x - z) / (Qnat i - Qnat j) < (y - x) / (Qnat k - Qnat i)
@@ -14,8 +16,48 @@ Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hji, Hik) H.
-bbb.
-*)
+rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
+apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+rewrite Qmult_comm, Qmult_div_assoc in H.
+apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+rewrite Qmult_comm in H.
+do 2 rewrite Qmult_minus_distr_l in H.
+do 4 rewrite Qmult_minus_distr_r in H.
+do 2 rewrite Qminus_minus_assoc in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qminus_lt_lt_plus_r in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qminus_lt_lt_plus_r in H.
+do 2 rewrite <- Qplus_assoc in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qlt_minus_plus_lt_r in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qlt_minus_plus_lt_r in H.
+do 2 rewrite Qplus_assoc in H.
+do 2 rewrite Qmult_div_assoc.
+rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
+apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
+rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
+rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
+do 2 rewrite Qmult_minus_distr_l.
+do 2 rewrite Qmult_minus_distr_r.
+do 2 rewrite Qplus_minus_assoc.
+apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
+apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
+do 2 rewrite <- Qplus_assoc; rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r; do 2 rewrite Qplus_assoc.
+setoid_replace (x * Qnat i + x * Qnat k + z * Qnat i + y * Qnat j) with
+ (x * Qnat k + z * Qnat i + x * Qnat i + y * Qnat j) by ring.
+setoid_replace (x * Qnat j + z * Qnat k + x * Qnat i + y * Qnat i) with
+ (y * Qnat i + x * Qnat j + z * Qnat k + x * Qnat i) by ring.
+assumption.
+Qed.
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
@@ -24,10 +66,6 @@ Lemma ad_hoc_lt_lt : ∀ i j k x y z,
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qnat_minus in H; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
-rewrite Qnat_minus_distr in H; [ idtac | apply lt_le_weak; assumption ].
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
 apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
