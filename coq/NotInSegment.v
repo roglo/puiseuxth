@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.42 2013-05-05 00:25:49 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.43 2013-05-05 00:45:14 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -464,6 +464,34 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
+Lemma not_j₁ : ∀ n pts hs₁ j jps k kps segjk segkx hsl,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      [hs₁; {| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → h ≠ j.
+Proof.
+intros n pts hs₁ j jps k kps segjk segkx hsl.
+intros Hpts Hnp h hps Hhps Hnhps Hne.
+eapply same_k_same_kps with (kps := jps) in Hhps; try eassumption.
+ subst h hps.
+ apply Decidable.not_or in Hnhps.
+ destruct Hnhps as (Hnhps, _).
+ exfalso; apply Hnhps; reflexivity.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ contradiction | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
+ apply next_ch_points_hd in Hnp.
+ rewrite <- Hnp.
+ right; eapply end_in; eassumption.
+Qed.
+
 Lemma not_j₀ : ∀ n pts j jps k kps segjk segkx hsl,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
@@ -597,38 +625,42 @@ destruct Hns as [Hns| Hns].
      eapply lt_bet_j_and_k with (hsl₁ := [hs₁]); simpl; eassumption.
 
      apply not_gt in Hge₂.
-     clear Hge Hne.
-     destruct n; [ discriminate Hhsl | idtac ].
-     simpl in Hhsl.
-     destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
-     destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
-     injection Hhsl; clear Hhsl; intros.
-     rename H0 into Hnp.
-     subst hs₁.
-     remember (minimise_slope α (l, lps) (m, mps) pts) as ms₁.
-     symmetry in Heqms₁.
-     destruct (eq_nat_dec h j) as [Heq| Hne].
-      symmetry in Heq.
-      eapply same_k_same_kps with (jps := jps) in Hhps; try eassumption.
-       subst h hps.
-       apply Decidable.not_or in Hnhps.
-       destruct Hnhps as (Hnhps); exfalso; apply Hnhps; reflexivity.
+     destruct (eq_nat_dec h j) as [Heq| Hne₂].
+      exfalso; revert Heq.
+      eapply not_j₁; eassumption.
+
+      clear Hge Hne.
+      destruct n; [ discriminate Hhsl | idtac ].
+      simpl in Hhsl.
+      destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
+      destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
+      injection Hhsl; clear Hhsl; intros.
+      rename H0 into Hnp.
+      subst hs₁.
+      remember (minimise_slope α (l, lps) (m, mps) pts) as ms₁.
+      symmetry in Heqms₁.
+      destruct (eq_nat_dec h j) as [Heq| Hne].
+       symmetry in Heq.
+       eapply same_k_same_kps with (jps := jps) in Hhps; try eassumption.
+        subst h hps.
+        apply Decidable.not_or in Hnhps.
+        destruct Hnhps as (Hnhps); exfalso; apply Hnhps; reflexivity.
+
+        rename H into Hhsl.
+        remember Hnp as H; clear HeqH.
+        apply next_ch_points_hd in H.
+        right; rewrite <- H.
+        eapply end_in; eassumption.
 
        rename H into Hhsl.
        remember Hnp as H; clear HeqH.
        apply next_ch_points_hd in H.
-       right; rewrite <- H.
-       eapply end_in; eassumption.
-
-      rename H into Hhsl.
-      remember Hnp as H; clear HeqH.
-      apply next_ch_points_hd in H.
-      rename H into Hend₁.
-      destruct Hhps as [Hhps| Hhps].
-       injection Hhps; clear Hhps; intros; subst l lps.
-       symmetry in Hend₁.
-       remember Heqms₁ as H; clear HeqH.
-       eapply minimised_slope in H; [ idtac | eassumption ].
+       rename H into Hend₁.
+       destruct Hhps as [Hhps| Hhps].
+        injection Hhps; clear Hhps; intros; subst l lps.
+        symmetry in Hend₁.
+        remember Heqms₁ as H; clear HeqH.
+        eapply minimised_slope in H; [ idtac | eassumption ].
 
 bbb.
      Focus 2.
