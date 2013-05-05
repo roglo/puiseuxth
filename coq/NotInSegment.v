@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.46 2013-05-05 02:25:58 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.47 2013-05-05 02:43:07 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -662,8 +662,8 @@ destruct Hns as [Hns| Hns].
         rewrite Heqms₂ in Heqms₁.
         unfold slope_expr in Heqms₁.
         simpl in Heqms₁.
-        eapply ad_hoc_lt_lt.
-        eapply ad_hoc_lt_lt₂; eassumption.
+        eapply ad_hoc_lt_lt₂; try eassumption.
+        split; [ assumption | idtac ].
 
 bbb.
      Focus 2.

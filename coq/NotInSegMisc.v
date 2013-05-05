@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.2 2013-05-05 02:25:58 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.3 2013-05-05 02:43:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,12 +8,14 @@ Require Import ConvexHull.
 Require Import Puiseux.
 
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
-  (j < i)%nat
+  (j < i ∧ i < k)%nat
   → (x - z) / (Qnat i - Qnat j) < (y - x) / (Qnat k - Qnat i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
 Proof.
+intros i j k x y z (Hji, Hik) H.
 bbb.
+*)
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   (i < j ∧ i < k)%nat
