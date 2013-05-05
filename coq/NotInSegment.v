@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.45 2013-05-05 01:12:32 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.46 2013-05-05 02:25:58 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -212,6 +212,17 @@ apply minimise_slope_le in Hms₂.
  apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
  eapply LocallySorted_inv_1; eassumption.
 Qed.
+
+Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms₁
+    → minimise_slope α (end_pt ms₁) pt₃ pts₃ = ms₂
+      → rem_pts ms₁ = [pt₃ … pts₃]
+        → slope ms₁ < slope ms₂.
+Proof.
+intros pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂ Hsort Hms₁ Hms₂ Hrem₁.
+bbb.
+*)
 
 Lemma j_aft_prev_end :
   ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j jps segjk k kps segkx hsl,
@@ -603,7 +614,8 @@ destruct Hns as [Hns| Hns].
       exfalso; revert Heq.
       eapply not_j with (hsl₁ := [hs₁]); simpl; eassumption.
 
-      clear Hge Hne.
+      apply le_neq_lt in Hge₂; [ idtac | assumption ].
+      clear Hge Hne Hne₂.
       destruct n; [ discriminate Hhsl | idtac ].
       simpl in Hhsl.
       destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
@@ -633,6 +645,25 @@ destruct Hns as [Hns| Hns].
         symmetry in Hend₁.
         remember Heqms₁ as H; clear HeqH.
         eapply minimised_slope in H; [ idtac | eassumption ].
+        destruct n; [ discriminate Hnp | simpl in Hnp ].
+        remember (rem_pts ms₁) as pts₁.
+        destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+        remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
+        symmetry in Heqms₂.
+        injection Hnp; clear Hnp; intros Hnp; intros.
+        subst segjk; clear H1.
+        symmetry in Heqpts₁.
+        eapply consec_slope_lt in Heqms₁; try eassumption.
+        rewrite H in Heqms₁.
+        rewrite <- Hend₁ in Heqms₂.
+        apply next_ch_points_hd in Hnp.
+        symmetry in Hnp.
+        eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
+        rewrite Heqms₂ in Heqms₁.
+        unfold slope_expr in Heqms₁.
+        simpl in Heqms₁.
+        eapply ad_hoc_lt_lt.
+        eapply ad_hoc_lt_lt₂; eassumption.
 
 bbb.
      Focus 2.
