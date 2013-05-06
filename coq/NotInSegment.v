@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.56 2013-05-06 13:03:26 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.57 2013-05-06 14:30:15 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -178,11 +178,20 @@ apply minimise_slope_le in Hms₂.
  eapply LocallySorted_inv_1; eassumption.
 Qed.
 
-Lemma yyy : ∀ pt₁ pt₂ pt₃,
-  slope_expr α pt₁ pt₂ < slope_expr α pt₁ pt₃
-  → slope_expr α pt₁ pt₃ < slope_expr α pt₂ pt₃.
+Lemma yyy : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
+  → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
 Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ H.
+Admitted. (*
 bbb.
+destruct (Q_dec x₁ x₃) as [[Hlt₁| Hgt₁]| Heq₁].
+ apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
+ apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
+ rewrite Qmult_comm, Qmult_div_assoc in H |- *.
+ destruct (Q_dec x₁ x₂) as [[Hlt₂| Hgt₂]| Heq₂].
+  apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
+  apply Qlt_shift_div_l.
 *)
 
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
@@ -212,11 +221,65 @@ induction pts as [| pt₄]; intros.
   apply Qeq_alt in Heqc₁.
   subst ms₁₃; simpl in Heqc |- *.
   destruct c₂.
+   apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    eapply IHpts; try eassumption.
    eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply lt_trans; eassumption.
-Admitted. (*
+
+   apply Qlt_alt in Heqc₂.
+   subst ms₂₃; simpl.
+   rewrite <- Heqc₁.
+   rewrite <- Heqc₁ in Heqc.
+   eapply yyy; eassumption.
+
+   apply Qgt_alt in Heqc₂.
+   move Hms₂₃ at top; subst ms₂₄.
+   eapply IHpts; try eassumption.
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+  apply Qlt_alt in Heqc₁.
+  subst ms₁₃; simpl in Heqc |- *.
+  destruct c₂.
+   apply Qeq_alt in Heqc₂.
+   subst ms₂₃; simpl.
+   rewrite <- Heqc₂.
+   eapply yyy; eassumption.
+
+   apply Qlt_alt in Heqc₂.
+   subst ms₂₃; simpl.
+   eapply yyy; eassumption.
+
+   apply Qgt_alt in Heqc₂.
+   move Hms₂₃ at top; subst ms₂₄.
+   eapply Qlt_trans; [ eassumption | idtac ].
+   eapply IHpts with (pt₂ := pt₂); try eassumption.
+    eapply Qlt_trans; eassumption.
+
+    eapply Sorted_minus_3rd; [ idtac | eassumption ].
+    intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+  apply Qgt_alt in Heqc₁.
+  subst ms₁₃.
+  destruct c₂.
+   apply Qeq_alt in Heqc₂.
+   subst ms₂₃; simpl.
+   eapply IHpts; try eassumption.
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+   apply Qlt_alt in Heqc₂.
+   subst ms₂₃; simpl.
+   eapply Qlt_trans; [ eassumption | idtac ].
+   eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
+   apply yyy; assumption.
+
+   apply Qgt_alt in Heqc₂.
+   move Hms₂₃ at top; subst ms₂₄.
+   eapply IHpts; try eassumption.
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 bbb.
 *)
 
@@ -258,8 +321,7 @@ induction pts as [| pt₄]; intros.
   eapply IHpts; try eassumption.
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
-qed.
-*)
+Qed.
 
 Lemma j_aft_prev_end :
   ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j jps segjk k kps segkx hsl,
