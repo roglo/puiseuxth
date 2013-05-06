@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.2 2013-05-03 18:48:34 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.3 2013-05-06 13:02:48 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -115,15 +115,13 @@ induction pts as [| pt₁]; intros.
     apply lt_le_weak; assumption.
 
    eapply IHpts; try eassumption.
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-   constructor; [ assumption | eapply lt_trans; eassumption ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 
   symmetry in Heqms₁.
   eapply IHpts; try eassumption.
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-  constructor; [ assumption | eapply lt_trans; eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
 Lemma in_newt_segm : ∀ j jps k kps γ β n pts segjk segkx hsl₁ hsl,

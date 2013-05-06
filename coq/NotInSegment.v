@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.54 2013-05-06 12:50:38 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.55 2013-05-06 13:02:48 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -140,13 +140,8 @@ destruct Hhps as [Hhps| Hhps].
      assumption.
 
     eapply IHpts; try eassumption.
-    constructor.
-     do 2 apply LocallySorted_inv_1 in Hsort.
-     assumption.
-
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-     eapply lt_trans; eassumption.
+    eapply Sorted_minus_2nd; [ idtac | eassumption ].
+    intros x y z H₁ H₂; eapply lt_trans; eassumption.
 
    assumption.
 
@@ -159,13 +154,8 @@ destruct Hhps as [Hhps| Hhps].
      assumption.
 
     eapply IHpts; try eassumption.
-    constructor.
-     do 2 apply LocallySorted_inv_1 in Hsort.
-     assumption.
-
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-     eapply lt_trans; eassumption.
+    eapply Sorted_minus_2nd; [ idtac | eassumption ].
+    intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
 Lemma consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
@@ -195,38 +185,6 @@ Proof.
 Admitted. (*
 bbb.
 *)
-
-Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
-  (∀ x y z, f x y → f y z → f x z)
-  → LocallySorted f [x₁; x₂; x₃ … xl]
-    → LocallySorted f [x₁; x₃ … xl].
-Proof.
-intros f x₁ x₂ x₃ l Ht H.
-constructor.
- do 2 eapply LocallySorted_inv_1; eassumption.
-
- apply LocallySorted_inv_2 in H; destruct H as (Hf, H).
- apply LocallySorted_inv_2 in H; destruct H.
- eapply Ht; eassumption.
-Qed.
-
-Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
-  (∀ x y z, f x y → f y z → f x z)
-  → LocallySorted f [x₁; x₂; x₃; x₄ … xl]
-    → LocallySorted f [x₁; x₂; x₄ … xl].
-Proof.
-intros f x₁ x₂ x₃ x₄ l Ht H.
-constructor.
- constructor.
-  do 3 eapply LocallySorted_inv_1; eassumption.
-
-  apply LocallySorted_inv_2 in H; destruct H as (Hf₁, H).
-  apply LocallySorted_inv_2 in H; destruct H as (Hf₂, H).
-  apply LocallySorted_inv_2 in H; destruct H as (Hf₃, H).
-  eapply Ht; eassumption.
-
- apply LocallySorted_inv_2 in H; destruct H; assumption.
-Qed.
 
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
