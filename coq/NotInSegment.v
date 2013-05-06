@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.61 2013-05-06 16:21:11 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.62 2013-05-06 18:24:02 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -691,6 +691,13 @@ destruct Hns as [Hns| Hns].
   destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
   destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
   simpl in Hnsl.
+  remember Hhsl as Hjk; clear HeqHjk.
+  apply next_points_sorted in Hjk; [ idtac | assumption ].
+  apply LocallySorted_inv_2 in Hjk.
+  destruct Hjk as (_, Hjk); simpl in Hjk.
+  apply LocallySorted_inv_2 in Hjk.
+  destruct Hjk as (Hjk); simpl in Hjk.
+  unfold hs_x_lt in Hjk; simpl in Hjk.
   injection Hnsl; clear Hnsl; intros.
   subst ns₁ ns₂; simpl in Hnhps |- *.
   destruct (lt_dec k h) as [Hlt| Hge].
@@ -748,7 +755,7 @@ destruct Hns as [Hns| Hns].
         remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
         symmetry in Heqms₂.
         injection Hnp; clear Hnp; intros Hnp; intros.
-        subst segjk; clear H1.
+        subst segjk.
         symmetry in Heqpts₁.
         eapply consec_slope_lt in Heqms₁; try eassumption.
         rewrite H in Heqms₁.
@@ -760,7 +767,7 @@ destruct Hns as [Hns| Hns].
         unfold slope_expr in Heqms₁.
         simpl in Heqms₁.
         eapply ad_hoc_lt_lt₂; try eassumption.
-        split; [ assumption | idtac ].
+        split; assumption.
 
 bbb.
      Focus 2.
