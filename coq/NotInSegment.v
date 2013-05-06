@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.52 2013-05-06 09:24:43 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.53 2013-05-06 09:38:47 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -196,6 +196,22 @@ Admitted. (*
 bbb.
 *)
 
+Lemma xxx₁ {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+  LocallySorted f [x₁; x₂; x₃ … xl]
+  → LocallySorted f [x₁; x₃ … xl].
+Proof.
+Admitted. (*
+bbb.
+*)
+
+Lemma xxx {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+  LocallySorted f [x₁; x₂; x₃; x₄ … xl]
+  → LocallySorted f [x₁; x₂; x₄ … xl].
+Proof.
+Admitted. (*
+bbb.
+*)
+
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope α pt₁ pt₃ pts = ms₁₃
@@ -204,6 +220,28 @@ Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
         → slope ms₁₃ < slope ms₂₃.
 Proof.
 intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
+revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
+induction pts as [| pt₄]; intros.
+ subst ms₁₃ ms₂₃; simpl in Heqc |- *.
+ apply yyy; assumption.
+
+ simpl in Hms₁₃.
+ remember (minimise_slope α pt₁ pt₄ pts) as ms₁₄.
+ rename Heqms₁₄ into Hms₁₄; symmetry in Hms₁₄.
+ remember (slope_expr α pt₁ pt₃ ?= slope ms₁₄) as c₁.
+ symmetry in Heqc₁.
+ simpl in Hms₂₃.
+ remember (minimise_slope α pt₂ pt₄ pts) as ms₂₄.
+ rename Heqms₂₄ into Hms₂₄; symmetry in Hms₂₄.
+ remember (slope_expr α pt₂ pt₃ ?= slope ms₂₄) as c₂.
+ symmetry in Heqc₂.
+ destruct c₁.
+  apply Qeq_alt in Heqc₁.
+  subst ms₁₃; simpl in Heqc |- *.
+  destruct c₂.
+   subst ms₂₃; simpl.
+   eapply IHpts; try eassumption.
+   eapply xxx; eassumption.
 Admitted. (*
 bbb.
 *)
@@ -232,36 +270,18 @@ induction pts as [| pt₄]; intros.
   simpl in Hms₂, Hrem₁ |- *.
   apply Qeq_alt in Heqc.
   eapply IHpts; try eassumption.
-  constructor.
-   do 2 eapply LocallySorted_inv_1; eassumption.
-
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₁, Hsort).
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₂, Hsort).
-   eapply lt_trans; eassumption.
+  eapply xxx₁; eassumption.
 
   subst ms₁.
   simpl in Hms₂, Hrem₁ |- *.
   injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
   apply Qlt_alt in Heqc.
-  rename ms₃ into ms₁₃.
-  rename ms₂ into ms₂₃.
-  rename Hms₂ into Hms₂₃.
-  rename Hms₃ into Hms₁₃.
   eapply Qlt_trans; [ eassumption | idtac ].
   eapply zzz; eassumption.
 
   subst ms₁.
   eapply IHpts; try eassumption.
-  constructor.
-   do 2 eapply LocallySorted_inv_1; eassumption.
-
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₁, Hsort).
-   apply LocallySorted_inv_2 in Hsort.
-   destruct Hsort as (Hlt₂, Hsort).
-   eapply lt_trans; eassumption.
+  eapply xxx₁; eassumption.
 qed.
 *)
 
