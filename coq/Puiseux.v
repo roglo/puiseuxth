@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.462 2013-05-03 08:52:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.463 2013-05-06 13:02:48 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -136,6 +136,38 @@ destruct Hsort as (Hlt, Hsort).
 destruct Hpt as [Hpt| Hpt]; [ subst pt; assumption | idtac ].
 eapply lt_trans; [ eassumption | idtac ].
 apply IHpts; assumption.
+Qed.
+
+Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → LocallySorted f [x₁; x₂; x₃ … xl]
+    → LocallySorted f [x₁; x₃ … xl].
+Proof.
+intros f x₁ x₂ x₃ l Ht H.
+constructor.
+ do 2 eapply LocallySorted_inv_1; eassumption.
+
+ apply LocallySorted_inv_2 in H; destruct H as (Hf, H).
+ apply LocallySorted_inv_2 in H; destruct H.
+ eapply Ht; eassumption.
+Qed.
+
+Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → LocallySorted f [x₁; x₂; x₃; x₄ … xl]
+    → LocallySorted f [x₁; x₂; x₄ … xl].
+Proof.
+intros f x₁ x₂ x₃ x₄ l Ht H.
+constructor.
+ constructor.
+  do 3 eapply LocallySorted_inv_1; eassumption.
+
+  apply LocallySorted_inv_2 in H; destruct H as (Hf₁, H).
+  apply LocallySorted_inv_2 in H; destruct H as (Hf₂, H).
+  apply LocallySorted_inv_2 in H; destruct H as (Hf₃, H).
+  eapply Ht; eassumption.
+
+ apply LocallySorted_inv_2 in H; destruct H; assumption.
 Qed.
 
 Lemma points_of_polyn_sorted : ∀ deg cl cn pts,

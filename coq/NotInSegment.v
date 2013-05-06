@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.55 2013-05-06 13:02:48 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.56 2013-05-06 13:03:26 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -182,7 +182,6 @@ Lemma yyy : ∀ pt₁ pt₂ pt₃,
   slope_expr α pt₁ pt₂ < slope_expr α pt₁ pt₃
   → slope_expr α pt₁ pt₃ < slope_expr α pt₂ pt₃.
 Proof.
-Admitted. (*
 bbb.
 *)
 
