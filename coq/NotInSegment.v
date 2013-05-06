@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.53 2013-05-06 09:38:47 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.54 2013-05-06 12:50:38 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -196,21 +196,37 @@ Admitted. (*
 bbb.
 *)
 
-Lemma xxx₁ {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
-  LocallySorted f [x₁; x₂; x₃ … xl]
-  → LocallySorted f [x₁; x₃ … xl].
+Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → LocallySorted f [x₁; x₂; x₃ … xl]
+    → LocallySorted f [x₁; x₃ … xl].
 Proof.
-Admitted. (*
-bbb.
-*)
+intros f x₁ x₂ x₃ l Ht H.
+constructor.
+ do 2 eapply LocallySorted_inv_1; eassumption.
 
-Lemma xxx {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
-  LocallySorted f [x₁; x₂; x₃; x₄ … xl]
-  → LocallySorted f [x₁; x₂; x₄ … xl].
+ apply LocallySorted_inv_2 in H; destruct H as (Hf, H).
+ apply LocallySorted_inv_2 in H; destruct H.
+ eapply Ht; eassumption.
+Qed.
+
+Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → LocallySorted f [x₁; x₂; x₃; x₄ … xl]
+    → LocallySorted f [x₁; x₂; x₄ … xl].
 Proof.
-Admitted. (*
-bbb.
-*)
+intros f x₁ x₂ x₃ x₄ l Ht H.
+constructor.
+ constructor.
+  do 3 eapply LocallySorted_inv_1; eassumption.
+
+  apply LocallySorted_inv_2 in H; destruct H as (Hf₁, H).
+  apply LocallySorted_inv_2 in H; destruct H as (Hf₂, H).
+  apply LocallySorted_inv_2 in H; destruct H as (Hf₃, H).
+  eapply Ht; eassumption.
+
+ apply LocallySorted_inv_2 in H; destruct H; assumption.
+Qed.
 
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
@@ -241,7 +257,8 @@ induction pts as [| pt₄]; intros.
   destruct c₂.
    subst ms₂₃; simpl.
    eapply IHpts; try eassumption.
-   eapply xxx; eassumption.
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Admitted. (*
 bbb.
 *)
@@ -270,7 +287,8 @@ induction pts as [| pt₄]; intros.
   simpl in Hms₂, Hrem₁ |- *.
   apply Qeq_alt in Heqc.
   eapply IHpts; try eassumption.
-  eapply xxx₁; eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
 
   subst ms₁.
   simpl in Hms₂, Hrem₁ |- *.
@@ -281,7 +299,8 @@ induction pts as [| pt₄]; intros.
 
   subst ms₁.
   eapply IHpts; try eassumption.
-  eapply xxx₁; eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
 qed.
 *)
 
