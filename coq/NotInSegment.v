@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.51 2013-05-06 08:53:42 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.52 2013-05-06 09:24:43 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -196,12 +196,15 @@ Admitted. (*
 bbb.
 *)
 
-(*
-Lemma zzz : ∀ pt₁ pt₂ pt₃,
-  slope_expr α pt₁ pt₂ < slope_expr α pt₁ pt₃
-  → slope_expr α pt₁ pt₂ < slope_expr α pt₂ pt₃.
+Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
+  LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
+  → minimise_slope α pt₁ pt₃ pts = ms₁₃
+    → minimise_slope α pt₂ pt₃ pts = ms₂₃
+      → slope_expr α pt₁ pt₂ < slope ms₁₃
+        → slope ms₁₃ < slope ms₂₃.
 Proof.
-Admitted.
+intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
+Admitted. (*
 bbb.
 *)
 
@@ -230,9 +233,7 @@ induction pts as [| pt₄]; intros.
   apply Qeq_alt in Heqc.
   eapply IHpts; try eassumption.
   constructor.
-   apply LocallySorted_inv_1 in Hsort.
-   apply LocallySorted_inv_1 in Hsort.
-   assumption.
+   do 2 eapply LocallySorted_inv_1; eassumption.
 
    apply LocallySorted_inv_2 in Hsort.
    destruct Hsort as (Hlt₁, Hsort).
@@ -248,41 +249,20 @@ induction pts as [| pt₄]; intros.
   rename ms₂ into ms₂₃.
   rename Hms₂ into Hms₂₃.
   rename Hms₃ into Hms₁₃.
-(**)
   eapply Qlt_trans; [ eassumption | idtac ].
-  clear IHpts.
-  revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
-  induction pts as [| pt₄]; intros.
-   subst ms₁₃ ms₂₃; simpl in Heqc |- *.
-   apply yyy; assumption.
-bbb.
-  clear IHpts.
-  revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
-  induction pts as [| pt₄]; intros.
-   subst ms₁₃ ms₂₃; simpl in Heqc |- *.
-   apply zzz; assumption.
+  eapply zzz; eassumption.
 
-   simpl in Hms₁₃.
-   remember (minimise_slope α pt₁ pt₄ pts) as ms₁₄.
-   rename Heqms₁₄ into Hms₁₄; symmetry in Hms₁₄.
-   remember (slope_expr α pt₁ pt₃ ?= slope ms₁₄) as c₁.
-   symmetry in Heqc₁.
-   destruct c₁.
-    subst ms₁₃; simpl in Heqc.
-    apply Qeq_alt in Heqc₁.
-    eapply Qlt_le_trans; [ eassumption | idtac ].
-    rewrite <- Heqc₁.
-    simpl in Hms₂₃.
-    remember (minimise_slope α pt₂ pt₄ pts) as ms₂₄.
-    rename Heqms₂₄ into Hms₂₄; symmetry in Hms₂₄.
-    remember (slope_expr α pt₂ pt₃ ?= slope ms₂₄) as c₂.
-    symmetry in Heqc₂.
-    destruct c₂.
-     subst ms₂₃; simpl.
-     apply Qeq_alt in Heqc₂.
-     apply Qlt_le_weak.
-     rewrite <- Heqc₂.
-bbb.
+  subst ms₁.
+  eapply IHpts; try eassumption.
+  constructor.
+   do 2 eapply LocallySorted_inv_1; eassumption.
+
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort.
+   destruct Hsort as (Hlt₂, Hsort).
+   eapply lt_trans; eassumption.
+qed.
 *)
 
 Lemma j_aft_prev_end :
