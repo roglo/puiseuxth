@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.57 2013-05-06 14:30:15 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.58 2013-05-06 14:34:49 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -194,7 +194,7 @@ destruct (Q_dec x₁ x₃) as [[Hlt₁| Hgt₁]| Heq₁].
   apply Qlt_shift_div_l.
 *)
 
-Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
+Lemma slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope α pt₁ pt₃ pts = ms₁₃
     → minimise_slope α pt₂ pt₃ pts = ms₂₃
@@ -280,8 +280,7 @@ induction pts as [| pt₄]; intros.
    eapply IHpts; try eassumption.
    eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply lt_trans; eassumption.
-bbb.
-*)
+Qed.
 
 Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
@@ -315,7 +314,7 @@ induction pts as [| pt₄]; intros.
   injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
   apply Qlt_alt in Heqc.
   eapply Qlt_trans; [ eassumption | idtac ].
-  eapply zzz; eassumption.
+  eapply slope_lt; eassumption.
 
   subst ms₁.
   eapply IHpts; try eassumption.
