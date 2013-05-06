@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.59 2013-05-06 15:35:27 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.60 2013-05-06 15:52:53 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -185,16 +185,24 @@ Lemma yyy : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   → (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
     → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ H.
-Admitted. (*
-bbb.
-destruct (Q_dec x₁ x₃) as [[Hlt₁| Hgt₁]| Heq₁].
- apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
- apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
- rewrite Qmult_comm, Qmult_div_assoc in H |- *.
- destruct (Q_dec x₁ x₂) as [[Hlt₂| Hgt₂]| Heq₂].
-  apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
-  apply Qlt_shift_div_l.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+intros H.
+apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
+apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
+rewrite Qmult_comm, Qmult_div_assoc in H |- *.
+apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
+apply Qlt_shift_div_l; [ apply Qlt_minus; assumption | idtac ].
+setoid_replace ((x₃ - x₁) * (y₂ - y₁)) with
+ (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
+setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
+ (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
+setoid_replace ((y₃ - y₁) * (x₃ - x₂)) with
+ (x₂ * y₁ - x₃ * y₁ - x₂ * y₃ + x₃ * y₃) by ring.
+setoid_replace ((x₃ - x₁) * (y₃ - y₂)) with
+ (x₁ * y₂ - x₃ * y₂ - x₁ * y₃ + x₃ * y₃) by ring.
+apply Qplus_lt_l with (x := x₃ * y₂ - x₃ * y₁ - x₁ * y₂) in H.
+apply Qplus_lt_l.
 *)
 
 Lemma slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
