@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.50 2013-05-05 14:32:53 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.51 2013-05-06 08:53:42 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -188,6 +188,23 @@ apply minimise_slope_le in Hms₂.
  eapply LocallySorted_inv_1; eassumption.
 Qed.
 
+Lemma yyy : ∀ pt₁ pt₂ pt₃,
+  slope_expr α pt₁ pt₂ < slope_expr α pt₁ pt₃
+  → slope_expr α pt₁ pt₃ < slope_expr α pt₂ pt₃.
+Proof.
+Admitted. (*
+bbb.
+*)
+
+(*
+Lemma zzz : ∀ pt₁ pt₂ pt₃,
+  slope_expr α pt₁ pt₂ < slope_expr α pt₁ pt₃
+  → slope_expr α pt₁ pt₂ < slope_expr α pt₂ pt₃.
+Proof.
+Admitted.
+bbb.
+*)
+
 Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms₁
@@ -229,10 +246,42 @@ induction pts as [| pt₄]; intros.
   apply Qlt_alt in Heqc.
   rename ms₃ into ms₁₃.
   rename ms₂ into ms₂₃.
+  rename Hms₂ into Hms₂₃.
+  rename Hms₃ into Hms₁₃.
+(**)
+  eapply Qlt_trans; [ eassumption | idtac ].
+  clear IHpts.
+  revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
+  induction pts as [| pt₄]; intros.
+   subst ms₁₃ ms₂₃; simpl in Heqc |- *.
+   apply yyy; assumption.
 bbb.
-  remember Heqc as H; clear HeqH.
-  eapply Qlt_le_trans in H.
-   2: apply minimised_slope_le in Hms₃; eassumption.
+  clear IHpts.
+  revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
+  induction pts as [| pt₄]; intros.
+   subst ms₁₃ ms₂₃; simpl in Heqc |- *.
+   apply zzz; assumption.
+
+   simpl in Hms₁₃.
+   remember (minimise_slope α pt₁ pt₄ pts) as ms₁₄.
+   rename Heqms₁₄ into Hms₁₄; symmetry in Hms₁₄.
+   remember (slope_expr α pt₁ pt₃ ?= slope ms₁₄) as c₁.
+   symmetry in Heqc₁.
+   destruct c₁.
+    subst ms₁₃; simpl in Heqc.
+    apply Qeq_alt in Heqc₁.
+    eapply Qlt_le_trans; [ eassumption | idtac ].
+    rewrite <- Heqc₁.
+    simpl in Hms₂₃.
+    remember (minimise_slope α pt₂ pt₄ pts) as ms₂₄.
+    rename Heqms₂₄ into Hms₂₄; symmetry in Hms₂₄.
+    remember (slope_expr α pt₂ pt₃ ?= slope ms₂₄) as c₂.
+    symmetry in Heqc₂.
+    destruct c₂.
+     subst ms₂₃; simpl.
+     apply Qeq_alt in Heqc₂.
+     apply Qlt_le_weak.
+     rewrite <- Heqc₂.
 bbb.
 *)
 
