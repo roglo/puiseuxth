@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.60 2013-05-06 15:52:53 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.61 2013-05-06 16:21:11 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -9,8 +9,6 @@ Require Import Misc.
 Require Import ConvexHull.
 Require Import Puiseux.
 Require Import NotInSegMisc.
-
-Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 
 Section convex_hull.
 
@@ -180,32 +178,7 @@ apply minimise_slope_le in Hms₂.
  eapply LocallySorted_inv_1; eassumption.
 Qed.
 
-Lemma yyy : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
-    → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
-Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-intros H.
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
-apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
-rewrite Qmult_comm, Qmult_div_assoc in H |- *.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
-apply Qlt_shift_div_l; [ apply Qlt_minus; assumption | idtac ].
-setoid_replace ((x₃ - x₁) * (y₂ - y₁)) with
- (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
-setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
- (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
-setoid_replace ((y₃ - y₁) * (x₃ - x₂)) with
- (x₂ * y₁ - x₃ * y₁ - x₂ * y₃ + x₃ * y₃) by ring.
-setoid_replace ((x₃ - x₁) * (y₃ - y₂)) with
- (x₁ * y₂ - x₃ * y₂ - x₁ * y₃ + x₃ * y₃) by ring.
-apply Qplus_lt_l with (x := x₃ * y₂ - x₃ * y₁ - x₁ * y₂) in H.
-apply Qplus_lt_l.
-*)
-
-Lemma slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
+Lemma min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
   LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope α pt₁ pt₃ pts = ms₁₃
     → minimise_slope α pt₂ pt₃ pts = ms₂₃
@@ -216,7 +189,7 @@ intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
- apply yyy; [ idtac | assumption ].
+ apply slope_lt; [ idtac | assumption ].
  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  split; apply Qnat_lt; assumption.
@@ -245,7 +218,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    rewrite <- Heqc₁.
    rewrite <- Heqc₁ in Heqc.
-   apply yyy; [ idtac | assumption ].
+   apply slope_lt; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -262,14 +235,14 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    rewrite <- Heqc₂.
-   apply yyy; [ idtac | assumption ].
+   apply slope_lt; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
 
    apply Qlt_alt in Heqc₂.
    subst ms₂₃; simpl.
-   apply yyy; [ idtac | assumption ].
+   apply slope_lt; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -296,7 +269,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    eapply Qlt_trans; [ eassumption | idtac ].
    eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
-   apply yyy; [ idtac | assumption ].
+   apply slope_lt; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -340,7 +313,7 @@ induction pts as [| pt₄]; intros.
   injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₃.
   apply Qlt_alt in Heqc.
   eapply Qlt_trans; [ eassumption | idtac ].
-  eapply slope_lt; eassumption.
+  eapply min_slope_lt; eassumption.
 
   subst ms₁.
   eapply IHpts; try eassumption.

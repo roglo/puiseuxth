@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.7 2013-05-05 14:32:53 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.8 2013-05-06 16:21:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,8 +7,55 @@ Require Import Misc.
 Require Import ConvexHull.
 Require Import Puiseux.
 
-(* two lemmas very close to each other; another lemma to factorize them,
+Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+
+Lemma slope_lt : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
+    → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+intros H.
+apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
+apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
+rewrite Qmult_comm, Qmult_div_assoc in H |- *.
+apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
+apply Qlt_shift_div_l; [ apply Qlt_minus; assumption | idtac ].
+setoid_replace ((x₃ - x₁) * (y₂ - y₁)) with
+ (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
+setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
+ (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
+setoid_replace ((y₃ - y₁) * (x₃ - x₂)) with
+ (x₂ * y₁ - x₃ * y₁ - x₂ * y₃ + x₃ * y₃) by ring.
+setoid_replace ((x₃ - x₁) * (y₃ - y₂)) with
+ (x₁ * y₂ - x₃ * y₂ - x₁ * y₃ + x₃ * y₃) by ring.
+apply Qplus_lt_l with (x := x₃ * y₂ - x₃ * y₁ - x₁ * y₂) in H.
+apply Qplus_lt_l.
+apply Qminus_lt_lt_plus_r in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qlt_minus_plus_lt_r in H.
+rewrite <- Qplus_minus_swap in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qminus_lt_lt_plus_r in H.
+rewrite <- Qplus_minus_swap in H.
+apply Qlt_minus_plus_lt_r in H.
+apply Qlt_plus_minus_lt_r.
+apply Qlt_plus_minus_lt_r.
+do 2 rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r.
+do 2 rewrite <- Qplus_minus_swap.
+apply Qplus_lt_lt_minus_r.
+setoid_replace (x₂ * y₁ + x₁ * y₃ + x₃ * y₂) with
+ (x₃ * y₂ + x₁ * y₃ + x₂ * y₁) by ring.
+setoid_replace (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) with
+ (x₂ * y₃ + x₁ * y₂ + x₃ * y₁) by ring.
+assumption.
+Qed.
+
+(* 1/ two lemmas very close to each other; another lemma to factorize them,
    perhaps? the most part is normalization *)
+(* 2/ perhaps could be proved shorter by 'slope_lt' above? *)
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
   (j < i ∧ i < k)%nat
   → (x - z) / (Qnat i - Qnat j) < (y - x) / (Qnat k - Qnat i)
@@ -338,7 +385,7 @@ Qed.
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
   LocallySorted fst_lt [(j, jps); pt; (h, hps) … pts]
   → minimise_slope α (j, jps) pt [(h, hps) … pts] = ms
-    → j < h <  k
+    → (j < h <  k)%nat
       → (h, hps) ∉ seg ms
         → end_pt ms = (k, kps)
           → slope ms < slope_expr α (j, jps) (h, hps).
