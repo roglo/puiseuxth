@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.58 2013-05-06 14:34:49 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.59 2013-05-06 15:35:27 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -9,6 +9,8 @@ Require Import Misc.
 Require Import ConvexHull.
 Require Import Puiseux.
 Require Import NotInSegMisc.
+
+Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 
 Section convex_hull.
 
@@ -179,8 +181,9 @@ apply minimise_slope_le in Hms₂.
 Qed.
 
 Lemma yyy : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
-  → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
+  x₁ < x₂ < x₃
+  → (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
+    → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H.
 Admitted. (*
@@ -205,7 +208,10 @@ intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
- apply yyy; assumption.
+ apply yyy; [ idtac | assumption ].
+ apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+ apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+ split; apply Qnat_lt; assumption.
 
  simpl in Hms₁₃.
  remember (minimise_slope α pt₁ pt₄ pts) as ms₁₄.
@@ -231,7 +237,10 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    rewrite <- Heqc₁.
    rewrite <- Heqc₁ in Heqc.
-   eapply yyy; eassumption.
+   apply yyy; [ idtac | assumption ].
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   split; apply Qnat_lt; assumption.
 
    apply Qgt_alt in Heqc₂.
    move Hms₂₃ at top; subst ms₂₄.
@@ -245,11 +254,17 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    rewrite <- Heqc₂.
-   eapply yyy; eassumption.
+   apply yyy; [ idtac | assumption ].
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   split; apply Qnat_lt; assumption.
 
    apply Qlt_alt in Heqc₂.
    subst ms₂₃; simpl.
-   eapply yyy; eassumption.
+   apply yyy; [ idtac | assumption ].
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   split; apply Qnat_lt; assumption.
 
    apply Qgt_alt in Heqc₂.
    move Hms₂₃ at top; subst ms₂₄.
@@ -273,7 +288,10 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    eapply Qlt_trans; [ eassumption | idtac ].
    eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
-   apply yyy; assumption.
+   apply yyy; [ idtac | assumption ].
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   split; apply Qnat_lt; assumption.
 
    apply Qgt_alt in Heqc₂.
    move Hms₂₃ at top; subst ms₂₄.
@@ -532,7 +550,7 @@ Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
        {| pt := (k, kps); oth := segkx |} … hsl]
     → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
-        → j < h < k
+        → (j < h < k)%nat
           → valuation α jps +
             Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
             valuation α hps +
