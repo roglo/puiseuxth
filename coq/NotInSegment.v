@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.67 2013-05-07 09:37:55 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.68 2013-05-07 12:41:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -640,9 +640,24 @@ bbb.
 *)
 
 (*
+  Hpts : LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Heqms₁ : minimise_slope α pt₁ pt₂ pts = ms
+  end_pt ms = pt₃
+   slope_expr α pt₂ pt₃ <= slope ms.
+*)
+
+Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → end_pt ms = pt₃
+      → (fst pt₂ < fst pt₃)%nat
+        → slope_expr α pt₂ pt₃ <= slope ms.
+Proof.
+Admitted. (*
+
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
   LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
-  → minimise_slope α pt₁ pt₂ pts = ms
+  → minimise_slope α pt₁ pt₂ [pt₃ … pts] = ms
     → end_pt ms = pt₃
       → slope_expr α pt₂ pt₃ <= slope ms.
 Proof.
@@ -838,6 +853,11 @@ destruct Hns as [Hns| Hns].
           split; assumption.
 
           apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
+           rewrite <- Hend₁ in |- * at 2.
+           remember Heqms₁ as H; clear HeqH.
+           eapply minimised_slope in H; [ idtac | reflexivity ].
+           rewrite <- H.
+           eapply zzz; eassumption.
 bbb.
         destruct Hhps as [Hhps| Hhps].
          injection Hhps; clear Hhps; intros; subst m mps.
