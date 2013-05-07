@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.464 2013-05-07 00:27:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.465 2013-05-07 08:42:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -138,34 +138,44 @@ eapply lt_trans; [ eassumption | idtac ].
 apply IHpts; assumption.
 Qed.
 
-Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ xl,
   (∀ x y z, f x y → f y z → f x z)
-  → LocallySorted f [x₁; x₂; x₃ … xl]
-    → LocallySorted f [x₁; x₃ … xl].
+  → LocallySorted f [x₁; x₂ … xl]
+    → LocallySorted f [x₁ … xl].
 Proof.
-intros f x₁ x₂ x₃ l Ht H.
+intros f x₁ x₂ l Ht H.
+destruct l as [| x₃]; [ constructor | intros ].
 constructor.
- do 2 eapply LocallySorted_inv_1; eassumption.
+ do 2 apply LocallySorted_inv_1 in H.
+ assumption.
 
- apply LocallySorted_inv_2 in H; destruct H as (Hf, H).
- apply LocallySorted_inv_2 in H; destruct H.
+ apply LocallySorted_inv_2 in H; destruct H as (Hlt₁, H).
+ apply LocallySorted_inv_2 in H; destruct H as (Hlt₂, H).
  eapply Ht; eassumption.
 Qed.
 
-Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+  (∀ x y z, f x y → f y z → f x z)
+  → LocallySorted f [x₁; x₂; x₃ … xl]
+    → LocallySorted f [x₁; x₂ … xl].
+Proof.
+intros f x₁ x₂ x₃ l Ht H.
+constructor.
+ apply LocallySorted_inv_1 in H.
+ eapply Sorted_minus_2nd; eassumption.
+
+ apply LocallySorted_inv_2 in H; destruct H; assumption.
+Qed.
+
+Lemma Sorted_minus_4th {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
   (∀ x y z, f x y → f y z → f x z)
   → LocallySorted f [x₁; x₂; x₃; x₄ … xl]
-    → LocallySorted f [x₁; x₂; x₄ … xl].
+    → LocallySorted f [x₁; x₂; x₃ … xl].
 Proof.
 intros f x₁ x₂ x₃ x₄ l Ht H.
 constructor.
- constructor.
-  do 3 eapply LocallySorted_inv_1; eassumption.
-
-  apply LocallySorted_inv_2 in H; destruct H as (Hf₁, H).
-  apply LocallySorted_inv_2 in H; destruct H as (Hf₂, H).
-  apply LocallySorted_inv_2 in H; destruct H as (Hf₃, H).
-  eapply Ht; eassumption.
+ apply LocallySorted_inv_1 in H.
+ eapply Sorted_minus_3rd; eassumption.
 
  apply LocallySorted_inv_2 in H; destruct H; assumption.
 Qed.

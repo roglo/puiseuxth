@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.65 2013-05-07 02:27:56 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.66 2013-05-07 08:42:20 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -629,11 +629,62 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
 
-Lemma zzz : ∀ pt₁ pt₂ pts ms,
-  minimise_slope α pt₁ pt₂ pts = ms
-  → slope_expr α pt₂ (end_pt ms) <= slope ms.
+(*
+Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
+  LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
+  → slope_expr α pt₁ pt₂ == slope_expr α pt₁ pt₃
+    → slope_expr α pt₁ pt₂ == slope_expr α pt₂ pt₃.
 Proof.
-intros pt₁ pt₂ pts ms Hms.
+intros pt₁ pt₂ pt₃ Hsort H.
+bbb.
+*)
+
+(*
+Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
+  LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
+  → minimise_slope α pt₁ pt₂ pts = ms
+    → end_pt ms = pt₃
+      → slope_expr α pt₂ pt₃ <= slope ms.
+Proof.
+intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend.
+revert pt₁ pt₂ pt₃ ms Hsort Hms Hend.
+induction pts as [| pt₄]; intros.
+ subst ms.
+ simpl in Hend |- *.
+ subst pt₃.
+ apply LocallySorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
+ apply LocallySorted_inv_2 in Hsort; destruct Hsort as (H).
+ apply lt_irrefl in H; contradiction.
+
+ simpl in Hms.
+ remember (minimise_slope α pt₁ pt₄ pts) as ms₁.
+ symmetry in Heqms₁.
+ remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ symmetry in Heqc.
+ destruct c.
+  subst ms.
+  simpl in Hend |- *.
+  apply Qeq_alt in Heqc.
+  symmetry in Hend.
+  eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
+  rewrite <- Heqc in Heqms₁ |- *.
+  eapply yyy in Heqms₁.
+   rewrite Heqms₁; apply Qle_refl.
+
+   eapply Sorted_minus_4th; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+  subst ms; simpl in Hend |- *.
+  subst pt₃.
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (H).
+  apply lt_irrefl in H; contradiction.
+
+  move Hms at top; subst ms₁.
+  apply Qgt_alt in Heqc.
+  eapply IHpts; try eassumption.
+   eapply Sorted_minus_4th; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 bbb.
 *)
 
@@ -752,6 +803,7 @@ destruct Hns as [Hns| Hns].
        remember Hnp as H; clear HeqH.
        apply next_ch_points_hd in H.
        rename H into Hend₁.
+bbb.
        destruct Hhps as [Hhps| Hhps].
         injection Hhps; clear Hhps; intros; subst l lps.
         symmetry in Hend₁.
@@ -808,7 +860,7 @@ destruct Hns as [Hns| Hns].
          eapply Qle_lt_trans in Hms₁; [ idtac | eassumption ].
          eapply ad_hoc_lt_lt₂; try eassumption.
 
-bbb.
+  bbb.
      Focus 2.
      clear IHnsl.
      revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
