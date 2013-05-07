@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.68 2013-05-07 12:41:56 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.69 2013-05-07 13:57:30 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -629,23 +629,19 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
 
-(*
+(**)
 Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
-  LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
-  → slope_expr α pt₁ pt₂ == slope_expr α pt₁ pt₃
-    → slope_expr α pt₁ pt₂ == slope_expr α pt₂ pt₃.
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → pt₃ ∈ pts
+    → slope_expr α pt₁ pt₂ == slope_expr α pt₁ pt₃
+      → slope_expr α pt₁ pt₂ == slope_expr α pt₂ pt₃.
 Proof.
-intros pt₁ pt₂ pt₃ Hsort H.
+intros pt₁ pt₂ pt₃ pts Hsort Hin H.
+Admitted. (*
 bbb.
 *)
 
-(*
-  Hpts : LocallySorted fst_lt [pt₁; pt₂ … pts]
-  Heqms₁ : minimise_slope α pt₁ pt₂ pts = ms
-  end_pt ms = pt₃
-   slope_expr α pt₂ pt₃ <= slope ms.
-*)
-
+(**)
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -653,23 +649,10 @@ Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
       → (fst pt₂ < fst pt₃)%nat
         → slope_expr α pt₂ pt₃ <= slope ms.
 Proof.
-Admitted. (*
-
-Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
-  LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
-  → minimise_slope α pt₁ pt₂ [pt₃ … pts] = ms
-    → end_pt ms = pt₃
-      → slope_expr α pt₂ pt₃ <= slope ms.
-Proof.
-intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend.
-revert pt₁ pt₂ pt₃ ms Hsort Hms Hend.
+intros pt₁ pt₂ pt₃ pts ms Hsort Hms Hend Hlt.
+revert pt₁ pt₂ pt₃ ms Hsort Hms Hend Hlt.
 induction pts as [| pt₄]; intros.
- subst ms.
- simpl in Hend |- *.
- subst pt₃.
- apply LocallySorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
- apply LocallySorted_inv_2 in Hsort; destruct Hsort as (H).
- apply lt_irrefl in H; contradiction.
+ subst pt₃ ms; apply lt_irrefl in Hlt; contradiction.
 
  simpl in Hms.
  remember (minimise_slope α pt₁ pt₄ pts) as ms₁.
@@ -677,28 +660,28 @@ induction pts as [| pt₄]; intros.
  remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
  symmetry in Heqc.
  destruct c.
-  subst ms.
-  simpl in Hend |- *.
+  subst ms; simpl in Hend |- *.
   apply Qeq_alt in Heqc.
   symmetry in Hend.
+  remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
   rewrite <- Heqc in Heqms₁ |- *.
-  eapply yyy in Heqms₁.
+  eapply yyy in Heqms₁; try eassumption.
    rewrite Heqms₁; apply Qle_refl.
 
-   eapply Sorted_minus_4th; [ idtac | eassumption ].
-   intros x y z H₁ H₂; eapply lt_trans; eassumption.
+   rewrite Hend.
+   eapply end_pt_in; eassumption.
 
   subst ms; simpl in Hend |- *.
   subst pt₃.
   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (H).
-  apply lt_irrefl in H; contradiction.
+  apply lt_irrefl in Hlt; contradiction.
 
   move Hms at top; subst ms₁.
   apply Qgt_alt in Heqc.
   eapply IHpts; try eassumption.
-   eapply Sorted_minus_4th; [ idtac | eassumption ].
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply lt_trans; eassumption.
 bbb.
 *)
