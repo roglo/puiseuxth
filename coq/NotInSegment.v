@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.71 2013-05-07 15:03:21 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.72 2013-05-07 18:02:34 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -628,6 +628,43 @@ destruct Hhps as [Hhps| Hhps].
  eapply lt_trans in Hhj; [ idtac | eassumption ].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
+
+Lemma Qmult_div_swap : ∀ a b c : Q, a / b * c == a * c / b.
+Proof.
+intros.
+rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
+reflexivity.
+Qed.
+
+Lemma Qeq_shift_mult_l : ∀ a b c : Q, ¬c == 0 → a / c == b → a == b * c.
+Proof.
+intros a b c Hc H.
+rewrite <- H.
+rewrite Qmult_div_swap.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma Qeq_shift_div_l : ∀ a b c : Q, ¬c == 0 → a == b * c → a / c == b.
+Proof.
+intros a b c Hc H.
+rewrite H.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma xxx : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  ¬x₁ == x₂
+  → ¬x₂ == x₃
+    → ¬x₃ == x₁
+      → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₁) / (x₃ - x₁)
+        → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₂) / (x₃ - x₂).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
+apply Qeq_shift_mult_l in H.
+ symmetry in H.
+ rewrite Qmult_div_swap in H.
+ apply Qeq_shift_mult_l in H.
+  apply Qeq_shift_div_l.
+bbb.
 
 (**)
 Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
