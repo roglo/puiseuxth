@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.72 2013-05-07 18:02:34 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.73 2013-05-07 18:16:16 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -664,6 +664,27 @@ apply Qeq_shift_mult_l in H.
  rewrite Qmult_div_swap in H.
  apply Qeq_shift_mult_l in H.
   apply Qeq_shift_div_l.
+   intros HH; apply H₁₂.
+   symmetry; apply Qminus_eq; assumption.
+
+   symmetry.
+   rewrite Qmult_div_swap.
+   apply Qeq_shift_div_l.
+    intros HH; apply H₂₃.
+    symmetry; apply Qminus_eq; assumption.
+
+    setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
+     (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
+    setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
+     (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
+    apply Qplus_inj_r in H.
+    setoid_replace ((y₃ - y₂) * (x₂ - x₁)) with
+     (x₁ * y₂ + x₂ * y₃ - x₁ * y₃ - x₂ * y₂) by ring.
+    setoid_replace ((y₂ - y₁) * (x₃ - x₂)) with
+     (x₂ * y₁ + x₃ * y₂ - x₃ * y₁ - x₂ * y₂) by ring.
+    unfold Qminus at 1.
+    unfold Qminus at 2.
+    apply Qplus_inj_r.
 bbb.
 
 (**)
