@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.66 2013-05-07 08:42:20 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.67 2013-05-07 09:37:55 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -803,7 +803,6 @@ destruct Hns as [Hns| Hns].
        remember Hnp as H; clear HeqH.
        apply next_ch_points_hd in H.
        rename H into Hend₁.
-bbb.
        destruct Hhps as [Hhps| Hhps].
         injection Hhps; clear Hhps; intros; subst l lps.
         symmetry in Hend₁.
@@ -829,6 +828,17 @@ bbb.
         eapply ad_hoc_lt_lt₂; try eassumption.
         split; assumption.
 
+        destruct Hhps as [Hhps| Hhps].
+         injection Hhps; clear Hhps; intros; subst m mps.
+         assert
+          (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
+          as Hhjk.
+          Focus 2.
+          eapply ad_hoc_lt_lt₂; try eassumption.
+          split; assumption.
+
+          apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
+bbb.
         destruct Hhps as [Hhps| Hhps].
          injection Hhps; clear Hhps; intros; subst m mps.
          symmetry in Hend₁.
