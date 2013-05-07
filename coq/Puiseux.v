@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.463 2013-05-06 13:02:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.464 2013-05-07 00:27:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -331,25 +331,24 @@ intros pts hsl Hsort Hch.
 eapply next_points_sorted; eassumption.
 Qed.
 
-Lemma minimised_slope : ∀ j jps k kps pt pts ms,
-  minimise_slope α (j, jps) pt pts = ms
-  → (k, kps) = end_pt ms
-    → slope ms == slope_expr α (j, jps) (k, kps).
+Lemma minimised_slope : ∀ pt₁ pt₂ pt pts ms,
+  minimise_slope α pt₁ pt pts = ms
+  → pt₂ = end_pt ms
+    → slope ms == slope_expr α pt₁ pt₂.
 Proof.
-intros j jps k kps pt pts ms Hms Hkps.
-revert j jps k kps pt ms Hms Hkps.
-induction pts as [| pt₁]; intros.
+intros pt₁ pt₂ pt pts ms Hms Hkps.
+revert pt₁ pt₂ pt ms Hms Hkps.
+induction pts as [| pt₃]; intros.
  subst ms; simpl in Hkps |- *; subst pt; reflexivity.
 
  simpl in Hms.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+ remember (slope_expr α pt₁ pt ?= slope ms₁) as c.
  symmetry in Heqms₁.
  destruct c; subst ms; simpl in Hkps |- *.
   eapply IHpts; eassumption.
 
-  destruct pt as (l, lps).
-  injection Hkps; clear Hkps; intros; subst l lps; reflexivity.
+  subst pt₂; reflexivity.
 
   eapply IHpts; eassumption.
 Qed.

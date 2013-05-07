@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.8 2013-05-06 16:21:11 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.9 2013-05-07 00:27:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -57,7 +57,7 @@ Qed.
    perhaps? the most part is normalization *)
 (* 2/ perhaps could be proved shorter by 'slope_lt' above? *)
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
-  (j < i ∧ i < k)%nat
+  (j < i < k)%nat
   → (x - z) / (Qnat i - Qnat j) < (y - x) / (Qnat k - Qnat i)
     → x + Qnat i * ((x - y) / Qnat (k - i)) <
       z + Qnat j * ((x - y) / Qnat (k - i)).
