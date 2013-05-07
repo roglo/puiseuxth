@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.69 2013-05-07 13:57:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.70 2013-05-07 14:36:48 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -189,7 +189,7 @@ intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
- apply slope_lt; [ idtac | assumption ].
+ apply slope_lt₁; [ idtac | assumption ].
  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  split; apply Qnat_lt; assumption.
@@ -218,7 +218,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    rewrite <- Heqc₁.
    rewrite <- Heqc₁ in Heqc.
-   apply slope_lt; [ idtac | assumption ].
+   apply slope_lt₁; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -235,14 +235,14 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    rewrite <- Heqc₂.
-   apply slope_lt; [ idtac | assumption ].
+   apply slope_lt₁; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
 
    apply Qlt_alt in Heqc₂.
    subst ms₂₃; simpl.
-   apply slope_lt; [ idtac | assumption ].
+   apply slope_lt₁; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -269,7 +269,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    eapply Qlt_trans; [ eassumption | idtac ].
    eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
-   apply slope_lt; [ idtac | assumption ].
+   apply slope_lt₁; [ idtac | assumption ].
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -680,9 +680,16 @@ induction pts as [| pt₄]; intros.
 
   move Hms at top; subst ms₁.
   apply Qgt_alt in Heqc.
-  eapply IHpts; try eassumption.
-   eapply Sorted_minus_3rd; [ idtac | eassumption ].
-   intros x y z H₁ H₂; eapply lt_trans; eassumption.
+  destruct pts.
+   simpl in Heqms₁.
+   subst ms; simpl.
+   simpl in Hend, Heqc.
+   subst pt₄.
+   apply Qlt_le_weak.
+   apply slope_lt₂; [ idtac | assumption ].
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   split; apply Qnat_lt; assumption.
 bbb.
 *)
 
