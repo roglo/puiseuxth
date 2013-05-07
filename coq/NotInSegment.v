@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.64 2013-05-07 02:01:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.65 2013-05-07 02:27:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -629,6 +629,14 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
 
+Lemma zzz : ∀ pt₁ pt₂ pts ms,
+  minimise_slope α pt₁ pt₂ pts = ms
+  → slope_expr α pt₂ (end_pt ms) <= slope ms.
+Proof.
+intros pt₁ pt₂ pts ms Hms.
+bbb.
+*)
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -794,6 +802,11 @@ destruct Hns as [Hns| Hns].
          remember Hms₁ as HH; clear HeqHH.
          eapply minimised_slope in HH; [ idtac | eassumption ].
          rewrite HH in Heqms₁.
+         apply zzz in Hms₁.
+         rewrite HH in Hms₁.
+         rewrite <- Hend₁ in Hms₁.
+         eapply Qle_lt_trans in Hms₁; [ idtac | eassumption ].
+         eapply ad_hoc_lt_lt₂; try eassumption.
 
 bbb.
      Focus 2.
