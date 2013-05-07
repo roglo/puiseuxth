@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.70 2013-05-07 14:36:48 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.71 2013-05-07 15:03:21 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -637,11 +637,9 @@ Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
       → slope_expr α pt₁ pt₂ == slope_expr α pt₂ pt₃.
 Proof.
 intros pt₁ pt₂ pt₃ pts Hsort Hin H.
-Admitted. (*
 bbb.
 *)
 
-(**)
 Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
@@ -680,7 +678,9 @@ induction pts as [| pt₄]; intros.
 
   move Hms at top; subst ms₁.
   apply Qgt_alt in Heqc.
-  destruct pts.
+  clear IHpts.
+  revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hend Hlt Heqms₁ Heqc.
+  induction pts as [| pt₅]; intros.
    simpl in Heqms₁.
    subst ms; simpl.
    simpl in Hend, Heqc.
@@ -690,7 +690,31 @@ induction pts as [| pt₄]; intros.
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
-bbb.
+
+   simpl in Heqms₁.
+   remember (minimise_slope α pt₁ pt₅ pts) as ms₂.
+   symmetry in Heqms₂.
+   remember (slope_expr α pt₁ pt₄ ?= slope ms₂) as c₁.
+   symmetry in Heqc₁.
+   destruct c₁.
+    subst ms; simpl in Hend, Heqc |- *.
+    eapply IHpts; try eassumption.
+    eapply Sorted_minus_3rd; [ idtac | eassumption ].
+    intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+    subst ms; simpl in Hend, Heqc |- *.
+    subst pt₄.
+    apply Qlt_le_weak.
+    apply slope_lt₂; [ idtac | assumption ].
+    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    split; apply Qnat_lt; assumption.
+
+    subst ms; simpl in Hend |- *.
+    eapply IHpts; try eassumption.
+    eapply Sorted_minus_3rd; [ idtac | eassumption ].
+    intros x y z H₁ H₂; eapply lt_trans; eassumption.
+qed.
 *)
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
