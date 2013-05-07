@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.63 2013-05-07 00:27:31 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.64 2013-05-07 02:01:30 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -771,7 +771,6 @@ destruct Hns as [Hns| Hns].
 
         destruct Hhps as [Hhps| Hhps].
          injection Hhps; clear Hhps; intros; subst m mps.
-bbb.
          symmetry in Hend₁.
          destruct n; [ discriminate Hnp | simpl in Hnp ].
          remember (rem_pts ms₁) as pts₁.
@@ -792,6 +791,9 @@ bbb.
          remember Heqms₂ as Hms₂; clear HeqHms₂.
          eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
          rewrite <- Hnp, <- Hend₁ in Heqms₁.
+         remember Hms₁ as HH; clear HeqHH.
+         eapply minimised_slope in HH; [ idtac | eassumption ].
+         rewrite HH in Heqms₁.
 
 bbb.
      Focus 2.
