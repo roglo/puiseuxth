@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.13 2013-05-08 10:51:45 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.14 2013-05-08 11:18:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -368,6 +368,7 @@ rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
 
+(**)
 Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 intros x y z H.
@@ -376,6 +377,7 @@ rewrite <- Qplus_assoc in H.
 rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
+(**)
 
 (* to be inserted *)
 
@@ -413,6 +415,7 @@ rewrite Qminus_diag, Qplus_0_r.
 reflexivity.
 Qed.
 
+(**)
 Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
@@ -420,6 +423,7 @@ rewrite H.
 rewrite <- Qplus_minus_assoc, Qminus_diag, Qplus_0_r.
 reflexivity.
 Qed.
+(**)
 
 Lemma Qnat_eq : ∀ i j, Qnat i == Qnat j → i = j.
 Proof.
@@ -433,25 +437,21 @@ Qed.
 (* *)
 
 (*
-Lemma Zplus_cmp_compat_r : ∀ cmp n m p,
-  (n ?= m)%Z = cmp
-  → (n + p ?= m + p)%Z = cmp.
+Lemma Zplus_cmp_compat_r : ∀ n m p,
+  (n ?= m)%Z = (n + p ?= m + p)%Z.
 Proof.
 bbb.
 
-Lemma Zmult_cmp_compat_r : ∀ cmp n m p,
+Lemma Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
-  → (n ?= m)%Z = cmp
-    → (n * p ?= m * p)%Z = cmp.
+  → (n ?= m)%Z = (n * p ?= m * p)%Z.
 Proof.
 bbb.
 
-Lemma Qplus_cmp_compat_r : ∀ cmp x y z,
-  x ?= y = cmp
-  → x + z ?= y + z = cmp.
+Lemma Qplus_cmp_compat_r : ∀ x y z,
+  (x ?= y) = (x + z ?= y + z).
 Proof.
-intros cmp (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
-unfold Qcompare in H; simpl in H.
+intros (x₁, x₂) (y₁, y₂) (z₁, z₂).
 unfold Qcompare; simpl.
 do 2 rewrite Pos2Z.inj_mul.
 do 2 rewrite Z.mul_add_distr_r.
@@ -461,26 +461,39 @@ remember (z₁ * ' y₂ * ' x₂)%Z as u.
 rewrite Z.mul_shuffle0 in Hequ.
 subst u.
 rewrite <- Heqt.
-apply Zplus_cmp_compat_r.
+rewrite <- Zplus_cmp_compat_r.
 clear t Heqt.
 rewrite <- Zmult_assoc.
 rewrite Z.mul_shuffle1.
 remember (y₁ * ' z₂ * ' x₂ * ' z₂)%Z as t.
 rewrite <- Zmult_assoc in Heqt.
 rewrite Z.mul_shuffle1 in Heqt; subst t.
-apply Zmult_cmp_compat_r; [ idtac | assumption ].
+apply Zmult_cmp_compat_r.
 rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
 Qed.
 
-Lemma Qcmp_plus_minus_cmp_r : ∀ cmp x y z,
-  x ?= y + z = cmp → x - z ?= y = cmp.
+Lemma Qcmp_plus_minus_cmp_r : ∀ x y z,
+  (x ?= y + z) = (x - z ?= y).
 Proof.
-Qcmp_plus_minus_cmp_r < Show Script.
-intros cmp x y z H.
-apply Qplus_cmp_compat_r with (z := - z) in H.
-rewrite <- Qplus_assoc in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
+intros x y z.
+rewrite Qplus_cmp_compat_r with (z := - z).
+rewrite <- Qplus_assoc.
+rewrite Qplus_opp_r, Qplus_0_r.
+reflexivity.
+Qed.
+
+Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
+Proof.
+intros.
+apply Qeq_alt in H; apply Qeq_alt.
+rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
+Qed.
+
+Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
+Proof.
+intros.
+apply Qlt_alt in H; apply Qlt_alt.
+rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
 *)
