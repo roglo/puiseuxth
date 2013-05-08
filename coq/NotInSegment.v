@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.87 2013-05-08 09:04:42 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.88 2013-05-08 10:26:12 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -806,7 +806,15 @@ destruct hsl₁ as [| hs₁].
   eapply LSorted_hd in Hpts; [ idtac | eassumption ].
   eapply lt_trans in Hhj; [ idtac | eassumption ].
   apply lt_irrefl in Hhj; contradiction.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| (l, lps)]; [ discriminate Hnp | idtac ].
+ destruct pts as [| (m, mps)]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ remember (minimise_slope α (l, lps) (m, mps) pts) as ms₁.
+ symmetry in Heqms₁.
 bbb.
+*)
 
 Lemma bef_j₁ : ∀ n pts j jps segjk k kps segkx hs₁ hsl,
   LocallySorted fst_lt pts
@@ -832,111 +840,97 @@ destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
 injection Hhsl; clear Hhsl; intros Hnp; intros; subst hs₁.
 remember (minimise_slope α (l, lps) (m, mps) pts) as ms₁.
 symmetry in Heqms₁.
-destruct (eq_nat_dec h j) as [Heq| Hne].
- symmetry in Heq.
- eapply same_k_same_kps with (jps := jps) in Hhps; try eassumption.
-  subst h hps.
-  apply Decidable.not_or in Hnhps.
-  destruct Hnhps as (Hnhps); exfalso; apply Hnhps; reflexivity.
+remember Hnp as H; clear HeqH.
+apply next_ch_points_hd in H.
+rename H into Hend₁.
+destruct Hhps as [Hhps| Hhps].
+ injection Hhps; clear Hhps; intros; subst l lps.
+ symmetry in Hend₁.
+ remember Heqms₁ as H; clear HeqH.
+ eapply minimised_slope in H; [ idtac | eassumption ].
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms₁) as pts₁.
+ destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+ remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
+ symmetry in Heqms₂.
+ injection Hnp; clear Hnp; intros Hnp; intros.
+ subst segjk.
+ symmetry in Heqpts₁.
+ eapply consec_slope_lt in Heqms₁; try eassumption.
+ rewrite H in Heqms₁.
+ rewrite <- Hend₁ in Heqms₂.
+ apply next_ch_points_hd in Hnp.
+ symmetry in Hnp.
+ eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
+ rewrite Heqms₂ in Heqms₁.
+ unfold slope_expr in Heqms₁.
+ simpl in Heqms₁.
+ eapply ad_hoc_lt_lt₂; try eassumption.
+ split; assumption.
 
-  remember Hnp as H; clear HeqH.
-  apply next_ch_points_hd in H.
-  right; rewrite <- H.
-  eapply end_pt_in; eassumption.
-
- remember Hnp as H; clear HeqH.
- apply next_ch_points_hd in H.
- rename H into Hend₁.
  destruct Hhps as [Hhps| Hhps].
-  injection Hhps; clear Hhps; intros; subst l lps.
-  symmetry in Hend₁.
-  remember Heqms₁ as H; clear HeqH.
-  eapply minimised_slope in H; [ idtac | eassumption ].
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms₁) as pts₁.
-  destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
-  remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
-  symmetry in Heqms₂.
-  injection Hnp; clear Hnp; intros Hnp; intros.
-  subst segjk.
-  symmetry in Heqpts₁.
-  eapply consec_slope_lt in Heqms₁; try eassumption.
-  rewrite H in Heqms₁.
-  rewrite <- Hend₁ in Heqms₂.
-  apply next_ch_points_hd in Hnp.
-  symmetry in Hnp.
-  eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
-  rewrite Heqms₂ in Heqms₁.
-  unfold slope_expr in Heqms₁.
-  simpl in Heqms₁.
-  eapply ad_hoc_lt_lt₂; try eassumption.
-  split; assumption.
+  injection Hhps; clear Hhps; intros; subst m mps.
+  assert (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
+   as Hhjk.
+   apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
+    rewrite <- Hend₁ in |- * at 2.
+    remember Heqms₁ as H; clear HeqH.
+    eapply minimised_slope in H; [ idtac | reflexivity ].
+    rewrite <- H.
+    eapply minimise_slope_expr_le; eassumption.
 
-  destruct Hhps as [Hhps| Hhps].
-   injection Hhps; clear Hhps; intros; subst m mps.
-   assert
-    (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
-    as Hhjk.
-    apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
-     rewrite <- Hend₁ in |- * at 2.
-     remember Heqms₁ as H; clear HeqH.
-     eapply minimised_slope in H; [ idtac | reflexivity ].
-     rewrite <- H.
-     eapply minimise_slope_expr_le; eassumption.
+    remember Heqms₁ as H; clear HeqH.
+    symmetry in Hend₁.
+    eapply minimised_slope in H; [ idtac | eassumption ].
+    rewrite <- H.
+    destruct n; [ discriminate Hnp | simpl in Hnp ].
+    remember (rem_pts ms₁) as pts₁.
+    destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+    injection Hnp; clear Hnp; intros Hnp; intros.
+    remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
+    symmetry in Heqms₂.
+    subst segjk.
+    remember Heqms₂ as H₂; clear HeqH₂.
+    eapply minimised_slope in H₂; [ idtac | reflexivity ].
+    remember Hnp as H₃; clear HeqH₃.
+    apply next_ch_points_hd in H₃.
+    rewrite <- H1, <- H₃, <- H₂.
+    symmetry in Heqpts₁.
+    eapply consec_slope_lt; eassumption.
 
-     remember Heqms₁ as H; clear HeqH.
-     symmetry in Hend₁.
-     eapply minimised_slope in H; [ idtac | eassumption ].
-     rewrite <- H.
-     destruct n; [ discriminate Hnp | simpl in Hnp ].
-     remember (rem_pts ms₁) as pts₁.
-     destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
-     injection Hnp; clear Hnp; intros Hnp; intros.
-     remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
-     symmetry in Heqms₂.
-     subst segjk.
-     remember Heqms₂ as H₂; clear HeqH₂.
-     eapply minimised_slope in H₂; [ idtac | reflexivity ].
-     remember Hnp as H₃; clear HeqH₃.
-     apply next_ch_points_hd in H₃.
-     rewrite <- H1, <- H₃, <- H₂.
-     symmetry in Heqpts₁.
-     eapply consec_slope_lt; eassumption.
+   eapply ad_hoc_lt_lt₂; try eassumption.
+   split; assumption.
 
-    eapply ad_hoc_lt_lt₂; try eassumption.
-    split; assumption.
+  assert (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
+   as Hhjk.
+   apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
+    rewrite <- Hend₁ in |- * at 2.
+    remember Heqms₁ as H; clear HeqH.
+    eapply minimised_slope in H; [ idtac | reflexivity ].
+    rewrite <- H.
+    eapply min_slope_le; try eassumption.
 
-   assert
-    (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
-    as Hhjk.
-    apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
-     rewrite <- Hend₁ in |- * at 2.
-     remember Heqms₁ as H; clear HeqH.
-     eapply minimised_slope in H; [ idtac | reflexivity ].
-     rewrite <- H.
-     eapply min_slope_le; try eassumption.
+    remember Heqms₁ as H; clear HeqH.
+    symmetry in Hend₁.
+    eapply minimised_slope in H; [ idtac | eassumption ].
+    rewrite <- H.
+    destruct n; [ discriminate Hnp | simpl in Hnp ].
+    remember (rem_pts ms₁) as pts₁.
+    destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+    injection Hnp; clear Hnp; intros Hnp; intros.
+    remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
+    symmetry in Heqms₂.
+    subst segjk.
+    remember Heqms₂ as H₂; clear HeqH₂.
+    eapply minimised_slope in H₂; [ idtac | reflexivity ].
+    remember Hnp as H₃; clear HeqH₃.
+    apply next_ch_points_hd in H₃.
+    rewrite <- H1, <- H₃, <- H₂.
+    symmetry in Heqpts₁.
+    eapply consec_slope_lt; eassumption.
 
-     remember Heqms₁ as H; clear HeqH.
-     symmetry in Hend₁.
-     eapply minimised_slope in H; [ idtac | eassumption ].
-     rewrite <- H.
-     destruct n; [ discriminate Hnp | simpl in Hnp ].
-     remember (rem_pts ms₁) as pts₁.
-     destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
-     injection Hnp; clear Hnp; intros Hnp; intros.
-     remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
-     symmetry in Heqms₂.
-     subst segjk.
-     remember Heqms₂ as H₂; clear HeqH₂.
-     eapply minimised_slope in H₂; [ idtac | reflexivity ].
-     remember Hnp as H₃; clear HeqH₃.
-     apply next_ch_points_hd in H₃.
-     rewrite <- H1, <- H₃, <- H₂.
-     symmetry in Heqpts₁.
-     eapply consec_slope_lt; eassumption.
-
-    eapply ad_hoc_lt_lt₂; try eassumption.
-    split; assumption.
+   eapply ad_hoc_lt_lt₂; try eassumption.
+   split; assumption.
 Qed.
 
 Lemma bef_j₀ : ∀ n pts j jps segjk k kps segkx hsl,
