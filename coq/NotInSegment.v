@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.88 2013-05-08 10:26:12 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.89 2013-05-08 15:05:21 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1057,6 +1057,51 @@ destruct Hns as [Hns| Hns].
       apply le_neq_lt in Hge₂; [ idtac | assumption ].
       eapply conj in Hjk; [ idtac | eexact Hge₂ ].
       eapply bef_j₁; eassumption.
+
+  clear IHnsl.
+  revert n pts ns ns₁ ns₂ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
+  induction nsl as [| ns₃]; [ contradiction | intros ].
+  destruct Hns as [Hns| Hns].
+   subst ns.
+   clear IHnsl.
+   destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
+   destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
+   destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
+   destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
+   simpl in Hnsl.
+   remember Hhsl as Hjk; clear HeqHjk.
+   apply next_points_sorted in Hjk; [ idtac | assumption ].
+   apply LSorted_inv_2 in Hjk.
+   destruct Hjk as (_, Hjk); simpl in Hjk.
+   apply LSorted_inv_2 in Hjk.
+   destruct Hjk as (_, Hjk); simpl in Hjk.
+   apply LSorted_inv_2 in Hjk.
+   destruct Hjk as (Hjk); simpl in Hjk.
+   unfold hs_x_lt in Hjk; simpl in Hjk.
+   injection Hnsl; clear Hnsl; intros.
+   subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
+   destruct (lt_dec k h) as [Hlt| Hge].
+    eapply lt_aft_k with (hsl₁ := [hs₁; hs₂ … []]); simpl; try eassumption.
+
+    destruct (eq_nat_dec h k) as [Heq| Hne].
+     exfalso; revert Heq.
+     eapply not_k with (hsl₁ := [hs₁; hs₂ … []]); simpl; eassumption.
+
+     apply not_gt in Hge.
+     destruct (lt_dec j h) as [Hlt| Hge₂].
+      apply le_neq_lt in Hge; [ idtac | assumption ].
+      eapply conj in Hge; [ idtac | eassumption ].
+      eapply lt_bet_j_and_k with (hsl₁ := [hs₁; hs₂ … []]); simpl;
+       eassumption.
+
+      apply not_gt in Hge₂.
+      destruct (eq_nat_dec h j) as [Heq| Hne₂].
+       exfalso; revert Heq.
+       eapply not_j with (hsl₁ := [hs₁; hs₂ … []]); simpl; eassumption.
+
+       apply le_neq_lt in Hge₂; [ idtac | assumption ].
+       eapply conj in Hjk; [ idtac | eexact Hge₂ ].
+       eapply bef_j with (hsl₁ := [hs₁; hs₂ … []]); simpl; try eassumption.
 bbb.
 
 End convex_hull.
