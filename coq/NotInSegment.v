@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.76 2013-05-08 00:54:06 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.77 2013-05-08 01:35:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -901,16 +901,34 @@ destruct Hns as [Hns| Hns].
          assert
           (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
           as Hhjk.
-          Focus 2.
-          eapply ad_hoc_lt_lt₂; try eassumption.
-          split; assumption.
-
           apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
            rewrite <- Hend₁ in |- * at 2.
            remember Heqms₁ as H; clear HeqH.
            eapply minimised_slope in H; [ idtac | reflexivity ].
            rewrite <- H.
            eapply minimise_slope_expr_le; eassumption.
+
+           remember Heqms₁ as H; clear HeqH.
+           symmetry in Hend₁.
+           eapply minimised_slope in H; [ idtac | eassumption ].
+           rewrite <- H.
+           destruct n; [ discriminate Hnp | simpl in Hnp ].
+           remember (rem_pts ms₁) as pts₁.
+           destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+           injection Hnp; clear Hnp; intros Hnp; intros.
+           remember (minimise_slope α (end_pt ms₁) pt₁ pts₁) as ms₂.
+           symmetry in Heqms₂.
+           subst segjk.
+           remember Heqms₂ as H₂; clear HeqH₂.
+           eapply minimised_slope in H₂; [ idtac | reflexivity ].
+           remember Hnp as H₃; clear HeqH₃.
+           apply next_ch_points_hd in H₃.
+           rewrite <- H2, <- H₃, <- H₂.
+           symmetry in Heqpts₁.
+           eapply consec_slope_lt; eassumption.
+
+          eapply ad_hoc_lt_lt₂; try eassumption.
+          split; assumption.
 bbb.
         destruct Hhps as [Hhps| Hhps].
          injection Hhps; clear Hhps; intros; subst m mps.
