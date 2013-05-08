@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.77 2013-05-08 01:35:56 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.78 2013-05-08 01:46:38 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -929,6 +929,15 @@ destruct Hns as [Hns| Hns].
 
           eapply ad_hoc_lt_lt₂; try eassumption.
           split; assumption.
+
+         assert
+          (slope_expr α (h, hps) (j, jps) < slope_expr α (j, jps) (k, kps))
+          as Hhjk.
+          apply Qle_lt_trans with (y := slope_expr α (l, lps) (j, jps)).
+           rewrite <- Hend₁ in |- * at 2.
+           remember Heqms₁ as H; clear HeqH.
+           eapply minimised_slope in H; [ idtac | reflexivity ].
+           rewrite <- H.
 bbb.
         destruct Hhps as [Hhps| Hhps].
          injection Hhps; clear Hhps; intros; subst m mps.
