@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.10 2013-05-07 14:36:48 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.11 2013-05-08 00:31:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,6 +8,59 @@ Require Import ConvexHull.
 Require Import Puiseux.
 
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+
+Lemma slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  ¬x₁ == x₂
+  → ¬x₂ == x₃
+    → ¬x₃ == x₁
+      → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₁) / (x₃ - x₁)
+        → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₂) / (x₃ - x₂).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
+apply Qeq_shift_mult_l in H.
+ symmetry in H.
+ rewrite Qmult_div_swap in H.
+ apply Qeq_shift_mult_l in H.
+  apply Qeq_shift_div_l.
+   intros HH; apply H₁₂.
+   symmetry; apply Qminus_eq; assumption.
+
+   symmetry.
+   rewrite Qmult_div_swap.
+   apply Qeq_shift_div_l.
+    intros HH; apply H₂₃.
+    symmetry; apply Qminus_eq; assumption.
+
+    setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
+     (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
+    setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
+     (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
+    apply Qplus_inj_r in H.
+    setoid_replace ((y₃ - y₂) * (x₂ - x₁)) with
+     (x₁ * y₂ + x₂ * y₃ - x₁ * y₃ - x₂ * y₂) by ring.
+    setoid_replace ((y₂ - y₁) * (x₃ - x₂)) with
+     (x₂ * y₁ + x₃ * y₂ - x₃ * y₁ - x₂ * y₂) by ring.
+    unfold Qminus at 1.
+    unfold Qminus at 2.
+    apply Qplus_inj_r.
+    do 2 apply Qminus_eq_eq_plus_r in H.
+    do 4 rewrite <- Qplus_minus_swap in H.
+    symmetry in H.
+    do 2 apply Qminus_eq_eq_plus_r in H.
+    apply Qeq_plus_minus_eq_r.
+    rewrite <- Qplus_minus_swap.
+    symmetry.
+    apply Qeq_plus_minus_eq_r.
+    setoid_replace (x₂ * y₁ + x₃ * y₂ + x₁ * y₃) with
+     (x₃ * y₂ + x₁ * y₃ + x₂ * y₁) by ring.
+    rewrite H; ring.
+
+  intros HH; apply H₃₁.
+  apply Qminus_eq; assumption.
+
+ intros HH; apply H₁₂.
+ symmetry; apply Qminus_eq; assumption.
+Qed.
 
 Lemma slope_lt₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃

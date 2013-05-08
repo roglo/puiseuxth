@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.10 2013-05-03 08:52:51 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.11 2013-05-08 00:31:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,19 +35,19 @@ induction l₁ as [| y]; intros x l₂.
  apply IHl₁.
 Qed.
 
-Lemma Qmutual_shift_div : ∀ a b c d,
-  0 < b
-  → 0 < d
-    → a / b < c / d
-      → a * d < c * b.
+Lemma Qmutual_shift_div : ∀ x y z t,
+  0 < y
+  → 0 < t
+    → x / y < z / t
+      → x * t < z * y.
 Proof.
-intros a b c d Hb Hd H.
-apply Qmult_lt_compat_r with (z := b) in H; [ idtac | assumption ].
+intros x y z t Hb Hd H.
+apply Qmult_lt_compat_r with (z := y) in H; [ idtac | assumption ].
 rewrite Qmult_comm in H.
 rewrite Qmult_div_r in H.
- apply Qmult_lt_compat_r with (z := d) in H; [ idtac | assumption ].
+ apply Qmult_lt_compat_r with (z := t) in H; [ idtac | assumption ].
  rewrite <- Qmult_assoc in H.
- remember (a * d) as t.
+ remember (x * t) as u.
  rewrite Qmult_comm in H.
  rewrite <- Qmult_assoc in H.
  rewrite Qmult_div_r in H.
@@ -58,16 +58,16 @@ rewrite Qmult_div_r in H.
  intros HH; rewrite HH in Hb; apply Qlt_irrefl in Hb; contradiction.
 Qed.
 
-Lemma Qdiv_lt_compat_r : ∀ a b c, 0 < c → a < b → a / c < b / c.
+Lemma Qdiv_lt_compat_r : ∀ x y z, 0 < z → x < y → x / z < y / z.
 Proof.
-intros a b c Hc H.
+intros x y z Hc H.
 apply Qmult_lt_compat_r; [ idtac | assumption ].
 apply Qinv_lt_0_compat; assumption.
 Qed.
 
-Lemma Qdiv_lt_reg_r : ∀ a b c, 0 < c → a / c < b / c → a < b.
+Lemma Qdiv_lt_reg_r : ∀ x y z, 0 < z → x / z < y / z → x < y.
 Proof.
-intros a b c Hc H.
+intros x y z Hc H.
 apply Qmutual_shift_div in H; [ idtac | assumption | assumption ].
 apply Qmult_lt_r in H; assumption.
 Qed.
@@ -121,9 +121,9 @@ Proof.
 intros x y H; rewrite H; reflexivity.
 Qed.
 
-Lemma Qgt_0_not_0 : ∀ a, 0 < a → ¬a == 0.
+Lemma Qgt_0_not_0 : ∀ x, 0 < x → ¬x == 0.
 Proof.
-intros a Ha.
+intros x Ha.
 intros H.
 rewrite H in Ha.
 apply Qlt_irrefl in Ha; assumption.
@@ -138,38 +138,38 @@ apply Zlt_left_lt.
 assumption.
 Qed.
 
-Lemma Qlt_shift_mult_l : ∀ a b c, 0 < c → a / c < b → a < b * c.
+Lemma Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
 Proof.
-intros a b c Hc H.
-apply Qmult_lt_compat_r with (z := c) in H; [ idtac | assumption ].
+intros x y z Hc H.
+apply Qmult_lt_compat_r with (z := z) in H; [ idtac | assumption ].
 unfold Qdiv in H.
 rewrite <- Qmult_assoc in H.
-setoid_replace (/ c * c) with (c * / c) in H by apply Qmult_comm.
+setoid_replace (/ z * z) with (z * / z) in H by apply Qmult_comm.
 rewrite Qmult_inv_r in H; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r in H; assumption.
 Qed.
 
-Lemma Qlt_shift_mult_r : ∀ a b c, 0 < c → a < b / c → a * c < b.
+Lemma Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
 Proof.
-intros a b c Hc H.
-apply Qmult_lt_compat_r with (z := c) in H; [ idtac | assumption ].
+intros x y z Hc H.
+apply Qmult_lt_compat_r with (z := z) in H; [ idtac | assumption ].
 unfold Qdiv in H.
 rewrite <- Qmult_assoc in H.
-setoid_replace (/ c * c) with (c * / c) in H by apply Qmult_comm.
+setoid_replace (/ z * z) with (z * / z) in H by apply Qmult_comm.
 rewrite Qmult_inv_r in H; [ idtac | apply Qgt_0_not_0; assumption ].
 rewrite Qmult_1_r in H; assumption.
 Qed.
 
-Lemma Qminus_eq : ∀ a b, a - b == 0 → a == b.
+Lemma Qminus_eq : ∀ x y, x - y == 0 → x == y.
 Proof.
-intros a b H.
-apply Qplus_inj_r with (z := - b).
+intros x y H.
+apply Qplus_inj_r with (z := - y).
 rewrite Qplus_opp_r.
 assumption.
 Qed.
 
-Lemma Qmult_div_assoc : ∀ a b c, a * (b / c) == (a * b) / c.
-Proof. intros a b c; unfold Qdiv; apply Qmult_assoc. Qed.
+Lemma Qmult_div_assoc : ∀ x y z, x * (y / z) == (x * y) / z.
+Proof. intros x y z; unfold Qdiv; apply Qmult_assoc. Qed.
 
 Lemma Qmult_opp_l : ∀ x y, (- x) * y == - (x * y).
 Proof.
@@ -203,7 +203,7 @@ rewrite Qmult_plus_distr_r.
 rewrite Qmult_opp_r; reflexivity.
 Qed.
 
-Lemma QZ_plus : ∀ a b, a + b # 1 == (a # 1) + (b # 1).
+Lemma QZ_plus : ∀ x y, x + y # 1 == (x # 1) + (y # 1).
 Proof.
 intros.
 unfold Qplus; simpl.
@@ -211,7 +211,7 @@ do 2 rewrite Z.mul_1_r.
 reflexivity.
 Qed.
 
-Lemma QZ_minus : ∀ a b, a - b # 1 == (a # 1) - (b # 1).
+Lemma QZ_minus : ∀ x y, x - y # 1 == (x # 1) - (y # 1).
 Proof.
 intros.
 unfold Qminus, Qplus, Zminus; simpl.
@@ -254,9 +254,9 @@ apply Nat2Z.inj in HH.
 subst j; apply lt_irrefl in H; assumption.
 Qed.
 
-Lemma Qnat_minus : ∀ a b, b ≤ a → Qnat a - Qnat b == Qnat (a - b).
+Lemma Qnat_minus : ∀ x y, y ≤ x → Qnat x - Qnat y == Qnat (x - y).
 Proof.
-intros a b Hba.
+intros x y Hba.
 unfold Qnat, Qminus, Qplus; simpl.
 do 2 rewrite Zmult_1_r.
 rewrite Nat2Z.inj_sub; [ idtac | assumption ].
@@ -273,7 +273,7 @@ Qed.
 
 Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
 Proof.
-intros (a₁, a₂) (b₁, b₂); unfold Qlt; simpl; intros H.
+intros (x₁, x₂) (y₁, y₂); unfold Qlt; simpl; intros H.
 apply Z.opp_lt_mono.
 do 2 rewrite Z.mul_opp_l.
 do 2 rewrite Z.opp_involutive.
@@ -283,9 +283,9 @@ Qed.
 Lemma Qopp_minus : ∀ x y, - (x - y) == y - x.
 Proof. intros; field. Qed.
 
-Lemma Qplus_div : ∀ a b c, ¬(c == 0) → a + b / c == (a * c + b) / c.
+Lemma Qplus_div : ∀ x y z, ¬(z == 0) → x + y / z == (x * z + y) / z.
 Proof.
-intros a b c Hc.
+intros x y z Hc.
 rewrite Qdiv_plus_distr_r.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
@@ -375,4 +375,48 @@ apply Qplus_lt_compat_r with (z := - z) in H.
 rewrite <- Qplus_assoc in H.
 rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
+Qed.
+
+(* to be inserted *)
+
+Lemma Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
+Proof.
+intros.
+rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
+reflexivity.
+Qed.
+
+Lemma Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
+Proof.
+intros x y z Hc H.
+rewrite <- H.
+rewrite Qmult_div_swap.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
+Proof.
+intros x y z Hz H.
+rewrite H.
+rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma Qminus_diag : ∀ x, x - x == 0.
+Proof. intros; apply Qplus_opp_r. Qed.
+
+Lemma Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
+Proof.
+intros.
+rewrite <- H.
+rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
+rewrite Qminus_diag, Qplus_0_r.
+reflexivity.
+Qed.
+
+Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == z + y → x - y == z.
+Proof.
+intros.
+rewrite H.
+rewrite <- Qplus_minus_assoc, Qminus_diag, Qplus_0_r.
+reflexivity.
 Qed.

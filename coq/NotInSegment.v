@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.74 2013-05-08 00:20:49 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.75 2013-05-08 00:31:52 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -629,80 +629,6 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
 
-Lemma Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
-Proof.
-intros.
-rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
-reflexivity.
-Qed.
-
-Lemma Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
-Proof.
-intros x y z Hc H.
-rewrite <- H.
-rewrite Qmult_div_swap.
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
-Qed.
-
-Lemma Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
-Proof.
-intros x y z Hz H.
-rewrite H.
-rewrite Qdiv_mult_l; [ reflexivity | assumption ].
-Qed.
-
-Lemma Qminus_diag : ∀ x, x - x == 0.
-Proof. intros; apply Qplus_opp_r. Qed.
-
-Lemma Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
-Proof.
-intros.
-rewrite <- H.
-rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
-rewrite Qminus_diag, Qplus_0_r.
-reflexivity.
-Qed.
-
-Lemma xxx : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  ¬x₁ == x₂
-  → ¬x₂ == x₃
-    → ¬x₃ == x₁
-      → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₁) / (x₃ - x₁)
-        → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₂) / (x₃ - x₂).
-Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
-apply Qeq_shift_mult_l in H.
- symmetry in H.
- rewrite Qmult_div_swap in H.
- apply Qeq_shift_mult_l in H.
-  apply Qeq_shift_div_l.
-   intros HH; apply H₁₂.
-   symmetry; apply Qminus_eq; assumption.
-
-   symmetry.
-   rewrite Qmult_div_swap.
-   apply Qeq_shift_div_l.
-    intros HH; apply H₂₃.
-    symmetry; apply Qminus_eq; assumption.
-
-    setoid_replace ((y₃ - y₁) * (x₂ - x₁)) with
-     (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
-    setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
-     (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
-    apply Qplus_inj_r in H.
-    setoid_replace ((y₃ - y₂) * (x₂ - x₁)) with
-     (x₁ * y₂ + x₂ * y₃ - x₁ * y₃ - x₂ * y₂) by ring.
-    setoid_replace ((y₂ - y₁) * (x₃ - x₂)) with
-     (x₂ * y₁ + x₃ * y₂ - x₃ * y₁ - x₂ * y₂) by ring.
-    unfold Qminus at 1.
-    unfold Qminus at 2.
-    apply Qplus_inj_r.
-    do 2 apply Qminus_eq_eq_plus_r in H.
-    do 4 rewrite <- Qplus_minus_swap in H.
-    symmetry in H.
-    do 2 apply Qminus_eq_eq_plus_r in H.
-bbb.
-
 (**)
 Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
@@ -711,6 +637,7 @@ Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
       → slope_expr α pt₁ pt₂ == slope_expr α pt₂ pt₃.
 Proof.
 intros pt₁ pt₂ pt₃ pts Hsort Hin H.
+apply slope_eq; [ idtac | idtac | idtac | assumption ].
 bbb.
 *)
 
