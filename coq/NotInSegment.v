@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.84 2013-05-08 08:42:38 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.85 2013-05-08 08:49:06 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -756,7 +756,7 @@ induction pts as [| pt₄]; intros.
     intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
-Lemma yyy : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
+Lemma min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → pt₃ ∈ pts
@@ -776,7 +776,6 @@ destruct c.
  subst ms; simpl in Hend |- *.
  destruct Hpt as [Hpt| Hpt].
   subst pt₅.
-  apply Qeq_alt in Heqc.
   eapply minimise_slope_expr_le; try eassumption.
   eapply LSorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
@@ -794,8 +793,18 @@ destruct c.
   intros x H; apply lt_irrefl in H; contradiction.
 
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
-bbb.
-*)
+
+ move Hms at top; subst ms₁.
+ destruct Hpt as [Hpt| Hpt].
+  subst pt₅.
+  eapply minimise_slope_expr_le; try eassumption.
+  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+  eapply IHpts; try eassumption.
+  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
+Qed.
 
 Lemma bef_j₁ : ∀ n pts j jps segjk k kps segkx hs₁ hsl,
   LocallySorted fst_lt pts
@@ -903,7 +912,7 @@ destruct (eq_nat_dec h j) as [Heq| Hne].
      remember Heqms₁ as H; clear HeqH.
      eapply minimised_slope in H; [ idtac | reflexivity ].
      rewrite <- H.
-     eapply yyy; try eassumption.
+     eapply min_slope_le; try eassumption.
 
      remember Heqms₁ as H; clear HeqH.
      symmetry in Hend₁.
