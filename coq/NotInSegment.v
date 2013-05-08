@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.80 2013-05-08 02:55:57 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.81 2013-05-08 07:39:30 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -764,6 +764,19 @@ Lemma yyy : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
         → (fst pt₃ < fst pt₄)%nat
           → slope_expr α pt₃ pt₄ <= slope ms.
 Proof.
+intros pt₁ pt₂ pt₃ pt₄ pts ms Hsort Hms Hpt Hend Hlt.
+revert pt₁ pt₂ pt₃ pt₄ ms Hsort Hms Hpt Hend Hlt.
+induction pts as [| pt₅]; [ contradiction | intros ].
+simpl in Hms.
+remember (minimise_slope α pt₁ pt₅ pts) as ms₁.
+symmetry in Heqms₁.
+remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+symmetry in Heqc.
+destruct c.
+ subst ms; simpl in Hend |- *.
+ destruct Hpt as [Hpt| Hpt].
+  subst pt₅.
+  apply Qeq_alt in Heqc.
 bbb.
 *)
 
