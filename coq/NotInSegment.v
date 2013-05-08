@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.86 2013-05-08 09:00:14 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.87 2013-05-08 09:04:42 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -576,7 +576,7 @@ Lemma not_j : ∀ n pts hsl₁ j jps k kps segjk segkx hsl,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
       hsl₁ ++
-      [ {| pt := (j, jps); oth := segjk |};
+      [{| pt := (j, jps); oth := segjk |};
        {| pt := (k, kps); oth := segkx |} … hsl]
     → ∀ h hps, (h, hps) ∈ pts
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
@@ -773,6 +773,40 @@ destruct c.
   eapply LSorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
+
+Lemma bef_j : ∀ n pts j jps segjk k kps segkx hsl₁ hsl,
+  LocallySorted fst_lt pts
+  → next_ch_points α n pts =
+      hsl₁ ++
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+        → (h < j < k)%nat
+          → valuation α jps +
+            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            valuation α hps +
+            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+intros n pts j jps segjk k kps segkx hsl₁ hsl.
+intros Hpts Hnp h hps Hhps Hnhps (Hhj, Hjk).
+destruct hsl₁ as [| hs₁].
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| (l, lps)]; [ discriminate Hnp | idtac ].
+ destruct pts as [| (m, mps)]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros; subst l lps.
+ rename H into Hnp.
+ rename H0 into Hseg.
+ destruct Hhps as [Hhps| Hhps].
+  injection Hhps; clear Hhps; intros; subst h hps.
+  simpl in Hnhps.
+  apply Decidable.not_or in Hnhps.
+  destruct Hnhps as (H); exfalso; apply H; reflexivity.
+
+  eapply LSorted_hd in Hpts; [ idtac | eassumption ].
+  eapply lt_trans in Hhj; [ idtac | eassumption ].
+  apply lt_irrefl in Hhj; contradiction.
+bbb.
 
 Lemma bef_j₁ : ∀ n pts j jps segjk k kps segkx hs₁ hsl,
   LocallySorted fst_lt pts
