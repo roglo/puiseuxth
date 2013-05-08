@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.12 2013-05-08 00:54:06 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.13 2013-05-08 10:51:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -413,7 +413,7 @@ rewrite Qminus_diag, Qplus_0_r.
 reflexivity.
 Qed.
 
-Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == z + y → x - y == z.
+Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
 rewrite H.
@@ -429,3 +429,58 @@ unfold Qeq in H; simpl in H.
 do 2 rewrite Zmult_1_r in H.
 apply Nat2Z.inj; assumption.
 Qed.
+
+(* *)
+
+(*
+Lemma Zplus_cmp_compat_r : ∀ cmp n m p,
+  (n ?= m)%Z = cmp
+  → (n + p ?= m + p)%Z = cmp.
+Proof.
+bbb.
+
+Lemma Zmult_cmp_compat_r : ∀ cmp n m p,
+  (0 < p)%Z
+  → (n ?= m)%Z = cmp
+    → (n * p ?= m * p)%Z = cmp.
+Proof.
+bbb.
+
+Lemma Qplus_cmp_compat_r : ∀ cmp x y z,
+  x ?= y = cmp
+  → x + z ?= y + z = cmp.
+Proof.
+intros cmp (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
+unfold Qcompare in H; simpl in H.
+unfold Qcompare; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+do 2 rewrite Z.mul_add_distr_r.
+do 4 rewrite Z.mul_assoc.
+remember (z₁ * ' y₂ * ' x₂ * ' z₂)%Z as t.
+remember (z₁ * ' y₂ * ' x₂)%Z as u.
+rewrite Z.mul_shuffle0 in Hequ.
+subst u.
+rewrite <- Heqt.
+apply Zplus_cmp_compat_r.
+clear t Heqt.
+rewrite <- Zmult_assoc.
+rewrite Z.mul_shuffle1.
+remember (y₁ * ' z₂ * ' x₂ * ' z₂)%Z as t.
+rewrite <- Zmult_assoc in Heqt.
+rewrite Z.mul_shuffle1 in Heqt; subst t.
+apply Zmult_cmp_compat_r; [ idtac | assumption ].
+rewrite <- Pos2Z.inj_mul.
+apply Pos2Z.is_pos.
+Qed.
+
+Lemma Qcmp_plus_minus_cmp_r : ∀ cmp x y z,
+  x ?= y + z = cmp → x - z ?= y = cmp.
+Proof.
+Qcmp_plus_minus_cmp_r < Show Script.
+intros cmp x y z H.
+apply Qplus_cmp_compat_r with (z := - z) in H.
+rewrite <- Qplus_assoc in H.
+rewrite Qplus_opp_r, Qplus_0_r in H.
+assumption.
+Qed.
+*)
