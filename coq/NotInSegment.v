@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.73 2013-05-07 18:16:16 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.74 2013-05-08 00:20:49 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -629,26 +629,38 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
 
-Lemma Qmult_div_swap : ∀ a b c : Q, a / b * c == a * c / b.
+Lemma Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
 Proof.
 intros.
 rewrite Qmult_comm, Qmult_div_assoc, Qmult_comm.
 reflexivity.
 Qed.
 
-Lemma Qeq_shift_mult_l : ∀ a b c : Q, ¬c == 0 → a / c == b → a == b * c.
+Lemma Qeq_shift_mult_l : ∀ x y z, ¬z == 0 → x / z == y → x == y * z.
 Proof.
-intros a b c Hc H.
+intros x y z Hc H.
 rewrite <- H.
 rewrite Qmult_div_swap.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma Qeq_shift_div_l : ∀ a b c : Q, ¬c == 0 → a == b * c → a / c == b.
+Lemma Qeq_shift_div_l : ∀ x y z, ¬z == 0 → x == y * z → x / z == y.
 Proof.
-intros a b c Hc H.
+intros x y z Hz H.
 rewrite H.
 rewrite Qdiv_mult_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma Qminus_diag : ∀ x, x - x == 0.
+Proof. intros; apply Qplus_opp_r. Qed.
+
+Lemma Qminus_eq_eq_plus_r : ∀ x y z, x - y == z → x == z + y.
+Proof.
+intros.
+rewrite <- H.
+rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
+rewrite Qminus_diag, Qplus_0_r.
+reflexivity.
 Qed.
 
 Lemma xxx : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -685,6 +697,10 @@ apply Qeq_shift_mult_l in H.
     unfold Qminus at 1.
     unfold Qminus at 2.
     apply Qplus_inj_r.
+    do 2 apply Qminus_eq_eq_plus_r in H.
+    do 4 rewrite <- Qplus_minus_swap in H.
+    symmetry in H.
+    do 2 apply Qminus_eq_eq_plus_r in H.
 bbb.
 
 (**)
