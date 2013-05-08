@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.81 2013-05-08 07:39:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.82 2013-05-08 07:46:00 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -777,6 +777,13 @@ destruct c.
  destruct Hpt as [Hpt| Hpt].
   subst pt₅.
   apply Qeq_alt in Heqc.
+  eapply minimise_slope_expr_le; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+  eapply IHpts; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
 bbb.
 *)
 
