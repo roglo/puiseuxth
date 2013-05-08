@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.75 2013-05-08 00:31:52 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.76 2013-05-08 00:54:06 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -629,8 +629,7 @@ destruct Hhps as [Hhps| Hhps].
  apply lt_irrefl in Hhj; contradiction.
 Qed.
 
-(**)
-Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
+Lemma slope_expr_eq : ∀ pt₁ pt₂ pt₃ pts,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → pt₃ ∈ pts
     → slope_expr α pt₁ pt₂ == slope_expr α pt₁ pt₃
@@ -638,10 +637,50 @@ Lemma yyy : ∀ pt₁ pt₂ pt₃ pts,
 Proof.
 intros pt₁ pt₂ pt₃ pts Hsort Hin H.
 apply slope_eq; [ idtac | idtac | idtac | assumption ].
-bbb.
-*)
+ intros HH.
+ apply Qnat_eq in HH.
+ apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+ unfold fst_lt in Hlt.
+ rewrite HH in Hlt.
+ apply lt_irrefl in Hlt; contradiction.
 
-Lemma zzz : ∀ pt₁ pt₂ pt₃ pts ms,
+ intros HH.
+ apply Qnat_eq in HH.
+ clear H.
+ induction pts as [| pt₄]; [ contradiction | idtac ].
+ simpl in Hin.
+ destruct Hin as [Hin| Hin].
+  subst pt₄.
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+  unfold fst_lt in Hlt₂.
+  rewrite HH in Hlt₂.
+  apply lt_irrefl in Hlt₂; contradiction.
+
+  apply IHpts; [ idtac | assumption ].
+  eapply Sorted_minus_3rd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
+
+ intros HH.
+ apply Qnat_eq in HH.
+ clear H.
+ induction pts as [| pt₄]; [ contradiction | idtac ].
+ simpl in Hin.
+ destruct Hin as [Hin| Hin].
+  subst pt₄.
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+  unfold fst_lt in Hlt₂.
+  rewrite HH in Hlt₂.
+  eapply lt_trans in Hlt₂; [ idtac | eassumption ].
+  apply lt_irrefl in Hlt₂; contradiction.
+
+  apply IHpts; [ idtac | assumption ].
+  eapply Sorted_minus_3rd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
+Qed.
+
+Lemma minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope α pt₁ pt₂ pts = ms
     → end_pt ms = pt₃
@@ -665,7 +704,7 @@ induction pts as [| pt₄]; intros.
   remember Heqms₁ as H; clear HeqH.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
   rewrite <- Heqc in Heqms₁ |- *.
-  eapply yyy in Heqms₁; try eassumption.
+  eapply slope_expr_eq in Heqms₁; try eassumption.
    rewrite Heqms₁; apply Qle_refl.
 
    rewrite Hend.
@@ -715,8 +754,7 @@ induction pts as [| pt₄]; intros.
     eapply IHpts; try eassumption.
     eapply Sorted_minus_3rd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply lt_trans; eassumption.
-qed.
-*)
+Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
@@ -872,7 +910,7 @@ destruct Hns as [Hns| Hns].
            remember Heqms₁ as H; clear HeqH.
            eapply minimised_slope in H; [ idtac | reflexivity ].
            rewrite <- H.
-           eapply zzz; eassumption.
+           eapply minimise_slope_expr_le; eassumption.
 bbb.
         destruct Hhps as [Hhps| Hhps].
          injection Hhps; clear Hhps; intros; subst m mps.

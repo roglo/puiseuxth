@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.11 2013-05-08 00:31:52 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.12 2013-05-08 00:54:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -419,4 +419,13 @@ intros.
 rewrite H.
 rewrite <- Qplus_minus_assoc, Qminus_diag, Qplus_0_r.
 reflexivity.
+Qed.
+
+Lemma Qnat_eq : ∀ i j, Qnat i == Qnat j → i = j.
+Proof.
+intros.
+unfold Qnat in H.
+unfold Qeq in H; simpl in H.
+do 2 rewrite Zmult_1_r in H.
+apply Nat2Z.inj; assumption.
 Qed.
