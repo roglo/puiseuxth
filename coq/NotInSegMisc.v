@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.11 2013-05-08 00:31:52 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.12 2013-05-08 08:06:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -389,7 +389,7 @@ destruct Hhps as [Hhps| Hhps].
    injection Hms; clear Hms; intros; subst h hps.
    apply lt_irrefl in Hkh; contradiction.
 
-   eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
+   eapply LSorted_hd in Hsort; [ idtac | eassumption ].
    simpl in Hsort.
    eapply lt_trans in Hsort; [ idtac | eassumption ].
    apply lt_irrefl in Hsort; contradiction.
@@ -402,7 +402,7 @@ destruct Hhps as [Hhps| Hhps].
   simpl in Hep |- *.
   eapply IHpts; try eassumption.
   destruct pts as [| pts₁]; [ constructor | idtac ].
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+  apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 
   simpl in Hep |- *.
   subst pt.
@@ -412,7 +412,7 @@ destruct Hhps as [Hhps| Hhps].
 
   eapply IHpts; try eassumption.
   destruct pts as [| pts₁]; [ constructor | idtac ].
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+  apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
 Lemma points_after_k : ∀ n pts j jps k kps seg seg₂ hsl γ β,
@@ -447,7 +447,7 @@ destruct Hhps as [Hhps| Hhps].
  destruct Hhps as [Hhps| Hhps]; [ exfalso | idtac ].
   subst pt₁.
   symmetry in Heqms₁.
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
   rewrite Hep₁ in Heqms₁.
   apply le_not_lt in Heqms₁.
@@ -465,18 +465,18 @@ destruct Hhps as [Hhps| Hhps].
     split; [ idtac | assumption ].
     destruct pt₁ as (l, lps).
     apply lt_trans with (m := l).
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+     apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-     eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
+     apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+     eapply LSorted_hd in Hsort; [ idtac | eassumption ].
      assumption.
 
     unfold slope_expr in Heqms₁; simpl in Heqms₁.
     assumption.
 
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
    destruct pts as [| pt₂]; [ constructor | idtac ].
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+   apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 Qed.
 
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
@@ -662,23 +662,23 @@ destruct Hhps as [Hhps| Hhps].
      destruct Hseg as (Hlt₁, Hseg).
      eapply IHpts; try eassumption.
      constructor.
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort as (Hlt₂, Hsort).
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort; assumption.
 
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort as (Hlt₂, Hsort).
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort; eapply lt_trans; eassumption.
 
      simpl in Hep₁, Hseg, Hnp.
      subst pt₁.
-     apply LocallySorted_inv_2 in Hsort.
+     apply LSorted_inv_2 in Hsort.
      destruct Hsort as (Hlt₂, Hsort).
-     apply LocallySorted_inv_2 in Hsort.
+     apply LSorted_inv_2 in Hsort.
      destruct Hsort as (Hlt₃, Hsort).
-     eapply LocallySorted_hd in Hsort; [ idtac | eassumption ].
+     eapply LSorted_hd in Hsort; [ idtac | eassumption ].
      unfold fst_lt in Hlt₃.
      simpl in Hlt₃, Hsort.
      clear Hlt₂.
@@ -688,14 +688,14 @@ destruct Hhps as [Hhps| Hhps].
 
      eapply IHpts; try eassumption.
      constructor.
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort as (Hlt₂, Hsort).
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort; assumption.
 
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort as (Hlt₂, Hsort).
-      apply LocallySorted_inv_2 in Hsort.
+      apply LSorted_inv_2 in Hsort.
       destruct Hsort; eapply lt_trans; eassumption.
 Qed.
 
@@ -707,13 +707,13 @@ induction pts as [| (h, hps)]; [ intros HH; contradiction | idtac ].
 intros HH.
 destruct HH as [HH| HH].
  injection HH; clear HH; intros; subst h hps.
- apply LocallySorted_inv_2 in H; destruct H as (Hlt, H).
+ apply LSorted_inv_2 in H; destruct H as (Hlt, H).
  apply lt_irrefl in Hlt; assumption.
 
  revert HH; apply IHpts.
- apply LocallySorted_inv_2 in H; destruct H as (Hlt₁, H).
+ apply LSorted_inv_2 in H; destruct H as (Hlt₁, H).
  destruct pts as [| pt₂]; [ constructor | idtac ].
- apply LocallySorted_inv_2 in H; destruct H as (Hlt₂, H).
+ apply LSorted_inv_2 in H; destruct H as (Hlt₂, H).
  constructor; [ assumption | idtac ].
  eapply lt_trans; eassumption.
 Qed.
@@ -738,7 +738,7 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   exfalso; revert Hjps; eapply sorted_hd_not_in_tl; eassumption.
 
   destruct pts as [| pt₂]; [ contradiction | idtac ].
-  apply LocallySorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
+  apply LSorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
   eapply IHpts; eassumption.
 Qed.
 Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,

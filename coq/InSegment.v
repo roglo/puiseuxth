@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.3 2013-05-06 13:02:48 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.4 2013-05-08 08:06:22 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -24,7 +24,7 @@ Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
     Qnat k * ((valuation α jps - valuation α kps) / Qnat (k - j)).
 Proof.
 intros j jps seg₁ k kps seg₂ hsl Hsort.
-apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
 unfold hs_x_lt in Hlt; simpl in Hlt.
 unfold Qnat.
 rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
@@ -92,15 +92,15 @@ induction pts as [| pt₁]; intros.
      rewrite Z.mul_1_r, Z.add_opp_r.
      intros H.
      apply Zminus_eq, Nat2Z.inj in H.
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+     apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
      subst i.
      apply lt_irrefl in Hlt; contradiction.
 
      apply lt_le_weak.
-     apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+     apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
     apply minimise_slope_le in Hms; [ idtac | assumption ].
     rewrite <- Hnp in Hms.
     eapply le_trans; [ idtac | eassumption ].
@@ -108,19 +108,19 @@ induction pts as [| pt₁]; intros.
     eapply le_lt_trans; [ idtac | eassumption ].
     eapply lt_le_weak; eassumption.
 
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
     apply lt_le_weak; assumption.
 
-    apply LocallySorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
     apply lt_le_weak; assumption.
 
    eapply IHpts; try eassumption.
-   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   eapply LSorted_minus_2nd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply lt_trans; eassumption.
 
   symmetry in Heqms₁.
   eapply IHpts; try eassumption.
-  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  eapply LSorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
@@ -211,7 +211,7 @@ destruct Hns as [Hns| Hns].
  injection Heqhsl; clear Heqhsl; intros.
  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
- apply LocallySorted_inv_1 in Hpts.
+ apply LSorted_inv_1 in Hpts.
  eapply minimise_slope_sorted in Hpts₂; [ idtac | eassumption ].
  eapply IHhsl; eassumption.
 Qed.

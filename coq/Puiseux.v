@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.465 2013-05-07 08:42:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.466 2013-05-08 08:06:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -106,7 +106,7 @@ Proof. reflexivity. Qed.
 Definition fst_lt {α} (x y : nat * α) := (fst x < fst y)%nat.
 Definition hs_x_lt {α} (x y : hull_seg α) := (fst (pt x) < fst (pt y))%nat.
 
-Lemma LocallySorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
+Lemma LSorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   LocallySorted f [x … l]
   → LocallySorted f l.
 Proof.
@@ -114,7 +114,7 @@ intros f x l H.
 inversion H; [ constructor | assumption ].
 Qed.
 
-Lemma LocallySorted_inv_2 {A} : ∀ (f : A → A → Prop) x y l,
+Lemma LSorted_inv_2 {A} : ∀ (f : A → A → Prop) x y l,
   LocallySorted f [x; y … l]
   → f x y ∧ LocallySorted f [y … l].
 Proof.
@@ -123,7 +123,7 @@ inversion H; subst a b l0.
 split; assumption.
 Qed.
 
-Lemma LocallySorted_hd {A} : ∀ (pt₁ pt₂ : nat * A) pts,
+Lemma LSorted_hd {A} : ∀ (pt₁ pt₂ : nat * A) pts,
   LocallySorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
     → (fst pt₁ < fst pt₂)%nat.
@@ -131,14 +131,14 @@ Proof.
 intros pt₁ pt₂ pts Hsort Hpt.
 revert pt₁ pt₂ Hsort Hpt.
 induction pts as [| pt]; intros; [ contradiction | idtac ].
-apply LocallySorted_inv_2 in Hsort.
+apply LSorted_inv_2 in Hsort.
 destruct Hsort as (Hlt, Hsort).
 destruct Hpt as [Hpt| Hpt]; [ subst pt; assumption | idtac ].
 eapply lt_trans; [ eassumption | idtac ].
 apply IHpts; assumption.
 Qed.
 
-Lemma Sorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ xl,
+Lemma LSorted_minus_2nd {A} : ∀ (f : A → A → Prop) x₁ x₂ xl,
   (∀ x y z, f x y → f y z → f x z)
   → LocallySorted f [x₁; x₂ … xl]
     → LocallySorted f [x₁ … xl].
@@ -146,38 +146,38 @@ Proof.
 intros f x₁ x₂ l Ht H.
 destruct l as [| x₃]; [ constructor | intros ].
 constructor.
- do 2 apply LocallySorted_inv_1 in H.
+ do 2 apply LSorted_inv_1 in H.
  assumption.
 
- apply LocallySorted_inv_2 in H; destruct H as (Hlt₁, H).
- apply LocallySorted_inv_2 in H; destruct H as (Hlt₂, H).
+ apply LSorted_inv_2 in H; destruct H as (Hlt₁, H).
+ apply LSorted_inv_2 in H; destruct H as (Hlt₂, H).
  eapply Ht; eassumption.
 Qed.
 
-Lemma Sorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
+Lemma LSorted_minus_3rd {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ xl,
   (∀ x y z, f x y → f y z → f x z)
   → LocallySorted f [x₁; x₂; x₃ … xl]
     → LocallySorted f [x₁; x₂ … xl].
 Proof.
 intros f x₁ x₂ x₃ l Ht H.
 constructor.
- apply LocallySorted_inv_1 in H.
- eapply Sorted_minus_2nd; eassumption.
+ apply LSorted_inv_1 in H.
+ eapply LSorted_minus_2nd; eassumption.
 
- apply LocallySorted_inv_2 in H; destruct H; assumption.
+ apply LSorted_inv_2 in H; destruct H; assumption.
 Qed.
 
-Lemma Sorted_minus_4th {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
+Lemma LSorted_minus_4th {A} : ∀ (f : A → A → Prop) x₁ x₂ x₃ x₄ xl,
   (∀ x y z, f x y → f y z → f x z)
   → LocallySorted f [x₁; x₂; x₃; x₄ … xl]
     → LocallySorted f [x₁; x₂; x₃ … xl].
 Proof.
 intros f x₁ x₂ x₃ x₄ l Ht H.
 constructor.
- apply LocallySorted_inv_1 in H.
- eapply Sorted_minus_3rd; eassumption.
+ apply LSorted_inv_1 in H.
+ eapply LSorted_minus_3rd; eassumption.
 
- apply LocallySorted_inv_2 in H; destruct H; assumption.
+ apply LSorted_inv_2 in H; destruct H; assumption.
 Qed.
 
 Lemma points_of_polyn_sorted : ∀ deg cl cn pts,
@@ -213,7 +213,7 @@ induction cl as [| c]; intros.
    destruct (is_zero_dec fld c₂) as [Heq| Hne].
     eapply IHcl with (c := c) in Hpts.
     destruct pts as [| pt]; [ constructor | idtac ].
-    apply LocallySorted_inv_2 in Hpts.
+    apply LSorted_inv_2 in Hpts.
     destruct Hpts as (Hlt, Hpts).
     constructor; [ assumption | idtac ].
     eapply lt_trans; [ apply lt_n_Sn | eassumption ].
@@ -237,14 +237,14 @@ induction pts₂ as [| pt]; intros.
  remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
  destruct c; subst ms; simpl; [ idtac | reflexivity | idtac ].
   apply lt_le_weak.
-  apply LocallySorted_inv_2 in Hsort.
+  apply LSorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
   eapply lt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
 
   apply lt_le_weak.
-  apply LocallySorted_inv_2 in Hsort.
+  apply LSorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
   eapply lt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
@@ -283,16 +283,16 @@ simpl in Hms.
 remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
 remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqms₁.
-apply LocallySorted_inv_2 in Hsort.
+apply LSorted_inv_2 in Hsort.
 destruct Hsort as (Hlt₁, Hsort).
 destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  eapply IHpts; [ idtac | eassumption ].
- apply LocallySorted_inv_2 in Hsort.
+ apply LSorted_inv_2 in Hsort.
  destruct Hsort as (Hlt₂, Hsort).
  constructor; [ assumption | eapply lt_trans; eassumption ].
 
  eapply IHpts; [ idtac | eassumption ].
- apply LocallySorted_inv_2 in Hsort.
+ apply LSorted_inv_2 in Hsort.
  destruct Hsort as (Hlt₂, Hsort).
  constructor; [ assumption | eapply lt_trans; eassumption ].
 Qed.
@@ -321,12 +321,12 @@ apply IHn in Heqhsl₁.
  remember Heqms₂ as Hms; clear HeqHms.
  apply minimise_slope_le in Heqms₂.
   eapply lt_le_trans.
-   apply LocallySorted_inv_2 in Hsort; destruct Hsort; eassumption.
+   apply LSorted_inv_2 in Hsort; destruct Hsort; eassumption.
 
    eapply le_trans; [ eassumption | idtac ].
    eapply next_ch_points_le; eassumption.
 
-  apply LocallySorted_inv_2 in Hsort; destruct Hsort; assumption.
+  apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 
  symmetry in Heqms₂.
  eapply minimise_slope_sorted; eassumption.
