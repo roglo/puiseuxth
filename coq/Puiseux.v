@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.466 2013-05-08 08:06:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.467 2013-05-08 08:42:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -179,6 +179,30 @@ constructor.
 
  apply LSorted_inv_2 in H; destruct H; assumption.
 Qed.
+
+Lemma LSorted_not_in {A} : ∀ (f : A → A → Prop) a b l,
+  (∀ x, ¬f x x)
+  → (∀ x y z, f x y → f y z → f x z)
+    → LocallySorted f [b … l]
+      → f a b
+        → a ∉ [b … l].
+Proof.
+intros f a b l Hirr Htran Hsort Hab Hin.
+destruct Hin as [Hin| Hin].
+ subst b.
+ eapply Hirr; eassumption.
+
+ induction l as [| c]; [ contradiction | intros ].
+ destruct Hin as [Hin| Hin].
+  subst c.
+  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+  eapply Htran in Hab; [ eapply Hirr, Hab | eassumption ].
+
+  apply IHl; [ idtac | assumption ].
+  eapply LSorted_minus_2nd; eassumption.
+Qed.
+
+(* *)
 
 Lemma points_of_polyn_sorted : ∀ deg cl cn pts,
   pts = points_of_ps_polynom_gen α fld deg cl cn

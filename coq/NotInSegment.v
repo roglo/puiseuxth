@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.83 2013-05-08 08:06:22 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.84 2013-05-08 08:42:38 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -785,15 +785,15 @@ destruct c.
   eapply LSorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 
- subst ms; simpl in Hend |- *.
- subst pt₄.
+ subst ms; simpl in Hend |- *; subst pt₄.
  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  eapply lt_trans in Hlt₂; [ idtac | eassumption ].
- destruct Hpt as [Hpt| Hpt].
-  subst pt₅; apply lt_irrefl in Hlt₂; contradiction.
+ exfalso; revert Hpt.
+ eapply LSorted_not_in; [ idtac | idtac | eassumption | eassumption ].
+  intros x H; apply lt_irrefl in H; contradiction.
 
-  eapply LSorted_consn with (R := fst_lt) in Hsort; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply lt_trans; eassumption.
 bbb.
 *)
 

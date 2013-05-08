@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.12 2013-05-08 08:06:22 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.13 2013-05-08 08:42:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -741,6 +741,7 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   apply LSorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
   eapply IHpts; eassumption.
 Qed.
+
 Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
   minimise_slope α pt₁ pt₂ pts₂ = ms
   → pt ∈ rem_pts ms
