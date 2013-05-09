@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.91 2013-05-08 23:32:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.92 2013-05-09 01:05:36 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -774,6 +774,21 @@ destruct c.
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
+Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
+  LocallySorted fst_lt [(h, hps); (i, ips) … pts]
+  → minimise_slope α (h, hps) (i, ips) pts = ms
+    → next_ch_points α n [end_pt ms … rem_pts ms] =
+      hsl₁ ++
+      [{| pt := (j, jps); oth := segjk |};
+       {| pt := (k, kps); oth := segkx |} … hsl]
+      → valuation α jps +
+        Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+        valuation α hps +
+        Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+Proof.
+bbb.
+*)
+
 Lemma lt_bef_j₁ : ∀ n pts j jps segjk k kps segkx hs₁ hsl,
   LocallySorted fst_lt pts
   → next_ch_points α n pts =
@@ -803,6 +818,10 @@ apply next_ch_points_hd in H.
 rename H into Hend₁.
 destruct Hhps as [Hhps| Hhps].
  injection Hhps; clear Hhps; intros; subst l lps.
+(*
+ eapply zzz with (hsl₁ := []); try eassumption.
+ ...
+*)
  symmetry in Hend₁.
  remember Heqms₁ as H; clear HeqH.
  eapply minimised_slope in H; [ idtac | eassumption ].
@@ -938,6 +957,8 @@ destruct hsl₁ as [| hs₁].
   symmetry in Heqms₁.
   destruct Hhps as [Hhps| Hhps].
    subst pt₁ hs₁.
+   destruct pt₂.
+   eapply zzz with (hsl₁ := [hs₂ … hsl₁]); try eassumption.
 bbb.
 *)
 
