@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.467 2013-05-08 08:42:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.468 2013-05-09 15:24:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -97,6 +97,11 @@ Section convex_hull.
 
 Variable α : Type.
 Variable fld : field (puiseux_series α).
+
+Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
+  (valuation α y₂ - valuation α y₁) /  (Qnat x₂ - Qnat x₁) =
+  slope_expr α (x₁, y₁) (x₂, y₂).
+Proof. reflexivity. Qed.
 
 Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
   filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =

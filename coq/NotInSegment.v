@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.99 2013-05-09 15:20:39 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.100 2013-05-09 15:24:13 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -778,11 +778,6 @@ destruct c.
   eapply LSorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
-
-Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
-  (valuation α y₂ - valuation α y₁) /  (Qnat x₂ - Qnat x₁) =
-  slope_expr α (x₁, y₁) (x₂, y₂).
-Proof. reflexivity. Qed.
 
 Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, hps); (i, ips) … pts]
