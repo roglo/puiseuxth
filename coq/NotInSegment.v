@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.101 2013-05-09 15:38:17 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.102 2013-05-09 17:00:33 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -189,8 +189,7 @@ intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
- rewrite Qlt_alt in Heqc |- *; rewrite <- Heqc.
- symmetry; apply slope_cmp₁.
+ apply slope_lt₁; [ idtac | assumption ].
  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  split; apply Qnat_lt; assumption.
@@ -219,8 +218,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    rewrite <- Heqc₁.
    rewrite <- Heqc₁ in Heqc.
-   rewrite Qlt_alt in Heqc |- *; rewrite <- Heqc.
-   symmetry; apply slope_cmp₁.
+   apply slope_lt₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -237,16 +235,14 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    rewrite <- Heqc₂.
-   rewrite Qlt_alt in Heqc |- *; rewrite <- Heqc.
-   symmetry; apply slope_cmp₁.
+   apply slope_lt₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
 
    apply Qlt_alt in Heqc₂.
    subst ms₂₃; simpl.
-   rewrite Qlt_alt in Heqc |- *; rewrite <- Heqc.
-   symmetry; apply slope_cmp₁.
+   apply slope_lt₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.
@@ -273,8 +269,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    eapply Qlt_trans; [ eassumption | idtac ].
    eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
-   rewrite Qlt_alt in Heqc₁ |- *; rewrite <- Heqc₁.
-   symmetry; apply slope_cmp₁.
+   apply slope_lt₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; apply Qnat_lt; assumption.

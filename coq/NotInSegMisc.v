@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.17 2013-05-09 15:20:39 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.18 2013-05-09 17:00:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -92,6 +92,15 @@ symmetry; rewrite Qplus_plus_swap.
 remember (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) as t.
 do 2 rewrite Qplus_comm, Qplus_assoc.
 reflexivity.
+Qed.
+Lemma slope_lt₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → gen_slope (x₁, y₁) (x₂, y₂) < gen_slope (x₁, y₁) (x₃, y₃)
+    → gen_slope (x₁, y₁) (x₃, y₃) < gen_slope (x₂, y₂) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+rewrite Qlt_alt in H |- *; rewrite <- H.
+symmetry; apply slope_cmp₁; assumption.
 Qed.
 
 Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
