@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.102 2013-05-09 17:00:33 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.103 2013-05-09 18:34:58 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -19,7 +19,7 @@ Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
   → newton_segments fld pol = [ns … nsl]
     → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns < valuation α hps + Qnat h * (γ ns).
+      → β ns < valuation α hps + h * (γ ns).
 Proof.
 intros pol pts ns nsl Hpts Hns h hps (Hhps, Hnhps).
 unfold newton_segments in Hns.
@@ -31,7 +31,7 @@ injection Hns; clear Hns; intros; subst ns.
 simpl in H |- *.
 rename H into Hhsl.
 symmetry in Heqhsl.
-destruct (lt_dec k h) as [Hlt| Hge].
+destruct (Qlt_le_dec k h) as [Hlt| Hge].
  unfold points_of_ps_polynom in Hpts.
  apply points_of_polyn_sorted in Hpts.
  remember Hpts as Hpts₂; clear HeqHpts₂.
@@ -40,12 +40,11 @@ destruct (lt_dec k h) as [Hlt| Hge].
  unfold hs_x_lt in Hlt; simpl in Hlt.
  eapply points_after_k; try eassumption; reflexivity.
 
- apply not_gt in Hge.
- destruct (eq_nat_dec h k) as [Heq| Hne].
+ destruct (Qeq_dec h k) as [Heq| Hne].
   unfold points_of_ps_polynom in Hpts.
   apply points_of_polyn_sorted in Hpts.
   eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
-   subst h hps.
+   rewrite Heq; subst hps.
    simpl in Hnhps.
    apply Decidable.not_or in Hnhps.
    destruct Hnhps as (_, Hnhps).
@@ -418,9 +417,9 @@ Lemma lt_aft_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
     → ∀ h hps, (h, hps) ∈ pts
       → (k < h)%nat
         → valuation α jps +
-          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          j * ((valuation α jps - valuation α kps) / (k - j)) <
           valuation α hps +
-          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+          h * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
 revert n pts Hsort Hnp Hhps.
@@ -533,9 +532,9 @@ Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → (j < h < k)%nat
           → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            j * ((valuation α jps - valuation α kps) / (k - j)) <
             valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+            h * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp.
 intros h hps Hhps Hnhps Hjhk.
@@ -792,9 +791,9 @@ Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
         [{| pt := (j, jps); oth := segjk |};
          {| pt := (k, kps); oth := segkx |} … hsl]
         → valuation α jps +
-          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          j * ((valuation α jps - valuation α kps) / (k - j)) <
           valuation α hps +
-          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+          h * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 intros n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
@@ -879,9 +878,9 @@ Lemma lt_bef_j₁ : ∀ n pts j jps segjk k kps segkx hs₁ hsl,
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → (h < j < k)%nat
           → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            j * ((valuation α jps - valuation α kps) / (k - j)) <
             valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+            h * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 (* à nettoyer *)
 intros n pts j jps segjk k kps segkx hs₁ hsl.
@@ -1000,9 +999,9 @@ Lemma lt_bef_j : ∀ n pts j jps segjk k kps segkx hsl₁ hsl,
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → (h < j < k)%nat
           → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            j * ((valuation α jps - valuation α kps) / (k - j)) <
             valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+            h * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 intros n pts j jps segjk k kps segkx hsl₁ hsl.
 intros Hpts Hnp h hps Hhps Hnhps (Hhj, Hjk).
@@ -1052,9 +1051,9 @@ Lemma lt_bef_j₀ : ∀ n pts j jps segjk k kps segkx hsl,
       → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
         → (h < j)%nat
           → valuation α jps +
-            Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+            j * ((valuation α jps - valuation α kps) / (k - j)) <
             valuation α hps +
-            Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+            h * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 intros n pts j jps segjk k kps segkx hsl.
 intros Hpts Hnp h hps Hhps Hnhps Hhj.
@@ -1079,7 +1078,7 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
     → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns < valuation α hps + Qnat h * (γ ns).
+      → β ns < valuation α hps + h * (γ ns).
 Proof.
 intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
 unfold newton_segments in Hns.
