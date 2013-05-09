@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.15 2013-05-09 14:12:58 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.16 2013-05-09 14:59:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -65,64 +65,6 @@ apply Qeq_shift_mult_l in H.
  symmetry; apply Qminus_eq; assumption.
 Qed.
 
-Lemma Qmult_cmp_compat_r : ∀ x y z,
-  0 < z
-  → (x ?= y) = (x * z ?= y * z).
-Proof.
-intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
-unfold Qcompare; simpl.
-do 2 rewrite Pos2Z.inj_mul.
-rewrite Z.mul_shuffle1, (Z.mul_shuffle1 b₁).
-rewrite <- Zmult_cmp_compat_r; [ reflexivity | idtac ].
-apply Z.mul_pos_pos; [ idtac | reflexivity ].
-unfold Qlt in H; simpl in H.
-rewrite Zmult_1_r in H; assumption.
-Qed.
-
-Lemma Qcmp_shift_mult_l : ∀ x y z,
-  0 < z
-  → (x / z ?= y) = (x ?= y * z).
-Proof.
-intros x y z Hz.
-erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Qmult_div_swap.
-unfold Qdiv.
-rewrite <- Qmult_assoc.
-rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r; reflexivity.
-Qed.
-
-Lemma Qcmp_shift_mult_r : ∀ x y z,
-  0 < z
-  → (x ?= y / z) = (x * z ?= y).
-Proof.
-intros x y z Hz.
-erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
-rewrite Qmult_div_swap.
-unfold Qdiv.
-rewrite <- Qmult_assoc.
-rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r; reflexivity.
-Qed.
-
-Lemma Qplus_cmp_cmp_minus_r : ∀ x y z,
-  (x + y ?= z) = (x ?= z - y).
-Proof.
-intros x y z.
-rewrite Qplus_cmp_compat_r with (z := - y).
-rewrite <- Qplus_assoc.
-rewrite Qplus_opp_r, Qplus_0_r.
-reflexivity.
-Qed.
-
-Lemma Qplus_cmp_compat_l : ∀ x y z,
-  (x ?= y) = (z + x ?= z + y).
-Proof.
-intros x y z.
-do 2 rewrite (Qplus_comm z).
-apply Qplus_cmp_compat_r.
-Qed.
-
 Lemma slope_cmp₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (gen_slope (x₁, y₁) (x₂, y₂) ?= gen_slope (x₁, y₁) (x₃, y₃)) =
@@ -152,6 +94,13 @@ do 2 rewrite Qplus_comm, Qplus_assoc.
 reflexivity.
 Qed.
 
+Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (gen_slope (x₁, y₁) (x₂, y₂) ?= gen_slope (x₂, y₂) (x₃, y₃)) =
+    (gen_slope (x₁, y₁) (x₂, y₂) ?= gen_slope (x₁, y₁) (x₃, y₃)).
+Proof.
+bbb.
+*)
 (*
 Lemma slope_lt₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃

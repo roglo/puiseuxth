@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.16 2013-05-09 14:12:58 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.17 2013-05-09 14:59:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -136,28 +136,6 @@ unfold Qlt in H |-*; simpl.
 rewrite Z.mul_1_r, <- Zopp_mult_distr_l.
 apply Zlt_left_lt.
 assumption.
-Qed.
-
-Lemma Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
-Proof.
-intros x y z Hc H.
-apply Qmult_lt_compat_r with (z := z) in H; [ idtac | assumption ].
-unfold Qdiv in H.
-rewrite <- Qmult_assoc in H.
-setoid_replace (/ z * z) with (z * / z) in H by apply Qmult_comm.
-rewrite Qmult_inv_r in H; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r in H; assumption.
-Qed.
-
-Lemma Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
-Proof.
-intros x y z Hc H.
-apply Qmult_lt_compat_r with (z := z) in H; [ idtac | assumption ].
-unfold Qdiv in H.
-rewrite <- Qmult_assoc in H.
-setoid_replace (/ z * z) with (z * / z) in H by apply Qmult_comm.
-rewrite Qmult_inv_r in H; [ idtac | apply Qgt_0_not_0; assumption ].
-rewrite Qmult_1_r in H; assumption.
 Qed.
 
 Lemma Qminus_eq : ∀ x y, x - y == 0 → x == y.
@@ -348,15 +326,6 @@ rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
 
-Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := - y) in H.
-rewrite <- Qplus_assoc in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
-Qed.
-
 Lemma Qlt_minus_plus_lt_r : ∀ x y z, x < y - z → x + z < y.
 Proof.
 intros x y z H.
@@ -434,9 +403,8 @@ do 2 rewrite Zmult_1_r in H.
 apply Nat2Z.inj; assumption.
 Qed.
 
-(* *)
+(* TODO: transform the above with ?= like below. *)
 
-(**)
 Lemma Zplus_cmp_compat_r : ∀ n m p,
   (n ?= m)%Z = (n + p ?= m + p)%Z.
 Proof.
@@ -500,4 +468,80 @@ Proof.
 intros.
 apply Qlt_alt in H; apply Qlt_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
+Qed.
+
+Lemma Qmult_cmp_compat_r : ∀ x y z,
+  0 < z
+  → (x ?= y) = (x * z ?= y * z).
+Proof.
+intros (a₁, a₂) (b₁, b₂) (c₁, c₂) H.
+unfold Qcompare; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+rewrite Z.mul_shuffle1, (Z.mul_shuffle1 b₁).
+rewrite <- Zmult_cmp_compat_r; [ reflexivity | idtac ].
+apply Z.mul_pos_pos; [ idtac | reflexivity ].
+unfold Qlt in H; simpl in H.
+rewrite Zmult_1_r in H; assumption.
+Qed.
+
+Lemma Qcmp_shift_mult_l : ∀ x y z,
+  0 < z
+  → (x / z ?= y) = (x ?= y * z).
+Proof.
+intros x y z Hz.
+erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
+rewrite Qmult_div_swap.
+unfold Qdiv.
+rewrite <- Qmult_assoc.
+rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
+rewrite Qmult_1_r; reflexivity.
+Qed.
+Lemma Qlt_shift_mult_l : ∀ x y z, 0 < z → x / z < y → x < y * z.
+Proof.
+intros x y z Hc H.
+rewrite Qlt_alt in H |- *.
+rewrite <- H; symmetry; apply Qcmp_shift_mult_l; assumption.
+Qed.
+
+Lemma Qcmp_shift_mult_r : ∀ x y z,
+  0 < z
+  → (x ?= y / z) = (x * z ?= y).
+Proof.
+intros x y z Hz.
+erewrite Qmult_cmp_compat_r; [ idtac | eassumption ].
+rewrite Qmult_div_swap.
+unfold Qdiv.
+rewrite <- Qmult_assoc.
+rewrite Qmult_inv_r; [ idtac | apply Qgt_0_not_0; assumption ].
+rewrite Qmult_1_r; reflexivity.
+Qed.
+Lemma Qlt_shift_mult_r : ∀ x y z, 0 < z → x < y / z → x * z < y.
+Proof.
+intros x y z Hc H.
+rewrite Qlt_alt in H |- *.
+rewrite <- H; symmetry; apply Qcmp_shift_mult_r; assumption.
+Qed.
+
+Lemma Qplus_cmp_cmp_minus_r : ∀ x y z,
+  (x + y ?= z) = (x ?= z - y).
+Proof.
+intros x y z.
+rewrite Qplus_cmp_compat_r with (z := - y).
+rewrite <- Qplus_assoc.
+rewrite Qplus_opp_r, Qplus_0_r.
+reflexivity.
+Qed.
+Lemma Qplus_lt_lt_minus_r : ∀ x y z, x + y < z → x < z - y.
+Proof.
+intros x y z H.
+rewrite Qlt_alt in H |- *.
+rewrite <- H; symmetry; apply Qplus_cmp_cmp_minus_r.
+Qed.
+
+Lemma Qplus_cmp_compat_l : ∀ x y z,
+  (x ?= y) = (z + x ?= z + y).
+Proof.
+intros x y z.
+do 2 rewrite (Qplus_comm z).
+apply Qplus_cmp_compat_r.
 Qed.

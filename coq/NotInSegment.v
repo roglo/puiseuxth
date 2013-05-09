@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.97 2013-05-09 14:12:58 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.98 2013-05-09 14:59:26 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -779,6 +779,11 @@ destruct c.
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
+Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
+  (valuation α y₂ - valuation α y₁) /  (Qnat x₂ - Qnat x₁) =
+  slope_expr α (x₁, y₁) (x₂, y₂).
+Proof. reflexivity. Qed.
+
 Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, hps); (i, ips) … pts]
   → (h < j < k)%nat
@@ -833,8 +838,20 @@ induction hsl₁ as [| hs₁]; intros.
  remember Heqms₁ as HHH; clear HeqHHH.
  eapply minimised_slope in HHH; [ idtac | reflexivity ].
  rewrite HHH in HH.
- eapply ad_hoc_lt_lt₂.
+ pose proof slope_cmp₃ as HHHHH.
+ unfold gen_slope in HHHHH.
+ simpl in HHHHH.
+ rewrite Qlt_alt in HH.
+ unfold slope_expr in HH.
+ rewrite HHHHH in HH.
+  simpl in HH.
+  do 2 rewrite fold_slope_expr in HH.
+  rewrite <- surjective_pairing in HH.
+  rewrite <- surjective_pairing in HH.
+  rewrite <- Qlt_alt in HH.
+  clear HHHHH.
 bbb.
+ eapply ad_hoc_lt_lt₂.
   unfold slope_expr in HH.
   simpl in HH.
   remember (end_pt ms) as pt.
