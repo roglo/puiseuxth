@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.94 2013-05-09 01:48:17 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.95 2013-05-09 05:58:22 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -814,27 +814,21 @@ induction hsl₁ as [| hs₁]; intros.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
- destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ destruct pts₁ as [| (l, lps)]; [ destruct hsl₁; discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp; intros Hhs₁.
  subst hs₁.
- remember (minimise_slope α (end_pt ms) pt₁ pts₁) as ms₁.
+ remember (minimise_slope α (end_pt ms) (l, lps) pts₁) as ms₁.
  symmetry in Heqms₁.
- remember (end_pt ms) as pt₂.
- destruct pt₂.
- destruct pt₁.
- eapply Qlt_trans.
-  eapply IHhsl₁.
-   2: eassumption.
-
-   eassumption.
-
-   rewrite Heqpt₂, Heqpts₁.
-   eapply minimise_slope_sorted.
-    2: eassumption.
-
-    assumption.
-
-   Focus 2.
+ symmetry in Heqpts₁.
+ remember Hms as H; clear HeqH.
+ eapply minimised_slope in H; [ idtac | reflexivity ].
+ remember Hms as HH; clear HeqHH.
+ eapply consec_slope_lt in HH; try eassumption.
+ rewrite H in HH.
+ remember Heqms₁ as HHH; clear HeqHHH.
+ eapply minimised_slope in HHH; [ idtac | reflexivity ].
+ rewrite HHH in HH.
+ eapply ad_hoc_lt_lt₂.
 bbb.
 *)
 
