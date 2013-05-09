@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.16 2013-05-09 14:59:26 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.17 2013-05-09 15:20:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -99,6 +99,7 @@ Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   → (gen_slope (x₁, y₁) (x₂, y₂) ?= gen_slope (x₂, y₂) (x₃, y₃)) =
     (gen_slope (x₁, y₁) (x₂, y₂) ?= gen_slope (x₁, y₁) (x₃, y₃)).
 Proof.
+Admitted. (*
 bbb.
 *)
 (*

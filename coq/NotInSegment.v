@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.98 2013-05-09 14:59:26 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.99 2013-05-09 15:20:39 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -850,6 +850,9 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite <- surjective_pairing in HH.
   rewrite <- Qlt_alt in HH.
   clear HHHHH.
+  eapply ad_hoc_lt_lt₂.
+   Focus 2.
+   do 2 rewrite fold_slope_expr.
 bbb.
  eapply ad_hoc_lt_lt₂.
   unfold slope_expr in HH.
