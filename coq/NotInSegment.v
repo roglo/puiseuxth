@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.92 2013-05-09 01:05:36 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.93 2013-05-09 01:16:40 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -776,16 +776,41 @@ Qed.
 
 Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, hps); (i, ips) … pts]
-  → minimise_slope α (h, hps) (i, ips) pts = ms
-    → next_ch_points α n [end_pt ms … rem_pts ms] =
-      hsl₁ ++
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-      → valuation α jps +
-        Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
-        valuation α hps +
-        Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+  → (h < j < k)%nat
+    → minimise_slope α (h, hps) (i, ips) pts = ms
+      → next_ch_points α n [end_pt ms … rem_pts ms] =
+        hsl₁ ++
+        [{| pt := (j, jps); oth := segjk |};
+         {| pt := (k, kps); oth := segkx |} … hsl]
+        → valuation α jps +
+          Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) <
+          valuation α hps +
+          Qnat h * ((valuation α jps - valuation α kps) / Qnat (k - j)).
 Proof.
+intros n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
+revert n ms Hms Hnp.
+induction hsl₁ as [| hs₁]; intros.
+ remember Hms as H; clear HeqH.
+ eapply minimised_slope in H; [ idtac | reflexivity ].
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
+ remember (minimise_slope α (end_pt ms) pt₁ pts₁) as ms₂.
+ symmetry in Heqms₂.
+ injection Hnp; clear Hnp; intros Hnp; intros.
+ subst segjk.
+ symmetry in Heqpts₁.
+ eapply consec_slope_lt in Hms; try eassumption.
+ rewrite H in Hms.
+ apply next_ch_points_hd in Hnp.
+ symmetry in Hnp.
+ eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
+ rewrite Heqms₂ in Hms.
+ unfold slope_expr in Hms.
+ simpl in Hms.
+ rewrite H1 in Hms.
+ eapply ad_hoc_lt_lt₂; try eassumption.
 bbb.
 *)
 
@@ -958,7 +983,8 @@ destruct hsl₁ as [| hs₁].
   destruct Hhps as [Hhps| Hhps].
    subst pt₁ hs₁.
    destruct pt₂.
-   eapply zzz with (hsl₁ := [hs₂ … hsl₁]); try eassumption.
+   eapply conj in Hjk; [ idtac | eexact Hhj ].
+   eapply zzz with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 bbb.
 *)
 
