@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.93 2013-05-09 01:16:40 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.94 2013-05-09 01:48:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -789,7 +789,7 @@ Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
 Proof.
 intros n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
-revert n ms Hms Hnp.
+revert n ms h hps i ips j jps segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
  eapply minimised_slope in H; [ idtac | reflexivity ].
@@ -811,6 +811,30 @@ induction hsl₁ as [| hs₁]; intros.
  simpl in Hms.
  rewrite H1 in Hms.
  eapply ad_hoc_lt_lt₂; try eassumption.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros Hhs₁.
+ subst hs₁.
+ remember (minimise_slope α (end_pt ms) pt₁ pts₁) as ms₁.
+ symmetry in Heqms₁.
+ remember (end_pt ms) as pt₂.
+ destruct pt₂.
+ destruct pt₁.
+ eapply Qlt_trans.
+  eapply IHhsl₁.
+   2: eassumption.
+
+   eassumption.
+
+   rewrite Heqpt₂, Heqpts₁.
+   eapply minimise_slope_sorted.
+    2: eassumption.
+
+    assumption.
+
+   Focus 2.
 bbb.
 *)
 
