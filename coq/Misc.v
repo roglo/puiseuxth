@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.14 2013-05-08 11:18:48 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.15 2013-05-09 00:32:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -368,7 +368,7 @@ rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
 
-(**)
+(*
 Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 intros x y z H.
@@ -377,7 +377,7 @@ rewrite <- Qplus_assoc in H.
 rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
-(**)
+*)
 
 (* to be inserted *)
 
@@ -415,7 +415,7 @@ rewrite Qminus_diag, Qplus_0_r.
 reflexivity.
 Qed.
 
-(**)
+(*
 Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
@@ -423,7 +423,7 @@ rewrite H.
 rewrite <- Qplus_minus_assoc, Qminus_diag, Qplus_0_r.
 reflexivity.
 Qed.
-(**)
+*)
 
 Lemma Qnat_eq : ∀ i j, Qnat i == Qnat j → i = j.
 Proof.
@@ -436,17 +436,24 @@ Qed.
 
 (* *)
 
-(*
+(**)
 Lemma Zplus_cmp_compat_r : ∀ n m p,
   (n ?= m)%Z = (n + p ?= m + p)%Z.
 Proof.
-bbb.
+intros.
+rewrite Zplus_comm.
+replace (m + p)%Z with (p + m)%Z by apply Zplus_comm.
+symmetry; apply Zcompare_plus_compat.
+Qed.
 
 Lemma Zmult_cmp_compat_r : ∀ n m p,
   (0 < p)%Z
   → (n ?= m)%Z = (n * p ?= m * p)%Z.
 Proof.
-bbb.
+intros.
+apply Zmult_compare_compat_r.
+apply Z.lt_gt; assumption.
+Qed.
 
 Lemma Qplus_cmp_compat_r : ∀ x y z,
   (x ?= y) = (x + z ?= y + z).
@@ -496,4 +503,3 @@ intros.
 apply Qlt_alt in H; apply Qlt_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
-*)
