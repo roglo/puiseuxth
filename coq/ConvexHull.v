@@ -1,9 +1,12 @@
-(* $Id: ConvexHull.v,v 1.43 2013-05-09 17:55:20 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.44 2013-05-09 17:56:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Streams.
-Require Import Misc.
+
+Notation "[ ]" := nil.
+Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
+Notation "[ x ]" := (cons x nil).
 
 Record Qpos := { x : Q; pos : x > 0 }.
 

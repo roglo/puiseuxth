@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.468 2013-05-09 15:24:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.469 2013-05-09 17:55:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -47,11 +47,13 @@ Arguments ac_prop : default implicits.
 
 Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
-  | [ps₁ … psl₁] => [(pow, ps₁) … all_points_of_ps_polynom α (S pow) psl₁ psn]
-  | [] => [(pow, psn)]
+  | [ps₁ … psl₁] =>
+      [(Qnat pow, ps₁) … all_points_of_ps_polynom α (S pow) psl₁ psn]
+  | [] =>
+      [(Qnat pow, psn)]
   end.
 
-Definition filter_non_zero_ps α fld (dpl : list (nat * puiseux_series α)) :=
+Definition filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
   List.filter (λ dp, if is_zero_dec fld (snd dp) then false else true)
     dpl.
 
@@ -72,9 +74,9 @@ Arguments list_map_pairs : default implicits.
 Record newton_segment α := mkns
   { γ : Q;
     β : Q;
-    ini_pt : (nat * puiseux_series α);
-    fin_pt : (nat * puiseux_series α);
-    oth_pts : list (nat * puiseux_series α) }.
+    ini_pt : (Q * puiseux_series α);
+    fin_pt : (Q * puiseux_series α);
+    oth_pts : list (Q * puiseux_series α) }.
 Arguments γ : default implicits.
 Arguments β : default implicits.
 Arguments ini_pt : default implicits.
@@ -84,8 +86,8 @@ Arguments oth_pts : default implicits.
 Definition newton_segment_of_pair α hsj hsk :=
   let αj := valuation α (snd (pt hsj)) in
   let αk := valuation α (snd (pt hsk)) in
-  let γ := (αj - αk) / Qnat (fst (pt hsk) - fst (pt hsj))%nat in
-  let β := αj + Qnat (fst (pt hsj)) * γ in
+  let γ := (αj - αk) / (fst (pt hsk) - fst (pt hsj)) in
+  let β := αj + fst (pt hsj) * γ in
   mkns α γ β (pt hsj) (pt hsk) (oth hsj).
 
 Definition newton_segments α fld pol :=
@@ -99,7 +101,7 @@ Variable α : Type.
 Variable fld : field (puiseux_series α).
 
 Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
-  (valuation α y₂ - valuation α y₁) /  (Qnat x₂ - Qnat x₁) =
+  (valuation α y₂ - valuation α y₁) /  (x₂ - x₁) =
   slope_expr α (x₁, y₁) (x₂, y₂).
 Proof. reflexivity. Qed.
 
@@ -108,8 +110,8 @@ Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
   points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
 
-Definition fst_lt {α} (x y : nat * α) := (fst x < fst y)%nat.
-Definition hs_x_lt {α} (x y : hull_seg α) := (fst (pt x) < fst (pt y))%nat.
+Definition fst_lt {α} (x y : Q * α) := (fst x < fst y).
+Definition hs_x_lt {α} (x y : hull_seg α) := (fst (pt x) < fst (pt y)).
 
 Lemma LSorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   LocallySorted f [x … l]
@@ -128,10 +130,10 @@ inversion H; subst a b l0.
 split; assumption.
 Qed.
 
-Lemma LSorted_hd {A} : ∀ (pt₁ pt₂ : nat * A) pts,
+Lemma LSorted_hd {A} : ∀ (pt₁ pt₂ : Q * A) pts,
   LocallySorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
-    → (fst pt₁ < fst pt₂)%nat.
+    → (fst pt₁ < fst pt₂).
 Proof.
 intros pt₁ pt₂ pts Hsort Hpt.
 revert pt₁ pt₂ Hsort Hpt.
@@ -139,7 +141,7 @@ induction pts as [| pt]; intros; [ contradiction | idtac ].
 apply LSorted_inv_2 in Hsort.
 destruct Hsort as (Hlt, Hsort).
 destruct Hpt as [Hpt| Hpt]; [ subst pt; assumption | idtac ].
-eapply lt_trans; [ eassumption | idtac ].
+eapply Qlt_trans; [ eassumption | idtac ].
 apply IHpts; assumption.
 Qed.
 
@@ -235,7 +237,7 @@ induction cl as [| c]; intros.
     subst pts; constructor.
 
     subst pts.
-    constructor; [ constructor | apply lt_n_Sn ].
+    constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
 
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
    rewrite fold_points_of_ps_polynom_gen in Hpts.
@@ -245,49 +247,49 @@ induction cl as [| c]; intros.
     apply LSorted_inv_2 in Hpts.
     destruct Hpts as (Hlt, Hpts).
     constructor; [ assumption | idtac ].
-    eapply lt_trans; [ apply lt_n_Sn | eassumption ].
+    eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
 
     subst pts.
-    constructor; [ eapply IHcl; reflexivity | apply lt_n_Sn ].
+    constructor; [ eapply IHcl; reflexivity | apply Qnat_lt, lt_n_Sn ].
 Qed.
 
 Lemma minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   LocallySorted fst_lt [pt₂ … pts₂]
   → minimise_slope α pt₁ pt₂ pts₂ = ms
-    → fst pt₂ ≤ fst (end_pt ms).
+    → fst pt₂ <= fst (end_pt ms).
 Proof.
 intros pt₁ pt₂ pts₂ ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
 induction pts₂ as [| pt]; intros.
- subst ms; apply le_n.
+ subst ms; apply Qle_refl.
 
  simpl in Hms.
  remember (minimise_slope α pt₁ pt pts₂) as ms₁.
  remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
- destruct c; subst ms; simpl; [ idtac | reflexivity | idtac ].
-  apply lt_le_weak.
+ destruct c; subst ms; simpl; [ idtac | apply Qle_refl | idtac ].
+  apply Qlt_le_weak.
   apply LSorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
-  eapply lt_le_trans; [ eassumption | idtac ].
+  eapply Qlt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
 
-  apply lt_le_weak.
+  apply Qlt_le_weak.
   apply LSorted_inv_2 in Hsort.
   destruct Hsort as (Hlt, Hsort).
-  eapply lt_le_trans; [ eassumption | idtac ].
+  eapply Qlt_le_trans; [ eassumption | idtac ].
   symmetry in Heqms₁.
   eapply IHpts₂; eassumption.
 Qed.
 
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg hsl,
   next_ch_points α n [pt₁ … pts₁] = [{| pt := pt₂; oth := sg |} … hsl]
-  → fst pt₁ ≤ fst pt₂.
+  → fst pt₁ <= fst pt₂.
 Proof.
 intros n pt₁ pt₂ pts₁ sg hsl Hnp.
 destruct n; [ discriminate Hnp | idtac ].
 simpl in Hnp.
-destruct pts₁; injection Hnp; intros; subst pt₁; reflexivity.
+destruct pts₁; injection Hnp; intros; subst pt₁; apply Qle_refl.
 Qed.
 
 Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg hsl,
@@ -318,12 +320,12 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  eapply IHpts; [ idtac | eassumption ].
  apply LSorted_inv_2 in Hsort.
  destruct Hsort as (Hlt₂, Hsort).
- constructor; [ assumption | eapply lt_trans; eassumption ].
+ constructor; [ assumption | eapply Qlt_trans; eassumption ].
 
  eapply IHpts; [ idtac | eassumption ].
  apply LSorted_inv_2 in Hsort.
  destruct Hsort as (Hlt₂, Hsort).
- constructor; [ assumption | eapply lt_trans; eassumption ].
+ constructor; [ assumption | eapply Qlt_trans; eassumption ].
 Qed.
 
 Lemma next_points_sorted : ∀ n pts hsl,
@@ -349,10 +351,10 @@ apply IHn in Heqhsl₁.
  symmetry in Heqms₂.
  remember Heqms₂ as Hms; clear HeqHms.
  apply minimise_slope_le in Heqms₂.
-  eapply lt_le_trans.
+  eapply Qlt_le_trans.
    apply LSorted_inv_2 in Hsort; destruct Hsort; eassumption.
 
-   eapply le_trans; [ eassumption | idtac ].
+   eapply Qle_trans; [ eassumption | idtac ].
    eapply next_ch_points_le; eassumption.
 
   apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.

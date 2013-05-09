@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.4 2013-05-08 08:06:22 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.5 2013-05-09 17:55:20 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -19,35 +19,26 @@ Variable fld : field (puiseux_series α).
 Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
   LocallySorted hs_x_lt [ahs (j, jps) seg₁; ahs (k, kps) seg₂ … hsl]
   → valuation α jps +
-    Qnat j * ((valuation α jps - valuation α kps) / Qnat (k - j)) ==
+    j * ((valuation α jps - valuation α kps) / (k - j)) ==
     valuation α kps +
-    Qnat k * ((valuation α jps - valuation α kps) / Qnat (k - j)).
+    k * ((valuation α jps - valuation α kps) / (k - j)).
 Proof.
 intros j jps seg₁ k kps seg₂ hsl Hsort.
 apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
 unfold hs_x_lt in Hlt; simpl in Hlt.
-unfold Qnat.
-rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-rewrite QZ_minus.
 field.
-unfold Qminus, Qplus; simpl.
-do 2 rewrite Z.mul_1_r.
-unfold Qeq; simpl.
-rewrite Z.mul_1_r, Z.add_opp_r.
-intros H.
-apply Zminus_eq, Nat2Z.inj in H.
-subst k; apply lt_irrefl in Hlt; contradiction.
+apply Qgt_0_not_0, Qlt_minus; assumption.
 Qed.
 
 Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx hsl n,
   LocallySorted fst_lt [(j, jps); pt … pts]
-  → β = valuation α jps + Qnat j * γ
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+  → β = valuation α jps + j * γ
+    → γ = (valuation α jps - valuation α kps) / (k - j)
       → minimise_slope α (j, jps) pt pts = ms
         → next_ch_points α n [end_pt ms … rem_pts ms] =
             [ahs (k, kps) segkx … hsl]
           → ∀ i ips, (i, ips) ∈ seg ms
-            → valuation α ips + Qnat i * γ == β.
+            → valuation α ips + i * γ == β.
 Proof.
 intros j jps k kps β γ pt pts ms segkx hsl n.
 intros Hsort Hβ Hγ Hms Hnp i ips Hips.
@@ -80,58 +71,29 @@ induction pts as [| pt₁]; intros.
    rewrite Qdiv_minus_distr_r.
    apply Qeq_opp_r in Heqms₁.
    do 2 rewrite Qopp_minus in Heqms₁.
-   do 2 rewrite Qnat_minus in Heqms₁.
-    rewrite <- Heqms₁.
-    unfold Qnat.
-    rewrite Nat2Z.inj_sub.
-     rewrite QZ_minus.
-     field.
-     unfold Qminus, Qplus; simpl.
-     do 2 rewrite Z.mul_1_r.
-     unfold Qeq; simpl.
-     rewrite Z.mul_1_r, Z.add_opp_r.
-     intros H.
-     apply Zminus_eq, Nat2Z.inj in H.
-     apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-     subst i.
-     apply lt_irrefl in Hlt; contradiction.
-
-     apply lt_le_weak.
-     apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
-
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-    apply minimise_slope_le in Hms; [ idtac | assumption ].
-    rewrite <- Hnp in Hms.
-    eapply le_trans; [ idtac | eassumption ].
-    eapply lt_le_weak.
-    eapply le_lt_trans; [ idtac | eassumption ].
-    eapply lt_le_weak; eassumption.
-
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-    apply lt_le_weak; assumption.
-
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
-    apply lt_le_weak; assumption.
+   rewrite <- Heqms₁.
+   field.
+   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+   apply Qgt_0_not_0, Qlt_minus; assumption.
 
    eapply IHpts; try eassumption.
    eapply LSorted_minus_2nd; [ idtac | eassumption ].
-   intros x y z H₁ H₂; eapply lt_trans; eassumption.
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   symmetry in Heqms₁.
   eapply IHpts; try eassumption.
   eapply LSorted_minus_2nd; [ idtac | eassumption ].
-  intros x y z H₁ H₂; eapply lt_trans; eassumption.
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma in_newt_segm : ∀ j jps k kps γ β n pts segjk segkx hsl₁ hsl,
   LocallySorted fst_lt pts
-  → β = valuation α jps + Qnat j * γ
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
+  → β = valuation α jps + j * γ
+    → γ = (valuation α jps - valuation α kps) / (k - j)
       → next_ch_points α n pts =
           hsl₁ ++ [ ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
         → ∀ i ips, (i, ips) ∈ segjk
-          → valuation α ips + Qnat i * γ == β.
+          → valuation α ips + i * γ == β.
 Proof.
 intros j jps k kps γ β n pts segjk segkx hsl₁ hsl.
 intros Hsort Hβ Hγ Hch i ips Hips.
@@ -167,7 +129,7 @@ Qed.
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == valuation α hps + Qnat h * γ ns.
+    → β ns == valuation α hps + h * γ ns.
 Proof.
 intros pol ns Hns h hps Hhps.
 unfold newton_segments in Hns.

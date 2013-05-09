@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.18 2013-05-09 17:00:33 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.19 2013-05-09 17:55:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -369,7 +369,7 @@ Lemma min_slope_lt_after_k : ∀ j jps k kps pt pts ms,
   → minimise_slope α (j, jps) pt pts = ms
     → end_pt ms = (k, kps)
       → ∀ h hps, (h, hps) ∈ pts
-        → (k < h)%nat
+        → k < h
           → slope ms < slope_expr α (j, jps) (h, hps).
 Proof.
 intros j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hkh.
@@ -390,7 +390,7 @@ destruct Hhps as [Hhps| Hhps].
    simpl in Hep |- *.
    apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
    rewrite Hep in Heqms₁.
-   apply le_not_lt in Heqms₁; contradiction.
+   apply Qle_not_lt in Heqms₁; contradiction.
 
    simpl in Hep |- *; clear Hep.
    symmetry in Heqc; apply Qlt_alt in Heqc.
@@ -400,17 +400,17 @@ destruct Hhps as [Hhps| Hhps].
    symmetry in Heqc; apply Qgt_alt in Heqc.
    apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
    rewrite Hep in Heqms₁; simpl in Heqms₁.
-   apply le_not_lt in Heqms₁.
+   apply Qle_not_lt in Heqms₁.
    contradiction.
 
   destruct Hms as [Hms| Hms].
    injection Hms; clear Hms; intros; subst h hps.
-   apply lt_irrefl in Hkh; contradiction.
+   apply Qlt_irrefl in Hkh; contradiction.
 
    eapply LSorted_hd in Hsort; [ idtac | eassumption ].
    simpl in Hsort.
-   eapply lt_trans in Hsort; [ idtac | eassumption ].
-   apply lt_irrefl in Hsort; contradiction.
+   eapply Qlt_trans in Hsort; [ idtac | eassumption ].
+   apply Qlt_irrefl in Hsort; contradiction.
 
  simpl in Hms.
  remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
