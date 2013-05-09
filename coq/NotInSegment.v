@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.100 2013-05-09 15:24:13 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.101 2013-05-09 15:38:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -779,6 +779,15 @@ destruct c.
   intros x y z H₁ H₂; eapply lt_trans; eassumption.
 Qed.
 
+(*
+  (h < j)%nat 
+  next_ch_points α n [pt₁ … pts] =
+    hsl₁ ++
+    [{| pt := (j, jps); oth := segjk |};
+    {| pt := (k, kps); oth := segkx |} … hsl]
+  slope_expr α (h, hps) pt₁ < slope_expr α (h, hps) (j, jps).
+*)
+
 Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, hps); (i, ips) … pts]
   → (h < j < k)%nat
@@ -848,6 +857,10 @@ induction hsl₁ as [| hs₁]; intros.
   eapply ad_hoc_lt_lt₂.
    Focus 2.
    do 2 rewrite fold_slope_expr.
+   assert
+    (slope_expr α (h, hps) (end_pt ms₁) < slope_expr α (h, hps) (j, jps)).
+    Focus 2.
+    eapply Qlt_trans in H0; [ idtac | eassumption ].
 bbb.
  eapply ad_hoc_lt_lt₂.
   unfold slope_expr in HH.
