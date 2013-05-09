@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.95 2013-05-09 05:58:22 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.96 2013-05-09 06:46:19 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -829,6 +829,15 @@ induction hsl₁ as [| hs₁]; intros.
  eapply minimised_slope in HHH; [ idtac | reflexivity ].
  rewrite HHH in HH.
  eapply ad_hoc_lt_lt₂.
+bbb.
+  unfold slope_expr in HH.
+  simpl in HH.
+  remember (end_pt ms) as pt.
+  destruct pt as (m, mps).
+  simpl in HH.
+  remember (end_pt ms₁) as pt₁.
+  destruct pt₁ as (p, pps).
+  simpl in HH.
 bbb.
 *)
 

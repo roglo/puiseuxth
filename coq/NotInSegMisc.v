@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.13 2013-05-08 08:42:38 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.14 2013-05-09 06:46:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,14 +9,17 @@ Require Import Puiseux.
 
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 
+Definition gen_slope pt₁ pt₂ := (snd pt₂ - snd pt₁) / (fst pt₂ - fst pt₁).
+
 Lemma slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   ¬x₁ == x₂
   → ¬x₂ == x₃
     → ¬x₃ == x₁
-      → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₁) / (x₃ - x₁)
-        → (y₂ - y₁) / (x₂ - x₁) == (y₃ - y₂) / (x₃ - x₂).
+      → gen_slope (x₁, y₁) (x₂, y₂) == gen_slope (x₁, y₁) (x₃, y₃)
+        → gen_slope (x₁, y₁) (x₂, y₂) == gen_slope (x₂, y₂) (x₃, y₃).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ H₁₂ H₂₃ H₃₁ H.
+unfold gen_slope in H |-*.
 apply Qeq_shift_mult_l in H.
  symmetry in H.
  rewrite Qmult_div_swap in H.
@@ -64,12 +67,13 @@ Qed.
 
 Lemma slope_lt₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
-  → (y₂ - y₁) / (x₂ - x₁) < (y₃ - y₁) / (x₃ - x₁)
-    → (y₃ - y₁) / (x₃ - x₁) < (y₃ - y₂) / (x₃ - x₂).
+  → gen_slope (x₁, y₁) (x₂, y₂) < gen_slope (x₁, y₁) (x₃, y₃)
+    → gen_slope (x₁, y₁) (x₃, y₃) < gen_slope (x₂, y₂) (x₃, y₃).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 intros H.
+unfold gen_slope in H |-*.
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
 apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
 rewrite Qmult_comm, Qmult_div_assoc in H |- *.
@@ -108,12 +112,13 @@ Qed.
 
 Lemma slope_lt₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
-  → (y₃ - y₁) / (x₃ - x₁) < (y₂ - y₁) / (x₂ - x₁)
-    → (y₃ - y₂) / (x₃ - x₂) < (y₃ - y₁) / (x₃ - x₁).
+  → gen_slope (x₁, y₁) (x₃, y₃) < gen_slope (x₁, y₁) (x₂, y₂)
+    → gen_slope (x₂, y₂) (x₃, y₃) < gen_slope (x₁, y₁) (x₃, y₃).
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 intros H.
+unfold gen_slope in H |-*.
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
 apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
 rewrite Qmult_comm, Qmult_div_assoc in H |- *.
