@@ -1,4 +1,4 @@
-(* $Id: ConvexHull.v,v 1.42 2013-05-02 00:02:37 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.43 2013-05-09 17:55:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,17 +16,17 @@ Definition valuation_coeff α ps := fst (ps_1 α ps).
 
 Record min_sl α :=
   { slope : Q;
-    end_pt : (nat * α);
-    seg : list (nat * α);
-    rem_pts : list (nat * α) }.
+    end_pt : (Q * α);
+    seg : list (Q * α);
+    rem_pts : list (Q * α) }.
 Arguments slope : default implicits.
 Arguments end_pt : default implicits.
 Arguments seg : default implicits.
 Arguments rem_pts : default implicits.
 
 Record hull_seg α := ahs
-  { pt : (nat * α);
-    oth : list (nat * α) }.
+  { pt : (Q * α);
+    oth : list (Q * α) }.
 Arguments ahs : default implicits.
 Arguments pt : default implicits.
 Arguments oth : default implicits.
@@ -34,7 +34,7 @@ Arguments oth : default implicits.
 Definition slope_expr α pt₁ pt₂ :=
   let v₁ := valuation α (snd pt₁) in
   let v₂ := valuation α (snd pt₂) in
-  Qdiv (Qminus v₂ v₁) (Qminus (Qnat (fst pt₂)) (Qnat (fst pt₁))).
+  Qdiv (Qminus v₂ v₁) (Qminus (fst pt₂) (fst pt₁)).
 
 Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr α pt₁ pt₂ in
