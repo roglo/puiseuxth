@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.15 2013-05-09 00:32:19 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.16 2013-05-09 14:12:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -489,14 +489,12 @@ rewrite <- Qplus_assoc.
 rewrite Qplus_opp_r, Qplus_0_r.
 reflexivity.
 Qed.
-
 Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
 Proof.
 intros.
 apply Qeq_alt in H; apply Qeq_alt.
 rewrite <- H; symmetry; apply Qcmp_plus_minus_cmp_r.
 Qed.
-
 Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
 Proof.
 intros.
