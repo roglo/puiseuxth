@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.20 2013-05-09 18:21:15 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.21 2013-05-09 19:31:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,6 +8,13 @@ Require Import ConvexHull.
 Require Import Puiseux.
 
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+
+Fixpoint point_in {A} (a : Q * A) (l : list (Q * A)) : Prop :=
+  match l with
+  | [] => False
+  | [b … m] => fst b == fst a ∨ point_in a m
+  end.
+Notation "x 'not_in' l" := (not (point_in x l)) (at level 70).
 
 Definition gen_slope pt₁ pt₂ := (snd pt₂ - snd pt₁) / (fst pt₂ - fst pt₁).
 
@@ -586,7 +593,7 @@ Lemma points_between_j_and_k : ∀ n pts j jps k kps sjk skx hsl γ β,
       → next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
         → ∀ h hps, j < h < k
           → (h, hps) ∈ pts
-            → (h, hps) ∉ sjk
+            → (h, hps) not_in sjk
               → β < valuation α hps + h * γ.
 Proof.
 intros n pts j jps k kps segjk segkx hsl γ β.

@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.18 2013-05-09 18:21:15 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.19 2013-05-09 19:31:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -22,6 +22,14 @@ intros x y Hxy Hnxy.
 apply le_lt_eq_dec in Hxy.
 destruct Hxy; [ assumption | idtac ].
 exfalso; subst x; apply Hnxy; reflexivity.
+Qed.
+
+Lemma Qle_neq_lt : ∀ x y, x <= y → ¬ x == y → x < y.
+Proof.
+intros x y Hxy Hnxy.
+apply Qnot_le_lt.
+intros H; apply Hnxy.
+apply Qle_antisym; assumption.
 Qed.
 
 Lemma rev_app_not_nil {α} : ∀ (x : α) l₁ l₂, List.rev l₁ ++ [x … l₂] ≠ [ ].

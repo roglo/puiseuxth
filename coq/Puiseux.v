@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.469 2013-05-09 17:55:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.470 2013-05-09 19:31:06 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -133,7 +133,7 @@ Qed.
 Lemma LSorted_hd {A} : ∀ (pt₁ pt₂ : Q * A) pts,
   LocallySorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
-    → (fst pt₁ < fst pt₂).
+    → fst pt₁ < fst pt₂.
 Proof.
 intros pt₁ pt₂ pts Hsort Hpt.
 revert pt₁ pt₂ Hsort Hpt.

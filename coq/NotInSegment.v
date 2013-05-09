@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.103 2013-05-09 18:34:58 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.104 2013-05-09 19:31:06 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -18,10 +18,11 @@ Variable fld : field (puiseux_series α).
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
   → newton_segments fld pol = [ns … nsl]
-    → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns < valuation α hps + h * (γ ns).
+    → ∀ h hps, (h, hps) ∈ pts
+      → (h, hps) not_in [ini_pt ns; fin_pt ns … oth_pts ns]
+        → β ns < valuation α hps + h * (γ ns).
 Proof.
-intros pol pts ns nsl Hpts Hns h hps (Hhps, Hnhps).
+intros pol pts ns nsl Hpts Hns h hps Hhps Hnhps.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points α pts) as hsl.
@@ -41,23 +42,15 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
  eapply points_after_k; try eassumption; reflexivity.
 
  destruct (Qeq_dec h k) as [Heq| Hne].
-  unfold points_of_ps_polynom in Hpts.
-  apply points_of_polyn_sorted in Hpts.
-  eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
-   rewrite Heq; subst hps.
-   simpl in Hnhps.
-   apply Decidable.not_or in Hnhps.
-   destruct Hnhps as (_, Hnhps).
-   apply Decidable.not_or in Hnhps.
-   destruct Hnhps as (Hnhps, _).
-   exfalso; apply Hnhps; reflexivity.
+  simpl in Hnhps.
+  apply Decidable.not_or in Hnhps.
+  destruct Hnhps as (_, Hnhps).
+  apply Decidable.not_or in Hnhps.
+  destruct Hnhps as (Hnhps, _).
+  symmetry in Heq; contradiction.
 
-   eapply in_ch_in_pts with (n := length pts).
-   unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
-   right; left; reflexivity.
-
-  apply le_neq_lt in Hge; [ idtac | assumption ].
-  destruct (lt_dec j h) as [Hlt| Hge₂].
+  apply Qle_neq_lt in Hge; [ idtac | assumption ].
+  destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
    unfold points_of_ps_polynom in Hpts.
    apply points_of_polyn_sorted in Hpts.
    remember Hpts as Hpts₂; clear HeqHpts₂.
