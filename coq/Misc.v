@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.17 2013-05-09 14:59:26 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.18 2013-05-09 18:21:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -215,6 +215,13 @@ apply Qlt_minus.
 unfold Qlt; simpl.
 do 2 rewrite Zmult_1_r.
 apply inj_lt; assumption.
+Qed.
+
+Lemma Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
+Proof.
+intros i j H HH.
+apply Qminus_eq in HH.
+rewrite HH in H; apply Qlt_irrefl in H; contradiction.
 Qed.
 
 Lemma Qnat_lt_not_0 : ∀ i j, (i < j)%nat → ¬Qnat (j - i) == 0.

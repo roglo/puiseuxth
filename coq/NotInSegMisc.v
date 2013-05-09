@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.19 2013-05-09 17:55:20 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.20 2013-05-09 18:21:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -172,15 +172,15 @@ Qed.
    perhaps? the most part is normalization *)
 (* 2/ perhaps could be proved shorter by 'slope_lt₁' or '₂' above? *)
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
-  (j < i < k)%nat
-  → (x - z) / (Qnat i - Qnat j) < (y - x) / (Qnat k - Qnat i)
-    → x + Qnat i * ((x - y) / Qnat (k - i)) <
-      z + Qnat j * ((x - y) / Qnat (k - i)).
+  j < i < k
+  → (x - z) / (i - j) < (y - x) / (k - i)
+    → x + i * ((x - y) / (k - i)) <
+      z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hji, Hik) H.
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
@@ -196,37 +196,37 @@ rewrite <- Qplus_minus_swap in H.
 apply Qlt_minus_plus_lt_r in H.
 do 2 rewrite Qplus_assoc in H.
 do 2 rewrite Qmult_div_assoc.
-rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
-rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
+rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
+apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
+rewrite Qmult_minus_distr_r.
 rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
 rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
-do 2 rewrite Qmult_minus_distr_r.
+rewrite Qmult_minus_distr_r.
 do 2 rewrite Qplus_minus_assoc.
 apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
 apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
 do 2 rewrite <- Qplus_assoc; rewrite <- Qplus_minus_swap.
 apply Qplus_lt_lt_minus_r; rewrite <- Qplus_minus_swap.
 apply Qplus_lt_lt_minus_r; do 2 rewrite Qplus_assoc.
-setoid_replace (x * Qnat i + x * Qnat k + z * Qnat i + y * Qnat j) with
- (x * Qnat k + z * Qnat i + x * Qnat i + y * Qnat j) by ring.
-setoid_replace (x * Qnat j + z * Qnat k + x * Qnat i + y * Qnat i) with
- (y * Qnat i + x * Qnat j + z * Qnat k + x * Qnat i) by ring.
+setoid_replace (x * i + x * k + z * i + y * j) with
+ (x * k + z * i + x * i + y * j) by ring.
+setoid_replace (x * j + z * k + x * i + y * i) with
+ (y * i + x * j + z * k + x * i) by ring.
 assumption.
 Qed.
 
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
-  (i < j ∧ i < k)%nat
-  → (y - x) / (Qnat k - Qnat i) < (z - x) / (Qnat j - Qnat i)
-    → x + Qnat i * ((x - y) / Qnat (k - i)) <
-      z + Qnat j * ((x - y) / Qnat (k - i)).
+  i < j ∧ i < k
+  → (y - x) / (k - i) < (z - x) / (j - i)
+    → x + i * ((x - y) / (k - i)) <
+      z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_comm, Qmult_div_assoc in H.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus, Qnat_lt; assumption ].
+apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
 rewrite Qmult_comm in H.
 do 2 rewrite Qmult_minus_distr_l in H.
 do 4 rewrite Qmult_minus_distr_r in H.
@@ -242,14 +242,14 @@ rewrite <- Qplus_minus_swap in H.
 apply Qlt_minus_plus_lt_r in H.
 do 2 rewrite Qplus_assoc in H.
 do 2 rewrite Qmult_div_assoc.
-rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-rewrite Qplus_div; [ idtac | apply Qnat_lt_not_0; assumption ].
-apply Qdiv_lt_compat_r; [ apply Qnat_lt_0_lt; assumption | idtac ].
-rewrite Qnat_minus_distr; [ idtac | apply lt_le_weak; assumption ].
+rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
+rewrite Qplus_div; [ idtac | apply Qlt_not_0; assumption ].
+apply Qdiv_lt_compat_r; [ apply Qlt_minus; assumption | idtac ].
+rewrite Qmult_minus_distr_r.
 rewrite Qplus_comm, Qmult_comm; apply Qnot_le_lt.
 rewrite Qplus_comm, Qmult_comm; apply Qlt_not_le.
 do 2 rewrite Qmult_minus_distr_l.
-do 2 rewrite Qmult_minus_distr_r.
+rewrite Qmult_minus_distr_r.
 do 2 rewrite Qplus_minus_assoc.
 apply Qlt_plus_minus_lt_r; rewrite <- Qplus_minus_swap.
 apply Qlt_plus_minus_lt_r; rewrite Qplus_minus_swap.
@@ -435,13 +435,13 @@ Qed.
 
 Lemma points_after_k : ∀ n pts j jps k kps seg seg₂ hsl γ β,
   LocallySorted fst_lt pts
-  → (j < k)%nat
-    → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-      → β = valuation α jps + Qnat j * γ
+  → j < k
+    → γ = (valuation α jps - valuation α kps) / (k - j)
+      → β = valuation α jps + j * γ
         → next_ch_points α n pts = [ahs (j, jps) seg; ahs (k, kps) seg₂ … hsl]
-          → ∀ h hps, (k < h)%nat
+          → ∀ h hps, k < h
             → (h, hps) ∈ pts
-              → β < valuation α hps + Qnat h * γ.
+              → β < valuation α hps + h * γ.
 Proof.
 intros n pts j jps k kps segjk segkx hsl γ β.
 intros Hsort Hjk Hγ Hβ Hnp h hps Hkh Hhps.
@@ -459,8 +459,8 @@ rename H into Hep₁.
 rewrite Hep₁ in Hnp.
 destruct Hhps as [Hhps| Hhps].
  injection Hhps; clear Hhps; intros; subst h hps.
- eapply lt_trans in Hkh; [ idtac | eassumption ].
- apply lt_irrefl in Hkh; contradiction.
+ eapply Qlt_trans in Hkh; [ idtac | eassumption ].
+ apply Qlt_irrefl in Hkh; contradiction.
 
  destruct Hhps as [Hhps| Hhps]; [ exfalso | idtac ].
   subst pt₁.
@@ -468,7 +468,7 @@ destruct Hhps as [Hhps| Hhps].
   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
   apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
   rewrite Hep₁ in Heqms₁.
-  apply le_not_lt in Heqms₁.
+  apply Qle_not_lt in Heqms₁.
   contradiction.
 
   symmetry in Heqms₁.
@@ -482,7 +482,7 @@ destruct Hhps as [Hhps| Hhps].
    apply ad_hoc_lt_lt.
     split; [ idtac | assumption ].
     destruct pt₁ as (l, lps).
-    apply lt_trans with (m := l).
+    apply Qlt_trans with (y := l).
      apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 
      apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
@@ -500,7 +500,7 @@ Qed.
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
   LocallySorted fst_lt [(j, jps); pt; (h, hps) … pts]
   → minimise_slope α (j, jps) pt [(h, hps) … pts] = ms
-    → (j < h <  k)%nat
+    → j < h < k
       → (h, hps) ∉ seg ms
         → end_pt ms = (k, kps)
           → slope ms < slope_expr α (j, jps) (h, hps).
@@ -514,7 +514,7 @@ induction pts as [| pt₁]; intros.
  destruct c; subst ms; simpl.
   simpl in Hseg, Hep.
   injection Hep; clear Hep; intros; subst h hps.
-  apply lt_irrefl in Hhk; contradiction.
+  apply Qlt_irrefl in Hhk; contradiction.
 
   simpl in Hseg, Hep.
   subst pt.
@@ -523,7 +523,7 @@ induction pts as [| pt₁]; intros.
 
   simpl in Hseg, Hep.
   injection Hep; clear Hep; intros; subst h hps.
-  apply lt_irrefl in Hhk; contradiction.
+  apply Qlt_irrefl in Hhk; contradiction.
 
  remember [pt₁ … pts] as pts₁.
  simpl in Hms.
@@ -549,7 +549,7 @@ induction pts as [| pt₁]; intros.
 
    simpl in Heqc₁, Hseg, Hep.
    injection Hep; clear Hep; intros; subst h hps.
-   apply lt_irrefl in Hhk; contradiction.
+   apply Qlt_irrefl in Hhk; contradiction.
 
    apply Qgt_alt in Heqc; assumption.
 
@@ -574,20 +574,20 @@ induction pts as [| pt₁]; intros.
 
    simpl in Heqc₁, Hseg, Hep.
    injection Hep; clear Hep; intros; subst h hps.
-   apply lt_irrefl in Hhk; contradiction.
+   apply Qlt_irrefl in Hhk; contradiction.
 
    apply Qgt_alt in Heqc; assumption.
 Qed.
 
 Lemma points_between_j_and_k : ∀ n pts j jps k kps sjk skx hsl γ β,
   LocallySorted fst_lt pts
-  → γ = (valuation α jps - valuation α kps) / Qnat (k - j)
-    → β = valuation α jps + Qnat j * γ
+  → γ = (valuation α jps - valuation α kps) / (k - j)
+    → β = valuation α jps + j * γ
       → next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
-        → ∀ h hps, (j < h < k)%nat
+        → ∀ h hps, j < h < k
           → (h, hps) ∈ pts
             → (h, hps) ∉ sjk
-              → β < valuation α hps + Qnat h * γ.
+              → β < valuation α hps + h * γ.
 Proof.
 intros n pts j jps k kps segjk segkx hsl γ β.
 intros Hsort Hγ Hβ Hnp h hps (Hjh, Hhk) Hhps Hseg.
@@ -605,7 +605,7 @@ rename H into Hep₁.
 rewrite Hep₁ in Hnp.
 destruct Hhps as [Hhps| Hhps].
  injection Hhps; clear Hhps; intros; subst h hps.
- apply lt_irrefl in Hjh; contradiction.
+ apply Qlt_irrefl in Hjh; contradiction.
 
  destruct Hhps as [Hhps| Hhps].
   subst pt₁.
@@ -615,7 +615,7 @@ destruct Hhps as [Hhps| Hhps].
    subst ms₁.
    simpl in Hep₁, Hseg, Hnp.
    injection Hep₁; clear Hep₁; intros; subst h hps.
-   apply lt_irrefl in Hhk; contradiction.
+   apply Qlt_irrefl in Hhk; contradiction.
 
    simpl in Heqms₁.
    remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
@@ -628,7 +628,7 @@ destruct Hhps as [Hhps| Hhps].
 
     simpl in Hep₁, Hseg, Hnp.
     injection Hep₁; clear Hep₁; intros; subst h hps.
-    apply lt_irrefl in Hhk; contradiction.
+    apply Qlt_irrefl in Hhk; contradiction.
 
     symmetry in Hep₁.
     remember Heqms₂ as H; clear HeqH.
@@ -638,7 +638,7 @@ destruct Hhps as [Hhps| Hhps].
     subst β γ.
     apply ad_hoc_lt_lt.
      split; [ assumption | idtac ].
-     eapply lt_trans; eassumption.
+     eapply Qlt_trans; eassumption.
 
      unfold slope_expr in Heqc; simpl in Heqc.
      assumption.
@@ -662,7 +662,7 @@ destruct Hhps as [Hhps| Hhps].
      subst β γ.
      apply ad_hoc_lt_lt.
       split; [ assumption | idtac ].
-      eapply lt_trans; eassumption.
+      eapply Qlt_trans; eassumption.
 
       unfold slope_expr in Heqms₁; simpl in Heqms₁.
       assumption.
@@ -688,7 +688,7 @@ destruct Hhps as [Hhps| Hhps].
       apply LSorted_inv_2 in Hsort.
       destruct Hsort as (Hlt₂, Hsort).
       apply LSorted_inv_2 in Hsort.
-      destruct Hsort; eapply lt_trans; eassumption.
+      destruct Hsort; eapply Qlt_trans; eassumption.
 
      simpl in Hep₁, Hseg, Hnp.
      subst pt₁.
@@ -700,9 +700,9 @@ destruct Hhps as [Hhps| Hhps].
      unfold fst_lt in Hlt₃.
      simpl in Hlt₃, Hsort.
      clear Hlt₂.
-     eapply lt_trans in Hlt₃; [ idtac | eassumption ].
-     eapply lt_trans in Hlt₃; [ idtac | eassumption ].
-     apply lt_irrefl in Hlt₃; contradiction.
+     eapply Qlt_trans in Hlt₃; [ idtac | eassumption ].
+     eapply Qlt_trans in Hlt₃; [ idtac | eassumption ].
+     apply Qlt_irrefl in Hlt₃; contradiction.
 
      eapply IHpts; try eassumption.
      constructor.
@@ -714,7 +714,7 @@ destruct Hhps as [Hhps| Hhps].
       apply LSorted_inv_2 in Hsort.
       destruct Hsort as (Hlt₂, Hsort).
       apply LSorted_inv_2 in Hsort.
-      destruct Hsort; eapply lt_trans; eassumption.
+      destruct Hsort; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
@@ -726,14 +726,14 @@ intros HH.
 destruct HH as [HH| HH].
  injection HH; clear HH; intros; subst h hps.
  apply LSorted_inv_2 in H; destruct H as (Hlt, H).
- apply lt_irrefl in Hlt; assumption.
+ apply Qlt_irrefl in Hlt; assumption.
 
  revert HH; apply IHpts.
  apply LSorted_inv_2 in H; destruct H as (Hlt₁, H).
  destruct pts as [| pt₂]; [ constructor | idtac ].
  apply LSorted_inv_2 in H; destruct H as (Hlt₂, H).
  constructor; [ assumption | idtac ].
- eapply lt_trans; eassumption.
+ eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma same_k_same_kps : ∀ pts j jps k (kps : puiseux_series α),
