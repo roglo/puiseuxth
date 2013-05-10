@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.19 2013-05-09 19:31:06 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.20 2013-05-10 19:41:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -90,19 +90,6 @@ destruct (Qeq_dec z 0) as [Heq| Hne].
  reflexivity.
 
  field; assumption.
-Qed.
-
-Lemma Qdiv_nat : ∀ x i,
-  i ≠ 0%nat
-  → x / Qnat i == Qnum x # Qden x * Pos.of_nat i.
-Proof.
-intros x i Hi.
-destruct i; [ exfalso; apply Hi; reflexivity | clear Hi ].
-unfold Qnat, Qeq.
-f_equal; [ apply Z.mul_1_r | f_equal; f_equal ].
-unfold Qdiv, Qmult.
-f_equal; [ rewrite Z.mul_1_r; reflexivity | f_equal; simpl ].
-induction i; [ reflexivity | simpl; rewrite IHi; reflexivity ].
 Qed.
 
 Lemma Qdiv_plus_distr_r : ∀ x y z, (x + y) / z == x / z + y / z.
@@ -213,55 +200,11 @@ do 2 rewrite Zmult_1_r.
 apply inj_lt; assumption.
 Qed.
 
-Lemma Qnat_lt_0_lt : ∀ i j, (i < j)%nat → 0 < Qnat (j - i).
-Proof.
-intros i j H.
-unfold Qnat.
-rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-rewrite QZ_minus.
-apply Qlt_minus.
-unfold Qlt; simpl.
-do 2 rewrite Zmult_1_r.
-apply inj_lt; assumption.
-Qed.
-
 Lemma Qlt_not_0 : ∀ x y, x < y → ¬ y - x == 0.
 Proof.
 intros i j H HH.
 apply Qminus_eq in HH.
 rewrite HH in H; apply Qlt_irrefl in H; contradiction.
-Qed.
-
-Lemma Qnat_lt_not_0 : ∀ i j, (i < j)%nat → ¬Qnat (j - i) == 0.
-Proof.
-intros i j H.
-unfold Qnat.
-rewrite Nat2Z.inj_sub; [ idtac | apply lt_le_weak; assumption ].
-rewrite QZ_minus.
-intros HH.
-apply Qminus_eq in HH.
-unfold Qeq in HH.
-simpl in HH.
-do 2 rewrite Zmult_1_r in HH.
-apply Nat2Z.inj in HH.
-subst j; apply lt_irrefl in H; assumption.
-Qed.
-
-Lemma Qnat_minus : ∀ x y, y ≤ x → Qnat x - Qnat y == Qnat (x - y).
-Proof.
-intros x y Hba.
-unfold Qnat, Qminus, Qplus; simpl.
-do 2 rewrite Zmult_1_r.
-rewrite Nat2Z.inj_sub; [ idtac | assumption ].
-unfold Zminus; reflexivity.
-Qed.
-
-Lemma Qnat_minus_distr : ∀ i j, i ≤ j → Qnat (j - i) == Qnat j - Qnat i.
-Proof.
-intros i j Hij.
-unfold Qeq; simpl.
-do 4 rewrite Zmult_1_r.
-apply Nat2Z.inj_sub; assumption.
 Qed.
 
 Lemma Qopp_lt_compat: ∀ p q : Q, p < q → - q < - p.
@@ -352,17 +295,6 @@ rewrite Qplus_opp_r, Qplus_0_r in H.
 assumption.
 Qed.
 
-(*
-Lemma Qlt_plus_minus_lt_r : ∀ x y z, x < y + z → x - z < y.
-Proof.
-intros x y z H.
-apply Qplus_lt_compat_r with (z := - z) in H.
-rewrite <- Qplus_assoc in H.
-rewrite Qplus_opp_r, Qplus_0_r in H.
-assumption.
-Qed.
-*)
-
 (* to be inserted *)
 
 Lemma Qmult_div_swap : ∀ x y z, x / y * z == x * z / y.
@@ -397,25 +329,6 @@ rewrite <- H.
 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
 rewrite Qminus_diag, Qplus_0_r.
 reflexivity.
-Qed.
-
-(*
-Lemma Qeq_plus_minus_eq_r : ∀ x y z, x == y + z → x - z == y.
-Proof.
-intros.
-rewrite H.
-rewrite <- Qplus_minus_assoc, Qminus_diag, Qplus_0_r.
-reflexivity.
-Qed.
-*)
-
-Lemma Qnat_eq : ∀ i j, Qnat i == Qnat j → i = j.
-Proof.
-intros.
-unfold Qnat in H.
-unfold Qeq in H; simpl in H.
-do 2 rewrite Zmult_1_r in H.
-apply Nat2Z.inj; assumption.
 Qed.
 
 (* TODO: transform the above with ?= like below. *)

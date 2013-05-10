@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.114 2013-05-10 19:36:11 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.115 2013-05-10 19:41:30 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -427,10 +427,7 @@ Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
        {| pt := (k, αk); oth := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → k < h
-        → αj +
-          j * ((αj - αk) / (k - j)) <
-          αh +
-          h * ((αj - αk) / (k - j)).
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts hsl₁ hsl j αj segjk k αk segkx Hsort Hnp h αh Hαh Hkh.
 revert n pts Hsort Hnp Hαh.
@@ -545,10 +542,7 @@ Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
     → ∀ h αh, (h, αh) ∈ pts
       → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → j < h < k
-          → αj +
-            j * ((αj - αk) / (k - j)) <
-            αh +
-            h * ((αj - αk) / (k - j)).
+          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts hsl₁ hsl j αj segjk k αk segkx Hsort Hnp.
 intros h αh Hαh Hnαh Hjhk.

@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.26 2013-05-10 15:05:58 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.27 2013-05-10 19:41:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -172,8 +172,7 @@ Qed.
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
   j < i < k
   → (x - z) / (i - j) < (y - x) / (k - i)
-    → x + i * ((x - y) / (k - i)) <
-      z + j * ((x - y) / (k - i)).
+    → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hji, Hik) H.
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
@@ -218,8 +217,7 @@ Qed.
 Lemma ad_hoc_lt_lt : ∀ i j k x y z,
   i < j ∧ i < k
   → (y - x) / (k - i) < (z - x) / (j - i)
-    → x + i * ((x - y) / (k - i)) <
-      z + j * ((x - y) / (k - i)).
+    → x + i * ((x - y) / (k - i)) < z + j * ((x - y) / (k - i)).
 Proof.
 intros i j k x y z (Hij, Hjk) H.
 apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
