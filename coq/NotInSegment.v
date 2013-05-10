@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.109 2013-05-10 09:30:36 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.110 2013-05-10 10:43:19 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1080,6 +1080,27 @@ destruct Hhps as [Hhps| Hhps].
  apply Qlt_irrefl in Hhj; contradiction.
 Qed.
 
+Lemma qeq_eq : ∀ n pol pts h hps k kps s hsl₁ hsl,
+  points_of_ps_polynom α fld pol = pts
+  → next_ch_points α n pts = hsl₁ ++ [{| pt := (k, kps); oth := s |} … hsl]
+    → (h, hps) ∈ pts
+      → h == k
+        → h = k.
+Proof.
+intros n pol pts h hps k kps s hsl₁ hsl Hpts Hhsl Hhps Hhk.
+apply same_den_qeq_eq; [ idtac | assumption ].
+eapply fst_is_int in Hhps; [ idtac | eassumption ].
+rewrite Hhps.
+assert ((k, kps) ∈ pts) as Hkps.
+ apply in_ch_in_pts with (n := n) (s := s).
+ rewrite Hhsl.
+ apply List.in_app_iff.
+ right; left; reflexivity.
+
+ eapply fst_is_int in Hkps; [ idtac | eassumption ].
+ rewrite Hkps; reflexivity.
+Qed.
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1087,6 +1108,7 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
       → β ns < valuation α hps + h * (γ ns).
 Proof.
 intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
+remember Hpts as HHpts; clear HeqHHpts; symmetry in HHpts.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points α pts) as hsl.
@@ -1096,11 +1118,10 @@ rename Heqhsl into Hhsl.
 remember (length pts) as n; clear Heqn.
 unfold points_of_ps_polynom in Hpts.
 apply points_of_polyn_sorted in Hpts.
-clear pol.
 remember (list_map_pairs (newton_segment_of_pair α) hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
-revert n pts ns hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
+revert n pts ns hsl Hpts HHpts Hhps Hhsl Hnsl Hns Hnhps.
 induction nsl as [| ns₁]; [ contradiction | intros ].
 destruct Hns as [Hns| Hns].
  subst ns₁.
@@ -1115,25 +1136,26 @@ destruct Hns as [Hns| Hns].
   eapply lt_aft_k with (hsl₁ := []); eassumption.
 
   destruct (Qeq_dec h k) as [Heq| Hne].
+   remember [{| pt := (j, jps); oth := segjk |}] as x.
+   eapply qeq_eq with (hsl₁ := x) in Heq; subst x; simpl; try eassumption.
    exfalso; revert Heq.
    eapply not_k with (hsl₁ := []); eassumption.
 
-   apply not_gt in Hge.
-   destruct (lt_dec j h) as [Hlt| Hge₂].
-    apply le_neq_lt in Hge; [ idtac | assumption ].
+   destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
+    apply Qle_neq_lt in Hge; [ idtac | assumption ].
     eapply conj in Hge; [ idtac | eassumption ].
     eapply lt_bet_j_and_k with (hsl₁ := []); eassumption.
 
-    apply not_gt in Hge₂.
-    destruct (eq_nat_dec h j) as [Heq| Hne₂].
+    destruct (Qeq_dec h j) as [Heq| Hne₂].
+     eapply qeq_eq with (hsl₁ := [ ]) in Heq; simpl; try eassumption.
      exfalso; revert Heq.
      eapply not_j with (hsl₁ := []); eassumption.
 
-     apply le_neq_lt in Hge₂; [ idtac | assumption ].
+     apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
      eapply lt_bef_j₀; eassumption.
 
  clear IHnsl.
- revert n pts ns ns₁ hsl Hpts Hhps Hhsl Hnsl Hns Hnhps.
+ revert n pts ns ns₁ hsl Hpts HHpts Hhps Hhsl Hnsl Hns Hnhps.
  induction nsl as [| ns₂]; [ contradiction | intros ].
  destruct Hns as [Hns| Hns].
   subst ns.
@@ -1151,25 +1173,26 @@ destruct Hns as [Hns| Hns].
   unfold hs_x_lt in Hjk; simpl in Hjk.
   injection Hnsl; clear Hnsl; intros.
   subst ns₁ ns₂; simpl in Hnhps |- *.
-  destruct (lt_dec k h) as [Hlt| Hge].
+  destruct (Qlt_le_dec k h) as [Hlt| Hge].
    eapply lt_aft_k with (hsl₁ := [hs₁]); simpl; try eassumption.
 
-   destruct (eq_nat_dec h k) as [Heq| Hne].
+   destruct (Qeq_dec h k) as [Heq| Hne].
+    remember [hs₁; {| pt := (j, jps); oth := segjk |} … []] as x.
+    eapply qeq_eq with (hsl₁ := x) in Heq; subst x; simpl; try eassumption.
     exfalso; revert Heq.
     eapply not_k with (hsl₁ := [hs₁]); simpl; eassumption.
 
-    apply not_gt in Hge.
-    destruct (lt_dec j h) as [Hlt| Hge₂].
-     apply le_neq_lt in Hge; [ idtac | assumption ].
+    destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
+     apply Qle_neq_lt in Hge; [ idtac | assumption ].
      eapply conj in Hge; [ idtac | eassumption ].
      eapply lt_bet_j_and_k with (hsl₁ := [hs₁]); simpl; eassumption.
 
-     apply not_gt in Hge₂.
-     destruct (eq_nat_dec h j) as [Heq| Hne₂].
+     destruct (Qeq_dec h j) as [Heq| Hne₂].
+      eapply qeq_eq with (hsl₁ := [hs₁]) in Heq; simpl; try eassumption.
       exfalso; revert Heq.
       eapply not_j with (hsl₁ := [hs₁]); simpl; eassumption.
 
-      apply le_neq_lt in Hge₂; [ idtac | assumption ].
+      apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
       eapply conj in Hjk; [ idtac | eexact Hge₂ ].
       eapply lt_bef_j₁; eassumption.
 
