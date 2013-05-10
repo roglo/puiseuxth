@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.22 2013-05-10 02:09:13 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.23 2013-05-10 03:33:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -736,7 +736,70 @@ destruct HH as [HH| HH].
  eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma same_k_same_kps : ∀ pts j jps k (kps : puiseux_series α),
+Lemma all_fst_is_int : ∀ n cl cn pts h hps,
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α n cl cn) = pts
+  → (h, hps) ∈ pts
+    → (Qden h = 1)%positive.
+Proof.
+intros n cl cn pts h hps Hpts Hhps.
+revert n pts Hpts Hhps.
+induction cl as [| c]; intros.
+ simpl in Hpts.
+ destruct (is_zero_dec fld cn) as [Hz| Hnz].
+  subst pts; contradiction.
+
+  subst pts.
+  destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+  injection Hhps; clear Hhps; intros; subst h hps.
+  reflexivity.
+
+ simpl in Hpts.
+ destruct (is_zero_dec fld c) as [Hz| Hnz].
+  eapply IHcl; eassumption.
+
+  subst pts.
+  destruct Hhps as [Hhps| Hhps].
+   injection Hhps; clear Hhps; intros; subst h hps.
+   reflexivity.
+
+   eapply IHcl in Hhps; [ assumption | reflexivity ].
+Qed.
+
+Lemma fst_is_int : ∀ pol pts h hps,
+  points_of_ps_polynom α fld pol = pts
+  → (h, hps) ∈ pts
+    → (Qden h = 1)%positive.
+Proof.
+intros pol pts h hps Hpts Hhps.
+eapply all_fst_is_int; eassumption.
+Qed.
+
+Lemma all_same_k_same_kps : ∀ n cl cn pts j jps k kps,
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α n cl cn) = pts
+  → (j, jps) ∈ pts
+    → (k, kps) ∈ pts
+      → j = k
+        → jps = kps.
+Proof.
+intros n cl cn pts j jps k kps Hpts Hjps Hkps Hjk.
+subst j.
+revert n cl cn Hpts.
+induction pts as [| pt]; [ contradiction | intros ].
+destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
+ destruct Hkps as [Hkps| Hkps].
+  injection Hkps; clear; intros; subst jps; reflexivity.
+bbb.
+
+Lemma same_k_same_kps : ∀ pol pts j jps k kps,
+  pts = points_of_ps_polynom α fld pol
+  → (j, jps) ∈ pts
+    → (k, kps) ∈ pts
+      → j = k
+        → jps = kps.
+Proof.
+bbb.
+
+Lemma same_k_same_kps₄₂ : ∀ pts j jps k (kps : puiseux_series α),
   LocallySorted fst_lt pts
   → (j, jps) ∈ pts
     → (k, kps) ∈ pts

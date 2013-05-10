@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.105 2013-05-10 02:09:13 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.106 2013-05-10 03:33:37 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -15,6 +15,22 @@ Section convex_hull.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
+Lemma same_den_qeq_eq : ∀ h i, Qden h = Qden i → h == i → h = i.
+Proof.
+intros h i Hd Hh.
+unfold Qeq in Hh.
+rewrite Hd in Hh.
+apply Z.mul_reg_r in Hh.
+ destruct h, i.
+ simpl in Hd, Hh.
+ subst Qden Qnum; reflexivity.
+
+ intros H.
+ pose proof (Pos2Z.is_pos (Qden i)) as HH.
+ rewrite <- H in HH.
+ apply Zlt_irrefl in HH; contradiction.
+Qed.
+
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
   → newton_segments fld pol = [ns … nsl]
@@ -23,6 +39,9 @@ Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
         → β ns < valuation α hps + h * (γ ns).
 Proof.
 intros pol pts ns nsl Hpts Hns h hps Hhps Hnhps.
+remember Hhps as Hint; clear HeqHint.
+eapply fst_is_int in Hint; [ idtac | symmetry; eassumption ].
+remember Hpts as HHpts; clear HeqHHpts.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points α pts) as hsl.
@@ -42,13 +61,32 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
  eapply points_after_k; try eassumption; reflexivity.
 
  destruct (Qeq_dec h k) as [Heq| Hne].
-  simpl in Hnhps.
-  apply Decidable.not_or in Hnhps.
-  destruct Hnhps as (_, Hnhps).
-  apply Decidable.not_or in Hnhps.
-  destruct Hnhps as (Hnhps, _).
-  symmetry in Heq; contradiction.
+  unfold points_of_ps_polynom in Hpts.
+  apply points_of_polyn_sorted in Hpts.
+bbb.
+  eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
+   unfold lower_convex_hull_points in Heqhsl.
+   assert ((k, kps) ∈ pts).
+    apply in_ch_in_pts with (n := length pts) (s := segkx).
+    rewrite Heqhsl.
+    right; left; reflexivity.
 
+    eapply fst_is_int in H; [ idtac | symmetry; eassumption ].
+    rewrite <- H in Hint.
+    apply same_den_qeq_eq in Hint; [ idtac | assumption ].
+    subst h hps.
+    simpl in Hnhps.
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (_, Hnhps).
+    apply Decidable.not_or in Hnhps.
+    destruct Hnhps as (Hnhps, _).
+    exfalso; apply Hnhps; reflexivity.
+
+   eapply in_ch_in_pts with (n := length pts).
+   unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
+   right; left; reflexivity.
+
+bbb.
   apply Qle_neq_lt in Hge; [ idtac | assumption ].
   destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
    unfold points_of_ps_polynom in Hpts.
