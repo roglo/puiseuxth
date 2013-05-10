@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.104 2013-05-09 19:31:06 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.105 2013-05-10 02:09:13 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -19,7 +19,7 @@ Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
   → newton_segments fld pol = [ns … nsl]
     → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) not_in [ini_pt ns; fin_pt ns … oth_pts ns]
+      → (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
         → β ns < valuation α hps + h * (γ ns).
 Proof.
 intros pol pts ns nsl Hpts Hns h hps Hhps Hnhps.
