@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.113 2013-05-10 15:05:58 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.114 2013-05-10 19:36:11 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -795,10 +795,7 @@ Lemma zzz : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
         hsl₁ ++
         [{| pt := (j, αj); oth := segjk |};
          {| pt := (k, αk); oth := segkx |} … hsl]
-        → αj +
-          j * ((αj - αk) / (k - j)) <
-          αh +
-          h * ((αj - αk) / (k - j)).
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
@@ -880,16 +877,12 @@ Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
        {| pt := (j, αj); oth := segjk |};
        {| pt := (k, αk); oth := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
-        → h < j < k
-          → αj +
-            j * ((αj - αk) / (k - j)) <
-            αh +
-            h * ((αj - αk) / (k - j)).
+      → h < j < k
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 (* à nettoyer *)
 intros n pts j αj segjk k αk segkx hs₁ hsl.
-intros Hpts Hnp h αh Hαh Hnαh (Hhj, Hjk).
+intros Hpts Hnp h αh Hαh (Hhj, Hjk).
 rename Hnp into Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
 destruct pts as [| (l, αl)]; [ discriminate Hhsl | idtac ].
@@ -1002,15 +995,11 @@ Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
       [{| pt := (j, αj); oth := segjk |};
        {| pt := (k, αk); oth := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
-        → h < j < k
-          → αj +
-            j * ((αj - αk) / (k - j)) <
-            αh +
-            h * ((αj - αk) / (k - j)).
+      → h < j < k
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts j αj segjk k αk segkx hsl₁ hsl.
-intros Hpts Hnp h αh Hαh Hnαh (Hhj, Hjk).
+intros Hpts Hnp h αh Hαh (Hhj, Hjk).
 destruct hsl₁ as [| hs₁].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -1020,9 +1009,7 @@ destruct hsl₁ as [| hs₁].
  rename H0 into Hseg.
  destruct Hαh as [Hαh| Hαh].
   injection Hαh; clear Hαh; intros; subst h αh.
-  simpl in Hnαh.
-  apply Decidable.not_or in Hnαh.
-  destruct Hnαh as (H); exfalso; apply H; reflexivity.
+  apply Qlt_irrefl in Hhj; contradiction.
 
   eapply LSorted_hd in Hpts; [ idtac | eassumption ].
   eapply Qlt_trans in Hhj; [ idtac | eassumption ].
@@ -1054,15 +1041,11 @@ Lemma lt_bef_j₀ : ∀ n pts j αj segjk k αk segkx hsl,
       [{| pt := (j, αj); oth := segjk |};
        {| pt := (k, αk); oth := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
-        → h < j
-          → αj +
-            j * ((αj - αk) / (k - j)) <
-            αh +
-            h * ((αj - αk) / (k - j)).
+      → h < j
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts j αj segjk k αk segkx hsl.
-intros Hpts Hnp h αh Hαh Hnαh Hhj.
+intros Hpts Hnp h αh Hαh Hhj.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| (l, αl)]; [ discriminate Hnp | idtac ].
 destruct pts as [| (m, αm)]; [ discriminate Hnp | idtac ].
@@ -1071,9 +1054,7 @@ rename H into Hnp.
 rename H0 into Hseg.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst h αh.
- simpl in Hnαh.
- apply Decidable.not_or in Hnαh.
- destruct Hnαh as (H); exfalso; apply H; reflexivity.
+ apply Qlt_irrefl in Hhj; contradiction.
 
  eapply LSorted_hd in Hpts; [ idtac | eassumption ].
  eapply Qlt_trans in Hhj; [ idtac | eassumption ].
