@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.6 2013-05-10 15:00:35 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.7 2013-05-10 15:05:58 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -126,10 +126,10 @@ Qed.
 
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments fld pol
-  → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == hps + h * γ ns.
+  → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+    → β ns == αh + h * γ ns.
 Proof.
-intros pol ns Hns h hps Hhps.
+intros pol ns Hns h αh Hαh.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
@@ -141,7 +141,7 @@ remember Hpts as Hpts₂; clear HeqHpts₂.
 eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
-revert n pts ns Heqhsl Hns Hhps Hpts₂.
+revert n pts ns Heqhsl Hns Hαh Hpts₂.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 simpl in Hns.
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
@@ -149,12 +149,12 @@ destruct Hns as [Hns| Hns].
  destruct hs₁ as ((j, αy), seg₁).
  destruct hs₂ as ((k, αk), seg₂).
  subst ns; simpl.
- simpl in Hhps.
- destruct Hhps as [Hhps| Hhps].
-  injection Hhps; clear Hhps; intros; subst h hps; reflexivity.
+ simpl in Hαh.
+ destruct Hαh as [Hαh| Hαh].
+  injection Hαh; clear Hαh; intros; subst h αh; reflexivity.
 
-  destruct Hhps as [Hhps| Hhps].
-   injection Hhps; clear Hhps; intros; subst h hps.
+  destruct Hαh as [Hαh| Hαh].
+   injection Hαh; clear Hαh; intros; subst h αh.
    eapply two_pts_slope_form; eassumption.
 
    destruct pts as [| pt₁].

@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.112 2013-05-10 15:00:35 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.113 2013-05-10 15:05:58 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -18,19 +18,19 @@ Variable fld : field (puiseux_series α).
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
   → newton_segments fld pol = [ns … nsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-        → β ns < hps + h * (γ ns).
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+        → β ns < αh + h * (γ ns).
 Proof.
-intros pol pts ns nsl Hpts Hns h hps Hhps Hnhps.
-remember Hhps as Hint; clear HeqHint.
+intros pol pts ns nsl Hpts Hns h αh Hαh Hnαh.
+remember Hαh as Hint; clear HeqHint.
 eapply fst_is_int in Hint; [ idtac | symmetry; eassumption ].
 remember Hpts as HHpts; clear HeqHHpts.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points pts) as hsl.
-destruct hsl as [| ((j, jps), segjx)]; [ discriminate Hns | idtac ].
-destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hns | idtac ].
+destruct hsl as [| ((j, αj), segjx)]; [ discriminate Hns | idtac ].
+destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hns | idtac ].
 injection Hns; clear Hns; intros; subst ns.
 simpl in H |- *.
 rename H into Hhsl.
@@ -46,9 +46,9 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
 
  destruct (Qeq_dec h k) as [Heq| Hne].
   symmetry in HHpts.
-  eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
+  eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
    unfold lower_convex_hull_points in Heqhsl.
-   assert ((k, kps) ∈ pts).
+   assert ((k, αk) ∈ pts).
     apply in_ch_in_pts with (n := length pts) (s := segkx).
     rewrite Heqhsl.
     right; left; reflexivity.
@@ -56,13 +56,13 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     eapply fst_is_int in H; [ idtac | symmetry; eassumption ].
     rewrite <- H in Hint.
     apply same_den_qeq_eq in Hint; [ idtac | assumption ].
-    subst h hps.
-    simpl in Hnhps.
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (_, Hnhps).
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (Hnhps, _).
-    exfalso; apply Hnhps; reflexivity.
+    subst h αh.
+    simpl in Hnαh.
+    apply Decidable.not_or in Hnαh.
+    destruct Hnαh as (_, Hnαh).
+    apply Decidable.not_or in Hnαh.
+    destruct Hnαh as (Hnαh, _).
+    exfalso; apply Hnαh; reflexivity.
 
    eapply in_ch_in_pts with (n := length pts).
    unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
@@ -78,11 +78,11 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
    eapply points_between_j_and_k; try eassumption; try reflexivity.
     split; assumption.
 
-    simpl in Hnhps.
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (_, Hnhps).
-    apply Decidable.not_or in Hnhps.
-    destruct Hnhps as (_, Hnhps).
+    simpl in Hnαh.
+    apply Decidable.not_or in Hnαh.
+    destruct Hnαh as (_, Hnαh).
+    apply Decidable.not_or in Hnαh.
+    destruct Hnαh as (_, Hnαh).
     assumption.
 
    unfold points_of_ps_polynom in Hpts.
@@ -94,14 +94,14 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     discriminate Heqhsl.
 
     simpl in Heqhsl.
-    destruct pts as [| (l, lps)]; [ discriminate Heqhsl | idtac ].
-    destruct pts as [| (m, mps)]; [ discriminate Heqhsl | idtac ].
-    injection Heqhsl; clear Heqhsl; intros; subst l lps.
-    destruct Hhps as [Hhps| Hhps].
-     injection Hhps; clear Hhps; intros; subst h hps.
-     simpl in Hnhps.
-     apply Decidable.not_or in Hnhps.
-     destruct Hnhps as (HH); exfalso; apply HH; reflexivity.
+    destruct pts as [| (l, αl)]; [ discriminate Heqhsl | idtac ].
+    destruct pts as [| (m, αm)]; [ discriminate Heqhsl | idtac ].
+    injection Heqhsl; clear Heqhsl; intros; subst l αl.
+    destruct Hαh as [Hαh| Hαh].
+     injection Hαh; clear Hαh; intros; subst h αh.
+     simpl in Hnαh.
+     apply Decidable.not_or in Hnαh.
+     destruct Hnαh as (HH); exfalso; apply HH; reflexivity.
 
      eapply LSorted_hd in Hpts; [ idtac | eassumption ].
      apply Qle_not_lt in Hge₂; contradiction.
@@ -111,12 +111,12 @@ Qed.
 Lemma aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
-    → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts] 
+    → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts] 
       → fst (end_pt ms) < h
-        → (h, hps) ∈ rem_pts ms.
+        → (h, αh) ∈ rem_pts ms.
 Proof.
-intros pt₁ pt₂ pts ms Hsort Hms h hps Hhps Hlt.
-destruct Hhps as [Hhps| Hhps].
+intros pt₁ pt₂ pts ms Hsort Hms h αh Hαh Hlt.
+destruct Hαh as [Hαh| Hαh].
  subst pt₁.
  apply minimise_slope_le in Hms.
   apply LSorted_inv_2 in Hsort.
@@ -126,14 +126,14 @@ destruct Hhps as [Hhps| Hhps].
 
   eapply LSorted_inv_1; eassumption.
 
- destruct Hhps as [Hhps| Hhps].
+ destruct Hαh as [Hαh| Hαh].
   subst pt₂.
   apply minimise_slope_le in Hms.
    apply Qle_not_lt in Hms; contradiction.
 
    eapply LSorted_inv_1; eassumption.
 
-  revert pt₁ pt₂ ms Hsort Hms Hhps Hlt.
+  revert pt₁ pt₂ ms Hsort Hms Hαh Hlt.
   induction pts as [| pt₃]; [ contradiction | intros ].
   simpl in Hms.
   remember (minimise_slope pt₁ pt₃ pts) as ms₁.
@@ -141,7 +141,7 @@ destruct Hhps as [Hhps| Hhps].
   remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
   symmetry in Heqc.
   destruct c; subst ms; simpl in Hlt |- *.
-   destruct Hhps as [Hhps| Hhps].
+   destruct Hαh as [Hαh| Hαh].
     subst pt₃.
     apply minimise_slope_le in Heqms₁.
      apply Qle_not_lt in Heqms₁; contradiction.
@@ -155,7 +155,7 @@ destruct Hhps as [Hhps| Hhps].
 
    assumption.
 
-   destruct Hhps as [Hhps| Hhps].
+   destruct Hαh as [Hαh| Hαh].
     subst pt₃.
     apply minimise_slope_le in Heqms₁.
      apply Qle_not_lt in Heqms₁; contradiction.
@@ -332,18 +332,18 @@ induction pts as [| pt₄]; intros.
 Qed.
 
 Lemma j_aft_prev_end :
-  ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j jps segjk k kps segkx hsl,
+  ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → rem_pts ms = [pt₃ … pts₃]
       → minimise_slope (end_pt ms) pt₃ pts₃ = ms₁
         → next_ch_points n [end_pt ms₁ … rem_pts ms₁] =
           hsl₁ ++
-          [{| pt := (j, jps); oth := segjk |};
-          {| pt := (k, kps); oth := segkx |} … hsl]
+          [{| pt := (j, αj); oth := segjk |};
+          {| pt := (k, αk); oth := segkx |} … hsl]
           → fst (end_pt ms) < j.
 Proof.
-intros n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j jps segjk k kps segkx hsl.
+intros n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl.
 intros Hsort Hms Hrem Hms₁ Hnp.
 revert pt₁ pt₂ pt₃ pts pts₃ ms ms₁ hsl₁ Hms Hrem Hms₁ Hnp Hsort.
 induction n; intros; [ destruct hsl₁; discriminate Hnp | idtac ].
@@ -360,7 +360,7 @@ destruct pts₂ as [| pt₄].
   injection Hnp; clear Hnp; intros; subst segjk.
   rename H into Hnp.
   rename H1 into Hend.
-  replace j with (fst (j, jps)) by reflexivity.
+  replace j with (fst (j, αj)) by reflexivity.
   rewrite <- Hend.
   eapply consec_end_lt; eassumption.
 
@@ -378,19 +378,19 @@ destruct pts₂ as [| pt₄].
 Qed.
 
 Lemma aft_j_in_rem :
-  ∀ n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl,
+  ∀ n pt₁ pt₂ pts ms hsl₁ j αj segjk k αk segkx hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
        hsl₁ ++
-       [{| pt := (j, jps); oth := segjk |};
-        {| pt := (k, kps); oth := segkx |} … hsl]
-      → ∀ h hps, (h, hps) ∈ [pt₁; pt₂ … pts]
+       [{| pt := (j, αj); oth := segjk |};
+        {| pt := (k, αk); oth := segkx |} … hsl]
+      → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts]
         → j < h
-          → (h, hps) ∈ rem_pts ms.
+          → (h, αh) ∈ rem_pts ms.
 Proof.
-intros n pt₁ pt₂ pts ms hsl₁ j jps segjk k kps segkx hsl.
-intros Hsort Hms Hnp h hps Hhps Hjh.
+intros n pt₁ pt₂ pts ms hsl₁ j αj segjk k αk segkx hsl.
+intros Hsort Hms Hnp h αh Hαh Hjh.
 destruct n; [ destruct hsl₁; discriminate Hnp | simpl in Hnp ].
 remember (rem_pts ms) as pts₁.
 rename Heqpts₁ into Hrem.
@@ -419,21 +419,21 @@ destruct pts₁ as [| pt₃].
   eapply j_aft_prev_end; eassumption.
 Qed.
 
-Lemma lt_aft_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
+Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
   LocallySorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
       → k < h
-        → jps +
-          j * ((jps - kps) / (k - j)) <
-          hps +
-          h * ((jps - kps) / (k - j)).
+        → αj +
+          j * ((αj - αk) / (k - j)) <
+          αh +
+          h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp h hps Hhps Hkh.
-revert n pts Hsort Hnp Hhps.
+intros n pts hsl₁ hsl j αj segjk k αk segkx Hsort Hnp h αh Hαh Hkh.
+revert n pts Hsort Hnp Hαh.
 induction hsl₁ as [| hs₁]; intros.
  remember Hsort as Hsort₂; clear HeqHsort₂.
  eapply points_after_k; try reflexivity; try eassumption.
@@ -465,26 +465,26 @@ induction hsl₁ as [| hs₁]; intros.
    apply IHhsl₁; assumption.
 Qed.
 
-Lemma not_k : ∀ n pol pts hsl₁ hsl j jps segjk k kps segkx,
+Lemma not_k : ∀ n pol pts hsl₁ hsl j αj segjk k αk segkx,
   points_of_ps_polynom α fld pol = pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h ≠ k.
 Proof.
-intros n pol pts hsl₁ hsl j jps segjk k kps segkx.
-intros Hsort Hnp h hps Hhps Hnhps Hhk.
-eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
- subst h hps.
- simpl in Hnhps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (_, Hnhps).
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (Hnhps, _).
- exfalso; apply Hnhps; reflexivity.
+intros n pol pts hsl₁ hsl j αj segjk k αk segkx.
+intros Hsort Hnp h αh Hαh Hnαh Hhk.
+eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
+ subst h αh.
+ simpl in Hnαh.
+ apply Decidable.not_or in Hnαh.
+ destruct Hnαh as (_, Hnαh).
+ apply Decidable.not_or in Hnαh.
+ destruct Hnαh as (Hnαh, _).
+ exfalso; apply Hnαh; reflexivity.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
@@ -536,31 +536,31 @@ induction hsl₁ as [| h₂]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j jps segjk k kps segkx,
+Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
   LocallySorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → j < h < k
-          → jps +
-            j * ((jps - kps) / (k - j)) <
-            hps +
-            h * ((jps - kps) / (k - j)).
+          → αj +
+            j * ((αj - αk) / (k - j)) <
+            αh +
+            h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts hsl₁ hsl j jps segjk k kps segkx Hsort Hnp.
-intros h hps Hhps Hnhps Hjhk.
-simpl in Hnhps.
-apply Decidable.not_or in Hnhps.
-destruct Hnhps as (_, Hnhps).
-apply Decidable.not_or in Hnhps.
-destruct Hnhps as (_, Hnhps).
+intros n pts hsl₁ hsl j αj segjk k αk segkx Hsort Hnp.
+intros h αh Hαh Hnαh Hjhk.
+simpl in Hnαh.
+apply Decidable.not_or in Hnαh.
+destruct Hnαh as (_, Hnαh).
+apply Decidable.not_or in Hnαh.
+destruct Hnαh as (_, Hnαh).
 destruct hsl₁ as [| h₁].
  eapply points_between_j_and_k; try eassumption; try reflexivity.
 
- revert pts h₁ hsl₁ Hsort Hnp Hhps.
+ revert pts h₁ hsl₁ Hsort Hnp Hαh.
  induction n; intros; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ destruct hsl₁; discriminate Hnp | idtac ].
@@ -580,29 +580,29 @@ destruct hsl₁ as [| h₁].
   right.
   eapply aft_end_in_rem; try eassumption.
   eapply Qlt_trans; [ idtac | destruct Hjhk; eassumption ].
-  replace j with (fst (j, jps)) by reflexivity.
+  replace j with (fst (j, αj)) by reflexivity.
   apply next_ch_points_sorted in Hnp; [ assumption | idtac ].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma not_j : ∀ n pol pts hsl₁ j jps k kps segjk segkx hsl,
+Lemma not_j : ∀ n pol pts hsl₁ j αj k αk segjk segkx hsl,
   points_of_ps_polynom α fld pol = pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h ≠ j.
 Proof.
-intros n pol pts hsl₁ j jps k kps segjk segkx hsl.
-intros Hpts Hnp h hps Hhps Hnhps Hne.
-eapply same_k_same_kps with (kps := jps) in Hhps; try eassumption.
- subst h hps.
- simpl in Hnhps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (Hnhps, _).
- exfalso; apply Hnhps; reflexivity.
+intros n pol pts hsl₁ j αj k αk segjk segkx hsl.
+intros Hpts Hnp h αh Hαh Hnαh Hne.
+eapply same_k_same_αk with (αk := αj) in Hαh; try eassumption.
+ subst h αh.
+ simpl in Hnαh.
+ apply Decidable.not_or in Hnαh.
+ destruct Hnαh as (Hnαh, _).
+ exfalso; apply Hnαh; reflexivity.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
@@ -787,22 +787,22 @@ destruct c.
 Qed.
 
 (**)
-Lemma zzz : ∀ n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(h, hps); (i, ips) … pts]
+Lemma zzz : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
+  LocallySorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
-    → minimise_slope (h, hps) (i, ips) pts = ms
+    → minimise_slope (h, αh) (i, αi) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
         hsl₁ ++
-        [{| pt := (j, jps); oth := segjk |};
-         {| pt := (k, kps); oth := segkx |} … hsl]
-        → jps +
-          j * ((jps - kps) / (k - j)) <
-          hps +
-          h * ((jps - kps) / (k - j)).
+        [{| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+        → αj +
+          j * ((αj - αk) / (k - j)) <
+          αh +
+          h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts h hps i ips j jps k kps segjk segkx hsl₁ hsl ms.
+intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
-revert n ms h hps i ips j jps segjk segkx pts Hms Hnp Hsort Hhjk.
+revert n ms h αh i αi j αj segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
  eapply minimised_slope in H; [ idtac | reflexivity ].
@@ -827,10 +827,10 @@ induction hsl₁ as [| hs₁]; intros.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
- destruct pts₁ as [| (l, lps)]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ destruct pts₁ as [| (l, αl)]; [ destruct hsl₁; discriminate Hnp | idtac ].
  injection Hnp; clear Hnp; intros Hnp; intros Hhs₁.
  subst hs₁.
- remember (minimise_slope (end_pt ms) (l, lps) pts₁) as ms₁.
+ remember (minimise_slope (end_pt ms) (l, αl) pts₁) as ms₁.
  symmetry in Heqms₁.
  symmetry in Heqpts₁.
  remember Hms as H; clear HeqH.
@@ -842,7 +842,7 @@ induction hsl₁ as [| hs₁]; intros.
  eapply minimised_slope in HHH; [ idtac | reflexivity ].
  rewrite HHH in HH.
  pose proof slope_cmp₃ as HHHHH.
- unfold gen_slope in HHHHH.
+ unfold slope_expr in HHHHH.
  simpl in HHHHH.
  rewrite Qlt_alt in HH.
  unfold slope_expr in HH.
@@ -857,7 +857,7 @@ induction hsl₁ as [| hs₁]; intros.
    Focus 2.
    do 2 rewrite fold_slope_expr.
    assert
-    (slope_expr (h, hps) (end_pt ms₁) < slope_expr (h, hps) (j, jps)).
+    (slope_expr (h, αh) (end_pt ms₁) < slope_expr (h, αh) (j, αj)).
     Focus 2.
     eapply Qlt_trans in H0; [ idtac | eassumption ].
 bbb.
@@ -865,7 +865,7 @@ bbb.
   unfold slope_expr in HH.
   simpl in HH.
   remember (end_pt ms) as pt.
-  destruct pt as (m, mps).
+  destruct pt as (m, αm).
   simpl in HH.
   remember (end_pt ms₁) as pt₁.
   destruct pt₁ as (p, pps).
@@ -873,35 +873,35 @@ bbb.
 bbb.
 *)
 
-Lemma lt_bef_j₁ : ∀ n pts j jps segjk k kps segkx hs₁ hsl,
+Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
   LocallySorted fst_lt pts
   → next_ch_points n pts =
       [hs₁;
-       {| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+       {| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h < j < k
-          → jps +
-            j * ((jps - kps) / (k - j)) <
-            hps +
-            h * ((jps - kps) / (k - j)).
+          → αj +
+            j * ((αj - αk) / (k - j)) <
+            αh +
+            h * ((αj - αk) / (k - j)).
 Proof.
 (* à nettoyer *)
-intros n pts j jps segjk k kps segkx hs₁ hsl.
-intros Hpts Hnp h hps Hhps Hnhps (Hhj, Hjk).
+intros n pts j αj segjk k αk segkx hs₁ hsl.
+intros Hpts Hnp h αh Hαh Hnαh (Hhj, Hjk).
 rename Hnp into Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
-destruct pts as [| (l, lps)]; [ discriminate Hhsl | idtac ].
-destruct pts as [| (m, mps)]; [ discriminate Hhsl | idtac ].
+destruct pts as [| (l, αl)]; [ discriminate Hhsl | idtac ].
+destruct pts as [| (m, αm)]; [ discriminate Hhsl | idtac ].
 injection Hhsl; clear Hhsl; intros Hnp; intros; subst hs₁.
-remember (minimise_slope (l, lps) (m, mps) pts) as ms₁.
+remember (minimise_slope (l, αl) (m, αm) pts) as ms₁.
 symmetry in Heqms₁.
 remember Hnp as H; clear HeqH.
 apply next_ch_points_hd in H.
 rename H into Hend₁.
-destruct Hhps as [Hhps| Hhps].
- injection Hhps; clear Hhps; intros; subst l lps.
+destruct Hαh as [Hαh| Hαh].
+ injection Hαh; clear Hαh; intros; subst l αl.
 (*
  eapply zzz with (hsl₁ := []); try eassumption.
  ...
@@ -929,11 +929,11 @@ destruct Hhps as [Hhps| Hhps].
  eapply ad_hoc_lt_lt₂; try eassumption.
  split; assumption.
 
- destruct Hhps as [Hhps| Hhps].
-  injection Hhps; clear Hhps; intros; subst m mps.
-  assert (slope_expr (h, hps) (j, jps) < slope_expr (j, jps) (k, kps))
+ destruct Hαh as [Hαh| Hαh].
+  injection Hαh; clear Hαh; intros; subst m αm.
+  assert (slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk))
    as Hhjk.
-   apply Qle_lt_trans with (y := slope_expr (l, lps) (j, jps)).
+   apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
     rewrite <- Hend₁ in |- * at 2.
     remember Heqms₁ as H; clear HeqH.
     eapply minimised_slope in H; [ idtac | reflexivity ].
@@ -962,9 +962,9 @@ destruct Hhps as [Hhps| Hhps].
    eapply ad_hoc_lt_lt₂; try eassumption.
    split; assumption.
 
-  assert (slope_expr (h, hps) (j, jps) < slope_expr (j, jps) (k, kps))
+  assert (slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk))
    as Hhjk.
-   apply Qle_lt_trans with (y := slope_expr (l, lps) (j, jps)).
+   apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
     rewrite <- Hend₁ in |- * at 2.
     remember Heqms₁ as H; clear HeqH.
     eapply minimised_slope in H; [ idtac | reflexivity ].
@@ -995,22 +995,22 @@ destruct Hhps as [Hhps| Hhps].
 Qed.
 
 (**)
-Lemma lt_bef_j : ∀ n pts j jps segjk k kps segkx hsl₁ hsl,
+Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
   LocallySorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h < j < k
-          → jps +
-            j * ((jps - kps) / (k - j)) <
-            hps +
-            h * ((jps - kps) / (k - j)).
+          → αj +
+            j * ((αj - αk) / (k - j)) <
+            αh +
+            h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts j jps segjk k kps segkx hsl₁ hsl.
-intros Hpts Hnp h hps Hhps Hnhps (Hhj, Hjk).
+intros n pts j αj segjk k αk segkx hsl₁ hsl.
+intros Hpts Hnp h αh Hαh Hnαh (Hhj, Hjk).
 destruct hsl₁ as [| hs₁].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -1018,17 +1018,17 @@ destruct hsl₁ as [| hs₁].
  injection Hnp; clear Hnp; intros; subst pt₁.
  rename H into Hnp.
  rename H0 into Hseg.
- destruct Hhps as [Hhps| Hhps].
-  injection Hhps; clear Hhps; intros; subst h hps.
-  simpl in Hnhps.
-  apply Decidable.not_or in Hnhps.
-  destruct Hnhps as (H); exfalso; apply H; reflexivity.
+ destruct Hαh as [Hαh| Hαh].
+  injection Hαh; clear Hαh; intros; subst h αh.
+  simpl in Hnαh.
+  apply Decidable.not_or in Hnαh.
+  destruct Hnαh as (H); exfalso; apply H; reflexivity.
 
   eapply LSorted_hd in Hpts; [ idtac | eassumption ].
   eapply Qlt_trans in Hhj; [ idtac | eassumption ].
   apply Qlt_irrefl in Hhj; contradiction.
 
- revert n pts hs₁ Hpts Hnp Hhps.
+ revert n pts hs₁ Hpts Hnp Hαh.
  induction hsl₁ as [| hs₂]; intros.
   simpl in Hnp.
   eapply conj in Hjk; [ idtac | eexact Hhj ].
@@ -1040,7 +1040,7 @@ destruct hsl₁ as [| hs₁].
   injection Hnp; clear Hnp; intros Hnp Hhs₁.
   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
   symmetry in Heqms₁.
-  destruct Hhps as [Hhps| Hhps].
+  destruct Hαh as [Hαh| Hαh].
    subst pt₁ hs₁.
    destruct pt₂.
    eapply conj in Hjk; [ idtac | eexact Hhj ].
@@ -1048,66 +1048,66 @@ destruct hsl₁ as [| hs₁].
 bbb.
 *)
 
-Lemma lt_bef_j₀ : ∀ n pts j jps segjk k kps segkx hsl,
+Lemma lt_bef_j₀ : ∀ n pts j αj segjk k αk segkx hsl,
   LocallySorted fst_lt pts
   → next_ch_points n pts =
-      [{| pt := (j, jps); oth := segjk |};
-       {| pt := (k, kps); oth := segkx |} … hsl]
-    → ∀ h hps, (h, hps) ∈ pts
-      → (h, hps) ∉ [(j, jps); (k, kps) … segjk]
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h < j
-          → jps +
-            j * ((jps - kps) / (k - j)) <
-            hps +
-            h * ((jps - kps) / (k - j)).
+          → αj +
+            j * ((αj - αk) / (k - j)) <
+            αh +
+            h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts j jps segjk k kps segkx hsl.
-intros Hpts Hnp h hps Hhps Hnhps Hhj.
+intros n pts j αj segjk k αk segkx hsl.
+intros Hpts Hnp h αh Hαh Hnαh Hhj.
 destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| (l, lps)]; [ discriminate Hnp | idtac ].
-destruct pts as [| (m, mps)]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst l lps.
+destruct pts as [| (l, αl)]; [ discriminate Hnp | idtac ].
+destruct pts as [| (m, αm)]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros; subst l αl.
 rename H into Hnp.
 rename H0 into Hseg.
-destruct Hhps as [Hhps| Hhps].
- injection Hhps; clear Hhps; intros; subst h hps.
- simpl in Hnhps.
- apply Decidable.not_or in Hnhps.
- destruct Hnhps as (H); exfalso; apply H; reflexivity.
+destruct Hαh as [Hαh| Hαh].
+ injection Hαh; clear Hαh; intros; subst h αh.
+ simpl in Hnαh.
+ apply Decidable.not_or in Hnαh.
+ destruct Hnαh as (H); exfalso; apply H; reflexivity.
 
  eapply LSorted_hd in Hpts; [ idtac | eassumption ].
  eapply Qlt_trans in Hhj; [ idtac | eassumption ].
  apply Qlt_irrefl in Hhj; contradiction.
 Qed.
 
-Lemma qeq_eq : ∀ n pol pts h hps k kps s hsl₁ hsl,
+Lemma qeq_eq : ∀ n pol pts h αh k αk s hsl₁ hsl,
   points_of_ps_polynom α fld pol = pts
-  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, kps); oth := s |} … hsl]
-    → (h, hps) ∈ pts
+  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
+    → (h, αh) ∈ pts
       → h == k
         → h = k.
 Proof.
-intros n pol pts h hps k kps s hsl₁ hsl Hpts Hhsl Hhps Hhk.
+intros n pol pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
 apply same_den_qeq_eq; [ idtac | assumption ].
-eapply fst_is_int in Hhps; [ idtac | eassumption ].
-rewrite Hhps.
-assert ((k, kps) ∈ pts) as Hkps.
+eapply fst_is_int in Hαh; [ idtac | eassumption ].
+rewrite Hαh.
+assert ((k, αk) ∈ pts) as Hαk.
  apply in_ch_in_pts with (n := n) (s := s).
  rewrite Hhsl.
  apply List.in_app_iff.
  right; left; reflexivity.
 
- eapply fst_is_int in Hkps; [ idtac | eassumption ].
- rewrite Hkps; reflexivity.
+ eapply fst_is_int in Hαk; [ idtac | eassumption ].
+ rewrite Hαk; reflexivity.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
-    → ∀ h hps, (h, hps) ∈ pts ∧ (h, hps) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns < hps + h * (γ ns).
+    → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+      → β ns < αh + h * (γ ns).
 Proof.
-intros pol pts ns Hpts Hns h hps (Hhps, Hnhps).
+intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
 remember Hpts as HHpts; clear HeqHHpts; symmetry in HHpts.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
@@ -1121,22 +1121,22 @@ apply points_of_polyn_sorted in Hpts.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
-revert n pts ns hsl Hpts HHpts Hhps Hhsl Hnsl Hns Hnhps.
+revert n pts ns hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
 induction nsl as [| ns₁]; [ contradiction | intros ].
 destruct Hns as [Hns| Hns].
  subst ns₁.
  clear IHnsl.
- destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
- destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
+ destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
+ destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
  simpl in Hnsl.
  injection Hnsl; clear Hnsl; intros Hns; intros.
  unfold newton_segment_of_pair in Hns; simpl in Hns.
- subst ns; simpl in Hnhps |- *.
+ subst ns; simpl in Hnαh |- *.
  destruct (Qlt_le_dec k h) as [Hgt| Hge].
   eapply lt_aft_k with (hsl₁ := []); eassumption.
 
   destruct (Qeq_dec h k) as [Heq| Hne].
-   remember [{| pt := (j, jps); oth := segjk |}] as x.
+   remember [{| pt := (j, αj); oth := segjk |}] as x.
    eapply qeq_eq with (hsl₁ := x) in Heq; subst x; simpl; try eassumption.
    exfalso; revert Heq.
    eapply not_k with (hsl₁ := []); eassumption.
@@ -1155,14 +1155,14 @@ destruct Hns as [Hns| Hns].
      eapply lt_bef_j₀; eassumption.
 
  clear IHnsl.
- revert n pts ns ns₁ hsl Hpts HHpts Hhps Hhsl Hnsl Hns Hnhps.
+ revert n pts ns ns₁ hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
  induction nsl as [| ns₂]; [ contradiction | intros ].
  destruct Hns as [Hns| Hns].
   subst ns.
   clear IHnsl.
   destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
-  destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
-  destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
+  destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
+  destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
   simpl in Hnsl.
   remember Hhsl as Hjk; clear HeqHjk.
   apply next_points_sorted in Hjk; [ idtac | assumption ].
@@ -1172,12 +1172,12 @@ destruct Hns as [Hns| Hns].
   destruct Hjk as (Hjk); simpl in Hjk.
   unfold hs_x_lt in Hjk; simpl in Hjk.
   injection Hnsl; clear Hnsl; intros.
-  subst ns₁ ns₂; simpl in Hnhps |- *.
+  subst ns₁ ns₂; simpl in Hnαh |- *.
   destruct (Qlt_le_dec k h) as [Hlt| Hge].
    eapply lt_aft_k with (hsl₁ := [hs₁]); simpl; try eassumption.
 
    destruct (Qeq_dec h k) as [Heq| Hne].
-    remember [hs₁; {| pt := (j, jps); oth := segjk |} … []] as x.
+    remember [hs₁; {| pt := (j, αj); oth := segjk |} … []] as x.
     eapply qeq_eq with (hsl₁ := x) in Heq; subst x; simpl; try eassumption.
     exfalso; revert Heq.
     eapply not_k with (hsl₁ := [hs₁]); simpl; eassumption.
@@ -1197,15 +1197,15 @@ destruct Hns as [Hns| Hns].
       eapply lt_bef_j₁; eassumption.
 
   clear IHnsl.
-  revert n pts ns ns₁ ns₂ hsl Hpts HHpts Hhps Hhsl Hnsl Hns Hnhps.
+  revert n pts ns ns₁ ns₂ hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
   induction nsl as [| ns₃]; [ contradiction | intros ].
   destruct Hns as [Hns| Hns].
    subst ns.
    clear IHnsl.
    destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
    destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
-   destruct hsl as [| ((j, jps), segjk)]; [ discriminate Hnsl | idtac ].
-   destruct hsl as [| ((k, kps), segkx)]; [ discriminate Hnsl | idtac ].
+   destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
+   destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
    simpl in Hnsl.
    remember Hhsl as Hjk; clear HeqHjk.
    apply next_points_sorted in Hjk; [ idtac | assumption ].
@@ -1217,12 +1217,12 @@ destruct Hns as [Hns| Hns].
    destruct Hjk as (Hjk); simpl in Hjk.
    unfold hs_x_lt in Hjk; simpl in Hjk.
    injection Hnsl; clear Hnsl; intros.
-   subst ns₁ ns₂ ns₃; simpl in Hnhps |- *.
+   subst ns₁ ns₂ ns₃; simpl in Hnαh |- *.
    destruct (Qlt_le_dec k h) as [Hlt| Hge].
     eapply lt_aft_k with (hsl₁ := [hs₁; hs₂ … []]); simpl; try eassumption.
 
     destruct (Qeq_dec h k) as [Heq| Hne].
-     remember [hs₁; hs₂; {| pt := (j, jps); oth := segjk |} … []] as x.
+     remember [hs₁; hs₂; {| pt := (j, αj); oth := segjk |} … []] as x.
      eapply qeq_eq with (hsl₁ := x) in Heq; subst x; simpl; try eassumption.
      exfalso; revert Heq.
      eapply not_k with (hsl₁ := [hs₁; hs₂ … []]); simpl; eassumption.
