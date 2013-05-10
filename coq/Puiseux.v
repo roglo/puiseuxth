@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.470 2013-05-09 19:31:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.471 2013-05-10 15:00:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -7,6 +7,7 @@ Require Import QArith.
 Require Import ConvexHull.
 Require Import Sorting.
 Require Import Misc.
+Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
@@ -45,6 +46,15 @@ Arguments ac_field : default implicits.
 Arguments ac_prop : default implicits. 
 *)
 
+Record Qpos := { x : Q; pos : x > 0 }.
+
+Record puiseux_series α :=
+  { ps_1 : α * Q;
+    ps_n : Streams.Stream (α * Qpos) }.
+
+Definition valuation α ps := snd (ps_1 α ps).
+Definition valuation_coeff α ps := fst (ps_1 α ps).
+
 Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>
@@ -53,9 +63,14 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
       [(Qnat pow, psn)]
   end.
 
-Definition filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
-  List.filter (λ dp, if is_zero_dec fld (snd dp) then false else true)
-    dpl.
+Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
+  match dpl with
+  | [(pow, ps) … dpl₁] =>
+      if is_zero_dec fld ps then filter_non_zero_ps α fld dpl₁
+      else [(pow, valuation α ps) … filter_non_zero_ps α fld dpl₁]
+  | [] =>
+      []
+  end.
 
 Definition points_of_ps_polynom_gen α fld pow cl cn :=
   filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn).
@@ -71,28 +86,23 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   end.
 Arguments list_map_pairs : default implicits.
 
-Record newton_segment α := mkns
+Record newton_segment := mkns
   { γ : Q;
     β : Q;
-    ini_pt : (Q * puiseux_series α);
-    fin_pt : (Q * puiseux_series α);
-    oth_pts : list (Q * puiseux_series α) }.
-Arguments γ : default implicits.
-Arguments β : default implicits.
-Arguments ini_pt : default implicits.
-Arguments fin_pt : default implicits.
-Arguments oth_pts : default implicits.
+    ini_pt : (Q * Q);
+    fin_pt : (Q * Q);
+    oth_pts : list (Q * Q) }.
 
-Definition newton_segment_of_pair α hsj hsk :=
-  let αj := valuation α (snd (pt hsj)) in
-  let αk := valuation α (snd (pt hsk)) in
+Definition newton_segment_of_pair hsj hsk :=
+  let αj := snd (pt hsj) in
+  let αk := snd (pt hsk) in
   let γ := (αj - αk) / (fst (pt hsk) - fst (pt hsj)) in
   let β := αj + fst (pt hsj) * γ in
-  mkns α γ β (pt hsj) (pt hsk) (oth hsj).
+  mkns γ β (pt hsj) (pt hsk) (oth hsj).
 
 Definition newton_segments α fld pol :=
   let gdpl := points_of_ps_polynom α fld pol in
-  list_map_pairs (newton_segment_of_pair α) (lower_convex_hull_points α gdpl).
+  list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 Arguments newton_segments : default implicits.
 
 Section convex_hull.
@@ -101,8 +111,7 @@ Variable α : Type.
 Variable fld : field (puiseux_series α).
 
 Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
-  (valuation α y₂ - valuation α y₁) /  (x₂ - x₁) =
-  slope_expr α (x₁, y₁) (x₂, y₂).
+  (y₂ - y₁) / (x₂ - x₁) = slope_expr (x₁, y₁) (x₂, y₂).
 Proof. reflexivity. Qed.
 
 Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
@@ -110,8 +119,8 @@ Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
   points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
 
-Definition fst_lt {α} (x y : Q * α) := (fst x < fst y).
-Definition hs_x_lt {α} (x y : hull_seg α) := (fst (pt x) < fst (pt y)).
+Definition fst_lt (x y : Q * Q) := (fst x < fst y).
+Definition hs_x_lt (x y : hull_seg) := (fst (pt x) < fst (pt y)).
 
 Lemma LSorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   LocallySorted f [x … l]
@@ -130,7 +139,7 @@ inversion H; subst a b l0.
 split; assumption.
 Qed.
 
-Lemma LSorted_hd {A} : ∀ (pt₁ pt₂ : Q * A) pts,
+Lemma LSorted_hd : ∀ (pt₁ pt₂ : Q * Q) pts,
   LocallySorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
     → fst pt₁ < fst pt₂.
@@ -255,7 +264,7 @@ Qed.
 
 Lemma minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   LocallySorted fst_lt [pt₂ … pts₂]
-  → minimise_slope α pt₁ pt₂ pts₂ = ms
+  → minimise_slope pt₁ pt₂ pts₂ = ms
     → fst pt₂ <= fst (end_pt ms).
 Proof.
 intros pt₁ pt₂ pts₂ ms Hsort Hms.
@@ -264,8 +273,8 @@ induction pts₂ as [| pt]; intros.
  subst ms; apply Qle_refl.
 
  simpl in Hms.
- remember (minimise_slope α pt₁ pt pts₂) as ms₁.
- remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ remember (minimise_slope pt₁ pt pts₂) as ms₁.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
  destruct c; subst ms; simpl; [ idtac | apply Qle_refl | idtac ].
   apply Qlt_le_weak.
   apply LSorted_inv_2 in Hsort.
@@ -283,7 +292,7 @@ induction pts₂ as [| pt]; intros.
 Qed.
 
 Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg hsl,
-  next_ch_points α n [pt₁ … pts₁] = [{| pt := pt₂; oth := sg |} … hsl]
+  next_ch_points n [pt₁ … pts₁] = [{| pt := pt₂; oth := sg |} … hsl]
   → fst pt₁ <= fst pt₂.
 Proof.
 intros n pt₁ pt₂ pts₁ sg hsl Hnp.
@@ -293,7 +302,7 @@ destruct pts₁; injection Hnp; intros; subst pt₁; apply Qle_refl.
 Qed.
 
 Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg hsl,
-  next_ch_points α n [pt₁ … pts₁] = [ahs pt₂ seg … hsl]
+  next_ch_points n [pt₁ … pts₁] = [ahs pt₂ seg … hsl]
   → pt₁ = pt₂.
 Proof.
 intros n pt₁ pt₂ pts₂ seg₂ hsl Hnp.
@@ -304,15 +313,15 @@ Qed.
 
 Lemma minimise_slope_sorted : ∀ pt₁ pt₂ pts ms,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
-  → minimise_slope α pt₁ pt₂ pts = ms
+  → minimise_slope pt₁ pt₂ pts = ms
     → LocallySorted fst_lt [end_pt ms … rem_pts ms].
 Proof.
 intros pt₁ pt₂ pts ms Hsort Hms.
 revert pt₁ pt₂ ms Hsort Hms.
 induction pts as [| pt₃]; intros; [ subst ms; constructor | idtac ].
 simpl in Hms.
-remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
-remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+remember (minimise_slope pt₁ pt₃ pts) as ms₁.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 symmetry in Heqms₁.
 apply LSorted_inv_2 in Hsort.
 destruct Hsort as (Hlt₁, Hsort).
@@ -330,7 +339,7 @@ Qed.
 
 Lemma next_points_sorted : ∀ n pts hsl,
   LocallySorted fst_lt pts
-  → next_ch_points α n pts = hsl
+  → next_ch_points n pts = hsl
     → LocallySorted hs_x_lt hsl.
 Proof.
 intros n pts hsl Hsort Hnp.
@@ -339,8 +348,8 @@ induction n; intros; [ subst hsl; constructor | idtac ].
 simpl in Hnp.
 destruct pts as [| pt₁]; [ subst hsl; constructor | idtac ].
 destruct pts as [| pt₂]; [ subst hsl; constructor | idtac ].
-remember (minimise_slope α pt₁ pt₂ pts) as ms₂.
-remember (next_ch_points α n [end_pt ms₂ … rem_pts ms₂]) as hsl₁.
+remember (minimise_slope pt₁ pt₂ pts) as ms₂.
+remember (next_ch_points n [end_pt ms₂ … rem_pts ms₂]) as hsl₁.
 subst hsl.
 symmetry in Heqhsl₁.
 remember Heqhsl₁ as Hch; clear HeqHch.
@@ -365,7 +374,7 @@ Qed.
 
 Lemma lower_convex_hull_points_sorted : ∀ pts hsl,
   LocallySorted fst_lt pts
-  → lower_convex_hull_points α pts = hsl
+  → lower_convex_hull_points pts = hsl
     → LocallySorted hs_x_lt hsl.
 Proof.
 intros pts hsl Hsort Hch.
@@ -373,9 +382,9 @@ eapply next_points_sorted; eassumption.
 Qed.
 
 Lemma minimised_slope : ∀ pt₁ pt₂ pt pts ms,
-  minimise_slope α pt₁ pt pts = ms
+  minimise_slope pt₁ pt pts = ms
   → pt₂ = end_pt ms
-    → slope ms == slope_expr α pt₁ pt₂.
+    → slope ms == slope_expr pt₁ pt₂.
 Proof.
 intros pt₁ pt₂ pt pts ms Hms Hkps.
 revert pt₁ pt₂ pt ms Hms Hkps.
@@ -383,8 +392,8 @@ induction pts as [| pt₃]; intros.
  subst ms; simpl in Hkps |- *; subst pt; reflexivity.
 
  simpl in Hms.
- remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
- remember (slope_expr α pt₁ pt ?= slope ms₁) as c.
+ remember (minimise_slope pt₁ pt₃ pts) as ms₁.
+ remember (slope_expr pt₁ pt ?= slope ms₁) as c.
  symmetry in Heqms₁.
  destruct c; subst ms; simpl in Hkps |- *.
   eapply IHpts; eassumption.

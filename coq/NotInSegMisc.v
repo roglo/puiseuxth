@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.24 2013-05-10 08:17:19 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.25 2013-05-10 15:00:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -268,8 +268,8 @@ Variable α : Type.
 Variable fld : field (puiseux_series α).
 
 Lemma minimised_slope_le : ∀ pt₁ pt₂ pts ms,
-  minimise_slope α pt₁ pt₂ pts = ms
-  → slope ms <= slope_expr α pt₁ pt₂.
+  minimise_slope pt₁ pt₂ pts = ms
+  → slope ms <= slope_expr pt₁ pt₂.
 Proof.
 intros pt₁ pt₂ pts ms Hms.
 revert ms Hms.
@@ -279,8 +279,8 @@ induction pts as [| pt]; intros.
  apply Qle_refl.
 
  simpl in Hms.
- remember (minimise_slope α pt₁ pt pts) as ms₁.
- remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ remember (minimise_slope pt₁ pt pts) as ms₁.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
  destruct c; subst ms.
   simpl.
   symmetry in Heqc; apply Qeq_alt in Heqc.
@@ -294,10 +294,10 @@ induction pts as [| pt]; intros.
 Qed.
 
 Lemma minimise_slope_pts_le : ∀ j jps pt pts ms,
-  minimise_slope α (j, jps) pt pts = ms
+  minimise_slope (j, jps) pt pts = ms
   → ∀ h hps,
      (h, hps) ∈ pts
-     → slope ms <= slope_expr α (j, jps) (h, hps).
+     → slope ms <= slope_expr (j, jps) (h, hps).
 Proof.
 intros j jps pt pts ms Hms h hps Hhps.
 revert pt ms Hms h hps Hhps.
@@ -305,9 +305,9 @@ induction pts as [| pt₁]; [ contradiction | intros ].
 destruct Hhps as [Hhps| Hhps].
  subst pt₁.
  simpl in Hms.
- remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
+ remember (minimise_slope (j, jps) (h, hps) pts) as ms₁.
  symmetry in Heqms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ remember (slope_expr (j, jps) pt ?= slope ms₁) as c.
  destruct c; subst ms.
   simpl.
   eapply minimised_slope_le; eassumption.
@@ -322,9 +322,9 @@ destruct Hhps as [Hhps| Hhps].
   assumption.
 
  simpl in Hms.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ remember (minimise_slope (j, jps) pt₁ pts) as ms₁.
  symmetry in Heqms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ remember (slope_expr (j, jps) pt ?= slope ms₁) as c.
  symmetry in Heqc.
  destruct c; subst ms.
   simpl.
@@ -340,7 +340,7 @@ destruct Hhps as [Hhps| Hhps].
 Qed.
 
 Lemma end_pt_in : ∀ pt₁ pt₂ pts ms,
-  minimise_slope α pt₁ pt₂ pts = ms
+  minimise_slope pt₁ pt₂ pts = ms
   → end_pt ms ∈ [pt₂ … pts].
 Proof.
 intros pt₁ pt₂ pts ms Hms.
@@ -350,10 +350,10 @@ induction pts as [| pt₃]; intros.
  left; reflexivity.
 
  simpl in Hms.
- remember (minimise_slope α pt₁ pt₃ pts) as ms₁.
+ remember (minimise_slope pt₁ pt₃ pts) as ms₁.
  rename Heqms₁ into Hms₁.
  symmetry in Hms₁.
- remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
  symmetry in Heqc.
  remember (end_pt ms) as pt.
  destruct c; subst ms; simpl in Heqpt; subst pt.
@@ -366,11 +366,11 @@ Qed.
 
 Lemma min_slope_lt_after_k : ∀ j jps k kps pt pts ms,
   LocallySorted fst_lt pts
-  → minimise_slope α (j, jps) pt pts = ms
+  → minimise_slope (j, jps) pt pts = ms
     → end_pt ms = (k, kps)
       → ∀ h hps, (h, hps) ∈ pts
         → k < h
-          → slope ms < slope_expr α (j, jps) (h, hps).
+          → slope ms < slope_expr (j, jps) (h, hps).
 Proof.
 intros j jps k kps pt pts ms Hsort Hms Hep h hps Hhps Hkh.
 revert pt ms Hms Hep h Hhps Hkh.
@@ -383,9 +383,9 @@ destruct Hhps as [Hhps| Hhps].
  destruct Hms as [Hms| Hms].
   subst pt.
   simpl in H.
-  remember (minimise_slope α (j, jps) (h, hps) pts) as ms₁.
+  remember (minimise_slope (j, jps) (h, hps) pts) as ms₁.
   symmetry in Heqms₁.
-  remember (slope_expr α (j, jps) (k, kps) ?= slope ms₁) as c.
+  remember (slope_expr (j, jps) (k, kps) ?= slope ms₁) as c.
   destruct c; subst ms.
    simpl in Hep |- *.
    apply minimise_slope_le in Heqms₁; [ idtac | assumption ].
@@ -413,9 +413,9 @@ destruct Hhps as [Hhps| Hhps].
    apply Qlt_irrefl in Hsort; contradiction.
 
  simpl in Hms.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+ remember (minimise_slope (j, jps) pt₁ pts) as ms₁.
  symmetry in Heqms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
+ remember (slope_expr (j, jps) pt ?= slope ms₁) as c.
  destruct c; subst ms.
   simpl in Hep |- *.
   eapply IHpts; try eassumption.
@@ -436,12 +436,12 @@ Qed.
 Lemma points_after_k : ∀ n pts j jps k kps seg seg₂ hsl γ β,
   LocallySorted fst_lt pts
   → j < k
-    → γ = (valuation α jps - valuation α kps) / (k - j)
-      → β = valuation α jps + j * γ
-        → next_ch_points α n pts = [ahs (j, jps) seg; ahs (k, kps) seg₂ … hsl]
+    → γ = (jps - kps) / (k - j)
+      → β = jps + j * γ
+        → next_ch_points n pts = [ahs (j, jps) seg; ahs (k, kps) seg₂ … hsl]
           → ∀ h hps, k < h
             → (h, hps) ∈ pts
-              → β < valuation α hps + h * γ.
+              → β < hps + h * γ.
 Proof.
 intros n pts j jps k kps segjk segkx hsl γ β.
 intros Hsort Hjk Hγ Hβ Hnp h hps Hkh Hhps.
@@ -451,7 +451,7 @@ remember Hnp as H; clear HeqH.
 apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+remember (minimise_slope (j, jps) pt₁ pts) as ms₁.
 injection Hnp; clear Hnp; intros; subst segjk.
 remember H as Hnp; clear HeqHnp.
 apply next_ch_points_hd in H.
@@ -499,17 +499,17 @@ Qed.
 
 Lemma not_seg_min_sl_lt : ∀ j jps k kps pt pts ms h hps,
   LocallySorted fst_lt [(j, jps); pt; (h, hps) … pts]
-  → minimise_slope α (j, jps) pt [(h, hps) … pts] = ms
+  → minimise_slope (j, jps) pt [(h, hps) … pts] = ms
     → j < h < k
       → (h, hps) ∉ seg ms
         → end_pt ms = (k, kps)
-          → slope ms < slope_expr α (j, jps) (h, hps).
+          → slope ms < slope_expr (j, jps) (h, hps).
 Proof.
 intros j jps k kps pt pts ms h hps Hsort Hms (Hjh, Hhk) Hseg Hep.
 revert ms Hms Hseg Hep.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
- remember (slope_expr α (j, jps) pt ?= slope_expr α (j, jps) (h, hps)) as c.
+ remember (slope_expr (j, jps) pt ?= slope_expr (j, jps) (h, hps)) as c.
  symmetry in Heqc.
  destruct c; subst ms; simpl.
   simpl in Hseg, Hep.
@@ -527,9 +527,9 @@ induction pts as [| pt₁]; intros.
 
  remember [pt₁ … pts] as pts₁.
  simpl in Hms.
- remember (minimise_slope α (j, jps) (h, hps) pts₁) as ms₁.
+ remember (minimise_slope (j, jps) (h, hps) pts₁) as ms₁.
  symmetry in Heqms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c₁.
+ remember (slope_expr (j, jps) pt ?= slope ms₁) as c₁.
  symmetry in Heqc₁.
  destruct c₁; subst ms; simpl.
   simpl in Hseg, Hep.
@@ -537,9 +537,9 @@ induction pts as [| pt₁]; intros.
   destruct Hseg as (Hne, Hseg).
   subst pts₁.
   simpl in Heqms₁.
-  remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
+  remember (minimise_slope (j, jps) pt₁ pts) as ms₂.
   symmetry in Heqms₂.
-  remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
+  remember (slope_expr (j, jps) (h, hps) ?= slope ms₂) as c.
   symmetry in Heqc.
   destruct c; subst ms₁; simpl.
    simpl in Heqc₁, Hseg, Hep.
@@ -562,9 +562,9 @@ induction pts as [| pt₁]; intros.
   subst pts₁.
   apply Qgt_alt in Heqc₁.
   simpl in Heqms₁.
-  remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
+  remember (minimise_slope (j, jps) pt₁ pts) as ms₂.
   symmetry in Heqms₂.
-  remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
+  remember (slope_expr (j, jps) (h, hps) ?= slope ms₂) as c.
   symmetry in Heqc.
   destruct c; subst ms₁; simpl.
    simpl in Heqc₁, Hseg, Hep.
@@ -581,13 +581,13 @@ Qed.
 
 Lemma points_between_j_and_k : ∀ n pts j jps k kps sjk skx hsl γ β,
   LocallySorted fst_lt pts
-  → γ = (valuation α jps - valuation α kps) / (k - j)
-    → β = valuation α jps + j * γ
-      → next_ch_points α n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
+  → γ = (jps - kps) / (k - j)
+    → β = jps + j * γ
+      → next_ch_points n pts = [ahs (j, jps) sjk; ahs (k, kps) skx … hsl]
         → ∀ h hps, j < h < k
           → (h, hps) ∈ pts
             → (h, hps) ∉ sjk
-              → β < valuation α hps + h * γ.
+              → β < hps + h * γ.
 Proof.
 intros n pts j jps k kps segjk segkx hsl γ β.
 intros Hsort Hγ Hβ Hnp h hps (Hjh, Hhk) Hhps Hseg.
@@ -597,7 +597,7 @@ remember Hnp as H; clear HeqH.
 apply next_ch_points_hd in H.
 subst pt₁; simpl in Hnp.
 destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
+remember (minimise_slope (j, jps) pt₁ pts) as ms₁.
 injection Hnp; clear Hnp; intros; subst segjk.
 remember H as Hnp; clear HeqHnp.
 apply next_ch_points_hd in H.
@@ -618,9 +618,9 @@ destruct Hhps as [Hhps| Hhps].
    apply Qlt_irrefl in Hhk; contradiction.
 
    simpl in Heqms₁.
-   remember (minimise_slope α (j, jps) pt₁ pts) as ms₂.
+   remember (minimise_slope (j, jps) pt₁ pts) as ms₂.
    symmetry in Heqms₂.
-   remember (slope_expr α (j, jps) (h, hps) ?= slope ms₂) as c.
+   remember (slope_expr (j, jps) (h, hps) ?= slope ms₂) as c.
    destruct c; subst ms₁.
     simpl in Hep₁, Hseg, Hnp.
     apply Decidable.not_or in Hseg.
@@ -670,9 +670,9 @@ destruct Hhps as [Hhps| Hhps].
      split; assumption.
 
     simpl in Heqms₁.
-    remember (minimise_slope α (j, jps) pt₂ pts) as ms₂.
+    remember (minimise_slope (j, jps) pt₂ pts) as ms₂.
     symmetry in Heqms₂.
-    remember (slope_expr α (j, jps) pt₁ ?= slope ms₂) as c.
+    remember (slope_expr (j, jps) pt₁ ?= slope ms₂) as c.
     symmetry in Heqc.
     destruct c; subst ms₁.
      simpl in Hep₁, Hseg, Hnp.
@@ -717,7 +717,7 @@ destruct Hhps as [Hhps| Hhps].
       destruct Hsort; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma sorted_hd_not_in_tl : ∀ k (jps : puiseux_series α) kps pts,
+Lemma sorted_hd_not_in_tl : ∀ k jps kps pts,
   LocallySorted fst_lt [(k, jps) … pts] → (k, kps) ∉ pts.
 Proof.
 intros k jps kps pts H.
@@ -765,7 +765,7 @@ induction cl as [| c]; intros.
    eapply IHcl in Hhps; [ assumption | reflexivity ].
 Qed.
 
-Lemma eq_k_eq_kps : ∀ pts j jps k (kps : puiseux_series α),
+Lemma eq_k_eq_kps : ∀ pts j jps k kps,
   LocallySorted fst_lt pts
   → (j, jps) ∈ pts
     → (k, kps) ∈ pts
@@ -834,7 +834,7 @@ apply same_den_qeq_eq; assumption.
 Qed.
 
 Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
-  minimise_slope α pt₁ pt₂ pts₂ = ms
+  minimise_slope pt₁ pt₂ pts₂ = ms
   → pt ∈ rem_pts ms
     → pt ∈ pts₂.
 Proof.
@@ -842,9 +842,9 @@ intros pt₁ pt₂ pts₂ ms pt Hms Hpt.
 revert pt₁ pt₂ ms Hms Hpt.
 induction pts₂ as [| pt₃]; intros; [ subst ms; contradiction | idtac ].
 simpl in Hms.
-remember (minimise_slope α pt₁ pt₃ pts₂) as ms₁.
+remember (minimise_slope pt₁ pt₃ pts₂) as ms₁.
 symmetry in Heqms₁.
-remember (slope_expr α pt₁ pt₂ ?= slope ms₁) as c.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
 destruct c; subst ms; simpl in Hpt.
  right; eapply IHpts₂; eassumption.
 
@@ -854,11 +854,11 @@ destruct c; subst ms; simpl in Hpt.
 Qed.
 
 Lemma in_ch_in_pts : ∀ n pts pt s,
-  ahs pt s ∈ next_ch_points α n pts
+  ahs pt s ∈ next_ch_points n pts
   → pt ∈ pts.
 Proof.
 intros n pts pt s Hhs.
-remember (next_ch_points α n pts) as hsl.
+remember (next_ch_points n pts) as hsl.
 rename Heqhsl into Hhsl.
 revert n pts pt s Hhsl Hhs.
 induction hsl as [| hs₁]; [ contradiction | intros ].
@@ -877,7 +877,7 @@ destruct pts as [| pt₂].
   injection H0; clear H0; intros; subst pt₁.
   left; reflexivity.
 
-  remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
   symmetry in Heqms₁.
   eapply IHhsl in H; [ idtac | eassumption ].
   destruct H as [H| H].

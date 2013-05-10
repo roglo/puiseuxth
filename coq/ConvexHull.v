@@ -1,51 +1,32 @@
-(* $Id: ConvexHull.v,v 1.44 2013-05-09 17:56:48 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.45 2013-05-10 15:00:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
-Require Streams.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
-Record Qpos := { x : Q; pos : x > 0 }.
-
-Record puiseux_series α :=
-  { ps_1 : α * Q;
-    ps_n : Streams.Stream (α * Qpos) }.
-
-Definition valuation α ps := snd (ps_1 α ps).
-Definition valuation_coeff α ps := fst (ps_1 α ps).
-
-Record min_sl α :=
+Record min_sl :=
   { slope : Q;
-    end_pt : (Q * α);
-    seg : list (Q * α);
-    rem_pts : list (Q * α) }.
-Arguments slope : default implicits.
-Arguments end_pt : default implicits.
-Arguments seg : default implicits.
-Arguments rem_pts : default implicits.
+    end_pt : (Q * Q);
+    seg : list (Q * Q);
+    rem_pts : list (Q * Q) }.
 
-Record hull_seg α := ahs
-  { pt : (Q * α);
-    oth : list (Q * α) }.
-Arguments ahs : default implicits.
-Arguments pt : default implicits.
-Arguments oth : default implicits.
+Record hull_seg := ahs
+  { pt : (Q * Q);
+    oth : list (Q * Q) }.
 
-Definition slope_expr α pt₁ pt₂ :=
-  let v₁ := valuation α (snd pt₁) in
-  let v₂ := valuation α (snd pt₂) in
-  Qdiv (Qminus v₂ v₁) (Qminus (fst pt₂) (fst pt₁)).
+Definition slope_expr pt₁ pt₂ :=
+  Qdiv (Qminus (snd pt₂) (snd pt₁)) (Qminus (fst pt₂) (fst pt₁)).
 
-Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
-  let sl₁₂ := slope_expr α pt₁ pt₂ in
+Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
+  let sl₁₂ := slope_expr pt₁ pt₂ in
   match pts₂ with
   | [] =>
       {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   | [pt₃ … pts₃] =>
-      let ms := minimise_slope α pt₁ pt₃ pts₃ in
+      let ms := minimise_slope pt₁ pt₃ pts₃ in
       match Qcompare sl₁₂ (slope ms) with
       | Eq =>
           {| slope := slope ms; end_pt := end_pt ms; seg := [pt₂ … seg ms];
@@ -57,7 +38,7 @@ Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
       end
   end.
 
-Fixpoint next_ch_points α n pts :=
+Fixpoint next_ch_points n pts :=
   match n with
   | O => []
   | S n =>
@@ -65,11 +46,11 @@ Fixpoint next_ch_points α n pts :=
       | [] => []
       | [pt₁] => [{| pt := pt₁; oth := [] |}]
       | [pt₁; pt₂ … pts₂] =>
-          let ms := minimise_slope α pt₁ pt₂ pts₂ in
-          let hsl := next_ch_points α n [end_pt ms … rem_pts ms] in
+          let ms := minimise_slope pt₁ pt₂ pts₂ in
+          let hsl := next_ch_points n [end_pt ms … rem_pts ms] in
           [{| pt := pt₁; oth := seg ms |} … hsl]
       end
   end.
 
-Definition lower_convex_hull_points α pts :=
-  next_ch_points α (List.length pts) pts.
+Definition lower_convex_hull_points pts :=
+  next_ch_points (List.length pts) pts.

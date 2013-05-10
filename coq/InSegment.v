@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.5 2013-05-09 17:55:20 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.6 2013-05-10 15:00:35 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -16,42 +16,40 @@ Section convex_hull.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Lemma two_pts_slope_form : ∀ j jps seg₁ k kps seg₂ hsl,
-  LocallySorted hs_x_lt [ahs (j, jps) seg₁; ahs (k, kps) seg₂ … hsl]
-  → valuation α jps +
-    j * ((valuation α jps - valuation α kps) / (k - j)) ==
-    valuation α kps +
-    k * ((valuation α jps - valuation α kps) / (k - j)).
+Lemma two_pts_slope_form : ∀ j αy seg₁ k αk seg₂ hsl,
+  LocallySorted hs_x_lt [ahs (j, αy) seg₁; ahs (k, αk) seg₂ … hsl]
+  → αy + j * ((αy - αk) / (k - j)) ==
+    αk + k * ((αy - αk) / (k - j)).
 Proof.
-intros j jps seg₁ k kps seg₂ hsl Hsort.
+intros j αy seg₁ k αk seg₂ hsl Hsort.
 apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
 unfold hs_x_lt in Hlt; simpl in Hlt.
 field.
 apply Qgt_0_not_0, Qlt_minus; assumption.
 Qed.
 
-Lemma min_sl_pt_in_newt_segm : ∀ j jps k kps β γ pt pts ms segkx hsl n,
-  LocallySorted fst_lt [(j, jps); pt … pts]
-  → β = valuation α jps + j * γ
-    → γ = (valuation α jps - valuation α kps) / (k - j)
-      → minimise_slope α (j, jps) pt pts = ms
-        → next_ch_points α n [end_pt ms … rem_pts ms] =
-            [ahs (k, kps) segkx … hsl]
-          → ∀ i ips, (i, ips) ∈ seg ms
-            → valuation α ips + i * γ == β.
+Lemma min_sl_pt_in_newt_segm : ∀ j αy k αk β γ pt pts ms segkx hsl n,
+  LocallySorted fst_lt [(j, αy); pt … pts]
+  → β = αy + j * γ
+    → γ = (αy - αk) / (k - j)
+      → minimise_slope (j, αy) pt pts = ms
+        → next_ch_points n [end_pt ms … rem_pts ms] =
+            [ahs (k, αk) segkx … hsl]
+          → ∀ i αi, (i, αi) ∈ seg ms
+            → αi + i * γ == β.
 Proof.
-intros j jps k kps β γ pt pts ms segkx hsl n.
-intros Hsort Hβ Hγ Hms Hnp i ips Hips.
-revert pt ms hsl n i ips Hsort Hips Hms Hnp.
+intros j αy k αk β γ pt pts ms segkx hsl n.
+intros Hsort Hβ Hγ Hms Hnp i αi Hαi.
+revert pt ms hsl n i αi Hsort Hαi Hms Hnp.
 induction pts as [| pt₁]; intros.
  simpl in Hms.
- subst ms; simpl in Hnp, Hips.
+ subst ms; simpl in Hnp, Hαi.
  contradiction.
 
  simpl in Hms.
- remember (minimise_slope α (j, jps) pt₁ pts) as ms₁.
- remember (slope_expr α (j, jps) pt ?= slope ms₁) as c.
- destruct c; subst ms; simpl in Hnp, Hips; [ idtac | contradiction | idtac ].
+ remember (minimise_slope (j, αy) pt₁ pts) as ms₁.
+ remember (slope_expr (j, αy) pt ?= slope ms₁) as c.
+ destruct c; subst ms; simpl in Hnp, Hαi; [ idtac | contradiction | idtac ].
   symmetry in Heqms₁.
   symmetry in Heqc.
   apply Qeq_alt in Heqc.
@@ -61,11 +59,11 @@ induction pts as [| pt₁]; intros.
   remember Heqms₁ as Hms; clear HeqHms.
   eapply minimised_slope in Heqms₁; [ idtac | eassumption ].
   rewrite <- Heqc in Heqms₁.
-  destruct Hips as [Hips| Hips].
+  destruct Hαi as [Hαi| Hαi].
    subst pt.
    subst β.
    unfold slope_expr in Heqms₁; simpl in Heqms₁.
-   remember (valuation α kps) as v₃.
+   remember (αk) as v₃.
    subst γ.
    do 2 rewrite Qdiv_minus_distr_r in Heqms₁.
    rewrite Qdiv_minus_distr_r.
@@ -86,17 +84,17 @@ induction pts as [| pt₁]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma in_newt_segm : ∀ j jps k kps γ β n pts segjk segkx hsl₁ hsl,
+Lemma in_newt_segm : ∀ j αy k αk γ β n pts segjk segkx hsl₁ hsl,
   LocallySorted fst_lt pts
-  → β = valuation α jps + j * γ
-    → γ = (valuation α jps - valuation α kps) / (k - j)
-      → next_ch_points α n pts =
-          hsl₁ ++ [ ahs (j, jps) segjk; ahs (k, kps) segkx … hsl]
-        → ∀ i ips, (i, ips) ∈ segjk
-          → valuation α ips + i * γ == β.
+  → β = αy + j * γ
+    → γ = (αy - αk) / (k - j)
+      → next_ch_points n pts =
+          hsl₁ ++ [ ahs (j, αy) segjk; ahs (k, αk) segkx … hsl]
+        → ∀ i αi, (i, αi) ∈ segjk
+          → αi + i * γ == β.
 Proof.
-intros j jps k kps γ β n pts segjk segkx hsl₁ hsl.
-intros Hsort Hβ Hγ Hch i ips Hips.
+intros j αy k αk γ β n pts segjk segkx hsl₁ hsl.
+intros Hsort Hβ Hγ Hch i αi Hαi.
 rename Hch into Hnp.
 destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
 destruct pts as [| pt₁].
@@ -109,13 +107,13 @@ destruct pts as [| pt₁].
   revert n pt₁ pt₂ pts Hnp Hsort.
   induction hsl₁ as [| hs₁]; intros.
    injection Hnp; clear Hnp; intros; subst segjk.
-   rewrite H1 in H, Hips, Hsort.
+   rewrite H1 in H, Hαi, Hsort.
    eapply min_sl_pt_in_newt_segm; try eassumption; reflexivity.
 
    injection Hnp; clear Hnp; intros; subst hs₁.
    rename H into Hnp.
    destruct n; [ apply List.app_cons_not_nil in Hnp; contradiction | idtac ].
-   remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
    symmetry in Heqms₁.
    eapply minimise_slope_sorted in Hsort; [ idtac | eassumption ].
    remember (rem_pts ms₁) as pts₁.
@@ -129,12 +127,12 @@ Qed.
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∀ h hps, (h, hps) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == valuation α hps + h * γ ns.
+    → β ns == hps + h * γ ns.
 Proof.
 intros pol ns Hns h hps Hhps.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
-remember (lower_convex_hull_points α pts) as hsl.
+remember (lower_convex_hull_points pts) as hsl.
 symmetry in Heqhsl.
 rename Heqpts into Hpts.
 unfold points_of_ps_polynom in Hpts.
@@ -148,8 +146,8 @@ induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 simpl in Hns.
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
- destruct hs₁ as ((j, jps), seg₁).
- destruct hs₂ as ((k, kps), seg₂).
+ destruct hs₁ as ((j, αy), seg₁).
+ destruct hs₂ as ((k, αk), seg₂).
  subst ns; simpl.
  simpl in Hhps.
  destruct Hhps as [Hhps| Hhps].
@@ -171,7 +169,7 @@ destruct Hns as [Hns| Hns].
  destruct pts as [| pt₁]; [ discriminate Heqhsl | idtac ].
  destruct pts as [| pt₂]; [ discriminate Heqhsl | idtac ].
  injection Heqhsl; clear Heqhsl; intros.
- remember (minimise_slope α pt₁ pt₂ pts) as ms₁.
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
  apply LSorted_inv_1 in Hpts.
  eapply minimise_slope_sorted in Hpts₂; [ idtac | eassumption ].
