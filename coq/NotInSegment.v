@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.106 2013-05-10 03:33:37 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.107 2013-05-10 08:17:19 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -14,22 +14,6 @@ Section convex_hull.
 
 Variable α : Type.
 Variable fld : field (puiseux_series α).
-
-Lemma same_den_qeq_eq : ∀ h i, Qden h = Qden i → h == i → h = i.
-Proof.
-intros h i Hd Hh.
-unfold Qeq in Hh.
-rewrite Hd in Hh.
-apply Z.mul_reg_r in Hh.
- destruct h, i.
- simpl in Hd, Hh.
- subst Qden Qnum; reflexivity.
-
- intros H.
- pose proof (Pos2Z.is_pos (Qden i)) as HH.
- rewrite <- H in HH.
- apply Zlt_irrefl in HH; contradiction.
-Qed.
 
 Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
   pts = points_of_ps_polynom α fld pol
@@ -61,9 +45,7 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
  eapply points_after_k; try eassumption; reflexivity.
 
  destruct (Qeq_dec h k) as [Heq| Hne].
-  unfold points_of_ps_polynom in Hpts.
-  apply points_of_polyn_sorted in Hpts.
-bbb.
+  symmetry in HHpts.
   eapply same_k_same_kps with (kps := kps) in Hhps; try eassumption.
    unfold lower_convex_hull_points in Heqhsl.
    assert ((k, kps) ∈ pts).
@@ -86,7 +68,6 @@ bbb.
    unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
    right; left; reflexivity.
 
-bbb.
   apply Qle_neq_lt in Hge; [ idtac | assumption ].
   destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
    unfold points_of_ps_polynom in Hpts.
@@ -104,7 +85,6 @@ bbb.
     destruct Hnhps as (_, Hnhps).
     assumption.
 
-   apply not_gt in Hge₂.
    unfold points_of_ps_polynom in Hpts.
    apply points_of_polyn_sorted in Hpts.
    unfold lower_convex_hull_points in Heqhsl.
@@ -124,7 +104,7 @@ bbb.
      destruct Hnhps as (HH); exfalso; apply HH; reflexivity.
 
      eapply LSorted_hd in Hpts; [ idtac | eassumption ].
-     apply le_not_lt in Hge₂; contradiction.
+     apply Qle_not_lt in Hge₂; contradiction.
 Qed.
 
 (* is there a way to group together the cases c = Eq and c = Gt? *)

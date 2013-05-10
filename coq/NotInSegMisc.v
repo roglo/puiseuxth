@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.23 2013-05-10 03:33:37 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.24 2013-05-10 08:17:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -765,41 +765,7 @@ induction cl as [| c]; intros.
    eapply IHcl in Hhps; [ assumption | reflexivity ].
 Qed.
 
-Lemma fst_is_int : ∀ pol pts h hps,
-  points_of_ps_polynom α fld pol = pts
-  → (h, hps) ∈ pts
-    → (Qden h = 1)%positive.
-Proof.
-intros pol pts h hps Hpts Hhps.
-eapply all_fst_is_int; eassumption.
-Qed.
-
-Lemma all_same_k_same_kps : ∀ n cl cn pts j jps k kps,
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α n cl cn) = pts
-  → (j, jps) ∈ pts
-    → (k, kps) ∈ pts
-      → j = k
-        → jps = kps.
-Proof.
-intros n cl cn pts j jps k kps Hpts Hjps Hkps Hjk.
-subst j.
-revert n cl cn Hpts.
-induction pts as [| pt]; [ contradiction | intros ].
-destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
- destruct Hkps as [Hkps| Hkps].
-  injection Hkps; clear; intros; subst jps; reflexivity.
-bbb.
-
-Lemma same_k_same_kps : ∀ pol pts j jps k kps,
-  pts = points_of_ps_polynom α fld pol
-  → (j, jps) ∈ pts
-    → (k, kps) ∈ pts
-      → j = k
-        → jps = kps.
-Proof.
-bbb.
-
-Lemma same_k_same_kps₄₂ : ∀ pts j jps k (kps : puiseux_series α),
+Lemma eq_k_eq_kps : ∀ pts j jps k (kps : puiseux_series α),
   LocallySorted fst_lt pts
   → (j, jps) ∈ pts
     → (k, kps) ∈ pts
@@ -821,6 +787,50 @@ destruct Hjps as [Hjps| Hjps]; [ subst pt | idtac ].
   destruct pts as [| pt₂]; [ contradiction | idtac ].
   apply LSorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
   eapply IHpts; eassumption.
+Qed.
+
+Lemma fst_is_int : ∀ pol pts h hps,
+  points_of_ps_polynom α fld pol = pts
+  → (h, hps) ∈ pts
+    → (Qden h = 1)%positive.
+Proof.
+intros pol pts h hps Hpts Hhps.
+eapply all_fst_is_int; eassumption.
+Qed.
+
+Lemma same_den_qeq_eq : ∀ h i, Qden h = Qden i → h == i → h = i.
+Proof.
+intros h i Hd Hh.
+unfold Qeq in Hh.
+rewrite Hd in Hh.
+apply Z.mul_reg_r in Hh.
+ destruct h, i.
+ simpl in Hd, Hh.
+ subst Qden Qnum; reflexivity.
+
+ intros H.
+ pose proof (Pos2Z.is_pos (Qden i)) as HH.
+ rewrite <- H in HH.
+ apply Zlt_irrefl in HH; contradiction.
+Qed.
+
+Lemma same_k_same_kps : ∀ pol pts j jps k kps,
+  points_of_ps_polynom α fld pol = pts
+  → (j, jps) ∈ pts
+    → (k, kps) ∈ pts
+      → j == k
+        → jps = kps.
+Proof.
+intros pos pts j jps k kps Hpts Hj Hk Hjk.
+remember Hpts as Hsort; clear HeqHsort.
+symmetry in Hsort.
+unfold points_of_ps_polynom in Hsort.
+apply points_of_polyn_sorted in Hsort.
+eapply eq_k_eq_kps; try eassumption.
+eapply all_fst_is_int in Hj; try eassumption.
+eapply all_fst_is_int in Hk; try eassumption.
+rewrite <- Hk in Hj.
+apply same_den_qeq_eq; assumption.
 Qed.
 
 Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
