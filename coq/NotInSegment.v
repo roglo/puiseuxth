@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.125 2013-05-11 11:04:26 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.126 2013-05-11 23:22:26 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -780,7 +780,7 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-(**)
+(*
 Lemma yyy : ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg hsl₁ hsl,
   LocallySorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
@@ -794,6 +794,25 @@ Lemma yyy : ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg hsl₁
 Proof.
 intros n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg hsl₁ hsl.
 intros Hsort Hms₁ Hend₁ Hrem₁ Hms₂ Hlt₁ Hnp.
+remember (minimise_slope pt₁ (end_pt ms₂) (rem_pts ms₂)) as ms₃.
+symmetry in Heqms₃.
+assert (end_pt ms₃ = end_pt ms₂) as H₃₂.
+Focus 2.
+assert (slope ms₂ < slope_expr pt₁ (end_pt ms₃)) as Hlt₂.
+Focus 2.
+bbb.
+
+revert n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg hsl Hsort Hms₁ Hend₁ Hrem₁
+ Hms₂ Hlt₁ Hnp.
+induction hsl₁ as [| hs₁]; intros.
+ remember Hsort as H; clear HeqH.
+ subst pt₃.
+ eapply consec_slope_lt in H; try eassumption.
+ eapply Qlt_trans; [ eassumption | idtac ].
+ remember (end_pt ms₁) as pt₃.
+ symmetry in Heqpt₃.
+ rename Heqpt₃ into Hend₁.
+ clear H.
 bbb.
 *)
 
@@ -812,6 +831,8 @@ intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
+bbb.
+
 revert n ms h αh i αi j αj segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
