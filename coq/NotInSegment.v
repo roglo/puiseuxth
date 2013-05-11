@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.122 2013-05-11 08:11:04 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.123 2013-05-11 10:23:38 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -795,6 +795,7 @@ intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
+bbb.
 revert n ms h αh i αi j αj segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
