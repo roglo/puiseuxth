@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.472 2013-05-11 01:49:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.473 2013-05-11 03:12:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -325,6 +325,36 @@ destruct c; subst ms; simpl; [ idtac | assumption | idtac ].
  apply LSorted_inv_2 in Hsort.
  destruct Hsort as (Hlt₂, Hsort).
  constructor; [ assumption | eapply Qlt_trans; eassumption ].
+Qed.
+
+Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg hsl₁ hsl,
+  LocallySorted fst_lt [pt₁ … pts₁]
+  → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [ahs pt₂ sg … hsl]
+    → fst pt₁ <= fst pt₂.
+Proof.
+intros n pt₁ pt₂ pts₁ sg hsl₁ hsl Hsort Hnp.
+revert n pt₁ pt₂ pts₁ sg hsl Hsort Hnp.
+induction hsl₁ as [| hs₁]; intros.
+ apply next_ch_points_hd in Hnp; subst pt₁; apply Qle_refl.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts₁ as [| pt₃]; intros.
+  destruct hsl₁; discriminate Hnp.
+
+  injection Hnp; clear Hnp; intros Hnp; intros.
+  subst hs₁.
+  remember (minimise_slope pt₁ pt₃ pts₁) as ms₁.
+  symmetry in Heqms₁.
+  apply IHhsl₁ in Hnp.
+   eapply Qle_trans; [ idtac | eassumption ].
+   apply minimise_slope_le in Heqms₁.
+    eapply Qle_trans; [ idtac | eassumption ].
+    apply Qlt_le_weak.
+    apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
+
+    eapply LSorted_inv_1; eassumption.
+
+   eapply minimise_slope_sorted; eassumption.
 Qed.
 
 Lemma next_points_sorted : ∀ n pts hsl,

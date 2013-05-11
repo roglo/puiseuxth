@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.117 2013-05-11 02:07:21 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.118 2013-05-11 03:12:03 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -779,14 +779,6 @@ destruct c.
   eapply LSorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
-
-Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ seg hsl₁ hsl,
-  LocallySorted fst_lt [pt₁ … pts₁]
-  → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [ahs pt₂ seg … hsl]
-    → fst pt₁ <= fst pt₂.
-Proof.
-bbb.
-*)
 
 (**)
 Lemma zzz : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
