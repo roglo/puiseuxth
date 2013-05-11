@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.27 2013-05-10 19:41:30 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.28 2013-05-11 02:07:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -101,12 +101,12 @@ rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
 
+(*
 Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
     (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)).
 Proof.
-Admitted. (*
 bbb.
 *)
 (*

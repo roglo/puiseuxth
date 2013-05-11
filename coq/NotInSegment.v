@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.116 2013-05-11 01:49:51 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.117 2013-05-11 02:07:21 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -780,6 +780,14 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ seg hsl₁ hsl,
+  LocallySorted fst_lt [pt₁ … pts₁]
+  → next_ch_points n [pt₁ … pts₁] = hsl₁ ++ [ahs pt₂ seg … hsl]
+    → fst pt₁ <= fst pt₂.
+Proof.
+bbb.
+*)
+
 (**)
 Lemma zzz : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
@@ -831,7 +839,8 @@ induction hsl₁ as [| hs₁]; intros.
   split; [ idtac | destruct Hhjk; assumption ].
   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
   rewrite <- Heqpt₁, Heqpts₁ in Hms.
-  apply minimise_slope_le in Heqms₁;
+  remember Heqms₁ as Hms₁; clear HeqHms₁.
+  apply minimise_slope_le in Hms₁;
    [ idtac | eapply LSorted_inv_1; eassumption ].
   remember (end_pt ms₁) as pt₂.
   destruct pt₂ as (p, αp).
@@ -840,6 +849,13 @@ induction hsl₁ as [| hs₁]; intros.
   unfold fst_lt in Hml; simpl in Hml.
   eapply Qlt_le_trans; [ eassumption | idtac ].
   eapply Qle_trans; [ eassumption | idtac ].
+  apply next_ch_points_le in Hnp; [ assumption | idtac ].
+  rewrite Heqpt₂.
+  eapply minimise_slope_sorted; [ idtac | eassumption ].
+  constructor; assumption.
+
+  eapply Qlt_trans; [ eassumption | idtac ].
+
 bbb.
   rewrite Heqpt₂ in Hnp.
   replace p with (fst (end_pt ms₁)) by (rewrite <- Heqpt₂; reflexivity).
