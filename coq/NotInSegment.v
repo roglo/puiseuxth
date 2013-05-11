@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.124 2013-05-11 10:44:12 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.125 2013-05-11 11:04:26 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -781,6 +781,23 @@ destruct c.
 Qed.
 
 (**)
+Lemma yyy : ∀ n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg hsl₁ hsl,
+  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → end_pt ms₁ = pt₃
+      → rem_pts ms₁ = [pt₄ … pts₁]
+        → minimise_slope pt₃ pt₄ pts₁ = ms₂
+          → fst pt₁ < fst pt₅
+            → next_ch_points n [end_pt ms₂ … rem_pts ms₂] =
+                hsl₁ ++ [{| pt := pt₅; oth := sg |} … hsl]
+              → slope ms₁ < slope_expr pt₁ pt₅.
+Proof.
+intros n pt₁ pt₂ pt₃ pt₄ pt₅ pts pts₁ ms₁ ms₂ sg hsl₁ hsl.
+intros Hsort Hms₁ Hend₁ Hrem₁ Hms₂ Hlt₁ Hnp.
+bbb.
+*)
+
+(**)
 Lemma zzz : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
@@ -835,6 +852,10 @@ induction hsl₁ as [| hs₁]; intros.
    remember Hms as HHms; clear HeqHHms.
    eapply minimised_slope in Hms; [ idtac | eassumption ].
    rewrite <- Hms.
+   clear Hnp Hms.
+   destruct Hhjk as (Hhj, Hjk).
+   symmetry in Heqpt₁.
+   eapply yyy; eassumption.
 bbb.
   Focus 3.
   split; [ idtac | destruct Hhjk; assumption ].
