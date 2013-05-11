@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.119 2013-05-11 03:29:35 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.120 2013-05-11 03:32:11 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -826,6 +826,7 @@ induction hsl₁ as [| hs₁]; intros.
  symmetry in Heqpts₁.
  remember (end_pt ms) as pt₁.
  destruct pt₁ as (m, αm).
+bbb.
  eapply IHhsl₁ in Hnp; [ idtac | eassumption | idtac | idtac ].
   Focus 3.
   split; [ idtac | destruct Hhjk; assumption ].
@@ -849,7 +850,6 @@ induction hsl₁ as [| hs₁]; intros.
   eapply ad_hoc_lt_lt₂.
    assumption.
 
-   rewrite fold_slope_expr.
    do 2 rewrite fold_slope_expr.
 
 bbb.
