@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.121 2013-05-11 07:22:42 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.122 2013-05-11 08:11:04 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -827,6 +827,8 @@ induction hsl₁ as [| hs₁]; intros.
  remember (end_pt ms) as pt₁.
  destruct pt₁ as (m, αm).
  eapply IHhsl₁ in Hnp; [ idtac | eassumption | idtac | idtac ].
+  eapply Qlt_trans; [ idtac | eassumption ].
+bbb.
   Focus 3.
   split; [ idtac | destruct Hhjk; assumption ].
   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
