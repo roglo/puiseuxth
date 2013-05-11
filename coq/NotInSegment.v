@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.123 2013-05-11 10:23:38 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.124 2013-05-11 10:44:12 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -795,7 +795,6 @@ intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
-bbb.
 revert n ms h αh i αi j αj segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
@@ -827,8 +826,15 @@ induction hsl₁ as [| hs₁]; intros.
  symmetry in Heqpts₁.
  remember (end_pt ms) as pt₁.
  destruct pt₁ as (m, αm).
+ remember Hnp as HHnp; clear HeqHHnp.
  eapply IHhsl₁ in Hnp; [ idtac | eassumption | idtac | idtac ].
   eapply Qlt_trans; [ idtac | eassumption ].
+  apply Qlt_alt.
+  rewrite <- slope_cmp₁.
+   apply -> Qlt_alt.
+   remember Hms as HHms; clear HeqHHms.
+   eapply minimised_slope in Hms; [ idtac | eassumption ].
+   rewrite <- Hms.
 bbb.
   Focus 3.
   split; [ idtac | destruct Hhjk; assumption ].
