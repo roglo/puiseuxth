@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.471 2013-05-10 15:00:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.472 2013-05-11 01:49:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -291,16 +291,6 @@ induction pts₂ as [| pt]; intros.
   eapply IHpts₂; eassumption.
 Qed.
 
-Lemma next_ch_points_le : ∀ n pt₁ pt₂ pts₁ sg hsl,
-  next_ch_points n [pt₁ … pts₁] = [{| pt := pt₂; oth := sg |} … hsl]
-  → fst pt₁ <= fst pt₂.
-Proof.
-intros n pt₁ pt₂ pts₁ sg hsl Hnp.
-destruct n; [ discriminate Hnp | idtac ].
-simpl in Hnp.
-destruct pts₁; injection Hnp; intros; subst pt₁; apply Qle_refl.
-Qed.
-
 Lemma next_ch_points_hd : ∀ n pt₁ pt₂ pts₁ seg hsl,
   next_ch_points n [pt₁ … pts₁] = [ahs pt₂ seg … hsl]
   → pt₁ = pt₂.
@@ -364,7 +354,8 @@ apply IHn in Heqhsl₁.
    apply LSorted_inv_2 in Hsort; destruct Hsort; eassumption.
 
    eapply Qle_trans; [ eassumption | idtac ].
-   eapply next_ch_points_le; eassumption.
+   apply next_ch_points_hd in Hch.
+   rewrite Hch; apply Qle_refl.
 
   apply LSorted_inv_2 in Hsort; destruct Hsort; assumption.
 

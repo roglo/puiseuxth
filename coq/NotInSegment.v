@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.115 2013-05-10 19:41:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.116 2013-05-11 01:49:51 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -816,6 +816,54 @@ induction hsl₁ as [| hs₁]; intros.
  rewrite H1 in Hms.
  eapply ad_hoc_lt_lt₂; try eassumption.
 
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| (l, αl)]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros Hhs₁.
+ subst hs₁.
+ remember (minimise_slope (end_pt ms) (l, αl) pts₁) as ms₁.
+ symmetry in Heqms₁.
+ symmetry in Heqpts₁.
+ remember (end_pt ms) as pt₁.
+ destruct pt₁ as (m, αm).
+ eapply IHhsl₁ in Hnp; [ idtac | eassumption | idtac | idtac ].
+  Focus 3.
+  split; [ idtac | destruct Hhjk; assumption ].
+  apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+  rewrite <- Heqpt₁, Heqpts₁ in Hms.
+  apply minimise_slope_le in Heqms₁;
+   [ idtac | eapply LSorted_inv_1; eassumption ].
+  remember (end_pt ms₁) as pt₂.
+  destruct pt₂ as (p, αp).
+  simpl in Heqms₁.
+  apply LSorted_inv_2 in Hms; destruct Hms as (Hml, Hms).
+  unfold fst_lt in Hml; simpl in Hml.
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  eapply Qle_trans; [ eassumption | idtac ].
+bbb.
+  rewrite Heqpt₂ in Hnp.
+  replace p with (fst (end_pt ms₁)) by (rewrite <- Heqpt₂; reflexivity).
+  clear Heqpt₂.
+  clear IHhsl₁.
+  revert n ms₁ Hnp.
+  induction hsl₁ as [| hs₁]; intros.
+   simpl in Hnp.
+   apply next_ch_points_le in Hnp; assumption.
+
+   destruct n; [ discriminate Hnp | idtac ].
+   simpl in Hnp.
+   destruct pts₁ as [| pt₁].
+    remember (rem_pts ms₁) as pts₂.
+    destruct pts₂ as [| pt₁].
+     destruct hsl₁; discriminate Hnp.
+
+     injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+     remember (minimise_slope (end_pt ms₁) pt₁ pts₂) as ms₂.
+     symmetry in Heqms₂.
+     eapply IHhsl₁ in Hnp.
+     eapply Qle_trans; [ idtac | eassumption ].
+
+bbb.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  destruct pts₁ as [| (l, αl)]; [ destruct hsl₁; discriminate Hnp | idtac ].
