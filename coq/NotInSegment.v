@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.132 2013-05-12 11:48:50 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.133 2013-05-12 12:11:20 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -918,6 +918,18 @@ assumption.
     apply minimise_slope_le in Heqms₁.
      rewrite HHnp in Heqms₁.
      eapply Qlt_le_trans; [ idtac | eassumption ].
+     assert (LocallySorted fst_lt [end_pt ms … rem_pts ms]) as Hso.
+      eapply minimise_slope_sorted; eassumption.
+
+      rewrite <- Heqpt₂, Heqpts₁ in Hso.
+      apply LSorted_inv_2 in Hso; destruct Hso; assumption.
+
+     rewrite <- Heqpts₁.
+     apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+     eapply LSorted_inv_1; eassumption.
+
+   rewrite <- Heqpts₁.
+   eapply minimise_slope_sorted; eassumption.
 bbb.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
