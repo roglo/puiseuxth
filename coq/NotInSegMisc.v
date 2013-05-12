@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.29 2013-05-12 10:48:13 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.30 2013-05-12 17:52:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -63,6 +63,86 @@ apply Qeq_shift_mult_l in H.
  symmetry; apply Qminus_eq; assumption.
 Qed.
 
+Lemma slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
+    (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+unfold slope_expr; simpl.
+rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
+rewrite Qmult_div_swap.
+rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
+repeat rewrite Qmult_minus_distr_l.
+repeat rewrite Qmult_minus_distr_r.
+repeat rewrite Qminus_minus_assoc.
+rewrite <- Qplus_cmp_compat_r.
+repeat rewrite <- Qcmp_plus_minus_cmp_r.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qplus_cmp_cmp_minus_r.
+setoid_replace (y₂ * x₃ + y₁ * x₂ + y₃ * x₁) with
+ (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
+setoid_replace (y₃ * x₂ + y₁ * x₃ + y₂ * x₁) with
+ (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
+reflexivity.
+Qed.
+
+Lemma slope_cmp_norm₁₂₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
+    (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+unfold slope_expr; simpl.
+rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
+rewrite Qmult_div_swap.
+rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
+repeat rewrite Qmult_minus_distr_l.
+repeat rewrite Qmult_minus_distr_r.
+repeat rewrite Qminus_minus_assoc.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qcmp_plus_minus_cmp_r.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qplus_cmp_cmp_minus_r.
+rewrite Qplus_comm, Qplus_assoc, Qplus_assoc.
+rewrite <- Qplus_cmp_compat_r.
+setoid_replace (y₃ * x₁ + y₂ * x₃ + y₁ * x₂) with
+ (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
+setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
+ (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
+reflexivity.
+Qed.
+
+Lemma slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
+    (x₁ * y₃ + x₂ * y₁ + x₃ * y₂ ?= x₁ * y₂ + x₂ * y₃ + x₃ * y₁).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+unfold slope_expr; simpl.
+rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
+rewrite Qmult_div_swap.
+rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
+repeat rewrite Qmult_minus_distr_l.
+repeat rewrite Qmult_minus_distr_r.
+repeat rewrite Qminus_minus_assoc.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qcmp_plus_minus_cmp_r.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qplus_cmp_cmp_minus_r.
+repeat rewrite <- Qplus_assoc.
+rewrite <- Qplus_cmp_compat_l.
+repeat rewrite Qplus_assoc.
+setoid_replace (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) with
+ (x₁ * y₃ + x₂ * y₁ + x₃ * y₂) by ring.
+setoid_replace (y₂ * x₁ + y₁ * x₃ + y₃ * x₂) with
+ (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
+reflexivity.
+Qed.
+
 Lemma slope_cmp₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
@@ -70,25 +150,8 @@ Lemma slope_cmp₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-unfold slope_expr; simpl.
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
-do 2 rewrite Qmult_div_swap.
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
-do 4 rewrite Qmult_minus_distr_l.
-do 7 rewrite Qmult_minus_distr_r.
-do 4 rewrite Qminus_minus_assoc.
-rewrite <- Qplus_cmp_compat_r.
-do 4 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
-rewrite <- Qplus_cmp_compat_l.
-do 4 rewrite <- Qcmp_plus_minus_cmp_r.
-do 8 rewrite <- Qplus_minus_swap.
-do 4 rewrite <- Qplus_cmp_cmp_minus_r.
-rewrite Qplus_plus_swap, Qplus_comm, Qplus_assoc.
-symmetry; rewrite Qplus_plus_swap.
-remember (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) as t.
-do 2 rewrite Qplus_comm, Qplus_assoc.
+rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
+rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
 Lemma slope_lt₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -100,6 +163,29 @@ intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
+
+(*
+Lemma slope_cmp₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
+    (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₃, y₃)).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+rewrite slope_cmp_norm₁₃₁₂; [ idtac | split; assumption ].
+rewrite slope_cmp_norm₂₃₁₃; [ idtac | split; assumption ].
+reflexivity.
+Qed.
+Lemma slope_lt₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₁, y₁) (x₂, y₂)
+    → slope_expr (x₂, y₂) (x₃, y₃) < slope_expr (x₁, y₁) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+rewrite Qlt_alt in H |- *; rewrite <- H.
+symmetry; apply slope_cmp₂; assumption.
+qed.
+*)
 
 Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
@@ -132,26 +218,6 @@ setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
  (y₂ * x₁ + y₃ * x₂ + y₁ * x₃) by ring.
 reflexivity.
 Qed.
-
-(*
-Lemma slope_cmp₄ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
-    (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)).
-Proof.
-bbb.
-*)
-(*
-Lemma slope_lt₄ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
-Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-intros H.
-bbb.
-*)
 
 Lemma slope_lt₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
