@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.31 2013-05-12 18:31:06 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.32 2013-05-12 18:52:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,6 +8,44 @@ Require Import ConvexHull.
 Require Import Puiseux.
 
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
+
+Lemma Qcmp_eq : ∀ a, (a ?= a) = Eq.
+Proof.
+intros a; apply Qeq_alt; reflexivity.
+Qed.
+
+Lemma Qcmp_lt_gt : ∀ a b, (a ?= b) = Lt → (b ?= a) = Gt.
+Proof.
+intros a b H; apply Qlt_alt in H; apply Qgt_alt; assumption.
+Qed.
+
+Lemma Qcmp_gt_lt : ∀ a b, (a ?= b) = Gt → (b ?= a) = Lt.
+Proof.
+intros a b H; apply Qgt_alt in H; apply Qlt_alt; assumption.
+Qed.
+
+Lemma Qcmp_sym : ∀ a b c d,
+  (a ?= b) = (c ?= d)
+  → (b ?= a) = (d ?= c).
+Proof.
+intros a b c d H.
+remember (a ?= b) as cmp.
+symmetry in Heqcmp, H.
+destruct cmp.
+ apply Qeq_alt in Heqcmp.
+ apply Qeq_alt in H.
+ rewrite Heqcmp, H.
+ do 2 rewrite Qcmp_eq.
+ reflexivity.
+
+ apply Qcmp_lt_gt in Heqcmp.
+ apply Qcmp_lt_gt in H.
+ rewrite <- H in Heqcmp; assumption.
+
+ apply Qcmp_gt_lt in Heqcmp.
+ apply Qcmp_gt_lt in H.
+ rewrite <- H in Heqcmp; assumption.
+Qed.
 
 Lemma slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   ¬x₁ == x₂
