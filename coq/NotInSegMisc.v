@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.33 2013-05-12 19:02:06 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.34 2013-05-12 20:14:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -47,6 +47,30 @@ destruct cmp.
  rewrite <- H in Heqcmp; assumption.
 Qed.
 
+Lemma slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
+  x₁ < x₂
+  → x₃ < x₄
+    → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₃, y₃) (x₄, y₄)) =
+      (y₂ * x₄ + y₁ * x₃ + y₃ * x₂ + y₄ * x₁ ?=
+       y₄ * x₂ + y₃ * x₁ + y₁ * x₄ + y₂ * x₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄ Hlt₁₂ Hlt₃₄.
+unfold slope_expr; simpl.
+rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
+rewrite Qmult_div_swap.
+rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
+repeat rewrite Qmult_minus_distr_l.
+repeat rewrite Qmult_minus_distr_r.
+repeat rewrite Qminus_minus_assoc.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qcmp_plus_minus_cmp_r.
+repeat rewrite <- Qplus_minus_swap.
+repeat rewrite <- Qplus_cmp_cmp_minus_r.
+reflexivity.
+Qed.
+
+(* should use 'slope_cmp_flatten' like the other lemmas, but pb with
+   conditions... *)
 Lemma slope_eq : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   ¬x₁ == x₂
   → ¬x₂ == x₃
@@ -99,28 +123,6 @@ apply Qeq_shift_mult_l in H.
 
  intros HH; apply H₁₂.
  symmetry; apply Qminus_eq; assumption.
-Qed.
-
-Lemma slope_cmp_flatten : ∀ x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄,
-  x₁ < x₂
-  → x₃ < x₄
-    → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₃, y₃) (x₄, y₄)) =
-      (y₂ * x₄ + y₁ * x₃ + y₃ * x₂ + y₄ * x₁ ?=
-       y₄ * x₂ + y₃ * x₁ + y₁ * x₄ + y₂ * x₃).
-Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ x₄ y₄ Hlt₁₂ Hlt₃₄.
-unfold slope_expr; simpl.
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qmult_div_swap.
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
-repeat rewrite Qmult_minus_distr_l.
-repeat rewrite Qmult_minus_distr_r.
-repeat rewrite Qminus_minus_assoc.
-repeat rewrite <- Qplus_minus_swap.
-repeat rewrite <- Qcmp_plus_minus_cmp_r.
-repeat rewrite <- Qplus_minus_swap.
-repeat rewrite <- Qplus_cmp_cmp_minus_r.
-reflexivity.
 Qed.
 
 Lemma slope_cmp_norm₁₂₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -250,34 +252,23 @@ Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
 Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-unfold slope_expr; simpl.
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
-do 2 rewrite Qmult_div_swap.
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
-rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
-do 4 rewrite Qmult_minus_distr_l.
-do 7 rewrite Qmult_minus_distr_r.
-do 4 rewrite Qminus_minus_assoc.
-do 4 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
-do 4 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
-rewrite <- Qplus_cmp_compat_l.
-rewrite Qminus_minus_swap with (y := y₂ * x₂).
-do 4 rewrite Qplus_minus_assoc.
-rewrite <- Qminus_cmp_compat_r.
-do 3 rewrite <- Qcmp_plus_minus_cmp_r.
-do 5 rewrite <- Qplus_minus_swap.
-do 3 rewrite <- Qplus_cmp_cmp_minus_r.
-setoid_replace (y₂ * x₃ + y₁ * x₂ + y₃ * x₁) with
- (y₁ * x₂ + y₃ * x₁ + y₂ * x₃) by ring.
-setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
- (y₂ * x₁ + y₃ * x₂ + y₁ * x₃) by ring.
+rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
+rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
+Qed.
+Lemma slope_lt₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
+    → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+rewrite Qlt_alt in H |- *; rewrite <- H.
+symmetry; apply slope_cmp₃; assumption.
 Qed.
 
 (* 1/ two lemmas very close to each other; another lemma to factorize them,
    perhaps? the most part is normalization *)
-(* 2/ perhaps could be proved shorter by 'slope_lt₁' or '₂' above? *)
+(* 2/ perhaps could be proved shorter by the lemmas above? *)
 Lemma ad_hoc_lt_lt₂ : ∀ i j k x y z,
   j < i < k
   → (x - z) / (i - j) < (y - x) / (k - i)
