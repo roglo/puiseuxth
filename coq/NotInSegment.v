@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.131 2013-05-12 10:48:13 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.132 2013-05-12 11:48:50 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -906,6 +906,18 @@ assumption.
      assumption.
 
     3: symmetry; assumption.
+
+   split.
+    remember Hsort as Hsort₂; clear HeqHsort₂.
+    apply LSorted_inv_2 in Hsort; destruct Hsort.
+    apply minimise_slope_le in Hms; [ idtac | assumption ].
+    rewrite <- Heqpt₂ in Hms.
+    eapply Qlt_le_trans; eassumption.
+
+    remember Heqms₁ as Hms₁; clear HeqHms₁.
+    apply minimise_slope_le in Heqms₁.
+     rewrite HHnp in Heqms₁.
+     eapply Qlt_le_trans; [ idtac | eassumption ].
 bbb.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
