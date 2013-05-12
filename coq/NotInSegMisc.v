@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.28 2013-05-11 02:07:21 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.29 2013-05-12 10:48:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -101,8 +101,40 @@ rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
 
-(*
 Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
+    (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+unfold slope_expr; simpl.
+rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
+rewrite Qcmp_shift_mult_r; [ idtac | apply Qlt_minus; assumption ].
+do 2 rewrite Qmult_div_swap.
+rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
+rewrite Qcmp_shift_mult_l; [ idtac | apply Qlt_minus; assumption ].
+do 4 rewrite Qmult_minus_distr_l.
+do 7 rewrite Qmult_minus_distr_r.
+do 4 rewrite Qminus_minus_assoc.
+do 4 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
+do 4 rewrite <- Qplus_minus_swap, <- Qplus_minus_assoc.
+rewrite <- Qplus_cmp_compat_l.
+rewrite Qminus_minus_swap with (y := y₂ * x₂).
+do 4 rewrite Qplus_minus_assoc.
+rewrite <- Qminus_cmp_compat_r.
+do 3 rewrite <- Qcmp_plus_minus_cmp_r.
+do 5 rewrite <- Qplus_minus_swap.
+do 3 rewrite <- Qplus_cmp_cmp_minus_r.
+setoid_replace (y₂ * x₃ + y₁ * x₂ + y₃ * x₁) with
+ (y₁ * x₂ + y₃ * x₁ + y₂ * x₃) by ring.
+setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
+ (y₂ * x₁ + y₃ * x₂ + y₁ * x₃) by ring.
+reflexivity.
+Qed.
+
+(*
+Lemma slope_cmp₄ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
     (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)).
@@ -110,7 +142,7 @@ Proof.
 bbb.
 *)
 (*
-Lemma slope_lt₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt₄ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).

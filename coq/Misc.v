@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.20 2013-05-10 19:41:30 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.21 2013-05-12 10:48:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -249,6 +249,9 @@ Proof. intros; ring. Qed.
 Lemma Qplus_minus_swap : ∀ x y z, x + y - z == x - z + y.
 Proof. intros; ring. Qed.
 
+Lemma Qminus_minus_swap : ∀ x y z, x - y - z == x - z - y.
+Proof. intros; ring. Qed.
+
 Lemma Qplus_lt_compat_r : ∀ x y z, x < y → x + z < y + z.
 Proof.
 intros (x₁, x₂) (y₁, y₂) (z₁, z₂) H.
@@ -374,6 +377,12 @@ rewrite Z.mul_shuffle1 in Heqt; subst t.
 apply Zmult_cmp_compat_r.
 rewrite <- Pos2Z.inj_mul.
 apply Pos2Z.is_pos.
+Qed.
+
+Lemma Qminus_cmp_compat_r : ∀ x y z,
+  (x ?= y) = (x - z ?= y - z).
+Proof.
+intros; unfold Qminus; apply Qplus_cmp_compat_r.
 Qed.
 
 Lemma Qcmp_plus_minus_cmp_r : ∀ x y z,
