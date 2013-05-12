@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.32 2013-05-12 18:52:05 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.33 2013-05-12 19:02:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -142,6 +142,14 @@ setoid_replace (y₁ * x₃ + y₂ * x₁ + y₃ * x₂) with
 reflexivity.
 Qed.
 
+Lemma slope_cmp_norm₁₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
+    (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
+Proof.
+intros; apply Qcmp_sym, slope_cmp_norm₁₂₁₃; assumption.
+Qed.
+
 Lemma slope_cmp_norm₁₂₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
@@ -157,6 +165,14 @@ setoid_replace (y₃ * x₁ + y₂ * x₃ + y₁ * x₂) with
 setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
  (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
 reflexivity.
+Qed.
+
+Lemma slope_cmp_norm₂₃₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+ → (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
+   (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
+Proof.
+intros; apply Qcmp_sym, slope_cmp_norm₁₂₂₃; assumption.
 Qed.
 
 Lemma slope_cmp_norm₁₃₂₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -175,6 +191,14 @@ setoid_replace (y₁ * x₂ + y₂ * x₃ + y₃ * x₁) with
 setoid_replace (y₂ * x₁ + y₁ * x₃ + y₃ * x₂) with
  (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) by ring.
 reflexivity.
+Qed.
+
+Lemma slope_cmp_norm₂₃₁₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
+    (x₁ * y₂ + x₂ * y₃ + x₃ * y₁ ?= x₁ * y₃ + x₂ * y₁ + x₃ * y₂).
+Proof.
+intros; apply Qcmp_sym, slope_cmp_norm₁₃₂₃; assumption.
 Qed.
 
 Lemma slope_cmp₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -198,7 +222,6 @@ rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
 
-(*
 Lemma slope_cmp₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
@@ -215,11 +238,10 @@ Lemma slope_lt₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₁, y₁) (x₂, y₂)
     → slope_expr (x₂, y₂) (x₃, y₃) < slope_expr (x₁, y₁) (x₃, y₃).
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₂; assumption.
-qed.
-*)
+Qed.
 
 Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
@@ -251,51 +273,6 @@ setoid_replace (y₂ * x₃ + y₁ * x₂ + y₃ * x₁) with
 setoid_replace (y₃ * x₂ + y₂ * x₁ + y₁ * x₃) with
  (y₂ * x₁ + y₃ * x₂ + y₁ * x₃) by ring.
 reflexivity.
-Qed.
-
-Lemma slope_lt₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₁, y₁) (x₂, y₂)
-    → slope_expr (x₂, y₂) (x₃, y₃) < slope_expr (x₁, y₁) (x₃, y₃).
-Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
-assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
-intros H.
-unfold slope_expr in H |-*.
-apply Qlt_shift_mult_r in H; [ idtac | apply Qlt_minus; assumption ].
-apply Qlt_shift_div_r; [ apply Qlt_minus; assumption | idtac ].
-rewrite Qmult_comm, Qmult_div_assoc in H |- *.
-apply Qlt_shift_mult_l in H; [ idtac | apply Qlt_minus; assumption ].
-apply Qlt_shift_div_l; [ apply Qlt_minus; assumption | idtac ].
-setoid_replace ((x₂ - x₁) * (y₃ - y₁)) with
- (x₂ * y₃ - x₂ * y₁ - x₁ * y₃ + x₁ * y₁) in H by ring.
-setoid_replace ((y₂ - y₁) * (x₃ - x₁)) with
- (x₃ * y₂ - x₃ * y₁ - x₁ * y₂ + x₁ * y₁) in H by ring.
-setoid_replace ((y₃ - y₂) * (x₃ - x₁)) with
- (x₁ * y₂ - x₃ * y₂ - x₁ * y₃ + x₃ * y₃) by ring.
-setoid_replace ((x₃ - x₂) * (y₃ - y₁)) with
- (x₂ * y₁ - x₃ * y₁ - x₂ * y₃ + x₃ * y₃) by ring.
-apply Qplus_lt_l in H.
-apply Qplus_lt_l.
-apply Qminus_lt_lt_plus_r in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qlt_minus_plus_lt_r in H.
-rewrite <- Qplus_minus_swap in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qminus_lt_lt_plus_r in H.
-rewrite <- Qplus_minus_swap in H.
-apply Qlt_minus_plus_lt_r in H.
-apply Qlt_plus_minus_lt_r.
-apply Qlt_plus_minus_lt_r.
-do 2 rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r.
-do 2 rewrite <- Qplus_minus_swap.
-apply Qplus_lt_lt_minus_r.
-setoid_replace (x₁ * y₂ + x₂ * y₃ + x₃ * y₁) with
- (x₂ * y₃ + x₁ * y₂ + x₃ * y₁) by ring.
-setoid_replace (x₂ * y₁ + x₁ * y₃ + x₃ * y₂) with
- (x₃ * y₂ + x₁ * y₃ + x₂ * y₁) by ring.
-assumption.
 Qed.
 
 (* 1/ two lemmas very close to each other; another lemma to factorize them,
