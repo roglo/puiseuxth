@@ -1,9 +1,8 @@
-(* $Id: ConvexHullMisc.v,v 1.1 2013-05-13 02:33:46 deraugla Exp $ *)
+(* $Id: ConvexHullMisc.v,v 1.2 2013-05-13 03:01:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
-
 Require Import ConvexHull.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
