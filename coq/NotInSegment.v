@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.145 2013-05-13 18:01:22 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.146 2013-05-13 18:29:42 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -803,6 +803,45 @@ induction hsl₁ as [| hs₁]; intros.
 
   injection Hnp; clear Hnp; intros; subst l αl.
   apply Qlt_irrefl in Hlj; contradiction.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
+ symmetry in Heqms₁.
+ rewrite Hend in Heqms₁.
+ destruct pt₁ as (m, αm).
+ remember (end_pt ms₁) as pt₂.
+ destruct pt₂ as (p, αp).
+ rewrite Heqpt₂ in Hnp.
+bbb.
+ (* éliminer le cas p = j d'abord *)
+ eapply IHhsl₁ in Hnp.
+  5: eassumption.
+
+  5: symmetry in Heqpt₂; eassumption.
+
+  Focus 2.
+  rewrite <- Hend, Heqpts₁.
+  eapply minimise_slope_sorted; eassumption.
+
+  Focus 2.
+  apply Qlt_le_trans with (y := m).
+   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+   rewrite Hend, <- Heqpts₁ in Hms.
+   apply LSorted_inv_2 in Hms; destruct Hms; assumption.
+
+   apply minimise_slope_le in Heqms₁.
+    rewrite <- Heqpt₂ in Heqms₁; assumption.
+
+    apply minimise_slope_sorted in Hms.
+     rewrite <- Heqpts₁ in Hms.
+     eapply LSorted_inv_1; eassumption.
+
+     assumption.
+
+  Focus 2.
 bbb.
 
 revert n pts h αh i αi j αj k αk segjx segkx hsl ms Hsort Hhjk Hms Hnp Hk.
