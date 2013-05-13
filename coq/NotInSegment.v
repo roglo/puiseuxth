@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.144 2013-05-13 17:52:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.145 2013-05-13 18:01:22 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -798,7 +798,10 @@ induction hsl₁ as [| hs₁]; intros.
  remember (rem_pts ms) as pts₁.
  rewrite Hend in Hnp.
  destruct pts₁ as [| pt₁].
-  injection Hnp; clear Hnp; intros; subst hsl l αl.
+  injection Hnp; clear Hnp; intros; subst l αl.
+  apply Qlt_irrefl in Hlj; contradiction.
+
+  injection Hnp; clear Hnp; intros; subst l αl.
   apply Qlt_irrefl in Hlj; contradiction.
 bbb.
 
