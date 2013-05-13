@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.135 2013-05-13 02:33:46 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.136 2013-05-13 08:29:18 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -879,11 +879,7 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite <- Hnp, <- H.
   remember Heqms₁ as HH; clear HeqHH.
   eapply minimised_slope in HH; [ idtac | reflexivity ].
-  eapply Qlt_trans; [ idtac | eapply consec_slope_lt ].
-   4: eassumption.
-
-   3: eassumption.
-
+  apply Qlt_trans with (y := slope ms₁).
    remember Hms as HHH; clear HeqHHH.
    eapply minimised_slope in HHH; [ idtac | reflexivity ].
    rewrite HH.
@@ -925,10 +921,15 @@ induction hsl₁ as [| hs₁]; intros.
 
      assumption.
 
-   rewrite <- Heqpts₁.
-   eapply minimise_slope_sorted; eassumption.
+   eapply consec_slope_lt.
+    2: eassumption.
 
-   symmetry; assumption.
+    2: eassumption.
+
+    2: symmetry; assumption.
+
+    rewrite <- Heqpts₁.
+    eapply minimise_slope_sorted; eassumption.
 bbb.
 *)
 
