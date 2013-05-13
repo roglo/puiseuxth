@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.139 2013-05-13 09:03:17 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.140 2013-05-13 09:38:29 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -832,7 +832,6 @@ intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
-bbb.
 revert n ms h αh i αi j αj segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
@@ -863,7 +862,8 @@ induction hsl₁ as [| hs₁]; intros.
  symmetry in Heqms₁.
  symmetry in Heqpts₁.
  clear IHhsl₁.
- destruct hsl₁ as [| hs₁].
+ revert n ms h αh i αi pts l αl pts₁ ms₁ Hms Heqpts₁ Hsort Hhjk Heqms₁ Hnp.
+ induction hsl₁ as [| hs₁]; intros.
   remember Hnp as HHnp; clear HeqHHnp.
   apply next_ch_points_hd in HHnp.
   rewrite <- HHnp.
@@ -918,6 +918,24 @@ induction hsl₁ as [| hs₁]; intros.
    symmetry in Heqpts₂.
    rewrite Heqpts₁ in Hsort.
    eapply consec_slope_lt; eassumption.
+
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  remember (rem_pts ms₁) as pts₂.
+  destruct pts₂ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+  remember (minimise_slope (end_pt ms₁) pt₁ pts₂) as ms₂.
+  symmetry in Heqms₂.
+  destruct pt₁ as (q, αq).
+  remember (end_pt ms) as pt₂.
+  destruct pt₂ as (r, αr).
+  eapply IHhsl₁ in Hnp.
+   6: eassumption.
+
+   2: eassumption.
+
+   2: symmetry in Heqpts₂; assumption.
+
+   eapply Qlt_trans; [ idtac | eassumption ].
 bbb.
 *)
 
