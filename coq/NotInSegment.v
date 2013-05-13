@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.143 2013-05-13 17:48:39 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.144 2013-05-13 17:52:30 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -791,15 +791,15 @@ Lemma yyy : ∀ n pts h αh i αi j αj l αl segjx hsl₁ hsl ms,
           → slope_expr (h, αh) (j, αj) < slope_expr (l, αl) (j, αj).
 Proof.
 intros n pts h αh i αi j αj l αl segjx hsl₁ hsl ms.
-intros Hsort Hhj Hms Hend Hnp.
-revert n pts h αh i αi j αj l αl segjx hsl ms Hsort Hhj Hms Hnp Hend.
+intros Hsort (Hhl, Hlj) Hms Hend Hnp.
+revert n pts h αh i αi j αj l αl segjx hsl ms Hsort Hhl Hlj Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  rewrite Hend in Hnp.
  destruct pts₁ as [| pt₁].
   injection Hnp; clear Hnp; intros; subst hsl l αl.
-Admitted. (*
+  apply Qlt_irrefl in Hlj; contradiction.
 bbb.
 
 revert n pts h αh i αi j αj k αk segjx segkx hsl ms Hsort Hhjk Hms Hnp Hk.
