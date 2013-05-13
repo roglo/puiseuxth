@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.136 2013-05-13 08:29:18 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.137 2013-05-13 08:34:55 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -910,16 +910,8 @@ induction hsl₁ as [| hs₁]; intros.
 
     rewrite Hend₁ in HH.
     rewrite <- HH, <- HHH.
-    eapply consec_slope_lt.
-     2: eassumption.
-
-     rewrite Heqpt₂ in Heqms₁.
-     2: rewrite Heqpt₂ in Heqms₁.
-     2: eassumption.
-
-     2: assumption.
-
-     assumption.
+    rewrite Heqpt₂ in Heqms₁.
+    eapply consec_slope_lt; eassumption.
 
    eapply consec_slope_lt.
     2: eassumption.
