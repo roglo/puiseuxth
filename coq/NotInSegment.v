@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.149 2013-05-13 20:39:39 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.150 2013-05-13 21:05:57 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1033,33 +1033,10 @@ apply next_ch_points_hd in H.
 rename H into Hend₁.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst l αl.
-(*
  eapply zzz with (hsl₁ := []); try eassumption.
- ...
-*)
- symmetry in Hend₁.
- remember Heqms₁ as H; clear HeqH.
- eapply minimised_slope in H; [ idtac | eassumption ].
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms₁) as pts₁.
- destruct pts₁ as [| pt₁]; [ discriminate Hnp | idtac ].
- remember (minimise_slope (end_pt ms₁) pt₁ pts₁) as ms₂.
- symmetry in Heqms₂.
- injection Hnp; clear Hnp; intros Hnp; intros.
- subst segjk.
- symmetry in Heqpts₁.
- eapply consec_slope_lt in Heqms₁; try eassumption.
- rewrite H in Heqms₁.
- rewrite <- Hend₁ in Heqms₂.
- apply next_ch_points_hd in Hnp.
- symmetry in Hnp.
- eapply minimised_slope in Heqms₂; [ idtac | eassumption ].
- rewrite Heqms₂ in Heqms₁.
- unfold slope_expr in Heqms₁.
- simpl in Heqms₁.
- eapply ad_hoc_lt_lt₂; try eassumption.
  split; assumption.
 
+(**)
  destruct Hαh as [Hαh| Hαh].
   injection Hαh; clear Hαh; intros; subst m αm.
   assert (slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk))
@@ -1170,6 +1147,7 @@ destruct hsl₁ as [| hs₁].
    destruct pt₂.
    eapply conj in Hjk; [ idtac | eexact Hhj ].
    eapply zzz with (hsl₁ := [hs₂ … hsl₁]); eassumption.
+
 bbb.
 *)
 
