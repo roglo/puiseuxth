@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.7 2013-05-10 15:05:58 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.8 2013-05-13 02:25:47 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -10,11 +10,6 @@ Require Import ConvexHull.
 Require Import Puiseux.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
-
-Section convex_hull.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
 
 Lemma two_pts_slope_form : ∀ j αy seg₁ k αk seg₂ hsl,
   LocallySorted hs_x_lt [ahs (j, αy) seg₁; ahs (k, αk) seg₂ … hsl]
@@ -124,6 +119,13 @@ destruct pts as [| pt₁].
     eapply IHhsl₁; eassumption.
 Qed.
 
+(* *)
+
+Section puiseux_series.
+
+Variable α : Type.
+Variable fld : field (puiseux_series α).
+
 Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
@@ -176,4 +178,4 @@ destruct Hns as [Hns| Hns].
  eapply IHhsl; eassumption.
 Qed.
 
-End convex_hull.
+End puiseux_series.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.473 2013-05-11 03:12:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.474 2013-05-13 02:25:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -105,18 +105,8 @@ Definition newton_segments α fld pol :=
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 Arguments newton_segments : default implicits.
 
-Section convex_hull.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
-
 Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
   (y₂ - y₁) / (x₂ - x₁) = slope_expr (x₁, y₁) (x₂, y₂).
-Proof. reflexivity. Qed.
-
-Lemma fold_points_of_ps_polynom_gen : ∀ pow cl cn,
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
-  points_of_ps_polynom_gen α fld pow cl cn.
 Proof. reflexivity. Qed.
 
 Definition fst_lt (x y : Q * Q) := (fst x < fst y).
@@ -219,48 +209,6 @@ destruct Hin as [Hin| Hin].
 Qed.
 
 (* *)
-
-Lemma points_of_polyn_sorted : ∀ deg cl cn pts,
-  pts = points_of_ps_polynom_gen α fld deg cl cn
-  → LocallySorted fst_lt pts.
-Proof.
-intros deg cl cn pts Hpts.
-revert deg cn pts Hpts.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (is_zero_dec fld cn); subst pts; constructor.
-
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (is_zero_dec fld c) as [Heq| Hne].
-  eapply IHcl; eassumption.
-
-  remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
-  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
-  clear IHcl.
-  clear Hne.
-  revert c deg cn pts Hpts.
-  induction cl as [| c₂]; intros.
-   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   destruct (is_zero_dec fld cn) as [Heq| Hne].
-    subst pts; constructor.
-
-    subst pts.
-    constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
-
-   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   rewrite fold_points_of_ps_polynom_gen in Hpts.
-   destruct (is_zero_dec fld c₂) as [Heq| Hne].
-    eapply IHcl with (c := c) in Hpts.
-    destruct pts as [| pt]; [ constructor | idtac ].
-    apply LSorted_inv_2 in Hpts.
-    destruct Hpts as (Hlt, Hpts).
-    constructor; [ assumption | idtac ].
-    eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
-
-    subst pts.
-    constructor; [ eapply IHcl; reflexivity | apply Qnat_lt, lt_n_Sn ].
-Qed.
 
 Lemma minimise_slope_le : ∀ pt₁ pt₂ pts₂ ms,
   LocallySorted fst_lt [pt₂ … pts₂]
@@ -424,4 +372,51 @@ induction pts as [| pt₃]; intros.
   eapply IHpts; eassumption.
 Qed.
 
-End convex_hull.
+(* *)
+
+Lemma fold_points_of_ps_polynom_gen : ∀ α fld pow cl cn,
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
+  points_of_ps_polynom_gen α fld pow cl cn.
+Proof. reflexivity. Qed.
+
+Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
+  pts = points_of_ps_polynom_gen α fld deg cl cn
+  → LocallySorted fst_lt pts.
+Proof.
+intros α fld deg cl cn pts Hpts.
+revert deg cn pts Hpts.
+induction cl as [| c]; intros.
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ destruct (is_zero_dec fld cn); subst pts; constructor.
+
+ unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+ rewrite fold_points_of_ps_polynom_gen in Hpts.
+ destruct (is_zero_dec fld c) as [Heq| Hne].
+  eapply IHcl; eassumption.
+
+  remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
+  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
+  clear IHcl.
+  clear Hne.
+  revert c deg cn pts Hpts.
+  induction cl as [| c₂]; intros.
+   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+   destruct (is_zero_dec fld cn) as [Heq| Hne].
+    subst pts; constructor.
+
+    subst pts.
+    constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
+
+   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+   rewrite fold_points_of_ps_polynom_gen in Hpts.
+   destruct (is_zero_dec fld c₂) as [Heq| Hne].
+    eapply IHcl with (c := c) in Hpts.
+    destruct pts as [| pt]; [ constructor | idtac ].
+    apply LSorted_inv_2 in Hpts.
+    destruct Hpts as (Hlt, Hpts).
+    constructor; [ assumption | idtac ].
+    eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
+
+    subst pts.
+    constructor; [ eapply IHcl; reflexivity | apply Qnat_lt, lt_n_Sn ].
+Qed.
