@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.146 2013-05-13 18:29:42 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.147 2013-05-13 19:43:54 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -815,33 +815,58 @@ induction hsl₁ as [| hs₁]; intros.
  remember (end_pt ms₁) as pt₂.
  destruct pt₂ as (p, αp).
  rewrite Heqpt₂ in Hnp.
-bbb.
- (* éliminer le cas p = j d'abord *)
- eapply IHhsl₁ in Hnp.
-  5: eassumption.
+ destruct hsl₁ as [| hs₁].
+  remember Hnp as HHnp; clear HeqHHnp.
+  apply next_ch_points_hd in Hnp.
+  rewrite <- Heqpt₂ in Hnp.
+  injection Hnp; clear Hnp; intros; subst p αp.
+  apply slope_lt₃₁; [ split; assumption | idtac ].
+  rewrite <- minimised_slope.
+   3: symmetry in Hend; eassumption.
 
-  5: symmetry in Heqpt₂; eassumption.
+   2: eassumption.
 
-  Focus 2.
-  rewrite <- Hend, Heqpts₁.
-  eapply minimise_slope_sorted; eassumption.
+   rewrite <- minimised_slope.
+    3: eassumption.
 
-  Focus 2.
-  apply Qlt_le_trans with (y := m).
-   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
-   rewrite Hend, <- Heqpts₁ in Hms.
-   apply LSorted_inv_2 in Hms; destruct Hms; assumption.
+    2: eassumption.
 
-   apply minimise_slope_le in Heqms₁.
-    rewrite <- Heqpt₂ in Heqms₁; assumption.
+    eapply consec_slope_lt; try eassumption.
+     rewrite Hend; eassumption.
 
-    apply minimise_slope_sorted in Hms.
-     rewrite <- Heqpts₁ in Hms.
-     eapply LSorted_inv_1; eassumption.
+     symmetry; eassumption.
 
-     assumption.
+  eapply IHhsl₁ in Hnp.
+   5: eassumption.
 
-  Focus 2.
+   5: symmetry in Heqpt₂; eassumption.
+
+   Focus 2.
+   rewrite <- Hend, Heqpts₁.
+   eapply minimise_slope_sorted; eassumption.
+
+   Focus 2.
+   apply Qlt_le_trans with (y := m).
+    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+    rewrite Hend, <- Heqpts₁ in Hms.
+    apply LSorted_inv_2 in Hms; destruct Hms; assumption.
+
+    apply minimise_slope_le in Heqms₁.
+     rewrite <- Heqpt₂ in Heqms₁; assumption.
+
+     apply minimise_slope_sorted in Hms.
+      rewrite <- Heqpts₁ in Hms.
+      eapply LSorted_inv_1; eassumption.
+
+      assumption.
+
+   Focus 2.
+   apply next_ch_points_sorted in Hnp.
+    rewrite <- Heqpt₂ in Hnp; assumption.
+
+    eapply minimise_slope_sorted; [ idtac | eassumption ].
+    rewrite <- Hend, Heqpts₁.
+    eapply minimise_slope_sorted; eassumption.
 bbb.
 
 revert n pts h αh i αi j αj k αk segjx segkx hsl ms Hsort Hhjk Hms Hnp Hk.
