@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.36 2013-05-13 02:33:46 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.37 2013-05-13 09:03:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -215,7 +215,7 @@ rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt₁₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
@@ -223,6 +223,15 @@ Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
+Qed.
+Lemma slope_lt₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃)
+    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+rewrite Qlt_alt in H |- *; rewrite <- H.
+apply slope_cmp₁; assumption.
 Qed.
 
 Lemma slope_cmp₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
@@ -257,7 +266,7 @@ rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt₃₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
@@ -265,6 +274,45 @@ Proof.
 intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₃; assumption.
+Qed.
+Lemma slope_lt₃₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃)
+    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+rewrite Qlt_alt in H |- *; rewrite <- H.
+apply slope_cmp₃; assumption.
+Qed.
+
+Lemma slope_cmp₄ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
+    (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
+rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
+rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
+reflexivity.
+Qed.
+Lemma slope_lt₄₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃)
+    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+rewrite Qlt_alt in H |- *; rewrite <- H.
+symmetry; apply slope_cmp₄; assumption.
+Qed.
+Lemma slope_lt₄₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+  x₁ < x₂ < x₃
+  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
+    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
+Proof.
+intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+rewrite Qlt_alt in H |- *; rewrite <- H.
+apply slope_cmp₄; assumption.
 Qed.
 
 (* 1/ two lemmas very close to each other; another lemma to factorize them,

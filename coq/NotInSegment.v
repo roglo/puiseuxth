@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.138 2013-05-13 08:40:07 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.139 2013-05-13 09:03:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -200,7 +200,7 @@ intros pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃ Hsort Hms₁₃ Hms₂₃ Heqc.
 revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
- apply slope_lt₁; [ idtac | assumption ].
+ apply slope_lt₁₁; [ idtac | assumption ].
  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  split; assumption.
@@ -229,7 +229,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    rewrite <- Heqc₁.
    rewrite <- Heqc₁ in Heqc.
-   apply slope_lt₁; [ idtac | assumption ].
+   apply slope_lt₁₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
@@ -246,14 +246,14 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    rewrite <- Heqc₂.
-   apply slope_lt₁; [ idtac | assumption ].
+   apply slope_lt₁₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
 
    apply Qlt_alt in Heqc₂.
    subst ms₂₃; simpl.
-   apply slope_lt₁; [ idtac | assumption ].
+   apply slope_lt₁₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
@@ -280,7 +280,7 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    eapply Qlt_trans; [ eassumption | idtac ].
    eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
-   apply slope_lt₁; [ idtac | assumption ].
+   apply slope_lt₁₁; [ idtac | assumption ].
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
@@ -832,6 +832,7 @@ intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
+bbb.
 revert n ms h αh i αi j αj segjk segkx pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hms as H; clear HeqH.
@@ -886,7 +887,7 @@ induction hsl₁ as [| hs₁]; intros.
    remember (end_pt ms) as pt₂.
    destruct pt₂ as (m, αm).
    rewrite Hend₁.
-   apply slope_lt₃.
+   apply slope_lt₃₁.
     split.
      remember Hsort as Hsort₂; clear HeqHsort₂.
      apply LSorted_inv_2 in Hsort; destruct Hsort.
