@@ -1,10 +1,11 @@
-(* $Id: NotInSegMisc.v,v 1.35 2013-05-13 02:25:47 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.36 2013-05-13 02:33:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
 Require Import Misc.
 Require Import ConvexHull.
+Require Import ConvexHullMisc.
 Require Import Puiseux.
 
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).

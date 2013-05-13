@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.8 2013-05-13 02:25:47 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.9 2013-05-13 02:33:46 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -7,6 +7,7 @@ Require Import QArith.
 Require Import Sorting.
 Require Import Misc.
 Require Import ConvexHull.
+Require Import ConvexHullMisc.
 Require Import Puiseux.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).

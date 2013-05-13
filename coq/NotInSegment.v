@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.134 2013-05-12 20:14:48 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.135 2013-05-13 02:33:46 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -7,6 +7,7 @@ Require Import QArith.
 Require Import Sorting.
 Require Import Misc.
 Require Import ConvexHull.
+Require Import ConvexHullMisc.
 Require Import Puiseux.
 Require Import NotInSegMisc.
 
