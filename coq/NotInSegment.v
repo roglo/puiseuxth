@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.142 2013-05-13 16:36:56 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.143 2013-05-13 17:48:39 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -783,7 +783,7 @@ Qed.
 
 Lemma yyy : ∀ n pts h αh i αi j αj l αl segjx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
-  → h < j
+  → h < l < j
     → minimise_slope (h, αh) (i, αi) pts = ms
       → end_pt ms = (l, αl)
         → next_ch_points n [end_pt ms … rem_pts ms] =
@@ -792,6 +792,14 @@ Lemma yyy : ∀ n pts h αh i αi j αj l αl segjx hsl₁ hsl ms,
 Proof.
 intros n pts h αh i αi j αj l αl segjx hsl₁ hsl ms.
 intros Hsort Hhj Hms Hend Hnp.
+revert n pts h αh i αi j αj l αl segjx hsl ms Hsort Hhj Hms Hnp Hend.
+induction hsl₁ as [| hs₁]; intros.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ rewrite Hend in Hnp.
+ destruct pts₁ as [| pt₁].
+  injection Hnp; clear Hnp; intros; subst hsl l αl.
+Admitted. (*
 bbb.
 
 revert n pts h αh i αi j αj k αk segjx segkx hsl ms Hsort Hhjk Hms Hnp Hk.
@@ -870,7 +878,7 @@ induction hsl₁ as [| hs₁]; intros.
 
   assumption.
 
-  eapply Qlt_trans; destruct Hhjk; eassumption.
+  assumption.
 
   apply next_ch_points_hd in Hnp; assumption.
 
@@ -891,9 +899,26 @@ induction hsl₁ as [| hs₁]; intros.
 
    assumption.
 
-   eapply Qlt_trans; destruct Hhjk; eassumption.
+   split.
+    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+    apply minimise_slope_le in Hms; [ idtac | assumption ].
+    rewrite <- Heqpt₁ in Hms.
+    eapply Qlt_le_trans; eassumption.
 
-   symmetry; assumption.
+    rewrite <- Heqpt₁ in Hnp.
+    replace l with (fst (l, αl)) by reflexivity.
+    replace k with (fst (k, αk)) by reflexivity.
+    eapply
+     next_ch_points_sorted
+      with (hsl₁ := hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]).
+     rewrite Heqpt₁.
+     eapply minimise_slope_sorted; eassumption.
+
+     simpl in Hnp |- *.
+     rewrite <- List.app_assoc.
+     simpl; eassumption.
+
+   symmetry in Heqpt₁; assumption.
 
   destruct n; [ discriminate Hnp | simpl in Hnp ].
   remember (rem_pts ms) as pts₁.
