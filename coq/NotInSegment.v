@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.160 2013-05-14 08:37:44 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.161 2013-05-14 08:42:49 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -831,39 +831,33 @@ induction hsl₁ as [| hs₁]; intros.
   remember Hnp as Hnp₁; clear HeqHnp₁.
   symmetry in Heqpt₂.
   eapply IHhsl₁ with (h := j) (j := p) in Hnp; try eassumption.
-   apply slope_lt₃₁.
-    split; assumption.
+   apply slope_lt₃₁; [ split; assumption | idtac ].
+   apply Qlt_trans with (y := slope_expr (j, αj) (p, αp)).
+    symmetry in Hend.
+    rewrite <- minimised_slope; try eassumption.
+    symmetry in Heqpt₂.
+    rewrite <- minimised_slope; try eassumption.
+    symmetry in Heqpts₁.
+    rewrite Hend in Heqms₁.
+    eapply consec_slope_lt; eassumption.
 
-    apply Qlt_trans with (y := slope_expr (j, αj) (p, αp)).
-     symmetry in Hend.
-     rewrite <- minimised_slope; try eassumption.
-     symmetry in Heqpt₂.
-     rewrite <- minimised_slope; try eassumption.
-     symmetry in Heqpts₁.
-     rewrite Hend in Heqms₁.
-     eapply consec_slope_lt; eassumption.
+    apply slope_lt₁₂; [ idtac | assumption ].
+    split.
+     eapply minimise_slope_sorted in Hms; [ idtac | assumption ].
+     rewrite Hend, <- Heqpts₁ in Hms.
+     apply LSorted_inv_2 in Hms.
+     destruct Hms as (Hlt, Hms).
+     eapply Qlt_le_trans; [ eassumption | idtac ].
+     simpl.
+     eapply minimise_slope_le in Heqms₁; [ idtac | eassumption ].
+     rewrite Heqpt₂ in Heqms₁; assumption.
 
-     apply slope_lt₁₂; [ idtac | assumption ].
-     split.
-      eapply minimise_slope_sorted in Hms.
-       rewrite Hend, <- Heqpts₁ in Hms.
-       apply LSorted_inv_2 in Hms.
-       destruct Hms as (Hlt, Hms).
-       eapply Qlt_le_trans; [ eassumption | idtac ].
-       simpl.
-       eapply minimise_slope_le in Heqms₁.
-        rewrite Heqpt₂ in Heqms₁; assumption.
+     apply next_ch_points_sorted in Hnp₁.
+      rewrite Heqpt₂ in Hnp₁; assumption.
 
-        assumption.
-
-       assumption.
-
-      apply next_ch_points_sorted in Hnp₁.
-       rewrite Heqpt₂ in Hnp₁; assumption.
-
-       eapply minimise_slope_sorted; [ idtac | eassumption ].
-       rewrite <- Hend, Heqpts₁.
-       eapply minimise_slope_sorted; eassumption.
+      eapply minimise_slope_sorted; [ idtac | eassumption ].
+      rewrite <- Hend, Heqpts₁.
+      eapply minimise_slope_sorted; eassumption.
 
    rewrite <- Hend, Heqpts₁.
    eapply minimise_slope_sorted; eassumption.
@@ -876,11 +870,9 @@ induction hsl₁ as [| hs₁]; intros.
     apply minimise_slope_le in Heqms₁.
      rewrite Heqpt₂ in Heqms₁; assumption.
 
-     apply minimise_slope_sorted in Hms.
-      rewrite <- Heqpts₁ in Hms.
-      eapply LSorted_inv_1; eassumption.
-
-      assumption.
+     apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+     rewrite <- Heqpts₁ in Hms.
+     eapply LSorted_inv_1; eassumption.
 
    apply next_ch_points_sorted in Hnp.
     rewrite Heqpt₂ in Hnp; assumption.
