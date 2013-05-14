@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.163 2013-05-14 09:57:54 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.164 2013-05-14 13:58:37 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -960,51 +960,34 @@ Lemma sl_lt_bef_j_2nd : ∀ n pts g αg h αh j αj k αk segkx hsl₁ hsl ms,
 Proof.
 intros n pts g αg h αh j αj k αk segkx hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
-revert n pts g αg h αh j αj k αk segkx hsl ms Hsort Hhj Hjk Hms Hend Hnp.
-induction hsl₁ as [| hs₁]; intros.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms) as pts₁.
- rewrite Hend in Hnp.
- destruct pts₁ as [| pt₁].
-  injection Hnp; clear Hnp; intros; subst j αj.
-  apply Qlt_irrefl in Hjk; contradiction.
+apply slope_lt₃₁; [ split; assumption | idtac ].
+apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
+ remember Hms as Hms₁; clear HeqHms₁.
+ symmetry in Hend.
+ eapply minimised_slope in Hms; [ idtac | eassumption ].
+ rewrite <- Hms.
+ symmetry in Hend.
+ eapply minimise_slope_expr_le; eassumption.
 
-  injection Hnp; clear Hnp; intros; subst j αj.
-  apply Qlt_irrefl in Hjk; contradiction.
+ apply slope_lt₃₂.
+  split; [ idtac | assumption ].
+  apply LSorted_inv_2 in Hsort.
+  destruct Hsort.
+  eapply Qlt_trans; eassumption.
 
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms) as pts₁.
- destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
- remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
- symmetry in Heqms₁.
- rewrite Hend in Heqms₁.
- destruct pt₁ as (m, αm).
- remember (end_pt ms₁) as pt₂.
- destruct pt₂ as (p, αp).
- rewrite Heqpt₂ in Hnp.
- destruct hsl₁ as [| hs₁].
-  remember Hnp as HHnp; clear HeqHHnp.
-  apply next_ch_points_hd in Hnp.
-  rewrite <- Heqpt₂ in Hnp.
-  injection Hnp; clear Hnp; intros; subst p αp.
-  apply slope_lt₃₁; [ split; assumption | idtac ].
-  apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
-   remember Hms as Hms₁; clear HeqHms₁.
-   symmetry in Hend.
-   eapply minimised_slope in Hms; [ idtac | eassumption ].
-   rewrite <- Hms.
-   symmetry in Hend.
-   eapply minimise_slope_expr_le; eassumption.
+  destruct hsl₁ as [| hs₁].
+   remember Hnp as HHnp; clear HeqHHnp.
+   apply next_ch_points_hd in Hnp.
+   rewrite Hend in Hnp.
+   injection Hnp; clear Hnp; intros; subst j αj.
+   apply Qlt_irrefl in Hjk; contradiction.
 
-   symmetry in Hend.
-   rewrite <- minimised_slope; try eassumption.
-   symmetry in Heqpts₁.
-   rewrite <- minimised_slope; try eassumption.
-   rewrite Hend in Heqms₁.
-   eapply consec_slope_lt; eassumption.
-bbb.
-*)
+   eapply sl_lt_bef_j_in_ch; try eassumption.
+   split; [ idtac | assumption ].
+   apply LSorted_inv_2 in Hsort.
+   destruct Hsort.
+   eapply Qlt_trans; eassumption.
+Qed.
 
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(g, αg); (h, αh) … pts]
