@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.161 2013-05-14 08:42:49 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.162 2013-05-14 08:48:18 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -962,6 +962,22 @@ intros n pts g αg h αh j αj k αk segkx hsl₁ hsl ms.
 intros Hsort (Hhj, Hjk) Hms Hend Hnp.
 revert n pts g αg h αh j αj k αk segkx hsl ms Hsort Hhj Hjk Hms Hend Hnp.
 induction hsl₁ as [| hs₁]; intros.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ rewrite Hend in Hnp.
+ destruct pts₁ as [| pt₁].
+  injection Hnp; clear Hnp; intros; subst j αj.
+  apply Qlt_irrefl in Hjk; contradiction.
+
+  injection Hnp; clear Hnp; intros; subst j αj.
+  apply Qlt_irrefl in Hjk; contradiction.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
+ symmetry in Heqms₁.
 bbb.
 *)
 
