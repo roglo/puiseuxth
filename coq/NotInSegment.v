@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.153 2013-05-14 02:17:30 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.154 2013-05-14 02:48:35 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -937,55 +937,37 @@ do 2 rewrite fold_slope_expr.
 apply slope_lt₃₂; [ assumption | idtac ].
 revert n ms h αh i αi j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
- eapply sl_lt_bef_j_in_ch with (hsl₁ := [ahs (j, αj) segjk]).
-  5: simpl.
-  5: eassumption.
-
-  3: eassumption.
-
-  assumption.
-
-  assumption.
-
-  apply next_ch_points_hd in Hnp; assumption.
+ remember Hnp as H; clear HeqH.
+ eapply next_ch_points_hd in H.
+ eapply sl_lt_bef_j_in_ch with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+ simpl; eassumption.
 
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
  eapply Qlt_trans.
-  eapply
-   sl_lt_bef_j_in_ch
-    with
-      (l := l)
-      (αl := αl)
-      (hsl₁ := [hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]).
-   3: eassumption.
-
-   4: rewrite <- List.app_assoc.
-   4: simpl; eassumption.
-
-   assumption.
-
+  remember ([hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]) as hsl₂.
+  symmetry in Heqpt₁.
+  eapply sl_lt_bef_j_in_ch with (l := l) (hsl₁ := hsl₂); try eassumption.
    split.
     apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
     apply minimise_slope_le in Hms; [ idtac | assumption ].
-    rewrite <- Heqpt₁ in Hms.
+    rewrite Heqpt₁ in Hms.
     eapply Qlt_le_trans; eassumption.
 
-    rewrite <- Heqpt₁ in Hnp.
+    rewrite Heqpt₁ in Hnp.
     replace l with (fst (l, αl)) by reflexivity.
     replace k with (fst (k, αk)) by reflexivity.
     eapply
      next_ch_points_sorted
       with (hsl₁ := hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]).
-     rewrite Heqpt₁.
+     rewrite <- Heqpt₁.
      eapply minimise_slope_sorted; eassumption.
 
      simpl in Hnp |- *.
-     rewrite <- List.app_assoc.
-     simpl; eassumption.
+     rewrite <- List.app_assoc; simpl; eassumption.
 
-   symmetry in Heqpt₁; assumption.
+   subst hsl₂; rewrite <- List.app_assoc; simpl; eassumption.
 
   destruct n; [ discriminate Hnp | simpl in Hnp ].
   remember (rem_pts ms) as pts₁.
@@ -993,11 +975,8 @@ induction hsl₁ as [| hs₁]; intros.
   injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
   remember (minimise_slope (end_pt ms) (m, αm) pts₁) as ms₁.
   symmetry in Heqms₁.
-  eapply IHhsl₁.
-   rewrite <- Heqpt₁ in Heqms₁; eassumption.
-
-   eassumption.
-
+  rewrite <- Heqpt₁ in Heqms₁.
+  eapply IHhsl₁; try eassumption.
    rewrite Heqpt₁, Heqpts₁.
    eapply minimise_slope_sorted; eassumption.
 
