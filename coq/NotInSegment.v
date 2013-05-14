@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.155 2013-05-14 03:03:43 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.156 2013-05-14 03:09:27 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -781,16 +781,16 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj l αl segjx hsl₁ hsl ms,
+Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
-  → h < l < j
+  → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
-      → end_pt ms = (l, αl)
+      → end_pt ms = (j, αj)
         → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [{| pt := (j, αj); oth := segjx |} … hsl]
-          → slope_expr (h, αh) (j, αj) < slope_expr (l, αl) (j, αj).
+            hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
+          → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pts h αh i αi j αj l αl segjx hsl₁ hsl ms.
+intros n pts h αh i αi l αl j αj segjx hsl₁ hsl ms.
 intros Hsort (Hhl, Hlj) Hms Hend Hnp.
 revert n pts h αh i αi j αj l αl segjx hsl ms Hsort Hhl Hlj Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
@@ -948,7 +948,7 @@ induction hsl₁ as [| hs₁]; intros.
  eapply Qlt_trans.
   remember ([hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]) as hsl₂.
   symmetry in Heqpt₁.
-  eapply sl_lt_bef_j_in_ch with (l := l) (hsl₁ := hsl₂); try eassumption.
+  eapply sl_lt_bef_j_in_ch with (j := l) (hsl₁ := hsl₂); try eassumption.
    split.
     apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
     apply minimise_slope_le in Hms; [ idtac | assumption ].
@@ -1001,6 +1001,7 @@ intros Hsort (Hhj, Hjk) Hms Hend Hnp.
 revert n pts g αg h αh j αj k αk segkx hsl ms Hsort Hhj Hjk Hms Hend Hnp.
 induction hsl₁ as [| hs₁]; intros.
 bbb.
+*)
 
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(g, αg); (h, αh) … pts]
