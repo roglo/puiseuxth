@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.156 2013-05-14 03:09:27 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.157 2013-05-14 03:20:07 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -790,19 +790,19 @@ Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segkx hsl₁ hsl ms,
             hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
           → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pts h αh i αi l αl j αj segjx hsl₁ hsl ms.
-intros Hsort (Hhl, Hlj) Hms Hend Hnp.
-revert n pts h αh i αi j αj l αl segjx hsl ms Hsort Hhl Hlj Hms Hnp Hend.
+intros n pts h αh i αi j αj k αk segkx hsl₁ hsl ms.
+intros Hsort (Hhj, Hjk) Hms Hend Hnp.
+revert n pts h αh i αi k αk j αj segkx hsl ms Hsort Hhj Hjk Hms Hnp Hend.
 induction hsl₁ as [| hs₁]; intros.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  rewrite Hend in Hnp.
  destruct pts₁ as [| pt₁].
-  injection Hnp; clear Hnp; intros; subst l αl.
-  apply Qlt_irrefl in Hlj; contradiction.
+  injection Hnp; clear Hnp; intros; subst j αj.
+  apply Qlt_irrefl in Hjk; contradiction.
 
-  injection Hnp; clear Hnp; intros; subst l αl.
-  apply Qlt_irrefl in Hlj; contradiction.
+  injection Hnp; clear Hnp; intros; subst j αj.
+  apply Qlt_irrefl in Hjk; contradiction.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
@@ -821,20 +821,12 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite <- Heqpt₂ in Hnp.
   injection Hnp; clear Hnp; intros; subst p αp.
   apply slope_lt₃₁; [ split; assumption | idtac ].
-  rewrite <- minimised_slope.
-   3: symmetry in Hend; eassumption.
-
-   2: eassumption.
-
-   rewrite <- minimised_slope.
-    3: eassumption.
-
-    2: eassumption.
-
-    eapply consec_slope_lt; try eassumption.
-     rewrite Hend; eassumption.
-
-     symmetry; eassumption.
+  symmetry in Hend.
+  rewrite <- minimised_slope; try eassumption.
+  symmetry in Heqpts₁.
+  rewrite <- minimised_slope; try eassumption.
+  rewrite Hend in Heqms₁.
+  eapply consec_slope_lt; eassumption.
 
   remember Hnp as Hnp₁; clear HeqHnp₁.
   eapply IHhsl₁ in Hnp.
@@ -872,7 +864,7 @@ induction hsl₁ as [| hs₁]; intros.
    apply slope_lt₃₁.
     split; assumption.
 
-    apply Qlt_trans with (y := slope_expr (l, αl) (p, αp)).
+    apply Qlt_trans with (y := slope_expr (j, αj) (p, αp)).
      Focus 2.
      apply slope_lt₁₂.
       Focus 2.
