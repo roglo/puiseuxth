@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.150 2013-05-13 21:05:57 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.151 2013-05-14 02:02:57 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -920,7 +920,7 @@ induction hsl₁ as [| hs₁]; intros.
        eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma zzz : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
+Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
@@ -1033,7 +1033,7 @@ apply next_ch_points_hd in H.
 rename H into Hend₁.
 destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst l αl.
- eapply zzz with (hsl₁ := []); try eassumption.
+ eapply lt_bef_j_in_ch with (hsl₁ := []); try eassumption.
  split; assumption.
 
 (**)
@@ -1146,7 +1146,7 @@ destruct hsl₁ as [| hs₁].
    subst pt₁ hs₁.
    destruct pt₂.
    eapply conj in Hjk; [ idtac | eexact Hhj ].
-   eapply zzz with (hsl₁ := [hs₂ … hsl₁]); eassumption.
+   eapply lt_bef_j_in_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 
 bbb.
 *)
