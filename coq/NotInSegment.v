@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.166 2013-05-14 14:40:23 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.167 2013-05-14 20:15:50 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -907,7 +907,7 @@ induction hsl₁ as [| hs₁]; intros.
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
- eapply Qlt_trans.
+ apply Qlt_trans with (y := slope_expr (l, αl) (k, αk)).
   remember ([hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]) as hsl₂.
   symmetry in Heqpt₁.
   eapply sl_lt_bef_j_in_ch with (j := l) (hsl₁ := hsl₂); try eassumption.
@@ -1014,25 +1014,26 @@ induction hsl₁ as [| hs₁]; intros.
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
-bbb.
- apply Qlt_trans with (y := slope_expr (l, αl) (k, αk)).
-  remember ([hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]) as hsl₂.
-  symmetry in Heqpt₁.
-  eapply sl_lt_bef_j_2nd with (j := l) (hsl₁ := hsl₂); try eassumption.
-   2: subst hsl₂; rewrite <- List.app_assoc; simpl; eassumption.
-
-   Focus 2.
-   destruct n; [ discriminate Hnp | idtac ].
-   simpl in Hnp.
-   remember (rem_pts ms) as pts₁.
-   destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
-   destruct pt₁ as (m, αm).
-   injection Hnp; clear Hnp; intros Hnp H; clear H.
-   remember (minimise_slope (end_pt ms) (m, αm) pts₁) as ms₁.
-   symmetry in Heqms₁.
-   rewrite <- Heqpt₁ in Heqms₁.
-   eapply IHhsl₁ in Hnp.
-    2: eassumption.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms) as pts₁.
+ destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
+ symmetry in Heqms₁.
+ destruct pt₁ as (m, αm).
+ rewrite <- Heqpt₁ in Heqms₁.
+ clear HHnp.
+ remember Hnp as HHnp; clear HeqHHnp.
+ destruct hsl₁ as [| hs₁].
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  remember (rem_pts ms₁) as pts₂.
+  destruct pts₂ as [| pt₂]; [ discriminate Hnp | idtac ].
+  remember (minimise_slope (end_pt ms₁) pt₂ pts₂) as ms₂.
+  symmetry in Heqms₂.
+  injection Hnp; clear Hnp; intros Hnp H Hend; subst segjk.
+  rewrite Heqpts₂ in HHnp.
+  apply slope_lt₃₁; [ assumption | idtac ].
+  apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
 bbb.
 *)
 
