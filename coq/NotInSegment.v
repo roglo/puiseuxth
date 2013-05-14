@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.152 2013-05-14 02:05:19 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.153 2013-05-14 02:17:30 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1008,6 +1008,23 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
+Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
+  LocallySorted fst_lt [(g, αg); (h, αh) … pts]
+  → h < j < k
+    → minimise_slope (g, αg) (h, αh) pts = ms
+      → next_ch_points n [end_pt ms … rem_pts ms] =
+        hsl₁ ++
+        [{| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
+eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+do 2 rewrite fold_slope_expr.
+bbb.
+*)
+
 Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
   LocallySorted fst_lt pts
   → next_ch_points n pts =
@@ -1036,9 +1053,12 @@ destruct Hαh as [Hαh| Hαh].
  eapply lt_bef_j_in_ch with (hsl₁ := []); try eassumption.
  split; assumption.
 
-(**)
  destruct Hαh as [Hαh| Hαh].
   injection Hαh; clear Hαh; intros; subst m αm.
+(*
+  eapply conj in Hjk; [ idtac | eexact Hhj ].
+  eapply lt_bef_j_2nd_ch with (hsl₁ := []); eassumption.
+*)
   assert (slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk))
    as Hhjk.
    apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
@@ -1069,6 +1089,7 @@ destruct Hαh as [Hαh| Hαh].
 
    eapply ad_hoc_lt_lt₂; try eassumption.
    split; assumption.
+(**)
 
   assert (slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk))
    as Hhjk.
@@ -1147,6 +1168,12 @@ destruct hsl₁ as [| hs₁].
    destruct pt₂.
    eapply conj in Hjk; [ idtac | eexact Hhj ].
    eapply lt_bef_j_in_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
+
+   destruct Hαh as [Hαh| Hαh].
+    subst hs₁ pt₂.
+    destruct pt₁ as (g, αg).
+    eapply conj in Hjk; [ idtac | eexact Hhj ].
+    eapply lt_bef_j_2nd_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 
 bbb.
 *)
