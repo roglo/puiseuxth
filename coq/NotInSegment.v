@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.159 2013-05-14 08:35:59 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.160 2013-05-14 08:37:44 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -835,7 +835,14 @@ induction hsl₁ as [| hs₁]; intros.
     split; assumption.
 
     apply Qlt_trans with (y := slope_expr (j, αj) (p, αp)).
-     Focus 2.
+     symmetry in Hend.
+     rewrite <- minimised_slope; try eassumption.
+     symmetry in Heqpt₂.
+     rewrite <- minimised_slope; try eassumption.
+     symmetry in Heqpts₁.
+     rewrite Hend in Heqms₁.
+     eapply consec_slope_lt; eassumption.
+
      apply slope_lt₁₂; [ idtac | assumption ].
      split.
       eapply minimise_slope_sorted in Hms.
@@ -857,14 +864,6 @@ induction hsl₁ as [| hs₁]; intros.
        eapply minimise_slope_sorted; [ idtac | eassumption ].
        rewrite <- Hend, Heqpts₁.
        eapply minimise_slope_sorted; eassumption.
-
-     symmetry in Hend.
-     rewrite <- minimised_slope; try eassumption.
-     symmetry in Heqpt₂.
-     rewrite <- minimised_slope; try eassumption.
-     symmetry in Heqpts₁.
-     rewrite Hend in Heqms₁.
-     eapply consec_slope_lt; eassumption.
 
    rewrite <- Hend, Heqpts₁.
    eapply minimise_slope_sorted; eassumption.
@@ -889,7 +888,7 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; [ idtac | eassumption ].
     rewrite <- Hend, Heqpts₁.
     eapply minimise_slope_sorted; eassumption.
-qed.
+Qed.
 
 Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
