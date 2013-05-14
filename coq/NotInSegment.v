@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.167 2013-05-14 20:15:50 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.168 2013-05-14 20:40:51 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -989,22 +989,45 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(g, αg); (h, αh) … pts]
-  → h < j < k
-    → minimise_slope (g, αg) (h, αh) pts = ms
-      → next_ch_points n [end_pt ms … rem_pts ms] =
-        hsl₁ ++
-        [{| pt := (j, αj); oth := segjk |};
-         {| pt := (k, αk); oth := segkx |} … hsl]
-        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Lemma qeq_eq : ∀ n pol pts h αh k αk s hsl₁ hsl,
+  points_of_ps_polynom α fld pol = pts
+  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
+    → (h, αh) ∈ pts
+      → h == k
+        → h = k.
 Proof.
-intros n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
-intros Hsort Hhjk Hms Hnp.
+intros n pol pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
+apply same_den_qeq_eq; [ idtac | assumption ].
+eapply fst_is_int in Hαh; [ idtac | eassumption ].
+rewrite Hαh.
+assert ((k, αk) ∈ pts) as Hαk.
+ apply in_ch_in_pts with (n := n) (s := s).
+ rewrite Hhsl.
+ apply List.in_app_iff.
+ right; left; reflexivity.
+
+ eapply fst_is_int in Hαk; [ idtac | eassumption ].
+ rewrite Hαk; reflexivity.
+Qed.
+
+Lemma lt_bef_j_2nd_ch :
+  ∀ pol n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
+  points_of_ps_polynom α fld pol = [(g, αg); (h, αh) … pts]
+  → LocallySorted fst_lt [(g, αg); (h, αh) … pts]
+    → h < j < k
+      → minimise_slope (g, αg) (h, αh) pts = ms
+        → next_ch_points n [end_pt ms … rem_pts ms] =
+          hsl₁ ++
+          [{| pt := (j, αj); oth := segjk |};
+           {| pt := (k, αk); oth := segkx |} … hsl]
+          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros pol n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros Hpts Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
 apply slope_lt₃₂; [ assumption | idtac ].
-revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
+revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hpts Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
@@ -1034,22 +1057,33 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite Heqpts₂ in HHnp.
   apply slope_lt₃₁; [ assumption | idtac ].
   apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
+   destruct (Qeq_dec h l) as [Heq| Hne].
+    remember Heq as Heq₁; clear HeqHeq₁.
+    eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
+     unfold slope_expr.
+     simpl.
+     setoid_rewrite Heq₁.
+     rewrite Heq.
+     apply Qle_refl.
+
+     right; left; reflexivity.
 bbb.
 *)
 
-Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
-  LocallySorted fst_lt pts
-  → next_ch_points n pts =
-      [hs₁;
-       {| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
-    → ∀ h αh, (h, αh) ∈ pts
-      → h < j < k
-        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Lemma lt_bef_j₁ : ∀ pol n pts j αj segjk k αk segkx hs₁ hsl,
+  points_of_ps_polynom α fld pol = pts
+  → LocallySorted fst_lt pts
+    → next_ch_points n pts =
+        [hs₁;
+         {| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+      → ∀ h αh, (h, αh) ∈ pts
+        → h < j < k
+          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 (* à nettoyer *)
-intros n pts j αj segjk k αk segkx hs₁ hsl.
-intros Hpts Hnp h αh Hαh (Hhj, Hjk).
+intros pol n pts j αj segjk k αk segkx hs₁ hsl.
+intros Hpts Hsort Hnp h αh Hαh (Hhj, Hjk).
 rename Hnp into Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
 destruct pts as [| (l, αl)]; [ discriminate Hhsl | idtac ].
@@ -1136,18 +1170,19 @@ destruct Hαh as [Hαh| Hαh].
 Qed.
 
 (**)
-Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
-  LocallySorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
-    → ∀ h αh, (h, αh) ∈ pts
-      → h < j < k
-        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Lemma lt_bef_j : ∀ pol n pts j αj segjk k αk segkx hsl₁ hsl,
+  points_of_ps_polynom α fld pol = pts
+  → LocallySorted fst_lt pts
+    → next_ch_points n pts =
+        hsl₁ ++
+        [{| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+      → ∀ h αh, (h, αh) ∈ pts
+        → h < j < k
+          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts j αj segjk k αk segkx hsl₁ hsl.
-intros Hpts Hnp h αh Hαh (Hhj, Hjk).
+intros pol n pts j αj segjk k αk segkx hsl₁ hsl.
+intros Hpts Hsort Hnp h αh Hαh (Hhj, Hjk).
 destruct hsl₁ as [| hs₁].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -1159,11 +1194,11 @@ destruct hsl₁ as [| hs₁].
   injection Hαh; clear Hαh; intros; subst h αh.
   apply Qlt_irrefl in Hhj; contradiction.
 
-  eapply LSorted_hd in Hpts; [ idtac | eassumption ].
+  eapply LSorted_hd in Hsort; [ idtac | eassumption ].
   eapply Qlt_trans in Hhj; [ idtac | eassumption ].
   apply Qlt_irrefl in Hhj; contradiction.
 
- revert n pts hs₁ Hpts Hnp Hαh.
+ revert n pts hs₁ Hpts Hsort Hnp Hαh.
  induction hsl₁ as [| hs₂]; intros.
   simpl in Hnp.
   eapply conj in Hjk; [ idtac | eexact Hhj ].
@@ -1186,7 +1221,6 @@ destruct hsl₁ as [| hs₁].
     destruct pt₁ as (g, αg).
     eapply conj in Hjk; [ idtac | eexact Hhj ].
     eapply lt_bef_j_2nd_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
-
 bbb.
 *)
 
@@ -1214,27 +1248,6 @@ destruct Hαh as [Hαh| Hαh].
  eapply LSorted_hd in Hpts; [ idtac | eassumption ].
  eapply Qlt_trans in Hhj; [ idtac | eassumption ].
  apply Qlt_irrefl in Hhj; contradiction.
-Qed.
-
-Lemma qeq_eq : ∀ n pol pts h αh k αk s hsl₁ hsl,
-  points_of_ps_polynom α fld pol = pts
-  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
-    → (h, αh) ∈ pts
-      → h == k
-        → h = k.
-Proof.
-intros n pol pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
-apply same_den_qeq_eq; [ idtac | assumption ].
-eapply fst_is_int in Hαh; [ idtac | eassumption ].
-rewrite Hαh.
-assert ((k, αk) ∈ pts) as Hαk.
- apply in_ch_in_pts with (n := n) (s := s).
- rewrite Hhsl.
- apply List.in_app_iff.
- right; left; reflexivity.
-
- eapply fst_is_int in Hαk; [ idtac | eassumption ].
- rewrite Hαk; reflexivity.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
