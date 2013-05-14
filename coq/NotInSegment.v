@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.157 2013-05-14 03:20:07 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.158 2013-05-14 03:48:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -828,6 +828,7 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite Hend in Heqms₁.
   eapply consec_slope_lt; eassumption.
 
+bbb. nettoyage.
   remember Hnp as Hnp₁; clear HeqHnp₁.
   eapply IHhsl₁ in Hnp.
    5: eassumption.
@@ -910,7 +911,7 @@ induction hsl₁ as [| hs₁]; intros.
        eapply minimise_slope_sorted; [ idtac | eassumption ].
        rewrite <- Hend, Heqpts₁.
        eapply minimise_slope_sorted; eassumption.
-Qed.
+qed.
 
 Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
