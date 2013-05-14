@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.165 2013-05-14 14:37:10 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.166 2013-05-14 14:40:23 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1014,10 +1014,10 @@ induction hsl₁ as [| hs₁]; intros.
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
+bbb.
  apply Qlt_trans with (y := slope_expr (l, αl) (k, αk)).
   remember ([hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]) as hsl₂.
   symmetry in Heqpt₁.
-bbb.
   eapply sl_lt_bef_j_2nd with (j := l) (hsl₁ := hsl₂); try eassumption.
    2: subst hsl₂; rewrite <- List.app_assoc; simpl; eassumption.
 
