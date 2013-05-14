@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.168 2013-05-14 20:40:51 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.169 2013-05-14 20:43:04 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1221,6 +1221,7 @@ destruct hsl₁ as [| hs₁].
     destruct pt₁ as (g, αg).
     eapply conj in Hjk; [ idtac | eexact Hhj ].
     eapply lt_bef_j_2nd_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
+    (* zut, ça déconne... *)
 bbb.
 *)
 
