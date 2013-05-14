@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.154 2013-05-14 02:48:35 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.155 2013-05-14 03:03:43 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -987,6 +987,21 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
+Lemma sl_lt_bef_j_2nd : ∀ n pts g αg h αh j αj k αk segkx hsl₁ hsl ms,
+  LocallySorted fst_lt [(g, αg); (h, αh) … pts]
+  → h < j < k
+    → minimise_slope (g, αg) (h, αh) pts = ms
+      → end_pt ms = (j, αj)
+        → next_ch_points n [end_pt ms … rem_pts ms] =
+            hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
+          → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
+Proof.
+intros n pts g αg h αh j αj k αk segkx hsl₁ hsl ms.
+intros Hsort (Hhj, Hjk) Hms Hend Hnp.
+revert n pts g αg h αh j αj k αk segkx hsl ms Hsort Hhj Hjk Hms Hend Hnp.
+induction hsl₁ as [| hs₁]; intros.
+bbb.
+
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(g, αg); (h, αh) … pts]
   → h < j < k
@@ -1001,6 +1016,13 @@ intros n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
+apply slope_lt₃₂; [ assumption | idtac ].
+revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
+induction hsl₁ as [| hs₁]; intros.
+ remember Hnp as H; clear HeqH.
+ eapply next_ch_points_hd in H.
+ eapply sl_lt_bef_j_2nd with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+ simpl; eassumption.
 bbb.
 *)
 
