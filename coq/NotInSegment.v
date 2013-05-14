@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.151 2013-05-14 02:02:57 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.152 2013-05-14 02:05:19 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -781,7 +781,7 @@ destruct c.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma yyy : ∀ n pts h αh i αi j αj l αl segjx hsl₁ hsl ms,
+Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj l αl segjx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
   → h < l < j
     → minimise_slope (h, αh) (i, αi) pts = ms
@@ -937,7 +937,7 @@ do 2 rewrite fold_slope_expr.
 apply slope_lt₃₂; [ assumption | idtac ].
 revert n ms h αh i αi j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
- eapply yyy with (hsl₁ := [ahs (j, αj) segjk]).
+ eapply sl_lt_bef_j_in_ch with (hsl₁ := [ahs (j, αj) segjk]).
   5: simpl.
   5: eassumption.
 
@@ -954,7 +954,7 @@ induction hsl₁ as [| hs₁]; intros.
  destruct pt₁ as (l, αl).
  eapply Qlt_trans.
   eapply
-   yyy
+   sl_lt_bef_j_in_ch
     with
       (l := l)
       (αl := αl)
