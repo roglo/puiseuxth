@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.178 2013-05-15 19:41:14 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.179 2013-05-15 20:21:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1095,7 +1095,7 @@ eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
 apply slope_lt₃₂; [ assumption | idtac ].
 revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
-induction hsl₁ as [| hs₁]; intros.
+destruct hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
  eapply sl_lt_bef_j_2nd with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
@@ -1156,7 +1156,7 @@ induction hsl₁ as [| hs₁]; intros.
     apply Qlt_le_weak.
     symmetry in Heqpt₁.
     eapply sl_lt_bef_j_2nd; try eassumption.
-    Unfocus.
+    Focus 2.
 bbb.
 *)
 
