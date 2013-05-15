@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.174 2013-05-15 13:23:49 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.175 2013-05-15 14:08:13 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1061,6 +1061,7 @@ induction hsl₁ as [| hs₁]; intros.
  destruct (Qeq_dec h l) as [Heq| Hne].
   unfold slope_expr; simpl.
   rewrite Heq.
+  do 2 rewrite fold_slope_expr.
 bbb.
   eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
    subst αh.
