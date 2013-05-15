@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.9 2013-05-13 02:33:46 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.10 2013-05-15 13:23:49 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -13,19 +13,19 @@ Require Import Puiseux.
 Notation "x ∈ l" := (List.In x l) (at level 70).
 
 Lemma two_pts_slope_form : ∀ j αy seg₁ k αk seg₂ hsl,
-  LocallySorted hs_x_lt [ahs (j, αy) seg₁; ahs (k, αk) seg₂ … hsl]
+  Sorted hs_x_lt [ahs (j, αy) seg₁; ahs (k, αk) seg₂ … hsl]
   → αy + j * ((αy - αk) / (k - j)) ==
     αk + k * ((αy - αk) / (k - j)).
 Proof.
 intros j αy seg₁ k αk seg₂ hsl Hsort.
-apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
 unfold hs_x_lt in Hlt; simpl in Hlt.
 field.
 apply Qgt_0_not_0, Qlt_minus; assumption.
 Qed.
 
 Lemma min_sl_pt_in_newt_segm : ∀ j αy k αk β γ pt pts ms segkx hsl n,
-  LocallySorted fst_lt [(j, αy); pt … pts]
+  Sorted fst_lt [(j, αy); pt … pts]
   → β = αy + j * γ
     → γ = (αy - αk) / (k - j)
       → minimise_slope (j, αy) pt pts = ms
@@ -67,21 +67,21 @@ induction pts as [| pt₁]; intros.
    do 2 rewrite Qopp_minus in Heqms₁.
    rewrite <- Heqms₁.
    field.
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
    apply Qgt_0_not_0, Qlt_minus; assumption.
 
    eapply IHpts; try eassumption.
-   eapply LSorted_minus_2nd; [ idtac | eassumption ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   symmetry in Heqms₁.
   eapply IHpts; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma in_newt_segm : ∀ j αy k αk γ β n pts segjk segkx hsl₁ hsl,
-  LocallySorted fst_lt pts
+  Sorted fst_lt pts
   → β = αy + j * γ
     → γ = (αy - αk) / (k - j)
       → next_ch_points n pts =
@@ -174,7 +174,7 @@ destruct Hns as [Hns| Hns].
  injection Heqhsl; clear Heqhsl; intros.
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
- apply LSorted_inv_1 in Hpts.
+ apply Sorted_inv_1 in Hpts.
  eapply minimise_slope_sorted in Hpts₂; [ idtac | eassumption ].
  eapply IHhsl; eassumption.
 Qed.

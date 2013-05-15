@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.173 2013-05-15 09:44:59 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.174 2013-05-15 13:23:49 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -42,7 +42,7 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
  apply points_of_polyn_sorted in Hpts.
  remember Hpts as Hpts₂; clear HeqHpts₂.
  eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
- apply LSorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
+ apply Sorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
  unfold hs_x_lt in Hlt; simpl in Hlt.
  eapply points_after_k; try eassumption; reflexivity.
 
@@ -107,13 +107,13 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
      apply Decidable.not_or in Hnαh.
      destruct Hnαh as (HH); exfalso; apply HH; reflexivity.
 
-     eapply LSorted_hd in Hpts; [ idtac | eassumption ].
+     eapply Sorted_hd in Hpts; [ idtac | eassumption ].
      apply Qle_not_lt in Hge₂; contradiction.
 Qed.
 
 (* is there a way to group together the cases c = Eq and c = Gt? *)
 Lemma aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts] 
       → fst (end_pt ms) < h
@@ -123,19 +123,19 @@ intros pt₁ pt₂ pts ms Hsort Hms h αh Hαh Hlt.
 destruct Hαh as [Hαh| Hαh].
  subst pt₁.
  apply minimise_slope_le in Hms.
-  apply LSorted_inv_2 in Hsort.
+  apply Sorted_inv_2 in Hsort.
   destruct Hsort as (Hlt₁).
   eapply Qlt_trans in Hlt₁; [ idtac | eassumption ].
   apply Qle_not_lt in Hms; contradiction.
 
-  eapply LSorted_inv_1; eassumption.
+  eapply Sorted_inv_1; eassumption.
 
  destruct Hαh as [Hαh| Hαh].
   subst pt₂.
   apply minimise_slope_le in Hms.
    apply Qle_not_lt in Hms; contradiction.
 
-   eapply LSorted_inv_1; eassumption.
+   eapply Sorted_inv_1; eassumption.
 
   revert pt₁ pt₂ ms Hsort Hms Hαh Hlt.
   induction pts as [| pt₃]; [ contradiction | intros ].
@@ -150,11 +150,11 @@ destruct Hαh as [Hαh| Hαh].
     apply minimise_slope_le in Heqms₁.
      apply Qle_not_lt in Heqms₁; contradiction.
 
-     do 2 apply LSorted_inv_1 in Hsort.
+     do 2 apply Sorted_inv_1 in Hsort.
      assumption.
 
     eapply IHpts; try eassumption.
-    eapply LSorted_minus_2nd; [ idtac | eassumption ].
+    eapply Sorted_minus_2nd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
    assumption.
@@ -164,16 +164,16 @@ destruct Hαh as [Hαh| Hαh].
     apply minimise_slope_le in Heqms₁.
      apply Qle_not_lt in Heqms₁; contradiction.
 
-     do 2 apply LSorted_inv_1 in Hsort.
+     do 2 apply Sorted_inv_1 in Hsort.
      assumption.
 
     eapply IHpts; try eassumption.
-    eapply LSorted_minus_2nd; [ idtac | eassumption ].
+    eapply Sorted_minus_2nd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma consec_end_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → minimise_slope (end_pt ms₁) pt₃ pts₃ = ms₂
       → rem_pts ms₁ = [pt₃ … pts₃]
@@ -184,16 +184,16 @@ apply minimise_slope_le in Hms₂.
  eapply Qlt_le_trans; [ idtac | eassumption ].
  apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
  rewrite Hrem₁ in Hms₁.
- apply LSorted_inv_2 in Hms₁.
+ apply Sorted_inv_2 in Hms₁.
  destruct Hms₁; assumption.
 
  rewrite <- Hrem₁.
  apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
- eapply LSorted_inv_1; eassumption.
+ eapply Sorted_inv_1; eassumption.
 Qed.
 
 Lemma min_slope_lt : ∀ pt₁ pt₂ pt₃ pts ms₁₃ ms₂₃,
-  LocallySorted fst_lt [pt₁; pt₂; pt₃ … pts]
+  Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₁₃
     → minimise_slope pt₂ pt₃ pts = ms₂₃
       → slope_expr pt₁ pt₂ < slope ms₁₃
@@ -204,8 +204,8 @@ revert pt₁ pt₂ pt₃ ms₂₃ ms₁₃ Heqc Hsort Hms₁₃ Hms₂₃.
 induction pts as [| pt₄]; intros.
  subst ms₁₃ ms₂₃; simpl in Heqc |- *.
  apply slope_lt₁₁; [ idtac | assumption ].
- apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
- apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+ apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+ apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  split; assumption.
 
  simpl in Hms₁₃.
@@ -225,7 +225,7 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    eapply IHpts; try eassumption.
-   eapply LSorted_minus_3rd; [ idtac | eassumption ].
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
    apply Qlt_alt in Heqc₂.
@@ -233,14 +233,14 @@ induction pts as [| pt₄]; intros.
    rewrite <- Heqc₁.
    rewrite <- Heqc₁ in Heqc.
    apply slope_lt₁₁; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
 
    apply Qgt_alt in Heqc₂.
    move Hms₂₃ at top; subst ms₂₄.
    eapply IHpts; try eassumption.
-   eapply LSorted_minus_3rd; [ idtac | eassumption ].
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   apply Qlt_alt in Heqc₁.
@@ -250,15 +250,15 @@ induction pts as [| pt₄]; intros.
    subst ms₂₃; simpl.
    rewrite <- Heqc₂.
    apply slope_lt₁₁; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
 
    apply Qlt_alt in Heqc₂.
    subst ms₂₃; simpl.
    apply slope_lt₁₁; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
 
    apply Qgt_alt in Heqc₂.
@@ -267,7 +267,7 @@ induction pts as [| pt₄]; intros.
    eapply IHpts with (pt₂ := pt₂); try eassumption.
     eapply Qlt_trans; eassumption.
 
-    eapply LSorted_minus_3rd; [ idtac | eassumption ].
+    eapply Sorted_minus_3rd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   apply Qgt_alt in Heqc₁.
@@ -276,7 +276,7 @@ induction pts as [| pt₄]; intros.
    apply Qeq_alt in Heqc₂.
    subst ms₂₃; simpl.
    eapply IHpts; try eassumption.
-   eapply LSorted_minus_3rd; [ idtac | eassumption ].
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
    apply Qlt_alt in Heqc₂.
@@ -284,19 +284,19 @@ induction pts as [| pt₄]; intros.
    eapply Qlt_trans; [ eassumption | idtac ].
    eapply Qlt_trans in Heqc₁; [ idtac | eassumption ].
    apply slope_lt₁₁; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
 
    apply Qgt_alt in Heqc₂.
    move Hms₂₃ at top; subst ms₂₄.
    eapply IHpts; try eassumption.
-   eapply LSorted_minus_3rd; [ idtac | eassumption ].
+   eapply Sorted_minus_3rd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma consec_slope_lt : ∀ pt₁ pt₂ pt₃ pts pts₃ ms₁ ms₂,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → minimise_slope (end_pt ms₁) pt₃ pts₃ = ms₂
       → rem_pts ms₁ = [pt₃ … pts₃]
@@ -319,7 +319,7 @@ induction pts as [| pt₄]; intros.
   simpl in Hms₂, Hrem₁ |- *.
   apply Qeq_alt in Heqc.
   eapply IHpts; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   subst ms₁.
@@ -331,13 +331,13 @@ induction pts as [| pt₄]; intros.
 
   subst ms₁.
   eapply IHpts; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma j_aft_prev_end :
   ∀ n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → rem_pts ms = [pt₃ … pts₃]
       → minimise_slope (end_pt ms) pt₃ pts₃ = ms₁
@@ -383,7 +383,7 @@ Qed.
 
 Lemma aft_j_in_rem :
   ∀ n pt₁ pt₂ pts ms hsl₁ j αj segjk k αk segkx hsl,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
        hsl₁ ++
@@ -424,7 +424,7 @@ destruct pts₁ as [| pt₃].
 Qed.
 
 Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
-  LocallySorted fst_lt pts
+  Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
       [{| pt := (j, αj); oth := segjk |};
@@ -439,7 +439,7 @@ induction hsl₁ as [| hs₁]; intros.
  remember Hsort as Hsort₂; clear HeqHsort₂.
  eapply points_after_k; try reflexivity; try eassumption.
  apply next_points_sorted in Hnp; [ idtac | assumption ].
- apply LSorted_inv_2 in Hnp.
+ apply Sorted_inv_2 in Hnp.
  destruct Hnp; assumption.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
@@ -458,11 +458,11 @@ induction hsl₁ as [| hs₁]; intros.
   apply next_points_sorted in H; [ idtac | assumption ].
   revert H; clear; intros.
   induction hsl₁ as [| hs₁].
-   apply LSorted_inv_2 in H.
+   apply Sorted_inv_2 in H.
    destruct H; assumption.
 
    simpl in H.
-   apply LSorted_inv_1 in H.
+   apply Sorted_inv_1 in H.
    apply IHhsl₁; assumption.
 Qed.
 
@@ -498,7 +498,7 @@ eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
 Qed.
 
 Lemma next_ch_points_sorted : ∀ n pt₁ pt₂ pts h₁ hsl₁ hsl sg,
-  LocallySorted fst_lt [pt₁ … pts]
+  Sorted fst_lt [pt₁ … pts]
   → next_ch_points n [pt₁ … pts] =
       [h₁ … hsl₁] ++ [{| pt := pt₂; oth := sg |} … hsl]
     → fst pt₁ < fst pt₂.
@@ -516,11 +516,11 @@ induction hsl₁ as [| h₂]; intros.
  apply next_ch_points_hd in Hnp.
  rewrite <- Hnp.
  eapply Qlt_le_trans.
-  apply LSorted_inv_2 in Hsort.
+  apply Sorted_inv_2 in Hsort.
   destruct Hsort; eassumption.
 
   eapply minimise_slope_le; [ idtac | eassumption ].
-  eapply LSorted_inv_1; eassumption.
+  eapply Sorted_inv_1; eassumption.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₃]; [ discriminate Hnp | idtac ].
@@ -528,7 +528,7 @@ induction hsl₁ as [| h₂]; intros.
  remember (minimise_slope pt₁ pt₃ pts) as ms₂.
  symmetry in Heqms₂.
  eapply IHhsl₁ in Hnp.
-  apply LSorted_inv_2 in Hsort.
+  apply Sorted_inv_2 in Hsort.
   destruct Hsort.
   eapply Qlt_trans; [ eassumption | idtac ].
   apply minimise_slope_le in Heqms₂.
@@ -540,7 +540,7 @@ induction hsl₁ as [| h₂]; intros.
 Qed.
 
 Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
-  LocallySorted fst_lt pts
+  Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
       [{| pt := (j, αj); oth := segjk |};
@@ -615,7 +615,7 @@ eapply same_k_same_αk with (αk := αj) in Hαh; try eassumption.
 Qed.
 
 Lemma slope_expr_eq : ∀ pt₁ pt₂ pt₃ pts,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → pt₃ ∈ pts
     → slope_expr pt₁ pt₂ == slope_expr pt₁ pt₃
       → slope_expr pt₁ pt₂ == slope_expr pt₂ pt₃.
@@ -623,7 +623,7 @@ Proof.
 intros pt₁ pt₂ pt₃ pts Hsort Hin H.
 apply slope_eq; [ idtac | idtac | idtac | assumption ].
  intros HH.
- apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+ apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
  unfold fst_lt in Hlt.
  rewrite HH in Hlt.
  apply Qlt_irrefl in Hlt; contradiction.
@@ -634,14 +634,14 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ].
  simpl in Hin.
  destruct Hin as [Hin| Hin].
   subst pt₄.
-  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
   unfold fst_lt in Hlt₂.
   rewrite HH in Hlt₂.
   apply Qlt_irrefl in Hlt₂; contradiction.
 
   apply IHpts; [ idtac | assumption ].
-  eapply LSorted_minus_3rd; [ idtac | eassumption ].
+  eapply Sorted_minus_3rd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
  intros HH.
@@ -650,20 +650,20 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ].
  simpl in Hin.
  destruct Hin as [Hin| Hin].
   subst pt₄.
-  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-  apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
   unfold fst_lt in Hlt₂.
   rewrite HH in Hlt₂.
   eapply Qlt_trans in Hlt₂; [ idtac | eassumption ].
   apply Qlt_irrefl in Hlt₂; contradiction.
 
   apply IHpts; [ idtac | assumption ].
-  eapply LSorted_minus_3rd; [ idtac | eassumption ].
+  eapply Sorted_minus_3rd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → end_pt ms = pt₃
       → fst pt₂ < fst pt₃
@@ -694,8 +694,8 @@ induction pts as [| pt₄]; intros.
 
   subst ms; simpl in Hend |- *.
   subst pt₃.
-  apply LSorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
-  apply LSorted_inv_2 in Hsort; destruct Hsort as (H).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (_, Hsort).
+  apply Sorted_inv_2 in Hsort; destruct Hsort as (H).
   apply Qlt_irrefl in Hlt; contradiction.
 
   move Hms at top; subst ms₁.
@@ -709,8 +709,8 @@ induction pts as [| pt₄]; intros.
    subst pt₄.
    apply Qlt_le_weak.
    apply slope_lt₂; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-   apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
    split; assumption.
 
    simpl in Heqms₁.
@@ -721,25 +721,25 @@ induction pts as [| pt₄]; intros.
    destruct c₁.
     subst ms; simpl in Hend, Heqc |- *.
     eapply IHpts; try eassumption.
-    eapply LSorted_minus_3rd; [ idtac | eassumption ].
+    eapply Sorted_minus_3rd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
     subst ms; simpl in Hend, Heqc |- *.
     subst pt₄.
     apply Qlt_le_weak.
     apply slope_lt₂; [ idtac | assumption ].
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+    apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+    apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
     split; assumption.
 
     subst ms; simpl in Hend |- *.
     eapply IHpts; try eassumption.
-    eapply LSorted_minus_3rd; [ idtac | eassumption ].
+    eapply Sorted_minus_3rd; [ idtac | eassumption ].
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
-  LocallySorted fst_lt [pt₁; pt₂ … pts]
+  Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → pt₃ ∈ pts
       → end_pt ms = pt₄
@@ -759,19 +759,19 @@ destruct c.
  destruct Hpt as [Hpt| Hpt].
   subst pt₅.
   eapply minimise_slope_expr_le; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   eapply IHpts; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
  subst ms; simpl in Hend |- *; subst pt₄.
- apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
- apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
+ apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₁, Hsort).
+ apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt₂, Hsort).
  eapply Qlt_trans in Hlt₂; [ idtac | eassumption ].
  exfalso; revert Hpt.
- eapply LSorted_not_in; [ idtac | idtac | eassumption | eassumption ].
+ eapply Sorted_not_in; [ idtac | idtac | eassumption | eassumption ].
   intros x H; apply Qlt_irrefl in H; contradiction.
 
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
@@ -780,16 +780,16 @@ destruct c.
  destruct Hpt as [Hpt| Hpt].
   subst pt₅.
   eapply minimise_slope_expr_le; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   eapply IHpts; try eassumption.
-  eapply LSorted_minus_2nd; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
 Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(h, αh); (i, αi) … pts]
+  Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
       → end_pt ms = (j, αj)
@@ -852,7 +852,7 @@ induction hsl₁ as [| hs₁]; intros.
     split.
      eapply minimise_slope_sorted in Hms; [ idtac | assumption ].
      rewrite Hend, <- Heqpts₁ in Hms.
-     apply LSorted_inv_2 in Hms.
+     apply Sorted_inv_2 in Hms.
      destruct Hms as (Hlt, Hms).
      eapply Qlt_le_trans; [ eassumption | idtac ].
      simpl.
@@ -872,14 +872,14 @@ induction hsl₁ as [| hs₁]; intros.
    apply Qlt_le_trans with (y := m).
     apply minimise_slope_sorted in Hms; [ idtac | assumption ].
     rewrite Hend, <- Heqpts₁ in Hms.
-    apply LSorted_inv_2 in Hms; destruct Hms; assumption.
+    apply Sorted_inv_2 in Hms; destruct Hms; assumption.
 
     apply minimise_slope_le in Heqms₁.
      rewrite Heqpt₂ in Heqms₁; assumption.
 
      apply minimise_slope_sorted in Hms; [ idtac | assumption ].
      rewrite <- Heqpts₁ in Hms.
-     eapply LSorted_inv_1; eassumption.
+     eapply Sorted_inv_1; eassumption.
 
    apply next_ch_points_sorted in Hnp.
     rewrite Heqpt₂ in Hnp; assumption.
@@ -891,7 +891,7 @@ Qed.
 
 Lemma lt_expr_bef_j_in_ch :
   ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(h, αh); (i, αi) … pts]
+  Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
@@ -918,7 +918,7 @@ induction hsl₁ as [| hs₁]; intros.
   symmetry in Heqpt₁.
   eapply sl_lt_bef_j_in_ch with (j := l) (hsl₁ := hsl₂); try eassumption.
    split.
-    apply LSorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+    apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
     apply minimise_slope_le in Hms; [ idtac | assumption ].
     rewrite Heqpt₁ in Hms.
     eapply Qlt_le_trans; eassumption.
@@ -956,7 +956,7 @@ induction hsl₁ as [| hs₁]; intros.
 Qed.
 
 Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(h, αh); (i, αi) … pts]
+  Sorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
@@ -973,7 +973,7 @@ eapply lt_expr_bef_j_in_ch; eassumption.
 Qed.
 
 Lemma sl_lt_bef_j_2nd : ∀ n pts g αg h αh j αj k αk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(g, αg); (h, αh) … pts]
+  Sorted fst_lt [(g, αg); (h, αh) … pts]
   → h < j < k
     → minimise_slope (g, αg) (h, αh) pts = ms
       → end_pt ms = (j, αj)
@@ -994,7 +994,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
 
  apply slope_lt₃₂.
   split; [ idtac | assumption ].
-  apply LSorted_inv_2 in Hsort.
+  apply Sorted_inv_2 in Hsort.
   destruct Hsort.
   eapply Qlt_trans; eassumption.
 
@@ -1007,7 +1007,7 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
 
    eapply sl_lt_bef_j_in_ch; try eassumption.
    split; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hsort.
+   apply Sorted_inv_2 in Hsort.
    destruct Hsort.
    eapply Qlt_trans; eassumption.
 Qed.
@@ -1034,7 +1034,7 @@ assert ((k, αk) ∈ pts) as Hαk.
 Qed.
 
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
-  LocallySorted fst_lt [(g, αg); (h, αh) … pts]
+  Sorted fst_lt [(g, αg); (h, αh) … pts]
   → h < j < k
     → minimise_slope (g, αg) (h, αh) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
@@ -1116,7 +1116,7 @@ bbb.
 *)
 
 Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
-  LocallySorted fst_lt pts
+  Sorted fst_lt pts
   → next_ch_points n pts =
       [hs₁;
        {| pt := (j, αj); oth := segjk |};
@@ -1215,7 +1215,7 @@ Qed.
 
 (**)
 Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
-  LocallySorted fst_lt pts
+  Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
       [{| pt := (j, αj); oth := segjk |};
@@ -1237,7 +1237,7 @@ destruct hsl₁ as [| hs₁].
   injection Hαh; clear Hαh; intros; subst h αh.
   apply Qlt_irrefl in Hhj; contradiction.
 
-  eapply LSorted_hd in Hsort; [ idtac | eassumption ].
+  eapply Sorted_hd in Hsort; [ idtac | eassumption ].
   eapply Qlt_trans in Hhj; [ idtac | eassumption ].
   apply Qlt_irrefl in Hhj; contradiction.
 
@@ -1268,7 +1268,7 @@ bbb.
 *)
 
 Lemma lt_bef_j₀ : ∀ n pts j αj segjk k αk segkx hsl,
-  LocallySorted fst_lt pts
+  Sorted fst_lt pts
   → next_ch_points n pts =
       [{| pt := (j, αj); oth := segjk |};
        {| pt := (k, αk); oth := segkx |} … hsl]
@@ -1288,7 +1288,7 @@ destruct Hαh as [Hαh| Hαh].
  injection Hαh; clear Hαh; intros; subst h αh.
  apply Qlt_irrefl in Hhj; contradiction.
 
- eapply LSorted_hd in Hpts; [ idtac | eassumption ].
+ eapply Sorted_hd in Hpts; [ idtac | eassumption ].
  eapply Qlt_trans in Hhj; [ idtac | eassumption ].
  apply Qlt_irrefl in Hhj; contradiction.
 Qed.
@@ -1358,9 +1358,9 @@ destruct Hns as [Hns| Hns].
   simpl in Hnsl.
   remember Hhsl as Hjk; clear HeqHjk.
   apply next_points_sorted in Hjk; [ idtac | assumption ].
-  apply LSorted_inv_2 in Hjk.
+  apply Sorted_inv_2 in Hjk.
   destruct Hjk as (_, Hjk); simpl in Hjk.
-  apply LSorted_inv_2 in Hjk.
+  apply Sorted_inv_2 in Hjk.
   destruct Hjk as (Hjk); simpl in Hjk.
   unfold hs_x_lt in Hjk; simpl in Hjk.
   injection Hnsl; clear Hnsl; intros.
@@ -1401,11 +1401,11 @@ destruct Hns as [Hns| Hns].
    simpl in Hnsl.
    remember Hhsl as Hjk; clear HeqHjk.
    apply next_points_sorted in Hjk; [ idtac | assumption ].
-   apply LSorted_inv_2 in Hjk.
+   apply Sorted_inv_2 in Hjk.
    destruct Hjk as (_, Hjk); simpl in Hjk.
-   apply LSorted_inv_2 in Hjk.
+   apply Sorted_inv_2 in Hjk.
    destruct Hjk as (_, Hjk); simpl in Hjk.
-   apply LSorted_inv_2 in Hjk.
+   apply Sorted_inv_2 in Hjk.
    destruct Hjk as (Hjk); simpl in Hjk.
    unfold hs_x_lt in Hjk; simpl in Hjk.
    injection Hnsl; clear Hnsl; intros.

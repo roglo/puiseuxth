@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.475 2013-05-13 02:33:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.476 2013-05-15 13:23:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -115,13 +115,13 @@ Proof. reflexivity. Qed.
 
 Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
   pts = points_of_ps_polynom_gen α fld deg cl cn
-  → LocallySorted fst_lt pts.
+  → Sorted fst_lt pts.
 Proof.
 intros α fld deg cl cn pts Hpts.
 revert deg cn pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (is_zero_dec fld cn); subst pts; constructor.
+ destruct (is_zero_dec fld cn); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
@@ -136,21 +136,29 @@ induction cl as [| c]; intros.
   induction cl as [| c₂]; intros.
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
    destruct (is_zero_dec fld cn) as [Heq| Hne].
-    subst pts; constructor.
+    subst pts; constructor; constructor.
 
     subst pts.
+    apply Sorted_LocallySorted_iff.
     constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
 
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
    rewrite fold_points_of_ps_polynom_gen in Hpts.
    destruct (is_zero_dec fld c₂) as [Heq| Hne].
     eapply IHcl with (c := c) in Hpts.
+    apply Sorted_LocallySorted_iff.
     destruct pts as [| pt]; [ constructor | idtac ].
-    apply LSorted_inv_2 in Hpts.
+    apply Sorted_LocallySorted_iff.
+    apply Sorted_inv_2 in Hpts.
     destruct Hpts as (Hlt, Hpts).
+    apply Sorted_LocallySorted_iff.
+    apply Sorted_LocallySorted_iff in Hpts.
     constructor; [ assumption | idtac ].
     eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
 
     subst pts.
-    constructor; [ eapply IHcl; reflexivity | apply Qnat_lt, lt_n_Sn ].
+    apply Sorted_LocallySorted_iff.
+    constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].
+    apply Sorted_LocallySorted_iff.
+    eapply IHcl; reflexivity.
 Qed.
