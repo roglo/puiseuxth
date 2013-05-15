@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.172 2013-05-15 09:20:20 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.173 2013-05-15 09:44:59 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -889,7 +889,8 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
+Lemma lt_expr_bef_j_in_ch :
+  ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
   LocallySorted fst_lt [(h, αh); (i, αi) … pts]
   → h < j < k
     → minimise_slope (h, αh) (i, αi) pts = ms
@@ -897,12 +898,10 @@ Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl 
         hsl₁ ++
         [{| pt := (j, αj); oth := segjk |};
          {| pt := (k, αk); oth := segkx |} … hsl]
-        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+        → slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk).
 Proof.
 intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
-eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
-do 2 rewrite fold_slope_expr.
 apply slope_lt₃₂; [ assumption | idtac ].
 revert n ms h αh i αi j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
@@ -954,6 +953,23 @@ induction hsl₁ as [| hs₁]; intros.
    apply next_ch_points_sorted in HHnp; [ assumption | idtac ].
    rewrite Heqpt₁, Heqpts₁.
    eapply minimise_slope_sorted; eassumption.
+Qed.
+
+Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
+  LocallySorted fst_lt [(h, αh); (i, αi) … pts]
+  → h < j < k
+    → minimise_slope (h, αh) (i, αi) pts = ms
+      → next_ch_points n [end_pt ms … rem_pts ms] =
+        hsl₁ ++
+        [{| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
+eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+do 2 rewrite fold_slope_expr.
+eapply lt_expr_bef_j_in_ch; eassumption.
 Qed.
 
 Lemma sl_lt_bef_j_2nd : ∀ n pts g αg h αh j αj k αk segkx hsl₁ hsl ms,
@@ -1042,12 +1058,28 @@ induction hsl₁ as [| hs₁]; intros.
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
-(**)
  destruct (Qeq_dec h l) as [Heq| Hne].
   unfold slope_expr; simpl.
   rewrite Heq.
+bbb.
   eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
-(**)
+   subst αh.
+   do 2 rewrite fold_slope_expr.
+   apply slope_lt₃₁.
+    Focus 2.
+    destruct n; [ discriminate Hnp | simpl in Hnp ].
+    remember (rem_pts ms) as pts₁.
+    destruct pts₁ as [| (m, αm)]; [ destruct hsl₁; discriminate Hnp | idtac ].
+    remember (minimise_slope (end_pt ms) (m, αm) pts₁) as ms₁.
+    symmetry in Heqms₁.
+    rewrite <- Heqpt₁ in Heqms₁.
+    injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+    eapply lt_expr_bef_j_in_ch; try eassumption.
+     rewrite Heqpt₁, Heqpts₁.
+     eapply minimise_slope_sorted; eassumption.
+
+     Unfocus.
+
 bbb.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
