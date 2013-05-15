@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.171 2013-05-15 08:20:53 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.172 2013-05-15 09:20:20 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -65,6 +65,8 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     apply Decidable.not_or in Hnαh.
     destruct Hnαh as (Hnαh, _).
     exfalso; apply Hnαh; reflexivity.
+
+   eapply points_of_polyn_sorted; eassumption.
 
    eapply in_ch_in_pts with (n := length pts).
    unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
@@ -475,7 +477,7 @@ Lemma not_k : ∀ n pol pts hsl₁ hsl j αj segjk k αk segkx,
         → h ≠ k.
 Proof.
 intros n pol pts hsl₁ hsl j αj segjk k αk segkx.
-intros Hsort Hnp h αh Hαh Hnαh Hhk.
+intros Hpts Hnp h αh Hαh Hnαh Hhk.
 eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
  subst h αh.
  simpl in Hnαh.
@@ -484,6 +486,8 @@ eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (Hnαh, _).
  exfalso; apply Hnαh; reflexivity.
+
+ eapply points_of_polyn_sorted; symmetry; eassumption.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
@@ -599,6 +603,8 @@ eapply same_k_same_αk with (αk := αj) in Hαh; try eassumption.
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (Hnαh, _).
  exfalso; apply Hnαh; reflexivity.
+
+ eapply points_of_polyn_sorted; symmetry; eassumption.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
@@ -1033,10 +1039,16 @@ induction hsl₁ as [| hs₁]; intros.
  eapply sl_lt_bef_j_2nd with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
  simpl; eassumption.
 
-bbb.
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
+(**)
+ destruct (Qeq_dec h l) as [Heq| Hne].
+  unfold slope_expr; simpl.
+  rewrite Heq.
+  eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
+(**)
+bbb.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  remember (rem_pts ms) as pts₁.
  destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].

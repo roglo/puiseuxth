@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.38 2013-05-15 07:54:23 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.39 2013-05-15 09:20:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -708,23 +708,52 @@ intros pol pts h αh Hpts Hαh.
 eapply all_fst_is_int; eassumption.
 Qed.
 
-Lemma same_k_same_αk : ∀ pol pts j αj k αk,
-  points_of_ps_polynom α fld pol = pts
+End puiseux_series.
+
+Lemma LSorted_neq : ∀ pts j αj k αk,
+  LocallySorted fst_lt [(j, αj) … pts]
+  → (k, αk) ∈ pts
+    → ¬j == k.
+Proof.
+intros pts j αj k αk Hsort Hk.
+induction pts as [| (l, αl)]; [ contradiction | intros ].
+destruct Hk as [Hk| Hk].
+ injection Hk; clear Hk; intros; subst l αl.
+ apply LSorted_inv_2 in Hsort.
+ destruct Hsort as (Hlt, _).
+ unfold fst_lt in Hlt; simpl in Hlt.
+ intros H; rewrite H in Hlt; apply Qlt_irrefl in Hlt; contradiction.
+
+ apply IHpts; [ idtac | assumption ].
+ eapply LSorted_minus_2nd; [ idtac | eassumption ].
+ intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
+
+Lemma same_k_same_αk : ∀ pts j αj k αk,
+  LocallySorted fst_lt pts
   → (j, αj) ∈ pts
     → (k, αk) ∈ pts
       → j == k
         → αj = αk.
 Proof.
-intros pos pts j αj k αk Hpts Hj Hk Hjk.
-remember Hpts as Hsort; clear HeqHsort.
-symmetry in Hsort.
-unfold points_of_ps_polynom in Hsort.
-apply points_of_polyn_sorted in Hsort.
+intros pts j αj k αk Hsort Hj Hk Hjk.
 eapply eq_k_eq_αk; try eassumption.
-eapply all_fst_is_int in Hj; try eassumption.
-eapply all_fst_is_int in Hk; try eassumption.
-rewrite <- Hk in Hj.
-apply same_den_qeq_eq; assumption.
-Qed.
+revert j αj k αk Hj Hk Hjk.
+induction pts as [| pt₁]; [ contradiction | intros ].
+destruct Hj as [Hj| Hj].
+ subst pt₁.
+ destruct Hk as [Hk| Hk].
+  injection Hk; intros; subst j; reflexivity.
 
-End puiseux_series.
+  eapply LSorted_neq in Hsort; [ idtac | eassumption ].
+  contradiction.
+
+ destruct Hk as [Hk| Hk].
+  subst pt₁.
+  apply Qeq_sym in Hjk.
+  eapply LSorted_neq in Hsort; [ idtac | eassumption ].
+  contradiction.
+
+  apply LSorted_inv_1 in Hsort.
+  eapply IHpts; eassumption.
+Qed.
