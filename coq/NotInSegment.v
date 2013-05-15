@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.177 2013-05-15 17:55:26 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.178 2013-05-15 19:41:14 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1150,6 +1150,13 @@ induction hsl₁ as [| hs₁]; intros.
     rewrite Heqpts₁.
     eapply minimise_slope_sorted; eassumption.
 
+  apply slope_lt₃₁.
+   Focus 2.
+   apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
+    apply Qlt_le_weak.
+    symmetry in Heqpt₁.
+    eapply sl_lt_bef_j_2nd; try eassumption.
+    Unfocus.
 bbb.
 *)
 
