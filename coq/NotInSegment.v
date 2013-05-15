@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.176 2013-05-15 15:32:19 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.177 2013-05-15 17:55:26 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1033,6 +1033,52 @@ assert ((k, αk) ∈ pts) as Hαk.
  rewrite Hαk; reflexivity.
 Qed.
 
+Lemma sorted_qeq_eq : ∀ pts j αj k αk,
+  Sorted fst_lt pts
+  → (j, αj) ∈ pts
+    → (k, αk) ∈ pts
+      → j == k
+        → (j, αj) = (k, αk).
+Proof.
+intros pts j αj k αk Hsort Hj Hk Hjk.
+induction pts as [| (l, αl)]; [ contradiction | idtac ].
+destruct Hj as [Hj| Hj].
+ destruct Hk as [Hk| Hk].
+  rewrite Hj in Hk; assumption.
+
+  injection Hj; clear Hj; intros; subst l αl.
+  clear IHpts.
+  exfalso.
+  induction pts as [| (l, αl)]; [ contradiction | idtac ].
+  destruct Hk as [Hk| Hk].
+   injection Hk; clear Hk; intros; subst l αl.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+   unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
+   apply Qlt_irrefl in Hlt; contradiction.
+
+   apply IHpts; [ assumption | idtac ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+ destruct Hk as [Hk| Hk].
+  injection Hk; clear Hk; intros; subst l αl.
+  clear IHpts.
+  exfalso.
+  induction pts as [| (l, αl)]; [ contradiction | idtac ].
+  destruct Hj as [Hj| Hj].
+   injection Hj; clear Hj; intros; subst l αl.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+   unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
+   apply Qlt_irrefl in Hlt; contradiction.
+
+   apply IHpts; [ assumption | idtac ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+  apply Sorted_inv_1 in Hsort.
+  apply IHpts; assumption.
+Qed.
+
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
   Sorted fst_lt [(g, αg); (h, αh) … pts]
   → h < j < k
@@ -1063,8 +1109,16 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite Heq.
   do 2 rewrite fold_slope_expr.
   eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
-Focus 3.
-bbb.
+   Focus 3.
+   eapply sorted_qeq_eq with (αj := αh) (αk := αl) in Heq; try eassumption.
+    injection Heq; intros; subst l αl; right; left; reflexivity.
+
+    right; left; reflexivity.
+
+    apply end_pt_in in Hms.
+    rewrite <- Heqpt₁ in Hms.
+    right; assumption.
+
    subst αh.
    apply slope_lt₃₁.
     Focus 2.
@@ -1080,39 +1134,22 @@ bbb.
      eapply minimise_slope_sorted; eassumption.
 
      Unfocus.
-
-bbb.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms) as pts₁.
- destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
- symmetry in Heqms₁.
- destruct pt₁ as (m, αm).
- rewrite <- Heqpt₁ in Heqms₁.
- clear HHnp.
- remember Hnp as HHnp; clear HeqHHnp.
- destruct hsl₁ as [| hs₁].
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms₁) as pts₂.
-  destruct pts₂ as [| pt₂]; [ discriminate Hnp | idtac ].
-  remember (minimise_slope (end_pt ms₁) pt₂ pts₂) as ms₂.
-  symmetry in Heqms₂.
-  injection Hnp; clear Hnp; intros Hnp H Hend; subst segjk.
-  rewrite Heqpts₂ in HHnp.
-  apply slope_lt₃₁; [ assumption | idtac ].
-  apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
-bbb.
-   destruct (Qeq_dec h l) as [Heq| Hne].
-    remember Heq as Heq₁; clear HeqHeq₁.
-    eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
-     unfold slope_expr.
-     simpl.
-     setoid_rewrite Heq₁.
-     rewrite Heq.
-     apply Qle_refl.
-
+     Focus 3.
      right; left; reflexivity.
+
+    split; [ idtac | destruct Hhjk; assumption ].
+    apply next_ch_points_sorted in Hnp.
+     rewrite <- Heqpt₁ in Hnp; assumption.
+
+     eapply minimise_slope_sorted; eassumption.
+
+   split; [ idtac | destruct Hhjk; assumption ].
+   apply next_ch_points_sorted in HHnp.
+    rewrite <- Heqpt₁ in HHnp; assumption.
+
+    rewrite Heqpts₁.
+    eapply minimise_slope_sorted; eassumption.
+
 bbb.
 *)
 
