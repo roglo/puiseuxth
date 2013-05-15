@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.170 2013-05-15 07:54:23 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.171 2013-05-15 08:20:53 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1011,30 +1011,29 @@ assert ((k, αk) ∈ pts) as Hαk.
  rewrite Hαk; reflexivity.
 Qed.
 
-Lemma lt_bef_j_2nd_ch :
-  ∀ pol n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
-  points_of_ps_polynom α fld pol = [(g, αg); (h, αh) … pts]
-  → LocallySorted fst_lt [(g, αg); (h, αh) … pts]
-    → h < j < k
-      → minimise_slope (g, αg) (h, αh) pts = ms
-        → next_ch_points n [end_pt ms … rem_pts ms] =
-          hsl₁ ++
-          [{| pt := (j, αj); oth := segjk |};
-           {| pt := (k, αk); oth := segkx |} … hsl]
-          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
+  LocallySorted fst_lt [(g, αg); (h, αh) … pts]
+  → h < j < k
+    → minimise_slope (g, αg) (h, αh) pts = ms
+      → next_ch_points n [end_pt ms … rem_pts ms] =
+        hsl₁ ++
+        [{| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros pol n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
-intros Hpts Hsort Hhjk Hms Hnp.
+intros n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
 apply slope_lt₃₂; [ assumption | idtac ].
-revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hpts Hhjk.
+revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
 induction hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
  eapply sl_lt_bef_j_2nd with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
  simpl; eassumption.
 
+bbb.
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
@@ -1058,6 +1057,7 @@ induction hsl₁ as [| hs₁]; intros.
   rewrite Heqpts₂ in HHnp.
   apply slope_lt₃₁; [ assumption | idtac ].
   apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
+bbb.
    destruct (Qeq_dec h l) as [Heq| Hne].
     remember Heq as Heq₁; clear HeqHeq₁.
     eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
@@ -1071,20 +1071,19 @@ induction hsl₁ as [| hs₁]; intros.
 bbb.
 *)
 
-Lemma lt_bef_j₁ : ∀ pol n pts j αj segjk k αk segkx hs₁ hsl,
-  points_of_ps_polynom α fld pol = pts
-  → LocallySorted fst_lt pts
-    → next_ch_points n pts =
-        [hs₁;
-         {| pt := (j, αj); oth := segjk |};
-         {| pt := (k, αk); oth := segkx |} … hsl]
-      → ∀ h αh, (h, αh) ∈ pts
-        → h < j < k
-          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
+  LocallySorted fst_lt pts
+  → next_ch_points n pts =
+      [hs₁;
+       {| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → h < j < k
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 (* à nettoyer *)
-intros pol n pts j αj segjk k αk segkx hs₁ hsl.
-intros Hpts Hsort Hnp h αh Hαh (Hhj, Hjk).
+intros n pts j αj segjk k αk segkx hs₁ hsl.
+intros Hsort Hnp h αh Hαh (Hhj, Hjk).
 rename Hnp into Hhsl.
 destruct n; [ discriminate Hhsl | simpl in Hhsl ].
 destruct pts as [| (l, αl)]; [ discriminate Hhsl | idtac ].
@@ -1171,19 +1170,18 @@ destruct Hαh as [Hαh| Hαh].
 Qed.
 
 (**)
-Lemma lt_bef_j : ∀ pol n pts j αj segjk k αk segkx hsl₁ hsl,
-  points_of_ps_polynom α fld pol = pts
-  → LocallySorted fst_lt pts
-    → next_ch_points n pts =
-        hsl₁ ++
-        [{| pt := (j, αj); oth := segjk |};
-         {| pt := (k, αk); oth := segkx |} … hsl]
-      → ∀ h αh, (h, αh) ∈ pts
-        → h < j < k
-          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
+  LocallySorted fst_lt pts
+  → next_ch_points n pts =
+      hsl₁ ++
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts
+      → h < j < k
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros pol n pts j αj segjk k αk segkx hsl₁ hsl.
-intros Hpts Hsort Hnp h αh Hαh (Hhj, Hjk).
+intros n pts j αj segjk k αk segkx hsl₁ hsl.
+intros Hsort Hnp h αh Hαh (Hhj, Hjk).
 destruct hsl₁ as [| hs₁].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -1199,7 +1197,7 @@ destruct hsl₁ as [| hs₁].
   eapply Qlt_trans in Hhj; [ idtac | eassumption ].
   apply Qlt_irrefl in Hhj; contradiction.
 
- revert n pts hs₁ Hpts Hsort Hnp Hαh.
+ revert n pts hs₁ Hsort Hnp Hαh.
  induction hsl₁ as [| hs₂]; intros.
   simpl in Hnp.
   eapply conj in Hjk; [ idtac | eexact Hhj ].
@@ -1222,7 +1220,6 @@ destruct hsl₁ as [| hs₁].
     destruct pt₁ as (g, αg).
     eapply conj in Hjk; [ idtac | eexact Hhj ].
     eapply lt_bef_j_2nd_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
-    (* zut, ça déconne... *)
 bbb.
 *)
 
