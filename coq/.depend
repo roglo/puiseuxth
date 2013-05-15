@@ -3,6 +3,7 @@ ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMis
 InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
 NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
-NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo NotInSegMisc.vo
+NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Slope.vo Puiseux.vo NotInSegMisc.vo
 Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo ConvexHullMisc.vo Misc.vo
+Slope.vo Slope.glob Slope.v.beautified: Slope.v ConvexHull.vo Misc.vo
 T.vo T.glob T.v.beautified: T.v

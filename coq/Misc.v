@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.21 2013-05-12 10:48:13 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.22 2013-05-15 07:54:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,6 +7,7 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
+Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 
 Definition Qnat i := Z.of_nat i # 1.
 
