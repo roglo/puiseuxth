@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.179 2013-05-15 20:21:56 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.180 2013-05-16 00:55:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -25,8 +25,6 @@ Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
         → β ns < αh + h * (γ ns).
 Proof.
 intros pol pts ns nsl Hpts Hns h αh Hαh Hnαh.
-remember Hαh as Hint; clear HeqHint.
-eapply fst_is_int in Hint; [ idtac | symmetry; eassumption ].
 remember Hpts as HHpts; clear HeqHHpts.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
@@ -48,23 +46,14 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
 
  destruct (Qeq_dec h k) as [Heq| Hne].
   symmetry in HHpts.
-  eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
+  eapply sorted_qeq_eq with (αk := αk) in Heq; try eassumption.
    unfold lower_convex_hull_points in Heqhsl.
-   assert ((k, αk) ∈ pts).
-    apply in_ch_in_pts with (n := length pts) (s := segkx).
-    rewrite Heqhsl.
-    right; left; reflexivity.
-
-    eapply fst_is_int in H; [ idtac | symmetry; eassumption ].
-    rewrite <- H in Hint.
-    apply same_den_qeq_eq in Hint; [ idtac | assumption ].
-    subst h αh.
-    simpl in Hnαh.
-    apply Decidable.not_or in Hnαh.
-    destruct Hnαh as (_, Hnαh).
-    apply Decidable.not_or in Hnαh.
-    destruct Hnαh as (Hnαh, _).
-    exfalso; apply Hnαh; reflexivity.
+   rewrite Heq in Hnαh; simpl in Hnαh.
+   apply Decidable.not_or in Hnαh.
+   destruct Hnαh as (_, Hnαh).
+   apply Decidable.not_or in Hnαh.
+   destruct Hnαh as (Hnαh, _).
+   exfalso; apply Hnαh; reflexivity.
 
    eapply points_of_polyn_sorted; eassumption.
 
@@ -478,9 +467,8 @@ Lemma not_k : ∀ n pol pts hsl₁ hsl j αj segjk k αk segkx,
 Proof.
 intros n pol pts hsl₁ hsl j αj segjk k αk segkx.
 intros Hpts Hnp h αh Hαh Hnαh Hhk.
-eapply same_k_same_αk with (αk := αk) in Hαh; try eassumption.
- subst h αh.
- simpl in Hnαh.
+eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
+ rewrite Hαh in Hnαh; simpl in Hnαh.
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (_, Hnαh).
  apply Decidable.not_or in Hnαh.
@@ -597,8 +585,8 @@ Lemma not_j : ∀ n pol pts hsl₁ j αj k αk segjk segkx hsl,
 Proof.
 intros n pol pts hsl₁ j αj k αk segjk segkx hsl.
 intros Hpts Hnp h αh Hαh Hnαh Hne.
-eapply same_k_same_αk with (αk := αj) in Hαh; try eassumption.
- subst h αh.
+eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
+ rewrite Hαh in Hnαh.
  simpl in Hnαh.
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (Hnαh, _).
@@ -1020,63 +1008,16 @@ Lemma qeq_eq : ∀ n pol pts h αh k αk s hsl₁ hsl,
         → h = k.
 Proof.
 intros n pol pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
-apply same_den_qeq_eq; [ idtac | assumption ].
-eapply fst_is_int in Hαh; [ idtac | eassumption ].
-rewrite Hαh.
-assert ((k, αk) ∈ pts) as Hαk.
+eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
+ injection Hhk; intros; subst; reflexivity.
+
+ symmetry in Hpts.
+ eapply points_of_polyn_sorted; eassumption.
+
  apply in_ch_in_pts with (n := n) (s := s).
  rewrite Hhsl.
  apply List.in_app_iff.
  right; left; reflexivity.
-
- eapply fst_is_int in Hαk; [ idtac | eassumption ].
- rewrite Hαk; reflexivity.
-Qed.
-
-Lemma sorted_qeq_eq : ∀ pts j αj k αk,
-  Sorted fst_lt pts
-  → (j, αj) ∈ pts
-    → (k, αk) ∈ pts
-      → j == k
-        → (j, αj) = (k, αk).
-Proof.
-intros pts j αj k αk Hsort Hj Hk Hjk.
-induction pts as [| (l, αl)]; [ contradiction | idtac ].
-destruct Hj as [Hj| Hj].
- destruct Hk as [Hk| Hk].
-  rewrite Hj in Hk; assumption.
-
-  injection Hj; clear Hj; intros; subst l αl.
-  clear IHpts.
-  exfalso.
-  induction pts as [| (l, αl)]; [ contradiction | idtac ].
-  destruct Hk as [Hk| Hk].
-   injection Hk; clear Hk; intros; subst l αl.
-   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
-   unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
-   apply Qlt_irrefl in Hlt; contradiction.
-
-   apply IHpts; [ assumption | idtac ].
-   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
- destruct Hk as [Hk| Hk].
-  injection Hk; clear Hk; intros; subst l αl.
-  clear IHpts.
-  exfalso.
-  induction pts as [| (l, αl)]; [ contradiction | idtac ].
-  destruct Hj as [Hj| Hj].
-   injection Hj; clear Hj; intros; subst l αl.
-   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
-   unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
-   apply Qlt_irrefl in Hlt; contradiction.
-
-   apply IHpts; [ assumption | idtac ].
-   eapply Sorted_minus_2nd; [ idtac | eassumption ].
-   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-  apply Sorted_inv_1 in Hsort.
-  apply IHpts; assumption.
 Qed.
 
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
@@ -1105,21 +1046,8 @@ destruct hsl₁ as [| hs₁]; intros.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
  destruct (Qeq_dec h l) as [Heq| Hne].
-  unfold slope_expr; simpl.
-  rewrite Heq.
-  do 2 rewrite fold_slope_expr.
-  eapply same_k_same_αk with (αj := αh) (αk := αl) in Heq; try eassumption.
-   Focus 3.
-   eapply sorted_qeq_eq with (αj := αh) (αk := αl) in Heq; try eassumption.
-    injection Heq; intros; subst l αl; right; left; reflexivity.
-
-    right; left; reflexivity.
-
-    apply end_pt_in in Hms.
-    rewrite <- Heqpt₁ in Hms.
-    right; assumption.
-
-   subst αh.
+  eapply sorted_qeq_eq with (αj := αh) (αk := αl) in Heq; try eassumption.
+   rewrite Heq.
    apply slope_lt₃₁.
     Focus 2.
     destruct n; [ discriminate Hnp | simpl in Hnp ].
@@ -1137,21 +1065,13 @@ destruct hsl₁ as [| hs₁]; intros.
      Focus 3.
      right; left; reflexivity.
 
-    split; [ idtac | destruct Hhjk; assumption ].
-    apply next_ch_points_sorted in Hnp.
-     rewrite <- Heqpt₁ in Hnp; assumption.
+    Focus 3.
+    apply end_pt_in in Hms.
+    rewrite <- Heqpt₁ in Hms.
+    right; assumption.
 
-     eapply minimise_slope_sorted; eassumption.
-
-   split; [ idtac | destruct Hhjk; assumption ].
-   apply next_ch_points_sorted in HHnp.
-    rewrite <- Heqpt₁ in HHnp; assumption.
-
-    rewrite Heqpts₁.
-    eapply minimise_slope_sorted; eassumption.
-
-  apply slope_lt₃₁.
-   Focus 2.
+   Focus 3.
+   apply slope_lt₃₁; [ assumption | idtac ].
    apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
     apply Qlt_le_weak.
     symmetry in Heqpt₁.

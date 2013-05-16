@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.40 2013-05-15 13:23:49 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.41 2013-05-16 00:55:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -554,53 +554,6 @@ destruct Hαh as [Hαh| Hαh].
       destruct Hsort; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma sorted_hd_not_in_tl : ∀ k αj αk pts,
-  Sorted fst_lt [(k, αj) … pts] → (k, αk) ∉ pts.
-Proof.
-intros k αj αk pts H.
-induction pts as [| (h, αh)]; [ intros HH; contradiction | idtac ].
-intros HH.
-destruct HH as [HH| HH].
- injection HH; clear HH; intros; subst h αh.
- apply Sorted_inv_2 in H; destruct H as (Hlt, H).
- apply Qlt_irrefl in Hlt; assumption.
-
- revert HH; apply IHpts.
- apply Sorted_inv_2 in H; destruct H as (Hlt₁, H).
- apply Sorted_LocallySorted_iff.
- destruct pts as [| pt₂]; [ constructor | idtac ].
- apply Sorted_LocallySorted_iff.
- apply Sorted_inv_2 in H; destruct H as (Hlt₂, H).
- apply Sorted_LocallySorted_iff.
- apply Sorted_LocallySorted_iff in H.
- constructor; [ assumption | idtac ].
- eapply Qlt_trans; eassumption.
-Qed.
-
-Lemma eq_k_eq_αk : ∀ pts j αj k αk,
-  Sorted fst_lt pts
-  → (j, αj) ∈ pts
-    → (k, αk) ∈ pts
-      → j = k
-        → αj = αk.
-Proof.
-intros pts j αj k αk Hpts Hαj Hαk Hjk.
-subst j.
-induction pts as [| pt]; intros; [ contradiction | idtac ].
-destruct Hαj as [Hαj| Hαj]; [ subst pt | idtac ].
- destruct Hαk as [Hαk| Hαk].
-  injection Hαk; clear; intros; subst αj; reflexivity.
-
-  exfalso; revert Hαk; eapply sorted_hd_not_in_tl; eassumption.
-
- destruct Hαk as [Hαk| Hαk]; [ subst pt | idtac ].
-  exfalso; revert Hαj; eapply sorted_hd_not_in_tl; eassumption.
-
-  destruct pts as [| pt₂]; [ contradiction | idtac ].
-  apply Sorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
-  eapply IHpts; eassumption.
-Qed.
-
 Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
   minimise_slope pt₁ pt₂ pts₂ = ms
   → pt ∈ rem_pts ms
@@ -673,95 +626,48 @@ apply Z.mul_reg_r in Hh.
  apply Zlt_irrefl in HH; contradiction.
 Qed.
 
-Section puiseux_series.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
-
-Lemma all_fst_is_int : ∀ n cl cn pts h αh,
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α n cl cn) = pts
-  → (h, αh) ∈ pts
-    → (Qden h = 1)%positive.
-Proof.
-intros n cl cn pts h αh Hpts Hαh.
-revert n pts Hpts Hαh.
-induction cl as [| c]; intros.
- simpl in Hpts.
- destruct (is_zero_dec fld cn) as [Hz| Hnz].
-  subst pts; contradiction.
-
-  subst pts.
-  destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
-  injection Hαh; clear Hαh; intros; subst h αh.
-  reflexivity.
-
- simpl in Hpts.
- destruct (is_zero_dec fld c) as [Hz| Hnz].
-  eapply IHcl; eassumption.
-
-  subst pts.
-  destruct Hαh as [Hαh| Hαh].
-   injection Hαh; clear Hαh; intros; subst h αh.
-   reflexivity.
-
-   eapply IHcl in Hαh; [ assumption | reflexivity ].
-Qed.
-
-Lemma fst_is_int : ∀ pol pts h αh,
-  points_of_ps_polynom α fld pol = pts
-  → (h, αh) ∈ pts
-    → (Qden h = 1)%positive.
-Proof.
-intros pol pts h αh Hpts Hαh.
-eapply all_fst_is_int; eassumption.
-Qed.
-
-End puiseux_series.
-
-Lemma Sorted_neq : ∀ pts j αj k αk,
-  Sorted fst_lt [(j, αj) … pts]
-  → (k, αk) ∈ pts
-    → ¬j == k.
-Proof.
-intros pts j αj k αk Hsort Hk.
-induction pts as [| (l, αl)]; [ contradiction | intros ].
-destruct Hk as [Hk| Hk].
- injection Hk; clear Hk; intros; subst l αl.
- apply Sorted_inv_2 in Hsort.
- destruct Hsort as (Hlt, _).
- unfold fst_lt in Hlt; simpl in Hlt.
- intros H; rewrite H in Hlt; apply Qlt_irrefl in Hlt; contradiction.
-
- apply IHpts; [ idtac | assumption ].
- eapply Sorted_minus_2nd; [ idtac | eassumption ].
- intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-Qed.
-
-Lemma same_k_same_αk : ∀ pts j αj k αk,
+Lemma sorted_qeq_eq : ∀ pts j αj k αk,
   Sorted fst_lt pts
   → (j, αj) ∈ pts
     → (k, αk) ∈ pts
       → j == k
-        → αj = αk.
+        → (j, αj) = (k, αk).
 Proof.
 intros pts j αj k αk Hsort Hj Hk Hjk.
-eapply eq_k_eq_αk; try eassumption.
-revert j αj k αk Hj Hk Hjk.
-induction pts as [| pt₁]; [ contradiction | intros ].
+induction pts as [| (l, αl)]; [ contradiction | idtac ].
 destruct Hj as [Hj| Hj].
- subst pt₁.
  destruct Hk as [Hk| Hk].
-  injection Hk; intros; subst j; reflexivity.
+  rewrite Hj in Hk; assumption.
 
-  eapply Sorted_neq in Hsort; [ idtac | eassumption ].
-  contradiction.
+  injection Hj; clear Hj; intros; subst l αl.
+  clear IHpts.
+  exfalso.
+  induction pts as [| (l, αl)]; [ contradiction | idtac ].
+  destruct Hk as [Hk| Hk].
+   injection Hk; clear Hk; intros; subst l αl.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+   unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
+   apply Qlt_irrefl in Hlt; contradiction.
+
+   apply IHpts; [ assumption | idtac ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
  destruct Hk as [Hk| Hk].
-  subst pt₁.
-  apply Qeq_sym in Hjk.
-  eapply Sorted_neq in Hsort; [ idtac | eassumption ].
-  contradiction.
+  injection Hk; clear Hk; intros; subst l αl.
+  clear IHpts.
+  exfalso.
+  induction pts as [| (l, αl)]; [ contradiction | idtac ].
+  destruct Hj as [Hj| Hj].
+   injection Hj; clear Hj; intros; subst l αl.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
+   unfold fst_lt in Hlt; simpl in Hlt; rewrite Hjk in Hlt.
+   apply Qlt_irrefl in Hlt; contradiction.
+
+   apply IHpts; [ assumption | idtac ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   apply Sorted_inv_1 in Hsort.
-  eapply IHpts; eassumption.
+  apply IHpts; assumption.
 Qed.
