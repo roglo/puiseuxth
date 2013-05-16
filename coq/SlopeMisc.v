@@ -1,4 +1,4 @@
-(* $Id: SlopeMisc.v,v 1.2 2013-05-16 08:06:55 deraugla Exp $ *)
+(* $Id: SlopeMisc.v,v 1.3 2013-05-16 08:14:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -199,113 +199,113 @@ Proof.
 intros; apply Qcmp_sym, slope_cmp_norm₁₃₂₃; assumption.
 Qed.
 
-Lemma slope_cmp₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
-    (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)).
+Lemma slope_cmp₁ : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → (slope_expr pt₁ pt₂ ?= slope_expr pt₁ pt₃) =
+    (slope_expr pt₁ pt₃ ?= slope_expr pt₂ pt₃).
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1213_1323 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
+Lemma slope_lt_1213_1323 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃
+    → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
-Lemma slope_lt_1323_1213 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
+Lemma slope_lt_1323_1213 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃
+    → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 apply slope_cmp₁; assumption.
 Qed.
 
-Lemma slope_cmp₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₂, y₂)) =
-    (slope_expr (x₂, y₂) (x₃, y₃) ?= slope_expr (x₁, y₁) (x₃, y₃)).
+Lemma slope_cmp₂ : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → (slope_expr pt₁ pt₃ ?= slope_expr pt₁ pt₂) =
+    (slope_expr pt₂ pt₃ ?= slope_expr pt₁ pt₃).
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 rewrite slope_cmp_norm₁₃₁₂; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₂₃₁₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1312_2313 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₁, y₁) (x₂, y₂)
-    → slope_expr (x₂, y₂) (x₃, y₃) < slope_expr (x₁, y₁) (x₃, y₃).
+Lemma slope_lt_1312_2313 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₃ < slope_expr pt₁ pt₂
+    → slope_expr pt₂ pt₃ < slope_expr pt₁ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₂; assumption.
 Qed.
 
-Lemma slope_cmp₃ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)) =
-    (slope_expr (x₁, y₁) (x₃, y₃) ?= slope_expr (x₂, y₂) (x₃, y₃)).
+Lemma slope_cmp₃ : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → (slope_expr pt₁ pt₂ ?= slope_expr pt₂ pt₃) =
+    (slope_expr pt₁ pt₃ ?= slope_expr pt₂ pt₃).
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1223_1323 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
+Lemma slope_lt_1223_1323 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃
+    → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₃; assumption.
 Qed.
-Lemma slope_lt_1323_1223 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃).
+Lemma slope_lt_1323_1223 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₃ < slope_expr pt₂ pt₃
+    → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 apply slope_cmp₃; assumption.
 Qed.
 
-Lemma slope_cmp₄ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₁, y₁) (x₃, y₃)) =
-    (slope_expr (x₁, y₁) (x₂, y₂) ?= slope_expr (x₂, y₂) (x₃, y₃)).
+Lemma slope_cmp₄ : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → (slope_expr pt₁ pt₂ ?= slope_expr pt₁ pt₃) =
+    (slope_expr pt₁ pt₂ ?= slope_expr pt₂ pt₃).
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ (Hlt₁, Hlt₂).
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) (Hlt₁, Hlt₂).
 assert (x₁ < x₃) as Hlt₃ by (eapply Qlt_trans; eassumption).
 rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt_1213_1223 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃).
+Lemma slope_lt_1213_1223 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃
+    → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₄; assumption.
 Qed.
-Lemma slope_lt_1223_1213 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
-  x₁ < x₂ < x₃
-  → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
-    → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
+Lemma slope_lt_1223_1213 : ∀ pt₁ pt₂ pt₃,
+  fst pt₁ < fst pt₂ < fst pt₃
+  → slope_expr pt₁ pt₂ < slope_expr pt₂ pt₃
+    → slope_expr pt₁ pt₂ < slope_expr pt₁ pt₃.
 Proof.
-intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
+intros (x₁, y₁) (x₂, y₂) (x₃, y₃) Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 apply slope_cmp₄; assumption.
 Qed.

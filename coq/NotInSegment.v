@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.188 2013-05-16 08:14:23 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.189 2013-05-16 08:18:46 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -360,24 +360,18 @@ induction hsl₁ as [| hs₁]; intros.
  remember Heqms₁ as Hms₁; clear HeqHms₁.
  eapply IHhsl₁ in Heqms₁; try eassumption.
   eapply Qlt_trans; [ idtac | eassumption ].
-  destruct pt₁ as (x₁, y₁).
-  destruct pt₃ as (x₃, y₃).
-  remember (end_pt ms) as pt₆.
-  destruct pt₆ as (x₂, y₂).
   apply slope_lt_1223_1323.
    split.
     eapply Qlt_le_trans.
      apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _).
      unfold fst_lt in Hlt; simpl in Hlt; eassumption.
 
-     apply minimise_slope_le in Hms.
-      rewrite <- Heqpt₆ in Hms; assumption.
-
-      eapply Sorted_inv_1; eassumption.
+     eapply Sorted_inv_1 in Hsort.
+     apply minimise_slope_le in Hms; assumption.
 
     remember Hms as Hms₂; clear HeqHms₂.
     apply minimise_slope_sorted in Hms; [ idtac | assumption ].
-    rewrite <- Heqpt₆, <- Heqpts₁ in Hms.
+    rewrite <- Heqpts₁ in Hms.
     apply Sorted_inv_2 in Hms; destruct Hms as (Hlt, Hms).
     eapply Qlt_le_trans; [ eassumption | idtac ].
     remember Hms₁ as Hms₃; clear HeqHms₃.
@@ -385,7 +379,7 @@ induction hsl₁ as [| hs₁]; intros.
     eapply Qle_trans; [ eassumption | idtac ].
     apply next_ch_points_le in Hnp; [ assumption | idtac ].
     eapply minimise_slope_sorted; [ idtac | eassumption ].
-    rewrite Heqpt₆, Heqpts₁.
+    rewrite Heqpts₁.
     eapply minimise_slope_sorted; eassumption.
 bbb.
 *)
