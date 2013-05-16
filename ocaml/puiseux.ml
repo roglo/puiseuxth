@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.212 2013-05-02 00:02:38 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.213 2013-05-16 16:07:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -39,28 +39,26 @@ value qcompare q₁ q₂ =
 
 value qnat i = Q.of_i (I.of_int i);
 
-Record min_sl α :=
+Definition slope_expr pt₁ pt₂ :=
+  Q.norm (Qdiv (Qminus (snd pt₂) (snd pt₁)) (Qminus (fst pt₂) (fst pt₁)));
+
+Record min_sl :=
   { slope : Q;
-    end_pt : (int * α);
-    seg : list (int * α);
-    rem_pts : list (int * α) };
+    end_pt : (Q * Q);
+    seg : list (Q * Q);
+    rem_pts : list (Q * Q) };
 
-Record hull_seg α := ahs
-  { pt : (nat * α);
-    oth : list (nat * α) };
+Record hull_seg := ahs
+  { pt : (Q * Q);
+    oth : list (Q * Q) };
 
-Definition slope_expr α pt₁ pt₂ :=
-  let v₁ := valuation α (snd pt₁) in
-  let v₂ := valuation α (snd pt₂) in
-  Q.norm (Qdiv (Qminus v₂ v₁) (Qminus (Qnat (fst pt₂)) (Qnat (fst pt₁))));
-
-Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
-  let sl₁₂ := slope_expr α pt₁ pt₂ in
+Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
+  let sl₁₂ := slope_expr pt₁ pt₂ in
   match pts₂ with
   | [] =>
       {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
   | [pt₃ :: pts₃] =>
-      let ms := minimise_slope α pt₁ pt₃ pts₃ in
+      let ms := minimise_slope pt₁ pt₃ pts₃ in
       match Qcompare sl₁₂ (slope ms) with
       | Eq =>
           {| slope := slope ms; end_pt := end_pt ms; seg := [pt₂ :: seg ms];
@@ -72,7 +70,7 @@ Fixpoint minimise_slope α pt₁ pt₂ pts₂ :=
       end
   end;
 
-Fixpoint next_ch_points α n pts :=
+Fixpoint next_ch_points n pts :=
   match n with
   | O => []
   | S n =>
@@ -80,54 +78,69 @@ Fixpoint next_ch_points α n pts :=
       | [] => []
       | [pt₁] => [{| pt := pt₁; oth := [] |}]
       | [pt₁; pt₂ :: pts₂] =>
-          let ms := minimise_slope α pt₁ pt₂ pts₂ in
-          let hsl := next_ch_points α n [end_pt ms :: rem_pts ms] in
+          let ms := minimise_slope pt₁ pt₂ pts₂ in
+          let hsl := next_ch_points n [end_pt ms :: rem_pts ms] in
           [{| pt := pt₁; oth := seg ms |} :: hsl]
       end
   end;
 
-Definition lower_convex_hull_points α pts :=
-  next_ch_points α (List.length pts) pts;
+Definition lower_convex_hull_points pts :=
+  next_ch_points (List.length pts) pts;
 
-Fixpoint list_map_pairs α β (f : α → α → β) l :=
+Fixpoint list_map_pairs (f : α → α → β) l :=
   match l with
   | [] => []
   | [x₁] => []
-  | [x₁ :: ([x₂ :: l₂] as l₁)] => [f x₁ x₂ :: list_map_pairs α β f l₁]
+  | [x₁ :: ([x₂ :: l₂] as l₁)] => [f x₁ x₂ :: list_map_pairs f l₁]
   end;
 
-Record newton_segment α := mkns
+Record newton_segment := mkns
   { γ : Q;
     β : Q;
-    ini_pt : (nat * puiseux_series α);
-    fin_pt : (nat * puiseux_series α);
-    oth_pts : list (nat * puiseux_series α) };
+    ini_pt : (Q * Q);
+    fin_pt : (Q * Q);
+    oth_pts : list (Q * Q) };
 
-value points_of_ps_polynom α fld pol =
-  let (rev_dpl, _) =
-    List.fold_left
-      (fun (rev_dpl, deg) ps →
-         let rev_dpl =
-           if ps.ps_monoms = [] then rev_dpl
-           else [(deg, ps) :: rev_dpl]
-         in
-         (rev_dpl, deg + 1))
-      ([], 0) pol.al
+Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
+  match psl with
+  | [ps₁ :: psl₁] =>
+      [(Qnat pow, ps₁) :: all_points_of_ps_polynom α (S pow) psl₁ psn]
+  | [] =>
+      [(Qnat pow, psn)]
+  end;
+
+Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
+  match dpl with
+  | [(pow, ps) :: dpl₁] =>
+      if ps.ps_monoms = [] then filter_non_zero_ps α fld dpl₁
+      else [(pow, valuation α ps) :: filter_non_zero_ps α fld dpl₁]
+  | [] =>
+      []
+  end;
+
+Definition points_of_ps_polynom_gen α fld pow cl cn :=
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn);
+
+Definition points_of_ps_polynom α fld pol :=
+  match List.rev pol.al with
+  | [] =>
+      []
+  | [an :: rev_al] =>
+      points_of_ps_polynom_gen α fld 0%nat (List.rev rev_al) an
+  end;
+
+Definition newton_segment_of_pair hsj hsk :=
+  let αj := snd (pt hsj) in
+  let αk := snd (pt hsk) in
+  let γ :=
+    Q.norm (Q.div (Q.sub αj αk) (Q.sub (fst (pt hsk)) (fst (pt hsj))))
   in
-  List.rev rev_dpl
-;
+  let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
+  mkns γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition gamma_beta_of_pair α hsj hsk :=
-  let αj := valuation α (snd (pt hsj)) in
-  let αk := valuation α (snd (pt hsk)) in
-  let γ := Q.norm (Q.div (Q.sub αj αk) (Qnat (fst (pt hsk) - fst (pt hsj)))) in
-  let β := Q.norm (Q.add αj (Q.mul (Qnat (fst (pt hsj))) γ)) in
-  mkns α γ β (pt hsj) (pt hsk) (oth hsj);
-
-Definition newton_segments pol :=
-  let α := () in
-  let gdpl := points_of_ps_polynom α () pol in
-  list_map_pairs α () (gamma_beta_of_pair α) (lower_convex_hull_points α gdpl);
+Definition newton_segments α fld pol :=
+  let gdpl := points_of_ps_polynom α fld pol in
+  list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl);
 
 value start_red = "\027[31m";
 value end_red = "\027[m";
@@ -144,7 +157,7 @@ value arg_end = ref False;
 
 type branch α =
   { initial_polynom : polynomial (puiseux_series α);
-    cγl : list (α * Q.t);
+    cγl : list (α * Q);
     step : int;
     rem_steps : int;
     vx : string;
@@ -386,15 +399,21 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
+value ti q = I.to_int (Q.rnum q);
+
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
   let β = ns.β in
-  let (j, jps) = ns.ini_pt in
-  let (k, kps) = ns.fin_pt in
+  let (j, αj) = ns.ini_pt in
+  let (k, αk) = ns.fin_pt in
+  let j = ti j in
+  let k = ti k in
+  let jps = List.nth br.pol.al j in
+  let kps = List.nth br.pol.al k in
   let dpl = ns.oth_pts in
   let f = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
-  let q = List.fold_left (fun q h → gcd q (fst h - j)) (k - j) dpl in
+  let q = List.fold_left (fun q h → gcd q (ti (fst h) - j)) (k - j) dpl in
   let _ =
     if verbose.val then do {
       printf "γ%s = %-4s" ss (Q.to_string γ);
@@ -410,12 +429,14 @@ value rec puiseux_branch af br sol_list ns =
   let pol =
     loop [] 1 dpl where rec loop rev_cl deg dpl =
       match dpl with
-      [ [(hdeg, ps) :: dpl₁] →
+      [ [(x, y) :: dpl₁] →
+          let hdeg = ti x in
           if hdeg - j > deg then
             loop [f.zero :: rev_cl] (deg + 1) dpl
           else if hdeg - j < deg then
             match () with []
           else
+            let ps = List.nth br.pol.al hdeg in
             let c = valuation_coeff () f ps in
             loop [c :: rev_cl] (deg + 1) dpl₁
       | [] →
@@ -444,7 +465,7 @@ value rec puiseux_branch af br sol_list ns =
       sol_list rl
 
 and next_step k br sol_list pol cγl =
-  let gbl = newton_segments pol in
+  let gbl = newton_segments () () pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -478,7 +499,7 @@ value print_line_equal () =
 ;
 
 value puiseux k nb_steps vx vy pol =
-  let gbl = newton_segments pol in
+  let gbl = newton_segments () () pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in

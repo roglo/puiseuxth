@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.14 2013-04-27 01:54:35 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.15 2013-05-16 16:07:03 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -47,11 +47,10 @@ EXTEND
           <:str_item< declare $list:[d :: dl]$ end >> ] ]
   ;
   label_declaration:
-    [ [ i = label_ident; ":"; t = coq_ctyp -> (loc, i, False, t) ] ]
+    [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t) ] ]
   ;
-  coq_ctyp:
-    [ [ UIDENT "Q" → <:ctyp< Q.t >>
-      | t = ctyp → t ] ]
+  ctyp: LEVEL "simple"
+    [ [ UIDENT "Q" → <:ctyp< Q.t >> ] ]
   ;
   label_ident:
     [ [ i = LIDENT → i
