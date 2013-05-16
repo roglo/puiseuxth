@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.192 2013-05-16 12:58:23 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.193 2013-05-16 13:04:28 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1027,7 +1027,7 @@ Lemma sl_lt_1st_ns_any_hp : ∀ n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂
     → rem_pts ms₁ = [pt₃ … pts₁]
       → minimise_slope (end_pt ms₁) pt₃ pts₁ = ms₂
         → next_ch_points n [end_pt ms₂ … rem_pts ms₂] =
-          hsl₁ ++ [{| pt := pt₄; oth := sg₄ |} … hsl]
+          hsl₁ ++ [ahs pt₄ sg₄ … hsl]
           → slope_expr pt₁ (end_pt ms₁) < slope_expr (end_pt ms₁) pt₄.
 Proof.
 intros n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl.
@@ -1084,7 +1084,7 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma zzz : ∀ n pt₁ pt₂ pt₃ pt₄ pts sg₃ sg₄ ms hsl₁ hsl,
+Lemma sl_lt_any_ns : ∀ n pt₁ pt₂ pt₃ pt₄ pts sg₃ sg₄ ms hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
@@ -1143,8 +1143,10 @@ induction hsl₁ as [| hs₁]; intros.
 
    symmetry in Heqpts₁.
    eapply sl_lt_1st_ns_any_hp; eassumption.
-bbb.
-*)
+
+  rewrite Heqpts₁.
+  eapply minimise_slope_sorted; eassumption.
+Qed.
 
 Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
   Sorted fst_lt [(g, αg); (h, αh) … pts]
@@ -1227,9 +1229,8 @@ destruct hsl₁ as [| hs₁]; intros.
    rewrite <- Heqpt₁ in Heqms₁.
    apply minimise_slope_sorted in Hms; [ idtac | assumption ].
    rewrite <- Heqpt₁, <- Heqpts₁ in Hms.
-   eapply zzz; try eassumption.
-qed.
-*)
+   eapply sl_lt_any_ns; try eassumption.
+Qed.
 
 Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
   Sorted fst_lt pts
