@@ -1,4 +1,4 @@
-(* $Id: Slope.v,v 1.2 2013-05-16 03:20:31 deraugla Exp $ *)
+(* $Id: SlopeMisc.v,v 1.1 2013-05-16 03:24:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
