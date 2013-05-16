@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.191 2013-05-16 09:40:50 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.192 2013-05-16 12:58:23 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1021,7 +1021,7 @@ eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
  right; left; reflexivity.
 Qed.
 
-Lemma yyy : ∀ n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
+Lemma sl_lt_1st_ns_any_hp : ∀ n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → rem_pts ms₁ = [pt₃ … pts₁]
@@ -1072,12 +1072,17 @@ induction hsl₁ as [| hs₁]; intros.
      eapply minimise_slope_sorted; [ idtac | eassumption ].
      rewrite Heqpts₂.
      eapply minimise_slope_sorted; [ idtac | eassumption ].
-bbb.
+     rewrite <- Hrem₁.
+     eapply minimise_slope_sorted; eassumption.
+
+     rewrite <- Hrem₁.
+     eapply minimise_slope_sorted; eassumption.
+
    symmetry in Heqpts₂.
    eapply IHhsl₁; try eassumption.
    rewrite <- Hrem₁.
    eapply minimise_slope_sorted; eassumption.
-bbb.
+Qed.
 
 Lemma zzz : ∀ n pt₁ pt₂ pt₃ pt₄ pts sg₃ sg₄ ms hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1137,7 +1142,7 @@ induction hsl₁ as [| hs₁]; intros.
     eapply minimise_slope_sorted; eassumption.
 
    symmetry in Heqpts₁.
-   eapply yyy; eassumption.
+   eapply sl_lt_1st_ns_any_hp; eassumption.
 bbb.
 *)
 
