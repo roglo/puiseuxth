@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.194 2013-05-16 13:22:47 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.195 2013-05-16 14:23:23 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -651,6 +651,7 @@ apply slope_eq; [ idtac | idtac | idtac | assumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+(* réunion avec 'min_slope_le' ? *)
 Lemma minimise_slope_expr_le : ∀ pt₁ pt₂ pt₃ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
@@ -727,6 +728,7 @@ induction pts as [| pt₄]; intros.
     intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+(* réunion avec 'minimise_slope_expr_le' ? *)
 Lemma min_slope_le : ∀ pt₁ pt₂ pt₃ pt₄ pts ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms
@@ -961,17 +963,40 @@ do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; eassumption.
 Qed.
 
-Lemma sl_lt_bef_j_2nd : ∀ n pts g αg h αh j αj k αk segkx hsl₁ hsl ms,
-  Sorted fst_lt [(g, αg); (h, αh) … pts]
-  → h < j < k
-    → minimise_slope (g, αg) (h, αh) pts = ms
-      → end_pt ms = (j, αj)
-        → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
-          → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
+Lemma Sorted_in : ∀ pt₁ pt₂ pts,
+  Sorted fst_lt [pt₁ … pts]
+  → pt₂ ∈ [pt₁ … pts]
+    → fst pt₁ <= fst pt₂.
 Proof.
-intros n pts g αg h αh j αj k αk segkx hsl₁ hsl ms.
-intros Hsort (Hhj, Hjk) Hms Hend Hnp.
+intros pt₁ pt₂ pts Hsort H.
+revert pt₁ Hsort H.
+induction pts as [| pt₃]; intros.
+ destruct H as [H| ]; [ idtac | contradiction ].
+ subst pt₁; apply Qle_refl.
+
+ destruct H as [H| H].
+  subst pt₁; apply Qle_refl.
+
+  eapply Qle_trans with (y := fst pt₃).
+   apply Qlt_le_weak.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _); assumption.
+
+   eapply IHpts; try eassumption.
+   eapply Sorted_inv_1; eassumption.
+Qed.
+
+Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx hsl₁ hsl ms,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → (h, αh) ∈ [pt₂ … pts]
+    → h < j < k
+      → minimise_slope pt₁ pt₂ pts = ms
+        → end_pt ms = (j, αj)
+          → next_ch_points n [end_pt ms … rem_pts ms] =
+              hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
+            → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
+Proof.
+intros n pts (g, αg) pt₂ h αh j αj k αk segkx hsl₁ hsl ms.
+intros Hsort Hh (Hhj, Hjk) Hms Hend Hnp.
 apply slope_lt_1223_1323; [ split; assumption | idtac ].
 apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
  remember Hms as Hms₁; clear HeqHms₁.
@@ -979,13 +1004,20 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
  eapply minimised_slope in Hms; [ idtac | eassumption ].
  rewrite <- Hms.
  symmetry in Hend.
- eapply minimise_slope_expr_le; eassumption.
+ destruct Hh as [Hh| Hh].
+  subst pt₂.
+  eapply minimise_slope_expr_le; eassumption.
+
+  eapply min_slope_le; eassumption.
 
  apply slope_lt_1323_1223.
   split; [ idtac | assumption ].
   apply Sorted_inv_2 in Hsort.
-  destruct Hsort.
-  eapply Qlt_trans; eassumption.
+  eapply Qlt_trans; [ idtac | eassumption ].
+  destruct Hsort as (Hle, Hsort).
+  eapply Qlt_le_trans; [ eassumption | idtac ].
+  replace h with (fst (h, αh)) by reflexivity.
+  eapply Sorted_in; eassumption.
 
   destruct hsl₁ as [| hs₁].
    remember Hnp as HHnp; clear HeqHHnp.
@@ -994,11 +1026,14 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    injection Hnp; clear Hnp; intros; subst j αj.
    apply Qlt_irrefl in Hjk; contradiction.
 
+   destruct pt₂ as (i, αi).
    eapply sl_lt_bef_j_in_ch; try eassumption.
    split; [ idtac | assumption ].
    apply Sorted_inv_2 in Hsort.
    destruct Hsort.
-   eapply Qlt_trans; eassumption.
+   eapply Qlt_le_trans; [ eassumption | idtac ].
+   apply minimise_slope_le in Hms; [ idtac | assumption ].
+   rewrite Hend in Hms; assumption.
 Qed.
 
 Lemma qeq_eq : ∀ n pol pts h αh k αk s hsl₁ hsl,
@@ -1148,6 +1183,32 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
+(**)
+Lemma lt_bef_j_aft_1st_ch :
+  ∀ n pts pt₁ pt₂ h αh j αj k αk segjk segkx hsl₁ hsl ms,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → (h, αh) ∈ [pt₂ … pts]
+    → h < j < k
+      → minimise_slope pt₁ pt₂ pts = ms
+        → next_ch_points n [end_pt ms … rem_pts ms] =
+          hsl₁ ++
+          [{| pt := (j, αj); oth := segjk |};
+           {| pt := (k, αk); oth := segkx |} … hsl]
+          → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pts pt₁ pt₂ h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros Hsort Hh Hhjk Hms Hnp.
+eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+do 2 rewrite fold_slope_expr.
+apply slope_lt_1323_1223; [ assumption | idtac ].
+destruct hsl₁ as [| hs₁]; intros.
+ remember Hnp as H; clear HeqH.
+ eapply next_ch_points_hd in H.
+ eapply sl_lt_bef_j_any with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+ simpl; eassumption.
+bbb.
+*)
+
 Lemma lt_bef_j_2nd_ch : ∀ n pts pt₁ h αh j αj k αk segjk segkx hsl₁ hsl ms,
   Sorted fst_lt [pt₁; (h, αh) … pts]
   → h < j < k
@@ -1163,12 +1224,13 @@ intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
 apply slope_lt_1323_1223; [ assumption | idtac ].
-revert n ms g αg h αh j αj k αk segjk segkx hsl pts Hms Hnp Hsort Hhjk.
 destruct hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
- eapply sl_lt_bef_j_2nd with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
- simpl; eassumption.
+ eapply sl_lt_bef_j_any with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+  left; reflexivity.
+
+  simpl; eassumption.
 
  remember Hnp as HHnp; clear HeqHHnp.
  remember (end_pt ms) as pt₁ in |- *.
@@ -1202,7 +1264,7 @@ destruct hsl₁ as [| hs₁]; intros.
   apply Qle_lt_trans with (y := slope_expr (l, αl) (j, αj)).
    apply Qlt_le_weak.
    symmetry in Heqpt₁.
-   eapply sl_lt_bef_j_2nd; try eassumption.
+   eapply sl_lt_bef_j_any; try eassumption; [ left; reflexivity | idtac ].
    split.
     apply end_pt_in in Hms.
     rewrite Heqpt₁ in Hms.
