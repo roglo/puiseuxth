@@ -1,4 +1,4 @@
-(* $Id: SlopeMisc.v,v 1.1 2013-05-16 03:24:50 deraugla Exp $ *)
+(* $Id: SlopeMisc.v,v 1.2 2013-05-16 08:06:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -210,7 +210,7 @@ rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt₁₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1213_1323 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
@@ -219,7 +219,7 @@ intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₁; assumption.
 Qed.
-Lemma slope_lt₁₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1323_1213 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
@@ -240,7 +240,7 @@ rewrite slope_cmp_norm₁₃₁₂; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₂₃₁₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1312_2313 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₁, y₁) (x₂, y₂)
     → slope_expr (x₂, y₂) (x₃, y₃) < slope_expr (x₁, y₁) (x₃, y₃).
@@ -261,7 +261,7 @@ rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₃₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt₃₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1223_1323 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃).
@@ -270,7 +270,7 @@ intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₃; assumption.
 Qed.
-Lemma slope_lt₃₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1323_1223 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₃, y₃) < slope_expr (x₂, y₂) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃).
@@ -291,7 +291,7 @@ rewrite slope_cmp_norm₁₂₁₃; [ idtac | split; assumption ].
 rewrite slope_cmp_norm₁₂₂₃; [ idtac | split; assumption ].
 reflexivity.
 Qed.
-Lemma slope_lt₄₁ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1213_1223 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃).
@@ -300,7 +300,7 @@ intros x₁ y₁ x₂ y₂ x₃ y₃ Hlt H.
 rewrite Qlt_alt in H |- *; rewrite <- H.
 symmetry; apply slope_cmp₄; assumption.
 Qed.
-Lemma slope_lt₄₂ : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
+Lemma slope_lt_1223_1213 : ∀ x₁ y₁ x₂ y₂ x₃ y₃,
   x₁ < x₂ < x₃
   → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₂, y₂) (x₃, y₃)
     → slope_expr (x₁, y₁) (x₂, y₂) < slope_expr (x₁, y₁) (x₃, y₃).
