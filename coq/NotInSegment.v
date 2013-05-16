@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.193 2013-05-16 13:04:28 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.194 2013-05-16 13:22:47 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -944,17 +944,17 @@ induction hsl₁ as [| hs₁]; intros.
    eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms,
-  Sorted fst_lt [(h, αh); (i, αi) … pts]
+Lemma lt_bef_j_in_ch : ∀ n pts h αh pt₂ j αj k αk segjk segkx hsl₁ hsl ms,
+  Sorted fst_lt [(h, αh); pt₂ … pts]
   → h < j < k
-    → minimise_slope (h, αh) (i, αi) pts = ms
+    → minimise_slope (h, αh) pt₂ pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
         hsl₁ ++
         [{| pt := (j, αj); oth := segjk |};
          {| pt := (k, αk); oth := segkx |} … hsl]
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
+intros n pts h αh (i, αi) j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
@@ -1148,17 +1148,17 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma lt_bef_j_2nd_ch : ∀ n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms,
-  Sorted fst_lt [(g, αg); (h, αh) … pts]
+Lemma lt_bef_j_2nd_ch : ∀ n pts pt₁ h αh j αj k αk segjk segkx hsl₁ hsl ms,
+  Sorted fst_lt [pt₁; (h, αh) … pts]
   → h < j < k
-    → minimise_slope (g, αg) (h, αh) pts = ms
+    → minimise_slope pt₁ (h, αh) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
         hsl₁ ++
         [{| pt := (j, αj); oth := segjk |};
          {| pt := (k, αk); oth := segkx |} … hsl]
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pts g αg h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros n pts (g, αg) h αh j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
 eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
 do 2 rewrite fold_slope_expr.
@@ -1372,13 +1372,11 @@ destruct hsl₁ as [| hs₁].
   symmetry in Heqms₁.
   destruct Hαh as [Hαh| Hαh].
    subst pt₁ hs₁.
-   destruct pt₂.
    eapply conj in Hjk; [ idtac | eexact Hhj ].
    eapply lt_bef_j_in_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 
    destruct Hαh as [Hαh| Hαh].
     subst hs₁ pt₂.
-    destruct pt₁ as (g, αg).
     eapply conj in Hjk; [ idtac | eexact Hhj ].
     eapply lt_bef_j_2nd_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 bbb.
