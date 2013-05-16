@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.190 2013-05-16 09:23:40 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.191 2013-05-16 09:40:50 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1053,7 +1053,26 @@ induction hsl₁ as [| hs₁]; intros.
   eapply consec_slope_lt; eassumption.
 
   apply slope_lt_1223_1213.
-   Focus 2.
+   split.
+    apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
+    rewrite Hrem₁ in Hms₁.
+    apply Sorted_inv_2 in Hms₁; destruct Hms₁ as (Hlt, Hms₁).
+    eapply Qlt_le_trans; [ eassumption | idtac ].
+    apply minimise_slope_le in Hms₂; assumption.
+
+    remember Hms₂ as HHms₂; clear HeqHHms₂.
+    apply minimise_slope_sorted in Hms₂.
+     rewrite <- Heqpts₂ in Hms₂.
+     apply Sorted_inv_2 in Hms₂; destruct Hms₂ as (Hlt, Hms₂).
+     eapply Qlt_le_trans; [ eassumption | idtac ].
+     remember Heqms₃ as Hms₃; clear HeqHms₃.
+     apply minimise_slope_le in Heqms₃; [ idtac | assumption ].
+     eapply Qle_trans; [ eassumption | idtac ].
+     apply next_ch_points_le in Hnp; [ assumption | idtac ].
+     eapply minimise_slope_sorted; [ idtac | eassumption ].
+     rewrite Heqpts₂.
+     eapply minimise_slope_sorted; [ idtac | eassumption ].
+bbb.
    symmetry in Heqpts₂.
    eapply IHhsl₁; try eassumption.
    rewrite <- Hrem₁.
