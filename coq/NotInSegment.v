@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.181 2013-05-16 01:06:08 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.182 2013-05-16 01:22:24 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1075,6 +1075,21 @@ destruct hsl₁ as [| hs₁]; intros.
    apply Qlt_le_weak.
    symmetry in Heqpt₁.
    eapply sl_lt_bef_j_2nd; try eassumption.
+   split.
+    apply end_pt_in in Hms.
+    rewrite Heqpt₁ in Hms.
+    destruct Hms as [Hms| Hms].
+     injection Hms; intros; subst h.
+     exfalso; apply Hne; reflexivity.
+
+     apply Sorted_inv_1 in Hsort.
+     eapply Sorted_hd in Hsort; [ idtac | eassumption ].
+     assumption.
+
+    apply next_ch_points_sorted in Hnp.
+     rewrite Heqpt₁ in Hnp; assumption.
+
+     eapply minimise_slope_sorted; eassumption.
 bbb.
 *)
 
