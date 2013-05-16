@@ -1,8 +1,8 @@
-(* $Id: Slope.v,v 1.1 2013-05-15 07:54:23 deraugla Exp $ *)
+(* $Id: Slope.v,v 1.2 2013-05-16 03:20:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
-Require Import ConvexHull.
+Require Import Slope_base.
 Require Import Misc.
 
 Lemma Qcmp_eq : ∀ a, (a ?= a) = Eq.

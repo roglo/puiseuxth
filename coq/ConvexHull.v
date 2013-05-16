@@ -1,7 +1,8 @@
-(* $Id: ConvexHull.v,v 1.45 2013-05-10 15:00:34 deraugla Exp $ *)
+(* $Id: ConvexHull.v,v 1.46 2013-05-16 03:20:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import Slope_base.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -16,9 +17,6 @@ Record min_sl :=
 Record hull_seg := ahs
   { pt : (Q * Q);
     oth : list (Q * Q) }.
-
-Definition slope_expr pt₁ pt₂ :=
-  Qdiv (Qminus (snd pt₂) (snd pt₁)) (Qminus (fst pt₂) (fst pt₁)).
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr pt₁ pt₂ in

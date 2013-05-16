@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.10 2013-05-15 13:23:49 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.11 2013-05-16 03:20:31 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -6,6 +6,7 @@ Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
 Require Import Misc.
+Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux.

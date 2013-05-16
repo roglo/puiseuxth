@@ -1,17 +1,14 @@
-(* $Id: ConvexHullMisc.v,v 1.3 2013-05-15 13:23:49 deraugla Exp $ *)
+(* $Id: ConvexHullMisc.v,v 1.4 2013-05-16 03:20:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
 Require Import ConvexHull.
+Require Import Slope_base.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
-
-Lemma fold_slope_expr : ∀ x₁ y₁ x₂ y₂,
-  (y₂ - y₁) / (x₂ - x₁) = slope_expr (x₁, y₁) (x₂, y₂).
-Proof. reflexivity. Qed.
 
 Definition fst_lt (x y : Q * Q) := (fst x < fst y).
 Definition hs_x_lt (x y : hull_seg) := (fst (pt x) < fst (pt y)).

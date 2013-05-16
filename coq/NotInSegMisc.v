@@ -1,9 +1,10 @@
-(* $Id: NotInSegMisc.v,v 1.41 2013-05-16 00:55:56 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.42 2013-05-16 03:20:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
 Require Import Misc.
+Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux.

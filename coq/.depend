@@ -1,9 +1,10 @@
-ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v
-ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo
-InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
+ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
+ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
+InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
-NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
-NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo ConvexHull.vo ConvexHullMisc.vo Slope.vo Puiseux.vo NotInSegMisc.vo
+NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
+NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo Slope_base.vo Slope.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo NotInSegMisc.vo
 Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo ConvexHullMisc.vo Misc.vo
-Slope.vo Slope.glob Slope.v.beautified: Slope.v ConvexHull.vo Misc.vo
+Slope.vo Slope.glob Slope.v.beautified: Slope.v Slope_base.vo Misc.vo
+Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
