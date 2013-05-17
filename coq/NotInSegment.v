@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.200 2013-05-17 01:44:56 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.201 2013-05-17 02:12:51 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1294,8 +1294,44 @@ Lemma zzz : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl,
             hsl₁ ++ [ahs (j, αj) segjk; ahs (k, αk) segkx … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
-intros n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl.
+intros n (g, αg) pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl.
 intros Hsort Hh (Hhj, Hjk) Hms (H₁h, Hhe) Hnp.
+destruct hsl₁ as [| hs₁]; intros.
+ remember Hnp as H; clear HeqH.
+ eapply next_ch_points_hd in H.
+ eapply sl_lt_bef_j_any with (hsl₁ := [ahs (j, αj) segjk]); try eassumption.
+  split; assumption.
+
+  simpl; eassumption.
+
+ remember Hnp as HHnp; clear HeqHHnp.
+ remember (end_pt ms) as pt₁ in |- *.
+ destruct pt₁ as (l, αl).
+ rewrite <- Heqpt₁ in Hhe; simpl in H₁h, Hhe.
+ destruct (Qeq_dec h l) as [Heq| Hne].
+  eapply sorted_qeq_eq with (αj := αh) (αk := αl) in Heq; try eassumption.
+   rewrite Heq.
+   apply slope_lt_1223_1323.
+    injection Heq; intros; subst l; split; assumption.
+
+    destruct n; [ discriminate Hnp | simpl in Hnp ].
+    remember (rem_pts ms) as pts₁.
+    destruct pts₁ as [| (m, αm)]; [ destruct hsl₁; discriminate Hnp | idtac ].
+    remember (minimise_slope (end_pt ms) (m, αm) pts₁) as ms₁.
+    symmetry in Heqms₁.
+    rewrite <- Heqpt₁ in Heqms₁.
+    injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+    eapply lt_expr_bef_j_in_ch; try eassumption.
+     rewrite Heqpt₁, Heqpts₁.
+     eapply minimise_slope_sorted; eassumption.
+
+     injection Heq; intros; subst l; split; assumption.
+
+   right; assumption.
+
+   apply end_pt_in in Hms.
+   rewrite <- Heqpt₁ in Hms.
+   right; assumption.
 bbb.
 *)
 
