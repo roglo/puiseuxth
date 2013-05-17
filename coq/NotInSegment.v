@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.205 2013-05-17 02:52:32 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.206 2013-05-17 07:51:45 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1472,32 +1472,6 @@ destruct hsl₁ as [| hs₁].
     split; assumption.
 Qed.
 
-Lemma lt_bef_j₀ : ∀ n pts j αj segjk k αk segkx hsl,
-  Sorted fst_lt pts
-  → next_ch_points n pts =
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
-    → ∀ h αh, (h, αh) ∈ pts
-      → h < j
-        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
-Proof.
-intros n pts j αj segjk k αk segkx hsl.
-intros Hpts Hnp h αh Hαh Hhj.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| (l, αl)]; [ discriminate Hnp | idtac ].
-destruct pts as [| (m, αm)]; [ discriminate Hnp | idtac ].
-injection Hnp; clear Hnp; intros; subst l αl.
-rename H into Hnp.
-rename H0 into Hseg.
-destruct Hαh as [Hαh| Hαh].
- injection Hαh; clear Hαh; intros; subst h αh.
- apply Qlt_irrefl in Hhj; contradiction.
-
- eapply Sorted_hd in Hpts; [ idtac | eassumption ].
- eapply Qlt_trans in Hhj; [ idtac | eassumption ].
- apply Qlt_irrefl in Hhj; contradiction.
-Qed.
-
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1526,6 +1500,11 @@ destruct Hns as [Hns| Hns].
  destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
  destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
  simpl in Hnsl.
+ remember Hhsl as Hjk; clear HeqHjk.
+ apply next_points_sorted in Hjk; [ idtac | assumption ].
+ apply Sorted_inv_2 in Hjk.
+ destruct Hjk as (Hjk, _); simpl in Hjk.
+ unfold hs_x_lt in Hjk; simpl in Hjk.
  injection Hnsl; clear Hnsl; intros Hns; intros.
  unfold newton_segment_of_pair in Hns; simpl in Hns.
  subst ns; simpl in Hnαh |- *.
@@ -1549,7 +1528,8 @@ destruct Hns as [Hns| Hns].
      eapply not_j with (hsl₁ := []); eassumption.
 
      apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
-     eapply lt_bef_j₀; eassumption.
+     eapply conj in Hjk; [ idtac | eexact Hge₂ ].
+     eapply lt_bef_j with (hsl₁ := []); simpl; eassumption.
 
  clear IHnsl.
  revert n pts ns ns₁ hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
