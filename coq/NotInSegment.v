@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.199 2013-05-17 01:25:39 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.200 2013-05-17 01:44:56 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1191,13 +1191,10 @@ Lemma lt_bef_j_2nd_ch : ∀ n pts pt₁ h αh j αj k αk segjk segkx hsl₁ hsl
         hsl₁ ++
         [{| pt := (j, αj); oth := segjk |};
          {| pt := (k, αk); oth := segkx |} … hsl]
-        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+        → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
 intros n pts (g, αg) h αh j αj k αk segjk segkx hsl₁ hsl ms.
 intros Hsort Hhjk Hms Hnp.
-eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
-do 2 rewrite fold_slope_expr.
-apply slope_lt_1323_1223; [ assumption | idtac ].
 destruct hsl₁ as [| hs₁]; intros.
  remember Hnp as H; clear HeqH.
  eapply next_ch_points_hd in H.
@@ -1268,6 +1265,24 @@ destruct hsl₁ as [| hs₁]; intros.
    eapply sl_lt_any_ns; try eassumption.
 Qed.
 
+Lemma lt_bef_j_2nd_ch₁ : ∀ n pts pt₁ h αh j αj k αk segjk segkx hsl₁ hsl ms,
+  Sorted fst_lt [pt₁; (h, αh) … pts]
+  → h < j < k
+    → minimise_slope pt₁ (h, αh) pts = ms
+      → next_ch_points n [end_pt ms … rem_pts ms] =
+        hsl₁ ++
+        [{| pt := (j, αj); oth := segjk |};
+         {| pt := (k, αk); oth := segkx |} … hsl]
+        → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pts (g, αg) h αh j αj k αk segjk segkx hsl₁ hsl ms.
+intros Hsort Hhjk Hms Hnp.
+eapply ad_hoc_lt_lt₂; [ assumption | idtac ].
+do 2 rewrite fold_slope_expr.
+apply slope_lt_1323_1223; [ assumption | idtac ].
+eapply lt_bef_j_2nd_ch; eassumption.
+Qed.
+
 (**)
 Lemma zzz : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1279,6 +1294,8 @@ Lemma zzz : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl,
             hsl₁ ++ [ahs (j, αj) segjk; ahs (k, αk) segkx … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
+intros n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl.
+intros Hsort Hh (Hhj, Hjk) Hms (H₁h, Hhe) Hnp.
 bbb.
 *)
 
@@ -1400,7 +1417,7 @@ destruct Hαh as [Hαh| Hαh].
   injection Hαh; clear Hαh; intros; subst m αm.
 (*
   eapply conj in Hjk; [ idtac | eexact Hhj ].
-  eapply lt_bef_j_2nd_ch with (hsl₁ := []); eassumption.
+  eapply lt_bef_j_2nd_ch₁ with (hsl₁ := []); eassumption.
 *)
   assert (slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk))
    as Hhjk.
@@ -1526,7 +1543,7 @@ qed.
    destruct Hαh as [Hαh| Hαh].
     subst hs₁ pt₂.
     eapply conj in Hjk; [ idtac | eexact Hhj ].
-    eapply lt_bef_j_2nd_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
+    eapply lt_bef_j_2nd_ch₁ with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 bbb.
 *)
 
