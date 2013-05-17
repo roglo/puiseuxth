@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.202 2013-05-17 02:20:40 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.203 2013-05-17 02:24:42 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1441,6 +1441,11 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
       rewrite <- Heqpt₃.
       split; [ idtac | assumption ].
       Unfocus.
+      Focus 3.
+      apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+      eapply Qlt_le_trans; [ eassumption | idtac ].
+      replace h with (fst (h, αh)) by reflexivity.
+      eapply Sorted_in; eassumption.
 bbb.
 *)
 
