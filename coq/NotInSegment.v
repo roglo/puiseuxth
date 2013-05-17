@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.211 2013-05-17 17:43:50 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.212 2013-05-17 19:30:14 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -456,8 +456,8 @@ induction hsl₁ as [| hs₁]; intros.
    apply IHhsl₁; assumption.
 Qed.
 
-Lemma not_k : ∀ n pol pts hsl₁ hsl j αj segjk k αk segkx,
-  points_of_ps_polynom α fld pol = pts
+Lemma not_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
+  Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
       [{| pt := (j, αj); oth := segjk |};
@@ -466,7 +466,7 @@ Lemma not_k : ∀ n pol pts hsl₁ hsl j αj segjk k αk segkx,
       → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h ≠ k.
 Proof.
-intros n pol pts hsl₁ hsl j αj segjk k αk segkx.
+intros n pts hsl₁ hsl j αj segjk k αk segkx.
 intros Hpts Hnp h αh Hαh Hnαh Hhk.
 eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  rewrite Hαh in Hnαh; simpl in Hnαh.
@@ -476,7 +476,7 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  destruct Hnαh as (Hnαh, _).
  exfalso; apply Hnαh; reflexivity.
 
- eapply points_of_polyn_sorted; symmetry; eassumption.
+ assumption.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
@@ -574,8 +574,8 @@ destruct hsl₁ as [| h₁].
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
-Lemma not_j : ∀ n pol pts hsl₁ j αj k αk segjk segkx hsl,
-  points_of_ps_polynom α fld pol = pts
+Lemma not_j : ∀ n pts hsl₁ j αj k αk segjk segkx hsl,
+  Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
       [{| pt := (j, αj); oth := segjk |};
@@ -584,7 +584,7 @@ Lemma not_j : ∀ n pol pts hsl₁ j αj k αk segjk segkx hsl,
       → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h ≠ j.
 Proof.
-intros n pol pts hsl₁ j αj k αk segjk segkx hsl.
+intros n pts hsl₁ j αj k αk segjk segkx hsl.
 intros Hpts Hnp h αh Hαh Hnαh Hne.
 eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  rewrite Hαh in Hnαh.
@@ -592,8 +592,6 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (Hnαh, _).
  exfalso; apply Hnαh; reflexivity.
-
- eapply points_of_polyn_sorted; symmetry; eassumption.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
@@ -1036,19 +1034,16 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    rewrite Hend in Hms; assumption.
 Qed.
 
-Lemma qeq_eq : ∀ n pol pts h αh k αk s hsl₁ hsl,
-  points_of_ps_polynom α fld pol = pts
+Lemma qeq_eq : ∀ n pts h αh k αk s hsl₁ hsl,
+  Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
     → (h, αh) ∈ pts
       → h == k
         → h = k.
 Proof.
-intros n pol pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
+intros n pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
 eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
  injection Hhk; intros; subst; reflexivity.
-
- symmetry in Hpts.
- eapply points_of_polyn_sorted; eassumption.
 
  apply in_ch_in_pts with (n := n) (s := s).
  rewrite Hhsl.
@@ -1481,8 +1476,8 @@ apply IHl₁.
 eapply Sorted_inv_1; eassumption.
 Qed.
 
-Lemma lt_not_ns : ∀ n pol pts hsl₁ j αj segjk k αk segkx hsl,
-  points_of_ps_polynom α fld pol = pts
+Lemma lt_not_ns : ∀ n pts hsl₁ j αj segjk k αk segkx hsl,
+  Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
       [{| pt := (j, αj); oth := segjk |};
@@ -1490,13 +1485,10 @@ Lemma lt_not_ns : ∀ n pol pts hsl₁ j αj segjk k αk segkx hsl,
     → ∀ h αh, (h, αh) ∈ pts → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
       → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
-intros n pol pts hsl₁ j αj segjk k αk segkx hsl.
-intros Hpts Hnp h αh Hαh Hnαh.
-remember Hpts as Hsort; clear HeqHsort.
-symmetry in Hsort.
-apply points_of_polyn_sorted in Hsort.
+intros n pts hsl₁ j αj segjk k αk segkx hsl.
+intros Hsort Hnp h αh Hαh Hnαh.
 destruct (Qlt_le_dec k h) as [Hlt| Hge].
- eapply lt_aft_k with (hsl₁ := hsl₁); simpl; try eassumption.
+ eapply lt_aft_k with (hsl₁ := hsl₁); simpl; eassumption.
 
  destruct (Qeq_dec h k) as [Heq| Hne].
   remember (hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]) as x.
@@ -1524,12 +1516,62 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
+(*
+Lemma zzz : ∀ n pts hsl nsl₁ ns nsl,
+  Sorted fst_lt pts
+  → next_ch_points n pts = hsl
+    → list_map_pairs newton_segment_of_pair hsl = nsl₁ ++ [ns … nsl]
+      → ∀ h αh, (h, αh) ∈ pts
+        → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+          → β ns < αh + h * γ ns.
+Proof.
+intros n pts hsl nsl₁ ns nsl.
+intros Hsort Hnp Hns h αh Hh Hnh.
+revert hsl ns nsl Hnp Hns Hnh.
+induction nsl₁ as [| ns₁]; intros.
+ simpl in Hns.
+ destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hns | idtac ].
+ destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hns | idtac ].
+ simpl in Hns.
+ injection Hns; clear Hns; intros Hns; intros.
+ subst ns; simpl in Hnh |- *.
+ eapply lt_not_ns with (hsl₁ := []); simpl; try eassumption.
+bbb.
+*)
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 Proof.
+(*
+intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
+unfold newton_segments in Hns.
+rewrite <- Hpts in Hns.
+remember (lower_convex_hull_points pts) as hsl.
+symmetry in Heqhsl.
+unfold lower_convex_hull_points in Heqhsl.
+rename Heqhsl into Hhsl.
+remember (length pts) as n; clear Heqn.
+remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
+rename Heqnsl into Hnsl.
+symmetry in Hnsl.
+remember Hpts as Hsort; clear HeqHsort; symmetry in Hpts.
+unfold points_of_ps_polynom in Hsort.
+apply points_of_polyn_sorted in Hsort.
+destruct nsl as [| ns₁]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns₁.
+ eapply zzz with (nsl₁ := []); simpl; eassumption.
+
+ destruct nsl as [| ns₂]; [ contradiction | idtac ].
+ destruct Hns as [Hns| Hns].
+  subst ns.
+  eapply zzz with (nsl₁ := [ns₁]); simpl; eassumption.
+bbb.
+*)
+
 intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
