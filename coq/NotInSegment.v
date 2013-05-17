@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.210 2013-05-17 15:37:47 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.211 2013-05-17 17:43:50 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1531,7 +1531,6 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
       → β ns < αh + h * (γ ns).
 Proof.
 intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
-remember Hpts as HHpts; clear HeqHHpts; symmetry in HHpts.
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
 remember (lower_convex_hull_points pts) as hsl.
@@ -1539,11 +1538,12 @@ symmetry in Heqhsl.
 unfold lower_convex_hull_points in Heqhsl.
 rename Heqhsl into Hhsl.
 remember (length pts) as n; clear Heqn.
-unfold points_of_ps_polynom in Hpts.
-apply points_of_polyn_sorted in Hpts.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
+remember Hpts as Hsort; clear HeqHsort; symmetry in Hpts.
+unfold points_of_ps_polynom in Hsort.
+apply points_of_polyn_sorted in Hsort.
 destruct nsl as [| ns₁]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns₁.
