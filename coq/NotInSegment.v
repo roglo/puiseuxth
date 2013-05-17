@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.207 2013-05-17 09:35:06 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.208 2013-05-17 14:41:00 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1492,11 +1492,9 @@ apply points_of_polyn_sorted in Hpts.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
-revert n pts ns hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
-induction nsl as [| ns₁]; [ contradiction | intros ].
+destruct nsl as [| ns₁]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns₁.
- clear IHnsl.
  destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
  destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
  simpl in Hnsl.
@@ -1530,12 +1528,9 @@ destruct Hns as [Hns| Hns].
      eapply conj in Hjk; [ idtac | eexact Hge₂ ].
      eapply lt_bef_j with (hsl₁ := []); simpl; eassumption.
 
- clear IHnsl.
- revert n pts ns ns₁ hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
- induction nsl as [| ns₂]; [ contradiction | intros ].
+ destruct nsl as [| ns₂]; [ contradiction | idtac ].
  destruct Hns as [Hns| Hns].
   subst ns.
-  clear IHnsl.
   destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
   destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
   destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
@@ -1572,12 +1567,9 @@ destruct Hns as [Hns| Hns].
       eapply conj in Hjk; [ idtac | eexact Hge₂ ].
       eapply lt_bef_j with (hsl₁ := [hs₁]); simpl; eassumption.
 
-  clear IHnsl.
-  revert n pts ns ns₁ ns₂ hsl Hpts HHpts Hαh Hhsl Hnsl Hns Hnαh.
-  induction nsl as [| ns₃]; [ contradiction | intros ].
+  destruct nsl as [| ns₃]; [ contradiction | idtac ].
   destruct Hns as [Hns| Hns].
    subst ns.
-   clear IHnsl.
    destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
    destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
    destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
