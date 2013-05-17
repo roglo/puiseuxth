@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.203 2013-05-17 02:24:42 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.204 2013-05-17 02:35:31 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1358,7 +1358,6 @@ destruct hsl₁ as [| hs₁]; intros.
    eapply sl_lt_any_ns; try eassumption.
 Qed.
 
-(**)
 Lemma lt_bef_j_aft_1st_ch :
   ∀ n pts pt₁ pt₂ h αh j αj k αk segjk segkx hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1446,8 +1445,19 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
       eapply Qlt_le_trans; [ eassumption | idtac ].
       replace h with (fst (h, αh)) by reflexivity.
       eapply Sorted_in; eassumption.
-bbb.
-*)
+
+   rewrite Heqpts₁.
+   eapply aft_end_in_rem; try eassumption.
+    right; assumption.
+
+    rewrite <- Heqpt₃; assumption.
+
+ rewrite Heqpts₁.
+ eapply aft_end_in_rem; try eassumption.
+  right; assumption.
+
+  rewrite <- Heqpt₃; assumption.
+Qed.
 
 Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
   Sorted fst_lt pts
@@ -1547,7 +1557,6 @@ destruct Hαh as [Hαh| Hαh].
    split; assumption.
 Qed.
 
-(**)
 Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
@@ -1602,14 +1611,7 @@ destruct hsl₁ as [| hs₁].
     assumption.
 
     split; assumption.
-qed.
-
-   destruct Hαh as [Hαh| Hαh].
-    subst hs₁ pt₂.
-    eapply conj in Hjk; [ idtac | eexact Hhj ].
-    eapply lt_bef_j_2nd_ch₁ with (hsl₁ := [hs₂ … hsl₁]); eassumption.
-bbb.
-*)
+Qed.
 
 Lemma lt_bef_j₀ : ∀ n pts j αj segjk k αk segkx hsl,
   Sorted fst_lt pts
