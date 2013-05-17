@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.208 2013-05-17 14:41:00 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.209 2013-05-17 15:03:20 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1471,6 +1471,47 @@ destruct hsl₁ as [| hs₁].
 
     split; assumption.
 Qed.
+
+Lemma zzz : ∀ n pol pts hsl₁ j αj segjk k αk segkx hsl,
+  points_of_ps_polynom α fld pol = pts
+  → next_ch_points n pts =
+      hsl₁ ++
+      [{| pt := (j, αj); oth := segjk |};
+       {| pt := (k, αk); oth := segkx |} … hsl]
+    → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [(j, αj); (k, αk) … segjk]
+      → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
+Proof.
+intros n pol pts hsl₁ j αj segjk k αk segkx hsl.
+intros Hpts Hnp h αh (Hαh, Hnαh).
+remember Hpts as Hsort; clear HeqHsort.
+symmetry in Hsort.
+apply points_of_polyn_sorted in Hsort.
+destruct (Qlt_le_dec k h) as [Hlt| Hge].
+ eapply lt_aft_k with (hsl₁ := hsl₁); simpl; try eassumption.
+
+ destruct (Qeq_dec h k) as [Heq| Hne].
+  remember (hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]) as x.
+  eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
+   exfalso; revert Heq.
+   eapply not_k with (hsl₁ := hsl₁); eassumption.
+
+   rewrite <- List.app_assoc; simpl; eassumption.
+
+  destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
+   apply Qle_neq_lt in Hge; [ idtac | assumption ].
+   eapply conj in Hge; [ idtac | eassumption ].
+   eapply lt_bet_j_and_k with (hsl₁ := hsl₁); eassumption.
+
+   destruct (Qeq_dec h j) as [Heq| Hne₂].
+    eapply qeq_eq with (hsl₁ := hsl₁) in Heq; try eassumption.
+    exfalso; revert Heq.
+    eapply not_j with (hsl₁ := hsl₁); simpl; eassumption.
+
+    apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
+    eapply lt_bef_j with (hsl₁ := hsl₁); simpl; try eassumption.
+    split; [ assumption | idtac ].
+    apply next_points_sorted in Hnp; [ idtac | assumption ].
+bbb.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
