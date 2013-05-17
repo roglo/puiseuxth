@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.201 2013-05-17 02:12:51 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.202 2013-05-17 02:20:40 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1183,6 +1183,7 @@ induction hsl₁ as [| hs₁]; intros.
   eapply minimise_slope_sorted; eassumption.
 Qed.
 
+(*
 Lemma lt_bef_j_2nd_ch : ∀ n pts pt₁ h αh j αj k αk segjk segkx hsl₁ hsl ms,
   Sorted fst_lt [pt₁; (h, αh) … pts]
   → h < j < k
@@ -1282,9 +1283,9 @@ do 2 rewrite fold_slope_expr.
 apply slope_lt_1323_1223; [ assumption | idtac ].
 eapply lt_bef_j_2nd_ch; eassumption.
 Qed.
+*)
 
-(**)
-Lemma zzz : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl,
+Lemma sl_lt_bef_j : ∀ n pt₁ pt₂ pts h αh j αj k αk ms segjk segkx hsl₁ hsl,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
     → h < j < k
@@ -1332,8 +1333,30 @@ destruct hsl₁ as [| hs₁]; intros.
    apply end_pt_in in Hms.
    rewrite <- Heqpt₁ in Hms.
    right; assumption.
-bbb.
-*)
+
+  apply slope_lt_1223_1323; [ split; assumption | idtac ].
+  apply Qlt_trans with (y := slope_expr (l, αl) (j, αj)).
+   symmetry in Heqpt₁.
+   apply Qle_neq_lt in Hhe; [ idtac | assumption ].
+   eapply sl_lt_bef_j_any; try eassumption.
+   split; [ assumption | idtac ].
+   apply next_ch_points_sorted in Hnp.
+    rewrite Heqpt₁ in Hnp; assumption.
+
+    eapply minimise_slope_sorted; eassumption.
+
+   destruct n; [ discriminate Hnp | idtac ].
+   simpl in Hnp.
+   remember (rem_pts ms) as pts₁.
+   destruct pts₁ as [| pt₁]; [ destruct hsl₁; discriminate Hnp | idtac ].
+   injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+   remember (minimise_slope (end_pt ms) pt₁ pts₁) as ms₁.
+   symmetry in Heqms₁.
+   rewrite <- Heqpt₁ in Heqms₁.
+   apply minimise_slope_sorted in Hms; [ idtac | assumption ].
+   rewrite <- Heqpt₁, <- Heqpts₁ in Hms.
+   eapply sl_lt_any_ns; try eassumption.
+Qed.
 
 (**)
 Lemma lt_bef_j_aft_1st_ch :
@@ -1389,7 +1412,7 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
 
     Focus 2.
     clear IHhsl₁.
-    eapply zzz.
+    eapply sl_lt_bef_j.
      6: eassumption.
 
      4: eassumption.
@@ -1404,7 +1427,7 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
 
      Unfocus.
      Focus 3.
-     eapply zzz.
+     eapply sl_lt_bef_j.
       6: eassumption.
 
       4: eassumption.
