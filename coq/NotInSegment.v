@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.212 2013-05-17 19:30:14 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.213 2013-05-17 20:15:07 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1516,7 +1516,6 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
-(*
 Lemma zzz : ∀ n pts hsl nsl₁ ns nsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl
@@ -1535,7 +1534,7 @@ induction nsl₁ as [| ns₁]; intros.
  simpl in Hns.
  injection Hns; clear Hns; intros Hns; intros.
  subst ns; simpl in Hnh |- *.
- eapply lt_not_ns with (hsl₁ := []); simpl; try eassumption.
+ eapply lt_not_ns with (hsl₁ := []); eassumption.
 bbb.
 *)
 
