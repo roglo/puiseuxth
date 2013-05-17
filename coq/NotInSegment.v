@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.206 2013-05-17 07:51:45 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.207 2013-05-17 09:35:06 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1506,7 +1506,6 @@ destruct Hns as [Hns| Hns].
  destruct Hjk as (Hjk, _); simpl in Hjk.
  unfold hs_x_lt in Hjk; simpl in Hjk.
  injection Hnsl; clear Hnsl; intros Hns; intros.
- unfold newton_segment_of_pair in Hns; simpl in Hns.
  subst ns; simpl in Hnαh |- *.
  destruct (Qlt_le_dec k h) as [Hgt| Hge].
   eapply lt_aft_k with (hsl₁ := []); eassumption.
