@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.213 2013-05-16 16:07:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.214 2013-05-18 20:12:11 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -401,6 +401,34 @@ value puiseux_iteration k br r m γ β sol_list = do {
 
 value ti q = I.to_int (Q.rnum q);
 
+value characteristic_polynomial fld br ns =
+  let j = ti (fst ns.ini_pt) in
+  let k = ti (fst ns.fin_pt) in
+  let jps = List.nth br.pol.al j in
+  let kps = List.nth br.pol.al k in
+  let dpl = ns.oth_pts in
+  loop [] 1 dpl where rec loop rev_cl deg dpl =
+    match dpl with
+    [ [(x, y) :: dpl₁] →
+        let hdeg = ti x in
+        if hdeg - j > deg then
+          loop [fld.zero :: rev_cl] (deg + 1) dpl
+        else if hdeg - j < deg then
+          match () with []
+        else
+          let ps = List.nth br.pol.al hdeg in
+          let c = valuation_coeff () fld ps in
+          loop [c :: rev_cl] (deg + 1) dpl₁
+    | [] →
+        if k - j > deg then
+          loop [fld.zero :: rev_cl] (deg + 1) []
+        else if k - j < deg then
+          match () with []
+        else
+          let rev_cl = [(valuation_coeff () fld kps) :: rev_cl] in
+          {al = [valuation_coeff () fld jps :: List.rev rev_cl]} ]
+;
+
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
   let β = ns.β in
@@ -408,8 +436,6 @@ value rec puiseux_branch af br sol_list ns =
   let (k, αk) = ns.fin_pt in
   let j = ti j in
   let k = ti k in
-  let jps = List.nth br.pol.al j in
-  let kps = List.nth br.pol.al k in
   let dpl = ns.oth_pts in
   let f = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
@@ -426,28 +452,7 @@ value rec puiseux_branch af br sol_list ns =
     }
     else ()
   in
-  let pol =
-    loop [] 1 dpl where rec loop rev_cl deg dpl =
-      match dpl with
-      [ [(x, y) :: dpl₁] →
-          let hdeg = ti x in
-          if hdeg - j > deg then
-            loop [f.zero :: rev_cl] (deg + 1) dpl
-          else if hdeg - j < deg then
-            match () with []
-          else
-            let ps = List.nth br.pol.al hdeg in
-            let c = valuation_coeff () f ps in
-            loop [c :: rev_cl] (deg + 1) dpl₁
-      | [] →
-          if k - j > deg then
-            loop [f.zero :: rev_cl] (deg + 1) []
-          else if k - j < deg then
-            match () with []
-          else
-            let rev_cl = [(valuation_coeff () f kps) :: rev_cl] in
-            {al = [valuation_coeff () f jps :: List.rev rev_cl]} ]
-  in
+  let pol = characteristic_polynomial f br ns in
   let rl = af.ac_roots pol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
