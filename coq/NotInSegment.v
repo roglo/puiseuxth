@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.223 2013-05-18 10:54:05 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.224 2013-05-18 11:11:44 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -17,89 +17,6 @@ Section convex_hull.
 
 Variable α : Type.
 Variable fld : field (puiseux_series α).
-
-Theorem points_not_in_newton_segment : ∀ pol pts ns nsl,
-  pts = points_of_ps_polynom α fld pol
-  → newton_segments fld pol = [ns … nsl]
-    → ∀ h αh, (h, αh) ∈ pts
-      → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-        → β ns < αh + h * (γ ns).
-Proof.
-intros pol pts ns nsl Hpts Hns h αh Hαh Hnαh.
-remember Hpts as HHpts; clear HeqHHpts.
-unfold newton_segments in Hns.
-rewrite <- Hpts in Hns.
-remember (lower_convex_hull_points pts) as hsl.
-destruct hsl as [| ((j, αj), segjx)]; [ discriminate Hns | idtac ].
-destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hns | idtac ].
-injection Hns; clear Hns; intros; subst ns.
-simpl in H |- *.
-rename H into Hhsl.
-symmetry in Heqhsl.
-destruct (Qlt_le_dec k h) as [Hlt| Hge].
- unfold points_of_ps_polynom in Hpts.
- apply points_of_polyn_sorted in Hpts.
- remember Hpts as Hpts₂; clear HeqHpts₂.
- eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
- apply Sorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
- unfold hs_x_lt in Hlt; simpl in Hlt.
- eapply points_after_k; try eassumption; reflexivity.
-
- destruct (Qeq_dec h k) as [Heq| Hne].
-  symmetry in HHpts.
-  eapply sorted_qeq_eq with (αk := αk) in Heq; try eassumption.
-   unfold lower_convex_hull_points in Heqhsl.
-   rewrite Heq in Hnαh; simpl in Hnαh.
-   apply Decidable.not_or in Hnαh.
-   destruct Hnαh as (_, Hnαh).
-   apply Decidable.not_or in Hnαh.
-   destruct Hnαh as (Hnαh, _).
-   exfalso; apply Hnαh; reflexivity.
-
-   eapply points_of_polyn_sorted; eassumption.
-
-   eapply in_ch_in_pts with (n := length pts).
-   unfold lower_convex_hull_points in Heqhsl; rewrite Heqhsl.
-   right; left; reflexivity.
-
-  apply Qle_neq_lt in Hge; [ idtac | assumption ].
-  destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
-   unfold points_of_ps_polynom in Hpts.
-   apply points_of_polyn_sorted in Hpts.
-   remember Hpts as Hpts₂; clear HeqHpts₂.
-   eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-   unfold hs_x_lt in Hlt; simpl in Hlt.
-   eapply points_between_j_and_k; try eassumption; try reflexivity.
-    split; assumption.
-
-    simpl in Hnαh.
-    apply Decidable.not_or in Hnαh.
-    destruct Hnαh as (_, Hnαh).
-    apply Decidable.not_or in Hnαh.
-    destruct Hnαh as (_, Hnαh).
-    assumption.
-
-   unfold points_of_ps_polynom in Hpts.
-   apply points_of_polyn_sorted in Hpts.
-   unfold lower_convex_hull_points in Heqhsl.
-   remember (length pts) as n; clear Heqn.
-   destruct n.
-    simpl in Heqhsl.
-    discriminate Heqhsl.
-
-    simpl in Heqhsl.
-    destruct pts as [| (l, αl)]; [ discriminate Heqhsl | idtac ].
-    destruct pts as [| (m, αm)]; [ discriminate Heqhsl | idtac ].
-    injection Heqhsl; clear Heqhsl; intros; subst l αl.
-    destruct Hαh as [Hαh| Hαh].
-     injection Hαh; clear Hαh; intros; subst h αh.
-     simpl in Hnαh.
-     apply Decidable.not_or in Hnαh.
-     destruct Hnαh as (HH); exfalso; apply HH; reflexivity.
-
-     eapply Sorted_hd in Hpts; [ idtac | eassumption ].
-     apply Qle_not_lt in Hge₂; contradiction.
-Qed.
 
 (* is there a way to group together the cases c = Eq and c = Gt? *)
 Lemma aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
@@ -961,28 +878,6 @@ do 2 rewrite fold_slope_expr.
 eapply lt_expr_bef_j_in_ch; eassumption.
 Qed.
 
-Lemma Sorted_in : ∀ pt₁ pt₂ pts,
-  Sorted fst_lt [pt₁ … pts]
-  → pt₂ ∈ [pt₁ … pts]
-    → fst pt₁ <= fst pt₂.
-Proof.
-intros pt₁ pt₂ pts Hsort H.
-revert pt₁ Hsort H.
-induction pts as [| pt₃]; intros.
- destruct H as [H| ]; [ idtac | contradiction ].
- subst pt₁; apply Qle_refl.
-
- destruct H as [H| H].
-  subst pt₁; apply Qle_refl.
-
-  eapply Qle_trans with (y := fst pt₃).
-   apply Qlt_le_weak.
-   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _); assumption.
-
-   eapply IHpts; try eassumption.
-   eapply Sorted_inv_1; eassumption.
-Qed.
-
 Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx hsl₁ hsl ms,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → (h, αh) ∈ [pt₂ … pts]
@@ -1032,23 +927,6 @@ apply Qle_lt_trans with (y := slope_expr (g, αg) (j, αj)).
    eapply Qlt_le_trans; [ eassumption | idtac ].
    apply minimise_slope_le in Hms; [ idtac | assumption ].
    rewrite Hend in Hms; assumption.
-Qed.
-
-Lemma qeq_eq : ∀ n pts h αh k αk s hsl₁ hsl,
-  Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
-    → (h, αh) ∈ pts
-      → h == k
-        → h = k.
-Proof.
-intros n pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
-eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
- injection Hhk; intros; subst; reflexivity.
-
- apply in_ch_in_pts with (n := n) (s := s).
- rewrite Hhsl.
- apply List.in_app_iff.
- right; left; reflexivity.
 Qed.
 
 Lemma sl_lt_1st_ns_any_hp : ∀ n pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ ms₂ sg₄ hsl₁ hsl,
@@ -1422,34 +1300,6 @@ destruct hsl₁ as [| hs₁].
    split; assumption.
 Qed.
 
-Lemma Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
-  Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
-Proof.
-intros f l₁ l₂ H.
-split.
- induction l₁ as [| x]; [ constructor | simpl in H ].
- destruct l₁ as [| y]; [ constructor; constructor | idtac ].
- constructor; [ eapply IHl₁, Sorted_inv_1; eassumption | idtac ].
- constructor; apply Sorted_inv_2 in H; destruct H; assumption.
-
- induction l₁ as [| x]; [ assumption | apply IHl₁ ].
- eapply Sorted_inv_1; eassumption.
-Qed.
-
-Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
-  list_map_pairs f l₁ = l₂
-  → List.length l₂ = pred (List.length l₁).
-Proof.
-intros f l₁ l₂ H.
-subst l₂.
-destruct l₁ as [| x]; [ reflexivity | idtac ].
-revert x.
-induction l₁ as [| y]; [ reflexivity | intros ].
-simpl in IHl₁ |- *.
-apply eq_S, IHl₁.
-Qed.
-Arguments list_map_pairs_length : default implicits.
-
 Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl g b,
   list_map_pairs newton_segment_of_pair (hsl₁ ++ [hsj; hsk … hsl]) =
      nsl₁ ++ [ns … nsl]
@@ -1542,9 +1392,6 @@ destruct hsl as [| ((j, αj), segjk)].
       apply Sorted_app in Hnp; destruct Hnp as (_, Hnp).
       apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
-
-Lemma list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
-Proof. reflexivity. Qed.
 
 Lemma lt_not_in_ns : ∀ n pts hsl₁ hsl nsl₁ nsl ns,
   Sorted fst_lt pts

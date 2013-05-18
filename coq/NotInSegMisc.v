@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.42 2013-05-16 03:20:31 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.43 2013-05-18 11:11:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -671,4 +671,21 @@ destruct Hj as [Hj| Hj].
 
   apply Sorted_inv_1 in Hsort.
   apply IHpts; assumption.
+Qed.
+
+Lemma qeq_eq : ∀ n pts h αh k αk s hsl₁ hsl,
+  Sorted fst_lt pts
+  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
+    → (h, αh) ∈ pts
+      → h == k
+        → h = k.
+Proof.
+intros n pts h αh k αk s hsl₁ hsl Hpts Hhsl Hαh Hhk.
+eapply sorted_qeq_eq with (αk := αk) in Hhk; try eassumption.
+ injection Hhk; intros; subst; reflexivity.
+
+ apply in_ch_in_pts with (n := n) (s := s).
+ rewrite Hhsl.
+ apply List.in_app_iff.
+ right; left; reflexivity.
 Qed.

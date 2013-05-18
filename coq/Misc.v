@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.23 2013-05-17 01:25:39 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.24 2013-05-18 11:11:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -484,3 +484,6 @@ intros x y z.
 do 2 rewrite (Qplus_comm z).
 apply Qplus_cmp_compat_r.
 Qed.
+
+Lemma list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
+Proof. reflexivity. Qed.

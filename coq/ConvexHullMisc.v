@@ -1,4 +1,4 @@
-(* $Id: ConvexHullMisc.v,v 1.4 2013-05-16 03:20:31 deraugla Exp $ *)
+(* $Id: ConvexHullMisc.v,v 1.5 2013-05-18 11:11:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -32,6 +32,42 @@ apply Sorted_LocallySorted_iff in H.
 rewrite Sorted_LocallySorted_iff.
 inversion H; subst a b l0.
 split; assumption.
+Qed.
+
+Lemma Sorted_in : ∀ pt₁ pt₂ pts,
+  Sorted fst_lt [pt₁ … pts]
+  → pt₂ ∈ [pt₁ … pts]
+    → fst pt₁ <= fst pt₂.
+Proof.
+intros pt₁ pt₂ pts Hsort H.
+revert pt₁ Hsort H.
+induction pts as [| pt₃]; intros.
+ destruct H as [H| ]; [ idtac | contradiction ].
+ subst pt₁; apply Qle_refl.
+
+ destruct H as [H| H].
+  subst pt₁; apply Qle_refl.
+
+  eapply Qle_trans with (y := fst pt₃).
+   apply Qlt_le_weak.
+   apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, _); assumption.
+
+   eapply IHpts; try eassumption.
+   eapply Sorted_inv_1; eassumption.
+Qed.
+
+Lemma Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
+  Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
+Proof.
+intros f l₁ l₂ H.
+split.
+ induction l₁ as [| x]; [ constructor | simpl in H ].
+ destruct l₁ as [| y]; [ constructor; constructor | idtac ].
+ constructor; [ eapply IHl₁, Sorted_inv_1; eassumption | idtac ].
+ constructor; apply Sorted_inv_2 in H; destruct H; assumption.
+
+ induction l₁ as [| x]; [ assumption | apply IHl₁ ].
+ eapply Sorted_inv_1; eassumption.
 Qed.
 
 Lemma Sorted_hd : ∀ (pt₁ pt₂ : Q * Q) pts,
