@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.217 2013-05-18 07:37:37 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.218 2013-05-18 08:12:29 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1467,13 +1467,18 @@ destruct hsl₁ as [| hs₁].
     split; assumption.
 Qed.
 
-Lemma Sorted_app_r {A} : ∀ (f : A → A → Prop) l₁ l₂,
-  Sorted f (l₁ ++ l₂) → Sorted f l₂.
+Lemma Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
+  Sorted f (l₁ ++ l₂) → Sorted f l₁ ∧ Sorted f l₂.
 Proof.
 intros f l₁ l₂ H.
-induction l₁ as [| x]; [ assumption | idtac ].
-apply IHl₁.
-eapply Sorted_inv_1; eassumption.
+split.
+ induction l₁ as [| x]; [ constructor | simpl in H ].
+ destruct l₁ as [| y]; [ constructor; constructor | idtac ].
+ constructor; [ eapply IHl₁, Sorted_inv_1; eassumption | idtac ].
+ constructor; apply Sorted_inv_2 in H; destruct H; assumption.
+
+ induction l₁ as [| x]; [ assumption | apply IHl₁ ].
+ eapply Sorted_inv_1; eassumption.
 Qed.
 
 Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
@@ -1579,7 +1584,7 @@ destruct hsl as [| ((j, αj), segjk)].
       eapply lt_bef_j with (hsl₁ := hsl₁); simpl; try eassumption.
       split; [ assumption | idtac ].
       apply next_points_sorted in Hnp; [ idtac | assumption ].
-      apply Sorted_app_r in Hnp.
+      apply Sorted_app in Hnp; destruct Hnp as (_, Hnp).
       apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
