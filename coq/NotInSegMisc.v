@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.43 2013-05-18 11:11:44 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.44 2013-05-18 11:17:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -609,22 +609,6 @@ destruct pts as [| pt₂].
 
    eapply rem_pts_in in H; [ idtac | eassumption ].
    right; right; assumption.
-Qed.
-
-Lemma same_den_qeq_eq : ∀ h i, Qden h = Qden i → h == i → h = i.
-Proof.
-intros h i Hd Hh.
-unfold Qeq in Hh.
-rewrite Hd in Hh.
-apply Z.mul_reg_r in Hh.
- destruct h, i.
- simpl in Hd, Hh.
- subst Qden Qnum; reflexivity.
-
- intros H.
- pose proof (Pos2Z.is_pos (Qden i)) as HH.
- rewrite <- H in HH.
- apply Zlt_irrefl in HH; contradiction.
 Qed.
 
 Lemma sorted_qeq_eq : ∀ pts j αj k αk,
