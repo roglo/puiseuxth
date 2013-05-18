@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.218 2013-05-18 08:12:29 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.219 2013-05-18 08:25:40 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1288,68 +1288,31 @@ destruct (Qlt_le_dec l h) as [Hgt| Hle].
   remember (end_pt ms₁) as pt₅ in |- *.
   destruct pt₅ as (m, αm).
   destruct (Qlt_le_dec m h) as [Hgt₁| Hle₁].
-   eapply IHhsl₁.
-    3: assumption.
-
-    4: eassumption.
-
-    3: eassumption.
-
-    3: eassumption.
-
-    3: assumption.
-
+   eapply IHhsl₁ with (pt₂ := pt₄); try eassumption.
     rewrite Heqpts₁.
     eapply minimise_slope_sorted; eassumption.
 
-    Focus 2.
-    clear IHhsl₁.
-    eapply sl_lt_bef_j.
-     6: eassumption.
-
-     4: eassumption.
-
-     3: assumption.
-
-     rewrite Heqpts₁.
-     eapply minimise_slope_sorted; eassumption.
-
-     Focus 2.
-     rewrite <- Heqpt₃, <- Heqpt₅; split; assumption.
-
-     Unfocus.
-     Focus 3.
-     eapply sl_lt_bef_j.
-      6: eassumption.
-
-      4: eassumption.
-
-      assumption.
-
-      assumption.
-
-      assumption.
-
-      rewrite <- Heqpt₃.
-      split; [ idtac | assumption ].
-      Unfocus.
-      Focus 3.
-      apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
-      eapply Qlt_le_trans; [ eassumption | idtac ].
-      replace h with (fst (h, αh)) by reflexivity.
-      eapply Sorted_in; eassumption.
-
-   rewrite Heqpts₁.
-   eapply aft_end_in_rem; try eassumption.
-    right; assumption.
-
+    rewrite Heqpts₁.
+    eapply aft_end_in_rem; try eassumption; [ right; assumption | idtac ].
     rewrite <- Heqpt₃; assumption.
 
- rewrite Heqpts₁.
- eapply aft_end_in_rem; try eassumption.
-  right; assumption.
+   eapply sl_lt_bef_j with (pt₂ := pt₄); try eassumption.
+    rewrite Heqpts₁.
+    eapply minimise_slope_sorted; eassumption.
 
-  rewrite <- Heqpt₃; assumption.
+    rewrite Heqpts₁.
+    eapply aft_end_in_rem; try eassumption; [ right; assumption | idtac ].
+    rewrite <- Heqpt₃; assumption.
+
+    rewrite <- Heqpt₃, <- Heqpt₅; split; assumption.
+
+ eapply sl_lt_bef_j; try eassumption.
+ rewrite <- Heqpt₃.
+ split; [ idtac | assumption ].
+ apply Sorted_inv_2 in Hsort; destruct Hsort as (Hlt, Hsort).
+ eapply Qlt_le_trans; [ eassumption | idtac ].
+ replace h with (fst (h, αh)) by reflexivity.
+ eapply Sorted_in; eassumption.
 Qed.
 
 Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
