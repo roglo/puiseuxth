@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.220 2013-05-18 09:27:11 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.221 2013-05-18 10:06:07 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1552,6 +1552,8 @@ Proof.
 intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
+unfold points_of_ps_polynom in Hpts.
+apply points_of_polyn_sorted in Hpts.
 remember (lower_convex_hull_points pts) as hsl.
 symmetry in Heqhsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -1560,9 +1562,6 @@ remember (length pts) as n; clear Heqn.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
-remember Hpts as Hsort; clear HeqHsort; symmetry in Hpts.
-unfold points_of_ps_polynom in Hsort.
-apply points_of_polyn_sorted in Hsort.
 remember ([] : list hull_seg) as hsl₁.
 remember ([] : list newton_segment) as nsl₁.
 destruct nsl as [| ns₁]; [ contradiction | idtac ].
