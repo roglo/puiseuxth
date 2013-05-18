@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.222 2013-05-18 10:26:26 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.223 2013-05-18 10:54:05 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1481,7 +1481,7 @@ induction hsl₁ as [| hs]; intros.
   eapply IHhsl₁; eassumption.
 Qed.
 
-Lemma not_in_ns : ∀ n pts hsl₁ hsl nsl₁ ns nsl,
+Lemma lt_not_in_some_ns : ∀ n pts hsl₁ hsl nsl₁ ns nsl,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ hsl
     → list_map_pairs newton_segment_of_pair (hsl₁ ++ hsl) = nsl₁ ++ [ns … nsl]
@@ -1543,7 +1543,10 @@ destruct hsl as [| ((j, αj), segjk)].
       apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
-Lemma zzz : ∀ n pts hsl₁ hsl nsl₁ nsl ns,
+Lemma list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
+Proof. reflexivity. Qed.
+
+Lemma lt_not_in_ns : ∀ n pts hsl₁ hsl nsl₁ nsl ns,
   Sorted fst_lt pts
   → next_ch_points n pts = hsl₁ ++ hsl
     → list_map_pairs newton_segment_of_pair (hsl₁ ++ hsl) = nsl₁ ++ nsl
@@ -1555,8 +1558,33 @@ Lemma zzz : ∀ n pts hsl₁ hsl nsl₁ nsl ns,
 Proof.
 intros n pts hsl₁ hsl nsl₁ nsl ns Hsort Hnp Hnsl Hlen Hns.
 intros h αh Hh Hnh.
-bbb.
-*)
+revert n pts hsl₁ hsl nsl₁ ns Hsort Hnp Hnsl Hlen Hns Hh Hnh.
+induction nsl as [| ns₃]; [ contradiction | intros ].
+destruct Hns as [Hns| Hns].
+ subst ns.
+ eapply lt_not_in_some_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); eassumption.
+
+ destruct hsl as [| hs₂].
+  apply list_map_pairs_length in Hnsl.
+  rewrite List.app_length in Hnsl.
+  rewrite List.app_nil_r in Hnsl.
+  rewrite Hlen in Hnsl.
+  destruct (length nsl₁) as [| len]; [ discriminate Hnsl | simpl in Hnsl ].
+  exfalso; symmetry in Hnsl; revert Hnsl.
+  rewrite plus_comm; apply succ_plus_discr.
+
+  rewrite list_cons_app in Hnp, Hnsl.
+  rewrite List.app_assoc in Hnp, Hnsl.
+  symmetry in Hnsl.
+  rewrite list_cons_app in Hnsl.
+  rewrite List.app_assoc in Hnsl.
+  symmetry in Hnsl.
+  eapply IHnsl; try eassumption.
+  do 2 rewrite List.app_length.
+  rewrite plus_comm; simpl.
+  rewrite plus_comm; simpl.
+  apply eq_S; assumption.
+Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
@@ -1577,47 +1605,9 @@ remember (length pts) as n; clear Heqn.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
 symmetry in Hnsl.
-remember ([] : list hull_seg) as hsl₁.
-remember ([] : list newton_segment) as nsl₁.
-destruct nsl as [| ns₁]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- subst ns.
- eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
-  simpl; try eassumption; reflexivity.
-
- destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
- remember (hsl₁ ++ [hs₁]) as x; subst hsl₁; rename x into hsl₁.
- remember (nsl₁ ++ [ns₁]) as y; subst nsl₁; rename y into nsl₁.
-(*
- eapply zzz with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁; simpl;
-  try eassumption; reflexivity.
+eapply lt_not_in_ns with (hsl₁ := []) (nsl₁ := []); simpl; try eassumption.
+reflexivity.
 Qed.
-*)
- destruct nsl as [| ns₂]; [ contradiction | idtac ].
- destruct Hns as [Hns| Hns].
-  subst ns.
-  eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
-   simpl; try eassumption; reflexivity.
-
-  destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
-  remember (hsl₁ ++ [hs₂]) as x; subst hsl₁; rename x into hsl₁.
-  remember (nsl₁ ++ [ns₂]) as y; subst nsl₁; rename y into nsl₁.
-  destruct nsl as [| ns₃]; [ contradiction | idtac ].
-  destruct Hns as [Hns| Hns].
-   subst ns.
-   eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
-    simpl; try eassumption; reflexivity.
-
-   destruct hsl as [| hs₃]; [ discriminate Hnsl | idtac ].
-   remember (hsl₁ ++ [hs₃]) as x; subst hsl₁; rename x into hsl₁.
-   remember (nsl₁ ++ [ns₃]) as y; subst nsl₁; rename y into nsl₁.
-bbb.
-   destruct nsl as [| ns₄]; [ contradiction | idtac ].
-   destruct Hns as [Hns| Hns].
-    subst ns.
-    eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
-     simpl; try eassumption; reflexivity.
-bbb.
 
 End convex_hull.
 
