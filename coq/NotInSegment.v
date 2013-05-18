@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.219 2013-05-18 08:25:40 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.220 2013-05-18 09:27:11 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1418,16 +1418,8 @@ destruct hsl₁ as [| hs₁].
    eapply conj in Hjk; [ idtac | eexact Hhj ].
    eapply lt_bef_j_in_ch with (hsl₁ := [hs₂ … hsl₁]); eassumption.
 
-   eapply lt_bef_j_aft_1st_ch with (hsl₁ := [hs₂ … hsl₁]).
-    5: simpl; eassumption.
-
-    4: eassumption.
-
-    eassumption.
-
-    assumption.
-
-    split; assumption.
+   eapply lt_bef_j_aft_1st_ch with (hsl₁ := [hs₂ … hsl₁]); try eassumption.
+   split; assumption.
 Qed.
 
 Lemma Sorted_app {A} : ∀ (f : A → A → Prop) l₁ l₂,
