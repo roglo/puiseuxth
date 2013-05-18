@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.221 2013-05-18 10:06:07 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.222 2013-05-18 10:26:26 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1543,6 +1543,21 @@ destruct hsl as [| ((j, αj), segjk)].
       apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
+Lemma zzz : ∀ n pts hsl₁ hsl nsl₁ nsl ns,
+  Sorted fst_lt pts
+  → next_ch_points n pts = hsl₁ ++ hsl
+    → list_map_pairs newton_segment_of_pair (hsl₁ ++ hsl) = nsl₁ ++ nsl
+      → List.length hsl₁ = List.length nsl₁
+        → ns ∈ nsl
+          → ∀ h αh, (h, αh) ∈ pts
+            → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+              → β ns < αh + h * γ ns.
+Proof.
+intros n pts hsl₁ hsl nsl₁ nsl ns Hsort Hnp Hnsl Hlen Hns.
+intros h αh Hh Hnh.
+bbb.
+*)
+
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ newton_segments fld pol
@@ -1573,6 +1588,11 @@ destruct Hns as [Hns| Hns].
  destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
  remember (hsl₁ ++ [hs₁]) as x; subst hsl₁; rename x into hsl₁.
  remember (nsl₁ ++ [ns₁]) as y; subst nsl₁; rename y into nsl₁.
+(*
+ eapply zzz with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁; simpl;
+  try eassumption; reflexivity.
+Qed.
+*)
  destruct nsl as [| ns₂]; [ contradiction | idtac ].
  destruct Hns as [Hns| Hns].
   subst ns.
@@ -1591,6 +1611,7 @@ destruct Hns as [Hns| Hns].
    destruct hsl as [| hs₃]; [ discriminate Hnsl | idtac ].
    remember (hsl₁ ++ [hs₃]) as x; subst hsl₁; rename x into hsl₁.
    remember (nsl₁ ++ [ns₃]) as y; subst nsl₁; rename y into nsl₁.
+bbb.
    destruct nsl as [| ns₄]; [ contradiction | idtac ].
    destruct Hns as [Hns| Hns].
     subst ns.
