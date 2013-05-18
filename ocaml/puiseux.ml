@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.214 2013-05-18 20:12:11 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.215 2013-05-18 23:33:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -401,22 +401,19 @@ value puiseux_iteration k br r m γ β sol_list = do {
 
 value ti q = I.to_int (Q.rnum q);
 
-value characteristic_polynomial fld br ns =
+value characteristic_polynomial fld pol ns =
   let j = ti (fst ns.ini_pt) in
   let k = ti (fst ns.fin_pt) in
-  let jps = List.nth br.pol.al j in
-  let kps = List.nth br.pol.al k in
-  let dpl = ns.oth_pts in
-  loop [] 1 dpl where rec loop rev_cl deg dpl =
+  loop [] 1 ns.oth_pts where rec loop rev_cl deg dpl =
     match dpl with
-    [ [(x, y) :: dpl₁] →
+    | [(x, y) :: dpl₁] →
         let hdeg = ti x in
         if hdeg - j > deg then
           loop [fld.zero :: rev_cl] (deg + 1) dpl
         else if hdeg - j < deg then
           match () with []
         else
-          let ps = List.nth br.pol.al hdeg in
+          let ps = List.nth pol.al hdeg in
           let c = valuation_coeff () fld ps in
           loop [c :: rev_cl] (deg + 1) dpl₁
     | [] →
@@ -425,8 +422,11 @@ value characteristic_polynomial fld br ns =
         else if k - j < deg then
           match () with []
         else
+          let jps = List.nth pol.al j in
+          let kps = List.nth pol.al k in
           let rev_cl = [(valuation_coeff () fld kps) :: rev_cl] in
-          {al = [valuation_coeff () fld jps :: List.rev rev_cl]} ]
+          {al = [valuation_coeff () fld jps :: List.rev rev_cl]}
+    end
 ;
 
 value rec puiseux_branch af br sol_list ns =
@@ -452,7 +452,7 @@ value rec puiseux_branch af br sol_list ns =
     }
     else ()
   in
-  let pol = characteristic_polynomial f br ns in
+  let pol = characteristic_polynomial f br.pol ns in
   let rl = af.ac_roots pol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
