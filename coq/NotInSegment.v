@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.213 2013-05-17 20:15:07 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.214 2013-05-18 01:02:13 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1516,25 +1516,58 @@ destruct (Qlt_le_dec k h) as [Hlt| Hge].
     apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
-Lemma zzz : ∀ n pts hsl nsl₁ ns nsl,
-  Sorted fst_lt pts
-  → next_ch_points n pts = hsl
-    → list_map_pairs newton_segment_of_pair hsl = nsl₁ ++ [ns … nsl]
-      → ∀ h αh, (h, αh) ∈ pts
-        → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-          → β ns < αh + h * γ ns.
+Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
+  list_map_pairs f l₁ = l₂
+  → List.length l₂ = pred (List.length l₁).
 Proof.
-intros n pts hsl nsl₁ ns nsl.
-intros Hsort Hnp Hns h αh Hh Hnh.
-revert hsl ns nsl Hnp Hns Hnh.
-induction nsl₁ as [| ns₁]; intros.
- simpl in Hns.
- destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hns | idtac ].
- destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hns | idtac ].
- simpl in Hns.
- injection Hns; clear Hns; intros Hns; intros.
- subst ns; simpl in Hnh |- *.
- eapply lt_not_ns with (hsl₁ := []); eassumption.
+intros f l₁ l₂ H.
+subst l₂.
+destruct l₁ as [| x]; [ reflexivity | idtac ].
+revert x.
+induction l₁ as [| y]; [ reflexivity | intros ].
+simpl in IHl₁ |- *.
+apply eq_S, IHl₁.
+Qed.
+Arguments list_map_pairs_length : default implicits.
+
+(**)
+Lemma zzz : ∀ n pts hsl₁ hsl nsl₁ ns nsl,
+  Sorted fst_lt pts
+  → next_ch_points n pts = hsl₁ ++ hsl
+    → list_map_pairs newton_segment_of_pair (hsl₁ ++ hsl) = nsl₁ ++ [ns … nsl]
+      → List.length hsl₁ = List.length nsl₁
+        → ∀ h αh, (h, αh) ∈ pts
+          → (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+            → β ns < αh + h * γ ns.
+Proof.
+intros n pts hsl₁ hsl nsl₁ ns nsl.
+intros Hsort Hnp Hnsl Hlen h αh Hh Hnh.
+destruct hsl as [| ((j, αj), segjk)].
+ apply list_map_pairs_length in Hnsl.
+ rewrite List.app_length in Hnsl.
+ simpl in Hnsl.
+ rewrite List.app_nil_r in Hnsl.
+ rewrite Hlen in Hnsl.
+ destruct (length nsl₁) as [| len]; [ discriminate Hnsl | simpl in Hnsl ].
+ exfalso; symmetry in Hnsl; revert Hnsl.
+ rewrite plus_comm; apply succ_plus_discr.
+
+ destruct hsl as [| ((k, αk), segkx)].
+  apply list_map_pairs_length in Hnsl.
+  rewrite List.app_length in Hnsl.
+  simpl in Hnsl.
+  rewrite List.app_length in Hnsl; simpl in Hnsl.
+  rewrite Hlen in Hnsl.
+  exfalso; symmetry in Hnsl; revert Hnsl.
+  rewrite plus_comm, <- plus_n_Sm; simpl.
+  rewrite plus_comm; apply succ_plus_discr.
+bbb.
+    destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
+    destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
+    simpl in Hnsl.
+    injection Hnsl; clear Hnsl; intros.
+    subst ns₁ ns₂ ns₃ ns₄; simpl in Hnαh |- *.
+    eapply lt_not_ns with (hsl₁ := [hs₁; hs₂; hs₃ … []]); simpl;
 bbb.
 *)
 
@@ -1544,33 +1577,6 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 Proof.
-(*
-intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
-unfold newton_segments in Hns.
-rewrite <- Hpts in Hns.
-remember (lower_convex_hull_points pts) as hsl.
-symmetry in Heqhsl.
-unfold lower_convex_hull_points in Heqhsl.
-rename Heqhsl into Hhsl.
-remember (length pts) as n; clear Heqn.
-remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
-rename Heqnsl into Hnsl.
-symmetry in Hnsl.
-remember Hpts as Hsort; clear HeqHsort; symmetry in Hpts.
-unfold points_of_ps_polynom in Hsort.
-apply points_of_polyn_sorted in Hsort.
-destruct nsl as [| ns₁]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- subst ns₁.
- eapply zzz with (nsl₁ := []); simpl; eassumption.
-
- destruct nsl as [| ns₂]; [ contradiction | idtac ].
- destruct Hns as [Hns| Hns].
-  subst ns.
-  eapply zzz with (nsl₁ := [ns₁]); simpl; eassumption.
-bbb.
-*)
-
 intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
 unfold newton_segments in Hns.
 rewrite <- Hpts in Hns.
@@ -1624,6 +1630,7 @@ destruct Hns as [Hns| Hns].
     destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
     destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
     destruct hsl as [| hs₃]; [ discriminate Hnsl | idtac ].
+bbb.
     destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
     destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
     simpl in Hnsl.
