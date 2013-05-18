@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.215 2013-05-18 02:21:05 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.216 2013-05-18 02:41:32 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1617,45 +1617,38 @@ symmetry in Hnsl.
 remember Hpts as Hsort; clear HeqHsort; symmetry in Hpts.
 unfold points_of_ps_polynom in Hsort.
 apply points_of_polyn_sorted in Hsort.
+remember ([] : list hull_seg) as hsl₁.
+remember ([] : list newton_segment) as nsl₁.
 destruct nsl as [| ns₁]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
- subst ns₁.
- destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
- destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
- simpl in Hnsl.
- injection Hnsl; clear Hnsl; intros Hns; intros.
- subst ns; simpl in Hnαh |- *.
- eapply lt_not_ns with (hsl₁ := []); eassumption.
+ subst ns.
+ eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
+  simpl; try eassumption; reflexivity.
 
+ destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
+ remember (hsl₁ ++ [hs₁]) as x; subst hsl₁; rename x into hsl₁.
+ remember (nsl₁ ++ [ns₁]) as y; subst nsl₁; rename y into nsl₁.
  destruct nsl as [| ns₂]; [ contradiction | idtac ].
  destruct Hns as [Hns| Hns].
   subst ns.
-  destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
-  destruct hsl as [| ((j, αj), segjk)]; [ discriminate Hnsl | idtac ].
-  destruct hsl as [| ((k, αk), segkx)]; [ discriminate Hnsl | idtac ].
-  simpl in Hnsl.
-  injection Hnsl; clear Hnsl; intros.
-  subst ns₁ ns₂; simpl in Hnαh |- *.
-  eapply lt_not_ns with (hsl₁ := [hs₁]); simpl; try eassumption.
+  eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
+   simpl; try eassumption; reflexivity.
 
+  destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
+  remember (hsl₁ ++ [hs₂]) as x; subst hsl₁; rename x into hsl₁.
+  remember (nsl₁ ++ [ns₂]) as y; subst nsl₁; rename y into nsl₁.
   destruct nsl as [| ns₃]; [ contradiction | idtac ].
   destruct Hns as [Hns| Hns].
    subst ns.
-   destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
-   destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
-   remember [hs₁; hs₂ … []] as hsl₁.
-   remember [ns₁; ns₂ … []] as nsl₁.
    eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
     simpl; try eassumption; reflexivity.
 
+   destruct hsl as [| hs₃]; [ discriminate Hnsl | idtac ].
+   remember (hsl₁ ++ [hs₃]) as x; subst hsl₁; rename x into hsl₁.
+   remember (nsl₁ ++ [ns₃]) as y; subst nsl₁; rename y into nsl₁.
    destruct nsl as [| ns₄]; [ contradiction | idtac ].
    destruct Hns as [Hns| Hns].
     subst ns.
-    destruct hsl as [| hs₁]; [ discriminate Hnsl | idtac ].
-    destruct hsl as [| hs₂]; [ discriminate Hnsl | idtac ].
-    destruct hsl as [| hs₃]; [ discriminate Hnsl | idtac ].
-    remember [hs₁; hs₂; hs₃ … []] as hsl₁.
-    remember [ns₁; ns₂; ns₃ … []] as nsl₁.
     eapply not_in_ns with (hsl₁ := hsl₁) (nsl₁ := nsl₁); subst hsl₁ nsl₁;
      simpl; try eassumption; reflexivity.
 bbb.
