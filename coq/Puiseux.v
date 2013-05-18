@@ -1,178 +1,84 @@
-(* $Id: Puiseux.v,v 1.477 2013-05-18 11:11:44 deraugla Exp $ *)
-
-(* Most of notations are Robert Walker's ones *)
-
-Require Import Utf8.
-Require Import QArith.
-Require Import ConvexHull.
-Require Import ConvexHullMisc.
-Require Import Sorting.
-Require Import Misc.
-Require Streams.
-
-Notation "x ∈ l" := (List.In x l) (at level 70).
-Notation "x ∉ l" := (not (List.In x l)) (at level 70).
-
-Record field α :=
-  { zero : α;
-    one : α;
-    add : α → α → α;
-    sub : α → α → α;
-    mul : α → α → α;
-    div : α → α → α;
-    is_zero_dec : ∀ x : α, {x = zero} + {x ≠ zero} }.
-Arguments zero : default implicits.
-Arguments add : default implicits.
-Arguments sub : default implicits.
-Arguments mul : default implicits.
-Arguments div : default implicits. 
-Arguments is_zero_dec : default implicits. 
-
-(* polynomial of degree ≥ 1 *)
-Record polynomial α := { al : list α; an : α }.
-Arguments al : default implicits.
-Arguments an : default implicits.
-Arguments polynomial : default implicits.
+(* $Id: Puiseux.v,v 1.478 2013-05-18 19:51:56 deraugla Exp $ *)
 
 (*
-Definition apply_poly {α} fld pol (x : α) :=
-  List.fold_right (λ accu coeff, add fld (mul fld accu x) coeff) (an pol)
-    (al pol).
-Arguments apply_poly : default implicits. 
+Record branch α :=
+  { initial_polynom : polynomial (puiseux_series α);
+    cγl : list (α * Q);
+    step : nat;
+    rem_steps : nat;
+    pol : polynomial (puiseux_series α) }.
+Arguments initial_polynom : default implicits.
+Arguments cγl : default implicits.
+Arguments step : default implicits.
+Arguments rem_steps : default implicits.
+Arguments pol : default implicits.
 
-Record alg_closed_field α :=
-  { ac_field : field α;
-    ac_prop : ∀ pol x, @apply_poly α ac_field pol x = zero ac_field }.
-Arguments ac_field : default implicits. 
-Arguments ac_prop : default implicits. 
+Definition phony_monom {α β} : monomial (polynomial α β) nat :=
+  {| coeff := {| monoms := [] |}; power := 0%nat |}.
+Arguments phony_monom : default implicits.
+
+Definition puiseux_iteration k br r m γ β sol_list :=
+  let pol :=
+    let y :=
+      {| monoms :=
+           [{| coeff := {| monoms := [{| coeff := r; power := γ |}] |};
+               power := 0 |},
+            {| coeff := {| monoms := [{| coeff := one k; power := γ |}] |};
+               power := 1 |} … [] ] |}
+    in
+    let pol := apply_poly_dp_pol k br.pol y in
+    let pol := pol_div_x_power pol β in
+    let pol := cancel_pol_constant_term_if_any fld pol in
+    dp_float_round_zero fld pol
+  in
+  let finite := zero_is_root pol in
+  let cγl := [(r, γ) … br.cγl] in
+  if br.rem_steps = 0 || finite then
+    let sol := make_solution cγl in
+    Left [(sol, finite) … sol_list]
+  else if br.rem_steps > 0 then Right (pol, cγl)
+  else Left sol_list.
+
+Fixpoint puiseux_branch {α} (k : alg_cl_field α) (br : branch α Q)
+    (sol_list : list (polynomial α Q * bool)) (γβ : Q * Q) :=
+  let (γ, β) := γβ in
+  let hl :=
+    List.filter
+      (λ m,
+         let αi := valuation (coeff m) in
+         let βi := αi + (Z.of_nat (power m) # 1) * γ in
+         Qeq_bool₁ β βi)
+      (monoms (pol br))
+  in
+  let j := power (List.hd (phony_monom α Q) hl) in
+  let ml :=
+    List.map
+      (λ m,
+         {| coeff := valuation_coeff k (coeff m);
+            power := (power m - j)%nat |})
+      hl
+  in
+  let rl := roots k {| monoms := ml |} in
+  List.fold_left
+    (λ sol_list rm,
+       let (r, m) := rm in
+       if eq k r then sol_list
+       else
+         match puiseux_iteration k br r m γ β sol_list with
+         | Right (pol, cγl) => next_step k br sol_list col cγl
+         | Left sol_list => sol_list
+         end)
+    rl sol_list.
+
+Definition puiseux k nb_steps pol :=
+  let nsl := newton_segments pol in
+  let rem_steps := (nb_steps - 1)%nat in
+  List.fold_left
+    (λ sol_list γβ₁,
+       let br :=
+         {| initial_polynom := pol; cγl := []; step := 1%nat;
+            rem_steps := rem_steps; pol := pol |}
+       in
+       puiseux_branch k br sol_list γβ₁)
+    nsl [].
 *)
-
-Record Qpos := { x : Q; pos : x > 0 }.
-
-Record puiseux_series α :=
-  { ps_1 : α * Q;
-    ps_n : Streams.Stream (α * Qpos) }.
-
-Definition valuation α ps := snd (ps_1 α ps).
-Definition valuation_coeff α ps := fst (ps_1 α ps).
-
-Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
-  match psl with
-  | [ps₁ … psl₁] =>
-      [(Qnat pow, ps₁) … all_points_of_ps_polynom α (S pow) psl₁ psn]
-  | [] =>
-      [(Qnat pow, psn)]
-  end.
-
-Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
-  match dpl with
-  | [(pow, ps) … dpl₁] =>
-      if is_zero_dec fld ps then filter_non_zero_ps α fld dpl₁
-      else [(pow, valuation α ps) … filter_non_zero_ps α fld dpl₁]
-  | [] =>
-      []
-  end.
-
-Definition points_of_ps_polynom_gen α fld pow cl cn :=
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn).
-
-Definition points_of_ps_polynom α fld pol :=
-  points_of_ps_polynom_gen α fld 0%nat (al pol) (an pol).
-
-Fixpoint list_map_pairs α β (f : α → α → β) l :=
-  match l with
-  | [] => []
-  | [x₁] => []
-  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs α β f l₁]
-  end.
-Arguments list_map_pairs : default implicits.
-
-Record newton_segment := mkns
-  { γ : Q;
-    β : Q;
-    ini_pt : (Q * Q);
-    fin_pt : (Q * Q);
-    oth_pts : list (Q * Q) }.
-
-Definition newton_segment_of_pair hsj hsk :=
-  let αj := snd (pt hsj) in
-  let αk := snd (pt hsk) in
-  let γ := (αj - αk) / (fst (pt hsk) - fst (pt hsj)) in
-  let β := αj + fst (pt hsj) * γ in
-  mkns γ β (pt hsj) (pt hsk) (oth hsj).
-
-Definition newton_segments α fld pol :=
-  let gdpl := points_of_ps_polynom α fld pol in
-  list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
-Arguments newton_segments : default implicits.
-
-(* *)
-
-Lemma fold_points_of_ps_polynom_gen : ∀ α fld pow cl cn,
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
-  points_of_ps_polynom_gen α fld pow cl cn.
-Proof. reflexivity. Qed.
-
-Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
-  list_map_pairs f l₁ = l₂
-  → List.length l₂ = pred (List.length l₁).
-Proof.
-intros f l₁ l₂ H.
-subst l₂.
-destruct l₁ as [| x]; [ reflexivity | idtac ].
-revert x.
-induction l₁ as [| y]; [ reflexivity | intros ].
-simpl in IHl₁ |- *.
-apply eq_S, IHl₁.
-Qed.
-Arguments list_map_pairs_length : default implicits.
-
-Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
-  pts = points_of_ps_polynom_gen α fld deg cl cn
-  → Sorted fst_lt pts.
-Proof.
-intros α fld deg cl cn pts Hpts.
-revert deg cn pts Hpts.
-induction cl as [| c]; intros.
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (is_zero_dec fld cn); subst pts; constructor; constructor.
-
- unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (is_zero_dec fld c) as [Heq| Hne].
-  eapply IHcl; eassumption.
-
-  remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
-  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
-  clear IHcl.
-  clear Hne.
-  revert c deg cn pts Hpts.
-  induction cl as [| c₂]; intros.
-   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   destruct (is_zero_dec fld cn) as [Heq| Hne].
-    subst pts; constructor; constructor.
-
-    subst pts.
-    apply Sorted_LocallySorted_iff.
-    constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
-
-   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   rewrite fold_points_of_ps_polynom_gen in Hpts.
-   destruct (is_zero_dec fld c₂) as [Heq| Hne].
-    eapply IHcl with (c := c) in Hpts.
-    apply Sorted_LocallySorted_iff.
-    destruct pts as [| pt]; [ constructor | idtac ].
-    apply Sorted_LocallySorted_iff.
-    apply Sorted_inv_2 in Hpts.
-    destruct Hpts as (Hlt, Hpts).
-    apply Sorted_LocallySorted_iff.
-    apply Sorted_LocallySorted_iff in Hpts.
-    constructor; [ assumption | idtac ].
-    eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
-
-    subst pts.
-    apply Sorted_LocallySorted_iff.
-    constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].
-    apply Sorted_LocallySorted_iff.
-    eapply IHcl; reflexivity.
-Qed.

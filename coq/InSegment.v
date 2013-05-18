@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.11 2013-05-16 03:20:31 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.12 2013-05-18 19:51:56 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -9,7 +9,7 @@ Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Puiseux.
+Require Import Puiseux_base.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 

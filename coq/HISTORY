@@ -1,4 +1,4 @@
-# $Id: HISTORY,v 1.1 2013-05-18 11:30:05 deraugla Exp $
+# $Id: HISTORY,v 1.2 2013-05-18 19:51:56 deraugla Exp $
 
 Started around 27 Mar 2013 in directory coq_puiseux.
 Transfered in present directory 4 Apr 2013.
@@ -6,3 +6,14 @@ Convex Hull lemmas terminated 18 May 2013.
 
 Time      : 7 weeks
 Code size : 3778 lines
+
+Theorem points_in_any_newton_segment : ∀ pol ns,
+  ns ∈ newton_segments fld pol
+  → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+    → β ns == αh + h * γ ns.
+
+Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
+  pts = points_of_ps_polynom α fld pol
+  → ns ∈ newton_segments fld pol
+    → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+      → β ns < αh + h * (γ ns).
