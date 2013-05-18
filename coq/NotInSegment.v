@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.216 2013-05-18 02:41:32 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.217 2013-05-18 07:37:37 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1476,46 +1476,6 @@ apply IHl₁.
 eapply Sorted_inv_1; eassumption.
 Qed.
 
-Lemma lt_not_ns : ∀ n pts hsl₁ j αj segjk k αk segkx hsl,
-  Sorted fst_lt pts
-  → next_ch_points n pts =
-      hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
-    → ∀ h αh, (h, αh) ∈ pts → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
-      → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
-Proof.
-intros n pts hsl₁ j αj segjk k αk segkx hsl.
-intros Hsort Hnp h αh Hαh Hnαh.
-destruct (Qlt_le_dec k h) as [Hlt| Hge].
- eapply lt_aft_k with (hsl₁ := hsl₁); simpl; eassumption.
-
- destruct (Qeq_dec h k) as [Heq| Hne].
-  remember (hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]) as x.
-  eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
-   exfalso; revert Heq.
-   eapply not_k with (hsl₁ := hsl₁); eassumption.
-
-   rewrite <- List.app_assoc; simpl; eassumption.
-
-  destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
-   apply Qle_neq_lt in Hge; [ idtac | assumption ].
-   eapply conj in Hge; [ idtac | eassumption ].
-   eapply lt_bet_j_and_k with (hsl₁ := hsl₁); eassumption.
-
-   destruct (Qeq_dec h j) as [Heq| Hne₂].
-    eapply qeq_eq with (hsl₁ := hsl₁) in Heq; try eassumption.
-    exfalso; revert Heq.
-    eapply not_j with (hsl₁ := hsl₁); simpl; eassumption.
-
-    apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
-    eapply lt_bef_j with (hsl₁ := hsl₁); simpl; try eassumption.
-    split; [ assumption | idtac ].
-    apply next_points_sorted in Hnp; [ idtac | assumption ].
-    apply Sorted_app_r in Hnp.
-    apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
-Qed.
-
 Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
   list_map_pairs f l₁ = l₂
   → List.length l₂ = pred (List.length l₁).
@@ -1530,7 +1490,7 @@ apply eq_S, IHl₁.
 Qed.
 Arguments list_map_pairs_length : default implicits.
 
-Lemma any_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl g b,
+Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl g b,
   list_map_pairs newton_segment_of_pair (hsl₁ ++ [hsj; hsk … hsl]) =
      nsl₁ ++ [ns … nsl]
   → List.length hsl₁ = List.length nsl₁
@@ -1592,9 +1552,35 @@ destruct hsl as [| ((j, αj), segjk)].
   rewrite plus_comm, <- plus_n_Sm; simpl.
   rewrite plus_comm; apply succ_plus_discr.
 
-  eapply any_ns in Hnsl; [ idtac | assumption | reflexivity | reflexivity ].
+  eapply get_ns in Hnsl; [ idtac | assumption | reflexivity | reflexivity ].
   subst ns; simpl in Hnh |- *.
-  eapply lt_not_ns; eassumption.
+  destruct (Qlt_le_dec k h) as [Hlt| Hge].
+   eapply lt_aft_k with (hsl₁ := hsl₁); simpl; eassumption.
+
+   destruct (Qeq_dec h k) as [Heq| Hne].
+    remember (hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]) as x.
+    eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
+     exfalso; revert Heq.
+     eapply not_k with (hsl₁ := hsl₁); eassumption.
+
+     rewrite <- List.app_assoc; simpl; eassumption.
+
+    destruct (Qlt_le_dec j h) as [Hlt| Hge₂].
+     apply Qle_neq_lt in Hge; [ idtac | assumption ].
+     eapply conj in Hge; [ idtac | eassumption ].
+     eapply lt_bet_j_and_k with (hsl₁ := hsl₁); eassumption.
+
+     destruct (Qeq_dec h j) as [Heq| Hne₂].
+      eapply qeq_eq with (hsl₁ := hsl₁) in Heq; try eassumption.
+      exfalso; revert Heq.
+      eapply not_j with (hsl₁ := hsl₁); simpl; eassumption.
+
+      apply Qle_neq_lt in Hge₂; [ idtac | assumption ].
+      eapply lt_bef_j with (hsl₁ := hsl₁); simpl; try eassumption.
+      split; [ assumption | idtac ].
+      apply next_points_sorted in Hnp; [ idtac | assumption ].
+      apply Sorted_app_r in Hnp.
+      apply Sorted_inv_2 in Hnp; destruct Hnp; assumption.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
