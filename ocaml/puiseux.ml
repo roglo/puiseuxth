@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.232 2013-05-19 10:25:51 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.233 2013-05-19 10:26:41 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -43,8 +43,8 @@ value qnat i = Q.of_i (I.of_int i);
 value nofq q =
   if I.eq (Q.rden q) I.one then
     let r = I.to_int (Q.rnum q) in
-    if r < 0 then failwith "nofq: < 0" else r
-  else failwith "nofq: not int"
+    if r < 0 then 0 else r
+  else 0
 ;
 
 Definition slope_expr pt₁ pt₂ :=
