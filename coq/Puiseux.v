@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.486 2013-05-19 17:17:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.487 2013-05-19 17:21:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -51,12 +51,12 @@ Definition characteristic_polynomial α fld pol ns :=
   {| al := cl; an := valuation_coeff α kps |}.
 
 (* lemme sans intérêt mais bon, c'est juste pour voir... *)
-Lemma root_is_root : ∀ α fld acf pol cpol ns c ord,
+Lemma root_is_root : ∀ α fld acf pol cpol ns,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial α (ac_field acf) pol ns
-    → (c, ord) ∈ ac_roots acf cpol
+    → ∀ c ord, (c, ord) ∈ ac_roots acf cpol
       → apply_polynomial (ac_field acf) cpol c = zero (ac_field acf).
 Proof.
-intros α fld acf pol cpol ns c ord Hns Hpol Hc.
+intros α fld acf pol cpol ns Hns Hpol c ord Hc.
 eapply (ac_roots_prop acf); eassumption.
 Qed.
