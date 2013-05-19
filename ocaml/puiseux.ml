@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.227 2013-05-19 08:04:57 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.228 2013-05-19 08:16:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -421,28 +421,34 @@ Fixpoint list_nth n l default :=
 
 value zero fld = fld.zero;
 
-Definition characteristic_polynomial α fld pol ns :=
-  let fix make n degl k :=
-    match n with
-    | 0 => []
-    | S n₁ =>
-        match degl with
-        | [] =>
-            [zero fld :: make n₁ [] k]
-        | [deg :: degl₁] =>
-            if deg + n = k then
-              let ps := list_nth deg (al pol) (an pol) in
-              let c := valuation_coeff α fld ps in
-              [c :: make n₁ degl₁ k]
-            else
-              [zero fld :: make n₁ degl k]
-        end
+Fixpoint make_char_pol fld k n dcl :=
+  match n with
+  | 0 => []
+  | S n₁ =>
+      match dcl with
+      | [] =>
+          [zero fld :: make_char_pol fld k n₁ []]
+      | [(deg, coeff) :: dcl₁] =>
+          if deg + n = k then
+            [coeff :: make_char_pol fld k n₁ dcl₁]
+          else
+            [zero fld :: make_char_pol fld k n₁ dcl]
       end
-  in
+    end;
+
+Definition characteristic_polynomial α fld pol ns :=
   let j := ti (fst (ini_pt ns)) in
   let k := ti (fst (fin_pt ns)) in
-  let degl := List.map (λ pt, ti (fst pt)) (oth_pts ns) in
-  let cl := make (k - S j) degl k in
+  let dcl :=
+    List.map
+      (λ pt,
+         let h := ti (fst pt) in
+         let ps := list_nth h (al pol) (an pol) in
+         let c := valuation_coeff α fld ps in
+         (h, c))
+      (oth_pts ns)
+  in
+  let cl := make_char_pol fld k (k - S j) dcl in
   let jps := list_nth j (al pol) (an pol) in
   let kps := list_nth k (al pol) (an pol) in
   {| al := [valuation_coeff α fld jps :: cl];
