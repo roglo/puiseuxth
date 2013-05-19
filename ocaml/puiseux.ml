@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.229 2013-05-19 08:36:59 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.230 2013-05-19 09:19:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -421,18 +421,18 @@ Fixpoint list_nth n l default :=
 
 value zero fld = fld.zero;
 
-Fixpoint make_char_pol fld k n dcl :=
+Fixpoint make_char_pol α (fld : field α _) k n dcl :=
   match n with
-  | 0 => []
+  | O => []
   | S n₁ =>
       match dcl with
       | [] =>
-          [zero fld :: make_char_pol fld k n₁ []]
+          [zero fld :: make_char_pol α fld k n₁ []]
       | [(deg, coeff) :: dcl₁] =>
           if deg + n = k then
-            [coeff :: make_char_pol fld k n₁ dcl₁]
+            [coeff :: make_char_pol α fld k n₁ dcl₁]
           else
-            [zero fld :: make_char_pol fld k n₁ dcl]
+            [zero fld :: make_char_pol α fld k n₁ dcl]
       end
     end;
 
@@ -448,7 +448,7 @@ Definition characteristic_polynomial α fld pol ns :=
   in
   let j := ti (fst (ini_pt ns)) in
   let k := ti (fst (fin_pt ns)) in
-  let cl := make_char_pol fld k (k - j) dcl in
+  let cl := make_char_pol α fld k (k - j) dcl in
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α fld kps |};
 
