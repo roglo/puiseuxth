@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.218 2013-05-19 01:09:48 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.219 2013-05-19 01:14:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -419,34 +419,30 @@ Fixpoint list_nth n l default :=
            end
   end;
 
-value characteristic_polynomial fld pol ns =
-  let j = ti (fst ns.ini_pt) in
-  let k = ti (fst ns.fin_pt) in
-  let rec loop deg dpl =
+Definition characteristic_polynomial α fld pol ns :=
+  let j := ti (fst ns.ini_pt) in
+  let k := ti (fst ns.fin_pt) in
+  let fix loop deg dpl :=
     match dpl with
-    | [(x, y) :: dpl₁] →
-        let hdeg = ti x in
-        if hdeg - j > deg then
-          [fld.zero :: loop (deg + 1) dpl]
-        else if hdeg - j < deg then
-          match () with []
-        else
-          let ps = list_nth hdeg pol.al pol.an in
-          let c = valuation_coeff () fld ps in
-          [c :: loop (deg + 1) dpl₁]
-    | [] →
+    | [] =>
         if k - j > deg then
           [fld.zero :: loop (deg + 1) []]
-        else if k - j < deg then
-          match () with []
         else
-          let kps = list_nth k pol.al pol.an in
-          [(valuation_coeff () fld kps)]
+          let kps := list_nth k pol.al pol.an in
+          [(valuation_coeff α fld kps)]
+    | [(x, y) :: dpl₁] =>
+        let hdeg := ti x in
+        if hdeg - j > deg then
+          [fld.zero :: loop (deg + 1) dpl]
+        else
+          let ps := list_nth hdeg pol.al pol.an in
+          let c := valuation_coeff α fld ps in
+          [c :: loop (deg + 1) dpl₁]
     end
   in
-  let cl = loop 1 ns.oth_pts in
-  let jps = list_nth j pol.al pol.an in
-  {ml = [valuation_coeff () fld jps :: cl]}
+  let cl := loop 1 ns.oth_pts in
+  let jps := list_nth j pol.al pol.an in
+  {| ml := [valuation_coeff α fld jps :: cl] |}
 ;
 
 value rec puiseux_branch af br sol_list ns =
@@ -472,7 +468,7 @@ value rec puiseux_branch af br sol_list ns =
     }
     else ()
   in
-  let pol = characteristic_polynomial f br.pol ns in
+  let pol = characteristic_polynomial () f br.pol ns in
   let rl = af.ac_roots pol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
