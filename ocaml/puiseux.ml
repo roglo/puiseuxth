@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.217 2013-05-19 01:02:11 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.218 2013-05-19 01:09:48 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -407,6 +407,18 @@ value puiseux_iteration k br r m γ β sol_list = do {
 
 value ti q = I.to_int (Q.rnum q);
 
+Fixpoint list_nth n l default :=
+  match n with
+  | 0 => match l with
+         | [] => default
+         | [x :: _] => x
+         end
+  | S m => match l with
+           | [] => default
+           | [_ :: t] => list_nth m t default
+           end
+  end;
+
 value characteristic_polynomial fld pol ns =
   let j = ti (fst ns.ini_pt) in
   let k = ti (fst ns.fin_pt) in
@@ -419,7 +431,7 @@ value characteristic_polynomial fld pol ns =
         else if hdeg - j < deg then
           match () with []
         else
-          let ps = List.nth (pol.al @ [pol.an]) hdeg in
+          let ps = list_nth hdeg pol.al pol.an in
           let c = valuation_coeff () fld ps in
           [c :: loop (deg + 1) dpl₁]
     | [] →
@@ -428,12 +440,12 @@ value characteristic_polynomial fld pol ns =
         else if k - j < deg then
           match () with []
         else
-          let kps = List.nth (pol.al @ [pol.an]) k in
+          let kps = list_nth k pol.al pol.an in
           [(valuation_coeff () fld kps)]
     end
   in
   let cl = loop 1 ns.oth_pts in
-  let jps = List.nth (pol.al @ [pol.an]) j in
+  let jps = list_nth j pol.al pol.an in
   {ml = [valuation_coeff () fld jps :: cl]}
 ;
 
