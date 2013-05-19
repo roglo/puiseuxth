@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.235 2013-05-19 14:20:50 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.236 2013-05-19 15:18:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -15,6 +15,10 @@ open Puiseux_series;
 open Roots;
 
 Record polynomial α := { al : list α; an : α };
+
+Record alg_cl_field α β :=
+  { ac_field : field α β;
+    ac_roots : polynomial α → list (α * nat) };
 
 Definition valuation α (ps : puiseux_series α) :=
   match ps.ps_monoms with
@@ -448,10 +452,10 @@ Definition roots_of_characteristic_polynomial α acf pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α acf.ac_field k (k - j) dcl in
+  let cl := make_char_pol α (ac_field acf) k (k - j) dcl in
   let kps := list_nth k (al pol) (an pol) in
   let cpol := {| al := cl; an := valuation_coeff α kps |} in
-  acf.ac_roots (pofp cpol);
+  ac_roots acf cpol;
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
@@ -721,7 +725,7 @@ value kc () =
      complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
   in
-  {ac_field = fc; ac_roots = roots fc}
+  {ac_field = fc; ac_roots cpol = roots fc (pofp cpol)}
 ;
 
 value ps_of_int k i =
@@ -763,7 +767,7 @@ value k_ps k =
      complex_to_string _ = failwith "k_ps.complex_to_string not impl"}
   in
   let roots pol =
-    let rl = puiseux k 5 "x" "y" (ptop pol) in
+    let rl = puiseux k 5 "x" "y" pol in
     List.map (fun (r, inf) → (r, 0)) rl
   in
   {ac_field = fc; ac_roots = roots}
@@ -782,7 +786,7 @@ value km () =
      complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
      cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
   in
-  {ac_field = fm; ac_roots = roots fm}
+  {ac_field = fm; ac_roots cpol = roots fm (pofp cpol)}
 ;
 
 value main () = do {

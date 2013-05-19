@@ -1,8 +1,15 @@
-(* $Id: Puiseux.v,v 1.482 2013-05-19 13:46:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.483 2013-05-19 15:18:17 deraugla Exp $ *)
 
+Require Import Utf8.
 Require Import QArith.
 Require Import Puiseux_base.
 Require Import Misc.
+
+Record alg_cl_field α :=
+  { ac_field : field α;
+    ac_roots : polynomial α → list (α * nat) }.
+Arguments ac_field : default implicits.
+Arguments ac_roots : default implicits.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -27,11 +34,11 @@ Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
   let c := valuation_coeff α ps in
   (h, c).
 
-Definition characteristic_polynomial α fld pol ns :=
+Definition roots_of_characteristic_polynomial α acf pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld k (k - j) dcl in
+  let cl := make_char_pol α (ac_field acf) k (k - j) dcl in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α kps |}.
-
+  let cpol := {| al := cl; an := valuation_coeff α kps |} in
+  ac_roots acf cpol.
