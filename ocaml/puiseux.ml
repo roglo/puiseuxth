@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.220 2013-05-19 01:37:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.221 2013-05-19 01:43:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -425,10 +425,10 @@ Definition characteristic_polynomial α fld pol ns :=
   let fix loop deg dpl :=
     match dpl with
     | [] =>
-        if k - j > deg then [fld.zero :: loop (deg + 1) []] else []
+        if deg < k - j then [fld.zero :: loop (deg + 1) []] else []
     | [(x, y) :: dpl₁] =>
         let hdeg := ti x in
-        if hdeg - j > deg then
+        if deg < hdeg - j then
           [fld.zero :: loop (deg + 1) dpl]
         else
           let ps := list_nth hdeg pol.al pol.an in
