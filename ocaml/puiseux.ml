@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.228 2013-05-19 08:16:20 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.229 2013-05-19 08:36:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -437,8 +437,6 @@ Fixpoint make_char_pol fld k n dcl :=
     end;
 
 Definition characteristic_polynomial α fld pol ns :=
-  let j := ti (fst (ini_pt ns)) in
-  let k := ti (fst (fin_pt ns)) in
   let dcl :=
     List.map
       (λ pt,
@@ -446,13 +444,13 @@ Definition characteristic_polynomial α fld pol ns :=
          let ps := list_nth h (al pol) (an pol) in
          let c := valuation_coeff α fld ps in
          (h, c))
-      (oth_pts ns)
+      [ini_pt ns :: oth_pts ns]
   in
-  let cl := make_char_pol fld k (k - S j) dcl in
-  let jps := list_nth j (al pol) (an pol) in
+  let j := ti (fst (ini_pt ns)) in
+  let k := ti (fst (fin_pt ns)) in
+  let cl := make_char_pol fld k (k - j) dcl in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := [valuation_coeff α fld jps :: cl];
-     an := valuation_coeff α fld kps |};
+  {| al := cl; an := valuation_coeff α fld kps |};
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
