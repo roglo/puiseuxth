@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.219 2013-05-19 01:14:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.220 2013-05-19 01:37:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -425,11 +425,7 @@ Definition characteristic_polynomial α fld pol ns :=
   let fix loop deg dpl :=
     match dpl with
     | [] =>
-        if k - j > deg then
-          [fld.zero :: loop (deg + 1) []]
-        else
-          let kps := list_nth k pol.al pol.an in
-          [(valuation_coeff α fld kps)]
+        if k - j > deg then [fld.zero :: loop (deg + 1) []] else []
     | [(x, y) :: dpl₁] =>
         let hdeg := ti x in
         if hdeg - j > deg then
@@ -442,8 +438,9 @@ Definition characteristic_polynomial α fld pol ns :=
   in
   let cl := loop 1 ns.oth_pts in
   let jps := list_nth j pol.al pol.an in
-  {| ml := [valuation_coeff α fld jps :: cl] |}
-;
+  let kps := list_nth k pol.al pol.an in
+  {| al := [valuation_coeff α fld jps :: cl];
+     an := valuation_coeff α fld kps |};
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
@@ -469,7 +466,7 @@ value rec puiseux_branch af br sol_list ns =
     else ()
   in
   let pol = characteristic_polynomial () f br.pol ns in
-  let rl = af.ac_roots pol in
+  let rl = af.ac_roots (pofp pol) in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;
