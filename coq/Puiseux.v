@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.491 2013-05-19 19:02:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.492 2013-05-19 22:22:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -48,35 +48,32 @@ Definition characteristic_polynomial α fld pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld (k - j) dcl k in
+  let cl := make_char_pol α fld (k - j) dcl (degree pol) in
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α kps |}.
 
 (* *)
 
-Lemma cpol_degree : ∀ α fld acf pol cpol ns,
-  ns ∈ newton_segments fld pol
+Lemma cpol_degree : ∀ α acf pol cpol ns,
+  degree pol ≥ 1
   → cpol = characteristic_polynomial α (ac_field acf) pol ns
     → degree cpol ≥ 1.
 Proof.
-intros α fld acf pol cpol ns Hns Hpol.
+intros α acf pol cpol ns Hdeg Hpol.
 subst cpol.
 unfold characteristic_polynomial, degree; simpl.
-remember (nofq (fst (fin_pt ns))) as n.
-destruct n; simpl.
- Focus 2.
- destruct (eq_nat_dec (nofq (fst (ini_pt ns)) + S n)); apply le_n_S, le_0_n.
+unfold degree in Hdeg.
+remember (length (al pol)) as n.
+destruct n; [ assumption | simpl ].
+destruct (eq_nat_dec (nofq (fst (ini_pt ns)) + S n)); apply le_n_S, le_0_n.
+Qed.
 
- unfold nofq in Heqn.
- unfold newton_segments in Hns.
-bbb.
-
-Lemma exists_root : ∀ α fld acf pol cpol ns,
-  ns ∈ newton_segments fld pol
+Lemma exists_root : ∀ α acf pol cpol ns,
+  degree pol ≥ 1
   → cpol = characteristic_polynomial α (ac_field acf) pol ns
     → ∃ c, apply_polynomial (ac_field acf) cpol c = zero (ac_field acf).
 Proof.
-intros α fld acf pol cpol ns Hns Hpol.
-eapply cpol_degree in Hns; [ idtac | eassumption ].
-apply (ac_prop acf cpol Hns).
+intros α acf pol cpol ns Hdeg Hpol.
+eapply cpol_degree in Hdeg; [ idtac | eassumption ].
+apply (ac_prop acf cpol Hdeg).
 Qed.
