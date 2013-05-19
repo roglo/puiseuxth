@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.490 2013-05-19 18:45:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.491 2013-05-19 19:02:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,6 +8,7 @@ Require Import Misc.
 Definition degree α (pol : polynomial α) := List.length (al pol).
 Arguments degree : default implicits.
 
+(* Horner's algorithm *)
 Definition apply_polynomial {α} fld pol (x : α) :=
   List.fold_right (λ accu coeff, add fld (mul fld accu x) coeff) (an pol)
     (al pol).
