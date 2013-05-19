@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.233 2013-05-19 10:26:41 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.234 2013-05-19 10:40:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -23,10 +23,10 @@ Definition valuation α (ps : puiseux_series α) :=
   end
 ;
 
-Definition valuation_coeff α f (ps : puiseux_series α) :=
+Definition valuation_coeff α (ps : puiseux_series α) :=
   match ps.ps_monoms with
   | [mx :: _] => mx.coeff
-  | [] => f.zero
+  | [] => failwith "valuation_coeff"
   end
 ;
 
@@ -41,10 +41,8 @@ value qcompare q₁ q₂ =
 
 value qnat i = Q.of_i (I.of_int i);
 value nofq q =
-  if I.eq (Q.rden q) I.one then
-    let r = I.to_int (Q.rnum q) in
-    if r < 0 then 0 else r
-  else 0
+  let r = I.to_int (Q.rnum q) in
+  if r < 0 then 0 else r
 ;
 
 Definition slope_expr pt₁ pt₂ :=
@@ -440,21 +438,19 @@ Fixpoint make_char_pol α (fld : field α _) k n dcl :=
       end
     end;
 
-Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
-  let c := valuation_coeff α fld ps in
+  let c := valuation_coeff α ps in
   (h, c);
 
 Definition characteristic_polynomial α fld pol ns :=
-  let dcl :=
-    List.map (deg_coeff_of_point α fld pol) [ini_pt ns :: oth_pts ns]
-  in
+  let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol α fld k (k - j) dcl in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α fld kps |};
+  {| al := cl; an := valuation_coeff α kps |};
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in

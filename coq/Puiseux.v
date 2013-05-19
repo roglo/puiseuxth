@@ -1,8 +1,10 @@
-(* $Id: Puiseux.v,v 1.479 2013-05-19 09:18:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.480 2013-05-19 10:40:13 deraugla Exp $ *)
 
 Require Import QArith.
 Require Import Puiseux_base.
 Require Import Misc.
+
+Definition nofq q := Z.to_nat (Qnum q).
 
 Fixpoint make_char_pol α (fld : field α) k n dcl :=
   match n with
@@ -18,6 +20,20 @@ Fixpoint make_char_pol α (fld : field α) k n dcl :=
             [zero fld … make_char_pol α fld k n₁ dcl]
       end
     end.
+
+Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
+  let h := nofq (fst pt) in
+  let ps := List.nth h (al pol) (an pol) in
+  let c := valuation_coeff α ps in
+  (h, c).
+
+Definition characteristic_polynomial α fld pol ns :=
+  let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns … oth_pts ns] in
+  let j := nofq (fst (ini_pt ns)) in
+  let k := nofq (fst (fin_pt ns)) in
+  let cl := make_char_pol α fld k (k - j)%nat dcl in
+  let kps := List.nth k (al pol) (an pol) in
+  {| al := cl; an := valuation_coeff α kps |}.
 
 Section puiseux.
 

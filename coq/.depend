@@ -2,7 +2,7 @@ ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.v
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
 InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Puiseux_base.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
-NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Puiseux.vo
+NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo
 NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo Slope_base.vo SlopeMisc.vo ConvexHull.vo ConvexHullMisc.vo Puiseux_base.vo NotInSegMisc.vo
 Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v Puiseux_base.vo Misc.vo
 Puiseux_base.vo Puiseux_base.glob Puiseux_base.v.beautified: Puiseux_base.v ConvexHull.vo ConvexHullMisc.vo Misc.vo

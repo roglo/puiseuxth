@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.44 2013-05-18 11:17:58 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.45 2013-05-19 10:40:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,7 +7,6 @@ Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Puiseux.
 
 (* 1/ two lemmas very close to each other; another lemma to factorize them,
    perhaps? the most part is normalization *)
