@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.481 2013-05-19 10:53:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.482 2013-05-19 13:46:54 deraugla Exp $ *)
 
 Require Import QArith.
 Require Import Puiseux_base.
@@ -34,11 +34,4 @@ Definition characteristic_polynomial α fld pol ns :=
   let cl := make_char_pol α fld k (k - j) dcl in
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α kps |}.
-
-Section puiseux.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
-
-End puiseux.
 
