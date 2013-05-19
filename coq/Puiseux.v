@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.493 2013-05-19 23:11:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.494 2013-05-19 23:55:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -23,18 +23,18 @@ Arguments ac_prop : default implicits.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
-Fixpoint make_char_pol α (fld : field α) k dcl n :=
+Fixpoint make_char_pol α (fld : field α) cdeg dcl n :=
   match n with
   | O => []
   | S n₁ =>
       match dcl with
       | [] =>
-          [zero fld … make_char_pol α fld k [] n₁]
+          [zero fld … make_char_pol α fld (S cdeg) [] n₁]
       | [(deg, coeff) … dcl₁] =>
-          if eq_nat_dec (deg + n) k then
-            [coeff … make_char_pol α fld k dcl₁ n₁]
+          if eq_nat_dec deg cdeg then
+            [coeff … make_char_pol α fld (S cdeg) dcl₁ n₁]
           else
-            [zero fld … make_char_pol α fld k dcl n₁]
+            [zero fld … make_char_pol α fld (S cdeg) dcl n₁]
       end
     end.
 
@@ -48,7 +48,7 @@ Definition characteristic_polynomial α fld pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld k dcl (k - j) in
+  let cl := make_char_pol α fld j dcl (k - j) in
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α kps |}.
 
@@ -68,7 +68,8 @@ remember (k - j)%nat as kj.
 destruct kj; simpl.
  Focus 2.
  rewrite <- Heqj.
- destruct (eq_nat_dec (j + S kj) k); apply le_n_S, le_0_n.
+ destruct (eq_nat_dec j j) as [| H]; [ apply le_n_S, le_0_n | idtac ].
+ exfalso; apply H; reflexivity.
 bbb.
 
 Lemma exists_root : ∀ α fld acf pol cpol ns,
