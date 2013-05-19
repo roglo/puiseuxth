@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.236 2013-05-19 15:18:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.237 2013-05-19 15:44:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -16,7 +16,7 @@ open Roots;
 
 Record polynomial α := { al : list α; an : α };
 
-Record alg_cl_field α β :=
+Record algebrically_closed_field α β :=
   { ac_field : field α β;
     ac_roots : polynomial α → list (α * nat) };
 

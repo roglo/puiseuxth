@@ -1,11 +1,11 @@
-(* $Id: Puiseux.v,v 1.483 2013-05-19 15:18:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.484 2013-05-19 15:44:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Puiseux_base.
 Require Import Misc.
 
-Record alg_cl_field α :=
+Record algebraically_closed_field α :=
   { ac_field : field α;
     ac_roots : polynomial α → list (α * nat) }.
 Arguments ac_field : default implicits.
