@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.230 2013-05-19 09:19:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.231 2013-05-19 10:17:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -405,8 +405,6 @@ value puiseux_iteration k br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value ti q = I.to_int (Q.rnum q);
-
 Fixpoint list_nth n l default :=
   match n with
   | 0 => match l with
@@ -436,18 +434,20 @@ Fixpoint make_char_pol α (fld : field α _) k n dcl :=
       end
     end;
 
+value qnum q = I.to_int (Q.rnum q);
+
+Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
+  let h := qnum (fst pt) in
+  let ps := list_nth h (al pol) (an pol) in
+  let c := valuation_coeff α fld ps in
+  (h, c);
+
 Definition characteristic_polynomial α fld pol ns :=
   let dcl :=
-    List.map
-      (λ pt,
-         let h := ti (fst pt) in
-         let ps := list_nth h (al pol) (an pol) in
-         let c := valuation_coeff α fld ps in
-         (h, c))
-      [ini_pt ns :: oth_pts ns]
+    List.map (deg_coeff_of_point α fld pol) [ini_pt ns :: oth_pts ns]
   in
-  let j := ti (fst (ini_pt ns)) in
-  let k := ti (fst (fin_pt ns)) in
+  let j := qnum (fst (ini_pt ns)) in
+  let k := qnum (fst (fin_pt ns)) in
   let cl := make_char_pol α fld k (k - j) dcl in
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α fld kps |};
@@ -457,12 +457,12 @@ value rec puiseux_branch af br sol_list ns =
   let β = ns.β in
   let (j, αj) = ns.ini_pt in
   let (k, αk) = ns.fin_pt in
-  let j = ti j in
-  let k = ti k in
+  let j = qnum j in
+  let k = qnum k in
   let dpl = ns.oth_pts in
   let f = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
-  let q = List.fold_left (fun q h → gcd q (ti (fst h) - j)) (k - j) dpl in
+  let q = List.fold_left (fun q h → gcd q (qnum (fst h) - j)) (k - j) dpl in
   let _ =
     if verbose.val then do {
       printf "γ%s = %-4s" ss (Q.to_string γ);
