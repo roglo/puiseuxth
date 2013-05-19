@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.36 2013-04-06 22:51:31 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.37 2013-05-19 01:02:11 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -74,9 +74,9 @@ value main () = do {
   if sn <> si then eprintf "%s\n%!" sn else ();
   eprintf "\n%!";
   let pol = ps_polyn_of_tree k t in
-  List.iteri print_term pol.al;
+  List.iteri print_term pol.ml;
   printf "\n";
-  let deg = List.length pol.al - 1 in
+  let deg = List.length pol.ml - 1 in
   printf "Walker=mlist(['psfz','dg','cofs'],%d," deg;
   printf "list(";
   let s = ref "" in

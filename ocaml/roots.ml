@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.79 2013-04-19 02:56:07 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.80 2013-05-19 01:02:11 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -83,19 +83,19 @@ value int_polyn_of_polyn apol =
       let ml =
         List.map
           (fun m → if Q.eq m.A₂.b Q.zero then m.A₂.a else raise Exit)
-          apol.al
+          apol.ml
       in
-      Some {al = ml}
+      Some {ml = ml}
     with
     [ Exit → None ]
   in
   match qpol_opt with
   [ Some qpol →
-      let l = List.fold_left (fun l m → I.lcm l (Q.rden m)) I.one qpol.al in
+      let l = List.fold_left (fun l m → I.lcm l (Q.rden m)) I.one qpol.ml in
       let ml =
-        List.map (fun m → I.mul (Q.rnum m) (I.div l (Q.rden m))) qpol.al
+        List.map (fun m → I.mul (Q.rnum m) (I.div l (Q.rden m))) qpol.ml
       in
-      Some {al = ml}
+      Some {ml = ml}
   | None → None ]
 ;
 
@@ -283,7 +283,7 @@ value roots_of_int_coeffs k coeffs =
 ;
 
 value coeff_of_degree n pol =
-  try List.nth pol.al n with
+  try List.nth pol.ml n with
   [ Failure _ → A₂.zero ]
 ;
 
@@ -304,7 +304,7 @@ value roots_of_c_coeffs k coeffs =
 ;
 
 value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
-  let degree = List.length apol.al - 1 in
+  let degree = List.length apol.ml - 1 in
   let rl_opt =
     match degree with
     [ 1 →
@@ -320,14 +320,14 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
     | _ →
         match int_polyn_of_polyn apol with
         [ Some ipol → do {
-            let rl = roots_of_int_coeffs k ipol.al in
+            let rl = roots_of_int_coeffs k ipol.ml in
             let nb_roots = List.fold_left (fun c (_, m) → c + m) 0 rl in
-            assert (nb_roots < List.length ipol.al);
-            if nb_roots < List.length ipol.al - 1 then do {
+            assert (nb_roots < List.length ipol.ml);
+            if nb_roots < List.length ipol.ml - 1 then do {
               if verbose.val then do {
                 printf
                   "found only %d root(s) in polynomial of degree %d\n%!"
-                  nb_roots (List.length ipol.al - 1);
+                  nb_roots (List.length ipol.ml - 1);
               }
               else ();
             }
@@ -335,7 +335,7 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
             Some rl
           }
         | None →
-            roots_of_c_coeffs k pol.al ] ]
+            roots_of_c_coeffs k pol.ml ] ]
   in
   match rl_opt with
   [ Some rl →
@@ -380,16 +380,16 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
 value float_roots_of_unity k pow = do {
   let pol =
     loop [] 0 where rec loop rev_al deg =
-      if deg = pow then {al = List.rev [k.one :: rev_al]}
+      if deg = pow then {ml = List.rev [k.one :: rev_al]}
       else if deg = 0 then loop [k.minus_one :: rev_al] (deg + 1)
       else loop [k.zero :: rev_al] (deg + 1)
   in
-  let rl = k.cpoly_roots (List.map k.to_complex pol.al) in
+  let rl = k.cpoly_roots (List.map k.to_complex pol.ml) in
   List.map k.complex_round_zero rl
 };
 
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
-  let ml = List.map k.to_complex pol.al in
+  let ml = List.map k.to_complex pol.ml in
   let rl = k.cpoly_roots (List.rev ml) in
   let rl = List.map k.complex_round_zero rl in
   if verbose.val then do {
@@ -461,9 +461,9 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
              match k.to_a m with
              [ Some a → a
              | None → raise Exit ])
-          pol.al
+          pol.ml
       in
-      Some {al = ml}
+      Some {ml = ml}
     with
     [ Exit → None ]
   in
@@ -486,9 +486,9 @@ value roots k pol = do {
       (fun (gp, deg) m →
          let gp = if k.eq k.zero m then gp else gcd gp deg in
          (gp, deg + 1))
-      (0, 0) pol.al
+      (0, 0) pol.ml
   in
-  let g = List.fold_left (fun g c → k.gcd g c) k.zero pol.al in
+  let g = List.fold_left (fun g c → k.gcd g c) k.zero pol.ml in
   let ml =
     let (rev_ml, _) =
       List.fold_left
@@ -497,12 +497,12 @@ value roots k pol = do {
              if deg mod power_gcd = 0 then [k.div m g :: rev_ml] else rev_ml
            in
            (rev_ml, deg + 1))
-        ([], 0) pol.al
+        ([], 0) pol.ml
     in
     List.rev rev_ml
   in
   if verbose.val then do {
-    let pol = {al = ml} in
+    let pol = {ml = ml} in
     let t = rev_tree_of_polyn k pol in
     if power_gcd = 1 then
       printf "resolving %s=0\n%!" (string_of_tree k True "x" "c" t)
@@ -511,6 +511,6 @@ value roots k pol = do {
         (sup_string_of_string ("1/" ^ soi power_gcd))
   }
   else ();
-  let pol = {al = ml} in
+  let pol = {ml = ml} in
   roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol
 };

@@ -1,6 +1,6 @@
-(* $Id: poly.mli,v 1.28 2013-04-07 09:24:49 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.29 2013-05-19 01:02:11 deraugla Exp $ *)
 
-type polynomial α = { al : list α };
+type polynomial α = { ml : list α };
 
 value pol_add :
   (α → α → α) → polynomial α → polynomial α → polynomial α;

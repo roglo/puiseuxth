@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.69 2013-04-26 13:49:06 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.70 2013-05-19 01:02:11 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -317,7 +317,7 @@ value group_term_descr k tdl =
         else
           loop [{ps_monoms = List.rev ps.ps_monoms} :: rev_cl] (deg + 1) ml₁
     | [] →
-        {al = List.rev rev_cl} ]
+        {ml = List.rev rev_cl} ]
 ;
 
 value rec without_initial_neg k =
@@ -383,7 +383,7 @@ value tree_of_tree_polyn k pol =
     (t, deg + 1)
   in
   let (t, _) =
-    List.fold_left (expr_of_term_ypow_list k) (Const k.zero, 0) pol.al
+    List.fold_left (expr_of_term_ypow_list k) (Const k.zero, 0) pol.ml
   in
   t
 ;
@@ -480,16 +480,16 @@ value rev_tree_of_polyn k pol =
        in
        (t, deg - 1)
   in
-  let deg = List.length pol.al - 1 in
+  let deg = List.length pol.ml - 1 in
   let (t, _) =
-    List.fold_left rebuild_add (Const k.zero, deg) (List.rev pol.al)
+    List.fold_left rebuild_add (Const k.zero, deg) (List.rev pol.ml)
   in
   t
 ;
 
 value tree_of_ps_polyn k pol =
-  let cl = List.map (tree_of_puiseux_series k) pol.al in
-  tree_of_tree_polyn k {al = cl}
+  let cl = List.map (tree_of_puiseux_series k) pol.ml in
+  tree_of_tree_polyn k {ml = cl}
 ;
 
 value normalise k t =
@@ -602,7 +602,7 @@ value tree_polyn_of_tree k t =
         else if m.old_power < deg then match () with []
         else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
     | [] →
-        {al = List.rev rev_np} ]
+        {ml = List.rev rev_np} ]
 ;
 
 value rec expr_with_pow_x k t =

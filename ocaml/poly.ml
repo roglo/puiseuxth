@@ -1,6 +1,6 @@
-(* $Id: poly.ml,v 1.28 2013-04-07 10:14:35 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.29 2013-05-19 01:02:11 deraugla Exp $ *)
 
-type polynomial α = { al : list α };
+type polynomial α = { ml : list α };
 type old_monomial α = { old_coeff : α; old_power : int };
 
 value merge_pow add_coeff is_zero_coeff =
@@ -25,17 +25,17 @@ value merge_pow add_coeff is_zero_coeff =
 ;
 
 value pol_add add_coeff pol₁ pol₂ =
-  loop [] pol₁.al pol₂.al where rec loop rev_al al₁ al₂ =
+  loop [] pol₁.ml pol₂.ml where rec loop rev_al al₁ al₂ =
     match (al₁, al₂) with
     [ ([a₁ :: al₁], [a₂ :: al₂]) →
         let a = add_coeff a₁ a₂ in
         loop [a :: rev_al] al₁ al₂
     | ([], [a₂ :: al₂]) →
-        {al = List.rev (List.rev_append al₂ [a₂ :: rev_al])}
+        {ml = List.rev (List.rev_append al₂ [a₂ :: rev_al])}
     | ([a₁ :: al₁], []) →
-        {al = List.rev (List.rev_append al₁ [a₁ :: rev_al])}
+        {ml = List.rev (List.rev_append al₁ [a₁ :: rev_al])}
     | ([], []) →
-        {al = List.rev rev_al} ]
+        {ml = List.rev rev_al} ]
 ;
 
 value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
@@ -48,10 +48,10 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
                 let c = mul_coeff c₁ c₂ in
                 let p = deg₁ + deg₂ in
                 ([{old_coeff = c; old_power = p} :: a],  deg₂ + 1))
-              (a, 0) pol₂.al
+              (a, 0) pol₂.ml
          in
          (a, deg₁ + 1))
-      ([], 0) pol₁.al
+      ([], 0) pol₁.ml
   in
   let ml = List.sort (fun m₁ m₂ → compare m₁.old_power m₂.old_power) ml in
   let ml = merge_pow add_coeff is_zero_coeff ml in
@@ -62,10 +62,10 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
         else if m.old_power < deg then invalid_arg "pol_mul"
         else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
     | [] →
-        {al = List.rev rev_np} ]
+        {ml = List.rev rev_np} ]
 ;
 
 value apply_poly zero_v add_v_coeff mul_v_x pol x =
-  List.fold_right (fun c accu → add_v_coeff (mul_v_x accu x) c) pol.al
+  List.fold_right (fun c accu → add_v_coeff (mul_v_x accu x) c) pol.ml
     zero_v
 ;
