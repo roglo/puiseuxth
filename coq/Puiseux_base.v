@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.1 2013-05-18 19:51:56 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.2 2013-05-19 16:56:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -33,19 +33,6 @@ Record polynomial α := { al : list α; an : α }.
 Arguments al : default implicits.
 Arguments an : default implicits.
 Arguments polynomial : default implicits.
-
-(*
-Definition apply_poly {α} fld pol (x : α) :=
-  List.fold_right (λ accu coeff, add fld (mul fld accu x) coeff) (an pol)
-    (al pol).
-Arguments apply_poly : default implicits. 
-
-Record alg_closed_field α :=
-  { ac_field : field α;
-    ac_prop : ∀ pol x, @apply_poly α ac_field pol x = zero ac_field }.
-Arguments ac_field : default implicits. 
-Arguments ac_prop : default implicits. 
-*)
 
 Record Qpos := { x : Q; pos : x > 0 }.
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.484 2013-05-19 15:44:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.485 2013-05-19 16:56:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -42,3 +42,23 @@ Definition roots_of_characteristic_polynomial α acf pol ns :=
   let kps := List.nth k (al pol) (an pol) in
   let cpol := {| al := cl; an := valuation_coeff α kps |} in
   ac_roots acf cpol.
+
+Definition apply_polynomial {α} fld pol (x : α) :=
+  List.fold_right (λ accu coeff, add fld (mul fld accu x) coeff) (an pol)
+    (al pol).
+Arguments apply_polynomial : default implicits. 
+
+Lemma yyy : ∀ α acf pol (x : α) ord,
+  (x, ord) ∈ ac_roots acf pol
+  → apply_polynomial (ac_field acf) pol x = zero (ac_field acf).
+Proof.
+intros α acf pol x ord Hx.
+bbb.
+
+Theorem zzz : ∀ α fld acf pol ns c ord,
+  ns ∈ newton_segments fld pol
+  → (c, ord) ∈ roots_of_characteristic_polynomial α acf pol ns
+    → True.
+Proof.
+intros α fld acf pol ns c ord Hns Hc.
+bbb.
