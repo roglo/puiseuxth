@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.234 2013-05-19 10:40:13 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.235 2013-05-19 14:20:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -444,13 +444,14 @@ Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
   let c := valuation_coeff α ps in
   (h, c);
 
-Definition characteristic_polynomial α fld pol ns :=
+Definition roots_of_characteristic_polynomial α acf pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld k (k - j) dcl in
+  let cl := make_char_pol α acf.ac_field k (k - j) dcl in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α kps |};
+  let cpol := {| al := cl; an := valuation_coeff α kps |} in
+  acf.ac_roots (pofp cpol);
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
@@ -475,8 +476,7 @@ value rec puiseux_branch af br sol_list ns =
     }
     else ()
   in
-  let pol = characteristic_polynomial () f br.pol ns in
-  let rl = af.ac_roots (pofp pol) in
+  let rl = roots_of_characteristic_polynomial () af br.pol ns in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;
