@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.480 2013-05-19 10:40:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.481 2013-05-19 10:53:33 deraugla Exp $ *)
 
 Require Import QArith.
 Require Import Puiseux_base.
@@ -31,7 +31,7 @@ Definition characteristic_polynomial α fld pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld k (k - j)%nat dcl in
+  let cl := make_char_pol α fld k (k - j) dcl in
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α kps |}.
 
