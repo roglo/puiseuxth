@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.489 2013-05-19 18:44:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.490 2013-05-19 18:45:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -50,6 +50,8 @@ Definition characteristic_polynomial α fld pol ns :=
   let cl := make_char_pol α fld (k - j) dcl k in
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α kps |}.
+
+(* *)
 
 Lemma cpol_degree : ∀ α fld acf pol cpol ns,
   ns ∈ newton_segments fld pol
