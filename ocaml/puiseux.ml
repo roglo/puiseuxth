@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.237 2013-05-19 15:44:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.238 2013-05-19 23:11:36 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -19,6 +19,8 @@ Record polynomial α := { al : list α; an : α };
 Record algebrically_closed_field α β :=
   { ac_field : field α β;
     ac_roots : polynomial α → list (α * nat) };
+
+Definition degree (pol : polynomial α) := List.length (al pol);
 
 Definition valuation α (ps : puiseux_series α) :=
   match ps.ps_monoms with
@@ -427,18 +429,18 @@ Fixpoint list_nth n l default :=
 
 value zero fld = fld.zero;
 
-Fixpoint make_char_pol α (fld : field α _) k n dcl :=
+Fixpoint make_char_pol α (fld : field α _) k dcl n :=
   match n with
   | O => []
   | S n₁ =>
       match dcl with
       | [] =>
-          [zero fld :: make_char_pol α fld k n₁ []]
+          [zero fld :: make_char_pol α fld k [] n₁]
       | [(deg, coeff) :: dcl₁] =>
-          if deg + n = k then
-            [coeff :: make_char_pol α fld k n₁ dcl₁]
+          if eq_nat_dec (deg + n) k then
+            [coeff :: make_char_pol α fld k dcl₁ n₁]
           else
-            [zero fld :: make_char_pol α fld k n₁ dcl]
+            [zero fld :: make_char_pol α fld k dcl n₁]
       end
     end;
 
@@ -448,14 +450,13 @@ Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
   let c := valuation_coeff α ps in
   (h, c);
 
-Definition roots_of_characteristic_polynomial α acf pol ns :=
+Definition characteristic_polynomial α fld pol ns :=
   let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α (ac_field acf) k (k - j) dcl in
+  let cl := make_char_pol α fld k dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  let cpol := {| al := cl; an := valuation_coeff α kps |} in
-  ac_roots acf cpol;
+  {| al := cl; an := valuation_coeff α kps |};
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
@@ -480,7 +481,8 @@ value rec puiseux_branch af br sol_list ns =
     }
     else ()
   in
-  let rl = roots_of_characteristic_polynomial () af br.pol ns in
+  let cpol = characteristic_polynomial () f br.pol ns in
+  let rl = ac_roots af cpol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution f br (succ (List.length sol_list)) br.cγl False sol;

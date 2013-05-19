@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.15 2013-05-16 16:07:03 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.16 2013-05-19 23:11:36 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -90,6 +90,8 @@ EXTEND
           <:expr< fun $p$ → $e$ >>
       | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" →
           <:expr< { $_list:lel$ } >>
+      | LIDENT "eq_nat_dec" →
+         <:expr< $lid:"="$ >>
       | UIDENT "Qcompare" →
           <:expr< qcompare >>
       | UIDENT "Qdiv" →
