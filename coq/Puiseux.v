@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.507 2013-05-20 09:40:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.508 2013-05-20 13:58:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -99,6 +99,32 @@ Lemma zzz : ∀ pol pts ns,
   → ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
     → fin_pt ns ∈ pts.
 Proof.
+intros pol pts ns Hpts Hns.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp.
+destruct hsl as [| hs₁]; [ contradiction | simpl in Hns ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+remember [hs₂ … hsl] as x.
+destruct Hns as [Hns| Hns]; subst x.
+ subst ns.
+ simpl.
+ symmetry in Hnp.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+ rename Heqms₁ into Hms₁; symmetry in Hms₁.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms₁) as pts₁.
+ destruct pts₁ as [| pt₃].
+  injection Hnp; clear Hnp; intros; subst hsl hs₂.
+  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+  right; eapply end_pt_in; eassumption.
+bbb.
+
 intros pol pts ns Hpts Hns.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
