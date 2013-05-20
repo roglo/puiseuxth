@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.496 2013-05-20 01:32:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.497 2013-05-20 01:52:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -57,13 +57,134 @@ Definition characteristic_polynomial α fld pol ns :=
 
 (* *)
 
-Lemma j_lt_k : ∀ α (fld : field (puiseux_series α)) pol j k ns,
+Section field.
+
+Variable α : Type.
+Variable fld : field (puiseux_series α).
+
+Lemma all_fst_is_int : ∀ n cl cn pts h αh,
+  filter_non_zero_ps α fld (all_points_of_ps_polynom α n cl cn) = pts
+  → (h, αh) ∈ pts
+    → (Qden h = 1)%positive.
+Proof.
+intros n cl cn pts h αh Hpts Hαh.
+revert n pts Hpts Hαh.
+induction cl as [| c]; intros.
+ simpl in Hpts.
+ destruct (is_zero_dec fld cn) as [Hz| Hnz].
+  subst pts; contradiction.
+
+  subst pts.
+  destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
+  injection Hαh; clear Hαh; intros; subst h αh.
+  reflexivity.
+
+ simpl in Hpts.
+ destruct (is_zero_dec fld c) as [Hz| Hnz].
+  eapply IHcl; eassumption.
+
+  subst pts.
+  destruct Hαh as [Hαh| Hαh].
+   injection Hαh; clear Hαh; intros; subst h αh.
+   reflexivity.
+
+   eapply IHcl in Hαh; [ assumption | reflexivity ].
+Qed.
+
+Lemma fst_is_int : ∀ pol pts h αh,
+  points_of_ps_polynom α fld pol = pts
+  → (h, αh) ∈ pts
+    → (Qden h = 1)%positive.
+Proof.
+intros pol pts h αh Hpts Hαh.
+eapply all_fst_is_int; eassumption.
+Qed.
+
+Lemma same_den_qeq_eq : ∀ h i, Qden h = Qden i → h == i → h = i.
+Proof.
+intros h i Hd Hh.
+unfold Qeq in Hh.
+rewrite Hd in Hh.
+apply Z.mul_reg_r in Hh.
+ destruct h, i.
+ simpl in Hd, Hh.
+ subst Qden Qnum; reflexivity.
+
+ intros H.
+ pose proof (Pos2Z.is_pos (Qden i)) as HH.
+ rewrite <- H in HH.
+ apply Zlt_irrefl in HH; contradiction.
+Qed.
+
+Lemma sorted_hd_not_in_tl : ∀ k αj αk pts,
+  Sorted fst_lt [(k, αj) … pts] → (k, αk) ∉ pts.
+Proof.
+intros k αj αk pts H.
+induction pts as [| (h, αh)]; [ intros HH; contradiction | idtac ].
+intros HH.
+destruct HH as [HH| HH].
+ injection HH; clear HH; intros; subst h αh.
+ apply Sorted_inv_2 in H; destruct H as (Hlt, H).
+ apply Qlt_irrefl in Hlt; assumption.
+
+ revert HH; apply IHpts.
+ apply Sorted_inv_2 in H; destruct H as (Hlt₁, H).
+ destruct pts as [| pt₂]; [ constructor; constructor | idtac ].
+ apply Sorted_inv_2 in H; destruct H as (Hlt₂, H).
+ constructor; [ assumption | idtac ].
+ constructor; eapply Qlt_trans; eassumption.
+Qed.
+
+Lemma eq_k_eq_αk : ∀ pts j αj k αk,
+  Sorted fst_lt pts
+  → (j, αj) ∈ pts
+    → (k, αk) ∈ pts
+      → j = k
+        → αj = αk.
+Proof.
+intros pts j αj k αk Hpts Hαj Hαk Hjk.
+subst j.
+induction pts as [| pt]; intros; [ contradiction | idtac ].
+destruct Hαj as [Hαj| Hαj]; [ subst pt | idtac ].
+ destruct Hαk as [Hαk| Hαk].
+  injection Hαk; clear; intros; subst αj; reflexivity.
+
+  exfalso; revert Hαk; eapply sorted_hd_not_in_tl; eassumption.
+
+ destruct Hαk as [Hαk| Hαk]; [ subst pt | idtac ].
+  exfalso; revert Hαj; eapply sorted_hd_not_in_tl; eassumption.
+
+  destruct pts as [| pt₂]; [ contradiction | idtac ].
+  apply Sorted_inv_2 in Hpts; destruct Hpts as (Hlt₁, Hpts).
+  eapply IHpts; eassumption.
+Qed.
+
+Lemma same_k_same_αk : ∀ pol pts j αj k αk,
+  points_of_ps_polynom α fld pol = pts
+  → (j, αj) ∈ pts
+    → (k, αk) ∈ pts
+      → j == k
+        → αj = αk.
+Proof.
+intros pos pts j αj k αk Hpts Hj Hk Hjk.
+remember Hpts as Hsort; clear HeqHsort.
+symmetry in Hsort.
+unfold points_of_ps_polynom in Hsort.
+apply points_of_polyn_sorted in Hsort.
+eapply eq_k_eq_αk; try eassumption.
+eapply all_fst_is_int in Hj; try eassumption.
+eapply all_fst_is_int in Hk; try eassumption.
+rewrite <- Hk in Hj.
+apply same_den_qeq_eq; assumption.
+Qed.
+
+Lemma j_lt_k : ∀ pol j k ns,
   ns ∈ newton_segments fld pol
   → j = nofq (fst (ini_pt ns))
     → k = nofq (fst (fin_pt ns))
       → (j < k)%nat.
 Proof.
-intros α fld pol j k ns Hns Hj Hk.
+intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
