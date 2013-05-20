@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.506 2013-05-20 09:28:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.507 2013-05-20 09:40:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -104,7 +104,7 @@ remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
 rename Heqhsl into Hnp.
-revert n ns Hnp Hns.
+revert n ns pts Hnp Hns Hpts.
 induction hsl as [| hs₁]; [ contradiction | intros ].
 simpl in Hns.
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
@@ -112,6 +112,11 @@ remember [hs₂ … hsl] as x.
 destruct Hns as [Hns| Hns]; subst x.
  subst ns.
  simpl.
+ Focus 2.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
 bbb.
 *)
 
