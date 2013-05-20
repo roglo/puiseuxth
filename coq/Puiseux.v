@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.509 2013-05-20 14:23:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.510 2013-05-20 16:20:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -94,11 +94,86 @@ induction cl as [| c]; intros.
    eapply IHcl in Hαh; [ assumption | reflexivity ].
 Qed.
 
+Lemma yyy : ∀ n pol pts hs hsl,
+  pts = points_of_ps_polynom α fld pol
+  → next_ch_points n pts = hsl
+    → hs ∈ hsl
+      → pt hs ∈ pts.
+Proof.
+intros n pol pts hs hsl Hpts Hnp Hhs.
+bbb.
+revert n pts hs Hpts Hnp Hhs.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+destruct Hhs as [Hhs| Hhs].
+ subst hs₁.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂].
+  injection Hnp; intros; subst hs hsl.
+  simpl.
+  left; reflexivity.
+
+  injection Hnp; clear Hnp; intros Hnp Hs.
+  subst hs.
+  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+  left; reflexivity.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂].
+  injection Hnp; clear Hnp; intros Hnp Hs.
+  subst hsl; contradiction.
+
+  injection Hnp; clear Hnp; intros Hnp Hs.
+  subst hs₁.
+  clear IHhsl.
+  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+  symmetry in Heqms₁.
+  revert n pt₁ pt₂ pts hs ms₁ Hpts Hhs Hnp Heqms₁.
+  induction hsl as [| hs₁]; [ contradiction | intros ].
+  destruct Hhs as [Hhs| Hhs].
+   subst hs₁.
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   remember (rem_pts ms₁) as pts₁.
+   destruct pts₁ as [| pt₃].
+    injection Hnp; clear Hnp; intros Hnp; intros; subst hs.
+    remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+    right.
+    eapply end_pt_in; eassumption.
+
+    injection Hnp; clear Hnp; intros Hnp; intros.
+    subst hs.
+    remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+    right.
+    eapply end_pt_in; eassumption.
+
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   remember (rem_pts ms₁) as pts₁.
+   destruct pts₁ as [| pt₃].
+    injection Hnp; clear Hnp; intros Hnp; intros; subst hsl.
+    contradiction.
+
+    injection Hnp; clear Hnp; intros Hnp; intros.
+    remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
+    symmetry in Heqms₂.
+    subst hs₁.
+    eapply IHhsl.
+     4: eassumption.
+bbb.
+
 Lemma zzz : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
     → fin_pt ns ∈ pts.
 Proof.
+intros pol pts ns Hpts Hns.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp; symmetry in Hnp.
+remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
+bbb.
+
 intros pol pts ns Hpts Hns.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -126,6 +201,7 @@ destruct Hns as [Hns| Hns]; subst x.
   remember [pt₁; pt₂ … pts] as x; simpl; subst x.
   right; eapply end_pt_in; eassumption.
 
+bbb.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
@@ -144,6 +220,12 @@ destruct Hns as [Hns| Hns]; subst x.
  destruct Hns as [Hns| Hns].
   subst ns.
   remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  remember (rem_pts ms₂) as pts₂.
+  destruct pts₂ as [| pt₄].
+   injection Hnp; clear Hnp; intros; subst hs₃ hsl.
+   remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+   subst hs₂.
 bbb.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
