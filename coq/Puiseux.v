@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.498 2013-05-20 05:23:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.499 2013-05-20 06:30:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -219,6 +219,7 @@ eapply fst_is_int with (pt := ini_pt ns) in Hj₁.
    do 2 rewrite Zmult_1_r in Hlt.
    unfold nofq in Hj, Hk.
    subst j k.
+   apply Z2Nat.inj_lt.
 bbb.
 *)
 
