@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.501 2013-05-20 07:30:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.502 2013-05-20 08:34:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -94,6 +94,13 @@ induction cl as [| c]; intros.
    eapply IHcl in Hαh; [ assumption | reflexivity ].
 Qed.
 
+Lemma zzz : ∀ pol pts ns,
+  ns ∈ newton_segments fld pol
+  → fin_pt ns ∈ pts.
+Proof.
+intros pol pts ns Hns.
+bbb.
+
 Lemma j_lt_k : ∀ pol j k ns,
   ns ∈ newton_segments fld pol
   → j = nofq (fst (ini_pt ns))
@@ -154,6 +161,9 @@ eapply fst_is_pos_int with (pt := ini_pt ns) in Hj₁.
     symmetry in Heqms.
     eapply IHhsl with (pts := [end_pt ms … rem_pts ms]); try eassumption.
     eapply minimise_slope_sorted; eassumption.
+
+  rewrite Heqpts in Hns.
+  eapply zzz; eassumption.
 bbb.
 *)
 
