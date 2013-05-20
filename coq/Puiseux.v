@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.504 2013-05-20 08:57:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.505 2013-05-20 09:12:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,10 +62,10 @@ Section field.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Lemma fst_is_pos_int : ∀ pol pts pt,
+Lemma fst_is_nat : ∀ pol pts pt,
   points_of_ps_polynom α fld pol = pts
   → pt ∈ pts
-    → (Qden (fst pt) = 1)%positive ∧ (0 <= Qnum (fst pt))%Z.
+    → ∃ n, fst pt = Qnat n.
 Proof.
 intros pol pts pt Hpts Hαh.
 unfold points_of_ps_polynom in Hpts.
@@ -81,7 +81,7 @@ induction cl as [| c]; intros.
 
   subst pts.
   destruct Hαh as [Hαh| ]; [ subst pt; simpl | contradiction ].
-  split; [ reflexivity | apply Zle_0_nat ].
+  exists n; reflexivity.
 
  simpl in Hpts.
  destruct (is_zero_dec fld c) as [Hz| Hnz].
@@ -89,12 +89,11 @@ induction cl as [| c]; intros.
 
   subst pts.
   destruct Hαh as [Hαh| Hαh]; [ subst pt; simpl | idtac ].
-   split; [ reflexivity | apply Zle_0_nat ].
+   exists n; reflexivity.
 
    eapply IHcl in Hαh; [ assumption | reflexivity ].
 Qed.
 
-(**)
 Lemma zzz : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
   → ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
@@ -116,9 +115,9 @@ intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
-eapply fst_is_pos_int with (pt := ini_pt ns) in Hj₁.
+eapply fst_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
- eapply fst_is_pos_int with (pt := fin_pt ns) in Hk₁.
+ eapply fst_is_nat with (pt := fin_pt ns) in Hk₁.
   apply points_of_polyn_sorted in Heqpts.
   rename Heqpts into Hsort.
   remember (lower_convex_hull_points pts) as hsl.
@@ -143,13 +142,17 @@ eapply fst_is_pos_int with (pt := ini_pt ns) in Hj₁.
    apply Sorted_inv_2 in Hnp; destruct Hnp as (Hlt, Hnp).
    unfold hs_x_lt in Hlt; simpl in Hlt.
    unfold Qlt in Hlt.
-   destruct Hj₁ as (Hjd, Hjn).
-   destruct Hk₁ as (Hkd, Hkn).
-   rewrite Hjd, Hkd in Hlt.
+   destruct Hj₁ as (jn, Hjn).
+   destruct Hk₁ as (kn, Hkn).
+   rewrite Hjn in Hj, Hlt.
+   rewrite Hkn in Hk, Hlt.
+   unfold nofq, Qnat in Hj, Hk.
+   simpl in Hj, Hk.
+   rewrite Nat2Z.id in Hj, Hk.
+   subst jn kn.
+   unfold Qnat in Hlt; simpl in Hlt.
    do 2 rewrite Zmult_1_r in Hlt.
-   unfold nofq in Hj, Hk.
-   subst j k.
-   apply Z2Nat.inj_lt; assumption.
+   apply Nat2Z.inj_lt; assumption.
 
    destruct n; [ discriminate Hnp | simpl in Hnp ].
    destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
