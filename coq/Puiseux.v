@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.508 2013-05-20 13:58:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.509 2013-05-20 14:23:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -103,14 +103,12 @@ intros pol pts ns Hpts Hns.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp.
+rename Heqhsl into Hnp; symmetry in Hnp.
 destruct hsl as [| hs₁]; [ contradiction | simpl in Hns ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 remember [hs₂ … hsl] as x.
 destruct Hns as [Hns| Hns]; subst x.
- subst ns.
- simpl.
- symmetry in Hnp.
+ subst ns; simpl.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
@@ -123,22 +121,31 @@ destruct Hns as [Hns| Hns]; subst x.
   injection Hnp; clear Hnp; intros; subst hsl hs₂.
   remember [pt₁; pt₂ … pts] as x; simpl; subst x.
   right; eapply end_pt_in; eassumption.
+
+  injection Hnp; clear Hnp; intros; subst hsl hs₂.
+  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
+  right; eapply end_pt_in; eassumption.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+ rename Heqms₁ into Hms₁; symmetry in Hms₁.
+ clear Hpts.
+ revert n hs₂ ms₁ pt₁ pt₂ pts ns Hns Hnp Hms₁.
+ induction hsl as [| hs₃]; [ contradiction | intros ].
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms₁) as pts₁.
+ destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp Hs₂.
+ remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
+ rename Heqms₂ into Hms₂; symmetry in Hms₂.
+ destruct Hns as [Hns| Hns].
+  subst ns.
+  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
 bbb.
 
-intros pol pts ns Hpts Hns.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp.
-revert n ns pts Hnp Hns Hpts.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-simpl in Hns.
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-remember [hs₂ … hsl] as x.
-destruct Hns as [Hns| Hns]; subst x.
- subst ns.
- simpl.
- Focus 2.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
