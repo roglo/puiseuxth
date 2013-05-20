@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.510 2013-05-20 16:20:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.511 2013-05-20 16:32:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -101,6 +101,30 @@ Lemma yyy : ∀ n pol pts hs hsl,
       → pt hs ∈ pts.
 Proof.
 intros n pol pts hs hsl Hpts Hnp Hhs.
+revert n hs hsl Hnp Hhs.
+induction pts as [| pt₁]; intros.
+ destruct n; subst hsl; contradiction.
+
+ destruct n; [ subst hsl; contradiction | simpl in Hnp ].
+ destruct pts as [| pt₂].
+  subst hsl.
+  destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
+  subst hs; left; reflexivity.
+
+  destruct hsl as [| hs₁]; [ discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros Hnp H.
+  destruct Hhs as [Hhs| Hhs].
+   subst hs₁.
+   subst hs.
+   left; reflexivity.
+
+   subst hs₁.
+   clear IHpts.
+   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+   symmetry in Heqms₁.
+   right.
+   clear Hpts.
+   clear pol.
 bbb.
 revert n pts hs Hpts Hnp Hhs.
 induction hsl as [| hs₁]; [ contradiction | intros ].
