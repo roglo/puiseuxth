@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.505 2013-05-20 09:12:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.506 2013-05-20 09:28:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -102,6 +102,16 @@ Proof.
 intros pol pts ns Hpts Hns.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp.
+revert n ns Hnp Hns.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+simpl in Hns.
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+remember [hs₂ … hsl] as x.
+destruct Hns as [Hns| Hns]; subst x.
+ subst ns.
+ simpl.
 bbb.
 *)
 
