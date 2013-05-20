@@ -1,7 +1,10 @@
-(* $Id: Puiseux.v,v 1.495 2013-05-20 01:01:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.496 2013-05-20 01:32:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import Sorted.
+Require Import ConvexHull.
+Require Import ConvexHullMisc.
 Require Import Puiseux_base.
 Require Import Misc.
 
@@ -61,14 +64,31 @@ Lemma j_lt_k : ∀ α (fld : field (puiseux_series α)) pol j k ns,
       → (j < k)%nat.
 Proof.
 intros α fld pol j k ns Hns Hj Hk.
-bbb.
- unfold newton_segments in Hns.
- remember (points_of_ps_polynom α fld pol) as pts.
- remember (lower_convex_hull_points pts) as hsl.
- remember Heqpts as Hsort; clear HeqHsort.
- apply points_of_polyn_sorted in Hsort.
- symmetry in Heqhsl.
- eapply lower_convex_hull_points_sorted in Hsort; [ idtac | eassumption ].
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom α fld pol) as pts.
+apply points_of_polyn_sorted in Heqpts.
+rename Heqpts into Hsort.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+rename Heqhsl into Hnp.
+symmetry in Hnp.
+remember (length pts) as n; clear Heqn.
+remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
+symmetry in Heqnsl.
+revert n pts ns nsl j k Hsort Hnp Hns Hj Hk Heqnsl.
+induction hsl as [| hs₁]; intros; [ subst nsl; contradiction | idtac ].
+destruct nsl as [| ns₁]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns₁.
+ simpl in Heqnsl.
+ destruct hsl as [| hs₂]; [ discriminate Heqnsl | idtac ].
+ injection Heqnsl; clear Heqnsl; intros Hnsl Hns.
+ unfold newton_segment_of_pair in Hns.
+ subst ns.
+ simpl in Hj, Hk.
+ apply next_points_sorted in Hnp; [ idtac | assumption ].
+ apply Sorted_inv_2 in Hnp; destruct Hnp as (Hlt, Hnp).
+ unfold hs_x_lt in Hlt; simpl in Hlt.
 bbb.
 *)
 
