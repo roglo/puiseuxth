@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.494 2013-05-19 23:55:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.495 2013-05-20 01:01:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -54,6 +54,24 @@ Definition characteristic_polynomial α fld pol ns :=
 
 (* *)
 
+Lemma j_lt_k : ∀ α (fld : field (puiseux_series α)) pol j k ns,
+  ns ∈ newton_segments fld pol
+  → j = nofq (fst (ini_pt ns))
+    → k = nofq (fst (fin_pt ns))
+      → (j < k)%nat.
+Proof.
+intros α fld pol j k ns Hns Hj Hk.
+bbb.
+ unfold newton_segments in Hns.
+ remember (points_of_ps_polynom α fld pol) as pts.
+ remember (lower_convex_hull_points pts) as hsl.
+ remember Heqpts as Hsort; clear HeqHsort.
+ apply points_of_polyn_sorted in Hsort.
+ symmetry in Heqhsl.
+ eapply lower_convex_hull_points_sorted in Hsort; [ idtac | eassumption ].
+bbb.
+*)
+
 Lemma cpol_degree : ∀ α fld acf pol cpol ns,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial α (ac_field acf) pol ns
@@ -66,11 +84,14 @@ remember (nofq (fst (ini_pt ns))) as j.
 remember (nofq (fst (fin_pt ns))) as k.
 remember (k - j)%nat as kj.
 destruct kj; simpl.
- Focus 2.
+ eapply j_lt_k with (j := j) in Hns; try eassumption.
+ apply NPeano.Nat.sub_gt in Hns.
+ symmetry in Heqkj; contradiction.
+
  rewrite <- Heqj.
  destruct (eq_nat_dec j j) as [| H]; [ apply le_n_S, le_0_n | idtac ].
  exfalso; apply H; reflexivity.
-bbb.
+Qed.
 
 Lemma exists_root : ∀ α fld acf pol cpol ns,
   ns ∈ newton_segments fld pol
