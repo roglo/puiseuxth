@@ -1,4 +1,4 @@
-(* $Id: ConvexHullMisc.v,v 1.6 2013-05-20 13:58:27 deraugla Exp $ *)
+(* $Id: ConvexHullMisc.v,v 1.7 2013-05-20 23:30:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -353,4 +353,24 @@ induction pts as [| pt₃]; intros.
   left; reflexivity.
 
   right; eapply IHpts; eassumption.
+Qed.
+
+Lemma rem_pts_in : ∀ pt₁ pt₂ pts₂ ms pt,
+  minimise_slope pt₁ pt₂ pts₂ = ms
+  → pt ∈ rem_pts ms
+    → pt ∈ pts₂.
+Proof.
+intros pt₁ pt₂ pts₂ ms pt Hms Hpt.
+revert pt₁ pt₂ ms Hms Hpt.
+induction pts₂ as [| pt₃]; intros; [ subst ms; contradiction | idtac ].
+simpl in Hms.
+remember (minimise_slope pt₁ pt₃ pts₂) as ms₁.
+symmetry in Heqms₁.
+remember (slope_expr pt₁ pt₂ ?= slope ms₁) as c.
+destruct c; subst ms; simpl in Hpt.
+ right; eapply IHpts₂; eassumption.
+
+ assumption.
+
+ right; eapply IHpts₂; eassumption.
 Qed.
