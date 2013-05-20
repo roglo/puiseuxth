@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.503 2013-05-20 08:37:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.504 2013-05-20 08:57:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -101,7 +101,8 @@ Lemma zzz : ∀ pol pts ns,
     → fin_pt ns ∈ pts.
 Proof.
 intros pol pts ns Hpts Hns.
-Admitted. (*
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
 bbb.
 *)
 
