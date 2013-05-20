@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.500 2013-05-20 07:15:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.501 2013-05-20 07:30:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -138,6 +138,22 @@ eapply fst_is_pos_int with (pt := ini_pt ns) in Hj₁.
    unfold nofq in Hj, Hk.
    subst j k.
    apply Z2Nat.inj_lt; assumption.
+
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+   destruct pts as [| pt₂].
+    injection Hnp; clear Hnp; intros; subst hs₁ hsl.
+    discriminate Heqnsl.
+
+    injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+    simpl in Heqnsl.
+    destruct hsl as [| hs₁]; [ discriminate Heqnsl | idtac ].
+    remember [hs₁ … hsl] as x.
+    injection Heqnsl; clear Heqnsl; intros Hnsl Hns₁; subst x.
+    remember (minimise_slope pt₁ pt₂ pts) as ms.
+    symmetry in Heqms.
+    eapply IHhsl with (pts := [end_pt ms … rem_pts ms]); try eassumption.
+    eapply minimise_slope_sorted; eassumption.
 bbb.
 *)
 
