@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.516 2013-05-21 08:50:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.517 2013-05-21 09:27:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -94,152 +94,39 @@ induction cl as [| c]; intros.
    eapply IHcl in Hαh; [ assumption | reflexivity ].
 Qed.
 
-Lemma yyy : ∀ n pol pts hs hsl,
-  pts = points_of_ps_polynom α fld pol
-  → next_ch_points n pts = hsl
-    → hs ∈ hsl
-      → pt hs ∈ pts.
+Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
+  next_ch_points n pts = hsl
+  → hs ∈ hsl
+    → pt hs ∈ pts.
 Proof.
-intros n pol pts hs hsl Hpts Hnp Hhs.
-revert n hs hsl Hnp Hhs.
-induction pts as [| pt₁]; intros.
- destruct n; subst hsl; contradiction.
-
- destruct n; [ subst hsl; contradiction | simpl in Hnp ].
- destruct pts as [| pt₂].
-  subst hsl.
-  destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
-  subst hs; left; reflexivity.
-
-  destruct hsl as [| hs₁]; [ discriminate Hnp | idtac ].
-  injection Hnp; clear Hnp; intros Hnp H.
-  destruct Hhs as [Hhs| Hhs].
-   subst hs₁.
-   subst hs.
-   left; reflexivity.
-
-   subst hs₁.
-   clear IHpts.
-   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-   symmetry in Heqms₁.
-   right.
-   clear Hpts.
-   clear pol.
-   subst hsl.
-   destruct n; [ contradiction | simpl in Hhs ].
-   remember (rem_pts ms₁) as pts₁.
-   destruct pts₁ as [| pt₃].
-    destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
-    subst hs.
-    eapply end_pt_in; eassumption.
-
-(**)
-    destruct Hhs as [Hhs| Hhs].
-     subst hs.
-     eapply end_pt_in; eassumption.
-
-     remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
-     symmetry in Heqms₂.
-     destruct n; [ contradiction | simpl in Hhs ].
-     remember (rem_pts ms₂) as pts₂.
-     destruct pts₂ as [| pt₄].
-      right.
-      destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
-      subst hs.
-      remember [pt₂ … pts] as x; simpl; subst x.
-      remember Heqms₁ as Hms₁; clear HeqHms₁.
-      apply end_pt_in in Heqms₁.
-      destruct Heqms₁ as [Hms₃| Hms₃].
-       subst pt₂.
-       eapply rem_pts_in; [ eassumption | idtac ].
-       rewrite <- Heqpts₁.
-       eapply end_pt_in; eassumption.
-
-       remember Heqms₂ as Hms₂; clear HeqHms₂.
-       apply end_pt_in in Hms₂.
-       destruct Hms₂ as [Hms₂| Hms₂].
-        subst pt₃.
-        eapply rem_pts_in in Hms₁; [ eassumption | idtac ].
-        rewrite <- Heqpts₁; left; reflexivity.
-
-        eapply rem_pts_in in Hms₁; [ eassumption | idtac ].
-        rewrite <- Heqpts₁; right; assumption.
-(**)
-
-      destruct Hhs as [Hhs| Hhs].
-       subst hs.
-       remember [pt₂ … pts] as x; simpl; subst x.
-       eapply rem_pts_in in Heqms₁; [ right; eassumption | idtac ].
-       rewrite <- Heqpts₁.
-       eapply end_pt_in; eassumption.
-
-       remember (minimise_slope (end_pt ms₂) pt₄ pts₂) as ms₃.
-       symmetry in Heqms₃.
-       destruct n; [ contradiction | simpl in Hhs ].
-       remember (rem_pts ms₃) as pts₃.
-       destruct pts₃ as [| pt₅].
-        destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
-        subst hs.
-        remember [pt₂ … pts] as x; simpl; subst x.
-bbb.
-revert n pts hs Hpts Hnp Hhs.
+intros n pts hs hsl Hnp Hhs.
+revert n pts hs Hnp Hhs.
 induction hsl as [| hs₁]; [ contradiction | intros ].
 destruct Hhs as [Hhs| Hhs].
  subst hs₁.
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂].
-  injection Hnp; intros; subst hs hsl.
-  simpl.
-  left; reflexivity.
+  injection Hnp; intros; subst hs; left; reflexivity.
 
-  injection Hnp; clear Hnp; intros Hnp Hs.
-  subst hs.
-  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-  left; reflexivity.
+  injection Hnp; clear Hnp; intros Hnp Hhs.
+  subst hs; left; reflexivity.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂].
-  injection Hnp; clear Hnp; intros Hnp Hs.
-  subst hsl; contradiction.
+  injection Hnp; intros; subst hsl; contradiction.
 
-  injection Hnp; clear Hnp; intros Hnp Hs.
-  subst hs₁.
-  clear IHhsl.
+  injection Hnp; clear Hnp; intros Hnp Hs₁; subst hs₁.
+  eapply IHhsl in Hhs; [ idtac | eassumption ].
   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
   symmetry in Heqms₁.
-  revert n pt₁ pt₂ pts hs ms₁ Hpts Hhs Hnp Heqms₁.
-  induction hsl as [| hs₁]; [ contradiction | intros ].
   destruct Hhs as [Hhs| Hhs].
-   subst hs₁.
-   destruct n; [ discriminate Hnp | simpl in Hnp ].
-   remember (rem_pts ms₁) as pts₁.
-   destruct pts₁ as [| pt₃].
-    injection Hnp; clear Hnp; intros Hnp; intros; subst hs.
-    remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-    right.
-    eapply end_pt_in; eassumption.
+   rewrite <- Hhs.
+   right; eapply end_pt_in; eassumption.
 
-    injection Hnp; clear Hnp; intros Hnp; intros.
-    subst hs.
-    remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-    right.
-    eapply end_pt_in; eassumption.
-
-   destruct n; [ discriminate Hnp | simpl in Hnp ].
-   remember (rem_pts ms₁) as pts₁.
-   destruct pts₁ as [| pt₃].
-    injection Hnp; clear Hnp; intros Hnp; intros; subst hsl.
-    contradiction.
-
-    injection Hnp; clear Hnp; intros Hnp; intros.
-    remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
-    symmetry in Heqms₂.
-    subst hs₁.
-    eapply IHhsl.
-     4: eassumption.
-bbb.
+   right; right; eapply rem_pts_in; eassumption.
+Qed.
 
 Lemma zzz : ∀ pol pts ns,
   pts = points_of_ps_polynom α fld pol
