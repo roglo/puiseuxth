@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.518 2013-05-21 09:29:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.519 2013-05-21 13:42:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -138,67 +138,28 @@ remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
 rename Heqhsl into Hnp; symmetry in Hnp.
-remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
-bbb.
-
-intros pol pts ns Hpts Hns.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp; symmetry in Hnp.
-destruct hsl as [| hs₁]; [ contradiction | simpl in Hns ].
+destruct hsl as [| hs₁]; [ contradiction | idtac ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
-remember [hs₂ … hsl] as x.
-destruct Hns as [Hns| Hns]; subst x.
+simpl in Hns.
+destruct Hns as [Hns| Hns].
+ unfold newton_segment_of_pair in Hns.
  subst ns; simpl.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- rename Heqms₁ into Hms₁; symmetry in Hms₁.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms₁) as pts₁.
- destruct pts₁ as [| pt₃].
-  injection Hnp; clear Hnp; intros; subst hsl hs₂.
-  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-  right; eapply end_pt_in; eassumption.
+ eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+ right; left; reflexivity.
 
-  injection Hnp; clear Hnp; intros; subst hsl hs₂.
-  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-  right; eapply end_pt_in; eassumption.
-
-bbb.
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- rename Heqms₁ into Hms₁; symmetry in Hms₁.
- clear Hpts.
- revert n hs₂ ms₁ pt₁ pt₂ pts ns Hns Hnp Hms₁.
- induction hsl as [| hs₃]; [ contradiction | intros ].
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- remember (rem_pts ms₁) as pts₁.
- destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp Hs₂.
- remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
- rename Heqms₂ into Hms₂; symmetry in Hms₂.
+ destruct hsl as [| hs₃]; [ contradiction | idtac ].
  destruct Hns as [Hns| Hns].
-  subst ns.
-  remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  remember (rem_pts ms₂) as pts₂.
-  destruct pts₂ as [| pt₄].
-   injection Hnp; clear Hnp; intros; subst hs₃ hsl.
-   remember [pt₁; pt₂ … pts] as x; simpl; subst x.
-   subst hs₂.
-bbb.
+  unfold newton_segment_of_pair in Hns.
+  subst ns; simpl.
+  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+  right; right; left; reflexivity.
 
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+  destruct hsl as [| hs₄]; [ contradiction | idtac ].
+  destruct Hns as [Hns| Hns].
+   unfold newton_segment_of_pair in Hns.
+   subst ns; simpl.
+   eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+   right; right; right; left; reflexivity.
 bbb.
 *)
 
