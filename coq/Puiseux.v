@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.526 2013-05-21 19:48:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.527 2013-05-21 20:08:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -128,10 +128,9 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-(* ini_ns_in_init_pts and the next one could be unified in one only lemma *)
-Lemma ini_ns_in_init_pts : ∀ pts ns,
+Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
-  → ini_pt ns ∈ pts.
+  → ini_pt ns ∈ pts ∧ fin_pt ns ∈ pts.
 Proof.
 intros pts ns Hns.
 remember (lower_convex_hull_points pts) as hsl.
@@ -143,8 +142,12 @@ induction hsl as [| hs₁]; [ contradiction | intros ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns; simpl.
- eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
- left; reflexivity.
+ split.
+  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+  left; reflexivity.
+
+  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+  right; left; reflexivity.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -153,43 +156,19 @@ destruct Hns as [Hns| Hns].
  eapply IHhsl in Hnp; [ idtac | eassumption ].
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
- destruct Hnp as [Hnp| Hnp].
-  rewrite <- Hnp.
-  right; eapply end_pt_in; eassumption.
+ destruct Hnp as (Hini, Hfin).
+ split.
+  destruct Hini as [Hini| Hini].
+   rewrite <- Hini.
+   right; eapply end_pt_in; eassumption.
 
-  right; right; eapply rem_pts_in; eassumption.
-qed.
+   right; right; eapply rem_pts_in; eassumption.
 
-(* would probably work with 'fin_pt ns ∈ List.tl pts' as conclusion *)
-Lemma end_ns_in_init_pts : ∀ pts ns,
-  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
-  → fin_pt ns ∈ pts.
-Proof.
-intros pts ns Hns.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp; symmetry in Hnp.
-revert pts ns n Hnp Hns.
-induction hsl as [| hs₁]; [ contradiction | intros ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- subst ns; simpl.
- eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
- right; left; reflexivity.
+  destruct Hfin as [Hfin| Hfin].
+   rewrite <- Hfin.
+   right; eapply end_pt_in; eassumption.
 
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
- eapply IHhsl in Hnp; [ idtac | eassumption ].
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- destruct Hnp as [Hnp| Hnp].
-  rewrite <- Hnp.
-  right; eapply end_pt_in; eassumption.
-
-  right; right; eapply rem_pts_in; eassumption.
+   right; right; eapply rem_pts_in; eassumption.
 Qed.
 
 Lemma j_lt_k : ∀ pol j k ns,
@@ -257,16 +236,17 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
     eapply IHhsl with (pts := [end_pt ms … rem_pts ms]); try eassumption.
     eapply minimise_slope_sorted; eassumption.
 
-  eapply end_ns_in_init_pts; eassumption.
-bbb.
-*)
+  apply ini_fin_ns_in_init_pts; eassumption.
 
-Lemma cpol_degree : ∀ α fld acf pol cpol ns,
+ apply ini_fin_ns_in_init_pts; eassumption.
+Qed.
+
+Lemma cpol_degree : ∀ acf pol cpol ns,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial α (ac_field acf) pol ns
     → degree cpol ≥ 1.
 Proof.
-intros α fld acf pol cpol ns Hns Hpol.
+intros acf pol cpol ns Hns Hpol.
 subst cpol.
 unfold characteristic_polynomial, degree; simpl.
 remember (nofq (fst (ini_pt ns))) as j.
@@ -282,12 +262,14 @@ destruct kj; simpl.
  exfalso; apply H; reflexivity.
 Qed.
 
-Lemma exists_root : ∀ α fld acf pol cpol ns,
+Lemma exists_root : ∀ acf pol cpol ns,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial α (ac_field acf) pol ns
     → ∃ c, apply_polynomial (ac_field acf) cpol c = zero (ac_field acf).
 Proof.
-intros α fld acf pol cpol ns Hdeg Hpol.
+intros acf pol cpol ns Hdeg Hpol.
 eapply cpol_degree in Hdeg; [ idtac | eassumption ].
 apply (ac_prop acf cpol Hdeg).
 Qed.
+
+End field.
