@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.523 2013-05-21 18:58:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.524 2013-05-21 19:17:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -137,11 +137,10 @@ remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
 rename Heqhsl into Hnp; symmetry in Hnp.
-destruct hsl as [| hs₁]; [ contradiction | idtac ].
-revert pts ns hs₁ n Hnp Hns.
-induction hsl as [| hs₂]; [ contradiction | intros ].
+revert pts ns n Hnp Hns.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
- unfold newton_segment_of_pair in Hns.
  subst ns; simpl.
  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
  right; left; reflexivity.
@@ -149,8 +148,7 @@ destruct Hns as [Hns| Hns].
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros.
- subst hs₁.
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
  eapply IHhsl in Hnp; [ idtac | eassumption ].
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
