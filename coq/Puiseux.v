@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.514 2013-05-21 08:36:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.515 2013-05-21 08:46:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -133,6 +133,7 @@ induction pts as [| pt₁]; intros.
     subst hs.
     eapply end_pt_in; eassumption.
 
+(**)
     destruct Hhs as [Hhs| Hhs].
      subst hs.
      eapply end_pt_in; eassumption.
@@ -170,6 +171,25 @@ induction pts as [| pt₁]; intros.
          eassumption.
 
          rewrite <- Heqpts₁; right; assumption.
+(**)
+
+      destruct Hhs as [Hhs| Hhs].
+       subst hs.
+       remember [pt₂ … pts] as x; simpl; subst x.
+       eapply rem_pts_in in Heqms₁.
+        right; eassumption.
+
+        rewrite <- Heqpts₁.
+        eapply end_pt_in; eassumption.
+
+       remember (minimise_slope (end_pt ms₂) pt₄ pts₂) as ms₃.
+       symmetry in Heqms₃.
+       destruct n; [ contradiction | simpl in Hhs ].
+       remember (rem_pts ms₃) as pts₃.
+       destruct pts₃ as [| pt₅].
+        destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
+        subst hs.
+        remember [pt₂ … pts] as x; simpl; subst x.
 bbb.
 revert n pts hs Hpts Hnp Hhs.
 induction hsl as [| hs₁]; [ contradiction | intros ].
