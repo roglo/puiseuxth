@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.521 2013-05-21 17:58:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.522 2013-05-21 18:48:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -128,7 +128,7 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma zzz : ∀ pts ns,
+Lemma end_ns_in_init_pts : ∀ pts ns,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
   → fin_pt ns ∈ pts.
 Proof.
@@ -145,49 +145,28 @@ destruct Hns as [Hns| Hns].
  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
  right; left; reflexivity.
 
- destruct hsl as [| hs₃]; [ contradiction | idtac ].
+ revert pts ns hs₁ hs₂ n Hnp Hns.
+ induction hsl as [| hs₃]; [ contradiction | intros ].
  destruct Hns as [Hns| Hns].
   unfold newton_segment_of_pair in Hns.
   subst ns; simpl.
   eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
   right; right; left; reflexivity.
 
-  destruct hsl as [| hs₄]; [ contradiction | idtac ].
-  destruct Hns as [Hns| Hns].
-   unfold newton_segment_of_pair in Hns.
-   subst ns; simpl.
-   eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
-   right; right; right; left; reflexivity.
-bbb.
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros Hnp; intros.
+  subst hs₁.
+  eapply IHhsl in Hnp; [ idtac | eassumption ].
+  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+  symmetry in Heqms₁.
+  destruct Hnp as [Hnp| Hnp].
+   rewrite <- Hnp.
+   right; eapply end_pt_in; eassumption.
 
-intros pol pts ns Hpts Hns.
-clear pol Hpts.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp; symmetry in Hnp.
-destruct hsl as [| hs₁]; [ contradiction | idtac ].
-remember (list_map_pairs newton_segment_of_pair [hs₁ … hsl]) as nsl.
-revert pts ns hs₁ hsl n Hnp Heqnsl Hns.
-induction nsl as [| ns₁]; [ contradiction | intros ].
-destruct hsl as [| hs₂]; [ discriminate Heqnsl | idtac ].
-simpl in Heqnsl.
-injection Heqnsl; clear Heqnsl; intros Hnsl H.
-destruct Hns as [Hns| Hns].
- subst ns₁ ns.
- simpl.
- eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
- right; left; reflexivity.
-
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp Hs.
- destruct hsl as [| hs₃].
-  right; right.
-bbb.
-
-*)
+   right; right; eapply rem_pts_in; eassumption.
+Qed.
 
 Lemma j_lt_k : ∀ pol j k ns,
   ns ∈ newton_segments fld pol
@@ -254,7 +233,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
     eapply IHhsl with (pts := [end_pt ms … rem_pts ms]); try eassumption.
     eapply minimise_slope_sorted; eassumption.
 
-  eapply zzz; eassumption.
+  eapply end_ns_in_init_pts; eassumption.
 bbb.
 *)
 
