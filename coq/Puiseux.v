@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.519 2013-05-21 13:42:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.520 2013-05-21 15:25:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -134,13 +134,39 @@ Lemma zzz : ∀ pol pts ns,
     → fin_pt ns ∈ pts.
 Proof.
 intros pol pts ns Hpts Hns.
+clear pol Hpts.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp; symmetry in Hnp.
+destruct hsl as [| hs₁]; [ contradiction | idtac ].
+remember (list_map_pairs newton_segment_of_pair [hs₁ … hsl]) as nsl.
+revert pts ns hs₁ hsl n Hnp Heqnsl Hns.
+induction nsl as [| ns₁]; [ contradiction | intros ].
+destruct hsl as [| hs₂]; [ discriminate Heqnsl | idtac ].
+simpl in Heqnsl.
+injection Heqnsl; clear Heqnsl; intros Hnsl H.
+destruct Hns as [Hns| Hns].
+ subst ns₁ ns.
+ simpl.
+ eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+ right; left; reflexivity.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp Hs.
+ destruct hsl as [| hs₃].
+  right; right.
+bbb.
+
+intros pol pts ns Hpts Hns.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
 rename Heqhsl into Hnp; symmetry in Hnp.
 destruct hsl as [| hs₁]; [ contradiction | idtac ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
-simpl in Hns.
 destruct Hns as [Hns| Hns].
  unfold newton_segment_of_pair in Hns.
  subst ns; simpl.
