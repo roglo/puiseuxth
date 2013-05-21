@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.525 2013-05-21 19:19:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.526 2013-05-21 19:48:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -127,6 +127,38 @@ destruct Hhs as [Hhs| Hhs].
 
    right; right; eapply rem_pts_in; eassumption.
 Qed.
+
+(* ini_ns_in_init_pts and the next one could be unified in one only lemma *)
+Lemma ini_ns_in_init_pts : ∀ pts ns,
+  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
+  → ini_pt ns ∈ pts.
+Proof.
+intros pts ns Hns.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp; symmetry in Hnp.
+revert pts ns n Hnp Hns.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns; simpl.
+ eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+ left; reflexivity.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ eapply IHhsl in Hnp; [ idtac | eassumption ].
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
+ destruct Hnp as [Hnp| Hnp].
+  rewrite <- Hnp.
+  right; eapply end_pt_in; eassumption.
+
+  right; right; eapply rem_pts_in; eassumption.
+qed.
 
 (* would probably work with 'fin_pt ns ∈ List.tl pts' as conclusion *)
 Lemma end_ns_in_init_pts : ∀ pts ns,
