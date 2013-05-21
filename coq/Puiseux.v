@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.524 2013-05-21 19:17:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.525 2013-05-21 19:19:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -128,6 +128,7 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
+(* would probably work with 'fin_pt ns ∈ List.tl pts' as conclusion *)
 Lemma end_ns_in_init_pts : ∀ pts ns,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
   → fin_pt ns ∈ pts.
