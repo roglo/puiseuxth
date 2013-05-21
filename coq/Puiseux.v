@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.515 2013-05-21 08:46:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.516 2013-05-21 08:50:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -143,6 +143,7 @@ induction pts as [| pt₁]; intros.
      destruct n; [ contradiction | simpl in Hhs ].
      remember (rem_pts ms₂) as pts₂.
      destruct pts₂ as [| pt₄].
+      right.
       destruct Hhs as [Hhs| ]; [ idtac | contradiction ].
       subst hs.
       remember [pt₂ … pts] as x; simpl; subst x.
@@ -150,37 +151,27 @@ induction pts as [| pt₁]; intros.
       apply end_pt_in in Heqms₁.
       destruct Heqms₁ as [Hms₃| Hms₃].
        subst pt₂.
-       right.
-       eapply rem_pts_in.
-        eassumption.
+       eapply rem_pts_in; [ eassumption | idtac ].
+       rewrite <- Heqpts₁.
+       eapply end_pt_in; eassumption.
 
-        rewrite <- Heqpts₁.
-        eapply end_pt_in; eassumption.
-
-       right.
        remember Heqms₂ as Hms₂; clear HeqHms₂.
        apply end_pt_in in Hms₂.
        destruct Hms₂ as [Hms₂| Hms₂].
         subst pt₃.
-        eapply rem_pts_in in Hms₁.
-         eassumption.
+        eapply rem_pts_in in Hms₁; [ eassumption | idtac ].
+        rewrite <- Heqpts₁; left; reflexivity.
 
-         rewrite <- Heqpts₁; left; reflexivity.
-
-        eapply rem_pts_in in Hms₁.
-         eassumption.
-
-         rewrite <- Heqpts₁; right; assumption.
+        eapply rem_pts_in in Hms₁; [ eassumption | idtac ].
+        rewrite <- Heqpts₁; right; assumption.
 (**)
 
       destruct Hhs as [Hhs| Hhs].
        subst hs.
        remember [pt₂ … pts] as x; simpl; subst x.
-       eapply rem_pts_in in Heqms₁.
-        right; eassumption.
-
-        rewrite <- Heqpts₁.
-        eapply end_pt_in; eassumption.
+       eapply rem_pts_in in Heqms₁; [ right; eassumption | idtac ].
+       rewrite <- Heqpts₁.
+       eapply end_pt_in; eassumption.
 
        remember (minimise_slope (end_pt ms₂) pt₄ pts₂) as ms₃.
        symmetry in Heqms₃.
