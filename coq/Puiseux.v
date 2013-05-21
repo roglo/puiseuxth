@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.517 2013-05-21 09:27:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.518 2013-05-21 09:29:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,7 +62,7 @@ Section field.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Lemma fst_is_nat : ∀ pol pts pt,
+Lemma pt_absc_is_nat : ∀ pol pts pt,
   points_of_ps_polynom α fld pol = pts
   → pt ∈ pts
     → ∃ n, fst pt = Qnat n.
@@ -212,9 +212,9 @@ intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom α fld pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
-eapply fst_is_nat with (pt := ini_pt ns) in Hj₁.
+eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
- eapply fst_is_nat with (pt := fin_pt ns) in Hk₁.
+ eapply pt_absc_is_nat with (pt := fin_pt ns) in Hk₁.
   apply points_of_polyn_sorted in Heqpts.
   rename Heqpts into Hsort.
   remember (lower_convex_hull_points pts) as hsl.
