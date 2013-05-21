@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.520 2013-05-21 15:25:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.521 2013-05-21 17:58:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -128,11 +128,38 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma zzz : ∀ pol pts ns,
-  pts = points_of_ps_polynom α fld pol
-  → ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
-    → fin_pt ns ∈ pts.
+Lemma zzz : ∀ pts ns,
+  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
+  → fin_pt ns ∈ pts.
 Proof.
+intros pts ns Hns.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp; symmetry in Hnp.
+destruct hsl as [| hs₁]; [ contradiction | idtac ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ unfold newton_segment_of_pair in Hns.
+ subst ns; simpl.
+ eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+ right; left; reflexivity.
+
+ destruct hsl as [| hs₃]; [ contradiction | idtac ].
+ destruct Hns as [Hns| Hns].
+  unfold newton_segment_of_pair in Hns.
+  subst ns; simpl.
+  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+  right; right; left; reflexivity.
+
+  destruct hsl as [| hs₄]; [ contradiction | idtac ].
+  destruct Hns as [Hns| Hns].
+   unfold newton_segment_of_pair in Hns.
+   subst ns; simpl.
+   eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
+   right; right; right; left; reflexivity.
+bbb.
+
 intros pol pts ns Hpts Hns.
 clear pol Hpts.
 remember (lower_convex_hull_points pts) as hsl.
@@ -160,33 +187,6 @@ destruct Hns as [Hns| Hns].
   right; right.
 bbb.
 
-intros pol pts ns Hpts Hns.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-remember (length pts) as n; clear Heqn.
-rename Heqhsl into Hnp; symmetry in Hnp.
-destruct hsl as [| hs₁]; [ contradiction | idtac ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-destruct Hns as [Hns| Hns].
- unfold newton_segment_of_pair in Hns.
- subst ns; simpl.
- eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
- right; left; reflexivity.
-
- destruct hsl as [| hs₃]; [ contradiction | idtac ].
- destruct Hns as [Hns| Hns].
-  unfold newton_segment_of_pair in Hns.
-  subst ns; simpl.
-  eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
-  right; right; left; reflexivity.
-
-  destruct hsl as [| hs₄]; [ contradiction | idtac ].
-  destruct Hns as [Hns| Hns].
-   unfold newton_segment_of_pair in Hns.
-   subst ns; simpl.
-   eapply hull_seg_vert_in_init_pts; [ eassumption | idtac ].
-   right; right; right; left; reflexivity.
-bbb.
 *)
 
 Lemma j_lt_k : ∀ pol j k ns,
