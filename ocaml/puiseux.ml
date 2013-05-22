@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.239 2013-05-19 23:55:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.240 2013-05-22 08:29:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -196,13 +196,13 @@ value rec list_take n l =
 
 value norm f k x y = k.normalise (f x y);
 
-value apply_poly_x_pol k pol =
+value apply_poly_with_ps k pol =
   apply_poly {ps_monoms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
-value apply_poly_xy_pol k pol =
+value apply_poly_with_ps_poly k pol =
   apply_poly
     {ml = []}    
     (fun pol ps →
@@ -291,7 +291,7 @@ value print_solution k br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_x_pol k (pofp br.initial_polynom) sol in
+      let ps = apply_poly_with_ps k (pofp br.initial_polynom) sol in
       let ps = float_round_zero k ps in
       let ps₂ =
         if nb_terms > 0 then {ps_monoms = list_take nb_terms ps.ps_monoms}
@@ -389,7 +389,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
          [{ps_monoms = [{coeff = r; power = γ}]};
           {ps_monoms = [{coeff = k.one; power = γ}]}]}
     in
-    let pol = apply_poly_xy_pol k (pofp br.pol) y in
+    let pol = apply_poly_with_ps_poly k (pofp br.pol) y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol

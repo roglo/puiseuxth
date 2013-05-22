@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.530 2013-05-22 04:33:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.531 2013-05-22 08:29:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,8 +19,8 @@ Definition apply_poly {α} {β} {γ}
     (zero_plus_v (an pol)) (al pol).
 
 (*
-Definition apply_poly_x_pol {α} fld pol (x : α) := ...
-value apply_poly_x_pol :
+Definition apply_poly_with_ps {α} fld pol (x : α) := ...
+value apply_poly_with_ps :
   field α β →
   polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
 value apply_poly_x_pol k pol =
@@ -28,8 +28,8 @@ value apply_poly_x_pol k pol =
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 
-Definition apply_poly_xy_pol ... := ...
-value apply_poly_xy_pol :
+Definition apply_poly_with_ps_poly ... := ...
+value apply_poly_with_ps_poly :
   Field.field α β →
   polynomial (puiseux_series α) → polynomial (puiseux_series α) →
   polynomial (puiseux_series α)
