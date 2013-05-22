@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.4 2013-05-22 09:12:12 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.5 2013-05-22 21:23:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -36,12 +36,20 @@ Arguments an : default implicits.
 
 Record Qpos := { x : Q; pos : x > 0 }.
 
-Record puiseux_series α :=
-  { ps_1 : α * Q;
-    ps_n : Streams.Stream (α * Qpos) }.
+Record ps_monomial α := { coeff : α; power : Q }.
+Arguments coeff : default implicits.
+Arguments power : default implicits.
 
-Definition valuation α ps := snd (ps_1 α ps).
-Definition valuation_coeff α ps := fst (ps_1 α ps).
+CoInductive series α :=
+  | Cons : α → series α → series α
+  | End : series α.
+
+Record puiseux_series α :=
+  { ps_1 : ps_monomial α;
+    ps_n : Streams.Stream (ps_monomial α) }.
+
+Definition valuation α ps := power (ps_1 α ps).
+Definition valuation_coeff α ps := coeff (ps_1 α ps).
 
 Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with

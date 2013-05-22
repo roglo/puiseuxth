@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.535 2013-05-22 17:23:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.536 2013-05-22 21:23:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -63,7 +63,7 @@ Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
         end
     end
   in
-  {ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}.
+  {| ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}.
 
 Definition apply_poly_with_ps_poly {α} (fld : field α)
     (pol : polynomial (puiseux_series α)) :=
