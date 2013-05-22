@@ -1,10 +1,10 @@
-(* $Id: puiseux_series.ml,v 1.10 2013-05-22 20:06:55 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.11 2013-05-22 20:21:06 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Pnums;
 
-type stream α = {hd : 'a; tl : Lazy.t (option (stream α))};
+Record stream α := { hd : 'a; tl : Lazy.t (option (stream α)) };
 
 Record ps_monomial α := { coeff : α; power : Q };
 Record puiseux_series α := { ps_monoms : option (stream (ps_monomial α)) };
@@ -74,22 +74,27 @@ Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
     | (None, Some _) => ms₂
     | (Some _, None) => ms₁
     | (Some s₁, Some s₂) =>
-         match Qcompare (power s₁.hd) (power s₂.hd) with
+        match Qcompare (power (hd s₁)) (power (hd s₂)) with
         | Eq =>
-            let c := add_coeff (coeff s₁.hd) (coeff s₂.hd) in
-            if is_null_coeff c then loop (Lazy.force s₁.tl) (Lazy.force s₂.tl)
+            let c := add_coeff (coeff (hd s₁)) (coeff (hd s₂)) in
+            if is_null_coeff c then
+              loop (Lazy.force (tl s₁)) (Lazy.force (tl s₂))
             else
-              let m := {| coeff := c; power := power s₁.hd |} in
-              let ms := lazy (loop (Lazy.force s₁.tl) (Lazy.force s₂.tl)) in
-              Some {hd = m; tl = ms}
+              let m := {| coeff := c; power := power (hd s₁) |} in
+              let ms :=
+                lazy (loop (Lazy.force (tl s₁)) (Lazy.force (tl s₂)))
+              in
+              Some {| hd := m; tl := ms |}
         | Lt =>
-            Some {hd = s₁.hd; tl = lazy (loop (Lazy.force s₁.tl) ms₂)}
+            Some {| hd := hd s₁; tl := lazy (loop (Lazy.force (tl s₁)) ms₂) |}
         | Gt =>
-            Some {hd = s₂.hd; tl = lazy (loop ms₁ (Lazy.force s₂.tl))}
+            Some {| hd := hd s₂; tl := lazy (loop ms₁ (Lazy.force (tl s₂))) |}
         end
     end
   in
-  {ps_monoms = loop (ops2ps ps₁).ps_monoms (ops2ps ps₂).ps_monoms}
+  let ps₁ := ops2ps ps₁ in
+  let ps₂ := ops2ps ps₂ in
+  {ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}
 ;
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
