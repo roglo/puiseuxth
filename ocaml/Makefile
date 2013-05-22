@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2013-04-06 12:29:37 deraugla Exp $
+# $Id: Makefile,v 1.12 2013-05-22 03:45:46 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
 FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly.cmo poly_tree.cmo roots.cmo puiseux_series.cmo puiseux.cmo
@@ -26,6 +26,8 @@ opt: q_def_expr.cmo $(TARGET:.out=.opt)
 	cp puiseux.opt puiseux
 	cp ugly.opt ugly
 
+top: ocaml_puiseux
+
 puiseux.cmx: pa_coq.cmo
 
 puiseux.out: $(FILES)
@@ -34,6 +36,9 @@ puiseux.out: $(FILES)
 puiseux.opt: $(FILES:.cmo=.cmx)
 	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(FILES:.cmo=.cmx) $(LINKFLAGS) -o $@
 
+ocaml_puiseux: ../cpoly/cpoly.cmo ../cpoly/ml_mpfr.o
+	cd ../cpoly; $(MAKE) top TOPNAME=../ocaml/ocaml_puiseux OTH_OBJS=nums.cma
+
 ugly.out: $(UFILES)
 	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(UFILES) $(LINKFLAGS) -o $@
 
@@ -41,7 +46,7 @@ ugly.opt: $(UFILES:.cmo=.cmx)
 	$(OCAMLOPT) -I +camlp5 $(CPOLY_OBJS:.cmo=.cmx) $(LIB:.cma=.cmxa) $(UFILES:.cmo=.cmx) $(LINKFLAGS) -o $@
 
 clean:
-	rm -f *.cm[iox] *.o *.out *.opt puiseux ugly
+	rm -f *.cm[iox] *.o *.out *.opt puiseux ugly ocaml_puiseux
 
 depend:
 	mv .depend .depend.bak
@@ -51,7 +56,7 @@ depend:
 	  camlp5r pr_depend.cmo -- -I ../cpoly $$i; \
 	done > .depend
 
-.PHONY: all out opt clean depend
+.PHONY: all out opt top clean depend
 .SUFFIXES: .mli .ml .cmi .cmo .cmx
 
 .mli.cmi:

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2013-03-28 13:24:19 deraugla Exp $
+# $Id: Makefile,v 1.2 2013-05-22 03:45:46 deraugla Exp $
 
 OBJS=cpoly.cmo main.cmo
 
@@ -8,8 +8,10 @@ OCAMLLIB=`ocamlc -where`
 MPFR_DIR=
 MPFR_INCLUDE=-I$(MPFR_DIR)/usr/include
 LINKFLAGS= -cclib -L$(MPFR_DIR)/usr/lib -cclib -lmpfr -cclib -lgmp
+TOPNAME=ocaml_mpfr
+OTHER_OBJS=
 
-all: opt ocaml_mpfr
+all: opt top
 
 clean:
 	rm -f *.out *.opt *.cm[iox] *.o ocaml_mpfr cpolyc
@@ -37,13 +39,15 @@ cpolyc.out: $(OBJS) ml_mpfr.o
 cpolyc.opt: $(OBJS:.cmo=.cmx) ml_mpfr.o
 	ocamlopt $(MPFR_OBJS) $(OBJS:.cmo=.cmx) $(LINKFLAGS) -o $@
 
-ocaml_mpfr: cpoly.cmo ml_mpfr.o
-	ocamlmktop -custom $(MPFR_OBJS) cpoly.cmo $(LINKFLAGS) -o $@
+top: $(TOPNAME)
+
+$(TOPNAME): cpoly.cmo ml_mpfr.o
+	ocamlmktop -custom $(MPFR_OBJS) $(OTH_OBJS) cpoly.cmo $(LINKFLAGS) -o $(TOPNAME)
 
 ml_mpfr.o: ml_mpfr.c
 	$(CC) -c -I$(OCAMLLIB) $(MPFR_INCLUDE) $<
 
-.PHONY: all clean depend out opt
+.PHONY: all clean depend out opt top
 
 .SUFFIXES: .ml .mli .cmo .cmx .cmi
 
