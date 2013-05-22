@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.528 2013-05-22 03:16:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.529 2013-05-22 04:18:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -18,8 +18,19 @@ Definition apply_poly {α} {β} {γ}
   List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
     (add_v_coeff zero_v (an pol)) (al pol).
 
+(*
+Definition my_apply_polynomial {α} fld pol (x : α) :=
+# apply_poly_x_pol;
+- : Field.field α β →
+    Poly.polynomial (Puiseux_series.puiseux_series α) →
+    Puiseux_series.puiseux_series α → Puiseux_series.puiseux_series α
+value apply_poly_x_pol k pol =
+  apply_poly {ps_monoms = []}
+    (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
+    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
+*)
+
 Definition apply_polynomial {α} fld pol (x : α) :=
-  (* à voir, en fonction de 'apply_poly' *)
   List.fold_right (λ coeff accu, add fld (mul fld accu x) coeff) (an pol)
     (al pol).
 
