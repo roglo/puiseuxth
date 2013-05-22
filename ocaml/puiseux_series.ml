@@ -1,14 +1,14 @@
-(* $Id: puiseux_series.ml,v 1.14 2013-05-22 20:43:37 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.15 2013-05-22 21:17:45 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Pnums;
 
-Record stream α := { hd : 'a; tl : Lazy.t (option (stream α)) };
+type series α = [ Cons of α and Lazy.t (series α) | End ];
 
 Record ps_monomial α := { coeff : α; power : Q };
-Record puiseux_series α := { ps_monoms : option (stream (ps_monomial α)) };
-Record old_ps α :=  { old_ps_mon : list (ps_monomial α) };
+Record puiseux_series α := { ps_monoms : series (ps_monomial α) };
+Record old_ps α := { old_ps_mon : list (ps_monomial α) };
 
 type comparison = [ Eq | Lt | Gt ];
 
@@ -41,51 +41,43 @@ value merge_pow add_coeff is_null_coeff =
 ;
 
 value ops2ps ops =
-  match ops.old_ps_mon with
-  | [] → {ps_monoms = None}
-  | [m :: ml] →
-      let s =
-        loop m ml where rec loop m =
-          fun
-          [ [] → {hd = m; tl = lazy None}
-          | [m₁ :: ml₁] → {hd = m; tl = lazy (Some (loop m₁ ml₁))} ]
-      in
-      {ps_monoms = Some s}
-  end;
+  let rec loop =
+    fun
+    [ [] → End
+    | [m₁ :: ml₁] → Cons m₁ (loop ml₁) ]
+  in
+  {ps_monoms = loop ops.old_ps_mon}
+;
 
 value ps2ops ps =
-  match ps.ps_monoms with
-  | None → {old_ps_mon = []}
-  | Some s →
-      let rec loop s =
-        match Lazy.force s.tl with
-        | None → [s.hd]
-        | Some s₁ → [s.hd :: loop s₁]
-        end
-      in
-      {old_ps_mon = loop s}
-  end
+  let rec loop ms =
+    match ms with
+    | Cons m₁ ms₁ → [m₁ :: loop (Lazy.force ms₁)]
+    | End → []
+    end
+  in
+  {old_ps_mon = loop ps.ps_monoms}
 ;
 
 Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
   let fix loop ms₁ ms₂ :=
     match (Lazy.force ms₁, Lazy.force ms₂) with
-    | (None, None) => None
-    | (None, Some s₂) => Some s₂
-    | (Some s₁, None) => Some s₁
-    | (Some s₁, Some s₂) =>
-        match Qcompare (power (hd s₁)) (power (hd s₂)) with
+    | (Cons c₁ s₁, Cons c₂ s₂) =>
+        match Qcompare (power c₁) (power c₂) with
         | Eq =>
-            let c := add_coeff (coeff (hd s₁)) (coeff (hd s₂)) in
-            if is_null_coeff c then loop (tl s₁) (tl s₂)
+            let c := add_coeff (coeff c₁) (coeff c₂) in
+            if is_null_coeff c then loop s₁ s₂
             else
-              let m := {| coeff := c; power := power (hd s₁) |} in
-              Some (Cons m (loop (tl s₁) (tl s₂)))
+              let m := {| coeff := c; power := power c₁ |} in
+              Cons m (loop s₁ s₂)
         | Lt =>
-            Some (Cons (hd s₁) (loop (tl s₁) ms₂))
+            Cons c₁ (loop s₁ ms₂)
         | Gt =>
-            Some (Cons (hd s₂) (loop ms₁ (tl s₂)))
+            Cons c₂ (loop ms₁ s₂)
         end
+    | (Cons c₁ s₁, End) => Cons c₁ (Lazy.force s₁)
+    | (End, Cons c₂ s₂) => Cons c₂ (Lazy.force s₂)
+    | (End, End) => End
     end
   in
   let ps₁ := ops2ps ps₁ in

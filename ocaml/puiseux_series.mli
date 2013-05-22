@@ -1,9 +1,9 @@
-(* $Id: puiseux_series.mli,v 1.8 2013-05-22 20:06:55 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.9 2013-05-22 21:17:45 deraugla Exp $ *)
 
-type stream α = {hd : 'a; tl : Lazy.t (option (stream α))};
+type series α = [ Cons of α and Lazy.t (series α) | End ];
 
 type ps_monomial α = { coeff : α; power : Pnums.Q.t };
-type puiseux_series α = { ps_monoms : option (stream (ps_monomial α)) };
+type puiseux_series α = { ps_monoms : series (ps_monomial α) };
 type old_ps α = { old_ps_mon : list (ps_monomial α) };
 
 type comparison = [ Eq | Lt | Gt ];
