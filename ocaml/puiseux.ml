@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.243 2013-05-22 15:34:55 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.244 2013-05-22 17:23:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -20,15 +20,15 @@ Record algebrically_closed_field α β :=
 
 Definition degree (pol : polynomial α) := List.length (al pol);
 
-Definition valuation α (ps : puiseux_series α) :=
-  match ps.ps_monoms with
+Definition valuation α (ps : old_ps α) :=
+  match ps.old_ps_mon with
   | [mx :: _] => mx.power
   | [] => Q.make (I.of_int 1) (I.of_int 0)
   end
 ;
 
-Definition valuation_coeff α (ps : puiseux_series α) :=
-  match ps.ps_monoms with
+Definition valuation_coeff α (ps : old_ps α) :=
+  match ps.old_ps_mon with
   | [mx :: _] => mx.coeff
   | [] => failwith "valuation_coeff"
   end
@@ -102,7 +102,7 @@ Record newton_segment := mkns
     fin_pt : (Q * Q);
     oth_pts : list (Q * Q) };
 
-Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
+Fixpoint all_points_of_ps_polynom α pow psl (psn : old_ps α) :=
   match psl with
   | [ps₁ :: psl₁] =>
       [(Qnat pow, ps₁) :: all_points_of_ps_polynom α (S pow) psl₁ psn]
@@ -110,10 +110,10 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
       [(Qnat pow, psn)]
   end;
 
-Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_non_zero_ps α fld (dpl : list (Q * old_ps α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
-      if ps.ps_monoms = [] then filter_non_zero_ps α fld dpl₁
+      if ps.old_ps_mon = [] then filter_non_zero_ps α fld dpl₁
       else [(pow, valuation α ps) :: filter_non_zero_ps α fld dpl₁]
   | [] =>
       []
@@ -152,13 +152,13 @@ value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { initial_polynom : polynomial (puiseux_series α);
+  { initial_polynom : polynomial (old_ps α);
     cγl : list (α * Q);
     step : int;
     rem_steps : int;
     vx : string;
     vy : string;
-    pol : polynomial (puiseux_series α) }
+    pol : polynomial (old_ps α) }
 ;
 
 value cut_long at_middle s =
@@ -199,7 +199,7 @@ value ptop fld p =
 value norm f k x y = k.ext.normalise (f x y);
 
 value apply_poly_with_ps k pol =
-  apply_poly {ps_monoms = []}
+  apply_poly {old_ps_mon = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
@@ -213,10 +213,10 @@ value apply_poly_with_ps_poly k fld pol =
     (fun pol ps →
        pol_add fld (ps_add k.add (k.eq k.zero)) pol {ml = [ps]})
     (pol_mul
-       {ps_monoms = []}
+       {old_ps_mon = []}
        (ps_add k.add (k.eq k.zero))
        (ps_mul k.add (norm k.mul k) (k.eq k.zero))
-       (fun ps → ps.ps_monoms = []))
+       (fun ps → ps.old_ps_mon = []))
     pol
 ;
 
@@ -237,9 +237,9 @@ value map_polynom k f pol =
                   rev_ml
                 }
                 else [m :: rev_ml])
-            [] ps.ps_monoms
+            [] ps.old_ps_mon
          in
-         {ps_monoms = List.rev rev_ml})
+         {old_ps_mon = List.rev rev_ml})
       pol.ml
   in
   {ml = al}
@@ -258,9 +258,9 @@ value float_round_zero k ps =
          else
            let m = {coeff = c; power = m.power} in
            [m :: ml])
-       [] ps.ps_monoms
+       [] ps.old_ps_mon
   in
-  {ps_monoms = List.rev ml}
+  {old_ps_mon = List.rev ml}
 ;
 
 value string_of_puiseux_series k opt vx ps =
@@ -291,12 +291,12 @@ value print_solution k fld br nth cγl finite sol = do {
       let ps = apply_poly_with_ps k (pofp fld br.initial_polynom) sol in
       let ps = float_round_zero k ps in
       let ps₂ =
-        if nb_terms > 0 then {ps_monoms = list_take nb_terms ps.ps_monoms}
+        if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
         else ps
       in
       let ellipses =
         if nb_terms = 0 then ""
-        else if List.length ps.ps_monoms > nb_terms then " + ..."
+        else if List.length ps.old_ps_mon > nb_terms then " + ..."
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
@@ -310,14 +310,14 @@ value cancel_pol_constant_term_if_any k pol =
   match pol.ml with
   | [] → pol
   | [m :: ml] →
-      match m.ps_monoms with
+      match m.old_ps_mon with
       [ [m₁ :: ml₁] →
           if Q.eq m₁.power Q.zero then do {
             if verbose.val then
               printf "Warning: cancelling constant term: %s\n%!"
                 (k.ext.to_string m₁.coeff)
             else ();
-            let m = {ps_monoms = ml₁} in
+            let m = {old_ps_mon = ml₁} in
             {ml = [m :: ml]}
           }
           else pol
@@ -333,9 +333,9 @@ value pol_div_x_power pol p =
            List.map
              (fun m →
                 {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-             ps.ps_monoms
+             ps.old_ps_mon
          in
-         {ps_monoms = ml})
+         {old_ps_mon = ml})
       pol.ml
   in
   {ml = ml}
@@ -354,12 +354,12 @@ value make_solution cγl =
          ([{coeff = c; power = γsum} :: sol], γsum))
       ([], Q.zero) (List.rev cγl)
   in
-  {ps_monoms = List.rev rev_sol}
+  {old_ps_mon = List.rev rev_sol}
 ;
 
 value zero_is_root pol =
   match pol.ml with
-  [ [ps :: _] → ps.ps_monoms = []
+  [ [ps :: _] → ps.old_ps_mon = []
   | [] → False ]
 ;
 
@@ -383,8 +383,8 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
   let pol =
     let y =
       {ml =
-         [{ps_monoms = [{coeff = r; power = γ}]};
-          {ps_monoms = [{coeff = k.one; power = γ}]}]}
+         [{old_ps_mon = [{coeff = r; power = γ}]};
+          {old_ps_mon = [{coeff = k.one; power = γ}]}]}
     in
     let pol = apply_poly_with_ps_poly k fld (pofp fld br.pol) y in
     let pol = pol_div_x_power pol β in
@@ -568,7 +568,7 @@ value polyn_of_tree k t =
   {ml =
      List.map
        (fun t →
-          if is_zero_tree k t then {ps_monoms = []}
+          if is_zero_tree k t then {old_ps_mon = []}
           else puiseux_series_of_tree k t)
        pol.ml}
 ;
@@ -712,16 +712,16 @@ value arg_parse () =
 ;
 
 value ps_fld =
-  {zero = {ps_monoms = []};
-   one = {ps_monoms = [{coeff = C.one; power = Q.zero}]};
+  {zero = {old_ps_mon = []};
+   one = {old_ps_mon = [{coeff = C.one; power = Q.zero}]};
    add _ = failwith "ps_fld.add";
    sub _ = failwith "ps_fld.sub";
    neg _ = failwith "ps_fld.neg";
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
    eq ps₁ ps₂ =
-     if ps₁.ps_monoms = [] then ps₂.ps_monoms = []
-     else if ps₂.ps_monoms = [] then False
+     if ps₁.old_ps_mon = [] then ps₂.old_ps_mon = []
+     else if ps₂.old_ps_mon = [] then False
      else failwith "ps_fld.eq";
    ext = ()}
 ;
@@ -745,7 +745,7 @@ value kc () =
 ;
 
 value ps_of_int k i =
-  {ps_monoms = [{coeff = k.ext.of_i (I.of_int i); power = Q.zero}]}
+  {old_ps_mon = [{coeff = k.ext.of_i (I.of_int i); power = Q.zero}]}
 ;
 
 value k_ps k =

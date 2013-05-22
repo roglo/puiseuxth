@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.71 2013-05-22 14:38:51 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.72 2013-05-22 17:23:05 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -301,23 +301,23 @@ value group_term_descr k tdl =
          match rev_myl with
          [ [(ps, p) :: rev_myl₁] →
              if td.ypow = p then
-               let mxl = merge_const_px k mx ps.ps_monoms in
+               let mxl = merge_const_px k mx ps.old_ps_mon in
                if mxl = [] then rev_myl₁
-               else [({ps_monoms = mxl}, p) :: rev_myl₁]
-             else [({ps_monoms = [mx]}, td.ypow) :: rev_myl]
+               else [({old_ps_mon = mxl}, p) :: rev_myl₁]
+             else [({old_ps_mon = [mx]}, td.ypow) :: rev_myl]
          | [] →
-             [({ps_monoms = [mx]}, td.ypow)] ])
+             [({old_ps_mon = [mx]}, td.ypow)] ])
       [] tdl
   in 
   loop [] 0 (List.rev rev_ml) where rec loop rev_cl deg ml =
     match ml with
     [ [(ps, p) :: ml₁] →
         if p > deg then
-          loop [{ps_monoms = []} :: rev_cl] (deg + 1) ml
+          loop [{old_ps_mon = []} :: rev_cl] (deg + 1) ml
         else if p < deg then
           match () with []
         else
-          loop [{ps_monoms = List.rev ps.ps_monoms} :: rev_cl] (deg + 1) ml₁
+          loop [{old_ps_mon = List.rev ps.old_ps_mon} :: rev_cl] (deg + 1) ml₁
     | [] →
         {ml = List.rev rev_cl} ]
 ;
@@ -455,7 +455,7 @@ value tree_of_puiseux_series k ps =
          [ Some t₁ → Minus t t₁
          | None → Plus t t₁ ]
   in
-  List.fold_left rebuild_add (Const k.zero) ps.ps_monoms
+  List.fold_left rebuild_add (Const k.zero) ps.old_ps_mon
 ;
 
 value rev_tree_of_polyn k pol =
@@ -662,5 +662,5 @@ value puiseux_series_of_tree k t =
     else
       mxl
   in
-  {ps_monoms = mxl}
+  {old_ps_mon = mxl}
 ;

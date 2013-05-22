@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.534 2013-05-22 17:23:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.535 2013-05-22 17:23:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -44,6 +44,7 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
+(*
 Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
   let fix loop ml₁ ml₂ :=
     match (ml₁, ml₂) with
@@ -64,7 +65,6 @@ Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
   in
   {ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}.
 
-(**)
 Definition apply_poly_with_ps_poly {α} (fld : field α)
     (pol : polynomial (puiseux_series α)) :=
   apply_poly (λ x, x)
