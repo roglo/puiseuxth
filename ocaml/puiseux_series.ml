@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.12 2013-05-22 20:29:27 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.13 2013-05-22 20:34:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -71,32 +71,28 @@ value ps2ops ps =
 
 Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
   let fix loop ms₁ ms₂ :=
-    match (ms₁, ms₂) with
+    match (Lazy.force ms₁, Lazy.force ms₂) with
     | (None, None) => None
-    | (None, Some _) => ms₂
-    | (Some _, None) => ms₁
+    | (None, Some s₂) => Some s₂
+    | (Some s₁, None) => Some s₁
     | (Some s₁, Some s₂) =>
         match Qcompare (power (hd s₁)) (power (hd s₂)) with
         | Eq =>
             let c := add_coeff (coeff (hd s₁)) (coeff (hd s₂)) in
-            if is_null_coeff c then
-              loop (Lazy.force (tl s₁)) (Lazy.force (tl s₂))
+            if is_null_coeff c then loop (tl s₁) (tl s₂)
             else
               let m := {| coeff := c; power := power (hd s₁) |} in
-              let ms :=
-                lazy (loop (Lazy.force (tl s₁)) (Lazy.force (tl s₂)))
-              in
-              Some (Cons m ms)
+              Some (Cons m (lazy (loop (tl s₁) (tl s₂))))
         | Lt =>
-            Some (Cons (hd s₁) (lazy (loop (Lazy.force (tl s₁)) ms₂)))
+            Some (Cons (hd s₁) (lazy (loop (tl s₁) ms₂)))
         | Gt =>
-            Some (Cons (hd s₂) (lazy (loop ms₁ (Lazy.force (tl s₂)))))
+            Some (Cons (hd s₂) (lazy (loop ms₁ (tl s₂))))
         end
     end
   in
   let ps₁ := ops2ps ps₁ in
   let ps₂ := ops2ps ps₂ in
-  {ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}
+  {ps_monoms = loop (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂))}
 ;
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
