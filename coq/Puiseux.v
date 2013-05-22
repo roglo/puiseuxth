@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.531 2013-05-22 08:29:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.532 2013-05-22 09:12:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -23,17 +23,44 @@ Definition apply_poly_with_ps {α} fld pol (x : α) := ...
 value apply_poly_with_ps :
   field α β →
   polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
-value apply_poly_x_pol k pol =
+value apply_poly_with_ps k pol =
   apply_poly {ps_monoms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
+*)
 
-Definition apply_poly_with_ps_poly ... := ...
+Definition pol_add {α} (add_coeff : α → α → α) pol₁ pol₂ :=
+  let fix loop rev_al al₁ al₂ :=
+    match (al₁, al₂) with
+    | ([a₁ … al₁], [a₂ … al₂]) =>
+        let a := add_coeff a₁ a₂ in
+        loop [a … rev_al] al₁ al₂
+    | ([], [a₂ … al₂]) =>
+        mkpol (List.rev (List.rev_append al₂ [a₂ … rev_al]))
+          (an pol₁) (* faux, mais c'est pour tester *)
+    | ([a₁ … al₁], []) =>
+        mkpol (List.rev (List.rev_append al₁ [a₁ … rev_al]))
+          (an pol₁) (* faux, mais c'est pour tester *)
+    | ([], []) =>
+        mkpol (List.rev rev_al)
+          (an pol₁) (* faux, mais c'est pour tester *)
+    end
+  in
+  loop [] (al pol₁ ++ [an pol₁]) (al pol₂ ++ [an pol₂]).
+
+(*
+Definition apply_poly_with_ps_poly {α} (fld : field α)
+    (pol : polynomial (puiseux_series α)) :=
+  apply_poly (λ x, x)
+    (λ pol ps,
+       pol_add (ps_add (add fld) (eq_zero_dec fld)) pol (mkpol [] ps)).
+*)
+(*
 value apply_poly_with_ps_poly :
-  Field.field α β →
+  field α β →
   polynomial (puiseux_series α) → polynomial (puiseux_series α) →
   polynomial (puiseux_series α)
-value apply_poly_xy_pol k pol =
+value apply_poly_with_ps_poly k pol =
   apply_poly
     {ml = []}    
     (fun pol ps →

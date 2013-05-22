@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.3 2013-05-19 17:34:27 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.4 2013-05-22 09:12:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -29,10 +29,10 @@ Arguments div : default implicits.
 Arguments is_zero_dec : default implicits. 
 
 (* polynomial of degree ≥ 0 *)
-Record polynomial α := { al : list α; an : α }.
+Record polynomial α := mkpol { al : list α; an : α }.
+Arguments mkpol : default implicits.
 Arguments al : default implicits.
 Arguments an : default implicits.
-Arguments polynomial : default implicits.
 
 Record Qpos := { x : Q; pos : x > 0 }.
 
