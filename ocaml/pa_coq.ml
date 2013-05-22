@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.16 2013-05-19 23:11:36 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.17 2013-05-22 20:29:27 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -101,7 +101,9 @@ EXTEND
       | UIDENT "Qnat" →
           <:expr< qnat >>
       | UIDENT "S" →
-          <:expr< succ >> ] ]
+          <:expr< succ >>
+      | UIDENT "Cons" →
+          <:expr< stream_cons >> ] ]
   ;
   coq_fun_def:
     [ RIGHTA
