@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.533 2013-05-22 14:46:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.534 2013-05-22 17:23:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -44,7 +44,27 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-(*
+Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
+  let fix loop ml₁ ml₂ :=
+    match (ml₁, ml₂) with
+    | ([], ml₂) => ml₂
+    | (ml₁, []) => ml₁
+    | ([m₁ … ml₁], [m₂ … ml₂]) =>
+        match Qcompare (power m₁) (power m₂) with
+        | Eq =>
+            let c := add_coeff (coeff m₁) (coeff m₂) in
+            if is_null_coeff c then loop ml₁ ml₂
+            else [{| coeff := c; power := power m₁ |} … loop ml₁ ml₂]
+        | Lt =>
+            [m₁ … loop ml₁ [m₂ … ml₂]]
+        | Gt =>
+            [m₂ … loop [m₁ … ml₁] ml₂]
+        end
+    end
+  in
+  {ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}.
+
+(**)
 Definition apply_poly_with_ps_poly {α} (fld : field α)
     (pol : polynomial (puiseux_series α)) :=
   apply_poly (λ x, x)
