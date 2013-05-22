@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.242 2013-05-22 14:46:09 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.243 2013-05-22 15:34:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -32,15 +32,6 @@ Definition valuation_coeff α (ps : puiseux_series α) :=
   | [mx :: _] => mx.coeff
   | [] => failwith "valuation_coeff"
   end
-;
-
-type comparison = [ Lt | Eq | Gt ];
-
-value qcompare q₁ q₂ =
-  let c = Q.compare q₁ q₂ in
-  if c < 0 then Lt
-  else if c = 0 then Eq
-  else Gt
 ;
 
 value qnat i = Q.of_i (I.of_int i);

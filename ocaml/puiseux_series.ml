@@ -1,9 +1,20 @@
-(* $Id: puiseux_series.ml,v 1.6 2013-04-07 06:56:42 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.7 2013-05-22 15:34:55 deraugla Exp $ *)
+
+#load "./pa_coq.cmo";
 
 open Pnums;
 
-type ps_monomial α = { coeff : α; power : Q.t };
-type puiseux_series α = { ps_monoms : list (ps_monomial α) };
+Record ps_monomial α := { coeff : α; power : Q };
+Record puiseux_series α := { ps_monoms : list (ps_monomial α) };
+
+type comparison = [ Eq | Lt | Gt ];
+
+value qcompare q₁ q₂ =
+  let c = Q.compare q₁ q₂ in
+  if c < 0 then Lt
+  else if c = 0 then Eq
+  else Gt
+;
 
 value merge_pow add_coeff is_null_coeff =
   loop [] where rec loop rev_list =
@@ -26,24 +37,25 @@ value merge_pow add_coeff is_null_coeff =
         List.rev rev_list ]
 ;
 
-value ps_add add_coeff is_null_coeff ps₁ ps₂ =
-  loop [] ps₁.ps_monoms ps₂.ps_monoms where rec loop rev_ml ml₁ ml₂ =
+Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
+  let fix loop ml₁ ml₂ :=
     match (ml₁, ml₂) with
-    [ ([m₁ :: ml₁], [m₂ :: ml₂]) →
-        let cmp = Q.compare m₁.power m₂.power in
-        if cmp < 0 then
-          loop [m₁ :: rev_ml] ml₁ [m₂ :: ml₂]
-        else if cmp = 0 then
-          let c = add_coeff m₁.coeff m₂.coeff in
-          let rev_ml =
-            if is_null_coeff c then rev_ml
-            else [{coeff = c; power = m₁.power} :: rev_ml]
-          in
-          loop rev_ml ml₁ ml₂
-        else
-          loop [m₂ :: rev_ml] [m₁ :: ml₁] ml₂
-    | ([], ml₂) → {ps_monoms = List.rev (List.rev_append ml₂ rev_ml)}
-    | (ml₁, []) → {ps_monoms = List.rev (List.rev_append ml₁ rev_ml)} ]
+    | ([], ml₂) => ml₂
+    | (ml₁, []) => ml₁
+    | ([m₁ :: ml₁], [m₂ :: ml₂]) =>
+        match Qcompare (power m₁) (power m₂) with
+        | Eq =>
+            let c := add_coeff (coeff m₁) (coeff m₂) in
+            if is_null_coeff c then loop ml₁ ml₂
+            else [{| coeff := c; power := power m₁ |} :: loop ml₁ ml₂]
+        | Lt =>
+            [m₁ :: loop ml₁ [m₂ :: ml₂]]
+        | Gt =>
+            [m₂ :: loop [m₁ :: ml₁] ml₂]
+        end
+    end
+  in
+  {ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}
 ;
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
