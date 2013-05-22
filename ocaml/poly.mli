@@ -1,4 +1,4 @@
-(* $Id: poly.mli,v 1.31 2013-05-22 14:41:08 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.32 2013-05-22 14:46:09 deraugla Exp $ *)
 
 type polynomial α = { al : list α; an : α };
 value mkpol : unit → list α → α → polynomial α;
@@ -6,8 +6,8 @@ value al : polynomial α → list α;
 value an : polynomial α → α;
 
 value pol_add :
-  (α → α → α) → polynomial α → polynomial α → polynomial α;
-(** [pol_add add_coeff p₁ p₂] *)
+  unit → (α → α → α) → polynomial α → polynomial α → polynomial α;
+(** [pol_add () add_coeff p₁ p₂] *)
 
 (* *)
 

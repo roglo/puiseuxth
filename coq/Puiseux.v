@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.532 2013-05-22 09:12:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.533 2013-05-22 14:46:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -29,24 +29,20 @@ value apply_poly_with_ps k pol =
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 *)
 
-Definition pol_add {α} (add_coeff : α → α → α) pol₁ pol₂ :=
-  let fix loop rev_al al₁ al₂ :=
+Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
+  let fix loop al₁ al₂ :=
     match (al₁, al₂) with
-    | ([a₁ … al₁], [a₂ … al₂]) =>
-        let a := add_coeff a₁ a₂ in
-        loop [a … rev_al] al₁ al₂
-    | ([], [a₂ … al₂]) =>
-        mkpol (List.rev (List.rev_append al₂ [a₂ … rev_al]))
-          (an pol₁) (* faux, mais c'est pour tester *)
-    | ([a₁ … al₁], []) =>
-        mkpol (List.rev (List.rev_append al₁ [a₁ … rev_al]))
-          (an pol₁) (* faux, mais c'est pour tester *)
-    | ([], []) =>
-        mkpol (List.rev rev_al)
-          (an pol₁) (* faux, mais c'est pour tester *)
+    | ([], []) => mkpol [] (add_coeff (an pol₁) (an pol₂))
+    | ([], [a₂ … bl₂]) =>
+        mkpol [add_coeff (an pol₁) a₂ … bl₂] (an pol₂)
+    | ([a₁ … bl₁], []) =>
+        mkpol [add_coeff a₁ (an pol₂) … bl₁] (an pol₁)
+    | ([a₁ … bl₁], [a₂ … bl₂]) =>
+        let r := loop bl₁ bl₂ in
+        mkpol [add_coeff a₁ a₂ … al r] (an r)
     end
   in
-  loop [] (al pol₁ ++ [an pol₁]) (al pol₂ ++ [an pol₂]).
+  loop (al pol₁) (al pol₂).
 
 (*
 Definition apply_poly_with_ps_poly {α} (fld : field α)
