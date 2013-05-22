@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.527 2013-05-21 20:08:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.528 2013-05-22 03:16:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,12 +12,18 @@ Definition degree α (pol : polynomial α) := List.length (al pol).
 Arguments degree : default implicits.
 
 (* Horner's algorithm *)
-Definition apply_polynomial {α} fld pol (x : α) :=
-  List.fold_right (λ accu coeff, add fld (mul fld accu x) coeff) (an pol)
-    (al pol).
-Arguments apply_polynomial : default implicits. 
+Definition apply_poly {α} {β} {γ}
+    (zero_v : α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polynomial β) (x : γ) :=
+  List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
+    (add_v_coeff zero_v (an pol)) (al pol).
 
-Record algebraically_closed_field α :=
+Definition apply_polynomial {α} fld pol (x : α) :=
+  (* à voir, en fonction de 'apply_poly' *)
+  List.fold_right (λ coeff accu, add fld (mul fld accu x) coeff) (an pol)
+    (al pol).
+
+Record algebraically_closed_field {α} :=
   { ac_field : field α;
     ac_prop : ∀ pol, degree pol ≥ 1
       → ∃ r, apply_polynomial ac_field pol r = zero ac_field }.
