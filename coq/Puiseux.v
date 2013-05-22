@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.529 2013-05-22 04:18:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.530 2013-05-22 04:33:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -13,21 +13,37 @@ Arguments degree : default implicits.
 
 (* Horner's algorithm *)
 Definition apply_poly {α} {β} {γ}
-    (zero_v : α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
-    (add_v_coeff zero_v (an pol)) (al pol).
+    (zero_plus_v (an pol)) (al pol).
 
 (*
-Definition my_apply_polynomial {α} fld pol (x : α) :=
-# apply_poly_x_pol;
-- : Field.field α β →
-    Poly.polynomial (Puiseux_series.puiseux_series α) →
-    Puiseux_series.puiseux_series α → Puiseux_series.puiseux_series α
+Definition apply_poly_x_pol {α} fld pol (x : α) := ...
+value apply_poly_x_pol :
+  field α β →
+  polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
 value apply_poly_x_pol k pol =
   apply_poly {ps_monoms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
+
+Definition apply_poly_xy_pol ... := ...
+value apply_poly_xy_pol :
+  Field.field α β →
+  polynomial (puiseux_series α) → polynomial (puiseux_series α) →
+  polynomial (puiseux_series α)
+value apply_poly_xy_pol k pol =
+  apply_poly
+    {ml = []}    
+    (fun pol ps →
+       pol_add (ps_add k.add (k.eq k.zero)) pol {ml = [ps]})
+    (pol_mul
+       {ps_monoms = []}
+       (ps_add k.add (k.eq k.zero))
+       (ps_mul k.add (norm k.mul k) (k.eq k.zero))
+       (fun ps → ps.ps_monoms = []))
+    pol
 *)
 
 Definition apply_polynomial {α} fld pol (x : α) :=
