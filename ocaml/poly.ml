@@ -1,6 +1,10 @@
-(* $Id: poly.ml,v 1.29 2013-05-19 01:02:11 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.30 2013-05-22 14:38:51 deraugla Exp $ *)
 
-type polynomial α = { ml : list α };
+#load "./pa_coq.cmo";
+
+Record polynomial α := mkpol { al : list α; an : α };
+
+type old_poly α = { ml : list α };
 type old_monomial α = { old_coeff : α; old_power : int };
 
 value merge_pow add_coeff is_zero_coeff =
@@ -24,6 +28,23 @@ value merge_pow add_coeff is_zero_coeff =
         List.rev rev_list ]
 ;
 
+(**)
+Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
+  let fix loop al₁ al₂ :=
+    match (al₁, al₂) with
+    | ([], []) => mkpol () [] (add_coeff (an pol₁) (an pol₂))
+    | ([], [a₂ :: bl₂]) =>
+        mkpol () [add_coeff (an pol₁) a₂ :: bl₂] (an pol₂)
+    | ([a₁ :: bl₁], []) =>
+        mkpol () [add_coeff a₁ (an pol₂) :: bl₁] (an pol₁)
+    | ([a₁ :: bl₁], [a₂ :: bl₂]) =>
+        let r := loop bl₁ bl₂ in
+        mkpol () [add_coeff a₁ a₂ :: al r] (an r)
+    end
+  in
+  loop (al pol₁) (al pol₂);
+
+(*
 value pol_add add_coeff pol₁ pol₂ =
   loop [] pol₁.ml pol₂.ml where rec loop rev_al al₁ al₂ =
     match (al₁, al₂) with
@@ -37,6 +58,7 @@ value pol_add add_coeff pol₁ pol₂ =
     | ([], []) →
         {ml = List.rev rev_al} ]
 ;
+*)
 
 value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
   let (ml, _) =

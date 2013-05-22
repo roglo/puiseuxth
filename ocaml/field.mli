@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.26 2013-05-19 15:18:17 deraugla Exp $ *)
+(* $Id: field.mli,v 1.27 2013-05-22 14:38:51 deraugla Exp $ *)
 
 open Pnums;
 open Poly;
@@ -11,12 +11,15 @@ type field α β =
     neg : α → α;
     mul : α → α → α;
     div : α → α → α;
-    (* extra *)
-    minus_one : α;
+    eq : α → α → bool;
+    ext : β }
+;
+
+type ext α β =
+  { minus_one : α;
     normalise : α → α;
     nth_root : α → int → α;
     compare : α → α → int;
-    eq : α → α → bool;
     gcd : α → α → α;
     neg_factor : α → option α;
     of_i : I.t → α;
