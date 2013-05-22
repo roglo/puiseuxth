@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.80 2013-05-19 01:02:11 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.81 2013-05-22 14:38:51 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -31,7 +31,7 @@ value cubic_root n =
 value subst_roots_of_unity k pow (r, n) =
   match pow with
   [ 2 →
-      match k.to_q r with
+      match k.ext.to_q r with
       [ Some rq →
           let rn = Q.rnum rq in
           let rd = Q.rden rq in
@@ -39,7 +39,7 @@ value subst_roots_of_unity k pow (r, n) =
             if I.eq rd I.one && I.eq rn I.one then k.one
             else
               let d = I.mul rn rd in
-              k.normalise (k.of_a (A₂.make Q.zero (Q.make I.one rd) d))
+              k.ext.normalise (k.ext.of_a (A₂.make Q.zero (Q.make I.one rd) d))
           in
           let r₁ = r in
           let r₂ = k.neg r in
@@ -47,32 +47,32 @@ value subst_roots_of_unity k pow (r, n) =
       | None →
           None ]
   | 3 →
-      match k.to_q r with
+      match k.ext.to_q r with
       [ Some rq →
           let rn = Q.rnum rq in
           let rd = Q.rden rq in
           let r =
             if I.eq rd I.one then
               if I.eq rn I.one then k.one
-              else if I.eq rn I.minus_one then k.minus_one
+              else if I.eq rn I.minus_one then k.ext.minus_one
 	      else if I.eq rn I.zero then k.zero
               else failwith (sprintf "<< $int:I.ts %s$ ** (1/3) >>" (I.ts rn))
             else
               let rn = I.mul rn (I.mul rd rd) in
               let n = cubic_root rn in
               let d = rd in
-              k.of_q (Q.norm (Q.make n d))
+              k.ext.of_q (Q.norm (Q.make n d))
           in
           let plus_½ = Q.make I.one I.two in
           let minus_½ = Q.neg plus_½ in
-          let ω = k.of_a (A₂.make minus_½ plus_½ (I.of_int (-3))) in
-          let ω₂ = k.of_a (A₂.make minus_½ minus_½ (I.of_int (-3))) in
+          let ω = k.ext.of_a (A₂.make minus_½ plus_½ (I.of_int (-3))) in
+          let ω₂ = k.ext.of_a (A₂.make minus_½ minus_½ (I.of_int (-3))) in
           let r₁ = r in
           let r₂ = k.mul r ω in
           let r₃ = k.mul r ω₂ in
           Some [(r₁, n); (r₂, n); (r₃, n)]
       | None →
-          failwith (sprintf "cannot compute ∛%s" (k.to_string r)) ]
+          failwith (sprintf "cannot compute ∛%s" (k.ext.to_string r)) ]
   | pow →
       None ]
 ;
@@ -177,7 +177,7 @@ value roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c =
   let (Δ_i, Δ_den) = (I.mul (Q.rnum Δ) (Q.rden Δ), Q.rden Δ) in
   if I.eq Δ_i I.zero then
     let r = A₂.norm (A₂.div (A₂.neg b) (A₂.muli a I.two)) in
-    [(k.of_a r, 2)]
+    [(k.ext.of_a r, 2)]
   else
     List.map
       (fun d →
@@ -187,7 +187,7 @@ value roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c =
                 (A₂.add (A₂.neg b) (A₂.make Q.zero (Q.make d Δ_den) Δ_i))
                 (A₂.muli a I.two))
          in
-         (k.of_a r, 1))
+         (k.ext.of_a r, 1))
       [I.one; I.minus_one]
 ;
 
@@ -204,7 +204,7 @@ value rec non_zero_roots_of_int_coeffs k coeffs =
         let _ =
           List.iter
             (fun (r, m) →
-               printf " %s%s" (k.to_string r)
+               printf " %s%s" (k.ext.to_string r)
                  (if m > 1 then sprintf " (mult %d)" m else ""))
             rl
         in
@@ -212,7 +212,7 @@ value rec non_zero_roots_of_int_coeffs k coeffs =
 *)
         List.fold_left
           (fun (mrl, coeffs) (r, m) →
-             match k.to_q r with
+             match k.ext.to_q r with
              [ Some rq →
                  let b = [I.neg (Q.rnum rq); Q.rden rq] in
                  let (coeffs, m) =
@@ -248,7 +248,7 @@ value rec non_zero_roots_of_int_coeffs k coeffs =
            coeffs rl
       else coeffs
     in
-    let rl = List.map (fun r → (k.of_q r, 1)) rl in
+    let rl = List.map (fun r → (k.ext.of_q r, 1)) rl in
     let rl' =
       match List.length coeffs - 1 with
       [ 0 → []
@@ -294,7 +294,7 @@ value roots_of_c_coeffs k coeffs =
       let r = k.div (k.neg b) a in
       Some [(r, 1)]
   | [c; b; a] →
-      match (k.to_a a, k.to_a b, k.to_a c) with
+      match (k.ext.to_a a, k.ext.to_a b, k.ext.to_a c) with
       [ (Some a, Some b, Some c) →
           Some (roots_of_2nd_deg_polynom_with_algebraic_coeffs k a b c)
       | _ →
@@ -311,7 +311,7 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
         let a = coeff_of_degree 1 apol in
         let b = coeff_of_degree 0 apol in
         let r = A₂.div (A₂.neg b) a in
-        Some [(k.of_a r, 1)]
+        Some [(k.ext.of_a r, 1)]
     | 2 →
         let a = coeff_of_degree 2 apol in
         let b = coeff_of_degree 1 apol in
@@ -366,7 +366,7 @@ value roots_of_polynom_with_algebraic_coeffs k power_gcd pol apol = do {
             if rl <> [] then printf "roots:\n%!" else ();
             List.iter
               (fun (r, m) →
-                 printf "  c = %s%s\n%!" (k.to_string r)
+                 printf "  c = %s%s\n%!" (k.ext.to_string r)
                    (if m > 1 then sprintf " (multiplicity %d)" m else ""))
               rl;
           }
@@ -381,20 +381,21 @@ value float_roots_of_unity k pow = do {
   let pol =
     loop [] 0 where rec loop rev_al deg =
       if deg = pow then {ml = List.rev [k.one :: rev_al]}
-      else if deg = 0 then loop [k.minus_one :: rev_al] (deg + 1)
+      else if deg = 0 then loop [k.ext.minus_one :: rev_al] (deg + 1)
       else loop [k.zero :: rev_al] (deg + 1)
   in
-  let rl = k.cpoly_roots (List.map k.to_complex pol.ml) in
-  List.map k.complex_round_zero rl
+  let rl = k.ext.cpoly_roots (List.map k.ext.to_complex pol.ml) in
+  List.map k.ext.complex_round_zero rl
 };
 
 value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
-  let ml = List.map k.to_complex pol.ml in
-  let rl = k.cpoly_roots (List.rev ml) in
-  let rl = List.map k.complex_round_zero rl in
+  let ml = List.map k.ext.to_complex pol.ml in
+  let rl = k.ext.cpoly_roots (List.rev ml) in
+  let rl = List.map k.ext.complex_round_zero rl in
   if verbose.val then do {
     List.iter
-      (fun r → printf "cpoly root: %s\n%!" (k.complex_to_string False r)) rl;
+      (fun r → printf "cpoly root: %s\n%!" (k.ext.complex_to_string False r))
+      rl;
   }
   else ();
   let rl =
@@ -404,28 +405,28 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       if verbose.val then do {
         List.iter
           (fun r →
-             printf "root of unity: %s\n%!" (k.complex_to_string False r))
+             printf "root of unity: %s\n%!" (k.ext.complex_to_string False r))
           rou
       }
       else ();
       let rll =
         List.map
           (fun r →
-             let r = k.of_complex r in
-             let r = k.nth_root r power_gcd in
+             let r = k.ext.of_complex r in
+             let r = k.ext.nth_root r power_gcd in
              List.map
                (fun ru →
-                  let ru = k.of_complex ru in
+                  let ru = k.ext.of_complex ru in
                   k.mul r ru)
                rou)
           rl
       in
       let rl = List.concat rll in
-      let rl = List.map k.float_round_zero rl in
-      List.map k.to_complex rl
+      let rl = List.map k.ext.float_round_zero rl in
+      List.map k.ext.to_complex rl
     }
   in
-  let rl = List.map k.of_complex rl in
+  let rl = List.map k.ext.of_complex rl in
   let rl =
     List.fold_right
       (fun r rnl →
@@ -437,14 +438,14 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
 (*
       rl []
 *)
-      (List.sort k.compare rl) []
+      (List.sort k.ext.compare rl) []
 (**)
   in
   if verbose.val then do {
     if rl <> [] then printf "roots:\n%!" else ();
     List.iter
       (fun (r, m) →
-         printf "  c = %s%s\n%!" (k.to_string r)
+         printf "  c = %s%s\n%!" (k.ext.to_string r)
            (if m > 1 then sprintf " (multiplicity %d)" m else ""))
       rl;
   }
@@ -458,7 +459,7 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
       let ml =
         List.map
           (fun m →
-             match k.to_a m with
+             match k.ext.to_a m with
              [ Some a → a
              | None → raise Exit ])
           pol.ml
@@ -488,7 +489,7 @@ value roots k pol = do {
          (gp, deg + 1))
       (0, 0) pol.ml
   in
-  let g = List.fold_left (fun g c → k.gcd g c) k.zero pol.ml in
+  let g = List.fold_left (fun g c → k.ext.gcd g c) k.zero pol.ml in
   let ml =
     let (rev_ml, _) =
       List.fold_left

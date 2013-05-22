@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.70 2013-05-19 01:02:11 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.71 2013-05-22 14:38:51 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -50,11 +50,11 @@ value mult k t₁ t₂ =
 
 value multi k i t =
   match t with
-  [ Const c → Const (k.mul (k.of_i i) c)
+  [ Const c → Const (k.mul (k.ext.of_i i) c)
   | t →
       if I.eq i I.zero then Const k.zero
       else if I.eq i I.one then t
-      else Mult (Const (k.of_i i)) t ]
+      else Mult (Const (k.ext.of_i i)) t ]
 ;
 
 value rec tree_power k t n d =
@@ -119,7 +119,7 @@ value tree_of_ast k vx vy =
         | (t₁, t₂) → Mult t₁ t₂ ]
     | << $e$ / $int:n$ >> →
         match expr e with
-        [ Const c → Const (k.div c (k.of_i (I.os n)))
+        [ Const c → Const (k.div c (k.ext.of_i (I.os n)))
         | x → not_impl (sprintf "toa ?/%s" n) x ]
     | << $e₁$ ** $e₂$ >> →
         match e₂ with
@@ -130,12 +130,14 @@ value tree_of_ast k vx vy =
     | << $lid:s$ >> →
         if s = vx then Xpower 1 1
         else if s = vy then Ypower 1
-        else if s = "i" then Const (k.of_a (A₂.make Q.zero Q.one I.minus_one))
-        else failwith (sprintf "toa lid %s" s)
+        else if s = "i" then
+          Const (k.ext.of_a (A₂.make Q.zero Q.one I.minus_one))
+        else
+          failwith (sprintf "toa lid %s" s)
     | << $int:s$ >> →
-        Const (k.of_i (I.os s))
+        Const (k.ext.of_i (I.os s))
     | << $flo:s$ >> →
-        Const (k.of_float_string s)
+        Const (k.ext.of_float_string s)
     | << $lid:s$ $_$ $_$ >> →
         failwith (sprintf "toa op %s" s)
     | << $lid:s$ $_$ >> →
@@ -206,7 +208,7 @@ value gen_string_of_tree k airy opt vx vy =
         else if opt then sprintf "%s%s" vy (sup_string_of_string (soi n))
         else sprintf "%s^%d" vy n
     | Const c →
-        k.to_string c
+        k.ext.to_string c
     | Plus _ _ | Minus _ _ | Neg _ | Mult _ _ as t →
         sprintf "(%s)" (expr "" t) ]
   in
@@ -282,7 +284,7 @@ value merge_const_px k m ml =
   match ml with
   [ [m₁ :: ml₁] →
       if Q.eq m.power m₁.power then
-        let c = k.normalise (k.add m.coeff m₁.coeff) in
+        let c = k.ext.normalise (k.add m.coeff m₁.coeff) in
         if k.eq c k.zero then ml₁
         else [{coeff = c; power = m.power} :: ml₁]
       else if k.eq m.coeff k.zero then ml
@@ -333,7 +335,7 @@ value rec without_initial_neg k =
       [ Some t₁ → Some (Mult t₁ t₂)
       | None → None ]
   | Const c →
-      match k.neg_factor c with
+      match k.ext.neg_factor c with
       [ Some c → Some (Const c)
       | None → None ]
   | _ →
@@ -411,7 +413,7 @@ value ps_polyn_of_tree k t =
       List.iter
         (fun td →
            printf "  const %s xpow %s ypow %d\n%!"
-             (k.to_string td.const) (Q.to_string td.xpow) td.ypow)
+             (k.ext.to_string td.const) (Q.to_string td.xpow) td.ypow)
         tdl
     else ()
   in
@@ -434,7 +436,7 @@ value tree_of_puiseux_series k ps =
          else
            let xp = xpower mx.power in
            if k.eq mx.coeff k.one then xp
-           else if k.eq mx.coeff k.minus_one then Neg xp
+           else if k.eq mx.coeff k.ext.minus_one then Neg xp
            else Mult (Const mx.coeff) xp
        in
        let t₁ =
@@ -464,7 +466,7 @@ value rev_tree_of_polyn k pol =
          let t₁ =
            if deg = 0 then Const m
            else if k.eq m k.one then Ypower deg
-           else if k.eq m k.minus_one then Neg (Ypower deg)
+           else if k.eq m k.ext.minus_one then Neg (Ypower deg)
            else Mult (Const m) (Ypower deg)
          in
          let t_is_null =

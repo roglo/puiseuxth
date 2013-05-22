@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.37 2013-05-19 01:02:11 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.38 2013-05-22 14:38:51 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -47,17 +47,19 @@ value print_term deg m = do {
 };
 
 value kc () =
+  let ext =
+    {minus_one = C.minus_one; compare _ = failwith "kc.compare";
+     gcd = C.gcd; normalise = C.normalise; nth_root = C.nth_root;
+     neg_factor = C.neg_factor; of_i = C.of_i;
+     of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
+     of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
+     to_complex = C.to_complex; to_string = C.to_string False;
+     float_round_zero = C.float_round_zero;
+     complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
+     cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
+   in
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-   mul = C.mul; div = C.div;
-   minus_one = C.minus_one; compare _ = failwith "kc.compare"; eq = C.eq;
-   gcd = C.gcd; normalise = C.normalise; nth_root = C.nth_root;
-   neg_factor = C.neg_factor; of_i = C.of_i;
-   of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
-   of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
-   to_complex = C.to_complex; to_string = C.to_string False;
-   float_round_zero = C.float_round_zero;
-   complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
-   cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
+   mul = C.mul; div = C.div; eq = C.eq; ext = ext}
 ;
 
 value main () = do {

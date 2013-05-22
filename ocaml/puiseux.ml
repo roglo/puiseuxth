@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.240 2013-05-22 08:29:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.241 2013-05-22 14:38:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -13,8 +13,6 @@ open Poly_tree;
 open Poly;
 open Puiseux_series;
 open Roots;
-
-Record polynomial α := { al : list α; an : α };
 
 Record algebrically_closed_field α β :=
   { ac_field : field α β;
@@ -194,7 +192,20 @@ value rec list_take n l =
     end
 ;
 
-value norm f k x y = k.normalise (f x y);
+value pofp fld p =
+  match p.al with
+  | [] → if fld.eq p.an fld.zero then {ml = []} else {ml = [an p]}
+  | _ → {ml = p.al @ [p.an]}
+  end
+;
+value ptop fld p =
+  match List.rev p.ml with
+  | [] → {al = []; an = fld.zero}
+  | [m :: ml] → {al = List.rev ml; an = m}
+  end
+;
+
+value norm f k x y = k.ext.normalise (f x y);
 
 value apply_poly_with_ps k pol =
   apply_poly {ps_monoms = []}
@@ -202,11 +213,14 @@ value apply_poly_with_ps k pol =
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
-value apply_poly_with_ps_poly k pol =
+value pol_add fld add_coeff p₁ p₂ =
+  pofp fld (Poly.pol_add add_coeff (ptop fld p₁) (ptop fld p₂));
+
+value apply_poly_with_ps_poly k fld pol =
   apply_poly
     {ml = []}    
     (fun pol ps →
-       pol_add (ps_add k.add (k.eq k.zero)) pol {ml = [ps]})
+       pol_add fld (ps_add k.add (k.eq k.zero)) pol {ml = [ps]})
     (pol_mul
        {ps_monoms = []}
        (ps_add k.add (k.eq k.zero))
@@ -226,7 +240,7 @@ value map_polynom k f pol =
                 if k.eq c k.zero then do {
                   if verbose.val then do {
                     printf "Warning: cancelling small coefficient: %s\n%!"
-                      (k.to_string m.coeff)
+                      (k.ext.to_string m.coeff)
                   }
                   else ();
                   rev_ml
@@ -241,14 +255,14 @@ value map_polynom k f pol =
 ;
 
 value xy_float_round_zero k pol =
-  map_polynom k (fun k c → k.float_round_zero c) pol
+  map_polynom k (fun k c → k.ext.float_round_zero c) pol
 ;
 
 value float_round_zero k ps =
   let ml =
     List.fold_left
       (fun ml m →
-         let c = k.float_round_zero m.coeff in
+         let c = k.ext.float_round_zero m.coeff in
          if k.eq c k.zero then ml
          else
            let m = {coeff = c; power = m.power} in
@@ -273,15 +287,7 @@ value string_of_ps_polyn k opt vx vy pol =
   string_of_tree k opt vx vy t
 ;
 
-value pofp p = {ml = p.al @ [p.an]};
-value ptop p =
-  match List.rev p.ml with
-  | [] → failwith "ptop"
-  | [m :: ml] → {al = List.rev ml; an = m}
-  end
-;
-
-value print_solution k br nth cγl finite sol = do {
+value print_solution k fld br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
@@ -291,7 +297,7 @@ value print_solution k br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps k (pofp br.initial_polynom) sol in
+      let ps = apply_poly_with_ps k (pofp fld br.initial_polynom) sol in
       let ps = float_round_zero k ps in
       let ps₂ =
         if nb_terms > 0 then {ps_monoms = list_take nb_terms ps.ps_monoms}
@@ -318,7 +324,7 @@ value cancel_pol_constant_term_if_any k pol =
           if Q.eq m₁.power Q.zero then do {
             if verbose.val then
               printf "Warning: cancelling constant term: %s\n%!"
-                (k.to_string m₁.coeff)
+                (k.ext.to_string m₁.coeff)
             else ();
             let m = {ps_monoms = ml₁} in
             {ml = [m :: ml]}
@@ -366,10 +372,10 @@ value zero_is_root pol =
   | [] → False ]
 ;
 
-value puiseux_iteration k br r m γ β sol_list = do {
+value puiseux_iteration k fld br r m γ β sol_list = do {
   if verbose.val then do {
     let ss = inf_string_of_string (string_of_int br.step) in
-    printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.to_string r) ss m;
+    printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.ext.to_string r) ss m;
     let y =
       let cpy = Plus (Const r) (Ypower 1) in
       if I.eq (Q.rnum γ) I.zero then cpy
@@ -389,7 +395,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
          [{ps_monoms = [{coeff = r; power = γ}]};
           {ps_monoms = [{coeff = k.one; power = γ}]}]}
     in
-    let pol = apply_poly_with_ps_poly k (pofp br.pol) y in
+    let pol = apply_poly_with_ps_poly k fld (pofp fld br.pol) y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
@@ -408,7 +414,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
     }
     else ();
     let sol = make_solution cγl in
-    print_solution k br (succ (List.length sol_list)) cγl finite sol;
+    print_solution k fld br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) :: sol_list]
   }
   else if br.rem_steps > 0 then Right (pol, cγl)
@@ -458,7 +464,7 @@ Definition characteristic_polynomial α fld pol ns :=
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff α kps |};
 
-value rec puiseux_branch af br sol_list ns =
+value rec puiseux_branch af fld br sol_list ns =
   let γ = ns.γ in
   let β = ns.β in
   let (j, αj) = ns.ini_pt in
@@ -485,7 +491,7 @@ value rec puiseux_branch af br sol_list ns =
   let rl = ac_roots af cpol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
-    print_solution f br (succ (List.length sol_list)) br.cγl False sol;
+    print_solution f fld br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) :: sol_list]
   }
   else
@@ -493,13 +499,13 @@ value rec puiseux_branch af br sol_list ns =
       (fun sol_list (r, m) →
          if f.eq r f.zero then sol_list
          else
-           match puiseux_iteration f br r m γ β sol_list with
-           [ Right (pol, cγl) → next_step af br sol_list pol cγl
+           match puiseux_iteration f fld br r m γ β sol_list with
+           [ Right (pol, cγl) → next_step af fld br sol_list pol cγl
            | Left sol_list → sol_list ])
       sol_list rl
 
-and next_step k br sol_list pol cγl =
-  let gbl = newton_segments () () (ptop pol) in
+and next_step k fld br sol_list pol cγl =
+  let gbl = newton_segments () () (ptop fld pol) in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -512,7 +518,7 @@ and next_step k br sol_list pol cγl =
     failwith "no strictly positive γ value"
   }
   else
-    let pol = ptop pol in
+    let pol = ptop fld pol in
     List.fold_left
       (fun sol_list ns → do {
          if verbose.val then printf "\n%!" else ();
@@ -522,7 +528,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k br sol_list ns
+         puiseux_branch k fld br sol_list ns
        })
       sol_list gbl_f
 ;
@@ -533,7 +539,7 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux k nb_steps vx vy pol =
+value puiseux k fld nb_steps vx vy pol =
   let gbl = newton_segments () () pol in
   if gbl = [] then failwith "no finite γ value"
   else
@@ -546,7 +552,7 @@ value puiseux k nb_steps vx vy pol =
              {initial_polynom = pol; cγl = []; step = 1;
               rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
            in
-           puiseux_branch k br sol_list gbdpl
+           puiseux_branch k fld  br sol_list gbdpl
          })
         [] gbl
     in
@@ -714,11 +720,24 @@ value arg_parse () =
     }
 ;
 
+value ps_fld =
+  {zero = {ps_monoms = []};
+   one = {ps_monoms = [{coeff = C.one; power = Q.zero}]};
+   add _ = failwith "ps_fld.add";
+   sub _ = failwith "ps_fld.sub";
+   neg _ = failwith "ps_fld.neg";
+   mul _ = failwith "ps_fld.mul";
+   div _ = failwith "ps_fld.div";
+   eq ps₁ ps₂ =
+     if ps₁.ps_monoms = [] then ps₂.ps_monoms = []
+     else if ps₂.ps_monoms = [] then False
+     else failwith "ps_fld.eq";
+   ext = ()}
+;
+
 value kc () =
-  let fc =
-    {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-     mul = C.mul; div = C.div;
-     minus_one = C.minus_one; compare = C.compare; eq = C.eq; gcd = C.gcd;
+  let ext =
+    {minus_one = C.minus_one; compare = C.compare; gcd = C.gcd;
      normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
      of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
      of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
@@ -727,28 +746,26 @@ value kc () =
      complex_round_zero = C.complex_round_zero; complex_mul = C.complex_mul;
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
   in
-  {ac_field = fc; ac_roots cpol = roots fc (pofp cpol)}
+  let fc =
+    {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
+     mul = C.mul; div = C.div; eq = C.eq; ext = ext}
+  in
+  {ac_field = fc; ac_roots cpol = roots fc (pofp fc cpol)}
 ;
 
 value ps_of_int k i =
-  {ps_monoms = [{coeff = k.of_i (I.of_int i); power = Q.zero}]}
+  {ps_monoms = [{coeff = k.ext.of_i (I.of_int i); power = Q.zero}]}
 ;
 
 value k_ps k =
-  let fc =
-    let f = k.ac_field in
-    let zero = ps_of_int f 0 in
-    let one = ps_of_int f 1 in
-    let sub = ps_add (norm f.sub f) (f.eq f.zero) in
-    let neg = sub zero in
-    {zero = zero; one = one;
-     add = ps_add (norm f.add f) (f.eq f.zero);
-     sub = sub; neg = neg;
-     mul = ps_mul f.add (norm f.mul f) (f.eq f.zero);
-     div _ = failwith "k_ps.div not impl";
-     minus_one = neg one;
+  let f = k.ac_field in
+  let zero = ps_of_int f 0 in
+  let one = ps_of_int f 1 in
+  let sub = ps_add (norm f.sub f) (f.eq f.zero) in
+  let neg = sub zero in
+  let ext =
+    {minus_one = neg one;
      compare _ = failwith "k_ps.compare not impl";
-     eq _ = failwith "k_ps.eq not impl";
      gcd _ = failwith "k_ps.gcd not impl";
      normalise _ = failwith "k_ps.normalise not impl";
      nth_root _ = failwith "k_ps.nth_root not impl";
@@ -768,18 +785,25 @@ value k_ps k =
      cpoly_roots _ = failwith "k_ps.cpoly_roots not impl";
      complex_to_string _ = failwith "k_ps.complex_to_string not impl"}
   in
+  let fc =
+    {zero = zero; one = one;
+     add = ps_add (norm f.add f) (f.eq f.zero);
+     sub = sub; neg = neg;
+     mul = ps_mul f.add (norm f.mul f) (f.eq f.zero);
+     div _ = failwith "k_ps.div not impl";
+     eq _ = failwith "k_ps.eq not impl";
+     ext = ext}
+  in
   let roots pol =
-    let rl = puiseux k 5 "x" "y" pol in
+    let rl = puiseux k fc 5 "x" "y" pol in
     List.map (fun (r, inf) → (r, 0)) rl
   in
   {ac_field = fc; ac_roots = roots}
 ;
 
 value km () =
-  let fm =
-    {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
-     mul = M.mul; div = M.div;
-     minus_one = M.minus_one; compare = M.compare; eq = M.eq; gcd = M.gcd;
+  let ext =
+    {minus_one = M.minus_one; compare = M.compare; gcd = M.gcd;
      normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
      of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
      of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
@@ -788,7 +812,11 @@ value km () =
      complex_round_zero = M.complex_round_zero; complex_mul = M.complex_mul;
      cpoly_roots = M.cpoly_roots; complex_to_string = M.complex_to_string}
   in
-  {ac_field = fm; ac_roots cpol = roots fm (pofp cpol)}
+  let fm =
+    {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
+     mul = M.mul; div = M.div; eq = M.eq; ext = ext}
+  in
+  {ac_field = fm; ac_roots cpol = roots fm (pofp fm cpol)}
 ;
 
 value main () = do {
@@ -878,9 +906,13 @@ value main () = do {
           else do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
+          failwith "--all-mpfr not implemented"
+(*
           let pol = polyn_of_tree f t in
-          let _ : list _ = puiseux k arg_nb_steps.val vx vy (ptop pol) in
+          let _ : list _ =
+            puiseux k ps_fld arg_nb_steps.val vx vy (ptop ps_fld pol) in
           ()
+*)
         }
         else do {
           let k = kc () in
@@ -896,7 +928,8 @@ value main () = do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
           let pol = polyn_of_tree f t in
-          let _ : list _ = puiseux k arg_nb_steps.val vx vy (ptop pol) in
+          let _ : list _ =
+            puiseux k ps_fld arg_nb_steps.val vx vy (ptop ps_fld pol) in
           ()
         }
     | [_] → do {
@@ -912,9 +945,13 @@ value main () = do {
         else do {
           printf "equation: %s = 0\n\n%!" norm_txt;
         };
+        failwith "k_ps not impl"
+(*
         let pol = polyn_of_tree f t in
-        let _ : list _ = puiseux k arg_nb_steps.val vx vy (ptop pol) in
+        let _ : list _ =
+          puiseux k ps_fld arg_nb_steps.val vx vy (ptop ps_fld pol) in
         ()
+*)
       }
     | [_; _ :: _] →
         match () with [] ]
