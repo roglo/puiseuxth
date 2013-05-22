@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.9 2013-05-22 19:06:35 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.10 2013-05-22 20:06:55 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -89,7 +89,7 @@ Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
         end
     end
   in
-  ps2ops {ps_monoms = loop (ops2ps ps₁).ps_monoms (ops2ps ps₂).ps_monoms}
+  {ps_monoms = loop (ops2ps ps₁).ps_monoms (ops2ps ps₂).ps_monoms}
 ;
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =

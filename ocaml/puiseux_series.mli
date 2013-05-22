@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.7 2013-05-22 17:23:05 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.8 2013-05-22 20:06:55 deraugla Exp $ *)
 
 type stream α = {hd : 'a; tl : Lazy.t (option (stream α))};
 
@@ -11,10 +11,12 @@ value qcompare : Pnums.Q.t → Pnums.Q.t → comparison;
 
 value ps_add :
   (α → α → α) → (α → bool)
-  → old_ps α → old_ps α → old_ps α;
+  → old_ps α → old_ps α → puiseux_series α;
 (** [ps_add add_coeff is_null_coeff p₁ p₂] *)
 
 value ps_mul :
   (α → α → α) → (α → α → α) → (α → bool)
   → old_ps α → old_ps α → old_ps α;
 (** [ps_mul add_coeff mul_coeff is_null_coeff p₁ p₂] *)
+
+value ps2ops : puiseux_series α → old_ps α;
