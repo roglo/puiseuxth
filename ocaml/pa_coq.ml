@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.17 2013-05-22 20:29:27 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.18 2013-05-22 20:43:37 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -82,6 +82,10 @@ EXTEND
       | e = expr →
           e ] ]
   ;
+  expr: LEVEL "apply"
+    [ [ UIDENT "Cons"; e₁ = NEXT; e₂ = NEXT →
+          <:expr< {hd = $e₁$; tl = lazy $e₂$} >> ] ]
+  ;
   expr: BEFORE "simple"
     [ [ e = expr; "%"; LIDENT "nat" → e ] ]
   ;
@@ -101,9 +105,7 @@ EXTEND
       | UIDENT "Qnat" →
           <:expr< qnat >>
       | UIDENT "S" →
-          <:expr< succ >>
-      | UIDENT "Cons" →
-          <:expr< stream_cons >> ] ]
+          <:expr< succ >> ] ]
   ;
   coq_fun_def:
     [ RIGHTA

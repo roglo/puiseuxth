@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.13 2013-05-22 20:34:52 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.14 2013-05-22 20:43:37 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -11,8 +11,6 @@ Record puiseux_series α := { ps_monoms : option (stream (ps_monomial α)) };
 Record old_ps α :=  { old_ps_mon : list (ps_monomial α) };
 
 type comparison = [ Eq | Lt | Gt ];
-
-value stream_cons hd tl = {hd = hd; tl = tl};
 
 value qcompare q₁ q₂ =
   let c = Q.compare q₁ q₂ in
@@ -82,11 +80,11 @@ Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
             if is_null_coeff c then loop (tl s₁) (tl s₂)
             else
               let m := {| coeff := c; power := power (hd s₁) |} in
-              Some (Cons m (lazy (loop (tl s₁) (tl s₂))))
+              Some (Cons m (loop (tl s₁) (tl s₂)))
         | Lt =>
-            Some (Cons (hd s₁) (lazy (loop (tl s₁) ms₂)))
+            Some (Cons (hd s₁) (loop (tl s₁) ms₂))
         | Gt =>
-            Some (Cons (hd s₂) (lazy (loop ms₁ (tl s₂))))
+            Some (Cons (hd s₂) (loop ms₁ (tl s₂)))
         end
     end
   in
