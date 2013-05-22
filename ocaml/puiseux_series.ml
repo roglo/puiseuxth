@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.8 2013-05-22 17:23:05 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.9 2013-05-22 19:06:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -67,64 +67,30 @@ value ps2ops ps =
   end
 ;
 
-(*
 Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
-  let fix loop ml₁ ml₂ :=
-    match (ml₁, ml₂) with
-    | (None, None) => failwith "ps_add 1"
-    | (None, Some _) => ml₂
-    | (Some _, None) => failwith "ps_add 3"
-    | (Some _, Some _) => failwith "ps_add 4"
+  let fix loop ms₁ ms₂ :=
+    match (ms₁, ms₂) with
+    | (None, None) => None
+    | (None, Some _) => ms₂
+    | (Some _, None) => ms₁
+    | (Some s₁, Some s₂) =>
+         match Qcompare (power s₁.hd) (power s₂.hd) with
+        | Eq =>
+            let c := add_coeff (coeff s₁.hd) (coeff s₂.hd) in
+            if is_null_coeff c then loop (Lazy.force s₁.tl) (Lazy.force s₂.tl)
+            else
+              let m := {| coeff := c; power := power s₁.hd |} in
+              let ms := lazy (loop (Lazy.force s₁.tl) (Lazy.force s₂.tl)) in
+              Some {hd = m; tl = ms}
+        | Lt =>
+            Some {hd = s₁.hd; tl = lazy (loop (Lazy.force s₁.tl) ms₂)}
+        | Gt =>
+            Some {hd = s₂.hd; tl = lazy (loop ms₁ (Lazy.force s₂.tl))}
+        end
     end
   in
   ps2ops {ps_monoms = loop (ops2ps ps₁).ps_monoms (ops2ps ps₂).ps_monoms}
-(*
-    match Qcompare (power ml₁.hd) (power ml₂.hd) with
-    | Eq => failwith "Eq"
-    | Lt => failwith "Lt"
-    | Gt => failwith "Gt"
-    end
-*)
-(**)
-    match (ml₁, ml₂) with
-    | ([], ml₂) => ml₂
-    | (ml₁, []) => ml₁
-    | ([m₁ :: ml₁], [m₂ :: ml₂]) =>
-        match Qcompare (power m₁) (power m₂) with
-        | Eq =>
-            let c := add_coeff (coeff m₁) (coeff m₂) in
-            if is_null_coeff c then loop ml₁ ml₂
-            else [{| coeff := c; power := power m₁ |} :: loop ml₁ ml₂]
-        | Lt =>
-            [m₁ :: loop ml₁ [m₂ :: ml₂]]
-        | Gt =>
-            [m₂ :: loop [m₁ :: ml₁] ml₂]
-        end
-    end
 ;
-*)
-
-Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
-  let fix loop ml₁ ml₂ :=
-    match (ml₁, ml₂) with
-    | ([], ml₂) => ml₂
-    | (ml₁, []) => ml₁
-    | ([m₁ :: ml₁], [m₂ :: ml₂]) =>
-        match Qcompare (power m₁) (power m₂) with
-        | Eq =>
-            let c := add_coeff (coeff m₁) (coeff m₂) in
-            if is_null_coeff c then loop ml₁ ml₂
-            else [{| coeff := c; power := power m₁ |} :: loop ml₁ ml₂]
-        | Lt =>
-            [m₁ :: loop ml₁ [m₂ :: ml₂]]
-        | Gt =>
-            [m₂ :: loop [m₁ :: ml₁] ml₂]
-        end
-    end
-  in
-  {old_ps_mon = loop ps₁.old_ps_mon ps₂.old_ps_mon}
-;
-(**)
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
