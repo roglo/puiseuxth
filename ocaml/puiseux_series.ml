@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.20 2013-05-23 06:41:40 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.21 2013-05-23 08:28:26 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -61,6 +61,8 @@ value ps2ops ps =
 
 Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
      (ps₁ : old_ps α) (ps₂ : old_ps α) :=
+  let ps₁ := ops2ps ps₁ in
+  let ps₂ := ops2ps ps₂ in
   let cofix loop₁ ms₁ ms₂ :=
     match Lazy.force ms₁ with
     | Cons c₁ s₁ =>
@@ -86,8 +88,6 @@ Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool
     | End => Lazy.force ms₂
     end
   in
-  let ps₁ := ops2ps ps₁ in
-  let ps₂ := ops2ps ps₂ in
   {| ps_monoms := loop₁ (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂)) |};
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
