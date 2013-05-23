@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.541 2013-05-23 13:56:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.542 2013-05-23 23:40:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,6 +7,7 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux_base.
 Require Import Misc.
+Require Import Series.
 
 Set Implicit Arguments.
 
@@ -38,19 +39,19 @@ Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool
      (ps₁ : puiseux_series α) (ps₂ : puiseux_series α) :=
   let cofix loop ms₁ ms₂ :=
     match ms₁ with
-    | Cons c₁ s₁ =>
+    | Term c₁ s₁ =>
         let cofix loop₁ ms₂ :=
           match ms₂ with
-          | Cons c₂ s₂ =>
+          | Term c₂ s₂ =>
               match Qcompare (power c₁) (power c₂) with
               | Eq =>
                   let c := add_coeff (coeff c₁) (coeff c₂) in
                   let m := {| coeff := c; power := power c₁ |} in
-                  Cons m (loop s₁ s₂)
+                  Term m (loop s₁ s₂)
               | Lt =>
-                  Cons c₁ (loop s₁ ms₂)
+                  Term c₁ (loop s₁ ms₂)
               | Gt =>
-                  Cons c₂ (loop₁ s₂)
+                  Term c₂ (loop₁ s₂)
               end
           | End => ms₁
           end

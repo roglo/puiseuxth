@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.24 2013-05-23 23:14:34 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.25 2013-05-23 23:40:39 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -87,6 +87,18 @@ Definition ps_add (add_coeff : α → α → α) (is_null_coeff : α → bool)
     end
   in
   {| ps_monoms := loop₁ (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂)) |};
+
+Definition ser_hd α (s : series α) :=
+  match s with
+  | Term a _ => Some a
+  | End => None
+  end;
+
+Definition ser_tl α (s : series α) : option (series α) :=
+  match s with
+  | Term _ t => Some (Lazy.force t)
+  | End => None
+  end;
 
 (*
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =

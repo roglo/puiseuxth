@@ -1,13 +1,14 @@
-(* $Id: Puiseux_base.v,v 1.8 2013-05-23 13:56:39 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.9 2013-05-23 23:40:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import Sorting.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Sorting.
 Require Import Misc.
+Require Import Series.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
@@ -30,19 +31,17 @@ Record Qpos := { x : Q; pos : x > 0 }.
 
 Record ps_monomial α := { coeff : α; power : Q }.
 
-CoInductive series α := Cons : α → series α → series α | End : series α.
-
 Record puiseux_series α := { ps_monoms : series (ps_monomial α) }.
 
 Definition valuation α (ps : puiseux_series α) :=
   match ps_monoms ps with
-  | Cons mx _ => power mx
+  | Term mx _ => power mx
   | End => 1 / 0
   end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
   match ps_monoms ps with
-  | Cons mx _ => coeff mx
+  | Term mx _ => coeff mx
   | End => zero fld
   end.
 
