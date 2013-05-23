@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.251 2013-05-23 14:15:42 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.252 2013-05-23 14:19:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -187,7 +187,8 @@ value rec list_take n l =
 
 value norm f k x y = k.ext.normalise (f x y);
 
-value apply_poly_with_ps k pol =
+value apply_poly_with_ps k fld pol =
+  let pol = op2p fld pol in
   apply_poly {old_ps_mon = []}
     (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (k.eq k.zero) ps₁ ps₂))
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
@@ -200,6 +201,7 @@ value add k = k.add;
 
 value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
     (fld : field (old_ps C.t) _) (pol : old_poly (old_ps C.t)) =
+  let pol = op2p fld pol in
   apply_poly
     {ml = []}    
     (fun (pol : old_poly (old_ps C.t)) (ps : old_ps C.t) →
@@ -282,7 +284,7 @@ value print_solution k fld br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps k (p2op fld br.initial_polynom) sol in
+      let ps = apply_poly_with_ps k fld (p2op fld br.initial_polynom) sol in
       let ps = float_round_zero k ps in
       let ps₂ =
         if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
