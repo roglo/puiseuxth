@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.7 2013-05-23 03:51:03 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.8 2013-05-23 13:56:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -21,7 +21,7 @@ Record field α :=
     sub : α → α → α;
     mul : α → α → α;
     div : α → α → α;
-    is_zero_dec : ∀ x : α, {x = zero} + {x ≠ zero} }.
+    is_zero : α → bool }.
 
 (* polynomial of degree ≥ 0 *)
 Record polynomial α := mkpol { al : list α; an : α }.
@@ -57,7 +57,7 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
 Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
-      if is_zero_dec fld ps then filter_non_zero_ps fld dpl₁
+      if is_zero fld ps then filter_non_zero_ps fld dpl₁
       else [(pow, valuation ps) … filter_non_zero_ps fld dpl₁]
   | [] =>
       []
@@ -125,21 +125,20 @@ intros α fld deg cl cn pts Hpts.
 revert deg cn pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (is_zero_dec fld cn); subst pts; constructor; constructor.
+ destruct (is_zero fld cn); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (is_zero_dec fld c) as [Heq| Hne].
+ destruct (is_zero fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
   remember (points_of_ps_polynom_gen fld (S deg) cl cn) as pts₁.
   subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
   clear IHcl.
-  clear Hne.
   revert c deg cn pts Hpts.
   induction cl as [| c₂]; intros.
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   destruct (is_zero_dec fld cn) as [Heq| Hne].
+   destruct (is_zero fld cn) as [Heq| Hne].
     subst pts; constructor; constructor.
 
     subst pts.
@@ -148,7 +147,7 @@ induction cl as [| c]; intros.
 
    unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
    rewrite fold_points_of_ps_polynom_gen in Hpts.
-   destruct (is_zero_dec fld c₂) as [Heq| Hne].
+   destruct (is_zero fld c₂) as [Heq| Hne].
     eapply IHcl with (c := c) in Hpts.
     apply Sorted_LocallySorted_iff.
     destruct pts as [| pt]; [ constructor | idtac ].

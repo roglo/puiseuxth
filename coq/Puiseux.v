@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.540 2013-05-23 13:27:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.541 2013-05-23 13:56:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -76,8 +76,8 @@ value apply_poly_with_ps k pol =
 Definition apply_poly_with_ps_poly {α} (fld : field α)
     (pol : polynomial (puiseux_series α)) :=
   apply_poly (λ x, x)
-    (λ pol ps,
-       pol_add (ps_add (add fld) (eq_zero_dec fld)) pol (mkpol [] ps)).
+    (λ (pol : polynomial (puiseux_series α)) (ps : puiseux_series α),
+       pol_add (ps_add (add fld) (is_zero fld)) pol (mkpol [] ps)).
 *)
 (*
 value apply_poly_with_ps_poly :
@@ -158,7 +158,7 @@ unfold points_of_ps_polynom_gen in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (is_zero_dec fld cn) as [Hz| Hnz].
+ destruct (is_zero fld cn) as [Hz| Hnz].
   subst pts; contradiction.
 
   subst pts.
@@ -166,7 +166,7 @@ induction cl as [| c]; intros.
   exists n; reflexivity.
 
  simpl in Hpts.
- destruct (is_zero_dec fld c) as [Hz| Hnz].
+ destruct (is_zero fld c) as [Hz| Hnz].
   eapply IHcl; eassumption.
 
   subst pts.

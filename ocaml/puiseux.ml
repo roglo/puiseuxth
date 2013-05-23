@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.249 2013-05-23 13:30:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.250 2013-05-23 13:56:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -200,7 +200,7 @@ value ptop fld p =
 
 value norm f k x y = k.ext.normalise (f x y);
 
-value apply_poly_with_ps α k pol =
+value apply_poly_with_ps k pol =
   apply_poly {old_ps_mon = []}
     (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (k.eq k.zero) ps₁ ps₂))
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
@@ -209,12 +209,15 @@ value apply_poly_with_ps α k pol =
 value pol_add fld add_coeff p₁ p₂ =
   pofp fld (Poly.pol_add () add_coeff (ptop fld p₁) (ptop fld p₂));
 
-value apply_poly_with_ps_poly α k fld pol =
+value add k = k.add;
+
+value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
+    (fld : field (old_ps C.t) _) (pol : old_poly (old_ps C.t)) =
   apply_poly
     {ml = []}    
-    (fun pol ps →
+    (fun (pol : old_poly (old_ps C.t)) (ps : old_ps C.t) →
        pol_add fld
-         (fun ps₁ ps₂ → ps2ops (ps_add k.add (k.eq k.zero) ps₁ ps₂))
+         (fun ps₁ ps₂ → ps2ops (ps_add (add k) (k.eq k.zero) ps₁ ps₂))
          pol {ml = [ps]})
     (pol_mul
        {old_ps_mon = []}
@@ -292,7 +295,7 @@ value print_solution k fld br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps () k (pofp fld br.initial_polynom) sol in
+      let ps = apply_poly_with_ps k (pofp fld br.initial_polynom) sol in
       let ps = float_round_zero k ps in
       let ps₂ =
         if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
@@ -390,7 +393,7 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
          [{old_ps_mon = [{coeff = r; power = γ}]};
           {old_ps_mon = [{coeff = k.one; power = γ}]}]}
     in
-    let pol = apply_poly_with_ps_poly () k fld (pofp fld br.pol) y in
+    let pol = apply_poly_with_ps_poly k fld (pofp fld br.pol) y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
