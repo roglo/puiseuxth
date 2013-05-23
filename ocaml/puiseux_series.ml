@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.25 2013-05-23 23:40:39 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.26 2013-05-23 23:51:40 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -98,6 +98,22 @@ Definition ser_tl α (s : series α) : option (series α) :=
   match s with
   | Term _ t => Some (Lazy.force t)
   | End => None
+  end;
+
+Fixpoint ser_nth_tl α (n : nat) (s : series α) : option (series α) :=
+  match n with
+  | O => Some s
+  | S m =>
+      match ser_tl α s with
+      | None => None
+      | Some t => ser_nth_tl α m t
+      end
+  end;
+
+Definition ser_nth α (n : nat) (s : series α) : option α :=
+  match ser_nth_tl α n s with
+  | None => None
+  | Some t => ser_hd α t
   end;
 
 (*
