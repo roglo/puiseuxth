@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.35 2013-05-23 14:28:51 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.36 2013-05-23 14:31:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -28,17 +28,17 @@ value merge_pow add_coeff is_zero_coeff =
         List.rev rev_list ]
 ;
 
-Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
+Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
   let fix loop al₁ al₂ :=
     match (al₁, al₂) with
-    | ([], []) => mkpol α [] (add_coeff (an pol₁) (an pol₂))
+    | ([], []) => mkpol () [] (add_coeff (an pol₁) (an pol₂))
     | ([], [a₂ :: bl₂]) =>
-        mkpol α [add_coeff (an pol₁) a₂ :: bl₂] (an pol₂)
+        mkpol () [add_coeff (an pol₁) a₂ :: bl₂] (an pol₂)
     | ([a₁ :: bl₁], []) =>
-        mkpol α [add_coeff a₁ (an pol₂) :: bl₁] (an pol₁)
+        mkpol () [add_coeff a₁ (an pol₂) :: bl₁] (an pol₁)
     | ([a₁ :: bl₁], [a₂ :: bl₂]) =>
         let r := loop bl₁ bl₂ in
-        mkpol α [add_coeff a₁ a₂ :: al r] (an r)
+        mkpol () [add_coeff a₁ a₂ :: al r] (an r)
     end
   in
   loop (al pol₁) (al pol₂);

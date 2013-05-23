@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.253 2013-05-23 14:28:51 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.254 2013-05-23 14:31:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -196,7 +196,7 @@ value apply_poly_with_ps k fld pol =
 ;
 
 value pol_add fld add_coeff p₁ p₂ =
-  p2op fld (Poly.pol_add () add_coeff (op2p fld p₁) (op2p fld p₂));
+  p2op fld (Poly.pol_add add_coeff (op2p fld p₁) (op2p fld p₂));
 
 value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
     (fld : field (old_ps C.t) _) (pol : old_poly (old_ps C.t)) =
