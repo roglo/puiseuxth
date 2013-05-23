@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.252 2013-05-23 14:19:51 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.253 2013-05-23 14:28:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -15,6 +15,7 @@ open Puiseux_series;
 open Roots;
 
 value zero fld = fld.zero;
+value add fld = fld.add;
 
 Record algebrically_closed_field α β :=
   { ac_field : field α β;
@@ -189,7 +190,7 @@ value norm f k x y = k.ext.normalise (f x y);
 
 value apply_poly_with_ps k fld pol =
   let pol = op2p fld pol in
-  apply_poly {old_ps_mon = []}
+  apply_poly (fun ps → ps)
     (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (k.eq k.zero) ps₁ ps₂))
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
@@ -197,13 +198,11 @@ value apply_poly_with_ps k fld pol =
 value pol_add fld add_coeff p₁ p₂ =
   p2op fld (Poly.pol_add () add_coeff (op2p fld p₁) (op2p fld p₂));
 
-value add k = k.add;
-
 value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
     (fld : field (old_ps C.t) _) (pol : old_poly (old_ps C.t)) =
   let pol = op2p fld pol in
   apply_poly
-    {ml = []}    
+    (fun ps → {ml = [ps]})
     (fun (pol : old_poly (old_ps C.t)) (ps : old_ps C.t) →
        pol_add fld
          (fun ps₁ ps₂ → ps2ops (ps_add (add k) (k.eq k.zero) ps₁ ps₂))
