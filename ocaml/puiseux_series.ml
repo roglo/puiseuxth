@@ -1,10 +1,10 @@
-(* $Id: puiseux_series.ml,v 1.23 2013-05-23 13:30:05 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.24 2013-05-23 23:14:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Pnums;
 
-type series α = [ Cons of α and Lazy.t (series α) | End ];
+type series α = [ Term of α and Lazy.t (series α) | End ];
 
 Record ps_monomial α := { coeff : α; power : Q };
 Record puiseux_series α := { ps_monoms : series (ps_monomial α) };
@@ -44,7 +44,7 @@ value ops2ps ops =
   let rec loop =
     fun
     [ [] → End
-    | [m₁ :: ml₁] → Cons m₁ (loop ml₁) ]
+    | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
   in
   {ps_monoms = loop ops.old_ps_mon}
 ;
@@ -52,7 +52,7 @@ value ops2ps ops =
 value ps2ops ps =
   let rec loop ms =
     match ms with
-    | Cons m₁ ms₁ → [m₁ :: loop (Lazy.force ms₁)]
+    | Term m₁ ms₁ → [m₁ :: loop (Lazy.force ms₁)]
     | End → []
     end
   in
@@ -65,19 +65,19 @@ Definition ps_add (add_coeff : α → α → α) (is_null_coeff : α → bool)
   let ps₂ := ops2ps ps₂ in
   let cofix loop₁ ms₁ ms₂ :=
     match Lazy.force ms₁ with
-    | Cons c₁ s₁ =>
+    | Term c₁ s₁ =>
         let cofix loop₂ ms₂ :=
           match Lazy.force ms₂ with
-          | Cons c₂ s₂ =>
+          | Term c₂ s₂ =>
               match Qcompare (power c₁) (power c₂) with
               | Eq =>
                   let c := add_coeff (coeff c₁) (coeff c₂) in
                   let m := {| coeff := c; power := power c₁ |} in
-                  Cons m (loop₁ s₁ s₂)
+                  Term m (loop₁ s₁ s₂)
               | Lt =>
-                  Cons c₁ (loop₁ s₁ ms₂)
+                  Term c₁ (loop₁ s₁ ms₂)
               | Gt =>
-                  Cons c₂ (loop₂ s₂)
+                  Term c₂ (loop₂ s₂)
               end
           | End => Lazy.force ms₁
           end
@@ -87,6 +87,24 @@ Definition ps_add (add_coeff : α → α → α) (is_null_coeff : α → bool)
     end
   in
   {| ps_monoms := loop₁ (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂)) |};
+
+(*
+value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
+  let ml =
+    match (ps₁.old_ps_mon, ps₂.old_ps_mon) with
+    | ([], _) → []
+    | (_, []) → []
+    | ([m₁ :: ml₁], [m₂ :: ml₂]) →
+        let c = mul_coeff (coeff m₁) (coeff m₂) in
+        let p = Q.norm (Q.add m₁.power m₂.power) in
+        let m = {coeff = c; power = p} in
+        let rest = ml₁ in
+        [m :: rest]
+    end
+  in
+  {old_ps_mon = ml}
+;
+*)
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =

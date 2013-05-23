@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.254 2013-05-23 14:31:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.255 2013-05-23 23:14:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -26,14 +26,14 @@ Definition degree (pol : polynomial α) := List.length (al pol);
 Definition valuation α (ops : old_ps α) :=
   let ps := ops2ps ops in
   match ps_monoms ps with
-  | Cons mx _ => power mx
+  | Term mx _ => power mx
   | End => Q.make (I.of_int 1) (I.of_int 0)
   end;
 
 Definition valuation_coeff α fld (ops : old_ps α) :=
   let ps := ops2ps ops in
   match ps_monoms ps with
-  | Cons mx _ => coeff mx
+  | Term mx _ => coeff mx
   | End => zero fld
   end;
 

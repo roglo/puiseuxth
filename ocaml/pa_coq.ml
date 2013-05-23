@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.20 2013-05-23 03:51:03 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.21 2013-05-23 23:14:34 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -88,8 +88,8 @@ EXTEND
       | → False ] ]
   ;
   expr: LEVEL "apply"
-    [ [ UIDENT "Cons"; e₁ = NEXT; e₂ = NEXT →
-          <:expr< Cons $e₁$ (lazy $e₂$) >> ] ]
+    [ [ UIDENT "Term"; e₁ = NEXT; e₂ = NEXT →
+          <:expr< Term $e₁$ (lazy $e₂$) >> ] ]
   ;
   expr: BEFORE "simple"
     [ [ e = expr; "%"; LIDENT "nat" → e ] ]
