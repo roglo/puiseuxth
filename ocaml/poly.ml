@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.32 2013-05-22 14:46:09 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.33 2013-05-23 14:15:42 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -68,6 +68,21 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
         else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
     | [] →
         {ml = List.rev rev_np} ]
+;
+
+open Field;
+
+value p2op fld p =
+  match p.al with
+  | [] → if fld.eq p.an fld.zero then {ml = []} else {ml = [an p]}
+  | _ → {ml = p.al @ [p.an]}
+  end
+;
+value op2p fld p =
+  match List.rev p.ml with
+  | [] → {al = []; an = fld.zero}
+  | [m :: ml] → {al = List.rev ml; an = m}
+  end
 ;
 
 value apply_poly zero_v add_v_coeff mul_v_x pol x =

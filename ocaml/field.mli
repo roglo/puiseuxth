@@ -1,7 +1,6 @@
-(* $Id: field.mli,v 1.27 2013-05-22 14:38:51 deraugla Exp $ *)
+(* $Id: field.mli,v 1.28 2013-05-23 14:15:42 deraugla Exp $ *)
 
 open Pnums;
-open Poly;
 
 type field α β =
   { zero : α;
