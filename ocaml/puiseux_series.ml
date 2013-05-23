@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.18 2013-05-23 03:51:04 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.19 2013-05-23 06:39:53 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -59,26 +59,30 @@ value ps2ops ps =
   {old_ps_mon = loop ps.ps_monoms}
 ;
 
-Definition ps_add α add_coeff (is_null_coeff : α → bool) ps₁ ps₂ :=
+Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
+     (ps₁ : old_ps α) (ps₂ : old_ps α) :=
   let cofix loop ms₁ ms₂ :=
     match Lazy.force ms₁ with
     | Cons c₁ s₁ =>
-        match Lazy.force ms₂ with
-        | Cons c₂ s₂ =>
-            match Qcompare (power c₁) (power c₂) with
-            | Eq =>
-                let c := add_coeff (coeff c₁) (coeff c₂) in
-                if is_null_coeff c then loop s₁ s₂
-                else
-                  let m := {| coeff := c; power := power c₁ |} in
-                  Cons m (loop s₁ s₂)
-            | Lt =>
-                Cons c₁ (loop s₁ ms₂)
-            | Gt =>
-                Cons c₂ (loop ms₁ s₂)
-            end
-        | End => Lazy.force ms₁
-        end
+        let cofix loop₁ ms₂ :=
+          match Lazy.force ms₂ with
+          | Cons c₂ s₂ =>
+              match Qcompare (power c₁) (power c₂) with
+              | Eq =>
+                  let c := add_coeff (coeff c₁) (coeff c₂) in
+                  if is_null_coeff c then loop s₁ s₂
+                  else
+                    let m := {| coeff := c; power := power c₁ |} in
+                    Cons m (loop s₁ s₂)
+              | Lt =>
+                  Cons c₁ (loop s₁ ms₂)
+              | Gt =>
+                  Cons c₂ (loop₁ s₂)
+              end
+          | End => Lazy.force ms₁
+          end
+        in
+        loop₁ ms₂
     | End => Lazy.force ms₂
     end
   in

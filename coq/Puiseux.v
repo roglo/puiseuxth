@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.538 2013-05-23 03:51:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.539 2013-05-23 06:39:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -45,33 +45,39 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-(*
+(**)
 Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
-     (ps₁ ps₂ : puiseux_series α) :=
+     (ps₁ : puiseux_series α) (ps₂ : puiseux_series α) :=
   let cofix loop ms₁ ms₂ :=
     match ms₁ with
     | Cons c₁ s₁ =>
-        match ms₂ with
-        | Cons c₂ s₂ =>
-            match Qcompare (power c₁) (power c₂) with
-            | Eq =>
-                let c := add_coeff (coeff c₁) (coeff c₂) in
-                if is_null_coeff c then loop s₁ s₂
-                else
-                  let m := {| coeff := c; power := power c₁ |} in
-                  Cons m (loop s₁ s₂)
-            | Lt =>
-                Cons c₁ (loop s₁ ms₂)
-            | Gt =>
-                Cons c₂ (loop ms₁ s₂)
-            end
-        | End => ms₁
-        end
+        let cofix loop₁ ms₂ :=
+          match ms₂ with
+          | Cons c₂ s₂ =>
+              match Qcompare (power c₁) (power c₂) with
+              | Eq =>
+                  let c := add_coeff (coeff c₁) (coeff c₂) in
+(*
+                  if is_null_coeff c then loop s₁ s₂
+                  else
+*)
+                    let m := {| coeff := c; power := power c₁ |} in
+                    Cons m (loop s₁ s₂)
+              | Lt =>
+                  Cons c₁ (loop s₁ ms₂)
+              | Gt =>
+                  Cons c₂ (loop₁ s₂)
+              end
+          | End => ms₁
+          end
+        in
+        loop₁ ms₂
     | End => ms₂
     end
   in
   {| ps_monoms := loop (ps_monoms ps₁) (ps_monoms ps₂) |}.
 
+(*
 Definition apply_poly_with_ps_poly {α} (fld : field α)
     (pol : polynomial (puiseux_series α)) :=
   apply_poly (λ x, x)
