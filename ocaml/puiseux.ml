@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.245 2013-05-22 20:06:55 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.246 2013-05-23 02:38:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -14,25 +14,27 @@ open Poly;
 open Puiseux_series;
 open Roots;
 
+value zero fld = fld.zero;
+
 Record algebrically_closed_field α β :=
   { ac_field : field α β;
     ac_roots : polynomial α → list (α * nat) };
 
 Definition degree (pol : polynomial α) := List.length (al pol);
 
-Definition valuation α (ps : old_ps α) :=
-  match ps.old_ps_mon with
-  | [mx :: _] => mx.power
-  | [] => Q.make (I.of_int 1) (I.of_int 0)
-  end
-;
+Definition valuation α (ops : old_ps α) :=
+  let ps := ops2ps ops in
+  match ps_monoms ps with
+  | Cons mx _ => power mx
+  | End => Q.make (I.of_int 1) (I.of_int 0)
+  end;
 
-Definition valuation_coeff α (ps : old_ps α) :=
-  match ps.old_ps_mon with
-  | [mx :: _] => mx.coeff
-  | [] => failwith "valuation_coeff"
-  end
-;
+Definition valuation_coeff α fld (ops : old_ps α) :=
+  let ps := ops2ps ops in
+  match ps_monoms ps with
+  | Cons mx _ => coeff mx
+  | End => zero fld
+  end;
 
 value qnat i = Q.of_i (I.of_int i);
 value nofq q =
@@ -443,19 +445,21 @@ Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
       end
     end;
 
-Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
-  let c := valuation_coeff α ps in
+  let c := valuation_coeff α fld ps in
   (h, c);
 
 Definition characteristic_polynomial α fld pol ns :=
-  let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns :: oth_pts ns] in
+  let dcl :=
+    List.map (deg_coeff_of_point α fld pol) [ini_pt ns :: oth_pts ns]
+  in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol α fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α kps |};
+  {| al := cl; an := valuation_coeff α fld kps |};
 
 value rec puiseux_branch af fld br sol_list ns =
   let γ = ns.γ in

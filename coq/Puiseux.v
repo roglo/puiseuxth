@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.536 2013-05-22 21:23:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.537 2013-05-23 02:38:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -117,19 +117,21 @@ Fixpoint make_char_pol α (fld : field α) cdeg dcl n :=
       end
     end.
 
-Definition deg_coeff_of_point α pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h (al pol) (an pol) in
-  let c := valuation_coeff α ps in
+  let c := valuation_coeff α fld ps in
   (h, c).
 
 Definition characteristic_polynomial α fld pol ns :=
-  let dcl := List.map (deg_coeff_of_point α pol) [ini_pt ns … oth_pts ns] in
+  let dcl :=
+    List.map (deg_coeff_of_point α fld pol) [ini_pt ns … oth_pts ns]
+  in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol α fld j dcl (k - j) in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α kps |}.
+  {| al := cl; an := valuation_coeff α fld kps |}.
 
 (* *)
 

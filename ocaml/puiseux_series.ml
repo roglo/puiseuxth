@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.16 2013-05-22 21:23:59 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.17 2013-05-23 02:38:46 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -79,11 +79,7 @@ Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
             end
         | End => Lazy.force ms₁
         end
-    | End =>
-        match Lazy.force ms₂ with
-        | Cons c₂ s₂ => Lazy.force ms₂
-        | End => End
-        end
+    | End => Lazy.force ms₂
     end
   in
   let ps₁ := ops2ps ps₁ in
