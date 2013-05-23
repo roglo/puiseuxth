@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.19 2013-05-23 06:39:53 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.20 2013-05-23 06:41:40 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -61,34 +61,34 @@ value ps2ops ps =
 
 Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
      (ps₁ : old_ps α) (ps₂ : old_ps α) :=
-  let cofix loop ms₁ ms₂ :=
+  let cofix loop₁ ms₁ ms₂ :=
     match Lazy.force ms₁ with
     | Cons c₁ s₁ =>
-        let cofix loop₁ ms₂ :=
+        let cofix loop₂ ms₂ :=
           match Lazy.force ms₂ with
           | Cons c₂ s₂ =>
               match Qcompare (power c₁) (power c₂) with
               | Eq =>
                   let c := add_coeff (coeff c₁) (coeff c₂) in
-                  if is_null_coeff c then loop s₁ s₂
+                  if is_null_coeff c then loop₁ s₁ s₂
                   else
                     let m := {| coeff := c; power := power c₁ |} in
-                    Cons m (loop s₁ s₂)
+                    Cons m (loop₁ s₁ s₂)
               | Lt =>
-                  Cons c₁ (loop s₁ ms₂)
+                  Cons c₁ (loop₁ s₁ ms₂)
               | Gt =>
-                  Cons c₂ (loop₁ s₂)
+                  Cons c₂ (loop₂ s₂)
               end
           | End => Lazy.force ms₁
           end
         in
-        loop₁ ms₂
+        loop₂ ms₂
     | End => Lazy.force ms₂
     end
   in
   let ps₁ := ops2ps ps₁ in
   let ps₂ := ops2ps ps₂ in
-  {| ps_monoms := loop (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂)) |};
+  {| ps_monoms := loop₁ (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂)) |};
 
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
