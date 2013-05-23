@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.12 2013-05-18 19:51:56 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.13 2013-05-23 03:51:03 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -135,7 +135,7 @@ Theorem points_in_any_newton_segment : ∀ pol ns,
 Proof.
 intros pol ns Hns h αh Hαh.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom α fld pol) as pts.
+remember (points_of_ps_polynom fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
 symmetry in Heqhsl.
 rename Heqpts into Hpts.

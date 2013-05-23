@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.19 2013-05-22 21:17:45 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.20 2013-05-23 03:51:03 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -74,13 +74,18 @@ EXTEND
   coq_expr:
     [ [ "match"; e = SELF; "with"; l = V (LIST0 coq_match_case); "end" →
           <:expr< match $e$ with [ $_list:l$ ] >>
-      | "let"; r = V (FLAG "fix"); l = V (LIST1 coq_binding SEP "and"); "in";
+      | "let"; r = fix_or_cofix; l = V (LIST1 coq_binding SEP "and"); "in";
         x = SELF →
-          <:expr< let $_flag:r$ $_list:l$ in $x$ >>
+          <:expr< let $flag:r$ $_list:l$ in $x$ >>
       | "if"; e1 = SELF; "then"; e2 = SELF; "else"; e3 = SELF →
           <:expr< if $e1$ then $e2$ else $e3$ >>
       | e = expr →
           e ] ]
+  ;
+  fix_or_cofix:
+    [ [ "fix" → True
+      | "cofix" → True
+      | → False ] ]
   ;
   expr: LEVEL "apply"
     [ [ UIDENT "Cons"; e₁ = NEXT; e₂ = NEXT →

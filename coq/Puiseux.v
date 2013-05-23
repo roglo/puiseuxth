@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.537 2013-05-23 02:38:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.538 2013-05-23 03:51:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,8 +8,9 @@ Require Import ConvexHullMisc.
 Require Import Puiseux_base.
 Require Import Misc.
 
+Set Implicit Arguments.
+
 Definition degree α (pol : polynomial α) := List.length (al pol).
-Arguments degree : default implicits.
 
 (* Horner's algorithm *)
 Definition apply_poly {α} {β} {γ}
@@ -45,25 +46,31 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   loop (al pol₁) (al pol₂).
 
 (*
-Definition ps_add add_coeff is_null_coeff ps₁ ps₂ :=
-  let fix loop ml₁ ml₂ :=
-    match (ml₁, ml₂) with
-    | ([], ml₂) => ml₂
-    | (ml₁, []) => ml₁
-    | ([m₁ … ml₁], [m₂ … ml₂]) =>
-        match Qcompare (power m₁) (power m₂) with
-        | Eq =>
-            let c := add_coeff (coeff m₁) (coeff m₂) in
-            if is_null_coeff c then loop ml₁ ml₂
-            else [{| coeff := c; power := power m₁ |} … loop ml₁ ml₂]
-        | Lt =>
-            [m₁ … loop ml₁ [m₂ … ml₂]]
-        | Gt =>
-            [m₂ … loop [m₁ … ml₁] ml₂]
+Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
+     (ps₁ ps₂ : puiseux_series α) :=
+  let cofix loop ms₁ ms₂ :=
+    match ms₁ with
+    | Cons c₁ s₁ =>
+        match ms₂ with
+        | Cons c₂ s₂ =>
+            match Qcompare (power c₁) (power c₂) with
+            | Eq =>
+                let c := add_coeff (coeff c₁) (coeff c₂) in
+                if is_null_coeff c then loop s₁ s₂
+                else
+                  let m := {| coeff := c; power := power c₁ |} in
+                  Cons m (loop s₁ s₂)
+            | Lt =>
+                Cons c₁ (loop s₁ ms₂)
+            | Gt =>
+                Cons c₂ (loop ms₁ s₂)
+            end
+        | End => ms₁
         end
+    | End => ms₂
     end
   in
-  {| ps_monoms = loop (ps_monoms ps₁) (ps_monoms ps₂)}.
+  {| ps_monoms := loop (ps_monoms ps₁) (ps_monoms ps₂) |}.
 
 Definition apply_poly_with_ps_poly {α} (fld : field α)
     (pol : polynomial (puiseux_series α)) :=
@@ -97,8 +104,6 @@ Record algebraically_closed_field {α} :=
   { ac_field : field α;
     ac_prop : ∀ pol, degree pol ≥ 1
       → ∃ r, apply_polynomial ac_field pol r = zero ac_field }.
-Arguments ac_field : default implicits.
-Arguments ac_prop : default implicits.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -108,30 +113,28 @@ Fixpoint make_char_pol α (fld : field α) cdeg dcl n :=
   | S n₁ =>
       match dcl with
       | [] =>
-          [zero fld … make_char_pol α fld (S cdeg) [] n₁]
+          [zero fld … make_char_pol fld (S cdeg) [] n₁]
       | [(deg, coeff) … dcl₁] =>
           if eq_nat_dec deg cdeg then
-            [coeff … make_char_pol α fld (S cdeg) dcl₁ n₁]
+            [coeff … make_char_pol fld (S cdeg) dcl₁ n₁]
           else
-            [zero fld … make_char_pol α fld (S cdeg) dcl n₁]
+            [zero fld … make_char_pol fld (S cdeg) dcl n₁]
       end
     end.
 
-Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point α (fld : field α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h (al pol) (an pol) in
-  let c := valuation_coeff α fld ps in
+  let c := valuation_coeff fld ps in
   (h, c).
 
-Definition characteristic_polynomial α fld pol ns :=
-  let dcl :=
-    List.map (deg_coeff_of_point α fld pol) [ini_pt ns … oth_pts ns]
-  in
+Definition characteristic_polynomial α (fld : field α) pol ns :=
+  let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld j dcl (k - j) in
+  let cl := make_char_pol fld j dcl (k - j) in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α fld kps |}.
+  {| al := cl; an := valuation_coeff fld kps |}.
 
 (* *)
 
@@ -141,7 +144,7 @@ Variable α : Type.
 Variable fld : field (puiseux_series α).
 
 Lemma pt_absc_is_nat : ∀ pol pts pt,
-  points_of_ps_polynom α fld pol = pts
+  points_of_ps_polynom fld pol = pts
   → pt ∈ pts
     → ∃ n, fst pt = Qnat n.
 Proof.
@@ -257,7 +260,7 @@ Lemma j_lt_k : ∀ pol j k ns,
 Proof.
 intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom α fld pol) as pts.
+remember (points_of_ps_polynom fld pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
 eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
@@ -321,7 +324,7 @@ Qed.
 
 Lemma cpol_degree : ∀ acf pol cpol ns,
   ns ∈ newton_segments fld pol
-  → cpol = characteristic_polynomial α (ac_field acf) pol ns
+  → cpol = characteristic_polynomial (ac_field acf) pol ns
     → degree cpol ≥ 1.
 Proof.
 intros acf pol cpol ns Hns Hpol.
@@ -342,7 +345,7 @@ Qed.
 
 Lemma exists_root : ∀ acf pol cpol ns,
   ns ∈ newton_segments fld pol
-  → cpol = characteristic_polynomial α (ac_field acf) pol ns
+  → cpol = characteristic_polynomial (ac_field acf) pol ns
     → ∃ c, apply_polynomial (ac_field acf) cpol c = zero (ac_field acf).
 Proof.
 intros acf pol cpol ns Hdeg Hpol.

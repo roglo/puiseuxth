@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.6 2013-05-23 02:38:46 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.7 2013-05-23 03:51:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -8,10 +8,11 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Sorting.
 Require Import Misc.
-Require Streams.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
+
+Set Implicit Arguments.
 
 Record field α :=
   { zero : α;
@@ -21,29 +22,17 @@ Record field α :=
     mul : α → α → α;
     div : α → α → α;
     is_zero_dec : ∀ x : α, {x = zero} + {x ≠ zero} }.
-Arguments zero : default implicits.
-Arguments add : default implicits.
-Arguments sub : default implicits.
-Arguments mul : default implicits.
-Arguments div : default implicits. 
-Arguments is_zero_dec : default implicits. 
 
 (* polynomial of degree ≥ 0 *)
 Record polynomial α := mkpol { al : list α; an : α }.
-Arguments mkpol : default implicits.
-Arguments al : default implicits.
-Arguments an : default implicits.
 
 Record Qpos := { x : Q; pos : x > 0 }.
 
 Record ps_monomial α := { coeff : α; power : Q }.
-Arguments coeff : default implicits.
-Arguments power : default implicits.
 
 CoInductive series α := Cons : α → series α → series α | End : series α.
 
 Record puiseux_series α := { ps_monoms : series (ps_monomial α) }.
-Arguments ps_monoms : default implicits.
 
 Definition valuation α (ps : puiseux_series α) :=
   match ps_monoms ps with
@@ -60,7 +49,7 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
 Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>
-      [(Qnat pow, ps₁) … all_points_of_ps_polynom α (S pow) psl₁ psn]
+      [(Qnat pow, ps₁) … all_points_of_ps_polynom (S pow) psl₁ psn]
   | [] =>
       [(Qnat pow, psn)]
   end.
@@ -68,25 +57,27 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
 Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
-      if is_zero_dec fld ps then filter_non_zero_ps α fld dpl₁
-      else [(pow, valuation α ps) … filter_non_zero_ps α fld dpl₁]
+      if is_zero_dec fld ps then filter_non_zero_ps fld dpl₁
+      else [(pow, valuation ps) … filter_non_zero_ps fld dpl₁]
   | [] =>
       []
   end.
 
-Definition points_of_ps_polynom_gen α fld pow cl cn :=
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn).
+Definition fps α := field (puiseux_series α).
 
-Definition points_of_ps_polynom α fld pol :=
-  points_of_ps_polynom_gen α fld 0%nat (al pol) (an pol).
+Definition points_of_ps_polynom_gen α (fld : fps α) pow cl
+    cn :=
+  filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn).
+
+Definition points_of_ps_polynom α (fld : fps α) pol :=
+  points_of_ps_polynom_gen fld 0%nat (al pol) (an pol).
 
 Fixpoint list_map_pairs α β (f : α → α → β) l :=
   match l with
   | [] => []
   | [x₁] => []
-  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs α β f l₁]
+  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs f l₁]
   end.
-Arguments list_map_pairs : default implicits.
 
 Record newton_segment := mkns
   { γ : Q;
@@ -102,16 +93,15 @@ Definition newton_segment_of_pair hsj hsk :=
   let β := αj + fst (pt hsj) * γ in
   mkns γ β (pt hsj) (pt hsk) (oth hsj).
 
-Definition newton_segments α fld pol :=
-  let gdpl := points_of_ps_polynom α fld pol in
+Definition newton_segments α (fld : fps α) pol :=
+  let gdpl := points_of_ps_polynom fld pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
-Arguments newton_segments : default implicits.
 
 (* *)
 
-Lemma fold_points_of_ps_polynom_gen : ∀ α fld pow cl cn,
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn) =
-  points_of_ps_polynom_gen α fld pow cl cn.
+Lemma fold_points_of_ps_polynom_gen : ∀ α (fld : fps α) pow cl cn,
+  filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn) =
+  points_of_ps_polynom_gen fld pow cl cn.
 Proof. reflexivity. Qed.
 
 Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
@@ -126,10 +116,9 @@ induction l₁ as [| y]; [ reflexivity | intros ].
 simpl in IHl₁ |- *.
 apply eq_S, IHl₁.
 Qed.
-Arguments list_map_pairs_length : default implicits.
 
-Lemma points_of_polyn_sorted : ∀ α fld deg cl cn pts,
-  pts = points_of_ps_polynom_gen α fld deg cl cn
+Lemma points_of_polyn_sorted : ∀ α (fld : fps α) deg cl cn pts,
+  pts = points_of_ps_polynom_gen fld deg cl cn
   → Sorted fst_lt pts.
 Proof.
 intros α fld deg cl cn pts Hpts.
@@ -143,7 +132,7 @@ induction cl as [| c]; intros.
  destruct (is_zero_dec fld c) as [Heq| Hne].
   eapply IHcl; eassumption.
 
-  remember (points_of_ps_polynom_gen α fld (S deg) cl cn) as pts₁.
+  remember (points_of_ps_polynom_gen fld (S deg) cl cn) as pts₁.
   subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
   clear IHcl.
   clear Hne.

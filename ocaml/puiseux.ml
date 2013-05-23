@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.246 2013-05-23 02:38:46 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.247 2013-05-23 03:51:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -200,25 +200,25 @@ value ptop fld p =
 
 value norm f k x y = k.ext.normalise (f x y);
 
-value apply_poly_with_ps k pol =
+value apply_poly_with_ps α k pol =
   apply_poly {old_ps_mon = []}
-    (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (k.eq k.zero) ps₁ ps₂))
+    (fun ps₁ ps₂ → ps2ops (ps_add α (norm k.add k) (k.eq k.zero) ps₁ ps₂))
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
 value pol_add fld add_coeff p₁ p₂ =
   pofp fld (Poly.pol_add () add_coeff (ptop fld p₁) (ptop fld p₂));
 
-value apply_poly_with_ps_poly k fld pol =
+value apply_poly_with_ps_poly α k fld pol =
   apply_poly
     {ml = []}    
     (fun pol ps →
        pol_add fld
-         (fun ps₁ ps₂ → ps2ops (ps_add k.add (k.eq k.zero) ps₁ ps₂))
+         (fun ps₁ ps₂ → ps2ops (ps_add α k.add (k.eq k.zero) ps₁ ps₂))
          pol {ml = [ps]})
     (pol_mul
        {old_ps_mon = []}
-       (fun ps₁ ps₂ → ps2ops (ps_add k.add (k.eq k.zero) ps₁ ps₂))
+       (fun ps₁ ps₂ → ps2ops (ps_add α k.add (k.eq k.zero) ps₁ ps₂))
        (ps_mul k.add (norm k.mul k) (k.eq k.zero))
        (fun ps → ps.old_ps_mon = []))
     pol
@@ -292,7 +292,7 @@ value print_solution k fld br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps k (pofp fld br.initial_polynom) sol in
+      let ps = apply_poly_with_ps () k (pofp fld br.initial_polynom) sol in
       let ps = float_round_zero k ps in
       let ps₂ =
         if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
@@ -390,7 +390,7 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
          [{old_ps_mon = [{coeff = r; power = γ}]};
           {old_ps_mon = [{coeff = k.one; power = γ}]}]}
     in
-    let pol = apply_poly_with_ps_poly k fld (pofp fld br.pol) y in
+    let pol = apply_poly_with_ps_poly () k fld (pofp fld br.pol) y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
@@ -758,8 +758,8 @@ value k_ps k =
   let f = k.ac_field in
   let zero = ps_of_int f 0 in
   let one = ps_of_int f 1 in
-  let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) (f.eq f.zero) ps₁ ps₂) in
-  let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) (f.eq f.zero) ps₁ ps₂) in
+  let add ps₁ ps₂ = ps2ops (ps_add () (norm f.add f) (f.eq f.zero) ps₁ ps₂) in
+  let sub ps₁ ps₂ = ps2ops (ps_add () (norm f.sub f) (f.eq f.zero) ps₁ ps₂) in
   let neg = sub zero in
   let ext =
     {minus_one = neg one;
