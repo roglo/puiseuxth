@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.22 2013-05-23 13:23:35 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.23 2013-05-23 13:30:05 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -59,7 +59,7 @@ value ps2ops ps =
   {old_ps_mon = loop ps.ps_monoms}
 ;
 
-Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
+Definition ps_add (add_coeff : α → α → α) (is_null_coeff : α → bool)
      (ps₁ : old_ps α) (ps₂ : old_ps α) :=
   let ps₁ := ops2ps ps₁ in
   let ps₂ := ops2ps ps₂ in
