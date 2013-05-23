@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.539 2013-05-23 06:39:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.540 2013-05-23 13:27:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,17 +19,6 @@ Definition apply_poly {α} {β} {γ}
   List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
     (zero_plus_v (an pol)) (al pol).
 
-(*
-Definition apply_poly_with_ps {α} fld pol (x : α) := ...
-value apply_poly_with_ps :
-  field α β →
-  polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
-value apply_poly_with_ps k pol =
-  apply_poly {ps_monoms = []}
-    (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
-    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
-*)
-
 Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   let fix loop al₁ al₂ :=
     match (al₁, al₂) with
@@ -45,7 +34,6 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-(**)
 Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
      (ps₁ : puiseux_series α) (ps₂ : puiseux_series α) :=
   let cofix loop ms₁ ms₂ :=
@@ -57,12 +45,8 @@ Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool
               match Qcompare (power c₁) (power c₂) with
               | Eq =>
                   let c := add_coeff (coeff c₁) (coeff c₂) in
-(*
-                  if is_null_coeff c then loop s₁ s₂
-                  else
-*)
-                    let m := {| coeff := c; power := power c₁ |} in
-                    Cons m (loop s₁ s₂)
+                  let m := {| coeff := c; power := power c₁ |} in
+                  Cons m (loop s₁ s₂)
               | Lt =>
                   Cons c₁ (loop s₁ ms₂)
               | Gt =>
@@ -76,6 +60,17 @@ Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool
     end
   in
   {| ps_monoms := loop (ps_monoms ps₁) (ps_monoms ps₂) |}.
+
+(*
+Definition apply_poly_with_ps {α} fld pol (x : α) := ...
+value apply_poly_with_ps :
+  field α β →
+  polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
+value apply_poly_with_ps k pol =
+  apply_poly {ps_monoms = []}
+    (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
+    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
+*)
 
 (*
 Definition apply_poly_with_ps_poly {α} (fld : field α)

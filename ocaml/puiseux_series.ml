@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.21 2013-05-23 08:28:26 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.22 2013-05-23 13:23:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -72,10 +72,8 @@ Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool
               match Qcompare (power c₁) (power c₂) with
               | Eq =>
                   let c := add_coeff (coeff c₁) (coeff c₂) in
-                  if is_null_coeff c then loop₁ s₁ s₂
-                  else
-                    let m := {| coeff := c; power := power c₁ |} in
-                    Cons m (loop₁ s₁ s₂)
+                  let m := {| coeff := c; power := power c₁ |} in
+                  Cons m (loop₁ s₁ s₂)
               | Lt =>
                   Cons c₁ (loop₁ s₁ ms₂)
               | Gt =>

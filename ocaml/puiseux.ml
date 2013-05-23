@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.247 2013-05-23 03:51:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.248 2013-05-23 13:23:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -233,7 +233,7 @@ value map_polynom k f pol =
              (fun rev_ml m →
                 let c = f k m.coeff in
                 if k.eq c k.zero then do {
-                  if verbose.val then do {
+                  if False && verbose.val then do {
                     printf "Warning: cancelling small coefficient: %s\n%!"
                       (k.ext.to_string m.coeff)
                   }
@@ -310,14 +310,14 @@ value print_solution k fld br nth cγl finite sol = do {
   end
 };
 
-value cancel_pol_constant_term_if_any k pol =
+value cancel_pol_constant_term_if_any (k : field C.t (ext C.t float)) pol =
   match pol.ml with
   | [] → pol
   | [m :: ml] →
       match m.old_ps_mon with
       [ [m₁ :: ml₁] →
           if Q.eq m₁.power Q.zero then do {
-            if verbose.val then
+            if False && verbose.val then
               printf "Warning: cancelling constant term: %s\n%!"
                 (k.ext.to_string m₁.coeff)
             else ();
