@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.26 2013-05-23 23:51:40 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.27 2013-05-24 00:06:36 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -118,7 +118,11 @@ Definition ser_nth α (n : nat) (s : series α) : option α :=
 
 (*
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
+  let s₁ = ps₁.ps_monoms in
+  let s₂ = ps₂.ps_monoms in
   let ml =
+    loop 0 0 0 0 where rec loop max₁ max₂ofmax₁ max₂ max₁ofmax₂ =
+
     match (ps₁.old_ps_mon, ps₂.old_ps_mon) with
     | ([], _) → []
     | (_, []) → []
@@ -126,14 +130,15 @@ value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
         let c = mul_coeff (coeff m₁) (coeff m₂) in
         let p = Q.norm (Q.add m₁.power m₂.power) in
         let m = {coeff = c; power = p} in
-        let rest = ml₁ in
+        let rest =
+          ml₁
+        in
         [m :: rest]
     end
   in
   {old_ps_mon = ml}
 ;
 *)
-
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
     List.fold_left
@@ -149,3 +154,4 @@ value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
   {old_ps_mon = merge_pow add_coeff is_null_coeff ml}
 ;
+(**)
