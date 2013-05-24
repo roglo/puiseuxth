@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.30 2013-05-24 10:54:26 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.31 2013-05-24 14:25:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -122,6 +122,7 @@ value not_none =
   | Some v → v ]
 ;
 
+(*
 value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_monoms in
   let s₂ = ps₂.ps_monoms in
@@ -169,6 +170,7 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   in
   {ps_monoms = ml}
 ;
+*)
 value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
     List.fold_left
