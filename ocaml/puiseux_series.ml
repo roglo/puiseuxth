@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.29 2013-05-24 09:38:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.30 2013-05-24 10:54:26 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -143,13 +143,17 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
       match (sum₁, sum₂, sum₃) with
       | (None, None, None) → End
       | (None, None, Some _) → failwith "new_ps_mul 2"
-      | (None, Some _, None) → failwith "new_ps_mul 3"
+      | (None, Some p₂, None) →
+          let t₁ = not_none (ser_nth α i₂ s₁) in
+          let t₂ = not_none (ser_nth α j₂ s₂) in
+          let c = mul_coeff (coeff t₁) (coeff t₂) in
+          Term {coeff = c; power = p₂} (loop m₁ mm₁ (succ m₂) mm₂)
       | (None, Some _, Some _) → failwith "new_ps_mul 4"
       | (Some p₁, None, None) →
           let t₁ = not_none (ser_nth α i₁ s₁) in
           let t₂ = not_none (ser_nth α j₁ s₂) in
           let c = mul_coeff (coeff t₁) (coeff t₂) in
-          Term {coeff = c; power = p₁} (loop i₁ mm₁ m₂ mm₂)
+          Term {coeff = c; power = p₁} (loop (succ m₁) mm₁ m₂ mm₂)
       | (Some _, None, Some _) → failwith "new_ps_mul 6"
       | (Some _, Some _, None) → failwith "new_ps_mul 7"
       | (Some p₁, Some p₂, Some p₃) →
@@ -165,12 +169,7 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   in
   {ps_monoms = ml}
 ;
-(*
-value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
-;
-*)
-value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
+value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
     List.fold_left
       (fun a m₁ →
@@ -184,5 +183,13 @@ value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   in
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
   {old_ps_mon = merge_pow add_coeff is_null_coeff ml}
+;
+(*
+value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
+  ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
+;
+*)
+value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
+  old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
 ;
 (**)
