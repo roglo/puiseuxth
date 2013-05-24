@@ -1,7 +1,8 @@
-(* $Id: puiseux_series.ml,v 1.28 2013-05-24 08:43:58 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.29 2013-05-24 09:38:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
+open Printf;
 open Pnums;
 
 type series α = [ Term of α and Lazy.t (series α) | End ];
@@ -115,27 +116,58 @@ Definition ser_nth α (n : nat) (s : series α) : option α :=
   | Some t => ser_hd α t
   end;
 
-(*
-value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
+value not_none =
+  fun
+  [ None → failwith "not_none"
+  | Some v → v ]
+;
+
+value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_monoms in
   let s₂ = ps₂.ps_monoms in
-  let ml =
-    loop 0 0 0 0 where rec loop max₁ max₂ofmax₁ max₂ max₁ofmax₂ =
-
-    match (ps₁.old_ps_mon, ps₂.old_ps_mon) with
-    | ([], _) → []
-    | (_, []) → []
-    | ([m₁ :: ml₁], [m₂ :: ml₂]) →
-        let c = mul_coeff (coeff m₁) (coeff m₂) in
-        let p = Q.norm (Q.add m₁.power m₂.power) in
-        let m = {coeff = c; power = p} in
-        let rest =
-          ml₁
-        in
-        [m :: rest]
+  let α = () in
+  let sum_pow i j =
+    match (ser_nth α i s₁, ser_nth α j s₂) with
+    | (None, _) | (_, None) → None
+    | (Some t₁, Some t₂) → Some (Q.norm (Q.add (power t₁) (power t₂)))
     end
   in
-  {old_ps_mon = ml}
+  let ml =
+    loop (-1) (-1) (-1) (-1) where rec loop m₁ mm₁ m₂ mm₂ =
+      let (i₁, j₁) = (succ m₁, 0) in
+      let (i₂, j₂) = (0, succ m₂) in
+      let (i₃, j₃) = (succ mm₂, succ mm₁) in
+      let sum₁ = sum_pow i₁ j₁ in
+      let sum₂ = sum_pow i₂ j₂ in
+      let sum₃ = sum_pow i₃ j₃ in
+      match (sum₁, sum₂, sum₃) with
+      | (None, None, None) → End
+      | (None, None, Some _) → failwith "new_ps_mul 2"
+      | (None, Some _, None) → failwith "new_ps_mul 3"
+      | (None, Some _, Some _) → failwith "new_ps_mul 4"
+      | (Some p₁, None, None) →
+          let t₁ = not_none (ser_nth α i₁ s₁) in
+          let t₂ = not_none (ser_nth α j₁ s₂) in
+          let c = mul_coeff (coeff t₁) (coeff t₂) in
+          Term {coeff = c; power = p₁} (loop i₁ mm₁ m₂ mm₂)
+      | (Some _, None, Some _) → failwith "new_ps_mul 6"
+      | (Some _, Some _, None) → failwith "new_ps_mul 7"
+      | (Some p₁, Some p₂, Some p₃) →
+          if (i₁, j₁) = (i₂, j₂) && (i₁, j₁) = (i₃, j₃) then
+            let t₁ = not_none (ser_nth α i₁ s₁) in
+            let t₂ = not_none (ser_nth α j₁ s₂) in
+            let c = mul_coeff (coeff t₁) (coeff t₂) in
+            Term {coeff = c; power = p₁} (loop i₁ j₃ j₂ i₃)
+          else
+            failwith
+              (sprintf "new_ps_mul 8 (%d,%d)(%d,%d)(%d,%d)" i₁ j₁ i₂ j₂ i₃ j₃)
+      end
+  in
+  {ps_monoms = ml}
+;
+(*
+value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
+  ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
 *)
 value ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
