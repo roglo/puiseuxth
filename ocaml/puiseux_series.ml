@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.31 2013-05-24 14:25:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.32 2013-05-24 14:56:47 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -8,7 +8,7 @@ open Pnums;
 type series α = [ Term of α and Lazy.t (series α) | End ];
 
 Record ps_monomial α := { coeff : α; power : Q };
-Record puiseux_series α := { ps_monoms : series (ps_monomial α) };
+Record puiseux_series α := { ps_terms : series (ps_monomial α) };
 Record old_ps α := { old_ps_mon : list (ps_monomial α) };
 
 type comparison = [ Eq | Lt | Gt ];
@@ -47,7 +47,7 @@ value ops2ps ops =
     [ [] → End
     | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
   in
-  {ps_monoms = loop ops.old_ps_mon}
+  {ps_terms = loop ops.old_ps_mon}
 ;
 
 value ps2ops ps =
@@ -57,7 +57,7 @@ value ps2ops ps =
     | End → []
     end
   in
-  {old_ps_mon = loop ps.ps_monoms}
+  {old_ps_mon = loop ps.ps_terms}
 ;
 
 Definition ps_add (add_coeff : α → α → α) (ps₁ : old_ps α) (ps₂ : old_ps α) :=
@@ -86,7 +86,7 @@ Definition ps_add (add_coeff : α → α → α) (ps₁ : old_ps α) (ps₂ : ol
     | End => Lazy.force ms₂
     end
   in
-  {| ps_monoms := loop₁ (lazy (ps_monoms ps₁)) (lazy (ps_monoms ps₂)) |};
+  {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂)) |};
 
 Definition ser_hd α (s : series α) :=
   match s with
@@ -124,8 +124,8 @@ value not_none =
 
 (*
 value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
-  let s₁ = ps₁.ps_monoms in
-  let s₂ = ps₂.ps_monoms in
+  let s₁ = ps₁.ps_terms in
+  let s₂ = ps₂.ps_terms in
   let α = () in
   let sum_pow i j =
     match (ser_nth α i s₁, ser_nth α j s₂) with
@@ -168,7 +168,7 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
               (sprintf "new_ps_mul 8 (%d,%d)(%d,%d)(%d,%d)" i₁ j₁ i₂ j₂ i₃ j₃)
       end
   in
-  {ps_monoms = ml}
+  {ps_terms = ml}
 ;
 *)
 value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
