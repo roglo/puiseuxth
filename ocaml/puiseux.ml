@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.255 2013-05-23 23:14:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.256 2013-05-24 08:43:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -191,7 +191,7 @@ value norm f k x y = k.ext.normalise (f x y);
 value apply_poly_with_ps k fld pol =
   let pol = op2p fld pol in
   apply_poly (fun ps → ps)
-    (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (k.eq k.zero) ps₁ ps₂))
+    (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) ps₁ ps₂))
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 ;
 
@@ -204,12 +204,11 @@ value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
   apply_poly
     (fun ps → {ml = [ps]})
     (fun (pol : old_poly (old_ps C.t)) (ps : old_ps C.t) →
-       pol_add fld
-         (fun ps₁ ps₂ → ps2ops (ps_add (add k) (k.eq k.zero) ps₁ ps₂))
+       pol_add fld (fun ps₁ ps₂ → ps2ops (ps_add (add k) ps₁ ps₂))
          pol {ml = [ps]})
     (pol_mul
        {old_ps_mon = []}
-       (fun ps₁ ps₂ → ps2ops (ps_add k.add (k.eq k.zero) ps₁ ps₂))
+       (fun ps₁ ps₂ → ps2ops (ps_add k.add ps₁ ps₂))
        (ps_mul k.add (norm k.mul k) (k.eq k.zero))
        (fun ps → ps.old_ps_mon = []))
     pol
@@ -749,8 +748,8 @@ value k_ps k =
   let f = k.ac_field in
   let zero = ps_of_int f 0 in
   let one = ps_of_int f 1 in
-  let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) (f.eq f.zero) ps₁ ps₂) in
-  let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) (f.eq f.zero) ps₁ ps₂) in
+  let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) ps₁ ps₂) in
+  let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) ps₁ ps₂) in
   let neg = sub zero in
   let ext =
     {minus_one = neg one;

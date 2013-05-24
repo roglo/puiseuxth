@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.542 2013-05-23 23:40:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.543 2013-05-24 08:43:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,8 +35,8 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-Definition ps_add α (add_coeff : α → α → α) (is_null_coeff : α → bool)
-     (ps₁ : puiseux_series α) (ps₂ : puiseux_series α) :=
+Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
+    (ps₂ : puiseux_series α) :=
   let cofix loop ms₁ ms₂ :=
     match ms₁ with
     | Term c₁ s₁ =>
