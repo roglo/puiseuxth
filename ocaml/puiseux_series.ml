@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.35 2013-05-25 07:51:25 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.36 2013-05-25 08:42:44 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -139,12 +139,25 @@ value nth_int_power n ps =
   else failwith "int_power"
 ;
 
+Definition next_diag_scan (i, j) :=
+  match j with
+  | O => (0, S i)
+  | S k => (S i, k)
+  end;
+
 (*
 value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
-  let l = I.min (nth_int_power 0 ps₁) (nth_int_power 0 ps₂) in
-  {ps_terms = End; ps_comden = I.one}
+  let pm = I.min (nth_int_power 0 ps₁) (nth_int_power 0 ps₂) in
+  let t =
+    loop (0, 0) where rec loop (i, j) =
+      let m = not_none (ser_nth 0 s₁) in
+      let m = {coeff = coeff m; power = power m} in
+      Term m (loop (next_diag_scan (i, j)))
+  in
+  let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
+  {ps_terms = t; ps_comden = comden}
 ;
 *)
 value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
