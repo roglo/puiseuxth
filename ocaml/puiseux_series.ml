@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.36 2013-05-25 08:42:44 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.37 2013-05-25 21:22:28 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -132,34 +132,65 @@ value not_none =
   | Some v → v ]
 ;
 
-value nth_int_power n ps =
-  let p = power (not_none (ser_nth n ps.ps_terms)) in
-  let r = Q.norm (Q.muli p ps.ps_comden) in
-  if I.eq (Q.rden r) I.one then Q.rnum r
-  else failwith "int_power"
+value find_monom minp i comden s =
+  let p = Q.norm (Q.add minp (Q.make (I.of_int i) comden)) in
+  loop 0 where rec loop j =
+    match ser_nth j s with
+    | None → None
+    | Some t →
+        if Q.eq (power t) p then Some t
+        else if Q.lt (power t) p then loop (j + 1)
+        else None
+    end
 ;
 
-Definition next_diag_scan (i, j) :=
-  match j with
-  | O => (0, S i)
-  | S k => (S i, k)
-  end;
-
-(*
+(**)
 value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
-  let pm = I.min (nth_int_power 0 ps₁) (nth_int_power 0 ps₂) in
-  let t =
-    loop (0, 0) where rec loop (i, j) =
-      let m = not_none (ser_nth 0 s₁) in
-      let m = {coeff = coeff m; power = power m} in
-      Term m (loop (next_diag_scan (i, j)))
-  in
+  let minp₁ = power (not_none (ser_nth 0 s₁)) in
+  let minp₂ = power (not_none (ser_nth 0 s₂)) in
   let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
+  let t =
+    loop 0 where rec loop i =
+      let cp_o =
+        loop i 0 where rec loop i j =
+          let m₁o = find_monom minp₁ i comden s₁ in
+          let m₂o = find_monom minp₂ j comden s₂ in
+          match (m₁o, m₂o) with
+          | (None, _) | (_, None) →
+              match j with
+              | 0 → None
+              | _ → loop (succ i) (pred j)
+              end
+          | (Some m₁, Some m₂) →
+              let p = Q.norm (Q.add (power m₁) (power m₂)) in
+              let c =
+                let c = mul_coeff (coeff m₁) (coeff m₂) in
+                match j with
+                | 0 → c
+                | _ →
+                    match loop (succ i) (pred j) with
+                    | None → c
+                    | Some (c₁, p₁) →
+                        let _ = assert (Q.eq p p₁) in
+                        add_coeff c c₁
+                    end
+                end
+              in
+              Some (c, p)
+          end
+      in
+      match cp_o with
+      | None → End
+      | Some (c, p) →
+          let m = {coeff = c; power = p} in
+          Term m (loop (succ i))
+      end
+  in
   {ps_terms = t; ps_comden = comden}
 ;
-*)
+
 value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
     List.fold_left
@@ -175,6 +206,7 @@ value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
   {old_ps_mon = merge_pow add_coeff is_null_coeff ml}
 ;
+
 (*
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
