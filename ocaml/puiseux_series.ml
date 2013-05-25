@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.33 2013-05-25 01:17:58 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.34 2013-05-25 02:26:19 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -136,48 +136,6 @@ value not_none =
 value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
-  let α = () in
-  let sum_pow i j =
-    match (ser_nth α i s₁, ser_nth α j s₂) with
-    | (None, _) | (_, None) → None
-    | (Some t₁, Some t₂) → Some (Q.norm (Q.add (power t₁) (power t₂)))
-    end
-  in
-  let ml =
-    loop (-1) (-1) (-1) (-1) where rec loop m₁ mm₁ m₂ mm₂ =
-      let (i₁, j₁) = (succ m₁, 0) in
-      let (i₂, j₂) = (0, succ m₂) in
-      let (i₃, j₃) = (succ mm₂, succ mm₁) in
-      let sum₁ = sum_pow i₁ j₁ in
-      let sum₂ = sum_pow i₂ j₂ in
-      let sum₃ = sum_pow i₃ j₃ in
-      match (sum₁, sum₂, sum₃) with
-      | (None, None, None) → End
-      | (None, None, Some _) → failwith "new_ps_mul 2"
-      | (None, Some p₂, None) →
-          let t₁ = not_none (ser_nth α i₂ s₁) in
-          let t₂ = not_none (ser_nth α j₂ s₂) in
-          let c = mul_coeff (coeff t₁) (coeff t₂) in
-          Term {coeff = c; power = p₂} (loop m₁ mm₁ (succ m₂) mm₂)
-      | (None, Some _, Some _) → failwith "new_ps_mul 4"
-      | (Some p₁, None, None) →
-          let t₁ = not_none (ser_nth α i₁ s₁) in
-          let t₂ = not_none (ser_nth α j₁ s₂) in
-          let c = mul_coeff (coeff t₁) (coeff t₂) in
-          Term {coeff = c; power = p₁} (loop (succ m₁) mm₁ m₂ mm₂)
-      | (Some _, None, Some _) → failwith "new_ps_mul 6"
-      | (Some _, Some _, None) → failwith "new_ps_mul 7"
-      | (Some p₁, Some p₂, Some p₃) →
-          if (i₁, j₁) = (i₂, j₂) && (i₁, j₁) = (i₃, j₃) then
-            let t₁ = not_none (ser_nth α i₁ s₁) in
-            let t₂ = not_none (ser_nth α j₁ s₂) in
-            let c = mul_coeff (coeff t₁) (coeff t₂) in
-            Term {coeff = c; power = p₁} (loop i₁ j₃ j₂ i₃)
-          else
-            failwith
-              (sprintf "new_ps_mul 8 (%d,%d)(%d,%d)(%d,%d)" i₁ j₁ i₂ j₂ i₃ j₃)
-      end
-  in
   {ps_terms = ml}
 ;
 *)
