@@ -1,11 +1,14 @@
-(* $Id: puiseux_series.mli,v 1.15 2013-05-24 14:56:47 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.16 2013-05-25 01:17:58 deraugla Exp $ *)
 
 open Pnums;
 
 type series α = [ Term of α and Lazy.t (series α) | End ];
 
 type ps_monomial α = { coeff : α; power : Q.t };
-type puiseux_series α = { ps_terms : series (ps_monomial α) };
+type puiseux_series α =
+  { ps_terms : series (ps_monomial α);
+    ps_comden : I.t }
+;
 
 value coeff : ps_monomial α → α;
 value power : ps_monomial α → Q.t;

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.32 2013-05-24 14:56:47 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.33 2013-05-25 01:17:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -8,7 +8,9 @@ open Pnums;
 type series α = [ Term of α and Lazy.t (series α) | End ];
 
 Record ps_monomial α := { coeff : α; power : Q };
-Record puiseux_series α := { ps_terms : series (ps_monomial α) };
+Record puiseux_series α :=
+  { ps_terms : series (ps_monomial α);
+    ps_comden : I.t };
 Record old_ps α := { old_ps_mon : list (ps_monomial α) };
 
 type comparison = [ Eq | Lt | Gt ];
@@ -42,12 +44,19 @@ value merge_pow add_coeff is_null_coeff =
 ;
 
 value ops2ps ops =
-  let rec loop =
-    fun
-    [ [] → End
-    | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
+  let terms =
+    loop ops.old_ps_mon where rec loop =
+      fun
+      [ [] → End
+      | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
   in
-  {ps_terms = loop ops.old_ps_mon}
+  let comden =
+    loop ops.old_ps_mon where rec loop =
+      fun
+      [ [] → I.one
+      | [m₁ :: ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
+  in
+  {ps_terms = terms; ps_comden = comden}
 ;
 
 value ps2ops ps =
@@ -86,7 +95,8 @@ Definition ps_add (add_coeff : α → α → α) (ps₁ : old_ps α) (ps₂ : ol
     | End => Lazy.force ms₂
     end
   in
-  {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂)) |};
+  {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂));
+     ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
 Definition ser_hd α (s : series α) :=
   match s with
