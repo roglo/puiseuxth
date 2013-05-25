@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.24 2013-04-04 12:04:31 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.25 2013-05-25 07:51:25 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -35,6 +35,7 @@ module I :
     value gt : t → t → bool;
     value ge : t → t → bool;
     value eq : t → t → bool;
+    value min : t → t → t;
     value gcd : t → t → t;
     value lcm : t → t → t;
     value os : string → t;

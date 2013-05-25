@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.34 2013-05-25 02:26:19 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.35 2013-05-25 07:51:25 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -98,32 +98,32 @@ Definition ps_add (add_coeff : α → α → α) (ps₁ : old_ps α) (ps₂ : ol
   {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂));
      ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
-Definition ser_hd α (s : series α) :=
+Definition ser_hd (s : series α) :=
   match s with
   | Term a _ => Some a
   | End => None
   end;
 
-Definition ser_tl α (s : series α) : option (series α) :=
+Definition ser_tl (s : series α) : option (series α) :=
   match s with
   | Term _ t => Some (Lazy.force t)
   | End => None
   end;
 
-Fixpoint ser_nth_tl α (n : nat) (s : series α) : option (series α) :=
+Fixpoint ser_nth_tl (n : nat) (s : series α) : option (series α) :=
   match n with
   | O => Some s
   | S m =>
-      match ser_tl α s with
+      match ser_tl s with
       | None => None
-      | Some t => ser_nth_tl α m t
+      | Some t => ser_nth_tl m t
       end
   end;
 
-Definition ser_nth α (n : nat) (s : series α) : option α :=
-  match ser_nth_tl α n s with
+Definition ser_nth (n : nat) (s : series α) : option α :=
+  match ser_nth_tl n s with
   | None => None
-  | Some t => ser_hd α t
+  | Some t => ser_hd t
   end;
 
 value not_none =
@@ -132,11 +132,19 @@ value not_none =
   | Some v → v ]
 ;
 
+value nth_int_power n ps =
+  let p = power (not_none (ser_nth n ps.ps_terms)) in
+  let r = Q.norm (Q.muli p ps.ps_comden) in
+  if I.eq (Q.rden r) I.one then Q.rnum r
+  else failwith "int_power"
+;
+
 (*
 value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
-  {ps_terms = ml}
+  let l = I.min (nth_int_power 0 ps₁) (nth_int_power 0 ps₂) in
+  {ps_terms = End; ps_comden = I.one}
 ;
 *)
 value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =

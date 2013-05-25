@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.47 2013-04-19 03:23:29 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.48 2013-05-25 07:51:25 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -138,6 +138,7 @@ module I_bignum =
     value lt = lt_big_int;
     value gt = gt_big_int;
     value ge = ge_big_int;
+    value min = min_big_int;
     value gcd = gcd_big_int;
     value lcm i j = mult_big_int i (div_big_int j (gcd i j));
     value to_float = float_of_big_int;
