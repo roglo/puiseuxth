@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.48 2013-05-25 07:51:25 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.49 2013-05-26 23:19:52 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -125,6 +125,7 @@ module I_bignum =
     value succ = succ_big_int;
     value pred = pred_big_int;
     value add = add_big_int;
+    value addi i j = add_int_big_int j i;
     value sub = sub_big_int;
     value mul = mult_big_int;
     value muli i j = mult_int_big_int j i;

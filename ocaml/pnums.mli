@@ -1,4 +1,4 @@
-(* $Id: pnums.mli,v 1.25 2013-05-25 07:51:25 deraugla Exp $ *)
+(* $Id: pnums.mli,v 1.26 2013-05-26 23:19:52 deraugla Exp $ *)
 
 exception Overflow;
 
@@ -22,6 +22,7 @@ module I :
     value neg : t → t;
     value abs : t → t;
     value add : t → t → t;
+    value addi : t → int → t;
     value sub : t → t → t;
     value mul : t → t → t;
     value muli : t → int → t;

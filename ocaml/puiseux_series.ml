@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.44 2013-05-26 23:04:04 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.45 2013-05-26 23:19:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -169,15 +169,17 @@ value rec find_monom p j s =
 value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
+  let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
   let minp₁ = map_option Q.zero power (ser_nth 0 s₁) in
   let minp₂ = map_option Q.zero power (ser_nth 0 s₂) in
-  let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
+  let minp₁c = Q.rnum (Q.norm (Q.muli minp₁ comden)) in
+  let minp₂c = Q.rnum (Q.norm (Q.muli minp₂ comden)) in
   let t =
     loop 0 where rec loop i =
       let cp_o =
         loop 0 i where rec loop i j =
-          let p₁ = Q.norm (Q.add minp₁ (Q.make (I.of_int i) comden)) in
-          let p₂ = Q.norm (Q.add minp₂ (Q.make (I.of_int j) comden)) in
+          let p₁ = Q.make (I.addi minp₁c i) comden in
+          let p₂ = Q.make (I.addi minp₂c j) comden in
           let m₁o = find_monom p₁ 0 s₁ in
           let m₂o = find_monom p₂ 0 s₂ in
           match (m₁o, m₂o) with
