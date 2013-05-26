@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.42 2013-05-26 21:42:29 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.43 2013-05-26 22:05:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -155,17 +155,17 @@ type monom_search α = [ Found of α | Ended | Remaining ];
 
 value find_monom minp i comden s =
   let p = Q.norm (Q.add minp (Q.make (I.of_int i) comden)) in
-  loop 0 where rec loop j =
-    match ser_nth j s with
-    | None →
-        Ended
-    | Some t →
+  loop 0 s where rec loop j s =
+    match s with
+    | Term t s₁ →
         if Q.eq (power t) p then
           Found t
         else if Q.lt (power t) p then
-          loop (j + 1)
+          loop (j + 1) (Lazy.force s₁)
         else
           Remaining
+    | End →
+        Ended
     end
 ;
 
