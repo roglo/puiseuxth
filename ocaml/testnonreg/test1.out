@@ -1,4 +1,4 @@
-$ ./puiseux '(-x3+x4)-2x2y-xy2+2xy4+y5'
+$ ./puiseux --with-sqrt-x "(-x3+x4)-2x2y-xy2+2xy4+y5" -v -n 1 -d
 input:
 -x³+x⁴-2x²y-xy²+2xy⁴+y⁵
 
@@ -47,7 +47,7 @@ f₁(x,y) = x⁻⁵ᐟ³f(x,∛x((-1-i√3)/2+y)) =
 
 solution: [31my₄ = -(1+i√3)/2∛x + ...[m
 
-$ ./puiseux 'x4-x3y+3x2y3-3xy5+y7'
+$ ./puiseux --with-sqrt-x "x4-x3y+3x2y3-3xy5+y7" -v -n 1 -d
 input:
 x⁴-x³y+3x²y³-3xy⁵+y⁷
 
@@ -88,7 +88,7 @@ f₁(x,y) = x⁻⁷ᐟ²f(x,√x(-1+y)) =
 
 solution: [31my₃ = -√x + ...[m
 
-$ ./puiseux '2x5-x3y+2x2y2-xy3+2y5'
+$ ./puiseux --with-sqrt-x "2x5-x3y+2x2y2-xy3+2y5" -v -n 1 -d
 input:
 2x⁵-x³y+2x²y²-xy³+2y⁵
 
@@ -142,7 +142,7 @@ f₁(x,y) = x⁻⁵ᐟ²f(x,√x(-√2/2+y)) =
 
 solution: [31my₄ = -√2/2√x + ...[m
 
-$ ./puiseux '(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4'
+$ ./puiseux --with-sqrt-x "(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4" -v -n 1 -d
 input:
 x²+4x³+6x⁴-4x⁴y-(2x+4x²+2x³)y²+y⁴
 
@@ -170,7 +170,7 @@ f₁(x,y) = x⁻²f(x,√x(-1+y)) =
 
 solution: [31my₂ = -√x + ...[m
 
-$ ./puiseux -y X 't2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3'
+$ ./puiseux -y X --with-sqrt-x "t2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3" -v -n 1 -d
 input:
 t²X⁶+6t²X⁵+(8t³-2t²+t)X³+(7t⁴-t²-2t)X²+(8t³-3t)X-t⁸+t³
 
@@ -240,7 +240,7 @@ f₁(t,X) = t⁰f(t,t⁻¹ᐟ³((1+i√3)/2+X)) =
 
 solution: [31mX₆ = (1+i√3)/2t⁻¹ᐟ³ + ...[m
 
-$ ./puiseux 'y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3'
+$ ./puiseux --with-sqrt-x "y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3" -v -n 1 -d
 input:
 y⁵-4y⁴+4y³+2x²y²-xy²+2x²y+2xy+x⁴+x³
 
@@ -294,7 +294,7 @@ f₁(x,y) = x⁰f(x,2+y) =
 
 solution: [31my₄ = 2 + ...[m
 
-$ ./puiseux 'y2-x3+2x2-x'
+$ ./puiseux --with-sqrt-x "y2-x3+2x2-x" -v -n 1 -d
 input:
 y²-x³+2x²-x
 
@@ -322,7 +322,7 @@ f₁(x,y) = x⁻¹f(x,√x(-1+y)) =
 
 solution: [31my₂ = -√x + ...[m
 
-$ ./puiseux '2x5-x3y+2x2y2-xy3+2y5'
+$ ./puiseux --with-sqrt-x "2x5-x3y+2x2y2-xy3+2y5" -v -n 1 -d
 input:
 2x⁵-x³y+2x²y²-xy³+2y⁵
 
@@ -376,7 +376,7 @@ f₁(x,y) = x⁻⁵ᐟ²f(x,√x(-√2/2+y)) =
 
 solution: [31my₄ = -√2/2√x + ...[m
 
-$ ./puiseux 'y4-(2x3+2x2)y2+(x6+2x5+x4)'
+$ ./puiseux --with-sqrt-x "y4-(2x3+2x2)y2+(x6+2x5+x4)" -v -n 1 -d
 input:
 y⁴-(2x³+2x²)y²+(x⁶+2x⁵+x⁴)
 
@@ -404,7 +404,7 @@ f₁(x,y) = x⁻⁴f(x,x(-1+y)) =
 
 solution: [31my₂ = -x + ...[m
 
-$ ./puiseux 'y4-2x3y2-2x2y2+x6+2x5+x4'
+$ ./puiseux --with-sqrt-x "y4-2x3y2-2x2y2+x6+2x5+x4" -v -n 1 -d
 input:
 y⁴-2x³y²-2x²y²+x⁶+2x⁵+x⁴
 
@@ -432,7 +432,7 @@ f₁(x,y) = x⁻⁴f(x,x(-1+y)) =
 
 solution: [31my₂ = -x + ...[m
 
-$ ./puiseux ' -x3+x4-2x2y-xy2+2xy4+y5'
+$ ./puiseux --with-sqrt-x " -x3+x4-2x2y-xy2+2xy4+y5" -v -n 1 -d
 input:
 -x³+x⁴-2x²y-xy²+2xy⁴+y⁵
 
@@ -481,7 +481,7 @@ f₁(x,y) = x⁻⁵ᐟ³f(x,∛x((-1-i√3)/2+y)) =
 
 solution: [31my₄ = -(1+i√3)/2∛x + ...[m
 
-$ ./puiseux 'x2+xy+y2+x+y'
+$ ./puiseux --with-sqrt-x "x2+xy+y2+x+y" -v -n 1 -d
 input:
 x²+xy+y²+x+y
 
@@ -514,7 +514,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₂ = -1 + ...[m
 
-$ ./puiseux 'x2+xy+y2+y'
+$ ./puiseux --with-sqrt-x "x2+xy+y2+y" -v -n 1 -d
 input:
 x²+xy+y²+y
 
@@ -547,7 +547,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₂ = -1 + ...[m
 
-$ ./puiseux 'x2+xy+y2+x'
+$ ./puiseux --with-sqrt-x "x2+xy+y2+x" -v -n 1 -d
 input:
 x²+xy+y²+x
 
@@ -575,7 +575,7 @@ f₁(x,y) = x⁻¹f(x,√x(-i+y)) =
 
 solution: [31my₂ = -i√x + ...[m
 
-$ ./puiseux 'x2+4xy+y2'
+$ ./puiseux --with-sqrt-x "x2+4xy+y2" -v -n 1 -d
 input:
 x²+4xy+y²
 
@@ -605,7 +605,7 @@ f₁(x,y) = x⁻²f(x,x((-2-√3)+y)) =
 zero is root !
 solution: [31my₂ = -(2+√3)x[m
 
-$ ./puiseux 'x2+xy+y2'
+$ ./puiseux --with-sqrt-x "x2+xy+y2" -v -n 1 -d
 input:
 x²+xy+y²
 
@@ -635,7 +635,7 @@ f₁(x,y) = x⁻²f(x,x((-1-i√3)/2+y)) =
 zero is root !
 solution: [31my₂ = -(1+i√3)/2x[m
 
-$ ./puiseux 'x2+2xy+y2'
+$ ./puiseux --with-sqrt-x "x2+2xy+y2" -v -n 1 -d
 input:
 x²+2xy+y²
 
@@ -656,7 +656,7 @@ f₁(x,y) = x⁻²f(x,x(-1+y)) =
 zero is root !
 solution: [31my₁ = -x[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+x+y'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+xy+y2+x+y" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+xy+y²+x+y
 
@@ -697,7 +697,7 @@ f₁(x,y) = x⁰f(x,(-1-i√3)/2+y) =
 
 solution: [31my₃ = -(1+i√3)/2 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+y'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+xy+y2+y" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+xy+y²+y
 
@@ -738,7 +738,7 @@ f₁(x,y) = x⁰f(x,(-1-i√3)/2+y) =
 
 solution: [31my₃ = -(1+i√3)/2 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+x'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+xy+y2+x" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+xy+y²+x
 
@@ -779,7 +779,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₃ = -1 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²
 
@@ -815,7 +815,7 @@ f₁(x,y) = x⁻²f(x,∛x²((1+i√3)/2+y)) =
 
 solution: [31my₃ = (1+i√3)/2∛x² + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+y2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+y2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+y²
 
@@ -856,7 +856,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₃ = -1 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+xy" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+xy
 
@@ -898,7 +898,7 @@ f₁(x,y) = x⁻³ᐟ²f(x,√x(-i+y)) =
 
 solution: [31my₃ = -i√x + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy+y2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+xy+y2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+xy+y²
 
@@ -945,7 +945,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₃ = -1 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+xy" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+xy
 
@@ -986,7 +986,7 @@ f₁(x,y) = x⁻³ᐟ²f(x,√x(-i+y)) =
 
 solution: [31my₃ = -i√x + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy+y'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+xy+y" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+xy+y
 
@@ -1027,7 +1027,7 @@ f₁(x,y) = x⁰f(x,-i+y) =
 
 solution: [31my₃ = -i + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy+x'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+xy+x" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+xy+x
 
@@ -1063,7 +1063,7 @@ f₁(x,y) = x⁻¹f(x,∛x((1+i√3)/2+y)) =
 
 solution: [31my₃ = (1+i√3)/2∛x + ...[m
 
-$ ./puiseux 'yx2-y3'
+$ ./puiseux --with-sqrt-x "yx2-y3" -v -n 1 -d
 input:
 yx²-y³
 
@@ -1093,7 +1093,7 @@ f₁(x,y) = x⁻³f(x,x(-1+y)) =
 zero is root !
 solution: [31my₂ = -x[m
 
-$ ./puiseux 'x3+x2y+xy2+y3'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3" -v -n 1 -d
 input:
 x³+x²y+xy²+y³
 
@@ -1132,7 +1132,7 @@ f₁(x,y) = x⁻³f(x,x(-i+y)) =
 zero is root !
 solution: [31my₃ = -ix[m
 
-$ ./puiseux 'yx2-2xy2+y3'
+$ ./puiseux --with-sqrt-x "yx2-2xy2+y3" -v -n 1 -d
 input:
 yx²-2xy²+y³
 
@@ -1153,7 +1153,7 @@ f₁(x,y) = x⁻³f(x,x(1+y)) =
 zero is root !
 solution: [31my₁ = x[m
 
-$ ./puiseux 'x3-3yx2+3xy2-y3'
+$ ./puiseux --with-sqrt-x "x3-3yx2+3xy2-y3" -v -n 1 -d
 input:
 x³-3yx²+3xy²-y³
 
@@ -1174,7 +1174,7 @@ f₁(x,y) = x⁻³f(x,x(1+y)) =
 zero is root !
 solution: [31my₁ = x[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+4xy+y2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+4xy+y2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+4xy+y²
 
@@ -1215,7 +1215,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₃ = -1 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+xy+y2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+xy+y²
 
@@ -1256,7 +1256,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₃ = -1 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+2xy+y2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+2xy+y2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+2xy+y²
 
@@ -1290,7 +1290,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₂ = -1 + ...[m
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+4xy+4y2'
+$ ./puiseux --with-sqrt-x "x3+x2y+xy2+y3+x2+4xy+4y2" -v -n 1 -d
 input:
 x³+x²y+xy²+y³+x²+4xy+4y²
 
@@ -1323,7 +1323,7 @@ f₁(x,y) = x⁰f(x,-4+y) =
 
 solution: [31my₂ = -4 + ...[m
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x+y'
+$ ./puiseux --with-sqrt-x "x4+x3y+x2y2+xy3+y4+x+y" -v -n 1 -d
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x+y
 
@@ -1372,7 +1372,7 @@ f₁(x,y) = x⁰f(x,(1+i√3)/2+y) =
 
 solution: [31my₄ = (1+i√3)/2 + ...[m
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x2+y'
+$ ./puiseux --with-sqrt-x "x4+x3y+x2y2+xy3+y4+x2+y" -v -n 1 -d
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x²+y
 
@@ -1421,7 +1421,7 @@ f₁(x,y) = x⁰f(x,(1+i√3)/2+y) =
 
 solution: [31my₄ = (1+i√3)/2 + ...[m
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x+y2'
+$ ./puiseux --with-sqrt-x "x4+x3y+x2y2+xy3+y4+x+y2" -v -n 1 -d
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x+y²
 
@@ -1470,7 +1470,7 @@ f₁(x,y) = x⁰f(x,-i+y) =
 
 solution: [31my₄ = -i + ...[m
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x3+y'
+$ ./puiseux --with-sqrt-x "x4+x3y+x2y2+xy3+y4+x3+y" -v -n 1 -d
 input:
 x⁴+x³y+x²y²+xy³+y⁴+x³+y
 
@@ -1519,7 +1519,7 @@ f₁(x,y) = x⁰f(x,(1+i√3)/2+y) =
 
 solution: [31my₄ = (1+i√3)/2 + ...[m
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+y3+x'
+$ ./puiseux --with-sqrt-x "x4+x3y+x2y2+xy3+y4+y3+x" -v -n 1 -d
 input:
 x⁴+x³y+x²y²+xy³+y⁴+y³+x
 
@@ -1568,7 +1568,7 @@ f₁(x,y) = x⁰f(x,-1+y) =
 
 solution: [31my₄ = -1 + ...[m
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+y3+x2'
+$ ./puiseux --with-sqrt-x "x4+x3y+x2y2+xy3+y4+y3+x2" -v -n 1 -d
 input:
 x⁴+x³y+x²y²+xy³+y⁴+y³+x²
 

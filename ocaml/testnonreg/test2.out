@@ -1,4 +1,4 @@
-$ ./puiseux '(-x3+x4)-2x2y-xy2+2xy4+y5'
+$ ./puiseux "(-x3+x4)-2x2y-xy2+2xy4+y5" -d
 equation: -x³+x⁴-2x²y-xy²+2xy⁴+y⁵ = 0
 
 solution: y₁ = -x + x³ᐟ² + 1/2x⁵ᐟ² - 3/2x³ + 7/8x⁷ᐟ² + ...
@@ -7,7 +7,7 @@ solution: y₃ = x¹ᐟ³ + 1/3x⁵ᐟ³ - 2/3x⁷ᐟ³ - 1/3x⁸ᐟ³ + x³ + .
 solution: y₄ = (-1+i√3)/2x¹ᐟ³ - (1+i√3)/6x⁵ᐟ³ + (1-i√3)/3x⁷ᐟ³ + (1+i√3)/6x⁸ᐟ³ + x³ + ...
 solution: y₅ = -(1+i√3)/2x¹ᐟ³ + (-1+i√3)/6x⁵ᐟ³ + (1+i√3)/3x⁷ᐟ³ + (1-i√3)/6x⁸ᐟ³ + x³ + ...
 
-$ ./puiseux 'x4-x3y+3x2y3-3xy5+y7'
+$ ./puiseux "x4-x3y+3x2y3-3xy5+y7" -d
 equation: x⁴-x³y+3x²y³-3xy⁵+y⁷ = 0
 
 solution: y₁ = x + 3x² + 24x³ + 253x⁴ + 3045x⁵ + ...
@@ -18,7 +18,7 @@ solution: y₅ = -x¹ᐟ² - 1/2x²ᐟ³ + 5/24x⁵ᐟ⁶ - 1/6x + 1729/10368x�
 solution: y₆ = -x¹ᐟ² + (1-i√3)/4x²ᐟ³ - (5+5i√3)/48x⁵ᐟ⁶ - 1/6x + (-1729+1729i√3)/20736x⁷ᐟ⁶ + ...
 solution: y₇ = -x¹ᐟ² + (1+i√3)/4x²ᐟ³ + (-5+5i√3)/48x⁵ᐟ⁶ - 1/6x - (1729+1729i√3)/20736x⁷ᐟ⁶ + ...
 
-$ ./puiseux '2x5-x3y+2x2y2-xy3+2y5'
+$ ./puiseux "2x5-x3y+2x2y2-xy3+2y5" -d
 equation: 2x⁵-x³y+2x²y²-xy³+2y⁵ = 0
 
 solution: y₁ = 2x² + 8x³ + 56x⁴ + 480x⁵ + 4576x⁶ + ...
@@ -27,7 +27,7 @@ solution: y₃ = x - 2x³ᐟ² + 3x² - 65/4x⁵ᐟ² + 54x³ + ...
 solution: y₄ = √2/2x¹ᐟ² - x - √2x³ᐟ² - 4x² - 10√2x⁵ᐟ² + ...
 solution: y₅ = -√2/2x¹ᐟ² - x + √2x³ᐟ² - 4x² + 10√2x⁵ᐟ² + ...
 
-$ ./puiseux '(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4'
+$ ./puiseux "(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4" -d
 equation: x²+4x³+6x⁴-4x⁴y-(2x+4x²+2x³)y²+y⁴ = 0
 
 solution: y₁ = x¹ᐟ² + x³ᐟ² + x⁷ᐟ⁴ + 1/2x⁹ᐟ⁴ - 5/8x¹¹ᐟ⁴ + ...
@@ -35,7 +35,7 @@ solution: y₂ = x¹ᐟ² + x³ᐟ² - x⁷ᐟ⁴ - 1/2x⁹ᐟ⁴ + 5/8x¹¹ᐟ�
 solution: y₃ = -x¹ᐟ² - x³ᐟ² + ix⁷ᐟ⁴ - i/2x⁹ᐟ⁴ - 5i/8x¹¹ᐟ⁴ + ...
 solution: y₄ = -x¹ᐟ² - x³ᐟ² - ix⁷ᐟ⁴ + i/2x⁹ᐟ⁴ + 5i/8x¹¹ᐟ⁴ + ...
 
-$ ./puiseux -y X 't2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3'
+$ ./puiseux -y X "t2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3" -d
 equation: t³-t⁸+(-3t+8t³)X+(-2t-t²+7t⁴)X²+(t-2t²+8t³)X³+6t²X⁵+t²X⁶ = 0
 
 solution: X₁ = 1/3t² + 22/27t⁴ - 1/27t⁵ + 443/243t⁶ - 88/243t⁷ + ...
@@ -45,7 +45,7 @@ solution: X₄ = -t⁻¹ᐟ³ - 8/3 - 7/9t¹ᐟ³ - 1276/81t²ᐟ³ + 176/3t + .
 solution: X₅ = (1-i√3)/2t⁻¹ᐟ³ - 8/3 + (7+7i√3)/18t¹ᐟ³ + (638-638i√3)/81t²ᐟ³ + 176/3t + ...
 solution: X₆ = (1+i√3)/2t⁻¹ᐟ³ - 8/3 + (7-7i√3)/18t¹ᐟ³ + (638+638i√3)/81t²ᐟ³ + 176/3t + ...
 
-$ ./puiseux 'y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3'
+$ ./puiseux "y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3" -d
 equation: x³+x⁴+(2x+2x²)y+(-x+2x²)y²+4y³-4y⁴+y⁵ = 0
 
 solution: y₁ = -1/2x² + 1/8x⁴ - 1/8x⁵ + 1/16x⁶ + 1/16x⁷ + ...
@@ -54,13 +54,13 @@ solution: y₃ = -i√2/2x¹ᐟ² - 1/8x - 27i√2/128x³ᐟ² - 7/32x² + 4057i
 solution: y₄ = 2 + (1+i√95)/8x + (15/32-47i√95/3040)x² - (121/512+167913i√95/4620800)x³ + (-655/2048+66672639i√95/1755904000)x⁴ + ...
 solution: y₅ = 2 + (1-i√95)/8x + (15/32+47i√95/3040)x² + (-121/512+167913i√95/4620800)x³ - (655/2048+66672639i√95/1755904000)x⁴ + ...
 
-$ ./puiseux 'y2-x3+2x2-x'
+$ ./puiseux "y2-x3+2x2-x" -d
 equation: -x+2x²-x³+y² = 0
 
 solution: y₁ = x¹ᐟ² - x³ᐟ²
 solution: y₂ = -x¹ᐟ² + x³ᐟ²
 
-$ ./puiseux '2x5-x3y+2x2y2-xy3+2y5'
+$ ./puiseux "2x5-x3y+2x2y2-xy3+2y5" -d
 equation: 2x⁵-x³y+2x²y²-xy³+2y⁵ = 0
 
 solution: y₁ = 2x² + 8x³ + 56x⁴ + 480x⁵ + 4576x⁶ + ...
@@ -69,19 +69,19 @@ solution: y₃ = x - 2x³ᐟ² + 3x² - 65/4x⁵ᐟ² + 54x³ + ...
 solution: y₄ = √2/2x¹ᐟ² - x - √2x³ᐟ² - 4x² - 10√2x⁵ᐟ² + ...
 solution: y₅ = -√2/2x¹ᐟ² - x + √2x³ᐟ² - 4x² + 10√2x⁵ᐟ² + ...
 
-$ ./puiseux 'y4-(2x3+2x2)y2+(x6+2x5+x4)'
+$ ./puiseux "y4-(2x3+2x2)y2+(x6+2x5+x4)" -d
 equation: x⁴+2x⁵+x⁶-(2x²+2x³)y²+y⁴ = 0
 
 solution: y₁ = x + 1/2x² - 1/8x³ + 1/16x⁴ - 5/128x⁵ + ...
 solution: y₂ = -x - 1/2x² + 1/8x³ - 1/16x⁴ + 5/128x⁵ + ...
 
-$ ./puiseux 'y4-2x3y2-2x2y2+x6+2x5+x4'
+$ ./puiseux "y4-2x3y2-2x2y2+x6+2x5+x4" -d
 equation: x⁴+2x⁵+x⁶-(2x²+2x³)y²+y⁴ = 0
 
 solution: y₁ = x + 1/2x² - 1/8x³ + 1/16x⁴ - 5/128x⁵ + ...
 solution: y₂ = -x - 1/2x² + 1/8x³ - 1/16x⁴ + 5/128x⁵ + ...
 
-$ ./puiseux ' -x3+x4-2x2y-xy2+2xy4+y5'
+$ ./puiseux " -x3+x4-2x2y-xy2+2xy4+y5" -d
 equation: -x³+x⁴-2x²y-xy²+2xy⁴+y⁵ = 0
 
 solution: y₁ = -x + x³ᐟ² + 1/2x⁵ᐟ² - 3/2x³ + 7/8x⁷ᐟ² + ...
@@ -90,162 +90,162 @@ solution: y₃ = x¹ᐟ³ + 1/3x⁵ᐟ³ - 2/3x⁷ᐟ³ - 1/3x⁸ᐟ³ + x³ + .
 solution: y₄ = (-1+i√3)/2x¹ᐟ³ - (1+i√3)/6x⁵ᐟ³ + (1-i√3)/3x⁷ᐟ³ + (1+i√3)/6x⁸ᐟ³ + x³ + ...
 solution: y₅ = -(1+i√3)/2x¹ᐟ³ + (-1+i√3)/6x⁵ᐟ³ + (1+i√3)/3x⁷ᐟ³ + (1-i√3)/6x⁸ᐟ³ + x³ + ...
 
-$ ./puiseux 'x2+xy+y2+x+y'
+$ ./puiseux "x2+xy+y2+x+y" -d
 equation: x+x²+(1+x)y+y² = 0
 
 solution: y₁ = -x - x² - x³ - 2x⁴ - 4x⁵ + ...
 solution: y₂ = -1 + x² + x³ + 2x⁴ + 4x⁵ + ...
 
-$ ./puiseux 'x2+xy+y2+y'
+$ ./puiseux "x2+xy+y2+y" -d
 equation: x²+(1+x)y+y² = 0
 
 solution: y₁ = -x² + x³ - 2x⁴ + 4x⁵ - 9x⁶ + ...
 solution: y₂ = -1 - x + x² - x³ + 2x⁴ + ...
 
-$ ./puiseux 'x2+xy+y2+x'
+$ ./puiseux "x2+xy+y2+x" -d
 equation: x+x²+xy+y² = 0
 
 solution: y₁ = ix¹ᐟ² - 1/2x + 3i/8x³ᐟ² - 9i/128x⁵ᐟ² + 27i/1024x⁷ᐟ² + ...
 solution: y₂ = -ix¹ᐟ² - 1/2x - 3i/8x³ᐟ² + 9i/128x⁵ᐟ² - 27i/1024x⁷ᐟ² + ...
 
-$ ./puiseux 'x2+4xy+y2'
+$ ./puiseux "x2+4xy+y2" -d
 equation: x²+4xy+y² = 0
 
 solution: y₁ = (-2+√3)x
 solution: y₂ = -(2+√3)x
 
-$ ./puiseux 'x2+xy+y2'
+$ ./puiseux "x2+xy+y2" -d
 equation: x²+xy+y² = 0
 
 solution: y₁ = (-1+i√3)/2x
 solution: y₂ = -(1+i√3)/2x
 
-$ ./puiseux 'x2+2xy+y2'
+$ ./puiseux "x2+2xy+y2" -d
 equation: x²+2xy+y² = 0
 
 solution: y₁ = -x
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+x+y'
+$ ./puiseux "x3+x2y+xy2+y3+x2+xy+y2+x+y" -d
 equation: x+x²+x³+(1+x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = -x - x² - x³ + 2x⁵ + 6x⁶ + ...
 solution: y₂ = (-1+i√3)/2 + (1/2+i√3/6)x² + (1/2+i√3/6)x³ + 5i√3/9x⁴ + (-1+7i√3/9)x⁵ + ...
 solution: y₃ = -(1+i√3)/2 + (1/2-i√3/6)x² + (1/2-i√3/6)x³ - 5i√3/9x⁴ - (1+7i√3/9)x⁵ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+y'
+$ ./puiseux "x3+x2y+xy2+y3+x2+xy+y2+y" -d
 equation: x²+x³+(1+x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = -x² - x⁵ + 2x⁶ - 3x⁷ + 3x⁸ + ...
 solution: y₂ = (-1+i√3)/2 + (-1/2+i√3/6)x + (1/2+i√3/18)x² - 5i√3/27x³ + 25i√3/81x⁴ + ...
 solution: y₃ = -(1+i√3)/2 - (1/2+i√3/6)x + (1/2-i√3/18)x² + 5i√3/27x³ - 25i√3/81x⁴ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2+x'
+$ ./puiseux "x3+x2y+xy2+y3+x2+xy+y2+x" -d
 equation: x+x²+x³+(x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = ix¹ᐟ² - 1/2x² + ix⁵ᐟ² + 3/2x³ - 21i/8x⁷ᐟ² + ...
 solution: y₂ = -ix¹ᐟ² - 1/2x² - ix⁵ᐟ² + 3/2x³ + 21i/8x⁷ᐟ² + ...
 solution: y₃ = -1 - x + x² - 3x³ + 9x⁴ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2'
+$ ./puiseux "x3+x2y+xy2+y3+x2" -d
 equation: x²+x³+x²y+xy²+y³ = 0
 
 solution: y₁ = -x²ᐟ³ - 1/3x + 2/9x⁴ᐟ³ - 20/81x⁵ᐟ³ - 40/729x⁷ᐟ³ + ...
 solution: y₂ = (1-i√3)/2x²ᐟ³ - 1/3x - (1+i√3)/9x⁴ᐟ³ + (10-10i√3)/81x⁵ᐟ³ + (20+20i√3)/729x⁷ᐟ³ + ...
 solution: y₃ = (1+i√3)/2x²ᐟ³ - 1/3x + (-1+i√3)/9x⁴ᐟ³ + (10+10i√3)/81x⁵ᐟ³ + (20-20i√3)/729x⁷ᐟ³ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+y2'
+$ ./puiseux "x3+x2y+xy2+y3+y2" -d
 equation: x³+x²y+(1+x)y²+y³ = 0
 
 solution: y₁ = ix³ᐟ² - 1/2x² - 5i/8x⁵ᐟ² + x³ + 167i/128x⁷ᐟ² + ...
 solution: y₂ = -ix³ᐟ² - 1/2x² + 5i/8x⁵ᐟ² + x³ - 167i/128x⁷ᐟ² + ...
 solution: y₃ = -1 - x + x² - 2x³ + 4x⁴ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy'
+$ ./puiseux "x3+x2y+xy2+y3+x2+xy" -d
 equation: x²+x³+(x+x²)y+xy²+y³ = 0
 
 solution: y₁ = -x
 solution: y₂ = ix¹ᐟ² + i/2x³ᐟ² - i/8x⁵ᐟ² + i/16x⁷ᐟ² - 5i/128x⁹ᐟ² + ...
 solution: y₃ = -ix¹ᐟ² - i/2x³ᐟ² + i/8x⁵ᐟ² - i/16x⁷ᐟ² + 5i/128x⁹ᐟ² + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy+y2'
+$ ./puiseux "x3+x2y+xy2+y3+xy+y2" -d
 equation: x³+(x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = -x² - x⁴ - 2x⁶ - 5x⁸ - 14x¹⁰ + ...
 solution: y₂ = -x
 solution: y₃ = -1 + x² + x⁴ + 2x⁶ + 5x⁸ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy'
+$ ./puiseux "x3+x2y+xy2+y3+xy" -d
 equation: x³+(x+x²)y+xy²+y³ = 0
 
 solution: y₁ = -x² + x³ - 2x⁴ + 5x⁵ - 13x⁶ + ...
 solution: y₂ = ix¹ᐟ² - 1/2x + 3i/8x³ᐟ² + 1/2x² - 41i/128x⁵ᐟ² + ...
 solution: y₃ = -ix¹ᐟ² - 1/2x - 3i/8x³ᐟ² + 1/2x² + 41i/128x⁵ᐟ² + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy+y'
+$ ./puiseux "x3+x2y+xy2+y3+xy+y" -d
 equation: x³+(1+x+x²)y+xy²+y³ = 0
 
 solution: y₁ = -x³ + x⁴ - x⁶ + 3x⁸ - 3x⁹ + ...
 solution: y₂ = i + (-1+i)/2x + i/4x² + (1/2-i/8)x³ - (1/2+7i/32)x⁴ + ...
 solution: y₃ = -i - (1+i)/2x - i/4x² + (1/2+i/8)x³ + (-1/2+7i/32)x⁴ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+xy+x'
+$ ./puiseux "x3+x2y+xy2+y3+xy+x" -d
 equation: x+x³+(x+x²)y+xy²+y³ = 0
 
 solution: y₁ = -x¹ᐟ³ + 1/3x²ᐟ³ - 1/3x + 8/81x⁴ᐟ³ + 62/243x⁵ᐟ³ + ...
 solution: y₂ = (1-i√3)/2x¹ᐟ³ - (1+i√3)/6x²ᐟ³ - 1/3x + (-4+4i√3)/81x⁴ᐟ³ - (31+31i√3)/243x⁵ᐟ³ + ...
 solution: y₃ = (1+i√3)/2x¹ᐟ³ + (-1+i√3)/6x²ᐟ³ - 1/3x - (4+4i√3)/81x⁴ᐟ³ + (-31+31i√3)/243x⁵ᐟ³ + ...
 
-$ ./puiseux 'yx2-y3'
+$ ./puiseux "yx2-y3" -d
 equation: x²y-y³ = 0
 
 solution: y₁ = x
 solution: y₂ = -x
 
-$ ./puiseux 'x3+x2y+xy2+y3'
+$ ./puiseux "x3+x2y+xy2+y3" -d
 equation: x³+x²y+xy²+y³ = 0
 
 solution: y₁ = -x
 solution: y₂ = ix
 solution: y₃ = -ix
 
-$ ./puiseux 'yx2-2xy2+y3'
+$ ./puiseux "yx2-2xy2+y3" -d
 equation: x²y-2xy²+y³ = 0
 
 solution: y₁ = x
 
-$ ./puiseux 'x3-3yx2+3xy2-y3'
+$ ./puiseux "x3-3yx2+3xy2-y3" -d
 equation: x³-3x²y+3xy²-y³ = 0
 
 solution: y₁ = x
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+4xy+y2'
+$ ./puiseux "x3+x2y+xy2+y3+x2+4xy+y2" -d
 equation: x²+x³+(4x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = (-2+√3)x + (-6+10√3/3)x² + (-40+208√3/9)x³ + (-340+5300√3/27)x⁴ + (-3240+151520√3/81)x⁵ + ...
 solution: y₂ = -(2+√3)x - (6+10√3/3)x² - (40+208√3/9)x³ - (340+5300√3/27)x⁴ - (3240+151520√3/81)x⁵ + ...
 solution: y₃ = -1 + 3x + 12x² + 80x³ + 680x⁴ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+xy+y2'
+$ ./puiseux "x3+x2y+xy2+y3+x2+xy+y2" -d
 equation: x²+x³+(x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = (-1+i√3)/2x + i√3/3x² + (1/2+i√3/18)x³ + (1/2-11i√3/54)x⁴ - 50i√3/81x⁵ + ...
 solution: y₂ = -(1+i√3)/2x - i√3/3x² + (1/2-i√3/18)x³ + (1/2+11i√3/54)x⁴ + 50i√3/81x⁵ + ...
 solution: y₃ = -1 - x³ - x⁴ + 3x⁶ + 6x⁷ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+2xy+y2'
+$ ./puiseux "x3+x2y+xy2+y3+x2+2xy+y2" -d
 equation: x²+x³+(2x+x²)y+(1+x)y²+y³ = 0
 
 solution: y₁ = -x
 solution: y₂ = -1 + x + 2x² + 4x³ + 12x⁴ + ...
 
-$ ./puiseux 'x3+x2y+xy2+y3+x2+4xy+4y2'
+$ ./puiseux "x3+x2y+xy2+y3+x2+4xy+4y2" -d
 equation: x²+x³+(4x+x²)y+(4+x)y²+y³ = 0
 
 solution: y₁ = -1/2x + i√10/8x³ᐟ² - 3/32x² + 11i√10/2560x⁵ᐟ² + 1/128x³ + ...
 solution: y₂ = -1/2x - i√10/8x³ᐟ² - 3/32x² - 11i√10/2560x⁵ᐟ² + 1/128x³ + ...
 solution: y₃ = -4 + 3/16x² - 1/64x³ + 1/512x⁴ - 15/4096x⁵ + ...
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x+y'
+$ ./puiseux "x4+x3y+x2y2+xy3+y4+x+y" -d
 equation: x+x⁴+(1+x³)y+x²y²+xy³+y⁴ = 0
 
 solution: y₁ = -x - x⁴ - 2x⁷ - 8x¹⁰ - 35x¹³ + ...
@@ -253,7 +253,7 @@ solution: y₂ = -1 + 1/3x² + 1/3x⁴ + 1/3x⁵ + 44/81x⁶ + ...
 solution: y₃ = (1-i√3)/2 - (1+i√3)/6x² + 1/3x⁴ - (1+i√3)/6x⁵ + (-22+22i√3)/81x⁶ + ...
 solution: y₄ = (1+i√3)/2 + (-1+i√3)/6x² + 1/3x⁴ + (-1+i√3)/6x⁵ - (22+22i√3)/81x⁶ + ...
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x2+y'
+$ ./puiseux "x4+x3y+x2y2+xy3+y4+x2+y" -d
 equation: x²+x⁴+(1+x³)y+x²y²+xy³+y⁴ = 0
 
 solution: y₁ = -x² - x⁴ + x⁵ - x⁶ + 2x⁷ + ...
@@ -261,7 +261,7 @@ solution: y₂ = -1 - 1/3x + 5/9x² - 29/81x³ + 20/27x⁴ + ...
 solution: y₃ = (1-i√3)/2 - 1/3x + (2-i√3)/9x² + (29-11i√3)/162x³ + (7-i√3)/54x⁴ + ...
 solution: y₄ = (1+i√3)/2 - 1/3x + (2+i√3)/9x² + (29+11i√3)/162x³ + (7+i√3)/54x⁴ + ...
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x+y2'
+$ ./puiseux "x4+x3y+x2y2+xy3+y4+x+y2" -d
 equation: x+x⁴+x³y+(1+x²)y²+xy³+y⁴ = 0
 
 solution: y₁ = ix¹ᐟ² + i/2x³ᐟ² + 1/2x² + 3i/8x⁵ᐟ² + x³ + ...
@@ -269,7 +269,7 @@ solution: y₂ = -ix¹ᐟ² - i/2x³ᐟ² + 1/2x² - 3i/8x⁵ᐟ² + x³ + ...
 solution: y₃ = i - (1+i)/2x - (1/2+i/4)x² - (1+3i/8)x³ - (3+11i/32)x⁴ + ...
 solution: y₄ = -i + (-1+i)/2x + (-1/2+i/4)x² + (-1+3i/8)x³ + (-3+11i/32)x⁴ + ...
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+x3+y'
+$ ./puiseux "x4+x3y+x2y2+xy3+y4+x3+y" -d
 equation: x³+x⁴+(1+x³)y+x²y²+xy³+y⁴ = 0
 
 solution: y₁ = -x³ - x⁴ + x⁶ + x⁷ - x⁸ + ...
@@ -277,7 +277,7 @@ solution: y₂ = -1 - 1/3x + 2/9x² + 7/81x³ + 2/9x⁴ + ...
 solution: y₃ = (1-i√3)/2 - 1/3x - (1+i√3)/9x² + (37-10i√3)/81x³ + (7+i√3)/18x⁴ + ...
 solution: y₄ = (1+i√3)/2 - 1/3x + (-1+i√3)/9x² + (37+10i√3)/81x³ + (7-i√3)/18x⁴ + ...
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+y3+x'
+$ ./puiseux "x4+x3y+x2y2+xy3+y4+y3+x" -d
 equation: x+x⁴+x³y+x²y²+(1+x)y³+y⁴ = 0
 
 solution: y₁ = -x¹ᐟ³ - 1/3x²ᐟ³ - 1/3x - 8/81x⁴ᐟ³ - 19/243x⁵ᐟ³ + ...
@@ -285,7 +285,7 @@ solution: y₂ = (1-i√3)/2x¹ᐟ³ + (1+i√3)/6x²ᐟ³ - 1/3x + (4-4i√3)/8
 solution: y₃ = (1+i√3)/2x¹ᐟ³ + (1-i√3)/6x²ᐟ³ - 1/3x + (4+4i√3)/81x⁴ᐟ³ + (19-19i√3)/486x⁵ᐟ³ + ...
 solution: y₄ = -1 + x² + 2x³ + 8x⁴ + 30x⁵ + ...
 
-$ ./puiseux 'x4+x3y+x2y2+xy3+y4+y3+x2'
+$ ./puiseux "x4+x3y+x2y2+xy3+y4+y3+x2" -d
 equation: x²+x⁴+x³y+x²y²+(1+x)y³+y⁴ = 0
 
 solution: y₁ = -x²ᐟ³ - 1/3x⁴ᐟ³ + 1/3x⁵ᐟ³ - 2/3x² + 8/9x⁷ᐟ³ + ...

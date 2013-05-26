@@ -1,4 +1,4 @@
-$ ./puiseux -e 3 '(-x3+x4)-2x2y-xy2+2xy4+y5'
+$ ./puiseux -e 3 "(-x3+x4)-2x2y-xy2+2xy4+y5" -d
 equation: -x³+x⁴-2x²y-xy²+2xy⁴+y⁵ = 0
 
 solution: [31my₁ = -x + x³ᐟ² + 1/2x⁵ᐟ² - 3/2x³ + 7/8x⁷ᐟ² + ...[m
@@ -17,7 +17,7 @@ solution: [31my₅ = -(1+i√3)/2x¹ᐟ³ + (-1+i√3)/6x⁵ᐟ³ + (1+i√3)/3
 f(x,y₅) = (1-i√3)x¹⁴ᐟ³+10/3x⁵+(1+i√3)x¹⁶ᐟ³ + ...
 
 
-$ ./puiseux -e 3 'x4-x3y+3x2y3-3xy5+y7'
+$ ./puiseux -e 3 "x4-x3y+3x2y3-3xy5+y7" -d
 equation: x⁴-x³y+3x²y³-3xy⁵+y⁷ = 0
 
 solution: [31my₁ = x + 3x² + 24x³ + 253x⁴ + 3045x⁵ + ...[m
@@ -42,7 +42,7 @@ solution: [31my₇ = -x¹ᐟ² + (1+i√3)/4x²ᐟ³ + (-5+5i√3)/48x⁵ᐟ⁶
 f(x,y₇) = -(91+91i√3)/162x¹⁴ᐟ³+(51919-51919i√3)/248832x²⁹ᐟ⁶+535007/2239488x⁵ + ...
 
 
-$ ./puiseux -e 3 '2x5-x3y+2x2y2-xy3+2y5'
+$ ./puiseux -e 3 "2x5-x3y+2x2y2-xy3+2y5" -d
 equation: 2x⁵-x³y+2x²y²-xy³+2y⁵ = 0
 
 solution: [31my₁ = 2x² + 8x³ + 56x⁴ + 480x⁵ + 4576x⁶ + ...[m
@@ -61,7 +61,7 @@ solution: [31my₅ = -√2/2x¹ᐟ² - x + √2x³ᐟ² - 4x² + 10√2x⁵ᐟ�
 f(x,y₅) = 58x⁵+112√2x¹¹ᐟ²-176x⁶ + ...
 
 
-$ ./puiseux -e 3 '(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4'
+$ ./puiseux -e 3 "(x2+4x3+6x4)-4x4y+(-2x-4x2-2x3)y2+y4" -d
 equation: x²+4x³+6x⁴-4x⁴y-(2x+4x²+2x³)y²+y⁴ = 0
 
 solution: [31my₁ = x¹ᐟ² + x³ᐟ² + x⁷ᐟ⁴ + 1/2x⁹ᐟ⁴ - 5/8x¹¹ᐟ⁴ + ...[m
@@ -77,7 +77,7 @@ solution: [31my₄ = -x¹ᐟ² - x³ᐟ² - ix⁷ᐟ⁴ + i/2x⁹ᐟ⁴ + 5i/8x
 f(x,y₄) = 9/2x⁶+4ix²⁵ᐟ⁴+39/16x¹³ᐟ² + ...
 
 
-$ ./puiseux -y X -e 3 't2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3'
+$ ./puiseux -y X -e 3 "t2X6+6t2X5+(8t3-2t2+t)X3+(7t4-t2-2t)X2+(8t3-3t)X-t8+t3" -d
 equation: t³-t⁸+(-3t+8t³)X+(-2t-t²+7t⁴)X²+(t-2t²+8t³)X³+6t²X⁵+t²X⁶ = 0
 
 solution: [31mX₁ = 1/3t² + 22/27t⁴ - 1/27t⁵ + 443/243t⁶ - 88/243t⁷ + ...[m
@@ -99,7 +99,7 @@ solution: [31mX₆ = (1+i√3)/2t⁻¹ᐟ³ - 8/3 + (7-7i√3)/18t¹ᐟ³ + (63
 f(t,X₆) = (117196+117196i√3)/243t⁵ᐟ³-7658219/2187t²+(8421047-8421047i√3)/2187t⁷ᐟ³ + ...
 
 
-$ ./puiseux -e 3 'y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3'
+$ ./puiseux -e 3 "y5-4y4+4y3+2x2y2-xy2+2x2y+2xy+x4+x3" -d
 equation: x³+x⁴+(2x+2x²)y+(-x+2x²)y²+4y³-4y⁴+y⁵ = 0
 
 solution: [31my₁ = -1/2x² + 1/8x⁴ - 1/8x⁵ + 1/16x⁶ + 1/16x⁷ + ...[m
@@ -118,7 +118,7 @@ solution: [31my₅ = 2 + (1-i√95)/8x + (15/32+47i√95/3040)x² + (-121/512+1
 f(x,y₅) = (14815023907/2809446400+18911i√95/16384)x⁶+(53139727641139/10675896320000-7531147193i√95/22475571200)x⁷+(7982503231663569/4056840601600000+22313579935457i√95/42703585280000)x⁸ + ...
 
 
-$ ./puiseux -e 3 'y2-x3+2x2-x'
+$ ./puiseux -e 3 "y2-x3+2x2-x" -d
 equation: -x+2x²-x³+y² = 0
 
 solution: [31my₁ = x¹ᐟ² - x³ᐟ²[m
@@ -128,7 +128,7 @@ solution: [31my₂ = -x¹ᐟ² + x³ᐟ²[m
 f(x,y₂) = 0
 
 
-$ ./puiseux -e 3 '2x5-x3y+2x2y2-xy3+2y5'
+$ ./puiseux -e 3 "2x5-x3y+2x2y2-xy3+2y5" -d
 equation: 2x⁵-x³y+2x²y²-xy³+2y⁵ = 0
 
 solution: [31my₁ = 2x² + 8x³ + 56x⁴ + 480x⁵ + 4576x⁶ + ...[m
@@ -147,7 +147,7 @@ solution: [31my₅ = -√2/2x¹ᐟ² - x + √2x³ᐟ² - 4x² + 10√2x⁵ᐟ�
 f(x,y₅) = 58x⁵+112√2x¹¹ᐟ²-176x⁶ + ...
 
 
-$ ./puiseux -e 3 'y4-(2x3+2x2)y2+(x6+2x5+x4)'
+$ ./puiseux -e 3 "y4-(2x3+2x2)y2+(x6+2x5+x4)" -d
 equation: x⁴+2x⁵+x⁶-(2x²+2x³)y²+y⁴ = 0
 
 solution: [31my₁ = x + 1/2x² - 1/8x³ + 1/16x⁴ - 5/128x⁵ + ...[m
@@ -157,7 +157,7 @@ solution: [31my₂ = -x - 1/2x² + 1/8x³ - 1/16x⁴ + 5/128x⁵ + ...[m
 f(x,y₂) = 49/16384x¹⁴-49/32768x¹⁵+189/262144x¹⁶ + ...
 
 
-$ ./puiseux -e 3 'y4-2x3y2-2x2y2+x6+2x5+x4'
+$ ./puiseux -e 3 "y4-2x3y2-2x2y2+x6+2x5+x4" -d
 equation: x⁴+2x⁵+x⁶-(2x²+2x³)y²+y⁴ = 0
 
 solution: [31my₁ = x + 1/2x² - 1/8x³ + 1/16x⁴ - 5/128x⁵ + ...[m
@@ -167,7 +167,7 @@ solution: [31my₂ = -x - 1/2x² + 1/8x³ - 1/16x⁴ + 5/128x⁵ + ...[m
 f(x,y₂) = 49/16384x¹⁴-49/32768x¹⁵+189/262144x¹⁶ + ...
 
 
-$ ./puiseux -e 3 ' -x3+x4-2x2y-xy2+2xy4+y5'
+$ ./puiseux -e 3 " -x3+x4-2x2y-xy2+2xy4+y5" -d
 equation: -x³+x⁴-2x²y-xy²+2xy⁴+y⁵ = 0
 
 solution: [31my₁ = -x + x³ᐟ² + 1/2x⁵ᐟ² - 3/2x³ + 7/8x⁷ᐟ² + ...[m
@@ -186,7 +186,7 @@ solution: [31my₅ = -(1+i√3)/2x¹ᐟ³ + (-1+i√3)/6x⁵ᐟ³ + (1+i√3)/3
 f(x,y₅) = (1-i√3)x¹⁴ᐟ³+10/3x⁵+(1+i√3)x¹⁶ᐟ³ + ...
 
 
-$ ./puiseux -e 3 'x2+xy+y2+x+y'
+$ ./puiseux -e 3 "x2+xy+y2+x+y" -d
 equation: x+x²+(1+x)y+y² = 0
 
 solution: [31my₁ = -x - x² - x³ - 2x⁴ - 4x⁵ + ...[m
@@ -196,7 +196,7 @@ solution: [31my₂ = -1 + x² + x³ + 2x⁴ + 4x⁵ + ...[m
 f(x,y₂) = 9x⁶+12x⁷+12x⁸ + ...
 
 
-$ ./puiseux -e 3 'x2+xy+y2+y'
+$ ./puiseux -e 3 "x2+xy+y2+y" -d
 equation: x²+(1+x)y+y² = 0
 
 solution: [31my₁ = -x² + x³ - 2x⁴ + 4x⁵ - 9x⁶ + ...[m
@@ -206,7 +206,7 @@ solution: [31my₂ = -1 - x + x² - x³ + 2x⁴ + ...[m
 f(x,y₂) = -4x⁵+5x⁶-4x⁷ + ...
 
 
-$ ./puiseux -e 3 'x2+xy+y2+x'
+$ ./puiseux -e 3 "x2+xy+y2+x" -d
 equation: x+x²+xy+y² = 0
 
 solution: [31my₁ = ix¹ᐟ² - 1/2x + 3i/8x³ᐟ² - 9i/128x⁵ᐟ² + 27i/1024x⁷ᐟ² + ...[m
@@ -216,7 +216,7 @@ solution: [31my₂ = -ix¹ᐟ² - 1/2x - 3i/8x³ᐟ² + 9i/128x⁵ᐟ² - 27i/1
 f(x,y₂) = -405/16384x⁵+243/65536x⁶-729/1048576x⁷
 
 
-$ ./puiseux -e 3 'x2+4xy+y2'
+$ ./puiseux -e 3 "x2+4xy+y2" -d
 equation: x²+4xy+y² = 0
 
 solution: [31my₁ = (-2+√3)x[m
@@ -226,7 +226,7 @@ solution: [31my₂ = -(2+√3)x[m
 f(x,y₂) = 0
 
 
-$ ./puiseux -e 3 'x2+xy+y2'
+$ ./puiseux -e 3 "x2+xy+y2" -d
 equation: x²+xy+y² = 0
 
 solution: [31my₁ = (-1+i√3)/2x[m
@@ -236,14 +236,14 @@ solution: [31my₂ = -(1+i√3)/2x[m
 f(x,y₂) = 0
 
 
-$ ./puiseux -e 3 'x2+2xy+y2'
+$ ./puiseux -e 3 "x2+2xy+y2" -d
 equation: x²+2xy+y² = 0
 
 solution: [31my₁ = -x[m
 f(x,y₁) = 0
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+xy+y2+x+y'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+xy+y2+x+y" -d
 equation: x+x²+x³+(1+x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = -x - x² - x³ + 2x⁵ + 6x⁶ + ...[m
@@ -256,7 +256,7 @@ solution: [31my₃ = -(1+i√3)/2 + (1/2-i√3/6)x² + (1/2-i√3/6)x³ - 5i√
 f(x,y₃) = (-91+17i√3)/18x⁶+(-85/18+13i√3/6)x⁷+(-103/27+8i√3/3)x⁸ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+xy+y2+y'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+xy+y2+y" -d
 equation: x²+x³+(1+x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = -x² - x⁵ + 2x⁶ - 3x⁷ + 3x⁸ + ...[m
@@ -269,7 +269,7 @@ solution: [31my₃ = -(1+i√3)/2 - (1/2+i√3/6)x + (1/2-i√3/18)x² + 5i√3
 f(x,y₃) = (91+10i√3)/81x⁵+(-188+35i√3)/243x⁶-(320/729+10i√3/81)x⁷ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+xy+y2+x'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+xy+y2+x" -d
 equation: x+x²+x³+(x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = ix¹ᐟ² - 1/2x² + ix⁵ᐟ² + 3/2x³ - 21i/8x⁷ᐟ² + ...[m
@@ -282,7 +282,7 @@ solution: [31my₃ = -1 - x + x² - 3x³ + 9x⁴ + ...[m
 f(x,y₃) = 31x⁵-23x⁶+45x⁷ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2" -d
 equation: x²+x³+x²y+xy²+y³ = 0
 
 solution: [31my₁ = -x²ᐟ³ - 1/3x + 2/9x⁴ᐟ³ - 20/81x⁵ᐟ³ - 40/729x⁷ᐟ³ + ...[m
@@ -295,7 +295,7 @@ solution: [31my₃ = (1+i√3)/2x²ᐟ³ - 1/3x + (-1+i√3)/9x⁴ᐟ³ + (10+1
 f(x,y₃) = -376/2187x⁴+(400+400i√3)/19683x¹⁴ᐟ³-12320/531441x⁵ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+y2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+y2" -d
 equation: x³+x²y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = ix³ᐟ² - 1/2x² - 5i/8x⁵ᐟ² + x³ + 167i/128x⁷ᐟ² + ...[m
@@ -308,7 +308,7 @@ solution: [31my₃ = -1 - x + x² - 2x³ + 4x⁴ + ...[m
 f(x,y₃) = 10x⁵-7x⁶+2x⁷ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+xy'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+xy" -d
 equation: x²+x³+(x+x²)y+xy²+y³ = 0
 
 solution: [31my₁ = -x[m
@@ -321,7 +321,7 @@ solution: [31my₃ = -ix¹ᐟ² - i/2x³ᐟ² + i/8x⁵ᐟ² - i/16x⁷ᐟ² + 
 f(x,y₃) = -7i/128x¹³ᐟ²+7/128x⁷-7i/512x¹⁵ᐟ² + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+xy+y2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+xy+y2" -d
 equation: x³+(x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = -x² - x⁴ - 2x⁶ - 5x⁸ - 14x¹⁰ + ...[m
@@ -334,7 +334,7 @@ solution: [31my₃ = -1 + x² + x⁴ + 2x⁶ + 5x⁸ + ...[m
 f(x,y₃) = -14x¹⁰+14x¹¹+14x¹³ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+xy'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+xy" -d
 equation: x³+(x+x²)y+xy²+y³ = 0
 
 solution: [31my₁ = -x² + x³ - 2x⁴ + 5x⁵ - 13x⁶ + ...[m
@@ -347,7 +347,7 @@ solution: [31my₃ = -ix¹ᐟ² - 1/2x - 3i/8x³ᐟ² + 1/2x² + 41i/128x⁵ᐟ
 f(x,y₃) = -x⁴-507i/512x⁹ᐟ²+517/1024x⁵ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+xy+y'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+xy+y" -d
 equation: x³+(1+x+x²)y+xy²+y³ = 0
 
 solution: [31my₁ = -x³ + x⁴ - x⁶ + 3x⁸ - 3x⁹ + ...[m
@@ -360,7 +360,7 @@ solution: [31my₃ = -i - (1+i)/2x - i/4x² + (1/2+i/8)x³ + (-1/2+7i/32)x⁴ +
 f(x,y₃) = -25i/32x⁵+(39-79i)/64x⁶+(37/64+15i/16)x⁷ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+xy+x'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+xy+x" -d
 equation: x+x³+(x+x²)y+xy²+y³ = 0
 
 solution: [31my₁ = -x¹ᐟ³ + 1/3x²ᐟ³ - 1/3x + 8/81x⁴ᐟ³ + 62/243x⁵ᐟ³ + ...[m
@@ -373,7 +373,7 @@ solution: [31my₃ = (1+i√3)/2x¹ᐟ³ + (-1+i√3)/6x²ᐟ³ - 1/3x - (4+4i�
 f(x,y₃) = 1742/2187x³+(248+248i√3)/6561x¹⁰ᐟ³+(-248+248i√3)/19683x¹¹ᐟ³ + ...
 
 
-$ ./puiseux -e 3 'yx2-y3'
+$ ./puiseux -e 3 "yx2-y3" -d
 equation: x²y-y³ = 0
 
 solution: [31my₁ = x[m
@@ -383,7 +383,7 @@ solution: [31my₂ = -x[m
 f(x,y₂) = 0
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3" -d
 equation: x³+x²y+xy²+y³ = 0
 
 solution: [31my₁ = -x[m
@@ -396,21 +396,21 @@ solution: [31my₃ = -ix[m
 f(x,y₃) = 0
 
 
-$ ./puiseux -e 3 'yx2-2xy2+y3'
+$ ./puiseux -e 3 "yx2-2xy2+y3" -d
 equation: x²y-2xy²+y³ = 0
 
 solution: [31my₁ = x[m
 f(x,y₁) = 0
 
 
-$ ./puiseux -e 3 'x3-3yx2+3xy2-y3'
+$ ./puiseux -e 3 "x3-3yx2+3xy2-y3" -d
 equation: x³-3x²y+3xy²-y³ = 0
 
 solution: [31my₁ = x[m
 f(x,y₁) = 0
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+4xy+y2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+4xy+y2" -d
 equation: x²+x³+(4x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = (-2+√3)x + (-6+10√3/3)x² + (-40+208√3/9)x³ + (-340+5300√3/27)x⁴ + (-3240+151520√3/81)x⁵ + ...[m
@@ -423,7 +423,7 @@ solution: [31my₃ = -1 + 3x + 12x² + 80x³ + 680x⁴ + ...[m
 f(x,y₃) = -6480x⁵-1392x⁶+44160x⁷ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+xy+y2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+xy+y2" -d
 equation: x²+x³+(x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = (-1+i√3)/2x + i√3/3x² + (1/2+i√3/18)x³ + (1/2-11i√3/54)x⁴ - 50i√3/81x⁵ + ...[m
@@ -436,7 +436,7 @@ solution: [31my₃ = -1 - x³ - x⁴ + 3x⁶ + 6x⁷ + ...[m
 f(x,y₃) = -3x⁸+18x⁹+27x¹⁰ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+2xy+y2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+2xy+y2" -d
 equation: x²+x³+(2x+x²)y+(1+x)y²+y³ = 0
 
 solution: [31my₁ = -x[m
@@ -446,7 +446,7 @@ solution: [31my₂ = -1 + x + 2x² + 4x³ + 12x⁴ + ...[m
 f(x,y₂) = -40x⁵+16x⁶+112x⁷ + ...
 
 
-$ ./puiseux -e 3 'x3+x2y+xy2+y3+x2+4xy+4y2'
+$ ./puiseux -e 3 "x3+x2y+xy2+y3+x2+4xy+4y2" -d
 equation: x²+x³+(4x+x²)y+(4+x)y²+y³ = 0
 
 solution: [31my₁ = -1/2x + i√10/8x³ᐟ² - 3/32x² + 11i√10/2560x⁵ᐟ² + 1/128x³ + ...[m
@@ -459,7 +459,7 @@ solution: [31my₃ = -4 + 3/16x² - 1/64x³ + 1/512x⁴ - 15/4096x⁵ + ...[m
 f(x,y₃) = 39/4096x⁶+117/16384x⁷-267/131072x⁸ + ...
 
 
-$ ./puiseux -e 3 'x4+x3y+x2y2+xy3+y4+x+y'
+$ ./puiseux -e 3 "x4+x3y+x2y2+xy3+y4+x+y" -d
 equation: x+x⁴+(1+x³)y+x²y²+xy³+y⁴ = 0
 
 solution: [31my₁ = -x - x⁴ - 2x⁷ - 8x¹⁰ - 35x¹³ + ...[m
@@ -475,7 +475,7 @@ solution: [31my₄ = (1+i√3)/2 + (-1+i√3)/6x² + 1/3x⁴ + (-1+i√3)/6x⁵
 f(x,y₄) = 2x⁷+(-49+49i√3)/81x⁸-(14+14i√3)/81x⁹ + ...
 
 
-$ ./puiseux -e 3 'x4+x3y+x2y2+xy3+y4+x2+y'
+$ ./puiseux -e 3 "x4+x3y+x2y2+xy3+y4+x2+y" -d
 equation: x²+x⁴+(1+x³)y+x²y²+xy³+y⁴ = 0
 
 solution: [31my₁ = -x² - x⁴ + x⁵ - x⁶ + 2x⁷ + ...[m
@@ -491,7 +491,7 @@ solution: [31my₄ = (1+i√3)/2 - 1/3x + (2+i√3)/9x² + (29+11i√3)/162x³ 
 f(x,y₄) = (-115+7i√3)/243x⁵+(-1325+259i√3)/2187x⁶+(-5263/13122+65i√3/1458)x⁷ + ...
 
 
-$ ./puiseux -e 3 'x4+x3y+x2y2+xy3+y4+x+y2'
+$ ./puiseux -e 3 "x4+x3y+x2y2+xy3+y4+x+y2" -d
 equation: x+x⁴+x³y+(1+x²)y²+xy³+y⁴ = 0
 
 solution: [31my₁ = ix¹ᐟ² + i/2x³ᐟ² + 1/2x² + 3i/8x⁵ᐟ² + x³ + ...[m
@@ -507,7 +507,7 @@ solution: [31my₄ = -i + (-1+i)/2x + (-1/2+i/4)x² + (-1+3i/8)x³ + (-3+11i/32
 f(x,y₄) = (-143/32+17i)x⁵+(-13/4+191i/32)x⁶+(-21/128+585i/64)x⁷ + ...
 
 
-$ ./puiseux -e 3 'x4+x3y+x2y2+xy3+y4+x3+y'
+$ ./puiseux -e 3 "x4+x3y+x2y2+xy3+y4+x3+y" -d
 equation: x³+x⁴+(1+x³)y+x²y²+xy³+y⁴ = 0
 
 solution: [31my₁ = -x³ - x⁴ + x⁶ + x⁷ - x⁸ + ...[m
@@ -523,7 +523,7 @@ solution: [31my₄ = (1+i√3)/2 - 1/3x + (-1+i√3)/9x² + (37+10i√3)/81x³ 
 f(x,y₄) = -(7+128i√3)/243x⁵+(-3125+115i√3)/2187x⁶+(-13327/13122+395i√3/486)x⁷ + ...
 
 
-$ ./puiseux -e 3 'x4+x3y+x2y2+xy3+y4+y3+x'
+$ ./puiseux -e 3 "x4+x3y+x2y2+xy3+y4+y3+x" -d
 equation: x+x⁴+x³y+x²y²+(1+x)y³+y⁴ = 0
 
 solution: [31my₁ = -x¹ᐟ³ - 1/3x²ᐟ³ - 1/3x - 8/81x⁴ᐟ³ - 19/243x⁵ᐟ³ + ...[m
@@ -539,7 +539,7 @@ solution: [31my₄ = -1 + x² + 2x³ + 8x⁴ + 30x⁵ + ...[m
 f(x,y₄) = 122x⁶+151x⁷+225x⁸ + ...
 
 
-$ ./puiseux -e 3 'x4+x3y+x2y2+xy3+y4+y3+x2'
+$ ./puiseux -e 3 "x4+x3y+x2y2+xy3+y4+y3+x2" -d
 equation: x²+x⁴+x³y+x²y²+(1+x)y³+y⁴ = 0
 
 solution: [31my₁ = -x²ᐟ³ - 1/3x⁴ᐟ³ + 1/3x⁵ᐟ³ - 2/3x² + 8/9x⁷ᐟ³ + ...[m
