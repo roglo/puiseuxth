@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.38 2013-05-26 03:22:20 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.39 2013-05-26 08:12:02 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -148,15 +148,21 @@ value not_none =
   | Some v → v ]
 ;
 
+type monom_search α = [ Found of α | Ended | Remaining ];
+
 value find_monom minp i comden s =
   let p = Q.norm (Q.add minp (Q.make (I.of_int i) comden)) in
   loop 0 where rec loop j =
     match ser_nth j s with
-    | None → None
+    | None →
+        Ended
     | Some t →
-        if Q.eq (power t) p then Some t
-        else if Q.lt (power t) p then loop (j + 1)
-        else None
+        if Q.eq (power t) p then
+          Found t
+        else if Q.lt (power t) p then
+          loop (j + 1)
+        else
+          Remaining
     end
 ;
 
@@ -170,16 +176,21 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let t =
     loop 0 where rec loop i =
       let cp_o =
-        loop i 0 where rec loop i j =
+        loop 0 i where rec loop i j =
           let m₁o = find_monom minp₁ i comden s₁ in
           let m₂o = find_monom minp₂ j comden s₂ in
           match (m₁o, m₂o) with
-          | (None, _) | (_, None) →
+          | (Ended, _) | (_, Ended) →
               match j with
-              | 0 → None
+              | 0 → Ended
               | _ → loop (succ i) (pred j)
               end
-          | (Some m₁, Some m₂) →
+          | (Remaining, _) | (_, Remaining) →
+              match j with
+              | 0 → Remaining
+              | _ → loop (succ i) (pred j)
+              end
+          | (Found m₁, Found m₂) →
               let p = Q.norm (Q.add (power m₁) (power m₂)) in
               let c =
                 let c = mul_coeff (coeff m₁) (coeff m₂) in
@@ -187,19 +198,20 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
                 | 0 → c
                 | _ →
                     match loop (succ i) (pred j) with
-                    | None → c
-                    | Some (c₁, p₁) →
+                    | Ended | Remaining → c
+                    | Found (c₁, p₁) →
                         let _ = assert (Q.eq p p₁) in
                         add_coeff c c₁
                     end
                 end
               in
-              Some (c, p)
+              Found (c, p)
           end
       in
       match cp_o with
-      | None → End
-      | Some (c, p) →
+      | Ended → End
+      | Remaining → loop (succ i)
+      | Found (c, p) →
           let m = {coeff = c; power = p} in
           Term m (loop (succ i))
       end
@@ -207,10 +219,11 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   {ps_terms = t; ps_comden = comden}
 ;
 
+(*
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
-(**)
+*)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
 ;
