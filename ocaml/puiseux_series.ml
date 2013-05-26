@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.43 2013-05-26 22:05:34 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.44 2013-05-26 23:04:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -153,20 +153,17 @@ value map_option n s =
 
 type monom_search α = [ Found of α | Ended | Remaining ];
 
-value find_monom minp i comden s =
-  let p = Q.norm (Q.add minp (Q.make (I.of_int i) comden)) in
-  loop 0 s where rec loop j s =
-    match s with
-    | Term t s₁ →
-        if Q.eq (power t) p then
-          Found t
-        else if Q.lt (power t) p then
-          loop (j + 1) (Lazy.force s₁)
-        else
-          Remaining
-    | End →
-        Ended
-    end
+value rec find_monom p j s =
+  match s with
+  | Term t s₁ →
+      match qcompare (power t) p with
+      | Eq → Found t
+      | Lt → find_monom p (j + 1) (Lazy.force s₁)
+      | Gt → Remaining
+      end
+  | End →
+      Ended
+  end
 ;
 
 value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
@@ -179,8 +176,10 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
     loop 0 where rec loop i =
       let cp_o =
         loop 0 i where rec loop i j =
-          let m₁o = find_monom minp₁ i comden s₁ in
-          let m₂o = find_monom minp₂ j comden s₂ in
+          let p₁ = Q.norm (Q.add minp₁ (Q.make (I.of_int i) comden)) in
+          let p₂ = Q.norm (Q.add minp₂ (Q.make (I.of_int j) comden)) in
+          let m₁o = find_monom p₁ 0 s₁ in
+          let m₂o = find_monom p₂ 0 s₂ in
           match (m₁o, m₂o) with
           | (Ended, _) | (_, Ended) →
               match j with
