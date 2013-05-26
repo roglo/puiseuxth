@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.37 2013-05-25 21:22:28 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.38 2013-05-26 03:22:20 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -98,6 +98,22 @@ Definition ps_add (add_coeff : α → α → α) (ps₁ : old_ps α) (ps₂ : ol
   {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂));
      ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
+value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
+  let ml =
+    List.fold_left
+      (fun a m₁ →
+         List.fold_left
+           (fun a m₂ →
+              let c = mul_coeff m₁.coeff m₂.coeff in
+              let p = Q.norm (Q.add m₁.power m₂.power) in
+              [{coeff = c; power = p} :: a])
+           a ps₂.old_ps_mon)
+      [] ps₁.old_ps_mon
+  in
+  let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
+  {old_ps_mon = merge_pow add_coeff is_null_coeff ml}
+;
+
 Definition ser_hd (s : series α) :=
   match s with
   | Term a _ => Some a
@@ -191,27 +207,10 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   {ps_terms = t; ps_comden = comden}
 ;
 
-value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
-  let ml =
-    List.fold_left
-      (fun a m₁ →
-         List.fold_left
-           (fun a m₂ →
-              let c = mul_coeff m₁.coeff m₂.coeff in
-              let p = Q.norm (Q.add m₁.power m₂.power) in
-              [{coeff = c; power = p} :: a])
-           a ps₂.old_ps_mon)
-      [] ps₁.old_ps_mon
-  in
-  let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
-  {old_ps_mon = merge_pow add_coeff is_null_coeff ml}
-;
-
-(*
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
-*)
+(**)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
 ;
