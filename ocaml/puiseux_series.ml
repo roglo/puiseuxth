@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.46 2013-05-26 23:31:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.47 2013-05-26 23:50:36 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -17,6 +17,13 @@ type comparison = [ Eq | Lt | Gt ];
 
 value qcompare q₁ q₂ =
   let c = Q.compare q₁ q₂ in
+  if c < 0 then Lt
+  else if c = 0 then Eq
+  else Gt
+;
+
+value icompare i₁ i₂ =
+  let c = I.compare i₁ i₂ in
   if c < 0 then Lt
   else if c = 0 then Eq
   else Gt
@@ -178,10 +185,10 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
     loop 0 where rec loop i =
       let cp_o =
         loop 0 i where rec loop i j =
-          let p₁ = Q.make (I.addi minp₁c i) comden in
-          let p₂ = Q.make (I.addi minp₂c j) comden in
-          let m₁o = find_monom p₁ s₁ in
-          let m₂o = find_monom p₂ s₂ in
+          let p₁ = I.addi minp₁c i in
+          let p₂ = I.addi minp₂c j in
+          let m₁o = find_monom (Q.make p₁ comden) s₁ in
+          let m₂o = find_monom (Q.make p₂ comden) s₂ in
           match (m₁o, m₂o) with
           | (Ended, _) | (_, Ended) →
               match j with
