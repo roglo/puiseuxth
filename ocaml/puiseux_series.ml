@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.40 2013-05-26 10:06:18 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.41 2013-05-26 10:39:46 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -167,7 +167,7 @@ value find_monom minp i comden s =
 ;
 
 (**)
-value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
+value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
   let minp₁ = power (not_none (ser_nth 0 s₁)) in
@@ -212,18 +212,21 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
       | Ended → End
       | Remaining → loop (succ i)
       | Found (c, p) →
-          let m = {coeff = c; power = p} in
-          Term m (loop (succ i))
+          if is_null_coeff c then loop (succ i)
+          else
+            let m = {coeff = c; power = p} in
+            Term m (loop (succ i))
       end
   in
   {ps_terms = t; ps_comden = comden}
 ;
 
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
-;
-(**)
-value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
 ;
-(**)
+(*
+value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
+  ps2ops (new_ps_mul add_coeff mul_coeff is_null_coeff (ops2ps ops₁)
+    (ops2ps ops₂))
+;
+*)
