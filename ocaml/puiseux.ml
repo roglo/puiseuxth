@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.258 2013-05-26 08:12:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.259 2013-05-26 10:06:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -222,13 +222,13 @@ value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
        (fun ps₁ ps₂ → ps2ops (ps_add k.add ps₁ ps₂))
        (fun ps₁ ps₂ →
 (*
-let _ = printf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
+let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
 let r = (
 *)
           ps_mul k.add (norm k.mul k) (k.eq k.zero) ps₁ ps₂)
 (*
 in
-let _ = printf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
+let _ = eprintf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
 *)
        (fun ps → ps.old_ps_mon = []))
     pol

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.39 2013-05-26 08:12:02 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.40 2013-05-26 10:06:18 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -219,11 +219,10 @@ value new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   {ps_terms = t; ps_comden = comden}
 ;
 
-(*
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
-*)
+(**)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
 ;
