@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.41 2013-05-26 10:39:46 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.42 2013-05-26 21:42:29 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -113,6 +113,9 @@ value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml = List.sort (fun m₁ m₂ → Q.compare m₁.power m₂.power) ml in
   {old_ps_mon = merge_pow add_coeff is_null_coeff ml}
 ;
+value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
+  old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
+;
 
 Definition ser_hd (s : series α) :=
   match s with
@@ -142,11 +145,11 @@ Definition ser_nth (n : nat) (s : series α) : option α :=
   | Some t => ser_hd t
   end;
 
-value not_none =
+value map_option n s =
   fun
-  [ None → failwith "not_none"
-  | Some v → v ]
-;
+  [ None → n
+  | Some x → s x ]
+; 
 
 type monom_search α = [ Found of α | Ended | Remaining ];
 
@@ -166,12 +169,11 @@ value find_monom minp i comden s =
     end
 ;
 
-(**)
 value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
-  let minp₁ = power (not_none (ser_nth 0 s₁)) in
-  let minp₂ = power (not_none (ser_nth 0 s₂)) in
+  let minp₁ = map_option Q.zero power (ser_nth 0 s₁) in
+  let minp₂ = map_option Q.zero power (ser_nth 0 s₂) in
   let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
   let t =
     loop 0 where rec loop i =
@@ -221,9 +223,6 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   {ps_terms = t; ps_comden = comden}
 ;
 
-value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
-;
 (*
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   ps2ops (new_ps_mul add_coeff mul_coeff is_null_coeff (ops2ps ops₁)
