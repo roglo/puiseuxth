@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.45 2013-05-26 23:19:52 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.46 2013-05-26 23:31:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -153,12 +153,12 @@ value map_option n s =
 
 type monom_search α = [ Found of α | Ended | Remaining ];
 
-value rec find_monom p j s =
+value rec find_monom p s =
   match s with
   | Term t s₁ →
       match qcompare (power t) p with
       | Eq → Found t
-      | Lt → find_monom p (j + 1) (Lazy.force s₁)
+      | Lt → find_monom p (Lazy.force s₁)
       | Gt → Remaining
       end
   | End →
@@ -180,8 +180,8 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
         loop 0 i where rec loop i j =
           let p₁ = Q.make (I.addi minp₁c i) comden in
           let p₂ = Q.make (I.addi minp₂c j) comden in
-          let m₁o = find_monom p₁ 0 s₁ in
-          let m₂o = find_monom p₂ 0 s₂ in
+          let m₁o = find_monom p₁ s₁ in
+          let m₂o = find_monom p₂ s₂ in
           match (m₁o, m₂o) with
           | (Ended, _) | (_, Ended) →
               match j with
