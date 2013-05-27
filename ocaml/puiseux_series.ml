@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.48 2013-05-27 08:44:58 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.49 2013-05-27 09:21:16 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -189,37 +189,31 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
           let p₂ = I.addi minp₂c j in
           let m₁o = find_monom (Q.make p₁ comden) s₁ in
           let m₂o = find_monom (Q.make p₂ comden) s₂ in
-          match (m₁o, m₂o) with
-          | (Ended, _) | (_, Ended) →
-              match j with
-              | 0 → Ended
-              | _ → loop (succ i) (pred j)
-              end
-          | (Remaining, _) | (_, Remaining) →
-              match j with
-              | 0 → Remaining
-              | _ →
-                  match loop (succ i) (pred j) with
-                  | Ended | Remaining → Remaining
-                  | Found (c₁, p₁) → Found (c₁, p₁)
-                  end
-              end
-          | (Found m₁, Found m₂) →
-              let p = Q.norm (Q.add (power m₁) (power m₂)) in
-              let c =
+          let ms₁ =
+            match (m₁o, m₂o) with
+            | (Ended, _) | (_, Ended) → Ended
+            | (Remaining, _) | (_, Remaining) → Remaining
+            | (Found m₁, Found m₂) →
                 let c = mul_coeff (coeff m₁) (coeff m₂) in
-                match j with
-                | 0 → c
-                | _ →
-                    match loop (succ i) (pred j) with
-                    | Ended | Remaining → c
-                    | Found (c₁, p₁) →
-                        let _ = assert (Q.eq p p₁) in
-                        add_coeff c c₁
-                    end
-                end
-              in
-              Found (c, p)
+                let p = Q.norm (Q.add (power m₁) (power m₂)) in
+                Found (c, p)
+            end
+          in
+          match j with
+          | 0 → ms₁
+          | _ →
+              let ms₂ = loop (succ i) (pred j) in
+              match (ms₁, ms₂) with
+              | (Found (c₁, p₁), Found (c₂, p₂)) →
+                  let _ = assert (Q.eq p₁ p₂) in
+                  let c = add_coeff c₁ c₂ in
+                  Found (c, p₁)
+              | (Found _, _) → ms₁
+              | (_, Found _) → ms₂
+              | (Ended, Ended) → Ended
+              | (Ended, Remaining) | (Remaining, Ended) → Remaining
+              | (Remaining, Remaining) → Remaining
+              end
           end
       in
       match cp_o with
