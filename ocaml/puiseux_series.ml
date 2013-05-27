@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.49 2013-05-27 09:21:16 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.50 2013-05-27 16:20:41 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -160,18 +160,18 @@ value map_option n s =
 
 type monom_search α = [ Found of α | Ended | Remaining ];
 
-value rec find_monom p s =
+Fixpoint find_monom p (s : series (ps_monomial α)) :
+    monom_search (ps_monomial α) :=
   match s with
-  | Term t s₁ →
-      match qcompare (power t) p with
-      | Eq → Found t
-      | Lt → find_monom p (Lazy.force s₁)
-      | Gt → Remaining
+  | Term t s₁ =>
+      match Qcompare (power t) p with
+      | Eq => (Found t : monom_search (ps_monomial α))
+      | Lt => find_monom p (Lazy.force s₁)
+      | Gt => Remaining
       end
-  | End →
+  | End =>
       Ended
-  end
-;
+  end;
 
 value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
