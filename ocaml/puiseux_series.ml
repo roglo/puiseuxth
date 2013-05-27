@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.47 2013-05-26 23:50:36 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.48 2013-05-27 08:44:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -198,7 +198,11 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
           | (Remaining, _) | (_, Remaining) →
               match j with
               | 0 → Remaining
-              | _ → loop (succ i) (pred j)
+              | _ →
+                  match loop (succ i) (pred j) with
+                  | Ended | Remaining → Remaining
+                  | Found (c₁, p₁) → Found (c₁, p₁)
+                  end
               end
           | (Found m₁, Found m₂) →
               let p = Q.norm (Q.add (power m₁) (power m₂)) in

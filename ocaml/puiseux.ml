@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.259 2013-05-26 10:06:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.260 2013-05-27 08:44:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -202,7 +202,16 @@ value apply_poly_with_ps k fld pol =
   let pol = op2p fld pol in
   apply_poly (fun ps → ps)
     (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) ps₁ ps₂))
-    (fun ps₁ ps₂ → ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) ps₁ ps₂)
+    (fun ps₁ ps₂ →
+(*
+let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
+let r = (
+*)
+       ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) ps₁ ps₂)
+(*
+in
+let _ = eprintf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
+*)
     pol
 ;
 
