@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.543 2013-05-24 08:43:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.544 2013-05-27 20:03:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -61,6 +61,27 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     end
   in
   {| ps_monoms := loop (ps_monoms ps₁) (ps_monoms ps₂) |}.
+
+Inductive monom_search α :=
+  | Found : α → monom_search α
+  | Ended : monom_search α
+  | Remaining : monom_search α.
+
+Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
+  match n with
+  | O => Ended _
+  | S n₁ =>
+      match s with
+      | Term t s₁ =>
+          match Qcompare (power t) p with
+          | Eq => Found t
+          | Lt => find_monom p s₁ n₁
+          | Gt => Remaining _
+          end
+      | End =>
+         Ended _
+      end
+  end.
 
 (*
 Definition apply_poly_with_ps {α} fld pol (x : α) := ...
