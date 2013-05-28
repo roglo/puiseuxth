@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.2 2013-05-23 23:51:40 deraugla Exp $ *)
+(* $Id: Series.v,v 1.3 2013-05-28 18:50:00 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -26,4 +26,10 @@ Fixpoint ser_nth_tl α (n : nat) (s : series α) : option (series α) :=
       | None => None
       | Some t => ser_nth_tl m t
       end
+  end.
+
+Definition ser_nth α (n : nat) (s : series α) : option α :=
+  match ser_nth_tl n s with
+  | None => None
+  | Some t => ser_hd t
   end.

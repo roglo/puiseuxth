@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.62 2013-05-28 18:40:20 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.63 2013-05-28 18:50:27 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -154,11 +154,11 @@ Definition ser_nth (n : nat) (s : series α) : option α :=
   | Some t => ser_hd t
   end;
 
-value map_option n s =
-  fun
-  [ None → n
-  | Some x → s x ]
-; 
+Definition map_option n s v :=
+  match v with
+  | None => n
+  | Some x => s x
+  end;
 
 Inductive monom_search α :=
   | Found : ps_monomial α → monom_search α
@@ -246,10 +246,10 @@ Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
       let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
       match cp_o with
       | Ended => End
-      | Remaining => loop_sum (succ psum)
+      | Remaining => loop_sum (S psum)
       | Found m =>
-          if is_null_coeff (coeff m) then loop_sum (succ psum)
-          else Term m (loop_sum (succ psum))
+          if is_null_coeff (coeff m) then loop_sum (S psum)
+          else Term m (loop_sum (S psum))
       end
     in
     loop_sum 0

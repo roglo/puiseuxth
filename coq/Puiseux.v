@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.549 2013-05-28 18:36:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.550 2013-05-28 18:49:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -138,6 +138,35 @@ Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α �
     end
   in
   loop_ij.
+
+Definition map_option {α β} (n : β) (s : α → β) v :=
+  match v with
+  | None => n
+  | Some x => s x
+  end.
+
+Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
+  let s₁ := ps_terms ps₁ in
+  let s₂ := ps_terms ps₂ in
+  let comden := (ps_comden ps₁ * ps_comden ps₂)%nat in
+  let minp₁ := map_option 0 (λ ps, power ps) (ser_nth 0 s₁) in
+  let minp₂ := map_option 0 (λ ps, power ps) (ser_nth 0 s₂) in
+  let p₁c := Qnum (minp₁ * Qnat comden) in
+  let p₂c := Qnum (minp₂ * Qnat comden) in
+  let t :=
+    let fix loop_sum psum :=
+      let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
+      match cp_o with
+      | Ended => End
+      | Remaining => loop_sum (S psum)
+      | Found m =>
+          if is_null_coeff (coeff m) then loop_sum (S psum)
+          else Term m (loop_sum (S psum))
+      end
+    in
+    loop_sum 0
+  in
+  {| ps_terms := t; ps_comden := comden |}.
 
 (*
 Definition apply_poly_with_ps {α} fld pol (x : α) := ...
