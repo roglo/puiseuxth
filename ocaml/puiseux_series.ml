@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.56 2013-05-28 09:27:26 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.57 2013-05-28 09:32:48 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -158,7 +158,11 @@ value map_option n s =
   | Some x → s x ]
 ; 
 
-type monom_search α = [ Found of α | Remaining | Ended ];
+type monom_search α =
+  [ Found of ps_monomial α
+  | Remaining
+  | Ended ]
+;
 
 Fixpoint find_monom p (s : series (ps_monomial α)) n :=
   match n with
@@ -190,7 +194,7 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
           | Found m₂ =>
               let c := mul_coeff (coeff m₁) (coeff m₂) in
               let p := Q.norm (Qplus (power m₁) (power m₂)) in
-              Found (c, p)
+              Found {| coeff := c; power := p |}
           | Remaining => Remaining
           | Ended => Ended
           end
@@ -208,9 +212,12 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
     | S j₁ =>
         let ms₂ := loop_ij (S i) j₁ in
         match ms₁ with
-        | Found (c₁, p₁0) =>
+        | Found m₁ =>
             match ms₂ with
-            | Found (c₂, _) => Found (add_coeff c₁ c₂, p₁0)
+            | Found m₂ =>
+                let c := add_coeff (coeff m₁) (coeff m₂) in
+                let p := power m₁ in
+                Found {| coeff := c; power := p |}
             | Remaining => ms₁
             | Ended => ms₁
             end
@@ -240,11 +247,9 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
       match cp_o with
       | Ended → End
       | Remaining → loop_sum (succ psum)
-      | Found (c, p) →
-          if is_null_coeff c then loop_sum (succ psum)
-          else
-            let m = {coeff = c; power = p} in
-            Term m (loop_sum (succ psum))
+      | Found m →
+          if is_null_coeff (coeff m) then loop_sum (succ psum)
+          else Term m (loop_sum (succ psum))
       end
     in
     loop_sum 0

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.546 2013-05-28 09:27:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.547 2013-05-28 09:36:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -63,7 +63,7 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
   {| ps_monoms := loop (ps_monoms ps₁) (ps_monoms ps₂) |}.
 
 Inductive monom_search α :=
-  | Found : α → monom_search α
+  | Found : ps_monomial α → monom_search α
   | Remaining : monom_search α
   | Ended : monom_search α.
 
@@ -97,17 +97,17 @@ Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α �
           | Found m₂ =>
               let c := mul_coeff (coeff m₁) (coeff m₂) in
               let p := power m₁ + power m₂ in
-              Found (c, p)
-          | Remaining => Remaining (α * Q)
-          | Ended => Ended (α * Q)
+              Found {| coeff := c; power := p |}
+          | Remaining => Remaining _
+          | Ended => Ended _
           end
       | Remaining =>
           match m₂o with
-          | Found _ => Remaining (α * Q)
-          | Remaining => Remaining (α * Q)
-          | Ended => Ended (α * Q)
+          | Found _ => Remaining _
+          | Remaining => Remaining _
+          | Ended => Ended _
           end
-      | Ended => Ended (α * Q)
+      | Ended => Ended _
       end
     in
     match j with
@@ -115,17 +115,19 @@ Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α �
     | S j₁ =>
         let ms₂ := loop_ij (S i) j₁ in
         match ms₁ with
-        | Found (c₁, p₁0) =>
+        | Found m₁ =>
             match ms₂ with
-            | Found (c₂, _) => Found (add_coeff c₁ c₂, p₁0)
+            | Found m₂ =>
+                let c := add_coeff (coeff m₁) (coeff m₂) in
+                Found {| coeff := c; power := power m₁ |}
             | Remaining => ms₁
             | Ended => ms₁
             end
         | Remaining =>
             match ms₂ with
             | Found _ => ms₂
-            | Remaining => Remaining (α * Q)
-            | Ended => Remaining (α * Q)
+            | Remaining => Remaining _
+            | Ended => Remaining _
             end
         | Ended => ms₂
         end
