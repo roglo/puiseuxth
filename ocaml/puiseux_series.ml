@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.60 2013-05-28 11:43:40 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.61 2013-05-28 11:52:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -28,6 +28,8 @@ value icompare i₁ i₂ =
   else if c = 0 then Eq
   else Gt
 ;
+
+value qof2nat = Q.make;
 
 value merge_pow add_coeff is_null_coeff =
   loop [] where rec loop rev_list =
@@ -178,8 +180,6 @@ Fixpoint find_monom p (s : series (ps_monomial α)) n :=
          Ended
       end
   end;
-
-value qof2nat = Q.make;
 
 Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → α)
     minp₁c minp₂c comden s₁ s₂ :=
