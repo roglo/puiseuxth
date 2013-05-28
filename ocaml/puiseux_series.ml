@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.65 2013-05-28 19:53:30 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.66 2013-05-28 20:39:18 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -162,7 +162,7 @@ Definition map_option n s v :=
 
 Inductive monom_search α :=
   | Found : ps_monomial α → monom_search α
-  | Remaining : monom_search α
+  | Remaining : Q → monom_search α
   | Ended : monom_search α;
 
 Fixpoint find_monom p (s : series (ps_monomial α)) n :=
@@ -174,7 +174,7 @@ Fixpoint find_monom p (s : series (ps_monomial α)) n :=
           match Qcompare (power t) p with
           | Eq => Found t
           | Lt => find_monom p (Lazy.force s₁) n₁
-          | Gt => Remaining
+          | Gt => Remaining (power t)
           end
       | End =>
          Ended
@@ -196,13 +196,13 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
               let c := mul_coeff (coeff m₁) (coeff m₂) in
               let p := Q.norm (Qplus (power m₁) (power m₂)) in
               Found {| coeff := c; power := p |}
-          | Remaining => Remaining
+          | Remaining p => Remaining Q.zero
           | Ended => Ended
           end
-      | Remaining =>
+      | Remaining p =>
           match m₂o with
-          | Found _ => Remaining
-          | Remaining => Remaining
+          | Found _ => Remaining p
+          | Remaining _ => Remaining p
           | Ended => Ended
           end
       | Ended => Ended
@@ -218,14 +218,14 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
             | Found m₂ =>
                 let c := add_coeff (coeff m₁) (coeff m₂) in
                 Found {| coeff := c; power := power m₁ |}
-            | Remaining => ms₁
+            | Remaining _ => ms₁
             | Ended => ms₁
             end
-        | Remaining =>
+        | Remaining p =>
             match ms₂ with
             | Found _ => ms₂
-            | Remaining => Remaining
-            | Ended => Remaining
+            | Remaining _ => Remaining p
+            | Ended => Remaining p
             end
         | Ended => ms₂
         end
@@ -246,7 +246,14 @@ Definition new_ps_mul add_coeff mul_coeff ps₁ ps₂ :=
       let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
       match cp_o with
       | Ended => End
-      | Remaining => loop_sum (S psum)
+      | Remaining p =>
+(*
+          loop_sum (S psum)
+*)
+          let n := I.to_int (I.sub (Qnum (Q.norm (Q.muli p comden))) p₁c) in
+if n ≤ psum then loop_sum (S psum) else
+          loop_sum n
+(**)
       | Found m => Term m (loop_sum (S psum))
       end
     in
