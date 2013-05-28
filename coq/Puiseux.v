@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.548 2013-05-28 11:43:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.549 2013-05-28 18:36:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,6 +7,7 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux_base.
 Require Import Misc.
+Require Import Lcm.
 Require Import Series.
 
 Set Implicit Arguments.
@@ -60,7 +61,8 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     | End => ms₂
     end
   in
-  {| ps_monoms := loop (ps_monoms ps₁) (ps_monoms ps₂) |}.
+  {| ps_terms := loop (ps_terms ps₁) (ps_terms ps₂);
+     ps_comden := lcm (ps_comden ps₁) (ps_comden ps₂) |}.
 
 Inductive monom_search α :=
   | Found : ps_monomial α → monom_search α
@@ -143,7 +145,7 @@ value apply_poly_with_ps :
   field α β →
   polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
 value apply_poly_with_ps k pol =
-  apply_poly {ps_monoms = []}
+  apply_poly {ps_terms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
     (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
 *)
@@ -166,10 +168,10 @@ value apply_poly_with_ps_poly k pol =
     (fun pol ps →
        pol_add (ps_add k.add (k.eq k.zero)) pol {ml = [ps]})
     (pol_mul
-       {ps_monoms = []}
+       {ps_terms = []}
        (ps_add k.add (k.eq k.zero))
        (ps_mul k.add (norm k.mul k) (k.eq k.zero))
-       (fun ps → ps.ps_monoms = []))
+       (fun ps → ps.ps_terms = []))
     pol
 *)
 

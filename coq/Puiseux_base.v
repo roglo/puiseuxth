@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.9 2013-05-23 23:40:22 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.10 2013-05-28 18:36:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -31,16 +31,18 @@ Record Qpos := { x : Q; pos : x > 0 }.
 
 Record ps_monomial α := { coeff : α; power : Q }.
 
-Record puiseux_series α := { ps_monoms : series (ps_monomial α) }.
+Record puiseux_series α :=
+  { ps_terms : series (ps_monomial α);
+    ps_comden : nat }.
 
 Definition valuation α (ps : puiseux_series α) :=
-  match ps_monoms ps with
+  match ps_terms ps with
   | Term mx _ => power mx
   | End => 1 / 0
   end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match ps_monoms ps with
+  match ps_terms ps with
   | Term mx _ => coeff mx
   | End => zero fld
   end.

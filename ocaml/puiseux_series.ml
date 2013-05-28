@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.61 2013-05-28 11:52:04 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.62 2013-05-28 18:40:20 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -233,29 +233,28 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
   in
   loop_ij;
 
-value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
-  let s₁ = ps₁.ps_terms in
-  let s₂ = ps₂.ps_terms in
-  let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
-  let minp₁ = map_option Q.zero power (ser_nth 0 s₁) in
-  let minp₂ = map_option Q.zero power (ser_nth 0 s₂) in
-  let p₁c = Q.rnum (Q.norm (Q.muli minp₁ comden)) in
-  let p₂c = Q.rnum (Q.norm (Q.muli minp₂ comden)) in
-  let t =
-    let rec loop_sum psum =
-      let cp_o = scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
+Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
+  let s₁ := ps_terms ps₁ in
+  let s₂ := ps_terms ps₂ in
+  let comden := I.mul (ps_comden ps₁) (ps_comden ps₂) in
+  let minp₁ := map_option Q.zero power (ser_nth 0 s₁) in
+  let minp₂ := map_option Q.zero power (ser_nth 0 s₂) in
+  let p₁c := Q.rnum (Q.norm (Q.muli minp₁ comden)) in
+  let p₂c := Q.rnum (Q.norm (Q.muli minp₂ comden)) in
+  let t :=
+    let fix loop_sum psum :=
+      let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
       match cp_o with
-      | Ended → End
-      | Remaining → loop_sum (succ psum)
-      | Found m →
+      | Ended => End
+      | Remaining => loop_sum (succ psum)
+      | Found m =>
           if is_null_coeff (coeff m) then loop_sum (succ psum)
           else Term m (loop_sum (succ psum))
       end
     in
     loop_sum 0
   in
-  {ps_terms = t; ps_comden = comden}
-;
+  {| ps_terms := t; ps_comden := comden |};
 
 (**)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
