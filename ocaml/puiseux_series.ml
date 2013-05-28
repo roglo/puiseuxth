@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.57 2013-05-28 09:32:48 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.58 2013-05-28 09:36:22 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -216,8 +216,7 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
             match ms₂ with
             | Found m₂ =>
                 let c := add_coeff (coeff m₁) (coeff m₂) in
-                let p := power m₁ in
-                Found {| coeff := c; power := p |}
+                Found {| coeff := c; power := power m₁ |}
             | Remaining => ms₁
             | Ended => ms₁
             end
