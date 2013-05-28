@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.64 2013-05-28 19:46:58 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.65 2013-05-28 19:53:30 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -237,10 +237,10 @@ Definition new_ps_mul add_coeff mul_coeff ps₁ ps₂ :=
   let s₁ := ps_terms ps₁ in
   let s₂ := ps_terms ps₂ in
   let comden := I.mul (ps_comden ps₁) (ps_comden ps₂) in
-  let minp₁ := map_option Q.zero power (ser_nth 0 s₁) in
-  let minp₂ := map_option Q.zero power (ser_nth 0 s₂) in
-  let p₁c := Q.rnum (Q.norm (Q.muli minp₁ comden)) in
-  let p₂c := Q.rnum (Q.norm (Q.muli minp₂ comden)) in
+  let minp₁ := map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
+  let minp₂ := map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
+  let p₁c := Qnum (Q.norm (Q.muli minp₁ comden)) in
+  let p₂c := Qnum (Q.norm (Q.muli minp₂ comden)) in
   let t :=
     let cofix loop_sum psum :=
       let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
