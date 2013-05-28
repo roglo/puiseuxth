@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.55 2013-05-28 09:16:22 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.56 2013-05-28 09:27:26 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -158,7 +158,7 @@ value map_option n s =
   | Some x → s x ]
 ; 
 
-type monom_search α = [ Found of α | Ended | Remaining ];
+type monom_search α = [ Found of α | Remaining | Ended ];
 
 Fixpoint find_monom p (s : series (ps_monomial α)) n :=
   match n with
@@ -176,33 +176,51 @@ Fixpoint find_monom p (s : series (ps_monomial α)) n :=
       end
   end;
 
-Definition scan_diag add_coeff mul_coeff minp₁c minp₂c comden s₁ s₂ :=
+Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → α)
+    minp₁c minp₂c comden s₁ s₂ :=
   let fix loop_ij i j :=
     let p₁ := I.addi minp₁c i in
     let p₂ := I.addi minp₂c j in
     let m₁o := find_monom (Q.make p₁ comden) s₁ (S i) in
     let m₂o := find_monom (Q.make p₂ comden) s₂ (S j) in
     let ms₁ :=
-      match (m₁o, m₂o) with
-      | (Ended, _) | (_, Ended) => Ended
-      | (Remaining, _) | (_, Remaining) => Remaining
-      | (Found m₁, Found m₂) =>
-          let c := mul_coeff (coeff m₁) (coeff m₂) in
-          let p := Q.norm (Qplus (power m₁) (power m₂)) in
-          Found (c, p)
+      match m₁o with
+      | Found m₁ =>
+          match m₂o with
+          | Found m₂ =>
+              let c := mul_coeff (coeff m₁) (coeff m₂) in
+              let p := Q.norm (Qplus (power m₁) (power m₂)) in
+              Found (c, p)
+          | Remaining => Remaining
+          | Ended => Ended
+          end
+      | Remaining =>
+          match m₂o with
+          | Found _ => Remaining
+          | Remaining => Remaining
+          | Ended => Ended
+          end
+      | Ended => Ended
       end
     in
     match j with
     | O => ms₁
     | S j₁ =>
         let ms₂ := loop_ij (S i) j₁ in
-        match (ms₁, ms₂) with
-        | (Found (c₁, p₁), Found (c₂, p₂)) => Found (add_coeff c₁ c₂, p₁)
-        | (Found _, _) => ms₁
-        | (_, Found _) => ms₂
-        | (Ended, Ended) => Ended
-        | (Ended, Remaining) | (Remaining, Ended) => Remaining
-        | (Remaining, Remaining) => Remaining
+        match ms₁ with
+        | Found (c₁, p₁0) =>
+            match ms₂ with
+            | Found (c₂, _) => Found (add_coeff c₁ c₂, p₁0)
+            | Remaining => ms₁
+            | Ended => ms₁
+            end
+        | Remaining =>
+            match ms₂ with
+            | Found _ => ms₂
+            | Remaining => Remaining
+            | Ended => Remaining
+            end
+        | Ended => ms₂
         end
     end
   in

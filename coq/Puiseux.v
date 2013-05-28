@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.545 2013-05-28 09:16:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.546 2013-05-28 09:27:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -64,8 +64,8 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
 
 Inductive monom_search α :=
   | Found : α → monom_search α
-  | Ended : monom_search α
-  | Remaining : monom_search α.
+  | Remaining : monom_search α
+  | Ended : monom_search α.
 
 Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
   match n with
@@ -91,26 +91,43 @@ Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α �
     let m₁o := find_monom (Z.of_nat p₁ # comden) s₁ (S i) in
     let m₂o := find_monom (Z.of_nat p₂ # comden) s₂ (S j) in
     let ms₁ :=
-      match (m₁o, m₂o) with
-      | (Ended, _) | (_, Ended) => Ended _
-      | (Remaining, _) | (_, Remaining) => Remaining _
-      | (Found m₁, Found m₂) =>
-          let c := mul_coeff (coeff m₁) (coeff m₂) in
-          let p := Qplus (power m₁) (power m₂) in
-          Found (c, p)
+      match m₁o with
+      | Found m₁ =>
+          match m₂o with
+          | Found m₂ =>
+              let c := mul_coeff (coeff m₁) (coeff m₂) in
+              let p := power m₁ + power m₂ in
+              Found (c, p)
+          | Remaining => Remaining (α * Q)
+          | Ended => Ended (α * Q)
+          end
+      | Remaining =>
+          match m₂o with
+          | Found _ => Remaining (α * Q)
+          | Remaining => Remaining (α * Q)
+          | Ended => Ended (α * Q)
+          end
+      | Ended => Ended (α * Q)
       end
     in
     match j with
     | O => ms₁
     | S j₁ =>
         let ms₂ := loop_ij (S i) j₁ in
-        match (ms₁, ms₂) with
-        | (Found (c₁, p₁), Found (c₂, p₂)) => Found (add_coeff c₁ c₂, p₁)
-        | (Found _, _) => ms₁
-        | (_, Found _) => ms₂
-        | (Ended, Ended) => Ended _
-        | (Ended, Remaining) | (Remaining, Ended) => Remaining _
-        | (Remaining, Remaining) => Remaining _
+        match ms₁ with
+        | Found (c₁, p₁0) =>
+            match ms₂ with
+            | Found (c₂, _) => Found (add_coeff c₁ c₂, p₁0)
+            | Remaining => ms₁
+            | Ended => ms₁
+            end
+        | Remaining =>
+            match ms₂ with
+            | Found _ => ms₂
+            | Remaining => Remaining (α * Q)
+            | Ended => Remaining (α * Q)
+            end
+        | Ended => ms₂
         end
     end
   in
