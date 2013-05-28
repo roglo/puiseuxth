@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.54 2013-05-28 09:06:20 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.55 2013-05-28 09:16:22 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -188,14 +188,14 @@ Definition scan_diag add_coeff mul_coeff minp₁c minp₂c comden s₁ s₂ :=
       | (Remaining, _) | (_, Remaining) => Remaining
       | (Found m₁, Found m₂) =>
           let c := mul_coeff (coeff m₁) (coeff m₂) in
-          let p := Q.norm (Q.add (power m₁) (power m₂)) in
+          let p := Q.norm (Qplus (power m₁) (power m₂)) in
           Found (c, p)
       end
     in
     match j with
     | O => ms₁
     | S j₁ =>
-        let ms₂ := loop_ij (succ i) j₁ in
+        let ms₂ := loop_ij (S i) j₁ in
         match (ms₁, ms₂) with
         | (Found (c₁, p₁), Found (c₂, p₂)) => Found (add_coeff c₁ c₂, p₁)
         | (Found _, _) => ms₁

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.544 2013-05-27 20:03:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.545 2013-05-28 09:16:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -82,6 +82,39 @@ Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
          Ended _
       end
   end.
+
+Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α → α)
+    minp₁c minp₂c comden s₁ s₂ :=
+  let fix loop_ij i j :=
+    let p₁ := (minp₁c + i)%nat in
+    let p₂ := (minp₂c + j)%nat in
+    let m₁o := find_monom (Z.of_nat p₁ # comden) s₁ (S i) in
+    let m₂o := find_monom (Z.of_nat p₂ # comden) s₂ (S j) in
+    let ms₁ :=
+      match (m₁o, m₂o) with
+      | (Ended, _) | (_, Ended) => Ended _
+      | (Remaining, _) | (_, Remaining) => Remaining _
+      | (Found m₁, Found m₂) =>
+          let c := mul_coeff (coeff m₁) (coeff m₂) in
+          let p := Qplus (power m₁) (power m₂) in
+          Found (c, p)
+      end
+    in
+    match j with
+    | O => ms₁
+    | S j₁ =>
+        let ms₂ := loop_ij (S i) j₁ in
+        match (ms₁, ms₂) with
+        | (Found (c₁, p₁), Found (c₂, p₂)) => Found (add_coeff c₁ c₂, p₁)
+        | (Found _, _) => ms₁
+        | (_, Found _) => ms₂
+        | (Ended, Ended) => Ended _
+        | (Ended, Remaining) | (Remaining, Ended) => Remaining _
+        | (Remaining, Remaining) => Remaining _
+        end
+    end
+  in
+  loop_ij.
 
 (*
 Definition apply_poly_with_ps {α} fld pol (x : α) := ...
