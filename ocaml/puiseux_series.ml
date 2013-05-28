@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.52 2013-05-28 08:34:04 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.53 2013-05-28 08:51:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -185,9 +185,9 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let minp₁c = Q.rnum (Q.norm (Q.muli minp₁ comden)) in
   let minp₂c = Q.rnum (Q.norm (Q.muli minp₂ comden)) in
   let t =
-    loop 0 where rec loop psum =
+    loop_sum 0 where rec loop_sum psum =
       let cp_o =
-        loop 0 psum where rec loop i j =
+        loop_ij 0 psum where rec loop_ij i j =
           let p₁ = I.addi minp₁c i in
           let p₂ = I.addi minp₂c j in
           let m₁o = find_monom (Q.make p₁ comden) s₁ (S i) in
@@ -205,7 +205,7 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
           match j with
           | 0 → ms₁
           | _ →
-              let ms₂ = loop (succ i) (pred j) in
+              let ms₂ = loop_ij (succ i) (pred j) in
               match (ms₁, ms₂) with
               | (Found (c₁, p₁), Found (c₂, p₂)) →
                   let _ = assert (Q.eq p₁ p₂) in
@@ -221,12 +221,12 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
       in
       match cp_o with
       | Ended → End
-      | Remaining → loop (succ psum)
+      | Remaining → loop_sum (succ psum)
       | Found (c, p) →
-          if is_null_coeff c then loop (succ psum)
+          if is_null_coeff c then loop_sum (succ psum)
           else
             let m = {coeff = c; power = p} in
-            Term m (loop (succ psum))
+            Term m (loop_sum (succ psum))
       end
   in
   {ps_terms = t; ps_comden = comden}
