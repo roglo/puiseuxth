@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.53 2013-05-28 08:51:43 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.54 2013-05-28 09:06:20 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -176,49 +176,49 @@ Fixpoint find_monom p (s : series (ps_monomial α)) n :=
       end
   end;
 
+Definition scan_diag add_coeff mul_coeff minp₁c minp₂c comden s₁ s₂ :=
+  let fix loop_ij i j :=
+    let p₁ := I.addi minp₁c i in
+    let p₂ := I.addi minp₂c j in
+    let m₁o := find_monom (Q.make p₁ comden) s₁ (S i) in
+    let m₂o := find_monom (Q.make p₂ comden) s₂ (S j) in
+    let ms₁ :=
+      match (m₁o, m₂o) with
+      | (Ended, _) | (_, Ended) => Ended
+      | (Remaining, _) | (_, Remaining) => Remaining
+      | (Found m₁, Found m₂) =>
+          let c := mul_coeff (coeff m₁) (coeff m₂) in
+          let p := Q.norm (Q.add (power m₁) (power m₂)) in
+          Found (c, p)
+      end
+    in
+    match j with
+    | O => ms₁
+    | S j₁ =>
+        let ms₂ := loop_ij (succ i) j₁ in
+        match (ms₁, ms₂) with
+        | (Found (c₁, p₁), Found (c₂, p₂)) => Found (add_coeff c₁ c₂, p₁)
+        | (Found _, _) => ms₁
+        | (_, Found _) => ms₂
+        | (Ended, Ended) => Ended
+        | (Ended, Remaining) | (Remaining, Ended) => Remaining
+        | (Remaining, Remaining) => Remaining
+        end
+    end
+  in
+  loop_ij;
+
 value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let s₁ = ps₁.ps_terms in
   let s₂ = ps₂.ps_terms in
   let comden = I.mul ps₁.ps_comden ps₂.ps_comden in
   let minp₁ = map_option Q.zero power (ser_nth 0 s₁) in
   let minp₂ = map_option Q.zero power (ser_nth 0 s₂) in
-  let minp₁c = Q.rnum (Q.norm (Q.muli minp₁ comden)) in
-  let minp₂c = Q.rnum (Q.norm (Q.muli minp₂ comden)) in
+  let p₁c = Q.rnum (Q.norm (Q.muli minp₁ comden)) in
+  let p₂c = Q.rnum (Q.norm (Q.muli minp₂ comden)) in
   let t =
-    loop_sum 0 where rec loop_sum psum =
-      let cp_o =
-        loop_ij 0 psum where rec loop_ij i j =
-          let p₁ = I.addi minp₁c i in
-          let p₂ = I.addi minp₂c j in
-          let m₁o = find_monom (Q.make p₁ comden) s₁ (S i) in
-          let m₂o = find_monom (Q.make p₂ comden) s₂ (S j) in
-          let ms₁ =
-            match (m₁o, m₂o) with
-            | (Ended, _) | (_, Ended) → Ended
-            | (Remaining, _) | (_, Remaining) → Remaining
-            | (Found m₁, Found m₂) →
-                let c = mul_coeff (coeff m₁) (coeff m₂) in
-                let p = Q.norm (Q.add (power m₁) (power m₂)) in
-                Found (c, p)
-            end
-          in
-          match j with
-          | 0 → ms₁
-          | _ →
-              let ms₂ = loop_ij (succ i) (pred j) in
-              match (ms₁, ms₂) with
-              | (Found (c₁, p₁), Found (c₂, p₂)) →
-                  let _ = assert (Q.eq p₁ p₂) in
-                  let c = add_coeff c₁ c₂ in
-                  Found (c, p₁)
-              | (Found _, _) → ms₁
-              | (_, Found _) → ms₂
-              | (Ended, Ended) → Ended
-              | (Ended, Remaining) | (Remaining, Ended) → Remaining
-              | (Remaining, Remaining) → Remaining
-              end
-          end
-      in
+    let rec loop_sum psum =
+      let cp_o = scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
       match cp_o with
       | Ended → End
       | Remaining → loop_sum (succ psum)
@@ -228,6 +228,8 @@ value new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
             let m = {coeff = c; power = p} in
             Term m (loop_sum (succ psum))
       end
+    in
+    loop_sum 0
   in
   {ps_terms = t; ps_comden = comden}
 ;
