@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.58 2013-05-28 09:36:22 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.59 2013-05-28 11:33:59 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -158,11 +158,10 @@ value map_option n s =
   | Some x → s x ]
 ; 
 
-type monom_search α =
-  [ Found of ps_monomial α
-  | Remaining
-  | Ended ]
-;
+Inductive monom_search α :=
+  | Found : ps_monomial α → monom_search α
+  | Remaining : monom_search α
+  | Ended : monom_search α;
 
 Fixpoint find_monom p (s : series (ps_monomial α)) n :=
   match n with

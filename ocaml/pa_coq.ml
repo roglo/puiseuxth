@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.22 2013-05-28 09:16:22 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.23 2013-05-28 11:33:59 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -9,6 +9,15 @@ value fun_decl_of_label (loc, i, _, _) =
   <:str_item< value $lid:i$ x = x.$lid:i$ >>
 ;
 
+value rec generalized_type_of_type =
+  fun
+  [ <:ctyp< $t1$ -> $t2$ >> ->
+      let (tl, rt) = generalized_type_of_type t2 in
+      ([t1 :: tl], rt)
+  | t ->
+      ([], t) ]
+;
+
 EXTEND
   GLOBAL: str_item expr patt ctyp;
   str_item:
@@ -16,6 +25,9 @@ EXTEND
           <:str_item< value rec $_list:l$ >>
       | "Definition"; l = V (LIST1 coq_binding SEP "and") →
           <:str_item< value $_list:l$ >>
+      | "Inductive"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter);
+        ":="; cdl = V (LIST0 coq_constr_decl) →
+          <:str_item< type $_tp:n$ $_list:tpl$ = [ $_list:cdl$ ] >>
       | "Record"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter); ":=";
         c = OPT LIDENT; "{"; ldl = V (LIST1 label_declaration SEP ";"); "}" →
           let tk = <:ctyp< { $_list:ldl$ } >> in
@@ -45,6 +57,11 @@ EXTEND
             end
           in
           <:str_item< declare $list:[d :: dl]$ end >> ] ]
+  ;
+  coq_constr_decl:
+    [ [ "|"; ci = V UIDENT "uid"; ":"; t = ctyp →
+        let (tl, rt) = generalized_type_of_type t in
+        (loc, ci, <:vala< tl >>, None) ] ]
   ;
   label_declaration:
     [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t) ] ]
