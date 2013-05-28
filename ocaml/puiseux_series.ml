@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.59 2013-05-28 11:33:59 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.60 2013-05-28 11:43:40 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -179,13 +179,15 @@ Fixpoint find_monom p (s : series (ps_monomial α)) n :=
       end
   end;
 
+value qof2nat = Q.make;
+
 Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → α)
     minp₁c minp₂c comden s₁ s₂ :=
   let fix loop_ij i j :=
     let p₁ := I.addi minp₁c i in
     let p₂ := I.addi minp₂c j in
-    let m₁o := find_monom (Q.make p₁ comden) s₁ (S i) in
-    let m₂o := find_monom (Q.make p₂ comden) s₂ (S j) in
+    let m₁o := find_monom (qof2nat p₁ comden) s₁ (S i) in
+    let m₂o := find_monom (qof2nat p₂ comden) s₂ (S j) in
     let ms₁ :=
       match m₁o with
       | Found m₁ =>

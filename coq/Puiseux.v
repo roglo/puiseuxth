@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.547 2013-05-28 09:36:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.548 2013-05-28 11:43:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,20 +83,22 @@ Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
       end
   end.
 
+Definition qof2nat n m := Z.of_nat n # Pos.of_nat m.
+
 Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α → α)
     minp₁c minp₂c comden s₁ s₂ :=
   let fix loop_ij i j :=
     let p₁ := (minp₁c + i)%nat in
     let p₂ := (minp₂c + j)%nat in
-    let m₁o := find_monom (Z.of_nat p₁ # comden) s₁ (S i) in
-    let m₂o := find_monom (Z.of_nat p₂ # comden) s₂ (S j) in
+    let m₁o := find_monom (qof2nat p₁ comden) s₁ (S i) in
+    let m₂o := find_monom (qof2nat p₂ comden) s₂ (S j) in
     let ms₁ :=
       match m₁o with
       | Found m₁ =>
           match m₂o with
           | Found m₂ =>
               let c := mul_coeff (coeff m₁) (coeff m₂) in
-              let p := power m₁ + power m₂ in
+              let p := Qplus (power m₁) (power m₂) in
               Found {| coeff := c; power := p |}
           | Remaining => Remaining _
           | Ended => Ended _
