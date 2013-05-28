@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.23 2013-05-28 11:33:59 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.24 2013-05-28 19:46:58 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -128,6 +128,8 @@ EXTEND
           <:expr< Q.sub >>
       | UIDENT "Qnat" →
           <:expr< qnat >>
+      | UIDENT "O" →
+          <:expr< 0 >>
       | UIDENT "S" →
           <:expr< succ >> ] ]
   ;

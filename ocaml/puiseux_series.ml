@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.63 2013-05-28 18:50:27 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.64 2013-05-28 19:46:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -233,7 +233,7 @@ Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → �
   in
   loop_ij;
 
-Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
+Definition new_ps_mul add_coeff mul_coeff ps₁ ps₂ :=
   let s₁ := ps_terms ps₁ in
   let s₂ := ps_terms ps₂ in
   let comden := I.mul (ps_comden ps₁) (ps_comden ps₂) in
@@ -242,23 +242,20 @@ Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
   let p₁c := Q.rnum (Q.norm (Q.muli minp₁ comden)) in
   let p₂c := Q.rnum (Q.norm (Q.muli minp₂ comden)) in
   let t :=
-    let fix loop_sum psum :=
+    let cofix loop_sum psum :=
       let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
       match cp_o with
       | Ended => End
       | Remaining => loop_sum (S psum)
-      | Found m =>
-          if is_null_coeff (coeff m) then loop_sum (S psum)
-          else Term m (loop_sum (S psum))
+      | Found m => Term m (loop_sum (S psum))
       end
     in
-    loop_sum 0
+    loop_sum O
   in
   {| ps_terms := t; ps_comden := comden |};
 
 (**)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  ps2ops (new_ps_mul add_coeff mul_coeff is_null_coeff (ops2ps ops₁)
-    (ops2ps ops₂))
+  ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
 (**)
