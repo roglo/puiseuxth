@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.84 2013-05-29 17:03:50 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.85 2013-05-29 17:06:57 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -198,14 +198,13 @@ value sum_int_powers comden m₁ m₂ =
   I.add p₁c p₂c
 ;
 
-value insert_point mul_coeff comden s₁ s₂ i j sl =
+value insert_point mul_coeff comden i j s₁ s₂ sl =
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) →
       let c = mul_coeff (coeff m₁) (coeff m₂) in
       let p = Q.norm (Qplus (power m₁) (power m₂)) in
       insert_sum (sum_int_powers comden m₁ m₂)
-        {fe_i = i; fe_j = j; fe_c = c; fe_p = p;
-         fe_s₁ = s₁; fe_s₂ = s₂}
+        {fe_i = i; fe_j = j; fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
         sl
   | _ → sl
   end
@@ -236,11 +235,11 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
               (fun sl fe →
                  match fe_s₁ fe with
                  | Term _ ls₁ →
-                     let s₁ = Lazy.force ls₁ in
-                     let s₂ = fe_s₂ fe in
                      let i = S (fe_i fe) in
                      let j = fe_j fe in
-                     insert_point mul_coeff comden s₁ s₂ i j sl
+                     let s₁ = Lazy.force ls₁ in
+                     let s₂ = fe_s₂ fe in
+                     insert_point mul_coeff comden i j s₁ s₂ sl
                  | End → sl
                  end)
               sl [fe₁ :: fel₁]
@@ -250,11 +249,11 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
               (fun sl fe →
                  match fe_s₂ fe with
                  | Term _ ls₂ →
-                     let s₂ = Lazy.force ls₂ in
-                     let s₁ = fe_s₁ fe in
                      let i = fe_i fe in
                      let j = S (fe_j fe) in
-                     insert_point mul_coeff comden s₁ s₂ i j sl
+                     let s₁ = fe_s₁ fe in
+                     let s₂ = Lazy.force ls₂ in
+                     insert_point mul_coeff comden i j s₁ s₂ sl
                  | End → sl
                  end)
               sl [fe₁ :: fel₁]
