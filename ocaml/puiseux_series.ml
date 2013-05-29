@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.75 2013-05-29 16:07:06 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.76 2013-05-29 16:31:26 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -175,11 +175,11 @@ value insert_ij fe fel =
     match fel with
     | [] → [fe]
     | [fe₁ :: fel₁] →
-       if fe_i fe < fe_i fe₁ then [fe :: fel]
-       else if fe_i fe > fe_i fe₁ then [fe₁ :: insert fel₁]
-       else if fe_j fe < fe_j fe₁ then [fe :: fel]
-       else if fe_j fe > fe_j fe₁ then [fe₁ :: insert fel₁]
-       else fel
+        if fe_i fe < fe_i fe₁ then [fe :: fel]
+        else if fe_i fe > fe_i fe₁ then [fe₁ :: insert fel₁]
+        else if fe_j fe < fe_j fe₁ then [fe :: fel]
+        else if fe_j fe > fe_j fe₁ then [fe₁ :: insert fel₁]
+        else fel
     end
 ;
 
