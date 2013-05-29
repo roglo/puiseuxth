@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.550 2013-05-28 18:49:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.551 2013-05-29 02:35:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,15 +85,17 @@ Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
       end
   end.
 
+(*
 Definition qof2nat n m := Z.of_nat n # Pos.of_nat m.
+*)
 
 Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α → α)
     minp₁c minp₂c comden s₁ s₂ :=
   let fix loop_ij i j :=
-    let p₁ := (minp₁c + i)%nat in
-    let p₂ := (minp₂c + j)%nat in
-    let m₁o := find_monom (qof2nat p₁ comden) s₁ (S i) in
-    let m₂o := find_monom (qof2nat p₂ comden) s₂ (S j) in
+    let p₁ := (minp₁c + Z.of_nat i)%Z in
+    let p₂ := (minp₂c + Z.of_nat j)%Z in
+    let m₁o := find_monom (p₁ # Pos.of_nat comden) s₁ (S i) in
+    let m₂o := find_monom (p₂ # Pos.of_nat comden) s₂ (S j) in
     let ms₁ :=
       match m₁o with
       | Found m₁ =>
@@ -145,7 +147,7 @@ Definition map_option {α β} (n : β) (s : α → β) v :=
   | Some x => s x
   end.
 
-Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
+Definition new_ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   let s₁ := ps_terms ps₁ in
   let s₂ := ps_terms ps₂ in
   let comden := (ps_comden ps₁ * ps_comden ps₂)%nat in
@@ -154,17 +156,15 @@ Definition new_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ :=
   let p₁c := Qnum (minp₁ * Qnat comden) in
   let p₂c := Qnum (minp₂ * Qnat comden) in
   let t :=
-    let fix loop_sum psum :=
+    let cofix loop_sum psum :=
       let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
       match cp_o with
-      | Ended => End
-      | Remaining => loop_sum (S psum)
-      | Found m =>
-          if is_null_coeff (coeff m) then loop_sum (S psum)
-          else Term m (loop_sum (S psum))
+      | Ended => End _
+      | Remaining => End _ (* loop_sum (S psum) *)
+      | Found m => Term m (loop_sum (S psum))
       end
     in
-    loop_sum 0
+    loop_sum O
   in
   {| ps_terms := t; ps_comden := comden |}.
 
