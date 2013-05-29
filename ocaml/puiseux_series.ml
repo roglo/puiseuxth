@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.73 2013-05-29 09:30:14 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.74 2013-05-29 15:07:13 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -210,9 +210,10 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
     let rec series_mul sum_fifo =
       match sum_fifo with
       | [] → End
-      | [(sum, fel₁) :: sl] →
+      | [(sum, []) :: sl] → End
+      | [(sum, [fe₁ :: fel₁]) :: sl] →
           let m =
-            loop fel₁ where rec loop =
+            loop [fe₁ :: fel₁] where rec loop =
               fun
               [ [] → assert False
               | [fe] →
@@ -253,7 +254,7 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                      end
                  | End → sl
                  end)
-              sl fel₁
+              sl [fe₁ :: fel₁]
           in
           let sl =
             List.fold_left
@@ -276,7 +277,7 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                      end
                  | End → sl
                  end)
-              sl fel₁
+              sl [fe₁ :: fel₁]
           in
           Term m (series_mul sl)
       end
