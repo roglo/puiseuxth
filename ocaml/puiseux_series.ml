@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.89 2013-05-29 17:23:32 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.90 2013-05-29 17:25:23 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -207,6 +207,14 @@ value insert_point mul_coeff comden i j s₁ s₂ sl =
   end
 ;
 
+value add_coeff_list add_coeff fe₁ fel₁ =
+  loop (fe_c fe₁) fel₁ where rec loop c₁ fel₁ =
+    match fel₁ with
+    | [] → c₁
+    | [fe :: fel] → add_coeff c₁ (loop (fe_c fe) fel)
+    end
+;
+
 value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps_terms ps₁ in
   let s₂ = ps_terms ps₂ in
@@ -218,13 +226,7 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
       | [(sum, []) :: sl] → End
       | [(sum, [fe₁ :: fel₁]) :: sl] →
           let m =
-            let c =
-              loop (fe_c fe₁) fel₁ where rec loop c₁ fel₁ =
-                match fel₁ with
-                | [] → c₁
-                | [fe :: fel] → add_coeff c₁ (loop (fe_c fe) fel)
-                end
-            in
+            let c = add_coeff_list add_coeff fe₁ fel₁ in
             {coeff = c; power = fe_p fe₁}
           in
           let sl =
