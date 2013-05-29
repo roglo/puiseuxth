@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.261 2013-05-29 19:06:39 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.262 2013-05-29 19:38:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -207,7 +207,8 @@ value apply_poly_with_ps k fld pol =
 let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
 let r = (
 *)
-       ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero) ps₁ ps₂)
+       ps2ops
+         (ps_mul (norm k.add k) (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
 (*
 in
 let _ = eprintf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
@@ -235,7 +236,7 @@ value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
 let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
 let r = (
 *)
-          ps_mul k.add (norm k.mul k) (k.eq k.zero) ps₁ ps₂)
+          ps2ops (ps_mul k.add (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
 (*
 in
 let _ = eprintf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
@@ -770,6 +771,9 @@ value k_ps k =
   let one = ps_of_int f 1 in
   let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) (ops2ps ps₁) (ops2ps ps₂)) in
   let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) (ops2ps ps₁) (ops2ps ps₂)) in
+  let mul ps₁ ps₂ =
+    ps2ops (ps_mul f.add (norm f.mul f) (ops2ps ps₁) (ops2ps ps₂))
+  in
   let neg = sub zero in
   let ext =
     {minus_one = neg one;
@@ -794,8 +798,7 @@ value k_ps k =
      complex_to_string _ = failwith "k_ps.complex_to_string not impl"}
   in
   let fc =
-    {zero = zero; one = one; add = add; sub = sub; neg = neg;
-     mul = ps_mul f.add (norm f.mul f) (f.eq f.zero);
+    {zero = zero; one = one; add = add; sub = sub; neg = neg; mul = mul;
      div _ = failwith "k_ps.div not impl";
      eq _ = failwith "k_ps.eq not impl";
      ext = ext}

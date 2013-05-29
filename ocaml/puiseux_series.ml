@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.92 2013-05-29 19:06:39 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.93 2013-05-29 19:38:56 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -11,7 +11,6 @@ Record ps_monomial α := { coeff : α; power : Q };
 Record puiseux_series α :=
   { ps_terms : series (ps_monomial α);
     ps_comden : I.t };
-Record old_ps α := { old_ps_mon : list (ps_monomial α) };
 
 type comparison = [ Eq | Lt | Gt ];
 
@@ -50,32 +49,6 @@ value merge_pow add_coeff is_null_coeff =
         loop rev_list₁ ml₁
     | [] →
         List.rev rev_list ]
-;
-
-value ops2ps ops =
-  let terms =
-    loop ops.old_ps_mon where rec loop =
-      fun
-      [ [] → End
-      | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
-  in
-  let comden =
-    loop ops.old_ps_mon where rec loop =
-      fun
-      [ [] → I.one
-      | [m₁ :: ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
-  in
-  {ps_terms = terms; ps_comden = comden}
-;
-
-value ps2ops ps =
-  let rec loop ms =
-    match ms with
-    | Term m₁ ms₁ → [m₁ :: loop (Lazy.force ms₁)]
-    | End → []
-    end
-  in
-  {old_ps_mon = loop ps.ps_terms}
 ;
 
 Definition ps_add (add_coeff : α → α → α) ps₁ ps₂ :=
@@ -248,6 +221,32 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   {ps_terms = t; ps_comden = comden}
 ;
 
-value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  ps2ops (ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
+(**)
+
+type old_ps α = { old_ps_mon : list (ps_monomial α) };
+
+value ops2ps ops =
+  let terms =
+    loop ops.old_ps_mon where rec loop =
+      fun
+      [ [] → End
+      | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
+  in
+  let comden =
+    loop ops.old_ps_mon where rec loop =
+      fun
+      [ [] → I.one
+      | [m₁ :: ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
+  in
+  {ps_terms = terms; ps_comden = comden}
+;
+
+value ps2ops ps =
+  let rec loop ms =
+    match ms with
+    | Term m₁ ms₁ → [m₁ :: loop (Lazy.force ms₁)]
+    | End → []
+    end
+  in
+  {old_ps_mon = loop ps.ps_terms}
 ;
