@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.69 2013-05-29 07:59:03 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.70 2013-05-29 08:37:00 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -164,28 +164,34 @@ Definition map_option n s v :=
 
 (* ps_mul *)
 
-value insert_ij i s₁ j s₂ ssl =
-  insert ssl where rec insert ssl =
-    match ssl with
-    | [] → [(i, s₁, j, s₂)]
-    | [(i₁, s₁₁, j₁, s₂₁) :: ssl₁] →
-       if i < i₁ then [(i, s₁, j, s₂) :: ssl]
-       else if i > i₁ then [(i₁, s₁₁, j₁, s₂₁) :: insert ssl₁]
-       else if j < j₁ then [(i, s₁, j, s₂) :: ssl]
-       else if j > j₁ then [(i₁, s₁₁, j₁, s₂₁) :: insert ssl₁]
-       else ssl
+Record fifo_elem α :=
+  { fe_i : nat;
+    fe_j : nat;
+    fe_s₁ : series (ps_monomial α);
+    fe_s₂ : series (ps_monomial α) };
+
+value insert_ij fe fel =
+  insert fel where rec insert fel =
+    match fel with
+    | [] → [fe]
+    | [fe₁ :: fel₁] →
+       if fe_i fe < fe_i fe₁ then [fe :: fel]
+       else if fe_i fe > fe_i fe₁ then [fe₁ :: insert fel₁]
+       else if fe_j fe < fe_j fe₁ then [fe :: fel]
+       else if fe_j fe > fe_j fe₁ then [fe₁ :: insert fel₁]
+       else fel
     end
 ;
 
-value insert_sum sum (i, s₁, j, s₂) sl =
+value insert_sum sum fe sl =
   insert sl where rec insert sl =
     match sl with
-    | [] → [(sum, [(i, s₁, j, s₂)])]
-    | [(sum₁, ssl₁) :: l] →
+    | [] → [(sum, [fe])]
+    | [(sum₁, fel₁) :: l] →
         match icompare sum sum₁ with
-        | Eq → [(sum₁, insert_ij i s₁ j s₂ ssl₁) :: l]
-        | Lt → [(sum, [(i, s₁, j, s₂)]) :: sl]
-        | Gt → [(sum₁, ssl₁) :: insert l]
+        | Eq → [(sum₁, insert_ij fe fel₁) :: l]
+        | Lt → [(sum, [fe]) :: sl]
+        | Gt → [(sum₁, fel₁) :: insert l]
         end
     end
 ;        
@@ -206,24 +212,24 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
   let fst_sum = I.add p₁c p₂c in
   let t =
-    loop [(fst_sum, [(0, s₁, 0, s₂)])] where rec loop sum_fifo =
+    let rec loop sum_fifo =
       match sum_fifo with
       | [] → End
-      | [(sum, ssl₁) :: sl] →
+      | [(sum, fel₁) :: sl] →
           let m =
-            loop ssl₁ where rec loop =
+            loop fel₁ where rec loop =
               fun
               [ [] → assert False
-              | [(_, s₁, _, s₂)] →
-                  let m₁ = not_none (ser_hd s₁) in
-                  let m₂ = not_none (ser_hd s₂) in
+              | [fe] →
+                  let m₁ = not_none (ser_hd (fe_s₁ fe)) in
+                  let m₂ = not_none (ser_hd (fe_s₂ fe)) in
                   let c = mul_coeff (coeff m₁) (coeff m₂) in
                   let p = Q.norm (Qplus (power m₁) (power m₂)) in
                   {coeff = c; power = p}
-              | [(_, s₁, _, s₂) :: ssl] →
-                  let m = loop ssl in
-                  let m₁ = not_none (ser_hd s₁) in
-                  let m₂ = not_none (ser_hd s₂) in
+              | [fe :: fel] →
+                  let m = loop fel in
+                  let m₁ = not_none (ser_hd (fe_s₁ fe)) in
+                  let m₂ = not_none (ser_hd (fe_s₂ fe)) in
                   let c₁ = mul_coeff (coeff m₁) (coeff m₂) in
                   let _ =
                     assert
@@ -233,44 +239,53 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
           in
           let sl =
             List.fold_left
-              (fun sl (i, s₁, j, s₂) →
-                 match ser_tl s₁ with
+              (fun sl fe →
+                 match ser_tl (fe_s₁ fe) with
                  | Some s₁ →
+                     let s₂ = fe_s₂ fe in
                      match (ser_hd s₁, ser_hd s₂) with
                      | (Some m₁, Some m₂) →
                          let p₁c =
                            Qnum (Q.norm (Q.muli (power m₁) comden)) in
                         let p₂c =
                           Qnum (Q.norm (Q.muli (power m₂) comden)) in
-                        let sum = I.add p₁c p₂c in
-                        insert_sum sum (S i, s₁, j, s₂) sl
+                        insert_sum (I.add p₁c p₂c)
+                          {fe_i = S (fe_i fe); fe_j = fe_j fe;
+                           fe_s₁ = s₁; fe_s₂ = s₂}
+                          sl
                      | _ → sl
                      end
                  | None → sl
                  end)
-              sl ssl₁
+              sl fel₁
           in
           let sl =
             List.fold_left
-              (fun sl (i, s₁, j, s₂) →
-                 match ser_tl s₂ with
+              (fun sl fe →
+                 match ser_tl (fe_s₂ fe) with
                  | Some s₂ →
+                     let s₁ = fe_s₁ fe in
                      match (ser_hd s₁, ser_hd s₂) with
                      | (Some m₁, Some m₂) →
                          let p₁c =
                            Qnum (Q.norm (Q.muli (power m₁) comden)) in
                         let p₂c =
                           Qnum (Q.norm (Q.muli (power m₂) comden)) in
-                        let sum = I.add p₁c p₂c in
-                        insert_sum sum (i, s₁, S j, s₂) sl
+                        insert_sum (I.add p₁c p₂c)
+                          {fe_i = fe_i fe; fe_j = S (fe_j fe);
+                           fe_s₁ = s₁; fe_s₂ = s₂}
+                          sl
                      | _ → sl
                      end
                  | None → sl
                  end)
-              sl ssl₁
+              sl fel₁
           in
           Term m (loop sl)
       end
+    in
+    let fe = {fe_i = 0; fe_j = 0; fe_s₁ = s₁; fe_s₂ = s₂} in
+    loop [(fst_sum, [fe])]
   in
   {ps_terms = t; ps_comden = comden}
 ;
