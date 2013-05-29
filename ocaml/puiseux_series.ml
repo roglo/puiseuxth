@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.71 2013-05-29 09:03:17 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.72 2013-05-29 09:08:55 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -212,7 +212,7 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
   let fst_sum = I.add p₁c p₂c in
   let t =
-    let rec loop sum_fifo =
+    let rec series_mul sum_fifo =
       match sum_fifo with
       | [] → End
       | [(sum, fel₁) :: sl] →
@@ -244,16 +244,16 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                  | Term _ ls₁ →
                      let s₁ = Lazy.force ls₁ in
                      let s₂ = fe_s₂ fe in
-                     match (ser_hd s₁, ser_hd s₂) with
-                     | (Some m₁, Some m₂) →
+                     match (s₁, s₂) with
+                     | (Term m₁ _, Term m₂ _) →
                          let p₁c =
                            Qnum (Q.norm (Q.muli (power m₁) comden)) in
-                        let p₂c =
-                          Qnum (Q.norm (Q.muli (power m₂) comden)) in
-                        insert_sum (I.add p₁c p₂c)
-                          {fe_i = S (fe_i fe); fe_j = fe_j fe;
-                           fe_s₁ = s₁; fe_s₂ = s₂}
-                          sl
+                         let p₂c =
+                           Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                         insert_sum (I.add p₁c p₂c)
+                           {fe_i = S (fe_i fe); fe_j = fe_j fe;
+                            fe_s₁ = s₁; fe_s₂ = s₂}
+                           sl
                      | _ → sl
                      end
                  | End → sl
@@ -267,27 +267,27 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                  | Term _ ls₂ →
                      let s₂ = Lazy.force ls₂ in
                      let s₁ = fe_s₁ fe in
-                     match (ser_hd s₁, ser_hd s₂) with
-                     | (Some m₁, Some m₂) →
+                     match (s₁, s₂) with
+                     | (Term m₁ _, Term m₂ _) →
                          let p₁c =
                            Qnum (Q.norm (Q.muli (power m₁) comden)) in
-                        let p₂c =
-                          Qnum (Q.norm (Q.muli (power m₂) comden)) in
-                        insert_sum (I.add p₁c p₂c)
-                          {fe_i = fe_i fe; fe_j = S (fe_j fe);
-                           fe_s₁ = s₁; fe_s₂ = s₂}
-                          sl
+                         let p₂c =
+                           Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                         insert_sum (I.add p₁c p₂c)
+                           {fe_i = fe_i fe; fe_j = S (fe_j fe);
+                            fe_s₁ = s₁; fe_s₂ = s₂}
+                           sl
                      | _ → sl
                      end
                  | End → sl
                  end)
               sl fel₁
           in
-          Term m (loop sl)
+          Term m (series_mul sl)
       end
     in
     let fe = {fe_i = 0; fe_j = 0; fe_s₁ = s₁; fe_s₂ = s₂} in
-    loop [(fst_sum, [fe])]
+    series_mul [(fst_sum, [fe])]
   in
   {ps_terms = t; ps_comden = comden}
 ;
