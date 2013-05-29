@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.78 2013-05-29 16:47:13 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.79 2013-05-29 16:48:07 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -271,13 +271,13 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
           Term m (series_mul sl)
       end
     in
-    let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
-    let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
-    let p₁c = Qnum (Q.norm (Q.muli minp₁ comden)) in
-    let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
-    let fst_sum = I.add p₁c p₂c in
     match (s₁, s₂) with
     | (Term m₁ _, Term m₂ _) →
+        let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
+        let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
+        let p₁c = Qnum (Q.norm (Q.muli minp₁ comden)) in
+        let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
+        let fst_sum = I.add p₁c p₂c in
         let c = mul_coeff (coeff m₁) (coeff m₂) in
         let p = Q.norm (Qplus (power m₁) (power m₂)) in
         let fe =
