@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.260 2013-05-27 08:44:58 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.261 2013-05-29 19:06:39 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -201,7 +201,7 @@ value norm f k x y = k.ext.normalise (f x y);
 value apply_poly_with_ps k fld pol =
   let pol = op2p fld pol in
   apply_poly (fun ps → ps)
-    (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) ps₁ ps₂))
+    (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (ops2ps ps₁) (ops2ps ps₂)))
     (fun ps₁ ps₂ →
 (*
 let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
@@ -224,11 +224,12 @@ value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
   apply_poly
     (fun ps → {ml = [ps]})
     (fun (pol : old_poly (old_ps C.t)) (ps : old_ps C.t) →
-       pol_add fld (fun ps₁ ps₂ → ps2ops (ps_add (add k) ps₁ ps₂))
+       pol_add fld
+         (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
          pol {ml = [ps]})
     (pol_mul
        {old_ps_mon = []}
-       (fun ps₁ ps₂ → ps2ops (ps_add k.add ps₁ ps₂))
+       (fun ps₁ ps₂ → ps2ops (ps_add k.add (ops2ps ps₁) (ops2ps ps₂)))
        (fun ps₁ ps₂ →
 (*
 let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
@@ -767,8 +768,8 @@ value k_ps k =
   let f = k.ac_field in
   let zero = ps_of_int f 0 in
   let one = ps_of_int f 1 in
-  let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) ps₁ ps₂) in
-  let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) ps₁ ps₂) in
+  let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) (ops2ps ps₁) (ops2ps ps₂)) in
+  let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) (ops2ps ps₁) (ops2ps ps₂)) in
   let neg = sub zero in
   let ext =
     {minus_one = neg one;

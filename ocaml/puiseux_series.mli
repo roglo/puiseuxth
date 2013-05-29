@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.16 2013-05-25 01:17:58 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.17 2013-05-29 19:06:39 deraugla Exp $ *)
 
 open Pnums;
 
@@ -14,14 +14,15 @@ value coeff : ps_monomial α → α;
 value power : ps_monomial α → Q.t;
 value ps_terms : puiseux_series α → series (ps_monomial α);
 
-(* old version to be converted little by little: *)
-type old_ps α = { old_ps_mon : list (ps_monomial α) };
-
 type comparison = [ Eq | Lt | Gt ];
 value qcompare : Q.t → Q.t → comparison;
 
-value ps_add : (α → α → α) → old_ps α → old_ps α → puiseux_series α;
+value ps_add :
+  (α → α → α) → puiseux_series α → puiseux_series α → puiseux_series α;
 (** [ps_add add_coeff p₁ p₂] *)
+
+(* old version to be converted little by little: *)
+type old_ps α = { old_ps_mon : list (ps_monomial α) };
 
 value ps_mul :
   (α → α → α) → (α → α → α) → (α → bool)
