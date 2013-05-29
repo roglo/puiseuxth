@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.79 2013-05-29 16:48:07 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.80 2013-05-29 16:51:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -156,12 +156,6 @@ Definition ser_nth (n : nat) (s : series α) : option α :=
   | Some t => ser_hd t
   end;
 
-Definition map_option n s v :=
-  match v with
-  | None => n
-  | Some x => s x
-  end;
-
 (* ps_mul *)
 
 Record fifo_elem α :=
@@ -227,13 +221,12 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                      let s₂ = fe_s₂ fe in
                      match (s₁, s₂) with
                      | (Term m₁ _, Term m₂ _) →
-                         let p₁c =
-                           Qnum (Q.norm (Q.muli (power m₁) comden)) in
-                         let p₂c =
-                           Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                         let p₁c = Qnum (Q.norm (Q.muli (power m₁) comden)) in
+                         let p₂c = Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                         let sum = I.add p₁c p₂c in
                          let c = mul_coeff (coeff m₁) (coeff m₂) in
                          let p = Q.norm (Qplus (power m₁) (power m₂)) in
-                         insert_sum (I.add p₁c p₂c)
+                         insert_sum sum
                            {fe_i = S (fe_i fe); fe_j = fe_j fe;
                             fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
                            sl
@@ -252,13 +245,12 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                      let s₁ = fe_s₁ fe in
                      match (s₁, s₂) with
                      | (Term m₁ _, Term m₂ _) →
-                         let p₁c =
-                           Qnum (Q.norm (Q.muli (power m₁) comden)) in
-                         let p₂c =
-                           Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                         let p₁c = Qnum (Q.norm (Q.muli (power m₁) comden)) in
+                         let p₂c = Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                         let sum = I.add p₁c p₂c in
                          let c = mul_coeff (coeff m₁) (coeff m₂) in
                          let p = Q.norm (Qplus (power m₁) (power m₂)) in
-                         insert_sum (I.add p₁c p₂c)
+                         insert_sum sum
                            {fe_i = fe_i fe; fe_j = S (fe_j fe);
                             fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
                            sl
@@ -273,10 +265,8 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
     in
     match (s₁, s₂) with
     | (Term m₁ _, Term m₂ _) →
-        let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
-        let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
-        let p₁c = Qnum (Q.norm (Q.muli minp₁ comden)) in
-        let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
+        let p₁c = Qnum (Q.norm (Q.muli (power m₁) comden)) in
+        let p₂c = Qnum (Q.norm (Q.muli (power m₂) comden)) in
         let fst_sum = I.add p₁c p₂c in
         let c = mul_coeff (coeff m₁) (coeff m₂) in
         let p = Q.norm (Qplus (power m₁) (power m₂)) in
