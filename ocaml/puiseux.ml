@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.263 2013-05-29 20:00:46 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.264 2013-05-29 20:03:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -202,28 +202,18 @@ value apply_poly_with_ps k pol =
   apply_poly (fun ps → ps)
     (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (ops2ps ps₁) (ops2ps ps₂)))
     (fun ps₁ ps₂ →
-(*
-let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
-let r = (
-*)
        ps2ops
          (ps_mul (norm k.add k) (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
-(*
-in
-let _ = eprintf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
-*)
     pol
 ;
 
 value pol_add fld add_coeff p₁ p₂ =
   p2op fld (Poly.pol_add add_coeff (op2p fld p₁) (op2p fld p₂));
 
-value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
-    (fld : field (old_ps C.t) _) (pol : old_poly (old_ps C.t)) =
-  let pol = op2p fld pol in
+value apply_poly_with_ps_poly k fld pol =
   apply_poly
     (fun ps → {ml = [ps]})
-    (fun (pol : old_poly (old_ps C.t)) (ps : old_ps C.t) →
+    (fun pol ps →
        pol_add fld
          (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
          pol {ml = [ps]})
@@ -231,15 +221,7 @@ value apply_poly_with_ps_poly (k : field C.t (ext C.t float))
        {old_ps_mon = []}
        (fun ps₁ ps₂ → ps2ops (ps_add k.add (ops2ps ps₁) (ops2ps ps₂)))
        (fun ps₁ ps₂ →
-(*
-let _ = eprintf "*** ps_mul %s %s = %!" (string_of_puiseux_series k True "x" ps₁) (string_of_puiseux_series k True "x" ps₂) in
-let r = (
-*)
           ps2ops (ps_mul k.add (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
-(*
-in
-let _ = eprintf "%s\n%!" (string_of_puiseux_series k True "x" r) in r)
-*)
        (fun ps → ps.old_ps_mon = []))
     pol
 ;
@@ -400,7 +382,7 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
          [{old_ps_mon = [{coeff = r; power = γ}]};
           {old_ps_mon = [{coeff = k.one; power = γ}]}]}
     in
-    let pol = apply_poly_with_ps_poly k fld (p2op fld br.pol) y in
+    let pol = apply_poly_with_ps_poly k fld br.pol y in
     let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
