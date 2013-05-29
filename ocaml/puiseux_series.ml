@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.86 2013-05-29 17:16:34 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.87 2013-05-29 17:18:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -166,17 +166,16 @@ Record fifo_elem α :=
     fe_s₁ : series (ps_monomial α);
     fe_s₂ : series (ps_monomial α) };
 
-value insert_ij fe fel =
-  insert fel where rec insert fel =
-    match fel with
-    | [] → [fe]
-    | [fe₁ :: fel₁] →
-        if fe_i fe < fe_i fe₁ then [fe :: fel]
-        else if fe_i fe > fe_i fe₁ then [fe₁ :: insert fel₁]
-        else if fe_j fe < fe_j fe₁ then [fe :: fel]
-        else if fe_j fe > fe_j fe₁ then [fe₁ :: insert fel₁]
-        else fel
-    end
+value rec insert_ij fe fel =
+  match fel with
+  | [] → [fe]
+  | [fe₁ :: fel₁] →
+      if fe_i fe < fe_i fe₁ then [fe :: fel]
+      else if fe_i fe > fe_i fe₁ then [fe₁ :: insert_ij fe fel₁]
+      else if fe_j fe < fe_j fe₁ then [fe :: fel]
+      else if fe_j fe > fe_j fe₁ then [fe₁ :: insert_ij fe fel₁]
+      else fel
+  end
 ;
 
 value insert_sum sum fe sl =
