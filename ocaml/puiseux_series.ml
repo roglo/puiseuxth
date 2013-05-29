@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.82 2013-05-29 16:57:02 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.83 2013-05-29 17:00:10 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -225,13 +225,15 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                  | Term _ ls₁ →
                      let s₁ = Lazy.force ls₁ in
                      let s₂ = fe_s₂ fe in
+                     let i = S (fe_i fe) in
+                     let j = fe_j fe in
                      match (s₁, s₂) with
                      | (Term m₁ _, Term m₂ _) →
                          let c = mul_coeff (coeff m₁) (coeff m₂) in
                          let p = Q.norm (Qplus (power m₁) (power m₂)) in
                          insert_sum (sum_int_powers comden m₁ m₂)
-                           {fe_i = S (fe_i fe); fe_j = fe_j fe;
-                            fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
+                           {fe_i = i; fe_j = j; fe_c = c; fe_p = p;
+                            fe_s₁ = s₁; fe_s₂ = s₂}
                            sl
                      | _ → sl
                      end
@@ -246,13 +248,15 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                  | Term _ ls₂ →
                      let s₂ = Lazy.force ls₂ in
                      let s₁ = fe_s₁ fe in
+                     let i = fe_i fe in
+                     let j = S (fe_j fe) in
                      match (s₁, s₂) with
                      | (Term m₁ _, Term m₂ _) →
                          let c = mul_coeff (coeff m₁) (coeff m₂) in
                          let p = Q.norm (Qplus (power m₁) (power m₂)) in
                          insert_sum (sum_int_powers comden m₁ m₂)
-                           {fe_i = fe_i fe; fe_j = S (fe_j fe);
-                            fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
+                           {fe_i = i; fe_j = j; fe_c = c; fe_p = p;
+                            fe_s₁ = s₁; fe_s₂ = s₂}
                            sl
                      | _ → sl
                      end
