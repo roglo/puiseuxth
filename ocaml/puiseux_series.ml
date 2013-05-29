@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.67 2013-05-29 02:28:20 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.68 2013-05-29 07:56:56 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -287,12 +287,19 @@ value insert_sum sum (i, s₁, j, s₂) sl =
     end
 ;        
 
-(*
+value not_none =
+  fun
+  [ None → failwith "not none"
+  | Some x → x ]
+;
+
 value new_new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps_terms ps₁ in
   let s₂ = ps_terms ps₂ in
+(*
   let ini_s₁ = s₁ in
   let ini_s₂ = s₂ in
+*)
   let comden = I.mul (ps_comden ps₁) (ps_comden ps₂) in
   let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
   let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
@@ -304,15 +311,38 @@ value new_new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
       match sum_fifo with
       | [] → End
       | [(sum, ssl₁) :: sl] →
+(**)
+          let m =
+            loop ssl₁ where rec loop =
+              fun
+              [ [] → assert False
+              | [(_, s₁, _, s₂)] →
+                  let m₁ = not_none (ser_hd s₁) in
+                  let m₂ = not_none (ser_hd s₂) in
+                  let c = mul_coeff (coeff m₁) (coeff m₂) in
+                  let p = Q.norm (Qplus (power m₁) (power m₂)) in
+                  {coeff = c; power = p}
+              | [(_, s₁, _, s₂) :: ssl] →
+                  let m = loop ssl in
+                  let m₁ = not_none (ser_hd s₁) in
+                  let m₂ = not_none (ser_hd s₂) in
+                  let c₁ = mul_coeff (coeff m₁) (coeff m₂) in
+                  let _ =
+                    assert
+                      (Q.eq (power m) (Q.norm (Qplus (power m₁) (power m₂))))
+                  in
+                  {coeff = add_coeff c₁ (coeff m); power = power m} ]
+          in
+(*
           let psum = I.to_int (I.sub sum fst_sum) in
           let cp_o =
-... perhaps ssl₁ is enough!!! (i.e. no need to scan_diag)
             scan_diag add_coeff mul_coeff p₁c p₂c comden ini_s₁ ini_s₂ 0 psum
           in
           match cp_o with
           | Ended → End
           | Remaining _ → assert False
           | Found m →
+*)
               let sl =
                 List.fold_left
                   (fun sl (i, s₁, j, s₂) →
@@ -352,15 +382,16 @@ value new_new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
                   sl ssl₁
               in
               Term m (loop sl)
+(*
           end
+*)
       end
   in
   {ps_terms = t; ps_comden = comden}
 ;
-*)
 
 (**)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  ps2ops (new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
+  ps2ops (new_new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
 (**)
