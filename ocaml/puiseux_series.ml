@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.72 2013-05-29 09:08:55 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.73 2013-05-29 09:30:14 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -206,11 +206,6 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps_terms ps₁ in
   let s₂ = ps_terms ps₂ in
   let comden = I.mul (ps_comden ps₁) (ps_comden ps₂) in
-  let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
-  let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
-  let p₁c = Qnum (Q.norm (Q.muli minp₁ comden)) in
-  let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
-  let fst_sum = I.add p₁c p₂c in
   let t =
     let rec series_mul sum_fifo =
       match sum_fifo with
@@ -286,6 +281,11 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
           Term m (series_mul sl)
       end
     in
+    let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
+    let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
+    let p₁c = Qnum (Q.norm (Q.muli minp₁ comden)) in
+    let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
+    let fst_sum = I.add p₁c p₂c in
     let fe = {fe_i = 0; fe_j = 0; fe_s₁ = s₁; fe_s₂ = s₂} in
     series_mul [(fst_sum, [fe])]
   in
