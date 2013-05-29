@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.74 2013-05-29 15:07:13 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.75 2013-05-29 16:07:06 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -213,25 +213,20 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
       | [(sum, []) :: sl] → End
       | [(sum, [fe₁ :: fel₁]) :: sl] →
           let m =
-            loop [fe₁ :: fel₁] where rec loop =
-              fun
-              [ [] → assert False
-              | [fe] →
-                  let m₁ = not_none (ser_hd (fe_s₁ fe)) in
-                  let m₂ = not_none (ser_hd (fe_s₂ fe)) in
-                  let c = mul_coeff (coeff m₁) (coeff m₂) in
-                  let p = Q.norm (Qplus (power m₁) (power m₂)) in
-                  {coeff = c; power = p}
-              | [fe :: fel] →
-                  let m = loop fel in
-                  let m₁ = not_none (ser_hd (fe_s₁ fe)) in
-                  let m₂ = not_none (ser_hd (fe_s₂ fe)) in
-                  let c₁ = mul_coeff (coeff m₁) (coeff m₂) in
-                  let _ =
-                    assert
-                      (Q.eq (power m) (Q.norm (Qplus (power m₁) (power m₂))))
-                  in
-                  {coeff = add_coeff c₁ (coeff m); power = power m} ]
+            let c =
+              loop fe₁ fel₁ where rec loop fe₁ fel₁ =
+                let m₁ = not_none (ser_hd (fe_s₁ fe₁)) in
+                let m₂ = not_none (ser_hd (fe_s₂ fe₁)) in
+                let c = mul_coeff (coeff m₁) (coeff m₂) in
+                match fel₁ with
+                | [] → c
+                | [fe :: fel] → add_coeff c (loop fe fel)
+                end
+            in
+            let m₁ = not_none (ser_hd (fe_s₁ fe₁)) in
+            let m₂ = not_none (ser_hd (fe_s₂ fe₁)) in
+            let p = Q.norm (Qplus (power m₁) (power m₂)) in
+            {coeff = c; power = p}
           in
           let sl =
             List.fold_left
