@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.77 2013-05-29 16:45:18 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.78 2013-05-29 16:47:13 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -198,12 +198,6 @@ value insert_sum sum fe sl =
     end
 ;        
 
-value not_none =
-  fun
-  [ None → failwith "not none"
-  | Some x → x ]
-;
-
 value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps_terms ps₁ in
   let s₂ = ps_terms ps₂ in
@@ -282,14 +276,17 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
     let p₁c = Qnum (Q.norm (Q.muli minp₁ comden)) in
     let p₂c = Qnum (Q.norm (Q.muli minp₂ comden)) in
     let fst_sum = I.add p₁c p₂c in
-    let m₁ = not_none (ser_hd s₁) in
-    let m₂ = not_none (ser_hd s₂) in
-    let c = mul_coeff (coeff m₁) (coeff m₂) in
-    let p = Q.norm (Qplus (power m₁) (power m₂)) in
-    let fe =
-      {fe_i = 0; fe_j = 0; fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
-    in
-    series_mul [(fst_sum, [fe])]
+    match (s₁, s₂) with
+    | (Term m₁ _, Term m₂ _) →
+        let c = mul_coeff (coeff m₁) (coeff m₂) in
+        let p = Q.norm (Qplus (power m₁) (power m₂)) in
+        let fe =
+          {fe_i = 0; fe_j = 0; fe_c = c; fe_p = p; fe_s₁ = s₁; fe_s₂ = s₂}
+        in
+        series_mul [(fst_sum, [fe])]
+    | _ →
+        End
+    end
   in
   {ps_terms = t; ps_comden = comden}
 ;
