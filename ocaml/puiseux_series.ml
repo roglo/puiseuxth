@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.68 2013-05-29 07:56:56 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.69 2013-05-29 07:59:03 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -107,6 +107,7 @@ Definition ps_add (add_coeff : α → α → α) (ps₁ : old_ps α) (ps₂ : ol
   {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂));
      ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
+(*
 value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
   let ml =
     List.fold_left
@@ -125,6 +126,7 @@ value old_ps_mul add_coeff mul_coeff is_null_coeff ps₁ ps₂ =
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
   old_ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂
 ;
+*)
 
 Definition ser_hd (s : series α) :=
   match s with
@@ -160,106 +162,7 @@ Definition map_option n s v :=
   | Some x => s x
   end;
 
-Inductive monom_search α :=
-  | Found : ps_monomial α → monom_search α
-  | Remaining : Q → monom_search α
-  | Ended : monom_search α;
-
-Fixpoint find_monom p (s : series (ps_monomial α)) n :=
-  match n with
-  | O => Ended
-  | S n₁ =>
-      match s with
-      | Term t s₁ =>
-          match Qcompare (power t) p with
-          | Eq => Found t
-          | Lt => find_monom p (Lazy.force s₁) n₁
-          | Gt => Remaining (power t)
-          end
-      | End =>
-         Ended
-      end
-  end;
-
-Definition scan_diag (add_coeff : α → α → α) (mul_coeff : α → α → α)
-    minp₁c minp₂c comden s₁ s₂ :=
-  let fix loop_ij i j :=
-    let p₁ := I.addi minp₁c i in
-    let p₂ := I.addi minp₂c j in
-    let m₁o := find_monom (qof2nat p₁ comden) s₁ (S i) in
-    let m₂o := find_monom (qof2nat p₂ comden) s₂ (S j) in
-    let ms₁ :=
-      match m₁o with
-      | Found m₁ =>
-          match m₂o with
-          | Found m₂ =>
-              let c := mul_coeff (coeff m₁) (coeff m₂) in
-              let p := Q.norm (Qplus (power m₁) (power m₂)) in
-              Found {| coeff := c; power := p |}
-          | Remaining p => Remaining Q.zero
-          | Ended => Ended
-          end
-      | Remaining p =>
-          match m₂o with
-          | Found _ => Remaining p
-          | Remaining _ => Remaining p
-          | Ended => Ended
-          end
-      | Ended => Ended
-      end
-    in
-    match j with
-    | O => ms₁
-    | S j₁ =>
-        let ms₂ := loop_ij (S i) j₁ in
-        match ms₁ with
-        | Found m₁ =>
-            match ms₂ with
-            | Found m₂ =>
-                let c := add_coeff (coeff m₁) (coeff m₂) in
-                Found {| coeff := c; power := power m₁ |}
-            | Remaining _ => ms₁
-            | Ended => ms₁
-            end
-        | Remaining p =>
-            match ms₂ with
-            | Found _ => ms₂
-            | Remaining _ => Remaining p
-            | Ended => Remaining p
-            end
-        | Ended => ms₂
-        end
-    end
-  in
-  loop_ij;
-
-Definition new_ps_mul add_coeff mul_coeff ps₁ ps₂ :=
-  let s₁ := ps_terms ps₁ in
-  let s₂ := ps_terms ps₂ in
-  let comden := I.mul (ps_comden ps₁) (ps_comden ps₂) in
-  let minp₁ := map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
-  let minp₂ := map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
-  let p₁c := Qnum (Q.norm (Q.muli minp₁ comden)) in
-  let p₂c := Qnum (Q.norm (Q.muli minp₂ comden)) in
-  let t :=
-    let cofix loop_sum psum :=
-      let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
-      match cp_o with
-      | Ended => End
-      | Remaining p =>
-(*
-          loop_sum (S psum)
-*)
-          let n := I.to_int (I.sub (Qnum (Q.norm (Q.muli p comden))) p₁c) in
-if n ≤ psum then loop_sum (S psum) else
-          loop_sum n
-(**)
-      | Found m => Term m (loop_sum (S psum))
-      end
-    in
-    loop_sum O
-  in
-  {| ps_terms := t; ps_comden := comden |};
+(* ps_mul *)
 
 value insert_ij i s₁ j s₂ ssl =
   insert ssl where rec insert ssl =
@@ -293,13 +196,9 @@ value not_none =
   | Some x → x ]
 ;
 
-value new_new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
+value ps_mul add_coeff mul_coeff ps₁ ps₂ =
   let s₁ = ps_terms ps₁ in
   let s₂ = ps_terms ps₂ in
-(*
-  let ini_s₁ = s₁ in
-  let ini_s₂ = s₂ in
-*)
   let comden = I.mul (ps_comden ps₁) (ps_comden ps₂) in
   let minp₁ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₁) in
   let minp₂ = map_option Q.zero (λ ps, power ps) (ser_nth 0 s₂) in
@@ -311,7 +210,6 @@ value new_new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
       match sum_fifo with
       | [] → End
       | [(sum, ssl₁) :: sl] →
-(**)
           let m =
             loop ssl₁ where rec loop =
               fun
@@ -333,65 +231,50 @@ value new_new_ps_mul add_coeff mul_coeff ps₁ ps₂ =
                   in
                   {coeff = add_coeff c₁ (coeff m); power = power m} ]
           in
-(*
-          let psum = I.to_int (I.sub sum fst_sum) in
-          let cp_o =
-            scan_diag add_coeff mul_coeff p₁c p₂c comden ini_s₁ ini_s₂ 0 psum
+          let sl =
+            List.fold_left
+              (fun sl (i, s₁, j, s₂) →
+                 match ser_tl s₁ with
+                 | Some s₁ →
+                     match (ser_hd s₁, ser_hd s₂) with
+                     | (Some m₁, Some m₂) →
+                         let p₁c =
+                           Qnum (Q.norm (Q.muli (power m₁) comden)) in
+                        let p₂c =
+                          Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                        let sum = I.add p₁c p₂c in
+                        insert_sum sum (S i, s₁, j, s₂) sl
+                     | _ → sl
+                     end
+                 | None → sl
+                 end)
+              sl ssl₁
           in
-          match cp_o with
-          | Ended → End
-          | Remaining _ → assert False
-          | Found m →
-*)
-              let sl =
-                List.fold_left
-                  (fun sl (i, s₁, j, s₂) →
-                     match ser_tl s₁ with
-                     | Some s₁ →
-                         match (ser_hd s₁, ser_hd s₂) with
-                         | (Some m₁, Some m₂) →
-                             let p₁c =
-                               Qnum (Q.norm (Q.muli (power m₁) comden)) in
-                            let p₂c =
-                              Qnum (Q.norm (Q.muli (power m₂) comden)) in
-                            let sum = I.add p₁c p₂c in
-                            insert_sum sum (S i, s₁, j, s₂) sl
-                         | _ → sl
-                         end
-                     | None → sl
-                     end)
-                  sl ssl₁
-              in
-              let sl =
-                List.fold_left
-                  (fun sl (i, s₁, j, s₂) →
-                     match ser_tl s₂ with
-                     | Some s₂ →
-                         match (ser_hd s₁, ser_hd s₂) with
-                         | (Some m₁, Some m₂) →
-                             let p₁c =
-                               Qnum (Q.norm (Q.muli (power m₁) comden)) in
-                            let p₂c =
-                              Qnum (Q.norm (Q.muli (power m₂) comden)) in
-                            let sum = I.add p₁c p₂c in
-                            insert_sum sum (i, s₁, S j, s₂) sl
-                         | _ → sl
-                         end
-                     | None → sl
-                     end)
-                  sl ssl₁
-              in
-              Term m (loop sl)
-(*
-          end
-*)
+          let sl =
+            List.fold_left
+              (fun sl (i, s₁, j, s₂) →
+                 match ser_tl s₂ with
+                 | Some s₂ →
+                     match (ser_hd s₁, ser_hd s₂) with
+                     | (Some m₁, Some m₂) →
+                         let p₁c =
+                           Qnum (Q.norm (Q.muli (power m₁) comden)) in
+                        let p₂c =
+                          Qnum (Q.norm (Q.muli (power m₂) comden)) in
+                        let sum = I.add p₁c p₂c in
+                        insert_sum sum (i, s₁, S j, s₂) sl
+                     | _ → sl
+                     end
+                 | None → sl
+                 end)
+              sl ssl₁
+          in
+          Term m (loop sl)
       end
   in
   {ps_terms = t; ps_comden = comden}
 ;
 
-(**)
 value ps_mul add_coeff mul_coeff is_null_coeff ops₁ ops₂ =
-  ps2ops (new_new_ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
+  ps2ops (ps_mul add_coeff mul_coeff (ops2ps ops₁) (ops2ps ops₂))
 ;
-(**)
