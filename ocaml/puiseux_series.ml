@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.87 2013-05-29 17:18:34 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.88 2013-05-29 17:19:16 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -178,17 +178,16 @@ value rec insert_ij fe fel =
   end
 ;
 
-value insert_sum sum fe sl =
-  insert sl where rec insert sl =
-    match sl with
-    | [] → [(sum, [fe])]
-    | [(sum₁, fel₁) :: l] →
-        match icompare sum sum₁ with
-        | Eq → [(sum₁, insert_ij fe fel₁) :: l]
-        | Lt → [(sum, [fe]) :: sl]
-        | Gt → [(sum₁, fel₁) :: insert l]
-        end
-    end
+value rec insert_sum sum fe sl =
+  match sl with
+  | [] → [(sum, [fe])]
+  | [(sum₁, fel₁) :: l] →
+      match icompare sum sum₁ with
+      | Eq → [(sum₁, insert_ij fe fel₁) :: l]
+      | Lt → [(sum, [fe]) :: sl]
+      | Gt → [(sum₁, fel₁) :: insert_sum sum fe l]
+      end
+  end
 ;        
 
 value sum_int_powers comden m₁ m₂ =
