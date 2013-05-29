@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.70 2013-05-29 08:37:00 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.71 2013-05-29 09:03:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -240,8 +240,9 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
           let sl =
             List.fold_left
               (fun sl fe →
-                 match ser_tl (fe_s₁ fe) with
-                 | Some s₁ →
+                 match fe_s₁ fe with
+                 | Term _ ls₁ →
+                     let s₁ = Lazy.force ls₁ in
                      let s₂ = fe_s₂ fe in
                      match (ser_hd s₁, ser_hd s₂) with
                      | (Some m₁, Some m₂) →
@@ -255,15 +256,16 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                           sl
                      | _ → sl
                      end
-                 | None → sl
+                 | End → sl
                  end)
               sl fel₁
           in
           let sl =
             List.fold_left
               (fun sl fe →
-                 match ser_tl (fe_s₂ fe) with
-                 | Some s₂ →
+                 match fe_s₂ fe with
+                 | Term _ ls₂ →
+                     let s₂ = Lazy.force ls₂ in
                      let s₁ = fe_s₁ fe in
                      match (ser_hd s₁, ser_hd s₂) with
                      | (Some m₁, Some m₂) →
@@ -277,7 +279,7 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
                           sl
                      | _ → sl
                      end
-                 | None → sl
+                 | End → sl
                  end)
               sl fel₁
           in
