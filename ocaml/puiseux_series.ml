@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.88 2013-05-29 17:19:16 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.89 2013-05-29 17:23:32 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -219,10 +219,10 @@ value ps_mul add_coeff mul_coeff ps₁ ps₂ =
       | [(sum, [fe₁ :: fel₁]) :: sl] →
           let m =
             let c =
-              loop fe₁ fel₁ where rec loop fe₁ fel₁ =
+              loop (fe_c fe₁) fel₁ where rec loop c₁ fel₁ =
                 match fel₁ with
-                | [] → fe_c fe₁
-                | [fe :: fel] → add_coeff (fe_c fe₁) (loop fe fel)
+                | [] → c₁
+                | [fe :: fel] → add_coeff c₁ (loop (fe_c fe) fel)
                 end
             in
             {coeff = c; power = fe_p fe₁}
