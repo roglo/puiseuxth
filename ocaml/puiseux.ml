@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.270 2013-05-30 08:15:55 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.271 2013-05-30 08:21:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -24,6 +24,11 @@ Record algebraically_closed_field α β :=
 Definition degree (pol : polynomial α) := List.length (al pol);
 
 value qinf = Q.make (I.of_int 1) (I.of_int 0);
+value qnat i = Q.of_i (I.of_int i);
+value nofq q =
+  let r = I.to_int (Q.rnum q) in
+  if r < 0 then 0 else r
+;
 
 Definition valuation ps :=
   match ps_terms ps with
@@ -36,12 +41,6 @@ Definition valuation_coeff α fld ps :=
   | Term mx _ => coeff mx
   | End => zero fld
   end;
-
-value qnat i = Q.of_i (I.of_int i);
-value nofq q =
-  let r = I.to_int (Q.rnum q) in
-  if r < 0 then 0 else r
-;
 
 Definition slope_expr pt₁ pt₂ :=
   Q.norm (Qdiv (Qminus (snd pt₂) (snd pt₁)) (Qminus (fst pt₂) (fst pt₁)));
