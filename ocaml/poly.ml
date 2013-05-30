@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.42 2013-05-30 18:34:41 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.43 2013-05-30 18:45:03 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -43,23 +43,25 @@ Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂);
 
+value rec combine_pol mul_coeff c₁ deg₁ deg₂ a cn cl =
+  match cl with
+  | [] →
+      let c = mul_coeff c₁ cn in
+      let p = deg₁ + deg₂ in
+      [{old_coeff = c; old_power = p} :: a]
+  | [c₂ :: cl₂] →
+      let c = mul_coeff c₁ c₂ in
+      let p = deg₁ + deg₂ in
+      let a = [{old_coeff = c; old_power = p} :: a] in
+      combine_pol mul_coeff c₁ deg₁ (deg₂ + 1) a cn cl₂
+  end
+;
+
 value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
   let (ml, _) =
     List.fold_left
       (fun (a, deg₁) c₁ →
-         let a =
-           loop a 0 pol₂.al where rec loop a deg₂ cl =
-             match cl with
-             | [] →
-                 let c = mul_coeff c₁ pol₂.an in
-                 let p = deg₁ + deg₂ in
-                 [{old_coeff = c; old_power = p} :: a]
-             | [c₂ :: cl₂] →
-                 let c = mul_coeff c₁ c₂ in
-                 let p = deg₁ + deg₂ in
-                 loop [{old_coeff = c; old_power = p} :: a] (deg₂ + 1) cl₂
-             end
-         in
+         let a = combine_pol mul_coeff c₁ deg₁ 0 a pol₂.an pol₂.al in
          (a, deg₁ + 1))
       ([], 0) (pol₁.al @ [pol₁.an])
   in
