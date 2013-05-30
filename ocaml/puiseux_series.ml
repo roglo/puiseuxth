@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.106 2013-05-30 16:01:33 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.107 2013-05-30 16:05:55 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -164,14 +164,14 @@ Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   let t :=
     let cofix series_mul sum_fifo : series (ps_monomial α) :=
       match sum_fifo with
-      | [] => End
+      | [] => End _
       | [(sum, []) :: sl] => End
       | [(sum, [fe₁ :: fel₁]) :: sl] =>
           let m :=
             let c := add_coeff_list add_coeff (fe_c fe₁) fel₁ in
             {| coeff := c; power := fe_p fe₁ |}
           in
-          let sl :=
+          let sl₁ :=
             List.fold_left
               (λ sl fe,
                  match fe_s₁ fe with
@@ -182,7 +182,7 @@ Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
                  end)
               sl [fe₁ :: fel₁]
           in
-          let sl :=
+          let sl₂ :=
             List.fold_left
               (λ sl fe,
                  match fe_s₂ fe with
@@ -191,9 +191,9 @@ Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
                        (fe_s₁ fe) (Lazy.force ls₂) sl
                  | End => sl
                  end)
-              sl [fe₁ :: fel₁]
+              sl₁ [fe₁ :: fel₁]
           in
-          Term m (series_mul sl)
+          Term m (series_mul sl₂)
       end
     in
     match s₁ with
