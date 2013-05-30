@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.289 2013-05-30 19:50:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.290 2013-05-30 19:52:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -280,8 +280,8 @@ value print_solution k fld br nth cγl finite sol = do {
 };
 
 value cancel_pol_constant_term_if_any fld pol =
-  match pol.ml with
-  | [] → pol
+  match pol.al @ [pol.an] with
+  | [] → {ml = pol.al @ [pol.an]}
   | [m :: ml] →
       match m.old_ps_mon with
       [ [m₁ :: ml₁] →
@@ -293,8 +293,8 @@ value cancel_pol_constant_term_if_any fld pol =
             let m = {old_ps_mon = ml₁} in
             {ml = [m :: ml]}
           }
-          else pol
-      | [] → pol ]
+          else {ml = pol.al @ [pol.an]}
+      | [] → {ml = pol.al @ [pol.an]} ]
   end
 ;
 
@@ -319,7 +319,7 @@ value pol_div_x_power pol p =
     in
     {old_ps_mon = ml}
   in
-  {ml = cl @ [cn]}
+  {al = cl; an = cn}
 ;
 
 type choice α β =
