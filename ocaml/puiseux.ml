@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.288 2013-05-30 19:42:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.289 2013-05-30 19:50:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -299,7 +299,7 @@ value cancel_pol_constant_term_if_any fld pol =
 ;
 
 value pol_div_x_power pol p =
-  let ml =
+  let cl =
     List.map
       (fun ps →
          let ml =
@@ -309,9 +309,17 @@ value pol_div_x_power pol p =
              (ps2ops ps).old_ps_mon
          in
          {old_ps_mon = ml})
-      (pol.al @ [pol.an])
+      pol.al
   in
-  {ml = ml}
+  let cn =
+    let ml =
+      List.map
+        (fun m → {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
+        (ps2ops pol.an).old_ps_mon
+    in
+    {old_ps_mon = ml}
+  in
+  {ml = cl @ [cn]}
 ;
 
 type choice α β =
