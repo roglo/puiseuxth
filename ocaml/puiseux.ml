@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.264 2013-05-29 20:03:26 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.265 2013-05-30 00:43:29 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -155,7 +155,7 @@ value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { initial_polynom : polynomial (old_ps α);
+  { initial_polynom : polynomial (puiseux_series α);
     cγl : list (α * Q);
     step : int;
     rem_steps : int;
@@ -198,13 +198,9 @@ value rec list_take n l =
 
 value norm f k x y = k.ext.normalise (f x y);
 
-value apply_poly_with_ps k pol =
-  apply_poly (fun ps → ps)
-    (fun ps₁ ps₂ → ps2ops (ps_add (norm k.add k) (ops2ps ps₁) (ops2ps ps₂)))
-    (fun ps₁ ps₂ →
-       ps2ops
-         (ps_mul (norm k.add k) (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
-    pol
+value apply_poly_with_ps k =
+  apply_poly (fun ps → ps) (ps_add (norm k.add k))
+    (ps_mul (norm k.add k) (norm k.mul k))
 ;
 
 value pol_add fld add_coeff p₁ p₂ =
@@ -284,8 +280,8 @@ value print_solution k fld br nth cγl finite sol = do {
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps k br.initial_polynom sol in
-      let ps = float_round_zero k ps in
+      let ps = apply_poly_with_ps k br.initial_polynom (ops2ps sol) in
+      let ps = float_round_zero k (ps2ops ps) in
       let ps₂ =
         if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
         else ps
@@ -528,6 +524,8 @@ value print_line_equal () =
   else ()
 ;
 
+value pops2pps pol = {al = List.map ops2ps (al pol); an = ops2ps (an pol)};
+
 value puiseux k fld nb_steps vx vy pol =
   let gbl = newton_segments () () pol in
   if gbl = [] then failwith "no finite γ value"
@@ -538,7 +536,7 @@ value puiseux k fld nb_steps vx vy pol =
         (fun sol_list gbdpl → do {
            print_line_equal ();
            let br =
-             {initial_polynom = pol; cγl = []; step = 1;
+             {initial_polynom = pops2pps pol; cγl = []; step = 1;
               rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
            in
            puiseux_branch k fld  br sol_list gbdpl
