@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.95 2013-05-30 13:56:14 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.96 2013-05-30 14:02:36 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -112,7 +112,7 @@ Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
     fe_s₁ : series (ps_monomial α); fe_s₂ : series (ps_monomial α) };
 
-Fixpoint insert_ij fe fel :=
+Fixpoint insert_ij (fe : fifo_elem α) fel :=
   match fel with
   | [] => [fe]
   | [fe₁ :: fel₁] =>
@@ -123,7 +123,7 @@ Fixpoint insert_ij fe fel :=
       else fel
   end;
 
-Fixpoint insert_sum sum fe sl :=
+Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
   match sl with
   | [] => [(sum, [fe])]
   | [(sum₁, fel₁) :: l] =>
@@ -134,11 +134,12 @@ Fixpoint insert_sum sum fe sl :=
       end
   end;
 
-value sum_int_powers comden m₁ m₂ =
-  let p₁c = Qnum (Q.norm (Q.muli (power m₁) comden)) in
-  let p₂c = Qnum (Q.norm (Q.muli (power m₂) comden)) in
-  I.add p₁c p₂c
-;
+value plus = I.add;
+
+Definition sum_int_powers comden m₁ m₂ :=
+  let p₁c := Qnum (Q.norm (Q.muli (power m₁) comden)) in
+  let p₂c := Qnum (Q.norm (Q.muli (power m₂) comden)) in
+  plus p₁c p₂c;
 
 Definition insert_point mul_coeff comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
