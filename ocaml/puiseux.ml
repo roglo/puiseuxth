@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.266 2013-05-30 01:51:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.267 2013-05-30 02:09:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -206,17 +206,21 @@ value pol_add fld add_coeff p₁ p₂ =
 
 value apply_poly_with_ps_poly k fld pol =
   apply_poly
-    (fun ps → {ml = [ps]})
+    (fun ps → {al = []; an = ps})
     (fun pol ps →
-       pol_add fld
-         (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
-         pol {ml = [ps]})
-    (pol_mul
-       {old_ps_mon = []}
-       (fun ps₁ ps₂ → ps2ops (ps_add k.add (ops2ps ps₁) (ops2ps ps₂)))
-       (fun ps₁ ps₂ →
-          ps2ops (ps_mul k.add (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
-       (fun ps → ps.old_ps_mon = []))
+       op2p fld
+         (pol_add fld
+           (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
+            (p2op fld pol) {ml = [ps]}))
+    (fun pol₁ pol₂ →
+       op2p fld
+         (pol_mul
+            {old_ps_mon = []}
+            (fun ps₁ ps₂ → ps2ops (ps_add k.add (ops2ps ps₁) (ops2ps ps₂)))
+            (fun ps₁ ps₂ →
+               ps2ops (ps_mul k.add (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
+            (fun ps → ps.old_ps_mon = [])
+            (p2op fld pol₁) (p2op fld pol₂)))
     pol
 ;
 
@@ -376,8 +380,8 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
          [{old_ps_mon = [{coeff = r; power = γ}]};
           {old_ps_mon = [{coeff = k.one; power = γ}]}]}
     in
-    let pol = apply_poly_with_ps_poly k fld br.pol y in
-    let pol = pol_div_x_power pol β in
+    let pol = apply_poly_with_ps_poly k fld br.pol (op2p fld y) in
+    let pol = pol_div_x_power (p2op fld pol) β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
   in
