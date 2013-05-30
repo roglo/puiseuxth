@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.291 2013-05-30 19:57:56 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.292 2013-05-30 20:03:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -227,9 +227,20 @@ value xy_float_round_zero pol =
             [] ps.old_ps_mon
          in
          {old_ps_mon = List.rev rev_ml})
-      (pol.al @ [pol.an])
+      pol.al
   in
-  {ml = al}
+  let an =
+    let rev_ml =
+      List.fold_left
+        (fun rev_ml m →
+           let c = C.float_round_zero m.coeff in
+           if C.eq c C.zero then rev_ml
+           else [m :: rev_ml])
+       [] pol.an.old_ps_mon
+    in
+    {old_ps_mon = List.rev rev_ml}
+  in
+  {ml = al @ [an]}
 ;
 
 value float_round_zero k ps =
