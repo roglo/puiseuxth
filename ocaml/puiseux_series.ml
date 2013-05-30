@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.104 2013-05-30 15:47:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.105 2013-05-30 15:56:51 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -162,7 +162,7 @@ Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   let s₂ := ps_terms ps₂ in
   let comden := mult (ps_comden ps₁) (ps_comden ps₂) in
   let t :=
-    let cofix series_mul sum_fifo :=
+    let cofix series_mul sum_fifo : series (ps_monomial α) :=
       match sum_fifo with
       | [] => End
       | [(sum, []) :: sl] => End

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.554 2013-05-30 14:03:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.555 2013-05-30 15:56:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -163,7 +163,11 @@ Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
       end
   end.
 
-Definition insert_point mul_coeff comden i j s₁ s₂ sl :=
+Definition sum_int_powers α comden (m₁ m₂ : ps_monomial α) :=
+  let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
+  Z.to_nat (Qnum q).
+
+Definition insert_point α (mul_coeff : α → α → α) comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) =>
       let c := mul_coeff (coeff m₁) (coeff m₂) in
@@ -181,30 +185,60 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
   | [fe … fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end.
 
-Definition map_option {α β} (n : β) (s : α → β) v :=
-  match v with
-  | None => n
-  | Some x => s x
-  end.
-
-Definition new_ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   let s₁ := ps_terms ps₁ in
   let s₂ := ps_terms ps₂ in
-  let comden := (ps_comden ps₁ * ps_comden ps₂)%nat in
-  let minp₁ := map_option 0 (λ ps, power ps) (ser_nth 0 s₁) in
-  let minp₂ := map_option 0 (λ ps, power ps) (ser_nth 0 s₂) in
-  let p₁c := Qnum (minp₁ * Qnat comden) in
-  let p₂c := Qnum (minp₂ * Qnat comden) in
+  let comden := mult (ps_comden ps₁) (ps_comden ps₂) in
   let t :=
-    let cofix loop_sum psum :=
-      let cp_o := scan_diag add_coeff mul_coeff p₁c p₂c comden s₁ s₂ 0 psum in
-      match cp_o with
-      | Ended => End _
-      | Remaining => End _ (* loop_sum (S psum) *)
-      | Found m => Term m (loop_sum (S psum))
+    let cofix series_mul sum_fifo : series (ps_monomial α) :=
+      match sum_fifo with
+      | [] => End _
+      | [(sum, []) … sl] => End _
+      | [(sum, [fe₁ … fel₁]) … sl] =>
+          let m :=
+            let c := add_coeff_list add_coeff (fe_c fe₁) fel₁ in
+            {| coeff := c; power := fe_p fe₁ |}
+          in
+          let sl₁ :=
+            List.fold_left
+              (λ sl fe,
+                 match fe_s₁ fe with
+                 | Term _ ls₁ =>
+                     insert_point mul_coeff comden (S (fe_i fe)) (fe_j fe)
+                       ls₁ (fe_s₂ fe) sl
+                 | End => sl
+                 end)
+              [fe₁ … fel₁] sl
+          in
+          let sl₂ :=
+            List.fold_left
+              (λ sl fe,
+                 match fe_s₂ fe with
+                 | Term _ ls₂ =>
+                     insert_point mul_coeff comden (fe_i fe) (S (fe_j fe))
+                       (fe_s₁ fe) ls₂ sl
+                 | End => sl
+                 end)
+              [fe₁ … fel₁] sl₁
+          in
+          Term m (series_mul sl₂)
       end
     in
-    loop_sum O
+    match s₁ with
+    | Term m₁ _ =>
+        match s₂ with
+        | Term m₂ _ =>
+            let c := mul_coeff (coeff m₁) (coeff m₂) in
+            let p := Qred (Qplus (power m₁) (power m₂)) in
+            let fe :=
+              {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
+                 fe_s₁ := s₁; fe_s₂ := s₂ |}
+            in
+            series_mul [(sum_int_powers comden m₁ m₂, [fe])]
+        | End => End _
+        end
+    | End => End _
+    end
   in
   {| ps_terms := t; ps_comden := comden |}.
 
