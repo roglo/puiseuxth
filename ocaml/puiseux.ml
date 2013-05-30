@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.284 2013-05-30 19:08:43 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.285 2013-05-30 19:29:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -722,7 +722,7 @@ value kc () =
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
      mul = C.mul; div = C.div; eq = C.eq; ext = ext}
   in
-  {ac_field = fc; ac_roots cpol = roots fc (p2op fc cpol)}
+  {ac_field = fc; ac_roots = roots fc}
 ;
 
 value ps_of_int k i =
@@ -768,7 +768,7 @@ value km () =
     {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
      mul = M.mul; div = M.div; eq = M.eq; ext = ext}
   in
-  {ac_field = fm; ac_roots cpol = roots fm (p2op fm cpol)}
+  {ac_field = fm; ac_roots = roots fm}
 ;
 
 value main () = do {
