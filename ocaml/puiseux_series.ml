@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.108 2013-05-30 17:23:47 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.109 2013-05-30 17:27:59 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -169,23 +169,23 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
       in
       let sl₁ :=
         List.fold_left
-          (λ sl fe,
+          (λ sl₁ fe,
              match fe_s₁ fe with
              | Term _ ls₁ =>
                  insert_point mul_coeff comden (S (fe_i fe)) (fe_j fe)
-                   (Lazy.force ls₁) (fe_s₂ fe) sl
-             | End => sl
+                   (Lazy.force ls₁) (fe_s₂ fe) sl₁
+             | End => sl₁
              end)
           sl [fe₁ :: fel₁]
       in
       let sl₂ :=
         List.fold_left
-          (λ sl fe,
+          (λ sl₂ fe,
              match fe_s₂ fe with
              | Term _ ls₂ =>
                  insert_point mul_coeff comden (fe_i fe) (S (fe_j fe))
-                   (fe_s₁ fe) (Lazy.force ls₂) sl
-             | End => sl
+                   (fe_s₁ fe) (Lazy.force ls₂) sl₂
+             | End => sl₂
              end)
           sl₁ [fe₁ :: fel₁]
       in

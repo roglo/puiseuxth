@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.557 2013-05-30 17:23:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.558 2013-05-30 17:27:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -197,23 +197,23 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
       in
       let sl₁ :=
         List.fold_left
-          (λ sl fe,
+          (λ sl₁ fe,
              match fe_s₁ fe with
              | Term _ ls₁ =>
                  insert_point mul_coeff comden (S (fe_i fe)) (fe_j fe)
-                   ls₁ (fe_s₂ fe) sl
-             | End => sl
+                   ls₁ (fe_s₂ fe) sl₁
+             | End => sl₁
              end)
           [fe₁ … fel₁] sl
       in
       let sl₂ :=
         List.fold_left
-          (λ sl fe,
+          (λ sl₂ fe,
              match fe_s₂ fe with
              | Term _ ls₂ =>
                  insert_point mul_coeff comden (fe_i fe) (S (fe_j fe))
-                   (fe_s₁ fe) ls₂ sl
-             | End => sl
+                   (fe_s₁ fe) ls₂ sl₂
+             | End => sl₂
              end)
           [fe₁ … fel₁] sl₁
       in
