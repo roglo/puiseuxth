@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.269 2013-05-30 02:28:08 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.270 2013-05-30 08:15:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -17,16 +17,18 @@ open Roots;
 value zero fld = fld.zero;
 value add fld = fld.add;
 
-Record algebrically_closed_field α β :=
+Record algebraically_closed_field α β :=
   { ac_field : field α β;
     ac_roots : polynomial α → list (α * nat) };
 
 Definition degree (pol : polynomial α) := List.length (al pol);
 
-Definition valuation α ps :=
+value qinf = Q.make (I.of_int 1) (I.of_int 0);
+
+Definition valuation ps :=
   match ps_terms ps with
   | Term mx _ => power mx
-  | End => Q.make (I.of_int 1) (I.of_int 0)
+  | End => qinf
   end;
 
 Definition valuation_coeff α fld ps :=
@@ -115,7 +117,7 @@ Fixpoint filter_non_zero_ps α fld (dpl : list (Q * old_ps α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
       if ps.old_ps_mon = [] then filter_non_zero_ps α fld dpl₁
-      else [(pow, valuation α (ops2ps ps)) :: filter_non_zero_ps α fld dpl₁]
+      else [(pow, valuation (ops2ps ps)) :: filter_non_zero_ps α fld dpl₁]
   | [] =>
       []
   end;
