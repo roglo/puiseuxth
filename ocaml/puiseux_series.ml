@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.109 2013-05-30 17:27:59 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.110 2013-05-30 17:35:44 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -50,10 +50,10 @@ value merge_pow add_coeff is_null_coeff =
 
 Definition ps_add (add_coeff : α → α → α) ps₁ ps₂ :=
   let cofix loop₁ ms₁ ms₂ :=
-    match Lazy.force ms₁ with
+    match ms₁ with
     | Term c₁ s₁ =>
         let cofix loop₂ ms₂ :=
-          match Lazy.force ms₂ with
+          match ms₂ with
           | Term c₂ s₂ =>
               match Qcompare (power c₁) (power c₂) with
               | Eq =>
@@ -65,14 +65,14 @@ Definition ps_add (add_coeff : α → α → α) ps₁ ps₂ :=
               | Gt =>
                   Term c₂ (loop₂ s₂)
               end
-          | End => Lazy.force ms₁
+          | End => ms₁
           end
         in
         loop₂ ms₂
-    | End => Lazy.force ms₂
+    | End => ms₂
     end
   in
-  {| ps_terms := loop₁ (lazy (ps_terms ps₁)) (lazy (ps_terms ps₂));
+  {| ps_terms := loop₁ (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
 Definition ser_hd (s : series α) :=
@@ -83,7 +83,7 @@ Definition ser_hd (s : series α) :=
 
 Definition ser_tl (s : series α) : option (series α) :=
   match s with
-  | Term _ t => Some (Lazy.force t)
+  | Term _ t => Some t
   | End => None
   end;
 
@@ -171,9 +171,9 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
         List.fold_left
           (λ sl₁ fe,
              match fe_s₁ fe with
-             | Term _ ls₁ =>
+             | Term _ s₁ =>
                  insert_point mul_coeff comden (S (fe_i fe)) (fe_j fe)
-                   (Lazy.force ls₁) (fe_s₂ fe) sl₁
+                   s₁ (fe_s₂ fe) sl₁
              | End => sl₁
              end)
           sl [fe₁ :: fel₁]
@@ -182,9 +182,9 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
         List.fold_left
           (λ sl₂ fe,
              match fe_s₂ fe with
-             | Term _ ls₂ =>
+             | Term _ s₂ =>
                  insert_point mul_coeff comden (fe_i fe) (S (fe_j fe))
-                   (fe_s₁ fe) (Lazy.force ls₂) sl₂
+                   (fe_s₁ fe) s₂ sl₂
              | End => sl₂
              end)
           sl₁ [fe₁ :: fel₁]

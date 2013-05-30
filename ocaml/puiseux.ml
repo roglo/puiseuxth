@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.282 2013-05-30 17:23:47 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.283 2013-05-30 17:39:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -291,7 +291,7 @@ value print_solution k fld br nth cγl finite sol = do {
   end
 };
 
-value cancel_pol_constant_term_if_any (k : field C.t (ext C.t float)) pol =
+value cancel_pol_constant_term_if_any fld pol =
   match pol.ml with
   | [] → pol
   | [m :: ml] →
@@ -300,7 +300,7 @@ value cancel_pol_constant_term_if_any (k : field C.t (ext C.t float)) pol =
           if Q.eq m₁.power Q.zero then do {
             if False && verbose.val then
               printf "Warning: cancelling constant term: %s\n%!"
-                (k.ext.to_string m₁.coeff)
+                (fld.ext.to_string m₁.coeff)
             else ();
             let m = {old_ps_mon = ml₁} in
             {ml = [m :: ml]}

@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.40 2013-05-30 08:49:49 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.41 2013-05-30 17:41:31 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -92,7 +92,8 @@ value op2p fld p =
   end
 ;
 
-value apply_poly zero_plus_v add_v_coeff mul_v_x pol x =
-  List.fold_right (fun c accu → add_v_coeff (mul_v_x accu x) c)
-    (al pol) (zero_plus_v (an pol))
-;
+Definition apply_poly
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polynomial β) (x : γ) :=
+  List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
+    (al pol) (zero_plus_v (an pol));

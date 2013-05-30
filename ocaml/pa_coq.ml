@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.35 2013-05-30 17:23:47 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.36 2013-05-30 17:35:44 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -172,6 +172,9 @@ EXTEND
           [ <:patt< S $lid:n$ >> →
               (<:patt< $lid:n$ >>,
                <:expr< let $lid:n$ = pred $lid:n$ in $e$ >>)
+          | <:patt< Term $p₁$ $lid:n$ >> →
+              (<:patt< Term $p₁$ $lid:n$ >>,
+               <:expr< let $lid:n$ = Lazy.force $lid:n$ in $e$ >>)
           | _ →
               (p, e) ]
         in
