@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.103 2013-05-30 15:43:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.104 2013-05-30 15:47:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -155,10 +155,12 @@ Fixpoint add_coeff_list (add_coeff : α → α → α) c₁ fel₁ :=
   | [fe :: fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end;
 
-Definition ps_mul add_coeff mul_coeff ps₁ (ps₂ : puiseux_series α) :=
+value mult = I.mul;
+
+Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   let s₁ := ps_terms ps₁ in
   let s₂ := ps_terms ps₂ in
-  let comden := I.mul (ps_comden ps₁) (ps_comden ps₂) in
+  let comden := mult (ps_comden ps₁) (ps_comden ps₂) in
   let t :=
     let cofix series_mul sum_fifo :=
       match sum_fifo with
@@ -199,7 +201,7 @@ Definition ps_mul add_coeff mul_coeff ps₁ (ps₂ : puiseux_series α) :=
         match s₂ with
         | Term m₂ _ =>
             let c := mul_coeff (coeff m₁) (coeff m₂) in
-            let p := Q.norm (Qplus (power m₁) (power m₂)) in
+            let p := Qred (Qplus (power m₁) (power m₂)) in
             let fe :=
               {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
                  fe_s₁ := s₁; fe_s₂ := s₂ |}
