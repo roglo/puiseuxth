@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.279 2013-05-30 13:24:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.280 2013-05-30 16:18:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -16,6 +16,7 @@ open Roots;
 
 value zero fld = fld.zero;
 value add fld = fld.add;
+value mul fld = fld.mul;
 
 Record alg_closed_field α β :=
   { ac_field : field α β;
@@ -197,12 +198,11 @@ value rec list_take n l =
     end
 ;
 
-value norm f k x y = k.ext.normalise (f x y);
+value norm fld f x y = fld.ext.normalise (f x y);
 
-value apply_poly_with_ps k =
-  apply_poly (fun ps → ps) (ps_add (norm k.add k))
-    (ps_mul (norm k.add k) (norm k.mul k))
-;
+Definition apply_poly_with_ps (fld : field α _) :=
+  apply_poly (λ ps, ps) (ps_add (norm fld (add fld)))
+    (ps_mul (norm fld (add fld)) (norm fld (mul fld)));
 
 value apply_poly_with_ps_poly k fld pol =
   apply_poly
@@ -211,7 +211,7 @@ value apply_poly_with_ps_poly k fld pol =
     (pol_mul
        {ps_terms = End; ps_comden = I.one}
        (ps_add k.add)
-       (ps_mul k.add (norm k.mul k))
+       (ps_mul k.add (norm k k.mul))
        (fun ps → ps.ps_terms = End))
     pol
 ;
@@ -737,10 +737,10 @@ value k_ps k =
   let f = k.ac_field in
   let zero = ps_of_int f 0 in
   let one = ps_of_int f 1 in
-  let add ps₁ ps₂ = ps2ops (ps_add (norm f.add f) (ops2ps ps₁) (ops2ps ps₂)) in
-  let sub ps₁ ps₂ = ps2ops (ps_add (norm f.sub f) (ops2ps ps₁) (ops2ps ps₂)) in
+  let add ps₁ ps₂ = ps2ops (ps_add (norm f f.add) (ops2ps ps₁) (ops2ps ps₂)) in
+  let sub ps₁ ps₂ = ps2ops (ps_add (norm f f.sub) (ops2ps ps₁) (ops2ps ps₂)) in
   let mul ps₁ ps₂ =
-    ps2ops (ps_mul f.add (norm f.mul f) (ops2ps ps₁) (ops2ps ps₂))
+    ps2ops (ps_mul f.add (norm f f.mul) (ops2ps ps₁) (ops2ps ps₂))
   in
   let neg = sub zero in
   let ext =

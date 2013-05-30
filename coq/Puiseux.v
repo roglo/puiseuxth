@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.555 2013-05-30 15:56:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.556 2013-05-30 16:20:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -242,16 +242,8 @@ Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   in
   {| ps_terms := t; ps_comden := comden |}.
 
-(*
-Definition apply_poly_with_ps {α} fld pol (x : α) := ...
-value apply_poly_with_ps :
-  field α β →
-  pps α → puiseux_series α → puiseux_series α
-value apply_poly_with_ps k pol =
-  apply_poly {ps_terms = []}
-    (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
-    (ps_mul (norm k.add k) (norm k.mul k) (k.eq k.zero)) pol
-*)
+Definition apply_poly_with_ps α (fld : field α) :=
+  apply_poly (λ ps, ps) (ps_add (add fld)) (ps_mul (add fld) (mul fld)).
 
 (*
 Definition apply_poly_with_ps_poly {α} (fld : field α)
