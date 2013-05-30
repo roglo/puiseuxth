@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.44 2013-05-30 18:56:04 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.45 2013-05-30 18:59:30 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -52,17 +52,19 @@ value rec combine_pol mul_coeff c₁ deg₁ deg₂ ml cn cl =
   | [c₂ :: cl₂] →
       let c = mul_coeff c₁ c₂ in
       let ml = [{old_coeff = c; old_power = p} :: ml] in
-      combine_pol mul_coeff c₁ deg₁ (deg₂ + 1) ml cn cl₂
+      combine_pol mul_coeff c₁ deg₁ (succ deg₂) ml cn cl₂
   end
 ;
 
 value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
-  let (ml, _) =
-    List.fold_left
-      (fun (ml, deg₁) c₁ →
-         let a = combine_pol mul_coeff c₁ deg₁ 0 ml pol₂.an pol₂.al in
-         (a, deg₁ + 1))
-      ([], 0) (pol₁.al @ [pol₁.an])
+  let ml =
+    loop [] 0 pol₁.al where rec loop ml deg₁ cl =
+      match cl with
+      | [] → combine_pol mul_coeff pol₁.an deg₁ 0 ml pol₂.an pol₂.al
+      | [c₁ :: cl₁] →
+           let ml = combine_pol mul_coeff c₁ deg₁ 0 ml pol₂.an pol₂.al in
+           loop ml (succ deg₁) cl₁
+      end
   in
   let ml = List.sort (fun m₁ m₂ → compare m₁.old_power m₂.old_power) ml in
   let ml = merge_pow add_coeff is_zero_coeff ml in
