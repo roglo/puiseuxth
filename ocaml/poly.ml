@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.39 2013-05-30 08:47:21 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.40 2013-05-30 08:49:49 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -72,7 +72,7 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
       end
   in
   match rev_np with
-  | [cn :: rev_cl] → {ml = List.rev [cn :: rev_cl]}
+  | [cn :: rev_cl] → {al = List.rev rev_cl; an = cn}
   | [] → assert False
   end
 ;
