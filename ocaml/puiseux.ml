@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.290 2013-05-30 19:52:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.291 2013-05-30 19:57:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -227,7 +227,7 @@ value xy_float_round_zero pol =
             [] ps.old_ps_mon
          in
          {old_ps_mon = List.rev rev_ml})
-      pol.ml
+      (pol.al @ [pol.an])
   in
   {ml = al}
 ;
@@ -278,25 +278,6 @@ value print_solution k fld br nth cγl finite sol = do {
   | None → ()
   end
 };
-
-value cancel_pol_constant_term_if_any fld pol =
-  match pol.al @ [pol.an] with
-  | [] → {ml = pol.al @ [pol.an]}
-  | [m :: ml] →
-      match m.old_ps_mon with
-      [ [m₁ :: ml₁] →
-          if Q.eq m₁.power Q.zero then do {
-            if False && verbose.val then
-              printf "Warning: cancelling constant term: %s\n%!"
-                (fld.ext.to_string m₁.coeff)
-            else ();
-            let m = {old_ps_mon = ml₁} in
-            {ml = [m :: ml]}
-          }
-          else {ml = pol.al @ [pol.an]}
-      | [] → {ml = pol.al @ [pol.an]} ]
-  end
-;
 
 value pol_div_x_power pol p =
   let cl =
@@ -372,7 +353,6 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
     in
     let pol = apply_poly_with_ps_poly k fld br.pol y in
     let pol = pol_div_x_power pol β in
-    let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero pol
   in
   if verbose.val then
