@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.283 2013-05-30 17:39:08 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.284 2013-05-30 19:08:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -211,8 +211,7 @@ Definition apply_poly_with_ps_poly k fld pol :=
     (pol_mul
        {| ps_terms := End; ps_comden := I.one |}
        (ps_add (add k))
-       (ps_mul (add k) (norm k k.mul))
-       (λ ps, ps_terms ps = End))
+       (ps_mul (add k) (norm k k.mul)))
     pol;
 
 value map_polynom k f pol =

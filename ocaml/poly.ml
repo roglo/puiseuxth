@@ -1,10 +1,10 @@
-(* $Id: poly.ml,v 1.46 2013-05-30 19:05:12 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.47 2013-05-30 19:08:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 Record polynomial α := mkpol { al : list α; an : α };
 
-value merge_pow add_coeff is_zero_coeff =
+value merge_pow add_coeff =
   loop [] where rec loop rev_list =
     fun
     [ [(c₁, p₁) :: ml₁] →
@@ -13,8 +13,7 @@ value merge_pow add_coeff is_zero_coeff =
           [ [(c₂, p₂) :: rev_list₂] →
               if compare p₁ p₂ = 0 then
                 let c = add_coeff c₁ c₂ in
-                if is_zero_coeff c then rev_list₂
-                else [(c, p₁) :: rev_list₂]
+                [(c, p₁) :: rev_list₂]
               else
                 [(c₁, p₁) :: rev_list]
           | [] →
@@ -53,7 +52,7 @@ value rec combine_pol mul_coeff c₁ deg₁ deg₂ ml cn cl =
   end
 ;
 
-value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
+value pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ =
   let ml =
     loop [] 0 pol₁.al where rec loop ml deg₁ cl =
       match cl with
@@ -64,7 +63,7 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
       end
   in
   let ml = List.sort (fun (c₁, p₁) (c₂, p₂) → compare p₁ p₂) ml in
-  let ml = merge_pow add_coeff is_zero_coeff ml in
+  let ml = merge_pow add_coeff ml in
   let rev_np =
     loop [] 0 ml where rec loop rev_np deg ml =
       match ml with
