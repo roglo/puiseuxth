@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.558 2013-05-30 17:27:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.559 2013-05-30 19:08:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,7 +15,7 @@ Set Implicit Arguments.
 Definition degree α (pol : polynomial α) := List.length (al pol).
 
 (* Horner's algorithm *)
-Definition apply_poly {α} {β} {γ}
+Definition apply_poly α β γ
     (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
@@ -251,8 +251,7 @@ Definition apply_poly_with_ps_poly k fld pol :=
     (pol_mul
        {| ps_terms := End; ps_comden := I.one |}
        (ps_add (add k))
-       (ps_mul (add k) (norm k k.mul))
-       (λ ps, ps_terms ps = End))
+       (ps_mul (add k) (norm k k.mul)))
     pol.
 
 Record alg_closed_field {α} :=

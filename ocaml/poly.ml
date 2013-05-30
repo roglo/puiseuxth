@@ -1,27 +1,24 @@
-(* $Id: poly.ml,v 1.45 2013-05-30 18:59:30 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.46 2013-05-30 19:05:12 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 Record polynomial α := mkpol { al : list α; an : α };
 
-type old_poly α = { ml : list α };
-type old_monomial α = { old_coeff : α; old_power : int };
-
 value merge_pow add_coeff is_zero_coeff =
   loop [] where rec loop rev_list =
     fun
-    [ [m₁ :: ml₁] →
+    [ [(c₁, p₁) :: ml₁] →
         let rev_list₁ =
           match rev_list with
-          [ [m₂ :: rev_list₂] →
-              if compare m₁.old_power m₂.old_power = 0 then
-                let c = add_coeff m₁.old_coeff m₂.old_coeff in
+          [ [(c₂, p₂) :: rev_list₂] →
+              if compare p₁ p₂ = 0 then
+                let c = add_coeff c₁ c₂ in
                 if is_zero_coeff c then rev_list₂
-                else [{old_coeff = c; old_power = m₁.old_power} :: rev_list₂]
+                else [(c, p₁) :: rev_list₂]
               else
-                [m₁ :: rev_list]
+                [(c₁, p₁) :: rev_list]
           | [] →
-              [m₁] ]
+              [(c₁, p₁)] ]
         in
         loop rev_list₁ ml₁
     | [] →
@@ -48,10 +45,10 @@ value rec combine_pol mul_coeff c₁ deg₁ deg₂ ml cn cl =
   match cl with
   | [] →
       let c = mul_coeff c₁ cn in
-      [{old_coeff = c; old_power = p} :: ml]
+      [(c, p) :: ml]
   | [c₂ :: cl₂] →
       let c = mul_coeff c₁ c₂ in
-      let ml = [{old_coeff = c; old_power = p} :: ml] in
+      let ml = [(c, p) :: ml] in
       combine_pol mul_coeff c₁ deg₁ (succ deg₂) ml cn cl₂
   end
 ;
@@ -66,15 +63,15 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
            loop ml (succ deg₁) cl₁
       end
   in
-  let ml = List.sort (fun m₁ m₂ → compare m₁.old_power m₂.old_power) ml in
+  let ml = List.sort (fun (c₁, p₁) (c₂, p₂) → compare p₁ p₂) ml in
   let ml = merge_pow add_coeff is_zero_coeff ml in
   let rev_np =
     loop [] 0 ml where rec loop rev_np deg ml =
       match ml with
-      | [m :: ml₁] →
-          if m.old_power > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
-          else if m.old_power < deg then invalid_arg "pol_mul"
-          else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
+      | [(c, p) :: ml₁] →
+          if p > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
+          else if p < deg then invalid_arg "pol_mul"
+          else loop [c :: rev_np] (deg + 1) ml₁
       | [] →
           rev_np
       end
@@ -86,6 +83,8 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
 ;
 
 open Field;
+
+type old_poly α = { ml : list α };
 
 value p2op fld p =
   match p.al with
