@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.281 2013-05-30 16:56:15 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.282 2013-05-30 17:23:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -204,17 +204,16 @@ Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add (norm fld (add fld)))
     (ps_mul (norm fld (add fld)) (norm fld (mul fld)));
 
-value apply_poly_with_ps_poly k fld pol =
+Definition apply_poly_with_ps_poly k fld pol :=
   apply_poly
-    (fun ps → {al = []; an = ps})
-    (fun pol ps → pol_add (ps_add (add k)) pol {al = [] ; an = ps})
+    (λ ps, {| al := []; an := ps |})
+    (λ pol ps, pol_add (ps_add (add k)) pol {| al := []; an := ps |})
     (pol_mul
-       {ps_terms = End; ps_comden = I.one}
-       (ps_add k.add)
-       (ps_mul k.add (norm k k.mul))
-       (fun ps → ps.ps_terms = End))
-    pol
-;
+       {| ps_terms := End; ps_comden := I.one |}
+       (ps_add (add k))
+       (ps_mul (add k) (norm k k.mul))
+       (λ ps, ps_terms ps = End))
+    pol;
 
 value map_polynom k f pol =
   let al =
@@ -412,8 +411,6 @@ Fixpoint list_nth n l default :=
            | [_ :: t] => list_nth m t default
            end
   end;
-
-value zero fld = fld.zero;
 
 Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
   match n with
