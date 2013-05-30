@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.105 2013-05-30 15:56:51 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.106 2013-05-30 16:01:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -207,9 +207,9 @@ Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
                  fe_s₁ := s₁; fe_s₂ := s₂ |}
             in
             series_mul [(sum_int_powers comden m₁ m₂, [fe])]
-        | End => End
+        | End => End _
         end
-    | End => End
+    | End => End _
     end
   in
   {| ps_terms := t; ps_comden := comden |};
