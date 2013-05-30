@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.280 2013-05-30 16:18:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.281 2013-05-30 16:56:15 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -743,33 +743,11 @@ value k_ps k =
     ps2ops (ps_mul f.add (norm f f.mul) (ops2ps ps₁) (ops2ps ps₂))
   in
   let neg = sub zero in
-  let ext =
-    {minus_one = neg one;
-     compare _ = failwith "k_ps.compare not impl";
-     gcd _ = failwith "k_ps.gcd not impl";
-     normalise _ = failwith "k_ps.normalise not impl";
-     nth_root _ = failwith "k_ps.nth_root not impl";
-     neg_factor _ = failwith "k_ps.neg_factor not impl";
-     of_i _ = failwith "k_ps.of_i not impl";
-     of_q _ = failwith "k_ps.of_q not impl";
-     of_a _ = failwith "k_ps.of_a not impl";
-     of_complex _ = failwith "k_ps.of_complex not impl";
-     of_float_string _ = failwith "k_ps.of_float_string not impl";
-     to_q _ = failwith "k_ps.to_q not impl";
-     to_a _ = failwith "k_ps.to_a not impl";
-     to_complex _ = failwith "k_ps.to_complex not impl";
-     to_string _ = failwith "k_ps.to_string arg_lang.val not impl";
-     float_round_zero _ = failwith "k_ps.float_round_zero not impl";
-     complex_round_zero _ = failwith "k_ps.complex_round_zero not impl";
-     complex_mul _ = failwith "k_ps.complex_mul not impl";
-     cpoly_roots _ = failwith "k_ps.cpoly_roots not impl";
-     complex_to_string _ = failwith "k_ps.complex_to_string not impl"}
-  in
   let fc =
     {zero = zero; one = one; add = add; sub = sub; neg = neg; mul = mul;
      div _ = failwith "k_ps.div not impl";
      eq _ = failwith "k_ps.eq not impl";
-     ext = ext}
+     ext = ()}
   in
   let roots pol =
     let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
@@ -913,6 +891,8 @@ value main () = do {
           ()
         }
     | [_] → do {
+        failwith "k_ps not impl"
+(*
         let k = k_ps (kc ()) in
         let f = k.ac_field in
         let t = tree_of_ast f vx vy p in
@@ -925,8 +905,6 @@ value main () = do {
         else do {
           printf "equation: %s = 0\n\n%!" norm_txt;
         };
-        failwith "k_ps not impl"
-(*
         let pol = polyn_of_tree f t in
         let _ : list _ =
           puiseux k ps_fld arg_nb_steps.val vx vy (op2p ps_fld pol) in
