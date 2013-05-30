@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.41 2013-05-30 17:41:31 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.42 2013-05-30 18:34:41 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -47,13 +47,18 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
   let (ml, _) =
     List.fold_left
       (fun (a, deg₁) c₁ →
-         let (a, _) =
-           List.fold_left
-             (fun (a, deg₂) c₂ →
-                let c = mul_coeff c₁ c₂ in
-                let p = deg₁ + deg₂ in
-                ([{old_coeff = c; old_power = p} :: a],  deg₂ + 1))
-              (a, 0) (pol₂.al @ [pol₂.an])
+         let a =
+           loop a 0 pol₂.al where rec loop a deg₂ cl =
+             match cl with
+             | [] →
+                 let c = mul_coeff c₁ pol₂.an in
+                 let p = deg₁ + deg₂ in
+                 [{old_coeff = c; old_power = p} :: a]
+             | [c₂ :: cl₂] →
+                 let c = mul_coeff c₁ c₂ in
+                 let p = deg₁ + deg₂ in
+                 loop [{old_coeff = c; old_power = p} :: a] (deg₂ + 1) cl₂
+             end
          in
          (a, deg₁ + 1))
       ([], 0) (pol₁.al @ [pol₁.an])
