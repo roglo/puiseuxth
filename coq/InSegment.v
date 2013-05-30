@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.13 2013-05-23 03:51:03 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.14 2013-05-30 06:40:57 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -128,14 +128,14 @@ Section puiseux_series.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Theorem points_in_any_newton_segment : ∀ pol ns,
-  ns ∈ newton_segments fld pol
+Theorem points_in_any_newton_segment : ∀ (pol : pps α) ns,
+  ns ∈ newton_segments pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == αh + h * γ ns.
 Proof.
 intros pol ns Hns h αh Hαh.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
 symmetry in Heqhsl.
 rename Heqpts into Hpts.

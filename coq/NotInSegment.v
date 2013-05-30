@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.226 2013-05-23 03:51:03 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.227 2013-05-30 06:40:57 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1433,9 +1433,9 @@ destruct Hns as [Hns| Hns].
   apply eq_S; assumption.
 Qed.
 
-Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
-  pts = points_of_ps_polynom fld pol
-  → ns ∈ newton_segments fld pol
+Theorem points_not_in_any_newton_segment : ∀ (pol : pps α) pts ns,
+  pts = points_of_ps_polynom pol
+  → ns ∈ newton_segments pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 Proof.

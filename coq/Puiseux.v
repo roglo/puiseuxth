@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.551 2013-05-29 02:35:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.552 2013-05-30 06:40:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -172,7 +172,7 @@ Definition new_ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :
 Definition apply_poly_with_ps {α} fld pol (x : α) := ...
 value apply_poly_with_ps :
   field α β →
-  polynomial (puiseux_series α) → puiseux_series α → puiseux_series α
+  pps α → puiseux_series α → puiseux_series α
 value apply_poly_with_ps k pol =
   apply_poly {ps_terms = []}
     (fun ps → ps_add (norm k.add k) (k.eq k.zero) ps)
@@ -181,16 +181,16 @@ value apply_poly_with_ps k pol =
 
 (*
 Definition apply_poly_with_ps_poly {α} (fld : field α)
-    (pol : polynomial (puiseux_series α)) :=
+    (pol : pps α) :=
   apply_poly (λ x, x)
-    (λ (pol : polynomial (puiseux_series α)) (ps : puiseux_series α),
+    (λ (pol : pps α) (ps : puiseux_series α),
        pol_add (ps_add (add fld) (is_zero fld)) pol (mkpol [] ps)).
 *)
 (*
 value apply_poly_with_ps_poly :
   field α β →
-  polynomial (puiseux_series α) → polynomial (puiseux_series α) →
-  polynomial (puiseux_series α)
+  pps α → pps α →
+  pps α
 value apply_poly_with_ps_poly k pol =
   apply_poly
     {ml = []}    
@@ -251,8 +251,8 @@ Section field.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Lemma pt_absc_is_nat : ∀ pol pts pt,
-  points_of_ps_polynom fld pol = pts
+Lemma pt_absc_is_nat : ∀ (pol : pps α) pts pt,
+  points_of_ps_polynom pol = pts
   → pt ∈ pts
     → ∃ n, fst pt = Qnat n.
 Proof.
@@ -265,7 +265,7 @@ unfold points_of_ps_polynom_gen in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (is_zero fld cn) as [Hz| Hnz].
+ destruct (Qeq_bool (valuation cn) qinf) as [Hz| Hnz].
   subst pts; contradiction.
 
   subst pts.
@@ -273,7 +273,7 @@ induction cl as [| c]; intros.
   exists n; reflexivity.
 
  simpl in Hpts.
- destruct (is_zero fld c) as [Hz| Hnz].
+ destruct (Qeq_bool (valuation c) qinf) as [Hz| Hnz].
   eapply IHcl; eassumption.
 
   subst pts.
@@ -360,15 +360,15 @@ destruct Hns as [Hns| Hns].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma j_lt_k : ∀ pol j k ns,
-  ns ∈ newton_segments fld pol
+Lemma j_lt_k : ∀ (pol : pps α) j k ns,
+  ns ∈ newton_segments pol
   → j = nofq (fst (ini_pt ns))
     → k = nofq (fst (fin_pt ns))
       → (j < k)%nat.
 Proof.
 intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
 eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
@@ -430,8 +430,8 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  apply ini_fin_ns_in_init_pts; eassumption.
 Qed.
 
-Lemma cpol_degree : ∀ acf pol cpol ns,
-  ns ∈ newton_segments fld pol
+Lemma cpol_degree : ∀ acf (pol : pps α) cpol ns,
+  ns ∈ newton_segments pol
   → cpol = characteristic_polynomial (ac_field acf) pol ns
     → degree cpol ≥ 1.
 Proof.
@@ -451,8 +451,8 @@ destruct kj; simpl.
  exfalso; apply H; reflexivity.
 Qed.
 
-Lemma exists_root : ∀ acf pol cpol ns,
-  ns ∈ newton_segments fld pol
+Lemma exists_root : ∀ acf (pol : pps α) cpol ns,
+  ns ∈ newton_segments pol
   → cpol = characteristic_polynomial (ac_field acf) pol ns
     → ∃ c, apply_polynomial (ac_field acf) cpol c = zero (ac_field acf).
 Proof.
