@@ -1,4 +1,4 @@
-(* $Id: poly.mli,v 1.41 2013-05-30 19:34:21 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.42 2013-05-30 20:10:53 deraugla Exp $ *)
 
 type polynomial α = { al : list α; an : α };
 value mkpol : unit → list α → α → polynomial α;
@@ -18,7 +18,3 @@ value apply_poly : (β → α) → (α → β → α) → (α → γ → α) →
 (* *)
 
 type old_poly α = { ml : list α };
-
-open Field;
-
-value op2p : field α _ → old_poly α → polynomial α;

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.292 2013-05-30 20:03:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.293 2013-05-30 20:10:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -240,7 +240,7 @@ value xy_float_round_zero pol =
     in
     {old_ps_mon = List.rev rev_ml}
   in
-  {ml = al @ [an]}
+  {al = al; an = an}
 ;
 
 value float_round_zero k ps =
@@ -331,7 +331,7 @@ value make_solution cγl =
 ;
 
 value zero_is_root pol =
-  match pol.ml with
+  match pol.al @ [pol.an] with
   [ [ps :: _] → ps.old_ps_mon = []
   | [] → False ]
 ;
@@ -367,7 +367,7 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
     xy_float_round_zero pol
   in
   if verbose.val then
-    let s = string_of_ps_polyn k True br.vx br.vy pol in
+    let s = string_of_ps_polyn k True br.vx br.vy {ml = pol.al @ [pol.an]} in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
@@ -469,7 +469,6 @@ value rec puiseux_branch af fld br sol_list ns =
       sol_list rl
 
 and next_step k fld br sol_list pol cγl =
-  let pol = op2p fld pol in
   let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
   let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
@@ -847,12 +846,6 @@ value main () = do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
           failwith "--all-mpfr not implemented"
-(*
-          let pol = polyn_of_tree f t in
-          let _ : list _ =
-            puiseux k ps_fld arg_nb_steps.val vx vy (op2p ps_fld pol) in
-          ()
-*)
         }
         else do {
           let k = kc () in
@@ -868,7 +861,12 @@ value main () = do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
           let pol = polyn_of_tree f t in
-          let pol = op2p ps_fld pol in
+          let pol =
+             match List.rev pol.ml with
+             | [] → {al = []; an = ps_fld.zero}
+             | [m :: ml] → {al = List.rev ml; an = m}
+             end
+          in
           let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
           let _ : list _ =
             puiseux k ps_fld arg_nb_steps.val vx vy pol in
@@ -876,24 +874,6 @@ value main () = do {
         }
     | [_] → do {
         failwith "k_ps not impl"
-(*
-        let k = k_ps (kc ()) in
-        let f = k.ac_field in
-        let t = tree_of_ast f vx vy p in
-        let t = normalise f t in
-        let norm_txt = string_of_tree f True vx vy t in
-        if verbose.val then do {
-          printf "normalised:\n";
-          printf "%s\n%!" norm_txt;
-        }
-        else do {
-          printf "equation: %s = 0\n\n%!" norm_txt;
-        };
-        let pol = polyn_of_tree f t in
-        let _ : list _ =
-          puiseux k ps_fld arg_nb_steps.val vx vy (op2p ps_fld pol) in
-        ()
-*)
       }
     | [_; _ :: _] →
         match () with [] ]
