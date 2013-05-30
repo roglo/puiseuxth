@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.265 2013-05-30 00:43:29 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.266 2013-05-30 01:51:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -23,15 +23,13 @@ Record algebrically_closed_field α β :=
 
 Definition degree (pol : polynomial α) := List.length (al pol);
 
-Definition valuation α (ops : old_ps α) :=
-  let ps := ops2ps ops in
+Definition valuation α ps :=
   match ps_terms ps with
   | Term mx _ => power mx
   | End => Q.make (I.of_int 1) (I.of_int 0)
   end;
 
-Definition valuation_coeff α fld (ops : old_ps α) :=
-  let ps := ops2ps ops in
+Definition valuation_coeff α fld ps :=
   match ps_terms ps with
   | Term mx _ => coeff mx
   | End => zero fld
@@ -117,7 +115,7 @@ Fixpoint filter_non_zero_ps α fld (dpl : list (Q * old_ps α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
       if ps.old_ps_mon = [] then filter_non_zero_ps α fld dpl₁
-      else [(pow, valuation α ps) :: filter_non_zero_ps α fld dpl₁]
+      else [(pow, valuation α (ops2ps ps)) :: filter_non_zero_ps α fld dpl₁]
   | [] =>
       []
   end;
@@ -436,7 +434,7 @@ Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
 Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
-  let c := valuation_coeff α fld ps in
+  let c := valuation_coeff α fld (ops2ps ps) in
   (h, c);
 
 Definition characteristic_polynomial α fld pol ns :=
@@ -447,7 +445,7 @@ Definition characteristic_polynomial α fld pol ns :=
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol α fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α fld kps |};
+  {| al := cl; an := valuation_coeff α fld (ops2ps kps) |};
 
 value rec puiseux_branch af fld br sol_list ns =
   let γ = ns.γ in
