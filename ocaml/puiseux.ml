@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.268 2013-05-30 02:12:20 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.269 2013-05-30 02:28:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -372,11 +372,10 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
   else ();
   let pol =
     let y =
-      {ml =
-         [{old_ps_mon = [{coeff = r; power = γ}]};
-          {old_ps_mon = [{coeff = k.one; power = γ}]}]}
+      {al = [{old_ps_mon = [{coeff = r; power = γ}]}];
+       an = {old_ps_mon = [{coeff = k.one; power = γ}]}}
     in
-    let pol = apply_poly_with_ps_poly k fld br.pol (op2p fld y) in
+    let pol = apply_poly_with_ps_poly k fld br.pol y in
     let pol = pol_div_x_power (p2op fld pol) β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
