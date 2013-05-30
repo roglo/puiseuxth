@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.278 2013-05-30 09:31:26 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.279 2013-05-30 13:24:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -30,13 +30,13 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
-Definition valuation ps :=
+Definition valuation (ps : puiseux_series α) :=
   match ps_terms ps with
   | Term mx _ => power mx
   | End => qinf
   end;
 
-Definition valuation_coeff α fld ps :=
+Definition valuation_coeff fld (ps : puiseux_series α) :=
   match ps_terms ps with
   | Term mx _ => coeff mx
   | End => zero fld
@@ -104,28 +104,30 @@ Record newton_segment := mkns
     fin_pt : (Q * Q);
     oth_pts : list (Q * Q) };
 
-Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
+Fixpoint all_points_of_ps_polynom pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ :: psl₁] =>
-      [(Qnat pow, ps₁) :: all_points_of_ps_polynom α (S pow) psl₁ psn]
+      [(Qnat pow, ps₁) :: all_points_of_ps_polynom (S pow) psl₁ psn]
   | [] =>
       [(Qnat pow, psn)]
   end;
 
-Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_non_zero_ps (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
-      if Qeq_bool (valuation ps) qinf then filter_non_zero_ps α fld dpl₁
-      else [(pow, valuation ps) :: filter_non_zero_ps α fld dpl₁]
+      if Qeq_bool (valuation ps) qinf then filter_non_zero_ps dpl₁
+      else [(pow, valuation ps) :: filter_non_zero_ps dpl₁]
   | [] =>
       []
   end;
 
-Definition points_of_ps_polynom_gen α fld pow cl cn :=
-  filter_non_zero_ps α fld (all_points_of_ps_polynom α pow cl cn);
+Definition points_of_ps_polynom_gen pow cl (cn : puiseux_series α) :=
+  filter_non_zero_ps (all_points_of_ps_polynom pow cl cn);
 
-Definition points_of_ps_polynom α fld pol :=
-  points_of_ps_polynom_gen α fld 0%nat (al pol) (an pol);
+type pps α = polynomial (puiseux_series α);
+
+Definition points_of_ps_polynom (pol : pps α) :=
+  points_of_ps_polynom_gen 0%nat (al pol) (an pol);
 
 Definition newton_segment_of_pair hsj hsk :=
   let αj := snd (pt hsj) in
@@ -136,8 +138,8 @@ Definition newton_segment_of_pair hsj hsk :=
   let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
   mkns γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition newton_segments α fld pol :=
-  let gdpl := points_of_ps_polynom α fld pol in
+Definition newton_segments (pol : pps α) :=
+  let gdpl := points_of_ps_polynom pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl);
 
 value start_red = "\027[31m";
@@ -428,21 +430,19 @@ Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
       end
     end;
 
-Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point (fld : field α _) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
-  let c := valuation_coeff α fld ps in
+  let c := valuation_coeff fld ps in
   (h, c);
 
-Definition characteristic_polynomial α fld (pol : polynomial (puiseux_series α)) ns :=
-  let dcl :=
-    List.map (deg_coeff_of_point α fld pol) [ini_pt ns :: oth_pts ns]
-  in
+Definition characteristic_polynomial α (fld : field α _) pol ns :=
+  let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol α fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α fld kps |};
+  {| al := cl; an := valuation_coeff fld kps |};
 
 value rec puiseux_branch af fld br sol_list ns =
   let γ = ns.γ in
@@ -487,7 +487,7 @@ value rec puiseux_branch af fld br sol_list ns =
 and next_step k fld br sol_list pol cγl =
   let pol = op2p fld pol in
   let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
-  let gbl = newton_segments () () pol in
+  let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -523,7 +523,7 @@ value print_line_equal () =
 value pops2pps pol = {al = List.map ops2ps (al pol); an = ops2ps (an pol)};
 
 value puiseux k fld nb_steps vx vy pol =
-  let gbl = newton_segments () () pol in
+  let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in
