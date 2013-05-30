@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.552 2013-05-30 06:40:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.553 2013-05-30 08:53:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -208,7 +208,7 @@ Definition apply_polynomial {α} fld pol (x : α) :=
   List.fold_right (λ coeff accu, add fld (mul fld accu x) coeff) (an pol)
     (al pol).
 
-Record algebraically_closed_field {α} :=
+Record alg_closed_field {α} :=
   { ac_field : field α;
     ac_prop : ∀ pol, degree pol ≥ 1
       → ∃ r, apply_polynomial ac_field pol r = zero ac_field }.
