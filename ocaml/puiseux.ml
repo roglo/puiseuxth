@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.271 2013-05-30 08:21:30 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.272 2013-05-30 08:30:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -217,7 +217,7 @@ value apply_poly_with_ps_poly k fld pol =
             (fun ps₁ ps₂ →
                ps2ops (ps_mul k.add (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
             (fun ps → ps.old_ps_mon = [])
-            (p2op fld pol₁) (p2op fld pol₂)))
+            pol₁ (p2op fld pol₂)))
     pol
 ;
 

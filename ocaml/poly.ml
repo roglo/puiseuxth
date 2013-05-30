@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.36 2013-05-23 14:31:21 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.37 2013-05-30 08:30:00 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -56,7 +56,7 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
               (a, 0) pol₂.ml
          in
          (a, deg₁ + 1))
-      ([], 0) pol₁.ml
+      ([], 0) (pol₁.al @ [pol₁.an])
   in
   let ml = List.sort (fun m₁ m₂ → compare m₁.old_power m₂.old_power) ml in
   let ml = merge_pow add_coeff is_zero_coeff ml in
