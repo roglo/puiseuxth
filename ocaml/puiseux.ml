@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.267 2013-05-30 02:09:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.268 2013-05-30 02:12:20 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -201,17 +201,13 @@ value apply_poly_with_ps k =
     (ps_mul (norm k.add k) (norm k.mul k))
 ;
 
-value pol_add fld add_coeff p₁ p₂ =
-  p2op fld (Poly.pol_add add_coeff (op2p fld p₁) (op2p fld p₂));
-
 value apply_poly_with_ps_poly k fld pol =
   apply_poly
     (fun ps → {al = []; an = ps})
     (fun pol ps →
-       op2p fld
-         (pol_add fld
-           (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
-            (p2op fld pol) {ml = [ps]}))
+       pol_add
+         (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
+         pol {al = [] ; an = ps})
     (fun pol₁ pol₂ →
        op2p fld
          (pol_mul
