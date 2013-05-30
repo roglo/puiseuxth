@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.96 2013-05-30 14:02:36 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.97 2013-05-30 14:04:57 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -134,12 +134,10 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
       end
   end;
 
-value plus = I.add;
-
 Definition sum_int_powers comden m₁ m₂ :=
-  let p₁c := Qnum (Q.norm (Q.muli (power m₁) comden)) in
-  let p₂c := Qnum (Q.norm (Q.muli (power m₂) comden)) in
-  plus p₁c p₂c;
+  let p₁c := Q.muli (power m₁) comden in
+  let p₂c := Q.muli (power m₂) comden in
+  Qnum (Q.norm (Qplus p₁c p₂c));
 
 Definition insert_point mul_coeff comden i j s₁ s₂ sl :=
   match (s₁, s₂) with

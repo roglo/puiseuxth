@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.553 2013-05-30 08:53:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.554 2013-05-30 14:03:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,10 +85,6 @@ Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
       end
   end.
 
-(*
-Definition qof2nat n m := Z.of_nat n # Pos.of_nat m.
-*)
-
 Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α → α)
     minp₁c minp₂c comden s₁ s₂ :=
   let fix loop_ij i j :=
@@ -140,6 +136,50 @@ Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α �
     end
   in
   loop_ij.
+
+Record fifo_elem α :=
+  { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
+    fe_s₁ : series (ps_monomial α); fe_s₂ : series (ps_monomial α) }.
+
+Fixpoint insert_ij α (fe : fifo_elem α) fel :=
+  match fel with
+  | [] => [fe]
+  | [fe₁ … fel₁] =>
+      if lt_dec (fe_i fe) (fe_i fe₁) then [fe … fel]
+      else if gt_dec (fe_i fe) (fe_i fe₁) then [fe₁ … insert_ij fe fel₁]
+      else if lt_dec (fe_j fe) (fe_j fe₁) then [fe … fel]
+      else if gt_dec (fe_j fe) (fe_j fe₁) then [fe₁ … insert_ij fe fel₁]
+      else fel
+  end.
+
+Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
+  match sl with
+  | [] => [(sum, [fe])]
+  | [(sum₁, fel₁) … l] =>
+      match nat_compare sum sum₁ with
+      | Eq => [(sum₁, insert_ij fe fel₁) … l]
+      | Lt => [(sum, [fe]) … sl]
+      | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
+      end
+  end.
+
+Definition insert_point mul_coeff comden i j s₁ s₂ sl :=
+  match (s₁, s₂) with
+  | (Term m₁ _, Term m₂ _) =>
+      let c := mul_coeff (coeff m₁) (coeff m₂) in
+      let p := Qplus (power m₁) (power m₂) in
+      insert_sum (sum_int_powers comden m₁ m₂)
+        {| fe_i := i; fe_j := j; fe_c := c; fe_p := p;
+           fe_s₁ := s₁; fe_s₂ := s₂ |}
+        sl
+  | _ => sl
+  end.
+
+Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
+  match fel₁ with
+  | [] => c₁
+  | [fe … fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
+  end.
 
 Definition map_option {α β} (n : β) (s : α → β) v :=
   match v with
