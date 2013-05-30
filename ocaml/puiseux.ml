@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.286 2013-05-30 19:34:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.287 2013-05-30 19:38:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -214,15 +214,15 @@ Definition apply_poly_with_ps_poly k fld pol :=
        (ps_mul (add k) (norm k k.mul)))
     pol;
 
-value map_polynom k f (pol : old_poly (old_ps C.t)) =
+value xy_float_round_zero (fld : field C.t (ext C.t float)) pol =
   let al =
     List.map
       (fun ps →
          let rev_ml =
            List.fold_left
              (fun rev_ml m →
-                let c = f k m.coeff in
-                if k.eq c k.zero then rev_ml
+                let c = fld.ext.float_round_zero m.coeff in
+                if fld.eq c fld.zero then rev_ml
                 else [m :: rev_ml])
             [] ps.old_ps_mon
          in
@@ -230,10 +230,6 @@ value map_polynom k f (pol : old_poly (old_ps C.t)) =
       pol.ml
   in
   {ml = al}
-;
-
-value xy_float_round_zero k pol =
-  map_polynom k (fun k c → k.ext.float_round_zero c) pol
 ;
 
 value float_round_zero k ps =
