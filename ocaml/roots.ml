@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.81 2013-05-22 14:38:51 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.82 2013-05-30 19:29:45 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -482,14 +482,15 @@ value roots_of_polynom_with_irreduc_coeffs_and_exp k power_gcd pol =
 ;
 
 value roots k pol = do {
+  let cl = pol.al @ [pol.an] in
   let (power_gcd, _) =
     List.fold_left
       (fun (gp, deg) m →
          let gp = if k.eq k.zero m then gp else gcd gp deg in
          (gp, deg + 1))
-      (0, 0) pol.ml
+      (0, 0) cl
   in
-  let g = List.fold_left (fun g c → k.ext.gcd g c) k.zero pol.ml in
+  let g = List.fold_left (fun g c → k.ext.gcd g c) k.zero cl in
   let ml =
     let (rev_ml, _) =
       List.fold_left
@@ -498,7 +499,7 @@ value roots k pol = do {
              if deg mod power_gcd = 0 then [k.div m g :: rev_ml] else rev_ml
            in
            (rev_ml, deg + 1))
-        ([], 0) pol.ml
+        ([], 0) cl
     in
     List.rev rev_ml
   in

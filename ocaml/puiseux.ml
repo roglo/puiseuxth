@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.285 2013-05-30 19:29:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.286 2013-05-30 19:34:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -214,7 +214,7 @@ Definition apply_poly_with_ps_poly k fld pol :=
        (ps_mul (add k) (norm k k.mul)))
     pol;
 
-value map_polynom k f pol =
+value map_polynom k f (pol : old_poly (old_ps C.t)) =
   let al =
     List.map
       (fun ps →
@@ -222,14 +222,7 @@ value map_polynom k f pol =
            List.fold_left
              (fun rev_ml m →
                 let c = f k m.coeff in
-                if k.eq c k.zero then do {
-                  if False && verbose.val then do {
-                    printf "Warning: cancelling small coefficient: %s\n%!"
-                      (k.ext.to_string m.coeff)
-                  }
-                  else ();
-                  rev_ml
-                }
+                if k.eq c k.zero then rev_ml
                 else [m :: rev_ml])
             [] ps.old_ps_mon
          in

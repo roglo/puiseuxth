@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.47 2013-05-30 19:08:43 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.48 2013-05-30 19:34:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -85,12 +85,6 @@ open Field;
 
 type old_poly α = { ml : list α };
 
-value p2op fld p =
-  match p.al with
-  | [] → if fld.eq p.an fld.zero then {ml = []} else {ml = [an p]}
-  | _ → {ml = p.al @ [p.an]}
-  end
-;
 value op2p fld p =
   match List.rev p.ml with
   | [] → {al = []; an = fld.zero}
