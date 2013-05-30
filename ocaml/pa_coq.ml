@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.32 2013-05-30 15:32:28 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.33 2013-05-30 15:43:54 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -84,7 +84,10 @@ EXTEND
   ;
   coq_fun_binding:
     [ RIGHTA
-      [ p = ipatt; e = SELF → <:expr< fun $p$ → $e$ >>
+      [ "("; pl = LIST1 LIDENT; ":"; t = ctyp; ")"; e = SELF →
+          List.fold_right (fun p e → <:expr< fun ($lid:p$ : $t$) → $e$ >>)
+            pl e
+      | p = ipatt; e = SELF → <:expr< fun $p$ → $e$ >>
       | ":="; e = coq_expr → <:expr< $e$ >>
       | ":"; t = ctyp; ":="; e = coq_expr → <:expr< ($e$ : $t$) >> ] ]
   ;

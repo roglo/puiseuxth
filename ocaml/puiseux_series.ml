@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.102 2013-05-30 15:32:28 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.103 2013-05-30 15:43:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -133,7 +133,7 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
 
 value qnat n = Q.of_i n;
 
-Definition sum_int_powers comden m₁ (m₂ : ps_monomial α) :=
+Definition sum_int_powers comden (m₁ m₂ : ps_monomial α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
   Qnum q;
 
