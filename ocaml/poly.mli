@@ -1,4 +1,4 @@
-(* $Id: poly.mli,v 1.37 2013-05-30 08:30:00 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.38 2013-05-30 08:39:21 deraugla Exp $ *)
 
 type polynomial α = { al : list α; an : α };
 value mkpol : unit → list α → α → polynomial α;
@@ -17,7 +17,7 @@ type old_poly α = { ml : list α };
 
 value pol_mul :
   α → (α → α → α) → (α → α → α) → (α → bool)
-  → polynomial α → old_poly α → old_poly α;
+  → polynomial α → polynomial α → old_poly α;
 (** [pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff p₁ p₂] *)
 
 open Field;

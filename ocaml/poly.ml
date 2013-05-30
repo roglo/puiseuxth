@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.37 2013-05-30 08:30:00 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.38 2013-05-30 08:39:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -53,7 +53,7 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
                 let c = mul_coeff c₁ c₂ in
                 let p = deg₁ + deg₂ in
                 ([{old_coeff = c; old_power = p} :: a],  deg₂ + 1))
-              (a, 0) pol₂.ml
+              (a, 0) (pol₂.al @ [pol₂.an])
          in
          (a, deg₁ + 1))
       ([], 0) (pol₁.al @ [pol₁.an])
