@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.277 2013-05-30 09:19:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.278 2013-05-30 09:31:26 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -104,7 +104,7 @@ Record newton_segment := mkns
     fin_pt : (Q * Q);
     oth_pts : list (Q * Q) };
 
-Fixpoint all_points_of_ps_polynom α pow psl (psn : old_ps α) :=
+Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ :: psl₁] =>
       [(Qnat pow, ps₁) :: all_points_of_ps_polynom α (S pow) psl₁ psn]
@@ -112,11 +112,11 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : old_ps α) :=
       [(Qnat pow, psn)]
   end;
 
-Fixpoint filter_non_zero_ps α fld (dpl : list (Q * old_ps α)) :=
+Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
-      if ps.old_ps_mon = [] then filter_non_zero_ps α fld dpl₁
-      else [(pow, valuation (ops2ps ps)) :: filter_non_zero_ps α fld dpl₁]
+      if Qeq_bool (valuation ps) qinf then filter_non_zero_ps α fld dpl₁
+      else [(pow, valuation ps) :: filter_non_zero_ps α fld dpl₁]
   | [] =>
       []
   end;
@@ -485,7 +485,9 @@ value rec puiseux_branch af fld br sol_list ns =
       sol_list rl
 
 and next_step k fld br sol_list pol cγl =
-  let gbl = newton_segments () () (op2p fld pol) in
+  let pol = op2p fld pol in
+  let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
+  let gbl = newton_segments () () pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -498,8 +500,6 @@ and next_step k fld br sol_list pol cγl =
     failwith "no strictly positive γ value"
   }
   else
-    let pol = op2p fld pol in
-    let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
     List.fold_left
       (fun sol_list ns → do {
          if verbose.val then printf "\n%!" else ();
@@ -524,7 +524,6 @@ value pops2pps pol = {al = List.map ops2ps (al pol); an = ops2ps (an pol)};
 
 value puiseux k fld nb_steps vx vy pol =
   let gbl = newton_segments () () pol in
-  let pol = pops2pps pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in
@@ -773,6 +772,7 @@ value k_ps k =
      ext = ext}
   in
   let roots pol =
+    let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
     let rl = puiseux k fc 5 "x" "y" pol in
     List.map (fun (r, inf) → (r, 0)) rl
   in
@@ -906,8 +906,10 @@ value main () = do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
           let pol = polyn_of_tree f t in
+          let pol = op2p ps_fld pol in
+          let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
           let _ : list _ =
-            puiseux k ps_fld arg_nb_steps.val vx vy (op2p ps_fld pol) in
+            puiseux k ps_fld arg_nb_steps.val vx vy pol in
           ()
         }
     | [_] → do {
