@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.38 2013-05-30 08:39:21 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.39 2013-05-30 08:47:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -60,14 +60,21 @@ value pol_mul zero_coeff add_coeff mul_coeff is_zero_coeff pol₁ pol₂ =
   in
   let ml = List.sort (fun m₁ m₂ → compare m₁.old_power m₂.old_power) ml in
   let ml = merge_pow add_coeff is_zero_coeff ml in
-  loop [] 0 ml where rec loop rev_np deg ml =
-    match ml with
-    [ [m :: ml₁] →
-        if m.old_power > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
-        else if m.old_power < deg then invalid_arg "pol_mul"
-        else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
-    | [] →
-        {ml = List.rev rev_np} ]
+  let rev_np =
+    loop [] 0 ml where rec loop rev_np deg ml =
+      match ml with
+      | [m :: ml₁] →
+          if m.old_power > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
+          else if m.old_power < deg then invalid_arg "pol_mul"
+          else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
+      | [] →
+          rev_np
+      end
+  in
+  match rev_np with
+  | [cn :: rev_cl] → {ml = List.rev [cn :: rev_cl]}
+  | [] → assert False
+  end
 ;
 
 open Field;
