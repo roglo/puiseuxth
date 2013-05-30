@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.97 2013-05-30 14:04:57 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.98 2013-05-30 14:10:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -20,15 +20,12 @@ value qcompare q₁ q₂ =
   else if c = 0 then Eq
   else Gt
 ;
-
 value nat_compare i₁ i₂ =
   let c = I.compare i₁ i₂ in
   if c < 0 then Lt
   else if c = 0 then Eq
   else Gt
 ;
-
-value qof2nat = Q.make;
 
 value merge_pow add_coeff is_null_coeff =
   loop [] where rec loop rev_list =

@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.28 2013-05-30 13:56:14 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.29 2013-05-30 14:10:04 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -126,6 +126,8 @@ EXTEND
          <:expr< Q.eq >>
       | UIDENT "Qcompare" →
           <:expr< qcompare >>
+      | UIDENT "Qmul" →
+          <:expr< Q.mul >>
       | UIDENT "Qdiv" →
           <:expr< Q.div >>
       | UIDENT "Qplus" →
