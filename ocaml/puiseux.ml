@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.276 2013-05-30 08:53:29 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.277 2013-05-30 09:19:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -160,7 +160,7 @@ type branch α =
     rem_steps : int;
     vx : string;
     vy : string;
-    pol : polynomial (old_ps α) }
+    pol : polynomial (puiseux_series α) }
 ;
 
 value cut_long at_middle s =
@@ -205,16 +205,12 @@ value apply_poly_with_ps k =
 value apply_poly_with_ps_poly k fld pol =
   apply_poly
     (fun ps → {al = []; an = ps})
-    (fun pol ps →
-       pol_add
-         (fun ps₁ ps₂ → ps2ops (ps_add (add k) (ops2ps ps₁) (ops2ps ps₂)))
-         pol {al = [] ; an = ps})
+    (fun pol ps → pol_add (ps_add (add k)) pol {al = [] ; an = ps})
     (pol_mul
-       {old_ps_mon = []}
-       (fun ps₁ ps₂ → ps2ops (ps_add k.add (ops2ps ps₁) (ops2ps ps₂)))
-       (fun ps₁ ps₂ →
-          ps2ops (ps_mul k.add (norm k.mul k) (ops2ps ps₁) (ops2ps ps₂)))
-       (fun ps → ps.old_ps_mon = []))
+       {ps_terms = End; ps_comden = I.one}
+       (ps_add k.add)
+       (ps_mul k.add (norm k.mul k))
+       (fun ps → ps.ps_terms = End))
     pol
 ;
 
@@ -321,10 +317,10 @@ value pol_div_x_power pol p =
            List.map
              (fun m →
                 {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-             ps.old_ps_mon
+             (ps2ops ps).old_ps_mon
          in
          {old_ps_mon = ml})
-      pol.ml
+      (pol.al @ [pol.an])
   in
   {ml = ml}
 ;
@@ -370,11 +366,15 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
   else ();
   let pol =
     let y =
-      {al = [{old_ps_mon = [{coeff = r; power = γ}]}];
-       an = {old_ps_mon = [{coeff = k.one; power = γ}]}}
+      {al =
+         [{ps_terms = Term {coeff = r; power = γ} End;
+           ps_comden = Q.rden γ}];
+       an =
+         {ps_terms = Term {coeff = k.one; power = γ} End;
+          ps_comden = Q.rden γ}}
     in
     let pol = apply_poly_with_ps_poly k fld br.pol y in
-    let pol = pol_div_x_power (p2op fld pol) β in
+    let pol = pol_div_x_power pol β in
     let pol = cancel_pol_constant_term_if_any k pol in
     xy_float_round_zero k pol
   in
@@ -431,10 +431,10 @@ Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
 Definition deg_coeff_of_point α fld pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
-  let c := valuation_coeff α fld (ops2ps ps) in
+  let c := valuation_coeff α fld ps in
   (h, c);
 
-Definition characteristic_polynomial α fld pol ns :=
+Definition characteristic_polynomial α fld (pol : polynomial (puiseux_series α)) ns :=
   let dcl :=
     List.map (deg_coeff_of_point α fld pol) [ini_pt ns :: oth_pts ns]
   in
@@ -442,7 +442,7 @@ Definition characteristic_polynomial α fld pol ns :=
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol α fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff α fld (ops2ps kps) |};
+  {| al := cl; an := valuation_coeff α fld kps |};
 
 value rec puiseux_branch af fld br sol_list ns =
   let γ = ns.γ in
@@ -499,6 +499,7 @@ and next_step k fld br sol_list pol cγl =
   }
   else
     let pol = op2p fld pol in
+    let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
     List.fold_left
       (fun sol_list ns → do {
          if verbose.val then printf "\n%!" else ();
@@ -523,6 +524,7 @@ value pops2pps pol = {al = List.map ops2ps (al pol); an = ops2ps (an pol)};
 
 value puiseux k fld nb_steps vx vy pol =
   let gbl = newton_segments () () pol in
+  let pol = pops2pps pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in
@@ -531,20 +533,13 @@ value puiseux k fld nb_steps vx vy pol =
         (fun sol_list gbdpl → do {
            print_line_equal ();
            let br =
-             {initial_polynom = pops2pps pol; cγl = []; step = 1;
+             {initial_polynom = pol; cγl = []; step = 1;
               rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
            in
            puiseux_branch k fld  br sol_list gbdpl
          })
         [] gbl
     in
-(*
-    List.iter
-      (fun (pol, finite) →
-         printf "sol %s%s\n%!" (airy_string_of_puiseux_series k True "x" pol)
-           (if finite then "" else " + ..."))
-      (List.rev _rev_sol_list)
-*)
     List.rev rev_sol_list
 ;
 
