@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.301 2013-05-31 14:12:56 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.302 2013-05-31 15:42:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -511,8 +511,6 @@ value print_line_equal () =
   else ()
 ;
 
-value pops2pps pol = {al = List.map ops2ps (al pol); an = ops2ps (an pol)};
-
 value puiseux af nb_steps vx vy pol =
   let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
@@ -722,7 +720,8 @@ value af_c () =
 ;
 
 value ps_of_int fld i =
-  ops2ps {old_ps_mon = [{coeff = fld.ext.of_i (I.of_int i); power = Q.zero}]}
+  {ps_terms = Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero} End;
+   ps_comden = I.one}
 ;
 
 value af_ps af =
