@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.112 2013-05-31 08:59:38 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.113 2013-05-31 19:26:41 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -102,6 +102,12 @@ Definition ser_nth (n : nat) (s : series α) : option α :=
   match ser_nth_tl n s with
   | None => None
   | Some t => ser_hd t
+  end;
+
+CoFixpoint ser_map (f : α → β) s :=
+  match s with
+  | Term a t => Term (f a) (ser_map f t)
+  | End => End
   end;
 
 (* ps_mul *)

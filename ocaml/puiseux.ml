@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.305 2013-05-31 16:07:18 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.306 2013-05-31 19:26:41 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -13,6 +13,11 @@ open Poly_tree;
 open Poly;
 open Puiseux_series;
 open Roots;
+
+type choice α β =
+  [ Left of α
+  | Right of β ]
+;
 
 value zero fld = fld.zero;
 value add fld = fld.add;
@@ -215,34 +220,28 @@ Definition apply_poly_with_ps_poly (fld : field α _) pol :=
        (ps_mul (add fld) (norm fld (mul fld))))
     pol;
 
-value xy_float_round_zero pol =
-  let al =
+CoFixpoint series_float_round_zero s :=
+  match s with
+  | Term m t =>
+      let c := C.float_round_zero m.coeff in
+      if C.eq c C.zero then series_float_round_zero t
+      else Term m (series_float_round_zero t)
+  | End => End
+  end;
+
+Definition xy_float_round_zero pol :=
+  let al :=
     List.map
-      (fun ps →
-         let rev_ml =
-           List.fold_left
-             (fun rev_ml m →
-                let c = C.float_round_zero m.coeff in
-                if C.eq c C.zero then rev_ml
-                else [m :: rev_ml])
-            [] ps.old_ps_mon
-         in
-         {old_ps_mon = List.rev rev_ml})
-      pol.al
+      (λ ps,
+         let t := series_float_round_zero (ps_terms ps) in
+         {| ps_terms := t; ps_comden := ps_comden ps |})
+      (al pol)
   in
-  let an =
-    let rev_ml =
-      List.fold_left
-        (fun rev_ml m →
-           let c = C.float_round_zero m.coeff in
-           if C.eq c C.zero then rev_ml
-           else [m :: rev_ml])
-       [] pol.an.old_ps_mon
-    in
-    {old_ps_mon = List.rev rev_ml}
+  let an :=
+    let t := series_float_round_zero (ps_terms (an pol)) in
+    {| ps_terms := t; ps_comden := ps_comden (an pol) |}
   in
-  {al = al; an = an}
-;
+  {| al := al; an := an |};
 
 Definition float_round_zero fld ps :=
   let s :=
@@ -263,6 +262,7 @@ Definition float_round_zero fld ps :=
   {ps_terms = s; ps_comden = ps_comden ps};
 
 value string_of_ps_polyn k opt vx vy pol =
+  let pol = {ml = List.map ps2ops pol.al @ [ps2ops pol.an]} in
   let t = tree_of_ps_polyn k pol in
   string_of_tree k opt vx vy t
 ;
@@ -303,29 +303,22 @@ value pol_div_x_power pol p =
   let cl =
     List.map
       (fun ps →
-         let ml =
-           List.map
-             (fun m →
-                {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-             (ps2ops ps).old_ps_mon
+         let t =
+           ser_map
+             (fun m → {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
+             ps.ps_terms
          in
-         {old_ps_mon = ml})
+         {ps_terms = t; ps_comden = ps_comden ps})
       pol.al
   in
   let cn =
-    let ml =
-      List.map
-        (fun m → {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-        (ps2ops pol.an).old_ps_mon
+    let t =
+      ser_map (fun m → {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
+        pol.an.ps_terms
     in
-    {old_ps_mon = ml}
+    {ps_terms = t; ps_comden = ps_comden pol.an}
   in
   {al = cl; an = cn}
-;
-
-type choice α β =
-  [ Left of α
-  | Right of β ]
 ;
 
 value make_solution rev_cγl =
@@ -350,7 +343,7 @@ value make_solution rev_cγl =
 
 value zero_is_root pol =
   match pol.al @ [pol.an] with
-  [ [ps :: _] → ps.old_ps_mon = []
+  [ [ps :: _] → ps.ps_terms = End
   | [] → False ]
 ;
 
@@ -385,7 +378,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
     xy_float_round_zero pol
   in
   if verbose.val then
-    let s = string_of_ps_polyn fld True br.vx br.vy {ml = pol.al @ [pol.an]} in
+    let s = string_of_ps_polyn fld True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
@@ -487,7 +480,6 @@ value rec puiseux_branch af br sol_list ns =
       sol_list rl
 
 and next_step af br sol_list pol cγl =
-  let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
   let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
