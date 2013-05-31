@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.296 2013-05-31 03:54:47 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.297 2013-05-31 03:59:40 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -179,13 +179,13 @@ value cut_long at_middle s =
   else s
 ;
 
-value string_of_puiseux_series k opt vx ps =
-  let t = tree_of_puiseux_series k ps in
+value string_of_old_puiseux_series k opt vx ps =
+  let t = tree_of_old_puiseux_series k ps in
   string_of_tree k opt vx "?" t
 ;
 
-value airy_string_of_puiseux_series k opt vx pol =
-  let t = tree_of_puiseux_series k pol in
+value airy_string_of_old_puiseux_series k opt vx pol =
+  let t = tree_of_old_puiseux_series k pol in
   airy_string_of_tree k opt vx "?" t
 ;
 
@@ -272,7 +272,7 @@ value print_solution k fld br nth cγl finite sol = do {
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_puiseux_series k (not arg_lang.val) br.vx sol)
+    (airy_string_of_old_puiseux_series k (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
@@ -292,7 +292,7 @@ value print_solution k fld br nth cγl finite sol = do {
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_puiseux_series k (not arg_lang.val) br.vx ps₂)
+        (string_of_old_puiseux_series k (not arg_lang.val) br.vx ps₂)
         ellipses
   | None → ()
   end
