@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.300 2013-05-31 14:01:05 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.301 2013-05-31 14:12:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -244,13 +244,13 @@ value xy_float_round_zero pol =
   {al = al; an = an}
 ;
 
-Definition float_round_zero k ps :=
+Definition float_round_zero fld ps :=
   let s :=
     let cofix loop s :=
       match s with
       | Term m s₁ =>
-          let c := k.ext.float_round_zero (coeff m) in
-          if k.eq c k.zero then loop s₁
+          let c := fld.ext.float_round_zero (coeff m) in
+          if fld.eq c fld.zero then loop s₁
           else
             let m₁ := {coeff = c; power = power m} in
             Term m₁ (loop s₁)
@@ -267,18 +267,18 @@ value string_of_ps_polyn k opt vx vy pol =
   string_of_tree k opt vx vy t
 ;
 
-value print_solution k br nth cγl finite sol = do {
+value print_solution fld br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_old_puiseux_series k (not arg_lang.val) br.vx sol)
+    (airy_string_of_old_puiseux_series fld (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps k br.initial_polynom (ops2ps sol) in
-      let ps = float_round_zero k ps in
+      let ps = apply_poly_with_ps fld br.initial_polynom (ops2ps sol) in
+      let ps = float_round_zero fld ps in
       let ps₂ =
         if nb_terms > 0 then
           {old_ps_mon = series_take nb_terms ps.ps_terms}
@@ -292,7 +292,7 @@ value print_solution k br nth cγl finite sol = do {
         else ""
       in
       printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_old_puiseux_series k (not arg_lang.val) br.vx ps₂)
+        (string_of_old_puiseux_series fld (not arg_lang.val) br.vx ps₂)
         ellipses
   | None → ()
   end
@@ -344,10 +344,10 @@ value zero_is_root pol =
   | [] → False ]
 ;
 
-value puiseux_iteration k br r m γ β sol_list = do {
+value puiseux_iteration fld br r m γ β sol_list = do {
   if verbose.val then do {
     let ss = inf_string_of_string (string_of_int br.step) in
-    printf "\nc%s = %s  r%s = %d\n\n%!" ss (k.ext.to_string r) ss m;
+    printf "\nc%s = %s  r%s = %d\n\n%!" ss (fld.ext.to_string r) ss m;
     let y =
       let cpy = Plus (Const r) (Ypower 1) in
       if I.eq (Q.rnum γ) I.zero then cpy
@@ -356,9 +356,9 @@ value puiseux_iteration k br r m γ β sol_list = do {
     let xmβ = xpower (Q.neg β) in
     let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
     printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
-      (string_of_tree k True br.vx br.vy xmβ)
+      (string_of_tree fld True br.vx br.vy xmβ)
       (if br.step = 1 then "" else ss₁) br.vx
-      (string_of_tree k True br.vx br.vy y)
+      (string_of_tree fld True br.vx br.vy y)
   }
   else ();
   let pol =
@@ -367,15 +367,15 @@ value puiseux_iteration k br r m γ β sol_list = do {
          [{ps_terms = Term {coeff = r; power = γ} End;
            ps_comden = Q.rden γ}];
        an =
-         {ps_terms = Term {coeff = k.one; power = γ} End;
+         {ps_terms = Term {coeff = fld.one; power = γ} End;
           ps_comden = Q.rden γ}}
     in
-    let pol = apply_poly_with_ps_poly k br.pol y in
+    let pol = apply_poly_with_ps_poly fld br.pol y in
     let pol = pol_div_x_power pol β in
     xy_float_round_zero pol
   in
   if verbose.val then
-    let s = string_of_ps_polyn k True br.vx br.vy {ml = pol.al @ [pol.an]} in
+    let s = string_of_ps_polyn fld True br.vx br.vy {ml = pol.al @ [pol.an]} in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
@@ -388,7 +388,7 @@ value puiseux_iteration k br r m γ β sol_list = do {
     }
     else ();
     let sol = make_solution cγl in
-    print_solution k br (succ (List.length sol_list)) cγl finite sol;
+    print_solution fld br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) :: sol_list]
   }
   else if br.rem_steps > 0 then Right (pol, cγl)
@@ -407,18 +407,18 @@ Fixpoint list_nth n l default :=
            end
   end;
 
-Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
+Fixpoint make_char_pol (fld : field α _) cdeg dcl n :=
   match n with
   | O => []
   | S n₁ =>
       match dcl with
       | [] =>
-          [zero fld :: make_char_pol α fld (S cdeg) [] n₁]
+          [zero fld :: make_char_pol fld (S cdeg) [] n₁]
       | [(deg, coeff) :: dcl₁] =>
           if eq_nat_dec deg cdeg then
-            [coeff :: make_char_pol α fld (S cdeg) dcl₁ n₁]
+            [coeff :: make_char_pol fld (S cdeg) dcl₁ n₁]
           else
-            [zero fld :: make_char_pol α fld (S cdeg) dcl n₁]
+            [zero fld :: make_char_pol fld (S cdeg) dcl n₁]
       end
     end;
 
@@ -428,11 +428,11 @@ Definition deg_coeff_of_point (fld : field α _) pol (pt : (Q * Q)) :=
   let c := valuation_coeff fld ps in
   (h, c);
 
-Definition characteristic_polynomial α (fld : field α _) pol ns :=
+Definition characteristic_polynomial (fld : field α _) pol ns :=
   let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol α fld j dcl (k - j) in
+  let cl := make_char_pol fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |};
 
@@ -444,7 +444,7 @@ value rec puiseux_branch af br sol_list ns =
   let j = nofq j in
   let k = nofq k in
   let dpl = ns.oth_pts in
-  let f = af.ac_field in
+  let fld = af.ac_field in
   let ss = inf_string_of_string (string_of_int br.step) in
   let q = List.fold_left (fun q h → gcd q (nofq (fst h) - j)) (k - j) dpl in
   let _ =
@@ -459,24 +459,24 @@ value rec puiseux_branch af br sol_list ns =
     }
     else ()
   in
-  let cpol = characteristic_polynomial () f br.pol ns in
+  let cpol = characteristic_polynomial fld br.pol ns in
   let rl = ac_roots af cpol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
-    print_solution f br (succ (List.length sol_list)) br.cγl False sol;
+    print_solution fld br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) :: sol_list]
   }
   else
     List.fold_left
       (fun sol_list (r, m) →
-         if f.eq r f.zero then sol_list
+         if fld.eq r fld.zero then sol_list
          else
-           match puiseux_iteration f br r m γ β sol_list with
+           match puiseux_iteration fld br r m γ β sol_list with
            [ Right (pol, cγl) → next_step af br sol_list pol cγl
            | Left sol_list → sol_list ])
       sol_list rl
 
-and next_step k br sol_list pol cγl =
+and next_step af br sol_list pol cγl =
   let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
   let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
@@ -500,7 +500,7 @@ and next_step k br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch k br sol_list ns
+         puiseux_branch af br sol_list ns
        })
       sol_list gbl_f
 ;
@@ -513,7 +513,7 @@ value print_line_equal () =
 
 value pops2pps pol = {al = List.map ops2ps (al pol); an = ops2ps (an pol)};
 
-value puiseux k nb_steps vx vy pol =
+value puiseux af nb_steps vx vy pol =
   let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
   else
@@ -526,7 +526,7 @@ value puiseux k nb_steps vx vy pol =
              {initial_polynom = pol; cγl = []; step = 1;
               rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
            in
-           puiseux_branch k  br sol_list gbdpl
+           puiseux_branch af br sol_list gbdpl
          })
         [] gbl
     in
@@ -703,7 +703,7 @@ value ps_fld =
    ext = ()}
 ;
 
-value kc () =
+value af_c () =
   let ext =
     {minus_one = C.minus_one; compare = C.compare; gcd = C.gcd;
      normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
@@ -721,17 +721,17 @@ value kc () =
   {ac_field = fc; ac_roots = roots fc}
 ;
 
-value ps_of_int k i =
-  ops2ps {old_ps_mon = [{coeff = k.ext.of_i (I.of_int i); power = Q.zero}]}
+value ps_of_int fld i =
+  ops2ps {old_ps_mon = [{coeff = fld.ext.of_i (I.of_int i); power = Q.zero}]}
 ;
 
-value k_ps k =
-  let f = k.ac_field in
-  let zero = ps_of_int f 0 in
-  let one = ps_of_int f 1 in
-  let add = ps_add (norm f f.add) in
-  let sub = ps_add (norm f f.sub) in
-  let mul = ps_mul f.add (norm f f.mul) in
+value af_ps af =
+  let fld = af.ac_field in
+  let zero = ps_of_int fld 0 in
+  let one = ps_of_int fld 1 in
+  let add = ps_add (norm fld fld.add) in
+  let sub = ps_add (norm fld fld.sub) in
+  let mul = ps_mul fld.add (norm fld fld.mul) in
   let neg = sub zero in
   let fc =
     {zero = zero; one = one; add = add; sub = sub; neg = neg; mul = mul;
@@ -740,13 +740,13 @@ value k_ps k =
      ext = ()}
   in
   let roots pol =
-    let rl = puiseux k 5 "x" "y" pol in
+    let rl = puiseux af 5 "x" "y" pol in
     List.map (fun (r, inf) → (ops2ps r, 0)) rl
   in
   {ac_field = fc; ac_roots = roots}
 ;
 
-value km () =
+value af_mpfr () =
   let ext =
     {minus_one = M.minus_one; compare = M.compare; gcd = M.gcd;
      normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
@@ -830,7 +830,8 @@ value main () = do {
             eprintf "Your variables are:%!";
             List.iter (fun v → eprintf " %s%!" v) vl_no_y;
             eprintf "\n%!";
-            eprintf "Which one is 'y'? Name it 'y' or use option -y.\n%!";
+            eprintf
+              "Which one is 'y'? Either name it 'y' or use option -y.\n%!";
           };
           exit 2
         } ]
@@ -839,11 +840,11 @@ value main () = do {
     [ [] →
         if arg_all_mpfr.val then do {
           Cpoly.Mfl.set_prec 200;
-          let k = km () in
-          let f = k.ac_field in
-          let t = tree_of_ast f vx vy p in
-          let t = normalise f t in
-          let norm_txt = string_of_tree f True vx vy t in
+          let af = af_mpfr () in
+          let fld = af.ac_field in
+          let t = tree_of_ast fld vx vy p in
+          let t = normalise fld t in
+          let norm_txt = string_of_tree fld True vx vy t in
           if verbose.val then do {
             printf "normalised:\n";
             printf "%s\n%!" norm_txt;
@@ -854,11 +855,11 @@ value main () = do {
           failwith "--all-mpfr not implemented"
         }
         else do {
-          let k = kc () in
-          let f = k.ac_field in
-          let t = tree_of_ast f vx vy p in
-          let t = normalise f t in
-          let norm_txt = string_of_tree f True vx vy t in
+          let af = af_c () in
+          let fld = af.ac_field in
+          let t = tree_of_ast fld vx vy p in
+          let t = normalise fld t in
+          let norm_txt = string_of_tree fld True vx vy t in
           if verbose.val then do {
             printf "normalised:\n";
             printf "%s\n%!" norm_txt;
@@ -866,14 +867,14 @@ value main () = do {
           else do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
-          let pol = polyn_of_tree f t in
+          let pol = polyn_of_tree fld t in
           let pol =
              match List.rev pol.ml with
              | [] → {al = []; an = ps_fld.zero}
              | [m :: ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
              end
           in
-          let _ : list _ = puiseux k arg_nb_steps.val vx vy pol in
+          let _ : list _ = puiseux af arg_nb_steps.val vx vy pol in
           ()
         }
     | [_] → do {
