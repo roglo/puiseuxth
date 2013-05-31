@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.110 2013-05-30 17:35:44 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.111 2013-05-31 08:48:25 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -20,7 +20,7 @@ value qcompare q₁ q₂ =
   else if c = 0 then Eq
   else Gt
 ;
-value nat_compare i₁ i₂ =
+value bnat_compare i₁ i₂ =
   let c = I.compare i₁ i₂ in
   if c < 0 then Lt
   else if c = 0 then Eq
@@ -124,7 +124,7 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
   match sl with
   | [] => [(sum, [fe])]
   | [(sum₁, fel₁) :: l] =>
-      match nat_compare sum sum₁ with
+      match bnat_compare sum sum₁ with
       | Eq => [(sum₁, insert_ij fe fel₁) :: l]
       | Lt => [(sum, [fe]) :: sl]
       | Gt => [(sum₁, fel₁) :: insert_sum sum fe l]
@@ -137,7 +137,7 @@ Definition sum_int_powers comden (m₁ m₂ : ps_monomial α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
   Qnum q;
 
-Definition insert_point mul_coeff comden i j s₁ s₂ sl :=
+Definition insert_ps_term mul_coeff comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) =>
       let c := mul_coeff (coeff m₁) (coeff m₂) in
@@ -172,7 +172,7 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
           (λ sl₁ fe,
              match fe_s₁ fe with
              | Term _ s₁ =>
-                 insert_point mul_coeff comden (S (fe_i fe)) (fe_j fe)
+                 insert_ps_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
                    s₁ (fe_s₂ fe) sl₁
              | End => sl₁
              end)
@@ -183,7 +183,7 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
           (λ sl₂ fe,
              match fe_s₂ fe with
              | Term _ s₂ =>
-                 insert_point mul_coeff comden (fe_i fe) (S (fe_j fe))
+                 insert_ps_term mul_coeff comden (fe_i fe) (S (fe_j fe))
                    (fe_s₁ fe) s₂ sl₂
              | End => sl₂
              end)
