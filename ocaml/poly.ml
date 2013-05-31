@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.55 2013-05-31 09:44:58 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.56 2013-05-31 09:46:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -83,11 +83,12 @@ Fixpoint make_pol zero_coeff pow ml n :=
   end
 ;
 
-value pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ =
-  let ml = mul_loop add_coeff mul_coeff [] 0 pol₂.an pol₂.al pol₁.an pol₁.al in
-  let (cl, cn) = make_pol zero_coeff 0 ml (List.length ml) in
-  {al = cl; an = cn}
-;
+Definition pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ :=
+  let ml :=
+    mul_loop add_coeff mul_coeff [] 0 (an pol₂) (al pol₂) (an pol₁) (al pol₁)
+  in
+  let (cl, cn) := make_pol zero_coeff 0 ml (List.length ml) in
+  {| al := cl; an := cn |};
 
 Definition apply_poly
     (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
