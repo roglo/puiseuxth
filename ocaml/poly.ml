@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.52 2013-05-31 08:59:38 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.53 2013-05-31 09:02:12 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -52,17 +52,17 @@ value rec combine_pol add_coeff mul_coeff c₁ pow₁ pow₂ ml cn cl =
   end
 ;
 
-value rec mul_loop add_coeff mul_coeff pol₂ ml pow₁ cn₁ cl₁ =
+value rec mul_loop add_coeff mul_coeff ml pow₁ cn₂ cl₂ cn₁ cl₁ =
   match cl₁ with
-  | [] → combine_pol add_coeff mul_coeff cn₁ pow₁ 0 ml pol₂.an pol₂.al
-  | [c₁ :: cl₃] →
-      let ml = combine_pol add_coeff mul_coeff c₁ pow₁ 0 ml pol₂.an pol₂.al in
-      mul_loop add_coeff mul_coeff pol₂ ml (succ pow₁) cn₁ cl₃
+  | [] → combine_pol add_coeff mul_coeff cn₁ pow₁ 0 ml cn₂ cl₂
+  | [c :: cl] →
+      let ml = combine_pol add_coeff mul_coeff c pow₁ 0 ml cn₂ cl₂ in
+      mul_loop add_coeff mul_coeff ml (succ pow₁) cn₂ cl₂ cn₁ cl
   end
 ;
 
 value pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ =
-  let ml = mul_loop add_coeff mul_coeff pol₂ [] 0 pol₁.an pol₁.al in
+  let ml = mul_loop add_coeff mul_coeff [] 0 pol₂.an pol₂.al pol₁.an pol₁.al in
   let rev_np =
     loop [] 0 ml where rec loop rev_np pow ml =
       match ml with

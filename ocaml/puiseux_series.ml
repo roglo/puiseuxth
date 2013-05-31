@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.111 2013-05-31 08:48:25 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.112 2013-05-31 08:59:38 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -14,6 +14,7 @@ Record puiseux_series α :=
 
 type comparison = [ Eq | Lt | Gt ];
 
+value mult = I.mul;
 value qcompare q₁ q₂ =
   let c = Q.compare q₁ q₂ in
   if c < 0 then Lt
@@ -154,8 +155,6 @@ Fixpoint add_coeff_list (add_coeff : α → α → α) c₁ fel₁ :=
   | [] => c₁
   | [fe :: fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end;
-
-value mult = I.mul;
 
 CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
     series (ps_monomial α) :=
