@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.54 2013-05-31 09:42:59 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.55 2013-05-31 09:44:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -61,24 +61,23 @@ value rec mul_loop add_coeff mul_coeff ml pow₁ cn₂ cl₂ cn₁ cl₁ =
   end
 ;
 
-value rec make_pol zero_coeff pow ml n =
+Fixpoint make_pol zero_coeff pow ml n :=
   match n with
-  | 0 → ([], zero_coeff)
-  | n₁ →
-      let n₁ = n₁ - 1 in
+  | O => ([], zero_coeff)
+  | S n₁ =>
       match ml with
-      | [] → ([], zero_coeff)
-      | [(c, p)] →
-          if p = pow then ([], c)
+      | [] => ([], zero_coeff)
+      | [(c, p)] =>
+          if eq_nat_dec p pow then ([], c)
           else
-            let (cl, cn) = make_pol zero_coeff (S pow) [(c, p)] n₁ in
+            let (cl, cn) := make_pol zero_coeff (S pow) [(c, p)] n₁ in
             ([zero_coeff :: cl], cn)
-      | [(c, p) :: ml₁] →
-          if p = pow then
-            let (cl, cn) = make_pol zero_coeff (S pow) ml₁ n₁ in
+      | [(c, p) :: ml₁] =>
+          if eq_nat_dec p pow then
+            let (cl, cn) := make_pol zero_coeff (S pow) ml₁ n₁ in
             ([c :: cl], cn)
           else
-            let (cl, cn) = make_pol zero_coeff (S pow) ml n₁ in
+            let (cl, cn) := make_pol zero_coeff (S pow) ml n₁ in
             ([zero_coeff :: cl], cn)
       end
   end
