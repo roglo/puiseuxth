@@ -1,8 +1,23 @@
-(* $Id: poly.ml,v 1.49 2013-05-30 20:10:53 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.50 2013-05-31 08:33:00 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 Record polynomial α := mkpol { al : list α; an : α };
+
+Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
+  let fix loop al₁ al₂ :=
+    match (al₁, al₂) with
+    | ([], []) => mkpol () [] (add_coeff (an pol₁) (an pol₂))
+    | ([], [a₂ :: bl₂]) =>
+        mkpol () [add_coeff (an pol₁) a₂ :: bl₂] (an pol₂)
+    | ([a₁ :: bl₁], []) =>
+        mkpol () [add_coeff a₁ (an pol₂) :: bl₁] (an pol₁)
+    | ([a₁ :: bl₁], [a₂ :: bl₂]) =>
+        let r := loop bl₁ bl₂ in
+        mkpol () [add_coeff a₁ a₂ :: al r] (an r)
+    end
+  in
+  loop (al pol₁) (al pol₂);
 
 value merge_pow add_coeff =
   loop [] where rec loop rev_list =
@@ -24,23 +39,8 @@ value merge_pow add_coeff =
         List.rev rev_list ]
 ;
 
-Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
-  let fix loop al₁ al₂ :=
-    match (al₁, al₂) with
-    | ([], []) => mkpol () [] (add_coeff (an pol₁) (an pol₂))
-    | ([], [a₂ :: bl₂]) =>
-        mkpol () [add_coeff (an pol₁) a₂ :: bl₂] (an pol₂)
-    | ([a₁ :: bl₁], []) =>
-        mkpol () [add_coeff a₁ (an pol₂) :: bl₁] (an pol₁)
-    | ([a₁ :: bl₁], [a₂ :: bl₂]) =>
-        let r := loop bl₁ bl₂ in
-        mkpol () [add_coeff a₁ a₂ :: al r] (an r)
-    end
-  in
-  loop (al pol₁) (al pol₂);
-
-value rec combine_pol mul_coeff c₁ deg₁ deg₂ ml cn cl =
-  let p = deg₁ + deg₂ in
+value rec combine_pol mul_coeff c₁ pow₁ pow₂ ml cn cl =
+  let p = pow₁ + pow₂ in
   match cl with
   | [] →
       let c = mul_coeff c₁ cn in
@@ -48,29 +48,29 @@ value rec combine_pol mul_coeff c₁ deg₁ deg₂ ml cn cl =
   | [c₂ :: cl₂] →
       let c = mul_coeff c₁ c₂ in
       let ml = [(c, p) :: ml] in
-      combine_pol mul_coeff c₁ deg₁ (succ deg₂) ml cn cl₂
+      combine_pol mul_coeff c₁ pow₁ (succ pow₂) ml cn cl₂
   end
 ;
 
 value pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ =
   let ml =
-    loop [] 0 pol₁.al where rec loop ml deg₁ cl =
+    loop [] 0 pol₁.al where rec loop ml pow₁ cl =
       match cl with
-      | [] → combine_pol mul_coeff pol₁.an deg₁ 0 ml pol₂.an pol₂.al
+      | [] → combine_pol mul_coeff pol₁.an pow₁ 0 ml pol₂.an pol₂.al
       | [c₁ :: cl₁] →
-           let ml = combine_pol mul_coeff c₁ deg₁ 0 ml pol₂.an pol₂.al in
-           loop ml (succ deg₁) cl₁
+           let ml = combine_pol mul_coeff c₁ pow₁ 0 ml pol₂.an pol₂.al in
+           loop ml (succ pow₁) cl₁
       end
   in
   let ml = List.sort (fun (c₁, p₁) (c₂, p₂) → compare p₁ p₂) ml in
   let ml = merge_pow add_coeff ml in
   let rev_np =
-    loop [] 0 ml where rec loop rev_np deg ml =
+    loop [] 0 ml where rec loop rev_np pow ml =
       match ml with
       | [(c, p) :: ml₁] →
-          if p > deg then loop [zero_coeff :: rev_np] (deg + 1) ml
-          else if p < deg then invalid_arg "pol_mul"
-          else loop [c :: rev_np] (deg + 1) ml₁
+          if p > pow then loop [zero_coeff :: rev_np] (pow + 1) ml
+          else if p < pow then invalid_arg "pol_mul"
+          else loop [c :: rev_np] (pow + 1) ml₁
       | [] →
           rev_np
       end
