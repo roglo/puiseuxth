@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.293 2013-05-30 20:10:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.294 2013-05-31 03:03:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -244,17 +244,20 @@ value xy_float_round_zero pol =
 ;
 
 value float_round_zero k ps =
-  let ml =
-    List.fold_left
-      (fun ml m →
-         let c = k.ext.float_round_zero m.coeff in
-         if k.eq c k.zero then ml
-         else
-           let m = {coeff = c; power = m.power} in
-           [m :: ml])
-       [] ps.old_ps_mon
+  let ps = ps2ops ps in
+  let rev_ml =
+    loop [] ps.old_ps_mon where rec loop rev_ml ml =
+      match ml with
+      | [] → rev_ml
+      | [m₁ :: ml₁] →
+          let c = k.ext.float_round_zero (coeff m₁) in
+          if k.eq c k.zero then loop rev_ml ml₁
+          else
+            let m₁ = {coeff = c; power = power m₁} in
+            loop [m₁ :: rev_ml] ml₁
+      end
   in
-  {old_ps_mon = List.rev ml}
+  {old_ps_mon = List.rev rev_ml}
 ;
 
 value string_of_ps_polyn k opt vx vy pol =
@@ -273,7 +276,7 @@ value print_solution k fld br nth cγl finite sol = do {
   match arg_eval_sol.val with
   | Some nb_terms →
       let ps = apply_poly_with_ps k br.initial_polynom (ops2ps sol) in
-      let ps = float_round_zero k (ps2ops ps) in
+      let ps = float_round_zero k ps in
       let ps₂ =
         if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
         else ps
