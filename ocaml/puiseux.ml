@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.298 2013-05-31 11:31:44 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.299 2013-05-31 13:58:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -205,15 +205,14 @@ Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add (norm fld (add fld)))
     (ps_mul (norm fld (add fld)) (norm fld (mul fld)));
 
-Definition apply_poly_with_ps_poly (k : field α _)
-    (fld : field (puiseux_series α) _) pol :=
+Definition apply_poly_with_ps_poly (fld : field α _) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
-    (λ pol ps, pol_add (ps_add (add k)) pol {| al := []; an := ps |})
+    (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End; ps_comden := I.one |}
-       (ps_add (add k))
-       (ps_mul (add k) (norm k (mul k))))
+       (ps_add (add fld))
+       (ps_mul (add fld) (norm fld (mul fld))))
     pol;
 
 value xy_float_round_zero pol =
@@ -268,7 +267,7 @@ value string_of_ps_polyn k opt vx vy pol =
   string_of_tree k opt vx vy t
 ;
 
-value print_solution k fld br nth cγl finite sol = do {
+value print_solution k br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
@@ -371,7 +370,7 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
          {ps_terms = Term {coeff = k.one; power = γ} End;
           ps_comden = Q.rden γ}}
     in
-    let pol = apply_poly_with_ps_poly k fld br.pol y in
+    let pol = apply_poly_with_ps_poly k br.pol y in
     let pol = pol_div_x_power pol β in
     xy_float_round_zero pol
   in
@@ -389,7 +388,7 @@ value puiseux_iteration k fld br r m γ β sol_list = do {
     }
     else ();
     let sol = make_solution cγl in
-    print_solution k fld br (succ (List.length sol_list)) cγl finite sol;
+    print_solution k br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) :: sol_list]
   }
   else if br.rem_steps > 0 then Right (pol, cγl)
@@ -464,7 +463,7 @@ value rec puiseux_branch af fld br sol_list ns =
   let rl = ac_roots af cpol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
-    print_solution f fld br (succ (List.length sol_list)) br.cγl False sol;
+    print_solution f br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) :: sol_list]
   }
   else

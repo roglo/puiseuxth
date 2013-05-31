@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.562 2013-05-31 11:19:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.563 2013-05-31 13:58:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -317,15 +317,14 @@ Definition pol_mul α (zero_coeff : α) add_coeff mul_coeff pol₁ pol₂ :=
   let (cl, cn) := make_pol zero_coeff 0 ml (List.length ml) in
   {| al := cl; an := cn |}.
 
-Definition apply_poly_with_ps_poly α (k : field α)
-    (fld : field (puiseux_series α)) pol :=
+Definition apply_poly_with_ps_poly α (fld : field α) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
-    (λ pol ps, pol_add (ps_add (add k)) pol {| al := []; an := ps |})
+    (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End _; ps_comden := 1 |}
-       (ps_add (add k))
-       (ps_mul (add k) ((*norm k*) (mul k))))
+       (ps_add (add fld))
+       (ps_mul (add fld) ((*norm fld*) (mul fld))))
     pol.
 
 Definition apply_polynomial α (fld : field α) :=
