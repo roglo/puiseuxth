@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.294 2013-05-31 03:03:32 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.295 2013-05-31 03:17:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -243,22 +243,23 @@ value xy_float_round_zero pol =
   {al = al; an = an}
 ;
 
-value float_round_zero k ps =
-  let ps = ps2ops ps in
-  let rev_ml =
-    loop [] ps.old_ps_mon where rec loop rev_ml ml =
-      match ml with
-      | [] → rev_ml
-      | [m₁ :: ml₁] →
-          let c = k.ext.float_round_zero (coeff m₁) in
-          if k.eq c k.zero then loop rev_ml ml₁
+Definition float_round_zero k ps :=
+  let s :=
+    let cofix loop s :=
+      match s with
+      | Term m s₁ =>
+          let c := k.ext.float_round_zero (coeff m) in
+          if k.eq c k.zero then loop s₁
           else
-            let m₁ = {coeff = c; power = power m₁} in
-            loop [m₁ :: rev_ml] ml₁
+            let m₁ := {coeff = c; power = power m} in
+            Term m₁ (loop s₁)
+      | End =>
+          End
       end
+    in
+    loop (ps_terms ps)
   in
-  {old_ps_mon = List.rev rev_ml}
-;
+  {ps_terms = s; ps_comden = ps_comden ps};
 
 value string_of_ps_polyn k opt vx vy pol =
   let t = tree_of_ps_polyn k pol in
@@ -277,9 +278,12 @@ value print_solution k fld br nth cγl finite sol = do {
   | Some nb_terms →
       let ps = apply_poly_with_ps k br.initial_polynom (ops2ps sol) in
       let ps = float_round_zero k ps in
+      let ps = ps2ops ps in
       let ps₂ =
-        if nb_terms > 0 then {old_ps_mon = list_take nb_terms ps.old_ps_mon}
-        else ps
+        if nb_terms > 0 then
+          {old_ps_mon = list_take nb_terms ps.old_ps_mon}
+        else
+          ps
       in
       let ellipses =
         if nb_terms = 0 then ""
