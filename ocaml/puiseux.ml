@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.302 2013-05-31 15:42:00 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.303 2013-05-31 15:53:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -327,13 +327,15 @@ type choice α β =
   | Right of β ]
 ;
 
-value make_solution cγl =
-  let (rev_sol, _) =
-    List.fold_left
-      (fun (sol, γsum) (c, γ) →
-         let γsum = Q.norm (Q.add γsum γ) in
-         ([{coeff = c; power = γsum} :: sol], γsum))
-      ([], Q.zero) (List.rev cγl)
+value make_solution cγl : old_ps C.t =
+  let rev_sol =
+    loop [] Q.zero (List.rev cγl) where rec loop rev_sol γsum rev_cγl =
+      match rev_cγl with
+      | [] → rev_sol
+      | [(c, γ) :: rev_cγl₁] →
+          let γsum = Q.norm (Q.add γsum γ) in
+          loop [{coeff = c; power = γsum} :: rev_sol] γsum rev_cγl₁
+      end
   in
   {old_ps_mon = List.rev rev_sol}
 ;
