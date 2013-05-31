@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.57 2013-05-31 09:49:23 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.58 2013-05-31 09:56:37 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -28,7 +28,7 @@ Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂);
 
-Fixpoint insert_pol_term add_coeff c₁ p₁ ml :=
+Fixpoint insert_pol_term (add_coeff : α → α → α) c₁ p₁ ml :=
   match ml with
   | [] => [(c₁, p₁)]
   | [(c₂, p₂) :: ml₂] =>
@@ -39,7 +39,7 @@ Fixpoint insert_pol_term add_coeff c₁ p₁ ml :=
       end
   end;
 
-Fixpoint combine_pol add_coeff mul_coeff c₁ pow₁ pow₂ ml cn cl :=
+Fixpoint combine_pol add_coeff (mul_coeff : α → α → α) c₁ pow₁ pow₂ ml cn cl :=
   let p := (pow₁ + pow₂)%nat in
   match cl with
   | [] =>
@@ -51,15 +51,15 @@ Fixpoint combine_pol add_coeff mul_coeff c₁ pow₁ pow₂ ml cn cl :=
       combine_pol add_coeff mul_coeff c₁ pow₁ (S pow₂) ml cn cl₂
   end;
 
-Fixpoint mul_loop add_coeff mul_coeff ml pow₁ cn₂ cl₂ cn₁ cl₁ :=
+Fixpoint mul_loop (add_coeff : α → α → α) mul_coeff ml pow₁ cn₂ cl₂ cn₁ cl₁ :=
   match cl₁ with
   | [] => combine_pol add_coeff mul_coeff cn₁ pow₁ 0 ml cn₂ cl₂
   | [c :: cl] =>
       let ml := combine_pol add_coeff mul_coeff c pow₁ 0 ml cn₂ cl₂ in
-      mul_loop add_coeff mul_coeff ml (succ pow₁) cn₂ cl₂ cn₁ cl
+      mul_loop add_coeff mul_coeff ml (S pow₁) cn₂ cl₂ cn₁ cl
   end;
 
-Fixpoint make_pol zero_coeff pow ml n :=
+Fixpoint make_pol (zero_coeff : α) pow ml n :=
   match n with
   | O => ([], zero_coeff)
   | S n₁ =>
@@ -78,10 +78,9 @@ Fixpoint make_pol zero_coeff pow ml n :=
             let (cl, cn) := make_pol zero_coeff (S pow) ml n₁ in
             ([zero_coeff :: cl], cn)
       end
-  end
-;
+  end;
 
-Definition pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ :=
+Definition pol_mul (zero_coeff : α) add_coeff mul_coeff pol₁ pol₂ :=
   let ml :=
     mul_loop add_coeff mul_coeff [] 0 (an pol₂) (al pol₂) (an pol₁) (al pol₁)
   in

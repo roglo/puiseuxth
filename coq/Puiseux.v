@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.560 2013-05-31 03:59:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.561 2013-05-31 09:56:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -162,11 +162,13 @@ Fixpoint insert_ij α (fe : fifo_elem α) fel :=
       else fel
   end.
 
+Definition bnat_compare := nat_compare.
+
 Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
   match sl with
   | [] => [(sum, [fe])]
   | [(sum₁, fel₁) … l] =>
-      match nat_compare sum sum₁ with
+      match bnat_compare sum sum₁ with
       | Eq => [(sum₁, insert_ij fe fel₁) … l]
       | Lt => [(sum, [fe]) … sl]
       | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
@@ -177,7 +179,7 @@ Definition sum_int_powers α comden (m₁ m₂ : ps_monomial α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
   Z.to_nat (Qnum q).
 
-Definition insert_point α (mul_coeff : α → α → α) comden i j s₁ s₂ sl :=
+Definition insert_ps_term α (mul_coeff : α → α → α) comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) =>
       let c := mul_coeff (coeff m₁) (coeff m₂) in
@@ -210,7 +212,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
           (λ sl₁ fe,
              match fe_s₁ fe with
              | Term _ ls₁ =>
-                 insert_point mul_coeff comden (S (fe_i fe)) (fe_j fe)
+                 insert_ps_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
                    ls₁ (fe_s₂ fe) sl₁
              | End => sl₁
              end)
@@ -221,7 +223,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
           (λ sl₂ fe,
              match fe_s₂ fe with
              | Term _ ls₂ =>
-                 insert_point mul_coeff comden (fe_i fe) (S (fe_j fe))
+                 insert_ps_term mul_coeff comden (fe_i fe) (S (fe_j fe))
                    (fe_s₁ fe) ls₂ sl₂
              | End => sl₂
              end)
@@ -253,6 +255,67 @@ Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
     end
   in
   {| ps_terms := t; ps_comden := comden |}.
+
+Fixpoint insert_pol_term α (add_coeff : α → α → α) c₁ p₁ ml :=
+  match ml with
+  | [] => [(c₁, p₁)]
+  | [(c₂, p₂) … ml₂] =>
+      match nat_compare p₁ p₂ with
+      | Eq => [(add_coeff c₁ c₂, p₂) … ml₂]
+      | Lt => [(c₁, p₁) … ml]
+      | Gt => [(c₂, p₂) … insert_pol_term add_coeff c₁ p₁ ml₂]
+      end
+  end.
+
+Fixpoint combine_pol α add_coeff (mul_coeff : α → α → α) c₁ pow₁ pow₂ ml
+    cn cl :=
+  let p := (pow₁ + pow₂)%nat in
+  match cl with
+  | [] =>
+      let c := mul_coeff c₁ cn in
+      insert_pol_term add_coeff c p ml
+  | [c₂ … cl₂] =>
+      let c := mul_coeff c₁ c₂ in
+      let ml := insert_pol_term add_coeff c p ml in
+      combine_pol add_coeff mul_coeff c₁ pow₁ (S pow₂) ml cn cl₂
+  end.
+
+Fixpoint mul_loop α (add_coeff : α → α → α) mul_coeff ml pow₁ cn₂ cl₂
+    cn₁ cl₁ :=
+  match cl₁ with
+  | [] => combine_pol add_coeff mul_coeff cn₁ pow₁ 0 ml cn₂ cl₂
+  | [c … cl] =>
+      let ml := combine_pol add_coeff mul_coeff c pow₁ 0 ml cn₂ cl₂ in
+      mul_loop add_coeff mul_coeff ml (S pow₁) cn₂ cl₂ cn₁ cl
+  end.
+
+Fixpoint make_pol α (zero_coeff : α) pow ml n :=
+  match n with
+  | O => ([], zero_coeff)
+  | S n₁ =>
+      match ml with
+      | [] => ([], zero_coeff)
+      | [(c, p)] =>
+          if eq_nat_dec p pow then ([], c)
+          else
+            let (cl, cn) := make_pol zero_coeff (S pow) [(c, p)] n₁ in
+            ([zero_coeff … cl], cn)
+      | [(c, p) … ml₁] =>
+          if eq_nat_dec p pow then
+            let (cl, cn) := make_pol zero_coeff (S pow) ml₁ n₁ in
+            ([c … cl], cn)
+          else
+            let (cl, cn) := make_pol zero_coeff (S pow) ml n₁ in
+            ([zero_coeff … cl], cn)
+      end
+  end.
+
+Definition pol_mul α (zero_coeff : α) add_coeff mul_coeff pol₁ pol₂ :=
+  let ml :=
+    mul_loop add_coeff mul_coeff [] 0 (an pol₂) (al pol₂) (an pol₁) (al pol₁)
+  in
+  let (cl, cn) := make_pol zero_coeff 0 ml (List.length ml) in
+  {| al := cl; an := cn |}.
 
 Definition apply_poly_with_ps_poly k fld pol :=
   apply_poly
