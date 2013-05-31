@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.297 2013-05-31 03:59:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.298 2013-05-31 11:31:44 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -205,14 +205,15 @@ Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add (norm fld (add fld)))
     (ps_mul (norm fld (add fld)) (norm fld (mul fld)));
 
-Definition apply_poly_with_ps_poly k fld pol :=
+Definition apply_poly_with_ps_poly (k : field α _)
+    (fld : field (puiseux_series α) _) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add (add k)) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End; ps_comden := I.one |}
        (ps_add (add k))
-       (ps_mul (add k) (norm k k.mul)))
+       (ps_mul (add k) (norm k (mul k))))
     pol;
 
 value xy_float_round_zero pol =
@@ -688,16 +689,17 @@ value arg_parse () =
 ;
 
 value ps_fld =
-  {zero = {old_ps_mon = []};
-   one = {old_ps_mon = [{coeff = C.one; power = Q.zero}]};
+  {zero = {ps_terms = End; ps_comden = I.one};
+   one =
+     {ps_terms = Term {coeff = C.one; power = Q.zero} End; ps_comden = I.one};
    add _ = failwith "ps_fld.add";
    sub _ = failwith "ps_fld.sub";
    neg _ = failwith "ps_fld.neg";
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
    eq ps₁ ps₂ =
-     if ps₁.old_ps_mon = [] then ps₂.old_ps_mon = []
-     else if ps₂.old_ps_mon = [] then False
+     if ps₁.ps_terms = End then ps₂.ps_terms = End
+     else if ps₂.ps_terms = End then False
      else failwith "ps_fld.eq";
    ext = ()}
 ;
@@ -721,18 +723,16 @@ value kc () =
 ;
 
 value ps_of_int k i =
-  {old_ps_mon = [{coeff = k.ext.of_i (I.of_int i); power = Q.zero}]}
+  ops2ps {old_ps_mon = [{coeff = k.ext.of_i (I.of_int i); power = Q.zero}]}
 ;
 
 value k_ps k =
   let f = k.ac_field in
   let zero = ps_of_int f 0 in
   let one = ps_of_int f 1 in
-  let add ps₁ ps₂ = ps2ops (ps_add (norm f f.add) (ops2ps ps₁) (ops2ps ps₂)) in
-  let sub ps₁ ps₂ = ps2ops (ps_add (norm f f.sub) (ops2ps ps₁) (ops2ps ps₂)) in
-  let mul ps₁ ps₂ =
-    ps2ops (ps_mul f.add (norm f f.mul) (ops2ps ps₁) (ops2ps ps₂))
-  in
+  let add = ps_add (norm f f.add) in
+  let sub = ps_add (norm f f.sub) in
+  let mul = ps_mul f.add (norm f f.mul) in
   let neg = sub zero in
   let fc =
     {zero = zero; one = one; add = add; sub = sub; neg = neg; mul = mul;
@@ -741,9 +741,8 @@ value k_ps k =
      ext = ()}
   in
   let roots pol =
-    let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
     let rl = puiseux k fc 5 "x" "y" pol in
-    List.map (fun (r, inf) → (r, 0)) rl
+    List.map (fun (r, inf) → (ops2ps r, 0)) rl
   in
   {ac_field = fc; ac_roots = roots}
 ;
@@ -872,12 +871,10 @@ value main () = do {
           let pol =
              match List.rev pol.ml with
              | [] → {al = []; an = ps_fld.zero}
-             | [m :: ml] → {al = List.rev ml; an = m}
+             | [m :: ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
              end
           in
-          let pol = {al = List.map ops2ps pol.al; an = ops2ps pol.an} in
-          let _ : list _ =
-            puiseux k ps_fld arg_nb_steps.val vx vy pol in
+          let _ : list _ = puiseux k ps_fld arg_nb_steps.val vx vy pol in
           ()
         }
     | [_] → do {
