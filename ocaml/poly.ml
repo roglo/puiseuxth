@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.53 2013-05-31 09:02:12 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.54 2013-05-31 09:42:59 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -61,23 +61,33 @@ value rec mul_loop add_coeff mul_coeff ml pow₁ cn₂ cl₂ cn₁ cl₁ =
   end
 ;
 
+value rec make_pol zero_coeff pow ml n =
+  match n with
+  | 0 → ([], zero_coeff)
+  | n₁ →
+      let n₁ = n₁ - 1 in
+      match ml with
+      | [] → ([], zero_coeff)
+      | [(c, p)] →
+          if p = pow then ([], c)
+          else
+            let (cl, cn) = make_pol zero_coeff (S pow) [(c, p)] n₁ in
+            ([zero_coeff :: cl], cn)
+      | [(c, p) :: ml₁] →
+          if p = pow then
+            let (cl, cn) = make_pol zero_coeff (S pow) ml₁ n₁ in
+            ([c :: cl], cn)
+          else
+            let (cl, cn) = make_pol zero_coeff (S pow) ml n₁ in
+            ([zero_coeff :: cl], cn)
+      end
+  end
+;
+
 value pol_mul zero_coeff add_coeff mul_coeff pol₁ pol₂ =
   let ml = mul_loop add_coeff mul_coeff [] 0 pol₂.an pol₂.al pol₁.an pol₁.al in
-  let rev_np =
-    loop [] 0 ml where rec loop rev_np pow ml =
-      match ml with
-      | [(c, p) :: ml₁] →
-          if p > pow then loop [zero_coeff :: rev_np] (pow + 1) ml
-          else if p < pow then invalid_arg "pol_mul"
-          else loop [c :: rev_np] (pow + 1) ml₁
-      | [] →
-          rev_np
-      end
-  in
-  match rev_np with
-  | [cn :: rev_cl] → {al = List.rev rev_cl; an = cn}
-  | [] → assert False
-  end
+  let (cl, cn) = make_pol zero_coeff 0 ml (List.length ml) in
+  {al = cl; an = cn}
 ;
 
 Definition apply_poly
