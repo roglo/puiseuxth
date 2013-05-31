@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.295 2013-05-31 03:17:00 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.296 2013-05-31 03:54:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -189,14 +189,15 @@ value airy_string_of_puiseux_series k opt vx pol =
   airy_string_of_tree k opt vx "?" t
 ;
 
-value rec list_take n l =
-  if n ≤ 0 then []
-  else
-    match l with
-    | [x :: l] → [x :: list_take (n-1) l]
-    | [] → []
-    end
-;
+Fixpoint series_take n s :=
+  match n with
+  | O => []
+  | S n₁ =>
+      match s with
+      | Term x s₁ => [x :: series_take n₁ s₁]
+      | End => []
+      end
+  end;
 
 value norm fld f x y = fld.ext.normalise (f x y);
 
@@ -278,14 +279,14 @@ value print_solution k fld br nth cγl finite sol = do {
   | Some nb_terms →
       let ps = apply_poly_with_ps k br.initial_polynom (ops2ps sol) in
       let ps = float_round_zero k ps in
-      let ps = ps2ops ps in
       let ps₂ =
         if nb_terms > 0 then
-          {old_ps_mon = list_take nb_terms ps.old_ps_mon}
+          {old_ps_mon = series_take nb_terms ps.ps_terms}
         else
-          ps
+          ps2ops ps
       in
       let ellipses =
+        let ps = ps2ops ps in
         if nb_terms = 0 then ""
         else if List.length ps.old_ps_mon > nb_terms then " + ..."
         else ""

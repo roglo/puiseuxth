@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.559 2013-05-30 19:08:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.560 2013-05-31 03:59:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -13,6 +13,16 @@ Require Import Series.
 Set Implicit Arguments.
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
+
+Fixpoint series_take α n (s : series α) :=
+  match n with
+  | O => []
+  | S n₁ =>
+      match s with
+      | Term x s₁ => [x … series_take n₁ s₁]
+      | End => []
+      end
+  end.
 
 (* Horner's algorithm *)
 Definition apply_poly α β γ
