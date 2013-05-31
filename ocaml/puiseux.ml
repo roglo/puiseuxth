@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.304 2013-05-31 16:01:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.305 2013-05-31 16:07:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -272,12 +272,13 @@ value print_solution fld br nth cγl finite sol = do {
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_old_puiseux_series fld (not arg_lang.val) br.vx sol)
+    (airy_string_of_old_puiseux_series fld (not arg_lang.val) br.vx
+       (ps2ops sol))
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
   | Some nb_terms →
-      let ps = apply_poly_with_ps fld br.initial_polynom (ops2ps sol) in
+      let ps = apply_poly_with_ps fld br.initial_polynom sol in
       let ps = float_round_zero fld ps in
       let ps₂ =
         if nb_terms > 0 then
@@ -328,16 +329,23 @@ type choice α β =
 ;
 
 value make_solution rev_cγl =
-  let sol =
+  let t =
     loop Q.zero (List.rev rev_cγl) where rec loop γsum cγl =
       match cγl with
-      | [] → []
+      | [] → End
       | [(c, γ) :: cγl₁] →
           let γsum = Q.norm (Q.add γsum γ) in
-          [{coeff = c; power = γsum} :: loop γsum cγl₁]
+          Term {coeff = c; power = γsum} (loop γsum cγl₁)
       end
   in
-  {old_ps_mon = sol}
+  let d =
+    loop (List.rev rev_cγl) where rec loop cγl =
+      match cγl with
+      | [] → I.one
+      | [(c, γ) :: cγl₁] → I.lcm (Q.rden γ) (loop cγl₁)
+      end
+  in
+  {ps_terms = t; ps_comden = d}
 ;
 
 value zero_is_root pol =
@@ -742,7 +750,7 @@ value af_ps af =
   in
   let roots pol =
     let rl = puiseux af 5 "x" "y" pol in
-    List.map (fun (r, inf) → (ops2ps r, 0)) rl
+    List.map (fun (r, inf) → (r, 0)) rl
   in
   {ac_field = fc; ac_roots = roots}
 ;
