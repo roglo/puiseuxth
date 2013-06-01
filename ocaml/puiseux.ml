@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.307 2013-06-01 01:00:46 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.308 2013-06-01 01:52:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -347,6 +347,19 @@ value zero_is_root pol =
   | [] → False ]
 ;
 
+value f₁_formula fld f β γ c =
+  let y =
+    {al =
+       [{ps_terms = Term {coeff = c; power = γ} End;
+         ps_comden = Q.rden γ}];
+     an =
+       {ps_terms = Term {coeff = fld.one; power = γ} End;
+        ps_comden = Q.rden γ}}
+  in
+  let pol = apply_poly_with_ps_poly fld f y in
+  pol_div_x_power pol β
+;
+
 value puiseux_iteration fld br r m γ β sol_list = do {
   if verbose.val then do {
     let ss = inf_string_of_string (string_of_int br.step) in
@@ -365,16 +378,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
   }
   else ();
   let pol =
-    let y =
-      {al =
-         [{ps_terms = Term {coeff = r; power = γ} End;
-           ps_comden = Q.rden γ}];
-       an =
-         {ps_terms = Term {coeff = fld.one; power = γ} End;
-          ps_comden = Q.rden γ}}
-    in
-    let pol = apply_poly_with_ps_poly fld br.pol y in
-    let pol = pol_div_x_power pol β in
+    let pol = f₁_formula fld br.pol β γ r in
     xy_float_round_zero pol
   in
   if verbose.val then
