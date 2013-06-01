@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.306 2013-05-31 19:26:41 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.307 2013-06-01 01:00:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -217,7 +217,7 @@ Definition apply_poly_with_ps_poly (fld : field α _) pol :=
     (pol_mul
        {| ps_terms := End; ps_comden := I.one |}
        (ps_add (add fld))
-       (ps_mul (add fld) (norm fld (mul fld))))
+       (ps_mul (add fld) (mul fld)))
     pol;
 
 CoFixpoint series_float_round_zero s :=
@@ -539,13 +539,13 @@ value is_zero_tree k =
   | _ → False ]
 ;
 
-value polyn_of_tree k t =
-  let pol = tree_polyn_of_tree k t in
+value polyn_of_tree fld t =
+  let pol = tree_polyn_of_tree fld t in
   {ml =
      List.map
        (fun t →
-          if is_zero_tree k t then {old_ps_mon = []}
-          else puiseux_series_of_tree k t)
+          if is_zero_tree fld t then {old_ps_mon = []}
+          else puiseux_series_of_tree fld t)
        pol.ml}
 ;
 
@@ -716,7 +716,7 @@ value af_c () =
   in
   let fc =
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-     mul = C.mul; div = C.div; eq = C.eq; ext = ext}
+     mul x y = C.normalise (C.mul x y); div = C.div; eq = C.eq; ext = ext}
   in
   {ac_field = fc; ac_roots = roots fc}
 ;
