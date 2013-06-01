@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.568 2013-06-01 03:40:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.569 2013-06-01 22:04:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -359,7 +359,7 @@ Definition f₁ α (fld : field α) f β γ c :=
 Definition apply_polynomial α (fld : field α) :=
   apply_poly (λ x, x) (add fld) (mul fld).
 
-Record alg_closed_field {α} :=
+Record algeb_closed_field {α} :=
   { ac_field : field α;
     ac_prop : ∀ pol, degree pol ≥ 1
       → ∃ r, apply_polynomial ac_field pol r = zero ac_field }.
