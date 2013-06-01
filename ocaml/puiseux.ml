@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.311 2013-06-01 02:12:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.312 2013-06-01 02:15:53 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -20,6 +20,7 @@ type choice α β =
 ;
 
 value zero fld = fld.zero;
+value one fld = fld.one;
 value add fld = fld.add;
 value mul fld = fld.mul;
 
@@ -344,7 +345,7 @@ Definition f₁ fld f β γ c :=
          [{| ps_terms := Term {| coeff := c; power := γ |} End;
              ps_comden := Qden γ |}];
        an :=
-         {| ps_terms := Term {| coeff := fld.one; power := γ |} End;
+         {| ps_terms := Term {| coeff := one fld; power := γ |} End;
             ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in

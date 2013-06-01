@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.3 2013-05-28 18:50:00 deraugla Exp $ *)
+(* $Id: Series.v,v 1.4 2013-06-01 02:15:53 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -32,4 +32,10 @@ Definition ser_nth α (n : nat) (s : series α) : option α :=
   match ser_nth_tl n s with
   | None => None
   | Some t => ser_hd t
+  end.
+
+CoFixpoint ser_map α β (f : α → β) s :=
+  match s with
+  | Term a t => Term (f a) (ser_map f t)
+  | End => End _
   end.
