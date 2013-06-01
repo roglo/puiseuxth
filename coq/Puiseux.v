@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.563 2013-05-31 13:58:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.564 2013-06-01 02:15:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -324,8 +324,33 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     (pol_mul
        {| ps_terms := End _; ps_comden := 1 |}
        (ps_add (add fld))
-       (ps_mul (add fld) ((*norm fld*) (mul fld))))
+       (ps_mul (add fld) (mul fld)))
     pol.
+
+Definition mul_x_power_minus p ps :=
+  let t :=
+    ser_map
+      (λ m, {| coeff := coeff m; power := Q.norm (Qminus (power m) p) |})
+      (ps_terms ps)
+  in
+  {| ps_terms := t; ps_comden := ps_comden ps |}.
+
+Definition pol_mul_x_power_minus p pol :=
+  let cl := List.map (mul_x_power_minus p) (al pol) in
+  let cn := mul_x_power_minus p (an pol) in
+  {| al := cl; an := cn |}.
+
+Definition f₁ fld f β γ c :=
+  let y :=
+    {| al :=
+         [{| ps_terms := Term {| coeff := c; power := γ |} End;
+             ps_comden := Qden γ |}];
+       an :=
+         {| ps_terms := Term {| coeff := one fld; power := γ |} End;
+            ps_comden := Qden γ |} |}
+  in
+  let pol := apply_poly_with_ps_poly fld f y in
+  pol_mul_x_power_minus β pol.
 
 Definition apply_polynomial α (fld : field α) :=
   apply_poly (λ x, x) (add fld) (mul fld).

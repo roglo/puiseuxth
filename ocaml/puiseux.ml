@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.310 2013-06-01 02:11:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.311 2013-06-01 02:12:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -308,7 +308,7 @@ Definition mul_x_power_minus p ps :=
   {| ps_terms := t; ps_comden := ps_comden ps |};
 
 Definition pol_mul_x_power_minus p pol :=
-  let cl := List.map (λ ps, mul_x_power_minus p ps) (al pol) in
+  let cl := List.map (mul_x_power_minus p) (al pol) in
   let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |};
 
