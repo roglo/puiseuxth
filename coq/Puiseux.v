@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.567 2013-06-01 02:55:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.568 2013-06-01 03:40:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -353,6 +353,8 @@ Definition f₁ α (fld : field α) f β γ c :=
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol.
+
+(* *)
 
 Definition apply_polynomial α (fld : field α) :=
   apply_poly (λ x, x) (add fld) (mul fld).
