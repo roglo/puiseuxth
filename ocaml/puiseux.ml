@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.315 2013-06-01 02:55:15 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.316 2013-06-01 09:22:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -652,7 +652,7 @@ value arg_parse () =
       eprintf "-c, --cut-long        Cut too long lines in verbose mode\n";
       eprintf "-d, --debug           Debug mode\n";
       eprintf "-e, --eval-sol <n>    ";
-      eprintf "Eval polynial on solutions; display <n> terms\n";
+      eprintf "Eval polynomial on solutions; display <n> terms\n";
       eprintf "-f, --file <name>     ";
       eprintf "Read polynomial in file, 1 monomial by line\n";
       eprintf "-h, --help            Display this list of options\n";
