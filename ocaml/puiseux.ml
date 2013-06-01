@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.317 2013-06-01 22:04:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.318 2013-06-01 22:26:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -814,7 +814,9 @@ value main () = do {
       match vl_no_y with
       [ [vx] → (vx, [])
       | [] → (if vy = "x" then "y" else "x", [])
+(*
       | [vx; v] → (vx, [v])
+*)
       | _ → do {
           if List.mem vy vl then do {
             eprintf "Too many variables:%!";
@@ -881,7 +883,7 @@ value main () = do {
   }
   with e →
     match e with
-    [ Stream.Error s → do {
+    | Stream.Error s → do {
         flush stdout;
         eprintf "Syntax error: %s\n%!" s;
         exit 2
@@ -898,7 +900,8 @@ value main () = do {
           eprintf "Program internal error: ";
           eprintf "please report or use option '-d'.\n%!";
           exit 2
-        } ]
+        }
+    end
 };
 
 if Sys.interactive.val then () else main ();
