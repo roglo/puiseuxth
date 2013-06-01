@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.308 2013-06-01 01:52:47 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.309 2013-06-01 02:01:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -299,27 +299,27 @@ value print_solution fld br nth cγl finite sol = do {
   end
 };
 
-value pol_div_x_power pol p =
-  let cl =
+Definition pol_div_x_power pol p :=
+  let cl :=
     List.map
-      (fun ps →
-         let t =
+      (λ ps,
+         let t :=
            ser_map
-             (fun m → {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-             ps.ps_terms
+             (λ m, {coeff = m.coeff; power = Q.norm (Qminus (power m) p)})
+             (ps_terms ps)
          in
-         {ps_terms = t; ps_comden = ps_comden ps})
-      pol.al
+         {| ps_terms := t; ps_comden := ps_comden ps |})
+      (al pol)
   in
-  let cn =
-    let t =
-      ser_map (fun m → {coeff = m.coeff; power = Q.norm (Q.sub m.power p)})
-        pol.an.ps_terms
+  let cn :=
+    let t :=
+      ser_map
+        (λ m, {| coeff := coeff m; power := Q.norm (Qminus (power m) p) |})
+        (ps_terms (an pol))
     in
-    {ps_terms = t; ps_comden = ps_comden pol.an}
+    {| ps_terms := t; ps_comden := ps_comden (an pol) |}
   in
-  {al = cl; an = cn}
-;
+  {| al := cl; an := cn |};
 
 value make_solution rev_cγl =
   let t =
@@ -347,18 +347,17 @@ value zero_is_root pol =
   | [] → False ]
 ;
 
-value f₁_formula fld f β γ c =
-  let y =
-    {al =
-       [{ps_terms = Term {coeff = c; power = γ} End;
-         ps_comden = Q.rden γ}];
-     an =
-       {ps_terms = Term {coeff = fld.one; power = γ} End;
-        ps_comden = Q.rden γ}}
+Definition f₁ fld f β γ c :=
+  let y :=
+    {| al :=
+         [{| ps_terms := Term {| coeff := c; power := γ |} End;
+             ps_comden := Qden γ |}];
+       an :=
+         {| ps_terms := Term {| coeff := fld.one; power := γ |} End;
+            ps_comden := Qden γ |} |}
   in
-  let pol = apply_poly_with_ps_poly fld f y in
-  pol_div_x_power pol β
-;
+  let pol := apply_poly_with_ps_poly fld f y in
+  pol_div_x_power pol β;
 
 value puiseux_iteration fld br r m γ β sol_list = do {
   if verbose.val then do {
@@ -378,7 +377,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
   }
   else ();
   let pol =
-    let pol = f₁_formula fld br.pol β γ r in
+    let pol = f₁ fld br.pol β γ r in
     xy_float_round_zero pol
   in
   if verbose.val then
