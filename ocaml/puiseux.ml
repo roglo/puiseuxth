@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.312 2013-06-01 02:15:53 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.313 2013-06-01 02:22:48 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -303,7 +303,7 @@ value print_solution fld br nth cγl finite sol = do {
 Definition mul_x_power_minus p ps :=
   let t :=
     ser_map
-      (λ m, {| coeff := coeff m; power := Q.norm (Qminus (power m) p) |})
+      (λ m, {| coeff := coeff m; power := Qred (Qminus (power m) p) |})
       (ps_terms ps)
   in
   {| ps_terms := t; ps_comden := ps_comden ps |};
@@ -339,13 +339,13 @@ value zero_is_root pol =
   | [] → False ]
 ;
 
-Definition f₁ fld f β γ c :=
+Definition f₁ (fld : field α _) f β γ c :=
   let y :=
     {| al :=
-         [{| ps_terms := Term {| coeff := c; power := γ |} End;
+         [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
              ps_comden := Qden γ |}];
        an :=
-         {| ps_terms := Term {| coeff := one fld; power := γ |} End;
+         {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
             ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
