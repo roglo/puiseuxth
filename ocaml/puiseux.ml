@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.309 2013-06-01 02:01:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.310 2013-06-01 02:11:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -299,26 +299,17 @@ value print_solution fld br nth cγl finite sol = do {
   end
 };
 
-Definition pol_div_x_power pol p :=
-  let cl :=
-    List.map
-      (λ ps,
-         let t :=
-           ser_map
-             (λ m, {coeff = m.coeff; power = Q.norm (Qminus (power m) p)})
-             (ps_terms ps)
-         in
-         {| ps_terms := t; ps_comden := ps_comden ps |})
-      (al pol)
+Definition mul_x_power_minus p ps :=
+  let t :=
+    ser_map
+      (λ m, {| coeff := coeff m; power := Q.norm (Qminus (power m) p) |})
+      (ps_terms ps)
   in
-  let cn :=
-    let t :=
-      ser_map
-        (λ m, {| coeff := coeff m; power := Q.norm (Qminus (power m) p) |})
-        (ps_terms (an pol))
-    in
-    {| ps_terms := t; ps_comden := ps_comden (an pol) |}
-  in
+  {| ps_terms := t; ps_comden := ps_comden ps |};
+
+Definition pol_mul_x_power_minus p pol :=
+  let cl := List.map (λ ps, mul_x_power_minus p ps) (al pol) in
+  let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |};
 
 value make_solution rev_cγl =
@@ -357,7 +348,7 @@ Definition f₁ fld f β γ c :=
             ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
-  pol_div_x_power pol β;
+  pol_mul_x_power_minus β pol;
 
 value puiseux_iteration fld br r m γ β sol_list = do {
   if verbose.val then do {
