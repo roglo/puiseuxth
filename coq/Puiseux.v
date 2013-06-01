@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.565 2013-06-01 02:23:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.566 2013-06-01 02:27:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -340,14 +340,16 @@ Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
   let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |}.
 
+Definition pos_to_nat := Pos.to_nat.
+
 Definition f₁ α (fld : field α) f β γ c :=
   let y :=
     {| al :=
          [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
-             ps_comden := Pos.to_nat (Qden γ) |}];
+             ps_comden := pos_to_nat (Qden γ) |}];
        an :=
          {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
-            ps_comden := Pos.to_nat (Qden γ) |} |}
+            ps_comden := pos_to_nat (Qden γ) |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol.

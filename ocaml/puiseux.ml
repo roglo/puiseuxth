@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.313 2013-06-01 02:22:48 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.314 2013-06-01 02:27:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -339,14 +339,16 @@ value zero_is_root pol =
   | [] → False ]
 ;
 
+value pos_to_nat x = x;
+
 Definition f₁ (fld : field α _) f β γ c :=
   let y :=
     {| al :=
          [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
-             ps_comden := Qden γ |}];
+             ps_comden := pos_to_nat (Qden γ) |}];
        an :=
          {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
-            ps_comden := Qden γ |} |}
+            ps_comden := pos_to_nat (Qden γ) |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol;
