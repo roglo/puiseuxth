@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.14 2013-05-30 06:40:57 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.15 2013-06-01 02:55:15 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -128,7 +128,7 @@ Section puiseux_series.
 Variable α : Type.
 Variable fld : field (puiseux_series α).
 
-Theorem points_in_any_newton_segment : ∀ (pol : pps α) ns,
+Theorem points_in_any_newton_segment : ∀ (pol : puis_ser_pol α) ns,
   ns ∈ newton_segments pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == αh + h * γ ns.

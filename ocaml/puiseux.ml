@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.314 2013-06-01 02:27:13 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.315 2013-06-01 02:55:15 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -131,9 +131,7 @@ Fixpoint filter_non_zero_ps (dpl : list (Q * puiseux_series α)) :=
 Definition points_of_ps_polynom_gen pow cl (cn : puiseux_series α) :=
   filter_non_zero_ps (all_points_of_ps_polynom pow cl cn);
 
-type pps α = polynomial (puiseux_series α);
-
-Definition points_of_ps_polynom (pol : pps α) :=
+Definition points_of_ps_polynom (pol : polynomial (puiseux_series α)) :=
   points_of_ps_polynom_gen 0%nat (al pol) (an pol);
 
 Definition newton_segment_of_pair hsj hsk :=
@@ -145,7 +143,7 @@ Definition newton_segment_of_pair hsj hsk :=
   let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
   mkns γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition newton_segments (pol : pps α) :=
+Definition newton_segments (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl);
 
