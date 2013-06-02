@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.573 2013-06-02 12:33:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.574 2013-06-02 13:43:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -407,7 +407,12 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
   end.
 
 CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
-  match newton_segments pol with
+  let nsl := newton_segments pol in
+  let nsl :=
+    if Qeq_bool psum 0 then nsl
+    else List.filter (λ ns, negb (Qle_bool (γ ns) 0)) nsl
+  in
+  match nsl with
   | [] => End _
   | [ns … _] =>
       let fld := ac_field acf in
@@ -416,8 +421,7 @@ CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
-        (if zero_is_root pol₁ then End _ else
-         puiseux_loop p acf pol₁)
+        (if zero_is_root pol₁ then End _ else puiseux_loop p acf pol₁)
   end.
 
 Definition puiseux_root α := @puiseux_loop α 0.
