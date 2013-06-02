@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.323 2013-06-02 13:43:27 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.324 2013-06-02 18:28:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -220,28 +220,80 @@ Definition apply_poly_with_ps_poly (fld : field α _) pol :=
        (ps_mul (add fld) (mul fld)))
     pol;
 
+CoFixpoint series_semi_filter f s :=
+  match s with
+  | Term x t =>
+      if f x then Term x (series_semi_filter f t)
+      else
+        match t with
+        | Term y u =>
+(*
+let _ := if f y then () else printf "[%s,%s]%!" (Q.to_string (power x)) (Q.to_string (power y)) in
+*)
+            Term y (series_semi_filter f u)
+        | End =>
+            End _
+        end
+  | End => End _
+  end;
+
 CoFixpoint series_float_round_zero s :=
   match s with
   | Term m t =>
       let c := C.float_round_zero m.coeff in
-      if C.eq c C.zero then series_float_round_zero t
-      else Term m (series_float_round_zero t)
+      if C.eq c C.zero then
+(*
+let _ := printf "(%s)%!" (Q.to_string m.power) in
+*)
+        series_float_round_zero t
+      else
+        Term m (series_float_round_zero t)
   | End => End
   end;
 
-Definition xy_float_round_zero pol :=
-  let al :=
+value check_series s =
+  match s with
+  | Term m t →
+      let t = Lazy.force t in
+      loop m t where rec loop m t =
+        match t with
+        | Term n u →
+            let u = Lazy.force u in
+            if Q.lt (power m) (power n) then loop n u
+            else failwith (sprintf "%s ≥ %s" (Q.to_string (power m)) (Q.to_string (power n)))
+        | End →
+            ()
+        end
+  | End → failwith "End"
+  end
+;
+
+Definition xy_float_round_zero (pol : polynomial (puiseux_series C.t)) :=
+let _ := List.iter (fun ps → check_series (ps_terms ps)) (al pol) in
+  let cl :=
+    List.map
+      (λ ps,
+         {| ps_terms :=
+              series_semi_filter
+                (λ m, not (C.eq (coeff m) C.zero)) (ps_terms ps);
+            ps_comden :=
+              ps_comden ps |})
+      (al pol)
+  in
+(**)
+  let cl :=
     List.map
       (λ ps,
          let t := series_float_round_zero (ps_terms ps) in
          {| ps_terms := t; ps_comden := ps_comden ps |})
-      (al pol)
+      cl
   in
-  let an :=
+(**)
+  let cn :=
     let t := series_float_round_zero (ps_terms (an pol)) in
     {| ps_terms := t; ps_comden := ps_comden (an pol) |}
   in
-  {| al := al; an := an |};
+  {| al := cl; an := cn |};
 
 Definition float_round_zero fld ps :=
   let s :=

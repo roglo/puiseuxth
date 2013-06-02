@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.574 2013-06-02 13:43:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.575 2013-06-02 18:28:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -404,6 +404,18 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
       | Term _ _ => false
       | End => true
       end
+  end.
+
+CoFixpoint series_semi_filter α (f : α → bool) s :=
+  match s with
+  | Term x t =>
+      if f x then Term x (series_semi_filter f t)
+      else
+        match t with
+        | Term y u => Term y (series_semi_filter f u)
+        | End => End _
+        end
+  | End => End _
   end.
 
 CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
