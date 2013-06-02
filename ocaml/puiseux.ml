@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.319 2013-06-02 11:36:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.320 2013-06-02 12:12:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -331,11 +331,11 @@ value make_solution rev_cγl =
   {ps_terms = t; ps_comden = d}
 ;
 
-value zero_is_root pol =
-  match pol.al @ [pol.an] with
-  [ [ps :: _] → ps.ps_terms = End
-  | [] → False ]
-;
+Definition zero_is_root pol :=
+  match al pol with
+  | [] => False
+  | [ps :: _] => ps_terms ps = End _
+  end;
 
 value pos_to_nat x = x;
 
@@ -455,7 +455,8 @@ let pol₁ := xy_float_round_zero pol₁ in
 (**)
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
-(if zero_is_root pol₁ then End _ else
+(
+if zero_is_root pol₁ then End _ else
         puiseux_loop p acf pol₁)
 (**)
 end
@@ -551,7 +552,7 @@ CoFixpoint series_series_take n s :=
 value puiseux af nb_steps vx vy pol =
 (*
 let r = puiseux_root af pol in
-let ops = ps2ops {ps_terms = series_series_take 5 r; ps_comden = I.one} in
+let ops = ps2ops {ps_terms = series_series_take 6 r; ps_comden = I.one} in
 let _ = printf "puiseux : %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_field True vx ops) in
 *)
   let gbl = newton_segments pol in
