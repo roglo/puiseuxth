@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.327 2013-06-02 20:40:00 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.328 2013-06-02 20:51:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -354,14 +354,18 @@ value make_solution rev_cγl =
   {ps_terms = t; ps_comden = d}
 ;
 
-Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
+Definition zero_is_root ps_fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps :: _] =>
+(**)
+      ps_fld.eq ps ps_fld.zero
+(*
       match ps_terms ps with
       | Term _ _ => false
       | End => true
       end
+*)
   end;
 
 Definition f₁ (fld : field α _) f β γ c :=
@@ -417,7 +421,7 @@ Definition characteristic_polynomial (fld : field α _) pol ns :=
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |};
 
-CoFixpoint puiseux_loop psum acf (pol : polynomial (puiseux_series α)) :=
+CoFixpoint puiseux_loop psum ps_fld acf (pol : polynomial (puiseux_series α)) :=
   let nsl := newton_segments pol in
   let nsl :=
     if Qeq_bool psum Q.zero then nsl
@@ -436,7 +440,8 @@ let pol₁ := xy_float_round_zero pol₁ in
 (**)
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
-        (if zero_is_root pol₁ then End _ else puiseux_loop p acf pol₁)
+        (if zero_is_root ps_fld pol₁ then End _
+         else puiseux_loop p ps_fld acf pol₁)
   end;
 
 Definition puiseux_root x := puiseux_loop Q.zero x;
@@ -453,7 +458,7 @@ CoFixpoint series_series_take n s :=
 
 (* *)
 
-value puiseux_iteration fld br r m γ β sol_list = do {
+value puiseux_iteration ps_fld fld br r m γ β sol_list = do {
   if verbose.val then do {
     let ss = inf_string_of_string (string_of_int br.step) in
     printf "\nc%s = %s  r%s = %d\n\n%!" ss (fld.ext.to_string r) ss m;
@@ -481,7 +486,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
-  let finite = zero_is_root pol in
+  let finite = zero_is_root ps_fld pol in
   let cγl = [(r, γ) :: br.cγl] in
   if br.rem_steps = 0 || finite then do {
     if verbose.val then do {
@@ -497,7 +502,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
   else Left sol_list
 };
 
-value rec puiseux_branch af br sol_list ns =
+value rec puiseux_branch ps_fld af br sol_list ns =
   let γ = ns.γ in
   let β = ns.β in
   let (j, αj) = ns.ini_pt in
@@ -532,12 +537,12 @@ value rec puiseux_branch af br sol_list ns =
       (fun sol_list (r, m) →
          if fld.eq r fld.zero then sol_list
          else
-           match puiseux_iteration fld br r m γ β sol_list with
-           [ Right (pol, cγl) → next_step af br sol_list pol cγl
+           match puiseux_iteration ps_fld fld br r m γ β sol_list with
+           [ Right (pol, cγl) → next_step ps_fld af br sol_list pol cγl
            | Left sol_list → sol_list ])
       sol_list rl
 
-and next_step af br sol_list pol cγl =
+and next_step ps_fld af br sol_list pol cγl =
   let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
@@ -560,7 +565,7 @@ and next_step af br sol_list pol cγl =
             rem_steps = br.rem_steps - 1;
             vx = br.vx; vy = br.vy; pol = pol}
          in
-         puiseux_branch af br sol_list ns
+         puiseux_branch ps_fld af br sol_list ns
        })
       sol_list gbl_f
 ;
@@ -571,7 +576,7 @@ value print_line_equal () =
   else ()
 ;
 
-value puiseux af nb_steps vx vy pol =
+value puiseux ps_fld af nb_steps vx vy pol =
 (*
 let r = puiseux_root af pol in
 let ops = ps2ops {ps_terms = series_series_take 5 r; ps_comden = I.one} in
@@ -589,7 +594,7 @@ let _ = printf "puiseux : %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_fie
              {initial_polynom = pol; cγl = []; step = 1;
               rem_steps = rem_steps; vx = vx; vy = vy; pol = pol}
            in
-           puiseux_branch af br sol_list gbdpl
+           puiseux_branch ps_fld af br sol_list gbdpl
          })
         [] gbl
     in
@@ -759,7 +764,12 @@ value ps_fld =
    neg _ = failwith "ps_fld.neg";
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
-   eq _ = failwith "ps_fld.eq";
+   eq ps₁ ps₂ =
+     let t₁ = series_float_round_zero ps₁.ps_terms in
+     let t₂ = series_float_round_zero ps₂.ps_terms in
+     if t₁ = End then t₂ = End
+     else if t₂ = End then False
+     else failwith "ps_fld.eq";
    ext = ()}
 ;
 
@@ -786,6 +796,7 @@ value ps_of_int fld i =
    ps_comden = I.one}
 ;
 
+(*
 value af_ps af =
   let fld = af.ac_field in
   let zero = ps_of_int fld 0 in
@@ -806,6 +817,7 @@ value af_ps af =
   in
   {ac_field = fc; ac_roots = roots}
 ;
+*)
 
 value af_mpfr () =
   let ext =
@@ -937,7 +949,7 @@ value main () = do {
              | [m :: ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
              end
           in
-          let _ : list _ = puiseux af arg_nb_steps.val vx vy pol in
+          let _ : list _ = puiseux ps_fld af arg_nb_steps.val vx vy pol in
           ()
         }
     | [_] → do {
