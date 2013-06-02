@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.569 2013-06-01 22:04:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.570 2013-06-02 03:24:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -342,7 +342,7 @@ Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
 
 Definition pos_to_nat := Pos.to_nat.
 
-Definition f₁ α (fld : field α) f β γ c :=
+Definition f₁ α (fld : field α) (f : polynomial (puiseux_series α)) β γ c :=
   let y :=
     {| al :=
          [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
@@ -361,8 +361,11 @@ Definition apply_polynomial α (fld : field α) :=
 
 Record algeb_closed_field {α} :=
   { ac_field : field α;
+    ac_root : polynomial α → α;
     ac_prop : ∀ pol, degree pol ≥ 1
-      → ∃ r, apply_polynomial ac_field pol r = zero ac_field }.
+      → apply_polynomial ac_field pol (ac_root pol) = zero ac_field }.
+
+(* *)
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -394,6 +397,16 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let cl := make_char_pol fld j dcl (k - j) in
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |}.
+
+Definition f₁_of_f α acf (pol : polynomial (puiseux_series α)) :=
+  match newton_segments pol with
+  | [] => None
+  | [ns … _] =>
+      let cpol := characteristic_polynomial (ac_field acf) pol ns in
+      let c := ac_root acf cpol in
+      let pol₁ := f₁ (ac_field acf) pol (β ns) (γ ns) c in
+      Some pol₁
+  end.
 
 (* *)
 
@@ -609,6 +622,8 @@ Lemma exists_root : ∀ acf (pol : puis_ser_pol α) cpol ns,
 Proof.
 intros acf pol cpol ns Hdeg Hpol.
 eapply cpol_degree in Hdeg; [ idtac | eassumption ].
+remember (ac_root acf cpol) as r.
+exists r; subst r.
 apply (ac_prop acf cpol Hdeg).
 Qed.
 
