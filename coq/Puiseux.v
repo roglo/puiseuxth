@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.575 2013-06-02 18:28:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.576 2013-06-02 19:29:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -329,7 +329,7 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
 
 Definition mul_x_power_minus α p (ps : puiseux_series α) :=
   let t :=
-    ser_map
+    series_map
       (λ m, {| coeff := coeff m; power := Qred (Qminus (power m) p) |})
       (ps_terms ps)
   in
@@ -404,18 +404,6 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
       | Term _ _ => false
       | End => true
       end
-  end.
-
-CoFixpoint series_semi_filter α (f : α → bool) s :=
-  match s with
-  | Term x t =>
-      if f x then Term x (series_semi_filter f t)
-      else
-        match t with
-        | Term y u => Term y (series_semi_filter f u)
-        | End => End _
-        end
-  | End => End _
   end.
 
 CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=

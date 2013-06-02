@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.324 2013-06-02 18:28:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.325 2013-06-02 19:29:17 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -251,44 +251,14 @@ let _ := printf "(%s)%!" (Q.to_string m.power) in
   | End => End
   end;
 
-value check_series s =
-  match s with
-  | Term m t →
-      let t = Lazy.force t in
-      loop m t where rec loop m t =
-        match t with
-        | Term n u →
-            let u = Lazy.force u in
-            if Q.lt (power m) (power n) then loop n u
-            else failwith (sprintf "%s ≥ %s" (Q.to_string (power m)) (Q.to_string (power n)))
-        | End →
-            ()
-        end
-  | End → failwith "End"
-  end
-;
-
 Definition xy_float_round_zero (pol : polynomial (puiseux_series C.t)) :=
-let _ := List.iter (fun ps → check_series (ps_terms ps)) (al pol) in
-  let cl :=
-    List.map
-      (λ ps,
-         {| ps_terms :=
-              series_semi_filter
-                (λ m, not (C.eq (coeff m) C.zero)) (ps_terms ps);
-            ps_comden :=
-              ps_comden ps |})
-      (al pol)
-  in
-(**)
   let cl :=
     List.map
       (λ ps,
          let t := series_float_round_zero (ps_terms ps) in
          {| ps_terms := t; ps_comden := ps_comden ps |})
-      cl
+      (al pol)
   in
-(**)
   let cn :=
     let t := series_float_round_zero (ps_terms (an pol)) in
     {| ps_terms := t; ps_comden := ps_comden (an pol) |}
@@ -353,7 +323,7 @@ value print_solution fld br nth cγl finite sol = do {
 
 Definition mul_x_power_minus p ps :=
   let t :=
-    ser_map
+    series_map
       (λ m, {| coeff := coeff m; power := Qred (Qminus (power m) p) |})
       (ps_terms ps)
   in

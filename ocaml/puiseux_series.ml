@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.114 2013-06-01 02:15:53 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.115 2013-06-02 19:29:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -76,37 +76,37 @@ Definition ps_add (add_coeff : α → α → α) ps₁ ps₂ :=
   {| ps_terms := loop₁ (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
-Definition ser_hd (s : series α) :=
+Definition series_hd (s : series α) :=
   match s with
   | Term a _ => Some a
   | End => None
   end;
 
-Definition ser_tl (s : series α) : option (series α) :=
+Definition series_tl (s : series α) : option (series α) :=
   match s with
   | Term _ t => Some t
   | End => None
   end;
 
-Fixpoint ser_nth_tl (n : nat) (s : series α) : option (series α) :=
+Fixpoint series_nth_tl (n : nat) (s : series α) : option (series α) :=
   match n with
   | O => Some s
   | S m =>
-      match ser_tl s with
+      match series_tl s with
       | None => None
-      | Some t => ser_nth_tl m t
+      | Some t => series_nth_tl m t
       end
   end;
 
-Definition ser_nth (n : nat) (s : series α) : option α :=
-  match ser_nth_tl n s with
+Definition series_nth (n : nat) (s : series α) : option α :=
+  match series_nth_tl n s with
   | None => None
-  | Some t => ser_hd t
+  | Some t => series_hd t
   end;
 
-CoFixpoint ser_map (f : α → β) s :=
+CoFixpoint series_map (f : α → β) s :=
   match s with
-  | Term a t => Term (f a) (ser_map f t)
+  | Term a t => Term (f a) (series_map f t)
   | End => End _
   end;
 

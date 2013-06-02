@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.20 2013-05-31 19:26:41 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.21 2013-06-02 19:29:17 deraugla Exp $ *)
 
 open Pnums;
 
@@ -24,7 +24,7 @@ value ps_mul :
     puiseux_series α;
 (** [ps_mul add_coeff mul_coeff p₁ p₂] *)
 
-value ser_map : (α → β) → series α → series β;
+value series_map : (α → β) → series α → series β;
 
 type comparison = [ Eq | Lt | Gt ];
 value qcompare : Q.t → Q.t → comparison;
