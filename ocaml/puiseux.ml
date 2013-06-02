@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.321 2013-06-02 12:33:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.322 2013-06-02 13:15:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -23,6 +23,7 @@ value zero fld = fld.zero;
 value one fld = fld.one;
 value add fld = fld.add;
 value mul fld = fld.mul;
+value pos_to_nat x = x;
 
 Record algeb_closed_field α β :=
   { ac_field : field α β;
@@ -341,8 +342,6 @@ Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
       end
   end;
 
-value pos_to_nat x = x;
-
 Definition f₁ (fld : field α _) f β γ c :=
   let y :=
     {| al :=
@@ -354,48 +353,6 @@ Definition f₁ (fld : field α _) f β γ c :=
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol;
-
-value puiseux_iteration fld br r m γ β sol_list = do {
-  if verbose.val then do {
-    let ss = inf_string_of_string (string_of_int br.step) in
-    printf "\nc%s = %s  r%s = %d\n\n%!" ss (fld.ext.to_string r) ss m;
-    let y =
-      let cpy = Plus (Const r) (Ypower 1) in
-      if I.eq (Q.rnum γ) I.zero then cpy
-      else Mult (xpower γ) cpy
-    in
-    let xmβ = xpower (Q.neg β) in
-    let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
-    printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
-      (string_of_tree fld True br.vx br.vy xmβ)
-      (if br.step = 1 then "" else ss₁) br.vx
-      (string_of_tree fld True br.vx br.vy y)
-  }
-  else ();
-  let pol =
-    let pol = f₁ fld br.pol β γ r in
-    xy_float_round_zero pol
-  in
-  if verbose.val then
-    let s = string_of_ps_polyn fld True br.vx br.vy pol in
-    let s = cut_long True s in
-    printf "  %s\n%!" s
-  else ();
-  let finite = zero_is_root pol in
-  let cγl = [(r, γ) :: br.cγl] in
-  if br.rem_steps = 0 || finite then do {
-    if verbose.val then do {
-      printf "\n";
-      if finite then printf "zero is root !\n%!" else ();
-    }
-    else ();
-    let sol = make_solution cγl in
-    print_solution fld br (succ (List.length sol_list)) cγl finite sol;
-    Left [(sol, finite) :: sol_list]
-  }
-  else if br.rem_steps > 0 then Right (pol, cγl)
-  else Left sol_list
-};
 
 Fixpoint list_nth n l default :=
   match n with
@@ -467,6 +424,60 @@ end
   end;
 
 Definition puiseux_root x := puiseux_loop Q.zero x;
+
+CoFixpoint series_series_take n s :=
+  match n with
+  | O => End _
+  | S n₁ =>
+      match s with
+      | Term a t => Term a (series_series_take n₁ t)
+      | End => End _
+      end
+  end;
+
+(* *)
+
+value puiseux_iteration fld br r m γ β sol_list = do {
+  if verbose.val then do {
+    let ss = inf_string_of_string (string_of_int br.step) in
+    printf "\nc%s = %s  r%s = %d\n\n%!" ss (fld.ext.to_string r) ss m;
+    let y =
+      let cpy = Plus (Const r) (Ypower 1) in
+      if I.eq (Q.rnum γ) I.zero then cpy
+      else Mult (xpower γ) cpy
+    in
+    let xmβ = xpower (Q.neg β) in
+    let ss₁ = inf_string_of_string (string_of_int (br.step - 1)) in
+    printf "f%s(%s,%s) = %sf%s(%s,%s) =\n%!" ss br.vx br.vy
+      (string_of_tree fld True br.vx br.vy xmβ)
+      (if br.step = 1 then "" else ss₁) br.vx
+      (string_of_tree fld True br.vx br.vy y)
+  }
+  else ();
+  let pol =
+    let pol = f₁ fld br.pol β γ r in
+    xy_float_round_zero pol
+  in
+  if verbose.val then
+    let s = string_of_ps_polyn fld True br.vx br.vy pol in
+    let s = cut_long True s in
+    printf "  %s\n%!" s
+  else ();
+  let finite = zero_is_root pol in
+  let cγl = [(r, γ) :: br.cγl] in
+  if br.rem_steps = 0 || finite then do {
+    if verbose.val then do {
+      printf "\n";
+      if finite then printf "zero is root !\n%!" else ();
+    }
+    else ();
+    let sol = make_solution cγl in
+    print_solution fld br (succ (List.length sol_list)) cγl finite sol;
+    Left [(sol, finite) :: sol_list]
+  }
+  else if br.rem_steps > 0 then Right (pol, cγl)
+  else Left sol_list
+};
 
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
@@ -541,16 +552,6 @@ value print_line_equal () =
     printf "\n============================================================\n"
   else ()
 ;
-
-CoFixpoint series_series_take n s :=
-  match n with
-  | O => End _
-  | S n₁ =>
-      match s with
-      | Term a t => Term a (series_series_take n₁ t)
-      | End => End _
-      end
-  end;
 
 value puiseux af nb_steps vx vy pol =
 (*
