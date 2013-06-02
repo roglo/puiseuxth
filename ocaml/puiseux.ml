@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.326 2013-06-02 20:08:32 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.327 2013-06-02 20:40:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -759,10 +759,7 @@ value ps_fld =
    neg _ = failwith "ps_fld.neg";
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
-   eq ps₁ ps₂ =
-     if ps₁.ps_terms = End then ps₂.ps_terms = End
-     else if ps₂.ps_terms = End then False
-     else failwith "ps_fld.eq";
+   eq _ = failwith "ps_fld.eq";
    ext = ()}
 ;
 
