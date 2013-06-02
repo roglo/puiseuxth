@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.36 2013-05-30 17:35:44 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.37 2013-06-02 12:33:54 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -152,7 +152,11 @@ EXTEND
       | UIDENT "O" →
           <:expr< 0 >>
       | UIDENT "S" →
-          <:expr< succ >> ] ]
+          <:expr< succ >>
+      | LIDENT "false" →
+          <:expr< False >>
+      | LIDENT "true" →
+          <:expr< True >> ] ]
   ;
   coq_fun_def:
     [ RIGHTA

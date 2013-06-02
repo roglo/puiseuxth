@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.572 2013-06-02 11:36:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.573 2013-06-02 12:33:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -396,6 +396,16 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |}.
 
+Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
+  match al pol with
+  | [] => false
+  | [ps … _] =>
+      match ps_terms ps with
+      | Term _ _ => false
+      | End => true
+      end
+  end.
+
 CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
   match newton_segments pol with
   | [] => End _
@@ -405,7 +415,9 @@ CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
       let c := ac_root acf cpol in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
-      Term {| coeff := c; power := p |} (puiseux_loop p acf pol₁)
+      Term {| coeff := c; power := p |}
+        (if zero_is_root pol₁ then End _ else
+         puiseux_loop p acf pol₁)
   end.
 
 Definition puiseux_root α := @puiseux_loop α 0.

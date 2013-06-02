@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.320 2013-06-02 12:12:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.321 2013-06-02 12:33:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -331,10 +331,14 @@ value make_solution rev_cγl =
   {ps_terms = t; ps_comden = d}
 ;
 
-Definition zero_is_root pol :=
+Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
-  | [] => False
-  | [ps :: _] => ps_terms ps = End _
+  | [] => false
+  | [ps :: _] =>
+      match ps_terms ps with
+      | Term _ _ => false
+      | End => true
+      end
   end;
 
 value pos_to_nat x = x;
@@ -455,9 +459,8 @@ let pol₁ := xy_float_round_zero pol₁ in
 (**)
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
-(
-if zero_is_root pol₁ then End _ else
-        puiseux_loop p acf pol₁)
+        (if zero_is_root pol₁ then End _ else
+         puiseux_loop p acf pol₁)
 (**)
 end
 (**)
