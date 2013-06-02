@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.318 2013-06-01 22:26:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.319 2013-06-02 11:36:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -434,6 +434,36 @@ Definition characteristic_polynomial (fld : field α _) pol ns :=
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |};
 
+CoFixpoint puiseux_loop psum acf (pol : polynomial (puiseux_series α)) :=
+  match newton_segments pol with
+  | [] =>
+      End _
+  | [ns :: nsl] =>
+(**)
+let nsl := if Q.eq psum Q.zero then [ns :: nsl] else List.filter (fun ns → Q.lt Q.zero (γ ns)) [ns :: nsl] in
+match nsl with
+| [] => End _
+| [ns :: _] =>
+(**)
+      let fld := ac_field acf in
+      let cpol := characteristic_polynomial fld pol ns in
+      let rl := ac_roots acf cpol in
+      let c := fst (List.hd rl) in
+      let pol₁ := f₁ fld pol (β ns) (γ ns) c in
+(**)
+let pol₁ := xy_float_round_zero pol₁ in
+(**)
+      let p := Qplus psum (γ ns) in
+      Term {| coeff := c; power := p |}
+(if zero_is_root pol₁ then End _ else
+        puiseux_loop p acf pol₁)
+(**)
+end
+(**)
+  end;
+
+Definition puiseux_root x := puiseux_loop Q.zero x;
+
 value rec puiseux_branch af br sol_list ns =
   let γ = ns.γ in
   let β = ns.β in
@@ -508,7 +538,22 @@ value print_line_equal () =
   else ()
 ;
 
+CoFixpoint series_series_take n s :=
+  match n with
+  | O => End _
+  | S n₁ =>
+      match s with
+      | Term a t => Term a (series_series_take n₁ t)
+      | End => End _
+      end
+  end;
+
 value puiseux af nb_steps vx vy pol =
+(*
+let r = puiseux_root af pol in
+let ops = ps2ops {ps_terms = series_series_take 5 r; ps_comden = I.one} in
+let _ = printf "puiseux : %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_field True vx ops) in
+*)
   let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
   else
