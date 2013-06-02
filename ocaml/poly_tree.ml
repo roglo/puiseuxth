@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.73 2013-05-31 03:59:40 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.74 2013-06-02 11:36:07 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -429,8 +429,10 @@ value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
 value tree_of_old_puiseux_series k ps =
   let rebuild_add t mx =
+(**)
     if k.eq mx.coeff k.zero then t
     else
+(**)
        let t₁ =
          if Q.eq mx.power Q.zero then Const mx.coeff
          else

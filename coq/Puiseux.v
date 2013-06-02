@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.571 2013-06-02 03:42:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.572 2013-06-02 11:36:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -359,7 +359,7 @@ Definition f₁ α (fld : field α) (f : polynomial (puiseux_series α)) β γ c
 Definition apply_polynomial α (fld : field α) :=
   apply_poly (λ x, x) (add fld) (mul fld).
 
-Record algeb_closed_field {α} :=
+Record algeb_closed_field α :=
   { ac_field : field α;
     ac_root : polynomial α → α;
     ac_prop : ∀ pol, degree pol ≥ 1
@@ -404,11 +404,11 @@ CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
       let cpol := characteristic_polynomial fld pol ns in
       let c := ac_root acf cpol in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
-      let p := psum + γ ns in
+      let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |} (puiseux_loop p acf pol₁)
   end.
 
-Definition puiseux α := @puiseux_loop α 0.
+Definition puiseux_root α := @puiseux_loop α 0.
 
 (* *)
 
