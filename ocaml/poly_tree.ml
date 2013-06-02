@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.75 2013-06-02 11:37:25 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.76 2013-06-02 19:51:49 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -431,29 +431,29 @@ value tree_of_old_puiseux_series k ps =
   let rebuild_add t mx =
     if k.eq mx.coeff k.zero then t
     else
-       let t₁ =
-         if Q.eq mx.power Q.zero then Const mx.coeff
-         else
-           let xp = xpower mx.power in
-           if k.eq mx.coeff k.one then xp
-           else if k.eq mx.coeff k.ext.minus_one then Neg xp
-           else Mult (Const mx.coeff) xp
-       in
-       let t₁ =
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Neg t₁
-         | None → t₁ ]
-       in
-       let t_is_null =
-         match t with
-         [ Const c → k.eq c k.zero
-         | _ → False ]
-       in
-       if t_is_null then t₁
-       else
-         match without_initial_neg k t₁ with
-         [ Some t₁ → Minus t t₁
-         | None → Plus t t₁ ]
+      let t₁ =
+        if Q.eq mx.power Q.zero then Const mx.coeff
+        else
+          let xp = xpower mx.power in
+          if k.eq mx.coeff k.one then xp
+          else if k.eq mx.coeff k.ext.minus_one then Neg xp
+          else Mult (Const mx.coeff) xp
+      in
+      let t₁ =
+        match without_initial_neg k t₁ with
+        [ Some t₁ → Neg t₁
+        | None → t₁ ]
+      in
+      let t_is_null =
+        match t with
+        [ Const c → k.eq c k.zero
+        | _ → False ]
+      in
+      if t_is_null then t₁
+      else
+        match without_initial_neg k t₁ with
+        [ Some t₁ → Minus t t₁
+        | None → Plus t t₁ ]
   in
   List.fold_left rebuild_add (Const k.zero) ps.old_ps_mon
 ;
