@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.570 2013-06-02 03:24:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.571 2013-06-02 03:42:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -365,8 +365,6 @@ Record algeb_closed_field {α} :=
     ac_prop : ∀ pol, degree pol ≥ 1
       → apply_polynomial ac_field pol (ac_root pol) = zero ac_field }.
 
-(* *)
-
 Definition nofq q := Z.to_nat (Qnum q).
 
 Fixpoint make_char_pol α (fld : field α) cdeg dcl n :=
@@ -398,15 +396,19 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |}.
 
-Definition f₁_of_f α acf (pol : polynomial (puiseux_series α)) :=
+CoFixpoint puiseux_loop α psum acf (pol : polynomial (puiseux_series α)) :=
   match newton_segments pol with
-  | [] => None
+  | [] => End _
   | [ns … _] =>
-      let cpol := characteristic_polynomial (ac_field acf) pol ns in
+      let fld := ac_field acf in
+      let cpol := characteristic_polynomial fld pol ns in
       let c := ac_root acf cpol in
-      let pol₁ := f₁ (ac_field acf) pol (β ns) (γ ns) c in
-      Some pol₁
+      let pol₁ := f₁ fld pol (β ns) (γ ns) c in
+      let p := psum + γ ns in
+      Term {| coeff := c; power := p |} (puiseux_loop p acf pol₁)
   end.
+
+Definition puiseux α := @puiseux_loop α 0.
 
 (* *)
 
