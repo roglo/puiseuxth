@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.76 2013-06-02 19:51:49 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.77 2013-06-02 20:08:32 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -427,9 +427,9 @@ let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_stri
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
-value tree_of_old_puiseux_series k ps =
+value tree_of_old_puiseux_series k cancel_zeroes ps =
   let rebuild_add t mx =
-    if k.eq mx.coeff k.zero then t
+    if cancel_zeroes && k.eq mx.coeff k.zero then t
     else
       let t₁ =
         if Q.eq mx.power Q.zero then Const mx.coeff
@@ -449,7 +449,7 @@ value tree_of_old_puiseux_series k ps =
         [ Const c → k.eq c k.zero
         | _ → False ]
       in
-      if t_is_null then t₁
+      if cancel_zeroes && t_is_null then t₁
       else
         match without_initial_neg k t₁ with
         [ Some t₁ → Minus t t₁
@@ -489,14 +489,14 @@ value rev_tree_of_polyn k pol =
   t
 ;
 
-value tree_of_ps_polyn k pol =
-  let cl = List.map (tree_of_old_puiseux_series k) pol.ml in
+value tree_of_ps_polyn k cancel_zeroes pol =
+  let cl = List.map (tree_of_old_puiseux_series k cancel_zeroes) pol.ml in
   tree_of_tree_polyn k {ml = cl}
 ;
 
 value normalise k t =
   let pol = ps_polyn_of_tree k t in
-  tree_of_ps_polyn k pol
+  tree_of_ps_polyn k True pol
 ;
 
 value sum_tree_of_tree t =

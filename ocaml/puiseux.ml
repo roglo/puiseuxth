@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.325 2013-06-02 19:29:17 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.326 2013-06-02 20:08:32 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -185,12 +185,12 @@ value cut_long at_middle s =
 ;
 
 value string_of_old_puiseux_series k opt vx ps =
-  let t = tree_of_old_puiseux_series k ps in
+  let t = tree_of_old_puiseux_series k True ps in
   string_of_tree k opt vx "?" t
 ;
 
 value airy_string_of_old_puiseux_series k opt vx pol =
-  let t = tree_of_old_puiseux_series k pol in
+  let t = tree_of_old_puiseux_series k True pol in
   airy_string_of_tree k opt vx "?" t
 ;
 
@@ -285,7 +285,7 @@ Definition float_round_zero fld ps :=
 
 value string_of_ps_polyn k opt vx vy pol =
   let pol = {ml = List.map ps2ops pol.al @ [ps2ops pol.an]} in
-  let t = tree_of_ps_polyn k pol in
+  let t = tree_of_ps_polyn k True (*False*) pol in
   string_of_tree k opt vx vy t
 ;
 
@@ -472,7 +472,9 @@ value puiseux_iteration fld br r m γ β sol_list = do {
   else ();
   let pol =
     let pol = f₁ fld br.pol β γ r in
+(**)
     xy_float_round_zero pol
+(**)
   in
   if verbose.val then
     let s = string_of_ps_polyn fld True br.vx br.vy pol in
