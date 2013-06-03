@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.331 2013-06-03 02:21:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.332 2013-06-03 02:45:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -283,9 +283,9 @@ Definition float_round_zero fld ps :=
   in
   {ps_terms = s; ps_comden = ps_comden ps};
 
-value string_of_ps_polyn k opt vx vy pol =
+value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
   let pol = {ml = List.map ps2ops pol.al @ [ps2ops pol.an]} in
-  let t = tree_of_ps_polyn k True (*False*) pol in
+  let t = tree_of_ps_polyn k cancel_zeroes pol in
   string_of_tree k opt vx vy t
 ;
 
@@ -482,7 +482,7 @@ value puiseux_iteration ps_fld fld br r m γ β sol_list = do {
 *)pol
   in
   if verbose.val then
-    let s = string_of_ps_polyn fld True br.vx br.vy pol in
+    let s = string_of_ps_polyn fld True True br.vx br.vy pol in
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
@@ -543,6 +543,7 @@ value rec puiseux_branch ps_fld af br sol_list ns =
       sol_list rl
 
 and next_step ps_fld af br sol_list pol cγl =
+  let ini_pol = pol in
 (**)
   let pol = xy_float_round_zero pol in
 (*
@@ -556,6 +557,13 @@ and next_step ps_fld af br sol_list pol cγl =
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
+      printf "ini_pol %s\n%!"
+        (string_of_ps_polyn af.ac_field True False "x" "y" ini_pol);
+      printf "    pol %s\n%!"
+        (string_of_ps_polyn af.ac_field True False "x" "y" pol);
+      printf "rnd_pol %s\n%!"
+        (string_of_ps_polyn af.ac_field True False "x" "y"
+           (xy_float_round_zero ini_pol));
       List.iter
         (fun ns →
            printf "γ %s β %s\n%!" (Q.to_string (γ ns)) (Q.to_string (β ns)))
