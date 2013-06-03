@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.334 2013-06-03 15:46:40 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.335 2013-06-03 19:02:06 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -25,8 +25,6 @@ value add fld = fld.add;
 value mul fld = fld.mul;
 value pos_to_nat x = x;
 
-type ps_ext = { valfun : puiseux_series C.t → option (ps_monomial C.t) };
-
 Record algeb_closed_field α β :=
   { ac_field : field α β;
     ac_roots : polynomial α → list (α * nat) };
@@ -40,16 +38,28 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
-Definition valuation valfun (ps : puiseux_series α) :=
-  match valfun ps with
-  | Some mx => power mx
-  | None => qinf
+value rec series_float_round_zero s =
+  match s with
+  | Term m t →
+      let t = Lazy.force t in
+      let c = C.float_round_zero m.coeff in
+      if C.eq c C.zero then series_float_round_zero t
+      else Term m (series_float_round_zero t)
+  | End → End
   end;
 
-Definition valuation_coeff fld valfun (ps : puiseux_series α) :=
+value valfun ps = (*ps_valfun*) (series_float_round_zero (ps_terms ps));
+
+Definition valuation (ps : puiseux_series α) :=
   match valfun ps with
-  | Some mx => coeff mx
-  | None => zero fld
+  | Term mx _ => power mx
+  | End => qinf
+  end;
+
+Definition valuation_coeff fld (ps : puiseux_series α) :=
+  match valfun ps with
+  | Term mx _ => coeff mx
+  | End => zero fld
   end;
 
 Definition slope_expr pt₁ pt₂ :=
@@ -122,22 +132,20 @@ Fixpoint all_points_of_ps_polynom pow psl (psn : puiseux_series α) :=
       [(Qnat pow, psn)]
   end;
 
-Fixpoint filter_non_zero_ps valfun (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_non_zero_ps (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
-      if Qeq_bool (valuation valfun ps) qinf then
-        filter_non_zero_ps valfun dpl₁
-      else
-        [(pow, valuation valfun ps) :: filter_non_zero_ps valfun dpl₁]
+      if Qeq_bool (valuation ps) qinf then filter_non_zero_ps dpl₁
+      else [(pow, valuation ps) :: filter_non_zero_ps dpl₁]
   | [] =>
       []
   end;
 
-Definition points_of_ps_polynom_gen valfun pow cl (cn : puiseux_series α) :=
-  filter_non_zero_ps valfun (all_points_of_ps_polynom pow cl cn);
+Definition points_of_ps_polynom_gen pow cl (cn : puiseux_series α) :=
+  filter_non_zero_ps (all_points_of_ps_polynom pow cl cn);
 
-Definition points_of_ps_polynom valfun (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_polynom_gen valfun 0%nat (al pol) (an pol);
+Definition points_of_ps_polynom (pol : polynomial (puiseux_series α)) :=
+  points_of_ps_polynom_gen 0%nat (al pol) (an pol);
 
 Definition newton_segment_of_pair hsj hsk :=
   let αj := snd (pt hsj) in
@@ -148,8 +156,8 @@ Definition newton_segment_of_pair hsj hsk :=
   let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
   mkns γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition newton_segments valfun (pol : polynomial (puiseux_series α)) :=
-  let gdpl := points_of_ps_polynom valfun pol in
+Definition newton_segments (pol : polynomial (puiseux_series α)) :=
+  let gdpl := points_of_ps_polynom pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl);
 
 value start_red = "\027[31m";
@@ -239,20 +247,6 @@ let _ := if f y then () else printf "[%s,%s]%!" (Q.to_string (power x)) (Q.to_st
             End _
         end
   | End => End _
-  end;
-
-CoFixpoint series_float_round_zero s :=
-  match s with
-  | Term m t =>
-      let c := C.float_round_zero m.coeff in
-      if C.eq c C.zero then
-(*
-let _ := printf "(%s)%!" (Q.to_string m.power) in
-*)
-        series_float_round_zero t
-      else
-        Term m (series_float_round_zero t)
-  | End => End
   end;
 
 Definition xy_float_round_zero (pol : polynomial (puiseux_series C.t)) :=
@@ -411,24 +405,22 @@ Fixpoint make_char_pol (fld : field α _) cdeg dcl n :=
       end
     end;
 
-Definition deg_coeff_of_point (fld : field α _) valfun pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point (fld : field α _) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
-  let c := valuation_coeff fld valfun ps in
+  let c := valuation_coeff fld ps in
   (h, c);
 
-Definition characteristic_polynomial (fld : field α _) valfun pol ns :=
-  let dcl :=
-    List.map (deg_coeff_of_point fld valfun pol) [ini_pt ns :: oth_pts ns] in
+Definition characteristic_polynomial (fld : field α _) pol ns :=
+  let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns :: oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff fld valfun kps |};
+  {| al := cl; an := valuation_coeff fld kps |};
 
-CoFixpoint puiseux_loop psum ps_fld acf valfun
-    (pol : polynomial (puiseux_series α)) :=
-  let nsl := newton_segments valfun pol in
+CoFixpoint puiseux_loop psum ps_fld acf (pol : polynomial (puiseux_series α)) :=
+  let nsl := newton_segments pol in
   let nsl :=
     if Qeq_bool psum Q.zero then nsl
     else List.filter (λ ns, negb (Qle_bool (γ ns) Q.zero)) nsl
@@ -437,7 +429,7 @@ CoFixpoint puiseux_loop psum ps_fld acf valfun
   | [] => End _
   | [ns :: _] =>
       let fld := ac_field acf in
-      let cpol := characteristic_polynomial fld valfun pol ns in
+      let cpol := characteristic_polynomial fld pol ns in
       let rl := ac_roots acf cpol in
       let c := fst (List.hd rl) in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
@@ -447,7 +439,7 @@ let pol₁ := xy_float_round_zero pol₁ in
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
         (if zero_is_root ps_fld pol₁ then End _
-         else puiseux_loop p ps_fld acf valfun pol₁)
+         else puiseux_loop p ps_fld acf pol₁)
   end;
 
 Definition puiseux_root x := puiseux_loop Q.zero x;
@@ -517,7 +509,6 @@ value rec puiseux_branch ps_fld af br sol_list ns =
   let k = nofq k in
   let dpl = ns.oth_pts in
   let fld = af.ac_field in
-  let valfun = ps_fld.ext.valfun in
   let ss = inf_string_of_string (string_of_int br.step) in
   let q = List.fold_left (fun q h → gcd q (nofq (fst h) - j)) (k - j) dpl in
   let _ =
@@ -532,7 +523,7 @@ value rec puiseux_branch ps_fld af br sol_list ns =
     }
     else ()
   in
-  let cpol = characteristic_polynomial fld valfun br.pol ns in
+  let cpol = characteristic_polynomial fld br.pol ns in
   let rl = ac_roots af cpol in
   if rl = [] then do {
     let sol = make_solution br.cγl in
@@ -562,7 +553,7 @@ and next_step ps_fld af br sol_list pol cγl =
     {al = cl; an = cn}
   in
 *)
-  let gbl = newton_segments ps_fld.ext.valfun pol in
+  let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -608,7 +599,7 @@ let r = puiseux_root af pol in
 let ops = ps2ops {ps_terms = series_series_take 5 r; ps_comden = I.one} in
 let _ = printf "puiseux : %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_field True vx ops) in
 *)
-  let gbl = newton_segments ps_fld.ext.valfun pol in
+  let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in
@@ -781,12 +772,6 @@ value arg_parse () =
     }
 ;
 
-CoFixpoint ps_valfun s :=
-  match s with
-  | Term m t => if C.eq (coeff m) C.zero then ps_valfun t else Some m
-  | End => None
-  end;
-
 value ps_fld =
   {zero = {ps_terms = End; ps_comden = I.one};
    one =
@@ -797,7 +782,7 @@ value ps_fld =
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
    is_zero ps = series_float_round_zero ps.ps_terms = End;
-   ext = {valfun ps = ps_valfun (series_float_round_zero (ps_terms ps))}}
+   ext = ()}
 ;
 
 value af_c () =
