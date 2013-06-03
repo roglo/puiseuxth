@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.336 2013-06-03 19:10:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.337 2013-06-03 19:13:03 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -229,37 +229,6 @@ Definition apply_poly_with_ps_poly (fld : field α _) pol :=
        (ps_add (add fld))
        (ps_mul (add fld) (mul fld)))
     pol;
-
-CoFixpoint series_semi_filter f s :=
-  match s with
-  | Term x t =>
-      if f x then Term x (series_semi_filter f t)
-      else
-        match t with
-        | Term y u =>
-(*
-let _ := if f y then () else printf "[%s,%s]%!" (Q.to_string (power x)) (Q.to_string (power y)) in
-*)
-            Term y (series_semi_filter f u)
-        | End =>
-            End _
-        end
-  | End => End _
-  end;
-
-Definition xy_float_round_zero (pol : polynomial (puiseux_series C.t)) :=
-  let cl :=
-    List.map
-      (λ ps,
-         let t := series_normal_form (ps_terms ps) in
-         {| ps_terms := t; ps_comden := ps_comden ps |})
-      (al pol)
-  in
-  let cn :=
-    let t := series_normal_form (ps_terms (an pol)) in
-    {| ps_terms := t; ps_comden := ps_comden (an pol) |}
-  in
-  {| al := cl; an := cn |};
 
 Definition float_round_zero fld ps :=
   let s :=
@@ -529,9 +498,6 @@ and next_step af br sol_list pol cγl =
     if verbose.val then do {
       printf "    pol %s\n%!"
         (string_of_ps_polyn af.ac_field True False "x" "y" pol);
-      printf "rnd_pol %s\n%!"
-        (string_of_ps_polyn af.ac_field True False "x" "y"
-           (xy_float_round_zero pol));
       List.iter
         (fun ns →
            printf "γ %s β %s\n%!" (Q.to_string (γ ns)) (Q.to_string (β ns)))
