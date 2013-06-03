@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.328 2013-06-02 20:51:22 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.329 2013-06-03 02:08:38 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -271,7 +271,7 @@ Definition float_round_zero fld ps :=
       match s with
       | Term m s₁ =>
           let c := fld.ext.float_round_zero (coeff m) in
-          if fld.eq c fld.zero then loop s₁
+          if fld.is_zero c then loop s₁
           else
             let m₁ := {coeff = c; power = power m} in
             Term m₁ (loop s₁)
@@ -359,7 +359,7 @@ Definition zero_is_root ps_fld (pol : polynomial (puiseux_series α)) :=
   | [] => false
   | [ps :: _] =>
 (**)
-      ps_fld.eq ps ps_fld.zero
+      ps_fld.is_zero ps
 (*
       match ps_terms ps with
       | Term _ _ => false
@@ -477,9 +477,9 @@ value puiseux_iteration ps_fld fld br r m γ β sol_list = do {
   else ();
   let pol =
     let pol = f₁ fld br.pol β γ r in
-(**)
+(*
     xy_float_round_zero pol
-(**)
+*)pol
   in
   if verbose.val then
     let s = string_of_ps_polyn fld True br.vx br.vy pol in
@@ -535,7 +535,7 @@ value rec puiseux_branch ps_fld af br sol_list ns =
   else
     List.fold_left
       (fun sol_list (r, m) →
-         if fld.eq r fld.zero then sol_list
+         if fld.is_zero r then sol_list
          else
            match puiseux_iteration ps_fld fld br r m γ β sol_list with
            [ Right (pol, cγl) → next_step ps_fld af br sol_list pol cγl
@@ -543,6 +543,9 @@ value rec puiseux_branch ps_fld af br sol_list ns =
       sol_list rl
 
 and next_step ps_fld af br sol_list pol cγl =
+(**)
+  let pol = xy_float_round_zero pol in
+(**)
   let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
@@ -603,7 +606,7 @@ let _ = printf "puiseux : %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_fie
 
 value is_zero_tree k =
   fun
-  [ Const c → k.eq k.zero c
+  [ Const c → k.is_zero c
   | _ → False ]
 ;
 
@@ -764,12 +767,8 @@ value ps_fld =
    neg _ = failwith "ps_fld.neg";
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
-   eq ps₁ ps₂ =
-     let t₁ = series_float_round_zero ps₁.ps_terms in
-     let t₂ = series_float_round_zero ps₂.ps_terms in
-     if t₁ = End then t₂ = End
-     else if t₂ = End then False
-     else failwith "ps_fld.eq";
+   is_zero ps = series_float_round_zero ps.ps_terms = End;
+   equal _ = failwith "ps_fld.equal";
    ext = ()}
 ;
 
@@ -786,7 +785,8 @@ value af_c () =
   in
   let fc =
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-     mul x y = C.normalise (C.mul x y); div = C.div; eq = C.eq; ext = ext}
+     mul x y = C.normalise (C.mul x y); div = C.div; is_zero = C.eq C.zero;
+     equal = C.eq; ext = ext}
   in
   {ac_field = fc; ac_roots = roots fc}
 ;
@@ -832,7 +832,7 @@ value af_mpfr () =
   in
   let fm =
     {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
-     mul = M.mul; div = M.div; eq = M.eq; ext = ext}
+     mul = M.mul; div = M.div; is_zero = M.eq M.zero; equal = M.eq; ext = ext}
   in
   {ac_field = fm; ac_roots = roots fm}
 ;

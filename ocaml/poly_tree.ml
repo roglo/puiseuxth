@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.77 2013-06-02 20:08:32 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.78 2013-06-03 02:08:38 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -44,7 +44,7 @@ value power_int k a b =
 value mult k t₁ t₂ =
   match (t₁, t₂) with
   [ (Const c₁, Const c₂) → Const (k.mul c₁ c₂)
-  | (Const c, t₂) → if k.eq c k.one then t₂ else Mult t₁ t₂
+  | (Const c, t₂) → if k.equal c k.one then t₂ else Mult t₁ t₂
   | (t₁, t₂) → Mult t₁ t₂ ]
 ;
 
@@ -285,12 +285,12 @@ value merge_const_px k m ml =
   [ [m₁ :: ml₁] →
       if Q.eq m.power m₁.power then
         let c = k.ext.normalise (k.add m.coeff m₁.coeff) in
-        if k.eq c k.zero then ml₁
+        if k.is_zero c then ml₁
         else [{coeff = c; power = m.power} :: ml₁]
-      else if k.eq m.coeff k.zero then ml
+      else if k.is_zero m.coeff then ml
       else [m :: ml]
   | [] →
-      if k.eq m.coeff k.zero then [] else [m] ]
+      if k.is_zero m.coeff then [] else [m] ]
 ;
 
 value group_term_descr k tdl =
@@ -344,7 +344,7 @@ value rec without_initial_neg k =
 
 value is_zero_tree k =
   fun
-  [ Const c → k.eq k.zero c
+  [ Const c → k.is_zero c
   | _ → False ]
 ;
 
@@ -363,7 +363,7 @@ value tree_of_tree_polyn k pol =
             in
             let t₂_is_one =
               match t₂ with
-              [ Const c → k.eq c k.one
+              [ Const c → k.equal c k.one
               | _ →  False ]
             in
             let t₂ =
@@ -373,7 +373,7 @@ value tree_of_tree_polyn k pol =
         in
         let t_is_null =
           match t₁ with
-          [ Const c → k.eq c k.zero
+          [ Const c → k.is_zero c
           | _ → False ]
         in
         if t_is_null then t₂
@@ -429,14 +429,14 @@ value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
 value tree_of_old_puiseux_series k cancel_zeroes ps =
   let rebuild_add t mx =
-    if cancel_zeroes && k.eq mx.coeff k.zero then t
+    if cancel_zeroes && k.is_zero mx.coeff then t
     else
       let t₁ =
         if Q.eq mx.power Q.zero then Const mx.coeff
         else
           let xp = xpower mx.power in
-          if k.eq mx.coeff k.one then xp
-          else if k.eq mx.coeff k.ext.minus_one then Neg xp
+          if k.equal mx.coeff k.one then xp
+          else if k.equal mx.coeff k.ext.minus_one then Neg xp
           else Mult (Const mx.coeff) xp
       in
       let t₁ =
@@ -446,7 +446,7 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
       in
       let t_is_null =
         match t with
-        [ Const c → k.eq c k.zero
+        [ Const c → k.is_zero c
         | _ → False ]
       in
       if cancel_zeroes && t_is_null then t₁
@@ -461,17 +461,17 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
 value rev_tree_of_polyn k pol =
   let rebuild_add (t, deg) m =
     let t =
-      if k.eq m k.zero then t
+      if k.is_zero m then t
       else
          let t₁ =
            if deg = 0 then Const m
-           else if k.eq m k.one then Ypower deg
-           else if k.eq m k.ext.minus_one then Neg (Ypower deg)
+           else if k.equal m k.one then Ypower deg
+           else if k.equal m k.ext.minus_one then Neg (Ypower deg)
            else Mult (Const m) (Ypower deg)
          in
          let t_is_null =
            match t with
-           [ Const c → k.eq c k.zero
+           [ Const c → k.is_zero c
            | _ → False ]
          in
          if t_is_null then t₁
@@ -566,7 +566,7 @@ value merge_old_coeffs k t₁ t₂ p ml =
   match (t₁, t₂) with
   [ (Const c₁, Const c₂) →
       let c = k.add c₁ c₂ in
-      if k.eq c k.zero then ml
+      if k.is_zero c then ml
       else [{old_coeff = Const c; old_power = p} :: ml]
   | _ →
       [{old_coeff = Plus t₂ t₁; old_power = p} :: ml ] ]
@@ -635,7 +635,7 @@ value merge_ps_coeffs k t₁ t₂ p ml =
   match (t₁, t₂) with
   [ (Const c₁, Const c₂) →
       let c = k.add c₁ c₂ in
-      if k.eq c k.zero then ml
+      if k.is_zero c then ml
       else [{coeff = Const c; power = p} :: ml]
   | _ →
       [{coeff = Plus t₂ t₁; power = p} :: ml ] ]

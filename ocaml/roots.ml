@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.82 2013-05-30 19:29:45 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.83 2013-06-03 02:08:38 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -432,7 +432,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       (fun r rnl →
          match rnl with
          [ [(r₁, n₁) :: rnl₁] →
-             if k.eq r r₁ then [(r₁, n₁+1) :: rnl₁]
+             if k.equal r r₁ then [(r₁, n₁+1) :: rnl₁]
              else [(r, 1) :: rnl]
          | [] → [(r, 1) :: rnl] ])
 (*
@@ -486,7 +486,7 @@ value roots k pol = do {
   let (power_gcd, _) =
     List.fold_left
       (fun (gp, deg) m →
-         let gp = if k.eq k.zero m then gp else gcd gp deg in
+         let gp = if k.is_zero m then gp else gcd gp deg in
          (gp, deg + 1))
       (0, 0) cl
   in
