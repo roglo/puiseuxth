@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.330 2013-06-03 02:11:33 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.331 2013-06-03 02:21:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -545,7 +545,13 @@ value rec puiseux_branch ps_fld af br sol_list ns =
 and next_step ps_fld af br sol_list pol cγl =
 (**)
   let pol = xy_float_round_zero pol in
-(**)
+(*
+  let pol =
+    let cl = List.fold_right (fun ps psl → if ps_fld.is_zero ps then psl else [ps :: psl]) (al pol) [] in
+    let cn = if ps_fld.is_zero (an pol) then failwith "zzz" else an pol in
+    {al = cl; an = cn}
+  in
+*)
   let gbl = newton_segments pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
