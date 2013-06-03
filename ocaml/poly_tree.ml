@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.79 2013-06-03 02:11:33 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.80 2013-06-03 03:45:34 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -444,18 +444,22 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
         [ Some t₁ → Neg t₁
         | None → t₁ ]
       in
-      let t_is_null =
+      let r =
         match t with
-        [ Const c → k.is_zero c
-        | _ → False ]
+        | Some t →
+            match without_initial_neg k t₁ with
+            | Some t₁ → Minus t t₁
+            | None → Plus t t₁
+            end
+        | None → t₁
+        end
       in
-      if cancel_zeroes && t_is_null then t₁
-      else
-        match without_initial_neg k t₁ with
-        [ Some t₁ → Minus t t₁
-        | None → Plus t t₁ ]
+      Some r
   in
-  List.fold_left rebuild_add (Const k.zero) ps.old_ps_mon
+  match List.fold_left rebuild_add None ps.old_ps_mon with
+  | Some t → t
+  | None → Const k.zero
+  end
 ;
 
 value rev_tree_of_polyn k pol =

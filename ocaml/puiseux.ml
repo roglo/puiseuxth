@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.332 2013-06-03 02:45:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.333 2013-06-03 03:45:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -40,8 +40,13 @@ value nofq q =
 
 Definition valuation (ps : puiseux_series α) :=
   match ps_terms ps with
-  | Term mx _ => power mx
-  | End => qinf
+  | Term mx _ =>
+(*
+      let _ := assert (not (C.eq (coeff mx) C.zero)) in
+*)
+      power mx
+  | End =>
+      qinf
   end;
 
 Definition valuation_coeff fld (ps : puiseux_series α) :=
