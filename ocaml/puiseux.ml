@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.338 2013-06-03 19:29:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.339 2013-06-03 20:42:50 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -31,7 +31,6 @@ Record algeb_closed_field α β :=
 
 Definition degree (pol : polynomial α) := List.length (al pol);
 
-value qinf = Q.make (I.of_int 1) (I.of_int 0);
 value qnat i = Q.of_i (I.of_int i);
 value nofq q =
   let r = I.to_int (Q.rnum q) in
@@ -49,8 +48,8 @@ value rec series_normal_form s =
 
 Definition valuation (ps : puiseux_series α) :=
   match series_normal_form (ps_terms ps) with
-  | Term mx _ => power mx
-  | End => qinf
+  | Term mx _ => Some (power mx)
+  | End => None
   end;
 
 Definition valuation_coeff fld (ps : puiseux_series α) :=
@@ -132,8 +131,10 @@ Fixpoint all_points_of_ps_polynom pow psl (psn : puiseux_series α) :=
 Fixpoint filter_non_zero_ps (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) :: dpl₁] =>
-      if Qeq_bool (valuation ps) qinf then filter_non_zero_ps dpl₁
-      else [(pow, valuation ps) :: filter_non_zero_ps dpl₁]
+      match valuation ps with
+      | Some v => [(pow, v) :: filter_non_zero_ps dpl₁]
+      | None => filter_non_zero_ps dpl₁
+      end
   | [] =>
       []
   end;
