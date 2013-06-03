@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.337 2013-06-03 19:13:03 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.338 2013-06-03 19:29:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -38,13 +38,12 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
+(* axiom *)
 value rec series_normal_form s =
   match s with
   | Term m t →
-      let t = Lazy.force t in
       let c = C.float_round_zero m.coeff in
-      if C.eq c C.zero then series_normal_form t
-      else Term m (series_normal_form t)
+      if C.eq c C.zero then series_normal_form (Lazy.force t) else s
   | End → End
   end;
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.12 2013-06-01 02:55:15 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.13 2013-06-03 19:25:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -21,8 +21,7 @@ Record field α :=
     add : α → α → α;
     sub : α → α → α;
     mul : α → α → α;
-    div : α → α → α;
-    is_zero : α → bool }.
+    div : α → α → α }.
 
 (* polynomial of degree ≥ 0 *)
 Record polynomial α := mkpol { al : list α; an : α }.
