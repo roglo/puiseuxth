@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.40 2013-06-03 02:08:38 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.41 2013-06-03 02:11:33 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -48,7 +48,7 @@ value print_term deg m = do {
 
 value kc () =
   let ext =
-    {minus_one = C.minus_one; compare _ = failwith "kc.compare";
+    {minus_one = C.minus_one; equal = C.eq; compare _ = failwith "kc.compare";
      gcd = C.gcd; normalise = C.normalise; nth_root = C.nth_root;
      neg_factor = C.neg_factor; of_i = C.of_i;
      of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
@@ -59,7 +59,7 @@ value kc () =
      cpoly_roots = C.cpoly_roots; complex_to_string = C.complex_to_string}
    in
   {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-   mul = C.mul; div = C.div; is_zero = C.eq C.zero; equal = C.eq; ext = ext}
+   mul = C.mul; div = C.div; is_zero = C.eq C.zero; ext = ext}
 ;
 
 value main () = do {

@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.78 2013-06-03 02:08:38 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.79 2013-06-03 02:11:33 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -44,7 +44,7 @@ value power_int k a b =
 value mult k t₁ t₂ =
   match (t₁, t₂) with
   [ (Const c₁, Const c₂) → Const (k.mul c₁ c₂)
-  | (Const c, t₂) → if k.equal c k.one then t₂ else Mult t₁ t₂
+  | (Const c, t₂) → if k.ext.equal c k.one then t₂ else Mult t₁ t₂
   | (t₁, t₂) → Mult t₁ t₂ ]
 ;
 
@@ -363,7 +363,7 @@ value tree_of_tree_polyn k pol =
             in
             let t₂_is_one =
               match t₂ with
-              [ Const c → k.equal c k.one
+              [ Const c → k.ext.equal c k.one
               | _ →  False ]
             in
             let t₂ =
@@ -435,8 +435,8 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
         if Q.eq mx.power Q.zero then Const mx.coeff
         else
           let xp = xpower mx.power in
-          if k.equal mx.coeff k.one then xp
-          else if k.equal mx.coeff k.ext.minus_one then Neg xp
+          if k.ext.equal mx.coeff k.one then xp
+          else if k.ext.equal mx.coeff k.ext.minus_one then Neg xp
           else Mult (Const mx.coeff) xp
       in
       let t₁ =
@@ -465,8 +465,8 @@ value rev_tree_of_polyn k pol =
       else
          let t₁ =
            if deg = 0 then Const m
-           else if k.equal m k.one then Ypower deg
-           else if k.equal m k.ext.minus_one then Neg (Ypower deg)
+           else if k.ext.equal m k.one then Ypower deg
+           else if k.ext.equal m k.ext.minus_one then Neg (Ypower deg)
            else Mult (Const m) (Ypower deg)
          in
          let t_is_null =

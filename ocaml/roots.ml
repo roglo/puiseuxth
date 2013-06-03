@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.83 2013-06-03 02:08:38 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.84 2013-06-03 02:11:33 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -432,7 +432,7 @@ value roots_of_polynom_with_float_coeffs k power_gcd pol = do {
       (fun r rnl →
          match rnl with
          [ [(r₁, n₁) :: rnl₁] →
-             if k.equal r r₁ then [(r₁, n₁+1) :: rnl₁]
+             if k.ext.equal r r₁ then [(r₁, n₁+1) :: rnl₁]
              else [(r, 1) :: rnl]
          | [] → [(r, 1) :: rnl] ])
 (*

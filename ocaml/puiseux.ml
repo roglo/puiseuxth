@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.329 2013-06-03 02:08:38 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.330 2013-06-03 02:11:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -768,13 +768,12 @@ value ps_fld =
    mul _ = failwith "ps_fld.mul";
    div _ = failwith "ps_fld.div";
    is_zero ps = series_float_round_zero ps.ps_terms = End;
-   equal _ = failwith "ps_fld.equal";
    ext = ()}
 ;
 
 value af_c () =
   let ext =
-    {minus_one = C.minus_one; compare = C.compare; gcd = C.gcd;
+    {minus_one = C.minus_one; equal = C.eq; compare = C.compare; gcd = C.gcd;
      normalise = C.normalise; nth_root = C.nth_root; neg_factor = C.neg_factor;
      of_i = C.of_i; of_q = C.of_q; of_a = C.of_a; of_complex = C.of_complex;
      of_float_string = C.of_float_string; to_q = C.to_q; to_a = C.to_a;
@@ -786,7 +785,7 @@ value af_c () =
   let fc =
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
      mul x y = C.normalise (C.mul x y); div = C.div; is_zero = C.eq C.zero;
-     equal = C.eq; ext = ext}
+     ext = ext}
   in
   {ac_field = fc; ac_roots = roots fc}
 ;
@@ -821,7 +820,7 @@ value af_ps af =
 
 value af_mpfr () =
   let ext =
-    {minus_one = M.minus_one; compare = M.compare; gcd = M.gcd;
+    {minus_one = M.minus_one; equal = M.eq; compare = M.compare; gcd = M.gcd;
      normalise = M.normalise; nth_root = M.nth_root; neg_factor = M.neg_factor;
      of_i = M.of_i; of_q = M.of_q; of_a = M.of_a; of_complex = M.of_complex;
      of_float_string = M.of_float_string; to_q = M.to_q; to_a = M.to_a;
@@ -832,7 +831,7 @@ value af_mpfr () =
   in
   let fm =
     {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
-     mul = M.mul; div = M.div; is_zero = M.eq M.zero; equal = M.eq; ext = ext}
+     mul = M.mul; div = M.div; is_zero = M.eq M.zero; ext = ext}
   in
   {ac_field = fm; ac_roots = roots fm}
 ;
