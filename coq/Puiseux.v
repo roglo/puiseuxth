@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.578 2013-06-04 03:29:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.579 2013-06-04 16:24:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -66,7 +66,7 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
 
 Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
-    fe_s₁ : series (ps_monomial α); fe_s₂ : series (ps_monomial α) }.
+    fe_s₁ : series (term α); fe_s₂ : series (term α) }.
 
 Fixpoint insert_ij α (fe : fifo_elem α) fel :=
   match fel with
@@ -92,11 +92,11 @@ Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
       end
   end.
 
-Definition sum_int_powers α comden (m₁ m₂ : ps_monomial α) :=
+Definition sum_int_powers α comden (m₁ m₂ : term α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
   Z.to_nat (Qnum q).
 
-Definition insert_ps_term α (mul_coeff : α → α → α) comden i j s₁ s₂ sl :=
+Definition insert_term α (mul_coeff : α → α → α) comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) =>
       let c := mul_coeff (coeff m₁) (coeff m₂) in
@@ -115,7 +115,7 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
   end.
 
 CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
-    series (ps_monomial α) :=
+    series (term α) :=
   match sum_fifo with
   | [] => End _
   | [(sum, []) … sl] => End _
@@ -129,7 +129,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
           (λ sl₁ fe,
              match fe_s₁ fe with
              | Term _ ls₁ =>
-                 insert_ps_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
+                 insert_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
                    ls₁ (fe_s₂ fe) sl₁
              | End => sl₁
              end)
@@ -140,7 +140,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
           (λ sl₂ fe,
              match fe_s₂ fe with
              | Term _ ls₂ =>
-                 insert_ps_term mul_coeff comden (fe_i fe) (S (fe_j fe))
+                 insert_term mul_coeff comden (fe_i fe) (S (fe_j fe))
                    (fe_s₁ fe) ls₂ sl₂
              | End => sl₂
              end)
@@ -317,7 +317,7 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match series_normal_form (ps_terms ps) with
+      match series_head (ps_terms ps) with
       | Term _ _ => false
       | End => true
       end

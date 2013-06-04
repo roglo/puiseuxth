@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.15 2013-06-04 02:55:37 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.16 2013-06-04 16:24:13 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -28,22 +28,35 @@ Record polynomial α := mkpol { al : list α; an : α }.
 
 Record Qpos := { x : Q; pos : x > 0 }.
 
-Record ps_monomial α := { coeff : α; power : Q }.
+Record term α := { coeff : α; power : Q }.
+
+(* [series_head] skip the possible terms with null coefficients and return
+   the sub-series of the initial series whose coefficient of the first term
+   is not null. E.g.: applied to
+       0+0x³+5x⁵+0x⁷+3x⁸+...
+   would return
+       5x⁵+0x⁷+3x⁸+...
+
+   Supposes axiomatically
+   - the decidability of equality of Puiseux series
+   - the decidability of equality of Puiseux terms coefficients.
+
+   Without this axiom, the root of a polynomial on Puiseux's series is not
+   computable (therefore proof not constructive). *)
+Axiom series_head : ∀ α, series (term α) → series (term α).
 
 Record puiseux_series α :=
-  { ps_terms : series (ps_monomial α);
+  { ps_terms : series (term α);
     ps_comden : nat }.
 
-Axiom series_normal_form : ∀ α, series α → series α.
-
 Definition valuation α (ps : puiseux_series α) :=
-  match series_normal_form (ps_terms ps) with
+  match series_head (ps_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
   end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match series_normal_form (ps_terms ps) with
+  match series_head (ps_terms ps) with
   | Term mx _ => coeff mx
   | End => zero fld
   end.
