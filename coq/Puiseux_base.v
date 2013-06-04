@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.14 2013-06-04 02:51:52 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.15 2013-06-04 02:55:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -34,7 +34,7 @@ Record puiseux_series α :=
   { ps_terms : series (ps_monomial α);
     ps_comden : nat }.
 
-Variable series_normal_form : ∀ α, series α → series α.
+Axiom series_normal_form : ∀ α, series α → series α.
 
 Definition valuation α (ps : puiseux_series α) :=
   match series_normal_form (ps_terms ps) with
