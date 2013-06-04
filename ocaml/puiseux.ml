@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.343 2013-06-04 09:39:49 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.344 2013-06-04 21:04:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -389,11 +389,19 @@ Definition characteristic_polynomial (fld : field α _) pol ns :=
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |};
 
-CoFixpoint puiseux_loop psum acf (pol : polynomial (puiseux_series α)) :=
+CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl := newton_segments pol in
-  let nsl :=
-    if Qeq_bool psum Q.zero then nsl
-    else List.filter (λ ns, negb (Qle_bool (γ ns) Q.zero)) nsl
+  let (nsl, psum) :=
+    match psumo with
+    | Some psum => (List.filter (λ ns, negb (Qle_bool (γ ns) Q.zero)) nsl, psum)
+    | None => (nsl, Q.zero)
+    end
+  in
+  let psum :=
+    match psumo with
+    | Some psum => psum
+    | None => Q.zero
+    end
   in
   match nsl with
   | [] => End _
@@ -405,11 +413,10 @@ CoFixpoint puiseux_loop psum acf (pol : polynomial (puiseux_series α)) :=
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
-        (if zero_is_root pol₁ then End _
-         else puiseux_loop p acf pol₁)
+        (if zero_is_root pol₁ then End _ else puiseux_loop (Some p) acf pol₁)
   end;
 
-Definition puiseux_root x := puiseux_loop Q.zero x;
+Definition puiseux_root x := puiseux_loop None x;
 
 CoFixpoint series_series_take n s :=
   match n with
