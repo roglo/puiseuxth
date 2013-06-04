@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.577 2013-06-04 02:54:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.578 2013-06-04 03:29:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -13,16 +13,6 @@ Require Import Series.
 Set Implicit Arguments.
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
-
-Fixpoint series_take α n (s : series α) :=
-  match n with
-  | O => []
-  | S n₁ =>
-      match s with
-      | Term x s₁ => [x … series_take n₁ s₁]
-      | End => []
-      end
-  end.
 
 (* Horner's algorithm *)
 Definition apply_poly α β γ
@@ -73,79 +63,6 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
   in
   {| ps_terms := loop (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := lcm (ps_comden ps₁) (ps_comden ps₂) |}.
-
-Inductive monom_search α :=
-  | Found : ps_monomial α → monom_search α
-  | Remaining : monom_search α
-  | Ended : monom_search α.
-
-Fixpoint find_monom α p (s : series (ps_monomial α)) n :=
-  match n with
-  | O => Ended _
-  | S n₁ =>
-      match s with
-      | Term t s₁ =>
-          match Qcompare (power t) p with
-          | Eq => Found t
-          | Lt => find_monom p s₁ n₁
-          | Gt => Remaining _
-          end
-      | End =>
-         Ended _
-      end
-  end.
-
-Definition scan_diag α (add_coeff : α → α → α) (mul_coeff : α → α → α)
-    minp₁c minp₂c comden s₁ s₂ :=
-  let fix loop_ij i j :=
-    let p₁ := (minp₁c + Z.of_nat i)%Z in
-    let p₂ := (minp₂c + Z.of_nat j)%Z in
-    let m₁o := find_monom (p₁ # Pos.of_nat comden) s₁ (S i) in
-    let m₂o := find_monom (p₂ # Pos.of_nat comden) s₂ (S j) in
-    let ms₁ :=
-      match m₁o with
-      | Found m₁ =>
-          match m₂o with
-          | Found m₂ =>
-              let c := mul_coeff (coeff m₁) (coeff m₂) in
-              let p := Qplus (power m₁) (power m₂) in
-              Found {| coeff := c; power := p |}
-          | Remaining => Remaining _
-          | Ended => Ended _
-          end
-      | Remaining =>
-          match m₂o with
-          | Found _ => Remaining _
-          | Remaining => Remaining _
-          | Ended => Ended _
-          end
-      | Ended => Ended _
-      end
-    in
-    match j with
-    | O => ms₁
-    | S j₁ =>
-        let ms₂ := loop_ij (S i) j₁ in
-        match ms₁ with
-        | Found m₁ =>
-            match ms₂ with
-            | Found m₂ =>
-                let c := add_coeff (coeff m₁) (coeff m₂) in
-                Found {| coeff := c; power := power m₁ |}
-            | Remaining => ms₁
-            | Ended => ms₁
-            end
-        | Remaining =>
-            match ms₂ with
-            | Found _ => ms₂
-            | Remaining => Remaining _
-            | Ended => Remaining _
-            end
-        | Ended => ms₂
-        end
-    end
-  in
-  loop_ij.
 
 Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
@@ -400,7 +317,7 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match ps_terms ps with
+      match series_normal_form (ps_terms ps) with
       | Term _ _ => false
       | End => true
       end

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.115 2013-06-02 19:29:17 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.116 2013-06-04 03:29:44 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -26,27 +26,6 @@ value bnat_compare i₁ i₂ =
   if c < 0 then Lt
   else if c = 0 then Eq
   else Gt
-;
-
-value merge_pow add_coeff is_null_coeff =
-  loop [] where rec loop rev_list =
-    fun
-    [ [m₁ :: ml₁] →
-        let rev_list₁ =
-          match rev_list with
-          [ [m₂ :: rev_list₂] →
-              if Q.compare m₁.power m₂.power = 0 then
-                let c = add_coeff m₁.coeff m₂.coeff in
-                if is_null_coeff c then rev_list₂
-                else [{coeff = c; power = m₁.power} :: rev_list₂]
-              else
-                [m₁ :: rev_list]
-          | [] →
-              [m₁] ]
-        in
-        loop rev_list₁ ml₁
-    | [] →
-        List.rev rev_list ]
 ;
 
 Definition ps_add (add_coeff : α → α → α) ps₁ ps₂ :=

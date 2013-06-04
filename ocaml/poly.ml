@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.58 2013-05-31 09:56:37 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.59 2013-06-04 03:29:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -39,7 +39,8 @@ Fixpoint insert_pol_term (add_coeff : α → α → α) c₁ p₁ ml :=
       end
   end;
 
-Fixpoint combine_pol add_coeff (mul_coeff : α → α → α) c₁ pow₁ pow₂ ml cn cl :=
+Fixpoint combine_pol add_coeff (mul_coeff : α → α → α) c₁ pow₁ pow₂ ml
+    cn cl :=
   let p := (pow₁ + pow₂)%nat in
   match cl with
   | [] =>
@@ -51,7 +52,8 @@ Fixpoint combine_pol add_coeff (mul_coeff : α → α → α) c₁ pow₁ pow₂
       combine_pol add_coeff mul_coeff c₁ pow₁ (S pow₂) ml cn cl₂
   end;
 
-Fixpoint mul_loop (add_coeff : α → α → α) mul_coeff ml pow₁ cn₂ cl₂ cn₁ cl₁ :=
+Fixpoint mul_loop (add_coeff : α → α → α) mul_coeff ml pow₁ cn₂ cl₂
+    cn₁ cl₁ :=
   match cl₁ with
   | [] => combine_pol add_coeff mul_coeff cn₁ pow₁ 0 ml cn₂ cl₂
   | [c :: cl] =>

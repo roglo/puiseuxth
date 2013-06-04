@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.340 2013-06-04 03:11:45 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.341 2013-06-04 03:29:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -322,7 +322,11 @@ value make_solution rev_cγl =
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
-  | [ps :: _] => series_normal_form (ps_terms ps) = End _
+  | [ps :: _] =>
+      match series_normal_form (ps_terms ps) with
+      | Term _ _ => false
+      | End => true
+      end
   end;
 
 Definition f₁ (fld : field α _) f β γ c :=
