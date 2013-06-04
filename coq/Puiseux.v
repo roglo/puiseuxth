@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.576 2013-06-02 19:29:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.577 2013-06-04 02:54:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -447,22 +447,22 @@ unfold points_of_ps_polynom_gen in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (Qeq_bool (valuation cn) qinf) as [Hz| Hnz].
-  subst pts; contradiction.
-
+ destruct (valuation cn) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| ]; [ subst pt; simpl | contradiction ].
   exists n; reflexivity.
 
- simpl in Hpts.
- destruct (Qeq_bool (valuation c) qinf) as [Hz| Hnz].
-  eapply IHcl; eassumption.
+  subst pts; contradiction.
 
+ simpl in Hpts.
+ destruct (valuation c) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| Hαh]; [ subst pt; simpl | idtac ].
    exists n; reflexivity.
 
    eapply IHcl in Hαh; [ assumption | reflexivity ].
+
+  eapply IHcl; eassumption.
 Qed.
 
 Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,

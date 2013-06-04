@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.13 2013-06-03 19:25:07 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.14 2013-06-04 02:51:52 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -34,16 +34,16 @@ Record puiseux_series α :=
   { ps_terms : series (ps_monomial α);
     ps_comden : nat }.
 
-Definition qinf := 1 / 0.
+Variable series_normal_form : ∀ α, series α → series α.
 
 Definition valuation α (ps : puiseux_series α) :=
-  match ps_terms ps with
-  | Term mx _ => power mx
-  | End => qinf
+  match series_normal_form (ps_terms ps) with
+  | Term mx _ => Some (power mx)
+  | End => None
   end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match ps_terms ps with
+  match series_normal_form (ps_terms ps) with
   | Term mx _ => coeff mx
   | End => zero fld
   end.
@@ -59,8 +59,10 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
 Fixpoint filter_non_zero_ps α (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
-      if Qeq_bool (valuation ps) qinf then filter_non_zero_ps dpl₁
-      else [(pow, valuation ps) … filter_non_zero_ps dpl₁]
+      match valuation ps with
+      | Some v => [(pow, v) … filter_non_zero_ps dpl₁]
+      | None => filter_non_zero_ps dpl₁
+      end
   | [] =>
       []
   end.
@@ -126,43 +128,42 @@ intros α deg cl cn pts Hpts.
 revert deg cn pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (Qeq_bool (valuation cn) qinf); subst pts; constructor; constructor.
+ destruct (valuation cn); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
  rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (Qeq_bool (valuation c) qinf) as [Heq| Hne].
-  eapply IHcl; eassumption.
+ destruct (valuation c); [ idtac | eapply IHcl; eassumption ].
+ remember (points_of_ps_polynom_gen (S deg) cl cn) as pts₁.
+ subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
+ clear IHcl.
+ clear c.
+ revert deg cn q pts Hpts.
+ induction cl as [| c₂]; intros.
+  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+  destruct (valuation cn).
+   subst pts.
+   apply Sorted_LocallySorted_iff.
+   constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
 
-  remember (points_of_ps_polynom_gen (S deg) cl cn) as pts₁.
-  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
-  clear IHcl.
-  revert c deg cn pts Hpts.
-  induction cl as [| c₂]; intros.
-   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   destruct (Qeq_bool (valuation cn) qinf) as [Heq| Hne].
-    subst pts; constructor; constructor.
+   subst pts; constructor; constructor.
 
-    subst pts.
-    apply Sorted_LocallySorted_iff.
-    constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
+  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
+  rewrite fold_points_of_ps_polynom_gen in Hpts.
+  destruct (valuation c₂) as [v₂| ].
+   subst pts.
+   apply Sorted_LocallySorted_iff.
+   constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].
+   apply Sorted_LocallySorted_iff.
+   eapply IHcl; reflexivity.
 
-   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-   rewrite fold_points_of_ps_polynom_gen in Hpts.
-   destruct (Qeq_bool (valuation c₂) qinf) as [Heq| Hne].
-    eapply IHcl with (c := c) in Hpts.
-    apply Sorted_LocallySorted_iff.
-    destruct pts as [| pt]; [ constructor | idtac ].
-    apply Sorted_LocallySorted_iff.
-    apply Sorted_inv_2 in Hpts.
-    destruct Hpts as (Hlt, Hpts).
-    apply Sorted_LocallySorted_iff.
-    apply Sorted_LocallySorted_iff in Hpts.
-    constructor; [ assumption | idtac ].
-    eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
-
-    subst pts.
-    apply Sorted_LocallySorted_iff.
-    constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].
-    apply Sorted_LocallySorted_iff.
-    eapply IHcl; reflexivity.
+   eapply IHcl with (q := q) in Hpts.
+   apply Sorted_LocallySorted_iff.
+   destruct pts as [| pt]; [ constructor | idtac ].
+   apply Sorted_LocallySorted_iff.
+   apply Sorted_inv_2 in Hpts.
+   destruct Hpts as (Hlt, Hpts).
+   apply Sorted_LocallySorted_iff.
+   apply Sorted_LocallySorted_iff in Hpts.
+   constructor; [ assumption | idtac ].
+   eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
 Qed.
