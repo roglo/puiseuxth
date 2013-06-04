@@ -1,18 +1,18 @@
-(* $Id: puiseux_series.mli,v 1.22 2013-06-04 09:19:28 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.23 2013-06-04 09:39:49 deraugla Exp $ *)
 
 open Pnums;
 
 type series α = [ Term of α and Lazy.t (series α) | End ];
 
-type ps_monomial α = { coeff : α; power : Q.t };
-value coeff : ps_monomial α → α;
-value power : ps_monomial α → Q.t;
+type term α = { coeff : α; power : Q.t };
+value coeff : term α → α;
+value power : term α → Q.t;
 
 type puiseux_series α =
-  { ps_terms : series (ps_monomial α);
+  { ps_terms : series (term α);
     ps_comden : I.t }
 ;
-value ps_terms : puiseux_series α → series (ps_monomial α);
+value ps_terms : puiseux_series α → series (term α);
 value ps_comden : puiseux_series α → I.t;
 
 value ps_add :
@@ -33,7 +33,7 @@ value qcompare : Q.t → Q.t → comparison;
 (* *)
 
 (* old version to be converted little by little: *)
-type old_ps α = { old_ps_mon : list (ps_monomial α) };
+type old_ps α = { old_ps_mon : list (term α) };
 
 value ps2ops : puiseux_series α → old_ps α;
 value ops2ps : old_ps α → puiseux_series α;

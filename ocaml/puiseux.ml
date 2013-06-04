@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.342 2013-06-04 09:19:28 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.343 2013-06-04 09:39:49 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -38,7 +38,7 @@ value nofq q =
 ;
 
 (* [series_head] skip the possible terms with null coefficients and return
-   the sub-series whose the coefficient of the first term is not null.
+   the sub-series whose the of the first term is not null.
    - may infinitely loop when the series have an infinite number of terms
      with null coefficient;
    - suppose that the comparison with 0 in the field of the coefficient is

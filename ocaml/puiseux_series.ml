@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.116 2013-06-04 03:29:44 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.117 2013-06-04 09:39:49 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -7,9 +7,9 @@ open Pnums;
 
 type series α = [ Term of α and Lazy.t (series α) | End ];
 
-Record ps_monomial α := { coeff : α; power : Q };
+Record term α := { coeff : α; power : Q };
 Record puiseux_series α :=
-  { ps_terms : series (ps_monomial α);
+  { ps_terms : series (term α);
     ps_comden : I.t };
 
 type comparison = [ Eq | Lt | Gt ];
@@ -93,7 +93,7 @@ CoFixpoint series_map (f : α → β) s :=
 
 Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
-    fe_s₁ : series (ps_monomial α); fe_s₂ : series (ps_monomial α) };
+    fe_s₁ : series (term α); fe_s₂ : series (term α) };
 
 Fixpoint insert_ij (fe : fifo_elem α) fel :=
   match fel with
@@ -119,11 +119,11 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
 
 value qnat n = Q.of_i n;
 
-Definition sum_int_powers comden (m₁ m₂ : ps_monomial α) :=
+Definition sum_int_powers comden (m₁ m₂ : term α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
   Qnum q;
 
-Definition insert_ps_term mul_coeff comden i j s₁ s₂ sl :=
+Definition insert_term mul_coeff comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) =>
       let c := mul_coeff (coeff m₁) (coeff m₂) in
@@ -142,7 +142,7 @@ Fixpoint add_coeff_list (add_coeff : α → α → α) c₁ fel₁ :=
   end;
 
 CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
-    series (ps_monomial α) :=
+    series (term α) :=
   match sum_fifo with
   | [] => End _
   | [(sum, []) :: sl] => End _
@@ -156,7 +156,7 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
           (λ sl₁ fe,
              match fe_s₁ fe with
              | Term _ s₁ =>
-                 insert_ps_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
+                 insert_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
                    s₁ (fe_s₂ fe) sl₁
              | End => sl₁
              end)
@@ -167,7 +167,7 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
           (λ sl₂ fe,
              match fe_s₂ fe with
              | Term _ s₂ =>
-                 insert_ps_term mul_coeff comden (fe_i fe) (S (fe_j fe))
+                 insert_term mul_coeff comden (fe_i fe) (S (fe_j fe))
                    (fe_s₁ fe) s₂ sl₂
              | End => sl₂
              end)
@@ -202,7 +202,7 @@ Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
 
 (**)
 
-type old_ps α = { old_ps_mon : list (ps_monomial α) };
+type old_ps α = { old_ps_mon : list (term α) };
 
 value ops2ps ops =
   let terms =
