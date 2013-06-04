@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.339 2013-06-03 20:42:50 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.340 2013-06-04 03:11:45 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -529,9 +529,12 @@ value print_line_equal () =
 
 value puiseux af nb_steps vx vy pol =
 (*
+let vv = verbose.val in
+let _ = verbose.val := False in
 let r = puiseux_root af pol in
-let ops = ps2ops {ps_terms = series_series_take 5 r; ps_comden = I.one} in
-let _ = printf "puiseux : %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_field True vx ops) in
+let ops = ps2ops {ps_terms = series_series_take 6 r; ps_comden = I.one} in
+let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_field True vx ops) in
+let _ = verbose.val := vv in
 *)
   let gbl = newton_segments pol in
   if gbl = [] then failwith "no finite γ value"
