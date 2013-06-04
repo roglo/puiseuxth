@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.341 2013-06-04 03:29:43 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.342 2013-06-04 09:19:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -37,23 +37,30 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
-(* axiom *)
-value rec series_normal_form s =
+(* [series_head] skip the possible terms with null coefficients and return
+   the sub-series whose the coefficient of the first term is not null.
+   - may infinitely loop when the series have an infinite number of terms
+     with null coefficient;
+   - suppose that the comparison with 0 in the field of the coefficient is
+     decidable.
+   Must be an axiom in the Coq version.
+   Here applied to the set C roughly corresponding the the complex numbers. *)
+value rec series_head s =
   match s with
   | Term m t →
       let c = C.float_round_zero m.coeff in
-      if C.eq c C.zero then series_normal_form (Lazy.force t) else s
+      if C.eq C.zero c then series_head (Lazy.force t) else s
   | End → End
   end;
 
 Definition valuation (ps : puiseux_series α) :=
-  match series_normal_form (ps_terms ps) with
+  match series_head (ps_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
   end;
 
 Definition valuation_coeff fld (ps : puiseux_series α) :=
-  match series_normal_form (ps_terms ps) with
+  match series_head (ps_terms ps) with
   | Term mx _ => coeff mx
   | End => zero fld
   end;
@@ -323,7 +330,7 @@ Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps :: _] =>
-      match series_normal_form (ps_terms ps) with
+      match series_head (ps_terms ps) with
       | Term _ _ => false
       | End => true
       end
