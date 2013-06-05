@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.345 2013-06-05 02:47:43 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.346 2013-06-05 02:50:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -226,11 +226,6 @@ value string_of_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
   in
   let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in
   string_of_tree fld opt vx "?" t ^ ellipses
-;
-
-value string_of_old_puiseux_series k opt vx ps =
-  let t = tree_of_old_puiseux_series k True ps in
-  string_of_tree k opt vx "?" t
 ;
 
 value airy_string_of_old_puiseux_series k opt vx pol =
