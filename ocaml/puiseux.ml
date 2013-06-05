@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.346 2013-06-05 02:50:04 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.347 2013-06-05 03:11:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -201,6 +201,16 @@ value cut_long at_middle s =
   else s
 ;
 
+CoFixpoint series_series_take n s :=
+  match n with
+  | O => End _
+  | S n₁ =>
+      match s with
+      | Term a t => Term a (series_series_take n₁ t)
+      | End => End _
+      end
+  end;
+
 Fixpoint series_take n s :=
   match n with
   | O => []
@@ -214,9 +224,10 @@ Fixpoint series_take n s :=
 value string_of_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
   let ps₂ =
     if nb_terms > 0 then
-      {old_ps_mon = series_take nb_terms ps.ps_terms}
+      {ps_terms = series_series_take nb_terms ps.ps_terms;
+       ps_comden = ps.ps_comden}
     else
-      ps2ops ps
+      ps
   in
   let ellipses =
     let ps = ps2ops ps in
@@ -224,12 +235,13 @@ value string_of_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
     else if List.length ps.old_ps_mon > nb_terms then " + ..."
     else ""
   in
-  let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in
+  let t = tree_of_old_puiseux_series fld cancel_zeroes (ps2ops ps₂) in
   string_of_tree fld opt vx "?" t ^ ellipses
 ;
 
-value airy_string_of_old_puiseux_series k opt vx pol =
-  let t = tree_of_old_puiseux_series k True pol in
+value airy_string_of_puiseux_series k opt vx ps =
+  let ps = ps2ops ps in
+  let t = tree_of_old_puiseux_series k True ps in
   airy_string_of_tree k opt vx "?" t
 ;
 
@@ -278,8 +290,7 @@ value print_solution fld br nth cγl finite sol = do {
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red else "")
     br.vy inf_nth
-    (airy_string_of_old_puiseux_series fld (not arg_lang.val) br.vx
-       (ps2ops sol))
+    (airy_string_of_puiseux_series fld (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red else "");
   match arg_eval_sol.val with
@@ -287,7 +298,7 @@ value print_solution fld br nth cγl finite sol = do {
       let ps = apply_poly_with_ps fld br.initial_polynom sol in
       let ps = float_round_zero fld ps in
       printf "f(%s,%s%s) = %s\n\n%!" br.vx br.vy inf_nth
-        (string_of_puiseux_series fld(not arg_lang.val) True br.vx
+        (string_of_puiseux_series fld (not arg_lang.val) True br.vx
            nb_terms ps)
   | None → ()
   end
@@ -418,16 +429,6 @@ CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
 
 Definition puiseux_root x := puiseux_loop None x;
 
-CoFixpoint series_series_take n s :=
-  match n with
-  | O => End _
-  | S n₁ =>
-      match s with
-      | Term a t => Term a (series_series_take n₁ t)
-      | End => End _
-      end
-  end;
-
 (* *)
 
 value puiseux_iteration fld br r m γ β sol_list = do {
@@ -550,8 +551,8 @@ value puiseux af nb_steps vx vy pol =
 let vv = verbose.val in
 let _ = verbose.val := False in
 let r = puiseux_root af pol in
-let ops = ps2ops {ps_terms = series_series_take 6 r; ps_comden = I.one} in
-let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_old_puiseux_series af.ac_field True vx ops) in
+let ps = {ps_terms = series_series_take 6 r; ps_comden = I.one} in
+let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
 let _ = verbose.val := vv in
 *)
   let gbl = newton_segments pol in
