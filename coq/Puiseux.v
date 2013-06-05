@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.581 2013-06-05 16:32:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.582 2013-06-05 18:31:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -343,7 +343,9 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
         (if zero_is_root pol₁ then End _ else puiseux_loop (Some p) acf pol₁)
   end.
 
-Definition puiseux_root α := @puiseux_loop α None.
+Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :=
+  {| ps_terms := puiseux_loop None acf pol; ps_comden := 1 |}.
+
 
 (* *)
 
@@ -351,6 +353,16 @@ Section field.
 
 Variable α : Type.
 Variable fld : field (puiseux_series α).
+
+Theorem zzz : ∀ acf pol r,
+  r = puiseux_root acf pol
+  → apply_polynomial fld pol r = zero fld.
+Proof.
+intros acf pol r Hr.
+subst r.
+bbb.
+
+(* *)
 
 Lemma pt_absc_is_nat : ∀ (pol : puis_ser_pol α) pts pt,
   points_of_ps_polynom pol = pts

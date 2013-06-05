@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.347 2013-06-05 03:11:46 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.348 2013-06-05 18:28:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -427,7 +427,8 @@ CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
         (if zero_is_root pol₁ then End _ else puiseux_loop (Some p) acf pol₁)
   end;
 
-Definition puiseux_root x := puiseux_loop None x;
+Definition puiseux_root acf (pol : polynomial (puiseux_series α)) :=
+  {| ps_terms := puiseux_loop None acf pol; ps_comden := I.one |};
 
 (* *)
 
@@ -551,7 +552,9 @@ value puiseux af nb_steps vx vy pol =
 let vv = verbose.val in
 let _ = verbose.val := False in
 let r = puiseux_root af pol in
-let ps = {ps_terms = series_series_take 6 r; ps_comden = I.one} in
+let ps =
+  {ps_terms = series_series_take 6 (ps_terms r); ps_comden = ps_comden r}
+in
 let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
 let _ = verbose.val := vv in
 *)
