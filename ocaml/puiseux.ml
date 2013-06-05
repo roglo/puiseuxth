@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.344 2013-06-04 21:04:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.345 2013-06-05 02:47:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -201,16 +201,6 @@ value cut_long at_middle s =
   else s
 ;
 
-value string_of_old_puiseux_series k opt vx ps =
-  let t = tree_of_old_puiseux_series k True ps in
-  string_of_tree k opt vx "?" t
-;
-
-value airy_string_of_old_puiseux_series k opt vx pol =
-  let t = tree_of_old_puiseux_series k True pol in
-  airy_string_of_tree k opt vx "?" t
-;
-
 Fixpoint series_take n s :=
   match n with
   | O => []
@@ -220,6 +210,33 @@ Fixpoint series_take n s :=
       | End => []
       end
   end;
+
+value string_of_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
+  let ps₂ =
+    if nb_terms > 0 then
+      {old_ps_mon = series_take nb_terms ps.ps_terms}
+    else
+      ps2ops ps
+  in
+  let ellipses =
+    let ps = ps2ops ps in
+    if nb_terms = 0 then ""
+    else if List.length ps.old_ps_mon > nb_terms then " + ..."
+    else ""
+  in
+  let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in
+  string_of_tree fld opt vx "?" t ^ ellipses
+;
+
+value string_of_old_puiseux_series k opt vx ps =
+  let t = tree_of_old_puiseux_series k True ps in
+  string_of_tree k opt vx "?" t
+;
+
+value airy_string_of_old_puiseux_series k opt vx pol =
+  let t = tree_of_old_puiseux_series k True pol in
+  airy_string_of_tree k opt vx "?" t
+;
 
 value norm fld f x y = fld.ext.normalise (f x y);
 
@@ -274,21 +291,9 @@ value print_solution fld br nth cγl finite sol = do {
   | Some nb_terms →
       let ps = apply_poly_with_ps fld br.initial_polynom sol in
       let ps = float_round_zero fld ps in
-      let ps₂ =
-        if nb_terms > 0 then
-          {old_ps_mon = series_take nb_terms ps.ps_terms}
-        else
-          ps2ops ps
-      in
-      let ellipses =
-        let ps = ps2ops ps in
-        if nb_terms = 0 then ""
-        else if List.length ps.old_ps_mon > nb_terms then " + ..."
-        else ""
-      in
-      printf "f(%s,%s%s) = %s%s\n\n%!" br.vx br.vy inf_nth
-        (string_of_old_puiseux_series fld (not arg_lang.val) br.vx ps₂)
-        ellipses
+      printf "f(%s,%s%s) = %s\n\n%!" br.vx br.vy inf_nth
+        (string_of_puiseux_series fld(not arg_lang.val) True br.vx
+           nb_terms ps)
   | None → ()
   end
 };
