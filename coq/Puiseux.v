@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.580 2013-06-04 21:04:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.581 2013-06-05 16:32:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -324,11 +324,11 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
   end.
 
 CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
-  let nsl := newton_segments pol in
+  let nsl₁ := newton_segments pol in
   let (nsl, psum) :=
     match psumo with
-    | Some psum => (List.filter (λ ns, negb (Qle_bool (γ ns) 0)) nsl, psum)
-    | None => (nsl, 0)
+    | Some psum => (List.filter (λ ns, negb (Qle_bool (γ ns) 0)) nsl₁, psum)
+    | None => (nsl₁, 0)
     end
   in
   match nsl with
