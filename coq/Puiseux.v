@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.582 2013-06-05 18:31:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.583 2013-06-06 09:45:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -346,21 +346,43 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
 Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :=
   {| ps_terms := puiseux_loop None acf pol; ps_comden := 1 |}.
 
+(*
+Definition ps_inv α (add_coeff : α → α → α) mul_coeff x :=
+  ...
+
+Definition ps_div α (add_coeff : α → α → α) mul_coeff x y :=
+  ps_mul add_coeff mul_coeff x (ps_inv y).
+*)
+
+Definition ps_zero α := {| ps_terms := End (term α); ps_comden := 1 |}.
+Definition ps_one α fld :=
+  {| ps_terms := Term {| coeff := one fld; power := 0 |} (End (term α));
+     ps_comden := 1 |}.
+Definition ps_add_fld α (fld : field α) x y := ps_add (add fld) x y.
+Definition ps_mul_fld α (fld : field α) x y := ps_mul (add fld) (mul fld) x y.
+
+Definition ps_fld α (fld : field α) :=
+  {| zero := ps_zero _;
+     one := ps_one fld;
+     add := ps_add_fld fld;
+     mul := ps_mul_fld fld |}.
 
 (* *)
+
+Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
+  r = puiseux_root acf pol
+  → apply_polynomial (ps_fld (ac_field acf)) pol r =
+    zero (ps_fld (ac_field acf)).
+Proof.
+intros α acf pol r Hr.
+subst r.
+unfold ps_fld; simpl.
+bbb.
 
 Section field.
 
 Variable α : Type.
 Variable fld : field (puiseux_series α).
-
-Theorem zzz : ∀ acf pol r,
-  r = puiseux_root acf pol
-  → apply_polynomial fld pol r = zero fld.
-Proof.
-intros acf pol r Hr.
-subst r.
-bbb.
 
 (* *)
 
