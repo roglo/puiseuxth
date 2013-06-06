@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.348 2013-06-05 18:28:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.349 2013-06-06 09:01:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -165,8 +165,8 @@ Definition newton_segments (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl);
 
-value start_red = "\027[31m";
-value end_red = "\027[m";
+value start_red () = if cut_long_strings.val then "" else "\027[31m";
+value end_red () = if cut_long_strings.val then "" else "\027[m";
 
 value arg_polynom = ref None;
 value arg_y = ref "y";
@@ -288,11 +288,11 @@ value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
 value print_solution fld br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
   printf "solution: %s%s%s = %s%s%s\n%!"
-    (if arg_eval_sol.val <> None || verbose.val then start_red else "")
+    (if arg_eval_sol.val <> None || verbose.val then start_red () else "")
     br.vy inf_nth
     (airy_string_of_puiseux_series fld (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
-    (if arg_eval_sol.val <> None || verbose.val then end_red else "");
+    (if arg_eval_sol.val <> None || verbose.val then end_red () else "");
   match arg_eval_sol.val with
   | Some nb_terms →
       let ps = apply_poly_with_ps fld br.initial_polynom sol in
