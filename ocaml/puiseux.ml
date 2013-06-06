@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.349 2013-06-06 09:01:22 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.350 2013-06-06 14:32:30 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -893,7 +893,7 @@ value main () = do {
           let fld = af.ac_field in
           let t = tree_of_ast fld vx vy p in
           let t = normalise fld t in
-          let norm_txt = string_of_tree fld True vx vy t in
+          let norm_txt = string_of_tree fld (not arg_lang.val) vx vy t in
           if verbose.val then do {
             printf "normalised:\n";
             printf "%s\n%!" norm_txt;
