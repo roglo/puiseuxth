@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.584 2013-06-06 13:08:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.585 2013-06-06 16:24:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -381,7 +381,7 @@ unfold ps_fld; simpl.
 unfold puiseux_root, apply_polynomial; simpl.
 destruct pol as (cl, cn).
 unfold apply_poly; simpl.
-destruct cl as [| c].
+destruct cl as [| c₁].
  unfold degree in Hdeg; simpl in Hdeg.
  exfalso; apply le_not_lt in Hdeg.
  apply Hdeg, lt_0_Sn.
