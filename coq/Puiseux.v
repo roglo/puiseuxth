@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.583 2013-06-06 09:45:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.584 2013-06-06 13:08:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -370,13 +370,23 @@ Definition ps_fld α (fld : field α) :=
 (* *)
 
 Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
-  r = puiseux_root acf pol
-  → apply_polynomial (ps_fld (ac_field acf)) pol r =
-    zero (ps_fld (ac_field acf)).
+  degree pol ≥ 1
+  → r = puiseux_root acf pol
+    → apply_polynomial (ps_fld (ac_field acf)) pol r =
+      zero (ps_fld (ac_field acf)).
 Proof.
-intros α acf pol r Hr.
+intros α acf pol r Hdeg Hr.
 subst r.
 unfold ps_fld; simpl.
+unfold puiseux_root, apply_polynomial; simpl.
+destruct pol as (cl, cn).
+unfold apply_poly; simpl.
+destruct cl as [| c].
+ unfold degree in Hdeg; simpl in Hdeg.
+ exfalso; apply le_not_lt in Hdeg.
+ apply Hdeg, lt_0_Sn.
+
+ clear Hdeg; simpl.
 bbb.
 
 Section field.
