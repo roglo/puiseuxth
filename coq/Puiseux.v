@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.585 2013-06-06 16:24:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.586 2013-06-06 19:06:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -368,6 +368,16 @@ Definition ps_fld α (fld : field α) :=
      mul := ps_mul_fld fld |}.
 
 (* *)
+
+CoFixpoint series_series_take α n (s : series α) :=
+  match n with
+  | O => End _
+  | S n₁ =>
+      match s with
+      | Term a t => Term a (series_series_take n₁ t)
+      | End => End _
+      end
+  end.
 
 Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
   degree pol ≥ 1
