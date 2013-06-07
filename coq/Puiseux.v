@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.586 2013-06-06 19:06:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.587 2013-06-07 02:33:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -397,6 +397,11 @@ destruct cl as [| c₁].
  apply Hdeg, lt_0_Sn.
 
  clear Hdeg; simpl.
+ remember (puiseux_loop None acf {| al := [c₁ … cl]; an := cn |}) as pl.
+ unfold ps_add_fld; simpl.
+ unfold ps_mul_fld; simpl.
+ remember (ac_field acf) as fld.
+ destruct pl as [(t, (n, d))| ].
 bbb.
 
 Section field.
