@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.589 2013-06-07 09:54:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.590 2013-06-07 14:15:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -388,7 +388,7 @@ CoFixpoint series_series_take α n (s : series α) :=
       end
   end.
 
-(*
+(**)
 Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
   degree pol ≥ 1
   → r = puiseux_root acf pol
@@ -397,21 +397,28 @@ Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
 Proof.
 intros α acf pol r Hdeg Hr.
 subst r.
-unfold ps_fld; simpl.
-unfold puiseux_root, apply_polynomial; simpl.
-destruct pol as (cl, cn).
-unfold apply_poly; simpl.
-destruct cl as [| c₁].
- unfold degree in Hdeg; simpl in Hdeg.
- exfalso; apply le_not_lt in Hdeg.
- apply Hdeg, lt_0_Sn.
-
- clear Hdeg; simpl.
- remember (puiseux_loop None acf {| al := [c₁ … cl]; an := cn |}) as pl.
- unfold ps_add_fld; simpl.
- unfold ps_mul_fld; simpl.
+remember (puiseux_root acf pol) as pr.
+remember (ps_terms pr) as sr.
+remember (series_hd sr) as shd.
+remember (series_tl sr) as stl.
+unfold puiseux_root in Heqpr.
+rewrite Heqpr in Heqsr.
+subst sr; simpl in Heqshd, Heqstl.
+remember (puiseux_step None acf pol) as pso.
+unfold puiseux_step in Heqpso.
+remember (newton_segments pol) as nsl.
+destruct nsl.
+ Focus 2.
  remember (ac_field acf) as fld.
- destruct pl as [(t, (n, d))| ].
+ remember (characteristic_polynomial fld pol n) as cpol.
+ remember (ac_root acf cpol) as cr.
+ destruct cr as (c, r).
+ subst pso; simpl in Heqshd, Heqstl.
+ rewrite surjective_pairing in Heqcr.
+ injection Heqcr; clear Heqcr; intros Heqr Heqc.
+ destruct r.
+  Focus 2.
+  induction r.
 bbb.
 *)
 
