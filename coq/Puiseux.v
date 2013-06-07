@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.591 2013-06-07 16:18:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.592 2013-06-07 22:06:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -408,6 +408,14 @@ remember (puiseux_step None acf pol) as pso.
 unfold puiseux_step in Heqpso.
 remember (newton_segments pol) as nsl.
 destruct nsl.
+ subst pso; simpl in Heqshd, Heqstl.
+ unfold newton_segments in Heqnsl.
+ symmetry in Heqnsl.
+ apply list_map_pairs_length in Heqnsl.
+ simpl in Heqnsl.
+ unfold lower_convex_hull_points in Heqnsl.
+bbb.
+
  Focus 2.
  remember (ac_field acf) as fld.
  remember (characteristic_polynomial fld pol n) as cpol.
