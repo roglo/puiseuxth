@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.590 2013-06-07 14:15:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.591 2013-06-07 16:18:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -418,7 +418,11 @@ destruct nsl.
  injection Heqcr; clear Heqcr; intros Heqr Heqc.
  destruct r.
   Focus 2.
-  induction r.
+  subst fld.
+  revert pol pr shd stl n nsl cpol c Hdeg Heqpr Heqnsl Heqshd Heqr Heqc
+   Heqcpol Heqstl.
+  induction r; intros.
+   Focus 2.
 bbb.
 *)
 
