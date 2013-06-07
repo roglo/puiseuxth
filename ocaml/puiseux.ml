@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.351 2013-06-06 19:06:06 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.352 2013-06-07 09:41:18 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -419,8 +419,7 @@ CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
   | [ns :: _] =>
       let fld := ac_field acf in
       let cpol := characteristic_polynomial fld pol ns in
-      let rl := ac_roots acf cpol in
-      let c := fst (List.hd rl) in
+      let (c, r) := List.hd (ac_roots acf cpol) in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}

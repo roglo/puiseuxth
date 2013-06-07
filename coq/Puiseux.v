@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.587 2013-06-07 02:33:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.588 2013-06-07 09:39:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -278,9 +278,9 @@ Definition apply_polynomial α (fld : field α) :=
 
 Record algeb_closed_field α :=
   { ac_field : field α;
-    ac_root : polynomial α → α;
+    ac_root : polynomial α → (α * nat);
     ac_prop : ∀ pol, degree pol ≥ 1
-      → apply_polynomial ac_field pol (ac_root pol) = zero ac_field }.
+      → apply_polynomial ac_field pol (fst (ac_root pol)) = zero ac_field }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -336,7 +336,7 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   | [ns … _] =>
       let fld := ac_field acf in
       let cpol := characteristic_polynomial fld pol ns in
-      let c := ac_root acf cpol in
+      let (c, r) := ac_root acf cpol in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Term {| coeff := c; power := p |}
@@ -379,6 +379,7 @@ CoFixpoint series_series_take α n (s : series α) :=
       end
   end.
 
+(*
 Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
   degree pol ≥ 1
   → r = puiseux_root acf pol
@@ -403,6 +404,7 @@ destruct cl as [| c₁].
  remember (ac_field acf) as fld.
  destruct pl as [(t, (n, d))| ].
 bbb.
+*)
 
 Section field.
 
@@ -619,7 +621,10 @@ Proof.
 intros acf pol cpol ns Hdeg Hpol.
 eapply cpol_degree in Hdeg; [ idtac | eassumption ].
 remember (ac_root acf cpol) as r.
-exists r; subst r.
+destruct r as (c, r).
+exists c.
+rewrite surjective_pairing in Heqr.
+injection Heqr; clear Heqr; intros; subst c.
 apply (ac_prop acf cpol Hdeg).
 Qed.
 
