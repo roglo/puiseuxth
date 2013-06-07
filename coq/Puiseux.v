@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.588 2013-06-07 09:39:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.589 2013-06-07 09:54:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -323,7 +323,7 @@ Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
       end
   end.
 
-CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
+Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments pol in
   let (nsl, psum) :=
     match psumo with
@@ -332,15 +332,24 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
     end
   in
   match nsl with
-  | [] => End _
+  | [] => None
   | [ns … _] =>
       let fld := ac_field acf in
       let cpol := characteristic_polynomial fld pol ns in
       let (c, r) := ac_root acf cpol in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
-      Term {| coeff := c; power := p |}
-        (if zero_is_root pol₁ then End _ else puiseux_loop (Some p) acf pol₁)
+      Some ({| coeff := c; power := p |}, pol₁)
+  end.
+
+CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
+  match puiseux_step psumo acf pol with
+  | Some (t, pol₁) =>
+      Term t
+        (if zero_is_root pol₁ then End _
+         else puiseux_loop (Some (power t)) acf pol₁)
+  | None =>
+      End _
   end.
 
 Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :=
