@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.599 2013-06-10 19:50:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.600 2013-06-10 19:59:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -77,10 +77,10 @@ intros α add_coeff ps₁ ps₂.
 rewrite series_eta; simpl.
 remember (ps_terms ps₁) as s₁; symmetry in Heqs₁.
 destruct s₁.
- rename t0 into t₁.
+ rename t into t₁.
  remember (ps_terms ps₂) as s₂; symmetry in Heqs₂.
  destruct s₂.
-  rename t0 into t₂.
+  rename t into t₂.
   remember (power t₁ ?= power t₂) as c.
   symmetry in Heqc.
   destruct c.
@@ -94,16 +94,20 @@ destruct s₁.
     inversion Hps₁.
      rename H0 into Hpd₁.
      rename H1 into Hsf₁.
-     injection H; clear H; intros; subst a t0.
+     injection H; clear H; intros; subst a t.
      unfold pow_den_div_com_den in Hpd₁.
      destruct Hpd₁ as (k₁, Hpd₁).
      rewrite <- Hpd₁.
      remember (Pos.to_nat (Qden (power t₁))) as x.
-     remember (lcm (k₁ * x) (ps_comden ps₂)) as cm.
+     remember (Nat.lcm (k₁ * x) (ps_comden ps₂)) as cm.
      symmetry in Heqcm.
-     unfold lcm in Heqcm.
-     simpl in Heqcm.
+     unfold Nat.lcm in Heqcm.
+     rewrite mult_comm, mult_assoc in Heqcm.
+     exists ((ps_comden ps₂ / gcd (k₁ * x) (ps_comden ps₂) * k₁))%nat.
+     assumption.
+
 bbb.
+     simpl.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
