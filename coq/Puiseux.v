@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.595 2013-06-10 12:02:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.596 2013-06-10 14:43:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -74,6 +74,8 @@ clear ps₁ ps₂.
 revert t₁ t₂ cd₁ cd₂ ps₁_prop ps₂_prop.
 cofix IHt.
 intros t₁ t₂ cd₁ cd₂ Hall₁ Hall₂.
+destruct t₁.
+ rename t into a₁.
 bbb.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
