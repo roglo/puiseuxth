@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.17 2013-06-06 09:45:13 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.18 2013-06-10 09:58:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -31,8 +31,6 @@ Record field α :=
 (* polynomial of degree ≥ 0 *)
 Record polynomial α := mkpol { al : list α; an : α }.
 
-Record Qpos := { x : Q; pos : x > 0 }.
-
 Record term α := { coeff : α; power : Q }.
 
 (* [series_head] skip the possible terms with null coefficients and return
@@ -50,9 +48,13 @@ Record term α := { coeff : α; power : Q }.
    computable (therefore proof not constructive). *)
 Axiom series_head : ∀ α, series (term α) → series (term α).
 
+Definition pow_den_div_com_den α comden (t : term α) :=
+  ∃ k, Pos.to_nat (Qden (power t)) = (k * comden)%nat.
+
 Record puiseux_series α :=
   { ps_terms : series (term α);
-    ps_comden : nat }.
+    ps_comden : nat;
+    ps_prop : series_forall (pow_den_div_com_den ps_comden) ps_terms }.
 
 Definition valuation α (ps : puiseux_series α) :=
   match series_head (ps_terms ps) with

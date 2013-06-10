@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.593 2013-06-10 09:18:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.594 2013-06-10 09:58:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,7 +62,8 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     end
   in
   {| ps_terms := loop (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := lcm (ps_comden ps₁) (ps_comden ps₂) |}.
+     ps_comden := lcm (ps_comden ps₁) (ps_comden ps₂);
+     ps_prop := 0 |}.
 
 Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
@@ -669,15 +670,22 @@ Fixpoint val_den_prod (psl : list (puiseux_series α)) :=
   end.
 
 (* common_denominator_in_polynomial *)
-Lemma zzz : ∀ (pol : polynomial (puiseux_series α)),
-  ∃ m, ∀ ps αi mi, ps ∈ [an pol … al pol]
+Lemma zzz : ∀ (psl : list (puiseux_series α)),
+  ∃ m, ∀ ps αi mi, ps ∈ psl
   → valuation ps = Some αi → ps_comden ps = mi
     → αi == Qnat mi / Qnat m.
 Proof.
-intros pol.
-remember (val_den_prod [an pol … al pol]) as m.
+intros psl.
+remember (val_den_prod psl) as m.
 exists m.
 intros ps αi mi Hps Hval Hcd.
+bbb.
+revert ps αi mi m Hps Hval Hcd Heqm.
+induction psl as [| ps₁]; [ contradiction | intros ].
+destruct Hps as [Hps| Hps].
+ subst ps₁.
+ simpl in Heqm.
+ rewrite Hval in Heqm.
 bbb.
 
 Theorem has_neg_slope : ∀ acf pol ns cpol (c : α) r pol₁,

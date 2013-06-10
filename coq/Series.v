@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.5 2013-06-02 19:29:17 deraugla Exp $ *)
+(* $Id: Series.v,v 1.6 2013-06-10 09:58:54 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -39,3 +39,9 @@ CoFixpoint series_map α β (f : α → β) s :=
   | Term a t => Term (f a) (series_map f t)
   | End => End _
   end.
+
+CoInductive series_forall α P (s : series α) : Prop :=
+  | TermAndFurther : ∀ a t,
+      s = Term a t → P a → series_forall P t → series_forall P s
+  | EndOk :
+      series_forall P s.
