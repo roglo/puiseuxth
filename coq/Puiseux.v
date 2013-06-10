@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.597 2013-06-10 14:54:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.598 2013-06-10 15:30:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -59,23 +59,53 @@ CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   | End => ms₂
   end.
 
+Lemma series_eta : ∀ α (s : series α),
+  s = (match s with Term t₁ s₁ => Term t₁ s₁ | End => End _ end).
+Proof.
+intros α s.
+destruct s; reflexivity.
+Qed.
+
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
   series_forall (pow_den_div_com_den (lcm (ps_comden ps₁) (ps_comden ps₂)))
     (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
 Proof.
-intros α add_coeff ps₁ ps₂.
-pose proof (ps_prop ps₁) as ps₁_prop.
-pose proof (ps_prop ps₂) as ps₂_prop.
-remember (ps_comden ps₁) as cd₁; clear Heqcd₁.
-remember (ps_comden ps₂) as cd₂; clear Heqcd₂.
-remember (ps_terms ps₁) as s₁; clear Heqs₁.
-remember (ps_terms ps₂) as s₂; clear Heqs₂.
-clear ps₁ ps₂.
-revert s₁ s₂ cd₁ cd₂ ps₁_prop ps₂_prop.
 cofix IHs.
-intros s₁ s₂ cd₁ cd₂ Hall₁ Hall₂.
+intros α add_coeff ps₁ ps₂.
+rewrite series_eta; simpl.
+remember (ps_terms ps₁) as s₁; symmetry in Heqs₁.
 destruct s₁.
  rename t into t₁.
+ remember (ps_terms ps₂) as s₂; symmetry in Heqs₂.
+ destruct s₂.
+  rename t into t₂.
+  remember (power t₁ ?= power t₂) as c.
+  symmetry in Heqc.
+  destruct c.
+   eapply TermAndFurther.
+    reflexivity.
+
+    apply Qeq_alt in Heqc.
+    unfold pow_den_div_com_den; simpl.
+    pose proof (ps_prop ps₁) as Hps₁.
+    rewrite Heqs₁ in Hps₁.
+    inversion Hps₁.
+     rename H0 into Hpd₁.
+     rename H1 into Hsf₁.
+     injection H; clear H; intros; subst a t.
+     unfold pow_den_div_com_den in Hpd₁.
+     destruct Hpd₁ as (k₁, Hpd₁).
+     rewrite <- Hpd₁.
+bbb.
+     pose proof (ps_prop ps₂) as Hps₂.
+     rewrite Heqs₂ in Hps₂.
+     inversion Hps₂.
+      rename H0 into Hpd₂.
+      rename H1 into Hsf₂.
+      injection H; clear H; intros; subst a t.
+      unfold pow_den_div_com_den in Hpd₂.
+      destruct Hpd₂ as (k₂, Hpd₂).
+      rewrite <- Hpd₂.
 bbb.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
