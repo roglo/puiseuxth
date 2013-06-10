@@ -1,5 +1,6 @@
-(* $Id: Lcm.v,v 1.1 2013-05-28 18:36:40 deraugla Exp $ *)
+(* $Id: Lcm.v,v 1.2 2013-06-10 19:50:58 deraugla Exp $ *)
 
+(*
 Require Import Utf8.
 Require Import Arith.
 
@@ -13,3 +14,4 @@ Fixpoint f_nlcm (n a b x y : nat) : nat :=
   end.
 
 Definition lcm (a b : nat) : nat := f_nlcm (a * b) a b a b.
+*)

@@ -1,13 +1,14 @@
-(* $Id: Puiseux.v,v 1.598 2013-06-10 15:30:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.599 2013-06-10 19:50:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorted.
+Require Import NPeano.
+
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux_base.
 Require Import Misc.
-Require Import Lcm.
 Require Import Series.
 
 Set Implicit Arguments.
@@ -67,7 +68,8 @@ destruct s; reflexivity.
 Qed.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
-  series_forall (pow_den_div_com_den (lcm (ps_comden ps₁) (ps_comden ps₂)))
+  series_forall
+    (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
     (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
 Proof.
 cofix IHs.
@@ -75,10 +77,10 @@ intros α add_coeff ps₁ ps₂.
 rewrite series_eta; simpl.
 remember (ps_terms ps₁) as s₁; symmetry in Heqs₁.
 destruct s₁.
- rename t into t₁.
+ rename t0 into t₁.
  remember (ps_terms ps₂) as s₂; symmetry in Heqs₂.
  destruct s₂.
-  rename t into t₂.
+  rename t0 into t₂.
   remember (power t₁ ?= power t₂) as c.
   symmetry in Heqc.
   destruct c.
@@ -92,26 +94,21 @@ destruct s₁.
     inversion Hps₁.
      rename H0 into Hpd₁.
      rename H1 into Hsf₁.
-     injection H; clear H; intros; subst a t.
+     injection H; clear H; intros; subst a t0.
      unfold pow_den_div_com_den in Hpd₁.
      destruct Hpd₁ as (k₁, Hpd₁).
      rewrite <- Hpd₁.
-bbb.
-     pose proof (ps_prop ps₂) as Hps₂.
-     rewrite Heqs₂ in Hps₂.
-     inversion Hps₂.
-      rename H0 into Hpd₂.
-      rename H1 into Hsf₂.
-      injection H; clear H; intros; subst a t.
-      unfold pow_den_div_com_den in Hpd₂.
-      destruct Hpd₂ as (k₂, Hpd₂).
-      rewrite <- Hpd₂.
+     remember (Pos.to_nat (Qden (power t₁))) as x.
+     remember (lcm (k₁ * x) (ps_comden ps₂)) as cm.
+     symmetry in Heqcm.
+     unfold lcm in Heqcm.
+     simpl in Heqcm.
 bbb.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
   {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := lcm (ps_comden ps₁) (ps_comden ps₂);
+     ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂);
      ps_prop := ps_prop_add add_coeff ps₁ ps₂ |}.
 
 Record fifo_elem α :=
