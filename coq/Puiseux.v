@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.594 2013-06-10 09:58:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.595 2013-06-10 12:02:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,34 +36,51 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
+CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
+  match ms₁ with
+  | Term c₁ s₁ =>
+      let cofix loop₁ ms₂ :=
+        match ms₂ with
+        | Term c₂ s₂ =>
+            match Qcompare (power c₁) (power c₂) with
+            | Eq =>
+                let c := add_coeff (coeff c₁) (coeff c₂) in
+                let m := {| coeff := c; power := power c₁ |} in
+                Term m (ps_add_loop add_coeff s₁ s₂)
+            | Lt =>
+                Term c₁ (ps_add_loop add_coeff s₁ ms₂)
+            | Gt =>
+                Term c₂ (loop₁ s₂)
+            end
+        | End => ms₁
+        end
+      in
+      loop₁ ms₂
+  | End => ms₂
+  end.
+
+Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
+  series_forall (pow_den_div_com_den (lcm (ps_comden ps₁) (ps_comden ps₂)))
+    (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
+Proof.
+intros α add_coeff ps₁ ps₂.
+pose proof (ps_prop ps₁) as ps₁_prop.
+pose proof (ps_prop ps₂) as ps₂_prop.
+remember (ps_comden ps₁) as cd₁; clear Heqcd₁.
+remember (ps_comden ps₂) as cd₂; clear Heqcd₂.
+remember (ps_terms ps₁) as t₁; clear Heqt₁.
+remember (ps_terms ps₂) as t₂; clear Heqt₂.
+clear ps₁ ps₂.
+revert t₁ t₂ cd₁ cd₂ ps₁_prop ps₂_prop.
+cofix IHt.
+intros t₁ t₂ cd₁ cd₂ Hall₁ Hall₂.
+bbb.
+
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
-  let cofix loop ms₁ ms₂ :=
-    match ms₁ with
-    | Term c₁ s₁ =>
-        let cofix loop₁ ms₂ :=
-          match ms₂ with
-          | Term c₂ s₂ =>
-              match Qcompare (power c₁) (power c₂) with
-              | Eq =>
-                  let c := add_coeff (coeff c₁) (coeff c₂) in
-                  let m := {| coeff := c; power := power c₁ |} in
-                  Term m (loop s₁ s₂)
-              | Lt =>
-                  Term c₁ (loop s₁ ms₂)
-              | Gt =>
-                  Term c₂ (loop₁ s₂)
-              end
-          | End => ms₁
-          end
-        in
-        loop₁ ms₂
-    | End => ms₂
-    end
-  in
-  {| ps_terms := loop (ps_terms ps₁) (ps_terms ps₂);
+  {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := lcm (ps_comden ps₁) (ps_comden ps₂);
-     ps_prop := 0 |}.
+     ps_prop := ps_prop_add add_coeff ps₁ ps₂ |}.
 
 Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
