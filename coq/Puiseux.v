@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.592 2013-06-07 22:06:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.593 2013-06-10 09:18:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -388,7 +388,7 @@ CoFixpoint series_series_take α n (s : series α) :=
       end
   end.
 
-(**)
+(*
 Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
   degree pol ≥ 1
   → r = puiseux_root acf pol
@@ -655,5 +655,38 @@ rewrite surjective_pairing in Heqr.
 injection Heqr; clear Heqr; intros; subst c.
 apply (ac_prop acf cpol Hdeg).
 Qed.
+
+(* *)
+
+Fixpoint val_den_prod (psl : list (puiseux_series α)) :=
+  match psl with
+  | [] => 1%nat
+  | [ps₁ … psl₁] =>
+      match valuation ps₁ with
+      | Some v => (pos_to_nat (Qden v) * val_den_prod psl₁)%nat
+      | None => val_den_prod psl₁
+      end
+  end.
+
+(* common_denominator_in_polynomial *)
+Lemma zzz : ∀ (pol : polynomial (puiseux_series α)),
+  ∃ m, ∀ ps αi mi, ps ∈ [an pol … al pol]
+  → valuation ps = Some αi → ps_comden ps = mi
+    → αi == Qnat mi / Qnat m.
+Proof.
+intros pol.
+remember (val_den_prod [an pol … al pol]) as m.
+exists m.
+intros ps αi mi Hps Hval Hcd.
+bbb.
+
+Theorem has_neg_slope : ∀ acf pol ns cpol (c : α) r pol₁,
+  ns ∈ newton_segments pol
+  → cpol = characteristic_polynomial (ac_field acf) pol ns
+    → (c, r) = ac_root acf cpol
+      → pol₁ = f₁ (ac_field acf) pol (β ns) (γ ns) c
+        → ∃ ns₁, ns₁ ∈ newton_segments pol₁ → γ ns₁ > 0.
+Proof.
+bbb.
 
 End field.
