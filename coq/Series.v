@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.6 2013-06-10 09:58:54 deraugla Exp $ *)
+(* $Id: Series.v,v 1.7 2013-06-10 12:29:07 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -44,4 +44,4 @@ CoInductive series_forall α P (s : series α) : Prop :=
   | TermAndFurther : ∀ a t,
       s = Term a t → P a → series_forall P t → series_forall P s
   | EndOk :
-      series_forall P s.
+      s = End _ → series_forall P s.
