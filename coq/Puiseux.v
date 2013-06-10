@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.596 2013-06-10 14:43:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.597 2013-06-10 14:54:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -68,14 +68,14 @@ pose proof (ps_prop ps₁) as ps₁_prop.
 pose proof (ps_prop ps₂) as ps₂_prop.
 remember (ps_comden ps₁) as cd₁; clear Heqcd₁.
 remember (ps_comden ps₂) as cd₂; clear Heqcd₂.
-remember (ps_terms ps₁) as t₁; clear Heqt₁.
-remember (ps_terms ps₂) as t₂; clear Heqt₂.
+remember (ps_terms ps₁) as s₁; clear Heqs₁.
+remember (ps_terms ps₂) as s₂; clear Heqs₂.
 clear ps₁ ps₂.
-revert t₁ t₂ cd₁ cd₂ ps₁_prop ps₂_prop.
-cofix IHt.
-intros t₁ t₂ cd₁ cd₂ Hall₁ Hall₂.
-destruct t₁.
- rename t into a₁.
+revert s₁ s₂ cd₁ cd₂ ps₁_prop ps₂_prop.
+cofix IHs.
+intros s₁ s₂ cd₁ cd₂ Hall₁ Hall₂.
+destruct s₁.
+ rename t into t₁.
 bbb.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
