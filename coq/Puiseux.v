@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.603 2013-06-11 02:45:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.604 2013-06-11 02:51:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -100,6 +100,26 @@ destruct s₁.
 
      apply series_forall_inv in Hps₂.
      destruct Hps₂; assumption.
+
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+    apply series_forall_inv in Hps₁.
+    destruct Hps₁ as (Hpd₁, Hsf₁).
+    unfold pow_den_div_com_den in Hpd₁ |- *.
+    destruct Hpd₁ as (k₁, Hpd₁).
+    rewrite <- Hpd₁.
+    remember (Pos.to_nat (Qden (power t₁))) as x.
+    remember (Nat.lcm (k₁ * x) cd₂) as cm.
+    symmetry in Heqcm.
+    unfold Nat.lcm in Heqcm.
+    rewrite mult_comm, mult_assoc in Heqcm.
+    exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
+    assumption.
+
+    apply IHs.
+     apply series_forall_inv in Hps₁.
+     destruct Hps₁; assumption.
+
+     assumption.
 bbb.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
