@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.614 2013-06-11 15:23:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.615 2013-06-11 18:18:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -306,34 +306,46 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
       Term m (series_mul α add_coeff mul_coeff comden sl₂)
   end.
 
-Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) ps₁ ps₂ :=
-  let comden := mult (ps_comden ps₁) (ps_comden ps₂) in
-  match ps_terms ps₁ with
+Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd₁ cd₂ :=
+  match s₁ with
   | Term m₁ _ =>
-      match ps_terms ps₂ with
+      match s₂ with
       | Term m₂ _ =>
           let c := mul_coeff (coeff m₁) (coeff m₂) in
           let p := Qred (Qplus (power m₁) (power m₂)) in
           let fe :=
             {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
-               fe_s₁ := ps_terms ps₁; fe_s₂ := ps_terms ps₂ |}
+               fe_s₁ := s₁; fe_s₂ := s₂ |}
           in
-          series_mul add_coeff mul_coeff comden
-            [(sum_int_powers comden m₁ m₂, [fe])]
+          series_mul add_coeff mul_coeff (mult cd₁ cd₂)
+            [(sum_int_powers (mult cd₁ cd₂) m₁ m₂, [fe])]
       | End => End _
       end
   | End => End _
   end.
 
+Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
+  series_forall (pow_den_div_com_den cd₁) s₁
+  → series_forall (pow_den_div_com_den cd₂) s₂
+    → series_forall (pow_den_div_com_den (cd₁ * cd₂))
+        (ps_mul_term add_coeff mul_coeff s₁ s₂ cd₁ cd₂).
+Proof.
+bbb.
+*)
+
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
   series_forall (pow_den_div_com_den (ps_comden ps₁ * ps_comden ps₂))
-    (ps_mul_term add_coeff mul_coeff ps₁ ps₂).
+    (ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂)
+       (ps_comden ps₁) (ps_comden ps₂)).
 Proof.
 intros α add_coeff mul_coeff ps₁ ps₂.
-bbb.
+apply series_forall_mul; [ apply (ps_prop ps₁) | apply (ps_prop ps₂) ].
+Qed.
 
 Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
-  {| ps_terms := ps_mul_term add_coeff mul_coeff ps₁ ps₂;
+  {| ps_terms :=
+       ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂)
+         (ps_comden ps₁) (ps_comden ps₂);
      ps_comden := mult (ps_comden ps₁) (ps_comden ps₂);
      ps_prop := ps_prop_mul add_coeff mul_coeff ps₁ ps₂ |}.
 
