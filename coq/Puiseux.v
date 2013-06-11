@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.613 2013-06-11 15:08:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.614 2013-06-11 15:23:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -329,6 +329,7 @@ Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps�
   series_forall (pow_den_div_com_den (ps_comden ps₁ * ps_comden ps₂))
     (ps_mul_term add_coeff mul_coeff ps₁ ps₂).
 Proof.
+intros α add_coeff mul_coeff ps₁ ps₂.
 bbb.
 
 Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
