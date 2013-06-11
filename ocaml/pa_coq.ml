@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.38 2013-06-02 13:43:27 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.39 2013-06-11 15:15:31 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -82,7 +82,7 @@ EXTEND
     [ [ i = GIDENT -> (<:vala< Some (greek_ascii_equiv i) >>, None) ] ]
   ;
   coq_binding:
-    [ [ p = ipatt; e = coq_fun_binding → (p, e) ] ]
+    [ [ p = ipatt; LIST0 GIDENT; e = coq_fun_binding → (p, e) ] ]
   ;
   coq_fun_binding:
     [ RIGHTA

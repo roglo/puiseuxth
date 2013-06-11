@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.353 2013-06-07 09:54:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.354 2013-06-11 15:15:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -201,7 +201,7 @@ value cut_long at_middle s =
   else s
 ;
 
-CoFixpoint series_series_take n (s : series α) :=
+CoFixpoint series_series_take α n (s : series α) :=
   match n with
   | O => End _
   | S n₁ =>

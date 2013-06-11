@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.118 2013-06-11 06:32:40 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.119 2013-06-11 15:15:31 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -174,29 +174,28 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
       Term m (series_mul add_coeff mul_coeff comden sl₂)
   end;
 
-Definition ps_mul add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
-  let s₁ := ps_terms ps₁ in
-  let s₂ := ps_terms ps₂ in
+Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) ps₁ ps₂ :=
   let comden := mult (ps_comden ps₁) (ps_comden ps₂) in
-  let t :=
-    match s₁ with
-    | Term m₁ _ =>
-        match s₂ with
-        | Term m₂ _ =>
-            let c := mul_coeff (coeff m₁) (coeff m₂) in
-            let p := Qred (Qplus (power m₁) (power m₂)) in
-            let fe :=
-              {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
-                 fe_s₁ := s₁; fe_s₂ := s₂ |}
-            in
-            series_mul add_coeff mul_coeff comden
-              [(sum_int_powers comden m₁ m₂, [fe])]
-        | End => End _
-        end
-    | End => End _
-    end
-  in
-  {| ps_terms := t; ps_comden := comden |};
+  match ps_terms ps₁ with
+  | Term m₁ _ =>
+      match ps_terms ps₂ with
+      | Term m₂ _ =>
+          let c := mul_coeff (coeff m₁) (coeff m₂) in
+          let p := Qred (Qplus (power m₁) (power m₂)) in
+          let fe :=
+            {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
+               fe_s₁ := ps_terms ps₁; fe_s₂ := ps_terms ps₂ |}
+          in
+          series_mul add_coeff mul_coeff comden
+            [(sum_int_powers comden m₁ m₂, [fe])]
+      | End => End _
+      end
+  | End => End _
+  end;
+
+Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
+  {| ps_terms := ps_mul_term add_coeff mul_coeff ps₁ ps₂;
+     ps_comden := mult (ps_comden ps₁) (ps_comden ps₂) |};
 
 (**)
 
