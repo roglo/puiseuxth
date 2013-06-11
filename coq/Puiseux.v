@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.600 2013-06-10 19:59:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.601 2013-06-11 01:37:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -72,25 +72,30 @@ Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
     (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
     (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
 Proof.
-cofix IHs.
 intros α add_coeff ps₁ ps₂.
+pose proof (ps_prop ps₁) as Hps₁.
+pose proof (ps_prop ps₂) as Hps₂.
+remember (ps_comden ps₁) as cd₁.
+remember (ps_comden ps₂) as cd₂.
+remember (ps_terms ps₁) as s₁.
+remember (ps_terms ps₂) as s₂.
+clear ps₁ ps₂ Heqcd₁ Heqcd₂ Heqs₁ Heqs₂.
+revert cd₁ cd₂ s₁ s₂ Hps₁ Hps₂.
+cofix IHs.
+intros.
 rewrite series_eta; simpl.
-remember (ps_terms ps₁) as s₁; symmetry in Heqs₁.
 destruct s₁.
  rename t into t₁.
- remember (ps_terms ps₂) as s₂; symmetry in Heqs₂.
  destruct s₂.
   rename t into t₂.
   remember (power t₁ ?= power t₂) as c.
   symmetry in Heqc.
   destruct c.
+   apply Qeq_alt in Heqc.
    eapply TermAndFurther.
     reflexivity.
 
-    apply Qeq_alt in Heqc.
     unfold pow_den_div_com_den; simpl.
-    pose proof (ps_prop ps₁) as Hps₁.
-    rewrite Heqs₁ in Hps₁.
     inversion Hps₁.
      rename H0 into Hpd₁.
      rename H1 into Hsf₁.
@@ -99,15 +104,17 @@ destruct s₁.
      destruct Hpd₁ as (k₁, Hpd₁).
      rewrite <- Hpd₁.
      remember (Pos.to_nat (Qden (power t₁))) as x.
-     remember (Nat.lcm (k₁ * x) (ps_comden ps₂)) as cm.
+     remember (Nat.lcm (k₁ * x) cd₂) as cm.
      symmetry in Heqcm.
      unfold Nat.lcm in Heqcm.
      rewrite mult_comm, mult_assoc in Heqcm.
-     exists ((ps_comden ps₂ / gcd (k₁ * x) (ps_comden ps₂) * k₁))%nat.
+     exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
      assumption.
 
+     discriminate H.
+
+    apply IHs.
 bbb.
-     simpl.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
