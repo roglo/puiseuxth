@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.7 2013-06-10 12:29:07 deraugla Exp $ *)
+(* $Id: Series.v,v 1.8 2013-06-11 02:45:05 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -40,8 +40,24 @@ CoFixpoint series_map α β (f : α → β) s :=
   | End => End _
   end.
 
+Lemma series_eta : ∀ α (s : series α),
+  s = (match s with Term t₁ s₁ => Term t₁ s₁ | End => End _ end).
+Proof.
+intros α s.
+destruct s; reflexivity.
+Qed.
+
 CoInductive series_forall α P (s : series α) : Prop :=
   | TermAndFurther : ∀ a t,
       s = Term a t → P a → series_forall P t → series_forall P s
   | EndOk :
       s = End _ → series_forall P s.
+
+Lemma series_forall_inv : ∀ α (P : α → Prop) t s,
+  series_forall P (Term t s)
+  → P t ∧ series_forall P s.
+Proof.
+intros α P t s H.
+inversion H; [ idtac | discriminate H0 ].
+injection H0; intros; subst s t; split; assumption.
+Qed.
