@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.605 2013-06-11 03:32:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.606 2013-06-11 06:32:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,69 +37,23 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-(*
-CoFixpoint ps_add_loop₂ α ps_add_loop (add_coeff : α → α → α) c₁
-    (s₁ ms₂ : series (term α)) :=
-  match ms₂ with
-  | Term c₂ s₂ =>
-      match Qcompare (power c₁) (power c₂) with
-      | Eq =>
-          let c := add_coeff (coeff c₁) (coeff c₂) in
-          let m := {| coeff := c; power := power c₁ |} in
-          Term m (ps_add_loop add_coeff s₁ s₂)
-      | Lt =>
-          Term c₁ (ps_add_loop add_coeff s₁ ms₂)
-      | Gt =>
-          Term c₂ (ps_add_loop₂ ps_add_loop add_coeff c₁ s₁ s₂)
-      end
-  | End =>
-      Term c₁ s₁
-  end.
-
-Inductive choice α β := Left : α → choice α β | Right : β → choice α β.
-
-Definition glop add_coeff c₁ ms₂ :=
-  match ms₂ with
-  | Term c₂ s₂ =>
-      match Qcompare (power c₁) (power c₂) with
-      | Eq =>
-          let c := add_coeff (coeff c₁) (coeff c₂) in
-          let m := {| coeff := c; power := power c₁ |} in
-          Some (Left _ (m, s₂))
-      | Lt =>
-          Some (Left _ (c₁, ms₂))
-      | Gt =>
-          Some (Right _ (c₂, s₂))
-      end
-  | End => None
-  end.
-*)
-
 CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   match ms₁ with
   | Term c₁ s₁ =>
-(*
-      ps_add_loop₂ ps_add_loop add_coeff c₁ s₁ ms₂
-*)
-      let cofix loop₁ ms₂ :=
-        match ms₂ with
-        | Term c₂ s₂ =>
-            match Qcompare (power c₁) (power c₂) with
-            | Eq =>
-                let c := add_coeff (coeff c₁) (coeff c₂) in
-                let m := {| coeff := c; power := power c₁ |} in
-                Term m (ps_add_loop add_coeff s₁ s₂)
-            | Lt =>
-                Term c₁ (ps_add_loop add_coeff s₁ ms₂)
-            | Gt =>
-                Term c₂ (loop₁ s₂)
-            end
-        | End =>
-           Term c₁ s₁
-        end
-      in
-      loop₁ ms₂
-(**)
+      match ms₂ with
+      | Term c₂ s₂ =>
+          match Qcompare (power c₁) (power c₂) with
+          | Eq =>
+              let c := add_coeff (coeff c₁) (coeff c₂) in
+              let m := {| coeff := c; power := power c₁ |} in
+              Term m (ps_add_loop add_coeff s₁ s₂)
+          | Lt =>
+              Term c₁ (ps_add_loop add_coeff s₁ ms₂)
+          | Gt =>
+              Term c₂ (ps_add_loop add_coeff ms₁ s₂)
+          end
+      | End => ms₁
+      end
   | End => ms₂
   end.
 

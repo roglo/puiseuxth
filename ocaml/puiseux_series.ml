@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.117 2013-06-04 09:39:49 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.118 2013-06-11 06:32:40 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -28,31 +28,29 @@ value bnat_compare i₁ i₂ =
   else Gt
 ;
 
-Definition ps_add (add_coeff : α → α → α) ps₁ ps₂ :=
-  let cofix loop₁ ms₁ ms₂ :=
-    match ms₁ with
-    | Term c₁ s₁ =>
-        let cofix loop₂ ms₂ :=
-          match ms₂ with
-          | Term c₂ s₂ =>
-              match Qcompare (power c₁) (power c₂) with
-              | Eq =>
-                  let c := add_coeff (coeff c₁) (coeff c₂) in
-                  let m := {| coeff := c; power := power c₁ |} in
-                  Term m (loop₁ s₁ s₂)
-              | Lt =>
-                  Term c₁ (loop₁ s₁ ms₂)
-              | Gt =>
-                  Term c₂ (loop₂ s₂)
-              end
-          | End => ms₁
+CoFixpoint ps_add_loop (add_coeff : α → α → α) ms₁ ms₂ :=
+  match ms₁ with
+  | Term c₁ s₁ =>
+      match ms₂ with
+      | Term c₂ s₂ =>
+          match Qcompare (power c₁) (power c₂) with
+          | Eq =>
+              let c := add_coeff (coeff c₁) (coeff c₂) in
+              let m := {| coeff := c; power := power c₁ |} in
+              Term m (ps_add_loop add_coeff s₁ s₂)
+          | Lt =>
+              Term c₁ (ps_add_loop add_coeff s₁ ms₂)
+          | Gt =>
+              Term c₂ (ps_add_loop add_coeff ms₁ s₂)
           end
-        in
-        loop₂ ms₂
-    | End => ms₂
-    end
-  in
-  {| ps_terms := loop₁ (ps_terms ps₁) (ps_terms ps₂);
+      | End => ms₁
+      end
+  | End => ms₂
+  end;
+
+Definition ps_add (add_coeff : α → α → α) (ps₁ : puiseux_series α)
+    (ps₂ : puiseux_series α) :=
+  {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
 Definition series_hd (s : series α) :=
