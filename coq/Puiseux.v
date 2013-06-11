@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.611 2013-06-11 08:52:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.612 2013-06-11 14:42:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -178,7 +178,33 @@ destruct s₁.
    destruct Hpd₁ as (k₁, Hpd₁).
    unfold Nat.lcm.
    apply series_forall_div_mul; assumption.
-bbb.
+
+ rewrite Nat.lcm_comm.
+ destruct s₂.
+  rename t into t₂.
+  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+   apply series_forall_inv in Hps₂.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂ |- *.
+   destruct Hpd₂ as (k₂, Hpd₂).
+   rewrite <- Hpd₂.
+   remember (Pos.to_nat (Qden (power t₂))) as x.
+   remember (Nat.lcm (k₂ * x) cd₁) as cm.
+   symmetry in Heqcm.
+   unfold Nat.lcm in Heqcm.
+   rewrite mult_comm, mult_assoc in Heqcm.
+   exists (cd₁ / gcd (k₂ * x) cd₁ * k₂)%nat.
+   assumption.
+
+   apply series_forall_inv in Hps₂.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂.
+   destruct Hpd₂ as (k₂, Hpd₂).
+   unfold Nat.lcm.
+   apply series_forall_div_mul; assumption.
+
+  constructor; reflexivity.
+Qed.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
   series_forall
@@ -186,10 +212,7 @@ Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
     (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
 Proof.
 intros α add_coeff ps₁ ps₂.
-apply series_forall_add.
- apply (ps_prop ps₁).
-
- apply (ps_prop ps₂).
+apply series_forall_add; [ apply (ps_prop ps₁) | apply (ps_prop ps₂) ].
 Qed.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
