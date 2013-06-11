@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.607 2013-06-11 06:40:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.608 2013-06-11 08:19:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -112,17 +112,29 @@ destruct s₁.
     exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
     assumption.
 
-    apply IHs.
-     apply series_forall_inv in Hps₁.
-     destruct Hps₁; assumption.
-
-     assumption.
+    apply IHs; [ idtac | assumption ].
+    apply series_forall_inv in Hps₁.
+    destruct Hps₁; assumption.
 
    apply Qgt_alt in Heqc.
    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     apply series_forall_inv in Hps₂.
     destruct Hps₂ as (Hpd₂, Hsf₂).
-    unfold pow_den_div_com_den in Hpd₂.
+    unfold pow_den_div_com_den in Hpd₂ |- *.
+    destruct Hpd₂ as (k₂, Hpd₂).
+    rewrite <- Hpd₂.
+    remember (Pos.to_nat (Qden (power t₂))) as x.
+    remember (Nat.lcm cd₁ (k₂ * x)) as cm.
+    symmetry in Heqcm.
+    rewrite Nat.lcm_comm in Heqcm.
+    unfold Nat.lcm in Heqcm.
+    rewrite mult_comm, mult_assoc in Heqcm.
+    exists (cd₁ / gcd (k₂ * x) cd₁ * k₂)%nat.
+    assumption.
+
+    apply IHs; [ assumption | idtac ].
+    apply series_forall_inv in Hps₂.
+    destruct Hps₂; assumption.
 bbb.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
