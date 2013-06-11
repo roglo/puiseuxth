@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.610 2013-06-11 08:33:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.611 2013-06-11 08:52:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -56,6 +56,31 @@ CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
       end
   | End => ms₂
   end.
+
+Lemma series_forall_div_mul : ∀ α (s : series (term α)) cd x,
+  series_forall (pow_den_div_com_den cd) s
+  → series_forall (pow_den_div_com_den (cd * x)) s.
+Proof.
+cofix IHs.
+intros α s cd x H.
+destruct s.
+ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+  apply series_forall_inv in H.
+  destruct H as (H, _).
+  unfold pow_den_div_com_den in H |- *.
+  destruct H as (k₁, H).
+  rewrite mult_comm.
+  rewrite <- H.
+  exists (x * k₁)%nat.
+  rewrite <- mult_assoc.
+  reflexivity.
+
+  apply series_forall_inv in H.
+  destruct H as (_, H).
+  eapply IHs; eassumption.
+
+ constructor; reflexivity.
+Qed.
 
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
@@ -146,6 +171,13 @@ destruct s₁.
    rewrite mult_comm, mult_assoc in Heqcm.
    exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
    assumption.
+
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hsf₁).
+   unfold pow_den_div_com_den in Hpd₁.
+   destruct Hpd₁ as (k₁, Hpd₁).
+   unfold Nat.lcm.
+   apply series_forall_div_mul; assumption.
 bbb.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
