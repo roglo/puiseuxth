@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.606 2013-06-11 06:32:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.607 2013-06-11 06:40:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -119,9 +119,10 @@ destruct s₁.
      assumption.
 
    apply Qgt_alt in Heqc.
-   revert t₁ t₂ s₁ s₂ cd₁ cd₂ Hps₁ Hps₂ Heqc.
-   cofix IHs₂.
-   intros.
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+    apply series_forall_inv in Hps₂.
+    destruct Hps₂ as (Hpd₂, Hsf₂).
+    unfold pow_den_div_com_den in Hpd₂.
 bbb.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
