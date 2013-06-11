@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.608 2013-06-11 08:19:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.609 2013-06-11 08:28:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -74,13 +74,10 @@ destruct s₁.
   symmetry in Heqc.
   destruct c.
    apply Qeq_alt in Heqc.
-   eapply TermAndFurther.
-    reflexivity.
-
-    unfold pow_den_div_com_den; simpl.
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     apply series_forall_inv in Hps₁.
     destruct Hps₁ as (Hpd₁, Hsf₁).
-    unfold pow_den_div_com_den in Hpd₁.
+    unfold pow_den_div_com_den in Hpd₁ |- *; simpl.
     destruct Hpd₁ as (k₁, Hpd₁).
     rewrite <- Hpd₁.
     remember (Pos.to_nat (Qden (power t₁))) as x.
