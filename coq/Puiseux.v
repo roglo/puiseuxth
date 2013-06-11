@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.615 2013-06-11 18:18:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.616 2013-06-11 19:10:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -330,6 +330,9 @@ Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s
     → series_forall (pow_den_div_com_den (cd₁ * cd₂))
         (ps_mul_term add_coeff mul_coeff s₁ s₂ cd₁ cd₂).
 Proof.
+cofix IHs.
+intros α add_coeff mul_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
+rewrite series_eta; simpl.
 bbb.
 *)
 
