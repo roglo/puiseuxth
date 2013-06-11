@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.601 2013-06-11 01:37:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.602 2013-06-11 01:45:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -67,22 +67,14 @@ intros α s.
 destruct s; reflexivity.
 Qed.
 
-Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
-  series_forall
-    (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
-    (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
+Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
+  series_forall (pow_den_div_com_den cd₁) s₁
+  → series_forall (pow_den_div_com_den cd₂) s₂
+    → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
+        (ps_add_loop add_coeff s₁ s₂).
 Proof.
-intros α add_coeff ps₁ ps₂.
-pose proof (ps_prop ps₁) as Hps₁.
-pose proof (ps_prop ps₂) as Hps₂.
-remember (ps_comden ps₁) as cd₁.
-remember (ps_comden ps₂) as cd₂.
-remember (ps_terms ps₁) as s₁.
-remember (ps_terms ps₂) as s₂.
-clear ps₁ ps₂ Heqcd₁ Heqcd₂ Heqs₁ Heqs₂.
-revert cd₁ cd₂ s₁ s₂ Hps₁ Hps₂.
 cofix IHs.
-intros.
+intros α add_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
 rewrite series_eta; simpl.
 destruct s₁.
  rename t into t₁.
@@ -115,6 +107,18 @@ destruct s₁.
 
     apply IHs.
 bbb.
+
+Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
+  series_forall
+    (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
+    (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
+Proof.
+intros α add_coeff ps₁ ps₂.
+apply series_forall_add.
+ apply (ps_prop ps₁).
+
+ apply (ps_prop ps₂).
+Qed.
 
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
