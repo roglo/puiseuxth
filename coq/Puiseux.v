@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.616 2013-06-11 19:10:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.617 2013-06-12 02:02:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -307,6 +307,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
   end.
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd₁ cd₂ :=
+  let comden := Nat.lcm cd₁ cd₂ in
   match s₁ with
   | Term m₁ _ =>
       match s₂ with
@@ -317,8 +318,8 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd�
             {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
                fe_s₁ := s₁; fe_s₂ := s₂ |}
           in
-          series_mul add_coeff mul_coeff (mult cd₁ cd₂)
-            [(sum_int_powers (mult cd₁ cd₂) m₁ m₂, [fe])]
+          series_mul add_coeff mul_coeff comden
+            [(sum_int_powers comden m₁ m₂, [fe])]
       | End => End _
       end
   | End => End _

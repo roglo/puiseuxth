@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.119 2013-06-11 15:15:31 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.120 2013-06-12 01:58:37 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -175,7 +175,7 @@ CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
   end;
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) ps₁ ps₂ :=
-  let comden := mult (ps_comden ps₁) (ps_comden ps₂) in
+  let comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) in
   match ps_terms ps₁ with
   | Term m₁ _ =>
       match ps_terms ps₂ with
