@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.124 2013-06-12 02:59:20 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.125 2013-06-12 03:25:57 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -93,6 +93,8 @@ Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α;
     fe_s₁ : series (term α); fe_s₂ : series (term α) };
 
+value qnat n = Q.of_i n;
+
 Fixpoint insert_ij (fe : fifo_elem α) fel :=
   match fel with
   | [] => [fe]
@@ -114,8 +116,6 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
       | Gt => [(sum₁, fel₁) :: insert_sum sum fe l]
       end
   end;
-
-value qnat n = Q.of_i n;
 
 Definition sum_int_powers comden (m₁ m₂ : term α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
