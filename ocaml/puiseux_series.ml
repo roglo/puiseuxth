@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.121 2013-06-12 02:02:43 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.122 2013-06-12 02:24:12 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -139,7 +139,7 @@ Fixpoint add_coeff_list (add_coeff : α → α → α) c₁ fel₁ :=
   | [fe :: fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end;
 
-CoFixpoint series_mul add_coeff mul_coeff comden sum_fifo :
+CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
     series (term α) :=
   match sum_fifo with
   | [] => End _
