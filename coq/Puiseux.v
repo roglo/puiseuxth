@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.618 2013-06-12 02:15:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.619 2013-06-12 02:39:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -271,6 +271,28 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
   | [fe … fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end.
 
+Definition add_below α (mul_coeff : α → α → α) comden sl fel :=
+  List.fold_left
+    (λ sl₁ fe,
+       match fe_s₁ fe with
+       | Term _ s₁ =>
+           insert_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
+             s₁ (fe_s₂ fe) sl₁
+       | End => sl₁
+       end)
+    fel sl.
+
+Definition add_right α (mul_coeff : α → α → α) comden sl fel :=
+  List.fold_left
+    (λ sl₂ fe,
+       match fe_s₂ fe with
+       | Term _ s₂ =>
+           insert_term mul_coeff comden (fe_i fe) (S (fe_j fe))
+             (fe_s₁ fe) s₂ sl₂
+       | End => sl₂
+       end)
+    fel sl.
+
 CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
     series (term α) :=
   match sum_fifo with
@@ -281,28 +303,8 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
         let c := add_coeff_list add_coeff (fe_c fe₁) fel₁ in
         {| coeff := c; power := fe_p fe₁ |}
       in
-      let sl₁ :=
-        List.fold_left
-          (λ sl₁ fe,
-             match fe_s₁ fe with
-             | Term _ ls₁ =>
-                 insert_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
-                   ls₁ (fe_s₂ fe) sl₁
-             | End => sl₁
-             end)
-          [fe₁ … fel₁] sl
-      in
-      let sl₂ :=
-        List.fold_left
-          (λ sl₂ fe,
-             match fe_s₂ fe with
-             | Term _ ls₂ =>
-                 insert_term mul_coeff comden (fe_i fe) (S (fe_j fe))
-                   (fe_s₁ fe) ls₂ sl₂
-             | End => sl₂
-             end)
-          [fe₁ … fel₁] sl₁
-      in
+      let sl₁ := add_below mul_coeff comden sl [fe₁ … fel₁] in
+      let sl₂ := add_right mul_coeff comden sl₁ [fe₁ … fel₁] in
       Term m (series_mul α add_coeff mul_coeff comden sl₂)
   end.
 
