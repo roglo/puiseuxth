@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.619 2013-06-12 02:39:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.620 2013-06-12 09:22:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -225,6 +225,8 @@ Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
     fe_s₁ : series (term α); fe_s₂ : series (term α) }.
 
+Definition bnat_compare := nat_compare.
+
 Fixpoint insert_ij α (fe : fifo_elem α) fel :=
   match fel with
   | [] => [fe]
@@ -235,8 +237,6 @@ Fixpoint insert_ij α (fe : fifo_elem α) fel :=
       else if gt_dec (fe_j fe) (fe_j fe₁) then [fe₁ … insert_ij fe fel₁]
       else fel
   end.
-
-Definition bnat_compare := nat_compare.
 
 Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
   match sl with

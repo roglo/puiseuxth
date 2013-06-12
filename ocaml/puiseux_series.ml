@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.131 2013-06-12 09:14:38 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.132 2013-06-12 09:20:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -132,30 +132,32 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
       end
   end;
 
-Definition insert_term mul_coeff comden s₁ s₂ sl :=
-  match (s₁, s₂) with
-  | (Term t₁ ns₁, Term t₂ ns₂) =>
-      let ns₁ := Lazy.force ns₁ in
-      let ns₂ := Lazy.force ns₂ in
-      let c := mul_coeff (coeff t₁) (coeff t₂) in
-      insert_sum (sum_int_powers comden t₁ t₂)
-        {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂; fe_s₁ := ns₁; fe_s₂ := ns₂ |}
-        sl
-  | _ => sl
-  end;
-
 Definition add_below α (mul_coeff : α → α → α) comden sl fel :=
   List.fold_left
     (λ sl₁ fe,
-       insert_term mul_coeff comden (fe_s₁ fe) (Term (fe_t₂ fe) (fe_s₂ fe))
-         sl₁)
+       match fe_s₁ fe with
+       | Term t₁ s₁ =>
+            let c := mul_coeff (coeff t₁) (coeff (fe_t₂ fe)) in
+            insert_sum (sum_int_powers comden t₁ (fe_t₂ fe))
+              {| fe_c := c; fe_t₁ := t₁; fe_t₂ := fe_t₂ fe;
+                 fe_s₁ := s₁; fe_s₂ := fe_s₂ fe |}
+              sl₁
+       | End => sl₁
+       end)
     sl fel;
 
 Definition add_right α (mul_coeff : α → α → α) comden sl fel :=
   List.fold_left
     (λ sl₂ fe,
-       insert_term mul_coeff comden (Term (fe_t₁ fe) (fe_s₁ fe))
-         (fe_s₂ fe) sl₂)
+       match fe_s₂ fe with
+       | Term t₂ s₂ =>
+            let c := mul_coeff (coeff (fe_t₁ fe)) (coeff t₂) in
+            insert_sum (sum_int_powers comden (fe_t₁ fe) t₂)
+              {| fe_c := c; fe_t₁ := fe_t₁ fe; fe_t₂ := t₂;
+                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ |}
+              sl₂
+       | End => sl₂
+       end)
     sl fel;
 
 CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
