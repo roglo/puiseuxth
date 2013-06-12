@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.134 2013-06-12 13:49:40 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.135 2013-06-12 13:59:37 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -51,7 +51,7 @@ CoFixpoint ps_add_loop (add_coeff : α → α → α) ms₁ ms₂ :=
 Definition ps_add (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
   {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := I.lcm (ps_comden ps₁) (ps_comden ps₂) |};
+     ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂) |};
 
 Definition series_hd (s : series α) :=
   match s with
@@ -89,13 +89,13 @@ CoFixpoint series_map (f : α → β) s :=
 
 (* ps_mul *)
 
+value qnat n = Q.of_i n;
+
 Record fifo_elem α :=
   { fe_t₁ : term α; fe_t₂ : term α;
     fe_s₁ : series (term α); fe_s₂ : series (term α) };
 
-value qnat n = Q.of_i n;
-
-Definition sum_int_powers comden (t₁ t₂ : term α) :=
+Definition sum_int_powers α comden (t₁ t₂ : term α) :=
   let q := Qred (Qmult (Qplus (power t₁) (power t₂)) (Qnat comden)) in
   Qnum q;
 
@@ -178,7 +178,7 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff comden sum_fifo :
   end;
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd₁ cd₂ :=
-  let comden := I.lcm cd₁ cd₂ in
+  let comden := Nat.lcm cd₁ cd₂ in
   match s₁ with
   | Term t₁ ns₁ =>
       match s₂ with
