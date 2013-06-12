@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.126 2013-06-12 08:57:35 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.127 2013-06-12 08:58:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -91,7 +91,6 @@ CoFixpoint series_map (f : α → β) s :=
 
 Record fifo_elem α :=
   { fe_i : nat; fe_j : nat; fe_c : α;
-    fe_s₁ : series (term α); fe_s₂ : series (term α);
     fe_t₁ : term α; fe_t₂ : term α;
     fe_ns₁ : series (term α); fe_ns₂ : series (term α) };
 
@@ -131,7 +130,6 @@ Definition insert_term mul_coeff comden i j s₁ s₂ sl :=
       let c := mul_coeff (coeff m₁) (coeff m₂) in
       insert_sum (sum_int_powers comden m₁ m₂)
         {| fe_i := i; fe_j := j; fe_c := c;
-           fe_s₁ := s₁; fe_s₂ := s₂;
            fe_t₁ := m₁; fe_t₂ := m₂;
            fe_ns₁ := ns₁; fe_ns₂ := ns₂ |}
         sl
@@ -181,7 +179,7 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd�
       | Term m₂ ns₂ =>
           let c := mul_coeff (coeff m₁) (coeff m₂) in
           let fe :=
-            {| fe_i := 0; fe_j := 0; fe_c := c; fe_s₁ := s₁; fe_s₂ := s₂;
+            {| fe_i := 0; fe_j := 0; fe_c := c;
                fe_t₁ := m₁; fe_t₂ := m₂;
                fe_ns₁ := ns₁; fe_ns₂ := ns₂ |}
           in
