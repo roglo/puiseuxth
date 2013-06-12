@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.622 2013-06-12 13:59:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.623 2013-06-12 15:09:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -329,7 +329,7 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd�
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
-    → series_forall (pow_den_div_com_den (cd₁ * cd₂))
+    → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
         (ps_mul_term add_coeff mul_coeff s₁ s₂ cd₁ cd₂).
 Proof.
 intros α add_coeff mul_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
@@ -343,7 +343,8 @@ remember (Qred (power t₁ + power t₂)) as sp.
 *)
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
-  series_forall (pow_den_div_com_den (ps_comden ps₁ * ps_comden ps₂))
+  series_forall
+    (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
     (ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂)
        (ps_comden ps₁) (ps_comden ps₂)).
 Proof.
