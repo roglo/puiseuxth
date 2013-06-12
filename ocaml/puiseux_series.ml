@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.130 2013-06-12 09:13:00 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.131 2013-06-12 09:14:38 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -91,7 +91,7 @@ CoFixpoint series_map (f : α → β) s :=
 
 Record fifo_elem α :=
   { fe_c : α; fe_t₁ : term α; fe_t₂ : term α;
-    fe_ns₁ : series (term α); fe_ns₂ : series (term α) };
+    fe_s₁ : series (term α); fe_s₂ : series (term α) };
 
 value qnat n = Q.of_i n;
 
@@ -139,8 +139,7 @@ Definition insert_term mul_coeff comden s₁ s₂ sl :=
       let ns₂ := Lazy.force ns₂ in
       let c := mul_coeff (coeff t₁) (coeff t₂) in
       insert_sum (sum_int_powers comden t₁ t₂)
-        {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂;
-           fe_ns₁ := ns₁; fe_ns₂ := ns₂ |}
+        {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂; fe_s₁ := ns₁; fe_s₂ := ns₂ |}
         sl
   | _ => sl
   end;
@@ -148,15 +147,15 @@ Definition insert_term mul_coeff comden s₁ s₂ sl :=
 Definition add_below α (mul_coeff : α → α → α) comden sl fel :=
   List.fold_left
     (λ sl₁ fe,
-       insert_term mul_coeff comden (fe_ns₁ fe) (Term (fe_t₂ fe) (fe_ns₂ fe))
+       insert_term mul_coeff comden (fe_s₁ fe) (Term (fe_t₂ fe) (fe_s₂ fe))
          sl₁)
     sl fel;
 
 Definition add_right α (mul_coeff : α → α → α) comden sl fel :=
   List.fold_left
     (λ sl₂ fe,
-       insert_term mul_coeff comden (Term (fe_t₁ fe) (fe_ns₁ fe))
-         (fe_ns₂ fe) sl₂)
+       insert_term mul_coeff comden (Term (fe_t₁ fe) (fe_s₁ fe))
+         (fe_s₂ fe) sl₂)
     sl fel;
 
 CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
@@ -183,7 +182,7 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd�
           let c := mul_coeff (coeff t₁) (coeff t₂) in
           let fe :=
             {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂;
-               fe_ns₁ := ns₁; fe_ns₂ := ns₂ |}
+               fe_s₁ := ns₁; fe_s₂ := ns₂ |}
           in
           series_mul add_coeff mul_coeff comden
             [(sum_int_powers comden t₁ t₂, [fe])]
