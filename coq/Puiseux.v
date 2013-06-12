@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.620 2013-06-12 09:22:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.621 2013-06-12 09:38:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -221,49 +221,15 @@ Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
      ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂);
      ps_prop := ps_prop_add add_coeff ps₁ ps₂ |}.
 
+(* ps_mul *)
+
 Record fifo_elem α :=
-  { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
+  { fe_c : α; fe_t₁ : term α; fe_t₂ : term α;
     fe_s₁ : series (term α); fe_s₂ : series (term α) }.
-
-Definition bnat_compare := nat_compare.
-
-Fixpoint insert_ij α (fe : fifo_elem α) fel :=
-  match fel with
-  | [] => [fe]
-  | [fe₁ … fel₁] =>
-      if lt_dec (fe_i fe) (fe_i fe₁) then [fe … fel]
-      else if gt_dec (fe_i fe) (fe_i fe₁) then [fe₁ … insert_ij fe fel₁]
-      else if lt_dec (fe_j fe) (fe_j fe₁) then [fe … fel]
-      else if gt_dec (fe_j fe) (fe_j fe₁) then [fe₁ … insert_ij fe fel₁]
-      else fel
-  end.
-
-Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
-  match sl with
-  | [] => [(sum, [fe])]
-  | [(sum₁, fel₁) … l] =>
-      match bnat_compare sum sum₁ with
-      | Eq => [(sum₁, insert_ij fe fel₁) … l]
-      | Lt => [(sum, [fe]) … sl]
-      | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
-      end
-  end.
 
 Definition sum_int_powers α comden (m₁ m₂ : term α) :=
   let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
-  Z.to_nat (Qnum q).
-
-Definition insert_term α (mul_coeff : α → α → α) comden i j s₁ s₂ sl :=
-  match (s₁, s₂) with
-  | (Term m₁ _, Term m₂ _) =>
-      let c := mul_coeff (coeff m₁) (coeff m₂) in
-      let p := Qplus (power m₁) (power m₂) in
-      insert_sum (sum_int_powers comden m₁ m₂)
-        {| fe_i := i; fe_j := j; fe_c := c; fe_p := p;
-           fe_s₁ := s₁; fe_s₂ := s₂ |}
-        sl
-  | _ => sl
-  end.
+  Qnum q.
 
 Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
   match fel₁ with
@@ -271,13 +237,43 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
   | [fe … fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end.
 
+Fixpoint insert_elem α (fe : fifo_elem α) fel :=
+  match fel with
+  | [] => [fe]
+  | [fe₁ … fel₁] =>
+      match Qcompare (power (fe_t₁ fe)) (power (fe_t₁ fe₁)) with
+      | Eq =>
+          match Qcompare (power (fe_t₂ fe)) (power (fe_t₂ fe₁)) with
+          | Eq => fel
+          | Lt => [fe … fel]
+          | Gt => [fe₁ … insert_elem fe fel₁]
+          end
+      | Lt => [fe … fel]
+      | Gt => [fe₁ … insert_elem fe fel₁]
+      end
+  end.
+
+Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
+  match sl with
+  | [] => [(sum, [fe])]
+  | [(sum₁, fel₁) … l] =>
+      match Zcompare sum sum₁ with
+      | Eq => [(sum₁, insert_elem fe fel₁) … l]
+      | Lt => [(sum, [fe]) … sl]
+      | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
+      end
+  end.
+
 Definition add_below α (mul_coeff : α → α → α) comden sl fel :=
   List.fold_left
     (λ sl₁ fe,
        match fe_s₁ fe with
-       | Term _ s₁ =>
-           insert_term mul_coeff comden (S (fe_i fe)) (fe_j fe)
-             s₁ (fe_s₂ fe) sl₁
+       | Term t₁ s₁ =>
+            let c := mul_coeff (coeff t₁) (coeff (fe_t₂ fe)) in
+            insert_sum (sum_int_powers comden t₁ (fe_t₂ fe))
+              {| fe_c := c; fe_t₁ := t₁; fe_t₂ := fe_t₂ fe;
+                 fe_s₁ := s₁; fe_s₂ := fe_s₂ fe |}
+              sl₁
        | End => sl₁
        end)
     fel sl.
@@ -286,9 +282,12 @@ Definition add_right α (mul_coeff : α → α → α) comden sl fel :=
   List.fold_left
     (λ sl₂ fe,
        match fe_s₂ fe with
-       | Term _ s₂ =>
-           insert_term mul_coeff comden (fe_i fe) (S (fe_j fe))
-             (fe_s₁ fe) s₂ sl₂
+       | Term t₂ s₂ =>
+            let c := mul_coeff (coeff (fe_t₁ fe)) (coeff t₂) in
+            insert_sum (sum_int_powers comden (fe_t₁ fe) t₂)
+              {| fe_c := c; fe_t₁ := fe_t₁ fe; fe_t₂ := t₂;
+                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ |}
+              sl₂
        | End => sl₂
        end)
     fel sl.
@@ -301,7 +300,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
   | [(sum, [fe₁ … fel₁]) … sl] =>
       let m :=
         let c := add_coeff_list add_coeff (fe_c fe₁) fel₁ in
-        {| coeff := c; power := fe_p fe₁ |}
+        {| coeff := c; power := Qred (Qmake sum (Pos.of_nat comden)) |}
       in
       let sl₁ := add_below mul_coeff comden sl [fe₁ … fel₁] in
       let sl₂ := add_right mul_coeff comden sl₁ [fe₁ … fel₁] in
@@ -311,17 +310,16 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd₁ cd₂ :=
   let comden := Nat.lcm cd₁ cd₂ in
   match s₁ with
-  | Term m₁ _ =>
+  | Term t₁ ns₁ =>
       match s₂ with
-      | Term m₂ _ =>
-          let c := mul_coeff (coeff m₁) (coeff m₂) in
-          let p := Qred (Qplus (power m₁) (power m₂)) in
+      | Term t₂ ns₂ =>
+          let c := mul_coeff (coeff t₁) (coeff t₂) in
           let fe :=
-            {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
-               fe_s₁ := s₁; fe_s₂ := s₂ |}
+            {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂;
+               fe_s₁ := ns₁; fe_s₂ := ns₂ |}
           in
           series_mul add_coeff mul_coeff comden
-            [(sum_int_powers comden m₁ m₂, [fe])]
+            [(sum_int_powers comden t₁ t₂, [fe])]
       | End => End _
       end
   | End => End _

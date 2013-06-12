@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.132 2013-06-12 09:20:33 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.133 2013-06-12 09:38:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -21,8 +21,8 @@ value qcompare q₁ q₂ =
   else if c = 0 then Eq
   else Gt
 ;
-value bnat_compare i₁ i₂ =
-  let c = I.compare i₁ i₂ in
+value zcompare x₁ x₂ =
+  let c = I.compare x₁ x₂ in
   if c < 0 then Lt
   else if c = 0 then Eq
   else Gt
@@ -105,7 +105,7 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
   | [fe :: fel] => add_coeff c₁ (add_coeff_list add_coeff (fe_c fe) fel)
   end;
 
-Fixpoint insert_ij (fe : fifo_elem α) fel :=
+Fixpoint insert_elem α (fe : fifo_elem α) fel :=
   match fel with
   | [] => [fe]
   | [fe₁ :: fel₁] =>
@@ -114,19 +114,19 @@ Fixpoint insert_ij (fe : fifo_elem α) fel :=
           match Qcompare (power (fe_t₂ fe)) (power (fe_t₂ fe₁)) with
           | Eq => fel
           | Lt => [fe :: fel]
-          | Gt => [fe₁ :: insert_ij fe fel₁]
+          | Gt => [fe₁ :: insert_elem fe fel₁]
           end
       | Lt => [fe :: fel]
-      | Gt => [fe₁ :: insert_ij fe fel₁]
+      | Gt => [fe₁ :: insert_elem fe fel₁]
       end
   end;
 
-Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
+Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
   match sl with
   | [] => [(sum, [fe])]
   | [(sum₁, fel₁) :: l] =>
-      match bnat_compare sum sum₁ with
-      | Eq => [(sum₁, insert_ij fe fel₁) :: l]
+      match Zcompare sum sum₁ with
+      | Eq => [(sum₁, insert_elem fe fel₁) :: l]
       | Lt => [(sum, [fe]) :: sl]
       | Gt => [(sum₁, fel₁) :: insert_sum sum fe l]
       end
