@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.127 2013-06-12 08:58:58 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.128 2013-06-12 09:07:32 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -104,11 +104,16 @@ Fixpoint insert_ij (fe : fifo_elem α) fel :=
   match fel with
   | [] => [fe]
   | [fe₁ :: fel₁] =>
-      if lt_dec (fe_i fe) (fe_i fe₁) then [fe :: fel]
-      else if gt_dec (fe_i fe) (fe_i fe₁) then [fe₁ :: insert_ij fe fel₁]
-      else if lt_dec (fe_j fe) (fe_j fe₁) then [fe :: fel]
-      else if gt_dec (fe_j fe) (fe_j fe₁) then [fe₁ :: insert_ij fe fel₁]
-      else fel
+      match Qcompare (power (fe_t₁ fe)) (power (fe_t₁ fe₁)) with
+      | Eq =>
+          match Qcompare (power (fe_t₂ fe)) (power (fe_t₂ fe₁)) with
+          | Eq => fel
+          | Lt => [fe :: fel]
+          | Gt => [fe₁ :: insert_ij fe fel₁]
+          end
+      | Lt => [fe :: fel]
+      | Gt => [fe₁ :: insert_ij fe fel₁]
+      end
   end;
 
 Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
