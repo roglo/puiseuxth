@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.625 2013-06-12 15:30:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.626 2013-06-12 15:52:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -321,6 +321,18 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   | End => End _
   end.
 
+Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
+    (sf : list (_ * list (fifo_elem α))),
+  series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
+  → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
+    → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
+        (ps_mul_loop add_coeff mul_coeff sf).
+Proof.
+cofix IHs.
+intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf H₁ H₂.
+bbb.
+*)
+
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -333,7 +345,8 @@ destruct s₁; [ idtac | constructor; reflexivity ].
 rename t into t₁.
 destruct s₂; [ idtac | constructor; reflexivity ].
 rename t into t₂.
-bbb.
+eapply zzz; eassumption.
+qed.
 *)
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
