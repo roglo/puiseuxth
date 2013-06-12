@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.139 2013-06-12 17:57:23 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.140 2013-06-12 19:06:15 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -191,7 +191,7 @@ Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms :=
        ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂);
      ps_comden :=
-       Nat.lcm (ps_comden ps₁) (ps_comden ps₂) |};
+       I.mul (ps_comden ps₁) (ps_comden ps₂) |};
 
 (**)
 

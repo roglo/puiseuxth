@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.629 2013-06-12 18:35:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.630 2013-06-12 19:06:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -329,11 +329,11 @@ Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
     (λ cfe, ∃ k : nat,
-       (k * Pos.to_nat (Qden (Qred (fst cfe))))%nat = Nat.lcm cd₁ cd₂)
+       (k * Pos.to_nat (Qden (Qred (fst cfe))) = cd₁ * cd₂)%nat)
     sf
   → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
     → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
-      → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
+      → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
           (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
@@ -354,7 +354,7 @@ bbb.
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
-    → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
+    → series_forall (pow_den_div_com_den (cd₁ * cd₂))
         (ps_mul_term add_coeff mul_coeff s₁ s₂).
 Proof.
 intros α add_coeff mul_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
@@ -378,7 +378,7 @@ bbb.
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
   series_forall
-    (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
+    (pow_den_div_com_den (ps_comden ps₁ * ps_comden ps₂))
     (ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂)).
 Proof.
 intros α add_coeff mul_coeff ps₁ ps₂.
@@ -389,7 +389,7 @@ Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms :=
        ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂);
      ps_comden :=
-       Nat.lcm (ps_comden ps₁) (ps_comden ps₂);
+       ps_comden ps₁ * ps_comden ps₂;
      ps_prop :=
        ps_prop_mul add_coeff mul_coeff ps₁ ps₂ |}.
 
