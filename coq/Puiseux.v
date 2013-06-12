@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.626 2013-06-12 15:52:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.627 2013-06-12 15:53:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -330,6 +330,7 @@ Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series
 Proof.
 cofix IHs.
 intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf H₁ H₂.
+rewrite series_eta; simpl.
 bbb.
 *)
 
