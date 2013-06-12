@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.123 2013-06-12 02:39:29 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.124 2013-06-12 02:59:20 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -90,7 +90,7 @@ CoFixpoint series_map (f : α → β) s :=
 (* ps_mul *)
 
 Record fifo_elem α :=
-  { fe_i : nat; fe_j : nat; fe_c : α; fe_p : Q;
+  { fe_i : nat; fe_j : nat; fe_c : α;
     fe_s₁ : series (term α); fe_s₂ : series (term α) };
 
 Fixpoint insert_ij (fe : fifo_elem α) fel :=
@@ -125,9 +125,8 @@ Definition insert_term mul_coeff comden i j s₁ s₂ sl :=
   match (s₁, s₂) with
   | (Term m₁ _, Term m₂ _) =>
       let c := mul_coeff (coeff m₁) (coeff m₂) in
-      let p := Q.norm (Qplus (power m₁) (power m₂)) in
       insert_sum (sum_int_powers comden m₁ m₂)
-        {| fe_i := i; fe_j := j; fe_c := c; fe_p := p;
+        {| fe_i := i; fe_j := j; fe_c := c;
            fe_s₁ := s₁; fe_s₂ := s₂ |}
         sl
   | _ => sl
@@ -169,7 +168,7 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
   | [(sum, [fe₁ :: fel₁]) :: sl] =>
       let m :=
         let c := add_coeff_list add_coeff (fe_c fe₁) fel₁ in
-        {| coeff := c; power := fe_p fe₁ |}
+        {| coeff := c; power := Qred (Q.make sum comden) |}
       in
       let sl₁ := add_below mul_coeff comden sl [fe₁ :: fel₁] in
       let sl₂ := add_right mul_coeff comden sl₁ [fe₁ :: fel₁] in
@@ -183,10 +182,8 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd�
       match s₂ with
       | Term m₂ _ =>
           let c := mul_coeff (coeff m₁) (coeff m₂) in
-          let p := Qred (Qplus (power m₁) (power m₂)) in
           let fe :=
-            {| fe_i := 0; fe_j := 0; fe_c := c; fe_p := p;
-               fe_s₁ := s₁; fe_s₂ := s₂ |}
+            {| fe_i := 0; fe_j := 0; fe_c := c; fe_s₁ := s₁; fe_s₂ := s₂ |}
           in
           series_mul add_coeff mul_coeff comden
             [(sum_int_powers comden m₁ m₂, [fe])]
