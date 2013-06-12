@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.39 2013-06-11 15:15:31 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.40 2013-06-12 08:34:05 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -108,6 +108,10 @@ EXTEND
     [ [ "fix" → True
       | "cofix" → True
       | → False ] ]
+  ;
+  expr: LEVEL "."
+    [ [ UIDENT "Decidable"; "."; LIDENT "dec_and" →
+          <:expr< $lid:"&&"$ >> ] ]
   ;
   expr: LEVEL "apply"
     [ [ UIDENT "Term"; e₁ = NEXT; e₂ = NEXT →
