@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.627 2013-06-12 15:53:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.628 2013-06-12 17:57:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -321,6 +321,10 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   | End => End _
   end.
 
+(*
+   ∃ k : nat, (k * Pos.to_nat (Qden (Qred sum)))%nat = Nat.lcm cd₁ cd₂
+*)
+
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
@@ -331,6 +335,10 @@ Proof.
 cofix IHs.
 intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf H₁ H₂.
 rewrite series_eta; simpl.
+destruct sf as [| (sum, y)]; [ constructor; reflexivity | idtac ].
+destruct y; [ constructor; reflexivity | idtac ].
+eapply TermAndFurther; [ reflexivity | idtac | eapply IHs; eassumption ].
+unfold pow_den_div_com_den; simpl.
 bbb.
 *)
 

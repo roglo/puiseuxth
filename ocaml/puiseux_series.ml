@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.138 2013-06-12 15:30:33 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.139 2013-06-12 17:57:23 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -88,8 +88,6 @@ CoFixpoint series_map (f : α → β) s :=
   end;
 
 (* ps_mul *)
-
-value qnat n = Q.of_i n;
 
 Record fifo_elem α :=
   { fe_t₁ : term α; fe_t₂ : term α;
