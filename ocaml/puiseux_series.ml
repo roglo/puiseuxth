@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.129 2013-06-12 09:11:22 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.130 2013-06-12 09:13:00 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -95,8 +95,8 @@ Record fifo_elem α :=
 
 value qnat n = Q.of_i n;
 
-Definition sum_int_powers comden (m₁ m₂ : term α) :=
-  let q := Qred (Qmult (Qplus (power m₁) (power m₂)) (Qnat comden)) in
+Definition sum_int_powers comden (t₁ t₂ : term α) :=
+  let q := Qred (Qmult (Qplus (power t₁) (power t₂)) (Qnat comden)) in
   Qnum q;
 
 Fixpoint add_coeff_list α (add_coeff : α → α → α) c₁ fel₁ :=
@@ -134,12 +134,12 @@ Fixpoint insert_sum sum (fe : fifo_elem α) sl :=
 
 Definition insert_term mul_coeff comden s₁ s₂ sl :=
   match (s₁, s₂) with
-  | (Term m₁ ns₁, Term m₂ ns₂) =>
+  | (Term t₁ ns₁, Term t₂ ns₂) =>
       let ns₁ := Lazy.force ns₁ in
       let ns₂ := Lazy.force ns₂ in
-      let c := mul_coeff (coeff m₁) (coeff m₂) in
-      insert_sum (sum_int_powers comden m₁ m₂)
-        {| fe_c := c; fe_t₁ := m₁; fe_t₂ := m₂;
+      let c := mul_coeff (coeff t₁) (coeff t₂) in
+      insert_sum (sum_int_powers comden t₁ t₂)
+        {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂;
            fe_ns₁ := ns₁; fe_ns₂ := ns₂ |}
         sl
   | _ => sl
@@ -177,16 +177,16 @@ CoFixpoint series_mul α add_coeff mul_coeff comden sum_fifo :
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ cd₁ cd₂ :=
   let comden := I.lcm cd₁ cd₂ in
   match s₁ with
-  | Term m₁ ns₁ =>
+  | Term t₁ ns₁ =>
       match s₂ with
-      | Term m₂ ns₂ =>
-          let c := mul_coeff (coeff m₁) (coeff m₂) in
+      | Term t₂ ns₂ =>
+          let c := mul_coeff (coeff t₁) (coeff t₂) in
           let fe :=
-            {| fe_c := c; fe_t₁ := m₁; fe_t₂ := m₂;
+            {| fe_c := c; fe_t₁ := t₁; fe_t₂ := t₂;
                fe_ns₁ := ns₁; fe_ns₂ := ns₂ |}
           in
           series_mul add_coeff mul_coeff comden
-            [(sum_int_powers comden m₁ m₂, [fe])]
+            [(sum_int_powers comden t₁ t₂, [fe])]
       | End => End _
       end
   | End => End _
