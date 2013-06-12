@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.137 2013-06-12 15:27:26 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.138 2013-06-12 15:30:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -137,7 +137,7 @@ Definition add_below α (mul_coeff : α → α → α) sl fel :=
     (λ sl₁ fe,
        match (fe_s₁ fe : series (term α)) with
        | Term t₁ s₁ =>
-            insert_sum (Qred (Qplus (power t₁) (power (fe_t₂ fe))))
+            insert_sum (Qplus (power t₁) (power (fe_t₂ fe)))
               {| fe_t₁ := t₁; fe_t₂ := fe_t₂ fe;
                  fe_s₁ := s₁; fe_s₂ := fe_s₂ fe |}
               sl₁
@@ -150,7 +150,7 @@ Definition add_right α (mul_coeff : α → α → α) sl fel :=
     (λ sl₂ fe,
        match (fe_s₂ fe : series (term α)) with
        | Term t₂ s₂ =>
-            insert_sum (Qred (Qplus (power (fe_t₁ fe)) (power t₂)))
+            insert_sum (Qplus (power (fe_t₁ fe)) (power t₂))
               {| fe_t₁ := fe_t₁ fe; fe_t₂ := t₂;
                  fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ |}
               sl₂
@@ -167,7 +167,7 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
       let m :=
         let c₁ := mul_coeff (coeff (fe_t₁ fe₁)) (coeff (fe_t₂ fe₁)) in
         let c := add_coeff_list add_coeff mul_coeff c₁ fel₁ in
-        {| coeff := c; power := sum |}
+        {| coeff := c; power := Qred sum |}
       in
       let sl₁ := add_below mul_coeff sl [fe₁ :: fel₁] in
       let sl₂ := add_right mul_coeff sl₁ [fe₁ :: fel₁] in
@@ -183,7 +183,7 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
             {| fe_t₁ := t₁; fe_t₂ := t₂; fe_s₁ := ns₁; fe_s₂ := ns₂ |}
           in
           ps_mul_loop add_coeff mul_coeff
-            [(Qred (Qplus (power t₁) (power t₂)), [fe])]
+            [(Qplus (power t₁) (power t₂), [fe])]
       | End => End _
       end
   | End => End _
