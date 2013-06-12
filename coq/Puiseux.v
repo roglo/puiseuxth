@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.628 2013-06-12 17:57:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.629 2013-06-12 18:35:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -327,18 +327,27 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
-  series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
-  → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
-    → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
-        (ps_mul_loop add_coeff mul_coeff sf).
+  List.Forall
+    (λ cfe, ∃ k : nat,
+       (k * Pos.to_nat (Qden (Qred (fst cfe))))%nat = Nat.lcm cd₁ cd₂)
+    sf
+  → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
+    → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
+      → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
+          (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
-intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf H₁ H₂.
+intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hk H₁ H₂.
 rewrite series_eta; simpl.
 destruct sf as [| (sum, y)]; [ constructor; reflexivity | idtac ].
 destruct y; [ constructor; reflexivity | idtac ].
-eapply TermAndFurther; [ reflexivity | idtac | eapply IHs; eassumption ].
-unfold pow_den_div_com_den; simpl.
+eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+ unfold pow_den_div_com_den; simpl.
+ apply List.Forall_inv in Hk.
+ assumption.
+
+ eapply IHs; try eassumption.
+Admitted. (*
 bbb.
 *)
 
@@ -354,8 +363,17 @@ destruct s₁; [ idtac | constructor; reflexivity ].
 rename t into t₁.
 destruct s₂; [ idtac | constructor; reflexivity ].
 rename t into t₂.
-eapply zzz; eassumption.
-qed.
+eapply zzz; try eassumption.
+remember (power t₁ + power t₂) as pp.
+constructor; [ simpl | constructor ].
+apply series_forall_inv in Hps₁.
+apply series_forall_inv in Hps₂.
+destruct Hps₁ as (Hpd₁, Hsf₁).
+destruct Hps₂ as (Hpd₂, Hsf₂).
+unfold pow_den_div_com_den in Hpd₁, Hpd₂.
+destruct Hpd₁ as (k₁, Hpd₁).
+destruct Hpd₂ as (k₂, Hpd₂).
+bbb.
 *)
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
