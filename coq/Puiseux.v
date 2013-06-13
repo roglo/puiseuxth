@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.633 2013-06-13 02:31:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.634 2013-06-13 02:43:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -324,15 +324,20 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
-    (λ cfe, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfe)) = cd₁ * cd₂)%nat)
+    (λ cfel,
+       List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
+         (snd (cfel)))
     sf
-  → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
-    → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
-      → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
-          (ps_mul_loop add_coeff mul_coeff sf).
+  → List.Forall
+      (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
+      sf
+    → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
+      → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
+        → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
+            (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
-intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hk H₁ H₂.
+intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hs Hk H₁ H₂.
 rewrite series_eta; simpl.
 destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
 destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
@@ -367,27 +372,30 @@ rename t into t₁.
 destruct s₂; [ idtac | constructor; reflexivity ].
 rename t into t₂.
 eapply zzz; try eassumption.
-constructor; [ simpl | constructor ].
-apply series_forall_inv in Hps₁.
-apply series_forall_inv in Hps₂.
-destruct Hps₁ as (Hpd₁, Hsf₁).
-destruct Hps₂ as (Hpd₂, Hsf₂).
-unfold pow_den_div_com_den in Hpd₁, Hpd₂.
-destruct Hpd₁ as (k₁, Hpd₁).
-destruct Hpd₂ as (k₂, Hpd₂).
-exists (k₁ * k₂)%nat.
-subst cd₁.
-rewrite <- mult_assoc.
-destruct k₁; [ reflexivity | idtac ].
-rewrite <- mult_assoc.
-apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
-rewrite mult_comm.
-rewrite mult_comm in Hpd₂; subst cd₂.
-rewrite mult_assoc.
-destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
-apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
-rewrite Pos2Nat.inj_mul.
-reflexivity.
+ constructor; [ simpl | constructor ].
+ constructor; [ reflexivity | constructor ].
+
+ constructor; [ simpl | constructor ].
+ apply series_forall_inv in Hps₁.
+ apply series_forall_inv in Hps₂.
+ destruct Hps₁ as (Hpd₁, Hsf₁).
+ destruct Hps₂ as (Hpd₂, Hsf₂).
+ unfold pow_den_div_com_den in Hpd₁, Hpd₂.
+ destruct Hpd₁ as (k₁, Hpd₁).
+ destruct Hpd₂ as (k₂, Hpd₂).
+ exists (k₁ * k₂)%nat.
+ subst cd₁.
+ rewrite <- mult_assoc.
+ destruct k₁; [ reflexivity | idtac ].
+ rewrite <- mult_assoc.
+ apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
+ rewrite mult_comm.
+ rewrite mult_comm in Hpd₂; subst cd₂.
+ rewrite mult_assoc.
+ destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
+ apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
+ rewrite Pos2Nat.inj_mul.
+ reflexivity.
 qed.
 *)
 
