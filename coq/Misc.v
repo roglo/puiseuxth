@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.24 2013-05-18 11:11:44 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.25 2013-06-13 08:33:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -487,3 +487,10 @@ Qed.
 
 Lemma list_cons_app {T} : ∀ x : T, ∀ l, [x … l] = [x] ++ l.
 Proof. reflexivity. Qed.
+
+Lemma list_Forall_inv : ∀ A (P : A → Prop) a l,
+  List.Forall P [a … l] → P a ∧ List.Forall P l.
+Proof.
+intros A P a l H.
+inversion H; split; assumption.
+Qed.

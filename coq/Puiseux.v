@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.636 2013-06-13 08:12:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.637 2013-06-13 08:33:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,12 +325,40 @@ Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
 
-Lemma yyy : ∀ α sf fe,
-  List.Forall (λ cfel : Q * list (fifo_elem α), fifo_sum_prop cfel) sf
-  → List.Forall (λ cfel : Q * list (fifo_elem α), fifo_sum_prop cfel)
+Lemma xxx : ∀ α sum fe fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, fel) … sf]
+  → power (fe_t₁ fe) + power (fe_t₂ fe) == sum
+    → List.Forall (λ cfel, fifo_sum_prop cfel)
+        [(sum, insert_elem fe fel) … sf].
+Proof.
+intros α sum fe fel sf H Hp.
+revert sum fe sf H Hp.
+induction fel as [| fe₁]; intros.
+ simpl.
+ constructor.
+  unfold fifo_sum_prop; simpl.
+  constructor; [ symmetry; assumption | constructor ].
+
+  apply list_Forall_inv in H.
+  destruct H; assumption.
+
+ simpl.
+ remember (power (fe_t₁ fe) ?= power (fe_t₁ fe₁)) as c.
+ symmetry in Heqc.
+ destruct c.
+  remember (power (fe_t₂ fe) ?= power (fe_t₂ fe₁)) as c₂.
+  symmetry in Heqc₂.
+  destruct c₂; [ assumption | idtac | idtac ].
+   constructor.
+    unfold fifo_sum_prop; simpl.
+bbb.
+
+Lemma yyy : ∀ α fe (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → List.Forall (λ cfel, fifo_sum_prop cfel)
       (insert_sum (power (fe_t₁ fe) + power (fe_t₂ fe)) fe sf).
 Proof.
-intros α sf fe H.
+intros α fe sf H.
 revert fe.
 induction sf as [| (sum₁, fel₁)]; intros.
  constructor; [ idtac | constructor ].
@@ -341,6 +369,7 @@ induction sf as [| (sum₁, fel₁)]; intros.
  remember (power (fe_t₁ fe) + power (fe_t₂ fe) ?= sum₁) as c.
  symmetry in Heqc.
  destruct c.
+  apply Qeq_alt in Heqc.
 bbb.
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
