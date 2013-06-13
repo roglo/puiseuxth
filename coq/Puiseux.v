@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.632 2013-06-13 02:08:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.633 2013-06-13 02:31:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -334,14 +334,23 @@ Proof.
 cofix IHs.
 intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hk H₁ H₂.
 rewrite series_eta; simpl.
-destruct sf as [| (sum, y)]; [ constructor; reflexivity | idtac ].
-destruct y; [ constructor; reflexivity | idtac ].
+destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
+destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
 eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  unfold pow_den_div_com_den; simpl.
  apply List.Forall_inv in Hk.
  assumption.
 
  eapply IHs; try eassumption.
+ destruct fel as [| fe₁].
+  simpl.
+  remember (fe_s₂ fe) as ss₂.
+  destruct ss₂.
+   rename t into tt₂.
+   remember (fe_s₁ fe) as ss₁.
+   destruct ss₁.
+    rename t into tt₁.
+    Focus 1.
 bbb.
 *)
 
