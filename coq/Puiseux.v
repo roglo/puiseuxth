@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.635 2013-06-13 06:35:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.636 2013-06-13 08:12:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -324,6 +324,24 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
 Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
+
+Lemma yyy : ∀ α sf fe,
+  List.Forall (λ cfel : Q * list (fifo_elem α), fifo_sum_prop cfel) sf
+  → List.Forall (λ cfel : Q * list (fifo_elem α), fifo_sum_prop cfel)
+      (insert_sum (power (fe_t₁ fe) + power (fe_t₂ fe)) fe sf).
+Proof.
+intros α sf fe H.
+revert fe.
+induction sf as [| (sum₁, fel₁)]; intros.
+ constructor; [ idtac | constructor ].
+ unfold fifo_sum_prop; simpl.
+ constructor; [ reflexivity | constructor ].
+
+ simpl.
+ remember (power (fe_t₁ fe) + power (fe_t₂ fe) ?= sum₁) as c.
+ symmetry in Heqc.
+ destruct c.
+bbb.
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
