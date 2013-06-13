@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.648 2013-06-13 15:57:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.649 2013-06-13 16:11:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -504,6 +504,29 @@ destruct ss₂.
  apply IHfel; assumption.
 Qed.
 
+Lemma yyy : ∀ α mul_coeff cd₁ cd₂ (t₁ t₂ : term α) s₁ s₂ sum fe fel
+    (sf : list (_ * list (fifo_elem α))),
+  series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
+  → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
+  → List.Forall
+      (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
+      [(sum, [fe … fel]) … sf]
+    → List.Forall
+        (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
+        (add_right mul_coeff sf fel).
+Proof.
+intros α mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sum fe fel sf Hs₁ Hs₂ H.
+apply list_Forall_inv in H.
+destruct H as ((k, Hk), H).
+induction fel as [| fe₁].
+ assumption.
+
+ simpl.
+ remember (fe_s₂ fe₁) as ss₂.
+ destruct ss₂.
+  rename t into tt₂.
+bbb.
+
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
@@ -543,6 +566,13 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁; [ idtac | assumption ].
    apply fifo_insert_var; [ assumption | reflexivity | reflexivity ].
+
+  remember (fe_s₂ fe) as ss₂.
+  destruct ss₂.
+   rename t into tt₂.
+   remember (fe_s₁ fe) as ss₁.
+   destruct ss₁.
+    rename t into tt₁.
 bbb.
 *)
 
