@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.647 2013-06-13 15:49:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.648 2013-06-13 15:57:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -491,6 +491,19 @@ destruct ss₁.
  apply IHfel; assumption.
 Qed.
 
+Lemma fifo_add_right : ∀ α mul_coeff fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → List.Forall (λ cfel, fifo_sum_prop cfel) (add_right mul_coeff sf fel).
+Proof.
+intros α mul_coeff fel sf H.
+induction fel as [| fe]; intros; [ assumption | simpl ].
+remember (fe_s₂ fe) as ss₂.
+destruct ss₂.
+ apply fifo_add_sum_right; [ assumption | reflexivity | reflexivity ].
+
+ apply IHfel; assumption.
+Qed.
+
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
@@ -520,38 +533,16 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    rename t into tt₂.
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
-    rename t into tt₁.
     apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
     apply fifo_add_sum_below; [ assumption | reflexivity | reflexivity ].
 
     apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
     apply fifo_add_below; assumption.
-bbb.
 
-cofix IHs.
-intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hs Hk H₁ H₂.
-rewrite series_eta; simpl.
-destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
-destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
-eapply TermAndFurther; [ reflexivity | idtac | idtac ].
- unfold pow_den_div_com_den; simpl.
- apply List.Forall_inv in Hk.
- assumption.
-
- eapply IHs; try eassumption.
-  destruct fel as [| fe₁].
-   simpl.
-   remember (fe_s₂ fe) as ss₂.
-   destruct ss₂.
-    rename t into tt₂.
-    remember (fe_s₁ fe) as ss₁.
-    destruct ss₁.
-     rename t into tt₁.
-     apply fifo_insert_var; [ idtac | reflexivity | reflexivity ].
-     apply fifo_insert_var; [ idtac | reflexivity | reflexivity ].
-     apply list_Forall_inv in Hs.
-     destruct Hs; assumption.
-    Focus 1.
+   apply fifo_add_right, fifo_add_below.
+   remember (fe_s₁ fe) as ss₁.
+   destruct ss₁; [ idtac | assumption ].
+   apply fifo_insert_var; [ assumption | reflexivity | reflexivity ].
 bbb.
 *)
 
