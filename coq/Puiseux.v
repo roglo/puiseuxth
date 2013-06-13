@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.638 2013-06-13 08:42:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.639 2013-06-13 08:58:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -333,8 +333,7 @@ Lemma xxx : ∀ α sum fe fel (sf : list (_ * list (fifo_elem α))),
 Proof.
 intros α sum fe fel sf H Hp.
 revert sum fe sf H Hp.
-induction fel as [| fe₁]; intros.
- simpl.
+induction fel as [| fe₁]; intros; simpl.
  constructor.
   unfold fifo_sum_prop; simpl.
   constructor; [ symmetry; assumption | constructor ].
@@ -342,7 +341,6 @@ induction fel as [| fe₁]; intros.
   apply list_Forall_inv in H.
   destruct H; assumption.
 
- simpl.
  remember (power (fe_t₁ fe) ?= power (fe_t₁ fe₁)) as c.
  symmetry in Heqc.
  destruct c.
@@ -351,13 +349,22 @@ induction fel as [| fe₁]; intros.
   destruct c₂; [ assumption | idtac | idtac ].
    constructor.
     unfold fifo_sum_prop; simpl.
-    constructor.
-     symmetry; assumption.
+    constructor; [ symmetry; assumption | idtac ].
+    apply list_Forall_inv in H.
+    destruct H as (Hf, H).
+    assumption.
 
-     constructor.
-      symmetry.
-      apply Qeq_alt in Heqc.
-      rewrite <- Heqc.
+    apply list_Forall_inv in H.
+    destruct H; assumption.
+
+   constructor.
+    unfold fifo_sum_prop; simpl.
+    constructor.
+     apply list_Forall_inv in H.
+     destruct H as (Hf, H).
+     unfold fifo_sum_prop in Hf; simpl in Hf.
+     apply list_Forall_inv in Hf.
+     destruct Hf; assumption.
 bbb.
 
 Lemma yyy : ∀ α fe (sf : list (_ * list (fifo_elem α))),
