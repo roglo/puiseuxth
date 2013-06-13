@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.631 2013-06-13 01:49:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.632 2013-06-13 02:08:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -299,7 +299,7 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
       let m :=
         let c₁ := mul_coeff (coeff (fe_t₁ fe₁)) (coeff (fe_t₂ fe₁)) in
         let c := add_coeff_list add_coeff mul_coeff c₁ fel₁ in
-        {| coeff := c; power := Qred sum |}
+        {| coeff := c; power := sum |}
       in
       let sl₁ := add_below mul_coeff sl [fe₁ … fel₁] in
       let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
@@ -321,15 +321,10 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   | End => End _
   end.
 
-(*
-   ∃ k : nat, (k * Pos.to_nat (Qden (Qred sum)))%nat = Nat.lcm cd₁ cd₂
-*)
-
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
-    (λ cfe, ∃ k : nat,
-       (k * Pos.to_nat (Qden (Qred (fst cfe))) = cd₁ * cd₂)%nat)
+    (λ cfe, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfe)) = cd₁ * cd₂)%nat)
     sf
   → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
     → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
@@ -347,7 +342,6 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  assumption.
 
  eapply IHs; try eassumption.
-Admitted. (*
 bbb.
 *)
 
@@ -364,7 +358,6 @@ rename t into t₁.
 destruct s₂; [ idtac | constructor; reflexivity ].
 rename t into t₂.
 eapply zzz; try eassumption.
-remember (power t₁ + power t₂) as pp.
 constructor; [ simpl | constructor ].
 apply series_forall_inv in Hps₁.
 apply series_forall_inv in Hps₂.
@@ -373,20 +366,20 @@ destruct Hps₂ as (Hpd₂, Hsf₂).
 unfold pow_den_div_com_den in Hpd₁, Hpd₂.
 destruct Hpd₁ as (k₁, Hpd₁).
 destruct Hpd₂ as (k₂, Hpd₂).
-remember (Z.to_nat (Z.gcd (Qnum pp) (' Qden pp))) as v.
-exists (v * k₁ * k₂)%nat.
-rewrite mult_comm, mult_assoc, mult_assoc.
-rewrite mult_comm in Hpd₂.
-subst cd₂.
-rewrite mult_assoc.
-destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
-apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
-rewrite mult_comm.
+exists (k₁ * k₂)%nat.
 subst cd₁.
 rewrite <- mult_assoc.
 destruct k₁; [ reflexivity | idtac ].
+rewrite <- mult_assoc.
 apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
-bbb.
+rewrite mult_comm.
+rewrite mult_comm in Hpd₂; subst cd₂.
+rewrite mult_assoc.
+destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
+apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
+rewrite Pos2Nat.inj_mul.
+reflexivity.
+qed.
 *)
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,

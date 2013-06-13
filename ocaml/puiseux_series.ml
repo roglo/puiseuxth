@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.140 2013-06-12 19:06:15 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.141 2013-06-13 02:08:13 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -165,7 +165,7 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
       let m :=
         let c₁ := mul_coeff (coeff (fe_t₁ fe₁)) (coeff (fe_t₂ fe₁)) in
         let c := add_coeff_list add_coeff mul_coeff c₁ fel₁ in
-        {| coeff := c; power := Qred sum |}
+        {| coeff := c; power := Q.norm sum |}
       in
       let sl₁ := add_below mul_coeff sl [fe₁ :: fel₁] in
       let sl₂ := add_right mul_coeff sl₁ [fe₁ :: fel₁] in
