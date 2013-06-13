@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.643 2013-06-13 14:02:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.644 2013-06-13 14:39:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -434,6 +434,28 @@ subst t₁ t₂.
 apply fifo_insert; assumption.
 Qed.
 
+Lemma fifo_add_right : ∀ α mul_coeff t₁ t₂ fe fel
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → List.Forall (λ cfel, fifo_sum_prop cfel)
+          (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf) fel).
+Proof.
+intros α mul_coeff t₁ t₂ fe fel sf H H₁ H₂.
+revert t₁ t₂ fe sf H H₁ H₂.
+induction fel as [| fe₁]; intros; simpl.
+ apply fifo_insert_var; assumption.
+
+ remember (fe_s₂ fe₁) as s₂.
+ destruct s₂.
+  rename t into tt₂.
+  apply IHfel; [ idtac | reflexivity | reflexivity ].
+  apply fifo_insert_var; assumption.
+
+  apply IHfel; assumption.
+Qed.
+
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
@@ -445,6 +467,27 @@ Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series
         → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
             (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
+cofix IHs.
+intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hs Hk H₁ H₂.
+rewrite series_eta; simpl.
+destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
+destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
+eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+ unfold pow_den_div_com_den; simpl.
+ apply List.Forall_inv in Hk.
+ assumption.
+
+ eapply IHs; try eassumption.
+  remember (fe_s₂ fe) as ss₂.
+  destruct ss₂.
+   rename t into tt₂.
+   remember (fe_s₁ fe) as ss₁.
+   destruct ss₁.
+    rename t into tt₁.
+  Focus 1.
+bbb.
+    destruct fel as [| fe₁].
+
 cofix IHs.
 intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hs Hk H₁ H₂.
 rewrite series_eta; simpl.
