@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.634 2013-06-13 02:43:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.635 2013-06-13 06:35:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -321,13 +321,13 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   | End => End _
   end.
 
+Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
+  List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
+    (snd cfel).
+
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
-  List.Forall
-    (λ cfel,
-       List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
-         (snd (cfel)))
-    sf
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
   → List.Forall
       (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
       sf
