@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.645 2013-06-13 14:41:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.646 2013-06-13 15:38:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -456,6 +456,28 @@ induction fel as [| fe₁]; intros; simpl.
   apply IHfel; assumption.
 Qed.
 
+Lemma fifo_add_below : ∀ α mul_coeff t₁ t₂ fe fel
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → List.Forall (λ cfel, fifo_sum_prop cfel)
+          (add_below mul_coeff (insert_sum (power t₁ + power t₂) fe sf) fel).
+Proof.
+intros α mul_coeff t₁ t₂ fe fel sf H H₁ H₂.
+revert t₁ t₂ fe sf H H₁ H₂.
+induction fel as [| fe₁]; intros; simpl.
+ apply fifo_insert_var; assumption.
+
+ remember (fe_s₁ fe₁) as s₁.
+ destruct s₁.
+  rename t into tt₁.
+  apply IHfel; [ idtac | reflexivity | reflexivity ].
+  apply fifo_insert_var; assumption.
+
+  apply IHfel; assumption.
+Qed.
+
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
@@ -484,6 +506,11 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+    apply fifo_add_right; [ idtac | reflexivity | reflexivity ].
+    apply fifo_add_below; [ idtac | reflexivity | reflexivity ].
+    apply list_Forall_inv in Hs.
+    destruct Hs; assumption.
+
     apply fifo_add_right; [ idtac | reflexivity | reflexivity ].
     Focus 1.
 bbb.
