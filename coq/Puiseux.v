@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.646 2013-06-13 15:38:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.647 2013-06-13 15:49:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -434,7 +434,7 @@ subst t₁ t₂.
 apply fifo_insert; assumption.
 Qed.
 
-Lemma fifo_add_right : ∀ α mul_coeff t₁ t₂ fe fel
+Lemma fifo_add_sum_right : ∀ α mul_coeff t₁ t₂ fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
   → t₁ = fe_t₁ fe
@@ -456,7 +456,7 @@ induction fel as [| fe₁]; intros; simpl.
   apply IHfel; assumption.
 Qed.
 
-Lemma fifo_add_below : ∀ α mul_coeff t₁ t₂ fe fel
+Lemma fifo_add_sum_below : ∀ α mul_coeff t₁ t₂ fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
   → t₁ = fe_t₁ fe
@@ -476,6 +476,19 @@ induction fel as [| fe₁]; intros; simpl.
   apply fifo_insert_var; assumption.
 
   apply IHfel; assumption.
+Qed.
+
+Lemma fifo_add_below : ∀ α mul_coeff fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → List.Forall (λ cfel, fifo_sum_prop cfel) (add_below mul_coeff sf fel).
+Proof.
+intros α mul_coeff fel sf H.
+induction fel as [| fe]; intros; [ assumption | simpl ].
+remember (fe_s₁ fe) as ss₁.
+destruct ss₁.
+ apply fifo_add_sum_below; [ assumption | reflexivity | reflexivity ].
+
+ apply IHfel; assumption.
 Qed.
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
@@ -500,19 +513,19 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  assumption.
 
  eapply IHs; try eassumption.
+  apply list_Forall_inv in Hs.
+  destruct Hs as (Hf, Hs).
   remember (fe_s₂ fe) as ss₂.
   destruct ss₂.
    rename t into tt₂.
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
-    apply fifo_add_right; [ idtac | reflexivity | reflexivity ].
-    apply fifo_add_below; [ idtac | reflexivity | reflexivity ].
-    apply list_Forall_inv in Hs.
-    destruct Hs; assumption.
+    apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
+    apply fifo_add_sum_below; [ assumption | reflexivity | reflexivity ].
 
-    apply fifo_add_right; [ idtac | reflexivity | reflexivity ].
-    Focus 1.
+    apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
+    apply fifo_add_below; assumption.
 bbb.
 
 cofix IHs.
