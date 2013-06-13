@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.640 2013-06-13 09:09:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.641 2013-06-13 09:20:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,57 +325,33 @@ Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
 
-Lemma www : ∀ α sum fe₁ (fel : list (fifo_elem α)),
+Lemma insert_same_sum : ∀ α sum fe₁ (fel : list (fifo_elem α)),
   List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe)) fel
   → power (fe_t₁ fe₁) + power (fe_t₂ fe₁) == sum
     → List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe))
        (insert_elem fe₁ fel).
 Proof.
 intros α sum fe₁ fel Hf Hp.
+symmetry in Hp.
 revert sum fe₁ Hf Hp.
 induction fel as [| fe₂]; intros.
- constructor.
-  symmetry; assumption.
+ constructor; assumption.
 
-  constructor.
-
+ apply list_Forall_inv in Hf.
+ destruct Hf as (Hs, Hf).
  simpl.
  remember (power (fe_t₁ fe₁) ?= power (fe_t₁ fe₂)) as c₁.
- symmetry in Heqc₁.
  destruct c₁.
   remember (power (fe_t₂ fe₁) ?= power (fe_t₂ fe₂)) as c₂.
-  symmetry in Heqc₂.
-  destruct c₂; [ assumption | idtac | idtac ].
-   constructor.
-    symmetry; assumption.
+  destruct c₂; [ constructor; assumption | idtac | idtac ].
+   constructor; [ assumption | constructor; assumption ].
 
-    assumption.
+   constructor; [ assumption | apply IHfel; assumption ].
 
-   constructor.
-    apply list_Forall_inv in Hf.
-    destruct Hf; assumption.
+  constructor; [ assumption | constructor; assumption ].
 
-    apply IHfel.
-     apply list_Forall_inv in Hf.
-     destruct Hf; assumption.
-
-     assumption.
-
-  constructor.
-   symmetry; assumption.
-
-   assumption.
-
-  constructor.
-   apply list_Forall_inv in Hf.
-   destruct Hf; assumption.
-
-   apply IHfel.
-    apply list_Forall_inv in Hf.
-    destruct Hf; assumption.
-
-    assumption.
-www.
+  constructor; [ assumption | apply IHfel; assumption ].
+Qed.
 
 Lemma xxx : ∀ α sum fe fel (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, fel) … sf]
@@ -412,6 +388,13 @@ induction fel as [| fe₁]; intros; simpl.
    constructor.
     unfold fifo_sum_prop; simpl.
     constructor.
+     apply list_Forall_inv in H.
+     destruct H as (Hf, H).
+     unfold fifo_sum_prop in Hf; simpl in Hf.
+     apply list_Forall_inv in Hf.
+     destruct Hf; assumption.
+
+     apply insert_same_sum; [ idtac | assumption ].
      apply list_Forall_inv in H.
      destruct H as (Hf, H).
      unfold fifo_sum_prop in Hf; simpl in Hf.
