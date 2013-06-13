@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.637 2013-06-13 08:33:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.638 2013-06-13 08:42:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -351,6 +351,13 @@ induction fel as [| fe₁]; intros.
   destruct c₂; [ assumption | idtac | idtac ].
    constructor.
     unfold fifo_sum_prop; simpl.
+    constructor.
+     symmetry; assumption.
+
+     constructor.
+      symmetry.
+      apply Qeq_alt in Heqc.
+      rewrite <- Heqc.
 bbb.
 
 Lemma yyy : ∀ α fe (sf : list (_ * list (fifo_elem α))),
