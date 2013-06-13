@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.642 2013-06-13 11:14:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.643 2013-06-13 14:02:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -396,14 +396,13 @@ destruct fel as [| fe₁]; simpl.
   apply insert_same_sum; assumption.
 Qed.
 
-Lemma yyy : ∀ α fe (sf : list (_ * list (fifo_elem α))),
+Lemma fifo_insert : ∀ α fe (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
   → List.Forall (λ cfel, fifo_sum_prop cfel)
       (insert_sum (power (fe_t₁ fe) + power (fe_t₂ fe)) fe sf).
 Proof.
 intros α fe sf H.
-revert fe.
-induction sf as [| (sum₁, fel₁)]; intros.
+induction sf as [| (sum₁, fel₁)].
  constructor; [ idtac | constructor ].
  unfold fifo_sum_prop; simpl.
  constructor; [ reflexivity | constructor ].
@@ -414,7 +413,26 @@ induction sf as [| (sum₁, fel₁)]; intros.
  destruct c.
   apply Qeq_alt in Heqc.
   apply fifo_insert_same; assumption.
-bbb.
+
+  constructor; [ idtac | assumption ].
+  constructor; [ reflexivity | constructor ].
+
+  apply list_Forall_inv in H.
+  destruct H as (Hf, H).
+  constructor; [ assumption | apply IHsf; assumption ].
+Qed.
+
+Lemma fifo_insert_var : ∀ α fe t₁ t₂ (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → List.Forall (λ cfel, fifo_sum_prop cfel)
+          (insert_sum (power t₁ + power t₂) fe sf).
+Proof.
+intros α fe t₁ t₂ sf H H₁ H₂.
+subst t₁ t₂.
+apply fifo_insert; assumption.
+Qed.
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
@@ -438,14 +456,18 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  assumption.
 
  eapply IHs; try eassumption.
- destruct fel as [| fe₁].
-  simpl.
-  remember (fe_s₂ fe) as ss₂.
-  destruct ss₂.
-   rename t into tt₂.
-   remember (fe_s₁ fe) as ss₁.
-   destruct ss₁.
-    rename t into tt₁.
+  destruct fel as [| fe₁].
+   simpl.
+   remember (fe_s₂ fe) as ss₂.
+   destruct ss₂.
+    rename t into tt₂.
+    remember (fe_s₁ fe) as ss₁.
+    destruct ss₁.
+     rename t into tt₁.
+     apply fifo_insert_var; [ idtac | reflexivity | reflexivity ].
+     apply fifo_insert_var; [ idtac | reflexivity | reflexivity ].
+     apply list_Forall_inv in Hs.
+     destruct Hs; assumption.
     Focus 1.
 bbb.
 *)
