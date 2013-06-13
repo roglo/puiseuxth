@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.650 2013-06-13 17:22:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.651 2013-06-13 17:59:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -600,6 +600,18 @@ bbb.
  apply IHfel; assumption.
 bbb.
 *)
+
+Open Scope nat_scope.
+
+Lemma xxx : ∀ s a b c k₁,
+  s == a + b
+  → k₁ * Pos.to_nat (Qden s) = c
+    → ∃ k : nat, k * Pos.to_nat (Qden a * Qden b) = c.
+Proof.
+intros s a b c k₁ Hs Hc.
+bbb.
+
+Close Scope nat_scope.
 
 Lemma yyy : ∀ α mul_coeff cd₁ cd₂ sum fe fel
      (sf : list (_ * list (fifo_elem α))),
