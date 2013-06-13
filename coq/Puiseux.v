@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.649 2013-06-13 16:11:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.650 2013-06-13 17:22:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,6 +325,9 @@ Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
 
+Definition fifo_exists_k α cd₁ cd₂ (cfel : (Q * list (fifo_elem α))) :=
+  ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat.
+
 Lemma insert_same_sum : ∀ α sum fe₁ (fel : list (fifo_elem α)),
   List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe)) fel
   → power (fe_t₁ fe₁) + power (fe_t₂ fe₁) == sum
@@ -396,6 +399,17 @@ destruct fel as [| fe₁]; simpl.
   apply insert_same_sum; assumption.
 Qed.
 
+(*
+Lemma uuu : ∀ α fe P (sf : list (_ * list (fifo_elem α))),
+  List.Forall P sf
+  → List.Forall P (insert_sum (power (fe_t₁ fe) + power (fe_t₂ fe)) fe sf).
+Proof.
+intros α fe P sf H.
+induction sf as [| (sum₁, fel₁)].
+ constructor; [ idtac | constructor ].
+bbb.
+*)
+
 Lemma fifo_insert : ∀ α fe (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
   → List.Forall (λ cfel, fifo_sum_prop cfel)
@@ -434,6 +448,47 @@ subst t₁ t₂.
 apply fifo_insert; assumption.
 Qed.
 
+(*
+Lemma www : ∀ α fe t₁ t₂ cd₁ cd₂ (sf : list (_ * list (fifo_elem α))),
+  List.Forall (fifo_exists_k cd₁ cd₂) sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → List.Forall (fifo_exists_k cd₁ cd₂)
+            (insert_sum (power t₁ + power t₂) fe sf).
+Proof.
+intros α fe t₁ t₂ cd₁ cd₂ sf H H₁ H₂.
+subst t₁ t₂.
+induction sf as [| (sum₁, fel₁)].
+ constructor; [ idtac | constructor ].
+ unfold fifo_exists_k; simpl.
+bbb.
+*)
+
+(*
+Lemma vvv : ∀ α fe t₁ t₂ P (sf : list (_ * list (fifo_elem α))),
+  List.Forall P sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → List.Forall P (insert_sum (power t₁ + power t₂) fe sf).
+Proof.
+intros α fe t₁ t₂ P sf H H₁ H₂.
+subst t₁ t₂.
+bbb.
+
+Lemma www : ∀ α mul_coeff t₁ t₂ fe fel P
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall P sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → List.Forall P
+          (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf) fel).
+Proof.
+intros α mul_coeff t₁ t₂ fe fel P sf H H₁ H₂.
+revert t₁ t₂ fe sf H H₁ H₂.
+induction fel as [| fe₁]; intros; simpl.
+bbb.
+*)
+
 Lemma fifo_add_sum_right : ∀ α mul_coeff t₁ t₂ fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
@@ -455,6 +510,32 @@ induction fel as [| fe₁]; intros; simpl.
 
   apply IHfel; assumption.
 Qed.
+
+(*
+Lemma xxx : ∀ α mul_coeff t₁ t₂ cd₁ cd₂ fe fel
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall (fifo_exists_k cd₁ cd₂) sf
+  → List.Forall (fifo_exists_k cd₁ cd₂) (add_right mul_coeff sf fel)
+    → t₁ = fe_t₁ fe
+      → t₂ = fe_t₂ fe
+        → List.Forall (fifo_exists_k cd₁ cd₂)
+            (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
+               fel).
+Proof.
+intros α mul_coeff t₁ t₂ cd₁ cd₂ fe fel sf Hf Hrf H₁ H₂.
+revert t₁ t₂ cd₁ cd₂ fe sf Hf Hrf H₁ H₂.
+induction fel as [| fe₁]; intros; simpl.
+ Focus 2.
+ remember (fe_s₂ fe₁) as s₂.
+ destruct s₂.
+  rename t into tt₂.
+  apply IHfel; [ idtac | reflexivity | reflexivity ].
+  Focus 2.
+  apply IHfel; assumption.
+
+  Unfocus.
+bbb.
+*)
 
 Lemma fifo_add_sum_below : ∀ α mul_coeff t₁ t₂ fe fel
     (sf : list (_ * list (fifo_elem α))),
@@ -504,35 +585,54 @@ destruct ss₂.
  apply IHfel; assumption.
 Qed.
 
-Lemma yyy : ∀ α mul_coeff cd₁ cd₂ (t₁ t₂ : term α) s₁ s₂ sum fe fel
-    (sf : list (_ * list (fifo_elem α))),
-  series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
-  → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
-  → List.Forall
-      (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
-      [(sum, [fe … fel]) … sf]
-    → List.Forall
-        (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
-        (add_right mul_coeff sf fel).
+(*
+Lemma yyy : ∀ α mul_coeff cd₁ cd₂ fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall (fifo_exists_k cd₁ cd₂) sf
+  → List.Forall (fifo_exists_k cd₁ cd₂) (add_right mul_coeff sf fel).
 Proof.
-intros α mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sum fe fel sf Hs₁ Hs₂ H.
-apply list_Forall_inv in H.
-destruct H as ((k, Hk), H).
-induction fel as [| fe₁].
- assumption.
-
- simpl.
- remember (fe_s₂ fe₁) as ss₂.
- destruct ss₂.
-  rename t into tt₂.
+intros α mul_coeff cd₁ cd₂ fel sf H.
+induction fel as [| fe]; intros; [ assumption | simpl ].
+remember (fe_s₂ fe) as ss₂.
+destruct ss₂.
 bbb.
+
+ Focus 2.
+ apply IHfel; assumption.
+bbb.
+*)
+
+Lemma yyy : ∀ α mul_coeff cd₁ cd₂ sum fe fel
+     (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
+  → List.Forall (fifo_exists_k cd₁ cd₂) [(sum, [fe … fel]) … sf]
+    → List.Forall (fifo_exists_k cd₁ cd₂)
+        (add_right mul_coeff
+           (insert_sum (power (fe_t₁ fe) + power (fe_t₂ fe)) fe sf)
+           fel).
+Proof.
+intros α mul_coeff cd₁ cd₂ sum fe fel sf Hs Hk.
+induction fel as [| fe₁]; intros.
+ simpl.
+ induction sf as [| (sum₁, fel₁)].
+  constructor; [ idtac | constructor ].
+  unfold fifo_exists_k; simpl.
+  apply list_Forall_inv in Hk.
+  destruct Hk as (He, _).
+  unfold fifo_exists_k in He.
+  destruct He as (k₁, He).
+  apply list_Forall_inv in Hs.
+  destruct Hs as (Hf, _).
+  unfold fifo_sum_prop in Hf; simpl in Hf.
+  apply list_Forall_inv in Hf.
+  destruct Hf as (Hf, _).
+  simpl in He.
+bbb.
+*)
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
-  → List.Forall
-      (λ cfel, ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat)
-      sf
+  → List.Forall (fifo_exists_k cd₁ cd₂) sf
     → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
       → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
         → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
@@ -611,7 +711,7 @@ eapply zzz; try eassumption.
  rewrite mult_assoc.
  destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
  apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
- rewrite Pos2Nat.inj_mul.
+ simpl; rewrite Pos2Nat.inj_mul.
  reflexivity.
 qed.
 *)
