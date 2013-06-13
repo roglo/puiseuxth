@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.639 2013-06-13 08:58:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.640 2013-06-13 09:09:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -324,6 +324,58 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
 Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
+
+Lemma www : ∀ α sum fe₁ (fel : list (fifo_elem α)),
+  List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe)) fel
+  → power (fe_t₁ fe₁) + power (fe_t₂ fe₁) == sum
+    → List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe))
+       (insert_elem fe₁ fel).
+Proof.
+intros α sum fe₁ fel Hf Hp.
+revert sum fe₁ Hf Hp.
+induction fel as [| fe₂]; intros.
+ constructor.
+  symmetry; assumption.
+
+  constructor.
+
+ simpl.
+ remember (power (fe_t₁ fe₁) ?= power (fe_t₁ fe₂)) as c₁.
+ symmetry in Heqc₁.
+ destruct c₁.
+  remember (power (fe_t₂ fe₁) ?= power (fe_t₂ fe₂)) as c₂.
+  symmetry in Heqc₂.
+  destruct c₂; [ assumption | idtac | idtac ].
+   constructor.
+    symmetry; assumption.
+
+    assumption.
+
+   constructor.
+    apply list_Forall_inv in Hf.
+    destruct Hf; assumption.
+
+    apply IHfel.
+     apply list_Forall_inv in Hf.
+     destruct Hf; assumption.
+
+     assumption.
+
+  constructor.
+   symmetry; assumption.
+
+   assumption.
+
+  constructor.
+   apply list_Forall_inv in Hf.
+   destruct Hf; assumption.
+
+   apply IHfel.
+    apply list_Forall_inv in Hf.
+    destruct Hf; assumption.
+
+    assumption.
+www.
 
 Lemma xxx : ∀ α sum fe fel (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, fel) … sf]
