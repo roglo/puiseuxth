@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.630 2013-06-12 19:06:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.631 2013-06-13 01:49:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -373,6 +373,19 @@ destruct Hps₂ as (Hpd₂, Hsf₂).
 unfold pow_den_div_com_den in Hpd₁, Hpd₂.
 destruct Hpd₁ as (k₁, Hpd₁).
 destruct Hpd₂ as (k₂, Hpd₂).
+remember (Z.to_nat (Z.gcd (Qnum pp) (' Qden pp))) as v.
+exists (v * k₁ * k₂)%nat.
+rewrite mult_comm, mult_assoc, mult_assoc.
+rewrite mult_comm in Hpd₂.
+subst cd₂.
+rewrite mult_assoc.
+destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
+apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
+rewrite mult_comm.
+subst cd₁.
+rewrite <- mult_assoc.
+destruct k₁; [ reflexivity | idtac ].
+apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
 bbb.
 *)
 
