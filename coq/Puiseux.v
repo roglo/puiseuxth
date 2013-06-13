@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.644 2013-06-13 14:39:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.645 2013-06-13 14:41:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -484,9 +484,9 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
-  Focus 1.
+    apply fifo_add_right; [ idtac | reflexivity | reflexivity ].
+    Focus 1.
 bbb.
-    destruct fel as [| fe₁].
 
 cofix IHs.
 intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hs Hk H₁ H₂.
