@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.651 2013-06-13 17:59:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.652 2013-06-14 01:23:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,8 +325,11 @@ Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
 
-Definition fifo_exists_k α cd₁ cd₂ (cfel : (Q * list (fifo_elem α))) :=
-  ∃ k : nat, (k * Pos.to_nat (Qden (fst cfel)) = cd₁ * cd₂)%nat.
+Definition fifo_exists_k α comden (cfel : (Q * list (fifo_elem α))) :=
+  ∃ k : nat,
+  (k * Pos.to_nat (Qden (fst cfel)) /
+     gcd (Z.abs_nat (Qnum (fst cfel))) (Pos.to_nat (Qden (fst cfel))) =
+   comden)%nat.
 
 Lemma insert_same_sum : ∀ α sum fe₁ (fel : list (fifo_elem α)),
   List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe)) fel
@@ -603,6 +606,7 @@ bbb.
 
 Open Scope nat_scope.
 
+(*
 Lemma xxx : ∀ s a b c k₁,
   s == a + b
   → k₁ * Pos.to_nat (Qden s) = c
@@ -610,21 +614,23 @@ Lemma xxx : ∀ s a b c k₁,
 Proof.
 intros s a b c k₁ Hs Hc.
 bbb.
+*)
 
 Close Scope nat_scope.
 
-Lemma yyy : ∀ α mul_coeff cd₁ cd₂ sum fe fel
+(*
+Lemma yyy : ∀ α mul_coeff t₁ t₂ cd₁ cd₂ sum fe fel
      (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
   → List.Forall (fifo_exists_k cd₁ cd₂) [(sum, [fe … fel]) … sf]
-    → List.Forall (fifo_exists_k cd₁ cd₂)
-        (add_right mul_coeff
-           (insert_sum (power (fe_t₁ fe) + power (fe_t₂ fe)) fe sf)
-           fel).
+    → t₁ = fe_t₁ fe
+      → t₂ = fe_t₂ fe
+        → List.Forall (fifo_exists_k cd₁ cd₂)
+            (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
+               fel).
 Proof.
-intros α mul_coeff cd₁ cd₂ sum fe fel sf Hs Hk.
-induction fel as [| fe₁]; intros.
- simpl.
+intros α mul_coeff t₁ t₂ cd₁ cd₂ sum fe fel sf Hs Hk.
+induction fel as [| fe₁]; intros; simpl.
  induction sf as [| (sum₁, fel₁)].
   constructor; [ idtac | constructor ].
   unfold fifo_exists_k; simpl.
@@ -641,23 +647,26 @@ induction fel as [| fe₁]; intros.
 bbb.
 *)
 
-Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ (s₁ s₂ : series (term α))
-    (sf : list (_ * list (fifo_elem α))),
+(**)
+Lemma zzz : ∀ α add_coeff mul_coeff cd (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
-  → List.Forall (fifo_exists_k cd₁ cd₂) sf
-    → series_forall (pow_den_div_com_den cd₁) (Term t₁ s₁)
-      → series_forall (pow_den_div_com_den cd₂) (Term t₂ s₂)
-        → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
-            (ps_mul_loop add_coeff mul_coeff sf).
+  → List.Forall (fifo_exists_k cd) sf
+    → series_forall (pow_den_div_com_den cd)
+        (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
-intros α add_coeff mul_coeff cd₁ cd₂ t₁ t₂ s₁ s₂ sf Hs Hk H₁ H₂.
+intros α add_coeff mul_coeff cd sf Hs Hk.
 rewrite series_eta; simpl.
 destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
 destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
 eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  unfold pow_den_div_com_den; simpl.
  apply List.Forall_inv in Hk.
+ unfold fifo_exists_k in Hk; simpl in Hk.
+ destruct Hk as (k₁, Hk).
+ Focus 1.
+bbb.
+
  assumption.
 
  eapply IHs; try eassumption.
@@ -700,6 +709,16 @@ destruct s₁; [ idtac | constructor; reflexivity ].
 rename t into t₁.
 destruct s₂; [ idtac | constructor; reflexivity ].
 rename t into t₂.
+apply series_forall_inv in Hps₁.
+apply series_forall_inv in Hps₂.
+destruct Hps₁ as (Hp₁, Hs₁).
+destruct Hps₂ as (Hp₂, Hs₂).
+unfold pow_den_div_com_den in Hp₁; simpl in Hp₁.
+unfold pow_den_div_com_den in Hp₂; simpl in Hp₂.
+destruct Hp₁ as (k₁, Hp₁).
+destruct Hp₂ as (k₂, Hp₂).
+bbb.
+
 eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
  constructor; [ reflexivity | constructor ].

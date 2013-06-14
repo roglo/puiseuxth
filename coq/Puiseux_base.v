@@ -1,10 +1,12 @@
-(* $Id: Puiseux_base.v,v 1.19 2013-06-10 14:43:49 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.20 2013-06-14 01:23:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
+Require Import NPeano.
+
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
@@ -48,8 +50,13 @@ Record term α := { coeff : α; power : Q }.
    computable (therefore proof not constructive). *)
 Axiom series_head : ∀ α, series (term α) → series (term α).
 
+Definition den_divides_comden p comden :=
+  divide
+    (Pos.to_nat (Qden p) / gcd (Z.abs_nat (Qnum p)) (Pos.to_nat (Qden p)))
+    comden.
+
 Definition pow_den_div_com_den α comden (t : term α) :=
-  ∃ k, (k * Pos.to_nat (Qden (power t)))%nat = comden.
+  den_divides_comden (power t) comden.
 
 Record puiseux_series α :=
   { ps_terms : series (term α);
