@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.141 2013-06-13 02:08:13 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.142 2013-06-14 01:46:58 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -98,7 +98,7 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) (mul_coeff : α → α
   match fel₁ with
   | [] =>
       c₁
-  | [fe :: fel] =>
+  | [fe … fel] =>
       let c := mul_coeff (coeff (fe_t₁ fe)) (coeff (fe_t₂ fe)) in
       add_coeff c₁ (add_coeff_list add_coeff mul_coeff c fel)
   end;
@@ -106,27 +106,27 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) (mul_coeff : α → α
 Fixpoint insert_elem α (fe : fifo_elem α) fel :=
   match fel with
   | [] => [fe]
-  | [fe₁ :: fel₁] =>
+  | [fe₁ … fel₁] =>
       match Qcompare (power (fe_t₁ fe)) (power (fe_t₁ fe₁)) with
       | Eq =>
           match Qcompare (power (fe_t₂ fe)) (power (fe_t₂ fe₁)) with
           | Eq => fel
-          | Lt => [fe :: fel]
-          | Gt => [fe₁ :: insert_elem fe fel₁]
+          | Lt => [fe … fel]
+          | Gt => [fe₁ … insert_elem fe fel₁]
           end
-      | Lt => [fe :: fel]
-      | Gt => [fe₁ :: insert_elem fe fel₁]
+      | Lt => [fe … fel]
+      | Gt => [fe₁ … insert_elem fe fel₁]
       end
   end;
 
 Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
   match sl with
   | [] => [(sum, [fe])]
-  | [(sum₁, fel₁) :: l] =>
+  | [(sum₁, fel₁) … l] =>
       match Qcompare sum sum₁ with
-      | Eq => [(sum₁, insert_elem fe fel₁) :: l]
-      | Lt => [(sum, [fe]) :: sl]
-      | Gt => [(sum₁, fel₁) :: insert_sum sum fe l]
+      | Eq => [(sum₁, insert_elem fe fel₁) … l]
+      | Lt => [(sum, [fe]) … sl]
+      | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
       end
   end;
 
@@ -160,15 +160,15 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
     series (term α) :=
   match sum_fifo with
   | [] => End _
-  | [(sum, []) :: sl] => End _
-  | [(sum, [fe₁ :: fel₁]) :: sl] =>
+  | [(sum, []) … sl] => End _
+  | [(sum, [fe₁ … fel₁]) … sl] =>
       let m :=
         let c₁ := mul_coeff (coeff (fe_t₁ fe₁)) (coeff (fe_t₂ fe₁)) in
         let c := add_coeff_list add_coeff mul_coeff c₁ fel₁ in
         {| coeff := c; power := Q.norm sum |}
       in
-      let sl₁ := add_below mul_coeff sl [fe₁ :: fel₁] in
-      let sl₂ := add_right mul_coeff sl₁ [fe₁ :: fel₁] in
+      let sl₁ := add_below mul_coeff sl [fe₁ … fel₁] in
+      let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
       Term m (ps_mul_loop add_coeff mul_coeff sl₂)
   end;
 
@@ -202,13 +202,13 @@ value ops2ps ops =
     loop ops.old_ps_mon where rec loop =
       fun
       [ [] → End
-      | [m₁ :: ml₁] → Term m₁ (loop ml₁) ]
+      | [m₁ … ml₁] → Term m₁ (loop ml₁) ]
   in
   let comden =
     loop ops.old_ps_mon where rec loop =
       fun
       [ [] → I.one
-      | [m₁ :: ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
+      | [m₁ … ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
   in
   {ps_terms = terms; ps_comden = comden}
 ;
@@ -216,7 +216,7 @@ value ops2ps ops =
 value ps2ops ps =
   let rec loop ms =
     match ms with
-    | Term m₁ ms₁ → [m₁ :: loop (Lazy.force ms₁)]
+    | Term m₁ ms₁ → [m₁ … loop (Lazy.force ms₁)]
     | End → []
     end
   in

@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.42 2013-06-12 13:59:37 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.43 2013-06-14 01:46:58 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -16,6 +16,34 @@ value rec generalized_type_of_type =
       ([t1 :: tl], rt)
   | t ->
       ([], t) ]
+;
+
+value mklistexp loc last =
+  loop True where rec loop top =
+    fun
+    [ [] ->
+        match last with
+        [ Some e -> e
+        | None -> <:expr< [] >> ]
+    | [e1 :: el] ->
+        let loc =
+          if top then loc else Ploc.encl (MLast.loc_of_expr e1) loc
+        in
+        <:expr< [$e1$ :: $loop False el$] >> ]
+;
+
+value mklistpat loc last =
+  loop True where rec loop top =
+    fun
+    [ [] ->
+        match last with
+        [ Some p -> p
+        | None -> <:patt< [] >> ]
+    | [p1 :: pl] ->
+        let loc =
+          if top then loc else Ploc.encl (MLast.loc_of_patt p1) loc
+        in
+        <:patt< [$p1$ :: $loop False pl$] >> ]
 ;
 
 EXTEND
@@ -129,6 +157,8 @@ EXTEND
           <:expr< fun $p$ → $e$ >>
       | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" →
           <:expr< { $_list:lel$ } >>
+      | "["; el = LIST1 expr SEP ";"; last = cons_expr_opt; "]" ->
+          mklistexp loc last el
       | LIDENT "eq_nat_dec" →
          <:expr< $lid:"="$ >>
       | LIDENT "lt_dec" →
@@ -169,6 +199,18 @@ EXTEND
           <:expr< False >>
       | LIDENT "true" →
           <:expr< True >> ] ]
+  ;
+  patt: LEVEL "simple"
+    [ [ "["; pl = LIST1 patt SEP ";"; last = cons_patt_opt; "]" ->
+          mklistpat loc last pl ] ]
+  ;
+  cons_patt_opt:
+    [ [ "…"; p = patt -> Some p
+      | -> None ] ]
+  ;
+  cons_expr_opt:
+    [ [ "…"; e = expr -> Some e
+      | -> None ] ]
   ;
   coq_fun_def:
     [ RIGHTA

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.354 2013-06-11 15:15:31 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.355 2013-06-14 01:46:58 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -83,11 +83,11 @@ Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   match pts₂ with
   | [] =>
       {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := [] |}
-  | [pt₃ :: pts₃] =>
+  | [pt₃ … pts₃] =>
       let ms := minimise_slope pt₁ pt₃ pts₃ in
       match Qcompare sl₁₂ (slope ms) with
       | Eq =>
-          {| slope := slope ms; end_pt := end_pt ms; seg := [pt₂ :: seg ms];
+          {| slope := slope ms; end_pt := end_pt ms; seg := [pt₂ … seg ms];
              rem_pts := rem_pts ms |}
       | Lt =>
           {| slope := sl₁₂; end_pt := pt₂; seg := []; rem_pts := pts₂ |}
@@ -103,10 +103,10 @@ Fixpoint next_ch_points n pts :=
       match pts with
       | [] => []
       | [pt₁] => [{| pt := pt₁; oth := [] |}]
-      | [pt₁; pt₂ :: pts₂] =>
+      | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope pt₁ pt₂ pts₂ in
-          let hsl := next_ch_points n [end_pt ms :: rem_pts ms] in
-          [{| pt := pt₁; oth := seg ms |} :: hsl]
+          let hsl := next_ch_points n [end_pt ms … rem_pts ms] in
+          [{| pt := pt₁; oth := seg ms |} … hsl]
       end
   end;
 
@@ -117,7 +117,7 @@ Fixpoint list_map_pairs (f : α → α → β) l :=
   match l with
   | [] => []
   | [x₁] => []
-  | [x₁ :: ([x₂ :: l₂] as l₁)] => [f x₁ x₂ :: list_map_pairs f l₁]
+  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs f l₁]
   end;
 
 Record newton_segment := mkns
@@ -129,17 +129,17 @@ Record newton_segment := mkns
 
 Fixpoint all_points_of_ps_polynom pow psl (psn : puiseux_series α) :=
   match psl with
-  | [ps₁ :: psl₁] =>
-      [(Qnat pow, ps₁) :: all_points_of_ps_polynom (S pow) psl₁ psn]
+  | [ps₁ … psl₁] =>
+      [(Qnat pow, ps₁) … all_points_of_ps_polynom (S pow) psl₁ psn]
   | [] =>
       [(Qnat pow, psn)]
   end;
 
 Fixpoint filter_non_zero_ps (dpl : list (Q * puiseux_series α)) :=
   match dpl with
-  | [(pow, ps) :: dpl₁] =>
+  | [(pow, ps) … dpl₁] =>
       match valuation ps with
-      | Some v => [(pow, v) :: filter_non_zero_ps dpl₁]
+      | Some v => [(pow, v) … filter_non_zero_ps dpl₁]
       | None => filter_non_zero_ps dpl₁
       end
   | [] =>
@@ -216,7 +216,7 @@ Fixpoint series_take n s :=
   | O => []
   | S n₁ =>
       match s with
-      | Term x s₁ => [x :: series_take n₁ s₁]
+      | Term x s₁ => [x … series_take n₁ s₁]
       | End => []
       end
   end;
@@ -322,7 +322,7 @@ value make_solution rev_cγl =
     loop Q.zero (List.rev rev_cγl) where rec loop γsum cγl =
       match cγl with
       | [] → End
-      | [(c, γ) :: cγl₁] →
+      | [(c, γ) … cγl₁] →
           let γsum = Q.norm (Q.add γsum γ) in
           Term {coeff = c; power = γsum} (loop γsum cγl₁)
       end
@@ -331,7 +331,7 @@ value make_solution rev_cγl =
     loop (List.rev rev_cγl) where rec loop cγl =
       match cγl with
       | [] → I.one
-      | [(c, γ) :: cγl₁] → I.lcm (Q.rden γ) (loop cγl₁)
+      | [(c, γ) … cγl₁] → I.lcm (Q.rden γ) (loop cγl₁)
       end
   in
   {ps_terms = t; ps_comden = d}
@@ -340,7 +340,7 @@ value make_solution rev_cγl =
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
-  | [ps :: _] =>
+  | [ps … _] =>
       match series_head (ps_terms ps) with
       | Term _ _ => false
       | End => true
@@ -363,11 +363,11 @@ Fixpoint list_nth n l default :=
   match n with
   | 0 => match l with
          | [] => default
-         | [x :: _] => x
+         | [x … _] => x
          end
   | S m => match l with
            | [] => default
-           | [_ :: t] => list_nth m t default
+           | [_ … t] => list_nth m t default
            end
   end;
 
@@ -377,12 +377,12 @@ Fixpoint make_char_pol (fld : field α _) cdeg dcl n :=
   | S n₁ =>
       match dcl with
       | [] =>
-          [zero fld :: make_char_pol fld (S cdeg) [] n₁]
-      | [(deg, coeff) :: dcl₁] =>
+          [zero fld … make_char_pol fld (S cdeg) [] n₁]
+      | [(deg, coeff) … dcl₁] =>
           if eq_nat_dec deg cdeg then
-            [coeff :: make_char_pol fld (S cdeg) dcl₁ n₁]
+            [coeff … make_char_pol fld (S cdeg) dcl₁ n₁]
           else
-            [zero fld :: make_char_pol fld (S cdeg) dcl n₁]
+            [zero fld … make_char_pol fld (S cdeg) dcl n₁]
       end
     end;
 
@@ -393,7 +393,7 @@ Definition deg_coeff_of_point (fld : field α _) pol (pt : (Q * Q)) :=
   (h, c);
 
 Definition characteristic_polynomial (fld : field α _) pol ns :=
-  let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns :: oth_pts ns] in
+  let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let cl := make_char_pol fld j dcl (k - j) in
@@ -412,7 +412,7 @@ Definition puiseux_step psumo acf (pol : polynomial (puiseux_series α)) :=
   in
   match nsl with
   | [] => None
-  | [ns :: _] =>
+  | [ns … _] =>
       let fld := ac_field acf in
       let cpol := characteristic_polynomial fld pol ns in
       let (c, r) := List.hd (ac_roots acf cpol) in
@@ -460,7 +460,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
     printf "  %s\n%!" s
   else ();
   let finite = zero_is_root pol in
-  let cγl = [(r, γ) :: br.cγl] in
+  let cγl = [(r, γ) … br.cγl] in
   if br.rem_steps = 0 || finite then do {
     if verbose.val then do {
       printf "\n";
@@ -469,7 +469,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
     else ();
     let sol = make_solution cγl in
     print_solution fld br (succ (List.length sol_list)) cγl finite sol;
-    Left [(sol, finite) :: sol_list]
+    Left [(sol, finite) … sol_list]
   }
   else if br.rem_steps > 0 then Right (pol, cγl)
   else Left sol_list
@@ -503,7 +503,7 @@ value rec puiseux_branch af br sol_list ns =
   if rl = [] then do {
     let sol = make_solution br.cγl in
     print_solution fld br (succ (List.length sol_list)) br.cγl False sol;
-    [(sol, False) :: sol_list]
+    [(sol, False) … sol_list]
   }
   else
     List.fold_left
@@ -909,7 +909,7 @@ value main () = do {
           let pol =
              match List.rev pol.ml with
              | [] → failwith "empty pol"
-             | [m :: ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
+             | [m … ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
              end
           in
           let _ : list _ = puiseux af arg_nb_steps.val vx vy pol in
@@ -918,7 +918,7 @@ value main () = do {
     | [_] → do {
         failwith "k_ps not impl"
       }
-    | [_; _ :: _] →
+    | [_; _ … _] →
         match () with [] ]
   }
   with e →
