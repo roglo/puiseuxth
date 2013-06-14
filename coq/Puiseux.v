@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.656 2013-06-14 09:18:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.657 2013-06-14 09:34:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -767,9 +767,23 @@ eapply zzz; try eassumption.
 
     apply Nat.divide_refl.
 
+   exists (k₁ * k₂)%nat.
    rewrite Hp₁ in Heqx₁; subst x₁; simpl.
    rewrite Zabs2Nat.inj_mul; simpl.
    rewrite <- Heqx₂, <- Heqy₁.
+   symmetry.
+   rewrite Nat.mul_shuffle1.
+   remember (k₁ * k₂)%nat as k.
+   destruct k; simpl.
+    rewrite Nat.div_0_l; [ reflexivity | idtac ].
+    rewrite mult_comm.
+    rewrite Nat.gcd_mul_mono_l.
+    apply Nat.neq_mul_0.
+    split.
+     rewrite Heqy₁.
+     pose proof (Pos2Nat.is_succ (Qden (power t₁))) as H.
+     destruct H as (n, H).
+     rewrite H; clear H; intros H; discriminate H.
 bbb.
  rewrite Zabs2Nat.inj_add.
   do 2 rewrite Zabs2Nat.inj_mul; simpl.
