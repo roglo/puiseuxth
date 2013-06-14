@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.652 2013-06-14 01:23:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.653 2013-06-14 02:17:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -70,7 +70,7 @@ destruct s.
   unfold pow_den_div_com_den in H |- *.
   destruct H as (k₁, H).
   rewrite mult_comm.
-  rewrite <- H.
+  rewrite H.
   exists (x * k₁)%nat.
   rewrite <- mult_assoc.
   reflexivity.
@@ -104,14 +104,15 @@ destruct s₁.
     destruct Hps₁ as (Hpd₁, Hsf₁).
     unfold pow_den_div_com_den in Hpd₁ |- *; simpl.
     destruct Hpd₁ as (k₁, Hpd₁).
-    rewrite <- Hpd₁.
+    rewrite Hpd₁.
+    unfold den_divides_comden.
     remember (Pos.to_nat (Qden (power t₁))) as x.
-    remember (Nat.lcm (k₁ * x) cd₂) as cm.
-    symmetry in Heqcm.
-    unfold Nat.lcm in Heqcm.
-    rewrite mult_comm, mult_assoc in Heqcm.
-    exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
-    assumption.
+    remember (Z.abs_nat (Qnum (power t₁))) as y.
+    remember (x / gcd y x)%nat as z.
+    exists (cd₂ / gcd (k₁ * z) cd₂ * k₁)%nat.
+    unfold Nat.lcm.
+    rewrite mult_comm, mult_assoc.
+    reflexivity.
 
     apply IHs.
      apply series_forall_inv in Hps₁.
@@ -125,14 +126,15 @@ destruct s₁.
     destruct Hps₁ as (Hpd₁, Hsf₁).
     unfold pow_den_div_com_den in Hpd₁ |- *.
     destruct Hpd₁ as (k₁, Hpd₁).
-    rewrite <- Hpd₁.
+    rewrite Hpd₁.
+    unfold den_divides_comden.
     remember (Pos.to_nat (Qden (power t₁))) as x.
-    remember (Nat.lcm (k₁ * x) cd₂) as cm.
-    symmetry in Heqcm.
-    unfold Nat.lcm in Heqcm.
-    rewrite mult_comm, mult_assoc in Heqcm.
-    exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
-    assumption.
+    remember (Z.abs_nat (Qnum (power t₁))) as y.
+    remember (x / gcd y x)%nat as z.
+    exists (cd₂ / gcd (k₁ * z) cd₂ * k₁)%nat.
+    unfold Nat.lcm.
+    rewrite mult_comm, mult_assoc.
+    reflexivity.
 
     apply IHs; [ idtac | assumption ].
     apply series_forall_inv in Hps₁.
@@ -144,15 +146,16 @@ destruct s₁.
     destruct Hps₂ as (Hpd₂, Hsf₂).
     unfold pow_den_div_com_den in Hpd₂ |- *.
     destruct Hpd₂ as (k₂, Hpd₂).
-    rewrite <- Hpd₂.
+    rewrite Hpd₂.
+    unfold den_divides_comden.
     remember (Pos.to_nat (Qden (power t₂))) as x.
-    remember (Nat.lcm cd₁ (k₂ * x)) as cm.
-    symmetry in Heqcm.
-    rewrite Nat.lcm_comm in Heqcm.
-    unfold Nat.lcm in Heqcm.
-    rewrite mult_comm, mult_assoc in Heqcm.
-    exists (cd₁ / gcd (k₂ * x) cd₁ * k₂)%nat.
-    assumption.
+    remember (Z.abs_nat (Qnum (power t₂))) as y.
+    remember (x / gcd y x)%nat as z.
+    exists (cd₁ / gcd (k₂ * z) cd₁ * k₂)%nat.
+    rewrite Nat.lcm_comm.
+    unfold Nat.lcm.
+    rewrite mult_comm, mult_assoc.
+    reflexivity.
 
     apply IHs; [ assumption | idtac ].
     apply series_forall_inv in Hps₂.
@@ -163,14 +166,15 @@ destruct s₁.
    destruct Hps₁ as (Hpd₁, Hsf₁).
    unfold pow_den_div_com_den in Hpd₁ |- *.
    destruct Hpd₁ as (k₁, Hpd₁).
-   rewrite <- Hpd₁.
+   rewrite Hpd₁.
+   unfold den_divides_comden.
    remember (Pos.to_nat (Qden (power t₁))) as x.
-   remember (Nat.lcm (k₁ * x) cd₂) as cm.
-   symmetry in Heqcm.
-   unfold Nat.lcm in Heqcm.
-   rewrite mult_comm, mult_assoc in Heqcm.
-   exists (cd₂ / gcd (k₁ * x) cd₂ * k₁)%nat.
-   assumption.
+   remember (Z.abs_nat (Qnum (power t₁))) as y.
+   remember (x / gcd y x)%nat as z.
+   exists (cd₂ / gcd (k₁ * z) cd₂ * k₁)%nat.
+   unfold Nat.lcm.
+   rewrite mult_comm, mult_assoc.
+   reflexivity.
 
    apply series_forall_inv in Hps₁.
    destruct Hps₁ as (Hpd₁, Hsf₁).
@@ -187,14 +191,15 @@ destruct s₁.
    destruct Hps₂ as (Hpd₂, Hsf₂).
    unfold pow_den_div_com_den in Hpd₂ |- *.
    destruct Hpd₂ as (k₂, Hpd₂).
-   rewrite <- Hpd₂.
+   rewrite Hpd₂.
+   unfold den_divides_comden.
    remember (Pos.to_nat (Qden (power t₂))) as x.
-   remember (Nat.lcm (k₂ * x) cd₁) as cm.
-   symmetry in Heqcm.
-   unfold Nat.lcm in Heqcm.
-   rewrite mult_comm, mult_assoc in Heqcm.
-   exists (cd₁ / gcd (k₂ * x) cd₁ * k₂)%nat.
-   assumption.
+   remember (Z.abs_nat (Qnum (power t₂))) as y.
+   remember (x / gcd y x)%nat as z.
+   exists (cd₁ / gcd (k₂ * z) cd₁ * k₂)%nat.
+   unfold Nat.lcm.
+   rewrite mult_comm, mult_assoc.
+   reflexivity.
 
    apply series_forall_inv in Hps₂.
    destruct Hps₂ as (Hpd₂, Hsf₂).
