@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.661 2013-06-14 19:48:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.662 2013-06-14 19:54:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -717,6 +717,16 @@ destruct H as (n, H).
 rewrite H; clear H; intros H; discriminate H.
 Qed.
 
+Lemma gcd_pos_ne_0_r : ∀ a b p, b = Pos.to_nat p → gcd a b ≠ 0%nat.
+Proof.
+intros a b p Hb H.
+apply Nat.gcd_eq_0_r in H.
+rewrite Hb in H.
+pose proof (Pos2Nat.is_succ p) as HH.
+destruct HH as (n, HH).
+rewrite H in HH; discriminate HH.
+Qed.
+
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -780,13 +790,7 @@ eapply zzz; try eassumption.
     rewrite Nat.div_0_l; [ reflexivity | idtac ].
     rewrite mult_comm, Nat.gcd_mul_mono_l.
     apply Nat.neq_mul_0.
-    split; [ eapply pos_nat_ne_0; eassumption | idtac ].
-    intros H.
-    apply Nat.gcd_eq_0_r in H.
-    rewrite Heqy₂ in H.
-    pose proof (Pos2Nat.is_succ (Qden (power t₂))) as HH.
-    destruct HH as (n, HH).
-    rewrite H in HH; discriminate HH.
+    split; [ eapply pos_nat_ne_0 | eapply gcd_pos_ne_0_r ]; eassumption.
 
     rewrite Nat.div_same, mult_1_l.
      symmetry.
@@ -806,21 +810,11 @@ eapply zzz; try eassumption.
        rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
        reflexivity.
 
-       intros H.
-       apply Nat.gcd_eq_0_r in H.
-       rewrite Heqy₂ in H.
-       pose proof (Pos2Nat.is_succ (Qden (power t₂))) as HH.
-       destruct HH as (n, HH).
-       rewrite H in HH; discriminate HH.
+       eapply gcd_pos_ne_0_r; eassumption.
 
        apply gcd_divide_r.
 
-      intros H.
-      apply Nat.gcd_eq_0_r in H.
-      rewrite Heqy₂ in H.
-      pose proof (Pos2Nat.is_succ (Qden (power t₂))) as HH.
-      destruct HH as (n, HH).
-      rewrite H in HH; discriminate HH.
+      eapply gcd_pos_ne_0_r; eassumption.
 
       eapply pos_nat_ne_0; eassumption.
 
