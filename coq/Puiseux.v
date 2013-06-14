@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.655 2013-06-14 09:13:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.656 2013-06-14 09:18:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -766,6 +766,10 @@ eapply zzz; try eassumption.
     rewrite H; clear H; intros H; discriminate H.
 
     apply Nat.divide_refl.
+
+   rewrite Hp₁ in Heqx₁; subst x₁; simpl.
+   rewrite Zabs2Nat.inj_mul; simpl.
+   rewrite <- Heqx₂, <- Heqy₁.
 bbb.
  rewrite Zabs2Nat.inj_add.
   do 2 rewrite Zabs2Nat.inj_mul; simpl.
