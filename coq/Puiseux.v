@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.657 2013-06-14 09:34:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.658 2013-06-14 09:46:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -750,14 +750,12 @@ eapply zzz; try eassumption.
    rewrite Hp₂; simpl.
    exists (k₁ * (y₁ / gcd x₁ y₁) * (k₂ * (y₂ / gcd x₂ y₂)))%nat.
    rewrite Nat.divide_div_mul_exact.
-    rewrite Nat.div_same.
-     rewrite mult_1_r; reflexivity.
-
-     subst y₁ y₂.
-     rewrite <- Pos2Nat.inj_mul.
-     pose proof (Pos2Nat.is_succ (Qden (power t₁) * Qden (power t₂))).
-     destruct H as (n, H).
-     rewrite H; clear H; intros H; discriminate H.
+    rewrite Nat.div_same; [ rewrite mult_1_r; reflexivity | idtac ].
+    subst y₁ y₂.
+    rewrite <- Pos2Nat.inj_mul.
+    pose proof (Pos2Nat.is_succ (Qden (power t₁) * Qden (power t₂))).
+    destruct H as (n, H).
+    rewrite H; clear H; intros H; discriminate H.
 
     subst y₁ y₂.
     rewrite <- Pos2Nat.inj_mul.
@@ -776,14 +774,25 @@ eapply zzz; try eassumption.
    remember (k₁ * k₂)%nat as k.
    destruct k; simpl.
     rewrite Nat.div_0_l; [ reflexivity | idtac ].
-    rewrite mult_comm.
-    rewrite Nat.gcd_mul_mono_l.
+    rewrite mult_comm, Nat.gcd_mul_mono_l.
     apply Nat.neq_mul_0.
     split.
      rewrite Heqy₁.
      pose proof (Pos2Nat.is_succ (Qden (power t₁))) as H.
      destruct H as (n, H).
      rewrite H; clear H; intros H; discriminate H.
+
+     intros H.
+     apply Nat.gcd_eq_0_r in H.
+     rewrite Heqy₂ in H.
+     pose proof (Pos2Nat.is_succ (Qden (power t₂))) as HH.
+     destruct HH as (n, HH).
+     rewrite H in HH; discriminate HH.
+
+    rewrite Nat.div_same, mult_1_l.
+     symmetry.
+     rewrite mult_comm.
+     rewrite Nat.gcd_mul_mono_r.
 bbb.
  rewrite Zabs2Nat.inj_add.
   do 2 rewrite Zabs2Nat.inj_mul; simpl.
