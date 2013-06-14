@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.142 2013-06-14 01:46:58 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.143 2013-06-14 03:06:16 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -46,24 +46,24 @@ CoFixpoint ps_add_loop (add_coeff : α → α → α) ms₁ ms₂ :=
       | End => ms₁
       end
   | End => ms₂
-  end;
+  end.
 
 Definition ps_add (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
   {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂) |};
+     ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂) |}.
 
 Definition series_hd (s : series α) :=
   match s with
   | Term a _ => Some a
   | End => None
-  end;
+  end.
 
 Definition series_tl (s : series α) : option (series α) :=
   match s with
   | Term _ t => Some t
   | End => None
-  end;
+  end.
 
 Fixpoint series_nth_tl (n : nat) (s : series α) : option (series α) :=
   match n with
@@ -73,25 +73,25 @@ Fixpoint series_nth_tl (n : nat) (s : series α) : option (series α) :=
       | None => None
       | Some t => series_nth_tl m t
       end
-  end;
+  end.
 
 Definition series_nth (n : nat) (s : series α) : option α :=
   match series_nth_tl n s with
   | None => None
   | Some t => series_hd t
-  end;
+  end.
 
 CoFixpoint series_map (f : α → β) s :=
   match s with
   | Term a t => Term (f a) (series_map f t)
   | End => End _
-  end;
+  end.
 
 (* ps_mul *)
 
 Record fifo_elem α :=
   { fe_t₁ : term α; fe_t₂ : term α;
-    fe_s₁ : series (term α); fe_s₂ : series (term α) };
+    fe_s₁ : series (term α); fe_s₂ : series (term α) }.
 
 Fixpoint add_coeff_list α (add_coeff : α → α → α) (mul_coeff : α → α → α)
     c₁ fel₁ :=
@@ -101,7 +101,7 @@ Fixpoint add_coeff_list α (add_coeff : α → α → α) (mul_coeff : α → α
   | [fe … fel] =>
       let c := mul_coeff (coeff (fe_t₁ fe)) (coeff (fe_t₂ fe)) in
       add_coeff c₁ (add_coeff_list add_coeff mul_coeff c fel)
-  end;
+  end.
 
 Fixpoint insert_elem α (fe : fifo_elem α) fel :=
   match fel with
@@ -117,7 +117,7 @@ Fixpoint insert_elem α (fe : fifo_elem α) fel :=
       | Lt => [fe … fel]
       | Gt => [fe₁ … insert_elem fe fel₁]
       end
-  end;
+  end.
 
 Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
   match sl with
@@ -128,7 +128,7 @@ Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
       | Lt => [(sum, [fe]) … sl]
       | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
       end
-  end;
+  end.
 
 Definition add_below α (mul_coeff : α → α → α) sl fel :=
   List.fold_left
@@ -141,7 +141,7 @@ Definition add_below α (mul_coeff : α → α → α) sl fel :=
               sl₁
        | End => sl₁
        end)
-    sl fel;
+    sl fel.
 
 Definition add_right α (mul_coeff : α → α → α) sl fel :=
   List.fold_left
@@ -154,7 +154,7 @@ Definition add_right α (mul_coeff : α → α → α) sl fel :=
               sl₂
        | End => sl₂
        end)
-    sl fel;
+    sl fel.
 
 CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
     series (term α) :=
@@ -170,7 +170,7 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
       let sl₁ := add_below mul_coeff sl [fe₁ … fel₁] in
       let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
       Term m (ps_mul_loop add_coeff mul_coeff sl₂)
-  end;
+  end.
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   match s₁ with
@@ -185,13 +185,13 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
       | End => End _
       end
   | End => End _
-  end;
+  end.
 
 Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms :=
        ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂);
      ps_comden :=
-       I.mul (ps_comden ps₁) (ps_comden ps₂) |};
+       I.mul (ps_comden ps₁) (ps_comden ps₂) |}.
 
 (**)
 
