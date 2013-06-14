@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.653 2013-06-14 02:17:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.654 2013-06-14 08:34:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -652,7 +652,6 @@ induction fel as [| fe₁]; intros; simpl.
 bbb.
 *)
 
-(**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
   → List.Forall (fifo_exists_k cd) sf
@@ -669,10 +668,17 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  apply List.Forall_inv in Hk.
  unfold fifo_exists_k in Hk; simpl in Hk.
  destruct Hk as (k₁, Hk).
- Focus 1.
-bbb.
-
- assumption.
+ unfold den_divides_comden.
+ exists k₁.
+ rewrite <- Hk.
+ remember (gcd (Z.abs_nat (Qnum sum)) (Pos.to_nat (Qden sum))) as x.
+ destruct x; [ rewrite mult_0_r; reflexivity | idtac ].
+ apply Nat.divide_div_mul_exact; [ intros H; discriminate H | idtac ].
+ rewrite Heqx.
+ apply Nat.divide_gcd_iff'.
+ rewrite <- Nat.gcd_assoc.
+ f_equal.
+ apply Nat.gcd_diag_nonneg, le_0_n.
 
  eapply IHs; try eassumption.
   apply list_Forall_inv in Hs.
@@ -699,6 +705,7 @@ bbb.
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+Admitted. (*
 bbb.
 *)
 
@@ -722,33 +729,30 @@ unfold pow_den_div_com_den in Hp₁; simpl in Hp₁.
 unfold pow_den_div_com_den in Hp₂; simpl in Hp₂.
 destruct Hp₁ as (k₁, Hp₁).
 destruct Hp₂ as (k₂, Hp₂).
-bbb.
-
 eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
  constructor; [ reflexivity | constructor ].
 
  constructor; [ simpl | constructor ].
- apply series_forall_inv in Hps₁.
- apply series_forall_inv in Hps₂.
- destruct Hps₁ as (Hpd₁, Hsf₁).
- destruct Hps₂ as (Hpd₂, Hsf₂).
- unfold pow_den_div_com_den in Hpd₁, Hpd₂.
- destruct Hpd₁ as (k₁, Hpd₁).
- destruct Hpd₂ as (k₂, Hpd₂).
- exists (k₁ * k₂)%nat.
- subst cd₁.
- rewrite <- mult_assoc.
- destruct k₁; [ reflexivity | idtac ].
- rewrite <- mult_assoc.
- apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
- rewrite mult_comm.
- rewrite mult_comm in Hpd₂; subst cd₂.
- rewrite mult_assoc.
- destruct k₂; [ do 2 rewrite mult_0_r; reflexivity | idtac ].
- apply <- Nat.mul_cancel_r; [ idtac | intros H; discriminate H ].
- simpl; rewrite Pos2Nat.inj_mul.
- reflexivity.
+ remember (power t₁ + power t₂) as pp.
+ unfold fifo_exists_k; simpl.
+ subst cd₁ cd₂.
+ remember (Z.abs_nat (Qnum (power t₁))) as x.
+ remember (Pos.to_nat (Qden (power t₁))) as y.
+ remember (Z.abs_nat (Qnum (power t₂))) as x₂.
+ remember (Pos.to_nat (Qden (power t₂))) as y₂.
+ subst pp; simpl.
+ rewrite Zabs2Nat.inj_add.
+  rewrite Zabs2Nat.inj_mul.
+  rewrite <- Heqx.
+  rewrite Zabs2Nat.inj_mul.
+  rewrite <- Heqx₂.
+  simpl.
+  rewrite <- Heqy, <- Heqy₂.
+  rewrite Pos2Nat.inj_mul.
+  rewrite <- Heqy.
+  rewrite <- Heqy₂.
+  rewrite mult_assoc.
 qed.
 *)
 
