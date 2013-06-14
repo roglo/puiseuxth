@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.658 2013-06-14 09:46:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.659 2013-06-14 14:52:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -791,8 +791,10 @@ eapply zzz; try eassumption.
 
     rewrite Nat.div_same, mult_1_l.
      symmetry.
-     rewrite mult_comm.
-     rewrite Nat.gcd_mul_mono_r.
+     rewrite mult_comm, Nat.gcd_mul_mono_r.
+     rewrite mult_assoc, <- mult_plus_distr_r.
+     rewrite Nat.div_mul_cancel_r.
+      rewrite <- Nat.divide_div_mul_exact.
 bbb.
  rewrite Zabs2Nat.inj_add.
   do 2 rewrite Zabs2Nat.inj_mul; simpl.
