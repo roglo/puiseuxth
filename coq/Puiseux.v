@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.660 2013-06-14 19:39:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.661 2013-06-14 19:48:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -709,6 +709,14 @@ Admitted. (*
 bbb.
 *)
 
+Lemma pos_nat_ne_0 : ∀ p n, n = Pos.to_nat p → n ≠ 0%nat.
+Proof.
+intros p n Hn; subst n.
+pose proof (Pos2Nat.is_succ p) as H.
+destruct H as (n, H).
+rewrite H; clear H; intros H; discriminate H.
+Qed.
+
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -753,15 +761,11 @@ eapply zzz; try eassumption.
     rewrite Nat.div_same; [ rewrite mult_1_r; reflexivity | idtac ].
     subst y₁ y₂.
     rewrite <- Pos2Nat.inj_mul.
-    pose proof (Pos2Nat.is_succ (Qden (power t₁) * Qden (power t₂))).
-    destruct H as (n, H).
-    rewrite H; clear H; intros H; discriminate H.
+    eapply pos_nat_ne_0; reflexivity.
 
     subst y₁ y₂.
     rewrite <- Pos2Nat.inj_mul.
-    pose proof (Pos2Nat.is_succ (Qden (power t₁) * Qden (power t₂))).
-    destruct H as (n, H).
-    rewrite H; clear H; intros H; discriminate H.
+    eapply pos_nat_ne_0; reflexivity.
 
     apply Nat.divide_refl.
 
@@ -776,18 +780,13 @@ eapply zzz; try eassumption.
     rewrite Nat.div_0_l; [ reflexivity | idtac ].
     rewrite mult_comm, Nat.gcd_mul_mono_l.
     apply Nat.neq_mul_0.
-    split.
-     rewrite Heqy₁.
-     pose proof (Pos2Nat.is_succ (Qden (power t₁))) as H.
-     destruct H as (n, H).
-     rewrite H; clear H; intros H; discriminate H.
-
-     intros H.
-     apply Nat.gcd_eq_0_r in H.
-     rewrite Heqy₂ in H.
-     pose proof (Pos2Nat.is_succ (Qden (power t₂))) as HH.
-     destruct HH as (n, HH).
-     rewrite H in HH; discriminate HH.
+    split; [ eapply pos_nat_ne_0; eassumption | idtac ].
+    intros H.
+    apply Nat.gcd_eq_0_r in H.
+    rewrite Heqy₂ in H.
+    pose proof (Pos2Nat.is_succ (Qden (power t₂))) as HH.
+    destruct HH as (n, HH).
+    rewrite H in HH; discriminate HH.
 
     rewrite Nat.div_same, mult_1_l.
      symmetry.
@@ -823,15 +822,9 @@ eapply zzz; try eassumption.
       destruct HH as (n, HH).
       rewrite H in HH; discriminate HH.
 
-      rewrite Heqy₁.
-      pose proof (Pos2Nat.is_succ (Qden (power t₁))) as H.
-      destruct H as (n, H).
-      rewrite H; clear H; intros H; discriminate H.
+      eapply pos_nat_ne_0; eassumption.
 
-     rewrite Heqy₁.
-     pose proof (Pos2Nat.is_succ (Qden (power t₁))) as H.
-     destruct H as (n, H).
-     rewrite H; clear H; intros H; discriminate H.
+     eapply pos_nat_ne_0; eassumption.
 
 bbb.
  rewrite Zabs2Nat.inj_add.
