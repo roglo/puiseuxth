@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.672 2013-06-15 16:38:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.673 2013-06-15 17:27:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -332,8 +332,9 @@ Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
 
 Definition fifo_exists_k α comden (cfel : (Q * list (fifo_elem α))) :=
   ∃ k : nat,
-  (k * Pos.to_nat (Qden (fst cfel)) /
-     gcd (Z.abs_nat (Qnum (fst cfel))) (Pos.to_nat (Qden (fst cfel))) =
+  (k *
+     (Pos.to_nat (Qden (fst cfel)) /
+      gcd (Z.abs_nat (Qnum (fst cfel))) (Pos.to_nat (Qden (fst cfel)))) =
    comden)%nat.
 
 Lemma insert_same_sum : ∀ α sum fe₁ (fel : list (fifo_elem α)),
@@ -697,6 +698,30 @@ induction sf as [| (sum₁, fel₁)].
  subst cd.
  remember (Pos.to_nat (Qden pp)) as dp.
  remember (Pos.to_nat (Qden sum)) as ds.
+ exists k₁.
+ destruct k₁; [ reflexivity | idtac ].
+ apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
+ unfold Qeq in Hfs.
+bbb.
+
+intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
+induction sf as [| (sum₁, fel₁)].
+ constructor; [ idtac | constructor ].
+ apply list_Forall_inv in Hfe.
+ destruct Hfe as (Hfe, _).
+ destruct Hfe as (k₁, Hfe); simpl in Hfe.
+ apply list_Forall_inv in Hfs.
+ destruct Hfs as (Hfs, _).
+ unfold fifo_sum_prop in Hfs; simpl in Hfs.
+ apply list_Forall_inv in Hfs.
+ destruct Hfs as (Hfs, _).
+ rewrite <- H₁, <- H₂ in Hfs.
+ remember (power t₁ + power t₂) as pp.
+ unfold fifo_exists_k; simpl.
+ subst cd.
+ remember (Pos.to_nat (Qden pp)) as dp.
+ remember (Pos.to_nat (Qden sum)) as ds.
+
  pose proof (gcd_divide_r (Z.abs_nat (Qnum pp)) dp) as Hdp.
  pose proof (gcd_divide_r (Z.abs_nat (Qnum sum)) ds) as Hds.
  destruct Hdp as (u, Hdp).
@@ -710,13 +735,20 @@ induction sf as [| (sum₁, fel₁)].
   simpl.
   destruct gs.
    simpl.
-   exists O; reflexivity.
+   exists k₁; reflexivity.
 
    rewrite mult_0_r in Hdp.
    rewrite Heqdp in Hdp.
    symmetry in Hdp.
    apply pos_nat_ne_0 in Hdp.
    exfalso; apply Hdp; reflexivity.
+
+  destruct gs.
+   rewrite mult_0_r in Hds.
+   rewrite Heqds in Hds.
+   symmetry in Hds.
+   apply pos_nat_ne_0 in Hds.
+   exfalso; apply Hds; reflexivity.
 bbb.
 *)
 
