@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.670 2013-06-15 10:51:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.671 2013-06-15 11:16:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -676,6 +676,23 @@ induction sf as [| (sum₁, fel₁)].
  rewrite <- H₁, <- H₂ in Hfs.
  remember (power t₁ + power t₂) as pp.
  unfold fifo_exists_k; simpl.
+ subst cd.
+ remember (Pos.to_nat (Qden pp)) as dp.
+ remember (Pos.to_nat (Qden sum)) as ds.
+ pose proof (gcd_divide_r (Z.abs_nat (Qnum pp)) dp) as Hdp.
+ pose proof (gcd_divide_r (Z.abs_nat (Qnum sum)) ds) as Hds.
+ destruct Hdp as (u, Hdp).
+ destruct Hds as (v, Hds).
+ remember (Z.abs_nat (Qnum pp)) as np.
+ remember (Z.abs_nat (Qnum sum)) as ns.
+ remember (gcd np dp) as gp.
+ remember (gcd ns ds) as gs.
+ rewrite Hdp, Hds.
+ destruct gp.
+  simpl.
+  destruct gs.
+   simpl.
+   exists O; reflexivity.
 bbb.
 *)
 
