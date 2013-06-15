@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.678 2013-06-15 21:09:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.679 2013-06-15 21:14:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -671,6 +671,15 @@ destruct HH as (n, HH).
 rewrite H in HH; discriminate HH.
 Qed.
 
+Lemma zzz : ∀ a b,
+  a == b
+  → (Pos.to_nat (Qden b) / gcd (Z.abs_nat (Qnum b)) (Pos.to_nat (Qden b)) =
+     Pos.to_nat (Qden a) / gcd (Z.abs_nat (Qnum a)) (Pos.to_nat (Qden a)))
+    %nat.
+Proof.
+intros a b Hab.
+bbb.
+
 (**)
 Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
@@ -681,6 +690,27 @@ Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
         → List.Forall (fifo_exists_k cd)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
+intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
+induction sf as [| (sum₁, fel₁)].
+ constructor; [ idtac | constructor ].
+ apply list_Forall_inv in Hfe.
+ destruct Hfe as (Hfe, _).
+ destruct Hfe as (k₁, Hfe); simpl in Hfe.
+ apply list_Forall_inv in Hfs.
+ destruct Hfs as (Hfs, _).
+ unfold fifo_sum_prop in Hfs; simpl in Hfs.
+ apply list_Forall_inv in Hfs.
+ destruct Hfs as (Hfs, _).
+ rewrite <- H₁, <- H₂ in Hfs.
+ remember (power t₁ + power t₂) as pp.
+ unfold fifo_exists_k; simpl.
+ subst cd.
+ exists k₁.
+ destruct k₁; [ reflexivity | idtac ].
+ apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
+ apply zzz; assumption.
+bbb.
+
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
 induction sf as [| (sum₁, fel₁)].
  constructor; [ idtac | constructor ].
