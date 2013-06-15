@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.679 2013-06-15 21:14:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.680 2013-06-15 22:59:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -677,7 +677,7 @@ Lemma zzz : ∀ a b,
      Pos.to_nat (Qden a) / gcd (Z.abs_nat (Qnum a)) (Pos.to_nat (Qden a)))
     %nat.
 Proof.
-intros a b Hab.
+intros (an, ad) (bn, bd) Hab; simpl.
 bbb.
 
 (**)
