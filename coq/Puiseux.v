@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.673 2013-06-15 17:27:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.674 2013-06-15 18:13:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -696,12 +696,31 @@ induction sf as [| (sum₁, fel₁)].
  remember (power t₁ + power t₂) as pp.
  unfold fifo_exists_k; simpl.
  subst cd.
- remember (Pos.to_nat (Qden pp)) as dp.
- remember (Pos.to_nat (Qden sum)) as ds.
+ unfold Qeq in Hfs.
+ remember (Qnum pp) as np.
+ remember (Qden pp) as dp.
+ remember (Qnum sum) as ns.
+ remember (Qden sum) as ds.
  exists k₁.
  destruct k₁; [ reflexivity | idtac ].
  apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
- unfold Qeq in Hfs.
+ unfold Zmult in Hfs.
+ destruct ns as [| ns| ns].
+  simpl.
+  rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; reflexivity ].
+  destruct np as [| np| np].
+   simpl.
+   rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; reflexivity ].
+   reflexivity.
+
+   pose proof (Zgt_pos_0 (Pos.mul np ds)) as H.
+   rewrite <- Hfs in H.
+   apply Zgt_irrefl in H; contradiction.
+
+   simpl.
+   pose proof (Zlt_neg_0 (np * ds)) as H.
+   rewrite Hfs in H.
+   apply Zlt_irrefl in H; contradiction.
 bbb.
 
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
