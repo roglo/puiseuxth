@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.675 2013-06-15 18:18:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.676 2013-06-15 18:23:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -725,6 +725,8 @@ induction sf as [| (sum₁, fel₁)].
    pose proof (Zgt_pos_0 (Pos.mul ns dp)) as H.
    rewrite Hfs in H.
    apply Zgt_irrefl in H; contradiction.
+
+   do 2 rewrite Pos2Z.inj_mul in Hfs.
 bbb.
 
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
