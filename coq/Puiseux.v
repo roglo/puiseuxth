@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.666 2013-06-15 04:12:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.667 2013-06-15 04:23:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -705,7 +705,6 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
-Admitted. (*
 bbb.
 *)
 
