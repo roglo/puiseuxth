@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.677 2013-06-15 18:27:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.678 2013-06-15 21:09:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -732,6 +732,22 @@ induction sf as [| (sum₁, fel₁)].
    remember (' np)%Z as pnp.
    remember (' dp)%Z as pdp.
    remember (' ds)%Z as pds.
+   pose proof (gcd_divide_r (Z.abs_nat pnp) (Z.to_nat pdp)) as Hdp.
+   pose proof (gcd_divide_r (Z.abs_nat pns) (Z.to_nat pds)) as Hds.
+   clear k₁.
+   destruct Hdp as (k₁, Hdp).
+   destruct Hds as (k₂, Hds).
+   apply Z2Nat.inj_iff in Hfs.
+    rewrite Z2Nat.inj_mul in Hfs.
+     rewrite Z2Nat.inj_mul in Hfs.
+      apply Nat.mul_cancel_l with (p := Z.to_nat pns).
+       rewrite Heqpns.
+       simpl.
+       eapply pos_nat_ne_0; reflexivity.
+
+       rewrite <- Nat.divide_div_mul_exact.
+        rewrite Hfs.
+        rewrite <- Nat.divide_div_mul_exact.
 bbb.
 
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
