@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.664 2013-06-15 03:49:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.665 2013-06-15 04:02:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -762,6 +762,7 @@ eapply zzz; try eassumption.
  subst pp; simpl.
  rewrite Pos2Nat.inj_mul.
  rewrite <- Heqy₁, <- Heqy₂.
+ exists (k₁ * k₂)%nat.
  destruct (Z_zerop (Qnum (power t₁))) as [Hp₁| Hp₁].
   rewrite Hp₁ in Heqx₁ |- *; subst x₁; simpl.
   rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
@@ -770,12 +771,10 @@ eapply zzz; try eassumption.
    rewrite Hp₂ in Heqx₂ |- *; subst x₂; simpl.
    rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
    rewrite mult_1_r.
-   exists (k₁ * k₂)%nat.
    rewrite Nat.div_mul; [ reflexivity | idtac ].
    apply Nat.neq_mul_0.
    split; eapply pos_nat_ne_0; eassumption.
 
-   exists (k₁ * k₂)%nat.
    rewrite Zabs2Nat.inj_mul; simpl.
    rewrite <- Heqx₂, <- Heqy₁.
    symmetry.
@@ -811,7 +810,34 @@ eapply zzz; try eassumption.
      eapply pos_nat_ne_0; eassumption.
 
   destruct (Z_zerop (Qnum (power t₂))) as [Hp₂| Hp₂].
-   rewrite Hp₂; rewrite Zmult_0_l, Zplus_0_r.
+   rewrite Hp₂ in Heqx₂ |- *; subst x₂; simpl.
+   rewrite Zplus_0_r.
+   rewrite Zabs2Nat.inj_mul; simpl.
+   rewrite <- Heqx₁, <- Heqy₂.
+   symmetry.
+   rewrite Nat.mul_shuffle0, mult_assoc.
+   remember (k₁ * k₂)%nat as k.
+   destruct k; simpl.
+    rewrite Nat.div_0_l; [ reflexivity | idtac ].
+    rewrite Nat.gcd_mul_mono_r.
+    apply Nat.neq_mul_0.
+    split; [ eapply gcd_pos_ne_0_r | eapply pos_nat_ne_0 ]; eassumption.
+
+    rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
+    rewrite mult_1_r.
+    rewrite Nat.gcd_mul_mono_r.
+    rewrite mult_assoc, <- mult_plus_distr_r.
+    rewrite Nat.div_mul_cancel_r.
+     rewrite <- Nat.divide_div_mul_exact.
+      reflexivity.
+
+      eapply gcd_pos_ne_0_r; eassumption.
+
+      apply gcd_divide_r.
+
+     eapply gcd_pos_ne_0_r; eassumption.
+
+     eapply pos_nat_ne_0; eassumption.
 bbb.
 *)
 
