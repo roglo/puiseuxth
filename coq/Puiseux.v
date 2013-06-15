@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.667 2013-06-15 04:23:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.668 2013-06-15 05:04:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -623,18 +623,18 @@ bbb.
 
 Close Scope nat_scope.
 
-(*
-Lemma yyy : ∀ α mul_coeff t₁ t₂ cd₁ cd₂ sum fe fel
+(**)
+Lemma yyy : ∀ α mul_coeff t₁ t₂ cd sum fe fel
      (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
-  → List.Forall (fifo_exists_k cd₁ cd₂) [(sum, [fe … fel]) … sf]
+  → List.Forall (fifo_exists_k cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → List.Forall (fifo_exists_k cd₁ cd₂)
+        → List.Forall (fifo_exists_k cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
 Proof.
-intros α mul_coeff t₁ t₂ cd₁ cd₂ sum fe fel sf Hs Hk.
+intros α mul_coeff t₁ t₂ cd sum fe fel sf Hs Hk.
 induction fel as [| fe₁]; intros; simpl.
  induction sf as [| (sum₁, fel₁)].
   constructor; [ idtac | constructor ].
@@ -705,6 +705,11 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+    apply yyy with (power (fe_t₁ fe) + power tt₂).
+     constructor.
+      unfold fifo_sum_prop; simpl.
+      constructor; [ reflexivity | idtac ].
+     Focus 1.
 bbb.
 *)
 
