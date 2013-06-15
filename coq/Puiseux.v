@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.676 2013-06-15 18:23:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.677 2013-06-15 18:27:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -727,6 +727,11 @@ induction sf as [| (sum₁, fel₁)].
    apply Zgt_irrefl in H; contradiction.
 
    do 2 rewrite Pos2Z.inj_mul in Hfs.
+   do 2 rewrite <- Z2Nat.inj_pos.
+   remember (' ns)%Z as pns.
+   remember (' np)%Z as pnp.
+   remember (' dp)%Z as pdp.
+   remember (' ds)%Z as pds.
 bbb.
 
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
