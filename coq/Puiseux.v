@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.671 2013-06-15 11:16:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.672 2013-06-15 16:38:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -652,6 +652,24 @@ induction fel as [| fe₁]; intros; simpl.
 bbb.
 *)
 
+Lemma pos_nat_ne_0 : ∀ p n, n = Pos.to_nat p → n ≠ 0%nat.
+Proof.
+intros p n Hn; subst n.
+pose proof (Pos2Nat.is_succ p) as H.
+destruct H as (n, H).
+rewrite H; clear H; intros H; discriminate H.
+Qed.
+
+Lemma gcd_pos_ne_0_r : ∀ a b p, b = Pos.to_nat p → gcd a b ≠ 0%nat.
+Proof.
+intros a b p Hb H.
+apply Nat.gcd_eq_0_r in H.
+rewrite Hb in H.
+pose proof (Pos2Nat.is_succ p) as HH.
+destruct HH as (n, HH).
+rewrite H in HH; discriminate HH.
+Qed.
+
 (**)
 Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
@@ -693,6 +711,12 @@ induction sf as [| (sum₁, fel₁)].
   destruct gs.
    simpl.
    exists O; reflexivity.
+
+   rewrite mult_0_r in Hdp.
+   rewrite Heqdp in Hdp.
+   symmetry in Hdp.
+   apply pos_nat_ne_0 in Hdp.
+   exfalso; apply Hdp; reflexivity.
 bbb.
 *)
 
@@ -778,24 +802,6 @@ bbb.
      Focus 1.
 bbb.
 *)
-
-Lemma pos_nat_ne_0 : ∀ p n, n = Pos.to_nat p → n ≠ 0%nat.
-Proof.
-intros p n Hn; subst n.
-pose proof (Pos2Nat.is_succ p) as H.
-destruct H as (n, H).
-rewrite H; clear H; intros H; discriminate H.
-Qed.
-
-Lemma gcd_pos_ne_0_r : ∀ a b p, b = Pos.to_nat p → gcd a b ≠ 0%nat.
-Proof.
-intros a b p Hb H.
-apply Nat.gcd_eq_0_r in H.
-rewrite Hb in H.
-pose proof (Pos2Nat.is_succ p) as HH.
-destruct HH as (n, HH).
-rewrite H in HH; discriminate HH.
-Qed.
 
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
