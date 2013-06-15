@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.674 2013-06-15 18:13:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.675 2013-06-15 18:18:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -714,13 +714,17 @@ induction sf as [| (sum₁, fel₁)].
    reflexivity.
 
    pose proof (Zgt_pos_0 (Pos.mul np ds)) as H.
-   rewrite <- Hfs in H.
+   rewrite Hfs in H.
    apply Zgt_irrefl in H; contradiction.
 
-   simpl.
    pose proof (Zlt_neg_0 (np * ds)) as H.
    rewrite Hfs in H.
    apply Zlt_irrefl in H; contradiction.
+
+  destruct np as [| np| np].
+   pose proof (Zgt_pos_0 (Pos.mul ns dp)) as H.
+   rewrite Hfs in H.
+   apply Zgt_irrefl in H; contradiction.
 bbb.
 
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
