@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.668 2013-06-15 05:04:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.669 2013-06-15 08:32:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -623,7 +623,7 @@ bbb.
 
 Close Scope nat_scope.
 
-(**)
+(*
 Lemma yyy : ∀ α mul_coeff t₁ t₂ cd sum fe fel
      (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
@@ -649,6 +649,40 @@ induction fel as [| fe₁]; intros; simpl.
   apply list_Forall_inv in Hf.
   destruct Hf as (Hf, _).
   simpl in He.
+bbb.
+*)
+
+Lemma fifo_exists_insert : ∀ α cd fe t₁ t₂
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → List.Forall (fifo_exists_k cd) sf
+    → t₁ = fe_t₁ fe
+      → t₂ = fe_t₂ fe
+        → List.Forall (fifo_exists_k cd)
+            (insert_sum (power t₁ + power t₂) fe sf).
+Proof.
+intros α cd fe t₁ t₂ sf Hfs Hfe H₁ H₂.
+subst t₁ t₂.
+induction sf as [| (sum₁, fel₁)].
+ constructor; [ idtac | constructor ].
+ unfold fifo_exists_k; simpl.
+bbb.
+*)
+
+Lemma fifo_exists_k_sum_right : ∀ α mul_coeff cd t₁ t₂ fe fel
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ cfel, fifo_sum_prop cfel) sf
+  → List.Forall (fifo_exists_k cd) sf
+    → t₁ = fe_t₁ fe
+      → t₂ = fe_t₂ fe
+        → List.Forall (fifo_exists_k cd)
+            (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
+               fel).
+Proof.
+intros α mul_coeff cd t₁ t₂ fe fel sf Hsp Hfe H₁ H₂.
+revert cd t₁ t₂ fe sf Hsp Hfe H₁ H₂.
+induction fel as [| fe₁]; intros; simpl.
+ apply fifo_exists_insert; assumption.
 bbb.
 *)
 
@@ -705,6 +739,8 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+    apply fifo_exists_k_sum_right; try reflexivity.
+bbb.
     apply yyy with (power (fe_t₁ fe) + power tt₂).
      constructor.
       unfold fifo_sum_prop; simpl.
