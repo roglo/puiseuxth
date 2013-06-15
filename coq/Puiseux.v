@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.665 2013-06-15 04:02:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.666 2013-06-15 04:12:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -838,6 +838,18 @@ eapply zzz; try eassumption.
      eapply gcd_pos_ne_0_r; eassumption.
 
      eapply pos_nat_ne_0; eassumption.
+
+   rewrite Zabs2Nat.inj_add.
+    do 2 rewrite Zabs2Nat.inj_mul; simpl.
+    rewrite <- Heqx₁, <- Heqy₁, <- Heqx₂, <- Heqy₂.
+    symmetry.
+    rewrite Nat.mul_shuffle0, mult_assoc.
+    remember (k₁ * k₂)%nat as k.
+    destruct k; simpl.
+     rewrite Nat.div_0_l; [ reflexivity | idtac ].
+     subst y₁ y₂.
+     rewrite <- Pos2Nat.inj_mul.
+     eapply gcd_pos_ne_0_r; reflexivity.
 bbb.
 *)
 
