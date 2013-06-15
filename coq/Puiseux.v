@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.663 2013-06-14 19:57:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.664 2013-06-15 03:49:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -763,28 +763,23 @@ eapply zzz; try eassumption.
  rewrite Pos2Nat.inj_mul.
  rewrite <- Heqy₁, <- Heqy₂.
  destruct (Z_zerop (Qnum (power t₁))) as [Hp₁| Hp₁].
-  rewrite Hp₁; simpl.
+  rewrite Hp₁ in Heqx₁ |- *; subst x₁; simpl.
+  rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
+  rewrite mult_1_r.
   destruct (Z_zerop (Qnum (power t₂))) as [Hp₂| Hp₂].
-   rewrite Hp₂; simpl.
-   exists (k₁ * (y₁ / gcd x₁ y₁) * (k₂ * (y₂ / gcd x₂ y₂)))%nat.
-   rewrite Nat.divide_div_mul_exact.
-    rewrite Nat.div_same; [ rewrite mult_1_r; reflexivity | idtac ].
-    subst y₁ y₂.
-    rewrite <- Pos2Nat.inj_mul.
-    eapply pos_nat_ne_0; reflexivity.
-
-    subst y₁ y₂.
-    rewrite <- Pos2Nat.inj_mul.
-    eapply pos_nat_ne_0; reflexivity.
-
-    apply Nat.divide_refl.
+   rewrite Hp₂ in Heqx₂ |- *; subst x₂; simpl.
+   rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
+   rewrite mult_1_r.
+   exists (k₁ * k₂)%nat.
+   rewrite Nat.div_mul; [ reflexivity | idtac ].
+   apply Nat.neq_mul_0.
+   split; eapply pos_nat_ne_0; eassumption.
 
    exists (k₁ * k₂)%nat.
-   rewrite Hp₁ in Heqx₁; subst x₁; simpl.
    rewrite Zabs2Nat.inj_mul; simpl.
    rewrite <- Heqx₂, <- Heqy₁.
    symmetry.
-   rewrite Nat.mul_shuffle1.
+   rewrite mult_assoc.
    remember (k₁ * k₂)%nat as k.
    destruct k; simpl.
     rewrite Nat.div_0_l; [ reflexivity | idtac ].
@@ -792,35 +787,31 @@ eapply zzz; try eassumption.
     apply Nat.neq_mul_0.
     split; [ eapply pos_nat_ne_0 | eapply gcd_pos_ne_0_r ]; eassumption.
 
-    rewrite Nat.div_same, mult_1_l.
-     symmetry.
-     rewrite mult_comm, Nat.gcd_mul_mono_r.
-     rewrite mult_assoc, <- mult_plus_distr_r.
-     rewrite Nat.div_mul_cancel_r.
-      rewrite <- Nat.divide_div_mul_exact.
-       pose proof (gcd_divide_r x₂ y₂) as Hgd.
-       destruct Hgd as (v, Hgd).
-       remember (gcd x₂ y₂) as g.
-       rewrite Hgd.
-       rewrite mult_assoc.
-       rewrite <- mult_plus_distr_r.
-       destruct g; [ reflexivity | idtac ].
-       rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
-       rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
-       rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
-       reflexivity.
-
-       eapply gcd_pos_ne_0_r; eassumption.
-
-       apply gcd_divide_r.
+    symmetry.
+    rewrite mult_comm, Nat.gcd_mul_mono_r.
+    rewrite mult_assoc, <- mult_plus_distr_r.
+    rewrite Nat.div_mul_cancel_r.
+     rewrite <- Nat.divide_div_mul_exact.
+      pose proof (gcd_divide_r x₂ y₂) as Hgd.
+      destruct Hgd as (v, Hgd).
+      remember (gcd x₂ y₂) as g.
+      rewrite Hgd, mult_assoc, <- mult_plus_distr_r.
+      destruct g; [ reflexivity | idtac ].
+      rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
+      rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
+      rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
+      reflexivity.
 
       eapply gcd_pos_ne_0_r; eassumption.
 
-      eapply pos_nat_ne_0; eassumption.
+      apply gcd_divide_r.
+
+     eapply gcd_pos_ne_0_r; eassumption.
 
      eapply pos_nat_ne_0; eassumption.
 
   destruct (Z_zerop (Qnum (power t₂))) as [Hp₂| Hp₂].
+   rewrite Hp₂; rewrite Zmult_0_l, Zplus_0_r.
 bbb.
 *)
 
