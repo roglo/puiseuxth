@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.687 2013-06-16 12:03:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.688 2013-06-16 12:24:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -690,6 +690,16 @@ destruct an as [| an| an].
    simpl.
    unfold divide.
    simpl in H.
+   exists n.
+   apply Nat.mul_cancel_r with (p := Pos.to_nat ad).
+    eapply pos_nat_ne_0; reflexivity.
+
+    rewrite <- mult_assoc, <- Hab, mult_assoc, H.
+    rewrite Nat.mul_shuffle0; reflexivity.
+
+   apply Zle_0_pos.
+
+   apply Zle_0_pos.
 bbb.
 
 (**)
