@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.685 2013-06-16 11:40:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.686 2013-06-16 11:55:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -665,6 +665,34 @@ Lemma zzz : ∀ a b m n,
   → (m * Z.abs_nat (Qnum a))%nat = (n * Pos.to_nat (Qden a))%nat
     → (Pos.to_nat (Qden b) | m * Z.abs_nat (Qnum b))%nat.
 Proof.
+intros (an, ad) (bn, bd) m n Hab H.
+simpl in H |- *.
+unfold Qeq in Hab; simpl in Hab.
+destruct an as [| an| an].
+ symmetry in Hab.
+ apply Z.eq_mul_0_l in Hab.
+  subst bn.
+  exists 0%nat.
+  rewrite mult_comm; reflexivity.
+
+  pose proof (Zgt_pos_0 ad) as Hp.
+  intros HH; rewrite HH in Hp.
+  apply Zgt_irrefl in Hp; contradiction.
+
+ destruct bn as [| bn| bn].
+  exists 0%nat.
+  rewrite mult_comm; reflexivity.
+
+  simpl in Hab.
+  apply Z2Nat.inj_iff in Hab.
+   simpl in Hab.
+   do 2 rewrite Pos2Nat.inj_mul in Hab.
+   simpl.
+   unfold divide.
+   simpl in H.
+bbb.
+
+
 intros (an, ad) (bn, bd) m n Hab H.
 simpl in H |- *.
 unfold Qeq in Hab; simpl in Hab.
