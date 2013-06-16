@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.693 2013-06-16 19:13:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.694 2013-06-16 19:25:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -746,15 +746,22 @@ induction sf as [| (sum₁, fel₁)].
  eapply Qeq_den_divides; eassumption.
 
  simpl.
+ apply list_Forall_inv in Hfe.
+ destruct Hfe as (Hfd₁, Hfe).
+ apply list_Forall_inv in Hfe.
+ destruct Hfe as (Hfd₂, Hfe).
  remember (power t₁ + power t₂ ?= sum₁) as c.
  symmetry in Heqc.
  destruct c.
-  apply list_Forall_inv in Hfe.
-  destruct Hfe as (Hfd₁, Hfe).
-  apply list_Forall_inv in Hfe.
-  destruct Hfe as (Hfd₂, Hfe).
   constructor; assumption.
 
+  Focus 2.
+  apply list_Forall_inv in Hfs.
+  destruct Hfs as (Hfsp₁, Hfs).
+  apply list_Forall_inv in Hfs.
+  destruct Hfs as (Hfsp₂, Hfs).
+  constructor; [ assumption | idtac ].
+  apply IHsf; constructor; assumption.
 bbb.
 *)
 
