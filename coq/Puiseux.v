@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.692 2013-06-16 19:02:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.693 2013-06-16 19:13:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -720,13 +720,6 @@ destruct an as [| an| an].
   rewrite Nat.mul_shuffle0; reflexivity.
 Qed.
 
-Lemma zzz : ∀ α (fe : fifo_elem α) fel cd sum,
-  fifo_sum_prop (sum, fel)
-  → fifo_div_comden cd (sum, fel)
-    → fifo_div_comden cd (sum, insert_elem fe fel).
-Proof.
-bbb.
-
 Lemma fifo_div_comden_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
@@ -756,16 +749,12 @@ induction sf as [| (sum₁, fel₁)].
  remember (power t₁ + power t₂ ?= sum₁) as c.
  symmetry in Heqc.
  destruct c.
-  constructor.
-   apply list_Forall_inv in Hfs.
-   destruct Hfs as (Hfsp₁, Hfs).
-   apply list_Forall_inv in Hfs.
-   destruct Hfs as (Hfsp₂, Hfs).
-   apply list_Forall_inv in Hfe.
-   destruct Hfe as (Hfd₁, Hfe).
-   apply list_Forall_inv in Hfe.
-   destruct Hfe as (Hfd₂, Hfe).
-   apply zzz; assumption.
+  apply list_Forall_inv in Hfe.
+  destruct Hfe as (Hfd₁, Hfe).
+  apply list_Forall_inv in Hfe.
+  destruct Hfe as (Hfd₂, Hfe).
+  constructor; assumption.
+
 bbb.
 *)
 
