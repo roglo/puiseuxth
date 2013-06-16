@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.686 2013-06-16 11:55:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.687 2013-06-16 12:03:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -690,30 +690,6 @@ destruct an as [| an| an].
    simpl.
    unfold divide.
    simpl in H.
-bbb.
-
-
-intros (an, ad) (bn, bd) m n Hab H.
-simpl in H |- *.
-unfold Qeq in Hab; simpl in Hab.
-destruct (Z_zerop an) as [Han| Han].
- rewrite Han in Hab; simpl in Hab.
- symmetry in Hab.
- apply Z.eq_mul_0_l in Hab.
-  subst bn.
-  exists 0%nat.
-  rewrite mult_comm; reflexivity.
-
-  pose proof (Zgt_pos_0 ad) as Hp.
-  intros HH; rewrite HH in Hp.
-  apply Zgt_irrefl in Hp; contradiction.
-
- destruct (Z_zerop bn) as [Hbn| Hbn].
-  rewrite Hbn in Hab; simpl in Hab.
-  apply Z.eq_mul_0_l in Hab; [ contradiction | idtac ].
-  pose proof (Zgt_pos_0 bd) as Hp.
-  intros HH; rewrite HH in Hp.
-  apply Zgt_irrefl in Hp; contradiction.
 bbb.
 
 (**)
