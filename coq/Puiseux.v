@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.690 2013-06-16 12:44:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.691 2013-06-16 12:48:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -744,6 +744,13 @@ induction sf as [| (sum₁, fel₁)].
  remember (power t₁ + power t₂) as pp.
  unfold fifo_div_comden, den_divides_comden; simpl.
  eapply Qeq_den_divides; eassumption.
+
+ simpl.
+ remember (power t₁ + power t₂ ?= sum₁) as c.
+ symmetry in Heqc.
+ destruct c.
+  constructor.
+   unfold fifo_div_comden, den_divides_comden; simpl.
 bbb.
 *)
 
