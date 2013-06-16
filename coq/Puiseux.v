@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.691 2013-06-16 12:48:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.692 2013-06-16 19:02:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -720,7 +720,14 @@ destruct an as [| an| an].
   rewrite Nat.mul_shuffle0; reflexivity.
 Qed.
 
-Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
+Lemma zzz : ∀ α (fe : fifo_elem α) fel cd sum,
+  fifo_sum_prop (sum, fel)
+  → fifo_div_comden cd (sum, fel)
+    → fifo_div_comden cd (sum, insert_elem fe fel).
+Proof.
+bbb.
+
+Lemma fifo_div_comden_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
   → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
@@ -750,7 +757,15 @@ induction sf as [| (sum₁, fel₁)].
  symmetry in Heqc.
  destruct c.
   constructor.
-   unfold fifo_div_comden, den_divides_comden; simpl.
+   apply list_Forall_inv in Hfs.
+   destruct Hfs as (Hfsp₁, Hfs).
+   apply list_Forall_inv in Hfs.
+   destruct Hfs as (Hfsp₂, Hfs).
+   apply list_Forall_inv in Hfe.
+   destruct Hfe as (Hfd₁, Hfe).
+   apply list_Forall_inv in Hfe.
+   destruct Hfe as (Hfd₂, Hfe).
+   apply zzz; assumption.
 bbb.
 *)
 
@@ -768,9 +783,7 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
-
-bbb.
- apply fifo_exists_insert; assumption.
+ eapply fifo_div_comden_insert; eassumption.
 bbb.
 *)
 
