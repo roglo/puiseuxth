@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.695 2013-06-16 19:28:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.696 2013-06-16 19:59:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -762,7 +762,8 @@ induction sf as [| (sum₁, fel₁)].
   destruct Hfs as (Hfsp₂, Hfs).
   constructor; [ assumption | idtac ].
   apply IHsf; constructor; assumption.
-Abort. (*
+
+  constructor; [ idtac | constructor; assumption ].
 bbb.
 *)
 
@@ -780,7 +781,6 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
-Abort. (*
  eapply fifo_div_comden_insert; eassumption.
 bbb.
 *)
@@ -804,14 +804,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  unfold den_divides_comden.
  exists k₁.
  rewrite <- Hk.
- remember (gcd (Z.abs_nat (Qnum sum)) (Pos.to_nat (Qden sum))) as x.
- destruct x; [ rewrite mult_0_r; reflexivity | idtac ].
- apply Nat.divide_div_mul_exact; [ intros H; discriminate H | idtac ].
- rewrite Heqx.
- apply Nat.divide_gcd_iff'.
- rewrite <- Nat.gcd_assoc.
- f_equal.
- apply Nat.gcd_diag_nonneg, le_0_n.
+ reflexivity.
 
  eapply IHs; try eassumption.
   apply list_Forall_inv in Hs.
