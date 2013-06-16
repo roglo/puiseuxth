@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.683 2013-06-16 11:26:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.684 2013-06-16 11:39:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -691,21 +691,27 @@ Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
         → List.Forall (fifo_div_comden cd)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
-intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
-induction sf as [| (sum₁, fel₁)].
- constructor; [ idtac | constructor ].
- apply list_Forall_inv in Hfe.
- destruct Hfe as (Hfe, _).
- destruct Hfe as (k₁, Hfe); simpl in Hfe.
- apply list_Forall_inv in Hfs.
- destruct Hfs as (Hfs, _).
- unfold fifo_sum_prop in Hfs; simpl in Hfs.
- apply list_Forall_inv in Hfs.
- destruct Hfs as (Hfs, _).
- rewrite <- H₁, <- H₂ in Hfs.
- remember (power t₁ + power t₂) as pp.
- unfold fifo_div_comden, den_divides_comden; simpl.
- eapply zzz; eassumption.
+intros (an, ad) (bn, bd) m n Hab H.
+simpl in H |- *.
+unfold Qeq in Hab; simpl in Hab.
+destruct (Z_zerop an) as [Han| Han].
+ rewrite Han in Hab; simpl in Hab.
+ symmetry in Hab.
+ apply Z.eq_mul_0_l in Hab.
+  subst bn.
+  exists 0%nat.
+  rewrite mult_comm; reflexivity.
+
+  pose proof (Zgt_pos_0 ad) as Hp.
+  intros HH; rewrite HH in Hp.
+  apply Zgt_irrefl in Hp; contradiction.
+
+ destruct (Z_zerop bn) as [Hbn| Hbn].
+  rewrite Hbn in Hab; simpl in Hab.
+  apply Z.eq_mul_0_l in Hab; [ contradiction | idtac ].
+  pose proof (Zgt_pos_0 bd) as Hp.
+  intros HH; rewrite HH in Hp.
+  apply Zgt_irrefl in Hp; contradiction.
 
 bbb.
 
