@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.681 2013-06-16 05:19:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.682 2013-06-16 06:22:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -107,13 +107,9 @@ destruct s₁.
     unfold den_divides_comden.
     remember (Pos.to_nat (Qden (power t₁))) as x.
     remember (Z.abs_nat (Qnum (power t₁))) as y.
-series_forall_add.
-
-    remember (x / gcd y x)%nat as z.
-    exists (cd₂ / gcd (k₁ * z) cd₂ * k₁)%nat.
     unfold Nat.lcm.
-    rewrite mult_comm, mult_assoc.
-    reflexivity.
+    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
+    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat; reflexivity.
 
     apply IHs.
      apply series_forall_inv in Hps₁.
@@ -127,14 +123,13 @@ series_forall_add.
     destruct Hps₁ as (Hpd₁, Hsf₁).
     unfold pow_den_div_com_den in Hpd₁ |- *.
     destruct Hpd₁ as (k₁, Hpd₁).
-    rewrite Hpd₁.
     unfold den_divides_comden.
     remember (Pos.to_nat (Qden (power t₁))) as x.
     remember (Z.abs_nat (Qnum (power t₁))) as y.
     remember (x / gcd y x)%nat as z.
-    exists (cd₂ / gcd (k₁ * z) cd₂ * k₁)%nat.
     unfold Nat.lcm.
-    rewrite mult_comm, mult_assoc.
+    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
+    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat.
     reflexivity.
 
     apply IHs; [ idtac | assumption ].
@@ -147,15 +142,14 @@ series_forall_add.
     destruct Hps₂ as (Hpd₂, Hsf₂).
     unfold pow_den_div_com_den in Hpd₂ |- *.
     destruct Hpd₂ as (k₂, Hpd₂).
-    rewrite Hpd₂.
     unfold den_divides_comden.
     remember (Pos.to_nat (Qden (power t₂))) as x.
     remember (Z.abs_nat (Qnum (power t₂))) as y.
     remember (x / gcd y x)%nat as z.
-    exists (cd₁ / gcd (k₂ * z) cd₁ * k₂)%nat.
     rewrite Nat.lcm_comm.
     unfold Nat.lcm.
-    rewrite mult_comm, mult_assoc.
+    rewrite Nat.mul_shuffle0, Hpd₂, Nat.mul_shuffle0.
+    exists (k₂ * (cd₁ / gcd cd₂ cd₁))%nat.
     reflexivity.
 
     apply IHs; [ assumption | idtac ].
@@ -167,14 +161,13 @@ series_forall_add.
    destruct Hps₁ as (Hpd₁, Hsf₁).
    unfold pow_den_div_com_den in Hpd₁ |- *.
    destruct Hpd₁ as (k₁, Hpd₁).
-   rewrite Hpd₁.
    unfold den_divides_comden.
    remember (Pos.to_nat (Qden (power t₁))) as x.
    remember (Z.abs_nat (Qnum (power t₁))) as y.
    remember (x / gcd y x)%nat as z.
-   exists (cd₂ / gcd (k₁ * z) cd₂ * k₁)%nat.
    unfold Nat.lcm.
-   rewrite mult_comm, mult_assoc.
+   rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
+   exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat.
    reflexivity.
 
    apply series_forall_inv in Hps₁.
@@ -192,14 +185,13 @@ series_forall_add.
    destruct Hps₂ as (Hpd₂, Hsf₂).
    unfold pow_den_div_com_den in Hpd₂ |- *.
    destruct Hpd₂ as (k₂, Hpd₂).
-   rewrite Hpd₂.
    unfold den_divides_comden.
    remember (Pos.to_nat (Qden (power t₂))) as x.
    remember (Z.abs_nat (Qnum (power t₂))) as y.
    remember (x / gcd y x)%nat as z.
-   exists (cd₁ / gcd (k₂ * z) cd₁ * k₂)%nat.
    unfold Nat.lcm.
-   rewrite mult_comm, mult_assoc.
+   rewrite Nat.mul_shuffle0, Hpd₂, Nat.mul_shuffle0.
+   exists (k₂ * (cd₁ / gcd cd₂ cd₁))%nat.
    reflexivity.
 
    apply series_forall_inv in Hps₂.
@@ -331,12 +323,8 @@ Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
     (snd cfel).
 
-Definition fifo_exists_k α comden (cfel : (Q * list (fifo_elem α))) :=
-  ∃ k : nat,
-  (k *
-     (Pos.to_nat (Qden (fst cfel)) /
-      gcd (Z.abs_nat (Qnum (fst cfel))) (Pos.to_nat (Qden (fst cfel)))) =
-   comden)%nat.
+Definition fifo_div_comden α comden (cfel : (Q * list (fifo_elem α))) :=
+  den_divides_comden comden (fst cfel).
 
 Lemma insert_same_sum : ∀ α sum fe₁ (fel : list (fifo_elem α)),
   List.Forall (λ fe, sum == power (fe_t₁ fe) + power (fe_t₂ fe)) fel
@@ -460,17 +448,17 @@ Qed.
 
 (*
 Lemma www : ∀ α fe t₁ t₂ cd₁ cd₂ (sf : list (_ * list (fifo_elem α))),
-  List.Forall (fifo_exists_k cd₁ cd₂) sf
+  List.Forall (fifo_div_comden cd₁ cd₂) sf
   → t₁ = fe_t₁ fe
     → t₂ = fe_t₂ fe
-      → List.Forall (fifo_exists_k cd₁ cd₂)
+      → List.Forall (fifo_div_comden cd₁ cd₂)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
 intros α fe t₁ t₂ cd₁ cd₂ sf H H₁ H₂.
 subst t₁ t₂.
 induction sf as [| (sum₁, fel₁)].
  constructor; [ idtac | constructor ].
- unfold fifo_exists_k; simpl.
+ unfold fifo_div_comden; simpl.
 bbb.
 *)
 
@@ -524,11 +512,11 @@ Qed.
 (*
 Lemma xxx : ∀ α mul_coeff t₁ t₂ cd₁ cd₂ fe fel
     (sf : list (_ * list (fifo_elem α))),
-  List.Forall (fifo_exists_k cd₁ cd₂) sf
-  → List.Forall (fifo_exists_k cd₁ cd₂) (add_right mul_coeff sf fel)
+  List.Forall (fifo_div_comden cd₁ cd₂) sf
+  → List.Forall (fifo_div_comden cd₁ cd₂) (add_right mul_coeff sf fel)
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → List.Forall (fifo_exists_k cd₁ cd₂)
+        → List.Forall (fifo_div_comden cd₁ cd₂)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
 Proof.
@@ -597,8 +585,8 @@ Qed.
 
 (*
 Lemma yyy : ∀ α mul_coeff cd₁ cd₂ fel (sf : list (_ * list (fifo_elem α))),
-  List.Forall (fifo_exists_k cd₁ cd₂) sf
-  → List.Forall (fifo_exists_k cd₁ cd₂) (add_right mul_coeff sf fel).
+  List.Forall (fifo_div_comden cd₁ cd₂) sf
+  → List.Forall (fifo_div_comden cd₁ cd₂) (add_right mul_coeff sf fel).
 Proof.
 intros α mul_coeff cd₁ cd₂ fel sf H.
 induction fel as [| fe]; intros; [ assumption | simpl ].
@@ -629,10 +617,10 @@ Close Scope nat_scope.
 Lemma yyy : ∀ α mul_coeff t₁ t₂ cd sum fe fel
      (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
-  → List.Forall (fifo_exists_k cd) [(sum, [fe … fel]) … sf]
+  → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → List.Forall (fifo_exists_k cd)
+        → List.Forall (fifo_div_comden cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
 Proof.
@@ -640,10 +628,10 @@ intros α mul_coeff t₁ t₂ cd sum fe fel sf Hs Hk.
 induction fel as [| fe₁]; intros; simpl.
  induction sf as [| (sum₁, fel₁)].
   constructor; [ idtac | constructor ].
-  unfold fifo_exists_k; simpl.
+  unfold fifo_div_comden; simpl.
   apply list_Forall_inv in Hk.
   destruct Hk as (He, _).
-  unfold fifo_exists_k in He.
+  unfold fifo_div_comden in He.
   destruct He as (k₁, He).
   apply list_Forall_inv in Hs.
   destruct Hs as (Hf, _).
@@ -672,6 +660,7 @@ destruct HH as (n, HH).
 rewrite H in HH; discriminate HH.
 Qed.
 
+(*
 Lemma zzz : ∀ a b,
   a == b
   → (Pos.to_nat (Qden b) / gcd (Z.abs_nat (Qnum b)) (Pos.to_nat (Qden b)) =
@@ -680,15 +669,16 @@ Lemma zzz : ∀ a b,
 Proof.
 intros (an, ad) (bn, bd) Hab; simpl.
 bbb.
+*)
 
 (**)
 Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
-  → List.Forall (fifo_exists_k cd) [(sum, [fe … fel]) … sf]
+  → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → List.Forall (fifo_exists_k cd)
+        → List.Forall (fifo_div_comden cd)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
@@ -704,7 +694,8 @@ induction sf as [| (sum₁, fel₁)].
  destruct Hfs as (Hfs, _).
  rewrite <- H₁, <- H₂ in Hfs.
  remember (power t₁ + power t₂) as pp.
- unfold fifo_exists_k; simpl.
+ unfold fifo_div_comden, den_divides_comden; simpl.
+bbb.
  subst cd.
  exists k₁.
  destruct k₁; [ reflexivity | idtac ].
@@ -725,7 +716,7 @@ induction sf as [| (sum₁, fel₁)].
  destruct Hfs as (Hfs, _).
  rewrite <- H₁, <- H₂ in Hfs.
  remember (power t₁ + power t₂) as pp.
- unfold fifo_exists_k; simpl.
+ unfold fifo_div_comden; simpl.
  subst cd.
  unfold Qeq in Hfs.
  remember (Qnum pp) as np.
@@ -794,7 +785,7 @@ induction sf as [| (sum₁, fel₁)].
  destruct Hfs as (Hfs, _).
  rewrite <- H₁, <- H₂ in Hfs.
  remember (power t₁ + power t₂) as pp.
- unfold fifo_exists_k; simpl.
+ unfold fifo_div_comden; simpl.
  subst cd.
  remember (Pos.to_nat (Qden pp)) as dp.
  remember (Pos.to_nat (Qden sum)) as ds.
@@ -830,13 +821,13 @@ bbb.
 *)
 
 (**)
-Lemma fifo_exists_k_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
+Lemma fifo_div_comden_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
-  → List.Forall (fifo_exists_k cd) [(sum, [fe … fel]) … sf]
+  → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → List.Forall (fifo_exists_k cd)
+        → List.Forall (fifo_div_comden cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
 Proof.
@@ -851,7 +842,7 @@ bbb.
 
 Lemma zzz : ∀ α add_coeff mul_coeff cd (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
-  → List.Forall (fifo_exists_k cd) sf
+  → List.Forall (fifo_div_comden cd) sf
     → series_forall (pow_den_div_com_den cd)
         (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
@@ -863,7 +854,7 @@ destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
 eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  unfold pow_den_div_com_den; simpl.
  apply List.Forall_inv in Hk.
- unfold fifo_exists_k in Hk; simpl in Hk.
+ unfold fifo_div_comden in Hk; simpl in Hk.
  destruct Hk as (k₁, Hk).
  unfold den_divides_comden.
  exists k₁.
@@ -903,7 +894,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    destruct ss₁.
     rename t into tt₁.
 bbb.
-    apply fifo_exists_k_sum_right; try reflexivity.
+    apply fifo_div_comden_sum_right; try reflexivity.
     apply yyy with (power (fe_t₁ fe) + power tt₂).
      constructor.
       unfold fifo_sum_prop; simpl.
@@ -938,7 +929,7 @@ eapply zzz; try eassumption.
 
  constructor; [ simpl | constructor ].
  remember (power t₁ + power t₂) as pp.
- unfold fifo_exists_k; simpl.
+ unfold fifo_div_comden; simpl.
  subst cd₁ cd₂.
  remember (Z.abs_nat (Qnum (power t₁))) as x₁.
  remember (Pos.to_nat (Qden (power t₁))) as y₁.
