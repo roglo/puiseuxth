@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.696 2013-06-16 19:59:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.697 2013-06-16 23:39:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -764,6 +764,8 @@ induction sf as [| (sum₁, fel₁)].
   apply IHsf; constructor; assumption.
 
   constructor; [ idtac | constructor; assumption ].
+  unfold fifo_div_comden; simpl.
+Abort. (*
 bbb.
 *)
 
@@ -781,6 +783,7 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
+Abort. (*
  eapply fifo_div_comden_insert; eassumption.
 bbb.
 *)
@@ -831,6 +834,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+Abort. (*
 bbb.
     apply fifo_div_comden_sum_right; try reflexivity.
     apply yyy with (power (fe_t₁ fe) + power tt₂).
@@ -861,6 +865,15 @@ unfold pow_den_div_com_den in Hp₁; simpl in Hp₁.
 unfold pow_den_div_com_den in Hp₂; simpl in Hp₂.
 destruct Hp₁ as (k₁, Hp₁).
 destruct Hp₂ as (k₂, Hp₂).
+rewrite series_eta; simpl.
+eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+ unfold pow_den_div_com_den; simpl.
+ unfold den_divides_comden.
+ remember (Qden (power t₁ + power t₂)) as x.
+ simpl in Heqx; subst x.
+ remember (power t₁ + power t₂) as pp.
+
+bbb.
 eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
  constructor; [ reflexivity | constructor ].
