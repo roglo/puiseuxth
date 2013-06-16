@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.689 2013-06-16 12:33:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.690 2013-06-16 12:44:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -660,11 +660,12 @@ destruct HH as (n, HH).
 rewrite H in HH; discriminate HH.
 Qed.
 
-Lemma zzz : ∀ a b m n,
+Lemma Qeq_den_divides : ∀ a b m n,
   a == b
   → (m * Z.abs_nat (Qnum a))%nat = (n * Pos.to_nat (Qden a))%nat
     → (Pos.to_nat (Qden b) | m * Z.abs_nat (Qnum b))%nat.
 Proof.
+(* à nettoyer *)
 intros (an, ad) (bn, bd) m n Hab H.
 simpl in H |- *.
 unfold Qeq in Hab; simpl in Hab.
@@ -683,13 +684,11 @@ destruct an as [| an| an].
   exists 0%nat.
   rewrite mult_comm; reflexivity.
 
-  simpl in Hab.
+  simpl in Hab, H |- *.
   apply Z2Nat.inj_iff in Hab.
    simpl in Hab.
    do 2 rewrite Pos2Nat.inj_mul in Hab.
-   simpl.
    unfold divide.
-   simpl in H.
    exists n.
    apply Nat.mul_cancel_r with (p := Pos.to_nat ad).
     eapply pos_nat_ne_0; reflexivity.
@@ -705,9 +704,22 @@ destruct an as [| an| an].
 
  destruct bn as [| bn| bn]; [ discriminate Hab | discriminate Hab | idtac ].
  simpl in Hab, H |- *.
-bbb.
+ apply Pos2Z.inj_neg_iff in Hab.
+ unfold divide.
+ exists n.
+ apply Nat.mul_cancel_r with (p := Pos.to_nat ad).
+  eapply pos_nat_ne_0; reflexivity.
 
-(**)
+  rewrite <- mult_assoc, <- Pos2Nat.inj_mul.
+  rewrite <- mult_assoc, <- Pos2Nat.inj_mul.
+  rewrite <- Hab.
+  rewrite Pos2Nat.inj_mul.
+  rewrite Pos2Nat.inj_mul.
+  rewrite mult_assoc, H.
+  rewrite mult_assoc.
+  rewrite Nat.mul_shuffle0; reflexivity.
+Qed.
+
 Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
@@ -717,31 +729,6 @@ Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
         → List.Forall (fifo_div_comden cd)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
-intros (an, ad) (bn, bd) m n Hab H.
-simpl in H |- *.
-unfold Qeq in Hab; simpl in Hab.
-destruct (Z_zerop an) as [Han| Han].
- rewrite Han in Hab; simpl in Hab.
- symmetry in Hab.
- apply Z.eq_mul_0_l in Hab.
-  subst bn.
-  exists 0%nat.
-  rewrite mult_comm; reflexivity.
-
-  pose proof (Zgt_pos_0 ad) as Hp.
-  intros HH; rewrite HH in Hp.
-  apply Zgt_irrefl in Hp; contradiction.
-
- destruct (Z_zerop bn) as [Hbn| Hbn].
-  rewrite Hbn in Hab; simpl in Hab.
-  apply Z.eq_mul_0_l in Hab; [ contradiction | idtac ].
-  pose proof (Zgt_pos_0 bd) as Hp.
-  intros HH; rewrite HH in Hp.
-  apply Zgt_irrefl in Hp; contradiction.
-
-bbb.
-
-
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
 induction sf as [| (sum₁, fel₁)].
  constructor; [ idtac | constructor ].
@@ -756,128 +743,7 @@ induction sf as [| (sum₁, fel₁)].
  rewrite <- H₁, <- H₂ in Hfs.
  remember (power t₁ + power t₂) as pp.
  unfold fifo_div_comden, den_divides_comden; simpl.
-bbb.
- subst cd.
- exists k₁.
- destruct k₁; [ reflexivity | idtac ].
- apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
- apply zzz; assumption.
-bbb.
-
-intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
-induction sf as [| (sum₁, fel₁)].
- constructor; [ idtac | constructor ].
- apply list_Forall_inv in Hfe.
- destruct Hfe as (Hfe, _).
- destruct Hfe as (k₁, Hfe); simpl in Hfe.
- apply list_Forall_inv in Hfs.
- destruct Hfs as (Hfs, _).
- unfold fifo_sum_prop in Hfs; simpl in Hfs.
- apply list_Forall_inv in Hfs.
- destruct Hfs as (Hfs, _).
- rewrite <- H₁, <- H₂ in Hfs.
- remember (power t₁ + power t₂) as pp.
- unfold fifo_div_comden; simpl.
- subst cd.
- unfold Qeq in Hfs.
- remember (Qnum pp) as np.
- remember (Qden pp) as dp.
- remember (Qnum sum) as ns.
- remember (Qden sum) as ds.
- exists k₁.
- destruct k₁; [ reflexivity | idtac ].
- apply Nat.mul_cancel_l; [ intros H; discriminate H | idtac ].
- unfold Zmult in Hfs.
- destruct ns as [| ns| ns].
-  simpl.
-  rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; reflexivity ].
-  destruct np as [| np| np].
-   simpl.
-   rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; reflexivity ].
-   reflexivity.
-
-   pose proof (Zgt_pos_0 (Pos.mul np ds)) as H.
-   rewrite Hfs in H.
-   apply Zgt_irrefl in H; contradiction.
-
-   pose proof (Zlt_neg_0 (np * ds)) as H.
-   rewrite Hfs in H.
-   apply Zlt_irrefl in H; contradiction.
-
-  destruct np as [| np| np].
-   pose proof (Zgt_pos_0 (Pos.mul ns dp)) as H.
-   rewrite Hfs in H.
-   apply Zgt_irrefl in H; contradiction.
-
-   do 2 rewrite Pos2Z.inj_mul in Hfs.
-   do 2 rewrite <- Z2Nat.inj_pos.
-   remember (' ns)%Z as pns.
-   remember (' np)%Z as pnp.
-   remember (' dp)%Z as pdp.
-   remember (' ds)%Z as pds.
-   pose proof (gcd_divide_r (Z.abs_nat pnp) (Z.to_nat pdp)) as Hdp.
-   pose proof (gcd_divide_r (Z.abs_nat pns) (Z.to_nat pds)) as Hds.
-   clear k₁.
-   destruct Hdp as (k₁, Hdp).
-   destruct Hds as (k₂, Hds).
-   apply Z2Nat.inj_iff in Hfs.
-    rewrite Z2Nat.inj_mul in Hfs.
-     rewrite Z2Nat.inj_mul in Hfs.
-      apply Nat.mul_cancel_l with (p := Z.to_nat pns).
-       rewrite Heqpns.
-       simpl.
-       eapply pos_nat_ne_0; reflexivity.
-
-       rewrite <- Nat.divide_div_mul_exact.
-        rewrite Hfs.
-        rewrite <- Nat.divide_div_mul_exact.
-bbb.
-
-intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
-induction sf as [| (sum₁, fel₁)].
- constructor; [ idtac | constructor ].
- apply list_Forall_inv in Hfe.
- destruct Hfe as (Hfe, _).
- destruct Hfe as (k₁, Hfe); simpl in Hfe.
- apply list_Forall_inv in Hfs.
- destruct Hfs as (Hfs, _).
- unfold fifo_sum_prop in Hfs; simpl in Hfs.
- apply list_Forall_inv in Hfs.
- destruct Hfs as (Hfs, _).
- rewrite <- H₁, <- H₂ in Hfs.
- remember (power t₁ + power t₂) as pp.
- unfold fifo_div_comden; simpl.
- subst cd.
- remember (Pos.to_nat (Qden pp)) as dp.
- remember (Pos.to_nat (Qden sum)) as ds.
-
- pose proof (gcd_divide_r (Z.abs_nat (Qnum pp)) dp) as Hdp.
- pose proof (gcd_divide_r (Z.abs_nat (Qnum sum)) ds) as Hds.
- destruct Hdp as (u, Hdp).
- destruct Hds as (v, Hds).
- remember (Z.abs_nat (Qnum pp)) as np.
- remember (Z.abs_nat (Qnum sum)) as ns.
- remember (gcd np dp) as gp.
- remember (gcd ns ds) as gs.
- rewrite Hdp, Hds.
- destruct gp.
-  simpl.
-  destruct gs.
-   simpl.
-   exists k₁; reflexivity.
-
-   rewrite mult_0_r in Hdp.
-   rewrite Heqdp in Hdp.
-   symmetry in Hdp.
-   apply pos_nat_ne_0 in Hdp.
-   exfalso; apply Hdp; reflexivity.
-
-  destruct gs.
-   rewrite mult_0_r in Hds.
-   rewrite Heqds in Hds.
-   symmetry in Hds.
-   apply pos_nat_ne_0 in Hds.
-   exfalso; apply Hds; reflexivity.
+ eapply Qeq_den_divides; eassumption.
 bbb.
 *)
 
