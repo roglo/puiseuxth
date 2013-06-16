@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.682 2013-06-16 06:22:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.683 2013-06-16 11:26:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -660,16 +660,26 @@ destruct HH as (n, HH).
 rewrite H in HH; discriminate HH.
 Qed.
 
-(*
-Lemma zzz : ∀ a b,
+Lemma zzz : ∀ a b m n,
   a == b
-  → (Pos.to_nat (Qden b) / gcd (Z.abs_nat (Qnum b)) (Pos.to_nat (Qden b)) =
-     Pos.to_nat (Qden a) / gcd (Z.abs_nat (Qnum a)) (Pos.to_nat (Qden a)))
-    %nat.
+  → (m * Z.abs_nat (Qnum a))%nat = (n * Pos.to_nat (Qden a))%nat
+    → (Pos.to_nat (Qden b) | m * Z.abs_nat (Qnum b))%nat.
 Proof.
-intros (an, ad) (bn, bd) Hab; simpl.
+intros (an, ad) (bn, bd) m n Hab H.
+simpl in H |- *.
+destruct (Z_zerop an) as [Han| Han].
+ rewrite Han in Hab; simpl in Hab.
+ unfold Qeq in Hab; simpl in Hab.
+ symmetry in Hab.
+ apply Z.eq_mul_0_l in Hab.
+  subst bn.
+  exists 0%nat.
+  rewrite mult_comm; reflexivity.
+
+  pose proof (Zgt_pos_0 ad) as Hp.
+  intros HH; rewrite HH in Hp.
+  apply Zgt_irrefl in Hp; contradiction.
 bbb.
-*)
 
 (**)
 Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
@@ -681,6 +691,25 @@ Lemma fifo_exists_insert : ∀ α cd sum fe fel t₁ t₂
         → List.Forall (fifo_div_comden cd)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
+intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
+induction sf as [| (sum₁, fel₁)].
+ constructor; [ idtac | constructor ].
+ apply list_Forall_inv in Hfe.
+ destruct Hfe as (Hfe, _).
+ destruct Hfe as (k₁, Hfe); simpl in Hfe.
+ apply list_Forall_inv in Hfs.
+ destruct Hfs as (Hfs, _).
+ unfold fifo_sum_prop in Hfs; simpl in Hfs.
+ apply list_Forall_inv in Hfs.
+ destruct Hfs as (Hfs, _).
+ rewrite <- H₁, <- H₂ in Hfs.
+ remember (power t₁ + power t₂) as pp.
+ unfold fifo_div_comden, den_divides_comden; simpl.
+ eapply zzz; eassumption.
+
+bbb.
+
+
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
 induction sf as [| (sum₁, fel₁)].
  constructor; [ idtac | constructor ].
