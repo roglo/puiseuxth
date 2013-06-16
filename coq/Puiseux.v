@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.694 2013-06-16 19:25:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.695 2013-06-16 19:28:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -762,6 +762,7 @@ induction sf as [| (sum₁, fel₁)].
   destruct Hfs as (Hfsp₂, Hfs).
   constructor; [ assumption | idtac ].
   apply IHsf; constructor; assumption.
+Abort. (*
 bbb.
 *)
 
@@ -779,6 +780,7 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
+Abort. (*
  eapply fifo_div_comden_insert; eassumption.
 bbb.
 *)
