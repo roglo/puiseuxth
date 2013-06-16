@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.688 2013-06-16 12:24:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.689 2013-06-16 12:33:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -700,6 +700,11 @@ destruct an as [| an| an].
    apply Zle_0_pos.
 
    apply Zle_0_pos.
+
+  discriminate Hab.
+
+ destruct bn as [| bn| bn]; [ discriminate Hab | discriminate Hab | idtac ].
+ simpl in Hab, H |- *.
 bbb.
 
 (**)
