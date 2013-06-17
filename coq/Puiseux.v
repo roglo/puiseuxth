@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.703 2013-06-17 13:58:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.704 2013-06-17 15:23:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -69,13 +69,12 @@ destruct s.
   destruct H as (H, _).
   unfold pow_den_div_com_den in H |- *.
   destruct H as (k₁, H).
-  rewrite mult_comm.
+  rewrite Pmult_comm.
   unfold den_divides_comden.
-  exists (Z.of_nat x * k₁)%Z.
-  rewrite Nat2Z.inj_mul.
-  do 2 rewrite <- Z.mul_assoc.
-  f_equal.
-  assumption.
+  exists (Zpos x * k₁)%Z.
+  rewrite Pos2Z.inj_mul.
+  rewrite <- Zmult_assoc, H, Zmult_assoc.
+  reflexivity.
 
   apply series_forall_inv in H.
   destruct H as (_, H).
@@ -84,10 +83,17 @@ destruct s.
  constructor; reflexivity.
 Qed.
 
+Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
+
+Lemma Zlcm_pos : ∀ a b, (0 < Z.lcm (Zpos a) (Zpos b))%Z.
+Proof.
+intros a b.
+bbb.
+
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
-    → series_forall (pow_den_div_com_den (Nat.lcm cd₁ cd₂))
+    → series_forall (pow_den_div_com_den (Plcm cd₁ cd₂))
         (ps_add_loop add_coeff s₁ s₂).
 Proof.
 cofix IHs.
@@ -108,23 +114,22 @@ destruct s₁.
     destruct Hpd₁ as (k₁, Hpd₁).
     unfold den_divides_comden.
     unfold Z.divide.
-    exists (Z.of_nat (Nat.lcm cd₁ cd₂ / cd₁) * k₁)%Z.
+    exists (Zpos (Plcm cd₁ cd₂) / Zpos cd₁ * k₁)%Z.
     rewrite <- Zmult_assoc, <- Hpd₁.
     rewrite Zmult_assoc.
     f_equal.
-    destruct cd₁; [ reflexivity | idtac ].
-    rewrite div_Zdiv; [ idtac | intros H; discriminate H ].
     rewrite Zmult_comm.
     rewrite <- Z.divide_div_mul_exact.
      rewrite Zmult_comm.
      rewrite Z.div_mul; [ reflexivity | intros H; discriminate H ].
 
-     intros H; discriminate H.
+     pose proof (Pos2Z.is_pos cd₁) as H.
+     intros HH; rewrite HH in H; apply Zlt_irrefl in H; assumption.
 
-     unfold Z.of_nat.
-     remember (Nat.lcm (S cd₁) cd₂) as x.
-     destruct x.
-      apply Z.divide_0_r.
+     unfold Plcm.
+     rewrite Z2Pos.id.
+      apply Z.divide_lcm_l.
+bbb.
 
       rewrite Pos.of_nat_succ.
       rewrite Pos.of_nat_succ.
