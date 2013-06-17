@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.713 2013-06-17 20:31:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.714 2013-06-17 21:09:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -237,7 +237,7 @@ Qed.
 
 Theorem ps_prop_add : ∀ α (add_coeff : α → α → α) ps₁ ps₂,
   series_forall
-    (pow_den_div_com_den (Nat.lcm (ps_comden ps₁) (ps_comden ps₂)))
+    (pow_den_div_com_den (Plcm (ps_comden ps₁) (ps_comden ps₂)))
     (ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂)).
 Proof.
 intros α add_coeff ps₁ ps₂.
@@ -247,7 +247,7 @@ Qed.
 Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
   {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂);
+     ps_comden := Plcm (ps_comden ps₁) (ps_comden ps₂);
      ps_prop := ps_prop_add add_coeff ps₁ ps₂ |}.
 
 (* ps_mul *)
