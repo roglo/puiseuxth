@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.701 2013-06-17 09:17:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.702 2013-06-17 11:09:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -107,10 +107,33 @@ destruct s₁.
     unfold pow_den_div_com_den in Hpd₁ |- *; simpl.
     destruct Hpd₁ as (k₁, Hpd₁).
     unfold den_divides_comden.
+    unfold Z.divide.
+    exists (Z.of_nat (Nat.lcm cd₁ cd₂ / cd₁) * k₁)%Z.
+    rewrite <- Zmult_assoc, <- Hpd₁.
+    rewrite Zmult_assoc.
+    f_equal.
+    destruct cd₁; [ reflexivity | idtac ].
+    rewrite div_Zdiv; [ idtac | intros H; discriminate H ].
+    rewrite Zmult_comm.
+    rewrite <- Z.divide_div_mul_exact.
+     rewrite Zmult_comm.
+     rewrite Z.div_mul; [ reflexivity | intros H; discriminate H ].
+
+     intros H; discriminate H.
+
+     unfold Z.of_nat.
+     remember (Nat.lcm (S cd₁) cd₂) as x.
+     destruct x.
+      apply Z.divide_0_r.
+
+      rewrite Pos.of_nat_succ.
+      rewrite Pos.of_nat_succ.
+      unfold Z.divide.
+bbb.
     remember (Pos.to_nat (Qden (power t₁))) as x.
     remember (Z.abs_nat (Qnum (power t₁))) as y.
-    unfold Nat.lcm.
 bbb.
+    unfold Nat.lcm.
     rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
     exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat; reflexivity.
 
