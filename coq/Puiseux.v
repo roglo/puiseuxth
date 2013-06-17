@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.697 2013-06-16 23:39:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.698 2013-06-17 01:08:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -726,6 +726,10 @@ Lemma fifo_div_comden_insert : ∀ α cd sum fe fel t₁ t₂
   → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
+(*
+den_divides_comden cd₁ (power t₁)
+den_divides_comden cd₂ (power t₂)
+*)
         → List.Forall (fifo_div_comden cd)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
@@ -776,6 +780,10 @@ Lemma fifo_div_comden_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
   → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
+(*
+den_divides_comden cd₁ (power t₁)
+den_divides_comden cd₂ (power t₂)
+*)
         → List.Forall (fifo_div_comden cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
@@ -788,14 +796,46 @@ Abort. (*
 bbb.
 *)
 
-Lemma zzz : ∀ α add_coeff mul_coeff cd (sf : list (_ * list (fifo_elem α))),
+Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
+    (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
-  → List.Forall (fifo_div_comden cd) sf
-    → series_forall (pow_den_div_com_den cd)
-        (ps_mul_loop add_coeff mul_coeff sf).
+  → List.Forall
+      (λ sum_fel,
+         List.Forall (λ fe, den_divides_comden cd₁ (power (fe_t₁ fe)))
+           (snd sum_fel))
+      sf
+    → List.Forall
+        (λ sum_fel,
+           List.Forall (λ fe, den_divides_comden cd₂ (power (fe_t₂ fe)))
+             (snd sum_fel))
+        sf
+      → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
+          (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
-intros α add_coeff mul_coeff cd sf Hs Hk.
+intros α add_coeff mul_coeff cd₁ cd₂ sf Hs Hd₁ Hd₂.
+rewrite series_eta; simpl.
+destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
+destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
+eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+ unfold pow_den_div_com_den; simpl.
+ apply List.Forall_inv in Hd₁.
+ simpl in Hd₁.
+ apply List.Forall_inv in Hd₂; simpl in Hd₂.
+ apply List.Forall_inv in Hd₁.
+ apply List.Forall_inv in Hd₂.
+ destruct Hd₁ as (k₁, Hd₁).
+ destruct Hd₂ as (k₂, Hd₂).
+ apply List.Forall_inv in Hs.
+ unfold fifo_sum_prop in Hs.
+ simpl in Hs.
+ apply List.Forall_inv in Hs.
+ unfold den_divides_comden.
+ Focus 1.
+bbb.
+
+cofix IHs.
+intros α add_coeff mul_coeff cd₁ cd₂ sf Hs Hd₁ Hd₂.
 rewrite series_eta; simpl.
 destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
 destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
@@ -834,7 +874,6 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
-Abort. (*
 bbb.
     apply fifo_div_comden_sum_right; try reflexivity.
     apply yyy with (power (fe_t₁ fe) + power tt₂).
@@ -863,16 +902,10 @@ destruct Hps₁ as (Hp₁, Hs₁).
 destruct Hps₂ as (Hp₂, Hs₂).
 unfold pow_den_div_com_den in Hp₁; simpl in Hp₁.
 unfold pow_den_div_com_den in Hp₂; simpl in Hp₂.
+bbb.
+
 destruct Hp₁ as (k₁, Hp₁).
 destruct Hp₂ as (k₂, Hp₂).
-rewrite series_eta; simpl.
-eapply TermAndFurther; [ reflexivity | idtac | idtac ].
- unfold pow_den_div_com_den; simpl.
- unfold den_divides_comden.
- remember (Qden (power t₁ + power t₂)) as x.
- simpl in Heqx; subst x.
- remember (power t₁ + power t₂) as pp.
-
 bbb.
 eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
