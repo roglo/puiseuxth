@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.711 2013-06-17 20:14:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.712 2013-06-17 20:23:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -149,12 +149,6 @@ destruct k₁.
  exfalso; apply HH.
  apply Zlt_le_weak, Zlt_neg_0.
 Qed.
-
-Lemma series_forall_map : ∀ α P Q (s : series α),
-  (∀ x, P x → Q x) → series_forall P s → series_forall Q s.
-Proof.
-intros α P Q s Hx H.
-bbb.
 
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁

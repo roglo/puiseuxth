@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.8 2013-06-11 02:45:05 deraugla Exp $ *)
+(* $Id: Series.v,v 1.9 2013-06-17 20:23:45 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -60,4 +60,18 @@ Proof.
 intros α P t s H.
 inversion H; [ idtac | discriminate H0 ].
 injection H0; intros; subst s t; split; assumption.
+Qed.
+
+Lemma series_forall_map : ∀ α (P Q : _ → Prop) (s : series α),
+  (∀ x, P x → Q x) → series_forall P s → series_forall Q s.
+Proof.
+cofix IHs.
+intros α P Q s Hx H.
+destruct s as [t₁ s₁| ].
+ apply series_forall_inv in H.
+ destruct H as (H₁, H₂).
+ eapply TermAndFurther; [ reflexivity | apply Hx, H₁ | idtac ].
+ eapply IHs; eassumption.
+
+ constructor; reflexivity.
 Qed.
