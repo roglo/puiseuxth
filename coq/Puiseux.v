@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.709 2013-06-17 19:05:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.710 2013-06-17 19:49:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -119,12 +119,36 @@ apply Z.div_small_iff in H.
  rewrite HHH in HH; apply Zlt_irrefl in HH; assumption.
 Qed.
 
-Lemma zzz : ∀ α a b (t : term α),
+Lemma div_div_lcm : ∀ α a b (t : term α),
   pow_den_div_com_den a t
   → pow_den_div_com_den (Plcm a b) t.
 Proof.
 intros α a b t H.
-bbb.
+unfold pow_den_div_com_den in H |- *.
+unfold den_divides_comden in H |- *.
+destruct H as (k, H).
+unfold Z.divide.
+unfold Plcm.
+pose proof (Z.divide_lcm_l (' a) (' b)) as Hl.
+destruct Hl as (k₁, Hl).
+rewrite Hl.
+destruct k₁.
+ pose proof (Zlcm_pos a b)%Z as HH.
+ rewrite Hl in HH; apply Zlt_irrefl in HH; contradiction.
+
+ rewrite Z2Pos.inj_mul; try apply Pos2Z.is_pos.
+ do 2 rewrite Pos2Z.id.
+ rewrite Pos2Z.inj_mul.
+ rewrite <- Zmult_assoc, H, Zmult_assoc.
+ exists (' p * k)%Z; reflexivity.
+
+ pose proof (Zlcm_pos a b)%Z as HH.
+ rewrite Hl in HH.
+ simpl in HH.
+ apply Zlt_not_le in HH.
+ exfalso; apply HH.
+ apply Zlt_le_weak, Zlt_neg_0.
+Qed.
 
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
@@ -173,6 +197,7 @@ destruct s₁.
    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     apply series_forall_inv in Hps₁.
     destruct Hps₁ as (Hpd₁, Hps₁).
+    apply div_div_lcm; assumption.
 bbb.
 
       rewrite Pos.of_nat_succ.
