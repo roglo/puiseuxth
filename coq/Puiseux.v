@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.708 2013-06-17 18:58:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.709 2013-06-17 19:05:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -119,6 +119,13 @@ apply Z.div_small_iff in H.
  rewrite HHH in HH; apply Zlt_irrefl in HH; assumption.
 Qed.
 
+Lemma zzz : ∀ α a b (t : term α),
+  pow_den_div_com_den a t
+  → pow_den_div_com_den (Plcm a b) t.
+Proof.
+intros α a b t H.
+bbb.
+
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -162,6 +169,10 @@ destruct s₁.
      eapply series_forall_inv; eassumption.
 
      eapply series_forall_inv; eassumption.
+
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+    apply series_forall_inv in Hps₁.
+    destruct Hps₁ as (Hpd₁, Hps₁).
 bbb.
 
       rewrite Pos.of_nat_succ.
