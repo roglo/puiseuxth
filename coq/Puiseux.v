@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.700 2013-06-17 09:06:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.701 2013-06-17 09:17:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -71,9 +71,11 @@ destruct s.
   destruct H as (k₁, H).
   rewrite mult_comm.
   unfold den_divides_comden.
-  exists (x * k₁)%nat.
-  do 2 rewrite <- mult_assoc.
-  f_equal; assumption.
+  exists (Z.of_nat x * k₁)%Z.
+  rewrite Nat2Z.inj_mul.
+  do 2 rewrite <- Z.mul_assoc.
+  f_equal.
+  assumption.
 
   apply series_forall_inv in H.
   destruct H as (_, H).
@@ -108,6 +110,7 @@ destruct s₁.
     remember (Pos.to_nat (Qden (power t₁))) as x.
     remember (Z.abs_nat (Qnum (power t₁))) as y.
     unfold Nat.lcm.
+bbb.
     rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
     exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat; reflexivity.
 
