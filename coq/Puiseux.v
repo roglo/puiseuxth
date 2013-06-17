@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.707 2013-06-17 18:57:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.708 2013-06-17 18:58:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -157,6 +157,11 @@ destruct s₁.
 
      unfold Plcm.
      rewrite Z2Pos.id; [ apply Z.divide_lcm_l | apply Zlcm_pos ].
+
+    apply IHs.
+     eapply series_forall_inv; eassumption.
+
+     eapply series_forall_inv; eassumption.
 bbb.
 
       rewrite Pos.of_nat_succ.
