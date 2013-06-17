@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.698 2013-06-17 01:08:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.699 2013-06-17 08:46:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -831,7 +831,32 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  simpl in Hs.
  apply List.Forall_inv in Hs.
  unfold den_divides_comden.
- Focus 1.
+ eapply Qeq_den_divides with (n := (k₁ * cd₂ + cd₁ * k₂)%nat).
+  symmetry; eassumption.
+
+  simpl.
+  rewrite Pos2Nat.inj_mul.
+  rewrite mult_plus_distr_r.
+  rewrite Nat.mul_shuffle1.
+  rewrite <- Hd₁.
+  rewrite <- mult_assoc.
+  rewrite <- mult_assoc.
+  rewrite <- mult_assoc.
+  rewrite <- mult_plus_distr_l.
+  f_equal.
+  rewrite mult_assoc.
+  rewrite mult_assoc.
+  rewrite plus_comm.
+  rewrite Nat.mul_shuffle0.
+  rewrite <- Hd₂.
+  rewrite plus_comm.
+  symmetry.
+  rewrite <- mult_assoc, mult_comm.
+  rewrite <- mult_assoc.
+  rewrite <- mult_assoc.
+  rewrite <- mult_plus_distr_l.
+  f_equal.
+  Focus 1.
 bbb.
 
 cofix IHs.
