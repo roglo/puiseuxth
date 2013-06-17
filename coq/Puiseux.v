@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.705 2013-06-17 18:10:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.706 2013-06-17 18:48:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -93,7 +93,31 @@ rewrite Z.abs_mul.
 remember (Z.abs (' a)) as x; simpl in Heqx; subst x.
 apply Z.mul_pos_pos; [ apply Pos2Z.is_pos | idtac ].
 apply Z.abs_pos; simpl.
-bbb.
+intros H.
+apply Z.div_small_iff in H.
+ destruct H as [H| H].
+  destruct H as (Hb, Hbg).
+  pose proof (Pos.gcd_divide_r a b) as H.
+  destruct H as (z, H).
+  rewrite H in Hbg at 1.
+  rewrite Pos2Z.inj_mul in Hbg.
+  remember (Pos.gcd a b) as x.
+  remember (' z * ' x)%Z as y.
+  replace (' x)%Z with (1 * ' x)%Z in Hbg by reflexivity; subst y.
+  apply Zmult_lt_reg_r in Hbg; [ idtac | apply Pos2Z.is_pos ].
+  apply Zlt_le_succ in Hbg.
+  revert Hbg.
+  apply Zlt_not_le, Z.lt_pred_lt_succ; simpl.
+  apply Pos2Z.is_pos.
+
+  destruct H as (Hg, Hb).
+  revert Hb.
+  apply Zlt_not_le, Pos2Z.is_pos.
+
+ pose proof (Pos2Z.is_pos (Pos.gcd a b)) as HH.
+ intros HHH.
+ rewrite HHH in HH; apply Zlt_irrefl in HH; assumption.
+Qed.
 
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
