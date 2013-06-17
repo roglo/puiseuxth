@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.704 2013-06-17 15:23:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.705 2013-06-17 18:10:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -88,6 +88,11 @@ Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 Lemma Zlcm_pos : ∀ a b, (0 < Z.lcm (Zpos a) (Zpos b))%Z.
 Proof.
 intros a b.
+unfold Z.lcm.
+rewrite Z.abs_mul.
+remember (Z.abs (' a)) as x; simpl in Heqx; subst x.
+apply Z.mul_pos_pos; [ apply Pos2Z.is_pos | idtac ].
+apply Z.abs_pos; simpl.
 bbb.
 
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
