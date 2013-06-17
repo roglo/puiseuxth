@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.710 2013-06-17 19:49:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.711 2013-06-17 20:14:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -150,6 +150,12 @@ destruct k₁.
  apply Zlt_le_weak, Zlt_neg_0.
 Qed.
 
+Lemma series_forall_map : ∀ α P Q (s : series α),
+  (∀ x, P x → Q x) → series_forall P s → series_forall Q s.
+Proof.
+intros α P Q s Hx H.
+bbb.
+
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -189,59 +195,34 @@ destruct s₁.
      unfold Plcm.
      rewrite Z2Pos.id; [ apply Z.divide_lcm_l | apply Zlcm_pos ].
 
-    apply IHs.
-     eapply series_forall_inv; eassumption.
-
-     eapply series_forall_inv; eassumption.
+    apply IHs; eapply series_forall_inv; eassumption.
 
    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     apply series_forall_inv in Hps₁.
     destruct Hps₁ as (Hpd₁, Hps₁).
     apply div_div_lcm; assumption.
-bbb.
 
-      rewrite Pos.of_nat_succ.
-      rewrite Pos.of_nat_succ.
-      unfold Z.divide.
-      rewrite Heqx.
-      exists (Z.of_nat (Nat.lcm (S cd₁) cd₂) / Z.of_nat (S cd₁))%Z.
-      rewrite Zmult_comm.
-      rewrite <- Z.divide_div_mul_exact.
-       rewrite Zmult_comm.
-       remember (S cd₁) as y.
-       rewrite Z.divide_div_mul_exact.
-bbb.
-    remember (Pos.to_nat (Qden (power t₁))) as x.
-    remember (Z.abs_nat (Qnum (power t₁))) as y.
-bbb.
-    unfold Nat.lcm.
-    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
-    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat; reflexivity.
-
-    apply IHs.
-     apply series_forall_inv in Hps₁.
-     destruct Hps₁; assumption.
-
-     apply series_forall_inv in Hps₂.
-     destruct Hps₂; assumption.
+    apply IHs; [ eapply series_forall_inv; eassumption | assumption ].
 
    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
-    apply series_forall_inv in Hps₁.
-    destruct Hps₁ as (Hpd₁, Hsf₁).
-    unfold pow_den_div_com_den in Hpd₁ |- *.
-    destruct Hpd₁ as (k₁, Hpd₁).
-    unfold den_divides_comden.
-    remember (Pos.to_nat (Qden (power t₁))) as x.
-    remember (Z.abs_nat (Qnum (power t₁))) as y.
-    remember (x / gcd y x)%nat as z.
-    unfold Nat.lcm.
-    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
-    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat.
-    reflexivity.
+    apply series_forall_inv in Hps₂.
+    destruct Hps₂ as (Hpd₂, Hps₂).
+    unfold Plcm.
+    rewrite Z.lcm_comm.
+    apply div_div_lcm; assumption.
 
-    apply IHs; [ idtac | assumption ].
-    apply series_forall_inv in Hps₁.
-    destruct Hps₁; assumption.
+    apply IHs; [ assumption | eapply series_forall_inv; eassumption ].
+
+  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hps₁).
+   apply div_div_lcm; assumption.
+
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hps₁).
+   eapply series_forall_map; [ apply div_div_lcm | assumption ].
+bbb.
+
 
    apply Qgt_alt in Heqc.
    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
