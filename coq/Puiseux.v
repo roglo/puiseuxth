@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.702 2013-06-17 11:09:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.703 2013-06-17 13:58:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -129,6 +129,13 @@ destruct s₁.
       rewrite Pos.of_nat_succ.
       rewrite Pos.of_nat_succ.
       unfold Z.divide.
+      rewrite Heqx.
+      exists (Z.of_nat (Nat.lcm (S cd₁) cd₂) / Z.of_nat (S cd₁))%Z.
+      rewrite Zmult_comm.
+      rewrite <- Z.divide_div_mul_exact.
+       rewrite Zmult_comm.
+       remember (S cd₁) as y.
+       rewrite Z.divide_div_mul_exact.
 bbb.
     remember (Pos.to_nat (Qden (power t₁))) as x.
     remember (Z.abs_nat (Qnum (power t₁))) as y.

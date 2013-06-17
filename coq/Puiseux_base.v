@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.23 2013-06-17 09:17:30 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.24 2013-06-17 13:58:28 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -45,7 +45,7 @@ Record term α := { coeff : α; power : Q }.
 Axiom series_head : ∀ α, series (term α) → series (term α).
 
 Definition den_divides_comden comden p :=
-  Z.divide (Zpos (Qden p)) (Z.of_nat comden * Qnum p).
+  (' Qden p | (Z.of_nat comden * Qnum p))%Z.
 
 Definition pow_den_div_com_den α comden (t : term α) :=
   den_divides_comden comden (power t).
