@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.699 2013-06-17 08:46:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.700 2013-06-17 09:06:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -856,6 +856,26 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
   rewrite <- mult_assoc.
   rewrite <- mult_plus_distr_l.
   f_equal.
+  destruct (Qnum (power (fe_t₁ fe))) as [| pn₁| pn₁].
+   rewrite mult_0_r; simpl.
+   rewrite Zabs2Nat.inj_mul.
+   reflexivity.
+
+   simpl.
+   destruct (Qnum (power (fe_t₂ fe))) as [| pn₂| pn₂].
+    simpl.
+    rewrite plus_0_r.
+    rewrite mult_comm.
+    rewrite Pos2Nat.inj_mul; reflexivity.
+
+    simpl.
+    rewrite Pos2Nat.inj_add.
+    rewrite Pos2Nat.inj_mul.
+    rewrite Pos2Nat.inj_mul.
+    rewrite mult_comm.
+    reflexivity.
+
+    simpl.
   Focus 1.
 bbb.
 
