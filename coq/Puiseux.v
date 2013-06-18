@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.715 2013-06-18 01:15:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.716 2013-06-18 01:41:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -697,7 +697,21 @@ Lemma yyy : ∀ a b c x y,
     → (' Qden c | ' y * Qnum c)%Z
       → (' Qden a | ' (x * y) * Qnum a)%Z.
 Proof.
-intros a b c x y Ha Hb Hc.
+intros (an, ad) (bn, bd) (cn, cd) x y Ha Hb Hc.
+remember (' x)%Z as t; simpl in Hb; subst t.
+remember (' y)%Z as t; simpl in Hc; subst t.
+remember (' (x * y))%Z as t; simpl; subst t.
+unfold Z.divide in Hb, Hc |- *.
+destruct Hb as (d, Hb).
+destruct Hc as (e, He).
+exists (' y * d + ' x * e)%Z.
+rewrite Pos2Z.inj_mul.
+unfold Qeq in Ha.
+simpl in Ha.
+rewrite Pos2Z.inj_mul in Ha.
+rewrite Z.mul_add_distr_r in Ha.
+rewrite Zmult_assoc in Ha.
+rewrite Z.mul_add_distr_r.
 bbb.
 
 Lemma Qeq_den_divides : ∀ a b m n,
