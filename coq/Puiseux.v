@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.716 2013-06-18 01:41:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.717 2013-06-18 02:57:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -673,6 +673,14 @@ induction fel as [| fe₁]; intros; simpl.
 bbb.
 *)
 
+Lemma Zpos_ne_0 : ∀ p n, n = Zpos p → n ≠ 0%Z.
+Proof.
+intros p n Hn; subst n.
+pose proof (Zgt_pos_0 p) as H.
+intros HH; rewrite HH in H.
+apply Zgt_irrefl in H; contradiction.
+Qed.
+
 Lemma pos_nat_ne_0 : ∀ p n, n = Pos.to_nat p → n ≠ 0%nat.
 Proof.
 intros p n Hn; subst n.
@@ -691,7 +699,7 @@ destruct HH as (n, HH).
 rewrite H in HH; discriminate HH.
 Qed.
 
-Lemma yyy : ∀ a b c x y,
+Lemma Qeq_den_div : ∀ a b c x y,
   a == b + c
   → (' Qden b | ' x * Qnum b)%Z
     → (' Qden c | ' y * Qnum c)%Z
@@ -712,14 +720,28 @@ rewrite Pos2Z.inj_mul in Ha.
 rewrite Z.mul_add_distr_r in Ha.
 rewrite Zmult_assoc in Ha.
 rewrite Z.mul_add_distr_r.
-bbb.
+apply Z.mul_reg_r with (p := (' bd * ' cd)%Z).
+ simpl.
+ eapply Zpos_ne_0; reflexivity.
 
+ rewrite <- Zmult_assoc.
+ rewrite Zmult_comm.
+ do 2 rewrite Zmult_assoc.
+ rewrite Ha.
+ rewrite <- Zmult_assoc.
+ rewrite Zmult_comm, Zmult_plus_distr_r, Z.mul_shuffle1.
+ do 2 rewrite Zmult_assoc.
+ rewrite Hb.
+ rewrite Z.add_comm, Zmult_assoc, Z.mul_shuffle2, He.
+ ring.
+Qed.
+
+(*
 Lemma Qeq_den_divides : ∀ a b m n,
   a == b
   → (m * Z.abs_nat (Qnum a))%nat = (n * Pos.to_nat (Qden a))%nat
     → (Pos.to_nat (Qden b) | m * Z.abs_nat (Qnum b))%nat.
 Proof.
-(* à nettoyer *)
 intros (an, ad) (bn, bd) m n Hab H.
 simpl in H |- *.
 unfold Qeq in Hab; simpl in Hab.
@@ -773,6 +795,7 @@ destruct an as [| an| an].
   rewrite mult_assoc.
   rewrite Nat.mul_shuffle0; reflexivity.
 Qed.
+*)
 
 Lemma fifo_div_comden_insert : ∀ α cd sum fe fel t₁ t₂
     (sf : list (_ * list (fifo_elem α))),
@@ -883,11 +906,12 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  simpl in Hs.
  apply List.Forall_inv in Hs.
  unfold den_divides_comden in Hd₁, Hd₂ |- *.
- eapply yyy; eassumption.
+ eapply Qeq_den_div; eassumption.
+
+ eapply IHs; try eassumption.
 
 bbb.
- eapply Qeq_den_divides with (n := (k₁ * cd₂ + cd₁ * k₂)%nat).
-  symmetry; eassumption.
+
 
   simpl.
   rewrite Pos2Nat.inj_mul.
