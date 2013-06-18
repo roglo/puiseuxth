@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.714 2013-06-17 21:09:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.715 2013-06-18 01:15:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -691,6 +691,15 @@ destruct HH as (n, HH).
 rewrite H in HH; discriminate HH.
 Qed.
 
+Lemma yyy : ∀ a b c x y,
+  a == b + c
+  → (' Qden b | ' x * Qnum b)%Z
+    → (' Qden c | ' y * Qnum c)%Z
+      → (' Qden a | ' (x * y) * Qnum a)%Z.
+Proof.
+intros a b c x y Ha Hb Hc.
+bbb.
+
 Lemma Qeq_den_divides : ∀ a b m n,
   a == b
   → (m * Z.abs_nat (Qnum a))%nat = (n * Pos.to_nat (Qden a))%nat
@@ -765,6 +774,7 @@ den_divides_comden cd₂ (power t₂)
             (insert_sum (power t₁ + power t₂) fe sf).
 Proof.
 intros α cd sum fe fel t₁ t₂ sf Hfs Hfe H₁ H₂.
+Abort. (*
 induction sf as [| (sum₁, fel₁)].
  constructor; [ idtac | constructor ].
  apply list_Forall_inv in Hfe.
@@ -800,7 +810,6 @@ induction sf as [| (sum₁, fel₁)].
 
   constructor; [ idtac | constructor; assumption ].
   unfold fifo_div_comden; simpl.
-Abort. (*
 bbb.
 *)
 
@@ -840,7 +849,7 @@ Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
            List.Forall (λ fe, den_divides_comden cd₂ (power (fe_t₂ fe)))
              (snd sum_fel))
         sf
-      → series_forall (pow_den_div_com_den (cd₁ * cd₂)%nat)
+      → series_forall (pow_den_div_com_den (cd₁ * cd₂)%positive)
           (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
@@ -855,13 +864,14 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  apply List.Forall_inv in Hd₂; simpl in Hd₂.
  apply List.Forall_inv in Hd₁.
  apply List.Forall_inv in Hd₂.
- destruct Hd₁ as (k₁, Hd₁).
- destruct Hd₂ as (k₂, Hd₂).
  apply List.Forall_inv in Hs.
  unfold fifo_sum_prop in Hs.
  simpl in Hs.
  apply List.Forall_inv in Hs.
- unfold den_divides_comden.
+ unfold den_divides_comden in Hd₁, Hd₂ |- *.
+ eapply yyy; eassumption.
+
+bbb.
  eapply Qeq_den_divides with (n := (k₁ * cd₂ + cd₁ * k₂)%nat).
   symmetry; eassumption.
 
