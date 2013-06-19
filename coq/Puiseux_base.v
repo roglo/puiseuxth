@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.29 2013-06-19 16:36:30 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.30 2013-06-19 19:05:51 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -96,13 +96,16 @@ Definition puiseux_series_of_math_puiseux_series α
      ps_comden := ms_comden ms;
      ps_prop := ps_prop_of_math ms |}.
 
+(*
 Proposition zzz : ∀ α (P : math_puiseux_series α → Prop) ms,
   P ms
   → ∃ Q : puiseux_series α → Prop,
     Q (puiseux_series_of_math_puiseux_series ms).
 Proof.
 intros α P ms HP.
+unfold puiseux_series_of_math_puiseux_series; simpl.
 bbb.
+*)
 
 Definition valuation α (ps : puiseux_series α) :=
   match series_head (ps_terms ps) with

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.718 2013-06-19 16:29:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.719 2013-06-19 19:05:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -310,6 +310,41 @@ Definition add_right α (mul_coeff : α → α → α) sl fel :=
        end)
     fel sl.
 
+Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ s₂ :=
+  match ni₁ with
+  | O => None
+  | S ni =>
+      match sum_mul_coeff add_coeff mul_coeff (S i) ni s₁ s₂ with
+      | Some c =>
+          match series_nth i s₁ with
+          | Some c₁ =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some (add_coeff (mul_coeff c₁ c₂) c)
+              | None => Some (add_coeff c₁ c)
+              end
+          | None =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some (add_coeff c₂ c)
+              | None => Some c
+              end
+          end
+      | None =>
+          match series_nth i s₁ with
+          | Some c₁ =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some (mul_coeff c₁ c₂)
+              | None => Some c₁
+              end
+          | None =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some c₂
+              | None => None
+              end
+          end
+      end
+  end.
+
+(*
 Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
   match sum_fifo with
   | [] => End _
@@ -324,6 +359,7 @@ Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
       let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
       Term m (λ tt, ps_mul_loop α add_coeff mul_coeff sl₂)
   end.
+*)
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   match s₁ with
