@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.717 2013-06-18 02:57:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.718 2013-06-19 16:29:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,23 +37,26 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
+Fixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   match ms₁ with
   | Term c₁ s₁ =>
-      match ms₂ with
-      | Term c₂ s₂ =>
-          match Qcompare (power c₁) (power c₂) with
-          | Eq =>
-              let c := add_coeff (coeff c₁) (coeff c₂) in
-              let m := {| coeff := c; power := power c₁ |} in
-              Term m (ps_add_loop add_coeff s₁ s₂)
-          | Lt =>
-              Term c₁ (ps_add_loop add_coeff s₁ ms₂)
-          | Gt =>
-              Term c₂ (ps_add_loop add_coeff ms₁ s₂)
-          end
-      | End => ms₁
-      end
+      let fix loop₂ ms₂ :=
+        match ms₂ with
+        | Term c₂ s₂ =>
+            match Qcompare (power c₁) (power c₂) with
+            | Eq =>
+                let c := add_coeff (coeff c₁) (coeff c₂) in
+                let m := {| coeff := c; power := power c₁ |} in
+                Term m (λ tt, ps_add_loop add_coeff (s₁ tt) (s₂ tt))
+            | Lt =>
+                Term c₁ (λ tt, ps_add_loop add_coeff (s₁ tt) ms₂)
+            | Gt =>
+                Term c₂ (λ tt, loop₂ (s₂ tt))
+            end
+        | End => ms₂
+        end
+      in
+      loop₂ ms₂
   | End => ms₂
   end.
 
@@ -61,26 +64,23 @@ Lemma series_forall_div_mul : ∀ α (s : series (term α)) cd x,
   series_forall (pow_den_div_com_den cd) s
   → series_forall (pow_den_div_com_den (cd * x)) s.
 Proof.
-cofix IHs.
 intros α s cd x H.
-destruct s.
- eapply TermAndFurther; [ reflexivity | idtac | idtac ].
-  apply series_forall_inv in H.
-  destruct H as (H, _).
-  unfold pow_den_div_com_den in H |- *.
-  destruct H as (k₁, H).
-  rewrite Pmult_comm.
-  unfold den_divides_comden.
-  exists (Zpos x * k₁)%Z.
-  rewrite Pos2Z.inj_mul.
-  rewrite <- Zmult_assoc, H, Zmult_assoc.
-  reflexivity.
+induction s as [t s IHs| ]; [ idtac | constructor; reflexivity ].
+eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+ apply series_forall_inv in H.
+ destruct H as (H, _).
+ unfold pow_den_div_com_den in H |- *.
+ destruct H as (k₁, H).
+ rewrite Pmult_comm.
+ unfold den_divides_comden.
+ exists (Zpos x * k₁)%Z.
+ rewrite Pos2Z.inj_mul.
+ rewrite <- Zmult_assoc, H, Zmult_assoc.
+ reflexivity.
 
-  apply series_forall_inv in H.
-  destruct H as (_, H).
-  eapply IHs; eassumption.
-
- constructor; reflexivity.
+ apply series_forall_inv in H.
+ destruct H as (_, H).
+ eapply IHs; eassumption.
 Qed.
 
 Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
@@ -156,13 +156,11 @@ Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ 
     → series_forall (pow_den_div_com_den (Plcm cd₁ cd₂))
         (ps_add_loop add_coeff s₁ s₂).
 Proof.
-cofix IHs.
 intros α add_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
-rewrite series_eta; simpl.
-destruct s₁.
- rename t into t₁.
- destruct s₂.
-  rename t into t₂.
+revert s₂ Hps₂.
+induction s₁ as [t₁ s₁ IHs| ]; intros.
+ induction s₂ as [t₂ s₂ IHs₂| ].
+  simpl.
   remember (power t₁ ?= power t₂) as c.
   symmetry in Heqc.
   destruct c.
@@ -205,19 +203,12 @@ destruct s₁.
     rewrite Z.lcm_comm.
     apply div_div_lcm; assumption.
 
-    apply IHs; [ assumption | eapply series_forall_inv; eassumption ].
+    apply IHs₂; eapply series_forall_inv; eassumption.
 
-  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
-   apply series_forall_inv in Hps₁.
-   destruct Hps₁ as (Hpd₁, Hps₁).
-   apply div_div_lcm; assumption.
+  constructor; reflexivity.
 
-   apply series_forall_inv in Hps₁.
-   destruct Hps₁ as (Hpd₁, Hps₁).
-   eapply series_forall_map; [ apply div_div_lcm | assumption ].
-
- destruct s₂.
-  rename t into t₂.
+ simpl.
+ induction s₂ as [t₂ s₂ IHs₂| ].
   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    apply series_forall_inv in Hps₂.
    destruct Hps₂ as (Hpd₂, Hps₂).
@@ -300,7 +291,7 @@ Definition add_below α (mul_coeff : α → α → α) sl fel :=
        | Term t₁ s₁ =>
             insert_sum (Qplus (power t₁) (power (fe_t₂ fe)))
               {| fe_t₁ := t₁; fe_t₂ := fe_t₂ fe;
-                 fe_s₁ := s₁; fe_s₂ := fe_s₂ fe |}
+                 fe_s₁ := s₁ tt; fe_s₂ := fe_s₂ fe |}
               sl₁
        | End => sl₁
        end)
@@ -313,14 +304,13 @@ Definition add_right α (mul_coeff : α → α → α) sl fel :=
        | Term t₂ s₂ =>
             insert_sum (Qplus (power (fe_t₁ fe)) (power t₂))
               {| fe_t₁ := fe_t₁ fe; fe_t₂ := t₂;
-                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ |}
+                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ tt |}
               sl₂
        | End => sl₂
        end)
     fel sl.
 
-CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
-    series (term α) :=
+Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
   match sum_fifo with
   | [] => End _
   | [(sum, []) … sl] => End _
@@ -332,7 +322,7 @@ CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo :
       in
       let sl₁ := add_below mul_coeff sl [fe₁ … fel₁] in
       let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
-      Term m (ps_mul_loop α add_coeff mul_coeff sl₂)
+      Term m (λ tt, ps_mul_loop α add_coeff mul_coeff sl₂)
   end.
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
