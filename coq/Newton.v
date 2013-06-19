@@ -1,4 +1,4 @@
-(* $Id: Newton.v,v 1.1 2013-06-19 09:34:35 deraugla Exp $ *)
+(* $Id: Newton.v,v 1.2 2013-06-19 13:15:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -31,3 +31,17 @@ Definition newton_segment_of_pair hsj hsk :=
   let γ := (αj - αk) / (fst (pt hsk) - fst (pt hsj)) in
   let β := αj + fst (pt hsj) * γ in
   mkns γ β (pt hsj) (pt hsk) (oth hsj).
+
+Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
+  list_map_pairs f l₁ = l₂
+  → List.length l₂ = pred (List.length l₁).
+Proof.
+intros f l₁ l₂ H.
+subst l₂.
+destruct l₁ as [| x]; [ reflexivity | idtac ].
+revert x.
+induction l₁ as [| y]; [ reflexivity | intros ].
+simpl in IHl₁ |- *.
+apply eq_S, IHl₁.
+Qed.
+

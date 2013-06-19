@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.26 2013-06-19 09:34:35 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.27 2013-06-19 13:15:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -105,19 +105,6 @@ Lemma fold_points_of_ps_polynom_gen : ∀ α pow cl (cn : puiseux_series α),
   filter_non_zero_ps (all_points_of_ps_polynom pow cl cn) =
   points_of_ps_polynom_gen pow cl cn.
 Proof. reflexivity. Qed.
-
-Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
-  list_map_pairs f l₁ = l₂
-  → List.length l₂ = pred (List.length l₁).
-Proof.
-intros f l₁ l₂ H.
-subst l₂.
-destruct l₁ as [| x]; [ reflexivity | idtac ].
-revert x.
-induction l₁ as [| y]; [ reflexivity | intros ].
-simpl in IHl₁ |- *.
-apply eq_S, IHl₁.
-Qed.
 
 Lemma points_of_polyn_sorted : ∀ α deg cl (cn : puiseux_series α) pts,
   pts = points_of_ps_polynom_gen deg cl cn

@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.229 2013-06-19 09:34:35 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.230 2013-06-19 13:15:01 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -10,14 +10,11 @@ Require Import Slope_base.
 Require Import SlopeMisc.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
+(*
 Require Import Puiseux_base.
+*)
 Require Import Newton.
 Require Import NotInSegMisc.
-
-Section convex_hull.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
 
 (* is there a way to group together the cases c = Eq and c = Gt? *)
 Lemma aft_end_in_rem : ∀ pt₁ pt₂ pts ms,
@@ -1433,6 +1430,13 @@ destruct Hns as [Hns| Hns].
   rewrite plus_comm; simpl.
   apply eq_S; assumption.
 Qed.
+
+Require Import Puiseux_base.
+
+Section convex_hull.
+
+Variable α : Type.
+Variable fld : field (puiseux_series α).
 
 Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
   pts = points_of_ps_polynom pol
