@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.15 2013-06-01 02:55:15 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.16 2013-06-19 09:34:35 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -9,7 +9,7 @@ Require Import Misc.
 Require Import Slope_base.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Puiseux_base.
+Require Import Newton.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 
@@ -121,31 +121,20 @@ destruct pts as [| pt₁].
     eapply IHhsl₁; eassumption.
 Qed.
 
-(* *)
-
-Section puiseux_series.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
-
-Theorem points_in_any_newton_segment : ∀ (pol : puis_ser_pol α) ns,
-  ns ∈ newton_segments pol
-  → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == αh + h * γ ns.
+Lemma points_in_any_newton_segment : ∀ ns pts hsl,
+  Sorted fst_lt pts
+  → hsl = lower_convex_hull_points pts
+    → ns ∈ list_map_pairs newton_segment_of_pair hsl
+      → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+        → β ns == αh + h * γ ns.
 Proof.
-intros pol ns Hns h αh Hαh.
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom pol) as pts.
-remember (lower_convex_hull_points pts) as hsl.
-symmetry in Heqhsl.
-rename Heqpts into Hpts.
-unfold points_of_ps_polynom in Hpts.
-apply points_of_polyn_sorted in Hpts.
-remember Hpts as Hpts₂; clear HeqHpts₂.
-eapply lower_convex_hull_points_sorted in Hpts; [ idtac | eassumption ].
-unfold lower_convex_hull_points in Heqhsl.
+intros ns pts hsl Hsort Hhsl Hns h αh Hαh.
+symmetry in Hhsl.
+remember Hsort as Hsort₂; clear HeqHsort₂.
+eapply lower_convex_hull_points_sorted in Hsort; [ idtac | eassumption ].
+unfold lower_convex_hull_points in Hhsl.
 remember (length pts) as n; clear Heqn.
-revert n pts ns Heqhsl Hns Hαh Hpts₂.
+revert n pts ns Hsort Hsort₂ Hhsl Hns Hαh.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 simpl in Hns.
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
@@ -162,22 +151,41 @@ destruct Hns as [Hns| Hns].
    eapply two_pts_slope_form; eassumption.
 
    destruct pts as [| pt₁].
-    unfold lower_convex_hull_points in Heqhsl.
-    destruct n; discriminate Heqhsl.
+    unfold lower_convex_hull_points in Hhsl.
+    destruct n; discriminate Hhsl.
 
     symmetry.
     eapply in_newt_segm with (hsl₁ := []); try eassumption; try reflexivity.
 
- destruct n; [ discriminate Heqhsl | idtac ].
- simpl in Heqhsl.
- destruct pts as [| pt₁]; [ discriminate Heqhsl | idtac ].
- destruct pts as [| pt₂]; [ discriminate Heqhsl | idtac ].
- injection Heqhsl; clear Heqhsl; intros.
+ destruct n; [ discriminate Hhsl | idtac ].
+ simpl in Hhsl.
+ destruct pts as [| pt₁]; [ discriminate Hhsl | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hhsl | idtac ].
+ injection Hhsl; clear Hhsl; intros.
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
- apply Sorted_inv_1 in Hpts.
- eapply minimise_slope_sorted in Hpts₂; [ idtac | eassumption ].
+ apply Sorted_inv_1 in Hsort.
+ eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
  eapply IHhsl; eassumption.
+Qed.
+
+(* *)
+
+Require Import Puiseux_base.
+
+Section puiseux_series.
+
+Variable α : Type.
+Variable fld : field (puiseux_series α).
+
+Theorem points_in_any_newton_segment₁ : ∀ (pol : puis_ser_pol α) ns,
+  ns ∈ newton_segments pol
+  → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
+    → β ns == αh + h * γ ns.
+Proof.
+intros pol ns Hns h αh Hαh.
+eapply points_in_any_newton_segment; try eassumption; try reflexivity.
+eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
 End puiseux_series.

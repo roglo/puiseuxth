@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.228 2013-06-01 02:55:15 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.229 2013-06-19 09:34:35 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -11,6 +11,7 @@ Require Import SlopeMisc.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Puiseux_base.
+Require Import Newton.
 Require Import NotInSegMisc.
 
 Section convex_hull.
