@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.719 2013-06-19 19:05:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.720 2013-06-19 19:52:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -343,6 +343,15 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
           end
       end
   end.
+
+Definition ps_mul α add_coeff mul_coeff s₁ s₂ :=
+  let fix mul_loop n₁ :=
+    match sum_mul_coeff add_coeff mul_coeff 0 n₁ s₁ s₂ with
+    | Some c => Term c (λ tt, mul_loop (S n₁))
+    | None => End _
+    end
+  in
+  mul_loop 1.
 
 (*
 Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
