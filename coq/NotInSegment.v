@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.230 2013-06-19 13:15:01 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.231 2013-06-19 13:36:09 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1431,28 +1431,16 @@ destruct Hns as [Hns| Hns].
   apply eq_S; assumption.
 Qed.
 
-Require Import Puiseux_base.
-
-Section convex_hull.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
-
-Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
-  pts = points_of_ps_polynom pol
-  → ns ∈ newton_segments pol
-    → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
-      → β ns < αh + h * (γ ns).
+Lemma points_not_in_any_newton_segment : ∀ pts hsl ns,
+  Sorted fst_lt pts
+  → hsl = lower_convex_hull_points pts
+    → ns ∈ list_map_pairs newton_segment_of_pair hsl
+      → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
+        → β ns < αh + h * (γ ns).
 Proof.
-intros pol pts ns Hpts Hns h αh (Hαh, Hnαh).
-unfold newton_segments in Hns.
-rewrite <- Hpts in Hns.
-unfold points_of_ps_polynom in Hpts.
-apply points_of_polyn_sorted in Hpts.
-remember (lower_convex_hull_points pts) as hsl.
-symmetry in Heqhsl.
-unfold lower_convex_hull_points in Heqhsl.
-rename Heqhsl into Hhsl.
+intros pts hsl ns Hsort Hhsl Hns h αh (Hαh, Hnαh).
+symmetry in Hhsl.
+unfold lower_convex_hull_points in Hhsl.
 remember (length pts) as n; clear Heqn.
 remember (list_map_pairs newton_segment_of_pair hsl) as nsl.
 rename Heqnsl into Hnsl.
@@ -1460,5 +1448,3 @@ symmetry in Hnsl.
 eapply lt_not_in_ns with (hsl₁ := []) (nsl₁ := []); simpl; try eassumption.
 reflexivity.
 Qed.
-
-End convex_hull.
