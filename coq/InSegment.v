@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.16 2013-06-19 09:34:35 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.17 2013-06-19 13:09:57 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -168,24 +168,3 @@ destruct Hns as [Hns| Hns].
  eapply minimise_slope_sorted in Hsort₂; [ idtac | eassumption ].
  eapply IHhsl; eassumption.
 Qed.
-
-(* *)
-
-Require Import Puiseux_base.
-
-Section puiseux_series.
-
-Variable α : Type.
-Variable fld : field (puiseux_series α).
-
-Theorem points_in_any_newton_segment₁ : ∀ (pol : puis_ser_pol α) ns,
-  ns ∈ newton_segments pol
-  → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
-    → β ns == αh + h * γ ns.
-Proof.
-intros pol ns Hns h αh Hαh.
-eapply points_in_any_newton_segment; try eassumption; try reflexivity.
-eapply points_of_polyn_sorted; reflexivity.
-Qed.
-
-End puiseux_series.
