@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.721 2013-06-20 07:28:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.722 2013-06-20 09:31:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -40,23 +40,20 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
 CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   match ms₁ with
   | Term c₁ s₁ =>
-      let cofix loop₂ ms₂ :=
-        match ms₂ with
-        | Term c₂ s₂ =>
-            match Qcompare (power c₁) (power c₂) with
-            | Eq =>
-                let c := add_coeff (coeff c₁) (coeff c₂) in
-                let m := {| coeff := c; power := power c₁ |} in
-                Term m (ps_add_loop add_coeff s₁ s₂)
-            | Lt =>
-                Term c₁ (ps_add_loop add_coeff s₁ ms₂)
-            | Gt =>
-                Term c₂ (loop₂ s₂)
-            end
-        | End => ms₂
-        end
-      in
-      loop₂ ms₂
+      match ms₂ with
+      | Term c₂ s₂ =>
+          match Qcompare (power c₁) (power c₂) with
+          | Eq =>
+              let c := add_coeff (coeff c₁) (coeff c₂) in
+              let m := {| coeff := c; power := power c₁ |} in
+              Term m (ps_add_loop add_coeff s₁ s₂)
+          | Lt =>
+              Term c₁ (ps_add_loop add_coeff s₁ ms₂)
+          | Gt =>
+              Term c₂ (ps_add_loop add_coeff ms₁ s₂)
+          end
+      | End => ms₁
+      end
   | End => ms₂
   end.
 
@@ -157,11 +154,13 @@ Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ 
     → series_forall (pow_den_div_com_den (Plcm cd₁ cd₂))
         (ps_add_loop add_coeff s₁ s₂).
 Proof.
+cofix IHs.
 intros α add_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
-revert s₂ Hps₂.
-induction s₁ as [t₁ s₁ IHs| ]; intros.
- induction s₂ as [t₂ s₂ IHs₂| ].
-  simpl.
+rewrite series_eta; simpl.
+destruct s₁.
+ rename t into t₁.
+ destruct s₂.
+  rename t into t₂.
   remember (power t₁ ?= power t₂) as c.
   symmetry in Heqc.
   destruct c.
@@ -204,25 +203,133 @@ induction s₁ as [t₁ s₁ IHs| ]; intros.
     rewrite Z.lcm_comm.
     apply div_div_lcm; assumption.
 
-    apply IHs₂; eapply series_forall_inv; eassumption.
+    apply IHs; [ assumption | idtac ].
+    apply series_forall_inv in Hps₂.
+    destruct Hps₂; assumption.
 
-  constructor; reflexivity.
+  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hsf₁).
+   unfold pow_den_div_com_den in Hpd₁ |- *.
+   destruct Hpd₁ as (k₁, Hpd₁).
+   unfold den_divides_comden.
+   unfold Plcm.
+   rewrite Z.lcm_comm.
+bbb.
 
- simpl.
- induction s₂ as [t₂ s₂ IHs₂| ].
+cofix IHs.
+intros α add_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
+rewrite series_eta; simpl.
+destruct s₁.
+ rename t into t₁.
+ destruct s₂.
+  rename t into t₂.
+  remember (power t₁ ?= power t₂) as c.
+  symmetry in Heqc.
+  destruct c.
+   apply Qeq_alt in Heqc.
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+    apply series_forall_inv in Hps₁.
+    destruct Hps₁ as (Hpd₁, Hsf₁).
+    unfold pow_den_div_com_den in Hpd₁ |- *; simpl.
+    destruct Hpd₁ as (k₁, Hpd₁).
+    unfold den_divides_comden.
+bbb.
+    remember (Pos.to_nat (Qden (power t₁))) as x.
+    remember (Z.abs_nat (Qnum (power t₁))) as y.
+    unfold Nat.lcm.
+    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
+    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat; reflexivity.
+
+    apply IHs.
+     apply series_forall_inv in Hps₁.
+     destruct Hps₁; assumption.
+
+     apply series_forall_inv in Hps₂.
+     destruct Hps₂; assumption.
+
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+    apply series_forall_inv in Hps₁.
+    destruct Hps₁ as (Hpd₁, Hsf₁).
+    unfold pow_den_div_com_den in Hpd₁ |- *.
+    destruct Hpd₁ as (k₁, Hpd₁).
+    unfold den_divides_comden.
+    remember (Pos.to_nat (Qden (power t₁))) as x.
+    remember (Z.abs_nat (Qnum (power t₁))) as y.
+    remember (x / gcd y x)%nat as z.
+    unfold Nat.lcm.
+    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
+    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat.
+    reflexivity.
+
+    apply IHs; [ idtac | assumption ].
+    apply series_forall_inv in Hps₁.
+    destruct Hps₁; assumption.
+
+   apply Qgt_alt in Heqc.
+   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+    apply series_forall_inv in Hps₂.
+    destruct Hps₂ as (Hpd₂, Hsf₂).
+    unfold pow_den_div_com_den in Hpd₂ |- *.
+    destruct Hpd₂ as (k₂, Hpd₂).
+    unfold den_divides_comden.
+    remember (Pos.to_nat (Qden (power t₂))) as x.
+    remember (Z.abs_nat (Qnum (power t₂))) as y.
+    remember (x / gcd y x)%nat as z.
+    rewrite Nat.lcm_comm.
+    unfold Nat.lcm.
+    rewrite Nat.mul_shuffle0, Hpd₂, Nat.mul_shuffle0.
+    exists (k₂ * (cd₁ / gcd cd₂ cd₁))%nat.
+    reflexivity.
+
+    apply IHs; [ assumption | idtac ].
+    apply series_forall_inv in Hps₂.
+    destruct Hps₂; assumption.
+
+  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hsf₁).
+   unfold pow_den_div_com_den in Hpd₁ |- *.
+   destruct Hpd₁ as (k₁, Hpd₁).
+   unfold den_divides_comden.
+   remember (Pos.to_nat (Qden (power t₁))) as x.
+   remember (Z.abs_nat (Qnum (power t₁))) as y.
+   remember (x / gcd y x)%nat as z.
+   unfold Nat.lcm.
+   rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
+   exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat.
+   reflexivity.
+
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hsf₁).
+   unfold pow_den_div_com_den in Hpd₁.
+   destruct Hpd₁ as (k₁, Hpd₁).
+   unfold Nat.lcm.
+   apply series_forall_div_mul; assumption.
+
+ rewrite Nat.lcm_comm.
+ destruct s₂.
+  rename t into t₂.
   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    apply series_forall_inv in Hps₂.
-   destruct Hps₂ as (Hpd₂, Hps₂).
-   unfold Plcm.
-   rewrite Z.lcm_comm.
-   apply div_div_lcm; assumption.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂ |- *.
+   destruct Hpd₂ as (k₂, Hpd₂).
+   unfold den_divides_comden.
+   remember (Pos.to_nat (Qden (power t₂))) as x.
+   remember (Z.abs_nat (Qnum (power t₂))) as y.
+   remember (x / gcd y x)%nat as z.
+   unfold Nat.lcm.
+   rewrite Nat.mul_shuffle0, Hpd₂, Nat.mul_shuffle0.
+   exists (k₂ * (cd₁ / gcd cd₂ cd₁))%nat.
+   reflexivity.
 
    apply series_forall_inv in Hps₂.
-   destruct Hps₂ as (Hpd₂, Hps₂).
-   eapply series_forall_map in Hps₂; [ eassumption | idtac ].
-   unfold Plcm.
-   rewrite Z.lcm_comm.
-   apply div_div_lcm.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂.
+   destruct Hpd₂ as (k₂, Hpd₂).
+   unfold Nat.lcm.
+   apply series_forall_div_mul; assumption.
 
   constructor; reflexivity.
 Qed.
