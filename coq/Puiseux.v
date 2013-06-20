@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.728 2013-06-20 15:44:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.729 2013-06-20 21:48:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -715,8 +715,6 @@ bbb.
 bbb.
 *)
 
-Open Scope nat_scope.
-
 (*
 Lemma xxx : ∀ s a b c k₁,
   s == a + b
@@ -726,8 +724,6 @@ Proof.
 intros s a b c k₁ Hs Hc.
 bbb.
 *)
-
-Close Scope nat_scope.
 
 (*
 Lemma yyy : ∀ α mul_coeff t₁ t₂ cd sum fe fel
@@ -994,46 +990,15 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  unfold den_divides_comden in Hd₁, Hd₂ |- *.
  eapply Qeq_den_div; eassumption.
 
+ apply list_Forall_inv in Hs.
+ destruct Hs as (Hf, Hs).
  eapply IHs; try eassumption.
-  remember (fe_s₂ fe) as ss₂.
-  destruct ss₂.
-   rename t into tt₂.
-   remember (fe_s₁ fe) as ss₁.
-   apply list_Forall_inv in Hs.
-   destruct Hs as (Hf, Hs).
-   destruct ss₁.
-    rename t into tt₁.
-    apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
-    apply fifo_add_sum_below; [ assumption | reflexivity | reflexivity ].
-
-    apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
-    apply fifo_add_below; assumption.
-    Focus 1.
-bbb.
-
-cofix IHs.
-intros α add_coeff mul_coeff cd₁ cd₂ sf Hs Hd₁ Hd₂.
-rewrite series_eta; simpl.
-destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
-destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
-eapply TermAndFurther; [ reflexivity | idtac | idtac ].
- unfold pow_den_div_com_den; simpl.
- apply List.Forall_inv in Hk.
- unfold fifo_div_comden in Hk; simpl in Hk.
- destruct Hk as (k₁, Hk).
- unfold den_divides_comden.
- exists k₁.
- rewrite <- Hk.
- reflexivity.
-
- eapply IHs; try eassumption.
-  apply list_Forall_inv in Hs.
-  destruct Hs as (Hf, Hs).
   remember (fe_s₂ fe) as ss₂.
   destruct ss₂.
    rename t into tt₂.
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
+    rename t into tt₁.
     apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
     apply fifo_add_sum_below; [ assumption | reflexivity | reflexivity ].
 
@@ -1051,6 +1016,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+    Focus 1.
 bbb.
     apply fifo_div_comden_sum_right; try reflexivity.
     apply yyy with (power (fe_t₁ fe) + power tt₂).
