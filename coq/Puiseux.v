@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.723 2013-06-20 13:28:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.724 2013-06-20 14:16:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -148,6 +148,35 @@ destruct k₁.
  apply Zlt_le_weak, Zlt_neg_0.
 Qed.
 
+Lemma Pos_divide_lcm_l : ∀ a b, (a | Plcm a b)%positive.
+Proof.
+intros a b.
+unfold Plcm.
+pose proof (Zlcm_pos a b)%Z as H.
+unfold Z.lcm.
+rewrite Z.abs_mul.
+rewrite Z2Pos.inj_mul.
+ remember (' b / Z.gcd (' a) (' b))%Z as x.
+ simpl.
+ rewrite Pmult_comm.
+ exists (Z.to_pos (Z.abs x)); reflexivity.
+
+ simpl.
+ apply Pos2Z.is_pos.
+
+ unfold Z.lcm in H.
+ rewrite Z.abs_mul in H.
+ remember (' b / Z.gcd (' a) (' b))%Z as x.
+ apply Z.lt_0_mul in H.
+ destruct H as [H| H].
+  destruct H; assumption.
+
+  destruct H as (_, H).
+  apply Zlt_not_le in H.
+  exfalso; apply H.
+  apply Z.abs_nonneg.
+Qed.
+
 Lemma series_forall_add : ∀ α (add_coeff : α → α → α) s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -212,10 +241,54 @@ destruct s₁.
    destruct Hps₁ as (Hpd₁, Hsf₁).
    apply div_div_lcm; assumption.
 
+   pose proof (Pos_divide_lcm_l cd₁ cd₂) as H.
+   destruct H as (z, H).
+   rewrite H, Pos.mul_comm.
+   apply series_forall_div_mul.
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁; assumption.
+
+ destruct s₂.
+  rename t into t₂.
+  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+   apply series_forall_inv in Hps₂.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂ |- *.
+   unfold Plcm.
+   rewrite Z.lcm_comm.
+   apply div_div_lcm; assumption.
+
+bbb.
    apply series_forall_inv in Hps₁.
    destruct Hps₁ as (Hpd₁, Hsf₁).
    unfold pow_den_div_com_den in Hpd₁.
    destruct Hpd₁ as (k₁, Hpd₁).
+   pose proof (Pos_divide_lcm_l cd₁ cd₂) as H.
+   destruct H as (z, H).
+   rewrite H, Pos.mul_comm.
+   apply series_forall_div_mul.
+   assumption.
+
+ destruct s₂.
+  rename t into t₂.
+  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+   apply series_forall_inv in Hps₂.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂ |- *.
+   unfold Plcm.
+   rewrite Z.lcm_comm.
+   apply div_div_lcm; assumption.
+
+   apply series_forall_inv in Hps₂.
+   destruct Hps₂ as (Hpd₂, Hsf₂).
+   unfold pow_den_div_com_den in Hpd₂.
+   destruct Hpd₂ as (k₂, Hpd₂).
+   pose proof (Pos_divide_lcm_l cd₁ cd₂) as H.
+   destruct H as (z, H).
+   rewrite H, Pos.mul_comm.
+   apply series_forall_div_mul.
+bbb.
+  (* apply series_forall_div_mul *)
    Focus 2.
    destruct s₂.
     rename t into t₂.
