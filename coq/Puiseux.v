@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.726 2013-06-20 15:26:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.727 2013-06-20 15:35:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -360,6 +360,7 @@ Definition add_right α (mul_coeff : α → α → α) sl fel :=
        end)
     fel sl.
 
+(*
 Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ s₂ :=
   match ni₁ with
   | O => None
@@ -402,9 +403,9 @@ Definition ps_mul α add_coeff mul_coeff (s₁ s₂ : series α) :=
     end
   in
   mul_loop 1%nat.
+*)
 
-(*
-Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
+CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
   match sum_fifo with
   | [] => End _
   | [(sum, []) … sl] => End _
@@ -433,7 +434,6 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
       end
   | End => End _
   end.
-*)
 
 Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
@@ -956,7 +956,7 @@ Abort.
 bbb.
 *)
 
-(*
+(**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
@@ -1110,11 +1110,6 @@ destruct Hps₁ as (Hp₁, Hs₁).
 destruct Hps₂ as (Hp₂, Hs₂).
 unfold pow_den_div_com_den in Hp₁; simpl in Hp₁.
 unfold pow_den_div_com_den in Hp₂; simpl in Hp₂.
-bbb.
-
-destruct Hp₁ as (k₁, Hp₁).
-destruct Hp₂ as (k₂, Hp₂).
-bbb.
 eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
  constructor; [ reflexivity | constructor ].
@@ -1122,104 +1117,11 @@ eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
  remember (power t₁ + power t₂) as pp.
  unfold fifo_div_comden; simpl.
- subst cd₁ cd₂.
- remember (Z.abs_nat (Qnum (power t₁))) as x₁.
- remember (Pos.to_nat (Qden (power t₁))) as y₁.
- remember (Z.abs_nat (Qnum (power t₂))) as x₂.
- remember (Pos.to_nat (Qden (power t₂))) as y₂.
- subst pp; simpl.
- rewrite Pos2Nat.inj_mul.
- rewrite <- Heqy₁, <- Heqy₂.
- exists (k₁ * k₂)%nat.
- destruct (Z_zerop (Qnum (power t₁))) as [Hp₁| Hp₁].
-  rewrite Hp₁ in Heqx₁ |- *; subst x₁; simpl.
-  rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
-  rewrite mult_1_r.
-  destruct (Z_zerop (Qnum (power t₂))) as [Hp₂| Hp₂].
-   rewrite Hp₂ in Heqx₂ |- *; subst x₂; simpl.
-   rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
-   rewrite mult_1_r.
-   rewrite Nat.div_mul; [ reflexivity | idtac ].
-   apply Nat.neq_mul_0.
-   split; eapply pos_nat_ne_0; eassumption.
+ constructor; [ assumption | constructor ].
 
-   rewrite Zabs2Nat.inj_mul; simpl.
-   rewrite <- Heqx₂, <- Heqy₁.
-   symmetry.
-   rewrite mult_assoc.
-   remember (k₁ * k₂)%nat as k.
-   destruct k; simpl.
-    rewrite Nat.div_0_l; [ reflexivity | idtac ].
-    rewrite mult_comm, Nat.gcd_mul_mono_l.
-    apply Nat.neq_mul_0.
-    split; [ eapply pos_nat_ne_0 | eapply gcd_pos_ne_0_r ]; eassumption.
-
-    symmetry.
-    rewrite mult_comm, Nat.gcd_mul_mono_r.
-    rewrite mult_assoc, <- mult_plus_distr_r.
-    rewrite Nat.div_mul_cancel_r.
-     rewrite <- Nat.divide_div_mul_exact.
-      pose proof (gcd_divide_r x₂ y₂) as Hgd.
-      destruct Hgd as (v, Hgd).
-      remember (gcd x₂ y₂) as g.
-      rewrite Hgd, mult_assoc, <- mult_plus_distr_r.
-      destruct g; [ reflexivity | idtac ].
-      rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
-      rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
-      rewrite Nat.div_mul; [ idtac | intros H; discriminate H ].
-      reflexivity.
-
-      eapply gcd_pos_ne_0_r; eassumption.
-
-      apply gcd_divide_r.
-
-     eapply gcd_pos_ne_0_r; eassumption.
-
-     eapply pos_nat_ne_0; eassumption.
-
-  destruct (Z_zerop (Qnum (power t₂))) as [Hp₂| Hp₂].
-   rewrite Hp₂ in Heqx₂ |- *; subst x₂; simpl.
-   rewrite Zplus_0_r.
-   rewrite Zabs2Nat.inj_mul; simpl.
-   rewrite <- Heqx₁, <- Heqy₂.
-   symmetry.
-   rewrite Nat.mul_shuffle0, mult_assoc.
-   remember (k₁ * k₂)%nat as k.
-   destruct k; simpl.
-    rewrite Nat.div_0_l; [ reflexivity | idtac ].
-    rewrite Nat.gcd_mul_mono_r.
-    apply Nat.neq_mul_0.
-    split; [ eapply gcd_pos_ne_0_r | eapply pos_nat_ne_0 ]; eassumption.
-
-    rewrite Nat.div_same; [ idtac | eapply pos_nat_ne_0; eassumption ].
-    rewrite mult_1_r.
-    rewrite Nat.gcd_mul_mono_r.
-    rewrite mult_assoc, <- mult_plus_distr_r.
-    rewrite Nat.div_mul_cancel_r.
-     rewrite <- Nat.divide_div_mul_exact.
-      reflexivity.
-
-      eapply gcd_pos_ne_0_r; eassumption.
-
-      apply gcd_divide_r.
-
-     eapply gcd_pos_ne_0_r; eassumption.
-
-     eapply pos_nat_ne_0; eassumption.
-
-   rewrite Zabs2Nat.inj_add.
-    do 2 rewrite Zabs2Nat.inj_mul; simpl.
-    rewrite <- Heqx₁, <- Heqy₁, <- Heqx₂, <- Heqy₂.
-    symmetry.
-    rewrite Nat.mul_shuffle0, mult_assoc.
-    remember (k₁ * k₂)%nat as k.
-    destruct k; simpl.
-     rewrite Nat.div_0_l; [ reflexivity | idtac ].
-     subst y₁ y₂.
-     rewrite <- Pos2Nat.inj_mul.
-     eapply gcd_pos_ne_0_r; reflexivity.
-bbb.
-*)
+ constructor; [ simpl | constructor ].
+ constructor; [ assumption | constructor ].
+Qed.
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
   series_forall
