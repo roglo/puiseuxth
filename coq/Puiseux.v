@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.730 2013-06-20 21:55:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.731 2013-06-20 22:19:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -951,6 +951,22 @@ bbb.
  eapply fifo_div_comden_insert; eassumption.
 *)
 
+Lemma yyy : ∀ α mul_coeff cd t₁ t₂ fe fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall
+    (λ sum_fel,
+     List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+       (snd sum_fel))
+    sf
+    → t₁ = fe_t₁ fe
+      → t₂ = fe_t₂ fe
+        → List.Forall
+            (λ sum_fel,
+             List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+               (snd sum_fel))
+            (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf) fel).
+Proof.
+bbb.
+
 (**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
     (sf : list (_ * list (fifo_elem α))),
@@ -1013,6 +1029,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+    apply yyy; [ idtac | reflexivity | reflexivity ].
     Focus 1.
 bbb.
     apply fifo_div_comden_sum_right; try reflexivity.
