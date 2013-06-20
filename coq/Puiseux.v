@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.727 2013-06-20 15:35:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.728 2013-06-20 15:44:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -935,15 +935,17 @@ induction sf as [| (sum₁, fel₁)].
 bbb.
 *)
 
-(*
+(**)
 Lemma fifo_div_comden_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
   → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
+(*
 den_divides_comden cd₁ (power t₁)
 den_divides_comden cd₂ (power t₂)
+*)
         → List.Forall (fifo_div_comden cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
@@ -951,7 +953,7 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
-Abort.
+Admitted. (*
  eapply fifo_div_comden_insert; eassumption.
 bbb.
 *)
@@ -993,53 +995,20 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  eapply Qeq_den_div; eassumption.
 
  eapply IHs; try eassumption.
+  remember (fe_s₂ fe) as ss₂.
+  destruct ss₂.
+   rename t into tt₂.
+   remember (fe_s₁ fe) as ss₁.
+   apply list_Forall_inv in Hs.
+   destruct Hs as (Hf, Hs).
+   destruct ss₁.
+    rename t into tt₁.
+    apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
+    apply fifo_add_sum_below; [ assumption | reflexivity | reflexivity ].
 
-bbb.
-
-
-  simpl.
-  rewrite Pos2Nat.inj_mul.
-  rewrite mult_plus_distr_r.
-  rewrite Nat.mul_shuffle1.
-  rewrite <- Hd₁.
-  rewrite <- mult_assoc.
-  rewrite <- mult_assoc.
-  rewrite <- mult_assoc.
-  rewrite <- mult_plus_distr_l.
-  f_equal.
-  rewrite mult_assoc.
-  rewrite mult_assoc.
-  rewrite plus_comm.
-  rewrite Nat.mul_shuffle0.
-  rewrite <- Hd₂.
-  rewrite plus_comm.
-  symmetry.
-  rewrite <- mult_assoc, mult_comm.
-  rewrite <- mult_assoc.
-  rewrite <- mult_assoc.
-  rewrite <- mult_plus_distr_l.
-  f_equal.
-  destruct (Qnum (power (fe_t₁ fe))) as [| pn₁| pn₁].
-   rewrite mult_0_r; simpl.
-   rewrite Zabs2Nat.inj_mul.
-   reflexivity.
-
-   simpl.
-   destruct (Qnum (power (fe_t₂ fe))) as [| pn₂| pn₂].
-    simpl.
-    rewrite plus_0_r.
-    rewrite mult_comm.
-    rewrite Pos2Nat.inj_mul; reflexivity.
-
-    simpl.
-    rewrite Pos2Nat.inj_add.
-    rewrite Pos2Nat.inj_mul.
-    rewrite Pos2Nat.inj_mul.
-    rewrite mult_comm.
-    reflexivity.
-
-    simpl.
-  Focus 1.
+    apply fifo_add_sum_right; [ idtac | reflexivity | reflexivity ].
+    apply fifo_add_below; assumption.
+    Focus 1.
 bbb.
 
 cofix IHs.
