@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.722 2013-06-20 09:31:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.723 2013-06-20 13:28:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -210,43 +210,32 @@ destruct s₁.
   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    apply series_forall_inv in Hps₁.
    destruct Hps₁ as (Hpd₁, Hsf₁).
-   unfold pow_den_div_com_den in Hpd₁ |- *.
+   apply div_div_lcm; assumption.
+
+   apply series_forall_inv in Hps₁.
+   destruct Hps₁ as (Hpd₁, Hsf₁).
+   unfold pow_den_div_com_den in Hpd₁.
    destruct Hpd₁ as (k₁, Hpd₁).
-   unfold den_divides_comden.
-   unfold Plcm.
-   rewrite Z.lcm_comm.
-bbb.
-
-cofix IHs.
-intros α add_coeff s₁ s₂ cd₁ cd₂ Hps₁ Hps₂.
-rewrite series_eta; simpl.
-destruct s₁.
- rename t into t₁.
- destruct s₂.
-  rename t into t₂.
-  remember (power t₁ ?= power t₂) as c.
-  symmetry in Heqc.
-  destruct c.
-   apply Qeq_alt in Heqc.
-   eapply TermAndFurther; [ reflexivity | idtac | idtac ].
-    apply series_forall_inv in Hps₁.
-    destruct Hps₁ as (Hpd₁, Hsf₁).
-    unfold pow_den_div_com_den in Hpd₁ |- *; simpl.
-    destruct Hpd₁ as (k₁, Hpd₁).
-    unfold den_divides_comden.
-bbb.
-    remember (Pos.to_nat (Qden (power t₁))) as x.
-    remember (Z.abs_nat (Qnum (power t₁))) as y.
-    unfold Nat.lcm.
-    rewrite Nat.mul_shuffle0, Hpd₁, Nat.mul_shuffle0.
-    exists (k₁ * (cd₂ / gcd cd₁ cd₂))%nat; reflexivity.
-
-    apply IHs.
-     apply series_forall_inv in Hps₁.
-     destruct Hps₁; assumption.
+   Focus 2.
+   destruct s₂.
+    rename t into t₂.
+    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+     apply series_forall_inv in Hps₂.
+     destruct Hps₂ as (Hpd₂, Hsf₂).
+     unfold pow_den_div_com_den in Hpd₂ |- *.
+     unfold Plcm.
+     rewrite Z.lcm_comm.
+     apply div_div_lcm; assumption.
 
      apply series_forall_inv in Hps₂.
-     destruct Hps₂; assumption.
+     destruct Hps₂ as (Hpd₂, Hsf₂).
+     unfold pow_den_div_com_den in Hpd₂.
+     destruct Hpd₂ as (k₂, Hpd₂).
+     Focus 2.
+     constructor; reflexivity.
+
+    Unfocus.
+bbb.
 
    eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     apply series_forall_inv in Hps₁.
