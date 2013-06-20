@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.720 2013-06-19 19:52:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.721 2013-06-20 07:28:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,21 +37,21 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
   in
   loop (al pol₁) (al pol₂).
 
-Fixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
+CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   match ms₁ with
   | Term c₁ s₁ =>
-      let fix loop₂ ms₂ :=
+      let cofix loop₂ ms₂ :=
         match ms₂ with
         | Term c₂ s₂ =>
             match Qcompare (power c₁) (power c₂) with
             | Eq =>
                 let c := add_coeff (coeff c₁) (coeff c₂) in
                 let m := {| coeff := c; power := power c₁ |} in
-                Term m (λ tt, ps_add_loop add_coeff (s₁ tt) (s₂ tt))
+                Term m (ps_add_loop add_coeff s₁ s₂)
             | Lt =>
-                Term c₁ (λ tt, ps_add_loop add_coeff (s₁ tt) ms₂)
+                Term c₁ (ps_add_loop add_coeff s₁ ms₂)
             | Gt =>
-                Term c₂ (λ tt, loop₂ (s₂ tt))
+                Term c₂ (loop₂ s₂)
             end
         | End => ms₂
         end
@@ -64,8 +64,9 @@ Lemma series_forall_div_mul : ∀ α (s : series (term α)) cd x,
   series_forall (pow_den_div_com_den cd) s
   → series_forall (pow_den_div_com_den (cd * x)) s.
 Proof.
+cofix IHs.
 intros α s cd x H.
-induction s as [t s IHs| ]; [ idtac | constructor; reflexivity ].
+destruct s as [t s| ]; [ idtac | constructor; reflexivity ].
 eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  apply series_forall_inv in H.
  destruct H as (H, _).
@@ -347,7 +348,7 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
 Definition ps_mul α add_coeff mul_coeff s₁ s₂ :=
   let fix mul_loop n₁ :=
     match sum_mul_coeff add_coeff mul_coeff 0 n₁ s₁ s₂ with
-    | Some c => Term c (λ tt, mul_loop (S n₁))
+    | Some c => Term c (mul_loop (S n₁))
     | None => End _
     end
   in
@@ -366,7 +367,7 @@ Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
       in
       let sl₁ := add_below mul_coeff sl [fe₁ … fel₁] in
       let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
-      Term m (λ tt, ps_mul_loop α add_coeff mul_coeff sl₂)
+      Term m (ps_mul_loop α add_coeff mul_coeff sl₂)
   end.
 *)
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.30 2013-06-19 19:05:51 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.31 2013-06-20 07:28:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -60,11 +60,11 @@ Record puiseux_series α :=
     ps_comden : positive;
     ps_prop : series_forall (pow_den_div_com_den ps_comden) ps_terms }.
 
-Fixpoint terms_of_math_terms α (ms : math_puiseux_series α) z s :=
+CoFixpoint terms_of_math_terms α (ms : math_puiseux_series α) z s :=
   match s with
   | Term a t =>
       Term {| coeff := a; power := z # ms_comden ms |}
-        (λ tt, terms_of_math_terms ms (Z.succ z) (t tt))
+        (terms_of_math_terms ms (Z.succ z) t)
   | End =>
       End (term α)
   end.
@@ -73,12 +73,15 @@ Lemma ps_prop_of_math_loop : ∀ α (ms : math_puiseux_series α) z s t,
   t = terms_of_math_terms ms z s
   → series_forall (pow_den_div_com_den (ms_comden ms)) t.
 Proof.
+cofix IHs.
 intros α ms z s t Ht.
-subst t; revert z.
-induction s as [t₁ s₁ IHs| ]; intros.
- eapply TermAndFurther; [ reflexivity | idtac | apply IHs ].
+rewrite series_eta; simpl.
+destruct s as [t₁ s₁| ].
+ subst t; simpl.
+ eapply TermAndFurther; [ reflexivity | idtac | eapply IHs; reflexivity ].
  exists z; rewrite Zmult_comm; reflexivity.
 
+ subst t; simpl.
  constructor; reflexivity.
 Qed.
 
@@ -95,17 +98,6 @@ Definition puiseux_series_of_math_puiseux_series α
   {| ps_terms := terms_of_math_terms ms 0%Z (ms_terms ms);
      ps_comden := ms_comden ms;
      ps_prop := ps_prop_of_math ms |}.
-
-(*
-Proposition zzz : ∀ α (P : math_puiseux_series α → Prop) ms,
-  P ms
-  → ∃ Q : puiseux_series α → Prop,
-    Q (puiseux_series_of_math_puiseux_series ms).
-Proof.
-intros α P ms HP.
-unfold puiseux_series_of_math_puiseux_series; simpl.
-bbb.
-*)
 
 Definition valuation α (ps : puiseux_series α) :=
   match series_head (ps_terms ps) with
