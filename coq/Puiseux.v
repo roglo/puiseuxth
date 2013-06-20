@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.725 2013-06-20 14:20:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.726 2013-06-20 15:26:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -341,7 +341,7 @@ Definition add_below α (mul_coeff : α → α → α) sl fel :=
        | Term t₁ s₁ =>
             insert_sum (Qplus (power t₁) (power (fe_t₂ fe)))
               {| fe_t₁ := t₁; fe_t₂ := fe_t₂ fe;
-                 fe_s₁ := s₁ tt; fe_s₂ := fe_s₂ fe |}
+                 fe_s₁ := s₁; fe_s₂ := fe_s₂ fe |}
               sl₁
        | End => sl₁
        end)
@@ -354,7 +354,7 @@ Definition add_right α (mul_coeff : α → α → α) sl fel :=
        | Term t₂ s₂ =>
             insert_sum (Qplus (power (fe_t₁ fe)) (power t₂))
               {| fe_t₁ := fe_t₁ fe; fe_t₂ := t₂;
-                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ tt |}
+                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ |}
               sl₂
        | End => sl₂
        end)
@@ -394,14 +394,14 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
       end
   end.
 
-Definition ps_mul α add_coeff mul_coeff s₁ s₂ :=
-  let fix mul_loop n₁ :=
+Definition ps_mul α add_coeff mul_coeff (s₁ s₂ : series α) :=
+  let cofix mul_loop n₁ :=
     match sum_mul_coeff add_coeff mul_coeff 0 n₁ s₁ s₂ with
     | Some c => Term c (mul_loop (S n₁))
     | None => End _
     end
   in
-  mul_loop 1.
+  mul_loop 1%nat.
 
 (*
 Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
@@ -418,7 +418,6 @@ Fixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
       let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
       Term m (ps_mul_loop α add_coeff mul_coeff sl₂)
   end.
-*)
 
 Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   match s₁ with
@@ -434,6 +433,7 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
       end
   | End => End _
   end.
+*)
 
 Definition fifo_sum_prop α (cfel : (Q * list (fifo_elem α))) :=
   List.Forall (λ fe, fst cfel == power (fe_t₁ fe) + power (fe_t₂ fe))
@@ -935,17 +935,15 @@ induction sf as [| (sum₁, fel₁)].
 bbb.
 *)
 
-(**)
+(*
 Lemma fifo_div_comden_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
   → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-(*
 den_divides_comden cd₁ (power t₁)
 den_divides_comden cd₂ (power t₂)
-*)
         → List.Forall (fifo_div_comden cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
@@ -953,11 +951,12 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
-Abort. (*
+Abort.
  eapply fifo_div_comden_insert; eassumption.
 bbb.
 *)
 
+(*
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) sf
