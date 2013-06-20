@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.729 2013-06-20 21:48:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.730 2013-06-20 21:55:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -931,17 +931,15 @@ induction sf as [| (sum₁, fel₁)].
 bbb.
 *)
 
-(**)
+(*
 Lemma fifo_div_comden_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall (λ cfel, fifo_sum_prop cfel) [(sum, [fe … fel]) … sf]
   → List.Forall (fifo_div_comden cd) [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-(*
 den_divides_comden cd₁ (power t₁)
 den_divides_comden cd₂ (power t₂)
-*)
         → List.Forall (fifo_div_comden cd)
             (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                fel).
@@ -949,9 +947,8 @@ Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hsp Hfe H₁ H₂.
 revert cd t₁ t₂ sum fe sf Hsp Hfe H₁ H₂.
 induction fel as [| fe₁]; intros; simpl.
-Admitted. (*
- eapply fifo_div_comden_insert; eassumption.
 bbb.
+ eapply fifo_div_comden_insert; eassumption.
 *)
 
 (**)
