@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.750 2013-06-21 20:12:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.751 2013-06-21 20:16:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -768,7 +768,14 @@ destruct Hfdd as (Hdd₁, Hfdd).
 revert t₁ t₂ fe sf Hdd₁ Hffdd Ht₁ Ht₂.
 induction fel as [| fe₁]; intros; simpl.
  subst t₁ t₂.
-Abort. (*
+ apply den_div_comden_all_insert_sum; try assumption; reflexivity.
+
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hdd₂, Hfdd).
+ remember (fe_s₂ fe₁) as ss₂.
+ destruct ss₂ as [tt₂ ss₂| ].
+  apply IHfel; try reflexivity; try assumption.
+   subst t₁ t₂.
 bbb.
 *)
 
