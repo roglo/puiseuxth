@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.733 2013-06-21 00:43:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.734 2013-06-21 00:53:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1013,7 +1013,8 @@ destruct fel as [| fe₁]; simpl.
    destruct Hfdd; assumption.
 Qed.
 
-Lemma xxx : ∀ α cd t₁ t₂ fe (sf : list (_ * list (fifo_elem α))),
+Lemma den_divides_comden_all_insert_sum :
+    ∀ α cd t₁ t₂ fe (sf : list (_ * list (fifo_elem α))),
   List.Forall
     (λ sum_fel,
      List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
@@ -1037,15 +1038,20 @@ destruct sf as [| (sum, fel)].
  simpl.
  remember (power t₁ + power t₂ ?= sum) as c.
  symmetry in Heqc.
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hfdd, Hffdd).
  destruct c.
   constructor.
-   simpl.
-   apply list_Forall_inv in Hfdd.
-   destruct Hfdd as (Hfdd, Hffdd).
-   simpl in Hfdd.
    eapply den_divides_comden_insert; eassumption.
-bbb.
-*)
+
+   assumption.
+
+  constructor; [ idtac | constructor; assumption ].
+  constructor; [ idtac | constructor ].
+  subst t₁; assumption.
+
+  constructor; [ assumption | apply IHsf; assumption ].
+Qed.
 
 Lemma yyy : ∀ α mul_coeff cd t₁ t₂ fe fel (sf : list (_ * list (fifo_elem α))),
   List.Forall
@@ -1063,10 +1069,10 @@ Lemma yyy : ∀ α mul_coeff cd t₁ t₂ fe fel (sf : list (_ * list (fifo_elem
               (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                  fel).
 Proof.
-intros α mul_coeff cd t₁ t₂ fe fel sf Hdd Ht₁ Ht₂ Hdd.
-revert cd t₁ t₂ fe sf Hdd Ht₁ Ht₂ Hdd.
+intros α mul_coeff cd t₁ t₂ fe fel sf Hfdd Ht₁ Ht₂ Hdd.
+revert cd t₁ t₂ fe sf Hfdd Ht₁ Ht₂ Hdd.
 induction fel as [| fe₁]; intros; simpl.
- apply xxx; assumption.
+ apply den_divides_comden_all_insert_sum; assumption.
 bbb.
 *)
 
