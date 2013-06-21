@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.747 2013-06-21 18:54:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.748 2013-06-21 19:12:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1377,7 +1377,13 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    apply den_div_comden_add_right; [ assumption | idtac ].
    apply den_div_comden_add_below; [ assumption | assumption | idtac ].
    remember (fe_s₁ fe) as ss₁.
-   Focus 1.
+   destruct ss₁; [ idtac | assumption ].
+   rename t into tt₁.
+   apply series_forall_inv in Hs₁.
+   destruct Hs₁ as (Hs₁, Hsf₁).
+   apply den_div_comden_all_insert_sum; try reflexivity; assumption.
+
+  Focus 1.
 
 bbb.
 *)
