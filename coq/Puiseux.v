@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.745 2013-06-21 18:33:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.746 2013-06-21 18:51:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1171,6 +1171,31 @@ induction fel as [| fe₁]; intros; simpl.
   apply IHfel; assumption.
 Qed.
 
+Lemma den_div_comden_add_right :
+    ∀ α mul_coeff cd fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe))) fel
+  → List.Forall
+      (λ sum_fel,
+       List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+         (snd sum_fel))
+      sf
+    → List.Forall
+        (λ sum_fel,
+         List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+           (snd sum_fel))
+        (add_right mul_coeff sf fel).
+Proof.
+intros α mul_coeff cd fel sf Hfs Hffdd.
+induction fel as [| fe]; [ assumption | simpl ].
+apply list_Forall_inv in Hfs.
+destruct Hfs as (Hd, Hfs).
+remember (fe_s₂ fe) as ss₂.
+destruct ss₂; [ idtac | apply IHfel; assumption ].
+rename t into tt₂.
+apply den_div_comden_add_sum_right with (sum := 0); try reflexivity.
+constructor; [ constructor; assumption | assumption ].
+Qed.
+
 Lemma den_div_comden_add_sum_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
@@ -1349,6 +1374,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     constructor; [ constructor; assumption | idtac ].
     apply den_div_comden_add_below; assumption.
     Focus 1.
+    apply den_div_comden_add_right; assumption.
 
 bbb.
 *)
