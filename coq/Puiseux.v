@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.737 2013-06-21 09:27:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.738 2013-06-21 09:34:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -949,7 +949,7 @@ bbb.
  eapply fifo_div_comden_insert; eassumption.
 *)
 
-Lemma den_divides_comden_Qeq : ∀ c x y,
+Lemma den_div_comden_Qeq : ∀ c x y,
   den_divides_comden c x
   → x == y
     → den_divides_comden c y.
@@ -974,7 +974,7 @@ apply Z.mul_cancel_r with (p := Zpos (Qden y)) in Hdd.
  eapply Zpos_ne_0; reflexivity.
 Qed.
 
-Lemma den_divides_comden_insert : ∀ α cd t fe (fel : list (fifo_elem α)),
+Lemma den_div_comden_insert : ∀ α cd t fe (fel : list (fifo_elem α)),
   List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe))) fel
   → t = fe_t₁ fe
     → den_divides_comden cd (power t)
@@ -996,7 +996,7 @@ destruct fel as [| fe₁]; simpl.
   destruct c₂; [ assumption | constructor; assumption | idtac ].
   constructor.
    apply Qeq_alt in Heqc₁.
-   eapply den_divides_comden_Qeq; eassumption.
+   eapply den_div_comden_Qeq; eassumption.
 
    apply IHfel; [ idtac | assumption ].
    apply list_Forall_inv in Hfdd.
@@ -1013,7 +1013,7 @@ destruct fel as [| fe₁]; simpl.
    destruct Hfdd; assumption.
 Qed.
 
-Lemma den_divides_comden_all_insert_sum :
+Lemma den_div_comden_all_insert_sum :
     ∀ α cd t₁ t₂ fe (sf : list (_ * list (fifo_elem α))),
   List.Forall
     (λ sum_fel,
@@ -1042,7 +1042,7 @@ destruct sf as [| (sum, fel)].
  destruct Hfdd as (Hfdd, Hffdd).
  destruct c.
   constructor.
-   eapply den_divides_comden_insert; eassumption.
+   eapply den_div_comden_insert; eassumption.
 
    assumption.
 
@@ -1053,7 +1053,7 @@ destruct sf as [| (sum, fel)].
   constructor; [ assumption | apply IHsf; assumption ].
 Qed.
 
-Lemma den_divides_comden_add_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
+Lemma den_div_comden_add_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
     (λ sum_fel,
@@ -1075,7 +1075,7 @@ revert cd t₁ t₂ sum fe sf Hfdd Ht₁ Ht₂ Hdd.
 induction fel as [| fe₁]; intros; simpl.
  apply list_Forall_inv in Hfdd.
  destruct Hfdd as (Hfdd, Hffdd).
- apply den_divides_comden_all_insert_sum; assumption.
+ apply den_div_comden_all_insert_sum; assumption.
 
  apply list_Forall_inv in Hfdd.
  destruct Hfdd as (Hfdd, Hffdd).
@@ -1088,13 +1088,13 @@ induction fel as [| fe₁]; intros; simpl.
  destruct ss₂ as [tt₂ ss₂| ].
   apply IHfel with (sum := sum); try reflexivity; try assumption.
   constructor; [ constructor; assumption | idtac ].
-  apply den_divides_comden_all_insert_sum; assumption.
+  apply den_div_comden_all_insert_sum; assumption.
 
   apply IHfel with (sum := sum); try assumption.
   constructor; [ constructor; assumption | assumption ].
 Qed.
 
-Lemma den_divides_comden_add_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
+Lemma den_div_comden_add_sum_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
     (λ sum_fel,
@@ -1211,16 +1211,16 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     rename t into tt₁.
     apply series_forall_inv in Hs₁.
     destruct Hs₁ as (Hs₁, Hsf₁).
-    apply den_divides_comden_add_right with (sum := sum); try reflexivity.
+    apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
      constructor; [ constructor; assumption | idtac ].
-     apply den_divides_comden_add_below with (sum := sum); try reflexivity.
+     apply den_div_comden_add_sum_below with (sum := sum); try reflexivity.
       constructor; [ constructor; assumption | assumption ].
 
       assumption.
 
      assumption.
 
-    apply den_divides_comden_add_right with (sum := sum); try reflexivity.
+    apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
      constructor; [ constructor; assumption | idtac ].
      Focus 1.
 bbb.
