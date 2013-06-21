@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.744 2013-06-21 18:13:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.745 2013-06-21 18:33:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1092,6 +1092,7 @@ destruct sf as [| (sum, fel)].
   constructor; [ assumption | apply IHsf; assumption ].
 Qed.
 
+(*
 Lemma den_div_comden_all_insert_sum₂ :
     ∀ α cd t₁ t₂ fe (sf : list (_ * list (fifo_elem α))),
   List.Forall
@@ -1131,6 +1132,7 @@ destruct sf as [| (sum, fel)].
 
   constructor; [ assumption | apply IHsf; assumption ].
 Qed.
+*)
 
 Lemma den_div_comden_add_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
@@ -1233,18 +1235,17 @@ induction fel as [| fe]; [ assumption | simpl ].
 apply list_Forall_inv in Hfs.
 destruct Hfs as (Hd, Hfs).
 apply list_Forall_inv in Hffd.
-destruct Hffd as (Hs, Hfs₂).
+destruct Hffd as (Hs₂, Hfs₂).
 remember (fe_s₁ fe) as ss₁.
 destruct ss₁; [ idtac | apply IHfel; assumption ].
 rename t into tt₁.
+apply series_forall_inv in Hs₂.
+destruct Hs₂ as (Hp, Hs₂).
 apply den_div_comden_add_sum_below with (sum := 0); try reflexivity.
- constructor; [ idtac | assumption ].
- constructor; [ idtac | assumption ].
- 2: assumption.
+ constructor; [ constructor; assumption | assumption ].
 
- simpl.
-bbb.
-*)
+ assumption.
+Qed.
 
 (**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
