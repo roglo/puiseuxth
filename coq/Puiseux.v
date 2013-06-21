@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.742 2013-06-21 16:38:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.743 2013-06-21 16:41:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1348,20 +1348,18 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     apply series_forall_inv in Hs₁.
     destruct Hs₁ as (Hs₁, Hsf₁).
     apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
-     constructor; [ constructor; assumption | idtac ].
-bbb.
-     apply den_div_comden_add_sum_below with (sum := sum); try reflexivity.
-      constructor; [ constructor; assumption | assumption ].
-
-      assumption.
+    constructor; [ constructor; assumption | idtac ].
+    apply den_div_comden_add_sum_below with (sum := sum); try reflexivity.
+     constructor; [ constructor; assumption | assumption ].
 
      assumption.
 
     apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
-     constructor; [ constructor; assumption | idtac ].
-     apply den_div_comden_add_below; assumption.
+    constructor; [ constructor; assumption | idtac ].
+    Focus 1.
+bbb.
+    apply den_div_comden_add_below; assumption.
 
-     Focus 1.
 bbb.
 *)
 
