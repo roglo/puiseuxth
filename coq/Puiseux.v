@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.743 2013-06-21 16:41:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.744 2013-06-21 18:13:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1215,44 +1215,34 @@ Qed.
 
 Lemma den_div_comden_add_below :
     ∀ α mul_coeff cd fel (sf : list (_ * list (fifo_elem α))),
-  List.Forall
-    (λ sum_fel,
-     List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
-       (snd sum_fel))
-    sf
-  → List.Forall
-      (λ sum_fel,
-       List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
-         (snd sum_fel))
-      (add_below mul_coeff sf fel).
+  List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe))) fel
+  → List.Forall (λ fe, series_forall (pow_den_div_com_den cd) (fe_s₁ fe)) fel
+    → List.Forall
+        (λ sum_fel,
+         List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+           (snd sum_fel))
+        sf
+      → List.Forall
+          (λ sum_fel,
+           List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+             (snd sum_fel))
+          (add_below mul_coeff sf fel).
 Proof.
-Abort. (*
-intros α mul_coeff cd fel sf Hffdd.
-induction fel as [| fe].
- simpl.
- assumption.
+intros α mul_coeff cd fel sf Hfs Hffd Hffdd.
+induction fel as [| fe]; [ assumption | simpl ].
+apply list_Forall_inv in Hfs.
+destruct Hfs as (Hd, Hfs).
+apply list_Forall_inv in Hffd.
+destruct Hffd as (Hs, Hfs₂).
+remember (fe_s₁ fe) as ss₁.
+destruct ss₁; [ idtac | apply IHfel; assumption ].
+rename t into tt₁.
+apply den_div_comden_add_sum_below with (sum := 0); try reflexivity.
+ constructor; [ idtac | assumption ].
+ constructor; [ idtac | assumption ].
+ 2: assumption.
 
  simpl.
- remember (fe_s₁ fe) as ss₁.
- destruct ss₁.
-  apply den_div_comden_add_sum_below with (sum := 0).
-   constructor.
-    simpl.
-    constructor.
-     simpl.
-     Focus 2.
-     Unfocus.
-     Focus 3.
-     assumption.
-
-     Focus 3.
-     reflexivity.
-
-    Focus 3.
-    reflexivity.
-
-   Focus 4.
-   assumption.
 bbb.
 *)
 
@@ -1356,9 +1346,8 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
 
     apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
     constructor; [ constructor; assumption | idtac ].
-    Focus 1.
-bbb.
     apply den_div_comden_add_below; assumption.
+    Focus 1.
 
 bbb.
 *)
