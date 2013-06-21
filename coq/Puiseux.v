@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.738 2013-06-21 09:34:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.739 2013-06-21 13:49:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1120,6 +1120,21 @@ induction fel as [| fe₁]; intros; simpl.
 bbb.
 *)
 
+Lemma den_div_comden_add_below :
+    ∀ α mul_coeff cd fel (sf : list (_ * list (fifo_elem α))),
+  List.Forall
+    (λ sum_fel,
+     List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+       (snd sum_fel))
+    sf
+  → List.Forall
+      (λ sum_fel,
+       List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+         (snd sum_fel))
+      (add_below mul_coeff sf fel).
+Proof.
+bbb.
+
 (**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
     (sf : list (_ * list (fifo_elem α))),
@@ -1222,6 +1237,8 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
 
     apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
      constructor; [ constructor; assumption | idtac ].
+     apply den_div_comden_add_below; assumption.
+
      Focus 1.
 bbb.
 *)
