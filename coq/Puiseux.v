@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.736 2013-06-21 09:24:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.737 2013-06-21 09:27:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1220,7 +1220,9 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
 
      assumption.
 
-    Focus 1.
+    apply den_divides_comden_add_right with (sum := sum); try reflexivity.
+     constructor; [ constructor; assumption | idtac ].
+     Focus 1.
 bbb.
 *)
 
