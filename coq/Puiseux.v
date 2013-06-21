@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.734 2013-06-21 00:53:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.735 2013-06-21 01:47:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1053,12 +1053,13 @@ destruct sf as [| (sum, fel)].
   constructor; [ assumption | apply IHsf; assumption ].
 Qed.
 
-Lemma yyy : ∀ α mul_coeff cd t₁ t₂ fe fel (sf : list (_ * list (fifo_elem α))),
+Lemma den_divides_comden_add_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
+    (sf : list (_ * list (fifo_elem α))),
   List.Forall
     (λ sum_fel,
      List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
        (snd sum_fel))
-    sf
+    [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
         → den_divides_comden cd (power t₁)
@@ -1069,12 +1070,29 @@ Lemma yyy : ∀ α mul_coeff cd t₁ t₂ fe fel (sf : list (_ * list (fifo_elem
               (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
                  fel).
 Proof.
-intros α mul_coeff cd t₁ t₂ fe fel sf Hfdd Ht₁ Ht₂ Hdd.
-revert cd t₁ t₂ fe sf Hfdd Ht₁ Ht₂ Hdd.
+intros α mul_coeff cd t₁ t₂ sum fe fel sf Hfdd Ht₁ Ht₂ Hdd.
+revert cd t₁ t₂ sum fe sf Hfdd Ht₁ Ht₂ Hdd.
 induction fel as [| fe₁]; intros; simpl.
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hfdd, Hffdd).
  apply den_divides_comden_all_insert_sum; assumption.
-bbb.
-*)
+
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hfdd, Hffdd).
+ simpl in Hfdd.
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hdd₁, Hfdd).
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hdd₂, Hfdd).
+ remember (fe_s₂ fe₁) as ss₂.
+ destruct ss₂ as [tt₂ ss₂| ].
+  apply IHfel with (sum := sum); try reflexivity; try assumption.
+  constructor; [ constructor; assumption | idtac ].
+  apply den_divides_comden_all_insert_sum; assumption.
+
+  apply IHfel with (sum := sum); try assumption.
+  constructor; [ constructor; assumption | assumption ].
+Qed.
 
 (**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
@@ -1138,15 +1156,17 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
-    apply yyy; [ idtac | reflexivity | reflexivity ].
-    Focus 1.
-bbb.
-    apply fifo_div_comden_sum_right; try reflexivity.
-    apply yyy with (power (fe_t₁ fe) + power tt₂).
+    apply den_divides_comden_add_right with (sum := sum); try reflexivity.
      constructor.
-      unfold fifo_sum_prop; simpl.
-      constructor; [ reflexivity | idtac ].
-     Focus 1.
+      simpl.
+      apply list_Forall_inv in Hd₁.
+      destruct Hd₁ as (Hfdd, Hffdd).
+      simpl in Hfdd.
+      apply list_Forall_inv in Hfdd.
+      destruct Hfdd as (Hdd₁, Hfdd).
+      constructor; assumption.
+
+      Focus 1.
 bbb.
 *)
 
