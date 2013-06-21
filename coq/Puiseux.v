@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.735 2013-06-21 01:47:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.736 2013-06-21 09:24:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1094,6 +1094,32 @@ induction fel as [| fe₁]; intros; simpl.
   constructor; [ constructor; assumption | assumption ].
 Qed.
 
+Lemma den_divides_comden_add_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
+    (sf : list (_ * list (fifo_elem α))),
+  List.Forall
+    (λ sum_fel,
+     List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+       (snd sum_fel))
+    [(sum, [fe … fel]) … sf]
+    → t₁ = fe_t₁ fe
+      → t₂ = fe_t₂ fe
+        → den_divides_comden cd (power t₁)
+          → List.Forall
+              (λ sum_fel,
+               List.Forall
+                 (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+                 (snd sum_fel))
+              (add_below mul_coeff
+                 (insert_sum (power t₁ + power t₂) fe sf)
+                 fel).
+Proof.
+Admitted. (*
+intros α mul_coeff cd t₁ t₂ sum fe fel sf Hfdd Ht₁ Ht₂ Hdd.
+revert cd t₁ t₂ sum fe sf Hfdd Ht₁ Ht₂ Hdd.
+induction fel as [| fe₁]; intros; simpl.
+bbb.
+*)
+
 (**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
     (sf : list (_ * list (fifo_elem α))),
@@ -1108,11 +1134,23 @@ Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
            List.Forall (λ fe, den_divides_comden cd₂ (power (fe_t₂ fe)))
              (snd sum_fel))
         sf
-      → series_forall (pow_den_div_com_den (cd₁ * cd₂)%positive)
-          (ps_mul_loop add_coeff mul_coeff sf).
+      → List.Forall
+          (λ sum_fel,
+           List.Forall
+             (λ fe, series_forall (pow_den_div_com_den cd₁) (fe_s₁ fe))
+             (snd sum_fel))
+          sf
+        → List.Forall
+            (λ sum_fel,
+             List.Forall
+               (λ fe, series_forall (pow_den_div_com_den cd₂) (fe_s₂ fe))
+               (snd sum_fel))
+            sf
+          → series_forall (pow_den_div_com_den (cd₁ * cd₂)%positive)
+              (ps_mul_loop add_coeff mul_coeff sf).
 Proof.
 cofix IHs.
-intros α add_coeff mul_coeff cd₁ cd₂ sf Hs Hd₁ Hd₂.
+intros α add_coeff mul_coeff cd₁ cd₂ sf Hs Hd₁ Hd₂ Hs₁ Hs₂.
 rewrite series_eta; simpl.
 destruct sf as [| (sum, fel)]; [ constructor; reflexivity | idtac ].
 destruct fel as [| fe]; [ constructor; reflexivity | idtac ].
@@ -1150,23 +1188,39 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    destruct ss₁; [ idtac | assumption ].
    apply fifo_insert_var; [ assumption | reflexivity | reflexivity ].
 
+  apply list_Forall_inv in Hd₁.
+  destruct Hd₁ as (Hfdd, Hffdd).
+  simpl in Hfdd.
+  apply list_Forall_inv in Hfdd.
+  destruct Hfdd as (Hdd₁, Hfdd).
+  apply list_Forall_inv in Hd₂.
+  destruct Hd₂ as (Hfdd₂, Hffdd₂).
+  simpl in Hfdd₂.
+  apply list_Forall_inv in Hfdd₂.
+  destruct Hfdd₂ as (Hdd₂, Hfdd₂).
+  apply list_Forall_inv in Hs₁.
+  destruct Hs₁ as (Hs₁, Hffs₁).
+  simpl in Hs₁.
   remember (fe_s₂ fe) as ss₂.
+  apply list_Forall_inv in Hs₁.
+  destruct Hs₁ as (Hs₁, Hfs₁).
   destruct ss₂.
    rename t into tt₂.
    remember (fe_s₁ fe) as ss₁.
    destruct ss₁.
     rename t into tt₁.
+    apply series_forall_inv in Hs₁.
+    destruct Hs₁ as (Hs₁, Hsf₁).
     apply den_divides_comden_add_right with (sum := sum); try reflexivity.
-     constructor.
-      simpl.
-      apply list_Forall_inv in Hd₁.
-      destruct Hd₁ as (Hfdd, Hffdd).
-      simpl in Hfdd.
-      apply list_Forall_inv in Hfdd.
-      destruct Hfdd as (Hdd₁, Hfdd).
-      constructor; assumption.
+     constructor; [ constructor; assumption | idtac ].
+     apply den_divides_comden_add_below with (sum := sum); try reflexivity.
+      constructor; [ constructor; assumption | assumption ].
 
-      Focus 1.
+      assumption.
+
+     assumption.
+
+    Focus 1.
 bbb.
 *)
 
@@ -1193,8 +1247,6 @@ eapply zzz; try eassumption.
  constructor; [ reflexivity | constructor ].
 
  constructor; [ simpl | constructor ].
- remember (power t₁ + power t₂) as pp.
- unfold fifo_div_comden; simpl.
  constructor; [ assumption | constructor ].
 
  constructor; [ simpl | constructor ].
