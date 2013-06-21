@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.739 2013-06-21 13:49:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.740 2013-06-21 16:16:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -995,8 +995,47 @@ destruct fel as [| fe₁]; simpl.
   symmetry in Heqc₂.
   destruct c₂; [ assumption | constructor; assumption | idtac ].
   constructor.
-   apply Qeq_alt in Heqc₁.
-   eapply den_div_comden_Qeq; eassumption.
+   apply list_Forall_inv in Hfdd.
+   destruct Hfdd; assumption.
+
+   apply IHfel; [ idtac | assumption ].
+   apply list_Forall_inv in Hfdd.
+   destruct Hfdd; assumption.
+
+  constructor; assumption.
+
+  constructor.
+   apply list_Forall_inv in Hfdd.
+   destruct Hfdd; assumption.
+
+   apply IHfel; [ idtac | assumption ].
+   apply list_Forall_inv in Hfdd.
+   destruct Hfdd; assumption.
+Qed.
+
+Lemma den_div_comden_insert₂ : ∀ α cd t fe (fel : list (fifo_elem α)),
+  List.Forall (λ fe, den_divides_comden cd (power (fe_t₂ fe))) fel
+  → t = fe_t₂ fe
+    → den_divides_comden cd (power t)
+      → List.Forall (λ fe, den_divides_comden cd (power (fe_t₂ fe)))
+          (insert_elem fe fel).
+Proof.
+intros α cd t fe fel Hfdd Ht Hdd.
+subst t.
+revert α cd fe fel Hfdd Hdd.
+fix IHfel 4; intros.
+destruct fel as [| fe₁]; simpl.
+ constructor; [ assumption | constructor ].
+
+ remember (power (fe_t₁ fe) ?= power (fe_t₁ fe₁)) as c₁.
+ symmetry in Heqc₁.
+ destruct c₁.
+  remember (power (fe_t₂ fe) ?= power (fe_t₂ fe₁)) as c₂.
+  symmetry in Heqc₂.
+  destruct c₂; [ assumption | constructor; assumption | idtac ].
+  constructor.
+   apply list_Forall_inv in Hfdd.
+   destruct Hfdd; assumption.
 
    apply IHfel; [ idtac | assumption ].
    apply list_Forall_inv in Hfdd.
@@ -1053,6 +1092,46 @@ destruct sf as [| (sum, fel)].
   constructor; [ assumption | apply IHsf; assumption ].
 Qed.
 
+Lemma den_div_comden_all_insert_sum₂ :
+    ∀ α cd t₁ t₂ fe (sf : list (_ * list (fifo_elem α))),
+  List.Forall
+    (λ sum_fel,
+     List.Forall (λ fe, den_divides_comden cd (power (fe_t₂ fe)))
+       (snd sum_fel)) sf
+  → t₁ = fe_t₁ fe
+    → t₂ = fe_t₂ fe
+      → den_divides_comden cd (power t₂)
+        → List.Forall
+            (λ sum_fel,
+             List.Forall (λ fe, den_divides_comden cd (power (fe_t₂ fe)))
+               (snd sum_fel))
+            (insert_sum (power t₁ + power t₂) fe sf).
+Proof.
+fix IHsf 6.
+intros α cd t₁ t₂ fe sf Hfdd Ht₁ Ht₂ Hdd.
+destruct sf as [| (sum, fel)].
+ simpl.
+ constructor; [ simpl | constructor ].
+ constructor; [ subst t₂; assumption | constructor ].
+
+ simpl.
+ remember (power t₁ + power t₂ ?= sum) as c.
+ symmetry in Heqc.
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hfdd, Hffdd).
+ destruct c.
+  constructor.
+   eapply den_div_comden_insert₂; eassumption.
+
+   assumption.
+
+  constructor; [ idtac | constructor; assumption ].
+  constructor; [ idtac | constructor ].
+  subst t₂; assumption.
+
+  constructor; [ assumption | apply IHsf; assumption ].
+Qed.
+
 Lemma den_div_comden_add_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     (sf : list (_ * list (fifo_elem α))),
   List.Forall
@@ -1062,36 +1141,32 @@ Lemma den_div_comden_add_sum_right : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → den_divides_comden cd (power t₁)
-          → List.Forall
-              (λ sum_fel,
-               List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
-                 (snd sum_fel))
-              (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
-                 fel).
+        → List.Forall
+            (λ sum_fel,
+             List.Forall (λ fe, den_divides_comden cd (power (fe_t₁ fe)))
+               (snd sum_fel))
+            (add_right mul_coeff (insert_sum (power t₁ + power t₂) fe sf)
+               fel).
 Proof.
-intros α mul_coeff cd t₁ t₂ sum fe fel sf Hfdd Ht₁ Ht₂ Hdd.
-revert cd t₁ t₂ sum fe sf Hfdd Ht₁ Ht₂ Hdd.
+intros α mul_coeff cd t₁ t₂ sum fe fel sf Hfdd Ht₁ Ht₂.
+apply list_Forall_inv in Hfdd.
+destruct Hfdd as (Hfdd, Hffdd).
+apply list_Forall_inv in Hfdd.
+destruct Hfdd as (Hdd₁, Hfdd).
+revert t₁ t₂ fe sf Hdd₁ Hffdd Ht₁ Ht₂.
 induction fel as [| fe₁]; intros; simpl.
- apply list_Forall_inv in Hfdd.
- destruct Hfdd as (Hfdd, Hffdd).
- apply den_div_comden_all_insert_sum; assumption.
+ subst t₁ t₂.
+ apply den_div_comden_all_insert_sum; try assumption; reflexivity.
 
- apply list_Forall_inv in Hfdd.
- destruct Hfdd as (Hfdd, Hffdd).
- simpl in Hfdd.
- apply list_Forall_inv in Hfdd.
- destruct Hfdd as (Hdd₁, Hfdd).
  apply list_Forall_inv in Hfdd.
  destruct Hfdd as (Hdd₂, Hfdd).
  remember (fe_s₂ fe₁) as ss₂.
  destruct ss₂ as [tt₂ ss₂| ].
-  apply IHfel with (sum := sum); try reflexivity; try assumption.
-  constructor; [ constructor; assumption | idtac ].
-  apply den_div_comden_all_insert_sum; assumption.
+  apply IHfel; try reflexivity; try assumption.
+  subst t₁ t₂.
+  apply den_div_comden_all_insert_sum; try assumption; reflexivity.
 
-  apply IHfel with (sum := sum); try assumption.
-  constructor; [ constructor; assumption | assumption ].
+  apply IHfel; assumption.
 Qed.
 
 Lemma den_div_comden_add_sum_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
@@ -1103,7 +1178,7 @@ Lemma den_div_comden_add_sum_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
     [(sum, [fe … fel]) … sf]
     → t₁ = fe_t₁ fe
       → t₂ = fe_t₂ fe
-        → den_divides_comden cd (power t₁)
+        → den_divides_comden cd (power t₂)
           → List.Forall
               (λ sum_fel,
                List.Forall
@@ -1113,10 +1188,30 @@ Lemma den_div_comden_add_sum_below : ∀ α mul_coeff cd t₁ t₂ sum fe fel
                  (insert_sum (power t₁ + power t₂) fe sf)
                  fel).
 Proof.
-Admitted. (*
+bbb.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hfdd Ht₁ Ht₂ Hdd.
 revert cd t₁ t₂ sum fe sf Hfdd Ht₁ Ht₂ Hdd.
 induction fel as [| fe₁]; intros; simpl.
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hfdd, Hffdd).
+ apply den_div_comden_all_insert_sum; try assumption.
+ apply list_Forall_inv in Hfdd.
+ rewrite <- Ht₁ in Hfdd.
+ destruct Hfdd; assumption.
+
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hfdd, Hffdd).
+ simpl in Hfdd.
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hdd₁, Hfdd).
+ apply list_Forall_inv in Hfdd.
+ destruct Hfdd as (Hdd₂, Hfdd).
+ remember (fe_s₁ fe₁) as ss₁.
+ destruct ss₁ as [tt₁ ss₁| ].
+  apply IHfel with (sum := sum); try reflexivity; try assumption.
+   constructor.
+    constructor.
+     simpl.
 bbb.
 *)
 
@@ -1133,7 +1228,35 @@ Lemma den_div_comden_add_below :
          (snd sum_fel))
       (add_below mul_coeff sf fel).
 Proof.
+Abort. (*
+intros α mul_coeff cd fel sf Hffdd.
+induction fel as [| fe].
+ simpl.
+ assumption.
+
+ simpl.
+ remember (fe_s₁ fe) as ss₁.
+ destruct ss₁.
+  apply den_div_comden_add_sum_below with (sum := 0).
+   constructor.
+    simpl.
+    constructor.
+     simpl.
+     Focus 2.
+     Unfocus.
+     Focus 3.
+     assumption.
+
+     Focus 3.
+     reflexivity.
+
+    Focus 3.
+    reflexivity.
+
+   Focus 4.
+   assumption.
 bbb.
+*)
 
 (**)
 Lemma zzz : ∀ α add_coeff mul_coeff cd₁ cd₂
@@ -1228,6 +1351,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
     destruct Hs₁ as (Hs₁, Hsf₁).
     apply den_div_comden_add_sum_right with (sum := sum); try reflexivity.
      constructor; [ constructor; assumption | idtac ].
+bbb.
      apply den_div_comden_add_sum_below with (sum := sum); try reflexivity.
       constructor; [ constructor; assumption | assumption ].
 
