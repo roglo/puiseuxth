@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.754 2013-06-22 10:48:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.755 2013-06-22 10:58:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1176,7 +1176,7 @@ Definition ms_mul_term α add_coeff mul_coeff (s₁ s₂ : series α) :=
 
 Record math_puiseux_series α :=
   { ms_terms : series α;
-    ms_valuation : option Q;
+    ms_valuation : option Z;
     ms_comden : positive }.
 
 Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) :=
@@ -1186,7 +1186,7 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        match ms_valuation ms₁ with
        | Some v₁ =>
            match ms_valuation ms₂ with
-           | Some v₂ => Some (v₁ * v₂)
+           | Some v₂ => Some (v₁ * v₂)%Z
            | None => None
            end
        | None => None
@@ -1194,15 +1194,23 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
      ms_comden :=
        Pos.mul (ms_comden ms₁) (ms_comden ms₂) |}.
 
-Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α).
-Proof.
-bbb.
-*)
+Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
+  let cofix loop p s :=
+    match s with
+    | Term c ns =>
+        Term {| coeff := c; power := p # ms_comden ms |}
+          (loop (p + ' ms_comden ms)%Z ns)
+    | End =>
+        End _
+    end
+  in
+  match ms_valuation ms with
+  | Some v => loop v (ms_terms ms)
+  | None => End _
+  end.
 
 Definition ms_terms_of_ps α (ps : puiseux_series α) : series α.
-Proof.
 bbb.
-*)
 
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
