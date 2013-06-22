@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.144 2013-06-22 15:13:05 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.145 2013-06-22 17:18:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -309,7 +309,7 @@ Definition ms_of_ps α zero is_zero (ps : puiseux_series α) :=
        ms_terms_of_ps zero ps;
      ms_valnum :=
        match valuation is_zero ps with
-       | Some v => Some (Qnum (Qmult v (inject_Z (Zpos (ps_comden ps)))))
+       | Some v => Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
        | None => None
        end;
      ms_comden :=
@@ -327,6 +327,15 @@ Definition ps_mul α zero is_zero add_coeff mul_coeff
   ps_of_ms
     (ms_mul add_coeff mul_coeff (ms_of_ps zero is_zero ps₁)
       (ms_of_ps zero is_zero ps₂)).
+
+Definition ps_mul α zero is_zero add_coeff mul_coeff
+    (ps₁ ps₂ : puiseux_series α) :=
+  let ps₁ := ps_of_ms (ms_of_ps zero is_zero ps₁) in
+  let ps₂ := ps_of_ms (ms_of_ps zero is_zero ps₂) in
+  {| ps_terms :=
+       ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂);
+     ps_comden :=
+       I.mul (ps_comden ps₁) (ps_comden ps₂) |}.
 *)
 
 (**)
@@ -350,11 +359,13 @@ value ops2ps ops =
 ;
 
 value ps2ops ps =
-  let rec loop ms =
-    match ms with
-    | Term m₁ ms₁ → [m₁ … loop (Lazy.force ms₁)]
-    | End → []
-    end
+  let rec loop lim ms =
+    if lim = 0 then []
+    else
+      match ms with
+      | Term m₁ ms₁ → [m₁ … loop (lim - 1) (Lazy.force ms₁)]
+      | End → []
+      end
   in
-  {old_ps_mon = loop ps.ps_terms}
+  {old_ps_mon = loop (-1) ps.ps_terms}
 ;
