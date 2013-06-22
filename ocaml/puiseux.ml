@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.356 2013-06-14 03:06:16 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.357 2013-06-22 15:13:05 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -23,6 +23,7 @@ value zero fld = fld.zero;
 value one fld = fld.one;
 value add fld = fld.add;
 value mul fld = fld.mul;
+value is_zero fld = fld.is_zero;
 value pos_to_nat x = x;
 
 Record algeb_closed_field α β :=
@@ -249,7 +250,8 @@ value norm fld f x y = fld.ext.normalise (f x y);
 
 Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add (norm fld (add fld)))
-    (ps_mul (norm fld (add fld)) (norm fld (mul fld)));
+    (ps_mul (zero fld) (is_zero fld) (norm fld (add fld))
+       (norm fld (mul fld)));
 
 Definition apply_poly_with_ps_poly (fld : field α _) pol :=
   apply_poly
@@ -258,7 +260,7 @@ Definition apply_poly_with_ps_poly (fld : field α _) pol :=
     (pol_mul
        {| ps_terms := End; ps_comden := I.one |}
        (ps_add (add fld))
-       (ps_mul (add fld) (mul fld)))
+       (ps_mul (zero fld) (is_zero fld) (add fld) (mul fld)))
     pol;
 
 Definition float_round_zero fld ps :=

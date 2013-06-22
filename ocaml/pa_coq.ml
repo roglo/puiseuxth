@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.43 2013-06-14 01:46:58 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.44 2013-06-22 15:13:05 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -97,7 +97,10 @@ EXTEND
     [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t) ] ]
   ;
   ctyp: LEVEL "simple"
-    [ [ UIDENT "Q" → <:ctyp< Q.t >> ] ]
+    [ [ UIDENT "Q" → <:ctyp< Q.t >>
+      | UIDENT "Z" → <:ctyp< I.t >>
+      | LIDENT "positive" → <:ctyp< I.t >>
+      | LIDENT "nat" → <:ctyp< int >> ] ]
   ;
   label_ident:
     [ [ i = LIDENT → i
@@ -141,11 +144,19 @@ EXTEND
     [ [ UIDENT "Decidable"; "."; LIDENT "dec_and" →
           <:expr< $lid:"&&"$ >>
       | UIDENT "Nat"; "."; LIDENT "lcm" →
-          <:expr< I.lcm >> ] ]
+          <:expr< I.lcm >>
+      | UIDENT "Z"; "."; LIDENT "add" →
+          <:expr< I.add >>
+      | UIDENT "Z"; "."; LIDENT "mul" →
+          <:expr< I.mul >>
+      | UIDENT "Pos"; "."; LIDENT "mul" →
+          <:expr< I.mul >> ] ]
   ;
   expr: LEVEL "apply"
     [ [ UIDENT "Term"; e₁ = NEXT; e₂ = NEXT →
           <:expr< Term $e₁$ (lazy $e₂$) >>
+      | UIDENT "Zpos"; e = NEXT →
+          e
       | e = SELF; "_" →
           e ] ]
   ;
@@ -159,6 +170,8 @@ EXTEND
           <:expr< { $_list:lel$ } >>
       | "["; el = LIST1 expr SEP ";"; last = cons_expr_opt; "]" ->
           mklistexp loc last el
+      | UIDENT "Qlt_le_dec" →
+         <:expr< Q.lt >>
       | LIDENT "eq_nat_dec" →
          <:expr< $lid:"="$ >>
       | LIDENT "lt_dec" →
@@ -171,6 +184,8 @@ EXTEND
          <:expr< Q.le >>
       | UIDENT "Zcompare" →
           <:expr< zcompare >>
+      | UIDENT "Qmake" →
+          <:expr< Q.make >>
       | UIDENT "Qcompare" →
           <:expr< qcompare >>
       | UIDENT "Qmult" →
@@ -189,6 +204,8 @@ EXTEND
           <:expr< Q.norm >>
       | UIDENT "Qnat" →
           <:expr< qnat >>
+      | LIDENT "inject_Z" →
+          <:expr< Q.of_i >>
       | UIDENT "O" →
           <:expr< 0 >>
       | UIDENT "S" →
@@ -219,9 +236,6 @@ EXTEND
   ;
   patt: LEVEL "simple"
     [ [ UIDENT "O" → <:patt< 0 >> ] ]
-  ;
-  ctyp: LEVEL "simple"
-    [ [ LIDENT "nat" → <:ctyp< int >> ] ]
   ;
   coq_match_case:
     [ [ "|"; p = patt; "=>"; e = coq_expr →

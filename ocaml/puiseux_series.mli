@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.23 2013-06-04 09:39:49 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.24 2013-06-22 15:13:05 deraugla Exp $ *)
 
 open Pnums;
 
@@ -20,9 +20,9 @@ value ps_add :
 (** [ps_add add_coeff p₁ p₂] *)
 
 value ps_mul :
-  (α → α → α) → (α → α → α) → puiseux_series α → puiseux_series α →
-    puiseux_series α;
-(** [ps_mul add_coeff mul_coeff p₁ p₂] *)
+  α → (α → bool) → (α → α → α) → (α → α → α) → puiseux_series α
+  → puiseux_series α → puiseux_series α;
+(** [ps_mul zero_coeff is_zero_coeff add_coeff mul_coeff p₁ p₂] *)
 
 value series_nth_tl : int → series α → option (series α);
 value series_map : (α → β) → series α → series β;
