@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.756 2013-06-22 11:05:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.757 2013-06-22 14:26:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1209,13 +1209,32 @@ Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
   | None => End _
   end.
 
-Definition ms_terms_of_ps α (ps : puiseux_series α) : series α.
-bbb.
-*)
+CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
+  match s with
+  | Term t ns =>
+      let p₁ := p + (1 # ps_comden ps) in
+      if Qlt_le_dec p₁ (power t) then
+        Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
+      else
+        Term t ns
+  | End =>
+      End _
+  end.
+
+Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
+  let cofix loop s :=
+    match s with
+    | Term t ns => Term (coeff t) (loop (complete zero ps (power t) ns))
+    | End => End _
+    end
+  in
+  loop (ps_terms ps).
 
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
 Proof.
+cofix IHs.
+intros α ms.
 bbb.
 *)
 
@@ -1224,9 +1243,9 @@ Definition ps_of_ms α (ms : math_puiseux_series α) :=
      ps_comden := ms_comden ms;
      ps_prop := ps_prop_of_ms ms |}.
 
-Definition ms_of_ps α (ps : puiseux_series α) :=
+Definition ms_of_ps α zero (ps : puiseux_series α) :=
   {| ms_terms :=
-        ms_terms_of_ps ps;
+        ms_terms_of_ps zero ps;
      ms_valnum :=
        match valuation ps with
        | Some v => Some (Qnum (v * inject_Z (Zpos (ps_comden ps))))
@@ -1235,8 +1254,11 @@ Definition ms_of_ps α (ps : puiseux_series α) :=
      ms_comden :=
        ps_comden ps |}.
 
-Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
-  ps_of_ms (ms_mul add_coeff mul_coeff (ms_of_ps ps₁) (ms_of_ps ps₂)).
+Definition ps_mul α zero_coeff add_coeff mul_coeff
+    (ps₁ ps₂ : puiseux_series α) :=
+  ps_of_ms
+    (ms_mul add_coeff mul_coeff (ms_of_ps zero_coeff ps₁)
+      (ms_of_ps zero_coeff ps₂)).
 
 (*
 CoInductive EqSer α eq_elem is_null (s₁ s₂ : series α) : Prop :=
