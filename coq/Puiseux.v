@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.753 2013-06-22 02:50:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.754 2013-06-22 10:48:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -874,6 +874,7 @@ induction fel as [| fe₁]; intros; simpl.
    Focus 2.
    apply IHfel; assumption.
 simpl.
+Abort. (*
 bbb.
 *)
 
@@ -1094,10 +1095,12 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
    rename t into tt₂.
    Focus 1.
 
+Abort. (*
 bbb.
     apply den_div_comden_add_sum_right₂ with (sum := sum); try reflexivity.
 *)
 
+(*
 Lemma series_forall_mul : ∀ α (add_coeff : α → α → α) mul_coeff s₁ s₂ cd₁ cd₂,
   series_forall (pow_den_div_com_den cd₁) s₁
   → series_forall (pow_den_div_com_den cd₂) s₂
@@ -1126,6 +1129,145 @@ eapply zzz; try eassumption.
  constructor; [ simpl | constructor ].
  constructor; [ assumption | constructor ].
 Qed.
+*)
+
+Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ s₂ :=
+  match ni₁ with
+  | O => None
+  | S ni =>
+      match sum_mul_coeff add_coeff mul_coeff (S i) ni s₁ s₂ with
+      | Some c =>
+          match series_nth i s₁ with
+          | Some c₁ =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some (add_coeff (mul_coeff c₁ c₂) c)
+              | None => Some (add_coeff c₁ c)
+              end
+          | None =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some (add_coeff c₂ c)
+              | None => Some c
+              end
+          end
+      | None =>
+          match series_nth i s₁ with
+          | Some c₁ =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some (mul_coeff c₁ c₂)
+              | None => Some c₁
+              end
+          | None =>
+              match series_nth ni s₂ with
+              | Some c₂ => Some c₂
+              | None => None
+              end
+          end
+      end
+  end.
+
+Definition ms_mul_term α add_coeff mul_coeff (s₁ s₂ : series α) :=
+  let cofix mul_loop n₁ :=
+    match sum_mul_coeff add_coeff mul_coeff 0 n₁ s₁ s₂ with
+    | Some c => Term c (mul_loop (S n₁))
+    | None => End _
+    end
+  in
+  mul_loop 1%nat.
+
+Record math_puiseux_series α :=
+  { ms_terms : series α;
+    ms_valuation : option Q;
+    ms_comden : positive }.
+
+Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) :=
+  {| ms_terms :=
+       ms_mul_term add_coeff mul_coeff (ms_terms ms₁) (ms_terms ms₂);
+     ms_valuation :=
+       match ms_valuation ms₁ with
+       | Some v₁ =>
+           match ms_valuation ms₂ with
+           | Some v₂ => Some (v₁ * v₂)
+           | None => None
+           end
+       | None => None
+       end;
+     ms_comden :=
+       Pos.mul (ms_comden ms₁) (ms_comden ms₂) |}.
+
+Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α).
+Proof.
+bbb.
+*)
+
+Definition ms_terms_of_ps α (ps : puiseux_series α) : series α.
+Proof.
+bbb.
+*)
+
+Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
+  series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
+Proof.
+bbb.
+*)
+
+Definition ps_of_ms α (ms : math_puiseux_series α) :=
+  {| ps_terms := ps_terms_of_ms ms;
+     ps_comden := ms_comden ms;
+     ps_prop := ps_prop_of_ms ms |}.
+
+Definition ms_of_ps α (ps : puiseux_series α) :=
+  {| ms_terms := ms_terms_of_ps ps;
+     ms_valuation := valuation ps;
+     ms_comden := ps_comden ps |}.
+
+Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
+  ps_of_ms (ms_mul add_coeff mul_coeff (ms_of_ps ps₁) (ms_of_ps ps₂)).
+
+(*
+CoInductive EqSer α eq_elem is_null (s₁ s₂ : series α) : Prop :=
+  | eq_end : s₁ = End _ → s₂ = End _ → EqSer eq_elem is_null s₁ s₂
+  | eq_term : ∀ tt₁ tt₂ ss₁ ss₂,
+      s₁ = Term tt₁ ss₁
+      → s₂ = Term tt₂ ss₂
+        → eq_elem tt₁ tt₂
+          → EqSer eq_elem is_null ss₁ ss₂
+            → EqSer eq_elem is_null s₁ s₂
+  | eq_null_term_l : ∀ tt₁ ss₁,
+      s₁ = Term tt₁ ss₁
+      → is_null tt₁
+        → EqSer eq_elem is_null ss₁ s₂
+          → EqSer eq_elem is_null s₁ s₂
+  | eq_null_term_r : ∀ tt₂ ss₂,
+      s₂ = Term tt₂ ss₂
+      → is_null tt₂
+        → EqSer eq_elem is_null s₁ ss₂
+          → EqSer eq_elem is_null s₁ s₂.
+
+Lemma zzz : ∀ α add_coeff mul_coeff eq_coeff null_coeff ps₁ ps₂,
+  EqSer (eq_term eq_coeff) (is_null_term_coeff null_coeff)
+    (ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂))
+    (ps_terms
+       (ps_of_ms (ms_mul add_coeff mul_coeff (ms_of_ps ps₁) (ms_of_ps ps₂)))).
+Proof.
+bbb.
+
+Lemma ms_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ms₁ ms₂,
+  series_forall
+    (pow_den_div_com_den (ms_comden ps₁ * ms_comden ps₂))
+    (ps_term_of_ms_term
+       (ms_mul_term add_coeff mul_coeff (ms_terms ms₁) (ms_terms ms₂))).
+Proof.
+bbb.
+
+Lemma ps_ms_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
+  series_forall
+    (pow_den_div_com_den (ps_comden ps₁ * ps_comden ps₂))
+    (ps_term_of_ms_term
+       (ms_mul_term add_coeff mul_coeff
+          (ms_term_of_ps_term (ps_terms ps₁))
+          (ms_term_of_ps_term (ps_terms ps₂)))).
+Proof.
+bbb.
 
 Theorem ps_prop_mul : ∀ α (add_coeff : α → α → α) mul_coeff ps₁ ps₂,
   series_forall
@@ -1143,6 +1285,7 @@ Definition ps_mul α add_coeff mul_coeff (ps₁ ps₂ : puiseux_series α) :=
        ps_comden ps₁ * ps_comden ps₂;
      ps_prop :=
        ps_prop_mul add_coeff mul_coeff ps₁ ps₂ |}.
+*)
 
 Fixpoint insert_pol_term α (add_coeff : α → α → α) c₁ p₁ ml :=
   match ml with
