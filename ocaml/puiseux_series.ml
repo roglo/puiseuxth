@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.146 2013-06-22 17:23:05 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.147 2013-06-22 23:08:31 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -269,7 +269,7 @@ Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
     match s with
     | Term c ns =>
         Term {| coeff := c; power := Qmake p (ms_comden ms) |}
-          (loop (Z.add p (Zpos (ms_comden ms))) ns)
+          (loop (Z.add p I.one) ns)
     | End =>
         End _
     end
@@ -309,8 +309,10 @@ Definition ms_of_ps α zero is_zero (ps : puiseux_series α) :=
        ms_terms_of_ps zero ps;
      ms_valnum :=
        match valuation is_zero ps with
-       | Some v => Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
-       | None => None
+       | Some v =>
+           Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
+       | None =>
+           None
        end;
      ms_comden :=
        ps_comden ps |}.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.758 2013-06-22 16:51:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.759 2013-06-22 23:09:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1199,7 +1199,7 @@ Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
     match s with
     | Term c ns =>
         Term {| coeff := c; power := Qmake p (ms_comden ms) |}
-          (loop (Z.add p (Zpos (ms_comden ms))) ns)
+          (loop (Z.add p 1) ns)
     | End =>
         End _
     end
