@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.757 2013-06-22 14:26:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.758 2013-06-22 16:51:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1186,7 +1186,7 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ => Some (v₁ * v₂)%Z
+           | Some v₂ => Some (Z.mul v₁ v₂)
            | None => None
            end
        | None => None
@@ -1198,8 +1198,8 @@ Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
   let cofix loop p s :=
     match s with
     | Term c ns =>
-        Term {| coeff := c; power := p # ms_comden ms |}
-          (loop (p + ' ms_comden ms)%Z ns)
+        Term {| coeff := c; power := Qmake p (ms_comden ms) |}
+          (loop (Z.add p (Zpos (ms_comden ms))) ns)
     | End =>
         End _
     end
@@ -1212,7 +1212,7 @@ Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
 CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
   match s with
   | Term t ns =>
-      let p₁ := p + (1 # ps_comden ps) in
+      let p₁ := Qplus p (Qmake 1 (ps_comden ps)) in
       if Qlt_le_dec p₁ (power t) then
         Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
       else
@@ -1248,7 +1248,7 @@ Definition ms_of_ps α zero (ps : puiseux_series α) :=
         ms_terms_of_ps zero ps;
      ms_valnum :=
        match valuation ps with
-       | Some v => Some (Qnum (v * inject_Z (Zpos (ps_comden ps))))
+       | Some v => Some (Qnum (Qmult v (inject_Z (Zpos (ps_comden ps)))))
        | None => None
        end;
      ms_comden :=
