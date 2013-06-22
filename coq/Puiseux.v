@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.752 2013-06-22 02:17:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.753 2013-06-22 02:50:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -838,27 +838,34 @@ Lemma den_div_comden_add_sum_right₂ : ∀ α mul_coeff cd t₁ t₂ sum fe fel
                  fel).
 Proof.
 intros α mul_coeff cd t₁ t₂ sum fe fel sf Hffp Hfdd Ht₁ Ht₂.
+clear Hffp.
 apply list_Forall_inv in Hfdd.
 destruct Hfdd as (Hfdd, Hffdd).
 apply list_Forall_inv in Hfdd.
 destruct Hfdd as (Hdd₁, Hfdd).
+(*
 apply list_Forall_inv in Hffp.
 destruct Hffp as (Hfp, Hffp).
 apply list_Forall_inv in Hfp.
 destruct Hfp as (Hp, Hfp).
-revert t₁ t₂ fe sf Hp Hffp Hdd₁ Hffdd Ht₁ Ht₂.
+*)
+revert t₁ t₂ fe sf (*Hp Hffp*) Hdd₁ Hffdd Ht₁ Ht₂.
 induction fel as [| fe₁]; intros; simpl.
  subst t₁ t₂.
  apply den_div_comden_all_insert_sum; try assumption; reflexivity.
 
  apply list_Forall_inv in Hfdd.
  destruct Hfdd as (Hdd₂, Hfdd).
+(*
  apply list_Forall_inv in Hfp.
  destruct Hfp as (Hp₂, Hfp).
+*)
  remember (fe_s₂ fe₁) as ss₂.
  destruct ss₂ as [tt₂ ss₂| ].
+(*
   apply series_forall_inv in Hp₂.
   destruct Hp₂ as (Hp₂, Hfp₂).
+*)
   apply IHfel; try reflexivity; try assumption.
    subst t₁ t₂.
    Focus 2.
@@ -866,6 +873,7 @@ induction fel as [| fe₁]; intros; simpl.
 
    Focus 2.
    apply IHfel; assumption.
+simpl.
 bbb.
 *)
 
