@@ -1,9 +1,10 @@
-(* $Id: puiseux_series.ml,v 1.151 2013-06-23 16:46:04 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.152 2013-06-23 17:03:51 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Printf;
 
+open Coq;
 open Pnums;
 open Series;
 
@@ -12,21 +13,7 @@ Record puiseux_series α :=
   { ps_terms : series (term α);
     ps_comden : I.t };
 
-type comparison = [ Eq | Lt | Gt ];
-
 value mult = I.mul;
-value qcompare q₁ q₂ =
-  let c = Q.compare q₁ q₂ in
-  if c < 0 then Lt
-  else if c = 0 then Eq
-  else Gt
-;
-value zcompare x₁ x₂ =
-  let c = I.compare x₁ x₂ in
-  if c < 0 then Lt
-  else if c = 0 then Eq
-  else Gt
-;
 
 value rec series_head is_zero s =
   match s with

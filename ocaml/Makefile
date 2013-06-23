@@ -1,7 +1,7 @@
-# $Id: Makefile,v 1.15 2013-06-23 16:46:04 deraugla Exp $
+# $Id: Makefile,v 1.16 2013-06-23 17:03:51 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
-FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly.cmo poly_tree.cmo roots.cmo series.cmo puiseux_series.cmo puiseux.cmo
+FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly.cmo poly_tree.cmo roots.cmo series.cmo coq.cmo puiseux_series.cmo convex_hull.cmo puiseux.cmo
 UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo poly.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
 TEST_DIR=test `basename "$<"` = "$<" || { echo "File \"$<\" needs to be recompiled."; echo "Please run 'make' in directory '$$(dirname "$<")' first."; exit 1; }
@@ -28,10 +28,11 @@ opt: q_def_expr.cmo $(TARGET:.out=.opt)
 
 top: ocaml_puiseux
 
+convex_hull.cmx: pa_coq.cmo
 poly.cmx: pa_coq.cmo
 puiseux.cmx: pa_coq.cmo
 puiseux_series.cmx: pa_coq.cmo
-series: pa_coq.cmo
+series.cmx: pa_coq.cmo
 
 puiseux.out: $(FILES)
 	$(OCAMLC) -custom -I +camlp5 $(CPOLY_OBJS) $(LIB) $(FILES) $(LINKFLAGS) -o $@

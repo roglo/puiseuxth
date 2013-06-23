@@ -1,3 +1,7 @@
+convex_hull.cmo: coq.cmo pnums.cmi
+convex_hull.cmx: coq.cmx pnums.cmx
+coq.cmo: pnums.cmi
+coq.cmx: pnums.cmx
 field.cmi: pnums.cmi
 pnums.cmo: ../cpoly/cpoly.cmi pnums.cmi
 pnums.cmx: ../cpoly/cpoly.cmx pnums.cmi
@@ -16,14 +20,14 @@ poly_tree.cmo: field.cmi pnums.cmi poly.cmi poly_print.cmo poly_tree.cmi \
 poly_tree.cmx: field.cmi pnums.cmx poly.cmx poly_print.cmx poly_tree.cmi \
     puiseux_series.cmx
 poly_tree.cmi: field.cmi pnums.cmi poly.cmi puiseux_series.cmi
-puiseux.cmo: ../cpoly/cpoly.cmi field.cmi pnums.cmi poly.cmi poly_lex.cmo \
-    poly_parse.cmo poly_print.cmo poly_tree.cmi puiseux_series.cmi roots.cmi \
-    series.cmi version.cmo
-puiseux.cmx: ../cpoly/cpoly.cmx field.cmi pnums.cmx poly.cmx poly_lex.cmx \
-    poly_parse.cmx poly_print.cmx poly_tree.cmx puiseux_series.cmx roots.cmx \
-    series.cmx version.cmx
-puiseux_series.cmo: pnums.cmi puiseux_series.cmi series.cmi
-puiseux_series.cmx: pnums.cmx puiseux_series.cmi series.cmx
+puiseux.cmo: ../cpoly/cpoly.cmi convex_hull.cmo field.cmi pnums.cmi poly.cmi \
+    poly_lex.cmo poly_parse.cmo poly_print.cmo poly_tree.cmi \
+    puiseux_series.cmi roots.cmi series.cmi version.cmo
+puiseux.cmx: ../cpoly/cpoly.cmx convex_hull.cmx field.cmi pnums.cmx poly.cmx \
+    poly_lex.cmx poly_parse.cmx poly_print.cmx poly_tree.cmx \
+    puiseux_series.cmx roots.cmx series.cmx version.cmx
+puiseux_series.cmo: coq.cmo pnums.cmi puiseux_series.cmi series.cmi
+puiseux_series.cmx: coq.cmx pnums.cmx puiseux_series.cmi series.cmx
 puiseux_series.cmi: pnums.cmi series.cmi
 roots.cmo: field.cmi pnums.cmi poly.cmi poly_fun.cmi poly_tree.cmi roots.cmi
 roots.cmx: field.cmi pnums.cmx poly.cmx poly_fun.cmx poly_tree.cmx roots.cmi
