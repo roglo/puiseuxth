@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.761 2013-06-23 08:08:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.762 2013-06-23 11:22:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1248,8 +1248,10 @@ Definition ms_of_ps α zero (ps : puiseux_series α) :=
         ms_terms_of_ps zero ps;
      ms_valnum :=
        match valuation ps with
-       | Some v => Some (Qnum (Qmult v (inject_Z (Zpos (ps_comden ps)))))
-       | None => None
+       | Some v =>
+           Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
+       | None =>
+           None
        end;
      ms_comden :=
        ps_comden ps |}.
