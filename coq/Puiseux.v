@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.764 2013-06-23 12:10:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.765 2013-06-23 12:22:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1194,18 +1194,18 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
      ms_comden :=
        Pos.mul (ms_comden ms₁) (ms_comden ms₂) |}.
 
-CoFixpoint term_of_ms α (ms : math_puiseux_series α) p (s : series α) :=
+CoFixpoint term_of_ms α cd p (s : series α) :=
   match s with
   | Term c ns =>
-      Term {| coeff := c; power := Qmake p (ms_comden ms) |}
-        (term_of_ms ms (Z.succ p) ns)
+      Term {| coeff := c; power := Qmake p cd |}
+        (term_of_ms cd (Z.succ p) ns)
   | End =>
       End _
   end.
 
 Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
   match ms_valnum ms with
-  | Some v => term_of_ms ms v (ms_terms ms)
+  | Some v => term_of_ms (ms_comden ms) v (ms_terms ms)
   | None => End _
   end.
 
@@ -1230,6 +1230,13 @@ Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
   in
   loop (series_head (ps_terms ps)).
 
+Lemma zzz : ∀ α cd (s : series α) p t ns,
+  term_of_ms cd p s = Term t ns
+  → den_divides_comden cd (power t).
+Proof.
+intros α cd s v t ns Ht.
+bbb.
+
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
 Proof.
@@ -1242,7 +1249,10 @@ destruct s.
   unfold ps_terms_of_ms in Heqs.
   remember (ms_valnum ms) as v.
   symmetry in Heqv.
-  destruct v as [v| ].
+  destruct v as [v| ]; [ idtac | discriminate Heqs ].
+  unfold pow_den_div_com_den.
+  eapply zzz; eassumption.
+
 bbb.
 *)
 
