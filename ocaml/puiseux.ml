@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.361 2013-06-23 14:10:56 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.362 2013-06-23 16:46:04 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -13,6 +13,7 @@ open Poly_tree;
 open Poly;
 open Puiseux_series;
 open Roots;
+open Series;
 
 type choice α β =
   [ Left of α

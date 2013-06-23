@@ -1,8 +1,7 @@
-(* $Id: puiseux_series.mli,v 1.25 2013-06-23 14:10:56 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.26 2013-06-23 16:46:04 deraugla Exp $ *)
 
 open Pnums;
-
-type series α = [ Term of α and Lazy.t (series α) | End ];
+open Series;
 
 type term α = { coeff : α; power : Q.t };
 value coeff : term α → α;
@@ -24,8 +23,6 @@ value ps_mul :
   → puiseux_series α → puiseux_series α;
 (** [ps_mul zero_coeff is_zero_coeff add_coeff mul_coeff p₁ p₂] *)
 
-value series_nth_tl : int → series α → option (series α);
-value series_map : (α → β) → series α → series β;
 value series_head : (α → bool) → series (term α) → series (term α);
 
 type comparison = [ Eq | Lt | Gt ];

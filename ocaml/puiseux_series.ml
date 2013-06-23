@@ -1,11 +1,11 @@
-(* $Id: puiseux_series.ml,v 1.150 2013-06-23 11:45:19 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.151 2013-06-23 16:46:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Printf;
-open Pnums;
 
-type series α = [ Term of α and Lazy.t (series α) | End ];
+open Pnums;
+open Series;
 
 Record term α := { coeff : α; power : Q };
 Record puiseux_series α :=
@@ -66,40 +66,6 @@ Definition ps_add (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
   {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂) |}.
-
-Definition series_hd (s : series α) :=
-  match s with
-  | Term a _ => Some a
-  | End => None
-  end.
-
-Definition series_tl (s : series α) : option (series α) :=
-  match s with
-  | Term _ t => Some t
-  | End => None
-  end.
-
-Fixpoint series_nth_tl (n : nat) (s : series α) : option (series α) :=
-  match n with
-  | O => Some s
-  | S m =>
-      match series_tl s with
-      | None => None
-      | Some t => series_nth_tl m t
-      end
-  end.
-
-Definition series_nth (n : nat) (s : series α) : option α :=
-  match series_nth_tl n s with
-  | None => None
-  | Some t => series_hd t
-  end.
-
-CoFixpoint series_map (f : α → β) s :=
-  match s with
-  | Term a t => Term (f a) (series_map f t)
-  | End => End _
-  end.
 
 (* ps_mul *)
 
