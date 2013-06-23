@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.359 2013-06-23 08:05:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.360 2013-06-23 14:04:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -253,12 +253,12 @@ Definition apply_poly_with_ps (fld : field α _) :=
     (ps_mul (zero fld) (is_zero fld) (norm fld (add fld))
        (norm fld (mul fld)));
 
-Definition apply_poly_with_ps_poly (fld : field α _) pol :=
+Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
     (pol_mul
-       {| ps_terms := End; ps_comden := I.one |}
+       {| ps_terms := End _; ps_comden := I.one |}
        (ps_add (add fld))
        (ps_mul (zero fld) (is_zero fld) (add fld) (mul fld)))
     pol.

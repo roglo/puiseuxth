@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.769 2013-06-23 13:34:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.770 2013-06-23 14:04:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1221,14 +1221,25 @@ CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
       End _
   end.
 
-Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
+Definition ms_terms_of_ps α zero is_zero (ps : puiseux_series α) :=
   let cofix loop s :=
     match s with
     | Term t ns => Term (coeff t) (loop (complete zero ps (power t) ns))
     | End => End _
     end
   in
-  loop (series_head (ps_terms ps)).
+  loop (series_head is_zero (ps_terms ps)).
+
+Lemma term_of_ms_succ : ∀ α cd p (s : series α) s₁ t t₁,
+  term_of_ms cd p (Term t s) = Term t₁ s₁
+  → s₁ = term_of_ms cd (Z.succ p) s.
+Proof.
+intros α cd p s s₁ t t₁ Ht.
+symmetry in Ht.
+rewrite series_eta in Ht.
+injection Ht; clear Ht; intros Ht H.
+assumption.
+Qed.
 
 Lemma term_of_ms_power : ∀ α cd (s : series α) p t ns,
   term_of_ms cd p s = Term t ns
@@ -1255,17 +1266,6 @@ remember Z.mul as f; simpl; subst f.
 apply Z.mul_comm.
 Qed.
 
-Lemma term_of_ms_succ : ∀ α cd p (s : series α) s₁ t t₁,
-  term_of_ms cd p (Term t s) = Term t₁ s₁
-  → s₁ = term_of_ms cd (Z.succ p) s.
-Proof.
-intros α cd p s s₁ t t₁ Ht.
-symmetry in Ht.
-rewrite series_eta in Ht.
-injection Ht; clear Ht; intros Ht H.
-assumption.
-Qed.
-
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
 Proof.
@@ -1285,23 +1285,25 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
  symmetry in Heqt.
  eapply term_of_ms_comden; eassumption.
 
- symmetry in Heqt.
  destruct s.
+  symmetry in Heqt.
   apply term_of_ms_succ in Heqt.
   eapply IHs; eassumption.
-bbb.
-*)
+
+  rewrite series_eta in Heqt.
+  discriminate Heqt.
+Qed.
 
 Definition ps_of_ms α (ms : math_puiseux_series α) :=
   {| ps_terms := ps_terms_of_ms ms;
      ps_comden := ms_comden ms;
      ps_prop := ps_prop_of_ms ms |}.
 
-Definition ms_of_ps α zero (ps : puiseux_series α) :=
+Definition ms_of_ps α fld (ps : puiseux_series α) :=
   {| ms_terms :=
-        ms_terms_of_ps zero ps;
+       ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
-       match valuation ps with
+       match valuation fld ps with
        | Some v =>
            Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
        | None =>
@@ -1310,11 +1312,8 @@ Definition ms_of_ps α zero (ps : puiseux_series α) :=
      ms_comden :=
        ps_comden ps |}.
 
-Definition ps_mul α zero_coeff add_coeff mul_coeff
-    (ps₁ ps₂ : puiseux_series α) :=
-  ps_of_ms
-    (ms_mul add_coeff mul_coeff (ms_of_ps zero_coeff ps₁)
-      (ms_of_ps zero_coeff ps₂)).
+Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+  ps_of_ms (ms_mul (add fld) (mul fld) (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
 
 (*
 CoInductive EqSer α eq_elem is_null (s₁ s₂ : series α) : Prop :=
@@ -1446,9 +1445,10 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
     (pol_mul
-       {| ps_terms := End _; ps_comden := 1 |}
+       {| ps_terms := End (term α); ps_comden := 1;
+          ps_prop := bbb |}
        (ps_add (add fld))
-       (ps_mul (add fld) (mul fld)))
+       (ps_mul fld))
     pol.
 
 Definition mul_x_power_minus α p (ps : puiseux_series α) :=
