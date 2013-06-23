@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.765 2013-06-23 12:22:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.766 2013-06-23 12:31:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1230,12 +1230,24 @@ Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
   in
   loop (series_head (ps_terms ps)).
 
+Lemma yyy : ∀ α cd (s : series α) p t ns,
+  term_of_ms cd p s = Term t ns
+  → power t = p # cd.
+Proof.
+intros α cd s v t ns Ht.
+bbb.
+
 Lemma zzz : ∀ α cd (s : series α) p t ns,
   term_of_ms cd p s = Term t ns
   → den_divides_comden cd (power t).
 Proof.
 intros α cd s v t ns Ht.
-bbb.
+apply yyy in Ht.
+rewrite Ht.
+exists v.
+remember Z.mul as f; simpl; subst f.
+apply Z.mul_comm.
+qed.
 
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
