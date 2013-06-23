@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.763 2013-06-23 11:45:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.764 2013-06-23 12:10:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1239,10 +1239,10 @@ remember (ps_terms_of_ms ms) as s.
 destruct s.
  eapply TermAndFurther; [ reflexivity | idtac | idtac ].
   symmetry in Heqs.
-  unfold pow_den_div_com_den.
-  unfold den_divides_comden.
-  unfold Z.divide.
   unfold ps_terms_of_ms in Heqs.
+  remember (ms_valnum ms) as v.
+  symmetry in Heqv.
+  destruct v as [v| ].
 bbb.
 *)
 
