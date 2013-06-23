@@ -1,7 +1,7 @@
-(* $Id: poly.mli,v 1.42 2013-05-30 20:10:53 deraugla Exp $ *)
+(* $Id: poly.mli,v 1.43 2013-06-23 19:39:28 deraugla Exp $ *)
 
 type polynomial α = { al : list α; an : α };
-value mkpol : unit → list α → α → polynomial α;
+value mkpol : list α → α → polynomial α;
 value al : polynomial α → list α;
 value an : polynomial α → α;
 

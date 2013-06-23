@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.775 2013-06-23 19:33:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.776 2013-06-23 19:39:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -486,10 +486,6 @@ Definition pol_mul_x_power_minus α fld p
   let cl := List.map (mul_x_power_minus fld p) (al pol) in
   let cn := mul_x_power_minus fld p (an pol) in
   {| al := cl; an := cn |}.
-
-(*
-Definition pos_to_nat := Pos.to_nat.
-*)
 
 Definition f₁ α (fld : field α) (f : polynomial (puiseux_series α)) β γ c :=
   let y :=

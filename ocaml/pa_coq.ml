@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.46 2013-06-23 17:34:52 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.47 2013-06-23 19:39:28 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -77,10 +77,12 @@ EXTEND
                     (fun (loc, i, _, _) e → <:expr< fun $lid:i$ → $e$ >>)
                     (unvala ldl) <:expr< {$list:ll$} >>
                 in
+(*
                 let e =
                   List.fold_right (fun _ e → <:expr< fun () → $e$ >>)
                     (unvala tpl) e
                 in
+*)
                 let d = <:str_item< value $lid:c$ = $e$ >> in
                 [d :: dl]
             | None → dl
