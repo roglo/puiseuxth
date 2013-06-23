@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.360 2013-06-23 14:04:07 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.361 2013-06-23 14:10:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -46,13 +46,9 @@ value nofq q =
      decidable.
    Must be an axiom in the Coq version.
    Here applied to the set C roughly corresponding the the complex numbers. *)
-value rec series_head s =
-  match s with
-  | Term m t →
-      let c = C.float_round_zero m.coeff in
-      if C.eq C.zero c then series_head (Lazy.force t) else s
-  | End → End
-  end;
+value series_head s =
+  Puiseux_series.series_head (fun c → C.eq C.zero (C.float_round_zero c)) s
+;
 
 Definition valuation (ps : puiseux_series α) :=
   match series_head (ps_terms ps) with
