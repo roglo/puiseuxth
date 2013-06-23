@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.767 2013-06-23 12:36:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.768 2013-06-23 13:28:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1255,22 +1255,36 @@ remember Z.mul as f; simpl; subst f.
 apply Z.mul_comm.
 Qed.
 
+Lemma zzz : ∀ α cd p (s : series α) s₁ t t₁,
+  term_of_ms cd p (Term t s) = Term t₁ s₁
+  → s₁ = term_of_ms cd (Z.succ p) s.
+Proof.
+intros α cd p s s₁ t t₁.
+bbb.
+
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
 Proof.
-cofix IHs.
 intros α ms.
-remember (ps_terms_of_ms ms) as s.
-destruct s.
- eapply TermAndFurther; [ reflexivity | idtac | idtac ].
-  symmetry in Heqs.
-  unfold ps_terms_of_ms in Heqs.
-  remember (ms_valnum ms) as v.
-  symmetry in Heqv.
-  destruct v as [v| ]; [ idtac | discriminate Heqs ].
-  unfold pow_den_div_com_den.
-  eapply term_of_ms_comden; eassumption.
+unfold ps_terms_of_ms.
+remember (ms_valnum ms) as p.
+destruct p as [p| ]; [ idtac | constructor; reflexivity ].
+remember (ms_comden ms) as cd; clear Heqcd.
+remember (ms_terms ms) as s; clear Heqs.
+clear Heqp.
+remember (term_of_ms cd p s) as t.
+clear ms.
+revert p cd s t Heqt.
+cofix IHs; intros.
+destruct t; [ idtac | constructor; reflexivity ].
+eapply TermAndFurther; [ reflexivity | idtac | idtac ].
+ symmetry in Heqt.
+ eapply term_of_ms_comden; eassumption.
 
+ symmetry in Heqt.
+ destruct s.
+  apply zzz in Heqt.
+  eapply IHs; eassumption.
 bbb.
 *)
 
