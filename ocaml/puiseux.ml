@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.363 2013-06-23 17:03:51 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.364 2013-06-23 17:34:52 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -22,11 +22,6 @@ type choice α β =
   | Right of β ]
 ;
 
-value zero fld = fld.zero;
-value one fld = fld.one;
-value add fld = fld.add;
-value mul fld = fld.mul;
-value is_zero fld = fld.is_zero;
 value pos_to_nat x = x;
 
 Record algeb_closed_field α β :=
@@ -41,36 +36,32 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
-(* [series_head] skip the possible terms with null coefficients and return
-   the sub-series whose the of the first term is not null.
-   - may infinitely loop when the series have an infinite number of terms
-     with null coefficient;
-   - suppose that the comparison with 0 in the field of the coefficient is
-     decidable.
-   Must be an axiom in the Coq version.
-   Here applied to the set C roughly corresponding the the complex numbers. *)
-value series_head s =
-  Puiseux_series.series_head (fun c → C.eq C.zero (C.float_round_zero c)) s
-;
-
-Definition valuation (ps : puiseux_series α) :=
-  match series_head (ps_terms ps) with
-  | Term mx _ => Some (power mx)
-  | End => None
+Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
+  match psl with
+  | [ps₁ … psl₁] =>
+      [(Qnat pow, ps₁) … all_points_of_ps_polynom (S pow) psl₁ psn]
+  | [] =>
+      [(Qnat pow, psn)]
   end.
 
-Definition valuation_coeff fld (ps : puiseux_series α) :=
-  match series_head (ps_terms ps) with
-  | Term mx _ => coeff mx
-  | End => zero fld
+Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
+  match dpl with
+  | [(pow, ps) … dpl₁] =>
+      match valuation fld ps with
+      | Some v => [(pow, v) … filter_non_zero_ps fld dpl₁]
+      | None => filter_non_zero_ps fld dpl₁
+      end
+  | [] =>
+      []
   end.
 
-Fixpoint list_map_pairs (f : α → α → β) l :=
-  match l with
-  | [] => []
-  | [x₁] => []
-  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs f l₁]
-  end.
+Definition points_of_ps_polynom_gen α fld pow cl (cn : puiseux_series α) :=
+  filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn).
+
+Definition points_of_ps_polynom α fld (pol : polynomial (puiseux_series α)) :=
+  points_of_ps_polynom_gen fld 0%nat (al pol) (an pol).
+
+(* *)
 
 Record newton_segment := mkns
   { γ : Q;
@@ -79,30 +70,12 @@ Record newton_segment := mkns
     fin_pt : (Q * Q);
     oth_pts : list (Q * Q) };
 
-Fixpoint all_points_of_ps_polynom pow psl (psn : puiseux_series α) :=
-  match psl with
-  | [ps₁ … psl₁] =>
-      [(Qnat pow, ps₁) … all_points_of_ps_polynom (S pow) psl₁ psn]
-  | [] =>
-      [(Qnat pow, psn)]
+Fixpoint list_map_pairs α β (f : α → α → β) l :=
+  match l with
+  | [] => []
+  | [x₁] => []
+  | [x₁ … ([x₂ … l₂] as l₁)] => [f x₁ x₂ … list_map_pairs f l₁]
   end.
-
-Fixpoint filter_non_zero_ps (dpl : list (Q * puiseux_series α)) :=
-  match dpl with
-  | [(pow, ps) … dpl₁] =>
-      match valuation ps with
-      | Some v => [(pow, v) … filter_non_zero_ps dpl₁]
-      | None => filter_non_zero_ps dpl₁
-      end
-  | [] =>
-      []
-  end.
-
-Definition points_of_ps_polynom_gen pow cl (cn : puiseux_series α) :=
-  filter_non_zero_ps (all_points_of_ps_polynom pow cl cn);
-
-Definition points_of_ps_polynom (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_polynom_gen 0%nat (al pol) (an pol);
 
 Definition newton_segment_of_pair hsj hsk :=
   let αj := snd (pt hsj) in
@@ -113,9 +86,9 @@ Definition newton_segment_of_pair hsj hsk :=
   let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
   mkns γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition newton_segments (pol : polynomial (puiseux_series α)) :=
-  let gdpl := points_of_ps_polynom pol in
-  list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl);
+Definition newton_segments α fld (pol : polynomial (puiseux_series α)) :=
+  let gdpl := points_of_ps_polynom fld pol in
+  list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 
 value start_red () = if cut_long_strings.val then "" else "\027[31m";
 value end_red () = if cut_long_strings.val then "" else "\027[m";
@@ -290,11 +263,11 @@ value make_solution rev_cγl =
   {ps_terms = t; ps_comden = d}
 ;
 
-Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
+Definition zero_is_root fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match series_head (ps_terms ps) with
+      match series_head (is_zero fld) (ps_terms ps) with
       | Term _ _ => false
       | End => true
       end
@@ -364,7 +337,7 @@ Definition characteristic_polynomial (fld : field α _) pol ns :=
   {| al := cl; an := valuation_coeff fld kps |}.
 
 Definition puiseux_step psumo acf (pol : polynomial (puiseux_series α)) :=
-  let nsl₁ := newton_segments pol in
+  let nsl₁ := newton_segments (ac_field acf) pol in
   let (nsl, psum) :=
     match psumo with
     | Some psum =>
@@ -388,7 +361,7 @@ CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
   match puiseux_step psumo acf pol with
   | Some (t, pol₁) =>
       Term t
-        (if zero_is_root pol₁ then End _
+        (if zero_is_root (ac_field acf) pol₁ then End _
          else puiseux_loop (Some (power t)) acf pol₁)
   | None =>
       End _
@@ -422,7 +395,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
     let s = cut_long True s in
     printf "  %s\n%!" s
   else ();
-  let finite = zero_is_root pol in
+  let finite = zero_is_root fld pol in
   let cγl = [(r, γ) … br.cγl] in
   if br.rem_steps = 0 || finite then do {
     if verbose.val then do {
@@ -479,7 +452,7 @@ value rec puiseux_branch af br sol_list ns =
       sol_list rl
 
 and next_step af br sol_list pol cγl =
-  let gbl = newton_segments pol in
+  let gbl = newton_segments (ac_field af) pol in
   let gbl_f = List.filter (fun ns → not (Q.le (γ ns) Q.zero)) gbl in
   if gbl_f = [] then do {
     if verbose.val then do {
@@ -525,7 +498,7 @@ in
 let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
 let _ = verbose.val := vv in
 *)
-  let gbl = newton_segments pol in
+  let gbl = newton_segments (ac_field af) pol in
   if gbl = [] then failwith "no finite γ value"
   else
     let rem_steps = nb_steps - 1 in
@@ -711,7 +684,8 @@ value af_c () =
   in
   let fc =
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
-     mul x y = C.normalise (C.mul x y); div = C.div; is_zero = C.eq C.zero;
+     mul x y = C.normalise (C.mul x y); div = C.div;
+     is_zero c = C.eq C.zero (C.float_round_zero c);
      ext = ext}
   in
   {ac_field = fc; ac_roots = roots fc}

@@ -1,4 +1,4 @@
-(* $Id: field.mli,v 1.30 2013-06-03 02:11:33 deraugla Exp $ *)
+(* $Id: field.ml,v 1.3 2013-06-23 17:34:52 deraugla Exp $ *)
 
 open Pnums;
 
@@ -13,6 +13,12 @@ type field α β =
     is_zero : α → bool;
     ext : β }
 ;
+
+value zero fld = fld.zero;
+value one fld = fld.one;
+value add fld = fld.add;
+value mul fld = fld.mul;
+value is_zero fld = fld.is_zero;
 
 type ext α β =
   { minus_one : α;

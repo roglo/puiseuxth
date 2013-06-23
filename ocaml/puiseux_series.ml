@@ -1,10 +1,11 @@
-(* $Id: puiseux_series.ml,v 1.152 2013-06-23 17:03:51 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.153 2013-06-23 17:34:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Printf;
 
 open Coq;
+open Field;
 open Pnums;
 open Series;
 
@@ -23,13 +24,19 @@ value rec series_head is_zero s =
       End
   end;
 
-Definition valuation is_zero (ps : puiseux_series α) :=
-  match series_head is_zero (ps_terms ps) with
+Definition valuation α fld (ps : puiseux_series α) :=
+  match series_head (is_zero fld) (ps_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
   end.
 
-CoFixpoint ps_add_loop (add_coeff : α → α → α) ms₁ ms₂ :=
+Definition valuation_coeff α fld (ps : puiseux_series α) :=
+  match series_head (is_zero fld) (ps_terms ps) with
+  | Term mx _ => coeff mx
+  | End => zero fld
+  end.
+
+CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   match ms₁ with
   | Term c₁ s₁ =>
       match ms₂ with
@@ -49,10 +56,10 @@ CoFixpoint ps_add_loop (add_coeff : α → α → α) ms₁ ms₂ :=
   | End => ms₂
   end.
 
-Definition ps_add (add_coeff : α → α → α) (ps₁ : puiseux_series α)
+Definition ps_add α (add_coeff : α → α → α) (ps₁ : puiseux_series α)
     (ps₂ : puiseux_series α) :=
   {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := Nat.lcm (ps_comden ps₁) (ps_comden ps₂) |}.
+     ps_comden := Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
 
 (* ps_mul *)
 
@@ -154,6 +161,8 @@ Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
   | End => End _
   end.
 
+(* other version *)
+
 Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ s₂ :=
   match ni₁ with
   | O => None
@@ -217,18 +226,17 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
      ms_comden :=
        Pos.mul (ms_comden ms₁) (ms_comden ms₂) |}.
 
+CoFixpoint term_of_ms α cd p (s : series α) :=
+  match s with
+  | Term c ns =>
+      Term {| coeff := c; power := Qmake p cd |} (term_of_ms cd (Z.succ p) ns)
+  | End =>
+      End _
+  end.
+
 Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
-  let cofix loop p s :=
-    match s with
-    | Term c ns =>
-        Term {| coeff := c; power := Qred (Qmake p (ms_comden ms)) |}
-          (loop (Z.succ p) ns)
-    | End =>
-        End _
-    end
-  in
   match ms_valnum ms with
-  | Some v => loop v (ms_terms ms)
+  | Some v => term_of_ms (ms_comden ms) v (ms_terms ms)
   | None => End _
   end.
 
@@ -236,18 +244,10 @@ CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
   match s with
   | Term t ns =>
       let p₁ := Qplus p (Qmake I.one (ps_comden ps)) in
-(*
       if Qlt_le_dec p₁ (power t) then
         Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
       else
         Term t ns
-*)
-      match Qcompare p₁ (power t) with
-      | Eq => Term t ns
-      | Lt => Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
-      | Gt => assert False
-      end
-(**)
   | End =>
       End _
   end.
@@ -265,11 +265,11 @@ Definition ps_of_ms α (ms : math_puiseux_series α) :=
   {| ps_terms := ps_terms_of_ms ms;
      ps_comden := ms_comden ms |}.
 
-Definition ms_of_ps α zero is_zero (ps : puiseux_series α) :=
+Definition ms_of_ps α fld (ps : puiseux_series α) :=
   {| ms_terms :=
-       ms_terms_of_ps zero is_zero ps;
+       ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
-       match valuation is_zero ps with
+       match valuation fld ps with
        | Some v =>
 (*
 let _ := printf "  val %s comden %s\n%!" (Q.to_string v) (I.ts (ps_comden ps)) in
@@ -294,13 +294,11 @@ value trace_ps zero is_zero ps =
 ;
 
 (**)
-Definition ps_mul α zero is_zero add_coeff mul_coeff
-    (ps₁ ps₂ : puiseux_series α) :=
-  ps_of_ms
-    (ms_mul add_coeff mul_coeff (ms_of_ps zero is_zero ps₁)
-      (ms_of_ps zero is_zero ps₂)).
+Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+  ps_of_ms (ms_mul (add fld) (mul fld) (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
 
-(**)
+(* *)
+
 Definition ps_mul α zero is_zero add_coeff mul_coeff
     (ps₁ ps₂ : puiseux_series α) :=
 (*

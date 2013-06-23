@@ -1,7 +1,7 @@
-# $Id: Makefile,v 1.16 2013-06-23 17:03:51 deraugla Exp $
+# $Id: Makefile,v 1.17 2013-06-23 17:34:52 deraugla Exp $
 
 TARGET=puiseux.out ugly.out
-FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly.cmo poly_tree.cmo roots.cmo series.cmo coq.cmo puiseux_series.cmo convex_hull.cmo puiseux.cmo
+FILES=pnums.cmo poly_lex.cmo poly_parse.cmo poly_print.cmo poly_fun.cmo version.cmo poly.cmo poly_tree.cmo roots.cmo series.cmo coq.cmo field.cmo puiseux_series.cmo convex_hull.cmo puiseux.cmo
 UFILES=pnums.cmo poly_print.cmo poly_lex.cmo poly_parse.cmo poly.cmo poly_tree.cmo ugly.cmo
 FILESFORDEP=`LC_ALL=C ls *.ml *.mli`
 TEST_DIR=test `basename "$<"` = "$<" || { echo "File \"$<\" needs to be recompiled."; echo "Please run 'make' in directory '$$(dirname "$<")' first."; exit 1; }
