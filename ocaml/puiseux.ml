@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.358 2013-06-22 17:18:52 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.359 2013-06-23 08:05:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -358,10 +358,16 @@ Definition f₁ (fld : field α _) f β γ c :=
          {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
             ps_comden := pos_to_nat (Qden γ) |} |}
   in
+(*
+let s := string_of_ps_polyn fld True True "u" "v" f in
+let _ := printf "\n  ⎧ f(u,v) = %s\n%!" s in
+let s := string_of_ps_polyn fld True True "u" "v" y in
+let _ := printf "  ⎨ v₁ = %s\n%!" s in
+*)
   let pol := apply_poly_with_ps_poly fld f y in
 (*
 let s := string_of_ps_polyn fld True True "u" "v" pol in
-let _ := printf "  %s\n%!" s in
+let _ := printf "  ⎩ f(u,v₁) = %s\n\n%!" s in
 *)
   pol_mul_x_power_minus β pol;
 

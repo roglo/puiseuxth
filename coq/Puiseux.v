@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.759 2013-06-22 23:09:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.760 2013-06-23 08:05:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1186,7 +1186,7 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ => Some (Z.mul v₁ v₂)
+           | Some v₂ => Some (Z.add v₁ v₂)
            | None => None
            end
        | None => None

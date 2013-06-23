@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.147 2013-06-22 23:08:31 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.148 2013-06-23 08:05:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -256,7 +256,7 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ => Some (Z.mul v₁ v₂)
+           | Some v₂ => Some (Z.add v₁ v₂)
            | None => None
            end
        | None => None
@@ -268,7 +268,7 @@ Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
   let cofix loop p s :=
     match s with
     | Term c ns =>
-        Term {| coeff := c; power := Qmake p (ms_comden ms) |}
+        Term {| coeff := c; power := Qred (Qmake p (ms_comden ms)) |}
           (loop (Z.add p I.one) ns)
     | End =>
         End _
@@ -283,22 +283,30 @@ CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
   match s with
   | Term t ns =>
       let p₁ := Qplus p (Qmake I.one (ps_comden ps)) in
+(*
       if Qlt_le_dec p₁ (power t) then
         Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
       else
         Term t ns
+*)
+      match Qcompare p₁ (power t) with
+      | Eq => Term t ns
+      | Lt => Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
+      | Gt => assert False
+      end
+(**)
   | End =>
       End _
   end.
 
-Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
+Definition ms_terms_of_ps α zero is_zero (ps : puiseux_series α) :=
   let cofix loop s :=
     match s with
     | Term t ns => Term (coeff t) (loop (complete zero ps (power t) ns))
     | End => End _
     end
   in
-  loop (ps_terms ps).
+  loop (series_head is_zero (ps_terms ps)).
 
 Definition ps_of_ms α (ms : math_puiseux_series α) :=
   {| ps_terms := ps_terms_of_ms ms;
@@ -306,10 +314,11 @@ Definition ps_of_ms α (ms : math_puiseux_series α) :=
 
 Definition ms_of_ps α zero is_zero (ps : puiseux_series α) :=
   {| ms_terms :=
-       ms_terms_of_ps zero ps;
+       ms_terms_of_ps zero is_zero ps;
      ms_valnum :=
        match valuation is_zero ps with
        | Some v =>
+let _ := printf "  val %s comden %s\n%!" (Q.to_string v) (I.ts (ps_comden ps)) in
            Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
        | None =>
            None
@@ -317,18 +326,34 @@ Definition ms_of_ps α zero is_zero (ps : puiseux_series α) :=
      ms_comden :=
        ps_comden ps |}.
 
-(*
+value trace_ps zero is_zero ps =
+  loop (ps_terms ps) where rec loop s =
+    match s with
+    | Term t s₁ → do {
+        printf "Term {c=%s;p=%s} %!" (C.to_string False (Obj.magic t.coeff))
+          (Q.to_string t.power);
+        loop (Lazy.force s₁)
+      }
+    | End → printf "End\n%!"
+    end
+;
+
+(**)
 Definition ps_mul α zero is_zero add_coeff mul_coeff
     (ps₁ ps₂ : puiseux_series α) :=
   ps_of_ms
     (ms_mul add_coeff mul_coeff (ms_of_ps zero is_zero ps₁)
       (ms_of_ps zero is_zero ps₂)).
-*)
 
+(**)
 Definition ps_mul α zero is_zero add_coeff mul_coeff
     (ps₁ ps₂ : puiseux_series α) :=
 (*
+let _ := printf "changing:\n  %!" in
+let _ := trace_ps zero is_zero ps₁ in
   let ps₁ := ps_of_ms (ms_of_ps zero is_zero ps₁) in
+let _ := printf "  %!" in
+let _ := trace_ps zero is_zero ps₁ in
   let ps₂ := ps_of_ms (ms_of_ps zero is_zero ps₂) in
 *)
   {| ps_terms :=
