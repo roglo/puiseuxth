@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.773 2013-06-23 18:11:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.774 2013-06-23 18:38:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -550,32 +550,40 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
        (ps_mul fld))
     pol.
 
-Definition mul_x_power_minus α p (ps : puiseux_series α) :=
-  let t :=
-    series_map
-      (λ m, {| coeff := coeff m; power := Qred (Qminus (power m) p) |})
-      (ps_terms ps)
+Definition mul_x_power_minus α fld p (ps : puiseux_series α) :=
+  let ms₁ := ms_of_ps fld ps in
+  let ms₂ :=
+    {| ms_terms := ms_terms ms₁;
+       ms_valnum :=
+         match ms_valnum ms₁ with
+         | Some v => Some (v - p)%Z
+         | None => None
+         end;
+       ms_comden := ms_comden ms₁ |}
   in
-  {| ps_terms := t; ps_comden := ps_comden ps; ps_prop := bbb |}.
+  ps_of_ms ms₂.
 
-Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
-  let cl := List.map (mul_x_power_minus p) (al pol) in
-  let cn := mul_x_power_minus p (an pol) in
+Definition pol_mul_x_power_minus α fld p
+    (pol : polynomial (puiseux_series α)) :=
+  let cl := List.map (mul_x_power_minus fld p) (al pol) in
+  let cn := mul_x_power_minus fld p (an pol) in
   {| al := cl; an := cn |}.
 
+(*
 Definition pos_to_nat := Pos.to_nat.
+*)
 
 Definition f₁ α (fld : field α) (f : polynomial (puiseux_series α)) β γ c :=
   let y :=
     {| al :=
          [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
-             ps_comden := pos_to_nat (Qden γ) |}];
+             ps_comden := Qden γ |}];
        an :=
          {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
-            ps_comden := pos_to_nat (Qden γ) |} |}
+            ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
-  pol_mul_x_power_minus β pol.
+  pol_mul_x_power_minus fld β pol.
 
 (* *)
 
