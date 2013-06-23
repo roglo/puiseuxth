@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.148 2013-06-23 08:05:21 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.149 2013-06-23 08:13:45 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -318,7 +318,9 @@ Definition ms_of_ps α zero is_zero (ps : puiseux_series α) :=
      ms_valnum :=
        match valuation is_zero ps with
        | Some v =>
+(*
 let _ := printf "  val %s comden %s\n%!" (Q.to_string v) (I.ts (ps_comden ps)) in
+*)
            Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
        | None =>
            None

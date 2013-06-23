@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.760 2013-06-23 08:05:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.761 2013-06-23 08:08:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1228,7 +1228,7 @@ Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
     | End => End _
     end
   in
-  loop (ps_terms ps).
+  loop (series_head (ps_terms ps)).
 
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
