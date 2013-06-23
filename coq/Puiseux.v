@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.768 2013-06-23 13:28:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.769 2013-06-23 13:34:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1255,12 +1255,16 @@ remember Z.mul as f; simpl; subst f.
 apply Z.mul_comm.
 Qed.
 
-Lemma zzz : ∀ α cd p (s : series α) s₁ t t₁,
+Lemma term_of_ms_succ : ∀ α cd p (s : series α) s₁ t t₁,
   term_of_ms cd p (Term t s) = Term t₁ s₁
   → s₁ = term_of_ms cd (Z.succ p) s.
 Proof.
-intros α cd p s s₁ t t₁.
-bbb.
+intros α cd p s s₁ t t₁ Ht.
+symmetry in Ht.
+rewrite series_eta in Ht.
+injection Ht; clear Ht; intros Ht H.
+assumption.
+Qed.
 
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
@@ -1283,7 +1287,7 @@ eapply TermAndFurther; [ reflexivity | idtac | idtac ].
 
  symmetry in Heqt.
  destruct s.
-  apply zzz in Heqt.
+  apply term_of_ms_succ in Heqt.
   eapply IHs; eassumption.
 bbb.
 *)
