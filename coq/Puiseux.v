@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.772 2013-06-23 16:52:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.773 2013-06-23 18:11:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -545,8 +545,7 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
     (pol_mul
-       {| ps_terms := End (term α); ps_comden := 1;
-          ps_prop := bbb |}
+       (ps_of_ms {| ms_terms := End α; ms_valnum := None; ms_comden := 1 |})
        (ps_add (add fld))
        (ps_mul fld))
     pol.
@@ -557,7 +556,7 @@ Definition mul_x_power_minus α p (ps : puiseux_series α) :=
       (λ m, {| coeff := coeff m; power := Qred (Qminus (power m) p) |})
       (ps_terms ps)
   in
-  {| ps_terms := t; ps_comden := ps_comden ps |}.
+  {| ps_terms := t; ps_comden := ps_comden ps; ps_prop := bbb |}.
 
 Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
   let cl := List.map (mul_x_power_minus p) (al pol) in
