@@ -1,17 +1,10 @@
-(* $Id: poly.ml,v 1.60 2013-06-14 01:46:58 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.61 2013-06-23 19:27:22 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
+open Coq;
+
 Record polynomial α := mkpol { al : list α; an : α };
-
-type comparison = [ Eq | Lt | Gt ];
-
-value nat_compare i₁ i₂ =
-  let c = compare i₁ i₂ in
-  if c < 0 then Lt
-  else if c = 0 then Eq
-  else Gt
-;
 
 Definition pol_add (add_coeff : α → α → α) pol₁ pol₂ :=
   let fix loop al₁ al₂ :=
