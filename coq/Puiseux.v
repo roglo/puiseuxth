@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.766 2013-06-23 12:31:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.767 2013-06-23 12:36:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1230,24 +1230,30 @@ Definition ms_terms_of_ps α zero (ps : puiseux_series α) :=
   in
   loop (series_head (ps_terms ps)).
 
-Lemma yyy : ∀ α cd (s : series α) p t ns,
+Lemma term_of_ms_power : ∀ α cd (s : series α) p t ns,
   term_of_ms cd p s = Term t ns
   → power t = p # cd.
 Proof.
 intros α cd s v t ns Ht.
-bbb.
+symmetry in Ht.
+unfold term_of_ms in Ht.
+rewrite series_eta in Ht.
+destruct s; [ idtac | discriminate Ht ].
+injection Ht; clear Ht; intros _ H.
+subst t; reflexivity.
+Qed.
 
-Lemma zzz : ∀ α cd (s : series α) p t ns,
+Lemma term_of_ms_comden : ∀ α cd (s : series α) p t ns,
   term_of_ms cd p s = Term t ns
   → den_divides_comden cd (power t).
 Proof.
 intros α cd s v t ns Ht.
-apply yyy in Ht.
+apply term_of_ms_power in Ht.
 rewrite Ht.
 exists v.
 remember Z.mul as f; simpl; subst f.
 apply Z.mul_comm.
-qed.
+Qed.
 
 Theorem ps_prop_of_ms : ∀ α (ms : math_puiseux_series α),
   series_forall (pow_den_div_com_den (ms_comden ms)) (ps_terms_of_ms ms).
@@ -1263,7 +1269,7 @@ destruct s.
   symmetry in Heqv.
   destruct v as [v| ]; [ idtac | discriminate Heqs ].
   unfold pow_den_div_com_den.
-  eapply zzz; eassumption.
+  eapply term_of_ms_comden; eassumption.
 
 bbb.
 *)
