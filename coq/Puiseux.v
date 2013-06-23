@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.771 2013-06-23 14:31:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.772 2013-06-23 16:52:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,8 +7,9 @@ Require Import NPeano.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Puiseux_base.
+Require Import Field.
 Require Import Misc.
+Require Import Puiseux_base.
 Require Import Series.
 
 Set Implicit Arguments.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.33 2013-06-23 14:04:07 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.34 2013-06-23 16:52:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -9,21 +9,15 @@ Require Import NPeano.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
+Require Import Field.
 Require Import Misc.
-Require Import Series.
 Require Import Newton.
+Require Import Series.
 
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
 Set Implicit Arguments.
-
-Record field α :=
-  { zero : α;
-    one : α;
-    add : α → α → α;
-    mul : α → α → α;
-    is_zero : α → bool }.
 
 (* polynomial of degree ≥ 0 *)
 Record polynomial α := mkpol { al : list α; an : α }.

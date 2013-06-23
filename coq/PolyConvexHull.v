@@ -1,12 +1,13 @@
-(* $Id: PolyConvexHull.v,v 1.3 2013-06-23 14:04:07 deraugla Exp $ *)
+(* $Id: PolyConvexHull.v,v 1.4 2013-06-23 16:52:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 
-Require Import Puiseux_base.
-Require Import Newton.
+Require Import Field.
 Require Import InSegment.
+Require Import Newton.
 Require Import NotInSegment.
+Require Import Puiseux_base.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
