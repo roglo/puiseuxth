@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.28 2013-06-23 17:34:52 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.29 2013-06-24 02:12:35 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -16,13 +16,12 @@ value ps_terms : puiseux_series α → series (term α);
 value ps_comden : puiseux_series α → I.t;
 
 value ps_add :
-  (α → α → α) → puiseux_series α → puiseux_series α → puiseux_series α;
-(** [ps_add add_coeff p₁ p₂] *)
+  field α (ext α β) → puiseux_series α → puiseux_series α → puiseux_series α;
+(** [ps_add fld p₁ p₂] *)
 
 value ps_mul :
-  α → (α → bool) → (α → α → α) → (α → α → α) → puiseux_series α
-  → puiseux_series α → puiseux_series α;
-(** [ps_mul zero_coeff is_zero_coeff add_coeff mul_coeff p₁ p₂] *)
+  field α (ext α β) → puiseux_series α → puiseux_series α → puiseux_series α;
+(** [ps_mul fld p₁ p₂] *)
 
 value series_head : (α → bool) → series (term α) → series (term α);
 

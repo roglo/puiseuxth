@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.156 2013-06-24 01:55:32 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.157 2013-06-24 02:12:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -39,6 +39,8 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
   | Term mx _ => coeff mx
   | End => zero fld
   end.
+
+value norm fld f x y = fld.ext.normalise (f x y);
 
 (* puiseux_series ↔ math_puiseux_series *)
 
@@ -119,9 +121,11 @@ CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   | End => ms₂
   end.
 
-Definition ps_add α (add_coeff : α → α → α) (ps₁ ps₂ : puiseux_series α) :=
-  {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden := Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
+Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  {| ps_terms :=
+       ps_add_loop (norm fld (add fld)) (ps_terms ps₁) (ps_terms ps₂);
+     ps_comden :=
+       Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
 
 (* ps_mul - math not efficient version *)
 
@@ -297,18 +301,18 @@ value trace_ps zero is_zero ps =
     end
 ;
 
-Definition ps_mul α zero is_zero add_coeff mul_coeff
-    (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
 (*
 let _ := printf "changing:\n  %!" in
 let _ := trace_ps zero is_zero ps₁ in
-  let ps₁ := ps_of_ms (ms_of_ps zero is_zero ps₁) in
+  let ps₁ := ps_of_ms (ms_of_ps fld ps₁) in
 let _ := printf "  %!" in
 let _ := trace_ps zero is_zero ps₁ in
-  let ps₂ := ps_of_ms (ms_of_ps zero is_zero ps₂) in
+  let ps₂ := ps_of_ms (ms_of_ps fld ps₂) in
 *)
   {| ps_terms :=
-       ps_mul_term add_coeff mul_coeff (ps_terms ps₁) (ps_terms ps₂);
+       ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
+         (ps_terms ps₂);
      ps_comden :=
        I.mul (ps_comden ps₁) (ps_comden ps₂) |}.
 (**)

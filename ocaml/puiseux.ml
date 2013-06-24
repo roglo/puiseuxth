@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.364 2013-06-23 17:34:52 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.365 2013-06-24 02:12:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -170,21 +170,16 @@ value airy_string_of_puiseux_series k opt vx ps =
   airy_string_of_tree k opt vx "?" t
 ;
 
-value norm fld f x y = fld.ext.normalise (f x y);
-
 Definition apply_poly_with_ps (fld : field α _) :=
-  apply_poly (λ ps, ps) (ps_add (norm fld (add fld)))
-    (ps_mul (zero fld) (is_zero fld) (norm fld (add fld))
-       (norm fld (mul fld)));
+  apply_poly (λ ps, ps) (ps_add fld) (ps_mul fld).
 
 Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
-    (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
+    (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End _; ps_comden := I.one |}
-       (ps_add (add fld))
-       (ps_mul (zero fld) (is_zero fld) (add fld) (mul fld)))
+       (ps_add fld) (ps_mul fld))
     pol.
 
 Definition float_round_zero fld ps :=

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.778 2013-06-24 01:46:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.779 2013-06-24 02:12:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -22,11 +22,10 @@ Definition degree α (pol : polynomial α) := List.length (al pol).
 Definition apply_poly_with_ps_poly α (fld : field α) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
-    (λ pol ps, pol_add (ps_add (add fld)) pol {| al := []; an := ps |})
+    (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
        (ps_of_ms {| ms_terms := End α; ms_valnum := None; ms_comden := 1 |})
-       (ps_add (add fld))
-       (ps_mul fld))
+       (ps_add fld) (ps_mul fld))
     pol.
 
 Definition mul_x_power_minus α fld p (ps : puiseux_series α) :=

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.3 2013-06-24 01:50:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.4 2013-06-24 02:12:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -416,10 +416,10 @@ intros α add_coeff ps₁ ps₂.
 apply series_forall_add; [ apply (ps_prop ps₁) | apply (ps_prop ps₂) ].
 Qed.
 
-Definition ps_add α (add_coeff : α → α → α) (ps₁ ps₂ : puiseux_series α) :=
-  {| ps_terms := ps_add_loop add_coeff (ps_terms ps₁) (ps_terms ps₂);
+Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  {| ps_terms := ps_add_loop (add fld) (ps_terms ps₁) (ps_terms ps₂);
      ps_comden := Plcm (ps_comden ps₁) (ps_comden ps₂);
-     ps_prop := ps_prop_add add_coeff ps₁ ps₂ |}.
+     ps_prop := ps_prop_add (add fld) ps₁ ps₂ |}.
 
 (* ps_mul *)
 
