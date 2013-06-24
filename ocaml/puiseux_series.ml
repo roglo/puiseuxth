@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.159 2013-06-24 12:54:25 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.160 2013-06-24 12:57:27 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -186,7 +186,8 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
            match ms_valnum ms₂ with
            | Some v₂ =>
                Some
-                 (Z.add (Z.mul v₁ (ms_comden ms₂)) (Z.mul v₂ (ms_comden ms₁)))
+                 (Z.add (Z.mul v₁ (Zpos (ms_comden ms₂)))
+                    (Z.mul v₂ (Zpos (ms_comden ms₁))))
            | None =>
                None
            end
