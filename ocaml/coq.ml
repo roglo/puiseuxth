@@ -1,4 +1,4 @@
-(* $Id: coq.ml,v 1.2 2013-06-23 19:27:22 deraugla Exp $ *)
+(* $Id: coq.ml,v 1.3 2013-06-24 12:54:25 deraugla Exp $ *)
 
 open Pnums;
 
@@ -24,3 +24,5 @@ value nat_compare i₁ i₂ =
   else if c = 0 then Eq
   else Gt
 ;
+
+value arg_test = ref False;

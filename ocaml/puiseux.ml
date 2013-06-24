@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.366 2013-06-24 09:30:31 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.367 2013-06-24 12:54:25 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -8,6 +8,7 @@ open Printf;
 
 open Pnums;
 open Convex_hull;
+open Coq;
 open Field;
 open Poly_parse;
 open Poly_print;
@@ -170,16 +171,58 @@ value airy_string_of_puiseux_series k opt vx ps =
   airy_string_of_tree k opt vx "?" t
 ;
 
+value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
+  let pol = {ml = List.map ps2ops pol.al @ [ps2ops pol.an]} in
+  let t = tree_of_ps_polyn k cancel_zeroes pol in
+  string_of_tree k opt vx vy t
+;
+
+Definition my_apply_poly α β γ fld
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polynomial β) (x : γ) :=
+  List.fold_right
+    (λ c accu,
+       let m := mul_v_x accu x in
+(*
+let saccu := string_of_ps_polyn fld True True "u" "v" accu in
+let sx := string_of_ps_polyn fld True True "u" "v" x in
+let s := string_of_ps_polyn fld True True "u" "v" m in
+let _ := eprintf "mul_v_x accu %s x %s = %s\n%!" saccu sx s in
+let r := (
+*)
+       add_v_coeff m c)
+(*
+in
+let sm := string_of_ps_polyn fld True True "u" "v" m in
+let s := string_of_ps_polyn fld True True "u" "v" r in
+let _ := eprintf "add_v_coeff m %s c %s = %s\n%!" sm "?" s in
+r)
+*)
+    (al pol) (zero_plus_v (an pol)).
+
 Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add fld) (ps_mul fld).
 
 Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
-  apply_poly
+  my_apply_poly fld
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End _; ps_comden := I.one |}
-       (ps_add fld) (ps_mul fld))
+       (ps_add fld)
+       (λ ps₁ ps₂,
+(*
+let s₁ := string_of_puiseux_series fld True True "u" 0 ps₁ in
+let s₂ := string_of_puiseux_series fld True True "u" 0 ps₂ in
+let r := ((
+*)
+          ps_mul fld ps₁ ps₂))
+(*
+in
+let s := string_of_puiseux_series fld True True "u" 0 r in
+let _ := eprintf "mul '%s' '%s' = %s\n%!" s₁ s₂ s in
+r))
+*)
     pol.
 
 Definition float_round_zero fld ps :=
@@ -199,12 +242,6 @@ Definition float_round_zero fld ps :=
     loop (ps_terms ps)
   in
   {ps_terms = s; ps_comden = ps_comden ps};
-
-value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
-  let pol = {ml = List.map ps2ops pol.al @ [ps2ops pol.an]} in
-  let t = tree_of_ps_polyn k cancel_zeroes pol in
-  string_of_tree k opt vx vy t
-;
 
 value print_solution fld br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
@@ -613,6 +650,11 @@ value arg_parse () =
     }
     else if List.mem Sys.argv.(i) ["--prog-lang"; "-l"] then do {
       arg_lang.val := True;
+      loop (i + 1)
+    }
+    else if List.mem Sys.argv.(i) ["--test"; "-t"] then do {
+      (* undocumented *)
+      arg_test.val := True;
       loop (i + 1)
     }
     else if List.mem Sys.argv.(i) ["--verbose"; "-v"] then do {

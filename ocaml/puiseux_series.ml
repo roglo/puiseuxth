@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.158 2013-06-24 09:30:31 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.159 2013-06-24 12:54:25 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -91,9 +91,6 @@ Definition optim_comden ps :=
     end
   in
   let cd := loop I.one (ps_terms ps) in
-(*
-  let _ := if I.eq cd (ps_comden ps) then () else do { eprintf "cd %s optim %s\n%!" (I.ts (ps_comden ps)) (I.ts cd); exit 34 } in
-*)
   if I.eq cd (ps_comden ps) then ps
   else if I.gt cd (ps_comden ps) then assert False
   else if not (I.eq (I.modn (ps_comden ps) cd) I.zero) then assert False
@@ -108,9 +105,6 @@ Definition ms_of_ps α fld (ps : puiseux_series α) :=
      ms_valnum :=
        match valuation fld ps with
        | Some v =>
-(*
-let _ := printf "  val %s comden %s\n%!" (Q.to_string v) (I.ts (ps_comden ps)) in
-*)
            Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
        | None =>
            None
@@ -158,13 +152,9 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
           | Some c₁ =>
               match series_nth ni s₂ with
               | Some c₂ => Some (add_coeff (mul_coeff c₁ c₂) c)
-              | None => Some (add_coeff c₁ c)
-              end
-          | None =>
-              match series_nth ni s₂ with
-              | Some c₂ => Some (add_coeff c₂ c)
               | None => Some c
               end
+          | None => Some c
           end
       | None =>
           match series_nth i s₁ with
@@ -181,13 +171,8 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
 Definition ms_mul_term α add_coeff mul_coeff (s₁ s₂ : series α) :=
   let cofix mul_loop n₁ :=
     match sum_mul_coeff add_coeff mul_coeff 0 n₁ s₁ s₂ with
-    | Some c =>
-(*
-let _ := eprintf "term %d (coeff %s)\n%!" n₁ (C.to_string True (Obj.magic c)) in
-*)
-        Term c (mul_loop (S n₁))
-    | None =>
-        End _
+    | Some c => Term c (mul_loop (S n₁))
+    | None => End _
     end
   in
   mul_loop 1%nat.
@@ -199,8 +184,11 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ => Some (Z.add v₁ v₂)
-           | None => None
+           | Some v₂ =>
+               Some
+                 (Z.add (Z.mul v₁ (ms_comden ms₂)) (Z.mul v₂ (ms_comden ms₁)))
+           | None =>
+               None
            end
        | None => None
        end;
@@ -208,15 +196,7 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        Pos.mul (ms_comden ms₁) (ms_comden ms₂) |}.
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
-let r :=
-  ps_of_ms (ms_mul (add fld) (mul fld) (ms_of_ps fld ps₁) (ms_of_ps fld ps₂))
-in
-(*
-match valuation fld r with
-| Some _ => r
-| None => failwith "glop"
-end.
-*)r.
+  ps_of_ms (ms_mul (add fld) (mul fld) (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
 
 (* ps_mul - efficient version *)
 
@@ -330,6 +310,8 @@ value trace_ps zero is_zero ps =
 ;
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+if arg_test.val then ps_mul fld ps₁ ps₂ else
+
 (*
 let _ := eprintf "changing: (nval %s cden %s)\n  %!" (match valuation fld ps₁ with [ Some v → Q.to_string v | None → "inf" ]) (I.ts (ps_comden ps₁)) in
 let _ := trace_ps zero is_zero ps₁ in
@@ -344,7 +326,7 @@ let _ := trace_ps zero is_zero ps₁ in
      ps_comden :=
        I.mul (ps_comden ps₁) (ps_comden ps₂) |}.
 
-(**)
+(* *)
 
 type old_ps α = { old_ps_mon : list (term α) };
 

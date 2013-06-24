@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.5 2013-06-24 09:31:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.6 2013-06-24 12:57:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -433,13 +433,9 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
           | Some c₁ =>
               match series_nth ni s₂ with
               | Some c₂ => Some (add_coeff (mul_coeff c₁ c₂) c)
-              | None => Some (add_coeff c₁ c)
-              end
-          | None =>
-              match series_nth ni s₂ with
-              | Some c₂ => Some (add_coeff c₂ c)
               | None => Some c
               end
+          | None => Some c
           end
       | None =>
           match series_nth i s₁ with
@@ -469,8 +465,12 @@ Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) 
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ => Some (Z.add v₁ v₂)
-           | None => None
+           | Some v₂ =>
+               Some
+                 (Z.add (Z.mul v₁ (Zpos (ms_comden ms₂)))
+                    (Z.mul v₂ (Zpos (ms_comden ms₁))))
+           | None =>
+               None
            end
        | None => None
        end;
