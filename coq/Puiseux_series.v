@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.2 2013-06-24 01:46:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.3 2013-06-24 01:50:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -155,7 +155,7 @@ Definition ms_terms_of_ps α zero is_zero (ps : puiseux_series α) :=
 
 Definition ms_of_ps α fld (ps : puiseux_series α) :=
   {| ms_terms :=
-         ms_terms_of_ps (zero fld) (is_zero fld) ps;
+       ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
        match valuation fld ps with
        | Some v =>

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.154 2013-06-24 01:46:44 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.155 2013-06-24 01:50:19 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -9,11 +9,11 @@ open Field;
 open Pnums;
 open Series;
 
-Record term α := { coeff : α; power : Q };
+Record term α := { coeff : α; power : Q }.
 
 Record puiseux_series α :=
   { ps_terms : series (term α);
-    ps_comden : I.t };
+    ps_comden : positive }.
 
 Record math_puiseux_series α :=
   { ms_terms : series α;
