@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.779 2013-06-24 02:12:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.780 2013-06-24 02:22:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -51,7 +51,7 @@ Definition f₁ α (fld : field α) (f : polynomial (puiseux_series α)) β γ c
   let y :=
     {| al :=
          [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
-             ps_comden := Qden γ |}];
+             ps_comden := Qden γ; ps_prop := bbb |}];
        an :=
          {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
             ps_comden := Qden γ |} |}
