@@ -1,4 +1,4 @@
-(* $Id: PolyConvexHull.v,v 1.4 2013-06-23 16:52:46 deraugla Exp $ *)
+(* $Id: PolyConvexHull.v,v 1.5 2013-06-24 01:37:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,10 +8,13 @@ Require Import InSegment.
 Require Import Newton.
 Require Import NotInSegment.
 Require Import Puiseux_base.
+Require Import Puiseux_series.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
+Notation "x ∈ l" := (List.In x l) (at level 70).
+Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
 Section puiseux_series.
 

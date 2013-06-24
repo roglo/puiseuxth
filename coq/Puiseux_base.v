@@ -1,58 +1,19 @@
-(* $Id: Puiseux_base.v,v 1.35 2013-06-23 19:33:21 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.36 2013-06-24 01:37:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import Sorting.
-Require Import NPeano.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Field.
 Require Import Misc.
 Require Import Newton.
 Require Import Polynomial.
-Require Import Series.
-
-Notation "x ∈ l" := (List.In x l) (at level 70).
-Notation "x ∉ l" := (not (List.In x l)) (at level 70).
+Require Import Puiseux_series.
 
 Set Implicit Arguments.
-
-Record term α := { coeff : α; power : Q }.
-
-(* [series_head] skip the possible terms with null coefficients and return
-   the sub-series of the initial series whose coefficient of the first term
-   is not null. E.g.: applied to
-       0+0x³+5x⁵+0x⁷+3x⁸+...
-   would return
-       5x⁵+0x⁷+3x⁸+... *)
-Definition series_head : ∀ α, (α → bool) → series (term α) → series (term α).
-Proof. Admitted.
-
-Definition den_divides_comden comden p :=
-  (' Qden p | (Zpos comden * Qnum p))%Z.
-
-Definition pow_den_div_com_den α comden (t : term α) :=
-  den_divides_comden comden (power t).
-
-Record puiseux_series α :=
-  { ps_terms : series (term α);
-    ps_comden : positive;
-    ps_prop : series_forall (pow_den_div_com_den ps_comden) ps_terms }.
-
-Definition valuation α fld (ps : puiseux_series α) :=
-  match series_head (is_zero fld) (ps_terms ps) with
-  | Term mx _ => Some (power mx)
-  | End => None
-  end.
-
-Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match series_head (is_zero fld) (ps_terms ps) with
-  | Term mx _ => coeff mx
-  | End => zero fld
-  end.
 
 Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
