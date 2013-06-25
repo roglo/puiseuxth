@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.162 2013-06-25 03:50:25 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.163 2013-06-25 09:01:41 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -47,7 +47,8 @@ value norm fld f x y = fld.ext.normalise (f x y);
 CoFixpoint term_of_ms α cd p (s : series α) :=
   match s with
   | Term c ns =>
-      Term {| coeff := c; power := Qmake p cd |} (term_of_ms cd (Z.succ p) ns)
+      Term {| coeff := c; power := Qred (Qmake p cd) |}
+        (term_of_ms cd (Z.succ p) ns)
   | End =>
       End _
   end.
@@ -196,32 +197,82 @@ Definition normal fld l cd ms :=
        end;
      ms_comden := l |}.
 
+Definition trace_ms_terms t :=
+  let cofix loop sep n s :=
+    match s with
+    | Term c ss =>
+        if n <= 0 then eprintf "...]%!"
+        else do {
+          eprintf "%s%s%!" sep (C.to_string True (Obj.magic c));
+          loop ";" (n - 1) ss
+        }
+    | End => eprintf "]%!"
+    end
+  in
+  loop "[" 5 t.
+
+value trace_ms_valnum =
+  fun
+  [ Some v → eprintf "%s%!" (I.ts v)
+  | None → eprintf "∞%!" ]
+;
+
+value trace_ms ms = do {
+  eprintf "{t=%!";
+  trace_ms_terms ms.ms_terms;
+  eprintf ";vn=%!";
+  trace_ms_valnum ms.ms_valnum;
+  eprintf ";cd=%s}\n%!" (I.ts (ms_comden ms));
+};
+
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
+(*
 let _ := eprintf "normal ms₁ cd %s l %s\n%!" (I.ts (ms_comden ms₁)) (I.ts l) in
-let _ := eprintf "new cd₁ %d\n%!" (I.to_int (I.div l (ms_comden ms₁))) in
+let _ := eprintf "l/cd %d\n%!" (I.to_int (I.div l (ms_comden ms₁))) in
+let _ := eprintf "ms₁ = " in
+let _ := trace_ms ms₁ in
+*)
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
+(*
+let _ := eprintf "ms₁ = " in
+let _ := trace_ms ms₁ in
 let _ := eprintf "normal ms₂ cd %s l %s\n%!" (I.ts (ms_comden ms₂)) (I.ts l) in
-let _ := eprintf "new cd₂ %d\n%!" (I.to_int (I.div l (ms_comden ms₂))) in
+let _ := eprintf "l/cd₂ %d\n%!" (I.to_int (I.div l (ms_comden ms₂))) in
+let _ := eprintf "ms₂ = " in
+let _ := trace_ms ms₂ in
+*)
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
+(*
+let _ := eprintf "ms₂ = " in
+let _ := trace_ms ms₂ in
 let _ := eprintf "ok\n%!" in
+let r :=
+*)
   {| ms_terms :=
        ms_mul_term fld (ms_terms ms₁) (ms_terms ms₂);
      ms_valnum :=
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ =>
-               Some
-                 (Z.add (Z.mul v₁ (Zpos (ms_comden ms₂)))
-                    (Z.mul v₂ (Zpos (ms_comden ms₁))))
-           | None =>
-               None
+           | Some v₂ => Some (Z.add v₁ v₂)
+           | None => None
            end
        | None => None
        end;
      ms_comden :=
+       l |}
+.
+(*
+in
+let _ := eprintf "  r = " in
+let _ := trace_ms r in
+r.
+*)
+
+(*
        Pos.mul (ms_comden ms₁) (ms_comden ms₁) |}.
+*)
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
   ps_of_ms (ms_mul fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
