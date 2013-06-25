@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.169 2013-06-25 15:38:05 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.170 2013-06-25 15:40:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -84,23 +84,7 @@ Definition ms_terms_of_ps α zero is_zero (ps : puiseux_series α) :=
   in
   loop (series_head is_zero (ps_terms ps)).
 
-Definition optim_comden ps :=
-  let cofix loop cd s :=
-    match s with
-    | Term t ns => loop (Plcm cd (Qden (power t))) ns
-    | End => cd
-    end
-  in
-  let cd := loop I.one (ps_terms ps) in
-  if I.eq cd (ps_comden ps) then ps
-  else if I.gt cd (ps_comden ps) then assert False
-  else if not (I.eq (I.modn (ps_comden ps) cd) I.zero) then assert False
-  else
-    {| ps_terms := ps_terms ps;
-       ps_comden := cd |}.
-
 Definition ms_of_ps α fld (ps : puiseux_series α) :=
-  let ps := optim_comden ps in
   {| ms_terms :=
        ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
