@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.168 2013-06-25 15:28:17 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.169 2013-06-25 15:38:05 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -335,7 +335,7 @@ Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
        ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
          (ps_terms ps₂);
      ps_comden :=
-       I.mul (ps_comden ps₁) (ps_comden ps₂) |}.
+       Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
 
 (* *)
 
