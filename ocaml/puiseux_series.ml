@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.163 2013-06-25 09:01:41 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.164 2013-06-25 09:15:49 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -183,7 +183,7 @@ CoFixpoint normal_terms fld n cd₁ s :=
   | Term c ss =>
       match n with
       | O => Term c (normal_terms fld cd₁ cd₁ ss)
-      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ ss)
+      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
       end
   | End => End
   end.
@@ -228,8 +228,6 @@ value trace_ms ms = do {
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
 (*
-let _ := eprintf "normal ms₁ cd %s l %s\n%!" (I.ts (ms_comden ms₁)) (I.ts l) in
-let _ := eprintf "l/cd %d\n%!" (I.to_int (I.div l (ms_comden ms₁))) in
 let _ := eprintf "ms₁ = " in
 let _ := trace_ms ms₁ in
 *)
@@ -237,8 +235,6 @@ let _ := trace_ms ms₁ in
 (*
 let _ := eprintf "ms₁ = " in
 let _ := trace_ms ms₁ in
-let _ := eprintf "normal ms₂ cd %s l %s\n%!" (I.ts (ms_comden ms₂)) (I.ts l) in
-let _ := eprintf "l/cd₂ %d\n%!" (I.to_int (I.div l (ms_comden ms₂))) in
 let _ := eprintf "ms₂ = " in
 let _ := trace_ms ms₂ in
 *)
@@ -246,7 +242,6 @@ let _ := trace_ms ms₂ in
 (*
 let _ := eprintf "ms₂ = " in
 let _ := trace_ms ms₂ in
-let _ := eprintf "ok\n%!" in
 let r :=
 *)
   {| ms_terms :=
