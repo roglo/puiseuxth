@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.6 2013-06-24 12:57:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.7 2013-06-25 15:28:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,7 +52,8 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
 CoFixpoint term_of_ms α cd p (s : series α) :=
   match s with
   | Term c ns =>
-      Term {| coeff := c; power := Qmake p cd |} (term_of_ms cd (Z.succ p) ns)
+      Term {| coeff := c; power := Qmake p cd |}
+        (term_of_ms cd (Z.succ p) ns)
   | End =>
       End _
   end.
@@ -423,16 +424,16 @@ Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
 
 (* ps_mul *)
 
-Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ s₂ :=
+Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   match ni₁ with
   | O => None
   | S ni =>
-      match sum_mul_coeff add_coeff mul_coeff (S i) ni s₁ s₂ with
+      match sum_mul_coeff fld (S i) ni s₁ s₂ with
       | Some c =>
           match series_nth i s₁ with
           | Some c₁ =>
               match series_nth ni s₂ with
-              | Some c₂ => Some (add_coeff (mul_coeff c₁ c₂) c)
+              | Some c₂ => Some (add fld (mul fld c₁ c₂) c)
               | None => Some c
               end
           | None => Some c
@@ -441,7 +442,7 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
           match series_nth i s₁ with
           | Some c₁ =>
               match series_nth ni s₂ with
-              | Some c₂ => Some (mul_coeff c₁ c₂)
+              | Some c₂ => Some (mul fld c₁ c₂)
               | None => None
               end
           | None => None
@@ -449,33 +450,51 @@ Fixpoint sum_mul_coeff α add_coeff (mul_coeff : α → α → α) i ni₁ s₁ 
       end
   end.
 
-Definition ms_mul_term α add_coeff mul_coeff (s₁ s₂ : series α) :=
+Definition ms_mul_term α fld (s₁ s₂ : series α) :=
   let cofix mul_loop n₁ :=
-    match sum_mul_coeff add_coeff mul_coeff 0 n₁ s₁ s₂ with
+    match sum_mul_coeff fld 0 n₁ s₁ s₂ with
     | Some c => Term c (mul_loop (S n₁))
     | None => End _
     end
   in
   mul_loop 1%nat.
 
-Definition ms_mul α add_coeff mul_coeff (ms₁ ms₂ : math_puiseux_series α) :=
+CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
+  match s with
+  | Term c ss =>
+      match n with
+      | O => Term c (normal_terms fld cd₁ cd₁ ss)
+      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
+      end
+  | End => End _
+  end.
+
+Definition normal α (fld : field α) l cd ms :=
+  {| ms_terms := normal_terms fld 0 (cd - 1) (ms_terms ms);
+     ms_valnum :=
+       match ms_valnum ms with
+       | Some v => Some (Z.mul v (Z.of_nat cd))
+       | None => None
+       end;
+     ms_comden := l |}.
+
+Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
+  let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
+  let ms₁ := normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ms_comden ms₁))) ms₁ in
+  let ms₂ := normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ms_comden ms₂))) ms₂ in
   {| ms_terms :=
-       ms_mul_term add_coeff mul_coeff (ms_terms ms₁) (ms_terms ms₂);
+       ms_mul_term fld (ms_terms ms₁) (ms_terms ms₂);
      ms_valnum :=
        match ms_valnum ms₁ with
        | Some v₁ =>
            match ms_valnum ms₂ with
-           | Some v₂ =>
-               Some
-                 (Z.add (Z.mul v₁ (Zpos (ms_comden ms₂)))
-                    (Z.mul v₂ (Zpos (ms_comden ms₁))))
-           | None =>
-               None
+           | Some v₂ => Some (Z.add v₁ v₂)
+           | None => None
            end
        | None => None
        end;
      ms_comden :=
-       Pos.mul (ms_comden ms₁) (ms_comden ms₂) |}.
+       l |}.
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
-  ps_of_ms (ms_mul (add fld) (mul fld) (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
+  ps_of_ms (ms_mul fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
