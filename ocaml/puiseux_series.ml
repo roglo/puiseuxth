@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.166 2013-06-25 14:29:21 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.167 2013-06-25 14:38:10 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -196,34 +196,6 @@ Definition normal fld l cd ms :=
        | None => None
        end;
      ms_comden := l |}.
-
-Definition trace_ms_terms t :=
-  let cofix loop sep n s :=
-    match s with
-    | Term c ss =>
-        if n <= 0 then eprintf "...]%!"
-        else do {
-          eprintf "%s%s%!" sep (C.to_string True (Obj.magic c));
-          loop ";" (n - 1) ss
-        }
-    | End => eprintf "]%!"
-    end
-  in
-  loop "[" 5 t.
-
-value trace_ms_valnum =
-  fun
-  [ Some v → eprintf "%s%!" (I.ts v)
-  | None → eprintf "∞%!" ]
-;
-
-value trace_ms ms = do {
-  eprintf "{t=%!";
-  trace_ms_terms ms.ms_terms;
-  eprintf ";vn=%!";
-  trace_ms_valnum ms.ms_valnum;
-  eprintf ";cd=%s}\n%!" (I.ts (ms_comden ms));
-};
 
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
