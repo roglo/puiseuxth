@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.7 2013-06-25 15:28:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.8 2013-06-25 15:32:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -480,8 +480,12 @@ Definition normal α (fld : field α) l cd ms :=
 
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
-  let ms₁ := normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ms_comden ms₁))) ms₁ in
-  let ms₂ := normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ms_comden ms₂))) ms₂ in
+  let ms₁ :=
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ms_comden ms₁))) ms₁
+  in
+  let ms₂ :=
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ms_comden ms₂))) ms₂
+  in
   {| ms_terms :=
        ms_mul_term fld (ms_terms ms₁) (ms_terms ms₂);
      ms_valnum :=

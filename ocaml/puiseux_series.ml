@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.167 2013-06-25 14:38:10 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.168 2013-06-25 15:28:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -178,21 +178,21 @@ Definition ms_mul_term α fld (s₁ s₂ : series α) :=
   in
   mul_loop 1%nat.
 
-CoFixpoint normal_terms fld n cd₁ s :=
+CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
   match s with
   | Term c ss =>
       match n with
       | O => Term c (normal_terms fld cd₁ cd₁ ss)
       | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
       end
-  | End => End
+  | End => End _
   end.
 
-Definition normal fld l cd ms :=
+Definition normal α (fld : field α _) l cd ms :=
   {| ms_terms := normal_terms fld 0 (cd - 1) (ms_terms ms);
      ms_valnum :=
        match ms_valnum ms with
-       | Some v => Some (I.muli v cd)
+       | Some v => Some (Z.mul v (Z.of_nat cd))
        | None => None
        end;
      ms_comden := l |}.
