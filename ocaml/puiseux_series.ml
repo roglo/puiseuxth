@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.164 2013-06-25 09:15:49 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.165 2013-06-25 09:29:12 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -152,7 +152,7 @@ Fixpoint sum_mul_coeff α (fld : field α _) i ni₁ s₁ s₂ :=
           match series_nth i s₁ with
           | Some c₁ =>
               match series_nth ni s₂ with
-              | Some c₂ => Some (add fld (mul fld c₁ c₂) c)
+              | Some c₂ => Some (norm fld (add fld) (mul fld c₁ c₂) c)
               | None => Some c
               end
           | None => Some c
@@ -384,7 +384,7 @@ value trace_ps zero is_zero ps =
 ;
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
-if arg_test.val then ps_mul fld ps₁ ps₂ else
+if (*not*) arg_test.val then ps_mul fld ps₁ ps₂ else
 
 (*
 let _ := eprintf "changing: (nval %s cden %s)\n  %!" (match valuation fld ps₁ with [ Some v → Q.to_string v | None → "inf" ]) (I.ts (ps_comden ps₁)) in
