@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.165 2013-06-25 09:29:12 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.166 2013-06-25 14:29:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -227,23 +227,8 @@ value trace_ms ms = do {
 
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
-(*
-let _ := eprintf "ms₁ = " in
-let _ := trace_ms ms₁ in
-*)
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
-(*
-let _ := eprintf "ms₁ = " in
-let _ := trace_ms ms₁ in
-let _ := eprintf "ms₂ = " in
-let _ := trace_ms ms₂ in
-*)
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
-(*
-let _ := eprintf "ms₂ = " in
-let _ := trace_ms ms₂ in
-let r :=
-*)
   {| ms_terms :=
        ms_mul_term fld (ms_terms ms₁) (ms_terms ms₂);
      ms_valnum :=
@@ -256,18 +241,7 @@ let r :=
        | None => None
        end;
      ms_comden :=
-       l |}
-.
-(*
-in
-let _ := eprintf "  r = " in
-let _ := trace_ms r in
-r.
-*)
-
-(*
-       Pos.mul (ms_comden ms₁) (ms_comden ms₁) |}.
-*)
+       l |}.
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
   ps_of_ms (ms_mul fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
@@ -384,16 +358,7 @@ value trace_ps zero is_zero ps =
 ;
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
-if (*not*) arg_test.val then ps_mul fld ps₁ ps₂ else
-
-(*
-let _ := eprintf "changing: (nval %s cden %s)\n  %!" (match valuation fld ps₁ with [ Some v → Q.to_string v | None → "inf" ]) (I.ts (ps_comden ps₁)) in
-let _ := trace_ps zero is_zero ps₁ in
-  let ps₁ := ps_of_ms (ms_of_ps fld ps₁) in
-let _ := eprintf "  %!" in
-let _ := trace_ps zero is_zero ps₁ in
-  let ps₂ := ps_of_ms (ms_of_ps fld ps₂) in
-*)
+  if arg_test.val then ps_mul fld ps₁ ps₂ else
   {| ps_terms :=
        ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
          (ps_terms ps₂);

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.367 2013-06-24 12:54:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.368 2013-06-25 14:29:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -177,52 +177,18 @@ value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
   string_of_tree k opt vx vy t
 ;
 
-Definition my_apply_poly α β γ fld
-    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
-    (pol : polynomial β) (x : γ) :=
-  List.fold_right
-    (λ c accu,
-       let m := mul_v_x accu x in
-(*
-let saccu := string_of_ps_polyn fld True True "u" "v" accu in
-let sx := string_of_ps_polyn fld True True "u" "v" x in
-let s := string_of_ps_polyn fld True True "u" "v" m in
-let _ := eprintf "mul_v_x accu %s x %s = %s\n%!" saccu sx s in
-let r := (
-*)
-       add_v_coeff m c)
-(*
-in
-let sm := string_of_ps_polyn fld True True "u" "v" m in
-let s := string_of_ps_polyn fld True True "u" "v" r in
-let _ := eprintf "add_v_coeff m %s c %s = %s\n%!" sm "?" s in
-r)
-*)
-    (al pol) (zero_plus_v (an pol)).
-
 Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add fld) (ps_mul fld).
 
 Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
-  my_apply_poly fld
+  apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End _; ps_comden := I.one |}
        (ps_add fld)
        (λ ps₁ ps₂,
-(*
-let s₁ := string_of_puiseux_series fld True True "u" 0 ps₁ in
-let s₂ := string_of_puiseux_series fld True True "u" 0 ps₂ in
-let r := ((
-*)
           ps_mul fld ps₁ ps₂))
-(*
-in
-let s := string_of_puiseux_series fld True True "u" 0 r in
-let _ := eprintf "mul '%s' '%s' = %s\n%!" s₁ s₂ s in
-r))
-*)
     pol.
 
 Definition float_round_zero fld ps :=
@@ -314,17 +280,7 @@ Definition f₁ (fld : field α _) f β γ c :=
          {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
             ps_comden := pos_to_nat (Qden γ) |} |}
   in
-(*
-let s := string_of_ps_polyn fld True True "u" "v" f in
-let _ := eprintf "\n  ⎧ f(u,v) = %s\n%!" s in
-let s := string_of_ps_polyn fld True True "u" "v" y in
-let _ := eprintf "  ⎨ v₁ = %s\n%!" s in
-*)
   let pol := apply_poly_with_ps_poly fld f y in
-(*
-let s := string_of_ps_polyn fld True True "u" "v" pol in
-let _ := eprintf "  ⎩ f(u,v₁) = %s\n\n%!" s in
-*)
   pol_mul_x_power_minus β pol;
 
 Fixpoint list_nth n l default :=
@@ -520,16 +476,6 @@ value print_line_equal () =
 ;
 
 value puiseux af nb_steps vx vy pol =
-(*
-let vv = verbose.val in
-let _ = verbose.val := False in
-let r = puiseux_root af pol in
-let ps =
-  {ps_terms = series_series_take 6 (ps_terms r); ps_comden = ps_comden r}
-in
-let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
-let _ = verbose.val := vv in
-*)
   let gbl = newton_segments (ac_field af) pol in
   if gbl = [] then failwith "no finite γ value"
   else
