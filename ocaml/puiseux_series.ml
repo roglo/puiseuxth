@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.161 2013-06-25 03:17:03 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.162 2013-06-25 03:50:25 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -199,8 +199,10 @@ Definition normal fld l cd ms :=
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
 let _ := eprintf "normal ms₁ cd %s l %s\n%!" (I.ts (ms_comden ms₁)) (I.ts l) in
+let _ := eprintf "new cd₁ %d\n%!" (I.to_int (I.div l (ms_comden ms₁))) in
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
 let _ := eprintf "normal ms₂ cd %s l %s\n%!" (I.ts (ms_comden ms₂)) (I.ts l) in
+let _ := eprintf "new cd₂ %d\n%!" (I.to_int (I.div l (ms_comden ms₂))) in
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
 let _ := eprintf "ok\n%!" in
   {| ms_terms :=
