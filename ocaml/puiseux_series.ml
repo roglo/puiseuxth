@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.171 2013-06-26 02:42:15 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.172 2013-06-26 03:13:23 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -186,6 +186,7 @@ CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   end.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  if arg_test.val then ps_add fld ps₁ ps₂ else
   {| ps_terms :=
        ps_add_loop (norm fld (add fld)) (ps_terms ps₁) (ps_terms ps₂);
      ps_comden :=
@@ -361,7 +362,6 @@ value trace_ps zero is_zero ps =
 ;
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
-  if arg_test.val then ps_mul fld ps₁ ps₂ else
   {| ps_terms :=
        ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
          (ps_terms ps₂);
