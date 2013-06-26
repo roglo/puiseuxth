@@ -1,4 +1,4 @@
-(* $Id: pnums.ml,v 1.49 2013-05-26 23:19:52 deraugla Exp $ *)
+(* $Id: pnums.ml,v 1.50 2013-06-26 08:55:48 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "./q_def_expr.cmo";
@@ -742,8 +742,9 @@ module M =
          in
          String.sub s 0 len
        ;
+       value ssize = 12;
        value to_string f =
-         let (s, e) = Mfl.to_nice_string 10 12 f in
+         let (s, e) = Mfl.to_nice_string 10 ssize f in
          let (sign, s) =
            if s.[0] = '-' then ("-", String.sub s 1 (String.length s - 1))
            else ("", s)
@@ -760,7 +761,7 @@ module M =
              let i = s.[0] in
              let d = String.sub s 1 (String.length s - 1) in
              sprintf "%s%c.%se%+03d" sign i d (e - 1)
-         else if e ≤ 12 then
+         else if e ≤ ssize then
            let s = s ^ String.make e '0' in
            let i = String.sub s 0 e in
            let d = String.sub s e (String.length s - e) in

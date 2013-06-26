@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.173 2013-06-26 08:31:31 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.174 2013-06-26 08:55:48 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -362,6 +362,7 @@ value trace_ps zero is_zero ps =
 ;
 
 Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+  if arg_test.val then ps_mul fld ps₁ ps₂ else
   {| ps_terms :=
        ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
          (ps_terms ps₂);
