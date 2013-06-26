@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.87 2013-06-26 20:09:14 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.88 2013-06-26 20:19:23 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -346,11 +346,12 @@ value group_term_descr k tdl =
     match ml with
     [ [(ps, p) :: ml₁] →
         if p > deg then
-          loop [{old_ps_mon = []} :: rev_cl] (deg + 1) ml
+          loop [ops2ps {old_ps_mon = []} :: rev_cl] (deg + 1) ml
         else if p < deg then
           match () with []
         else
-          loop [{old_ps_mon = List.rev ps.old_ps_mon} :: rev_cl] (deg + 1) ml₁
+          loop [ops2ps {old_ps_mon = List.rev ps.old_ps_mon} :: rev_cl]
+            (deg + 1) ml₁
     | [] →
         match rev_cl with
         | [c :: cl] → {al = List.rev cl; an = c}
@@ -489,7 +490,7 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
       in
       Some r
   in
-  match List.fold_left rebuild_add None ps.old_ps_mon with
+  match List.fold_left rebuild_add None (ps2ops ps).old_ps_mon with
   | Some t → t
   | None → Const k.zero
   end

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.374 2013-06-26 20:04:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.375 2013-06-26 20:19:23 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -161,18 +161,16 @@ value string_of_old_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
     else if List.length ps.old_ps_mon > nb_terms then " + ..."
     else ""
   in
-  let t = tree_of_old_puiseux_series fld cancel_zeroes (ps2ops ps₂) in
+  let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in
   string_of_tree fld opt vx "?" t ^ ellipses
 ;
 
 value airy_string_of_old_puiseux_series k opt vx ps =
-  let ps = ps2ops ps in
   let t = tree_of_old_puiseux_series k True ps in
   airy_string_of_tree k opt vx "?" t
 ;
 
 value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
-  let pol = {al = List.map ps2ops pol.al; an = ps2ops pol.an} in
   let t = tree_of_ps_polyn k cancel_zeroes pol in
   string_of_tree k opt vx vy t
 ;
