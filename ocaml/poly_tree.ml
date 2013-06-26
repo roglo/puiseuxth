@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.82 2013-06-26 19:03:47 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.83 2013-06-26 19:38:23 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -352,7 +352,10 @@ value group_term_descr k tdl =
         else
           loop [{old_ps_mon = List.rev ps.old_ps_mon} :: rev_cl] (deg + 1) ml₁
     | [] →
-        {ml = List.rev rev_cl} ]
+        match rev_cl with
+        | [c :: cl] → {al = List.rev cl; an = c}
+        | [] → assert False
+        end ]
 ;
 
 value rec without_initial_neg k =
@@ -451,10 +454,6 @@ value ps_polyn_of_tree k t =
     else ()
   in
   let tdl = List.sort compare_descr tdl in
-(*
-let _ = printf "normalise compare_descr\n%!" in
-let _ = List.iter (fun td → printf "  const %s xpow %s ypow %d\n%!" (C.to_string td.const) (Q.to_string td.xpow) td.ypow) tdl in
-*)
   group_term_descr k tdl
 ;
 
@@ -533,6 +532,7 @@ value tree_of_ps_polyn k cancel_zeroes pol =
 
 value normalise k t =
   let pol = ps_polyn_of_tree k t in
+  let pol = {ml = pol.al @ [pol.an]} in
   tree_of_ps_polyn k True pol
 ;
 
