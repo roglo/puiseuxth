@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.86 2013-06-26 20:04:34 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.87 2013-06-26 20:09:14 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -421,7 +421,8 @@ value tree_of_tree_polyn k pol =
     (t, deg + 1)
   in
   let (t, _) =
-    List.fold_left (expr_of_term_ypow_list k) (Const k.zero, 0) pol.ml
+    List.fold_left (expr_of_term_ypow_list k) (Const k.zero, 0)
+      (pol.al @ [pol.an])
   in
   t
 ;
@@ -526,10 +527,9 @@ value rev_tree_of_polyn k pol =
 ;
 
 value tree_of_ps_polyn k cancel_zeroes pol =
-  let cl =
-    List.map (tree_of_old_puiseux_series k cancel_zeroes) (pol.al @ [pol.an])
-  in
-  tree_of_tree_polyn k {ml = cl}
+  let cl = List.map (tree_of_old_puiseux_series k cancel_zeroes) pol.al in
+  let cn = tree_of_old_puiseux_series k cancel_zeroes pol.an in
+  tree_of_tree_polyn k {al = cl; an = cn}
 ;
 
 value normalise k t =

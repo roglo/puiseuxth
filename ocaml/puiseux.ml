@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.373 2013-06-26 19:57:46 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.374 2013-06-26 20:04:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -172,7 +172,7 @@ value airy_string_of_old_puiseux_series k opt vx ps =
 ;
 
 value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
-  let pol = {ml = List.map ps2ops pol.al @ [ps2ops pol.an]} in
+  let pol = {al = List.map ps2ops pol.al; an = ps2ops pol.an} in
   let t = tree_of_ps_polyn k cancel_zeroes pol in
   string_of_tree k opt vx vy t
 ;

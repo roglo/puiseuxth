@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.62 2013-06-23 19:39:28 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.63 2013-06-26 20:09:14 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -87,7 +87,3 @@ Definition apply_poly α β γ
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
     (al pol) (zero_plus_v (an pol)).
-
-(* *)
-
-type old_poly α = { ml : list α };

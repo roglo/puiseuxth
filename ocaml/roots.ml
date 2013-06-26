@@ -1,4 +1,4 @@
-(* $Id: roots.ml,v 1.85 2013-06-26 20:02:10 deraugla Exp $ *)
+(* $Id: roots.ml,v 1.86 2013-06-26 20:09:14 deraugla Exp $ *)
 
 open Printf;
 open Pnums;
@@ -76,6 +76,8 @@ value subst_roots_of_unity k pow (r, n) =
   | pow →
       None ]
 ;
+
+type old_poly α = { ml : list α };
 
 value int_polyn_of_polyn apol =
   let qpol_opt =
