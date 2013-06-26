@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.44 2013-06-26 20:19:23 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.45 2013-06-26 20:31:22 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -10,6 +10,7 @@ open Poly_tree;
 open Poly;
 open Puiseux_series;
 open Printf;
+open Series;
 
 (*
 ./ugly '(-x³+x⁴)-2x²y-xy²+2xy⁴+y⁵'
@@ -29,12 +30,23 @@ value iter_with_sep s f l =
   let _ = List.fold_left (fun s x → do { f s x; " " }) "" l in ()
 ;
 
+value ps2ops ps =
+  let rec loop lim ms =
+    if lim = 0 then []
+    else
+      match ms with
+      | Term m₁ ms₁ → [m₁ :: loop (lim - 1) (Lazy.force ms₁)]
+      | End → []
+      end
+  in
+  loop (-1) ps.ps_terms
+;
+
 value print_term deg m = do {
   printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," deg;
   let ml =
     let m = ps2ops m in
-    if m.old_ps_mon = [] then [{coeff = C.zero; power = Q.zero}]
-    else m.old_ps_mon
+    if m = [] then [{coeff = C.zero; power = Q.zero}] else m
   in
   printf "[";
   iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power))) ml;

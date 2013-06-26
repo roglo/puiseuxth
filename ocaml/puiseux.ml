@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.375 2013-06-26 20:19:23 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.376 2013-06-26 20:31:22 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -156,9 +156,8 @@ value string_of_old_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
       ps
   in
   let ellipses =
-    let ps = ps2ops ps in
     if nb_terms = 0 then ""
-    else if List.length ps.old_ps_mon > nb_terms then " + ..."
+    else if series_nth nb_terms ps.ps_terms <> None then " + ..."
     else ""
   in
   let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in

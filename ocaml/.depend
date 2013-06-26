@@ -36,6 +36,6 @@ roots.cmi: field.cmo pnums.cmi poly.cmi
 series.cmo: series.cmi
 series.cmx: series.cmi
 ugly.cmo: field.cmo pnums.cmi poly.cmi poly_parse.cmo poly_print.cmo \
-    poly_tree.cmi puiseux_series.cmi
+    poly_tree.cmi puiseux_series.cmi series.cmi
 ugly.cmx: field.cmx pnums.cmx poly.cmx poly_parse.cmx poly_print.cmx \
-    poly_tree.cmx puiseux_series.cmx
+    poly_tree.cmx puiseux_series.cmx series.cmx
