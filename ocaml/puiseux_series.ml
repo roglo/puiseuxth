@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.175 2013-06-26 14:18:51 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.176 2013-06-26 16:27:49 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -368,35 +368,3 @@ Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
          (ps_terms ps₂);
      ps_comden :=
        Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
-
-(* *)
-
-type old_ps α = { old_ps_mon : list (term α) };
-
-value ops2ps ops =
-  let terms =
-    loop ops.old_ps_mon where rec loop =
-      fun
-      [ [] → End
-      | [m₁ … ml₁] → Term m₁ (loop ml₁) ]
-  in
-  let comden =
-    loop ops.old_ps_mon where rec loop =
-      fun
-      [ [] → I.one
-      | [m₁ … ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
-  in
-  {ps_terms = terms; ps_comden = comden}
-;
-
-value ps2ops ps =
-  let rec loop lim ms =
-    if lim = 0 then []
-    else
-      match ms with
-      | Term m₁ ms₁ → [m₁ … loop (lim - 1) (Lazy.force ms₁)]
-      | End → []
-      end
-  in
-  {old_ps_mon = loop (-1) ps.ps_terms}
-;

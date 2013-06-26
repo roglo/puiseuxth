@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.39 2013-06-02 20:08:32 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.40 2013-06-26 16:27:49 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -14,6 +14,15 @@ type tree α =
   | Ypower of int
   | Const of α ]
 ;
+
+(* *)
+
+type old_ps α = { old_ps_mon : list (term α) };
+
+value ps2ops : old_puiseux_series α → old_ps α;
+value ops2ps : old_ps α → old_puiseux_series α;
+
+(* *)
 
 value string_of_tree :
   field α (ext α _) → bool → string → string → tree α → string;

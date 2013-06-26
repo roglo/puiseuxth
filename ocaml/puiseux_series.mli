@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.31 2013-06-26 16:21:54 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.32 2013-06-26 16:27:49 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -36,11 +36,3 @@ value series_head : (α → bool) → series (term α) → series (term α);
 
 value valuation : field α β → old_puiseux_series α → option Q.t;
 value valuation_coeff : field α β → old_puiseux_series α → α;
-
-(* *)
-
-(* old version to be converted little by little: *)
-type old_ps α = { old_ps_mon : list (term α) };
-
-value ps2ops : old_puiseux_series α → old_ps α;
-value ops2ps : old_ps α → old_puiseux_series α;
