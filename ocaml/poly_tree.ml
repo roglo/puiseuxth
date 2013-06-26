@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.84 2013-06-26 19:57:46 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.85 2013-06-26 20:02:10 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -518,9 +518,9 @@ value rev_tree_of_polyn k pol =
        in
        (t, deg - 1)
   in
-  let deg = List.length pol.ml - 1 in
+  let deg = List.length pol.al in
   let (t, _) =
-    List.fold_left rebuild_add (Const k.zero, deg) (List.rev pol.ml)
+    List.fold_left rebuild_add (Const k.zero, deg) [pol.an :: List.rev pol.al]
   in
   t
 ;

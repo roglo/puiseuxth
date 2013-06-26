@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.372 2013-06-26 19:03:47 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.373 2013-06-26 19:57:46 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -516,7 +516,7 @@ value polyn_of_tree fld t =
        (fun t →
           if is_zero_tree fld t then {ps_terms = End; ps_comden = I.one}
           else puiseux_series_of_tree fld t)
-       pol.ml
+       (pol.al @ [pol.an])
   in
   match rev_ml with
   | [] → failwith "empty pol"
