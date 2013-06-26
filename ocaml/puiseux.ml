@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.371 2013-06-26 18:56:37 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.372 2013-06-26 19:03:47 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -514,13 +514,13 @@ value polyn_of_tree fld t =
   let rev_ml =
     List.rev_map
        (fun t →
-          if is_zero_tree fld t then {old_ps_mon = []}
+          if is_zero_tree fld t then {ps_terms = End; ps_comden = I.one}
           else puiseux_series_of_tree fld t)
        pol.ml
   in
   match rev_ml with
   | [] → failwith "empty pol"
-  | [m … ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
+  | [m … ml] → {al = List.rev ml; an = m}
   end
 ;
 

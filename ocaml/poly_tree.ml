@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.81 2013-06-26 16:27:49 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.82 2013-06-26 19:03:47 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -35,8 +35,7 @@ value ops2ps ops =
     loop ops.old_ps_mon where rec loop =
       fun
       [ [] → End
-      | [m₁ :: ml₁] →
-          Term m₁ (lazy (loop ml₁)) ]
+      | [m₁ :: ml₁] → Term m₁ (lazy (loop ml₁)) ]
   in
   let comden =
     loop ops.old_ps_mon where rec loop =
@@ -700,5 +699,5 @@ value puiseux_series_of_tree k t =
     else
       mxl
   in
-  {old_ps_mon = mxl}
+  ops2ps {old_ps_mon = mxl}
 ;
