@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.170 2013-06-25 15:40:52 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.171 2013-06-26 02:42:15 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -97,6 +97,72 @@ Definition ms_of_ps α fld (ps : puiseux_series α) :=
      ms_comden :=
        ps_comden ps |}.
 
+CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
+  match s with
+  | Term c ss =>
+      match n with
+      | O => Term c (normal_terms fld cd₁ cd₁ ss)
+      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
+      end
+  | End => End _
+  end.
+
+Definition normal α (fld : field α _) l cd ms :=
+  {| ms_terms := normal_terms fld 0 (cd - 1) (ms_terms ms);
+     ms_valnum :=
+       match ms_valnum ms with
+       | Some v => Some (Z.mul v (Z.of_nat cd))
+       | None => None
+       end;
+     ms_comden := l |}.
+
+(* ps_add with math_puiseux_series *)
+
+CoFixpoint ms_add_end α (fld : field α _) s₁ s₂ :=
+  match s₁ with
+  | Term c₁ ss₁ =>
+      match s₂ with
+      | Term c₂ ss₂ => Term (add fld c₁ c₂) (ms_add_end fld ss₁ ss₂)
+      | End => s₁
+      end
+  | End => s₂
+  end.
+
+Fixpoint ms_add_terms α fld n (s₁ s₂ : series α) :=
+  match n with
+  | O => ms_add_end fld s₁ s₂
+  | S n₁ =>
+      match s₁ with
+      | Term c₁ s => Term c₁ (ms_add_terms fld n₁ s s₂)
+      | End => Term (zero fld) (ms_add_terms fld n₁ s₁ s₂)
+      end
+  end.
+
+Definition ms_add α fld (ms₁ ms₂ : math_puiseux_series α) :=
+  match ms_valnum ms₁ with
+  | Some v₁ =>
+      match ms_valnum ms₂ with
+      | Some v₂ =>
+          let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
+          let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
+          let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
+          {| ms_terms :=
+               if Z_lt_le_dec v₁ v₂ then
+                 ms_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ms_terms ms₁)
+                   (ms_terms ms₂)
+               else
+                 ms_add_terms fld (Z.to_nat (Z.sub v₁ v₂)) (ms_terms ms₂)
+                   (ms_terms ms₁);
+             ms_valnum := Some (Z.min v₁ v₂);
+             ms_comden := l |}
+      | None => ms₁
+      end
+  | None => ms₂
+  end.
+
+Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  ps_of_ms (ms_add fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
+
 (* ps_add *)
 
 CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
@@ -161,25 +227,6 @@ Definition ms_mul_term α fld (s₁ s₂ : series α) :=
     end
   in
   mul_loop 1%nat.
-
-CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
-  match s with
-  | Term c ss =>
-      match n with
-      | O => Term c (normal_terms fld cd₁ cd₁ ss)
-      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
-      end
-  | End => End _
-  end.
-
-Definition normal α (fld : field α _) l cd ms :=
-  {| ms_terms := normal_terms fld 0 (cd - 1) (ms_terms ms);
-     ms_valnum :=
-       match ms_valnum ms with
-       | Some v => Some (Z.mul v (Z.of_nat cd))
-       | None => None
-       end;
-     ms_comden := l |}.
 
 Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
