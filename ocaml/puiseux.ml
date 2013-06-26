@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.370 2013-06-26 14:18:51 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.371 2013-06-26 18:56:37 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -511,12 +511,17 @@ value is_zero_tree k =
 
 value polyn_of_tree fld t =
   let pol = tree_polyn_of_tree fld t in
-  {ml =
-     List.map
+  let rev_ml =
+    List.rev_map
        (fun t →
           if is_zero_tree fld t then {old_ps_mon = []}
           else puiseux_series_of_tree fld t)
-       pol.ml}
+       pol.ml
+  in
+  match rev_ml with
+  | [] → failwith "empty pol"
+  | [m … ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
+  end
 ;
 
 value anon_fun s =
@@ -834,12 +839,6 @@ value main () = do {
             printf "equation: %s = 0\n\n%!" norm_txt;
           };
           let pol = polyn_of_tree fld t in
-          let pol =
-             match List.rev pol.ml with
-             | [] → failwith "empty pol"
-             | [m … ml] → {al = List.rev_map ops2ps ml; an = ops2ps m}
-             end
-          in
           let _ : list _ = puiseux af arg_nb_steps.val vx vy pol in
           ()
         }
