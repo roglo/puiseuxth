@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.85 2013-06-26 20:02:10 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.86 2013-06-26 20:04:34 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -526,13 +526,14 @@ value rev_tree_of_polyn k pol =
 ;
 
 value tree_of_ps_polyn k cancel_zeroes pol =
-  let cl = List.map (tree_of_old_puiseux_series k cancel_zeroes) pol.ml in
+  let cl =
+    List.map (tree_of_old_puiseux_series k cancel_zeroes) (pol.al @ [pol.an])
+  in
   tree_of_tree_polyn k {ml = cl}
 ;
 
 value normalise k t =
   let pol = ps_polyn_of_tree k t in
-  let pol = {ml = pol.al @ [pol.an]} in
   tree_of_ps_polyn k True pol
 ;
 
