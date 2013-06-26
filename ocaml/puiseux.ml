@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.368 2013-06-25 14:29:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.369 2013-06-26 08:31:31 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -180,15 +180,23 @@ value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
 Definition apply_poly_with_ps (fld : field α _) :=
   apply_poly (λ ps, ps) (ps_add fld) (ps_mul fld).
 
+(*
+Definition my_ps_add fld ps₁ ps₂ :=
+let s₁ := string_of_puiseux_series fld True True "u" 0 ps₁ in
+let s₂ := string_of_puiseux_series fld True True "u" 0 ps₂ in
+let r := ps_add fld ps₁ ps₂ in
+let s := string_of_puiseux_series fld True True "u" 0 r in
+let _ := eprintf "add '%s' '%s' = %s\n%!" s₁ s₂ s in
+r.
+*)
+
 Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
        {| ps_terms := End _; ps_comden := I.one |}
-       (ps_add fld)
-       (λ ps₁ ps₂,
-          ps_mul fld ps₁ ps₂))
+       (ps_add fld) (ps_mul fld))
     pol.
 
 Definition float_round_zero fld ps :=

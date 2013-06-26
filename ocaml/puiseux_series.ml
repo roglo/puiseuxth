@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.172 2013-06-26 03:13:23 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.173 2013-06-26 08:31:31 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -139,13 +139,13 @@ Fixpoint ms_add_terms α fld n (s₁ s₂ : series α) :=
   end.
 
 Definition ms_add α fld (ms₁ ms₂ : math_puiseux_series α) :=
+  let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
+  let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
+  let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
   match ms_valnum ms₁ with
   | Some v₁ =>
       match ms_valnum ms₂ with
       | Some v₂ =>
-          let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
-          let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
-          let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
           {| ms_terms :=
                if Z_lt_le_dec v₁ v₂ then
                  ms_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ms_terms ms₁)
