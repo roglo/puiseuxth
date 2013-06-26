@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.174 2013-06-26 08:55:48 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.175 2013-06-26 14:18:51 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -11,11 +11,11 @@ open Series;
 
 Record term α := { coeff : α; power : Q }.
 
-Record puiseux_series α :=
+Record old_puiseux_series α :=
   { ps_terms : series (term α);
     ps_comden : positive }.
 
-Record math_puiseux_series α :=
+Record puiseux_series α :=
   { ms_terms : series α;
     ms_valnum : option Z;
     ms_comden : positive }.
@@ -28,13 +28,13 @@ value rec series_head is_zero s =
       End
   end;
 
-Definition valuation α fld (ps : puiseux_series α) :=
+Definition valuation α fld (ps : old_puiseux_series α) :=
   match series_head (is_zero fld) (ps_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
   end.
 
-Definition valuation_coeff α fld (ps : puiseux_series α) :=
+Definition valuation_coeff α fld (ps : old_puiseux_series α) :=
   match series_head (is_zero fld) (ps_terms ps) with
   | Term mx _ => coeff mx
   | End => zero fld
@@ -42,7 +42,7 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
 
 value norm fld f x y = fld.ext.normalise (f x y);
 
-(* puiseux_series ↔ math_puiseux_series *)
+(* old_puiseux_series ↔ puiseux_series *)
 
 CoFixpoint term_of_ms α cd p (s : series α) :=
   match s with
@@ -53,17 +53,17 @@ CoFixpoint term_of_ms α cd p (s : series α) :=
       End _
   end.
 
-Definition ps_terms_of_ms α (ms : math_puiseux_series α) : series (term α) :=
+Definition ps_terms_of_ms α (ms : puiseux_series α) : series (term α) :=
   match ms_valnum ms with
   | Some v => term_of_ms (ms_comden ms) v (ms_terms ms)
   | None => End _
   end.
 
-Definition ps_of_ms α (ms : math_puiseux_series α) :=
+Definition ps_of_ms α (ms : puiseux_series α) :=
   {| ps_terms := ps_terms_of_ms ms;
      ps_comden := ms_comden ms |}.
 
-CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
+CoFixpoint complete α (zero : α) (ps : old_puiseux_series α) p s :=
   match s with
   | Term t ns =>
       let p₁ := Qplus p (Qmake I.one (ps_comden ps)) in
@@ -75,7 +75,7 @@ CoFixpoint complete α (zero : α) (ps : puiseux_series α) p s :=
       End _
   end.
 
-Definition ms_terms_of_ps α zero is_zero (ps : puiseux_series α) :=
+Definition ms_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
   let cofix loop s :=
     match s with
     | Term t ns => Term (coeff t) (loop (complete zero ps (power t) ns))
@@ -84,7 +84,7 @@ Definition ms_terms_of_ps α zero is_zero (ps : puiseux_series α) :=
   in
   loop (series_head is_zero (ps_terms ps)).
 
-Definition ms_of_ps α fld (ps : puiseux_series α) :=
+Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
   {| ms_terms :=
        ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
@@ -116,7 +116,7 @@ Definition normal α (fld : field α _) l cd ms :=
        end;
      ms_comden := l |}.
 
-(* ps_add with math_puiseux_series *)
+(* ps_add with puiseux_series *)
 
 CoFixpoint ms_add_end α (fld : field α _) s₁ s₂ :=
   match s₁ with
@@ -138,7 +138,7 @@ Fixpoint ms_add_terms α fld n (s₁ s₂ : series α) :=
       end
   end.
 
-Definition ms_add α fld (ms₁ ms₂ : math_puiseux_series α) :=
+Definition ms_add α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
@@ -160,7 +160,7 @@ Definition ms_add α fld (ms₁ ms₂ : math_puiseux_series α) :=
   | None => ms₂
   end.
 
-Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_add α fld (ps₁ ps₂ : old_puiseux_series α) :=
   ps_of_ms (ms_add fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
 
 (* ps_add *)
@@ -185,7 +185,7 @@ CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   | End => ms₂
   end.
 
-Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_add α fld (ps₁ ps₂ : old_puiseux_series α) :=
   if arg_test.val then ps_add fld ps₁ ps₂ else
   {| ps_terms :=
        ps_add_loop (norm fld (add fld)) (ps_terms ps₁) (ps_terms ps₂);
@@ -229,7 +229,7 @@ Definition ms_mul_term α fld (s₁ s₂ : series α) :=
   in
   mul_loop 1%nat.
 
-Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
+Definition ms_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
@@ -247,7 +247,7 @@ Definition ms_mul α fld (ms₁ ms₂ : math_puiseux_series α) :=
      ms_comden :=
        l |}.
 
-Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
   ps_of_ms (ms_mul fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
 
 (* ps_mul - efficient version *)
@@ -361,7 +361,7 @@ value trace_ps zero is_zero ps =
     end
 ;
 
-Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
   if arg_test.val then ps_mul fld ps₁ ps₂ else
   {| ps_terms :=
        ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
