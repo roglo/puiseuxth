@@ -1,4 +1,4 @@
-(* $Id: poly_tree.mli,v 1.42 2013-06-26 19:38:23 deraugla Exp $ *)
+(* $Id: poly_tree.mli,v 1.43 2013-06-26 19:57:46 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -31,7 +31,7 @@ value airy_string_of_tree :
 value tree_of_ast : field α (ext α _) → string → string → MLast.expr → tree α;
 value xpower : Q.t → tree α;
 
-value tree_polyn_of_tree : field α (ext α _) → tree α → old_poly (tree α);
+value tree_polyn_of_tree : field α (ext α _) → tree α → polynomial (tree α);
 value puiseux_series_of_tree :
   field α (ext α _) → tree α → old_puiseux_series α;
 

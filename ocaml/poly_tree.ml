@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.83 2013-06-26 19:38:23 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.84 2013-06-26 19:57:46 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -641,7 +641,10 @@ value tree_polyn_of_tree k t =
         else if m.old_power < deg then match () with []
         else loop [m.old_coeff :: rev_np] (deg + 1) ml₁
     | [] →
-        {ml = List.rev rev_np} ]
+        match rev_np with
+        | [m :: ml] → {al = List.rev ml; an = m}
+        | [] → assert False
+        end ]
 ;
 
 value rec expr_with_pow_x k t =
