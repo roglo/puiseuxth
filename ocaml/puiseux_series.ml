@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.177 2013-06-27 09:04:34 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.178 2013-06-27 09:06:28 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -144,7 +144,7 @@ Definition normal α (fld : field α _) l cd ms :=
        end;
      ms_comden := l |}.
 
-(* ps_add with puiseux_series *)
+(* ps_add *)
 
 CoFixpoint ms_add_end α (fld : field α _) s₁ s₂ :=
   match s₁ with
@@ -188,43 +188,7 @@ Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
   | None => ms₂
   end.
 
-(*
-Definition ps_add α fld (ps₁ ps₂ : old_puiseux_series α) :=
-  ps_of_ms (ms_add fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
-*)
-
-(* ps_add *)
-
-(*
-CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
-  match ms₁ with
-  | Term c₁ s₁ =>
-      match ms₂ with
-      | Term c₂ s₂ =>
-          match Qcompare (power c₁) (power c₂) with
-          | Eq =>
-              let c := add_coeff (coeff c₁) (coeff c₂) in
-              let m := {| coeff := c; power := power c₁ |} in
-              Term m (ps_add_loop add_coeff s₁ s₂)
-          | Lt =>
-              Term c₁ (ps_add_loop add_coeff s₁ ms₂)
-          | Gt =>
-              Term c₂ (ps_add_loop add_coeff ms₁ s₂)
-          end
-      | End => ms₁
-      end
-  | End => ms₂
-  end.
-
-Definition ps_add α fld (ps₁ ps₂ : old_puiseux_series α) :=
-  if arg_test.val then ps_add fld ps₁ ps₂ else
-  {| ps_terms :=
-       ps_add_loop (norm fld (add fld)) (ps_terms ps₁) (ps_terms ps₂);
-     ps_comden :=
-       Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
-*)
-
-(* ps_mul - math not efficient version *)
+(* ps_mul *)
 
 Fixpoint sum_mul_coeff α (fld : field α _) i ni₁ s₁ s₂ :=
   match ni₁ with
@@ -278,129 +242,3 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
        end;
      ms_comden :=
        l |}.
-
-(*
-Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
-  ps_of_ms (ms_mul fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
-*)
-
-(* ps_mul - efficient version *)
-
-(*
-Record fifo_elem α :=
-  { fe_t₁ : term α; fe_t₂ : term α;
-    fe_s₁ : series (term α); fe_s₂ : series (term α) }.
-
-Fixpoint add_coeff_list α (add_coeff : α → α → α) (mul_coeff : α → α → α)
-    c₁ fel₁ :=
-  match fel₁ with
-  | [] =>
-      c₁
-  | [fe … fel] =>
-      let c := mul_coeff (coeff (fe_t₁ fe)) (coeff (fe_t₂ fe)) in
-      add_coeff c₁ (add_coeff_list add_coeff mul_coeff c fel)
-  end.
-
-Fixpoint insert_elem α (fe : fifo_elem α) fel :=
-  match fel with
-  | [] => [fe]
-  | [fe₁ … fel₁] =>
-      match Qcompare (power (fe_t₁ fe)) (power (fe_t₁ fe₁)) with
-      | Eq =>
-          match Qcompare (power (fe_t₂ fe)) (power (fe_t₂ fe₁)) with
-          | Eq => fel
-          | Lt => [fe … fel]
-          | Gt => [fe₁ … insert_elem fe fel₁]
-          end
-      | Lt => [fe … fel]
-      | Gt => [fe₁ … insert_elem fe fel₁]
-      end
-  end.
-
-Fixpoint insert_sum α sum (fe : fifo_elem α) sl :=
-  match sl with
-  | [] => [(sum, [fe])]
-  | [(sum₁, fel₁) … l] =>
-      match Qcompare sum sum₁ with
-      | Eq => [(sum₁, insert_elem fe fel₁) … l]
-      | Lt => [(sum, [fe]) … sl]
-      | Gt => [(sum₁, fel₁) … insert_sum sum fe l]
-      end
-  end.
-
-Definition add_below α (mul_coeff : α → α → α) sl fel :=
-  List.fold_left
-    (λ sl₁ fe,
-       match (fe_s₁ fe : series (term α)) with
-       | Term t₁ s₁ =>
-            insert_sum (Qplus (power t₁) (power (fe_t₂ fe)))
-              {| fe_t₁ := t₁; fe_t₂ := fe_t₂ fe;
-                 fe_s₁ := s₁; fe_s₂ := fe_s₂ fe |}
-              sl₁
-       | End => sl₁
-       end)
-    sl fel.
-
-Definition add_right α (mul_coeff : α → α → α) sl fel :=
-  List.fold_left
-    (λ sl₂ fe,
-       match (fe_s₂ fe : series (term α)) with
-       | Term t₂ s₂ =>
-            insert_sum (Qplus (power (fe_t₁ fe)) (power t₂))
-              {| fe_t₁ := fe_t₁ fe; fe_t₂ := t₂;
-                 fe_s₁ := fe_s₁ fe; fe_s₂ := s₂ |}
-              sl₂
-       | End => sl₂
-       end)
-    sl fel.
-
-CoFixpoint ps_mul_loop α add_coeff mul_coeff sum_fifo : series (term α) :=
-  match sum_fifo with
-  | [] => End _
-  | [(sum, []) … sl] => End _
-  | [(sum, [fe₁ … fel₁]) … sl] =>
-      let m :=
-        let c₁ := mul_coeff (coeff (fe_t₁ fe₁)) (coeff (fe_t₂ fe₁)) in
-        let c := add_coeff_list add_coeff mul_coeff c₁ fel₁ in
-        {| coeff := c; power := Q.norm sum |}
-      in
-      let sl₁ := add_below mul_coeff sl [fe₁ … fel₁] in
-      let sl₂ := add_right mul_coeff sl₁ [fe₁ … fel₁] in
-      Term m (ps_mul_loop add_coeff mul_coeff sl₂)
-  end.
-
-Definition ps_mul_term α add_coeff (mul_coeff : α → α → α) s₁ s₂ :=
-  match s₁ with
-  | Term t₁ ns₁ =>
-      match s₂ with
-      | Term t₂ ns₂ =>
-          let fe :=
-            {| fe_t₁ := t₁; fe_t₂ := t₂; fe_s₁ := ns₁; fe_s₂ := ns₂ |}
-          in
-          ps_mul_loop add_coeff mul_coeff
-            [(Qplus (power t₁) (power t₂), [fe])]
-      | End => End _
-      end
-  | End => End _
-  end.
-
-value trace_ps zero is_zero ps =
-  loop (ps_terms ps) where rec loop s =
-    match s with
-    | Term t s₁ → do {
-        eprintf "Term {c=%s;p=%s} %!" (C.to_string False (Obj.magic t.coeff))
-          (Q.to_string t.power);
-        loop (Lazy.force s₁)
-      }
-    | End → eprintf "End\n%!"
-    end
-;
-
-Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
-  if arg_test.val then ps_mul fld ps₁ ps₂ else
-  {| ps_terms :=
-       ps_mul_term (norm fld (add fld)) (norm fld (mul fld)) (ps_terms ps₁)
-         (ps_terms ps₂);
-     ps_comden :=
-       Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
-*)
