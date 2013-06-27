@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.90 2013-06-27 09:12:25 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.91 2013-06-27 09:17:09 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -346,7 +346,8 @@ value group_term_descr k tdl =
     match ml with
     [ [(ps, p) :: ml₁] →
         if p > deg then
-          loop [ms_of_ps k (ops2ps {old_ps_mon = []}) :: rev_cl] (deg + 1) ml
+          loop [ms_of_ps k {ps_terms = End; ps_comden = I.one} :: rev_cl]
+            (deg + 1) ml
         else if p < deg then
           match () with []
         else
