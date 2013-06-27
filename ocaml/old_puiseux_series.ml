@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.1 2013-06-27 09:29:00 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.2 2013-06-27 18:58:11 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -39,10 +39,7 @@ CoFixpoint term_of_ms α cd p (s : series α) :=
   end.
 
 Definition ps_terms_of_ms α (ms : puiseux_series α) : series (term α) :=
-  match ms_valnum ms with
-  | Some v => term_of_ms (ms_comden ms) v (ms_terms ms)
-  | None => End _
-  end.
+  term_of_ms (ms_comden ms) (ms_valnum ms) (ms_terms ms).
 
 Definition ps_of_ms α (ms : puiseux_series α) :=
   {| ps_terms := ps_terms_of_ms ms;
@@ -74,10 +71,8 @@ Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
        ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
        match old_valuation fld ps with
-       | Some v =>
-           Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
-       | None =>
-           None
+       | Some v => Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps)))))
+       | None => I.zero
        end;
      ms_comden :=
        ps_comden ps |}.

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.378 2013-06-27 09:29:00 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.379 2013-06-27 18:58:11 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -194,7 +194,7 @@ Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
-       {| ms_terms := End _; ms_valnum := None; ms_comden := I.one |}
+       {| ms_terms := End _; ms_valnum := I.zero; ms_comden := I.one |}
        (ps_add fld) (ps_mul fld))
     pol.
 
@@ -239,10 +239,7 @@ value print_solution fld br nth cγl finite sol = do {
 Definition mul_x_power_minus p ps :=
   {| ms_terms := ms_terms ps;
      ms_valnum :=
-       match ms_valnum ps with
-       | Some v => Some (Z.sub v (Qnum (Q.mul p (inject_Z (ms_comden ps)))))
-       | None => None
-       end;
+       Z.sub (ms_valnum ps) (Qnum (Q.mul p (inject_Z (ms_comden ps))));
      ms_comden := ms_comden ps |}.
 
 Definition pol_mul_x_power_minus p pol :=
@@ -518,7 +515,7 @@ value polyn_of_tree fld t =
     List.rev_map
        (fun t →
           if is_zero_tree fld t then
-            {ms_terms = End; ms_valnum = None; ms_comden = I.one}
+            {ms_terms = End; ms_valnum = I.zero; ms_comden = I.one}
           else
             puiseux_series_of_tree fld t)
        (pol.al @ [pol.an])
