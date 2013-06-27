@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.182 2013-06-27 19:39:12 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.183 2013-06-27 19:47:25 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -16,23 +16,23 @@ Record puiseux_series α :=
 
 value rec series_head is_zero n s =
   match s with
-  | Term m t →
-      if is_zero m then series_head is_zero (n + 1) (Lazy.force t) else (n, s)
+  | Term c t →
+      if is_zero c then series_head is_zero (n + 1) (Lazy.force t)
+      else Some (n, c)
   | End →
-      (n, End)
+      None
   end;
 
 Definition valuation α fld ps :=
-  let (n, t) := series_head (is_zero fld) 0 (ms_terms ps) in
-  match t with
-  | Term _ _ => Some (Qred (Qmake (I.addi (ms_valnum ps) n) (ms_comden ps)))
-  | End => None
+  match series_head (is_zero fld) 0 (ms_terms ps) with
+  | Some (n, c) => Some (Qred (Qmake (I.addi (ms_valnum ps) n) (ms_comden ps)))
+  | None => None
   end.
 
 Definition valuation_coeff α fld ps :=
-  match snd (series_head (is_zero fld) 0 (ms_terms ps)) with
-  | Term c _ => c
-  | End => zero fld
+  match series_head (is_zero fld) 0 (ms_terms ps) with
+  | Some (_, c) => c
+  | None => zero fld
   end.
 
 value norm fld f x y = fld.ext.normalise (f x y);
