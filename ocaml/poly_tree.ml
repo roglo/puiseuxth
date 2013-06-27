@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.92 2013-06-27 09:21:37 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.93 2013-06-27 09:29:00 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -15,6 +15,7 @@ open Field;
 open Poly;
 open Puiseux_series;
 open Series;
+open Old_puiseux_series;
 
 type tree α =
   [ Plus of tree α and tree α

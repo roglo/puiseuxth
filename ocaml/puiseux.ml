@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.377 2013-06-27 09:04:34 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.378 2013-06-27 09:29:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -10,6 +10,7 @@ open Pnums;
 open Convex_hull;
 open Coq;
 open Field;
+open Old_puiseux_series;
 open Poly_parse;
 open Poly_print;
 open Poly_tree;
