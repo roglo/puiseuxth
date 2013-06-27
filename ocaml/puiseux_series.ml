@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.176 2013-06-26 16:27:49 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.177 2013-06-27 09:04:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -20,22 +20,50 @@ Record puiseux_series α :=
     ms_valnum : option Z;
     ms_comden : positive }.
 
-value rec series_head is_zero s =
+value rec series_head_loop is_zero n s =
   match s with
   | Term m t →
-      if is_zero m.coeff then series_head is_zero (Lazy.force t) else s
+      if is_zero m then series_head_loop is_zero (n + 1) (Lazy.force t)
+      else (s, n)
+  | End →
+      (End, n)
+  end;
+
+value series_head is_zero s = fst (series_head_loop is_zero 0 s);
+
+Definition valuation α fld ps :=
+  match ms_valnum ps with
+  | Some v =>
+      let (t, n) := series_head_loop (is_zero fld) 0 (ms_terms ps) in
+      match t with
+      | Term _ _ => Some (Qred (Qmake (I.addi v n) (ms_comden ps)))
+      | End => None
+      end
+  | None => None
+  end.
+
+Definition valuation_coeff α fld ps :=
+  match series_head (is_zero fld) (ms_terms ps) with
+  | Term c _ => c
+  | End => zero fld
+  end.
+
+value rec old_series_head is_zero s =
+  match s with
+  | Term m t →
+      if is_zero m.coeff then old_series_head is_zero (Lazy.force t) else s
   | End →
       End
   end;
 
-Definition valuation α fld (ps : old_puiseux_series α) :=
-  match series_head (is_zero fld) (ps_terms ps) with
+Definition old_valuation α fld (ps : old_puiseux_series α) :=
+  match old_series_head (is_zero fld) (ps_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
   end.
 
-Definition valuation_coeff α fld (ps : old_puiseux_series α) :=
-  match series_head (is_zero fld) (ps_terms ps) with
+Definition old_valuation_coeff α fld (ps : old_puiseux_series α) :=
+  match old_series_head (is_zero fld) (ps_terms ps) with
   | Term mx _ => coeff mx
   | End => zero fld
   end.
@@ -82,13 +110,13 @@ Definition ms_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
     | End => End _
     end
   in
-  loop (series_head is_zero (ps_terms ps)).
+  loop (old_series_head is_zero (ps_terms ps)).
 
 Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
   {| ms_terms :=
        ms_terms_of_ps (zero fld) (is_zero fld) ps;
      ms_valnum :=
-       match valuation fld ps with
+       match old_valuation fld ps with
        | Some v =>
            Some (Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps))))))
        | None =>
@@ -138,7 +166,7 @@ Fixpoint ms_add_terms α fld n (s₁ s₂ : series α) :=
       end
   end.
 
-Definition ms_add α fld (ms₁ ms₂ : puiseux_series α) :=
+Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
@@ -160,11 +188,14 @@ Definition ms_add α fld (ms₁ ms₂ : puiseux_series α) :=
   | None => ms₂
   end.
 
+(*
 Definition ps_add α fld (ps₁ ps₂ : old_puiseux_series α) :=
   ps_of_ms (ms_add fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
+*)
 
 (* ps_add *)
 
+(*
 CoFixpoint ps_add_loop α (add_coeff : α → α → α) ms₁ ms₂ :=
   match ms₁ with
   | Term c₁ s₁ =>
@@ -191,6 +222,7 @@ Definition ps_add α fld (ps₁ ps₂ : old_puiseux_series α) :=
        ps_add_loop (norm fld (add fld)) (ps_terms ps₁) (ps_terms ps₂);
      ps_comden :=
        Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
+*)
 
 (* ps_mul - math not efficient version *)
 
@@ -229,7 +261,7 @@ Definition ms_mul_term α fld (s₁ s₂ : series α) :=
   in
   mul_loop 1%nat.
 
-Definition ms_mul α fld (ms₁ ms₂ : puiseux_series α) :=
+Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
   let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
   let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
@@ -247,11 +279,14 @@ Definition ms_mul α fld (ms₁ ms₂ : puiseux_series α) :=
      ms_comden :=
        l |}.
 
+(*
 Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
   ps_of_ms (ms_mul fld (ms_of_ps fld ps₁) (ms_of_ps fld ps₂)).
+*)
 
 (* ps_mul - efficient version *)
 
+(*
 Record fifo_elem α :=
   { fe_t₁ : term α; fe_t₂ : term α;
     fe_s₁ : series (term α); fe_s₂ : series (term α) }.
@@ -368,3 +403,4 @@ Definition ps_mul α fld (ps₁ ps₂ : old_puiseux_series α) :=
          (ps_terms ps₂);
      ps_comden :=
        Plcm (ps_comden ps₁) (ps_comden ps₂) |}.
+*)

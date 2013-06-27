@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.376 2013-06-26 20:31:22 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.377 2013-06-27 09:04:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -37,7 +37,7 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
-Fixpoint all_points_of_ps_polynom α pow psl (psn : old_puiseux_series α) :=
+Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>
       [(Qnat pow, ps₁) … all_points_of_ps_polynom (S pow) psl₁ psn]
@@ -45,7 +45,7 @@ Fixpoint all_points_of_ps_polynom α pow psl (psn : old_puiseux_series α) :=
       [(Qnat pow, psn)]
   end.
 
-Fixpoint filter_non_zero_ps α fld (dpl : list (Q * old_puiseux_series α)) :=
+Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
       match valuation fld ps with
@@ -56,10 +56,10 @@ Fixpoint filter_non_zero_ps α fld (dpl : list (Q * old_puiseux_series α)) :=
       []
   end.
 
-Definition points_of_ps_polynom_gen α fld pow cl (cn : old_puiseux_series α) :=
+Definition points_of_ps_polynom_gen α fld pow cl (cn : puiseux_series α) :=
   filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn).
 
-Definition points_of_ps_polynom α fld (pol : polynomial (old_puiseux_series α)) :=
+Definition points_of_ps_polynom α fld (pol : polynomial (puiseux_series α)) :=
   points_of_ps_polynom_gen fld 0%nat (al pol) (an pol).
 
 (* *)
@@ -87,7 +87,7 @@ Definition newton_segment_of_pair hsj hsk :=
   let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
   mkns γ β (pt hsj) (pt hsk) (oth hsj);
 
-Definition newton_segments α fld (pol : polynomial (old_puiseux_series α)) :=
+Definition newton_segments α fld (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom fld pol in
   list_map_pairs newton_segment_of_pair (lower_convex_hull_points gdpl).
 
@@ -105,13 +105,13 @@ value arg_debug = ref False;
 value arg_end = ref False;
 
 type branch α =
-  { initial_polynom : polynomial (old_puiseux_series α);
+  { initial_polynom : polynomial (puiseux_series α);
     cγl : list (α * Q);
     step : int;
     rem_steps : int;
     vx : string;
     vy : string;
-    pol : polynomial (old_puiseux_series α) }
+    pol : polynomial (puiseux_series α) }
 ;
 
 value cut_long at_middle s =
@@ -150,10 +150,11 @@ Fixpoint series_take n s :=
 value string_of_old_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
   let ps₂ =
     if nb_terms > 0 then
-      {ps_terms = series_series_take nb_terms ps.ps_terms;
-       ps_comden = ps.ps_comden}
+      ms_of_ps fld
+        {ps_terms = series_series_take nb_terms ps.ps_terms;
+         ps_comden = ps.ps_comden}
     else
-      ps
+      ms_of_ps fld ps
   in
   let ellipses =
     if nb_terms = 0 then ""
@@ -192,11 +193,12 @@ Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
-       {| ps_terms := End _; ps_comden := I.one |}
+       {| ms_terms := End _; ms_valnum := None; ms_comden := I.one |}
        (ps_add fld) (ps_mul fld))
     pol.
 
 Definition float_round_zero fld ps :=
+  let ps := ps_of_ms ps in
   let s :=
     let cofix loop s :=
       match s with
@@ -234,19 +236,20 @@ value print_solution fld br nth cγl finite sol = do {
 };
 
 Definition mul_x_power_minus p ps :=
-  let t :=
-    series_map
-      (λ m, {| coeff := coeff m; power := Qred (Qminus (power m) p) |})
-      (ps_terms ps)
-  in
-  {| ps_terms := t; ps_comden := ps_comden ps |}.
+  {| ms_terms := ms_terms ps;
+     ms_valnum :=
+       match ms_valnum ps with
+       | Some v => Some (Z.sub v (Qnum (Q.mul p (inject_Z (ms_comden ps)))))
+       | None => None
+       end;
+     ms_comden := ms_comden ps |}.
 
 Definition pol_mul_x_power_minus p pol :=
   let cl := List.map (mul_x_power_minus p) (al pol) in
   let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |}.
 
-value make_solution rev_cγl =
+value make_solution fld rev_cγl =
   let t =
     loop Q.zero (List.rev rev_cγl) where rec loop γsum cγl =
       match cγl with
@@ -263,14 +266,14 @@ value make_solution rev_cγl =
       | [(c, γ) … cγl₁] → I.lcm (Q.rden γ) (loop cγl₁)
       end
   in
-  {ps_terms = t; ps_comden = d}
+  ms_of_ps fld {ps_terms = t; ps_comden = d}
 ;
 
-Definition zero_is_root fld (pol : polynomial (old_puiseux_series α)) :=
+Definition zero_is_root fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match series_head (is_zero fld) (ps_terms ps) with
+      match series_head (is_zero fld) (ms_terms ps) with
       | Term _ _ => false
       | End => true
       end
@@ -279,11 +282,13 @@ Definition zero_is_root fld (pol : polynomial (old_puiseux_series α)) :=
 Definition f₁ (fld : field α _) f β γ c :=
   let y :=
     {| al :=
-         [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
-             ps_comden := pos_to_nat (Qden γ) |}];
+         [ms_of_ps fld
+            {| ps_terms := Term {| coeff := c; power := γ |} (End _);
+                ps_comden := pos_to_nat (Qden γ) |}];
        an :=
-         {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
-            ps_comden := pos_to_nat (Qden γ) |} |}
+         ms_of_ps fld
+           {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
+              ps_comden := pos_to_nat (Qden γ) |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol;
@@ -329,7 +334,7 @@ Definition characteristic_polynomial (fld : field α _) pol ns :=
   let kps := list_nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |}.
 
-Definition puiseux_step psumo acf (pol : polynomial (old_puiseux_series α)) :=
+Definition puiseux_step psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments (ac_field acf) pol in
   let (nsl, psum) :=
     match psumo with
@@ -350,7 +355,7 @@ Definition puiseux_step psumo acf (pol : polynomial (old_puiseux_series α)) :=
       Some ({| coeff := c; power := p |}, pol₁)
   end.
 
-CoFixpoint puiseux_loop psumo acf (pol : polynomial (old_puiseux_series α)) :=
+CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
   match puiseux_step psumo acf pol with
   | Some (t, pol₁) =>
       Term t
@@ -360,7 +365,7 @@ CoFixpoint puiseux_loop psumo acf (pol : polynomial (old_puiseux_series α)) :=
       End _
   end.
 
-Definition puiseux_root acf (pol : polynomial (old_puiseux_series α)) :=
+Definition puiseux_root acf (pol : polynomial (puiseux_series α)) :=
   {| ps_terms := puiseux_loop None acf pol; ps_comden := I.one |}.
 
 (* *)
@@ -396,7 +401,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
       if finite then printf "zero is root !\n%!" else ();
     }
     else ();
-    let sol = make_solution cγl in
+    let sol = make_solution fld cγl in
     print_solution fld br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) … sol_list]
   }
@@ -430,7 +435,7 @@ value rec puiseux_branch af br sol_list ns =
   let cpol = characteristic_polynomial fld br.pol ns in
   let rl = ac_roots af cpol in
   if rl = [] then do {
-    let sol = make_solution br.cγl in
+    let sol = make_solution fld br.cγl in
     print_solution fld br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) … sol_list]
   }
@@ -511,8 +516,10 @@ value polyn_of_tree fld t =
   let rev_ml =
     List.rev_map
        (fun t →
-          if is_zero_tree fld t then {ps_terms = End; ps_comden = I.one}
-          else puiseux_series_of_tree fld t)
+          if is_zero_tree fld t then
+            {ms_terms = End; ms_valnum = None; ms_comden = I.one}
+          else
+            puiseux_series_of_tree fld t)
        (pol.al @ [pol.an])
   in
   match rev_ml with
