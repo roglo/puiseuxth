@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.178 2013-06-27 09:06:28 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.179 2013-06-27 09:10:04 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -60,12 +60,6 @@ Definition old_valuation α fld (ps : old_puiseux_series α) :=
   match old_series_head (is_zero fld) (ps_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
-  end.
-
-Definition old_valuation_coeff α fld (ps : old_puiseux_series α) :=
-  match old_series_head (is_zero fld) (ps_terms ps) with
-  | Term mx _ => coeff mx
-  | End => zero fld
   end.
 
 value norm fld f x y = fld.ext.normalise (f x y);

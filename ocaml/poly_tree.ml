@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.89 2013-06-27 09:04:34 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.90 2013-06-27 09:12:25 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -492,8 +492,8 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
       in
       Some r
   in
-  let ps = ps_of_ms ps in
-  match List.fold_left rebuild_add None (ps2ops ps).old_ps_mon with
+  let ps = ps2ops (ps_of_ms ps) in
+  match List.fold_left rebuild_add None ps.old_ps_mon with
   | Some t → t
   | None → Const k.zero
   end
