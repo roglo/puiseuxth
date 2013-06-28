@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.5 2013-06-28 10:19:52 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.6 2013-06-28 16:41:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -30,7 +30,7 @@ Definition old_valuation α fld (ps : old_puiseux_series α) :=
 CoFixpoint term_of_ms α cd p (s : series α) :=
   match s with
   | Term c ns =>
-      Term {| coeff := c; power := Qred (Qmake p cd) |}
+      Term {| coeff := c; power := Qred (Qmake p cd); multip := 0 |}
         (term_of_ms cd (Z.succ p) ns)
   | End =>
       End _

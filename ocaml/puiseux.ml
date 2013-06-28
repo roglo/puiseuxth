@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.389 2013-06-28 11:45:59 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.390 2013-06-28 16:41:36 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -197,7 +197,7 @@ Definition float_round_zero fld ps :=
           let c := fld.ext.float_round_zero (coeff m) in
           if fld.is_zero c then loop s₁
           else
-            let m₁ := {coeff = c; power = power m} in
+            let m₁ := {coeff = c; power = power m; multip = multip m} in
             Term m₁ (loop s₁)
       | End =>
           End
@@ -239,14 +239,14 @@ Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
   let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |}.
 
-value make_solution fld rev_cγl =
+value make_solution fld rev_cγl r =
   let t =
     loop Q.zero (List.rev rev_cγl) where rec loop γsum cγl =
       match cγl with
       | [] → End
       | [(c, γ) … cγl₁] →
           let γsum = Q.norm (Q.add γsum γ) in
-          Term {coeff = c; power = γsum} (loop γsum cγl₁)
+          Term {coeff = c; power = γsum; multip = r} (loop γsum cγl₁)
       end
   in
   let d =
@@ -342,7 +342,7 @@ Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
       let (c, r) := List.hd (ac_roots acf cpol) in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
-      Some ({| coeff := c; power := p |}, pol₁)
+      Some ({| coeff := c; power := p; multip := r |}, pol₁)
   end.
 
 CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
@@ -355,14 +355,28 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :
+Fixpoint puiseux_comden n cd s :=
+  match n with
+  | 0 => cd
+  | S n₁ =>
+      match s with
+      | Term t ss =>
+          let cd := Plcm cd (Qden (Qred (power t))) in
+          if multip t = 1 then cd
+          else puiseux_comden n₁ cd ss
+      | End =>
+          cd
+      end
+  end.
+
+Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
     puiseux_series α :=
   let s := puiseux_loop None acf pol in
-  let cd := I.one in
+  let cd := puiseux_comden niter I.one s in
   {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
      ps_valnum :=
        match s with
-       | Term t _ => Z.mul (Qnum (power t)) cd
+       | Term t _ => Qnum (Qred (Q.mul (power t) (Qmake cd I.one)))
        | End => I.zero
        end;
      ps_comden := cd |}.
@@ -400,7 +414,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
       if finite then printf "zero is root !\n%!" else ();
     }
     else ();
-    let sol = make_solution fld cγl in
+    let sol = make_solution fld cγl m in
     print_solution fld br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) … sol_list]
   }
@@ -434,7 +448,7 @@ value rec puiseux_branch af br sol_list ns =
   let cpol = characteristic_polynomial fld br.pol ns in
   let rl = ac_roots af cpol in
   if rl = [] then do {
-    let sol = make_solution fld br.cγl in
+    let sol = make_solution fld br.cγl 0 in
     print_solution fld br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) … sol_list]
   }
@@ -485,17 +499,18 @@ value print_line_equal () =
 ;
 
 value puiseux af nb_steps vx vy pol =
-(**)
+(*
 let vv = verbose.val in
 let _ = verbose.val := False in
-let r = puiseux_root af pol in
+let niter = 6 in
+let r = puiseux_root af niter pol in
 let ps =
-  {ps_terms = series_series_take 6 (ps_terms r); ps_comden = ps_comden r;
+  {ps_terms = series_series_take niter (ps_terms r); ps_comden = ps_comden r;
    ps_valnum = ps_valnum r}
 in
 let _ = printf "PUISEUX : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
 let _ = verbose.val := vv in
-(**)
+*)
   let gbl = newton_segments (ac_field af) pol in
   if gbl = [] then failwith "no finite γ value"
   else
@@ -702,8 +717,10 @@ value af_c () =
 ;
 
 value ps_of_int fld i =
-  {ops_terms = Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero} End;
-   ops_comden = I.one}
+  {ops_terms =
+     Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero; multip = 0} End;
+   ops_comden =
+     I.one}
 ;
 
 (*
