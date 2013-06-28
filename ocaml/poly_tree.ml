@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.95 2013-06-28 01:02:33 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.96 2013-06-28 09:01:21 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -466,7 +466,7 @@ value ps_polyn_of_tree k t =
 
 value xpower r = Xpower (I.to_int (Q.rnum r)) (I.to_int (Q.rden r));
 
-value tree_of_old_puiseux_series k cancel_zeroes ps =
+value tree_of_puiseux_series k cancel_zeroes ps =
   let rebuild_add t mx =
     if cancel_zeroes && k.is_zero mx.coeff then t
     else
@@ -534,8 +534,8 @@ value rev_tree_of_polyn k pol =
 ;
 
 value tree_of_ps_polyn k cancel_zeroes pol =
-  let cl = List.map (tree_of_old_puiseux_series k cancel_zeroes) pol.al in
-  let cn = tree_of_old_puiseux_series k cancel_zeroes pol.an in
+  let cl = List.map (tree_of_puiseux_series k cancel_zeroes) pol.al in
+  let cn = tree_of_puiseux_series k cancel_zeroes pol.an in
   tree_of_tree_polyn k {al = cl; an = cn}
 ;
 

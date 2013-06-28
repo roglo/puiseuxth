@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.3 2013-06-28 01:02:33 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.4 2013-06-28 09:01:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -45,26 +45,28 @@ Definition ops_of_ms α (ms : puiseux_series α) :=
   {| ops_terms := ops_terms_of_ms ms;
      ops_comden := ps_comden ms |}.
 
-CoFixpoint complete α (zero : α) (ps : old_puiseux_series α) p s :=
+CoFixpoint complete α (zero : α) cd p s :=
   match s with
   | Term t ns =>
-      let p₁ := Qplus p (Qmake I.one (ops_comden ps)) in
+      let p₁ := Qplus p (Qmake I.one cd) in
       if Qlt_le_dec p₁ (power t) then
-        Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
+        Term {| coeff := zero; power := p₁ |} (complete zero cd p₁ s)
       else
         Term t ns
   | End =>
       End _
   end.
 
+CoFixpoint old_ps_to_ps zero cd s :=
+  match s with
+  | Term t ns =>
+      Term (coeff t) (old_ps_to_ps zero cd (complete zero cd (power t) ns))
+  | End =>
+      End _
+  end.
+
 Definition ps_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
-  let cofix loop s :=
-    match s with
-    | Term t ns => Term (coeff t) (loop (complete zero ps (power t) ns))
-    | End => End _
-    end
-  in
-  loop (old_series_head is_zero (ops_terms ps)).
+  old_ps_to_ps zero (ops_comden ps) (old_series_head is_zero (ops_terms ps)).
 
 Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
   {| ps_terms :=

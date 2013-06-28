@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.383 2013-06-28 01:50:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.384 2013-06-28 09:01:21 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -162,12 +162,12 @@ value string_of_old_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
     else if series_nth nb_terms ps.ops_terms <> None then " + ..."
     else ""
   in
-  let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in
+  let t = tree_of_puiseux_series fld cancel_zeroes ps₂ in
   string_of_tree fld opt vx "?" t ^ ellipses
 ;
 
-value airy_string_of_old_puiseux_series k opt vx ps =
-  let t = tree_of_old_puiseux_series k True ps in
+value airy_string_of_puiseux_series k opt vx ps =
+  let t = tree_of_puiseux_series k True ps in
   airy_string_of_tree k opt vx "?" t
 ;
 
@@ -212,7 +212,7 @@ value print_solution fld br nth cγl finite sol = do {
   printf "solution: %s%s%s = %s%s%s\n%!"
     (if arg_eval_sol.val <> None || verbose.val then start_red () else "")
     br.vy inf_nth
-    (airy_string_of_old_puiseux_series fld (not arg_lang.val) br.vx sol)
+    (airy_string_of_puiseux_series fld (not arg_lang.val) br.vx sol)
     (if finite then "" else " + ...")
     (if arg_eval_sol.val <> None || verbose.val then end_red () else "");
   match arg_eval_sol.val with
@@ -355,10 +355,14 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :=
-  {| ps_terms := puiseux_loop None acf pol;
-     ps_valnum := I.zero;
-     ps_comden := I.one |}.
+Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :
+    puiseux_series α :=
+  {| ps_terms :=
+       old_ps_to_ps (zero (ac_field acf)) I.one (puiseux_loop None acf pol);
+     ps_valnum :=
+       I.zero;
+     ps_comden :=
+       I.one |}.
 
 (* *)
 
@@ -478,6 +482,17 @@ value print_line_equal () =
 ;
 
 value puiseux af nb_steps vx vy pol =
+(**)
+let vv = verbose.val in
+let _ = verbose.val := False in
+let r = puiseux_root af pol in
+let ps =
+  {ps_terms = series_series_take 6 (ps_terms r); ps_comden = ps_comden r;
+   ps_valnum = ps_valnum r}
+in
+let _ = printf "puiseux : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
+let _ = verbose.val := vv in
+(**)
   let gbl = newton_segments (ac_field af) pol in
   if gbl = [] then failwith "no finite γ value"
   else
