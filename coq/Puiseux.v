@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.780 2013-06-24 02:22:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.781 2013-06-28 01:50:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,13 +9,16 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Field.
 Require Import Misc.
+Require Import Newton.
 Require Import Polynomial.
+Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Series.
 
 Set Implicit Arguments.
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
+Record term α := { coeff : α; power : Q }.
 
 (* *)
 
@@ -24,40 +27,46 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
-       (ps_of_ms {| ms_terms := End α; ms_valnum := None; ms_comden := 1 |})
+       {| ps_terms := End _; ps_valnum := 0; ps_comden := 1 |}
        (ps_add fld) (ps_mul fld))
     pol.
 
-Definition mul_x_power_minus α fld p (ps : puiseux_series α) :=
-  let ms₁ := ms_of_ps fld ps in
-  let ms₂ :=
-    {| ms_terms := ms_terms ms₁;
-       ms_valnum :=
-         match ms_valnum ms₁ with
-         | Some v => Some (v - p)%Z
-         | None => None
-         end;
-       ms_comden := ms_comden ms₁ |}
-  in
-  ps_of_ms ms₂.
+Definition mul_x_power_minus α p (ps : puiseux_series α) :=
+  {| ps_terms :=
+       ps_terms ps;
+     ps_valnum :=
+       Z.sub (ps_valnum ps) (Qnum (Qmult p (inject_Z (Zpos (ps_comden ps)))));
+     ps_comden :=
+       ps_comden ps |}.
 
-Definition pol_mul_x_power_minus α fld p
-    (pol : polynomial (puiseux_series α)) :=
-  let cl := List.map (mul_x_power_minus fld p) (al pol) in
-  let cn := mul_x_power_minus fld p (an pol) in
+Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
+  let cl := List.map (mul_x_power_minus p) (al pol) in
+  let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |}.
 
-Definition f₁ α (fld : field α) (f : polynomial (puiseux_series α)) β γ c :=
+Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
+  match al pol with
+  | [] => false
+  | [ps … _] =>
+      match series_head (is_zero fld) 0 (ps_terms ps) with
+      | Some _ => false
+      | None => true
+      end
+  end.
+
+Definition f₁ α (fld : field α) f β γ c :=
   let y :=
     {| al :=
-         [{| ps_terms := Term {| coeff := c; power := γ |} (End _);
-             ps_comden := Qden γ; ps_prop := bbb |}];
+         [{| ps_terms := Term c (End _);
+             ps_valnum := Qnum γ;
+             ps_comden := Qden γ |}];
        an :=
-         {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
+         {| ps_terms := Term (one fld) (End _);
+            ps_valnum := Qnum γ;
             ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
-  pol_mul_x_power_minus fld β pol.
+  pol_mul_x_power_minus β pol.
 
 (* *)
 
@@ -101,18 +110,8 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let kps := List.nth k (al pol) (an pol) in
   {| al := cl; an := valuation_coeff fld kps |}.
 
-Definition zero_is_root α (pol : polynomial (puiseux_series α)) :=
-  match al pol with
-  | [] => false
-  | [ps … _] =>
-      match series_head (ps_terms ps) with
-      | Term _ _ => false
-      | End => true
-      end
-  end.
-
 Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
-  let nsl₁ := newton_segments pol in
+  let nsl₁ := newton_segments (ac_field acf) pol in
   let (nsl, psum) :=
     match psumo with
     | Some psum => (List.filter (λ ns, negb (Qle_bool (γ ns) 0)) nsl₁, psum)
@@ -134,14 +133,16 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   match puiseux_step psumo acf pol with
   | Some (t, pol₁) =>
       Term t
-        (if zero_is_root pol₁ then End _
+        (if zero_is_root (ac_field acf) pol₁ then End _
          else puiseux_loop (Some (power t)) acf pol₁)
   | None =>
       End _
   end.
 
 Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :=
-  {| ps_terms := puiseux_loop None acf pol; ps_comden := 1 |}.
+  {| ps_terms := puiseux_loop None acf pol;
+     ps_valnum := 0;
+     ps_comden := 1 |}.
 
 (*
 Definition ps_inv α (add_coeff : α → α → α) mul_coeff x :=
@@ -151,6 +152,7 @@ Definition ps_div α (add_coeff : α → α → α) mul_coeff x y :=
   ps_mul add_coeff mul_coeff x (ps_inv y).
 *)
 
+(*
 Definition ps_zero α := {| ps_terms := End (term α); ps_comden := 1 |}.
 Definition ps_one α fld :=
   {| ps_terms := Term {| coeff := one fld; power := 0 |} (End (term α));
@@ -163,6 +165,7 @@ Definition ps_fld α (fld : field α) :=
      one := ps_one fld;
      add := ps_add_fld fld;
      mul := ps_mul_fld fld |}.
+*)
 
 (* *)
 

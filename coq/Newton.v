@@ -1,4 +1,4 @@
-(* $Id: Newton.v,v 1.2 2013-06-19 13:15:01 deraugla Exp $ *)
+(* $Id: Newton.v,v 1.3 2013-06-28 01:50:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -44,4 +44,3 @@ induction l₁ as [| y]; [ reflexivity | intros ].
 simpl in IHl₁ |- *.
 apply eq_S, IHl₁.
 Qed.
-
