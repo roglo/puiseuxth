@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.47 2013-06-27 09:29:01 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.48 2013-06-28 01:02:33 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -40,11 +40,11 @@ value ps2ops ps =
       | End → []
       end
   in
-  loop (-1) ps.ps_terms
+  loop (-1) ps.ops_terms
 ;
 
 value print_term deg m = do {
-  let m = ps_of_ms m in
+  let m = ops_of_ms m in
   printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," deg;
   let ml =
     let m = ps2ops m in
