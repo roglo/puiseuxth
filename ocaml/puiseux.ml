@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.388 2013-06-28 10:19:52 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.389 2013-06-28 11:45:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -359,7 +359,7 @@ Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :
     puiseux_series α :=
   let s := puiseux_loop None acf pol in
   let cd := I.one in
-  {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) I.one s;
+  {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
      ps_valnum :=
        match s with
        | Term t _ => Z.mul (Qnum (power t)) cd
@@ -485,7 +485,7 @@ value print_line_equal () =
 ;
 
 value puiseux af nb_steps vx vy pol =
-(*
+(**)
 let vv = verbose.val in
 let _ = verbose.val := False in
 let r = puiseux_root af pol in
@@ -495,7 +495,7 @@ let ps =
 in
 let _ = printf "PUISEUX : y₁ = %s\n\n%!" (airy_string_of_puiseux_series af.ac_field True vx ps) in
 let _ = verbose.val := vv in
-*)
+(**)
   let gbl = newton_segments (ac_field af) pol in
   if gbl = [] then failwith "no finite γ value"
   else
