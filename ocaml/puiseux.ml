@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.385 2013-06-28 09:02:36 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.386 2013-06-28 09:03:09 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -362,7 +362,7 @@ Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :
      ps_valnum :=
        I.zero;
      ps_comden :=
-       I.of_int 42 |}.
+       I.one |}.
 
 (* *)
 
