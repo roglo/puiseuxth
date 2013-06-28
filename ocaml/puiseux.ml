@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.381 2013-06-27 19:47:25 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.382 2013-06-28 01:02:33 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -152,14 +152,14 @@ value string_of_old_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
   let ps₂ =
     if nb_terms > 0 then
       ms_of_ps fld
-        {ps_terms = series_series_take nb_terms ps.ps_terms;
-         ps_comden = ps.ps_comden}
+        {ops_terms = series_series_take nb_terms ps.ops_terms;
+         ops_comden = ps.ops_comden}
     else
       ms_of_ps fld ps
   in
   let ellipses =
     if nb_terms = 0 then ""
-    else if series_nth nb_terms ps.ps_terms <> None then " + ..."
+    else if series_nth nb_terms ps.ops_terms <> None then " + ..."
     else ""
   in
   let t = tree_of_old_puiseux_series fld cancel_zeroes ps₂ in
@@ -194,12 +194,12 @@ Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
-       {| ms_terms := End _; ms_valnum := I.zero; ms_comden := I.one |}
+       {| ps_terms := End _; ps_valnum := I.zero; ps_comden := I.one |}
        (ps_add fld) (ps_mul fld))
     pol.
 
 Definition float_round_zero fld ps :=
-  let ps := ps_of_ms ps in
+  let ps := ops_of_ms ps in
   let s :=
     let cofix loop s :=
       match s with
@@ -213,9 +213,9 @@ Definition float_round_zero fld ps :=
           End
       end
     in
-    loop (ps_terms ps)
+    loop (ops_terms ps)
   in
-  {ps_terms = s; ps_comden = ps_comden ps};
+  {ops_terms = s; ops_comden = ops_comden ps};
 
 value print_solution fld br nth cγl finite sol = do {
   let inf_nth = inf_string_of_string (soi nth) in
@@ -237,10 +237,10 @@ value print_solution fld br nth cγl finite sol = do {
 };
 
 Definition mul_x_power_minus p ps :=
-  {| ms_terms := ms_terms ps;
-     ms_valnum :=
-       Z.sub (ms_valnum ps) (Qnum (Q.mul p (inject_Z (ms_comden ps))));
-     ms_comden := ms_comden ps |}.
+  {| ps_terms := ps_terms ps;
+     ps_valnum :=
+       Z.sub (ps_valnum ps) (Qnum (Q.mul p (inject_Z (ps_comden ps))));
+     ps_comden := ps_comden ps |}.
 
 Definition pol_mul_x_power_minus p pol :=
   let cl := List.map (mul_x_power_minus p) (al pol) in
@@ -264,25 +264,25 @@ value make_solution fld rev_cγl =
       | [(c, γ) … cγl₁] → I.lcm (Q.rden γ) (loop cγl₁)
       end
   in
-  ms_of_ps fld {ps_terms = t; ps_comden = d}
+  ms_of_ps fld {ops_terms = t; ops_comden = d}
 ;
 
 Definition zero_is_root fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
-  | [ps … _] => series_head (is_zero fld) 0 (ms_terms ps) = None
+  | [ps … _] => series_head (is_zero fld) 0 (ps_terms ps) = None
   end.
 
 Definition f₁ (fld : field α _) f β γ c :=
   let y :=
     {| al :=
          [ms_of_ps fld
-            {| ps_terms := Term {| coeff := c; power := γ |} (End _);
-                ps_comden := pos_to_nat (Qden γ) |}];
+            {| ops_terms := Term {| coeff := c; power := γ |} (End _);
+                ops_comden := pos_to_nat (Qden γ) |}];
        an :=
          ms_of_ps fld
-           {| ps_terms := Term {| coeff := one fld; power := γ |} (End _);
-              ps_comden := pos_to_nat (Qden γ) |} |}
+           {| ops_terms := Term {| coeff := one fld; power := γ |} (End _);
+              ops_comden := pos_to_nat (Qden γ) |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol;
@@ -360,7 +360,7 @@ CoFixpoint puiseux_loop psumo acf (pol : polynomial (puiseux_series α)) :=
   end.
 
 Definition puiseux_root acf (pol : polynomial (puiseux_series α)) :=
-  {| ps_terms := puiseux_loop None acf pol; ps_comden := I.one |}.
+  {| ops_terms := puiseux_loop None acf pol; ops_comden := I.one |}.
 
 (* *)
 
@@ -511,7 +511,7 @@ value polyn_of_tree fld t =
     List.rev_map
        (fun t →
           if is_zero_tree fld t then
-            {ms_terms = End; ms_valnum = I.zero; ms_comden = I.one}
+            {ps_terms = End; ps_valnum = I.zero; ps_comden = I.one}
           else
             puiseux_series_of_tree fld t)
        (pol.al @ [pol.an])
@@ -686,8 +686,8 @@ value af_c () =
 ;
 
 value ps_of_int fld i =
-  {ps_terms = Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero} End;
-   ps_comden = I.one}
+  {ops_terms = Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero} End;
+   ops_comden = I.one}
 ;
 
 (*

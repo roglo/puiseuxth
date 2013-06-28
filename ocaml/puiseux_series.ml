@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.183 2013-06-27 19:47:25 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.184 2013-06-28 01:02:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -10,9 +10,9 @@ open Pnums;
 open Series;
 
 Record puiseux_series α :=
-  { ms_terms : series α;
-    ms_valnum : Z;
-    ms_comden : positive }.
+  { ps_terms : series α;
+    ps_valnum : Z;
+    ps_comden : positive }.
 
 value rec series_head is_zero n s =
   match s with
@@ -24,13 +24,13 @@ value rec series_head is_zero n s =
   end;
 
 Definition valuation α fld ps :=
-  match series_head (is_zero fld) 0 (ms_terms ps) with
-  | Some (n, c) => Some (Qred (Qmake (I.addi (ms_valnum ps) n) (ms_comden ps)))
+  match series_head (is_zero fld) 0 (ps_terms ps) with
+  | Some (n, c) => Some (Qred (Qmake (I.addi (ps_valnum ps) n) (ps_comden ps)))
   | None => None
   end.
 
 Definition valuation_coeff α fld ps :=
-  match series_head (is_zero fld) 0 (ms_terms ps) with
+  match series_head (is_zero fld) 0 (ps_terms ps) with
   | Some (_, c) => c
   | None => zero fld
   end.
@@ -48,9 +48,9 @@ CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
   end.
 
 Definition normal α (fld : field α _) l cd ms :=
-  {| ms_terms := normal_terms fld 0 (cd - 1) (ms_terms ms);
-     ms_valnum := Z.mul (ms_valnum ms) (Z.of_nat cd);
-     ms_comden := l |}.
+  {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
+     ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
+     ps_comden := l |}.
 
 (* ps_add *)
 
@@ -75,20 +75,20 @@ Fixpoint ms_add_terms α fld n (s₁ s₂ : series α) :=
   end.
 
 Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
-  let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
-  let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
-  let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
-  let v₁ := ms_valnum ms₁ in
-  let v₂ := ms_valnum ms₂ in
-  {| ms_terms :=
+  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
+  let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ms₁))) ms₁ in
+  let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
+  let v₁ := ps_valnum ms₁ in
+  let v₂ := ps_valnum ms₂ in
+  {| ps_terms :=
        if Z_lt_le_dec v₁ v₂ then
-         ms_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ms_terms ms₁)
-           (ms_terms ms₂)
+         ms_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ps_terms ms₁)
+           (ps_terms ms₂)
        else
-         ms_add_terms fld (Z.to_nat (Z.sub v₁ v₂)) (ms_terms ms₂)
-           (ms_terms ms₁);
-     ms_valnum := Z.min v₁ v₂;
-     ms_comden := l |}.
+         ms_add_terms fld (Z.to_nat (Z.sub v₁ v₂)) (ps_terms ms₂)
+           (ps_terms ms₁);
+     ps_valnum := Z.min v₁ v₂;
+     ps_comden := l |}.
 
 (* ps_mul *)
 
@@ -128,9 +128,9 @@ Definition ms_mul_term α fld (s₁ s₂ : series α) :=
   mul_loop 1%nat.
 
 Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
-  let l := Plcm (ms_comden ms₁) (ms_comden ms₂) in
-  let ms₁ := normal fld l (I.to_int (I.div l (ms_comden ms₁))) ms₁ in
-  let ms₂ := normal fld l (I.to_int (I.div l (ms_comden ms₂))) ms₂ in
-  {| ms_terms := ms_mul_term fld (ms_terms ms₁) (ms_terms ms₂);
-     ms_valnum := Z.add (ms_valnum ms₁) (ms_valnum ms₂);
-     ms_comden := l |}.
+  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
+  let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ms₁))) ms₁ in
+  let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
+  {| ps_terms := ms_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
+     ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
+     ps_comden := l |}.

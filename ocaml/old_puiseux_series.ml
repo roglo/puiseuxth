@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.2 2013-06-27 18:58:11 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.3 2013-06-28 01:02:33 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -10,8 +10,8 @@ open Series;
 Record term α := { coeff : α; power : Q }.
 
 Record old_puiseux_series α :=
-  { ps_terms : series (term α);
-    ps_comden : positive }.
+  { ops_terms : series (term α);
+    ops_comden : positive }.
 
 value rec old_series_head is_zero s =
   match s with
@@ -22,7 +22,7 @@ value rec old_series_head is_zero s =
   end;
 
 Definition old_valuation α fld (ps : old_puiseux_series α) :=
-  match old_series_head (is_zero fld) (ps_terms ps) with
+  match old_series_head (is_zero fld) (ops_terms ps) with
   | Term mx _ => Some (power mx)
   | End => None
   end.
@@ -38,17 +38,17 @@ CoFixpoint term_of_ms α cd p (s : series α) :=
       End _
   end.
 
-Definition ps_terms_of_ms α (ms : puiseux_series α) : series (term α) :=
-  term_of_ms (ms_comden ms) (ms_valnum ms) (ms_terms ms).
+Definition ops_terms_of_ms α (ms : puiseux_series α) : series (term α) :=
+  term_of_ms (ps_comden ms) (ps_valnum ms) (ps_terms ms).
 
-Definition ps_of_ms α (ms : puiseux_series α) :=
-  {| ps_terms := ps_terms_of_ms ms;
-     ps_comden := ms_comden ms |}.
+Definition ops_of_ms α (ms : puiseux_series α) :=
+  {| ops_terms := ops_terms_of_ms ms;
+     ops_comden := ps_comden ms |}.
 
 CoFixpoint complete α (zero : α) (ps : old_puiseux_series α) p s :=
   match s with
   | Term t ns =>
-      let p₁ := Qplus p (Qmake I.one (ps_comden ps)) in
+      let p₁ := Qplus p (Qmake I.one (ops_comden ps)) in
       if Qlt_le_dec p₁ (power t) then
         Term {| coeff := zero; power := p₁ |} (complete zero ps p₁ s)
       else
@@ -57,22 +57,22 @@ CoFixpoint complete α (zero : α) (ps : old_puiseux_series α) p s :=
       End _
   end.
 
-Definition ms_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
+Definition ps_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
   let cofix loop s :=
     match s with
     | Term t ns => Term (coeff t) (loop (complete zero ps (power t) ns))
     | End => End _
     end
   in
-  loop (old_series_head is_zero (ps_terms ps)).
+  loop (old_series_head is_zero (ops_terms ps)).
 
 Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
-  {| ms_terms :=
-       ms_terms_of_ps (zero fld) (is_zero fld) ps;
-     ms_valnum :=
+  {| ps_terms :=
+       ps_terms_of_ps (zero fld) (is_zero fld) ps;
+     ps_valnum :=
        match old_valuation fld ps with
-       | Some v => Qnum (Qred (Qmult v (inject_Z (Zpos (ps_comden ps)))))
+       | Some v => Qnum (Qred (Qmult v (inject_Z (Zpos (ops_comden ps)))))
        | None => I.zero
        end;
-     ms_comden :=
-       ps_comden ps |}.
+     ps_comden :=
+       ops_comden ps |}.

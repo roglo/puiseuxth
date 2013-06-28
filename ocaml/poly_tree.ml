@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.94 2013-06-27 18:58:11 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.95 2013-06-28 01:02:33 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -44,7 +44,7 @@ value ops2ps ops =
       [ [] → I.one
       | [m₁ :: ml₁] → I.lcm (Q.rden (power m₁)) (loop ml₁) ]
   in
-  {ps_terms = terms; ps_comden = comden}
+  {ops_terms = terms; ops_comden = comden}
 ;
 
 value ps2ops ps =
@@ -56,7 +56,7 @@ value ps2ops ps =
       | End → []
       end
   in
-  {old_ps_mon = loop (-1) ps.ps_terms}
+  {old_ps_mon = loop (-1) ps.ops_terms}
 ;
 
 (* *)
@@ -348,7 +348,7 @@ value group_term_descr k tdl =
     [ [(ps, p) :: ml₁] →
         if p > deg then
           loop
-            [{ms_terms = End; ms_valnum = I.zero; ms_comden = I.one} :: rev_cl]
+            [{ps_terms = End; ps_valnum = I.zero; ps_comden = I.one} :: rev_cl]
             (deg + 1) ml
         else if p < deg then
           match () with []
@@ -495,7 +495,7 @@ value tree_of_old_puiseux_series k cancel_zeroes ps =
       in
       Some r
   in
-  let ps = ps2ops (ps_of_ms ps) in
+  let ps = ps2ops (ops_of_ms ps) in
   match List.fold_left rebuild_add None ps.old_ps_mon with
   | Some t → t
   | None → Const k.zero
