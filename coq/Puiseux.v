@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.782 2013-06-28 08:40:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.783 2013-06-28 09:09:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -139,7 +139,8 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :=
+Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :
+    puiseux_series α :=
   {| ps_terms := puiseux_loop None acf pol;
      ps_valnum := 0;
      ps_comden := 1 |}.
