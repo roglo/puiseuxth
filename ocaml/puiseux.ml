@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.391 2013-06-29 02:06:08 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.392 2013-06-29 02:16:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -354,9 +354,9 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Fixpoint puiseux_comden n cd s :=
+Fixpoint puiseux_comden α n cd (s : series (term α)) :=
   match n with
-  | 0 => cd
+  | O => cd
   | S n₁ =>
       match s with
       | Term t ss => puiseux_comden n₁ (Plcm cd (Qden (Qred (power t)))) ss
@@ -371,7 +371,7 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
   {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
      ps_valnum :=
        match s with
-       | Term t _ => Qnum (Qred (Q.mul (power t) (Qmake cd I.one)))
+       | Term t _ => Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) I.one)))
        | End => I.zero
        end;
      ps_comden := cd |}.

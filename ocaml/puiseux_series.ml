@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.189 2013-06-29 02:06:08 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.190 2013-06-29 02:16:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -153,11 +153,12 @@ CoFixpoint complete α (zero : α) cd p s :=
       End _
   end.
 
-CoFixpoint term_series_to_coeff_series zero cd s :=
+CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
   match s with
   | Term t ns =>
       Term (coeff t)
-        (term_series_to_coeff_series zero cd (complete zero cd (power t) ns))
+        (term_series_to_coeff_series zero cd
+           (complete zero cd (power t) ns))
   | End =>
       End _
   end.

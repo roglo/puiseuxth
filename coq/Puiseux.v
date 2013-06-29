@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.783 2013-06-28 09:09:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.784 2013-06-29 02:16:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -139,11 +139,49 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Definition puiseux_root α acf (pol : polynomial (puiseux_series α)) :
+Fixpoint puiseux_comden α n cd (s : series (term α)) :=
+  match n with
+  | O => cd
+  | S n₁ =>
+      match s with
+      | Term t ss => puiseux_comden n₁ (Plcm cd (Qden (Qred (power t)))) ss
+      | End => cd
+      end
+  end.
+
+CoFixpoint complete α (zero : α) cd p s :=
+  match s with
+  | Term t ns =>
+      let p₁ := Qplus p (Qmake 1 cd) in
+      if Qlt_le_dec p₁ (power t) then
+        Term {| coeff := zero; power := p₁ |} (complete zero cd p₁ s)
+      else
+        Term t ns
+  | End =>
+      End _
+  end.
+
+CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
+  match s with
+  | Term t ns =>
+      Term (coeff t)
+        (term_series_to_coeff_series α zero cd
+           (complete zero cd (power t) ns))
+  | End =>
+      End _
+  end.
+
+Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
     puiseux_series α :=
-  {| ps_terms := puiseux_loop None acf pol;
-     ps_valnum := 0;
-     ps_comden := 1 |}.
+  let s := puiseux_loop None acf pol in
+  let cd := puiseux_comden niter 1 s in
+  {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
+     ps_valnum :=
+       match s with
+       | Term t _ => Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) 1)))
+       | End => 0
+       end;
+     ps_comden := cd |}.
 
 (*
 Definition ps_inv α (add_coeff : α → α → α) mul_coeff x :=
