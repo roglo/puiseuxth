@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.786 2013-06-29 08:10:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.787 2013-06-29 08:33:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -503,10 +503,9 @@ Fixpoint val_den_prod fld (psl : list (puiseux_series α)) :=
 
 (* common_denominator_of_series_list *)
 Lemma zzz : ∀ fld (psl : list (puiseux_series α)),
-  ∃ m, ∀ ps αi mi, ps ∈ psl
+  ∃ m, ∀ ps αi, ps ∈ psl
   → valuation fld ps = Some αi
-    → ps_comden ps = mi
-      → αi == Zpos mi # m.
+    → ∃ mi, αi == mi # m.
 Proof.
 intros fld psl.
 bbb.
