@@ -1,4 +1,4 @@
-(* $Id: ugly.ml,v 1.49 2013-06-28 16:41:36 deraugla Exp $ *)
+(* $Id: ugly.ml,v 1.50 2013-06-29 02:06:08 deraugla Exp $ *)
 
 (* program for François Delebecque *)
 
@@ -48,7 +48,7 @@ value print_term deg m = do {
   printf "a%d=mlist(['fracp','varn','dgs','coeffs'],'z'," deg;
   let ml =
     let m = ps2ops m in
-    if m = [] then [{coeff = C.zero; power = Q.zero; multip = 0}] else m
+    if m = [] then [{coeff = C.zero; power = Q.zero}] else m
   in
   printf "[";
   iter_with_sep " " (fun s mx → printf "%s%s" s (I.ts (Q.rnum mx.power))) ml;

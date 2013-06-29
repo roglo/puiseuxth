@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.390 2013-06-28 16:41:36 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.391 2013-06-29 02:06:08 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -197,8 +197,7 @@ Definition float_round_zero fld ps :=
           let c := fld.ext.float_round_zero (coeff m) in
           if fld.is_zero c then loop s₁
           else
-            let m₁ := {coeff = c; power = power m; multip = multip m} in
-            Term m₁ (loop s₁)
+            Term {coeff = c; power = power m} (loop s₁)
       | End =>
           End
       end
@@ -239,14 +238,14 @@ Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
   let cn := mul_x_power_minus p (an pol) in
   {| al := cl; an := cn |}.
 
-value make_solution fld rev_cγl r =
+value make_solution fld rev_cγl =
   let t =
     loop Q.zero (List.rev rev_cγl) where rec loop γsum cγl =
       match cγl with
       | [] → End
       | [(c, γ) … cγl₁] →
           let γsum = Q.norm (Q.add γsum γ) in
-          Term {coeff = c; power = γsum; multip = r} (loop γsum cγl₁)
+          Term {coeff = c; power = γsum} (loop γsum cγl₁)
       end
   in
   let d =
@@ -342,7 +341,7 @@ Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
       let (c, r) := List.hd (ac_roots acf cpol) in
       let pol₁ := f₁ fld pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
-      Some ({| coeff := c; power := p; multip := r |}, pol₁)
+      Some ({| coeff := c; power := p |}, pol₁)
   end.
 
 CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
@@ -360,12 +359,8 @@ Fixpoint puiseux_comden n cd s :=
   | 0 => cd
   | S n₁ =>
       match s with
-      | Term t ss =>
-          let cd := Plcm cd (Qden (Qred (power t))) in
-          if multip t = 1 then cd
-          else puiseux_comden n₁ cd ss
-      | End =>
-          cd
+      | Term t ss => puiseux_comden n₁ (Plcm cd (Qden (Qred (power t)))) ss
+      | End => cd
       end
   end.
 
@@ -414,7 +409,7 @@ value puiseux_iteration fld br r m γ β sol_list = do {
       if finite then printf "zero is root !\n%!" else ();
     }
     else ();
-    let sol = make_solution fld cγl m in
+    let sol = make_solution fld cγl in
     print_solution fld br (succ (List.length sol_list)) cγl finite sol;
     Left [(sol, finite) … sol_list]
   }
@@ -448,7 +443,7 @@ value rec puiseux_branch af br sol_list ns =
   let cpol = characteristic_polynomial fld br.pol ns in
   let rl = ac_roots af cpol in
   if rl = [] then do {
-    let sol = make_solution fld br.cγl 0 in
+    let sol = make_solution fld br.cγl in
     print_solution fld br (succ (List.length sol_list)) br.cγl False sol;
     [(sol, False) … sol_list]
   }
@@ -718,7 +713,7 @@ value af_c () =
 
 value ps_of_int fld i =
   {ops_terms =
-     Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero; multip = 0} End;
+     Term {coeff = fld.ext.of_i (I.of_int i); power = Q.zero} End;
    ops_comden =
      I.one}
 ;

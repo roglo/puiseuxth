@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.97 2013-06-28 16:41:36 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.98 2013-06-29 02:06:08 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -320,7 +320,7 @@ value merge_const_px k m ml =
       if Q.eq m.power m₁.power then
         let c = k.ext.normalise (k.add m.coeff m₁.coeff) in
         if k.is_zero c then ml₁
-        else [{coeff = c; power = m.power; multip = 0} :: ml₁]
+        else [{coeff = c; power = m.power} :: ml₁]
       else if k.is_zero m.coeff then ml
       else [m :: ml]
   | [] →
@@ -331,7 +331,7 @@ value group_term_descr k tdl =
   let rev_ml =
     List.fold_left
       (fun rev_myl td →
-         let mx = {coeff = td.const; power = td.xpow; multip = 0} in
+         let mx = {coeff = td.const; power = td.xpow} in
          match rev_myl with
          [ [(ps, p) :: rev_myl₁] →
              if td.ypow = p then
@@ -659,14 +659,13 @@ value rec expr_with_pow_x k t =
   match t with
   [ Neg t →
       let mx = expr_with_pow_x k t in
-      {coeff = Neg mx.coeff; power = mx.power; multip = 0}
+      {coeff = Neg mx.coeff; power = mx.power}
   | Mult t₁ (Xpower n d) →
-      {coeff = t₁; power = Q.make (I.of_int n) (I.of_int d); multip = 0}
+      {coeff = t₁; power = Q.make (I.of_int n) (I.of_int d)}
   | Xpower n d →
-      {coeff = Const k.one; power = Q.make (I.of_int n) (I.of_int d);
-       multip = 0}
+      {coeff = Const k.one; power = Q.make (I.of_int n) (I.of_int d)}
   | Const _ →
-      {coeff = t; power = Q.zero; multip = 0}
+      {coeff = t; power = Q.zero}
   | t →
       failwith
         (sprintf "not_impl \"expr_with_pow_x\" %s"
@@ -685,9 +684,9 @@ value merge_ps_coeffs k t₁ t₂ p ml =
   [ (Const c₁, Const c₂) →
       let c = k.add c₁ c₂ in
       if k.is_zero c then ml
-      else [{coeff = Const c; power = p; multip = 0} :: ml]
+      else [{coeff = Const c; power = p} :: ml]
   | _ →
-      [{coeff = Plus t₂ t₁; power = p; multip = 0} :: ml ] ]
+      [{coeff = Plus t₂ t₁; power = p} :: ml ] ]
 ;
 
 value puiseux_series_of_tree k t =
@@ -703,13 +702,13 @@ value puiseux_series_of_tree k t =
   let mxl =
     List.map
       (fun mx →
-         {coeff = const_of_tree k mx.coeff; power = mx.power; multip = 0})
+         {coeff = const_of_tree k mx.coeff; power = mx.power})
       mxl
   in
   let mxl =
     if is_neg then
       List.map
-        (fun mx → {coeff = k.neg mx.coeff; power = mx.power; multip = 0}) mxl
+        (fun mx → {coeff = k.neg mx.coeff; power = mx.power}) mxl
     else
       mxl
   in

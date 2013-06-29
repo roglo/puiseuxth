@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.188 2013-06-28 16:41:36 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.189 2013-06-29 02:06:08 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -139,21 +139,16 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
 
 (* *)
 
-Record term α := { coeff : α; power : Q; multip : nat }.
+Record term α := { coeff : α; power : Q }.
 
-CoFixpoint complete α (zero : α) cd p r s :=
+CoFixpoint complete α (zero : α) cd p s :=
   match s with
   | Term t ns =>
       let p₁ := Qplus p (Qmake I.one cd) in
-      match Qcompare p₁ (power t) with
-      | Eq =>
-          Term t ns
-      | Lt =>
-          Term {| coeff := zero; power := p₁; multip := r |}
-            (complete zero cd p₁ r s)
-      | Gt =>
-          assert False
-      end
+      if Qlt_le_dec p₁ (power t) then
+        Term {| coeff := zero; power := p₁ |} (complete zero cd p₁ s)
+      else
+        Term t ns
   | End =>
       End _
   end.
@@ -162,8 +157,7 @@ CoFixpoint term_series_to_coeff_series zero cd s :=
   match s with
   | Term t ns =>
       Term (coeff t)
-        (term_series_to_coeff_series zero cd
-           (complete zero cd (power t) (multip t) ns))
+        (term_series_to_coeff_series zero cd (complete zero cd (power t) ns))
   | End =>
       End _
   end.
