@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.787 2013-06-29 08:33:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.788 2013-06-29 16:50:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -489,17 +489,8 @@ Qed.
 
 (* *)
 
-(*
-Fixpoint val_den_prod fld (psl : list (puiseux_series α)) :=
-  match psl with
-  | [] => 1%nat
-  | [ps₁ … psl₁] =>
-      match valuation fld ps₁ with
-      | Some v => (Pos.to_nat (Qden v) * val_den_prod fld psl₁)%nat
-      | None => val_den_prod psl₁
-      end
-  end.
-*)
+Definition comden_prod α (psl : list (puiseux_series α)) :=
+  List.fold_left (λ a ps, Pos.mul a (ps_comden ps)) psl 1%positive.
 
 (* common_denominator_of_series_list *)
 Lemma zzz : ∀ fld (psl : list (puiseux_series α)),
@@ -508,10 +499,9 @@ Lemma zzz : ∀ fld (psl : list (puiseux_series α)),
     → ∃ mi, αi == mi # m.
 Proof.
 intros fld psl.
-bbb.
-remember (val_den_prod psl) as m.
+remember (comden_prod psl) as m.
 exists m.
-intros ps αi mi Hps Hval Hcd.
+intros ps αi Hps Hv.
 bbb.
 revert ps αi mi m Hps Hval Hcd Heqm.
 induction psl as [| ps₁]; [ contradiction | intros ].
