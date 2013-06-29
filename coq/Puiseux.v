@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.784 2013-06-29 02:16:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.785 2013-06-29 02:48:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -489,23 +489,25 @@ Qed.
 
 (* *)
 
-Fixpoint val_den_prod (psl : list (puiseux_series α)) :=
+(*
+Fixpoint val_den_prod fld (psl : list (puiseux_series α)) :=
   match psl with
   | [] => 1%nat
   | [ps₁ … psl₁] =>
-      match valuation ps₁ with
-      | Some v => (pos_to_nat (Qden v) * val_den_prod psl₁)%nat
+      match valuation fld ps₁ with
+      | Some v => (Pos.to_nat (Qden v) * val_den_prod fld psl₁)%nat
       | None => val_den_prod psl₁
       end
   end.
+*)
 
-(* common_denominator_in_polynomial *)
-Lemma zzz : ∀ (psl : list (puiseux_series α)),
-  ∃ m, ∀ ps αi mi, ps ∈ psl
-  → valuation ps = Some αi → ps_comden ps = mi
-    → αi == Qnat mi / Qnat m.
+(*
+Lemma zzz : ∀ fld (psl : list (puiseux_series α)),
+  ∃ m, ∀ ps mi, ps ∈ psl
+  → ps_comden ps = mi
+    → mi | m.
 Proof.
-intros psl.
+intros fld psl.
 remember (val_den_prod psl) as m.
 exists m.
 intros ps αi mi Hps Hval Hcd.
@@ -517,13 +519,14 @@ destruct Hps as [Hps| Hps].
  simpl in Heqm.
  rewrite Hval in Heqm.
 bbb.
+*)
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
-  ns ∈ newton_segments pol
+  ns ∈ newton_segments (ac_field acf) pol
   → cpol = characteristic_polynomial (ac_field acf) pol ns
     → (c, r) = ac_root acf cpol
       → pol₁ = f₁ (ac_field acf) pol (β ns) (γ ns) c
-        → ∃ ns₁, ns₁ ∈ newton_segments pol₁ → γ ns₁ > 0.
+        → ∃ ns₁, ns₁ ∈ newton_segments (ac_field acf) pol₁ → γ ns₁ > 0.
 Proof.
 bbb.
 
