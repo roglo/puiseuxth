@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.788 2013-06-29 16:50:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.789 2013-06-29 17:29:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -502,13 +502,16 @@ intros fld psl.
 remember (comden_prod psl) as m.
 exists m.
 intros ps αi Hps Hv.
-bbb.
-revert ps αi mi m Hps Hval Hcd Heqm.
-induction psl as [| ps₁]; [ contradiction | intros ].
-destruct Hps as [Hps| Hps].
- subst ps₁.
- simpl in Heqm.
- rewrite Hval in Heqm.
+exists (Qnum (Qred (αi * (Zpos m # ps_comden ps)))).
+unfold Qred.
+remember (αi * (' m # ps_comden ps)) as q.
+destruct q as (q₁, q₂).
+unfold Qmult in Heqq.
+simpl in Heqq.
+injection Heqq; clear Heqq; intros Hq₂ Hq₁.
+remember (snd (Z.ggcd q₁ (' q₂))) as r.
+destruct r as (r₁, r₂); simpl.
+subst q₁ q₂; simpl in Heqr.
 bbb.
 *)
 
