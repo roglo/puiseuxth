@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.791 2013-06-30 00:29:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.792 2013-06-30 00:55:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -489,8 +489,16 @@ Qed.
 
 (* *)
 
+Lemma Zpos_ne_0 : ∀ p, (' p ≠ 0)%Z.
+Proof.
+intros p H.
+pose proof (Zgt_pos_0 p) as HH.
+rewrite H in HH.
+apply Zgt_irrefl in HH; assumption.
+Qed.
+
 Definition comden_prod α (psl : list (puiseux_series α)) :=
-  List.fold_left (λ a ps, Pos.mul a (ps_comden ps)) psl 1%positive.
+  List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 (*
   List.fold_left Pos.mul (List.map (λ ps, ps_comden ps) psl) 1%positive.
 *)
@@ -511,9 +519,15 @@ remember (comden_prod (l₁ ++ l₂)) as m₁.
 exists (Qnum αi * Zpos m₁)%Z.
 subst m m₁ psl.
 induction l₁ as [| ps₁].
+ Focus 2.
  simpl.
- unfold comden_prod; simpl.
- unfold valuation in Hv.
+ rewrite Pos2Z.inj_mul, Zmult_assoc.
+ unfold Qeq; simpl.
+ rewrite Pos2Z.inj_mul.
+ rewrite Zmult_assoc, Zmult_comm, <- Zmult_assoc.
+ symmetry; rewrite Zmult_comm, <- Zmult_assoc.
+ apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+ rewrite Zmult_comm; symmetry; assumption.
 bbb.
 *)
 
