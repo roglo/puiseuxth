@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.790 2013-06-30 00:23:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.791 2013-06-30 00:29:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -491,6 +491,9 @@ Qed.
 
 Definition comden_prod α (psl : list (puiseux_series α)) :=
   List.fold_left (λ a ps, Pos.mul a (ps_comden ps)) psl 1%positive.
+(*
+  List.fold_left Pos.mul (List.map (λ ps, ps_comden ps) psl) 1%positive.
+*)
 
 (* common_denominator_of_series_list *)
 Lemma zzz : ∀ fld (psl : list (puiseux_series α)),
@@ -507,6 +510,10 @@ destruct Hps as (l₁, (l₂, Hpsl)).
 remember (comden_prod (l₁ ++ l₂)) as m₁.
 exists (Qnum αi * Zpos m₁)%Z.
 subst m m₁ psl.
+induction l₁ as [| ps₁].
+ simpl.
+ unfold comden_prod; simpl.
+ unfold valuation in Hv.
 bbb.
 *)
 
