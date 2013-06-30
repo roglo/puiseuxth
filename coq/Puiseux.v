@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.793 2013-06-30 00:58:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.794 2013-06-30 01:08:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -500,8 +500,8 @@ Qed.
 Definition comden_prod α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
-(* common_denominator_of_series_list *)
-Lemma zzz : ∀ fld (psl : list (puiseux_series α)),
+Lemma common_denominator_of_series_list :
+  ∀ fld (psl : list (puiseux_series α)),
   ∃ m, ∀ ps αi, ps ∈ psl
   → valuation fld ps = Some αi
     → ∃ mi, αi == mi # m.
@@ -516,7 +516,16 @@ remember (comden_prod (l₁ ++ l₂)) as m₁.
 exists (Qnum αi * Zpos m₁)%Z.
 subst m m₁ psl.
 induction l₁ as [| ps₁]; simpl.
- Focus 2.
+ unfold Qeq; simpl.
+ rewrite Pos2Z.inj_mul.
+ rewrite Zmult_assoc.
+ unfold valuation in Hv.
+ destruct (series_head (is_zero fld) 0 (ps_terms ps)) as [(n, _)| ].
+  injection Hv; clear Hv; intros Hαi.
+  subst αi; reflexivity.
+
+  discriminate Hv.
+
  rewrite Pos2Z.inj_mul, Zmult_assoc.
  unfold Qeq; simpl.
  rewrite Pos2Z.inj_mul.
@@ -524,12 +533,7 @@ induction l₁ as [| ps₁]; simpl.
  symmetry; rewrite Zmult_comm, <- Zmult_assoc.
  apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
  rewrite Zmult_comm; symmetry; assumption.
-
- unfold Qeq; simpl.
- rewrite Pos2Z.inj_mul.
- rewrite Zmult_assoc.
-bbb.
-*)
+Qed.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
   ns ∈ newton_segments (ac_field acf) pol

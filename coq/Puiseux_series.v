@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.9 2013-06-28 01:50:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.10 2013-06-30 01:08:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,7 +35,7 @@ Proof. Admitted.
 Definition valuation α fld (ps : puiseux_series α) :=
   match series_head (is_zero fld) 0 (ps_terms ps) with
   | Some (n, c) =>
-      Some (Qred (Qmake (Z.add (ps_valnum ps) (Z.of_nat n)) (ps_comden ps)))
+      Some (Qmake (Z.add (ps_valnum ps) (Z.of_nat n)) (ps_comden ps))
   | None =>
       None
   end.
