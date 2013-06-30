@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.801 2013-06-30 02:49:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.802 2013-06-30 06:59:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -547,6 +547,27 @@ destruct Hns as [Hns| Hns].
 
  apply IHhsl; assumption.
 Qed.
+
+Lemma zzz : ∀ (fld : field α) pol ns,
+  ns ∈ newton_segments fld pol
+  → ∃ m p q,
+    γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
+Proof.
+intros fld pol ns Hns.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom fld pol) as pts.
+remember (lower_convex_hull_points pts) as hsl.
+remember (fst (ini_pt ns)) as j.
+remember (fst (fin_pt ns)) as k.
+remember (snd (ini_pt ns)) as αj.
+remember (snd (fin_pt ns)) as αk.
+remember Hns as Hg; clear HeqHg.
+eapply gamma_value in Hg; try eassumption.
+remember (al pol ++ [an pol]) as psl.
+pose proof (common_denominator_of_series_list fld psl) as Hi.
+destruct Hi as (m, Hi).
+exists m.
+bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
   ns ∈ newton_segments (ac_field acf) pol
