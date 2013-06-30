@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.797 2013-06-30 02:24:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.798 2013-06-30 02:28:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -548,15 +548,22 @@ intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-destruct hsl as [| ((x, y), segjk)]; [ contradiction | idtac ].
-destruct hsl as [| ((z, t), segkx)]; [ contradiction | idtac ].
+destruct hsl as [| ((x₁, y₁), segjk)]; [ contradiction | idtac ].
+destruct hsl as [| ((x₂, y₂), segkx)]; [ contradiction | idtac ].
 simpl in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hj, Hk, Hαj, Hαk |- *.
- subst x y z t.
+ subst x₁ y₁ x₂ y₂.
  reflexivity.
+
+ destruct hsl as [| ((x₃, y₃), seg₃)]; [ contradiction | idtac ].
+ simpl in Hns.
+ destruct Hns as [Hns| Hns].
+  subst ns.
+  simpl in Hj, Hk, Hαj, Hαk |- *.
+  subst x₂ y₂ x₃ y₃.
+  reflexivity.
 bbb.
 
 intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
