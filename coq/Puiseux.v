@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.802 2013-06-30 06:59:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.803 2013-06-30 08:22:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -567,6 +567,10 @@ remember (al pol ++ [an pol]) as psl.
 pose proof (common_denominator_of_series_list fld psl) as Hi.
 destruct Hi as (m, Hi).
 exists m.
+remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as psj.
+assert (psj ∈ psl) as Hpsj.
+ subst psj.
+ apply List.nth_In.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
