@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.25 2013-06-13 08:33:26 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.26 2013-06-30 02:49:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -493,4 +493,12 @@ Lemma list_Forall_inv : ∀ A (P : A → Prop) a l,
 Proof.
 intros A P a l H.
 inversion H; split; assumption.
+Qed.
+
+Lemma Zpos_ne_0 : ∀ p, (' p ≠ 0)%Z.
+Proof.
+intros p H.
+pose proof (Zgt_pos_0 p) as HH.
+rewrite H in HH.
+apply Zgt_irrefl in HH; assumption.
 Qed.

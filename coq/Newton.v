@@ -1,4 +1,4 @@
-(* $Id: Newton.v,v 1.3 2013-06-28 01:50:50 deraugla Exp $ *)
+(* $Id: Newton.v,v 1.4 2013-06-30 02:49:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -44,3 +44,7 @@ induction l₁ as [| y]; [ reflexivity | intros ].
 simpl in IHl₁ |- *.
 apply eq_S, IHl₁.
 Qed.
+
+Lemma list_map_pairs_cons_cons : ∀ A B (f : A → A → B) x y l,
+  list_map_pairs f [x; y … l] = [f x y … list_map_pairs f [y … l]].
+Proof. reflexivity. Qed.

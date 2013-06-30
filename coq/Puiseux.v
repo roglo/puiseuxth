@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.800 2013-06-30 02:34:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.801 2013-06-30 02:49:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,7 +10,6 @@ Require Import ConvexHullMisc.
 Require Import Field.
 Require Import Misc.
 Require Import Newton.
-Require Import PolyConvexHull.
 Require Import Polynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
@@ -490,14 +489,6 @@ Qed.
 
 (* *)
 
-Lemma Zpos_ne_0 : ∀ p, (' p ≠ 0)%Z.
-Proof.
-intros p H.
-pose proof (Zgt_pos_0 p) as HH.
-rewrite H in HH.
-apply Zgt_irrefl in HH; assumption.
-Qed.
-
 Definition comden_prod α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
@@ -536,7 +527,7 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Zmult_comm; symmetry; assumption.
 Qed.
 
-Lemma zzz : ∀ hsl ns j k αj αk,
+Lemma gamma_value : ∀ hsl ns j k αj αk,
   ns ∈ list_map_pairs newton_segment_of_pair hsl
   → j = fst (ini_pt ns)
     → k = fst (fin_pt ns)
@@ -545,35 +536,17 @@ Lemma zzz : ∀ hsl ns j k αj αk,
           → γ ns = (αj - αk) / (k - j).
 Proof.
 intros hsl ns j k αj αk Hns Hj Hk Hαj Hαk.
-destruct hsl as [| ((x₁, y₁), seg₁)]; [ contradiction | idtac ].
+induction hsl as [| ((x₁, y₁), seg)]; [ contradiction | idtac ].
 destruct hsl as [| ((x₂, y₂), seg₂)]; [ contradiction | idtac ].
-simpl in Hns.
+rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hj, Hk, Hαj, Hαk |- *.
  subst x₁ y₁ x₂ y₂.
  reflexivity.
 
- destruct hsl as [| ((x₃, y₃), seg₃)]; [ contradiction | idtac ].
- simpl in Hns.
- destruct Hns as [Hns| Hns].
-  subst ns.
-  simpl in Hj, Hk, Hαj, Hαk |- *.
-  subst x₂ y₂ x₃ y₃.
-  reflexivity.
-bbb.
-
-intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
-remember Hns as Hns₁; clear HeqHns₁.
-apply points_in_any_newton_segment₁ with (h := j) (αh := αj) in Hns₁.
- remember Hns as Hns₂; clear HeqHns₂.
- apply points_in_any_newton_segment₁ with (h := k) (αh := αk) in Hns₂.
-  rewrite Hns₁ in Hns₂.
-  symmetry.
-  apply Qeq_shift_div_l.
-   assert (j < k).
-   (* use lemma j_lt_k *)
-bbb.
+ apply IHhsl; assumption.
+Qed.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
   ns ∈ newton_segments (ac_field acf) pol
