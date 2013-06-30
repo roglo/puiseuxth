@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.795 2013-06-30 01:54:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.796 2013-06-30 02:19:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,6 +10,7 @@ Require Import ConvexHullMisc.
 Require Import Field.
 Require Import Misc.
 Require Import Newton.
+Require Import PolyConvexHull.
 Require Import Polynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
@@ -540,10 +541,34 @@ Lemma zzz : ∀ (fld : field α) pol ns j k αj αk,
   → j = fst (ini_pt ns)
     → k = fst (fin_pt ns)
       → αj = snd (ini_pt ns)
-        → αk = fst (fin_pt ns)
+        → αk = snd (fin_pt ns)
           → γ ns == (αj - αk) / (k - j).
 Proof.
-intros fld pol ns nsl j k αj αk Hj Hk Hαj Hαk.
+intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
+remember Hns as Hns₁; clear HeqHns₁.
+apply points_in_any_newton_segment₁ with (h := j) (αh := αj) in Hns₁.
+ remember Hns as Hns₂; clear HeqHns₂.
+ apply points_in_any_newton_segment₁ with (h := k) (αh := αk) in Hns₂.
+  rewrite Hns₁ in Hns₂.
+  symmetry.
+  apply Qeq_shift_div_l.
+   assert (j < k).
+   (* use lemma j_lt_k *)
+bbb.
+
+intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom fld pol) as pts.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+destruct hsl as [| ((x, y), segjk)]; [ contradiction | idtac ].
+destruct hsl as [| ((z, t), segkx)]; [ contradiction | idtac ].
+simpl in Hns.
+destruct Hns as [Hns| Hns].
+ subst ns.
+ simpl in Hj, Hk, Hαj, Hαk |- *.
+ subst x y z t.
+ reflexivity.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
