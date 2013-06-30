@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.803 2013-06-30 08:22:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.804 2013-06-30 12:17:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -269,11 +269,12 @@ Section field.
 Variable α : Type.
 Variable acf : algeb_closed_field α.
 Variable ps_fld : field (puiseux_series α).
+Let fld := ac_field acf.
 
 (* *)
 
 Lemma pt_absc_is_nat : ∀ (pol : puis_ser_pol α) pts pt,
-  points_of_ps_polynom (ac_field acf) pol = pts
+  points_of_ps_polynom fld pol = pts
   → pt ∈ pts
     → ∃ n, fst pt = Qnat n.
 Proof.
@@ -286,7 +287,7 @@ unfold points_of_ps_polynom_gen in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (valuation (ac_field acf) cn) as [v| ].
+ destruct (valuation fld cn) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| ]; [ subst pt; simpl | contradiction ].
   exists n; reflexivity.
@@ -294,7 +295,7 @@ induction cl as [| c]; intros.
   subst pts; contradiction.
 
  simpl in Hpts.
- destruct (valuation (ac_field acf) c) as [v| ].
+ destruct (valuation fld c) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| Hαh]; [ subst pt; simpl | idtac ].
    exists n; reflexivity.
@@ -382,14 +383,14 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
-  ns ∈ newton_segments (ac_field acf) pol
+  ns ∈ newton_segments fld pol
   → j = nofq (fst (ini_pt ns))
     → k = nofq (fst (fin_pt ns))
       → (j < k)%nat.
 Proof.
 intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom (ac_field acf) pol) as pts.
+remember (points_of_ps_polynom fld pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
 eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
@@ -452,8 +453,8 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
 Qed.
 
 Lemma cpol_degree : ∀ (pol : puis_ser_pol α) cpol ns,
-  ns ∈ newton_segments (ac_field acf) pol
-  → cpol = characteristic_polynomial (ac_field acf) pol ns
+  ns ∈ newton_segments fld pol
+  → cpol = characteristic_polynomial fld pol ns
     → degree cpol ≥ 1.
 Proof.
 intros pol cpol ns Hns Hpol.
@@ -473,9 +474,9 @@ destruct kj; simpl.
 Qed.
 
 Lemma exists_root : ∀ (pol : puis_ser_pol α) cpol ns,
-  ns ∈ newton_segments (ac_field acf) pol
-  → cpol = characteristic_polynomial (ac_field acf) pol ns
-    → ∃ c, apply_polynomial (ac_field acf) cpol c = zero (ac_field acf).
+  ns ∈ newton_segments fld pol
+  → cpol = characteristic_polynomial fld pol ns
+    → ∃ c, apply_polynomial fld cpol c = zero fld.
 Proof.
 intros pol cpol ns Hdeg Hpol.
 eapply cpol_degree in Hdeg; [ idtac | eassumption ].
@@ -493,12 +494,12 @@ Definition comden_prod α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
 Lemma common_denominator_of_series_list :
-  ∀ fld (psl : list (puiseux_series α)),
+  ∀ (psl : list (puiseux_series α)),
   ∃ m, ∀ ps αi, ps ∈ psl
   → valuation fld ps = Some αi
     → ∃ mi, αi == mi # m.
 Proof.
-intros fld psl.
+intros psl.
 remember (comden_prod psl) as m.
 exists m.
 intros ps αi Hps Hv.
@@ -548,12 +549,12 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
-Lemma zzz : ∀ (fld : field α) pol ns,
+Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∃ m p q,
     γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
-intros fld pol ns Hns.
+intros pol ns Hns.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
@@ -564,7 +565,7 @@ remember (snd (fin_pt ns)) as αk.
 remember Hns as Hg; clear HeqHg.
 eapply gamma_value in Hg; try eassumption.
 remember (al pol ++ [an pol]) as psl.
-pose proof (common_denominator_of_series_list fld psl) as Hi.
+pose proof (common_denominator_of_series_list psl) as Hi.
 destruct Hi as (m, Hi).
 exists m.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as psj.
@@ -574,11 +575,11 @@ assert (psj ∈ psl) as Hpsj.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
-  ns ∈ newton_segments (ac_field acf) pol
-  → cpol = characteristic_polynomial (ac_field acf) pol ns
+  ns ∈ newton_segments fld pol
+  → cpol = characteristic_polynomial fld pol ns
     → (c, r) = ac_root acf cpol
-      → pol₁ = f₁ (ac_field acf) pol (β ns) (γ ns) c
-        → ∃ ns₁, ns₁ ∈ newton_segments (ac_field acf) pol₁ → γ ns₁ > 0.
+      → pol₁ = f₁ fld pol (β ns) (γ ns) c
+        → ∃ ns₁, ns₁ ∈ newton_segments fld pol₁ → γ ns₁ > 0.
 Proof.
 bbb.
 
