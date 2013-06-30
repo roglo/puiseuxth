@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.798 2013-06-30 02:28:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.799 2013-06-30 02:30:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -536,20 +536,17 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Zmult_comm; symmetry; assumption.
 Qed.
 
-Lemma zzz : ∀ (fld : field α) pol ns j k αj αk,
-  ns ∈ newton_segments fld pol
+Lemma zzz : ∀ hsl ns j k αj αk,
+  ns ∈ list_map_pairs newton_segment_of_pair hsl
   → j = fst (ini_pt ns)
     → k = fst (fin_pt ns)
       → αj = snd (ini_pt ns)
         → αk = snd (fin_pt ns)
           → γ ns == (αj - αk) / (k - j).
 Proof.
-intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
-remember (lower_convex_hull_points pts) as hsl.
-destruct hsl as [| ((x₁, y₁), segjk)]; [ contradiction | idtac ].
-destruct hsl as [| ((x₂, y₂), segkx)]; [ contradiction | idtac ].
+intros hsl ns j k αj αk Hns Hj Hk Hαj Hαk.
+destruct hsl as [| ((x₁, y₁), seg₁)]; [ contradiction | idtac ].
+destruct hsl as [| ((x₂, y₂), seg₂)]; [ contradiction | idtac ].
 simpl in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
