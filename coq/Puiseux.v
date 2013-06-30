@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.796 2013-06-30 02:19:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.797 2013-06-30 02:24:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -545,18 +545,6 @@ Lemma zzz : ∀ (fld : field α) pol ns j k αj αk,
           → γ ns == (αj - αk) / (k - j).
 Proof.
 intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
-remember Hns as Hns₁; clear HeqHns₁.
-apply points_in_any_newton_segment₁ with (h := j) (αh := αj) in Hns₁.
- remember Hns as Hns₂; clear HeqHns₂.
- apply points_in_any_newton_segment₁ with (h := k) (αh := αk) in Hns₂.
-  rewrite Hns₁ in Hns₂.
-  symmetry.
-  apply Qeq_shift_div_l.
-   assert (j < k).
-   (* use lemma j_lt_k *)
-bbb.
-
-intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
@@ -569,6 +557,18 @@ destruct Hns as [Hns| Hns].
  simpl in Hj, Hk, Hαj, Hαk |- *.
  subst x y z t.
  reflexivity.
+bbb.
+
+intros fld pol ns j k αj αk Hns Hj Hk Hαj Hαk.
+remember Hns as Hns₁; clear HeqHns₁.
+apply points_in_any_newton_segment₁ with (h := j) (αh := αj) in Hns₁.
+ remember Hns as Hns₂; clear HeqHns₂.
+ apply points_in_any_newton_segment₁ with (h := k) (αh := αk) in Hns₂.
+  rewrite Hns₁ in Hns₂.
+  symmetry.
+  apply Qeq_shift_div_l.
+   assert (j < k).
+   (* use lemma j_lt_k *)
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
