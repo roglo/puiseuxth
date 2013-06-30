@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.799 2013-06-30 02:30:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.800 2013-06-30 02:34:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -542,7 +542,7 @@ Lemma zzz : ∀ hsl ns j k αj αk,
     → k = fst (fin_pt ns)
       → αj = snd (ini_pt ns)
         → αk = snd (fin_pt ns)
-          → γ ns == (αj - αk) / (k - j).
+          → γ ns = (αj - αk) / (k - j).
 Proof.
 intros hsl ns j k αj αk Hns Hj Hk Hαj Hαk.
 destruct hsl as [| ((x₁, y₁), seg₁)]; [ contradiction | idtac ].
