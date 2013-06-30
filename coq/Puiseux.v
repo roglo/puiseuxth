@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.794 2013-06-30 01:08:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.795 2013-06-30 01:54:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -534,6 +534,17 @@ induction l₁ as [| ps₁]; simpl.
  apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
  rewrite Zmult_comm; symmetry; assumption.
 Qed.
+
+Lemma zzz : ∀ (fld : field α) pol ns j k αj αk,
+  ns ∈ newton_segments fld pol
+  → j = fst (ini_pt ns)
+    → k = fst (fin_pt ns)
+      → αj = snd (ini_pt ns)
+        → αk = fst (fin_pt ns)
+          → γ ns == (αj - αk) / (k - j).
+Proof.
+intros fld pol ns nsl j k αj αk Hj Hk Hαj Hαk.
+bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
   ns ∈ newton_segments (ac_field acf) pol
