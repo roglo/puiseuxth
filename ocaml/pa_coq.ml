@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.50 2013-06-26 02:42:15 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.51 2013-07-01 11:47:43 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -174,7 +174,7 @@ EXTEND
     [ [ e = expr; "%"; LIDENT "nat" → e ] ]
   ;
   expr: LEVEL "simple"
-    [ [ "("; GIDENT "λ"; p = ipatt; e = coq_fun_def; ")" →
+    [ [ GIDENT "λ"; p = ipatt; e = coq_fun_def →
           <:expr< fun $p$ → $e$ >>
       | "{|"; lel = V (LIST1 coq_label_expr SEP ";"); "|}" →
           <:expr< { $_list:lel$ } >>
