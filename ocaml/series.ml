@@ -1,8 +1,10 @@
-(* $Id: series.ml,v 1.1 2013-06-23 16:46:04 deraugla Exp $ *)
+(* $Id: series.ml,v 1.2 2013-07-02 15:16:00 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
-type series α = [ Term of α and Lazy.t (series α) | End ];
+CoInductive series α :=
+  | Term : α → series α → series α
+  | End : series α.
 
 Definition series_hd α (s : series α) :=
   match s with

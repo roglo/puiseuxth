@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.53 2013-07-02 02:41:26 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.54 2013-07-02 15:16:00 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -46,6 +46,17 @@ value mklistpat loc last =
         <:patt< [$p1$ :: $loop False pl$] >> ]
 ;
 
+value lazy_if_type n t =
+  match t with
+  [ <:ctyp:< $lid:m$ $p$ >> → if m = n then <:ctyp< Lazy.t $t$ >> else t
+  | _ → t ]
+;
+
+value add_lazy_t (_, n) (loc, ci, tl, b) =
+  let tl = List.map (lazy_if_type (unvala n)) (unvala tl) in
+  (loc, ci, <:vala< tl >>, b)
+;
+
 EXTEND
   GLOBAL: str_item expr patt ctyp;
   str_item:
@@ -58,6 +69,10 @@ EXTEND
       | "Inductive"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter);
         ":="; cdl = V (LIST0 coq_constr_decl) →
           <:str_item< type $_tp:n$ $_list:tpl$ = [ $_list:cdl$ ] >>
+      | "CoInductive"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter);
+        ":="; cdl = V (LIST0 coq_constr_decl) →
+          let cdl = List.map (add_lazy_t (unvala n)) (unvala cdl) in
+          <:str_item< type $_tp:n$ $_list:tpl$ = [ $list:cdl$ ] >>
       | "Record"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter); ":=";
         c = OPT LIDENT; "{"; ldl = V (LIST1 label_declaration SEP ";"); "}" →
           let tk = <:ctyp< { $_list:ldl$ } >> in
