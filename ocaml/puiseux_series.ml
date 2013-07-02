@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.192 2013-07-02 01:30:21 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.193 2013-07-02 01:45:40 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -56,24 +56,20 @@ Definition normal α (fld : field α _) l cd ms :=
 
 (* ps_add *)
 
-CoFixpoint ps_add_end α (fld : field α _) s₁ s₂ :=
+CoFixpoint series_add α (fld : field α _) s₁ s₂ :=
   match s₁ with
   | Term c₁ ss₁ =>
       match s₂ with
-      | Term c₂ ss₂ => Term (add fld c₁ c₂) (ps_add_end fld ss₁ ss₂)
+      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
       | End => s₁
       end
   | End => s₂
   end.
 
-Fixpoint ps_add_terms α fld n (s₁ s₂ : series α) :=
+Fixpoint series_pad_left α (fld : field α _) n s :=
   match n with
-  | O => ps_add_end fld s₁ s₂
-  | S n₁ =>
-      match s₁ with
-      | Term c₁ s => Term c₁ (ps_add_terms fld n₁ s s₂)
-      | End => Term (zero fld) (ps_add_terms fld n₁ s₁ s₂)
-      end
+  | O => s
+  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
   end.
 
 Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
@@ -84,14 +80,16 @@ Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
   let v₂ := ps_valnum ms₂ in
   if Z_lt_le_dec v₁ v₂ then
     {| ps_terms :=
-         ps_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ps_terms ms₁)
-           (ps_terms ms₂);
+         series_add fld
+           (ps_terms ms₁)
+           (series_pad_left fld (Z.to_nat (Z.sub v₂ v₁)) (ps_terms ms₂));
        ps_valnum := v₁;
        ps_comden := l |}
   else
     {| ps_terms :=
-         ps_add_terms fld (Z.to_nat (Z.sub v₁ v₂)) (ps_terms ms₂)
-           (ps_terms ms₁);
+         series_add fld
+           (series_pad_left fld (Z.to_nat (Z.sub v₁ v₂)) (ps_terms ms₁))
+           (ps_terms ms₂);
        ps_valnum := v₂;
        ps_comden := l |}.
 
