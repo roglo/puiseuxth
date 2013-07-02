@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.191 2013-06-30 01:38:07 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.192 2013-07-02 01:30:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -82,15 +82,18 @@ Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
   let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
-  {| ps_terms :=
-       if Z_lt_le_dec v₁ v₂ then
+  if Z_lt_le_dec v₁ v₂ then
+    {| ps_terms :=
          ps_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ps_terms ms₁)
-           (ps_terms ms₂)
-       else
+           (ps_terms ms₂);
+       ps_valnum := v₁;
+       ps_comden := l |}
+  else
+    {| ps_terms :=
          ps_add_terms fld (Z.to_nat (Z.sub v₁ v₂)) (ps_terms ms₂)
            (ps_terms ms₁);
-     ps_valnum := Z.min v₁ v₂;
-     ps_comden := l |}.
+       ps_valnum := v₂;
+       ps_comden := l |}.
 
 (* ps_mul *)
 
