@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.51 2013-07-01 11:47:43 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.52 2013-07-02 02:30:12 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -98,6 +98,9 @@ EXTEND
   label_declaration:
     [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t) ] ]
   ;
+  ctyp: LEVEL "apply"
+    [ [ LIDENT "field"; v = NEXT → <:ctyp< field $v$ β >> ] ]
+  ;
   ctyp: LEVEL "simple"
     [ [ UIDENT "Q" → <:ctyp< Q.t >>
       | UIDENT "Z" → <:ctyp< I.t >>
@@ -128,7 +131,12 @@ EXTEND
   ;
   coq_expr:
     [ [ "match"; e = SELF; "with"; l = V (LIST0 coq_match_case); "end" →
-          <:expr< match $e$ with [ $_list:l$ ] >>
+          match unvala l with
+          | [(<:patt< Z0 >>, _, _) :: _] →
+              <:expr< match zcoq $e$ with [ $_list:l$ ] >>
+          | _ →
+              <:expr< match $e$ with [ $_list:l$ ] >>
+          end
       | "let"; r = fix_or_cofix; l = V (LIST1 coq_binding SEP "and"); "in";
         x = SELF →
           <:expr< let $flag:r$ $_list:l$ in $x$ >>
@@ -158,6 +166,8 @@ EXTEND
       | UIDENT "Z"; "."; LIDENT "of_nat" →
           <:expr< I.of_int >>
       | UIDENT "Z"; "."; LIDENT "to_nat" →
+          <:expr< I.to_int >>
+      | UIDENT "Pos"; "."; LIDENT "to_nat" →
           <:expr< I.to_int >>
       | UIDENT "Pos"; "."; LIDENT "mul" →
           <:expr< I.mul >> ] ]
@@ -220,6 +230,8 @@ EXTEND
          <:expr< I.lt >>
       | UIDENT "Zcompare" →
           <:expr< zcompare >>
+      | UIDENT "ZZpos" →
+          <:expr< Zpos >>
       | UIDENT "O" →
           <:expr< 0 >>
       | UIDENT "S" →

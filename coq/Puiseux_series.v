@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.10 2013-06-30 01:08:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.11 2013-07-02 02:30:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,16 +7,6 @@ Require Import Field.
 Require Import Series.
 
 Set Implicit Arguments.
-
-(*
-Record term α := { coeff : α; power : Q }.
-
-Definition den_divides_comden comden p :=
-  (' Qden p | (Zpos comden * Qnum p))%Z.
-
-Definition pow_den_div_com_den α comden (t : term α) :=
-  den_divides_comden comden (power t).
-*)
 
 Record puiseux_series α :=
   { ps_terms : series α;
@@ -65,45 +55,50 @@ Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
 (* ps_add *)
 
-CoFixpoint ps_add_end α (fld : field α) s₁ s₂ :=
+CoFixpoint series_add α (fld : field α) s₁ s₂ :=
   match s₁ with
   | Term c₁ ss₁ =>
       match s₂ with
-      | Term c₂ ss₂ => Term (add fld c₁ c₂) (ps_add_end fld ss₁ ss₂)
+      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
       | End => s₁
       end
   | End => s₂
   end.
 
-Fixpoint ps_add_terms α fld n (s₁ s₂ : series α) :=
+Fixpoint series_pad_left α (fld : field α) n s :=
   match n with
-  | O => ps_add_end fld s₁ s₂
-  | S n₁ =>
-      match s₁ with
-      | Term c₁ s => Term c₁ (ps_add_terms fld n₁ s s₂)
-      | End => Term (zero fld) (ps_add_terms fld n₁ s₁ s₂)
-      end
+  | O => s
+  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
   end.
 
-Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
+Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   let ms₁ :=
-    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₁))) ms₁
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁))) ps₁
   in
   let ms₂ :=
-    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₂))) ms₂
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₂))) ps₂
   in
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
-  {| ps_terms :=
-       if Z_lt_le_dec v₁ v₂ then
-         ps_add_terms fld (Z.to_nat (Z.sub v₂ v₁)) (ps_terms ms₁)
-           (ps_terms ms₂)
-       else
-         ps_add_terms fld (Z.to_nat (Z.sub v₁ v₂)) (ps_terms ms₂)
-           (ps_terms ms₁);
-     ps_valnum := Z.min v₁ v₂;
-     ps_comden := l |}.
+  match Z.sub v₂ v₁ with
+  | Z0 =>
+      {| ps_terms := series_add fld (ps_terms ms₁) (ps_terms ms₂);
+         ps_valnum := v₁;
+         ps_comden := l |}
+  | Zpos n =>
+      {| ps_terms :=
+           series_add fld (ps_terms ms₁)
+             (series_pad_left fld (Pos.to_nat n) (ps_terms ms₂));
+         ps_valnum := v₁;
+         ps_comden := l |}
+  | Zneg n =>
+      {| ps_terms :=
+           series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ms₁))
+             (ps_terms ms₂);
+         ps_valnum := v₂;
+         ps_comden := l |}
+  end.
 
 (* ps_mul *)
 

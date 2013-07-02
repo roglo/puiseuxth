@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.392 2013-06-29 02:16:54 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.393 2013-07-02 02:30:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -27,7 +27,7 @@ type choice α β =
 value pos_to_nat x = x;
 
 Record algeb_closed_field α β :=
-  { ac_field : field α β;
+  { ac_field : field α;
     ac_roots : polynomial α → list (α * nat) };
 
 Definition degree (pol : polynomial α) := List.length (al pol).
@@ -176,10 +176,10 @@ value string_of_ps_polyn k opt cancel_zeroes vx vy pol =
   string_of_tree k opt vx vy t
 ;
 
-Definition apply_poly_with_ps (fld : field α _) :=
+Definition apply_poly_with_ps (fld : field α) :=
   apply_poly (λ ps, ps) (ps_add fld) (ps_mul fld).
 
-Definition apply_poly_with_ps_poly α (fld : field α _) pol :=
+Definition apply_poly_with_ps_poly α (fld : field α) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
@@ -268,7 +268,7 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
       end
   end.
 
-Definition f₁ α (fld : field α _) f β γ c :=
+Definition f₁ α (fld : field α) f β γ c :=
   let y :=
     {| al :=
          [{| ps_terms := Term c (End _);
@@ -294,7 +294,7 @@ Fixpoint list_nth n l default :=
            end
   end.
 
-Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
+Fixpoint make_char_pol α (fld : field α) cdeg dcl n :=
   match n with
   | O => []
   | S n₁ =>
@@ -309,13 +309,13 @@ Fixpoint make_char_pol α (fld : field α _) cdeg dcl n :=
       end
     end.
 
-Definition deg_coeff_of_point α (fld : field α _) pol (pt : (Q * Q)) :=
+Definition deg_coeff_of_point α (fld : field α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := list_nth h (al pol) (an pol) in
   let c := valuation_coeff fld ps in
   (h, c).
 
-Definition characteristic_polynomial α (fld : field α _) pol ns :=
+Definition characteristic_polynomial α (fld : field α) pol ns :=
   let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in

@@ -1,4 +1,4 @@
-(* $Id: coq.ml,v 1.3 2013-06-24 12:54:25 deraugla Exp $ *)
+(* $Id: coq.ml,v 1.4 2013-07-02 02:30:12 deraugla Exp $ *)
 
 open Pnums;
 
@@ -23,6 +23,14 @@ value nat_compare i₁ i₂ =
   if c < 0 then Lt
   else if c = 0 then Eq
   else Gt
+;
+
+type z = [ Z0 | Zpos of I.t | Zneg of I.t ];
+
+value zcoq z =
+  if I.lt z I.zero then Zneg (I.neg z)
+  else if I.gt z I.zero then Zpos z
+  else Z0
 ;
 
 value arg_test = ref False;

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.193 2013-07-02 01:45:40 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.194 2013-07-02 02:30:12 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -49,14 +49,14 @@ CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
   | End => End _
   end.
 
-Definition normal α (fld : field α _) l cd ms :=
+Definition normal α (fld : field α) l cd ms :=
   {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
      ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
      ps_comden := l |}.
 
 (* ps_add *)
 
-CoFixpoint series_add α (fld : field α _) s₁ s₂ :=
+CoFixpoint series_add α (fld : field α) s₁ s₂ :=
   match s₁ with
   | Term c₁ ss₁ =>
       match s₂ with
@@ -66,36 +66,40 @@ CoFixpoint series_add α (fld : field α _) s₁ s₂ :=
   | End => s₂
   end.
 
-Fixpoint series_pad_left α (fld : field α _) n s :=
+Fixpoint series_pad_left α (fld : field α) n s :=
   match n with
   | O => s
   | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
   end.
 
-Definition ps_add α fld (ms₁ ms₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
-  let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ms₁))) ms₁ in
-  let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
+Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ps₁))) ps₁ in
+  let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ps₂))) ps₂ in
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
-  if Z_lt_le_dec v₁ v₂ then
-    {| ps_terms :=
-         series_add fld
-           (ps_terms ms₁)
-           (series_pad_left fld (Z.to_nat (Z.sub v₂ v₁)) (ps_terms ms₂));
-       ps_valnum := v₁;
-       ps_comden := l |}
-  else
-    {| ps_terms :=
-         series_add fld
-           (series_pad_left fld (Z.to_nat (Z.sub v₁ v₂)) (ps_terms ms₁))
-           (ps_terms ms₂);
-       ps_valnum := v₂;
-       ps_comden := l |}.
+  match Z.sub v₂ v₁ with
+  | Z0 =>
+      {| ps_terms := series_add fld (ps_terms ms₁) (ps_terms ms₂);
+         ps_valnum := v₁;
+         ps_comden := l |}
+  | Zpos n =>
+      {| ps_terms :=
+           series_add fld (ps_terms ms₁)
+             (series_pad_left fld (Pos.to_nat n) (ps_terms ms₂));
+         ps_valnum := v₁;
+         ps_comden := l |}
+  | Zneg n =>
+      {| ps_terms :=
+           series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ms₁))
+             (ps_terms ms₂);
+         ps_valnum := v₂;
+         ps_comden := l |}
+  end.
 
 (* ps_mul *)
 
-Fixpoint sum_mul_coeff α (fld : field α _) i ni₁ s₁ s₂ :=
+Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   match ni₁ with
   | O => None
   | S ni =>
