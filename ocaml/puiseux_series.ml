@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.194 2013-07-02 02:30:12 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.195 2013-07-02 08:54:45 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -125,7 +125,7 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
       end
   end.
 
-Definition ps_mul_term α fld (s₁ s₂ : series α) :=
+Definition series_mul_term α fld (s₁ s₂ : series α) :=
   let cofix mul_loop n₁ :=
     match sum_mul_coeff fld 0 n₁ s₁ s₂ with
     | Some c => Term c (mul_loop (S n₁))
@@ -138,7 +138,7 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
   let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ms₁))) ms₁ in
   let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
-  {| ps_terms := ps_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
+  {| ps_terms := series_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
      ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
      ps_comden := l |}.
 
