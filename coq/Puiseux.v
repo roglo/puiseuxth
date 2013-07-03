@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.807 2013-07-03 11:29:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.808 2013-07-03 14:23:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -593,29 +593,61 @@ destruct cl as [| c].
    subst psl.
    destruct cl as [| c₁].
     simpl in Hhps.
-    destruct (valuation fld cn) as [u| ].
-     destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
-     injection Hhps; clear Hhps; intros; subst h u.
-     remember [c … psl₁] as x; simpl; subst x.
-     rewrite SuccNat2Pos.id_succ, minus_Sn_n.
-     subst psl₁; right; left; reflexivity.
-
-     contradiction.
+    destruct (valuation fld cn) as [u| ]; [ idtac | contradiction ].
+    destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+    injection Hhps; clear Hhps; intros; subst h u.
+    remember [c … psl₁] as x; simpl; subst x.
+    rewrite SuccNat2Pos.id_succ, minus_Sn_n.
+    subst psl₁; right; left; reflexivity.
 
     simpl in Hhps.
-    destruct (valuation fld c₁) as [| u].
+    destruct (valuation fld c₁) as [u| ].
      destruct Hhps as [Hhps| Hhps].
-      injection Hhps; clear Hhps; intros; subst h q.
+      injection Hhps; clear Hhps; intros; subst h u.
       remember [c … psl₁] as x; simpl; subst x.
       rewrite SuccNat2Pos.id_succ, minus_Sn_n.
       subst psl₁; right; left; reflexivity.
 
       destruct cl as [| c₂].
        simpl in Hhps.
-       destruct (valuation fld cn) as [u| ].
-        destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
-        injection Hhps; clear Hhps; intros; subst h u.
-        remember [c … psl₁] as x; simpl; subst x.
+       destruct (valuation fld cn) as [u₂| ]; [ idtac | contradiction ].
+       destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+       injection Hhps; clear Hhps; intros; subst h u₂.
+       remember [c … psl₁] as x; simpl; subst x.
+       rewrite <- SuccNat2Pos.inj_succ, SuccNat2Pos.id_succ.
+       rewrite <- minus_Sn_m; [ rewrite minus_Sn_n | apply le_n_Sn ].
+       subst psl₁; right; right; left; reflexivity.
+
+       destruct cl as [| c₃].
+        simpl in Hhps.
+        destruct (valuation fld c₂) as [u₂| ].
+         destruct Hhps as [Hhps| Hhps].
+          injection Hhps; clear Hhps; intros; subst h u₂.
+          remember [c … psl₁] as x; simpl; subst x.
+          rewrite <- SuccNat2Pos.inj_succ, SuccNat2Pos.id_succ.
+          rewrite <- minus_Sn_m; [ rewrite minus_Sn_n | apply le_n_Sn ].
+          subst psl₁; right; right; left; reflexivity.
+
+          destruct (valuation fld cn) as [u₃| ]; [ idtac | contradiction ].
+          destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+          injection Hhps; clear Hhps; intros; subst h u₃.
+          remember [c … psl₁] as x; simpl; subst x.
+          do 2 rewrite <- SuccNat2Pos.inj_succ.
+          rewrite SuccNat2Pos.id_succ.
+          rewrite <- minus_Sn_m; [ idtac | eapply le_trans; eapply le_n_Sn ].
+          rewrite <- minus_Sn_m; [ rewrite minus_Sn_n | apply le_n_Sn ].
+          subst psl₁; right; right; right; left; reflexivity.
+
+         destruct (valuation fld cn) as [u₃| ]; [ idtac | contradiction ].
+         destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+         injection Hhps; clear Hhps; intros; subst h u₃.
+         remember [c … psl₁] as x; simpl; subst x.
+         do 2 rewrite <- SuccNat2Pos.inj_succ.
+         rewrite SuccNat2Pos.id_succ.
+         rewrite <- minus_Sn_m; [ idtac | eapply le_trans; eapply le_n_Sn ].
+         rewrite <- minus_Sn_m; [ rewrite minus_Sn_n | apply le_n_Sn ].
+         subst psl₁; right; right; right; left; reflexivity.
+
 bbb.
 
 Lemma yyy : ∀ pol pts psl h hps def,
