@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.811 2013-07-03 14:37:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.812 2013-07-03 14:54:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -591,8 +591,33 @@ destruct cl as [| c].
    simpl in Hpsl.
    remember (cl ++ [cn]) as psl₁.
    subst psl.
-
    clear v.
+   revert c pow psl₁ Hhps Heqpsl₁.
+   induction cl as [| c₁]; intros.
+    simpl in Hhps.
+    destruct (valuation fld cn) as [u| ]; [ idtac | contradiction ].
+    destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+    injection Hhps; clear Hhps; intros; subst h u.
+    remember [c … psl₁] as x; simpl; subst x.
+    rewrite SuccNat2Pos.id_succ, minus_Sn_n.
+    subst psl₁; right; left; reflexivity.
+
+    simpl in Hhps.
+    destruct (valuation fld c₁) as [v| ].
+     destruct Hhps as [Hhps| Hhps].
+      injection Hhps; clear Hhps; intros; subst h v.
+      remember [c … psl₁] as x; simpl; subst x.
+      rewrite SuccNat2Pos.id_succ, minus_Sn_n.
+      subst psl₁; right; left; reflexivity.
+
+      clear v.
+      eapply IHcl with (c := c₁) in Hhps; [ idtac | reflexivity ].
+      eapply List.nth_S_cons with (a := c) in Hhps.
+      rewrite minus_Sn_m in Hhps.
+       rewrite Nat.sub_succ in Hhps.
+       subst psl₁; assumption.
+
+bbb.
    destruct cl as [| c₁].
     simpl in Hhps.
     destruct (valuation fld cn) as [u| ]; [ idtac | contradiction ].
