@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.815 2013-07-03 19:55:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.816 2013-07-03 20:06:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -590,7 +590,7 @@ induction cl as [| c]; intros.
   exists hps; right; assumption.
 Qed.
 
-Lemma xxx : ∀ pow cl cn pts psl h hv def,
+Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv def,
   pts = filter_finite_val fld (power_list pow cl cn)
   → psl = cl ++ [cn]
     → (h, hv) ∈ pts
@@ -620,11 +620,21 @@ induction cl as [| c]; intros.
   remember (cl ++ [cn]) as psl₁.
   eapply IHcl with (def := def) in Hhps; [ idtac | eassumption ].
   rewrite Hpsl in |- * at 2.
-  apply List.nth_S_cons with (a := c) in Hhps.
-  rewrite minus_Sn_m in Hhps.
+  destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
+   apply List.nth_S_cons with (a := c) in Hhps.
+   rewrite minus_Sn_m in Hhps; [ idtac | assumption ].
    rewrite Nat.sub_succ in Hhps.
    subst psl; assumption.
-bbb.
+
+   apply not_le_minus_0 in Hgt.
+   rewrite Hgt in Hhps.
+   rewrite Nat.sub_succ_r in Hgt.
+   destruct (Z.to_nat (Qnum h) - pow)%nat as [| n].
+    left; subst psl; reflexivity.
+
+    simpl in Hgt; subst n.
+    right; subst psl; assumption.
+Qed.
 
 Lemma yyy : ∀ pol pts psl h hps def,
   pts = points_of_ps_polynom fld pol
