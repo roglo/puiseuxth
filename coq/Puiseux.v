@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.805 2013-07-03 03:29:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.806 2013-07-03 09:33:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -549,6 +549,57 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
+Lemma xxx : ∀ pow cl cn pts psl h hps def,
+  pts = filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn)
+  → psl = cl ++ [cn]
+    → (h, hps) ∈ pts
+      → List.nth (Z.to_nat (Qnum h) - pow) psl def ∈ psl.
+Proof.
+fix IH 1.
+intros pow cl cn pts psl h hps def Hpts Hpsl Hhps.
+destruct pow.
+ rewrite <- minus_n_O.
+ destruct cl as [| c].
+  simpl in Hpts.
+  destruct (valuation fld cn) as [v| ].
+   subst pts.
+   destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+   injection Hhps; clear Hhps; intros; subst h v.
+   subst psl; simpl.
+   left; reflexivity.
+
+   subst pts; contradiction.
+
+  simpl in Hpts.
+  destruct (valuation fld c) as [v| ].
+   subst pts.
+   destruct Hhps as [Hhps| Hhps].
+    injection Hhps; clear Hhps; intros; subst h v.
+    simpl.
+    subst psl; simpl.
+    left; reflexivity.
+
+    destruct cl as [| c₁].
+     simpl in Hhps.
+     destruct (valuation fld cn) as [u| ].
+      destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
+      injection Hhps; clear Hhps; intros; subst h u.
+      subst psl; right; left.
+      reflexivity.
+
+      contradiction.
+
+     simpl in Hhps.
+     destruct (valuation fld c₁) as [u| ].
+      destruct Hhps as [Hhps| Hhps].
+       injection Hhps; clear Hhps; intros; subst h u.
+       subst psl.
+       right; left; reflexivity.
+
+       subst psl.
+       eapply IH with (def := def) in Hhps; try reflexivity.
+bbb.
+
 Lemma yyy : ∀ pol pts psl h hps def,
   pts = points_of_ps_polynom fld pol
   → psl = al pol ++ [an pol]
@@ -556,6 +607,15 @@ Lemma yyy : ∀ pol pts psl h hps def,
       → List.nth (Z.to_nat (Qnum h)) psl def ∈ psl.
 Proof.
 intros pol pts psl h hps def Hpts Hpsl Hhps.
+unfold points_of_ps_polynom in Hpts.
+unfold points_of_ps_polynom_gen in Hpts.
+bbb.
+fix IHpsl 3.
+intros pol pts psl h hps def Hpts Hpsl Hhps.
+destruct psl as [| ps].
+ symmetry in Hpsl.
+ apply List.app_eq_nil in Hpsl.
+ destruct Hpsl as (_, H); discriminate H.
 bbb.
 
 Lemma zzz : ∀ pol ns,
