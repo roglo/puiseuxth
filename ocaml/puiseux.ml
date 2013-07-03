@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.393 2013-07-02 02:30:12 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.394 2013-07-03 19:20:00 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -38,27 +38,27 @@ value nofq q =
   if r < 0 then 0 else r
 ;
 
-Fixpoint all_points_of_ps_polynom α pow psl (psn : puiseux_series α) :=
+Fixpoint power_list α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>
-      [(Qnat pow, ps₁) … all_points_of_ps_polynom (S pow) psl₁ psn]
+      [(Qnat pow, ps₁) … power_list (S pow) psl₁ psn]
   | [] =>
       [(Qnat pow, psn)]
   end.
 
-Fixpoint filter_non_zero_ps α fld (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_finite_val α fld (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
       match valuation fld ps with
-      | Some v => [(pow, v) … filter_non_zero_ps fld dpl₁]
-      | None => filter_non_zero_ps fld dpl₁
+      | Some v => [(pow, v) … filter_finite_val fld dpl₁]
+      | None => filter_finite_val fld dpl₁
       end
   | [] =>
       []
   end.
 
 Definition points_of_ps_polynom_gen α fld pow cl (cn : puiseux_series α) :=
-  filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn).
+  filter_finite_val fld (power_list pow cl cn).
 
 Definition points_of_ps_polynom α fld (pol : polynomial (puiseux_series α)) :=
   points_of_ps_polynom_gen fld 0%nat (al pol) (an pol).

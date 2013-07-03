@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.813 2013-07-03 18:19:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.814 2013-07-03 19:18:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -549,34 +549,63 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
-(*
-Lemma www : ∀ pow cl cn pts₁ pts₂ h hps,
-  pts₁ = all_points_of_ps_polynom pow cl cn
-  → pts₂ = filter_non_zero_ps fld pts₁
-    → (h, hps) ∈ pts₂
-      → (h, hps) ∈ pts₁.
+Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv,
+  ppl = power_list pow cl cn
+  → pts = filter_finite_val fld ppl
+    → (h, hv) ∈ pts
+      → ∃ hps, (h, hps) ∈ ppl.
 Proof.
-bbb.
-*)
+intros pow cl cn ppl pts h hv Hppl Hpts Hhv.
+revert pow cn ppl pts h hv Hppl Hpts Hhv.
+induction cl as [| c]; intros.
+ simpl in Hppl; subst ppl.
+ simpl in Hpts.
+ destruct (valuation fld cn) as [v| ].
+  subst pts.
+  destruct Hhv as [Hhv| ]; [ idtac | contradiction ].
+  injection Hhv; clear Hhv; intros Hhv Hh; subst v h.
+  exists cn; left; reflexivity.
 
-Lemma xxx : ∀ pow cl cn pts psl h hps def,
-  pts = filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn)
+  subst pts; contradiction.
+
+ simpl in Hppl.
+ rewrite Hppl in Hpts.
+ simpl in Hpts.
+ destruct (valuation fld c) as [v| ].
+  subst pts.
+  destruct Hhv as [Hhv| Hhv].
+   injection Hhv; clear Hhv; intros Hhv Hh; subst v h.
+   exists c; subst ppl; left; reflexivity.
+
+   remember (power_list (S pow) cl cn) as ppl₁.
+   subst ppl.
+   eapply IHcl in Hhv; [ idtac | eassumption | reflexivity ].
+   destruct Hhv as (hps, Hhv).
+   exists hps; right; assumption.
+
+  remember (power_list (S pow) cl cn) as ppl₁.
+  subst ppl.
+  eapply IHcl in Hhv; [ idtac | eassumption | eassumption ].
+  destruct Hhv as (hps, Hhv).
+  exists hps; right; assumption.
+Qed.
+
+Lemma xxx : ∀ pow cl cn pts psl h hv def,
+  pts = filter_finite_val fld (power_list pow cl cn)
   → psl = cl ++ [cn]
-    → (h, hps) ∈ pts
+    → (h, hv) ∈ pts
       → List.nth (Z.to_nat (Qnum h) - pow) psl def ∈ psl.
 Proof.
-(*
-fix IH 2.
-intros pow cl cn pts psl h hps def Hpts Hpsl Hhps.
-destruct cl as [| c].
-*)
-intros pow cl cn pts psl h hps def Hpts Hpsl Hhps.
-remember (all_points_of_ps_polynom pow cl cn) as ppl.
+intros pow cl cn pts psl h hv def Hpts Hpsl Hhv.
+remember (power_list pow cl cn) as ppl.
+eapply in_pts_in_ppl in Hhv; [ idtac | eassumption | eassumption ].
+destruct Hhv as (hps, Hhps).
+
 bbb.
 
+intros pow cl cn pts psl h hps def Hpts Hpsl Hhps.
 revert pow cn pts psl h hps def Hpts Hpsl Hhps.
 induction cl as [| c]; intros.
-(**)
  destruct pow.
   simpl in Hpts.
   subst pts.
