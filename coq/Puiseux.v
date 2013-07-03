@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.810 2013-07-03 14:35:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.811 2013-07-03 14:37:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -591,6 +591,8 @@ destruct cl as [| c].
    simpl in Hpsl.
    remember (cl ++ [cn]) as psl₁.
    subst psl.
+
+   clear v.
    destruct cl as [| c₁].
     simpl in Hhps.
     destruct (valuation fld cn) as [u| ]; [ idtac | contradiction ].
@@ -600,7 +602,6 @@ destruct cl as [| c].
     rewrite SuccNat2Pos.id_succ, minus_Sn_n.
     subst psl₁; right; left; reflexivity.
 
-    clear v.
     simpl in Hhps.
     destruct (valuation fld c₁) as [v| ].
      destruct Hhps as [Hhps| Hhps].
