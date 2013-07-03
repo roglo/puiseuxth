@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.817 2013-07-03 20:09:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.818 2013-07-03 20:17:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -676,6 +676,13 @@ assert (psj ∈ psl) as Hpsj.
  apply ini_fin_ns_in_init_pts in Hpts.
  destruct Hpts as (Hini, Hfin).
  subst j.
+ eapply in_pts_in_pol; [ eassumption | eassumption | idtac ].
+ rewrite <- surjective_pairing; assumption.
+
+ remember (valuation fld psj) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  pose proof (Hi psj v Hpsj Heqv) as H.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
