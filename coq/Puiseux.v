@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.812 2013-07-03 14:54:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.813 2013-07-03 18:19:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -549,15 +549,34 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
+(*
+Lemma www : ∀ pow cl cn pts₁ pts₂ h hps,
+  pts₁ = all_points_of_ps_polynom pow cl cn
+  → pts₂ = filter_non_zero_ps fld pts₁
+    → (h, hps) ∈ pts₂
+      → (h, hps) ∈ pts₁.
+Proof.
+bbb.
+*)
+
 Lemma xxx : ∀ pow cl cn pts psl h hps def,
   pts = filter_non_zero_ps fld (all_points_of_ps_polynom pow cl cn)
   → psl = cl ++ [cn]
     → (h, hps) ∈ pts
       → List.nth (Z.to_nat (Qnum h) - pow) psl def ∈ psl.
 Proof.
+(*
 fix IH 2.
 intros pow cl cn pts psl h hps def Hpts Hpsl Hhps.
 destruct cl as [| c].
+*)
+intros pow cl cn pts psl h hps def Hpts Hpsl Hhps.
+remember (all_points_of_ps_polynom pow cl cn) as ppl.
+bbb.
+
+revert pow cn pts psl h hps def Hpts Hpsl Hhps.
+induction cl as [| c]; intros.
+(**)
  destruct pow.
   simpl in Hpts.
   subst pts.
@@ -592,6 +611,7 @@ destruct cl as [| c].
    remember (cl ++ [cn]) as psl₁.
    subst psl.
    clear v.
+bbb.
    revert c pow psl₁ Hhps Heqpsl₁.
    induction cl as [| c₁]; intros.
     simpl in Hhps.
