@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.816 2013-07-03 20:06:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.817 2013-07-03 20:09:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -636,7 +636,7 @@ induction cl as [| c]; intros.
     right; subst psl; assumption.
 Qed.
 
-Lemma yyy : ∀ pol pts psl h hps def,
+Lemma in_pts_in_pol : ∀ pol pts psl h hps def,
   pts = points_of_ps_polynom fld pol
   → psl = al pol ++ [an pol]
     → (h, hps) ∈ pts
@@ -645,14 +645,9 @@ Proof.
 intros pol pts psl h hps def Hpts Hpsl Hhps.
 unfold points_of_ps_polynom in Hpts.
 unfold points_of_ps_polynom_gen in Hpts.
-bbb.
-fix IHpsl 3.
-intros pol pts psl h hps def Hpts Hpsl Hhps.
-destruct psl as [| ps].
- symmetry in Hpsl.
- apply List.app_eq_nil in Hpsl.
- destruct Hpsl as (_, H); discriminate H.
-bbb.
+eapply in_pts_in_psl in Hpts; [ idtac | eassumption | eassumption ].
+rewrite <- minus_n_O in Hpts; eassumption.
+Qed.
 
 Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
