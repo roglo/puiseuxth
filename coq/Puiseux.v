@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.804 2013-06-30 12:17:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.805 2013-07-03 03:29:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -549,6 +549,15 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
+Lemma yyy : ∀ pol pts psl h hps def,
+  pts = points_of_ps_polynom fld pol
+  → psl = al pol ++ [an pol]
+    → (h, hps) ∈ pts
+      → List.nth (Z.to_nat (Qnum h)) psl def ∈ psl.
+Proof.
+intros pol pts psl h hps def Hpts Hpsl Hhps.
+bbb.
+
 Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∃ m p q,
@@ -571,7 +580,11 @@ exists m.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as psj.
 assert (psj ∈ psl) as Hpsj.
  subst psj.
- apply List.nth_In.
+ remember Hns as Hpts; clear HeqHpts.
+ rewrite Heqhsl in Hpts.
+ apply ini_fin_ns_in_init_pts in Hpts.
+ destruct Hpts as (Hini, Hfin).
+ subst j.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
