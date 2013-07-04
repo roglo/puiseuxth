@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.821 2013-07-04 09:40:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.822 2013-07-04 11:12:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -608,9 +608,8 @@ Proof.
 intros pow cl cn pts psl h hv hps def Hpts Hpsl Hhv Hhps.
 remember (power_list pow cl cn) as ppl.
 eapply in_pts_in_ppl in Hhv; [ idtac | eassumption | eassumption ].
-destruct Hhv as (hps₁, Hhps₁).
+destruct Hhv as (hps₁, (Hhps₁, Hv)).
 subst ppl.
-destruct Hhps₁ as (Hhps₁, Hv).
 clear pts Hpts.
 revert pow cn h hv def hps₁ psl hps Hhps₁ Hpsl Hv Hhps.
 induction cl as [| c]; intros.
