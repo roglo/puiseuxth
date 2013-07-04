@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.825 2013-07-04 17:45:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.826 2013-07-04 19:06:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -650,42 +650,37 @@ Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv hps def,
 Proof.
 intros pow cl cn pts psl h hv hps def Hpts Hpsl Hhv Hhps.
 remember (power_list pow cl cn) as ppl.
-eapply in_pts_in_ppl in Hhv; [ idtac | eassumption | eassumption ].
-destruct Hhv as (hps₁, (Hhps₁, Hv)).
-subst ppl.
-clear pts Hpts.
-revert pow cn h hv def hps₁ psl hps Hhps₁ Hpsl Hv Hhps.
-induction cl as [| c]; intros.
- simpl in Hhps₁.
- destruct Hhps₁ as [Hhps₁| ]; [ idtac | contradiction ].
- injection Hhps₁; clear Hhps₁; intros; subst h hps₁.
- subst hps; simpl; rewrite Nat2Z.id, minus_diag.
- subst psl; left; reflexivity.
+subst psl.
+assert (pow ≤ Z.to_nat (Qnum h)) as H.
+ subst pts ppl.
+ eapply first_power_le; eassumption.
 
- simpl in Hhps₁.
- destruct Hhps₁ as [Hhps₁| Hhps₁].
-  injection Hhps₁; clear Hhps₁; intros; subst h hps₁.
-  subst hps; simpl; rewrite Nat2Z.id, minus_diag.
-  subst psl; left; reflexivity.
+ eapply in_pts_in_ppl in Hhv; try eassumption.
+ destruct Hhv as (Hhps₁, Hv).
+ subst ppl.
+ revert pow cn pts h hv hps Hhps Hv Hhps₁ Hpts H.
+ induction cl as [| c]; intros.
+  destruct Hhps₁ as [Hhps₁| ]; [ idtac | contradiction ].
+  injection Hhps₁; clear Hhps₁; intros; subst h hps.
+  left; reflexivity.
 
-  simpl in Hpsl.
-  remember (cl ++ [cn]) as psl₁.
-  eapply IHcl with (def := def) in Hhps₁; try reflexivity; try eassumption.
-  subst hps; rewrite Hpsl in |- * at 2.
-  destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
-   apply List.nth_S_cons with (a := c) in Hhps₁.
-   rewrite minus_Sn_m in Hhps₁; [ idtac | assumption ].
-   rewrite Nat.sub_succ in Hhps₁.
-   subst psl psl₁; assumption.
+  destruct Hhps₁ as [Hhps₁| Hhps₁].
+   injection Hhps₁; clear Hhps₁; intros; subst h hps.
+   left; reflexivity.
 
-   apply not_le_minus_0 in Hgt.
-   rewrite Hgt in Hhps₁.
-   rewrite Nat.sub_succ_r in Hgt.
-   destruct (Z.to_nat (Qnum h) - pow)%nat as [| n].
-    left; subst psl; reflexivity.
+   destruct (eq_nat_dec (Z.to_nat (Qnum h)) pow) as [Heq| Hne].
+    rewrite Heq, minus_diag in Hhps.
+    subst hps; left; reflexivity.
 
-    simpl in Hgt; subst n.
-    right; subst psl psl₁; assumption.
+    right.
+    eapply IHcl; try eassumption; try reflexivity.
+     rewrite <- Nat.sub_succ in Hhps.
+     rewrite <- minus_Sn_m in Hhps; [ assumption | idtac ].
+     apply not_eq_sym in Hne.
+     apply le_neq_lt; assumption.
+
+     apply not_eq_sym in Hne.
+     apply le_neq_lt; assumption.
 Qed.
 
 Lemma in_pts_in_pol : ∀ pol pts psl h hps def,
