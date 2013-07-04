@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.826 2013-07-04 19:06:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.827 2013-07-04 20:48:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -646,7 +646,7 @@ Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv hps def,
   → psl = cl ++ [cn]
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-        → hps ∈ psl.
+        → hps ∈ psl ∧ valuation fld hps = Some hv.
 Proof.
 intros pow cl cn pts psl h hv hps def Hpts Hpsl Hhv Hhps.
 remember (power_list pow cl cn) as ppl.
@@ -657,6 +657,7 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
 
  eapply in_pts_in_ppl in Hhv; try eassumption.
  destruct Hhv as (Hhps₁, Hv).
+ split; [ idtac | assumption ].
  subst ppl.
  revert pow cn pts h hv hps Hhps Hv Hhps₁ Hpts H.
  induction cl as [| c]; intros.
@@ -693,7 +694,10 @@ intros pol pts psl h hps def Hpts Hpsl Hhps.
 unfold points_of_ps_polynom in Hpts.
 unfold points_of_ps_polynom_gen in Hpts.
 eapply in_pts_in_psl in Hpts; try eassumption.
-rewrite <- minus_n_O; reflexivity.
+ destruct Hpts as (Hpts, Hv).
+ eassumption.
+
+ rewrite <- minus_n_O; reflexivity.
 Qed.
 
 Lemma zzz : ∀ pol ns,
