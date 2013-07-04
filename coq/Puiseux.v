@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.819 2013-07-04 03:32:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.820 2013-07-04 09:30:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -598,42 +598,43 @@ induction cl as [| c]; intros.
   split; [ right; assumption | assumption ].
 Qed.
 
-Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv def,
+Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv psh def,
   pts = filter_finite_val fld (power_list pow cl cn)
   → psl = cl ++ [cn]
     → (h, hv) ∈ pts
-      → List.nth (Z.to_nat (Qnum h) - pow) psl def ∈ psl.
+      → psh = List.nth (Z.to_nat (Qnum h) - pow) psl def
+        → psh ∈ psl.
 Proof.
-intros pow cl cn pts psl h hv def Hpts Hpsl Hhv.
+intros pow cl cn pts psl h hv psh def Hpts Hpsl Hhv Hpsh.
 remember (power_list pow cl cn) as ppl.
 eapply in_pts_in_ppl in Hhv; [ idtac | eassumption | eassumption ].
 destruct Hhv as (hps, Hhps).
 subst ppl.
 destruct Hhps as (Hhps, Hv).
 clear pts Hpts.
-revert pow cn h hv def hps psl Hhps Hpsl Hv.
+revert pow cn h hv def hps psl psh Hhps Hpsl Hv Hpsh.
 induction cl as [| c]; intros.
  simpl in Hhps.
  destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
  injection Hhps; clear Hhps; intros; subst h hps.
- simpl; rewrite Nat2Z.id, minus_diag.
+ subst psh; simpl; rewrite Nat2Z.id, minus_diag.
  subst psl; left; reflexivity.
 
  simpl in Hhps.
  destruct Hhps as [Hhps| Hhps].
   injection Hhps; clear Hhps; intros; subst h hps.
-  simpl; rewrite Nat2Z.id, minus_diag.
+  subst psh; simpl; rewrite Nat2Z.id, minus_diag.
   subst psl; left; reflexivity.
 
   simpl in Hpsl.
   remember (cl ++ [cn]) as psl₁.
-  eapply IHcl with (def := def) in Hhps; try eassumption.
-  rewrite Hpsl in |- * at 2.
+  eapply IHcl with (def := def) in Hhps; try reflexivity; try eassumption.
+  subst psh; rewrite Hpsl in |- * at 2.
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
    apply List.nth_S_cons with (a := c) in Hhps.
    rewrite minus_Sn_m in Hhps; [ idtac | assumption ].
    rewrite Nat.sub_succ in Hhps.
-   subst psl; assumption.
+   subst psl psl₁; assumption.
 
    apply not_le_minus_0 in Hgt.
    rewrite Hgt in Hhps.
@@ -642,7 +643,7 @@ induction cl as [| c]; intros.
     left; subst psl; reflexivity.
 
     simpl in Hgt; subst n.
-    right; subst psl; assumption.
+    right; subst psl psl₁; assumption.
 Qed.
 
 Lemma in_pts_in_pol : ∀ pol pts psl h hps def,
@@ -654,8 +655,8 @@ Proof.
 intros pol pts psl h hps def Hpts Hpsl Hhps.
 unfold points_of_ps_polynom in Hpts.
 unfold points_of_ps_polynom_gen in Hpts.
-eapply in_pts_in_psl in Hpts; [ idtac | eassumption | eassumption ].
-rewrite <- minus_n_O in Hpts; eassumption.
+eapply in_pts_in_psl in Hpts; try eassumption.
+rewrite <- minus_n_O; reflexivity.
 Qed.
 
 Lemma zzz : ∀ pol ns,
