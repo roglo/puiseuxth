@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.823 2013-07-04 16:20:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.824 2013-07-04 17:30:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -549,13 +549,35 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
-Lemma yyy : ∀ pow cl cn h hv,
+Lemma first_power_le : ∀ pow cl cn h hv,
   (h, hv) ∈ filter_finite_val fld (power_list pow cl cn)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
 intros pow cl cn h hv Hhhv.
-bbb.
-*)
+revert pow Hhhv.
+induction cl as [| c]; intros.
+ simpl in Hhhv.
+ remember (valuation fld cn) as v.
+ symmetry in Heqv.
+ destruct v as [v| ]; [ idtac | contradiction ].
+ destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
+ injection Hhhv; clear Hhhv; intros; subst h v.
+ simpl; rewrite Nat2Z.id; constructor.
+
+ simpl in Hhhv.
+ remember (valuation fld c) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  destruct Hhhv as [Hhhv| Hhhv].
+   injection Hhhv; clear Hhhv; intros; subst h v.
+   simpl; rewrite Nat2Z.id; constructor.
+
+   apply IHcl in Hhhv.
+   eapply le_trans; [ apply le_n_Sn | eassumption ].
+
+  apply IHcl in Hhhv.
+  eapply le_trans; [ apply le_n_Sn | eassumption ].
+Qed.
 
 (**)
 Lemma zzz : ∀ pow cl cn ppl pts h hv hps def,
@@ -597,7 +619,7 @@ induction cl as [| c]; intros.
     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
     simpl in Hhps; eassumption.
 
-    apply yyy in Hhhv; contradiction.
+    apply first_power_le in Hhhv; contradiction.
 
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
    eapply IHcl in Hhhv; [ eassumption | idtac ].
@@ -605,7 +627,7 @@ induction cl as [| c]; intros.
    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
    simpl in Hhps; eassumption.
 
-   apply yyy in Hhhv; contradiction.
+   apply first_power_le in Hhhv; contradiction.
 bbb.
 *)
 
