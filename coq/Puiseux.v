@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.822 2013-07-04 11:12:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.823 2013-07-04 16:20:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -548,6 +548,66 @@ destruct Hns as [Hns| Hns].
 
  apply IHhsl; assumption.
 Qed.
+
+Lemma yyy : ∀ pow cl cn h hv,
+  (h, hv) ∈ filter_finite_val fld (power_list pow cl cn)
+  → pow ≤ Z.to_nat (Qnum h).
+Proof.
+intros pow cl cn h hv Hhhv.
+bbb.
+*)
+
+(**)
+Lemma zzz : ∀ pow cl cn ppl pts h hv hps def,
+  ppl = power_list pow cl cn
+  → pts = filter_finite_val fld ppl
+    → (h, hv) ∈ pts
+      → hps = List.nth (Z.to_nat (Qnum h) - pow) (cl ++ [cn]) def
+        → valuation fld hps = Some hv.
+Proof.
+intros pow cl cn ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
+subst ppl pts.
+revert pow cn h hv hps def Hhps Hhhv.
+induction cl as [| c]; intros.
+ simpl in Hhhv.
+ remember (valuation fld cn) as v.
+ symmetry in Heqv.
+ destruct v as [v| ]; [ idtac | contradiction ].
+ destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
+ injection Hhhv; clear Hhhv; intros; subst v h.
+ remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+ rewrite Nat2Z.id, minus_diag in Hhps.
+ simpl in Hhps.
+ subst hps; assumption.
+
+ simpl in Hhhv.
+ remember (valuation fld c) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  destruct Hhhv as [Hhhv| Hhhv].
+   injection Hhhv; clear Hhhv; intros; subst v h.
+   remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+   rewrite Nat2Z.id, minus_diag in Hhps.
+   simpl in Hhps.
+   subst hps; assumption.
+
+   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
+    eapply IHcl in Hhhv; [ eassumption | idtac ].
+    rewrite <- Nat.sub_succ in Hhps.
+    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+    simpl in Hhps; eassumption.
+
+    apply yyy in Hhhv; contradiction.
+
+  destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
+   eapply IHcl in Hhhv; [ eassumption | idtac ].
+   rewrite <- Nat.sub_succ in Hhps.
+   rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+   simpl in Hhps; eassumption.
+
+   apply yyy in Hhhv; contradiction.
+bbb.
+*)
 
 Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv,
   ppl = power_list pow cl cn
