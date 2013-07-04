@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.824 2013-07-04 17:30:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.825 2013-07-04 17:45:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -579,17 +579,16 @@ induction cl as [| c]; intros.
   eapply le_trans; [ apply le_n_Sn | eassumption ].
 Qed.
 
-(**)
-Lemma zzz : ∀ pow cl cn ppl pts h hv hps def,
+Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv hps def,
   ppl = power_list pow cl cn
   → pts = filter_finite_val fld ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) (cl ++ [cn]) def
-        → valuation fld hps = Some hv.
+        → (h, hps) ∈ ppl ∧ valuation fld hps = Some hv.
 Proof.
 intros pow cl cn ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
-revert pow cn h hv hps def Hhps Hhhv.
+revert pow cn h hv hps Hhps Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
  remember (valuation fld cn) as v.
@@ -599,8 +598,8 @@ induction cl as [| c]; intros.
  injection Hhhv; clear Hhhv; intros; subst v h.
  remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
  rewrite Nat2Z.id, minus_diag in Hhps.
- simpl in Hhps.
- subst hps; assumption.
+ simpl in Hhps; subst hps.
+ split; [ left; reflexivity | assumption ].
 
  simpl in Hhhv.
  remember (valuation fld c) as v.
@@ -610,74 +609,36 @@ induction cl as [| c]; intros.
    injection Hhhv; clear Hhhv; intros; subst v h.
    remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
    rewrite Nat2Z.id, minus_diag in Hhps.
-   simpl in Hhps.
-   subst hps; assumption.
+   simpl in Hhps; subst hps.
+   split; [ left; reflexivity | assumption ].
 
    destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
-    eapply IHcl in Hhhv; [ eassumption | idtac ].
-    rewrite <- Nat.sub_succ in Hhps.
-    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
-    simpl in Hhps; eassumption.
+    eapply IHcl in Hhhv.
+     rewrite <- Nat.sub_succ in Hhps.
+     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+     simpl in Hhps.
+     destruct Hhhv as (Hhhv, Hhv).
+     split; [ right; eassumption | assumption ].
+
+     rewrite <- Nat.sub_succ in Hhps.
+     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+     simpl in Hhps; eassumption.
 
     apply first_power_le in Hhhv; contradiction.
 
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
-   eapply IHcl in Hhhv; [ eassumption | idtac ].
-   rewrite <- Nat.sub_succ in Hhps.
-   rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
-   simpl in Hhps; eassumption.
+   eapply IHcl in Hhhv.
+    rewrite <- Nat.sub_succ in Hhps.
+    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+    simpl in Hhps.
+    destruct Hhhv as (Hhhv, Hhv).
+    split; [ right; eassumption | assumption ].
+
+    rewrite <- Nat.sub_succ in Hhps.
+    rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+    simpl in Hhps; eassumption.
 
    apply first_power_le in Hhhv; contradiction.
-bbb.
-*)
-
-Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv,
-  ppl = power_list pow cl cn
-  → pts = filter_finite_val fld ppl
-    → (h, hv) ∈ pts
-      → ∃ hps, (h, hps) ∈ ppl ∧ valuation fld hps = Some hv.
-Proof.
-intros pow cl cn ppl pts h hv Hppl Hpts Hhv.
-revert pow cn ppl pts h hv Hppl Hpts Hhv.
-induction cl as [| c]; intros.
- simpl in Hppl; subst ppl.
- simpl in Hpts.
- remember (valuation fld cn) as v.
- symmetry in Heqv.
- destruct v as [v| ].
-  subst pts.
-  destruct Hhv as [Hhv| ]; [ idtac | contradiction ].
-  injection Hhv; clear Hhv; intros Hhv Hh; subst v h.
-  exists cn.
-  split; [ left; reflexivity | assumption ].
-
-  subst pts; contradiction.
-
- simpl in Hppl.
- rewrite Hppl in Hpts.
- simpl in Hpts.
- remember (valuation fld c) as v.
- symmetry in Heqv.
- destruct v as [v| ].
-  subst pts.
-  destruct Hhv as [Hhv| Hhv].
-   injection Hhv; clear Hhv; intros Hhv Hh; subst v h.
-   exists c.
-   split; [ subst ppl; left; reflexivity | assumption ].
-
-   remember (power_list (S pow) cl cn) as ppl₁.
-   subst ppl.
-   eapply IHcl in Hhv; [ idtac | eassumption | reflexivity ].
-   destruct Hhv as (hps, (Hhps, Hv)).
-   exists hps.
-   split; [ right; assumption | assumption ].
-
-  remember (power_list (S pow) cl cn) as ppl₁.
-  subst ppl.
-  eapply IHcl in Hhv; [ idtac | eassumption | eassumption ].
-  destruct Hhv as (hps, (Hhps, Hv)).
-  exists hps.
-  split; [ right; assumption | assumption ].
 Qed.
 
 Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv hps def,
