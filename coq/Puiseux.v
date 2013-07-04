@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.818 2013-07-03 20:17:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.819 2013-07-04 03:32:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -553,41 +553,49 @@ Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv,
   ppl = power_list pow cl cn
   → pts = filter_finite_val fld ppl
     → (h, hv) ∈ pts
-      → ∃ hps, (h, hps) ∈ ppl.
+      → ∃ hps, (h, hps) ∈ ppl ∧ valuation fld hps = Some hv.
 Proof.
 intros pow cl cn ppl pts h hv Hppl Hpts Hhv.
 revert pow cn ppl pts h hv Hppl Hpts Hhv.
 induction cl as [| c]; intros.
  simpl in Hppl; subst ppl.
  simpl in Hpts.
- destruct (valuation fld cn) as [v| ].
+ remember (valuation fld cn) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
   subst pts.
   destruct Hhv as [Hhv| ]; [ idtac | contradiction ].
   injection Hhv; clear Hhv; intros Hhv Hh; subst v h.
-  exists cn; left; reflexivity.
+  exists cn.
+  split; [ left; reflexivity | assumption ].
 
   subst pts; contradiction.
 
  simpl in Hppl.
  rewrite Hppl in Hpts.
  simpl in Hpts.
- destruct (valuation fld c) as [v| ].
+ remember (valuation fld c) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
   subst pts.
   destruct Hhv as [Hhv| Hhv].
    injection Hhv; clear Hhv; intros Hhv Hh; subst v h.
-   exists c; subst ppl; left; reflexivity.
+   exists c.
+   split; [ subst ppl; left; reflexivity | assumption ].
 
    remember (power_list (S pow) cl cn) as ppl₁.
    subst ppl.
    eapply IHcl in Hhv; [ idtac | eassumption | reflexivity ].
-   destruct Hhv as (hps, Hhv).
-   exists hps; right; assumption.
+   destruct Hhv as (hps, (Hhps, Hv)).
+   exists hps.
+   split; [ right; assumption | assumption ].
 
   remember (power_list (S pow) cl cn) as ppl₁.
   subst ppl.
   eapply IHcl in Hhv; [ idtac | eassumption | eassumption ].
-  destruct Hhv as (hps, Hhv).
-  exists hps; right; assumption.
+  destruct Hhv as (hps, (Hhps, Hv)).
+  exists hps.
+  split; [ right; assumption | assumption ].
 Qed.
 
 Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv def,
@@ -601,8 +609,9 @@ remember (power_list pow cl cn) as ppl.
 eapply in_pts_in_ppl in Hhv; [ idtac | eassumption | eassumption ].
 destruct Hhv as (hps, Hhps).
 subst ppl.
-clear hv pts Hpts.
-revert pow cn h def hps psl Hhps Hpsl.
+destruct Hhps as (Hhps, Hv).
+clear pts Hpts.
+revert pow cn h hv def hps psl Hhps Hpsl Hv.
 induction cl as [| c]; intros.
  simpl in Hhps.
  destruct Hhps as [Hhps| ]; [ idtac | contradiction ].
@@ -618,7 +627,7 @@ induction cl as [| c]; intros.
 
   simpl in Hpsl.
   remember (cl ++ [cn]) as psl₁.
-  eapply IHcl with (def := def) in Hhps; [ idtac | eassumption ].
+  eapply IHcl with (def := def) in Hhps; try eassumption.
   rewrite Hpsl in |- * at 2.
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
    apply List.nth_S_cons with (a := c) in Hhps.
