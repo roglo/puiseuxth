@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.836 2013-07-05 09:34:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.837 2013-07-05 09:40:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -696,6 +696,23 @@ eapply in_pts_in_psl; try eassumption.
 rewrite <- minus_n_O; eassumption.
 Qed.
 
+Lemma yyy : ∀ m j k mj mk g,
+  g = Z.gcd (mj - mk) (k - j)
+  → ((mj # m) - (mk # m)) / ((k # 1) - (j # 1)) ==
+     (mj - mk) / g # m * Z.to_pos ((k - j) / g).
+Proof.
+intros m j k mj mk g Hg.
+setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
+ Focus 2.
+ unfold Qeq; simpl.
+ rewrite Zmult_minus_distr_r.
+ rewrite Zmult_plus_distr_l.
+ rewrite Pos2Z.inj_mul.
+ do 2 rewrite Zmult_assoc.
+ do 2 rewrite Z.mul_opp_l.
+ reflexivity.
+bbb.
+
 Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∃ m p q,
@@ -741,15 +758,13 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   exists ((mj - mk) / g)%Z.
   exists (Z.to_pos ((Qnum k - Qnum j) / g)).
   split.
-   setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
-    Focus 2.
-    unfold Qeq; simpl.
-    rewrite Zmult_minus_distr_r.
-    rewrite Zmult_plus_distr_l.
-    rewrite Pos2Z.inj_mul.
-    do 2 rewrite Zmult_assoc.
-    do 2 rewrite Z.mul_opp_l.
-    reflexivity.
+   destruct k as (kn, kd).
+   destruct j as (jn, jd).
+   simpl.
+   replace jd with 1%positive in Heqg |- * .
+    replace kd with 1%positive in Heqg |- * .
+     simpl in Heqg.
+     apply yyy; assumption.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
