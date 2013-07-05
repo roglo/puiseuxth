@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.840 2013-07-05 15:41:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.841 2013-07-05 17:35:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -765,30 +765,34 @@ setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
   do 4 rewrite Zmult_1_r.
   reflexivity.
 
-  rewrite Qdiv_mul.
-   unfold Qeq.
-   simpl.
-   do 2 rewrite Pos2Z.inj_mul.
-   rewrite Z.mul_comm; symmetry.
-   rewrite Z.mul_comm; symmetry.
-   do 2 rewrite <- Z.mul_assoc.
-   apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
-   rewrite Zmult_1_r.
-   pose proof (Z.gcd_divide_r (mj - mk) (k - j)) as H.
-   destruct H as (u, Hu).
-   rewrite <- Hg in Hu.
-   rewrite Hu.
-   rewrite Z_div_mult_full.
-    pose proof (Z.gcd_divide_l (mj - mk) (k - j)) as H.
-    destruct H as (v, Hv).
-    rewrite <- Hg in Hv.
-    rewrite Hv.
-    rewrite Z_div_mult_full.
-     rewrite Z2Pos.id.
-      rewrite Z2Pos.id.
-       rewrite Z.mul_shuffle0, Z.mul_assoc; reflexivity.
+  destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
+   rewrite Hz; simpl.
+   reflexivity.
 
-       rewrite <- Hu.
+   rewrite Qdiv_mul; [ idtac | assumption | idtac ].
+    unfold Qeq.
+    simpl.
+    do 2 rewrite Pos2Z.inj_mul.
+    rewrite Z.mul_comm; symmetry.
+    rewrite Z.mul_comm; symmetry.
+    do 2 rewrite <- Z.mul_assoc.
+    apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+    rewrite Zmult_1_r.
+    pose proof (Z.gcd_divide_r (mj - mk) (k - j)) as H.
+    destruct H as (u, Hu).
+    rewrite <- Hg in Hu.
+    rewrite Hu.
+    rewrite Z_div_mult_full.
+     pose proof (Z.gcd_divide_l (mj - mk) (k - j)) as H.
+     destruct H as (v, Hv).
+     rewrite <- Hg in Hv.
+     rewrite Hv.
+     rewrite Z_div_mult_full.
+      rewrite Z2Pos.id.
+       rewrite Z2Pos.id.
+        rewrite Z.mul_shuffle0, Z.mul_assoc; reflexivity.
+
+        rewrite <- Hu.
 bbb.
 
 Lemma zzz : ∀ pol ns,
