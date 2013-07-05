@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.831 2013-07-05 08:53:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.832 2013-07-05 09:02:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -715,24 +715,12 @@ remember (al pol ++ [an pol]) as psl.
 pose proof (common_denominator_of_series_list psl) as Hi.
 destruct Hi as (m, Hi).
 exists m.
+subst hsl.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
-assert (jps ∈ psl ∧ valuation fld jps = Some αj) as Hjps.
- subst jps.
- remember Hns as Hpts; clear HeqHpts.
- rewrite Heqhsl in Hpts.
- apply ini_fin_ns_in_init_pts in Hpts.
- destruct Hpts as (Hini, Hfin).
- subst j αj.
- eapply in_pts_in_pol; try eassumption; [ idtac | reflexivity ].
- rewrite <- surjective_pairing; eassumption.
+eapply in_pts_in_pol in Heqjps; try eassumption.
+ 2: subst j; rewrite <- surjective_pairing.
+ 2: apply ini_fin_ns_in_init_pts; assumption.
 
-bbb.
- remember (valuation fld jps) as v.
- symmetry in Heqv.
- destruct v as [v| ].
-  pose proof (Hi jps v Hjps Heqv) as H.
-  rewrite Hg.
-  destruct H as (mi, H).
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
