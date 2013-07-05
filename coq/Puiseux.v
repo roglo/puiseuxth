@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.835 2013-07-05 09:17:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.836 2013-07-05 09:34:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -740,6 +740,16 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   remember (Z.gcd (mj - mk) (Qnum k - Qnum j)) as g.
   exists ((mj - mk) / g)%Z.
   exists (Z.to_pos ((Qnum k - Qnum j) / g)).
+  split.
+   setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
+    Focus 2.
+    unfold Qeq; simpl.
+    rewrite Zmult_minus_distr_r.
+    rewrite Zmult_plus_distr_l.
+    rewrite Pos2Z.inj_mul.
+    do 2 rewrite Zmult_assoc.
+    do 2 rewrite Z.mul_opp_l.
+    reflexivity.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
