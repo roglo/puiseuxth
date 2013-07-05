@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.832 2013-07-05 09:02:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.833 2013-07-05 09:06:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -720,6 +720,16 @@ remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
 eapply in_pts_in_pol in Heqjps; try eassumption.
  2: subst j; rewrite <- surjective_pairing.
  2: apply ini_fin_ns_in_init_pts; assumption.
+
+ destruct Heqjps as (Hjps, Hjv).
+ rewrite <- Heqαj in Hjv.
+ remember (List.nth (Z.to_nat (Qnum k)) psl (an pol)) as kps.
+ eapply in_pts_in_pol in Heqkps; try eassumption.
+  2: subst k; rewrite <- surjective_pairing.
+  2: apply ini_fin_ns_in_init_pts; assumption.
+
+  destruct Heqkps as (Hkps, Hkv).
+  rewrite <- Heqαk in Hkv.
 
 bbb.
 
