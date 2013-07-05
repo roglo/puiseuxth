@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.842 2013-07-05 19:18:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.843 2013-07-05 19:22:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -743,7 +743,7 @@ apply Z.mul_cancel_l.
  symmetry; apply Z2Pos.id; assumption.
 Qed.
 
-Lemma yyy : ∀ m j k mj mk g,
+Lemma p_mq_formula : ∀ m j k mj mk g,
   (0 < k - j)%Z
   → g = Z.gcd (mj - mk) (k - j)
     → ((mj # m) - (mk # m)) / ((k # 1) - (j # 1)) ==
@@ -810,7 +810,13 @@ setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
        apply Zle_not_lt in Hgp.
        exfalso; apply Hgp.
        apply Zlt_neg_0.
-bbb.
+
+     rewrite Hg; intros H; apply Z.gcd_eq_0_l in H.
+     contradiction.
+
+    rewrite Hg; intros H; apply Z.gcd_eq_0_l in H.
+    contradiction.
+Qed.
 
 Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
@@ -863,7 +869,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
    replace jd with 1%positive in Heqg |- * .
     replace kd with 1%positive in Heqg |- * .
      simpl in Heqg.
-     apply yyy; assumption.
+     apply p_mq_formula; [ idtac | assumption ].
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
