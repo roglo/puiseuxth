@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.833 2013-07-05 09:06:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.834 2013-07-05 09:12:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -723,6 +723,8 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
  destruct Heqjps as (Hjps, Hjv).
  rewrite <- Heqαj in Hjv.
+ apply Hi in Hjv; [ idtac | assumption ].
+ destruct Hjv as (mj, Hαj).
  remember (List.nth (Z.to_nat (Qnum k)) psl (an pol)) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: subst k; rewrite <- surjective_pairing.
@@ -730,7 +732,11 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
   destruct Heqkps as (Hkps, Hkv).
   rewrite <- Heqαk in Hkv.
-
+  apply Hi in Hkv; [ idtac | assumption ].
+  destruct Hkv as (mk, Hαk).
+  rewrite Hg.
+  setoid_rewrite Hαj.
+  setoid_rewrite Hαk.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
