@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.838 2013-07-05 13:16:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.839 2013-07-05 13:46:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -696,11 +696,38 @@ eapply in_pts_in_psl; try eassumption.
 rewrite <- minus_n_O; eassumption.
 Qed.
 
-Lemma xxx : ∀ a b c d,
-  a ≠ 0%Z
-  → (a # b) / (c # d) == a * Zpos d # b * Z.to_pos c.
+Lemma Qnum_inv : ∀ a, (0 < Qnum a)%Z → Qnum (/ a) = Zpos (Qden a).
 Proof.
-intros a b c d Ha.
+intros (a, b) Ha; simpl in Ha |- *.
+unfold Qinv; simpl.
+destruct a as [| a| a]; simpl.
+ apply Zlt_irrefl in Ha; contradiction.
+
+ reflexivity.
+
+ apply Zlt_not_le in Ha.
+ exfalso; apply Ha, Zlt_le_weak, Zlt_neg_0.
+Qed.
+
+Lemma Qden_inv : ∀ a, (0 < Qnum a)%Z → Zpos (Qden (/ a)) = Qnum a.
+Proof.
+intros (a, b) Ha; simpl in Ha |- *.
+unfold Qinv; simpl.
+destruct a as [| a| a]; simpl.
+ apply Zlt_irrefl in Ha; contradiction.
+
+ reflexivity.
+
+ apply Zlt_not_le in Ha.
+ exfalso; apply Ha, Zlt_le_weak, Zlt_neg_0.
+Qed.
+
+Lemma Qdiv_mul : ∀ a b c d,
+  a ≠ 0%Z
+  → (0 < c)%Z
+    → (a # b) / (c # d) == a * Zpos d # b * Z.to_pos c.
+Proof.
+intros a b c d Ha Hc.
 unfold Qeq; simpl.
 do 2 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_shuffle1; symmetry.
@@ -708,7 +735,13 @@ rewrite Z.mul_shuffle1.
 apply Z.mul_cancel_l.
  apply Z.neq_mul_0.
  split; [ assumption | apply Zpos_ne_0 ].
-bbb.
+
+ rewrite Qden_inv; [ idtac | assumption ].
+ rewrite Qnum_inv; [ idtac | assumption ].
+ remember Zmult as f; simpl; subst f.
+ apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+ symmetry; apply Z2Pos.id; assumption.
+Qed.
 
 Lemma yyy : ∀ m j k mj mk g,
   g = Z.gcd (mj - mk) (k - j)
@@ -732,7 +765,7 @@ setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
   do 4 rewrite Zmult_1_r.
   reflexivity.
 
-  rewrite xxx.
+  rewrite Qdiv_mul.
 bbb.
 
 Lemma zzz : ∀ pol ns,
