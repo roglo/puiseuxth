@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.837 2013-07-05 09:40:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.838 2013-07-05 13:16:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -696,6 +696,20 @@ eapply in_pts_in_psl; try eassumption.
 rewrite <- minus_n_O; eassumption.
 Qed.
 
+Lemma xxx : ∀ a b c d,
+  a ≠ 0%Z
+  → (a # b) / (c # d) == a * Zpos d # b * Z.to_pos c.
+Proof.
+intros a b c d Ha.
+unfold Qeq; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+rewrite Z.mul_shuffle1; symmetry.
+rewrite Z.mul_shuffle1.
+apply Z.mul_cancel_l.
+ apply Z.neq_mul_0.
+ split; [ assumption | apply Zpos_ne_0 ].
+bbb.
+
 Lemma yyy : ∀ m j k mj mk g,
   g = Z.gcd (mj - mk) (k - j)
   → ((mj # m) - (mk # m)) / ((k # 1) - (j # 1)) ==
@@ -711,6 +725,14 @@ setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
  do 2 rewrite Zmult_assoc.
  do 2 rewrite Z.mul_opp_l.
  reflexivity.
+
+ setoid_replace ((k # 1) - (j # 1)) with (k - j # 1).
+  Focus 2.
+  unfold Qeq; simpl.
+  do 4 rewrite Zmult_1_r.
+  reflexivity.
+
+  rewrite xxx.
 bbb.
 
 Lemma zzz : ∀ pol ns,
