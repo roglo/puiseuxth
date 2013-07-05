@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.843 2013-07-05 19:22:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.844 2013-07-05 19:32:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -863,12 +863,17 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   exists ((mj - mk) / g)%Z.
   exists (Z.to_pos ((Qnum k - Qnum j) / g)).
   split.
-   destruct k as (kn, kd).
-   destruct j as (jn, jd).
-   simpl.
-   replace jd with 1%positive in Heqg |- * .
-    replace kd with 1%positive in Heqg |- * .
-     simpl in Heqg.
+   remember Heqpts as H; clear HeqH.
+   symmetry in H.
+   apply pt_absc_is_nat with (pt := ini_pt ns) in H.
+    rewrite <- Heqj in H.
+    destruct H as (jn, Hjn).
+    remember Heqpts as H; clear HeqH.
+    symmetry in H.
+    apply pt_absc_is_nat with (pt := fin_pt ns) in H.
+     destruct H as (kn, Hkn).
+     rewrite <- Heqk in Hkn.
+     rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
      apply p_mq_formula; [ idtac | assumption ].
 bbb.
 
