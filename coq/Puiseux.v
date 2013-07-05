@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.844 2013-07-05 19:32:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.845 2013-07-05 20:22:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -875,6 +875,28 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
      rewrite <- Heqk in Hkn.
      rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
      apply p_mq_formula; [ idtac | assumption ].
+     rewrite <- Nat2Z.inj_sub.
+      rewrite <- Nat2Z.inj_0.
+      apply Nat2Z.inj_lt.
+      apply Nat.lt_add_lt_sub_r; simpl.
+      eapply j_lt_k.
+       subst pts; eassumption.
+
+       rewrite <- Heqj, Hjn; symmetry; apply Nat2Z.id.
+
+       rewrite <- Heqk, Hkn; symmetry; apply Nat2Z.id.
+
+      apply lt_le_weak.
+      eapply j_lt_k.
+       subst pts; eassumption.
+
+       rewrite <- Heqj, Hjn; symmetry; apply Nat2Z.id.
+
+       rewrite <- Heqk, Hkn; symmetry; apply Nat2Z.id.
+
+     apply ini_fin_ns_in_init_pts; assumption.
+
+    apply ini_fin_ns_in_init_pts; assumption.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
