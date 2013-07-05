@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.829 2013-07-05 08:43:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.830 2013-07-05 08:49:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -684,22 +684,19 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
      apply le_neq_lt; assumption.
 Qed.
 
-Lemma in_pts_in_pol : ∀ pol pts psl h hv def,
+Lemma in_pts_in_pol : ∀ pol pts psl h hv hps def,
   pts = points_of_ps_polynom fld pol
   → psl = al pol ++ [an pol]
     → (h, hv) ∈ pts
-      → List.nth (Z.to_nat (Qnum h)) psl def ∈ psl.
+      → hps = List.nth (Z.to_nat (Qnum h)) psl def
+        → hps ∈ psl.
 Proof.
-intros pol pts psl h hv def Hpts Hpsl Hhhv.
-unfold points_of_ps_polynom in Hpts.
-unfold points_of_ps_polynom_gen in Hpts.
-eapply in_pts_in_psl in Hpts; try eassumption.
- destruct Hpts as (Hpts, Hv).
- eassumption.
-
- rewrite <- minus_n_O; reflexivity.
+intros pol pts psl h hv hps def Hpts Hpsl Hhhv Hhps.
+eapply in_pts_in_psl; try eassumption.
+rewrite <- minus_n_O; eassumption.
 Qed.
 
+(*
 Lemma yyy : ∀ pol ns j αj jps def,
   ns ∈ newton_segments fld pol
   → ini_pt ns = (j, αj)
@@ -708,6 +705,7 @@ Lemma yyy : ∀ pol ns j αj jps def,
 Proof.
 intros pol ns j αj jps def Hns Hini Hjps.
 bbb.
+*)
 
 Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
@@ -736,8 +734,8 @@ assert (jps ∈ psl) as Hjps.
  apply ini_fin_ns_in_init_pts in Hpts.
  destruct Hpts as (Hini, Hfin).
  subst j.
- eapply in_pts_in_pol; [ eassumption | eassumption | idtac ].
- rewrite <- surjective_pairing; assumption.
+ eapply in_pts_in_pol; try eassumption; [ idtac | reflexivity ].
+ rewrite <- surjective_pairing; eassumption.
 
  rewrite Heqpsl in Heqjps.
  apply yyy with (ns := ns) (αj := αj) in Heqjps.
