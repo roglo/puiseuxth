@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.828 2013-07-05 03:21:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.829 2013-07-05 08:43:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -684,13 +684,13 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
      apply le_neq_lt; assumption.
 Qed.
 
-Lemma in_pts_in_pol : ∀ pol pts psl h hps def,
+Lemma in_pts_in_pol : ∀ pol pts psl h hv def,
   pts = points_of_ps_polynom fld pol
   → psl = al pol ++ [an pol]
-    → (h, hps) ∈ pts
+    → (h, hv) ∈ pts
       → List.nth (Z.to_nat (Qnum h)) psl def ∈ psl.
 Proof.
-intros pol pts psl h hps def Hpts Hpsl Hhps.
+intros pol pts psl h hv def Hpts Hpsl Hhhv.
 unfold points_of_ps_polynom in Hpts.
 unfold points_of_ps_polynom_gen in Hpts.
 eapply in_pts_in_psl in Hpts; try eassumption.
@@ -706,7 +706,7 @@ Lemma yyy : ∀ pol ns j αj jps def,
     → jps = List.nth (Z.to_nat (Qnum j)) (al pol ++ [an pol]) def
       → valuation fld jps = Some αj.
 Proof.
-intros pol nl j αj jps def Hns Hini Hjps.
+intros pol ns j αj jps def Hns Hini Hjps.
 bbb.
 
 Lemma zzz : ∀ pol ns,
