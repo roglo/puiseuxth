@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.830 2013-07-05 08:49:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.831 2013-07-05 08:53:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -689,23 +689,12 @@ Lemma in_pts_in_pol : ∀ pol pts psl h hv hps def,
   → psl = al pol ++ [an pol]
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h)) psl def
-        → hps ∈ psl.
+        → hps ∈ psl ∧ valuation fld hps = Some hv.
 Proof.
 intros pol pts psl h hv hps def Hpts Hpsl Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
 rewrite <- minus_n_O; eassumption.
 Qed.
-
-(*
-Lemma yyy : ∀ pol ns j αj jps def,
-  ns ∈ newton_segments fld pol
-  → ini_pt ns = (j, αj)
-    → jps = List.nth (Z.to_nat (Qnum j)) (al pol ++ [an pol]) def
-      → valuation fld jps = Some αj.
-Proof.
-intros pol ns j αj jps def Hns Hini Hjps.
-bbb.
-*)
 
 Lemma zzz : ∀ pol ns,
   ns ∈ newton_segments fld pol
@@ -727,18 +716,15 @@ pose proof (common_denominator_of_series_list psl) as Hi.
 destruct Hi as (m, Hi).
 exists m.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
-assert (jps ∈ psl) as Hjps.
+assert (jps ∈ psl ∧ valuation fld jps = Some αj) as Hjps.
  subst jps.
  remember Hns as Hpts; clear HeqHpts.
  rewrite Heqhsl in Hpts.
  apply ini_fin_ns_in_init_pts in Hpts.
  destruct Hpts as (Hini, Hfin).
- subst j.
+ subst j αj.
  eapply in_pts_in_pol; try eassumption; [ idtac | reflexivity ].
  rewrite <- surjective_pairing; eassumption.
-
- rewrite Heqpsl in Heqjps.
- apply yyy with (ns := ns) (αj := αj) in Heqjps.
 
 bbb.
  remember (valuation fld jps) as v.
