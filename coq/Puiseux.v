@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.856 2013-07-06 18:16:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.857 2013-07-06 18:48:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -422,15 +422,14 @@ destruct c.
  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma pt_bef_oth : ∀ pol pts n hs hsl j αj h αh,
-  pts = points_of_ps_polynom fld pol
+Lemma pt_bef_oth : ∀ pts n hs hsl j αj h αh,
+  Sorted fst_lt pts
   → next_ch_points n pts = [hs … hsl]
     → (j, αj) = pt hs
       → (h, αh) ∈ oth hs
         → j < h.
 Proof.
-intros pol pts n hs hsl j αj h αh Hpts Hnp Hj Hh.
-apply points_of_polyn_sorted in Hpts.
+intros pts n hs hsl j αj h αh Hsort Hnp Hj Hh.
 destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
 destruct n; [ discriminate Hnp | simpl in Hnp ].
 destruct pts as [| pt₂].
@@ -451,6 +450,7 @@ Proof.
 intros pol j αj h αh ns Hns Hjαj Hhαh.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
+apply points_of_polyn_sorted in Heqpts.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 rename Heqhsl into Hnp.
@@ -464,7 +464,14 @@ destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hjαj, Hhαh.
  eapply pt_bef_oth; eassumption.
-bbb.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ destruct n; discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hhsl Hhs₁; subst hs₁.
+ eapply IHhsl in Hhsl; try eassumption.
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
   ns ∈ newton_segments fld pol
