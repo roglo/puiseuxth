@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.846 2013-07-06 01:17:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.847 2013-07-06 01:35:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -898,9 +898,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
     apply ini_fin_ns_in_init_pts; assumption.
 
-   rewrite Z2Pos.id.
-    apply Z.gcd_div_gcd; [ idtac | assumption ].
-(* bbb. *)
+   assert (g ≠ 0%Z) as Hgnz.
     rewrite Heqg; intros H.
     apply Z.gcd_eq_0_r in H.
     apply Zminus_eq in H.
@@ -929,8 +927,19 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
      apply ini_fin_ns_in_init_pts; assumption.
 
-    apply Z.div_str_pos.
-    split.
+    rewrite Z2Pos.id.
+     apply Z.gcd_div_gcd; assumption.
+
+     apply Z.div_str_pos.
+     split.
+      assert (0 <= g)%Z.
+       rewrite Heqg; apply Z.gcd_nonneg.
+
+       apply Z.gt_lt, Znot_le_gt.
+       intros HH.
+       apply Hgnz.
+       apply Z.le_antisymm; assumption.
+
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
