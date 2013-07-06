@@ -1,4 +1,4 @@
-(* $Id: PolyConvexHull.v,v 1.5 2013-06-24 01:37:46 deraugla Exp $ *)
+(* $Id: PolyConvexHull.v,v 1.6 2013-07-06 05:36:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,17 +21,17 @@ Section puiseux_series.
 Variable α : Type.
 Variable ps_fld : field (puiseux_series α).
 
-Theorem points_in_any_newton_segment₁ : ∀ fld (pol : puis_ser_pol α) ns,
+Theorem points_in_any_newton_segment : ∀ fld (pol : puis_ser_pol α) ns,
   ns ∈ newton_segments fld pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == αh + h * γ ns.
 Proof.
 intros fld pol ns Hns h αh Hαh.
-eapply points_in_any_newton_segment; try eassumption; try reflexivity.
+eapply points_in_any_newton_segment₁; try eassumption; try reflexivity.
 eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
-Theorem points_not_in_any_newton_segment₁ :
+Theorem points_not_in_any_newton_segment :
     ∀ fld (pol : puis_ser_pol α) pts ns,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
@@ -39,7 +39,7 @@ Theorem points_not_in_any_newton_segment₁ :
       → β ns < αh + h * (γ ns).
 Proof.
 intros fld pol pts ns Hpts Hns h αh Hαhnαh.
-eapply points_not_in_any_newton_segment.
+eapply points_not_in_any_newton_segment₁.
  apply points_of_polyn_sorted in Hpts.
  eassumption.
 

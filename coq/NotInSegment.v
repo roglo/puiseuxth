@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.232 2013-06-19 14:09:12 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.233 2013-07-06 05:36:20 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -1428,7 +1428,7 @@ destruct Hns as [Hns| Hns].
   apply eq_S; assumption.
 Qed.
 
-Lemma points_not_in_any_newton_segment : ∀ pts hsl ns,
+Lemma points_not_in_any_newton_segment₁ : ∀ pts hsl ns,
   Sorted fst_lt pts
   → hsl = lower_convex_hull_points pts
     → ns ∈ list_map_pairs newton_segment_of_pair hsl

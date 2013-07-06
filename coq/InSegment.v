@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.17 2013-06-19 13:09:57 deraugla Exp $ *)
+(* $Id: InSegment.v,v 1.18 2013-07-06 05:36:20 deraugla Exp $ *)
 
 (* points in newton segment *)
 
@@ -121,7 +121,7 @@ destruct pts as [| pt₁].
     eapply IHhsl₁; eassumption.
 Qed.
 
-Lemma points_in_any_newton_segment : ∀ ns pts hsl,
+Lemma points_in_any_newton_segment₁ : ∀ ns pts hsl,
   Sorted fst_lt pts
   → hsl = lower_convex_hull_points pts
     → ns ∈ list_map_pairs newton_segment_of_pair hsl

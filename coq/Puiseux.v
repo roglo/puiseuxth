@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.850 2013-07-06 03:13:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.851 2013-07-06 05:36:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,6 +10,7 @@ Require Import ConvexHullMisc.
 Require Import Field.
 Require Import Misc.
 Require Import Newton.
+Require Import PolyConvexHull.
 Require Import Polynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
@@ -549,14 +550,24 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
-Lemma gamma_value_jh : ∀ hsl ns j h αj αh,
-  ns ∈ list_map_pairs newton_segment_of_pair hsl
+Lemma gamma_value_jh : ∀ pol ns j h αj αh,
+  ns ∈ newton_segments fld pol
   → j = fst (ini_pt ns)
     → αj = snd (ini_pt ns)
       → (h, αh) ∈ oth_pts ns
         → γ ns = (αj - αh) / (h - j).
 Proof.
-intros hsl ns j h αj αh Hns Hj Hαj Hhαh.
+intros pol ns j h αj αh Hns Hj Hαj Hhαh.
+remember Hns as Hh; clear HeqHh.
+apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
+ remember (fst (fin_pt ns)) as k.
+ remember (snd (fin_pt ns)) as αk.
+ remember Hns as Hk; clear HeqHk.
+ apply points_in_any_newton_segment with (h := k) (αh := αk) in Hk.
+  remember (h - j) as hj.
+  eapply gamma_value_jk in Hns; try eassumption; subst hj.
+  rewrite Hk in Hh.
+  rewrite Hns.
 bbb.
 
 Lemma first_power_le : ∀ pow cl cn h hv,
