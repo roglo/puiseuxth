@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.849 2013-07-06 03:04:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.850 2013-07-06 03:13:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -528,7 +528,7 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Zmult_comm; symmetry; assumption.
 Qed.
 
-Lemma gamma_value : ∀ hsl ns j k αj αk,
+Lemma gamma_value_jk : ∀ hsl ns j k αj αk,
   ns ∈ list_map_pairs newton_segment_of_pair hsl
   → j = fst (ini_pt ns)
     → k = fst (fin_pt ns)
@@ -548,6 +548,16 @@ destruct Hns as [Hns| Hns].
 
  apply IHhsl; assumption.
 Qed.
+
+Lemma gamma_value_jh : ∀ hsl ns j h αj αh,
+  ns ∈ list_map_pairs newton_segment_of_pair hsl
+  → j = fst (ini_pt ns)
+    → αj = snd (ini_pt ns)
+      → (h, αh) ∈ oth_pts ns
+        → γ ns = (αj - αh) / (h - j).
+Proof.
+intros hsl ns j h αj αh Hns Hj Hαj Hhαh.
+bbb.
 
 Lemma first_power_le : ∀ pow cl cn h hv,
   (h, hv) ∈ filter_finite_val fld (power_list pow cl cn)
@@ -786,7 +796,7 @@ remember (fst (fin_pt ns)) as k.
 remember (snd (ini_pt ns)) as αj.
 remember (snd (fin_pt ns)) as αk.
 remember Hns as Hg; clear HeqHg.
-eapply gamma_value in Hg; try eassumption.
+eapply gamma_value_jk in Hg; try eassumption.
 remember (al pol ++ [an pol]) as psl.
 pose proof (common_denominator_of_series_list psl) as Hi.
 destruct Hi as (m, Hi).
