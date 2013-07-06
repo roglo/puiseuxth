@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.858 2013-07-06 19:06:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.859 2013-07-06 19:07:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -192,29 +192,6 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
        end;
      ps_comden := cd |}.
 
-(*
-Definition ps_inv α (add_coeff : α → α → α) mul_coeff x :=
-  ...
-
-Definition ps_div α (add_coeff : α → α → α) mul_coeff x y :=
-  ps_mul add_coeff mul_coeff x (ps_inv y).
-*)
-
-(*
-Definition ps_zero α := {| ps_terms := End (term α); ps_comden := 1 |}.
-Definition ps_one α fld :=
-  {| ps_terms := Term {| coeff := one fld; power := 0 |} (End (term α));
-     ps_comden := 1 |}.
-Definition ps_add_fld α (fld : field α) x y := ps_add (add fld) x y.
-Definition ps_mul_fld α (fld : field α) x y := ps_mul (add fld) (mul fld) x y.
-
-Definition ps_fld α (fld : field α) :=
-  {| zero := ps_zero _;
-     one := ps_one fld;
-     add := ps_add_fld fld;
-     mul := ps_mul_fld fld |}.
-*)
-
 (* *)
 
 CoFixpoint series_series_take α n (s : series α) :=
@@ -226,52 +203,6 @@ CoFixpoint series_series_take α n (s : series α) :=
       | End => End _
       end
   end.
-
-(*
-Theorem zzz : ∀ α acf (pol : polynomial (puiseux_series α)) r,
-  degree pol ≥ 1
-  → r = puiseux_root acf pol
-    → apply_polynomial (ps_fld (ac_field acf)) pol r =
-      zero (ps_fld (ac_field acf)).
-Proof.
-intros α acf pol r Hdeg Hr.
-subst r.
-remember (puiseux_root acf pol) as pr.
-remember (ps_terms pr) as sr.
-remember (series_hd sr) as shd.
-remember (series_tl sr) as stl.
-unfold puiseux_root in Heqpr.
-rewrite Heqpr in Heqsr.
-subst sr; simpl in Heqshd, Heqstl.
-remember (puiseux_step None acf pol) as pso.
-unfold puiseux_step in Heqpso.
-remember (newton_segments pol) as nsl.
-destruct nsl.
- subst pso; simpl in Heqshd, Heqstl.
- unfold newton_segments in Heqnsl.
- symmetry in Heqnsl.
- apply list_map_pairs_length in Heqnsl.
- simpl in Heqnsl.
- unfold lower_convex_hull_points in Heqnsl.
-bbb.
-
- Focus 2.
- remember (ac_field acf) as fld.
- remember (characteristic_polynomial fld pol n) as cpol.
- remember (ac_root acf cpol) as cr.
- destruct cr as (c, r).
- subst pso; simpl in Heqshd, Heqstl.
- rewrite surjective_pairing in Heqcr.
- injection Heqcr; clear Heqcr; intros Heqr Heqc.
- destruct r.
-  Focus 2.
-  subst fld.
-  revert pol pr shd stl n nsl cpol c Hdeg Heqpr Heqnsl Heqshd Heqr Heqc
-   Heqcpol Heqstl.
-  induction r; intros.
-   Focus 2.
-bbb.
-*)
 
 Section field.
 
