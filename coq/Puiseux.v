@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.845 2013-07-05 20:22:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.846 2013-07-06 01:17:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -897,6 +897,40 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
      apply ini_fin_ns_in_init_pts; assumption.
 
     apply ini_fin_ns_in_init_pts; assumption.
+
+   rewrite Z2Pos.id.
+    apply Z.gcd_div_gcd; [ idtac | assumption ].
+(* bbb. *)
+    rewrite Heqg; intros H.
+    apply Z.gcd_eq_0_r in H.
+    apply Zminus_eq in H.
+    symmetry in H; revert H.
+    apply Z.lt_neq.
+    remember Heqpts as H; clear HeqH.
+    symmetry in H.
+    apply pt_absc_is_nat with (pt := ini_pt ns) in H.
+     rewrite <- Heqj in H.
+     destruct H as (jn, Hjn).
+     remember Heqpts as H; clear HeqH.
+     symmetry in H.
+     apply pt_absc_is_nat with (pt := fin_pt ns) in H.
+      destruct H as (kn, Hkn).
+      rewrite <- Heqk in Hkn.
+      rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
+      apply Nat2Z.inj_lt.
+      eapply j_lt_k.
+       subst pts; eassumption.
+
+       rewrite <- Heqj, Hjn; symmetry; apply Nat2Z.id.
+
+       rewrite <- Heqk, Hkn; symmetry; apply Nat2Z.id.
+
+      apply ini_fin_ns_in_init_pts; assumption.
+
+     apply ini_fin_ns_in_init_pts; assumption.
+
+    apply Z.div_str_pos.
+    split.
 bbb.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
