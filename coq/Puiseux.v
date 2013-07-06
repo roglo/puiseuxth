@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.857 2013-07-06 18:48:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.858 2013-07-06 19:06:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -656,7 +656,15 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
   rewrite <- Hh, Haj.
   field.
   apply Qlt_not_0.
-bbb.
+  eapply j_lt_h; try eassumption.
+  rewrite Hj; symmetry.
+  apply surjective_pairing.
+
+  left; subst j αj.
+  apply surjective_pairing.
+
+ right; right; assumption.
+Qed.
 
 Lemma first_power_le : ∀ pow cl cn h hv,
   (h, hv) ∈ filter_finite_val fld (power_list pow cl cn)
