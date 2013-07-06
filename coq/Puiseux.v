@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.851 2013-07-06 05:36:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.852 2013-07-06 09:57:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -555,19 +555,17 @@ Lemma gamma_value_jh : ∀ pol ns j h αj αh,
   → j = fst (ini_pt ns)
     → αj = snd (ini_pt ns)
       → (h, αh) ∈ oth_pts ns
-        → γ ns = (αj - αh) / (h - j).
+        → γ ns == (αj - αh) / (h - j).
 Proof.
 intros pol ns j h αj αh Hns Hj Hαj Hhαh.
 remember Hns as Hh; clear HeqHh.
 apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
- remember (fst (fin_pt ns)) as k.
- remember (snd (fin_pt ns)) as αk.
- remember Hns as Hk; clear HeqHk.
- apply points_in_any_newton_segment with (h := k) (αh := αk) in Hk.
-  remember (h - j) as hj.
-  eapply gamma_value_jk in Hns; try eassumption; subst hj.
-  rewrite Hk in Hh.
-  rewrite Hns.
+ apply Qeq_plus_minus_eq_r in Hh.
+ remember Hns as Haj; clear HeqHaj.
+ apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj.
+  rewrite <- Hh, Haj.
+  field.
+  apply Qlt_not_0.
 bbb.
 
 Lemma first_power_le : ∀ pow cl cn h hv,

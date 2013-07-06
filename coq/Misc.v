@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.27 2013-07-06 03:04:43 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.28 2013-07-06 09:57:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -229,6 +229,9 @@ rewrite Qdiv_mult_l; [ reflexivity | assumption ].
 Qed.
 
 Lemma Qminus_minus_assoc : ∀ x y z, x - (y - z) == (x - y) + z.
+Proof. intros x y z; ring. Qed.
+
+Lemma Qminus_plus_assoc : ∀ x y z, x - (y + z) == (x - y) - z.
 Proof. intros x y z; ring. Qed.
 
 Lemma Qplus_minus_assoc : ∀ x y z, x + (y - z) == (x + y) - z.
