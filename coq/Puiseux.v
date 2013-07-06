@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.859 2013-07-06 19:07:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.860 2013-07-06 19:20:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -571,32 +571,6 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
-Lemma gamma_value_jh : ∀ pol ns j h αj αh,
-  ns ∈ newton_segments fld pol
-  → j = fst (ini_pt ns)
-    → αj = snd (ini_pt ns)
-      → (h, αh) ∈ oth_pts ns
-        → γ ns == (αj - αh) / (h - j).
-Proof.
-intros pol ns j h αj αh Hns Hj Hαj Hhαh.
-remember Hns as Hh; clear HeqHh.
-apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
- apply Qeq_plus_minus_eq_r in Hh.
- remember Hns as Haj; clear HeqHaj.
- apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj.
-  rewrite <- Hh, Haj.
-  field.
-  apply Qlt_not_0.
-  eapply j_lt_h; try eassumption.
-  rewrite Hj; symmetry.
-  apply surjective_pairing.
-
-  left; subst j αj.
-  apply surjective_pairing.
-
- right; right; assumption.
-Qed.
-
 Lemma first_power_le : ∀ pow cl cn h hv,
   (h, hv) ∈ filter_finite_val fld (power_list pow cl cn)
   → pow ≤ Z.to_nat (Qnum h).
@@ -982,6 +956,50 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
          apply Hn.
          apply Zlt_le_weak.
          revert Hjk; clear; intros; omega.
+Qed.
+
+Lemma gamma_value_jh : ∀ pol ns j h αj αh,
+  ns ∈ newton_segments fld pol
+  → j = fst (ini_pt ns)
+    → αj = snd (ini_pt ns)
+      → (h, αh) ∈ oth_pts ns
+        → γ ns == (αj - αh) / (h - j).
+Proof.
+intros pol ns j h αj αh Hns Hj Hαj Hhαh.
+remember Hns as Hh; clear HeqHh.
+apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
+ apply Qeq_plus_minus_eq_r in Hh.
+ remember Hns as Haj; clear HeqHaj.
+ apply points_in_any_newton_segment with (h := j) (αh := αj) in Haj.
+  rewrite <- Hh, Haj.
+  field.
+  apply Qlt_not_0.
+  eapply j_lt_h; try eassumption.
+  rewrite Hj; symmetry.
+  apply surjective_pairing.
+
+  left; subst j αj.
+  apply surjective_pairing.
+
+ right; right; assumption.
+Qed.
+
+Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj h αh,
+  ns ∈ newton_segments fld pol
+  → (j, αj) = ini_pt ns
+    → (h, αh) ∈ oth_pts ns
+      → ∃ m p q,
+        (αj - αh) / (h - j) == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
+Proof.
+intros pol ns j αj h αh Hns Hj Hh.
+remember Hns as H; clear HeqH.
+apply gamma_eq_p_nq in H.
+destruct H as (m, (p, (q, H))).
+exists m, p, q.
+setoid_rewrite  <- gamma_value_jh; try eassumption.
+ rewrite <- Hj; reflexivity.
+
+ rewrite <- Hj; reflexivity.
 Qed.
 
 (*
