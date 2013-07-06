@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.855 2013-07-06 16:34:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.856 2013-07-06 18:16:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,6 +15,14 @@ Require Import Polynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Series.
+Require Import Slope_base.
+
+(*
+Require Import SlopeMisc.
+Require Import NotInSegMisc.
+Require Import NotInSegment.
+Require Import InSegment.
+*)
 
 Set Implicit Arguments.
 
@@ -383,14 +391,56 @@ destruct Hns as [Hns| Hns].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma yyy : ∀ pol pts n hs hsl j αj h αh,
+Lemma pt₁_bef_seg : ∀ pt₁ pt₂ pts pth,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → pth ∈ seg (minimise_slope pt₁ pt₂ pts)
+    → fst pt₁ < fst pth.
+Proof.
+intros pt₁ pt₂ pts pth Hsort Hh.
+revert pt₁ pt₂ pth Hsort Hh.
+induction pts as [| pt₃]; intros; [ contradiction | idtac ].
+simpl in Hh.
+remember (minimise_slope pt₁ pt₃ pts) as ms₃.
+remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
+symmetry in Heqc.
+destruct c.
+ simpl in Hh.
+ destruct Hh as [Hh| Hh].
+  subst pth.
+  eapply Sorted_hd; [ eassumption | left; reflexivity ].
+
+  subst ms₃.
+  eapply IHpts; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+ contradiction.
+
+ subst ms₃.
+ eapply IHpts; [ idtac | eassumption ].
+ eapply Sorted_minus_2nd; [ idtac | eassumption ].
+ intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
+
+Lemma pt_bef_oth : ∀ pol pts n hs hsl j αj h αh,
   pts = points_of_ps_polynom fld pol
   → next_ch_points n pts = [hs … hsl]
     → (j, αj) = pt hs
       → (h, αh) ∈ oth hs
         → j < h.
 Proof.
-bbb.
+intros pol pts n hs hsl j αj h αh Hpts Hnp Hj Hh.
+apply points_of_polyn_sorted in Hpts.
+destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| pt₂].
+ injection Hnp; clear Hnp; intros; subst hs hsl; contradiction.
+
+ injection Hnp; clear Hnp; intros Hhsl Hhs.
+ subst hs.
+ simpl in Hj, Hh.
+ apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
+Qed.
 
 Lemma j_lt_h : ∀ (pol : puis_ser_pol α) j αj h αh ns,
   ns ∈ newton_segments fld pol
@@ -413,7 +463,7 @@ rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hjαj, Hhαh.
- eapply yyy; eassumption.
+ eapply pt_bef_oth; eassumption.
 bbb.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
