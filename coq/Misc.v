@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.26 2013-06-30 02:49:00 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.27 2013-07-06 03:04:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -501,4 +501,51 @@ intros p H.
 pose proof (Zgt_pos_0 p) as HH.
 rewrite H in HH.
 apply Zgt_irrefl in HH; assumption.
+Qed.
+
+Lemma Qnum_inv : ∀ a, (0 < Qnum a)%Z → Qnum (/ a) = Zpos (Qden a).
+Proof.
+intros (a, b) Ha; simpl in Ha |- *.
+unfold Qinv; simpl.
+destruct a as [| a| a]; simpl.
+ apply Zlt_irrefl in Ha; contradiction.
+
+ reflexivity.
+
+ apply Zlt_not_le in Ha.
+ exfalso; apply Ha, Zlt_le_weak, Zlt_neg_0.
+Qed.
+
+Lemma Qden_inv : ∀ a, (0 < Qnum a)%Z → Zpos (Qden (/ a)) = Qnum a.
+Proof.
+intros (a, b) Ha; simpl in Ha |- *.
+unfold Qinv; simpl.
+destruct a as [| a| a]; simpl.
+ apply Zlt_irrefl in Ha; contradiction.
+
+ reflexivity.
+
+ apply Zlt_not_le in Ha.
+ exfalso; apply Ha, Zlt_le_weak, Zlt_neg_0.
+Qed.
+
+Lemma Qdiv_mul : ∀ a b c d,
+  a ≠ 0%Z
+  → (0 < c)%Z
+    → (a # b) / (c # d) == a * Zpos d # b * Z.to_pos c.
+Proof.
+intros a b c d Ha Hc.
+unfold Qeq; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+rewrite Z.mul_shuffle1; symmetry.
+rewrite Z.mul_shuffle1.
+apply Z.mul_cancel_l.
+ apply Z.neq_mul_0.
+ split; [ assumption | apply Zpos_ne_0 ].
+
+ rewrite Qden_inv; [ idtac | assumption ].
+ rewrite Qnum_inv; [ idtac | assumption ].
+ remember Zmult as f; simpl; subst f.
+ apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+ symmetry; apply Z2Pos.id; assumption.
 Qed.

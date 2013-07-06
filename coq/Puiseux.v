@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.847 2013-07-06 01:35:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.848 2013-07-06 02:59:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -818,11 +818,12 @@ setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
     contradiction.
 Qed.
 
-Lemma zzz : ∀ pol ns,
+Lemma gamma_eq_p_nq : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → ∃ m p q,
     γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
+(* À nettoyer *)
 intros pol ns Hns.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
@@ -898,12 +899,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
     apply ini_fin_ns_in_init_pts; assumption.
 
-   assert (g ≠ 0%Z) as Hgnz.
-    rewrite Heqg; intros H.
-    apply Z.gcd_eq_0_r in H.
-    apply Zminus_eq in H.
-    symmetry in H; revert H.
-    apply Z.lt_neq.
+   assert (Qnum j < Qnum k)%Z as Hjk.
     remember Heqpts as H; clear HeqH.
     symmetry in H.
     apply pt_absc_is_nat with (pt := ini_pt ns) in H.
@@ -927,20 +923,65 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
      apply ini_fin_ns_in_init_pts; assumption.
 
-    rewrite Z2Pos.id.
-     apply Z.gcd_div_gcd; assumption.
+    assert (g ≠ 0%Z) as Hgnz.
+     rewrite Heqg; intros H.
+     apply Z.gcd_eq_0_r in H.
+     apply Zminus_eq in H.
+     symmetry in H; revert H.
+     apply Z.lt_neq; assumption.
 
-     apply Z.div_str_pos.
-     split.
-      assert (0 <= g)%Z.
-       rewrite Heqg; apply Z.gcd_nonneg.
+     rewrite Z2Pos.id.
+      apply Z.gcd_div_gcd; assumption.
 
-       apply Z.gt_lt, Znot_le_gt.
-       intros HH.
-       apply Hgnz.
-       apply Z.le_antisymm; assumption.
+      apply Z.div_str_pos.
+      split.
+       assert (0 <= g)%Z.
+        rewrite Heqg; apply Z.gcd_nonneg.
 
-bbb.
+        apply Z.gt_lt, Znot_le_gt.
+        intros HH.
+        apply Hgnz.
+        apply Z.le_antisymm; assumption.
+
+       pose proof (Z.gcd_divide_r (mj - mk) (Qnum k - Qnum j)) as H.
+       rewrite <- Heqg in H.
+       destruct H as (v, H).
+       destruct v as [| v| v].
+        simpl in H.
+        apply Zminus_eq in H.
+        rewrite H in Hjk.
+        apply Z.lt_irrefl in Hjk; contradiction.
+
+        rewrite H.
+        remember (' v * g)%Z as x.
+        replace g with (1 * g)%Z by apply Zmult_1_l.
+        subst x.
+        apply Zmult_le_compat_r.
+         replace 1%Z with (Z.succ 0)%Z by reflexivity.
+         apply Zlt_le_succ.
+         apply Pos2Z.is_pos.
+
+         rewrite Heqg.
+         apply Z.gcd_nonneg.
+
+        exfalso.
+        assert (Z.neg v * g < 0)%Z as Hn.
+         apply Z.mul_neg_pos.
+          apply Zlt_neg_0.
+
+          assert (0 <= g)%Z.
+           rewrite Heqg; apply Z.gcd_nonneg.
+
+           apply Z.gt_lt, Znot_le_gt.
+           intros HH.
+           apply Hgnz, Z.le_antisymm; assumption.
+
+         rewrite <- H in Hn.
+         apply Zlt_not_le in Hn.
+         apply Hn.
+         apply Zlt_le_weak.
+         revert Hjk; clear; intros; omega.
+Qed.
 
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
   ns ∈ newton_segments fld pol
