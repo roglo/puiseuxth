@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.860 2013-07-06 19:20:52 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.861 2013-07-06 20:40:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -960,12 +960,11 @@ Qed.
 
 Lemma gamma_value_jh : ∀ pol ns j h αj αh,
   ns ∈ newton_segments fld pol
-  → j = fst (ini_pt ns)
-    → αj = snd (ini_pt ns)
-      → (h, αh) ∈ oth_pts ns
-        → γ ns == (αj - αh) / (h - j).
+  → (j, αj) = ini_pt ns
+    → (h, αh) ∈ oth_pts ns
+      → γ ns == (αj - αh) / (h - j).
 Proof.
-intros pol ns j h αj αh Hns Hj Hαj Hhαh.
+intros pol ns j h αj αh Hns Hjαj Hhαh.
 remember Hns as Hh; clear HeqHh.
 apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
  apply Qeq_plus_minus_eq_r in Hh.
@@ -975,11 +974,8 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
   field.
   apply Qlt_not_0.
   eapply j_lt_h; try eassumption.
-  rewrite Hj; symmetry.
-  apply surjective_pairing.
 
-  left; subst j αj.
-  apply surjective_pairing.
+  left; rewrite Hjαj; reflexivity.
 
  right; right; assumption.
 Qed.
@@ -996,10 +992,7 @@ remember Hns as H; clear HeqH.
 apply gamma_eq_p_nq in H.
 destruct H as (m, (p, (q, H))).
 exists m, p, q.
-setoid_rewrite  <- gamma_value_jh; try eassumption.
- rewrite <- Hj; reflexivity.
-
- rewrite <- Hj; reflexivity.
+setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
 
 (*
