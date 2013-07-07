@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.877 2013-07-07 11:33:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.878 2013-07-07 11:39:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1064,10 +1064,16 @@ exists p, q.
 setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
 
-Lemma yyy : ∀ a b, Qnum (Qnat a - Qnat b) = Z.of_nat (a - b).
+Lemma Qnum_nat_minus : ∀ a b,
+  (b ≤ a)%nat
+  → Qnum (Qnat a - Qnat b) = Z.of_nat (a - b).
 Proof.
-intros a b.
-bbb.
+intros a b Hba.
+unfold Qnat; simpl.
+do 2 rewrite Zmult_1_r.
+symmetry.
+apply Nat2Z.inj_sub; assumption.
+Qed.
 
 Lemma zzz : ∀ pol pts ns j αj h αh,
   pts = points_of_ps_polynom fld pol
@@ -1131,7 +1137,7 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
       apply Z.div_unique_exact in Heq; [ idtac | apply Zpos_ne_0 ].
       rewrite Heq, Zmult_comm.
       rewrite Znumtheory.Zdivide_Zdiv_eq_2.
-       rewrite yyy.
+       rewrite Qnum_nat_minus.
 bbb.
 
 (*
