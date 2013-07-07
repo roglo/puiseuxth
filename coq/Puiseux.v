@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.885 2013-07-07 17:50:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.886 2013-07-07 17:54:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,17 +1083,17 @@ Qed.
 
 Open Scope Z_scope.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns j jq αj h hq αh,
+Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns j αj h αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
-    → (jq, αj) = ini_pt ns
-      → (hq, αh) ∈ oth_pts ns
-        → jq = inject_Z j
-          → hq = inject_Z h
-            → ∃ p q mj mh,
-              (q * (mj - mh) = p * (h - j) ∧ Z.gcd p q = 1).
+    → (inject_Z j, αj) = ini_pt ns
+      → (inject_Z h, αh) ∈ oth_pts ns
+        → ∃ p q mj mh,
+          (q * (mj - mh) = p * (h - j) ∧ Z.gcd p q = 1).
 Proof.
-intros pol pts ns j jq αj h hq αh Hpts Hns Hjq Hhq Hj Hh.
+intros pol pts ns j αj h αh Hpts Hns Hj Hh.
+remember (inject_Z j) as jq.
+remember (inject_Z h) as hq.
 remember Hpts as Hjn; clear HeqHjn.
 symmetry in Hjn.
 apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
@@ -1113,7 +1113,7 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
   eapply in_pts_in_pol in Heqjps; try eassumption.
    2: apply ini_fin_ns_in_init_pts in Hns.
    2: destruct Hns as (Hns, _).
-   2: rewrite <- Hjq, <- Hpts in Hns.
+   2: rewrite <- Hj, <- Hpts in Hns.
    2: eassumption.
 
    destruct Heqjps as (Hjps, Hjv).
@@ -1147,7 +1147,7 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
       apply Z.div_unique_exact in Heq; [ idtac | apply Zpos_ne_0 ].
       rewrite Heq, Zmult_comm.
       rewrite Znumtheory.Zdivide_Zdiv_eq_2.
-       rewrite <- Hjn, <- Hhn, Hj, Hh; simpl.
+       rewrite <- Hjn, <- Hhn, Heqjq, Heqhq; simpl.
        do 2 rewrite Zmult_1_r.
        rewrite Zdiv_1_r; reflexivity.
 
@@ -1185,7 +1185,7 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
 
  unfold newton_segments in Hns.
  rewrite <- Hpts in Hns.
- rewrite Hjq.
+ rewrite Hj.
  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
