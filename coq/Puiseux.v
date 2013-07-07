@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.882 2013-07-07 17:11:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.883 2013-07-07 17:31:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1081,22 +1081,7 @@ exists p, q.
 setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
 
-Lemma Qnum_nat_minus : ∀ a b,
-  (b ≤ a)%nat
-  → Qnum (Qnat a - Qnat b) = Z.of_nat (a - b).
-Proof.
-intros a b Hba.
-unfold Qnat; simpl.
-do 2 rewrite Zmult_1_r.
-symmetry.
-apply Nat2Z.inj_sub; assumption.
-Qed.
-
-
-Lemma Qden_nat_minus : ∀ a b, Zpos (Qden (Qnat a - Qnat b)) = 1%Z.
-Proof. reflexivity. Qed.
-
-Lemma zzz : ∀ pol pts ns j αj h αh,
+Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns j αj h αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
     → (j, αj) = ini_pt ns
@@ -1201,7 +1186,12 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
   unfold newton_segments in Hns.
   rewrite <- Hpts in Hns.
   eapply oth_pts_in_init_pts; eassumption.
-bbb.
+
+ unfold newton_segments in Hns.
+ rewrite <- Hpts in Hns.
+ rewrite Hj.
+ apply ini_fin_ns_in_init_pts; assumption.
+Qed.
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,

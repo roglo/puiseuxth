@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.29 2013-07-07 09:55:57 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.30 2013-07-07 17:31:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -564,3 +564,17 @@ do 2 rewrite Zmult_assoc.
 do 2 rewrite Z.mul_opp_l.
 reflexivity.
 Qed.
+
+Lemma Qnum_nat_minus : ∀ a b,
+  (b ≤ a)%nat
+  → Qnum (Qnat a - Qnat b) = Z.of_nat (a - b).
+Proof.
+intros a b Hba.
+unfold Qnat; simpl.
+do 2 rewrite Zmult_1_r.
+symmetry.
+apply Nat2Z.inj_sub; assumption.
+Qed.
+
+Lemma Qden_nat_minus : ∀ a b, Zpos (Qden (Qnat a - Qnat b)) = 1%Z.
+Proof. reflexivity. Qed.
