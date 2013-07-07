@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.867 2013-07-07 07:32:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.868 2013-07-07 07:38:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -285,8 +285,22 @@ destruct Hhs as [Hhs| Hhs].
   injection Hnp; clear Hnp; intros Hnp Hhs.
   subst hs; simpl in Hpt.
   right; eapply in_seg_in_pts; eassumption.
-bbb.
-*)
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂].
+  injection Hnp; intros; subst hsl; contradiction.
+
+  injection Hnp; clear Hnp; intros Hnp Hs₁; subst hs₁.
+  eapply IHhsl in Hhs; [ idtac | eassumption | eassumption ].
+  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+  symmetry in Heqms₁.
+  destruct Hhs as [Hhs| Hhs].
+   rewrite <- Hhs.
+   right; eapply end_pt_in; eassumption.
+
+   right; right; eapply rem_pts_in; eassumption.
+Qed.
 
 Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
   next_ch_points n pts = hsl
@@ -336,7 +350,9 @@ revert pts ns n Hnp Hns Hpt₁.
 induction hsl as [| hs₁]; [ contradiction | intros ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
- subst ns; simpl.
+ subst ns; simpl in Hpt₁ |- *.
+ eapply hull_seg_edge_in_init_pts; try eassumption.
+ left; reflexivity.
 bbb.
 *)
 
