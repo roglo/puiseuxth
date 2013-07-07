@@ -1,4 +1,4 @@
-(* $Id: ConvexHullMisc.v,v 1.7 2013-05-20 23:30:14 deraugla Exp $ *)
+(* $Id: ConvexHullMisc.v,v 1.8 2013-07-07 07:02:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,7 +11,7 @@ Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 
 Definition fst_lt (x y : Q * Q) := (fst x < fst y).
-Definition hs_x_lt (x y : hull_seg) := (fst (pt x) < fst (pt y)).
+Definition hs_x_lt (x y : hull_seg) := (fst (vert x) < fst (vert y)).
 
 Lemma Sorted_inv_1 {A} : ∀ (f : A → A → Prop) x l,
   Sorted f [x … l]

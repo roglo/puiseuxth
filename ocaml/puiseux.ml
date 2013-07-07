@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.394 2013-07-03 19:20:00 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.395 2013-07-07 07:01:43 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -80,13 +80,13 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   end.
 
 Definition newton_segment_of_pair hsj hsk :=
-  let αj := snd (pt hsj) in
-  let αk := snd (pt hsk) in
+  let αj := snd (vert hsj) in
+  let αk := snd (vert hsk) in
   let γ :=
-    Q.norm (Q.div (Q.sub αj αk) (Q.sub (fst (pt hsk)) (fst (pt hsj))))
+    Q.norm (Q.div (Q.sub αj αk) (Q.sub (fst (vert hsk)) (fst (vert hsj))))
   in
-  let β := Q.norm (Q.add αj (Q.mul (fst (pt hsj)) γ)) in
-  mkns γ β (pt hsj) (pt hsk) (oth hsj);
+  let β := Q.norm (Q.add αj (Q.mul (fst (vert hsj)) γ)) in
+  mkns γ β (vert hsj) (vert hsk) (edge hsj);
 
 Definition newton_segments α fld (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom fld pol in

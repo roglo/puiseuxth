@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.233 2013-07-06 05:36:20 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.234 2013-07-07 07:02:17 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -245,8 +245,8 @@ Lemma j_aft_prev_end :
       → minimise_slope (end_pt ms) pt₃ pts₃ = ms₁
         → next_ch_points n [end_pt ms₁ … rem_pts ms₁] =
           hsl₁ ++
-          [{| pt := (j, αj); oth := segjk |};
-          {| pt := (k, αk); oth := segkx |} … hsl]
+          [{| vert := (j, αj); edge := segjk |};
+          {| vert := (k, αk); edge := segkx |} … hsl]
           → fst (end_pt ms) < j.
 Proof.
 intros n pt₁ pt₂ pts ms pt₃ pts₃ ms₁ hsl₁ j αj segjk k αk segkx hsl.
@@ -289,8 +289,8 @@ Lemma aft_j_in_rem :
   → minimise_slope pt₁ pt₂ pts = ms
     → next_ch_points n [end_pt ms … rem_pts ms] =
        hsl₁ ++
-       [{| pt := (j, αj); oth := segjk |};
-        {| pt := (k, αk); oth := segkx |} … hsl]
+       [{| vert := (j, αj); edge := segjk |};
+        {| vert := (k, αk); edge := segkx |} … hsl]
       → ∀ h αh, (h, αh) ∈ [pt₁; pt₂ … pts]
         → j < h
           → (h, αh) ∈ rem_pts ms.
@@ -329,8 +329,8 @@ Lemma lt_aft_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
   Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
+      [{| vert := (j, αj); edge := segjk |};
+       {| vert := (k, αk); edge := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → k < h
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
@@ -372,8 +372,8 @@ Lemma not_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
   Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
+      [{| vert := (j, αj); edge := segjk |};
+       {| vert := (k, αk); edge := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h ≠ k.
@@ -401,7 +401,7 @@ Qed.
 Lemma next_ch_points_sorted : ∀ n pt₁ pt₂ pts h₁ hsl₁ hsl sg,
   Sorted fst_lt [pt₁ … pts]
   → next_ch_points n [pt₁ … pts] =
-      [h₁ … hsl₁] ++ [{| pt := pt₂; oth := sg |} … hsl]
+      [h₁ … hsl₁] ++ [{| vert := pt₂; edge := sg |} … hsl]
     → fst pt₁ < fst pt₂.
 Proof.
 intros n pt₁ pt₂ pts h₁ hsl₁ hsl sg.
@@ -444,8 +444,8 @@ Lemma lt_bet_j_and_k : ∀ n pts hsl₁ hsl j αj segjk k αk segkx,
   Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
+      [{| vert := (j, αj); edge := segjk |};
+       {| vert := (k, αk); edge := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → j < h < k
@@ -490,8 +490,8 @@ Lemma not_j : ∀ n pts hsl₁ j αj k αk segjk segkx hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
+      [{| vert := (j, αj); edge := segjk |};
+       {| vert := (k, αk); edge := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → (h, αh) ∉ [(j, αj); (k, αk) … segjk]
         → h ≠ j.
@@ -695,7 +695,7 @@ Lemma sl_lt_bef_j_in_ch : ∀ n pts h αh i αi j αj k αk segkx hsl₁ hsl ms,
     → minimise_slope (h, αh) (i, αi) pts = ms
       → end_pt ms = (j, αj)
         → next_ch_points n [end_pt ms … rem_pts ms] =
-            hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
+            hsl₁ ++ [{| vert := (k, αk); edge := segkx |} … hsl]
           → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
 intros n pts h αh i αi j αj k αk segkx hsl₁ hsl ms.
@@ -797,8 +797,8 @@ Lemma lt_expr_bef_j_in_ch :
     → minimise_slope (h, αh) (i, αi) pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
         hsl₁ ++
-        [{| pt := (j, αj); oth := segjk |};
-         {| pt := (k, αk); oth := segkx |} … hsl]
+        [{| vert := (j, αj); edge := segjk |};
+         {| vert := (k, αk); edge := segkx |} … hsl]
         → slope_expr (h, αh) (j, αj) < slope_expr (j, αj) (k, αk).
 Proof.
 intros n pts h αh i αi j αj k αk segjk segkx hsl₁ hsl ms.
@@ -815,7 +815,7 @@ induction hsl₁ as [| hs₁]; intros.
  remember (end_pt ms) as pt₁ in |- *.
  destruct pt₁ as (l, αl).
  apply Qlt_trans with (y := slope_expr (l, αl) (k, αk)).
-  remember ([hs₁ … hsl₁] ++ [{| pt := (j, αj); oth := segjk |}]) as hsl₂.
+  remember ([hs₁ … hsl₁] ++ [{| vert := (j, αj); edge := segjk |}]) as hsl₂.
   symmetry in Heqpt₁.
   eapply sl_lt_bef_j_in_ch with (j := l) (hsl₁ := hsl₂); try eassumption.
    split.
@@ -829,7 +829,7 @@ induction hsl₁ as [| hs₁]; intros.
     replace k with (fst (k, αk)) by reflexivity.
     eapply
      next_ch_points_sorted
-      with (hsl₁ := hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]).
+      with (hsl₁ := hsl₁ ++ [{| vert := (j, αj); edge := segjk |}]).
      rewrite <- Heqpt₁.
      eapply minimise_slope_sorted; eassumption.
 
@@ -862,8 +862,8 @@ Lemma lt_bef_j_in_ch : ∀ n pts h αh pt₂ j αj k αk segjk segkx hsl₁ hsl 
     → minimise_slope (h, αh) pt₂ pts = ms
       → next_ch_points n [end_pt ms … rem_pts ms] =
         hsl₁ ++
-        [{| pt := (j, αj); oth := segjk |};
-         {| pt := (k, αk); oth := segkx |} … hsl]
+        [{| vert := (j, αj); edge := segjk |};
+         {| vert := (k, αk); edge := segkx |} … hsl]
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts h αh (i, αi) j αj k αk segjk segkx hsl₁ hsl ms.
@@ -880,7 +880,7 @@ Lemma sl_lt_bef_j_any : ∀ n pts pt₁ pt₂ h αh j αj k αk segkx hsl₁ hsl
       → minimise_slope pt₁ pt₂ pts = ms
         → end_pt ms = (j, αj)
           → next_ch_points n [end_pt ms … rem_pts ms] =
-              hsl₁ ++ [{| pt := (k, αk); oth := segkx |} … hsl]
+              hsl₁ ++ [{| vert := (k, αk); edge := segkx |} … hsl]
             → slope_expr (h, αh) (k, αk) < slope_expr (j, αj) (k, αk).
 Proof.
 intros n pts (g, αg) pt₂ h αh j αj k αk segkx hsl₁ hsl ms.
@@ -1132,8 +1132,8 @@ Lemma lt_bef_j_aft_1st_ch :
       → minimise_slope pt₁ pt₂ pts = ms
         → next_ch_points n [end_pt ms … rem_pts ms] =
           hsl₁ ++
-          [{| pt := (j, αj); oth := segjk |};
-           {| pt := (k, αk); oth := segkx |} … hsl]
+          [{| vert := (j, αj); edge := segjk |};
+           {| vert := (k, αk); edge := segkx |} … hsl]
           → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
 Proof.
 intros n pts pt₁ pt₂ h αh j αj k αk segjk segkx hsl₁ hsl ms.
@@ -1192,8 +1192,8 @@ Lemma lt_bef_j₁ : ∀ n pts j αj segjk k αk segkx hs₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
       [hs₁;
-       {| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
+       {| vert := (j, αj); edge := segjk |};
+       {| vert := (k, αk); edge := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
@@ -1251,8 +1251,8 @@ Lemma lt_bef_j : ∀ n pts j αj segjk k αk segkx hsl₁ hsl,
   Sorted fst_lt pts
   → next_ch_points n pts =
       hsl₁ ++
-      [{| pt := (j, αj); oth := segjk |};
-       {| pt := (k, αk); oth := segkx |} … hsl]
+      [{| vert := (j, αj); edge := segjk |};
+       {| vert := (k, αk); edge := segkx |} … hsl]
     → ∀ h αh, (h, αh) ∈ pts
       → h < j < k
         → αj + j * ((αj - αk) / (k - j)) < αh + h * ((αj - αk) / (k - j)).
@@ -1299,9 +1299,9 @@ Lemma get_ns : ∀ hsl₁ hsj hsk hsl nsl₁ ns nsl g b,
   list_map_pairs newton_segment_of_pair (hsl₁ ++ [hsj; hsk … hsl]) =
      nsl₁ ++ [ns … nsl]
   → List.length hsl₁ = List.length nsl₁
-    → g = (snd (pt hsj) - snd (pt hsk)) / (fst (pt hsk) - fst (pt hsj))
-      → b = snd (pt hsj) + fst (pt hsj) * g
-        → ns = mkns g b (pt hsj) (pt hsk) (oth hsj).
+    → g = (snd (vert hsj) - snd (vert hsk)) / (fst (vert hsk) - fst (vert hsj))
+      → b = snd (vert hsj) + fst (vert hsj) * g
+        → ns = mkns g b (vert hsj) (vert hsk) (edge hsj).
 Proof.
 intros hsl₁ hsj hsk hsl nsl₁ ns nsl g b.
 intros Hhsl Hlen Hg Hb.
@@ -1363,7 +1363,7 @@ destruct hsl as [| ((j, αj), segjk)].
    eapply lt_aft_k with (hsl₁ := hsl₁); simpl; eassumption.
 
    destruct (Qeq_dec h k) as [Heq| Hne].
-    remember (hsl₁ ++ [{| pt := (j, αj); oth := segjk |}]) as x.
+    remember (hsl₁ ++ [{| vert := (j, αj); edge := segjk |}]) as x.
     eapply qeq_eq with (hsl₁ := x) in Heq; subst x; try eassumption.
      exfalso; revert Heq.
      eapply not_k with (hsl₁ := hsl₁); eassumption.

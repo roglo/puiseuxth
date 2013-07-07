@@ -1,4 +1,4 @@
-(* $Id: convex_hull.ml,v 1.1 2013-06-23 17:03:51 deraugla Exp $ *)
+(* $Id: convex_hull.ml,v 1.2 2013-07-07 07:01:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -15,8 +15,8 @@ Record min_sl :=
     rem_pts : list (Q * Q) }.
 
 Record hull_seg := ahs
-  { pt : (Q * Q);
-    oth : list (Q * Q) }.
+  { vert : (Q * Q);
+    edge : list (Q * Q) }.
 
 Fixpoint minimise_slope pt₁ pt₂ pts₂ :=
   let sl₁₂ := slope_expr pt₁ pt₂ in
@@ -42,11 +42,11 @@ Fixpoint next_ch_points n pts :=
   | S n =>
       match pts with
       | [] => []
-      | [pt₁] => [{| pt := pt₁; oth := [] |}]
+      | [pt₁] => [{| vert := pt₁; edge := [] |}]
       | [pt₁; pt₂ … pts₂] =>
           let ms := minimise_slope pt₁ pt₂ pts₂ in
           let hsl := next_ch_points n [end_pt ms … rem_pts ms] in
-          [{| pt := pt₁; oth := seg ms |} … hsl]
+          [{| vert := pt₁; edge := seg ms |} … hsl]
       end
   end.
 

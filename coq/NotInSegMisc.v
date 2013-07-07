@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.47 2013-05-20 23:30:14 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.48 2013-07-07 07:02:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -613,7 +613,7 @@ Qed.
 
 Lemma qeq_eq : ∀ n pts h αh k αk s hsl₁ hsl,
   Sorted fst_lt pts
-  → next_ch_points n pts = hsl₁ ++ [{| pt := (k, αk); oth := s |} … hsl]
+  → next_ch_points n pts = hsl₁ ++ [{| vert := (k, αk); edge := s |} … hsl]
     → (h, αh) ∈ pts
       → h == k
         → h = k.

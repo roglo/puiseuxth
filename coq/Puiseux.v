@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.864 2013-07-07 06:49:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.865 2013-07-07 07:02:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -248,15 +248,16 @@ Qed.
 Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt₁,
   next_ch_points n pts = hsl
   → hs ∈ hsl
-    → pt₁ ∈ oth hs
+    → pt₁ ∈ edge hs
       → pt₁ ∈ pts.
 Proof.
 bbb.
+*)
 
 Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
   next_ch_points n pts = hsl
   → hs ∈ hsl
-    → pt hs ∈ pts.
+    → vert hs ∈ pts.
 Proof.
 intros n pts hs hsl Hnp Hhs.
 revert n pts hs Hnp Hhs.
@@ -303,6 +304,7 @@ destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns; simpl.
 bbb.
+*)
 
 Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
@@ -378,11 +380,11 @@ destruct c.
  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma pt_bef_oth : ∀ pts n hs hsl j αj h αh,
+Lemma vert_bef_edge : ∀ pts n hs hsl j αj h αh,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs … hsl]
-    → (j, αj) = pt hs
-      → (h, αh) ∈ oth hs
+    → (j, αj) = vert hs
+      → (h, αh) ∈ edge hs
         → j < h.
 Proof.
 intros pts n hs hsl j αj h αh Hsort Hnp Hj Hh.
@@ -419,7 +421,7 @@ rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hjαj, Hhαh.
- eapply pt_bef_oth; eassumption.
+ eapply vert_bef_edge; eassumption.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].

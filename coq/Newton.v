@@ -1,4 +1,4 @@
-(* $Id: Newton.v,v 1.4 2013-06-30 02:49:00 deraugla Exp $ *)
+(* $Id: Newton.v,v 1.5 2013-07-07 07:02:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -26,11 +26,11 @@ Fixpoint list_map_pairs α β (f : α → α → β) l :=
   end.
 
 Definition newton_segment_of_pair hsj hsk :=
-  let αj := snd (pt hsj) in
-  let αk := snd (pt hsk) in
-  let γ := (αj - αk) / (fst (pt hsk) - fst (pt hsj)) in
-  let β := αj + fst (pt hsj) * γ in
-  mkns γ β (pt hsj) (pt hsk) (oth hsj).
+  let αj := snd (vert hsj) in
+  let αk := snd (vert hsk) in
+  let γ := (αj - αk) / (fst (vert hsk) - fst (vert hsj)) in
+  let β := αj + fst (vert hsj) * γ in
+  mkns γ β (vert hsj) (vert hsk) (edge hsj).
 
 Lemma list_map_pairs_length {A B} : ∀ (f : A → A → B) l₁ l₂,
   list_map_pairs f l₁ = l₂
