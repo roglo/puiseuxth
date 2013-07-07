@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.873 2013-07-07 10:00:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.874 2013-07-07 10:35:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1105,6 +1105,11 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   rewrite Hmj₁, Hmh₁ in Heq.
   rewrite <- Qnum_minus_distr_r in Heq.
   unfold Qeq in Heq; simpl in Heq.
+  do 2 rewrite Pos2Z.inj_mul in Heq.
+  rewrite Zmult_comm in Heq; symmetry in Heq.
+  rewrite Zmult_comm in Heq; symmetry in Heq.
+  do 2 rewrite <- Zmult_assoc in Heq.
+  apply Z.mul_cancel_l in Heq; [ idtac | apply Zpos_ne_0 ].
 bbb.
 
 (*
