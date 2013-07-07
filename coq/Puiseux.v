@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.880 2013-07-07 16:23:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.881 2013-07-07 16:38:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -461,7 +461,7 @@ destruct pts as [| pt₂].
  apply pt₁_bef_seg in Hh; [ subst pt₁; assumption | assumption ].
 Qed.
 
-Lemma j_lt_h : ∀ (pol : puis_ser_pol α) j αj h αh ns,
+Lemma jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
   ns ∈ newton_segments fld pol
   → (j, αj) = ini_pt ns
     → (h, αh) ∈ oth_pts ns
@@ -491,6 +491,23 @@ destruct Hns as [Hns| Hns].
  injection Hnp; clear Hnp; intros Hhsl Hhs₁; subst hs₁.
  eapply IHhsl in Hhsl; try eassumption.
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+Qed.
+
+Lemma j_lt_h : ∀ (pol : puis_ser_pol α) j αj jq h αh hq ns,
+  ns ∈ newton_segments fld pol
+  → (jq, αj) = ini_pt ns
+    → (hq, αh) ∈ oth_pts ns
+      → jq = Qnat j
+        → hq = Qnat h
+          → (j < h)%nat.
+Proof.
+intros pol j αj jq h αh hq ns Hns Hj Hh Hjq Hhq.
+eapply jq_lt_hq in Hh; try eassumption.
+rewrite Hjq, Hhq in Hh.
+unfold Qnat in Hh; simpl in Hh.
+unfold Qlt in Hh; simpl in Hh.
+do 2 rewrite Zmult_1_r in Hh.
+apply Nat2Z.inj_lt; assumption.
 Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
@@ -1042,7 +1059,7 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
   rewrite <- Hh, Haj.
   field.
   apply Qlt_not_0.
-  eapply j_lt_h; try eassumption.
+  eapply jq_lt_hq; try eassumption.
 
   left; rewrite Hjαj; reflexivity.
 
@@ -1148,20 +1165,10 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
          rewrite Zdiv_1_r; reflexivity.
 
          apply lt_le_weak.
-         eapply j_lt_h in Hh; try eassumption.
-         rewrite Hjn, Hhn in Hh.
-         unfold Qnat in Hh; simpl in Hh.
-         unfold Qlt in Hh; simpl in Hh.
-         do 2 rewrite Zmult_1_r in Hh.
-         apply Nat2Z.inj_lt; assumption.
+         eapply j_lt_h; eassumption.
 
         apply lt_le_weak.
-        eapply j_lt_h in Hh; try eassumption.
-        rewrite Hjn, Hhn in Hh.
-        unfold Qnat in Hh; simpl in Hh.
-        unfold Qlt in Hh; simpl in Hh.
-        do 2 rewrite Zmult_1_r in Hh.
-        apply Nat2Z.inj_lt; assumption.
+        eapply j_lt_h; eassumption.
 
        apply Pos2Z.is_pos.
 
