@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.865 2013-07-07 07:02:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.866 2013-07-07 07:08:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -245,12 +245,24 @@ induction cl as [| c]; intros.
   eapply IHcl; eassumption.
 Qed.
 
-Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt₁,
+Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt,
   next_ch_points n pts = hsl
   → hs ∈ hsl
-    → pt₁ ∈ edge hs
-      → pt₁ ∈ pts.
+    → pt ∈ edge hs
+      → pt ∈ pts.
 Proof.
+intros n pts hs hsl pt Hnp Hhs Hpt.
+revert n pts hs pt Hnp Hhs Hpt.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+destruct Hhs as [Hhs| Hhs].
+ subst hs₁.
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂].
+  injection Hnp; intros; subst hs; contradiction.
+
+  injection Hnp; clear Hnp; intros Hnp Hhs.
+  subst hs; simpl in Hpt.
 bbb.
 *)
 
