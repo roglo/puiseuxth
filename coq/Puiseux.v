@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.878 2013-07-07 11:39:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.879 2013-07-07 16:11:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1075,6 +1075,10 @@ symmetry.
 apply Nat2Z.inj_sub; assumption.
 Qed.
 
+
+Lemma Qden_nat_minus : ∀ a b, Zpos (Qden (Qnat a - Qnat b)) = 1%Z.
+Proof. reflexivity. Qed.
+
 Lemma zzz : ∀ pol pts ns j αj h αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
@@ -1138,6 +1142,18 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
       rewrite Heq, Zmult_comm.
       rewrite Znumtheory.Zdivide_Zdiv_eq_2.
        rewrite Qnum_nat_minus.
+        rewrite Qden_nat_minus.
+        rewrite Hjn, Hhn; simpl.
+        rewrite Nat2Z.inj_sub.
+         rewrite Zdiv_1_r; reflexivity.
+
+         apply lt_le_weak.
+         eapply j_lt_k.
+          eassumption.
+
+          rewrite <- Hj, Hjn; simpl.
+          unfold nofq, Qnat; simpl.
+          symmetry; apply Nat2Z.id.
 bbb.
 
 (*
