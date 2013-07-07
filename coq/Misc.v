@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.28 2013-07-06 09:57:05 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.29 2013-07-07 09:55:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -551,4 +551,16 @@ apply Z.mul_cancel_l.
  remember Zmult as f; simpl; subst f.
  apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
  symmetry; apply Z2Pos.id; assumption.
+Qed.
+
+Lemma Qnum_minus_distr_r : ∀ a b c, a - b # c == ((a # c) - (b # c)).
+Proof.
+intros a b c.
+unfold Qeq; simpl.
+rewrite Zmult_minus_distr_r.
+rewrite Zmult_plus_distr_l.
+rewrite Pos2Z.inj_mul.
+do 2 rewrite Zmult_assoc.
+do 2 rewrite Z.mul_opp_l.
+reflexivity.
 Qed.
