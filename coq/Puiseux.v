@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.861 2013-07-06 20:40:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.862 2013-07-07 02:23:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -994,6 +994,21 @@ destruct H as (m, (p, (q, H))).
 exists m, p, q.
 setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
+
+Lemma zzz : ∀ pol ns j αj h αh,
+  ns ∈ newton_segments fld pol
+  → (j, αj) = ini_pt ns
+    → (h, αh) ∈ oth_pts ns
+      → ∃ p q mj mh,
+        (q * (mj - mh) = p * (Qnum h - Qnum j) ∧ Z.gcd p q = 1)%Z.
+Proof.
+intros pol ns j αj h αh Hnd Hj Hh.
+eapply jh_oppsl_eq_p_nq in Hnd; [ idtac | eassumption | eassumption ].
+destruct Hnd as (m, (p₁, (q₁, (Heq, Hg)))).
+exists p₁, (Zpos q₁).
+remember (al pol ++ [an pol]) as psl.
+pose proof (common_denominator_of_series_list psl) as Hi.
+bbb.
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
