@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.883 2013-07-07 17:31:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.884 2013-07-07 17:40:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1081,22 +1081,24 @@ exists p, q.
 setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns j αj h αh,
+Open Scope Z_scope.
+
+Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns jq αj hq αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
-    → (j, αj) = ini_pt ns
-      → (h, αh) ∈ oth_pts ns
+    → (jq, αj) = ini_pt ns
+      → (hq, αh) ∈ oth_pts ns
         → ∃ p q mj mh,
-          (q * (mj - mh) = p * (Qnum h - Qnum j) ∧ Z.gcd p q = 1)%Z.
+          (q * (mj - mh) = p * (Qnum hq - Qnum jq) ∧ Z.gcd p q = 1).
 Proof.
-intros pol pts ns j αj h αh Hpts Hns Hj Hh.
+intros pol pts ns jq αj hq αh Hpts Hns Hjq Hhq.
 remember Hpts as Hjn; clear HeqHjn.
 symmetry in Hjn.
-apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
+apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
  destruct Hjn as (jn, Hjn); simpl in Hjn.
  remember Hpts as Hhn; clear HeqHhn.
  symmetry in Hhn.
- apply pt_absc_is_nat with (pt := (h, αh)) in Hhn.
+ apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
   destruct Hhn as (hn, Hhn); simpl in Hhn.
   remember (series_list_common_denominator (al pol ++ [an pol])) as m.
   remember Hns as H; clear HeqH.
@@ -1105,11 +1107,11 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
   exists p₁, (Zpos q₁).
   remember (al pol ++ [an pol]) as psl.
   remember Heqm as Hmj; clear HeqHmj.
-  remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
+  remember (List.nth (Z.to_nat (Qnum jq)) psl (an pol)) as jps.
   eapply in_pts_in_pol in Heqjps; try eassumption.
    2: apply ini_fin_ns_in_init_pts in Hns.
    2: destruct Hns as (Hns, _).
-   2: rewrite <- Hj, <- Hpts in Hns.
+   2: rewrite <- Hjq, <- Hpts in Hns.
    2: eassumption.
 
    destruct Heqjps as (Hjps, Hjv).
@@ -1117,7 +1119,7 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
    destruct Hjv as (mj₁, Hmj₁).
    exists mj₁.
    remember Heqm as Hmh; clear HeqHmh.
-   remember (List.nth (Z.to_nat (Qnum h)) psl (an pol)) as hps.
+   remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
    eapply in_pts_in_pol in Heqhps; try eassumption.
     2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
     2: rewrite Hpts; eassumption.
@@ -1189,7 +1191,7 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
 
  unfold newton_segments in Hns.
  rewrite <- Hpts in Hns.
- rewrite Hj.
+ rewrite Hjq.
  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
@@ -1205,3 +1207,5 @@ bbb.
 *)
 
 End field.
+
+Open Scope Z_scope.
