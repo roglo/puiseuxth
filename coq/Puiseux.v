@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.866 2013-07-07 07:08:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.867 2013-07-07 07:32:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -245,6 +245,27 @@ induction cl as [| c]; intros.
   eapply IHcl; eassumption.
 Qed.
 
+Lemma in_seg_in_pts : ∀ pt pt₁ pt₂ pts,
+  pt ∈ seg (minimise_slope pt₁ pt₂ pts)
+  → pt ∈ [pt₂ … pts].
+Proof.
+intros pt pt₁ pt₂ pts Hpt.
+revert pt₂ Hpt.
+induction pts as [| pt₃]; intros; [ contradiction | idtac ].
+simpl in Hpt.
+remember (minimise_slope pt₁ pt₃ pts) as ms₃.
+remember (slope_expr pt₁ pt₂ ?= slope ms₃) as c.
+destruct c; simpl in Hpt.
+ destruct Hpt as [Hpt| Hpt].
+  subst pt; left; reflexivity.
+
+  right; subst ms₃; apply IHpts; assumption.
+
+ contradiction.
+
+ right; subst ms₃; apply IHpts; assumption.
+Qed.
+
 Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt,
   next_ch_points n pts = hsl
   → hs ∈ hsl
@@ -263,6 +284,7 @@ destruct Hhs as [Hhs| Hhs].
 
   injection Hnp; clear Hnp; intros Hnp Hhs.
   subst hs; simpl in Hpt.
+  right; eapply in_seg_in_pts; eassumption.
 bbb.
 *)
 
