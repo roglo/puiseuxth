@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.863 2013-07-07 03:16:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.864 2013-07-07 06:49:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -245,6 +245,14 @@ induction cl as [| c]; intros.
   eapply IHcl; eassumption.
 Qed.
 
+Lemma hull_seg_edge_in_init_pts : ∀ n pts hs hsl pt₁,
+  next_ch_points n pts = hsl
+  → hs ∈ hsl
+    → pt₁ ∈ oth hs
+      → pt₁ ∈ pts.
+Proof.
+bbb.
+
 Lemma hull_seg_vert_in_init_pts : ∀ n pts hs hsl,
   next_ch_points n pts = hsl
   → hs ∈ hsl
@@ -285,6 +293,15 @@ Lemma oth_pts_in_init_pts : ∀ pts ns pt₁,
     → pt₁ ∈ pts.
 Proof.
 intros pts ns pt₁ Hns Hpt₁.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+remember (length pts) as n; clear Heqn.
+rename Heqhsl into Hnp; symmetry in Hnp.
+revert pts ns n Hnp Hns Hpt₁.
+induction hsl as [| hs₁]; [ contradiction | intros ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns; simpl.
 bbb.
 
 Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
