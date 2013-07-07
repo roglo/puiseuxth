@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.868 2013-07-07 07:38:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.869 2013-07-07 07:51:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -336,25 +336,37 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
-Lemma oth_pts_in_init_pts : ∀ pts ns pt₁,
+Lemma oth_pts_in_init_pts : ∀ pts ns pt,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
-  → pt₁ ∈ oth_pts ns
-    → pt₁ ∈ pts.
+  → pt ∈ oth_pts ns
+    → pt ∈ pts.
 Proof.
-intros pts ns pt₁ Hns Hpt₁.
+intros pts ns pt Hns Hpt.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
 remember (length pts) as n; clear Heqn.
 rename Heqhsl into Hnp; symmetry in Hnp.
-revert pts ns n Hnp Hns Hpt₁.
+revert pts ns n Hnp Hns Hpt.
 induction hsl as [| hs₁]; [ contradiction | intros ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
- subst ns; simpl in Hpt₁ |- *.
+ subst ns; simpl in Hpt |- *.
  eapply hull_seg_edge_in_init_pts; try eassumption.
  left; reflexivity.
-bbb.
-*)
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hhsl Hhs₁; subst hs₁.
+ eapply IHhsl in Hhsl; [ idtac | eassumption | eassumption ].
+ remember (minimise_slope pt₁ pt₂ pts) as ms₂.
+ symmetry in Heqms₂.
+ destruct Hhsl as [Hhsl| Hhsl].
+  subst pt.
+  right; eapply end_pt_in; eassumption.
+
+  right; right; eapply rem_pts_in; eassumption.
+Qed.
 
 Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
