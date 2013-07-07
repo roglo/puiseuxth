@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.869 2013-07-07 07:51:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.870 2013-07-07 08:02:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1111,6 +1111,11 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply in_pts_in_pol in Heqhps; try eassumption.
   2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
   2: rewrite Hpts; eassumption.
+
+  destruct Heqhps as (Hhps, Hhv).
+  eapply power_num_of_new_comden in Hhv; try eassumption.
+  destruct Hhv as (mh₁, Hmh₁).
+  exists mh₁.
 bbb.
 
 (*
