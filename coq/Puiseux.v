@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.881 2013-07-07 16:38:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.882 2013-07-07 17:11:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1176,6 +1176,31 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
        apply Z.divide_1_l.
 
       rewrite Qnum_nat_minus.
+       rewrite Nat2Z.inj_sub.
+        apply Z.lt_0_sub.
+        apply inj_lt.
+        eapply j_lt_h; eassumption.
+
+        apply lt_le_weak.
+        eapply j_lt_h; eassumption.
+
+       apply lt_le_weak.
+       eapply j_lt_h; eassumption.
+
+     rewrite Qnum_nat_minus.
+      rewrite Nat2Z.inj_sub.
+       apply Z.lt_0_sub, inj_lt.
+       eapply j_lt_h; eassumption.
+
+       apply lt_le_weak.
+       eapply j_lt_h; eassumption.
+
+      apply lt_le_weak.
+      eapply j_lt_h; eassumption.
+
+  unfold newton_segments in Hns.
+  rewrite <- Hpts in Hns.
+  eapply oth_pts_in_init_pts; eassumption.
 bbb.
 
 (*
