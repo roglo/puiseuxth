@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.886 2013-07-07 17:54:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.887 2013-07-07 18:01:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1188,6 +1188,25 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
  rewrite Hj.
  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
+
+(*
+Lemma q_is_factor_of_h_minus_j : ∀ pol pts ns j αj h αh,
+  pts = points_of_ps_polynom fld pol
+  → ns ∈ newton_segments fld pol
+    → (inject_Z j, αj) = ini_pt ns
+      → (inject_Z h, αh) ∈ oth_pts ns
+        → ∃ q, (q | h - j).
+Proof.
+intros pol pts ns j αj h αh Hpts Hns Hj Hh.
+eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
+destruct Hns as (p, (q, (mj, (mh, (Heq, Hg))))).
+exists q.
+rewrite Z.gcd_comm in Hg.
+eapply Z.gauss; [ idtac | eassumption ].
+rewrite <- Heq.
+apply Z.divide_factor_l.
+Qed.
+*)
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
