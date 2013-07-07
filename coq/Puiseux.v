@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.862 2013-07-07 02:23:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.863 2013-07-07 03:16:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -279,6 +279,14 @@ destruct Hhs as [Hhs| Hhs].
    right; right; eapply rem_pts_in; eassumption.
 Qed.
 
+Lemma oth_pts_in_init_pts : ∀ pts ns pt₁,
+  ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
+  → pt₁ ∈ oth_pts ns
+    → pt₁ ∈ pts.
+Proof.
+intros pts ns pt₁ Hns Hpt₁.
+bbb.
+
 Lemma ini_fin_ns_in_init_pts : ∀ pts ns,
   ns ∈ list_map_pairs newton_segment_of_pair (lower_convex_hull_points pts)
   → ini_pt ns ∈ pts ∧ fin_pt ns ∈ pts.
@@ -512,22 +520,19 @@ Qed.
 
 (* *)
 
-Definition comden_prod α (psl : list (puiseux_series α)) :=
+Definition series_list_common_denominator α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
-Lemma common_denominator_of_series_list :
-  ∀ (psl : list (puiseux_series α)),
-  ∃ m, ∀ ps αi, ps ∈ psl
-  → valuation fld ps = Some αi
-    → ∃ mi, αi == mi # m.
+Lemma power_num_of_new_comden : ∀ (psl : list (puiseux_series α)) m ps αi,
+  m = series_list_common_denominator psl
+  → ps ∈ psl
+    → valuation fld ps = Some αi
+      → ∃ mi, αi == mi # m.
 Proof.
-intros psl.
-remember (comden_prod psl) as m.
-exists m.
-intros ps αi Hps Hv.
+intros psl m ps αi Hm Hps Hv.
 apply List.in_split in Hps.
 destruct Hps as (l₁, (l₂, Hpsl)).
-remember (comden_prod (l₁ ++ l₂)) as m₁.
+remember (series_list_common_denominator (l₁ ++ l₂)) as m₁.
 exists (Qnum αi * Zpos m₁)%Z.
 subst m m₁ psl.
 induction l₁ as [| ps₁]; simpl.
@@ -793,13 +798,14 @@ setoid_replace ((mj # m) - (mk # m)) with (mj - mk # m).
     contradiction.
 Qed.
 
-Lemma gamma_eq_p_nq : ∀ pol ns,
+Lemma gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments fld pol
-  → ∃ m p q,
-    γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
+  → m = series_list_common_denominator (al pol ++ [an pol])
+    → ∃ p q,
+      γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
 (* À nettoyer *)
-intros pol ns Hns.
+intros pol ns m Hns Hm.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
@@ -810,9 +816,6 @@ remember (snd (fin_pt ns)) as αk.
 remember Hns as Hg; clear HeqHg.
 eapply gamma_value_jk in Hg; try eassumption.
 remember (al pol ++ [an pol]) as psl.
-pose proof (common_denominator_of_series_list psl) as Hi.
-destruct Hi as (m, Hi).
-exists m.
 subst hsl.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
 eapply in_pts_in_pol in Heqjps; try eassumption.
@@ -821,7 +824,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
  destruct Heqjps as (Hjps, Hjv).
  rewrite <- Heqαj in Hjv.
- apply Hi in Hjv; [ idtac | assumption ].
+ eapply power_num_of_new_comden in Hjv; try eassumption.
  destruct Hjv as (mj, Hαj).
  remember (List.nth (Z.to_nat (Qnum k)) psl (an pol)) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
@@ -830,7 +833,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
 
   destruct Heqkps as (Hkps, Hkv).
   rewrite <- Heqαk in Hkv.
-  apply Hi in Hkv; [ idtac | assumption ].
+  eapply power_num_of_new_comden in Hkv; try eassumption.
   destruct Hkv as (mk, Hαk).
   rewrite Hg.
   setoid_rewrite Hαj.
@@ -980,34 +983,53 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
  right; right; assumption.
 Qed.
 
-Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj h αh,
+Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj h αh m,
   ns ∈ newton_segments fld pol
   → (j, αj) = ini_pt ns
     → (h, αh) ∈ oth_pts ns
-      → ∃ m p q,
-        (αj - αh) / (h - j) == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
+      → m = series_list_common_denominator (al pol ++ [an pol])
+        → ∃ p q,
+          (αj - αh) / (h - j) == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
-intros pol ns j αj h αh Hns Hj Hh.
-remember Hns as H; clear HeqH.
-apply gamma_eq_p_nq in H.
-destruct H as (m, (p, (q, H))).
-exists m, p, q.
+intros pol ns j αj h αh m Hns Hj Hh Hm.
+eapply gamma_eq_p_nq in Hm; [ idtac | eassumption ].
+destruct Hm as (p, (q, H)).
+exists p, q.
 setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
 
-Lemma zzz : ∀ pol ns j αj h αh,
-  ns ∈ newton_segments fld pol
-  → (j, αj) = ini_pt ns
-    → (h, αh) ∈ oth_pts ns
-      → ∃ p q mj mh,
-        (q * (mj - mh) = p * (Qnum h - Qnum j) ∧ Z.gcd p q = 1)%Z.
+Lemma zzz : ∀ pol pts ns j αj h αh,
+  pts = points_of_ps_polynom fld pol
+  → ns ∈ newton_segments fld pol
+    → (j, αj) = ini_pt ns
+      → (h, αh) ∈ oth_pts ns
+        → ∃ p q mj mh,
+          (q * (mj - mh) = p * (Qnum h - Qnum j) ∧ Z.gcd p q = 1)%Z.
 Proof.
-intros pol ns j αj h αh Hnd Hj Hh.
-eapply jh_oppsl_eq_p_nq in Hnd; [ idtac | eassumption | eassumption ].
-destruct Hnd as (m, (p₁, (q₁, (Heq, Hg)))).
+intros pol pts ns j αj h αh Hpts Hns Hj Hh.
+remember (series_list_common_denominator (al pol ++ [an pol])) as m.
+remember Hns as H; clear HeqH.
+eapply jh_oppsl_eq_p_nq in H; try eassumption.
+destruct H as (p₁, (q₁, (Heq, Hg))).
 exists p₁, (Zpos q₁).
 remember (al pol ++ [an pol]) as psl.
-pose proof (common_denominator_of_series_list psl) as Hi.
+remember Heqm as Hmj; clear HeqHmj.
+remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
+eapply in_pts_in_pol in Heqjps; try eassumption.
+ 2: apply ini_fin_ns_in_init_pts in Hns.
+ 2: destruct Hns as (Hns, _).
+ 2: rewrite <- Hj, <- Hpts in Hns.
+ 2: eassumption.
+
+ destruct Heqjps as (Hjps, Hjv).
+ eapply power_num_of_new_comden in Hjv; try eassumption.
+ destruct Hjv as (mj₁, Hmj₁).
+ exists mj₁.
+ remember Heqm as Hmh; clear HeqHmh.
+ remember (List.nth (Z.to_nat (Qnum h)) psl (an pol)) as hps.
+ eapply in_pts_in_pol in Heqhps; try eassumption.
+  2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
+  2: rewrite Hpts; eassumption.
 bbb.
 
 (*
