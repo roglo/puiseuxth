@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.876 2013-07-07 11:20:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.877 2013-07-07 11:33:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1064,6 +1064,11 @@ exists p, q.
 setoid_rewrite  <- gamma_value_jh; eassumption.
 Qed.
 
+Lemma yyy : ∀ a b, Qnum (Qnat a - Qnat b) = Z.of_nat (a - b).
+Proof.
+intros a b.
+bbb.
+
 Lemma zzz : ∀ pol pts ns j αj h αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
@@ -1119,12 +1124,14 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
     do 2 rewrite <- Zmult_assoc in Heq.
     apply Z.mul_cancel_l in Heq; [ idtac | apply Zpos_ne_0 ].
     rewrite Zmult_assoc, Zmult_comm in Heq.
-    symmetry in Heq.
+    rewrite Hjn, Hhn in Heq.
     rewrite Qden_inv in Heq.
      rewrite Qnum_inv in Heq.
+      symmetry in Heq.
       apply Z.div_unique_exact in Heq; [ idtac | apply Zpos_ne_0 ].
       rewrite Heq, Zmult_comm.
       rewrite Znumtheory.Zdivide_Zdiv_eq_2.
+       rewrite yyy.
 bbb.
 
 (*
