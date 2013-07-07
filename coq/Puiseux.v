@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.879 2013-07-07 16:11:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.880 2013-07-07 16:23:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1148,12 +1148,27 @@ apply pt_absc_is_nat with (pt := (j, αj)) in Hjn.
          rewrite Zdiv_1_r; reflexivity.
 
          apply lt_le_weak.
-         eapply j_lt_k.
-          eassumption.
+         eapply j_lt_h in Hh; try eassumption.
+         rewrite Hjn, Hhn in Hh.
+         unfold Qnat in Hh; simpl in Hh.
+         unfold Qlt in Hh; simpl in Hh.
+         do 2 rewrite Zmult_1_r in Hh.
+         apply Nat2Z.inj_lt; assumption.
 
-          rewrite <- Hj, Hjn; simpl.
-          unfold nofq, Qnat; simpl.
-          symmetry; apply Nat2Z.id.
+        apply lt_le_weak.
+        eapply j_lt_h in Hh; try eassumption.
+        rewrite Hjn, Hhn in Hh.
+        unfold Qnat in Hh; simpl in Hh.
+        unfold Qlt in Hh; simpl in Hh.
+        do 2 rewrite Zmult_1_r in Hh.
+        apply Nat2Z.inj_lt; assumption.
+
+       apply Pos2Z.is_pos.
+
+       rewrite Qden_nat_minus.
+       apply Z.divide_1_l.
+
+      rewrite Qnum_nat_minus.
 bbb.
 
 (*
