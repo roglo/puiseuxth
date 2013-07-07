@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.884 2013-07-07 17:40:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.885 2013-07-07 17:50:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,15 +1083,17 @@ Qed.
 
 Open Scope Z_scope.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns jq αj hq αh,
+Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns j jq αj h hq αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
     → (jq, αj) = ini_pt ns
       → (hq, αh) ∈ oth_pts ns
-        → ∃ p q mj mh,
-          (q * (mj - mh) = p * (Qnum hq - Qnum jq) ∧ Z.gcd p q = 1).
+        → jq = inject_Z j
+          → hq = inject_Z h
+            → ∃ p q mj mh,
+              (q * (mj - mh) = p * (h - j) ∧ Z.gcd p q = 1).
 Proof.
-intros pol pts ns jq αj hq αh Hpts Hns Hjq Hhq.
+intros pol pts ns j jq αj h hq αh Hpts Hns Hjq Hhq Hj Hh.
 remember Hpts as Hjn; clear HeqHjn.
 symmetry in Hjn.
 apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
@@ -1145,17 +1147,9 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
       apply Z.div_unique_exact in Heq; [ idtac | apply Zpos_ne_0 ].
       rewrite Heq, Zmult_comm.
       rewrite Znumtheory.Zdivide_Zdiv_eq_2.
-       rewrite Qnum_nat_minus.
-        rewrite Qden_nat_minus.
-        rewrite Hjn, Hhn; simpl.
-        rewrite Nat2Z.inj_sub.
-         rewrite Zdiv_1_r; reflexivity.
-
-         apply lt_le_weak.
-         eapply j_lt_h; eassumption.
-
-        apply lt_le_weak.
-        eapply j_lt_h; eassumption.
+       rewrite <- Hjn, <- Hhn, Hj, Hh; simpl.
+       do 2 rewrite Zmult_1_r.
+       rewrite Zdiv_1_r; reflexivity.
 
        apply Pos2Z.is_pos.
 
