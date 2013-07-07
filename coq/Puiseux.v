@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.872 2013-07-07 09:55:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.873 2013-07-07 10:00:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1102,6 +1102,9 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   destruct Hhv as (mh₁, Hmh₁).
   exists mh₁.
   split; [ idtac | assumption ].
+  rewrite Hmj₁, Hmh₁ in Heq.
+  rewrite <- Qnum_minus_distr_r in Heq.
+  unfold Qeq in Heq; simpl in Heq.
 bbb.
 
 (*
