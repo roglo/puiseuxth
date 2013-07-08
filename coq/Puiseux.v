@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.887 2013-07-07 18:01:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.888 2013-07-08 02:17:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,15 +1083,16 @@ Qed.
 
 Open Scope Z_scope.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol pts ns j αj h αh,
-  pts = points_of_ps_polynom fld pol
-  → ns ∈ newton_segments fld pol
-    → (inject_Z j, αj) = ini_pt ns
-      → (inject_Z h, αh) ∈ oth_pts ns
-        → ∃ p q mj mh,
-          (q * (mj - mh) = p * (h - j) ∧ Z.gcd p q = 1).
+Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj h αh,
+  ns ∈ newton_segments fld pol
+  → (inject_Z j, αj) = ini_pt ns
+    → (inject_Z h, αh) ∈ oth_pts ns
+      → ∃ p q mj mh,
+        (q * (mj - mh) = p * (h - j) ∧ Z.gcd p q = 1).
 Proof.
-intros pol pts ns j αj h αh Hpts Hns Hj Hh.
+intros pol ns j αj h αh Hns Hj Hh.
+remember (points_of_ps_polynom fld pol) as pts.
+rename Heqpts into Hpts.
 remember (inject_Z j) as jq.
 remember (inject_Z h) as hq.
 remember Hpts as Hjn; clear HeqHjn.
@@ -1189,7 +1190,22 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
+Lemma zzz : ∀ pol ns j αj,
+  ns ∈ newton_segments fld pol
+  → (inject_Z j, αj) = ini_pt ns
+    → ∃ m p q,
+      γ ns == p # (m * q) ∧
+      Z.gcd p (' q) = 1 ∧
+      ∀ h αh,
+      (inject_Z h, αh) ∈ oth_pts ns
+      → (' q | h - j).
+Proof.
+intros pol ns j αj Hns Hj.
+bbb.
+
 (*
+Definition ZQ_pt iαi : Z * Q := (Qnum (fst iαi), snd iαi).
+
 Lemma q_is_factor_of_h_minus_j : ∀ pol pts ns j αj h αh,
   pts = points_of_ps_polynom fld pol
   → ns ∈ newton_segments fld pol
