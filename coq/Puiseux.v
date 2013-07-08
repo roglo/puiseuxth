@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.890 2013-07-08 06:32:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.891 2013-07-08 06:50:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1260,7 +1260,53 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
     rewrite Hjn, Hhn in Hgh.
     rewrite Qden_inv in Hgh.
      rewrite Qnum_inv in Hgh.
-bbb.
+      symmetry in Hgh.
+      rewrite Zmult_comm in Hgh.
+      symmetry in Hgh.
+      apply Z.div_unique_exact in Hgh; [ idtac | apply Zpos_ne_0 ].
+      rewrite Hgh.
+      rewrite Znumtheory.Zdivide_Zdiv_eq_2.
+       rewrite <- Hjn, <- Hhn, Heqjq, Heqhq; simpl.
+       do 2 rewrite Zmult_1_r.
+       rewrite Zdiv_1_r; reflexivity.
+
+       apply Pos2Z.is_pos.
+
+       rewrite Qden_nat_minus.
+       apply Z.divide_1_l.
+
+      rewrite Qnum_nat_minus.
+       rewrite Nat2Z.inj_sub.
+        apply Z.lt_0_sub.
+        apply inj_lt.
+        eapply j_lt_h; eassumption.
+
+        apply lt_le_weak.
+        eapply j_lt_h; eassumption.
+
+       apply lt_le_weak.
+       eapply j_lt_h; eassumption.
+
+     rewrite Qnum_nat_minus.
+      rewrite Nat2Z.inj_sub.
+       apply Z.lt_0_sub, inj_lt.
+       eapply j_lt_h; eassumption.
+
+       apply lt_le_weak.
+       eapply j_lt_h; eassumption.
+
+      apply lt_le_weak.
+      eapply j_lt_h; eassumption.
+
+   unfold newton_segments in Hns.
+   rewrite <- Hpts in Hns.
+   eapply oth_pts_in_init_pts; eassumption.
+
+  unfold newton_segments in Hns.
+  rewrite <- Hpts in Hns.
+  rewrite Hj.
+  apply ini_fin_ns_in_init_pts; assumption.
+Qed.
 
 Lemma zzz : ∀ pol ns j αj,
   ns ∈ newton_segments fld pol
