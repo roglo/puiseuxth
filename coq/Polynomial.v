@@ -1,4 +1,4 @@
-(* $Id: Polynomial.v,v 1.2 2013-07-08 15:57:21 deraugla Exp $ *)
+(* $Id: Polynomial.v,v 1.3 2013-07-08 21:12:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,15 +12,19 @@ Notation "[ x ]" := (cons x nil).
 Record polynomial α := mkpol { al : list α; an : α }.
 
 Fixpoint pol_add_loop α (add_coeff : α → α → α) an₁ an₂ al₁ al₂ :=
-  match (al₁, al₂) with
-  | ([], []) => mkpol [] (add_coeff an₁ an₂)
-  | ([], [a₂ … bl₂]) =>
-      mkpol [add_coeff an₁ a₂ … bl₂] an₂
-  | ([a₁ … bl₁], []) =>
-      mkpol [add_coeff a₁ an₂ … bl₁] an₁
-  | ([a₁ … bl₁], [a₂ … bl₂]) =>
-      let r := pol_add_loop add_coeff an₁ an₂ bl₁ bl₂ in
-      mkpol [add_coeff a₁ a₂ … al r] (an r)
+  match al₁ with
+  | [] =>
+      match al₂ with
+      | [] => {| al := []; an := add_coeff an₁ an₂ |}
+      | [a₂ … bl₂] => {| al := [add_coeff an₁ a₂ … bl₂]; an := an₂ |}
+      end
+  | [a₁ … bl₁] =>
+      match al₂ with
+      | [] => {| al := [add_coeff a₁ an₂ … bl₁]; an := an₁ |}
+      | [a₂ … bl₂] =>
+          let r := pol_add_loop add_coeff an₁ an₂ bl₁ bl₂ in
+          {| al := [add_coeff a₁ a₂ … al r]; an := an r |}
+      end
   end.
 
 Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=

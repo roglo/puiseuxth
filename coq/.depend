@@ -1,6 +1,7 @@
 ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
 Field.vo Field.glob Field.v.beautified: Field.v
+Fpolynomial.vo Fpolynomial.glob Fpolynomial.v.beautified: Fpolynomial.v Field.vo Polynomial.vo
 InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Newton.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
 Newton.vo Newton.glob Newton.v.beautified: Newton.v ConvexHull.vo
@@ -8,7 +9,7 @@ NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc
 NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo Slope_base.vo SlopeMisc.vo ConvexHull.vo ConvexHullMisc.vo Newton.vo NotInSegMisc.vo
 PolyConvexHull.vo PolyConvexHull.glob PolyConvexHull.v.beautified: PolyConvexHull.v Field.vo InSegment.vo Newton.vo NotInSegment.vo Puiseux_base.vo Puiseux_series.vo
 Polynomial.vo Polynomial.glob Polynomial.v.beautified: Polynomial.v
-Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo ConvexHullMisc.vo Field.vo Misc.vo Newton.vo PolyConvexHull.vo Polynomial.vo Puiseux_base.vo Puiseux_series.vo Series.vo Slope_base.vo
+Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHull.vo ConvexHullMisc.vo Field.vo Fpolynomial.vo Misc.vo Newton.vo PolyConvexHull.vo Polynomial.vo Puiseux_base.vo Puiseux_series.vo Series.vo Slope_base.vo
 Puiseux_base.vo Puiseux_base.glob Puiseux_base.v.beautified: Puiseux_base.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo Polynomial.vo Puiseux_series.vo
 Puiseux_series.vo Puiseux_series.glob Puiseux_series.v.beautified: Puiseux_series.v Field.vo Series.vo
 Series.vo Series.glob Series.v.beautified: Series.v
