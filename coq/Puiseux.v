@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.888 2013-07-08 02:17:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.889 2013-07-08 03:03:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,6 +1083,7 @@ Qed.
 
 Open Scope Z_scope.
 
+(* révisé ci-dessous (Lemma yyy) *)
 Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj h αh,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
@@ -1189,6 +1190,59 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
  rewrite Hj.
  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
+
+Lemma yyy : ∀ pol ns j αj,
+  ns ∈ newton_segments fld pol
+  → (inject_Z j, αj) = ini_pt ns
+    → ∃ m mj, αj == mj # m
+      ∧ ∃ p q, Z.gcd p ('q) = 1
+        ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+          → ∃ mh, αh == mh # m
+            ∧ 'q * (mj - mh) = p * (h - j).
+Proof.
+intros pol ns j αj Hns Hj.
+remember (series_list_common_denominator (al pol ++ [an pol])) as m.
+exists m.
+remember Heqm as Hm; clear HeqHm.
+eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
+destruct Heqm as (p, (q, (Hgamma, Hgcd))).
+remember (points_of_ps_polynom fld pol) as pts.
+rename Heqpts into Hpts.
+remember (al pol ++ [an pol]) as psl.
+remember (List.nth (Z.to_nat (Qnum (inject_Z j))) psl (an pol)) as jps.
+eapply in_pts_in_pol in Heqjps; try eassumption.
+ 2: apply ini_fin_ns_in_init_pts in Hns.
+ 2: destruct Hns as (Hns, _).
+ 2: rewrite <- Hj, <- Hpts in Hns.
+ 2: eassumption.
+
+ destruct Heqjps as (Hmj, Hjv).
+ eapply power_num_of_new_comden in Hmj; try eassumption.
+ destruct Hmj as (mj, Hmj).
+ exists mj.
+ split; [ assumption | idtac ].
+ exists p, q.
+ split; [ assumption | idtac ].
+ intros h αh Hh.
+ remember (List.nth (Z.to_nat (Qnum (inject_Z h))) psl (an pol)) as hps.
+ eapply in_pts_in_pol in Heqhps; try eassumption.
+  2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
+  2: rewrite Hpts; eassumption.
+
+  destruct Heqhps as (Hhps, Hhv).
+  eapply power_num_of_new_comden in Hhps; try eassumption.
+  destruct Hhps as (mh, Hmh).
+  exists mh.
+  split; [ assumption | idtac ].
+  remember Hns as Hgh; clear HeqHgh.
+  eapply gamma_value_jh in Hgh; try eassumption.
+  rewrite Hmj, Hmh in Hgh.
+  rewrite <- Qnum_minus_distr_r in Hgh.
+  unfold Qeq in Hgh; simpl in Hgh.
+  rewrite Pos2Z.inj_mul in Hgh.
+  rewrite Qden_inv in Hgh.
+   rewrite Qnum_inv in Hgh.
+bbb.
 
 Lemma zzz : ∀ pol ns j αj,
   ns ∈ newton_segments fld pol
