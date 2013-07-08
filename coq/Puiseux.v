@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.892 2013-07-08 06:52:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.893 2013-07-08 08:09:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1200,39 +1200,32 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma zzz : ∀ pol ns j αj,
+Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
-    → ∃ m p q,
-      γ ns == p # (m * q) ∧
-      Z.gcd p (' q) = 1 ∧
-      ∀ h αh,
-      (inject_Z h, αh) ∈ oth_pts ns
-      → (' q | h - j).
+    → ∃ m mj, αj == mj # m
+      ∧ ∃ p q, Z.gcd p ('q) = 1
+        ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+          → ∃ mh, αh == mh # m
+            ∧ (' q | h - j).
 Proof.
 intros pol ns j αj Hns Hj.
-bbb.
-
-(*
-Definition ZQ_pt iαi : Z * Q := (Qnum (fst iαi), snd iαi).
-
-Lemma q_is_factor_of_h_minus_j : ∀ pol pts ns j αj h αh,
-  pts = points_of_ps_polynom fld pol
-  → ns ∈ newton_segments fld pol
-    → (inject_Z j, αj) = ini_pt ns
-      → (inject_Z h, αh) ∈ oth_pts ns
-        → ∃ q, (q | h - j).
-Proof.
-intros pol pts ns j αj h αh Hpts Hns Hj Hh.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-destruct Hns as (p, (q, (mj, (mh, (Heq, Hg))))).
-exists q.
-rewrite Z.gcd_comm in Hg.
+destruct Hns as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
+exists m, mj.
+split; [ assumption | idtac ].
+exists p, q.
+split; [ assumption | idtac ].
+intros h αh Hm.
+apply H in Hm.
+destruct Hm as (mh, (Hmh, Heq)).
+exists mh.
+split; [ assumption | idtac ].
+rewrite Z.gcd_comm in Hgcd.
 eapply Z.gauss; [ idtac | eassumption ].
 rewrite <- Heq.
 apply Z.divide_factor_l.
 Qed.
-*)
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
