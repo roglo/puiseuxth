@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.895 2013-07-08 15:05:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.896 2013-07-08 15:57:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1280,6 +1280,14 @@ induction l₁ as [| x₃]; intros; simpl.
   apply IHl₁.
 Qed.
 
+Lemma yyy : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
+  rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
+  → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
+    → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
+Proof.
+intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
+bbb.
+
 Lemma poly_add_comm : ∀ pol₁ pol₂,
   poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁) = true.
 Proof.
@@ -1290,6 +1298,10 @@ unfold poly_eq.
 rewrite list_eq_append_one.
 apply andb_true_intro.
 split.
+ unfold poly_add in Heqrpol₁.
+ unfold poly_add in Heqrpol₂.
+ unfold pol_add in Heqrpol₁, Heqrpol₂.
+ eapply yyy; eassumption.
 bbb.
 
 (* *)
