@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.11 2013-07-02 02:30:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.12 2013-07-08 08:56:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -23,7 +23,7 @@ Definition series_head : ∀ α, (α → bool) → nat → series α → option 
 Proof. Admitted.
 
 Definition valuation α fld (ps : puiseux_series α) :=
-  match series_head (is_zero fld) 0 (ps_terms ps) with
+  match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (n, c) =>
       Some (Qmake (Z.add (ps_valnum ps) (Z.of_nat n)) (ps_comden ps))
   | None =>
@@ -31,7 +31,7 @@ Definition valuation α fld (ps : puiseux_series α) :=
   end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match series_head (is_zero fld) 0 (ps_terms ps) with
+  match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (_, c) => c
   | None => zero fld
   end.

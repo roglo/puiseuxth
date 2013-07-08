@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.893 2013-07-08 08:09:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.894 2013-07-08 08:56:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -57,7 +57,7 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match series_head (is_zero fld) 0 (ps_terms ps) with
+      match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
       | Some _ => false
       | None => true
       end
@@ -638,7 +638,7 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Zmult_assoc.
  unfold valuation in Hv.
- destruct (series_head (is_zero fld) 0 (ps_terms ps)) as [(n, _)| ].
+ destruct (series_head (fld_eq fld (zero fld)) 0 (ps_terms ps)) as [(n, _)| ].
   injection Hv; clear Hv; intros Hαi.
   subst αi; reflexivity.
 
@@ -1226,6 +1226,46 @@ eapply Z.gauss; [ idtac | eassumption ].
 rewrite <- Heq.
 apply Z.divide_factor_l.
 Qed.
+
+Fixpoint list_rep α (v : α) len :=
+  match len with
+  | 0%nat => []
+  | S len₁ => [v … list_rep v len₁]
+  end.
+
+Fixpoint list_eq α (cmp : α → α → bool) l₁ l₂ :=
+  match l₁ with
+  | [] =>
+      match l₂ with
+      | [] => True
+      | [x₂ … ll₂] => False
+      end
+  | [x₁ … ll₁] =>
+      match l₂ with
+      | [] => False
+      | [x₂ … ll₂] =>
+          if cmp x₁ x₂ then list_eq cmp ll₁ ll₂
+          else False
+      end
+  end.
+
+Definition poly_eq α fld (x y : polynomial α) :=
+  list_eq (fld_eq fld) (al x ++ [an x]) (al y ++ [an y]).
+
+Definition poly_mul α (fld : field α) :=
+  pol_mul (zero fld) (add fld) (mul fld).
+
+Definition Pdivide α fld (x y : polynomial α) :=
+  ∃ z, poly_eq fld y (poly_mul fld z x).
+
+Lemma zzz : ∀ pol ns j αj polj,
+  ns ∈ newton_segments fld pol
+  → (Qnat j, αj) = ini_pt ns
+    → polj = {| al := list_rep (zero fld) j; an := one fld |}
+      → Pdivide fld polj (characteristic_polynomial fld pol ns).
+Proof.
+intros pol ns j αj polj Hns Hj Hpolj.
+bbb.
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
