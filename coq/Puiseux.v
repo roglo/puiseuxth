@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.896 2013-07-08 15:57:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.897 2013-07-08 19:57:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1286,6 +1286,18 @@ Lemma yyy : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
     → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
 Proof.
 intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
+revert al₂ H₁ H₂.
+induction al₁ as [| a₁]; intros.
+ simpl in H₁.
+ destruct al₂ as [| a₂].
+  simpl in H₂.
+  subst rp₁ rp₂; reflexivity.
+
+  simpl in H₂.
+  subst rp₁ rp₂; simpl.
+  rewrite (add_comm fld); simpl.
+  clear a₂.
+  induction al₂ as [| a₂]; [ reflexivity | simpl ].
 bbb.
 
 Lemma poly_add_comm : ∀ pol₁ pol₂,
