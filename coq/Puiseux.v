@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.889 2013-07-08 03:03:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.890 2013-07-08 06:32:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1224,24 +1224,42 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  exists p, q.
  split; [ assumption | idtac ].
  intros h αh Hh.
- remember (List.nth (Z.to_nat (Qnum (inject_Z h))) psl (an pol)) as hps.
- eapply in_pts_in_pol in Heqhps; try eassumption.
-  2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
-  2: rewrite Hpts; eassumption.
+ remember (inject_Z j) as jq.
+ remember (inject_Z h) as hq.
+ remember Hpts as Hjn; clear HeqHjn.
+ symmetry in Hjn.
+ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
+  destruct Hjn as (jn, Hjn); simpl in Hjn.
+  remember Hpts as Hhn; clear HeqHhn.
+  symmetry in Hhn.
+  apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
+   destruct Hhn as (hn, Hhn); simpl in Hhn.
+   remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
+   eapply in_pts_in_pol in Heqhps; try eassumption.
+    2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
+    2: rewrite Hpts; eassumption.
 
-  destruct Heqhps as (Hhps, Hhv).
-  eapply power_num_of_new_comden in Hhps; try eassumption.
-  destruct Hhps as (mh, Hmh).
-  exists mh.
-  split; [ assumption | idtac ].
-  remember Hns as Hgh; clear HeqHgh.
-  eapply gamma_value_jh in Hgh; try eassumption.
-  rewrite Hmj, Hmh in Hgh.
-  rewrite <- Qnum_minus_distr_r in Hgh.
-  unfold Qeq in Hgh; simpl in Hgh.
-  rewrite Pos2Z.inj_mul in Hgh.
-  rewrite Qden_inv in Hgh.
-   rewrite Qnum_inv in Hgh.
+    destruct Heqhps as (Hhps, Hhv).
+    eapply power_num_of_new_comden in Hhps; try eassumption.
+    destruct Hhps as (mh, Hmh).
+    exists mh.
+    split; [ assumption | idtac ].
+    remember Hns as Hgh; clear HeqHgh.
+    eapply gamma_value_jh in Hgh; try eassumption.
+    rewrite Hmj, Hmh in Hgh.
+    rewrite <- Qnum_minus_distr_r in Hgh.
+    rewrite Hgamma in Hgh.
+    unfold inject_Z in Hgh.
+    unfold Qeq in Hgh; simpl in Hgh.
+    do 2 rewrite Pos2Z.inj_mul in Hgh.
+    rewrite Zmult_comm in Hgh; symmetry in Hgh.
+    rewrite Zmult_comm in Hgh; symmetry in Hgh.
+    do 2 rewrite <- Zmult_assoc in Hgh.
+    apply Z.mul_cancel_l in Hgh; [ idtac | apply Zpos_ne_0 ].
+    rewrite Zmult_assoc, Zmult_comm in Hgh.
+    rewrite Hjn, Hhn in Hgh.
+    rewrite Qden_inv in Hgh.
+     rewrite Qnum_inv in Hgh.
 bbb.
 
 Lemma zzz : ∀ pol ns j αj,
