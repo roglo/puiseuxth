@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.898 2013-07-08 20:14:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.899 2013-07-08 20:30:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1280,6 +1280,35 @@ induction l₁ as [| x₃]; intros; simpl.
   apply IHl₁.
 Qed.
 
+Lemma fld_eq_an : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
+  rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
+  → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
+    → fld_eq fld (an rp₁) (an rp₂) = true.
+Proof.
+intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
+revert an₁ an₂ al₂ rp₁ rp₂ H₁ H₂.
+induction al₁ as [| a₁]; intros.
+ simpl in H₁.
+ destruct al₂ as [| a₂].
+  simpl in H₂.
+  subst rp₁ rp₂; simpl.
+  apply add_comm.
+
+  simpl in H₂.
+  subst rp₁ rp₂; simpl.
+  apply fld_eq_refl.
+
+ simpl in H₁.
+ destruct al₂ as [| a₂].
+  simpl in H₂.
+  subst rp₁ rp₂; simpl.
+  apply fld_eq_refl.
+
+  simpl in H₁, H₂.
+  rewrite H₁, H₂; simpl.
+  eapply IHal₁; reflexivity.
+Qed.
+
 Lemma pol_add_loop_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
   → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
@@ -1320,17 +1349,14 @@ Lemma poly_add_comm : ∀ pol₁ pol₂,
   poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁) = true.
 Proof.
 intros pol₁ pol₂.
-remember (poly_add fld pol₁ pol₂) as rpol₁.
-remember (poly_add fld pol₂ pol₁) as rpol₂.
 unfold poly_eq.
 rewrite list_eq_append_one.
 apply andb_true_intro.
 split.
- unfold poly_add in Heqrpol₁.
- unfold poly_add in Heqrpol₂.
- unfold pol_add in Heqrpol₁, Heqrpol₂.
- eapply pol_add_loop_comm; eassumption.
-bbb.
+ eapply pol_add_loop_comm; reflexivity.
+
+ eapply fld_eq_an; reflexivity.
+Qed.
 
 (* *)
 
