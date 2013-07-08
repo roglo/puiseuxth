@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.894 2013-07-08 08:56:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.895 2013-07-08 15:05:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1237,26 +1237,62 @@ Fixpoint list_eq α (cmp : α → α → bool) l₁ l₂ :=
   match l₁ with
   | [] =>
       match l₂ with
-      | [] => True
-      | [x₂ … ll₂] => False
+      | [] => true
+      | [x₂ … ll₂] => false
       end
   | [x₁ … ll₁] =>
       match l₂ with
-      | [] => False
-      | [x₂ … ll₂] =>
-          if cmp x₁ x₂ then list_eq cmp ll₁ ll₂
-          else False
+      | [] => false
+      | [x₂ … ll₂] => cmp x₁ x₂ && list_eq cmp ll₁ ll₂
       end
   end.
 
 Definition poly_eq α fld (x y : polynomial α) :=
   list_eq (fld_eq fld) (al x ++ [an x]) (al y ++ [an y]).
 
+Definition poly_add α (fld : field α) :=
+  pol_add (add fld).
+
 Definition poly_mul α (fld : field α) :=
   pol_mul (zero fld) (add fld) (mul fld).
 
 Definition Pdivide α fld (x y : polynomial α) :=
-  ∃ z, poly_eq fld y (poly_mul fld z x).
+  ∃ z, poly_eq fld y (poly_mul fld z x) = true.
+
+(* commutativity polynomial addition *)
+
+Lemma list_eq_append_one : ∀ cmp (x₁ x₂ : α) l₁ l₂,
+  list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]) = list_eq cmp l₁ l₂ && cmp x₁ x₂.
+Proof.
+intros cmp x₁ x₂ l₁ l₂.
+revert x₁ x₂ l₂.
+induction l₁ as [| x₃]; intros; simpl.
+ destruct l₂ as [| x₄]; simpl.
+  apply andb_true_r.
+
+  destruct l₂ as [| x₅]; simpl; apply andb_false_r.
+
+ destruct l₂ as [| x₄]; simpl.
+  destruct l₁ as [| x₅]; simpl; apply andb_false_r.
+
+  rewrite <- andb_assoc.
+  f_equal.
+  apply IHl₁.
+Qed.
+
+Lemma poly_add_comm : ∀ pol₁ pol₂,
+  poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁) = true.
+Proof.
+intros pol₁ pol₂.
+remember (poly_add fld pol₁ pol₂) as rpol₁.
+remember (poly_add fld pol₂ pol₁) as rpol₂.
+unfold poly_eq.
+rewrite list_eq_append_one.
+apply andb_true_intro.
+split.
+bbb.
+
+(* *)
 
 Lemma zzz : ∀ pol ns j αj polj,
   ns ∈ newton_segments fld pol

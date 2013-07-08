@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.2 2013-07-08 08:56:11 deraugla Exp $ *)
+(* $Id: Field.v,v 1.3 2013-07-08 15:05:40 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -9,4 +9,5 @@ Record field α :=
     one : α;
     add : α → α → α;
     mul : α → α → α;
-    fld_eq : α → α → bool }.
+    fld_eq : α → α → bool;
+    add_comm : ∀ a b, fld_eq (add a b) (add b a) = true }.
