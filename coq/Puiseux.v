@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.900 2013-07-08 21:09:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.901 2013-07-09 23:59:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1243,6 +1243,9 @@ Lemma zzz : ∀ pol ns j αj polj,
       → Pdivide fld polj (characteristic_polynomial fld pol ns).
 Proof.
 intros pol ns j αj polj Hns Hj Hpolj.
+remember Hns as H; clear HeqH.
+eapply q_is_factor_of_h_minus_j in H; [ idtac | eassumption ].
+destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
 bbb.
 
 (*
