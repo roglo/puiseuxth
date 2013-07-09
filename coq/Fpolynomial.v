@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.2 2013-07-09 02:29:02 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.3 2013-07-09 04:29:10 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -6,6 +6,7 @@ Require Import Utf8.
 Require Import QArith.
 
 Require Import Field.
+Require Import Misc.
 Require Import Polynomial.
 
 Set Implicit Arguments.
@@ -35,6 +36,46 @@ Definition poly_mul α (fld : field α) :=
 
 Definition Pdivide α fld (x y : polynomial α) :=
   ∃ z, poly_eq fld y (poly_mul fld z x) = true.
+
+Lemma list_eq_comm : ∀ α (fld : field α) l₁ l₂,
+  list_eq (fld_eq fld) l₁ l₂ = list_eq (fld_eq fld) l₂ l₁.
+Proof.
+intros α fld l₁ l₂.
+revert l₂.
+induction l₁ as [| x₁]; intros; simpl.
+ destruct l₂ as [| x₂]; reflexivity.
+
+ destruct l₂ as [| x₂]; [ reflexivity | simpl ].
+ rewrite fld_eq_comm, IHl₁; reflexivity.
+Qed.
+
+Lemma list_eq_app_one_comm : ∀ α (fld : field α) x₁ x₂ l₁ l₂,
+  list_eq (fld_eq fld) (l₁ ++ [x₁]) (l₂ ++ [x₂]) =
+  list_eq (fld_eq fld) [x₁ … l₁] [x₂ … l₂].
+Proof.
+intros α fld x₁ x₂ l₁ l₂.
+simpl.
+revert x₁ x₂ l₂.
+induction l₁ as [| x₃]; intros.
+ simpl.
+ destruct l₂ as [| x₄]; simpl.
+  reflexivity.
+
+  destruct l₂ as [| x₅]; simpl.
+   do 2 rewrite andb_false_r; reflexivity.
+
+   do 2 rewrite andb_false_r; reflexivity.
+
+ simpl.
+ destruct l₂ as [| x₄]; simpl.
+  rewrite andb_false_r.
+  rewrite andb_comm.
+  destruct l₁; reflexivity.
+
+  rewrite IHl₁.
+  do 2 rewrite andb_assoc; f_equal.
+  apply andb_comm.
+Qed.
 
 (* addition commutativity *)
 
@@ -125,6 +166,12 @@ Qed.
 Lemma poly_add_comm : ∀ α (fld : field α) pol₁ pol₂,
   poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁) = true.
 Proof.
+intros α fld pol₁ pol₂.
+unfold poly_eq.
+rewrite list_eq_app_one_comm.
+bbb.
+
+(* ça marche mais je teste quand même autre chose ci-dessus *)
 intros α fld pol₁ pol₂.
 unfold poly_eq.
 rewrite list_eq_append_one.
