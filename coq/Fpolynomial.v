@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.5 2013-07-09 10:05:17 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.6 2013-07-09 12:04:28 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -48,6 +48,15 @@ induction l₁ as [| x₁]; intros; simpl.
  destruct l₂ as [| x₂]; [ reflexivity | simpl ].
  rewrite fld_eq_comm, IHl₁; reflexivity.
 Qed.
+
+Lemma list_eq_trans : ∀ α (fld : field α) l₁ l₂ l₃,
+  list_eq (fld_eq fld) l₁ l₂ = true
+  → list_eq (fld_eq fld) l₂ l₃ = true
+    → list_eq (fld_eq fld) l₁ l₃ = true.
+Proof.
+intros α fld l₁ l₂ l₃ H₁ H₂.
+bbb.
+*)
 
 Lemma list_eq_app_one_comm : ∀ α (fld : field α) x₁ x₂ l₁ l₂,
   list_eq (fld_eq fld) (l₁ ++ [x₁]) (l₂ ++ [x₂]) =
@@ -206,6 +215,32 @@ induction al₂ as [| a₂]; intros.
    split; [ idtac | assumption ].
    eapply fld_eq_trans; [ idtac | eassumption ].
    eapply fld_eq_trans; [ apply add_assoc | apply add_comm ].
+
+  eapply pol_add_loop_comm in H₂; [ idtac | reflexivity ].
+  simpl in H₂.
+  destruct al₁ as [| a₁]; simpl in H₁, H₂.
+   subst rp₁; simpl.
+   destruct (al rp₂) as [| a₂ al₂]; [ discriminate H₂ | idtac ].
+   apply andb_true_iff.
+   apply andb_true_iff in H₂.
+   destruct H₂ as (Hf, He).
+   split; [ idtac | assumption ].
+   eapply fld_eq_trans; [ idtac | eassumption ].
+   eapply fld_eq_trans; [ apply add_assoc | apply add_comm ].
+
+   subst rp₁; simpl.
+   destruct (al rp₂) as [| a₂ al₂]; [ discriminate H₂ | idtac ].
+   apply andb_true_iff.
+   apply andb_true_iff in H₂.
+   destruct H₂ as (Hf, He).
+   split.
+    eapply fld_eq_trans; [ rewrite fld_eq_comm | eassumption ].
+    eapply fld_eq_trans; [ apply add_comm | rewrite fld_eq_comm ].
+    apply add_assoc.
+
+    rewrite list_eq_comm.
+    rewrite list_eq_comm in He.
+    eapply list_eq_trans; [ eassumption | idtac ].
 bbb.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
