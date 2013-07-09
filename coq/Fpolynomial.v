@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.16 2013-07-09 23:25:45 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.17 2013-07-09 23:33:39 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -73,29 +73,15 @@ Lemma pol_add_loop_al_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp�
     → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
 Proof.
 intros α fld an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
-revert al₂ rp₁ rp₂ H₁ H₂.
-induction al₁ as [| a₁]; intros.
- simpl in H₁.
- destruct al₂ as [| a₂].
-  subst rp₁ rp₂; reflexivity.
+subst rp₁ rp₂.
+revert an₁ an₂ al₂.
+induction al₁; intros.
+ destruct al₂; [ reflexivity | simpl ].
+ rewrite fld_add_comm; apply list_eq_refl.
 
-  subst rp₁ rp₂; simpl.
-  rewrite fld_add_comm; simpl.
-  clear a₂.
-  induction al₂ as [| a₂]; [ reflexivity | simpl ].
-  rewrite fld_eq_refl.
-  assumption.
+ destruct al₂; simpl; rewrite fld_add_comm.
+  apply list_eq_refl.
 
- simpl in H₁.
- destruct al₂ as [| a₂].
-  subst rp₁ rp₂; simpl.
-  rewrite fld_add_comm; simpl.
-  clear a₁ IHal₁.
-  induction al₁ as [| a₁]; [ reflexivity | simpl ].
-  rewrite fld_eq_refl; assumption.
-
-  rewrite H₁, H₂; simpl.
-  rewrite fld_add_comm; simpl.
   eapply IHal₁; reflexivity.
 Qed.
 
