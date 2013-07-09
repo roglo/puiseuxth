@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.6 2013-07-09 10:05:17 deraugla Exp $ *)
+(* $Id: Field.v,v 1.7 2013-07-09 15:34:43 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -16,5 +16,7 @@ Record field α :=
       fld_eq a b = fld_eq b a;
     fld_eq_trans : ∀ a b c,
       fld_eq a b = true → fld_eq b c = true → fld_eq a c = true;
-    add_comm : ∀ a b, fld_eq (add a b) (add b a) = true;
-    add_assoc : ∀ a b c , fld_eq (add (add a b) c) (add a (add b c)) = true }.
+    fld_add_comm : ∀ a b,
+      fld_eq (add a b) (add b a) = true;
+    fld_add_assoc : ∀ a b c,
+      fld_eq (add (add a b) c) (add a (add b c)) = true }.

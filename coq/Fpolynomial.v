@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.7 2013-07-09 14:33:55 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.8 2013-07-09 15:34:44 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -145,7 +145,7 @@ induction al₁ as [| a₁]; intros.
 
   simpl in H₂.
   subst rp₁ rp₂; simpl.
-  rewrite (add_comm fld); simpl.
+  rewrite fld_add_comm; simpl.
   clear a₂.
   induction al₂ as [| a₂]; [ reflexivity | simpl ].
   rewrite fld_eq_refl.
@@ -155,14 +155,14 @@ induction al₁ as [| a₁]; intros.
  destruct al₂ as [| a₂].
   simpl in H₂.
   subst rp₁ rp₂; simpl.
-  rewrite add_comm; simpl.
+  rewrite fld_add_comm; simpl.
   clear a₁ IHal₁.
   induction al₁ as [| a₁]; [ reflexivity | simpl ].
   rewrite fld_eq_refl; assumption.
 
   simpl in H₂.
   rewrite H₁, H₂; simpl.
-  rewrite add_comm; simpl.
+  rewrite fld_add_comm; simpl.
   eapply IHal₁; reflexivity.
 Qed.
 
@@ -178,7 +178,7 @@ induction al₁ as [| a₁]; intros.
  destruct al₂ as [| a₂].
   simpl in H₂.
   subst rp₁ rp₂; simpl.
-  apply add_comm.
+  apply fld_add_comm.
 
   simpl in H₂.
   subst rp₁ rp₂; simpl.
@@ -237,7 +237,7 @@ induction al₂ as [| a₂]; intros.
    destruct H₂ as (Hf, He).
    split; [ idtac | assumption ].
    eapply fld_eq_trans; [ idtac | eassumption ].
-   eapply fld_eq_trans; [ apply add_assoc | apply add_comm ].
+   eapply fld_eq_trans; [ apply fld_add_assoc | apply fld_add_comm ].
 
   eapply pol_add_loop_comm in H₂; [ idtac | reflexivity ].
   simpl in H₂.
@@ -249,7 +249,7 @@ induction al₂ as [| a₂]; intros.
    destruct H₂ as (Hf, He).
    split; [ idtac | assumption ].
    eapply fld_eq_trans; [ idtac | eassumption ].
-   eapply fld_eq_trans; [ apply add_assoc | apply add_comm ].
+   eapply fld_eq_trans; [ apply fld_add_assoc | apply fld_add_comm ].
 
    subst rp₁; simpl.
    destruct (al rp₂) as [| a₂ al₂]; [ discriminate H₂ | idtac ].
@@ -258,12 +258,21 @@ induction al₂ as [| a₂]; intros.
    destruct H₂ as (Hf, He).
    split.
     eapply fld_eq_trans; [ rewrite fld_eq_comm | eassumption ].
-    eapply fld_eq_trans; [ apply add_comm | rewrite fld_eq_comm ].
-    apply add_assoc.
+    eapply fld_eq_trans; [ apply fld_add_comm | rewrite fld_eq_comm ].
+    apply fld_add_assoc.
 
     rewrite list_eq_comm.
     rewrite list_eq_comm in He.
     eapply list_eq_trans; [ eassumption | idtac ].
+    eapply pol_add_loop_comm; reflexivity.
+
+ simpl in H₂.
+ destruct al₃ as [| a₃]; simpl in H₂.
+  destruct al₁ as [| a₁]; simpl in H₁, H₂.
+   subst rp₁ rp₂; simpl.
+   apply andb_true_iff.
+   split.
+    apply fld_add_assoc.
 bbb.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
