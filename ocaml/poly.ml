@@ -1,4 +1,4 @@
-(* $Id: poly.ml,v 1.63 2013-06-26 20:09:14 deraugla Exp $ *)
+(* $Id: poly.ml,v 1.64 2013-07-09 01:32:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -6,20 +6,24 @@ open Coq;
 
 Record polynomial α := mkpol { al : list α; an : α }.
 
+Fixpoint pol_add_loop α (add_coeff : α → α → α) an₁ an₂ al₁ al₂ :=
+  match al₁ with
+  | [] =>
+      match al₂ with
+      | [] => {| al := []; an := add_coeff an₁ an₂ |}
+      | [a₂ … bl₂] => {| al := [add_coeff an₁ a₂ … bl₂]; an := an₂ |}
+      end
+  | [a₁ … bl₁] =>
+      match al₂ with
+      | [] => {| al := [add_coeff a₁ an₂ … bl₁]; an := an₁ |}
+      | [a₂ … bl₂] =>
+          let r := pol_add_loop add_coeff an₁ an₂ bl₁ bl₂ in
+          {| al := [add_coeff a₁ a₂ … al r]; an := an r |}
+      end
+  end.
+
 Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
-  let fix loop al₁ al₂ :=
-    match (al₁, al₂) with
-    | ([], []) => mkpol [] (add_coeff (an pol₁) (an pol₂))
-    | ([], [a₂ … bl₂]) =>
-        mkpol [add_coeff (an pol₁) a₂ … bl₂] (an pol₂)
-    | ([a₁ … bl₁], []) =>
-        mkpol [add_coeff a₁ (an pol₂) … bl₁] (an pol₁)
-    | ([a₁ … bl₁], [a₂ … bl₂]) =>
-        let r := loop bl₁ bl₂ in
-        mkpol [add_coeff a₁ a₂ … al r] (an r)
-    end
-  in
-  loop (al pol₁) (al pol₂).
+  pol_add_loop add_coeff (an pol₁) (an pol₂) (al pol₁) (al pol₂).
 
 Fixpoint insert_pol_term α (add_coeff : α → α → α) c₁ p₁ ml :=
   match ml with
