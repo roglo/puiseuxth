@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.6 2013-07-09 12:04:28 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.7 2013-07-09 14:33:55 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -55,8 +55,31 @@ Lemma list_eq_trans : ∀ α (fld : field α) l₁ l₂ l₃,
     → list_eq (fld_eq fld) l₁ l₃ = true.
 Proof.
 intros α fld l₁ l₂ l₃ H₁ H₂.
-bbb.
-*)
+revert l₁ l₃ H₁ H₂.
+induction l₂ as [| x₂]; intros.
+ rewrite list_eq_comm in H₁.
+ simpl in H₁, H₂.
+ destruct l₁; [ idtac | discriminate H₁ ].
+ simpl.
+ assumption.
+
+ rewrite list_eq_comm in H₁.
+ simpl in H₁, H₂.
+ destruct l₁ as [| x₁]; [ discriminate H₁ | idtac ].
+ destruct l₃ as [| x₃]; [ discriminate H₂ | idtac ].
+ simpl.
+ apply andb_true_iff in H₁.
+ apply andb_true_iff in H₂.
+ apply andb_true_iff.
+ destruct H₁ as (H₁, H₃).
+ destruct H₂ as (H₂, H₄).
+ split.
+  rewrite fld_eq_comm in H₁.
+  eapply fld_eq_trans; eassumption.
+
+  rewrite list_eq_comm in H₃.
+  eapply IHl₂; eassumption.
+Qed.
 
 Lemma list_eq_app_one_comm : ∀ α (fld : field α) x₁ x₂ l₁ l₂,
   list_eq (fld_eq fld) (l₁ ++ [x₁]) (l₂ ++ [x₂]) =
