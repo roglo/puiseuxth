@@ -1,4 +1,6 @@
-(* $Id: Fpolynomial.v,v 1.1 2013-07-08 21:09:18 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.2 2013-07-09 02:29:02 deraugla Exp $ *)
+
+(* polynomials on a field *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,7 +36,7 @@ Definition poly_mul α (fld : field α) :=
 Definition Pdivide α fld (x y : polynomial α) :=
   ∃ z, poly_eq fld y (poly_mul fld z x) = true.
 
-(* commutativity polynomial addition *)
+(* addition commutativity *)
 
 Lemma list_eq_append_one : ∀ α cmp (x₁ x₂ : α) l₁ l₂,
   list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]) = list_eq cmp l₁ l₂ && cmp x₁ x₂.
@@ -132,3 +134,17 @@ split.
 
  eapply fld_eq_an; reflexivity.
 Qed.
+
+(* addition associativity *)
+
+Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
+  poly_eq fld
+    (poly_add fld (poly_add fld pol₁ pol₂) pol₃)
+    (poly_add fld pol₁ (poly_add fld pol₂ pol₃)) = true.
+Proof.
+intros α fld pol₁ pol₂ pol₃.
+unfold poly_eq.
+rewrite list_eq_append_one.
+apply andb_true_intro.
+split.
+bbb.
