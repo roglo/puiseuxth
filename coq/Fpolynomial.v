@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.9 2013-07-09 16:15:09 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.10 2013-07-09 16:52:27 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -139,7 +139,7 @@ induction l₁ as [| x₃]; intros; simpl.
   apply IHl₁.
 Qed.
 
-Lemma pol_add_loop_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
+Lemma pol_add_loop_al_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
   → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
     → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
@@ -175,7 +175,7 @@ induction al₁ as [| a₁]; intros.
   eapply IHal₁; reflexivity.
 Qed.
 
-Lemma fld_eq_an : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
+Lemma pol_add_loop_an_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
   → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
     → fld_eq fld (an rp₁) (an rp₂) = true.
@@ -212,14 +212,15 @@ unfold poly_eq.
 rewrite list_eq_append_one.
 apply andb_true_intro.
 split.
- eapply pol_add_loop_comm; reflexivity.
+ eapply pol_add_loop_al_comm; reflexivity.
 
- eapply fld_eq_an; reflexivity.
+ eapply pol_add_loop_an_comm; reflexivity.
 Qed.
 
 (* addition associativity *)
 
-Lemma zzz : ∀ α (fld : field α) an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
+Lemma pol_add_loop_al_assoc :
+    ∀ α (fld : field α) an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld)
           (an (pol_add_loop (add fld) an₁ an₂ al₁ al₂)) an₃
           (al (pol_add_loop (add fld) an₁ an₂ al₁ al₂)) al₃
@@ -233,7 +234,7 @@ revert an₁ an₂ an₃ al₁ al₃ rp₁ rp₂ H₁ H₂.
 induction al₂ as [| a₂]; intros.
  simpl in H₂.
  destruct al₃ as [| a₃]; simpl in H₁, H₂.
-  eapply pol_add_loop_comm in H₂; [ idtac | reflexivity ].
+  eapply pol_add_loop_al_comm in H₂; [ idtac | reflexivity ].
   simpl in H₂.
   destruct al₁ as [| a₁]; simpl in H₁, H₂.
    subst rp₁; simpl.
@@ -248,7 +249,7 @@ induction al₂ as [| a₂]; intros.
    eapply fld_eq_trans; [ idtac | eassumption ].
    eapply fld_eq_trans; [ apply fld_add_assoc | apply fld_add_comm ].
 
-  eapply pol_add_loop_comm in H₂; [ idtac | reflexivity ].
+  eapply pol_add_loop_al_comm in H₂; [ idtac | reflexivity ].
   simpl in H₂.
   destruct al₁ as [| a₁]; simpl in H₁, H₂.
    subst rp₁; simpl.
@@ -273,7 +274,7 @@ induction al₂ as [| a₂]; intros.
     rewrite list_eq_comm.
     rewrite list_eq_comm in He.
     eapply list_eq_trans; [ eassumption | idtac ].
-    eapply pol_add_loop_comm; reflexivity.
+    eapply pol_add_loop_al_comm; reflexivity.
 
  simpl in H₂.
  destruct al₃ as [| a₃]; simpl in H₂.
@@ -281,7 +282,35 @@ induction al₂ as [| a₂]; intros.
    subst rp₁ rp₂; simpl.
    apply andb_true_iff.
    split; [ apply fld_add_assoc | apply list_eq_refl ].
+
+   subst rp₁ rp₂; simpl.
+   apply andb_true_iff.
+   split; [ apply fld_add_assoc | apply list_eq_refl ].
+
+  destruct al₁ as [| a₁]; simpl in H₁, H₂.
+   subst rp₁ rp₂; simpl.
+   apply andb_true_iff.
+   split; [ apply fld_add_assoc | apply list_eq_refl ].
+
+   subst rp₁ rp₂; simpl.
+   apply andb_true_iff.
+   split; [ apply fld_add_assoc | idtac ].
+   eapply IHal₂; reflexivity.
+Qed.
+
+Lemma pol_add_loop_an_assoc :
+    ∀ α (fld : field α) an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
+  rp₁ = pol_add_loop (add fld)
+          (an (pol_add_loop (add fld) an₁ an₂ al₁ al₂)) an₃
+          (al (pol_add_loop (add fld) an₁ an₂ al₁ al₂)) al₃
+  → rp₂ = pol_add_loop (add fld)
+           an₁ (an (pol_add_loop (add fld) an₂ an₃ al₂ al₃))
+           al₁ (al (pol_add_loop (add fld) an₂ an₃ al₂ al₃))
+    → fld_eq fld (an rp₁) (an rp₂) = true.
+Proof.
+intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 bbb.
+*)
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
   poly_eq fld
@@ -293,4 +322,7 @@ unfold poly_eq.
 rewrite list_eq_append_one.
 apply andb_true_intro.
 split.
+ eapply pol_add_loop_al_assoc; reflexivity.
+
+ eapply pol_add_loop_an_assoc; reflexivity.
 bbb.
