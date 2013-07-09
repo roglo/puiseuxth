@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.8 2013-07-09 15:34:44 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.9 2013-07-09 16:15:09 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -36,6 +36,15 @@ Definition poly_mul α (fld : field α) :=
 
 Definition Pdivide α fld (x y : polynomial α) :=
   ∃ z, poly_eq fld y (poly_mul fld z x) = true.
+
+Lemma list_eq_refl : ∀ α (fld : field α) l,
+  list_eq (fld_eq fld) l l = true.
+Proof.
+intros α fld l.
+induction l as [| x]; [ reflexivity | simpl ].
+apply andb_true_iff.
+split; [ apply fld_eq_refl | assumption ].
+Qed.
 
 Lemma list_eq_comm : ∀ α (fld : field α) l₁ l₂,
   list_eq (fld_eq fld) l₁ l₂ = list_eq (fld_eq fld) l₂ l₁.
@@ -271,8 +280,7 @@ induction al₂ as [| a₂]; intros.
   destruct al₁ as [| a₁]; simpl in H₁, H₂.
    subst rp₁ rp₂; simpl.
    apply andb_true_iff.
-   split.
-    apply fld_add_assoc.
+   split; [ apply fld_add_assoc | apply list_eq_refl ].
 bbb.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
