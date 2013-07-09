@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.15 2013-07-09 20:16:39 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.16 2013-07-09 23:25:45 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -105,23 +105,12 @@ Lemma pol_add_loop_an_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp�
     → fld_eq fld (an rp₁) (an rp₂) = true.
 Proof.
 intros α fld an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
-revert an₁ an₂ al₂ rp₁ rp₂ H₁ H₂.
-induction al₁ as [| a₁]; intros.
- simpl in H₁.
- destruct al₂ as [| a₂].
-  subst rp₁ rp₂; simpl.
-  apply fld_add_comm.
+subst rp₁ rp₂.
+revert an₁ an₂ al₂.
+induction al₁; intros.
+ destruct al₂; [ apply fld_add_comm | apply fld_eq_refl ].
 
-  subst rp₁ rp₂; simpl.
-  apply fld_eq_refl.
-
- simpl in H₁.
- destruct al₂ as [| a₂].
-  subst rp₁ rp₂; simpl.
-  apply fld_eq_refl.
-
-  rewrite H₁, H₂; simpl.
-  eapply IHal₁; reflexivity.
+ destruct al₂; [ apply fld_eq_refl | eapply IHal₁; reflexivity ].
 Qed.
 
 Lemma poly_add_comm : ∀ α (fld : field α) pol₁ pol₂,
