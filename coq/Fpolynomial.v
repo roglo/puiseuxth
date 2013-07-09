@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.17 2013-07-09 23:33:39 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.18 2013-07-09 23:42:23 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -41,8 +41,7 @@ Lemma list_eq_refl : ∀ α (fld : field α) l,
   list_eq (fld_eq fld) l l = true.
 Proof.
 intros α fld l.
-induction l as [| x]; [ reflexivity | simpl ].
-apply andb_true_iff.
+induction l as [| x]; [ reflexivity | simpl; apply andb_true_iff ].
 split; [ apply fld_eq_refl | assumption ].
 Qed.
 
@@ -125,45 +124,27 @@ Lemma pol_add_loop_al_assoc :
     → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
 Proof.
 intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
-revert an₁ an₂ an₃ al₂ al₃ rp₁ rp₂ H₁ H₂.
-induction al₁ as [| a₁]; intros.
- simpl in H₁, H₂.
- destruct al₂ as [| a₂]; simpl in H₁.
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   reflexivity.
+subst rp₁ rp₂.
+revert an₁ an₂ an₃ al₂ al₃.
+induction al₁; intros.
+ destruct al₂.
+  destruct al₃; [ reflexivity | simpl; apply andb_true_iff ].
+  split; [ apply fld_add_assoc | apply list_eq_refl ].
 
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
+  destruct al₃; simpl; apply andb_true_iff.
    split; [ apply fld_add_assoc | apply list_eq_refl ].
 
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
    split; [ apply fld_add_assoc | apply list_eq_refl ].
 
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
+ destruct al₂.
+  destruct al₃; simpl; apply andb_true_iff.
    split; [ apply fld_add_assoc | apply list_eq_refl ].
 
- simpl in H₁.
- destruct al₂ as [| a₂]; simpl in H₁.
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
    split; [ apply fld_add_assoc | apply list_eq_refl ].
 
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
+  destruct al₃; simpl; apply andb_true_iff.
    split; [ apply fld_add_assoc | apply list_eq_refl ].
 
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
-   split; [ apply fld_add_assoc | apply list_eq_refl ].
-
-   subst rp₁ rp₂; simpl.
-   apply andb_true_iff.
    split; [ apply fld_add_assoc | eapply IHal₁; reflexivity ].
 Qed.
 
@@ -178,39 +159,18 @@ Lemma pol_add_loop_an_assoc :
     → fld_eq fld (an rp₁) (an rp₂) = true.
 Proof.
 intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
-revert an₁ an₂ an₃ al₂ al₃ rp₁ rp₂ H₁ H₂.
-induction al₁ as [| a₁]; intros.
- simpl in H₁, H₂.
- destruct al₂ as [| a₂]; simpl in H₁.
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply fld_add_assoc.
+subst rp₁ rp₂.
+revert an₁ an₂ an₃ al₂ al₃.
+induction al₁; intros.
+ destruct al₂.
+  destruct al₃; [ apply fld_add_assoc | apply fld_eq_refl ].
 
-   subst rp₁ rp₂; simpl.
-   apply fld_eq_refl.
+  destruct al₃; apply fld_eq_refl.
 
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply fld_eq_refl.
+ destruct al₂.
+  destruct al₃; apply fld_eq_refl.
 
-   subst rp₁ rp₂; simpl.
-   apply fld_eq_refl.
-
- simpl in H₁.
- destruct al₂ as [| a₂]; simpl in H₁.
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply fld_eq_refl.
-
-   subst rp₁ rp₂; simpl.
-   apply fld_eq_refl.
-
-  destruct al₃ as [| a₃]; simpl in H₁.
-   subst rp₁ rp₂; simpl.
-   apply fld_eq_refl.
-
-   subst rp₁ rp₂; simpl.
-   eapply IHal₁; reflexivity.
+  destruct al₃; [ apply fld_eq_refl | eapply IHal₁; reflexivity ].
 Qed.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
