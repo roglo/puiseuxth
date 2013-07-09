@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.14 2013-07-09 20:11:23 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.15 2013-07-09 20:16:39 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -46,80 +46,6 @@ apply andb_true_iff.
 split; [ apply fld_eq_refl | assumption ].
 Qed.
 
-Lemma list_eq_comm : ∀ α (fld : field α) l₁ l₂,
-  list_eq (fld_eq fld) l₁ l₂ = list_eq (fld_eq fld) l₂ l₁.
-Proof.
-intros α fld l₁ l₂.
-revert l₂.
-induction l₁ as [| x₁]; intros; simpl.
- destruct l₂ as [| x₂]; reflexivity.
-
- destruct l₂ as [| x₂]; [ reflexivity | simpl ].
- rewrite fld_eq_comm, IHl₁; reflexivity.
-Qed.
-
-Lemma list_eq_trans : ∀ α (fld : field α) l₁ l₂ l₃,
-  list_eq (fld_eq fld) l₁ l₂ = true
-  → list_eq (fld_eq fld) l₂ l₃ = true
-    → list_eq (fld_eq fld) l₁ l₃ = true.
-Proof.
-intros α fld l₁ l₂ l₃ H₁ H₂.
-revert l₁ l₃ H₁ H₂.
-induction l₂ as [| x₂]; intros.
- rewrite list_eq_comm in H₁.
- simpl in H₁, H₂.
- destruct l₁; [ idtac | discriminate H₁ ].
- simpl.
- assumption.
-
- rewrite list_eq_comm in H₁.
- simpl in H₁, H₂.
- destruct l₁ as [| x₁]; [ discriminate H₁ | idtac ].
- destruct l₃ as [| x₃]; [ discriminate H₂ | idtac ].
- simpl.
- apply andb_true_iff in H₁.
- apply andb_true_iff in H₂.
- apply andb_true_iff.
- destruct H₁ as (H₁, H₃).
- destruct H₂ as (H₂, H₄).
- split.
-  rewrite fld_eq_comm in H₁.
-  eapply fld_eq_trans; eassumption.
-
-  rewrite list_eq_comm in H₃.
-  eapply IHl₂; eassumption.
-Qed.
-
-Lemma list_eq_app_one_comm : ∀ α (fld : field α) x₁ x₂ l₁ l₂,
-  list_eq (fld_eq fld) (l₁ ++ [x₁]) (l₂ ++ [x₂]) =
-  list_eq (fld_eq fld) [x₁ … l₁] [x₂ … l₂].
-Proof.
-intros α fld x₁ x₂ l₁ l₂.
-simpl.
-revert x₁ x₂ l₂.
-induction l₁ as [| x₃]; intros.
- simpl.
- destruct l₂ as [| x₄]; simpl.
-  reflexivity.
-
-  destruct l₂ as [| x₅]; simpl.
-   do 2 rewrite andb_false_r; reflexivity.
-
-   do 2 rewrite andb_false_r; reflexivity.
-
- simpl.
- destruct l₂ as [| x₄]; simpl.
-  rewrite andb_false_r.
-  rewrite andb_comm.
-  destruct l₁; reflexivity.
-
-  rewrite IHl₁.
-  do 2 rewrite andb_assoc; f_equal.
-  apply andb_comm.
-Qed.
-
-(* addition commutativity *)
-
 Lemma list_eq_append_one : ∀ α cmp (x₁ x₂ : α) l₁ l₂,
   list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]) = list_eq cmp l₁ l₂ && cmp x₁ x₂.
 Proof.
@@ -139,6 +65,8 @@ induction l₁ as [| x₃]; intros; simpl.
   apply IHl₁.
 Qed.
 
+(* addition commutativity *)
+
 Lemma pol_add_loop_al_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
   → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
@@ -149,10 +77,8 @@ revert al₂ rp₁ rp₂ H₁ H₂.
 induction al₁ as [| a₁]; intros.
  simpl in H₁.
  destruct al₂ as [| a₂].
-  simpl in H₂.
   subst rp₁ rp₂; reflexivity.
 
-  simpl in H₂.
   subst rp₁ rp₂; simpl.
   rewrite fld_add_comm; simpl.
   clear a₂.
@@ -162,14 +88,12 @@ induction al₁ as [| a₁]; intros.
 
  simpl in H₁.
  destruct al₂ as [| a₂].
-  simpl in H₂.
   subst rp₁ rp₂; simpl.
   rewrite fld_add_comm; simpl.
   clear a₁ IHal₁.
   induction al₁ as [| a₁]; [ reflexivity | simpl ].
   rewrite fld_eq_refl; assumption.
 
-  simpl in H₂.
   rewrite H₁, H₂; simpl.
   rewrite fld_add_comm; simpl.
   eapply IHal₁; reflexivity.
@@ -185,21 +109,17 @@ revert an₁ an₂ al₂ rp₁ rp₂ H₁ H₂.
 induction al₁ as [| a₁]; intros.
  simpl in H₁.
  destruct al₂ as [| a₂].
-  simpl in H₂.
   subst rp₁ rp₂; simpl.
   apply fld_add_comm.
 
-  simpl in H₂.
   subst rp₁ rp₂; simpl.
   apply fld_eq_refl.
 
  simpl in H₁.
  destruct al₂ as [| a₂].
-  simpl in H₂.
   subst rp₁ rp₂; simpl.
   apply fld_eq_refl.
 
-  simpl in H₁, H₂.
   rewrite H₁, H₂; simpl.
   eapply IHal₁; reflexivity.
 Qed.
