@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.4 2013-07-09 09:51:26 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.5 2013-07-09 10:05:17 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -200,8 +200,12 @@ induction al₂ as [| a₂]; intros.
 
    subst rp₁; simpl.
    destruct (al rp₂) as [| a₂ al₂]; [ discriminate H₂ | idtac ].
-   rewrite <- H₂.
-   f_equal.
+   apply andb_true_iff.
+   apply andb_true_iff in H₂.
+   destruct H₂ as (Hf, He).
+   split; [ idtac | assumption ].
+   eapply fld_eq_trans; [ idtac | eassumption ].
+   eapply fld_eq_trans; [ apply add_assoc | apply add_comm ].
 bbb.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
