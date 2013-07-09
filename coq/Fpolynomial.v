@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.11 2013-07-09 18:59:53 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.12 2013-07-09 19:46:23 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -312,25 +312,28 @@ intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 revert an₁ an₂ an₃ al₂ al₃ rp₁ rp₂ H₁ H₂.
 induction al₁ as [| a₁]; intros.
  simpl in H₁, H₂.
+ destruct al₂ as [| a₂]; simpl in H₁.
+  destruct al₃ as [| a₃]; simpl in H₁.
+   subst rp₁; simpl.
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_add_assoc.
 
-bbb.
-intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
-revert an₁ an₂ an₃ al₁ al₃ rp₁ rp₂ H₁ H₂.
-induction al₂ as [| a₂]; intros.
- simpl in H₂.
- destruct al₃ as [| a₃]; simpl in H₁, H₂.
-  eapply pol_add_loop_al_comm in H₂; [ idtac | reflexivity ].
-  simpl in H₂.
-  destruct al₁ as [| a₁]; simpl in H₁, H₂.
    subst rp₁; simpl.
-   remember (al rp₂) as al₂.
-   destruct al₂; [ idtac | discriminate H₂ ].
-   Focus 2.
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_eq_refl.
+
+  destruct al₃ as [| a₃]; simpl in H₁.
    subst rp₁; simpl.
-   remember (al rp₂) as al₂.
-   destruct al₂ as [| a₂]; [ discriminate H₂ | idtac ].
-   apply andb_true_iff in H₂.
-   destruct H₂ as (H₁, H₂).
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_eq_refl.
+
+   subst rp₁; simpl.
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_eq_refl.
 bbb.
 *)
 
