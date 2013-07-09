@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.12 2013-07-09 19:46:23 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.13 2013-07-09 19:50:22 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -334,9 +334,31 @@ induction al₁ as [| a₁]; intros.
    simpl in H₂.
    subst rp₂; simpl.
    apply fld_eq_refl.
-bbb.
-*)
 
+ simpl in H₁.
+ destruct al₂ as [| a₂]; simpl in H₁.
+  destruct al₃ as [| a₃]; simpl in H₁.
+   subst rp₁; simpl.
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_eq_refl.
+
+   subst rp₁; simpl.
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_eq_refl.
+
+  destruct al₃ as [| a₃]; simpl in H₁.
+   subst rp₁; simpl.
+   simpl in H₂.
+   subst rp₂; simpl.
+   apply fld_eq_refl.
+
+   subst rp₁; simpl.
+   simpl in H₂.
+   subst rp₂; simpl.
+   eapply IHal₁; reflexivity.
+Qed.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
   poly_eq fld
@@ -351,4 +373,4 @@ split.
  eapply pol_add_loop_al_assoc; reflexivity.
 
  eapply pol_add_loop_an_assoc; reflexivity.
-bbb.
+Qed.
