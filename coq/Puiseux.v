@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.901 2013-07-09 23:59:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.902 2013-07-10 00:06:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1246,6 +1246,10 @@ intros pol ns j αj polj Hns Hj Hpolj.
 remember Hns as H; clear HeqH.
 eapply q_is_factor_of_h_minus_j in H; [ idtac | eassumption ].
 destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
+remember (characteristic_polynomial fld pol ns) as cpol.
+exists {| al := List.skipn j (al cpol); an := an cpol |}.
+unfold characteristic_polynomial in Heqcpol.
+subst cpol; simpl.
 bbb.
 
 (*
