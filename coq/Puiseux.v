@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.907 2013-07-10 09:06:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.908 2013-07-10 21:13:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1228,6 +1228,32 @@ rewrite <- Heq.
 apply Z.divide_factor_l.
 Qed.
 
+Lemma h_is_j_plus_sq : ∀ pol ns j αj,
+  ns ∈ newton_segments fld pol
+  → (inject_Z j, αj) = ini_pt ns
+    → ∃ m mj, αj == mj # m
+      ∧ ∃ p q, Z.gcd p ('q) = 1
+        ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+          → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
+Proof.
+intros pol ns j αj Hns Hj.
+eapply q_is_factor_of_h_minus_j in Hns; try eassumption.
+destruct Hns as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
+exists m, mj.
+split; [ assumption | idtac ].
+exists p, q.
+split; [ assumption | idtac ].
+intros h αh Hm.
+apply H in Hm.
+destruct Hm as (mh, (Hmh, Heq)).
+exists mh.
+destruct Heq as (sh, Hq).
+exists sh.
+split; [ assumption | idtac ].
+rewrite <- Hq.
+rewrite Zplus_minus; reflexivity.
+Qed.
+
 (* *)
 
 Fixpoint loop_is_poly_in_xq q m cl :=
@@ -1256,12 +1282,12 @@ Lemma zzz : ∀ pol ns cpol j αj,
       → ∃ m mj, αj == mj # m
         ∧ ∃ p q, Z.gcd p ('q) = 1
           ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-             → ∃ mh, αh == mh # m ∧ (' q | h - j))
+             → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
           ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
 intros pol ns cpol j αj Hns Hcpol Hj.
 remember Hns as H; clear HeqH.
-eapply q_is_factor_of_h_minus_j in H; try eassumption.
+eapply h_is_j_plus_sq in H; try eassumption.
 destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, Hmh)))))).
 exists m, mj.
 split; [ assumption | idtac ].
@@ -1286,6 +1312,7 @@ rewrite <- Hj in Hini; simpl in Hini.
 unfold Qnat in Hini.
 unfold inject_Z in Hini.
 injection Hini; clear Hini; intros; subst jz.
+rewrite <- Hj; simpl.
 bbb.
 
 (*
