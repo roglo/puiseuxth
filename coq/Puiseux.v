@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.904 2013-07-10 01:43:25 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.905 2013-07-10 06:10:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1228,47 +1228,38 @@ rewrite <- Heq.
 apply Z.divide_factor_l.
 Qed.
 
-Fixpoint list_rep α (v : α) len :=
-  match len with
-  | 0%nat => []
-  | S len₁ => [v … list_rep v len₁]
-  end.
-
 (* *)
 
-(* zzz is wrong: characteristic_polynomial had still x^j divided *)
-Lemma zzz : ∀ pol ns j αj polj,
+Definition is_polynomial_in_x_power_q cpol q :=
+  let fix loop m cl :=
+    match cl with
+    | [] =>
+        match m with
+        | 0%nat => True
+        | S m₁ => False
+        end
+    | [c₁ … cl₁] =>
+        match m with
+        | 0%nat => loop (q - 1)%nat cl₁
+        | S m₁ =>
+            if fld_eq fld c₁ (zero fld) then loop m₁ cl₁
+            else False
+        end
+    end
+  in
+  loop (q - 1)%nat (al cpol).
+
+Lemma zzz : ∀ pol ns cpol j αj,
   ns ∈ newton_segments fld pol
-  → (Qnat j, αj) = ini_pt ns
-    → polj = {| al := list_rep (zero fld) j; an := one fld |}
-      → Pdivide fld polj (characteristic_polynomial fld pol ns).
+  → cpol = characteristic_polynomial fld pol ns
+    → (inject_Z j, αj) = ini_pt ns
+      → ∃ m mj, αj == mj # m
+        ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+             → ∃ mh, αh == mh # m ∧ (' q | h - j))
+          ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
-bbb.
-intros pol ns j αj polj Hns Hj Hpolj.
-remember Hns as H; clear HeqH.
-eapply q_is_factor_of_h_minus_j in H; [ idtac | eassumption ].
-destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
-remember (characteristic_polynomial fld pol ns) as cpol.
-exists {| al := List.skipn j (al cpol); an := an cpol |}.
-subst polj.
-unfold characteristic_polynomial in Heqcpol.
-simpl in Heqcpol.
-rewrite <- Hj in Heqcpol; simpl in Heqcpol.
-unfold nofq in Heqcpol.
-simpl in Heqcpol.
-rewrite Nat2Z.id in Heqcpol.
-remember (fin_pt ns) as kk.
-destruct kk as (kk, αk).
-simpl in Heqcpol.
-remember Hns as Hk; clear HeqHk.
-apply ini_fin_ns_in_init_pts in Hk.
-destruct Hk as (_, Hk).
-eapply pt_absc_is_nat in Hk; [ idtac | reflexivity ].
-destruct Hk as (k, Hk).
-rewrite <- Heqkk in Hk; simpl in Hk.
-subst kk.
-simpl in Heqcpol.
-rewrite Nat2Z.id in Heqcpol.
+intros pol ns cpol j αj Hns Hcpol Hj.
 bbb.
 
 (*
