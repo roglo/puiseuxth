@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.906 2013-07-10 08:39:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.907 2013-07-10 09:06:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1230,24 +1230,24 @@ Qed.
 
 (* *)
 
+Fixpoint loop_is_poly_in_xq q m cl :=
+  match cl with
+  | [] =>
+      match m with
+      | 0%nat => True
+      | S m₁ => False
+      end
+  | [c₁ … cl₁] =>
+      match m with
+      | 0%nat => loop_is_poly_in_xq q (q - 1)%nat cl₁
+      | S m₁ =>
+          if fld_eq fld c₁ (zero fld) then loop_is_poly_in_xq q m₁ cl₁
+          else False
+      end
+  end.
+
 Definition is_polynomial_in_x_power_q cpol q :=
-  let fix loop m cl :=
-    match cl with
-    | [] =>
-        match m with
-        | 0%nat => True
-        | S m₁ => False
-        end
-    | [c₁ … cl₁] =>
-        match m with
-        | 0%nat => loop (q - 1)%nat cl₁
-        | S m₁ =>
-            if fld_eq fld c₁ (zero fld) then loop m₁ cl₁
-            else False
-        end
-    end
-  in
-  loop (q - 1)%nat (al cpol).
+  loop_is_poly_in_xq q (q - 1)%nat (al cpol).
 
 Lemma zzz : ∀ pol ns cpol j αj,
   ns ∈ newton_segments fld pol
@@ -1260,13 +1260,32 @@ Lemma zzz : ∀ pol ns cpol j αj,
           ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
 intros pol ns cpol j αj Hns Hcpol Hj.
-eapply q_is_factor_of_h_minus_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
+remember Hns as H; clear HeqH.
+eapply q_is_factor_of_h_minus_j in H; try eassumption.
+destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, Hmh)))))).
 exists m, mj.
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
+unfold is_polynomial_in_x_power_q.
+subst cpol.
+unfold characteristic_polynomial; simpl.
+remember Hns as H; clear HeqH.
+apply ini_fin_ns_in_init_pts in H.
+destruct H as (Hini, Hfin).
+eapply pt_absc_is_nat in Hini; [ idtac | reflexivity ].
+eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
+rename j into jz.
+destruct Hini as (j, Hini).
+destruct Hfin as (k, Hfin).
+rewrite Hini, Hfin.
+unfold nofq; simpl.
+do 2 rewrite Nat2Z.id.
+rewrite <- Hj in Hini; simpl in Hini.
+unfold Qnat in Hini.
+unfold inject_Z in Hini.
+injection Hini; clear Hini; intros; subst jz.
 bbb.
 
 (*
