@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.905 2013-07-10 06:10:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.906 2013-07-10 08:39:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1260,6 +1260,13 @@ Lemma zzz : ∀ pol ns cpol j αj,
           ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
 intros pol ns cpol j αj Hns Hcpol Hj.
+eapply q_is_factor_of_h_minus_j in Hns; try eassumption.
+destruct Hns as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
+exists m, mj.
+split; [ assumption | idtac ].
+exists p, q.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
 bbb.
 
 (*
