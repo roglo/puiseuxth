@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.903 2013-07-10 00:20:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.904 2013-07-10 01:43:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1236,21 +1236,39 @@ Fixpoint list_rep α (v : α) len :=
 
 (* *)
 
+(* zzz is wrong: characteristic_polynomial had still x^j divided *)
 Lemma zzz : ∀ pol ns j αj polj,
   ns ∈ newton_segments fld pol
   → (Qnat j, αj) = ini_pt ns
     → polj = {| al := list_rep (zero fld) j; an := one fld |}
       → Pdivide fld polj (characteristic_polynomial fld pol ns).
 Proof.
+bbb.
 intros pol ns j αj polj Hns Hj Hpolj.
 remember Hns as H; clear HeqH.
 eapply q_is_factor_of_h_minus_j in H; [ idtac | eassumption ].
 destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
 remember (characteristic_polynomial fld pol ns) as cpol.
 exists {| al := List.skipn j (al cpol); an := an cpol |}.
+subst polj.
 unfold characteristic_polynomial in Heqcpol.
-subst cpol; simpl.
-rewrite <- Hj; simpl.
+simpl in Heqcpol.
+rewrite <- Hj in Heqcpol; simpl in Heqcpol.
+unfold nofq in Heqcpol.
+simpl in Heqcpol.
+rewrite Nat2Z.id in Heqcpol.
+remember (fin_pt ns) as kk.
+destruct kk as (kk, αk).
+simpl in Heqcpol.
+remember Hns as Hk; clear HeqHk.
+apply ini_fin_ns_in_init_pts in Hk.
+destruct Hk as (_, Hk).
+eapply pt_absc_is_nat in Hk; [ idtac | reflexivity ].
+destruct Hk as (k, Hk).
+rewrite <- Heqkk in Hk; simpl in Hk.
+subst kk.
+simpl in Heqcpol.
+rewrite Nat2Z.id in Heqcpol.
 bbb.
 
 (*
