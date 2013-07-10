@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.902 2013-07-10 00:06:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.903 2013-07-10 00:20:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1250,6 +1250,7 @@ remember (characteristic_polynomial fld pol ns) as cpol.
 exists {| al := List.skipn j (al cpol); an := an cpol |}.
 unfold characteristic_polynomial in Heqcpol.
 subst cpol; simpl.
+rewrite <- Hj; simpl.
 bbb.
 
 (*
