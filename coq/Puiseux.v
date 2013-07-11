@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.912 2013-07-11 16:17:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.913 2013-07-11 16:38:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1273,6 +1273,17 @@ Fixpoint loop_is_poly_in_xq q m cl :=
 Definition is_polynomial_in_x_power_q cpol q :=
   loop_is_poly_in_xq q (pred q) (al cpol).
 
+Lemma loop_m_zero : ∀ q cl,
+  loop_is_poly_in_xq q 0 cl =
+  match cl with
+  | [] => True
+  | [c₁ … cl₁] => loop_is_poly_in_xq q (pred q) cl₁
+  end.
+Proof.
+intros q cl.
+destruct cl; reflexivity.
+Qed.
+
 Lemma zzz : ∀ pol ns cpol j αj,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
@@ -1312,7 +1323,16 @@ unfold inject_Z in Hini.
 injection Hini; clear Hini; intros; subst jz.
 rewrite minus_diag; simpl.
 remember (Pos.to_nat q)%nat as qq.
+remember (List.map (term_of_point fld pol) (oth_pts ns)) as tl.
+remember (make_char_pol fld (S j) tl k) as cpol.
 destruct qq; simpl.
+ clear.
+ induction cpol; [ reflexivity | assumption ].
+
+ induction qq; simpl.
+  clear.
+  induction cpol; [ reflexivity | assumption ].
+
 bbb.
 
 (*
