@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.908 2013-07-10 21:13:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.909 2013-07-11 09:38:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -116,9 +116,8 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol fld j dcl (k - j) in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff fld kps |}.
+  {| al := make_char_pol fld j dcl (k - j); an := valuation_coeff fld kps |}.
 
 Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments (ac_field acf) pol in
@@ -1313,6 +1312,10 @@ unfold Qnat in Hini.
 unfold inject_Z in Hini.
 injection Hini; clear Hini; intros; subst jz.
 rewrite <- Hj; simpl.
+remember (deg_coeff_of_point fld pol (inject_Z (Z.of_nat j), αj)) as x.
+unfold deg_coeff_of_point in Heqx; simpl in Heqx; subst x.
+unfold nofq; simpl.
+rewrite Nat2Z.id.
 bbb.
 
 (*
