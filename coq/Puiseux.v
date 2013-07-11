@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.914 2013-07-11 17:34:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.915 2013-07-11 18:45:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1255,6 +1255,21 @@ Qed.
 (* *)
 
 Fixpoint loop_is_poly_in_xq q m cl :=
+  match cl with
+  | [] =>
+      match m with
+      | O => True
+      | S _ => False
+      end
+  | [c₁ … cl₁] =>
+      match m with
+      | O => loop_is_poly_in_xq q (pred q) cl₁
+      | S m₁ =>
+          if fld_eq fld c₁ (zero fld) then loop_is_poly_in_xq q m₁ cl₁
+          else False
+      end
+  end.
+(*
   match m with
   | O =>
       match cl with
@@ -1269,6 +1284,7 @@ Fixpoint loop_is_poly_in_xq q m cl :=
           else False
       end
   end.
+*)
 
 Definition is_polynomial_in_x_power_q cpol q :=
   loop_is_poly_in_xq q (pred q) (al cpol).
