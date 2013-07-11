@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.910 2013-07-11 14:45:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.911 2013-07-11 15:18:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -91,19 +91,19 @@ Record algeb_closed_field α :=
 
 Definition nofq q := Z.to_nat (Qnum q).
 
-Fixpoint make_char_pol α (fld : field α) pow tl n :=
+Fixpoint list_pad α n (zero : α) rem :=
   match n with
-  | O => []
-  | S n₁ =>
-      match tl with
-      | [] =>
-          [zero fld … make_char_pol fld (S pow) [] n₁]
-      | [t … tl₁] =>
-          if eq_nat_dec (power t) pow then
-            [coeff t … make_char_pol fld (S pow) tl₁ n₁]
-          else
-            [zero fld … make_char_pol fld (S pow) tl n₁]
-      end
+  | O => rem
+  | S n₁ => [zero … list_pad n₁ zero rem]
+  end.
+
+Fixpoint make_char_pol α (fld : field α) pow tl k :=
+  match tl with
+  | [] =>
+      list_pad (k - pow) (zero fld) []
+  | [t₁ … tl₁] =>
+      list_pad (power t₁ - pow) (zero fld)
+        [coeff t₁ … make_char_pol fld (S (power t₁)) tl₁ k]
     end.
 
 Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
@@ -113,11 +113,11 @@ Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
   {| coeff := c; power := h |}.
 
 Definition characteristic_polynomial α (fld : field α) pol ns :=
-  let dcl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
+  let tl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := make_char_pol fld j dcl (k - j); an := valuation_coeff fld kps |}.
+  {| al := make_char_pol fld j tl k; an := valuation_coeff fld kps |}.
 
 Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments (ac_field acf) pol in
@@ -596,9 +596,8 @@ destruct kj; simpl.
  apply NPeano.Nat.sub_gt in Hns.
  symmetry in Heqkj; contradiction.
 
- rewrite <- Heqj.
- destruct (eq_nat_dec j j) as [| H]; [ apply le_n_S, le_0_n | idtac ].
- exfalso; apply H; reflexivity.
+ rewrite minus_diag; simpl.
+ apply le_n_S, le_0_n.
 Qed.
 
 Lemma exists_root : ∀ (pol : puis_ser_pol α) cpol ns,
@@ -1311,11 +1310,7 @@ rewrite <- Hj in Hini; simpl in Hini.
 unfold Qnat in Hini.
 unfold inject_Z in Hini.
 injection Hini; clear Hini; intros; subst jz.
-rewrite <- Hj; simpl.
-remember (deg_coeff_of_point fld pol (inject_Z (Z.of_nat j), αj)) as x.
-unfold deg_coeff_of_point in Heqx; simpl in Heqx; subst x.
-unfold nofq; simpl.
-rewrite Nat2Z.id.
+rewrite minus_diag; simpl.
 bbb.
 
 (*

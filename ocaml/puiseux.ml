@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.397 2013-07-11 14:43:02 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.398 2013-07-11 15:18:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -294,19 +294,19 @@ Fixpoint list_nth n l default :=
            end
   end.
 
-Fixpoint make_char_pol α (fld : field α) pow tl n :=
+Fixpoint list_pad α n (zero : α) rem :=
   match n with
-  | O => []
-  | S n₁ =>
-      match tl with
-      | [] =>
-          [zero fld … make_char_pol fld (S pow) [] n₁]
-      | [t … tl₁] =>
-          if eq_nat_dec (power t) pow then
-            [coeff t … make_char_pol fld (S pow) tl₁ n₁]
-          else
-            [zero fld … make_char_pol fld (S pow) tl n₁]
-      end
+  | O => rem
+  | S n₁ => [zero … list_pad n₁ zero rem]
+  end.
+
+Fixpoint make_char_pol α (fld : field α) pow tl k :=
+  match tl with
+  | [] =>
+      list_pad (k - pow) (zero fld) []
+  | [t₁ … tl₁] =>
+      list_pad (power t₁ - pow) (zero fld)
+        [coeff t₁ … make_char_pol fld (S (power t₁)) tl₁ k]
     end.
 
 Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
@@ -316,11 +316,11 @@ Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
   {| coeff := c; power := h |}.
 
 Definition characteristic_polynomial α (fld : field α) pol ns :=
-  let dcl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
+  let tl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := make_char_pol fld j dcl (k - j); an := valuation_coeff fld kps |}.
+  {| al := make_char_pol fld j tl k; an := valuation_coeff fld kps |}.
 
 Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments (ac_field acf) pol in
