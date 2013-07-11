@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.395 2013-07-07 07:01:43 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.396 2013-07-11 08:50:16 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -319,9 +319,8 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let cl := make_char_pol fld j dcl (k - j) in
   let kps := list_nth k (al pol) (an pol) in
-  {| al := cl; an := valuation_coeff fld kps |}.
+  {| al := make_char_pol fld j dcl (k - j); an := valuation_coeff fld kps |}.
 
 Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments (ac_field acf) pol in
