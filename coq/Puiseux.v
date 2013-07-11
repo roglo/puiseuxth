@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.911 2013-07-11 15:18:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.912 2013-07-11 16:17:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1255,23 +1255,23 @@ Qed.
 (* *)
 
 Fixpoint loop_is_poly_in_xq q m cl :=
-  match cl with
-  | [] =>
-      match m with
-      | 0%nat => True
-      | S m₁ => False
+  match m with
+  | O =>
+      match cl with
+      | [] => True
+      | [c₁ … cl₁] => loop_is_poly_in_xq q (pred q) cl₁
       end
-  | [c₁ … cl₁] =>
-      match m with
-      | 0%nat => loop_is_poly_in_xq q (q - 1)%nat cl₁
-      | S m₁ =>
+  | S m₁ =>
+      match cl with
+      | [] => False
+      | [c₁ … cl₁] =>
           if fld_eq fld c₁ (zero fld) then loop_is_poly_in_xq q m₁ cl₁
           else False
       end
   end.
 
 Definition is_polynomial_in_x_power_q cpol q :=
-  loop_is_poly_in_xq q (q - 1)%nat (al cpol).
+  loop_is_poly_in_xq q (pred q) (al cpol).
 
 Lemma zzz : ∀ pol ns cpol j αj,
   ns ∈ newton_segments fld pol
@@ -1292,9 +1292,6 @@ split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
-unfold is_polynomial_in_x_power_q.
-subst cpol.
-unfold characteristic_polynomial; simpl.
 remember Hns as H; clear HeqH.
 apply ini_fin_ns_in_init_pts in H.
 destruct H as (Hini, Hfin).
@@ -1303,6 +1300,9 @@ eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
 rename j into jz.
 destruct Hini as (j, Hini).
 destruct Hfin as (k, Hfin).
+unfold is_polynomial_in_x_power_q.
+subst cpol.
+unfold characteristic_polynomial; simpl.
 rewrite Hini, Hfin.
 unfold nofq; simpl.
 do 2 rewrite Nat2Z.id.
@@ -1311,6 +1311,8 @@ unfold Qnat in Hini.
 unfold inject_Z in Hini.
 injection Hini; clear Hini; intros; subst jz.
 rewrite minus_diag; simpl.
+remember (Pos.to_nat q)%nat as qq.
+destruct qq; simpl.
 bbb.
 
 (*
