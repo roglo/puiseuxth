@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.913 2013-07-11 16:38:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.914 2013-07-11 17:34:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1321,17 +1321,13 @@ rewrite <- Hj in Hini; simpl in Hini.
 unfold Qnat in Hini.
 unfold inject_Z in Hini.
 injection Hini; clear Hini; intros; subst jz.
-rewrite minus_diag; simpl.
 remember (Pos.to_nat q)%nat as qq.
 remember (List.map (term_of_point fld pol) (oth_pts ns)) as tl.
 remember (make_char_pol fld (S j) tl k) as cpol.
 destruct qq; simpl.
  clear.
+ rewrite minus_diag; simpl.
  induction cpol; [ reflexivity | assumption ].
-
- induction qq; simpl.
-  clear.
-  induction cpol; [ reflexivity | assumption ].
 
 bbb.
 
