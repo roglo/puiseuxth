@@ -1,4 +1,4 @@
-(* $Id: poly_tree.ml,v 1.98 2013-06-29 02:06:08 deraugla Exp $ *)
+(* $Id: poly_tree.ml,v 1.99 2013-07-11 14:43:02 deraugla Exp $ *)
 
 #load "q_MLast.cmo";
 #load "pa_macro.cmo";
@@ -29,7 +29,7 @@ type tree α =
 
 type term_descr α = { const : α; xpow : Q.t; ypow : int };
 
-type old_ps α = { old_ps_mon : list (term α) };
+type old_ps α = { old_ps_mon : list (term α Q.t) };
 
 value ops2ps ops =
   let terms =

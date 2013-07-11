@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.909 2013-07-11 09:38:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.910 2013-07-11 14:45:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,7 +28,7 @@ Require Import InSegment.
 Set Implicit Arguments.
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
-Record term α := { coeff : α; power : Q }.
+Record term α β := { coeff : α; power : β }.
 
 (* *)
 
@@ -91,29 +91,29 @@ Record algeb_closed_field α :=
 
 Definition nofq q := Z.to_nat (Qnum q).
 
-Fixpoint make_char_pol α (fld : field α) cdeg dcl n :=
+Fixpoint make_char_pol α (fld : field α) pow tl n :=
   match n with
   | O => []
   | S n₁ =>
-      match dcl with
+      match tl with
       | [] =>
-          [zero fld … make_char_pol fld (S cdeg) [] n₁]
-      | [(deg, coeff) … dcl₁] =>
-          if eq_nat_dec deg cdeg then
-            [coeff … make_char_pol fld (S cdeg) dcl₁ n₁]
+          [zero fld … make_char_pol fld (S pow) [] n₁]
+      | [t … tl₁] =>
+          if eq_nat_dec (power t) pow then
+            [coeff t … make_char_pol fld (S pow) tl₁ n₁]
           else
-            [zero fld … make_char_pol fld (S cdeg) dcl n₁]
+            [zero fld … make_char_pol fld (S pow) tl n₁]
       end
     end.
 
-Definition deg_coeff_of_point α (fld : field α) pol (pt : (Q * Q)) :=
+Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h (al pol) (an pol) in
   let c := valuation_coeff fld ps in
-  (h, c).
+  {| coeff := c; power := h |}.
 
 Definition characteristic_polynomial α (fld : field α) pol ns :=
-  let dcl := List.map (deg_coeff_of_point fld pol) [ini_pt ns … oth_pts ns] in
+  let dcl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let kps := List.nth k (al pol) (an pol) in
@@ -148,7 +148,7 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Fixpoint puiseux_comden α n cd (s : series (term α)) :=
+Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
   match n with
   | O => cd
   | S n₁ =>

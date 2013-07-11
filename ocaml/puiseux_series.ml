@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.195 2013-07-02 08:54:45 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.196 2013-07-11 14:43:02 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -144,7 +144,7 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
 
 (* *)
 
-Record term α := { coeff : α; power : Q }.
+Record term α β := { coeff : α; power : β }.
 
 CoFixpoint complete α (zero : α) cd p s :=
   match s with
