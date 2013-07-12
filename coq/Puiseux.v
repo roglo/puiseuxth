@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.925 2013-07-12 18:52:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.926 2013-07-12 19:24:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1355,6 +1355,7 @@ Lemma zzz : ∀ pol ns cpol j αj k αk,
       → (inject_Z k, αk) = fin_pt ns
         → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
+            ∧ (∃ sk, k = j + sk * 'q)
             ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
                → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
             ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
@@ -1362,11 +1363,12 @@ Proof.
 intros pol ns cpol j αj k αk Hns Hcpol Hj Hk.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
-destruct H as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, Hmh)))))))).
+destruct H as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, Hmh))))))))).
 exists m, mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
+split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 remember Hns as H; clear HeqH.
@@ -1409,6 +1411,7 @@ destruct qq; simpl.
   constructor.
   subst cpol.
   induction tl as [| t]; simpl.
+   destruct Hqjk as (sk, Hqjk).
 
 bbb.
 
