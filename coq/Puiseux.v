@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.922 2013-07-12 12:02:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.923 2013-07-12 18:07:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1177,6 +1177,108 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   symmetry in Hjn.
   apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
    destruct Hjn as (jn, Hjn); simpl in Hjn.
+   remember Hpts as Hkn; clear HeqHkn.
+   symmetry in Hkn.
+   apply pt_absc_is_nat with (pt := (kq, αk)) in Hkn.
+    destruct Hkn as (kn, Hkn); simpl in Hkn.
+    split.
+     remember Hns as Hgh; clear HeqHgh.
+     eapply gamma_value_jk in Hgh; try eassumption.
+     apply eq_Qeq in Hgh.
+     rewrite Hmj, Hmk in Hgh.
+     rewrite <- Qnum_minus_distr_r in Hgh.
+     rewrite Heqjq, Heqkq in Hgh.
+     rewrite Hgamma in Hgh.
+     unfold inject_Z in Hgh.
+     rewrite <- Qnum_minus_distr_r in Hgh.
+     eapply pmq_qmpm; try eassumption.
+      eapply j_lt_k; try eassumption; reflexivity.
+
+      unfold nofq.
+      rewrite <- Hj; simpl.
+      rewrite Z2Nat.id; [ rewrite Heqjq; reflexivity | idtac ].
+      rewrite Hjn; simpl.
+      apply Zle_0_nat.
+
+      unfold nofq.
+      rewrite <- Hk; simpl.
+      rewrite Z2Nat.id; [ rewrite Heqkq; reflexivity | idtac ].
+      rewrite Hkn; simpl.
+      apply Zle_0_nat.
+
+     intros h αh Hh.
+     remember (inject_Z h) as hq.
+     remember Hpts as Hhn; clear HeqHhn.
+     symmetry in Hhn.
+     apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
+      destruct Hhn as (hn, Hhn); simpl in Hhn.
+      remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
+      eapply in_pts_in_pol in Heqhps; try eassumption.
+       2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
+       2: rewrite Hpts; eassumption.
+
+       destruct Heqhps as (Hhps, Hhv).
+       eapply power_num_of_new_comden in Hhps; try eassumption.
+       destruct Hhps as (mh, Hmh).
+       exists mh.
+       split; [ assumption | idtac ].
+       remember Hns as Hgh; clear HeqHgh.
+       eapply gamma_value_jh in Hgh; try eassumption.
+       rewrite Hmj, Hmh in Hgh.
+       rewrite <- Qnum_minus_distr_r in Hgh.
+       rewrite Hgamma in Hgh.
+       unfold inject_Z in Hgh.
+       eapply pmq_qmpm; try eassumption.
+        eapply j_lt_h; eassumption.
+bbb.
+
+
+intros pol ns j αj k αk Hns Hj Hk.
+remember (series_list_common_denominator (al pol ++ [an pol])) as m.
+exists m.
+remember Heqm as Hm; clear HeqHm.
+eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
+destruct Heqm as (p, (q, (Hgamma, Hgcd))).
+remember (points_of_ps_polynom fld pol) as pts.
+rename Heqpts into Hpts.
+remember (al pol ++ [an pol]) as psl.
+remember (List.nth (Z.to_nat (Qnum (inject_Z j))) psl (an pol)) as jps.
+eapply in_pts_in_pol in Heqjps; try eassumption.
+ 2: apply ini_fin_ns_in_init_pts in Hns.
+ 2: destruct Hns as (Hns, _).
+ 2: rewrite <- Hj, <- Hpts in Hns.
+ 2: eassumption.
+
+ destruct Heqjps as (Hmj, Hjv).
+ eapply power_num_of_new_comden in Hmj; try eassumption.
+ destruct Hmj as (mj, Hmj).
+ exists mj.
+ remember (List.nth (Z.to_nat (Qnum (inject_Z k))) psl (an pol)) as kps.
+ eapply in_pts_in_pol in Heqkps; try eassumption.
+  2: apply ini_fin_ns_in_init_pts in Hns.
+  2: destruct Hns as (_, Hns).
+  2: rewrite <- Hk, <- Hpts in Hns.
+  2: eassumption.
+
+  destruct Heqkps as (Hmk, Hkv).
+  eapply power_num_of_new_comden in Hmk; try eassumption.
+  destruct Hmk as (mk, Hmk).
+  exists mk.
+  split; [ assumption | idtac ].
+  split; [ assumption | idtac ].
+  exists p, q.
+  split; [ assumption | idtac ].
+  remember (inject_Z j) as jq.
+  remember (inject_Z k) as kq.
+  remember Hpts as Hjn; clear HeqHjn.
+  symmetry in Hjn.
+  apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
+   destruct Hjn as (jn, Hjn); simpl in Hjn.
+
+  remember Hpts as Hkn; clear HeqHkn.
+  symmetry in Hkn.
+  apply pt_absc_is_nat with (pt := (kq, αk)) in Hkn.
+   destruct Hkn as (kn, Hkn); simpl in Hkn.
    split.
     remember Hns as Hgh; clear HeqHgh.
     eapply gamma_value_jk in Hgh; try eassumption.
@@ -1191,9 +1293,16 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
      eapply j_lt_k; try eassumption; reflexivity.
 
      unfold nofq.
-     rewrite <- Hj, Hjn; simpl.
-     rewrite Nat2Z.id.
-bbb.
+     rewrite <- Hj; simpl.
+     rewrite Z2Nat.id; [ rewrite Heqjq; reflexivity | idtac ].
+     rewrite Hjn; simpl.
+     apply Zle_0_nat.
+
+     unfold nofq.
+     rewrite <- Hk; simpl.
+     rewrite Z2Nat.id; [ rewrite Heqkq; reflexivity | idtac ].
+     rewrite Hkn; simpl.
+     apply Zle_0_nat.
 
    intros h αh Hh.
    remember (inject_Z h) as hq.
@@ -1206,18 +1315,20 @@ bbb.
      2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
      2: rewrite Hpts; eassumption.
 
-     destruct Heqhps as (Hhps, Hhv).
-     eapply power_num_of_new_comden in Hhps; try eassumption.
-     destruct Hhps as (mh, Hmh).
-     exists mh.
-     split; [ assumption | idtac ].
-     remember Hns as Hgh; clear HeqHgh.
-     eapply gamma_value_jh in Hgh; try eassumption.
-     rewrite Hmj, Hmh in Hgh.
-(*2*)
-     rewrite <- Qnum_minus_distr_r in Hgh.
-     rewrite Hgamma in Hgh.
-     unfold inject_Z in Hgh.
+       destruct Heqhps as (Hhps, Hhv).
+       eapply power_num_of_new_comden in Hhps; try eassumption.
+       destruct Hhps as (mh, Hmh).
+       exists mh.
+       split; [ assumption | idtac ].
+       remember Hns as Hgh; clear HeqHgh.
+       eapply gamma_value_jh in Hgh; try eassumption.
+       rewrite Hmj, Hmh in Hgh.
+       rewrite <- Qnum_minus_distr_r in Hgh.
+       rewrite Hgamma in Hgh.
+       unfold inject_Z in Hgh.
+       eapply pmq_qmpm; try eassumption.
+        eapply j_lt_h; eassumption.
+bbb.
      unfold Qeq in Hgh; simpl in Hgh.
      do 2 rewrite Pos2Z.inj_mul in Hgh.
      rewrite Zmult_comm in Hgh; symmetry in Hgh.
