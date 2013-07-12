@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.918 2013-07-12 02:14:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.919 2013-07-12 02:32:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1143,11 +1143,12 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   split; [ assumption | idtac ].
   exists p, q.
   split; [ assumption | idtac ].
+  remember (inject_Z j) as jq.
+  remember (inject_Z k) as kq.
   split.
 bbb.
 
   intros h αh Hh.
-  remember (inject_Z j) as jq.
   remember (inject_Z h) as hq.
   remember Hpts as Hjn; clear HeqHjn.
   symmetry in Hjn.
