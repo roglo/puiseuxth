@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.915 2013-07-11 18:45:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.916 2013-07-12 00:28:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1254,51 +1254,19 @@ Qed.
 
 (* *)
 
-Fixpoint loop_is_poly_in_xq q m cl :=
-  match cl with
-  | [] =>
-      match m with
-      | O => True
-      | S _ => False
-      end
-  | [c₁ … cl₁] =>
-      match m with
-      | O => loop_is_poly_in_xq q (pred q) cl₁
-      | S m₁ =>
-          if fld_eq fld c₁ (zero fld) then loop_is_poly_in_xq q m₁ cl₁
-          else False
-      end
-  end.
-(*
-  match m with
-  | O =>
-      match cl with
-      | [] => True
-      | [c₁ … cl₁] => loop_is_poly_in_xq q (pred q) cl₁
-      end
-  | S m₁ =>
-      match cl with
-      | [] => False
-      | [c₁ … cl₁] =>
-          if fld_eq fld c₁ (zero fld) then loop_is_poly_in_xq q m₁ cl₁
-          else False
-      end
-  end.
-*)
+Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
+  | px_nil : ∀ q, poly_in_x_pow_q 0 (S q) []
+  | px_0_cons : ∀ q c cl,
+      poly_in_x_pow_q q (S q) cl
+      → poly_in_x_pow_q 0 (S q) [c … cl]
+  | px_Sm_cons : ∀ q c cl m,
+      fld_eq fld c (zero fld) = true
+      → m ≤ q
+        → poly_in_x_pow_q m (S q) cl
+          → poly_in_x_pow_q (S m) (S q) [c … cl].
 
 Definition is_polynomial_in_x_power_q cpol q :=
-  loop_is_poly_in_xq q (pred q) (al cpol).
-
-Lemma loop_m_zero : ∀ q cl,
-  loop_is_poly_in_xq q 0 cl =
-  match cl with
-  | [] => True
-  | [c₁ … cl₁] => loop_is_poly_in_xq q (pred q) cl₁
-  end.
-Proof.
-intros q cl.
-destruct cl; reflexivity.
-Qed.
+  poly_in_x_pow_q (pred q) q (al cpol).
 
 Lemma zzz : ∀ pol ns cpol j αj,
   ns ∈ newton_segments fld pol
@@ -1341,9 +1309,14 @@ remember (Pos.to_nat q)%nat as qq.
 remember (List.map (term_of_point fld pol) (oth_pts ns)) as tl.
 remember (make_char_pol fld (S j) tl k) as cpol.
 destruct qq; simpl.
- clear.
+ pose proof (Pos2Nat.is_pos q) as H.
+ rewrite <- Heqqq in H.
+ apply lt_irrefl in H; contradiction.
+
  rewrite minus_diag; simpl.
- induction cpol; [ reflexivity | assumption ].
+ destruct qq.
+  constructor.
+  subst cpol.
 
 bbb.
 
