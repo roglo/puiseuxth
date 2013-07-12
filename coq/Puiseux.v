@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.924 2013-07-12 18:32:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.925 2013-07-12 18:52:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1267,27 +1267,34 @@ Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk,
     → (inject_Z k, αk) = fin_pt ns
       → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
         ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ ('q | k - j)
           ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
             → ∃ mh, αh == mh # m
               ∧ (' q | h - j).
 Proof.
 intros pol ns j αj k αk Hns Hj Hk.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, H)))))))).
+destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H))))))))).
 exists m, mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
-intros h αh Hm.
-apply H in Hm.
-destruct Hm as (mh, (Hmh, Heq)).
-exists mh.
-split; [ assumption | idtac ].
-rewrite Z.gcd_comm in Hgcd.
-eapply Z.gauss; [ idtac | eassumption ].
-rewrite <- Heq.
-apply Z.divide_factor_l.
+split.
+ rewrite Z.gcd_comm in Hgcd.
+ eapply Z.gauss; [ idtac | eassumption ].
+ rewrite <- Hqjk.
+ apply Z.divide_factor_l.
+
+ intros h αh Hm.
+ apply H in Hm.
+ destruct Hm as (mh, (Hmh, Heq)).
+ exists mh.
+ split; [ assumption | idtac ].
+ rewrite Z.gcd_comm in Hgcd.
+ eapply Z.gauss; [ idtac | eassumption ].
+ rewrite <- Heq.
+ apply Z.divide_factor_l.
 Qed.
 
 Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk,
@@ -1296,26 +1303,33 @@ Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk,
     → (inject_Z k, αk) = fin_pt ns
       → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
         ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ (∃ sk, k = j + sk * 'q)
           ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
             → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
 Proof.
 intros pol ns j αj k αk Hns Hj Hk.
 eapply q_is_factor_of_h_minus_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, H)))))))).
+destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H))))))))).
 exists m, mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
-intros h αh Hm.
-apply H in Hm.
-destruct Hm as (mh, (Hmh, Heq)).
-exists mh.
-destruct Heq as (sh, Hq).
-exists sh.
-split; [ assumption | idtac ].
-rewrite <- Hq.
-rewrite Zplus_minus; reflexivity.
+split.
+ destruct Hqjk as (sk, Hqjk).
+ exists sk.
+ rewrite <- Hqjk.
+ rewrite Zplus_minus; reflexivity.
+
+ intros h αh Hm.
+ apply H in Hm.
+ destruct Hm as (mh, (Hmh, Heq)).
+ exists mh.
+ destruct Heq as (sh, Hq).
+ exists sh.
+ split; [ assumption | idtac ].
+ rewrite <- Hq.
+ rewrite Zplus_minus; reflexivity.
 Qed.
 
 (* *)
