@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.916 2013-07-12 00:28:08 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.917 2013-07-12 01:52:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1082,16 +1082,17 @@ Qed.
 
 Open Scope Z_scope.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj,
+Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
-    → ∃ m mj, αj == mj # m
-      ∧ ∃ p q, Z.gcd p ('q) = 1
-        ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-          → ∃ mh, αh == mh # m
-            ∧ 'q * (mj - mh) = p * (h - j).
+    → (inject_Z k, αk) = fin_pt ns
+      → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
+        ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+            → ∃ mh, αh == mh # m
+              ∧ 'q * (mj - mh) = p * (h - j).
 Proof.
-intros pol ns j αj Hns Hj.
+intros pol ns j αj k αk Hns Hj Hk.
 remember (series_list_common_denominator (al pol ++ [an pol])) as m.
 exists m.
 remember Heqm as Hm; clear HeqHm.
@@ -1111,65 +1112,88 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply power_num_of_new_comden in Hmj; try eassumption.
  destruct Hmj as (mj, Hmj).
  exists mj.
- split; [ assumption | idtac ].
- exists p, q.
- split; [ assumption | idtac ].
- intros h αh Hh.
- remember (inject_Z j) as jq.
- remember (inject_Z h) as hq.
- remember Hpts as Hjn; clear HeqHjn.
- symmetry in Hjn.
- apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
-  destruct Hjn as (jn, Hjn); simpl in Hjn.
-  remember Hpts as Hhn; clear HeqHhn.
-  symmetry in Hhn.
-  apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
-   destruct Hhn as (hn, Hhn); simpl in Hhn.
-   remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
-   eapply in_pts_in_pol in Heqhps; try eassumption.
-    2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
-    2: rewrite Hpts; eassumption.
+ remember (List.nth (Z.to_nat (Qnum (inject_Z k))) psl (an pol)) as kps.
+ eapply in_pts_in_pol in Heqkps; try eassumption.
+  2: apply ini_fin_ns_in_init_pts in Hns.
+  2: destruct Hns as (_, Hns).
+  2: rewrite <- Hk, <- Hpts in Hns.
+  2: eassumption.
 
-    destruct Heqhps as (Hhps, Hhv).
-    eapply power_num_of_new_comden in Hhps; try eassumption.
-    destruct Hhps as (mh, Hmh).
-    exists mh.
-    split; [ assumption | idtac ].
-    remember Hns as Hgh; clear HeqHgh.
-    eapply gamma_value_jh in Hgh; try eassumption.
-    rewrite Hmj, Hmh in Hgh.
-    rewrite <- Qnum_minus_distr_r in Hgh.
-    rewrite Hgamma in Hgh.
-    unfold inject_Z in Hgh.
-    unfold Qeq in Hgh; simpl in Hgh.
-    do 2 rewrite Pos2Z.inj_mul in Hgh.
-    rewrite Zmult_comm in Hgh; symmetry in Hgh.
-    rewrite Zmult_comm in Hgh; symmetry in Hgh.
-    do 2 rewrite <- Zmult_assoc in Hgh.
-    apply Z.mul_cancel_l in Hgh; [ idtac | apply Zpos_ne_0 ].
-    rewrite Zmult_assoc, Zmult_comm in Hgh.
-    rewrite Hjn, Hhn in Hgh.
-    rewrite Qden_inv in Hgh.
-     rewrite Qnum_inv in Hgh.
-      symmetry in Hgh.
-      rewrite Zmult_comm in Hgh.
-      symmetry in Hgh.
-      apply Z.div_unique_exact in Hgh; [ idtac | apply Zpos_ne_0 ].
-      rewrite Hgh.
-      rewrite Znumtheory.Zdivide_Zdiv_eq_2.
-       rewrite <- Hjn, <- Hhn, Heqjq, Heqhq; simpl.
-       do 2 rewrite Zmult_1_r.
-       rewrite Zdiv_1_r; reflexivity.
+  destruct Heqkps as (Hmk, Hkv).
+  eapply power_num_of_new_comden in Hmk; try eassumption.
+  destruct Hmk as (mk, Hmk).
+  exists mk.
+  split; [ assumption | idtac ].
+  split; [ assumption | idtac ].
+  exists p, q.
+  split; [ assumption | idtac ].
+  intros h αh Hh.
+  remember (inject_Z j) as jq.
+  remember (inject_Z h) as hq.
+  remember Hpts as Hjn; clear HeqHjn.
+  symmetry in Hjn.
+  apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
+   destruct Hjn as (jn, Hjn); simpl in Hjn.
+   remember Hpts as Hhn; clear HeqHhn.
+   symmetry in Hhn.
+   apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
+    destruct Hhn as (hn, Hhn); simpl in Hhn.
+    remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
+    eapply in_pts_in_pol in Heqhps; try eassumption.
+     2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
+     2: rewrite Hpts; eassumption.
 
-       apply Pos2Z.is_pos.
+     destruct Heqhps as (Hhps, Hhv).
+     eapply power_num_of_new_comden in Hhps; try eassumption.
+     destruct Hhps as (mh, Hmh).
+     exists mh.
+     split; [ assumption | idtac ].
+     remember Hns as Hgh; clear HeqHgh.
+     eapply gamma_value_jh in Hgh; try eassumption.
+     rewrite Hmj, Hmh in Hgh.
+     rewrite <- Qnum_minus_distr_r in Hgh.
+     rewrite Hgamma in Hgh.
+     unfold inject_Z in Hgh.
+     unfold Qeq in Hgh; simpl in Hgh.
+     do 2 rewrite Pos2Z.inj_mul in Hgh.
+     rewrite Zmult_comm in Hgh; symmetry in Hgh.
+     rewrite Zmult_comm in Hgh; symmetry in Hgh.
+     do 2 rewrite <- Zmult_assoc in Hgh.
+     apply Z.mul_cancel_l in Hgh; [ idtac | apply Zpos_ne_0 ].
+     rewrite Zmult_assoc, Zmult_comm in Hgh.
+     rewrite Hjn, Hhn in Hgh.
+     rewrite Qden_inv in Hgh.
+      rewrite Qnum_inv in Hgh.
+       symmetry in Hgh.
+       rewrite Zmult_comm in Hgh.
+       symmetry in Hgh.
+       apply Z.div_unique_exact in Hgh; [ idtac | apply Zpos_ne_0 ].
+       rewrite Hgh.
+       rewrite Znumtheory.Zdivide_Zdiv_eq_2.
+        rewrite <- Hjn, <- Hhn, Heqjq, Heqhq; simpl.
+        do 2 rewrite Zmult_1_r.
+        rewrite Zdiv_1_r; reflexivity.
 
-       rewrite Qden_nat_minus.
-       apply Z.divide_1_l.
+        apply Pos2Z.is_pos.
+
+        rewrite Qden_nat_minus.
+        apply Z.divide_1_l.
+
+       rewrite Qnum_nat_minus.
+        rewrite Nat2Z.inj_sub.
+         apply Z.lt_0_sub.
+         apply inj_lt.
+         eapply j_lt_h; eassumption.
+
+         apply lt_le_weak.
+         eapply j_lt_h; eassumption.
+
+        apply lt_le_weak.
+        eapply j_lt_h; eassumption.
 
       rewrite Qnum_nat_minus.
        rewrite Nat2Z.inj_sub.
-        apply Z.lt_0_sub.
-        apply inj_lt.
+        apply Z.lt_0_sub, inj_lt.
         eapply j_lt_h; eassumption.
 
         apply lt_le_weak.
@@ -1178,40 +1202,31 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
        apply lt_le_weak.
        eapply j_lt_h; eassumption.
 
-     rewrite Qnum_nat_minus.
-      rewrite Nat2Z.inj_sub.
-       apply Z.lt_0_sub, inj_lt.
-       eapply j_lt_h; eassumption.
-
-       apply lt_le_weak.
-       eapply j_lt_h; eassumption.
-
-      apply lt_le_weak.
-      eapply j_lt_h; eassumption.
+    unfold newton_segments in Hns.
+    rewrite <- Hpts in Hns.
+    eapply oth_pts_in_init_pts; eassumption.
 
    unfold newton_segments in Hns.
    rewrite <- Hpts in Hns.
-   eapply oth_pts_in_init_pts; eassumption.
-
-  unfold newton_segments in Hns.
-  rewrite <- Hpts in Hns.
-  rewrite Hj.
-  apply ini_fin_ns_in_init_pts; assumption.
+   rewrite Hj.
+   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj,
+Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
-    → ∃ m mj, αj == mj # m
-      ∧ ∃ p q, Z.gcd p ('q) = 1
-        ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-          → ∃ mh, αh == mh # m
-            ∧ (' q | h - j).
+    → (inject_Z k, αk) = fin_pt ns
+      → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
+        ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+            → ∃ mh, αh == mh # m
+              ∧ (' q | h - j).
 Proof.
-intros pol ns j αj Hns Hj.
+intros pol ns j αj k αk Hns Hj Hk.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
-exists m, mj.
+destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, H)))))))).
+exists m, mj, mk.
+split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
@@ -1226,18 +1241,20 @@ rewrite <- Heq.
 apply Z.divide_factor_l.
 Qed.
 
-Lemma h_is_j_plus_sq : ∀ pol ns j αj,
+Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
-    → ∃ m mj, αj == mj # m
-      ∧ ∃ p q, Z.gcd p ('q) = 1
-        ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-          → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
+    → (inject_Z k, αk) = fin_pt ns
+      → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
+        ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+            → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
 Proof.
-intros pol ns j αj Hns Hj.
+intros pol ns j αj k αk Hns Hj Hk.
 eapply q_is_factor_of_h_minus_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (Hmj, (p, (q, (Hgcd, H)))))).
-exists m, mj.
+destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, H)))))))).
+exists m, mj, mk.
+split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
@@ -1261,28 +1278,30 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
       → poly_in_x_pow_q 0 (S q) [c … cl]
   | px_Sm_cons : ∀ q c cl m,
       fld_eq fld c (zero fld) = true
-      → m ≤ q
+      → (m < q)%nat
         → poly_in_x_pow_q m (S q) cl
           → poly_in_x_pow_q (S m) (S q) [c … cl].
 
 Definition is_polynomial_in_x_power_q cpol q :=
-  poly_in_x_pow_q (pred q) q (al cpol).
+  poly_in_x_pow_q 0 q (al cpol).
 
-Lemma zzz : ∀ pol ns cpol j αj,
+Lemma zzz : ∀ pol ns cpol j αj k αk,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
     → (inject_Z j, αj) = ini_pt ns
-      → ∃ m mj, αj == mj # m
-        ∧ ∃ p q, Z.gcd p ('q) = 1
-          ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-             → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
-          ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
+      → (inject_Z k, αk) = fin_pt ns
+        → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
+          ∧ ∃ p q, Z.gcd p ('q) = 1
+            ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+               → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
+            ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
-intros pol ns cpol j αj Hns Hcpol Hj.
+intros pol ns cpol j αj k αk Hns Hcpol Hj Hk.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
-destruct H as (m, (mj, (Hmj, (p, (q, (Hgcd, Hmh)))))).
-exists m, mj.
+destruct H as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, Hmh)))))))).
+exists m, mj, mk.
+split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
@@ -1293,6 +1312,7 @@ destruct H as (Hini, Hfin).
 eapply pt_absc_is_nat in Hini; [ idtac | reflexivity ].
 eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
 rename j into jz.
+rename k into kz.
 destruct Hini as (j, Hini).
 destruct Hfin as (k, Hfin).
 unfold is_polynomial_in_x_power_q.
@@ -1302,9 +1322,11 @@ rewrite Hini, Hfin.
 unfold nofq; simpl.
 do 2 rewrite Nat2Z.id.
 rewrite <- Hj in Hini; simpl in Hini.
-unfold Qnat in Hini.
-unfold inject_Z in Hini.
+rewrite <- Hk in Hfin; simpl in Hfin.
+unfold Qnat in Hini, Hfin.
+unfold inject_Z in Hini, Hfin.
 injection Hini; clear Hini; intros; subst jz.
+injection Hfin; clear Hfin; intros; subst kz.
 remember (Pos.to_nat q)%nat as qq.
 remember (List.map (term_of_point fld pol) (oth_pts ns)) as tl.
 remember (make_char_pol fld (S j) tl k) as cpol.
@@ -1317,6 +1339,13 @@ destruct qq; simpl.
  destruct qq.
   constructor.
   subst cpol.
+  remember (make_char_pol fld (S j) tl k) as cl.
+  clear.
+  induction cl; constructor; assumption.
+
+  constructor.
+  subst cpol.
+  induction tl as [| t]; simpl.
 
 bbb.
 
