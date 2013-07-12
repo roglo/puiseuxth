@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.920 2013-07-12 09:15:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.921 2013-07-12 09:42:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -654,20 +654,19 @@ Qed.
 
 Lemma gamma_value_jk : ∀ hsl ns j k αj αk,
   ns ∈ list_map_pairs newton_segment_of_pair hsl
-  → j = fst (ini_pt ns)
-    → k = fst (fin_pt ns)
-      → αj = snd (ini_pt ns)
-        → αk = snd (fin_pt ns)
-          → γ ns = (αj - αk) / (k - j).
+  → (j, αj) = ini_pt ns
+    → (k, αk) = fin_pt ns
+      → γ ns = (αj - αk) / (k - j).
 Proof.
-intros hsl ns j k αj αk Hns Hj Hk Hαj Hαk.
+intros hsl ns j k αj αk Hns Hjαj Hkαk.
 induction hsl as [| ((x₁, y₁), seg)]; [ contradiction | idtac ].
 destruct hsl as [| ((x₂, y₂), seg₂)]; [ contradiction | idtac ].
 rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
- simpl in Hj, Hk, Hαj, Hαk |- *.
- subst x₁ y₁ x₂ y₂.
+ simpl in Hjαj, Hkαk |- *.
+ injection Hjαj; clear Hjαj; intros; subst x₁ y₁.
+ injection Hkαk; clear Hkαk; intros; subst x₂ y₂.
  reflexivity.
 
  apply IHhsl; assumption.
@@ -891,30 +890,28 @@ intros pol ns m Hns Hm.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom fld pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
-remember (fst (ini_pt ns)) as j.
-remember (fst (fin_pt ns)) as k.
-remember (snd (ini_pt ns)) as αj.
-remember (snd (fin_pt ns)) as αk.
+remember (ini_pt ns) as jj.
+destruct jj as (j, αj).
+remember (fin_pt ns) as kk.
+destruct kk as (k, αk).
 remember Hns as Hg; clear HeqHg.
 eapply gamma_value_jk in Hg; try eassumption.
 remember (al pol ++ [an pol]) as psl.
 subst hsl.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
-eapply in_pts_in_pol in Heqjps; try eassumption.
- 2: subst j; rewrite <- surjective_pairing.
+eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
+ 2: rewrite Heqjj.
  2: apply ini_fin_ns_in_init_pts; assumption.
 
  destruct Heqjps as (Hjps, Hjv).
- rewrite <- Heqαj in Hjv.
  eapply power_num_of_new_comden in Hjv; try eassumption.
  destruct Hjv as (mj, Hαj).
  remember (List.nth (Z.to_nat (Qnum k)) psl (an pol)) as kps.
- eapply in_pts_in_pol in Heqkps; try eassumption.
-  2: subst k; rewrite <- surjective_pairing.
+ eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
+  2: rewrite Heqkk.
   2: apply ini_fin_ns_in_init_pts; assumption.
 
   destruct Heqkps as (Hkps, Hkv).
-  rewrite <- Heqαk in Hkv.
   eapply power_num_of_new_comden in Hkv; try eassumption.
   destruct Hkv as (mk, Hαk).
   rewrite Hg.
@@ -927,13 +924,13 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
    remember Heqpts as H; clear HeqH.
    symmetry in H.
    apply pt_absc_is_nat with (pt := ini_pt ns) in H.
-    rewrite <- Heqj in H.
     destruct H as (jn, Hjn).
+    rewrite <- Heqjj in Hjn; simpl in Hjn.
     remember Heqpts as H; clear HeqH.
     symmetry in H.
     apply pt_absc_is_nat with (pt := fin_pt ns) in H.
      destruct H as (kn, Hkn).
-     rewrite <- Heqk in Hkn.
+     rewrite <- Heqkk in Hkn; simpl in Hkn.
      rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
      apply p_mq_formula; [ idtac | assumption ].
      rewrite <- Nat2Z.inj_sub.
@@ -943,17 +940,17 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
       eapply j_lt_k.
        subst pts; eassumption.
 
-       rewrite <- Heqj, Hjn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqjj, Hjn; symmetry; apply Nat2Z.id.
 
-       rewrite <- Heqk, Hkn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqkk, Hkn; symmetry; apply Nat2Z.id.
 
       apply lt_le_weak.
       eapply j_lt_k.
        subst pts; eassumption.
 
-       rewrite <- Heqj, Hjn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqjj, Hjn; symmetry; apply Nat2Z.id.
 
-       rewrite <- Heqk, Hkn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqkk, Hkn; symmetry; apply Nat2Z.id.
 
      apply ini_fin_ns_in_init_pts; assumption.
 
@@ -963,21 +960,21 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
     remember Heqpts as H; clear HeqH.
     symmetry in H.
     apply pt_absc_is_nat with (pt := ini_pt ns) in H.
-     rewrite <- Heqj in H.
      destruct H as (jn, Hjn).
+     rewrite <- Heqjj in Hjn; simpl in Hjn.
      remember Heqpts as H; clear HeqH.
      symmetry in H.
      apply pt_absc_is_nat with (pt := fin_pt ns) in H.
       destruct H as (kn, Hkn).
-      rewrite <- Heqk in Hkn.
+      rewrite <- Heqkk in Hkn; simpl in Hkn.
       rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
       apply Nat2Z.inj_lt.
       eapply j_lt_k.
        subst pts; eassumption.
 
-       rewrite <- Heqj, Hjn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqjj, Hjn; symmetry; apply Nat2Z.id.
 
-       rewrite <- Heqk, Hkn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqkk, Hkn; symmetry; apply Nat2Z.id.
 
       apply ini_fin_ns_in_init_pts; assumption.
 
@@ -1086,13 +1083,6 @@ split.
 
  split; [ idtac | assumption ].
  setoid_rewrite  <- gamma_value_jk; try eassumption.
-  rewrite <- Hj; reflexivity.
-
-  rewrite <- Hk; reflexivity.
-
-  rewrite <- Hj; reflexivity.
-
-  rewrite <- Hk; reflexivity.
 Qed.
 
 Open Scope Z_scope.
@@ -1150,11 +1140,12 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
    destruct Hjn as (jn, Hjn); simpl in Hjn.
    split.
+    remember Hns as Hgh; clear HeqHgh.
+    eapply gamma_value_jk in Hgh; try eassumption.
 bbb.
 
    intros h αh Hh.
    remember (inject_Z h) as hq.
-   destruct Hjn as (jn, Hjn); simpl in Hjn.
    remember Hpts as Hhn; clear HeqHhn.
    symmetry in Hhn.
    apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
