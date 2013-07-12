@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.917 2013-07-12 01:52:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.918 2013-07-12 02:14:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1065,19 +1065,34 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
  right; right; assumption.
 Qed.
 
-Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj h αh m,
+Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj k αk h αh m,
   ns ∈ newton_segments fld pol
   → (j, αj) = ini_pt ns
-    → (h, αh) ∈ oth_pts ns
-      → m = series_list_common_denominator (al pol ++ [an pol])
-        → ∃ p q,
-          (αj - αh) / (h - j) == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
+    → (k, αk) = fin_pt ns
+      → (h, αh) ∈ oth_pts ns
+        → m = series_list_common_denominator (al pol ++ [an pol])
+          → ∃ p q,
+            (αj - αh) / (h - j) == p # (m * q) ∧
+            (αj - αk) / (k - j) == p # (m * q) ∧
+            Z.gcd p (' q) = 1%Z.
 Proof.
-intros pol ns j αj h αh m Hns Hj Hh Hm.
+intros pol ns j αj k αk h αh m Hns Hj Hk Hh Hm.
 eapply gamma_eq_p_nq in Hm; [ idtac | eassumption ].
 destruct Hm as (p, (q, H)).
 exists p, q.
-setoid_rewrite  <- gamma_value_jh; eassumption.
+destruct H as (Hgamma, Hgcd).
+split.
+ setoid_rewrite  <- gamma_value_jh; eassumption.
+
+ split; [ idtac | assumption ].
+ setoid_rewrite  <- gamma_value_jk; try eassumption.
+  rewrite <- Hj; reflexivity.
+
+  rewrite <- Hk; reflexivity.
+
+  rewrite <- Hj; reflexivity.
+
+  rewrite <- Hk; reflexivity.
 Qed.
 
 Open Scope Z_scope.
@@ -1088,6 +1103,7 @@ Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk,
     → (inject_Z k, αk) = fin_pt ns
       → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
         ∧ ∃ p q, Z.gcd p ('q) = 1
+          ∧ 'q * (mj - mk) = p * (k - j)
           ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
             → ∃ mh, αh == mh # m
               ∧ 'q * (mj - mh) = p * (h - j).
@@ -1127,6 +1143,9 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   split; [ assumption | idtac ].
   exists p, q.
   split; [ assumption | idtac ].
+  split.
+bbb.
+
   intros h αh Hh.
   remember (inject_Z j) as jq.
   remember (inject_Z h) as hq.
