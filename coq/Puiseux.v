@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.921 2013-07-12 09:42:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.922 2013-07-12 12:02:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1085,7 +1085,45 @@ split.
  setoid_rewrite  <- gamma_value_jk; try eassumption.
 Qed.
 
+Lemma eq_Qeq : ∀ a b, a = b → a == b.
+Proof. intros a b H; subst a; reflexivity. Qed.
+
 Open Scope Z_scope.
+
+Lemma pmq_qmpm : ∀ m p q j k jz kz mj mk,
+  (j < k)%nat
+  → jz = Z.of_nat j
+    → kz = Z.of_nat k
+      → p # m * q == (mj - mk # m) / (kz - jz # 1)
+        → ' q * (mj - mk) = p * (kz - jz).
+Proof.
+intros m p q j k jz kz mj mk Hjk Hjz Hkz Hpq.
+subst jz kz.
+unfold Qeq in Hpq; simpl in Hpq.
+do 2 rewrite Pos2Z.inj_mul in Hpq.
+rewrite Zmult_comm in Hpq; symmetry in Hpq.
+rewrite Zmult_comm in Hpq; symmetry in Hpq.
+do 2 rewrite <- Zmult_assoc in Hpq.
+apply Z.mul_cancel_l in Hpq; [ idtac | apply Zpos_ne_0 ].
+rewrite Zmult_assoc, Zmult_comm in Hpq.
+rewrite Qden_inv in Hpq.
+ rewrite Qnum_inv in Hpq.
+  symmetry in Hpq.
+  rewrite Zmult_comm in Hpq.
+  symmetry in Hpq.
+  apply Z.div_unique_exact in Hpq; [ idtac | apply Zpos_ne_0 ].
+  rewrite Hpq.
+  rewrite Znumtheory.Zdivide_Zdiv_eq_2.
+   rewrite Zdiv_1_r; reflexivity.
+
+   apply Pos2Z.is_pos.
+
+   apply Z.divide_1_l.
+
+  apply Z.lt_0_sub, inj_lt; assumption.
+
+ apply Z.lt_0_sub, inj_lt; assumption.
+Qed.
 
 Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk,
   ns ∈ newton_segments fld pol
@@ -1142,6 +1180,19 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
    split.
     remember Hns as Hgh; clear HeqHgh.
     eapply gamma_value_jk in Hgh; try eassumption.
+    apply eq_Qeq in Hgh.
+    rewrite Hmj, Hmk in Hgh.
+    rewrite <- Qnum_minus_distr_r in Hgh.
+    rewrite Heqjq, Heqkq in Hgh.
+    rewrite Hgamma in Hgh.
+    unfold inject_Z in Hgh.
+    rewrite <- Qnum_minus_distr_r in Hgh.
+    eapply pmq_qmpm; try eassumption.
+     eapply j_lt_k; try eassumption; reflexivity.
+
+     unfold nofq.
+     rewrite <- Hj, Hjn; simpl.
+     rewrite Nat2Z.id.
 bbb.
 
    intros h αh Hh.
@@ -1163,6 +1214,7 @@ bbb.
      remember Hns as Hgh; clear HeqHgh.
      eapply gamma_value_jh in Hgh; try eassumption.
      rewrite Hmj, Hmh in Hgh.
+(*2*)
      rewrite <- Qnum_minus_distr_r in Hgh.
      rewrite Hgamma in Hgh.
      unfold inject_Z in Hgh.
