@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.931 2013-07-13 12:08:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.932 2013-07-13 12:13:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1423,6 +1423,21 @@ Lemma yyy : ∀ n c cl j u,
   poly_in_x_pow_q 0 n [c … make_char_pol fld (S j) cl (j + u * n)].
 Proof.
 intros n c cl j u.
+induction cl as [| c₁].
+ simpl.
+ destruct n.
+  rewrite mult_0_r.
+  rewrite plus_0_r.
+  rewrite Nat.sub_succ_r.
+  rewrite minus_diag; simpl.
+  Focus 2.
+  constructor.
+  rewrite plus_comm.
+  destruct u.
+   simpl.
+   rewrite Nat.sub_succ_r.
+   rewrite minus_diag; simpl.
+   Focus 2.
 bbb.
 
 Lemma zzz : ∀ pol ns cpol j αj k αk,
