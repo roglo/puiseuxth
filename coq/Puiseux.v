@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.926 2013-07-12 19:24:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.927 2013-07-13 03:07:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -578,6 +578,48 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
   apply ini_fin_ns_in_init_pts; eassumption.
 
  apply ini_fin_ns_in_init_pts; eassumption.
+Qed.
+
+Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
+  ns ∈ newton_segments fld pol
+  → jz = Qnum (fst (ini_pt ns))
+    → kz = Qnum (fst (fin_pt ns))
+      → (jz < kz)%Z.
+Proof.
+intros pol jz kz ns Hns Hjz Hkz.
+remember Hns as H; clear HeqH.
+eapply j_lt_k in H; try reflexivity.
+remember (ini_pt ns) as jaj.
+destruct jaj as (j, aj).
+remember (fin_pt ns) as kak.
+destruct kak as (k, ak).
+simpl in Hjz, Hkz, H.
+subst jz kz.
+unfold nofq in Hns.
+apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
+ unfold newton_segments in Hns.
+ remember (points_of_ps_polynom fld pol) as pts.
+ symmetry in Heqpts.
+ remember Heqpts as Hpts; clear HeqHpts.
+ apply pt_absc_is_nat with (pt := (j, aj)) in Hpts.
+  destruct Hpts as (jn, Hj); simpl in Hj.
+  subst j; unfold Qnat; simpl.
+  apply Zle_0_nat.
+
+  rewrite Heqjaj.
+  apply ini_fin_ns_in_init_pts; assumption.
+
+ unfold newton_segments in Hns.
+ remember (points_of_ps_polynom fld pol) as pts.
+ symmetry in Heqpts.
+ remember Heqpts as Hpts; clear HeqHpts.
+ apply pt_absc_is_nat with (pt := (k, ak)) in Hpts.
+  destruct Hpts as (kn, Hk); simpl in Hk.
+  subst k; unfold Qnat; simpl.
+  apply Zle_0_nat.
+
+  rewrite Heqkak.
+  apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
 Lemma cpol_degree : ∀ (pol : puis_ser_pol α) cpol ns,
@@ -1303,13 +1345,14 @@ Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk,
     → (inject_Z k, αk) = fin_pt ns
       → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
         ∧ ∃ p q, Z.gcd p ('q) = 1
-          ∧ (∃ sk, k = j + sk * 'q)
+          ∧ (∃ sk, k = j + 'sk * 'q)
           ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
             → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
 Proof.
 intros pol ns j αj k αk Hns Hj Hk.
-eapply q_is_factor_of_h_minus_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H))))))))).
+remember Hns as H; clear HeqH.
+eapply q_is_factor_of_h_minus_j in H; try eassumption.
+destruct H as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H))))))))).
 exists m, mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
@@ -1317,9 +1360,37 @@ exists p, q.
 split; [ assumption | idtac ].
 split.
  destruct Hqjk as (sk, Hqjk).
- exists sk.
- rewrite <- Hqjk.
- rewrite Zplus_minus; reflexivity.
+ destruct sk as [| sk| sk].
+  simpl in Hqjk.
+  apply Zminus_eq in Hqjk.
+  exfalso.
+  symmetry in Hqjk.
+  revert Hqjk.
+  apply Z.lt_neq.
+  eapply jz_lt_kz; [ eassumption | idtac | idtac ].
+   rewrite <- Hj; reflexivity.
+
+   rewrite <- Hk; reflexivity.
+
+  exists sk.
+  rewrite <- Hqjk.
+  rewrite Zplus_minus; reflexivity.
+
+  apply jz_lt_kz with (jz := j) (kz := k) in Hns.
+   apply Z.sub_le_lt_mono with (n := k) (m := k) in Hns.
+    rewrite Zminus_diag in Hns.
+    rewrite Hqjk in Hns.
+    simpl in Hns.
+    apply Zlt_not_le in Hns.
+    exfalso; apply Hns.
+    apply Zlt_le_weak.
+    apply Zlt_neg_0.
+
+    reflexivity.
+
+   rewrite <- Hj; reflexivity.
+
+   rewrite <- Hk; reflexivity.
 
  intros h αh Hm.
  apply H in Hm.
@@ -1355,7 +1426,7 @@ Lemma zzz : ∀ pol ns cpol j αj k αk,
       → (inject_Z k, αk) = fin_pt ns
         → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
-            ∧ (∃ sk, k = j + sk * 'q)
+            ∧ (∃ sk, k = j + 'sk * 'q)
             ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
                → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
             ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
@@ -1412,7 +1483,17 @@ destruct qq; simpl.
   subst cpol.
   induction tl as [| t]; simpl.
    destruct Hqjk as (sk, Hqjk).
-
+bbb.
+   rewrite Zplus_comm in Hqjk.
+   apply Z.sub_move_r in Hqjk.
+   rewrite <- Nat2Z.inj_sub in Hqjk.
+    rewrite <- Z2Nat.id in Hqjk.
+     apply Nat2Z.inj in Hqjk.
+     apply Nat.add_sub_eq_nz in Hqjk.
+      rewrite <- Hqjk.
+      rewrite plus_comm.
+      rewrite Z2Nat.inj_mul.
+       rewrite Z2Nat.inj_pos.
 bbb.
 
 (*
