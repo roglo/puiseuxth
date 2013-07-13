@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.929 2013-07-13 10:53:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.930 2013-07-13 11:10:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1463,47 +1463,16 @@ unfold Qnat in Hini, Hfin.
 unfold inject_Z in Hini, Hfin.
 injection Hini; clear Hini; intros; subst jz.
 injection Hfin; clear Hfin; intros; subst kz.
-remember (Pos.to_nat q)%nat as qq.
-remember (List.map (term_of_point fld pol) (oth_pts ns)) as tl.
-remember (make_char_pol fld (S j) tl k) as cpol.
-destruct qq; simpl.
- pose proof (Pos2Nat.is_pos q) as H.
- rewrite <- Heqqq in H.
- apply lt_irrefl in H; contradiction.
-
- rewrite minus_diag; simpl.
- destruct qq.
-  constructor.
-  subst cpol.
-  remember (make_char_pol fld (S j) tl k) as cl.
-  clear.
-  induction cl; constructor; assumption.
-
-  constructor.
-  subst cpol.
-  induction tl as [| t]; simpl.
-   destruct Hqjk as (sk, Hqjk).
-   rewrite Zplus_comm in Hqjk.
-   apply Z.sub_move_r in Hqjk.
-   rewrite <- Nat2Z.inj_sub in Hqjk.
-    rewrite <- Z2Nat.id in Hqjk.
-     apply Nat2Z.inj in Hqjk.
-     simpl in Hqjk.
-     apply Nat.add_sub_eq_nz in Hqjk.
-      rewrite <- Hqjk.
-      rewrite Pos2Nat.inj_mul, <- Heqqq.
-      remember (Pos.to_nat sk) as nsk.
-      destruct nsk.
-       symmetry in Heqnsk.
-       pose proof (Pos2Nat.is_pos sk) as H.
-       rewrite Heqnsk in H.
-       apply lt_irrefl in H; contradiction.
-
-       remember (S nsk * S (S qq))%nat as x; simpl in Heqx; subst x.
-       rewrite <- plus_Snm_nSm.
-       rewrite minus_plus.
-       simpl.
-       constructor; [ apply fld_eq_refl | apply lt_n_Sn | idtac ].
+rewrite minus_diag; simpl.
+destruct Hqjk as (sk, Hqjk).
+rewrite Zplus_comm in Hqjk.
+apply Z.sub_move_r in Hqjk.
+rewrite <- Nat2Z.inj_sub in Hqjk.
+ rewrite <- Z2Nat.id in Hqjk.
+  apply Nat2Z.inj in Hqjk.
+  simpl in Hqjk.
+  apply Nat.add_sub_eq_nz in Hqjk.
+   rewrite <- Hqjk.
 bbb.
 
 (*
