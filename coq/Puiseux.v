@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.934 2013-07-13 15:53:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.935 2013-07-13 18:32:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1437,17 +1437,17 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 *)
 
 Definition is_polynomial_in_x_power_q cpol q :=
-  poly_in_x_pow_q 0 q (al cpol).
+  poly_in_x_pow_q 0 q (al cpol ++ [an cpol]).
 
-Lemma yyy : ∀ n tl j u,
-  poly_in_x_pow_q n (S n) (make_char_pol fld (S j) tl (j + S u * S n)).
+Lemma yyy : ∀ n tl j u v,
+  poly_in_x_pow_q n (S n) (make_char_pol fld (S j) tl (j + S u * S n) ++ [v]).
 Proof.
-intros n tl j u.
+intros n tl j u v.
 remember (make_char_pol fld (S j) tl (j + S u * S n)) as cl.
 symmetry in Heqcl.
 simpl in Heqcl.
 rewrite <- plus_Snm_nSm in Heqcl.
-destruct cl as [| c].
+induction cl as [| c].
  simpl.
  destruct n; [ constructor | idtac ].
  destruct tl as [| t].
@@ -1464,6 +1464,7 @@ destruct cl as [| c].
  destruct n.
   clear.
   induction cl; simpl; [ constructor | assumption ].
+Abort. (*
 bbb.
 *)
 
@@ -1489,6 +1490,15 @@ induction cl as [| c₁].
    Focus 2.
 bbb.
 *)
+
+Lemma xxx :
+  ns ∈ newton_segments fld pol
+  → (inject_Z j, αj) = ini_pt ns
+    → List.forall (λ t, (coeff t - j | 'q))
+        (List.map (term_of_point fld pol) (oth_pts ns)).
+Proof.
+bbb.
+beuh...
 
 Lemma zzz : ∀ pol ns cpol j αj k αk,
   ns ∈ newton_segments fld pol
