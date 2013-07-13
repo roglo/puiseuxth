@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.930 2013-07-13 11:10:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.931 2013-07-13 12:08:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1419,6 +1419,12 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
 
+Lemma yyy : ∀ n c cl j u,
+  poly_in_x_pow_q 0 n [c … make_char_pol fld (S j) cl (j + u * n)].
+Proof.
+intros n c cl j u.
+bbb.
+
 Lemma zzz : ∀ pol ns cpol j αj k αk,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
@@ -1473,6 +1479,27 @@ rewrite <- Nat2Z.inj_sub in Hqjk.
   simpl in Hqjk.
   apply Nat.add_sub_eq_nz in Hqjk.
    rewrite <- Hqjk.
+   rewrite Pos2Nat.inj_mul.
+   remember (Pos.to_nat q) as n.
+   apply yyy.
+
+   intros Hcontrad.
+   pose proof (Pos2Nat.is_pos (sk * q)) as H.
+   rewrite Hcontrad in H.
+   apply lt_irrefl in H; contradiction.
+
+  simpl.
+  apply Zle_0_pos.
+
+ apply lt_le_weak.
+ eapply j_lt_k; [ eassumption | idtac | idtac ].
+  rewrite <- Hj; simpl.
+  unfold nofq, inject_Z; simpl.
+  rewrite Nat2Z.id; reflexivity.
+
+  rewrite <- Hk; simpl.
+  unfold nofq, inject_Z; simpl.
+  rewrite Nat2Z.id; reflexivity.
 bbb.
 
 (*
