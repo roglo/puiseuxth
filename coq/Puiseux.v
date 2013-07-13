@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.932 2013-07-13 12:13:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.933 2013-07-13 12:32:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1405,6 +1405,25 @@ Qed.
 
 (* *)
 
+(**)
+Fixpoint poly_in_x_pow_q m q cl :=
+  match cl with
+  | [] =>
+      match m with
+      | 0%nat => True
+      | S m₁ => False
+      end
+  | [c₁ … cl₁] =>
+      match m with
+      | 0%nat => poly_in_x_pow_q (pred q) q cl₁
+      | S m₁ =>
+          if fld_eq fld c₁ (zero fld) then poly_in_x_pow_q m₁ q cl₁
+          else False
+      end
+  end.
+(**)
+
+(*
 Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
   | px_nil : ∀ q, poly_in_x_pow_q 0 (S q) []
   | px_0_cons : ∀ q c cl,
@@ -1415,10 +1434,19 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
       → (m < q)%nat
         → poly_in_x_pow_q m (S q) cl
           → poly_in_x_pow_q (S m) (S q) [c … cl].
+*)
 
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
 
+Lemma yyy : ∀ n cl j u,
+  poly_in_x_pow_q n (S n) (make_char_pol fld (S j) cl (j + u * S n)).
+Proof.
+intros n cl j u.
+bbb.
+*)
+
+(*
 Lemma yyy : ∀ n c cl j u,
   poly_in_x_pow_q 0 n [c … make_char_pol fld (S j) cl (j + u * n)].
 Proof.
@@ -1439,6 +1467,7 @@ induction cl as [| c₁].
    rewrite minus_diag; simpl.
    Focus 2.
 bbb.
+*)
 
 Lemma zzz : ∀ pol ns cpol j αj k αk,
   ns ∈ newton_segments fld pol
@@ -1496,6 +1525,7 @@ rewrite <- Nat2Z.inj_sub in Hqjk.
    rewrite <- Hqjk.
    rewrite Pos2Nat.inj_mul.
    remember (Pos.to_nat q) as n.
+bbb.
    apply yyy.
 
    intros Hcontrad.
