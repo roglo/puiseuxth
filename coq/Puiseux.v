@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.927 2013-07-13 03:07:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.928 2013-07-13 10:07:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1483,17 +1483,16 @@ destruct qq; simpl.
   subst cpol.
   induction tl as [| t]; simpl.
    destruct Hqjk as (sk, Hqjk).
-bbb.
    rewrite Zplus_comm in Hqjk.
    apply Z.sub_move_r in Hqjk.
    rewrite <- Nat2Z.inj_sub in Hqjk.
     rewrite <- Z2Nat.id in Hqjk.
      apply Nat2Z.inj in Hqjk.
+     simpl in Hqjk.
      apply Nat.add_sub_eq_nz in Hqjk.
       rewrite <- Hqjk.
       rewrite plus_comm.
-      rewrite Z2Nat.inj_mul.
-       rewrite Z2Nat.inj_pos.
+      rewrite Pos2Nat.inj_mul, <- Heqqq.
 bbb.
 
 (*
