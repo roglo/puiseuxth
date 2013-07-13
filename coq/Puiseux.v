@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.933 2013-07-13 12:32:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.934 2013-07-13 15:53:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1439,10 +1439,31 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
 
-Lemma yyy : ∀ n cl j u,
-  poly_in_x_pow_q n (S n) (make_char_pol fld (S j) cl (j + u * S n)).
+Lemma yyy : ∀ n tl j u,
+  poly_in_x_pow_q n (S n) (make_char_pol fld (S j) tl (j + S u * S n)).
 Proof.
-intros n cl j u.
+intros n tl j u.
+remember (make_char_pol fld (S j) tl (j + S u * S n)) as cl.
+symmetry in Heqcl.
+simpl in Heqcl.
+rewrite <- plus_Snm_nSm in Heqcl.
+destruct cl as [| c].
+ simpl.
+ destruct n; [ constructor | idtac ].
+ destruct tl as [| t].
+  simpl in Heqcl.
+  rewrite minus_plus in Heqcl.
+  simpl in Heqcl.
+  discriminate Heqcl.
+
+  simpl in Heqcl.
+  remember (power t - S j)%nat as m.
+  destruct m; discriminate Heqcl.
+
+ simpl.
+ destruct n.
+  clear.
+  induction cl; simpl; [ constructor | assumption ].
 bbb.
 *)
 
