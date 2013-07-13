@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.928 2013-07-13 10:07:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.929 2013-07-13 10:53:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1491,8 +1491,19 @@ destruct qq; simpl.
      simpl in Hqjk.
      apply Nat.add_sub_eq_nz in Hqjk.
       rewrite <- Hqjk.
-      rewrite plus_comm.
       rewrite Pos2Nat.inj_mul, <- Heqqq.
+      remember (Pos.to_nat sk) as nsk.
+      destruct nsk.
+       symmetry in Heqnsk.
+       pose proof (Pos2Nat.is_pos sk) as H.
+       rewrite Heqnsk in H.
+       apply lt_irrefl in H; contradiction.
+
+       remember (S nsk * S (S qq))%nat as x; simpl in Heqx; subst x.
+       rewrite <- plus_Snm_nSm.
+       rewrite minus_plus.
+       simpl.
+       constructor; [ apply fld_eq_refl | apply lt_n_Sn | idtac ].
 bbb.
 
 (*
