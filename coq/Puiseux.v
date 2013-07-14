@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.946 2013-07-14 11:49:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.947 2013-07-14 15:20:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1429,28 +1429,53 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
 
-Lemma www : ∀ pl, poly_in_x_pow_q 0 1 pl.
+Lemma poly_in_x : ∀ cl, poly_in_x_pow_q 0 1 cl.
 Proof.
-induction pl; simpl; [ constructor | assumption ].
+induction cl; simpl; [ constructor | assumption ].
+Qed.
+
+(*
+Lemma www : ∀ n v c,
+  c ∈ list_pad n v []
+  → fld_eq fld c v = true.
+Proof.
+intros n v c H.
+induction n; [ contradiction | idtac ].
+destruct H as [H| H].
+ subst v; apply fld_eq_refl.
+
+ apply IHn, H.
+Qed.
+*)
+
+Lemma padded : ∀ n v c cl,
+  list_pad n v [] = [c … cl]
+  → fld_eq fld c v = true.
+Proof.
+intros n v c cl H.
+destruct n; [ discriminate H | simpl in H ].
+injection H; clear H; intros; subst c cl.
+apply fld_eq_refl.
 Qed.
 
 (**)
-Lemma xxx : ∀ s q p pl,
-  list_pad (s * S q) (zero fld) [] = [p … pl]
-  → poly_in_x_pow_q q (S q) pl.
+Lemma xxx : ∀ s q c cl,
+  list_pad (s * S q) (zero fld) [] = [c … cl]
+  → poly_in_x_pow_q q (S q) cl.
 Proof.
-intros s q p pl H.
-revert q p pl H.
+intros s q c cl H.
+revert q c cl H.
 induction s; intros; [ discriminate H | idtac ].
 simpl in H.
-injection H; clear H; intros; subst p pl.
-remember (list_pad (q + s * S q) (zero fld) []) as pl.
-symmetry in Heqpl.
-destruct pl as [| p].
- destruct q; [ constructor | discriminate Heqpl ].
+injection H; clear H; intros; subst c cl.
+remember (list_pad (q + s * S q) (zero fld) []) as cl.
+symmetry in Heqcl.
+destruct cl as [| c].
+ destruct q; [ constructor | discriminate Heqcl ].
 
  simpl.
- destruct q; [ apply www | idtac ].
+ destruct q; [ apply poly_in_x | idtac ].
+ erewrite padded; [ idtac | eassumption ].
 bbb.
 *)
 
