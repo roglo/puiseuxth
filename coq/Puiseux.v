@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.943 2013-07-14 09:18:24 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.944 2013-07-14 09:40:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1439,8 +1439,8 @@ Proof.
 intros pol pts m j q sk Hmh.
 revert pol m j q sk Hmh.
 induction pts as [| pt]; intros.
- simpl.
- rewrite <- plus_Snm_nSm, minus_plus.
+ simpl; rewrite <- plus_Snm_nSm, minus_plus.
+ clear pol m j Hmh.
  remember (list_pad (q + sk * S q) (zero fld) []) as pl.
  destruct pl as [| p]; simpl.
   destruct q; [ constructor | discriminate Heqpl ].
@@ -1460,7 +1460,7 @@ induction pts as [| pt]; intros.
      simpl in Heqpl.
      destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
      injection Heqpl; clear Heqpl; intros; subst p pl.
-     simpl; rewrite fld_eq_refl; clear.
+     simpl; rewrite fld_eq_refl.
      induction sk; [ constructor | simpl ].
      rewrite fld_eq_refl; assumption.
 
@@ -1475,7 +1475,7 @@ induction pts as [| pt]; intros.
        simpl in Heqpl.
        destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
        injection Heqpl; clear Heqpl; intros; subst p pl.
-       simpl; rewrite fld_eq_refl; clear.
+       simpl; rewrite fld_eq_refl.
        induction sk; [ constructor | simpl ].
        rewrite fld_eq_refl; assumption.
 
@@ -1490,7 +1490,7 @@ induction pts as [| pt]; intros.
          simpl in Heqpl.
          destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
          injection Heqpl; clear Heqpl; intros; subst p pl.
-         simpl; rewrite fld_eq_refl; clear.
+         simpl; rewrite fld_eq_refl.
          induction sk; [ constructor | simpl ].
          rewrite fld_eq_refl; assumption.
 
