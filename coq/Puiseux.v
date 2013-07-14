@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.935 2013-07-13 18:32:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.936 2013-07-14 00:22:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -216,7 +216,7 @@ Let fld := ac_field acf.
 Lemma pt_absc_is_nat : ∀ (pol : puis_ser_pol α) pts pt,
   points_of_ps_polynom fld pol = pts
   → pt ∈ pts
-    → ∃ n, fst pt = Qnat n.
+    → fst pt = Qnat (Z.to_nat (Qnum (fst pt))).
 Proof.
 intros pol pts pt Hpts Hαh.
 unfold points_of_ps_polynom in Hpts.
@@ -230,7 +230,7 @@ induction cl as [| c]; intros.
  destruct (valuation fld cn) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| ]; [ subst pt; simpl | contradiction ].
-  exists n; reflexivity.
+  rewrite Nat2Z.id; reflexivity.
 
   subst pts; contradiction.
 
@@ -238,7 +238,7 @@ induction cl as [| c]; intros.
  destruct (valuation fld c) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| Hαh]; [ subst pt; simpl | idtac ].
-   exists n; reflexivity.
+   rewrite Nat2Z.id; reflexivity.
 
    eapply IHcl in Hαh; [ assumption | reflexivity ].
 
@@ -547,14 +547,12 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
    apply Sorted_inv_2 in Hnp; destruct Hnp as (Hlt, Hnp).
    unfold hs_x_lt in Hlt; simpl in Hlt.
    unfold Qlt in Hlt.
-   destruct Hj₁ as (jn, Hjn).
-   destruct Hk₁ as (kn, Hkn).
-   rewrite Hjn in Hj, Hlt.
-   rewrite Hkn in Hk, Hlt.
+   rewrite Hj₁ in Hj, Hlt.
+   rewrite Hk₁ in Hk, Hlt.
    unfold nofq, Qnat in Hj, Hk.
    simpl in Hj, Hk.
    rewrite Nat2Z.id in Hj, Hk.
-   subst jn kn.
+   subst j k.
    unfold Qnat in Hlt; simpl in Hlt.
    do 2 rewrite Zmult_1_r in Hlt.
    apply Nat2Z.inj_lt; assumption.
@@ -602,6 +600,7 @@ apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (j, aj)) in Hpts.
+bbb.
   destruct Hpts as (jn, Hj); simpl in Hj.
   subst j; unfold Qnat; simpl.
   apply Zle_0_nat.
