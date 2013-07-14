@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.945 2013-07-14 11:21:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.946 2013-07-14 11:49:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1434,19 +1434,23 @@ Proof.
 induction pl; simpl; [ constructor | assumption ].
 Qed.
 
-(*
+(**)
 Lemma xxx : ∀ s q p pl,
-  list_pad (s * S (S q)) (zero fld) [] = [p … pl]
-  → poly_in_x_pow_q (S q) (S (S q)) pl.
+  list_pad (s * S q) (zero fld) [] = [p … pl]
+  → poly_in_x_pow_q q (S q) pl.
 Proof.
 intros s q p pl H.
-destruct s; [ discriminate H | simpl in H ].
+revert q p pl H.
+induction s; intros; [ discriminate H | idtac ].
+simpl in H.
 injection H; clear H; intros; subst p pl.
-simpl; rewrite fld_eq_refl.
-destruct s; simpl.
- rewrite plus_0_r.
- induction q; [ constructor | simpl ].
- rewrite fld_eq_refl.
+remember (list_pad (q + s * S q) (zero fld) []) as pl.
+symmetry in Heqpl.
+destruct pl as [| p].
+ destruct q; [ constructor | discriminate Heqpl ].
+
+ simpl.
+ destruct q; [ apply www | idtac ].
 bbb.
 *)
 
