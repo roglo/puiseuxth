@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.942 2013-07-14 08:33:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.943 2013-07-14 09:18:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1442,18 +1442,60 @@ induction pts as [| pt]; intros.
  simpl.
  rewrite <- plus_Snm_nSm, minus_plus.
  remember (list_pad (q + sk * S q) (zero fld) []) as pl.
- destruct pl as [| p].
-  simpl.
+ destruct pl as [| p]; simpl.
   destruct q; [ constructor | discriminate Heqpl ].
 
-  simpl.
   destruct q.
    clear.
    induction pl; simpl; [ constructor | assumption ].
 
    simpl in Heqpl.
    injection Heqpl; clear Heqpl; intros; subst p pl.
-   rewrite fld_eq_refl; simpl.
+   rewrite fld_eq_refl.
+   remember (list_pad (q + sk * S (S q)) (zero fld) []) as pl.
+   destruct pl as [| p]; simpl.
+    destruct q; [ constructor | discriminate Heqpl ].
+
+    destruct q.
+     simpl in Heqpl.
+     destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
+     injection Heqpl; clear Heqpl; intros; subst p pl.
+     simpl; rewrite fld_eq_refl; clear.
+     induction sk; [ constructor | simpl ].
+     rewrite fld_eq_refl; assumption.
+
+     simpl in Heqpl.
+     injection Heqpl; clear Heqpl; intros; subst p pl.
+     rewrite fld_eq_refl.
+     remember (list_pad (q + sk * S (S (S q))) (zero fld) []) as pl.
+     destruct pl as [| p]; simpl.
+      destruct q; [ constructor | discriminate Heqpl ].
+
+      destruct q.
+       simpl in Heqpl.
+       destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
+       injection Heqpl; clear Heqpl; intros; subst p pl.
+       simpl; rewrite fld_eq_refl; clear.
+       induction sk; [ constructor | simpl ].
+       rewrite fld_eq_refl; assumption.
+
+       simpl in Heqpl.
+       injection Heqpl; clear Heqpl; intros; subst p pl.
+       rewrite fld_eq_refl.
+       remember (list_pad (q + sk * S (S (S (S q)))) (zero fld) []) as pl.
+       destruct pl as [| p]; simpl.
+        destruct q; [ constructor | discriminate Heqpl ].
+
+        destruct q.
+         simpl in Heqpl.
+         destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
+         injection Heqpl; clear Heqpl; intros; subst p pl.
+         simpl; rewrite fld_eq_refl; clear.
+         induction sk; [ constructor | simpl ].
+         rewrite fld_eq_refl; assumption.
+
+         simpl in Heqpl.
+
 bbb.
 *)
 
