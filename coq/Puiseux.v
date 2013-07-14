@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.941 2013-07-14 06:54:56 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.942 2013-07-14 08:33:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1427,28 +1427,33 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 *)
 
 Definition is_polynomial_in_x_power_q cpol q :=
-  poly_in_x_pow_q 0 q (al cpol ++ [an cpol]).
+  poly_in_x_pow_q 0 q (al cpol).
 
-Lemma yyy : ∀ pol pts m j q v sk,
+Lemma yyy : ∀ pol pts m j q sk,
   (∀ h αh, (inject_Z h, αh) ∈ pts
    → ∃ mh sh : Z, αh == mh # m ∧ h = Z.of_nat j + sh * Z.of_nat (S q))
   → poly_in_x_pow_q q (S q)
       (make_char_pol fld (S j) (List.map (term_of_point fld pol) pts)
-         (j + S sk * S q) ++ [v]).
+         (j + S sk * S q)).
 Proof.
-intros pol pts m j q v sk Hmh.
-revert pol m j q v sk Hmh.
+intros pol pts m j q sk Hmh.
+revert pol m j q sk Hmh.
 induction pts as [| pt]; intros.
  simpl.
  rewrite <- plus_Snm_nSm, minus_plus.
  remember (list_pad (q + sk * S q) (zero fld) []) as pl.
  destruct pl as [| p].
   simpl.
-  destruct q; [ constructor | idtac ].
-  remember (fld_eq fld v (zero fld)) as vz.
-  symmetry in Heqvz.
-  destruct vz.
-   destruct q; [ constructor | idtac ].
+  destruct q; [ constructor | discriminate Heqpl ].
+
+  simpl.
+  destruct q.
+   clear.
+   induction pl; simpl; [ constructor | assumption ].
+
+   simpl in Heqpl.
+   injection Heqpl; clear Heqpl; intros; subst p pl.
+   rewrite fld_eq_refl; simpl.
 bbb.
 *)
 
