@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.937 2013-07-14 00:42:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.938 2013-07-14 00:59:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1159,20 +1159,19 @@ rewrite Qden_inv in Hpq.
  apply Z.lt_0_sub, inj_lt; assumption.
 Qed.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk,
+Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
-        ∧ ∃ p q, Z.gcd p ('q) = 1
-          ∧ 'q * (mj - mk) = p * (k - j)
-          ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-            → ∃ mh, αh == mh # m
-              ∧ 'q * (mj - mh) = p * (h - j).
+      → m = series_list_common_denominator (al pol ++ [an pol])
+        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
+          ∧ ∃ p q, Z.gcd p ('q) = 1
+            ∧ 'q * (mj - mk) = p * (k - j)
+            ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+              → ∃ mh, αh == mh # m
+                ∧ 'q * (mj - mh) = p * (h - j).
 Proof.
-intros pol ns j αj k αk Hns Hj Hk.
-remember (series_list_common_denominator (al pol ++ [an pol])) as m.
-exists m.
+intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Heqm as Hm; clear HeqHm.
 eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
 destruct Heqm as (p, (q, (Hgamma, Hgcd))).
@@ -1292,21 +1291,22 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
    apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk,
+Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
-        ∧ ∃ p q, Z.gcd p ('q) = 1
-          ∧ ('q | k - j)
-          ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-            → ∃ mh, αh == mh # m
-              ∧ (' q | h - j).
+      → m = series_list_common_denominator (al pol ++ [an pol])
+        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
+          ∧ ∃ p q, Z.gcd p ('q) = 1
+            ∧ ('q | k - j)
+            ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+              → ∃ mh, αh == mh # m
+                ∧ (' q | h - j).
 Proof.
-intros pol ns j αj k αk Hns Hj Hk.
+intros pol ns j αj k αk m Hns Hj Hk Heqm.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-destruct Hns as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H))))))))).
-exists m, mj, mk.
+destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
+exists mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
@@ -1328,21 +1328,22 @@ split.
  apply Z.divide_factor_l.
 Qed.
 
-Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk,
+Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
-        ∧ ∃ p q, Z.gcd p ('q) = 1
-          ∧ (∃ sk, k = j + 'sk * 'q)
-          ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-            → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
+      → m = series_list_common_denominator (al pol ++ [an pol])
+        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
+          ∧ ∃ p q, Z.gcd p ('q) = 1
+            ∧ (∃ sk, k = j + 'sk * 'q)
+            ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+              → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
 Proof.
-intros pol ns j αj k αk Hns Hj Hk.
+intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply q_is_factor_of_h_minus_j in H; try eassumption.
-destruct H as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H))))))))).
-exists m, mj, mk.
+destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
+exists mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
@@ -1480,6 +1481,7 @@ induction cl as [| c₁].
 bbb.
 *)
 
+(*
 Lemma xxx :
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
@@ -1488,24 +1490,26 @@ Lemma xxx :
 Proof.
 bbb.
 beuh...
+*)
 
-Lemma zzz : ∀ pol ns cpol j αj k αk,
+Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
     → (inject_Z j, αj) = ini_pt ns
       → (inject_Z k, αk) = fin_pt ns
-        → ∃ m mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p ('q) = 1
-            ∧ (∃ sk, k = j + 'sk * 'q)
-            ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-               → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
-            ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
+        → m = series_list_common_denominator (al pol ++ [an pol])
+          → ∃ mj mk, αj == mj # m ∧ αk == mk # m
+            ∧ ∃ p q, Z.gcd p ('q) = 1
+              ∧ (∃ sk, k = j + 'sk * 'q)
+              ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+           → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
+              ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
-intros pol ns cpol j αj k αk Hns Hcpol Hj Hk.
+intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
-destruct H as (m, (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, Hmh))))))))).
-exists m, mj, mk.
+destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, Hmh)))))))).
+exists mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
@@ -1519,8 +1523,6 @@ eapply pt_absc_is_nat in Hini; [ idtac | reflexivity ].
 eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
 rename j into jz.
 rename k into kz.
-destruct Hini as (j, Hini).
-destruct Hfin as (k, Hfin).
 unfold is_polynomial_in_x_power_q.
 subst cpol.
 unfold characteristic_polynomial; simpl.
@@ -1531,17 +1533,19 @@ rewrite <- Hj in Hini; simpl in Hini.
 rewrite <- Hk in Hfin; simpl in Hfin.
 unfold Qnat in Hini, Hfin.
 unfold inject_Z in Hini, Hfin.
-injection Hini; clear Hini; intros; subst jz.
-injection Hfin; clear Hfin; intros; subst kz.
+injection Hini; clear Hini; intros Hini.
+injection Hfin; clear Hfin; intros Hfin.
 rewrite minus_diag; simpl.
 destruct Hqjk as (sk, Hqjk).
 rewrite Zplus_comm in Hqjk.
 apply Z.sub_move_r in Hqjk.
+rewrite Hini, Hfin in Hqjk.
 rewrite <- Nat2Z.inj_sub in Hqjk.
  rewrite <- Z2Nat.id in Hqjk.
   apply Nat2Z.inj in Hqjk.
   simpl in Hqjk.
   apply Nat.add_sub_eq_nz in Hqjk.
+   rewrite <- Hj, <- Hk; simpl.
    rewrite <- Hqjk.
    rewrite Pos2Nat.inj_mul.
    remember (Pos.to_nat q) as n.
