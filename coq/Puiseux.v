@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.938 2013-07-14 00:59:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.939 2013-07-14 06:13:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -655,11 +655,11 @@ Qed.
 
 (* *)
 
-Definition series_list_common_denominator α (psl : list (puiseux_series α)) :=
+Definition series_list_com_den α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
 Lemma power_num_of_new_comden : ∀ (psl : list (puiseux_series α)) m ps αi,
-  m = series_list_common_denominator psl
+  m = series_list_com_den psl
   → ps ∈ psl
     → valuation fld ps = Some αi
       → ∃ mi, αi == mi # m.
@@ -667,7 +667,7 @@ Proof.
 intros psl m ps αi Hm Hps Hv.
 apply List.in_split in Hps.
 destruct Hps as (l₁, (l₂, Hpsl)).
-remember (series_list_common_denominator (l₁ ++ l₂)) as m₁.
+remember (series_list_com_den (l₁ ++ l₂)) as m₁.
 exists (Qnum αi * Zpos m₁)%Z.
 subst m m₁ psl.
 induction l₁ as [| ps₁]; simpl.
@@ -919,7 +919,7 @@ Qed.
 
 Lemma gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments fld pol
-  → m = series_list_common_denominator (al pol ++ [an pol])
+  → m = series_list_com_den (al pol ++ [an pol])
     → ∃ p q,
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
@@ -1101,7 +1101,7 @@ Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj k αk h αh m,
   → (j, αj) = ini_pt ns
     → (k, αk) = fin_pt ns
       → (h, αh) ∈ oth_pts ns
-        → m = series_list_common_denominator (al pol ++ [an pol])
+        → m = series_list_com_den (al pol ++ [an pol])
           → ∃ p q,
             (αj - αh) / (h - j) == p # (m * q) ∧
             (αj - αk) / (k - j) == p # (m * q) ∧
@@ -1163,7 +1163,7 @@ Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → m = series_list_common_denominator (al pol ++ [an pol])
+      → m = series_list_com_den (al pol ++ [an pol])
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ 'q * (mj - mk) = p * (k - j)
@@ -1295,7 +1295,7 @@ Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → m = series_list_common_denominator (al pol ++ [an pol])
+      → m = series_list_com_den (al pol ++ [an pol])
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ ('q | k - j)
@@ -1332,7 +1332,7 @@ Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → m = series_list_common_denominator (al pol ++ [an pol])
+      → m = series_list_com_den (al pol ++ [an pol])
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ (∃ sk, k = j + 'sk * 'q)
@@ -1497,7 +1497,7 @@ Lemma zzz : ∀ pol ns cpol j αj k αk m,
   → cpol = characteristic_polynomial fld pol ns
     → (inject_Z j, αj) = ini_pt ns
       → (inject_Z k, αk) = fin_pt ns
-        → m = series_list_common_denominator (al pol ++ [an pol])
+        → m = series_list_com_den (al pol ++ [an pol])
           → ∃ mj mk, αj == mj # m ∧ αk == mk # m
             ∧ ∃ p q, Z.gcd p ('q) = 1
               ∧ (∃ sk, k = j + 'sk * 'q)
