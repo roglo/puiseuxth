@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.936 2013-07-14 00:22:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.937 2013-07-14 00:42:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -600,9 +600,7 @@ apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (j, aj)) in Hpts.
-bbb.
-  destruct Hpts as (jn, Hj); simpl in Hj.
-  subst j; unfold Qnat; simpl.
+  simpl in Hpts; rewrite Hpts.
   apply Zle_0_nat.
 
   rewrite Heqjaj.
@@ -613,8 +611,7 @@ bbb.
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (k, ak)) in Hpts.
-  destruct Hpts as (kn, Hk); simpl in Hk.
-  subst k; unfold Qnat; simpl.
+  simpl in Hpts; rewrite Hpts.
   apply Zle_0_nat.
 
   rewrite Heqkak.
@@ -962,15 +959,13 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   exists ((mj - mk) / g)%Z.
   exists (Z.to_pos ((Qnum k - Qnum j) / g)).
   split.
-   remember Heqpts as H; clear HeqH.
-   symmetry in H.
-   apply pt_absc_is_nat with (pt := ini_pt ns) in H.
-    destruct H as (jn, Hjn).
+   remember Heqpts as Hjn; clear HeqHjn.
+   symmetry in Hjn.
+   apply pt_absc_is_nat with (pt := ini_pt ns) in Hjn.
     rewrite <- Heqjj in Hjn; simpl in Hjn.
-    remember Heqpts as H; clear HeqH.
-    symmetry in H.
-    apply pt_absc_is_nat with (pt := fin_pt ns) in H.
-     destruct H as (kn, Hkn).
+    remember Heqpts as Hkn; clear HeqHkn.
+    symmetry in Hkn.
+    apply pt_absc_is_nat with (pt := fin_pt ns) in Hkn.
      rewrite <- Heqkk in Hkn; simpl in Hkn.
      rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
      apply p_mq_formula; [ idtac | assumption ].
@@ -981,41 +976,39 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
       eapply j_lt_k.
        subst pts; eassumption.
 
-       rewrite <- Heqjj, Hjn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqjj, Hjn; reflexivity.
 
-       rewrite <- Heqkk, Hkn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqkk, Hkn; reflexivity.
 
       apply lt_le_weak.
       eapply j_lt_k.
        subst pts; eassumption.
 
-       rewrite <- Heqjj, Hjn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqjj, Hjn; reflexivity.
 
-       rewrite <- Heqkk, Hkn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqkk, Hkn; reflexivity.
 
      apply ini_fin_ns_in_init_pts; assumption.
 
     apply ini_fin_ns_in_init_pts; assumption.
 
    assert (Qnum j < Qnum k)%Z as Hjk.
-    remember Heqpts as H; clear HeqH.
-    symmetry in H.
-    apply pt_absc_is_nat with (pt := ini_pt ns) in H.
-     destruct H as (jn, Hjn).
+    remember Heqpts as Hjn; clear HeqHjn.
+    symmetry in Hjn.
+    apply pt_absc_is_nat with (pt := ini_pt ns) in Hjn.
      rewrite <- Heqjj in Hjn; simpl in Hjn.
-     remember Heqpts as H; clear HeqH.
-     symmetry in H.
-     apply pt_absc_is_nat with (pt := fin_pt ns) in H.
-      destruct H as (kn, Hkn).
+     remember Heqpts as Hkn; clear HeqHkn.
+     symmetry in Hkn.
+     apply pt_absc_is_nat with (pt := fin_pt ns) in Hkn.
       rewrite <- Heqkk in Hkn; simpl in Hkn.
       rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
       apply Nat2Z.inj_lt.
       eapply j_lt_k.
        subst pts; eassumption.
 
-       rewrite <- Heqjj, Hjn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqjj, Hjn; reflexivity.
 
-       rewrite <- Heqkk, Hkn; symmetry; apply Nat2Z.id.
+       rewrite <- Heqkk, Hkn; reflexivity.
 
       apply ini_fin_ns_in_init_pts; assumption.
 
@@ -1217,11 +1210,9 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   remember Hpts as Hjn; clear HeqHjn.
   symmetry in Hjn.
   apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
-   destruct Hjn as (jn, Hjn); simpl in Hjn.
    remember Hpts as Hkn; clear HeqHkn.
    symmetry in Hkn.
    apply pt_absc_is_nat with (pt := (kq, αk)) in Hkn.
-    destruct Hkn as (kn, Hkn); simpl in Hkn.
     split.
      remember Hns as Hgh; clear HeqHgh.
      eapply gamma_value_jk in Hgh; try eassumption.
@@ -1238,13 +1229,13 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
       unfold nofq.
       rewrite <- Hj; simpl.
       rewrite Z2Nat.id; [ rewrite Heqjq; reflexivity | idtac ].
-      rewrite Hjn; simpl.
+      simpl in Hjn; rewrite Hjn; simpl.
       apply Zle_0_nat.
 
       unfold nofq.
       rewrite <- Hk; simpl.
       rewrite Z2Nat.id; [ rewrite Heqkq; reflexivity | idtac ].
-      rewrite Hkn; simpl.
+      simpl in Hkn; rewrite Hkn; simpl.
       apply Zle_0_nat.
 
      intros h αh Hh.
@@ -1252,7 +1243,6 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
      remember Hpts as Hhn; clear HeqHhn.
      symmetry in Hhn.
      apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
-      destruct Hhn as (hn, Hhn); simpl in Hhn.
       remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
       eapply in_pts_in_pol in Heqhps; try eassumption.
        2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
@@ -1273,13 +1263,13 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
         eapply j_lt_h; eassumption.
 
         unfold Qnat in Hjn.
-        rewrite Heqjq in Hjn.
-        unfold inject_Z in Hjn.
+        rewrite Heqjq in Hjn |- *.
+        unfold inject_Z in Hjn; simpl in Hjn.
         injection Hjn; intros jj; assumption.
 
         unfold Qnat in Hhn.
-        rewrite Heqhq in Hhn.
-        unfold inject_Z in Hhn.
+        rewrite Heqhq in Hhn |- *.
+        unfold inject_Z in Hhn; simpl in Hhn.
         injection Hhn; intros hh; assumption.
 
         rewrite Heqhq, Heqjq in Hgh.
@@ -1493,7 +1483,7 @@ bbb.
 Lemma xxx :
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
-    → List.forall (λ t, (coeff t - j | 'q))
+    → List.Forall (λ t, (coeff t - j | 'q))
         (List.map (term_of_point fld pol) (oth_pts ns)).
 Proof.
 bbb.
