@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.947 2013-07-14 15:20:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.948 2013-07-14 19:07:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1434,8 +1434,7 @@ Proof.
 induction cl; simpl; [ constructor | assumption ].
 Qed.
 
-(*
-Lemma www : ∀ n v c,
+Lemma empty_padded : ∀ n v c,
   c ∈ list_pad n v []
   → fld_eq fld c v = true.
 Proof.
@@ -1446,7 +1445,6 @@ destruct H as [H| H].
 
  apply IHn, H.
 Qed.
-*)
 
 Lemma padded : ∀ n v c cl,
   list_pad n v [] = [c … cl]
@@ -1458,26 +1456,14 @@ injection H; clear H; intros; subst c cl.
 apply fld_eq_refl.
 Qed.
 
-(**)
-Lemma xxx : ∀ s q c cl,
-  list_pad (s * S q) (zero fld) [] = [c … cl]
-  → poly_in_x_pow_q q (S q) cl.
+Lemma vvv : ∀ q m c cl,
+  fld_eq fld c (zero fld) = true
+  → poly_in_x_pow_q m q cl
+    → poly_in_x_pow_q (S m) q [c … cl].
 Proof.
-intros s q c cl H.
-revert q c cl H.
-induction s; intros; [ discriminate H | idtac ].
-simpl in H.
-injection H; clear H; intros; subst c cl.
-remember (list_pad (q + s * S q) (zero fld) []) as cl.
-symmetry in Heqcl.
-destruct cl as [| c].
- destruct q; [ constructor | discriminate Heqcl ].
-
- simpl.
- destruct q; [ apply poly_in_x | idtac ].
- erewrite padded; [ idtac | eassumption ].
-bbb.
-*)
+intros q m c cl Hz H; simpl.
+rewrite Hz; assumption.
+Qed.
 
 Lemma yyy : ∀ pol pts m j q sk,
   (∀ h αh, (inject_Z h, αh) ∈ pts
@@ -1491,61 +1477,83 @@ revert pol m j q sk Hmh.
 induction pts as [| pt]; intros.
  simpl; rewrite <- plus_Snm_nSm, minus_plus.
  clear pol m j Hmh.
- remember (list_pad (q + sk * S q) (zero fld) []) as pl.
+ remember (q + sk * S q)%nat as x.
+ remember (list_pad x (zero fld) []) as pl.
  destruct pl as [| p]; simpl.
-  destruct q; [ constructor | discriminate Heqpl ].
+  destruct q; [ constructor | subst x; discriminate Heqpl ].
 
   destruct q.
    clear.
    induction pl; simpl; [ constructor | assumption ].
 
    simpl in Heqpl.
+   rewrite Heqx in Heqpl.
    injection Heqpl; clear Heqpl; intros; subst p pl.
    rewrite fld_eq_refl.
-   remember (list_pad (q + sk * S (S q)) (zero fld) []) as pl.
+   simpl in Heqx.
+   remember (pred x) as y; subst x; simpl in Heqy.
+   rename y into x; rename Heqy into Heqx.
+   rewrite <- Heqx.
+   remember (list_pad x (zero fld) []) as pl.
    destruct pl as [| p]; simpl.
-    destruct q; [ constructor | discriminate Heqpl ].
+    destruct q; [ constructor | subst x; discriminate Heqpl ].
 
     destruct q.
-     simpl in Heqpl.
+     subst x; simpl in Heqpl.
      destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
      injection Heqpl; clear Heqpl; intros; subst p pl.
      simpl; rewrite fld_eq_refl.
      induction sk; [ constructor | simpl ].
      rewrite fld_eq_refl; assumption.
 
+     rewrite Heqx in Heqpl.
      simpl in Heqpl.
      injection Heqpl; clear Heqpl; intros; subst p pl.
      rewrite fld_eq_refl.
-     remember (list_pad (q + sk * S (S (S q))) (zero fld) []) as pl.
+     simpl in Heqx.
+     remember (pred x) as y; subst x; simpl in Heqy.
+     rename y into x; rename Heqy into Heqx.
+     rewrite <- Heqx.
+     remember (list_pad x (zero fld) []) as pl.
      destruct pl as [| p]; simpl.
-      destruct q; [ constructor | discriminate Heqpl ].
+      destruct q; [ constructor | subst x; discriminate Heqpl ].
 
       destruct q.
-       simpl in Heqpl.
+       subst x; simpl in Heqpl.
        destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
        injection Heqpl; clear Heqpl; intros; subst p pl.
        simpl; rewrite fld_eq_refl.
        induction sk; [ constructor | simpl ].
        rewrite fld_eq_refl; assumption.
 
+       rewrite Heqx in Heqpl.
        simpl in Heqpl.
        injection Heqpl; clear Heqpl; intros; subst p pl.
        rewrite fld_eq_refl.
-       remember (list_pad (q + sk * S (S (S (S q)))) (zero fld) []) as pl.
+       simpl in Heqx.
+       remember (pred x) as y; subst x; simpl in Heqy.
+       rename y into x; rename Heqy into Heqx.
+       rewrite <- Heqx.
+       remember (list_pad x (zero fld) []) as pl.
        destruct pl as [| p]; simpl.
-        destruct q; [ constructor | discriminate Heqpl ].
+        destruct q; [ constructor | subst x; discriminate Heqpl ].
 
         destruct q.
-         simpl in Heqpl.
+         subst x; simpl in Heqpl.
          destruct sk; [ discriminate Heqpl | simpl in Heqpl ].
          injection Heqpl; clear Heqpl; intros; subst p pl.
          simpl; rewrite fld_eq_refl.
          induction sk; [ constructor | simpl ].
          rewrite fld_eq_refl; assumption.
 
+         rewrite Heqx in Heqpl.
          simpl in Heqpl.
-
+         injection Heqpl; clear Heqpl; intros; subst p pl.
+         rewrite fld_eq_refl.
+         simpl in Heqx.
+         remember (pred x) as y; subst x; simpl in Heqy.
+         rename y into x; rename Heqy into Heqx.
+         rewrite <- Heqx.
 bbb.
 *)
 
