@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.944 2013-07-14 09:40:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.945 2013-07-14 11:21:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1428,6 +1428,27 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
+
+Lemma www : ∀ pl, poly_in_x_pow_q 0 1 pl.
+Proof.
+induction pl; simpl; [ constructor | assumption ].
+Qed.
+
+(*
+Lemma xxx : ∀ s q p pl,
+  list_pad (s * S (S q)) (zero fld) [] = [p … pl]
+  → poly_in_x_pow_q (S q) (S (S q)) pl.
+Proof.
+intros s q p pl H.
+destruct s; [ discriminate H | simpl in H ].
+injection H; clear H; intros; subst p pl.
+simpl; rewrite fld_eq_refl.
+destruct s; simpl.
+ rewrite plus_0_r.
+ induction q; [ constructor | simpl ].
+ rewrite fld_eq_refl.
+bbb.
+*)
 
 Lemma yyy : ∀ pol pts m j q sk,
   (∀ h αh, (inject_Z h, αh) ∈ pts
