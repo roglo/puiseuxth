@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.940 2013-07-14 06:44:05 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.941 2013-07-14 06:54:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1436,6 +1436,19 @@ Lemma yyy : ∀ pol pts m j q v sk,
       (make_char_pol fld (S j) (List.map (term_of_point fld pol) pts)
          (j + S sk * S q) ++ [v]).
 Proof.
+intros pol pts m j q v sk Hmh.
+revert pol m j q v sk Hmh.
+induction pts as [| pt]; intros.
+ simpl.
+ rewrite <- plus_Snm_nSm, minus_plus.
+ remember (list_pad (q + sk * S q) (zero fld) []) as pl.
+ destruct pl as [| p].
+  simpl.
+  destruct q; [ constructor | idtac ].
+  remember (fld_eq fld v (zero fld)) as vz.
+  symmetry in Heqvz.
+  destruct vz.
+   destruct q; [ constructor | idtac ].
 bbb.
 *)
 
