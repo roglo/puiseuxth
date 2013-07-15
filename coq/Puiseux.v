@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.953 2013-07-15 15:05:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.954 2013-07-15 15:37:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1506,27 +1506,41 @@ injection H; clear H; intros; subst c cl.
 apply fld_eq_refl.
 Qed.
 
-(*
-Lemma vvv : ∀ q m c cl,
-  fld_eq fld c (zero fld) = true
-  → poly_in_x_pow_q m q cl
-    → poly_in_x_pow_q (S m) q [c … cl].
-Proof.
-intros q m c cl Hz H; simpl.
-rewrite Hz; assumption.
-Qed.
-*)
-
-Lemma zero_zero_monom : ∀ m q,
+Lemma zero_padded_poly_in_x_pow_q : ∀ m q cl,
   (m < S q)%nat
-  → poly_in_x_pow_q m (S q) (list_pad m (zero fld) []).
+  → poly_in_x_pow_q 0 (S q) cl
+    → poly_in_x_pow_q m (S q) (list_pad m (zero fld) cl).
 Proof.
-intros m q Hmq.
-revert q Hmq.
-induction m; intros; [ constructor | simpl ].
+intros m q cl Hmq H.
+revert q cl Hmq H.
+induction m; intros; [ assumption | simpl ].
 rewrite fld_eq_refl.
-apply IHm, lt_le_weak; assumption.
+apply IHm; [ apply lt_le_weak; assumption | assumption ].
 Qed.
+
+(*
+Lemma xxx : ∀ m q v cl,
+  (m < S q)%nat
+  → poly_in_x_pow_q m (S q) (list_pad v (zero fld) cl)
+    → poly_in_x_pow_q m (S q) (list_pad (S q + v) (zero fld) cl).
+Proof.
+intros m q v cl Hm H.
+revert m q cl Hm H.
+induction v; intros.
+ simpl in H.
+ simpl.
+ destruct m.
+  rewrite plus_0_r.
+  apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | assumption ].
+
+  rewrite fld_eq_refl.
+  rewrite plus_0_r.
+  destruct cl as [| c]; [ contradiction | idtac ].
+  simpl in H.
+  remember (fld_eq fld c (zero fld)) as e.
+  destruct e; [ idtac | contradiction ].
+bbb.
+*)
 
 Lemma plus_one_zero_monom : ∀ m q v,
   (m < S q)%nat
@@ -1540,7 +1554,7 @@ induction v; intros.
  simpl.
  destruct m; [ idtac | contradiction ].
  rewrite plus_0_r.
- apply zero_zero_monom, lt_n_Sn.
+ apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | constructor ].
 
  destruct m; simpl.
   rewrite <- plus_Snm_nSm.
@@ -1572,7 +1586,7 @@ induction spts as [| pt]; intros.
  revert q x Heqx.
  induction sk; intros.
   rewrite plus_0_r in Heqx; subst x.
-  apply zero_zero_monom, lt_n_Sn.
+  apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | constructor ].
 
   simpl in Heqx.
   rewrite <- plus_Snm_nSm in Heqx.
