@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.950 2013-07-14 21:34:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.951 2013-07-15 09:31:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1505,16 +1505,17 @@ induction v; intros.
    rewrite fld_eq_refl in H; assumption.
 Qed.
 
-Lemma yyy : ∀ pol pts m j q sk,
-  (∀ h αh, (inject_Z h, αh) ∈ pts
-   → ∃ mh sh : Z, αh == mh # m ∧ h = Z.of_nat j + sh * Z.of_nat (S q))
-  → poly_in_x_pow_q q (S q)
-      (make_char_pol fld (S j) (List.map (term_of_point fld pol) pts)
-         (j + S sk * S q)).
+Lemma yyy : ∀ pol spts m j q sk,
+  (∀ pt, pt ∈ spts → fst pt = Qnat (Z.to_nat (Qnum (fst pt))))
+  → (∀ h αh, (inject_Z h, αh) ∈ spts
+     → ∃ mh sh : Z, αh == mh # m ∧ h = Z.of_nat j + sh * Z.of_nat (S q))
+    → poly_in_x_pow_q q (S q)
+        (make_char_pol fld (S j) (List.map (term_of_point fld pol) spts)
+           (j + S sk * S q)).
 Proof.
-intros pol pts m j q sk Hmh.
+intros pol spts m j q sk Hnat Hmh.
 revert pol m j q sk Hmh.
-induction pts as [| pt]; intros.
+induction spts as [| pt]; intros.
  simpl; rewrite <- plus_Snm_nSm, minus_plus.
  clear pol m j Hmh.
  remember (q + sk * S q)%nat as x.
@@ -1531,6 +1532,20 @@ induction pts as [| pt]; intros.
 
  simpl.
  unfold nofq; simpl.
+ destruct pt as (hq, αh); simpl.
+ remember (Qnum hq) as h.
+ assert ((inject_Z h, αh) ∈ [(hq, αh) … spts]) as H.
+  rewrite Heqh; left; simpl.
+  assert ((hq, αh) ∈ [(hq, αh) … spts]) as H by (left; reflexivity).
+  apply Hnat in H.
+  simpl in H; rewrite H; reflexivity.
+
+  apply Hmh in H.
+  destruct H as (mh, (sh, (Hαh, Hhj))).
+  rewrite Hhj.
+  simpl.
+  rewrite Z2Nat.inj_add.
+   rewrite Nat2Z.id.
 
 bbb.
 *)
@@ -1545,7 +1560,7 @@ Lemma zzz : ∀ pol ns cpol j αj k αk m,
             ∧ ∃ p q, Z.gcd p ('q) = 1
               ∧ (∃ sk, k = j + 'sk * 'q)
               ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-           → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
+                 → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
               ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
@@ -1607,14 +1622,18 @@ rewrite <- Nat2Z.inj_sub in Hqjk.
      rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
      apply yyy with (m := m).
-     intros h αh Hoth.
-     apply Hmh in Hoth.
-     destruct Hoth as (mh, (sh, (Hαh, Hh))).
-     exists mh, sh.
-     split; [ assumption | idtac ].
-     rewrite Hh, Hini, Heqq.
-     apply Zplus_eq_compat; [ reflexivity | idtac ].
-     rewrite positive_nat_Z; reflexivity.
+      intros pt Hpt.
+      eapply pt_absc_is_nat; [ reflexivity | idtac ].
+      eapply oth_pts_in_init_pts; eassumption.
+
+      intros h αh Hoth.
+      apply Hmh in Hoth.
+      destruct Hoth as (mh, (sh, (Hαh, Hh))).
+      exists mh, sh.
+      split; [ assumption | idtac ].
+      rewrite Hh, Hini, Heqq.
+      apply Zplus_eq_compat; [ reflexivity | idtac ].
+      rewrite positive_nat_Z; reflexivity.
 
    intros Hcontrad.
    pose proof (Pos2Nat.is_pos (sk * q)) as H.
