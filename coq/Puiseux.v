@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.954 2013-07-15 15:37:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.955 2013-07-15 15:46:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1518,7 +1518,7 @@ rewrite fld_eq_refl.
 apply IHm; [ apply lt_le_weak; assumption | assumption ].
 Qed.
 
-(*
+(**)
 Lemma xxx : ∀ m q v cl,
   (m < S q)%nat
   → poly_in_x_pow_q m (S q) (list_pad v (zero fld) cl)
@@ -1535,10 +1535,23 @@ induction v; intros.
 
   rewrite fld_eq_refl.
   rewrite plus_0_r.
-  destruct cl as [| c]; [ contradiction | idtac ].
-  simpl in H.
+  destruct cl as [| c]; [ contradiction | simpl in H ].
   remember (fld_eq fld c (zero fld)) as e.
+  symmetry in Heqe.
   destruct e; [ idtac | contradiction ].
+  apply lt_S_n in Hm.
+  Focus 2.
+  destruct m; simpl.
+   rewrite <- plus_Snm_nSm.
+   apply IHv; [ apply lt_n_Sn | assumption ].
+
+   rewrite fld_eq_refl.
+   rewrite <- plus_Snm_nSm.
+   apply IHv.
+    apply lt_le_weak; assumption.
+
+    simpl in H.
+    rewrite fld_eq_refl in H; assumption.
 bbb.
 *)
 
