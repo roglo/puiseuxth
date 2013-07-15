@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.960 2013-07-15 19:39:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.961 2013-07-15 20:05:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1557,6 +1557,43 @@ induction v; intros.
    rewrite fld_eq_refl in H; assumption.
 Qed.
 
+(* supposes transitivity of fld_eq: why not? but I have to add it
+Lemma xxx : ∀ m q cl₁ cl₂,
+  list_eq (fld_eq fld) cl₁ cl₂ = true
+  → poly_in_x_pow_q m q cl₁
+    → poly_in_x_pow_q m q cl₂.
+Proof.
+intros m q cl₁ cl₂ Heq H.
+revert m q cl₂ Heq H.
+induction cl₁ as [| c₁]; intros.
+ simpl in Heq.
+ destruct cl₂ as [| c₂]; [ idtac | discriminate Heq ].
+ assumption.
+
+ simpl in H.
+ destruct m.
+  simpl in Heq.
+  destruct cl₂ as [| c₂]; [ discriminate Heq | idtac ].
+  simpl.
+  apply andb_true_iff in Heq.
+  destruct Heq as (Heq, Hleq).
+  apply IHcl₁; assumption.
+
+  simpl in Heq.
+  destruct cl₂ as [| c₂]; [ discriminate Heq | idtac ].
+  apply andb_true_iff in Heq.
+  destruct Heq as (Heq, Hleq).
+  simpl.
+  remember (fld_eq fld c₁ (zero fld)) as e₁.
+  symmetry in Heqe₁.
+  destruct e₁; [ idtac | contradiction ].
+  remember (fld_eq fld c₂ (zero fld)) as e₂.
+  symmetry in Heqe₂.
+  destruct e₂.
+   apply IHcl₁; assumption.
+bbb.
+*)
+
 (*
 Lemma ttt : ∀ m q cl u,
   m < q
@@ -1588,7 +1625,7 @@ Proof.
 bbb.
 *)
 
-(*
+(**)
 Lemma xxx : ∀ m q v cl,
   (m < S q)%nat
   → poly_in_x_pow_q m (S q) (list_pad v (zero fld) cl)
