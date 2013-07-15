@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.958 2013-07-15 19:01:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.959 2013-07-15 19:05:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1478,6 +1478,15 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
 
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
+
+Lemma xxx : ∀ n v cl,
+  list_eq (fld_eq fld) (list_pad n v cl) (list_pad n v [] ++ cl) = true.
+Proof.
+intros n v cl.
+induction cl as [| c].
+ rewrite List.app_nil_r.
+ apply list_eq_refl.
+bbb.
 
 Lemma poly_in_x : ∀ cl, poly_in_x_pow_q 0 1 cl.
 Proof.
