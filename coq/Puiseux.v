@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.956 2013-07-15 17:11:40 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.957 2013-07-15 17:28:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1517,6 +1517,19 @@ induction m; intros; [ assumption | simpl ].
 rewrite fld_eq_refl.
 apply IHm; [ apply lt_le_weak; assumption | assumption ].
 Qed.
+
+Lemma uuu : ∀ m q cl,
+  poly_in_x_pow_q m (S q) cl
+  → poly_in_x_pow_q m (S q) (list_pad (S q) (zero fld) cl).
+Proof.
+bbb.
+
+Lemma www : ∀ m q c cl,
+  fld_eq fld c (zero fld) = true
+  → poly_in_x_pow_q m (S q) (list_pad (S q) (zero fld) cl)
+    → poly_in_x_pow_q m (S q) (list_pad q (zero fld) [c … cl]).
+Proof.
+bbb.
 
 (**)
 Lemma xxx : ∀ m q v cl,
