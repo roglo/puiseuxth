@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.951 2013-07-15 09:31:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.952 2013-07-15 14:28:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -508,6 +508,37 @@ unfold Qnat in Hh; simpl in Hh.
 unfold Qlt in Hh; simpl in Hh.
 do 2 rewrite Zmult_1_r in Hh.
 apply Nat2Z.inj_lt; assumption.
+Qed.
+
+Lemma jz_lt_hz : ∀ (pol : puis_ser_pol α) jz αj jq hz αh hq ns,
+  ns ∈ newton_segments fld pol
+  → (jq, αj) = ini_pt ns
+    → (hq, αh) ∈ oth_pts ns
+      → jz = Qnum jq
+        → hz = Qnum hq
+          → (jz < hz)%Z.
+Proof.
+intros pol jz αj jq hz αh hq ns Hns Hjq Hhq Hjz Hhz.
+subst jz hz.
+remember Hns as H; clear HeqH.
+unfold newton_segments in H.
+remember (points_of_ps_polynom fld pol) as pts.
+symmetry in Heqpts.
+remember Heqpts as Hjqn; clear HeqHjqn.
+apply pt_absc_is_nat with (pt := (jq, αj)) in Hjqn.
+ simpl in Hjqn.
+ remember Heqpts as Hhqn; clear HeqHhqn.
+ apply pt_absc_is_nat with (pt := (hq, αh)) in Hhqn.
+  simpl in Hhqn.
+  rewrite Hjqn, Hhqn.
+  simpl.
+  apply inj_lt.
+  eapply j_lt_h; try eassumption.
+
+  eapply oth_pts_in_init_pts; eassumption.
+
+ rewrite Hjq.
+ eapply ini_fin_ns_in_init_pts; eassumption.
 Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
@@ -1337,7 +1368,7 @@ Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk m,
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ (∃ sk, k = j + 'sk * 'q)
             ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-              → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q.
+              → ∃ mh sh, αh == mh # m ∧ h = j + 'sh * 'q.
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as H; clear HeqH.
@@ -1383,14 +1414,33 @@ split.
    rewrite <- Hk; reflexivity.
 
  intros h αh Hm.
- apply H in Hm.
- destruct Hm as (mh, (Hmh, Heq)).
+ remember Hm as HH; clear HeqHH.
+ apply H in HH.
+ destruct HH as (mh, (Hmh, Heq)).
  exists mh.
  destruct Heq as (sh, Hq).
- exists sh.
- split; [ assumption | idtac ].
- rewrite <- Hq.
- rewrite Zplus_minus; reflexivity.
+ destruct sh as [| sh| sh].
+  simpl in Hq.
+  apply Zminus_eq in Hq.
+  eapply jz_lt_hz with (hz := h) in Hm; try eassumption; try reflexivity.
+  apply Zlt_irrefl in Hm; contradiction.
+
+  exists sh.
+  split; [ assumption | idtac ].
+  rewrite <- Hq.
+  rewrite Zplus_minus; reflexivity.
+
+  eapply jz_lt_hz with (hz := h) in Hns; try eassumption; try reflexivity.
+  simpl in Hns.
+  apply Z.sub_move_r in Hq.
+  rewrite Hq in Hns.
+  replace j with (0 + j)%Z in Hns by reflexivity.
+  rewrite Zplus_assoc, Zplus_0_r in Hns.
+  apply Zplus_lt_reg_r in Hns.
+  apply Zlt_not_le in Hns.
+  exfalso; apply Hns.
+  apply Zlt_le_weak.
+  apply Zlt_neg_0.
 Qed.
 
 (* *)
@@ -1508,7 +1558,7 @@ Qed.
 Lemma yyy : ∀ pol spts m j q sk,
   (∀ pt, pt ∈ spts → fst pt = Qnat (Z.to_nat (Qnum (fst pt))))
   → (∀ h αh, (inject_Z h, αh) ∈ spts
-     → ∃ mh sh : Z, αh == mh # m ∧ h = Z.of_nat j + sh * Z.of_nat (S q))
+     → ∃ mh sh, αh == mh # m ∧ h = Z.of_nat j + 'sh * Z.of_nat (S q))
     → poly_in_x_pow_q q (S q)
         (make_char_pol fld (S j) (List.map (term_of_point fld pol) spts)
            (j + S sk * S q)).
@@ -1560,7 +1610,7 @@ Lemma zzz : ∀ pol ns cpol j αj k αk m,
             ∧ ∃ p q, Z.gcd p ('q) = 1
               ∧ (∃ sk, k = j + 'sk * 'q)
               ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-                 → ∃ mh sh, αh == mh # m ∧ h = j + sh * 'q)
+                 → ∃ mh sh, αh == mh # m ∧ h = j + 'sh * 'q)
               ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
 Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
