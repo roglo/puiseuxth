@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.952 2013-07-15 14:28:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.953 2013-07-15 15:05:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1592,11 +1592,21 @@ induction spts as [| pt]; intros.
 
   apply Hmh in H.
   destruct H as (mh, (sh, (Hαh, Hhj))).
+  simpl in Hhj.
+  rewrite Pos.of_nat_succ in Hhj.
+  remember (sh * Pos.of_nat (S q))%positive as d.
   rewrite Hhj.
-  simpl.
   rewrite Z2Nat.inj_add.
    rewrite Nat2Z.id.
+   simpl.
+   remember (Pos.to_nat d) as e.
+   destruct e.
+    pose proof (Pos2Nat.is_pos d) as H.
+    rewrite Heqe in H.
+    apply lt_irrefl in H; contradiction.
 
+    rewrite <- plus_Snm_nSm.
+    rewrite minus_plus.
 bbb.
 *)
 
