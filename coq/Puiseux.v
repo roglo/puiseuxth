@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.961 2013-07-15 20:05:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.962 2013-07-15 20:32:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1593,6 +1593,13 @@ induction cl₁ as [| c₁]; intros.
    apply IHcl₁; assumption.
 bbb.
 *)
+
+Lemma sss : ∀ m q cl u,
+  poly_in_x_pow_q m q (list_pad u (zero fld) (list_pad q (zero fld) cl))
+  → poly_in_x_pow_q m q (list_pad (u + q) (zero fld) cl).
+Proof.
+intros m q cl u H.
+bbb.
 
 (*
 Lemma ttt : ∀ m q cl u,
