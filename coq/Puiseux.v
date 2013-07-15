@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.957 2013-07-15 17:28:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.958 2013-07-15 19:01:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1518,10 +1518,55 @@ rewrite fld_eq_refl.
 apply IHm; [ apply lt_le_weak; assumption | assumption ].
 Qed.
 
-Lemma uuu : ∀ m q cl,
-  poly_in_x_pow_q m (S q) cl
-  → poly_in_x_pow_q m (S q) (list_pad (S q) (zero fld) cl).
+Lemma plus_one_zero_monom : ∀ m q v,
+  (m < q)%nat
+  → poly_in_x_pow_q m q (list_pad v (zero fld) [])
+    → poly_in_x_pow_q m q (list_pad (q + v) (zero fld) []).
 Proof.
+intros m q v Hm H.
+destruct q; [ assumption | idtac ].
+revert m q Hm H.
+induction v; intros.
+ simpl in H.
+ simpl.
+ destruct m; [ idtac | contradiction ].
+ rewrite plus_0_r.
+ apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | constructor ].
+
+ destruct m; simpl.
+  rewrite <- plus_Snm_nSm.
+  apply IHv; [ apply lt_n_Sn | assumption ].
+
+  rewrite fld_eq_refl.
+  rewrite <- plus_Snm_nSm.
+  apply IHv.
+   apply lt_le_weak; assumption.
+
+   simpl in H.
+   rewrite fld_eq_refl in H; assumption.
+Qed.
+
+(*
+Lemma ttt : ∀ m q cl u,
+  m < q
+  poly_in_x_pow_q m q (list_pad u (zero fld) cl)
+  → poly_in_x_pow_q m q (list_pad (u + q) (zero fld) cl).
+Proof.
+intros m q cl u H.
+destruct q.
+ rewrite plus_0_r; assumption.
+
+ revert m q u H.
+ induction cl as [| c]; intros.
+  rewrite plus_comm.
+  apply plus_one_zero_monom.
+bbb.
+
+Lemma uuu : ∀ m q cl,
+  poly_in_x_pow_q m q cl
+  → poly_in_x_pow_q m q (list_pad q (zero fld) cl).
+Proof.
+intros m q cl H.
 bbb.
 
 Lemma www : ∀ m q c cl,
@@ -1530,8 +1575,9 @@ Lemma www : ∀ m q c cl,
     → poly_in_x_pow_q m (S q) (list_pad q (zero fld) [c … cl]).
 Proof.
 bbb.
+*)
 
-(**)
+(*
 Lemma xxx : ∀ m q v cl,
   (m < S q)%nat
   → poly_in_x_pow_q m (S q) (list_pad v (zero fld) cl)
@@ -1564,33 +1610,6 @@ induction v; intros.
  apply lt_S_n in Hm.
 bbb.
 *)
-
-Lemma plus_one_zero_monom : ∀ m q v,
-  (m < S q)%nat
-  → poly_in_x_pow_q m (S q) (list_pad v (zero fld) [])
-    → poly_in_x_pow_q m (S q) (list_pad (S q + v) (zero fld) []).
-Proof.
-intros m q v Hm H.
-revert m q Hm H.
-induction v; intros.
- simpl in H.
- simpl.
- destruct m; [ idtac | contradiction ].
- rewrite plus_0_r.
- apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | constructor ].
-
- destruct m; simpl.
-  rewrite <- plus_Snm_nSm.
-  apply IHv; [ apply lt_n_Sn | assumption ].
-
-  rewrite fld_eq_refl.
-  rewrite <- plus_Snm_nSm.
-  apply IHv.
-   apply lt_le_weak; assumption.
-
-   simpl in H.
-   rewrite fld_eq_refl in H; assumption.
-Qed.
 
 Lemma yyy : ∀ pol spts m j q sk,
   (∀ pt, pt ∈ spts → fst pt = Qnat (Z.to_nat (Qnum (fst pt))))
