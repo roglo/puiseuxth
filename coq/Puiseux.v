@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.955 2013-07-15 15:46:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.956 2013-07-15 17:11:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1533,13 +1533,6 @@ induction v; intros.
   rewrite plus_0_r.
   apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | assumption ].
 
-  rewrite fld_eq_refl.
-  rewrite plus_0_r.
-  destruct cl as [| c]; [ contradiction | simpl in H ].
-  remember (fld_eq fld c (zero fld)) as e.
-  symmetry in Heqe.
-  destruct e; [ idtac | contradiction ].
-  apply lt_S_n in Hm.
   Focus 2.
   destruct m; simpl.
    rewrite <- plus_Snm_nSm.
@@ -1552,6 +1545,10 @@ induction v; intros.
 
     simpl in H.
     rewrite fld_eq_refl in H; assumption.
+
+ rewrite fld_eq_refl.
+ rewrite plus_0_r.
+ apply lt_S_n in Hm.
 bbb.
 *)
 
