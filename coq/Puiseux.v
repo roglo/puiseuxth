@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.970 2013-07-16 14:53:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.971 2013-07-16 18:15:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1754,7 +1754,25 @@ induction spts as [| pt]; intros.
      destruct q; [ apply poly_in_x | exfalso ].
      revert Heqe; apply Pmul_not_1, Pos.lt_1_succ.
 bbb.
+
+   fld_eq fld (zero fld)
+     (List.nth i
+        (list_pad s (zero fld)
+           [valuation_coeff fld (List.nth (S j + s) (al pol) (an pol))
+           … make_char_pol fld (S j + S s)
+               (List.map (term_of_point fld pol) tl) 
+               (j + S (q + sk * S q))]) (zero fld)) = true
 *)
+
+Lemma list_nth_pad : ∀ i s (v : α) cl d,
+  List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
+Proof.
+intros i s v cl d.
+induction s; intros.
+ rewrite plus_0_r; reflexivity.
+
+ rewrite <- plus_n_Sm; assumption.
+Qed.
 
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
@@ -1822,7 +1840,8 @@ destruct i.
 
     remember (oth_pts ns) as tl.
     subst c.
-    induction tl as [| t]; simpl.
+    revert i Himq.
+    induction tl as [| t]; intros; simpl.
      rewrite <- plus_Snm_nSm, minus_plus.
      remember (q + sk * S q)%nat as n.
      clear; revert n.
@@ -1864,6 +1883,7 @@ destruct i.
          exfalso; revert H; apply lt_irrefl.
 
          rewrite <- plus_Snm_nSm, minus_plus.
+         destruct (le_dec i s) as [Hle| Hgt].
 bbb.
 
 (*
