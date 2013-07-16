@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.968 2013-07-16 13:27:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.969 2013-07-16 13:56:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1821,16 +1821,32 @@ destruct i.
     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
     remember (oth_pts ns) as tl.
-    induction tl as [| t].
-     simpl in Hc.
-     rewrite <- plus_Snm_nSm, minus_plus in Hc.
-     subst c.
+    subst c.
+    induction tl as [| t]; simpl.
+     rewrite <- plus_Snm_nSm, minus_plus.
      remember (q + sk * S q)%nat as n.
      clear; revert n.
      induction i; intros.
       destruct n; apply fld_eq_refl.
 
       destruct n; [ apply fld_eq_refl | apply IHi ].
+
+     unfold newton_segments in Hns.
+     remember (points_of_ps_polynom fld pol) as pts.
+     remember Heqpts as H; clear HeqH; symmetry in H.
+     apply pt_absc_is_nat with (pt := t) in H.
+      2: eapply oth_pts_in_init_pts; [ eassumption | idtac ].
+      2: rewrite <- Heqtl; left; reflexivity.
+
+      destruct t as (hq, αh); simpl in H |- *.
+      unfold nofq; simpl.
+      rename H into Hh.
+      assert ((inject_Z (Qnum hq), αh) ∈ [(hq, αh) … tl]) as H.
+       left; unfold inject_Z.
+       f_equal.
+       rewrite Hh in |- * at 1.
+       unfold Qnat.
+       rewrite Z2Nat.id; [ reflexivity | idtac ].
 bbb.
 
 (*
