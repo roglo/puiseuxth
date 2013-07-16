@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.974 2013-07-16 19:52:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.975 2013-07-16 19:53:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1507,11 +1507,6 @@ induction s; intros.
  rewrite <- plus_n_Sm; assumption.
 Qed.
 
-Lemma yyy : ∀ i (c : α) cl d,
-  List.nth (S i) [c … cl] d = List.nth i cl d.
-Proof.
-bbb.
-
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
@@ -1641,7 +1636,7 @@ destruct i.
 
             intros H; discriminate H.
 
-           rewrite yyy.
+           simpl.
 bbb.
 
 (*
