@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.973 2013-07-16 19:14:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.974 2013-07-16 19:52:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1445,42 +1445,6 @@ Qed.
 
 (* *)
 
-(*
-Fixpoint poly_in_x_pow_q m q cl :=
-  match cl with
-  | [] =>
-      match m with
-      | 0%nat => True
-      | S m₁ => False
-      end
-  | [c₁ … cl₁] =>
-      match m with
-      | 0%nat => poly_in_x_pow_q (pred q) q cl₁
-      | S m₁ =>
-          if fld_eq fld c₁ (zero fld) then poly_in_x_pow_q m₁ q cl₁
-          else False
-      end
-  end.
-*)
-
-(*
-Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
-  | px_nil : ∀ q, poly_in_x_pow_q 0 (S q) []
-  | px_0_cons : ∀ q c cl,
-      poly_in_x_pow_q q (S q) cl
-      → poly_in_x_pow_q 0 (S q) [c … cl]
-  | px_Sm_cons : ∀ q c cl m,
-      fld_eq fld c (zero fld) = true
-      → (m < q)%nat
-        → poly_in_x_pow_q m (S q) cl
-          → poly_in_x_pow_q (S m) (S q) [c … cl].
-*)
-
-(*
-Definition is_polynomial_in_x_power_q cpol q :=
-  poly_in_x_pow_q 0 q (al cpol).
-*)
-
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat →
     c = List.nth i (al pol) (zero fld)
@@ -1496,13 +1460,6 @@ induction n; intros; simpl.
 
  rewrite fld_eq_refl; apply IHn.
 Qed.
-
-(*
-Lemma poly_in_x : ∀ cl, poly_in_x_pow_q 0 1 cl.
-Proof.
-induction cl; simpl; [ constructor | assumption ].
-Qed.
-*)
 
 Lemma empty_padded : ∀ n v c,
   c ∈ list_pad n v []
@@ -1525,244 +1482,6 @@ destruct n; [ discriminate H | simpl in H ].
 injection H; clear H; intros; subst c cl.
 apply fld_eq_refl.
 Qed.
-
-(*
-Lemma zero_padded_poly_in_x_pow_q : ∀ m q cl,
-  (m < S q)%nat
-  → poly_in_x_pow_q 0 (S q) cl
-    → poly_in_x_pow_q m (S q) (list_pad m (zero fld) cl).
-Proof.
-intros m q cl Hmq H.
-revert q cl Hmq H.
-induction m; intros; [ assumption | simpl ].
-rewrite fld_eq_refl.
-apply IHm; [ apply lt_le_weak; assumption | assumption ].
-Qed.
-
-Lemma plus_one_zero_monom : ∀ m q v,
-  (m < q)%nat
-  → poly_in_x_pow_q m q (list_pad v (zero fld) [])
-    → poly_in_x_pow_q m q (list_pad (q + v) (zero fld) []).
-Proof.
-intros m q v Hm H.
-destruct q; [ assumption | idtac ].
-revert m q Hm H.
-induction v; intros.
- simpl in H.
- simpl.
- destruct m; [ idtac | contradiction ].
- rewrite plus_0_r.
- apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | constructor ].
-
- destruct m; simpl.
-  rewrite <- plus_Snm_nSm.
-  apply IHv; [ apply lt_n_Sn | assumption ].
-
-  rewrite fld_eq_refl.
-  rewrite <- plus_Snm_nSm.
-  apply IHv.
-   apply lt_le_weak; assumption.
-
-   simpl in H.
-   rewrite fld_eq_refl in H; assumption.
-Qed.
-*)
-
-(* supposes transitivity of fld_eq: why not? but I have to add it
-Lemma xxx : ∀ m q cl₁ cl₂,
-  list_eq (fld_eq fld) cl₁ cl₂ = true
-  → poly_in_x_pow_q m q cl₁
-    → poly_in_x_pow_q m q cl₂.
-Proof.
-intros m q cl₁ cl₂ Heq H.
-revert m q cl₂ Heq H.
-induction cl₁ as [| c₁]; intros.
- simpl in Heq.
- destruct cl₂ as [| c₂]; [ idtac | discriminate Heq ].
- assumption.
-
- simpl in H.
- destruct m.
-  simpl in Heq.
-  destruct cl₂ as [| c₂]; [ discriminate Heq | idtac ].
-  simpl.
-  apply andb_true_iff in Heq.
-  destruct Heq as (Heq, Hleq).
-  apply IHcl₁; assumption.
-
-  simpl in Heq.
-  destruct cl₂ as [| c₂]; [ discriminate Heq | idtac ].
-  apply andb_true_iff in Heq.
-  destruct Heq as (Heq, Hleq).
-  simpl.
-  remember (fld_eq fld c₁ (zero fld)) as e₁.
-  symmetry in Heqe₁.
-  destruct e₁; [ idtac | contradiction ].
-  remember (fld_eq fld c₂ (zero fld)) as e₂.
-  symmetry in Heqe₂.
-  destruct e₂.
-   apply IHcl₁; assumption.
-bbb.
-
-Lemma sss : ∀ m q cl u,
-  poly_in_x_pow_q m q (list_pad u (zero fld) (list_pad q (zero fld) cl))
-  → poly_in_x_pow_q m q (list_pad (u + q) (zero fld) cl).
-Proof.
-intros m q cl u H.
-bbb.
-
-Lemma ttt : ∀ m q cl u,
-  m < q
-  poly_in_x_pow_q m q (list_pad u (zero fld) cl)
-  → poly_in_x_pow_q m q (list_pad (u + q) (zero fld) cl).
-Proof.
-intros m q cl u H.
-destruct q.
- rewrite plus_0_r; assumption.
-
- revert m q u H.
- induction cl as [| c]; intros.
-  rewrite plus_comm.
-  apply plus_one_zero_monom.
-bbb.
-
-Lemma uuu : ∀ m q cl,
-  poly_in_x_pow_q m q cl
-  → poly_in_x_pow_q m q (list_pad q (zero fld) cl).
-Proof.
-intros m q cl H.
-bbb.
-
-Lemma www : ∀ m q c cl,
-  fld_eq fld c (zero fld) = true
-  → poly_in_x_pow_q m (S q) (list_pad (S q) (zero fld) cl)
-    → poly_in_x_pow_q m (S q) (list_pad q (zero fld) [c … cl]).
-Proof.
-bbb.
-*)
-
-(*
-Lemma xxx : ∀ m q v cl,
-  (m < S q)%nat
-  → poly_in_x_pow_q m (S q) (list_pad v (zero fld) cl)
-    → poly_in_x_pow_q m (S q) (list_pad (S q + v) (zero fld) cl).
-Proof.
-intros m q v cl Hm H.
-revert m q cl Hm H.
-induction v; intros.
- simpl in H.
- simpl.
- destruct m.
-  rewrite plus_0_r.
-  apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | assumption ].
-
-  Focus 2.
-  destruct m; simpl.
-   rewrite <- plus_Snm_nSm.
-   apply IHv; [ apply lt_n_Sn | assumption ].
-
-   rewrite fld_eq_refl.
-   rewrite <- plus_Snm_nSm.
-   apply IHv.
-    apply lt_le_weak; assumption.
-
-    simpl in H.
-    rewrite fld_eq_refl in H; assumption.
-
- rewrite fld_eq_refl.
- rewrite plus_0_r.
- apply lt_S_n in Hm.
-bbb.
-*)
-
-(*
-  poly_in_x_pow_q 0 (S q) (list_pad q (zero fld) cl)
-  poly_in_x_pow_q q (S q) (list_pad 0 (zero fld) [c … cl]).
-*)
-
-(*
-Lemma xxx : ∀ m q e c cl,
-  poly_in_x_pow_q 0 q [c … cl]
-  → poly_in_x_pow_q m q (list_pad (S e) (zero fld) [c])
-    → poly_in_x_pow_q m q (list_pad e (zero fld) [c … cl]).
-Proof.
-intros m q e c cl Hz He.
-bbb.
-*)
-
-(*
-Lemma yyy : ∀ pol spts m j q sk,
-  (∀ pt, pt ∈ spts → fst pt = Qnat (Z.to_nat (Qnum (fst pt))))
-  → (∀ h αh, (inject_Z h, αh) ∈ spts
-     → ∃ mh sh, αh == mh # m ∧ h = Z.of_nat j + 'sh * Z.of_nat (S q))
-    → poly_in_x_pow_q q (S q)
-        (make_char_pol fld (S j) (List.map (term_of_point fld pol) spts)
-           (j + S sk * S q)).
-Proof.
-intros pol spts m j q sk Hnat Hmh.
-revert pol m j q sk Hmh.
-induction spts as [| pt]; intros.
- simpl; rewrite <- plus_Snm_nSm, minus_plus.
- clear pol m j Hmh.
- remember (q + sk * S q)%nat as x.
- revert q x Heqx.
- induction sk; intros.
-  rewrite plus_0_r in Heqx; subst x.
-  apply zero_padded_poly_in_x_pow_q; [ apply lt_n_Sn | constructor ].
-
-  simpl in Heqx.
-  rewrite <- plus_Snm_nSm in Heqx.
-  subst x.
-  apply plus_one_zero_monom; [ apply lt_n_Sn | idtac ].
-  apply IHsk; reflexivity.
-
- simpl.
- unfold nofq; simpl.
- destruct pt as (hq, αh); simpl.
- remember (Qnum hq) as h.
- assert ((inject_Z h, αh) ∈ [(hq, αh) … spts]) as H.
-  rewrite Heqh; left; simpl.
-  assert ((hq, αh) ∈ [(hq, αh) … spts]) as H by (left; reflexivity).
-  apply Hnat in H.
-  simpl in H; rewrite H; reflexivity.
-
-  apply Hmh in H.
-  destruct H as (mh, (sh, (Hαh, Hhj))).
-  simpl in Hhj.
-  rewrite Pos.of_nat_succ in Hhj.
-  remember (sh * Pos.of_nat (S q))%positive as d.
-  rewrite Hhj.
-  rewrite Z2Nat.inj_add.
-   rewrite Nat2Z.id.
-   simpl.
-   remember (Pos.to_nat d) as e.
-   destruct e.
-    pose proof (Pos2Nat.is_pos d) as H.
-    rewrite Heqe in H.
-    apply lt_irrefl in H; contradiction.
-
-    rewrite <- plus_Snm_nSm.
-    rewrite minus_plus.
-    destruct e.
-     rewrite plus_0_r.
-     symmetry in Heqe.
-     apply SuccNat2Pos.inv in Heqe.
-     simpl in Heqe.
-     rewrite Heqd in Heqe.
-     symmetry in Heqe.
-     rewrite Pmult_comm in Heqe.
-     destruct q; [ apply poly_in_x | exfalso ].
-     revert Heqe; apply Pmul_not_1, Pos.lt_1_succ.
-bbb.
-
-   fld_eq fld (zero fld)
-     (List.nth i
-        (list_pad s (zero fld)
-           [valuation_coeff fld (List.nth (S j + s) (al pol) (an pol))
-           … make_char_pol fld (S j + S s)
-               (List.map (term_of_point fld pol) tl) 
-               (j + S (q + sk * S q))]) (zero fld)) = true
-*)
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1787,6 +1506,11 @@ induction s; intros.
 
  rewrite <- plus_n_Sm; assumption.
 Qed.
+
+Lemma yyy : ∀ i (c : α) cl d,
+  List.nth (S i) [c … cl] d = List.nth i cl d.
+Proof.
+bbb.
 
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
@@ -1822,7 +1546,6 @@ rename k into kz.
 unfold is_polynomial_in_x_power_q.
 unfold is_polynomial_in_x_power_q.
 intros i c Himq Hc.
-(**)
 subst cpol.
 unfold characteristic_polynomial in Hc; simpl in Hc.
 rewrite minus_diag in Hc; simpl in Hc.
@@ -1904,77 +1627,21 @@ destruct i.
           remember Hge as H; clear HeqH.
           apply le_plus_minus in H.
           rewrite H, plus_comm, list_nth_plus_pad.
-bbb.
+          remember (i - s)%nat as is.
+          destruct is.
+           simpl.
+           rewrite plus_0_r in H.
+           subst i.
+           simpl in Heqs.
+           rewrite Pos2Nat.inj_mul in Heqs.
+           rewrite <- Heqq in Heqs.
+           rewrite Heqs in Himq.
+           rewrite Nat.mod_mul in Himq.
+            exfalso; apply Himq; reflexivity.
 
-(*
-subst cpol.
-unfold characteristic_polynomial; simpl.
-rewrite Hini, Hfin.
-unfold nofq; simpl.
-do 2 rewrite Nat2Z.id.
-rewrite <- Hj in Hini; simpl in Hini.
-rewrite <- Hk in Hfin; simpl in Hfin.
-unfold Qnat in Hini, Hfin.
-unfold inject_Z in Hini, Hfin.
-injection Hini; clear Hini; intros Hini.
-injection Hfin; clear Hfin; intros Hfin.
-rewrite minus_diag; simpl.
-destruct Hqjk as (sk, Hqjk).
-rewrite Zplus_comm in Hqjk.
-apply Z.sub_move_r in Hqjk.
-rewrite Hini, Hfin in Hqjk.
-rewrite <- Nat2Z.inj_sub in Hqjk.
- rewrite <- Z2Nat.id in Hqjk.
-  apply Nat2Z.inj in Hqjk.
-  simpl in Hqjk.
-  apply Nat.add_sub_eq_nz in Hqjk.
-   rewrite <- Hj, <- Hk; simpl.
-   rewrite <- Hqjk.
-   rewrite Pos2Nat.inj_mul.
-   remember (Z.to_nat jz) as j.
-   remember (Z.to_nat kz) as k.
-   rename q into qp.
-   remember (Pos.to_nat qp) as q.
-   destruct q.
-    pose proof (Pos2Nat.is_pos qp) as H.
-    rewrite <- Heqq in H; apply lt_irrefl in H; contradiction.
+            intros H; discriminate H.
 
-    simpl.
-    rename sk into skp.
-    remember (Pos.to_nat skp) as sk.
-    destruct sk.
-     pose proof (Pos2Nat.is_pos skp) as H.
-     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
-
-     apply yyy with (m := m).
-      intros pt Hpt.
-      eapply pt_absc_is_nat; [ reflexivity | idtac ].
-      eapply oth_pts_in_init_pts; eassumption.
-
-      intros h αh Hoth.
-      apply Hmh in Hoth.
-      destruct Hoth as (mh, (sh, (Hαh, Hh))).
-      exists mh, sh.
-      split; [ assumption | idtac ].
-      rewrite Hh, Hini, Heqq.
-      apply Zplus_eq_compat; [ reflexivity | idtac ].
-      rewrite positive_nat_Z; reflexivity.
-
-   intros Hcontrad.
-   pose proof (Pos2Nat.is_pos (sk * q)) as H.
-   rewrite Hcontrad in H.
-   apply lt_irrefl in H; contradiction.
-
-  simpl.
-  apply Zle_0_pos.
-
- apply lt_le_weak.
- eapply j_lt_k; [ eassumption | idtac | idtac ].
-  rewrite <- Hj; simpl.
-  unfold nofq, inject_Z; reflexivity.
-
-  rewrite <- Hk; simpl.
-  unfold nofq, inject_Z; reflexivity.
+           rewrite yyy.
 bbb.
 
 (*
