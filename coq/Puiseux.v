@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.965 2013-07-16 08:02:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.966 2013-07-16 09:00:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1670,10 +1670,12 @@ bbb.
 *)
 
 (*
-Lemma xxx : ∀ q e c cl,
-  poly_in_x_pow_q 0 (S q) (list_pad e (zero fld) [c … cl])
-  → poly_in_x_pow_q q (S q) (list_pad e (zero fld) cl).
+Lemma xxx : ∀ m q e c cl,
+  poly_in_x_pow_q 0 q [c … cl]
+  → poly_in_x_pow_q m q (list_pad (S e) (zero fld) [c])
+    → poly_in_x_pow_q m q (list_pad e (zero fld) [c … cl]).
 Proof.
+intros m q e c cl Hz He.
 bbb.
 *)
 
