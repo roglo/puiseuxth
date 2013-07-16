@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.964 2013-07-16 04:31:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.965 2013-07-16 08:02:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1738,7 +1738,7 @@ induction spts as [| pt]; intros.
      symmetry in Heqe.
      rewrite Pmult_comm in Heqe.
      destruct q; [ apply poly_in_x | exfalso ].
-     Focus 2.
+     revert Heqe; apply Pmul_not_1, Pos.lt_1_succ.
 bbb.
 *)
 

@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.30 2013-07-07 17:31:30 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.31 2013-07-16 08:02:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -578,3 +578,10 @@ Qed.
 
 Lemma Qden_nat_minus : ∀ a b, Zpos (Qden (Qnat a - Qnat b)) = 1%Z.
 Proof. reflexivity. Qed.
+
+Lemma Pmul_not_1 : ∀ a b, (1 < a)%positive → (a * b ≠ 1)%positive.
+Proof.
+intros a b Ha H.
+apply Pos.mul_eq_1_l in H.
+subst a; revert Ha; apply Plt_irrefl.
+Qed.
