@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.972 2013-07-16 19:09:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.973 2013-07-16 19:14:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1897,7 +1897,7 @@ destruct i.
          exfalso; revert H; apply lt_irrefl.
 
          rewrite <- plus_Snm_nSm, minus_plus.
-         destruct (le_dec i s) as [Hle| Hgt].
+         destruct (lt_dec i s) as [Hlt| Hge].
           rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
 
           apply not_gt in Hge.
