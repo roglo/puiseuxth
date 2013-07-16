@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.967 2013-07-16 09:22:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.968 2013-07-16 13:27:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1801,7 +1801,36 @@ destruct i.
  intros Hq; rewrite Hq in H.
  revert H; apply lt_irrefl.
 
- simpl in Hc.
+ rewrite <- Hj, <- Hk in Hc; simpl in Hc.
+ unfold nofq in Hc; simpl in Hc.
+ destruct Hqjk as (sk, Hqjk).
+ rewrite Hqjk in Hc; simpl in Hc.
+ rewrite Z2Nat.inj_add in Hc; simpl in Hc.
+  rewrite Pos2Nat.inj_mul in Hc.
+  remember (Z.to_nat jz) as j.
+  rename q into qp.
+  remember (Pos.to_nat qp) as q.
+  destruct q.
+   pose proof (Pos2Nat.is_pos qp) as H.
+   rewrite <- Heqq in H; apply lt_irrefl in H; contradiction.
+
+   rename sk into skp.
+   remember (Pos.to_nat skp) as sk.
+   destruct sk.
+    pose proof (Pos2Nat.is_pos skp) as H.
+    rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
+
+    remember (oth_pts ns) as tl.
+    induction tl as [| t].
+     simpl in Hc.
+     rewrite <- plus_Snm_nSm, minus_plus in Hc.
+     subst c.
+     remember (q + sk * S q)%nat as n.
+     clear; revert n.
+     induction i; intros.
+      destruct n; apply fld_eq_refl.
+
+      destruct n; [ apply fld_eq_refl | apply IHi ].
 bbb.
 
 (*
