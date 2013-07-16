@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.966 2013-07-16 09:00:34 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.967 2013-07-16 09:22:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1445,7 +1445,7 @@ Qed.
 
 (* *)
 
-(**)
+(*
 Fixpoint poly_in_x_pow_q m q cl :=
   match cl with
   | [] =>
@@ -1461,7 +1461,7 @@ Fixpoint poly_in_x_pow_q m q cl :=
           else False
       end
   end.
-(**)
+*)
 
 (*
 Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
@@ -1476,8 +1476,15 @@ Inductive poly_in_x_pow_q : nat → nat → list α → Prop :=
           → poly_in_x_pow_q (S m) (S q) [c … cl].
 *)
 
+(*
 Definition is_polynomial_in_x_power_q cpol q :=
   poly_in_x_pow_q 0 q (al cpol).
+*)
+
+Definition is_polynomial_in_x_power_q pol q :=
+  ∀ i c, (i mod q ≠ 0)%nat →
+    c = List.nth i (al pol) (zero fld)
+    → fld_eq fld (zero fld) c = true.
 
 Lemma list_pad_app : ∀ n v cl,
   list_eq (fld_eq fld) (list_pad n v cl) (list_pad n v [] ++ cl) = true.
@@ -1490,10 +1497,12 @@ induction n; intros; simpl.
  rewrite fld_eq_refl; apply IHn.
 Qed.
 
+(*
 Lemma poly_in_x : ∀ cl, poly_in_x_pow_q 0 1 cl.
 Proof.
 induction cl; simpl; [ constructor | assumption ].
 Qed.
+*)
 
 Lemma empty_padded : ∀ n v c,
   c ∈ list_pad n v []
@@ -1517,6 +1526,7 @@ injection H; clear H; intros; subst c cl.
 apply fld_eq_refl.
 Qed.
 
+(*
 Lemma zero_padded_poly_in_x_pow_q : ∀ m q cl,
   (m < S q)%nat
   → poly_in_x_pow_q 0 (S q) cl
@@ -1556,6 +1566,7 @@ induction v; intros.
    simpl in H.
    rewrite fld_eq_refl in H; assumption.
 Qed.
+*)
 
 (* supposes transitivity of fld_eq: why not? but I have to add it
 Lemma xxx : ∀ m q cl₁ cl₂,
@@ -1679,6 +1690,7 @@ intros m q e c cl Hz He.
 bbb.
 *)
 
+(*
 Lemma yyy : ∀ pol spts m j q sk,
   (∀ pt, pt ∈ spts → fst pt = Qnat (Z.to_nat (Qnum (fst pt))))
   → (∀ h αh, (inject_Z h, αh) ∈ spts
@@ -1776,6 +1788,23 @@ eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
 rename j into jz.
 rename k into kz.
 unfold is_polynomial_in_x_power_q.
+unfold is_polynomial_in_x_power_q.
+intros i c Himq Hc.
+(**)
+subst cpol.
+unfold characteristic_polynomial in Hc; simpl in Hc.
+rewrite minus_diag in Hc; simpl in Hc.
+destruct i.
+ exfalso; apply Himq.
+ apply Nat.mod_0_l.
+ pose proof (Pos2Nat.is_pos q) as H.
+ intros Hq; rewrite Hq in H.
+ revert H; apply lt_irrefl.
+
+ simpl in Hc.
+bbb.
+
+(*
 subst cpol.
 unfold characteristic_polynomial; simpl.
 rewrite Hini, Hfin.
