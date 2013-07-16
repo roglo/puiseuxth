@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.969 2013-07-16 13:56:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.970 2013-07-16 14:53:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1847,6 +1847,23 @@ destruct i.
        rewrite Hh in |- * at 1.
        unfold Qnat.
        rewrite Z2Nat.id; [ reflexivity | idtac ].
+       rewrite Hh; unfold Qnat; simpl.
+       apply Zle_0_nat.
+
+       apply Hmh in H.
+       destruct H as (mh, (sh, (Hαh, Hhq))).
+       rewrite Hhq.
+       rewrite Z2Nat.inj_add.
+        rewrite <- plus_Sn_m.
+        rewrite <- Heqj.
+        remember (Z.to_nat (' sh * ' qp)) as s.
+        destruct s.
+         simpl in Heqs.
+         pose proof (Pos2Nat.is_pos (sh * qp)) as H.
+         rewrite Heqs in H.
+         exfalso; revert H; apply lt_irrefl.
+
+         rewrite <- plus_Snm_nSm, minus_plus.
 bbb.
 
 (*
