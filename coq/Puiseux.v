@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.975 2013-07-16 19:53:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.976 2013-07-16 20:14:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1637,6 +1637,14 @@ destruct i.
             intros H; discriminate H.
 
            simpl.
+           rewrite Heqs.
+           simpl.
+           remember (S (q + sk * S q))%nat as x.
+           rewrite <- plus_Sn_m, plus_comm in Heqx.
+           rewrite <- mult_succ_l in Heqx; subst x.
+           rewrite Pos2Nat.inj_mul.
+           rewrite <- Heqq.
+           rewrite <- plus_Sn_m.
 bbb.
 
 (*
