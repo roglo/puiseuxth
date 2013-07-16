@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.962 2013-07-15 20:32:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.963 2013-07-16 04:05:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1592,7 +1592,6 @@ induction cl₁ as [| c₁]; intros.
   destruct e₂.
    apply IHcl₁; assumption.
 bbb.
-*)
 
 Lemma sss : ∀ m q cl u,
   poly_in_x_pow_q m q (list_pad u (zero fld) (list_pad q (zero fld) cl))
@@ -1601,7 +1600,6 @@ Proof.
 intros m q cl u H.
 bbb.
 
-(*
 Lemma ttt : ∀ m q cl u,
   m < q
   poly_in_x_pow_q m q (list_pad u (zero fld) cl)
@@ -1632,7 +1630,7 @@ Proof.
 bbb.
 *)
 
-(**)
+(*
 Lemma xxx : ∀ m q v cl,
   (m < S q)%nat
   → poly_in_x_pow_q m (S q) (list_pad v (zero fld) cl)
@@ -1664,6 +1662,14 @@ induction v; intros.
  rewrite plus_0_r.
  apply lt_S_n in Hm.
 bbb.
+*)
+
+(*
+  poly_in_x_pow_q 0 (S q) (list_pad e (zero fld) [c … cl])
+  poly_in_x_pow_q q (S q) (list_pad (S e) (zero fld) [c … cl])
+
+  poly_in_x_pow_q 0 (S q) (list_pad q (zero fld) cl)
+  poly_in_x_pow_q q (S q) (list_pad 0 (zero fld) [c … cl])
 *)
 
 Lemma yyy : ∀ pol spts m j q sk,
@@ -1718,6 +1724,16 @@ induction spts as [| pt]; intros.
 
     rewrite <- plus_Snm_nSm.
     rewrite minus_plus.
+    destruct e.
+     rewrite plus_0_r.
+     symmetry in Heqe.
+     apply SuccNat2Pos.inv in Heqe.
+     simpl in Heqe.
+     rewrite Heqd in Heqe.
+     symmetry in Heqe.
+     rewrite Pmult_comm in Heqe.
+     destruct q; [ apply poly_in_x | exfalso ].
+     Focus 2.
 bbb.
 *)
 
