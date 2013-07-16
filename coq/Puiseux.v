@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.971 2013-07-16 18:15:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.972 2013-07-16 19:09:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1764,7 +1764,21 @@ bbb.
                (j + S (q + sk * S q))]) (zero fld)) = true
 *)
 
-Lemma list_nth_pad : ∀ i s (v : α) cl d,
+Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
+  (i < s)%nat
+  → List.nth i (list_pad s v cl) d = v.
+Proof.
+intros i s v cl d His.
+revert i His.
+induction s; intros.
+ exfalso; revert His; apply lt_n_0.
+
+ simpl.
+ destruct i; [ reflexivity | idtac ].
+ apply IHs, lt_S_n; assumption.
+Qed.
+
+Lemma list_nth_plus_pad : ∀ i s (v : α) cl d,
   List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
 Proof.
 intros i s v cl d.
@@ -1884,6 +1898,12 @@ destruct i.
 
          rewrite <- plus_Snm_nSm, minus_plus.
          destruct (le_dec i s) as [Hle| Hgt].
+          rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
+
+          apply not_gt in Hge.
+          remember Hge as H; clear HeqH.
+          apply le_plus_minus in H.
+          rewrite H, plus_comm, list_nth_plus_pad.
 bbb.
 
 (*
