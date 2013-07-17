@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.980 2013-07-17 08:09:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.981 2013-07-17 08:15:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1578,6 +1578,15 @@ induction tl as [| t]; intros.
     intros H; discriminate H.
 
    simpl.
+   rewrite <- Nat.sub_succ in Heqis.
+   destruct (eq_nat_dec i s) as [Heq| Hne].
+    subst s.
+    rewrite <- Heq, minus_diag in Heqis; discriminate Heqis.
+
+    rewrite <- minus_Sn_m in Heqis.
+     apply eq_add_S in Heqis.
+     rewrite Heqis.
+     rewrite Heqx.
 bbb.
 *)
 
