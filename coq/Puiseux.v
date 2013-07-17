@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.987 2013-07-17 16:37:23 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.988 2013-07-17 19:50:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1577,7 +1577,9 @@ induction tl as [| t]; intros.
 
    apply not_ge in Hgt.
    replace (n - s)%nat with O by omega.
+Abort. (*
 bbb.
+*)
 
 Lemma xxx : ∀ i j s tl k d,
   s ≤ i
@@ -1594,6 +1596,7 @@ induction s; intros.
  rewrite <- IHs.
   destruct i.
    exfalso; revert Hsi; apply le_Sn_0.
+Abort. (*
 bbb.
 
 intros i j s tl k d Hsi Hjsk.
