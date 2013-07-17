@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.982 2013-07-17 08:20:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.983 2013-07-17 09:09:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1506,13 +1506,13 @@ induction s; intros.
 
  rewrite <- plus_n_Sm; assumption.
 Qed.
+*)
 
-Lemma yyy : ∀ i j s tl k d,
+Lemma xxx : ∀ i j s tl k d,
   s ≤ i
   → List.nth (i - s) (make_char_pol fld (j + s) tl k) d =
     List.nth i (make_char_pol fld j tl k) d.
 Proof.
-Abort. (*
 bbb.
 *)
 
@@ -1585,7 +1585,10 @@ induction tl as [| t]; intros.
 
     rewrite <- minus_Sn_m in Heqis.
      apply eq_add_S in Heqis.
-     rewrite Heqis, Heqx.
+     rewrite Heqis, Heqx, Heqs.
+     replace (S (q + sh * S q))%nat with (S sh * S q)%nat by reflexivity.
+     rewrite Hhq, <- plus_Sn_m.
+     rewrite xxx.
 bbb.
 *)
 
