@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.976 2013-07-16 20:14:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.977 2013-07-17 01:24:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1637,14 +1637,19 @@ destruct i.
             intros H; discriminate H.
 
            simpl.
-           rewrite Heqs.
-           simpl.
-           remember (S (q + sk * S q))%nat as x.
-           rewrite <- plus_Sn_m, plus_comm in Heqx.
-           rewrite <- mult_succ_l in Heqx; subst x.
-           rewrite Pos2Nat.inj_mul.
-           rewrite <- Heqq.
-           rewrite <- plus_Sn_m.
+           simpl in Heqs.
+           rewrite <- Nat.sub_succ in Heqis.
+           destruct (eq_nat_dec i s) as [Heq| Hne].
+            subst s.
+            rewrite minus_diag in Heqis; discriminate Heqis.
+
+            rewrite <- minus_Sn_m in Heqis.
+             apply eq_add_S in Heqis.
+             rewrite Heqis.
+             rewrite <- plus_Sn_m.
+             remember (S (q + sk * S q))%nat as x.
+             rewrite <- plus_Sn_m, plus_comm in Heqx.
+             rewrite <- mult_succ_l in Heqx; subst x.
 bbb.
 
 (*
