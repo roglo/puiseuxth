@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.978 2013-07-17 02:02:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.979 2013-07-17 03:25:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1519,15 +1519,44 @@ bbb.
 Lemma yyy : ∀ pol q i j sk tl,
   (0 < q)%nat
   → (0 < sk)%nat
-    → (∀ h αh, (Qnat h, αh) ∈ tl → ∃ sh, (0 < sh ∧ h = j + sh * q)%nat)
-      → (S i mod q ≠ 0)%nat
-        → fld_eq fld (zero fld)
-            (List.nth i
-               (make_char_pol fld (S j)
-                  (List.map (term_of_point fld pol) tl)
-                  (j + sk * q)) (zero fld)) = true.
+    → (∀ hq αh, (hq, αh) ∈ tl
+       → ∃ h sh, (hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q)%nat)
+        → (S i mod q ≠ 0)%nat
+          → fld_eq fld (zero fld)
+              (List.nth i
+                 (make_char_pol fld (S j)
+                    (List.map (term_of_point fld pol) tl)
+                    (j + sk * q)) (zero fld)) = true.
 Proof.
 intros pol q i j sk tl Hq Hsk Hsh Himq.
+destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
+destruct sk; [ exfalso; revert Hsk; apply lt_irrefl | clear Hsk ].
+revert q i j sk Hsh Himq.
+induction tl as [| t]; intros.
+ simpl.
+ rewrite <- plus_Snm_nSm, minus_plus.
+ remember (q + sk * S q)%nat as n.
+ clear; revert n.
+ induction i; intros.
+  destruct n; apply fld_eq_refl.
+
+  destruct n; [ apply fld_eq_refl | apply IHi ].
+
+ remember (j + S sk * S q)%nat as x.
+ destruct t as (hq, αh); simpl.
+ unfold nofq; simpl.
+ assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
+ apply Hsh in H.
+ destruct H as (h, (sh, (Hh, (Hsh₀, Hhq)))).
+ destruct sh; [ exfalso; revert Hsh₀; apply lt_irrefl | clear Hsh₀ ].
+ rewrite Hh, Hhq.
+ rewrite <- Hhq.
+ simpl.
+ rewrite Nat2Z.id.
+ rewrite Hhq in |- * at 1.
+ simpl.
+ rewrite <- plus_Snm_nSm.
+ rewrite minus_plus.
 bbb.
 
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
