@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.983 2013-07-17 09:09:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.984 2013-07-17 09:10:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1506,7 +1506,6 @@ induction s; intros.
 
  rewrite <- plus_n_Sm; assumption.
 Qed.
-*)
 
 Lemma xxx : ∀ i j s tl k d,
   s ≤ i
