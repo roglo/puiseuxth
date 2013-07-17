@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.984 2013-07-17 09:10:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.985 2013-07-17 09:41:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1507,11 +1507,47 @@ induction s; intros.
  rewrite <- plus_n_Sm; assumption.
 Qed.
 
+Lemma make_char_pol_S : ∀ pow t tl k,
+  (pow < power t)%nat
+  → make_char_pol fld pow [t … tl] k =
+    [zero fld … make_char_pol fld (S pow) [t … tl] k].
+Proof.
+intros pow t tl k Hpow.
+simpl.
+rewrite <- Nat.sub_succ.
+rewrite <- minus_Sn_m; [ reflexivity | assumption ].
+Qed.
+
 Lemma xxx : ∀ i j s tl k d,
   s ≤ i
-  → List.nth (i - s) (make_char_pol fld (j + s) tl k) d =
-    List.nth i (make_char_pol fld j tl k) d.
+  → (j + s < k)%nat
+    → List.nth (i - s) (make_char_pol fld (j + s) tl k) d =
+      List.nth i (make_char_pol fld j tl k) d.
 Proof.
+intros i j s tl k d Hsi Hjsk.
+revert i j tl k d Hsi Hjsk.
+induction s; intros.
+ rewrite plus_0_r, <- minus_n_O; reflexivity.
+
+ symmetry.
+ rewrite <- IHs.
+  destruct i.
+   simpl.
+bbb.
+
+intros i j s tl k d Hsi Hjsk.
+bbb.
+revert i j tl k d Hsi.
+induction s; intros.
+ rewrite plus_0_r, <- minus_n_O; reflexivity.
+
+ symmetry.
+ rewrite <- IHs.
+  destruct i.
+   exfalso; revert Hsi; apply le_Sn_0.
+
+   rewrite Nat.sub_succ.
+   rewrite <- minus_Sn_m.
 bbb.
 *)
 
