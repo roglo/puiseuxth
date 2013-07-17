@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.985 2013-07-17 09:41:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.986 2013-07-17 15:12:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1518,6 +1518,44 @@ rewrite <- Nat.sub_succ.
 rewrite <- minus_Sn_m; [ reflexivity | assumption ].
 Qed.
 
+Lemma nth_S_pad_S : ∀ i n v tl (d : α),
+  List.nth (S i) (list_pad (S n) v tl) d =
+  List.nth i (list_pad n v tl) d.
+Proof. reflexivity. Qed.
+
+Lemma list_pad_length : ∀ n (v : α) tl,
+  List.length (list_pad n v tl) = (n + List.length tl)%nat.
+Proof.
+intros n v tl.
+induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
+Qed.
+
+Lemma www : ∀ i j s tl k d,
+  (j + s < k)%nat
+  → List.nth i (make_char_pol fld (j + s) tl k) d =
+    List.nth (i + s) (make_char_pol fld j tl k) d.
+Proof.
+intros i j s tl k d Hjsk.
+revert i j s k d Hjsk.
+induction tl as [| t]; intros.
+ simpl.
+ destruct (lt_dec i (k - (j + s))) as [Hlt| Hge].
+  rewrite list_nth_pad_lt; [ idtac | omega ].
+  rewrite list_nth_pad_lt; [ reflexivity | omega ].
+
+  rewrite List.nth_overflow.
+   rewrite List.nth_overflow.
+    reflexivity.
+
+    rewrite list_pad_length.
+    simpl.
+    omega.
+
+   rewrite list_pad_length.
+   simpl.
+   omega.
+bbb.
+
 Lemma xxx : ∀ i j s tl k d,
   s ≤ i
   → (j + s < k)%nat
@@ -1532,7 +1570,7 @@ induction s; intros.
  symmetry.
  rewrite <- IHs.
   destruct i.
-   simpl.
+   exfalso; revert Hsi; apply le_Sn_0.
 bbb.
 
 intros i j s tl k d Hsi Hjsk.
