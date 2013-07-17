@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.977 2013-07-17 01:24:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.978 2013-07-17 02:02:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1507,6 +1507,29 @@ induction s; intros.
  rewrite <- plus_n_Sm; assumption.
 Qed.
 
+Lemma yyy : ∀ i j s tl k d,
+  s ≤ i
+  → List.nth (i - s) (make_char_pol fld (j + s) tl k) d =
+    List.nth i (make_char_pol fld j tl k) d.
+Proof.
+Abort. (*
+bbb.
+*)
+
+Lemma yyy : ∀ pol q i j sk tl,
+  (0 < q)%nat
+  → (0 < sk)%nat
+    → (∀ h αh, (Qnat h, αh) ∈ tl → ∃ sh, (0 < sh ∧ h = j + sh * q)%nat)
+      → (S i mod q ≠ 0)%nat
+        → fld_eq fld (zero fld)
+            (List.nth i
+               (make_char_pol fld (S j)
+                  (List.map (term_of_point fld pol) tl)
+                  (j + sk * q)) (zero fld)) = true.
+Proof.
+intros pol q i j sk tl Hq Hsk Hsh Himq.
+bbb.
+
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
@@ -1570,8 +1593,9 @@ destruct i.
     pose proof (Pos2Nat.is_pos skp) as H.
     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
-    remember (oth_pts ns) as tl.
     subst c.
+bbb.
+    remember (oth_pts ns) as tl.
     revert i Himq.
     induction tl as [| t]; intros; simpl.
      rewrite <- plus_Snm_nSm, minus_plus.
