@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.979 2013-07-17 03:25:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.980 2013-07-17 08:09:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1549,15 +1549,37 @@ induction tl as [| t]; intros.
  apply Hsh in H.
  destruct H as (h, (sh, (Hh, (Hsh₀, Hhq)))).
  destruct sh; [ exfalso; revert Hsh₀; apply lt_irrefl | clear Hsh₀ ].
- rewrite Hh, Hhq.
- rewrite <- Hhq.
- simpl.
+ rewrite Hh; simpl.
  rewrite Nat2Z.id.
- rewrite Hhq in |- * at 1.
- simpl.
- rewrite <- plus_Snm_nSm.
- rewrite minus_plus.
+ rewrite Hhq in |- * at 1; simpl.
+ rewrite <- plus_Snm_nSm, minus_plus.
+ remember (q + sh * S q)%nat as s.
+ destruct (lt_dec i s) as [Hlt| Hge].
+  rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
+
+  apply not_gt in Hge.
+  remember Hge as H; clear HeqH.
+  apply le_plus_minus in H.
+  rewrite H, plus_comm, list_nth_plus_pad.
+  remember (i - s)%nat as is.
+  destruct is.
+   simpl.
+   rewrite plus_0_r in H.
+   subst i.
+   simpl in Heqs.
+   rewrite Heqs in Himq.
+   rewrite <- plus_Sn_m in Himq.
+   rewrite Nat.mod_add in Himq.
+    rewrite Nat.mod_same in Himq.
+     exfalso; apply Himq; reflexivity.
+
+     intros H; discriminate H.
+
+    intros H; discriminate H.
+
+   simpl.
 bbb.
+*)
 
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
