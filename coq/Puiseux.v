@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.991 2013-07-18 09:35:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.992 2013-07-18 09:39:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1564,20 +1564,17 @@ induction s; intros.
     simpl.
     remember (S (i - s)) as x.
     rewrite <- Nat.sub_succ; subst x.
-    rewrite <- minus_Sn_m.
-     2: omega.
-
-     apply nth_S_pad_S.
+    rewrite <- minus_Sn_m; [ apply nth_S_pad_S | idtac ].
+    rewrite plus_n_Sm; apply lt_le_weak; assumption.
 
     simpl.
     remember (i - s) as x.
     rewrite <- Nat.sub_succ; subst x.
     rewrite <- minus_Sn_m; [ reflexivity | idtac ].
+    Focus 2.
+    apply lt_le_weak; assumption.
 
-Focus 2.
-  apply lt_le_weak; assumption.
-
-Focus 2.
+  Focus 2.
   rewrite <- plus_n_Sm in Hjsk.
   apply lt_le_weak; assumption.
 qed.
