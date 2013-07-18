@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.990 2013-07-18 09:28:01 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.991 2013-07-18 09:35:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1540,26 +1540,6 @@ Qed.
 
 Open Scope nat_scope.
 
-Lemma www : ∀ i j tl k d,
- j < k
- → List.nth (S i) (make_char_pol fld j tl k) d =
-   List.nth i (make_char_pol fld (S j) tl k) d.
-Proof.
-intros i j tl k d Hjk.
-destruct tl as [| t].
- simpl.
- rewrite <- Nat.sub_succ.
- rewrite <- minus_Sn_m; [ idtac | assumption ].
- apply nth_S_pad_S.
-
- simpl.
- rewrite <- Nat.sub_succ.
- rewrite <- minus_Sn_m; [ reflexivity | idtac ].
-bbb.
-*)
-
-Close Scope.
-
 Lemma xxx : ∀ i j s tl k d,
   s ≤ i
   → (j + s < k)%nat
@@ -1580,13 +1560,29 @@ induction s; intros.
    rewrite Nat.sub_succ.
    rewrite <- minus_Sn_m; [ idtac | assumption ].
    rewrite <- plus_n_Sm.
-   apply www.
+   destruct tl as [| t].
+    simpl.
+    remember (S (i - s)) as x.
+    rewrite <- Nat.sub_succ; subst x.
+    rewrite <- minus_Sn_m.
+     2: omega.
 
+     apply nth_S_pad_S.
+
+    simpl.
+    remember (i - s) as x.
+    rewrite <- Nat.sub_succ; subst x.
+    rewrite <- minus_Sn_m; [ reflexivity | idtac ].
+
+Focus 2.
   apply lt_le_weak; assumption.
 
+Focus 2.
   rewrite <- plus_n_Sm in Hjsk.
   apply lt_le_weak; assumption.
 qed.
+
+Close Scope.
 
 Lemma yyy : ∀ pol q i j sk tl,
   (0 < q)%nat
