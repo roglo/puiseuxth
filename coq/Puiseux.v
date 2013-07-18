@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.994 2013-07-18 14:24:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.995 2013-07-18 15:16:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1497,14 +1497,6 @@ induction s; intros.
  apply IHs, lt_S_n; assumption.
 Qed.
 
-(*
-Lemma list_nth_pad_ge : ∀ i s (v : α) cl d,
-  (s ≤ i)%nat
-  → List.nth i (list_pad s v cl) d = List.nth (i - s) cl d.
-Proof.
-bbb.
-*)
-
 Lemma list_nth_plus_pad : ∀ i s (v : α) cl d,
   List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
 Proof.
@@ -1513,6 +1505,19 @@ induction s; intros.
  rewrite plus_0_r; reflexivity.
 
  rewrite <- plus_n_Sm; assumption.
+Qed.
+
+Lemma list_nth_pad_ge : ∀ i s (v : α) cl d,
+  (s ≤ i)%nat
+  → List.nth i (list_pad s v cl) d = List.nth (i - s) cl d.
+Proof.
+intros i s v cl d Hsi.
+symmetry.
+rewrite <- list_nth_plus_pad with (s := s) (v := v).
+f_equal.
+rewrite plus_comm.
+symmetry.
+apply le_plus_minus; assumption.
 Qed.
 
 Lemma make_char_pol_S : ∀ pow t tl k,
@@ -1682,9 +1687,12 @@ induction tl as [| t]; intros.
      rewrite Heqs in Hge.
      apply le_n_S in Hge.
      rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
-     clear x Heqx.
-     rewrite xxx.
-      apply IHtl.
+     destruct tl as [| t].
+      rewrite nth_minus_char_pol_plus_nil.
+       simpl.
+       rewrite <- plus_Snm_nSm, minus_plus.
+       rewrite list_nth_pad_ge.
+        rewrite List.nth_overflow; [ apply fld_eq_refl | apply le_0_n ].
 bbb.
 *)
 
