@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.988 2013-07-17 19:50:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.989 2013-07-18 09:13:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1538,13 +1538,13 @@ intros n v tl.
 induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
 Qed.
 
-Lemma www : ∀ i j s tl k d,
-  (j + s < k)%nat
-  → List.nth i (make_char_pol fld (j + s) tl k) d =
-    List.nth (i + s) (make_char_pol fld j tl k) d.
+Lemma www : ∀ i j tl k d,
+  List.nth (S i) (make_char_pol fld j tl k) d =
+  List.nth i (make_char_pol fld (S j) tl k) d.
 Proof.
-intros i j s tl k d Hjsk.
-revert i j s k d Hjsk.
+intros i j tl k d.
+bbb.
+revert i j s k d.
 induction tl as [| t]; intros.
  simpl.
  destruct (lt_dec i (k - (j + s))) as [Hlt| Hge].
@@ -1577,7 +1577,6 @@ induction tl as [| t]; intros.
 
    apply not_ge in Hgt.
    replace (n - s)%nat with O by omega.
-Abort. (*
 bbb.
 *)
 
@@ -1596,24 +1595,18 @@ induction s; intros.
  rewrite <- IHs.
   destruct i.
    exfalso; revert Hsi; apply le_Sn_0.
-Abort. (*
-bbb.
 
-intros i j s tl k d Hsi Hjsk.
-bbb.
-revert i j tl k d Hsi.
-induction s; intros.
- rewrite plus_0_r, <- minus_n_O; reflexivity.
-
- symmetry.
- rewrite <- IHs.
-  destruct i.
-   exfalso; revert Hsi; apply le_Sn_0.
-
+   apply le_S_n in Hsi.
    rewrite Nat.sub_succ.
-   rewrite <- minus_Sn_m.
-bbb.
-*)
+   rewrite <- minus_Sn_m; [ idtac | assumption ].
+   rewrite <- plus_n_Sm.
+   apply www.
+
+  apply lt_le_weak; assumption.
+
+  rewrite <- plus_n_Sm in Hjsk.
+  apply lt_le_weak; assumption.
+qed.
 
 Lemma yyy : ∀ pol q i j sk tl,
   (0 < q)%nat
@@ -1687,7 +1680,10 @@ induction tl as [| t]; intros.
      rewrite Heqis, Heqx, Heqs.
      replace (S (q + sh * S q))%nat with (S sh * S q)%nat by reflexivity.
      rewrite Hhq, <- plus_Sn_m.
-     rewrite xxx.
+     rewrite Heqs in Hge.
+     apply le_n_S in Hge.
+     rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
+     clear x Heqx.
 bbb.
 *)
 
