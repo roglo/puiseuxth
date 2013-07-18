@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.989 2013-07-18 09:13:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.990 2013-07-18 09:28:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1538,47 +1538,27 @@ intros n v tl.
 induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
 Qed.
 
+Open Scope nat_scope.
+
 Lemma www : ∀ i j tl k d,
-  List.nth (S i) (make_char_pol fld j tl k) d =
-  List.nth i (make_char_pol fld (S j) tl k) d.
+ j < k
+ → List.nth (S i) (make_char_pol fld j tl k) d =
+   List.nth i (make_char_pol fld (S j) tl k) d.
 Proof.
-intros i j tl k d.
-bbb.
-revert i j s k d.
-induction tl as [| t]; intros.
+intros i j tl k d Hjk.
+destruct tl as [| t].
  simpl.
- destruct (lt_dec i (k - (j + s))) as [Hlt| Hge].
-  rewrite list_nth_pad_lt; [ idtac | omega ].
-  rewrite list_nth_pad_lt; [ reflexivity | omega ].
-
-  rewrite List.nth_overflow.
-   rewrite List.nth_overflow; [ reflexivity | idtac ].
-   rewrite list_pad_length; simpl; omega.
-
-   rewrite list_pad_length; simpl; omega.
+ rewrite <- Nat.sub_succ.
+ rewrite <- minus_Sn_m; [ idtac | assumption ].
+ apply nth_S_pad_S.
 
  simpl.
- remember (make_char_pol fld (S (power t)) tl k) as cl.
- destruct (lt_dec i (power t - (j + s))) as [Hlt| Hge].
-  rewrite list_nth_pad_lt; [ idtac | omega ].
-  rewrite list_nth_pad_lt; [ reflexivity | omega ].
-
-  apply not_gt in Hge.
-  replace (power t - (j + s))%nat with (power t - j - s)%nat by omega.
-  remember (power t - j)%nat as n.
-  destruct (le_dec s n) as [Hle| Hgt].
-   replace (i + s)%nat with (i - (n - s) + n)%nat by omega.
-   rewrite list_nth_plus_pad.
-   replace i with (i - (n - s) + (n - s))%nat by omega.
-   rewrite list_nth_plus_pad.
-   f_equal.
-   remember (n - s)%nat as ns.
-   revert Heqn; clear; intros; omega.
-
-   apply not_ge in Hgt.
-   replace (n - s)%nat with O by omega.
+ rewrite <- Nat.sub_succ.
+ rewrite <- minus_Sn_m; [ reflexivity | idtac ].
 bbb.
 *)
+
+Close Scope.
 
 Lemma xxx : ∀ i j s tl k d,
   s ≤ i
