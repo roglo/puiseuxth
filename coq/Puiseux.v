@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.993 2013-07-18 09:42:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.994 2013-07-18 14:24:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1540,14 +1540,14 @@ Qed.
 
 Open Scope nat_scope.
 
-Lemma xxx : ∀ i j s tl k d,
+Lemma nth_minus_char_pol_plus_nil : ∀ i j s k d,
   s ≤ i
-  → (j + s < k)%nat
-    → List.nth (i - s) (make_char_pol fld (j + s) tl k) d =
-      List.nth i (make_char_pol fld j tl k) d.
+  → j + s < k
+    → List.nth (i - s) (make_char_pol fld (j + s) [] k) d =
+      List.nth i (make_char_pol fld j [] k) d.
 Proof.
-intros i j s tl k d Hsi Hjsk.
-revert i j tl k d Hsi Hjsk.
+intros i j s k d Hsi Hjsk.
+revert i j k d Hsi Hjsk.
 induction s; intros.
  rewrite plus_0_r, <- minus_n_O; reflexivity.
 
@@ -1560,25 +1560,50 @@ induction s; intros.
    rewrite Nat.sub_succ.
    rewrite <- minus_Sn_m; [ idtac | assumption ].
    rewrite <- plus_n_Sm.
-   destruct tl as [| t].
-    simpl.
-    remember (S (i - s)) as x.
-    rewrite <- Nat.sub_succ; subst x.
-    rewrite <- minus_Sn_m; [ apply nth_S_pad_S | idtac ].
-    rewrite plus_n_Sm; apply lt_le_weak; assumption.
+   simpl.
+   remember (S (i - s)) as x.
+   rewrite <- Nat.sub_succ; subst x.
+   rewrite <- minus_Sn_m; [ apply nth_S_pad_S | idtac ].
+   rewrite plus_n_Sm; apply lt_le_weak; assumption.
 
-    simpl.
-    remember (i - s) as x.
-    rewrite <- Nat.sub_succ; subst x.
-    rewrite <- minus_Sn_m; [ reflexivity | idtac ].
-    Focus 2.
-    apply lt_le_weak; assumption.
+  apply lt_le_weak; assumption.
 
-  Focus 2.
   rewrite <- plus_n_Sm in Hjsk.
   apply lt_le_weak; assumption.
-qed.
-*)
+Qed.
+
+Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl k d,
+  s ≤ i
+  → j + s < power t
+    → List.nth (i - s) (make_char_pol fld (j + s) [t … tl] k) d =
+      List.nth i (make_char_pol fld j [t … tl] k) d.
+Proof.
+intros i j s t tl k d Hsi Hjsk.
+revert i j t tl k d Hsi Hjsk.
+induction s; intros.
+ rewrite plus_0_r, <- minus_n_O; reflexivity.
+
+ symmetry.
+ rewrite <- IHs.
+  destruct i.
+   exfalso; revert Hsi; apply le_Sn_0.
+
+   apply le_S_n in Hsi.
+   rewrite Nat.sub_succ.
+   rewrite <- minus_Sn_m; [ idtac | assumption ].
+   rewrite <- plus_n_Sm.
+   simpl.
+   remember (i - s) as x.
+   rewrite <- Nat.sub_succ; subst x.
+   rewrite <- minus_Sn_m; [ reflexivity | idtac ].
+   rewrite <- plus_n_Sm in Hjsk.
+   apply lt_le_weak; assumption.
+
+  apply lt_le_weak; assumption.
+
+  rewrite <- plus_n_Sm in Hjsk.
+  apply lt_le_weak; assumption.
+Qed.
 
 Close Scope nat_scope.
 
