@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.996 2013-07-18 15:40:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.997 2013-07-18 15:58:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1547,7 +1547,7 @@ Open Scope nat_scope.
 
 Lemma nth_minus_char_pol_plus_nil : ∀ i j s k d,
   s ≤ i
-  → j + s < k
+  → j + s ≤ k
     → List.nth (i - s) (make_char_pol fld (j + s) [] k) d =
       List.nth i (make_char_pol fld j [] k) d.
 Proof.
@@ -1569,7 +1569,7 @@ induction s; intros.
    remember (S (i - s)) as x.
    rewrite <- Nat.sub_succ; subst x.
    rewrite <- minus_Sn_m; [ apply nth_S_pad_S | idtac ].
-   rewrite plus_n_Sm; apply lt_le_weak; assumption.
+   rewrite plus_n_Sm; assumption.
 
   apply lt_le_weak; assumption.
 
@@ -1579,7 +1579,7 @@ Qed.
 
 Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl k d,
   s ≤ i
-  → j + s < power t
+  → j + s ≤ power t
     → List.nth (i - s) (make_char_pol fld (j + s) [t … tl] k) d =
       List.nth i (make_char_pol fld j [t … tl] k) d.
 Proof.
@@ -1602,7 +1602,7 @@ induction s; intros.
    rewrite <- Nat.sub_succ; subst x.
    rewrite <- minus_Sn_m; [ reflexivity | idtac ].
    rewrite <- plus_n_Sm in Hjsk.
-   apply lt_le_weak; assumption.
+   assumption.
 
   apply lt_le_weak; assumption.
 
@@ -1638,7 +1638,7 @@ induction tl as [| t]; intros.
 
   destruct n; [ apply fld_eq_refl | apply IHi ].
 
- remember (j + S sk * S q)%nat as x.
+ remember (j + S sk * S q)%nat as k.
  destruct t as (hq, αh); simpl.
  unfold nofq; simpl.
  assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
@@ -1681,7 +1681,7 @@ induction tl as [| t]; intros.
 
     rewrite <- minus_Sn_m in Heqis.
      apply eq_add_S in Heqis.
-     rewrite Heqis, Heqx, Heqs.
+     rewrite Heqis, Heqk, Heqs.
      replace (S (q + sh * S q))%nat with (S sh * S q)%nat by reflexivity.
      rewrite Hhq, <- plus_Sn_m.
      rewrite Heqs in Hge.
@@ -1700,6 +1700,8 @@ induction tl as [| t]; intros.
 
        simpl in Hge |- *.
        revert Hge Hne Heqs; clear; intros; omega.
+
+       rewrite plus_Sn_m, <- Hhq, <- Heqk.
 bbb.
 *)
 
