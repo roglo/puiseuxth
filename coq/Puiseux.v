@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.995 2013-07-18 15:16:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.996 2013-07-18 15:40:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1691,8 +1691,15 @@ induction tl as [| t]; intros.
       rewrite nth_minus_char_pol_plus_nil.
        simpl.
        rewrite <- plus_Snm_nSm, minus_plus.
-       rewrite list_nth_pad_ge.
+       destruct (lt_dec i (q + sk * S q)) as [Hlt| Hge₁].
+        rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
+
+        apply not_gt in Hge₁.
+        rewrite list_nth_pad_ge; [ idtac | assumption ].
         rewrite List.nth_overflow; [ apply fld_eq_refl | apply le_0_n ].
+
+       simpl in Hge |- *.
+       revert Hge Hne Heqs; clear; intros; omega.
 bbb.
 *)
 
