@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.992 2013-07-18 09:39:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.993 2013-07-18 09:42:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1578,8 +1578,9 @@ induction s; intros.
   rewrite <- plus_n_Sm in Hjsk.
   apply lt_le_weak; assumption.
 qed.
+*)
 
-Close Scope.
+Close Scope nat_scope.
 
 Lemma yyy : ∀ pol q i j sk tl,
   (0 < q)%nat
@@ -1657,6 +1658,8 @@ induction tl as [| t]; intros.
      apply le_n_S in Hge.
      rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
      clear x Heqx.
+     rewrite xxx.
+      apply IHtl.
 bbb.
 *)
 
