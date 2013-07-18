@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.997 2013-07-18 15:58:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.998 2013-07-18 20:21:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1612,33 +1612,32 @@ Qed.
 
 Close Scope nat_scope.
 
-Lemma yyy : ∀ pol q i j sk tl,
+Lemma yyy : ∀ pol q i j k sk tl,
   (0 < q)%nat
   → (0 < sk)%nat
-    → (∀ hq αh, (hq, αh) ∈ tl
-       → ∃ h sh, (hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q)%nat)
-        → (S i mod q ≠ 0)%nat
-          → fld_eq fld (zero fld)
-              (List.nth i
-                 (make_char_pol fld (S j)
-                    (List.map (term_of_point fld pol) tl)
-                    (j + sk * q)) (zero fld)) = true.
+    → k = (j + sk * q)%nat
+      → (∀ hq αh, (hq, αh) ∈ tl
+         → ∃ h sh, (hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q)%nat)
+          → (S i mod q ≠ 0)%nat
+            → fld_eq fld (zero fld)
+                (List.nth i
+                   (make_char_pol fld (S j)
+                      (List.map (term_of_point fld pol) tl) k) (zero fld))
+              = true.
 Proof.
-intros pol q i j sk tl Hq Hsk Hsh Himq.
+intros pol q i j k sk tl Hq Hsk Hk Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
 destruct sk; [ exfalso; revert Hsk; apply lt_irrefl | clear Hsk ].
-revert q i j sk Hsh Himq.
+revert q i j sk Hk Hsh Himq.
 induction tl as [| t]; intros.
  simpl.
- rewrite <- plus_Snm_nSm, minus_plus.
- remember (q + sk * S q)%nat as n.
+ remember (k - S j)%nat as n.
  clear; revert n.
  induction i; intros.
   destruct n; apply fld_eq_refl.
 
   destruct n; [ apply fld_eq_refl | apply IHi ].
 
- remember (j + S sk * S q)%nat as k.
  destruct t as (hq, αh); simpl.
  unfold nofq; simpl.
  assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
@@ -1681,27 +1680,21 @@ induction tl as [| t]; intros.
 
     rewrite <- minus_Sn_m in Heqis.
      apply eq_add_S in Heqis.
-     rewrite Heqis, Heqk, Heqs.
      replace (S (q + sh * S q))%nat with (S sh * S q)%nat by reflexivity.
      rewrite Hhq, <- plus_Sn_m.
      rewrite Heqs in Hge.
      apply le_n_S in Hge.
      rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
      destruct tl as [| t].
-      rewrite nth_minus_char_pol_plus_nil.
-       simpl.
-       rewrite <- plus_Snm_nSm, minus_plus.
-       destruct (lt_dec i (q + sk * S q)) as [Hlt| Hge₁].
-        rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
+      simpl.
+      rewrite <- Heqs.
+      remember (k - S (j + S s))%nat as n.
+      clear.
+      revert is.
+      induction n; intros.
+       destruct is; apply fld_eq_refl.
 
-        apply not_gt in Hge₁.
-        rewrite list_nth_pad_ge; [ idtac | assumption ].
-        rewrite List.nth_overflow; [ apply fld_eq_refl | apply le_0_n ].
-
-       simpl in Hge |- *.
-       revert Hge Hne Heqs; clear; intros; omega.
-
-       rewrite plus_Sn_m, <- Hhq, <- Heqk.
+       destruct is; [ apply fld_eq_refl | apply IHn ].
 bbb.
 *)
 
