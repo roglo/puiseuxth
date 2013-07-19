@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1001 2013-07-19 16:38:49 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1002 2013-07-19 17:54:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1815,6 +1815,16 @@ destruct i.
 
     subst c.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
+     Focus 2.
+     intros hq αh Hhαh.
+     assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
+      Focus 2.
+      apply Hmh in Hin.
+      destruct Hin as (mh, (sh, (Hαh, Hhq))).
+      exists (Z.to_nat (Qnum hq)), (Pos.to_nat sh).
+      split.
+       replace hq with (fst (hq, αh)) by reflexivity.
+       eapply pt_absc_is_nat.
 bbb.
     remember (oth_pts ns) as tl.
     revert i Himq.
