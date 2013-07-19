@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1003 2013-07-19 18:52:50 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1004 2013-07-19 19:58:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1834,12 +1834,37 @@ destruct i.
        split.
         rewrite Hhq, Heqj, Heqq.
         rewrite Z2Nat.inj_add.
-         rewrite Z2Nat.inj_mul.
-          reflexivity.
+         rewrite Z2Nat.inj_mul; try apply Zle_0_pos; reflexivity.
 
-          apply Zle_0_pos.
+         unfold newton_segments in Hns.
+         remember (points_of_ps_polynom fld pol) as pts.
+         symmetry in Heqpts.
+         apply pt_absc_is_nat with (pt := ini_pt ns) in Heqpts.
+          rewrite <- Hj in Heqpts.
+          simpl in Heqpts.
+          move Heqpts at bottom.
+          unfold inject_Z, Qnat in Heqpts.
+          injection Heqpts; clear Heqpts; intros H; rewrite H.
+          apply Zle_0_nat.
 
-          apply Zle_0_pos.
+          apply ini_fin_ns_in_init_pts; assumption.
+
+         apply Zle_0_pos.
+
+        rewrite Hhq; simpl.
+        rewrite Z2Nat.inj_add.
+         simpl.
+         rewrite <- Heqj.
+         apply plus_lt_compat_l.
+         rewrite Pos2Nat.inj_mul.
+         rewrite <- Heqq.
+         simpl.
+         rewrite <- plus_Sn_m.
+         rewrite plus_comm.
+         rewrite <- mult_succ_l.
+         rewrite Heqsk.
+         apply mult_lt_compat_r; [ idtac | apply lt_0_Sn ].
+
 bbb.
     remember (oth_pts ns) as tl.
     revert i Himq.
