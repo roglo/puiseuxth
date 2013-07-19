@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1000 2013-07-19 16:34:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1001 2013-07-19 16:38:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1814,6 +1814,7 @@ destruct i.
     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
     subst c.
+    eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
 bbb.
     remember (oth_pts ns) as tl.
     revert i Himq.
