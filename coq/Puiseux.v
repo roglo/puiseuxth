@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1002 2013-07-19 17:54:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1003 2013-07-19 18:52:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1824,7 +1824,22 @@ destruct i.
       exists (Z.to_nat (Qnum hq)), (Pos.to_nat sh).
       split.
        replace hq with (fst (hq, αh)) by reflexivity.
-       eapply pt_absc_is_nat.
+       unfold newton_segments in Hns.
+       remember (points_of_ps_polynom fld pol) as pts.
+       symmetry in Heqpts.
+       eapply pt_absc_is_nat; [ eassumption | idtac ].
+       eapply oth_pts_in_init_pts; eassumption.
+
+       split; [ apply Pos2Nat.is_pos | idtac ].
+       split.
+        rewrite Hhq, Heqj, Heqq.
+        rewrite Z2Nat.inj_add.
+         rewrite Z2Nat.inj_mul.
+          reflexivity.
+
+          apply Zle_0_pos.
+
+          apply Zle_0_pos.
 bbb.
     remember (oth_pts ns) as tl.
     revert i Himq.
