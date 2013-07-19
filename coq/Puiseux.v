@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.998 2013-07-18 20:21:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.999 2013-07-19 10:10:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1610,15 +1610,13 @@ induction s; intros.
   apply lt_le_weak; assumption.
 Qed.
 
-Close Scope nat_scope.
-
 Lemma yyy : ∀ pol q i j k sk tl,
-  (0 < q)%nat
-  → (0 < sk)%nat
-    → k = (j + sk * q)%nat
+  0 < q
+  → 0 < sk
+    → k = (j + sk * q)
       → (∀ hq αh, (hq, αh) ∈ tl
-         → ∃ h sh, (hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q)%nat)
-          → (S i mod q ≠ 0)%nat
+         → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
+          → S i mod q ≠ 0
             → fld_eq fld (zero fld)
                 (List.nth i
                    (make_char_pol fld (S j)
@@ -1631,7 +1629,7 @@ destruct sk; [ exfalso; revert Hsk; apply lt_irrefl | clear Hsk ].
 revert q i j sk Hk Hsh Himq.
 induction tl as [| t]; intros.
  simpl.
- remember (k - S j)%nat as n.
+ remember (k - S j) as n.
  clear; revert n.
  induction i; intros.
   destruct n; apply fld_eq_refl.
@@ -1642,13 +1640,13 @@ induction tl as [| t]; intros.
  unfold nofq; simpl.
  assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
  apply Hsh in H.
- destruct H as (h, (sh, (Hh, (Hsh₀, Hhq)))).
+ destruct H as (h, (sh, (Hh, (Hsh₀, (Hhq, Hhk))))).
  destruct sh; [ exfalso; revert Hsh₀; apply lt_irrefl | clear Hsh₀ ].
  rewrite Hh; simpl.
  rewrite Nat2Z.id.
  rewrite Hhq in |- * at 1; simpl.
  rewrite <- plus_Snm_nSm, minus_plus.
- remember (q + sh * S q)%nat as s.
+ remember (q + sh * S q) as s.
  destruct (lt_dec i s) as [Hlt| Hge].
   rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
 
@@ -1656,7 +1654,7 @@ induction tl as [| t]; intros.
   remember Hge as H; clear HeqH.
   apply le_plus_minus in H.
   rewrite H, plus_comm, list_nth_plus_pad.
-  remember (i - s)%nat as is.
+  remember (i - s) as is.
   destruct is.
    simpl.
    rewrite plus_0_r in H.
@@ -1680,7 +1678,7 @@ induction tl as [| t]; intros.
 
     rewrite <- minus_Sn_m in Heqis.
      apply eq_add_S in Heqis.
-     replace (S (q + sh * S q))%nat with (S sh * S q)%nat by reflexivity.
+     replace (S (q + sh * S q)) with (S sh * S q) by reflexivity.
      rewrite Hhq, <- plus_Sn_m.
      rewrite Heqs in Hge.
      apply le_n_S in Hge.
@@ -1688,13 +1686,40 @@ induction tl as [| t]; intros.
      destruct tl as [| t].
       simpl.
       rewrite <- Heqs.
-      remember (k - S (j + S s))%nat as n.
+      remember (k - S (j + S s)) as n.
       clear.
       revert is.
       induction n; intros.
        destruct is; apply fld_eq_refl.
 
        destruct is; [ apply fld_eq_refl | apply IHn ].
+
+      rewrite Heqis, Heqs.
+      rewrite plus_comm, mult_comm, plus_n_Sm.
+      rewrite <- mult_succ_r, mult_comm.
+      remember (List.map (term_of_point fld pol) [t … tl]) as x.
+      simpl in Heqx; subst x.
+      rewrite nth_minus_char_pol_plus_cons.
+       eapply IHtl; [ eassumption | idtac | eassumption ].
+       intros hq₁ αh₁ Hhαh₁.
+       destruct Hhαh₁ as [| Hhαh₁].
+        subst t.
+        eapply Hsh.
+        right; left; reflexivity.
+
+        eapply Hsh.
+        right; right; eassumption.
+
+       rewrite Heqs in Heqis.
+       rewrite plus_comm, mult_comm, plus_n_Sm in Heqis.
+       rewrite <- mult_succ_r, mult_comm in Heqis.
+       apply eq_S in H.
+       rewrite Heqs in H.
+       rewrite plus_comm, mult_comm, plus_n_Sm in H.
+       rewrite <- plus_Sn_m in H.
+       remember (S q + S q * sh) as x.
+       rewrite plus_comm, <- mult_succ_r, mult_comm in Heqx.
+       subst x; omega.
 bbb.
 *)
 
