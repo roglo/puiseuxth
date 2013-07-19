@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.999 2013-07-19 10:10:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1000 2013-07-19 16:34:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1610,23 +1610,24 @@ induction s; intros.
   apply lt_le_weak; assumption.
 Qed.
 
-Lemma yyy : ∀ pol q i j k sk tl,
+Lemma nth_is_zero : ∀ pol q i j k sk tl,
   0 < q
   → 0 < sk
     → k = (j + sk * q)
-      → (∀ hq αh, (hq, αh) ∈ tl
-         → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
-          → S i mod q ≠ 0
-            → fld_eq fld (zero fld)
-                (List.nth i
-                   (make_char_pol fld (S j)
-                      (List.map (term_of_point fld pol) tl) k) (zero fld))
-              = true.
+      → Sorted fst_lt tl
+        → (∀ hq αh, (hq, αh) ∈ tl
+           → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
+            → S i mod q ≠ 0
+              → fld_eq fld (zero fld)
+                  (List.nth i
+                     (make_char_pol fld (S j)
+                        (List.map (term_of_point fld pol) tl) k) (zero fld))
+                = true.
 Proof.
-intros pol q i j k sk tl Hq Hsk Hk Hsh Himq.
+intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
 destruct sk; [ exfalso; revert Hsk; apply lt_irrefl | clear Hsk ].
-revert q i j sk Hk Hsh Himq.
+revert q i j sk k Hk Hsh Himq.
 induction tl as [| t]; intros.
  simpl.
  remember (k - S j) as n.
@@ -1700,7 +1701,7 @@ induction tl as [| t]; intros.
       remember (List.map (term_of_point fld pol) [t … tl]) as x.
       simpl in Heqx; subst x.
       rewrite nth_minus_char_pol_plus_cons.
-       eapply IHtl; [ eassumption | idtac | eassumption ].
+       eapply IHtl; try eapply Sorted_inv_1; try eassumption.
        intros hq₁ αh₁ Hhαh₁.
        destruct Hhαh₁ as [| Hhαh₁].
         subst t.
@@ -1720,8 +1721,34 @@ induction tl as [| t]; intros.
        remember (S q + S q * sh) as x.
        rewrite plus_comm, <- mult_succ_r, mult_comm in Heqx.
        subst x; omega.
-bbb.
-*)
+
+       unfold term_of_point; remember (S sh) as x; simpl; subst x.
+       rewrite <- Hhq.
+       apply Sorted_inv_2 in Hsort.
+       destruct Hsort as (Hsort, _).
+       unfold fst_lt in Hsort; simpl in Hsort.
+       rewrite Hh in Hsort; unfold nofq.
+       destruct t as (h₁, αh₁).
+       simpl in Hsort |- *.
+       assert ((h₁, αh₁) ∈ [(hq, αh); (h₁, αh₁) … tl]) as H₁.
+        right; left; reflexivity.
+
+        apply Hsh in H₁.
+        destruct H₁ as (h₂, (sh₂, (Hh₂, (Hsh₂, (Hhj₂, Hhk₂))))).
+        rewrite Hh₂ in Hsort |- *.
+        simpl.
+        rewrite Nat2Z.id.
+        unfold Qnat in Hsort.
+        unfold Qlt in Hsort.
+        simpl in Hsort.
+        do 2 rewrite Zmult_1_r in Hsort.
+        apply Nat2Z.inj_lt; assumption.
+
+     apply not_eq_sym in Hne.
+     apply le_neq_lt; assumption.
+Qed.
+
+Close Scope nat_scope.
 
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
