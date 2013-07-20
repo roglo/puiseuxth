@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1012 2013-07-20 21:48:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1013 2013-07-20 22:00:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1810,25 +1810,27 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma edge_pts_sorted : ∀ n pts hs hsl,
+Lemma edge_pts_sorted : ∀ n pts hs,
   Sorted fst_lt pts
-  → next_ch_points n pts = [hs … hsl]
+  → hs ∈ next_ch_points n pts
     → Sorted fst_lt (edge hs).
 Proof.
-intros n pts hs hsl Hsort Hnp.
-destruct n; [ discriminate Hnp | simpl in Hnp ].
-destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+intros n pts hs Hsort Hhs.
+revert pts hs Hsort Hhs.
+induction n; intros; [ contradiction | simpl in Hhs ].
+destruct pts as [| pt₁]; [ contradiction | idtac ].
 destruct pts as [| pt₂].
- injection Hnp; intros; subst hs; constructor.
+ destruct Hhs; [ subst hs; constructor | contradiction ].
 
- injection Hnp; clear Hnp; intros Hnp Hhs.
- subst hs; simpl.
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- eapply minimise_slope_seg_sorted; eassumption.
+ destruct Hhs as [Hhs| Hhs].
+  subst hs; simpl.
+  eapply minimise_slope_seg_sorted; [ eassumption | reflexivity ].
+
+  eapply IHn; [ idtac | eassumption ].
+  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
-Lemma www : ∀ pt₁ pt₂ pts ms₁ hs n,
+Lemma minimise_slope_edge_sorted : ∀ pt₁ pt₂ pts ms₁ hs n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → hs ∈ next_ch_points n [end_pt ms₁ … rem_pts ms₁]
@@ -1854,7 +1856,14 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
   subst ms₁; simpl in Hhs.
-bbb.
+  eapply edge_pts_sorted; [ idtac | eassumption ].
+  eapply Sorted_inv_1; eassumption.
+
+  move Hms₁ at top; subst ms₃.
+  eapply IHpts; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
 
 Lemma xxx : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
   Sorted fst_lt [pt₁; pt₂ … pts]
@@ -1870,7 +1879,7 @@ simpl in Hns.
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 destruct Hns as [Hns| Hns].
  subst ns; simpl.
- eapply www with (n := n); try eassumption.
+ eapply minimise_slope_edge_sorted with (n := n); try eassumption.
  rewrite Hnp; left; reflexivity.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
