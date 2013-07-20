@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1010 2013-07-20 20:54:32 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1011 2013-07-20 21:42:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1828,6 +1828,48 @@ destruct pts as [| pt₂].
  eapply minimise_slope_seg_sorted; eassumption.
 Qed.
 
+Lemma www : ∀ pt₁ pt₂ pts ms₁ hs n,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → hs ∈ next_ch_points n [end_pt ms₁ … rem_pts ms₁]
+      → Sorted fst_lt (edge hs).
+Proof.
+bbb.
+
+Lemma xxx : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → next_ch_points n [end_pt ms₁ … rem_pts ms₁] = hsl
+      → ns ∈ list_map_pairs newton_segment_of_pair hsl
+        → Sorted fst_lt (oth_pts ns).
+Proof.
+intros pt₁ pt₂ pts hsl ns ms₁ n Hsort Hms₁ Hnp Hns.
+revert pt₁ pt₂ pts ns ms₁ n Hsort Hms₁ Hnp Hns.
+induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
+simpl in Hns.
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+destruct Hns as [Hns| Hns].
+ subst ns; simpl.
+ eapply www with (n := n); try eassumption.
+ rewrite Hnp; left; reflexivity.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ remember (rem_pts ms₁) as pts₁.
+ symmetry in Heqpts₁.
+ destruct pts₁ as [| pt₃]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ remember (minimise_slope (end_pt ms₁) pt₃ pts₁) as ms₂.
+ symmetry in Heqms₂.
+ eapply IHhsl with (pt₁ := end_pt ms₁); try eassumption.
+ constructor.
+  constructor.
+   apply minimise_slope_sorted in Hms₁; [ idtac | assumption ].
+   rewrite Heqpts₁ in Hms₁.
+   apply Sorted_inv_2 in Hms₁.
+   destruct Hms₁ as (_, Hms₁).
+   eapply Sorted_inv_1; eassumption.
+bbb.
+
 Lemma yyy : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → Sorted fst_lt (oth_pts ns).
@@ -1849,6 +1891,14 @@ rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
  subst ns.
  simpl.
+ eapply edge_pts_sorted; eassumption.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+ injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+ symmetry in Heqms₁.
 bbb.
 
 Close Scope nat_scope.
