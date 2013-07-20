@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1013 2013-07-20 22:00:43 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1014 2013-07-20 22:33:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1865,6 +1865,41 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+Lemma minimise_slope_lt_rem : ∀ pt₁ pt₂ pt₃ pts pts₁ ms₁,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → rem_pts ms₁ = [pt₃ … pts₁]
+      → HdRel fst_lt pt₃ pts₁.
+Proof.
+intros pt₁ pt₂ pt₃ pts pts₁ ms₁ Hsort Hms₁ Hrem₁.
+revert pt₁ pt₂ pt₃ pts₁ ms₁ Hsort Hms₁ Hrem₁.
+induction pts as [| pt₄]; intros.
+ subst ms₁; discriminate Hrem₁.
+
+ simpl in Hms₁.
+ remember (minimise_slope pt₁ pt₄ pts) as ms₂.
+ symmetry in Heqms₂.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₂)%Q as c.
+ symmetry in Heqc.
+ destruct c.
+  subst ms₁; simpl in Hrem₁.
+  eapply IHpts; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+  subst ms₁; simpl in Hrem₁.
+  injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₁.
+  apply Sorted_inv_1 in Hsort.
+  apply Sorted_inv_1 in Hsort.
+  apply Sorted_inv in Hsort.
+  destruct Hsort; assumption.
+
+  move Hms₁ at top; subst ms₂.
+  eapply IHpts; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
+
 Lemma xxx : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
@@ -1897,6 +1932,11 @@ destruct Hns as [Hns| Hns].
    apply Sorted_inv_2 in Hms₁.
    destruct Hms₁ as (_, Hms₁).
    eapply Sorted_inv_1; eassumption.
+
+   eapply minimise_slope_lt_rem; eassumption.
+
+  constructor.
+  unfold fst_lt.
 bbb.
 
 Lemma yyy : ∀ pol ns,
