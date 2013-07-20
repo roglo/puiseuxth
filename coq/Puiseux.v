@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1009 2013-07-20 20:52:00 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1010 2013-07-20 20:54:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1824,7 +1824,9 @@ destruct pts as [| pt₂].
  injection Hnp; clear Hnp; intros Hnp Hhs.
  subst hs; simpl.
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-bbb.
+ symmetry in Heqms₁.
+ eapply minimise_slope_seg_sorted; eassumption.
+Qed.
 
 Lemma yyy : ∀ pol ns,
   ns ∈ newton_segments fld pol
