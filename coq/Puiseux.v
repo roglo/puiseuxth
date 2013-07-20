@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1005 2013-07-20 03:11:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1006 2013-07-20 14:57:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1748,6 +1748,29 @@ induction tl as [| t]; intros.
      apply le_neq_lt; assumption.
 Qed.
 
+Lemma yyy : ∀ pol ns,
+  ns ∈ newton_segments fld pol
+  → Sorted fst_lt (oth_pts ns).
+Proof.
+intros pol ns Hns.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom fld pol) as pts.
+apply points_of_polyn_sorted in Heqpts.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+rename Heqhsl into Hnp.
+symmetry in Hnp.
+remember (length pts) as n; clear Heqn.
+clear pol.
+revert ns pts n Heqpts Hnp Hns.
+induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+rewrite list_map_pairs_cons_cons in Hns.
+destruct Hns as [Hns| Hns].
+ subst ns.
+ simpl.
+bbb.
+
 Close Scope nat_scope.
 
 Lemma zzz : ∀ pol ns cpol j αj k αk m,
@@ -1815,6 +1838,7 @@ destruct i.
 
     subst c.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
+bbb.
      Focus 2.
      intros hq αh Hhαh.
      assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
