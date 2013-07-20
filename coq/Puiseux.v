@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1004 2013-07-19 19:58:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1005 2013-07-20 03:11:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1851,6 +1851,15 @@ destruct i.
 
          apply Zle_0_pos.
 
+        rewrite Heqj, Heqsk, Heqq.
+        rewrite <- Pos2Nat.inj_mul.
+        simpl in Hqjk.
+        rewrite <- Z2Nat.inj_pos.
+        rewrite <- Z2Nat.inj_add.
+         rewrite <- Hqjk.
+         apply h_lt_k.
+
+bbb.
         rewrite Hhq; simpl.
         rewrite Z2Nat.inj_add.
          simpl.
