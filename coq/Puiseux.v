@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1008 2013-07-20 20:50:27 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1009 2013-07-20 20:52:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1800,15 +1800,15 @@ induction pts as [| pt₃]; intros.
    eapply Sorted_minus_2nd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-   Focus 2.
-   subst ms₁; constructor.
+   eapply minimise_slope_lt_seg; eassumption.
 
-  Focus 2.
+  subst ms₁; constructor.
+
   subst ms₂.
   eapply IHpts; [ idtac | eassumption ].
   eapply Sorted_minus_2nd; [ idtac | eassumption ].
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-bbb.
+Qed.
 
 Lemma edge_pts_sorted : ∀ n pts hs hsl,
   Sorted fst_lt pts
