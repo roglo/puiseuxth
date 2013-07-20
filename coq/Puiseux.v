@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1011 2013-07-20 21:42:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1012 2013-07-20 21:48:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1834,6 +1834,26 @@ Lemma www : ∀ pt₁ pt₂ pts ms₁ hs n,
     → hs ∈ next_ch_points n [end_pt ms₁ … rem_pts ms₁]
       → Sorted fst_lt (edge hs).
 Proof.
+intros pt₁ pt₂ pts ms₁ hs n Hsort Hms₁ Hhs.
+revert pt₁ pt₂ ms₁ hs n Hsort Hms₁ Hhs.
+induction pts as [| pt₃]; intros.
+ subst ms₁; simpl in Hhs.
+ destruct n; [ contradiction | idtac ].
+ simpl in Hhs.
+ destruct Hhs; [ subst hs; constructor | contradiction ].
+
+ simpl in Hms₁.
+ remember (minimise_slope pt₁ pt₃ pts) as ms₃.
+ symmetry in Heqms₃.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₃)%Q as c.
+ destruct c.
+  subst ms₁.
+  simpl in Hhs.
+  eapply IHpts; try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+  subst ms₁; simpl in Hhs.
 bbb.
 
 Lemma xxx : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
