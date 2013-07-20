@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1007 2013-07-20 19:35:11 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1008 2013-07-20 20:50:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1748,6 +1748,37 @@ induction tl as [| t]; intros.
      apply le_neq_lt; assumption.
 Qed.
 
+Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
+  Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
+  → minimise_slope pt₁ pt₃ pts = ms₂
+    → HdRel fst_lt pt₂ (seg ms₂).
+Proof.
+intros pt₁ pt₂ pt₃ pts ms₂ Hsort Hms₂.
+revert pt₁ pt₂ pt₃ ms₂ Hsort Hms₂.
+induction pts as [| pt₄]; intros.
+ subst ms₂; constructor.
+
+ simpl in Hms₂.
+ remember (minimise_slope pt₁ pt₄ pts) as ms₄.
+ symmetry in Heqms₄.
+ remember (slope_expr pt₁ pt₃ ?= slope ms₄)%Q as c.
+ symmetry in Heqc.
+ destruct c.
+  subst ms₂; simpl.
+  constructor.
+  apply Sorted_inv_2 in Hsort.
+  destruct Hsort as (_, Hsort).
+  apply Sorted_inv_2 in Hsort.
+  destruct Hsort; assumption.
+
+  subst ms₂; constructor.
+
+  move Hms₂ at top; subst ms₄.
+  eapply IHpts; [ idtac | eassumption ].
+  eapply Sorted_minus_3rd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
+
 Lemma minimise_slope_seg_sorted : ∀ pt₁ pt₂ pts ms₁,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
@@ -1768,6 +1799,15 @@ induction pts as [| pt₃]; intros.
    eapply IHpts; [ idtac | eassumption ].
    eapply Sorted_minus_2nd; [ idtac | eassumption ].
    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+   Focus 2.
+   subst ms₁; constructor.
+
+  Focus 2.
+  subst ms₂.
+  eapply IHpts; [ idtac | eassumption ].
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 bbb.
 
 Lemma edge_pts_sorted : ∀ n pts hs hsl,
