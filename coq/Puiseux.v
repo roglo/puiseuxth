@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1006 2013-07-20 14:57:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1007 2013-07-20 19:35:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -18,12 +18,12 @@ Require Import Puiseux_series.
 Require Import Series.
 Require Import Slope_base.
 
-(*
+(**)
 Require Import SlopeMisc.
 Require Import NotInSegMisc.
 Require Import NotInSegment.
 Require Import InSegment.
-*)
+(**)
 
 Set Implicit Arguments.
 
@@ -1747,6 +1747,44 @@ induction tl as [| t]; intros.
      apply not_eq_sym in Hne.
      apply le_neq_lt; assumption.
 Qed.
+
+Lemma minimise_slope_seg_sorted : ∀ pt₁ pt₂ pts ms₁,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → Sorted fst_lt (seg ms₁).
+Proof.
+intros pt₁ pt₂ pts ms₁ Hsort Hms₁.
+revert pt₁ pt₂ ms₁ Hsort Hms₁.
+induction pts as [| pt₃]; intros.
+ subst ms₁; constructor.
+
+ simpl in Hms₁.
+ remember (minimise_slope pt₁ pt₃ pts) as ms₂.
+ symmetry in Heqms₂.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₂)%Q as c.
+ destruct c.
+  subst ms₁; simpl.
+  constructor.
+   eapply IHpts; [ idtac | eassumption ].
+   eapply Sorted_minus_2nd; [ idtac | eassumption ].
+   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+bbb.
+
+Lemma edge_pts_sorted : ∀ n pts hs hsl,
+  Sorted fst_lt pts
+  → next_ch_points n pts = [hs … hsl]
+    → Sorted fst_lt (edge hs).
+Proof.
+intros n pts hs hsl Hsort Hnp.
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+destruct pts as [| pt₂].
+ injection Hnp; intros; subst hs; constructor.
+
+ injection Hnp; clear Hnp; intros Hnp Hhs.
+ subst hs; simpl.
+ remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+bbb.
 
 Lemma yyy : ∀ pol ns,
   ns ∈ newton_segments fld pol
