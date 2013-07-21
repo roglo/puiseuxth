@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1020 2013-07-21 20:10:51 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1021 2013-07-21 20:30:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -603,7 +603,12 @@ destruct pts₁ as [| pt₄].
  simpl in Hk.
  subst pt₃.
  eapply seg_bef_end_pt; eassumption.
-bbb.
+
+ injection Hnp; clear Hnp; intros; subst hs₂ hsl.
+ simpl in Hk.
+ subst pt₃.
+ eapply seg_bef_end_pt; eassumption.
+Qed.
 
 Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
   ns ∈ newton_segments fld pol
