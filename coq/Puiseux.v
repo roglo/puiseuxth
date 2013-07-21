@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1019 2013-07-21 20:00:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1020 2013-07-21 20:10:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -551,7 +551,32 @@ Proof.
 fix IHpts 3.
 intros pt₁ pt₂ pts ms₁ hq αh kq αk Hsort Hms₁ Hseg Hend.
 destruct pts as [| pt₃]; [ subst ms₁; contradiction | idtac ].
-bbb.
+simpl in Hms₁.
+remember (minimise_slope pt₁ pt₃ pts) as ms₂.
+symmetry in Heqms₂.
+remember (slope_expr pt₁ pt₂ ?= slope ms₂) as c.
+symmetry in Heqc.
+destruct c.
+ subst ms₁; simpl in Hseg, Hend.
+ destruct Hseg as [Hseg| Hseg].
+  apply Sorted_inv_1 in Hsort.
+  apply Sorted_hd with (pt₂ := (kq, αk)) in Hsort.
+   subst pt₂; assumption.
+
+   rewrite Hend.
+   eapply end_pt_in; eassumption.
+
+  eapply IHpts with (pts := pts); try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+ subst ms₁; simpl in Hseg, Hend; contradiction.
+
+ subst ms₁; simpl in Hseg, Hend.
+ eapply IHpts with (pts := pts); try eassumption.
+ eapply Sorted_minus_2nd; [ idtac | eassumption ].
+ intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
 
 Lemma edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
   Sorted fst_lt pts
