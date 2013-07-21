@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1017 2013-07-21 08:41:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1018 2013-07-21 19:43:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -540,6 +540,41 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjqn.
  rewrite Hjq.
  eapply ini_fin_ns_in_init_pts; eassumption.
 Qed.
+
+Lemma edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
+  Sorted fst_lt pts
+  → next_ch_points n pts = [hs₁; hs₂ … hsl]
+    → (hq, αh) ∈ edge hs₁
+      → (kq, αk) = vert hs₂
+        → hq < kq.
+Proof.
+intros pts n hs₁ hs₂ hsl hq αh kq αk Hsort Hnp Hh Hk.
+bbb.
+
+Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
+  ns ∈ newton_segments fld pol
+  → (hq, αh) ∈ oth_pts ns
+    → (kq, αk) = fin_pt ns
+      → hq < kq.
+Proof.
+intros pol hq αh kq αk ns Hns Hoth Hfin.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom fld pol) as pts.
+apply points_of_polyn_sorted in Heqpts.
+remember (lower_convex_hull_points pts) as hsl.
+unfold lower_convex_hull_points in Heqhsl.
+rename Heqhsl into Hnp.
+symmetry in Hnp.
+remember (length pts) as n; clear Heqn.
+revert pol hq αh kq αk ns pts n Heqpts Hnp Hns Hoth Hfin.
+induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
+destruct hsl as [| hs₂]; [ contradiction | idtac ].
+rewrite list_map_pairs_cons_cons in Hns.
+destruct Hns as [Hns| Hns].
+ subst ns.
+ simpl in Hoth, Hfin.
+ eapply edge_bef_vert; eassumption.
+bbb.
 
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
   ns ∈ newton_segments fld pol
