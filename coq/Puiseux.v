@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1016 2013-07-21 06:41:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1017 2013-07-21 08:41:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -540,6 +540,17 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjqn.
  rewrite Hjq.
  eapply ini_fin_ns_in_init_pts; eassumption.
 Qed.
+
+Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
+  ns ∈ newton_segments fld pol
+  → (hq, αh) ∈ oth_pts ns
+    → (kq, αk) = fin_pt ns
+      → hq = Qnat h
+        → kq = Qnat k
+          → (h < k)%nat.
+Proof.
+intros pol h αh hq k αk kq ns Hns Hoth Hfin Hhq Hkq.
+bbb.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
   ns ∈ newton_segments fld pol
