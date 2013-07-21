@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1021 2013-07-21 20:30:02 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1022 2013-07-21 20:33:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -633,7 +633,14 @@ destruct Hns as [Hns| Hns].
  subst ns.
  simpl in Hoth, Hfin.
  eapply edge_bef_vert; eassumption.
-bbb.
+
+ destruct n; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₁]; [ discriminate Hnp | simpl in Hnp ].
+ destruct pts as [| pt₂]; [ discriminate Hnp | simpl in Hnp ].
+ injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+ eapply IHhsl in Hnp; try eassumption.
+ eapply minimise_slope_sorted; [ eassumption | reflexivity ].
+Qed.
 
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
   ns ∈ newton_segments fld pol
