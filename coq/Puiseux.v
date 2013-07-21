@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1014 2013-07-20 22:33:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1015 2013-07-21 06:29:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1865,7 +1865,43 @@ induction pts as [| pt₃]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma minimise_slope_lt_rem : ∀ pt₁ pt₂ pt₃ pts pts₁ ms₁,
+Lemma minimise_slope_end_lt : ∀ pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → end_pt ms₁ = pt₃
+      → rem_pts ms₁ = [pt₄ … pts₁]
+        → (fst pt₃ < fst pt₄)%Q.
+Proof.
+fix IHpts 5.
+intros pt₁ pt₂ pt₃ pt₄ pts pts₁ ms₁ Hsort Hms₁ Hend₁ Hrem₁.
+destruct pts as [| pt₅].
+ subst ms₁; simpl in Hrem₁; discriminate Hrem₁.
+
+ simpl in Hms₁.
+ remember (minimise_slope pt₁ pt₅ pts) as ms₂.
+ symmetry in Heqms₂.
+ remember (slope_expr pt₁ pt₂ ?= slope ms₂)%Q as c.
+ symmetry in Heqc.
+ destruct c.
+  subst ms₁; simpl in Hend₁, Hrem₁.
+  eapply IHpts with (pt₂ := pt₅); try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+  subst ms₁; simpl in Hend₁, Hrem₁.
+  subst pt₂.
+  injection Hrem₁; clear Hrem₁; intros; subst pt₄ pts₁.
+  apply Sorted_inv_1 in Hsort.
+  apply Sorted_inv_2 in Hsort.
+  destruct Hsort; assumption.
+
+  subst ms₁.
+  eapply IHpts with (pt₂ := pt₅); try eassumption.
+  eapply Sorted_minus_2nd; [ idtac | eassumption ].
+  intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
+
+Lemma minimise_slope_rem_lt : ∀ pt₁ pt₂ pt₃ pts pts₁ ms₁,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → rem_pts ms₁ = [pt₃ … pts₁]
@@ -1900,7 +1936,7 @@ induction pts as [| pt₄]; intros.
   intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma xxx : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
+Lemma minimise_slope_oth_pts_sorted : ∀ pt₁ pt₂ pts hsl ns ms₁ n,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
     → next_ch_points n [end_pt ms₁ … rem_pts ms₁] = hsl
@@ -1933,13 +1969,13 @@ destruct Hns as [Hns| Hns].
    destruct Hms₁ as (_, Hms₁).
    eapply Sorted_inv_1; eassumption.
 
-   eapply minimise_slope_lt_rem; eassumption.
+   eapply minimise_slope_rem_lt; eassumption.
 
   constructor.
-  unfold fst_lt.
-bbb.
+  eapply minimise_slope_end_lt; try eassumption; reflexivity.
+Qed.
 
-Lemma yyy : ∀ pol ns,
+Lemma oth_pts_sorted : ∀ pol ns,
   ns ∈ newton_segments fld pol
   → Sorted fst_lt (oth_pts ns).
 Proof.
@@ -1958,9 +1994,9 @@ induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 rewrite list_map_pairs_cons_cons in Hns.
 destruct Hns as [Hns| Hns].
- subst ns.
- simpl.
- eapply edge_pts_sorted; eassumption.
+ subst ns; simpl.
+ eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
+ rewrite Hnp; left; reflexivity.
 
  destruct n; [ discriminate Hnp | simpl in Hnp ].
  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
@@ -1968,7 +2004,8 @@ destruct Hns as [Hns| Hns].
  injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
  symmetry in Heqms₁.
-bbb.
+ eapply minimise_slope_oth_pts_sorted; eassumption.
+Qed.
 
 Close Scope nat_scope.
 
@@ -2037,10 +2074,11 @@ destruct i.
 
     subst c.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
-bbb.
-     Focus 2.
+     eapply oth_pts_sorted; eassumption.
+
      intros hq αh Hhαh.
      assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
+bbb.
       Focus 2.
       apply Hmh in Hin.
       destruct Hin as (mh, (sh, (Hαh, Hhq))).
