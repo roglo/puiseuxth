@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1023 2013-07-21 20:36:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1024 2013-07-21 20:38:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2248,8 +2248,7 @@ destruct i.
         rewrite <- Z2Nat.inj_pos.
         rewrite <- Z2Nat.inj_add.
          rewrite <- Hqjk.
-bbb.
-         apply h_lt_k.
+         eapply h_lt_k; try eassumption.
 
 bbb.
         rewrite Hhq; simpl.
