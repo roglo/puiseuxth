@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1022 2013-07-21 20:33:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1023 2013-07-21 20:36:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -651,7 +651,13 @@ Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
           → (h < k)%nat.
 Proof.
 intros pol h αh hq k αk kq ns Hns Hoth Hfin Hhq Hkq.
-bbb.
+eapply hq_lt_kq in Hoth; try eassumption.
+rewrite Hhq, Hkq in Hoth.
+unfold Qnat in Hoth; simpl in Hoth.
+unfold Qlt in Hoth; simpl in Hoth.
+do 2 rewrite Zmult_1_r in Hoth.
+apply Nat2Z.inj_lt; assumption.
+Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
   ns ∈ newton_segments fld pol
