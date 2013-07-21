@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1024 2013-07-21 20:38:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1025 2013-07-21 20:59:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2127,7 +2127,7 @@ Qed.
 
 Close Scope nat_scope.
 
-Lemma zzz : ∀ pol ns cpol j αj k αk m,
+Lemma characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
     → (inject_Z j, αj) = ini_pt ns
@@ -2249,103 +2249,55 @@ destruct i.
         rewrite <- Z2Nat.inj_add.
          rewrite <- Hqjk.
          eapply h_lt_k; try eassumption.
+          unfold newton_segments in Hns.
+          remember (points_of_ps_polynom fld pol) as pts.
+          symmetry in Heqpts.
+          apply pt_absc_is_nat with (pt := (hq, αh)) in Heqpts.
+           assumption.
 
-bbb.
-        rewrite Hhq; simpl.
-        rewrite Z2Nat.inj_add.
-         simpl.
-         rewrite <- Heqj.
-         apply plus_lt_compat_l.
-         rewrite Pos2Nat.inj_mul.
-         rewrite <- Heqq.
-         simpl.
-         rewrite <- plus_Sn_m.
-         rewrite plus_comm.
-         rewrite <- mult_succ_l.
-         rewrite Heqsk.
-         apply mult_lt_compat_r; [ idtac | apply lt_0_Sn ].
+           eapply oth_pts_in_init_pts; eassumption.
 
-bbb.
-    remember (oth_pts ns) as tl.
-    revert i Himq.
-    induction tl as [| t]; intros; simpl.
-     rewrite <- plus_Snm_nSm, minus_plus.
-     remember (q + sk * S q)%nat as n.
-     clear; revert n.
-     induction i; intros.
-      destruct n; apply fld_eq_refl.
+          unfold newton_segments in Hns.
+          remember (points_of_ps_polynom fld pol) as pts.
+          symmetry in Heqpts.
+          apply pt_absc_is_nat with (pt := (inject_Z kz, αk)) in Heqpts.
+           assumption.
 
-      destruct n; [ apply fld_eq_refl | apply IHi ].
+           rewrite Hk.
+           apply ini_fin_ns_in_init_pts; assumption.
 
-     unfold newton_segments in Hns.
-     remember (points_of_ps_polynom fld pol) as pts.
-     remember Heqpts as H; clear HeqH; symmetry in H.
-     apply pt_absc_is_nat with (pt := t) in H.
-      2: eapply oth_pts_in_init_pts; [ eassumption | idtac ].
-      2: rewrite <- Heqtl; left; reflexivity.
+         unfold newton_segments in Hns.
+         remember (points_of_ps_polynom fld pol) as pts.
+         symmetry in Heqpts.
+         apply pt_absc_is_nat with (pt := (inject_Z jz, αj)) in Heqpts.
+          simpl in Heqpts.
+          unfold Qnat in Heqpts.
+          move Heqpts at bottom.
+          unfold inject_Z in Heqpts.
+          injection Heqpts; clear Heqpts; intros Hjz; rewrite Hjz.
+          apply Zle_0_nat.
 
-      destruct t as (hq, αh); simpl in H |- *.
-      unfold nofq; simpl.
-      rename H into Hh.
-      assert ((inject_Z (Qnum hq), αh) ∈ [(hq, αh) … tl]) as H.
-       left; unfold inject_Z.
-       f_equal.
-       rewrite Hh in |- * at 1.
-       unfold Qnat.
-       rewrite Z2Nat.id; [ reflexivity | idtac ].
-       rewrite Hh; unfold Qnat; simpl.
-       apply Zle_0_nat.
+          rewrite Hj.
+          apply ini_fin_ns_in_init_pts; assumption.
 
-       apply Hmh in H.
-       destruct H as (mh, (sh, (Hαh, Hhq))).
-       rewrite Hhq.
-       rewrite Z2Nat.inj_add.
-        rewrite <- plus_Sn_m.
-        rewrite <- Heqj.
-        remember (Z.to_nat (' sh * ' qp)) as s.
-        destruct s.
-         simpl in Heqs.
-         pose proof (Pos2Nat.is_pos (sh * qp)) as H.
-         rewrite Heqs in H.
-         exfalso; revert H; apply lt_irrefl.
+         apply Zle_0_pos.
 
-         rewrite <- plus_Snm_nSm, minus_plus.
-         destruct (lt_dec i s) as [Hlt| Hge].
-          rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
+  unfold newton_segments in Hns.
+  remember (points_of_ps_polynom fld pol) as pts.
+  symmetry in Heqpts.
+  apply pt_absc_is_nat with (pt := (inject_Z jz, αj)) in Heqpts.
+   simpl in Heqpts.
+   unfold Qnat in Heqpts.
+   move Heqpts at bottom.
+   unfold inject_Z in Heqpts.
+   injection Heqpts; clear Heqpts; intros Hjz; rewrite Hjz.
+   apply Zle_0_nat.
 
-          apply not_gt in Hge.
-          remember Hge as H; clear HeqH.
-          apply le_plus_minus in H.
-          rewrite H, plus_comm, list_nth_plus_pad.
-          remember (i - s)%nat as is.
-          destruct is.
-           simpl.
-           rewrite plus_0_r in H.
-           subst i.
-           simpl in Heqs.
-           rewrite Pos2Nat.inj_mul in Heqs.
-           rewrite <- Heqq in Heqs.
-           rewrite Heqs in Himq.
-           rewrite Nat.mod_mul in Himq.
-            exfalso; apply Himq; reflexivity.
+   rewrite Hj.
+   apply ini_fin_ns_in_init_pts; assumption.
 
-            intros H; discriminate H.
-
-           simpl.
-           simpl in Heqs.
-           rewrite <- Nat.sub_succ in Heqis.
-           destruct (eq_nat_dec i s) as [Heq| Hne].
-            subst s.
-            rewrite minus_diag in Heqis; discriminate Heqis.
-
-            rewrite <- minus_Sn_m in Heqis.
-             apply eq_add_S in Heqis.
-             rewrite Heqis.
-             rewrite <- plus_Sn_m.
-             remember (S (q + sk * S q))%nat as x.
-             rewrite <- plus_Sn_m, plus_comm in Heqx.
-             rewrite <- mult_succ_l in Heqx; subst x.
-bbb.
+  apply Zle_0_pos.
+Qed.
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
