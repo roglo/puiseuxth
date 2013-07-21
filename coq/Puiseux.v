@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1018 2013-07-21 19:43:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1019 2013-07-21 20:00:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -541,6 +541,18 @@ apply pt_absc_is_nat with (pt := (jq, αj)) in Hjqn.
  eapply ini_fin_ns_in_init_pts; eassumption.
 Qed.
 
+Lemma seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
+  Sorted fst_lt [pt₁; pt₂ … pts]
+  → minimise_slope pt₁ pt₂ pts = ms₁
+    → (hq, αh) ∈ seg ms₁
+      → (kq, αk) = end_pt ms₁
+        → hq < kq.
+Proof.
+fix IHpts 3.
+intros pt₁ pt₂ pts ms₁ hq αh kq αk Hsort Hms₁ Hseg Hend.
+destruct pts as [| pt₃]; [ subst ms₁; contradiction | idtac ].
+bbb.
+
 Lemma edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
   Sorted fst_lt pts
   → next_ch_points n pts = [hs₁; hs₂ … hsl]
@@ -549,6 +561,23 @@ Lemma edge_bef_vert : ∀ pts n hs₁ hs₂ hsl hq αh kq αk,
         → hq < kq.
 Proof.
 intros pts n hs₁ hs₂ hsl hq αh kq αk Hsort Hnp Hh Hk.
+destruct pts as [| pt₁]; [ destruct n; discriminate Hnp | idtac ].
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+injection Hnp; clear Hnp; intros Hnp H; subst hs₁.
+simpl in Hh.
+remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+symmetry in Heqms₁.
+destruct n; [ discriminate Hnp | simpl in Hnp ].
+remember (end_pt ms₁) as pt₃.
+symmetry in Heqpt₃.
+remember (rem_pts ms₁) as pts₁.
+symmetry in Heqpts₁.
+destruct pts₁ as [| pt₄].
+ injection Hnp; clear Hnp; intros; subst hs₂ hsl.
+ simpl in Hk.
+ subst pt₃.
+ eapply seg_bef_end_pt; eassumption.
 bbb.
 
 Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
