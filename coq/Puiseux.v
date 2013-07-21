@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1015 2013-07-21 06:29:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1016 2013-07-21 06:41:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2078,8 +2078,20 @@ destruct i.
 
      intros hq αh Hhαh.
      assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
-bbb.
-      Focus 2.
+      unfold newton_segments in Hns.
+      remember (points_of_ps_polynom fld pol) as pts.
+      symmetry in Heqpts.
+      apply pt_absc_is_nat with (pt := (hq, αh)) in Heqpts.
+       simpl in Heqpts.
+       move Heqpts at bottom.
+       rewrite Heqpts in Hhαh.
+       unfold Qnat in Hhαh.
+       rewrite Z2Nat.id in Hhαh; [ assumption | idtac ].
+       rewrite Heqpts; simpl.
+       apply Zle_0_nat.
+
+       eapply oth_pts_in_init_pts; eassumption.
+
       apply Hmh in Hin.
       destruct Hin as (mh, (sh, (Hαh, Hhq))).
       exists (Z.to_nat (Qnum hq)), (Pos.to_nat sh).
@@ -2118,6 +2130,7 @@ bbb.
         rewrite <- Z2Nat.inj_pos.
         rewrite <- Z2Nat.inj_add.
          rewrite <- Hqjk.
+bbb.
          apply h_lt_k.
 
 bbb.
