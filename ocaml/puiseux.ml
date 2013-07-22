@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.400 2013-07-22 15:34:09 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.401 2013-07-22 15:45:55 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -225,15 +225,19 @@ value print_solution fld br nth cγl finite sol = do {
   end
 };
 
+Definition ps_zero :=
+  {| ps_terms := End _;
+     ps_valnum := I.one;
+     ps_comden := I.one |}.
+
 Definition x_power α (fld : field α) pow :=
   {| ps_terms := Term (one fld) (End _);
      ps_valnum := Qnum pow;
      ps_comden := Qden pow |}.
 
 Definition pol_mul_x_power_minus α (fld : field α) p pol :=
-  let cl := List.map (ps_mul fld (x_power fld (Qopp p))) (al pol) in
-  let cn := ps_mul fld (x_power fld (Qopp p)) (an pol) in
-  {| al := cl; an := cn |}.
+  pol_mul ps_zero (ps_add fld) (ps_mul fld)
+    {| al := []; an := x_power fld (Qopp p) |} pol.
 
 value make_solution fld rev_cγl =
   let t =

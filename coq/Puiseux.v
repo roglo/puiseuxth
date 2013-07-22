@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1031 2013-07-22 15:01:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1032 2013-07-22 15:50:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,18 +28,19 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
        (ps_add fld) (ps_mul fld))
     pol.
 
-Definition mul_x_power_minus α p (ps : puiseux_series α) :=
-  {| ps_terms :=
-       ps_terms ps;
-     ps_valnum :=
-       Z.sub (ps_valnum ps) (Qnum (Qmult p (inject_Z (Zpos (ps_comden ps)))));
-     ps_comden :=
-       ps_comden ps |}.
+Definition ps_zero α : puiseux_series α :=
+  {| ps_terms := End _;
+     ps_valnum := 1;
+     ps_comden := 1 |}.
 
-Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
-  let cl := List.map (mul_x_power_minus p) (al pol) in
-  let cn := mul_x_power_minus p (an pol) in
-  {| al := cl; an := cn |}.
+Definition x_power α (fld : field α) pow :=
+  {| ps_terms := Term (one fld) (End _);
+     ps_valnum := Qnum pow;
+     ps_comden := Qden pow |}.
+
+Definition pol_mul_x_power_minus α (fld : field α) p pol :=
+  pol_mul (ps_zero _) (ps_add fld) (ps_mul fld)
+    {| al := []; an := x_power fld (Qopp p) |} pol.
 
 Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
@@ -63,7 +64,7 @@ Definition f₁ α (fld : field α) f β γ c :=
             ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
-  pol_mul_x_power_minus β pol.
+  pol_mul_x_power_minus fld β pol.
 
 (* *)
 
