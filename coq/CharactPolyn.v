@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.2 2013-07-22 01:16:42 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.3 2013-07-22 09:11:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1825,7 +1825,7 @@ Qed.
 
 Close Scope nat_scope.
 
-Lemma characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
+Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
     → (inject_Z j, αj) = ini_pt ns

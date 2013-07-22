@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1028 2013-07-22 01:10:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1029 2013-07-22 09:11:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -290,8 +290,6 @@ intros n v tl.
 induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
 Qed.
 
-Open Scope nat_scope.
-
 Lemma nth_minus_char_pol_plus_nil : ∀ i j s k d,
   s ≤ i
   → j + s ≤ k
@@ -323,6 +321,26 @@ induction s; intros.
   rewrite <- plus_n_Sm in Hjsk.
   apply lt_le_weak; assumption.
 Qed.
+
+(* *)
+
+Definition abar α (pol : polynomial (puiseux_series α)) h :=
+  List.nth h (al pol) (an pol).
+
+Lemma zzz :
+  ns ∈ newton_segments pol
+  → f₁ (β ns) (γ ns) c₁
+    = pol_mul_x_power_minus (β ns)
+        (sum_over (oth_pts ns)
+           (λ hqαq,
+            let hq := fst hqαq in
+            let h := Z.to_nat (Qnum hq) in
+            ps_mul
+              (ps_mul (abar pol h) (x_power (hq * γ ns)))
+              (ps_power {| al := [c₁]; an := one fld |} h))).
+(* + ... *)
+Proof.
+bbb.
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
