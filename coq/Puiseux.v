@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1032 2013-07-22 15:50:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1033 2013-07-22 18:50:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -326,7 +326,7 @@ Qed.
 (* *)
 
 Delimit Scope ps with puiseux_series.
-Notation "x * y" := (ps_mul x y) : ps.
+Notation "x * y" := (ps_mul fld x y) : ps.
 
 Open Scope ps.
 
@@ -337,16 +337,16 @@ Definition sum_over pts (f : (Q * Q) → puiseux_series α) :=
   List.fold_right (λ pt accu, ps_add fld (f pt) accu) (zero ps_fld) pts.
 
 Lemma zzz : ∀ pol ns cpol c₁ r₁,
-  ns ∈ newton_segments pol
+  ns ∈ newton_segments fld pol
   → characteristic_polynomial fld pol ns = cpol
     → ac_root acf cpol = (c₁, r₁)
-      → f₁ (β ns) (γ ns) c₁
-        = pol_mul_x_power_minus (β ns)
+      → f₁ fld pol (β ns) (γ ns) c₁
+        = pol_mul_x_power_minus fld (β ns)
             (sum_over (oth_pts ns)
                (λ hqαq,
                 let hq := fst hqαq in
                 let h := Z.to_nat (Qnum hq) in
-                (abar pol h * x_power (hq * γ ns) *
+                (abar pol h * x_power fld (hq * γ ns)%Q *
                  ps_power {| al := [c₁]; an := one fld |} h))).
           (* + ... same with l ... *)
 Proof.
