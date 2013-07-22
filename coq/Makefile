@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.6 2013-06-20 02:30:32 deraugla Exp $
+# $Id: Makefile,v 1.7 2013-07-22 01:10:57 deraugla Exp $
 
-TARGET=PolyConvexHull.vo Puiseux.vo
+TARGET=PolyConvexHull.vo CharactPolyn.vo Puiseux.vo
 
 FILESFORDEP=`LC_ALL=C ls *.v`
 
