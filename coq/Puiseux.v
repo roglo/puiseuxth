@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1030 2013-07-22 09:26:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1031 2013-07-22 15:01:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -324,8 +324,16 @@ Qed.
 
 (* *)
 
-Definition abar α (pol : polynomial (puiseux_series α)) h :=
+Delimit Scope ps with puiseux_series.
+Notation "x * y" := (ps_mul x y) : ps.
+
+Open Scope ps.
+
+Definition abar (pol : polynomial (puiseux_series α)) h :=
   List.nth h (al pol) (an pol).
+
+Definition sum_over pts (f : (Q * Q) → puiseux_series α) :=
+  List.fold_right (λ pt accu, ps_add fld (f pt) accu) (zero ps_fld) pts.
 
 Lemma zzz : ∀ pol ns cpol c₁ r₁,
   ns ∈ newton_segments pol
@@ -337,9 +345,8 @@ Lemma zzz : ∀ pol ns cpol c₁ r₁,
                (λ hqαq,
                 let hq := fst hqαq in
                 let h := Z.to_nat (Qnum hq) in
-                ps_mul
-                  (ps_mul (abar pol h) (x_power (hq * γ ns)))
-                  (ps_power {| al := [c₁]; an := one fld |} h))).
+                (abar pol h * x_power (hq * γ ns) *
+                 ps_power {| al := [c₁]; an := one fld |} h))).
           (* + ... same with l ... *)
 Proof.
 bbb.
