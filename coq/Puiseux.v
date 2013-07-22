@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1026 2013-07-22 00:34:45 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1027 2013-07-22 00:52:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -25,6 +25,7 @@ Record term α β := { coeff : α; power : β }.
 
 (* *)
 
+(*
 Definition apply_poly_with_ps_poly α (fld : field α) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
@@ -70,6 +71,7 @@ Definition f₁ α (fld : field α) f β γ c :=
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus β pol.
+*)
 
 (* *)
 
@@ -112,6 +114,7 @@ Definition characteristic_polynomial α (fld : field α) pol ns :=
   let kps := List.nth k (al pol) (an pol) in
   {| al := make_char_pol fld j tl k; an := valuation_coeff fld kps |}.
 
+(*
 Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments (ac_field acf) pol in
   let (nsl, psum) :=
@@ -196,12 +199,15 @@ CoFixpoint series_series_take α n (s : series α) :=
       | End => End _
       end
   end.
+*)
 
 Section field.
 
 Variable α : Type.
 Variable acf : algeb_closed_field α.
+(*
 Variable ps_fld : field (puiseux_series α).
+*)
 Let fld := ac_field acf.
 
 (* *)
@@ -760,6 +766,7 @@ apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
   apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
+(*
 Lemma cpol_degree : ∀ (pol : puis_ser_pol α) cpol ns,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
@@ -794,6 +801,7 @@ rewrite surjective_pairing in Heqr.
 injection Heqr; clear Heqr; intros; subst c.
 apply (ac_prop acf cpol Hdeg).
 Qed.
+*)
 
 (* *)
 
@@ -1238,6 +1246,7 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
  right; right; assumption.
 Qed.
 
+(*
 Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj k αk h αh m,
   ns ∈ newton_segments fld pol
   → (j, αj) = ini_pt ns
@@ -1260,6 +1269,7 @@ split.
  split; [ idtac | assumption ].
  setoid_rewrite  <- gamma_value_jk; try eassumption.
 Qed.
+*)
 
 Lemma eq_Qeq : ∀ a b, a = b → a == b.
 Proof. intros a b H; subst a; reflexivity. Qed.
@@ -1561,6 +1571,7 @@ Definition is_polynomial_in_x_power_q pol q :=
     c = List.nth i (al pol) (zero fld)
     → fld_eq fld (zero fld) c = true.
 
+(*
 Lemma list_pad_app : ∀ n v cl,
   list_eq (fld_eq fld) (list_pad n v cl) (list_pad n v [] ++ cl) = true.
 Proof.
@@ -1593,6 +1604,7 @@ destruct n; [ discriminate H | simpl in H ].
 injection H; clear H; intros; subst c cl.
 apply fld_eq_refl.
 Qed.
+*)
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1618,6 +1630,7 @@ induction s; intros.
  rewrite <- plus_n_Sm; assumption.
 Qed.
 
+(*
 Lemma list_nth_pad_ge : ∀ i s (v : α) cl d,
   (s ≤ i)%nat
   → List.nth i (list_pad s v cl) d = List.nth (i - s) cl d.
@@ -1653,9 +1666,11 @@ Proof.
 intros n v tl.
 induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
 Qed.
+*)
 
 Open Scope nat_scope.
 
+(*
 Lemma nth_minus_char_pol_plus_nil : ∀ i j s k d,
   s ≤ i
   → j + s ≤ k
@@ -1687,6 +1702,7 @@ induction s; intros.
   rewrite <- plus_n_Sm in Hjsk.
   apply lt_le_weak; assumption.
 Qed.
+*)
 
 Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl k d,
   s ≤ i
