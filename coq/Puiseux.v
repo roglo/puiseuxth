@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1025 2013-07-21 20:59:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1026 2013-07-22 00:34:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,13 +17,6 @@ Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Series.
 Require Import Slope_base.
-
-(**)
-Require Import SlopeMisc.
-Require Import NotInSegMisc.
-Require Import NotInSegment.
-Require Import InSegment.
-(**)
 
 Set Implicit Arguments.
 
