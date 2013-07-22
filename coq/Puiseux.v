@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1034 2013-07-22 19:52:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1035 2013-07-22 20:47:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -336,6 +336,8 @@ Definition abar (pol : polynomial (puiseux_series α)) h :=
 Definition sum_over pts (f : (Q * Q) → puiseux_series α) :=
   List.fold_right (λ pt accu, ps_add fld (f pt) accu) (zero ps_fld) pts.
 
+Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
+
 Lemma zzz : ∀ pol ns cpol c₁ r₁,
   ns ∈ newton_segments fld pol
   → characteristic_polynomial fld pol ns = cpol
@@ -343,11 +345,10 @@ Lemma zzz : ∀ pol ns cpol c₁ r₁,
       → f₁ fld pol (β ns) (γ ns) c₁
         = pol_mul_x_power_minus fld (β ns)
             (sum_over (oth_pts ns)
-               (λ hqαq,
-                let hq := fst hqαq in
-                let h := Z.to_nat (Qnum hq) in
-                (abar pol h * x_power fld (hq * γ ns)%Q *
-                 ps_power_int {| al := [c₁]; an := one fld |} h))).
+               (pair_rec (λ hq αq,
+                  let h := Z.to_nat (Qnum hq) in
+                  (abar pol h * x_power fld (hq * γ ns)%Q *
+                   ps_power_int {| al := [c₁]; an := one fld |} h)))).
           (* + ... same with l ... *)
 Proof.
 bbb.
