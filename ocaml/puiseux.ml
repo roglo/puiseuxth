@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.398 2013-07-11 15:18:24 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.399 2013-07-22 15:31:24 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -225,17 +225,14 @@ value print_solution fld br nth cγl finite sol = do {
   end
 };
 
-Definition mul_x_power_minus α p (ps : puiseux_series α) :=
-  {| ps_terms :=
-       ps_terms ps;
-     ps_valnum :=
-       Z.sub (ps_valnum ps) (Qnum (Qmult p (inject_Z (Zpos (ps_comden ps)))));
-     ps_comden :=
-       ps_comden ps |}.
+Definition x_power fld pow :=
+  {| ps_terms := Term (one fld) End;
+     ps_valnum := Qnum pow;
+     ps_comden := Qden pow |}.
 
-Definition pol_mul_x_power_minus α p (pol : polynomial (puiseux_series α)) :=
-  let cl := List.map (mul_x_power_minus p) (al pol) in
-  let cn := mul_x_power_minus p (an pol) in
+Definition pol_mul_x_power_minus α fld p pol :=
+  let cl := List.map (ps_mul fld (x_power fld (Qopp p))) (al pol) in
+  let cn := ps_mul fld (x_power fld (Qopp p)) (an pol) in
   {| al := cl; an := cn |}.
 
 value make_solution fld rev_cγl =
@@ -280,7 +277,7 @@ Definition f₁ α (fld : field α) f β γ c :=
             ps_comden := Qden γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
-  pol_mul_x_power_minus β pol.
+  pol_mul_x_power_minus fld β pol.
 
 Fixpoint list_nth n l default :=
   match n with
