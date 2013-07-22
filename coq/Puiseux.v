@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1033 2013-07-22 18:50:13 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1034 2013-07-22 19:52:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -347,7 +347,7 @@ Lemma zzz : ∀ pol ns cpol c₁ r₁,
                 let hq := fst hqαq in
                 let h := Z.to_nat (Qnum hq) in
                 (abar pol h * x_power fld (hq * γ ns)%Q *
-                 ps_power {| al := [c₁]; an := one fld |} h))).
+                 ps_power_int {| al := [c₁]; an := one fld |} h))).
           (* + ... same with l ... *)
 Proof.
 bbb.
