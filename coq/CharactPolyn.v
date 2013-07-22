@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.1 2013-07-22 01:10:57 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.2 2013-07-22 01:16:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,14 +8,12 @@ Require Import NPeano.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Field.
-Require Import Fpolynomial.
 Require Import Misc.
 Require Import Newton.
 Require Import PolyConvexHull.
 Require Import Polynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
-Require Import Series.
 Require Import Slope_base.
 
 Set Implicit Arguments.
