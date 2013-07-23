@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.12 2013-07-08 08:56:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.13 2013-07-23 17:54:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -148,3 +148,26 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   {| ps_terms := ps_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
      ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
      ps_comden := l |}.
+
+(* *)
+
+Lemma Zmatch_minus : ∀ α x y (a : α) f g,
+  match (x - y)%Z with
+  | 0%Z => a
+  | Zpos n => f n
+  | Zneg n => g n
+  end =
+  match (y - x)%Z with
+  | 0%Z => a
+  | Zpos n => g n
+  | Zneg n => f n
+  end.
+Proof.
+bbb.
+
+Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
+  ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
+Proof.
+intros α fld ps₁ ps₂.
+unfold ps_add; simpl.
+bbb.
