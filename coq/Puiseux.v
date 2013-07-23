@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1047 2013-07-23 14:44:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1048 2013-07-23 16:21:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -375,24 +375,22 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   → ns ∈ newton_segments fld pol
     → cpol = characteristic_polynomial fld pol ns
       → ac_root acf cpol = (c₁, r₁)
-        → poly_eq ps_fld
-            (f₁ fld pol (β ns) (γ ns) c₁)
-            (pol_mul_x_power_minus fld (β ns)
-               (List.fold_right
-                  (λ ips accu,
-                     ps_pol_add
-                       (ps_pol_mul
-                          {| al := [];
-                             an :=
-                               ps_mul fld (snd ips)
-                                 (x_power fld (Qnat (fst ips) * γ ns)%Q) |}
-                       (ps_pol_power
-                          {| al := [ps_const c₁]; an := ps_one fld |}
-                          (fst ips)))
-                       accu)
-                  {| al := []; an := ps_zero _ |}
-                  (power_list O (al pol) (an pol))))
-          = true.
+        → f₁ fld pol (β ns) (γ ns) c₁
+          = pol_mul_x_power_minus fld (β ns)
+              (List.fold_right
+                 (λ ips accu,
+                    ps_pol_add
+                      (ps_pol_mul
+                         {| al := [];
+                            an :=
+                              ps_mul fld (snd ips)
+                                (x_power fld (Qnat (fst ips) * γ ns)%Q) |}
+                      (ps_pol_power
+                         {| al := [ps_const c₁]; an := ps_one fld |}
+                         (fst ips)))
+                      accu)
+                 {| al := []; an := ps_zero _ |}
+                 (power_list O (al pol) (an pol))).
 Proof.
 intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
 unfold poly_eq; simpl.
@@ -418,7 +416,9 @@ induction cl as [| c]; intros.
  unfold pol_mul; simpl.
  destruct n.
   simpl.
+(*
   rewrite andb_true_r.
+*)
   unfold x_power; simpl.
   Focus 1.
 bbb.
