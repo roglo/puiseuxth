@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1049 2013-07-23 17:25:42 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1050 2013-07-23 17:54:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -173,10 +173,6 @@ Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_eq
     (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
-
-Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
-Proof.
-bbb.
 
 Axiom ps_eq_add_comm : ∀ ps₁ ps₂,
   ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
