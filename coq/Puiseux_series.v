@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.15 2013-07-23 18:54:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.16 2013-07-23 18:56:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -216,4 +216,6 @@ unfold ps_add; simpl.
 rewrite Zmatch_minus.
 rewrite Plcm_comm.
 apply Zmatch_split.
+ f_equal.
+ Focus 1.
 bbb.
