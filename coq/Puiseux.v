@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1037 2013-07-23 03:59:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1038 2013-07-23 08:33:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,15 +28,17 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
        (ps_add fld) (ps_mul fld))
     pol.
 
+Definition ps_const α c : puiseux_series α :=
+  {| ps_terms := Term c (End _);
+     ps_valnum := 1;
+     ps_comden := 1 |}.
+
 Definition ps_zero α : puiseux_series α :=
   {| ps_terms := End _;
      ps_valnum := 1;
      ps_comden := 1 |}.
 
-Definition ps_const α c : puiseux_series α :=
-  {| ps_terms := Term c (End _);
-     ps_valnum := 1;
-     ps_comden := 1 |}.
+Definition ps_one α (fld : field α) := ps_const (one fld).
 
 Definition x_power α (fld : field α) pow :=
   {| ps_terms := Term (one fld) (End _);
@@ -167,8 +169,8 @@ Let fld := ac_field acf.
 Variable ps_fld : field (puiseux_series α).
 (*
 Definition ps_fld :=
-  {| zero := End _;
-     one := Term (one fld) (End _);
+  {| zero := ps_zero;
+     one := ps_one fld;
      add := ps_add fld;
      mul := ps_mul fld;
      fld_eq := ps_fld_eq;
@@ -382,9 +384,11 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
                            ps_mul fld (abar pol i)
                              (x_power fld (iq * γ ns)%Q) |}
                       (ps_pol_power
-                         {| al := [ps_const c₁]; an := one ps_fld |} i)))).
+                         {| al := [ps_const c₁]; an := ps_one fld |} i)))).
 Proof.
 intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
+unfold f₁; f_equal.
+unfold ps_one.
 bbb.
 
 (*
