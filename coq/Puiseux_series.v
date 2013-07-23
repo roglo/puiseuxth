@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.13 2013-07-23 17:54:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.14 2013-07-23 18:48:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -151,6 +151,11 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
 
 (* *)
 
+Lemma Plcm_comm : ∀ a b, Plcm a b = Plcm b a.
+Proof.
+intros a b.
+bbb.
+
 Lemma Zmatch_minus : ∀ α x y (a : α) f g,
   match (x - y)%Z with
   | 0%Z => a
@@ -163,11 +168,29 @@ Lemma Zmatch_minus : ∀ α x y (a : α) f g,
   | Zneg n => f n
   end.
 Proof.
-bbb.
+intros α x y a f g.
+remember (x - y)%Z as xy.
+symmetry in Heqxy.
+destruct xy.
+ apply Zminus_eq in Heqxy.
+ subst x; rewrite Zminus_diag; reflexivity.
+
+ do 3 (apply Z.sub_move_l in Heqxy; symmetry in Heqxy).
+ rewrite Z.sub_opp_l in Heqxy.
+ rewrite Z.opp_involutive in Heqxy.
+ rewrite Heqxy; reflexivity.
+
+ do 3 (apply Z.sub_move_l in Heqxy; symmetry in Heqxy).
+ rewrite Z.sub_opp_l in Heqxy.
+ rewrite Z.opp_involutive in Heqxy.
+ rewrite Heqxy; reflexivity.
+Qed.
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
 Proof.
 intros α fld ps₁ ps₂.
 unfold ps_add; simpl.
+rewrite Zmatch_minus.
+rewrite Plcm_comm.
 bbb.
