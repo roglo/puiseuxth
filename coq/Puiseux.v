@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1048 2013-07-23 16:21:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1049 2013-07-23 17:25:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -169,12 +169,18 @@ Let fld := ac_field acf.
 Axiom ps_eq : puiseux_series α → puiseux_series α → bool.
 Axiom ps_eq_refl : ∀ ps, ps_eq ps ps = true.
 Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq ps₁ ps₂ = ps_eq ps₂ ps₁.
-Axiom ps_add_comm : ∀ ps₁ ps₂,
-  ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
 Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_eq
     (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
+
+Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
+Proof.
+bbb.
+
+Axiom ps_eq_add_comm : ∀ ps₁ ps₂,
+  ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
+
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero _;
      one := ps_one fld;
@@ -183,7 +189,7 @@ Definition ps_fld : field (puiseux_series α) :=
      fld_eq := ps_eq;
      fld_eq_refl := ps_eq_refl;
      fld_eq_comm := ps_eq_comm;
-     fld_add_comm := ps_add_comm;
+     fld_add_comm := ps_eq_add_comm;
      fld_add_assoc := ps_add_assoc |}.
 
 (* *)
@@ -369,6 +375,14 @@ Fixpoint ps_pol_power pol n :=
   | O => {| al := []; an := one ps_fld |}
   | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
   end.
+
+Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
+Proof.
+intros ps.
+rewrite ps_add_comm.
+unfold ps_add; simpl.
+rewrite Zminus_0_r.
+bbb.
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   pts = points_of_ps_polynom fld pol
