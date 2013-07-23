@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1038 2013-07-23 08:33:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1039 2013-07-23 08:56:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -388,7 +388,17 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
 Proof.
 intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
 unfold f₁; f_equal.
-unfold ps_one.
+unfold apply_poly_with_ps_poly, apply_poly.
+unfold ps_one, abar.
+unfold newton_segments in Hns.
+rewrite <- Hpts in Hns.
+unfold points_of_ps_polynom in Hpts.
+unfold characteristic_polynomial, term_of_point in Hcpol.
+simpl in Hcpol.
+remember (an pol) as cn; clear Heqcn.
+remember (al pol) as cl; clear Heqcl.
+unfold nofq in Hcpol.
+clear pol cpol Hcpol Hcr r₁.
 bbb.
 
 (*
