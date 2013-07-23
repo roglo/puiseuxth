@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1046 2013-07-23 14:41:22 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1047 2013-07-23 14:44:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -166,13 +166,13 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
-Axiom ps_fld_eq : puiseux_series α → puiseux_series α → bool.
-Axiom ps_fld_eq_refl : ∀ ps, ps_fld_eq ps ps = true.
-Axiom ps_fld_eq_comm : ∀ ps₁ ps₂, ps_fld_eq ps₁ ps₂ = ps_fld_eq ps₂ ps₁.
-Axiom ps_fld_add_comm : ∀ ps₁ ps₂,
-  ps_fld_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
-Axiom ps_fld_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_fld_eq
+Axiom ps_eq : puiseux_series α → puiseux_series α → bool.
+Axiom ps_eq_refl : ∀ ps, ps_eq ps ps = true.
+Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq ps₁ ps₂ = ps_eq ps₂ ps₁.
+Axiom ps_add_comm : ∀ ps₁ ps₂,
+  ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
+Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
+  ps_eq
     (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
 Definition ps_fld : field (puiseux_series α) :=
@@ -180,11 +180,11 @@ Definition ps_fld : field (puiseux_series α) :=
      one := ps_one fld;
      add := ps_add fld;
      mul := ps_mul fld;
-     fld_eq := ps_fld_eq;
-     fld_eq_refl := ps_fld_eq_refl;
-     fld_eq_comm := ps_fld_eq_comm;
-     fld_add_comm := ps_fld_add_comm;
-     fld_add_assoc := ps_fld_add_assoc |}.
+     fld_eq := ps_eq;
+     fld_eq_refl := ps_eq_refl;
+     fld_eq_comm := ps_eq_comm;
+     fld_add_comm := ps_add_comm;
+     fld_add_assoc := ps_add_assoc |}.
 
 (* *)
 
