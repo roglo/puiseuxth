@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1042 2013-07-23 13:54:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1043 2013-07-23 14:05:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -406,8 +406,20 @@ remember (al pol) as cl; clear Heqcl.
 unfold nofq in Hcpol.
 clear pol cpol Hcpol Hcr r₁.
 unfold ps_pol_mul, ps_fld; simpl.
-unfold ps_const, ps_pol_add, ps_zero.
+unfold ps_const, ps_pol_add.
 remember 0%nat as n; clear Heqn.
+revert pts ns c₁ cn n Hpts Hns.
+induction cl as [| c]; intros.
+ simpl.
+ unfold pol_add.
+ simpl.
+ unfold pol_mul.
+ simpl.
+ destruct n; simpl.
+  Focus 1.
+  unfold Qnat; simpl.
+  unfold Qmult; simpl.
+  unfold x_power; simpl.
 bbb.
 
 (*
