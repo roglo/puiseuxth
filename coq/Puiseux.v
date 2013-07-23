@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1036 2013-07-23 02:53:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1037 2013-07-23 03:59:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -162,8 +162,21 @@ Section field.
 
 Variable α : Type.
 Variable acf : algeb_closed_field α.
-Variable ps_fld : field (puiseux_series α).
 Let fld := ac_field acf.
+
+Variable ps_fld : field (puiseux_series α).
+(*
+Definition ps_fld :=
+  {| zero := End _;
+     one := Term (one fld) (End _);
+     add := ps_add fld;
+     mul := ps_mul fld;
+     fld_eq := ps_fld_eq;
+     fld_eq_refl := eq_refl;
+     fld_eq_comm := ps_fld_eq_comm;
+     fld_add_comm := ps_fld_add_comm;
+     fld_add_assoc := ps_fld_add_assoc |}.
+*)
 
 (* *)
 
