@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.14 2013-07-23 18:48:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.15 2013-07-23 18:54:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -154,7 +154,10 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
 Lemma Plcm_comm : ∀ a b, Plcm a b = Plcm b a.
 Proof.
 intros a b.
-bbb.
+unfold Plcm.
+rewrite Z.lcm_comm.
+reflexivity.
+Qed.
 
 Lemma Zmatch_minus : ∀ α x y (a : α) f g,
   match (x - y)%Z with
@@ -186,6 +189,25 @@ destruct xy.
  rewrite Heqxy; reflexivity.
 Qed.
 
+Lemma Zmatch_split : ∀ α x (a₁ a₂ : α) f₁ f₂ g₁ g₂,
+  a₁ = a₂
+  → (∀ n, f₁ n = f₂ n)
+    → (∀ n, g₁ n = g₂ n)
+      → match x with
+        | 0%Z => a₁
+        | Zpos n => f₁ n
+        | Zneg n => g₁ n
+        end =
+        match x with
+        | 0%Z => a₂
+        | Zpos n => f₂ n
+        | Zneg n => g₂ n
+        end.
+Proof.
+intros α x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
+destruct x; [ assumption | apply Hf | apply Hg ].
+Qed.
+
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
 Proof.
@@ -193,4 +215,5 @@ intros α fld ps₁ ps₂.
 unfold ps_add; simpl.
 rewrite Zmatch_minus.
 rewrite Plcm_comm.
+apply Zmatch_split.
 bbb.
