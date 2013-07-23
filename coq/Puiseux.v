@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1039 2013-07-23 08:56:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1040 2013-07-23 09:31:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -166,19 +166,25 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
-Variable ps_fld : field (puiseux_series α).
-(*
-Definition ps_fld :=
-  {| zero := ps_zero;
+Axiom ps_fld_eq : puiseux_series α → puiseux_series α → bool.
+Axiom ps_fld_eq_refl : ∀ ps, ps_fld_eq ps ps = true.
+Axiom ps_fld_eq_comm : ∀ ps₁ ps₂, ps_fld_eq ps₁ ps₂ = ps_fld_eq ps₂ ps₁.
+Axiom ps_fld_add_comm : ∀ ps₁ ps₂,
+  ps_fld_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
+Axiom ps_fld_add_assoc : ∀ ps₁ ps₂ ps₃,
+  ps_fld_eq
+    (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
+    (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
+Definition ps_fld : field (puiseux_series α) :=
+  {| zero := ps_zero _;
      one := ps_one fld;
      add := ps_add fld;
      mul := ps_mul fld;
      fld_eq := ps_fld_eq;
-     fld_eq_refl := eq_refl;
+     fld_eq_refl := ps_fld_eq_refl;
      fld_eq_comm := ps_fld_eq_comm;
      fld_add_comm := ps_fld_add_comm;
      fld_add_assoc := ps_fld_add_assoc |}.
-*)
 
 (* *)
 
@@ -399,6 +405,9 @@ remember (an pol) as cn; clear Heqcn.
 remember (al pol) as cl; clear Heqcl.
 unfold nofq in Hcpol.
 clear pol cpol Hcpol Hcr r₁.
+unfold ps_pol_mul.
+unfold ps_fld; simpl.
+unfold ps_const.
 bbb.
 
 (*
