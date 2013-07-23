@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.31 2013-07-16 08:02:15 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.32 2013-07-23 02:53:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,6 +9,8 @@ Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
+
+Set Implicit Arguments.
 
 Definition Qnat i := Z.of_nat i # 1.
 
@@ -585,3 +587,5 @@ intros a b Ha H.
 apply Pos.mul_eq_1_l in H.
 subst a; revert Ha; apply Plt_irrefl.
 Qed.
+
+Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).

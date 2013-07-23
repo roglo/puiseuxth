@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1035 2013-07-22 20:47:37 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1036 2013-07-23 02:53:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -30,6 +30,11 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
 
 Definition ps_zero α : puiseux_series α :=
   {| ps_terms := End _;
+     ps_valnum := 1;
+     ps_comden := 1 |}.
+
+Definition ps_const α c : puiseux_series α :=
+  {| ps_terms := Term c (End _);
      ps_valnum := 1;
      ps_comden := 1 |}.
 
@@ -325,32 +330,48 @@ Qed.
 
 (* *)
 
+(*
 Delimit Scope ps with puiseux_series.
 Notation "x * y" := (ps_mul fld x y) : ps.
 
 Open Scope ps.
+*)
 
 Definition abar (pol : polynomial (puiseux_series α)) h :=
   List.nth h (al pol) (an pol).
 
-Definition sum_over pts (f : (Q * Q) → puiseux_series α) :=
-  List.fold_right (λ pt accu, ps_add fld (f pt) accu) (zero ps_fld) pts.
+Definition ps_pol_add := pol_add (add ps_fld).
+Definition ps_pol_mul := pol_mul (zero ps_fld) (add ps_fld) (mul ps_fld).
 
-Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
+Fixpoint ps_pol_power pol n :=
+  match n with
+  | O => {| al := []; an := zero ps_fld |}
+  | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
+  end.
 
-Lemma zzz : ∀ pol ns cpol c₁ r₁,
-  ns ∈ newton_segments fld pol
-  → characteristic_polynomial fld pol ns = cpol
-    → ac_root acf cpol = (c₁, r₁)
-      → f₁ fld pol (β ns) (γ ns) c₁
-        = pol_mul_x_power_minus fld (β ns)
-            (sum_over (oth_pts ns)
-               (pair_rec (λ hq αq,
-                  let h := Z.to_nat (Qnum hq) in
-                  (abar pol h * x_power fld (hq * γ ns)%Q *
-                   ps_power_int {| al := [c₁]; an := one fld |} h)))).
-          (* + ... same with l ... *)
+Definition sum_over pts (f : (Q * Q) → polynomial (puiseux_series α)) :=
+  List.fold_right (λ pt accu, ps_pol_add (f pt) accu)
+    {| al := []; an := ps_zero _ |} pts.
+
+Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
+  pts = points_of_ps_polynom fld pol
+  → ns ∈ newton_segments fld pol
+    → cpol = characteristic_polynomial fld pol ns
+      → ac_root acf cpol = (c₁, r₁)
+        → f₁ fld pol (β ns) (γ ns) c₁
+          = pol_mul_x_power_minus fld (β ns)
+              (sum_over pts
+                 (pair_rec (λ iq αi,
+                    let i := Z.to_nat (Qnum iq) in
+                    ps_pol_mul
+                      {| al := [];
+                         an :=
+                           ps_mul fld (abar pol i)
+                             (x_power fld (iq * γ ns)%Q) |}
+                      (ps_pol_power
+                         {| al := [ps_const c₁]; an := one ps_fld |} i)))).
 Proof.
+intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
 bbb.
 
 (*
