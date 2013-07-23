@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.37 2013-07-03 19:18:29 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 1.38 2013-07-23 10:58:12 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -18,10 +18,13 @@ Set Implicit Arguments.
 Fixpoint power_list α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>
-      [(Qnat pow, ps₁) … power_list (S pow) psl₁ psn]
+      [(pow, ps₁) … power_list (S pow) psl₁ psn]
   | [] =>
-      [(Qnat pow, psn)]
+      [(pow, psn)]
   end.
+
+Definition qpower_list α pow psl (psn : puiseux_series α) :=
+  List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl psn).
 
 Fixpoint filter_finite_val α fld (dpl : list (Q * puiseux_series α)) :=
   match dpl with
@@ -35,10 +38,10 @@ Fixpoint filter_finite_val α fld (dpl : list (Q * puiseux_series α)) :=
   end.
 
 Definition points_of_ps_polynom_gen α fld pow cl (cn : puiseux_series α) :=
-  filter_finite_val fld (power_list pow cl cn).
+  filter_finite_val fld (qpower_list pow cl cn).
 
 Definition points_of_ps_polynom α fld (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_polynom_gen fld 0%nat (al pol) (an pol).
+  points_of_ps_polynom_gen fld 0 (al pol) (an pol).
 
 Definition newton_segments α fld (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom fld pol in
@@ -49,7 +52,8 @@ Definition puis_ser_pol α := polynomial (puiseux_series α).
 (* *)
 
 Lemma fold_points_of_ps_polynom_gen : ∀ α fld pow cl (cn : puiseux_series α),
-  filter_finite_val fld (power_list pow cl cn) =
+  filter_finite_val fld
+    (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl cn)) =
   points_of_ps_polynom_gen fld pow cl cn.
 Proof. reflexivity. Qed.
 

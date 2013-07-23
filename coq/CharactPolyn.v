@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.3 2013-07-22 09:11:46 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.4 2013-07-23 10:58:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -682,7 +682,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma first_power_le : ∀ pow cl cn h hv,
-  (h, hv) ∈ filter_finite_val fld (power_list pow cl cn)
+  (h, hv) ∈ filter_finite_val fld (qpower_list pow cl cn)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
 intros pow cl cn h hv Hhhv.
@@ -712,7 +712,7 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv hps def,
-  ppl = power_list pow cl cn
+  ppl = qpower_list pow cl cn
   → pts = filter_finite_val fld ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) (cl ++ [cn]) def
@@ -774,7 +774,7 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv hps def,
-  pts = filter_finite_val fld (power_list pow cl cn)
+  pts = filter_finite_val fld (qpower_list pow cl cn)
   → psl = cl ++ [cn]
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
@@ -787,7 +787,7 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
  subst pts ppl.
  eapply first_power_le; eassumption.
 
- eapply in_pts_in_ppl in Hhv; try eassumption.
+ eapply in_pts_in_ppl in Hhv; try eassumption; [ idtac | reflexivity ].
  destruct Hhv as (Hhps₁, Hv).
  split; [ idtac | assumption ].
  subst ppl.

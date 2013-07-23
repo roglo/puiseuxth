@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1040 2013-07-23 09:31:29 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1041 2013-07-23 10:58:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -381,6 +381,22 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
       → ac_root acf cpol = (c₁, r₁)
         → f₁ fld pol (β ns) (γ ns) c₁
           = pol_mul_x_power_minus fld (β ns)
+(**)
+              (List.fold_right
+                 (λ ips accu,
+                    ps_pol_add
+                      (ps_pol_mul
+                         {| al := [];
+                            an :=
+                              ps_mul fld (snd ips)
+                                (x_power fld (Qnat (fst ips) * γ ns)%Q) |}
+                      (ps_pol_power
+                         {| al := [ps_const c₁]; an := ps_one fld |}
+                         (fst ips)))
+                      accu)
+                 {| al := []; an := ps_zero _ |}
+                 (power_list O (al pol) (an pol))).
+(*
               (sum_over pts
                  (pair_rec (λ iq αi,
                     let i := Z.to_nat (Qnum iq) in
@@ -391,6 +407,7 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
                              (x_power fld (iq * γ ns)%Q) |}
                       (ps_pol_power
                          {| al := [ps_const c₁]; an := ps_one fld |} i)))).
+*)
 Proof.
 intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
 unfold f₁; f_equal.
@@ -408,6 +425,8 @@ clear pol cpol Hcpol Hcr r₁.
 unfold ps_pol_mul.
 unfold ps_fld; simpl.
 unfold ps_const.
+unfold ps_pol_add.
+unfold ps_zero.
 bbb.
 
 (*
