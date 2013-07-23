@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1043 2013-07-23 14:05:35 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1044 2013-07-23 14:06:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -366,7 +366,7 @@ Definition ps_pol_mul := pol_mul (zero ps_fld) (add ps_fld) (mul ps_fld).
 
 Fixpoint ps_pol_power pol n :=
   match n with
-  | O => {| al := []; an := zero ps_fld |}
+  | O => {| al := []; an := one ps_fld |}
   | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
   end.
 
