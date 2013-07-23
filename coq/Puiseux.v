@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1045 2013-07-23 14:21:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1046 2013-07-23 14:41:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -30,12 +30,12 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
 
 Definition ps_const α c : puiseux_series α :=
   {| ps_terms := Term c (End _);
-     ps_valnum := 1;
+     ps_valnum := 0;
      ps_comden := 1 |}.
 
 Definition ps_zero α : puiseux_series α :=
   {| ps_terms := End _;
-     ps_valnum := 1;
+     ps_valnum := 0;
      ps_comden := 1 |}.
 
 Definition ps_one α (fld : field α) := ps_const (one fld).
@@ -375,25 +375,28 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   → ns ∈ newton_segments fld pol
     → cpol = characteristic_polynomial fld pol ns
       → ac_root acf cpol = (c₁, r₁)
-        → f₁ fld pol (β ns) (γ ns) c₁
-          = pol_mul_x_power_minus fld (β ns)
-              (List.fold_right
-                 (λ ips accu,
-                    ps_pol_add
-                      (ps_pol_mul
-                         {| al := [];
-                            an :=
-                              ps_mul fld (snd ips)
-                                (x_power fld (Qnat (fst ips) * γ ns)%Q) |}
-                      (ps_pol_power
-                         {| al := [ps_const c₁]; an := ps_one fld |}
-                         (fst ips)))
-                      accu)
-                 {| al := []; an := ps_zero _ |}
-                 (power_list O (al pol) (an pol))).
+        → poly_eq ps_fld
+            (f₁ fld pol (β ns) (γ ns) c₁)
+            (pol_mul_x_power_minus fld (β ns)
+               (List.fold_right
+                  (λ ips accu,
+                     ps_pol_add
+                       (ps_pol_mul
+                          {| al := [];
+                             an :=
+                               ps_mul fld (snd ips)
+                                 (x_power fld (Qnat (fst ips) * γ ns)%Q) |}
+                       (ps_pol_power
+                          {| al := [ps_const c₁]; an := ps_one fld |}
+                          (fst ips)))
+                       accu)
+                  {| al := []; an := ps_zero _ |}
+                  (power_list O (al pol) (an pol))))
+          = true.
 Proof.
 intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
-unfold f₁; f_equal.
+unfold poly_eq; simpl.
+unfold f₁.
 unfold apply_poly_with_ps_poly, apply_poly.
 unfold ps_one, abar.
 unfold newton_segments in Hns.
@@ -406,15 +409,16 @@ remember (al pol) as cl; clear Heqcl.
 unfold nofq in Hcpol.
 clear pol cpol Hcpol Hcr r₁.
 unfold ps_pol_mul, ps_fld; simpl.
-unfold ps_const, ps_pol_add.
+unfold ps_pol_add.
 remember 0%nat as n; clear Heqn.
 revert pts ns c₁ cn n Hpts Hns.
 induction cl as [| c]; intros.
  simpl.
  unfold pol_add; simpl.
  unfold pol_mul; simpl.
- destruct n; simpl.
-  f_equal.
+ destruct n.
+  simpl.
+  rewrite andb_true_r.
   unfold x_power; simpl.
   Focus 1.
 bbb.
