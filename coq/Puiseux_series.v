@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.20 2013-07-24 12:17:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.21 2013-07-24 12:35:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -39,7 +39,7 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
   end.
 
 Definition normal_terms α fld n cd₁ (s : series α) :=
-  {| term := λ i, if zerob (i mod n) then term s (div i n) else zero fld;
+  {| terms := λ i, if zerob (i mod n) then terms s (div i n) else zero fld;
      stop :=
        match stop s with
        | Some i => Some (i * cd₁)%nat
@@ -62,7 +62,7 @@ Definition series_nth α (fld : field α) n s :=
   end.
 
 Definition series_add α (fld : field α) s₁ s₂ :=
-  {| term := λ i, add fld (series_nth fld i s₁) (series_nth fld i s₂);
+  {| terms := λ i, add fld (series_nth fld i s₁) (series_nth fld i s₂);
      stop :=
        match stop s₁ with
        | Some n₁ =>
@@ -86,7 +86,7 @@ CoFixpoint series_add α (fld : field α) s₁ s₂ :=
 *)
 
 Definition series_pad_left α (fld : field α) n s :=
-  {| term := λ i, if lt_dec i n then zero fld else series_nth fld (i - n) s;
+  {| terms := λ i, if lt_dec i n then zero fld else series_nth fld (i - n) s;
      stop :=
        match stop s with
        | Some m => Some (m + n)%nat
@@ -151,7 +151,7 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   end.
 
 Definition ps_mul_term α fld (s₁ s₂ : series α) :=
-  {| term := λ i,
+  {| terms := λ i,
        match sum_mul_coeff fld 0 (S i) s₁ s₂ with
        | Some c => c
        | None => zero fld

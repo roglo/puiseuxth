@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1052 2013-07-24 12:17:55 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1053 2013-07-24 12:35:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,26 +19,20 @@ Set Implicit Arguments.
 
 (* *)
 
+Definition ps_const α c : puiseux_series α :=
+  {| ps_terms := {| terms := λ i, c; stop := Some 1%nat |};
+     ps_valnum := 0;
+     ps_comden := 1 |}.
+
+Definition ps_zero α (fld : field α) := ps_const (zero fld).
+Definition ps_one α (fld : field α) := ps_const (one fld).
+
 Definition apply_poly_with_ps_poly α (fld : field α) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
-    (pol_mul
-       {| ps_terms := End _; ps_valnum := 0; ps_comden := 1 |}
-       (ps_add fld) (ps_mul fld))
+    (pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld))
     pol.
-
-Definition ps_const α c : puiseux_series α :=
-  {| ps_terms := Term c (End _);
-     ps_valnum := 0;
-     ps_comden := 1 |}.
-
-Definition ps_zero α : puiseux_series α :=
-  {| ps_terms := End _;
-     ps_valnum := 0;
-     ps_comden := 1 |}.
-
-Definition ps_one α (fld : field α) := ps_const (one fld).
 
 Definition x_power α (fld : field α) pow :=
   {| ps_terms := Term (one fld) (End _);
