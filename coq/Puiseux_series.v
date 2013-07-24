@@ -1,7 +1,8 @@
-(* $Id: Puiseux_series.v,v 1.22 2013-07-24 15:15:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.23 2013-07-24 16:10:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import NPeano.
 
 Require Import Field.
 Require Import Series.
@@ -257,5 +258,22 @@ rewrite Plcm_comm.
 apply Zmatch_split.
  f_equal.
   apply series_add_comm.
-Focus 1.
+
+  Focus 1.
+  unfold Plcm.
+  pose proof (Z.divide_lcm_r (' ps_comden ps₂) (' ps_comden ps₁)) as H₁.
+  pose proof (Z.divide_lcm_l (' ps_comden ps₂) (' ps_comden ps₁)) as H₂.
+  destruct H₁ as (k₁, H₁).
+  destruct H₂ as (k₂, H₂).
+  rewrite H₁ in |- * at 1.
+  rewrite H₂ in |- * at 1.
+  rewrite Z2Pos.inj_mul.
+   rewrite Z2Pos.inj_mul.
+    simpl.
+    rewrite Pos2Nat.inj_mul.
+    rewrite Pos2Nat.inj_mul.
+    rewrite Nat.div_mul.
+     rewrite Nat.div_mul.
+      rewrite positive_nat_Z.
+      rewrite positive_nat_Z.
 bbb.
