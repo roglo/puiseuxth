@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1054 2013-07-24 12:43:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1055 2013-07-24 12:55:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,11 +19,15 @@ Set Implicit Arguments.
 
 (* *)
 
-Definition ps_const α c : puiseux_series α :=
-  {| ps_terms := {| terms := λ i, c; stop := Some 1%nat |};
-     ps_valnum := 0;
-     ps_comden := 1 |}.
+Definition series_const α c : series α :=
+   {| terms := λ i, c; stop := Some 1%nat |}.
 
+Definition monomial α (c : α) pow :=
+  {| ps_terms := series_const c;
+     ps_valnum := Qnum pow;
+     ps_comden := Qden pow |}.
+
+Definition ps_const α c : puiseux_series α := monomial c 0.
 Definition ps_zero α (fld : field α) := ps_const (zero fld).
 Definition ps_one α (fld : field α) := ps_const (one fld).
 
@@ -34,14 +38,9 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     (pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld))
     pol.
 
-Definition x_power α (fld : field α) pow :=
-  {| ps_terms := {| terms := λ i, one fld; stop := Some 1%nat |};
-     ps_valnum := Qnum pow;
-     ps_comden := Qden pow |}.
-
 Definition pol_mul_x_power_minus α (fld : field α) p pol :=
   pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld)
-    {| al := []; an := x_power fld (Qopp p) |} pol.
+    {| al := []; an := monomial (one fld) (Qopp p) |} pol.
 
 Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
@@ -54,16 +53,7 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   end.
 
 Definition f₁ α (fld : field α) f β γ c :=
-  let y :=
-    {| al :=
-         [{| ps_terms := Term c (End _);
-             ps_valnum := Qnum γ;
-             ps_comden := Qden γ |}];
-       an :=
-         {| ps_terms := Term (one fld) (End _);
-            ps_valnum := Qnum γ;
-            ps_comden := Qden γ |} |}
-  in
+  let y := {| al := [monomial c γ]; an := monomial (one fld) γ |} in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus fld β pol.
 
