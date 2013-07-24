@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.197 2013-07-24 21:55:35 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.198 2013-07-24 22:13:27 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -28,7 +28,9 @@ value rec series_head is_zero n s =
 Definition valuation α fld (ps : puiseux_series α) :=
   match series_head (is_zero fld) 0 (ps_terms ps) with
   | Some (n, c) =>
-      Some (Qmake (Z.add (ps_valnum ps) (Z.of_nat n)) (ps_comden ps))
+      Some
+        (Qmake (Z.add (Qnum (ps_valuation ps)) (Z.of_nat n))
+           (Qden (ps_valuation ps)))
   | None =>
       None
   end.
@@ -53,7 +55,7 @@ CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
 
 Definition normal α (fld : field α) l cd ms :=
   {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
-     ps_valuation := Qmake (Z.mul (ps_valnum ms) (Z.of_nat cd)) l |}.
+     ps_valuation := Qmake (Z.mul (Qnum (ps_valuation ms)) (Z.of_nat cd)) l |}.
 
 (* ps_add *)
 

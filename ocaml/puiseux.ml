@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.404 2013-07-24 22:09:14 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.405 2013-07-24 22:10:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -361,10 +361,8 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
   {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
      ps_valuation :=
        match s with
-       | Term t _ =>
-           Qmake (Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) I.one)))) cd
-       | End =>
-           Q.zero
+       | Term t _ => Qred (power t)
+       | End => Q.zero
        end |}.
 
 (* *)
