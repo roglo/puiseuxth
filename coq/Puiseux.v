@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1055 2013-07-24 12:55:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1056 2013-07-24 13:15:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -78,6 +78,7 @@ Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
       Some ({| coeff := c; power := p |}, pol₁)
   end.
 
+(*
 CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   match puiseux_step psumo acf pol with
   | Some (t, pol₁) =>
@@ -87,7 +88,9 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   | None =>
       End _
   end.
+*)
 
+(*
 Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
   match n with
   | O => cd
@@ -97,7 +100,9 @@ Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
       | End => cd
       end
   end.
+*)
 
+(*
 CoFixpoint complete α (zero : α) cd p s :=
   match s with
   | Term t ns =>
@@ -109,7 +114,9 @@ CoFixpoint complete α (zero : α) cd p s :=
   | End =>
       End _
   end.
+*)
 
+(*
 CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
   match s with
   | Term t ns =>
@@ -119,7 +126,9 @@ CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
   | End =>
       End _
   end.
+*)
 
+(*
 Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
     puiseux_series α :=
   let s := puiseux_loop None acf pol in
@@ -131,9 +140,11 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
        | End => 0
        end;
      ps_comden := cd |}.
+*)
 
 (* *)
 
+(*
 CoFixpoint series_series_take α n (s : series α) :=
   match n with
   | O => End _
@@ -143,6 +154,7 @@ CoFixpoint series_series_take α n (s : series α) :=
       | End => End _
       end
   end.
+*)
 
 Section field.
 
@@ -153,8 +165,8 @@ Let fld := ac_field acf.
 Axiom ps_eq_eq : puiseux_series α → puiseux_series α → bool.
 (* cf Puiseux_series.ps_eq *)
 
-Axiom ps_eq_refl : ∀ ps, ps_eq ps ps = true.
-Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq ps₁ ps₂ = ps_eq ps₂ ps₁.
+Axiom ps_eq_refl : ∀ ps, ps_eq fld ps ps.
+Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq fld ps₁ ps₂ → ps_eq fld ps₂ ps₁.
 Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_eq
     (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
