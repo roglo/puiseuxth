@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.196 2013-07-11 14:43:02 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.197 2013-07-24 21:55:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -11,8 +11,10 @@ open Series;
 
 Record puiseux_series α :=
   { ps_terms : series α;
-    ps_valnum : Z;
-    ps_comden : positive }.
+    ps_valuation : Q }.
+
+value ps_valnum s = Qnum (ps_valuation s);
+value ps_comden s = Qden (ps_valuation s);
 
 value rec series_head is_zero n s =
   match s with
@@ -51,8 +53,7 @@ CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
 
 Definition normal α (fld : field α) l cd ms :=
   {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
-     ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
-     ps_comden := l |}.
+     ps_valuation := Qmake (Z.mul (ps_valnum ms) (Z.of_nat cd)) l |}.
 
 (* ps_add *)
 
@@ -81,20 +82,17 @@ Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   match Z.sub v₂ v₁ with
   | Z0 =>
       {| ps_terms := series_add fld (ps_terms ms₁) (ps_terms ms₂);
-         ps_valnum := v₁;
-         ps_comden := l |}
+         ps_valuation := Qmake v₁ l |}
   | Zpos n =>
       {| ps_terms :=
            series_add fld (ps_terms ms₁)
              (series_pad_left fld (Pos.to_nat n) (ps_terms ms₂));
-         ps_valnum := v₁;
-         ps_comden := l |}
+         ps_valuation := Qmake v₁ l |}
   | Zneg n =>
       {| ps_terms :=
            series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ms₁))
              (ps_terms ms₂);
-         ps_valnum := v₂;
-         ps_comden := l |}
+         ps_valuation := Qmake v₂ l |}
   end.
 
 (* ps_mul *)
@@ -139,8 +137,7 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ms₁))) ms₁ in
   let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
   {| ps_terms := series_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
-     ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
-     ps_comden := l |}.
+     ps_valuation := Qmake (Z.add (ps_valnum ms₁) (ps_valnum ms₂)) l |}.
 
 (* *)
 

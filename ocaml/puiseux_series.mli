@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.42 2013-07-11 14:43:02 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.43 2013-07-24 21:55:35 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -6,8 +6,7 @@ open Series;
 
 type puiseux_series α =
   { ps_terms : series α;
-    ps_valnum : I.t;
-    ps_comden : I.t }
+    ps_valuation : Q.t }
 ;
 value ps_terms : puiseux_series α → series α;
 value ps_valnum : puiseux_series α → I.t;

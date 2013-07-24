@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.8 2013-07-11 14:43:02 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.9 2013-07-24 21:55:35 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -50,10 +50,10 @@ Definition ps_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
 Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
   {| ps_terms :=
        ps_terms_of_ps (zero fld) (is_zero fld) ps;
-     ps_valnum :=
+     ps_valuation :=
        match old_valuation fld ps with
-       | Some v => Qnum (Qred (Qmult v (inject_Z (Zpos (ops_comden ps)))))
-       | None => I.zero
-       end;
-     ps_comden :=
-       ops_comden ps |}.
+       | Some v =>
+           Qmake (Qnum (Qred (Qmult v (inject_Z (Zpos (ops_comden ps))))))
+             (ops_comden ps)
+       | None => Q.zero
+       end |}.

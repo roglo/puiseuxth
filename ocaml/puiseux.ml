@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.402 2013-07-22 15:50:21 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.403 2013-07-24 21:55:35 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -184,7 +184,7 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
     (pol_mul
-       {| ps_terms := End _; ps_valnum := I.zero; ps_comden := I.one |}
+       {| ps_terms := End _; ps_valuation := Q.zero |}
        (ps_add fld) (ps_mul fld))
     pol.
 
@@ -227,13 +227,11 @@ value print_solution fld br nth cγl finite sol = do {
 
 Definition ps_zero α : puiseux_series α :=
   {| ps_terms := End _;
-     ps_valnum := I.one;
-     ps_comden := I.one |}.
+     ps_valuation := Q.one |}.
 
 Definition x_power α (fld : field α) pow :=
   {| ps_terms := Term (one fld) (End _);
-     ps_valnum := Qnum pow;
-     ps_comden := Qden pow |}.
+     ps_valuation := pow |}.
 
 Definition pol_mul_x_power_minus α (fld : field α) p pol :=
   pol_mul (ps_zero _) (ps_add fld) (ps_mul fld)
@@ -273,12 +271,10 @@ Definition f₁ α (fld : field α) f β γ c :=
   let y :=
     {| al :=
          [{| ps_terms := Term c (End _);
-             ps_valnum := Qnum γ;
-             ps_comden := Qden γ |}];
+             ps_valuation := γ |}];
        an :=
          {| ps_terms := Term (one fld) (End _);
-            ps_valnum := Qnum γ;
-            ps_comden := Qden γ |} |}
+            ps_valuation := γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus fld β pol.
@@ -369,12 +365,13 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
   let s := puiseux_loop None acf pol in
   let cd := puiseux_comden niter I.one s in
   {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
-     ps_valnum :=
+     ps_valuation :=
        match s with
-       | Term t _ => Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) I.one)))
-       | End => I.zero
-       end;
-     ps_comden := cd |}.
+       | Term t _ =>
+           Qmake (Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) I.one)))) cd
+       | End =>
+           Q.zero
+       end |}.
 
 (* *)
 
@@ -537,7 +534,7 @@ value polyn_of_tree fld t =
     List.rev_map
        (fun t →
           if is_zero_tree fld t then
-            {ps_terms = End; ps_valnum = I.zero; ps_comden = I.one}
+            {ps_terms = End; ps_valuation = Q.zero}
           else
             puiseux_series_of_tree fld t)
        (pol.al @ [pol.an])
