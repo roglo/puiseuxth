@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1053 2013-07-24 12:35:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1054 2013-07-24 12:43:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,12 +35,12 @@ Definition apply_poly_with_ps_poly α (fld : field α) pol :=
     pol.
 
 Definition x_power α (fld : field α) pow :=
-  {| ps_terms := Term (one fld) (End _);
+  {| ps_terms := {| terms := λ i, one fld; stop := Some 1%nat |};
      ps_valnum := Qnum pow;
      ps_comden := Qden pow |}.
 
 Definition pol_mul_x_power_minus α (fld : field α) p pol :=
-  pol_mul (ps_zero _) (ps_add fld) (ps_mul fld)
+  pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld)
     {| al := []; an := x_power fld (Qopp p) |} pol.
 
 Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
