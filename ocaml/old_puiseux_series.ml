@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.9 2013-07-24 21:55:35 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.10 2013-07-24 22:07:05 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -27,21 +27,21 @@ Definition old_valuation α fld (ps : old_puiseux_series α) :=
 
 (* old_puiseux_series ↔ puiseux_series *)
 
-CoFixpoint term_of_ms α cd p (s : series α) :=
+CoFixpoint term_of_ms α v (s : series α) :=
   match s with
   | Term c ns =>
-      Term {| coeff := c; power := Qred (Qmake p cd) |}
-        (term_of_ms cd (Z.succ p) ns)
+      Term {| coeff := c; power := Qred v |}
+        (term_of_ms (Qmake (Z.succ (Qnum v)) (Qden v)) ns)
   | End =>
       End _
   end.
 
 Definition ops_terms_of_ms α (ms : puiseux_series α) : series (term α Q) :=
-  term_of_ms (ps_comden ms) (ps_valnum ms) (ps_terms ms).
+  term_of_ms (ps_valuation ms) (ps_terms ms).
 
 Definition ops_of_ms α (ms : puiseux_series α) :=
   {| ops_terms := ops_terms_of_ms ms;
-     ops_comden := ps_comden ms |}.
+     ops_comden := Qden (ps_valuation ms) |}.
 
 Definition ps_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
   term_series_to_coeff_series zero (ops_comden ps)

@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.403 2013-07-24 21:55:35 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.404 2013-07-24 22:09:14 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -226,12 +226,10 @@ value print_solution fld br nth cγl finite sol = do {
 };
 
 Definition ps_zero α : puiseux_series α :=
-  {| ps_terms := End _;
-     ps_valuation := Q.one |}.
+  {| ps_terms := End _; ps_valuation := Q.one |}.
 
 Definition x_power α (fld : field α) pow :=
-  {| ps_terms := Term (one fld) (End _);
-     ps_valuation := pow |}.
+  {| ps_terms := Term (one fld) (End _); ps_valuation := pow |}.
 
 Definition pol_mul_x_power_minus α (fld : field α) p pol :=
   pol_mul (ps_zero _) (ps_add fld) (ps_mul fld)
@@ -269,12 +267,8 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
 
 Definition f₁ α (fld : field α) f β γ c :=
   let y :=
-    {| al :=
-         [{| ps_terms := Term c (End _);
-             ps_valuation := γ |}];
-       an :=
-         {| ps_terms := Term (one fld) (End _);
-            ps_valuation := γ |} |}
+    {| al := [{| ps_terms := Term c (End _); ps_valuation := γ |}];
+       an := {| ps_terms := Term (one fld) (End _); ps_valuation := γ |} |}
   in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus fld β pol.
