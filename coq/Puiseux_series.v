@@ -1,7 +1,9 @@
-(* $Id: Puiseux_series.v,v 1.17 2013-07-24 03:28:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.18 2013-07-24 04:05:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import NPeano.
+Require Import Zerob.
 
 Require Import Field.
 Require Import Series.
@@ -36,15 +38,13 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
   | None => zero fld
   end.
 
-CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
-  match s with
-  | Term c ss =>
-      match n with
-      | O => Term c (normal_terms fld cd₁ cd₁ ss)
-      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
-      end
-  | End => End _
-  end.
+Definition normal_terms α fld n cd₁ (s : series α) :=
+  {| term := λ i, if zerob (i mod n) then term s (div i n) else zero fld;
+     stop :=
+       match stop s with
+       | Some i => Some (i * cd₁)%nat
+       | None => None
+       end |}.
 
 Definition normal α (fld : field α) l cd ms :=
   {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
@@ -55,6 +55,25 @@ Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
 (* ps_add *)
 
+Definition series_nth α (fld : field α) n s :=
+  match series_nth_opt n s with
+  | Some v => v
+  | None => zero fld
+  end.
+
+Definition series_add α (fld : field α) s₁ s₂ :=
+  {| term := λ i, add fld (series_nth fld i s₁) (series_nth fld i s₂);
+     stop :=
+       match stop s₁ with
+       | Some n₁ =>
+           match stop s₂ with
+           | Some n₂ => Some (max n₁ n₂)
+           | None => None
+           end
+       | None => None
+       end |}.
+
+(*
 CoFixpoint series_add α (fld : field α) s₁ s₂ :=
   match s₁ with
   | Term c₁ ss₁ =>
@@ -64,12 +83,15 @@ CoFixpoint series_add α (fld : field α) s₁ s₂ :=
       end
   | End => s₂
   end.
+*)
 
-Fixpoint series_pad_left α (fld : field α) n s :=
-  match n with
-  | O => s
-  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
-  end.
+Definition series_pad_left α (fld : field α) n s :=
+  {| term := λ i, if lt_dec i n then zero fld else series_nth fld (i - n) s;
+     stop :=
+       match stop s with
+       | Some m => Some (m + n)%nat
+       | None => None
+       end |}.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
@@ -108,18 +130,18 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   | S ni =>
       match sum_mul_coeff fld (S i) ni s₁ s₂ with
       | Some c =>
-          match series_nth i s₁ with
+          match series_nth_opt i s₁ with
           | Some c₁ =>
-              match series_nth ni s₂ with
+              match series_nth_opt ni s₂ with
               | Some c₂ => Some (add fld (mul fld c₁ c₂) c)
               | None => Some c
               end
           | None => Some c
           end
       | None =>
-          match series_nth i s₁ with
+          match series_nth_opt i s₁ with
           | Some c₁ =>
-              match series_nth ni s₂ with
+              match series_nth_opt ni s₂ with
               | Some c₂ => Some (mul fld c₁ c₂)
               | None => None
               end
