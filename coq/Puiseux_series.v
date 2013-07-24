@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.19 2013-07-24 07:25:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.20 2013-07-24 12:17:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -238,7 +238,7 @@ destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
 
 Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
-  series_eq (fld_eq fld) (series_add fld s₁ s₂) (series_add fld s₂ s₁).
+  series_eq fld (series_add fld s₁ s₂) (series_add fld s₂ s₁).
 Proof.
 intros α fld s₁ s₂.
 unfold series_add, series_eq; simpl.
@@ -250,14 +250,42 @@ split.
  rewrite Max.max_comm; reflexivity.
 Qed.
 
+Definition ps_eq α (fld : field α) ps₁ ps₂ :=
+  series_eq fld (ps_terms ps₁) (ps_terms ps₂) ∧
+  ps_valnum ps₁ = ps_valnum ps₂ ∧
+  ps_comden ps₁ = ps_comden ps₂.
+
+Lemma ps_eq_refl : ∀ α (fld : field α) ps, ps_eq fld ps ps.
+Proof.
+intros α fld ps.
+unfold ps_eq.
+split; [ apply series_eq_refl | split; reflexivity ].
+Qed.
+
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
-  ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
+  ps_eq fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
 Proof.
 intros α fld ps₁ ps₂.
 unfold ps_add; simpl.
 rewrite Zmatch_minus.
 rewrite Plcm_comm.
-apply Zmatch_split.
- f_equal.
- Focus 1.
-bbb.
+remember
+ (ps_valnum ps₁ *
+  Z.of_nat
+    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
+     Pos.to_nat (ps_comden ps₁)) -
+  ps_valnum ps₂ *
+  Z.of_nat
+    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
+     Pos.to_nat (ps_comden ps₂)))%Z as n.
+destruct n as [| n| n].
+ unfold ps_eq; simpl.
+ split; [ apply series_add_comm | idtac ].
+ split; [ apply Zminus_eq; symmetry; assumption | reflexivity ].
+
+ unfold ps_eq; simpl.
+ split; [ apply series_add_comm | split; reflexivity ].
+
+ unfold ps_eq; simpl.
+ split; [ apply series_add_comm | split; reflexivity ].
+Qed.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1051 2013-07-23 17:55:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1052 2013-07-24 12:17:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -166,7 +166,9 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
-Axiom ps_eq : puiseux_series α → puiseux_series α → bool.
+Axiom ps_eq_eq : puiseux_series α → puiseux_series α → bool.
+(* cf Puiseux_series.ps_eq *)
+
 Axiom ps_eq_refl : ∀ ps, ps_eq ps ps = true.
 Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq ps₁ ps₂ = ps_eq ps₂ ps₁.
 Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
