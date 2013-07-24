@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.16 2013-07-23 18:56:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.17 2013-07-24 03:28:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -207,6 +207,12 @@ Proof.
 intros α x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
 destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
+
+Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
+  series_add fld s₁ s₂ = series_add fld s₂ s₁.
+Proof.
+intros α fld s₁ s₂.
+bbb.
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
