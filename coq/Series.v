@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.12 2013-07-24 04:05:19 deraugla Exp $ *)
+(* $Id: Series.v,v 1.13 2013-07-24 07:25:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Arith.
@@ -14,3 +14,6 @@ Definition series_nth_opt α (n : nat) (s : series α) : option α :=
   | Some i => if le_dec n i then None else Some (term s n)
   | None => Some (term s n)
   end.
+
+Definition series_eq α elem_eq (s₁ s₂ : series α) :=
+  (∀ i, elem_eq (term s₁ i) (term s₂ i) = true) ∧ stop s₁ = stop s₂.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.18 2013-07-24 04:05:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.19 2013-07-24 07:25:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -151,13 +151,20 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   end.
 
 Definition ps_mul_term α fld (s₁ s₂ : series α) :=
-  let cofix mul_loop n₁ :=
-    match sum_mul_coeff fld 0 n₁ s₁ s₂ with
-    | Some c => Term c (mul_loop (S n₁))
-    | None => End _
-    end
-  in
-  mul_loop 1%nat.
+  {| term := λ i,
+       match sum_mul_coeff fld 0 (S i) s₁ s₂ with
+       | Some c => c
+       | None => zero fld
+       end;
+     stop :=
+       match stop s₁ with
+       | Some t₁ =>
+           match stop s₂ with
+           | Some t₂ => Some (max t₁ t₂)
+           | None => None
+           end
+       | None => None
+       end |}.
 
 Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
@@ -231,10 +238,17 @@ destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
 
 Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
-  series_add fld s₁ s₂ = series_add fld s₂ s₁.
+  series_eq (fld_eq fld) (series_add fld s₁ s₂) (series_add fld s₂ s₁).
 Proof.
 intros α fld s₁ s₂.
-bbb.
+unfold series_add, series_eq; simpl.
+split.
+ intros i.
+ apply fld_add_comm.
+
+ destruct (stop s₁), (stop s₂); try reflexivity.
+ rewrite Max.max_comm; reflexivity.
+Qed.
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
