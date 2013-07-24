@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1057 2013-07-24 13:31:21 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1058 2013-07-24 15:15:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,28 +19,35 @@ Set Implicit Arguments.
 
 (* *)
 
-Definition series_const α c : series α :=
-   {| terms := λ i, c; stop := Some 1%nat |}.
-
-Definition monomial α (c : α) pow :=
-  {| ps_terms := series_const c;
-     ps_valnum := Qnum pow;
-     ps_comden := Qden pow |}.
-
-Definition ps_const α c : puiseux_series α := monomial c 0.
-Definition ps_zero α (fld : field α) := ps_const (zero fld).
-Definition ps_one α (fld : field α) := ps_const (one fld).
-
 Definition apply_poly_with_ps_poly α (fld : field α) pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
-    (pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld))
+    (pol_mul
+       {| ps_terms := End _; ps_valnum := 0; ps_comden := 1 |}
+       (ps_add fld) (ps_mul fld))
     pol.
 
+Definition ps_const α c : puiseux_series α :=
+  {| ps_terms := Term c (End _);
+     ps_valnum := 0;
+     ps_comden := 1 |}.
+
+Definition ps_zero α : puiseux_series α :=
+  {| ps_terms := End _;
+     ps_valnum := 0;
+     ps_comden := 1 |}.
+
+Definition ps_one α (fld : field α) := ps_const (one fld).
+
+Definition x_power α (fld : field α) pow :=
+  {| ps_terms := Term (one fld) (End _);
+     ps_valnum := Qnum pow;
+     ps_comden := Qden pow |}.
+
 Definition pol_mul_x_power_minus α (fld : field α) p pol :=
-  pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld)
-    {| al := []; an := monomial (one fld) (Qopp p) |} pol.
+  pol_mul (ps_zero _) (ps_add fld) (ps_mul fld)
+    {| al := []; an := x_power fld (Qopp p) |} pol.
 
 Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
@@ -53,7 +60,16 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   end.
 
 Definition f₁ α (fld : field α) f β γ c :=
-  let y := {| al := [monomial c γ]; an := monomial (one fld) γ |} in
+  let y :=
+    {| al :=
+         [{| ps_terms := Term c (End _);
+             ps_valnum := Qnum γ;
+             ps_comden := Qden γ |}];
+       an :=
+         {| ps_terms := Term (one fld) (End _);
+            ps_valnum := Qnum γ;
+            ps_comden := Qden γ |} |}
+  in
   let pol := apply_poly_with_ps_poly fld f y in
   pol_mul_x_power_minus fld β pol.
 
@@ -78,7 +94,6 @@ Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
       Some ({| coeff := c; power := p |}, pol₁)
   end.
 
-(*
 CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   match puiseux_step psumo acf pol with
   | Some (t, pol₁) =>
@@ -88,9 +103,7 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   | None =>
       End _
   end.
-*)
 
-(*
 Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
   match n with
   | O => cd
@@ -100,9 +113,7 @@ Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
       | End => cd
       end
   end.
-*)
 
-(*
 CoFixpoint complete α (zero : α) cd p s :=
   match s with
   | Term t ns =>
@@ -114,9 +125,7 @@ CoFixpoint complete α (zero : α) cd p s :=
   | End =>
       End _
   end.
-*)
 
-(*
 CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
   match s with
   | Term t ns =>
@@ -126,9 +135,7 @@ CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
   | End =>
       End _
   end.
-*)
 
-(*
 Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
     puiseux_series α :=
   let s := puiseux_loop None acf pol in
@@ -140,11 +147,9 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
        | End => 0
        end;
      ps_comden := cd |}.
-*)
 
 (* *)
 
-(*
 CoFixpoint series_series_take α n (s : series α) :=
   match n with
   | O => End _
@@ -154,7 +159,6 @@ CoFixpoint series_series_take α n (s : series α) :=
       | End => End _
       end
   end.
-*)
 
 Section field.
 
@@ -162,20 +166,16 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
-Definition ps_eq_eq fld ps₁ ps₂ :=
-aaa.
-
-(* cf Puiseux_series.ps_eq *)
-
-Axiom ps_eq_refl : ∀ ps, ps_eq fld ps ps.
-Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq fld ps₁ ps₂ → ps_eq fld ps₂ ps₁.
+Axiom ps_eq : puiseux_series α → puiseux_series α → bool.
+Axiom ps_eq_refl : ∀ ps, ps_eq ps ps = true.
+Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq ps₁ ps₂ = ps_eq ps₂ ps₁.
 Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_eq fld
+  ps_eq
     (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
-    (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
+    (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
 
 Axiom ps_eq_add_comm : ∀ ps₁ ps₂,
-  ps_eq fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
+  ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
 (* cf Puiseux_series.ps_add_comm *)
 
 Definition ps_fld : field (puiseux_series α) :=
@@ -183,7 +183,7 @@ Definition ps_fld : field (puiseux_series α) :=
      one := ps_one fld;
      add := ps_add fld;
      mul := ps_mul fld;
-     fld_eq := ps_eq_eq;
+     fld_eq := ps_eq;
      fld_eq_refl := ps_eq_refl;
      fld_eq_comm := ps_eq_comm;
      fld_add_comm := ps_eq_add_comm;
