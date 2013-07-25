@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1063 2013-07-25 15:35:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1064 2013-07-25 16:19:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -381,6 +381,12 @@ rewrite series_eta.
 reflexivity.
 Qed.
 
+Lemma yyy : ∀ s, normal_terms fld 0 0 s = s.
+Proof.
+intros s.
+destruct s as [t s| ]; [ idtac | apply normal_terms_end ].
+bbb.
+
 Lemma series_add_end_l : ∀ s, series_add fld (End α) s = s.
 Proof.
 intros s.
@@ -389,10 +395,6 @@ rewrite series_eta.
 simpl.
 destruct s; reflexivity.
 Qed.
-
-Lemma yyy : ∀ s, normal_terms fld 0 0 s = s.
-Proof.
-bbb.
 
 Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
 Proof.
