@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1059 2013-07-25 13:58:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1060 2013-07-25 15:17:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -373,16 +373,26 @@ Fixpoint ps_pol_power pol n :=
   | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
   end.
 
+Lemma normal_terms_end : ∀ n cd, normal_terms fld n cd (End α) = End α.
+Proof.
+intros n cd.
+symmetry.
+rewrite series_eta.
+reflexivity.
+Qed.
+
 Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
 Proof.
 intros ps.
 rewrite ps_add_comm.
-unfold ps_add; simpl.
+unfold ps_add.
 rewrite Zminus_0_r.
 rewrite Plcm_1_l.
 rewrite Nat.div_same.
+ rewrite Nat.div_1_r.
  simpl.
  rewrite Zmult_1_r.
+ rewrite normal_terms_end.
 bbb.
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
