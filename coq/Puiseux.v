@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1060 2013-07-25 15:17:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1061 2013-07-25 15:25:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -380,6 +380,11 @@ symmetry.
 rewrite series_eta.
 reflexivity.
 Qed.
+
+Lemma yyy : ∀ s, series_add fld (End α) s = s.
+Proof.
+intros s.
+bbb.
 
 Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
 Proof.
