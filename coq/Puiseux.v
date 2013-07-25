@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1064 2013-07-25 16:19:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1065 2013-07-25 17:58:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -381,11 +381,19 @@ rewrite series_eta.
 reflexivity.
 Qed.
 
-Lemma yyy : ∀ s, normal_terms fld 0 0 s = s.
+Lemma normal_terms_0 : ∀ s, normal_terms fld 0 0 s = s.
 Proof.
 intros s.
-destruct s as [t s| ]; [ idtac | apply normal_terms_end ].
-bbb.
+apply ext_eq_ser with (fld := fld).
+revert s.
+cofix IHs; intros.
+destruct s as [t s| ].
+ eapply eq_ser_term; [ idtac | reflexivity | apply fld_eq_refl | apply IHs ].
+ symmetry; rewrite series_eta; reflexivity.
+
+ apply eq_ser_end; [ idtac | reflexivity ].
+ symmetry; rewrite series_eta; reflexivity.
+Qed.
 
 Lemma series_add_end_l : ∀ s, series_add fld (End α) s = s.
 Proof.
@@ -414,6 +422,7 @@ rewrite Nat.div_same.
  destruct v as [| n| n].
   destruct ps; simpl in Heqv |- *; rewrite Heqv.
   f_equal.
+  apply normal_terms_0.
 bbb.
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
