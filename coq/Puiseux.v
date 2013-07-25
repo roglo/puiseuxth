@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1062 2013-07-25 15:31:16 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1063 2013-07-25 15:35:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -390,6 +390,10 @@ simpl.
 destruct s; reflexivity.
 Qed.
 
+Lemma yyy : ∀ s, normal_terms fld 0 0 s = s.
+Proof.
+bbb.
+
 Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
 Proof.
 intros ps.
@@ -406,6 +410,8 @@ rewrite Nat.div_same.
  remember (ps_valnum ps) as v.
  symmetry in Heqv.
  destruct v as [| n| n].
+  destruct ps; simpl in Heqv |- *; rewrite Heqv.
+  f_equal.
 bbb.
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
