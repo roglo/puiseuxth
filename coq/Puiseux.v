@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1061 2013-07-25 15:25:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1062 2013-07-25 15:31:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -381,10 +381,14 @@ rewrite series_eta.
 reflexivity.
 Qed.
 
-Lemma yyy : ∀ s, series_add fld (End α) s = s.
+Lemma series_add_end_l : ∀ s, series_add fld (End α) s = s.
 Proof.
 intros s.
-bbb.
+symmetry.
+rewrite series_eta.
+simpl.
+destruct s; reflexivity.
+Qed.
 
 Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
 Proof.
@@ -398,6 +402,10 @@ rewrite Nat.div_same.
  simpl.
  rewrite Zmult_1_r.
  rewrite normal_terms_end.
+ rewrite series_add_end_l.
+ remember (ps_valnum ps) as v.
+ symmetry in Heqv.
+ destruct v as [| n| n].
 bbb.
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
