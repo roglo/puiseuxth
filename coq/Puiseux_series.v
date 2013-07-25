@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.24 2013-07-24 19:10:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.25 2013-07-25 13:46:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -48,8 +48,8 @@ CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
   end.
 
 Definition normal α (fld : field α) l cd ms :=
-  {| ps_terms := normal_terms fld 0 (Pos.to_nat cd - 1) (ps_terms ms);
-     ps_valnum := Z.mul (ps_valnum ms) (Zpos cd);
+  {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
+     ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
      ps_comden := l |}.
 
 Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
@@ -73,9 +73,13 @@ Fixpoint series_pad_left α (fld : field α) n s :=
   end.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
-  let l := (ps_comden ps₁ * ps_comden ps₂)%positive in
-  let ms₁ := normal fld l (ps_comden ps₂) ps₁ in
-  let ms₂ := normal fld l (ps_comden ps₁) ps₂ in
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  let ms₁ :=
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁))) ps₁
+  in
+  let ms₂ :=
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₂))) ps₂
+  in
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
   match Z.sub v₂ v₁ with
@@ -135,9 +139,13 @@ Definition ps_mul_term α fld (s₁ s₂ : series α) :=
   mul_loop 1%nat.
 
 Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
-  let l := (ps_comden ms₁ * ps_comden ms₂)%positive in
-  let ms₁ := normal fld l (ps_comden ms₂) ms₁ in
-  let ms₂ := normal fld l (ps_comden ms₁) ms₂ in
+  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
+  let ms₁ :=
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₁))) ms₁
+  in
+  let ms₂ :=
+    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₂))) ms₂
+  in
   {| ps_terms := ps_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
      ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
      ps_comden := l |}.
@@ -240,43 +248,28 @@ destruct s₁ as [t₁ s₃| ].
  destruct s₂; apply eq_ser_refl.
 Qed.
 
-(**)
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
 Proof.
 intros α fld ps₁ ps₂.
 unfold ps_add; simpl.
 rewrite Zmatch_minus.
-apply Zmatch_split.
- Focus 1.
- f_equal.
-  apply series_add_comm.
-bbb.
-
-intros α fld ps₁ ps₂.
-unfold ps_add; simpl.
-rewrite Zmatch_minus.
 rewrite Plcm_comm.
-apply Zmatch_split.
- f_equal.
-  apply series_add_comm.
+remember
+ (ps_valnum ps₁ *
+  Z.of_nat
+    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
+     Pos.to_nat (ps_comden ps₁)) -
+  ps_valnum ps₂ *
+  Z.of_nat
+    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
+     Pos.to_nat (ps_comden ps₂)))%Z as d.
+destruct d.
+ f_equal; [ apply series_add_comm | idtac ].
+ apply Zminus_eq.
+ symmetry; assumption.
 
-  Focus 1.
-  unfold Plcm.
-  pose proof (Z.divide_lcm_r (' ps_comden ps₂) (' ps_comden ps₁)) as H₁.
-  pose proof (Z.divide_lcm_l (' ps_comden ps₂) (' ps_comden ps₁)) as H₂.
-  destruct H₁ as (k₁, H₁).
-  destruct H₂ as (k₂, H₂).
-  rewrite H₁ in |- * at 1.
-  rewrite H₂ in |- * at 1.
-  rewrite Z2Pos.inj_mul.
-   rewrite Z2Pos.inj_mul.
-    simpl.
-    rewrite Pos2Nat.inj_mul.
-    rewrite Pos2Nat.inj_mul.
-    rewrite Nat.div_mul.
-     rewrite Nat.div_mul.
-      rewrite positive_nat_Z.
-      rewrite positive_nat_Z.
-bbb.
-*)
+ f_equal; apply series_add_comm.
+
+ f_equal; apply series_add_comm.
+Qed.
