@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.199 2013-07-25 02:00:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.200 2013-07-25 02:20:52 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -12,9 +12,6 @@ open Series;
 Record puiseux_series α :=
   { ps_terms : series α;
     ps_valuation : Q }.
-
-value ps_valnum s = Qnum (ps_valuation s);
-value ps_comden s = Qden (ps_valuation s);
 
 value rec series_head is_zero n s =
   match s with
@@ -78,11 +75,15 @@ Fixpoint series_pad_left α (fld : field α) n s :=
   end.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ps₁))) ps₁ in
-  let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ps₂))) ps₂ in
-  let v₁ := ps_valnum ms₁ in
-  let v₂ := ps_valnum ms₂ in
+  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+  let ms₁ :=
+    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₁)))) ps₁
+  in
+  let ms₂ :=
+    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₂)))) ps₂
+  in
+  let v₁ := Qnum (ps_valuation ms₁) in
+  let v₂ := Qnum (ps_valuation ms₂) in
   match Z.sub v₂ v₁ with
   | Z0 =>
       {| ps_terms := series_add fld (ps_terms ms₁) (ps_terms ms₂);
@@ -136,12 +137,18 @@ Definition series_mul_term α fld (s₁ s₂ : series α) :=
   in
   mul_loop 1%nat.
 
-Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
-  let ms₁ := normal fld l (I.to_int (I.div l (ps_comden ms₁))) ms₁ in
-  let ms₂ := normal fld l (I.to_int (I.div l (ps_comden ms₂))) ms₂ in
-  {| ps_terms := series_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
-     ps_valuation := Qmake (Z.add (ps_valnum ms₁) (ps_valnum ms₂)) l |}.
+Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+  let ms₁ :=
+    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₁)))) ps₁
+  in
+  let ms₂ :=
+    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₂)))) ps₂
+  in
+  {| ps_terms :=
+       series_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
+     ps_valuation :=
+       Qmake (Z.add (Qnum (ps_valuation ms₁)) (Qnum (ps_valuation ms₂))) l |}.
 
 (* *)
 
