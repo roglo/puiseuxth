@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.198 2013-07-24 22:13:27 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.199 2013-07-25 02:00:54 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -54,8 +54,10 @@ CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
   end.
 
 Definition normal α (fld : field α) l cd ms :=
-  {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
-     ps_valuation := Qmake (Z.mul (Qnum (ps_valuation ms)) (Z.of_nat cd)) l |}.
+  {| ps_terms :=
+       normal_terms fld 0 (cd - 1) (ps_terms ms);
+     ps_valuation :=
+       Qmake (Z.mul (Qnum (ps_valuation ms)) (Z.of_nat cd)) l |}.
 
 (* ps_add *)
 
