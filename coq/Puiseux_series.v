@@ -1,10 +1,11 @@
-(* $Id: Puiseux_series.v,v 1.25 2013-07-25 13:46:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.26 2013-07-25 13:58:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
 Require Import Field.
+Require Import Misc.
 Require Import Series.
 
 Set Implicit Arguments.
@@ -51,8 +52,6 @@ Definition normal α (fld : field α) l cd ms :=
   {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
      ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
      ps_comden := l |}.
-
-Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
 
 (* ps_add *)
 
@@ -151,14 +150,6 @@ Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
      ps_comden := l |}.
 
 (* *)
-
-Lemma Plcm_comm : ∀ a b, Plcm a b = Plcm b a.
-Proof.
-intros a b.
-unfold Plcm.
-rewrite Z.lcm_comm.
-reflexivity.
-Qed.
 
 Lemma Zmatch_minus : ∀ α x y (a : α) f g,
   match (x - y)%Z with

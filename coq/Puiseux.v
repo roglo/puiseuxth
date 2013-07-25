@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1058 2013-07-24 15:15:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1059 2013-07-25 13:58:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -379,6 +379,10 @@ intros ps.
 rewrite ps_add_comm.
 unfold ps_add; simpl.
 rewrite Zminus_0_r.
+rewrite Plcm_1_l.
+rewrite Nat.div_same.
+ simpl.
+ rewrite Zmult_1_r.
 bbb.
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,

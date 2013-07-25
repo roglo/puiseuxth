@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.32 2013-07-23 02:53:12 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.33 2013-07-25 13:58:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -589,3 +589,20 @@ subst a; revert Ha; apply Plt_irrefl.
 Qed.
 
 Definition pair_rec A B C (f : A → B → C) := λ xy, f (fst xy) (snd xy).
+
+Definition Plcm a b := Z.to_pos (Z.lcm (Zpos a) (Zpos b)).
+
+Lemma Plcm_comm : ∀ a b, Plcm a b = Plcm b a.
+Proof.
+intros a b.
+unfold Plcm.
+rewrite Z.lcm_comm.
+reflexivity.
+Qed.
+
+Lemma Plcm_1_l : ∀ n, Plcm 1 n = n.
+Proof.
+intros n.
+unfold Plcm.
+rewrite Z.lcm_1_l; reflexivity.
+Qed.
