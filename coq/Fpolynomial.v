@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.18 2013-07-09 23:42:23 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.19 2013-07-26 18:16:10 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -11,6 +11,12 @@ Require Import Polynomial.
 
 Set Implicit Arguments.
 
+Inductive list_eq α (cmp : α → α → Prop) : list α → list α → Prop :=
+  | list_eq_nil : list_eq cmp [] []
+  | list_eq_cons : ∀ x₁ x₂ l₁ l₂,
+      cmp x₁ x₂ → list_eq cmp l₁ l₂ → list_eq cmp [x₁ … l₁] [x₂ … l₂].
+
+(*
 Fixpoint list_eq α (cmp : α → α → bool) l₁ l₂ :=
   match l₁ with
   | [] =>
@@ -24,6 +30,7 @@ Fixpoint list_eq α (cmp : α → α → bool) l₁ l₂ :=
       | [x₂ … ll₂] => cmp x₁ x₂ && list_eq cmp ll₁ ll₂
       end
   end.
+*)
 
 Definition poly_eq α fld (x y : polynomial α) :=
   list_eq (fld_eq fld) (al x ++ [an x]) (al y ++ [an y]).
@@ -35,33 +42,38 @@ Definition poly_mul α (fld : field α) :=
   pol_mul (zero fld) (add fld) (mul fld).
 
 Definition Pdivide α fld (x y : polynomial α) :=
-  ∃ z, poly_eq fld y (poly_mul fld z x) = true.
+  ∃ z, poly_eq fld y (poly_mul fld z x).
 
 Lemma list_eq_refl : ∀ α (fld : field α) l,
-  list_eq (fld_eq fld) l l = true.
+  list_eq (fld_eq fld) l l.
 Proof.
 intros α fld l.
-induction l as [| x]; [ reflexivity | simpl; apply andb_true_iff ].
-split; [ apply fld_eq_refl | assumption ].
+induction l; constructor; [ apply fld_eq_refl | assumption ].
 Qed.
 
 Lemma list_eq_append_one : ∀ α cmp (x₁ x₂ : α) l₁ l₂,
-  list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]) = list_eq cmp l₁ l₂ && cmp x₁ x₂.
+  list_eq cmp l₁ l₂ ∧ cmp x₁ x₂
+  → list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]).
 Proof.
 intros α cmp x₁ x₂ l₁ l₂.
 revert x₁ x₂ l₂.
 induction l₁ as [| x₃]; intros; simpl.
  destruct l₂ as [| x₄]; simpl.
-  apply andb_true_r.
+  constructor; destruct H; assumption.
 
-  destruct l₂ as [| x₅]; simpl; apply andb_false_r.
+  destruct H as (H, _); inversion H.
 
  destruct l₂ as [| x₄]; simpl.
-  destruct l₁ as [| x₅]; simpl; apply andb_false_r.
+  destruct H as (H, _); inversion H.
 
-  rewrite <- andb_assoc.
-  f_equal.
-  apply IHl₁.
+  constructor.
+   destruct H as (H, _).
+   inversion H; assumption.
+
+   apply IHl₁.
+   split; [ idtac | destruct H; assumption ].
+   destruct H as (H, _).
+   inversion H; assumption.
 Qed.
 
 (* addition commutativity *)
@@ -69,25 +81,25 @@ Qed.
 Lemma pol_add_loop_al_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
   → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
-    → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
+    → list_eq (fld_eq fld) (al rp₁) (al rp₂).
 Proof.
 intros α fld an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
 revert an₁ an₂ al₂.
 induction al₁; intros.
- destruct al₂; [ reflexivity | simpl ].
- rewrite fld_add_comm; apply list_eq_refl.
+ destruct al₂; [ apply list_eq_refl | simpl ].
+ constructor; [ apply fld_add_comm | apply list_eq_refl ].
 
- destruct al₂; simpl; rewrite fld_add_comm.
-  apply list_eq_refl.
+ destruct al₂.
+  constructor; [ apply fld_add_comm | apply list_eq_refl ].
 
-  eapply IHal₁; reflexivity.
+  constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
 
 Lemma pol_add_loop_an_comm : ∀ α (fld : field α) an₁ an₂ al₁ al₂ rp₁ rp₂,
   rp₁ = pol_add_loop (add fld) an₁ an₂ al₁ al₂
   → rp₂ = pol_add_loop (add fld) an₂ an₁ al₂ al₁
-    → fld_eq fld (an rp₁) (an rp₂) = true.
+    → fld_eq fld (an rp₁) (an rp₂).
 Proof.
 intros α fld an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -99,12 +111,11 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_comm : ∀ α (fld : field α) pol₁ pol₂,
-  poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁) = true.
+  poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁).
 Proof.
 intros α fld pol₁ pol₂.
 unfold poly_eq.
-rewrite list_eq_append_one.
-apply andb_true_intro.
+apply list_eq_append_one.
 split.
  eapply pol_add_loop_al_comm; reflexivity.
 
@@ -121,31 +132,31 @@ Lemma pol_add_loop_al_assoc :
   → rp₂ = pol_add_loop (add fld)
            an₁ (an (pol_add_loop (add fld) an₂ an₃ al₂ al₃))
            al₁ (al (pol_add_loop (add fld) an₂ an₃ al₂ al₃))
-    → list_eq (fld_eq fld) (al rp₁) (al rp₂) = true.
+    → list_eq (fld_eq fld) (al rp₁) (al rp₂).
 Proof.
 intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
 revert an₁ an₂ an₃ al₂ al₃.
 induction al₁; intros.
  destruct al₂.
-  destruct al₃; [ reflexivity | simpl; apply andb_true_iff ].
-  split; [ apply fld_add_assoc | apply list_eq_refl ].
+  destruct al₃; [ apply list_eq_refl | idtac ].
+  constructor; [ apply fld_add_assoc | apply list_eq_refl ].
 
-  destruct al₃; simpl; apply andb_true_iff.
-   split; [ apply fld_add_assoc | apply list_eq_refl ].
+  destruct al₃; simpl.
+   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
 
-   split; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
 
  destruct al₂.
-  destruct al₃; simpl; apply andb_true_iff.
-   split; [ apply fld_add_assoc | apply list_eq_refl ].
+  destruct al₃; simpl.
+   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
 
-   split; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
 
-  destruct al₃; simpl; apply andb_true_iff.
-   split; [ apply fld_add_assoc | apply list_eq_refl ].
+  destruct al₃; simpl.
+   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
 
-   split; [ apply fld_add_assoc | eapply IHal₁; reflexivity ].
+   constructor; [ apply fld_add_assoc | apply IHal₁ ].
 Qed.
 
 Lemma pol_add_loop_an_assoc :
@@ -156,7 +167,7 @@ Lemma pol_add_loop_an_assoc :
   → rp₂ = pol_add_loop (add fld)
            an₁ (an (pol_add_loop (add fld) an₂ an₃ al₂ al₃))
            al₁ (al (pol_add_loop (add fld) an₂ an₃ al₂ al₃))
-    → fld_eq fld (an rp₁) (an rp₂) = true.
+    → fld_eq fld (an rp₁) (an rp₂).
 Proof.
 intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -176,12 +187,11 @@ Qed.
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
   poly_eq fld
     (poly_add fld (poly_add fld pol₁ pol₂) pol₃)
-    (poly_add fld pol₁ (poly_add fld pol₂ pol₃)) = true.
+    (poly_add fld pol₁ (poly_add fld pol₂ pol₃)).
 Proof.
 intros α fld pol₁ pol₂ pol₃.
 unfold poly_eq.
-rewrite list_eq_append_one.
-apply andb_true_intro.
+apply list_eq_append_one.
 split.
  eapply pol_add_loop_al_assoc; reflexivity.
 

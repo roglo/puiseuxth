@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.4 2013-07-23 10:58:12 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.5 2013-07-26 18:16:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1365,7 +1365,7 @@ Qed.
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat →
     c = List.nth i (al pol) (zero fld)
-    → fld_eq fld (zero fld) c = true.
+    → fld_eq fld (zero fld) c.
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1437,8 +1437,7 @@ Lemma nth_is_zero : ∀ pol q i j k sk tl,
               → fld_eq fld (zero fld)
                   (List.nth i
                      (make_char_pol fld (S j)
-                        (List.map (term_of_point fld pol) tl) k) (zero fld))
-                = true.
+                        (List.map (term_of_point fld pol) tl) k) (zero fld)).
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].

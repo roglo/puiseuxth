@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.33 2013-07-26 15:57:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.34 2013-07-26 18:16:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,7 +21,7 @@ Record puiseux_series α := mkps
        0+0x³+5x⁵+0x⁷+3x⁸+...
    would return
        5x⁵+0x⁷+3x⁸+... *)
-Definition series_head : ∀ α, (α → bool) → nat → series α → option (nat * α).
+Definition series_head : ∀ α, (α → Prop) → nat → series α → option (nat * α).
 Proof. Admitted.
 
 Definition valuation α fld (ps : puiseux_series α) :=
@@ -236,6 +236,7 @@ constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
 apply Zminus_eq; symmetry; assumption.
 Qed.
 
+(*
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
   eq_ps fld
     (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
@@ -243,3 +244,4 @@ Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
 Proof.
 intros α fld ps₁ ps₂ ps₃.
 bbb.
+*)

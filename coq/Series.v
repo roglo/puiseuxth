@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.20 2013-07-26 15:57:52 deraugla Exp $ *)
+(* $Id: Series.v,v 1.21 2013-07-26 18:16:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,7 +55,7 @@ CoInductive eq_series α fld (s₁ s₂ : series α) : Prop :=
   | eq_ser_term : ∀ hd₁ hd₂ tl₁ tl₂,
       s₁ = Term hd₁ tl₁
       → s₂ = Term hd₂ tl₂
-        → fld_eq fld hd₁ hd₂ = true
+        → fld_eq fld hd₁ hd₂
           → eq_series fld tl₁ tl₂
             → eq_series fld s₁ s₂
   | eq_ser_end :
@@ -85,7 +85,7 @@ destruct s₁ as [t₁ s₁| ], s₂ as [t₂ s₂| ].
   inversion H; [ idtac | discriminate H0 ].
   injection H0; clear H0; intros; subst hd₁ tl₁.
   injection H1; clear H1; intros; subst hd₂ tl₂.
-  rewrite fld_eq_sym; assumption.
+  apply fld_eq_sym; assumption.
 
   apply IHs.
   inversion H; [ idtac | discriminate H0 ].
