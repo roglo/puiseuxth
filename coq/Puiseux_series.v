@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.29 2013-07-26 14:37:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.30 2013-07-26 14:46:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -260,13 +260,13 @@ Inductive eq_ps α (fld : field α) ps₁ ps₂ :=
   eq_ps_norm :
     eq_series fld (ps_terms ps₁) (ps_terms ps₂)
     → ps_valnum ps₁ = ps_valnum ps₂
-      → ps_comden ps₂ = ps_comden ps₂
+      → ps_comden ps₁ = ps_comden ps₂
         → eq_ps fld ps₁ ps₂.
 
 Theorem ps_compat : ∀ α (fld : field α) ps₁ ps₂,
   eq_series fld (ps_terms ps₁) (ps_terms ps₂)
   → ps_valnum ps₁ = ps_valnum ps₂
-    → ps_comden ps₂ = ps_comden ps₂
+    → ps_comden ps₁ = ps_comden ps₂
       → eq_ps fld ps₁ ps₂.
 Proof.
 intros α fld ps₁ ps₂ Hs Hv Hc.
