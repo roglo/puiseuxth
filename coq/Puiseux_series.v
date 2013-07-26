@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.34 2013-07-26 18:16:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.35 2013-07-26 22:19:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -214,6 +214,13 @@ intros s₁ s₂ Hs v c.
 constructor; [ assumption | reflexivity | reflexivity ].
 Qed.
 
+Add Parametric Morphism α (fld : field α) : (@ps_terms α) with 
+signature (eq_ps fld) ==> eq_series fld as ps_terms_morph.
+Proof.
+intros ps₁ ps₂ Hps.
+inversion Hps; assumption.
+Qed.
+
 (* *)
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
@@ -236,12 +243,11 @@ constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
 apply Zminus_eq; symmetry; assumption.
 Qed.
 
-(*
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
   eq_ps fld
     (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
 Proof.
 intros α fld ps₁ ps₂ ps₃.
+constructor.
 bbb.
-*)
