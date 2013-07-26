@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.21 2013-07-26 18:16:10 deraugla Exp $ *)
+(* $Id: Series.v,v 1.22 2013-07-26 21:38:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -51,27 +51,59 @@ CoInductive series_forall α P (s : series α) : Prop :=
   | EndOk :
       s = End _ → series_forall P s.
 
-CoInductive eq_series α fld (s₁ s₂ : series α) : Prop :=
-  | eq_ser_term : ∀ hd₁ hd₂ tl₁ tl₂,
-      s₁ = Term hd₁ tl₁
-      → s₂ = Term hd₂ tl₂
-        → fld_eq fld hd₁ hd₂
-          → eq_series fld tl₁ tl₂
-            → eq_series fld s₁ s₂
+CoInductive eq_series α fld : series α → series α → Prop :=
+  | eq_ser_term : ∀ t₁ t₂ s₁ s₂,
+      fld_eq fld t₁ t₂
+      → eq_series fld s₁ s₂
+        → eq_series fld (Term t₁ s₁) (Term t₂ s₂)
   | eq_ser_end :
-      s₁ = End _
-      → s₂ = End _
-        → eq_series fld s₁ s₂.
+      eq_series fld (End _) (End _).
+
+Lemma eq_series_inv_term : ∀ α (fld : field α) t₁ t₂ s₁ s₂,
+  eq_series fld (Term t₁ s₁) (Term t₂ s₂)
+  → fld_eq fld t₁ t₂ ∧ eq_series fld s₁ s₂.
+Proof.
+intros α fld t₁ t₂ s₁ s₂ H.
+inversion H; split; assumption.
+Qed.
+
+Lemma eq_series_inv_term_end : ∀ α (fld : field α) t s,
+  ¬ eq_series fld (Term t s) (End _).
+Proof.
+intros α fld t s H.
+inversion H; contradiction.
+Qed.
+
+Lemma eq_series_inv_end_term : ∀ α (fld : field α) t s,
+  ¬ eq_series fld (End _) (Term t s).
+Proof.
+intros α fld t s H.
+inversion H; contradiction.
+Qed.
+
+Lemma eq_series_inv : ∀ α (fld : field α) s₁ s₂,
+  eq_series fld s₁ s₂
+  → (∃ t₁ t₂ s₃ s₄,
+     s₁ = Term t₁ s₃ ∧ s₂ = Term t₂ s₄ ∧
+     fld_eq fld t₁ t₂ ∧ eq_series fld s₃ s₄)
+    ∨ (s₁ = End _ ∧ s₂ = End _).
+Proof.
+intros α fld s₁ s₂ H.
+inversion H; [ left | right ].
+ exists t₁, t₂, s₁0, s₂0.
+ split; [ reflexivity | idtac ].
+ split; [ reflexivity | idtac ].
+ split; assumption.
+
+ split; reflexivity.
+Qed.
 
 Theorem eq_series_refl : ∀ α (fld : field α), reflexive _ (eq_series fld).
 Proof.
 cofix IHs.
 intros α fld s.
 destruct s as [t s₂| ].
- eapply eq_ser_term; try reflexivity.
-  apply fld_eq_refl.
-
-  apply IHs.
+ eapply eq_ser_term; try reflexivity; [ apply fld_eq_refl | apply IHs ].
 
  apply eq_ser_end; reflexivity.
 Qed.
@@ -82,22 +114,17 @@ cofix IHs.
 intros α fld s₁ s₂ H.
 destruct s₁ as [t₁ s₁| ], s₂ as [t₂ s₂| ].
  eapply eq_ser_term; try reflexivity.
-  inversion H; [ idtac | discriminate H0 ].
-  injection H0; clear H0; intros; subst hd₁ tl₁.
-  injection H1; clear H1; intros; subst hd₂ tl₂.
+  apply eq_series_inv_term in H; destruct H.
   apply fld_eq_sym; assumption.
 
-  apply IHs.
-  inversion H; [ idtac | discriminate H0 ].
-  injection H0; clear H0; intros; subst hd₁ tl₁.
-  injection H1; clear H1; intros; subst hd₂ tl₂.
-  assumption.
+  apply eq_series_inv_term in H; destruct H.
+  apply IHs; assumption.
 
- inversion H; [ discriminate H1 | discriminate H0 ].
+ apply eq_series_inv_term_end in H; contradiction.
 
- inversion H; [ discriminate H0 | discriminate H1 ].
+ apply eq_series_inv_end_term in H; contradiction.
 
- apply eq_series_refl.
+ assumption.
 Qed.
 
 Theorem eq_series_trans : ∀ α (fld : field α), transitive _ (eq_series fld).
@@ -105,9 +132,7 @@ Proof.
 cofix IHs.
 intros α fld s₁ s₂ s₃ H₁ H₂.
 inversion H₁; subst; [ idtac | assumption ].
-inversion H₂; subst; [ idtac | discriminate H ].
-inversion H; subst.
-eapply eq_ser_term; try reflexivity.
+inversion H₂; subst; constructor.
  eapply fld_eq_trans; eassumption.
 
  eapply IHs; eassumption.

@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.19 2013-07-26 18:16:10 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.20 2013-07-26 21:38:42 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -15,22 +15,6 @@ Inductive list_eq α (cmp : α → α → Prop) : list α → list α → Prop :
   | list_eq_nil : list_eq cmp [] []
   | list_eq_cons : ∀ x₁ x₂ l₁ l₂,
       cmp x₁ x₂ → list_eq cmp l₁ l₂ → list_eq cmp [x₁ … l₁] [x₂ … l₂].
-
-(*
-Fixpoint list_eq α (cmp : α → α → bool) l₁ l₂ :=
-  match l₁ with
-  | [] =>
-      match l₂ with
-      | [] => true
-      | [x₂ … ll₂] => false
-      end
-  | [x₁ … ll₁] =>
-      match l₂ with
-      | [] => false
-      | [x₂ … ll₂] => cmp x₁ x₂ && list_eq cmp ll₁ ll₂
-      end
-  end.
-*)
 
 Definition poly_eq α fld (x y : polynomial α) :=
   list_eq (fld_eq fld) (al x ++ [an x]) (al y ++ [an y]).
