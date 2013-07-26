@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.32 2013-07-26 15:28:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.33 2013-07-26 15:57:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -54,16 +54,6 @@ Definition normal α (fld : field α) l cd ms :=
      ps_comden := l |}.
 
 (* ps_add *)
-
-CoFixpoint series_add α (fld : field α) s₁ s₂ :=
-  match s₁ with
-  | Term c₁ ss₁ =>
-      match s₂ with
-      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
-      | End => s₁
-      end
-  | End => s₂
-  end.
 
 Fixpoint series_pad_left α (fld : field α) n s :=
   match n with
@@ -226,24 +216,6 @@ Qed.
 
 (* *)
 
-Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
-  eq_series fld (series_add fld s₁ s₂) (series_add fld s₂ s₁).
-Proof.
-cofix IHs; intros.
-rewrite series_eta.
-remember (series_add fld s₁ s₂) as x.
-rewrite series_eta in Heqx; subst x.
-simpl.
-destruct s₁ as [t₁ s₃| ].
- destruct s₂ as [t₂ s₄| ].
-  eapply eq_ser_term; try reflexivity; [ apply fld_add_comm | apply IHs ].
-
-  eapply eq_ser_term; try reflexivity.
-  apply fld_eq_refl.
-
- destruct s₂; reflexivity.
-Qed.
-
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
 Proof.
@@ -263,3 +235,11 @@ remember
 constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
 apply Zminus_eq; symmetry; assumption.
 Qed.
+
+Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
+  eq_ps fld
+    (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
+    (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
+Proof.
+intros α fld ps₁ ps₂ ps₃.
+bbb.

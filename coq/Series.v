@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.19 2013-07-26 15:28:40 deraugla Exp $ *)
+(* $Id: Series.v,v 1.20 2013-07-26 15:57:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -147,4 +147,32 @@ destruct s as [t₁ s₁| ].
  eapply IHs; eassumption.
 
  constructor; reflexivity.
+Qed.
+
+CoFixpoint series_add α (fld : field α) s₁ s₂ :=
+  match s₁ with
+  | Term c₁ ss₁ =>
+      match s₂ with
+      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
+      | End => s₁
+      end
+  | End => s₂
+  end.
+
+Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
+  eq_series fld (series_add fld s₁ s₂) (series_add fld s₂ s₁).
+Proof.
+cofix IHs; intros.
+rewrite series_eta.
+remember (series_add fld s₁ s₂) as x.
+rewrite series_eta in Heqx; subst x.
+simpl.
+destruct s₁ as [t₁ s₃| ].
+ destruct s₂ as [t₂ s₄| ].
+  eapply eq_ser_term; try reflexivity; [ apply fld_add_comm | apply IHs ].
+
+  eapply eq_ser_term; try reflexivity.
+  apply fld_eq_refl.
+
+ destruct s₂; reflexivity.
 Qed.
