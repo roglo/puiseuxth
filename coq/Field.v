@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.8 2013-07-09 20:16:39 deraugla Exp $ *)
+(* $Id: Field.v,v 1.9 2013-07-26 09:21:09 deraugla Exp $ *)
 
 Require Import Utf8.
 
@@ -12,7 +12,7 @@ Record field α :=
     fld_eq : α → α → bool;
     fld_eq_refl : ∀ a,
       fld_eq a a = true;
-    fld_eq_comm : ∀ a b,
+    fld_eq_sym : ∀ a b,
       fld_eq a b = fld_eq b a;
     fld_add_comm : ∀ a b,
       fld_eq (add a b) (add b a) = true;

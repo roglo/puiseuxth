@@ -1,6 +1,8 @@
-(* $Id: Series.v,v 1.16 2013-07-24 15:15:47 deraugla Exp $ *)
+(* $Id: Series.v,v 1.17 2013-07-26 09:21:09 deraugla Exp $ *)
 
 Require Import Utf8.
+
+Require Import Field.
 
 Set Implicit Arguments.
 
@@ -48,17 +50,17 @@ CoInductive series_forall α P (s : series α) : Prop :=
   | EndOk :
       s = End _ → series_forall P s.
 
-CoInductive EqSer α equ (s₁ s₂ : series α) : Prop :=
+CoInductive EqSer α fld (s₁ s₂ : series α) : Prop :=
   | eq_ser_term : ∀ hd₁ hd₂ tl₁ tl₂,
       s₁ = Term hd₁ tl₁
       → s₂ = Term hd₂ tl₂
-        → equ hd₁ hd₂ = true
-          → EqSer equ tl₁ tl₂
-            → EqSer equ s₁ s₂
+        → fld_eq fld hd₁ hd₂ = true
+          → EqSer fld tl₁ tl₂
+            → EqSer fld s₁ s₂
   | eq_ser_end :
       s₁ = End _
       → s₂ = End _
-        → EqSer equ s₁ s₂.
+        → EqSer fld s₁ s₂.
 
 Lemma series_eta : ∀ α (s : series α),
   s = (match s with Term t₁ s₁ => Term t₁ s₁ | End => End _ end).
