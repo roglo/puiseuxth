@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.28 2013-07-26 09:46:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.29 2013-07-26 14:37:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,7 +10,7 @@ Require Import Series.
 
 Set Implicit Arguments.
 
-Record puiseux_series α :=
+Record puiseux_series α := mkps
   { ps_terms : series α;
     ps_valnum : Z;
     ps_comden : positive }.
@@ -200,7 +200,7 @@ intros α x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
 destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
 
-Theorem eq_series_refl : ∀ α (fld : field α), reflexive _ (EqSer fld).
+Theorem eq_series_refl : ∀ α (fld : field α), reflexive _ (eq_series fld).
 Proof.
 cofix IHs.
 intros α fld s.
@@ -213,7 +213,7 @@ destruct s as [t s₂| ].
  apply eq_ser_end; reflexivity.
 Qed.
 
-Theorem eq_series_sym : ∀ α (fld : field α), symmetric _ (EqSer fld).
+Theorem eq_series_sym : ∀ α (fld : field α), symmetric _ (eq_series fld).
 Proof.
 cofix IHs.
 intros α fld s₁ s₂ H.
@@ -237,7 +237,7 @@ destruct s₁ as [t₁ s₁| ], s₂ as [t₂ s₂| ].
  apply eq_series_refl.
 Qed.
 
-Theorem eq_series_trans : ∀ α (fld : field α), transitive _ (EqSer fld).
+Theorem eq_series_trans : ∀ α (fld : field α), transitive _ (eq_series fld).
 Proof.
 cofix IHs.
 intros α fld s₁ s₂ s₃ H₁ H₂.
@@ -250,16 +250,53 @@ eapply eq_ser_term; try reflexivity.
  eapply IHs; eassumption.
 Qed.
 
-Add Parametric Relation α (fld : field α) : (series α) (EqSer fld)
+Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
  reflexivity proved by (eq_series_refl fld)
  symmetry proved by (eq_series_sym (fld := fld))
  transitivity proved by (eq_series_trans (fld := fld))
  as eq_series_rel.
 
-bbb.
+Inductive eq_ps α (fld : field α) ps₁ ps₂ :=
+  eq_ps_norm :
+    eq_series fld (ps_terms ps₁) (ps_terms ps₂)
+    → ps_valnum ps₁ = ps_valnum ps₂
+      → ps_comden ps₂ = ps_comden ps₂
+        → eq_ps fld ps₁ ps₂.
 
+Theorem ps_compat : ∀ α (fld : field α) ps₁ ps₂,
+  eq_series fld (ps_terms ps₁) (ps_terms ps₂)
+  → ps_valnum ps₁ = ps_valnum ps₂
+    → ps_comden ps₂ = ps_comden ps₂
+      → eq_ps fld ps₁ ps₂.
+Proof.
+intros α fld ps₁ ps₂ Hs Hv Hc.
+constructor; assumption.
+Qed.
+
+Add Parametric Morphism α (fld : field α) : (@mkps α) with 
+signature (eq_series fld) ==> eq ==> eq ==> eq_ps fld as mkps_morph.
+Proof.
+intros s₁ s₂ Hs v c.
+constructor; [ assumption | reflexivity | reflexivity ].
+Qed.
+
+(* *)
+
+(*
+Definition eq_ps fld ps₁ ps₂ :=
+  aaa.
+
+Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
+ reflexivity proved by (eq_ps_refl fld)
+ symmetry proved by (eq_ps_sym (fld := fld))
+ transitivity proved by (eq_ps_trans (fld := fld))
+ as eq_ps_rel.
+*)
+
+(*
 Require Import Setoid.
 Require Import Relation_Definitions.
+*)
 
 (* *)
 
@@ -278,12 +315,6 @@ Parameter union: forall A, set A -> set A -> set A.
 Axiom eq_set_refl: forall A, reflexive _ (eq_set (A:=A)).
 Axiom eq_set_sym: forall A, symmetric _ (eq_set (A:=A)).
 Axiom eq_set_trans: forall A, transitive _ (eq_set (A:=A)).
-Axiom empty_neutral: forall A (S: set A), eq_set (union S (empty A)) S.
-Axiom union_compat:
- forall (A : Type),
-  forall x x' : set A, eq_set x x' ->
-  forall y y' : set A, eq_set y y' ->
-   eq_set (union x y) (union x' y').
 
 Add Parametric Relation A : (set A) (@eq_set A)
  reflexivity proved by (eq_set_refl (A:=A))
@@ -291,12 +322,23 @@ Add Parametric Relation A : (set A) (@eq_set A)
  transitivity proved by (eq_set_trans (A:=A))
  as eq_set_rel.
 
+Goal forall A (S: set A), eq_set S S.
+Proof. intros. reflexivity. Qed.
+
+Axiom empty_neutral: forall A (S: set A), eq_set (union S (empty A)) S.
+Axiom union_compat:
+ forall (A : Type),
+  forall x x' : set A, eq_set x x' ->
+  forall y y' : set A, eq_set y y' ->
+   eq_set (union x y) (union x' y').
+
 Add Parametric Morphism A : (@union A) with 
 signature (@eq_set A) ==> (@eq_set A) ==> (@eq_set A) as union_mor.
 Proof. exact (@union_compat A). Qed.
 
 Goal forall (S: set nat),
  eq_set (union (union S (empty nat)) S) (union S S).
+Proof.
 Proof. intros. rewrite empty_neutral. reflexivity. Qed.
 *)
 
@@ -304,15 +346,12 @@ Proof. intros. rewrite empty_neutral. reflexivity. Qed.
 
 (*
 Axiom ext_eq_ser : ∀ α fld (s₁ s₂ : series α),
-  EqSer (fld_eq fld) s₁ s₂ → s₁ = s₂.
+  eq_series (fld_eq fld) s₁ s₂ → s₁ = s₂.
 *)
 
 Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
-  series_add fld s₁ s₂ = series_add fld s₂ s₁.
+  eq_series fld (series_add fld s₁ s₂) (series_add fld s₂ s₁).
 Proof.
-intros α fld s₁ s₂.
-apply ext_eq_ser with (fld := fld).
-revert α fld s₁ s₂.
 cofix IHs; intros.
 rewrite series_eta.
 remember (series_add fld s₁ s₂) as x.
@@ -323,16 +362,35 @@ destruct s₁ as [t₁ s₃| ].
   eapply eq_ser_term; try reflexivity; [ apply fld_add_comm | apply IHs ].
 
   eapply eq_ser_term; try reflexivity.
-   apply fld_eq_refl.
+  apply fld_eq_refl.
 
-   apply eq_ser_refl.
-
- destruct s₂; apply eq_ser_refl.
+ destruct s₂; reflexivity.
 Qed.
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
-  ps_add fld ps₁ ps₂ = ps_add fld ps₂ ps₁.
+  eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
 Proof.
+intros α fld ps₁ ps₂.
+unfold ps_add; simpl.
+rewrite Zmatch_minus.
+rewrite Plcm_comm.
+remember
+ (ps_valnum ps₁ *
+  Z.of_nat
+    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
+     Pos.to_nat (ps_comden ps₁)) -
+  ps_valnum ps₂ *
+  Z.of_nat
+    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
+     Pos.to_nat (ps_comden ps₂)))%Z as d.
+constructor; destruct d; simpl.
+ rewrite series_add_comm; reflexivity.
+
+ rewrite series_add_comm; reflexivity.
+
+ rewrite series_add_comm; reflexivity.
+bbb.
+
 intros α fld ps₁ ps₂.
 unfold ps_add; simpl.
 rewrite Zmatch_minus.
