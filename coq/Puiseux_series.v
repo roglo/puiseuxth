@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.27 2013-07-26 09:21:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.28 2013-07-26 09:46:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -241,20 +241,22 @@ Theorem eq_series_trans : ∀ α (fld : field α), transitive _ (EqSer fld).
 Proof.
 cofix IHs.
 intros α fld s₁ s₂ s₃ H₁ H₂.
-destruct s₃ as [t₃ s₃| ].
- destruct s₁ as [t₁ s₁| ].
-  eapply eq_ser_term; try reflexivity.
-   inversion H₁.
-    injection H; clear H; intros; subst hd₁ tl₁.
-    inversion H₂.
-     injection H3; clear H3; intros; subst hd₂0 tl₂0.
-bbb.
+inversion H₁; subst; [ idtac | assumption ].
+inversion H₂; subst; [ idtac | discriminate H ].
+inversion H; subst.
+eapply eq_ser_term; try reflexivity.
+ eapply fld_eq_trans; eassumption.
+
+ eapply IHs; eassumption.
+Qed.
 
 Add Parametric Relation α (fld : field α) : (series α) (EqSer fld)
  reflexivity proved by (eq_series_refl fld)
  symmetry proved by (eq_series_sym (fld := fld))
  transitivity proved by (eq_series_trans (fld := fld))
  as eq_series_rel.
+
+bbb.
 
 Require Import Setoid.
 Require Import Relation_Definitions.
@@ -309,7 +311,6 @@ Lemma series_add_comm : ∀ α (fld : field α) s₁ s₂,
   series_add fld s₁ s₂ = series_add fld s₂ s₁.
 Proof.
 intros α fld s₁ s₂.
-bbb.
 apply ext_eq_ser with (fld := fld).
 revert α fld s₁ s₂.
 cofix IHs; intros.
