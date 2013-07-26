@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.30 2013-07-26 14:46:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.31 2013-07-26 14:54:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -383,33 +383,6 @@ remember
   Z.of_nat
     (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
      Pos.to_nat (ps_comden ps₂)))%Z as d.
-constructor; destruct d; simpl.
- rewrite series_add_comm; reflexivity.
-
- rewrite series_add_comm; reflexivity.
-
- rewrite series_add_comm; reflexivity.
-bbb.
-
-intros α fld ps₁ ps₂.
-unfold ps_add; simpl.
-rewrite Zmatch_minus.
-rewrite Plcm_comm.
-remember
- (ps_valnum ps₁ *
-  Z.of_nat
-    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
-     Pos.to_nat (ps_comden ps₁)) -
-  ps_valnum ps₂ *
-  Z.of_nat
-    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
-     Pos.to_nat (ps_comden ps₂)))%Z as d.
-destruct d.
- f_equal; [ apply series_add_comm | idtac ].
- apply Zminus_eq.
- symmetry; assumption.
-
- f_equal; apply series_add_comm.
-
- f_equal; apply series_add_comm.
+constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
+apply Zminus_eq; symmetry; assumption.
 Qed.

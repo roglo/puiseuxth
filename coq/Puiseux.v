@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1068 2013-07-26 14:37:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1069 2013-07-26 14:54:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -176,9 +176,11 @@ Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
 *)
 
+(*
 Axiom ps_eq_add_comm : ∀ ps₁ ps₂,
   ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
-(* cf Puiseux_series.ps_add_comm *)
+cf Puiseux_series.ps_add_comm
+*)
 
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero _;
@@ -187,7 +189,7 @@ Definition ps_fld : field (puiseux_series α) :=
      mul := ps_mul fld;
      fld_eq := ps_eq;
      fld_eq_refl := ps_eq_refl;
-     fld_eq_comm := ps_eq_comm;
+     fld_eq_sym := ps_eq_sym;
      fld_add_comm := ps_eq_add_comm;
      fld_add_assoc := ps_add_assoc |}.
 
