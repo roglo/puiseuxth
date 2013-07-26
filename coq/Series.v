@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.23 2013-07-26 22:19:40 deraugla Exp $ *)
+(* $Id: Series.v,v 1.24 2013-07-26 23:43:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -194,10 +194,9 @@ rewrite series_eta in Heqx; subst x.
 simpl.
 destruct s₁ as [t₁ s₃| ].
  destruct s₂ as [t₂ s₄| ].
-  eapply eq_ser_term; try reflexivity; [ apply fld_add_comm | apply IHs ].
+  constructor; try reflexivity; [ apply fld_add_comm | apply IHs ].
 
-  eapply eq_ser_term; try reflexivity.
-  apply fld_eq_refl.
+  constructor; try reflexivity; apply fld_eq_refl.
 
  destruct s₂; reflexivity.
 Qed.
@@ -207,5 +206,15 @@ Lemma series_add_assoc : ∀ α (fld : field α) s₁ s₂ s₃,
     (series_add fld (series_add fld s₁ s₂) s₃)
     (series_add fld s₁ (series_add fld s₂ s₃)).
 Proof.
-intros α fld s₁ s₂ s₃.
+cofix IHs; intros.
+rewrite series_eta; symmetry.
+rewrite series_eta; symmetry.
+simpl.
+destruct s₁ as [t₁ ss₁| ].
+ destruct s₂ as [t₂ ss₂| ].
+  destruct s₃ as [t₃ ss₃| ].
+   constructor.
+    apply fld_add_assoc.
+
+    Focus 1.
 bbb.
