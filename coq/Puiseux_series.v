@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.39 2013-07-27 16:21:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.40 2013-07-27 16:37:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,10 +85,8 @@ Definition valnum_diff_neg α (fld : field α) n ps₁ ps₂ :=
      ps_valnum := ps_valnum ps₂;
      ps_comden := ps_comden ps₂ |}.
 
-Definition valnum_diff α (fld : field α) ms₁ ms₂ :=
-  let v₁ := ps_valnum ms₁ in
-  let v₂ := ps_valnum ms₂ in
-  match Z.sub v₂ v₁ with
+Definition valnum_diff α (fld : field α) ms₁ ms₂ d :=
+  match d with
   | Z0 => valnum_diff_0 fld ms₁ ms₂
   | Zpos n => valnum_diff_pos fld n ms₁ ms₂
   | Zneg n => valnum_diff_neg fld n ms₁ ms₂
@@ -98,7 +96,7 @@ Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   let ms₁ := normal fld l (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := normal fld l (lcm_div ps₂ ps₁) ps₂ in
-  valnum_diff fld ms₁ ms₂.
+  valnum_diff fld ms₁ ms₂ (Z.sub (ps_valnum ms₂) (ps_valnum ms₁)).
 
 (* ps_mul *)
 
@@ -262,4 +260,10 @@ Proof.
 intros α fld ps₁ ps₂ ps₃.
 constructor.
  unfold ps_add; simpl.
+ remember
+  (ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁) -
+   ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂)) as v₁.
+ remember
+  (ps_valnum ps₃ * Z.of_nat (lcm_div ps₃ ps₂) -
+   ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₃)) as v₂.
 bbb.
