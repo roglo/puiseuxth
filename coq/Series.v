@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.24 2013-07-26 23:43:22 deraugla Exp $ *)
+(* $Id: Series.v,v 1.25 2013-07-27 00:42:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -213,8 +213,7 @@ simpl.
 destruct s₁ as [t₁ ss₁| ].
  destruct s₂ as [t₂ ss₂| ].
   destruct s₃ as [t₃ ss₃| ].
-   constructor.
-    apply fld_add_assoc.
-
-    Focus 1.
+   constructor; [ apply fld_add_assoc | idtac ].
+   clear t₁ t₂ t₃.
+   Focus 1.
 bbb.
