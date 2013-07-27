@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.41 2013-07-27 18:57:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.42 2013-07-27 20:44:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -269,6 +269,23 @@ unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
+(*
+Lemma yyy : ∀ α (fld : field α) t, normal_terms fld 0 t = t.
+Proof.
+intros α fld t.
+unfold normal_terms.
+destruct t.
+f_equal.
+ Focus 2.
+ simpl.
+ destruct stop.
+  rewrite mult_1_r; reflexivity.
+
+  reflexivity.
+bbb.
+needs axiom of extensionality
+*)
+
 Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
@@ -292,6 +309,10 @@ constructor.
   rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
   rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
   simpl.
+  rewrite Plcm_diag.
+  rewrite Nat.div_same.
+   simpl.
+   do 4 rewrite Zmult_1_r.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
