@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.35 2013-07-26 22:19:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.36 2013-07-27 13:05:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,28 +38,29 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
   | None => zero fld
   end.
 
-CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
-  match s with
-  | Term c ss =>
-      match n with
-      | O => Term c (normal_terms fld cd₁ cd₁ ss)
-      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
-      end
-  | End => End _
-  end.
+Definition normal_terms α (fld : field α) cd₁ s :=
+  {| terms i :=
+       if zerop (i mod (S cd₁)) then terms s (i / S cd₁) else zero fld;
+     stop :=
+       match stop s with
+       | Some st => Some (st * S cd₁)%nat
+       | None => None
+       end |}.
 
 Definition normal α (fld : field α) l cd ms :=
-  {| ps_terms := normal_terms fld 0 (cd - 1) (ps_terms ms);
+  {| ps_terms := normal_terms fld (cd - 1) (ps_terms ms);
      ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
      ps_comden := l |}.
 
 (* ps_add *)
 
 Fixpoint series_pad_left α (fld : field α) n s :=
-  match n with
-  | O => s
-  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
-  end.
+  {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
+     stop :=
+       match stop s with
+       | Some st => Some (st - n)%nat
+       | None => None
+       end |}.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
@@ -119,13 +120,20 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   end.
 
 Definition ps_mul_term α fld (s₁ s₂ : series α) :=
-  let cofix mul_loop n₁ :=
-    match sum_mul_coeff fld 0 n₁ s₁ s₂ with
-    | Some c => Term c (mul_loop (S n₁))
-    | None => End _
-    end
-  in
-  mul_loop 1%nat.
+  {| terms i :=
+       match sum_mul_coeff fld 0 (S i) s₁ s₂ with
+       | Some c => c
+       | None => zero fld
+       end;
+     stop :=
+       match stop s₁ with
+       | Some st₁ =>
+           match stop s₂ with
+           | Some st₂ => Some (max st₁ st₂)
+           | None => None
+           end
+       | None => None
+       end |}.
 
 Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in

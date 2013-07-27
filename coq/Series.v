@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.27 2013-07-27 08:24:49 deraugla Exp $ *)
+(* $Id: Series.v,v 1.28 2013-07-27 13:05:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,6 +11,12 @@ Set Implicit Arguments.
 Record series α :=
   { terms : nat → α;
     stop : option nat }.
+
+Definition series_nth α n (s : series α) :=
+  match stop s with
+  | Some st => if lt_dec n st then Some (terms s n) else None
+  | None => None
+  end.
 
 Inductive eq_series α fld : series α → series α → Prop :=
   eq_ser' : ∀ s₁ s₂,
@@ -53,7 +59,7 @@ Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
  as eq_series_rel.
 
 Definition series_add α (fld : field α) s₁ s₂ :=
-  {| terms := λ i, add fld (terms s₁ i) (terms s₂ i);
+  {| terms i := add fld (terms s₁ i) (terms s₂ i);
      stop :=
        match stop s₁ with
        | Some st₁ =>
