@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.38 2013-07-27 15:34:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.39 2013-07-27 16:21:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,10 +85,7 @@ Definition valnum_diff_neg α (fld : field α) n ps₁ ps₂ :=
      ps_valnum := ps_valnum ps₂;
      ps_comden := ps_comden ps₂ |}.
 
-Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  let ms₁ := normal fld l (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := normal fld l (lcm_div ps₂ ps₁) ps₂ in
+Definition valnum_diff α (fld : field α) ms₁ ms₂ :=
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
   match Z.sub v₂ v₁ with
@@ -96,6 +93,12 @@ Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   | Zpos n => valnum_diff_pos fld n ms₁ ms₂
   | Zneg n => valnum_diff_neg fld n ms₁ ms₂
   end.
+
+Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  let ms₁ := normal fld l (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := normal fld l (lcm_div ps₂ ps₁) ps₂ in
+  valnum_diff fld ms₁ ms₂.
 
 (* ps_mul *)
 
@@ -241,7 +244,7 @@ Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
   eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
 Proof.
 intros α fld ps₁ ps₂.
-unfold ps_add; simpl.
+unfold ps_add, valnum_diff; simpl.
 rewrite Zmatch_minus.
 rewrite Plcm_comm.
 remember
@@ -258,4 +261,5 @@ Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
 Proof.
 intros α fld ps₁ ps₂ ps₃.
 constructor.
+ unfold ps_add; simpl.
 bbb.
