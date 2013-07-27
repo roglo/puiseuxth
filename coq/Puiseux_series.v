@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.40 2013-07-27 16:37:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.41 2013-07-27 18:57:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -251,6 +251,48 @@ remember
 constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
 apply Zminus_eq; symmetry; assumption.
 Qed.
+
+Lemma Plcm_diag : ∀ a, Plcm a a = a.
+Proof.
+intros a.
+unfold Plcm.
+rewrite Z.lcm_diag.
+reflexivity.
+Qed.
+
+Lemma same_comden_valnum_diff : ∀ α (fld : field α) ps₁ ps₂ d,
+  ps_comden ps₁ = ps_comden ps₂
+  → ps_comden (valnum_diff fld ps₁ ps₂ d) = ps_comden ps₁.
+Proof.
+intros α fld ps₁ ps₂ d H.
+unfold valnum_diff; simpl.
+destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
+Qed.
+
+Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
+  l = ps_comden ps₁
+  → l = ps_comden ps₂
+    → l = ps_comden ps₃
+      → eq_ps fld
+          (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
+          (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
+Proof.
+intros α fld ps₁ ps₂ ps₃ l H₁ H₂ H₃.
+constructor.
+ unfold ps_add; simpl.
+ rewrite <- H₁, <- H₂, <- H₃.
+ rewrite Plcm_diag.
+ unfold lcm_div.
+ rewrite <- H₁, <- H₂, <- H₃.
+ rewrite Plcm_diag.
+ rewrite Nat.div_same.
+  simpl.
+  unfold normal; simpl.
+  do 3 rewrite Zmult_1_r.
+  rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
+  rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
+  simpl.
+bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
   eq_ps fld
