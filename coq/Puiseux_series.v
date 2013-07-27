@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.36 2013-07-27 13:05:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.37 2013-07-27 15:19:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,14 +62,14 @@ Fixpoint series_pad_left α (fld : field α) n s :=
        | None => None
        end |}.
 
+Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁)).
+
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  let ms₁ :=
-    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁))) ps₁
-  in
-  let ms₂ :=
-    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₂))) ps₂
-  in
+  let ms₁ := normal fld l (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := normal fld l (lcm_div ps₂ ps₁) ps₂ in
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
   match Z.sub v₂ v₁ with
@@ -239,14 +239,8 @@ unfold ps_add; simpl.
 rewrite Zmatch_minus.
 rewrite Plcm_comm.
 remember
- (ps_valnum ps₁ *
-  Z.of_nat
-    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
-     Pos.to_nat (ps_comden ps₁)) -
-  ps_valnum ps₂ *
-  Z.of_nat
-    (Pos.to_nat (Plcm (ps_comden ps₂) (ps_comden ps₁)) /
-     Pos.to_nat (ps_comden ps₂)))%Z as d.
+ (ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂) -
+  ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁))%Z as d.
 constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
 apply Zminus_eq; symmetry; assumption.
 Qed.
