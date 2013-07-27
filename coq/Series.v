@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.25 2013-07-27 00:42:50 deraugla Exp $ *)
+(* $Id: Series.v,v 1.26 2013-07-27 00:43:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -210,9 +210,9 @@ cofix IHs; intros.
 rewrite series_eta; symmetry.
 rewrite series_eta; symmetry.
 simpl.
-destruct s₁ as [t₁ ss₁| ].
- destruct s₂ as [t₂ ss₂| ].
-  destruct s₃ as [t₃ ss₃| ].
+destruct s₁ as [t₁ s₁| ].
+ destruct s₂ as [t₂ s₂| ].
+  destruct s₃ as [t₃ s₃| ].
    constructor; [ apply fld_add_assoc | idtac ].
    clear t₁ t₂ t₃.
    Focus 1.
