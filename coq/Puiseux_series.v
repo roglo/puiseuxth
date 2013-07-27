@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.37 2013-07-27 15:19:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.38 2013-07-27 15:34:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -66,6 +66,25 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁)).
 
+Definition valnum_diff_0 α (fld : field α) ps₁ ps₂ :=
+  {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
+     ps_valnum := ps_valnum ps₁;
+     ps_comden := ps_comden ps₁ |}.
+
+Definition valnum_diff_pos α (fld : field α) n ps₁ ps₂ :=
+  {| ps_terms :=
+       series_add fld (ps_terms ps₁)
+         (series_pad_left fld (Pos.to_nat n) (ps_terms ps₂));
+     ps_valnum := ps_valnum ps₁;
+     ps_comden := ps_comden ps₁ |}.
+
+Definition valnum_diff_neg α (fld : field α) n ps₁ ps₂ :=
+  {| ps_terms :=
+       series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ps₁))
+         (ps_terms ps₂);
+     ps_valnum := ps_valnum ps₂;
+     ps_comden := ps_comden ps₂ |}.
+
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   let ms₁ := normal fld l (lcm_div ps₁ ps₂) ps₁ in
@@ -73,22 +92,9 @@ Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let v₁ := ps_valnum ms₁ in
   let v₂ := ps_valnum ms₂ in
   match Z.sub v₂ v₁ with
-  | Z0 =>
-      {| ps_terms := series_add fld (ps_terms ms₁) (ps_terms ms₂);
-         ps_valnum := v₁;
-         ps_comden := l |}
-  | Zpos n =>
-      {| ps_terms :=
-           series_add fld (ps_terms ms₁)
-             (series_pad_left fld (Pos.to_nat n) (ps_terms ms₂));
-         ps_valnum := v₁;
-         ps_comden := l |}
-  | Zneg n =>
-      {| ps_terms :=
-           series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ms₁))
-             (ps_terms ms₂);
-         ps_valnum := v₂;
-         ps_comden := l |}
+  | Z0 => valnum_diff_0 fld ms₁ ms₂
+  | Zpos n => valnum_diff_pos fld n ms₁ ms₂
+  | Zneg n => valnum_diff_neg fld n ms₁ ms₂
   end.
 
 (* ps_mul *)
