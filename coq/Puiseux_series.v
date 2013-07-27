@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.42 2013-07-27 20:44:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.43 2013-07-27 21:45:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -269,22 +269,26 @@ unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
-(*
-Lemma yyy : ∀ α (fld : field α) t, normal_terms fld 0 t = t.
+Axiom functional_extensionality : ∀ α β (f g : α → β),
+  (∀ x, f x = g x) → f = g.
+
+Lemma normal_terms_0 : ∀ α (fld : field α) t, normal_terms fld 0 t = t.
 Proof.
 intros α fld t.
 unfold normal_terms.
 destruct t.
 f_equal.
- Focus 2.
+ apply functional_extensionality.
+ intros i.
+ rewrite Nat.div_1_r.
+ reflexivity.
+
  simpl.
  destruct stop.
   rewrite mult_1_r; reflexivity.
 
   reflexivity.
-bbb.
-needs axiom of extensionality
-*)
+Qed.
 
 Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
@@ -313,6 +317,7 @@ constructor.
   rewrite Nat.div_same.
    simpl.
    do 4 rewrite Zmult_1_r.
+   do 5 rewrite normal_terms_0.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
