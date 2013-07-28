@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.50 2013-07-28 11:45:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.51 2013-07-28 12:03:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -321,12 +321,37 @@ constructor.
  rewrite Nat.sub_max_distr_r; reflexivity.
 Qed.
 
-Lemma yyy : ∀ α (fld : field α) m n t,
+Lemma series_pad_plus : ∀ α (fld : field α) m n t,
   series_pad_left fld m (series_pad_left fld n t) =
   series_pad_left fld (m + n) t.
 Proof.
 intros α fld m n t.
-bbb.
+unfold series_pad_left; simpl.
+f_equal.
+ apply functional_extensionality.
+ intros i.
+ destruct (lt_dec i m) as [Hlt| Hge].
+  destruct (lt_dec i (m + n)) as [| Hge]; [ reflexivity | idtac ].
+  exfalso; apply Hge.
+  apply lt_plus_trans; assumption.
+
+  apply not_gt in Hge.
+  destruct (lt_dec (i - m) n) as [Hlt| Hge₂].
+   destruct (lt_dec i (m + n)) as [| Hge₂]; [ reflexivity | idtac ].
+   exfalso; apply Hge₂.
+   apply Nat.lt_sub_lt_add_l; assumption.
+
+   apply not_gt in Hge₂.
+   destruct (lt_dec i (m + n)) as [Hlt| Hge₃].
+    apply plus_le_compat_l with (p := m) in Hge₂.
+    rewrite le_plus_minus_r in Hge₂; [ idtac | assumption ].
+    apply le_not_lt in Hge₂; contradiction.
+
+    rewrite Nat.sub_add_distr; reflexivity.
+
+ destruct (stop t); [ idtac | reflexivity ].
+ rewrite plus_comm, Nat.sub_add_distr; reflexivity.
+Qed.
 
 Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
@@ -386,7 +411,7 @@ constructor.
      eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
      rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
      rewrite Heqv₂₁; simpl.
-     rewrite series_pad_add_distr, yyy.
+     rewrite series_pad_add_distr, series_pad_plus.
      rewrite plus_comm, <- Pos2Nat.inj_add.
      apply series_add_assoc.
 
