@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.52 2013-07-28 12:29:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.53 2013-07-28 12:42:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -429,7 +429,11 @@ constructor.
       rewrite plus_comm, <- Pos2Nat.inj_add.
       apply series_add_assoc.
 
-      Focus 1.
+      rewrite series_pad_add_distr, series_pad_plus.
+      rewrite plus_comm, <- Pos2Nat.inj_add.
+      apply series_add_assoc.
+
+    Focus 1.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
