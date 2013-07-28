@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.47 2013-07-28 10:42:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.48 2013-07-28 11:10:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -367,7 +367,15 @@ constructor.
      rewrite series_pad_add_distr.
      apply series_add_assoc.
 
-    Focus 1.
+    remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
+    symmetry in Heqv₃₂.
+    destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+     rewrite Heqv₂₁; simpl.
+     apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
+     rewrite series_pad_add_distr.
+     apply series_add_assoc.
+
+     Focus 1.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
