@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.48 2013-07-28 11:10:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.49 2013-07-28 11:22:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -375,6 +375,10 @@ constructor.
      rewrite series_pad_add_distr.
      apply series_add_assoc.
 
+     rewrite Heqv₂₁; simpl.
+     eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
+     rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
+     rewrite Heqv₂₁; simpl.
      Focus 1.
 bbb.
 
