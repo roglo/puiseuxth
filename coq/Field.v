@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.13 2013-07-28 10:32:26 deraugla Exp $ *)
+(* $Id: Field.v,v 1.14 2013-07-28 10:42:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -23,3 +23,10 @@ Add Parametric Relation α (fld : field α) : α (fld_eq fld)
  symmetry proved by (fld_eq_sym fld)
  transitivity proved by (fld_eq_trans fld)
  as fld_eq_rel.
+
+Add Parametric Morphism α (fld : field α) : (add fld) with 
+signature fld_eq fld ==> fld_eq fld ==> fld_eq fld
+  as fld_add_morph.
+Proof.
+intros a b Hab c d Hcd.
+Admitted.

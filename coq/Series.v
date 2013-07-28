@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.29 2013-07-28 10:32:26 deraugla Exp $ *)
+(* $Id: Series.v,v 1.30 2013-07-28 10:42:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,12 +52,6 @@ constructor.
  transitivity (stop s₂); assumption.
 Qed.
 
-Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
- reflexivity proved by (eq_series_refl fld)
- symmetry proved by (eq_series_sym (fld := fld))
- transitivity proved by (eq_series_trans (fld := fld))
- as eq_series_rel.
-
 Definition series_add α (fld : field α) s₁ s₂ :=
   {| terms i := add fld (terms s₁ i) (terms s₂ i);
      stop :=
@@ -100,4 +94,24 @@ constructor; simpl.
  f_equal.
  symmetry.
  apply Nat.max_assoc.
+Qed.
+
+Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
+ reflexivity proved by (eq_series_refl fld)
+ symmetry proved by (eq_series_sym (fld := fld))
+ transitivity proved by (eq_series_trans (fld := fld))
+ as eq_series_rel.
+
+Add Parametric Morphism α (fld : field α) : (@series_add α fld) with 
+signature eq_series fld ==> eq_series fld ==> eq_series fld
+  as series_add_morph.
+Proof.
+intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
+inversion Heq₁; subst.
+inversion Heq₂; subst.
+constructor; simpl.
+ intros i.
+ rewrite H, H1; reflexivity.
+
+ rewrite H0, H2; reflexivity.
 Qed.
