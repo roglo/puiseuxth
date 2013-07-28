@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.43 2013-07-27 21:45:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.44 2013-07-28 04:05:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -295,7 +295,7 @@ Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   → l = ps_comden ps₂
     → l = ps_comden ps₃
       → eq_ps fld
-          (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
+          (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
           (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
 Proof.
 intros α fld ps₁ ps₂ ps₃ l H₁ H₂ H₃.
@@ -318,6 +318,22 @@ constructor.
    simpl.
    do 4 rewrite Zmult_1_r.
    do 5 rewrite normal_terms_0.
+   remember (ps_valnum ps₂ - ps_valnum ps₁)%Z as v₂₁.
+   symmetry in Heqv₂₁.
+   destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
+    remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
+    symmetry in Heqv₃₂.
+    destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+     rewrite Heqv₂₁; simpl.
+     apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
+     apply series_add_assoc.
+
+     rewrite Heqv₂₁; simpl.
+     apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
+     apply series_add_assoc.
+
+     apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
+     Focus 1.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
