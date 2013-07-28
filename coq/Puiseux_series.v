@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.44 2013-07-28 04:05:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.45 2013-07-28 04:46:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -54,7 +54,7 @@ Definition normal α (fld : field α) l cd ms :=
 
 (* ps_add *)
 
-Fixpoint series_pad_left α (fld : field α) n s :=
+Definition series_pad_left α (fld : field α) n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
      stop :=
        match stop s with
@@ -236,6 +236,18 @@ intros ps₁ ps₂ Hps.
 inversion Hps; assumption.
 Qed.
 
+Add Parametric Morphism α (fld : field α) : (@series_pad_left α) with 
+signature eq ==> eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
+Proof.
+intros fld₁ n s₁ s₂ H.
+constructor; simpl.
+ intros i.
+ destruct (lt_dec i n); [ apply fld_eq_refl | idtac ].
+ inversion H; apply H0.
+
+ inversion H; rewrite H1; reflexivity.
+Qed.
+
 (* *)
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
@@ -290,6 +302,25 @@ f_equal.
   reflexivity.
 Qed.
 
+Lemma series_pad_add_distr : ∀ α (fld : field α) s₁ s₂ n,
+  eq_series fld
+    (series_pad_left fld n (series_add fld s₁ s₂))
+    (series_add fld (series_pad_left fld n s₁) (series_pad_left fld n s₂)).
+Proof.
+intros α fld s₁ s₂ n.
+constructor.
+ intros i.
+ unfold series_add; simpl.
+ destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | apply fld_eq_refl ].
+ apply fld_eq_sym, fld_add_neutral.
+
+ simpl.
+ destruct (stop s₁) as [n₁| ]; [ idtac | reflexivity ].
+ destruct (stop s₂) as [n₂| ]; [ idtac | reflexivity ].
+ f_equal.
+ rewrite Nat.sub_max_distr_r; reflexivity.
+Qed.
+
 Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
@@ -333,7 +364,11 @@ constructor.
      apply series_add_assoc.
 
      apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
-     Focus 1.
+bbb.
+     rewrite series_pad_add_distr.
+     apply series_add_assoc.
+
+    Focus 1.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
