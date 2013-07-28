@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.53 2013-07-28 12:42:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.54 2013-07-28 12:47:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -433,7 +433,10 @@ constructor.
       rewrite plus_comm, <- Pos2Nat.inj_add.
       apply series_add_assoc.
 
-    Focus 1.
+    remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
+    symmetry in Heqv₃₂.
+    destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+     Focus 1.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
