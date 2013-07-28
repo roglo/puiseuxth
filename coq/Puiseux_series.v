@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.56 2013-07-28 13:31:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.57 2013-07-28 19:51:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -248,6 +248,115 @@ constructor; simpl.
  inversion H; rewrite H1; reflexivity.
 Qed.
 
+Add Parametric Morphism α (fld : field α) : (@terms α) with
+signature eq_series fld ==> @eq nat ==> fld_eq fld as terms_morph.
+Proof.
+intros s₁ s₂ Heq i.
+inversion Heq; subst.
+apply H.
+Qed.
+
+Add Parametric Morphism α (fld : field α) : (@ps_add α fld) with 
+signature eq_ps fld ==> eq_ps fld ==> eq_ps fld as ps_add_morph.
+Proof.
+(* à nettoyer, peut-être *)
+intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
+inversion Heq₁; subst.
+inversion Heq₂; subst.
+inversion H; subst.
+inversion H2; subst.
+unfold ps_add; simpl.
+rewrite H0, H1, H3, H4.
+remember (Plcm (ps_comden ps₂) (ps_comden ps₄)) as l.
+unfold lcm_div.
+rewrite H1, H4.
+rewrite <- Heql.
+remember (Pos.to_nat l / Pos.to_nat (ps_comden ps₂))%nat as m.
+rewrite Plcm_comm.
+rewrite <- Heql.
+remember (Pos.to_nat l / Pos.to_nat (ps_comden ps₄))%nat as n.
+remember (ps_valnum ps₄ * Z.of_nat n - ps_valnum ps₂ * Z.of_nat m)%Z as j.
+unfold valnum_diff.
+destruct j as [| j| j].
+ unfold valnum_diff_0; simpl.
+ constructor; simpl; [ idtac | idtac | reflexivity ].
+  constructor.
+   intros i; simpl.
+   destruct (zerop (m - 1 - snd (divmod i (m - 1) 0 (m - 1)))).
+    rewrite H5.
+    destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
+     rewrite H7; reflexivity.
+
+     reflexivity.
+
+    destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
+     rewrite H7; reflexivity.
+
+     reflexivity.
+
+   simpl.
+   rewrite H6, H8; reflexivity.
+
+  rewrite H0; reflexivity.
+
+ unfold valnum_diff_pos; simpl.
+ constructor; simpl; [ idtac | idtac | reflexivity ].
+  constructor.
+   intros i; simpl.
+   destruct (zerop (m - 1 - snd (divmod i (m - 1) 0 (m - 1)))).
+    rewrite H5.
+    destruct (lt_dec i (Pos.to_nat j)).
+     reflexivity.
+
+     destruct
+      (zerop (n - 1 - snd (divmod (i - Pos.to_nat j) (n - 1) 0 (n - 1)))).
+      rewrite H7; reflexivity.
+
+      reflexivity.
+
+    destruct (lt_dec i (Pos.to_nat j)).
+     reflexivity.
+
+     destruct
+      (zerop (n - 1 - snd (divmod (i - Pos.to_nat j) (n - 1) 0 (n - 1)))).
+      rewrite H7; reflexivity.
+
+      reflexivity.
+
+   simpl.
+   rewrite H6, H8; reflexivity.
+
+  rewrite H0; reflexivity.
+
+ unfold valnum_diff_neg; simpl.
+ constructor; simpl; [ idtac | idtac | reflexivity ].
+  constructor.
+   intros i; simpl.
+   destruct (lt_dec i (Pos.to_nat j)).
+    destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
+     rewrite H7; reflexivity.
+
+     reflexivity.
+
+    destruct
+     (zerop (m - 1 - snd (divmod (i - Pos.to_nat j) (m - 1) 0 (m - 1)))).
+     rewrite H5.
+     destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
+      rewrite H7; reflexivity.
+
+      reflexivity.
+
+     destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
+      rewrite H7; reflexivity.
+
+      reflexivity.
+
+   simpl.
+   rewrite H6, H8; reflexivity.
+
+  rewrite H3; reflexivity.
+Qed.
+
 (* *)
 
 Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
@@ -353,7 +462,7 @@ f_equal.
  rewrite plus_comm, Nat.sub_add_distr; reflexivity.
 Qed.
 
-Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
+Lemma ps_add_assoc_normal : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
     → l = ps_comden ps₃
@@ -460,6 +569,29 @@ rewrite Nat.div_same.
  pose proof (Pos2Nat.is_pos l) as H.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
+
+Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ms₁ ms₂ l,
+  l = Plcm (ps_comden ps₁) (ps_comden ps₂)
+  → ms₁ = normal fld l (lcm_div ps₁ ps₂) ps₁
+    → ms₂ = normal fld l (lcm_div ps₂ ps₁) ps₂
+      → eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ms₁ ms₂).
+Proof.
+intros α fld ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
+unfold ps_add.
+subst ms₁ ms₂.
+simpl.
+rewrite <- Hl.
+rewrite Plcm_diag.
+unfold lcm_div; simpl.
+rewrite Plcm_diag.
+rewrite Nat.div_same.
+ simpl.
+ rewrite Zmult_1_r.
+ rewrite Zmult_1_r.
+ rewrite <- Hl.
+ rewrite Plcm_comm.
+ rewrite <- Hl.
+bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
   eq_ps fld
