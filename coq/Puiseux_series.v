@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.55 2013-07-28 13:17:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.56 2013-07-28 13:31:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -362,99 +362,104 @@ Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
           (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
 Proof.
 intros α fld ps₁ ps₂ ps₃ l H₁ H₂ H₃.
-constructor.
- unfold ps_add; simpl.
- rewrite <- H₁, <- H₂, <- H₃.
- rewrite Plcm_diag.
- unfold lcm_div.
- rewrite <- H₁, <- H₂, <- H₃.
+unfold ps_add; simpl.
+rewrite <- H₁, <- H₂, <- H₃.
+rewrite Plcm_diag.
+unfold lcm_div.
+rewrite <- H₁, <- H₂, <- H₃.
+rewrite Plcm_diag.
+rewrite Nat.div_same.
+ simpl.
+ unfold normal; simpl.
+ do 3 rewrite Zmult_1_r.
+ rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
+ rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
+ simpl.
  rewrite Plcm_diag.
  rewrite Nat.div_same.
   simpl.
-  unfold normal; simpl.
-  do 3 rewrite Zmult_1_r.
-  rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
-  rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
-  simpl.
-  rewrite Plcm_diag.
-  rewrite Nat.div_same.
-   simpl.
-   do 4 rewrite Zmult_1_r.
-   do 5 rewrite normal_terms_0.
-   remember (ps_valnum ps₂ - ps_valnum ps₁)%Z as v₂₁.
-   symmetry in Heqv₂₁.
-   destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
-    remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
-    symmetry in Heqv₃₂.
-    destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
-     rewrite Heqv₂₁; simpl.
-     apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
-     apply series_add_assoc.
+  do 4 rewrite Zmult_1_r.
+  do 5 rewrite normal_terms_0.
+  remember (ps_valnum ps₂ - ps_valnum ps₁)%Z as v₂₁.
+  symmetry in Heqv₂₁.
+  destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
+   remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
+   symmetry in Heqv₃₂.
+   destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+    rewrite Heqv₂₁; simpl.
+    apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
+    constructor; [ apply series_add_assoc | reflexivity | reflexivity ].
 
-     rewrite Heqv₂₁; simpl.
-     apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
-     apply series_add_assoc.
+    rewrite Heqv₂₁; simpl.
+    apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
+    constructor; [ apply series_add_assoc | reflexivity | reflexivity ].
 
-     apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
-     rewrite series_pad_add_distr.
-     apply series_add_assoc.
+    apply Zminus_eq in Heqv₂₁; rewrite <- Heqv₂₁, Heqv₃₂; simpl.
+    constructor; [ simpl | reflexivity | reflexivity ].
+    rewrite series_pad_add_distr.
+    apply series_add_assoc.
 
-    remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
-    symmetry in Heqv₃₂.
-    destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
-     rewrite Heqv₂₁; simpl.
-     apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
-     rewrite series_pad_add_distr.
-     apply series_add_assoc.
+   remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
+   symmetry in Heqv₃₂.
+   destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+    rewrite Heqv₂₁; simpl.
+    apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
+    constructor; [ simpl | reflexivity | reflexivity ].
+    rewrite series_pad_add_distr.
+    apply series_add_assoc.
 
-     rewrite Heqv₂₁; simpl.
-     eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
-     rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
-     rewrite Heqv₂₁; simpl.
+    rewrite Heqv₂₁; simpl.
+    eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
+    rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
+    rewrite Heqv₂₁; simpl.
+    constructor; [ simpl | reflexivity | reflexivity ].
+    rewrite series_pad_add_distr, series_pad_plus.
+    rewrite plus_comm, <- Pos2Nat.inj_add.
+    apply series_add_assoc.
+
+    eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
+    rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
+    rewrite Heqv₂₁; simpl.
+    remember (Z.pos_sub v₂₁ v₃₂) as v₃₁.
+    symmetry in Heqv₃₁.
+    pose proof (Z.pos_sub_discr v₂₁ v₃₂) as H.
+    rewrite Heqv₃₁ in H.
+    destruct v₃₁ as [| v₃₁| v₃₁]; rewrite H; simpl.
+     constructor; [ apply series_add_assoc | reflexivity | reflexivity ].
+
+     constructor; [ simpl | reflexivity | reflexivity ].
      rewrite series_pad_add_distr, series_pad_plus.
      rewrite plus_comm, <- Pos2Nat.inj_add.
      apply series_add_assoc.
 
-     eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
-     rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
-     rewrite Heqv₂₁; simpl.
-     remember (Z.pos_sub v₂₁ v₃₂) as v₃₁.
-     symmetry in Heqv₃₁.
-     pose proof (Z.pos_sub_discr v₂₁ v₃₂) as H.
-     rewrite Heqv₃₁ in H.
-     destruct v₃₁ as [| v₃₁| v₃₁]; rewrite H; simpl.
-      apply series_add_assoc.
-
-      rewrite series_pad_add_distr, series_pad_plus.
-      rewrite plus_comm, <- Pos2Nat.inj_add.
-      apply series_add_assoc.
-
-      rewrite series_pad_add_distr, series_pad_plus.
-      rewrite plus_comm, <- Pos2Nat.inj_add.
-      apply series_add_assoc.
-
-    remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
-    symmetry in Heqv₃₂.
-    destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
-     rewrite Heqv₂₁; simpl.
-     apply series_add_assoc.
-
-     rewrite Heqv₂₁; simpl.
-     apply series_add_assoc.
-
-     eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
-     rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
-     rewrite Heqv₂₁; simpl.
+     constructor; [ simpl | reflexivity | reflexivity ].
      rewrite series_pad_add_distr, series_pad_plus.
-     rewrite <- Pos2Nat.inj_add.
+     rewrite plus_comm, <- Pos2Nat.inj_add.
      apply series_add_assoc.
 
-   pose proof (Pos2Nat.is_pos l) as H.
-   intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+   remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
+   symmetry in Heqv₃₂.
+   destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+    rewrite Heqv₂₁; simpl.
+    constructor; [ apply series_add_assoc | reflexivity | reflexivity ].
+
+    rewrite Heqv₂₁; simpl.
+    constructor; [ apply series_add_assoc | reflexivity | reflexivity ].
+
+    eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
+    rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
+    rewrite Heqv₂₁; simpl.
+    constructor; [ simpl | reflexivity | reflexivity ].
+    rewrite series_pad_add_distr, series_pad_plus.
+    rewrite <- Pos2Nat.inj_add.
+    apply series_add_assoc.
 
   pose proof (Pos2Nat.is_pos l) as H.
   intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
-bbb.
+
+ pose proof (Pos2Nat.is_pos l) as H.
+ intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+Qed.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
   eq_ps fld
@@ -462,6 +467,8 @@ Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
 Proof.
 intros α fld ps₁ ps₂ ps₃.
+bbb.
+
 constructor.
  unfold ps_add; simpl.
  remember
