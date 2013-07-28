@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.14 2013-07-28 10:42:58 deraugla Exp $ *)
+(* $Id: Field.v,v 1.15 2013-07-28 10:53:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -16,7 +16,9 @@ Record field α :=
     fld_eq_trans : ∀ a b c, fld_eq a b → fld_eq b c → fld_eq a c;
     fld_add_comm : ∀ a b, fld_eq (add a b) (add b a);
     fld_add_assoc : ∀ a b c, fld_eq (add (add a b) c) (add a (add b c));
-    fld_add_neutral : ∀ a, fld_eq (add zero a) a }.
+    fld_add_neutral : ∀ a, fld_eq (add zero a) a;
+    fld_add_compat : ∀ a b c d, fld_eq a b → fld_eq c d
+      → fld_eq (add a c) (add b d) }.
 
 Add Parametric Relation α (fld : field α) : α (fld_eq fld)
  reflexivity proved by (fld_eq_refl fld)
@@ -29,4 +31,5 @@ signature fld_eq fld ==> fld_eq fld ==> fld_eq fld
   as fld_add_morph.
 Proof.
 intros a b Hab c d Hcd.
-Admitted.
+apply fld_add_compat; assumption.
+Qed.
