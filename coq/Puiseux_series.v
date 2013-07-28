@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.51 2013-07-28 12:03:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.52 2013-07-28 12:29:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -415,7 +415,21 @@ constructor.
      rewrite plus_comm, <- Pos2Nat.inj_add.
      apply series_add_assoc.
 
-     Focus 1.
+     eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
+     rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
+     rewrite Heqv₂₁; simpl.
+     remember (Z.pos_sub v₂₁ v₃₂) as v₃₁.
+     symmetry in Heqv₃₁.
+     pose proof (Z.pos_sub_discr v₂₁ v₃₂) as H.
+     rewrite Heqv₃₁ in H.
+     destruct v₃₁ as [| v₃₁| v₃₁]; rewrite H; simpl.
+      apply series_add_assoc.
+
+      rewrite series_pad_add_distr, series_pad_plus.
+      rewrite plus_comm, <- Pos2Nat.inj_add.
+      apply series_add_assoc.
+
+      Focus 1.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
