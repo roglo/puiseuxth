@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.57 2013-07-28 19:51:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.58 2013-07-28 21:07:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -47,9 +47,9 @@ Definition normal_terms α (fld : field α) cd₁ s :=
        | None => None
        end |}.
 
-Definition normal α (fld : field α) l cd ms :=
-  {| ps_terms := normal_terms fld (cd - 1) (ps_terms ms);
-     ps_valnum := Z.mul (ps_valnum ms) (Z.of_nat cd);
+Definition normal α (fld : field α) l cd ps :=
+  {| ps_terms := normal_terms fld (cd - 1) (ps_terms ps);
+     ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
      ps_comden := l |}.
 
 (* ps_add *)
@@ -570,6 +570,31 @@ rewrite Nat.div_same.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
 
+Lemma divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
+Proof. intros a b; reflexivity. Qed.
+
+Lemma normal_1_r : ∀ α (fld : field α) l ps,
+  normal fld l 1 ps =
+    {| ps_terms := ps_terms ps;
+       ps_valnum := ps_valnum ps;
+       ps_comden := l |}.
+Proof.
+intros α fld l ps.
+unfold normal; simpl.
+rewrite Zmult_1_r.
+unfold normal_terms; simpl.
+f_equal.
+remember (ps_terms ps) as t.
+destruct t.
+simpl.
+f_equal.
+ apply functional_extensionality.
+ intros i.
+ rewrite divmod_div, Nat.div_1_r; reflexivity.
+
+ destruct stop; [ rewrite mult_1_r; reflexivity | reflexivity ].
+Qed.
+
 Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ms₁ ms₂ l,
   l = Plcm (ps_comden ps₁) (ps_comden ps₂)
   → ms₁ = normal fld l (lcm_div ps₁ ps₂) ps₁
@@ -591,6 +616,9 @@ rewrite Nat.div_same.
  rewrite <- Hl.
  rewrite Plcm_comm.
  rewrite <- Hl.
+ rewrite normal_1_r.
+ rewrite normal_1_r.
+ unfold normal; simpl.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
