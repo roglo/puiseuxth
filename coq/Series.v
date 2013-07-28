@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.28 2013-07-27 13:05:26 deraugla Exp $ *)
+(* $Id: Series.v,v 1.29 2013-07-28 10:32:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,7 +28,7 @@ Theorem eq_series_refl : ∀ α (fld : field α), reflexive _ (eq_series fld).
 Proof.
 intros α fld s.
 constructor; [ idtac | reflexivity ].
-intros; apply fld_eq_refl.
+intros; reflexivity.
 Qed.
 
 Theorem eq_series_sym : ∀ α (fld : field α), symmetric _ (eq_series fld).
@@ -37,7 +37,7 @@ intros α fld s₁ s₂ H.
 inversion H; subst.
 constructor; [ idtac | symmetry; assumption ].
 intros i.
-apply fld_eq_sym.
+symmetry.
 apply H0.
 Qed.
 
@@ -47,7 +47,7 @@ intros α fld s₁ s₂ s₃ H₁ H₂.
 inversion H₁; inversion H₂; subst.
 constructor.
  intros.
- eapply fld_eq_trans; [ apply H | apply H3 ].
+ etransitivity; [ apply H | apply H3 ].
 
  transitivity (stop s₂); assumption.
 Qed.

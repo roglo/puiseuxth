@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.5 2013-07-26 18:16:10 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.6 2013-07-28 10:32:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1448,9 +1448,9 @@ induction tl as [| t]; intros.
  remember (k - S j) as n.
  clear; revert n.
  induction i; intros.
-  destruct n; apply fld_eq_refl.
+  destruct n; reflexivity.
 
-  destruct n; [ apply fld_eq_refl | apply IHi ].
+  destruct n; [ reflexivity | apply IHi ].
 
  destruct t as (hq, αh); simpl.
  unfold nofq; simpl.
@@ -1464,7 +1464,7 @@ induction tl as [| t]; intros.
  rewrite <- plus_Snm_nSm, minus_plus.
  remember (q + sh * S q) as s.
  destruct (lt_dec i s) as [Hlt| Hge].
-  rewrite list_nth_pad_lt; [ apply fld_eq_refl | assumption ].
+  rewrite list_nth_pad_lt; [ reflexivity | assumption ].
 
   apply not_gt in Hge.
   remember Hge as H; clear HeqH.
@@ -1506,9 +1506,9 @@ induction tl as [| t]; intros.
       clear.
       revert is.
       induction n; intros.
-       destruct is; apply fld_eq_refl.
+       destruct is; reflexivity.
 
-       destruct is; [ apply fld_eq_refl | apply IHn ].
+       destruct is; [ reflexivity | apply IHn ].
 
       rewrite Heqis, Heqs.
       rewrite plus_comm, mult_comm, plus_n_Sm.

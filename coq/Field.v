@@ -1,6 +1,7 @@
-(* $Id: Field.v,v 1.12 2013-07-28 04:46:39 deraugla Exp $ *)
+(* $Id: Field.v,v 1.13 2013-07-28 10:32:26 deraugla Exp $ *)
 
 Require Import Utf8.
+Require Import Setoid.
 
 Set Implicit Arguments.
 
@@ -16,3 +17,9 @@ Record field α :=
     fld_add_comm : ∀ a b, fld_eq (add a b) (add b a);
     fld_add_assoc : ∀ a b c, fld_eq (add (add a b) c) (add a (add b c));
     fld_add_neutral : ∀ a, fld_eq (add zero a) a }.
+
+Add Parametric Relation α (fld : field α) : α (fld_eq fld)
+ reflexivity proved by (fld_eq_refl fld)
+ symmetry proved by (fld_eq_sym fld)
+ transitivity proved by (fld_eq_trans fld)
+ as fld_eq_rel.

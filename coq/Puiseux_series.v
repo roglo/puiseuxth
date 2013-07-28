@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.45 2013-07-28 04:46:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.46 2013-07-28 10:32:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -236,17 +236,31 @@ intros ps₁ ps₂ Hps.
 inversion Hps; assumption.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@series_pad_left α) with 
-signature eq ==> eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
+Add Parametric Morphism α (fld : field α) : (@series_pad_left α fld) with 
+signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
 Proof.
-intros fld₁ n s₁ s₂ H.
+intros n s₁ s₂ H.
 constructor; simpl.
  intros i.
- destruct (lt_dec i n); [ apply fld_eq_refl | idtac ].
+ destruct (lt_dec i n); [ reflexivity | idtac ].
  inversion H; apply H0.
 
  inversion H; rewrite H1; reflexivity.
 Qed.
+
+(*
+Add Parametric Morphism α (fld : field α) : (@series_add α fld) with 
+signature eq_series fld ==> eq_series fld ==> eq_series fld
+  as series_add_morph.
+Proof.
+intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
+constructor.
+ intros i.
+ simpl.
+ inversion Heq₁; subst.
+ inversion Heq₂; subst.
+bbb.
+*)
 
 (* *)
 
@@ -311,8 +325,8 @@ intros α fld s₁ s₂ n.
 constructor.
  intros i.
  unfold series_add; simpl.
- destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | apply fld_eq_refl ].
- apply fld_eq_sym, fld_add_neutral.
+ destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ symmetry; apply fld_add_neutral.
 
  simpl.
  destruct (stop s₁) as [n₁| ]; [ idtac | reflexivity ].

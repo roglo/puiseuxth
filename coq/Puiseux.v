@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1069 2013-07-26 14:54:12 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1070 2013-07-28 10:32:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -263,8 +263,11 @@ revert v cl.
 induction n; intros; simpl.
  apply list_eq_refl.
 
+(*
  rewrite fld_eq_refl; apply IHn.
-Qed.
+*)
+ apply IHn.
+qed.
 
 Lemma empty_padded : ∀ n v c,
   c ∈ list_pad n v []
@@ -273,7 +276,7 @@ Proof.
 intros n v c H.
 induction n; [ contradiction | idtac ].
 destruct H as [H| H].
- subst v; apply fld_eq_refl.
+ subst v; reflexivity.
 
  apply IHn, H.
 Qed.
@@ -285,7 +288,7 @@ Proof.
 intros n v c cl H.
 destruct n; [ discriminate H | simpl in H ].
 injection H; clear H; intros; subst c cl.
-apply fld_eq_refl.
+reflexivity.
 Qed.
 
 Lemma list_nth_pad_ge : ∀ i s (v : α) cl d,
@@ -392,7 +395,7 @@ apply ext_eq_ser with (fld := fld).
 revert s.
 cofix IHs; intros.
 destruct s as [t s| ].
- eapply eq_ser_term; [ idtac | reflexivity | apply fld_eq_refl | apply IHs ].
+ eapply eq_ser_term; [ idtac | reflexivity | reflexivity | apply IHs ].
  symmetry; rewrite series_eta; reflexivity.
 
  apply eq_ser_end; [ idtac | reflexivity ].
