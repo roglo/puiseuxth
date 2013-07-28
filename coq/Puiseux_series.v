@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.58 2013-07-28 21:07:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.59 2013-07-28 21:22:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -212,15 +212,32 @@ Inductive eq_ps α (fld : field α) ps₁ ps₂ :=
       → ps_comden ps₁ = ps_comden ps₂
         → eq_ps fld ps₁ ps₂.
 
-Theorem ps_compat : ∀ α (fld : field α) ps₁ ps₂,
-  eq_series fld (ps_terms ps₁) (ps_terms ps₂)
-  → ps_valnum ps₁ = ps_valnum ps₂
-    → ps_comden ps₁ = ps_comden ps₂
-      → eq_ps fld ps₁ ps₂.
+Theorem eq_ps_refl : ∀ α (fld : field α), reflexive _ (eq_ps fld).
 Proof.
-intros α fld ps₁ ps₂ Hs Hv Hc.
-constructor; assumption.
+intros α fld ps.
+constructor; reflexivity.
 Qed.
+
+Theorem eq_ps_sym : ∀ α (fld : field α), symmetric _ (eq_ps fld).
+Proof.
+intros α fld ps₁ ps₂ H.
+inversion H; subst.
+constructor; symmetry; assumption.
+Qed.
+
+Theorem eq_ps_trans : ∀ α (fld : field α), transitive _ (eq_ps fld).
+Proof.
+intros α fld ps₁ ps₂ ps₃ H₁ H₂.
+inversion H₁.
+inversion H₂.
+constructor; etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
+ reflexivity proved by (eq_ps_refl fld)
+ symmetry proved by (eq_ps_sym (fld := fld))
+ transitivity proved by (eq_ps_trans (fld := fld))
+ as eq_ps_rel.
 
 Add Parametric Morphism α (fld : field α) : (@mkps α) with 
 signature (eq_series fld) ==> eq ==> eq ==> eq_ps fld as mkps_morph.
@@ -570,9 +587,6 @@ rewrite Nat.div_same.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
 
-Lemma divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
-Proof. intros a b; reflexivity. Qed.
-
 Lemma normal_1_r : ∀ α (fld : field α) l ps,
   normal fld l 1 ps =
     {| ps_terms := ps_terms ps;
@@ -595,7 +609,7 @@ f_equal.
  destruct stop; [ rewrite mult_1_r; reflexivity | reflexivity ].
 Qed.
 
-Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ms₁ ms₂ l,
+Lemma ps_add_normal : ∀ α (fld : field α) ps₁ ps₂ ms₁ ms₂ l,
   l = Plcm (ps_comden ps₁) (ps_comden ps₂)
   → ms₁ = normal fld l (lcm_div ps₁ ps₂) ps₁
     → ms₂ = normal fld l (lcm_div ps₂ ps₁) ps₂
@@ -603,23 +617,22 @@ Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ms₁ ms₂ l,
 Proof.
 intros α fld ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
 unfold ps_add.
-subst ms₁ ms₂.
-simpl.
+subst ms₁ ms₂; simpl.
 rewrite <- Hl.
 rewrite Plcm_diag.
 unfold lcm_div; simpl.
 rewrite Plcm_diag.
 rewrite Nat.div_same.
  simpl.
- rewrite Zmult_1_r.
- rewrite Zmult_1_r.
- rewrite <- Hl.
- rewrite Plcm_comm.
- rewrite <- Hl.
- rewrite normal_1_r.
- rewrite normal_1_r.
+ do 2 rewrite Zmult_1_r.
+ rewrite <- Hl, Plcm_comm, <- Hl.
+ do 2 rewrite normal_1_r.
  unfold normal; simpl.
-bbb.
+ reflexivity.
+
+ pose proof (Pos2Nat.is_pos l) as H.
+ intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+Qed.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
   eq_ps fld

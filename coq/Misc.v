@@ -1,7 +1,8 @@
-(* $Id: Misc.v,v 1.33 2013-07-25 13:58:18 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.34 2013-07-28 21:22:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import NPeano.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -606,3 +607,6 @@ intros n.
 unfold Plcm.
 rewrite Z.lcm_1_l; reflexivity.
 Qed.
+
+Lemma divmod_div : ∀ a b, fst (divmod a b 0 b) = (a / S b)%nat.
+Proof. intros a b; reflexivity. Qed.
