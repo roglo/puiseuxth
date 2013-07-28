@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.49 2013-07-28 11:22:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.50 2013-07-28 11:45:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -321,6 +321,13 @@ constructor.
  rewrite Nat.sub_max_distr_r; reflexivity.
 Qed.
 
+Lemma yyy : ∀ α (fld : field α) m n t,
+  series_pad_left fld m (series_pad_left fld n t) =
+  series_pad_left fld (m + n) t.
+Proof.
+intros α fld m n t.
+bbb.
+
 Lemma zzz : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
@@ -379,6 +386,10 @@ constructor.
      eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
      rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
      rewrite Heqv₂₁; simpl.
+     rewrite series_pad_add_distr, yyy.
+     rewrite plus_comm, <- Pos2Nat.inj_add.
+     apply series_add_assoc.
+
      Focus 1.
 bbb.
 
