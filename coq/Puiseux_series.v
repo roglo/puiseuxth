@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.54 2013-07-28 12:47:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.55 2013-07-28 13:17:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -436,7 +436,24 @@ constructor.
     remember (ps_valnum ps₃ - ps_valnum ps₂)%Z as v₃₂.
     symmetry in Heqv₃₂.
     destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
-     Focus 1.
+     rewrite Heqv₂₁; simpl.
+     apply series_add_assoc.
+
+     rewrite Heqv₂₁; simpl.
+     apply series_add_assoc.
+
+     eapply Zplus_eq_compat in Heqv₂₁; [ idtac | eassumption ].
+     rewrite Z.add_sub_assoc, Z.sub_simpl_r in Heqv₂₁.
+     rewrite Heqv₂₁; simpl.
+     rewrite series_pad_add_distr, series_pad_plus.
+     rewrite <- Pos2Nat.inj_add.
+     apply series_add_assoc.
+
+   pose proof (Pos2Nat.is_pos l) as H.
+   intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+
+  pose proof (Pos2Nat.is_pos l) as H.
+  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 bbb.
 
 Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
