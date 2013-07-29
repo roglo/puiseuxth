@@ -17,4 +17,3 @@ Series.vo Series.glob Series.v.beautified: Series.v Field.vo
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Misc.vo
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
-toto.vo toto.glob toto.v.beautified: toto.v

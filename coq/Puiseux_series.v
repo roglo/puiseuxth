@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.67 2013-07-29 17:09:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.68 2013-07-29 20:30:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -638,11 +638,9 @@ rewrite Nat.div_same.
     rewrite <- Pos2Nat.inj_add.
     apply series_add_assoc.
 
-  pose proof (Pos2Nat.is_pos l) as H.
-  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+  apply pos_to_nat_ne_0.
 
- pose proof (Pos2Nat.is_pos l) as H.
- intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+ apply pos_to_nat_ne_0.
 Qed.
 
 Lemma normal_1_r : ∀ l ps,
@@ -688,8 +686,7 @@ rewrite Nat.div_same.
  unfold normal; simpl.
  reflexivity.
 
- pose proof (Pos2Nat.is_pos l) as H.
- intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
+ apply pos_to_nat_ne_0.
 Qed.
 
 Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
@@ -698,10 +695,84 @@ Proof. intros; subst; reflexivity. Qed.
 Lemma ps_comden_normal : ∀ l m ps, ps_comden (normal l m ps) = l.
 Proof. reflexivity. Qed.
 
-Lemma ps_add_normal_normal : ∀ ps₁ ps₂ l₁ l₂ m₁ m₂,
-  ps_add (normal l₁ m₁ ps₁) (normal l₂ m₂ ps₂) = ps_add ps₁ ps₂.
+Lemma lcm_div_normal : ∀ l₁ m₁ ps₁ l₂ m₂ ps₂,
+  lcm_div (normal l₁ m₁ ps₁) (normal l₂ m₂ ps₂) =
+  (Pos.to_nat (Plcm l₁ l₂) / Pos.to_nat l₁)%nat.
+Proof. reflexivity. Qed.
+
+Lemma Plcm_Zlcm_div : ∀ a b,
+  Z.of_nat (Pos.to_nat (Plcm a b) / Pos.to_nat a) =
+  (Z.lcm (Zpos a) (Zpos b) / Zpos a)%Z.
 Proof.
-bbb.
+intros a b.
+unfold Plcm; simpl.
+unfold Z.to_pos; simpl.
+remember (Z.lcm (' a) (' b)) as l.
+symmetry in Heql.
+destruct l as [| l| l].
+ exfalso.
+ apply Z.lcm_eq_0 in Heql.
+ destruct Heql.
+  revert H; apply Zpos_ne_0.
+
+  revert H; apply Zpos_ne_0.
+
+ pose proof (Z.divide_lcm_l (' a) (' b)) as H.
+ rewrite Heql in H.
+ destruct H as (k, H).
+ rewrite H.
+ rewrite Z.div_mul.
+  destruct k.
+   exfalso.
+   simpl in H.
+   revert H; apply Zpos_ne_0.
+
+   simpl in H.
+   injection H; clear H; intros; subst.
+   rewrite Pos2Nat.inj_mul.
+   rewrite Nat.div_mul.
+    apply positive_nat_Z.
+
+    apply pos_to_nat_ne_0.
+
+   simpl in H.
+   discriminate H.
+
+  intros HH; discriminate HH.
+
+ exfalso.
+ unfold Z.lcm in Heql.
+ pose proof (Zlt_neg_0 l) as H.
+ rewrite <- Heql in H.
+ apply Zlt_not_le in H.
+ apply H, Z.abs_nonneg.
+Qed.
+
+Lemma ps_add_normal_normal : ∀ ps₁ ps₂,
+  ps_add
+    (normal (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₁ ps₂) ps₁)
+    (normal (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₂ ps₁) ps₂) =
+  ps_add ps₁ ps₂.
+Proof.
+intros ps₁ ps₂.
+unfold ps_add; simpl.
+rewrite Plcm_diag.
+rewrite lcm_div_normal.
+rewrite lcm_div_normal.
+rewrite Plcm_diag.
+rewrite Nat.div_same.
+ simpl.
+ rewrite Zmult_1_r.
+ rewrite Zmult_1_r.
+ unfold normal; simpl.
+ rewrite normal_terms_0.
+ rewrite normal_terms_0.
+ rewrite Zmult_1_r.
+ rewrite Zmult_1_r.
+ reflexivity.
+
+ apply pos_to_nat_ne_0.
+Qed.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps
@@ -738,9 +809,9 @@ eapply ps_add_normal; [ reflexivity | simpl | simpl ].
  do 2 rewrite ps_comden_normal.
  rewrite Plcm_diag.
  unfold lcm_div.
- rewrite ps_comden_normal.
- rewrite ps_comden_normal.
+ do 2 rewrite ps_comden_normal.
  rewrite Plcm_diag.
  rewrite Nat.div_same.
- Focus 1.
+  rewrite ps_add_normal_normal.
+  Focus 1.
 bbb.
