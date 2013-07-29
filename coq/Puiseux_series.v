@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.65 2013-07-29 13:55:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.66 2013-07-29 14:03:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -282,10 +282,10 @@ inversion Heq; subst.
 apply H.
 Qed.
 
-Add Parametric Morphism : normal with
-signature eq ==> eq ==> eq_ps ==> eq_ps as normal_morph.
+Add Parametric Morphism l m : (normal l m) with
+signature eq_ps ==> eq_ps as normal_morph.
 Proof.
-intros l m ps₁ ps₂ H.
+intros ps₁ ps₂ H.
 inversion H.
 inversion H0; subst.
 constructor.
@@ -669,8 +669,8 @@ Qed.
 
 Lemma ps_add_normal : ∀ ps₁ ps₂ ms₁ ms₂ l,
   l = Plcm (ps_comden ps₁) (ps_comden ps₂)
-  → eq_ps ms₁ (normal l (lcm_div ps₁ ps₂) ps₁)
-    → eq_ps ms₂ (normal l (lcm_div ps₂ ps₁) ps₂)
+  → eq ms₁ (normal l (lcm_div ps₁ ps₂) ps₁)
+    → eq ms₂ (normal l (lcm_div ps₂ ps₁) ps₂)
       → eq_ps (ps_add ps₁ ps₂) (ps_add ms₁ ms₂).
 Proof.
 intros ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
@@ -728,3 +728,4 @@ apply
 rewrite H; clear H.
 eapply ps_add_normal; [ reflexivity | simpl | simpl ].
  Focus 1.
+bbb.
