@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.60 2013-07-29 04:47:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.61 2013-07-29 04:59:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -381,7 +381,8 @@ Section fld.
 Variable α : Type.
 Variable fld : field α.
 
-Notation "a ≍ b" := (eq_ps fld a b)  (at level 70).
+Notation "a =ₚₛ b" := (eq_ps fld a b)  (at level 70).
+Notation "a =ₛ b" := (eq_series fld a b)  (at level 70).
 
 Lemma ps_add_comm : ∀ ps₁ ps₂,
   eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
