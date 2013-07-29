@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.66 2013-07-29 14:03:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.67 2013-07-29 17:09:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -692,8 +692,16 @@ rewrite Nat.div_same.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
 
-Lemma zzz : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
+Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
 Proof. intros; subst; reflexivity. Qed.
+
+Lemma ps_comden_normal : ∀ l m ps, ps_comden (normal l m ps) = l.
+Proof. reflexivity. Qed.
+
+Lemma ps_add_normal_normal : ∀ ps₁ ps₂ l₁ l₂ m₁ m₂,
+  ps_add (normal l₁ m₁ ps₁) (normal l₂ m₂ ps₂) = ps_add ps₁ ps₂.
+Proof.
+bbb.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps
@@ -702,16 +710,16 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 remember (ps_add ps₁ ps₂) as a.
-apply zzz in Heqa.
+apply eq_eq_ps in Heqa.
 rewrite ps_add_normal in Heqa; try reflexivity.
 remember (ps_add a ps₂) as b.
-apply zzz in Heqb.
+apply eq_eq_ps in Heqb.
 rewrite ps_add_normal in Heqb; try reflexivity.
 remember (ps_add ps₂ ps₃) as c.
-apply zzz in Heqc.
+apply eq_eq_ps in Heqc.
 rewrite ps_add_normal in Heqc; try reflexivity.
 remember (ps_add ps₁ c) as d.
-apply zzz in Heqd.
+apply eq_eq_ps in Heqd.
 rewrite ps_add_normal in Heqd; try reflexivity.
 rewrite Heqb, Heqd.
 remember Heqa as H; clear HeqH.
@@ -727,5 +735,12 @@ apply
  in H.
 rewrite H; clear H.
 eapply ps_add_normal; [ reflexivity | simpl | simpl ].
+ do 2 rewrite ps_comden_normal.
+ rewrite Plcm_diag.
+ unfold lcm_div.
+ rewrite ps_comden_normal.
+ rewrite ps_comden_normal.
+ rewrite Plcm_diag.
+ rewrite Nat.div_same.
  Focus 1.
 bbb.
