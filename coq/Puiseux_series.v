@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.64 2013-07-29 10:38:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.65 2013-07-29 13:55:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -282,10 +282,10 @@ inversion Heq; subst.
 apply H.
 Qed.
 
-Add Parametric Morphism l m : (normal l m) with
-signature eq_ps ==> eq_ps as normal_morph.
+Add Parametric Morphism : normal with
+signature eq ==> eq ==> eq_ps ==> eq_ps as normal_morph.
 Proof.
-intros ps₁ ps₂ H.
+intros l m ps₁ ps₂ H.
 inversion H.
 inversion H0; subst.
 constructor.
@@ -302,6 +302,24 @@ constructor.
  simpl; rewrite H1; reflexivity.
 
  reflexivity.
+Qed.
+
+Add Parametric Morphism : valnum_diff with 
+signature eq_ps ==> eq_ps ==> @eq Z ==> eq_ps as valnum_diff_morph.
+Proof.
+intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂ d.
+inversion Heq₁.
+inversion Heq₂.
+unfold valnum_diff.
+destruct d; simpl.
+ constructor; [ simpl | assumption | assumption ].
+ rewrite H, H2; reflexivity.
+
+ unfold valnum_diff_pos; simpl.
+ rewrite H, H0, H1, H2; reflexivity.
+
+ unfold valnum_diff_neg; simpl.
+ rewrite H, H2, H3, H4; reflexivity.
 Qed.
 
 Add Parametric Morphism : ps_add with 
@@ -651,8 +669,8 @@ Qed.
 
 Lemma ps_add_normal : ∀ ps₁ ps₂ ms₁ ms₂ l,
   l = Plcm (ps_comden ps₁) (ps_comden ps₂)
-  → ms₁ = normal l (lcm_div ps₁ ps₂) ps₁
-    → ms₂ = normal l (lcm_div ps₂ ps₁) ps₂
+  → eq_ps ms₁ (normal l (lcm_div ps₁ ps₂) ps₁)
+    → eq_ps ms₂ (normal l (lcm_div ps₂ ps₁) ps₂)
       → eq_ps (ps_add ps₁ ps₂) (ps_add ms₁ ms₂).
 Proof.
 intros ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
@@ -696,15 +714,17 @@ remember (ps_add ps₁ c) as d.
 apply zzz in Heqd.
 rewrite ps_add_normal in Heqd; try reflexivity.
 rewrite Heqb, Heqd.
+remember Heqa as H; clear HeqH.
 apply
  normal_morph
   with (l := Plcm (ps_comden a) (ps_comden ps₂)) (m := lcm_div a ps₂) 
- in Heqa.
-rewrite Heqa.
+ in H.
+rewrite H; clear H.
+remember Heqc as H; clear HeqH.
 apply
  normal_morph
   with (l := Plcm (ps_comden ps₁) (ps_comden c)) (m := lcm_div c ps₁) 
- in Heqc.
-rewrite Heqc.
-eapply ps_add_normal; [ reflexivity | idtac | idtac ].
-bbb.
+ in H.
+rewrite H; clear H.
+eapply ps_add_normal; [ reflexivity | simpl | simpl ].
+ Focus 1.
