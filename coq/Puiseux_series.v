@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.62 2013-07-29 08:35:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.63 2013-07-29 09:58:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -24,7 +24,23 @@ Record puiseux_series α := mkps
 Definition series_head : ∀ α, (α → Prop) → nat → series α → option (nat * α).
 Proof. Admitted.
 
-Definition valuation α fld (ps : puiseux_series α) :=
+Section fld.
+
+Variable α : Type.
+Variable fld : field α.
+
+Inductive eq_ps ps₁ ps₂ :=
+  eq_ps_norm :
+    eq_series fld (ps_terms ps₁) (ps_terms ps₂)
+    → ps_valnum ps₁ = ps_valnum ps₂
+      → ps_comden ps₁ = ps_comden ps₂
+        → eq_ps ps₁ ps₂.
+
+Notation "a ≈ b" := (eq_ps a b)  (at level 70).
+Notation "a ≃ b" := (eq_series fld a b)  (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b)  (at level 70).
+
+Definition valuation (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (n, c) =>
       Some (Qmake (Z.add (ps_valnum ps) (Z.of_nat n)) (ps_comden ps))
@@ -32,13 +48,13 @@ Definition valuation α fld (ps : puiseux_series α) :=
       None
   end.
 
-Definition valuation_coeff α fld (ps : puiseux_series α) :=
+Definition valuation_coeff (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (_, c) => c
   | None => zero fld
   end.
 
-Definition normal_terms α (fld : field α) cd₁ s :=
+Definition normal_terms cd₁ s :=
   {| terms i :=
        if zerop (i mod (S cd₁)) then terms s (i / S cd₁) else zero fld;
      stop :=
@@ -47,14 +63,14 @@ Definition normal_terms α (fld : field α) cd₁ s :=
        | None => None
        end |}.
 
-Definition normal α (fld : field α) l cd ps :=
-  {| ps_terms := normal_terms fld (cd - 1) (ps_terms ps);
+Definition normal l cd ps :=
+  {| ps_terms := normal_terms (cd - 1) (ps_terms ps);
      ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
      ps_comden := l |}.
 
 (* ps_add *)
 
-Definition series_pad_left α (fld : field α) n s :=
+Definition series_pad_left n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
      stop :=
        match stop s with
@@ -66,45 +82,45 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁)).
 
-Definition valnum_diff_0 α (fld : field α) ps₁ ps₂ :=
+Definition valnum_diff_0 ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
      ps_valnum := ps_valnum ps₁;
      ps_comden := ps_comden ps₁ |}.
 
-Definition valnum_diff_pos α (fld : field α) n ps₁ ps₂ :=
+Definition valnum_diff_pos n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (ps_terms ps₁)
-         (series_pad_left fld (Pos.to_nat n) (ps_terms ps₂));
+         (series_pad_left (Pos.to_nat n) (ps_terms ps₂));
      ps_valnum := ps_valnum ps₁;
      ps_comden := ps_comden ps₁ |}.
 
-Definition valnum_diff_neg α (fld : field α) n ps₁ ps₂ :=
+Definition valnum_diff_neg n ps₁ ps₂ :=
   {| ps_terms :=
-       series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ps₁))
+       series_add fld (series_pad_left (Pos.to_nat n) (ps_terms ps₁))
          (ps_terms ps₂);
      ps_valnum := ps_valnum ps₂;
      ps_comden := ps_comden ps₂ |}.
 
-Definition valnum_diff α (fld : field α) ms₁ ms₂ d :=
+Definition valnum_diff ms₁ ms₂ d :=
   match d with
-  | Z0 => valnum_diff_0 fld ms₁ ms₂
-  | Zpos n => valnum_diff_pos fld n ms₁ ms₂
-  | Zneg n => valnum_diff_neg fld n ms₁ ms₂
+  | Z0 => valnum_diff_0 ms₁ ms₂
+  | Zpos n => valnum_diff_pos n ms₁ ms₂
+  | Zneg n => valnum_diff_neg n ms₁ ms₂
   end.
 
-Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  let ms₁ := normal fld l (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := normal fld l (lcm_div ps₂ ps₁) ps₂ in
-  valnum_diff fld ms₁ ms₂ (Z.sub (ps_valnum ms₂) (ps_valnum ms₁)).
+  let ms₁ := normal l (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := normal l (lcm_div ps₂ ps₁) ps₂ in
+  valnum_diff ms₁ ms₂ (Z.sub (ps_valnum ms₂) (ps_valnum ms₁)).
 
 (* ps_mul *)
 
-Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
+Fixpoint sum_mul_coeff i ni₁ s₁ s₂ :=
   match ni₁ with
   | O => None
   | S ni =>
-      match sum_mul_coeff fld (S i) ni s₁ s₂ with
+      match sum_mul_coeff (S i) ni s₁ s₂ with
       | Some c =>
           match series_nth i s₁ with
           | Some c₁ =>
@@ -126,9 +142,9 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
       end
   end.
 
-Definition ps_mul_term α fld (s₁ s₂ : series α) :=
+Definition ps_mul_term (s₁ s₂ : series α) :=
   {| terms i :=
-       match sum_mul_coeff fld 0 (S i) s₁ s₂ with
+       match sum_mul_coeff 0 (S i) s₁ s₂ with
        | Some c => c
        | None => zero fld
        end;
@@ -142,21 +158,21 @@ Definition ps_mul_term α fld (s₁ s₂ : series α) :=
        | None => None
        end |}.
 
-Definition ps_mul α fld (ms₁ ms₂ : puiseux_series α) :=
+Definition ps_mul (ms₁ ms₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
   let ms₁ :=
-    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₁))) ms₁
+    normal l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₁))) ms₁
   in
   let ms₂ :=
-    normal fld l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₂))) ms₂
+    normal l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₂))) ms₂
   in
-  {| ps_terms := ps_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
+  {| ps_terms := ps_mul_term (ps_terms ms₁) (ps_terms ms₂);
      ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
      ps_comden := l |}.
 
 (* *)
 
-Lemma Zmatch_minus : ∀ α x y (a : α) f g,
+Lemma Zmatch_minus : ∀ x y (a : α) f g,
   match (x - y)%Z with
   | 0%Z => a
   | Zpos n => f n
@@ -168,7 +184,7 @@ Lemma Zmatch_minus : ∀ α x y (a : α) f g,
   | Zneg n => f n
   end.
 Proof.
-intros α x y a f g.
+intros x y a f g.
 remember (x - y)%Z as xy.
 symmetry in Heqxy.
 destruct xy.
@@ -186,7 +202,7 @@ destruct xy.
  rewrite Heqxy; reflexivity.
 Qed.
 
-Lemma Zmatch_split : ∀ α x (a₁ a₂ : α) f₁ f₂ g₁ g₂,
+Lemma Zmatch_split : ∀ x (a₁ a₂ : α) f₁ f₂ g₁ g₂,
   a₁ = a₂
   → (∀ n, f₁ n = f₂ n)
     → (∀ n, g₁ n = g₂ n)
@@ -201,59 +217,52 @@ Lemma Zmatch_split : ∀ α x (a₁ a₂ : α) f₁ f₂ g₁ g₂,
         | Zneg n => g₂ n
         end.
 Proof.
-intros α x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
+intros x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
 destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
 
-Inductive eq_ps α (fld : field α) ps₁ ps₂ :=
-  eq_ps_norm :
-    eq_series fld (ps_terms ps₁) (ps_terms ps₂)
-    → ps_valnum ps₁ = ps_valnum ps₂
-      → ps_comden ps₁ = ps_comden ps₂
-        → eq_ps fld ps₁ ps₂.
-
-Theorem eq_ps_refl : ∀ α (fld : field α), reflexive _ (eq_ps fld).
+Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
-intros α fld ps.
+intros ps.
 constructor; reflexivity.
 Qed.
 
-Theorem eq_ps_sym : ∀ α (fld : field α), symmetric _ (eq_ps fld).
+Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
-intros α fld ps₁ ps₂ H.
+intros ps₁ ps₂ H.
 inversion H; subst.
 constructor; symmetry; assumption.
 Qed.
 
-Theorem eq_ps_trans : ∀ α (fld : field α), transitive _ (eq_ps fld).
+Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
-intros α fld ps₁ ps₂ ps₃ H₁ H₂.
+intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁.
 inversion H₂.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
- reflexivity proved by (eq_ps_refl fld)
- symmetry proved by (eq_ps_sym (fld := fld))
- transitivity proved by (eq_ps_trans (fld := fld))
+Add Parametric Relation : (puiseux_series α) eq_ps
+ reflexivity proved by eq_ps_refl
+ symmetry proved by eq_ps_sym
+ transitivity proved by eq_ps_trans
  as eq_ps_rel.
 
-Add Parametric Morphism α (fld : field α) : (@mkps α) with 
-signature (eq_series fld) ==> eq ==> eq ==> eq_ps fld as mkps_morph.
+Add Parametric Morphism : (@mkps α) with 
+signature (eq_series fld) ==> eq ==> eq ==> eq_ps as mkps_morph.
 Proof.
 intros s₁ s₂ Hs v c.
 constructor; [ assumption | reflexivity | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@ps_terms α) with 
-signature (eq_ps fld) ==> eq_series fld as ps_terms_morph.
+Add Parametric Morphism : (@ps_terms α) with 
+signature eq_ps ==> eq_series fld as ps_terms_morph.
 Proof.
 intros ps₁ ps₂ Hps.
 inversion Hps; assumption.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@series_pad_left α fld) with 
+Add Parametric Morphism : series_pad_left with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
 Proof.
 intros n s₁ s₂ H.
@@ -265,7 +274,7 @@ constructor; simpl.
  inversion H; rewrite H1; reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@terms α) with
+Add Parametric Morphism : (@terms α) with
 signature eq_series fld ==> @eq nat ==> fld_eq fld as terms_morph.
 Proof.
 intros s₁ s₂ Heq i.
@@ -273,8 +282,30 @@ inversion Heq; subst.
 apply H.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@ps_add α fld) with 
-signature eq_ps fld ==> eq_ps fld ==> eq_ps fld as ps_add_morph.
+Add Parametric Morphism l m : (normal l m) with
+signature eq_ps ==> eq_ps as normal_morph.
+Proof.
+intros ps₁ ps₂ H.
+inversion H.
+inversion H0; subst.
+constructor.
+ constructor.
+  intros i.
+  unfold normal; simpl.
+  rewrite divmod_div.
+  rewrite divmod_mod.
+  destruct (zerop (i mod S (m - 1))); [ idtac | reflexivity ].
+  rewrite H3; reflexivity.
+
+  simpl; rewrite H4; reflexivity.
+
+ simpl; rewrite H1; reflexivity.
+
+ reflexivity.
+Qed.
+
+Add Parametric Morphism : ps_add with 
+signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
 (* à nettoyer, peut-être *)
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
@@ -376,26 +407,27 @@ Qed.
 
 (* *)
 
-Section fld.
-
-Variable α : Type.
-Variable fld : field α.
-
-Notation "a ≈ b" := (eq_ps fld a b)  (at level 70).
-Notation "a ≃ b" := (eq_series fld a b)  (at level 70).
-
-Lemma ps_add_comm : ∀ ps₁ ps₂,
-  eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
+Lemma ps_add_comm : ∀ ps₁ ps₂, eq_ps (ps_add ps₁ ps₂) (ps_add ps₂ ps₁).
 Proof.
 intros ps₁ ps₂.
 unfold ps_add, valnum_diff; simpl.
-rewrite Zmatch_minus.
-rewrite Plcm_comm.
 remember
  (ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂) -
   ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁))%Z as d.
-constructor; destruct d; simpl; try rewrite series_add_comm; try reflexivity.
-apply Zminus_eq; symmetry; assumption.
+symmetry in Heqd.
+remember
+ (ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁) -
+  ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂))%Z as e.
+rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
+rewrite Z.add_opp_l in Heqe.
+rewrite Heqd in Heqe; subst e.
+constructor.
+ destruct d; simpl; rewrite series_add_comm; reflexivity.
+
+ destruct d; try reflexivity.
+ apply Zminus_eq; assumption.
+
+ destruct d; apply Plcm_comm.
 Qed.
 
 Lemma Plcm_diag : ∀ a, Plcm a a = a.
@@ -408,7 +440,7 @@ Qed.
 
 Lemma same_comden_valnum_diff : ∀ ps₁ ps₂ d,
   ps_comden ps₁ = ps_comden ps₂
-  → ps_comden (valnum_diff fld ps₁ ps₂ d) = ps_comden ps₁.
+  → ps_comden (valnum_diff ps₁ ps₂ d) = ps_comden ps₁.
 Proof.
 intros ps₁ ps₂ d H.
 unfold valnum_diff; simpl.
@@ -418,7 +450,7 @@ Qed.
 Axiom functional_extensionality : ∀ α β (f g : α → β),
   (∀ x, f x = g x) → f = g.
 
-Lemma normal_terms_0 : ∀ t, normal_terms fld 0 t = t.
+Lemma normal_terms_0 : ∀ t, normal_terms 0 t = t.
 Proof.
 intros t.
 unfold normal_terms.
@@ -438,8 +470,8 @@ Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
   eq_series fld
-    (series_pad_left fld n (series_add fld s₁ s₂))
-    (series_add fld (series_pad_left fld n s₁) (series_pad_left fld n s₂)).
+    (series_pad_left n (series_add fld s₁ s₂))
+    (series_add fld (series_pad_left n s₁) (series_pad_left n s₂)).
 Proof.
 intros s₁ s₂ n.
 constructor.
@@ -456,8 +488,8 @@ constructor.
 Qed.
 
 Lemma series_pad_plus : ∀ m n t,
-  series_pad_left fld m (series_pad_left fld n t) =
-  series_pad_left fld (m + n) t.
+  series_pad_left m (series_pad_left n t) =
+  series_pad_left (m + n) t.
 Proof.
 intros m n t.
 unfold series_pad_left; simpl.
@@ -491,9 +523,9 @@ Lemma ps_add_assoc_normal : ∀ ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
     → l = ps_comden ps₃
-      → eq_ps fld
-          (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
-          (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
+      → eq_ps
+          (ps_add (ps_add ps₁ ps₂) ps₃)
+          (ps_add ps₁ (ps_add ps₂ ps₃)).
 Proof.
 intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
 unfold ps_add; simpl.
@@ -596,7 +628,7 @@ rewrite Nat.div_same.
 Qed.
 
 Lemma normal_1_r : ∀ l ps,
-  normal fld l 1 ps =
+  normal l 1 ps =
     {| ps_terms := ps_terms ps;
        ps_valnum := ps_valnum ps;
        ps_comden := l |}.
@@ -619,9 +651,9 @@ Qed.
 
 Lemma ps_add_normal : ∀ ps₁ ps₂ ms₁ ms₂ l,
   l = Plcm (ps_comden ps₁) (ps_comden ps₂)
-  → ms₁ = normal fld l (lcm_div ps₁ ps₂) ps₁
-    → ms₂ = normal fld l (lcm_div ps₂ ps₁) ps₂
-      → eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ms₁ ms₂).
+  → ms₁ = normal l (lcm_div ps₁ ps₂) ps₁
+    → ms₂ = normal l (lcm_div ps₂ ps₁) ps₂
+      → eq_ps (ps_add ps₁ ps₂) (ps_add ms₁ ms₂).
 Proof.
 intros ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
 unfold ps_add.
@@ -642,12 +674,28 @@ rewrite Nat.div_same.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
 
+Lemma zzz : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
+Proof. intros; subst; reflexivity. Qed.
+
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  eq_ps fld
-    (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
-    (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
+  eq_ps
+    (ps_add (ps_add ps₁ ps₂) ps₂)
+    (ps_add ps₁ (ps_add ps₂ ps₃)).
 Proof.
 intros ps₁ ps₂ ps₃.
+remember (ps_add ps₁ ps₂) as a.
+apply zzz in Heqa.
+rewrite ps_add_normal in Heqa; try reflexivity.
+remember (ps_add a ps₂) as b.
+apply zzz in Heqb.
+rewrite ps_add_normal in Heqb; try reflexivity.
+remember (ps_add ps₂ ps₃) as c.
+apply zzz in Heqc.
+rewrite ps_add_normal in Heqc; try reflexivity.
+remember (ps_add ps₁ c) as d.
+apply zzz in Heqd.
+rewrite ps_add_normal in Heqd; try reflexivity.
+rewrite Heqb, Heqd.
 bbb.
 
 constructor.
