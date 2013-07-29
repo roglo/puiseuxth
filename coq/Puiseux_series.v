@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.63 2013-07-29 09:58:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.64 2013-07-29 10:38:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -696,14 +696,15 @@ remember (ps_add ps₁ c) as d.
 apply zzz in Heqd.
 rewrite ps_add_normal in Heqd; try reflexivity.
 rewrite Heqb, Heqd.
-bbb.
-
-constructor.
- unfold ps_add; simpl.
- remember
-  (ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁) -
-   ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂)) as v₁.
- remember
-  (ps_valnum ps₃ * Z.of_nat (lcm_div ps₃ ps₂) -
-   ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₃)) as v₂.
+apply
+ normal_morph
+  with (l := Plcm (ps_comden a) (ps_comden ps₂)) (m := lcm_div a ps₂) 
+ in Heqa.
+rewrite Heqa.
+apply
+ normal_morph
+  with (l := Plcm (ps_comden ps₁) (ps_comden c)) (m := lcm_div c ps₁) 
+ in Heqc.
+rewrite Heqc.
+eapply ps_add_normal; [ reflexivity | idtac | idtac ].
 bbb.
