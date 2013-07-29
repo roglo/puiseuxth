@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.59 2013-07-28 21:22:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.60 2013-07-29 04:47:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -376,10 +376,17 @@ Qed.
 
 (* *)
 
-Lemma ps_add_comm : ∀ α (fld : field α) ps₁ ps₂,
+Section fld.
+
+Variable α : Type.
+Variable fld : field α.
+
+Notation "a ≍ b" := (eq_ps fld a b)  (at level 70).
+
+Lemma ps_add_comm : ∀ ps₁ ps₂,
   eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁).
 Proof.
-intros α fld ps₁ ps₂.
+intros ps₁ ps₂.
 unfold ps_add, valnum_diff; simpl.
 rewrite Zmatch_minus.
 rewrite Plcm_comm.
@@ -398,11 +405,11 @@ rewrite Z.lcm_diag.
 reflexivity.
 Qed.
 
-Lemma same_comden_valnum_diff : ∀ α (fld : field α) ps₁ ps₂ d,
+Lemma same_comden_valnum_diff : ∀ ps₁ ps₂ d,
   ps_comden ps₁ = ps_comden ps₂
   → ps_comden (valnum_diff fld ps₁ ps₂ d) = ps_comden ps₁.
 Proof.
-intros α fld ps₁ ps₂ d H.
+intros ps₁ ps₂ d H.
 unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
@@ -410,9 +417,9 @@ Qed.
 Axiom functional_extensionality : ∀ α β (f g : α → β),
   (∀ x, f x = g x) → f = g.
 
-Lemma normal_terms_0 : ∀ α (fld : field α) t, normal_terms fld 0 t = t.
+Lemma normal_terms_0 : ∀ t, normal_terms fld 0 t = t.
 Proof.
-intros α fld t.
+intros t.
 unfold normal_terms.
 destruct t.
 f_equal.
@@ -428,12 +435,12 @@ f_equal.
   reflexivity.
 Qed.
 
-Lemma series_pad_add_distr : ∀ α (fld : field α) s₁ s₂ n,
+Lemma series_pad_add_distr : ∀ s₁ s₂ n,
   eq_series fld
     (series_pad_left fld n (series_add fld s₁ s₂))
     (series_add fld (series_pad_left fld n s₁) (series_pad_left fld n s₂)).
 Proof.
-intros α fld s₁ s₂ n.
+intros s₁ s₂ n.
 constructor.
  intros i.
  unfold series_add; simpl.
@@ -447,11 +454,11 @@ constructor.
  rewrite Nat.sub_max_distr_r; reflexivity.
 Qed.
 
-Lemma series_pad_plus : ∀ α (fld : field α) m n t,
+Lemma series_pad_plus : ∀ m n t,
   series_pad_left fld m (series_pad_left fld n t) =
   series_pad_left fld (m + n) t.
 Proof.
-intros α fld m n t.
+intros m n t.
 unfold series_pad_left; simpl.
 f_equal.
  apply functional_extensionality.
@@ -479,7 +486,7 @@ f_equal.
  rewrite plus_comm, Nat.sub_add_distr; reflexivity.
 Qed.
 
-Lemma ps_add_assoc_normal : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
+Lemma ps_add_assoc_normal : ∀ ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
     → l = ps_comden ps₃
@@ -487,7 +494,7 @@ Lemma ps_add_assoc_normal : ∀ α (fld : field α) ps₁ ps₂ ps₃ l,
           (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
           (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
 Proof.
-intros α fld ps₁ ps₂ ps₃ l H₁ H₂ H₃.
+intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
 unfold ps_add; simpl.
 rewrite <- H₁, <- H₂, <- H₃.
 rewrite Plcm_diag.
@@ -587,13 +594,13 @@ rewrite Nat.div_same.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
 
-Lemma normal_1_r : ∀ α (fld : field α) l ps,
+Lemma normal_1_r : ∀ l ps,
   normal fld l 1 ps =
     {| ps_terms := ps_terms ps;
        ps_valnum := ps_valnum ps;
        ps_comden := l |}.
 Proof.
-intros α fld l ps.
+intros l ps.
 unfold normal; simpl.
 rewrite Zmult_1_r.
 unfold normal_terms; simpl.
@@ -609,13 +616,13 @@ f_equal.
  destruct stop; [ rewrite mult_1_r; reflexivity | reflexivity ].
 Qed.
 
-Lemma ps_add_normal : ∀ α (fld : field α) ps₁ ps₂ ms₁ ms₂ l,
+Lemma ps_add_normal : ∀ ps₁ ps₂ ms₁ ms₂ l,
   l = Plcm (ps_comden ps₁) (ps_comden ps₂)
   → ms₁ = normal fld l (lcm_div ps₁ ps₂) ps₁
     → ms₂ = normal fld l (lcm_div ps₂ ps₁) ps₂
       → eq_ps fld (ps_add fld ps₁ ps₂) (ps_add fld ms₁ ms₂).
 Proof.
-intros α fld ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
+intros ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
 unfold ps_add.
 subst ms₁ ms₂; simpl.
 rewrite <- Hl.
@@ -634,12 +641,12 @@ rewrite Nat.div_same.
  intros HH; rewrite HH in H; apply lt_irrefl in H; contradiction.
 Qed.
 
-Lemma ps_add_assoc : ∀ α (fld : field α) ps₁ ps₂ ps₃,
+Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps fld
     (ps_add fld (ps_add fld ps₁ ps₂) ps₂)
     (ps_add fld ps₁ (ps_add fld ps₂ ps₃)).
 Proof.
-intros α fld ps₁ ps₂ ps₃.
+intros ps₁ ps₂ ps₃.
 bbb.
 
 constructor.
