@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.69 2013-07-30 08:40:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.70 2013-07-30 09:20:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -827,5 +827,7 @@ eapply ps_add_normal; [ reflexivity | simpl | simpl ].
   rewrite ps_add_normal_normal.
   erewrite add_normal_comden with (c := c); [ idtac | eassumption ].
   erewrite add_normal_comden with (c := a); [ idtac | eassumption ].
+  rewrite Plcm_assoc.
+  remember (Plcm (ps_comden ps₁) (Plcm (ps_comden ps₂) (ps_comden ps₃))) as l.
   Focus 1.
 bbb.

@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.36 2013-07-29 20:30:40 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.37 2013-07-30 09:20:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -599,6 +599,33 @@ intros a b.
 unfold Plcm.
 rewrite Z.lcm_comm.
 reflexivity.
+Qed.
+
+Lemma Zlcm_pos_pos_is_pos : ∀ a b, (0 < Z.lcm (' a) (' b))%Z.
+Proof.
+intros a b.
+remember (Z.lcm (' a) (' b)) as l.
+symmetry in Heql.
+destruct l as [| l| l].
+ apply Z.lcm_eq_0 in Heql.
+ destruct Heql as [Heql | Heql]; exfalso; revert Heql; apply Zpos_ne_0.
+
+ apply Pos2Z.is_pos.
+
+ pose proof (Z.lcm_nonneg (' a) (' b)) as H.
+ rewrite Heql in H.
+ apply Zle_not_lt in H.
+ exfalso; apply H.
+ apply Zlt_neg_0.
+Qed.
+
+Lemma Plcm_assoc : ∀ a b c, Plcm (Plcm a b) c = Plcm a (Plcm b c).
+Proof.
+intros a b c.
+unfold Plcm; simpl.
+rewrite Z2Pos.id; [ idtac | apply Zlcm_pos_pos_is_pos ].
+rewrite Z2Pos.id; [ idtac | apply Zlcm_pos_pos_is_pos ].
+rewrite Z.lcm_assoc; reflexivity.
 Qed.
 
 Lemma Plcm_1_l : ∀ n, Plcm 1 n = n.
