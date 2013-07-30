@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.68 2013-07-29 20:30:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.69 2013-07-30 08:40:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -774,16 +774,28 @@ rewrite Nat.div_same.
  apply pos_to_nat_ne_0.
 Qed.
 
+Lemma add_normal_comden : ∀ c l m₁ m₂ ps₁ ps₂,
+  c ≈ ps_add (normal l m₁ ps₁) (normal l m₂ ps₂)
+  → ps_comden c = l.
+Proof.
+intros c l m₁ m₂ ps₁ ps₂ Hc.
+inversion Hc.
+rewrite H1; simpl.
+unfold ps_add; simpl.
+rewrite Plcm_diag.
+rewrite same_comden_valnum_diff; reflexivity.
+Qed.
+
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps
-    (ps_add (ps_add ps₁ ps₂) ps₂)
+    (ps_add (ps_add ps₁ ps₂) ps₃)
     (ps_add ps₁ (ps_add ps₂ ps₃)).
 Proof.
 intros ps₁ ps₂ ps₃.
 remember (ps_add ps₁ ps₂) as a.
 apply eq_eq_ps in Heqa.
 rewrite ps_add_normal in Heqa; try reflexivity.
-remember (ps_add a ps₂) as b.
+remember (ps_add a ps₃) as b.
 apply eq_eq_ps in Heqb.
 rewrite ps_add_normal in Heqb; try reflexivity.
 remember (ps_add ps₂ ps₃) as c.
@@ -796,7 +808,7 @@ rewrite Heqb, Heqd.
 remember Heqa as H; clear HeqH.
 apply
  normal_morph
-  with (l := Plcm (ps_comden a) (ps_comden ps₂)) (m := lcm_div a ps₂) 
+  with (l := Plcm (ps_comden a) (ps_comden ps₃)) (m := lcm_div a ps₃) 
  in H.
 rewrite H; clear H.
 remember Heqc as H; clear HeqH.
@@ -813,5 +825,7 @@ eapply ps_add_normal; [ reflexivity | simpl | simpl ].
  rewrite Plcm_diag.
  rewrite Nat.div_same.
   rewrite ps_add_normal_normal.
+  erewrite add_normal_comden with (c := c); [ idtac | eassumption ].
+  erewrite add_normal_comden with (c := a); [ idtac | eassumption ].
   Focus 1.
 bbb.
