@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.70 2013-07-30 09:20:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.71 2013-07-30 15:15:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -817,6 +817,7 @@ apply
   with (l := Plcm (ps_comden ps₁) (ps_comden c)) (m := lcm_div c ps₁) 
  in H.
 rewrite H; clear H.
+bbb.
 eapply ps_add_normal; [ reflexivity | simpl | simpl ].
  do 2 rewrite ps_comden_normal.
  rewrite Plcm_diag.
