@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.78 2013-07-31 09:38:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.79 2013-07-31 15:04:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -856,6 +856,8 @@ remember Heqa as H; clear HeqH.
 rewrite Hca, Hcc.
 remember (Plcm (Plcm (ps_comden ps₁) (ps_comden ps₂)) (ps_comden ps₃)) as l.
 rewrite <- Plcm_assoc, <- Heql in Hlda |- *.
+rewrite Heqa in |- * at 2.
+rewrite Heqc in |- * at 3.
 bbb.
 
 intros ps₁ ps₂ ps₃.
