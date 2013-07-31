@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.81 2013-07-31 15:27:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.82 2013-07-31 15:36:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -860,4 +860,23 @@ rewrite Heqa, Heqc.
 do 2 rewrite ps_comden_add.
 remember (Plcm (Plcm (ps_comden ps₁) (ps_comden ps₂)) (ps_comden ps₃)) as l.
 rewrite <- Plcm_assoc, <- Heql.
+remember (lcm_div (ps_add ps₁ ps₂) ps₃) as v.
+unfold lcm_div in Heqv.
+rewrite ps_comden_add in Heqv.
+rewrite <- Heql in Heqv.
+subst v.
+remember (lcm_div (ps_add ps₂ ps₃) ps₁) as v.
+unfold lcm_div in Heqv.
+rewrite ps_comden_add in Heqv.
+subst v.
+remember (lcm_div ps₁ (ps_add ps₂ ps₃)) as v.
+unfold lcm_div in Heqv.
+rewrite ps_comden_add in Heqv.
+subst v.
+rewrite <- Plcm_assoc.
+rewrite <- Heql.
+remember (Plcm (Plcm (ps_comden ps₂) (ps_comden ps₃)) (ps_comden ps₁)) as v.
+rewrite Plcm_comm, <- Plcm_assoc in Heqv.
+rewrite <- Heql in Heqv; subst v.
+unfold lcm_div; simpl.
 bbb.
