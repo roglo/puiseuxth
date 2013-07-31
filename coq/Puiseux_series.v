@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.72 2013-07-31 03:27:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.73 2013-07-31 08:02:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -760,21 +760,48 @@ rewrite Plcm_diag.
 rewrite same_comden_valnum_diff; reflexivity.
 Qed.
 
-Lemma yyy : ∀ ps l m₁ m₂,
-  normal l m₁ (normal l m₂ ps) = normal l (m₁ * m₂)%nat ps.
+Lemma normal_normal : ∀ ps l m₁ m₂,
+  m₁ ≠ 0%nat
+  → m₂ ≠ 0%nat
+    → normal l m₁ (normal l m₂ ps) = normal l (m₁ * m₂)%nat ps.
 Proof.
-intros ps l m₁ m₂.
+intros ps l m₁ m₂ Hm₁ Hm₂.
 unfold normal; simpl.
 rewrite Nat2Z.inj_mul.
 rewrite Z.mul_assoc, Z.mul_shuffle0.
 f_equal.
 unfold normal_terms.
 f_equal.
- remember S as s.
+ apply functional_extensionality.
+ intros m; simpl.
+ destruct (zerop (m mod m₁)) as [Hz| Hnz].
+  apply Nat.mod_divides in Hz; [ idtac | assumption ].
+  destruct Hz as (c, Hz); subst m.
+  rewrite mult_comm, Nat.div_mul; [ idtac | assumption ].
+  rewrite mult_comm.
+  rewrite Nat.mul_mod_distr_l; [ idtac | assumption | assumption ].
+  remember (c mod m₂) as cm₂.
+  symmetry in Heqcm₂.
+  rewrite mult_comm.
+  rewrite Nat.div_mul_cancel_l; [ idtac | assumption | assumption ].
+  destruct cm₂; [ reflexivity | idtac ].
+  rewrite mult_comm; simpl.
+  destruct (zerop (m₁ * S cm₂)) as [Hz| ]; [ idtac | reflexivity ].
+  apply Nat.eq_mul_0_r in Hz; [ discriminate Hz | assumption ].
+
+  destruct (zerop (m mod (m₁ * m₂))) as [Hz| ]; [ idtac | reflexivity ].
+  apply Nat.mod_divides in Hz.
+   destruct Hz as (c, Hz); subst m.
+   rewrite <- mult_assoc, mult_comm in Hnz.
+   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+   exfalso; revert Hnz; apply lt_irrefl.
+
+   apply Nat.neq_mul_0; split; assumption.
+
  simpl.
- subst s.
- rewrite <- Nat.sub_succ_l.
-bbb.
+ destruct (stop (ps_terms ps)); [ idtac | reflexivity ].
+ rewrite mult_assoc, Nat.mul_shuffle0; reflexivity.
+Qed.
 
 Lemma zzz : ∀ ps₁ ps₂ l₁ l₂ m₁ m₂ m₃,
   normal l₁ m₁ (ps_add (normal l₂ m₂ ps₁) (normal l₂ m₃ ps₂)) = ps_add ps₁ ps₂.
