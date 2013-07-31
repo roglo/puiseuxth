@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.71 2013-07-30 15:15:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.72 2013-07-31 03:27:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -56,15 +56,15 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 Definition normal_terms cd₁ s :=
   {| terms i :=
-       if zerop (i mod (S cd₁)) then terms s (i / S cd₁) else zero fld;
+       if zerop (i mod cd₁) then terms s (i / cd₁) else zero fld;
      stop :=
        match stop s with
-       | Some st => Some (st * S cd₁)%nat
+       | Some st => Some (st * cd₁)%nat
        | None => None
        end |}.
 
 Definition normal l cd ps :=
-  {| ps_terms := normal_terms (cd - 1) (ps_terms ps);
+  {| ps_terms := normal_terms cd (ps_terms ps);
      ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
      ps_comden := l |}.
 
@@ -292,9 +292,7 @@ constructor.
  constructor.
   intros i.
   unfold normal; simpl.
-  rewrite divmod_div.
-  rewrite divmod_mod.
-  destruct (zerop (i mod S (m - 1))); [ idtac | reflexivity ].
+  destruct (zerop (i mod m)); [ idtac | reflexivity ].
   rewrite H3; reflexivity.
 
   simpl; rewrite H4; reflexivity.
@@ -348,20 +346,15 @@ destruct j as [| j| j].
  constructor; simpl; [ idtac | idtac | reflexivity ].
   constructor.
    intros i; simpl.
-   destruct (zerop (m - 1 - snd (divmod i (m - 1) 0 (m - 1)))).
+   destruct (zerop (i mod m)).
     rewrite H5.
-    destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
-     rewrite H7; reflexivity.
+    destruct (zerop (i mod n)); [ idtac | reflexivity ].
+    rewrite H7; reflexivity.
 
-     reflexivity.
+    destruct (zerop (i mod n)); [ idtac | reflexivity ].
+    rewrite H7; reflexivity.
 
-    destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
-     rewrite H7; reflexivity.
-
-     reflexivity.
-
-   simpl.
-   rewrite H6, H8; reflexivity.
+   simpl; rewrite H6, H8; reflexivity.
 
   rewrite H0; reflexivity.
 
@@ -369,28 +362,17 @@ destruct j as [| j| j].
  constructor; simpl; [ idtac | idtac | reflexivity ].
   constructor.
    intros i; simpl.
-   destruct (zerop (m - 1 - snd (divmod i (m - 1) 0 (m - 1)))).
+   destruct (i mod m); simpl.
     rewrite H5.
-    destruct (lt_dec i (Pos.to_nat j)).
-     reflexivity.
+    destruct (lt_dec i (Pos.to_nat j)); [ reflexivity | idtac ].
+    destruct (zerop ((i - Pos.to_nat j) mod n)); [ idtac | reflexivity ].
+    rewrite H7; reflexivity.
 
-     destruct
-      (zerop (n - 1 - snd (divmod (i - Pos.to_nat j) (n - 1) 0 (n - 1)))).
-      rewrite H7; reflexivity.
+    destruct (lt_dec i (Pos.to_nat j)); [ reflexivity | idtac ].
+    destruct (zerop ((i - Pos.to_nat j) mod n)); [ idtac | reflexivity ].
+    rewrite H7; reflexivity.
 
-      reflexivity.
-
-    destruct (lt_dec i (Pos.to_nat j)).
-     reflexivity.
-
-     destruct
-      (zerop (n - 1 - snd (divmod (i - Pos.to_nat j) (n - 1) 0 (n - 1)))).
-      rewrite H7; reflexivity.
-
-      reflexivity.
-
-   simpl.
-   rewrite H6, H8; reflexivity.
+   simpl; rewrite H6, H8; reflexivity.
 
   rewrite H0; reflexivity.
 
@@ -399,26 +381,18 @@ destruct j as [| j| j].
   constructor.
    intros i; simpl.
    destruct (lt_dec i (Pos.to_nat j)).
-    destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
+    destruct (zerop (i mod n)); [ idtac | reflexivity ].
+    rewrite H7; reflexivity.
+
+    destruct (zerop ((i - Pos.to_nat j) mod m)).
+     rewrite H5.
+     destruct (zerop (i mod n)); [ idtac | reflexivity ].
      rewrite H7; reflexivity.
 
-     reflexivity.
+     destruct (zerop (i mod n)); [ idtac | reflexivity ].
+     rewrite H7; reflexivity.
 
-    destruct
-     (zerop (m - 1 - snd (divmod (i - Pos.to_nat j) (m - 1) 0 (m - 1)))).
-     rewrite H5.
-     destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
-      rewrite H7; reflexivity.
-
-      reflexivity.
-
-     destruct (zerop (n - 1 - snd (divmod i (n - 1) 0 (n - 1)))).
-      rewrite H7; reflexivity.
-
-      reflexivity.
-
-   simpl.
-   rewrite H6, H8; reflexivity.
+   simpl; rewrite H6, H8; reflexivity.
 
   rewrite H3; reflexivity.
 Qed.
@@ -468,7 +442,7 @@ Qed.
 Axiom functional_extensionality : ∀ α β (f g : α → β),
   (∀ x, f x = g x) → f = g.
 
-Lemma normal_terms_0 : ∀ t, normal_terms 0 t = t.
+Lemma normal_terms_1 : ∀ t, normal_terms 1 t = t.
 Proof.
 intros t.
 unfold normal_terms.
@@ -563,7 +537,7 @@ rewrite Nat.div_same.
  rewrite Nat.div_same.
   simpl.
   do 4 rewrite Zmult_1_r.
-  do 5 rewrite normal_terms_0.
+  do 5 rewrite normal_terms_1.
   remember (ps_valnum ps₂ - ps_valnum ps₁)%Z as v₂₁.
   symmetry in Heqv₂₁.
   destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
@@ -765,8 +739,8 @@ rewrite Nat.div_same.
  rewrite Zmult_1_r.
  rewrite Zmult_1_r.
  unfold normal; simpl.
- rewrite normal_terms_0.
- rewrite normal_terms_0.
+ rewrite normal_terms_1.
+ rewrite normal_terms_1.
  rewrite Zmult_1_r.
  rewrite Zmult_1_r.
  reflexivity.
@@ -785,6 +759,36 @@ unfold ps_add; simpl.
 rewrite Plcm_diag.
 rewrite same_comden_valnum_diff; reflexivity.
 Qed.
+
+Lemma yyy : ∀ ps l m₁ m₂,
+  normal l m₁ (normal l m₂ ps) = normal l (m₁ * m₂)%nat ps.
+Proof.
+intros ps l m₁ m₂.
+unfold normal; simpl.
+rewrite Nat2Z.inj_mul.
+rewrite Z.mul_assoc, Z.mul_shuffle0.
+f_equal.
+unfold normal_terms.
+f_equal.
+ remember S as s.
+ simpl.
+ subst s.
+ rewrite <- Nat.sub_succ_l.
+bbb.
+
+Lemma zzz : ∀ ps₁ ps₂ l₁ l₂ m₁ m₂ m₃,
+  normal l₁ m₁ (ps_add (normal l₂ m₂ ps₁) (normal l₂ m₃ ps₂)) = ps_add ps₁ ps₂.
+Proof.
+intros ps₁ ps₂ l₁ l₂ m₁ m₂ m₃.
+remember (ps_add ps₁ ps₂) as glop.
+unfold ps_add; simpl.
+rewrite Plcm_diag.
+remember (lcm_div (normal l₂ m₂ ps₁) (normal l₂ m₃ ps₂))%Z as c₂.
+remember (lcm_div (normal l₂ m₃ ps₂) (normal l₂ m₂ ps₁)) as c₃.
+remember
+ (ps_valnum ps₂ * Z.of_nat m₃ * Z.of_nat c₃ -
+  ps_valnum ps₁ * Z.of_nat m₂ * Z.of_nat c₂)%Z as d.
+bbb.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps
