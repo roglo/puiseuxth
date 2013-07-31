@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.74 2013-07-31 08:20:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.75 2013-07-31 08:34:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -803,11 +803,45 @@ f_equal.
  rewrite mult_assoc, Nat.mul_shuffle0; reflexivity.
 Qed.
 
+Lemma ps_comden_add : ∀ ps₁ ps₂,
+  ps_comden (ps_add ps₁ ps₂) = Plcm (ps_comden ps₁) (ps_comden ps₂).
+Proof.
+intros ps₁ ps₂.
+unfold ps_add; simpl.
+remember (Plcm (ps_comden ps₁) (ps_comden ps₂)) as l.
+unfold valnum_diff; simpl.
+destruct
+ (ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁) -
+  ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂))%Z; reflexivity.
+Qed.
+
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps
     (ps_add (ps_add ps₁ ps₂) ps₃)
     (ps_add ps₁ (ps_add ps₂ ps₃)).
 Proof.
+intros ps₁ ps₂ ps₃.
+pose proof (ps_comden_add ps₁ ps₂) as Hca.
+pose proof (ps_comden_add ps₂ ps₃) as Hcc.
+remember (ps_add ps₁ ps₂) as a.
+apply eq_eq_ps in Heqa.
+rewrite ps_add_normal in Heqa; try reflexivity.
+remember (ps_add a ps₃) as b.
+apply eq_eq_ps in Heqb.
+rewrite ps_add_normal in Heqb; try reflexivity.
+remember (ps_add ps₂ ps₃) as c.
+apply eq_eq_ps in Heqc.
+rewrite ps_add_normal in Heqc; try reflexivity.
+remember (ps_add ps₁ c) as d.
+apply eq_eq_ps in Heqd.
+rewrite ps_add_normal in Heqd; try reflexivity.
+rewrite Heqb, Heqd.
+remember Heqa as H; clear HeqH.
+rewrite Hca, Hcc.
+remember (Plcm (Plcm (ps_comden ps₁) (ps_comden ps₂)) (ps_comden ps₃)) as l.
+rewrite <- Plcm_assoc, <- Heql.
+bbb.
+
 intros ps₁ ps₂ ps₃.
 remember (ps_add ps₁ ps₂) as a.
 apply eq_eq_ps in Heqa.
