@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.83 2013-07-31 16:59:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.84 2013-07-31 19:40:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -511,7 +511,7 @@ f_equal.
  rewrite plus_comm, Nat.sub_add_distr; reflexivity.
 Qed.
 
-Lemma ps_add_assoc_normal : ∀ ps₁ ps₂ ps₃ l,
+Lemma ps_add_assoc_same_comden : ∀ ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
     → l = ps_comden ps₃
