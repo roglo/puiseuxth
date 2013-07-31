@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.79 2013-07-31 15:04:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.80 2013-07-31 15:24:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -840,64 +840,24 @@ remember (Plcm (ps_comden ps₂) (ps_comden ps₃)) as l₂₃.
 pose proof (lcm_div_add ps₁ ps₂ ps₃ l₂₃) as Hlda.
 subst l₂₃.
 remember (ps_add ps₁ ps₂) as a.
-apply eq_eq_ps in Heqa.
-rewrite ps_add_normal in Heqa; try reflexivity.
 remember (ps_add a ps₃) as b.
-apply eq_eq_ps in Heqb.
-rewrite ps_add_normal in Heqb; try reflexivity.
 remember (ps_add ps₂ ps₃) as c.
-apply eq_eq_ps in Heqc.
-rewrite ps_add_normal in Heqc; try reflexivity.
 remember (ps_add ps₁ c) as d.
-apply eq_eq_ps in Heqd.
-rewrite ps_add_normal in Heqd; try reflexivity.
-rewrite Heqb, Heqd.
-remember Heqa as H; clear HeqH.
-rewrite Hca, Hcc.
-remember (Plcm (Plcm (ps_comden ps₁) (ps_comden ps₂)) (ps_comden ps₃)) as l.
-rewrite <- Plcm_assoc, <- Heql in Hlda |- *.
-rewrite Heqa in |- * at 2.
-rewrite Heqc in |- * at 3.
-bbb.
-
-intros ps₁ ps₂ ps₃.
-remember (ps_add ps₁ ps₂) as a.
-apply eq_eq_ps in Heqa.
-rewrite ps_add_normal in Heqa; try reflexivity.
-remember (ps_add a ps₃) as b.
-apply eq_eq_ps in Heqb.
-rewrite ps_add_normal in Heqb; try reflexivity.
-remember (ps_add ps₂ ps₃) as c.
-apply eq_eq_ps in Heqc.
-rewrite ps_add_normal in Heqc; try reflexivity.
-remember (ps_add ps₁ c) as d.
-apply eq_eq_ps in Heqd.
-rewrite ps_add_normal in Heqd; try reflexivity.
-rewrite Heqb, Heqd.
-remember Heqa as H; clear HeqH.
-apply
- normal_morph
-  with (l := Plcm (ps_comden a) (ps_comden ps₃)) (m := lcm_div a ps₃) 
- in H.
+remember Heqb as H; clear HeqH.
+apply eq_eq_ps in H.
+rewrite ps_add_normal in H; try reflexivity.
 rewrite H; clear H.
+remember Heqd as H; clear HeqH.
+apply eq_eq_ps in H.
+rewrite ps_add_normal in H; try reflexivity.
+rewrite H; clear H.
+remember Heqa as H; clear HeqH.
+apply eq_eq_ps in H.
+rewrite ps_add_normal in H; try reflexivity.
+rewrite H in |- * at 3; clear H.
 remember Heqc as H; clear HeqH.
-apply
- normal_morph
-  with (l := Plcm (ps_comden ps₁) (ps_comden c)) (m := lcm_div c ps₁) 
- in H.
-rewrite H; clear H.
-bbb.
-eapply ps_add_normal; [ reflexivity | simpl | simpl ].
- do 2 rewrite ps_comden_normal.
- rewrite Plcm_diag.
- unfold lcm_div.
- do 2 rewrite ps_comden_normal.
- rewrite Plcm_diag.
- rewrite Nat.div_same.
-  rewrite ps_add_normal_normal.
-  erewrite add_normal_comden with (c := c); [ idtac | eassumption ].
-  erewrite add_normal_comden with (c := a); [ idtac | eassumption ].
-  rewrite Plcm_assoc.
-  remember (Plcm (ps_comden ps₁) (Plcm (ps_comden ps₂) (ps_comden ps₃))) as l.
-  Focus 1.
+apply eq_eq_ps in H.
+rewrite ps_add_normal in H; try reflexivity.
+rewrite H in |- * at 5; clear H.
+rewrite Heqa, Heqc.
 bbb.
