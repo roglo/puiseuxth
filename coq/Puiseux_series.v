@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.80 2013-07-31 15:24:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.81 2013-07-31 15:27:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -836,9 +836,6 @@ Proof.
 intros ps₁ ps₂ ps₃.
 pose proof (ps_comden_add ps₁ ps₂) as Hca.
 pose proof (ps_comden_add ps₂ ps₃) as Hcc.
-remember (Plcm (ps_comden ps₂) (ps_comden ps₃)) as l₂₃.
-pose proof (lcm_div_add ps₁ ps₂ ps₃ l₂₃) as Hlda.
-subst l₂₃.
 remember (ps_add ps₁ ps₂) as a.
 remember (ps_add a ps₃) as b.
 remember (ps_add ps₂ ps₃) as c.
@@ -860,4 +857,7 @@ apply eq_eq_ps in H.
 rewrite ps_add_normal in H; try reflexivity.
 rewrite H in |- * at 5; clear H.
 rewrite Heqa, Heqc.
+do 2 rewrite ps_comden_add.
+remember (Plcm (Plcm (ps_comden ps₁) (ps_comden ps₂)) (ps_comden ps₃)) as l.
+rewrite <- Plcm_assoc, <- Heql.
 bbb.
