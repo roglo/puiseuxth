@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.82 2013-07-31 15:36:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.83 2013-07-31 16:59:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -879,4 +879,7 @@ remember (Plcm (Plcm (ps_comden ps₂) (ps_comden ps₃)) (ps_comden ps₁)) as 
 rewrite Plcm_comm, <- Plcm_assoc in Heqv.
 rewrite <- Heql in Heqv; subst v.
 unfold lcm_div; simpl.
+rewrite ps_comden_add.
+remember (Plcm (ps_comden ps₃) (Plcm (ps_comden ps₁) (ps_comden ps₂))) as v.
+rewrite Plcm_comm, <- Heql in Heqv; subst v.
 bbb.
