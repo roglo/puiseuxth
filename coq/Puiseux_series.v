@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.73 2013-07-31 08:02:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.74 2013-07-31 08:20:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -802,20 +802,6 @@ f_equal.
  destruct (stop (ps_terms ps)); [ idtac | reflexivity ].
  rewrite mult_assoc, Nat.mul_shuffle0; reflexivity.
 Qed.
-
-Lemma zzz : ∀ ps₁ ps₂ l₁ l₂ m₁ m₂ m₃,
-  normal l₁ m₁ (ps_add (normal l₂ m₂ ps₁) (normal l₂ m₃ ps₂)) = ps_add ps₁ ps₂.
-Proof.
-intros ps₁ ps₂ l₁ l₂ m₁ m₂ m₃.
-remember (ps_add ps₁ ps₂) as glop.
-unfold ps_add; simpl.
-rewrite Plcm_diag.
-remember (lcm_div (normal l₂ m₂ ps₁) (normal l₂ m₃ ps₂))%Z as c₂.
-remember (lcm_div (normal l₂ m₃ ps₂) (normal l₂ m₂ ps₁)) as c₃.
-remember
- (ps_valnum ps₂ * Z.of_nat m₃ * Z.of_nat c₃ -
-  ps_valnum ps₁ * Z.of_nat m₂ * Z.of_nat c₂)%Z as d.
-bbb.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   eq_ps
