@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.84 2013-07-31 19:40:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.85 2013-08-01 16:30:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,6 +9,9 @@ Require Import Misc.
 Require Import Series.
 
 Set Implicit Arguments.
+
+Axiom functional_extensionality : ∀ α β (f g : α → β),
+  (∀ x, f x = g x) → f = g.
 
 Record puiseux_series α := mkps
   { ps_terms : series α;
@@ -29,16 +32,72 @@ Section fld.
 Variable α : Type.
 Variable fld : field α.
 
-Inductive eq_ps ps₁ ps₂ :=
-  eq_ps_norm :
-    eq_series fld (ps_terms ps₁) (ps_terms ps₂)
-    → ps_valnum ps₁ = ps_valnum ps₂
-      → ps_comden ps₁ = ps_comden ps₂
-        → eq_ps ps₁ ps₂.
+Definition normal l cd ps :=
+  {| ps_terms := stretch_series fld cd (ps_terms ps);
+     ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
+     ps_comden := l |}.
+
+Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_ps_stretched_l : ∀ k ps₁ ps₂,
+      eq_series fld
+        (stretch_series fld (Pos.to_nat k) (ps_terms ps₁))
+        (ps_terms ps₂)
+      → ps_valnum ps₁ = ps_valnum ps₂
+        → ps_comden ps₁ = (k * ps_comden ps₂)%positive
+           → eq_ps ps₁ ps₂
+  | eq_ps_stretched_r : ∀ k ps₁ ps₂,
+      eq_series fld
+        (ps_terms ps₁)
+        (stretch_series fld (Pos.to_nat k) (ps_terms ps₂))
+      → ps_valnum ps₁ = ps_valnum ps₂
+        → (k * ps_comden ps₁)%positive = ps_comden ps₂
+           → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b)  (at level 70).
 Notation "a ≃ b" := (eq_series fld a b)  (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b)  (at level 70).
+
+Theorem eq_ps_refl : reflexive _ eq_ps.
+Proof.
+intros ps.
+constructor 1 with (k := 1%positive); [ idtac | reflexivity | reflexivity ].
+unfold stretch_series; simpl.
+destruct ps as (s, v, c); simpl.
+constructor; simpl.
+ intros i.
+ rewrite divmod_div.
+ rewrite Nat.div_1_r; reflexivity.
+
+ destruct (stop s) as [st| ]; [ idtac | reflexivity ].
+ rewrite mult_1_r; reflexivity.
+Qed.
+
+Theorem eq_ps_sym : symmetric _ eq_ps.
+Proof.
+intros ps₁ ps₂ H.
+inversion H; subst.
+ eapply eq_ps_stretched_r; symmetry; eassumption.
+
+ eapply eq_ps_stretched_l; symmetry; eassumption.
+Qed.
+
+Theorem eq_ps_trans : transitive _ eq_ps.
+Proof.
+intros ps₁ ps₂ ps₃ H₁ H₂.
+inversion H₁ as [k₁| k₁]; subst.
+ inversion H₂ as [k₂| k₂]; subst.
+  apply eq_ps_stretched_r with (k := (k₁ * k₂)%positive).
+bbb.
+
+Add Parametric Relation : (puiseux_series α) eq_ps
+ reflexivity proved by eq_ps_refl
+ symmetry proved by eq_ps_sym
+ transitivity proved by eq_ps_trans
+ as eq_ps_rel.
+
+Theorem normal_eq : ∀ k ps, normal (k * ps_comden ps) 1%nat ps ≈ ps.
+Proof.
+bbb.
 
 Definition valuation (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
@@ -53,20 +112,6 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | Some (_, c) => c
   | None => zero fld
   end.
-
-Definition normal_terms cd₁ s :=
-  {| terms i :=
-       if zerop (i mod cd₁) then terms s (i / cd₁) else zero fld;
-     stop :=
-       match stop s with
-       | Some st => Some (st * cd₁)%nat
-       | None => None
-       end |}.
-
-Definition normal l cd ps :=
-  {| ps_terms := normal_terms cd (ps_terms ps);
-     ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
-     ps_comden := l |}.
 
 (* ps_add *)
 
@@ -220,33 +265,6 @@ Proof.
 intros x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
 destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
-
-Theorem eq_ps_refl : reflexive _ eq_ps.
-Proof.
-intros ps.
-constructor; reflexivity.
-Qed.
-
-Theorem eq_ps_sym : symmetric _ eq_ps.
-Proof.
-intros ps₁ ps₂ H.
-inversion H; subst.
-constructor; symmetry; assumption.
-Qed.
-
-Theorem eq_ps_trans : transitive _ eq_ps.
-Proof.
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁.
-inversion H₂.
-constructor; etransitivity; eassumption.
-Qed.
-
-Add Parametric Relation : (puiseux_series α) eq_ps
- reflexivity proved by eq_ps_refl
- symmetry proved by eq_ps_sym
- transitivity proved by eq_ps_trans
- as eq_ps_rel.
 
 Add Parametric Morphism : (@mkps α) with 
 signature (eq_series fld) ==> eq ==> eq ==> eq_ps as mkps_morph.
@@ -438,9 +456,6 @@ intros ps₁ ps₂ d H.
 unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
-
-Axiom functional_extensionality : ∀ α β (f g : α → β),
-  (∀ x, f x = g x) → f = g.
 
 Lemma normal_terms_1 : ∀ t, normal_terms 1 t = t.
 Proof.
