@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.85 2013-08-01 16:30:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.86 2013-08-01 23:50:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -32,15 +32,24 @@ Section fld.
 Variable α : Type.
 Variable fld : field α.
 
+Definition stretch_series k s :=
+  {| terms i :=
+       if zerop (i mod k) then terms s (i / k) else zero fld;
+     stop :=
+       match stop s with
+       | Some st => Some (st * k)%nat
+       | None => None
+       end |}.
+
 Definition normal l cd ps :=
-  {| ps_terms := stretch_series fld cd (ps_terms ps);
+  {| ps_terms := stretch_series cd (ps_terms ps);
      ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
      ps_comden := l |}.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_stretched_l : ∀ k ps₁ ps₂,
       eq_series fld
-        (stretch_series fld (Pos.to_nat k) (ps_terms ps₁))
+        (stretch_series (Pos.to_nat k) (ps_terms ps₁))
         (ps_terms ps₂)
       → ps_valnum ps₁ = ps_valnum ps₂
         → ps_comden ps₁ = (k * ps_comden ps₂)%positive
@@ -48,14 +57,14 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_stretched_r : ∀ k ps₁ ps₂,
       eq_series fld
         (ps_terms ps₁)
-        (stretch_series fld (Pos.to_nat k) (ps_terms ps₂))
+        (stretch_series (Pos.to_nat k) (ps_terms ps₂))
       → ps_valnum ps₁ = ps_valnum ps₂
         → (k * ps_comden ps₁)%positive = ps_comden ps₂
            → eq_ps ps₁ ps₂.
 
-Notation "a ≈ b" := (eq_ps a b)  (at level 70).
-Notation "a ≃ b" := (eq_series fld a b)  (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b)  (at level 70).
+Notation "a ≈ b" := (eq_ps a b) (at level 70).
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
