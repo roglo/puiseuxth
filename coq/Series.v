@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.31 2013-08-01 16:30:49 deraugla Exp $ *)
+(* $Id: Series.v,v 1.32 2013-08-01 19:25:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -18,7 +18,12 @@ Definition series_nth α n (s : series α) :=
   | None => None
   end.
 
-Definition stretch_series α (fld : field α) k s :=
+Section field.
+
+Variable α : Type.
+Variable fld : field α.
+
+Definition stretch_series k s :=
   {| terms i :=
        if zerop (i mod k) then terms s (i / k) else zero fld;
      stop :=
@@ -27,20 +32,22 @@ Definition stretch_series α (fld : field α) k s :=
        | None => None
        end |}.
 
-Inductive eq_series α fld : series α → series α → Prop :=
+Inductive eq_series : series α → series α → Prop :=
   | eq_series_stretch_l_inf : ∀ k t₁ t₂,
       (∀ i, fld_eq fld (t₁ (Pos.to_nat k * i)%nat) (t₂ i))
-      → eq_series fld (mkser t₁ None) (mkser t₂ None)
+      → eq_series (mkser t₁ None) (mkser t₂ None)
   | eq_series_stretch_l_fin : ∀ k t₁ t₂ st₁ st₂,
       (∀ i, fld_eq fld (t₁ (Pos.to_nat k * i)%nat) (t₂ i))
       → st₂ = (Pos.to_nat k * st₁)%nat
-        → eq_series fld (mkser t₁ (Some st₁)) (mkser t₂ (Some st₂))
+        → eq_series (mkser t₁ (Some st₁)) (mkser t₂ (Some st₂))
   | eq_series_symmetry : ∀ s₁ s₂,
-      eq_series fld s₁ s₂ → eq_series fld s₂ s₁.
+      eq_series s₁ s₂ → eq_series s₂ s₁.
 
-Theorem eq_series_refl : ∀ α (fld : field α), reflexive _ (eq_series fld).
+Notation "a ≃ b" := (eq_series fld a b)  (at level 70).
+
+Theorem eq_series_refl : reflexive _ eq_series.
 Proof.
-intros α fld s.
+intros s.
 destruct s as (t, [s| ]); simpl.
  constructor 2 with (k := 1%positive).
   intros; rewrite mult_1_l; reflexivity.
@@ -51,17 +58,22 @@ destruct s as (t, [s| ]); simpl.
  intros; rewrite mult_1_l; reflexivity.
 Qed.
 
-Theorem eq_series_sym : ∀ α (fld : field α), symmetric _ (eq_series fld).
+Theorem eq_series_sym : symmetric _ eq_series.
 Proof.
-intros α fld s₁ s₂ H.
+intros s₁ s₂ H.
 constructor; assumption.
 Qed.
 
-Theorem eq_series_trans : ∀ α (fld : field α), transitive _ (eq_series fld).
+Theorem eq_series_trans : transitive _ eq_series.
 Proof.
-intros α fld s₁ s₂ s₃ H₁ H₂.
+intros s₁ s₂ s₃ H₁ H₂.
 inversion H₁ as [k₁ t₁ t₂| k₁ t₁ t₂| ]; subst.
  inversion H₂ as [k₂ t₃ t₄| k₂ t₃ t₄| ]; subst.
+  constructor 1 with (k := (k₁ * k₂)%positive).
+  intros i.
+  rewrite Pos2Nat.inj_mul.
+  rewrite <- mult_assoc.
+  etransitivity; [ apply H | apply H1 ].
 bbb.
 
 Definition series_add α (fld : field α) s₁ s₂ :=
