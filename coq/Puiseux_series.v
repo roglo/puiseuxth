@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.91 2013-08-02 08:09:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.92 2013-08-02 09:47:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -46,25 +46,22 @@ Definition normal l cd ps :=
      ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
      ps_comden := l |}.
 
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_stretched_l : ∀ k ps₁ ps₂,
-      eq_series fld
-        (stretch_series (Pos.to_nat k) (ps_terms ps₁))
-        (ps_terms ps₂)
+      stretch_series (Pos.to_nat k) (ps_terms ps₁) ≃ ps_terms ps₂
       → ps_valnum ps₁ = ps_valnum ps₂
         → ps_comden ps₁ = (k * ps_comden ps₂)%positive
            → eq_ps ps₁ ps₂
   | eq_ps_stretched_r : ∀ k ps₁ ps₂,
-      eq_series fld
-        (ps_terms ps₁)
-        (stretch_series (Pos.to_nat k) (ps_terms ps₂))
+      ps_terms ps₁ ≃ stretch_series (Pos.to_nat k) (ps_terms ps₂)
       → ps_valnum ps₁ = ps_valnum ps₂
         → (k * ps_comden ps₁)%positive = ps_comden ps₂
-           → eq_ps ps₁ ps₂.
+          → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -150,6 +147,19 @@ constructor; simpl.
  destruct (stop s₁); rewrite <- H1; reflexivity.
 Qed.
 
+Lemma zzz : ∀ n s₁ s₂,
+  stretch_series n s₁ ≃ stretch_series n s₂
+  → s₁ ≃ s₂.
+Proof.
+intros n s₁ s₂ H.
+inversion H; subst.
+constructor.
+ intros i.
+ pose proof (H0 i) as Hi.
+ simpl in Hi.
+ destruct (zerop (i mod n)) as [Heq| Hne].
+bbb.
+
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -178,6 +188,7 @@ inversion_clear H₁ as [k₁| k₁]; subst.
    subst k₂.
    apply eq_ps_stretched_l with (k := 1%positive).
     rewrite H2 in H.
+    apply zzz in H.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
