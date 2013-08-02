@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.86 2013-08-01 23:50:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.87 2013-08-02 00:15:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -95,7 +95,10 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁ as [k₁| k₁]; subst.
  inversion H₂ as [k₂| k₂]; subst.
+  apply eq_ps_sym.
   apply eq_ps_stretched_r with (k := (k₁ * k₂)%positive).
+   symmetry.
+   etransitivity; [ idtac | eassumption ].
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
