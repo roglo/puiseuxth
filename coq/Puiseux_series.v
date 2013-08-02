@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.92 2013-08-02 09:47:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.93 2013-08-02 10:00:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -147,18 +147,29 @@ constructor; simpl.
  destruct (stop s₁); rewrite <- H1; reflexivity.
 Qed.
 
-Lemma zzz : ∀ n s₁ s₂,
-  stretch_series n s₁ ≃ stretch_series n s₂
-  → s₁ ≃ s₂.
+Lemma stretch_series_eq : ∀ n s₁ s₂,
+  n ≠ O
+  → stretch_series n s₁ ≃ stretch_series n s₂
+    → s₁ ≃ s₂.
 Proof.
-intros n s₁ s₂ H.
+intros n s₁ s₂ Hn H.
 inversion H; subst.
 constructor.
  intros i.
- pose proof (H0 i) as Hi.
+ pose proof (H0 (n * i)%nat) as Hi.
  simpl in Hi.
- destruct (zerop (i mod n)) as [Heq| Hne].
-bbb.
+ rewrite mult_comm, Nat.mod_mul in Hi; simpl in Hi; [ idtac | assumption ].
+ rewrite Nat.div_mul in Hi; assumption.
+
+ simpl in H1.
+ destruct (stop s₁) as [st₁| ].
+  destruct (stop s₂) as [st₂| ]; [ idtac | discriminate H1 ].
+  injection H1; clear H1; intros.
+  f_equal.
+  apply Nat.mul_cancel_r in H1; assumption.
+
+  destruct (stop s₂); [ discriminate H1 | reflexivity ].
+Qed.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
@@ -188,7 +199,8 @@ inversion_clear H₁ as [k₁| k₁]; subst.
    subst k₂.
    apply eq_ps_stretched_l with (k := 1%positive).
     rewrite H2 in H.
-    apply zzz in H.
+    apply stretch_series_eq in H; [ idtac | apply pos_to_nat_ne_0 ].
+    rewrite <- H.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
