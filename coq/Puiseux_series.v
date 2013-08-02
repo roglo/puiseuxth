@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.96 2013-08-02 13:05:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.97 2013-08-02 15:02:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -188,27 +188,24 @@ Lemma zzz : ∀ n₁ n₂ s₁ s₂,
     → s₁ ≃ s₂.
 Proof.
 intros n₁ n₂ s₁ s₂ Hnn Hss.
-bbb.
 inversion_clear Hss; subst.
 simpl in H, H0.
 constructor.
  intros i.
- pose proof (H (n₁ * i)%nat) as H₁.
- pose proof (H (n₂ * i)%nat) as H₂.
- rewrite mult_comm, Nat.mod_mul in H₁; simpl in H₁.
-  rewrite mult_comm, Nat.mod_mul in H₂; simpl in H₂.
-   rewrite Nat.div_mul in H₁, H₂.
-    destruct (zerop ((i * n₁) mod n₂)) as [Hz₁| Hnz₁].
-     destruct (zerop ((i * n₂) mod n₁)) as [Hz₂| Hnz₂].
-      apply Nat.mod_divide in Hz₁.
-       apply Nat.mod_divide in Hz₂.
-        destruct Hz₁ as (k₁, Hz₁).
-        destruct Hz₂ as (k₂, Hz₂).
-        rewrite Hz₁ in H₁.
-        rewrite Hz₂ in H₂.
-        rewrite Nat.div_mul in H₁, H₂.
-         etransitivity; [ eassumption | idtac ].
-         etransitivity; [ idtac | eassumption ].
+ induction i.
+  pose proof (H O) as Hi.
+  rewrite Nat.mod_0_l in Hi; simpl in Hi.
+   rewrite Nat.mod_0_l in Hi; simpl in Hi.
+    rewrite Nat.div_0_l in Hi; simpl in Hi.
+     rewrite Nat.div_0_l in Hi; simpl in Hi.
+      assumption.
+
+      Focus 5.
+      pose proof (H (i * n₂)%nat) as Hi.
+      rewrite Nat.div_mul in Hi.
+       rewrite Nat.mod_mul in Hi; simpl in Hi.
+        rewrite <- Hi in IHi.
+        remember (n₂ mod n₁) as m.
 bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
