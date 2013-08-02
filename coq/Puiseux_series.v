@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.90 2013-08-02 06:39:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.91 2013-08-02 08:09:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -47,15 +47,20 @@ Definition normal l cd ps :=
      ps_comden := l |}.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_ps_base : ∀ k ps₁ ps₂,
+  | eq_ps_stretched_l : ∀ k ps₁ ps₂,
       eq_series fld
         (stretch_series (Pos.to_nat k) (ps_terms ps₁))
         (ps_terms ps₂)
       → ps_valnum ps₁ = ps_valnum ps₂
         → ps_comden ps₁ = (k * ps_comden ps₂)%positive
            → eq_ps ps₁ ps₂
-  | eq_ps_symm : ∀ ps₁ ps₂,
-      eq_ps ps₁ ps₂ → eq_ps ps₂ ps₁.
+  | eq_ps_stretched_r : ∀ k ps₁ ps₂,
+      eq_series fld
+        (ps_terms ps₁)
+        (stretch_series (Pos.to_nat k) (ps_terms ps₂))
+      → ps_valnum ps₁ = ps_valnum ps₂
+        → (k * ps_comden ps₁)%positive = ps_comden ps₂
+           → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
@@ -79,8 +84,10 @@ Qed.
 Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
-inversion H; subst; [ idtac | eassumption ].
-eapply eq_ps_symm, eq_ps_base; eassumption.
+inversion H; subst.
+ eapply eq_ps_stretched_r; symmetry; eassumption.
+
+ eapply eq_ps_stretched_l; symmetry; eassumption.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
@@ -146,9 +153,11 @@ Qed.
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁ as [k₁| k₁]; subst.
- inversion H₂ as [k₂| k₂]; subst.
-  apply eq_ps_base with (k := (k₁ * k₂)%positive).
+inversion_clear H₁ as [k₁| k₁]; subst.
+ inversion_clear H₂ as [k₂| k₂]; subst.
+  apply eq_ps_sym.
+  apply eq_ps_stretched_r with (k := (k₁ * k₂)%positive).
+   symmetry.
    etransitivity; [ idtac | eassumption ].
    rewrite Pos2Nat.inj_mul.
    rewrite mult_comm.
@@ -159,9 +168,16 @@ inversion H₁ as [k₁| k₁]; subst.
 
     apply pos_to_nat_ne_0.
 
+   symmetry.
    etransitivity; eassumption.
 
+   symmetry.
    rewrite <- Pos.mul_assoc, <- H4; assumption.
+
+  destruct (Pos.eq_dec k₁ k₂) as [Heq| Hne].
+   subst k₂.
+   apply eq_ps_stretched_l with (k := 1%positive).
+    rewrite H2 in H.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
