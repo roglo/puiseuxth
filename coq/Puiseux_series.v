@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.98 2013-08-02 17:59:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.99 2013-08-02 18:14:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -203,6 +203,8 @@ constructor.
      destruct (zerop ((i * n₂) mod n₁)) as [Hz| Hnz].
       apply Nat.mod_divides in Hz.
        destruct Hz as (k₂, Hk₂).
+       rewrite Hk₁, Nat.mul_comm, Nat.div_mul in Hi₁.
+        rewrite Hk₂, Nat.mul_comm, Nat.div_mul in Hi₂.
 bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
