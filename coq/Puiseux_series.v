@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.88 2013-08-02 01:58:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.89 2013-08-02 02:20:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -138,6 +138,18 @@ f_equal; simpl.
  rewrite Nat.mul_shuffle0, mult_assoc; reflexivity.
 Qed.
 
+Add Parametric Morphism : stretch_series with 
+signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
+Proof.
+intros k s₁ s₂ H.
+inversion H; subst.
+constructor; simpl.
+ intros i.
+ destruct (zerop (i mod k)); [ apply H0 | reflexivity ].
+
+ destruct (stop s₁); rewrite <- H1; reflexivity.
+Qed.
+
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -148,6 +160,19 @@ inversion H₁ as [k₁| k₁]; subst.
    symmetry.
    etransitivity; [ idtac | eassumption ].
    rewrite Pos2Nat.inj_mul.
+   rewrite mult_comm.
+   rewrite stretch_stretch_series.
+    rewrite H; reflexivity.
+
+    apply pos_to_nat_ne_0.
+
+    apply pos_to_nat_ne_0.
+
+   symmetry.
+   etransitivity; eassumption.
+
+   symmetry.
+   rewrite <- Pos.mul_assoc, <- H4; assumption.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
