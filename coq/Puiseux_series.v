@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.94 2013-08-02 10:12:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.95 2013-08-02 10:20:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -217,6 +217,8 @@ inversion_clear H₁ as [k₁| k₁]; subst.
     etransitivity; eassumption.
 
     etransitivity; eassumption.
+
+   destruct (Pos.min_dec k₁ k₂) as [Hlt| Hge].
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
