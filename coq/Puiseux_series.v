@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.87 2013-08-02 00:15:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.88 2013-08-02 01:58:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -90,6 +90,54 @@ inversion H; subst.
  eapply eq_ps_stretched_l; symmetry; eassumption.
 Qed.
 
+Lemma stretch_stretch_series : ∀ a b s,
+  a ≠ O
+  → b ≠ O
+    → stretch_series (a * b) s = stretch_series a (stretch_series b s).
+Proof.
+intros a b s Ha Hb.
+unfold stretch_series.
+f_equal; simpl.
+ apply functional_extensionality.
+ intros i.
+ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
+  destruct (zerop (i mod a)) as [Hz₁| Hnz].
+   destruct (zerop ((i / a) mod b)) as [Hz₂| Hnz].
+    rewrite Nat.div_div; [ reflexivity | assumption | assumption ].
+
+    apply Nat.mod_divides in Hz.
+     destruct Hz as (c, Hz).
+     subst i.
+     rewrite <- mult_assoc, mult_comm in Hnz.
+     rewrite Nat.div_mul in Hnz; [ idtac | assumption ].
+     rewrite mult_comm, Nat.mod_mul in Hnz; [ idtac | assumption ].
+     exfalso; revert Hnz; apply lt_irrefl.
+
+     apply Nat.neq_mul_0; split; assumption.
+
+   apply Nat.mod_divides in Hz.
+    destruct Hz as (c, Hz).
+    subst i.
+    rewrite <- mult_assoc, mult_comm in Hnz.
+    rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+    exfalso; revert Hnz; apply lt_irrefl.
+
+    apply Nat.neq_mul_0; split; assumption.
+
+  destruct (zerop (i mod a)) as [Hz| ]; [ idtac | reflexivity ].
+  destruct (zerop ((i / a) mod b)) as [Hz₁| ]; [ idtac | reflexivity ].
+  apply Nat.mod_divides in Hz; [ idtac | assumption ].
+  destruct Hz as (c, Hz).
+  subst i.
+  rewrite mult_comm, Nat.div_mul in Hz₁; [ idtac | assumption ].
+  rewrite Nat.mul_mod_distr_l in Hnz; [ idtac | assumption | assumption ].
+  rewrite Hz₁, mult_0_r in Hnz.
+  exfalso; revert Hnz; apply lt_irrefl.
+
+ destruct (stop s) as [st| ]; [ idtac | reflexivity ].
+ rewrite Nat.mul_shuffle0, mult_assoc; reflexivity.
+Qed.
+
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -99,6 +147,7 @@ inversion H₁ as [k₁| k₁]; subst.
   apply eq_ps_stretched_r with (k := (k₁ * k₂)%positive).
    symmetry.
    etransitivity; [ idtac | eassumption ].
+   rewrite Pos2Nat.inj_mul.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
