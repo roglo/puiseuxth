@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.97 2013-08-02 15:02:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.98 2013-08-02 17:59:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -192,20 +192,17 @@ inversion_clear Hss; subst.
 simpl in H, H0.
 constructor.
  intros i.
- induction i.
-  pose proof (H O) as Hi.
-  rewrite Nat.mod_0_l in Hi; simpl in Hi.
-   rewrite Nat.mod_0_l in Hi; simpl in Hi.
-    rewrite Nat.div_0_l in Hi; simpl in Hi.
-     rewrite Nat.div_0_l in Hi; simpl in Hi.
-      assumption.
-
-      Focus 5.
-      pose proof (H (i * n₂)%nat) as Hi.
-      rewrite Nat.div_mul in Hi.
-       rewrite Nat.mod_mul in Hi; simpl in Hi.
-        rewrite <- Hi in IHi.
-        remember (n₂ mod n₁) as m.
+ pose proof (H (i * n₁)%nat) as Hi₁.
+ pose proof (H (i * n₂)%nat) as Hi₂.
+ rewrite Nat.mod_mul in Hi₁, Hi₂.
+  simpl in Hi₁, Hi₂.
+  rewrite Nat.div_mul in Hi₁, Hi₂.
+   destruct (zerop ((i * n₁) mod n₂)) as [Hz| Hnz].
+    apply Nat.mod_divides in Hz.
+     destruct Hz as (k₁, Hk₁).
+     destruct (zerop ((i * n₂) mod n₁)) as [Hz| Hnz].
+      apply Nat.mod_divides in Hz.
+       destruct Hz as (k₂, Hk₂).
 bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
