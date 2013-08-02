@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.33 2013-08-01 23:50:52 deraugla Exp $ *)
+(* $Id: Series.v,v 1.34 2013-08-02 00:02:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -100,14 +100,17 @@ constructor; simpl.
  apply Nat.max_assoc.
 Qed.
 
-Add Parametric Relation : (series α) eq_series
- reflexivity proved by eq_series_refl
- symmetry proved by eq_series_sym
- transitivity proved by eq_series_trans
+End field.
+
+Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
+ reflexivity proved by (eq_series_refl fld)
+ symmetry proved by (eq_series_sym (fld := fld))
+ transitivity proved by (eq_series_trans (fld := fld))
  as eq_series_rel.
 
-Add Parametric Morphism : series_add with 
-signature eq_series ==> eq_series ==> eq_series as series_add_morph.
+Add Parametric Morphism α (fld : field α) : (series_add fld) with 
+signature eq_series fld ==> eq_series fld ==> eq_series fld
+as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
 inversion Heq₁; subst.
@@ -118,5 +121,3 @@ constructor; simpl.
 
  rewrite H0, H2; reflexivity.
 Qed.
-
-End field.
