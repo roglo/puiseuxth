@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.93 2013-08-02 10:00:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.94 2013-08-02 10:12:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -171,6 +171,17 @@ constructor.
   destruct (stop s₂); [ discriminate H1 | reflexivity ].
 Qed.
 
+Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s ≃ s.
+Proof.
+intros s.
+constructor; simpl.
+ intros i; rewrite divmod_div.
+ rewrite Nat.div_1_r; reflexivity.
+
+ destruct (stop s) as [st| ]; [ idtac | reflexivity ].
+ rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
+Qed.
+
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -201,6 +212,11 @@ inversion_clear H₁ as [k₁| k₁]; subst.
     rewrite H2 in H.
     apply stretch_series_eq in H; [ idtac | apply pos_to_nat_ne_0 ].
     rewrite <- H.
+    apply stretch_series_1.
+
+    etransitivity; eassumption.
+
+    etransitivity; eassumption.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
