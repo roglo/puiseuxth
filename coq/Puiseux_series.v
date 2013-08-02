@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.95 2013-08-02 10:20:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.96 2013-08-02 13:05:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -182,6 +182,35 @@ constructor; simpl.
  rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
 Qed.
 
+Lemma zzz : ∀ n₁ n₂ s₁ s₂,
+  (n₁ < n₂)%nat
+  → stretch_series n₁ s₁ ≃ stretch_series n₂ s₂
+    → s₁ ≃ s₂.
+Proof.
+intros n₁ n₂ s₁ s₂ Hnn Hss.
+bbb.
+inversion_clear Hss; subst.
+simpl in H, H0.
+constructor.
+ intros i.
+ pose proof (H (n₁ * i)%nat) as H₁.
+ pose proof (H (n₂ * i)%nat) as H₂.
+ rewrite mult_comm, Nat.mod_mul in H₁; simpl in H₁.
+  rewrite mult_comm, Nat.mod_mul in H₂; simpl in H₂.
+   rewrite Nat.div_mul in H₁, H₂.
+    destruct (zerop ((i * n₁) mod n₂)) as [Hz₁| Hnz₁].
+     destruct (zerop ((i * n₂) mod n₁)) as [Hz₂| Hnz₂].
+      apply Nat.mod_divide in Hz₁.
+       apply Nat.mod_divide in Hz₂.
+        destruct Hz₁ as (k₁, Hz₁).
+        destruct Hz₂ as (k₂, Hz₂).
+        rewrite Hz₁ in H₁.
+        rewrite Hz₂ in H₂.
+        rewrite Nat.div_mul in H₁, H₂.
+         etransitivity; [ eassumption | idtac ].
+         etransitivity; [ idtac | eassumption ].
+bbb.
+
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -219,6 +248,7 @@ inversion_clear H₁ as [k₁| k₁]; subst.
     etransitivity; eassumption.
 
    destruct (Pos.min_dec k₁ k₂) as [Hlt| Hge].
+    rewrite H2 in H.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
