@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.102 2013-08-03 04:33:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.103 2013-08-03 17:36:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -219,6 +219,31 @@ constructor.
    rewrite Hk₂ in Hn.
    rewrite Nat.mod_mul in Hn; simpl in Hn; [ idtac | assumption ].
    rewrite Nat.div_mul in Hn; simpl in Hn; [ idtac | assumption ].
+   assert (∀ j, (n₂ | j * n₁) ∨ terms s₁ j ≍ zero fld) as Hnn₁.
+    intros j.
+    pose proof (H (j * n₁)%nat) as Hjn.
+    rewrite Nat.mod_mul in Hjn; simpl in Hjn; [ idtac | assumption ].
+    rewrite Nat.div_mul in Hjn; [ idtac | assumption ].
+    destruct (zerop ((j * n₁) mod n₂)) as [Hz| Hnz].
+     apply Nat.mod_divides in Hz; [ idtac | assumption ].
+     destruct Hz as (c, Hjnn).
+     rewrite Hjnn.
+     left; exists c; apply Nat.mul_comm.
+
+     right; assumption.
+
+    assert (∀ j, (n₁ | j * n₂) ∨ terms s₂ j ≍ zero fld) as Hnn₂.
+     intros j.
+     pose proof (H (j * n₂)%nat) as Hjn.
+     rewrite Nat.mod_mul in Hjn; simpl in Hjn; [ idtac | assumption ].
+     rewrite Nat.div_mul in Hjn; [ idtac | assumption ].
+     destruct (zerop ((j * n₂) mod n₁)) as [Hz| Hnz].
+      apply Nat.mod_divides in Hz; [ idtac | assumption ].
+      destruct Hz as (c, Hjnn).
+      rewrite Hjnn.
+      left; exists c; apply Nat.mul_comm.
+
+      right; symmetry; assumption.
 bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
