@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.101 2013-08-03 04:21:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.102 2013-08-03 04:33:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -206,6 +206,8 @@ constructor.
    destruct Hz as (k₂, Hk₂).
    rewrite Hk₁, Nat.mul_comm, Nat.div_mul in Hi₁; [ idtac | assumption ].
    rewrite Hk₂, Nat.mul_comm, Nat.div_mul in Hi₂; [ idtac | assumption ].
+   remember Hk₁ as Hnk₁; clear HeqHnk₁.
+   remember Hk₂ as Hnk₂; clear HeqHnk₂.
    apply Nat.mul_cancel_r with (p := n₂) in Hk₁; [ idtac | assumption ].
    apply Nat.mul_cancel_r with (p := n₁) in Hk₂; [ idtac | assumption ].
    rewrite Nat.mul_shuffle0 in Hk₂.
