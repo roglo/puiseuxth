@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.103 2013-08-03 17:36:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.104 2013-08-03 21:34:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -198,52 +198,36 @@ constructor.
  rewrite Nat.mod_mul in Hi₁, Hi₂; [ idtac | assumption | assumption ].
  simpl in Hi₁, Hi₂.
  rewrite Nat.div_mul in Hi₁, Hi₂; [ idtac | assumption | assumption ].
- destruct (zerop ((i * n₁) mod n₂)) as [Hz| Hnz].
-  apply Nat.mod_divides in Hz; [ idtac | assumption ].
-  destruct Hz as (k₁, Hk₁).
-  destruct (zerop ((i * n₂) mod n₁)) as [Hz| Hnz].
-   apply Nat.mod_divides in Hz; [ idtac | assumption ].
-   destruct Hz as (k₂, Hk₂).
-   rewrite Hk₁, Nat.mul_comm, Nat.div_mul in Hi₁; [ idtac | assumption ].
-   rewrite Hk₂, Nat.mul_comm, Nat.div_mul in Hi₂; [ idtac | assumption ].
-   remember Hk₁ as Hnk₁; clear HeqHnk₁.
-   remember Hk₂ as Hnk₂; clear HeqHnk₂.
-   apply Nat.mul_cancel_r with (p := n₂) in Hk₁; [ idtac | assumption ].
-   apply Nat.mul_cancel_r with (p := n₁) in Hk₂; [ idtac | assumption ].
-   rewrite Nat.mul_shuffle0 in Hk₂.
-   rewrite Hk₁ in Hk₂.
-   pose proof (H (k₁ * n₂ * n₂)%nat) as Hn.
-   rewrite Nat.mod_mul in Hn; simpl in Hn; [ idtac | assumption ].
-   rewrite Nat.div_mul in Hn; simpl in Hn; [ idtac | assumption ].
-   rewrite Nat.mul_shuffle0, Nat.mul_comm, Nat.mul_assoc in Hk₂.
-   rewrite Hk₂ in Hn.
-   rewrite Nat.mod_mul in Hn; simpl in Hn; [ idtac | assumption ].
-   rewrite Nat.div_mul in Hn; simpl in Hn; [ idtac | assumption ].
-   assert (∀ j, (n₂ | j * n₁) ∨ terms s₁ j ≍ zero fld) as Hnn₁.
-    intros j.
-    pose proof (H (j * n₁)%nat) as Hjn.
-    rewrite Nat.mod_mul in Hjn; simpl in Hjn; [ idtac | assumption ].
-    rewrite Nat.div_mul in Hjn; [ idtac | assumption ].
-    destruct (zerop ((j * n₁) mod n₂)) as [Hz| Hnz].
-     apply Nat.mod_divides in Hz; [ idtac | assumption ].
-     destruct Hz as (c, Hjnn).
-     rewrite Hjnn.
-     left; exists c; apply Nat.mul_comm.
+ destruct i.
+  simpl in Hi₁, Hi₂.
+  rewrite Nat.mod_0_l in Hi₁, Hi₂; [ idtac | assumption | assumption ].
+  simpl in Hi₁, Hi₂.
+  rewrite Nat.div_0_l in Hi₁; assumption.
 
-     right; assumption.
+  destruct i.
+   simpl in Hi₁, Hi₂.
+   rewrite Nat.add_0_r in Hi₁, Hi₂.
+   destruct (zerop (n₁ mod n₂)) as [Hz| Hnz].
+    apply Nat.mod_divides in Hz; [ idtac | assumption ].
+    destruct Hz as (k₁, Hk₁).
+    rewrite Nat.mul_comm in Hk₁.
+    subst n₁.
+    rewrite Nat.div_mul in Hi₁; [ idtac | assumption ].
+    rewrite Nat.mul_comm in Hi₂.
+    destruct k₁.
+     exfalso; apply Hn₁; reflexivity.
 
-    assert (∀ j, (n₁ | j * n₂) ∨ terms s₂ j ≍ zero fld) as Hnn₂.
-     intros j.
-     pose proof (H (j * n₂)%nat) as Hjn.
-     rewrite Nat.mod_mul in Hjn; simpl in Hjn; [ idtac | assumption ].
-     rewrite Nat.div_mul in Hjn; [ idtac | assumption ].
-     destruct (zerop ((j * n₂) mod n₁)) as [Hz| Hnz].
-      apply Nat.mod_divides in Hz; [ idtac | assumption ].
-      destruct Hz as (c, Hjnn).
-      rewrite Hjnn.
-      left; exists c; apply Nat.mul_comm.
+     rewrite Nat.mod_mul_r in Hi₂; [ idtac | assumption | idtac ].
+      rewrite Nat.mod_same in Hi₂; [ idtac | assumption ].
+      rewrite Nat.div_same in Hi₂; [ idtac | assumption ].
+      rewrite Nat.mod_1_l in Hi₂.
+       rewrite Nat.add_0_l, Nat.mul_1_r in Hi₂.
+       destruct (zerop n₂) as [Hz| Hnz].
+        subst n₂.
+        rewrite Nat.mul_comm in Hn₁; exfalso; apply Hn₁; reflexivity.
 
-      right; symmetry; assumption.
+        symmetry in Hi₂.
+        rewrite Hi₂.
 bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
