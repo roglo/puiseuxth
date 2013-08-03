@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.99 2013-08-02 18:14:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.100 2013-08-03 03:32:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -205,6 +205,18 @@ constructor.
        destruct Hz as (k₂, Hk₂).
        rewrite Hk₁, Nat.mul_comm, Nat.div_mul in Hi₁.
         rewrite Hk₂, Nat.mul_comm, Nat.div_mul in Hi₂.
+         apply Nat.mul_cancel_r with (p := n₂) in Hk₁.
+          apply Nat.mul_cancel_r with (p := n₁) in Hk₂.
+           rewrite Nat.mul_shuffle0 in Hk₂.
+           rewrite Hk₁ in Hk₂.
+           pose proof (H (k₁ * n₂ * n₂)%nat) as Hn.
+           rewrite Nat.mod_mul in Hn; simpl in Hn.
+            rewrite Nat.div_mul in Hn; simpl in Hn.
+             rewrite Nat.mul_shuffle0, Nat.mul_comm, Nat.mul_assoc in Hk₂.
+             rewrite Hk₂ in Hn.
+             rewrite Nat.mod_mul in Hn; simpl in Hn.
+              rewrite Nat.div_mul in Hn; simpl in Hn.
+              Focus 1.
 bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
