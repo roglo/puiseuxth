@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.105 2013-08-04 02:43:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.106 2013-08-04 08:32:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,8 +15,7 @@ Axiom functional_extensionality : ∀ α β (f g : α → β),
 
 Record puiseux_series α := mkps
   { ps_terms : series α;
-    ps_valnum : Z;
-    ps_comden : positive }.
+    ps_valuation : Q }.
 
 (* [series_head] skip the possible terms with null coefficients and return
    the sub-series of the initial series whose coefficient of the first term
@@ -42,40 +41,56 @@ Definition stretch_series k s :=
        end |}.
 
 Definition normal l cd ps :=
-  {| ps_terms := stretch_series cd (ps_terms ps);
-     ps_valnum := Z.mul (ps_valnum ps) (Z.of_nat cd);
-     ps_comden := l |}.
+  {| ps_terms :=
+       stretch_series cd (ps_terms ps);
+     ps_valuation :=
+       Qmake (Z.mul (Qnum (ps_valuation ps)) (Z.of_nat cd)) l |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
+Definition PmulQ p q := Qmake ('p * Qnum q) (Qden q).
+
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_stretched_l : ∀ k ps₁ ps₂,
       stretch_series (Pos.to_nat k) (ps_terms ps₁) ≃ ps_terms ps₂
-      → ps_valnum ps₁ = ps_valnum ps₂
-        → ps_comden ps₁ = (k * ps_comden ps₂)%positive
-           → eq_ps ps₁ ps₂
+      → PmulQ k (ps_valuation ps₁) = ps_valuation ps₂
+        → eq_ps ps₁ ps₂
   | eq_ps_stretched_r : ∀ k ps₁ ps₂,
       ps_terms ps₁ ≃ stretch_series (Pos.to_nat k) (ps_terms ps₂)
-      → ps_valnum ps₁ = ps_valnum ps₂
-        → (k * ps_comden ps₁)%positive = ps_comden ps₂
-          → eq_ps ps₁ ps₂.
+      → ps_valuation ps₁ = PmulQ k (ps_valuation ps₂)
+        → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
+
+Lemma PmulQ_mul_distr : ∀ p₁ p₂ q, PmulQ (p₁ * p₂) q = PmulQ p₁ (PmulQ p₂ q).
+Proof.
+intros p₁ p₂ q.
+unfold PmulQ; simpl.
+destruct (Qnum q).
+ reflexivity.
+
+ rewrite Pos.mul_assoc; reflexivity.
+
+ rewrite Pos.mul_assoc; reflexivity.
+Qed.
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-constructor 1 with (k := 1%positive); [ idtac | reflexivity | reflexivity ].
-unfold stretch_series; simpl.
-destruct ps as (s, v, c); simpl.
-constructor; simpl.
- intros i.
- rewrite divmod_div.
- rewrite Nat.div_1_r; reflexivity.
+constructor 1 with (k := 1%positive).
+ unfold stretch_series; simpl.
+ destruct ps as (s, v, c); simpl.
+ constructor; simpl.
+  intros i.
+  rewrite divmod_div.
+  rewrite Nat.div_1_r; reflexivity.
 
- destruct (stop s) as [st| ]; [ idtac | reflexivity ].
- rewrite mult_1_r; reflexivity.
+  destruct (stop s) as [st| ]; [ idtac | reflexivity ].
+  rewrite mult_1_r; reflexivity.
+
+ destruct (ps_valuation ps); simpl.
+ destruct Qnum; reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
@@ -252,10 +267,8 @@ inversion_clear H₁ as [k₁| k₁]; subst.
     apply pos_to_nat_ne_0.
 
    symmetry.
-   etransitivity; eassumption.
-
-   symmetry.
-   rewrite <- Pos.mul_assoc, <- H4; assumption.
+   rewrite <- H2, <- H0, Pos.mul_comm.
+   apply PmulQ_mul_distr.
 
   destruct (Pos.eq_dec k₁ k₂) as [Heq| Hne].
    subst k₂.
