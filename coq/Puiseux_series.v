@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.106 2013-08-04 08:32:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.107 2013-08-04 19:31:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -73,6 +73,32 @@ destruct (Qnum q).
  rewrite Pos.mul_assoc; reflexivity.
 
  rewrite Pos.mul_assoc; reflexivity.
+Qed.
+
+Lemma PmulQ_cancel_l : ∀ p q₁ q₂, PmulQ p q₁ = PmulQ p q₂ → q₁ = q₂.
+Proof.
+intros p (qn₁, qd₁) (qn₂, qd₂) H.
+unfold PmulQ in H; simpl in H.
+destruct qn₁.
+ destruct qn₂; [ assumption | discriminate H | discriminate H ].
+
+ destruct qn₂; [ discriminate H | idtac | discriminate H ].
+ injection H; intros; subst.
+ apply Pos.mul_cancel_l in H1.
+ subst; reflexivity.
+
+ destruct qn₂; [ discriminate H | discriminate H | idtac ].
+ injection H; intros; subst.
+ apply Pos.mul_cancel_l in H1.
+ subst; reflexivity.
+Qed.
+
+Lemma PmulQ_1_l : ∀ q, PmulQ 1 q = q.
+Proof.
+intros q.
+unfold PmulQ.
+rewrite Z.mul_1_l.
+destruct q; reflexivity.
 Qed.
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
@@ -197,57 +223,6 @@ constructor; simpl.
  rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
 Qed.
 
-(*
-Lemma zzz : ∀ n₁ n₂ s₁ s₂,
-  n₁ ≠ O
-  → n₂ ≠ O
-    → stretch_series n₁ s₁ ≃ stretch_series n₂ s₂
-      → s₁ ≃ s₂.
-Proof.
-intros n₁ n₂ s₁ s₂ Hn₁ Hn₂ Hss.
-inversion_clear Hss; subst.
-simpl in H, H0.
-constructor.
- intros i.
- pose proof (H (i * n₁)%nat) as Hi₁.
- pose proof (H (i * n₂)%nat) as Hi₂.
- rewrite Nat.mod_mul in Hi₁, Hi₂; [ idtac | assumption | assumption ].
- simpl in Hi₁, Hi₂.
- rewrite Nat.div_mul in Hi₁, Hi₂; [ idtac | assumption | assumption ].
- destruct i.
-  simpl in Hi₁, Hi₂.
-  rewrite Nat.mod_0_l in Hi₁, Hi₂; [ idtac | assumption | assumption ].
-  simpl in Hi₁, Hi₂.
-  rewrite Nat.div_0_l in Hi₁; assumption.
-
-  destruct i.
-   simpl in Hi₁, Hi₂.
-   rewrite Nat.add_0_r in Hi₁, Hi₂.
-   destruct (zerop (n₁ mod n₂)) as [Hz| Hnz].
-    apply Nat.mod_divides in Hz; [ idtac | assumption ].
-    destruct Hz as (k₁, Hk₁).
-    rewrite Nat.mul_comm in Hk₁.
-    subst n₁.
-    rewrite Nat.div_mul in Hi₁; [ idtac | assumption ].
-    rewrite Nat.mul_comm in Hi₂.
-    destruct k₁.
-     exfalso; apply Hn₁; reflexivity.
-
-     rewrite Nat.mod_mul_r in Hi₂; [ idtac | assumption | idtac ].
-      rewrite Nat.mod_same in Hi₂; [ idtac | assumption ].
-      rewrite Nat.div_same in Hi₂; [ idtac | assumption ].
-      rewrite Nat.mod_1_l in Hi₂.
-       rewrite Nat.add_0_l, Nat.mul_1_r in Hi₂.
-       destruct (zerop n₂) as [Hz| Hnz].
-        subst n₂.
-        rewrite Nat.mul_comm in Hn₁; exfalso; apply Hn₁; reflexivity.
-
-        symmetry in Hi₂.
-        destruct k₁; [ assumption | idtac ].
-        rewrite Hi₂.
-bbb.
-*)
-
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -273,17 +248,14 @@ inversion_clear H₁ as [k₁| k₁]; subst.
   destruct (Pos.eq_dec k₁ k₂) as [Heq| Hne].
    subst k₂.
    apply eq_ps_stretched_l with (k := 1%positive).
-    rewrite H2 in H.
+    rewrite H1 in H.
     apply stretch_series_eq in H; [ idtac | apply pos_to_nat_ne_0 ].
     rewrite <- H.
     apply stretch_series_1.
 
-    etransitivity; eassumption.
-
-    etransitivity; eassumption.
-
-   destruct (Pos.min_dec k₁ k₂) as [Hlt| Hge].
-    rewrite H2 in H.
+    rewrite H2 in H0.
+    apply PmulQ_cancel_l in H0.
+    rewrite PmulQ_1_l; assumption.
 bbb.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
