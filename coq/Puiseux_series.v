@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.104 2013-08-03 21:34:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.105 2013-08-04 02:43:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -182,6 +182,7 @@ constructor; simpl.
  rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
 Qed.
 
+(*
 Lemma zzz : ∀ n₁ n₂ s₁ s₂,
   n₁ ≠ O
   → n₂ ≠ O
@@ -227,8 +228,10 @@ constructor.
         rewrite Nat.mul_comm in Hn₁; exfalso; apply Hn₁; reflexivity.
 
         symmetry in Hi₂.
+        destruct k₁; [ assumption | idtac ].
         rewrite Hi₂.
 bbb.
+*)
 
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
