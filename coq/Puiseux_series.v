@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.109 2013-08-05 03:03:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.110 2013-08-05 06:01:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -49,22 +49,22 @@ Definition normal l cd ps :=
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
-Definition PmulQ p q := Qmake ('p * Qnum q) (Qden q).
+Definition PQmul p q := Qmake ('p * Qnum q) (Qden q).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
       stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
       stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
-      → PmulQ k₁ (ps_valuation ps₁) = PmulQ k₂ (ps_valuation ps₂)
+      → PQmul k₁ (ps_valuation ps₁) = PQmul k₂ (ps_valuation ps₂)
         → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
-Lemma PmulQ_comm : ∀ p₁ p₂ q,
-  PmulQ p₁ (PmulQ p₂ q) = PmulQ p₂ (PmulQ p₁ q).
+Lemma PQmul_comm : ∀ p₁ p₂ q,
+  PQmul p₁ (PQmul p₂ q) = PQmul p₂ (PQmul p₁ q).
 Proof.
 intros p₁ p₂ (qn, dn).
-unfold PmulQ; simpl.
+unfold PQmul; simpl.
 destruct qn; [ reflexivity | idtac | idtac ].
  do 2 rewrite Pos.mul_assoc.
  do 3 f_equal.
@@ -75,10 +75,10 @@ destruct qn; [ reflexivity | idtac | idtac ].
  apply Pos.mul_comm.
 Qed.
 
-Lemma PmulQ_mul_distr : ∀ p₁ p₂ q, PmulQ (p₁ * p₂) q = PmulQ p₁ (PmulQ p₂ q).
+Lemma PQmul_mul_distr : ∀ p₁ p₂ q, PQmul (p₁ * p₂) q = PQmul p₁ (PQmul p₂ q).
 Proof.
 intros p₁ p₂ q.
-unfold PmulQ; simpl.
+unfold PQmul; simpl.
 destruct (Qnum q).
  reflexivity.
 
@@ -87,13 +87,13 @@ destruct (Qnum q).
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
-Lemma PmulQ_cancel_l : ∀ p q₁ q₂, PmulQ p q₁ = PmulQ p q₂ ↔ q₁ = q₂.
+Lemma PQmul_cancel_l : ∀ p q₁ q₂, PQmul p q₁ = PQmul p q₂ ↔ q₁ = q₂.
 Proof.
 intros p q₁ q₂.
 split; intros H; [ idtac | subst; reflexivity ].
 destruct q₁ as (qn₁, qd₁).
 destruct q₂ as (qn₂, qd₂).
-unfold PmulQ in H; simpl in H.
+unfold PQmul in H; simpl in H.
 destruct qn₁.
  destruct qn₂; [ assumption | discriminate H | discriminate H ].
 
@@ -108,10 +108,10 @@ destruct qn₁.
  subst; reflexivity.
 Qed.
 
-Lemma PmulQ_1_l : ∀ q, PmulQ 1 q = q.
+Lemma PQmul_1_l : ∀ q, PQmul 1 q = q.
 Proof.
 intros q.
-unfold PmulQ.
+unfold PQmul.
 rewrite Z.mul_1_l.
 destruct q; reflexivity.
 Qed.
@@ -229,13 +229,13 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as (k₁₁, k₁₂).
 inversion_clear H₂ as (k₂₁, k₂₂).
-apply PmulQ_cancel_l with (p := k₂₁) in H0.
-apply PmulQ_cancel_l with (p := k₁₂) in H2.
+apply PQmul_cancel_l with (p := k₂₁) in H0.
+apply PQmul_cancel_l with (p := k₁₂) in H2.
 symmetry in H0.
-rewrite PmulQ_comm in H0.
+rewrite PQmul_comm in H0.
 rewrite H0 in H2.
-rewrite <- PmulQ_mul_distr in H2.
-rewrite <- PmulQ_mul_distr in H2.
+rewrite <- PQmul_mul_distr in H2.
+rewrite <- PQmul_mul_distr in H2.
 econstructor; [ idtac | eassumption ].
 do 2 rewrite Pos2Nat.inj_mul.
 rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
