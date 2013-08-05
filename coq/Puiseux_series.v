@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.112 2013-08-05 08:05:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.113 2013-08-05 08:32:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -424,17 +424,15 @@ destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
 
 Add Parametric Morphism : (@mkps α) with 
-signature (eq_series fld) ==> eq ==> eq ==> eq_ps as mkps_morph.
+signature (eq_series fld) ==> eq ==> eq_ps as mkps_morph.
 Proof.
-intros s₁ s₂ Hs v c.
-constructor; [ assumption | reflexivity | reflexivity ].
-Qed.
+intros s₁ s₂ Heq v.
+inversion_clear Heq; subst.
+constructor 1 with (k₁ := 1%positive) (k₂ := 1%positive).
+ do 2 rewrite stretch_series_1; simpl.
+ constructor; assumption.
 
-Add Parametric Morphism : (@ps_terms α) with 
-signature eq_ps ==> eq_series fld as ps_terms_morph.
-Proof.
-intros ps₁ ps₂ Hps.
-inversion Hps; assumption.
+ reflexivity.
 Qed.
 
 Add Parametric Morphism : series_pad_left with 
