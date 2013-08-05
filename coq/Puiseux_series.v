@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.119 2013-08-05 18:44:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.120 2013-08-05 19:01:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -295,7 +295,7 @@ Theorem normal_eq : ∀ l ps, normal l ps ≈ ps.
 Proof.
 intros l ps.
 unfold normal.
-constructor 1 with (k₁ := l) (k₂ := Pos.of_nat cd); simpl.
+econstructor; simpl.
  rewrite <- stretch_stretch_series.
 bbb.
 *)
