@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.108 2013-08-05 02:59:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.109 2013-08-05 03:03:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -237,40 +237,15 @@ rewrite H0 in H2.
 rewrite <- PmulQ_mul_distr in H2.
 rewrite <- PmulQ_mul_distr in H2.
 econstructor; [ idtac | eassumption ].
-bbb.
-
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion_clear H₁ as [k₁| k₁]; subst.
- inversion_clear H₂ as [k₂| k₂]; subst.
-  apply eq_ps_sym.
-  apply eq_ps_stretched_r with (k := (k₁ * k₂)%positive).
-   symmetry.
-   etransitivity; [ idtac | eassumption ].
-   rewrite Pos2Nat.inj_mul.
-   rewrite mult_comm.
-   rewrite stretch_stretch_series.
-    rewrite H; reflexivity.
-
-    apply pos_to_nat_ne_0.
-
-    apply pos_to_nat_ne_0.
-
-   symmetry.
-   rewrite <- H2, <- H0, Pos.mul_comm.
-   apply PmulQ_mul_distr.
-
-  destruct (Pos.eq_dec k₁ k₂) as [Heq| Hne].
-   subst k₂.
-   apply eq_ps_stretched_l with (k := 1%positive).
-    rewrite H1 in H.
-    apply stretch_series_eq in H; [ idtac | apply pos_to_nat_ne_0 ].
-    rewrite <- H.
-    apply stretch_series_1.
-
-    rewrite H2 in H0.
-    apply PmulQ_cancel_l in H0.
-    rewrite PmulQ_1_l; assumption.
-bbb.
+do 2 rewrite Pos2Nat.inj_mul.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite H.
+rewrite <- H1.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite Nat.mul_comm; reflexivity.
+Qed.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
  reflexivity proved by eq_ps_refl
