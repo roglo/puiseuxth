@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.115 2013-08-05 09:12:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.116 2013-08-05 14:49:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -43,17 +43,18 @@ Definition stretch_series k s :=
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
-Definition PQmul p q := Qmake ('p * Qnum q) (Qden q).
+Definition Qmul₁ p q := 'p * Qnum q # p * Qden q.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
       stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
       stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
-      → PQmul k₁ (ps_valuation ps₁) = PQmul k₂ (ps_valuation ps₂)
+      → Qmul₁ k₁ (ps_valuation ps₁) = Qmul₁ k₂ (ps_valuation ps₂)
         → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
+(*
 Lemma PQmul_comm : ∀ p₁ p₂ q,
   PQmul p₁ (PQmul p₂ q) = PQmul p₂ (PQmul p₁ q).
 Proof.
@@ -109,6 +110,7 @@ unfold PQmul.
 rewrite Z.mul_1_l.
 destruct q; reflexivity.
 Qed.
+*)
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -261,13 +263,16 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | None => zero fld
   end.
 
-Definition normal l cd ps :=
-  {| ps_terms := stretch_series cd (ps_terms ps);
-     ps_valuation := (ps_valuation ps * Z.of_nat cd) # l |}.
+Definition normal l ps :=
+  let cd := div l (Pos.to_nat (Qden (ps_valuation ps))) in
+  {| ps_terms :=
+       stretch_series cd (ps_terms ps);
+     ps_valuation :=
+       Qnum (ps_valuation ps) * Z.of_nat cd # Pos.of_nat l |}.
 
-Theorem normal_eq : ∀ l cd ps, normal l cd ps ≈ ps.
+Theorem normal_eq : ∀ l ps, normal l ps ≈ ps.
 Proof.
-intros l cd ps.
+intros l ps.
 unfold normal.
 constructor 1 with (k₁ := l) (k₂ := Pos.of_nat cd); simpl.
  rewrite <- stretch_stretch_series.
