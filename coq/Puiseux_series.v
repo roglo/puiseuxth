@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.118 2013-08-05 17:54:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.119 2013-08-05 18:44:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -254,24 +254,11 @@ inversion_clear H₂ as (k₂₁, k₂₂).
 apply Qmul₁_mul_cancel_l with (k := k₂₁) in H0.
 apply Qmul₁_mul_cancel_l with (k := k₁₂) in H2.
 rewrite Pos.mul_comm, <- H0 in H2.
-bbb.
-
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion_clear H₁ as (k₁₁, k₁₂).
-inversion_clear H₂ as (k₂₁, k₂₂).
-apply PQmul_cancel_l with (p := k₂₁) in H0.
-apply PQmul_cancel_l with (p := k₁₂) in H2.
-symmetry in H0.
-rewrite PQmul_comm in H0.
-rewrite H0 in H2.
-rewrite <- PQmul_mul_distr in H2.
-rewrite <- PQmul_mul_distr in H2.
 econstructor; [ idtac | eassumption ].
 do 2 rewrite Pos2Nat.inj_mul.
 rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite H.
-rewrite <- H1.
+rewrite H, <- H1.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite Nat.mul_comm; reflexivity.
