@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.110 2013-08-05 06:01:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.111 2013-08-05 07:56:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,12 +17,12 @@ Record puiseux_series α := mkps
   { ps_terms : series α;
     ps_valuation : Q }.
 
-(* [series_head] skip the possible terms with null coefficients and return
-   the sub-series of the initial series whose coefficient of the first term
-   is not null. E.g.: applied to
-       0+0x³+5x⁵+0x⁷+3x⁸+...
-   would return
-       5x⁵+0x⁷+3x⁸+... *)
+(* [series_head is_zero n s] skip the possible terms (starting from the nth
+   one) with null coefficients and return either the couple of the rank of
+   the first non null coefficient and the value of this coefficient or
+   None if the series is null. Allows to compute the real valuation of a
+   series, skipping the heading zeroes. Cannot be implemented in Coq since
+   can take an infinite amount of time. *)
 Definition series_head : ∀ α, (α → Prop) → nat → series α → option (nat * α).
 Proof. Admitted.
 
@@ -41,10 +41,8 @@ Definition stretch_series k s :=
        end |}.
 
 Definition normal l cd ps :=
-  {| ps_terms :=
-       stretch_series cd (ps_terms ps);
-     ps_valuation :=
-       Qmake (Z.mul (Qnum (ps_valuation ps)) (Z.of_nat cd)) l |}.
+  {| ps_terms := stretch_series cd (ps_terms ps);
+     ps_valuation := Qnum (ps_valuation ps) * Z.of_nat cd # l |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
@@ -253,14 +251,16 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  transitivity proved by eq_ps_trans
  as eq_ps_rel.
 
+(*
 Theorem normal_eq : ∀ k ps, normal (k * ps_comden ps) 1%nat ps ≈ ps.
 Proof.
 bbb.
+*)
 
 Definition valuation (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (n, c) =>
-      Some (Qmake (Z.add (ps_valnum ps) (Z.of_nat n)) (ps_comden ps))
+      Some (Qnum (ps_valuation ps) + Z.of_nat n # Qden (ps_valuation ps))
   | None =>
       None
   end.
