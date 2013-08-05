@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.114 2013-08-05 08:55:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.115 2013-08-05 09:12:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -247,14 +247,6 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  transitivity proved by eq_ps_trans
  as eq_ps_rel.
 
-Definition normal l cd ps :=
-  {| ps_terms := stretch_series cd (ps_terms ps);
-     ps_valuation := Qnum (ps_valuation ps) * Z.of_nat cd # l |}.
-
-Theorem normal_eq : ∀ l cd ps, normal l cd ps ≈ ps.
-Proof.
-bbb.
-
 Definition valuation (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (n, c) =>
@@ -268,6 +260,19 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | Some (_, c) => c
   | None => zero fld
   end.
+
+Definition normal l cd ps :=
+  {| ps_terms := stretch_series cd (ps_terms ps);
+     ps_valuation := (ps_valuation ps * Z.of_nat cd) # l |}.
+
+Theorem normal_eq : ∀ l cd ps, normal l cd ps ≈ ps.
+Proof.
+intros l cd ps.
+unfold normal.
+constructor 1 with (k₁ := l) (k₂ := Pos.of_nat cd); simpl.
+ rewrite <- stretch_stretch_series.
+bbb.
+*)
 
 (* ps_add *)
 
