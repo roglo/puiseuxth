@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.111 2013-08-05 07:56:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.112 2013-08-05 08:05:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -282,27 +282,24 @@ Definition series_pad_left n s :=
        end |}.
 
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ps₁)).
+  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+  NPeano.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁))).
 
 Definition valnum_diff_0 ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
-     ps_valnum := ps_valnum ps₁;
-     ps_comden := ps_comden ps₁ |}.
+     ps_valuation := ps_valuation ps₁ |}.
 
 Definition valnum_diff_pos n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (ps_terms ps₁)
          (series_pad_left (Pos.to_nat n) (ps_terms ps₂));
-     ps_valnum := ps_valnum ps₁;
-     ps_comden := ps_comden ps₁ |}.
+     ps_valuation := ps_valuation ps₁ |}.
 
 Definition valnum_diff_neg n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (series_pad_left (Pos.to_nat n) (ps_terms ps₁))
          (ps_terms ps₂);
-     ps_valnum := ps_valnum ps₂;
-     ps_comden := ps_comden ps₂ |}.
+     ps_valuation := ps_valuation ps₂ |}.
 
 Definition valnum_diff ms₁ ms₂ d :=
   match d with
@@ -312,10 +309,11 @@ Definition valnum_diff ms₁ ms₂ d :=
   end.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
   let ms₁ := normal l (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := normal l (lcm_div ps₂ ps₁) ps₂ in
-  valnum_diff ms₁ ms₂ (Z.sub (ps_valnum ms₂) (ps_valnum ms₁)).
+  valnum_diff ms₁ ms₂
+    (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
 
 (* ps_mul *)
 
@@ -361,17 +359,18 @@ Definition ps_mul_term (s₁ s₂ : series α) :=
        | None => None
        end |}.
 
-Definition ps_mul (ms₁ ms₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ms₁) (ps_comden ms₂) in
+Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
   let ms₁ :=
-    normal l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₁))) ms₁
+    normal l
+      (NPeano.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))) ps₁
   in
   let ms₂ :=
-    normal l (NPeano.div (Pos.to_nat l) (Pos.to_nat (ps_comden ms₂))) ms₂
+    normal l
+      (NPeano.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₂)))) ps₂
   in
   {| ps_terms := ps_mul_term (ps_terms ms₁) (ps_terms ms₂);
-     ps_valnum := Z.add (ps_valnum ms₁) (ps_valnum ms₂);
-     ps_comden := l |}.
+     ps_valuation := Qnum (ps_valuation ms₁) + Qnum (ps_valuation ms₂) # l |}.
 
 (* *)
 
