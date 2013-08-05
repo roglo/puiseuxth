@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.117 2013-08-05 15:19:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.118 2013-08-05 17:54:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -81,28 +81,54 @@ destruct (Qnum q).
 
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
+*)
 
-Lemma PQmul_cancel_l : ∀ p q₁ q₂, PQmul p q₁ = PQmul p q₂ ↔ q₁ = q₂.
+Lemma Qmul₁_mul_cancel_l : ∀ k k₁ q₁ k₂ q₂,
+  Qmul₁ (k * k₁) q₁ = Qmul₁ (k * k₂) q₂
+  ↔ Qmul₁ k₁ q₁ = Qmul₁ k₂ q₂.
 Proof.
-intros p q₁ q₂.
-split; intros H; [ idtac | subst; reflexivity ].
+intros k k₁ q₁ k₂ q₂.
 destruct q₁ as (qn₁, qd₁).
 destruct q₂ as (qn₂, qd₂).
-unfold PQmul in H; simpl in H.
-destruct qn₁.
- destruct qn₂; [ assumption | discriminate H | discriminate H ].
+unfold Qmul₁; simpl.
+split; intros H.
+ injection H; clear H; intros.
+ do 2 rewrite <- Pos.mul_assoc in H.
+ apply Pos.mul_cancel_l in H.
+ rewrite H; f_equal.
+ destruct qn₁.
+  destruct qn₂; try discriminate H0; reflexivity.
 
- destruct qn₂; [ discriminate H | idtac | discriminate H ].
- injection H; intros; subst.
- apply Pos.mul_cancel_l in H1.
- subst; reflexivity.
+  destruct qn₂; try discriminate H0.
+  injection H0; clear H0; intros.
+  do 2 rewrite <- Pos.mul_assoc in H0.
+  apply Pos.mul_cancel_l in H0.
+  rewrite H0; reflexivity.
 
- destruct qn₂; [ discriminate H | discriminate H | idtac ].
- injection H; intros; subst.
- apply Pos.mul_cancel_l in H1.
- subst; reflexivity.
+  destruct qn₂; try discriminate H0.
+  injection H0; clear H0; intros.
+  do 2 rewrite <- Pos.mul_assoc in H0.
+  apply Pos.mul_cancel_l in H0.
+  rewrite H0; reflexivity.
+
+ injection H; clear H; intros.
+ do 2 rewrite <- Pos.mul_assoc.
+ rewrite H; f_equal.
+ destruct qn₁.
+  destruct qn₂; try discriminate H0; reflexivity.
+
+  destruct qn₂; try discriminate H0.
+  injection H0; clear H0; intros.
+  do 2 rewrite <- Pos.mul_assoc.
+  rewrite H0; reflexivity.
+
+  destruct qn₂; try discriminate H0.
+  injection H0; clear H0; intros.
+  do 2 rewrite <- Pos.mul_assoc.
+  rewrite H0; reflexivity.
 Qed.
 
+(*
 Lemma PQmul_1_l : ∀ q, PQmul 1 q = q.
 Proof.
 intros q.
@@ -220,59 +246,16 @@ constructor; simpl.
  rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
 Qed.
 
-Lemma Qmul₁_mul_cancel_l : ∀ k k₁ q₁ k₂ q₂,
-  Qmul₁ (k * k₁) q₁ = Qmul₁ (k * k₂) q₂
-  ↔ Qmul₁ k₁ q₁ = Qmul₁ k₂ q₂.
-Proof.
-(* à simplifier avant de poursuivre *)
-intros k k₁ q₁ k₂ q₂.
-split; intros H.
- Focus 2.
- destruct q₁ as (qn₁, qd₁).
- destruct q₂ as (qn₂, qd₂).
- unfold Qmul₁; simpl.
- unfold Qmul₁ in H; simpl in H.
- injection H; clear H; intros.
- rewrite <- Pos.mul_assoc.
- rewrite H.
- rewrite Pos.mul_assoc.
- f_equal.
- destruct qn₁.
-  destruct qn₂.
-   reflexivity.
-
-   discriminate H0.
-
-   discriminate H0.
-
-  destruct qn₂.
-   discriminate H0.
-
-   rewrite Pos2Z.inj_mul in H0.
-   rewrite Pos2Z.inj_mul.
-   rewrite Pos2Z.inj_mul.
-   rewrite <- Z.mul_assoc.
-   rewrite H0.
-   rewrite Pos2Z.inj_mul.
-   rewrite Z.mul_assoc.
-   reflexivity.
-
-   discriminate H0.
-
-  destruct qn₂.
-   discriminate H0.
-
-   discriminate H0.
-
-   injection H0; clear H0; intros.
-   rewrite <- Pos.mul_assoc.
-   rewrite H0.
-   rewrite Pos.mul_assoc.
-   reflexivity.
-bbb.
-
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
+intros ps₁ ps₂ ps₃ H₁ H₂.
+inversion_clear H₁ as (k₁₁, k₁₂).
+inversion_clear H₂ as (k₂₁, k₂₂).
+apply Qmul₁_mul_cancel_l with (k := k₂₁) in H0.
+apply Qmul₁_mul_cancel_l with (k := k₁₂) in H2.
+rewrite Pos.mul_comm, <- H0 in H2.
+bbb.
+
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as (k₁₁, k₁₂).
 inversion_clear H₂ as (k₂₁, k₂₂).
