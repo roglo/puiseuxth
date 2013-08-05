@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.116 2013-08-05 14:49:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.117 2013-08-05 15:19:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -219,6 +219,57 @@ constructor; simpl.
  destruct (stop s) as [st| ]; [ idtac | reflexivity ].
  rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
 Qed.
+
+Lemma Qmul₁_mul_cancel_l : ∀ k k₁ q₁ k₂ q₂,
+  Qmul₁ (k * k₁) q₁ = Qmul₁ (k * k₂) q₂
+  ↔ Qmul₁ k₁ q₁ = Qmul₁ k₂ q₂.
+Proof.
+(* à simplifier avant de poursuivre *)
+intros k k₁ q₁ k₂ q₂.
+split; intros H.
+ Focus 2.
+ destruct q₁ as (qn₁, qd₁).
+ destruct q₂ as (qn₂, qd₂).
+ unfold Qmul₁; simpl.
+ unfold Qmul₁ in H; simpl in H.
+ injection H; clear H; intros.
+ rewrite <- Pos.mul_assoc.
+ rewrite H.
+ rewrite Pos.mul_assoc.
+ f_equal.
+ destruct qn₁.
+  destruct qn₂.
+   reflexivity.
+
+   discriminate H0.
+
+   discriminate H0.
+
+  destruct qn₂.
+   discriminate H0.
+
+   rewrite Pos2Z.inj_mul in H0.
+   rewrite Pos2Z.inj_mul.
+   rewrite Pos2Z.inj_mul.
+   rewrite <- Z.mul_assoc.
+   rewrite H0.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_assoc.
+   reflexivity.
+
+   discriminate H0.
+
+  destruct qn₂.
+   discriminate H0.
+
+   discriminate H0.
+
+   injection H0; clear H0; intros.
+   rewrite <- Pos.mul_assoc.
+   rewrite H0.
+   rewrite Pos.mul_assoc.
+   reflexivity.
+bbb.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
