@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.113 2013-08-05 08:32:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.114 2013-08-05 08:55:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -39,10 +39,6 @@ Definition stretch_series k s :=
        | Some st => Some (st * k)%nat
        | None => None
        end |}.
-
-Definition normal l cd ps :=
-  {| ps_terms := stretch_series cd (ps_terms ps);
-     ps_valuation := Qnum (ps_valuation ps) * Z.of_nat cd # l |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
@@ -251,11 +247,13 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  transitivity proved by eq_ps_trans
  as eq_ps_rel.
 
-(*
-Theorem normal_eq : ∀ k ps, normal (k * ps_comden ps) 1%nat ps ≈ ps.
+Definition normal l cd ps :=
+  {| ps_terms := stretch_series cd (ps_terms ps);
+     ps_valuation := Qnum (ps_valuation ps) * Z.of_nat cd # l |}.
+
+Theorem normal_eq : ∀ l cd ps, normal l cd ps ≈ ps.
 Proof.
 bbb.
-*)
 
 Definition valuation (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
@@ -458,6 +456,14 @@ Qed.
 Add Parametric Morphism l m : (normal l m) with
 signature eq_ps ==> eq_ps as normal_morph.
 Proof.
+intros ps₁ ps₂ H.
+unfold normal.
+inversion_clear H.
+econstructor 1; simpl.
+ rewrite <- stretch_stretch_series.
+  rewrite <- stretch_stretch_series.
+bbb.
+
 intros ps₁ ps₂ H.
 inversion H.
 inversion H0; subst.
