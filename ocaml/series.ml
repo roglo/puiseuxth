@@ -1,4 +1,4 @@
-(* $Id: series.ml,v 1.6 2013-08-06 14:19:15 deraugla Exp $ *)
+(* $Id: series.ml,v 1.7 2013-08-06 18:42:43 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -43,3 +43,15 @@ CoFixpoint coseries_map α β (f : α → β) s :=
   | Term a t => Term (f a) (coseries_map f t)
   | End => End _
   end.
+
+open Field;
+
+value series_of_coseries fld (cs : coseries α) =
+  {terms i =
+     match coseries_nth i cs with
+     | Some c → c
+     | None → zero fld
+     end;
+   stop = None}
+;
+

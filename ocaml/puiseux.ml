@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.405 2013-07-24 22:10:01 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.406 2013-08-06 18:39:01 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -128,7 +128,7 @@ value cut_long at_middle s =
   else s
 ;
 
-CoFixpoint series_series_take α n (s : series α) :=
+CoFixpoint series_series_take α n (s : coseries α) :=
   match n with
   | O => End _
   | S n₁ =>
@@ -159,7 +159,7 @@ value string_of_old_puiseux_series fld opt cancel_zeroes vx nb_terms ps =
   in
   let ellipses =
     if nb_terms = 0 then ""
-    else if series_nth nb_terms ps.ops_terms <> None then " + ..."
+    else if coseries_nth nb_terms ps.ops_terms <> None then " + ..."
     else ""
   in
   let t = tree_of_puiseux_series fld cancel_zeroes ps₂ in
@@ -344,7 +344,7 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
       End _
   end.
 
-Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
+Fixpoint puiseux_comden α n cd (s : coseries (term α Q)) :=
   match n with
   | O => cd
   | S n₁ =>

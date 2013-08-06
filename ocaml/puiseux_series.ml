@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.205 2013-08-06 14:19:15 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.206 2013-08-06 18:39:01 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -10,7 +10,7 @@ open Pnums;
 open Series;
 
 Record puiseux_series α :=
-  { ps_terms : series α;
+  { ps_terms : coseries α;
     ps_valuation : Q }.
 
 value rec series_head is_zero n s =
@@ -40,7 +40,7 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
 
 value norm fld f x y = fld.ext.normalise (f x y);
 
-CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
+CoFixpoint normal_terms α fld n cd₁ (s : coseries α) :=
   match s with
   | Term c ss =>
       match n with
@@ -108,18 +108,18 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
   | S ni =>
       match sum_mul_coeff fld (S i) ni s₁ s₂ with
       | Some c =>
-          match series_nth i s₁ with
+          match coseries_nth i s₁ with
           | Some c₁ =>
-              match series_nth ni s₂ with
+              match coseries_nth ni s₂ with
               | Some c₂ => Some (norm fld (add fld) (mul fld c₁ c₂) c)
               | None => Some c
               end
           | None => Some c
           end
       | None =>
-          match series_nth i s₁ with
+          match coseries_nth i s₁ with
           | Some c₁ =>
-              match series_nth ni s₂ with
+              match coseries_nth ni s₂ with
               | Some c₂ => Some (mul fld c₁ c₂)
               | None => None
               end
@@ -128,7 +128,7 @@ Fixpoint sum_mul_coeff α (fld : field α) i ni₁ s₁ s₂ :=
       end
   end.
 
-Definition series_mul_term α fld (s₁ s₂ : series α) :=
+Definition series_mul_term α fld (s₁ s₂ : coseries α) :=
   let cofix mul_loop n₁ :=
     match sum_mul_coeff fld 0 n₁ s₁ s₂ with
     | Some c => Term c (mul_loop (S n₁))
@@ -166,7 +166,7 @@ CoFixpoint complete α (zero : α) cd p s :=
       End _
   end.
 
-CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
+CoFixpoint term_series_to_coeff_series α zero cd s : coseries α :=
   match s with
   | Term t ns =>
       Term (coeff t)

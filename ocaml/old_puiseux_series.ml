@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.10 2013-07-24 22:07:05 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.11 2013-08-06 18:39:01 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -8,7 +8,7 @@ open Puiseux_series;
 open Series;
 
 Record old_puiseux_series α :=
-  { ops_terms : series (term α Q);
+  { ops_terms : coseries (term α Q);
     ops_comden : positive }.
 
 value rec old_series_head is_zero s =
@@ -27,7 +27,7 @@ Definition old_valuation α fld (ps : old_puiseux_series α) :=
 
 (* old_puiseux_series ↔ puiseux_series *)
 
-CoFixpoint term_of_ms α v (s : series α) :=
+CoFixpoint term_of_ms α v (s : coseries α) :=
   match s with
   | Term c ns =>
       Term {| coeff := c; power := Qred v |}
@@ -36,7 +36,7 @@ CoFixpoint term_of_ms α v (s : series α) :=
       End _
   end.
 
-Definition ops_terms_of_ms α (ms : puiseux_series α) : series (term α Q) :=
+Definition ops_terms_of_ms α (ms : puiseux_series α) : coseries (term α Q) :=
   term_of_ms (ps_valuation ms) (ps_terms ms).
 
 Definition ops_of_ms α (ms : puiseux_series α) :=
