@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.37 2013-07-30 09:20:39 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.38 2013-08-06 00:14:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -647,4 +647,13 @@ intros a H.
 pose proof Pos2Nat.is_pos a as HH.
 rewrite H in HH.
 revert HH; apply lt_irrefl.
+Qed.
+
+Lemma Pos_mul_shuffle0 : ∀ n m p, (n * m * p)%positive = (n * p * m)%positive.
+Proof.
+intros n m p.
+rewrite <- Pos.mul_assoc.
+remember (m * p)%positive as mp.
+rewrite Pos.mul_comm in Heqmp; subst mp.
+apply Pos.mul_assoc.
 Qed.

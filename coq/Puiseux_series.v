@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.121 2013-08-05 23:45:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.122 2013-08-06 00:14:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -323,7 +323,7 @@ Definition series_pad_left n s :=
 
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  NPeano.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁))).
+  Pos.of_nat (div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))).
 
 Definition valnum_diff_0 ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
@@ -349,9 +349,8 @@ Definition valnum_diff ms₁ ms₂ d :=
   end.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  let ms₁ := normalize l (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := normalize l (lcm_div ps₂ ps₁) ps₂ in
+  let ms₁ := normalize (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := normalize (lcm_div ps₂ ps₁) ps₂ in
   valnum_diff ms₁ ms₂
     (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
 
@@ -400,15 +399,9 @@ Definition ps_mul_term (s₁ s₂ : series α) :=
        end |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
+  let ms₁ := normalize (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := normalize (lcm_div ps₂ ps₁) ps₂ in
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  let ms₁ :=
-    normalize l
-      (NPeano.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))) ps₁
-  in
-  let ms₂ :=
-    normalize l
-      (NPeano.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₂)))) ps₂
-  in
   {| ps_terms := ps_mul_term (ps_terms ms₁) (ps_terms ms₂);
      ps_valuation := Qnum (ps_valuation ms₁) + Qnum (ps_valuation ms₂) # l |}.
 
@@ -495,32 +488,33 @@ inversion Heq; subst.
 apply H.
 Qed.
 
-Add Parametric Morphism l m : (normalize l m) with
+Add Parametric Morphism k : (normalize k) with
 signature eq_ps ==> eq_ps as normalize_morph.
 Proof.
 intros ps₁ ps₂ H.
 unfold normalize.
 inversion_clear H.
-econstructor 1; simpl.
- rewrite <- stretch_stretch_series.
-  rewrite <- stretch_stretch_series.
-bbb.
+constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
+ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite Nat.mul_comm.
+ rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+ symmetry.
+ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite Nat.mul_comm.
+ rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite H0; reflexivity.
 
-intros ps₁ ps₂ H.
-inversion H.
-inversion H0; subst.
-constructor.
- constructor.
-  intros i.
-  unfold normalize; simpl.
-  destruct (zerop (i mod m)); [ idtac | reflexivity ].
-  rewrite H3; reflexivity.
-
-  simpl; rewrite H4; reflexivity.
-
- simpl; rewrite H1; reflexivity.
-
- reflexivity.
+ unfold Qmul₁ in H1.
+ unfold Qmul₁.
+ remember Z.mul as f; simpl; subst f.
+ rewrite Z.mul_assoc, Z.mul_comm.
+ rewrite Pos.mul_assoc, Pos_mul_shuffle0, Pos.mul_comm.
+ symmetry.
+ rewrite Z.mul_assoc, Z.mul_comm.
+ rewrite Pos.mul_assoc, Pos_mul_shuffle0, Pos.mul_comm.
+ remember Z.mul as f.
+ injection H1; clear H1; intros; subst f.
+ rewrite H, H1; reflexivity.
 Qed.
 
 Add Parametric Morphism : valnum_diff with 
