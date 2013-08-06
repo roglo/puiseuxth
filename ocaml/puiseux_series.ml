@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.209 2013-08-06 19:40:54 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.210 2013-08-06 19:44:19 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -39,16 +39,6 @@ Definition valuation fld (ps : puiseux_series α) :=
 value coseries_head fld is_zero n cs =
   series_head is_zero n (series_of_coseries fld cs)
 ;
-
-Definition valuation α fld (ps : puiseux_series α) :=
-  match coseries_head fld (is_zero fld) 0 (ps_terms ps) with
-  | Some (n, c) =>
-      Some
-        (Qmake (Z.add (Qnum (ps_valuation ps)) (Z.of_nat n))
-           (Qden (ps_valuation ps)))
-  | None =>
-      None
-  end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
   match coseries_head fld (is_zero fld) 0 (ps_terms ps) with
