@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.203 2013-08-06 09:12:45 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.204 2013-08-06 09:25:22 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -55,7 +55,19 @@ Definition normal α (fld : field α) l cd ms :=
 (* ps_add *)
 
 Definition series_add α (fld : field α) s₁ s₂ :=
-  {| terms i := add fld (series_nth i s₁) (series_nth i s₂);
+  {| terms i :=
+       match series_nth i s₁ with
+       | Some c₁ =>
+           match series_nth i s₂ with
+           | Some c₂ => add fld c₁ c₂
+           | None => c₁
+           end
+       | None =>
+           match series_nth i s₂ with
+           | Some c₂ => c₂
+           | None => zero fld
+           end
+       end;
      stop :=
        match stop s₁ with
        | Some st₁ =>
