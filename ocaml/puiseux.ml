@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.407 2013-08-06 19:27:56 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.408 2013-08-06 19:40:54 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -695,6 +695,7 @@ value af_c () =
     {zero = C.zero; one = C.one; add = C.add; sub = C.sub; neg = C.neg;
      mul x y = C.normalise (C.mul x y); div = C.div;
      is_zero c = C.eq C.zero (C.float_round_zero c);
+     fld_eq = C.eq;
      ext = ext}
   in
   {ac_field = fc; ac_roots = roots fc}
@@ -743,7 +744,8 @@ value af_mpfr () =
   in
   let fm =
     {zero = M.zero; one = M.one; add = M.add; sub = M.sub; neg = M.neg;
-     mul = M.mul; div = M.div; is_zero = M.eq M.zero; ext = ext}
+     mul = M.mul; div = M.div; is_zero = M.eq M.zero; fld_eq = M.eq;
+     ext = ext}
   in
   {ac_field = fm; ac_roots = roots fm}
 ;
