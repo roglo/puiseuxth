@@ -1,4 +1,4 @@
-(* $Id: puiseux.ml,v 1.406 2013-08-06 18:39:01 deraugla Exp $ *)
+(* $Id: puiseux.ml,v 1.407 2013-08-06 19:27:56 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -259,7 +259,7 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match series_head (is_zero fld) 0 (ps_terms ps) with
+      match coseries_head fld (is_zero fld) 0 (ps_terms ps) with
       | Some _ => false
       | None => true
       end

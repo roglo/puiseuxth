@@ -1,10 +1,16 @@
-(* $Id: series.ml,v 1.8 2013-08-06 19:14:17 deraugla Exp $ *)
+(* $Id: series.ml,v 1.9 2013-08-06 19:27:56 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 Record series α :=
   { terms : nat → α;
     stop : option nat }.
+
+Definition series_nth α n (s : series α) :=
+  match stop s with
+  | Some st => if lt_dec n st then Some (terms s n) else None
+  | None => None
+  end.
 
 CoInductive coseries α :=
   | Term : α → coseries α → coseries α
@@ -54,11 +60,10 @@ value series_of_coseries fld (cs : coseries α) =
      end;
    stop =
      loop 0 cs where rec loop i cs =
-       if i = 30 then None
+       if i = 60 then None
        else
          match cs with
          | Term _ cs' → loop (i + 1) (Lazy.force cs')
          | End → Some i
          end}
 ;
-

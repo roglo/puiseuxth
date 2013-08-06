@@ -1,4 +1,4 @@
-(* $Id: series.mli,v 1.7 2013-08-06 19:14:17 deraugla Exp $ *)
+(* $Id: series.mli,v 1.8 2013-08-06 19:27:56 deraugla Exp $ *)
 
 type series α =
   { terms : int → α;
@@ -6,6 +6,8 @@ type series α =
 ;
 value terms : series α → int → α;
 value stop : series α → option int;
+
+value series_nth : int → series α → option α;
 
 type coseries α =
   [ Term of α and Lazy.t (coseries α)

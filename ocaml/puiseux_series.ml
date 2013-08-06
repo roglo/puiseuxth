@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.207 2013-08-06 19:18:41 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.208 2013-08-06 19:27:56 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -14,14 +14,18 @@ Record puiseux_series α :=
     ps_valuation : Q }.
 
 value rec series_head is_zero n s =
-  match coseries_nth n s with
+  match series_nth n s with
   | Some c → if is_zero c then series_head is_zero (n + 1) s else Some (n, c)
   | None → None
   end
 ;
 
+value coseries_head fld is_zero n cs =
+  series_head is_zero n (series_of_coseries fld cs)
+;
+
 Definition valuation α fld (ps : puiseux_series α) :=
-  match series_head (is_zero fld) 0 (ps_terms ps) with
+  match coseries_head fld (is_zero fld) 0 (ps_terms ps) with
   | Some (n, c) =>
       Some
         (Qmake (Z.add (Qnum (ps_valuation ps)) (Z.of_nat n))
@@ -31,7 +35,7 @@ Definition valuation α fld (ps : puiseux_series α) :=
   end.
 
 Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match series_head (is_zero fld) 0 (ps_terms ps) with
+  match coseries_head fld (is_zero fld) 0 (ps_terms ps) with
   | Some (_, c) => c
   | None => zero fld
   end.

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.mli,v 1.46 2013-08-06 18:39:01 deraugla Exp $ *)
+(* $Id: puiseux_series.mli,v 1.47 2013-08-06 19:27:56 deraugla Exp $ *)
 
 open Pnums;
 open Field;
@@ -19,7 +19,7 @@ value ps_mul :
   field α (ext α β) → puiseux_series α → puiseux_series α → puiseux_series α;
 (** [ps_mul fld p₁ p₂] *)
 
-value series_head : (α → bool) → int → coseries α → option (int * α);
+value series_head : (α → bool) → int → series α → option (int * α);
 
 value valuation : field α β → puiseux_series α → option Q.t;
 value valuation_coeff : field α β → puiseux_series α → α;
@@ -33,3 +33,6 @@ value power : term α β → β;
 value term_series_to_coeff_series :
   α → I.t → coseries (term α Q.t) → coseries α;
 (** [term_series_to_coeff_series zero comden s *)
+
+value coseries_head :
+  field α _ → (α → bool) → int → coseries α → option (int * α);
