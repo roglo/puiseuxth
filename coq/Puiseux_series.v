@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.123 2013-08-06 00:24:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.124 2013-08-06 00:58:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -537,10 +537,10 @@ destruct d; simpl.
 Qed.
 *)
 
+(*
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
-(* à nettoyer, peut-être *)
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
 inversion Heq₁; subst.
 inversion Heq₂; subst.
@@ -613,23 +613,32 @@ destruct j as [| j| j].
 
   rewrite H3; reflexivity.
 Qed.
+*)
 
 (* *)
 
-Lemma ps_add_comm : ∀ ps₁ ps₂, eq_ps (ps_add ps₁ ps₂) (ps_add ps₂ ps₁).
+Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add, valnum_diff; simpl.
 remember
- (ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂) -
-  ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁))%Z as d.
+ (Qnum (ps_valuation ps₂) * ' lcm_div ps₂ ps₁ -
+  Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂)%Z as d.
 symmetry in Heqd.
 remember
- (ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁) -
-  ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂))%Z as e.
+ (Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂ -
+  Qnum (ps_valuation ps₂) * ' lcm_div ps₂ ps₁)%Z as e.
 rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
 rewrite Z.add_opp_l in Heqe.
 rewrite Heqd in Heqe; subst e.
+destruct d.
+ Focus 1.
+ simpl.
+ constructor 1 with (k₁ := lcm_div ps₂ ps₁) (k₂ := lcm_div ps₁ ps₂).
+  simpl.
+  rewrite series_add_comm.
+bbb.
+
 constructor.
  destruct d; simpl; rewrite series_add_comm; reflexivity.
 
