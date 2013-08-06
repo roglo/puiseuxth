@@ -37,8 +37,9 @@ puiseux_series.cmi: field.cmo pnums.cmi series.cmi
 roots.cmo: field.cmo pnums.cmi poly.cmi poly_fun.cmi poly_tree.cmi roots.cmi
 roots.cmx: field.cmx pnums.cmx poly.cmx poly_fun.cmx poly_tree.cmx roots.cmi
 roots.cmi: field.cmo pnums.cmi poly.cmi
-series.cmo: series.cmi
-series.cmx: series.cmi
+series.cmo: field.cmo series.cmi
+series.cmx: field.cmx series.cmi
+series.cmi: field.cmo
 ugly.cmo: field.cmo old_puiseux_series.cmo pnums.cmi poly.cmi poly_parse.cmo \
     poly_print.cmo poly_tree.cmi puiseux_series.cmi series.cmi
 ugly.cmx: field.cmx old_puiseux_series.cmx pnums.cmx poly.cmx poly_parse.cmx \

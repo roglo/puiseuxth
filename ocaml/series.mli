@@ -1,4 +1,4 @@
-(* $Id: series.mli,v 1.6 2013-08-06 14:19:15 deraugla Exp $ *)
+(* $Id: series.mli,v 1.7 2013-08-06 19:14:17 deraugla Exp $ *)
 
 type series α =
   { terms : int → α;
@@ -14,3 +14,7 @@ type coseries α =
 
 value coseries_nth : int → coseries α → option α;
 value coseries_map : (α → β) → coseries α → coseries β;
+
+open Field;
+
+value series_of_coseries : field α _ → coseries α → series α;

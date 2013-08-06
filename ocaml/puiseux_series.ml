@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.206 2013-08-06 18:39:01 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.207 2013-08-06 19:18:41 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -14,13 +14,11 @@ Record puiseux_series α :=
     ps_valuation : Q }.
 
 value rec series_head is_zero n s =
-  match s with
-  | Term c t →
-      if is_zero c then series_head is_zero (n + 1) (Lazy.force t)
-      else Some (n, c)
-  | End →
-      None
-  end;
+  match coseries_nth n s with
+  | Some c → if is_zero c then series_head is_zero (n + 1) s else Some (n, c)
+  | None → None
+  end
+;
 
 Definition valuation α fld (ps : puiseux_series α) :=
   match series_head (is_zero fld) 0 (ps_terms ps) with

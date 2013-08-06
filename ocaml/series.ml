@@ -1,4 +1,4 @@
-(* $Id: series.ml,v 1.7 2013-08-06 18:42:43 deraugla Exp $ *)
+(* $Id: series.ml,v 1.8 2013-08-06 19:14:17 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -52,6 +52,13 @@ value series_of_coseries fld (cs : coseries α) =
      | Some c → c
      | None → zero fld
      end;
-   stop = None}
+   stop =
+     loop 0 cs where rec loop i cs =
+       if i = 30 then None
+       else
+         match cs with
+         | Term _ cs' → loop (i + 1) (Lazy.force cs')
+         | End → Some i
+         end}
 ;
 
