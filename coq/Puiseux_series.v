@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.125 2013-08-06 05:57:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.126 2013-08-06 06:12:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -634,7 +634,7 @@ rewrite Heqd in Heqe; subst e.
 destruct d.
  Focus 1.
  simpl.
- constructor 1 with (k₁ := lcm_div ps₂ ps₁) (k₂ := lcm_div ps₁ ps₂).
+ constructor 1 with (k₁ := lcm_div ps₁ ps₂) (k₂ := lcm_div ps₂ ps₁).
   simpl.
   rewrite series_add_comm.
 bbb.

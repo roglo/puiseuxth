@@ -1,9 +1,8 @@
-(* $Id: series.mli,v 1.2 2013-06-23 17:03:51 deraugla Exp $ *)
+(* $Id: series.mli,v 1.3 2013-08-06 06:12:49 deraugla Exp $ *)
 
 type series α =
-  [ Term of α and Lazy.t (series α)
-  | End ]
+  { terms : int → α;
+    stop : option int }
 ;
 
 value series_nth : int → series α → option α;
-value series_map : (α → β) → series α → series β;
