@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.126 2013-08-06 06:12:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.127 2013-08-06 12:09:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -382,7 +382,7 @@ Fixpoint sum_mul_coeff i ni₁ s₁ s₂ :=
       end
   end.
 
-Definition ps_mul_term (s₁ s₂ : series α) :=
+Definition series_mul_term (s₁ s₂ : series α) :=
   {| terms i :=
        match sum_mul_coeff 0 (S i) s₁ s₂ with
        | Some c => c
@@ -402,7 +402,7 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := normalise (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := normalise (lcm_div ps₂ ps₁) ps₂ in
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  {| ps_terms := ps_mul_term (ps_terms ms₁) (ps_terms ms₂);
+  {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
      ps_valuation := Qnum (ps_valuation ms₁) + Qnum (ps_valuation ms₂) # l |}.
 
 (* *)
