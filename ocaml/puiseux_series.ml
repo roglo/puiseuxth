@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.202 2013-08-06 09:04:25 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.203 2013-08-06 09:12:45 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -54,21 +54,25 @@ Definition normal α (fld : field α) l cd ms :=
 
 (* ps_add *)
 
-CoFixpoint series_add α (fld : field α) s₁ s₂ :=
-  match s₁ with
-  | Term c₁ ss₁ =>
-      match s₂ with
-      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
-      | End => s₁
-      end
-  | End => s₂
-  end.
+Definition series_add α (fld : field α) s₁ s₂ :=
+  {| terms i := add fld (series_nth i s₁) (series_nth i s₂);
+     stop :=
+       match stop s₁ with
+       | Some st₁ =>
+           match stop s₂ with
+           | Some st₂ => Some (max st₁ st₂)
+           | None => None
+           end
+       | None => None
+       end |}.
 
-Fixpoint series_pad_left α (fld : field α) n s :=
-  match n with
-  | O => s
-  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
-  end.
+Definition series_pad_left fld n s :=
+  {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
+     stop :=
+       match stop s with
+       | Some st => Some (st - n)%nat
+       | None => None
+       end |}.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
