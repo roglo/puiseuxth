@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.204 2013-08-06 09:25:22 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.205 2013-08-06 14:19:15 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -14,11 +14,13 @@ Record puiseux_series α :=
     ps_valuation : Q }.
 
 value rec series_head is_zero n s =
-  match series_nth n s with
-  | Some c → if is_zero c then series_head is_zero (n + 1) s else Some (n, c)
-  | None → None
-  end
-;
+  match s with
+  | Term c t →
+      if is_zero c then series_head is_zero (n + 1) (Lazy.force t)
+      else Some (n, c)
+  | End →
+      None
+  end;
 
 Definition valuation α fld (ps : puiseux_series α) :=
   match series_head (is_zero fld) 0 (ps_terms ps) with
@@ -38,13 +40,15 @@ Definition valuation_coeff α fld (ps : puiseux_series α) :=
 
 value norm fld f x y = fld.ext.normalise (f x y);
 
-Definition normal_terms α fld n cd₁ (s : series α) :=
-  {| terms i := if i mod n = 0 then terms s (i / n) else zero fld;
-     stop :=
-       match stop s with
-       | Some st => Some (st * (cd₁ + 1))
-       | None => None
-       end |}.
+CoFixpoint normal_terms α fld n cd₁ (s : series α) :=
+  match s with
+  | Term c ss =>
+      match n with
+      | O => Term c (normal_terms fld cd₁ cd₁ ss)
+      | S n₁ => Term (zero fld) (normal_terms fld n₁ cd₁ s)
+      end
+  | End => End _
+  end.
 
 Definition normal α (fld : field α) l cd ms :=
   {| ps_terms :=
@@ -54,37 +58,21 @@ Definition normal α (fld : field α) l cd ms :=
 
 (* ps_add *)
 
-Definition series_add α (fld : field α) s₁ s₂ :=
-  {| terms i :=
-       match series_nth i s₁ with
-       | Some c₁ =>
-           match series_nth i s₂ with
-           | Some c₂ => add fld c₁ c₂
-           | None => c₁
-           end
-       | None =>
-           match series_nth i s₂ with
-           | Some c₂ => c₂
-           | None => zero fld
-           end
-       end;
-     stop :=
-       match stop s₁ with
-       | Some st₁ =>
-           match stop s₂ with
-           | Some st₂ => Some (max st₁ st₂)
-           | None => None
-           end
-       | None => None
-       end |}.
+CoFixpoint series_add α (fld : field α) s₁ s₂ :=
+  match s₁ with
+  | Term c₁ ss₁ =>
+      match s₂ with
+      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
+      | End => s₁
+      end
+  | End => s₂
+  end.
 
-Definition series_pad_left fld n s :=
-  {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
-     stop :=
-       match stop s with
-       | Some st => Some (st - n)%nat
-       | None => None
-       end |}.
+Fixpoint series_pad_left α (fld : field α) n s :=
+  match n with
+  | O => s
+  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
+  end.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
