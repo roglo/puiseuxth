@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.210 2013-08-06 19:44:19 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.211 2013-08-06 20:08:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -10,7 +10,7 @@ open Pnums;
 open Series;
 
 Record puiseux_series α :=
-  { ps_terms : coseries α;
+  { ps_terms : series α;
     ps_valuation : Q }.
 
 value rec series_head is_zero n s =
@@ -21,10 +21,7 @@ value rec series_head is_zero n s =
 ;
 
 Definition valuation fld (ps : puiseux_series α) :=
-  match
-    series_head (fld_eq fld (zero fld)) 0
-      (series_of_coseries fld (ps_terms ps))
-  with
+  match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
   | Some (n, c) =>
       Some
         (Qmake
@@ -36,12 +33,23 @@ Definition valuation fld (ps : puiseux_series α) :=
 
 (* *)
 
+Record puiseux_coseries α :=
+  { co_terms : coseries α;
+    co_valuation : Q }.
+
 value coseries_head fld is_zero n cs =
   series_head is_zero n (series_of_coseries fld cs)
 ;
 
-Definition valuation_coeff α fld (ps : puiseux_series α) :=
-  match coseries_head fld (is_zero fld) 0 (ps_terms ps) with
+Definition puiseux_series_of_puiseux_coseries fld cs :=
+  {| ps_terms := series_of_coseries fld (co_terms cs);
+     ps_valuation := co_valuation cs |}.
+
+Definition valuation fld (ps : puiseux_coseries α) :=
+  valuation fld (puiseux_series_of_puiseux_coseries fld ps).
+
+Definition valuation_coeff α fld (ps : puiseux_coseries α) :=
+  match coseries_head fld (is_zero fld) 0 (co_terms ps) with
   | Some (_, c) => c
   | None => zero fld
   end.
@@ -59,10 +67,10 @@ CoFixpoint normal_terms α fld n cd₁ (s : coseries α) :=
   end.
 
 Definition normal α (fld : field α) l cd ms :=
-  {| ps_terms :=
-       normal_terms fld 0 (cd - 1) (ps_terms ms);
-     ps_valuation :=
-       Qmake (Z.mul (Qnum (ps_valuation ms)) (Z.of_nat cd)) l |}.
+  {| co_terms :=
+       normal_terms fld 0 (cd - 1) (co_terms ms);
+     co_valuation :=
+       Qmake (Z.mul (Qnum (co_valuation ms)) (Z.of_nat cd)) l |}.
 
 (* ps_add *)
 
@@ -82,30 +90,30 @@ Fixpoint series_pad_left α (fld : field α) n s :=
   | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
   end.
 
-Definition ps_add α fld (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+Definition ps_add α fld (ps₁ ps₂ : puiseux_coseries α) :=
+  let l := Plcm (Qden (co_valuation ps₁)) (Qden (co_valuation ps₂)) in
   let ms₁ :=
-    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₁)))) ps₁
+    normal fld l (I.to_int (I.div l (Qden (co_valuation ps₁)))) ps₁
   in
   let ms₂ :=
-    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₂)))) ps₂
+    normal fld l (I.to_int (I.div l (Qden (co_valuation ps₂)))) ps₂
   in
-  let v₁ := Qnum (ps_valuation ms₁) in
-  let v₂ := Qnum (ps_valuation ms₂) in
+  let v₁ := Qnum (co_valuation ms₁) in
+  let v₂ := Qnum (co_valuation ms₂) in
   match Z.sub v₂ v₁ with
   | Z0 =>
-      {| ps_terms := series_add fld (ps_terms ms₁) (ps_terms ms₂);
-         ps_valuation := Qmake v₁ l |}
+      {| co_terms := series_add fld (co_terms ms₁) (co_terms ms₂);
+         co_valuation := Qmake v₁ l |}
   | Zpos n =>
-      {| ps_terms :=
-           series_add fld (ps_terms ms₁)
-             (series_pad_left fld (Pos.to_nat n) (ps_terms ms₂));
-         ps_valuation := Qmake v₁ l |}
+      {| co_terms :=
+           series_add fld (co_terms ms₁)
+             (series_pad_left fld (Pos.to_nat n) (co_terms ms₂));
+         co_valuation := Qmake v₁ l |}
   | Zneg n =>
-      {| ps_terms :=
-           series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ms₁))
-             (ps_terms ms₂);
-         ps_valuation := Qmake v₂ l |}
+      {| co_terms :=
+           series_add fld (series_pad_left fld (Pos.to_nat n) (co_terms ms₁))
+             (co_terms ms₂);
+         co_valuation := Qmake v₂ l |}
   end.
 
 (* ps_mul *)
@@ -145,18 +153,18 @@ Definition series_mul_term α fld (s₁ s₂ : coseries α) :=
   in
   mul_loop 1%nat.
 
-Definition ps_mul α fld (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+Definition ps_mul α fld (ps₁ ps₂ : puiseux_coseries α) :=
+  let l := Plcm (Qden (co_valuation ps₁)) (Qden (co_valuation ps₂)) in
   let ms₁ :=
-    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₁)))) ps₁
+    normal fld l (I.to_int (I.div l (Qden (co_valuation ps₁)))) ps₁
   in
   let ms₂ :=
-    normal fld l (I.to_int (I.div l (Qden (ps_valuation ps₂)))) ps₂
+    normal fld l (I.to_int (I.div l (Qden (co_valuation ps₂)))) ps₂
   in
-  {| ps_terms :=
-       series_mul_term fld (ps_terms ms₁) (ps_terms ms₂);
-     ps_valuation :=
-       Qmake (Z.add (Qnum (ps_valuation ms₁)) (Qnum (ps_valuation ms₂))) l |}.
+  {| co_terms :=
+       series_mul_term fld (co_terms ms₁) (co_terms ms₂);
+     co_valuation :=
+       Qmake (Z.add (Qnum (co_valuation ms₁)) (Qnum (co_valuation ms₂))) l |}.
 
 (* *)
 

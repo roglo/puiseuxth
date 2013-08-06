@@ -1,4 +1,4 @@
-(* $Id: old_puiseux_series.ml,v 1.11 2013-08-06 18:39:01 deraugla Exp $ *)
+(* $Id: old_puiseux_series.ml,v 1.12 2013-08-06 20:08:34 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -36,21 +36,21 @@ CoFixpoint term_of_ms α v (s : coseries α) :=
       End _
   end.
 
-Definition ops_terms_of_ms α (ms : puiseux_series α) : coseries (term α Q) :=
-  term_of_ms (ps_valuation ms) (ps_terms ms).
+Definition ops_terms_of_ms α (ms : puiseux_coseries α) : coseries (term α Q) :=
+  term_of_ms (co_valuation ms) (co_terms ms).
 
-Definition ops_of_ms α (ms : puiseux_series α) :=
+Definition ops_of_ms α (ms : puiseux_coseries α) :=
   {| ops_terms := ops_terms_of_ms ms;
-     ops_comden := Qden (ps_valuation ms) |}.
+     ops_comden := Qden (co_valuation ms) |}.
 
 Definition ps_terms_of_ps α zero is_zero (ps : old_puiseux_series α) :=
   term_series_to_coeff_series zero (ops_comden ps)
     (old_series_head is_zero (ops_terms ps)).
 
 Definition ms_of_ps α fld (ps : old_puiseux_series α) :=
-  {| ps_terms :=
+  {| co_terms :=
        ps_terms_of_ps (zero fld) (is_zero fld) ps;
-     ps_valuation :=
+     co_valuation :=
        match old_valuation fld ps with
        | Some v =>
            Qmake (Qnum (Qred (Qmult v (inject_Z (Zpos (ops_comden ps))))))
