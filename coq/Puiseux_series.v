@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.122 2013-08-06 00:14:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.123 2013-08-06 00:24:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -517,6 +517,7 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  rewrite H, H1; reflexivity.
 Qed.
 
+(*
 Add Parametric Morphism : valnum_diff with 
 signature eq_ps ==> eq_ps ==> @eq Z ==> eq_ps as valnum_diff_morph.
 Proof.
@@ -534,6 +535,7 @@ destruct d; simpl.
  unfold valnum_diff_neg; simpl.
  rewrite H, H2, H3, H4; reflexivity.
 Qed.
+*)
 
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
