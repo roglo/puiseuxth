@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.131 2013-08-07 09:48:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.132 2013-08-07 13:22:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -616,6 +616,18 @@ Qed.
 *)
 
 (* *)
+
+(*
+cf Z.lcm_equiv1:
+  ∀ a b : Z,
+  Z.gcd a b ≠ 0%Z → (a * (b / Z.gcd a b))%Z = (a * b / Z.gcd a b)%Z
+*)
+Lemma yyy : ∀ a b,
+  (Pos.of_nat (Pos.to_nat (Plcm a b) / Pos.to_nat b) * b)%positive =
+  Plcm a b.
+Proof.
+intros a b.
+bbb.
 
 (*
 Lemma zzz : ∀ p₁ p₂,
