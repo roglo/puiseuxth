@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.136 2013-08-07 14:25:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.137 2013-08-07 14:49:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -621,9 +621,10 @@ Lemma Pos_divide_lcm_l : ∀ a b, (a | Plcm a b)%positive.
 Proof.
 intros a b.
 unfold Plcm, Z.lcm, Pos.divide.
-rewrite Z.lcm_equiv1; simpl; [ idtac | apply Zpos_ne_0 ].
-exists (Z.to_pos (Z.abs (' b / ' Pos.gcd a b))).
-symmetry; rewrite Pos.mul_comm.
+rewrite Z.mul_comm, Z.gcd_comm.
+rewrite Z.abs_mul; simpl.
+rewrite Z2Pos.inj_mul; simpl.
+ exists (Z.to_pos (Z.abs (' b / ' Pos.gcd b a))); reflexivity.
 bbb.
 *)
 
