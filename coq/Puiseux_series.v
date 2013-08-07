@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.142 2013-08-07 17:59:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.143 2013-08-07 18:01:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -731,16 +731,15 @@ f_equal.
  rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.
 Qed.
 
-(*
 Lemma ps_add_assoc_same_comden : ∀ ps₁ ps₂ ps₃ l,
-  l = ps_comden ps₁
-  → l = ps_comden ps₂
-    → l = ps_comden ps₃
-      → eq_ps
-          (ps_add (ps_add ps₁ ps₂) ps₃)
-          (ps_add ps₁ (ps_add ps₂ ps₃)).
+  l = Qden (ps_valuation ps₁)
+  → l = Qden (ps_valuation ps₂)
+    → l = Qden (ps_valuation ps₃)
+      → ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
+bbb.
+
 unfold ps_add; simpl.
 rewrite <- H₁, <- H₂, <- H₃.
 rewrite Plcm_diag.
