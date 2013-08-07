@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.213 2013-08-07 01:12:11 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.214 2013-08-07 02:27:44 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -119,6 +119,12 @@ Fixpoint series_pad_left α (fld : field α) n s :=
   | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
   end.
 (**)
+
+Definition series_pad_left α (fld : field α) n s :=
+(*
+let _ := printf "series_pad_left %d\n%!" n in
+*)
+  series_pad_left fld n s.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_coseries α) :=
   let l := Plcm (Qden (co_valuation ps₁)) (Qden (co_valuation ps₂)) in

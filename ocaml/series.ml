@@ -1,4 +1,4 @@
-(* $Id: series.ml,v 1.10 2013-08-07 01:12:11 deraugla Exp $ *)
+(* $Id: series.ml,v 1.11 2013-08-07 02:27:44 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -77,4 +77,3 @@ value coseries_of_series (s : series α) =
   in
   loop 0
 ;
-
