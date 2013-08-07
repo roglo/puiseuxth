@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.141 2013-08-07 17:35:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.142 2013-08-07 17:59:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -861,17 +861,17 @@ f_equal.
 
  destruct stop; [ rewrite mult_1_r; reflexivity | reflexivity ].
 Qed.
+*)
 
-Lemma ps_add_normalise : ∀ ps₁ ps₂ ms₁ ms₂ l,
-  l = Plcm (ps_comden ps₁) (ps_comden ps₂)
-  → eq ms₁ (normalise l (lcm_div ps₁ ps₂) ps₁)
-    → eq ms₂ (normalise l (lcm_div ps₂ ps₁) ps₂)
-      → eq_ps (ps_add ps₁ ps₂) (ps_add ms₁ ms₂).
+Lemma ps_add_normalise : ∀ ps₁ ps₂ ms₁ ms₂,
+  ms₁ = normalise (lcm_div ps₁ ps₂) ps₁
+  → ms₂ = normalise (lcm_div ps₂ ps₁) ps₂
+    → ps_add ps₁ ps₂ ≈ ps_add ms₁ ms₂.
 Proof.
-intros ps₁ ps₂ ms₁ ms₂ l Hl Hms₁ Hms₂.
+intros ps₁ ps₂ ms₁ ms₂ Hms₁ Hms₂.
+bbb.
 unfold ps_add.
 subst ms₁ ms₂; simpl.
-rewrite <- Hl.
 rewrite Plcm_diag.
 unfold lcm_div; simpl.
 rewrite Plcm_diag.
@@ -885,7 +885,6 @@ rewrite Nat.div_same.
 
  apply pos_to_nat_ne_0.
 Qed.
-*)
 
 Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
 Proof. intros; subst; reflexivity. Qed.
@@ -1062,6 +1061,12 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
+remember (ps_add ps₁ ps₂) as a.
+remember (ps_add a ps₃) as b.
+remember (ps_add ps₂ ps₃) as c.
+remember (ps_add ps₁ c) as d.
+remember Heqb as H; clear HeqH.
+apply eq_eq_ps in H.
 bbb.
 
 pose proof (ps_comden_add ps₁ ps₂) as Hca.
