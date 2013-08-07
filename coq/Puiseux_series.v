@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.127 2013-08-06 12:09:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.128 2013-08-07 08:11:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -317,7 +317,7 @@ Definition series_pad_left n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
      stop :=
        match stop s with
-       | Some st => Some (st - n)%nat
+       | Some st => Some (st + n)%nat
        | None => None
        end |}.
 

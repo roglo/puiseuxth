@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.214 2013-08-07 02:27:44 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.215 2013-08-07 08:11:51 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -55,7 +55,7 @@ Definition series_pad_left fld n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
      stop :=
        match stop s with
-       | Some st => Some (st - n)%nat
+       | Some st => Some (st + n)%nat
        | None => None
        end |}.
 
@@ -109,22 +109,8 @@ CoFixpoint series_add α (fld : field α) s₁ s₂ :=
   | End => s₂
   end.
 
-(*
 Definition series_pad_left α (fld : field α) n s :=
   coseries_of_series (series_pad_left fld n (series_of_coseries fld s)).
-*)
-Fixpoint series_pad_left α (fld : field α) n s :=
-  match n with
-  | O => s
-  | S n₁ => Term (zero fld) (series_pad_left fld n₁ s)
-  end.
-(**)
-
-Definition series_pad_left α (fld : field α) n s :=
-(*
-let _ := printf "series_pad_left %d\n%!" n in
-*)
-  series_pad_left fld n s.
 
 Definition ps_add α fld (ps₁ ps₂ : puiseux_coseries α) :=
   let l := Plcm (Qden (co_valuation ps₁)) (Qden (co_valuation ps₂)) in
