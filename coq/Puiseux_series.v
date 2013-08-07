@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.130 2013-08-07 09:16:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.131 2013-08-07 09:48:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -617,6 +617,18 @@ Qed.
 
 (* *)
 
+(*
+Lemma zzz : ∀ p₁ p₂,
+  Pos.to_nat (Plcm p₁ p₂) = Nat.lcm (Pos.to_nat p₁) (Pos.to_nat p₂).
+Proof.
+intros p₁ p₂.
+unfold Plcm; simpl.
+unfold Z.lcm, Nat.lcm.
+rewrite Z.lcm_equiv1.
+ simpl.
+bbb.
+*)
+
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
@@ -643,6 +655,9 @@ destruct d.
   unfold valnum_diff_0; simpl.
   apply Zminus_eq in Heqd; rewrite Heqd.
   f_equal.
+  unfold lcm_div; simpl.
+  remember (Qden (ps_valuation ps₁)) as q₁.
+  remember (Qden (ps_valuation ps₂)) as q₂.
 bbb.
 
 constructor.
