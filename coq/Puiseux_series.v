@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.132 2013-08-07 13:22:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.133 2013-08-07 14:00:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -617,29 +617,17 @@ Qed.
 
 (* *)
 
-(*
-cf Z.lcm_equiv1:
-  ∀ a b : Z,
-  Z.gcd a b ≠ 0%Z → (a * (b / Z.gcd a b))%Z = (a * b / Z.gcd a b)%Z
-*)
-Lemma yyy : ∀ a b,
-  (Pos.of_nat (Pos.to_nat (Plcm a b) / Pos.to_nat b) * b)%positive =
-  Plcm a b.
+Lemma Pos_div_mul : ∀ a b,
+  (a | b)%positive
+  → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a)%positive = b.
 Proof.
-intros a b.
-bbb.
-
-(*
-Lemma zzz : ∀ p₁ p₂,
-  Pos.to_nat (Plcm p₁ p₂) = Nat.lcm (Pos.to_nat p₁) (Pos.to_nat p₂).
-Proof.
-intros p₁ p₂.
-unfold Plcm; simpl.
-unfold Z.lcm, Nat.lcm.
-rewrite Z.lcm_equiv1.
- simpl.
-bbb.
-*)
+intros a b Hab.
+destruct Hab as (c, Hab).
+subst b.
+rewrite Pos2Nat.inj_mul.
+rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
+rewrite Pos2Nat.id; reflexivity.
+Qed.
 
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
@@ -656,7 +644,6 @@ rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
 rewrite Z.add_opp_l in Heqe.
 rewrite Heqd in Heqe; subst e.
 destruct d.
- Focus 1.
  simpl.
  constructor 1 with (k₁ := xH) (k₂ := xH).
   simpl.
@@ -670,6 +657,9 @@ destruct d.
   unfold lcm_div; simpl.
   remember (Qden (ps_valuation ps₁)) as q₁.
   remember (Qden (ps_valuation ps₂)) as q₂.
+  rewrite Pos_div_mul.
+   rewrite Pos_div_mul; [ apply Plcm_comm | idtac ].
+   Focus 1.
 bbb.
 
 constructor.

@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.38 2013-08-06 00:14:37 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.39 2013-08-07 14:01:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -656,4 +656,16 @@ rewrite <- Pos.mul_assoc.
 remember (m * p)%positive as mp.
 rewrite Pos.mul_comm in Heqmp; subst mp.
 apply Pos.mul_assoc.
+Qed.
+
+Lemma Pos_div_mul : ∀ a b,
+  (a | b)%positive
+  → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a)%positive = b.
+Proof.
+intros a b Hab.
+destruct Hab as (c, Hab).
+subst b.
+rewrite Pos2Nat.inj_mul.
+rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
+rewrite Pos2Nat.id; reflexivity.
 Qed.
