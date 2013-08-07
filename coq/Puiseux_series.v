@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.140 2013-08-07 15:52:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.141 2013-08-07 17:35:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -652,6 +652,7 @@ destruct d; simpl.
  rewrite series_add_comm; reflexivity.
 Qed.
 
+(*
 Lemma same_comden_valnum_diff : ∀ ps₁ ps₂ d,
   ps_comden ps₁ = ps_comden ps₂
   → ps_comden (valnum_diff ps₁ ps₂ d) = ps_comden ps₁.
@@ -678,11 +679,11 @@ f_equal.
 
   reflexivity.
 Qed.
+*)
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
-  eq_series fld
-    (series_pad_left n (series_add fld s₁ s₂))
-    (series_add fld (series_pad_left n s₁) (series_pad_left n s₂)).
+  series_pad_left n (series_add fld s₁ s₂)
+  ≃ series_add fld (series_pad_left n s₁) (series_pad_left n s₂).
 Proof.
 intros s₁ s₂ n.
 constructor.
@@ -695,7 +696,7 @@ constructor.
  destruct (stop s₁) as [n₁| ]; [ idtac | reflexivity ].
  destruct (stop s₂) as [n₂| ]; [ idtac | reflexivity ].
  f_equal.
- rewrite Nat.sub_max_distr_r; reflexivity.
+ rewrite Nat.add_max_distr_r; reflexivity.
 Qed.
 
 Lemma series_pad_plus : ∀ m n t,
@@ -727,9 +728,10 @@ f_equal.
     rewrite Nat.sub_add_distr; reflexivity.
 
  destruct (stop t); [ idtac | reflexivity ].
- rewrite plus_comm, Nat.sub_add_distr; reflexivity.
+ rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.
 Qed.
 
+(*
 Lemma ps_add_assoc_same_comden : ∀ ps₁ ps₂ ps₃ l,
   l = ps_comden ps₁
   → l = ps_comden ps₂
@@ -835,7 +837,9 @@ rewrite Nat.div_same.
 
  apply pos_to_nat_ne_0.
 Qed.
+*)
 
+(*
 Lemma normalise_1_r : ∀ l ps,
   normalise l 1 ps =
     {| ps_terms := ps_terms ps;
@@ -881,17 +885,22 @@ rewrite Nat.div_same.
 
  apply pos_to_nat_ne_0.
 Qed.
+*)
 
 Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
 Proof. intros; subst; reflexivity. Qed.
 
+(*
 Lemma ps_comden_normalise : ∀ l m ps, ps_comden (normalise l m ps) = l.
 Proof. reflexivity. Qed.
+*)
 
+(*
 Lemma lcm_div_normalise : ∀ l₁ m₁ ps₁ l₂ m₂ ps₂,
   lcm_div (normalise l₁ m₁ ps₁) (normalise l₂ m₂ ps₂) =
   (Pos.to_nat (Plcm l₁ l₂) / Pos.to_nat l₁)%nat.
 Proof. reflexivity. Qed.
+*)
 
 Lemma Plcm_Zlcm_div : ∀ a b,
   Z.of_nat (Pos.to_nat (Plcm a b) / Pos.to_nat a) =
@@ -941,6 +950,7 @@ destruct l as [| l| l].
  apply H, Z.abs_nonneg.
 Qed.
 
+(*
 Lemma ps_add_normalise_normalise : ∀ ps₁ ps₂,
   ps_add
     (normalise (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₁ ps₂) ps₁)
@@ -1046,13 +1056,14 @@ unfold lcm_div.
 rewrite ps_comden_add; simpl.
 rewrite Plcm_diag; reflexivity.
 Qed.
+*)
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  eq_ps
-    (ps_add (ps_add ps₁ ps₂) ps₃)
-    (ps_add ps₁ (ps_add ps₂ ps₃)).
+  ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
+bbb.
+
 pose proof (ps_comden_add ps₁ ps₂) as Hca.
 pose proof (ps_comden_add ps₂ ps₃) as Hcc.
 remember (ps_add ps₁ ps₂) as a.
