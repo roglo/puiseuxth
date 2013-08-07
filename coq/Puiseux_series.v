@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.144 2013-08-07 19:32:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.145 2013-08-07 19:58:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -681,6 +681,12 @@ f_equal.
 Qed.
 *)
 
+Lemma normalise_1 : ∀ ps, normalise xH ps = ps.
+Proof.
+intros ps.
+bbb.
+*)
+
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
   series_pad_left n (series_add fld s₁ s₂)
   ≃ series_add fld (series_pad_left n s₁) (series_pad_left n s₂).
@@ -738,6 +744,14 @@ Lemma ps_add_assoc_same_comden : ∀ ps₁ ps₂ ps₃ l,
       → ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
+unfold ps_add, lcm_div; simpl.
+rewrite <- H₁, <- H₂, <- H₃.
+rewrite Plcm_diag.
+rewrite Nat.div_same; [ idtac | apply pos_to_nat_ne_0 ].
+do 3 rewrite Z.mul_1_r.
+do 3 rewrite normalise_1.
+bbb.
+
 remember (ps_add ps₁ ps₂) as ps₁₂ eqn:Hps₁₂ .
 remember (ps_add ps₂ ps₃) as ps₂₃ eqn:Hps₂₃ .
 unfold ps_add in Hps₁₂, Hps₂₃ |- *.
