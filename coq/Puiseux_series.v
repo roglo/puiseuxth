@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.128 2013-08-07 08:11:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.129 2013-08-07 08:26:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -323,7 +323,7 @@ Definition series_pad_left n s :=
 
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  Pos.of_nat (div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))).
+  Pos.of_nat (Nat.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))).
 
 Definition valnum_diff_0 ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);

@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.217 2013-08-07 08:22:03 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.218 2013-08-07 08:25:51 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -106,6 +106,10 @@ Definition puiseux_series_of_puiseux_coseries fld cs :=
   {| ps_terms := series_of_coseries fld (co_terms cs);
      ps_valuation := co_valuation cs |}.
 
+Definition puiseux_coseries_of_puiseux_series cs :=
+  {| co_terms := coseries_of_series (ps_terms cs);
+     co_valuation := ps_valuation cs |}.
+
 Definition valuation fld (ps : puiseux_coseries α) :=
   valuation fld (puiseux_series_of_puiseux_coseries fld ps).
 
@@ -132,44 +136,10 @@ Definition normal α (fld : field α) l cd ms :=
 
 (* ps_add *)
 
-CoFixpoint series_add α (fld : field α) s₁ s₂ :=
-  match s₁ with
-  | Term c₁ ss₁ =>
-      match s₂ with
-      | Term c₂ ss₂ => Term (add fld c₁ c₂) (series_add fld ss₁ ss₂)
-      | End => s₁
-      end
-  | End => s₂
-  end.
-
-Definition series_pad_left α (fld : field α) n s :=
-  coseries_of_series (series_pad_left fld n (series_of_coseries fld s)).
-
 Definition ps_add α fld (ps₁ ps₂ : puiseux_coseries α) :=
-  let l := Plcm (Qden (co_valuation ps₁)) (Qden (co_valuation ps₂)) in
-  let ms₁ :=
-    normal fld l (I.to_int (I.div l (Qden (co_valuation ps₁)))) ps₁
-  in
-  let ms₂ :=
-    normal fld l (I.to_int (I.div l (Qden (co_valuation ps₂)))) ps₂
-  in
-  let v₁ := Qnum (co_valuation ms₁) in
-  let v₂ := Qnum (co_valuation ms₂) in
-  match Z.sub v₂ v₁ with
-  | Z0 =>
-      {| co_terms := series_add fld (co_terms ms₁) (co_terms ms₂);
-         co_valuation := Qmake v₁ l |}
-  | Zpos n =>
-      {| co_terms :=
-           series_add fld (co_terms ms₁)
-             (series_pad_left fld (Pos.to_nat n) (co_terms ms₂));
-         co_valuation := Qmake v₁ l |}
-  | Zneg n =>
-      {| co_terms :=
-           series_add fld (series_pad_left fld (Pos.to_nat n) (co_terms ms₁))
-             (co_terms ms₂);
-         co_valuation := Qmake v₂ l |}
-  end.
+  puiseux_coseries_of_puiseux_series
+    (ps_add fld (puiseux_series_of_puiseux_coseries fld ps₁)
+       (puiseux_series_of_puiseux_coseries fld ps₂)).
 
 (* ps_mul *)
 
