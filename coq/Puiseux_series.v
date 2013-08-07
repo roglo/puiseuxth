@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.133 2013-08-07 14:00:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.134 2013-08-07 14:01:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -616,18 +616,6 @@ Qed.
 *)
 
 (* *)
-
-Lemma Pos_div_mul : ∀ a b,
-  (a | b)%positive
-  → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a)%positive = b.
-Proof.
-intros a b Hab.
-destruct Hab as (c, Hab).
-subst b.
-rewrite Pos2Nat.inj_mul.
-rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
-rewrite Pos2Nat.id; reflexivity.
-Qed.
 
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
