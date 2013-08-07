@@ -1,6 +1,8 @@
-(* $Id: series.ml,v 1.11 2013-08-07 02:27:44 deraugla Exp $ *)
+(* $Id: series.ml,v 1.12 2013-08-07 08:20:06 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
+
+open Field;
 
 Record series α :=
   { terms : nat → α;
@@ -11,6 +13,20 @@ Definition series_nth α n (s : series α) :=
   | Some st => if lt_dec n st then Some (terms s n) else None
   | None => None
   end.
+
+Definition series_add fld s₁ s₂ :=
+  {| terms i := add fld (terms s₁ i) (terms s₂ i);
+     stop :=
+       match stop s₁ with
+       | Some st₁ =>
+           match stop s₂ with
+           | Some st₂ => Some (max st₁ st₂)
+           | None => None
+           end
+       | None => None
+       end |}.
+
+(* *)
 
 CoInductive coseries α :=
   | Term : α → coseries α → coseries α
@@ -49,8 +65,6 @@ CoFixpoint coseries_map α β (f : α → β) s :=
   | Term a t => Term (f a) (coseries_map f t)
   | End => End _
   end.
-
-open Field;
 
 value series_of_coseries fld (cs : coseries α) =
   {terms i =

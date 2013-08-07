@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.216 2013-08-07 08:20:06 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.217 2013-08-07 08:22:03 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -78,6 +78,19 @@ Definition valnum_diff_neg fld n ps₁ ps₂ :=
        series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ps₁))
          (ps_terms ps₂);
      ps_valuation := ps_valuation ps₂ |}.
+
+Definition valnum_diff fld ms₁ ms₂ d :=
+  match d with
+  | Z0 => valnum_diff_0 fld ms₁ ms₂
+  | Zpos n => valnum_diff_pos fld n ms₁ ms₂
+  | Zneg n => valnum_diff_neg fld n ms₁ ms₂
+  end.
+
+Definition ps_add fld (ps₁ ps₂ : puiseux_series α) :=
+  let ms₁ := normalise fld (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := normalise fld (lcm_div ps₂ ps₁) ps₂ in
+  valnum_diff fld ms₁ ms₂
+    (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
 
 (* *)
 
