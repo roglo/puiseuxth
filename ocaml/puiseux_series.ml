@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.215 2013-08-07 08:11:51 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.216 2013-08-07 08:20:06 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -58,6 +58,26 @@ Definition series_pad_left fld n s :=
        | Some st => Some (st + n)%nat
        | None => None
        end |}.
+
+Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+  Pos.of_nat (Nat.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))).
+
+Definition valnum_diff_0 fld ps₁ ps₂ :=
+  {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
+     ps_valuation := ps_valuation ps₁ |}.
+
+Definition valnum_diff_pos fld n ps₁ ps₂ :=
+  {| ps_terms :=
+       series_add fld (ps_terms ps₁)
+         (series_pad_left fld (Pos.to_nat n) (ps_terms ps₂));
+     ps_valuation := ps_valuation ps₁ |}.
+
+Definition valnum_diff_neg fld n ps₁ ps₂ :=
+  {| ps_terms :=
+       series_add fld (series_pad_left fld (Pos.to_nat n) (ps_terms ps₁))
+         (ps_terms ps₂);
+     ps_valuation := ps_valuation ps₂ |}.
 
 (* *)
 

@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.58 2013-08-07 01:02:16 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.59 2013-08-07 08:20:06 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -168,6 +168,8 @@ EXTEND
   expr: LEVEL "."
     [ [ UIDENT "Decidable"; "."; LIDENT "dec_and" →
           <:expr< $lid:"&&"$ >>
+      | UIDENT "Nat"; "."; LIDENT "div" →
+          <:expr< $lid:"/"$ >>
       | UIDENT "Z"; "."; LIDENT "add" →
           <:expr< I.add >>
       | UIDENT "Z"; "."; LIDENT "sub" →
@@ -184,6 +186,8 @@ EXTEND
           <:expr< I.to_int >>
       | UIDENT "Pos"; "."; LIDENT "to_nat" →
           <:expr< I.to_int >>
+      | UIDENT "Pos"; "."; LIDENT "of_nat" →
+          <:expr< I.of_int >>
       | UIDENT "Pos"; "."; LIDENT "mul" →
           <:expr< I.mul >> ] ]
   ;
