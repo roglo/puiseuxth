@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.145 2013-08-07 19:58:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.146 2013-08-07 20:00:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -684,7 +684,7 @@ Qed.
 Lemma normalise_1 : ∀ ps, normalise xH ps = ps.
 Proof.
 intros ps.
-bbb.
+unfold normalise; simpl.
 *)
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
