@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.143 2013-08-07 18:01:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.144 2013-08-07 19:32:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -652,16 +652,16 @@ destruct d; simpl.
  rewrite series_add_comm; reflexivity.
 Qed.
 
-(*
 Lemma same_comden_valnum_diff : ∀ ps₁ ps₂ d,
-  ps_comden ps₁ = ps_comden ps₂
-  → ps_comden (valnum_diff ps₁ ps₂ d) = ps_comden ps₁.
+  Qden (ps_valuation ps₁) = Qden (ps_valuation ps₂)
+  → Qden (ps_valuation (valnum_diff ps₁ ps₂ d)) = Qden (ps_valuation ps₁).
 Proof.
 intros ps₁ ps₂ d H.
 unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
+(*
 Lemma normalise_terms_1 : ∀ t, normalise_terms 1 t = t.
 Proof.
 intros t.
@@ -738,6 +738,21 @@ Lemma ps_add_assoc_same_comden : ∀ ps₁ ps₂ ps₃ l,
       → ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
+remember (ps_add ps₁ ps₂) as ps₁₂ eqn:Hps₁₂ .
+remember (ps_add ps₂ ps₃) as ps₂₃ eqn:Hps₂₃ .
+unfold ps_add in Hps₁₂, Hps₂₃ |- *.
+unfold valnum_diff; simpl.
+remember
+ (Qnum (ps_valuation ps₃) * ' lcm_div ps₃ ps₁₂ -
+  Qnum (ps_valuation ps₁₂) * ' lcm_div ps₁₂ ps₃)%Z as x eqn:Hx .
+symmetry in Hx.
+remember
+ (Qnum (ps_valuation ps₂₃) * ' lcm_div ps₂₃ ps₁ -
+  Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂₃)%Z as y eqn:Hy .
+symmetry in Hy.
+destruct x.
+ destruct y.
+ Focus 1.
 bbb.
 
 unfold ps_add; simpl.
