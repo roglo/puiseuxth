@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.41 2013-08-07 15:45:14 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.42 2013-08-07 15:52:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -598,6 +598,14 @@ Proof.
 intros a b.
 unfold Plcm.
 rewrite Z.lcm_comm.
+reflexivity.
+Qed.
+
+Lemma Plcm_diag : ∀ a, Plcm a a = a.
+Proof.
+intros a.
+unfold Plcm.
+rewrite Z.lcm_diag.
 reflexivity.
 Qed.
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.139 2013-08-07 15:45:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.140 2013-08-07 15:52:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -631,12 +631,9 @@ remember
 rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
 rewrite Z.add_opp_l in Heqe.
 rewrite Heqd in Heqe; subst e.
-destruct d.
- simpl.
- constructor 1 with (k₁ := xH) (k₂ := xH).
-  simpl.
-  rewrite series_add_comm.
-  reflexivity.
+destruct d; simpl.
+ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+  rewrite series_add_comm; reflexivity.
 
   f_equal.
   unfold valnum_diff_0; simpl.
@@ -647,23 +644,12 @@ destruct d.
   remember (Qden (ps_valuation ps₂)) as q₂.
   rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
   rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divides_lcm_l ].
-bbb.
 
-constructor.
- destruct d; simpl; rewrite series_add_comm; reflexivity.
+ constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity ].
+ rewrite series_add_comm; reflexivity.
 
- destruct d; try reflexivity.
- apply Zminus_eq; assumption.
-
- destruct d; apply Plcm_comm.
-Qed.
-
-Lemma Plcm_diag : ∀ a, Plcm a a = a.
-Proof.
-intros a.
-unfold Plcm.
-rewrite Z.lcm_diag.
-reflexivity.
+ constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity ].
+ rewrite series_add_comm; reflexivity.
 Qed.
 
 Lemma same_comden_valnum_diff : ∀ ps₁ ps₂ d,
