@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.138 2013-08-07 15:27:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.139 2013-08-07 15:45:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -617,19 +617,6 @@ Qed.
 
 (* *)
 
-Lemma Pos_divide_lcm_l : ∀ a b, (a | Plcm a b)%positive.
-Proof.
-intros a b.
-unfold Plcm, Z.lcm, Pos.divide.
-rewrite Z.mul_comm, Z.gcd_comm.
-rewrite Z.abs_mul; simpl.
-rewrite Z2Pos.inj_mul; simpl.
- exists (Z.to_pos (Z.abs (' b / ' Pos.gcd b a))); reflexivity.
-
- apply Z.abs_pos.
-bbb.
-*)
-
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
@@ -658,8 +645,8 @@ destruct d.
   unfold lcm_div; simpl.
   remember (Qden (ps_valuation ps₁)) as q₁.
   remember (Qden (ps_valuation ps₂)) as q₂.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divide_lcm_l ].
-  rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divide_lcm_l ].
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divides_lcm_l ].
 bbb.
 
 constructor.

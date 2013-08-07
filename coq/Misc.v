@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.40 2013-08-07 15:27:21 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.41 2013-08-07 15:45:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -649,6 +649,19 @@ rewrite H in HH.
 revert HH; apply lt_irrefl.
 Qed.
 
+Open Scope Z_scope.
+
+Lemma Zpos_divides_div : ∀ a b, ('a | 'b) → 'b / 'a ≠ 0.
+Proof.
+intros a b Hab.
+destruct Hab as (c, Hab).
+rewrite Hab.
+rewrite Z.div_mul; [ idtac | apply Zpos_ne_0 ].
+destruct c; [ discriminate Hab | apply Zpos_ne_0 | discriminate Hab ].
+Qed.
+
+Close Scope Z_scope.
+
 Open Scope positive_scope.
 
 Lemma Pos_mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
@@ -672,17 +685,21 @@ rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
 rewrite Pos2Nat.id; reflexivity.
 Qed.
 
-Close Scope positive_scope.
-
-Open Scope Z_scope.
-
-Lemma Pos_divides_div : ∀ a b, ('a | 'b) → 'b / 'a ≠ 0.
+Lemma Pos_divides_lcm_l : ∀ a b, (a | Plcm a b).
 Proof.
-intros a b Hab.
-destruct Hab as (c, Hab).
-rewrite Hab.
-rewrite Z.div_mul; [ idtac | apply Zpos_ne_0 ].
-destruct c; [ discriminate Hab | apply Zpos_ne_0 | discriminate Hab ].
+intros a b.
+unfold Plcm, Z.lcm, Pos.divide.
+rewrite Z.mul_comm, Z.gcd_comm.
+rewrite Z.abs_mul; simpl.
+rewrite Z2Pos.inj_mul; simpl.
+ exists (Z.to_pos (Z.abs (' b / ' Pos.gcd b a))); reflexivity.
+
+ apply Z.abs_pos.
+ apply Zpos_divides_div.
+ rewrite Pos2Z.inj_gcd.
+ apply Z.gcd_divide_l.
+
+ apply Pos2Z.is_pos.
 Qed.
 
-Close Scope Z_scope.
+Close Scope positive_scope.
