@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.137 2013-08-07 14:49:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.138 2013-08-07 15:27:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -625,6 +625,8 @@ rewrite Z.mul_comm, Z.gcd_comm.
 rewrite Z.abs_mul; simpl.
 rewrite Z2Pos.inj_mul; simpl.
  exists (Z.to_pos (Z.abs (' b / ' Pos.gcd b a))); reflexivity.
+
+ apply Z.abs_pos.
 bbb.
 *)
 

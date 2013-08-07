@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.39 2013-08-07 14:01:21 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.40 2013-08-07 15:27:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -649,18 +649,20 @@ rewrite H in HH.
 revert HH; apply lt_irrefl.
 Qed.
 
-Lemma Pos_mul_shuffle0 : ∀ n m p, (n * m * p)%positive = (n * p * m)%positive.
+Open Scope positive_scope.
+
+Lemma Pos_mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
 rewrite <- Pos.mul_assoc.
-remember (m * p)%positive as mp.
+remember (m * p) as mp.
 rewrite Pos.mul_comm in Heqmp; subst mp.
 apply Pos.mul_assoc.
 Qed.
 
 Lemma Pos_div_mul : ∀ a b,
-  (a | b)%positive
-  → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a)%positive = b.
+  (a | b)
+  → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a) = b.
 Proof.
 intros a b Hab.
 destruct Hab as (c, Hab).
@@ -669,3 +671,18 @@ rewrite Pos2Nat.inj_mul.
 rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
 rewrite Pos2Nat.id; reflexivity.
 Qed.
+
+Close Scope positive_scope.
+
+Open Scope Z_scope.
+
+Lemma Pos_divides_div : ∀ a b, ('a | 'b) → 'b / 'a ≠ 0.
+Proof.
+intros a b Hab.
+destruct Hab as (c, Hab).
+rewrite Hab.
+rewrite Z.div_mul; [ idtac | apply Zpos_ne_0 ].
+destruct c; [ discriminate Hab | apply Zpos_ne_0 | discriminate Hab ].
+Qed.
+
+Close Scope Z_scope.
