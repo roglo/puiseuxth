@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.211 2013-08-06 20:08:34 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.212 2013-08-07 01:02:16 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -31,6 +31,26 @@ Definition valuation fld (ps : puiseux_series α) :=
       None
   end.
 
+Definition valuation_coeff fld (ps : puiseux_series α) :=
+  match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
+  | Some (_, c) => c
+  | None => zero fld
+  end.
+
+Definition stretch_series fld k s :=
+  {| terms i :=
+       if zerop (i mod k) then terms s (i / k) else zero fld;
+     stop :=
+       match stop s with
+       | Some st => Some (st * k)%nat
+       | None => None
+       end |}.
+
+Definition normalise fld k ps :=
+  let l := (I.mul k (Qden (ps_valuation ps)))%positive in
+  {| ps_terms := stretch_series fld (Pos.to_nat k) (ps_terms ps);
+     ps_valuation := Qmake (I.mul (Qnum (ps_valuation ps)) (Zpos k)) l |}.
+
 (* *)
 
 Record puiseux_coseries α :=
@@ -49,10 +69,7 @@ Definition valuation fld (ps : puiseux_coseries α) :=
   valuation fld (puiseux_series_of_puiseux_coseries fld ps).
 
 Definition valuation_coeff α fld (ps : puiseux_coseries α) :=
-  match coseries_head fld (is_zero fld) 0 (co_terms ps) with
-  | Some (_, c) => c
-  | None => zero fld
-  end.
+  valuation_coeff fld (puiseux_series_of_puiseux_coseries fld ps).
 
 value norm fld f x y = fld.ext.normalise (f x y);
 

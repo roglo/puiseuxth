@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.57 2013-08-06 09:04:25 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.58 2013-08-07 01:02:16 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -192,11 +192,14 @@ EXTEND
           <:expr< Term $e₁$ (lazy $e₂$) >>
       | UIDENT "Zpos"; e = NEXT →
           e
+      | LIDENT "zerop"; e = NEXT →
+         <:expr< $e$ = 0 >>
       | e = SELF; "_" →
           e ] ]
   ;
   expr: BEFORE "simple"
-    [ [ e = expr; "%"; LIDENT "nat" → e ] ]
+    [ [ e = expr; "%"; LIDENT "nat" → e
+      | e = expr; "%"; LIDENT "positive" → e ] ]
   ;
   expr: LEVEL "simple"
     [ [ GIDENT "λ"; p = ipatt; e = coq_fun_def →
