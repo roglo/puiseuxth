@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.129 2013-08-07 08:26:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.130 2013-08-07 09:16:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -141,7 +141,7 @@ Qed.
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-econstructor 1 with (k₁ := 1%positive); reflexivity.
+econstructor 1 with (k₁ := xH); reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
@@ -323,7 +323,7 @@ Definition series_pad_left n s :=
 
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  Pos.of_nat (Nat.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))).
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (Qden (ps_valuation ps₁)))%nat.
 
 Definition valnum_diff_0 ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
@@ -461,7 +461,7 @@ signature (eq_series fld) ==> eq ==> eq_ps as mkps_morph.
 Proof.
 intros s₁ s₂ Heq v.
 inversion_clear Heq; subst.
-constructor 1 with (k₁ := 1%positive) (k₂ := 1%positive).
+constructor 1 with (k₁ := xH) (k₂ := xH).
  do 2 rewrite stretch_series_1; simpl.
  constructor; assumption.
 
@@ -634,9 +634,15 @@ rewrite Heqd in Heqe; subst e.
 destruct d.
  Focus 1.
  simpl.
- constructor 1 with (k₁ := lcm_div ps₁ ps₂) (k₂ := lcm_div ps₂ ps₁).
+ constructor 1 with (k₁ := xH) (k₂ := xH).
   simpl.
   rewrite series_add_comm.
+  reflexivity.
+
+  f_equal.
+  unfold valnum_diff_0; simpl.
+  apply Zminus_eq in Heqd; rewrite Heqd.
+  f_equal.
 bbb.
 
 constructor.
