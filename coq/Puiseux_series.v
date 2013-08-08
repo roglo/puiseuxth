@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.146 2013-08-07 20:00:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.147 2013-08-08 00:50:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -235,15 +235,18 @@ constructor.
   destruct (stop s₂); [ discriminate H1 | reflexivity ].
 Qed.
 
-Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s ≃ s.
+Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s = s.
 Proof.
 intros s.
-constructor; simpl.
+unfold stretch_series; simpl.
+destruct s as (t, st); simpl.
+f_equal.
+ apply functional_extensionality.
  intros i; rewrite divmod_div.
  rewrite Nat.div_1_r; reflexivity.
 
- destruct (stop s) as [st| ]; [ idtac | reflexivity ].
- rewrite Pos2Nat.inj_1, mult_1_r; reflexivity.
+ destruct st as [| st]; [ idtac | reflexivity ].
+ rewrite mult_1_r; reflexivity.
 Qed.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
@@ -661,31 +664,14 @@ unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
-(*
-Lemma normalise_terms_1 : ∀ t, normalise_terms 1 t = t.
-Proof.
-intros t.
-unfold normalise_terms.
-destruct t.
-f_equal.
- apply functional_extensionality.
- intros i.
- rewrite Nat.div_1_r.
- reflexivity.
-
- simpl.
- destruct stop.
-  rewrite mult_1_r; reflexivity.
-
-  reflexivity.
-Qed.
-*)
-
 Lemma normalise_1 : ∀ ps, normalise xH ps = ps.
 Proof.
 intros ps.
 unfold normalise; simpl.
-*)
+rewrite Z.mul_1_r.
+destruct ps as (t, v); simpl.
+f_equal; [ apply stretch_series_1 | destruct v; reflexivity ].
+Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
   series_pad_left n (series_add fld s₁ s₂)
@@ -750,25 +736,36 @@ rewrite Plcm_diag.
 rewrite Nat.div_same; [ idtac | apply pos_to_nat_ne_0 ].
 do 3 rewrite Z.mul_1_r.
 do 3 rewrite normalise_1.
+remember (Qnum (ps_valuation ps₂) - Qnum (ps_valuation ps₁))%Z as v₂₁.
+symmetry in Heqv₂₁.
+remember (Qnum (ps_valuation ps₃) - Qnum (ps_valuation ps₂))%Z as v₃₂.
+symmetry in Heqv₃₂.
+destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
+ rewrite <- H₁.
+ destruct v₃₂ as [| v₃₂| v₃₂]; simpl.
+  rewrite <- H₂.
+  rewrite Plcm_diag.
+  rewrite Nat.div_same; [ idtac | apply pos_to_nat_ne_0 ].
+  do 4 rewrite normalise_1.
+  do 3 rewrite Z.mul_1_r.
+  apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
+  constructor 1 with (k₁ := xH) (k₂ := xH).
+   do 2 rewrite stretch_series_1.
+   constructor.
+    intros i; simpl.
+    rewrite fld_add_assoc; reflexivity.
+
+    simpl.
+    destruct (stop (ps_terms ps₁)) as [st₁| ]; [ idtac | reflexivity ].
+    destruct (stop (ps_terms ps₂)) as [st₂| ]; [ idtac | reflexivity ].
+    destruct (stop (ps_terms ps₃)) as [st₃| ]; [ idtac | reflexivity ].
+    rewrite Nat.max_assoc; reflexivity.
+
+   Focus 1.
+Admitted. (*
 bbb.
 
-remember (ps_add ps₁ ps₂) as ps₁₂ eqn:Hps₁₂ .
-remember (ps_add ps₂ ps₃) as ps₂₃ eqn:Hps₂₃ .
-unfold ps_add in Hps₁₂, Hps₂₃ |- *.
-unfold valnum_diff; simpl.
-remember
- (Qnum (ps_valuation ps₃) * ' lcm_div ps₃ ps₁₂ -
-  Qnum (ps_valuation ps₁₂) * ' lcm_div ps₁₂ ps₃)%Z as x eqn:Hx .
-symmetry in Hx.
-remember
- (Qnum (ps_valuation ps₂₃) * ' lcm_div ps₂₃ ps₁ -
-  Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂₃)%Z as y eqn:Hy .
-symmetry in Hy.
-destruct x.
- destruct y.
- Focus 1.
-bbb.
-
+intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
 unfold ps_add; simpl.
 rewrite <- H₁, <- H₂, <- H₃.
 rewrite Plcm_diag.
@@ -891,12 +888,17 @@ f_equal.
 Qed.
 *)
 
+(**)
 Lemma ps_add_normalise : ∀ ps₁ ps₂ ms₁ ms₂,
   ms₁ = normalise (lcm_div ps₁ ps₂) ps₁
   → ms₂ = normalise (lcm_div ps₂ ps₁) ps₂
     → ps_add ps₁ ps₂ ≈ ps_add ms₁ ms₂.
 Proof.
 intros ps₁ ps₂ ms₁ ms₂ Hms₁ Hms₂.
+unfold ps_add.
+subst ms₁ ms₂; simpl.
+unfold lcm_div; simpl.
+
 bbb.
 unfold ps_add.
 subst ms₁ ms₂; simpl.
@@ -913,6 +915,7 @@ rewrite Nat.div_same.
 
  apply pos_to_nat_ne_0.
 Qed.
+*)
 
 Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
 Proof. intros; subst; reflexivity. Qed.
