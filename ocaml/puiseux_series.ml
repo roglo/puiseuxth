@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.218 2013-08-07 08:25:51 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.219 2013-08-08 01:50:55 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -46,7 +46,7 @@ Definition stretch_series fld k s :=
        | None => None
        end |}.
 
-Definition normalise fld k ps :=
+Definition adjust fld k ps :=
   let l := (I.mul k (Qden (ps_valuation ps)))%positive in
   {| ps_terms := stretch_series fld (Pos.to_nat k) (ps_terms ps);
      ps_valuation := Qmake (I.mul (Qnum (ps_valuation ps)) (Zpos k)) l |}.
@@ -87,8 +87,8 @@ Definition valnum_diff fld ms₁ ms₂ d :=
   end.
 
 Definition ps_add fld (ps₁ ps₂ : puiseux_series α) :=
-  let ms₁ := normalise fld (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := normalise fld (lcm_div ps₂ ps₁) ps₂ in
+  let ms₁ := adjust fld (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := adjust fld (lcm_div ps₂ ps₁) ps₂ in
   valnum_diff fld ms₁ ms₂
     (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
 

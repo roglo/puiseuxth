@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.147 2013-08-08 00:50:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.148 2013-08-08 01:50:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -287,15 +287,15 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | None => zero fld
   end.
 
-Definition normalise k ps :=
+Definition adjust k ps :=
   let l := (k * Qden (ps_valuation ps))%positive in
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
      ps_valuation := Qnum (ps_valuation ps) * 'k # l |}.
 
-Theorem normalise_eq : ∀ k ps, normalise k ps ≈ ps.
+Theorem adjust_eq : ∀ k ps, adjust k ps ≈ ps.
 Proof.
 intros k ps.
-unfold normalise.
+unfold adjust.
 remember (ps_valuation ps) as v.
 econstructor 1 with (k₁ := Qden v) (k₂ := (k * Qden v)%positive); simpl.
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
@@ -352,8 +352,8 @@ Definition valnum_diff ms₁ ms₂ d :=
   end.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
-  let ms₁ := normalise (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := normalise (lcm_div ps₂ ps₁) ps₂ in
+  let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
   valnum_diff ms₁ ms₂
     (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
 
@@ -402,8 +402,8 @@ Definition series_mul_term (s₁ s₂ : series α) :=
        end |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
-  let ms₁ := normalise (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := normalise (lcm_div ps₂ ps₁) ps₂ in
+  let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
+  let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
   {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
      ps_valuation := Qnum (ps_valuation ms₁) + Qnum (ps_valuation ms₂) # l |}.
@@ -491,11 +491,11 @@ inversion Heq; subst.
 apply H.
 Qed.
 
-Add Parametric Morphism k : (normalise k) with
-signature eq_ps ==> eq_ps as normalise_morph.
+Add Parametric Morphism k : (adjust k) with
+signature eq_ps ==> eq_ps as adjust_morph.
 Proof.
 intros ps₁ ps₂ H.
-unfold normalise.
+unfold adjust.
 inversion_clear H.
 constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
@@ -664,10 +664,10 @@ unfold valnum_diff; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
-Lemma normalise_1 : ∀ ps, normalise xH ps = ps.
+Lemma adjust_1 : ∀ ps, adjust xH ps = ps.
 Proof.
 intros ps.
-unfold normalise; simpl.
+unfold adjust; simpl.
 rewrite Z.mul_1_r.
 destruct ps as (t, v); simpl.
 f_equal; [ apply stretch_series_1 | destruct v; reflexivity ].
@@ -735,7 +735,7 @@ rewrite <- H₁, <- H₂, <- H₃.
 rewrite Plcm_diag.
 rewrite Nat.div_same; [ idtac | apply pos_to_nat_ne_0 ].
 do 3 rewrite Z.mul_1_r.
-do 3 rewrite normalise_1.
+do 3 rewrite adjust_1.
 remember (Qnum (ps_valuation ps₂) - Qnum (ps_valuation ps₁))%Z as v₂₁.
 symmetry in Heqv₂₁.
 remember (Qnum (ps_valuation ps₃) - Qnum (ps_valuation ps₂))%Z as v₃₂.
@@ -746,7 +746,7 @@ destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
   rewrite <- H₂.
   rewrite Plcm_diag.
   rewrite Nat.div_same; [ idtac | apply pos_to_nat_ne_0 ].
-  do 4 rewrite normalise_1.
+  do 4 rewrite adjust_1.
   do 3 rewrite Z.mul_1_r.
   apply Zminus_eq in Heqv₃₂; rewrite Heqv₃₂, Heqv₂₁; simpl.
   constructor 1 with (k₁ := xH) (k₂ := xH).
@@ -774,7 +774,7 @@ rewrite <- H₁, <- H₂, <- H₃.
 rewrite Plcm_diag.
 rewrite Nat.div_same.
  simpl.
- unfold normalise; simpl.
+ unfold adjust; simpl.
  do 3 rewrite Zmult_1_r.
  rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
  rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
@@ -783,7 +783,7 @@ rewrite Nat.div_same.
  rewrite Nat.div_same.
   simpl.
   do 4 rewrite Zmult_1_r.
-  do 5 rewrite normalise_terms_1.
+  do 5 rewrite adjust_terms_1.
   remember (ps_valnum ps₂ - ps_valnum ps₁)%Z as v₂₁.
   symmetry in Heqv₂₁.
   destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
@@ -865,16 +865,16 @@ Qed.
 *)
 
 (*
-Lemma normalise_1_r : ∀ l ps,
-  normalise l 1 ps =
+Lemma adjust_1_r : ∀ l ps,
+  adjust l 1 ps =
     {| ps_terms := ps_terms ps;
        ps_valnum := ps_valnum ps;
        ps_comden := l |}.
 Proof.
 intros l ps.
-unfold normalise; simpl.
+unfold adjust; simpl.
 rewrite Zmult_1_r.
-unfold normalise_terms; simpl.
+unfold adjust_terms; simpl.
 f_equal.
 remember (ps_terms ps) as t.
 destruct t.
@@ -889,9 +889,9 @@ Qed.
 *)
 
 (**)
-Lemma ps_add_normalise : ∀ ps₁ ps₂ ms₁ ms₂,
-  ms₁ = normalise (lcm_div ps₁ ps₂) ps₁
-  → ms₂ = normalise (lcm_div ps₂ ps₁) ps₂
+Lemma ps_add_adjust : ∀ ps₁ ps₂ ms₁ ms₂,
+  ms₁ = adjust (lcm_div ps₁ ps₂) ps₁
+  → ms₂ = adjust (lcm_div ps₂ ps₁) ps₂
     → ps_add ps₁ ps₂ ≈ ps_add ms₁ ms₂.
 Proof.
 intros ps₁ ps₂ ms₁ ms₂ Hms₁ Hms₂.
@@ -909,8 +909,8 @@ rewrite Nat.div_same.
  simpl.
  do 2 rewrite Zmult_1_r.
  rewrite <- Hl, Plcm_comm, <- Hl.
- do 2 rewrite normalise_1_r.
- unfold normalise; simpl.
+ do 2 rewrite adjust_1_r.
+ unfold adjust; simpl.
  reflexivity.
 
  apply pos_to_nat_ne_0.
@@ -921,13 +921,13 @@ Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
 Proof. intros; subst; reflexivity. Qed.
 
 (*
-Lemma ps_comden_normalise : ∀ l m ps, ps_comden (normalise l m ps) = l.
+Lemma ps_comden_adjust : ∀ l m ps, ps_comden (adjust l m ps) = l.
 Proof. reflexivity. Qed.
 *)
 
 (*
-Lemma lcm_div_normalise : ∀ l₁ m₁ ps₁ l₂ m₂ ps₂,
-  lcm_div (normalise l₁ m₁ ps₁) (normalise l₂ m₂ ps₂) =
+Lemma lcm_div_adjust : ∀ l₁ m₁ ps₁ l₂ m₂ ps₂,
+  lcm_div (adjust l₁ m₁ ps₁) (adjust l₂ m₂ ps₂) =
   (Pos.to_nat (Plcm l₁ l₂) / Pos.to_nat l₁)%nat.
 Proof. reflexivity. Qed.
 *)
@@ -981,25 +981,25 @@ destruct l as [| l| l].
 Qed.
 
 (*
-Lemma ps_add_normalise_normalise : ∀ ps₁ ps₂,
+Lemma ps_add_adjust_adjust : ∀ ps₁ ps₂,
   ps_add
-    (normalise (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₁ ps₂) ps₁)
-    (normalise (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₂ ps₁) ps₂) =
+    (adjust (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₁ ps₂) ps₁)
+    (adjust (Plcm (ps_comden ps₁) (ps_comden ps₂)) (lcm_div ps₂ ps₁) ps₂) =
   ps_add ps₁ ps₂.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
 rewrite Plcm_diag.
-rewrite lcm_div_normalise.
-rewrite lcm_div_normalise.
+rewrite lcm_div_adjust.
+rewrite lcm_div_adjust.
 rewrite Plcm_diag.
 rewrite Nat.div_same.
  simpl.
  rewrite Zmult_1_r.
  rewrite Zmult_1_r.
- unfold normalise; simpl.
- rewrite normalise_terms_1.
- rewrite normalise_terms_1.
+ unfold adjust; simpl.
+ rewrite adjust_terms_1.
+ rewrite adjust_terms_1.
  rewrite Zmult_1_r.
  rewrite Zmult_1_r.
  reflexivity.
@@ -1007,8 +1007,8 @@ rewrite Nat.div_same.
  apply pos_to_nat_ne_0.
 Qed.
 
-Lemma add_normalise_comden : ∀ c l m₁ m₂ ps₁ ps₂,
-  c ≈ ps_add (normalise l m₁ ps₁) (normalise l m₂ ps₂)
+Lemma add_adjust_comden : ∀ c l m₁ m₂ ps₁ ps₂,
+  c ≈ ps_add (adjust l m₁ ps₁) (adjust l m₂ ps₂)
   → ps_comden c = l.
 Proof.
 intros c l m₁ m₂ ps₁ ps₂ Hc.
@@ -1019,17 +1019,17 @@ rewrite Plcm_diag.
 rewrite same_comden_valnum_diff; reflexivity.
 Qed.
 
-Lemma normalise_normalise : ∀ ps l m₁ m₂,
+Lemma adjust_adjust : ∀ ps l m₁ m₂,
   m₁ ≠ 0%nat
   → m₂ ≠ 0%nat
-    → normalise l m₁ (normalise l m₂ ps) = normalise l (m₁ * m₂)%nat ps.
+    → adjust l m₁ (adjust l m₂ ps) = adjust l (m₁ * m₂)%nat ps.
 Proof.
 intros ps l m₁ m₂ Hm₁ Hm₂.
-unfold normalise; simpl.
+unfold adjust; simpl.
 rewrite Nat2Z.inj_mul.
 rewrite Z.mul_assoc, Z.mul_shuffle0.
 f_equal.
-unfold normalise_terms.
+unfold adjust_terms.
 f_equal.
  apply functional_extensionality.
  intros m; simpl.
@@ -1077,8 +1077,8 @@ Qed.
 Lemma lcm_div_add : ∀ ps₁ ps₂ ps₃ l,
   lcm_div ps₁
     (ps_add
-       (normalise l (lcm_div ps₂ ps₃) ps₂)
-       (normalise l (lcm_div ps₃ ps₂) ps₃)) =
+       (adjust l (lcm_div ps₂ ps₃) ps₂)
+       (adjust l (lcm_div ps₃ ps₂) ps₃)) =
    (Pos.to_nat (Plcm (ps_comden ps₁) l) / Pos.to_nat (ps_comden ps₁))%nat.
 Proof.
 intros ps₁ ps₂ ps₃ l.
@@ -1108,19 +1108,19 @@ remember (ps_add ps₂ ps₃) as c.
 remember (ps_add ps₁ c) as d.
 remember Heqb as H; clear HeqH.
 apply eq_eq_ps in H.
-rewrite ps_add_normalise in H; try reflexivity.
+rewrite ps_add_adjust in H; try reflexivity.
 rewrite H; clear H.
 remember Heqd as H; clear HeqH.
 apply eq_eq_ps in H.
-rewrite ps_add_normalise in H; try reflexivity.
+rewrite ps_add_adjust in H; try reflexivity.
 rewrite H; clear H.
 remember Heqa as H; clear HeqH.
 apply eq_eq_ps in H.
-rewrite ps_add_normalise in H; try reflexivity.
+rewrite ps_add_adjust in H; try reflexivity.
 rewrite H in |- * at 3; clear H.
 remember Heqc as H; clear HeqH.
 apply eq_eq_ps in H.
-rewrite ps_add_normalise in H; try reflexivity.
+rewrite ps_add_adjust in H; try reflexivity.
 rewrite H in |- * at 5; clear H.
 rewrite Heqa, Heqc.
 do 2 rewrite ps_comden_add.
