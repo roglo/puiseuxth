@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.153 2013-08-08 14:23:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.154 2013-08-08 15:46:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -329,33 +329,33 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
   Pos.of_nat (Pos.to_nat l / Pos.to_nat (Qden (ps_valuation ps₁)))%nat.
 
-Definition valnum_diff_0 ps₁ ps₂ :=
+Definition ps_add_no_pad ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
      ps_valuation := ps_valuation ps₁ |}.
 
-Definition valnum_diff_pos n ps₁ ps₂ :=
+Definition ps_add_pad_r n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (ps_terms ps₁)
          (series_pad_left (Pos.to_nat n) (ps_terms ps₂));
      ps_valuation := ps_valuation ps₁ |}.
 
-Definition valnum_diff_neg n ps₁ ps₂ :=
+Definition ps_add_pad_l n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (series_pad_left (Pos.to_nat n) (ps_terms ps₁))
          (ps_terms ps₂);
      ps_valuation := ps_valuation ps₂ |}.
 
-Definition valnum_diff ms₁ ms₂ d :=
+Definition ps_add_pad ms₁ ms₂ d :=
   match d with
-  | Z0 => valnum_diff_0 ms₁ ms₂
-  | Zpos n => valnum_diff_pos n ms₁ ms₂
-  | Zneg n => valnum_diff_neg n ms₁ ms₂
+  | Z0 => ps_add_no_pad ms₁ ms₂
+  | Zpos n => ps_add_pad_r n ms₁ ms₂
+  | Zneg n => ps_add_pad_l n ms₁ ms₂
   end.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-  valnum_diff ms₁ ms₂
+  ps_add_pad ms₁ ms₂
     (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
 
 (* ps_mul *)
@@ -546,16 +546,16 @@ constructor; simpl.
 Qed.
 
 (*
-Add Parametric Morphism : valnum_diff with 
-signature eq_ps ==> eq_ps ==> eq ==> eq_ps as valnum_diff_morph.
+Add Parametric Morphism : ps_add_pad with 
+signature eq_ps ==> eq_ps ==> eq ==> eq_ps as ps_add_pad_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂ d.
 inversion_clear Heq₁ as (k₁, k₃, a, b, Hss₁, Hm₁); subst.
 inversion_clear Heq₂ as (k₂, k₄, a, b, Hss₂, Hm₂); subst.
-unfold valnum_diff.
-unfold valnum_diff_0.
-unfold valnum_diff_pos.
-unfold valnum_diff_neg.
+unfold ps_add_pad.
+unfold ps_add_no_pad.
+unfold ps_add_pad_r.
+unfold ps_add_pad_l.
 destruct d; simpl.
  econstructor 1; simpl; [ idtac | eassumption ].
  rewrite stretch_series_add_distr.
@@ -566,15 +566,15 @@ bbb.
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂ d.
 inversion Heq₁.
 inversion Heq₂.
-unfold valnum_diff.
+unfold ps_add_pad.
 destruct d; simpl.
  constructor; [ simpl | assumption | assumption ].
  rewrite H, H2; reflexivity.
 
- unfold valnum_diff_pos; simpl.
+ unfold ps_add_pad_r; simpl.
  rewrite H, H0, H1, H2; reflexivity.
 
- unfold valnum_diff_neg; simpl.
+ unfold ps_add_pad_l; simpl.
  rewrite H, H2, H3, H4; reflexivity.
 Qed.
 *)
@@ -604,9 +604,9 @@ rewrite Plcm_comm.
 rewrite <- Heql.
 remember (Pos.to_nat l / Pos.to_nat (ps_comden ps₄))%nat as n.
 remember (ps_valnum ps₄ * Z.of_nat n - ps_valnum ps₂ * Z.of_nat m)%Z as j.
-unfold valnum_diff.
+unfold ps_add_pad.
 destruct j as [| j| j].
- unfold valnum_diff_0; simpl.
+ unfold ps_add_no_pad; simpl.
  constructor; simpl; [ idtac | idtac | reflexivity ].
   constructor.
    intros i; simpl.
@@ -622,7 +622,7 @@ destruct j as [| j| j].
 
   rewrite H0; reflexivity.
 
- unfold valnum_diff_pos; simpl.
+ unfold ps_add_pad_r; simpl.
  constructor; simpl; [ idtac | idtac | reflexivity ].
   constructor.
    intros i; simpl.
@@ -640,7 +640,7 @@ destruct j as [| j| j].
 
   rewrite H0; reflexivity.
 
- unfold valnum_diff_neg; simpl.
+ unfold ps_add_pad_l; simpl.
  constructor; simpl; [ idtac | idtac | reflexivity ].
   constructor.
    intros i; simpl.
@@ -667,7 +667,8 @@ Qed.
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
-unfold ps_add, valnum_diff; simpl.
+unfold ps_add, ps_add_pad; simpl.
+bbb.
 remember
  (Qnum (ps_valuation ps₂) * ' lcm_div ps₂ ps₁ -
   Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂)%Z as d.
@@ -683,7 +684,7 @@ destruct d; simpl.
   rewrite series_add_comm; reflexivity.
 
   f_equal.
-  unfold valnum_diff_0; simpl.
+  unfold ps_add_no_pad; simpl.
   apply Zminus_eq in Heqd; rewrite Heqd.
   f_equal.
   unfold lcm_div; simpl.
@@ -699,12 +700,12 @@ destruct d; simpl.
  rewrite series_add_comm; reflexivity.
 Qed.
 
-Lemma same_comden_valnum_diff : ∀ ps₁ ps₂ d,
+Lemma same_comden_ps_add_pad : ∀ ps₁ ps₂ d,
   Qden (ps_valuation ps₁) = Qden (ps_valuation ps₂)
-  → Qden (ps_valuation (valnum_diff ps₁ ps₂ d)) = Qden (ps_valuation ps₁).
+  → Qden (ps_valuation (ps_add_pad ps₁ ps₂ d)) = Qden (ps_valuation ps₁).
 Proof.
 intros ps₁ ps₂ d H.
-unfold valnum_diff; simpl.
+unfold ps_add_pad; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
@@ -820,8 +821,8 @@ rewrite Nat.div_same.
  simpl.
  unfold adjust; simpl.
  do 3 rewrite Zmult_1_r.
- rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
- rewrite same_comden_valnum_diff; [ idtac | reflexivity ].
+ rewrite same_comden_ps_add_pad; [ idtac | reflexivity ].
+ rewrite same_comden_ps_add_pad; [ idtac | reflexivity ].
  simpl.
  rewrite Plcm_diag.
  rewrite Nat.div_same.
@@ -1061,7 +1062,7 @@ inversion Hc.
 rewrite H1; simpl.
 unfold ps_add; simpl.
 rewrite Plcm_diag.
-rewrite same_comden_valnum_diff; reflexivity.
+rewrite same_comden_ps_add_pad; reflexivity.
 Qed.
 
 Lemma adjust_adjust : ∀ ps l m₁ m₂,
@@ -1113,7 +1114,7 @@ Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
 remember (Plcm (ps_comden ps₁) (ps_comden ps₂)) as l.
-unfold valnum_diff; simpl.
+unfold ps_add_pad; simpl.
 destruct
  (ps_valnum ps₂ * Z.of_nat (lcm_div ps₂ ps₁) -
   ps_valnum ps₁ * Z.of_nat (lcm_div ps₁ ps₂))%Z; reflexivity.
