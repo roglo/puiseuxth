@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.148 2013-08-08 01:50:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.149 2013-08-08 02:06:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -723,6 +723,7 @@ f_equal.
  rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.
 Qed.
 
+(*
 Lemma ps_add_assoc_same_comden : ∀ ps₁ ps₂ ps₃ l,
   l = Qden (ps_valuation ps₁)
   → l = Qden (ps_valuation ps₂)
@@ -762,7 +763,6 @@ destruct v₂₁ as [| v₂₁| v₂₁]; simpl.
     rewrite Nat.max_assoc; reflexivity.
 
    Focus 1.
-Admitted. (*
 bbb.
 
 intros ps₁ ps₂ ps₃ l H₁ H₂ H₃.
@@ -888,7 +888,7 @@ f_equal.
 Qed.
 *)
 
-(**)
+(*
 Lemma ps_add_adjust : ∀ ps₁ ps₂ ms₁ ms₂,
   ms₁ = adjust (lcm_div ps₁ ps₂) ps₁
   → ms₂ = adjust (lcm_div ps₂ ps₁) ps₂
@@ -897,6 +897,7 @@ Proof.
 intros ps₁ ps₂ ms₁ ms₂ Hms₁ Hms₂.
 unfold ps_add.
 subst ms₁ ms₂; simpl.
+bbb.
 unfold lcm_div; simpl.
 
 bbb.
@@ -1098,6 +1099,8 @@ remember (ps_add ps₂ ps₃) as c.
 remember (ps_add ps₁ c) as d.
 remember Heqb as H; clear HeqH.
 apply eq_eq_ps in H.
+unfold ps_add in Heqa, Heqb, Heqc, Heqd.
+simpl in Heqa, Heqb, Heqc, Heqd.
 bbb.
 
 pose proof (ps_comden_add ps₁ ps₂) as Hca.
