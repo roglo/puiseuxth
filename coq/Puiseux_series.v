@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.156 2013-08-08 16:14:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.157 2013-08-08 17:44:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -697,34 +697,6 @@ destruct d; simpl.
    unfold lcm_div; simpl.
    rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
    rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divides_lcm_l ].
-bbb.
-
-intros ps₁ ps₂.
-unfold ps_add, ps_add_pad; simpl.
-bbb.
-remember
- (Qnum (ps_valuation ps₂) * ' lcm_div ps₂ ps₁ -
-  Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂)%Z as d.
-symmetry in Heqd.
-remember
- (Qnum (ps_valuation ps₁) * ' lcm_div ps₁ ps₂ -
-  Qnum (ps_valuation ps₂) * ' lcm_div ps₂ ps₁)%Z as e.
-rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
-rewrite Z.add_opp_l in Heqe.
-rewrite Heqd in Heqe; subst e.
-destruct d; simpl.
- constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-  rewrite series_add_comm; reflexivity.
-
-  f_equal.
-  unfold ps_add_no_pad; simpl.
-  apply Zminus_eq in Heqd; rewrite Heqd.
-  f_equal.
-  unfold lcm_div; simpl.
-  remember (Qden (ps_valuation ps₁)) as q₁.
-  remember (Qden (ps_valuation ps₂)) as q₂.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divides_lcm_l ].
 
  constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity ].
  rewrite series_add_comm; reflexivity.
@@ -746,9 +718,10 @@ Lemma adjust_1 : ∀ ps, adjust xH ps = ps.
 Proof.
 intros ps.
 unfold adjust; simpl.
-rewrite Z.mul_1_r.
-destruct ps as (t, v); simpl.
-f_equal; [ apply stretch_series_1 | destruct v; reflexivity ].
+rewrite stretch_series_1.
+unfold Qmul₁.
+rewrite Z.mul_1_l, Pos.mul_1_l.
+destruct ps as (t, v); destruct v; reflexivity.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
