@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.149 2013-08-08 02:06:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.150 2013-08-08 09:09:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -540,10 +540,15 @@ destruct d; simpl.
 Qed.
 *)
 
-(*
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
+inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hm₁); subst.
+inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hm₂); subst.
+unfold ps_add; simpl.
+bbb.
+
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
 inversion Heq₁; subst.
 inversion Heq₂; subst.
@@ -1092,6 +1097,18 @@ Qed.
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃.
+remember (Qden (ps_valuation ps₁)) as vd₁.
+remember (Qden (ps_valuation ps₂)) as vd₂.
+remember (Qden (ps_valuation ps₃)) as vd₃.
+remember (Plcm (Plcm vd₁ vd₂) vd₃) as l.
+remember ps₁ as x.
+apply eq_eq_ps in Heqx.
+symmetry in Heqx.
+rewrite <- adjust_eq with (k := Pos.of_nat (Pos.to_nat l / Pos.to_nat vd₁))
+ in Heqx.
+bbb
+
 intros ps₁ ps₂ ps₃.
 remember (ps_add ps₁ ps₂) as a.
 remember (ps_add a ps₃) as b.
