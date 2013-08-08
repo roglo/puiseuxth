@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.151 2013-08-08 10:51:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.152 2013-08-08 13:23:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -288,7 +288,6 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   end.
 
 Definition adjust k ps :=
-  let l := (k * Qden (ps_valuation ps))%positive in
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
      ps_valuation := Qmul₁ k (ps_valuation ps) |}.
 
