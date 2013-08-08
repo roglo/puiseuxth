@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.155 2013-08-08 15:55:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.156 2013-08-08 16:14:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -685,6 +685,18 @@ destruct d; simpl.
 
   f_equal.
   apply Zminus_eq in Heqd.
+  rewrite Heqaps₁, Heqaps₂; simpl.
+  unfold Qmul₁.
+  f_equal.
+   rewrite Heqaps₁, Heqaps₂ in Heqd.
+   remember Qnum as f; simpl in Heqd; subst f.
+   unfold Qmul₁ in Heqd.
+   remember Z.mul as f; simpl in Heqd; subst f.
+   symmetry; assumption.
+
+   unfold lcm_div; simpl.
+   rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+   rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divides_lcm_l ].
 bbb.
 
 intros ps₁ ps₂.
