@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.154 2013-08-08 15:46:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.155 2013-08-08 15:55:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -352,11 +352,13 @@ Definition ps_add_pad ms₁ ms₂ d :=
   | Zneg n => ps_add_pad_l n ms₁ ms₂
   end.
 
+Definition val_num_sub (ps₁ ps₂ : puiseux_series α) :=
+   Z.sub (Qnum (ps_valuation ps₂)) (Qnum (ps_valuation ps₁)).
+
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-  ps_add_pad ms₁ ms₂
-    (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
+  ps_add_pad ms₁ ms₂ (val_num_sub ms₁ ms₂).
 
 (* ps_mul *)
 
@@ -666,6 +668,25 @@ Qed.
 
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
+intros ps₁ ps₂.
+unfold ps_add, ps_add_pad; simpl.
+remember (adjust (lcm_div ps₁ ps₂) ps₁) as aps₁.
+remember (adjust (lcm_div ps₂ ps₁) ps₂) as aps₂.
+remember (val_num_sub aps₁ aps₂) as d.
+remember (val_num_sub aps₂ aps₁) as e.
+symmetry in Heqd.
+unfold val_num_sub in Heqd, Heqe.
+rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
+rewrite Z.add_opp_l in Heqe.
+rewrite Heqd in Heqe; subst e.
+destruct d; simpl.
+ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+  rewrite series_add_comm; reflexivity.
+
+  f_equal.
+  apply Zminus_eq in Heqd.
+bbb.
+
 intros ps₁ ps₂.
 unfold ps_add, ps_add_pad; simpl.
 bbb.
