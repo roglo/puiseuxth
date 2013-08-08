@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.150 2013-08-08 09:09:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.151 2013-08-08 10:51:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -290,7 +290,18 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 Definition adjust k ps :=
   let l := (k * Qden (ps_valuation ps))%positive in
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
-     ps_valuation := Qnum (ps_valuation ps) * 'k # l |}.
+     ps_valuation := Qmul₁ k (ps_valuation ps) |}.
+
+Lemma Qmul₁_mul_distr_r : ∀ p q k, Qmul₁ (k * p) q = Qmul₁ p (Qmul₁ k q).
+Proof.
+intros p q k.
+unfold Qmul₁; simpl.
+f_equal; [ idtac | rewrite Pos_mul_shuffle0, Pos.mul_comm; reflexivity ].
+destruct (Qnum q); [ reflexivity | idtac | idtac ].
+ rewrite Pos_mul_shuffle0, Pos.mul_comm; reflexivity.
+
+ rewrite Pos_mul_shuffle0, Pos.mul_comm; reflexivity.
+Qed.
 
 Theorem adjust_eq : ∀ k ps, adjust k ps ≈ ps.
 Proof.
@@ -302,16 +313,7 @@ econstructor 1 with (k₁ := Qden v) (k₂ := (k * Qden v)%positive); simpl.
  rewrite Pos2Nat.inj_mul, Nat.mul_comm; reflexivity.
 
  rewrite <- Heqv.
- unfold Qmul₁; simpl.
- rewrite Pos.mul_comm; f_equal.
- remember (Qnum v) as vn.
- destruct vn; [ reflexivity | simpl | simpl ].
-  rewrite Pos.mul_comm.
-  symmetry.
-  rewrite Pos.mul_comm, Pos.mul_assoc; reflexivity.
-
-  rewrite Pos.mul_comm; symmetry.
-  rewrite Pos.mul_comm, Pos.mul_assoc; reflexivity.
+ symmetry; apply Qmul₁_mul_distr_r.
 Qed.
 
 (* ps_add *)
@@ -517,7 +519,12 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  rewrite Pos.mul_assoc, Pos_mul_shuffle0, Pos.mul_comm.
  remember Z.mul as f.
  injection H1; clear H1; intros; subst f.
- rewrite H, H1; reflexivity.
+ rewrite <- H.
+ f_equal.
+ rewrite Z.mul_shuffle3; symmetry.
+ rewrite Z.mul_shuffle3; symmetry.
+ do 2 rewrite Z.mul_assoc.
+ rewrite H1; reflexivity.
 Qed.
 
 (*
@@ -546,7 +553,6 @@ Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hm₁); subst.
 inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hm₂); subst.
-unfold ps_add; simpl.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
