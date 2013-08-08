@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.219 2013-08-08 01:50:55 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.220 2013-08-08 14:23:55 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -46,10 +46,12 @@ Definition stretch_series fld k s :=
        | None => None
        end |}.
 
+Definition qmul₁ p q :=
+  Qmake (I.mul (Zpos p) (Qnum q)) (I.mul p (Qden q)).
+
 Definition adjust fld k ps :=
-  let l := (I.mul k (Qden (ps_valuation ps)))%positive in
   {| ps_terms := stretch_series fld (Pos.to_nat k) (ps_terms ps);
-     ps_valuation := Qmake (I.mul (Qnum (ps_valuation ps)) (Zpos k)) l |}.
+     ps_valuation := qmul₁ k (ps_valuation ps) |}.
 
 Definition series_pad_left fld n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;

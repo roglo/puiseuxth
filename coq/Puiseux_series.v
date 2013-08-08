@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.152 2013-08-08 13:23:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.153 2013-08-08 14:23:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -526,10 +526,43 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  rewrite H1; reflexivity.
 Qed.
 
+Lemma stretch_series_add_distr : ∀ k s₁ s₂,
+  stretch_series k (series_add fld s₁ s₂) ≃
+  series_add fld (stretch_series k s₁) (stretch_series k s₂).
+Proof.
+intros k s₁ s₂.
+unfold stretch_series; simpl.
+unfold series_add; simpl.
+constructor; simpl.
+ intros i.
+ destruct (zerop (i mod k)) as [Hz| Hnz].
+  reflexivity.
+
+  rewrite fld_add_neutral; reflexivity.
+
+ destruct (stop s₁) as [st₁| ]; [ idtac | reflexivity ].
+ destruct (stop s₂) as [st₂| ]; [ idtac | reflexivity ].
+ rewrite Nat.mul_max_distr_r; reflexivity.
+Qed.
+
 (*
 Add Parametric Morphism : valnum_diff with 
-signature eq_ps ==> eq_ps ==> @eq Z ==> eq_ps as valnum_diff_morph.
+signature eq_ps ==> eq_ps ==> eq ==> eq_ps as valnum_diff_morph.
 Proof.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂ d.
+inversion_clear Heq₁ as (k₁, k₃, a, b, Hss₁, Hm₁); subst.
+inversion_clear Heq₂ as (k₂, k₄, a, b, Hss₂, Hm₂); subst.
+unfold valnum_diff.
+unfold valnum_diff_0.
+unfold valnum_diff_pos.
+unfold valnum_diff_neg.
+destruct d; simpl.
+ econstructor 1; simpl; [ idtac | eassumption ].
+ rewrite stretch_series_add_distr.
+ rewrite stretch_series_add_distr.
+ rewrite Hss₁.
+bbb.
+
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂ d.
 inversion Heq₁.
 inversion Heq₂.
@@ -546,6 +579,7 @@ destruct d; simpl.
 Qed.
 *)
 
+(*
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
