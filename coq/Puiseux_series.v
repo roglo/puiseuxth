@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.161 2013-08-09 09:48:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.162 2013-08-09 09:56:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -614,6 +614,10 @@ destruct d; simpl.
   rewrite mult_comm.
   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
   rewrite Hss₁.
+  rewrite series_add_comm.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite mult_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
   Focus 1.
 bbb.
 
