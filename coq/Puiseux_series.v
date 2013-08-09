@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.167 2013-08-09 13:06:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.168 2013-08-09 14:16:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -626,36 +626,39 @@ destruct d; simpl.
   erewrite <- adjust_eq with (k := k₂); unfold adjust; simpl.
   rewrite stretch_series_add_distr.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- Pos2Nat.inj_mul.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- mult_assoc, mult_comm.
-   rewrite <- Pos2Nat.inj_mul.
-   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Hss₂.
-   rewrite series_add_comm.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- Pos2Nat.inj_mul.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- Pos2Nat.inj_mul.
-   rewrite <- Pos2Nat.inj_mul.
-   unfold lcm_div.
-   rewrite Pos.mul_comm in Hc₂.
-   rewrite Hc₁, Hc₂.
-   rewrite Pos_mul_shuffle0.
-   rewrite <- Pos.mul_assoc.
-   rewrite <- Pos.mul_assoc.
-   rewrite Pos2Nat.inj_mul, mult_comm.
-   rewrite series_add_comm.
-   rewrite Pos2Nat.inj_mul, mult_comm.
-   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- stretch_series_add_distr.
-   rewrite <- Z.mul_assoc.
-   rewrite <- Z.mul_shuffle1.
-   rewrite <- Pos2Z.inj_mul.
-   rewrite Pos.mul_comm in Hc₂.
-   rewrite Hv₁, Hc₂.
-   rewrite <- Pos.mul_assoc.
+  rewrite <- mult_assoc, mult_comm.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Hss₂.
+  rewrite series_add_comm.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite <- Pos2Nat.inj_mul.
+  unfold lcm_div.
+  rewrite Pos.mul_comm in Hc₂.
+  rewrite Hc₁, Hc₂.
+  rewrite Pos_mul_shuffle0.
+  rewrite <- Pos.mul_assoc.
+  rewrite <- Pos.mul_assoc.
+  rewrite Pos2Nat.inj_mul, mult_comm.
+  rewrite series_add_comm.
+  rewrite Pos2Nat.inj_mul, mult_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_series_add_distr.
+  rewrite <- Z.mul_assoc.
+  rewrite <- Z.mul_shuffle1.
+  rewrite <- Pos2Z.inj_mul.
+  rewrite Pos.mul_comm in Hc₂.
+  rewrite Hv₁, Hc₂.
+  rewrite <- Pos.mul_assoc.
+  rewrite <- Pos_mul_shuffle1.
+bbb.
    replace (ps_comden ps₁ * ps_comden ps₂ * (k₁ * k₂))%positive with
     (ps_comden ps₁ * k₁ * (ps_comden ps₂ * k₂))%positive .
     rewrite Hc₁, Hc₂.

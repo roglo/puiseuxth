@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.42 2013-08-07 15:52:50 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.43 2013-08-09 14:16:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -708,6 +708,16 @@ rewrite Z2Pos.inj_mul; simpl.
  apply Z.gcd_divide_l.
 
  apply Pos2Z.is_pos.
+Qed.
+
+Lemma Pos_mul_shuffle1 : ∀ n m p q, n * m * (p * q) = n * p * (m * q).
+Proof.
+intros n m p q.
+do 2 rewrite <- Pos.mul_assoc.
+f_equal.
+do 2 rewrite Pos.mul_assoc.
+rewrite Pos_mul_shuffle0, Pos.mul_comm, Pos.mul_assoc.
+reflexivity.
 Qed.
 
 Close Scope positive_scope.
