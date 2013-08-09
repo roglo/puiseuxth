@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.158 2013-08-09 01:41:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.159 2013-08-09 09:31:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,7 +17,8 @@ Axiom functional_extensionality : ∀ α β (f g : α → β),
 
 Record puiseux_series α := mkps
   { ps_terms : series α;
-    ps_valuation : Q }.
+    ps_valnum : Z;
+    ps_comden : positive }.
 
 (* [series_head is_zero n s] skip the possible terms (starting from the nth
    one) with null coefficients and return either the couple of the rank of
@@ -45,14 +46,13 @@ Definition stretch_series k s :=
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
-Definition Qmul₁ p q := 'p * Qnum q # p * Qden q.
-
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
       stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
       stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
-      → Qmul₁ k₁ (ps_valuation ps₁) = Qmul₁ k₂ (ps_valuation ps₂)
-        → eq_ps ps₁ ps₂.
+      → (ps_valnum ps₁ * 'k₁ = ps_valnum ps₂ * 'k₂)%Z
+        → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
+          → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
@@ -85,6 +85,7 @@ destruct (Qnum q).
 Qed.
 *)
 
+(*
 Lemma Qmul₁_mul_cancel_l : ∀ k k₁ q₁ k₂ q₂,
   Qmul₁ (k * k₁) q₁ = Qmul₁ (k * k₂) q₂
   ↔ Qmul₁ k₁ q₁ = Qmul₁ k₂ q₂.
@@ -129,6 +130,7 @@ split; intros H.
   do 2 rewrite <- Pos.mul_assoc.
   rewrite H0; reflexivity.
 Qed.
+*)
 
 (*
 Lemma PQmul_1_l : ∀ q, PQmul 1 q = q.
@@ -255,17 +257,26 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as (k₁₁, k₁₂).
 inversion_clear H₂ as (k₂₁, k₂₂).
-apply Qmul₁_mul_cancel_l with (k := k₂₁) in H0.
-apply Qmul₁_mul_cancel_l with (k := k₁₂) in H2.
-rewrite Pos.mul_comm, <- H0 in H2.
-econstructor; [ idtac | eassumption ].
+apply Z.mul_cancel_r with (p := Zpos k₂₁) in H0; [ idtac | apply Zpos_ne_0 ].
+apply Z.mul_cancel_r with (p := Zpos k₁₂) in H3; [ idtac | apply Zpos_ne_0 ].
+rewrite Z.mul_shuffle0 in H3.
+rewrite <- H0 in H3.
+do 2 rewrite <- Z.mul_assoc in H3.
+apply Pos.mul_cancel_r with (r := k₂₁) in H1.
+apply Pos.mul_cancel_r with (r := k₁₂) in H4.
+rewrite Pos_mul_shuffle0 in H4.
+rewrite <- H1 in H4.
+do 2 rewrite <- Pos.mul_assoc in H4.
+econstructor; [ idtac | eassumption | eassumption ].
 do 2 rewrite Pos2Nat.inj_mul.
+symmetry; rewrite mult_comm.
 rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+symmetry; rewrite mult_comm.
 rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite H, <- H1.
+rewrite H, <- H2.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite Nat.mul_comm; reflexivity.
+rewrite mult_comm; reflexivity.
 Qed.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
@@ -276,10 +287,8 @@ Add Parametric Relation : (puiseux_series α) eq_ps
 
 Definition valuation (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
-  | Some (n, c) =>
-      Some (Qnum (ps_valuation ps) + Z.of_nat n # Qden (ps_valuation ps))
-  | None =>
-      None
+  | Some (n, c) => Some (ps_valnum ps + Z.of_nat n # ps_comden ps)
+  | None => None
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
@@ -290,8 +299,10 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 Definition adjust k ps :=
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
-     ps_valuation := Qmul₁ k (ps_valuation ps) |}.
+     ps_valnum := ps_valnum ps * 'k;
+     ps_comden := ps_comden ps * k |}.
 
+(*
 Lemma Qmul₁_mul_distr_r : ∀ p q k, Qmul₁ (k * p) q = Qmul₁ p (Qmul₁ k q).
 Proof.
 intros p q k.
@@ -302,18 +313,20 @@ destruct (Qnum q); [ reflexivity | idtac | idtac ].
 
  rewrite Pos_mul_shuffle0, Pos.mul_comm; reflexivity.
 Qed.
+*)
 
 Theorem adjust_eq : ∀ k ps, adjust k ps ≈ ps.
 Proof.
 intros k ps.
 unfold adjust.
-remember (ps_valuation ps) as v.
-econstructor 1 with (k₁ := Qden v) (k₂ := (k * Qden v)%positive); simpl.
+remember (ps_comden ps) as c.
+econstructor 1 with (k₁ := c) (k₂ := (k * c)%positive); simpl.
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite Pos2Nat.inj_mul, Nat.mul_comm; reflexivity.
 
- rewrite <- Heqv.
- symmetry; apply Qmul₁_mul_distr_r.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc; reflexivity.
+
+ subst c; rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
 (* ps_add *)
@@ -327,24 +340,27 @@ Definition series_pad_left n s :=
        end |}.
 
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (Qden (ps_valuation ps₁)))%nat.
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
 
 Definition ps_add_no_pad ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
-     ps_valuation := ps_valuation ps₁ |}.
+     ps_valnum := ps_valnum ps₁;
+     ps_comden := ps_comden ps₁ |}.
 
 Definition ps_add_pad_r n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (ps_terms ps₁)
          (series_pad_left (Pos.to_nat n) (ps_terms ps₂));
-     ps_valuation := ps_valuation ps₁ |}.
+     ps_valnum := ps_valnum ps₁;
+     ps_comden := ps_comden ps₁ |}.
 
 Definition ps_add_pad_l n ps₁ ps₂ :=
   {| ps_terms :=
        series_add fld (series_pad_left (Pos.to_nat n) (ps_terms ps₁))
          (ps_terms ps₂);
-     ps_valuation := ps_valuation ps₂ |}.
+     ps_valnum := ps_valnum ps₂;
+     ps_comden := ps_comden ps₁ |}.
 
 Definition ps_add_pad ms₁ ms₂ d :=
   match d with
@@ -354,7 +370,7 @@ Definition ps_add_pad ms₁ ms₂ d :=
   end.
 
 Definition val_num_sub (ps₁ ps₂ : puiseux_series α) :=
-   Z.sub (Qnum (ps_valuation ps₂)) (Qnum (ps_valuation ps₁)).
+   Z.sub (ps_valnum ps₂) (ps_valnum ps₁).
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
@@ -408,9 +424,10 @@ Definition series_mul_term (s₁ s₂ : series α) :=
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-  let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
-     ps_valuation := Qnum (ps_valuation ms₁) + Qnum (ps_valuation ms₂) # l |}.
+     ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
+     ps_comden := l |}.
 
 (* *)
 
@@ -464,13 +481,15 @@ destruct x; [ assumption | apply Hf | apply Hg ].
 Qed.
 
 Add Parametric Morphism : (@mkps α) with 
-signature (eq_series fld) ==> eq ==> eq_ps as mkps_morph.
+signature (eq_series fld) ==> eq ==> eq ==> eq_ps as mkps_morph.
 Proof.
 intros s₁ s₂ Heq v.
 inversion_clear Heq; subst.
 constructor 1 with (k₁ := xH) (k₂ := xH).
  do 2 rewrite stretch_series_1; simpl.
  constructor; assumption.
+
+ reflexivity.
 
  reflexivity.
 Qed.
@@ -511,22 +530,13 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite H0; reflexivity.
 
- unfold Qmul₁ in H1.
- unfold Qmul₁.
- remember Z.mul as f; simpl; subst f.
- rewrite Z.mul_assoc, Z.mul_comm.
- rewrite Pos.mul_assoc, Pos_mul_shuffle0, Pos.mul_comm.
- symmetry.
- rewrite Z.mul_assoc, Z.mul_comm.
- rewrite Pos.mul_assoc, Pos_mul_shuffle0, Pos.mul_comm.
- remember Z.mul as f.
- injection H1; clear H1; intros; subst f.
- rewrite <- H.
- f_equal.
- rewrite Z.mul_shuffle3; symmetry.
- rewrite Z.mul_shuffle3; symmetry.
- do 2 rewrite Z.mul_assoc.
- rewrite H1; reflexivity.
+ rewrite Z.mul_shuffle0; symmetry.
+ rewrite Z.mul_shuffle0; symmetry.
+ apply Z.mul_cancel_r; [ apply Zpos_ne_0 | assumption ].
+
+ rewrite Pos_mul_shuffle0; symmetry.
+ rewrite Pos_mul_shuffle0; symmetry.
+ apply Pos.mul_cancel_r; assumption.
 Qed.
 
 Lemma stretch_series_add_distr : ∀ k s₁ s₂,
@@ -582,13 +592,12 @@ destruct d; simpl.
 Qed.
 *)
 
-(*
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hm₁); subst.
-inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hm₂); subst.
+inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
+inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
@@ -687,32 +696,57 @@ destruct d; simpl.
   f_equal.
   apply Zminus_eq in Heqd.
   rewrite Heqaps₁, Heqaps₂; simpl.
-  unfold Qmul₁.
-  f_equal.
-   rewrite Heqaps₁, Heqaps₂ in Heqd.
-   remember Qnum as f; simpl in Heqd; subst f.
-   unfold Qmul₁ in Heqd.
-   remember Z.mul as f; simpl in Heqd; subst f.
-   symmetry; assumption.
+  rewrite Heqaps₁, Heqaps₂ in Heqd.
+  simpl in Heqd; symmetry; assumption.
 
-   unfold lcm_div; simpl.
-   rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-   rewrite Pos_div_mul; [ apply Plcm_comm | apply Pos_divides_lcm_l ].
+  do 2 rewrite Pos.mul_1_r.
+  subst aps₁ aps₂.
+  simpl.
+  unfold lcm_div.
+  rewrite Pos.mul_comm.
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  rewrite Pos.mul_comm.
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  apply Plcm_comm.
 
- constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity ].
- rewrite series_add_comm; reflexivity.
+ constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity | idtac ].
+  do 2 rewrite stretch_series_1.
+  apply series_add_comm.
 
- constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity ].
- rewrite series_add_comm; reflexivity.
+  do 2 rewrite Pos.mul_1_r.
+  subst aps₁ aps₂; simpl.
+  rewrite Pos.mul_comm.
+  unfold lcm_div.
+  rewrite Pos.mul_comm.
+  rewrite Pos.mul_comm.
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  rewrite Pos.mul_comm.
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  apply Plcm_comm.
+
+ constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity | idtac ].
+  do 2 rewrite stretch_series_1.
+  apply series_add_comm.
+
+  do 2 rewrite Pos.mul_1_r.
+  subst aps₁ aps₂; simpl.
+  rewrite Pos.mul_comm.
+  unfold lcm_div.
+  rewrite Pos.mul_comm.
+  rewrite Pos.mul_comm.
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  rewrite Pos.mul_comm.
+  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
+  apply Plcm_comm.
 Qed.
 
 Lemma same_comden_ps_add_pad : ∀ ps₁ ps₂ d,
-  Qden (ps_valuation ps₁) = Qden (ps_valuation ps₂)
-  → Qden (ps_valuation (ps_add_pad ps₁ ps₂ d)) = Qden (ps_valuation ps₁).
+  ps_comden ps₁ = ps_comden ps₂
+  → ps_comden (ps_add_pad ps₁ ps₂ d) = ps_comden ps₁.
 Proof.
 intros ps₁ ps₂ d H.
 unfold ps_add_pad; simpl.
-destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
+destruct d; reflexivity.
 Qed.
 
 Lemma adjust_1 : ∀ ps, adjust xH ps ≈ ps.
@@ -720,8 +754,7 @@ Proof.
 intros ps.
 unfold adjust; simpl.
 rewrite stretch_series_1.
-unfold Qmul₁.
-rewrite Z.mul_1_l, Pos.mul_1_l.
+rewrite Z.mul_1_r, Pos.mul_1_r.
 destruct ps as (t, v); destruct v; reflexivity.
 Qed.
 
@@ -1144,9 +1177,9 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
-remember (Qden (ps_valuation ps₁)) as vd₁.
-remember (Qden (ps_valuation ps₂)) as vd₂.
-remember (Qden (ps_valuation ps₃)) as vd₃.
+remember (ps_comden ps₁) as vd₁.
+remember (ps_comden ps₂) as vd₂.
+remember (ps_comden ps₃) as vd₃.
 remember (Plcm (Plcm vd₁ vd₂) vd₃) as l.
 remember ps₁ as x.
 apply eq_eq_ps in Heqx.
