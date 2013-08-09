@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.160 2013-08-09 09:35:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.161 2013-08-09 09:48:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -599,7 +599,22 @@ intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
 inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
 unfold ps_add; simpl.
+remember
+ (val_num_sub (adjust (lcm_div ps₁ ps₂) ps₁) (adjust (lcm_div ps₂ ps₁) ps₂)) as d.
+remember
+ (val_num_sub (adjust (lcm_div ps₃ ps₄) ps₃) (adjust (lcm_div ps₄ ps₃) ps₄)) as e.
 unfold adjust; simpl.
+destruct d; simpl.
+ destruct e.
+  simpl.
+  unfold ps_add_no_pad; simpl.
+  erewrite <- adjust_eq with (k := k₁); unfold adjust; simpl.
+  rewrite stretch_series_add_distr.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite mult_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Hss₁.
+  Focus 1.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
@@ -1188,7 +1203,7 @@ apply eq_eq_ps in Heqx.
 symmetry in Heqx.
 rewrite <- adjust_eq with (k := Pos.of_nat (Pos.to_nat l / Pos.to_nat vd₁))
  in Heqx.
-bbb
+bbb.
 
 intros ps₁ ps₂ ps₃.
 remember (ps_add ps₁ ps₂) as a.
