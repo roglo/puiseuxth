@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.163 2013-08-09 11:10:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.164 2013-08-09 11:45:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -618,7 +618,6 @@ destruct d; simpl.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
   rewrite mult_comm.
   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-  Focus 1.
   erewrite <- adjust_eq with (k := k₂); unfold adjust; simpl.
   rewrite stretch_series_add_distr.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
@@ -627,6 +626,15 @@ destruct d; simpl.
    rewrite <- Pos2Nat.inj_mul.
    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
    rewrite Hss₂.
+   rewrite series_add_comm.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- Pos2Nat.inj_mul.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- Pos2Nat.inj_mul.
+   rewrite <- Pos2Nat.inj_mul.
+   unfold lcm_div.
+   Focus 1.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
