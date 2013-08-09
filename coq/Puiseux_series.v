@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.172 2013-08-09 21:22:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.173 2013-08-09 21:31:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -665,80 +665,9 @@ constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
  rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
 Qed.
 
-Lemma ps_add_pad_0_pos_morph : ∀ ps₁ ps₂ ps₃ ps₄ p,
-  ps₁ ≈ ps₃
-  → ps₂ ≈ ps₄
-    → ps_add_pad
-        (adjust (lcm_div ps₁ ps₂) ps₁)
-        (adjust (lcm_div ps₂ ps₁) ps₂) 0
-      ≈ ps_add_pad
-          (adjust (lcm_div ps₃ ps₄) ps₃)
-          (adjust (lcm_div ps₄ ps₃) ps₄) ('p).
-Proof.
-intros ps₁ ps₂ ps₃ ps₄ p Heq₁ Heq₂.
-inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
-inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
-unfold adjust; simpl.
-unfold ps_add_no_pad; simpl.
-erewrite <- adjust_eq with (k := k₁); unfold adjust; simpl.
-rewrite stretch_series_add_distr.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite mult_comm.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite Hss₁.
-rewrite series_add_comm.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite mult_comm.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-erewrite <- adjust_eq with (k := k₂); unfold adjust; simpl.
-rewrite stretch_series_add_distr.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite <- Pos2Nat.inj_mul.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite Pos2Nat.inj_mul.
-rewrite <- mult_assoc, mult_comm.
-rewrite <- Pos2Nat.inj_mul.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite Hss₂.
-rewrite series_add_comm.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite <- Pos2Nat.inj_mul.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-do 2 rewrite <- Pos2Nat.inj_mul.
-unfold lcm_div.
-rewrite Pos.mul_comm in Hc₂.
-rewrite Hc₁, Hc₂.
-rewrite Pos_mul_shuffle0.
-do 2 rewrite <- Pos.mul_assoc.
-rewrite Pos2Nat.inj_mul, mult_comm.
-rewrite series_add_comm.
-rewrite Pos2Nat.inj_mul, mult_comm.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite <- stretch_series_add_distr.
-rewrite <- Z.mul_assoc, <- Z.mul_shuffle1.
-rewrite <- Pos2Z.inj_mul.
-rewrite Pos.mul_comm in Hc₂.
-rewrite Hv₁, Hc₂.
-rewrite <- Pos.mul_assoc, <- Pos_mul_shuffle1.
-rewrite Hc₁, Hc₂.
-constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
- rewrite stretch_series_1, series_add_comm.
-Abort. (*
- reflexivity.
-
- do 2 rewrite Pos2Z.inj_mul.
- rewrite Z.mul_1_r, Z.mul_shuffle1; reflexivity.
-
- rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
-bbb.
-*)
-
-(**)
 Open Scope Z_scope.
 
-Lemma yyy : ∀ a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ c₁ c₂ c₃ c₄,
+Lemma weird_formula : ∀ a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ c₁ c₂ c₃ c₄,
   a₁ * c₁ = a₃ * c₃
   → a₂ * c₂ = a₄ * c₄
     → b₁ * c₁ = b₃ * c₃
@@ -761,7 +690,7 @@ rewrite Z.mul_comm in Hb₂; rewrite Hb₂.
 ring.
 Qed.
 
-Lemma zzz : ∀ (ps₁ ps₂ ps₃ ps₄ : puiseux_series α) k₁ k₂ k₃ k₄,
+Lemma valnum_comden : ∀ (ps₁ ps₂ ps₃ ps₄ : puiseux_series α) k₁ k₂ k₃ k₄,
   ps_valnum ps₁ * ' k₁ = ps_valnum ps₃ * ' k₃
   → (ps_comden ps₁ * k₁)%positive = (ps_comden ps₃ * k₃)%positive
     → ps_valnum ps₂ * ' k₂ = ps_valnum ps₄ * ' k₄
@@ -774,7 +703,7 @@ Proof.
 intros ps₁ ps₂ ps₃ ps₄ k₁ k₂ k₃ k₄ Hv₁ Hc₁ Hv₂ Hc₂.
 apply Z.mul_reg_r with (p := Zpos k₁); [ apply Zpos_ne_0 | idtac ].
 apply Z.mul_reg_r with (p := Zpos k₂); [ apply Zpos_ne_0 | idtac ].
-erewrite yyy.
+erewrite weird_formula.
  2: eassumption.
 
  2: eassumption.
@@ -793,38 +722,42 @@ erewrite yyy.
 Qed.
 
 Close Scope Z_scope.
-(**)
 
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 unfold ps_add; simpl.
-remember
- (val_num_sub (adjust (lcm_div ps₁ ps₂) ps₁) (adjust (lcm_div ps₂ ps₁) ps₂)) as d.
-remember
- (val_num_sub (adjust (lcm_div ps₃ ps₄) ps₃) (adjust (lcm_div ps₄ ps₃) ps₄)) as e.
+remember (lcm_div ps₁ ps₂) as l₁₂.
+remember (lcm_div ps₂ ps₁) as l₂₁.
+remember (val_num_sub (adjust l₁₂ ps₁) (adjust l₂₁ ps₂)) as d.
+subst l₁₂ l₂₁.
+remember (lcm_div ps₃ ps₄) as l₃₄.
+remember (lcm_div ps₄ ps₃) as l₄₃.
+remember (val_num_sub (adjust l₃₄ ps₃) (adjust l₄₃ ps₄)) as e.
+subst l₃₄ l₄₃.
 destruct d.
- destruct e.
-  apply ps_add_pad_0_morph; assumption.
-
-  unfold val_num_sub, adjust, lcm_div in Heqd.
+ unfold val_num_sub, adjust, lcm_div in Heqd.
+ simpl in Heqd.
+ unfold val_num_sub, adjust, lcm_div in Heqe.
+ simpl in Heqe.
+ remember Heq₁ as Hp₁; clear HeqHp₁.
+ remember Heq₂ as Hp₂; clear HeqHp₂.
+ inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
+ inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
+ eapply Z.mul_cancel_r with (p := (Zpos k₁ * Zpos k₂)%Z) in Heqd.
+  rewrite Z.mul_assoc in Heqd.
+  rewrite Z.mul_assoc in Heqd.
+  erewrite valnum_comden in Heqd; try eassumption.
   simpl in Heqd.
-  unfold val_num_sub, adjust, lcm_div in Heqe.
-  simpl in Heqe.
-  inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
-  inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
-  eapply Z.mul_cancel_r with (p := (Zpos k₁ * Zpos k₂)%Z) in Heqd.
-   Focus 1.
-   rewrite Z.mul_assoc in Heqd.
-   rewrite Z.mul_assoc in Heqd.
-   erewrite zzz in Heqd; try eassumption.
-   simpl in Heqd.
-   symmetry in Heqd.
-   rewrite <- Z.mul_assoc in Heqd.
-   apply Z.eq_mul_0_l in Heqd;
-    [ idtac | rewrite <- Pos2Z.inj_mul; apply Zpos_ne_0 ].
-   rewrite Heqd in Heqe; discriminate Heqe.
+  symmetry in Heqd.
+  rewrite <- Z.mul_assoc in Heqd.
+  apply Z.eq_mul_0_l in Heqd.
+   rewrite Heqd; apply ps_add_pad_0_morph; assumption.
+
+   rewrite <- Pos2Z.inj_mul; apply Zpos_ne_0.
+
+  rewrite <- Pos2Z.inj_mul; apply Zpos_ne_0.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
