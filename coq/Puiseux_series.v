@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.173 2013-08-09 21:31:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.174 2013-08-09 21:39:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -736,28 +736,26 @@ remember (lcm_div ps₃ ps₄) as l₃₄.
 remember (lcm_div ps₄ ps₃) as l₄₃.
 remember (val_num_sub (adjust l₃₄ ps₃) (adjust l₄₃ ps₄)) as e.
 subst l₃₄ l₄₃.
-destruct d.
- unfold val_num_sub, adjust, lcm_div in Heqd.
+unfold val_num_sub, adjust, lcm_div in Heqd.
+simpl in Heqd.
+unfold val_num_sub, adjust, lcm_div in Heqe.
+simpl in Heqe.
+remember Heq₁ as Hp₁; clear HeqHp₁.
+remember Heq₂ as Hp₂; clear HeqHp₂.
+inversion_clear Heq₁ as (k₁, k₃, a, b, Hss₁, Hv₁, Hc₁).
+inversion_clear Heq₂ as (k₂, k₄, a, b, Hss₂, Hv₂, Hc₂).
+eapply Z.mul_cancel_r with (p := (Zpos k₁ * Zpos k₂)%Z) in Heqd.
+ do 2 rewrite Z.mul_assoc in Heqd.
+ erewrite valnum_comden in Heqd; try eassumption.
  simpl in Heqd.
- unfold val_num_sub, adjust, lcm_div in Heqe.
- simpl in Heqe.
- remember Heq₁ as Hp₁; clear HeqHp₁.
- remember Heq₂ as Hp₂; clear HeqHp₂.
- inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
- inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
- eapply Z.mul_cancel_r with (p := (Zpos k₁ * Zpos k₂)%Z) in Heqd.
-  rewrite Z.mul_assoc in Heqd.
-  rewrite Z.mul_assoc in Heqd.
-  erewrite valnum_comden in Heqd; try eassumption.
-  simpl in Heqd.
-  symmetry in Heqd.
-  rewrite <- Z.mul_assoc in Heqd.
+ symmetry in Heqd.
+ rewrite <- Z.mul_assoc in Heqd.
+ rewrite <- Heqe in Heqd.
+ destruct d.
   apply Z.eq_mul_0_l in Heqd.
    rewrite Heqd; apply ps_add_pad_0_morph; assumption.
 
    rewrite <- Pos2Z.inj_mul; apply Zpos_ne_0.
-
-  rewrite <- Pos2Z.inj_mul; apply Zpos_ne_0.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
