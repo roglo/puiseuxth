@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.157 2013-08-08 17:44:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.158 2013-08-09 01:41:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,8 +10,10 @@ Require Import Series.
 
 Set Implicit Arguments.
 
+(*
 Axiom functional_extensionality : ∀ α β (f g : α → β),
   (∀ x, f x = g x) → f = g.
+*)
 
 Record puiseux_series α := mkps
   { ps_terms : series α;
@@ -154,12 +156,12 @@ Qed.
 Lemma stretch_stretch_series : ∀ a b s,
   a ≠ O
   → b ≠ O
-    → stretch_series (a * b) s = stretch_series a (stretch_series b s).
+    → stretch_series (a * b) s ≃ stretch_series a (stretch_series b s).
 Proof.
 intros a b s Ha Hb.
 unfold stretch_series.
 f_equal; simpl.
- apply functional_extensionality.
+constructor; simpl.
  intros i.
  destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   destruct (zerop (i mod a)) as [Hz₁| Hnz].
@@ -235,13 +237,12 @@ constructor.
   destruct (stop s₂); [ discriminate H1 | reflexivity ].
 Qed.
 
-Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s = s.
+Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s ≃ s.
 Proof.
 intros s.
 unfold stretch_series; simpl.
 destruct s as (t, st); simpl.
-f_equal.
- apply functional_extensionality.
+constructor; simpl.
  intros i; rewrite divmod_div.
  rewrite Nat.div_1_r; reflexivity.
 
@@ -714,7 +715,7 @@ unfold ps_add_pad; simpl.
 destruct d; [ reflexivity | reflexivity | symmetry; assumption ].
 Qed.
 
-Lemma adjust_1 : ∀ ps, adjust xH ps = ps.
+Lemma adjust_1 : ∀ ps, adjust xH ps ≈ ps.
 Proof.
 intros ps.
 unfold adjust; simpl.
@@ -743,13 +744,12 @@ constructor.
 Qed.
 
 Lemma series_pad_plus : ∀ m n t,
-  series_pad_left m (series_pad_left n t) =
+  series_pad_left m (series_pad_left n t) ≃
   series_pad_left (m + n) t.
 Proof.
 intros m n t.
 unfold series_pad_left; simpl.
-f_equal.
- apply functional_extensionality.
+constructor; simpl.
  intros i.
  destruct (lt_dec i m) as [Hlt| Hge].
   destruct (lt_dec i (m + n)) as [| Hge]; [ reflexivity | idtac ].
