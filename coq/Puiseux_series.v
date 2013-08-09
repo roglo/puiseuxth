@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.169 2013-08-09 14:30:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.170 2013-08-09 14:35:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -657,30 +657,15 @@ destruct d; simpl.
   rewrite <- Pos.mul_assoc, <- Pos_mul_shuffle1.
   rewrite Hc₁, Hc₂.
   constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
-   rewrite stretch_series_1.
-   rewrite series_add_comm.
+   rewrite stretch_series_1, series_add_comm.
    reflexivity.
 
-   do 2 rewrite Pos2Z.inj_mul; ring.
+   do 2 rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_1_r, Z.mul_shuffle1; reflexivity.
 
-   Focus 1.
-(*
-   rewrite <- Z.mul_assoc.
-   rewrite <- Z.mul_shuffle1.
-   rewrite <- Pos2Z.inj_mul.
-   rewrite Pos.mul_comm in Hc₂.
-   rewrite Hv₁, Hc₂.
-   rewrite Pos2Z.inj_mul.
-   rewrite Z.mul_shuffle1.
-   rewrite Z.mul_comm.
-   rewrite <- Pos.mul_assoc.
-   replace (ps_comden ps₁ * ps_comden ps₂ * (k₁ * k₂))%positive with
-    (ps_comden ps₁ * k₁ * (ps_comden ps₂ * k₂))%positive .
-    rewrite Hc₁, Hc₂.
-    replace (ps_comden ps₃ * k₃ * (ps_comden ps₄ * k₄))%positive with
-     (k₃ * k₄ * (ps_comden ps₃ * ps_comden ps₄))%positive .
-*)
-Focus 1.
+   rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
+
+  Focus 1.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
