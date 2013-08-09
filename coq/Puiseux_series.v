@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.164 2013-08-09 11:45:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.165 2013-08-09 11:52:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -339,9 +339,14 @@ Definition series_pad_left n s :=
        | None => None
        end |}.
 
+(*
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
+*)
+Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
+  ps_comden ps₂.
+(**)
 
 Definition ps_add_no_pad ps₁ ps₂ :=
   {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
@@ -634,6 +639,9 @@ destruct d; simpl.
    rewrite <- Pos2Nat.inj_mul.
    rewrite <- Pos2Nat.inj_mul.
    unfold lcm_div.
+   rewrite Pos.mul_comm in Hc₂.
+   rewrite Hc₂.
+   rewrite Hc₁.
    Focus 1.
 bbb.
 
