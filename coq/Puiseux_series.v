@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.159 2013-08-09 09:31:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.160 2013-08-09 09:35:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -598,6 +598,8 @@ Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
 inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
+unfold ps_add; simpl.
+unfold adjust; simpl.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
