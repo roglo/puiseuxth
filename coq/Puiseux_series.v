@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.171 2013-08-09 16:46:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.172 2013-08-09 21:22:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -665,6 +665,136 @@ constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
  rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
 Qed.
 
+Lemma ps_add_pad_0_pos_morph : ∀ ps₁ ps₂ ps₃ ps₄ p,
+  ps₁ ≈ ps₃
+  → ps₂ ≈ ps₄
+    → ps_add_pad
+        (adjust (lcm_div ps₁ ps₂) ps₁)
+        (adjust (lcm_div ps₂ ps₁) ps₂) 0
+      ≈ ps_add_pad
+          (adjust (lcm_div ps₃ ps₄) ps₃)
+          (adjust (lcm_div ps₄ ps₃) ps₄) ('p).
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ p Heq₁ Heq₂.
+inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
+inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
+unfold adjust; simpl.
+unfold ps_add_no_pad; simpl.
+erewrite <- adjust_eq with (k := k₁); unfold adjust; simpl.
+rewrite stretch_series_add_distr.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite mult_comm.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite Hss₁.
+rewrite series_add_comm.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite mult_comm.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+erewrite <- adjust_eq with (k := k₂); unfold adjust; simpl.
+rewrite stretch_series_add_distr.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite <- Pos2Nat.inj_mul.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite Pos2Nat.inj_mul.
+rewrite <- mult_assoc, mult_comm.
+rewrite <- Pos2Nat.inj_mul.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite Hss₂.
+rewrite series_add_comm.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite <- Pos2Nat.inj_mul.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+do 2 rewrite <- Pos2Nat.inj_mul.
+unfold lcm_div.
+rewrite Pos.mul_comm in Hc₂.
+rewrite Hc₁, Hc₂.
+rewrite Pos_mul_shuffle0.
+do 2 rewrite <- Pos.mul_assoc.
+rewrite Pos2Nat.inj_mul, mult_comm.
+rewrite series_add_comm.
+rewrite Pos2Nat.inj_mul, mult_comm.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite <- stretch_series_add_distr.
+rewrite <- Z.mul_assoc, <- Z.mul_shuffle1.
+rewrite <- Pos2Z.inj_mul.
+rewrite Pos.mul_comm in Hc₂.
+rewrite Hv₁, Hc₂.
+rewrite <- Pos.mul_assoc, <- Pos_mul_shuffle1.
+rewrite Hc₁, Hc₂.
+constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
+ rewrite stretch_series_1, series_add_comm.
+Abort. (*
+ reflexivity.
+
+ do 2 rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_1_r, Z.mul_shuffle1; reflexivity.
+
+ rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
+bbb.
+*)
+
+(**)
+Open Scope Z_scope.
+
+Lemma yyy : ∀ a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ c₁ c₂ c₃ c₄,
+  a₁ * c₁ = a₃ * c₃
+  → a₂ * c₂ = a₄ * c₄
+    → b₁ * c₁ = b₃ * c₃
+      → b₂ * c₂ = b₄ * c₄
+        → (a₂ * b₁ - a₁ * b₂) * c₁ * c₂ =
+          (a₄ * b₃ - a₃ * b₄) * c₃ * c₄.
+Proof.
+intros a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ c₁ c₂ c₃ c₄ Ha₁ Ha₂ Hb₁ Hb₂.
+rewrite Z.mul_sub_distr_r.
+rewrite <- Z.mul_assoc, Hb₁.
+rewrite Z.mul_shuffle0, Ha₁.
+rewrite Z.mul_comm.
+rewrite Z.mul_sub_distr_l.
+rewrite Z.mul_assoc.
+rewrite Z.mul_comm in Ha₂; rewrite Ha₂.
+do 2 rewrite <- Z.mul_assoc.
+do 3 rewrite Z.mul_assoc.
+rewrite Z.mul_shuffle2.
+rewrite Z.mul_comm in Hb₂; rewrite Hb₂.
+ring.
+Qed.
+
+Lemma zzz : ∀ (ps₁ ps₂ ps₃ ps₄ : puiseux_series α) k₁ k₂ k₃ k₄,
+  ps_valnum ps₁ * ' k₁ = ps_valnum ps₃ * ' k₃
+  → (ps_comden ps₁ * k₁)%positive = (ps_comden ps₃ * k₃)%positive
+    → ps_valnum ps₂ * ' k₂ = ps_valnum ps₄ * ' k₄
+      → (ps_comden ps₂ * k₂)%positive = (ps_comden ps₄ * k₄)%positive
+        → (ps_valnum ps₂ * ' ps_comden ps₁ -
+           ps_valnum ps₁ * ' ps_comden ps₂) * 'k₁ * 'k₂
+          = (ps_valnum ps₄ * ' ps_comden ps₃ -
+             ps_valnum ps₃ * ' ps_comden ps₄) * 'k₃ * 'k₄.
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ k₁ k₂ k₃ k₄ Hv₁ Hc₁ Hv₂ Hc₂.
+apply Z.mul_reg_r with (p := Zpos k₁); [ apply Zpos_ne_0 | idtac ].
+apply Z.mul_reg_r with (p := Zpos k₂); [ apply Zpos_ne_0 | idtac ].
+erewrite yyy.
+ 2: eassumption.
+
+ 2: eassumption.
+
+ 2: rewrite <- Pos2Z.inj_mul.
+ 2: rewrite Hc₁.
+ 2: rewrite Pos2Z.inj_mul.
+ 2: reflexivity.
+
+ 2: rewrite <- Pos2Z.inj_mul.
+ 2: rewrite Hc₂.
+ 2: rewrite Pos2Z.inj_mul.
+ 2: reflexivity.
+
+ ring.
+Qed.
+
+Close Scope Z_scope.
+(**)
+
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
@@ -677,6 +807,24 @@ remember
 destruct d.
  destruct e.
   apply ps_add_pad_0_morph; assumption.
+
+  unfold val_num_sub, adjust, lcm_div in Heqd.
+  simpl in Heqd.
+  unfold val_num_sub, adjust, lcm_div in Heqe.
+  simpl in Heqe.
+  inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
+  inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
+  eapply Z.mul_cancel_r with (p := (Zpos k₁ * Zpos k₂)%Z) in Heqd.
+   Focus 1.
+   rewrite Z.mul_assoc in Heqd.
+   rewrite Z.mul_assoc in Heqd.
+   erewrite zzz in Heqd; try eassumption.
+   simpl in Heqd.
+   symmetry in Heqd.
+   rewrite <- Z.mul_assoc in Heqd.
+   apply Z.eq_mul_0_l in Heqd;
+    [ idtac | rewrite <- Pos2Z.inj_mul; apply Zpos_ne_0 ].
+   rewrite Heqd in Heqe; discriminate Heqe.
 bbb.
 
 intros ps₁ ps₂ Heq₁ ps₃ ps₄ Heq₂.
