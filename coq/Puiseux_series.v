@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.175 2013-08-10 04:47:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.176 2013-08-10 09:41:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -733,7 +733,9 @@ Proof.
 intros ps₁ ps₂ ps₃ ps₄ p e Heq₁ Heq₂.
 inversion_clear Heq₁ as (k₁, k₃, c, d, Hss₁, Hv₁, Hc₁); subst.
 inversion_clear Heq₂ as (k₂, k₄, c, d, Hss₂, Hv₂, Hc₂); subst.
+(*
 assert (e * ' k₃ * ' k₄ = ' p * ' k₁ * ' k₂)%Z as Hep. Focus 2.
+*)
 unfold adjust; simpl.
 unfold ps_add_no_pad; simpl.
 erewrite <- adjust_eq with (k := k₁); unfold adjust; simpl.
@@ -752,8 +754,11 @@ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite <- Pos2Nat.inj_mul.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite stretch_pad_series_distr; try apply pos_to_nat_ne_0.
-
-bbb.
+rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+rewrite Pos2Nat.inj_mul.
+do 2 rewrite <- Pos2Nat.inj_mul.
+remember (Pos.to_nat (p * (k₂ * k₁))) as pkk.
+rewrite Pos2Nat.inj_mul.
 rewrite <- mult_assoc, mult_comm.
 rewrite <- Pos2Nat.inj_mul.
 rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
@@ -762,6 +767,7 @@ rewrite series_add_comm.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 rewrite <- Pos2Nat.inj_mul.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+bbb.
 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
 do 2 rewrite <- Pos2Nat.inj_mul.
 unfold lcm_div.
