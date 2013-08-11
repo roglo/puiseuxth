@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.178 2013-08-11 02:58:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.179 2013-08-11 04:00:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1404,6 +1404,9 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
+unfold ps_add, lcm_div; simpl.
+bbb.
+
 remember (ps_comden ps₁) as vd₁.
 remember (ps_comden ps₂) as vd₂.
 remember (ps_comden ps₃) as vd₃.
