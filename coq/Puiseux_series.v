@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.180 2013-08-11 04:50:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.181 2013-08-11 09:05:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1400,6 +1400,18 @@ rewrite Plcm_diag; reflexivity.
 Qed.
 *)
 
+Open Scope Z_scope.
+
+Lemma Z_min_mul_distr_r : ∀ n m p, Z.min n m * 'p = Z.min (n * 'p) (m * 'p).
+Proof.
+intros n m p.
+unfold Z.min.
+rewrite <- Zmult_cmp_compat_r; [ idtac | apply Pos2Z.is_pos ].
+destruct (n ?= m); reflexivity.
+Qed.
+
+Close Scope Z_scope.
+
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
@@ -1411,76 +1423,6 @@ remember (ps_valnum ps₃) as v₃.
 remember (ps_comden ps₃) as c₃.
 remember (ps_comden ps₂) as c₂.
 remember (ps_comden ps₁) as c₁.
-bbb.
-
-remember (ps_comden ps₁) as vd₁.
-remember (ps_comden ps₂) as vd₂.
-remember (ps_comden ps₃) as vd₃.
-remember (Plcm (Plcm vd₁ vd₂) vd₃) as l.
-remember ps₁ as x.
-apply eq_eq_ps in Heqx.
-symmetry in Heqx.
-rewrite <- adjust_eq with (k := Pos.of_nat (Pos.to_nat l / Pos.to_nat vd₁))
- in Heqx.
-bbb.
-
-intros ps₁ ps₂ ps₃.
-remember (ps_add ps₁ ps₂) as a.
-remember (ps_add a ps₃) as b.
-remember (ps_add ps₂ ps₃) as c.
-remember (ps_add ps₁ c) as d.
-remember Heqb as H; clear HeqH.
-apply eq_eq_ps in H.
-unfold ps_add in Heqa, Heqb, Heqc, Heqd.
-simpl in Heqa, Heqb, Heqc, Heqd.
-bbb.
-
-pose proof (ps_comden_add ps₁ ps₂) as Hca.
-pose proof (ps_comden_add ps₂ ps₃) as Hcc.
-remember (ps_add ps₁ ps₂) as a.
-remember (ps_add a ps₃) as b.
-remember (ps_add ps₂ ps₃) as c.
-remember (ps_add ps₁ c) as d.
-remember Heqb as H; clear HeqH.
-apply eq_eq_ps in H.
-rewrite ps_add_adjust in H; try reflexivity.
-rewrite H; clear H.
-remember Heqd as H; clear HeqH.
-apply eq_eq_ps in H.
-rewrite ps_add_adjust in H; try reflexivity.
-rewrite H; clear H.
-remember Heqa as H; clear HeqH.
-apply eq_eq_ps in H.
-rewrite ps_add_adjust in H; try reflexivity.
-rewrite H in |- * at 3; clear H.
-remember Heqc as H; clear HeqH.
-apply eq_eq_ps in H.
-rewrite ps_add_adjust in H; try reflexivity.
-rewrite H in |- * at 5; clear H.
-rewrite Heqa, Heqc.
-do 2 rewrite ps_comden_add.
-remember (Plcm (Plcm (ps_comden ps₁) (ps_comden ps₂)) (ps_comden ps₃)) as l.
-rewrite <- Plcm_assoc, <- Heql.
-remember (lcm_div (ps_add ps₁ ps₂) ps₃) as v.
-unfold lcm_div in Heqv.
-rewrite ps_comden_add in Heqv.
-rewrite <- Heql in Heqv.
-subst v.
-remember (lcm_div (ps_add ps₂ ps₃) ps₁) as v.
-unfold lcm_div in Heqv.
-rewrite ps_comden_add in Heqv.
-subst v.
-remember (lcm_div ps₁ (ps_add ps₂ ps₃)) as v.
-unfold lcm_div in Heqv.
-rewrite ps_comden_add in Heqv.
-subst v.
-rewrite <- Plcm_assoc.
-rewrite <- Heql.
-remember (Plcm (Plcm (ps_comden ps₂) (ps_comden ps₃)) (ps_comden ps₁)) as v.
-rewrite Plcm_comm, <- Plcm_assoc in Heqv.
-rewrite <- Heql in Heqv; subst v.
-unfold lcm_div; simpl.
-rewrite ps_comden_add.
-remember (Plcm (ps_comden ps₃) (Plcm (ps_comden ps₁) (ps_comden ps₂))) as v.
-rewrite Plcm_comm, <- Heql in Heqv; subst v.
+do 2 rewrite Z_min_mul_distr_r.
+rewrite Z.min_assoc.
 bbb.
