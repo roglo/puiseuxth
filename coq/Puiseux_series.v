@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.181 2013-08-11 09:05:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.182 2013-08-11 09:20:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1423,6 +1423,16 @@ remember (ps_valnum ps₃) as v₃.
 remember (ps_comden ps₃) as c₃.
 remember (ps_comden ps₂) as c₂.
 remember (ps_comden ps₁) as c₁.
-do 2 rewrite Z_min_mul_distr_r.
-rewrite Z.min_assoc.
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 bbb.
+
+ do 2 rewrite Z.mul_1_r.
+ do 2 rewrite Z_min_mul_distr_r.
+ rewrite Z.min_assoc.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ f_equal; [ idtac | apply Z.mul_shuffle0 ].
+ f_equal; apply Z.mul_shuffle0.
+
+ rewrite Pos.mul_assoc; reflexivity.
+qed.
