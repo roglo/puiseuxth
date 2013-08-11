@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.43 2013-08-09 14:16:56 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.44 2013-08-11 20:34:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -721,3 +721,15 @@ reflexivity.
 Qed.
 
 Close Scope positive_scope.
+
+Lemma min_minus : ∀ x y, (min x y + (x - y) = x)%nat.
+Proof.
+intros x y.
+destruct (le_dec x y) as [Hle| Hgt].
+ rewrite Nat.min_l; [ idtac | assumption ].
+ apply Nat.sub_0_le in Hle; rewrite Hle, plus_0_r; reflexivity.
+
+ apply not_ge in Hgt.
+ rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+ apply le_plus_minus_r, lt_le_weak; assumption.
+Qed.
