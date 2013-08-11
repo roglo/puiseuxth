@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.183 2013-08-11 10:28:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.184 2013-08-11 10:45:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1412,6 +1412,18 @@ Qed.
 
 Close Scope Z_scope.
 
+Lemma series_pad_left_0 : ∀ s, series_pad_left 0 s ≃ s.
+Proof.
+intros s.
+constructor.
+ intros i.
+ unfold series_pad_left; simpl.
+ rewrite Nat.sub_0_r; reflexivity.
+
+ simpl.
+ destruct (stop s); [ rewrite Nat.add_0_r | idtac ]; reflexivity.
+Qed.
+
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
@@ -1426,6 +1438,13 @@ remember (ps_comden ps₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
+ remember
+  (Z.to_nat (Z.min (v₁ * ' c₂) (v₂ * ' c₁) * ' c₃) -
+   Z.to_nat (v₃ * ' (c₁ * c₂)))%nat as x.
+ symmetry in Heqx.
+ destruct x; simpl.
+  rewrite series_pad_left_0.
+  Focus 1.
 bbb.
 
  do 2 rewrite Z.mul_1_r.
