@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.177 2013-08-10 10:00:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.178 2013-08-11 02:58:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -348,39 +348,19 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
 
-Definition ps_add_no_pad ps₁ ps₂ :=
-  {| ps_terms := series_add fld (ps_terms ps₁) (ps_terms ps₂);
-     ps_valnum := ps_valnum ps₁;
-     ps_comden := ps_comden ps₁ |}.
-
-Definition ps_add_pad_r n ps₁ ps₂ :=
-  {| ps_terms :=
-       series_add fld (ps_terms ps₁)
-         (series_pad_left (Pos.to_nat n) (ps_terms ps₂));
-     ps_valnum := ps_valnum ps₁;
-     ps_comden := ps_comden ps₁ |}.
-
-Definition ps_add_pad_l n ps₁ ps₂ :=
-  {| ps_terms :=
-       series_add fld (series_pad_left (Pos.to_nat n) (ps_terms ps₁))
-         (ps_terms ps₂);
-     ps_valnum := ps_valnum ps₂;
-     ps_comden := ps_comden ps₁ |}.
-
-Definition ps_add_pad ms₁ ms₂ d :=
-  match d with
-  | Z0 => ps_add_no_pad ms₁ ms₂
-  | Zpos n => ps_add_pad_r n ms₁ ms₂
-  | Zneg n => ps_add_pad_l n ms₁ ms₂
-  end.
-
-Definition val_num_sub (ps₁ ps₂ : puiseux_series α) :=
-   Z.sub (ps_valnum ps₂) (ps_valnum ps₁).
-
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-  ps_add_pad ms₁ ms₂ (val_num_sub ms₁ ms₂).
+  let v₁ := ps_valnum ms₁ in
+  let v₂ := ps_valnum ms₂ in
+  {| ps_terms :=
+       series_add fld
+         (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂) (ps_terms ms₁))
+         (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁) (ps_terms ms₂));
+     ps_valnum :=
+       Z.min v₁ v₂;
+     ps_comden :=
+       ps_comden ms₁ |}.
 
 (* ps_mul *)
 
@@ -597,6 +577,7 @@ destruct d; simpl.
 Qed.
 *)
 
+(*
 Lemma ps_add_pad_0_morph : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₃
   → ps₂ ≈ ps₄
@@ -664,6 +645,7 @@ constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
 
  rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
 Qed.
+*)
 
 Lemma stretch_pad_series_distr : ∀ k n s,
   k ≠ O
@@ -720,6 +702,7 @@ constructor.
  rewrite mult_plus_distr_r; reflexivity.
 Qed.
 
+(*
 Lemma ps_add_pad_pos_morph : ∀ ps₁ ps₂ ps₃ ps₄ p e,
   ps₁ ≈ ps₃
   → ps₂ ≈ ps₄
@@ -795,6 +778,7 @@ constructor 1 with (k₁ := xH) (k₂ := (k₃ * k₄)%positive); simpl.
 
  rewrite Pos.mul_1_r, Pos_mul_shuffle1; reflexivity.
 bbb.
+*)
 
 Open Scope Z_scope.
 
@@ -854,6 +838,7 @@ Qed.
 
 Close Scope Z_scope.
 
+(*
 Add Parametric Morphism : ps_add with 
 signature eq_ps ==> eq_ps ==> eq_ps as ps_add_morph.
 Proof.
@@ -968,67 +953,19 @@ Qed.
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
-unfold ps_add, ps_add_pad; simpl.
-remember (adjust (lcm_div ps₁ ps₂) ps₁) as aps₁.
-remember (adjust (lcm_div ps₂ ps₁) ps₂) as aps₂.
-remember (val_num_sub aps₁ aps₂) as d.
-remember (val_num_sub aps₂ aps₁) as e.
-symmetry in Heqd.
-unfold val_num_sub in Heqd, Heqe.
-rewrite <- Z.opp_involutive, Z.opp_sub_distr in Heqe.
-rewrite Z.add_opp_l in Heqe.
-rewrite Heqd in Heqe; subst e.
-destruct d; simpl.
- constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-  rewrite series_add_comm; reflexivity.
+unfold ps_add; simpl.
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ do 2 rewrite stretch_series_1.
+ apply series_add_comm.
 
-  f_equal.
-  apply Zminus_eq in Heqd.
-  rewrite Heqaps₁, Heqaps₂; simpl.
-  rewrite Heqaps₁, Heqaps₂ in Heqd.
-  simpl in Heqd; symmetry; assumption.
+ do 2 rewrite Z.mul_1_r.
+ apply Z.min_comm.
 
-  do 2 rewrite Pos.mul_1_r.
-  subst aps₁ aps₂.
-  simpl.
-  unfold lcm_div.
-  rewrite Pos.mul_comm.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  rewrite Pos.mul_comm.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  apply Plcm_comm.
-
- constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity | idtac ].
-  do 2 rewrite stretch_series_1.
-  apply series_add_comm.
-
-  do 2 rewrite Pos.mul_1_r.
-  subst aps₁ aps₂; simpl.
-  rewrite Pos.mul_comm.
-  unfold lcm_div.
-  rewrite Pos.mul_comm.
-  rewrite Pos.mul_comm.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  rewrite Pos.mul_comm.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  apply Plcm_comm.
-
- constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | reflexivity | idtac ].
-  do 2 rewrite stretch_series_1.
-  apply series_add_comm.
-
-  do 2 rewrite Pos.mul_1_r.
-  subst aps₁ aps₂; simpl.
-  rewrite Pos.mul_comm.
-  unfold lcm_div.
-  rewrite Pos.mul_comm.
-  rewrite Pos.mul_comm.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  rewrite Pos.mul_comm.
-  rewrite Pos_div_mul; [ idtac | apply Pos_divides_lcm_l ].
-  apply Plcm_comm.
+ do 2 rewrite Pos.mul_1_r.
+ apply Pos.mul_comm.
 Qed.
 
+(*
 Lemma same_comden_ps_add_pad : ∀ ps₁ ps₂ d,
   ps_comden ps₁ = ps_comden ps₂
   → ps_comden (ps_add_pad ps₁ ps₂ d) = ps_comden ps₁.
@@ -1037,6 +974,7 @@ intros ps₁ ps₂ d H.
 unfold ps_add_pad; simpl.
 destruct d; reflexivity.
 Qed.
+*)
 
 Lemma adjust_1 : ∀ ps, adjust xH ps ≈ ps.
 Proof.
