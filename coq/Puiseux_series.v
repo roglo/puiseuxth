@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.186 2013-08-11 18:10:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.187 2013-08-11 19:09:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1423,6 +1423,30 @@ constructor.
  destruct (stop s); [ rewrite Nat.add_0_r | idtac ]; reflexivity.
 Qed.
 
+Lemma series_pad_pad : ∀ x y ps,
+  series_pad_left x (series_pad_left y ps) ≃ series_pad_left (x + y) ps.
+Proof.
+intros x y ps.
+constructor; simpl.
+ intros i.
+ destruct (lt_dec i x) as [Hlt| Hge].
+  destruct (lt_dec i (x + y)) as [| Hge]; [ reflexivity | idtac ].
+  apply lt_plus_trans with (p := y) in Hlt; contradiction.
+
+  apply not_gt in Hge.
+  destruct (lt_dec (i - x) y) as [Hlt| Hge₁].
+   destruct (lt_dec i (x + y)) as [| Hge₁]; [ reflexivity | idtac ].
+   rewrite plus_comm in Hge₁.
+   apply Nat.lt_sub_lt_add_r in Hlt; contradiction.
+
+   rewrite Nat.sub_add_distr.
+   destruct (lt_dec i (x + y)) as [Hlt| ]; [ idtac | reflexivity ].
+   exfalso; omega.
+
+ destruct (stop ps) as [st| ]; [ idtac | reflexivity ].
+ rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.
+Qed.
+
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
@@ -1453,6 +1477,23 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
  remember (stretch_series (Pos.to_nat (c₂ * c₃)) (ps_terms ps₁)) as ccps₁.
+ rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
+ rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
+ remember (stretch_series (Pos.to_nat (c₃ * c₁)) (ps_terms ps₂)) as ccps₂.
+ rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
+ remember (stretch_series (Pos.to_nat (c₂ * c₁)) (ps_terms ps₃)) as ccps₃.
+ do 2 rewrite series_pad_add_distr.
+ rewrite series_add_assoc.
+ rewrite mult_minus_distr_r.
+ rewrite <- Z2Nat.inj_pos.
+ do 4 rewrite series_pad_pad.
+ Focus 1.
 bbb.
 
  do 2 rewrite Z.mul_1_r.
