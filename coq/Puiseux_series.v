@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.184 2013-08-11 10:45:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.185 2013-08-11 11:19:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1438,13 +1438,19 @@ remember (ps_comden ps₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
- remember
-  (Z.to_nat (Z.min (v₁ * ' c₂) (v₂ * ' c₁) * ' c₃) -
-   Z.to_nat (v₃ * ' (c₁ * c₂)))%nat as x.
- symmetry in Heqx.
- destruct x; simpl.
-  rewrite series_pad_left_0.
-  Focus 1.
+ Focus 1.
+ do 2 rewrite Z_min_mul_distr_r.
+ rewrite Pos2Z.inj_mul.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_assoc.
+ rewrite Z.mul_assoc.
+ remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc.
+ remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc.
+ remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv.
+ rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0 in Hcvc.
+ rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
+ rewrite <- Hcvc.
+ rewrite Z.mul_shuffle0 in Hccv; rewrite <- Hccv.
 bbb.
 
  do 2 rewrite Z.mul_1_r.
