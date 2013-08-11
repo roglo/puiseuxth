@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.187 2013-08-11 19:09:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.188 2013-08-11 20:06:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1493,7 +1493,23 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite mult_minus_distr_r.
  rewrite <- Z2Nat.inj_pos.
  do 4 rewrite series_pad_pad.
- Focus 1.
+ destruct v₁ as [| v₁| v₁]; subst vcc; simpl.
+  do 2 rewrite <- minus_n_O.
+  rewrite plus_0_r.
+  rewrite series_pad_left_0.
+  destruct v₂ as [| v₂| v₂]; subst cvc; simpl.
+   do 2 rewrite <- minus_n_O.
+   rewrite plus_0_r.
+   do 2 rewrite series_pad_left_0.
+   destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
+    do 2 rewrite series_pad_left_0; reflexivity.
+
+    rewrite series_pad_left_0.
+    rewrite <- Pos2Nat.inj_mul; reflexivity.
+
+    do 2 rewrite series_pad_left_0; reflexivity.
+
+   Focus 1.
 bbb.
 
  do 2 rewrite Z.mul_1_r.
