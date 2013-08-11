@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.221 2013-08-11 02:29:43 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.222 2013-08-11 02:38:44 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -65,25 +65,17 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (Qden (ps_valuation ps₁)) (Qden (ps_valuation ps₂)) in
   Pos.of_nat (Nat.div (Pos.to_nat l) (Pos.to_nat (Qden (ps_valuation ps₁)))).
 
-Definition valnum_diff_any fld n₁ n₂ ps₁ ps₂ v :=
-  {| ps_terms :=
-       series_add fld
-         (series_pad_left fld (Pos.to_nat n₁) (ps_terms ps₁))
-         (series_pad_left fld (Pos.to_nat n₂) (ps_terms ps₂));
-     ps_valuation := v |}.
-
-Definition valnum_diff fld ms₁ ms₂ d :=
-  match d with
-  | Z0 => valnum_diff_any fld I.zero I.zero ms₁ ms₂ (ps_valuation ms₁)
-  | Zpos n => valnum_diff_any fld I.zero n ms₁ ms₂ (ps_valuation ms₁)
-  | Zneg n => valnum_diff_any fld n I.zero ms₁ ms₂ (ps_valuation ms₂)
-  end.
-
 Definition ps_add fld (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust fld (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := adjust fld (lcm_div ps₂ ps₁) ps₂ in
-  valnum_diff fld ms₁ ms₂
-    (Z.sub (Qnum (ps_valuation ms₂)) (Qnum (ps_valuation ms₁))).
+  let v₁ := Qnum (ps_valuation ms₁) in
+  let v₂ := Qnum (ps_valuation ms₂) in
+  {| ps_terms :=
+       series_add fld
+         (series_pad_left fld (max 0 (Z.to_nat (Z.sub v₁ v₂))) (ps_terms ms₁))
+         (series_pad_left fld (max 0 (Z.to_nat (Z.sub v₂ v₁))) (ps_terms ms₂));
+     ps_valuation :=
+       if Z_lt_le_dec v₁ v₂ then ps_valuation ms₁ else ps_valuation ms₂ |}.
 
 (* *)
 
