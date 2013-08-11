@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.193 2013-08-11 20:46:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.194 2013-08-11 20:57:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1493,6 +1493,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite mult_minus_distr_r.
  rewrite <- Z2Nat.inj_pos.
  do 4 rewrite series_pad_pad.
+ do 3 rewrite mult_minus_distr_r; simpl.
  destruct v₁ as [| v₁| v₁]; subst vcc; simpl.
   do 2 rewrite <- minus_n_O.
   rewrite plus_0_r.
@@ -1519,7 +1520,6 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 
     rewrite <- Pos2Z.inj_min; simpl.
     rewrite Pos2Nat.inj_min.
-    do 2 rewrite mult_minus_distr_r.
     do 3 rewrite <- Pos2Nat.inj_mul.
     rewrite min_minus, Nat.min_comm, min_minus.
     rewrite Pos_mul_shuffle0; reflexivity.
@@ -1540,7 +1540,16 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
     rewrite Z2Nat.inj_min; simpl.
     rewrite series_pad_left_0; reflexivity.
 
-    Focus 1.
+  do 2 rewrite Z2Nat.inj_min; simpl.
+  destruct v₂ as [| v₂| v₂]; subst cvc; simpl.
+   rewrite Nat.min_0_r; simpl.
+   do 4 rewrite <- minus_n_O.
+   rewrite series_pad_left_0.
+   rewrite <- Pos2Nat.inj_mul.
+   destruct v₃ as [| v₃| v₃]; subst ccv; try reflexivity; simpl.
+   rewrite <- Pos2Nat.inj_mul; reflexivity.
+
+   Focus 1.
 bbb.
 
  do 2 rewrite Z.mul_1_r.
