@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.185 2013-08-11 11:19:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.186 2013-08-11 18:10:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -649,11 +649,10 @@ Qed.
 
 Lemma stretch_pad_series_distr : ∀ k n s,
   k ≠ O
-  → n ≠ O
-    → stretch_series k (series_pad_left n s) ≃
-      series_pad_left (n * k) (stretch_series k s).
+  → stretch_series k (series_pad_left n s) ≃
+    series_pad_left (n * k) (stretch_series k s).
 Proof.
-intros k n s Hk Hn.
+intros k n s Hk.
 constructor.
  intros i.
  unfold stretch_series; simpl.
@@ -1438,7 +1437,6 @@ remember (ps_comden ps₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
- Focus 1.
  do 2 rewrite Z_min_mul_distr_r.
  rewrite Pos2Z.inj_mul.
  rewrite Pos2Z.inj_mul.
@@ -1451,6 +1449,10 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
  rewrite <- Hcvc.
  rewrite Z.mul_shuffle0 in Hccv; rewrite <- Hccv.
+ rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+ rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+ rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
+ remember (stretch_series (Pos.to_nat (c₂ * c₃)) (ps_terms ps₁)) as ccps₁.
 bbb.
 
  do 2 rewrite Z.mul_1_r.
