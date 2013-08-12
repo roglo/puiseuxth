@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1073 2013-08-12 09:48:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1074 2013-08-12 11:32:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,16 +83,21 @@ Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
       Some ({| coeff := c; power := p |}, pol₁)
   end.
 
+CoInductive coseries α :=
+  | Cterm : α → coseries α → coseries α
+  | Cend : coseries α.
+
 CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   match puiseux_step psumo acf pol with
   | Some (t, pol₁) =>
-      Term t
-        (if zero_is_root (ac_field acf) pol₁ then End _
+      Cterm t
+        (if zero_is_root (ac_field acf) pol₁ then Cend _
          else puiseux_loop (Some (power t)) acf pol₁)
   | None =>
-      End _
+      Cend _
   end.
 
+(*
 Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
   match n with
   | O => cd
@@ -102,7 +107,9 @@ Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
       | End => cd
       end
   end.
+*)
 
+(*
 CoFixpoint complete α (zero : α) cd p s :=
   match s with
   | Term t ns =>
@@ -124,7 +131,9 @@ CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
   | End =>
       End _
   end.
+*)
 
+(*
 Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
     puiseux_series α :=
   let s := puiseux_loop None acf pol in
@@ -136,9 +145,11 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
        | End => 0
        end;
      ps_comden := cd |}.
+*)
 
 (* *)
 
+(*
 CoFixpoint series_series_take α n (s : series α) :=
   match n with
   | O => End _
@@ -148,6 +159,7 @@ CoFixpoint series_series_take α n (s : series α) :=
       | End => End _
       end
   end.
+*)
 
 Section field.
 
@@ -155,32 +167,25 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
-(*
-Axiom ps_eq : puiseux_series α → puiseux_series α → bool.
-Axiom ps_eq_refl : ∀ ps, ps_eq ps ps = true.
-Axiom ps_eq_comm : ∀ ps₁ ps₂, ps_eq ps₁ ps₂ = ps_eq ps₂ ps₁.
-Axiom ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_eq
-    (ps_add fld (ps_add fld ps₁ ps₂) ps₃)
-    (ps_add fld ps₁ (ps_add fld ps₂ ps₃)) = true.
-*)
-
-(*
-Axiom ps_eq_add_comm : ∀ ps₁ ps₂,
-  ps_eq (ps_add fld ps₁ ps₂) (ps_add fld ps₂ ps₁) = true.
-cf Puiseux_series.ps_add_comm
-*)
+Axiom ps_add_neutral : ∀ ps, eq_ps fld (ps_add fld (ps_zero fld) ps) ps.
+Axiom ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
+  eq_ps fld ps₁ ps₂
+  → eq_ps fld ps₃ ps₄
+    → eq_ps fld (ps_add fld ps₁ ps₃) (ps_add fld ps₂ ps₄).
 
 Definition ps_fld : field (puiseux_series α) :=
-  {| zero := ps_zero _;
+  {| zero := ps_zero fld;
      one := ps_one fld;
      add := ps_add fld;
      mul := ps_mul fld;
-     fld_eq := ps_eq;
-     fld_eq_refl := ps_eq_refl;
-     fld_eq_sym := ps_eq_sym;
-     fld_add_comm := ps_eq_add_comm;
-     fld_add_assoc := ps_add_assoc |}.
+     fld_eq := eq_ps fld;
+     fld_eq_refl := eq_ps_refl fld;
+     fld_eq_sym := eq_ps_sym (fld := fld);
+     fld_eq_trans := eq_ps_trans (fld := fld);
+     fld_add_comm := ps_add_comm fld;
+     fld_add_assoc := ps_add_assoc fld;
+     fld_add_neutral := ps_add_neutral;
+     fld_add_compat := ps_add_compat |}.
 
 (* *)
 
