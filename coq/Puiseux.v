@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1075 2013-08-12 14:29:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1076 2013-08-12 14:35:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -20,6 +20,8 @@ Set Implicit Arguments.
 (* *)
 
 Notation "a ≈ b" := (eq_ps _ a b) (at level 70).
+Notation "a ≃ b" := (eq_series _ a b) (at level 70).
+Notation "a ≍ b" := (fld_eq _ a b) (at level 70).
 
 Definition ps_zero α (fld : field α) :=
   {| ps_terms := {| terms i := zero fld; stop := Some O |};

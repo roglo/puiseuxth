@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.9 2013-08-12 02:00:07 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.10 2013-08-12 14:35:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,6 +17,8 @@ Require Import Puiseux_series.
 Require Import Slope_base.
 
 Set Implicit Arguments.
+
+Notation "a ≍ b" := (fld_eq _ a b) (at level 70).
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
 Record term α β := { coeff : α; power : β }.
