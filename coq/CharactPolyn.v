@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.7 2013-07-29 20:30:40 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.8 2013-08-12 01:26:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -825,7 +825,7 @@ Lemma in_pts_in_pol : ∀ pol pts psl h hv hps def,
 Proof.
 intros pol pts psl h hv hps def Hpts Hpsl Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
-rewrite <- minus_n_O; eassumption.
+rewrite Nat.sub_0_r; eassumption.
 Qed.
 
 Lemma p_mq_formula : ∀ m j k mj mk g,
@@ -1402,7 +1402,7 @@ Proof.
 intros i j s t tl k d Hsi Hjsk.
 revert i j t tl k d Hsi Hjsk.
 induction s; intros.
- rewrite plus_0_r, <- minus_n_O; reflexivity.
+ rewrite plus_0_r, Nat.sub_0_r; reflexivity.
 
  symmetry.
  rewrite <- IHs.

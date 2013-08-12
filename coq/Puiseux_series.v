@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.198 2013-08-12 01:18:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.199 2013-08-12 01:24:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1576,7 +1576,12 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
     do 2 rewrite Nat.min_comm, Pos_mul_shuffle0, min_add_sub.
     reflexivity.
 
-   Focus 1.
+   rewrite Nat.min_0_r; simpl.
+   do 4 rewrite <- minus_n_O.
+   rewrite <- Pos2Nat.inj_mul.
+   destruct v₃ as [| v₃| v₃]; subst ccv; try reflexivity; simpl.
+   rewrite <- Pos2Nat.inj_mul; reflexivity.
+
 bbb.
 
  do 2 rewrite Z.mul_1_r.
