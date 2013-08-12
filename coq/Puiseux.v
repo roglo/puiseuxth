@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1076 2013-08-12 14:35:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1077 2013-08-12 20:29:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -100,6 +100,10 @@ CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
   | None =>
       Cend _
   end.
+
+
+
+(* ... *)
 
 (*
 Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
