@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.201 2013-08-12 01:44:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.202 2013-08-12 02:00:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1462,13 +1462,11 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
  do 2 rewrite Z_min_mul_distr_r.
- rewrite Pos2Z.inj_mul.
- rewrite Pos2Z.inj_mul.
- rewrite Z.mul_assoc.
- rewrite Z.mul_assoc.
- remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc.
- remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc.
- remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+ remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+ remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
  rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0 in Hcvc.
  rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
  rewrite <- Hcvc.
@@ -1494,105 +1492,18 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite <- Z2Nat.inj_pos.
  do 4 rewrite series_pad_pad.
  do 3 rewrite mult_minus_distr_r; simpl.
- destruct v₁ as [| v₁| v₁]; subst vcc; simpl.
-  do 2 rewrite Nat.sub_0_r.
-  rewrite plus_0_r.
-  rewrite series_pad_left_0.
-  destruct v₂ as [| v₂| v₂]; subst cvc; simpl.
-   do 2 rewrite Nat.sub_0_r.
-   rewrite plus_0_r.
-   do 2 rewrite series_pad_left_0.
-   destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
-    do 2 rewrite series_pad_left_0; reflexivity.
-
-    rewrite series_pad_left_0.
-    rewrite <- Pos2Nat.inj_mul; reflexivity.
-
-    do 2 rewrite series_pad_left_0; reflexivity.
-
-   rewrite Nat.sub_0_r.
-   rewrite series_pad_left_0.
-   destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
-    rewrite Nat.sub_0_r.
-    rewrite series_pad_left_0.
-    do 2 rewrite <- Pos2Nat.inj_mul.
-    rewrite Pos_mul_shuffle0; reflexivity.
-
-    rewrite <- Pos2Z.inj_min; simpl.
-    rewrite Pos2Nat.inj_min.
-    do 3 rewrite <- Pos2Nat.inj_mul.
-    rewrite min_add_sub, Nat.min_comm, min_add_sub.
-    rewrite Pos_mul_shuffle0; reflexivity.
-
-    rewrite Nat.sub_0_r.
-    rewrite series_pad_left_0.
-    do 2 rewrite <- Pos2Nat.inj_mul.
-    rewrite Pos_mul_shuffle0; reflexivity.
-
-   destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
-    rewrite series_pad_left_0; reflexivity.
-
-    do 2 rewrite Nat.sub_0_r.
-    do 2 rewrite series_pad_left_0.
-    rewrite <- Pos2Nat.inj_mul; reflexivity.
-
-    rewrite plus_0_r.
-    rewrite Z2Nat.inj_min; simpl.
-    rewrite series_pad_left_0; reflexivity.
-
-  do 2 rewrite Z2Nat.inj_min; simpl.
-  destruct v₂ as [| v₂| v₂]; subst cvc; simpl.
-   rewrite Nat.min_0_r; simpl.
-   do 4 rewrite Nat.sub_0_r.
-   rewrite series_pad_left_0.
-   rewrite <- Pos2Nat.inj_mul.
-   destruct v₃ as [| v₃| v₃]; subst ccv; try reflexivity; simpl.
-   rewrite <- Pos2Nat.inj_mul; reflexivity.
-
-   do 3 rewrite <- Pos2Nat.inj_mul.
-   destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
-    rewrite Nat.min_0_r; simpl.
-    do 3 rewrite Nat.sub_0_r.
-    do 2 rewrite Nat.min_comm, Pos_mul_shuffle0, min_add_sub.
-    reflexivity.
-
-    rewrite Nat.min_comm, Pos_mul_shuffle0, Nat.min_comm.
-    rewrite min_sub_add_sub.
-    rewrite <- Pos2Nat.inj_mul.
-    rewrite min_sub_add_sub.
-    rewrite series_add_comm.
-    rewrite Nat.min_comm, min_sub_add_sub.
-    rewrite Nat.min_comm, series_add_comm.
-    symmetry.
-    rewrite series_add_comm.
-    remember (Pos.to_nat (v₃ * c₂ * c₁)) as x.
-    remember (min x (Pos.to_nat (v₁ * c₂ * c₃))) as y; subst x.
-    rewrite Nat.min_comm, min_sub_add_sub.
-    subst y.
-    rewrite series_add_comm; reflexivity.
-
-    rewrite Nat.min_0_r; simpl.
-    do 3 rewrite Nat.sub_0_r.
-    do 2 rewrite Nat.min_comm, Pos_mul_shuffle0, min_add_sub.
-    reflexivity.
-
-   rewrite Nat.min_0_r; simpl.
-   do 4 rewrite Nat.sub_0_r.
-   rewrite <- Pos2Nat.inj_mul.
-   destruct v₃ as [| v₃| v₃]; subst ccv; try reflexivity; simpl.
-   rewrite <- Pos2Nat.inj_mul; reflexivity.
-
-  do 2 rewrite Z2Nat.inj_min; simpl.
-  do 3 rewrite Nat.sub_0_r.
-  rewrite series_pad_left_0.
-  do 3 rewrite <- Z2Nat_inj_mul_pos_r.
-  rewrite Z.mul_shuffle0.
-  rewrite <- Hcvc, <- Hccv.
-  rewrite min_add_sub.
-  rewrite Nat.min_comm, min_add_sub.
-  reflexivity.
-
-bbb.
+ do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+ rewrite <- Hvcc, <- Hcvc, <- Hccv.
+ rewrite Z.mul_shuffle0, <- Hcvc.
+ do 2 rewrite Z2Nat.inj_min.
+ do 2 rewrite min_sub_add_sub.
+ rewrite series_add_comm, Nat.min_comm.
+ rewrite min_sub_add_sub, Nat.min_comm, series_add_comm.
+ symmetry.
+ rewrite series_add_comm, series_add_assoc, series_add_comm.
+ rewrite Nat.min_comm, min_sub_add_sub.
+ rewrite series_add_comm, <- series_add_assoc, series_add_comm.
+ reflexivity.
 
  do 2 rewrite Z.mul_1_r.
  do 2 rewrite Z_min_mul_distr_r.
@@ -1603,4 +1514,6 @@ bbb.
  f_equal; apply Z.mul_shuffle0.
 
  rewrite Pos.mul_assoc; reflexivity.
-qed.
+Qed.
+
+End fld.

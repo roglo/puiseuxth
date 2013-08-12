@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.8 2013-08-12 01:26:50 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.9 2013-08-12 02:00:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1864,10 +1864,7 @@ rewrite minus_diag in Hc; simpl in Hc.
 destruct i.
  exfalso; apply Himq.
  apply Nat.mod_0_l.
-bbb.
- pose proof (Pos2Nat.is_pos q) as H.
- intros Hq; rewrite Hq in H.
- revert H; apply lt_irrefl.
+ apply pos_to_nat_ne_0.
 
  rewrite <- Hj, <- Hk in Hc; simpl in Hc.
  unfold nofq in Hc; simpl in Hc.
