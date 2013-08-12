@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.203 2013-08-12 02:03:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.204 2013-08-12 02:17:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -124,30 +124,6 @@ constructor; simpl.
  destruct (stop s₁); rewrite <- H1; reflexivity.
 Qed.
 
-Lemma stretch_series_eq : ∀ n s₁ s₂,
-  n ≠ O
-  → stretch_series n s₁ ≃ stretch_series n s₂
-    → s₁ ≃ s₂.
-Proof.
-intros n s₁ s₂ Hn H.
-inversion H; subst.
-constructor.
- intros i.
- pose proof (H0 (n * i)%nat) as Hi.
- simpl in Hi.
- rewrite mult_comm, Nat.mod_mul in Hi; simpl in Hi; [ idtac | assumption ].
- rewrite Nat.div_mul in Hi; assumption.
-
- simpl in H1.
- destruct (stop s₁) as [st₁| ].
-  destruct (stop s₂) as [st₂| ]; [ idtac | discriminate H1 ].
-  injection H1; clear H1; intros.
-  f_equal.
-  apply Nat.mul_cancel_r in H1; assumption.
-
-  destruct (stop s₂); [ discriminate H1 | reflexivity ].
-Qed.
-
 Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s ≃ s.
 Proof.
 intros s.
@@ -210,20 +186,6 @@ Definition adjust k ps :=
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
      ps_valnum := ps_valnum ps * 'k;
      ps_comden := ps_comden ps * k |}.
-
-Theorem adjust_eq : ∀ k ps, adjust k ps ≈ ps.
-Proof.
-intros k ps.
-unfold adjust.
-remember (ps_comden ps) as c.
-econstructor 1 with (k₁ := c) (k₂ := (k * c)%positive); simpl.
- rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
- rewrite Pos2Nat.inj_mul, Nat.mul_comm; reflexivity.
-
- rewrite Pos2Z.inj_mul, Z.mul_assoc; reflexivity.
-
- subst c; rewrite Pos.mul_assoc; reflexivity.
-Qed.
 
 (* ps_add *)
 
@@ -312,69 +274,6 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
 
 (* *)
 
-Lemma Zmatch_minus : ∀ x y (a : α) f g,
-  match (x - y)%Z with
-  | 0%Z => a
-  | Zpos n => f n
-  | Zneg n => g n
-  end =
-  match (y - x)%Z with
-  | 0%Z => a
-  | Zpos n => g n
-  | Zneg n => f n
-  end.
-Proof.
-intros x y a f g.
-remember (x - y)%Z as xy.
-symmetry in Heqxy.
-destruct xy.
- apply Zminus_eq in Heqxy.
- subst x; rewrite Zminus_diag; reflexivity.
-
- do 3 (apply Z.sub_move_l in Heqxy; symmetry in Heqxy).
- rewrite Z.sub_opp_l in Heqxy.
- rewrite Z.opp_involutive in Heqxy.
- rewrite Heqxy; reflexivity.
-
- do 3 (apply Z.sub_move_l in Heqxy; symmetry in Heqxy).
- rewrite Z.sub_opp_l in Heqxy.
- rewrite Z.opp_involutive in Heqxy.
- rewrite Heqxy; reflexivity.
-Qed.
-
-Lemma Zmatch_split : ∀ x (a₁ a₂ : α) f₁ f₂ g₁ g₂,
-  a₁ = a₂
-  → (∀ n, f₁ n = f₂ n)
-    → (∀ n, g₁ n = g₂ n)
-      → match x with
-        | 0%Z => a₁
-        | Zpos n => f₁ n
-        | Zneg n => g₁ n
-        end =
-        match x with
-        | 0%Z => a₂
-        | Zpos n => f₂ n
-        | Zneg n => g₂ n
-        end.
-Proof.
-intros x a₁ a₂ f₁ f₂ g₁ g₂ Ha Hf Hg.
-destruct x; [ assumption | apply Hf | apply Hg ].
-Qed.
-
-Add Parametric Morphism : (@mkps α) with 
-signature (eq_series fld) ==> eq ==> eq ==> eq_ps as mkps_morph.
-Proof.
-intros s₁ s₂ Heq v.
-inversion_clear Heq; subst.
-constructor 1 with (k₁ := xH) (k₂ := xH).
- do 2 rewrite stretch_series_1; simpl.
- constructor; assumption.
-
- reflexivity.
-
- reflexivity.
-Qed.
-
 Add Parametric Morphism : series_pad_left with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
 Proof.
@@ -385,39 +284,6 @@ constructor; simpl.
  inversion H; apply H0.
 
  inversion H; rewrite H1; reflexivity.
-Qed.
-
-Add Parametric Morphism : (@terms α) with
-signature eq_series fld ==> @eq nat ==> fld_eq fld as terms_morph.
-Proof.
-intros s₁ s₂ Heq i.
-inversion Heq; subst.
-apply H.
-Qed.
-
-Add Parametric Morphism k : (adjust k) with
-signature eq_ps ==> eq_ps as adjust_morph.
-Proof.
-intros ps₁ ps₂ H.
-unfold adjust.
-inversion_clear H.
-constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
- rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
- rewrite Nat.mul_comm.
- rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
- symmetry.
- rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
- rewrite Nat.mul_comm.
- rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
- rewrite H0; reflexivity.
-
- rewrite Z.mul_shuffle0; symmetry.
- rewrite Z.mul_shuffle0; symmetry.
- apply Z.mul_cancel_r; [ apply Zpos_ne_0 | assumption ].
-
- rewrite Pos_mul_shuffle0; symmetry.
- rewrite Pos_mul_shuffle0; symmetry.
- apply Pos.mul_cancel_r; assumption.
 Qed.
 
 Lemma stretch_series_add_distr : ∀ k s₁ s₂,
@@ -493,64 +359,6 @@ constructor.
  rewrite mult_plus_distr_r; reflexivity.
 Qed.
 
-Open Scope Z_scope.
-
-Lemma weird_formula : ∀ a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ c₁ c₂ c₃ c₄,
-  a₁ * c₁ = a₃ * c₃
-  → a₂ * c₂ = a₄ * c₄
-    → b₁ * c₁ = b₃ * c₃
-      → b₂ * c₂ = b₄ * c₄
-        → (a₂ * b₁ - a₁ * b₂) * c₁ * c₂ =
-          (a₄ * b₃ - a₃ * b₄) * c₃ * c₄.
-Proof.
-intros a₁ a₂ a₃ a₄ b₁ b₂ b₃ b₄ c₁ c₂ c₃ c₄ Ha₁ Ha₂ Hb₁ Hb₂.
-rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_assoc, Hb₁.
-rewrite Z.mul_shuffle0, Ha₁.
-rewrite Z.mul_comm.
-rewrite Z.mul_sub_distr_l.
-rewrite Z.mul_assoc.
-rewrite Z.mul_comm in Ha₂; rewrite Ha₂.
-do 2 rewrite <- Z.mul_assoc.
-do 3 rewrite Z.mul_assoc.
-rewrite Z.mul_shuffle2.
-rewrite Z.mul_comm in Hb₂; rewrite Hb₂.
-ring.
-Qed.
-
-Lemma valnum_comden : ∀ (ps₁ ps₂ ps₃ ps₄ : puiseux_series α) k₁ k₂ k₃ k₄,
-  ps_valnum ps₁ * ' k₁ = ps_valnum ps₃ * ' k₃
-  → (ps_comden ps₁ * k₁)%positive = (ps_comden ps₃ * k₃)%positive
-    → ps_valnum ps₂ * ' k₂ = ps_valnum ps₄ * ' k₄
-      → (ps_comden ps₂ * k₂)%positive = (ps_comden ps₄ * k₄)%positive
-        → (ps_valnum ps₂ * ' ps_comden ps₁ -
-           ps_valnum ps₁ * ' ps_comden ps₂) * 'k₁ * 'k₂
-          = (ps_valnum ps₄ * ' ps_comden ps₃ -
-             ps_valnum ps₃ * ' ps_comden ps₄) * 'k₃ * 'k₄.
-Proof.
-intros ps₁ ps₂ ps₃ ps₄ k₁ k₂ k₃ k₄ Hv₁ Hc₁ Hv₂ Hc₂.
-apply Z.mul_reg_r with (p := Zpos k₁); [ apply Zpos_ne_0 | idtac ].
-apply Z.mul_reg_r with (p := Zpos k₂); [ apply Zpos_ne_0 | idtac ].
-erewrite weird_formula.
- 2: eassumption.
-
- 2: eassumption.
-
- 2: rewrite <- Pos2Z.inj_mul.
- 2: rewrite Hc₁.
- 2: rewrite Pos2Z.inj_mul.
- 2: reflexivity.
-
- 2: rewrite <- Pos2Z.inj_mul.
- 2: rewrite Hc₂.
- 2: rewrite Pos2Z.inj_mul.
- 2: reflexivity.
-
- ring.
-Qed.
-
-Close Scope Z_scope.
-
 (* *)
 
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
@@ -566,15 +374,6 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 
  do 2 rewrite Pos.mul_1_r.
  apply Pos.mul_comm.
-Qed.
-
-Lemma adjust_1 : ∀ ps, adjust xH ps ≈ ps.
-Proof.
-intros ps.
-unfold adjust; simpl.
-rewrite stretch_series_1.
-rewrite Z.mul_1_r, Pos.mul_1_r.
-destruct ps as (t, v); destruct v; reflexivity.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -593,112 +392,6 @@ constructor.
  destruct (stop s₂) as [n₂| ]; [ idtac | reflexivity ].
  f_equal.
  rewrite Nat.add_max_distr_r; reflexivity.
-Qed.
-
-Lemma series_pad_plus : ∀ m n t,
-  series_pad_left m (series_pad_left n t) ≃
-  series_pad_left (m + n) t.
-Proof.
-intros m n t.
-unfold series_pad_left; simpl.
-constructor; simpl.
- intros i.
- destruct (lt_dec i m) as [Hlt| Hge].
-  destruct (lt_dec i (m + n)) as [| Hge]; [ reflexivity | idtac ].
-  exfalso; apply Hge.
-  apply lt_plus_trans; assumption.
-
-  apply not_gt in Hge.
-  destruct (lt_dec (i - m) n) as [Hlt| Hge₂].
-   destruct (lt_dec i (m + n)) as [| Hge₂]; [ reflexivity | idtac ].
-   exfalso; apply Hge₂.
-   apply Nat.lt_sub_lt_add_l; assumption.
-
-   apply not_gt in Hge₂.
-   destruct (lt_dec i (m + n)) as [Hlt| Hge₃].
-    apply plus_le_compat_l with (p := m) in Hge₂.
-    rewrite le_plus_minus_r in Hge₂; [ idtac | assumption ].
-    apply le_not_lt in Hge₂; contradiction.
-
-    rewrite Nat.sub_add_distr; reflexivity.
-
- destruct (stop t); [ idtac | reflexivity ].
- rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.
-Qed.
-
-Lemma eq_eq_ps : ∀ ps₁ ps₂, ps₁ = ps₂ → ps₁ ≈ ps₂.
-Proof. intros; subst; reflexivity. Qed.
-
-Lemma Plcm_Zlcm_div : ∀ a b,
-  Z.of_nat (Pos.to_nat (Plcm a b) / Pos.to_nat a) =
-  (Z.lcm (Zpos a) (Zpos b) / Zpos a)%Z.
-Proof.
-intros a b.
-unfold Plcm; simpl.
-unfold Z.to_pos; simpl.
-remember (Z.lcm (' a) (' b)) as l.
-symmetry in Heql.
-destruct l as [| l| l].
- exfalso.
- apply Z.lcm_eq_0 in Heql.
- destruct Heql.
-  revert H; apply Zpos_ne_0.
-
-  revert H; apply Zpos_ne_0.
-
- pose proof (Z.divide_lcm_l (' a) (' b)) as H.
- rewrite Heql in H.
- destruct H as (k, H).
- rewrite H.
- rewrite Z.div_mul.
-  destruct k.
-   exfalso.
-   simpl in H.
-   revert H; apply Zpos_ne_0.
-
-   simpl in H.
-   injection H; clear H; intros; subst.
-   rewrite Pos2Nat.inj_mul.
-   rewrite Nat.div_mul.
-    apply positive_nat_Z.
-
-    apply pos_to_nat_ne_0.
-
-   simpl in H.
-   discriminate H.
-
-  intros HH; discriminate HH.
-
- exfalso.
- unfold Z.lcm in Heql.
- pose proof (Zlt_neg_0 l) as H.
- rewrite <- Heql in H.
- apply Zlt_not_le in H.
- apply H, Z.abs_nonneg.
-Qed.
-
-Open Scope Z_scope.
-
-Lemma Z_min_mul_distr_r : ∀ n m p, Z.min n m * 'p = Z.min (n * 'p) (m * 'p).
-Proof.
-intros n m p.
-unfold Z.min.
-rewrite <- Zmult_cmp_compat_r; [ idtac | apply Pos2Z.is_pos ].
-destruct (n ?= m); reflexivity.
-Qed.
-
-Close Scope Z_scope.
-
-Lemma series_pad_left_0 : ∀ s, series_pad_left 0 s ≃ s.
-Proof.
-intros s.
-constructor.
- intros i.
- unfold series_pad_left; simpl.
- rewrite Nat.sub_0_r; reflexivity.
-
- simpl.
- destruct (stop s); [ rewrite Nat.add_0_r | idtac ]; reflexivity.
 Qed.
 
 Lemma series_pad_pad : ∀ x y ps,
