@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.45 2013-08-12 00:34:05 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.46 2013-08-12 01:44:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -762,4 +762,12 @@ destruct (le_dec x y) as [Hle| Hgt].
   rewrite Nat.add_sub_assoc; [ idtac | apply lt_le_weak; assumption ].
   rewrite plus_comm.
   rewrite le_plus_minus_r; [ reflexivity | apply lt_le_weak; assumption ].
+Qed.
+
+Lemma Z2Nat_inj_mul_pos_r : ∀ n m,
+  Z.to_nat (n * 'm) = (Z.to_nat n * Pos.to_nat m)%nat.
+Proof.
+intros n m.
+destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
+rewrite Pos2Nat.inj_mul; reflexivity.
 Qed.
