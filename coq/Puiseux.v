@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1070 2013-07-28 10:32:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1071 2013-08-12 01:26:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -336,7 +336,7 @@ Proof.
 intros i j s k d Hsi Hjsk.
 revert i j k d Hsi Hjsk.
 induction s; intros.
- rewrite plus_0_r, <- minus_n_O; reflexivity.
+ rewrite plus_0_r, Nat.sub_0_r; reflexivity.
 
  symmetry.
  rewrite <- IHs.

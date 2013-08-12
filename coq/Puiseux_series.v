@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.199 2013-08-12 01:24:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.200 2013-08-12 01:26:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1495,11 +1495,11 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 4 rewrite series_pad_pad.
  do 3 rewrite mult_minus_distr_r; simpl.
  destruct v₁ as [| v₁| v₁]; subst vcc; simpl.
-  do 2 rewrite <- minus_n_O.
+  do 2 rewrite Nat.sub_0_r.
   rewrite plus_0_r.
   rewrite series_pad_left_0.
   destruct v₂ as [| v₂| v₂]; subst cvc; simpl.
-   do 2 rewrite <- minus_n_O.
+   do 2 rewrite Nat.sub_0_r.
    rewrite plus_0_r.
    do 2 rewrite series_pad_left_0.
    destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
@@ -1510,10 +1510,10 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 
     do 2 rewrite series_pad_left_0; reflexivity.
 
-   rewrite <- minus_n_O.
+   rewrite Nat.sub_0_r.
    rewrite series_pad_left_0.
    destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
-    rewrite <- minus_n_O.
+    rewrite Nat.sub_0_r.
     rewrite series_pad_left_0.
     do 2 rewrite <- Pos2Nat.inj_mul.
     rewrite Pos_mul_shuffle0; reflexivity.
@@ -1524,7 +1524,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
     rewrite min_add_sub, Nat.min_comm, min_add_sub.
     rewrite Pos_mul_shuffle0; reflexivity.
 
-    rewrite <- minus_n_O.
+    rewrite Nat.sub_0_r.
     rewrite series_pad_left_0.
     do 2 rewrite <- Pos2Nat.inj_mul.
     rewrite Pos_mul_shuffle0; reflexivity.
@@ -1532,7 +1532,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
    destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
     rewrite series_pad_left_0; reflexivity.
 
-    do 2 rewrite <- minus_n_O.
+    do 2 rewrite Nat.sub_0_r.
     do 2 rewrite series_pad_left_0.
     rewrite <- Pos2Nat.inj_mul; reflexivity.
 
@@ -1543,7 +1543,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
   do 2 rewrite Z2Nat.inj_min; simpl.
   destruct v₂ as [| v₂| v₂]; subst cvc; simpl.
    rewrite Nat.min_0_r; simpl.
-   do 4 rewrite <- minus_n_O.
+   do 4 rewrite Nat.sub_0_r.
    rewrite series_pad_left_0.
    rewrite <- Pos2Nat.inj_mul.
    destruct v₃ as [| v₃| v₃]; subst ccv; try reflexivity; simpl.
@@ -1552,7 +1552,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
    do 3 rewrite <- Pos2Nat.inj_mul.
    destruct v₃ as [| v₃| v₃]; subst ccv; simpl.
     rewrite Nat.min_0_r; simpl.
-    do 3 rewrite <- minus_n_O.
+    do 3 rewrite Nat.sub_0_r.
     do 2 rewrite Nat.min_comm, Pos_mul_shuffle0, min_add_sub.
     reflexivity.
 
@@ -1572,12 +1572,12 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
     rewrite series_add_comm; reflexivity.
 
     rewrite Nat.min_0_r; simpl.
-    do 3 rewrite <- minus_n_O.
+    do 3 rewrite Nat.sub_0_r.
     do 2 rewrite Nat.min_comm, Pos_mul_shuffle0, min_add_sub.
     reflexivity.
 
    rewrite Nat.min_0_r; simpl.
-   do 4 rewrite <- minus_n_O.
+   do 4 rewrite Nat.sub_0_r.
    rewrite <- Pos2Nat.inj_mul.
    destruct v₃ as [| v₃| v₃]; subst ccv; try reflexivity; simpl.
    rewrite <- Pos2Nat.inj_mul; reflexivity.
