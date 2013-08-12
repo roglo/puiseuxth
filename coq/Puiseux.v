@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1074 2013-08-12 11:32:06 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1075 2013-08-12 14:29:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -18,6 +18,8 @@ Require Import CharactPolyn.
 Set Implicit Arguments.
 
 (* *)
+
+Notation "a ≈ b" := (eq_ps _ a b) (at level 70).
 
 Definition ps_zero α (fld : field α) :=
   {| ps_terms := {| terms i := zero fld; stop := Some O |};
@@ -250,22 +252,19 @@ split.
 Qed.
 
 Lemma list_pad_app : ∀ n v cl,
-  list_eq (fld_eq fld) (list_pad n v cl) (list_pad n v [] ++ cl) = true.
+  list_eq (fld_eq fld) (list_pad n v cl) (list_pad n v [] ++ cl).
 Proof.
 intros n v cl.
 revert v cl.
 induction n; intros; simpl.
  apply list_eq_refl.
 
-(*
- rewrite fld_eq_refl; apply IHn.
-*)
- apply IHn.
-qed.
+ constructor; [ reflexivity | apply IHn ].
+Qed.
 
 Lemma empty_padded : ∀ n v c,
   c ∈ list_pad n v []
-  → fld_eq fld c v = true.
+  → fld_eq fld c v.
 Proof.
 intros n v c H.
 induction n; [ contradiction | idtac ].
@@ -277,7 +276,7 @@ Qed.
 
 Lemma padded : ∀ n v c cl,
   list_pad n v [] = [c … cl]
-  → fld_eq fld c v = true.
+  → fld_eq fld c v.
 Proof.
 intros n v c cl H.
 destruct n; [ discriminate H | simpl in H ].
@@ -374,6 +373,7 @@ Fixpoint ps_pol_power pol n :=
   | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
   end.
 
+(*
 Lemma normal_terms_end : ∀ n cd, normal_terms fld n cd (End α) = End α.
 Proof.
 intros n cd.
@@ -395,7 +395,9 @@ destruct s as [t s| ].
  apply eq_ser_end; [ idtac | reflexivity ].
  symmetry; rewrite series_eta; reflexivity.
 Qed.
+*)
 
+(*
 Lemma series_add_end_l : ∀ s, series_add fld (End α) s = s.
 Proof.
 intros s.
@@ -404,7 +406,9 @@ rewrite series_eta.
 simpl.
 destruct s; reflexivity.
 Qed.
+*)
 
+(*
 Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
 Proof.
 intros ps.
@@ -429,6 +433,7 @@ rewrite Nat.div_same.
   destruct ps; simpl in Heqv |- *; rewrite Heqv.
   rewrite normal_terms_0.
 bbb.
+*)
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   pts = points_of_ps_polynom fld pol
