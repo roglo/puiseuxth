@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.44 2013-08-11 20:34:01 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.45 2013-08-12 00:34:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -722,7 +722,7 @@ Qed.
 
 Close Scope positive_scope.
 
-Lemma min_minus : ∀ x y, (min x y + (x - y) = x)%nat.
+Lemma min_add_sub : ∀ x y, (min x y + (x - y) = x)%nat.
 Proof.
 intros x y.
 destruct (le_dec x y) as [Hle| Hgt].
@@ -732,4 +732,34 @@ destruct (le_dec x y) as [Hle| Hgt].
  apply not_ge in Hgt.
  rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
  apply le_plus_minus_r, lt_le_weak; assumption.
+Qed.
+
+Lemma min_sub_add_sub : ∀ x y z, (min x y - z + (x - y) = x - min y z)%nat.
+Proof.
+intros x y z.
+destruct (le_dec x y) as [Hle| Hgt].
+ rewrite Nat.min_l; [ idtac | assumption ].
+ destruct (le_dec y z) as [Hle₁| Hgt].
+  rewrite Nat.min_l; [ idtac | assumption ].
+  eapply le_trans in Hle₁; [ idtac | eassumption ].
+  apply Nat.sub_0_le in Hle; rewrite Hle.
+  apply Nat.sub_0_le in Hle₁; rewrite Hle₁; reflexivity.
+
+  apply not_ge in Hgt.
+  rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+  apply Nat.sub_0_le in Hle; rewrite Hle.
+  rewrite plus_0_r; reflexivity.
+
+ apply not_ge in Hgt.
+ rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+ destruct (le_dec y z) as [Hle| Hgt₁].
+  rewrite Nat.min_l; [ idtac | assumption ].
+  apply Nat.sub_0_le in Hle; rewrite Hle; reflexivity.
+
+  apply not_ge in Hgt₁.
+  rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+  rewrite plus_comm.
+  rewrite Nat.add_sub_assoc; [ idtac | apply lt_le_weak; assumption ].
+  rewrite plus_comm.
+  rewrite le_plus_minus_r; [ reflexivity | apply lt_le_weak; assumption ].
 Qed.
