@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.204 2013-08-12 02:17:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.205 2013-08-12 02:59:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -361,6 +361,19 @@ Qed.
 
 (* *)
 
+Lemma Plcm_div_mul : ∀ x y,
+  (x * Pos.of_nat (Pos.to_nat (Plcm x y) / Pos.to_nat x))%positive = Plcm x y.
+Proof.
+intros x y.
+pose proof (Pos_divides_lcm_l x y) as H.
+destruct H as (k, H).
+rewrite H.
+rewrite Pos2Nat.inj_mul.
+rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
+rewrite Pos2Nat.id.
+apply Pos.mul_comm.
+Qed.
+
 Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
@@ -372,8 +385,15 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite Z.mul_1_r.
  apply Z.min_comm.
 
+(*
+ do 2 rewrite Pos.mul_1_r.
+ unfold lcm_div.
+ do 2 rewrite Plcm_div_mul.
+ apply Plcm_comm.
+*)
  do 2 rewrite Pos.mul_1_r.
  apply Pos.mul_comm.
+(**)
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -423,6 +443,9 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold ps_add, lcm_div; simpl.
+(*
+do 4 rewrite Plcm_div_mul.
+*)
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
