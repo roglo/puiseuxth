@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.15 2013-08-13 09:59:50 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.16 2013-08-13 10:03:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1065,13 +1065,18 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
          revert Hjk; clear; intros; omega.
 Qed.
 
-Lemma gamma_value_jh : ∀ pol ns j h αj αh,
+(* [Walker, p. 100]: « If Ph is on L, then also
+                   αj - αh
+      [...] = γ₁ = ------- = [...]
+                    h - j
+   » *)
+Theorem gamma_value_jh : ∀ pol ns j αj,
   ns ∈ newton_segments fld pol
   → (j, αj) = ini_pt ns
-    → (h, αh) ∈ oth_pts ns
+    → ∀ h αh, (h, αh) ∈ oth_pts ns
       → γ ns == (αj - αh) / (h - j).
 Proof.
-intros pol ns j h αj αh Hns Hjαj Hhαh.
+intros pol ns j αj Hns Hjαj h αh Hhαh.
 remember Hns as Hh; clear HeqHh.
 apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
  apply Qeq_plus_minus_eq_r in Hh.
