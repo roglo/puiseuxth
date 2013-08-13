@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1079 2013-08-13 18:37:38 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1080 2013-08-13 20:44:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -29,6 +29,7 @@ Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
+(*
 Axiom inf : Z.
 Axiom mul_inf_l : ∀ x, (inf * 'x)%Z = inf.
 Axiom min_inf_l : ∀ x, Z.min inf x = x.
@@ -36,6 +37,7 @@ Axiom nat_sub_inf_l : ∀ x, (Z.to_nat inf - x)%nat = Z.to_nat inf.
 Axiom nat_sub_inf_r : ∀ x, (x - Z.to_nat inf)%nat = 0%nat.
 Axiom series_pad_inf : ∀ x,
   series_pad_left fld (Z.to_nat inf) x ≃ series_0 fld.
+*)
 
 Definition ps_zero :=
   {| ps_terms := {| terms i := zero fld; stop := Some O |};
