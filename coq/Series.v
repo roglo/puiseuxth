@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.34 2013-08-02 00:02:37 deraugla Exp $ *)
+(* $Id: Series.v,v 1.35 2013-08-13 18:37:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -22,6 +22,8 @@ Section field.
  
 Variable α : Type.
 Variable fld : field α.
+
+Definition series_0 := {| terms i := zero fld; stop := Some 0%nat |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
