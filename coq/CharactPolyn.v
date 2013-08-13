@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.13 2013-08-13 09:46:33 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.14 2013-08-13 09:52:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -666,7 +666,15 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Zmult_comm; symmetry; assumption.
 Qed.
 
-Lemma gamma_value_jk : ∀ hsl ns j k αj αk,
+(* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends of
+   the segment L, v + γ₁ u = β₁ of the Newton polygon, then
+           αj + j γ₁ = αk + k γ₁
+    or
+               αj - αk
+          γ₁ = ------- = [...]
+                k - j
+  » *)
+Theorem gamma_value_jk : ∀ hsl ns j k αj αk,
   ns ∈ list_map_pairs newton_segment_of_pair hsl
   → (j, αj) = ini_pt ns
     → (k, αk) = fin_pt ns
