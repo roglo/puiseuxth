@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.17 2013-08-13 10:10:36 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.18 2013-08-13 15:02:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,8 +17,6 @@ Require Import Puiseux_series.
 Require Import Slope_base.
 
 Set Implicit Arguments.
-
-Notation "a ≍ b" := (fld_eq _ a b) (at level 70).
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
 Record term α β := { coeff : α; power : β }.
@@ -69,6 +67,8 @@ Section field.
 Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
+
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 (* *)
 
@@ -1268,7 +1268,10 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
    apply ini_fin_ns_in_init_pts; assumption.
 Qed.
 
-Lemma q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+   and since p and q have no common factors, q is a factor
+  of h - j. » *)
+Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
@@ -1305,7 +1308,10 @@ split.
  apply Z.divide_factor_l.
 Qed.
 
-Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk m,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+   Thus for every Ph on L we have h = j + s q, s being a
+   non-negative integer. » *)
+Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
@@ -1314,7 +1320,7 @@ Lemma h_is_j_plus_sq : ∀ pol ns j αj k αk m,
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ (∃ sk, k = j + 'sk * 'q)
             ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-              → ∃ mh sh, αh == mh # m ∧ h = j + 'sh * 'q.
+              → ∃ mh (s : positive), αh == mh # m ∧ h = j + 's * 'q.
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as H; clear HeqH.
@@ -1455,7 +1461,7 @@ induction s; intros.
   apply lt_le_weak; assumption.
 Qed.
 
-Lemma nth_is_zero : ∀ pol q i j k sk tl,
+Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
   0 < q
   → 0 < sk
     → k = (j + sk * q)
@@ -1463,11 +1469,10 @@ Lemma nth_is_zero : ∀ pol q i j k sk tl,
         → (∀ hq αh, (hq, αh) ∈ tl
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
             → S i mod q ≠ 0
-              → fld_eq fld
-                  (List.nth i
-                     (make_char_pol fld (S j)
-                        (List.map (term_of_point fld pol) tl) k) (zero fld))
-                  (zero fld).
+              → List.nth i
+                  (make_char_pol fld (S j)
+                     (List.map (term_of_point fld pol) tl) k) (zero fld)
+                ≍ zero fld.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
@@ -1854,6 +1859,7 @@ Qed.
 
 Close Scope nat_scope.
 
+(* [Walker, p. 100] « ... » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments fld pol
   → cpol = characteristic_polynomial fld pol ns
