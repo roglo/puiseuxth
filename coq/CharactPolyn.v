@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.10 2013-08-12 14:35:44 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.11 2013-08-13 09:35:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1436,10 +1436,11 @@ Lemma nth_is_zero : ∀ pol q i j k sk tl,
         → (∀ hq αh, (hq, αh) ∈ tl
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
             → S i mod q ≠ 0
-              → fld_eq fld (zero fld)
+              → fld_eq fld
                   (List.nth i
                      (make_char_pol fld (S j)
-                        (List.map (term_of_point fld pol) tl) k) (zero fld)).
+                        (List.map (term_of_point fld pol) tl) k) (zero fld))
+                  (zero fld).
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
@@ -1888,6 +1889,7 @@ destruct i.
     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
     subst c.
+    symmetry.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
      eapply oth_pts_sorted; eassumption.
 
