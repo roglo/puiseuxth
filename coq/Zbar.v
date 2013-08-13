@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.2 2013-08-13 20:46:34 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.3 2013-08-13 21:12:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -22,11 +22,11 @@ Definition Zbar_mul x y :=
 Delimit Scope Zbar_scope with Zbar.
 Bind Scope Zbar_scope with Zbar.
 
-Notation "0" := (Zfin 0).
+Notation "0" := (Zfin 0) : Zbar_scope.
 Notation "'' a" := (Zfin (Zpos a)) (at level 20).
 Infix "*" := Zbar_mul : Zbar_scope.
 
-Definition not_0_inf x := x ≠ 0 ∧ x ≠ Zinf.
+Definition not_0_inf x := x ≠ 0%Zbar ∧ x ≠ Zinf.
 
 Theorem Zbar_mul_cancel_r : ∀ n m p : Zbar, not_0_inf p →
   (n * p)%Zbar = (m * p)%Zbar ↔ n = m.
