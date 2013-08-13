@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1077 2013-08-12 20:29:09 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1078 2013-08-13 16:59:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,39 +19,45 @@ Set Implicit Arguments.
 
 (* *)
 
-Notation "a ≈ b" := (eq_ps _ a b) (at level 70).
-Notation "a ≃ b" := (eq_series _ a b) (at level 70).
-Notation "a ≍ b" := (fld_eq _ a b) (at level 70).
+Section field.
 
-Definition ps_zero α (fld : field α) :=
+Variable α : Type.
+Variable acf : algeb_closed_field α.
+Let fld := ac_field acf.
+
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+
+Definition ps_zero :=
   {| ps_terms := {| terms i := zero fld; stop := Some O |};
      ps_valnum := 0;
      ps_comden := 1 |}.
 
-Definition ps_const α c : puiseux_series α :=
+Definition ps_const c : puiseux_series α :=
   {| ps_terms := {| terms i := c; stop := Some 1%nat |};
      ps_valnum := 0;
      ps_comden := 1 |}.
 
-Definition ps_one α (fld : field α) := ps_const (one fld).
+Definition ps_one := ps_const (one fld).
 
-Definition ps_monom α (c : α) pow :=
+Definition ps_monom (c : α) pow :=
   {| ps_terms := {| terms i := c; stop := Some 1%nat |};
      ps_valnum := Qnum pow;
      ps_comden := Qden pow |}.
 
-Definition apply_poly_with_ps_poly α (fld : field α) pol :=
+Definition apply_poly_with_ps_poly pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
-    (pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld))
+    (pol_mul ps_zero (ps_add fld) (ps_mul fld))
     pol.
 
-Definition pol_mul_x_power_minus α (fld : field α) p pol :=
-  pol_mul (ps_zero fld) (ps_add fld) (ps_mul fld)
+Definition pol_mul_x_power_minus p pol :=
+  pol_mul ps_zero (ps_add fld) (ps_mul fld)
     {| al := []; an := ps_monom (one fld) (Qopp p) |} pol.
 
-Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
+Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
@@ -61,15 +67,15 @@ Definition zero_is_root α fld (pol : polynomial (puiseux_series α)) :=
       end
   end.
 
-Definition f₁ α (fld : field α) f β γ c :=
+Definition f₁ f β γ c :=
   let y := {| al := [ps_monom c γ]; an := ps_monom (one fld) γ |} in
-  let pol := apply_poly_with_ps_poly fld f y in
-  pol_mul_x_power_minus fld β pol.
+  let pol := apply_poly_with_ps_poly f y in
+  pol_mul_x_power_minus β pol.
 
 (* *)
 
-Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
-  let nsl₁ := newton_segments (ac_field acf) pol in
+Definition puiseux_step psumo (pol : polynomial (puiseux_series α)) :=
+  let nsl₁ := newton_segments fld pol in
   let (nsl, psum) :=
     match psumo with
     | Some psum => (List.filter (λ ns, negb (Qle_bool (γ ns) 0)) nsl₁, psum)
@@ -79,10 +85,9 @@ Definition puiseux_step α psumo acf (pol : polynomial (puiseux_series α)) :=
   match nsl with
   | [] => None
   | [ns … _] =>
-      let fld := ac_field acf in
       let cpol := characteristic_polynomial fld pol ns in
       let (c, r) := ac_root acf cpol in
-      let pol₁ := f₁ fld pol (β ns) (γ ns) c in
+      let pol₁ := f₁ pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Some ({| coeff := c; power := p |}, pol₁)
   end.
@@ -91,17 +96,15 @@ CoInductive coseries α :=
   | Cterm : α → coseries α → coseries α
   | Cend : coseries α.
 
-CoFixpoint puiseux_loop α psumo acf (pol : polynomial (puiseux_series α)) :=
-  match puiseux_step psumo acf pol with
+CoFixpoint puiseux_loop psumo (pol : polynomial (puiseux_series α)) :=
+  match puiseux_step psumo pol with
   | Some (t, pol₁) =>
       Cterm t
-        (if zero_is_root (ac_field acf) pol₁ then Cend _
-         else puiseux_loop (Some (power t)) acf pol₁)
+        (if zero_is_root pol₁ then Cend _
+         else puiseux_loop (Some (power t)) pol₁)
   | None =>
       Cend _
   end.
-
-
 
 (* ... *)
 
@@ -169,13 +172,71 @@ CoFixpoint series_series_take α n (s : series α) :=
   end.
 *)
 
-Section field.
+Lemma series_pad_left_0 : ∀ s, series_pad_left fld 0 s ≃ s.
+Proof.
+intros s.
+constructor.
+ intros i.
+ unfold series_pad_left; simpl.
+ rewrite Nat.sub_0_r; reflexivity.
 
-Variable α : Type.
-Variable acf : algeb_closed_field α.
-Let fld := ac_field acf.
+ simpl.
+ destruct (stop s); [ rewrite Nat.add_0_r | idtac ]; reflexivity.
+Qed.
 
-Axiom ps_add_neutral : ∀ ps, eq_ps fld (ps_add fld (ps_zero fld) ps) ps.
+Add Parametric Morphism : (series_pad_left fld) with 
+signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
+Proof.
+intros n s₁ s₂ H.
+constructor; simpl.
+ intros i.
+ destruct (lt_dec i n); [ reflexivity | idtac ].
+ inversion H; apply H0.
+
+ inversion H; rewrite H1; reflexivity.
+Qed.
+
+(*
+Add Parametric Morphism : (stretch_series fld) with 
+signature eq ==> eq_series fld ==> eq_series fld as stretch_morph.
+Proof.
+intros k s₁ s₂ H.
+inversion H; subst.
+constructor; simpl.
+ intros i.
+ destruct (zerop (i mod k)); [ apply H0 | reflexivity ].
+
+ destruct (stop s₁); rewrite <- H1; reflexivity.
+Qed.
+*)
+
+(*
+Add Parametric Morphism : (@ps_terms α) with 
+signature eq_ps fld ==> eq_series fld as ps_terms_morph.
+Proof.
+intros ps₁ ps₂ Hps.
+inversion Hps; subst.
+constructor.
+ intros i.
+ inversion H; subst.
+ simpl in H2, H3.
+bbb.
+*)
+
+Theorem ps_add_neutral : ∀ ps, ps_add fld ps_zero ps ≈ ps.
+Proof.
+intros ps.
+unfold ps_add; simpl.
+constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
+ rewrite stretch_series_1.
+ rewrite stretch_series_1.
+ rewrite series_pad_left_0.
+ rewrite Z.mul_1_r.
+ rewrite Nat.sub_0_r.
+ unfold lcm_div; simpl.
+ constructor; simpl.
+bbb.
+
 Axiom ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   eq_ps fld ps₁ ps₂
   → eq_ps fld ps₃ ps₄
