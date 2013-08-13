@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.11 2013-08-13 09:35:46 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.12 2013-08-13 09:45:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -631,13 +631,16 @@ Qed.
 Definition series_list_com_den α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
-Lemma power_num_of_new_comden : ∀ (psl : list (puiseux_series α)) m ps αi,
+(* [Walker, p. 100]: « In the first place, we note that since each
+   āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
+   m such that all the āi ∈ K(x^(1/m))'. » *)
+Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_den psl
-  → ps ∈ psl
+  → ∀ ps αi, ps ∈ psl
     → valuation fld ps = Some αi
       → ∃ mi, αi == mi # m.
 Proof.
-intros psl m ps αi Hm Hps Hv.
+intros psl m Hm ps αi Hps Hv.
 apply List.in_split in Hps.
 destruct Hps as (l₁, (l₂, Hpsl)).
 remember (series_list_com_den (l₁ ++ l₂)) as m₁.
@@ -915,7 +918,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  2: apply ini_fin_ns_in_init_pts; assumption.
 
  destruct Heqjps as (Hjps, Hjv).
- eapply power_num_of_new_comden in Hjv; try eassumption.
+ eapply com_den_of_ps_list in Hjv; try eassumption.
  destruct Hjv as (mj, Hαj).
  remember (List.nth (Z.to_nat (Qnum k)) psl (an pol)) as kps.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
@@ -923,7 +926,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   2: apply ini_fin_ns_in_init_pts; assumption.
 
   destruct Heqkps as (Hkps, Hkv).
-  eapply power_num_of_new_comden in Hkv; try eassumption.
+  eapply com_den_of_ps_list in Hkv; try eassumption.
   destruct Hkv as (mk, Hαk).
   rewrite Hg.
   setoid_rewrite Hαj.
@@ -1136,7 +1139,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  2: eassumption.
 
  destruct Heqjps as (Hmj, Hjv).
- eapply power_num_of_new_comden in Hmj; try eassumption.
+ eapply com_den_of_ps_list in Hmj; try eassumption.
  destruct Hmj as (mj, Hmj).
  exists mj.
  remember (List.nth (Z.to_nat (Qnum (inject_Z k))) psl (an pol)) as kps.
@@ -1147,7 +1150,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   2: eassumption.
 
   destruct Heqkps as (Hmk, Hkv).
-  eapply power_num_of_new_comden in Hmk; try eassumption.
+  eapply com_den_of_ps_list in Hmk; try eassumption.
   destruct Hmk as (mk, Hmk).
   exists mk.
   split; [ assumption | idtac ].
@@ -1198,7 +1201,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
        2: rewrite Hpts; eassumption.
 
        destruct Heqhps as (Hhps, Hhv).
-       eapply power_num_of_new_comden in Hhps; try eassumption.
+       eapply com_den_of_ps_list in Hhps; try eassumption.
        destruct Hhps as (mh, Hmh).
        exists mh.
        split; [ assumption | idtac ].
