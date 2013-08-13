@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.14 2013-08-13 09:52:45 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.15 2013-08-13 09:59:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -666,8 +666,8 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Zmult_comm; symmetry; assumption.
 Qed.
 
-(* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends of
-   the segment L, v + γ₁ u = β₁ of the Newton polygon, then
+(* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends
+   of the segment L, v + γ₁ u = β₁ of the Newton polygon, then
            αj + j γ₁ = αk + k γ₁
     or
                αj - αk
@@ -901,10 +901,17 @@ destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
   contradiction.
 Qed.
 
-Lemma gamma_eq_p_nq : ∀ pol ns m,
+(* [Walker, p. 100]: «
+                        p
+          γ₁ = [...] = ---
+                       m q
+
+     where q > 0 and p and q are integers having no common factor. » *)
+
+Theorem gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments fld pol
   → m = series_list_com_den (al pol ++ [an pol])
-    → ∃ p q,
+    → ∃ (p : Z) (q : positive),
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
 (* À nettoyer *)
