@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.16 2013-08-13 10:03:08 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.17 2013-08-13 10:10:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1132,7 +1132,11 @@ rewrite Qden_inv in Hpq.
  apply Z.lt_0_sub, inj_lt; assumption.
 Qed.
 
-Lemma q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+
+         q (mj - mh) = p (h - j)
+   » *)
+Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments fld pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
