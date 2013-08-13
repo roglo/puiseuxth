@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.12 2013-08-13 09:45:30 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.13 2013-08-13 09:46:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -633,7 +633,7 @@ Definition series_list_com_den α (psl : list (puiseux_series α)) :=
 
 (* [Walker, p. 100]: « In the first place, we note that since each
    āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
-   m such that all the āi ∈ K(x^(1/m))'. » *)
+   m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_den psl
   → ∀ ps αi, ps ∈ psl
