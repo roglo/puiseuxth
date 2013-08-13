@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.1 2013-08-13 20:44:15 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.2 2013-08-13 20:46:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -51,4 +51,11 @@ induction n as [n| ]; simpl.
   split; intros H; discriminate H.
 
   split; intros H; reflexivity.
+Qed.
+
+Lemma Zbpos_ne_0 : ∀ p, not_0_inf ('' p).
+Proof.
+intros p.
+unfold not_0_inf.
+split; intros H; discriminate H.
 Qed.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.206 2013-08-13 20:44:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.207 2013-08-13 20:46:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,13 +7,12 @@ Require Import NPeano.
 Require Import Field.
 Require Import Misc.
 Require Import Series.
-Require Import Zbar.
 
 Set Implicit Arguments.
 
 Record puiseux_series α := mkps
   { ps_terms : series α;
-    ps_valnum : Zbar;
+    ps_valnum : Z;
     ps_comden : positive }.
 
 (* [series_head is_zero n s] skip the possible terms (starting from the nth
@@ -46,7 +45,7 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
       stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
       stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
-      → (ps_valnum ps₁ * ''k₁)%Zbar = (ps_valnum ps₂ * ''k₂)%Zbar
+      → (ps_valnum ps₁ * 'k₁)%Z = (ps_valnum ps₂ * 'k₂)%Z
         → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
           → eq_ps ps₁ ps₂.
 
@@ -138,20 +137,13 @@ constructor; simpl.
  rewrite mult_1_r; reflexivity.
 Qed.
 
-Lemma Zbpos_ne_0 : ∀ p, not_0_inf ('' p).
-Proof.
-intros p.
-unfold not_0_inf.
-split; intros H; discriminate H.
-Qed.
-
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as (k₁₁, k₁₂).
 inversion_clear H₂ as (k₂₁, k₂₂).
-apply Zbar_mul_cancel_r with (p := ''k₂₁) in H0; [ idtac | apply Zbpos_ne_0 ].
-apply Zbar_mul_cancel_r with (p := ''k₁₂) in H3; [ idtac | apply Zbpos_ne_0 ].
+apply Z.mul_cancel_r with (p := Zpos k₂₁) in H0; [ idtac | apply Zpos_ne_0 ].
+apply Z.mul_cancel_r with (p := Zpos k₁₂) in H3; [ idtac | apply Zpos_ne_0 ].
 rewrite Z.mul_shuffle0 in H3.
 rewrite <- H0 in H3.
 do 2 rewrite <- Z.mul_assoc in H3.
