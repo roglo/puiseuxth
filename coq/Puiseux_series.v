@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.216 2013-08-14 19:15:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.217 2013-08-14 20:34:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -341,9 +341,10 @@ constructor.
     exfalso; apply Hnok.
     rewrite Nbar.nfin_inj_mul.
     apply Nbar.mul_lt_mono_pos_r; try (intros H; discriminate H); auto.
-    destruct k; [ exfalso; apply Hk; reflexivity | apply lt_0_Sn ].
+    destruct k; [ exfalso; apply Hk; reflexivity | idtac ].
+    rewrite Nbar.nfin_inj_S; apply Nbar.lt_0_succ.
 
-   apply not_gt in Hge.
+   apply Nbar.not_gt in Hge.
    destruct (lt_dec (c * k) (n * k)) as [Hnok| Hok].
     apply gt_not_le in Hnok.
     exfalso; apply Hnok.

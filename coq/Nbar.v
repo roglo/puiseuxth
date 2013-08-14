@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.7 2013-08-14 19:47:42 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.8 2013-08-14 20:34:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -10,12 +10,6 @@ Inductive Nbar : Set :=
   | nfin : ∀ x : nat, Nbar
   | ninf : Nbar.
 
-Definition Nbar_S n :=
-  match n with
-  | nfin n => nfin (S n)
-  | ninf => ninf
-  end.
-
 Delimit Scope Nbar_scope with Nbar.
 Bind Scope Nbar_scope with Nbar.
 
@@ -23,6 +17,12 @@ Notation "∞" := ninf.
 Notation "0" := (nfin 0) : Nbar_scope.
 
 Module Nbar.
+
+Definition S n :=
+  match n with
+  | nfin n => nfin (S n)
+  | ninf => ninf
+  end.
 
 Definition binop f dx dy xb yb :=
   match xb with
@@ -50,7 +50,7 @@ Inductive le : Nbar → Nbar → Prop :=
 
 where "n <= m" := (le n m) : Nbar_scope.
 
-Definition lt n m := Nbar_S n <= m.
+Definition lt n m := S n <= m.
 Infix "<" := lt : Nbar_scope.
 
 Definition to_nat nb :=
@@ -79,6 +79,9 @@ Qed.
 Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
 Proof. reflexivity. Qed.
 
+Theorem nfin_inj_S : ∀ n, nfin (Datatypes.S n) = S (nfin n).
+Proof. reflexivity. Qed.
+
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
 Proof.
 intros n m.
@@ -93,6 +96,12 @@ destruct n as [n| ].
   left; constructor.
 
  destruct m as [m| ]; [ right; intros H; inversion H | left; constructor ].
+Qed.
+
+Theorem lt_0_succ: ∀ n : Nbar, 0 < S n.
+Proof.
+intros n.
+destruct n; [ constructor; apply Nat.lt_0_succ | constructor ].
 Qed.
 
 Close Scope Nbar_scope.
