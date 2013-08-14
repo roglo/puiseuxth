@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.4 2013-08-14 13:18:18 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.5 2013-08-14 15:25:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Arith.
@@ -23,17 +23,25 @@ Notation "0" := (nfin 0) : Nbar_scope.
 
 Module Nbar.
 
-Open Scope Nbar_scope.
-
-Definition sub x y :=
-  match x with
-  | nfin n =>
-      match y with
-      | nfin m => nfin (n - m)
-      | ninf => nfin 0
+Definition binop f dx dy xb yb :=
+  match xb with
+  | nfin x =>
+      match yb with
+      | nfin y => nfin (f x y)
+      | ∞ => dx
       end
-  | ∞ => ∞
+  | ∞ => dy
   end.
+
+Definition add := binop plus ∞ ∞.
+Definition sub := binop minus (nfin 0) ∞.
+Definition mul := binop mult ∞ ∞.
+
+Infix "+" := add : Nbar_scope.
+Infix "-" := sub : Nbar_scope.
+Infix "*" := mul : Nbar_scope.
+
+Open Scope Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_n : ∀ n, n <= n
@@ -59,5 +67,7 @@ Close Scope Nbar_scope.
 
 End Nbar.
 
+Infix "+" := Nbar.add : Nbar_scope.
 Infix "-" := Nbar.sub : Nbar_scope.
+Infix "*" := Nbar.mul : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.

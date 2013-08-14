@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.9 2013-08-14 13:18:18 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.10 2013-08-14 15:25:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -20,16 +20,21 @@ Notation "'' a" := (zfin (Zpos a)) (at level 20).
 
 Module Zbar.
 
-Definition mul x y :=
-  match x with
-  | zfin xf =>
-      match y with
-      | zfin yf => zfin (xf * yf)
-      | ∞ => ∞
+Definition binop f dx dy xb yb :=
+  match xb with
+  | zfin x =>
+      match yb with
+      | zfin y => zfin (f x y)
+      | ∞ => dx
       end
-  | ∞ => ∞
+  | ∞ => dy
   end.
 
+Definition add := binop Z.add ∞ ∞.
+Definition mul := binop Z.mul ∞ ∞.
+Definition min x y := binop Z.min x y x y.
+
+Infix "+" := add : Zbar_scope.
 Infix "*" := mul : Zbar_scope.
 
 Open Scope Zbar_scope.
@@ -118,5 +123,5 @@ Close Scope Zbar_scope.
 
 End Zbar.
 
-Notation "0" := (zfin 0) : Zbar_scope.
+Infix "+" := Zbar.add : Zbar_scope.
 Infix "*" := Zbar.mul : Zbar_scope.

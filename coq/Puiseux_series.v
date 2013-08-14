@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.214 2013-08-14 13:18:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.215 2013-08-14 15:25:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -230,7 +230,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
          (series_pad_left (Zbar.to_Nbar v₂ - Zbar.to_Nbar v₁)%Nbar
             (ps_terms ms₂));
      ps_valnum :=
-       Z.min v₁ v₂;
+       Zbar.min v₁ v₂;
      ps_comden :=
        ps_comden ms₁ |}.
 
@@ -294,7 +294,7 @@ Proof.
 intros n s₁ s₂ H.
 constructor; simpl.
  intros i.
- destruct (lt_dec i n); [ reflexivity | idtac ].
+ destruct (Nbar.lt_dec (nfin i) n); [ reflexivity | idtac ].
  inversion H; apply H0.
 
  inversion H; rewrite H1; reflexivity.
@@ -322,7 +322,7 @@ Qed.
 Lemma stretch_pad_series_distr : ∀ k n s,
   k ≠ O
   → stretch_series k (series_pad_left n s) ≃
-    series_pad_left (n * k) (stretch_series k s).
+    series_pad_left (n * nfin k) (stretch_series k s).
 Proof.
 intros k n s Hk.
 constructor.
@@ -334,11 +334,13 @@ constructor.
   subst i.
   rewrite mult_comm.
   rewrite Nat.div_mul; [ idtac | assumption ].
-  destruct (lt_dec c n) as [Hlt| Hge].
-   destruct (lt_dec (c * k) (n * k)) as [| Hnok]; [ reflexivity | idtac ].
-   exfalso; apply Hnok.
-   apply mult_lt_compat_r; [ assumption | idtac ].
-   destruct k; [ exfalso; apply Hk; reflexivity | apply lt_0_Sn ].
+  destruct (Nbar.lt_dec (nfin c) n) as [Hlt| Hge].
+   destruct (Nbar.lt_dec (nfin (c * k)) (n * nfin k)) as [| Hnok].
+    reflexivity.
+
+    exfalso; apply Hnok.
+    apply mult_lt_compat_r; [ assumption | idtac ].
+    destruct k; [ exfalso; apply Hk; reflexivity | apply lt_0_Sn ].
 
    apply not_gt in Hge.
    destruct (lt_dec (c * k) (n * k)) as [Hnok| Hok].
