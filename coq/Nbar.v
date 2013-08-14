@@ -1,6 +1,7 @@
-(* $Id: Nbar.v,v 1.6 2013-08-14 19:15:43 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.7 2013-08-14 19:47:42 deraugla Exp $ *)
 
 Require Import Utf8.
+Require Import Compare_dec.
 Require Import NPeano.
 
 Set Implicit Arguments.
@@ -80,9 +81,19 @@ Proof. reflexivity. Qed.
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
 Proof.
-Admitted. (*
-bbb.
-*)
+intros n m.
+destruct n as [n| ].
+ destruct m as [m| ].
+  destruct (lt_dec n m) as [Hlt| Hge].
+   left; constructor; assumption.
+
+   right; intros H; apply Hge; clear Hge.
+   inversion H; assumption.
+
+  left; constructor.
+
+ destruct m as [m| ]; [ right; intros H; inversion H | left; constructor ].
+Qed.
 
 Close Scope Nbar_scope.
 
