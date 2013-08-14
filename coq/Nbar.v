@@ -1,7 +1,7 @@
-(* $Id: Nbar.v,v 1.5 2013-08-14 15:25:03 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.6 2013-08-14 19:15:43 deraugla Exp $ *)
 
 Require Import Utf8.
-Require Import Arith.
+Require Import NPeano.
 
 Set Implicit Arguments.
 
@@ -44,13 +44,13 @@ Infix "*" := mul : Nbar_scope.
 Open Scope Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
-  | le_n : ∀ n, n <= n
-  | le_S : ∀ n m, nfin n <= nfin m → nfin n <= nfin (S m)
+  | le_nfin : ∀ n m, (n <= m)%nat → nfin n <= nfin m
   | le_ninf : ∀ n, n <= ∞
 
 where "n <= m" := (le n m) : Nbar_scope.
 
 Definition lt n m := Nbar_S n <= m.
+Infix "<" := lt : Nbar_scope.
 
 Definition to_nat nb :=
   match nb with
@@ -58,10 +58,31 @@ Definition to_nat nb :=
   | ninf => O
   end.
 
-Infix "<" := lt : Nbar_scope.
+Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
+  n < m ↔ n * p < m * p.
+Proof.
+intros p n m Hp Hpi Hni.
+destruct p as [p| ]; [ simpl | exfalso; apply Hpi; reflexivity ].
+destruct n as [n| ]; [ simpl | exfalso; apply Hni; reflexivity ].
+destruct m as [m| ]; simpl.
+ split; intros.
+  constructor.
+  apply Nat.mul_lt_mono_pos_r; [ inversion Hp | inversion H ]; assumption.
+
+  constructor.
+  eapply Nat.mul_lt_mono_pos_r; [ inversion Hp | inversion H ]; eassumption.
+
+ split; intros H; constructor.
+Qed.
+
+Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
+Proof. reflexivity. Qed.
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
-Admitted.
+Proof.
+Admitted. (*
+bbb.
+*)
 
 Close Scope Nbar_scope.
 
