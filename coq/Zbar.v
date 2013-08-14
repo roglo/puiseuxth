@@ -1,7 +1,9 @@
-(* $Id: Zbar.v,v 1.6 2013-08-14 11:00:56 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.7 2013-08-14 12:14:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
+
+Require Import Nbar.
 
 Set Implicit Arguments.
 
