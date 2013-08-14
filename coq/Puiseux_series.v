@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.213 2013-08-14 13:07:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.214 2013-08-14 13:18:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -144,26 +144,30 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as (k₁₁, k₁₂).
 inversion_clear H₂ as (k₂₁, k₂₂).
-apply Zbar_mul_cancel_r with (p := ''k₂₁) in H0; [ idtac | apply Zbpos_ne_0 ].
-apply Zbar_mul_cancel_r with (p := ''k₁₂) in H3; [ idtac | apply Zbpos_ne_0 ].
-rewrite Zbar_mul_shuffle0 in H3.
-rewrite <- H0 in H3.
-do 2 rewrite <- Zbar_mul_assoc in H3.
-apply Pos.mul_cancel_r with (r := k₂₁) in H1.
-apply Pos.mul_cancel_r with (r := k₁₂) in H4.
-rewrite Pos_mul_shuffle0 in H4.
-rewrite <- H1 in H4.
-do 2 rewrite <- Pos.mul_assoc in H4.
-econstructor; [ idtac | eassumption | eassumption ].
-do 2 rewrite Pos2Nat.inj_mul.
-symmetry; rewrite mult_comm.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-symmetry; rewrite mult_comm.
-rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite H, <- H2.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-rewrite mult_comm; reflexivity.
+apply Zbar.mul_cancel_r with (p := '' k₂₁) in H0.
+ apply Zbar.mul_cancel_r with (p := '' k₁₂) in H3.
+  rewrite Zbar.mul_shuffle0 in H3.
+  rewrite <- H0 in H3.
+  do 2 rewrite <- Zbar.mul_assoc in H3.
+  apply Pos.mul_cancel_r with (r := k₂₁) in H1.
+  apply Pos.mul_cancel_r with (r := k₁₂) in H4.
+  rewrite Pos_mul_shuffle0 in H4.
+  rewrite <- H1 in H4.
+  do 2 rewrite <- Pos.mul_assoc in H4.
+  econstructor; [ idtac | eassumption | eassumption ].
+  do 2 rewrite Pos2Nat.inj_mul.
+  symmetry; rewrite mult_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  symmetry; rewrite mult_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite H, <- H2.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite mult_comm; reflexivity.
+
+  apply Zbar.pos_ne_0.
+
+ apply Zbar.pos_ne_0.
 Qed.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
@@ -221,9 +225,9 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let v₂ := ps_valnum ms₂ in
   {| ps_terms :=
        series_add fld
-         (series_pad_left (Zbar_to_Nbar v₁ - Zbar_to_Nbar v₂)%Nbar
+         (series_pad_left (Zbar.to_Nbar v₁ - Zbar.to_Nbar v₂)%Nbar
             (ps_terms ms₁))
-         (series_pad_left (Zbar_to_Nbar v₂ - Zbar_to_Nbar v₁)%Nbar
+         (series_pad_left (Zbar.to_Nbar v₂ - Zbar.to_Nbar v₁)%Nbar
             (ps_terms ms₂));
      ps_valnum :=
        Z.min v₁ v₂;

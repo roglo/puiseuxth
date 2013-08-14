@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.8 2013-08-14 12:51:47 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.9 2013-08-14 13:18:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -11,9 +11,16 @@ Inductive Zbar : Set :=
   | zfin : ∀ x : Z, Zbar
   | zinf : Zbar.
 
-Notation "∞" := zinf.
+Delimit Scope Zbar_scope with Zbar.
+Bind Scope Zbar_scope with Zbar.
 
-Definition Zbar_mul x y :=
+Notation "∞" := zinf.
+Notation "0" := (zfin 0) : Zbar_scope.
+Notation "'' a" := (zfin (Zpos a)) (at level 20).
+
+Module Zbar.
+
+Definition mul x y :=
   match x with
   | zfin xf =>
       match y with
@@ -23,40 +30,35 @@ Definition Zbar_mul x y :=
   | ∞ => ∞
   end.
 
-Delimit Scope Zbar_scope with Zbar.
-Bind Scope Zbar_scope with Zbar.
-
-Notation "0" := (zfin 0) : Zbar_scope.
-Notation "'' a" := (zfin (Zpos a)) (at level 20).
-Infix "*" := Zbar_mul : Zbar_scope.
+Infix "*" := mul : Zbar_scope.
 
 Open Scope Zbar_scope.
 
 Definition not_0_inf x := x ≠ 0 ∧ x ≠ ∞.
 
-Definition Zbar_to_Nbar zb :=
+Definition to_Nbar zb :=
   match zb with
   | zfin z => nfin (Z.to_nat z)
   | ∞ => ninf
   end.
 
-Theorem Zbpos_ne_0 : ∀ p, not_0_inf ('' p).
+Theorem pos_ne_0 : ∀ p, not_0_inf ('' p).
 Proof.
 intros p.
 unfold not_0_inf.
 split; intros H; discriminate H.
 Qed.
 
-Theorem Zbar_mul_comm : ∀ n m : Zbar, n * m = m * n.
+Theorem mul_comm : ∀ n m : Zbar, n * m = m * n.
 Proof.
 intros n m.
-unfold Zbar_mul.
+unfold mul.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ idtac | reflexivity ].
 rewrite Z.mul_comm; reflexivity.
 Qed.
 
-Theorem Zbar_mul_assoc : ∀ n m p : Zbar, n * (m * p) = n * m * p.
+Theorem mul_assoc : ∀ n m p : Zbar, n * (m * p) = n * m * p.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
@@ -64,7 +66,7 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Z.mul_assoc; reflexivity | reflexivity ].
 Qed.
 
-Theorem Zbar_mul_cancel_r : ∀ n m p : Zbar, not_0_inf p →
+Theorem mul_cancel_r : ∀ n m p : Zbar, not_0_inf p →
   n * p = m * p ↔ n = m.
 Proof.
 intros n m p (Hp, Hpi).
@@ -89,19 +91,19 @@ induction n as [n| ]; simpl.
   split; intros H; reflexivity.
 Qed.
 
-Theorem Zbar_mul_cancel_l : ∀ n m p : Zbar, not_0_inf p →
+Theorem mul_cancel_l : ∀ n m p : Zbar, not_0_inf p →
   p * n = p * m ↔ n = m.
 Proof.
 intros n m p Hp.
 split; intros H.
- rewrite Zbar_mul_comm in H; symmetry in H.
- rewrite Zbar_mul_comm in H; symmetry in H.
- apply -> Zbar_mul_cancel_r; eassumption.
+ rewrite mul_comm in H; symmetry in H.
+ rewrite mul_comm in H; symmetry in H.
+ apply -> mul_cancel_r; eassumption.
 
  subst; reflexivity.
 Qed.
 
-Theorem Zbar_mul_shuffle0 : ∀ n m p : Zbar, n * m * p = n * p * m.
+Theorem mul_shuffle0 : ∀ n m p : Zbar, n * m * p = n * p * m.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
@@ -113,3 +115,8 @@ destruct m as [m| ]; simpl.
 Qed.
 
 Close Scope Zbar_scope.
+
+End Zbar.
+
+Notation "0" := (zfin 0) : Zbar_scope.
+Infix "*" := Zbar.mul : Zbar_scope.

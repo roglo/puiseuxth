@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.3 2013-08-14 13:07:55 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.4 2013-08-14 13:18:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Arith.
@@ -19,6 +19,7 @@ Delimit Scope Nbar_scope with Nbar.
 Bind Scope Nbar_scope with Nbar.
 
 Notation "∞" := ninf.
+Notation "0" := (nfin 0) : Nbar_scope.
 
 Module Nbar.
 
@@ -58,6 +59,5 @@ Close Scope Nbar_scope.
 
 End Nbar.
 
-Notation "0" := (nfin 0) : Nbar_scope.
 Infix "-" := Nbar.sub : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.
