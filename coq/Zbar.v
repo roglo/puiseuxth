@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.5 2013-08-14 05:05:31 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.6 2013-08-14 11:00:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -6,16 +6,16 @@ Require Import ZArith.
 Set Implicit Arguments.
 
 Inductive Zbar : Set :=
-  | fin : ∀ x : Z, Zbar
-  | inf : Zbar.
+  | zfin : ∀ x : Z, Zbar
+  | zinf : Zbar.
 
-Notation "∞" := inf.
+Notation "∞" := zinf.
 
 Definition Zbar_mul x y :=
   match x with
-  | fin xf =>
+  | zfin xf =>
       match y with
-      | fin yf => fin (xf * yf)
+      | zfin yf => zfin (xf * yf)
       | ∞ => ∞
       end
   | ∞ => ∞
@@ -24,8 +24,8 @@ Definition Zbar_mul x y :=
 Delimit Scope Zbar_scope with Zbar.
 Bind Scope Zbar_scope with Zbar.
 
-Notation "0" := (fin 0) : Zbar_scope.
-Notation "'' a" := (fin (Zpos a)) (at level 20).
+Notation "0" := (zfin 0) : Zbar_scope.
+Notation "'' a" := (zfin (Zpos a)) (at level 20).
 Infix "*" := Zbar_mul : Zbar_scope.
 
 Open Scope Zbar_scope.

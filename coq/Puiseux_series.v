@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.210 2013-08-14 05:43:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.211 2013-08-14 11:00:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -173,7 +173,7 @@ Add Parametric Relation : (puiseux_series α) eq_ps
 
 Definition valuation (ps : puiseux_series α) :=
   match ps_valnum ps with
-  | fin v =>
+  | zfin v =>
       match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
       | Some (n, c) => Some (v + Z.of_nat n # ps_comden ps)
       | None => None
@@ -218,8 +218,8 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let v₂ := ps_valnum ms₂ in
   {| ps_terms :=
        series_add fld
-         (series_pad_left (Z.to_nat (max 0 (v₁ - v₂))) (ps_terms ms₁))
-         (series_pad_left (Z.to_nat (max 0 (v₂ - v₁))) (ps_terms ms₂));
+         (series_pad_left (Zbar_to_Nbar v₁ - Zbar_to_Nbar v₂) (ps_terms ms₁))
+         (series_pad_left (Zbar_to_Nbar v₂ - Zbar_to_Nbar v₁) (ps_terms ms₂));
      ps_valnum :=
        Z.min v₁ v₂;
      ps_comden :=
