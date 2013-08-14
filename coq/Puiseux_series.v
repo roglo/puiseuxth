@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.209 2013-08-14 05:05:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.210 2013-08-14 05:43:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -172,9 +172,13 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  as eq_ps_rel.
 
 Definition valuation (ps : puiseux_series α) :=
-  match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
-  | Some (n, c) => Some (ps_valnum ps + Z.of_nat n # ps_comden ps)
-  | None => None
+  match ps_valnum ps with
+  | fin v =>
+      match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
+      | Some (n, c) => Some (v + Z.of_nat n # ps_comden ps)
+      | None => None
+     end
+  | ∞ => None
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
@@ -185,7 +189,7 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 
 Definition adjust k ps :=
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
-     ps_valnum := ps_valnum ps * 'k;
+     ps_valnum := ps_valnum ps * ''k;
      ps_comden := ps_comden ps * k |}.
 
 (* ps_add *)
@@ -214,8 +218,8 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let v₂ := ps_valnum ms₂ in
   {| ps_terms :=
        series_add fld
-         (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂) (ps_terms ms₁))
-         (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁) (ps_terms ms₂));
+         (series_pad_left (Z.to_nat (max 0 (v₁ - v₂))) (ps_terms ms₁))
+         (series_pad_left (Z.to_nat (max 0 (v₂ - v₁))) (ps_terms ms₂));
      ps_valnum :=
        Z.min v₁ v₂;
      ps_comden :=
