@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.2 2013-08-14 12:51:47 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.3 2013-08-14 13:07:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Arith.
@@ -9,14 +9,22 @@ Inductive Nbar : Set :=
   | nfin : ∀ x : nat, Nbar
   | ninf : Nbar.
 
-Notation "∞" := ninf.
+Definition Nbar_S n :=
+  match n with
+  | nfin n => nfin (S n)
+  | ninf => ninf
+  end.
 
 Delimit Scope Nbar_scope with Nbar.
 Bind Scope Nbar_scope with Nbar.
 
+Notation "∞" := ninf.
+
+Module Nbar.
+
 Open Scope Nbar_scope.
 
-Definition Nbar_sub x y :=
+Definition sub x y :=
   match x with
   | nfin n =>
       match y with
@@ -26,32 +34,30 @@ Definition Nbar_sub x y :=
   | ∞ => ∞
   end.
 
-Definition Nbar_S n :=
-  match n with
-  | nfin n => nfin (S n)
-  | ∞ => ∞
-  end.
-
-Inductive Nbar_le : Nbar → Nbar → Prop :=
+Inductive le : Nbar → Nbar → Prop :=
   | le_n : ∀ n, n <= n
   | le_S : ∀ n m, nfin n <= nfin m → nfin n <= nfin (S m)
-  | le_inf : ∀ n, n <= ∞
+  | le_ninf : ∀ n, n <= ∞
 
-where "n <= m" := (Nbar_le n m) : Nbar_scope.
+where "n <= m" := (le n m) : Nbar_scope.
 
-Definition Nbar_lt n m := Nbar_S n <= m.
+Definition lt n m := Nbar_S n <= m.
 
-Notation "0" := (nfin 0) : Nbar_scope.
-Infix "-" := Nbar_sub : Nbar_scope.
-Infix "<" := Nbar_lt : Nbar_scope.
-
-Definition Nbar_to_nat nb :=
+Definition to_nat nb :=
   match nb with
   | nfin n => n
   | ninf => O
   end.
 
-Theorem Nbar_lt_dec : ∀ n m, {n < m} + {~ n < m}.
+Infix "<" := lt : Nbar_scope.
+
+Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
 Admitted.
 
 Close Scope Nbar_scope.
+
+End Nbar.
+
+Notation "0" := (nfin 0) : Nbar_scope.
+Infix "-" := Nbar.sub : Nbar_scope.
+Infix "<" := Nbar.lt : Nbar_scope.
