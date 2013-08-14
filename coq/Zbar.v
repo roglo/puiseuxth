@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.7 2013-08-14 12:14:29 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.8 2013-08-14 12:51:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -33,6 +33,12 @@ Infix "*" := Zbar_mul : Zbar_scope.
 Open Scope Zbar_scope.
 
 Definition not_0_inf x := x ≠ 0 ∧ x ≠ ∞.
+
+Definition Zbar_to_Nbar zb :=
+  match zb with
+  | zfin z => nfin (Z.to_nat z)
+  | ∞ => ninf
+  end.
 
 Theorem Zbpos_ne_0 : ∀ p, not_0_inf ('' p).
 Proof.

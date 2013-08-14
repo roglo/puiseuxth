@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.211 2013-08-14 11:00:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.212 2013-08-14 12:51:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,6 +7,7 @@ Require Import NPeano.
 Require Import Field.
 Require Import Misc.
 Require Import Series.
+Require Import Nbar.
 Require Import Zbar.
 
 Set Implicit Arguments.
@@ -195,12 +196,14 @@ Definition adjust k ps :=
 (* ps_add *)
 
 Definition series_pad_left n s :=
-  {| terms i := if lt_dec i n then zero fld else terms s (i - n)%nat;
-     stop :=
-       match stop s with
-       | Some st => Some (st + n)%nat
-       | None => None
-       end |}.
+  {| terms i :=
+        if Nbar_lt_dec (nfin i) n then zero fld
+        else terms s (i - Nbar_to_nat n)%nat;
+      stop :=
+        match stop s with
+        | Some st => Some (st + Nbar_to_nat n)%nat
+        | None => None
+        end |}.
 
 (*
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
@@ -218,8 +221,10 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let v₂ := ps_valnum ms₂ in
   {| ps_terms :=
        series_add fld
-         (series_pad_left (Zbar_to_Nbar v₁ - Zbar_to_Nbar v₂) (ps_terms ms₁))
-         (series_pad_left (Zbar_to_Nbar v₂ - Zbar_to_Nbar v₁) (ps_terms ms₂));
+         (series_pad_left (Zbar_to_Nbar v₁ - Zbar_to_Nbar v₂)%Nbar
+            (ps_terms ms₁))
+         (series_pad_left (Zbar_to_Nbar v₂ - Zbar_to_Nbar v₁)%Nbar
+            (ps_terms ms₂));
      ps_valnum :=
        Z.min v₁ v₂;
      ps_comden :=
