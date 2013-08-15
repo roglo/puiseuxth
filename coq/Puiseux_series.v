@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.222 2013-08-15 09:28:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.223 2013-08-15 09:38:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -376,18 +376,20 @@ constructor.
 
     intros H; rewrite H in Hi.
     apply Nat.sub_0_le in Hi.
-    apply Nbar.not_gt in Hge.
-    eapply Nbar.le_antisymm in Hge.
-bbb.
-    eapply Nbar.le_antisymm in Hge; [ subst i | eassumption ].
-    rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
-    revert Hnz; apply lt_irrefl.
+    apply Nbar.not_gt, Nbar.le_antisymm in Hge.
+     destruct n as [n| ]; [ idtac | discriminate Hge ].
+     injection Hge; clear Hge; intros; subst i.
+     rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+     revert Hnz; apply lt_irrefl.
+
+     destruct n as [n| ]; constructor; assumption.
 
    reflexivity.
 
  simpl.
  destruct (stop s) as [st| ]; [ idtac | reflexivity ].
- rewrite mult_plus_distr_r; reflexivity.
+ rewrite Nbar2Nat.inj_mul.
+ rewrite Nat.mul_add_distr_r; reflexivity.
 Qed.
 
 (* *)
