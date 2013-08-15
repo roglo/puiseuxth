@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.235 2013-08-15 23:44:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.236 2013-08-15 23:54:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -525,12 +525,14 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  reflexivity.
 
  do 2 rewrite Zbar.mul_1_r.
- do 2 rewrite Zbar_min_mul_distr_r.
- rewrite Z.min_assoc.
+ rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
+ rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
+ rewrite Zbar.min_assoc.
  do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_assoc.
- f_equal; [ idtac | apply Z.mul_shuffle0 ].
- f_equal; apply Z.mul_shuffle0.
+ do 2 rewrite Zbar.zfin_inj_mul.
+ do 2 rewrite Zbar.mul_assoc.
+ f_equal; [ idtac | apply Zbar.mul_shuffle0 ].
+ f_equal; apply Zbar.mul_shuffle0.
 
  rewrite Pos.mul_assoc; reflexivity.
 Qed.

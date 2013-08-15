@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.14 2013-08-15 23:44:32 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.15 2013-08-15 23:54:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -75,6 +75,14 @@ intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Z.mul_assoc; reflexivity | reflexivity ].
+Qed.
+
+Theorem min_assoc : ∀ n m p, min n (min m p) = min (min n m) p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+destruct p as [p| ]; [ rewrite Z.min_assoc; reflexivity | reflexivity ].
 Qed.
 
 Theorem mul_cancel_r : ∀ n m p, not_0_inf p →
