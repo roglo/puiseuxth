@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.233 2013-08-15 16:46:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.234 2013-08-15 17:20:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -478,6 +478,9 @@ remember (ps_comden ps₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
+ rewrite <- Zbar.mul_min_distr_nonneg_r.
+  rewrite <- Zbar.mul_min_distr_nonneg_r.
+bbb.
  do 2 rewrite Z_min_mul_distr_r.
  do 2 rewrite Pos2Z.inj_mul.
  do 2 rewrite Z.mul_assoc.

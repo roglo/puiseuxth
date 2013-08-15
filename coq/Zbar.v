@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.12 2013-08-15 16:10:04 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.13 2013-08-15 17:20:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -17,6 +17,8 @@ Bind Scope Zbar_scope with Zbar.
 Notation "∞" := zinf.
 Notation "0" := (zfin 0) : Zbar_scope.
 Notation "'' a" := (zfin (Zpos a)) (at level 20).
+
+Open Scope Zbar_scope.
 
 Module Zbar.
 
@@ -37,7 +39,11 @@ Definition min x y := binop Z.min x y x y.
 Infix "+" := add : Zbar_scope.
 Infix "*" := mul : Zbar_scope.
 
-Open Scope Zbar_scope.
+Inductive le : Zbar → Zbar → Prop :=
+  | le_zfin : ∀ n m, (n <= m)%Z → zfin n ≤ zfin m
+  | le_zinf : ∀ n, n ≤ ∞
+
+where "n ≤ m" := (le n m) : Zbar_scope.
 
 Definition not_0_inf x := x ≠ 0 ∧ x ≠ ∞.
 
@@ -112,11 +118,9 @@ Theorem mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
-destruct m as [m| ]; simpl.
- destruct p as [p| ]; [ simpl | reflexivity ].
- rewrite Z.mul_shuffle0; reflexivity.
-
- destruct p; reflexivity.
+destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Theorem mul_1_r : ∀ n, n * ''1 = n.
@@ -134,9 +138,20 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Z.min_comm; reflexivity.
 Qed.
 
-Close Scope Zbar_scope.
+Theorem mul_min_distr_nonneg_r : ∀ n m p, 0 ≤ p →
+  min (n * p) (m * p) = min n m * p.
+Proof.
+intros n m p H.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+rewrite Z.mul_min_distr_nonneg_r; [ reflexivity | idtac ].
+inversion H; assumption.
+Qed.
 
 End Zbar.
+
+Close Scope Zbar_scope.
 
 Infix "+" := Zbar.add : Zbar_scope.
 Infix "*" := Zbar.mul : Zbar_scope.

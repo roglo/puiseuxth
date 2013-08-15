@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.47 2013-08-12 02:17:01 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.48 2013-08-15 17:20:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -771,15 +771,3 @@ intros n m.
 destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
 rewrite Pos2Nat.inj_mul; reflexivity.
 Qed.
-
-Open Scope Z_scope.
-
-Lemma Z_min_mul_distr_r : ∀ n m p, Z.min n m * 'p = Z.min (n * 'p) (m * 'p).
-Proof.
-intros n m p.
-unfold Z.min.
-rewrite <- Zmult_cmp_compat_r; [ idtac | apply Pos2Z.is_pos ].
-destruct (n ?= m); reflexivity.
-Qed.
-
-Close Scope Z_scope.
