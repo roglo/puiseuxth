@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.8 2013-08-14 20:34:57 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.9 2013-08-15 02:26:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -15,6 +15,8 @@ Bind Scope Nbar_scope with Nbar.
 
 Notation "∞" := ninf.
 Notation "0" := (nfin 0) : Nbar_scope.
+
+Open Scope Nbar_scope.
 
 Module Nbar.
 
@@ -41,8 +43,6 @@ Definition mul := binop mult ∞ ∞.
 Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
-
-Open Scope Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_nfin : ∀ n m, (n <= m)%nat → nfin n <= nfin m
@@ -104,9 +104,24 @@ intros n.
 destruct n; [ constructor; apply Nat.lt_0_succ | constructor ].
 Qed.
 
-Close Scope Nbar_scope.
-
 End Nbar.
+
+Module Nbar2Nat.
+
+Infix "*" := Nbar.mul : Nbar_scope.
+
+Theorem inj_mul : ∀ p q : Nbar,
+  Nbar.to_nat (p * q) = (Nbar.to_nat p * Nbar.to_nat q)%nat.
+Proof.
+intros p q.
+destruct p as [p| ]; [ simpl | reflexivity ].
+destruct q as [q| ]; [ reflexivity | simpl ].
+rewrite Nat.mul_0_r; reflexivity.
+Qed.
+
+End Nbar2Nat.
+
+Close Scope Nbar_scope.
 
 Infix "+" := Nbar.add : Nbar_scope.
 Infix "-" := Nbar.sub : Nbar_scope.

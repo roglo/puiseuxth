@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.218 2013-08-14 20:59:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.219 2013-08-15 02:26:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -357,27 +357,29 @@ constructor.
 
      intros H; discriminate H.
 
+    rewrite Nbar2Nat.inj_mul; simpl.
     rewrite <- mult_minus_distr_r.
     rewrite Nat.mod_mul; [ simpl | assumption ].
     rewrite Nat.div_mul; [ reflexivity | assumption ].
 
-  destruct (lt_dec i (n * k)) as [| Hge]; [ reflexivity | idtac ].
-  apply not_gt in Hge.
-  destruct (zerop ((i - n * k) mod k)) as [Hz| ]; [ idtac | reflexivity ].
-  apply Nat.mod_divides in Hz; [ idtac | assumption ].
-  destruct Hz as (c, Hi).
-  apply Nat.add_sub_eq_nz in Hi.
-   subst i.
-   rewrite mult_comm, <- mult_plus_distr_l in Hnz.
-   rewrite mult_comm, Nat.mod_mul in Hnz; [ idtac | assumption ].
-   exfalso; revert Hnz; apply lt_irrefl.
+  destruct (Nbar.lt_dec (nfin i) (n * nfin k)) as [| Hge]; try reflexivity.
+  destruct (zerop ((i - Nbar.to_nat (n * nfin k)) mod k)) as [Hz| ].
+   apply Nat.mod_divides in Hz; [ idtac | assumption ].
+   destruct Hz as (c, Hi).
+   apply Nat.add_sub_eq_nz in Hi.
+    subst i.
+    rewrite mult_comm, <- mult_plus_distr_l in Hnz.
+    rewrite mult_comm, Nat.mod_mul in Hnz; [ idtac | assumption ].
+    exfalso; revert Hnz; apply lt_irrefl.
 
-   intros H; rewrite H in Hi.
-   apply Nat.sub_0_le in Hi.
-   eapply le_antisym in Hge; [ idtac | eassumption ].
-   subst i.
-   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
-   revert Hnz; apply lt_irrefl.
+    intros H; rewrite H in Hi.
+    apply Nat.sub_0_le in Hi.
+    eapply le_antisym in Hge; [ idtac | eassumption ].
+    subst i.
+    rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+    revert Hnz; apply lt_irrefl.
+
+   reflexivity.
 
  simpl.
  destruct (stop s) as [st| ]; [ idtac | reflexivity ].
