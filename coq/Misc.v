@@ -1,8 +1,11 @@
-(* $Id: Misc.v,v 1.48 2013-08-15 17:20:48 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.49 2013-08-15 23:44:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
+
+Require Import Nbar.
+Require Import Zbar.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -764,10 +767,34 @@ destruct (le_dec x y) as [Hle| Hgt].
   rewrite le_plus_minus_r; [ reflexivity | apply lt_le_weak; assumption ].
 Qed.
 
+Lemma Nbar_min_sub_add_sub : ∀ x y z,
+  (Nbar.min x y - z + (x - y) = x - Nbar.min y z)%Nbar.
+Proof.
+intros x y z.
+destruct x as [x| ]; simpl.
+ destruct y as [y| ]; simpl.
+  destruct z as [z| ]; [ simpl | reflexivity ].
+  rewrite min_sub_add_sub; reflexivity.
+
+  destruct z as [z| ]; [ simpl | reflexivity ].
+  rewrite Nat.add_0_r; reflexivity.
+
+ rewrite Nbar.add_comm; reflexivity.
+Qed.
+
 Lemma Z2Nat_inj_mul_pos_r : ∀ n m,
   Z.to_nat (n * 'm) = (Z.to_nat n * Pos.to_nat m)%nat.
 Proof.
 intros n m.
+destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
+rewrite Pos2Nat.inj_mul; reflexivity.
+Qed.
+
+Lemma Zbar2Nbar_inj_mul_pos_r :  ∀ n m,
+  Zbar.to_Nbar (n * '' m) = (Zbar.to_Nbar n * nfin (Pos.to_nat m))%Nbar.
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
 rewrite Pos2Nat.inj_mul; reflexivity.
 Qed.

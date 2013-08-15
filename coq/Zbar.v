@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.13 2013-08-15 17:20:48 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.14 2013-08-15 23:44:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -149,9 +149,47 @@ rewrite Z.mul_min_distr_nonneg_r; [ reflexivity | idtac ].
 inversion H; assumption.
 Qed.
 
-End Zbar.
+Theorem zfin_inj_mul : ∀ p q, zfin (p * q) = zfin p * zfin q.
+Proof. reflexivity. Qed.
 
-Close Scope Zbar_scope.
+End Zbar.
 
 Infix "+" := Zbar.add : Zbar_scope.
 Infix "*" := Zbar.mul : Zbar_scope.
+Infix "≤" := Zbar.le : Zbar_scope.
+
+Module Pos2Zbar.
+
+Theorem is_nonneg : ∀ p, 0 ≤ ''p.
+Proof.
+intros p.
+constructor; apply Pos2Z.is_nonneg.
+Qed.
+
+End Pos2Zbar.
+
+Module Zbar2Nbar.
+
+Theorem inj_mul : ∀ n m, 0 ≤ n → 0 ≤ m →
+  Zbar.to_Nbar (n * m) = (Zbar.to_Nbar n * Zbar.to_Nbar m)%Nbar.
+Proof.
+intros n m Hn Hm.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+inversion_clear Hn; subst.
+inversion_clear Hm; subst.
+rewrite Z2Nat.inj_mul; [ reflexivity | assumption | assumption ].
+Qed.
+
+Theorem inj_min : ∀ n m,
+  Zbar.to_Nbar (Zbar.min n m) = Nbar.min (Zbar.to_Nbar n) (Zbar.to_Nbar m).
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+rewrite Z2Nat.inj_min; reflexivity.
+Qed.
+
+End Zbar2Nbar.
+
+Close Scope Zbar_scope.

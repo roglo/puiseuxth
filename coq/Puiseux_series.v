@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.234 2013-08-15 17:20:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.235 2013-08-15 23:44:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -478,19 +478,18 @@ remember (ps_comden ps₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
- rewrite <- Zbar.mul_min_distr_nonneg_r.
-  rewrite <- Zbar.mul_min_distr_nonneg_r.
-bbb.
- do 2 rewrite Z_min_mul_distr_r.
+ rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
+ rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
  do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_assoc.
- remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
- remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
- remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
- rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0 in Hcvc.
- rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
+ do 2 rewrite Zbar.zfin_inj_mul.
+ do 2 rewrite Zbar.mul_assoc.
+ remember (v₁ * '' c₂ * '' c₃)%Zbar as vcc eqn:Hvcc .
+ remember (v₂ * '' c₁ * '' c₃)%Zbar as cvc eqn:Hcvc .
+ remember (v₃ * '' c₁ * '' c₂)%Zbar as ccv eqn:Hccv .
+ rewrite Zbar.mul_comm, Zbar.mul_assoc, Zbar.mul_shuffle0 in Hcvc.
+ rewrite <- Zbar.mul_comm, Zbar.mul_assoc in Hcvc.
  rewrite <- Hcvc.
- rewrite Z.mul_shuffle0 in Hccv; rewrite <- Hccv.
+ rewrite Zbar.mul_shuffle0 in Hccv; rewrite <- Hccv.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
@@ -508,25 +507,25 @@ bbb.
  remember (stretch_series (Pos.to_nat (c₂ * c₁)) (ps_terms ps₃)) as ccps₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
- rewrite mult_minus_distr_r.
+ rewrite Nbar.mul_sub_distr_r.
  rewrite <- Z2Nat.inj_pos.
  do 4 rewrite series_pad_pad.
- do 3 rewrite mult_minus_distr_r; simpl.
- do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+ do 3 rewrite Nbar.mul_sub_distr_r; simpl.
+ do 4 rewrite <- Zbar2Nbar_inj_mul_pos_r.
  rewrite <- Hvcc, <- Hcvc, <- Hccv.
- rewrite Z.mul_shuffle0, <- Hcvc.
- do 2 rewrite Z2Nat.inj_min.
- do 2 rewrite min_sub_add_sub.
- rewrite series_add_comm, Nat.min_comm.
- rewrite min_sub_add_sub, Nat.min_comm, series_add_comm.
+ rewrite Zbar.mul_shuffle0, <- Hcvc.
+ do 2 rewrite Zbar2Nbar.inj_min.
+ do 2 rewrite Nbar_min_sub_add_sub.
+ rewrite series_add_comm, Nbar.min_comm.
+ rewrite Nbar_min_sub_add_sub, Nbar.min_comm, series_add_comm.
  symmetry.
  rewrite series_add_comm, series_add_assoc, series_add_comm.
- rewrite Nat.min_comm, min_sub_add_sub.
+ rewrite Nbar.min_comm, Nbar_min_sub_add_sub.
  rewrite series_add_comm, <- series_add_assoc, series_add_comm.
  reflexivity.
 
- do 2 rewrite Z.mul_1_r.
- do 2 rewrite Z_min_mul_distr_r.
+ do 2 rewrite Zbar.mul_1_r.
+ do 2 rewrite Zbar_min_mul_distr_r.
  rewrite Z.min_assoc.
  do 2 rewrite Pos2Z.inj_mul.
  do 2 rewrite Z.mul_assoc.

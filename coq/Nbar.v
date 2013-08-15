@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.18 2013-08-15 16:46:53 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.19 2013-08-15 23:44:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -40,6 +40,7 @@ Definition add := binop plus ∞ ∞.
 Definition sub := binop minus (nfin 0) ∞.
 Definition mul := binop mult ∞ ∞.
 Definition max := binop max ∞ ∞.
+Definition min x y := binop min x y x y.
 
 Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
@@ -239,6 +240,15 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_r; reflexivity.
 Qed.
 
+Theorem mul_sub_distr_r : ∀ n m p, (n - m) * p = n * p - m * p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct p as [p| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [| m]; [ simpl | reflexivity ].
+rewrite Nat.mul_sub_distr_r; reflexivity.
+Qed.
+
 Theorem add_max_distr_r : ∀ n m p, max (n + p) (m + p) = max n m + p.
 Proof.
 intros n m p.
@@ -257,12 +267,23 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_max_distr_r; reflexivity.
 Qed.
 
+Theorem min_comm : ∀ n m, min n m = min m n.
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+rewrite Nat.min_comm; reflexivity.
+Qed.
+
 End Nbar.
 
-Module Nbar2Nat.
-
 Infix "+" := Nbar.add : Nbar_scope.
+Infix "-" := Nbar.sub : Nbar_scope.
 Infix "*" := Nbar.mul : Nbar_scope.
+Infix "<" := Nbar.lt : Nbar_scope.
+Infix "≤" := Nbar.le : Nbar_scope.
+
+Module Nbar2Nat.
 
 Theorem inj_add : ∀ p q : Nbar, p ≠ ∞ → q ≠ ∞ →
   Nbar.to_nat (p + q) = (Nbar.to_nat p + Nbar.to_nat q)%nat.
@@ -284,9 +305,3 @@ Qed.
 End Nbar2Nat.
 
 Close Scope Nbar_scope.
-
-Infix "+" := Nbar.add : Nbar_scope.
-Infix "-" := Nbar.sub : Nbar_scope.
-Infix "*" := Nbar.mul : Nbar_scope.
-Infix "<" := Nbar.lt : Nbar_scope.
-Infix "≤" := Nbar.le : Nbar_scope.
