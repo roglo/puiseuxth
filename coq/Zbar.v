@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.10 2013-08-14 15:25:03 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.11 2013-08-15 09:52:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -117,6 +117,21 @@ destruct m as [m| ]; simpl.
  rewrite Z.mul_shuffle0; reflexivity.
 
  destruct p; reflexivity.
+Qed.
+
+Theorem mul_1_r : ∀ n, n * ''1 = n.
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+rewrite Z.mul_1_r; reflexivity.
+Qed.
+
+Theorem min_comm : ∀ n m, min n m = min m n.
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+rewrite Z.min_comm; reflexivity.
 Qed.
 
 Close Scope Zbar_scope.
