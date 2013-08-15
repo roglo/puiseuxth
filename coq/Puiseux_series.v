@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.231 2013-08-15 16:10:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.232 2013-08-15 16:32:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -261,15 +261,7 @@ Definition series_mul_term (s₁ s₂ : series α) :=
        | Some c => c
        | None => zero fld
        end;
-     stop :=
-       match stop s₁ with
-       | Some st₁ =>
-           match stop s₂ with
-           | Some st₂ => Some (max st₁ st₂)
-           | None => None
-           end
-       | None => None
-       end |}.
+     stop := Nbar.max (stop s₁) (stop s₂) |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
@@ -302,14 +294,10 @@ unfold stretch_series; simpl.
 unfold series_add; simpl.
 constructor; simpl.
  intros i.
- destruct (zerop (i mod k)) as [Hz| Hnz].
-  reflexivity.
+ destruct (zerop (i mod k)) as [| Hnz]; [ reflexivity | idtac ].
+ rewrite fld_add_neutral; reflexivity.
 
-  rewrite fld_add_neutral; reflexivity.
-
- destruct (stop s₁) as [st₁| ]; [ idtac | reflexivity ].
- destruct (stop s₂) as [st₂| ]; [ idtac | reflexivity ].
- rewrite Nat.mul_max_distr_r; reflexivity.
+ rewrite Nbar.mul_max_distr_r; reflexivity.
 Qed.
 
 Lemma stretch_pad_series_distr : ∀ k n s,
@@ -379,6 +367,7 @@ constructor.
 
    reflexivity.
 
+bbb.
  simpl.
  destruct (stop s) as [st| ]; [ idtac | reflexivity ].
  rewrite Nbar2Nat.inj_mul.
