@@ -1,21 +1,22 @@
-(* $Id: Series.v,v 1.35 2013-08-13 18:37:38 deraugla Exp $ *)
+(* $Id: Series.v,v 1.36 2013-08-15 16:10:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
 Require Import Field.
+Require Import Nbar.
 
 Set Implicit Arguments.
 
 Record series α :=
   { terms : nat → α;
-    stop : option nat }.
+    stop : Nbar }.
 
 Definition series_nth α n (s : series α) :=
   match stop s with
-  | Some st => if lt_dec n st then Some (terms s n) else None
-  | None => None
+  | nfin st => if lt_dec n st then Some (terms s n) else None
+  | ∞ => None
   end.
 
 Section field.
@@ -23,7 +24,7 @@ Section field.
 Variable α : Type.
 Variable fld : field α.
 
-Definition series_0 := {| terms i := zero fld; stop := Some 0%nat |}.
+Definition series_0 := {| terms i := zero fld; stop := 0 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
@@ -63,15 +64,7 @@ Qed.
 
 Definition series_add s₁ s₂ :=
   {| terms i := add fld (terms s₁ i) (terms s₂ i);
-     stop :=
-       match stop s₁ with
-       | Some st₁ =>
-           match stop s₂ with
-           | Some st₂ => Some (max st₁ st₂)
-           | None => None
-           end
-       | None => None
-       end |}.
+     stop := Nbar.max (stop s₁) (stop s₂) |}.
 
 Lemma series_add_comm : ∀ s₁ s₂,
   series_add s₁ s₂ ≃ series_add s₂ s₁.
@@ -82,7 +75,7 @@ constructor; simpl.
  apply fld_add_comm.
 
  destruct (stop s₁), (stop s₂); try reflexivity.
- rewrite Nat.max_comm; reflexivity.
+ simpl; rewrite Nat.max_comm; reflexivity.
 Qed.
 
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
@@ -96,10 +89,8 @@ constructor; simpl.
 
  destruct (stop s₁) as [a| ]; [ idtac | reflexivity ].
  destruct (stop s₂) as [b| ]; [ idtac | reflexivity ].
- destruct (stop s₃) as [c| ]; [ idtac | reflexivity ].
- f_equal.
- symmetry.
- apply Nat.max_assoc.
+ destruct (stop s₃) as [c| ]; [ simpl | reflexivity ].
+ rewrite Nat.max_assoc; reflexivity.
 Qed.
 
 End field.

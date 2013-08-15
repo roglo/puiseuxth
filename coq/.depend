@@ -14,9 +14,8 @@ Polynomial.vo Polynomial.glob Polynomial.v.beautified: Polynomial.v
 Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHullMisc.vo Field.vo Fpolynomial.vo Misc.vo Newton.vo Polynomial.vo Puiseux_base.vo Puiseux_series.vo Series.vo CharactPolyn.vo
 Puiseux_base.vo Puiseux_base.glob Puiseux_base.v.beautified: Puiseux_base.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo Polynomial.vo Puiseux_series.vo
 Puiseux_series.vo Puiseux_series.glob Puiseux_series.v.beautified: Puiseux_series.v Field.vo Misc.vo Series.vo Nbar.vo Zbar.vo
-Series.vo Series.glob Series.v.beautified: Series.v Field.vo
+Series.vo Series.glob Series.v.beautified: Series.v Field.vo Nbar.vo
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Misc.vo
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
 Zbar.vo Zbar.glob Zbar.v.beautified: Zbar.v Nbar.vo
-toto.vo toto.glob toto.v.beautified: toto.v

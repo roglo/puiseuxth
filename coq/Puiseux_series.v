@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.230 2013-08-15 15:42:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.231 2013-08-15 16:10:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,10 +35,7 @@ Definition stretch_series k s :=
   {| terms i :=
        if zerop (i mod k) then terms s (i / k) else zero fld;
      stop :=
-       match stop s with
-       | Some st => Some (st * k)%nat
-       | None => None
-       end |}.
+       stop s * nfin k |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
@@ -110,8 +107,8 @@ constructor; simpl.
   rewrite Hz₁, mult_0_r in Hnz.
   exfalso; revert Hnz; apply lt_irrefl.
 
- destruct (stop s) as [st| ]; [ idtac | reflexivity ].
- rewrite Nat.mul_shuffle0, mult_assoc; reflexivity.
+ rewrite Nbar.nfin_inj_mul.
+ rewrite Nbar.mul_shuffle0, Nbar.mul_assoc; reflexivity.
 Qed.
 
 Add Parametric Morphism : stretch_series with 
@@ -135,8 +132,7 @@ constructor; simpl.
  intros i; rewrite divmod_div.
  rewrite Nat.div_1_r; reflexivity.
 
- destruct st as [| st]; [ idtac | reflexivity ].
- rewrite mult_1_r; reflexivity.
+ rewrite Nbar.mul_1_r; reflexivity.
 Qed.
 
 Theorem eq_ps_trans : transitive _ eq_ps.
@@ -204,10 +200,7 @@ Definition series_pad_left n s :=
        if Nbar.lt_dec (nfin i) n then zero fld
        else terms s (i - Nbar.to_nat n)%nat;
      stop :=
-       match stop s with
-       | Some st => Some (st + Nbar.to_nat n)%nat
-       | None => None
-       end |}.
+       stop s + n |}.
 
 (*
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=

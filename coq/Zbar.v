@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.11 2013-08-15 09:52:58 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.12 2013-08-15 16:10:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -54,7 +54,7 @@ unfold not_0_inf.
 split; intros H; discriminate H.
 Qed.
 
-Theorem mul_comm : ∀ n m : Zbar, n * m = m * n.
+Theorem mul_comm : ∀ n m, n * m = m * n.
 Proof.
 intros n m.
 unfold mul.
@@ -63,7 +63,7 @@ destruct m as [m| ]; [ idtac | reflexivity ].
 rewrite Z.mul_comm; reflexivity.
 Qed.
 
-Theorem mul_assoc : ∀ n m p : Zbar, n * (m * p) = n * m * p.
+Theorem mul_assoc : ∀ n m p, n * (m * p) = n * m * p.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
@@ -71,7 +71,7 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Z.mul_assoc; reflexivity | reflexivity ].
 Qed.
 
-Theorem mul_cancel_r : ∀ n m p : Zbar, not_0_inf p →
+Theorem mul_cancel_r : ∀ n m p, not_0_inf p →
   n * p = m * p ↔ n = m.
 Proof.
 intros n m p (Hp, Hpi).
@@ -108,7 +108,7 @@ split; intros H.
  subst; reflexivity.
 Qed.
 
-Theorem mul_shuffle0 : ∀ n m p : Zbar, n * m * p = n * p * m.
+Theorem mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].

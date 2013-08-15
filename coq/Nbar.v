@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.15 2013-08-15 14:50:00 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.16 2013-08-15 16:10:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -39,6 +39,7 @@ Definition binop f dx dy xb yb :=
 Definition add := binop plus ∞ ∞.
 Definition sub := binop minus (nfin 0) ∞.
 Definition mul := binop mult ∞ ∞.
+Definition max := binop max ∞ ∞.
 
 Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
@@ -186,6 +187,32 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
 destruct p as [p| ]; [ idtac | reflexivity ].
 rewrite Nat.sub_add_distr; reflexivity.
+Qed.
+
+Theorem mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; simpl.
+ destruct p as [p| ]; [ simpl | reflexivity ].
+ rewrite Nat.mul_shuffle0; reflexivity.
+
+ destruct p; reflexivity.
+Qed.
+
+Theorem mul_assoc : ∀ n m p, n * (m * p) = n * m * p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+destruct p as [p| ]; [ rewrite Nat.mul_assoc; reflexivity | reflexivity ].
+Qed.
+
+Theorem mul_1_r : ∀ n, n * nfin 1 = n.
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
 End Nbar.
