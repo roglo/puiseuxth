@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.226 2013-08-15 10:41:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.227 2013-08-15 14:50:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -464,11 +464,21 @@ constructor; simpl.
 
     rewrite Nbar.add_comm in Hge₁.
     rewrite Nbar.nfin_inj_sub in Hlt.
-    apply Nbar.lt_sub_lt_add_r in Hlt; contradiction.
+    apply Nbar.lt_sub_lt_add_r in Hlt.
+    destruct x; [ contradiction | inversion Hge ].
 
-   rewrite Nat.sub_add_distr.
-   destruct (lt_dec i (x + y)) as [Hlt| ]; [ idtac | reflexivity ].
-   exfalso; omega.
+   destruct (Nbar.lt_dec (nfin i) (x + y)) as [Hlt| Hge₂].
+    Focus 2.
+    rewrite Nbar2Nat.inj_add.
+     rewrite Nat.sub_add_distr; reflexivity.
+
+     intros H; subst x; inversion Hge.
+
+     intros H; subst y; apply Hge₂.
+     rewrite Nbar.add_comm; constructor.
+
+    simpl.
+bbb.
 
  destruct (stop ps) as [st| ]; [ idtac | reflexivity ].
  rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.

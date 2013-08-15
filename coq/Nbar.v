@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.14 2013-08-15 10:41:34 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.15 2013-08-15 14:50:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -167,11 +167,41 @@ destruct n as [n| ].
  destruct m as [m| ]; [ inversion H | constructor ].
 Qed.
 
+Theorem lt_sub_lt_add_r : ∀ n m p, n - p < m → n < m + p.
+Proof.
+intros n m p H.
+destruct n as [n| ].
+ destruct m as [m| ]; [ simpl | constructor ].
+ destruct p as [p| ]; [ idtac | constructor ].
+ constructor; apply Nat.lt_sub_lt_add_r.
+ inversion H; subst; assumption.
+
+ inversion H; subst; constructor.
+Qed.
+
+Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
+destruct p as [p| ]; [ idtac | reflexivity ].
+rewrite Nat.sub_add_distr; reflexivity.
+Qed.
+
 End Nbar.
 
 Module Nbar2Nat.
 
+Infix "+" := Nbar.add : Nbar_scope.
 Infix "*" := Nbar.mul : Nbar_scope.
+
+Theorem inj_add : ∀ p q : Nbar, p ≠ ∞ → q ≠ ∞ →
+  Nbar.to_nat (p + q) = (Nbar.to_nat p + Nbar.to_nat q)%nat.
+Proof.
+intros p q Hp Hq.
+destruct p as [p| ]; [ simpl | exfalso; apply Hp; reflexivity ].
+destruct q as [q| ]; [ reflexivity | exfalso; apply Hq; reflexivity ].
+Qed.
 
 Theorem inj_mul : ∀ p q : Nbar,
   Nbar.to_nat (p * q) = (Nbar.to_nat p * Nbar.to_nat q)%nat.
