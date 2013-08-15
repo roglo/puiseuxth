@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.12 2013-08-15 09:28:46 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.13 2013-08-15 10:21:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -143,6 +143,18 @@ intros n m Hnm Hmn.
 destruct n as [n| ]; [ idtac | inversion Hnm; reflexivity ].
 destruct m as [m| ]; [ f_equal | inversion Hmn; reflexivity ].
 apply Nat.le_antisymm; [ inversion Hnm | inversion Hmn ]; assumption.
+Qed.
+
+Theorem lt_lt_add_r : ∀ n m p, n < m → n < m + p.
+Proof.
+intros n m p H.
+destruct n as [n| ].
+ destruct m as [m| ]; [ simpl | constructor ].
+ destruct p as [p| ]; constructor.
+ apply Nat.lt_lt_add_r.
+ inversion H; assumption.
+
+ destruct m as [m| ]; [ inversion H | constructor ].
 Qed.
 
 End Nbar.

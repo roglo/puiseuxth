@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.224 2013-08-15 09:52:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.225 2013-08-15 10:21:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -407,7 +407,7 @@ rewrite Pos2Nat.id.
 apply Pos.mul_comm.
 Qed.
 
-Lemma ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
+Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
@@ -437,7 +437,7 @@ intros s₁ s₂ n.
 constructor.
  intros i.
  unfold series_add; simpl.
- destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ destruct (Nbar.lt_dec (nfin i) n) as [Hlt| Hge]; [ idtac | reflexivity ].
  symmetry; apply fld_add_neutral.
 
  simpl.
@@ -453,11 +453,11 @@ Proof.
 intros x y ps.
 constructor; simpl.
  intros i.
- destruct (lt_dec i x) as [Hlt| Hge].
-  destruct (lt_dec i (x + y)) as [| Hge]; [ reflexivity | idtac ].
-  apply lt_plus_trans with (p := y) in Hlt; contradiction.
+ destruct (Nbar.lt_dec (nfin i) x) as [Hlt| Hge].
+  destruct (Nbar.lt_dec (nfin i) (x + y)) as [| Hge]; [ reflexivity | idtac ].
+  apply Nbar.lt_lt_add_r with (p := y) in Hlt; contradiction.
 
-  apply not_gt in Hge.
+  apply Nbar.not_gt in Hge.
   destruct (lt_dec (i - x) y) as [Hlt| Hge₁].
    destruct (lt_dec i (x + y)) as [| Hge₁]; [ reflexivity | idtac ].
    rewrite plus_comm in Hge₁.
