@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.229 2013-08-15 15:30:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.230 2013-08-15 15:42:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -450,6 +450,27 @@ Qed.
 Lemma series_pad_pad : ∀ x y ps,
   series_pad_left x (series_pad_left y ps) ≃ series_pad_left (x + y) ps.
 Proof.
+intros x y ps.
+destruct x as [x| ]; simpl.
+ destruct y as [y| ]; simpl.
+  Focus 2.
+  constructor; simpl.
+   intros i.
+   destruct (Nbar.lt_dec (nfin i) (nfin x)) as [Hlt| Hge].
+    destruct (Nbar.lt_dec (nfin i) ninf) as [| Hge]; [ reflexivity | idtac ].
+    exfalso; apply Hge; constructor.
+
+    do 2 rewrite Nat.sub_0_r.
+    destruct (Nbar.lt_dec (nfin (i - x)) ninf) as [Hlt| Hge₁].
+     destruct (Nbar.lt_dec (nfin i) ninf) as [| Hge₁];
+      [ reflexivity | idtac ].
+     exfalso; apply Hge₁; constructor.
+
+     exfalso; apply Hge₁; constructor.
+
+   destruct (stop ps) as [st| ]; [ idtac | reflexivity ].
+
+bbb.
 intros x y ps.
 constructor; simpl.
  intros i.
