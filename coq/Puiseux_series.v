@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.227 2013-08-15 14:50:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.228 2013-08-15 15:29:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -468,7 +468,14 @@ constructor; simpl.
     destruct x; [ contradiction | inversion Hge ].
 
    destruct (Nbar.lt_dec (nfin i) (x + y)) as [Hlt| Hge₂].
-    Focus 2.
+    exfalso; apply Hge₁; clear Hge₁.
+    destruct x as [x| ]; [ simpl | inversion Hge ].
+    destruct y as [y| ]; constructor.
+    inversion Hlt...
+    inversion Hlt; subst.
+    inversion Hge; subst.
+    omega.
+
     rewrite Nbar2Nat.inj_add.
      rewrite Nat.sub_add_distr; reflexivity.
 
@@ -477,11 +484,10 @@ constructor; simpl.
      intros H; subst y; apply Hge₂.
      rewrite Nbar.add_comm; constructor.
 
-    simpl.
-bbb.
-
  destruct (stop ps) as [st| ]; [ idtac | reflexivity ].
- rewrite Nat.add_shuffle0, Nat.add_assoc; reflexivity.
+ rewrite Nat.add_shuffle0, <- Nat.add_assoc.
+ rewrite Nbar2Nat.inj_add; [ reflexivity | idtac | idtac ].
+bbb.
 Qed.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
