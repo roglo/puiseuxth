@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.9 2013-08-15 02:26:36 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.10 2013-08-15 02:45:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -59,6 +59,28 @@ Definition to_nat nb :=
   | ninf => O
   end.
 
+Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
+Proof. reflexivity. Qed.
+
+Theorem nfin_inj_S : ∀ n, nfin (Datatypes.S n) = S (nfin n).
+Proof. reflexivity. Qed.
+
+Theorem mul_comm : ∀ n m, n * m = m * n.
+Proof.
+intros n m.
+destruct n; [ simpl | destruct m; reflexivity ].
+destruct m; [ rewrite Nat.mul_comm; reflexivity | reflexivity ].
+Qed.
+
+Theorem mul_add_distr_l : ∀ n m p, n * (m + p) = n * m + n * p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+rewrite Nat.mul_add_distr_l; reflexivity.
+Qed.
+
 Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
   n < m ↔ n * p < m * p.
 Proof.
@@ -75,12 +97,6 @@ destruct m as [m| ]; simpl.
 
  split; intros H; constructor.
 Qed.
-
-Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
-Proof. reflexivity. Qed.
-
-Theorem nfin_inj_S : ∀ n, nfin (Datatypes.S n) = S (nfin n).
-Proof. reflexivity. Qed.
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
 Proof.

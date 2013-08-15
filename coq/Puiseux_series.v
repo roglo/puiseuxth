@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.219 2013-08-15 02:26:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.220 2013-08-15 02:45:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -368,8 +368,10 @@ constructor.
    destruct Hz as (c, Hi).
    apply Nat.add_sub_eq_nz in Hi.
     subst i.
-    rewrite mult_comm, <- mult_plus_distr_l in Hnz.
-    rewrite mult_comm, Nat.mod_mul in Hnz; [ idtac | assumption ].
+    rewrite Nat.mul_comm in Hnz; simpl in Hnz.
+    rewrite Nbar2Nat.inj_mul in Hnz; simpl in Hnz.
+    rewrite <- Nat.mul_add_distr_r in Hnz.
+    rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
     exfalso; revert Hnz; apply lt_irrefl.
 
     intros H; rewrite H in Hi.
