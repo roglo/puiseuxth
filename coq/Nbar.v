@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.10 2013-08-15 02:45:12 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.11 2013-08-15 03:27:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -45,13 +45,16 @@ Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
-  | le_nfin : ∀ n m, (n <= m)%nat → nfin n <= nfin m
-  | le_ninf : ∀ n, n <= ∞
+  | le_nfin : ∀ n m, (n <= m)%nat → nfin n ≤ nfin m
+  | le_ninf : ∀ n, n ≤ ∞
 
-where "n <= m" := (le n m) : Nbar_scope.
+where "n ≤ m" := (le n m) : Nbar_scope.
 
-Definition lt n m := S n <= m.
+Definition lt n m := S n ≤ m.
+Definition gt n m := lt m n.
+
 Infix "<" := lt : Nbar_scope.
+Infix ">" := gt : Nbar_scope.
 
 Definition to_nat nb :=
   match nb with
@@ -64,6 +67,20 @@ Proof. reflexivity. Qed.
 
 Theorem nfin_inj_S : ∀ n, nfin (Datatypes.S n) = S (nfin n).
 Proof. reflexivity. Qed.
+
+Theorem not_gt : ∀ n m, ¬n > m → n ≤ m.
+Proof.
+intros n m H.
+destruct n as [n| ].
+ destruct m as [m| ]; [ idtac | constructor ].
+ unfold gt in H; constructor.
+ apply not_gt.
+ unfold Peano.gt.
+ intros HH; apply H; clear H.
+ constructor; assumption.
+
+ exfalso; apply H; constructor.
+Qed.
 
 Theorem mul_comm : ∀ n m, n * m = m * n.
 Proof.
@@ -143,3 +160,4 @@ Infix "+" := Nbar.add : Nbar_scope.
 Infix "-" := Nbar.sub : Nbar_scope.
 Infix "*" := Nbar.mul : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.
+Infix "≤" := Nbar.le : Nbar_scope.

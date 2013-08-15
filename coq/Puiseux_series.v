@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.220 2013-08-15 02:45:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.221 2013-08-15 03:27:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -376,8 +376,8 @@ constructor.
 
     intros H; rewrite H in Hi.
     apply Nat.sub_0_le in Hi.
-    eapply le_antisym in Hge; [ idtac | eassumption ].
-    subst i.
+    apply Nbar.not_gt in Hge.
+    eapply Nbar.le_antisymm in Hge; [ subst i | eassumption ].
     rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
     revert Hnz; apply lt_irrefl.
 
