@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.228 2013-08-15 15:29:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.229 2013-08-15 15:30:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -201,13 +201,13 @@ Definition adjust k ps :=
 
 Definition series_pad_left n s :=
   {| terms i :=
-        if Nbar.lt_dec (nfin i) n then zero fld
-        else terms s (i - Nbar.to_nat n)%nat;
-      stop :=
-        match stop s with
-        | Some st => Some (st + Nbar.to_nat n)%nat
-        | None => None
-        end |}.
+       if Nbar.lt_dec (nfin i) n then zero fld
+       else terms s (i - Nbar.to_nat n)%nat;
+     stop :=
+       match stop s with
+       | Some st => Some (st + Nbar.to_nat n)%nat
+       | None => None
+       end |}.
 
 (*
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
