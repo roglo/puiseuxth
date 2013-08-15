@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.13 2013-08-15 10:21:12 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.14 2013-08-15 10:41:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -65,6 +65,9 @@ Definition to_nat nb :=
 Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
 Proof. reflexivity. Qed.
 
+Theorem nfin_inj_sub : ∀ n m, nfin (n - m) = nfin n - nfin m.
+Proof. reflexivity. Qed.
+
 Theorem nfin_inj_S : ∀ n, nfin (Datatypes.S n) = S (nfin n).
 Proof. reflexivity. Qed.
 
@@ -80,6 +83,13 @@ destruct n as [n| ].
  constructor; assumption.
 
  exfalso; apply H; constructor.
+Qed.
+
+Theorem add_comm : ∀ n m, n + m = m + n.
+Proof.
+intros n m.
+destruct n; [ simpl | destruct m; reflexivity ].
+destruct m; [ rewrite Nat.add_comm; reflexivity | reflexivity ].
 Qed.
 
 Theorem mul_comm : ∀ n m, n * m = m * n.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.225 2013-08-15 10:21:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.226 2013-08-15 10:41:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -458,10 +458,13 @@ constructor; simpl.
   apply Nbar.lt_lt_add_r with (p := y) in Hlt; contradiction.
 
   apply Nbar.not_gt in Hge.
-  destruct (lt_dec (i - x) y) as [Hlt| Hge₁].
-   destruct (lt_dec i (x + y)) as [| Hge₁]; [ reflexivity | idtac ].
-   rewrite plus_comm in Hge₁.
-   apply Nat.lt_sub_lt_add_r in Hlt; contradiction.
+  destruct (Nbar.lt_dec (nfin (i - Nbar.to_nat x)) y) as [Hlt| Hge₁].
+   destruct (Nbar.lt_dec (nfin i) (x + y)) as [| Hge₁].
+    reflexivity.
+
+    rewrite Nbar.add_comm in Hge₁.
+    rewrite Nbar.nfin_inj_sub in Hlt.
+    apply Nbar.lt_sub_lt_add_r in Hlt; contradiction.
 
    rewrite Nat.sub_add_distr.
    destruct (lt_dec i (x + y)) as [Hlt| ]; [ idtac | reflexivity ].
