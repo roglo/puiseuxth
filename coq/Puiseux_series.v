@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.245 2013-08-16 19:00:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.246 2013-08-16 19:26:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -313,7 +313,7 @@ Proof.
 intros n s₁ s₂ H.
 constructor; simpl.
  intros i.
- destruct (Nbar.lt_dec (nfin i) n); [ reflexivity | idtac ].
+ destruct (lt_dec i n); [ reflexivity | idtac ].
  inversion H; apply H0.
 
  inversion H; rewrite H1; reflexivity.
@@ -337,7 +337,7 @@ Qed.
 Lemma stretch_pad_series_distr : ∀ k n s,
   k ≠ O
   → stretch_series k (series_pad_left n s) ≃
-    series_pad_left (n * nfin k) (stretch_series k s).
+    series_pad_left (n * k) (stretch_series k s).
 Proof.
 intros k n s Hk.
 constructor.
@@ -349,55 +349,43 @@ constructor.
   subst i.
   rewrite mult_comm.
   rewrite Nat.div_mul; [ idtac | assumption ].
-  destruct (Nbar.lt_dec (nfin c) n) as [Hlt| Hge].
-   destruct (Nbar.lt_dec (nfin (c * k)) (n * nfin k)) as [| Hnok].
+  destruct (lt_dec c n) as [Hlt| Hge].
+   destruct (lt_dec (c * k) (n * k)) as [| Hnok].
     reflexivity.
 
     exfalso; apply Hnok.
-    rewrite Nbar.nfin_inj_mul.
-    apply Nbar.mul_lt_mono_pos_r; try (intros H; discriminate H); auto.
+    apply Nat.mul_lt_mono_pos_r; try (intros H; discriminate H); auto.
     destruct k; [ exfalso; apply Hk; reflexivity | idtac ].
-    rewrite Nbar.nfin_inj_S; apply Nbar.lt_0_succ.
+    apply Nat.lt_0_succ.
 
-   destruct (Nbar.lt_dec (nfin (c * k)) (n * nfin k)) as [Hnok| Hok].
+   destruct (lt_dec (c * k) (n * k)) as [Hnok| Hok].
     exfalso; apply Hge.
-    rewrite Nbar.nfin_inj_mul in Hnok.
-    eapply Nbar.mul_lt_mono_pos_r; try eassumption.
-     constructor.
-     apply not_gt; unfold gt.
-     intros H; apply Hk.
-     apply le_S_n, le_n_0_eq in H; symmetry; assumption.
+    eapply Nat.mul_lt_mono_pos_r; try eassumption.
+    apply not_gt; unfold gt.
+    intros H; apply Hk.
+    apply le_S_n, le_n_0_eq in H; symmetry; assumption.
 
-     intros H; discriminate H.
-
-     intros H; discriminate H.
-
-    rewrite Nbar2Nat.inj_mul; simpl.
     rewrite <- mult_minus_distr_r.
     rewrite Nat.mod_mul; [ simpl | assumption ].
     rewrite Nat.div_mul; [ reflexivity | assumption ].
 
-  destruct (Nbar.lt_dec (nfin i) (n * nfin k)) as [| Hge]; try reflexivity.
-  destruct (zerop ((i - Nbar.to_nat (n * nfin k)) mod k)) as [Hz| ].
+  destruct (lt_dec i (n * k)) as [| Hge]; try reflexivity.
+  destruct (zerop ((i - n * k) mod k)) as [Hz| ].
    apply Nat.mod_divides in Hz; [ idtac | assumption ].
    destruct Hz as (c, Hi).
    apply Nat.add_sub_eq_nz in Hi.
     subst i.
     rewrite Nat.mul_comm in Hnz; simpl in Hnz.
-    rewrite Nbar2Nat.inj_mul in Hnz; simpl in Hnz.
-    rewrite <- Nat.mul_add_distr_r in Hnz.
+    rewrite <- Nat.mul_add_distr_l, Nat.mul_comm in Hnz.
     rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
     exfalso; revert Hnz; apply lt_irrefl.
 
     intros H; rewrite H in Hi.
     apply Nat.sub_0_le in Hi.
-    apply Nbar.not_gt, Nbar.le_antisymm in Hge.
-     destruct n as [n| ]; [ idtac | discriminate Hge ].
-     injection Hge; clear Hge; intros; subst i.
-     rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
-     revert Hnz; apply lt_irrefl.
-
-     destruct n as [n| ]; constructor; assumption.
+    apply not_gt, Nat.le_antisymm in Hge; [ idtac | assumption ].
+    subst i.
+    rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+    revert Hnz; apply lt_irrefl.
 
    reflexivity.
 
