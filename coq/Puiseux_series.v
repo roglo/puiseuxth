@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.244 2013-08-16 18:51:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.245 2013-08-16 19:00:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -208,11 +208,8 @@ Definition adjust k nz :=
 (* ps_add *)
 
 Definition series_pad_left n s :=
-  {| terms i :=
-       if Nbar.lt_dec (nfin i) n then zero fld
-       else terms s (i - Nbar.to_nat n)%nat;
-     stop :=
-       stop s + n |}.
+  {| terms i := if lt_dec i n then zero fld else terms s (i - n);
+     stop := stop s + nfin n |}.
 
 (*
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
@@ -247,7 +244,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
                    (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat
                       (ps_terms ms₂));
                ps_valnum :=
-                 Zbar.min v₁ v₂;
+                 Z.min v₁ v₂;
                ps_comden :=
                  ps_comden ms₁ |}
       | Zero => ps₁
@@ -292,13 +289,21 @@ Definition series_mul_term (s₁ s₂ : series α) :=
      stop := Nbar.max (stop s₁) (stop s₂) |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
-  let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
-     ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
-     ps_comden := l;
-     ps_is_zero := ps_is_zero ps₁ || ps_is_zero ps₂ |}.
+  match ps₁ with
+  | NonZero nz₁ =>
+      match ps₂ with
+      | NonZero nz₂ =>
+          let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
+          let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
+          let l := Plcm (ps_comden nz₁) (ps_comden nz₂) in
+          NonZero
+            {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
+               ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
+               ps_comden := l |}
+      | Zero => Zero _
+      end
+  | Zero => Zero _
+  end.
 
 (* *)
 
