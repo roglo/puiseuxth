@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.241 2013-08-16 17:41:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.242 2013-08-16 18:07:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,7 +14,7 @@ Set Implicit Arguments.
 
 Record nz_ps α := mkps
   { ps_terms : series α;
-    ps_valnum : Zbar;
+    ps_valnum : Z;
     ps_comden : positive }.
 
 Inductive puiseux_series α :=
@@ -48,7 +48,7 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_non_zero_ps : ∀ k₁ k₂ nz₁ nz₂,
       stretch_series (Pos.to_nat k₁) (ps_terms nz₁) ≃
       stretch_series (Pos.to_nat k₂) (ps_terms nz₂)
-      → (ps_valnum nz₁ * ''k₁)%Zbar = (ps_valnum nz₂ * ''k₂)%Zbar
+      → (ps_valnum nz₁ * 'k₁)%Z = (ps_valnum nz₂ * 'k₂)%Z
         → (ps_comden nz₁ * k₁ = ps_comden nz₂ * k₂)%positive
           → eq_ps (NonZero nz₁) (NonZero nz₂)
   | eq_zero_ps : eq_ps (Zero _) (Zero _).
@@ -146,11 +146,11 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
  inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
- apply Zbar.mul_cancel_r with (p := '' k₂₁) in Hvv₁.
-  apply Zbar.mul_cancel_r with (p := '' k₁₂) in Hvv₂.
-   rewrite Zbar.mul_shuffle0 in Hvv₂.
+ apply Z.mul_cancel_r with (p := Zpos k₂₁) in Hvv₁.
+  apply Z.mul_cancel_r with (p := Zpos k₁₂) in Hvv₂.
+   rewrite Z.mul_shuffle0 in Hvv₂.
    rewrite <- Hvv₁ in Hvv₂.
-   do 2 rewrite <- Zbar.mul_assoc in Hvv₂.
+   do 2 rewrite <- Z.mul_assoc in Hvv₂.
    apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
    apply Pos.mul_cancel_r with (r := k₁₂) in Hck₂.
    rewrite Pos_mul_shuffle0 in Hck₂.
@@ -167,9 +167,9 @@ inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; su
    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
    rewrite Nat.mul_comm; reflexivity.
 
-   apply Zbar.pos_ne_0.
+   apply Zpos_ne_0.
 
-  apply Zbar.pos_ne_0.
+  apply Zpos_ne_0.
 
  assumption.
 Qed.
@@ -181,13 +181,13 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  as eq_ps_rel.
 
 Definition valuation (ps : puiseux_series α) :=
-  match ps_valnum ps with
-  | zfin v =>
-      match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
-      | Some (n, c) => Some (v + Z.of_nat n # ps_comden ps)
+  match ps with
+  | NonZero nz =>
+      match series_head (fld_eq fld (zero fld)) 0 (ps_terms nz) with
+      | Some (n, c) => Some (ps_valnum nz + Z.of_nat n # ps_comden nz)
       | None => None
-     end
-  | ∞ => None
+      end
+  | Zero => None
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
