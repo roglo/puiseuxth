@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.240 2013-08-16 16:59:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.241 2013-08-16 17:41:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -146,71 +146,32 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
  inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
-bbb.
-(*
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion_clear H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hz₁ Hz₂].
- inversion_clear H₂ as [k₂₁ k₂₂ a b Hss₂ Hvv₂ Hck₂| a b Hz₁ Hz₂].
-  apply Zbar.mul_cancel_r with (p := '' k₂₁) in Hvv₁.
-   apply Zbar.mul_cancel_r with (p := '' k₁₂) in Hvv₂.
-    rewrite Zbar.mul_shuffle0 in Hvv₂.
-    rewrite <- Hvv₁ in Hvv₂.
-    do 2 rewrite <- Zbar.mul_assoc in Hvv₂.
-    apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
-    apply Pos.mul_cancel_r with (r := k₁₂) in Hck₂.
-    rewrite Pos_mul_shuffle0 in Hck₂.
-    rewrite <- Hck₁ in Hck₂.
-    do 2 rewrite <- Pos.mul_assoc in Hck₂.
-    econstructor; try eassumption.
-    do 2 rewrite Pos2Nat.inj_mul.
-    symmetry; rewrite mult_comm.
-    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-    symmetry; rewrite mult_comm.
-    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite Hss₁, <- Hss₂.
-    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite mult_comm; reflexivity.
-
-    apply Zbar.pos_ne_0.
-
-   apply Zbar.pos_ne_0.
-bbb.
-*)
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion_clear H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hz₁ Hz₂].
- inversion_clear H₂ as [k₂₁ k₂₂ a b Hss₂ Hvv₂ Hck₂| a b Hz₁ Hz₂].
-  apply Zbar.mul_cancel_r with (p := '' k₂₁) in Hss₁.
-   apply Zbar.mul_cancel_r with (p := '' k₁₂) in H3.
-    rewrite Zbar.mul_shuffle0 in H3.
-    rewrite <- H0 in Hvv₂.
-    do 2 rewrite <- Zbar.mul_assoc in Hvv₂.
-    apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
-    apply Pos.mul_cancel_r with (r := k₁₂) in Hck₂.
-    rewrite Pos_mul_shuffle0 in Hck₂.
-    rewrite <- Hck₁ in Hck₂.
-    do 2 rewrite <- Pos.mul_assoc in Hck₂.
-    econstructor; try eassumption.
-    do 2 rewrite Pos2Nat.inj_mul.
-    symmetry; rewrite mult_comm.
-    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-    symmetry; rewrite mult_comm.
-    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite Hss₁, <- Hss₂.
-    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite mult_comm; reflexivity.
-
-    apply Zbar.pos_ne_0.
+ apply Zbar.mul_cancel_r with (p := '' k₂₁) in Hvv₁.
+  apply Zbar.mul_cancel_r with (p := '' k₁₂) in Hvv₂.
+   rewrite Zbar.mul_shuffle0 in Hvv₂.
+   rewrite <- Hvv₁ in Hvv₂.
+   do 2 rewrite <- Zbar.mul_assoc in Hvv₂.
+   apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
+   apply Pos.mul_cancel_r with (r := k₁₂) in Hck₂.
+   rewrite Pos_mul_shuffle0 in Hck₂.
+   rewrite <- Hck₁ in Hck₂.
+   do 2 rewrite <- Pos.mul_assoc in Hck₂.
+   econstructor; try eassumption.
+   do 2 rewrite Pos2Nat.inj_mul.
+   symmetry; rewrite mult_comm.
+   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+   symmetry; rewrite mult_comm.
+   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite Hss₁, <- Hss₂.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite Nat.mul_comm; reflexivity.
 
    apply Zbar.pos_ne_0.
 
-  rewrite Hz₂ in Hz₃; discriminate Hz₃.
+  apply Zbar.pos_ne_0.
 
- inversion_clear H₂ as [k₂₁ k₂₂ a b Hz₃ Hz₄| a b Hz₃ Hz₄].
-  rewrite Hz₂ in Hz₃; discriminate Hz₃.
-
-  constructor 2; assumption.
+ assumption.
 Qed.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
