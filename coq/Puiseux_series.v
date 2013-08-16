@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.239 2013-08-16 16:27:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.240 2013-08-16 16:59:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,11 +12,14 @@ Require Import Zbar.
 
 Set Implicit Arguments.
 
-Record puiseux_series α := mkps
+Record nz_ps α := mkps
   { ps_terms : series α;
     ps_valnum : Zbar;
-    ps_comden : positive;
-    ps_is_zero : bool }.
+    ps_comden : positive }.
+
+Inductive puiseux_series α :=
+  | NonZero : nz_ps α → puiseux_series α
+  | Zero : puiseux_series α.
 
 (* [series_head is_zero n s] skip the possible terms (starting from the nth
    one) with null coefficients and return either the couple of the rank of
@@ -42,25 +45,20 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
-      stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
-      stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
-      → (ps_valnum ps₁ * ''k₁)%Zbar = (ps_valnum ps₂ * ''k₂)%Zbar
-        → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
-          → eq_ps ps₁ ps₂
-  | eq_ps_zero : ∀ ps₁ ps₂,
-      ps_is_zero ps₁ = true
-      → ps_is_zero ps₂ = true
-        → eq_ps ps₁ ps₂.
+  | eq_non_zero_ps : ∀ k₁ k₂ nz₁ nz₂,
+      stretch_series (Pos.to_nat k₁) (ps_terms nz₁) ≃
+      stretch_series (Pos.to_nat k₂) (ps_terms nz₂)
+      → (ps_valnum nz₁ * ''k₁)%Zbar = (ps_valnum nz₂ * ''k₂)%Zbar
+        → (ps_comden nz₁ * k₁ = ps_comden nz₂ * k₂)%positive
+          → eq_ps (NonZero nz₁) (NonZero nz₂)
+  | eq_zero_ps : eq_ps (Zero _) (Zero _).
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-remember (ps_is_zero ps) as z.
-symmetry in Heqz.
-destruct z; [ constructor 2; assumption | idtac ].
+destruct ps as [nz |]; [ idtac | constructor ].
 econstructor 1 with (k₁ := xH); try assumption; reflexivity.
 Qed.
 
@@ -146,6 +144,11 @@ Qed.
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
+inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
+ inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
+bbb.
+(*
+intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hz₁ Hz₂].
  inversion_clear H₂ as [k₂₁ k₂₂ a b Hss₂ Hvv₂ Hck₂| a b Hz₁ Hz₂].
   apply Zbar.mul_cancel_r with (p := '' k₂₁) in Hvv₁.
@@ -173,7 +176,7 @@ inversion_clear H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hz₁ Hz�
 
    apply Zbar.pos_ne_0.
 bbb.
-
+*)
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion_clear H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hz₁ Hz₂].
  inversion_clear H₂ as [k₂₁ k₂₂ a b Hss₂ Hvv₂ Hck₂| a b Hz₁ Hz₂].
