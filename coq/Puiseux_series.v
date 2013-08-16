@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.236 2013-08-15 23:54:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.237 2013-08-16 05:48:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -438,7 +438,7 @@ constructor; simpl.
 
     rewrite Nbar.add_comm in Hge₁.
     rewrite Nbar.nfin_inj_sub in Hlt.
-    apply Nbar.lt_sub_lt_add_r in Hlt.
+    apply Nbar.lt_sub_lt_add_r in Hlt; [ idtac | intros H; discriminate H ].
     destruct x; [ contradiction | inversion Hge ].
 
    destruct (Nbar.lt_dec (nfin i) (x + y)) as [Hlt| Hge₂].
@@ -507,10 +507,12 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  remember (stretch_series (Pos.to_nat (c₂ * c₁)) (ps_terms ps₃)) as ccps₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
- rewrite Nbar.mul_sub_distr_r.
+ rewrite Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
  rewrite <- Z2Nat.inj_pos.
  do 4 rewrite series_pad_pad.
- do 3 rewrite Nbar.mul_sub_distr_r; simpl.
+ rewrite Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
+ rewrite Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
+ rewrite Nbar.mul_sub_distr_r; [ simpl | intros H; discriminate H ].
  do 4 rewrite <- Zbar2Nbar_inj_mul_pos_r.
  rewrite <- Hvcc, <- Hcvc, <- Hccv.
  rewrite Zbar.mul_shuffle0, <- Hcvc.

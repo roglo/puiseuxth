@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.20 2013-08-16 00:21:15 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.21 2013-08-16 05:48:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -38,10 +38,24 @@ Definition binop f dx dy xb yb :=
   end.
 
 Definition add := binop plus ∞ ∞.
+(*
 Definition sub := binop minus (nfin 0) ∞.
+*)
 Definition mul := binop mult ∞ ∞.
 Definition max := binop max ∞ ∞.
 Definition min x y := binop min x y x y.
+
+(**)
+Definition sub xb yb :=
+  match yb with
+  | nfin y =>
+      match xb with
+      | nfin x => nfin (minus x y)
+      | ∞ => ∞
+      end
+  | ∞ => 0
+  end.
+(**)
 
 Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
@@ -170,24 +184,24 @@ destruct n as [n| ].
  destruct m as [m| ]; [ inversion H | constructor ].
 Qed.
 
-Theorem lt_sub_lt_add_r : ∀ n m p, n - p < m → n < m + p.
+Theorem lt_sub_lt_add_r : ∀ n m p, n ≠ ∞ → n - p < m → n < m + p.
 Proof.
-intros n m p H.
+intros n m p Hn H.
 destruct n as [n| ].
  destruct m as [m| ]; [ simpl | constructor ].
  destruct p as [p| ]; [ idtac | constructor ].
  constructor; apply Nat.lt_sub_lt_add_r.
  inversion H; subst; assumption.
 
- inversion H; subst; constructor.
+ exfalso; apply Hn; reflexivity.
 Qed.
 
 Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.
 Proof.
 intros n m p.
-destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
-destruct p as [p| ]; [ idtac | reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.sub_add_distr; reflexivity.
 Qed.
 
@@ -241,12 +255,12 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_r; reflexivity.
 Qed.
 
-Theorem mul_sub_distr_r : ∀ n m p, (n - m) * p = n * p - m * p.
+Theorem mul_sub_distr_r : ∀ n m p, p ≠ ∞ → (n - m) * p = n * p - m * p.
 Proof.
-intros n m p.
+intros n m p Hp.
+destruct p as [p| ]; [ simpl | exfalso; apply Hp; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
 destruct n as [n| ]; [ simpl | reflexivity ].
-destruct p as [p| ]; [ simpl | destruct m; reflexivity ].
-destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_sub_distr_r; reflexivity.
 Qed.
 

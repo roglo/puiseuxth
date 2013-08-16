@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.49 2013-08-15 23:44:32 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.50 2013-08-16 05:48:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -779,7 +779,8 @@ destruct x as [x| ]; simpl.
   destruct z as [z| ]; [ simpl | reflexivity ].
   rewrite Nat.add_0_r; reflexivity.
 
- rewrite Nbar.add_comm; reflexivity.
+ destruct y as [y| ]; [ destruct z; reflexivity | simpl ].
+ rewrite Nbar.add_0_r; reflexivity.
 Qed.
 
 Lemma Z2Nat_inj_mul_pos_r : ∀ n m,

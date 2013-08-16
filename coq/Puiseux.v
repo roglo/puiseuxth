@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1082 2013-08-16 01:16:26 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1083 2013-08-16 05:48:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -33,16 +33,33 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 (*
 Axiom zinf : Z.
-Axiom mul_inf_l : ∀ x, (zinf * ''x)%Zbar = zinf.
-Axiom min_inf_l : ∀ x, Zbar.min zinf x = x.
-Axiom nat_sub_inf_l : ∀ x, (Zbar.to_Nbar zinf - x)%Nbar = ninf.
-Axiom nat_sub_inf_r : ∀ x, (x - ninf)%Nbar = 0%Nbar. → fail
-Axiom series_pad_inf : ∀ x,
-  series_pad_left fld (Z.to_nat inf) x ≃ series_0 fld.
+
+Example mul_inf_l : ∀ x, (zinf * ''x)%Zbar = zinf.
+Proof. reflexivity. Qed.
+
+Example min_inf_l : ∀ x, Zbar.min zinf x = x.
+Proof. reflexivity. Qed.
+
+Example nat_sub_inf_l : ∀ x, (ninf - x)%Nbar = ninf.
+Proof.
+intros x; simpl.
+destruct x; [ reflexivity | idtac ].
+Abort.
+
+Example nat_sub_inf_r : ∀ x, (x - ninf)%Nbar = 0%Nbar.
+Proof. reflexivity. Qed.
+
+Example series_pad_inf : ∀ x, series_pad_left fld ninf x ≃ series_0 fld.
+Proof.
+intros x.
+constructor; [ simpl | simpl; rewrite Nbar.add_comm; reflexivity ].
+intros i.
+destruct (Nbar.lt_dec (nfin i) ninf) as [| Hgt]; [ reflexivity | idtac ].
+exfalso; apply Hgt; constructor.
 *)
 
 Definition ps_zero :=
-  {| ps_terms := {| terms i := zero fld; stop := 0 |};
+  {| ps_terms := series_0 fld;
      ps_valnum := ∞;
      ps_comden := 1 |}.
 
