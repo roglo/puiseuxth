@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1081 2013-08-16 00:21:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1082 2013-08-16 01:16:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -32,11 +32,11 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 (*
-Axiom inf : Z.
-Axiom mul_inf_l : ∀ x, (inf * 'x)%Z = inf.
-Axiom min_inf_l : ∀ x, Z.min inf x = x.
-Axiom nat_sub_inf_l : ∀ x, (Z.to_nat inf - x)%nat = Z.to_nat inf.
-Axiom nat_sub_inf_r : ∀ x, (x - Z.to_nat inf)%nat = 0%nat.
+Axiom zinf : Z.
+Axiom mul_inf_l : ∀ x, (zinf * ''x)%Zbar = zinf.
+Axiom min_inf_l : ∀ x, Zbar.min zinf x = x.
+Axiom nat_sub_inf_l : ∀ x, (Zbar.to_Nbar zinf - x)%Nbar = ninf.
+Axiom nat_sub_inf_r : ∀ x, (x - ninf)%Nbar = 0%Nbar. → fail
 Axiom series_pad_inf : ∀ x,
   series_pad_left fld (Z.to_nat inf) x ≃ series_0 fld.
 *)
@@ -204,7 +204,7 @@ Proof.
 intros n s₁ s₂ H.
 constructor; simpl.
  intros i.
- destruct (lt_dec i n); [ reflexivity | idtac ].
+ destruct (Nbar.lt_dec (nfin i) n); [ reflexivity | idtac ].
  inversion H; apply H0.
 
  inversion H; rewrite H1; reflexivity.
@@ -239,6 +239,24 @@ bbb.
 
 Theorem ps_add_neutral : ∀ ps, ps_add fld ps_zero ps ≈ ps.
 Proof.
+intros ps.
+unfold ps_add; simpl.
+constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
+ do 2 rewrite stretch_series_1.
+ remember (ps_valnum ps) as v.
+ symmetry in Heqv.
+ destruct v as [v| ]; simpl.
+  rewrite series_pad_left_0.
+  constructor; simpl.
+   intros i.
+   destruct (Nbar.lt_dec (nfin i) ninf) as [Hlt| Hge].
+    rewrite fld_add_neutral; reflexivity.
+
+    exfalso; apply Hge; constructor.
+
+   simpl.
+bbb.
+
 intros ps.
 unfold ps_add; simpl.
 constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
