@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.242 2013-08-16 18:07:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.243 2013-08-16 18:27:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -191,16 +191,25 @@ Definition valuation (ps : puiseux_series α) :=
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
-  match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
-  | Some (_, c) => c
-  | None => zero fld
+  match ps with
+  | NonZero nz =>
+      match series_head (fld_eq fld (zero fld)) 0 (ps_terms nz) with
+      | Some (_, c) => c
+      | None => zero fld
+      end
+  | Zero => zero fld
   end.
 
 Definition adjust k ps :=
-  {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
-     ps_valnum := ps_valnum ps * ''k;
-     ps_comden := ps_comden ps * k;
-     ps_is_zero := ps_is_zero ps |}.
+  match ps with
+  | NonZero nz =>
+      NonZero
+        {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms nz);
+           ps_valnum := ps_valnum nz * 'k;
+           ps_comden := ps_comden nz * k |}
+  | Zero =>
+      Zero _
+  end.
 
 (* ps_add *)
 
