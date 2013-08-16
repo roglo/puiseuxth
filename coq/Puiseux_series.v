@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.243 2013-08-16 18:27:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.244 2013-08-16 18:51:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -200,16 +200,10 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | Zero => zero fld
   end.
 
-Definition adjust k ps :=
-  match ps with
-  | NonZero nz =>
-      NonZero
-        {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms nz);
-           ps_valnum := ps_valnum nz * 'k;
-           ps_comden := ps_comden nz * k |}
-  | Zero =>
-      Zero _
-  end.
+Definition adjust k nz :=
+  {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms nz);
+     ps_valnum := ps_valnum nz * 'k;
+     ps_comden := ps_comden nz * k |}.
 
 (* ps_add *)
 
@@ -225,8 +219,8 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
 *)
-Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
-  ps_comden ps₂.
+Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
+  ps_comden nz₂.
 (**)
 
 Definition is_zero_sum (ps₁ ps₂ : puiseux_series α) : bool.
@@ -237,22 +231,29 @@ Axiom is_zero_sum_comm : ∀ ps₁ ps₂,
   → is_zero_sum ps₂ ps₁ = true.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
-  let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
-  let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-  let v₁ := ps_valnum ms₁ in
-  let v₂ := ps_valnum ms₂ in
-  {| ps_terms :=
-       series_add fld
-         (series_pad_left (Zbar.to_Nbar v₁ - Zbar.to_Nbar v₂)%Nbar
-            (ps_terms ms₁))
-         (series_pad_left (Zbar.to_Nbar v₂ - Zbar.to_Nbar v₁)%Nbar
-            (ps_terms ms₂));
-     ps_valnum :=
-       Zbar.min v₁ v₂;
-     ps_comden :=
-       ps_comden ms₁;
-     ps_is_zero :=
-       is_zero_sum ps₁ ps₂ |}.
+  match ps₁ with
+  | NonZero nz₁ =>
+      match ps₂ with
+      | NonZero nz₂ =>
+          let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
+          let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
+          let v₁ := ps_valnum ms₁ in
+          let v₂ := ps_valnum ms₂ in
+          NonZero
+            {| ps_terms :=
+                 series_add fld
+                   (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat
+                      (ps_terms ms₁))
+                   (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat
+                      (ps_terms ms₂));
+               ps_valnum :=
+                 Zbar.min v₁ v₂;
+               ps_comden :=
+                 ps_comden ms₁ |}
+      | Zero => ps₁
+      end
+  | Zero => ps₂
+  end.
 
 (* ps_mul *)
 
