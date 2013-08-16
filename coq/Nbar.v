@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.21 2013-08-16 05:48:17 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.22 2013-08-16 20:19:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -80,6 +80,9 @@ Definition to_nat nb :=
   end.
 
 Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
+Proof. reflexivity. Qed.
+
+Theorem nfin_inj_add : ∀ n m, nfin (n + m) = nfin n + nfin m.
 Proof. reflexivity. Qed.
 
 Theorem nfin_inj_sub : ∀ n m, nfin (n - m) = nfin n - nfin m.

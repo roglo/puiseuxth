@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.246 2013-08-16 19:26:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.247 2013-08-16 20:19:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -220,12 +220,14 @@ Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
   ps_comden nz₂.
 (**)
 
+(*
 Definition is_zero_sum (ps₁ ps₂ : puiseux_series α) : bool.
 Proof. Admitted.
 
 Axiom is_zero_sum_comm : ∀ ps₁ ps₂,
   is_zero_sum ps₁ ps₂ = true
   → is_zero_sum ps₂ ps₁ = true.
+*)
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
@@ -411,27 +413,17 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
-remember (is_zero_sum ps₁ ps₂) as z.
-symmetry in Heqz.
-rewrite is_zero_sum_comm in Heqz.
-rewrite Heqz.
-destruct z; [ constructor 2; reflexivity | idtac ].
-constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
+destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  apply series_add_comm.
 
- do 2 rewrite Zbar.mul_1_r.
- apply Zbar.min_comm.
+ do 2 rewrite Z.mul_1_r.
+ apply Z.min_comm.
 
-(*
- do 2 rewrite Pos.mul_1_r.
- unfold lcm_div.
- do 2 rewrite Plcm_div_mul.
- apply Plcm_comm.
-*)
  do 2 rewrite Pos.mul_1_r.
  apply Pos.mul_comm.
-(**)
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -442,7 +434,7 @@ intros s₁ s₂ n.
 constructor.
  intros i.
  unfold series_add; simpl.
- destruct (Nbar.lt_dec (nfin i) n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
  symmetry; apply fld_add_neutral.
 
  simpl; rewrite Nbar.add_max_distr_r; reflexivity.
@@ -454,38 +446,28 @@ Proof.
 intros x y ps.
 constructor; simpl.
  intros i.
- destruct (Nbar.lt_dec (nfin i) x) as [Hlt| Hge].
-  destruct (Nbar.lt_dec (nfin i) (x + y)) as [| Hge]; [ reflexivity | idtac ].
-  apply Nbar.lt_lt_add_r with (p := y) in Hlt; contradiction.
+ destruct (lt_dec i x) as [Hlt| Hge].
+  destruct (lt_dec i (x + y)) as [| Hge]; [ reflexivity | idtac ].
+  apply Nat.lt_lt_add_r with (p := y) in Hlt; contradiction.
 
-  apply Nbar.not_gt in Hge.
-  destruct (Nbar.lt_dec (nfin (i - Nbar.to_nat x)) y) as [Hlt| Hge₁].
-   destruct (Nbar.lt_dec (nfin i) (x + y)) as [| Hge₁].
+  apply not_gt in Hge.
+  destruct (lt_dec (i - x) y) as [Hlt| Hge₁].
+   destruct (lt_dec i (x + y)) as [| Hge₁].
     reflexivity.
 
-    rewrite Nbar.add_comm in Hge₁.
-    rewrite Nbar.nfin_inj_sub in Hlt.
-    apply Nbar.lt_sub_lt_add_r in Hlt; [ idtac | intros H; discriminate H ].
-    destruct x; [ contradiction | inversion Hge ].
+    rewrite Nat.add_comm in Hge₁.
+    apply Nat.lt_sub_lt_add_r in Hlt.
+    contradiction.
 
-   destruct (Nbar.lt_dec (nfin i) (x + y)) as [Hlt| Hge₂].
+   destruct (lt_dec i (x + y)) as [Hlt| Hge₂].
     exfalso; apply Hge₁; clear Hge₁.
-    destruct x as [x| ]; [ simpl | inversion Hge ].
-    destruct y as [y| ]; constructor.
-    inversion Hlt...
-    inversion Hlt; subst.
-    inversion Hge; subst.
-    omega.
+    eapply Nat.le_lt_add_lt; [ constructor | idtac ].
+    rewrite Nat.sub_add; [ rewrite Nat.add_comm; assumption | assumption ].
 
-    rewrite Nbar2Nat.inj_add.
-     rewrite Nat.sub_add_distr; reflexivity.
+    rewrite Nat.sub_add_distr; reflexivity.
 
-     intros H; subst x; inversion Hge.
-
-     intros H; subst y; apply Hge₂.
-     rewrite Nbar.add_comm; constructor.
-
-  rewrite Nbar.add_shuffle0, Nbar.add_assoc; reflexivity.
+ rewrite Nbar.nfin_inj_add.
+ rewrite Nbar.add_shuffle0, Nbar.add_assoc; reflexivity.
 Qed.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
