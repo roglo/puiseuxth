@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1084 2013-08-16 06:41:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1085 2013-08-16 15:12:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -61,19 +61,22 @@ exfalso; apply Hgt; constructor.
 Definition ps_zero :=
   {| ps_terms := series_0 fld;
      ps_valnum := ∞;
-     ps_comden := 1 |}.
+     ps_comden := 1;
+     ps_is_zero := true |}.
 
 Definition ps_const c : puiseux_series α :=
   {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := 0;
-     ps_comden := 1 |}.
+     ps_comden := 1;
+     ps_is_zero := false |}.
 
 Definition ps_one := ps_const (one fld).
 
 Definition ps_monom (c : α) pow :=
   {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := zfin (Qnum pow);
-     ps_comden := Qden pow |}.
+     ps_comden := Qden pow;
+     ps_is_zero := false |}.
 
 Definition apply_poly_with_ps_poly pol :=
   apply_poly

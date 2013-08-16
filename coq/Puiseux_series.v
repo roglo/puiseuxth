@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.237 2013-08-16 05:48:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.238 2013-08-16 15:12:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,7 +15,8 @@ Set Implicit Arguments.
 Record puiseux_series α := mkps
   { ps_terms : series α;
     ps_valnum : Zbar;
-    ps_comden : positive }.
+    ps_comden : positive;
+    ps_is_zero : bool }.
 
 (* [series_head is_zero n s] skip the possible terms (starting from the nth
    one) with null coefficients and return either the couple of the rank of
@@ -42,24 +43,34 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
-      stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
-      stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
-      → (ps_valnum ps₁ * ''k₁)%Zbar = (ps_valnum ps₂ * ''k₂)%Zbar
-        → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
-          → eq_ps ps₁ ps₂.
+      ps_is_zero ps₁ = false
+      → ps_is_zero ps₂ = false
+        → stretch_series (Pos.to_nat k₁) (ps_terms ps₁) ≃
+          stretch_series (Pos.to_nat k₂) (ps_terms ps₂)
+          → (ps_valnum ps₁ * ''k₁)%Zbar = (ps_valnum ps₂ * ''k₂)%Zbar
+            → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
+              → eq_ps ps₁ ps₂
+  | eq_ps_zero : ∀ ps₁ ps₂,
+      ps_is_zero ps₁ = true
+      → ps_is_zero ps₂ = true
+        → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-econstructor 1 with (k₁ := xH); reflexivity.
+remember (ps_is_zero ps) as z.
+symmetry in Heqz.
+destruct z; [ constructor 2; assumption | idtac ].
+econstructor 1 with (k₁ := xH); try assumption; reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
-inversion H; subst.
+inversion H; subst; [ idtac | constructor 2; assumption ].
+symmetry in H0, H1.
 econstructor; symmetry; eassumption.
 Qed.
 
@@ -138,32 +149,39 @@ Qed.
 Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion_clear H₁ as (k₁₁, k₁₂).
-inversion_clear H₂ as (k₂₁, k₂₂).
-apply Zbar.mul_cancel_r with (p := '' k₂₁) in H0.
- apply Zbar.mul_cancel_r with (p := '' k₁₂) in H3.
-  rewrite Zbar.mul_shuffle0 in H3.
-  rewrite <- H0 in H3.
-  do 2 rewrite <- Zbar.mul_assoc in H3.
-  apply Pos.mul_cancel_r with (r := k₂₁) in H1.
-  apply Pos.mul_cancel_r with (r := k₁₂) in H4.
-  rewrite Pos_mul_shuffle0 in H4.
-  rewrite <- H1 in H4.
-  do 2 rewrite <- Pos.mul_assoc in H4.
-  econstructor; [ idtac | eassumption | eassumption ].
-  do 2 rewrite Pos2Nat.inj_mul.
-  symmetry; rewrite mult_comm.
-  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-  symmetry; rewrite mult_comm.
-  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-  rewrite H, <- H2.
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-  rewrite mult_comm; reflexivity.
+inversion_clear H₁ as [k₁₁ k₁₂ a b Hz₁ Hz₂| a b Hz₁ Hz₂].
+ inversion_clear H₂ as [k₂₁ k₂₂ a b Hz₃ Hz₄| a b Hz₃ Hz₄].
+  apply Zbar.mul_cancel_r with (p := '' k₂₁) in H0.
+   apply Zbar.mul_cancel_r with (p := '' k₁₂) in H3.
+    rewrite Zbar.mul_shuffle0 in H3.
+    rewrite <- H0 in H3.
+    do 2 rewrite <- Zbar.mul_assoc in H3.
+    apply Pos.mul_cancel_r with (r := k₂₁) in H1.
+    apply Pos.mul_cancel_r with (r := k₁₂) in H4.
+    rewrite Pos_mul_shuffle0 in H4.
+    rewrite <- H1 in H4.
+    do 2 rewrite <- Pos.mul_assoc in H4.
+    econstructor; try eassumption.
+    do 2 rewrite Pos2Nat.inj_mul.
+    symmetry; rewrite mult_comm.
+    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+    symmetry; rewrite mult_comm.
+    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+    rewrite H, <- H2.
+    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+    rewrite mult_comm; reflexivity.
 
-  apply Zbar.pos_ne_0.
+    apply Zbar.pos_ne_0.
 
- apply Zbar.pos_ne_0.
+   apply Zbar.pos_ne_0.
+
+  rewrite Hz₂ in Hz₃; discriminate Hz₃.
+
+ inversion_clear H₂ as [k₂₁ k₂₂ a b Hz₃ Hz₄| a b Hz₃ Hz₄].
+  rewrite Hz₂ in Hz₃; discriminate Hz₃.
+
+  constructor 2; assumption.
 Qed.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
@@ -191,7 +209,8 @@ Definition valuation_coeff (ps : puiseux_series α) :=
 Definition adjust k ps :=
   {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms ps);
      ps_valnum := ps_valnum ps * ''k;
-     ps_comden := ps_comden ps * k |}.
+     ps_comden := ps_comden ps * k;
+     ps_is_zero := ps_is_zero ps |}.
 
 (* ps_add *)
 
@@ -211,6 +230,11 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
 
+Definition is_zero_sum (ps₁ ps₂ : puiseux_series α) : bool.
+Proof. Admitted.
+
+Axiom is_zero_sum_comm : ∀ ps₁ ps₂, is_zero_sum ps₁ ps₂ = is_zero_sum ps₂ ps₁.
+
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
   let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
@@ -225,7 +249,9 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
      ps_valnum :=
        Zbar.min v₁ v₂;
      ps_comden :=
-       ps_comden ms₁ |}.
+       ps_comden ms₁;
+     ps_is_zero :=
+       is_zero_sum ps₁ ps₂ |}.
 
 (* ps_mul *)
 
@@ -269,7 +295,8 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
      ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
-     ps_comden := l |}.
+     ps_comden := l;
+     ps_is_zero := ps_is_zero ps₁ || ps_is_zero ps₂ |}.
 
 (* *)
 
@@ -389,7 +416,12 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+remember (is_zero_sum ps₁ ps₂) as z.
+symmetry in Heqz.
+rewrite is_zero_sum_comm in Heqz.
+rewrite Heqz.
+destruct z; [ constructor 2; reflexivity | idtac ].
+constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
  do 2 rewrite stretch_series_1.
  apply series_add_comm.
 
