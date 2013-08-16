@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1083 2013-08-16 05:48:17 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1084 2013-08-16 06:41:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -272,6 +272,21 @@ constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
     exfalso; apply Hge; constructor.
 
    simpl.
+   Focus 2.
+   rewrite series_pad_left_0.
+   rewrite series_pad_left_0.
+   unfold lcm_div; simpl.
+   unfold series_0; simpl.
+   constructor; simpl.
+    intros i.
+    destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz]; simpl.
+     rewrite fld_add_neutral; reflexivity.
+
+     rewrite fld_add_neutral; reflexivity.
+
+    Unfocus.
+    Focus 3.
+    rewrite Zbar.mul_1_r; reflexivity.
 bbb.
 
 intros ps.
