@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.18 2013-08-13 15:02:30 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.19 2013-08-16 00:21:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -651,6 +651,8 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Zmult_assoc.
  unfold valuation in Hv.
+ remember (ps_valnum ps) as v.
+ destruct v; [ idtac | discriminate Hv ].
  destruct (series_head (fld_eq fld (zero fld)) 0 (ps_terms ps)) as [(n, _)| ].
   injection Hv; clear Hv; intros Hαi.
   subst αi; reflexivity.

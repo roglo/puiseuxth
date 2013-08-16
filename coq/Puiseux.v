@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1080 2013-08-13 20:44:15 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1081 2013-08-16 00:21:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,6 +14,8 @@ Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Series.
 Require Import CharactPolyn.
+Require Import Nbar.
+Require Import Zbar.
 
 Set Implicit Arguments.
 
@@ -40,20 +42,20 @@ Axiom series_pad_inf : ∀ x,
 *)
 
 Definition ps_zero :=
-  {| ps_terms := {| terms i := zero fld; stop := Some O |};
-     ps_valnum := inf;
+  {| ps_terms := {| terms i := zero fld; stop := 0 |};
+     ps_valnum := ∞;
      ps_comden := 1 |}.
 
 Definition ps_const c : puiseux_series α :=
-  {| ps_terms := {| terms i := c; stop := Some 1%nat |};
+  {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := 0;
      ps_comden := 1 |}.
 
 Definition ps_one := ps_const (one fld).
 
 Definition ps_monom (c : α) pow :=
-  {| ps_terms := {| terms i := c; stop := Some 1%nat |};
-     ps_valnum := Qnum pow;
+  {| ps_terms := {| terms i := c; stop := 1 |};
+     ps_valnum := zfin (Qnum pow);
      ps_comden := Qden pow |}.
 
 Definition apply_poly_with_ps_poly pol :=
@@ -188,10 +190,12 @@ intros s.
 constructor.
  intros i.
  unfold series_pad_left; simpl.
- rewrite Nat.sub_0_r; reflexivity.
+ destruct (Nbar.lt_dec (nfin i) 0) as [Hlt| Hge].
+  apply Nbar.nlt_0_r in Hlt; contradiction.
 
- simpl.
- destruct (stop s); [ rewrite Nat.add_0_r | idtac ]; reflexivity.
+  rewrite Nat.sub_0_r; reflexivity.
+
+ simpl; rewrite Nbar.add_0_r; reflexivity.
 Qed.
 
 Add Parametric Morphism : (series_pad_left fld) with 

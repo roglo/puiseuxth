@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.19 2013-08-15 23:44:32 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.20 2013-08-16 00:21:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -15,6 +15,7 @@ Bind Scope Nbar_scope with Nbar.
 
 Notation "∞" := ninf.
 Notation "0" := (nfin 0) : Nbar_scope.
+Notation "1" := (nfin 1) : Nbar_scope.
 
 Open Scope Nbar_scope.
 
@@ -273,6 +274,21 @@ intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Nat.min_comm; reflexivity.
+Qed.
+
+Theorem nlt_0_r : ∀ n, ¬(n < 0).
+Proof.
+intros n H.
+destruct n as [n| ]; [ idtac | inversion H ].
+inversion_clear H.
+revert H0; apply Nat.nlt_0_r.
+Qed.
+
+Theorem add_0_r : ∀ n, n + 0 = n.
+Proof.
+intros n.
+destruct n as [n| ]; [ idtac | reflexivity ].
+simpl; rewrite Nat.add_0_r; reflexivity.
 Qed.
 
 End Nbar.
