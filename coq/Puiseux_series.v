@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.249 2013-08-17 01:24:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.250 2013-08-17 01:44:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -546,5 +546,59 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
+
+Definition ps_zero := Zero α.
+
+Theorem ps_add_neutral : ∀ ps, ps_add ps_zero ps ≈ ps.
+Proof.
+intros ps.
+unfold ps_add; simpl.
+constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
+ do 2 rewrite stretch_series_1.
+ remember (ps_valnum ps) as v.
+ symmetry in Heqv.
+ destruct v as [v| ]; simpl.
+  rewrite series_pad_left_0.
+  constructor; simpl.
+   intros i.
+   destruct (Nbar.lt_dec (nfin i) ninf) as [Hlt| Hge].
+    rewrite fld_add_neutral; reflexivity.
+
+    exfalso; apply Hge; constructor.
+
+   simpl.
+   Focus 2.
+   rewrite series_pad_left_0.
+   rewrite series_pad_left_0.
+   unfold lcm_div; simpl.
+   unfold series_0; simpl.
+   constructor; simpl.
+    intros i.
+    destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz]; simpl.
+     rewrite fld_add_neutral; reflexivity.
+
+     rewrite fld_add_neutral; reflexivity.
+
+    Unfocus.
+    Focus 3.
+    rewrite Zbar.mul_1_r; reflexivity.
+bbb.
+
+intros ps.
+unfold ps_add; simpl.
+constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
+ do 2 rewrite stretch_series_1.
+ rewrite mul_inf_l.
+ rewrite nat_sub_inf_l, nat_sub_inf_r, series_pad_inf.
+ rewrite series_pad_left_0.
+ constructor; simpl.
+  intros i.
+  rewrite fld_add_neutral.
+  reflexivity.
+
+  destruct (stop (ps_terms ps)); reflexivity.
+
+ rewrite mul_inf_l, min_inf_l, Z.mul_1_r; reflexivity.
+qed.
 
 End fld.

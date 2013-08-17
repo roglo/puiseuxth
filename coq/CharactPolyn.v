@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.20 2013-08-17 01:24:25 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.21 2013-08-17 01:42:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -657,21 +657,23 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Zmult_assoc.
  unfold valuation in Hv.
- remember (nz_valnum ps) as v.
- destruct v; [ idtac | discriminate Hv ].
- destruct (series_head (fld_eq fld (zero fld)) 0 (nz_terms ps)) as [(n, _)| ].
-  injection Hv; clear Hv; intros Hαi.
-  subst αi; reflexivity.
+ destruct ps as [nz| ].
+  remember (fld_eq fld (zero fld)) as f.
+  destruct (series_head f 0 (nz_terms nz)) as [(n, _)| ]; subst f.
+   injection Hv; clear Hv; intros Hαi.
+   subst αi; reflexivity.
+
+   discriminate Hv.
 
   discriminate Hv.
 
- rewrite Pos2Z.inj_mul, Zmult_assoc.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc.
  unfold Qeq; simpl.
  rewrite Pos2Z.inj_mul.
- rewrite Zmult_assoc, Zmult_comm, <- Zmult_assoc.
- symmetry; rewrite Zmult_comm, <- Zmult_assoc.
+ rewrite Z.mul_assoc, Z.mul_comm, <- Z.mul_assoc.
+ symmetry; rewrite Z.mul_comm, <- Z.mul_assoc.
  apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
- rewrite Zmult_comm; symmetry; assumption.
+ rewrite Z.mul_comm; symmetry; assumption.
 Qed.
 
 (* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends
