@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1095 2013-08-17 16:13:03 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1096 2013-08-17 19:30:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,7 +27,7 @@ Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≃ b" := (eq_series _ a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Definition ps_monom (c : α) pow :=
@@ -85,6 +85,12 @@ transitivity (ps_add fld ps₁ ps₄).
   destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
   constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
    do 4 rewrite Z2Nat_inj_mul_pos_r.
+   remember (nz_valnum nz₁) as v₁.
+   remember (nz_comden nz₁) as c₁.
+   remember (nz_comden nz₂₁) as c₂₁.
+   remember (nz_comden nz₂₂) as c₂₂.
+   remember (nz_valnum nz₂₁) as v₂₁.
+   remember (nz_valnum nz₂₂) as v₂₂.
 bbb.
 
 destruct ps₁ as [nz₁| ]; simpl.
