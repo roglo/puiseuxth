@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1100 2013-08-17 22:51:47 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1101 2013-08-17 23:13:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -89,7 +89,18 @@ transitivity (ps_add fld ps₁ ps₄).
    rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
    rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
    rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-   rewrite <- stretch_stretch_series.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite Nat.mul_sub_distr_r.
+   rewrite <- Nat.mul_assoc.
+   rewrite <- Pos2Nat.inj_mul.
+   rewrite Hck₂.
+   rewrite Nat.mul_shuffle0.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite Hvv₂.
    Focus 1.
 bbb.
 
