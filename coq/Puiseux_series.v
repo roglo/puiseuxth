@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.248 2013-08-17 00:48:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.249 2013-08-17 01:24:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -13,9 +13,9 @@ Require Import Zbar.
 Set Implicit Arguments.
 
 Record nz_ps α := mkps
-  { ps_terms : series α;
-    ps_valnum : Z;
-    ps_comden : positive }.
+  { nz_terms : series α;
+    nz_valnum : Z;
+    nz_comden : positive }.
 
 Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
@@ -46,10 +46,10 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_non_zero_ps : ∀ k₁ k₂ nz₁ nz₂,
-      stretch_series (Pos.to_nat k₁) (ps_terms nz₁) ≃
-      stretch_series (Pos.to_nat k₂) (ps_terms nz₂)
-      → (ps_valnum nz₁ * 'k₁)%Z = (ps_valnum nz₂ * 'k₂)%Z
-        → (ps_comden nz₁ * k₁ = ps_comden nz₂ * k₂)%positive
+      stretch_series (Pos.to_nat k₁) (nz_terms nz₁) ≃
+      stretch_series (Pos.to_nat k₂) (nz_terms nz₂)
+      → (nz_valnum nz₁ * 'k₁)%Z = (nz_valnum nz₂ * 'k₂)%Z
+        → (nz_comden nz₁ * k₁ = nz_comden nz₂ * k₂)%positive
           → eq_ps (NonZero nz₁) (NonZero nz₂)
   | eq_zero_ps : eq_ps (Zero _) (Zero _).
 
@@ -183,8 +183,8 @@ Add Parametric Relation : (puiseux_series α) eq_ps
 Definition valuation (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head (fld_eq fld (zero fld)) 0 (ps_terms nz) with
-      | Some (n, c) => Some (ps_valnum nz + Z.of_nat n # ps_comden nz)
+      match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
+      | Some (n, c) => Some (nz_valnum nz + Z.of_nat n # nz_comden nz)
       | None => None
       end
   | Zero => None
@@ -193,7 +193,7 @@ Definition valuation (ps : puiseux_series α) :=
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head (fld_eq fld (zero fld)) 0 (ps_terms nz) with
+      match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
       | Some (_, c) => c
       | None => zero fld
       end
@@ -201,9 +201,9 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   end.
 
 Definition adjust k nz :=
-  {| ps_terms := stretch_series (Pos.to_nat k) (ps_terms nz);
-     ps_valnum := ps_valnum nz * 'k;
-     ps_comden := ps_comden nz * k |}.
+  {| nz_terms := stretch_series (Pos.to_nat k) (nz_terms nz);
+     nz_valnum := nz_valnum nz * 'k;
+     nz_comden := nz_comden nz * k |}.
 
 (* ps_add *)
 
@@ -213,11 +213,11 @@ Definition series_pad_left n s :=
 
 (*
 Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
+  let l := Plcm (nz_comden ps₁) (nz_comden ps₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (nz_comden ps₁))%nat.
 *)
 Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
-  ps_comden nz₂.
+  nz_comden nz₂.
 (**)
 
 (*
@@ -236,19 +236,19 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          let v₁ := ps_valnum ms₁ in
-          let v₂ := ps_valnum ms₂ in
+          let v₁ := nz_valnum ms₁ in
+          let v₂ := nz_valnum ms₂ in
           NonZero
-            {| ps_terms :=
+            {| nz_terms :=
                  series_add fld
                    (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat
-                      (ps_terms ms₁))
+                      (nz_terms ms₁))
                    (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat
-                      (ps_terms ms₂));
-               ps_valnum :=
+                      (nz_terms ms₂));
+               nz_valnum :=
                  Z.min v₁ v₂;
-               ps_comden :=
-                 ps_comden ms₁ |}
+               nz_comden :=
+                 nz_comden ms₁ |}
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -297,11 +297,11 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          let l := Plcm (ps_comden nz₁) (ps_comden nz₂) in
+          let l := Plcm (nz_comden nz₁) (nz_comden nz₂) in
           NonZero
-            {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
-               ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
-               ps_comden := l |}
+            {| nz_terms := series_mul_term (nz_terms ms₁) (nz_terms ms₂);
+               nz_valnum := nz_valnum ms₁ + nz_valnum ms₂;
+               nz_comden := l |}
       | Zero => Zero _
       end
   | Zero => Zero _
@@ -481,12 +481,12 @@ unfold ps_add, lcm_div; simpl.
 (*
 do 4 rewrite Plcm_div_mul.
 *)
-remember (ps_valnum nz₁) as v₁.
-remember (ps_valnum nz₂) as v₂.
-remember (ps_valnum nz₃) as v₃.
-remember (ps_comden nz₃) as c₃.
-remember (ps_comden nz₂) as c₂.
-remember (ps_comden nz₁) as c₁.
+remember (nz_valnum nz₁) as v₁.
+remember (nz_valnum nz₂) as v₂.
+remember (nz_valnum nz₃) as v₃.
+remember (nz_comden nz₃) as c₃.
+remember (nz_comden nz₂) as c₂.
+remember (nz_comden nz₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
@@ -504,18 +504,18 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₂ * c₃)) (ps_terms nz₁)) as ccnz₁.
+ remember (stretch_series (Pos.to_nat (c₂ * c₃)) (nz_terms nz₁)) as ccnz₁.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₃ * c₁)) (ps_terms nz₂)) as ccnz₂.
+ remember (stretch_series (Pos.to_nat (c₃ * c₁)) (nz_terms nz₂)) as ccnz₂.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₂ * c₁)) (ps_terms nz₃)) as ccnz₃.
+ remember (stretch_series (Pos.to_nat (c₂ * c₁)) (nz_terms nz₃)) as ccnz₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
  rewrite Nat.mul_sub_distr_r.

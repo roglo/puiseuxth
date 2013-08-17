@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.19 2013-08-16 00:21:15 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.20 2013-08-17 01:24:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -628,6 +628,12 @@ Qed.
 
 (* *)
 
+Definition ps_comden α (ps : puiseux_series α) :=
+  match ps with
+  | NonZero nz => nz_comden nz
+  | Zero => xH
+  end.
+
 Definition series_list_com_den α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
 
@@ -651,9 +657,9 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Zmult_assoc.
  unfold valuation in Hv.
- remember (ps_valnum ps) as v.
+ remember (nz_valnum ps) as v.
  destruct v; [ idtac | discriminate Hv ].
- destruct (series_head (fld_eq fld (zero fld)) 0 (ps_terms ps)) as [(n, _)| ].
+ destruct (series_head (fld_eq fld (zero fld)) 0 (nz_terms ps)) as [(n, _)| ].
   injection Hv; clear Hv; intros Hαi.
   subst αi; reflexivity.
 
