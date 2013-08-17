@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.247 2013-08-16 20:19:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.248 2013-08-17 00:48:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -474,76 +474,75 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
+destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ idtac | reflexivity ].
 unfold ps_add, lcm_div; simpl.
 (*
 do 4 rewrite Plcm_div_mul.
 *)
-remember (ps_valnum ps₁) as v₁.
-remember (ps_valnum ps₂) as v₂.
-remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₃) as c₃.
-remember (ps_comden ps₂) as c₂.
-remember (ps_comden ps₁) as c₁.
+remember (ps_valnum nz₁) as v₁.
+remember (ps_valnum nz₂) as v₂.
+remember (ps_valnum nz₃) as v₃.
+remember (ps_comden nz₃) as c₃.
+remember (ps_comden nz₂) as c₂.
+remember (ps_comden nz₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
- rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
- rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
  do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Zbar.zfin_inj_mul.
- do 2 rewrite Zbar.mul_assoc.
- remember (v₁ * '' c₂ * '' c₃)%Zbar as vcc eqn:Hvcc .
- remember (v₂ * '' c₁ * '' c₃)%Zbar as cvc eqn:Hcvc .
- remember (v₃ * '' c₁ * '' c₂)%Zbar as ccv eqn:Hccv .
- rewrite Zbar.mul_comm, Zbar.mul_assoc, Zbar.mul_shuffle0 in Hcvc.
- rewrite <- Zbar.mul_comm, Zbar.mul_assoc in Hcvc.
+ do 2 rewrite Z.mul_assoc.
+ remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+ remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+ remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
+ rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0 in Hcvc.
+ rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
  rewrite <- Hcvc.
- rewrite Zbar.mul_shuffle0 in Hccv; rewrite <- Hccv.
+ rewrite Z.mul_shuffle0 in Hccv; rewrite <- Hccv.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₂ * c₃)) (ps_terms ps₁)) as ccps₁.
+ remember (stretch_series (Pos.to_nat (c₂ * c₃)) (ps_terms nz₁)) as ccnz₁.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₃ * c₁)) (ps_terms ps₂)) as ccps₂.
+ remember (stretch_series (Pos.to_nat (c₃ * c₁)) (ps_terms nz₂)) as ccnz₂.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₂ * c₁)) (ps_terms ps₃)) as ccps₃.
+ remember (stretch_series (Pos.to_nat (c₂ * c₁)) (ps_terms nz₃)) as ccnz₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
- rewrite Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
+ rewrite Nat.mul_sub_distr_r.
  rewrite <- Z2Nat.inj_pos.
  do 4 rewrite series_pad_pad.
- rewrite Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
- rewrite Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
- rewrite Nbar.mul_sub_distr_r; [ simpl | intros H; discriminate H ].
- do 4 rewrite <- Zbar2Nbar_inj_mul_pos_r.
+ do 3 rewrite Nat.mul_sub_distr_r; simpl.
+ do 4 rewrite <- Z2Nat_inj_mul_pos_r.
  rewrite <- Hvcc, <- Hcvc, <- Hccv.
- rewrite Zbar.mul_shuffle0, <- Hcvc.
- do 2 rewrite Zbar2Nbar.inj_min.
- do 2 rewrite Nbar_min_sub_add_sub.
- rewrite series_add_comm, Nbar.min_comm.
- rewrite Nbar_min_sub_add_sub, Nbar.min_comm, series_add_comm.
+ rewrite Z.mul_shuffle0, <- Hcvc.
+ do 2 rewrite Z2Nat.inj_min.
+ do 2 rewrite min_sub_add_sub.
+ rewrite series_add_comm, Nat.min_comm.
+ rewrite min_sub_add_sub, Nat.min_comm, series_add_comm.
  symmetry.
  rewrite series_add_comm, series_add_assoc, series_add_comm.
- rewrite Nbar.min_comm, Nbar_min_sub_add_sub.
+ rewrite Nat.min_comm, min_sub_add_sub.
  rewrite series_add_comm, <- series_add_assoc, series_add_comm.
  reflexivity.
 
- do 2 rewrite Zbar.mul_1_r.
- rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
- rewrite <- Zbar.mul_min_distr_nonneg_r; [ idtac | apply Pos2Zbar.is_nonneg ].
- rewrite Zbar.min_assoc.
+ do 2 rewrite Z.mul_1_r.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Z.min_assoc.
  do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Zbar.zfin_inj_mul.
- do 2 rewrite Zbar.mul_assoc.
- f_equal; [ idtac | apply Zbar.mul_shuffle0 ].
- f_equal; apply Zbar.mul_shuffle0.
+ do 2 rewrite Z.mul_assoc.
+ f_equal; [ idtac | apply Z.mul_shuffle0 ].
+ f_equal; apply Z.mul_shuffle0.
 
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
