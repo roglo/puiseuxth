@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.251 2013-08-17 01:54:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.252 2013-08-17 22:51:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -116,7 +116,9 @@ constructor; simpl.
  rewrite Nbar.mul_shuffle0, Nbar.mul_assoc; reflexivity.
 Qed.
 
-Add Parametric Morphism : stretch_series with 
+End fld.
+
+Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
 Proof.
 intros k s₁ s₂ H.
@@ -128,7 +130,16 @@ constructor; simpl.
  destruct (stop s₁); rewrite <- H1; reflexivity.
 Qed.
 
-Lemma stretch_series_1 : ∀ s, stretch_series (Pos.to_nat 1) s ≃ s.
+Section fld₁.
+
+Variable α : Type.
+Variable fld : field α.
+
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+
+Lemma stretch_series_1 : ∀ s, stretch_series fld (Pos.to_nat 1) s ≃ s.
 Proof.
 intros s.
 unfold stretch_series; simpl.
@@ -140,7 +151,7 @@ constructor; simpl.
  rewrite Nbar.mul_1_r; reflexivity.
 Qed.
 
-Theorem eq_ps_trans : transitive _ eq_ps.
+Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
@@ -173,11 +184,22 @@ inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; su
  assumption.
 Qed.
 
-Add Parametric Relation : (puiseux_series α) eq_ps
- reflexivity proved by eq_ps_refl
- symmetry proved by eq_ps_sym
- transitivity proved by eq_ps_trans
+End fld₁.
+
+Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
+ reflexivity proved by (eq_ps_refl fld)
+ symmetry proved by (eq_ps_sym (fld := fld))
+ transitivity proved by (eq_ps_trans (fld := fld))
  as eq_ps_rel.
+
+Section fld₂.
+
+Variable α : Type.
+Variable fld : field α.
+
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 
 Definition valuation (ps : puiseux_series α) :=
   match ps with
@@ -200,7 +222,7 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   end.
 
 Definition adjust k nz :=
-  {| nz_terms := stretch_series (Pos.to_nat k) (nz_terms nz);
+  {| nz_terms := stretch_series fld (Pos.to_nat k) (nz_terms nz);
      nz_valnum := nz_valnum nz * 'k;
      nz_comden := nz_comden nz * k |}.
 
@@ -306,9 +328,9 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => Zero _
   end.
 
-(* *)
+End fld₂.
 
-Add Parametric Morphism : series_pad_left with 
+Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
 Proof.
 intros n s₁ s₂ H.
@@ -320,9 +342,18 @@ constructor; simpl.
  inversion H; rewrite H1; reflexivity.
 Qed.
 
+Section fld₃.
+
+Variable α : Type.
+Variable fld : field α.
+
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+
 Lemma stretch_series_add_distr : ∀ k s₁ s₂,
-  stretch_series k (series_add fld s₁ s₂) ≃
-  series_add fld (stretch_series k s₁) (stretch_series k s₂).
+  stretch_series fld k (series_add fld s₁ s₂) ≃
+  series_add fld (stretch_series fld k s₁) (stretch_series fld k s₂).
 Proof.
 intros k s₁ s₂.
 unfold stretch_series; simpl.
@@ -337,8 +368,8 @@ Qed.
 
 Lemma stretch_pad_series_distr : ∀ k n s,
   k ≠ O
-  → stretch_series k (series_pad_left n s) ≃
-    series_pad_left (n * k) (stretch_series k s).
+  → stretch_series fld k (series_pad_left fld n s) ≃
+    series_pad_left fld (n * k) (stretch_series fld k s).
 Proof.
 intros k n s Hk.
 constructor.
@@ -408,7 +439,7 @@ rewrite Pos2Nat.id.
 apply Pos.mul_comm.
 Qed.
 
-Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
+Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
@@ -426,8 +457,8 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
-  series_pad_left n (series_add fld s₁ s₂)
-  ≃ series_add fld (series_pad_left n s₁) (series_pad_left n s₂).
+  series_pad_left fld n (series_add fld s₁ s₂)
+  ≃ series_add fld (series_pad_left fld n s₁) (series_pad_left fld n s₂).
 Proof.
 intros s₁ s₂ n.
 constructor.
@@ -440,7 +471,8 @@ constructor.
 Qed.
 
 Lemma series_pad_pad : ∀ x y ps,
-  series_pad_left x (series_pad_left y ps) ≃ series_pad_left (x + y) ps.
+  series_pad_left fld x (series_pad_left fld y ps) ≃
+  series_pad_left fld (x + y) ps.
 Proof.
 intros x y ps.
 constructor; simpl.
@@ -470,7 +502,7 @@ constructor; simpl.
 Qed.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
+  ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
 destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
@@ -503,18 +535,18 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₂ * c₃)) (nz_terms nz₁)) as ccnz₁.
+ remember (stretch_series fld (Pos.to_nat (c₂ * c₃)) (nz_terms nz₁)) as ccnz₁.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₃ * c₁)) (nz_terms nz₂)) as ccnz₂.
+ remember (stretch_series fld (Pos.to_nat (c₃ * c₁)) (nz_terms nz₂)) as ccnz₂.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series (Pos.to_nat (c₂ * c₁)) (nz_terms nz₃)) as ccnz₃.
+ remember (stretch_series fld (Pos.to_nat (c₂ * c₁)) (nz_terms nz₃)) as ccnz₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
  rewrite Nat.mul_sub_distr_r.
@@ -548,7 +580,7 @@ Qed.
 
 Definition ps_zero := Zero α.
 
-Theorem ps_add_neutral : ∀ ps, ps_add ps_zero ps ≈ ps.
+Theorem ps_add_neutral : ∀ ps, ps_add fld ps_zero ps ≈ ps.
 Proof. reflexivity. Qed.
 
-End fld.
+End fld₃.

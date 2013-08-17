@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1099 2013-08-17 20:08:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1100 2013-08-17 22:51:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,7 +27,7 @@ Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≃ b" := (eq_series _ a b) (at level 70).
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Definition ps_monom (c : α) pow :=
@@ -65,21 +65,6 @@ Definition f₁' f β₁ γ₁ c₁ :=
   ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}
     (apply_poly_with_ps_poly f
        {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
-
-(* already defined in Puiseux_series.v but I don't know how to export it *)
-(*
-Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
- reflexivity proved by (eq_ps_refl fld)
- symmetry proved by (eq_ps_sym (fld := fld))
- transitivity proved by (eq_ps_trans (fld := fld))
- as eq_ps_rel.
-*)
-
-(* already defined in Puiseux_series.v but I don't know how to export it *)
-(*
-Add Parametric Morphism : series_pad_left with 
-signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
-*)
 
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₃
