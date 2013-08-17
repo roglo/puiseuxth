@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1093 2013-08-17 12:44:30 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1094 2013-08-17 12:48:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -80,6 +80,10 @@ Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
 transitivity (ps_add fld ps₁ ps₄).
+ clear ps₃ H₁.
+ inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
+  destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
+  econstructor 1; unfold lcm_div; simpl.
 bbb.
 
 destruct ps₁ as [nz₁| ]; simpl.
