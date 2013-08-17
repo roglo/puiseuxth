@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1088 2013-08-17 03:31:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1089 2013-08-17 09:58:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -44,16 +44,25 @@ Definition ps_const c : puiseux_series α :=
 
 Definition ps_one := ps_const (one fld).
 
+Definition ps_pol_add := pol_add (ps_add fld).
+Definition ps_pol_mul := pol_mul (ps_zero _) (ps_add fld) (ps_mul fld).
+
 Definition apply_poly_with_ps_poly pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
-    (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
-    (pol_mul (ps_zero _) (ps_add fld) (ps_mul fld))
-    pol.
+    (λ pol ps, ps_pol_add pol {| al := []; an := ps |})
+    ps_pol_mul pol.
 
-Definition pol_mul_x_power_minus p pol :=
-  pol_mul (ps_zero α) (ps_add fld) (ps_mul fld)
-    {| al := []; an := ps_monom (one fld) (Qopp p) |} pol.
+Definition f₁ f β γ c :=
+  let y := {| al := [ps_monom c γ]; an := ps_monom (one fld) γ |} in
+  let pol := apply_poly_with_ps_poly f y in
+  ps_pol_mul {| al := []; an := ps_monom (one fld) (Qopp β) |} pol.
+
+bbb.
+
+(* *)
+
+(* rest to be used later perhaps *)
 
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
@@ -69,12 +78,8 @@ Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
       end
   end.
 
-Definition f₁ f β γ c :=
-  let y := {| al := [ps_monom c γ]; an := ps_monom (one fld) γ |} in
-  let pol := apply_poly_with_ps_poly f y in
-  pol_mul_x_power_minus β pol.
-
-(* *)
+Definition pol_mul_x_power_minus p pol :=
+  ps_pol_mul {| al := []; an := ps_monom (one fld) (Qopp p) |} pol.
 
 Definition puiseux_step psumo (pol : polynomial (puiseux_series α)) :=
   let nsl₁ := newton_segments fld pol in
@@ -107,6 +112,8 @@ CoFixpoint puiseux_loop psumo (pol : polynomial (puiseux_series α)) :=
   | None =>
       Cend _
   end.
+
+bbb.
 
 (* ... *)
 
