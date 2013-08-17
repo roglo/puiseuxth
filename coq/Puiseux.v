@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1094 2013-08-17 12:48:53 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1095 2013-08-17 16:13:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,7 +83,8 @@ transitivity (ps_add fld ps₁ ps₄).
  clear ps₃ H₁.
  inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
   destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
-  econstructor 1; unfold lcm_div; simpl.
+  constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
+   do 4 rewrite Z2Nat_inj_mul_pos_r.
 bbb.
 
 destruct ps₁ as [nz₁| ]; simpl.
