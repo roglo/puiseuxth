@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1091 2013-08-17 10:29:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1092 2013-08-17 12:28:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -66,8 +66,48 @@ Definition f₁' f β₁ γ₁ c₁ :=
     (apply_poly_with_ps_poly f
        {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
 
+Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
+ reflexivity proved by (eq_ps_refl fld)
+ symmetry proved by (eq_ps_sym (fld := fld))
+ transitivity proved by (eq_ps_trans (fld := fld))
+ as eq_ps_rel.
+
+Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
+  ps₁ ≈ ps₃
+  → ps₂ ≈ ps₄
+    → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₃ ps₄.
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
+transitivity (ps_add fld ps₁ ps₄).
+bbb.
+
+destruct ps₁ as [nz₁| ]; simpl.
+ destruct ps₃ as [nz₃| ]; [ simpl | inversion H₁ ].
+ destruct ps₂ as [nz₂| ]; simpl.
+  destruct ps₄ as [nz₄| ]; [ simpl | inversion H₂ ].
+  inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
+  inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
+  unfold lcm_div; simpl.
+  constructor 1 with (k₁ := Pos.mul k₁₁ k₂₁) (k₂ := Pos.mul k₁₂ k₂₂); simpl.
+  Focus 1.
+bbb.
+
+Definition ps_fld : field (puiseux_series α) :=
+  {| zero := ps_zero _;
+     one := ps_one;
+     add := ps_add fld;
+     mul := ps_mul fld;
+     fld_eq := eq_ps fld;
+     fld_eq_refl := eq_ps_refl fld;
+     fld_eq_sym := eq_ps_sym (fld := fld);
+     fld_eq_trans := eq_ps_trans (fld := fld);
+     fld_add_comm := ps_add_comm fld;
+     fld_add_assoc := ps_add_assoc fld;
+     fld_add_neutral := ps_add_neutral fld;
+     fld_add_compat := ps_add_compat |}.
+
 (* exercise... *)
-Lemma zzz : ∀ f β₁ γ₁ c₁, f₁ f β₁ γ₁ c₁ = f₁' f β₁ γ₁ c₁.
+Lemma zzz : ∀ f β₁ γ₁ c₁, poly_eq ps_fld (f₁ f β₁ γ₁ c₁) (f₁' f β₁ γ₁ c₁).
 Proof.
 intros f β₁ γ₁ c₁.
 unfold f₁, f₁'.
@@ -257,25 +297,6 @@ constructor.
  simpl in H2, H3.
 bbb.
 *)
-
-Axiom ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
-  eq_ps fld ps₁ ps₂
-  → eq_ps fld ps₃ ps₄
-    → eq_ps fld (ps_add fld ps₁ ps₃) (ps_add fld ps₂ ps₄).
-
-Definition ps_fld : field (puiseux_series α) :=
-  {| zero := ps_zero _;
-     one := ps_one;
-     add := ps_add fld;
-     mul := ps_mul fld;
-     fld_eq := eq_ps fld;
-     fld_eq_refl := eq_ps_refl fld;
-     fld_eq_sym := eq_ps_sym (fld := fld);
-     fld_eq_trans := eq_ps_trans (fld := fld);
-     fld_add_comm := ps_add_comm fld;
-     fld_add_assoc := ps_add_assoc fld;
-     fld_add_neutral := ps_add_neutral fld;
-     fld_add_compat := ps_add_compat |}.
 
 (* *)
 
