@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1097 2013-08-17 19:50:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1098 2013-08-17 20:01:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -73,6 +73,12 @@ Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
  transitivity proved by (eq_ps_trans (fld := fld))
  as eq_ps_rel.
 
+(* already defined in Puiseux_series.v but I don't know how to export it *)
+(*
+Add Parametric Morphism : series_pad_left with 
+signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
+*)
+
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₃
   → ps₂ ≈ ps₄
@@ -96,6 +102,7 @@ transitivity (ps_add fld ps₁ ps₄).
    rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
    rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
    rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+   rewrite <- stretch_stretch_series.
    Focus 1.
 bbb.
 
