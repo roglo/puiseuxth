@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1089 2013-08-17 09:58:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1090 2013-08-17 10:04:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -53,10 +53,11 @@ Definition apply_poly_with_ps_poly pol :=
     (λ pol ps, ps_pol_add pol {| al := []; an := ps |})
     ps_pol_mul pol.
 
-Definition f₁ f β γ c :=
-  let y := {| al := [ps_monom c γ]; an := ps_monom (one fld) γ |} in
-  let pol := apply_poly_with_ps_poly f y in
-  ps_pol_mul {| al := []; an := ps_monom (one fld) (Qopp β) |} pol.
+(* f₁(x,y₁) = x^(-β₁) f(x,c₁.x^γ₁ + x^γ.y₁) *)
+Definition f₁ f β₁ γ₁ c₁ :=
+  let y₁ := {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |} in
+  ps_pol_mul {| al := []; an := ps_monom (one fld) (Qopp β₁) |}
+    (apply_poly_with_ps_poly f y₁).
 
 bbb.
 
