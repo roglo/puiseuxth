@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1086 2013-08-17 01:44:41 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1087 2013-08-17 01:54:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -32,70 +32,42 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 (*
-Axiom zinf : Z.
-
-Example mul_inf_l : ∀ x, (zinf * ''x)%Zbar = zinf.
-Proof. reflexivity. Qed.
-
-Example min_inf_l : ∀ x, Zbar.min zinf x = x.
-Proof. reflexivity. Qed.
-
-Example nat_sub_inf_l : ∀ x, (ninf - x)%Nbar = ninf.
-Proof.
-intros x; simpl.
-destruct x; [ reflexivity | idtac ].
-Abort.
-
-Example nat_sub_inf_r : ∀ x, (x - ninf)%Nbar = 0%Nbar.
-Proof. reflexivity. Qed.
-
-Example series_pad_inf : ∀ x, series_pad_left fld ninf x ≃ series_0 fld.
-Proof.
-intros x.
-constructor; [ simpl | simpl; rewrite Nbar.add_comm; reflexivity ].
-intros i.
-destruct (Nbar.lt_dec (nfin i) ninf) as [| Hgt]; [ reflexivity | idtac ].
-exfalso; apply Hgt; constructor.
-*)
-
-Definition ps_zero :=
-  {| ps_terms := series_0 fld;
-     ps_valnum := ∞;
-     ps_comden := 1;
-     ps_is_zero := true |}.
-
 Definition ps_const c : puiseux_series α :=
-  {| ps_terms := {| terms i := c; stop := 1 |};
-     ps_valnum := 0;
-     ps_comden := 1;
-     ps_is_zero := false |}.
+  {| nz_terms := {| terms i := c; stop := 1 |};
+     nz_valnum := 0;
+     nz_comden := 1 |}.
 
 Definition ps_one := ps_const (one fld).
+*)
 
 Definition ps_monom (c : α) pow :=
-  {| ps_terms := {| terms i := c; stop := 1 |};
-     ps_valnum := zfin (Qnum pow);
-     ps_comden := Qden pow;
-     ps_is_zero := false |}.
+  NonZero
+    {| nz_terms := {| terms i := c; stop := 1 |};
+       nz_valnum := Qnum pow;
+       nz_comden := Qden pow |}.
 
 Definition apply_poly_with_ps_poly pol :=
   apply_poly
     (λ ps, {| al := []; an := ps |})
     (λ pol ps, pol_add (ps_add fld) pol {| al := []; an := ps |})
-    (pol_mul ps_zero (ps_add fld) (ps_mul fld))
+    (pol_mul (ps_zero _) (ps_add fld) (ps_mul fld))
     pol.
 
 Definition pol_mul_x_power_minus p pol :=
-  pol_mul ps_zero (ps_add fld) (ps_mul fld)
+  pol_mul (ps_zero α) (ps_add fld) (ps_mul fld)
     {| al := []; an := ps_monom (one fld) (Qopp p) |} pol.
 
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
   | [ps … _] =>
-      match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
-      | Some _ => false
-      | None => true
+      match ps with
+      | NonZero nz =>
+          match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
+          | Some _ => false
+          | None => true
+          end
+      | Zero => true
       end
   end.
 
