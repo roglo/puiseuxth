@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1098 2013-08-17 20:01:58 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1099 2013-08-17 20:08:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -67,11 +67,13 @@ Definition f₁' f β₁ γ₁ c₁ :=
        {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
 
 (* already defined in Puiseux_series.v but I don't know how to export it *)
+(*
 Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
  reflexivity proved by (eq_ps_refl fld)
  symmetry proved by (eq_ps_sym (fld := fld))
  transitivity proved by (eq_ps_trans (fld := fld))
  as eq_ps_rel.
+*)
 
 (* already defined in Puiseux_series.v but I don't know how to export it *)
 (*
