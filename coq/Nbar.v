@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.23 2013-08-17 03:37:13 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.24 2013-08-17 03:51:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -24,7 +24,7 @@ Module Nbar.
 Definition S n :=
   match n with
   | nfin n => nfin (S n)
-  | ninf => ninf
+  | ∞ => ∞
   end.
 
 Definition binop f dx dy xb yb :=
@@ -40,6 +40,7 @@ Definition binop f dx dy xb yb :=
 Definition add := binop plus ∞ ∞.
 Definition mul := binop mult ∞ ∞.
 Definition max := binop max ∞ ∞.
+(*
 Definition min x y := binop min x y x y.
 
 Definition sub xb yb :=
@@ -51,9 +52,12 @@ Definition sub xb yb :=
       end
   | ∞ => 0
   end.
+*)
 
 Infix "+" := add : Nbar_scope.
+(*
 Infix "-" := sub : Nbar_scope.
+*)
 Infix "*" := mul : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
@@ -63,9 +67,12 @@ Inductive le : Nbar → Nbar → Prop :=
 where "n ≤ m" := (le n m) : Nbar_scope.
 
 Definition lt n m := S n ≤ m.
+(*
 Definition gt n m := lt m n.
+*)
 
 Infix "<" := lt : Nbar_scope.
+(*
 Infix ">" := gt : Nbar_scope.
 
 Definition to_nat nb :=
@@ -73,6 +80,7 @@ Definition to_nat nb :=
   | nfin n => n
   | ninf => O
   end.
+*)
 
 Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
 Proof. reflexivity. Qed.
@@ -80,6 +88,7 @@ Proof. reflexivity. Qed.
 Theorem nfin_inj_add : ∀ n m, nfin (n + m) = nfin n + nfin m.
 Proof. reflexivity. Qed.
 
+(*
 Theorem nfin_inj_sub : ∀ n m, nfin (n - m) = nfin n - nfin m.
 Proof. reflexivity. Qed.
 
@@ -139,6 +148,7 @@ destruct m as [m| ]; simpl.
 
  split; intros H; constructor.
 Qed.
+*)
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
 Proof.
@@ -156,6 +166,7 @@ destruct n as [n| ].
  destruct m as [m| ]; [ right; intros H; inversion H | left; constructor ].
 Qed.
 
+(*
 Theorem lt_0_succ: ∀ n : Nbar, 0 < S n.
 Proof.
 intros n.
@@ -202,6 +213,7 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.sub_add_distr; reflexivity.
 Qed.
+*)
 
 Theorem add_shuffle0 : ∀ n m p, n + m + p = n + p + m.
 Proof.
@@ -253,6 +265,7 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_r; reflexivity.
 Qed.
 
+(*
 Theorem mul_sub_distr_r : ∀ n m p, p ≠ ∞ → (n - m) * p = n * p - m * p.
 Proof.
 intros n m p Hp.
@@ -261,6 +274,7 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_sub_distr_r; reflexivity.
 Qed.
+*)
 
 Theorem add_max_distr_r : ∀ n m p, max (n + p) (m + p) = max n m + p.
 Proof.
@@ -280,6 +294,7 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_max_distr_r; reflexivity.
 Qed.
 
+(*
 Theorem min_comm : ∀ n m, min n m = min m n.
 Proof.
 intros n m.
@@ -287,6 +302,7 @@ destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Nat.min_comm; reflexivity.
 Qed.
+*)
 
 Theorem nlt_0_r : ∀ n, ¬(n < 0).
 Proof.
@@ -306,9 +322,12 @@ Qed.
 End Nbar.
 
 Infix "+" := Nbar.add : Nbar_scope.
+(*
 Infix "-" := Nbar.sub : Nbar_scope.
+*)
 Infix "*" := Nbar.mul : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.
+(*
 Infix "≤" := Nbar.le : Nbar_scope.
 
 Module Nbar2Nat.
@@ -331,5 +350,6 @@ rewrite Nat.mul_0_r; reflexivity.
 Qed.
 
 End Nbar2Nat.
+*)
 
 Close Scope Nbar_scope.
