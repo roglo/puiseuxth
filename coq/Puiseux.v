@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1096 2013-08-17 19:30:39 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1097 2013-08-17 19:50:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -91,6 +91,12 @@ transitivity (ps_add fld ps₁ ps₄).
    remember (nz_comden nz₂₂) as c₂₂.
    remember (nz_valnum nz₂₁) as v₂₁.
    remember (nz_valnum nz₂₂) as v₂₂.
+   do 2 rewrite stretch_series_add_distr.
+   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+   Focus 1.
 bbb.
 
 destruct ps₁ as [nz₁| ]; simpl.
