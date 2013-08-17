@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1087 2013-08-17 01:54:04 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1088 2013-08-17 03:31:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,7 +15,6 @@ Require Import Puiseux_series.
 Require Import Series.
 Require Import CharactPolyn.
 Require Import Nbar.
-Require Import Zbar.
 
 Set Implicit Arguments.
 
@@ -31,20 +30,19 @@ Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
-(*
-Definition ps_const c : puiseux_series α :=
-  {| nz_terms := {| terms i := c; stop := 1 |};
-     nz_valnum := 0;
-     nz_comden := 1 |}.
-
-Definition ps_one := ps_const (one fld).
-*)
-
 Definition ps_monom (c : α) pow :=
   NonZero
     {| nz_terms := {| terms i := c; stop := 1 |};
        nz_valnum := Qnum pow;
        nz_comden := Qden pow |}.
+
+Definition ps_const c : puiseux_series α :=
+  NonZero
+    {| nz_terms := {| terms i := c; stop := 1 |};
+       nz_valnum := 0;
+       nz_comden := 1 |}.
+
+Definition ps_one := ps_const (one fld).
 
 Definition apply_poly_with_ps_poly pol :=
   apply_poly
@@ -196,7 +194,7 @@ Proof.
 intros n s₁ s₂ H.
 constructor; simpl.
  intros i.
- destruct (Nbar.lt_dec (nfin i) n); [ reflexivity | idtac ].
+ destruct (lt_dec i n); [ reflexivity | idtac ].
  inversion H; apply H0.
 
  inversion H; rewrite H1; reflexivity.
@@ -235,8 +233,8 @@ Axiom ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
     → eq_ps fld (ps_add fld ps₁ ps₃) (ps_add fld ps₂ ps₄).
 
 Definition ps_fld : field (puiseux_series α) :=
-  {| zero := ps_zero fld;
-     one := ps_one fld;
+  {| zero := ps_zero _;
+     one := ps_one;
      add := ps_add fld;
      mul := ps_mul fld;
      fld_eq := eq_ps fld;
@@ -245,7 +243,7 @@ Definition ps_fld : field (puiseux_series α) :=
      fld_eq_trans := eq_ps_trans (fld := fld);
      fld_add_comm := ps_add_comm fld;
      fld_add_assoc := ps_add_assoc fld;
-     fld_add_neutral := ps_add_neutral;
+     fld_add_neutral := ps_add_neutral fld;
      fld_add_compat := ps_add_compat |}.
 
 (* *)
