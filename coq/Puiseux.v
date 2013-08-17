@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1090 2013-08-17 10:04:20 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1091 2013-08-17 10:29:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -53,17 +53,40 @@ Definition apply_poly_with_ps_poly pol :=
     (λ pol ps, ps_pol_add pol {| al := []; an := ps |})
     ps_pol_mul pol.
 
-(* f₁(x,y₁) = x^(-β₁) f(x,c₁.x^γ₁ + x^γ.y₁) *)
+(* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ f β₁ γ₁ c₁ :=
-  let y₁ := {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |} in
-  ps_pol_mul {| al := []; an := ps_monom (one fld) (Qopp β₁) |}
-    (apply_poly_with_ps_poly f y₁).
+  ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}
+    (apply_poly_with_ps_poly f
+       (ps_pol_mul {| al := []; an := ps_monom (one fld) γ₁ |}
+          {| al := [ps_const c₁]; an := ps_one |})).
 
+(* f₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
+Definition f₁' f β₁ γ₁ c₁ :=
+  ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}
+    (apply_poly_with_ps_poly f
+       {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
+
+(* exercise... *)
+Lemma zzz : ∀ f β₁ γ₁ c₁, f₁ f β₁ γ₁ c₁ = f₁' f β₁ γ₁ c₁.
+Proof.
+intros f β₁ γ₁ c₁.
+unfold f₁, f₁'.
+do 2 f_equal.
+unfold ps_pol_mul.
+unfold pol_mul.
+simpl.
+f_equal; simpl.
+ rewrite Z.mul_1_r, Z.add_0_r.
+ unfold ps_monom; simpl.
+ rewrite Plcm_comm, Plcm_1_l.
+ do 3 f_equal.
 bbb.
 
 (* *)
 
 (* rest to be used later perhaps *)
+
+bbb.
 
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
