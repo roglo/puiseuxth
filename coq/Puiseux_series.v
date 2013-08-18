@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.254 2013-08-18 19:58:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.255 2013-08-18 20:12:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -233,9 +233,9 @@ Definition series_pad_left n s :=
      stop := stop s + nfin n |}.
 
 (*
-Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (nz_comden ps₁) (nz_comden ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (nz_comden ps₁))%nat.
+Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
+  let l := Plcm (nz_comden nz₁) (nz_comden nz₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (nz_comden nz₁))%nat.
 *)
 Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
@@ -444,7 +444,14 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  apply Z.min_comm.
 
  do 2 rewrite Pos.mul_1_r.
+(*
+ unfold lcm_div.
+ rewrite Pos_div_mul_l; [ idtac | apply Pos_divides_lcm_l ].
+ symmetry; rewrite Plcm_comm.
+ rewrite Pos_div_mul_l; [ reflexivity | apply Pos_divides_lcm_r ].
+*)
  apply Pos.mul_comm.
+(**)
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,

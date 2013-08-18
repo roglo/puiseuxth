@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.51 2013-08-17 03:37:13 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.52 2013-08-18 20:12:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -681,7 +681,7 @@ rewrite Pos.mul_comm in Heqmp; subst mp.
 apply Pos.mul_assoc.
 Qed.
 
-Lemma Pos_div_mul : ∀ a b,
+Lemma Pos_div_mul_r : ∀ a b,
   (a | b)
   → (Pos.of_nat (Pos.to_nat b / Pos.to_nat a) * a) = b.
 Proof.
@@ -691,6 +691,15 @@ subst b.
 rewrite Pos2Nat.inj_mul.
 rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
 rewrite Pos2Nat.id; reflexivity.
+Qed.
+
+Lemma Pos_div_mul_l : ∀ a b,
+  (a | b)
+  → (a * Pos.of_nat (Pos.to_nat b / Pos.to_nat a)) = b.
+Proof.
+intros a b Hab.
+rewrite Pos.mul_comm.
+apply Pos_div_mul_r; assumption.
 Qed.
 
 Lemma Pos_divides_lcm_l : ∀ a b, (a | Plcm a b).
@@ -708,6 +717,13 @@ rewrite Z2Pos.inj_mul; simpl.
  apply Z.gcd_divide_l.
 
  apply Pos2Z.is_pos.
+Qed.
+
+Lemma Pos_divides_lcm_r : ∀ a b, (b | Plcm a b).
+Proof.
+intros a b.
+rewrite Plcm_comm.
+apply Pos_divides_lcm_l.
 Qed.
 
 Lemma Pos_mul_shuffle1 : ∀ n m p q, n * m * (p * q) = n * p * (m * q).
