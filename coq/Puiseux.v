@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1101 2013-08-17 23:13:31 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1102 2013-08-18 00:57:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -101,6 +101,24 @@ transitivity (ps_add fld ps₁ ps₄).
    rewrite <- Z2Nat_inj_mul_pos_r.
    rewrite <- Z2Nat_inj_mul_pos_r.
    rewrite Hvv₂.
+   rewrite Pos2Z.inj_mul.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite Z.mul_assoc.
+   remember (v₁ * ' c₂₂ * ' k₂₂)%Z as vck eqn:Hvck .
+   remember (v₂₂ * ' k₂₂ * ' c₁)%Z as vkc eqn:Hvkc .
+   rewrite Nat.mul_sub_distr_r.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite Z.mul_shuffle0.
+   rewrite Hvv₂.
+   rewrite <- Hvkc.
+   rewrite <- Z.mul_assoc; simpl.
+   rewrite Hck₂.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.mul_assoc.
+   rewrite <- Hvck.
    Focus 1.
 bbb.
 
