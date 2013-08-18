@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1106 2013-08-18 12:14:33 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1107 2013-08-18 12:22:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -90,6 +90,7 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+(* à nettoyer *)
   rewrite Nat.mul_sub_distr_r.
   rewrite <- Nat.mul_assoc.
   rewrite <- Pos2Nat.inj_mul.
@@ -141,8 +142,13 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite Pos2Z.inj_mul, Z.mul_assoc.
   rewrite Z.min_comm, Z.mul_shuffle0, Z.min_comm.
   reflexivity.
-bbb.
-*)
+
+  do 2 rewrite <- Pos.mul_assoc.
+  apply Pos.mul_cancel_l.
+  assumption.
+
+ reflexivity.
+Qed.
 
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₂
@@ -156,7 +162,7 @@ transitivity (ps_add fld ps₁ ps₄).
  rewrite ps_add_comm; symmetry.
  rewrite ps_add_comm; symmetry.
  apply ps_add_cancel_l; assumption.
-qed.
+Qed.
 
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero _;
