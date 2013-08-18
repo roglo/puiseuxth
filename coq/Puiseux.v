@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1104 2013-08-18 11:04:36 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1105 2013-08-18 12:03:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -66,6 +66,75 @@ Definition f₁' f β₁ γ₁ c₁ :=
     (apply_poly_with_ps_poly f
        {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
 
+Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
+  ps₂ ≈ ps₃
+  → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
+Proof.
+intros ps₁ ps₃ ps₄ H.
+inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
+ destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
+ constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
+  do 4 rewrite Z2Nat_inj_mul_pos_r.
+  remember (nz_valnum nz₁) as v₁.
+  remember (nz_comden nz₁) as c₁.
+  remember (nz_comden nz₂₁) as c₂₁.
+  remember (nz_comden nz₂₂) as c₂₂.
+  remember (nz_valnum nz₂₁) as v₂₁.
+  remember (nz_valnum nz₂₂) as v₂₂.
+  do 2 rewrite stretch_series_add_distr.
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Nat.mul_sub_distr_r.
+  rewrite <- Nat.mul_assoc.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite Hck₂.
+  rewrite Nat.mul_shuffle0.
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite Hvv₂.
+  rewrite Pos2Z.inj_mul.
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite Z.mul_assoc.
+  remember (v₁ * ' c₂₂ * ' k₂₂)%Z as vck eqn:Hvck .
+  remember (v₂₂ * ' k₂₂ * ' c₁)%Z as vkc eqn:Hvkc .
+  rewrite Nat.mul_sub_distr_r.
+  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite Z.mul_shuffle0.
+  rewrite Hvv₂.
+  rewrite <- Hvkc.
+  rewrite <- Z.mul_assoc; simpl.
+  rewrite Hck₂.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc.
+  rewrite <- Hvck.
+  do 2 rewrite Nat.mul_sub_distr_r.
+  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite <- Hvck.
+  rewrite Z.mul_shuffle0.
+  rewrite <- Hvkc.
+  do 4 rewrite <- Pos2Nat.inj_mul.
+  rewrite Pos.mul_comm.
+  rewrite Hck₂.
+  rewrite Pos.mul_comm.
+  rewrite series_add_comm.
+  rewrite Pos2Nat.inj_mul.
+  rewrite Nat.mul_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Hss₂.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Nat.mul_comm.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite series_add_comm.
+  reflexivity.
+bbb.
+*)
+
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₂
   → ps₃ ≈ ps₄
@@ -73,86 +142,12 @@ Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
 transitivity (ps_add fld ps₁ ps₄).
- clear ps₂ H₁.
- inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
-  destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
-  constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
-   do 4 rewrite Z2Nat_inj_mul_pos_r.
-   remember (nz_valnum nz₁) as v₁.
-   remember (nz_comden nz₁) as c₁.
-   remember (nz_comden nz₂₁) as c₂₁.
-   remember (nz_comden nz₂₂) as c₂₂.
-   remember (nz_valnum nz₂₁) as v₂₁.
-   remember (nz_valnum nz₂₂) as v₂₂.
-   do 2 rewrite stretch_series_add_distr.
-   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Nat.mul_sub_distr_r.
-   rewrite <- Nat.mul_assoc.
-   rewrite <- Pos2Nat.inj_mul.
-   rewrite Hck₂.
-   rewrite Nat.mul_shuffle0.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite Hvv₂.
-   rewrite Pos2Z.inj_mul.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite Z.mul_assoc.
-   remember (v₁ * ' c₂₂ * ' k₂₂)%Z as vck eqn:Hvck .
-   remember (v₂₂ * ' k₂₂ * ' c₁)%Z as vkc eqn:Hvkc .
-   rewrite Nat.mul_sub_distr_r.
-   do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite Z.mul_shuffle0.
-   rewrite Hvv₂.
-   rewrite <- Hvkc.
-   rewrite <- Z.mul_assoc; simpl.
-   rewrite Hck₂.
-   rewrite Pos2Z.inj_mul.
-   rewrite Z.mul_assoc.
-   rewrite <- Hvck.
-   do 2 rewrite Nat.mul_sub_distr_r.
-   do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite <- Hvck.
-   rewrite Z.mul_shuffle0.
-   rewrite <- Hvkc.
-   do 4 rewrite <- Pos2Nat.inj_mul.
-   rewrite Pos.mul_comm.
-   rewrite Hck₂.
-   rewrite Pos.mul_comm.
-   rewrite series_add_comm.
-   rewrite Pos2Nat.inj_mul.
-   rewrite Nat.mul_comm.
-   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Hss₂.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Nat.mul_comm.
-   rewrite <- Pos2Nat.inj_mul.
-   rewrite series_add_comm.
-   reflexivity.
+ apply ps_add_cancel_l; assumption.
 
-bbb.
-   rewrite Nat.mul_sub_distr_r.
-   do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-   Focus 1.
-bbb.
-
-destruct ps₁ as [nz₁| ]; simpl.
- destruct ps₃ as [nz₃| ]; [ simpl | inversion H₁ ].
- destruct ps₂ as [nz₂| ]; simpl.
-  destruct ps₄ as [nz₄| ]; [ simpl | inversion H₂ ].
-  inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
-  inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
-  unfold lcm_div; simpl.
-  constructor 1 with (k₁ := Pos.mul k₁₁ k₂₁) (k₂ := Pos.mul k₁₂ k₂₂); simpl.
-  Focus 1.
-bbb.
-*)
+ rewrite ps_add_comm; symmetry.
+ rewrite ps_add_comm; symmetry.
+ apply ps_add_cancel_l; assumption.
+qed.
 
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero _;
