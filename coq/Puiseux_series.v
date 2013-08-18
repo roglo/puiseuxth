@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.252 2013-08-17 22:51:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.253 2013-08-18 17:50:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -582,5 +582,131 @@ Definition ps_zero := Zero α.
 
 Theorem ps_add_neutral : ∀ ps, ps_add fld ps_zero ps ≈ ps.
 Proof. reflexivity. Qed.
+
+Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
+  ps₂ ≈ ps₃
+  → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
+Proof.
+intros ps₁ ps₃ ps₄ H.
+inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
+ destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
+ constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
+  do 4 rewrite Z2Nat_inj_mul_pos_r.
+  remember (nz_valnum nz₁) as v₁.
+  remember (nz_comden nz₁) as c₁.
+  remember (nz_comden nz₂₁) as c₂₁.
+  remember (nz_comden nz₂₂) as c₂₂.
+  remember (nz_valnum nz₂₁) as v₂₁.
+  remember (nz_valnum nz₂₂) as v₂₂.
+  do 2 rewrite stretch_series_add_distr.
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+(* à nettoyer *)
+  rewrite Nat.mul_sub_distr_r.
+  rewrite <- Nat.mul_assoc.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite Hck₂.
+  rewrite Nat.mul_shuffle0.
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite Hvv₂.
+  rewrite Pos2Z.inj_mul.
+  rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite Z.mul_assoc.
+  remember (v₁ * ' c₂₂ * ' k₂₂)%Z as vck eqn:Hvck .
+  remember (v₂₂ * ' k₂₂ * ' c₁)%Z as vkc eqn:Hvkc .
+  rewrite Nat.mul_sub_distr_r.
+  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite Z.mul_shuffle0.
+  rewrite Hvv₂.
+  rewrite <- Hvkc.
+  rewrite <- Z.mul_assoc; simpl.
+  rewrite Hck₂.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc.
+  rewrite <- Hvck.
+  do 2 rewrite Nat.mul_sub_distr_r.
+  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite <- Hvck.
+  rewrite Z.mul_shuffle0.
+  rewrite <- Hvkc.
+  do 4 rewrite <- Pos2Nat.inj_mul.
+  rewrite Pos.mul_comm.
+  rewrite Hck₂.
+  rewrite Pos.mul_comm.
+  rewrite series_add_comm.
+  rewrite Pos2Nat.inj_mul.
+  rewrite Nat.mul_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Hss₂.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Nat.mul_comm.
+  rewrite <- Pos2Nat.inj_mul.
+  rewrite series_add_comm.
+  reflexivity.
+
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_assoc; simpl.
+  rewrite Hck₂.
+  rewrite Z.mul_shuffle0, Hvv₂.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  rewrite Z.min_comm, Z.mul_shuffle0, Z.min_comm.
+  reflexivity.
+
+  do 2 rewrite <- Pos.mul_assoc.
+  apply Pos.mul_cancel_l.
+  assumption.
+
+ reflexivity.
+Qed.
+
+Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
+  ps₁ ≈ ps₂
+  → ps₃ ≈ ps₄
+    → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₄.
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
+transitivity (ps_add fld ps₁ ps₄).
+ apply ps_add_cancel_l; assumption.
+
+ rewrite ps_add_comm; symmetry.
+ rewrite ps_add_comm; symmetry.
+ apply ps_add_cancel_l; assumption.
+Qed.
+
+Definition ps_monom (c : α) pow :=
+  NonZero
+    {| nz_terms := {| terms i := c; stop := 1 |};
+       nz_valnum := Qnum pow;
+       nz_comden := Qden pow |}.
+
+Definition ps_const c : puiseux_series α :=
+  NonZero
+    {| nz_terms := {| terms i := c; stop := 1 |};
+       nz_valnum := 0;
+       nz_comden := 1 |}.
+
+Definition ps_one := ps_const (one fld).
+
+Definition ps_fld : field (puiseux_series α) :=
+  {| zero := ps_zero;
+     one := ps_one;
+     add := ps_add fld;
+     mul := ps_mul fld;
+     fld_eq := eq_ps fld;
+     fld_eq_refl := eq_ps_refl fld;
+     fld_eq_sym := eq_ps_sym (fld := fld);
+     fld_eq_trans := eq_ps_trans (fld := fld);
+     fld_add_comm := ps_add_comm;
+     fld_add_assoc := ps_add_assoc;
+     fld_add_neutral := ps_add_neutral;
+     fld_add_compat := ps_add_compat |}.
 
 End fld₃.
