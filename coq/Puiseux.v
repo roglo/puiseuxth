@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1105 2013-08-18 12:03:54 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1106 2013-08-18 12:14:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -131,6 +131,15 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite Nat.mul_comm.
   rewrite <- Pos2Nat.inj_mul.
   rewrite series_add_comm.
+  reflexivity.
+
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_assoc; simpl.
+  rewrite Hck₂.
+  rewrite Z.mul_shuffle0, Hvv₂.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  rewrite Z.min_comm, Z.mul_shuffle0, Z.min_comm.
   reflexivity.
 bbb.
 *)
