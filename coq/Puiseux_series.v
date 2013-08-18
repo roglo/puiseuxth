@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.253 2013-08-18 17:50:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.254 2013-08-18 19:58:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -240,15 +240,6 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
 Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
-
-(*
-Definition is_zero_sum (ps₁ ps₂ : puiseux_series α) : bool.
-Proof. Admitted.
-
-Axiom is_zero_sum_comm : ∀ ps₁ ps₂,
-  is_zero_sum ps₁ ps₂ = true
-  → is_zero_sum ps₂ ps₁ = true.
-*)
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
