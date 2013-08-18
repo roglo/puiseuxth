@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1103 2013-08-18 09:15:18 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1104 2013-08-18 11:04:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -107,10 +107,7 @@ transitivity (ps_add fld ps₁ ps₄).
    remember (v₁ * ' c₂₂ * ' k₂₂)%Z as vck eqn:Hvck .
    remember (v₂₂ * ' k₂₂ * ' c₁)%Z as vkc eqn:Hvkc .
    rewrite Nat.mul_sub_distr_r.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   rewrite <- Z2Nat_inj_mul_pos_r.
+   do 4 rewrite <- Z2Nat_inj_mul_pos_r.
    rewrite Z.mul_shuffle0.
    rewrite Hvv₂.
    rewrite <- Hvkc.
@@ -119,6 +116,29 @@ transitivity (ps_add fld ps₁ ps₄).
    rewrite Pos2Z.inj_mul.
    rewrite Z.mul_assoc.
    rewrite <- Hvck.
+   do 2 rewrite Nat.mul_sub_distr_r.
+   do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite <- Hvck.
+   rewrite Z.mul_shuffle0.
+   rewrite <- Hvkc.
+   do 4 rewrite <- Pos2Nat.inj_mul.
+   rewrite Pos.mul_comm.
+   rewrite Hck₂.
+   rewrite Pos.mul_comm.
+   rewrite series_add_comm.
+   rewrite Pos2Nat.inj_mul.
+   rewrite Nat.mul_comm.
+   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite Hss₂.
+   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+   rewrite Nat.mul_comm.
+   rewrite <- Pos2Nat.inj_mul.
+   rewrite series_add_comm.
+   reflexivity.
+
+bbb.
+   rewrite Nat.mul_sub_distr_r.
+   do 4 rewrite <- Z2Nat_inj_mul_pos_r.
    Focus 1.
 bbb.
 
