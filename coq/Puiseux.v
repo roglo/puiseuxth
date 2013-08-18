@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1102 2013-08-18 00:57:57 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1103 2013-08-18 09:15:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -67,13 +67,13 @@ Definition f₁' f β₁ γ₁ c₁ :=
        {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
 
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
-  ps₁ ≈ ps₃
-  → ps₂ ≈ ps₄
-    → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₃ ps₄.
+  ps₁ ≈ ps₂
+  → ps₃ ≈ ps₄
+    → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₄.
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
 transitivity (ps_add fld ps₁ ps₄).
- clear ps₃ H₁.
+ clear ps₂ H₁.
  inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
   destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
   constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
@@ -132,6 +132,7 @@ destruct ps₁ as [nz₁| ]; simpl.
   constructor 1 with (k₁ := Pos.mul k₁₁ k₂₁) (k₂ := Pos.mul k₁₂ k₂₂); simpl.
   Focus 1.
 bbb.
+*)
 
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero _;
