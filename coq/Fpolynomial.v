@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 1.21 2013-07-28 10:32:26 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 1.22 2013-08-19 02:56:44 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -11,12 +11,9 @@ Require Import Polynomial.
 
 Set Implicit Arguments.
 
-Inductive list_eq α (cmp : α → α → Prop) : list α → list α → Prop :=
-  | list_eq_nil : list_eq cmp [] []
-  | list_eq_cons : ∀ x₁ x₂ l₁ l₂,
-      cmp x₁ x₂ → list_eq cmp l₁ l₂ → list_eq cmp [x₁ … l₁] [x₂ … l₂].
+Definition list_eq := List.Forall2.
 
-Definition poly_eq α fld (x y : polynomial α) :=
+Definition eq_poly α fld (x y : polynomial α) :=
   list_eq (fld_eq fld) (al x ++ [an x]) (al y ++ [an y]).
 
 Definition poly_add α (fld : field α) :=
@@ -26,7 +23,7 @@ Definition poly_mul α (fld : field α) :=
   pol_mul (zero fld) (add fld) (mul fld).
 
 Definition Pdivide α fld (x y : polynomial α) :=
-  ∃ z, poly_eq fld y (poly_mul fld z x).
+  ∃ z, eq_poly fld y (poly_mul fld z x).
 
 Lemma list_eq_refl : ∀ α (fld : field α) l,
   list_eq (fld_eq fld) l l.
@@ -95,10 +92,10 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_comm : ∀ α (fld : field α) pol₁ pol₂,
-  poly_eq fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁).
+  eq_poly fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁).
 Proof.
 intros α fld pol₁ pol₂.
-unfold poly_eq.
+unfold eq_poly.
 apply list_eq_append_one.
 split.
  eapply pol_add_loop_al_comm; reflexivity.
@@ -169,12 +166,12 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_assoc : ∀ α (fld : field α) pol₁ pol₂ pol₃,
-  poly_eq fld
+  eq_poly fld
     (poly_add fld (poly_add fld pol₁ pol₂) pol₃)
     (poly_add fld pol₁ (poly_add fld pol₂ pol₃)).
 Proof.
 intros α fld pol₁ pol₂ pol₃.
-unfold poly_eq.
+unfold eq_poly.
 apply list_eq_append_one.
 split.
  eapply pol_add_loop_al_assoc; reflexivity.

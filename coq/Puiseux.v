@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1110 2013-08-19 01:18:07 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1111 2013-08-19 02:56:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -53,6 +53,24 @@ Definition f₁' f β₁ γ₁ c₁ :=
        {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
 
 (* exercise... *)
+
+(* c.x^γ + y.x^y = (c + y).x^γ *)
+Lemma yyy : ∀ c γ,
+  eq_poly (ps_fld fld)
+    {| al := [ps_monom c γ]; an := ps_monom (one fld) γ |}
+    (ps_pol_mul
+      {| al := []; an := ps_monom (one fld) γ |}
+      {| al := [ps_const c]; an := ps_one fld |}).
+Proof.
+intros c γ.
+unfold eq_poly, list_eq.
+simpl.
+constructor.
+ unfold ps_monom.
+ Focus 1.
+ econstructor 1; simpl.
+bbb.
+
 Lemma zzz : ∀ f β₁ γ₁ c₁,
   poly_eq (ps_fld fld) (f₁ f β₁ γ₁ c₁) (f₁' f β₁ γ₁ c₁).
 Proof.
@@ -63,6 +81,7 @@ apply list_eq_append_one.
 remember (ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}) as g.
 split.
  Focus 2.
+bbb.
  unfold apply_poly_with_ps_poly.
  unfold ps_pol_add; simpl.
  unfold pol_add; simpl.
