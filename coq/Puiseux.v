@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1112 2013-08-19 09:28:14 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1113 2013-08-19 13:16:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -260,20 +260,6 @@ constructor; simpl.
 
  inversion H; rewrite H1; reflexivity.
 Qed.
-
-(*
-Add Parametric Morphism : (stretch_series fld) with 
-signature eq ==> eq_series fld ==> eq_series fld as stretch_morph.
-Proof.
-intros k s₁ s₂ H.
-inversion H; subst.
-constructor; simpl.
- intros i.
- destruct (zerop (i mod k)); [ apply H0 | reflexivity ].
-
- destruct (stop s₁); rewrite <- H1; reflexivity.
-Qed.
-*)
 
 (*
 Add Parametric Morphism : (@ps_terms α) with 

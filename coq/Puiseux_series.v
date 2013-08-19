@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.257 2013-08-19 09:55:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.258 2013-08-19 13:16:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -692,6 +692,33 @@ Definition ps_const c : puiseux_series α :=
 
 Definition ps_one := ps_const (one fld).
 
+Add Parametric Morphism : (sum_mul_coeff fld) with
+signature eq ==> eq ==> eq_series fld ==> eq_series fld ==> eq
+as sum_mul_coeff_morph.
+Proof.
+intros i ni₁ s₁ s₂ Hss₁ s₃ s₄ Hss₂.
+revert i.
+induction ni₁ as [| ni₁]; intros; [ reflexivity | simpl ].
+rewrite IHni₁.
+remember (sum_mul_coeff fld (S i) ni₁ s₂ s₄) as x.
+symmetry in Heqx.
+destruct x as [c| ].
+ inversion Hss₁ as (a, b, Hti₁, Hss₃); subst.
+ unfold series_nth.
+ rewrite Hss₃.
+ remember (stop s₂) as st₂.
+ symmetry in Heqst₂.
+ destruct st₂ as [st₂| ]; [ idtac | reflexivity ].
+ destruct (lt_dec i st₂) as [Hlt| Hge]; [ idtac | reflexivity ].
+ inversion Hss₂ as (a, b, Hti₂, Hss₄); subst.
+ rewrite Hss₄.
+ remember (stop s₄) as st₄.
+ symmetry in Heqst₄.
+ destruct st₄ as [st₄| ]; [ idtac | reflexivity ].
+ destruct (lt_dec ni₁ st₄) as [Hlt₂| Hge].
+bbb.
+rewrite Hti₁.
+
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
 intros ps.
@@ -702,7 +729,10 @@ rewrite Z.mul_1_r.
 constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
 rewrite stretch_series_1.
 rewrite stretch_series_1 in |- * at 2.
+constructor; simpl.
+ intros i.
 bbb.
+rewrite stretch_series_1.
 
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero;
