@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1111 2013-08-19 02:56:44 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1112 2013-08-19 09:28:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -67,8 +67,18 @@ unfold eq_poly, list_eq.
 simpl.
 constructor.
  unfold ps_monom.
- Focus 1.
- econstructor 1; simpl.
+ constructor 1 with (k₁ := Qden γ) (k₂ := xH); simpl.
+  rewrite stretch_series_1.
+  constructor; simpl.
+   intros i.
+   destruct i; simpl.
+    rewrite Nat.mod_0_l; simpl.
+     unfold series_nth; simpl.
+     rewrite Nat.add_0_r.
+     destruct (lt_dec 0 (Pos.to_nat (Qden γ))) as [Hlt| Hge];
+      [ simpl | exfalso ].
+      rewrite Nat.mod_0_l; simpl.
+Focus 1.
 bbb.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
