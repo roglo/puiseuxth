@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.25 2013-08-19 19:38:58 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.26 2013-08-19 19:51:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -310,6 +310,15 @@ intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Nat.max_comm; reflexivity.
+Qed.
+
+Theorem max_assoc : ∀ m n p, max m (max n p) = max (max m n) p.
+Proof.
+intros m n p.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+rewrite Nat.max_assoc; reflexivity.
 Qed.
 
 Theorem nlt_0_r : ∀ n, ¬(n < 0).

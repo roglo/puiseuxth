@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.39 2013-08-19 19:38:58 deraugla Exp $ *)
+(* $Id: Series.v,v 1.40 2013-08-19 19:51:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -86,13 +86,16 @@ Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
 constructor; simpl.
- intros i.
- apply fld_add_assoc.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.max_assoc.
+remember (Nbar.max (Nbar.max (stop s₁) (stop s₂)) (stop s₃)) as n.
+symmetry in Heqn.
+destruct n as [n| ].
+ destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ rewrite fld_add_assoc; reflexivity.
 
- destruct (stop s₁) as [a| ]; [ idtac | reflexivity ].
- destruct (stop s₂) as [b| ]; [ idtac | reflexivity ].
- destruct (stop s₃) as [c| ]; [ simpl | reflexivity ].
- rewrite Nat.max_assoc; reflexivity.
+ rewrite fld_add_assoc; reflexivity.
 Qed.
 
 End field.
@@ -107,6 +110,16 @@ Add Parametric Morphism α (fld : field α) : (series_add fld) with
 signature eq_series fld ==> eq_series fld ==> eq_series fld
 as series_add_morph.
 Proof.
+intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
+inversion Heq₁; subst.
+inversion Heq₂; subst.
+constructor; simpl.
+intros i.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld in H; simpl in H.
+unfold series_nth_fld in H0; simpl in H0.
+bbb.
+
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
 inversion Heq₁; subst.
 inversion Heq₂; subst.
