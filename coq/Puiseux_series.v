@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.255 2013-08-18 20:12:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.256 2013-08-19 09:40:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -693,6 +693,19 @@ Definition ps_const c : puiseux_series α :=
 
 Definition ps_one := ps_const (one fld).
 
+Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
+Proof.
+intros ps.
+unfold ps_mul; simpl.
+destruct ps as [nz| ]; [ idtac | reflexivity ].
+unfold lcm_div; simpl.
+rewrite Z.mul_1_r.
+rewrite Plcm_1_l.
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ rewrite stretch_series_1.
+ rewrite stretch_series_1 in |- * at 2.
+bbb.
+
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero;
      one := ps_one;
@@ -705,6 +718,7 @@ Definition ps_fld : field (puiseux_series α) :=
      fld_add_comm := ps_add_comm;
      fld_add_assoc := ps_add_assoc;
      fld_add_neutral := ps_add_neutral;
-     fld_add_compat := ps_add_compat |}.
+     fld_add_compat := ps_add_compat;
+     fld_mul_neutral := ps_mul_neutral |}.
 
 End fld₃.
