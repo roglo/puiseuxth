@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.260 2013-08-19 15:17:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.261 2013-08-19 15:36:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -692,6 +692,7 @@ Definition ps_const c : puiseux_series α :=
 
 Definition ps_one := ps_const (one fld).
 
+(*
 Inductive eq_option eq_elem : option α → option α → Prop :=
   | eq_some : ∀ x y, eq_elem x y → eq_option eq_elem (Some x) (Some y)
   | eq_none : eq_option eq_elem None None.
@@ -735,6 +736,11 @@ destruct xo as [x| ].
  rewrite Hti₁, Hti₂; reflexivity.
 Qed.
 
+Lemma zzz : ∀ eq_elem xo yo, xo = yo → eq_option eq_elem xo yo.
+Proof.
+bbb.
+*)
+
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
 intros ps.
@@ -747,8 +753,26 @@ rewrite stretch_series_1.
 rewrite stretch_series_1 in |- * at 2.
 constructor; simpl.
  intros i.
+ remember
+  (sum_mul_coeff fld 1 i
+     (stretch_series fld (Pos.to_nat (nz_comden nz))
+        {| terms := λ _ : nat, one fld; stop := 1 |})
+     (stretch_series fld (Pos.to_nat 1) (nz_terms nz))) as x.
+ symmetry in Heqx.
+ destruct x as [x| ].
+  unfold series_nth; simpl.
+  rewrite Nat.add_0_r.
+  destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [| Bad].
+   rewrite Nbar.mul_1_r.
+   remember (stop (nz_terms nz)) as st.
+   symmetry in Heqst.
+   destruct st as [st| ].
+    destruct (lt_dec i st) as [Hlt| Hge].
+     rewrite Nat.mod_0_l; [ simpl | apply pos_to_nat_ne_0 ].
+     rewrite divmod_div.
+     rewrite Nat.div_1_r.
+     rewrite fld_mul_neutral.
 bbb.
-rewrite stretch_series_1.
 
 Definition ps_fld : field (puiseux_series α) :=
   {| zero := ps_zero;
