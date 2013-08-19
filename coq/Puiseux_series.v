@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.264 2013-08-19 19:02:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.265 2013-08-19 19:20:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -699,10 +699,10 @@ unfold ps_mul; simpl.
 destruct ps as [nz| ]; [ idtac | reflexivity ].
 unfold lcm_div; simpl.
 rewrite Z.mul_1_r.
-constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
+apply eq_non_zero_ps with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
 rewrite stretch_series_1.
 rewrite stretch_series_1 in |- * at 2.
-constructor; simpl.
+apply eq_series_base; simpl.
 bbb.
  intros i.
  destruct i; simpl.

@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.37 2013-08-16 05:48:17 deraugla Exp $ *)
+(* $Id: Series.v,v 1.38 2013-08-19 19:20:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,7 +16,7 @@ Record series α :=
 Definition series_nth α n (s : series α) :=
   match stop s with
   | nfin st => if lt_dec n st then Some (terms s n) else None
-  | ∞ => None
+  | ∞ => Some (terms s n)
   end.
 
 Section field.
