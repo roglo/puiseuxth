@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.263 2013-08-19 18:29:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.264 2013-08-19 19:02:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -703,6 +703,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
 rewrite stretch_series_1.
 rewrite stretch_series_1 in |- * at 2.
 constructor; simpl.
+bbb.
  intros i.
  destruct i; simpl.
   unfold series_nth; simpl.
