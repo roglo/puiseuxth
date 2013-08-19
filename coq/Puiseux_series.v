@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.256 2013-08-19 09:40:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.257 2013-08-19 09:55:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -309,11 +309,10 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          let l := Plcm (nz_comden nz₁) (nz_comden nz₂) in
           NonZero
             {| nz_terms := series_mul_term (nz_terms ms₁) (nz_terms ms₂);
                nz_valnum := nz_valnum ms₁ + nz_valnum ms₂;
-               nz_comden := l |}
+               nz_comden := nz_comden ms₁ |}
       | Zero => Zero _
       end
   | Zero => Zero _
@@ -700,10 +699,9 @@ unfold ps_mul; simpl.
 destruct ps as [nz| ]; [ idtac | reflexivity ].
 unfold lcm_div; simpl.
 rewrite Z.mul_1_r.
-rewrite Plcm_1_l.
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- rewrite stretch_series_1.
- rewrite stretch_series_1 in |- * at 2.
+constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
+rewrite stretch_series_1.
+rewrite stretch_series_1 in |- * at 2.
 bbb.
 
 Definition ps_fld : field (puiseux_series α) :=
