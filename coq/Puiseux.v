@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1108 2013-08-18 17:50:48 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1109 2013-08-19 00:30:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -56,6 +56,13 @@ Definition f₁' f β₁ γ₁ c₁ :=
 Lemma zzz : ∀ f β₁ γ₁ c₁,
   poly_eq (ps_fld fld) (f₁ f β₁ γ₁ c₁) (f₁' f β₁ γ₁ c₁).
 Proof.
+intros f β₁ γ₁ c₁.
+unfold f₁, f₁'.
+unfold poly_eq; simpl.
+apply list_eq_append_one.
+split.
+bbb.
+
 intros f β₁ γ₁ c₁.
 unfold f₁, f₁'.
 do 2 f_equal.
