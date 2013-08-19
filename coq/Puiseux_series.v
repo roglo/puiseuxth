@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.259 2013-08-19 13:53:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.260 2013-08-19 15:17:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -701,39 +701,39 @@ Add Parametric Morphism : (sum_mul_coeff fld) with signature
 as sum_mul_coeff_morph.
 Proof.
 intros i ni₁ s₁ s₂ Hss₁ s₃ s₄ Hss₂.
+inversion Hss₁ as (a, b, Hti₁, Hss₃); subst.
+inversion Hss₂ as (a, b, Hti₂, Hss₄); subst.
 revert i.
 induction ni₁ as [| ni₁]; intros; [ constructor | simpl ].
-inversion Hss₁ as (a, b, Hti₁, Hss₃); subst.
+pose proof (IHni₁ (S i)) as Hi.
 remember (sum_mul_coeff fld (S i) ni₁ s₁ s₃) as xo.
 symmetry in Heqxo.
+remember (sum_mul_coeff fld (S i) ni₁ s₂ s₄) as yo.
+symmetry in Heqyo.
 destruct xo as [x| ].
+ destruct yo as [y| ]; [ idtac | inversion Hi ].
  unfold series_nth.
  rewrite Hss₃.
- remember (stop s₂) as st₂.
- symmetry in Heqst₂.
- destruct st₂ as [st₂| ].
-  destruct (lt_dec i st₂) as [Hlt| Hge].
-   inversion Hss₂ as (a, b, Hti₂, Hss₄); subst.
-   rewrite Hss₄.
-   remember (stop s₄) as st₄.
-   symmetry in Heqst₄.
-   destruct st₄ as [st₄| ].
-    destruct (lt_dec ni₁ st₄) as [Hlt₂| Hge].
-     remember (sum_mul_coeff fld (S i) ni₁ s₂ s₄) as yo.
-     symmetry in Heqyo.
-     destruct yo as [y| ].
-      constructor.
-      pose proof (IHni₁ (S i)) as Hi.
-      rewrite Heqxo in Hi.
-      rewrite Heqyo in Hi.
-      inversion Hi; subst.
-      rewrite Hti₁, Hti₂, H1; reflexivity.
+ destruct (stop s₂) as [st₂| ]; [ idtac | assumption ].
+ destruct (lt_dec i st₂) as [Hlt| ]; [ idtac | assumption ].
+ rewrite Hss₄.
+ destruct (stop s₄) as [st₄| ]; [ idtac | assumption ].
+ destruct (lt_dec ni₁ st₄) as [Hlt₂| ]; [ idtac | assumption ].
+ constructor.
+ inversion Hi; subst.
+ rewrite Hti₁, Hti₂, H1; reflexivity.
 
-      pose proof (IHni₁ (S i)) as Hi.
-      rewrite Heqxo in Hi.
-      rewrite Heqyo in Hi.
-      inversion Hi.
-bbb.
+ destruct yo; [ inversion Hi | idtac ].
+ unfold series_nth.
+ rewrite Hss₃.
+ destruct (stop s₂) as [st₂| ]; [ idtac | assumption ].
+ destruct (lt_dec i st₂) as [Hlt| ]; [ idtac | assumption ].
+ rewrite Hss₄.
+ destruct (stop s₄) as [st₄| ]; [ idtac | assumption ].
+ destruct (lt_dec ni₁ st₄) as [Hlt₂| ]; [ idtac | assumption ].
+ constructor.
+ rewrite Hti₁, Hti₂; reflexivity.
+Qed.
 
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
