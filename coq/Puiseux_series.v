@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.261 2013-08-19 15:36:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.262 2013-08-19 15:37:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -691,55 +691,6 @@ Definition ps_const c : puiseux_series α :=
        nz_comden := 1 |}.
 
 Definition ps_one := ps_const (one fld).
-
-(*
-Inductive eq_option eq_elem : option α → option α → Prop :=
-  | eq_some : ∀ x y, eq_elem x y → eq_option eq_elem (Some x) (Some y)
-  | eq_none : eq_option eq_elem None None.
-
-Add Parametric Morphism : (sum_mul_coeff fld) with signature
-  eq ==> eq ==> eq_series fld ==> eq_series fld ==> eq_option (fld_eq fld)
-as sum_mul_coeff_morph.
-Proof.
-intros i ni₁ s₁ s₂ Hss₁ s₃ s₄ Hss₂.
-inversion Hss₁ as (a, b, Hti₁, Hss₃); subst.
-inversion Hss₂ as (a, b, Hti₂, Hss₄); subst.
-revert i.
-induction ni₁ as [| ni₁]; intros; [ constructor | simpl ].
-pose proof (IHni₁ (S i)) as Hi.
-remember (sum_mul_coeff fld (S i) ni₁ s₁ s₃) as xo.
-symmetry in Heqxo.
-remember (sum_mul_coeff fld (S i) ni₁ s₂ s₄) as yo.
-symmetry in Heqyo.
-destruct xo as [x| ].
- destruct yo as [y| ]; [ idtac | inversion Hi ].
- unfold series_nth.
- rewrite Hss₃.
- destruct (stop s₂) as [st₂| ]; [ idtac | assumption ].
- destruct (lt_dec i st₂) as [Hlt| ]; [ idtac | assumption ].
- rewrite Hss₄.
- destruct (stop s₄) as [st₄| ]; [ idtac | assumption ].
- destruct (lt_dec ni₁ st₄) as [Hlt₂| ]; [ idtac | assumption ].
- constructor.
- inversion Hi; subst.
- rewrite Hti₁, Hti₂, H1; reflexivity.
-
- destruct yo; [ inversion Hi | idtac ].
- unfold series_nth.
- rewrite Hss₃.
- destruct (stop s₂) as [st₂| ]; [ idtac | assumption ].
- destruct (lt_dec i st₂) as [Hlt| ]; [ idtac | assumption ].
- rewrite Hss₄.
- destruct (stop s₄) as [st₄| ]; [ idtac | assumption ].
- destruct (lt_dec ni₁ st₄) as [Hlt₂| ]; [ idtac | assumption ].
- constructor.
- rewrite Hti₁, Hti₂; reflexivity.
-Qed.
-
-Lemma zzz : ∀ eq_elem xo yo, xo = yo → eq_option eq_elem xo yo.
-Proof.
-bbb.
-*)
 
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
