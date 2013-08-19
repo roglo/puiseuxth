@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1109 2013-08-19 00:30:19 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1110 2013-08-19 01:18:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -60,7 +60,14 @@ intros f β₁ γ₁ c₁.
 unfold f₁, f₁'.
 unfold poly_eq; simpl.
 apply list_eq_append_one.
+remember (ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}) as g.
 split.
+ Focus 2.
+ unfold apply_poly_with_ps_poly.
+ unfold ps_pol_add; simpl.
+ unfold pol_add; simpl.
+ unfold ps_pol_mul; simpl.
+ unfold pol_mul; simpl.
 bbb.
 
 intros f β₁ γ₁ c₁.
