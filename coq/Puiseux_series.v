@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.262 2013-08-19 15:37:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.263 2013-08-19 18:29:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -694,6 +694,35 @@ Definition ps_one := ps_const (one fld).
 
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
+intros ps.
+unfold ps_mul; simpl.
+destruct ps as [nz| ]; [ idtac | reflexivity ].
+unfold lcm_div; simpl.
+rewrite Z.mul_1_r.
+constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
+rewrite stretch_series_1.
+rewrite stretch_series_1 in |- * at 2.
+constructor; simpl.
+ intros i.
+ destruct i; simpl.
+  unfold series_nth; simpl.
+  rewrite Nat.add_0_r.
+  destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [Hlt| Hge].
+   rewrite Nbar.mul_1_r.
+   remember (stop (nz_terms nz)) as st.
+   destruct st as [st| ]; simpl.
+    destruct (lt_dec 0 st) as [Hlt₁| Hge₁].
+     rewrite Nat.mod_0_l; simpl.
+      rewrite fld_mul_neutral; reflexivity.
+
+      apply pos_to_nat_ne_0.
+
+     apply not_gt in Hge₁.
+     apply Nat.le_0_r in Hge₁.
+     subst st.
+Focus 1.
+bbb.
+
 intros ps.
 unfold ps_mul; simpl.
 destruct ps as [nz| ]; [ idtac | reflexivity ].
