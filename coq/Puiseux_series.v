@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.258 2013-08-19 13:16:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.259 2013-08-19 13:53:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -692,32 +692,48 @@ Definition ps_const c : puiseux_series α :=
 
 Definition ps_one := ps_const (one fld).
 
-Add Parametric Morphism : (sum_mul_coeff fld) with
-signature eq ==> eq ==> eq_series fld ==> eq_series fld ==> eq
+Inductive eq_option eq_elem : option α → option α → Prop :=
+  | eq_some : ∀ x y, eq_elem x y → eq_option eq_elem (Some x) (Some y)
+  | eq_none : eq_option eq_elem None None.
+
+Add Parametric Morphism : (sum_mul_coeff fld) with signature
+  eq ==> eq ==> eq_series fld ==> eq_series fld ==> eq_option (fld_eq fld)
 as sum_mul_coeff_morph.
 Proof.
 intros i ni₁ s₁ s₂ Hss₁ s₃ s₄ Hss₂.
 revert i.
-induction ni₁ as [| ni₁]; intros; [ reflexivity | simpl ].
-rewrite IHni₁.
-remember (sum_mul_coeff fld (S i) ni₁ s₂ s₄) as x.
-symmetry in Heqx.
-destruct x as [c| ].
- inversion Hss₁ as (a, b, Hti₁, Hss₃); subst.
+induction ni₁ as [| ni₁]; intros; [ constructor | simpl ].
+inversion Hss₁ as (a, b, Hti₁, Hss₃); subst.
+remember (sum_mul_coeff fld (S i) ni₁ s₁ s₃) as xo.
+symmetry in Heqxo.
+destruct xo as [x| ].
  unfold series_nth.
  rewrite Hss₃.
  remember (stop s₂) as st₂.
  symmetry in Heqst₂.
- destruct st₂ as [st₂| ]; [ idtac | reflexivity ].
- destruct (lt_dec i st₂) as [Hlt| Hge]; [ idtac | reflexivity ].
- inversion Hss₂ as (a, b, Hti₂, Hss₄); subst.
- rewrite Hss₄.
- remember (stop s₄) as st₄.
- symmetry in Heqst₄.
- destruct st₄ as [st₄| ]; [ idtac | reflexivity ].
- destruct (lt_dec ni₁ st₄) as [Hlt₂| Hge].
+ destruct st₂ as [st₂| ].
+  destruct (lt_dec i st₂) as [Hlt| Hge].
+   inversion Hss₂ as (a, b, Hti₂, Hss₄); subst.
+   rewrite Hss₄.
+   remember (stop s₄) as st₄.
+   symmetry in Heqst₄.
+   destruct st₄ as [st₄| ].
+    destruct (lt_dec ni₁ st₄) as [Hlt₂| Hge].
+     remember (sum_mul_coeff fld (S i) ni₁ s₂ s₄) as yo.
+     symmetry in Heqyo.
+     destruct yo as [y| ].
+      constructor.
+      pose proof (IHni₁ (S i)) as Hi.
+      rewrite Heqxo in Hi.
+      rewrite Heqyo in Hi.
+      inversion Hi; subst.
+      rewrite Hti₁, Hti₂, H1; reflexivity.
+
+      pose proof (IHni₁ (S i)) as Hi.
+      rewrite Heqxo in Hi.
+      rewrite Heqyo in Hi.
+      inversion Hi.
 bbb.
-rewrite Hti₁.
 
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
