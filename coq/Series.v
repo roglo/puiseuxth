@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.40 2013-08-19 19:51:58 deraugla Exp $ *)
+(* $Id: Series.v,v 1.41 2013-08-19 21:50:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -118,6 +118,14 @@ intros i.
 unfold series_nth_fld; simpl.
 unfold series_nth_fld in H; simpl in H.
 unfold series_nth_fld in H0; simpl in H0.
+pose proof (H i) as Hi₁.
+pose proof (H0 i) as Hi₂.
+remember (Nbar.max (stop s₁) (stop s₃)) as st₁₃.
+remember (Nbar.max (stop s₂) (stop s₄)) as st₂₃.
+symmetry in Heqst₁₃, Heqst₂₃.
+destruct st₁₃ as [st₁₃| ].
+ destruct st₂₃ as [st₂₃| ].
+  destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
 bbb.
 
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
