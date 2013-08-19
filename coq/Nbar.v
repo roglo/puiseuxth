@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.24 2013-08-17 03:51:46 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.25 2013-08-19 19:38:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -303,6 +303,14 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Nat.min_comm; reflexivity.
 Qed.
 *)
+
+Theorem max_comm : ∀ n m, max n m = max m n.
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+rewrite Nat.max_comm; reflexivity.
+Qed.
 
 Theorem nlt_0_r : ∀ n, ¬(n < 0).
 Proof.

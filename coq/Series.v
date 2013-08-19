@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.38 2013-08-19 19:20:49 deraugla Exp $ *)
+(* $Id: Series.v,v 1.39 2013-08-19 19:38:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,6 +19,12 @@ Definition series_nth α n (s : series α) :=
   | ∞ => Some (terms s n)
   end.
 
+Definition series_nth_fld α fld n (s : series α) :=
+  match stop s with
+  | nfin st => if lt_dec n st then terms s n else zero fld
+  | ∞ => terms s n
+  end.
+
 Section field.
  
 Variable α : Type.
@@ -28,27 +34,23 @@ Definition series_0 := {| terms i := zero fld; stop := ∞ |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, fld_eq fld (terms s₁ i) (terms s₂ i))
-    → stop s₁ = stop s₂
-      → eq_series s₁ s₂.
+    (∀ i, fld_eq fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂))
+    → eq_series s₁ s₂.
 
 Notation "a ≃ b" := (eq_series a b) (at level 70).
 
 Theorem eq_series_refl : reflexive _ eq_series.
 Proof.
 intros s.
-constructor; [ idtac | reflexivity ].
-intros; reflexivity.
+constructor; reflexivity.
 Qed.
 
 Theorem eq_series_sym : symmetric _ eq_series.
 Proof.
 intros s₁ s₂ H.
 inversion H; subst.
-constructor; [ idtac | symmetry; assumption ].
-intros i.
-symmetry.
-apply H0.
+constructor.
+intros i; symmetry; apply H0.
 Qed.
 
 Theorem eq_series_trans : transitive _ eq_series.
@@ -56,10 +58,7 @@ Proof.
 intros s₁ s₂ s₃ H₁ H₂.
 inversion H₁; inversion H₂; subst.
 constructor.
- intros.
- etransitivity; [ apply H | apply H3 ].
-
- transitivity (stop s₂); assumption.
+etransitivity; [ apply H | apply H2 ].
 Qed.
 
 Definition series_add s₁ s₂ :=
@@ -71,11 +70,14 @@ Lemma series_add_comm : ∀ s₁ s₂,
 Proof.
 intros s₁ s₂.
 constructor; simpl.
- intros i.
- apply fld_add_comm.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.max_comm.
+destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
+ destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ rewrite fld_add_comm; reflexivity.
 
- destruct (stop s₁), (stop s₂); try reflexivity.
- simpl; rewrite Nat.max_comm; reflexivity.
+ rewrite fld_add_comm; reflexivity.
 Qed.
 
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
