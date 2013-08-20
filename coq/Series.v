@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.41 2013-08-19 21:50:58 deraugla Exp $ *)
+(* $Id: Series.v,v 1.42 2013-08-20 05:19:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -29,6 +29,7 @@ Section field.
  
 Variable α : Type.
 Variable fld : field α.
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Definition series_0 := {| terms i := zero fld; stop := ∞ |}.
 
@@ -99,6 +100,8 @@ destruct n as [n| ].
 Qed.
 
 End field.
+
+Notation "a ≍ b" := (fld_eq _ a b) (at level 70).
 
 Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
  reflexivity proved by (eq_series_refl fld)
