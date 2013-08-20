@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.43 2013-08-20 06:08:54 deraugla Exp $ *)
+(* $Id: Series.v,v 1.44 2013-08-20 06:14:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -20,10 +20,7 @@ Definition series_nth α n (s : series α) :=
   end.
 
 Definition series_nth_fld α fld n (s : series α) :=
-  match stop s with
-  | nfin st => if lt_dec n st then terms s n else zero fld
-  | ∞ => terms s n
-  end.
+  if Nbar.lt_dec (nfin n) (stop s) then terms s n else zero fld.
 
 Section field.
  
@@ -75,10 +72,11 @@ intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.max_comm.
 destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
- destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ destruct (Nbar.lt_dec (nfin i) (nfin n)) as [Hlt| ]; [ idtac | reflexivity ].
  rewrite fld_add_comm; reflexivity.
 
- rewrite fld_add_comm; reflexivity.
+ destruct (Nbar.lt_dec (nfin i) ∞); [ idtac | reflexivity ].
+ apply fld_add_comm.
 Qed.
 
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
