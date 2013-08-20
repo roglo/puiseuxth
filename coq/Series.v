@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.47 2013-08-20 13:01:10 deraugla Exp $ *)
+(* $Id: Series.v,v 1.48 2013-08-20 13:50:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -139,6 +139,10 @@ destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
      exfalso; apply Hge₅; clear Hge₅.
      eapply Nbar.lt_trans; [ idtac | eassumption ].
      assumption.
+
+    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      rewrite Hi₁, Hi₂; rewrite fld_add_neutral.
 bbb.
 
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
