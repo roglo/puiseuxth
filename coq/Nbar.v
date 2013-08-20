@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.28 2013-08-20 10:11:40 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.29 2013-08-20 13:01:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -164,6 +164,16 @@ destruct n as [n| ].
   left; constructor.
 
  destruct m as [m| ]; [ right; intros H; inversion H | left; constructor ].
+Qed.
+
+Theorem lt_trans : ∀ n m p, n < m → m < p → n < p.
+Proof.
+intros n m p Hnm Hmp.
+destruct p as [p| ]; [ idtac | constructor ].
+destruct m as [m| ]; [ simpl | inversion Hmp ].
+destruct n as [n| ]; [ simpl | inversion Hnm ].
+inversion Hnm; inversion Hmp; constructor.
+eapply Nat.lt_trans; eassumption.
 Qed.
 
 (*
