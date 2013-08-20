@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.49 2013-08-20 17:19:20 deraugla Exp $ *)
+(* $Id: Series.v,v 1.50 2013-08-20 17:55:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -100,7 +100,23 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))) as [Hlt₂| Hg
      exfalso; apply n; clear n.
      apply Nbar.max_lt_iff; left; assumption.
 
-Focus 1.
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     exfalso; apply n; clear n.
+     apply Nbar.max_lt_iff; left; assumption.
+
+   destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     exfalso; apply n; clear n.
+     apply Nbar.max_lt_iff; right; assumption.
+
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     rewrite fld_add_comm, fld_add_neutral; reflexivity.
 bbb.
 
 intros s₁ s₂ s₃.
