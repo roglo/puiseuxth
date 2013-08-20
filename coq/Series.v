@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.51 2013-08-20 18:08:31 deraugla Exp $ *)
+(* $Id: Series.v,v 1.52 2013-08-20 18:49:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -82,6 +82,7 @@ Qed.
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
   series_add (series_add s₁ s₂) s₃ ≃ series_add s₁ (series_add s₂ s₃).
 Proof.
+(* simplifiable peut-être en réordonnant les conditions *)
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
 constructor; simpl.
@@ -145,22 +146,48 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))) as [Hlt₂| Hg
      rewrite fld_add_comm, fld_add_neutral; reflexivity.
 
  destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
-bbb.
+  destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₃| Hge₃].
+   destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.max_lt_iff; left; assumption.
 
-intros s₁ s₂ s₃.
-unfold series_add; simpl.
-constructor; simpl.
-intros i.
-unfold series_nth_fld; simpl.
-rewrite Nbar.max_assoc.
-remember (Nbar.max (Nbar.max (stop s₁) (stop s₂)) (stop s₃)) as n.
-symmetry in Heqn.
-destruct n as [n| ].
- destruct (Nbar.lt_dec (fin i) (fin n)) as [Hlt|]; [ idtac | reflexivity ].
- rewrite fld_add_assoc; reflexivity.
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.max_lt_iff; left; assumption.
 
- destruct (Nbar.lt_dec (fin i) ∞); [ idtac | reflexivity ].
- rewrite fld_add_assoc; reflexivity.
+    exfalso; apply Hge₂; clear Hge₂.
+    apply Nbar.max_lt_iff; left; assumption.
+
+   destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.max_lt_iff; right; assumption.
+
+     do 2 rewrite fld_add_neutral; reflexivity.
+
+    exfalso; apply n; clear n.
+    apply Nbar.max_lt_iff; right; assumption.
+
+  destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₃| Hge₃].
+   destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.max_lt_iff; left; assumption.
+
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.max_lt_iff; left; assumption.
+
+    exfalso; apply Hge₂; clear Hge₂.
+    apply Nbar.max_lt_iff; left; assumption.
+
+   destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.max_lt_iff; right; assumption.
+
+     do 2 rewrite fld_add_neutral; reflexivity.
+
+    reflexivity.
 Qed.
 
 End field.
