@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.52 2013-08-20 18:49:05 deraugla Exp $ *)
+(* $Id: Series.v,v 1.53 2013-08-20 19:52:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -214,6 +214,7 @@ unfold series_nth_fld in H; simpl in H.
 unfold series_nth_fld in H0; simpl in H0.
 pose proof (H i) as Hi₁.
 pose proof (H0 i) as Hi₂.
+unfold series_nth_fld.
 destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
  rewrite Nbar.max_r; [ idtac | apply Nbar.lt_le_incl; assumption ].
  destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₂| Hge₂].
@@ -234,7 +235,34 @@ destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
 
     destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
      destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      rewrite Hi₁, Hi₂; rewrite fld_add_neutral.
+      rewrite Hi₁, Hi₂; rewrite fld_add_neutral; reflexivity.
+
+      rewrite Hi₁, Hi₂, fld_add_neutral; reflexivity.
+
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      rewrite <- Hi₂, fld_add_neutral; reflexivity.
+
+      reflexivity.
+
+   destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      rewrite Hi₁, Hi₂.
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       reflexivity.
+
+       exfalso; apply n.
+       apply Nbar.max_lt_iff; left; assumption.
+
+      rewrite Hi₁, Hi₂.
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       reflexivity.
+
+       exfalso; apply n.
+       apply Nbar.max_lt_iff; left; assumption.
+
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
 bbb.
 
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
