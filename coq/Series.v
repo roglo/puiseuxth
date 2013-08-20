@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.45 2013-08-20 10:11:40 deraugla Exp $ *)
+(* $Id: Series.v,v 1.46 2013-08-20 11:41:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -124,15 +124,13 @@ pose proof (H i) as Hi₁.
 pose proof (H0 i) as Hi₂.
 destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
  rewrite Nbar.max_r; [ idtac | apply Nbar.lt_le_incl; assumption ].
- Focus 1.
- destruct (stop s₃) as [st₃| ].
-  destruct (lt_dec i st₃) as [Hlt₂| Hgt₂].
-   destruct (Nbar.lt_dec (stop s₂) (stop s₄)) as [Hlt₃| Hge₃].
-    Focus 1.
-    rewrite Nbar.max_r; [ idtac | apply Nbar.lt_le_incl; assumption ].
-    destruct (stop s₄) as [st₄| ].
-     destruct (lt_dec i st₄) as [Hlt₄| Hgte₄].
-
+ destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₂| Hge₂].
+  destruct (Nbar.lt_dec (stop s₂) (stop s₄)) as [Hlt₃| Hge₃].
+   rewrite Nbar.max_r; [ idtac | apply Nbar.lt_le_incl; assumption ].
+   destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      rewrite Hi₁, Hi₂; reflexivity.
 bbb.
 
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
