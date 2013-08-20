@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.26 2013-08-19 19:51:58 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.27 2013-08-20 06:08:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -321,6 +321,30 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.max_assoc; reflexivity.
 Qed.
 
+Theorem max_l : ∀ n m, m ≤ n → max n m = n.
+Proof.
+intros n m H.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ idtac | inversion H ].
+rewrite Nat.max_l; [ reflexivity | inversion H; assumption ].
+Qed.
+
+Theorem max_r: ∀ n m, n ≤ m → max n m = m.
+Proof.
+intros n m H.
+destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
+destruct n as [n| ]; [ simpl | inversion H ].
+rewrite Nat.max_r; [ reflexivity | inversion H; assumption ].
+Qed.
+
+Theorem lt_le_incl : ∀ n m, n < m → n ≤ m.
+Proof.
+intros n m H.
+destruct m as [m| ]; [ idtac | constructor ].
+destruct n as [n| ]; [ idtac | inversion H ].
+constructor; apply Nat.lt_le_incl; inversion H; assumption.
+Qed.
+
 Theorem nlt_0_r : ∀ n, ¬(n < 0).
 Proof.
 intros n H.
@@ -370,3 +394,5 @@ End Nbar2Nat.
 *)
 
 Close Scope Nbar_scope.
+
+Notation "x ≤ y" := (Nbar.le x y) (at level 70) : Nbar_scope.
