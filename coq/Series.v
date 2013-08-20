@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.48 2013-08-20 13:50:14 deraugla Exp $ *)
+(* $Id: Series.v,v 1.49 2013-08-20 17:19:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -60,7 +60,7 @@ etransitivity; [ apply H | apply H2 ].
 Qed.
 
 Definition series_add s₁ s₂ :=
-  {| terms i := add fld (terms s₁ i) (terms s₂ i);
+  {| terms i := add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
      stop := Nbar.max (stop s₁) (stop s₂) |}.
 
 Lemma series_add_comm : ∀ s₁ s₂,
@@ -82,6 +82,27 @@ Qed.
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
   series_add (series_add s₁ s₂) s₃ ≃ series_add s₁ (series_add s₂ s₃).
 Proof.
+intros s₁ s₂ s₃.
+unfold series_add; simpl.
+constructor; simpl.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.max_assoc.
+remember (Nbar.max (Nbar.max (stop s₁) (stop s₂)) (stop s₃)) as n.
+destruct (Nbar.lt_dec (fin i) n) as [Hlt₁| ]; [ subst n | reflexivity ].
+destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))) as [Hlt₂| Hge₂].
+ destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₃| Hge₃].
+  destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+   destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     exfalso; apply n; clear n.
+     apply Nbar.max_lt_iff; left; assumption.
+
+Focus 1.
+bbb.
+
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
 constructor; simpl.

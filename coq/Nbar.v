@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.29 2013-08-20 13:01:10 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.30 2013-08-20 17:19:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -345,6 +345,25 @@ intros n m H.
 destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
 destruct n as [n| ]; [ simpl | inversion H ].
 rewrite Nat.max_r; [ reflexivity | inversion H; assumption ].
+Qed.
+
+Theorem max_lt_iff : ∀ n m p, p < max n m ↔ p < n ∨ p < m.
+Proof.
+intros n m p.
+split; intros H.
+ destruct n as [n| ]; [ idtac | left; constructor ].
+ destruct m as [m| ]; [ idtac | right; constructor ].
+ destruct p as [p| ]; [ idtac | inversion H ].
+ inversion_clear H; subst.
+ apply Nat.max_lt_iff in H0.
+ destruct H0; [ left | right ]; constructor; assumption.
+
+ destruct n as [n| ]; [ idtac | constructor ].
+ destruct m as [m| ]; [ idtac | constructor ].
+ destruct p as [p| ]; [ idtac | destruct H; inversion H ].
+ constructor.
+ apply Nat.max_lt_iff.
+ destruct H as [H| H]; [ left | right ]; inversion H; assumption.
 Qed.
 
 Theorem lt_le_incl : ∀ n m, n < m → n ≤ m.
