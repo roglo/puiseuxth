@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.44 2013-08-20 06:14:12 deraugla Exp $ *)
+(* $Id: Series.v,v 1.45 2013-08-20 10:11:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,12 +15,12 @@ Record series α :=
 
 Definition series_nth α n (s : series α) :=
   match stop s with
-  | nfin st => if lt_dec n st then Some (terms s n) else None
+  | fin st => if lt_dec n st then Some (terms s n) else None
   | ∞ => Some (terms s n)
   end.
 
 Definition series_nth_fld α fld n (s : series α) :=
-  if Nbar.lt_dec (nfin n) (stop s) then terms s n else zero fld.
+  if Nbar.lt_dec (fin n) (stop s) then terms s n else zero fld.
 
 Section field.
  
@@ -72,11 +72,11 @@ intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.max_comm.
 destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
- destruct (Nbar.lt_dec (nfin i) (nfin n)) as [Hlt| ]; [ idtac | reflexivity ].
+ destruct (Nbar.lt_dec (fin i) (fin n)) as [Hlt| ]; [ idtac | reflexivity ].
  rewrite fld_add_comm; reflexivity.
 
- destruct (Nbar.lt_dec (nfin i) ∞); [ idtac | reflexivity ].
- apply fld_add_comm.
+ destruct (Nbar.lt_dec (fin i) ∞); [ idtac | reflexivity ].
+ rewrite fld_add_comm; reflexivity.
 Qed.
 
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
@@ -91,9 +91,10 @@ rewrite Nbar.max_assoc.
 remember (Nbar.max (Nbar.max (stop s₁) (stop s₂)) (stop s₃)) as n.
 symmetry in Heqn.
 destruct n as [n| ].
- destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
+ destruct (Nbar.lt_dec (fin i) (fin n)) as [Hlt|]; [ idtac | reflexivity ].
  rewrite fld_add_assoc; reflexivity.
 
+ destruct (Nbar.lt_dec (fin i) ∞); [ idtac | reflexivity ].
  rewrite fld_add_assoc; reflexivity.
 Qed.
 

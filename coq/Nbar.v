@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.27 2013-08-20 06:08:54 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.28 2013-08-20 10:11:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -7,15 +7,15 @@ Require Import NPeano.
 Set Implicit Arguments.
 
 Inductive Nbar : Set :=
-  | nfin : ∀ x : nat, Nbar
-  | ninf : Nbar.
+  | fin : ∀ x : nat, Nbar
+  | inf : Nbar.
 
 Delimit Scope Nbar_scope with Nbar.
 Bind Scope Nbar_scope with Nbar.
 
-Notation "∞" := ninf.
-Notation "0" := (nfin 0) : Nbar_scope.
-Notation "1" := (nfin 1) : Nbar_scope.
+Notation "∞" := inf.
+Notation "0" := (fin 0) : Nbar_scope.
+Notation "1" := (fin 1) : Nbar_scope.
 
 Open Scope Nbar_scope.
 
@@ -23,15 +23,15 @@ Module Nbar.
 
 Definition S n :=
   match n with
-  | nfin n => nfin (S n)
+  | fin n => fin (S n)
   | ∞ => ∞
   end.
 
 Definition binop f dx dy xb yb :=
   match xb with
-  | nfin x =>
+  | fin x =>
       match yb with
-      | nfin y => nfin (f x y)
+      | fin y => fin (f x y)
       | ∞ => dx
       end
   | ∞ => dy
@@ -45,9 +45,9 @@ Definition min x y := binop min x y x y.
 
 Definition sub xb yb :=
   match yb with
-  | nfin y =>
+  | fin y =>
       match xb with
-      | nfin x => nfin (minus x y)
+      | fin x => fin (minus x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -61,8 +61,8 @@ Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
-  | le_nfin : ∀ n m, (n <= m)%nat → nfin n ≤ nfin m
-  | le_ninf : ∀ n, n ≤ ∞
+  | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
+  | le_inf : ∀ n, n ≤ ∞
 
 where "n ≤ m" := (le n m) : Nbar_scope.
 
@@ -77,22 +77,22 @@ Infix ">" := gt : Nbar_scope.
 
 Definition to_nat nb :=
   match nb with
-  | nfin n => n
-  | ninf => O
+  | fin n => n
+  | inf => O
   end.
 *)
 
-Theorem nfin_inj_mul : ∀ n m, nfin (n * m) = nfin n * nfin m.
+Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
 Proof. reflexivity. Qed.
 
-Theorem nfin_inj_add : ∀ n m, nfin (n + m) = nfin n + nfin m.
+Theorem fin_inj_add : ∀ n m, fin (n + m) = fin n + fin m.
 Proof. reflexivity. Qed.
 
 (*
-Theorem nfin_inj_sub : ∀ n m, nfin (n - m) = nfin n - nfin m.
+Theorem fin_inj_sub : ∀ n m, fin (n - m) = fin n - fin m.
 Proof. reflexivity. Qed.
 
-Theorem nfin_inj_S : ∀ n, nfin (Datatypes.S n) = S (nfin n).
+Theorem fin_inj_S : ∀ n, fin (Datatypes.S n) = S (fin n).
 Proof. reflexivity. Qed.
 
 Theorem not_gt : ∀ n m, ¬n > m → n ≤ m.
@@ -249,7 +249,7 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Nat.mul_assoc; reflexivity | reflexivity ].
 Qed.
 
-Theorem mul_1_r : ∀ n, n * nfin 1 = n.
+Theorem mul_1_r : ∀ n, n * fin 1 = n.
 Proof.
 intros n.
 destruct n as [n| ]; [ simpl | reflexivity ].
