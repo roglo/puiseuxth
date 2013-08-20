@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.50 2013-08-20 17:55:28 deraugla Exp $ *)
+(* $Id: Series.v,v 1.51 2013-08-20 18:08:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -117,6 +117,34 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))) as [Hlt₂| Hg
      apply fld_add_assoc.
 
      rewrite fld_add_comm, fld_add_neutral; reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+   destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     exfalso; apply n; clear n.
+     apply Nbar.max_lt_iff; left; assumption.
+
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     exfalso; apply n; clear n.
+     apply Nbar.max_lt_iff; left; assumption.
+
+   destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     exfalso; apply n; clear n.
+     apply Nbar.max_lt_iff; right; assumption.
+
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))).
+     apply fld_add_assoc.
+
+     rewrite fld_add_comm, fld_add_neutral; reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
 bbb.
 
 intros s₁ s₂ s₃.
