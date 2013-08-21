@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.265 2013-08-19 19:20:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.266 2013-08-21 05:16:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,7 +38,7 @@ Definition stretch_series k s :=
   {| terms i :=
        if zerop (i mod k) then terms s (i / k) else zero fld;
      stop :=
-       stop s * nfin k |}.
+       stop s * fin k |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
@@ -112,7 +112,7 @@ constructor; simpl.
   rewrite Hz₁, mult_0_r in Hnz.
   exfalso; revert Hnz; apply lt_irrefl.
 
- rewrite Nbar.nfin_inj_mul.
+ rewrite Nbar.fin_inj_mul.
  rewrite Nbar.mul_shuffle0, Nbar.mul_assoc; reflexivity.
 Qed.
 
@@ -230,7 +230,7 @@ Definition adjust k nz :=
 
 Definition series_pad_left n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n);
-     stop := stop s + nfin n |}.
+     stop := stop s + fin n |}.
 
 (*
 Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
@@ -494,7 +494,7 @@ constructor; simpl.
 
     rewrite Nat.sub_add_distr; reflexivity.
 
- rewrite Nbar.nfin_inj_add.
+ rewrite Nbar.fin_inj_add.
  rewrite Nbar.add_shuffle0, Nbar.add_assoc; reflexivity.
 Qed.
 
