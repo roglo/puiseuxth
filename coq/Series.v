@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.53 2013-08-20 19:52:59 deraugla Exp $ *)
+(* $Id: Series.v,v 1.54 2013-08-21 03:46:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -263,6 +263,75 @@ destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
 
      destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
       destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       exfalso; apply Hge₅; clear Hge₅.
+       eapply Nbar.lt_trans; [ idtac | eassumption ].
+       assumption.
+
+       reflexivity.
+
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       exfalso; apply Hge₅; clear Hge₅.
+       eapply Nbar.lt_trans; [ idtac | eassumption ].
+       assumption.
+
+       reflexivity.
+
+    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      rewrite Hi₁, Hi₂.
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       reflexivity.
+
+       exfalso; apply n.
+       apply Nbar.max_lt_iff; right; assumption.
+
+      rewrite Hi₁, Hi₂.
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       reflexivity.
+
+       rewrite fld_add_neutral; reflexivity.
+
+     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       rewrite <- Hi₂.
+       rewrite fld_add_neutral; reflexivity.
+
+       reflexivity.
+
+      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+       rewrite fld_add_neutral; reflexivity.
+
+       reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
+   destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
+    destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+      rewrite <- Hi₁, Hi₂.
+      reflexivity.
+
+      exfalso; apply n.
+      apply Nbar.max_lt_iff; right; assumption.
+
+     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+      rewrite <- Hi₁, Hi₂.
+      reflexivity.
+
+      rewrite Hi₂.
+      rewrite fld_add_neutral; reflexivity.
+
+    destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
+     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+      rewrite <- Hi₁, <- Hi₂.
+      rewrite fld_add_neutral; reflexivity.
+
+      reflexivity.
+
+     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
+      rewrite <- Hi₁.
+      rewrite fld_add_neutral; reflexivity.
+
+      reflexivity.
 bbb.
 
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
