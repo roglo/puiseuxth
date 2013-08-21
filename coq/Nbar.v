@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.30 2013-08-20 17:19:20 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.31 2013-08-21 11:33:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -115,6 +115,7 @@ intros n m.
 destruct n; [ simpl | destruct m; reflexivity ].
 destruct m; [ rewrite Nat.add_comm; reflexivity | reflexivity ].
 Qed.
+*)
 
 Theorem mul_comm : ∀ n m, n * m = m * n.
 Proof.
@@ -123,6 +124,7 @@ destruct n; [ simpl | destruct m; reflexivity ].
 destruct m; [ rewrite Nat.mul_comm; reflexivity | reflexivity ].
 Qed.
 
+(*
 Theorem mul_add_distr_l : ∀ n m p, n * (m + p) = n * m + n * p.
 Proof.
 intros n m p.
@@ -149,6 +151,13 @@ destruct m as [m| ]; simpl.
  split; intros H; constructor.
 Qed.
 *)
+
+Theorem mul_0_r : ∀ n, n ≠ inf → n * 0 = 0.
+Proof.
+intros n Hn.
+destruct n; [ idtac | exfalso; apply Hn; reflexivity ].
+rewrite mul_comm; reflexivity.
+Qed.
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
 Proof.

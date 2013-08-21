@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.267 2013-08-21 09:48:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.268 2013-08-21 11:33:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,7 +36,7 @@ Variable fld : field α.
 
 Definition stretch_series k s :=
   {| terms i :=
-       if zerop (i mod k) then terms s (i / k) else zero fld;
+       if zerop (i mod k) then series_nth_fld fld (i / k) s else zero fld;
      stop :=
        stop s * fin k |}.
 
