@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.271 2013-08-21 19:43:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.272 2013-08-21 20:12:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -409,6 +409,22 @@ End fld₂.
 Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
 Proof.
+intros n s₁ s₂ H.
+constructor; simpl.
+intros i.
+inversion H; subst.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld in H0; simpl in H0.
+pose proof (H0 (i - n)%nat) as Hi.
+destruct (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
+ destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
+  destruct (lt_dec i n); [ reflexivity | idtac ].
+  destruct (Nbar.lt_dec (fin (i - n)) (stop s₁)) as [Hlt₃| Hge₃].
+   destruct (Nbar.lt_dec (fin (i - n)) (stop s₂)) as [Hlt₄| Hge₄].
+    assumption.
+
+    exfalso; apply Hge₄; clear Hge₄.
+bbb.
 intros n s₁ s₂ H.
 constructor; simpl.
  intros i.
