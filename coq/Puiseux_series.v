@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.270 2013-08-21 17:35:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.271 2013-08-21 19:43:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -254,15 +254,14 @@ inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; su
    rewrite <- Hck₁ in Hck₂.
    do 2 rewrite <- Pos.mul_assoc in Hck₂.
    econstructor; try eassumption.
-   do 2 rewrite Pos2Nat.inj_mul.
-   symmetry; rewrite mult_comm.
+   symmetry; rewrite Pos.mul_comm.
    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   symmetry; rewrite mult_comm.
+   symmetry; rewrite Pos.mul_comm.
    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
    rewrite Hss₁, <- Hss₂.
    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Nat.mul_comm; reflexivity.
+   rewrite Pos.mul_comm; reflexivity.
 
    apply Zpos_ne_0.
 
@@ -309,7 +308,7 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   end.
 
 Definition adjust k nz :=
-  {| nz_terms := stretch_series fld (Pos.to_nat k) (nz_terms nz);
+  {| nz_terms := stretch_series fld k (nz_terms nz);
      nz_valnum := nz_valnum nz * 'k;
      nz_comden := nz_comden nz * k |}.
 
