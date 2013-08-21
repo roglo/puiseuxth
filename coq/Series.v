@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.54 2013-08-21 03:46:05 deraugla Exp $ *)
+(* $Id: Series.v,v 1.55 2013-08-21 04:28:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,6 +83,8 @@ Lemma series_add_assoc : ∀ s₁ s₂ s₃,
   series_add (series_add s₁ s₂) s₃ ≃ series_add s₁ (series_add s₂ s₃).
 Proof.
 (* simplifiable peut-être en réordonnant les conditions *)
+(* cf Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
+   ci-dessous : s'en inspirer *)
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
 constructor; simpl.
@@ -214,132 +216,39 @@ unfold series_nth_fld in H; simpl in H.
 unfold series_nth_fld in H0; simpl in H0.
 pose proof (H i) as Hi₁.
 pose proof (H0 i) as Hi₂.
+clear H H0.
 unfold series_nth_fld.
-destruct (Nbar.lt_dec (stop s₁) (stop s₃)) as [Hlt₁| Hge₁].
- rewrite Nbar.max_r; [ idtac | apply Nbar.lt_le_incl; assumption ].
- destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₂| Hge₂].
-  destruct (Nbar.lt_dec (stop s₂) (stop s₄)) as [Hlt₃| Hge₃].
-   rewrite Nbar.max_r; [ idtac | apply Nbar.lt_le_incl; assumption ].
-   destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
-    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      rewrite Hi₁, Hi₂; reflexivity.
+remember (Nbar.lt_dec (fin i) (stop s₁)) as lt₁.
+remember (Nbar.lt_dec (fin i) (stop s₂)) as lt₂.
+remember (Nbar.lt_dec (fin i) (stop s₃)) as lt₃.
+remember (Nbar.lt_dec (fin i) (stop s₄)) as lt₄.
+remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₃))) as lt₅.
+remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))) as lt₆.
+clear Heqlt₁ Heqlt₂ Heqlt₃ Heqlt₄ Heqlt₅ Heqlt₆.
+move Hi₁ at bottom.
+move Hi₂ at bottom.
+destruct lt₅ as [Hlt₅| Hge₅].
+ rewrite Hi₁, Hi₂.
+ destruct lt₆ as [Hlt₆| Hge₆]; [ reflexivity | idtac ].
+ destruct lt₂ as [Hlt₂| Hge₂].
+  exfalso; apply Hge₆; clear Hge₆.
+  apply Nbar.max_lt_iff; left; assumption.
 
-      exfalso; apply Hge₆; clear Hge₆.
-      eapply Nbar.lt_trans; [ idtac | eassumption ].
-      assumption.
+  destruct lt₄ as [Hlt₄| Hge₄].
+   exfalso; apply Hge₆; clear Hge₆.
+   apply Nbar.max_lt_iff; right; assumption.
 
-     exfalso; apply Hge₅; clear Hge₅.
-     eapply Nbar.lt_trans; [ idtac | eassumption ].
-     assumption.
+   rewrite fld_add_neutral; reflexivity.
 
-    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      rewrite Hi₁, Hi₂; rewrite fld_add_neutral; reflexivity.
+ destruct lt₁ as [Hlt₁| Hge₁].
+  exfalso; apply Hge₅; clear Hge₅.
+  apply Nbar.max_lt_iff; left; assumption.
 
-      rewrite Hi₁, Hi₂, fld_add_neutral; reflexivity.
+  destruct lt₃ as [Hlt₃| Hge₃].
+   exfalso; apply Hge₅; clear Hge₅.
+   apply Nbar.max_lt_iff; right; assumption.
 
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      rewrite <- Hi₂, fld_add_neutral; reflexivity.
-
-      reflexivity.
-
-   destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
-    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      rewrite Hi₁, Hi₂.
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       reflexivity.
-
-       exfalso; apply n.
-       apply Nbar.max_lt_iff; left; assumption.
-
-      rewrite Hi₁, Hi₂.
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       reflexivity.
-
-       exfalso; apply n.
-       apply Nbar.max_lt_iff; left; assumption.
-
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       exfalso; apply Hge₅; clear Hge₅.
-       eapply Nbar.lt_trans; [ idtac | eassumption ].
-       assumption.
-
-       reflexivity.
-
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       exfalso; apply Hge₅; clear Hge₅.
-       eapply Nbar.lt_trans; [ idtac | eassumption ].
-       assumption.
-
-       reflexivity.
-
-    destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      rewrite Hi₁, Hi₂.
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       reflexivity.
-
-       exfalso; apply n.
-       apply Nbar.max_lt_iff; right; assumption.
-
-      rewrite Hi₁, Hi₂.
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       reflexivity.
-
-       rewrite fld_add_neutral; reflexivity.
-
-     destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       rewrite <- Hi₂.
-       rewrite fld_add_neutral; reflexivity.
-
-       reflexivity.
-
-      destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-       rewrite fld_add_neutral; reflexivity.
-
-       reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₄| Hge₄].
-   destruct (Nbar.lt_dec (fin i) (stop s₃)) as [Hlt₅| Hge₅].
-    destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-      rewrite <- Hi₁, Hi₂.
-      reflexivity.
-
-      exfalso; apply n.
-      apply Nbar.max_lt_iff; right; assumption.
-
-     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-      rewrite <- Hi₁, Hi₂.
-      reflexivity.
-
-      rewrite Hi₂.
-      rewrite fld_add_neutral; reflexivity.
-
-    destruct (Nbar.lt_dec (fin i) (stop s₄)) as [Hlt₆| Hge₆].
-     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-      rewrite <- Hi₁, <- Hi₂.
-      rewrite fld_add_neutral; reflexivity.
-
-      reflexivity.
-
-     destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))).
-      rewrite <- Hi₁.
-      rewrite fld_add_neutral; reflexivity.
-
-      reflexivity.
-bbb.
-
-intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
-inversion Heq₁; subst.
-inversion Heq₂; subst.
-constructor; simpl.
- intros i.
- rewrite H, H1; reflexivity.
-
- rewrite H0, H2; reflexivity.
+   destruct lt₆ as [Hlt₆| Hge₆]; [ idtac | reflexivity ].
+   rewrite <- Hi₁, <- Hi₂.
+   rewrite fld_add_neutral; reflexivity.
 Qed.
