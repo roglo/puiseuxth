@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.268 2013-08-21 11:33:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.269 2013-08-21 15:18:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -82,38 +82,70 @@ rewrite Nbar.fin_inj_mul, Nbar.mul_shuffle0, Nbar.mul_assoc.
 remember (Nbar.lt_dec (fin i) (stop s * fin a * fin b)) as n.
 destruct n as [Hlt| ]; [ clear Heqn | reflexivity ].
 destruct (zerop (i mod (a * b))) as [Hz| Hnz].
- destruct (zerop (i mod a)) as [Hz₁| Hnz].
-  destruct (zerop ((i / a) mod b)) as [Hz₂| Hnz].
-   rewrite Nat.div_div; [ reflexivity | assumption | assumption ].
+ apply Nat.mod_divides in Hz.
+  destruct Hz as (c, Hz).
+  subst i.
+  rewrite Nat.mul_comm, Nat.div_mul.
+   destruct (Nbar.lt_dec (fin c) (stop s)) as [Hlt₁| Hge₁].
+    rewrite Nat.mul_comm, <- Nat.mul_assoc, Nat.mul_comm.
+    rewrite Nat.mod_mul; [ simpl | assumption ].
+    rewrite Nat.div_mul; [ simpl | assumption ].
+    rewrite Nbar.fin_inj_mul, Nbar.mul_comm.
+    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
+     rewrite Nat.mul_comm, Nat.mod_mul; [ simpl | assumption ].
+     rewrite Nat.div_mul; [ simpl | assumption ].
+     destruct (Nbar.lt_dec (fin c) (stop s)); [ reflexivity | contradiction ].
 
-   apply Nat.mod_divides in Hz.
-    destruct Hz as (c, Hz).
-    subst i.
-    rewrite <- mult_assoc, mult_comm in Hnz.
-    rewrite Nat.div_mul in Hnz; [ idtac | assumption ].
-    rewrite mult_comm, Nat.mod_mul in Hnz; [ idtac | assumption ].
-    exfalso; revert Hnz; apply lt_irrefl.
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.mul_lt_mono_pos_r.
+      constructor.
+      apply neq_0_lt, Nat.neq_sym; assumption.
 
-    apply Nat.neq_mul_0; split; assumption.
+      intros H; discriminate H.
 
-  apply Nat.mod_divides in Hz.
-   destruct Hz as (c, Hz).
-   subst i.
-   rewrite <- mult_assoc, mult_comm in Hnz.
-   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+      intros H; discriminate H.
+
+      assumption.
+
+    rewrite Nat.mul_assoc, Nat.mul_shuffle0.
+    rewrite Nat.mod_mul; [ simpl | assumption ].
+    rewrite Nat.div_mul; [ simpl | assumption ].
+    rewrite Nbar.fin_inj_mul.
+    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
+     exfalso; apply Hge₁.
+     apply Nbar.mul_lt_mono_pos_r in Hlt₂.
+      assumption.
+
+      constructor.
+      apply neq_0_lt, Nat.neq_sym; assumption.
+
+      intros H; discriminate H.
+
+      intros H; discriminate H.
+
+     reflexivity.
+
+   apply Nat.neq_mul_0; split; assumption.
+
+  apply Nat.neq_mul_0; split; assumption.
+
+ destruct (zerop (i mod a)) as [Hz| ]; [ idtac | reflexivity ].
+ apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ destruct Hz as (c, Hz).
+ subst i.
+ rewrite Nat.mul_comm, Nat.div_mul; [ idtac | assumption ].
+ destruct (Nbar.lt_dec (fin c) (stop s * fin b)) as [Hlt₁| Hgt₁].
+  destruct (zerop (c mod b)) as [Hlt₂| ]; [ idtac | reflexivity ].
+  apply Nat.mod_divides in Hlt₂; [ idtac | assumption ].
+  destruct Hlt₂ as (c₂, Hlt₂).
+  subst c.
+  rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
+  rewrite Nat.mod_mul in Hnz.
    exfalso; revert Hnz; apply lt_irrefl.
 
    apply Nat.neq_mul_0; split; assumption.
 
- destruct (zerop (i mod a)) as [Hz| ]; [ idtac | reflexivity ].
- destruct (zerop ((i / a) mod b)) as [Hz₁| ]; [ idtac | reflexivity ].
- apply Nat.mod_divides in Hz; [ idtac | assumption ].
- destruct Hz as (c, Hz).
- subst i.
- rewrite mult_comm, Nat.div_mul in Hz₁; [ idtac | assumption ].
- rewrite Nat.mul_mod_distr_l in Hnz; [ idtac | assumption | assumption ].
- rewrite Hz₁, mult_0_r in Hnz.
- exfalso; revert Hnz; apply lt_irrefl.
+  reflexivity.
 Qed.
 
 End fld.

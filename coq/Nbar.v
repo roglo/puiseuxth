@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.31 2013-08-21 11:33:46 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.32 2013-08-21 15:18:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -133,6 +133,7 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_l; reflexivity.
 Qed.
+*)
 
 Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
   n < m ↔ n * p < m * p.
@@ -150,7 +151,6 @@ destruct m as [m| ]; simpl.
 
  split; intros H; constructor.
 Qed.
-*)
 
 Theorem mul_0_r : ∀ n, n ≠ inf → n * 0 = 0.
 Proof.
