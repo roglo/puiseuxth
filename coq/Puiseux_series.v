@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.269 2013-08-21 15:18:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.270 2013-08-21 17:35:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,17 +36,19 @@ Variable fld : field α.
 
 Definition stretch_series k s :=
   {| terms i :=
-       if zerop (i mod k) then series_nth_fld fld (i / k) s else zero fld;
+       if zerop (i mod Pos.to_nat k) then
+         series_nth_fld fld (i / Pos.to_nat k) s
+       else zero fld;
      stop :=
-       stop s * fin k |}.
+       stop s * fin (Pos.to_nat k) |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_non_zero_ps : ∀ k₁ k₂ nz₁ nz₂,
-      stretch_series (Pos.to_nat k₁) (nz_terms nz₁) ≃
-      stretch_series (Pos.to_nat k₂) (nz_terms nz₂)
+      stretch_series k₁ (nz_terms nz₁) ≃
+      stretch_series k₂ (nz_terms nz₂)
       → (nz_valnum nz₁ * 'k₁)%Z = (nz_valnum nz₂ * 'k₂)%Z
         → (nz_comden nz₁ * k₁ = nz_comden nz₂ * k₂)%positive
           → eq_ps (NonZero nz₁) (NonZero nz₂)
@@ -69,15 +71,18 @@ econstructor; symmetry; eassumption.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
-  a ≠ O
-  → b ≠ O
-    → stretch_series (a * b) s ≃ stretch_series a (stretch_series b s).
+  stretch_series (a * b) s ≃ stretch_series a (stretch_series b s).
 Proof.
-intros a b s Ha Hb.
+intros ap bp s.
 unfold stretch_series; simpl.
 constructor; simpl.
 intros i.
 unfold series_nth_fld; simpl.
+rewrite Pos2Nat.inj_mul.
+remember (Pos.to_nat ap) as a.
+remember (Pos.to_nat bp) as b.
+assert (a ≠ O) as Ha by (subst a; apply pos_to_nat_ne_0).
+assert (b ≠ O) as Hb by (subst b; apply pos_to_nat_ne_0).
 rewrite Nbar.fin_inj_mul, Nbar.mul_shuffle0, Nbar.mul_assoc.
 remember (Nbar.lt_dec (fin i) (stop s * fin a * fin b)) as n.
 destruct n as [Hlt| ]; [ clear Heqn | reflexivity ].
@@ -153,13 +158,65 @@ End fld.
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
 Proof.
-intros k s₁ s₂ H.
-inversion H; subst.
+intros kp s₁ s₂ Heq.
+inversion Heq; subst.
+clear Heq; rename H into Heq.
 constructor; simpl.
- intros i.
- destruct (zerop (i mod k)); [ apply H0 | reflexivity ].
+intros i.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld in Heq; simpl in Heq.
+remember (Pos.to_nat kp) as k.
+assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
+destruct (zerop (i mod k)) as [Hz| Hnz].
+ apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ destruct Hz as (c, Hi).
+ subst i.
+ pose proof (Heq c) as Hc.
+ rewrite Nat.mul_comm.
+ rewrite Nbar.fin_inj_mul.
+ rewrite Nat.div_mul; [ idtac | assumption ].
+ destruct (Nbar.lt_dec (fin c * fin k) (stop s₁ * fin k)) as [Hlt₁| Hge₁].
+  destruct (Nbar.lt_dec (fin c) (stop s₂)) as [Hlt₄| Hge₄].
+   destruct (Nbar.lt_dec (fin c * fin k) (stop s₂ * fin k)) as [Hlt₃| Hge₃].
+    assumption.
 
- destruct (stop s₁); rewrite <- H1; reflexivity.
+    (* peut-être faire un lemme puisque utilisé deux fois *)
+    exfalso; apply Hge₃; clear Hge₃.
+    apply Nbar.mul_lt_mono_pos_r.
+     rewrite Heqk; simpl; constructor; apply Pos2Nat.is_pos.
+
+     intros H; discriminate H.
+
+     intros H; discriminate H.
+
+     assumption.
+
+   destruct (Nbar.lt_dec (fin c * fin k) (stop s₂ * fin k)); assumption.
+
+  destruct (Nbar.lt_dec (fin c * fin k) (stop s₂ * fin k)) as [Hlt₂| ].
+   destruct (Nbar.lt_dec (fin c) (stop s₂)) as [Hlt₃| ].
+    destruct (Nbar.lt_dec (fin c) (stop s₁)) as [Hlt₄| ].
+     exfalso; apply Hge₁; clear Hge₁.
+     apply Nbar.mul_lt_mono_pos_r.
+      rewrite Heqk; simpl; constructor; apply Pos2Nat.is_pos.
+
+      intros H; discriminate H.
+
+      intros H; discriminate H.
+
+      assumption.
+
+     assumption.
+
+    reflexivity.
+
+   reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin k)).
+  destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
 Qed.
 
 Section fld₁.
@@ -171,16 +228,14 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 
-Lemma stretch_series_1 : ∀ s, stretch_series fld (Pos.to_nat 1) s ≃ s.
+Lemma stretch_series_1 : ∀ s, stretch_series fld 1 s ≃ s.
 Proof.
 intros s.
 unfold stretch_series; simpl.
-destruct s as (t, st); simpl.
-constructor; simpl.
- intros i; rewrite divmod_div.
- rewrite Nat.div_1_r; reflexivity.
-
- rewrite Nbar.mul_1_r; reflexivity.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
+destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
 Theorem eq_ps_trans : transitive _ (eq_ps fld).

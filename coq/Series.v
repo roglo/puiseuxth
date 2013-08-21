@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.56 2013-08-21 05:16:16 deraugla Exp $ *)
+(* $Id: Series.v,v 1.57 2013-08-21 17:35:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -32,7 +32,7 @@ Definition series_0 := {| terms i := zero fld; stop := ∞ |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, fld_eq fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂))
+    (∀ i, series_nth_fld fld i s₁ ≍ series_nth_fld fld i s₂)
     → eq_series s₁ s₂.
 
 Notation "a ≃ b" := (eq_series a b) (at level 70).
