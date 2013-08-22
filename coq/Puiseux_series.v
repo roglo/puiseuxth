@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.283 2013-08-22 17:48:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.284 2013-08-22 19:36:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -20,18 +20,13 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
-(* [series_head is_zero n s] skip the possible terms (starting from the nth
-   one) with null coefficients and return either the couple of the rank of
-   the first non null coefficient and the value of this coefficient or
-   None if the series is null. Allows to compute the real valuation of a
-   series, skipping the heading zeroes. Cannot be implemented in Coq since
-   can take an infinite amount of time. *)
-Definition series_head : ∀ α, (α → Prop) → nat → series α → Nbar.
+(* [series_head fld s] return the position of the first non null
+   coefficient in the series [s]. *)
+Definition series_head : ∀ α, field α → series α → Nbar.
 Admitted.
 
-Add Parametric Morphism α (fld : field α) :
-  (series_head (fld_eq fld (zero fld)))
-with signature eq ==> (eq_series fld) ==> eq as series_head_morph.
+Add Parametric Morphism α (fld : field α) : (series_head fld)
+with signature (eq_series fld) ==> eq as series_head_morph.
 Admitted.
 
 Section fld.
@@ -293,7 +288,7 @@ Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Definition valuation (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
+      match series_head fld (nz_terms nz) with
       | fin n => Some (nz_valnum nz + Z.of_nat n # nz_comden nz)
       | ∞ => None
       end
@@ -303,7 +298,7 @@ Definition valuation (ps : puiseux_series α) :=
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
+      match series_head fld (nz_terms nz) with
       | fin n => series_nth_fld fld n (nz_terms nz)
       | ∞ => zero fld
       end
@@ -337,6 +332,11 @@ Definition series_raw_add nz₁ nz₂ :=
     (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat (nz_terms nz₁))
     (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat (nz_terms nz₂)).
 
+Definition build_nz ms₁ ms₂ n :=
+  {| nz_terms := series_raw_add ms₁ ms₂;
+     nz_valnum := Z.min (nz_valnum ms₁) (nz_valnum ms₂) + Z.of_nat n;
+     nz_comden := nz_comden ms₁ |}.
+
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
   | NonZero nz₁ =>
@@ -344,19 +344,9 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          match
-            series_head (fld_eq fld (zero fld)) 0 (series_raw_add ms₁ ms₂)
-          with
-          | fin n =>
-              NonZero
-                {| nz_terms :=
-                     series_raw_add ms₁ ms₂;
-                   nz_valnum :=
-                     Z.min (nz_valnum ms₁) (nz_valnum ms₂) + Z.of_nat n;
-                   nz_comden :=
-                     nz_comden ms₁ |}
-          | ∞ =>
-              Zero _
+          match series_head fld (series_raw_add ms₁ ms₂) with
+          | fin n => NonZero (build_nz ms₁ ms₂ n)
+          | ∞ => Zero _
           end
       | Zero => ps₁
       end
@@ -681,7 +671,7 @@ destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 rewrite series_raw_add_comm.
 remember
- (series_head (fld_eq fld (zero fld)) 0
+ (series_head fld
     (series_raw_add fld (adjust fld (lcm_div nz₂ nz₁) nz₂)
        (adjust fld (lcm_div nz₁ nz₂) nz₁))) as x.
 destruct x as [n| ]; [ idtac | reflexivity ].
@@ -797,6 +787,49 @@ Qed.
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃.
+destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ].
+ unfold ps_add, lcm_div; simpl.
+ remember
+  (series_head fld
+     (series_raw_add fld (adjust fld (nz_comden nz₂) nz₁)
+        (adjust fld (nz_comden nz₁) nz₂))) as n₁.
+ remember
+  (series_head fld
+     (series_raw_add fld (adjust fld (nz_comden nz₃) nz₂)
+        (adjust fld (nz_comden nz₂) nz₃))) as n₂.
+ destruct n₁ as [n₁| ].
+  destruct n₂ as [n₂| ].
+   remember
+    (adjust fld (nz_comden nz₃)
+       (build_nz fld (adjust fld (nz_comden nz₂) nz₁)
+          (adjust fld (nz_comden nz₁) nz₂) n₁)) as a₁.
+   remember
+    (adjust fld
+       (nz_comden
+          (build_nz fld (adjust fld (nz_comden nz₂) nz₁)
+             (adjust fld (nz_comden nz₁) nz₂) n₁)) nz₃) as a₂.
+   remember
+    (adjust fld
+       (nz_comden
+          (build_nz fld (adjust fld (nz_comden nz₃) nz₂)
+             (adjust fld (nz_comden nz₂) nz₃) n₂)) nz₁) as a₃.
+   remember
+    (adjust fld (nz_comden nz₁)
+       (build_nz fld (adjust fld (nz_comden nz₃) nz₂)
+          (adjust fld (nz_comden nz₂) nz₃) n₂)) as a₄.
+   remember (series_head fld (series_raw_add fld a₁ a₂)) as m₁.
+   remember (series_head fld (series_raw_add fld a₃ a₄)) as m₂.
+   destruct m₁ as [m₁| ].
+    destruct m₂ as [m₂| ].
+     constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+      do 2 rewrite stretch_series_1.
+      unfold series_raw_add; simpl.
+      Focus 1.
+bbb.
+
 intros ps₁ ps₂ ps₃.
 destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
