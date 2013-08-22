@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.278 2013-08-22 10:49:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.279 2013-08-22 12:36:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -683,12 +683,58 @@ Lemma series_pad_add_distr : ∀ s₁ s₂ n,
 Proof.
 intros s₁ s₂ n.
 constructor.
- intros i.
- unfold series_add; simpl.
- destruct (lt_dec i n) as [Hlt| Hge]; [ idtac | reflexivity ].
- symmetry; apply fld_add_neutral.
+intros i.
+unfold series_add, series_nth_fld; simpl.
+rewrite Nbar.add_max_distr_r.
+remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) + fin n)) as c₁.
+remember (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as c₂.
+remember (Nbar.lt_dec (fin i) (stop s₂ + fin n)) as c₃.
+remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
+remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
+clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
+destruct (lt_dec i n) as [Hlt| Hge].
+ destruct c₁, c₂, c₃; try rewrite fld_add_neutral; reflexivity.
 
- simpl; rewrite Nbar.add_max_distr_r; reflexivity.
+ apply not_gt in Hge.
+ remember (i - n)%nat as m.
+ assert (m + n = i)%nat by (subst m; apply Nat.sub_add; assumption).
+ subst i; clear Heqm Hge.
+ destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
+ destruct c₂ as [H₂| H₂].
+  destruct c₄ as [H₄| H₄].
+   destruct c₃ as [H₃| H₃].
+    destruct c₅ as [H₅| H₅]; [ reflexivity | idtac ].
+    rewrite Nbar.fin_inj_add in H₃.
+    apply Nbar.add_lt_mono_r in H₃; [ idtac | intros H; discriminate H ].
+    contradiction.
+
+    destruct c₅ as [c₅| c₅]; [ idtac | reflexivity ].
+    rewrite Nbar.fin_inj_add in H₃.
+    exfalso; apply H₃.
+    apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
+    assumption.
+
+   rewrite Nbar.fin_inj_add in H₂.
+   apply Nbar.add_lt_mono_r in H₂; [ idtac | intros H; discriminate H ].
+   contradiction.
+
+  destruct c₄ as [H₄| H₄].
+   exfalso; apply H₂.
+   rewrite Nbar.fin_inj_add.
+   apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
+   assumption.
+
+   destruct c₃ as [H₃| H₃].
+    destruct c₅ as [H₅| H₅]; [ reflexivity | idtac ].
+    rewrite Nbar.fin_inj_add in H₃.
+    apply Nbar.add_lt_mono_r in H₃; [ idtac | intros H; discriminate H ].
+    contradiction.
+
+    destruct c₅ as [c₅| c₅]; [ idtac | reflexivity ].
+    exfalso; apply H₃.
+    rewrite Nbar.fin_inj_add.
+    apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
+    assumption.
 Qed.
 
 Lemma series_pad_pad : ∀ x y ps,
