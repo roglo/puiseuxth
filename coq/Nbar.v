@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.32 2013-08-21 15:18:42 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.33 2013-08-22 00:40:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -134,6 +134,25 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_l; reflexivity.
 Qed.
 *)
+
+Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
+Proof.
+intros n m p Hp.
+split; intros H.
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | constructor ].
+  destruct p as [p| ]; [ idtac | constructor ].
+  constructor; apply Nat.add_lt_mono_r; inversion H; assumption.
+
+  destruct m as [m| ]; [ inversion H | constructor ].
+
+ destruct m as [m| ]; [ idtac | constructor ].
+ destruct n as [n| ].
+  destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
+  constructor; inversion H; apply Nat.add_lt_mono_r in H2; assumption.
+
+  destruct p; [ inversion H | exfalso; apply Hp; reflexivity ].
+Qed.
 
 Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
   n < m ↔ n * p < m * p.
