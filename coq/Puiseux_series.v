@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.281 2013-08-22 14:07:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.282 2013-08-22 14:27:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -762,29 +762,36 @@ Lemma series_pad_pad : ∀ x y ps,
 Proof.
 intros x y ps.
 constructor; simpl.
- intros i.
- destruct (lt_dec i x) as [Hlt| Hge].
-  destruct (lt_dec i (x + y)) as [| Hge]; [ reflexivity | idtac ].
-  apply Nat.lt_lt_add_r with (p := y) in Hlt; contradiction.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_shuffle0.
+rewrite Nbar.fin_inj_add, Nbar.add_assoc.
+remember (Nbar.lt_dec (fin i) (stop ps + fin x + fin y)) as c₁.
+remember (lt_dec (i - x) y) as c₂.
+remember (lt_dec i (x + y)) as c₃.
+clear Heqc₁ Heqc₂ Heqc₃.
+destruct (lt_dec i x) as [Hlt| Hge].
+ destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
+ destruct c₁ as [c₁| ]; [ idtac | reflexivity ].
+ exfalso; apply H₃.
+ apply Nat.lt_lt_add_r; assumption.
 
+ destruct c₂ as [H₂| H₂].
+  destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
+  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
+  exfalso; apply H₃.
   apply not_gt in Hge.
-  destruct (lt_dec (i - x) y) as [Hlt| Hge₁].
-   destruct (lt_dec i (x + y)) as [| Hge₁].
-    reflexivity.
+  apply Nat.lt_sub_lt_add_l; assumption.
 
-    rewrite Nat.add_comm in Hge₁.
-    apply Nat.lt_sub_lt_add_r in Hlt.
-    contradiction.
-
-   destruct (lt_dec i (x + y)) as [Hlt| Hge₂].
-    exfalso; apply Hge₁; clear Hge₁.
-    eapply Nat.le_lt_add_lt; [ constructor | idtac ].
-    rewrite Nat.sub_add; [ rewrite Nat.add_comm; assumption | assumption ].
-
-    rewrite Nat.sub_add_distr; reflexivity.
-
- rewrite Nbar.fin_inj_add.
- rewrite Nbar.add_shuffle0, Nbar.add_assoc; reflexivity.
+  rewrite Nat.sub_add_distr.
+  destruct c₃ as [H₃| H₃]; [ idtac | reflexivity ].
+  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
+  apply not_gt in Hge.
+  exfalso; apply H₂.
+  unfold lt.
+  rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
+  apply Nat.le_sub_le_add_l.
+  assumption.
 Qed.
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
