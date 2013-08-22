@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.276 2013-08-22 08:16:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.277 2013-08-22 08:53:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -548,15 +548,52 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  destruct a, b, c, d; try rewrite fld_add_neutral; reflexivity.
 Qed.
 
-Lemma stretch_pad_series_distr : ∀ k n s,
-  k ≠ O
-  → stretch_series fld k (series_pad_left fld n s) ≃
-    series_pad_left fld (n * k) (stretch_series fld k s).
+Lemma stretch_pad_series_distr : ∀ kp n s,
+  stretch_series fld kp (series_pad_left fld n s) ≃
+  series_pad_left fld (n * Pos.to_nat kp) (stretch_series fld kp s).
 Proof.
-intros k n s Hk.
+intros kp n s.
+constructor.
+intros i.
+unfold stretch_series, series_nth_fld; simpl.
+remember (Pos.to_nat kp) as k.
+assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
+destruct (zerop (i mod k)) as [Hz| Hnz].
+ apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ destruct Hz as (c, Hi).
+ subst i.
+ rewrite mult_comm.
+ rewrite <- Nat.mul_sub_distr_r.
+ rewrite Nat.div_mul; [ idtac | assumption ].
+ rewrite Nat.div_mul; [ idtac | assumption ].
+ rewrite Nat.mod_mul; [ simpl | assumption ].
+ destruct (lt_dec c n) as [Hlt| Hge].
+  remember Hlt as Hcn; clear HeqHcn.
+  apply lt_le_weak in Hcn.
+  apply Nat.sub_0_le in Hcn.
+  rewrite Hcn; simpl.
+  remember (Nbar.lt_dec (fin (c * k)) ((stop s + fin n) * fin k)) as c₁.
+  remember (Nbar.lt_dec (fin c) (stop s + fin n)) as c₂.
+  remember (Nbar.lt_dec (fin (c * k)) (stop s * fin k + fin (n * k))) as c₃.
+  remember (lt_dec (c * k) (n * k)) as c₄.
+  remember (Nbar.lt_dec 0 (stop s)) as c₅.
+  clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
+  destruct c₅ as [H₅| ]; [ idtac | destruct c₁, c₂, c₃, c₄; reflexivity ].
+  destruct c₄ as [| H₄]; [ destruct c₁, c₂, c₃; reflexivity | idtac ].
+  destruct c₃ as [H₃| ]; [ idtac | destruct c₁, c₂; reflexivity ].
+  exfalso; apply H₄.
+  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+  rewrite Heqk; apply Pos2Nat.is_pos.
+
+  apply not_gt in Hge.
+bbb.
+
+intros kp n s.
 constructor.
  intros i.
- unfold stretch_series; simpl.
+ unfold stretch_series, series_nth_fld; simpl.
+remember (Pos.to_nat kp) as k.
+assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
  destruct (zerop (i mod k)) as [Hz| Hnz].
   apply Nat.mod_divides in Hz; [ idtac | assumption ].
   destruct Hz as (c, Hi).
@@ -604,7 +641,7 @@ constructor.
    reflexivity.
 
  simpl; rewrite Nbar.mul_add_distr_r; reflexivity.
-Qed.
+qed.
 
 (* *)
 
