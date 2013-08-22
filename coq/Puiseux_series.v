@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.282 2013-08-22 14:27:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.283 2013-08-22 17:48:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -26,8 +26,8 @@ Inductive puiseux_series α :=
    None if the series is null. Allows to compute the real valuation of a
    series, skipping the heading zeroes. Cannot be implemented in Coq since
    can take an infinite amount of time. *)
-Definition series_head : ∀ α, (α → Prop) → nat → series α → option (nat * α).
-Proof. Admitted.
+Definition series_head : ∀ α, (α → Prop) → nat → series α → Nbar.
+Admitted.
 
 Add Parametric Morphism α (fld : field α) :
   (series_head (fld_eq fld (zero fld)))
@@ -294,8 +294,8 @@ Definition valuation (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
       match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
-      | Some (n, c) => Some (nz_valnum nz + Z.of_nat n # nz_comden nz)
-      | None => None
+      | fin n => Some (nz_valnum nz + Z.of_nat n # nz_comden nz)
+      | ∞ => None
       end
   | Zero => None
   end.
@@ -304,8 +304,8 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
       match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
-      | Some (_, c) => c
-      | None => zero fld
+      | fin n => series_nth_fld fld n (nz_terms nz)
+      | ∞ => zero fld
       end
   | Zero => zero fld
   end.
@@ -347,7 +347,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
           match
             series_head (fld_eq fld (zero fld)) 0 (series_raw_add ms₁ ms₂)
           with
-          | Some (n, _) =>
+          | fin n =>
               NonZero
                 {| nz_terms :=
                      series_raw_add ms₁ ms₂;
@@ -355,7 +355,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
                      Z.min (nz_valnum ms₁) (nz_valnum ms₂) + Z.of_nat n;
                    nz_comden :=
                      nz_comden ms₁ |}
-          | None =>
+          | ∞ =>
               Zero _
           end
       | Zero => ps₁
@@ -684,7 +684,7 @@ remember
  (series_head (fld_eq fld (zero fld)) 0
     (series_raw_add fld (adjust fld (lcm_div nz₂ nz₁) nz₂)
        (adjust fld (lcm_div nz₁ nz₂) nz₁))) as x.
-destruct x as [(n, p)| ]; [ idtac | reflexivity ].
+destruct x as [n| ]; [ idtac | reflexivity ].
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite series_raw_add_comm; reflexivity.
 
