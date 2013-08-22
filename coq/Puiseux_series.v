@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.280 2013-08-22 13:15:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.281 2013-08-22 14:07:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,6 +28,11 @@ Inductive puiseux_series α :=
    can take an infinite amount of time. *)
 Definition series_head : ∀ α, (α → Prop) → nat → series α → option (nat * α).
 Proof. Admitted.
+
+Add Parametric Morphism α (fld : field α) :
+  (series_head (fld_eq fld (zero fld)))
+with signature eq ==> (eq_series fld) ==> eq as series_head_morph.
+Admitted.
 
 Section fld.
 
@@ -680,7 +685,9 @@ remember
     (series_raw_add fld (adjust fld (lcm_div nz₂ nz₁) nz₂)
        (adjust fld (lcm_div nz₁ nz₂) nz₁))) as x.
 destruct x as [(n, p)| ]; [ idtac | reflexivity ].
-constructor 1 with (k₁ := xH) (k₂ := xH); [ reflexivity | simpl | simpl ].
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ rewrite series_raw_add_comm; reflexivity.
+
  do 2 rewrite Z.mul_1_r.
  unfold lcm_div.
  rewrite Z.min_comm; reflexivity.
