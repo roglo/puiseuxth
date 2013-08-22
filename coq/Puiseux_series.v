@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.275 2013-08-22 06:51:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.276 2013-08-22 08:16:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -539,17 +539,13 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
     apply Nbar.max_lt_iff; right; assumption.
 
     destruct lt₄, lt₅; rewrite fld_add_neutral; reflexivity.
-bbb.
 
-intros k s₁ s₂.
-unfold stretch_series; simpl.
-unfold series_add; simpl.
-constructor; simpl.
- intros i.
- destruct (zerop (i mod k)) as [| Hnz]; [ reflexivity | idtac ].
- rewrite fld_add_neutral; reflexivity.
-
- rewrite Nbar.mul_max_distr_r; reflexivity.
+ remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
+ remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
+ remember (Nbar.lt_dec (fin i) n) as b.
+ remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
+ remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
+ destruct a, b, c, d; try rewrite fld_add_neutral; reflexivity.
 Qed.
 
 Lemma stretch_pad_series_distr : ∀ k n s,
