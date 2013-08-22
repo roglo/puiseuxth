@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.274 2013-08-22 02:38:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.275 2013-08-22 06:51:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -529,6 +529,16 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
      destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
      exfalso; apply Hge₅; subst k.
      apply mul_lt_mono_positive_r; assumption.
+
+  destruct lt₂ as [Hlt₂| Hge₂].
+   exfalso; apply Hge₁; clear Hge₁.
+   apply Nbar.max_lt_iff; left; assumption.
+
+   destruct lt₃ as [Hlt₃| Hge₃].
+    exfalso; apply Hge₁; clear Hge₁.
+    apply Nbar.max_lt_iff; right; assumption.
+
+    destruct lt₄, lt₅; rewrite fld_add_neutral; reflexivity.
 bbb.
 
 intros k s₁ s₂.
