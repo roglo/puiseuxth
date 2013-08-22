@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.273 2013-08-22 00:40:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.274 2013-08-22 02:38:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -155,6 +155,22 @@ Qed.
 
 End fld.
 
+Lemma mul_lt_mono_positive_r : ∀ a b c,
+  (fin a < b)%Nbar
+  → (fin (a * Pos.to_nat c) < b * fin (Pos.to_nat c))%Nbar.
+Proof.
+intros a b c Hab.
+rewrite Nbar.fin_inj_mul.
+apply Nbar.mul_lt_mono_pos_r.
+ constructor; apply Pos2Nat.is_pos.
+
+ intros H; discriminate H.
+
+ intros H; discriminate H.
+
+ assumption.
+Qed.
+
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
 Proof.
@@ -174,38 +190,22 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  subst i.
  pose proof (Heq c) as Hc.
  rewrite Nat.mul_comm.
- rewrite Nbar.fin_inj_mul.
  rewrite Nat.div_mul; [ idtac | assumption ].
- destruct (Nbar.lt_dec (fin c * fin k) (stop s₁ * fin k)) as [Hlt₁| Hge₁].
+ destruct (Nbar.lt_dec (fin (c * k)) (stop s₁ * fin k)) as [Hlt₁| Hge₁].
   destruct (Nbar.lt_dec (fin c) (stop s₂)) as [Hlt₄| Hge₄].
-   destruct (Nbar.lt_dec (fin c * fin k) (stop s₂ * fin k)) as [Hlt₃| Hge₃].
+   destruct (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)) as [Hlt₃| Hge₃].
     assumption.
 
-    (* peut-être faire un lemme puisque utilisé deux fois *)
-    exfalso; apply Hge₃; clear Hge₃.
-    apply Nbar.mul_lt_mono_pos_r.
-     rewrite Heqk; simpl; constructor; apply Pos2Nat.is_pos.
+    exfalso; apply Hge₃; subst k.
+    apply mul_lt_mono_positive_r; assumption.
 
-     intros H; discriminate H.
+   destruct (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)); assumption.
 
-     intros H; discriminate H.
-
-     assumption.
-
-   destruct (Nbar.lt_dec (fin c * fin k) (stop s₂ * fin k)); assumption.
-
-  destruct (Nbar.lt_dec (fin c * fin k) (stop s₂ * fin k)) as [Hlt₂| ].
+  destruct (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)) as [Hlt₂| ].
    destruct (Nbar.lt_dec (fin c) (stop s₂)) as [Hlt₃| ].
     destruct (Nbar.lt_dec (fin c) (stop s₁)) as [Hlt₄| ].
-     exfalso; apply Hge₁; clear Hge₁.
-     apply Nbar.mul_lt_mono_pos_r.
-      rewrite Heqk; simpl; constructor; apply Pos2Nat.is_pos.
-
-      intros H; discriminate H.
-
-      intros H; discriminate H.
-
-      assumption.
+     exfalso; apply Hge₁; subst k.
+     apply mul_lt_mono_positive_r; assumption.
 
      assumption.
 
@@ -484,6 +484,53 @@ Lemma stretch_series_add_distr : ∀ k s₁ s₂,
   stretch_series fld k (series_add fld s₁ s₂) ≃
   series_add fld (stretch_series fld k s₁) (stretch_series fld k s₂).
 Proof.
+intros kp s₁ s₂.
+unfold stretch_series; simpl.
+unfold series_add; simpl.
+constructor; simpl.
+intros i.
+unfold series_nth_fld; simpl.
+remember (Pos.to_nat kp) as k.
+assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
+destruct (zerop (i mod k)) as [Hz| Hnz].
+ apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ destruct Hz as (c, Hi).
+ subst i.
+ rewrite Nat.mul_comm.
+ rewrite Nat.div_mul; [ idtac | assumption ].
+ rewrite Nbar.mul_max_distr_r.
+ remember (Nbar.max (stop s₁) (stop s₂) * fin k)%Nbar as m.
+ remember (Nbar.lt_dec (fin (c * k)) m) as n; subst m.
+ clear Heqn.
+ destruct n as [Hlt| ]; [ idtac | reflexivity ].
+ remember (Nbar.max (stop s₁) (stop s₂)) as m.
+ remember (Nbar.lt_dec (fin c) m) as lt₁; subst m.
+ remember (Nbar.lt_dec (fin c) (stop s₁)) as lt₂.
+ remember (Nbar.lt_dec (fin c) (stop s₂)) as lt₃.
+ remember (Nbar.lt_dec (fin (c * k)) (stop s₁ * fin k)) as lt₄.
+ remember (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)) as lt₅.
+ clear Heqlt₁ Heqlt₂ Heqlt₃ Heqlt₄ Heqlt₅.
+ destruct lt₁ as [Hlt₁| Hge₁].
+  destruct lt₄ as [Hlt₄| Hge₄].
+   destruct lt₅ as [Hlt₅| Hge₅]; [ reflexivity | idtac ].
+   destruct lt₃ as [Hlt₃| ]; [ idtac | reflexivity ].
+   exfalso; apply Hge₅; subst k.
+   apply mul_lt_mono_positive_r; assumption.
+
+   destruct lt₅ as [Hlt₅| Hge₅].
+    destruct lt₂ as [Hlt₂| Hge₂]; [ idtac | reflexivity ].
+    exfalso; apply Hge₄; subst k.
+    apply mul_lt_mono_positive_r; assumption.
+
+    destruct lt₂ as [Hlt₂| Hge₂].
+     exfalso; apply Hge₄; subst k.
+     apply mul_lt_mono_positive_r; assumption.
+
+     destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
+     exfalso; apply Hge₅; subst k.
+     apply mul_lt_mono_positive_r; assumption.
+bbb.
+
 intros k s₁ s₂.
 unfold stretch_series; simpl.
 unfold series_add; simpl.
