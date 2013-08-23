@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.294 2013-08-23 15:03:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.295 2013-08-23 18:30:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -842,6 +842,12 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
       do 4 rewrite stretch_pad_series_distr.
       do 4 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
       do 4 rewrite series_pad_pad.
+      rewrite Nat.mul_sub_distr_r.
+      rewrite <- Z2Nat_inj_mul_pos_r, <- Hvcc.
+      rewrite <- Z2Nat_inj_mul_pos_r.
+      rewrite Z.mul_shuffle0, <- Hcvc.
+      do 2 rewrite Z2Nat.inj_min.
+      rewrite min_sub_add_sub.
       Focus 1.
 bbb.
 
