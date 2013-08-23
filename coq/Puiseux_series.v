@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.289 2013-08-23 09:12:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.290 2013-08-23 11:15:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -43,12 +43,16 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  eq_ps_base : ∀ k₁ k₂ nz₁ nz₂,
-    stretch_series k₁ (ps_terms nz₁) ≃
-    stretch_series k₂ (ps_terms nz₂)
-    → (ps_valnum nz₁ * ''k₁)%Zbar = (ps_valnum nz₂ * ''k₂)%Zbar
-      → (ps_comden nz₁ * k₁ = ps_comden nz₂ * k₂)%positive
-        → eq_ps nz₁ nz₂.
+  | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
+      stretch_series k₁ (ps_terms ps₁) ≃
+      stretch_series k₂ (ps_terms ps₂)
+      → (ps_valnum ps₁ * ''k₁)%Zbar = (ps_valnum ps₂ * ''k₂)%Zbar
+        → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
+          → eq_ps ps₁ ps₂
+  | eq_ps_zero : ∀ ps₁ ps₂,
+      ps_valnum ps₁ = ∞
+      → ps_valnum ps₂ = ∞
+        → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
@@ -80,7 +84,9 @@ Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
 inversion H; subst.
-econstructor; symmetry; try eassumption.
+ econstructor; symmetry; try eassumption.
+
+ constructor 2; assumption.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
