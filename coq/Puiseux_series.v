@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.292 2013-08-23 12:23:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.293 2013-08-23 14:47:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -349,6 +349,20 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
 
+Definition build_ps ms₁ ms₂ :=
+  let v₁ := ps_valnum ms₁ in
+  let v₂ := ps_valnum ms₂ in
+  {| ps_terms :=
+       series_add fld
+         (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
+            (ps_terms ms₁))
+         (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
+            (ps_terms ms₂));
+     ps_valnum :=
+       Zbar.min v₁ v₂;
+     ps_comden :=
+       ps_comden ms₁ |}.
+
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps_valnum ps₁ with
   | zfin _ =>
@@ -356,18 +370,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | zfin _ =>
           let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
           let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-          let v₁ := ps_valnum ms₁ in
-          let v₂ := ps_valnum ms₂ in
-          {| ps_terms :=
-               series_add fld
-                 (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
-                    (ps_terms ms₁))
-                 (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
-                    (ps_terms ms₂));
-             ps_valnum :=
-               Zbar.min v₁ v₂;
-             ps_comden :=
-               ps_comden ms₁ |}
+          build_ps ms₁ ms₂
       | ∞ => ps₁
       end
   | ∞ => ps₂
@@ -678,7 +681,7 @@ Qed.
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
-unfold ps_add; simpl.
+unfold ps_add, build_ps; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 destruct v₁ as [n₁| ].
@@ -799,45 +802,40 @@ Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
-destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
-destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
-destruct ps₃ as [nz₃| ].
- unfold ps_add, lcm_div; simpl.
- remember
-  (series_head fld
-     (series_raw_add fld (adjust fld (ps_comden nz₂) nz₁)
-        (adjust fld (ps_comden nz₁) nz₂))) as n₁.
- remember
-  (series_head fld
-     (series_raw_add fld (adjust fld (ps_comden nz₃) nz₂)
-        (adjust fld (ps_comden nz₂) nz₃))) as n₂.
- destruct n₁ as [n₁| ].
-  destruct n₂ as [n₂| ].
-   remember
-    (adjust fld (ps_comden nz₃)
-       (build_nz fld (adjust fld (ps_comden nz₂) nz₁)
-          (adjust fld (ps_comden nz₁) nz₂) n₁)) as a₁.
-   remember
-    (adjust fld
-       (ps_comden
-          (build_nz fld (adjust fld (ps_comden nz₂) nz₁)
-             (adjust fld (ps_comden nz₁) nz₂) n₁)) nz₃) as a₂.
-   remember
-    (adjust fld
-       (ps_comden
-          (build_nz fld (adjust fld (ps_comden nz₃) nz₂)
-             (adjust fld (ps_comden nz₂) nz₃) n₂)) nz₁) as a₃.
-   remember
-    (adjust fld (ps_comden nz₁)
-       (build_nz fld (adjust fld (ps_comden nz₃) nz₂)
-          (adjust fld (ps_comden nz₂) nz₃) n₂)) as a₄.
-   remember (series_head fld (series_raw_add fld a₁ a₂)) as m₁.
-   remember (series_head fld (series_raw_add fld a₃ a₄)) as m₂.
-   destruct m₁ as [m₁| ].
-    destruct m₂ as [m₂| ].
-     constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-      do 2 rewrite stretch_series_1.
-      unfold series_raw_add; simpl.
+unfold ps_add, lcm_div; simpl.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_comden ps₃) as c₃.
+remember (ps_comden ps₂) as c₂.
+remember (ps_comden ps₁) as c₁.
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ destruct v₁ as [v₁| ]; simpl.
+  destruct v₂ as [v₂| ]; simpl.
+   destruct v₃ as [v₃| ]; simpl.
+    unfold build_ps; simpl.
+    rewrite <- Heqv₁, <- Heqv₂, <- Heqv₃, <- Heqc₁, <- Heqc₂.
+    do 2 rewrite stretch_series_1.
+    remember (Zbar.min (zfin v₁ * '' c₂) (zfin v₂ * '' c₁)) as m₁.
+    remember (Zbar.min (zfin v₂ * '' c₃) (zfin v₃ * '' c₂)) as m₂.
+    remember (m₁ * '' c₃)%Zbar as m₁c₃ eqn:Hm₁c₃ .
+    remember (m₂ * '' c₁)%Zbar as m₂c₁ eqn:Hm₂c₁ .
+    rewrite Heqm₁ in Hm₁c₃.
+    rewrite Heqm₂ in Hm₂c₁.
+    destruct m₁ as [m₁| ]; simpl.
+     destruct m₂ as [m₂| ]; simpl.
+      subst m₁c₃ m₂c₁; simpl.
+      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+      do 2 rewrite Pos2Z.inj_mul.
+      do 2 rewrite Z.mul_assoc.
+      remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+      remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+      remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
+      rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0 in Hcvc.
+      rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
+      rewrite <- Hcvc.
+      rewrite Z.mul_shuffle0 in Hccv; rewrite <- Hccv.
       Focus 1.
 bbb.
 
@@ -849,12 +847,12 @@ unfold ps_add, lcm_div; simpl.
 (*
 do 4 rewrite Plcm_div_mul.
 *)
-remember (ps_valnum nz₁) as v₁.
-remember (ps_valnum nz₂) as v₂.
-remember (ps_valnum nz₃) as v₃.
-remember (ps_comden nz₃) as c₃.
-remember (ps_comden nz₂) as c₂.
-remember (ps_comden nz₁) as c₁.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_comden ps₃) as c₃.
+remember (ps_comden ps₂) as c₂.
+remember (ps_comden ps₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
@@ -872,18 +870,18 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series fld (Pos.to_nat (c₂ * c₃)) (ps_terms nz₁)) as ccnz₁.
+ remember (stretch_series fld (Pos.to_nat (c₂ * c₃)) (ps_terms ps₁)) as ccps₁.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series fld (Pos.to_nat (c₃ * c₁)) (ps_terms nz₂)) as ccnz₂.
+ remember (stretch_series fld (Pos.to_nat (c₃ * c₁)) (ps_terms ps₂)) as ccps₂.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series fld (Pos.to_nat (c₂ * c₁)) (ps_terms nz₃)) as ccnz₃.
+ remember (stretch_series fld (Pos.to_nat (c₂ * c₁)) (ps_terms ps₃)) as ccps₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
  rewrite Nat.mul_sub_distr_r.
