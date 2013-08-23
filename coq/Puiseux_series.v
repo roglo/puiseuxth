@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.286 2013-08-23 02:54:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.287 2013-08-23 08:42:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,17 +8,14 @@ Require Import Field.
 Require Import Misc.
 Require Import Series.
 Require Import Nbar.
+Require Import Zbar.
 
 Set Implicit Arguments.
 
-Record nz_ps α := mkps
-  { nz_terms : series α;
-    nz_valnum : Z;
-    nz_comden : positive }.
-
-Inductive puiseux_series α :=
-  | NonZero : nz_ps α → puiseux_series α
-  | Zero : puiseux_series α.
+Record puiseux_series α := mkps
+  { ps_terms : series α;
+    ps_valnum : Zbar;
+    ps_comden : positive }.
 
 (* [series_head fld s] return the position of the first non null
    coefficient in the series [s]. *)
@@ -46,28 +43,26 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_non_zero_ps : ∀ k₁ k₂ nz₁ nz₂,
-      stretch_series k₁ (nz_terms nz₁) ≃
-      stretch_series k₂ (nz_terms nz₂)
-      → (nz_valnum nz₁ * 'k₁)%Z = (nz_valnum nz₂ * 'k₂)%Z
-        → (nz_comden nz₁ * k₁ = nz_comden nz₂ * k₂)%positive
-          → eq_ps (NonZero nz₁) (NonZero nz₂)
-  | eq_zero_ps : eq_ps (Zero _) (Zero _).
+  eq_ps_base : ∀ k₁ k₂ nz₁ nz₂,
+    stretch_series k₁ (ps_terms nz₁) ≃
+    stretch_series k₂ (ps_terms nz₂)
+    → (ps_valnum nz₁ * ''k₁)%Zbar = (ps_valnum nz₂ * ''k₂)%Zbar
+      → (ps_comden nz₁ * k₁ = ps_comden nz₂ * k₂)%positive
+        → eq_ps nz₁ nz₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-destruct ps as [nz |]; [ idtac | constructor ].
-econstructor 1 with (k₁ := xH); try assumption; reflexivity.
+constructor 1 with (k₁ := xH) (k₂ := xH); reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
-inversion H; subst; [ idtac | constructor 2; assumption ].
-econstructor; symmetry; eassumption.
+inversion H; subst.
+econstructor; symmetry; try eassumption.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
@@ -240,11 +235,11 @@ Qed.
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
- inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
- apply Z.mul_cancel_r with (p := Zpos k₂₁) in Hvv₁.
-  apply Z.mul_cancel_r with (p := Zpos k₁₂) in Hvv₂.
-   rewrite Z.mul_shuffle0 in Hvv₂.
+inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁]; subst.
+ inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂]; subst.
+ apply Zbar.mul_cancel_r with (p := Zpos k₂₁) in Hvv₁.
+  apply Zbar.mul_cancel_r with (p := Zpos k₁₂) in Hvv₂.
+   rewrite Zbar.mul_shuffle0 in Hvv₂.
    rewrite <- Hvv₁ in Hvv₂.
    do 2 rewrite <- Z.mul_assoc in Hvv₂.
    apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
@@ -288,8 +283,8 @@ Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Definition valuation (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head fld (nz_terms nz) with
-      | fin n => Some (nz_valnum nz + Z.of_nat n # nz_comden nz)
+      match series_head fld (ps_terms nz) with
+      | fin n => Some (ps_valnum nz + Z.of_nat n # ps_comden nz)
       | ∞ => None
       end
   | Zero => None
@@ -298,17 +293,17 @@ Definition valuation (ps : puiseux_series α) :=
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head fld (nz_terms nz) with
-      | fin n => series_nth_fld fld n (nz_terms nz)
+      match series_head fld (ps_terms nz) with
+      | fin n => series_nth_fld fld n (ps_terms nz)
       | ∞ => zero fld
       end
   | Zero => zero fld
   end.
 
 Definition adjust k nz :=
-  {| nz_terms := stretch_series fld k (nz_terms nz);
-     nz_valnum := nz_valnum nz * 'k;
-     nz_comden := nz_comden nz * k |}.
+  {| ps_terms := stretch_series fld k (ps_terms nz);
+     ps_valnum := ps_valnum nz * 'k;
+     ps_comden := ps_comden nz * k |}.
 
 (* ps_add *)
 
@@ -317,12 +312,12 @@ Definition series_pad_left n s :=
      stop := stop s + fin n |}.
 
 (*
-Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
-  let l := Plcm (nz_comden nz₁) (nz_comden nz₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (nz_comden nz₁))%nat.
+Definition lcm_div α (nz₁ nz₂ : ps_ps α) :=
+  let l := Plcm (ps_comden nz₁) (ps_comden nz₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden nz₁))%nat.
 *)
-Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
-  nz_comden nz₂.
+Definition lcm_div α (nz₁ nz₂ : ps_ps α) :=
+  ps_comden nz₂.
 (**)
 
 Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
@@ -332,19 +327,19 @@ Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          let v₁ := nz_valnum ms₁ in
-          let v₂ := nz_valnum ms₂ in
+          let v₁ := ps_valnum ms₁ in
+          let v₂ := ps_valnum ms₂ in
           NonZero
-            {| nz_terms :=
+            {| ps_terms :=
                  series_add fld
                    (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat
-                      (nz_terms ms₁))
+                      (ps_terms ms₁))
                    (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat
-                      (nz_terms ms₂));
-               nz_valnum :=
+                      (ps_terms ms₂));
+               ps_valnum :=
                  Z.min v₁ v₂;
-               nz_comden :=
-                 nz_comden ms₁ |}
+               ps_comden :=
+                 ps_comden ms₁ |}
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -353,7 +348,7 @@ Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
 Definition ps_norm (ps : puiseux_series α) :=
   match ps with
   | NonZero nz =>
-      match series_head fld (nz_terms nz) with
+      match series_head fld (ps_terms nz) with
      | fin _ => ps
      | ∞ => Zero _
      end
@@ -406,9 +401,9 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
           NonZero
-            {| nz_terms := series_mul_term (nz_terms ms₁) (nz_terms ms₂);
-               nz_valnum := nz_valnum ms₁ + nz_valnum ms₂;
-               nz_comden := nz_comden ms₁ |}
+            {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
+               ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
+               ps_comden := ps_comden ms₁ |}
       | Zero => Zero _
       end
   | Zero => Zero _
@@ -676,11 +671,11 @@ remember (ps_add₀ fld (NonZero nz₁) (NonZero nz₂)) as ps₁₂.
 remember (ps_add₀ fld (NonZero nz₂) (NonZero nz₁)) as ps₂₁.
 symmetry in Heqps₁₂, Heqps₂₁.
 destruct ps₁₂ as [nz₁₂| ].
- remember (series_head fld (nz_terms nz₁₂)) as n₁₂.
+ remember (series_head fld (ps_terms nz₁₂)) as n₁₂.
  symmetry in Heqn₁₂.
  destruct n₁₂ as [n₁₂| ].
   destruct ps₂₁ as [nz₂₁| ].
-   remember (series_head fld (nz_terms nz₂₁)) as n₂₁.
+   remember (series_head fld (ps_terms nz₂₁)) as n₂₁.
    symmetry in Heqn₂₁.
    destruct n₂₁ as [n₂₁| ].
     rewrite <- Heqps₁₂, <- Heqps₂₁.
@@ -824,32 +819,32 @@ destruct ps₃ as [nz₃| ].
  unfold ps_add, lcm_div; simpl.
  remember
   (series_head fld
-     (series_raw_add fld (adjust fld (nz_comden nz₂) nz₁)
-        (adjust fld (nz_comden nz₁) nz₂))) as n₁.
+     (series_raw_add fld (adjust fld (ps_comden nz₂) nz₁)
+        (adjust fld (ps_comden nz₁) nz₂))) as n₁.
  remember
   (series_head fld
-     (series_raw_add fld (adjust fld (nz_comden nz₃) nz₂)
-        (adjust fld (nz_comden nz₂) nz₃))) as n₂.
+     (series_raw_add fld (adjust fld (ps_comden nz₃) nz₂)
+        (adjust fld (ps_comden nz₂) nz₃))) as n₂.
  destruct n₁ as [n₁| ].
   destruct n₂ as [n₂| ].
    remember
-    (adjust fld (nz_comden nz₃)
-       (build_nz fld (adjust fld (nz_comden nz₂) nz₁)
-          (adjust fld (nz_comden nz₁) nz₂) n₁)) as a₁.
+    (adjust fld (ps_comden nz₃)
+       (build_nz fld (adjust fld (ps_comden nz₂) nz₁)
+          (adjust fld (ps_comden nz₁) nz₂) n₁)) as a₁.
    remember
     (adjust fld
-       (nz_comden
-          (build_nz fld (adjust fld (nz_comden nz₂) nz₁)
-             (adjust fld (nz_comden nz₁) nz₂) n₁)) nz₃) as a₂.
+       (ps_comden
+          (build_nz fld (adjust fld (ps_comden nz₂) nz₁)
+             (adjust fld (ps_comden nz₁) nz₂) n₁)) nz₃) as a₂.
    remember
     (adjust fld
-       (nz_comden
-          (build_nz fld (adjust fld (nz_comden nz₃) nz₂)
-             (adjust fld (nz_comden nz₂) nz₃) n₂)) nz₁) as a₃.
+       (ps_comden
+          (build_nz fld (adjust fld (ps_comden nz₃) nz₂)
+             (adjust fld (ps_comden nz₂) nz₃) n₂)) nz₁) as a₃.
    remember
-    (adjust fld (nz_comden nz₁)
-       (build_nz fld (adjust fld (nz_comden nz₃) nz₂)
-          (adjust fld (nz_comden nz₂) nz₃) n₂)) as a₄.
+    (adjust fld (ps_comden nz₁)
+       (build_nz fld (adjust fld (ps_comden nz₃) nz₂)
+          (adjust fld (ps_comden nz₂) nz₃) n₂)) as a₄.
    remember (series_head fld (series_raw_add fld a₁ a₂)) as m₁.
    remember (series_head fld (series_raw_add fld a₃ a₄)) as m₂.
    destruct m₁ as [m₁| ].
@@ -868,12 +863,12 @@ unfold ps_add, lcm_div; simpl.
 (*
 do 4 rewrite Plcm_div_mul.
 *)
-remember (nz_valnum nz₁) as v₁.
-remember (nz_valnum nz₂) as v₂.
-remember (nz_valnum nz₃) as v₃.
-remember (nz_comden nz₃) as c₃.
-remember (nz_comden nz₂) as c₂.
-remember (nz_comden nz₁) as c₁.
+remember (ps_valnum nz₁) as v₁.
+remember (ps_valnum nz₂) as v₂.
+remember (ps_valnum nz₃) as v₃.
+remember (ps_comden nz₃) as c₃.
+remember (ps_comden nz₂) as c₂.
+remember (ps_comden nz₁) as c₁.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  do 2 rewrite stretch_series_add_distr.
@@ -891,18 +886,18 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series fld (Pos.to_nat (c₂ * c₃)) (nz_terms nz₁)) as ccnz₁.
+ remember (stretch_series fld (Pos.to_nat (c₂ * c₃)) (ps_terms nz₁)) as ccnz₁.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series fld (Pos.to_nat (c₃ * c₁)) (nz_terms nz₂)) as ccnz₂.
+ remember (stretch_series fld (Pos.to_nat (c₃ * c₁)) (ps_terms nz₂)) as ccnz₂.
  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
  rewrite <- Pos2Nat.inj_mul, Pos.mul_comm.
- remember (stretch_series fld (Pos.to_nat (c₂ * c₁)) (nz_terms nz₃)) as ccnz₃.
+ remember (stretch_series fld (Pos.to_nat (c₂ * c₁)) (ps_terms nz₃)) as ccnz₃.
  do 2 rewrite series_pad_add_distr.
  rewrite series_add_assoc.
  rewrite Nat.mul_sub_distr_r.
@@ -948,12 +943,12 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
  destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
  constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
   do 4 rewrite Z2Nat_inj_mul_pos_r.
-  remember (nz_valnum nz₁) as v₁.
-  remember (nz_comden nz₁) as c₁.
-  remember (nz_comden nz₂₁) as c₂₁.
-  remember (nz_comden nz₂₂) as c₂₂.
-  remember (nz_valnum nz₂₁) as v₂₁.
-  remember (nz_valnum nz₂₂) as v₂₂.
+  remember (ps_valnum nz₁) as v₁.
+  remember (ps_comden nz₁) as c₁.
+  remember (ps_comden nz₂₁) as c₂₁.
+  remember (ps_comden nz₂₂) as c₂₂.
+  remember (ps_valnum nz₂₁) as v₂₁.
+  remember (ps_valnum nz₂₂) as v₂₂.
   do 2 rewrite stretch_series_add_distr.
   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
   rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
@@ -1039,15 +1034,15 @@ Qed.
 
 Definition ps_monom (c : α) pow :=
   NonZero
-    {| nz_terms := {| terms i := c; stop := 1 |};
-       nz_valnum := Qnum pow;
-       nz_comden := Qden pow |}.
+    {| ps_terms := {| terms i := c; stop := 1 |};
+       ps_valnum := Qnum pow;
+       ps_comden := Qden pow |}.
 
 Definition ps_const c : puiseux_series α :=
   NonZero
-    {| nz_terms := {| terms i := c; stop := 1 |};
-       nz_valnum := 0;
-       nz_comden := 1 |}.
+    {| ps_terms := {| terms i := c; stop := 1 |};
+       ps_valnum := 0;
+       ps_comden := 1 |}.
 
 Definition ps_one := ps_const (one fld).
 
@@ -1067,9 +1062,9 @@ bbb.
  destruct i; simpl.
   unfold series_nth; simpl.
   rewrite Nat.add_0_r.
-  destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [Hlt| Hge].
+  destruct (lt_dec 0 (Pos.to_nat (ps_comden nz))) as [Hlt| Hge].
    rewrite Nbar.mul_1_r.
-   remember (stop (nz_terms nz)) as st.
+   remember (stop (ps_terms nz)) as st.
    destruct st as [st| ]; simpl.
     destruct (lt_dec 0 st) as [Hlt₁| Hge₁].
      rewrite Nat.mod_0_l; simpl.
@@ -1095,16 +1090,16 @@ constructor; simpl.
  intros i.
  remember
   (sum_mul_coeff fld 1 i
-     (stretch_series fld (Pos.to_nat (nz_comden nz))
+     (stretch_series fld (Pos.to_nat (ps_comden nz))
         {| terms := λ _ : nat, one fld; stop := 1 |})
-     (stretch_series fld (Pos.to_nat 1) (nz_terms nz))) as x.
+     (stretch_series fld (Pos.to_nat 1) (ps_terms nz))) as x.
  symmetry in Heqx.
  destruct x as [x| ].
   unfold series_nth; simpl.
   rewrite Nat.add_0_r.
-  destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [| Bad].
+  destruct (lt_dec 0 (Pos.to_nat (ps_comden nz))) as [| Bad].
    rewrite Nbar.mul_1_r.
-   remember (stop (nz_terms nz)) as st.
+   remember (stop (ps_terms nz)) as st.
    symmetry in Heqst.
    destruct st as [st| ].
     destruct (lt_dec i st) as [Hlt| Hge].
