@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.288 2013-08-23 08:59:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.289 2013-08-23 09:12:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -662,30 +662,21 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps�
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
-destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
-destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
-unfold ps_norm.
-remember (ps_add₀ fld (NonZero nz₁) (NonZero nz₂)) as ps₁₂.
-remember (ps_add₀ fld (NonZero nz₂) (NonZero nz₁)) as ps₂₁.
-symmetry in Heqps₁₂, Heqps₂₁.
-destruct ps₁₂ as [nz₁₂| ].
- remember (series_head fld (ps_terms nz₁₂)) as n₁₂.
- symmetry in Heqn₁₂.
- destruct n₁₂ as [n₁₂| ].
-  destruct ps₂₁ as [nz₂₁| ].
-   remember (series_head fld (ps_terms nz₂₁)) as n₂₁.
-   symmetry in Heqn₂₁.
-   destruct n₂₁ as [n₂₁| ].
-    rewrite <- Heqps₁₂, <- Heqps₂₁.
-    constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-     do 2 rewrite stretch_series_1.
-     apply series_add_comm.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_valnum ps₂) as v₂.
+destruct v₁ as [n₁| ].
+ destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
+ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+  rewrite series_add_comm; reflexivity.
 
-     do 2 rewrite Z.mul_1_r.
-     apply Z.min_comm.
+  do 2 rewrite Z.mul_1_r.
+  unfold lcm_div.
+  rewrite Z.min_comm; reflexivity.
 
-     do 2 rewrite Pos.mul_1_r.
-     apply Pos.mul_comm.
+  do 2 rewrite Pos.mul_1_r.
+  apply Pos.mul_comm.
+
+ destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
 bbb.
 
 intros ps₁ ps₂.
