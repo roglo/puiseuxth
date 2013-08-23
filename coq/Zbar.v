@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.17 2013-08-23 08:42:04 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.18 2013-08-23 08:59:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -51,6 +51,12 @@ Definition to_Nbar zb :=
   match zb with
   | zfin z => fin (Z.to_nat z)
   | ∞ => inf
+  end.
+
+Definition to_nat zb :=
+  match zb with
+  | zfin z => Z.to_nat z
+  | ∞ => O
   end.
 
 Theorem pos_ne_0 : ∀ p, not_0_inf ('' p).

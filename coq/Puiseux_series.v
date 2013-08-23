@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.287 2013-08-23 08:42:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.288 2013-08-23 08:59:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -51,6 +51,24 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
         → eq_ps nz₁ nz₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
+
+Definition ps_zero : puiseux_series α :=
+  {| ps_terms := series_0 fld;
+     ps_valnum := ∞;
+     ps_comden := 1 |}.
+
+Definition ps_monom (c : α) pow :=
+  {| ps_terms := {| terms i := c; stop := 1 |};
+     ps_valnum := zfin (Qnum pow);
+     ps_comden := Qden pow |}.
+
+
+Definition ps_const c : puiseux_series α :=
+  {| ps_terms := {| terms i := c; stop := 1 |};
+     ps_valnum := 0;
+     ps_comden := 1 |}.
+
+Definition ps_one := ps_const (one fld).
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -236,32 +254,30 @@ Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁]; subst.
- inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂]; subst.
- apply Zbar.mul_cancel_r with (p := Zpos k₂₁) in Hvv₁.
-  apply Zbar.mul_cancel_r with (p := Zpos k₁₂) in Hvv₂.
-   rewrite Zbar.mul_shuffle0 in Hvv₂.
-   rewrite <- Hvv₁ in Hvv₂.
-   do 2 rewrite <- Z.mul_assoc in Hvv₂.
-   apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
-   apply Pos.mul_cancel_r with (r := k₁₂) in Hck₂.
-   rewrite Pos_mul_shuffle0 in Hck₂.
-   rewrite <- Hck₁ in Hck₂.
-   do 2 rewrite <- Pos.mul_assoc in Hck₂.
-   econstructor; try eassumption.
-   symmetry; rewrite Pos.mul_comm.
-   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   symmetry; rewrite Pos.mul_comm.
-   rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Hss₁, <- Hss₂.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-   rewrite Pos.mul_comm; reflexivity.
+inversion H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂]; subst.
+apply Zbar.mul_cancel_r with (p := ''k₂₁) in Hvv₁.
+ apply Zbar.mul_cancel_r with (p := ''k₁₂) in Hvv₂.
+  rewrite Zbar.mul_shuffle0 in Hvv₂.
+  rewrite <- Hvv₁ in Hvv₂.
+  do 2 rewrite <- Zbar.mul_assoc in Hvv₂.
+  apply Pos.mul_cancel_r with (r := k₂₁) in Hck₁.
+  apply Pos.mul_cancel_r with (r := k₁₂) in Hck₂.
+  rewrite Pos_mul_shuffle0 in Hck₂.
+  rewrite <- Hck₁ in Hck₂.
+  do 2 rewrite <- Pos.mul_assoc in Hck₂.
+  econstructor; try eassumption.
+  symmetry; rewrite Pos.mul_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  symmetry; rewrite Pos.mul_comm.
+  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Hss₁, <- Hss₂.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite Pos.mul_comm; reflexivity.
 
-   apply Zpos_ne_0.
+  apply Zbar.pos_ne_0.
 
-  apply Zpos_ne_0.
-
- assumption.
+ apply Zbar.pos_ne_0.
 Qed.
 
 End fld₁.
@@ -281,28 +297,24 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 
 Definition valuation (ps : puiseux_series α) :=
-  match ps with
-  | NonZero nz =>
-      match series_head fld (ps_terms nz) with
-      | fin n => Some (ps_valnum nz + Z.of_nat n # ps_comden nz)
-      | ∞ => None
+  match ps_valnum ps with
+  | zfin v =>
+      match series_head fld (ps_terms ps) with
+      | fin n => Some (v + Z.of_nat n # ps_comden ps)
+      | inf => None
       end
-  | Zero => None
+  | ∞ => None
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
-  match ps with
-  | NonZero nz =>
-      match series_head fld (ps_terms nz) with
-      | fin n => series_nth_fld fld n (ps_terms nz)
-      | ∞ => zero fld
-      end
-  | Zero => zero fld
+  match series_head fld (ps_terms ps) with
+  | fin n => series_nth_fld fld n (ps_terms ps)
+  | inf => zero fld
   end.
 
 Definition adjust k nz :=
   {| ps_terms := stretch_series fld k (ps_terms nz);
-     ps_valnum := ps_valnum nz * 'k;
+     ps_valnum := ps_valnum nz * ''k;
      ps_comden := ps_comden nz * k |}.
 
 (* ps_add *)
@@ -316,46 +328,33 @@ Definition lcm_div α (nz₁ nz₂ : ps_ps α) :=
   let l := Plcm (ps_comden nz₁) (ps_comden nz₂) in
   Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden nz₁))%nat.
 *)
-Definition lcm_div α (nz₁ nz₂ : ps_ps α) :=
-  ps_comden nz₂.
+Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
+  ps_comden ps₂.
 (**)
 
-Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
-  match ps₁ with
-  | NonZero nz₁ =>
-      match ps₂ with
-      | NonZero nz₂ =>
-          let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
-          let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
+Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
+  match ps_valnum ps₁ with
+  | zfin _ =>
+      match ps_valnum ps₂ with
+      | zfin _ =>
+          let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
+          let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
           let v₁ := ps_valnum ms₁ in
           let v₂ := ps_valnum ms₂ in
-          NonZero
-            {| ps_terms :=
-                 series_add fld
-                   (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat
-                      (ps_terms ms₁))
-                   (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat
-                      (ps_terms ms₂));
-               ps_valnum :=
-                 Z.min v₁ v₂;
-               ps_comden :=
-                 ps_comden ms₁ |}
-      | Zero => ps₁
+          {| ps_terms :=
+               series_add fld
+                 (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
+                    (ps_terms ms₁))
+                 (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
+                    (ps_terms ms₂));
+             ps_valnum :=
+               Zbar.min v₁ v₂;
+             ps_comden :=
+               ps_comden ms₁ |}
+      | ∞ => ps₁
       end
-  | Zero => ps₂
+  | ∞ => ps₂
   end.
-
-Definition ps_norm (ps : puiseux_series α) :=
-  match ps with
-  | NonZero nz =>
-      match series_head fld (ps_terms nz) with
-     | fin _ => ps
-     | ∞ => Zero _
-     end
-  | Zero => ps
-  end.
-
-Definition ps_add (ps₁ ps₂ : puiseux_series α) := ps_norm (ps_add₀ ps₁ ps₂).
 
 (* ps_mul *)
 
@@ -394,19 +393,18 @@ Definition series_mul_term (s₁ s₂ : series α) :=
      stop := Nbar.max (stop s₁) (stop s₂) |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
-  match ps₁ with
-  | NonZero nz₁ =>
-      match ps₂ with
-      | NonZero nz₂ =>
-          let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
-          let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          NonZero
-            {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
-               ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
-               ps_comden := ps_comden ms₁ |}
-      | Zero => Zero _
+  match ps_valnum ps₁ with
+  | zfin _ =>
+      match ps_valnum ps₂ with
+      | zfin _ =>
+          let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
+          let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
+          {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
+             ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
+             ps_comden := ps_comden ms₁ |}
+      | ∞ => ps_zero fld
       end
-  | Zero => Zero _
+  | ∞ => ps_zero fld
   end.
 
 End fld₂.
@@ -929,8 +927,6 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
-Definition ps_zero := Zero α.
-
 Theorem ps_add_neutral : ∀ ps, ps_add fld ps_zero ps ≈ ps.
 Proof. reflexivity. Qed.
 
@@ -1031,20 +1027,6 @@ transitivity (ps_add fld ps₁ ps₄).
  rewrite ps_add_comm; symmetry.
  apply ps_add_cancel_l; assumption.
 Qed.
-
-Definition ps_monom (c : α) pow :=
-  NonZero
-    {| ps_terms := {| terms i := c; stop := 1 |};
-       ps_valnum := Qnum pow;
-       ps_comden := Qden pow |}.
-
-Definition ps_const c : puiseux_series α :=
-  NonZero
-    {| ps_terms := {| terms i := c; stop := 1 |};
-       ps_valnum := 0;
-       ps_comden := 1 |}.
-
-Definition ps_one := ps_const (one fld).
 
 Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
