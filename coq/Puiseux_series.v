@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.285 2013-08-23 02:41:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.286 2013-08-23 02:54:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,18 +325,6 @@ Definition lcm_div α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
 
-Definition series_raw_add nz₁ nz₂ :=
-  let v₁ := nz_valnum nz₁ in
-  let v₂ := nz_valnum nz₂ in
-  series_add fld
-    (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat (nz_terms nz₁))
-    (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat (nz_terms nz₂)).
-
-Definition build_nz ms₁ ms₂ :=
-  {| nz_terms := series_raw_add ms₁ ms₂;
-     nz_valnum := Z.min (nz_valnum ms₁) (nz_valnum ms₂);
-     nz_comden := nz_comden ms₁ |}.
-
 Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
   | NonZero nz₁ =>
@@ -344,7 +332,19 @@ Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          NonZero (build_nz ms₁ ms₂)
+          let v₁ := nz_valnum ms₁ in
+          let v₂ := nz_valnum ms₂ in
+          NonZero
+            {| nz_terms :=
+                 series_add fld
+                   (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat
+                      (nz_terms ms₁))
+                   (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat
+                      (nz_terms ms₂));
+               nz_valnum :=
+                 Z.min v₁ v₂;
+               nz_comden :=
+                 nz_comden ms₁ |}
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -665,15 +665,36 @@ rewrite Pos2Nat.id.
 apply Pos.mul_comm.
 Qed.
 
-Lemma series_raw_add_comm : ∀ s₁ s₂,
-  series_raw_add fld s₁ s₂ ≃ series_raw_add fld s₂ s₁.
-Proof.
-intros s₁ s₂.
-apply series_add_comm; reflexivity.
-Qed.
-
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
 Proof.
+intros ps₁ ps₂.
+unfold ps_add; simpl.
+destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+unfold ps_norm.
+remember (ps_add₀ fld (NonZero nz₁) (NonZero nz₂)) as ps₁₂.
+remember (ps_add₀ fld (NonZero nz₂) (NonZero nz₁)) as ps₂₁.
+symmetry in Heqps₁₂, Heqps₂₁.
+destruct ps₁₂ as [nz₁₂| ].
+ remember (series_head fld (nz_terms nz₁₂)) as n₁₂.
+ symmetry in Heqn₁₂.
+ destruct n₁₂ as [n₁₂| ].
+  destruct ps₂₁ as [nz₂₁| ].
+   remember (series_head fld (nz_terms nz₂₁)) as n₂₁.
+   symmetry in Heqn₂₁.
+   destruct n₂₁ as [n₂₁| ].
+    rewrite <- Heqps₁₂, <- Heqps₂₁.
+    constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+     do 2 rewrite stretch_series_1.
+     apply series_add_comm.
+
+     do 2 rewrite Z.mul_1_r.
+     apply Z.min_comm.
+
+     do 2 rewrite Pos.mul_1_r.
+     apply Pos.mul_comm.
+bbb.
+
 intros ps₁ ps₂.
 unfold ps_add; simpl.
 destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
