@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.291 2013-08-23 12:18:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.292 2013-08-23 12:23:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -694,27 +694,7 @@ destruct v₁ as [n₁| ].
   apply Pos.mul_comm.
 
  destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
-bbb.
-
-intros ps₁ ps₂.
-unfold ps_add; simpl.
-destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
-destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
-rewrite series_raw_add_comm.
-remember
- (series_head fld
-    (series_raw_add fld (adjust fld (lcm_div nz₂ nz₁) nz₂)
-       (adjust fld (lcm_div nz₁ nz₂) nz₁))) as x.
-destruct x as [n| ]; [ idtac | reflexivity ].
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- rewrite series_raw_add_comm; reflexivity.
-
- do 2 rewrite Z.mul_1_r.
- unfold lcm_div.
- rewrite Z.min_comm; reflexivity.
-
- do 2 rewrite Pos.mul_1_r.
- apply Pos.mul_comm.
+ constructor 2; symmetry; assumption.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
