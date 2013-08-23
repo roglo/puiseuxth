@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.284 2013-08-22 19:36:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.285 2013-08-23 02:41:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -332,26 +332,35 @@ Definition series_raw_add nz₁ nz₂ :=
     (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat (nz_terms nz₁))
     (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat (nz_terms nz₂)).
 
-Definition build_nz ms₁ ms₂ n :=
+Definition build_nz ms₁ ms₂ :=
   {| nz_terms := series_raw_add ms₁ ms₂;
-     nz_valnum := Z.min (nz_valnum ms₁) (nz_valnum ms₂) + Z.of_nat n;
+     nz_valnum := Z.min (nz_valnum ms₁) (nz_valnum ms₂);
      nz_comden := nz_comden ms₁ |}.
 
-Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_add₀ (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
   | NonZero nz₁ =>
       match ps₂ with
       | NonZero nz₂ =>
           let ms₁ := adjust (lcm_div nz₁ nz₂) nz₁ in
           let ms₂ := adjust (lcm_div nz₂ nz₁) nz₂ in
-          match series_head fld (series_raw_add ms₁ ms₂) with
-          | fin n => NonZero (build_nz ms₁ ms₂ n)
-          | ∞ => Zero _
-          end
+          NonZero (build_nz ms₁ ms₂)
       | Zero => ps₁
       end
   | Zero => ps₂
   end.
+
+Definition ps_norm (ps : puiseux_series α) :=
+  match ps with
+  | NonZero nz =>
+      match series_head fld (nz_terms nz) with
+     | fin _ => ps
+     | ∞ => Zero _
+     end
+  | Zero => ps
+  end.
+
+Definition ps_add (ps₁ ps₂ : puiseux_series α) := ps_norm (ps_add₀ ps₁ ps₂).
 
 (* ps_mul *)
 
