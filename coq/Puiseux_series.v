@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.303 2013-08-24 20:06:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.304 2013-08-24 20:24:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -938,9 +938,17 @@ Qed.
 Theorem ps_add_neutral : ∀ ps, ps_add fld (ps_zero fld) ps ≈ ps.
 Proof. reflexivity. Qed.
 
-Theorem ps_add_inverse : ∀ ps₁, ∃ ps₂, ps_add fld ps₁ ps₂ ≈ ps_zero fld.
+Definition series_neg s :=
+  {| terms i := neg fld (terms s i); stop := stop s |}.
+
+Definition ps_neg ps :=
+  {| ps_terms := series_neg (ps_terms ps);
+     ps_valnum := ps_valnum ps;
+     ps_comden := ps_comden ps |}.
+
+Theorem ps_add_neg : ∀ ps, ps_add fld ps (ps_neg ps) ≈ ps_zero fld.
 Proof.
-intros ps₁.
+intros ps.
 bbb.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,

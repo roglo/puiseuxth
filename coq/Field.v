@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.17 2013-08-19 13:53:43 deraugla Exp $ *)
+(* $Id: Field.v,v 1.18 2013-08-24 20:24:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -10,6 +10,7 @@ Record field α :=
     one : α;
     add : α → α → α;
     mul : α → α → α;
+    neg : α → α;
     fld_eq : α → α → Prop;
     fld_eq_refl : ∀ a, fld_eq a a;
     fld_eq_sym : ∀ a b, fld_eq a b → fld_eq b a;
@@ -17,6 +18,7 @@ Record field α :=
     fld_add_comm : ∀ a b, fld_eq (add a b) (add b a);
     fld_add_assoc : ∀ a b c, fld_eq (add (add a b) c) (add a (add b c));
     fld_add_neutral : ∀ a, fld_eq (add zero a) a;
+    fld_add_neg : ∀ a, fld_eq (add a (neg a)) zero;
     fld_add_compat : ∀ a b c d, fld_eq a b → fld_eq c d
       → fld_eq (add a c) (add b d);
     fld_mul_neutral : ∀ a, fld_eq (mul one a) a;
