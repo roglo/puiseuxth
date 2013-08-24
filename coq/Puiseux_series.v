@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.301 2013-08-24 17:58:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.302 2013-08-24 19:26:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -931,7 +931,11 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
      unfold Zbar.min, Zbar.binop in Heqm₁.
      discriminate Heqm₁.
 
-    Focus 1.
+    rewrite Heqv₁, Heqv₂, Heqc₂; reflexivity.
+
+   rewrite Heqv₁, Heqv₃, Heqc₁, Heqc₃; reflexivity.
+
+  rewrite Heqv₂, Heqc₂; reflexivity.
 bbb.
 
 intros ps₁ ps₂ ps₃.
