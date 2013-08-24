@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.305 2013-08-24 20:54:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.306 2013-08-24 21:27:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -949,6 +949,12 @@ Definition ps_neg ps :=
 Theorem ps_add_neg : ∀ ps, ps_add fld ps (ps_neg ps) ≈ ps_zero fld.
 Proof.
 intros ps.
+unfold ps_add, ps_neg, ps_zero; simpl.
+unfold build_ps, lcm_div; simpl.
+remember (ps_valnum ps) as v.
+symmetry in Heqv.
+destruct v as [v| ]; [ simpl | constructor 2; reflexivity ].
+econstructor 1; simpl.
 bbb.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
