@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.297 2013-08-24 02:34:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.298 2013-08-24 10:45:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -806,15 +806,16 @@ unfold ps_add, lcm_div; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₃) as c₃.
-remember (ps_comden ps₂) as c₂.
 remember (ps_comden ps₁) as c₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_comden ps₃) as c₃.
+symmetry in Heqv₁, Heqv₂, Heqv₃, Heqc₁, Heqc₂, Heqc₃.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  destruct v₁ as [v₁| ]; simpl.
   destruct v₂ as [v₂| ]; simpl.
    destruct v₃ as [v₃| ]; simpl.
     unfold build_ps; simpl.
-    rewrite <- Heqv₁, <- Heqv₂, <- Heqv₃, <- Heqc₁, <- Heqc₂.
+    rewrite Heqv₁, Heqv₂, Heqv₃, Heqc₁, Heqc₂.
     do 2 rewrite stretch_series_1.
     remember (Zbar.min (zfin v₁ * '' c₂) (zfin v₂ * '' c₁)) as m₁.
     remember (Zbar.min (zfin v₂ * '' c₃) (zfin v₃ * '' c₂)) as m₂.
@@ -822,6 +823,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
     remember (m₂ * '' c₁)%Zbar as m₂c₁ eqn:Hm₂c₁ .
     rewrite Heqm₁ in Hm₁c₃.
     rewrite Heqm₂ in Hm₂c₁.
+    symmetry in Heqm₁, Heqm₂.
     destruct m₁ as [m₁| ]; simpl.
      destruct m₂ as [m₂| ]; simpl.
       subst m₁c₃ m₂c₁; simpl.
@@ -855,8 +857,31 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
       rewrite Pos.mul_comm, series_add_comm.
       reflexivity.
 
-      simpl.
-      Focus 1.
+      exfalso.
+      rewrite <- Zbar.zfin_inj_mul in Heqm₂.
+      rewrite <- Zbar.zfin_inj_mul in Heqm₂.
+      unfold Zbar.min, Zbar.binop in Heqm₂.
+      discriminate Heqm₂.
+
+     exfalso.
+     rewrite <- Zbar.zfin_inj_mul in Heqm₁.
+     rewrite <- Zbar.zfin_inj_mul in Heqm₁.
+     unfold Zbar.min, Zbar.binop in Heqm₁.
+     discriminate Heqm₁.
+
+    rewrite Heqv₁, Heqv₂, Heqc₂.
+
+Focus 1.
+bbb.
+      subst m₁c₃ m₂c₁; simpl.
+      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_assoc.
+      remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+      remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+      remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
+      rewrite stretch_series_add_distr.
+      rewrite series_pad_add_distr.
 bbb.
 
 intros ps₁ ps₂ ps₃.
