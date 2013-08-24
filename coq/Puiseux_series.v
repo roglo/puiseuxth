@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.300 2013-08-24 17:46:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.301 2013-08-24 17:58:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -913,7 +913,25 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 
         apply Pos2Zbar.is_nonneg.
 
-      Focus 1.
+       exfalso.
+       rewrite <- Zbar.zfin_inj_mul in Hm₂c₁.
+       rewrite <- Zbar.zfin_inj_mul in Hm₂c₁.
+       unfold Zbar.min, Zbar.binop in Hm₂c₁.
+       discriminate Hm₂c₁.
+
+      exfalso.
+      rewrite <- Zbar.zfin_inj_mul in Heqm₂.
+      rewrite <- Zbar.zfin_inj_mul in Heqm₂.
+      unfold Zbar.min, Zbar.binop in Heqm₂.
+      discriminate Heqm₂.
+
+     exfalso.
+     rewrite <- Zbar.zfin_inj_mul in Heqm₁.
+     rewrite <- Zbar.zfin_inj_mul in Heqm₁.
+     unfold Zbar.min, Zbar.binop in Heqm₁.
+     discriminate Heqm₁.
+
+    Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
