@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.299 2013-08-24 14:59:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.300 2013-08-24 17:46:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -881,17 +881,39 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  destruct v₁ as [v₁| ]; simpl.
   destruct v₂ as [v₂| ]; simpl.
    destruct v₃ as [v₃| ]; simpl.
-    Focus 1.
-bbb.
-      subst m₁c₃ m₂c₁; simpl.
-      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-      rewrite Pos2Z.inj_mul.
-      rewrite Z.mul_assoc.
-      remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
-      remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
-      remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
-      rewrite stretch_series_add_distr.
-      rewrite series_pad_add_distr.
+
+    unfold build_ps; simpl.
+    rewrite Heqv₁, Heqv₂, Heqv₃, Heqc₁, Heqc₂.
+    remember (Zbar.min (zfin v₁ * '' c₂) (zfin v₂ * '' c₁)) as m₁.
+    remember (Zbar.min (zfin v₂ * '' c₃) (zfin v₃ * '' c₂)) as m₂.
+    remember (m₁ * '' c₃)%Zbar as m₁c₃ eqn:Hm₁c₃ .
+    remember (m₂ * '' c₁)%Zbar as m₂c₁ eqn:Hm₂c₁ .
+    rewrite Heqm₁ in Hm₁c₃.
+    rewrite Heqm₂ in Hm₂c₁.
+    symmetry in Heqm₁, Heqm₂.
+    destruct m₁ as [m₁| ]; simpl.
+     destruct m₂ as [m₂| ]; simpl.
+      do 2 rewrite Zbar.mul_1_r.
+      subst m₁c₃.
+      symmetry in Hm₂c₁.
+      destruct m₂c₁ as [m₂c₁| ].
+       rewrite <- Zbar.mul_min_distr_nonneg_r.
+        simpl.
+        do 2 rewrite Pos2Z.inj_mul.
+        do 2 rewrite Z.mul_assoc.
+        rewrite <- Z.min_assoc.
+        do 2 f_equal.
+        rewrite Z.mul_shuffle0, Z.min_comm, Z.mul_shuffle0.
+        rewrite Z.mul_min_distr_nonneg_r.
+         rewrite Z.min_comm.
+         simpl in Hm₂c₁.
+         injection Hm₂c₁; intros; assumption.
+
+         apply Pos2Z.is_nonneg.
+
+        apply Pos2Zbar.is_nonneg.
+
+      Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
