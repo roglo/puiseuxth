@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.304 2013-08-24 20:24:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.305 2013-08-24 20:54:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -563,14 +563,14 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
     exfalso; apply Hge₁; clear Hge₁.
     apply Nbar.max_lt_iff; right; assumption.
 
-    destruct lt₄, lt₅; rewrite fld_add_neutral; reflexivity.
+    destruct lt₄, lt₅; rewrite fld_add_ident; reflexivity.
 
  remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
  remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
  remember (Nbar.lt_dec (fin i) n) as b.
  remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
- destruct a, b, c, d; try rewrite fld_add_neutral; reflexivity.
+ destruct a, b, c, d; try rewrite fld_add_ident; reflexivity.
 Qed.
 
 Lemma stretch_pad_series_distr : ∀ kp n s,
@@ -716,7 +716,7 @@ remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
 remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
 clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
 destruct (lt_dec i n) as [Hlt| Hge].
- destruct c₁, c₂, c₃; try rewrite fld_add_neutral; reflexivity.
+ destruct c₁, c₂, c₃; try rewrite fld_add_ident; reflexivity.
 
  apply not_gt in Hge.
  remember (i - n)%nat as m.
@@ -935,7 +935,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
-Theorem ps_add_neutral : ∀ ps, ps_add fld (ps_zero fld) ps ≈ ps.
+Theorem ps_add_ident : ∀ ps, ps_add fld (ps_zero fld) ps ≈ ps.
 Proof. reflexivity. Qed.
 
 Definition series_neg s :=
@@ -1049,7 +1049,7 @@ transitivity (ps_add fld ps₁ ps₄).
  apply ps_add_cancel_l; assumption.
 Qed.
 
-Theorem ps_mul_neutral : ∀ ps, ps_mul fld ps_one ps ≈ ps.
+Theorem ps_mul_ident : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
 intros ps.
 unfold ps_mul; simpl.
@@ -1071,7 +1071,7 @@ bbb.
    destruct st as [st| ]; simpl.
     destruct (lt_dec 0 st) as [Hlt₁| Hge₁].
      rewrite Nat.mod_0_l; simpl.
-      rewrite fld_mul_neutral; reflexivity.
+      rewrite fld_mul_ident; reflexivity.
 
       apply pos_to_nat_ne_0.
 
@@ -1109,7 +1109,7 @@ constructor; simpl.
      rewrite Nat.mod_0_l; [ simpl | apply pos_to_nat_ne_0 ].
      rewrite divmod_div.
      rewrite Nat.div_1_r.
-     rewrite fld_mul_neutral.
+     rewrite fld_mul_ident.
 bbb.
 
 Definition ps_fld : field (puiseux_series α) :=
@@ -1123,8 +1123,8 @@ Definition ps_fld : field (puiseux_series α) :=
      fld_eq_trans := eq_ps_trans (fld := fld);
      fld_add_comm := ps_add_comm;
      fld_add_assoc := ps_add_assoc;
-     fld_add_neutral := ps_add_neutral;
+     fld_add_ident := ps_add_ident;
      fld_add_compat := ps_add_compat;
-     fld_mul_neutral := ps_mul_neutral |}.
+     fld_mul_ident := ps_mul_ident |}.
 
 End fld₃.

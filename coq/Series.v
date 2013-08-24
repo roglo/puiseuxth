@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.57 2013-08-21 17:35:55 deraugla Exp $ *)
+(* $Id: Series.v,v 1.58 2013-08-24 20:54:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -101,39 +101,39 @@ destruct lt₄ as [Hlt₄| Hge₄].
   destruct lt₁ as [Hlt₁| Hge₁].
    destruct lt₂ as [Hlt₂| Hge₂].
     destruct lt₃ as [Hlt₃| Hge₃]; [ apply fld_add_assoc | idtac ].
-    rewrite fld_add_comm, fld_add_neutral; symmetry.
+    rewrite fld_add_comm, fld_add_ident; symmetry.
     rewrite <- fld_add_assoc.
-    rewrite fld_add_comm, fld_add_neutral; reflexivity.
+    rewrite fld_add_comm, fld_add_ident; reflexivity.
 
-    rewrite fld_add_assoc, fld_add_neutral; reflexivity.
+    rewrite fld_add_assoc, fld_add_ident; reflexivity.
 
-   rewrite fld_add_assoc, fld_add_neutral; reflexivity.
+   rewrite fld_add_assoc, fld_add_ident; reflexivity.
 
   symmetry.
-  rewrite fld_add_comm, fld_add_neutral; symmetry.
+  rewrite fld_add_comm, fld_add_ident; symmetry.
   destruct lt₂ as [Hlt₂| Hge₂].
    exfalso; apply Hge₅; clear Hge₅.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite fld_add_assoc, fld_add_neutral.
+   rewrite fld_add_assoc, fld_add_ident.
    destruct lt₃ as [Hlt₃| Hge₃].
     exfalso; apply Hge₅; clear Hge₅.
     apply Nbar.max_lt_iff; right; assumption.
 
-    rewrite fld_add_comm, fld_add_neutral; reflexivity.
+    rewrite fld_add_comm, fld_add_ident; reflexivity.
 
- rewrite fld_add_neutral.
+ rewrite fld_add_ident.
  destruct lt₁ as [Hlt₁| Hge₁].
   exfalso; apply Hge₄; clear Hge₄.
   apply Nbar.max_lt_iff; left; assumption.
 
-  rewrite fld_add_neutral.
+  rewrite fld_add_ident.
   destruct lt₂ as [Hlt₂| Hge₂].
    exfalso; apply Hge₄; clear Hge₄.
    apply Nbar.max_lt_iff; right; assumption.
 
    destruct lt₅ as [Hlt₅| Hge₅].
-    rewrite fld_add_neutral; reflexivity.
+    rewrite fld_add_ident; reflexivity.
 
     destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
     exfalso; apply Hge₅; clear Hge₅.
@@ -186,7 +186,7 @@ destruct lt₅ as [Hlt₅| Hge₅].
    exfalso; apply Hge₆; clear Hge₆.
    apply Nbar.max_lt_iff; right; assumption.
 
-   rewrite fld_add_neutral; reflexivity.
+   rewrite fld_add_ident; reflexivity.
 
  destruct lt₁ as [Hlt₁| Hge₁].
   exfalso; apply Hge₅; clear Hge₅.
@@ -198,5 +198,5 @@ destruct lt₅ as [Hlt₅| Hge₅].
 
    destruct lt₆ as [Hlt₆| Hge₆]; [ idtac | reflexivity ].
    rewrite <- Hi₁, <- Hi₂.
-   rewrite fld_add_neutral; reflexivity.
+   rewrite fld_add_ident; reflexivity.
 Qed.
