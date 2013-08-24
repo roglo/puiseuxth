@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.298 2013-08-24 10:45:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.299 2013-08-24 14:59:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -869,9 +869,19 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
      unfold Zbar.min, Zbar.binop in Heqm₁.
      discriminate Heqm₁.
 
-    rewrite Heqv₁, Heqv₂, Heqc₂.
+    rewrite Heqv₁, Heqv₂, Heqc₂; reflexivity.
 
-Focus 1.
+   destruct v₃ as [v₃| ]; simpl.
+    rewrite Heqv₁, Heqv₃, Heqc₁, Heqc₃; reflexivity.
+
+    rewrite Heqv₁, Heqv₃; reflexivity.
+
+  rewrite Heqv₂, Heqc₂; reflexivity.
+
+ destruct v₁ as [v₁| ]; simpl.
+  destruct v₂ as [v₂| ]; simpl.
+   destruct v₃ as [v₃| ]; simpl.
+    Focus 1.
 bbb.
       subst m₁c₃ m₂c₁; simpl.
       rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
