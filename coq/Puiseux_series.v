@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.306 2013-08-24 21:27:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.307 2013-08-24 22:09:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,6 +8,7 @@ Require Import Field.
 Require Import Misc.
 Require Import Series.
 Require Import Nbar.
+Require Import Pbar.
 Require Import Zbar.
 
 Set Implicit Arguments.
@@ -33,11 +34,11 @@ Variable fld : field α.
 
 Definition stretch_series k s :=
   {| terms i :=
-       if zerop (i mod Pos.to_nat k) then
-         series_nth_fld fld (i / Pos.to_nat k) s
+       if zerop (i mod Pbar.to_nat k) then
+         series_nth_fld fld (i / Pbar.to_nat k) s
        else zero fld;
      stop :=
-       stop s * fin (Pos.to_nat k) |}.
+       stop s * fin (Pbar.to_nat k) |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
@@ -46,7 +47,8 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
       stretch_series k₁ (ps_terms ps₁) ≃
       stretch_series k₂ (ps_terms ps₂)
-      → (ps_valnum ps₁ * ''k₁)%Zbar = (ps_valnum ps₂ * ''k₂)%Zbar
+      → (ps_valnum ps₁ * Zbar.of_Pbar k₁)%Zbar =
+        (ps_valnum ps₂ * Zbar.of_Pbar k₂)%Zbar
         → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
           → eq_ps ps₁ ps₂
   | eq_ps_zero : ∀ ps₁ ps₂,
