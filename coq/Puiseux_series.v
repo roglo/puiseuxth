@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.296 2013-08-24 02:26:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.297 2013-08-24 02:34:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -933,7 +933,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
-Theorem ps_add_neutral : ∀ ps, ps_add fld ps_zero ps ≈ ps.
+Theorem ps_add_neutral : ∀ ps, ps_add fld (ps_zero fld) ps ≈ ps.
 Proof. reflexivity. Qed.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
@@ -960,7 +960,7 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
   rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-(* à nettoyer *)
+-- à nettoyer
   rewrite Nat.mul_sub_distr_r.
   rewrite <- Nat.mul_assoc.
   rewrite <- Pos2Nat.inj_mul.
