@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.312 2013-08-25 10:55:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.313 2013-08-25 11:57:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,8 +52,8 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
           (ps_comden ps₂ * k₂)%positive
           → eq_ps ps₁ ps₂
   | eq_ps_zero : ∀ ps₁ ps₂,
-      ps_valnum ps₁ = ∞
-      → ps_valnum ps₂ = ∞
+      ps_terms ps₁ ≃ series_0 fld ∨ ps_valnum ps₁ = ∞
+      → ps_terms ps₂ ≃ series_0 fld ∨ ps_valnum ps₂ = ∞
         → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
@@ -258,6 +258,57 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
+Lemma stretch_series_series_0 : ∀ k,
+  stretch_series fld k (series_0 fld) ≃ series_0 fld.
+Proof.
+intros k.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) inf); [ idtac | reflexivity ].
+destruct (zerop (i mod Pos.to_nat k)); [ idtac | reflexivity ].
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) inf); reflexivity.
+Qed.
+
+Lemma stretch_series_0_if : ∀ k s,
+  stretch_series fld k s ≃ series_0 fld
+  → s ≃ series_0 fld.
+Proof.
+intros k s Hs.
+constructor.
+intros i.
+inversion Hs; subst.
+pose proof (H (i * Pos.to_nat k)%nat) as Hi.
+unfold series_nth_fld in Hi; simpl in Hi.
+rewrite Nat.mod_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
+rewrite Nat.div_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
+remember (stop s * fin (Pos.to_nat k))%Nbar as ss.
+destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
+ rewrite Hi.
+ unfold series_nth_fld; simpl.
+ destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) inf).
+  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+
+ unfold series_nth_fld; simpl.
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [Hlt| Hge].
+  exfalso; apply n; clear n Hi.
+  subst ss.
+  rewrite Nbar.fin_inj_mul.
+  apply Nbar.mul_lt_mono_pos_r.
+   constructor.
+   apply Pos2Nat.is_pos.
+
+   intros HH; discriminate HH.
+
+   intros HH; discriminate HH.
+
+   assumption.
+
+  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+Qed.
+
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -286,6 +337,15 @@ inversion H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hvv₁ Hvv₂];
     apply Zbar.pos_ne_0.
 
    apply Zbar.pos_ne_0.
+
+  destruct Hvv₂ as [Hvv₂| Hvv₂].
+   rewrite Hvv₂ in Hss₁.
+   rewrite stretch_series_series_0 in Hss₁.
+   apply stretch_series_0_if in Hss₁.
+   constructor; [ left; assumption | assumption ].
+
+   destruct Hvv₃ as [Hvv₃| Hvv₃].
+bbb.
 
   rewrite Hvv₂ in Hvv₁; simpl in Hvv₁.
   constructor 2; [ idtac | assumption ].
