@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.311 2013-08-25 10:41:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.312 2013-08-25 10:55:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,11 +11,6 @@ Require Import Nbar.
 Require Import Zbar.
 
 Set Implicit Arguments.
-
-Record puiseux_series α := mkps
-  { ps_terms : series α;
-    ps_valnum : Zbar;
-    ps_comden : positive }.
 
 (* [series_head fld s] return the position of the first non null
    coefficient in the series [s]. *)
@@ -41,6 +36,11 @@ Definition stretch_series k s :=
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+
+Record puiseux_series α := mkps
+  { ps_terms : series α;
+    ps_valnum : Zbar;
+    ps_comden : positive }.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
