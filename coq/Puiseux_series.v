@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.310 2013-08-25 10:24:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.311 2013-08-25 10:41:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -948,6 +948,18 @@ Definition ps_neg ps :=
      ps_valnum := ps_valnum ps;
      ps_comden := ps_comden ps |}.
 
+Lemma add_neg_nth : ∀ s i,
+  add fld (series_nth_fld fld i s) (series_nth_fld fld i (series_neg s)) ≍
+  zero fld.
+Proof.
+intros s i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) (stop s)).
+ apply fld_add_neg.
+
+ apply fld_add_ident.
+Qed.
+
 Theorem ps_add_neg : ∀ ps, ps_add fld ps (ps_neg ps) ≈ ps_zero fld.
 Proof.
 intros ps.
@@ -977,6 +989,14 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
    subst i.
    rewrite Nat.mul_comm.
    rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+   rewrite add_neg_nth.
+   remember (c * Pos.to_nat (ps_comden ps))%nat as x.
+   destruct (Nbar.lt_dec (fin x) inf); reflexivity.
+
+   rewrite fld_add_ident.
+   destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
 bbb.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
