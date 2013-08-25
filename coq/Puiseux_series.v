@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.320 2013-08-25 21:31:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.321 2013-08-25 21:47:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1081,39 +1081,53 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
  symmetry in Heqv₁, Heqv₂, Heqv₃.
  destruct v₁ as [v₁| ].
   destruct v₂ as [v₂| ].
-   destruct v₃ as [v₃| ].
-    unfold build_ps, lcm_div; simpl.
-    rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
-    constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
-     do 2 rewrite stretch_series_add_distr.
-     do 4 rewrite stretch_pad_series_distr.
-     do 4 rewrite <- stretch_stretch_series.
-     do 4 rewrite Nat.mul_sub_distr_r.
-     do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-     do 4 rewrite <- Z.mul_assoc; simpl.
-     rewrite Hck₂.
-     rewrite Pos.mul_comm in Hck₂; symmetry in Hck₂.
-     rewrite Pos.mul_comm in Hck₂; symmetry in Hck₂.
-     rewrite Hck₂.
-     replace (k₂₁ * ps_comden ps₁)%positive with
-      (ps_comden ps₁ * k₂₁)%positive by apply Pos.mul_comm.
-     do 2 rewrite stretch_stretch_series.
-     rewrite Hss₂.
-     do 2 rewrite <- stretch_stretch_series.
-     replace (ps_comden ps₁ * k₂₂)%positive with
-      (k₂₂ * ps_comden ps₁)%positive by apply Pos.mul_comm.
-     replace (v₂ * ' (ps_comden ps₁ * k₂₁))%Z with
-      (v₃ * ' (k₂₂ * ps_comden ps₁))%Z .
-      reflexivity.
+   destruct v₃ as [v₃| ]; [ idtac | discriminate Hvv₂ ].
+   unfold build_ps, lcm_div; simpl.
+   rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
+   constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
+    do 2 rewrite stretch_series_add_distr.
+    do 4 rewrite stretch_pad_series_distr.
+    do 4 rewrite <- stretch_stretch_series.
+    do 4 rewrite Nat.mul_sub_distr_r.
+    do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+    do 4 rewrite <- Z.mul_assoc; simpl.
+    rewrite Hck₂.
+    rewrite Pos.mul_comm in Hck₂; symmetry in Hck₂.
+    rewrite Pos.mul_comm in Hck₂; symmetry in Hck₂.
+    rewrite Hck₂.
+    replace (k₂₁ * ps_comden ps₁)%positive with
+     (ps_comden ps₁ * k₂₁)%positive by apply Pos.mul_comm.
+    do 2 rewrite stretch_stretch_series.
+    rewrite Hss₂.
+    do 2 rewrite <- stretch_stretch_series.
+    replace (ps_comden ps₁ * k₂₂)%positive with
+     (k₂₂ * ps_comden ps₁)%positive by apply Pos.mul_comm.
+    replace (v₂ * ' (ps_comden ps₁ * k₂₁))%Z with
+     (v₃ * ' (k₂₂ * ps_comden ps₁))%Z .
+     reflexivity.
 
-      do 2 rewrite Pos2Z.inj_mul.
-      do 2 rewrite Z.mul_assoc.
-      symmetry; rewrite Z.mul_shuffle0.
-      apply Z.mul_cancel_r; [ apply Zpos_ne_0 | idtac ].
-      inversion Hvv₂; subst.
-      reflexivity.
+     do 2 rewrite Pos2Z.inj_mul.
+     do 2 rewrite Z.mul_assoc.
+     symmetry; rewrite Z.mul_shuffle0.
+     apply Z.mul_cancel_r; [ apply Zpos_ne_0 | idtac ].
+     inversion Hvv₂; subst.
+     reflexivity.
 
-     Focus 1.
+    rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+    rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+    simpl in Hvv₂.
+    do 2 f_equal.
+     do 2 rewrite <- Z.mul_assoc; simpl.
+     rewrite Hck₂; reflexivity.
+
+     rewrite Z.mul_shuffle0.
+     injection Hvv₂; clear Hvv₂; intros Hvv₂; rewrite Hvv₂.
+     rewrite Z.mul_shuffle0; reflexivity.
+
+    rewrite <- Pos.mul_assoc, Hck₂, Pos.mul_assoc.
+    reflexivity.
+
+   Focus 1.
 bbb.
 
 intros ps₁ ps₃ ps₄ H.
