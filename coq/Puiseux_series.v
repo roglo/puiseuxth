@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.313 2013-08-25 11:57:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.314 2013-08-25 12:20:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -344,19 +344,29 @@ inversion H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hvv₁ Hvv₂];
    apply stretch_series_0_if in Hss₁.
    constructor; [ left; assumption | assumption ].
 
+   rewrite Hvv₂ in Hvv₁; simpl in Hvv₁.
    destruct Hvv₃ as [Hvv₃| Hvv₃].
-bbb.
+    constructor 2; [ idtac | left; assumption ].
+    remember (ps_valnum ps₁) as v.
+    destruct v; [ discriminate Hvv₁ | right; reflexivity ].
 
-  rewrite Hvv₂ in Hvv₁; simpl in Hvv₁.
-  constructor 2; [ idtac | assumption ].
-  remember (ps_valnum ps₁) as v.
-  destruct v; [ discriminate Hvv₁ | reflexivity ].
+    constructor 2; [ idtac | right; assumption ].
+    remember (ps_valnum ps₁) as v.
+    destruct v; [ discriminate Hvv₁ | right; reflexivity ].
 
  constructor 2; [ assumption | idtac ].
  inversion H₂ as [k₂₁ k₂₂ a b Hss₂ Hvv₂'| ]; [ subst | assumption ].
- rewrite Hvv₂ in Hvv₂'; simpl in Hvv₂'; symmetry in Hvv₂'.
- remember (ps_valnum ps₃) as v.
- destruct v; [ discriminate Hvv₂' | reflexivity ].
+ destruct Hvv₂ as [Hvv₂| Hvv₂].
+  rewrite Hvv₂ in Hss₂.
+  rewrite stretch_series_series_0 in Hss₂.
+  symmetry in Hss₂.
+  apply stretch_series_0_if in Hss₂.
+  left; assumption.
+
+  rewrite Hvv₂ in Hvv₂'; simpl in Hvv₂'.
+  remember (ps_valnum ps₃) as v.
+  symmetry in Hvv₂'.
+  destruct v; [ discriminate Hvv₂' | right; assumption ].
 Qed.
 
 End fld₁.
