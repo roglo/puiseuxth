@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.318 2013-08-25 16:50:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.319 2013-08-25 17:51:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1072,6 +1072,20 @@ Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
   → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
 Proof.
+intros ps₁ ps₂ ps₃ H.
+inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
+ unfold ps_add.
+ remember (ps_valnum ps₁) as v₁.
+ remember (ps_valnum ps₂) as v₂.
+ remember (ps_valnum ps₃) as v₃.
+ symmetry in Heqv₁, Heqv₂, Heqv₃.
+ destruct v₁ as [v₁| ].
+  destruct v₂ as [v₂| ].
+   destruct v₃ as [v₃| ].
+    unfold build_ps, lcm_div; simpl.
+    rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
+    Focus 1.
+
 intros ps₁ ps₂ ps₃ H.
 inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
  constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
