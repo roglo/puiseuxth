@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.52 2013-08-18 20:12:49 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.53 2013-08-25 05:07:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -649,7 +649,7 @@ Proof. intros a b; reflexivity. Qed.
 Lemma divmod_mod : ∀ a b, (b - snd (divmod a b 0 b) = a mod S b)%nat.
 Proof. intros a b; reflexivity. Qed.
 
-Lemma pos_to_nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
+Lemma Pos2Nat_ne_0 : ∀ a, (Pos.to_nat a ≠ 0)%nat.
 Proof.
 intros a H.
 pose proof Pos2Nat.is_pos a as HH.
@@ -689,7 +689,7 @@ intros a b Hab.
 destruct Hab as (c, Hab).
 subst b.
 rewrite Pos2Nat.inj_mul.
-rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
+rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
 rewrite Pos2Nat.id; reflexivity.
 Qed.
 

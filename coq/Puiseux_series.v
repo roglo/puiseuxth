@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.307 2013-08-24 22:09:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.308 2013-08-25 05:07:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,7 +8,6 @@ Require Import Field.
 Require Import Misc.
 Require Import Series.
 Require Import Nbar.
-Require Import Pbar.
 Require Import Zbar.
 
 Set Implicit Arguments.
@@ -34,11 +33,11 @@ Variable fld : field α.
 
 Definition stretch_series k s :=
   {| terms i :=
-       if zerop (i mod Pbar.to_nat k) then
-         series_nth_fld fld (i / Pbar.to_nat k) s
+       if zerop (i mod Pos.to_nat k) then
+         series_nth_fld fld (i / Pos.to_nat k) s
        else zero fld;
      stop :=
-       stop s * fin (Pbar.to_nat k) |}.
+       stop s * fin (Pos.to_nat k) |}.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
@@ -47,9 +46,10 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
       stretch_series k₁ (ps_terms ps₁) ≃
       stretch_series k₂ (ps_terms ps₂)
-      → (ps_valnum ps₁ * Zbar.of_Pbar k₁)%Zbar =
-        (ps_valnum ps₂ * Zbar.of_Pbar k₂)%Zbar
-        → (ps_comden ps₁ * k₁ = ps_comden ps₂ * k₂)%positive
+      → (ps_valnum ps₁ * ''k₁)%Zbar =
+        (ps_valnum ps₂ * ''k₂)%Zbar
+        → (ps_comden ps₁ * k₁)%positive =
+          (ps_comden ps₂ * k₂)%positive
           → eq_ps ps₁ ps₂
   | eq_ps_zero : ∀ ps₁ ps₂,
       ps_valnum ps₁ = ∞
@@ -102,8 +102,8 @@ unfold series_nth_fld; simpl.
 rewrite Pos2Nat.inj_mul.
 remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
-assert (a ≠ O) as Ha by (subst a; apply pos_to_nat_ne_0).
-assert (b ≠ O) as Hb by (subst b; apply pos_to_nat_ne_0).
+assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
+assert (b ≠ O) as Hb by (subst b; apply Pos2Nat_ne_0).
 rewrite Nbar.fin_inj_mul, Nbar.mul_shuffle0, Nbar.mul_assoc.
 remember (Nbar.lt_dec (fin i) (stop s * fin a * fin b)) as n.
 destruct n as [Hlt| ]; [ clear Heqn | reflexivity ].
@@ -204,7 +204,7 @@ unfold series_nth_fld; simpl.
 unfold series_nth_fld; simpl.
 unfold series_nth_fld in Heq; simpl in Heq.
 remember (Pos.to_nat kp) as k.
-assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
+assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
  apply Nat.mod_divides in Hz; [ idtac | assumption ].
  destruct Hz as (c, Hi).
@@ -275,12 +275,12 @@ inversion H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hvv₁ Hvv₂];
     do 2 rewrite <- Pos.mul_assoc in Hck₂.
     econstructor; try eassumption.
     symmetry; rewrite Pos.mul_comm.
-    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+    rewrite stretch_stretch_series; try apply Pos2Nat_ne_0.
     symmetry; rewrite Pos.mul_comm.
-    rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+    rewrite stretch_stretch_series; try apply Pos2Nat_ne_0.
     rewrite Hss₁, <- Hss₂.
-    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-    rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+    rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+    rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
     rewrite Pos.mul_comm; reflexivity.
 
     apply Zbar.pos_ne_0.
@@ -518,7 +518,7 @@ constructor; simpl.
 intros i.
 unfold series_nth_fld; simpl.
 remember (Pos.to_nat kp) as k.
-assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
+assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
  apply Nat.mod_divides in Hz; [ idtac | assumption ].
  destruct Hz as (c, Hi).
@@ -584,7 +584,7 @@ constructor.
 intros i.
 unfold stretch_series, series_nth_fld; simpl.
 remember (Pos.to_nat kp) as k.
-assert (k ≠ O) as Hk by (subst k; apply pos_to_nat_ne_0).
+assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
  apply Nat.mod_divides in Hz; [ idtac | assumption ].
  destruct Hz as (c, Hi).
@@ -675,7 +675,7 @@ pose proof (Pos_divides_lcm_l x y) as H.
 destruct H as (k, H).
 rewrite H.
 rewrite Pos2Nat.inj_mul.
-rewrite Nat.div_mul; [ idtac | apply pos_to_nat_ne_0 ].
+rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
 rewrite Pos2Nat.id.
 apply Pos.mul_comm.
 Qed.
@@ -844,7 +844,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
       do 2 rewrite series_pad_add_distr.
       rewrite series_add_assoc.
       do 4 rewrite stretch_pad_series_distr.
-      do 4 rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+      do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
       do 4 rewrite series_pad_pad.
       do 4 rewrite Nat.mul_sub_distr_r.
       do 4 rewrite <- Z2Nat_inj_mul_pos_r.
@@ -975,14 +975,14 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   remember (ps_valnum nz₂₁) as v₂₁.
   remember (ps_valnum nz₂₂) as v₂₂.
   do 2 rewrite stretch_series_add_distr.
-  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-  rewrite stretch_pad_series_distr; [ idtac | apply pos_to_nat_ne_0 ].
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite stretch_pad_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite stretch_pad_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
 -- à nettoyer
   rewrite Nat.mul_sub_distr_r.
   rewrite <- Nat.mul_assoc.
@@ -1019,9 +1019,9 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite series_add_comm.
   rewrite Pos2Nat.inj_mul.
   rewrite Nat.mul_comm.
-  rewrite stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite stretch_stretch_series; try apply Pos2Nat_ne_0.
   rewrite Hss₂.
-  rewrite <- stretch_stretch_series; try apply pos_to_nat_ne_0.
+  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
   rewrite Nat.mul_comm.
   rewrite <- Pos2Nat.inj_mul.
   rewrite series_add_comm.
@@ -1081,7 +1081,7 @@ bbb.
      rewrite Nat.mod_0_l; simpl.
       rewrite fld_mul_ident; reflexivity.
 
-      apply pos_to_nat_ne_0.
+      apply Pos2Nat_ne_0.
 
      apply not_gt in Hge₁.
      apply Nat.le_0_r in Hge₁.
@@ -1114,7 +1114,7 @@ constructor; simpl.
    symmetry in Heqst.
    destruct st as [st| ].
     destruct (lt_dec i st) as [Hlt| Hge].
-     rewrite Nat.mod_0_l; [ simpl | apply pos_to_nat_ne_0 ].
+     rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
      rewrite divmod_div.
      rewrite Nat.div_1_r.
      rewrite fld_mul_ident.
