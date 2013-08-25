@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.314 2013-08-25 12:20:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.315 2013-08-25 12:33:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -769,7 +769,7 @@ destruct v₁ as [n₁| ].
   apply Pos.mul_comm.
 
  destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
- constructor 2; symmetry; assumption.
+ constructor 2; right; symmetry; assumption.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -1037,12 +1037,13 @@ unfold ps_add, ps_neg, ps_zero; simpl.
 unfold build_ps, lcm_div; simpl.
 remember (ps_valnum ps) as v.
 symmetry in Heqv.
-destruct v as [v| ]; [ simpl | constructor 2; reflexivity ].
+destruct v as [v| ]; [ simpl | constructor 2; right; reflexivity ].
 rewrite Nat.sub_diag.
 rewrite Z.min_id.
 unfold series_add.
 simpl.
 rewrite Nbar.max_id.
+bbb.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  unfold series_0; simpl.

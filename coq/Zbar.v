@@ -1,10 +1,9 @@
-(* $Id: Zbar.v,v 1.19 2013-08-24 22:09:23 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.20 2013-08-25 12:33:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
 
 Require Import Nbar.
-Require Import Pbar.
 
 Set Implicit Arguments.
 
@@ -58,12 +57,6 @@ Definition to_nat zb :=
   match zb with
   | zfin z => Z.to_nat z
   | ∞ => O
-  end.
-
-Definition of_Pbar pb :=
-  match pb with
-  | pfin p => zfin (Zpos p)
-  | pinf => ∞
   end.
 
 Theorem pos_ne_0 : ∀ p, not_0_inf ('' p).
