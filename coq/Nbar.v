@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.33 2013-08-22 00:40:21 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.34 2013-08-25 10:24:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -313,6 +313,13 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_sub_distr_r; reflexivity.
 Qed.
 *)
+
+Theorem max_id : ∀ n, max n n = n.
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+rewrite Nat.max_id; reflexivity.
+Qed.
 
 Theorem add_max_distr_r : ∀ n m p, max (n + p) (m + p) = max n m + p.
 Proof.

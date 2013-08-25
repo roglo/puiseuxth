@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.309 2013-08-25 09:58:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.310 2013-08-25 10:24:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -960,7 +960,23 @@ rewrite Nat.sub_diag.
 rewrite Z.min_id.
 unfold series_add.
 simpl.
-rewrite Nbar.add_0_r.
+rewrite Nbar.max_id.
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ do 2 rewrite stretch_series_1.
+ unfold series_0; simpl.
+ constructor.
+ intros i.
+ unfold series_nth_fld; simpl.
+ rewrite Nbar.add_0_r.
+ remember (stop (ps_terms ps) * fin (Pos.to_nat (ps_comden ps)))%Nbar as n.
+ rewrite Nat.sub_0_r.
+ destruct (Nbar.lt_dec (fin i) n) as [Hlt| Hge]; simpl.
+  destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz].
+   apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct Hz as (c, Hz).
+   subst i.
+   rewrite Nat.mul_comm.
+   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
 bbb.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
