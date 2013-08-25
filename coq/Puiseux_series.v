@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.315 2013-08-25 12:33:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.316 2013-08-25 15:41:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1040,35 +1040,33 @@ symmetry in Heqv.
 destruct v as [v| ]; [ simpl | constructor 2; right; reflexivity ].
 rewrite Nat.sub_diag.
 rewrite Z.min_id.
-unfold series_add.
-simpl.
+unfold series_add; simpl.
 rewrite Nbar.max_id.
-bbb.
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- do 2 rewrite stretch_series_1.
- unfold series_0; simpl.
- constructor.
- intros i.
- unfold series_nth_fld; simpl.
- rewrite Nbar.add_0_r.
- remember (stop (ps_terms ps) * fin (Pos.to_nat (ps_comden ps)))%Nbar as n.
- rewrite Nat.sub_0_r.
- destruct (Nbar.lt_dec (fin i) n) as [Hlt| Hge]; simpl.
-  destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz].
-   apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct Hz as (c, Hz).
-   subst i.
-   rewrite Nat.mul_comm.
-   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-   rewrite add_neg_nth.
-   remember (c * Pos.to_nat (ps_comden ps))%nat as x.
-   destruct (Nbar.lt_dec (fin x) inf); reflexivity.
+(* one degree of fredom in "left; reflexivity" below:
+   could be "right; reflexivity"; this is strange *)
+constructor 2; [ left; simpl | left; reflexivity ].
+constructor.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_0_r.
+remember (stop (ps_terms ps) * fin (Pos.to_nat (ps_comden ps)))%Nbar as n.
+rewrite Nat.sub_0_r.
+destruct (Nbar.lt_dec (fin i) n) as [Hlt| Hge]; simpl.
+ destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz].
+  apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+  destruct Hz as (c, Hz).
+  subst i.
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+  rewrite add_neg_nth.
+  remember (c * Pos.to_nat (ps_comden ps))%nat as x.
+  destruct (Nbar.lt_dec (fin x) inf); reflexivity.
 
-   rewrite fld_add_ident.
-   destruct (Nbar.lt_dec (fin i) inf); reflexivity.
-
+  rewrite fld_add_ident.
   destruct (Nbar.lt_dec (fin i) inf); reflexivity.
-bbb.
+
+ destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+Qed.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
