@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.308 2013-08-25 05:07:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.309 2013-08-25 09:58:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -956,7 +956,11 @@ unfold build_ps, lcm_div; simpl.
 remember (ps_valnum ps) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ simpl | constructor 2; reflexivity ].
-econstructor 1; simpl.
+rewrite Nat.sub_diag.
+rewrite Z.min_id.
+unfold series_add.
+simpl.
+rewrite Nbar.add_0_r.
 bbb.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
