@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.322 2013-08-26 01:58:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.323 2013-08-26 09:19:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,6 +17,10 @@ Set Implicit Arguments.
 Definition series_head : ∀ α, field α → series α → Nbar.
 Admitted.
 
+Axiom series_head_inf : ∀ α (fld : field α) s,
+  (∀ i, fld_eq fld (series_nth_fld fld i s) (zero fld))
+  → series_head fld s = inf.
+
 Add Parametric Morphism α (fld : field α) : (series_head fld)
 with signature (eq_series fld) ==> eq as series_head_morph.
 Admitted.
@@ -25,6 +29,8 @@ Section fld.
 
 Variable α : Type.
 Variable fld : field α.
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -33,9 +39,6 @@ Definition stretch_series k s :=
        else zero fld;
      stop :=
        stop s * fin (Pos.to_nat k) |}.
-
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Record puiseux_series α := mkps
   { ps_terms : series α;
@@ -52,8 +55,8 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
           (ps_comden ps₂ * k₂)%positive
           → eq_ps ps₁ ps₂
   | eq_ps_zero : ∀ ps₁ ps₂,
-      ps_terms ps₁ ≃ series_0 fld ∨ ps_valnum ps₁ = ∞
-      → ps_terms ps₂ ≃ series_0 fld ∨ ps_valnum ps₂ = ∞
+      ps_valnum ps₁ = ∞
+      → ps_valnum ps₂ = ∞
         → eq_ps ps₁ ps₂.
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
@@ -338,35 +341,17 @@ inversion H₁ as [k₁₁ k₁₂ a b Hss₁ Hvv₁ Hck₁| a b Hvv₁ Hvv₂];
 
    apply Zbar.pos_ne_0.
 
-  destruct Hvv₂ as [Hvv₂| Hvv₂].
-   rewrite Hvv₂ in Hss₁.
-   rewrite stretch_series_series_0 in Hss₁.
-   apply stretch_series_0_if in Hss₁.
-   constructor; [ left; assumption | assumption ].
-
-   rewrite Hvv₂ in Hvv₁; simpl in Hvv₁.
-   destruct Hvv₃ as [Hvv₃| Hvv₃].
-    constructor 2; [ idtac | left; assumption ].
-    remember (ps_valnum ps₁) as v.
-    destruct v; [ discriminate Hvv₁ | right; reflexivity ].
-
-    constructor 2; [ idtac | right; assumption ].
-    remember (ps_valnum ps₁) as v.
-    destruct v; [ discriminate Hvv₁ | right; reflexivity ].
+  rewrite Hvv₂ in Hvv₁; simpl in Hvv₁.
+  constructor 2; [ idtac | assumption ].
+  remember (ps_valnum ps₁) as v.
+  destruct v; [ discriminate Hvv₁ | reflexivity ].
 
  constructor 2; [ assumption | idtac ].
  inversion H₂ as [k₂₁ k₂₂ a b Hss₂ Hvv₂'| ]; [ subst | assumption ].
- destruct Hvv₂ as [Hvv₂| Hvv₂].
-  rewrite Hvv₂ in Hss₂.
-  rewrite stretch_series_series_0 in Hss₂.
-  symmetry in Hss₂.
-  apply stretch_series_0_if in Hss₂.
-  left; assumption.
-
-  rewrite Hvv₂ in Hvv₂'; simpl in Hvv₂'.
-  remember (ps_valnum ps₃) as v.
-  symmetry in Hvv₂'.
-  destruct v; [ discriminate Hvv₂' | right; assumption ].
+ rewrite Hvv₂ in Hvv₂'; simpl in Hvv₂'.
+ remember (ps_valnum ps₃) as v.
+ symmetry in Hvv₂'.
+ destruct v; [ discriminate Hvv₂' | assumption ].
 Qed.
 
 End fld₁.
@@ -421,19 +406,22 @@ Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
 
-Definition build_ps ms₁ ms₂ :=
-  let v₁ := ps_valnum ms₁ in
-  let v₂ := ps_valnum ms₂ in
-  {| ps_terms :=
-       series_add fld
-         (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
-            (ps_terms ms₁))
-         (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
-            (ps_terms ms₂));
-     ps_valnum :=
-       Zbar.min v₁ v₂;
-     ps_comden :=
-       ps_comden ms₁ |}.
+Definition build_series_add ps₁ ps₂ :=
+  let v₁ := ps_valnum ps₁ in
+  let v₂ := ps_valnum ps₂ in
+  series_add fld
+    (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
+       (ps_terms ps₁))
+    (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
+       (ps_terms ps₂)).
+
+Definition build_ps_add ps₁ ps₂ :=
+  let v₁ := ps_valnum ps₁ in
+  let v₂ := ps_valnum ps₂ in
+  let s := build_series_add ps₁ ps₂ in
+  {| ps_terms := s;
+     ps_valnum := (Zbar.min v₁ v₂ + Zbar.of_Nbar (series_head fld s))%Zbar;
+     ps_comden := ps_comden ps₁ |}.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps_valnum ps₁ with
@@ -442,7 +430,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | zfin _ =>
           let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
           let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-          build_ps ms₁ ms₂
+          build_ps_add ms₁ ms₂
       | ∞ => ps₁
       end
   | ∞ => ps₂
@@ -753,7 +741,7 @@ Qed.
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
-unfold ps_add, build_ps; simpl.
+unfold ps_add, build_ps_add, build_series_add; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 destruct v₁ as [n₁| ].
@@ -761,15 +749,13 @@ destruct v₁ as [n₁| ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
   rewrite series_add_comm; reflexivity.
 
-  do 2 rewrite Z.mul_1_r.
-  unfold lcm_div.
-  rewrite Z.min_comm; reflexivity.
+  rewrite Z.min_comm, series_add_comm; reflexivity.
 
   do 2 rewrite Pos.mul_1_r.
   apply Pos.mul_comm.
 
  destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
- constructor 2; right; symmetry; assumption.
+ constructor 2; symmetry; assumption.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -886,7 +872,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  destruct v₁ as [v₁| ]; simpl.
   destruct v₂ as [v₂| ]; simpl.
    destruct v₃ as [v₃| ]; simpl.
-    unfold build_ps; simpl.
+    unfold build_ps_add, build_series_add; simpl.
     rewrite Heqv₁, Heqv₂, Heqv₃, Heqc₁, Heqc₂.
     do 2 rewrite stretch_series_1.
     remember (Zbar.min (zfin v₁ * '' c₂) (zfin v₂ * '' c₁)) as m₁.
@@ -1037,15 +1023,13 @@ unfold ps_add, ps_neg, ps_zero; simpl.
 unfold build_ps, lcm_div; simpl.
 remember (ps_valnum ps) as v.
 symmetry in Heqv.
-destruct v as [v| ]; [ simpl | constructor 2; right; reflexivity ].
+destruct v as [v| ]; [ simpl | constructor 2; reflexivity ].
 rewrite Nat.sub_diag.
 rewrite Z.min_id.
 unfold series_add; simpl.
 rewrite Nbar.max_id.
-(* one degree of fredom in "left; reflexivity" below:
-   could be "right; reflexivity"; this is strange *)
-constructor 2; [ left; simpl | left; reflexivity ].
-constructor.
+bbb.
+constructor 2; [ simpl | reflexivity ].
 intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.add_0_r.

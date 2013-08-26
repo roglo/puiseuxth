@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.20 2013-08-25 12:33:39 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.21 2013-08-26 09:19:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -46,6 +46,12 @@ Inductive le : Zbar → Zbar → Prop :=
 where "n ≤ m" := (le n m) : Zbar_scope.
 
 Definition not_0_inf x := x ≠ 0 ∧ x ≠ ∞.
+
+Definition of_Nbar nb :=
+  match nb with
+  | fin n => zfin (Z.of_nat n)
+  | inf => ∞
+  end.
 
 Definition to_Nbar zb :=
   match zb with
