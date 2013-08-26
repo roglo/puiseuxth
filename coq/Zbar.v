@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.21 2013-08-26 09:19:11 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.22 2013-08-26 15:02:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -52,6 +52,8 @@ Definition of_Nbar nb :=
   | fin n => zfin (Z.of_nat n)
   | inf => ∞
   end.
+
+Definition of_nat n := zfin (Z.of_nat n).
 
 Definition to_Nbar zb :=
   match zb with
