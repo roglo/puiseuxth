@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.327 2013-08-26 15:48:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.328 2013-08-26 15:54:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -902,6 +902,22 @@ Qed.
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃.
+unfold ps_add.
+remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁₂.
+remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂₁.
+remember (adjust fld (lcm_div ps₂ ps₃) ps₂) as ms₂₃.
+remember (adjust fld (lcm_div ps₃ ps₂) ps₃) as ms₃₂.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_valnum ps₃) as v₃.
+symmetry in Heqv₁, Heqv₂, Heqv₃.
+destruct v₁ as [v₁| ]; simpl.
+ destruct v₂ as [v₂| ]; simpl.
+  destruct v₃ as [v₃| ]; simpl.
+   Focus 1.
+bbb.
+
 intros ps₁ ps₂ ps₃.
 unfold ps_add, lcm_div.
 remember (ps_valnum ps₁) as v₁.
