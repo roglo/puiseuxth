@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.326 2013-08-26 15:44:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.327 2013-08-26 15:48:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -435,7 +435,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | zfin _ =>
           let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
           let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-          build_ps_add (ps_comden ps₁) ms₁ ms₂
+          build_ps_add (ps_comden ms₁) ms₁ ms₂
       | ∞ => ps₁
       end
   | ∞ => ps₂
@@ -771,13 +771,13 @@ intros ps₁ ps₂.
 unfold ps_add; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
+remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
+remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
 destruct v₁ as [n₁| ].
  destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
   do 2 rewrite stretch_series_1.
   constructor; intros i.
-  remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
-  remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
   unfold build_ps_add.
   rewrite build_series_add_comm.
   remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
@@ -787,35 +787,15 @@ destruct v₁ as [n₁| ].
 
   unfold build_ps_add.
   rewrite build_series_add_comm.
-  remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
-  remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
   remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
-  destruct v as [v| ]; simpl.
-   rewrite Zbar.min_comm; reflexivity.
-
-   reflexivity.
+  destruct v as [v| ]; [ simpl | reflexivity ].
+  rewrite Zbar.min_comm; reflexivity.
 
   unfold build_ps_add.
   rewrite build_series_add_comm.
-  remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
-  remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
   remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
-  destruct v as [v| ]; simpl.
-bbb.
-
-intros ps₁ ps₂.
-unfold ps_add; simpl.
-remember (ps_valnum ps₁) as v₁.
-remember (ps_valnum ps₂) as v₂.
-destruct v₁ as [n₁| ].
- destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
- constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-  rewrite build_ps_add_comm; reflexivity.
-
-  rewrite Z.min_comm, series_add_comm; reflexivity.
-
-  do 2 rewrite Pos.mul_1_r.
-  apply Pos.mul_comm.
+  destruct v as [v| ]; [ simpl | reflexivity ].
+  do 2 rewrite Pos.mul_1_r; apply Pos.mul_comm.
 
  destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
  constructor 2; symmetry; assumption.

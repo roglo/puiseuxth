@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.58 2013-08-24 20:54:15 deraugla Exp $ *)
+(* $Id: Series.v,v 1.59 2013-08-26 15:44:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -199,4 +199,12 @@ destruct lt₅ as [Hlt₅| Hge₅].
    destruct lt₆ as [Hlt₆| Hge₆]; [ idtac | reflexivity ].
    rewrite <- Hi₁, <- Hi₂.
    rewrite fld_add_ident; reflexivity.
+Qed.
+
+Add Parametric Morphism α (fld : field α) i : (series_nth_fld fld i) with 
+signature (eq_series fld) ==> (fld_eq fld) as series_nth_fld_morph.
+Proof.
+intros s₁ s₂ Heq.
+inversion Heq; subst.
+apply H.
 Qed.
