@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.331 2013-08-26 19:41:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.332 2013-08-26 20:02:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -925,6 +925,13 @@ destruct v₁ as [v₁| ]; simpl.
      destruct y as [y| ].
       remember (build_ps_add fld (ps_comden ms₁₂) ms₁₂ ms₂₁) as ps₁₂.
       remember (build_ps_add fld (ps_comden ms₂₃) ms₂₃ ms₃₂) as ps₂₃.
+      unfold build_ps_add in Heqps₁₂.
+      destruct (series_head fld (build_series_add fld ms₁₂ ms₂₁)) as [v₁₂| ].
+       2: subst ps₁₂; discriminate Heqx.
+
+       subst ps₁₂; simpl.
+       unfold lcm_div; simpl.
+       simpl in Heqx.
       Focus 1.
 bbb.
 
