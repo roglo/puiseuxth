@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.328 2013-08-26 15:54:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.329 2013-08-26 18:21:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -915,46 +915,10 @@ symmetry in Heqv₁, Heqv₂, Heqv₃.
 destruct v₁ as [v₁| ]; simpl.
  destruct v₂ as [v₂| ]; simpl.
   destruct v₃ as [v₃| ]; simpl.
-   Focus 1.
-bbb.
-
-intros ps₁ ps₂ ps₃.
-unfold ps_add, lcm_div.
-remember (ps_valnum ps₁) as v₁.
-remember (ps_valnum ps₂) as v₂.
-remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₁) as c₁.
-remember (ps_comden ps₂) as c₂.
-remember (ps_comden ps₃) as c₃.
-symmetry in Heqv₁, Heqv₂, Heqv₃, Heqc₁, Heqc₂, Heqc₃.
-destruct v₁ as [v₁| ]; simpl.
- destruct v₂ as [v₂| ]; simpl.
-  rewrite Heqv₁, Heqv₂.
-  destruct v₃ as [v₃| ]; simpl.
-   rewrite Heqv₂, Heqv₃.
    constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
     do 2 rewrite stretch_series_1.
     constructor; intros i.
-    rewrite Heqc₁, Heqc₂; simpl.
-    remember
-     (Zbar.of_Nbar
-        (series_head fld
-           (build_series_add fld (adjust fld c₂ ps₁) (adjust fld c₁ ps₂))))
-      as x.
-    remember
-     (Zbar.of_Nbar
-        (series_head fld
-           (build_series_add fld (adjust fld c₃ ps₂) (adjust fld c₂ ps₃))))
-      as y.
-    symmetry in Heqx, Heqy.
-    destruct x as [x| ].
-     destruct y as [y| ]; simpl.
 Focus 1.
-bbb.
-      unfold build_series_add; simpl.
-      unfold build_series_add; simpl.
-      rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
-    Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
