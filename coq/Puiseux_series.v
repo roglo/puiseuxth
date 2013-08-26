@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.325 2013-08-26 15:08:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.326 2013-08-26 15:44:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -774,7 +774,33 @@ remember (ps_valnum ps₂) as v₂.
 destruct v₁ as [n₁| ].
  destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- rewrite build_ps_add_comm.
+  do 2 rewrite stretch_series_1.
+  constructor; intros i.
+  remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
+  remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
+  unfold build_ps_add.
+  rewrite build_series_add_comm.
+  remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
+  destruct v as [v| ]; [ simpl | reflexivity ].
+  unfold build_series_add.
+  rewrite series_add_comm; reflexivity.
+
+  unfold build_ps_add.
+  rewrite build_series_add_comm.
+  remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
+  remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
+  remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
+  destruct v as [v| ]; simpl.
+   rewrite Zbar.min_comm; reflexivity.
+
+   reflexivity.
+
+  unfold build_ps_add.
+  rewrite build_series_add_comm.
+  remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
+  remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
+  remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
+  destruct v as [v| ]; simpl.
 bbb.
 
 intros ps₁ ps₂.
