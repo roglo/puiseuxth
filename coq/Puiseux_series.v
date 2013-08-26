@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.330 2013-08-26 19:39:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.331 2013-08-26 19:41:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -765,42 +765,6 @@ constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
  rewrite Zbar.min_comm; reflexivity.
 Qed.
 
-Definition series_nth_terms i ps := series_nth_fld fld i (ps_terms ps).
-Definition terms_ps_terms (ps : puiseux_series α) i := terms (ps_terms ps) i.
-
-Lemma fold_series_nth_terms : ∀ i ps,
-  series_nth_terms i ps = series_nth_fld fld i (ps_terms ps).
-Proof. reflexivity. Qed.
-Lemma fold_terms_ps_terms : ∀ i ps,
-  terms_ps_terms ps i = terms (ps_terms ps) i.
-Proof. reflexivity. Qed.
-
-(*
-Add Parametric Morphism : terms_ps_terms
-with signature (eq_ps fld) ==> eq ==> eq as terms_ps_terms_morph.
-Proof.
-intros ps₁ ps₂ Heq i.
-unfold terms_ps_terms.
-inversion Heq; subst.
- inversion H; subst.
- unfold series_nth_fld in H2.
- simpl in H2.
-bbb.
-
-Add Parametric Morphism : series_nth_terms
-with signature eq ==> (eq_ps fld) ==> eq as series_nth_terms_morph.
-Proof.
-intros i ps₁ ps₂ Heq.
-unfold series_nth_terms, series_nth_fld.
-destruct (Nbar.lt_dec (fin i) (stop (ps_terms ps₁))) as [Hlt₁| Hge₁].
- destruct (Nbar.lt_dec (fin i) (stop (ps_terms ps₂))) as [Hlt₂| Hge₂].
-  do 2 rewrite <- fold_terms_ps_terms.
-  rewrite Heq; reflexivity.
-
-  exfalso.
-bbb.
-*)
-
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
@@ -814,8 +778,12 @@ destruct v₁ as [n₁| ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
   do 2 rewrite stretch_series_1.
   constructor; intros i.
-  do 2 rewrite <- fold_series_nth_terms.
-  rewrite build_ps_add_comm, Pos.mul_comm; reflexivity.
+  unfold build_ps_add.
+  rewrite build_series_add_comm.
+  remember (series_head fld (build_series_add fld ms₂ ms₁)) as v.
+  destruct v as [v| ]; [ simpl | reflexivity ].
+  unfold build_series_add.
+  rewrite series_add_comm; reflexivity.
 
   unfold build_ps_add.
   rewrite build_series_add_comm.
@@ -934,7 +902,6 @@ Qed.
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-ps_add_assoc < Show Script.
 intros ps₁ ps₂ ps₃.
 unfold ps_add.
 remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁₂.
