@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.324 2013-08-26 11:26:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.325 2013-08-26 15:08:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -415,13 +415,18 @@ Definition build_series_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
        (ps_terms ps₂)).
 
-Definition build_ps_add ps₁ ps₂ :=
-  let v₁ := ps_valnum ps₁ in
-  let v₂ := ps_valnum ps₂ in
+Definition build_ps_add c ps₁ ps₂ :=
   let s := build_series_add ps₁ ps₂ in
-  {| ps_terms := s;
-     ps_valnum := (Zbar.min v₁ v₂ + Zbar.of_Nbar (series_head fld s))%Zbar;
-     ps_comden := ps_comden ps₁ |}.
+  match series_head fld s with
+  | fin v =>
+      let v₁ := ps_valnum ps₁ in
+      let v₂ := ps_valnum ps₂ in
+      {| ps_terms := s;
+         ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
+         ps_comden := c |}
+  | inf =>
+      ps_zero fld
+  end.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps_valnum ps₁ with
@@ -430,7 +435,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | zfin _ =>
           let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
           let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
-          build_ps_add ms₁ ms₂
+          build_ps_add (ps_comden ps₁) ms₁ ms₂
       | ∞ => ps₁
       end
   | ∞ => ps₂
@@ -738,16 +743,48 @@ rewrite Pos2Nat.id.
 apply Pos.mul_comm.
 Qed.
 
+Lemma build_series_add_comm : ∀ ps₁ ps₂,
+  build_series_add fld ps₁ ps₂ ≃ build_series_add fld ps₂ ps₁.
+Proof.
+intros ps₁ ps₂.
+apply series_add_comm.
+Qed.
+
+Lemma build_ps_add_comm : ∀ ps₁ ps₂ c,
+  build_ps_add fld c ps₁ ps₂ ≈ build_ps_add fld c ps₂ ps₁.
+Proof.
+intros ps₁ ps₂ c.
+unfold build_ps_add.
+rewrite build_series_add_comm.
+remember (series_head fld (build_series_add fld ps₂ ps₁)) as v.
+symmetry in Heqv.
+destruct v as [v| ]; [ idtac | reflexivity ].
+constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
+ rewrite build_series_add_comm; reflexivity.
+
+ rewrite Zbar.min_comm; reflexivity.
+Qed.
+
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
-unfold ps_add, build_ps_add, build_series_add; simpl.
+unfold ps_add; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 destruct v₁ as [n₁| ].
  destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-  rewrite series_add_comm; reflexivity.
+ rewrite build_ps_add_comm.
+bbb.
+
+intros ps₁ ps₂.
+unfold ps_add; simpl.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_valnum ps₂) as v₂.
+destruct v₁ as [n₁| ].
+ destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
+ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+  rewrite build_ps_add_comm; reflexivity.
 
   rewrite Z.min_comm, series_add_comm; reflexivity.
 
