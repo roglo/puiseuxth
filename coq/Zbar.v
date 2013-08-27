@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.23 2013-08-27 05:03:04 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.24 2013-08-27 09:58:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -74,6 +74,15 @@ Proof.
 intros p.
 unfold not_0_inf.
 split; intros H; discriminate H.
+Qed.
+
+Theorem add_comm : ∀ n m, n + m = m + n.
+Proof.
+intros n m.
+unfold add.
+destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
+destruct m as [m| ]; [ idtac | reflexivity ].
+rewrite Z.add_comm; reflexivity.
 Qed.
 
 Theorem sub_diag : ∀ n, n ≠ ∞ → n - n = 0.

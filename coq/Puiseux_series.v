@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.334 2013-08-27 09:47:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.335 2013-08-27 09:58:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -912,6 +912,19 @@ Lemma ps_comden_adjust : ∀ c ps,
   ps_comden (adjust fld c ps) = (ps_comden ps * c)%positive.
 Proof. intros; reflexivity. Qed.
 
+Lemma ps_valnum_build_ps_add : ∀ c ps₁ ps₂,
+  ps_valnum (build_ps_add fld c ps₁ ps₂) =
+    (Zbar.of_Nbar (series_head fld (build_series_add fld ps₁ ps₂)) +
+     Zbar.min (ps_valnum ps₁) (ps_valnum ps₂))%Zbar.
+Proof.
+intros c ps₁ ps₂.
+unfold build_ps_add.
+destruct (series_head fld (build_series_add fld ps₁ ps₂)) as [v| ]; simpl.
+ rewrite Zbar.add_comm; reflexivity.
+
+ reflexivity.
+Qed.
+
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
@@ -927,12 +940,8 @@ remember (ps_valnum ps₃) as v₃.
 symmetry in Heqv₁, Heqv₂, Heqv₃.
 destruct v₁ as [v₁| ]; simpl.
  destruct v₂ as [v₂| ]; [ idtac | rewrite Heqv₁, Heqv₃; reflexivity ].
- rewrite Heqv₂.
- destruct v₂ as [v₂| ]; [ idtac | reflexivity ].
- destruct v₃ as [v₃| ]; [ subst | reflexivity ].
- rewrite ps_comden_adjust; reflexivity.
-
- destruct v₃ as [v₃| ]; simpl.
+ rewrite ps_valnum_build_ps_add.
+ Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
