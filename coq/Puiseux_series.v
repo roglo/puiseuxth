@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.338 2013-08-27 12:49:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.339 2013-08-27 13:14:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -973,6 +973,7 @@ destruct v₁ as [v₁| ]; simpl.
       erewrite series_head_build_series_add; [ idtac | eassumption ].
       rewrite <- Heqms₁₂ in Heqn₁₂.
       erewrite series_head_build_series_add; [ idtac | eassumption ].
+      rewrite Heqms₂₃, ps_comden_adjust, <- Heqms₂₃.
       Focus 1.
 bbb.
 
