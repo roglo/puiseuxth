@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.345 2013-08-27 17:06:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.346 2013-08-27 18:03:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -427,19 +427,21 @@ Definition build_series_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
        (ps_terms ps₂)).
 
+Definition build_ps_add c (aps₁ aps₂ : puiseux_series α) (s : series α) v :=
+  let v₁ := ps_valnum aps₁ in
+  let v₂ := ps_valnum aps₂ in
+  {| ps_terms := s;
+     ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
+     ps_comden := c |}.
+
 Definition ps_add_nz ps₁ ps₂ :=
+  let c := cm ps₁ ps₂ in
   let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
   let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
   let s := build_series_add aps₁ aps₂ in
   match series_head fld s with
-  | fin v =>
-      let v₁ := ps_valnum aps₁ in
-      let v₂ := ps_valnum aps₂ in
-      {| ps_terms := s;
-         ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
-         ps_comden := cm ps₁ ps₂ |}
-  | inf =>
-      ps_zero fld
+  | fin v => build_ps_add c aps₁ aps₂ s v
+  | inf => ps_zero fld
   end.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
@@ -930,6 +932,16 @@ Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃,
   ≈ ps_add_nz fld ps₁ (ps_add_nz fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
+unfold ps_add_nz; simpl.
+remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
+remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
+remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
+remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
+remember (series_head fld (build_series_add fld aps₁₂ aps₂₁)) as v₁.
+destruct v₁ as [v₁| ].
+ unfold cm_factor.
+ unfold cm; simpl.
+ Focus 1.
 bbb.
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
@@ -940,7 +952,7 @@ unfold ps_add.
 remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
 remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
 remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
-remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as ms₃₂.
+remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
