@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.340 2013-08-27 13:34:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.341 2013-08-27 13:43:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -395,10 +395,10 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | inf => zero fld
   end.
 
-Definition adjust k nz :=
-  {| ps_terms := stretch_series fld k (ps_terms nz);
-     ps_valnum := ps_valnum nz * ''k;
-     ps_comden := ps_comden nz * k |}.
+Definition adjust k ps :=
+  {| ps_terms := stretch_series fld k (ps_terms ps);
+     ps_valnum := ps_valnum ps * ''k;
+     ps_comden := ps_comden ps * k |}.
 
 (* ps_add *)
 
@@ -407,10 +407,13 @@ Definition series_pad_left n s :=
      stop := stop s + fin n |}.
 
 (*
+Definition cm ps₁ ps₂ := Plcm (ps_comden ps₁) (ps_comden ps₂).
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
   Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
 *)
+Definition cm (ps₁ ps₂ : puiseux_series α) :=
+  (ps_comden ps₁ * ps_comden ps₂)%positive.
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
@@ -444,7 +447,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
       | zfin _ =>
           let ms₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
           let ms₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-          build_ps_add (ps_comden ms₁) ms₁ ms₂
+          build_ps_add (cm ps₁ ps₂) ms₁ ms₂
       | ∞ => ps₁
       end
   | ∞ => ps₂
@@ -966,14 +969,9 @@ destruct v₁ as [v₁| ]; simpl.
      remember (Zbar.min (ps_valnum ms₂₃) (ps_valnum ms₃₂)) as z.
      symmetry in Heqz.
      destruct z as [z| ].
-      unfold cm_factor.
-      rewrite Heqms₁₂.
-      rewrite ps_comden_adjust.
-      rewrite Heqms₁₂ in Heqn₁₂.
+      unfold cm_factor, cm.
       erewrite series_head_build_series_add; [ idtac | eassumption ].
-      rewrite <- Heqms₁₂ in Heqn₁₂.
       erewrite series_head_build_series_add; [ idtac | eassumption ].
-      rewrite Heqms₂₃, ps_comden_adjust, <- Heqms₂₃.
       Focus 1.
 bbb.
 
