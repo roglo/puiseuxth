@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.333 2013-08-27 05:03:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.334 2013-08-27 09:47:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -908,6 +908,10 @@ destruct (lt_dec i x) as [Hlt| Hge].
   assumption.
 Qed.
 
+Lemma ps_comden_adjust : ∀ c ps,
+  ps_comden (adjust fld c ps) = (ps_comden ps * c)%positive.
+Proof. intros; reflexivity. Qed.
+
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
@@ -922,27 +926,13 @@ remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
 symmetry in Heqv₁, Heqv₂, Heqv₃.
 destruct v₁ as [v₁| ]; simpl.
- destruct v₂ as [v₂| ]; simpl.
-  destruct v₃ as [v₃| ]; simpl.
-   constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-    do 2 rewrite stretch_series_1.
-    constructor; intros i.
-    remember (ps_valnum (build_ps_add fld (ps_comden ms₁₂) ms₁₂ ms₂₁)) as x.
-    remember (ps_valnum (build_ps_add fld (ps_comden ms₂₃) ms₂₃ ms₃₂)) as y.
-    symmetry in Heqx, Heqy.
-    destruct x as [x| ].
-     destruct y as [y| ].
-      remember (build_ps_add fld (ps_comden ms₁₂) ms₁₂ ms₂₁) as ps₁₂.
-      remember (build_ps_add fld (ps_comden ms₂₃) ms₂₃ ms₃₂) as ps₂₃.
-      unfold build_ps_add in Heqps₁₂.
-      destruct (series_head fld (build_series_add fld ms₁₂ ms₂₁)) as [v₁₂| ].
-       2: subst ps₁₂; discriminate Heqx.
+ destruct v₂ as [v₂| ]; [ idtac | rewrite Heqv₁, Heqv₃; reflexivity ].
+ rewrite Heqv₂.
+ destruct v₂ as [v₂| ]; [ idtac | reflexivity ].
+ destruct v₃ as [v₃| ]; [ subst | reflexivity ].
+ rewrite ps_comden_adjust; reflexivity.
 
-       subst ps₁₂; simpl.
-       unfold lcm_div; simpl.
-       simpl in Heqx.
-      Focus 1.
-Abort. (*
+ destruct v₃ as [v₃| ]; simpl.
 bbb.
 
 intros ps₁ ps₂ ps₃.
@@ -1305,6 +1295,7 @@ transitivity (ps_add fld ps₁ ps₄).
  rewrite ps_add_comm; symmetry.
  apply ps_add_cancel_l; assumption.
 Qed.
+*)
 
 Theorem ps_mul_ident : ∀ ps, ps_mul fld ps_one ps ≈ ps.
 Proof.
