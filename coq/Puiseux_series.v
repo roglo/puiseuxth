@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.347 2013-08-27 18:52:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.348 2013-08-27 18:55:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -931,6 +931,13 @@ Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add_nz fld (ps_add_nz fld ps₁ ps₂) ps₃
   ≈ ps_add_nz fld ps₁ (ps_add_nz fld ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃.
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ do 2 rewrite stretch_series_1.
+ constructor.
+ intros i.
+bbb.
+
 intros ps₁ ps₂ ps₃.
 unfold ps_add_nz; simpl.
 remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
