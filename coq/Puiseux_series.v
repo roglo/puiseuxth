@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.346 2013-08-27 18:03:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.347 2013-08-27 18:52:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -938,10 +938,23 @@ remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
 remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
 remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
 remember (series_head fld (build_series_add fld aps₁₂ aps₂₁)) as v₁.
+symmetry in Heqv₁.
 destruct v₁ as [v₁| ].
  unfold cm_factor.
  unfold cm; simpl.
- Focus 1.
+ remember (build_series_add fld aps₁₂ aps₂₁) as s₁₂.
+ remember
+  (build_ps_add (ps_comden ps₁ * ps_comden ps₂) aps₁₂ aps₂₁ s₁₂ v₁) as ps₁₂.
+ unfold cm_factor in *.
+ remember (adjust fld (ps_comden ps₃) ps₁₂) as aps₁₂₃.
+ remember (adjust fld (ps_comden ps₁ * ps_comden ps₂) ps₃) as ps₃₁₂.
+ remember (series_head fld (build_series_add fld aps₁₂₃ ps₃₁₂)) as s₁₂₃.
+ symmetry in Heqs₁₂₃.
+ destruct s₁₂₃ as [v₁₂₃| ].
+  remember (series_head fld (build_series_add fld aps₂₃ aps₃₂)) as s₄.
+  symmetry in Heqs₄.
+  destruct s₄ as [v₄| ].
+  Focus 1.
 bbb.
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
