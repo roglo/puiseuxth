@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.337 2013-08-27 11:46:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.338 2013-08-27 12:49:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -925,6 +925,15 @@ destruct (series_head fld (build_series_add fld ps₁ ps₂)) as [v| ]; simpl.
  reflexivity.
 Qed.
 
+Lemma series_head_build_series_add : ∀ ps₁ ps₂ c v,
+  series_head fld (build_series_add fld ps₁ ps₂) = fin v
+  → ps_comden (build_ps_add fld c ps₁ ps₂) = c.
+Proof.
+intros ps₁ ps₂ c v H.
+unfold build_ps_add; simpl.
+rewrite H; reflexivity.
+Qed.
+
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
@@ -957,6 +966,13 @@ destruct v₁ as [v₁| ]; simpl.
      remember (Zbar.min (ps_valnum ms₂₃) (ps_valnum ms₃₂)) as z.
      symmetry in Heqz.
      destruct z as [z| ].
+      unfold lcm_div.
+      rewrite Heqms₁₂.
+      rewrite ps_comden_adjust.
+      rewrite Heqms₁₂ in Heqn₁₂.
+      erewrite series_head_build_series_add; [ idtac | eassumption ].
+      rewrite <- Heqms₁₂ in Heqn₁₂.
+      erewrite series_head_build_series_add; [ idtac | eassumption ].
       Focus 1.
 bbb.
 
