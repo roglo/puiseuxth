@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.22 2013-08-26 15:02:20 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.23 2013-08-27 05:03:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -33,10 +33,12 @@ Definition binop f dx dy xb yb :=
   end.
 
 Definition add := binop Z.add ∞ ∞.
+Definition sub := binop Z.sub 0 ∞.
 Definition mul := binop Z.mul ∞ ∞.
 Definition min x y := binop Z.min x y x y.
 
 Infix "+" := add : Zbar_scope.
+Infix "-" := sub : Zbar_scope.
 Infix "*" := mul : Zbar_scope.
 
 Inductive le : Zbar → Zbar → Prop :=
@@ -72,6 +74,13 @@ Proof.
 intros p.
 unfold not_0_inf.
 split; intros H; discriminate H.
+Qed.
+
+Theorem sub_diag : ∀ n, n ≠ ∞ → n - n = 0.
+Proof.
+intros n Hn.
+destruct n; [ simpl | exfalso; apply Hn; reflexivity ].
+rewrite Z.sub_diag; reflexivity.
 Qed.
 
 Theorem mul_comm : ∀ n m, n * m = m * n.
@@ -177,6 +186,7 @@ Proof. reflexivity. Qed.
 End Zbar.
 
 Infix "+" := Zbar.add : Zbar_scope.
+Infix "-" := Zbar.sub : Zbar_scope.
 Infix "*" := Zbar.mul : Zbar_scope.
 Infix "≤" := Zbar.le : Zbar_scope.
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.332 2013-08-26 20:02:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.333 2013-08-27 05:03:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -78,6 +78,15 @@ Definition ps_const c : puiseux_series α :=
      ps_comden := 1 |}.
 
 Definition ps_one := ps_const (one fld).
+
+Lemma series_head_fin : ∀ s v,
+  series_head fld s = fin v
+  → not (∀ i : nat, series_nth_fld fld i s ≍ zero fld).
+Proof.
+intros s v Hf H.
+apply series_head_inf in H.
+rewrite Hf in H; discriminate H.
+Qed.
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -933,6 +942,7 @@ destruct v₁ as [v₁| ]; simpl.
        unfold lcm_div; simpl.
        simpl in Heqx.
       Focus 1.
+Abort. (*
 bbb.
 
 intros ps₁ ps₂ ps₃.
@@ -1068,6 +1078,7 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite Heqv₁, Heqv₂, Heqv₃, Heqc₁, Heqc₂; simpl.
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
+*)
 
 Theorem ps_add_ident : ∀ ps, ps_add fld (ps_zero fld) ps ≈ ps.
 Proof. reflexivity. Qed.
@@ -1095,37 +1106,36 @@ Qed.
 Theorem ps_add_neg : ∀ ps, ps_add fld ps (ps_neg ps) ≈ ps_zero fld.
 Proof.
 intros ps.
-unfold ps_add, ps_neg, ps_zero; simpl.
-unfold build_ps, lcm_div; simpl.
+constructor 2; [ idtac | reflexivity ].
+unfold ps_add; simpl.
 remember (ps_valnum ps) as v.
 symmetry in Heqv.
-destruct v as [v| ]; [ simpl | constructor 2; reflexivity ].
+destruct v as [v| ]; [ simpl | assumption ].
+unfold build_ps_add; simpl.
+remember (adjust fld (ps_comden ps) ps) as ps₁.
+remember (adjust fld (lcm_div (ps_neg ps) ps) (ps_neg ps)) as ps₂.
+remember (series_head fld (build_series_add fld ps₁ ps₂)) as w.
+symmetry in Heqw.
+destruct w; [ simpl | reflexivity ].
+apply series_head_fin in Heqw.
+exfalso; apply Heqw; clear Heqw; intros i.
+rewrite Heqps₁, Heqps₂.
+unfold build_series_add, ps_neg, lcm_div; simpl.
 rewrite Nat.sub_diag.
-rewrite Z.min_id.
-unfold series_add; simpl.
-rewrite Nbar.max_id.
-bbb.
-constructor 2; [ simpl | reflexivity ].
-intros i.
-unfold series_nth_fld; simpl.
-rewrite Nbar.add_0_r.
-remember (stop (ps_terms ps) * fin (Pos.to_nat (ps_comden ps)))%Nbar as n.
-rewrite Nat.sub_0_r.
-destruct (Nbar.lt_dec (fin i) n) as [Hlt| Hge]; simpl.
- destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz].
-  apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-  destruct Hz as (c, Hz).
-  subst i.
-  rewrite Nat.mul_comm.
-  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-  rewrite add_neg_nth.
-  remember (c * Pos.to_nat (ps_comden ps))%nat as x.
-  destruct (Nbar.lt_dec (fin x) inf); reflexivity.
+unfold series_add, series_nth_fld; simpl.
+rewrite Nbar.add_0_r, Nat.sub_0_r, Nbar.max_id.
+remember (stop (ps_terms ps) * fin (Pos.to_nat (ps_comden ps)))%Nbar as y.
+destruct (Nbar.lt_dec (fin i) y); [ idtac | reflexivity ].
+destruct (zerop (i mod Pos.to_nat (ps_comden ps))) as [Hz| Hnz].
+ unfold series_neg; simpl.
+ unfold series_nth_fld; simpl.
+ remember (fin (i / Pos.to_nat (ps_comden ps))) as z.
+ destruct (Nbar.lt_dec z (stop (ps_terms ps))) as [Hlt| Hge].
+  apply fld_add_neg.
 
-  rewrite fld_add_ident.
-  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+  apply fld_add_ident.
 
- destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+ apply fld_add_ident.
 Qed.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
@@ -1142,7 +1152,7 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
  destruct v₁ as [v₁| ]; [ idtac | assumption ].
  destruct v₂ as [v₂| ].
   destruct v₃ as [v₃| ]; [ idtac | discriminate Hvv₂ ].
-  unfold build_ps, lcm_div; simpl.
+  unfold build_ps_add, lcm_div; simpl.
   rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
   constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
    do 2 rewrite stretch_series_add_distr.
