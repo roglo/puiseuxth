@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.339 2013-08-27 13:14:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.340 2013-08-27 13:34:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -407,11 +407,11 @@ Definition series_pad_left n s :=
      stop := stop s + fin n |}.
 
 (*
-Definition lcm_div α (nz₁ nz₂ : ps_ps α) :=
-  let l := Plcm (ps_comden nz₁) (ps_comden nz₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden nz₁))%nat.
+Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
 *)
-Definition lcm_div α (ps₁ ps₂ : puiseux_series α) :=
+Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
 
@@ -442,8 +442,8 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   | zfin _ =>
       match ps_valnum ps₂ with
       | zfin _ =>
-          let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
-          let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
+          let ms₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
+          let ms₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
           build_ps_add (ps_comden ms₁) ms₁ ms₂
       | ∞ => ps₁
       end
@@ -491,8 +491,8 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | zfin _ =>
       match ps_valnum ps₂ with
       | zfin _ =>
-          let ms₁ := adjust (lcm_div ps₁ ps₂) ps₁ in
-          let ms₂ := adjust (lcm_div ps₂ ps₁) ps₂ in
+          let ms₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
+          let ms₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
           {| ps_terms := series_mul_term (ps_terms ms₁) (ps_terms ms₂);
              ps_valnum := ps_valnum ms₁ + ps_valnum ms₂;
              ps_comden := ps_comden ms₁ |}
@@ -739,7 +739,7 @@ Qed.
 
 (* *)
 
-Lemma Plcm_div_mul : ∀ x y,
+Lemma Pcm_factor_mul : ∀ x y,
   (x * Pos.of_nat (Pos.to_nat (Plcm x y) / Pos.to_nat x))%positive = Plcm x y.
 Proof.
 intros x y.
@@ -780,8 +780,8 @@ intros ps₁ ps₂.
 unfold ps_add; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
-remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁.
-remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂.
+remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as ms₁.
+remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as ms₂.
 destruct v₁ as [n₁| ].
  destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
@@ -939,10 +939,10 @@ Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold ps_add.
-remember (adjust fld (lcm_div ps₁ ps₂) ps₁) as ms₁₂.
-remember (adjust fld (lcm_div ps₂ ps₁) ps₂) as ms₂₁.
-remember (adjust fld (lcm_div ps₂ ps₃) ps₂) as ms₂₃.
-remember (adjust fld (lcm_div ps₃ ps₂) ps₃) as ms₃₂.
+remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as ms₁₂.
+remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as ms₂₁.
+remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as ms₂₃.
+remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as ms₃₂.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
@@ -966,7 +966,7 @@ destruct v₁ as [v₁| ]; simpl.
      remember (Zbar.min (ps_valnum ms₂₃) (ps_valnum ms₃₂)) as z.
      symmetry in Heqz.
      destruct z as [z| ].
-      unfold lcm_div.
+      unfold cm_factor.
       rewrite Heqms₁₂.
       rewrite ps_comden_adjust.
       rewrite Heqms₁₂ in Heqn₁₂.
@@ -978,7 +978,7 @@ destruct v₁ as [v₁| ]; simpl.
 bbb.
 
 intros ps₁ ps₂ ps₃.
-unfold ps_add, lcm_div; simpl.
+unfold ps_add, cm_factor; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
@@ -1145,14 +1145,14 @@ symmetry in Heqv.
 destruct v as [v| ]; [ simpl | assumption ].
 unfold build_ps_add; simpl.
 remember (adjust fld (ps_comden ps) ps) as ps₁.
-remember (adjust fld (lcm_div (ps_neg ps) ps) (ps_neg ps)) as ps₂.
+remember (adjust fld (cm_factor (ps_neg ps) ps) (ps_neg ps)) as ps₂.
 remember (series_head fld (build_series_add fld ps₁ ps₂)) as w.
 symmetry in Heqw.
 destruct w; [ simpl | reflexivity ].
 apply series_head_fin in Heqw.
 exfalso; apply Heqw; clear Heqw; intros i.
 rewrite Heqps₁, Heqps₂.
-unfold build_series_add, ps_neg, lcm_div; simpl.
+unfold build_series_add, ps_neg, cm_factor; simpl.
 rewrite Nat.sub_diag.
 unfold series_add, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r, Nbar.max_id.
@@ -1184,9 +1184,9 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
  destruct v₁ as [v₁| ]; [ idtac | assumption ].
  destruct v₂ as [v₂| ].
   destruct v₃ as [v₃| ]; [ idtac | discriminate Hvv₂ ].
-  unfold build_ps_add, lcm_div; simpl.
+  unfold build_ps_add, cm_factor; simpl.
   rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
-  constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
+  constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold cm_factor; simpl.
    do 2 rewrite stretch_series_add_distr.
    do 4 rewrite stretch_pad_series_distr.
    do 4 rewrite <- stretch_stretch_series.
@@ -1247,7 +1247,7 @@ bbb.
 
 intros ps₁ ps₃ ps₄ H.
 inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
- constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold lcm_div; simpl.
+ constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold cm_factor; simpl.
   do 4 rewrite Z2Nat_inj_mul_pos_r.
   remember (ps_valnum nz₁) as v₁.
   remember (ps_comden nz₁) as c₁.
@@ -1344,7 +1344,7 @@ Proof.
 intros ps.
 unfold ps_mul; simpl.
 destruct ps as [nz| ]; [ idtac | reflexivity ].
-unfold lcm_div; simpl.
+unfold cm_factor; simpl.
 rewrite Z.mul_1_r.
 apply eq_non_zero_ps with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
 rewrite stretch_series_1.
@@ -1374,7 +1374,7 @@ bbb.
 intros ps.
 unfold ps_mul; simpl.
 destruct ps as [nz| ]; [ idtac | reflexivity ].
-unfold lcm_div; simpl.
+unfold cm_factor; simpl.
 rewrite Z.mul_1_r.
 constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
 rewrite stretch_series_1.
