@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.336 2013-08-27 11:34:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.337 2013-08-27 11:46:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -949,7 +949,15 @@ destruct v₁ as [v₁| ]; simpl.
   symmetry in Heqy.
   destruct y as [y| ].
    destruct v₃ as [v₃| ].
- Focus 1.
+    rewrite ps_valnum_build_ps_add.
+    remember (series_head fld (build_series_add fld ms₂₃ ms₃₂)) as n₂₃.
+    symmetry in Heqn₂₃.
+    unfold Zbar.of_Nbar.
+    destruct n₂₃ as [n₂₃| ]; simpl.
+     remember (Zbar.min (ps_valnum ms₂₃) (ps_valnum ms₃₂)) as z.
+     symmetry in Heqz.
+     destruct z as [z| ].
+      Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
