@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.341 2013-08-27 13:43:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.342 2013-08-27 14:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -427,15 +427,17 @@ Definition build_series_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
        (ps_terms ps₂)).
 
-Definition build_ps_add c ps₁ ps₂ :=
-  let s := build_series_add ps₁ ps₂ in
+Definition build_ps_add ps₁ ps₂ :=
+  let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
+  let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
+  let s := build_series_add aps₁ aps₂ in
   match series_head fld s with
   | fin v =>
-      let v₁ := ps_valnum ps₁ in
-      let v₂ := ps_valnum ps₂ in
+      let v₁ := ps_valnum aps₁ in
+      let v₂ := ps_valnum aps₂ in
       {| ps_terms := s;
          ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
-         ps_comden := c |}
+         ps_comden := cm ps₁ ps₂ |}
   | inf =>
       ps_zero fld
   end.
@@ -444,10 +446,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps_valnum ps₁ with
   | zfin _ =>
       match ps_valnum ps₂ with
-      | zfin _ =>
-          let ms₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
-          let ms₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-          build_ps_add (cm ps₁ ps₂) ms₁ ms₂
+      | zfin _ => build_ps_add ps₁ ps₂
       | ∞ => ps₁
       end
   | ∞ => ps₂
@@ -762,19 +761,24 @@ intros ps₁ ps₂.
 apply series_add_comm.
 Qed.
 
-Lemma build_ps_add_comm : ∀ ps₁ ps₂ c,
-  build_ps_add fld c ps₁ ps₂ ≈ build_ps_add fld c ps₂ ps₁.
+Lemma build_ps_add_comm : ∀ ps₁ ps₂,
+  build_ps_add fld ps₁ ps₂ ≈ build_ps_add fld ps₂ ps₁.
 Proof.
-intros ps₁ ps₂ c.
+intros ps₁ ps₂.
 unfold build_ps_add.
 rewrite build_series_add_comm.
-remember (series_head fld (build_series_add fld ps₂ ps₁)) as v.
+remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁.
+remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂.
+remember (series_head fld (build_series_add fld aps₂ aps₁)) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
-constructor 1 with (k₁ := xH) (k₂ := xH); [ simpl | simpl | reflexivity ].
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite build_series_add_comm; reflexivity.
 
  rewrite Zbar.min_comm; reflexivity.
+
+ unfold cm.
+ do 2 rewrite Pos.mul_1_r; apply Pos.mul_comm.
 Qed.
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
