@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.349 2013-08-28 01:36:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.350 2013-08-28 02:53:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -419,28 +419,29 @@ Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
 (**)
 
 Definition build_series_add ps₁ ps₂ :=
-  let v₁ := ps_valnum ps₁ in
-  let v₂ := ps_valnum ps₂ in
+  let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
+  let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
+  let v₁ := ps_valnum aps₁ in
+  let v₂ := ps_valnum aps₂ in
   series_add fld
     (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
-       (ps_terms ps₁))
+       (ps_terms aps₁))
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
-       (ps_terms ps₂)).
+       (ps_terms aps₂)).
 
-Definition build_ps_add c (aps₁ aps₂ : puiseux_series α) (s : series α) v :=
+Definition build_ps_add (ps₁ ps₂ : puiseux_series α) (s : series α) v :=
+  let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
+  let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
   let v₁ := ps_valnum aps₁ in
   let v₂ := ps_valnum aps₂ in
   {| ps_terms := s;
      ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
-     ps_comden := c |}.
+     ps_comden := cm ps₁ ps₂ |}.
 
 Definition ps_add_nz ps₁ ps₂ :=
-  let c := cm ps₁ ps₂ in
-  let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
-  let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-  let s := build_series_add aps₁ aps₂ in
+  let s := build_series_add ps₁ ps₂ in
   match series_head fld s with
-  | fin v => build_ps_add c aps₁ aps₂ s v
+  | fin v => build_ps_add ps₁ ps₂ s v
   | inf => ps_zero fld
   end.
 
@@ -769,9 +770,7 @@ Proof.
 intros ps₁ ps₂.
 unfold ps_add_nz.
 rewrite build_series_add_comm.
-remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁.
-remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂.
-remember (series_head fld (build_series_add fld aps₂ aps₁)) as v.
+remember (series_head fld (build_series_add fld ps₂ ps₁)) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
@@ -789,24 +788,13 @@ intros ps₁ ps₂.
 unfold ps_add; simpl.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
-destruct v₁ as [n₁| ].
- destruct v₂ as [n₂| ]; [ idtac | reflexivity ].
- unfold ps_add_nz.
- rewrite build_series_add_comm.
- remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁.
- remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂.
- remember (series_head fld (build_series_add fld aps₂ aps₁)) as v.
- destruct v as [v| ]; [ simpl | reflexivity ].
- constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-  unfold build_series_add.
-  rewrite series_add_comm; reflexivity.
-
-  rewrite Zbar.min_comm; reflexivity.
-
-  do 2 rewrite Pos.mul_1_r; apply Pos.mul_comm.
+symmetry in Heqv₁, Heqv₂.
+destruct v₁ as [v₁| ].
+ destruct v₂ as [v₂| ]; [ idtac | reflexivity ].
+ apply ps_add_nz_comm.
 
  destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
- constructor 2; symmetry; assumption.
+ constructor 2; assumption.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -911,20 +899,20 @@ Lemma ps_comden_adjust : ∀ c ps,
   ps_comden (adjust fld c ps) = (ps_comden ps * c)%positive.
 Proof. intros; reflexivity. Qed.
 
-Lemma ps_valnum_ps_add_nz : ∀ ps₁ ps₂ aps₁ aps₂,
-  aps₁ = adjust fld (cm_factor ps₁ ps₂) ps₁
-  → aps₂ =adjust fld (cm_factor ps₂ ps₁) ps₂
-    → ps_valnum (ps_add_nz fld ps₁ ps₂) =
-      (Zbar.of_Nbar (series_head fld (build_series_add fld aps₁ aps₂)) +
-       Zbar.min (ps_valnum aps₁) (ps_valnum aps₂))%Zbar.
+Lemma ps_valnum_ps_add_nz : ∀ ps₁ ps₂,
+  ps_valnum (ps_add_nz fld ps₁ ps₂)
+  = (Zbar.of_Nbar (series_head fld (build_series_add fld ps₁ ps₂)) +
+     Zbar.min (ps_valnum ps₁ * '' cm_factor ps₁ ps₂)
+        (ps_valnum ps₂ * '' cm_factor ps₂ ps₁))%Zbar.
 Proof.
-intros ps₁ ps₂ aps₁ aps₂ Haps₁ Haps₂.
+intros ps₁ ps₂.
 unfold ps_add_nz.
-rewrite <- Haps₁, <- Haps₂.
-destruct (series_head fld (build_series_add fld aps₁ aps₂)) as [v| ]; simpl.
- rewrite Zbar.add_comm; reflexivity.
-
- reflexivity.
+remember (series_head fld (build_series_add fld ps₁ ps₂)) as v.
+destruct v as [v| ]; [ simpl | reflexivity ].
+remember (ps_valnum ps₁ * '' cm_factor ps₁ ps₂)%Zbar as v₁.
+remember (ps_valnum ps₂ * '' cm_factor ps₂ ps₁)%Zbar as v₂.
+destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
+rewrite Z.add_comm; reflexivity.
 Qed.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃,
@@ -935,103 +923,43 @@ intros ps₁ ps₂ ps₃.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  unfold ps_add_nz; simpl.
- remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
- remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
- remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
- remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
- remember (series_head fld (build_series_add fld aps₁₂ aps₂₁)) as v₁₂.
- remember (series_head fld (build_series_add fld aps₂₃ aps₃₂)) as v₂₃.
+ remember (series_head fld (build_series_add fld ps₁ ps₂)) as v₁₂.
+ remember (series_head fld (build_series_add fld ps₂ ps₃)) as v₂₃.
  symmetry in Heqv₁₂, Heqv₂₃.
- unfold cm_factor, cm; simpl.
  destruct v₁₂ as [v₁₂| ]; simpl.
   destruct v₂₃ as [v₂₃| ]; simpl.
-   remember (ps_valnum ps₁) as v₁.
-   remember (ps_valnum ps₂) as v₂.
-   remember (ps_valnum ps₃) as v₃.
-   remember (ps_comden ps₁) as c₁.
-   remember (ps_comden ps₂) as c₂.
-   remember (ps_comden ps₃) as c₃.
-   remember (build_series_add fld aps₁₂ aps₂₁) as s₁₂.
-   remember (build_series_add fld aps₂₃ aps₃₂) as s₂₃.
-   remember
-    (adjust fld c₃ (build_ps_add (c₁ * c₂) aps₁₂ aps₂₁ s₁₂ v₁₂)) as aps₃_₁₂.
-   remember
-    (adjust fld c₁ (build_ps_add (c₂ * c₃) aps₂₃ aps₃₂ s₂₃ v₂₃)) as aps₁_₂₃.
-   remember
-    (series_head fld
-       (build_series_add fld aps₃_₁₂ (adjust fld (c₁ * c₂) ps₃))) as av₁.
-   remember
-    (series_head fld
-       (build_series_add fld (adjust fld (c₂ * c₃) ps₁) aps₁_₂₃)) as av₂.
-   symmetry in Heqav₁, Heqav₂.
-   destruct av₁ as [av₁| ]; simpl.
-    destruct av₂ as [av₂| ]; simpl.
-     constructor.
-     intros i.
-     unfold build_series_add; simpl.
-   Focus 1.
+   remember (build_series_add fld ps₁ ps₂) as s₁₂.
+   remember (build_series_add fld ps₂ ps₃) as s₂₃.
+   remember (build_ps_add fld ps₁ ps₂ s₁₂ v₁₂) as ps₁₂.
+   remember (build_ps_add fld ps₂ ps₃ s₂₃ v₂₃) as ps₂₃.
+   remember (series_head fld (build_series_add fld ps₁₂ ps₃)) as v₁.
+   remember (series_head fld (build_series_add fld ps₁ ps₂₃)) as v₂.
+   symmetry in Heqv₁, Heqv₂.
+   destruct v₁ as [v₁| ]; simpl.
+    destruct v₂ as [v₂| ]; simpl.
+    Focus 1.
 bbb.
-
-intros ps₁ ps₂ ps₃.
-unfold ps_add_nz; simpl.
-remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
-remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
-remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
-remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
-remember (series_head fld (build_series_add fld aps₁₂ aps₂₁)) as v₁.
-symmetry in Heqv₁.
-destruct v₁ as [v₁| ].
- unfold cm_factor.
- unfold cm; simpl.
- remember (build_series_add fld aps₁₂ aps₂₁) as s₁₂.
- remember
-  (build_ps_add (ps_comden ps₁ * ps_comden ps₂) aps₁₂ aps₂₁ s₁₂ v₁) as ps₁₂.
- unfold cm_factor in *.
- remember (adjust fld (ps_comden ps₃) ps₁₂) as aps₁₂₃.
- remember (adjust fld (ps_comden ps₁ * ps_comden ps₂) ps₃) as ps₃₁₂.
- remember (series_head fld (build_series_add fld aps₁₂₃ ps₃₁₂)) as s₁₂₃.
- symmetry in Heqs₁₂₃.
- destruct s₁₂₃ as [v₁₂₃| ].
-  remember (series_head fld (build_series_add fld aps₂₃ aps₃₂)) as s₄.
-  symmetry in Heqs₄.
-  destruct s₄ as [v₄| ].
-  Focus 1.
-bbb.
+*)
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold ps_add.
-remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
-remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
-remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
-remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_valnum ps₃) as v₃.
 symmetry in Heqv₁, Heqv₂, Heqv₃.
 destruct v₁ as [v₁| ]; simpl.
  destruct v₂ as [v₂| ]; [ idtac | rewrite Heqv₁, Heqv₃; reflexivity ].
- erewrite ps_valnum_ps_add_nz; [ idtac | eassumption | eassumption ].
- remember (series_head fld (build_series_add fld aps₁₂ aps₂₁)) as n₁₂.
- symmetry in Heqn₁₂.
- unfold Zbar.of_Nbar.
- destruct n₁₂ as [n₁₂| ]; simpl.
-  remember (Zbar.min (ps_valnum aps₁₂) (ps_valnum aps₂₁)) as y.
-  symmetry in Heqy.
-  destruct y as [y| ].
-   destruct v₃ as [v₃| ].
-    erewrite ps_valnum_ps_add_nz; [ idtac | eassumption | eassumption ].
-    remember (series_head fld (build_series_add fld aps₂₃ ms₃₂)) as n₂₃.
-    symmetry in Heqn₂₃.
-    unfold Zbar.of_Nbar.
-    destruct n₂₃ as [n₂₃| ]; simpl.
-     remember (Zbar.min (ps_valnum aps₂₃) (ps_valnum ms₃₂)) as z.
-     symmetry in Heqz.
-     destruct z as [z| ].
-      unfold cm_factor, cm.
-      Focus 1.
+ destruct v₃ as [v₃| ]; simpl.
+  remember (ps_valnum (ps_add_nz fld ps₁ ps₂)) as v₁₂.
+  symmetry in Heqv₁₂.
+  remember (ps_valnum (ps_add_nz fld ps₂ ps₃)) as v₂₃.
+  symmetry in Heqv₂₃.
+  destruct v₁₂ as [v₁₂| ].
+   destruct v₂₃ as [v₂₃| ].
+   Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
