@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.360 2013-08-28 21:15:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.361 2013-08-28 22:18:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -837,8 +837,14 @@ destruct (lt_dec i a) as [Hlt₁| Hge₁].
   apply Nat.lt_lt_add_r; assumption.
 
  apply not_gt in Hge₁.
+ remember (i - a)%nat as j.
+ assert (i = (j + a)%nat) by omega.
+ clear Heqj; subst i; clear Hge₁.
  unfold series_nth_fld; simpl.
  subst m.
+ destruct (Nbar.lt_dec (fin (j + a)) (stop s₁ + fin b + fin a))
+  as [Hlt₁| Hge₁].
+  Focus 1.
 bbb.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
