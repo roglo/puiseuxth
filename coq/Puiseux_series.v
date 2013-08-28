@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.351 2013-08-28 08:08:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.352 2013-08-28 08:22:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -947,6 +947,20 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
      remember (ps_comden ps₁) as c₁.
      remember (ps_comden ps₂) as c₂.
      remember (ps_comden ps₃) as c₃.
+     do 2 rewrite Zbar.mul_add_distr_r.
+     rewrite <- Zbar.mul_min_distr_nonneg_r.
+      2: apply Pos2Zbar.is_nonneg.
+
+      rewrite <- Zbar.mul_min_distr_nonneg_r.
+       2: apply Pos2Zbar.is_nonneg.
+
+       do 2 rewrite Pos2Z.inj_mul, Zbar.zfin_inj_mul.
+       do 2 rewrite Zbar.mul_assoc.
+       remember (v₁ * '' c₂ * '' c₃)%Zbar as vcc.
+       remember (v₂ * '' c₁ * '' c₃)%Zbar as cvc.
+       remember (v₃ * '' c₁ * '' c₂)%Zbar as ccv.
+       rewrite Zbar.mul_shuffle0 in Heqcvc; rewrite <- Heqcvc.
+       rewrite Zbar.mul_shuffle0 in Heqccv; rewrite <- Heqccv.
     Focus 1.
 bbb.
 *)
