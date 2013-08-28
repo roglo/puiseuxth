@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.357 2013-08-28 14:04:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.358 2013-08-28 17:34:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -976,6 +976,8 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        rewrite <- Hvcc.
        rewrite Z.mul_shuffle0, <- Hcvc.
        rewrite <- Hccv.
+       do 2 rewrite <- Z.add_min_distr_r.
+       do 2 rewrite Z2Nat.inj_min.
 Focus 1.
 bbb.
 *)
