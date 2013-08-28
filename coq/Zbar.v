@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.26 2013-08-28 11:04:32 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.27 2013-08-28 11:19:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -245,6 +245,15 @@ Qed.
 End Zbar2Nbar.
 
 Module Zbar2Nat.
+
+Theorem inj_add : ∀ n m, 0 ≤ n → 0 ≤ m → n ≠ ∞ → m ≠ ∞ →
+  Zbar.to_nat (n + m) = (Zbar.to_nat n + Zbar.to_nat m)%nat.
+Proof.
+intros n m Hn Hm Hni Hmi.
+destruct n as [n| ]; [ simpl | exfalso; apply Hni; reflexivity ].
+destruct m as [m| ]; [ simpl | exfalso; apply Hmi; reflexivity ].
+apply Z2Nat.inj_add; [ inversion Hn; assumption | inversion Hm; assumption ].
+Qed.
 
 Theorem inj_mul_pos_r : ∀ n m,
   Zbar.to_nat (n * '' m) = (Zbar.to_nat n * Pos.to_nat m)%nat.
