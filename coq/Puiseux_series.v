@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.358 2013-08-28 17:34:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.359 2013-08-28 20:34:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -978,6 +978,12 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        rewrite <- Hccv.
        do 2 rewrite <- Z.add_min_distr_r.
        do 2 rewrite Z2Nat.inj_min.
+       remember
+        (min (Z.to_nat (vcc + Z.of_nat sh₁₂ * ' c₃))
+           (Z.to_nat (cvc + Z.of_nat sh₁₂ * ' c₃))) as toto.
+       remember
+        (min (Z.to_nat (cvc + Z.of_nat sh₂₃ * ' c₁))
+           (Z.to_nat (ccv + Z.of_nat sh₂₃ * ' c₁))) as titi.
 Focus 1.
 bbb.
 *)
