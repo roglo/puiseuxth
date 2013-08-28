@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.27 2013-08-28 11:19:35 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.28 2013-08-28 12:58:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -187,6 +187,16 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Z.mul_add_distr_r; reflexivity.
 Qed.
 
+Theorem add_min_distr_r : ∀ n m p,
+  Zbar.min (n + p) (m + p) = Zbar.min n m + p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+rewrite Z.add_min_distr_r; reflexivity.
+Qed.
+
 Theorem mul_min_distr_nonneg_r : ∀ n m p, 0 ≤ p →
   min (n * p) (m * p) = min n m * p.
 Proof.
@@ -253,6 +263,15 @@ intros n m Hn Hm Hni Hmi.
 destruct n as [n| ]; [ simpl | exfalso; apply Hni; reflexivity ].
 destruct m as [m| ]; [ simpl | exfalso; apply Hmi; reflexivity ].
 apply Z2Nat.inj_add; [ inversion Hn; assumption | inversion Hm; assumption ].
+Qed.
+
+Theorem inj_min : ∀ n m, n ≠ ∞ → m ≠ ∞ →
+  Zbar.to_nat (Zbar.min n m) = min (Zbar.to_nat n) (Zbar.to_nat m).
+Proof.
+intros n m Hn Hm.
+destruct n as [n| ]; [ simpl | exfalso; apply Hn; reflexivity ].
+destruct m as [m| ]; [ simpl | exfalso; apply Hm; reflexivity ].
+apply Z2Nat.inj_min.
 Qed.
 
 Theorem inj_mul_pos_r : ∀ n m,
