@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.24 2013-08-27 09:58:24 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.25 2013-08-28 08:08:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -176,6 +176,15 @@ intros n m.
 destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 rewrite Z.min_comm; reflexivity.
+Qed.
+
+Theorem mul_add_distr_r : ∀ n m p, (n + m) * p = (n * p + m * p).
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
+destruct p as [p| ]; [ simpl | reflexivity ].
+rewrite Z.mul_add_distr_r; reflexivity.
 Qed.
 
 Theorem mul_min_distr_nonneg_r : ∀ n m p, 0 ≤ p →

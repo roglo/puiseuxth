@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.350 2013-08-28 02:53:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.351 2013-08-28 08:08:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -932,11 +932,21 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
    remember (build_series_add fld ps₂ ps₃) as s₂₃.
    remember (build_ps_add fld ps₁ ps₂ s₁₂ v₁₂) as ps₁₂.
    remember (build_ps_add fld ps₂ ps₃ s₂₃ v₂₃) as ps₂₃.
-   remember (series_head fld (build_series_add fld ps₁₂ ps₃)) as v₁.
-   remember (series_head fld (build_series_add fld ps₁ ps₂₃)) as v₂.
-   symmetry in Heqv₁, Heqv₂.
-   destruct v₁ as [v₁| ]; simpl.
-    destruct v₂ as [v₂| ]; simpl.
+   remember (series_head fld (build_series_add fld ps₁₂ ps₃)) as v₁₂_₃.
+   remember (series_head fld (build_series_add fld ps₁ ps₂₃)) as v₁_₂₃.
+   symmetry in Heqv₁₂_₃, Heqv₁_₂₃.
+   destruct v₁₂_₃ as [v₁₂_₃| ]; simpl.
+    destruct v₁_₂₃ as [v₁_₂₃| ]; simpl.
+     subst ps₁₂ ps₂₃.
+     constructor; intros i.
+     unfold build_ps_add, build_series_add, cm_factor, cm; simpl.
+     remember (ps_valnum ps₁) as v₁.
+     remember (ps_valnum ps₂) as v₂.
+     remember (ps_valnum ps₃) as v₃.
+     symmetry in Heqv₁, Heqv₂, Heqv₃.
+     remember (ps_comden ps₁) as c₁.
+     remember (ps_comden ps₂) as c₂.
+     remember (ps_comden ps₃) as c₃.
     Focus 1.
 bbb.
 *)
