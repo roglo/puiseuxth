@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.352 2013-08-28 08:22:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.353 2013-08-28 08:32:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -937,8 +937,8 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
    symmetry in Heqv₁₂_₃, Heqv₁_₂₃.
    destruct v₁₂_₃ as [v₁₂_₃| ]; simpl.
     destruct v₁_₂₃ as [v₁_₂₃| ]; simpl.
-     subst ps₁₂ ps₂₃.
      constructor; intros i.
+     subst ps₁₂ ps₂₃ s₁₂ s₂₃.
      unfold build_ps_add, build_series_add, cm_factor, cm; simpl.
      remember (ps_valnum ps₁) as v₁.
      remember (ps_valnum ps₂) as v₂.
