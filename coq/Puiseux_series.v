@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.348 2013-08-27 18:55:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.349 2013-08-28 01:36:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -934,8 +934,42 @@ Proof.
 intros ps₁ ps₂ ps₃.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
- constructor.
- intros i.
+ unfold ps_add_nz; simpl.
+ remember (adjust fld (cm_factor ps₁ ps₂) ps₁) as aps₁₂.
+ remember (adjust fld (cm_factor ps₂ ps₁) ps₂) as aps₂₁.
+ remember (adjust fld (cm_factor ps₂ ps₃) ps₂) as aps₂₃.
+ remember (adjust fld (cm_factor ps₃ ps₂) ps₃) as aps₃₂.
+ remember (series_head fld (build_series_add fld aps₁₂ aps₂₁)) as v₁₂.
+ remember (series_head fld (build_series_add fld aps₂₃ aps₃₂)) as v₂₃.
+ symmetry in Heqv₁₂, Heqv₂₃.
+ unfold cm_factor, cm; simpl.
+ destruct v₁₂ as [v₁₂| ]; simpl.
+  destruct v₂₃ as [v₂₃| ]; simpl.
+   remember (ps_valnum ps₁) as v₁.
+   remember (ps_valnum ps₂) as v₂.
+   remember (ps_valnum ps₃) as v₃.
+   remember (ps_comden ps₁) as c₁.
+   remember (ps_comden ps₂) as c₂.
+   remember (ps_comden ps₃) as c₃.
+   remember (build_series_add fld aps₁₂ aps₂₁) as s₁₂.
+   remember (build_series_add fld aps₂₃ aps₃₂) as s₂₃.
+   remember
+    (adjust fld c₃ (build_ps_add (c₁ * c₂) aps₁₂ aps₂₁ s₁₂ v₁₂)) as aps₃_₁₂.
+   remember
+    (adjust fld c₁ (build_ps_add (c₂ * c₃) aps₂₃ aps₃₂ s₂₃ v₂₃)) as aps₁_₂₃.
+   remember
+    (series_head fld
+       (build_series_add fld aps₃_₁₂ (adjust fld (c₁ * c₂) ps₃))) as av₁.
+   remember
+    (series_head fld
+       (build_series_add fld (adjust fld (c₂ * c₃) ps₁) aps₁_₂₃)) as av₂.
+   symmetry in Heqav₁, Heqav₂.
+   destruct av₁ as [av₁| ]; simpl.
+    destruct av₂ as [av₂| ]; simpl.
+     constructor.
+     intros i.
+     unfold build_series_add; simpl.
+   Focus 1.
 bbb.
 
 intros ps₁ ps₂ ps₃.
