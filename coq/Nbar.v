@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.34 2013-08-25 10:24:30 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.35 2013-08-28 21:15:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -108,6 +108,7 @@ destruct n as [n| ].
 
  exfalso; apply H; constructor.
 Qed.
+*)
 
 Theorem add_comm : ∀ n m, n + m = m + n.
 Proof.
@@ -115,7 +116,6 @@ intros n m.
 destruct n; [ simpl | destruct m; reflexivity ].
 destruct m; [ rewrite Nat.add_comm; reflexivity | reflexivity ].
 Qed.
-*)
 
 Theorem mul_comm : ∀ n m, n * m = m * n.
 Proof.
