@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.353 2013-08-28 08:32:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.354 2013-08-28 11:04:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -956,12 +956,23 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 
        do 2 rewrite Pos2Z.inj_mul, Zbar.zfin_inj_mul.
        do 2 rewrite Zbar.mul_assoc.
-       remember (v₁ * '' c₂ * '' c₃)%Zbar as vcc.
-       remember (v₂ * '' c₁ * '' c₃)%Zbar as cvc.
-       remember (v₃ * '' c₁ * '' c₂)%Zbar as ccv.
-       rewrite Zbar.mul_shuffle0 in Heqcvc; rewrite <- Heqcvc.
-       rewrite Zbar.mul_shuffle0 in Heqccv; rewrite <- Heqccv.
-    Focus 1.
+       remember (v₁ * '' c₂ * '' c₃)%Zbar as vcc eqn:Hvcc.
+       remember (v₂ * '' c₁ * '' c₃)%Zbar as cvc eqn:Hcvc.
+       remember (v₃ * '' c₁ * '' c₂)%Zbar as ccv eqn:Hccv.
+       rewrite Zbar.mul_shuffle0 in Hcvc; rewrite <- Hcvc.
+       rewrite Zbar.mul_shuffle0 in Hccv; rewrite <- Hccv.
+       do 2 rewrite stretch_series_add_distr.
+       do 2 rewrite series_pad_add_distr.
+       rewrite series_add_assoc.
+       do 4 rewrite stretch_pad_series_distr.
+       do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+       do 4 rewrite series_pad_pad.
+       do 4 rewrite Nat.mul_sub_distr_r.
+       do 4 rewrite <- Zbar2Nat.inj_mul_pos_r.
+       rewrite <- Hvcc.
+       rewrite Zbar.mul_shuffle0, <- Hcvc.
+       rewrite <- Hccv.
+       Focus 1.
 bbb.
 *)
 

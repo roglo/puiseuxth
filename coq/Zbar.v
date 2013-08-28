@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.25 2013-08-28 08:08:35 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.26 2013-08-28 11:04:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -243,5 +243,18 @@ Qed.
 *)
 
 End Zbar2Nbar.
+
+Module Zbar2Nat.
+
+Theorem inj_mul_pos_r : ∀ n m,
+  Zbar.to_nat (n * '' m) = (Zbar.to_nat n * Pos.to_nat m)%nat.
+Proof.
+intros n m.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
+rewrite Pos2Nat.inj_mul; reflexivity.
+Qed.
+
+End Zbar2Nat.
 
 Close Scope Zbar_scope.
