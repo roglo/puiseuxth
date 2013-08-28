@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.361 2013-08-28 22:18:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.362 2013-08-28 22:45:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -796,56 +796,6 @@ destruct v₁ as [v₁| ].
  destruct v₂ as [n₂| ]; [ reflexivity | idtac ].
  constructor 2; assumption.
 Qed.
-
-Lemma zzz : ∀ s₁ s₂ a b c,
-  series_add fld
-    (series_pad_left fld (a + b) s₁)
-    (series_pad_left fld (a + c) s₂) ≃
-  series_pad_left fld a
-    (series_add fld (series_pad_left fld b s₁) (series_pad_left fld c s₂)).
-Proof.
-intros s₁ s₂ a b c.
-constructor; intros i.
-unfold series_nth_fld, series_add, series_pad_left; simpl.
-do 2 rewrite Nbar.fin_inj_add.
-rewrite Nbar.add_assoc, Nbar.add_shuffle0, Nbar.max_comm.
-rewrite Nbar.add_assoc, Nbar.add_shuffle0, Nbar.max_comm.
-rewrite Nbar.add_max_distr_r.
-remember (Nbar.max (stop s₁ + fin b) (stop s₂ + fin c) + fin a)%Nbar as m.
-destruct (Nbar.lt_dec (fin i) m) as [Hlt| Hge]; [ simpl | reflexivity ].
-destruct (lt_dec i a) as [Hlt₁| Hge₁].
- Focus 1.
- unfold series_nth_fld; simpl.
- destruct (Nbar.lt_dec (fin i) (stop s₁ + fin b + fin a)) as [Hlt₂| Hge₂].
-  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin c + fin a)) as [Hlt₃| Hge₃].
-   destruct (lt_dec i (a + b)) as [Hlt₄| Hge₄].
-    destruct (lt_dec i (a + c)) as [| Hge₄]; [ apply fld_add_ident | idtac ].
-    exfalso; apply Hge₄.
-    apply Nat.lt_lt_add_r; assumption.
-
-    exfalso; apply Hge₄.
-    apply Nat.lt_lt_add_r; assumption.
-
-   exfalso; apply Hge₃.
-   rewrite Nbar.add_comm; simpl.
-   destruct (stop s₂ + fin c)%Nbar as [x| ]; constructor.
-   apply Nat.lt_lt_add_r; assumption.
-
-  exfalso; apply Hge₂.
-  rewrite Nbar.add_comm; simpl.
-  destruct (stop s₁ + fin b)%Nbar as [x| ]; constructor.
-  apply Nat.lt_lt_add_r; assumption.
-
- apply not_gt in Hge₁.
- remember (i - a)%nat as j.
- assert (i = (j + a)%nat) by omega.
- clear Heqj; subst i; clear Hge₁.
- unfold series_nth_fld; simpl.
- subst m.
- destruct (Nbar.lt_dec (fin (j + a)) (stop s₁ + fin b + fin a))
-  as [Hlt₁| Hge₁].
-  Focus 1.
-bbb.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
   series_pad_left fld n (series_add fld s₁ s₂)
