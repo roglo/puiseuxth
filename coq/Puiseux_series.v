@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.356 2013-08-28 12:58:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.357 2013-08-28 14:04:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -915,23 +915,28 @@ destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
 rewrite Z.add_comm; reflexivity.
 Qed.
 
-Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_add_nz fld (ps_add_nz fld ps₁ ps₂) ps₃
-  ≈ ps_add_nz fld ps₁ (ps_add_nz fld ps₂ ps₃).
+Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
+  ps_valnum ps₁ = zfin v₁
+  → ps_valnum ps₂ = zfin v₂
+    → ps_valnum ps₃ = zfin v₃
+      → ps_valnum (ps_add_nz fld ps₁ ps₂) = zfin v₁₂
+        → ps_valnum (ps_add_nz fld ps₂ ps₃) = zfin v₂₃
+          → ps_add_nz fld (ps_add_nz fld ps₁ ps₂) ps₃
+            ≈ ps_add_nz fld ps₁ (ps_add_nz fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃.
+intros ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃ Hv₁ Hv₂ Hv₃ Hv₁₂ Hv₂₃.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  unfold ps_add_nz; simpl.
- remember (series_head fld (build_series_add fld ps₁ ps₂)) as v₁₂.
- remember (series_head fld (build_series_add fld ps₂ ps₃)) as v₂₃.
- symmetry in Heqv₁₂, Heqv₂₃.
- destruct v₁₂ as [v₁₂| ]; simpl.
-  destruct v₂₃ as [v₂₃| ]; simpl.
+ remember (series_head fld (build_series_add fld ps₁ ps₂)) as sh₁₂.
+ remember (series_head fld (build_series_add fld ps₂ ps₃)) as sh₂₃.
+ symmetry in Heqsh₁₂, Heqsh₂₃.
+ destruct sh₁₂ as [sh₁₂| ].
+  destruct sh₂₃ as [sh₂₃| ].
    remember (build_series_add fld ps₁ ps₂) as s₁₂.
    remember (build_series_add fld ps₂ ps₃) as s₂₃.
-   remember (build_ps_add fld ps₁ ps₂ s₁₂ v₁₂) as ps₁₂.
-   remember (build_ps_add fld ps₂ ps₃ s₂₃ v₂₃) as ps₂₃.
+   remember (build_ps_add fld ps₁ ps₂ s₁₂ sh₁₂) as ps₁₂.
+   remember (build_ps_add fld ps₂ ps₃ s₂₃ sh₂₃) as ps₂₃.
    remember (series_head fld (build_series_add fld ps₁₂ ps₃)) as v₁₂_₃.
    remember (series_head fld (build_series_add fld ps₁ ps₂₃)) as v₁_₂₃.
    symmetry in Heqv₁₂_₃, Heqv₁_₂₃.
@@ -940,27 +945,26 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
      constructor; intros i.
      subst ps₁₂ ps₂₃ s₁₂ s₂₃.
      unfold build_ps_add, build_series_add, cm_factor, cm; simpl.
-     remember (ps_valnum ps₁) as v₁.
-     remember (ps_valnum ps₂) as v₂.
-     remember (ps_valnum ps₃) as v₃.
-     symmetry in Heqv₁, Heqv₂, Heqv₃.
+     rewrite Hv₁, Hv₂, Hv₃; simpl.
      remember (ps_comden ps₁) as c₁.
      remember (ps_comden ps₂) as c₂.
      remember (ps_comden ps₃) as c₃.
-     do 2 rewrite Zbar.mul_add_distr_r.
-     rewrite <- Zbar.mul_min_distr_nonneg_r.
-      2: apply Pos2Zbar.is_nonneg.
+     do 2 rewrite Pos2Z.inj_mul.
+     do 2 rewrite Z.mul_assoc.
+     do 2 rewrite Z.mul_add_distr_r.
+     rewrite <- Z.mul_min_distr_nonneg_r.
+      2: apply Pos2Z.is_nonneg.
 
-      rewrite <- Zbar.mul_min_distr_nonneg_r.
-       2: apply Pos2Zbar.is_nonneg.
+      rewrite <- Z.mul_min_distr_nonneg_r.
+       2: apply Pos2Z.is_nonneg.
 
-       do 2 rewrite Pos2Z.inj_mul, Zbar.zfin_inj_mul.
-       do 2 rewrite Zbar.mul_assoc.
-       remember (v₁ * '' c₂ * '' c₃)%Zbar as vcc eqn:Hvcc.
-       remember (v₂ * '' c₁ * '' c₃)%Zbar as cvc eqn:Hcvc.
-       remember (v₃ * '' c₁ * '' c₂)%Zbar as ccv eqn:Hccv.
-       rewrite Zbar.mul_shuffle0 in Hcvc; rewrite <- Hcvc.
-       rewrite Zbar.mul_shuffle0 in Hccv; rewrite <- Hccv.
+       remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+       remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+       remember (v₃ * ' c₁ * ' c₂)%Z as ccv eqn:Hccv .
+       rewrite Z.mul_comm, Z.mul_assoc, Z.mul_shuffle0 in Hcvc.
+       rewrite <- Z.mul_comm, Z.mul_assoc in Hcvc.
+       rewrite <- Hcvc.
+       rewrite Z.mul_shuffle0 in Hccv; rewrite <- Hccv.
        do 2 rewrite stretch_series_add_distr.
        do 2 rewrite series_pad_add_distr.
        rewrite series_add_assoc.
@@ -968,13 +972,11 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
        do 4 rewrite series_pad_pad.
        do 4 rewrite Nat.mul_sub_distr_r.
-       do 4 rewrite <- Zbar2Nat.inj_mul_pos_r.
+       do 4 rewrite <- Z2Nat_inj_mul_pos_r.
        rewrite <- Hvcc.
-       rewrite Zbar.mul_shuffle0, <- Hcvc.
+       rewrite Z.mul_shuffle0, <- Hcvc.
        rewrite <- Hccv.
 Focus 1.
-bbb.
-       do 2 rewrite <- Zbar.add_min_distr_r.
 bbb.
 *)
 
