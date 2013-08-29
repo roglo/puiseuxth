@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.370 2013-08-29 18:20:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.371 2013-08-29 19:03:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -965,6 +965,23 @@ remember
 remember
  (min (Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁))
     (Z.to_nat (ccv + Z.of_nat n₂₃ * ' c₁))) as titi.
+remember (Z.to_nat (vcc + Z.of_nat n₁₂ * ' c₃)) as vcc₁.
+remember (Z.to_nat (cvc + Z.of_nat n₁₂ * ' c₃)) as cvc₁.
+remember (Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁)) as cvc₂.
+remember (Z.to_nat (ccv + Z.of_nat n₂₃ * ' c₁)) as ccv₂.
+destruct (Nat.min_dec vcc₁ cvc₁) as [Hvcc₁| Hccv₁].
+ rewrite Hvcc₁ in Heqtoto.
+ subst toto.
+ subst vcc₁.
+ destruct (Nat.min_dec cvc₂ ccv₂) as [Hcvc₂| Hccv₂].
+Focus 1.
+  rewrite Hcvc₂ in Heqtiti.
+  subst titi.
+  subst cvc₂.
+  assert
+   (Z.to_nat (vcc + Z.of_nat n₁₂ * ' c₃) - Z.to_nat ccv +
+    (Z.to_nat vcc - Z.to_nat cvc) =
+    Z.to_nat vcc - Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁))%nat.
 bbb.
 *)
 
