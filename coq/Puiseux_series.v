@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.366 2013-08-29 12:32:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.367 2013-08-29 14:26:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -915,6 +915,17 @@ remember (ps_valnum ps₂ * '' cm_factor ps₂ ps₁)%Zbar as v₂.
 destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
 rewrite Z.add_comm; reflexivity.
 Qed.
+
+Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁₂ n₂₃,
+  series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁₂
+  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin n₂₃
+    → ps_terms_add fld
+        (build_ps_add fld (ps_terms_add fld ps₁ ps₂) n₁₂ ps₁ ps₂) ps₃ ≃
+      ps_terms_add fld
+        ps₁ (build_ps_add fld (ps_terms_add fld ps₂ ps₃) n₂₃ ps₂ ps₃).
+Proof.
+intros ps₁ ps₂ ps₃ n₁₂ n₂₃ Hn₁ Hn₂.
+bbb.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
