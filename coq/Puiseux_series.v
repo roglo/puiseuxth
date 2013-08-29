@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.362 2013-08-28 22:45:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.363 2013-08-29 03:47:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -43,7 +43,8 @@ Definition stretch_series k s :=
 Record puiseux_series α := mkps
   { ps_terms : series α;
     ps_valnum : Zbar;
-    ps_comden : positive }.
+    ps_comden : positive(*;
+    ps_prop : series_nth 0 ps_terms = None → ps_valnum = ∞*) }.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
