@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.363 2013-08-29 03:47:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.364 2013-08-29 09:23:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -430,7 +430,7 @@ Definition build_series_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
        (ps_terms aps₂)).
 
-Definition build_ps_add (ps₁ ps₂ : puiseux_series α) (s : series α) v :=
+Definition build_ps_add (s : series α) v (ps₁ ps₂ : puiseux_series α) :=
   let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
   let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
   let v₁ := ps_valnum aps₁ in
@@ -442,7 +442,7 @@ Definition build_ps_add (ps₁ ps₂ : puiseux_series α) (s : series α) v :=
 Definition ps_add_nz ps₁ ps₂ :=
   let s := build_series_add ps₁ ps₂ in
   match series_head fld s with
-  | fin v => build_ps_add ps₁ ps₂ s v
+  | fin v => build_ps_add s v ps₁ ps₂
   | inf => ps_zero fld
   end.
 
@@ -936,8 +936,8 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
   destruct sh₂₃ as [sh₂₃| ].
    remember (build_series_add fld ps₁ ps₂) as s₁₂.
    remember (build_series_add fld ps₂ ps₃) as s₂₃.
-   remember (build_ps_add fld ps₁ ps₂ s₁₂ sh₁₂) as ps₁₂.
-   remember (build_ps_add fld ps₂ ps₃ s₂₃ sh₂₃) as ps₂₃.
+   remember (build_ps_add fld s₁₂ sh₁₂ ps₁ ps₂) as ps₁₂.
+   remember (build_ps_add fld s₂₃ sh₂₃ ps₂ ps₃) as ps₂₃.
    remember (series_head fld (build_series_add fld ps₁₂ ps₃)) as v₁₂_₃.
    remember (series_head fld (build_series_add fld ps₁ ps₂₃)) as v₁_₂₃.
    symmetry in Heqv₁₂_₃, Heqv₁_₂₃.
