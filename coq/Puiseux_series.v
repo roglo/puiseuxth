@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.367 2013-08-29 14:26:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.368 2013-08-29 16:24:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -916,16 +916,29 @@ destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
 rewrite Z.add_comm; reflexivity.
 Qed.
 
-Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁₂ n₂₃,
-  series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁₂
-  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin n₂₃
-    → ps_terms_add fld
-        (build_ps_add fld (ps_terms_add fld ps₁ ps₂) n₁₂ ps₁ ps₂) ps₃ ≃
-      ps_terms_add fld
-        ps₁ (build_ps_add fld (ps_terms_add fld ps₂ ps₃) n₂₃ ps₂ ps₃).
+Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃,
+  ps_valnum ps₁ = zfin v₁
+  → ps_valnum ps₂ = zfin v₂
+    → ps_valnum ps₃ = zfin v₃
+      → series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁₂
+        → series_head fld (ps_terms_add fld ps₂ ps₃) = fin n₂₃
+          → ps_terms_add fld
+              (build_ps_add fld (ps_terms_add fld ps₁ ps₂) n₁₂ ps₁ ps₂) ps₃ ≃
+            ps_terms_add fld
+              ps₁ (build_ps_add fld (ps_terms_add fld ps₂ ps₃) n₂₃ ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ n₁₂ n₂₃ Hn₁ Hn₂.
+intros ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃ Hv₁ Hv₂ Hv₃ Hn₁ Hn₂.
+constructor; intros i.
+unfold build_ps_add; simpl.
+unfold cm_factor, cm.
+unfold ps_terms_add; simpl.
+unfold cm_factor, cm.
+rewrite Hv₁, Hv₂, Hv₃; simpl.
+remember (ps_comden ps₁) as c₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_comden ps₃) as c₃.
 bbb.
+*)
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
