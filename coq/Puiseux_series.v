@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.368 2013-08-29 16:24:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.369 2013-08-29 18:17:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -937,6 +937,28 @@ rewrite Hv₁, Hv₂, Hv₃; simpl.
 remember (ps_comden ps₁) as c₁.
 remember (ps_comden ps₂) as c₂.
 remember (ps_comden ps₃) as c₃.
+do 2 rewrite stretch_series_add_distr.
+do 2 rewrite series_pad_add_distr.
+rewrite series_add_assoc.
+do 4 rewrite stretch_pad_series_distr.
+do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite series_pad_pad.
+do 4 rewrite Nat.mul_sub_distr_r.
+do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+rewrite Z.mul_shuffle0, <- Hcvc.
+do 2 rewrite <- Z.add_min_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+do 4 rewrite Z.mul_add_distr_r.
+do 2 rewrite Pos2Z.inj_mul.
+do 2 rewrite Z.mul_assoc.
+rewrite <- Hvcc, <- Hcvc, <- Hccv.
+rewrite Z.mul_shuffle0, <- Hccv.
+rewrite Z.mul_shuffle0, <- Hcvc.
+do 2 rewrite Z2Nat.inj_min.
 bbb.
 *)
 
