@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.364 2013-08-29 09:23:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.365 2013-08-29 11:22:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -277,10 +277,10 @@ Proof.
 intros k.
 constructor; intros i.
 unfold series_nth_fld; simpl.
-destruct (Nbar.lt_dec (fin i) inf); [ idtac | reflexivity ].
+destruct (Nbar.lt_dec (fin i) 0); [ idtac | reflexivity ].
 destruct (zerop (i mod Pos.to_nat k)); [ idtac | reflexivity ].
 unfold series_nth_fld; simpl.
-destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) inf); reflexivity.
+destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
 Lemma stretch_series_0_if : ∀ k s,
@@ -299,10 +299,10 @@ remember (stop s * fin (Pos.to_nat k))%Nbar as ss.
 destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
  rewrite Hi.
  unfold series_nth_fld; simpl.
- destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) inf).
-  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+ destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) 0).
+  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 
-  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 
  unfold series_nth_fld; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [Hlt| Hge].
@@ -319,7 +319,7 @@ destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
 
    assumption.
 
-  destruct (Nbar.lt_dec (fin i) inf); reflexivity.
+  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
@@ -986,6 +986,14 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
         (min (Z.to_nat (cvc + Z.of_nat sh₂₃ * ' c₁))
            (Z.to_nat (ccv + Z.of_nat sh₂₃ * ' c₁))) as titi.
 Focus 1.
+       Unfocus.
+       Focus 2.
+       unfold ps_add_nz in Hv₂₃.
+       rewrite <- Heqs₂₃ in Hv₂₃.
+       rewrite Heqsh₂₃ in Hv₂₃.
+       rewrite <- Heqps₂₃ in Hv₂₃.
+       unfold ps_add_nz in Hv₁₂.
+       rewrite <- Heqs₁₂, Heqsh₁₂, <- Heqps₁₂ in Hv₁₂.
 bbb.
 *)
 

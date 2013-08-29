@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.59 2013-08-26 15:44:17 deraugla Exp $ *)
+(* $Id: Series.v,v 1.60 2013-08-29 11:22:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,7 +28,7 @@ Variable α : Type.
 Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
-Definition series_0 := {| terms i := zero fld; stop := ∞ |}.
+Definition series_0 := {| terms i := zero fld; stop := fin 0 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
