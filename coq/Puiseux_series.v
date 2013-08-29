@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.369 2013-08-29 18:17:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.370 2013-08-29 18:20:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -959,6 +959,12 @@ rewrite <- Hvcc, <- Hcvc, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
 do 2 rewrite Z2Nat.inj_min.
+remember
+ (min (Z.to_nat (vcc + Z.of_nat n₁₂ * ' c₃))
+    (Z.to_nat (cvc + Z.of_nat n₁₂ * ' c₃))) as toto.
+remember
+ (min (Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁))
+    (Z.to_nat (ccv + Z.of_nat n₂₃ * ' c₁))) as titi.
 bbb.
 *)
 
