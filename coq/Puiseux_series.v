@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.379 2013-08-30 11:33:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.380 2013-08-30 11:43:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -486,8 +486,14 @@ apply Nbar.eq_add_0 in Hst₁.
 destruct Hst₁ as (Hst₁, Hvc₁).
 apply Nbar.eq_add_0 in Hst₂.
 destruct Hst₂ as (Hst₂, Hvc₂).
-bbb.
 apply Nbar.mul_eq_0_l in Hst₁.
+ apply Nbar.mul_eq_0_l in Hst₂.
+bbb.
+  Focus 2.
+  intros H.
+  injection H; clear H; intros H.
+  revert H; apply Pos2Nat_ne_0.
+bbb.
 *)
 
 Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=

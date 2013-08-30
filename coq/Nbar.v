@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.37 2013-08-30 11:33:29 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.38 2013-08-30 11:43:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -281,6 +281,24 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.add_shuffle0; reflexivity.
 Qed.
 
+Theorem add_assoc : ∀ n m p, n + (m + p) = n + m + p.
+Proof.
+intros n m p.
+destruct n as [n| ]; [ simpl | reflexivity ].
+destruct m as [m| ]; [ simpl | reflexivity ].
+destruct p as [p| ]; [ rewrite Nat.add_assoc; reflexivity | reflexivity ].
+Qed.
+
+Theorem mul_eq_0_l : ∀ n m, n * m = 0 → m ≠ 0 → n = 0.
+Proof.
+intros n m Hnm Hm.
+destruct n as [n| ]; [ idtac | assumption ].
+destruct m as [m| ]; simpl in Hnm; [ idtac | contradiction ].
+injection Hnm; clear Hnm; intros Hnm.
+apply Nat.mul_eq_0_l in Hnm; [ subst n; reflexivity | idtac ].
+intros H; apply Hm; subst m; reflexivity.
+Qed.
+
 Theorem mul_shuffle0 : ∀ n m p, n * m * p = n * p * m.
 Proof.
 intros n m p.
@@ -288,14 +306,6 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | destruct p; reflexivity ].
 destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_shuffle0; reflexivity.
-Qed.
-
-Theorem add_assoc : ∀ n m p, n + (m + p) = n + m + p.
-Proof.
-intros n m p.
-destruct n as [n| ]; [ simpl | reflexivity ].
-destruct m as [m| ]; [ simpl | reflexivity ].
-destruct p as [p| ]; [ rewrite Nat.add_assoc; reflexivity | reflexivity ].
 Qed.
 
 Theorem mul_assoc : ∀ n m p, n * (m * p) = n * m * p.
