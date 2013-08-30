@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.381 2013-08-30 12:06:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.382 2013-08-30 12:16:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -565,6 +565,11 @@ Definition series_mul_term (s₁ s₂ : series α) :=
        end;
      stop := Nbar.max (stop s₁) (stop s₂) |}.
 
+Theorem ps_mul_prop : ∀ aps₁ aps₂,
+  series_nth 0 (series_mul_term (ps_terms aps₁) (ps_terms aps₂)) = None
+  → (ps_valnum aps₁ + ps_valnum aps₂)%Zbar = ∞.
+Admitted.
+
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   match ps_valnum ps₁ with
   | zfin _ =>
@@ -574,7 +579,8 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
           let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
           {| ps_terms := series_mul_term (ps_terms aps₁) (ps_terms aps₂);
              ps_valnum := ps_valnum aps₁ + ps_valnum aps₂;
-             ps_comden := ps_comden aps₁ |}
+             ps_comden := ps_comden aps₁;
+             ps_prop := ps_mul_prop aps₁ aps₂ |}
       | ∞ => ps_zero fld
       end
   | ∞ => ps_zero fld
