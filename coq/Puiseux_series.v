@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.371 2013-08-29 19:03:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.372 2013-08-30 00:21:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -928,62 +928,53 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃,
               ps₁ (build_ps_add fld (ps_terms_add fld ps₂ ps₃) n₂₃ ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃ Hv₁ Hv₂ Hv₃ Hn₁ Hn₂.
-constructor; intros i.
-unfold build_ps_add; simpl.
-unfold cm_factor, cm.
-unfold ps_terms_add; simpl.
-unfold cm_factor, cm.
-rewrite Hv₁, Hv₂, Hv₃; simpl.
-remember (ps_comden ps₁) as c₁.
-remember (ps_comden ps₂) as c₂.
-remember (ps_comden ps₃) as c₃.
-do 2 rewrite stretch_series_add_distr.
-do 2 rewrite series_pad_add_distr.
-rewrite series_add_assoc.
-do 4 rewrite stretch_pad_series_distr.
-do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-do 4 rewrite series_pad_pad.
-do 4 rewrite Nat.mul_sub_distr_r.
-do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
-remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
-remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
-rewrite Z.mul_shuffle0, <- Hcvc.
-do 2 rewrite <- Z.add_min_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-do 4 rewrite Z.mul_add_distr_r.
-do 2 rewrite Pos2Z.inj_mul.
-do 2 rewrite Z.mul_assoc.
-rewrite <- Hvcc, <- Hcvc, <- Hccv.
-rewrite Z.mul_shuffle0, <- Hccv.
-rewrite Z.mul_shuffle0, <- Hcvc.
-do 2 rewrite Z2Nat.inj_min.
-remember
- (min (Z.to_nat (vcc + Z.of_nat n₁₂ * ' c₃))
-    (Z.to_nat (cvc + Z.of_nat n₁₂ * ' c₃))) as toto.
-remember
- (min (Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁))
-    (Z.to_nat (ccv + Z.of_nat n₂₃ * ' c₁))) as titi.
-remember (Z.to_nat (vcc + Z.of_nat n₁₂ * ' c₃)) as vcc₁.
-remember (Z.to_nat (cvc + Z.of_nat n₁₂ * ' c₃)) as cvc₁.
-remember (Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁)) as cvc₂.
-remember (Z.to_nat (ccv + Z.of_nat n₂₃ * ' c₁)) as ccv₂.
-destruct (Nat.min_dec vcc₁ cvc₁) as [Hvcc₁| Hccv₁].
- rewrite Hvcc₁ in Heqtoto.
- subst toto.
- subst vcc₁.
- destruct (Nat.min_dec cvc₂ ccv₂) as [Hcvc₂| Hccv₂].
-Focus 1.
-  rewrite Hcvc₂ in Heqtiti.
-  subst titi.
-  subst cvc₂.
-  assert
-   (Z.to_nat (vcc + Z.of_nat n₁₂ * ' c₃) - Z.to_nat ccv +
-    (Z.to_nat vcc - Z.to_nat cvc) =
-    Z.to_nat vcc - Z.to_nat (cvc + Z.of_nat n₂₃ * ' c₁))%nat.
+destruct n₁₂ as [n₁₂| ].
+ destruct n₂₃ as [n₂₃| ].
+  constructor; intros i.
+  unfold build_ps_add; simpl.
+  unfold cm_factor, cm.
+  unfold ps_terms_add; simpl.
+  unfold cm_factor, cm.
+  rewrite Hv₁, Hv₂, Hv₃; simpl.
+  remember (ps_comden ps₁) as c₁.
+  remember (ps_comden ps₂) as c₂.
+  remember (ps_comden ps₃) as c₃.
+  do 2 rewrite stretch_series_add_distr.
+  do 2 rewrite series_pad_add_distr.
+  rewrite series_add_assoc.
+  do 4 rewrite stretch_pad_series_distr.
+  do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  do 4 rewrite series_pad_pad.
+  do 4 rewrite Nat.mul_sub_distr_r.
+  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+  remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+  remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+  remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+  rewrite Z.mul_shuffle0, <- Hcvc.
+  do 2 rewrite <- Z.add_min_distr_r.
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  do 4 rewrite Z.mul_add_distr_r.
+  do 2 rewrite Pos2Z.inj_mul.
+  do 2 rewrite Z.mul_assoc.
+  rewrite <- Hvcc, <- Hcvc, <- Hccv.
+  rewrite Z.mul_shuffle0, <- Hccv.
+  rewrite Z.mul_shuffle0, <- Hcvc.
+  do 2 rewrite Z2Nat.inj_min.
+  simpl.
+  do 3 rewrite Z.add_0_r.
+  do 2 rewrite min_sub_add_sub.
+  rewrite Nat.min_comm.
+  rewrite min_sub_add_sub.
+  replace (min (Z.to_nat vcc) (Z.to_nat cvc)) with
+   (min (Z.to_nat cvc) (Z.to_nat vcc)) by apply Nat.min_comm.
+  rewrite min_sub_add_sub.
+  replace (min (Z.to_nat vcc) (Z.to_nat ccv)) with
+   (min (Z.to_nat ccv) (Z.to_nat vcc)) by apply Nat.min_comm.
+  rewrite Pos.mul_comm.
+  replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
+  reflexivity.
 bbb.
-*)
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
