@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.29 2013-08-30 02:22:27 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.30 2013-08-30 02:40:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -116,6 +116,17 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Z.min_assoc; reflexivity | reflexivity ].
 Qed.
+
+Theorem min_dec : ∀ n m, {min n m = n} + {min n m = m}.
+Proof.
+intros n m.
+destruct n as [n| ]; [ idtac | right; reflexivity ].
+destruct m as [m| ]; [ simpl | left; reflexivity ].
+destruct (Z.min_dec n m) as [H| H]; rewrite H; [ left | right ]; reflexivity.
+Qed.
+
+Lemma eq_add_inf_l : ∀ n m, n = ∞ → n + m = ∞.
+Proof. intros; subst; reflexivity. Qed.
 
 Theorem mul_cancel_r : ∀ n m p, not_0_inf p →
   n * p = m * p ↔ n = m.

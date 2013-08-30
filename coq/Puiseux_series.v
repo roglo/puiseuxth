@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.375 2013-08-30 02:22:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.376 2013-08-30 02:40:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -465,6 +465,15 @@ Lemma build_ps_add_prop : ∀ (s : series α) v (ps₁ ps₂ : puiseux_series α
      + Zbar.of_nat v)%Zbar = ∞.
 Proof.
 intros s v ps₁ ps₂ Hs.
+remember (adjust (cm_factor ps₁ ps₂) ps₁) as aps₁ eqn:Haps₁ .
+remember (adjust (cm_factor ps₂ ps₁) ps₂) as aps₂ eqn:Haps₂ .
+remember (ps_valnum aps₁) as v₁ eqn:Hv₁ .
+remember (ps_valnum aps₂) as v₂ eqn:Hv₂ .
+symmetry in Hv₁, Hv₂.
+destruct (Zbar.min_dec v₁ v₂) as [Hv| Hv]; rewrite Hv.
+ rewrite <- Hv₁.
+ apply Zbar.eq_add_inf_l.
+ apply (ps_prop aps₁).
 bbb.
 *)
 
