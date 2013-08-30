@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.378 2013-08-30 10:04:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.379 2013-08-30 11:33:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -478,12 +478,16 @@ symmetry in Heqst.
 destruct st as [st| ]; [ idtac | discriminate Hs ].
 destruct (lt_dec 0 st) as [| Hge]; [ discriminate Hs | clear Hs ].
 apply not_gt in Hge.
-apply Nat.le_0_r in Hge.
-subst st.
+apply Nat.le_0_r in Hge; subst st.
 rewrite Heqps₁₂ in Heqst; simpl in Heqst.
-apply Nbar.max_0_if in Heqst.
+apply Nbar.eq_max_0 in Heqst.
 destruct Heqst as (Hst₁, Hst₂).
+apply Nbar.eq_add_0 in Hst₁.
+destruct Hst₁ as (Hst₁, Hvc₁).
+apply Nbar.eq_add_0 in Hst₂.
+destruct Hst₂ as (Hst₂, Hvc₂).
 bbb.
+apply Nbar.mul_eq_0_l in Hst₁.
 *)
 
 Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=

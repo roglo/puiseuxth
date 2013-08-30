@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.36 2013-08-30 10:04:57 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.37 2013-08-30 11:33:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -258,7 +258,6 @@ Proof.
 intros n m.
 destruct n as [n| ]; simpl.
  destruct m as [m| ]; simpl.
-  simpl.
   split; intros H.
    injection H; clear H; intros H.
    apply Nat.eq_add_0 in H.
@@ -268,11 +267,10 @@ destruct n as [n| ]; simpl.
    injection Hn; intros; subst.
    injection Hm; intros; subst; reflexivity.
 
-  split; intros H.
-   split; [ discriminate H | assumption ].
+  split; intros H; [ discriminate H | destruct H; assumption ].
 
-   destruct H; assumption.
-bbb.
+ split; intros H; [ discriminate H | destruct H; assumption ].
+Qed.
 
 Theorem add_shuffle0 : ∀ n m p, n + m + p = n + p + m.
 Proof.
