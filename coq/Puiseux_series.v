@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.373 2013-08-30 00:43:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.374 2013-08-30 01:11:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -43,8 +43,8 @@ Definition stretch_series k s :=
 Record puiseux_series α := mkps
   { ps_terms : series α;
     ps_valnum : Zbar;
-    ps_comden : positive(*;
-    ps_prop : series_nth 0 ps_terms = None → ps_valnum = ∞*) }.
+    ps_comden : positive;
+    ps_prop : series_nth 0 ps_terms = None → ps_valnum = ∞ }.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
@@ -65,13 +65,22 @@ Notation "a ≈ b" := (eq_ps a b) (at level 70).
 Definition ps_zero : puiseux_series α :=
   {| ps_terms := series_0 fld;
      ps_valnum := ∞;
-     ps_comden := 1 |}.
+     ps_comden := 1;
+     ps_prop := λ _, eq_refl |}.
+
+Lemma ps_monom_prop : ∀ (c : α) pow,
+  series_nth 0 {| terms i := c; stop := 1 |} = None → zfin (Qnum pow) = ∞.
+Proof.
+intros c pow Hs.
+unfold series_nth in Hs; simpl in Hs.
+discriminate Hs.
+Qed.
 
 Definition ps_monom (c : α) pow :=
   {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := zfin (Qnum pow);
-     ps_comden := Qden pow |}.
-
+     ps_comden := Qden pow;
+     ps_prop := ps_monom_prop pow |}.
 
 Definition ps_const c : puiseux_series α :=
   {| ps_terms := {| terms i := c; stop := 1 |};
