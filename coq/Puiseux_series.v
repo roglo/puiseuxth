@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.383 2013-08-30 12:21:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.384 2013-08-30 13:16:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -995,17 +995,15 @@ destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
 rewrite Z.add_comm; reflexivity.
 Qed.
 
-(*
+(**)
 Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
     → ps_valnum ps₃ = zfin v₃
       → series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁₂
         → series_head fld (ps_terms_add fld ps₂ ps₃) = fin n₂₃
-          → ps_terms_add fld
-              (build_ps_add fld (ps_terms_add fld ps₁ ps₂) n₁₂ ps₁ ps₂) ps₃ ≃
-            ps_terms_add fld
-              ps₁ (build_ps_add fld (ps_terms_add fld ps₂ ps₃) n₂₃ ps₂ ps₃).
+          → ps_terms_add fld (build_ps_add fld n₁₂ ps₁ ps₂) ps₃ ≃
+            ps_terms_add fld ps₁ (build_ps_add fld n₂₃ ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃ Hv₁ Hv₂ Hv₃ Hn₁ Hn₂.
 destruct n₁₂ as [n₁₂| ].
@@ -1083,10 +1081,6 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  symmetry in Heqsh₁₂, Heqsh₂₃.
  destruct sh₁₂ as [sh₁₂| ].
   destruct sh₂₃ as [sh₂₃| ].
-(*
-   remember (ps_terms_add fld ps₁ ps₂) as s₁₂.
-   remember (ps_terms_add fld ps₂ ps₃) as s₂₃.
-*)
    remember (build_ps_add fld sh₁₂ ps₁ ps₂) as ps₁₂.
    remember (build_ps_add fld sh₂₃ ps₂ ps₃) as ps₂₃.
    remember (series_head fld (ps_terms_add fld ps₁₂ ps₃)) as v₁₂_₃.
@@ -1139,10 +1133,8 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 Focus 1.
        Unfocus.
        Focus 2.
-       unfold ps_add_nz in Hv₂₃.
-       rewrite Heqsh₂₃, <- Heqps₂₃ in Hv₂₃.
-       unfold ps_add_nz in Hv₁₂.
-       rewrite Heqsh₁₂, <- Heqps₁₂ in Hv₁₂.
+       rewrite Heqps₁₂ in Heqv₁₂_₃.
+       rewrite Heqps₂₃ in Heqv₁_₂₃.
 bbb.
 *)
 
