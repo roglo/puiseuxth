@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.377 2013-08-30 02:46:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.378 2013-08-30 10:04:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -470,10 +470,19 @@ remember (adjust (cm_factor ps₂ ps₁) ps₂) as aps₂ eqn:Haps₂ .
 remember (ps_valnum aps₁) as v₁ eqn:Hv₁ .
 remember (ps_valnum aps₂) as v₂ eqn:Hv₂ .
 symmetry in Hv₁, Hv₂.
-destruct (Zbar.min_dec v₁ v₂) as [Hv| Hv]; rewrite Hv.
- rewrite <- Hv₁.
- apply Zbar.eq_add_inf_l.
- apply (ps_prop aps₁).
+apply Zbar.eq_add_inf_l.
+unfold series_nth in Hs.
+remember (ps_terms_add ps₁ ps₂) as ps₁₂.
+remember (stop ps₁₂) as st.
+symmetry in Heqst.
+destruct st as [st| ]; [ idtac | discriminate Hs ].
+destruct (lt_dec 0 st) as [| Hge]; [ discriminate Hs | clear Hs ].
+apply not_gt in Hge.
+apply Nat.le_0_r in Hge.
+subst st.
+rewrite Heqps₁₂ in Heqst; simpl in Heqst.
+apply Nbar.max_0_if in Heqst.
+destruct Heqst as (Hst₁, Hst₂).
 bbb.
 *)
 

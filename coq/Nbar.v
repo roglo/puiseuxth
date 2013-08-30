@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.35 2013-08-28 21:15:44 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.36 2013-08-30 10:04:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -253,6 +253,27 @@ rewrite Nat.sub_add_distr; reflexivity.
 Qed.
 *)
 
+Theorem eq_add_0 : ∀ n m, n + m = 0 ↔ n = 0 ∧ m = 0.
+Proof.
+intros n m.
+destruct n as [n| ]; simpl.
+ destruct m as [m| ]; simpl.
+  simpl.
+  split; intros H.
+   injection H; clear H; intros H.
+   apply Nat.eq_add_0 in H.
+   destruct H; subst; split; reflexivity.
+
+   destruct H as (Hn, Hm).
+   injection Hn; intros; subst.
+   injection Hm; intros; subst; reflexivity.
+
+  split; intros H.
+   split; [ discriminate H | assumption ].
+
+   destruct H; assumption.
+bbb.
+
 Theorem add_shuffle0 : ∀ n m p, n + m + p = n + p + m.
 Proof.
 intros n m p.
@@ -380,6 +401,19 @@ intros n m H.
 destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
 destruct n as [n| ]; [ simpl | inversion H ].
 rewrite Nat.max_r; [ reflexivity | inversion H; assumption ].
+Qed.
+
+Theorem eq_max_0 : ∀ n m, max n m = 0 → n = 0 ∧ m = 0.
+Proof.
+intros n m Hnm.
+destruct n as [n| ]; [ idtac | discriminate Hnm ].
+destruct m as [m| ]; [ simpl in Hnm | discriminate Hnm ].
+injection Hnm; clear Hnm; intros Hnm.
+destruct (Nat.max_dec n m) as [H| H]; rewrite Hnm in H; subst.
+ split; [ reflexivity | simpl in Hnm; subst; reflexivity ].
+
+ rewrite Nat.max_comm in Hnm.
+ split; [ simpl in Hnm; subst; reflexivity | reflexivity ].
 Qed.
 
 Theorem max_lt_iff : ∀ n m p, p < max n m ↔ p < n ∨ p < m.
