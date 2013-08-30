@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.384 2013-08-30 13:16:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.385 2013-08-30 18:00:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -994,6 +994,32 @@ remember (ps_valnum ps₂ * '' cm_factor ps₂ ps₁)%Zbar as v₂.
 destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
 rewrite Z.add_comm; reflexivity.
 Qed.
+
+Lemma xxx : ∀ s n,
+  series_head fld s = fin (S n)
+  → series_nth 0 s ≠ None.
+Proof.
+intros s n Hn H.
+unfold series_nth in H.
+remember (stop s) as st.
+symmetry in Heqst.
+destruct st as [st| ]; [ idtac | discriminate H ].
+destruct (lt_dec 0 st) as [| Hge]; [ discriminate H | clear H ].
+apply not_gt, Nat.le_0_r in Hge.
+subst st.
+apply stop_0_series_nth_None in Heqst.
+bbb.
+
+Lemma yyy : ∀ ps₁ ps₂ v₁ v₂ n,
+  ps_valnum ps₁ = zfin v₁
+  → ps_valnum ps₂ = zfin v₂
+    → series_head fld (ps_terms_add fld ps₁ ps₂) ≠ fin (S n).
+Proof.
+intros ps₁ ps₂ v₁ v₂ n Hv₁ Hv₂.
+unfold ps_terms_add.
+simpl.
+rewrite Hv₁, Hv₂; simpl.
+bbb.
 
 (**)
 Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃,
