@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.374 2013-08-30 01:11:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.375 2013-08-30 02:22:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -82,11 +82,7 @@ Definition ps_monom (c : α) pow :=
      ps_comden := Qden pow;
      ps_prop := ps_monom_prop pow |}.
 
-Definition ps_const c : puiseux_series α :=
-  {| ps_terms := {| terms i := c; stop := 1 |};
-     ps_valnum := 0;
-     ps_comden := 1 |}.
-
+Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (one fld).
 
 Lemma series_head_fin : ∀ s v,
@@ -405,10 +401,32 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | inf => zero fld
   end.
 
+Lemma adjust_prop : ∀ k ps,
+  series_nth 0 (stretch_series fld k (ps_terms ps)) = None
+  → (ps_valnum ps * ''k)%Zbar = ∞.
+Proof.
+intros k ps Hs.
+remember (ps_valnum ps) as v.
+symmetry in Heqv.
+destruct v; [ idtac | reflexivity ].
+apply zfin_not_zinf in Heqv.
+exfalso; apply Heqv; clear Heqv.
+apply (ps_prop ps).
+unfold series_nth in Hs |-*; simpl in Hs.
+destruct (stop (ps_terms ps)) as [st| ]; [ simpl in Hs | discriminate Hs ].
+remember (st * Pos.to_nat k)%nat as n.
+destruct (lt_dec 0 n) as [| Hge]; [ discriminate Hs | subst n ].
+destruct (lt_dec 0 st) as [Hlt₁| ]; [ exfalso | reflexivity ].
+apply Hge; clear Hge.
+apply Nat.mul_pos_pos; [ assumption | idtac ].
+apply Pos2Nat.is_pos.
+Qed.
+
 Definition adjust k ps :=
   {| ps_terms := stretch_series fld k (ps_terms ps);
      ps_valnum := ps_valnum ps * ''k;
-     ps_comden := ps_comden ps * k |}.
+     ps_comden := ps_comden ps * k;
+     ps_prop := adjust_prop k ps |}.
 
 (* ps_add *)
 
@@ -439,6 +457,17 @@ Definition ps_terms_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
        (ps_terms aps₂)).
 
+Lemma build_ps_add_prop : ∀ (s : series α) v (ps₁ ps₂ : puiseux_series α),
+  series_nth 0 s = None
+  → (Zbar.min
+       (ps_valnum (adjust (cm_factor ps₁ ps₂) ps₁))
+       (ps_valnum (adjust (cm_factor ps₂ ps₁) ps₂))
+     + Zbar.of_nat v)%Zbar = ∞.
+Proof.
+intros s v ps₁ ps₂ Hs.
+bbb.
+*)
+
 Definition build_ps_add (s : series α) v (ps₁ ps₂ : puiseux_series α) :=
   let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
   let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
@@ -446,7 +475,8 @@ Definition build_ps_add (s : series α) v (ps₁ ps₂ : puiseux_series α) :=
   let v₂ := ps_valnum aps₂ in
   {| ps_terms := s;
      ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
-     ps_comden := cm ps₁ ps₂ |}.
+     ps_comden := cm ps₁ ps₂;
+     ps_prop := build_ps_add_prop s v ps₁ ps₂ |}.
 
 Definition ps_add_nz ps₁ ps₂ :=
   let s := ps_terms_add ps₁ ps₂ in

@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.28 2013-08-28 12:58:07 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.29 2013-08-30 02:22:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -286,3 +286,10 @@ Qed.
 End Zbar2Nat.
 
 Close Scope Zbar_scope.
+
+Lemma zfin_not_zinf : ∀ x y, x = zfin y → ¬ (x = zinf).
+Proof.
+intros x y Hx H.
+rewrite Hx in H.
+discriminate H.
+Qed.
