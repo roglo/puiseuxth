@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.376 2013-08-30 02:40:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.377 2013-08-30 02:46:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -457,14 +457,14 @@ Definition ps_terms_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
        (ps_terms aps₂)).
 
-Lemma build_ps_add_prop : ∀ (s : series α) v (ps₁ ps₂ : puiseux_series α),
-  series_nth 0 s = None
+Lemma build_ps_add_prop : ∀ v (ps₁ ps₂ : puiseux_series α),
+  series_nth 0 (ps_terms_add ps₁ ps₂) = None
   → (Zbar.min
        (ps_valnum (adjust (cm_factor ps₁ ps₂) ps₁))
        (ps_valnum (adjust (cm_factor ps₂ ps₁) ps₂))
      + Zbar.of_nat v)%Zbar = ∞.
 Proof.
-intros s v ps₁ ps₂ Hs.
+intros v ps₁ ps₂ Hs.
 remember (adjust (cm_factor ps₁ ps₂) ps₁) as aps₁ eqn:Haps₁ .
 remember (adjust (cm_factor ps₂ ps₁) ps₂) as aps₂ eqn:Haps₂ .
 remember (ps_valnum aps₁) as v₁ eqn:Hv₁ .
@@ -477,20 +477,17 @@ destruct (Zbar.min_dec v₁ v₂) as [Hv| Hv]; rewrite Hv.
 bbb.
 *)
 
-Definition build_ps_add (s : series α) v (ps₁ ps₂ : puiseux_series α) :=
-  let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
-  let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-  let v₁ := ps_valnum aps₁ in
-  let v₂ := ps_valnum aps₂ in
-  {| ps_terms := s;
+Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=
+  let v₁ := ps_valnum (adjust (cm_factor ps₁ ps₂) ps₁) in
+  let v₂ := ps_valnum (adjust (cm_factor ps₂ ps₁) ps₂) in
+  {| ps_terms := ps_terms_add ps₁ ps₂;
      ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
      ps_comden := cm ps₁ ps₂;
-     ps_prop := build_ps_add_prop s v ps₁ ps₂ |}.
+     ps_prop := build_ps_add_prop v ps₁ ps₂ |}.
 
 Definition ps_add_nz ps₁ ps₂ :=
-  let s := ps_terms_add ps₁ ps₂ in
-  match series_head fld s with
-  | fin v => build_ps_add s v ps₁ ps₂
+  match series_head fld (ps_terms_add ps₁ ps₂) with
+  | fin v => build_ps_add v ps₁ ps₂
   | inf => ps_zero fld
   end.
 
