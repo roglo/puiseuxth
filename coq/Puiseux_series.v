@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.372 2013-08-30 00:21:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.373 2013-08-30 00:43:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -974,6 +974,14 @@ destruct n₁₂ as [n₁₂| ].
   rewrite Pos.mul_comm.
   replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
   reflexivity.
+
+bbb.
+  unfold ps_terms_add in Hn₂.
+  simpl in Hn₂.
+  unfold cm_factor in Hn₂.
+  rewrite Hv₂, Hv₃ in Hn₂.
+  rewrite Zbar2Nat.inj_mul_pos_r in Hn₂; simpl in Hn₂.
+  rewrite Z2Nat_inj_mul_pos_r in Hn₂; simpl in Hn₂.
 bbb.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
