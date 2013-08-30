@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.380 2013-08-30 11:43:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.381 2013-08-30 12:06:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -488,13 +488,22 @@ apply Nbar.eq_add_0 in Hst₂.
 destruct Hst₂ as (Hst₂, Hvc₂).
 apply Nbar.mul_eq_0_l in Hst₁.
  apply Nbar.mul_eq_0_l in Hst₂.
-bbb.
-  Focus 2.
-  intros H.
-  injection H; clear H; intros H.
+  apply stop_0_series_nth_None in Hst₁.
+  apply stop_0_series_nth_None in Hst₂.
+  apply ps_prop in Hst₁.
+  apply ps_prop in Hst₂.
+  subst aps₁ aps₂.
+  simpl in Hv₁, Hv₂.
+  rewrite Hst₁ in Hv₁; simpl in Hv₁.
+  rewrite Hst₂ in Hv₂; simpl in Hv₂.
+  subst v₁ v₂; reflexivity.
+
+  intros H; injection H; clear H; intros.
   revert H; apply Pos2Nat_ne_0.
-bbb.
-*)
+
+ intros H; injection H; clear H; intros.
+ revert H; apply Pos2Nat_ne_0.
+Qed.
 
 Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=
   let v₁ := ps_valnum (adjust (cm_factor ps₁ ps₂) ps₁) in

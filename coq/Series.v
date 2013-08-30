@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.60 2013-08-29 11:22:31 deraugla Exp $ *)
+(* $Id: Series.v,v 1.61 2013-08-30 12:06:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,6 +21,14 @@ Definition series_nth α n (s : series α) :=
 
 Definition series_nth_fld α fld n (s : series α) :=
   if Nbar.lt_dec (fin n) (stop s) then terms s n else zero fld.
+
+Theorem stop_0_series_nth_None : ∀ α (s : series α),
+  stop s = 0%Nbar → series_nth 0 s = None.
+Proof.
+intros α s Hs.
+unfold series_nth.
+rewrite Hs; reflexivity.
+Qed.
 
 Section field.
  
