@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.385 2013-08-30 18:00:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.386 2013-08-30 18:55:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,10 +17,6 @@ Set Implicit Arguments.
 Definition series_head : ∀ α, field α → series α → Nbar.
 Admitted.
 
-Axiom series_head_inf : ∀ α (fld : field α) s,
-  (∀ i, fld_eq fld (series_nth_fld fld i s) (zero fld))
-  → series_head fld s = inf.
-
 Add Parametric Morphism α (fld : field α) : (series_head fld)
 with signature (eq_series fld) ==> eq as series_head_morph.
 Admitted.
@@ -31,6 +27,12 @@ Variable α : Type.
 Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+
+Axiom lt_series_head : ∀ s n,
+  (fin n < series_head fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
+
+Axiom eq_series_head : ∀ s n,
+  fin n = series_head fld s → ¬ (series_nth_fld fld n s ≍ zero fld).
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -85,6 +87,7 @@ Definition ps_monom (c : α) pow :=
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (one fld).
 
+(*
 Lemma series_head_fin : ∀ s v,
   series_head fld s = fin v
   → not (∀ i : nat, series_nth_fld fld i s ≍ zero fld).
@@ -93,6 +96,7 @@ intros s v Hf H.
 apply series_head_inf in H.
 rewrite Hf in H; discriminate H.
 Qed.
+*)
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
