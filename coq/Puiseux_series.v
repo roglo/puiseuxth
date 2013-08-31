@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.391 2013-08-31 16:27:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.392 2013-08-31 23:50:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1145,9 +1145,13 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        remember
         (min (Z.to_nat (cvc + Z.of_nat sh₂₃ * ' c₁))
            (Z.to_nat (ccv + Z.of_nat sh₂₃ * ' c₁))) as titi.
+       assert (sh₁₂ = O) as H.
+        Focus 1.
+bbb.
        Focus 1.
        Unfocus.
        Focus 2.
+bbb.
        rewrite Heqps₁₂ in Heqv₁₂_₃.
        rewrite Heqps₂₃ in Heqv₁_₂₃.
        apply eq_series_head in Heqv₁₂_₃.
