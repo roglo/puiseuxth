@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.389 2013-08-31 15:03:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.390 2013-08-31 16:18:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1035,7 +1035,7 @@ apply H; clear H.
 bbb.
 *)
 
-(*
+(**)
 Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
@@ -1175,6 +1175,12 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        Focus 2.
        rewrite Heqps₁₂ in Heqv₁₂_₃.
        rewrite Heqps₂₃ in Heqv₁_₂₃.
+       apply eq_series_head in Heqv₁₂_₃.
+       assert (fin v₁₂_₃ < inf)%Nbar as H by constructor.
+       rewrite <- Heqv₁_₂₃ in H.
+       apply lt_series_head in H.
+       rewrite <- zzz in H; try eassumption.
+       contradiction.
 bbb.
 *)
 
