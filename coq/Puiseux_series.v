@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.388 2013-08-31 01:41:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.389 2013-08-31 15:03:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,12 +27,13 @@ Variable α : Type.
 Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 Axiom lt_series_head : ∀ s n,
   (fin n < series_head fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
 
 Axiom eq_series_head : ∀ s n,
-  fin n = series_head fld s → ¬ (series_nth_fld fld n s ≍ zero fld).
+  series_head fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -269,6 +270,7 @@ Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 Lemma stretch_series_1 : ∀ s, stretch_series fld 1 s ≃ s.
 Proof.
@@ -388,6 +390,7 @@ Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 Definition valuation (ps : puiseux_series α) :=
   match ps_valnum ps with
@@ -667,6 +670,7 @@ Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 Lemma stretch_series_add_distr : ∀ k s₁ s₂,
   stretch_series fld k (series_add fld s₁ s₂) ≃
@@ -1004,7 +1008,6 @@ Lemma series_head_nonzero_fin : ∀ s n,
   → series_nth 0 s ≠ None.
 Proof.
 intros s n Hn H.
-symmetry in Hn.
 apply eq_series_head in Hn.
 apply Hn; clear Hn.
 unfold series_nth_fld; simpl.
@@ -1168,9 +1171,6 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
         (min (Z.to_nat (cvc + Z.of_nat sh₂₃ * ' c₁))
            (Z.to_nat (ccv + Z.of_nat sh₂₃ * ' c₁))) as titi.
        Focus 1.
-       assert (sh₁₂ = 0)%nat.
-        Focus 1.
-bbb.
        Unfocus.
        Focus 2.
        rewrite Heqps₁₂ in Heqv₁₂_₃.
