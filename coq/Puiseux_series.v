@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.387 2013-08-30 19:13:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.388 2013-08-31 01:41:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1019,6 +1019,7 @@ destruct (Nbar.lt_dec (fin (S n)) (fin st)) as [Hlt| ].
  reflexivity.
 Qed.
 
+(*
 Lemma yyy : ∀ ps₁ ps₂ v₁ v₂ n,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
@@ -1029,8 +1030,9 @@ intros H.
 apply series_head_nonzero_fin in H.
 apply H; clear H.
 bbb.
+*)
 
-(**)
+(*
 Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ n₁₂ n₂₃,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
@@ -1165,7 +1167,10 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        remember
         (min (Z.to_nat (cvc + Z.of_nat sh₂₃ * ' c₁))
            (Z.to_nat (ccv + Z.of_nat sh₂₃ * ' c₁))) as titi.
-Focus 1.
+       Focus 1.
+       assert (sh₁₂ = 0)%nat.
+        Focus 1.
+bbb.
        Unfocus.
        Focus 2.
        rewrite Heqps₁₂ in Heqv₁₂_₃.
