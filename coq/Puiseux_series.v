@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.394 2013-09-01 02:03:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.395 2013-09-01 07:32:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1074,7 +1074,7 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
-(*
+(**)
 Lemma zzz : ∀ ps₁ ps₂ ps₃,
   ps_valnum ps₁ = ps_valnum ps₂
   → ps_valnum ps₂ = ps_valnum ps₃
@@ -1092,11 +1092,11 @@ unfold ps_add_nz; simpl.
 remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as n₁.
 remember (series_head fld (ps_terms_add fld ps₂ ps₃)) as n₂.
 destruct n₁ as [n₁| ]; simpl.
- Focus 1.
  destruct n₂ as [n₂| ]; simpl.
   Focus 1.
-  rewrite <- Hv₂, <- Hv₁, <- Heqv.
-  simpl.
+  rewrite <- Hv₂, <- Hv₁, <- Heqv; simpl.
+  remember (build_ps_add fld n₁ ps₁ ps₂) as ps₁₂.
+  remember (build_ps_add fld n₂ ps₂ ps₃) as ps₂₃.
 bbb.
 *)
 
