@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.409 2013-09-01 18:58:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.410 2013-09-01 19:59:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1020,6 +1020,21 @@ destruct (Nbar.lt_dec (fin (S n)) (fin st)) as [Hlt| ].
  reflexivity.
 Qed.
 
+Lemma yyy : ∀ x y z t,
+  (min (Z.to_nat (x + t)) (Z.to_nat (y + t)) - z + (Z.to_nat x - Z.to_nat y) =
+   Z.to_nat (x + t) - min (Z.to_nat (y + t)) z)%nat.
+Proof.
+intros x y z t.
+destruct (Nat.min_dec (Z.to_nat (x + t)) (Z.to_nat (y + t))) as [H| H].
+ rewrite H.
+ destruct (Nat.min_dec (Z.to_nat (y + t)) z) as [Hz| Hz].
+  rewrite Hz.
+  pose proof (Min.le_min_r (Z.to_nat (x + t)) (Z.to_nat (y + t))) as Hm.
+  apply Nat.sub_0_le in Hm.
+  rewrite H in Hm.
+  rewrite Hm.
+bbb.
+
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
@@ -1060,6 +1075,7 @@ rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
 do 2 rewrite Z2Nat.inj_min.
 simpl.
+bbb.
 do 3 rewrite Z.add_0_r.
 do 2 rewrite min_sub_add_sub.
 rewrite Nat.min_comm.
