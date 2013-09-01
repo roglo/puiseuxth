@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.54 2013-09-01 09:03:50 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.55 2013-09-01 09:36:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -790,3 +790,24 @@ Qed.
 
 Lemma Z_add_neg : ∀ a b, (a + Z.neg b = a - Z.pos b)%Z.
 Proof. reflexivity. Qed.
+
+Lemma Z2Nat_add_nat_r : ∀ a b, (0 <= a)%Z
+  → (Z.to_nat (a + Z.of_nat b) - Z.to_nat a)%nat = b.
+Proof.
+intros a b Ha.
+unfold Z.of_nat; simpl.
+destruct a as [| a| a]; simpl.
+ rewrite Nat.sub_0_r.
+ destruct b as [| b]; [ reflexivity | simpl ].
+ rewrite SuccNat2Pos.id_succ; reflexivity.
+
+ destruct b as [| b]; simpl.
+  rewrite Nat.sub_diag; reflexivity.
+
+  rewrite Pos2Nat.inj_add.
+  rewrite SuccNat2Pos.id_succ.
+  rewrite Nat.add_comm, Nat.add_sub; reflexivity.
+
+ apply Zle_not_lt in Ha.
+ exfalso; apply Ha, Pos2Z.neg_is_neg.
+Qed.
