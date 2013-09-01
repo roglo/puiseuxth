@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.393 2013-09-01 01:29:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.394 2013-09-01 02:03:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1024,12 +1024,10 @@ Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
     → ps_valnum ps₃ = zfin v₃
-      → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
-        → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
-          → ps_terms_add fld (build_ps_add fld 0 ps₁ ps₂) ps₃ ≃
-            ps_terms_add fld ps₁ (build_ps_add fld 0 ps₂ ps₃).
+      → ps_terms_add fld (build_ps_add fld 0 ps₁ ps₂) ps₃ ≃
+        ps_terms_add fld ps₁ (build_ps_add fld 0 ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ v₁ v₂ v₃ Hv₁ Hv₂ Hv₃ Hn₁ Hn₂.
+intros ps₁ ps₂ ps₃ v₁ v₂ v₃ Hv₁ Hv₂ Hv₃.
 constructor; intros i.
 unfold build_ps_add; simpl.
 unfold cm_factor, cm.
@@ -1075,6 +1073,32 @@ rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
 reflexivity.
 Qed.
+
+(*
+Lemma zzz : ∀ ps₁ ps₂ ps₃,
+  ps_valnum ps₁ = ps_valnum ps₂
+  → ps_valnum ps₂ = ps_valnum ps₃
+    → ps_comden ps₁ = ps_comden ps₂
+      → ps_comden ps₂ = ps_comden ps₃
+        → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
+          ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+Proof.
+intros ps₁ ps₂ ps₃ Hv₁ Hv₂ Hc₁ Hc₂.
+unfold ps_add.
+rewrite <- Hv₂, <- Hv₁.
+remember (ps_valnum ps₁) as v.
+destruct v as [v| ]; [ idtac | rewrite <- Hv₁; reflexivity ].
+unfold ps_add_nz; simpl.
+remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as n₁.
+remember (series_head fld (ps_terms_add fld ps₂ ps₃)) as n₂.
+destruct n₁ as [n₁| ]; simpl.
+ Focus 1.
+ destruct n₂ as [n₂| ]; simpl.
+  Focus 1.
+  rewrite <- Hv₂, <- Hv₁, <- Heqv.
+  simpl.
+bbb.
+*)
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
@@ -1143,10 +1167,8 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
        remember
         (min (Z.to_nat (cvc + Z.of_nat sh₂₃ * ' c₁))
            (Z.to_nat (ccv + Z.of_nat sh₂₃ * ' c₁))) as titi.
-       assert (sh₁₂ = O) as H.
-        Focus 1.
-bbb.
        Focus 1.
+bbb.
        Unfocus.
        Focus 2.
 bbb.
