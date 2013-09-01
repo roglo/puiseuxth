@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.397 2013-09-01 07:59:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.398 2013-09-01 08:26:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1101,7 +1101,6 @@ remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as n₁.
 remember (series_head fld (ps_terms_add fld ps₂ ps₃)) as n₂.
 destruct n₁ as [n₁| ]; simpl.
  destruct n₂ as [n₂| ]; simpl.
-  Focus 1.
   rewrite <- Hv₂, <- Hv₁, <- Heqv; simpl.
   remember (build_ps_add fld n₁ ps₁ ps₂) as ps₁₂.
   remember (build_ps_add fld n₂ ps₂ ps₃) as ps₂₃.
@@ -1126,6 +1125,11 @@ destruct n₁ as [n₁| ]; simpl.
      do 2 rewrite Z.mul_add_distr_r.
      rewrite Pos2Z.inj_mul, Z.mul_assoc.
      remember (v * ' c₁ * ' c₁)%Z as vcc.
+     rewrite stretch_series_add_distr.
+     rewrite stretch_series_add_distr.
+     do 2 rewrite series_pad_add_distr.
+     rewrite series_add_assoc.
+     do 3 rewrite <- stretch_stretch_series.
      Focus 1.
 bbb.
 *)
