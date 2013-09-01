@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.396 2013-09-01 07:41:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.397 2013-09-01 07:59:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1074,6 +1074,14 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
+Lemma series_pad_left_0 : ∀ s, series_pad_left fld 0 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_pad_left, series_nth_fld; simpl.
+rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
+Qed.
+
 (**)
 Lemma zzz : ∀ ps₁ ps₂ ps₃,
   ps_valnum ps₁ = ps_valnum ps₂
@@ -1103,6 +1111,22 @@ destruct n₁ as [n₁| ]; simpl.
    destruct n₂₃ as [n₂₃| ].
     constructor 1 with (k₁ := xH) (k₂ := xH).
      do 2 rewrite stretch_series_1.
+     constructor; intros i.
+     rewrite Heqps₁₂, Heqps₂₃.
+     unfold build_ps_add; simpl.
+     unfold ps_terms_add; simpl.
+     unfold cm_factor, cm; simpl.
+     rewrite <- Hv₂, <- Hv₁.
+     rewrite <- Hc₂, <- Hc₁.
+     rewrite <- Heqv.
+     remember (ps_comden ps₁) as c₁.
+     rewrite Nat.sub_diag; simpl.
+     rewrite Z.min_id.
+     do 3 rewrite series_pad_left_0.
+     do 2 rewrite Z.mul_add_distr_r.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     remember (v * ' c₁ * ' c₁)%Z as vcc.
+     Focus 1.
 bbb.
 *)
 
