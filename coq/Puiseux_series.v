@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.403 2013-09-01 11:04:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.404 2013-09-01 14:17:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,7 +1083,7 @@ rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
 (**)
-Lemma zzz : ∀ ps₁ ps₂ ps₃ v c,
+Lemma zzz : ∀ ps₁ ps₂ ps₃ v c n₁ n₂,
   (0 ≤ v)%Zbar
   → ps_valnum ps₁ = v
     → ps_valnum ps₂ = v
@@ -1091,58 +1091,58 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ v c,
         → ps_comden ps₁ = c
           → ps_comden ps₂ = c
             → ps_comden ps₃ = c
-              → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
-                ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+                → series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁
+                  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin n₂
+                    → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
+                      ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ v c Hv Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃.
+intros ps₁ ps₂ ps₃ v c n₁ n₂ Hv Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
 destruct v as [v| ]; [ idtac | rewrite Hv₂; reflexivity ].
 unfold ps_add_nz; simpl.
-remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as n₁.
-remember (series_head fld (ps_terms_add fld ps₂ ps₃)) as n₂.
-destruct n₁ as [n₁| ]; simpl.
- destruct n₂ as [n₂| ]; simpl.
-  rewrite Hv₁, Hv₂, Hv₃; simpl.
-  remember (build_ps_add fld n₁ ps₁ ps₂) as ps₁₂.
-  remember (build_ps_add fld n₂ ps₂ ps₃) as ps₂₃.
-  remember (series_head fld (ps_terms_add fld ps₁₂ ps₃)) as n₁₂.
-  remember (series_head fld (ps_terms_add fld ps₁ ps₂₃)) as n₂₃.
-  destruct n₁₂ as [n₁₂| ].
-   destruct n₂₃ as [n₂₃| ].
-    constructor 1 with (k₁ := xH) (k₂ := xH).
-     do 2 rewrite stretch_series_1.
-     constructor; intros i.
-     rewrite Heqps₁₂, Heqps₂₃.
-     unfold build_ps_add; simpl.
-     unfold ps_terms_add; simpl.
-     unfold cm_factor, cm; simpl.
-     rewrite Hv₁, Hv₂, Hv₃; simpl.
-     rewrite Hc₁, Hc₂, Hc₃; simpl.
-     rewrite Nat.sub_diag; simpl.
-     rewrite Z.min_id.
-     do 3 rewrite series_pad_left_0.
-     do 2 rewrite Z.mul_add_distr_r.
-     rewrite Pos2Z.inj_mul, Z.mul_assoc.
-     remember (v * ' c * ' c)%Z as vcc.
-     do 2 rewrite stretch_series_add_distr.
-     do 2 rewrite series_pad_add_distr.
-     rewrite series_add_assoc.
-     do 3 rewrite <- stretch_stretch_series.
-     rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
-     rewrite <- Nat2Z.inj_mul.
-     do 2 rewrite Z2Nat_sub_add_nat_r.
-     do 2 rewrite series_pad_left_0.
-     destruct (Z_le_dec 0 vcc) as [Hle| Hgt].
-      rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
-      rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
-      Focus 2.
-      exfalso; subst vcc; apply Hgt; clear Hgt.
-      destruct v as [| v| v]; [ reflexivity | apply Pos2Z.is_nonneg | idtac ].
-      inversion Hv.
-      apply Zle_not_lt in H1.
-      exfalso; apply H1, Pos2Z.neg_is_neg.
-Focus 1.
+rewrite Hn₁, Hn₂; simpl.
+rewrite Hv₁, Hv₂, Hv₃; simpl.
+remember (build_ps_add fld n₁ ps₁ ps₂) as ps₁₂.
+remember (build_ps_add fld n₂ ps₂ ps₃) as ps₂₃.
+remember (series_head fld (ps_terms_add fld ps₁₂ ps₃)) as n₁₂.
+remember (series_head fld (ps_terms_add fld ps₁ ps₂₃)) as n₂₃.
+destruct n₁₂ as [n₁₂| ].
+ destruct n₂₃ as [n₂₃| ].
+  constructor 1 with (k₁ := xH) (k₂ := xH).
+   do 2 rewrite stretch_series_1.
+   constructor; intros i.
+   rewrite Heqps₁₂, Heqps₂₃.
+   unfold build_ps_add; simpl.
+   unfold ps_terms_add; simpl.
+   unfold cm_factor, cm; simpl.
+   rewrite Hv₁, Hv₂, Hv₃; simpl.
+   rewrite Hc₁, Hc₂, Hc₃; simpl.
+   rewrite Nat.sub_diag; simpl.
+   rewrite Z.min_id.
+   do 3 rewrite series_pad_left_0.
+   do 2 rewrite Z.mul_add_distr_r.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   remember (v * ' c * ' c)%Z as vcc.
+   do 2 rewrite stretch_series_add_distr.
+   do 2 rewrite series_pad_add_distr.
+   rewrite series_add_assoc.
+   do 3 rewrite <- stretch_stretch_series.
+   rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
+   rewrite <- Nat2Z.inj_mul.
+   do 2 rewrite Z2Nat_sub_add_nat_r.
+   do 2 rewrite series_pad_left_0.
+   destruct (Z_le_dec 0 vcc) as [Hle| Hgt].
+    rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
+    rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
+    Focus 2.
+    exfalso; subst vcc; apply Hgt; clear Hgt.
+    destruct v as [| v| v]; [ reflexivity | apply Pos2Z.is_nonneg | idtac ].
+    inversion Hv.
+    apply Zle_not_lt in H1.
+    exfalso; apply H1, Pos2Z.neg_is_neg.
+
+    Focus 1.
 bbb.
 *)
 
