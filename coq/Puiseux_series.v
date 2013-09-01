@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.398 2013-09-01 08:26:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.399 2013-09-01 09:03:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1082,6 +1082,30 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
+Lemma yyy : ∀ a b, (Z.to_nat (a + Z.of_nat b) - Z.to_nat a)%nat = b.
+Proof.
+intros a b.
+unfold Z.of_nat; simpl.
+destruct a as [| a| a]; simpl.
+ rewrite Nat.sub_0_r.
+ destruct b as [| b]; [ reflexivity | simpl ].
+ rewrite SuccNat2Pos.id_succ; reflexivity.
+
+ destruct b as [| b]; simpl.
+  rewrite Nat.sub_diag; reflexivity.
+
+  rewrite Pos2Nat.inj_add.
+  rewrite SuccNat2Pos.id_succ.
+  rewrite Nat.add_comm, Nat.add_sub; reflexivity.
+
+ rewrite Nat.sub_0_r.
+ destruct b as [| b]; [ reflexivity | simpl ].
+ rewrite <- Pos2Z.add_neg_pos.
+ rewrite Z.add_comm, Z_add_neg.
+ rewrite Z2Nat.inj_sub; [ simpl | apply Pos2Z.is_nonneg ].
+ rewrite SuccNat2Pos.id_succ.
+bbb.
+
 (**)
 Lemma zzz : ∀ ps₁ ps₂ ps₃,
   ps_valnum ps₁ = ps_valnum ps₂
@@ -1130,6 +1154,7 @@ destruct n₁ as [n₁| ]; simpl.
      do 2 rewrite series_pad_add_distr.
      rewrite series_add_assoc.
      do 3 rewrite <- stretch_stretch_series.
+     rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
      Focus 1.
 bbb.
 *)

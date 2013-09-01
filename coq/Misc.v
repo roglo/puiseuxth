@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.53 2013-08-25 05:07:59 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.54 2013-09-01 09:03:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -787,3 +787,6 @@ intros n m.
 destruct n as [| n| ]; [ reflexivity | simpl | reflexivity ].
 rewrite Pos2Nat.inj_mul; reflexivity.
 Qed.
+
+Lemma Z_add_neg : ∀ a b, (a + Z.neg b = a - Z.pos b)%Z.
+Proof. reflexivity. Qed.
