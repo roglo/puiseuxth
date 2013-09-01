@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.405 2013-09-01 14:52:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.406 2013-09-01 17:53:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,7 +1083,7 @@ rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
 (**)
-Lemma zzz : ∀ ps₁ ps₂ ps₃ v c n₁ n₂ n₁₂ n₂₃,
+Lemma zzz : ∀ ps₁ ps₂ ps₃ v c n₁₂ n₂₃,
   (0 ≤ v)%Zbar
   → ps_valnum ps₁ = v
   → ps_valnum ps₂ = v
@@ -1091,16 +1091,16 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ v c n₁ n₂ n₁₂ n₂₃,
   → ps_comden ps₁ = c
   → ps_comden ps₂ = c
   → ps_comden ps₃ = c
-  → series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁
-  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin n₂
-  → series_head fld (ps_terms_add fld (build_ps_add fld n₁ ps₁ ps₂) ps₃) =
+  → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
+  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
+  → series_head fld (ps_terms_add fld (build_ps_add fld 0 ps₁ ps₂) ps₃) =
       fin n₁₂
-  → series_head fld (ps_terms_add fld ps₁ (build_ps_add fld n₂ ps₂ ps₃)) =
+  → series_head fld (ps_terms_add fld ps₁ (build_ps_add fld 0 ps₂ ps₃)) =
       fin n₂₃
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ v c n₁ n₂ n₁₂ n₂₃.
+intros ps₁ ps₂ ps₃ v c n₁₂ n₂₃.
 intros Hv Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂ Hn₁₂ Hn₂₃.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
@@ -1118,29 +1118,14 @@ constructor 1 with (k₁ := xH) (k₂ := xH).
  rewrite Hv₁, Hv₂, Hv₃; simpl.
  rewrite Hc₁, Hc₂, Hc₃; simpl.
  rewrite Nat.sub_diag; simpl.
- rewrite Z.min_id.
- do 3 rewrite series_pad_left_0.
- do 2 rewrite Z.mul_add_distr_r.
+ rewrite Z.add_0_r, Z.min_id.
  rewrite Pos2Z.inj_mul, Z.mul_assoc.
- remember (v * ' c * ' c)%Z as vcc.
+ rewrite Nat.sub_diag.
+ do 7 rewrite series_pad_left_0.
  do 2 rewrite stretch_series_add_distr.
- do 2 rewrite series_pad_add_distr.
- rewrite series_add_assoc.
  do 3 rewrite <- stretch_stretch_series.
- rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
- rewrite <- Nat2Z.inj_mul.
- do 2 rewrite Z2Nat_sub_add_nat_r.
- do 2 rewrite series_pad_left_0.
- destruct (Z_le_dec 0 vcc) as [Hle| Hgt].
-  rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
-  rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
-  Focus 2.
-  exfalso; subst vcc; apply Hgt; clear Hgt.
-  destruct v as [| v| v]; [ reflexivity | apply Pos2Z.is_nonneg | idtac ].
-  inversion Hv.
-  apply Zle_not_lt in H1.
-  exfalso; apply H1, Pos2Z.neg_is_neg.
-
+ rewrite series_add_assoc.
+ reflexivity.
 bbb.
 *)
 
