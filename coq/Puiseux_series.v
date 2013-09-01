@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.395 2013-09-01 07:32:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.396 2013-09-01 07:41:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1097,6 +1097,12 @@ destruct n₁ as [n₁| ]; simpl.
   rewrite <- Hv₂, <- Hv₁, <- Heqv; simpl.
   remember (build_ps_add fld n₁ ps₁ ps₂) as ps₁₂.
   remember (build_ps_add fld n₂ ps₂ ps₃) as ps₂₃.
+  remember (series_head fld (ps_terms_add fld ps₁₂ ps₃)) as n₁₂.
+  remember (series_head fld (ps_terms_add fld ps₁ ps₂₃)) as n₂₃.
+  destruct n₁₂ as [n₁₂| ].
+   destruct n₂₃ as [n₂₃| ].
+    constructor 1 with (k₁ := xH) (k₂ := xH).
+     do 2 rewrite stretch_series_1.
 bbb.
 *)
 
