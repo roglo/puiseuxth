@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.401 2013-09-01 10:04:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.402 2013-09-01 10:41:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1133,6 +1133,9 @@ destruct n₁ as [n₁| ]; simpl.
      rewrite <- positive_nat_Z, <- Nat2Z.inj_mul.
      rewrite <- Nat2Z.inj_mul.
      do 2 rewrite Z2Nat_sub_add_nat_r.
+     do 2 rewrite series_pad_left_0.
+Focus 1.
+bbb.
      destruct (Z_le_dec 0 vcc) as [Hle| Hgt].
       rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
       rewrite Z2Nat_sub_add_nat_l; [ idtac | assumption ].
