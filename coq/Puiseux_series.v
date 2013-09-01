@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.392 2013-08-31 23:50:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.393 2013-09-01 01:29:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -454,15 +454,13 @@ Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
 (**)
 
 Definition ps_terms_add ps₁ ps₂ :=
-  let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
-  let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-  let v₁ := ps_valnum aps₁ in
-  let v₂ := ps_valnum aps₂ in
+  let s₁ := stretch_series fld (cm_factor ps₁ ps₂) (ps_terms ps₁) in
+  let s₂ := stretch_series fld (cm_factor ps₂ ps₁) (ps_terms ps₂) in
+  let v₁ := (ps_valnum ps₁ * ''cm_factor ps₁ ps₂)%Zbar in
+  let v₂ := (ps_valnum ps₂ * ''cm_factor ps₂ ps₁)%Zbar in
   series_add fld
-    (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat
-       (ps_terms aps₁))
-    (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat
-       (ps_terms aps₂)).
+    (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat s₁)
+    (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat s₂).
 
 Lemma build_ps_add_prop : ∀ v (ps₁ ps₂ : puiseux_series α),
   series_nth 0 (ps_terms_add ps₁ ps₂) = None
@@ -513,8 +511,8 @@ apply Nbar.mul_eq_0_l in Hst₁.
 Qed.
 
 Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=
-  let v₁ := ps_valnum (adjust (cm_factor ps₁ ps₂) ps₁) in
-  let v₂ := ps_valnum (adjust (cm_factor ps₂ ps₁) ps₂) in
+  let v₁ := (ps_valnum ps₁ * ''cm_factor ps₁ ps₂)%Zbar in
+  let v₂ := (ps_valnum ps₂ * ''cm_factor ps₂ ps₁)%Zbar in
   {| ps_terms := ps_terms_add ps₁ ps₂;
      ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
      ps_comden := cm ps₁ ps₂;
