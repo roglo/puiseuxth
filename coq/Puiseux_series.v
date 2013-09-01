@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.406 2013-09-01 17:53:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.407 2013-09-01 18:33:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1082,8 +1082,7 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
-(**)
-Lemma zzz : ∀ ps₁ ps₂ ps₃ v c n₁₂ n₂₃,
+Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ v c n,
   (0 ≤ v)%Zbar
   → ps_valnum ps₁ = v
   → ps_valnum ps₂ = v
@@ -1094,13 +1093,13 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ v c n₁₂ n₂₃,
   → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
   → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
   → series_head fld (ps_terms_add fld (build_ps_add fld 0 ps₁ ps₂) ps₃) =
-      fin n₁₂
+      fin n
   → series_head fld (ps_terms_add fld ps₁ (build_ps_add fld 0 ps₂ ps₃)) =
-      fin n₂₃
+      fin n
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ v c n₁₂ n₂₃.
+intros ps₁ ps₂ ps₃ v c n.
 intros Hv Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂ Hn₁₂ Hn₂₃.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
@@ -1109,7 +1108,7 @@ unfold ps_add_nz; simpl.
 rewrite Hn₁, Hn₂; simpl.
 rewrite Hv₁, Hv₂, Hv₃; simpl.
 rewrite Hn₁₂, Hn₂₃.
-constructor 1 with (k₁ := xH) (k₂ := xH).
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  constructor; intros i.
  unfold build_ps_add; simpl.
@@ -1126,8 +1125,21 @@ constructor 1 with (k₁ := xH) (k₂ := xH).
  do 3 rewrite <- stretch_stretch_series.
  rewrite series_add_assoc.
  reflexivity.
-bbb.
-*)
+
+ rewrite Hv₁, Hv₂, Hv₃; simpl.
+ do 2 rewrite Z.add_0_r, Z.mul_1_r.
+ unfold cm_factor, cm; simpl.
+ rewrite Hc₁, Hc₂, Hc₃; simpl.
+ rewrite Z.min_id.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc.
+ rewrite Z.min_id.
+ reflexivity.
+
+ do 2 rewrite Pos.mul_1_r.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ rewrite Pos.mul_assoc; reflexivity.
+Qed.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
