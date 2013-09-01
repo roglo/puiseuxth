@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.407 2013-09-01 18:33:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.408 2013-09-01 18:49:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1082,7 +1082,7 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ v c n,
+Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ v c n₁ n₂,
   (0 ≤ v)%Zbar
   → ps_valnum ps₁ = v
   → ps_valnum ps₂ = v
@@ -1093,13 +1093,13 @@ Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ v c n,
   → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
   → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
   → series_head fld (ps_terms_add fld (build_ps_add fld 0 ps₁ ps₂) ps₃) =
-      fin n
+      fin n₁
   → series_head fld (ps_terms_add fld ps₁ (build_ps_add fld 0 ps₂ ps₃)) =
-      fin n
+      fin n₂
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ v c n.
+intros ps₁ ps₂ ps₃ v c n₁ n₂.
 intros Hv Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂ Hn₁₂ Hn₂₃.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
@@ -1133,7 +1133,9 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite Z.min_id.
  rewrite Pos2Z.inj_mul, Z.mul_assoc.
  rewrite Z.min_id.
- reflexivity.
+ rewrite ps_terms_add_assoc in Hn₁₂; try eassumption.
+ rewrite Hn₁₂ in Hn₂₃.
+ injection Hn₂₃; intros; subst; reflexivity.
 
  do 2 rewrite Pos.mul_1_r.
  unfold cm; simpl.
