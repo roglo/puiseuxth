@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.424 2013-09-02 15:15:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.425 2013-09-02 16:37:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1197,6 +1197,23 @@ induction n₁ as [| n₁]; intros.
  remember (ps_tail ps₁) as ps'₁.
  remember (ps_tail ps₂) as ps'₂.
  assert (ps_add fld ps'₁ ps'₂ ≈ ps_add fld ps₁ ps₂) as Heq₁₂.
+  constructor 1 with (k₁ := xH) (k₂ := xH).
+   do 2 rewrite stretch_series_1.
+   constructor; intros i.
+   unfold ps_add; simpl.
+   rewrite Heqps'₁; simpl.
+   rewrite Heqps'₂; simpl.
+   remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
+   symmetry in Hv₁.
+   destruct v₁ as [v₁| ]; simpl.
+    remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
+    symmetry in Hv₂.
+    destruct v₂ as [v₂| ]; simpl.
+     Focus 1.
+     unfold ps_add_nz; simpl.
+     unfold ps_terms_add; simpl.
+     rewrite Hv₁, Hv₂; simpl.
+     unfold cm_factor; simpl.
 bbb.
 
 (* peut-être inutile *)
