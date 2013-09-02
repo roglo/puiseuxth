@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.410 2013-09-01 19:59:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.411 2013-09-02 01:51:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1020,19 +1020,64 @@ destruct (Nbar.lt_dec (fin (S n)) (fin st)) as [Hlt| ].
  reflexivity.
 Qed.
 
+Lemma Z2Nat_lt_lt : ∀ n m, (Z.to_nat n < Z.to_nat m)%nat → (n < m)%Z.
+Proof.
+intros n m Hnm.
+destruct n as [| n| n].
+ destruct m as [| m| m].
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+
+  apply Pos2Z.is_pos.
+
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+
+ destruct m as [| m| m].
+  apply lt_le_weak in Hnm.
+  apply le_not_lt in Hnm.
+  exfalso; apply Hnm; apply Pos2Nat.is_pos.
+
+  apply Pos2Nat.inj_lt in Hnm; assumption.
+
+  simpl in Hnm.
+  apply lt_le_weak in Hnm.
+  apply le_not_lt in Hnm.
+  exfalso; apply Hnm; apply Pos2Nat.is_pos.
+
+ destruct m as [| m| m].
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+
+  transitivity 0%Z; [ apply Pos2Z.neg_is_neg | apply Pos2Z.is_pos ].
+
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+Qed.
+
+Lemma Z2Nat_add_cancel_r : ∀ n m p,
+  (Z.to_nat (n + p) < Z.to_nat (m + p))%nat → (n < m)%Z.
+Proof.
+intros n m p Hnm.
+apply Z.add_lt_mono_r with (p := p).
+apply Z2Nat_lt_lt.
+assumption.
+Qed.
+
 Lemma yyy : ∀ x y z t,
   (min (Z.to_nat (x + t)) (Z.to_nat (y + t)) - z + (Z.to_nat x - Z.to_nat y) =
    Z.to_nat (x + t) - min (Z.to_nat (y + t)) z)%nat.
 Proof.
 intros x y z t.
-destruct (Nat.min_dec (Z.to_nat (x + t)) (Z.to_nat (y + t))) as [H| H].
- rewrite H.
- destruct (Nat.min_dec (Z.to_nat (y + t)) z) as [Hz| Hz].
-  rewrite Hz.
-  pose proof (Min.le_min_r (Z.to_nat (x + t)) (Z.to_nat (y + t))) as Hm.
-  apply Nat.sub_0_le in Hm.
-  rewrite H in Hm.
-  rewrite Hm.
+do 2 rewrite min_if_then_else.
+destruct (lt_dec (Z.to_nat (x + t)) (Z.to_nat (y + t))) as [Hlt₁| Hge₁].
+ destruct (lt_dec (Z.to_nat (y + t)) z) as [Hlt₂| Hge₂].
+  remember Hlt₁ as H; clear HeqH.
+  apply lt_le_weak in H.
+  apply Nat.sub_0_le in H.
+  rewrite H; clear H.
+  remember Hlt₂ as H; clear HeqH.
+  eapply lt_trans in H; [ idtac | eassumption ].
+  apply lt_le_weak in H.
+  apply Nat.sub_0_le in H.
+  rewrite H; clear H.
+  apply Z2Nat_add_cancel_r in Hlt₁.
 bbb.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃,

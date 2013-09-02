@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.56 2013-09-01 10:04:09 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.57 2013-09-02 01:51:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -823,4 +823,23 @@ destruct b as [| b]; simpl.
 
  rewrite Pos2Nat.inj_add.
  rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
+Qed.
+
+Lemma min_if_then_else : ∀ x y, min x y = if lt_dec x y then x else y.
+Proof.
+intros x y.
+destruct (Nat.min_dec x y) as [Hlt| Hge].
+ rewrite Hlt.
+ destruct (lt_dec x y) as [| Hge]; [ reflexivity | idtac ].
+ apply not_gt in Hge.
+ apply le_antisym; [ idtac | assumption ].
+ rewrite <- Hlt.
+ apply Min.le_min_r.
+
+ rewrite Hge.
+ destruct (lt_dec x y) as [Hlt| ]; [ idtac | reflexivity ].
+ apply gt_not_le in Hlt.
+ exfalso; apply Hlt.
+ rewrite <- Hge.
+ apply Min.le_min_l.
 Qed.
