@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.57 2013-09-02 01:51:31 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.58 2013-09-02 02:48:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -842,4 +842,66 @@ destruct (Nat.min_dec x y) as [Hlt| Hge].
  exfalso; apply Hlt.
  rewrite <- Hge.
  apply Min.le_min_l.
+Qed.
+
+Lemma Z2Nat_lt_le : ∀ n m, (n < m)%Z → (Z.to_nat n ≤ Z.to_nat m)%nat.
+Proof.
+intros n m Hnm.
+destruct n as [| n| n].
+ apply Nat.le_0_l.
+
+ destruct m as [| m| m].
+  apply Zlt_not_le in Hnm.
+  exfalso; apply Hnm, Pos2Z.is_nonneg.
+
+  simpl.
+  apply lt_le_weak.
+  apply Pos2Nat.inj_lt.
+  assumption.
+
+  apply Zlt_not_le in Hnm.
+  exfalso; apply Hnm.
+  apply Zle_neg_pos.
+
+ apply Nat.le_0_l.
+Qed.
+
+Lemma Z2Nat_lt_lt : ∀ n m, (Z.to_nat n < Z.to_nat m)%nat → (n < m)%Z.
+Proof.
+intros n m Hnm.
+destruct n as [| n| n].
+ destruct m as [| m| m].
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+
+  apply Pos2Z.is_pos.
+
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+
+ destruct m as [| m| m].
+  apply lt_le_weak in Hnm.
+  apply le_not_lt in Hnm.
+  exfalso; apply Hnm; apply Pos2Nat.is_pos.
+
+  apply Pos2Nat.inj_lt in Hnm; assumption.
+
+  simpl in Hnm.
+  apply lt_le_weak in Hnm.
+  apply le_not_lt in Hnm.
+  exfalso; apply Hnm; apply Pos2Nat.is_pos.
+
+ destruct m as [| m| m].
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+
+  transitivity 0%Z; [ apply Pos2Z.neg_is_neg | apply Pos2Z.is_pos ].
+
+  exfalso; revert Hnm; apply Nat.lt_irrefl.
+Qed.
+
+Lemma Z2Nat_add_cancel_r : ∀ n m p,
+  (Z.to_nat (n + p) < Z.to_nat (m + p))%nat → (n < m)%Z.
+Proof.
+intros n m p Hnm.
+apply Z.add_lt_mono_r with (p := p).
+apply Z2Nat_lt_lt.
+assumption.
 Qed.
