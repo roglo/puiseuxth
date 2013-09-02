@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.416 2013-09-02 11:17:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.417 2013-09-02 11:23:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1212,15 +1212,14 @@ destruct v₃ as [v₃| ]; simpl.
   do 3 rewrite <- Z2Nat_inj_mul_pos_r.
   rewrite <- Hvcc, <- Hcvc, <- Hccv.
   do 2 rewrite Z2Nat.inj_min.
+  do 2 rewrite min_sub_add_sub.
+  remember (Z.to_nat vcc) as nvcc.
+  remember (Z.to_nat cvc) as ncvc.
+  remember (Z.to_nat ccv) as nccv.
+  replace (min nvcc ncvc) with (min ncvc nvcc) by apply Nat.min_comm.
   rewrite min_sub_add_sub.
-  rewrite min_sub_add_sub.
-  replace (min (Z.to_nat vcc) (Z.to_nat cvc)) with
-   (min (Z.to_nat cvc) (Z.to_nat vcc)) by apply Nat.min_comm.
-  rewrite min_sub_add_sub.
-  replace (min (Z.to_nat vcc) (Z.to_nat ccv)) with
-   (min (Z.to_nat ccv) (Z.to_nat vcc)) by apply Nat.min_comm.
-  replace (min (Z.to_nat cvc) (Z.to_nat ccv)) with
-   (min (Z.to_nat ccv) (Z.to_nat cvc)) by apply Nat.min_comm.
+  replace (min nvcc nccv) with (min nccv nvcc) by apply Nat.min_comm.
+  replace (min ncvc nccv) with (min nccv ncvc) by apply Nat.min_comm.
   rewrite min_sub_add_sub.
   reflexivity.
 
