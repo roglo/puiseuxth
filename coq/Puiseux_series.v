@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.414 2013-09-02 10:25:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.415 2013-09-02 10:31:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1159,12 +1159,8 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ v c,
-  (0 ≤ v)%Zbar
-  → ps_valnum ps₁ = v
-  → ps_valnum ps₂ = v
-  → ps_valnum ps₃ = v
-  → ps_comden ps₁ = c
+Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ c,
+  ps_comden ps₁ = c
   → ps_comden ps₂ = c
   → ps_comden ps₃ = c
   → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
@@ -1172,66 +1168,12 @@ Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ v c,
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ v c Hv Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂.
-unfold ps_add.
-rewrite Hv₁, Hv₂, Hv₃.
-destruct v as [v| ]; [ idtac | rewrite Hv₂; reflexivity ].
-unfold ps_add_nz; simpl.
-rewrite Hn₁, Hn₂; simpl.
-rewrite Hv₁, Hv₂, Hv₃; simpl.
-rewrite ps_terms_add_assoc; try eassumption.
-remember (build_ps_add fld 0 ps₂ ps₃) as ps₂₃.
-remember (series_head fld (ps_terms_add fld ps₁ ps₂₃)) as n.
-subst ps₂₃.
-destruct n as [n| ]; [ idtac | reflexivity ].
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- do 2 rewrite stretch_series_1.
- constructor; intros i.
- unfold build_ps_add; simpl.
- unfold ps_terms_add; simpl.
- unfold cm_factor, cm; simpl.
- rewrite Hv₁, Hv₂, Hv₃; simpl.
- rewrite Hc₁, Hc₂, Hc₃; simpl.
- rewrite Nat.sub_diag; simpl.
- rewrite Z.add_0_r, Z.min_id.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- rewrite Nat.sub_diag.
- do 7 rewrite series_pad_left_0.
- do 2 rewrite stretch_series_add_distr.
- do 3 rewrite <- stretch_stretch_series.
- rewrite series_add_assoc.
- reflexivity.
-
- rewrite Hv₁, Hv₂, Hv₃; simpl.
- do 2 rewrite Z.add_0_r, Z.mul_1_r.
- unfold cm_factor, cm; simpl.
- rewrite Hc₁, Hc₂, Hc₃; simpl.
- rewrite Z.min_id.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- reflexivity.
-
- do 2 rewrite Pos.mul_1_r.
- unfold cm; simpl.
- unfold cm; simpl.
- rewrite Pos.mul_assoc; reflexivity.
-Qed.
-
-Lemma zzz : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ c,
-  (0 ≤ v₁)%Zbar
-  → (0 ≤ v₂)%Zbar
-  → (0 ≤ v₃)%Zbar
-  → ps_valnum ps₁ = v₁
-  → ps_valnum ps₂ = v₂
-  → ps_valnum ps₃ = v₃
-  → ps_comden ps₁ = c
-  → ps_comden ps₂ = c
-  → ps_comden ps₃ = c
-  → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
-  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
-  → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
-    ps_add fld ps₁ (ps_add fld ps₂ ps₃).
-Proof.
-intros ps₁ ps₂ ps₃ v₁ v₂ v₃ c Hvp₁ Hvp₂ Hvp₃ Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂.
+(* à nettoyer avant de continuer *)
+intros ps₁ ps₂ ps₃ c Hc₁ Hc₂ Hc₃ Hn₁ Hn₂.
+remember (ps_valnum ps₁) as v₁ eqn:Hv₁.
+remember (ps_valnum ps₂) as v₂ eqn:Hv₂.
+remember (ps_valnum ps₃) as v₃ eqn:Hv₃.
+symmetry in Hv₁, Hv₂, Hv₃.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
 destruct v₁ as [v₁| ]; [ idtac | rewrite Hv₂; reflexivity ].
@@ -1314,7 +1256,7 @@ destruct v₃ as [v₃| ]; simpl.
   unfold cm; simpl.
   unfold cm; simpl.
   rewrite Pos.mul_assoc; reflexivity.
-qed.
+Qed.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
