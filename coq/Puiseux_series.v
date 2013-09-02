@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.418 2013-09-02 11:42:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.419 2013-09-02 12:08:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1202,7 +1202,6 @@ destruct v₃ as [v₃| ]; simpl.
   remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
   remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
   remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
-  Focus 1.
   rewrite Z.mul_shuffle0, <- Hccv.
   rewrite Z.mul_shuffle0, <- Hcvc.
   rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Hvcc.
