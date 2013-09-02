@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.422 2013-09-02 13:00:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.423 2013-09-02 13:35:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1003,21 +1003,12 @@ Qed.
 
 Lemma series_head_nonzero_fin : ∀ s n,
   series_head fld s = fin (S n)
-  → series_nth 0 s ≠ None.
+  → series_nth_fld fld 0 s ≍ zero fld.
 Proof.
-intros s n Hn H.
-apply eq_series_head in Hn.
-apply Hn; clear Hn.
-unfold series_nth_fld; simpl.
-unfold series_nth in H.
-destruct (stop s) as [st| ]; [ idtac | discriminate H ].
-destruct (Nbar.lt_dec (fin (S n)) (fin st)) as [Hlt| ].
- destruct (lt_dec 0 st) as [| Hge]; [ discriminate H | clear H ].
- apply not_gt, Nat.le_0_r in Hge; subst st.
- inversion Hlt; subst.
- exfalso; revert H1; apply Nat.nle_succ_0.
-
- reflexivity.
+intros s n Hn.
+apply lt_series_head.
+rewrite Hn.
+constructor; apply lt_0_Sn.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃,
@@ -1187,6 +1178,9 @@ intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
 revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
 induction n₁ as [| n₁]; intros.
  apply ps_add_assoc_base; assumption.
+
+ remember Hn₁ as Hn₀; clear HeqHn₀.
+ apply series_head_nonzero_fin in Hn₀.
 bbb.
 
 (* peut-être inutile *)
