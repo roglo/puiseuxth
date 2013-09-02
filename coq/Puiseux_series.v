@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.419 2013-09-02 12:08:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.420 2013-09-02 12:10:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1159,20 +1159,20 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ c₁ c₂ c₃,
-  ps_comden ps₁ = c₁
-  → ps_comden ps₂ = c₂
-  → ps_comden ps₃ = c₃
-  → series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
+Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃,
+  series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
   → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ c₁ c₂ c₃ Hc₁ Hc₂ Hc₃ Hn₁ Hn₂.
+intros ps₁ ps₂ ps₃ Hn₁ Hn₂.
 remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
 remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
 remember (ps_valnum ps₃) as v₃ eqn:Hv₃ .
-symmetry in Hv₁, Hv₂, Hv₃.
+remember (ps_comden ps₁) as c₁ eqn:Hc₁ .
+remember (ps_comden ps₂) as c₂ eqn:Hc₂ .
+remember (ps_comden ps₃) as c₃ eqn:Hc₃ .
+symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
 destruct v₁ as [v₁| ]; [ idtac | rewrite Hv₂; reflexivity ].
@@ -1252,7 +1252,7 @@ destruct v₃ as [v₃| ]; simpl.
  remember (ps_valnum ps₁₂) as v₁₂ eqn:Hv₁₂ ; symmetry in Hv₁₂.
  destruct v₁₂ as [v₁₂| ]; [ reflexivity | idtac ].
  constructor 2; assumption.
-qed.
+Qed.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
