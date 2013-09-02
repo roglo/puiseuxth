@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.412 2013-09-02 02:48:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.413 2013-09-02 03:34:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1020,11 +1020,52 @@ destruct (Nbar.lt_dec (fin (S n)) (fin st)) as [Hlt| ].
  reflexivity.
 Qed.
 
-Lemma yyy : ∀ x y z t,
-  (min (Z.to_nat (x + t)) (Z.to_nat (y + t)) - z + (Z.to_nat x - Z.to_nat y) =
-   Z.to_nat (x + t) - min (Z.to_nat (y + t)) z)%nat.
+Lemma xxx : ∀ x y z,
+  (0 <= z)%Z
+  → Z.to_nat (y + z) ≤ Z.to_nat (x + z)
+    → (Z.to_nat (x + z) - Z.to_nat (y + z))%nat =
+      (Z.to_nat x - Z.to_nat y)%nat.
 Proof.
-intros x y z t.
+intros x y z Hz Hxy.
+destruct z as [| z| z].
+ do 2 rewrite Z.add_0_r; reflexivity.
+
+ destruct x as [| x| x].
+  simpl.
+  destruct y as [| y| y].
+   simpl.
+   rewrite Nat.sub_diag; reflexivity.
+
+   simpl.
+   rewrite Pos2Nat.inj_add.
+   rewrite Nat.add_comm, Nat.sub_add_distr, Nat.sub_diag.
+   reflexivity.
+
+   simpl in Hxy.
+   simpl.
+Abort. (*
+bbb.
+*)
+
+(*
+Lemma xxx : ∀ x y z t u,
+  (0 <= t)%Z
+  → (0 <= u)%Z
+    → (min (Z.to_nat (x + t)) (Z.to_nat (y + t)) - Z.to_nat z +
+         (Z.to_nat x - Z.to_nat y) =
+       Z.to_nat x - min (Z.to_nat (y + u)) (Z.to_nat (z + u)))%nat.
+Proof.
+intros x y z t u Ht Hu.
+bbb.
+*)
+
+Lemma yyy : ∀ x y z t,
+  (0 <= t)%Z
+  → (min (Z.to_nat (x + t)) (Z.to_nat (y + t)) - z +
+       (Z.to_nat x - Z.to_nat y) =
+     Z.to_nat (x + t) - min (Z.to_nat (y + t)) z)%nat.
+Proof.
+intros x y z t Ht.
 do 2 rewrite min_if_then_else.
 destruct (lt_dec (Z.to_nat (x + t)) (Z.to_nat (y + t))) as [Hlt₁| Hge₁].
  destruct (lt_dec (Z.to_nat (y + t)) z) as [Hlt₂| Hge₂].
@@ -1040,7 +1081,21 @@ destruct (lt_dec (Z.to_nat (x + t)) (Z.to_nat (y + t))) as [Hlt₁| Hge₁].
   apply Z2Nat_add_cancel_r in Hlt₁.
   apply Z2Nat_lt_le in Hlt₁.
   apply Nat.sub_0_le; assumption.
+
+  apply Z2Nat_add_cancel_r in Hlt₁.
+  apply Z2Nat_lt_le in Hlt₁.
+  apply Nat.sub_0_le in Hlt₁.
+  rewrite Hlt₁, Nat.add_0_r.
+  reflexivity.
+
+ destruct (lt_dec (Z.to_nat (y + t)) z) as [Hlt₂| Hge₂].
+  apply lt_le_weak in Hlt₂.
+  apply Nat.sub_0_le in Hlt₂.
+  rewrite Hlt₂; simpl.
+  apply not_gt in Hge₁.
+Abort. (*
 bbb.
+*)
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃,
   ps_valnum ps₁ = zfin v₁
@@ -1082,7 +1137,6 @@ rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
 do 2 rewrite Z2Nat.inj_min.
 simpl.
-bbb.
 do 3 rewrite Z.add_0_r.
 do 2 rewrite min_sub_add_sub.
 rewrite Nat.min_comm.
