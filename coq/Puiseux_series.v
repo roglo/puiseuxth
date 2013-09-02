@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.421 2013-09-02 12:11:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.422 2013-09-02 13:00:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1177,6 +1177,19 @@ destruct v₃ as [v₃| ]; simpl.
  constructor 2; assumption.
 Qed.
 
+Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
+  series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁
+  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
+  → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
+    ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+Proof.
+intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
+revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
+induction n₁ as [| n₁]; intros.
+ apply ps_add_assoc_base; assumption.
+bbb.
+
+(* peut-être inutile *)
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
   ps_valnum ps₁ = zfin v₁
   → ps_valnum ps₂ = zfin v₂
@@ -1261,6 +1274,7 @@ bbb.
 bbb.
 *)
 
+(* peut-être inutile *)
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
