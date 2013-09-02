@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.425 2013-09-02 16:37:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.426 2013-09-02 23:51:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,13 +12,13 @@ Require Import Zbar.
 
 Set Implicit Arguments.
 
-(* [series_head fld s] return the position of the first non null
+(* [first_nonzero fld s] return the position of the first non null
    coefficient in the series [s]. *)
-Definition series_head : ∀ α, field α → series α → Nbar.
+Definition first_nonzero : ∀ α, field α → series α → Nbar.
 Admitted.
 
-Add Parametric Morphism α (fld : field α) : (series_head fld)
-with signature (eq_series fld) ==> eq as series_head_morph.
+Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
+with signature (eq_series fld) ==> eq as first_nonzero_morph.
 Admitted.
 
 Section fld.
@@ -29,11 +29,11 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
-Axiom lt_series_head : ∀ s n,
-  (fin n < series_head fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
+Axiom lt_first_nonzero : ∀ s n,
+  (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
 
-Axiom eq_series_head : ∀ s n,
-  series_head fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
+Axiom eq_first_nonzero : ∀ s n,
+  first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -89,12 +89,12 @@ Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (one fld).
 
 (*
-Lemma series_head_fin : ∀ s v,
-  series_head fld s = fin v
+Lemma first_nonzero_fin : ∀ s v,
+  first_nonzero fld s = fin v
   → not (∀ i : nat, series_nth_fld fld i s ≍ zero fld).
 Proof.
 intros s v Hf H.
-apply series_head_inf in H.
+apply first_nonzero_inf in H.
 rewrite Hf in H; discriminate H.
 Qed.
 *)
@@ -395,7 +395,7 @@ Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Definition valuation (ps : puiseux_series α) :=
   match ps_valnum ps with
   | zfin v =>
-      match series_head fld (ps_terms ps) with
+      match first_nonzero fld (ps_terms ps) with
       | fin n => Some (v + Z.of_nat n # ps_comden ps)
       | inf => None
       end
@@ -403,7 +403,7 @@ Definition valuation (ps : puiseux_series α) :=
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
-  match series_head fld (ps_terms ps) with
+  match first_nonzero fld (ps_terms ps) with
   | fin n => series_nth_fld fld n (ps_terms ps)
   | inf => zero fld
   end.
@@ -523,7 +523,7 @@ Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=
      ps_prop := build_ps_add_prop v ps₁ ps₂*) |}.
 
 Definition ps_add_nz ps₁ ps₂ :=
-  match series_head fld (ps_terms_add ps₁ ps₂) with
+  match first_nonzero fld (ps_terms_add ps₁ ps₂) with
   | fin v => build_ps_add v ps₁ ps₂
   | inf => ps_zero fld
   end.
@@ -860,7 +860,7 @@ Proof.
 intros ps₁ ps₂.
 unfold ps_add_nz.
 rewrite ps_terms_add_comm.
-remember (series_head fld (ps_terms_add fld ps₂ ps₁)) as v.
+remember (first_nonzero fld (ps_terms_add fld ps₂ ps₁)) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
@@ -991,13 +991,13 @@ Proof. intros; reflexivity. Qed.
 
 Lemma ps_valnum_ps_add_nz : ∀ ps₁ ps₂,
   ps_valnum (ps_add_nz fld ps₁ ps₂)
-  = (Zbar.of_Nbar (series_head fld (ps_terms_add fld ps₁ ps₂)) +
+  = (Zbar.of_Nbar (first_nonzero fld (ps_terms_add fld ps₁ ps₂)) +
      Zbar.min (ps_valnum ps₁ * '' cm_factor ps₁ ps₂)
         (ps_valnum ps₂ * '' cm_factor ps₂ ps₁))%Zbar.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add_nz.
-remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as v.
+remember (first_nonzero fld (ps_terms_add fld ps₁ ps₂)) as v.
 destruct v as [v| ]; [ simpl | reflexivity ].
 remember (ps_valnum ps₁ * '' cm_factor ps₁ ps₂)%Zbar as v₁.
 remember (ps_valnum ps₂ * '' cm_factor ps₂ ps₁)%Zbar as v₂.
@@ -1005,12 +1005,12 @@ destruct (Zbar.min v₁ v₂) as [v₁₂| ]; [ simpl | reflexivity ].
 rewrite Z.add_comm; reflexivity.
 Qed.
 
-Lemma series_head_nonzero_fin : ∀ s n,
-  series_head fld s = fin (S n)
+Lemma first_nonzero_nonzero_fin : ∀ s n,
+  first_nonzero fld s = fin (S n)
   → series_nth_fld fld 0 s ≍ zero fld.
 Proof.
 intros s n Hn.
-apply lt_series_head.
+apply lt_first_nonzero.
 rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
@@ -1078,8 +1078,8 @@ rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
 Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃,
-  series_head fld (ps_terms_add fld ps₁ ps₂) = fin 0
-  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
+  first_nonzero fld (ps_terms_add fld ps₁ ps₂) = fin 0
+  → first_nonzero fld (ps_terms_add fld ps₂ ps₃) = fin 0
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
@@ -1101,7 +1101,7 @@ destruct v₃ as [v₃| ]; simpl.
  rewrite Hv₁, Hv₂, Hv₃; simpl.
  rewrite ps_terms_add_assoc; try eassumption.
  remember (build_ps_add fld 0 ps₂ ps₃) as ps₂₃.
- remember (series_head fld (ps_terms_add fld ps₁ ps₂₃)) as n.
+ remember (first_nonzero fld (ps_terms_add fld ps₁ ps₂₃)) as n.
  subst ps₂₃.
  destruct n as [n| ]; [ idtac | reflexivity ].
  constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
@@ -1172,18 +1172,31 @@ destruct v₃ as [v₃| ]; simpl.
  constructor 2; assumption.
 Qed.
 
+Definition series_head (s : series α) :=
+  {| terms := terms s;
+     stop := 1 |}.
+
 Definition series_tail (s : series α) :=
   {| terms i := terms s (S i);
      stop := stop s - 1 |}.
+
+Definition ps_head ps :=
+  {| ps_terms := series_head (ps_terms ps);
+     ps_valnum := ps_valnum ps;
+     ps_comden := ps_comden ps |}.
 
 Definition ps_tail ps :=
   {| ps_terms := series_tail (ps_terms ps);
      ps_valnum := ps_valnum ps + 1;
      ps_comden := ps_comden ps |}.
 
+Delimit Scope ps_scope with ps.
+Bind Scope ps_scope with puiseux_series.
+Notation "a + b" := (ps_add fld a b) : ps_scope.
+
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
-  series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁
-  → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
+  first_nonzero fld (ps_terms_add fld ps₁ ps₂) = fin n₁
+  → first_nonzero fld (ps_terms_add fld ps₂ ps₃) = fin 0
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
@@ -1193,9 +1206,31 @@ induction n₁ as [| n₁]; intros.
  apply ps_add_assoc_base; assumption.
 
  remember Hn₁ as Hn₀; clear HeqHn₀.
- apply series_head_nonzero_fin in Hn₀.
+ apply first_nonzero_nonzero_fin in Hn₀.
+ remember (ps_head ps₁) as pm₁.
+ remember (ps_head ps₂) as pm₂.
  remember (ps_tail ps₁) as ps'₁.
  remember (ps_tail ps₂) as ps'₂.
+ assert (ps_add fld pm₁ ps'₁ ≈ ps₁) as Heq₁.
+  constructor 1 with (k₁ := xH) (k₂ := xH).
+   do 2 rewrite stretch_series_1.
+   subst pm₁ ps'₁; simpl.
+   constructor; intros i.
+   unfold ps_add; simpl.
+   remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
+   remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
+   destruct v₁ as [v₁| ]; simpl.
+    unfold ps_add_nz; simpl.
+    remember (ps_terms_add fld (ps_head ps₁) (ps_tail ps₁)) as sc₁ eqn:Hsc₁ .
+    remember (first_nonzero fld sc₁) as nc₁ eqn:Hnc₁ .
+    symmetry in Hnc₁.
+    destruct nc₁ as [nc₁| ]; simpl.
+     rewrite <- Hsc₁.
+     unfold ps_terms_add in Hsc₁.
+     simpl in Hsc₁.
+     unfold series_head, series_tail in Hsc₁.
+     simpl in Hsc₁.
+bbb.
  assert (ps_add fld ps'₁ ps'₂ ≈ ps_add fld ps₁ ps₂) as Heq₁₂.
   constructor 1 with (k₁ := xH) (k₂ := xH).
    do 2 rewrite stretch_series_1.
@@ -1230,15 +1265,15 @@ intros ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃ Hv₁ Hv₂ Hv₃ Hv₁�
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  do 2 rewrite stretch_series_1.
  unfold ps_add_nz; simpl.
- remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as sh₁₂.
- remember (series_head fld (ps_terms_add fld ps₂ ps₃)) as sh₂₃.
+ remember (first_nonzero fld (ps_terms_add fld ps₁ ps₂)) as sh₁₂.
+ remember (first_nonzero fld (ps_terms_add fld ps₂ ps₃)) as sh₂₃.
  symmetry in Heqsh₁₂, Heqsh₂₃.
  destruct sh₁₂ as [sh₁₂| ].
   destruct sh₂₃ as [sh₂₃| ].
    remember (build_ps_add fld sh₁₂ ps₁ ps₂) as ps₁₂.
    remember (build_ps_add fld sh₂₃ ps₂ ps₃) as ps₂₃.
-   remember (series_head fld (ps_terms_add fld ps₁₂ ps₃)) as v₁₂_₃.
-   remember (series_head fld (ps_terms_add fld ps₁ ps₂₃)) as v₁_₂₃.
+   remember (first_nonzero fld (ps_terms_add fld ps₁₂ ps₃)) as v₁₂_₃.
+   remember (first_nonzero fld (ps_terms_add fld ps₁ ps₂₃)) as v₁_₂₃.
    symmetry in Heqv₁₂_₃, Heqv₁_₂₃.
    destruct v₁₂_₃ as [v₁₂_₃| ]; simpl.
     destruct v₁_₂₃ as [v₁_₂₃| ]; simpl.
@@ -1291,10 +1326,10 @@ bbb.
 bbb.
        rewrite Heqps₁₂ in Heqv₁₂_₃.
        rewrite Heqps₂₃ in Heqv₁_₂₃.
-       apply eq_series_head in Heqv₁₂_₃.
+       apply eq_first_nonzero in Heqv₁₂_₃.
        assert (fin v₁₂_₃ < inf)%Nbar as H by constructor.
        rewrite <- Heqv₁_₂₃ in H.
-       apply lt_series_head in H.
+       apply lt_first_nonzero in H.
 bbb.
        rewrite <- zzz in H; try eassumption.
        contradiction.
@@ -1492,10 +1527,10 @@ destruct v as [v| ]; [ simpl | assumption ].
 unfold ps_add_nz; simpl.
 remember (adjust fld (ps_comden ps) ps) as ps₁.
 remember (adjust fld (cm_factor (ps_neg ps) ps) (ps_neg ps)) as ps₂.
-remember (series_head fld (ps_terms_add fld ps₁ ps₂)) as w.
+remember (first_nonzero fld (ps_terms_add fld ps₁ ps₂)) as w.
 symmetry in Heqw.
 destruct w; [ simpl | reflexivity ].
-apply series_head_fin in Heqw.
+apply first_nonzero_fin in Heqw.
 exfalso; apply Heqw; clear Heqw; intros i.
 rewrite Heqps₁, Heqps₂.
 unfold ps_terms_add, ps_neg, cm_factor; simpl.
