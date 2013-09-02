@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.415 2013-09-02 10:31:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.416 2013-09-02 11:17:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1168,24 +1168,16 @@ Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ c,
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
-(* à nettoyer avant de continuer *)
 intros ps₁ ps₂ ps₃ c Hc₁ Hc₂ Hc₃ Hn₁ Hn₂.
-remember (ps_valnum ps₁) as v₁ eqn:Hv₁.
-remember (ps_valnum ps₂) as v₂ eqn:Hv₂.
-remember (ps_valnum ps₃) as v₃ eqn:Hv₃.
+remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
+remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
+remember (ps_valnum ps₃) as v₃ eqn:Hv₃ .
 symmetry in Hv₁, Hv₂, Hv₃.
 unfold ps_add.
 rewrite Hv₁, Hv₂, Hv₃.
 destruct v₁ as [v₁| ]; [ idtac | rewrite Hv₂; reflexivity ].
 destruct v₂ as [v₂| ]; [ idtac | rewrite Hv₁, Hv₃; reflexivity ].
 destruct v₃ as [v₃| ]; simpl.
- Focus 2.
- rewrite Hv₂.
- remember (ps_add_nz fld ps₁ ps₂) as ps₁₂.
- remember (ps_valnum ps₁₂) as v₁₂ eqn:Hv₁₂ ; symmetry in Hv₁₂.
- destruct v₁₂ as [v₁₂| ]; [ reflexivity | idtac ].
- constructor 2; assumption.
-
  unfold ps_add_nz; simpl.
  rewrite Hn₁, Hn₂; simpl.
  rewrite Hv₁, Hv₂, Hv₃; simpl.
@@ -1202,60 +1194,57 @@ destruct v₃ as [v₃| ]; simpl.
   unfold cm_factor, cm; simpl.
   rewrite Hv₁, Hv₂, Hv₃; simpl.
   rewrite Hc₁, Hc₂, Hc₃; simpl.
-  Focus 1.
   do 2 rewrite Z.add_0_r.
-  rewrite <- Z.mul_min_distr_nonneg_r.
-   2: apply Pos2Z.is_nonneg.
-
-   rewrite <- Z.mul_min_distr_nonneg_r.
-    2: apply Pos2Z.is_nonneg.
-
-    rewrite Pos2Z.inj_mul.
-    do 2 rewrite Z.mul_assoc.
-    remember (v₁ * ' c * ' c)%Z as vcc eqn:Hvcc .
-    remember (v₂ * ' c * ' c)%Z as cvc eqn:Hcvc .
-    remember (v₃ * ' c * ' c)%Z as ccv eqn:Hccv .
-    do 2 rewrite stretch_series_add_distr.
-    do 2 rewrite series_pad_add_distr.
-    rewrite series_add_assoc.
-    do 4 rewrite stretch_pad_series_distr.
-    do 3 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-    do 4 rewrite series_pad_pad.
-    do 4 rewrite Nat.mul_sub_distr_r.
-    do 3 rewrite <- Z2Nat_inj_mul_pos_r.
-    rewrite <- Hvcc, <- Hcvc, <- Hccv.
-    do 2 rewrite Z2Nat.inj_min.
-    rewrite min_sub_add_sub.
-    rewrite min_sub_add_sub.
-    replace (min (Z.to_nat vcc) (Z.to_nat cvc)) with
-     (min (Z.to_nat cvc) (Z.to_nat vcc)) by apply Nat.min_comm.
-    rewrite min_sub_add_sub.
-    replace (min (Z.to_nat vcc) (Z.to_nat ccv)) with
-     (min (Z.to_nat ccv) (Z.to_nat vcc)) by apply Nat.min_comm.
-    replace (min (Z.to_nat cvc) (Z.to_nat ccv)) with
-     (min (Z.to_nat ccv) (Z.to_nat cvc)) by apply Nat.min_comm.
-    rewrite min_sub_add_sub.
-    reflexivity.
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Pos2Z.inj_mul.
+  do 2 rewrite Z.mul_assoc.
+  remember (v₁ * ' c * ' c)%Z as vcc eqn:Hvcc .
+  remember (v₂ * ' c * ' c)%Z as cvc eqn:Hcvc .
+  remember (v₃ * ' c * ' c)%Z as ccv eqn:Hccv .
+  do 2 rewrite stretch_series_add_distr.
+  do 2 rewrite series_pad_add_distr.
+  rewrite series_add_assoc.
+  do 4 rewrite stretch_pad_series_distr.
+  do 3 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  do 4 rewrite series_pad_pad.
+  do 4 rewrite Nat.mul_sub_distr_r.
+  do 3 rewrite <- Z2Nat_inj_mul_pos_r.
+  rewrite <- Hvcc, <- Hcvc, <- Hccv.
+  do 2 rewrite Z2Nat.inj_min.
+  rewrite min_sub_add_sub.
+  rewrite min_sub_add_sub.
+  replace (min (Z.to_nat vcc) (Z.to_nat cvc)) with
+   (min (Z.to_nat cvc) (Z.to_nat vcc)) by apply Nat.min_comm.
+  rewrite min_sub_add_sub.
+  replace (min (Z.to_nat vcc) (Z.to_nat ccv)) with
+   (min (Z.to_nat ccv) (Z.to_nat vcc)) by apply Nat.min_comm.
+  replace (min (Z.to_nat cvc) (Z.to_nat ccv)) with
+   (min (Z.to_nat ccv) (Z.to_nat cvc)) by apply Nat.min_comm.
+  rewrite min_sub_add_sub.
+  reflexivity.
 
   rewrite Hv₁, Hv₂, Hv₃; simpl.
   do 2 rewrite Z.add_0_r, Z.mul_1_r.
   unfold cm_factor, cm; simpl.
   rewrite Hc₁, Hc₂, Hc₃; simpl.
-  rewrite <- Z.mul_min_distr_nonneg_r.
-   2: apply Pos2Z.is_nonneg.
-
-   rewrite <- Z.mul_min_distr_nonneg_r.
-    2: apply Pos2Z.is_nonneg.
-
-    rewrite Z.min_assoc.
-    rewrite Pos2Z.inj_mul.
-    do 2 rewrite Z.mul_assoc.
-    reflexivity.
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.min_assoc.
+  rewrite Pos2Z.inj_mul.
+  do 2 rewrite Z.mul_assoc.
+  reflexivity.
 
   do 2 rewrite Pos.mul_1_r.
   unfold cm; simpl.
   unfold cm; simpl.
   rewrite Pos.mul_assoc; reflexivity.
+
+ rewrite Hv₂.
+ remember (ps_add_nz fld ps₁ ps₂) as ps₁₂.
+ remember (ps_valnum ps₁₂) as v₁₂ eqn:Hv₁₂ ; symmetry in Hv₁₂.
+ destruct v₁₂ as [v₁₂| ]; [ reflexivity | idtac ].
+ constructor 2; assumption.
 Qed.
 
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
