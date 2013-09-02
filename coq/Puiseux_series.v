@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.423 2013-09-02 13:35:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.424 2013-09-02 15:15:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -46,8 +46,8 @@ Definition stretch_series k s :=
 Record puiseux_series α := mkps
   { ps_terms : series α;
     ps_valnum : Zbar;
-    ps_comden : positive;
-    ps_prop : series_nth 0 ps_terms = None → ps_valnum = ∞ }.
+    ps_comden : positive(*;
+    ps_prop : series_nth 0 ps_terms = None → ps_valnum = ∞*) }.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ ps₁ ps₂,
@@ -68,8 +68,8 @@ Notation "a ≈ b" := (eq_ps a b) (at level 70).
 Definition ps_zero : puiseux_series α :=
   {| ps_terms := series_0 fld;
      ps_valnum := ∞;
-     ps_comden := 1;
-     ps_prop := λ _, eq_refl |}.
+     ps_comden := 1(*;
+     ps_prop := λ _, eq_refl*) |}.
 
 Lemma ps_monom_prop : ∀ (c : α) pow,
   series_nth 0 {| terms i := c; stop := 1 |} = None → zfin (Qnum pow) = ∞.
@@ -82,8 +82,8 @@ Qed.
 Definition ps_monom (c : α) pow :=
   {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := zfin (Qnum pow);
-     ps_comden := Qden pow;
-     ps_prop := ps_monom_prop pow |}.
+     ps_comden := Qden pow(*;
+     ps_prop := ps_monom_prop pow*) |}.
 
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (one fld).
@@ -408,6 +408,7 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | inf => zero fld
   end.
 
+(*
 Lemma adjust_prop : ∀ k ps,
   series_nth 0 (stretch_series fld k (ps_terms ps)) = None
   → (ps_valnum ps * ''k)%Zbar = ∞.
@@ -428,12 +429,13 @@ apply Hge; clear Hge.
 apply Nat.mul_pos_pos; [ assumption | idtac ].
 apply Pos2Nat.is_pos.
 Qed.
+*)
 
 Definition adjust k ps :=
   {| ps_terms := stretch_series fld k (ps_terms ps);
      ps_valnum := ps_valnum ps * ''k;
-     ps_comden := ps_comden ps * k;
-     ps_prop := adjust_prop k ps |}.
+     ps_comden := ps_comden ps * k(*;
+     ps_prop := adjust_prop k ps*) |}.
 
 (* ps_add *)
 
@@ -462,6 +464,7 @@ Definition ps_terms_add ps₁ ps₂ :=
     (series_pad_left (Zbar.to_nat v₁ - Zbar.to_nat v₂)%nat s₁)
     (series_pad_left (Zbar.to_nat v₂ - Zbar.to_nat v₁)%nat s₂).
 
+(*
 Lemma build_ps_add_prop : ∀ v (ps₁ ps₂ : puiseux_series α),
   series_nth 0 (ps_terms_add ps₁ ps₂) = None
   → (Zbar.min
@@ -509,14 +512,15 @@ apply Nbar.mul_eq_0_l in Hst₁.
  intros H; injection H; clear H; intros.
  revert H; apply Pos2Nat_ne_0.
 Qed.
+*)
 
 Definition build_ps_add v (ps₁ ps₂ : puiseux_series α) :=
   let v₁ := (ps_valnum ps₁ * ''cm_factor ps₁ ps₂)%Zbar in
   let v₂ := (ps_valnum ps₂ * ''cm_factor ps₂ ps₁)%Zbar in
   {| ps_terms := ps_terms_add ps₁ ps₂;
      ps_valnum := Zbar.min v₁ v₂ + Zbar.of_nat v;
-     ps_comden := cm ps₁ ps₂;
-     ps_prop := build_ps_add_prop v ps₁ ps₂ |}.
+     ps_comden := cm ps₁ ps₂(*;
+     ps_prop := build_ps_add_prop v ps₁ ps₂*) |}.
 
 Definition ps_add_nz ps₁ ps₂ :=
   match series_head fld (ps_terms_add ps₁ ps₂) with
@@ -584,8 +588,8 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
           let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
           {| ps_terms := series_mul_term (ps_terms aps₁) (ps_terms aps₂);
              ps_valnum := ps_valnum aps₁ + ps_valnum aps₂;
-             ps_comden := ps_comden aps₁;
-             ps_prop := ps_mul_prop aps₁ aps₂ |}
+             ps_comden := ps_comden aps₁(*;
+             ps_prop := ps_mul_prop aps₁ aps₂*) |}
       | ∞ => ps_zero fld
       end
   | ∞ => ps_zero fld
@@ -1168,6 +1172,15 @@ destruct v₃ as [v₃| ]; simpl.
  constructor 2; assumption.
 Qed.
 
+Definition series_tail (s : series α) :=
+  {| terms i := terms s (S i);
+     stop := stop s - 1 |}.
+
+Definition ps_tail ps :=
+  {| ps_terms := series_tail (ps_terms ps);
+     ps_valnum := ps_valnum ps + 1;
+     ps_comden := ps_comden ps |}.
+
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
   series_head fld (ps_terms_add fld ps₁ ps₂) = fin n₁
   → series_head fld (ps_terms_add fld ps₂ ps₃) = fin 0
@@ -1181,6 +1194,9 @@ induction n₁ as [| n₁]; intros.
 
  remember Hn₁ as Hn₀; clear HeqHn₀.
  apply series_head_nonzero_fin in Hn₀.
+ remember (ps_tail ps₁) as ps'₁.
+ remember (ps_tail ps₂) as ps'₂.
+ assert (ps_add fld ps'₁ ps'₂ ≈ ps_add fld ps₁ ps₂) as Heq₁₂.
 bbb.
 
 (* peut-être inutile *)

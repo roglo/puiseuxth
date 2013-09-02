@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.38 2013-08-30 11:43:24 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.39 2013-09-02 15:15:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -42,6 +42,7 @@ Definition mul := binop mult ∞ ∞.
 Definition max := binop max ∞ ∞.
 (*
 Definition min x y := binop min x y x y.
+*)
 
 Definition sub xb yb :=
   match yb with
@@ -52,12 +53,9 @@ Definition sub xb yb :=
       end
   | ∞ => 0
   end.
-*)
 
 Infix "+" := add : Nbar_scope.
-(*
 Infix "-" := sub : Nbar_scope.
-*)
 Infix "*" := mul : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
@@ -469,9 +467,7 @@ Qed.
 End Nbar.
 
 Infix "+" := Nbar.add : Nbar_scope.
-(*
 Infix "-" := Nbar.sub : Nbar_scope.
-*)
 Infix "*" := Nbar.mul : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.
 (*

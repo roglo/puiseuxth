@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.30 2013-08-30 02:40:33 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.31 2013-09-02 15:15:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -16,6 +16,7 @@ Bind Scope Zbar_scope with Zbar.
 
 Notation "∞" := zinf.
 Notation "0" := (zfin 0) : Zbar_scope.
+Notation "1" := (zfin 1) : Zbar_scope.
 Notation "'' a" := (zfin (Zpos a)) (at level 20).
 
 Open Scope Zbar_scope.
