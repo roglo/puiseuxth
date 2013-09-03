@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.433 2013-09-03 14:58:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.434 2013-09-03 17:10:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1093,6 +1093,14 @@ induction n₁ as [| n₁]; intros.
     do 2 rewrite stretch_series_1.
     constructor; intros i.
     unfold series_nth_fld.
+    unfold nz_add in Hps₁.
+    rewrite Heqpm₁ in Hps₁.
+    remember (nz_terms_add fld (nz_head nz₁) nz'₁) as nz₁₂.
+    remember (first_nonzero fld nz₁₂) as n₁₂ eqn:Hn₁₂ .
+    subst nz₁₂; symmetry in Hn₁₂.
+    destruct n₁₂ as [n₁₂| ]; [ idtac | discriminate Hps₁ ].
+    injection Hps₁; clear Hps₁; intros Hps₁.
+    rewrite <- Heqpm₁ in Hn₁₂.
 bbb.
 
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
