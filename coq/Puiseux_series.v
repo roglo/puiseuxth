@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.429 2013-09-03 11:20:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.430 2013-09-03 13:33:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -928,20 +928,19 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃ v₁ v₂ v₃,
-  nz_valnum nz₁ = v₁
-  → nz_valnum nz₂ = v₂
-    → nz_valnum nz₃ = v₃
-      → nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
-        nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
+Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
+  nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃ v₁ v₂ v₃ Hv₁ Hv₂ Hv₃.
+intros nz₁ nz₂ nz₃.
 constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
 unfold cm_factor, cm.
-rewrite Hv₁, Hv₂, Hv₃; simpl.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁.
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂.
+remember (nz_valnum nz₃) as v₃ eqn:Hv₃.
 remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
@@ -990,99 +989,65 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
+Definition terms_add ps₁ ps₂ :=
+  match ps₁ with
+  | NonZero nz₁ =>
+      match ps₂ with
+      | NonZero nz₂ => nz_terms_add fld nz₁ nz₂
+      | Zero => nz_terms nz₁
+      end
+  | Zero =>
+      match ps₂ with
+      | NonZero nz₂ => nz_terms nz₂
+      | Zero => series_0 fld
+      end
+  end.
+
+Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
+  nz_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≈
+  nz_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃.
+unfold nz_add.
+rewrite nz_terms_add_assoc.
+remember (nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃)) as nz.
+remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
+destruct n as [n| ]; [ idtac | reflexivity ].
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ rewrite nz_terms_add_assoc; reflexivity.
+
+ do 2 rewrite Z.add_0_r, Z.mul_1_r.
+ unfold cm_factor, cm; simpl.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Z.min_assoc.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ do 2 f_equal; [ f_equal; apply Z.mul_shuffle0 | apply Z.mul_shuffle0 ].
+
+ do 2 rewrite Pos.mul_1_r.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ rewrite Pos.mul_assoc; reflexivity.
+Qed.
+
 Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃,
-  first_nonzero fld (nz_terms_add fld ps₁ ps₂) = fin 0
-  → first_nonzero fld (nz_terms_add fld ps₂ ps₃) = fin 0
+  first_nonzero fld (terms_add ps₁ ps₂) = fin 0
+  → first_nonzero fld (terms_add ps₂ ps₃) = fin 0
   → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
     ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Hn₁ Hn₂.
-remember (nz_valnum ps₁) as v₁ eqn:Hv₁ .
-remember (nz_valnum ps₂) as v₂ eqn:Hv₂ .
-remember (nz_valnum ps₃) as v₃ eqn:Hv₃ .
-remember (nz_comden ps₁) as c₁ eqn:Hc₁ .
-remember (nz_comden ps₂) as c₂ eqn:Hc₂ .
-remember (nz_comden ps₃) as c₃ eqn:Hc₃ .
-symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
-unfold ps_add.
-rewrite Hv₁, Hv₂, Hv₃.
-destruct v₁ as [v₁| ]; [ idtac | rewrite Hv₂; reflexivity ].
-destruct v₂ as [v₂| ]; [ idtac | rewrite Hv₁, Hv₃; reflexivity ].
-destruct v₃ as [v₃| ]; simpl.
- unfold ps_add_nz; simpl.
- rewrite Hn₁, Hn₂; simpl.
- rewrite Hv₁, Hv₂, Hv₃; simpl.
- rewrite nz_terms_add_assoc; try eassumption.
- remember (build_ps_add fld 0 ps₂ ps₃) as ps₂₃.
- remember (first_nonzero fld (nz_terms_add fld ps₁ ps₂₃)) as n.
- subst ps₂₃.
- destruct n as [n| ]; [ idtac | reflexivity ].
- constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
-  do 2 rewrite stretch_series_1.
-  constructor; intros i.
-  unfold build_ps_add; simpl.
-  unfold nz_terms_add; simpl.
-  unfold cm_factor, cm; simpl.
-  rewrite Hv₁, Hv₂, Hv₃; simpl.
-  rewrite Hc₁, Hc₂, Hc₃; simpl.
-  do 2 rewrite Z.add_0_r.
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Pos2Z.inj_mul.
-  rewrite Z.mul_assoc.
-  remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
-  remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
-  remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
-  rewrite Z.mul_shuffle0, <- Hccv.
-  rewrite Z.mul_shuffle0, <- Hcvc.
-  rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Hvcc.
-  do 2 rewrite stretch_series_add_distr.
-  do 2 rewrite series_pad_add_distr.
-  rewrite series_add_assoc.
-  do 4 rewrite stretch_pad_series_distr.
-  do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-  do 4 rewrite series_pad_pad.
-  do 4 rewrite Nat.mul_sub_distr_r.
-  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-  rewrite <- Hvcc, <- Hcvc.
-  do 2 rewrite Z2Nat.inj_min.
-  rewrite min_sub_add_sub.
-  rewrite Z.mul_shuffle0, <- Hcvc.
-  rewrite <- Hccv.
-  remember (Z.to_nat vcc) as nvcc.
-  remember (Z.to_nat cvc) as ncvc.
-  remember (Z.to_nat ccv) as nccv.
-  replace (min nvcc ncvc) with (min ncvc nvcc) by apply Nat.min_comm.
-  rewrite min_sub_add_sub.
-  replace (min nvcc nccv) with (min nccv nvcc) by apply Nat.min_comm.
-  rewrite min_sub_add_sub.
-  replace (min ncvc nccv) with (min nccv ncvc) by apply Nat.min_comm.
-  rewrite min_sub_add_sub.
-  rewrite Pos.mul_comm.
-  replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
-  reflexivity.
-
-  rewrite Hv₁, Hv₂, Hv₃; simpl.
-  do 2 rewrite Z.add_0_r, Z.mul_1_r.
-  unfold cm_factor, cm; simpl.
-  rewrite Hc₁, Hc₂, Hc₃; simpl.
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.min_assoc.
-  do 2 rewrite Pos2Z.inj_mul.
-  do 2 rewrite Z.mul_assoc.
-  do 3 f_equal; [ f_equal; apply Z.mul_shuffle0 | apply Z.mul_shuffle0 ].
-
-  do 2 rewrite Pos.mul_1_r.
-  unfold cm; simpl.
-  unfold cm; simpl.
-  rewrite Pos.mul_assoc; reflexivity.
-
- rewrite Hv₂.
- remember (ps_add_nz fld ps₁ ps₂) as ps₁₂.
- remember (nz_valnum ps₁₂) as v₁₂ eqn:Hv₁₂ ; symmetry in Hv₁₂.
- destruct v₁₂ as [v₁₂| ]; [ reflexivity | idtac ].
- constructor 2; assumption.
+destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
+simpl in Hn₁, Hn₂.
+remember (ps_add fld (NonZero nz₁) (NonZero nz₂)) as x.
+remember (ps_add fld (NonZero nz₂) (NonZero nz₃)) as y.
+simpl in Heqx, Heqy; subst x y.
+unfold nz_add.
+rewrite Hn₁, Hn₂; simpl.
+apply nz_add_assoc_base.
 Qed.
 
 Definition series_head (s : series α) :=
