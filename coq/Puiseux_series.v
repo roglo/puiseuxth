@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.426 2013-09-02 23:51:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.427 2013-09-03 02:12:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -87,6 +87,24 @@ Definition ps_monom (c : α) pow :=
 
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (one fld).
+
+Theorem null_series : ∀ s,
+  series_nth 0 s = None
+  → ∀ i : nat, series_nth_fld fld i s = zero fld.
+Proof.
+intros s H i.
+unfold series_nth_fld; simpl.
+unfold series_nth in H.
+remember (stop s) as st; symmetry in Heqst.
+destruct st as [st| ]; [ idtac | discriminate H ].
+destruct (lt_dec 0 st) as [Hlt| Hge]; [ discriminate H | clear H ].
+apply not_gt in Hge.
+apply Nat.le_0_r in Hge.
+subst st.
+destruct (Nbar.lt_dec (fin i) 0) as [Hlt| ]; [ idtac | reflexivity ].
+inversion Hlt as [a b H d e| ]; subst.
+exfalso; revert H; apply Nat.nle_succ_0.
+Qed.
 
 (*
 Lemma first_nonzero_fin : ∀ s v,
@@ -1205,6 +1223,11 @@ revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
 induction n₁ as [| n₁]; intros.
  apply ps_add_assoc_base; assumption.
 
+ remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
+ symmetry in Hv₁.
+ destruct v₁ as [v₁| ].
+  Focus 2.
+bbb.
  remember Hn₁ as Hn₀; clear HeqHn₀.
  apply first_nonzero_nonzero_fin in Hn₀.
  remember (ps_head ps₁) as pm₁.
@@ -1214,22 +1237,19 @@ induction n₁ as [| n₁]; intros.
  assert (ps_add fld pm₁ ps'₁ ≈ ps₁) as Heq₁.
   constructor 1 with (k₁ := xH) (k₂ := xH).
    do 2 rewrite stretch_series_1.
-   subst pm₁ ps'₁; simpl.
    constructor; intros i.
-   unfold ps_add; simpl.
-   remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
-   remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
-   destruct v₁ as [v₁| ]; simpl.
-    unfold ps_add_nz; simpl.
-    remember (ps_terms_add fld (ps_head ps₁) (ps_tail ps₁)) as sc₁ eqn:Hsc₁ .
-    remember (first_nonzero fld sc₁) as nc₁ eqn:Hnc₁ .
-    symmetry in Hnc₁.
-    destruct nc₁ as [nc₁| ]; simpl.
-     rewrite <- Hsc₁.
-     unfold ps_terms_add in Hsc₁.
-     simpl in Hsc₁.
-     unfold series_head, series_tail in Hsc₁.
-     simpl in Hsc₁.
+   unfold series_nth_fld; simpl.
+   remember (stop (ps_terms (pm₁ + ps'₁)%ps)) as st.
+   destruct (Nbar.lt_dec (fin i) st) as [Hlt₁| Hge₁].
+    subst st.
+    destruct (Nbar.lt_dec (fin i) (stop (ps_terms ps₁))) as [Hlt₂| Hge₂].
+     unfold ps_add; simpl.
+     subst pm₁; simpl.
+     subst ps'₁; simpl.
+     remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
+     symmetry in Hv₁.
+     destruct v₁ as [v₁| ]; simpl.
+      Focus 2.
 bbb.
  assert (ps_add fld ps'₁ ps'₂ ≈ ps_add fld ps₁ ps₂) as Heq₁₂.
   constructor 1 with (k₁ := xH) (k₂ := xH).
