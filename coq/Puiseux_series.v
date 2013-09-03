@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.431 2013-09-03 14:16:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.432 2013-09-03 14:38:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1072,6 +1072,18 @@ Definition nz_tail nz :=
      nz_valnum := nz_valnum nz + 1;
      nz_comden := nz_comden nz |}.
 
+Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
+  first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
+  → first_nonzero fld (nz_terms_add fld nz₂ nz₃) = fin 0
+    → nz_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≈
+      nz_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ n₁ Hn₁ Hn₂.
+revert nz₁ nz₂ nz₃ Hn₁ Hn₂.
+induction n₁ as [| n₁]; intros.
+ apply nz_add_assoc_base.
+bbb.
+
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
   first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
   → first_nonzero fld (terms_add ps₂ ps₃) = fin 0
@@ -1079,9 +1091,15 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
       ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
-revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
-induction n₁ as [| n₁]; intros.
- apply ps_add_assoc_base; assumption.
+destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
+simpl in Hn₁, Hn₂.
+remember (ps_add fld (NonZero nz₁) (NonZero nz₂)) as x.
+remember (ps_add fld (NonZero nz₂) (NonZero nz₃)) as y.
+simpl in Heqx, Heqy; subst x y.
+unfold nz_add.
+rewrite Hn₁, Hn₂; simpl.
 
 bbb.
  remember (nz_valnum ps₁) as v₁ eqn:Hv₁ .
