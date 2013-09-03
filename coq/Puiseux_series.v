@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.430 2013-09-03 13:33:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.431 2013-09-03 14:16:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1031,11 +1031,15 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
+Delimit Scope ps_scope with ps.
+Bind Scope ps_scope with puiseux_series.
+Notation "a + b" := (ps_add fld a b) : ps_scope.
+
 Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃,
   first_nonzero fld (terms_add ps₁ ps₂) = fin 0
   → first_nonzero fld (terms_add ps₂ ps₃) = fin 0
-  → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
-    ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+    → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
+      ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Hn₁ Hn₂.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
@@ -1058,31 +1062,28 @@ Definition series_tail (s : series α) :=
   {| terms i := terms s (S i);
      stop := stop s - 1 |}.
 
-Definition ps_head ps :=
-  {| nz_terms := series_head (nz_terms ps);
-     nz_valnum := nz_valnum ps;
-     nz_comden := nz_comden ps |}.
+Definition nz_head nz :=
+  {| nz_terms := series_head (nz_terms nz);
+     nz_valnum := nz_valnum nz;
+     nz_comden := nz_comden nz |}.
 
-Definition ps_tail ps :=
-  {| nz_terms := series_tail (nz_terms ps);
-     nz_valnum := nz_valnum ps + 1;
-     nz_comden := nz_comden ps |}.
-
-Delimit Scope ps_scope with ps.
-Bind Scope ps_scope with puiseux_series.
-Notation "a + b" := (ps_add fld a b) : ps_scope.
+Definition nz_tail nz :=
+  {| nz_terms := series_tail (nz_terms nz);
+     nz_valnum := nz_valnum nz + 1;
+     nz_comden := nz_comden nz |}.
 
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
-  first_nonzero fld (nz_terms_add fld ps₁ ps₂) = fin n₁
-  → first_nonzero fld (nz_terms_add fld ps₂ ps₃) = fin 0
-  → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
-    ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+  first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
+  → first_nonzero fld (terms_add ps₂ ps₃) = fin 0
+    → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
+      ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
 revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
 induction n₁ as [| n₁]; intros.
  apply ps_add_assoc_base; assumption.
 
+bbb.
  remember (nz_valnum ps₁) as v₁ eqn:Hv₁ .
  symmetry in Hv₁.
  destruct v₁ as [v₁| ].
