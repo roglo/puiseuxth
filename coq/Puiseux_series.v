@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.428 2013-09-03 10:55:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.429 2013-09-03 11:20:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -928,23 +928,23 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Lemma nz_terms_add_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃,
-  nz_valnum ps₁ = zfin v₁
-  → nz_valnum ps₂ = zfin v₂
-    → nz_valnum ps₃ = zfin v₃
-      → nz_terms_add fld (build_ps_add fld 0 ps₁ ps₂) ps₃ ≃
-        nz_terms_add fld ps₁ (build_ps_add fld 0 ps₂ ps₃).
+Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃ v₁ v₂ v₃,
+  nz_valnum nz₁ = v₁
+  → nz_valnum nz₂ = v₂
+    → nz_valnum nz₃ = v₃
+      → nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
+        nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
 Proof.
-intros ps₁ ps₂ ps₃ v₁ v₂ v₃ Hv₁ Hv₂ Hv₃.
+intros nz₁ nz₂ nz₃ v₁ v₂ v₃ Hv₁ Hv₂ Hv₃.
 constructor; intros i.
-unfold build_ps_add; simpl.
+unfold build_nz_add; simpl.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
 unfold cm_factor, cm.
 rewrite Hv₁, Hv₂, Hv₃; simpl.
-remember (nz_comden ps₁) as c₁.
-remember (nz_comden ps₂) as c₂.
-remember (nz_comden ps₃) as c₃.
+remember (nz_comden nz₁) as c₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_comden nz₃) as c₃.
 do 2 rewrite stretch_series_add_distr.
 do 2 rewrite series_pad_add_distr.
 rewrite series_add_assoc.
