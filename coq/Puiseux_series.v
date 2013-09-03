@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.435 2013-09-03 17:26:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.436 2013-09-03 19:05:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1089,8 +1089,8 @@ induction n₁ as [| n₁]; intros.
  symmetry in Hps₁.
  destruct ps₁ as [nz| ].
   assert (NonZero nz ≈ NonZero nz₁) as H.
-   constructor 1 with (k₁ := xH) (k₂ := xH).
-    do 2 rewrite stretch_series_1.
+   constructor 1 with (k₁ := xH) (k₂ := nz_comden nz₁).
+    rewrite stretch_series_1.
     constructor; intros i.
     unfold series_nth_fld.
     unfold nz_add in Hps₁.
@@ -1110,11 +1110,18 @@ induction n₁ as [| n₁]; intros.
     destruct st₁ as [st₁| ].
      simpl in Hst.
      destruct (Nbar.lt_dec (fin i) st) as [Hlt₁| Hge₁].
-      destruct (Nbar.lt_dec (fin i) (fin st₁)) as [Hlt₂| Hge₂].
+      remember (stretch_series fld (nz_comden nz₁) (nz_terms nz₁)) as s.
+      remember (stop s) as st₂ eqn:Hst₂ ; subst s.
+      symmetry in Hst₂.
+      simpl in Hst₂.
+      rewrite Hst₁ in Hst₂.
+      simpl in Hst₂.
+      destruct (Nbar.lt_dec (fin i) st₂) as [Hlt₂| Hge₂].
        Focus 1.
        rewrite <- Hps₁; simpl.
        unfold cm_factor; simpl.
        rewrite Heqnz'₁; simpl.
+       unfold stretch_series; simpl.
 bbb.
 
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
