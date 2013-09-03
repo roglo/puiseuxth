@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.434 2013-09-03 17:10:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.435 2013-09-03 17:26:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1101,6 +1101,20 @@ induction n₁ as [| n₁]; intros.
     destruct n₁₂ as [n₁₂| ]; [ idtac | discriminate Hps₁ ].
     injection Hps₁; clear Hps₁; intros Hps₁.
     rewrite <- Heqpm₁ in Hn₁₂.
+    remember (stop (nz_terms nz)) as st eqn:Hst .
+    rewrite <- Hps₁ in Hst; simpl in Hst.
+    rewrite Heqnz'₁ in Hst; simpl in Hst.
+    rewrite Nat.add_0_r in Hst.
+    remember (stop (nz_terms nz₁)) as st₁ eqn:Hst₁ .
+    symmetry in Hst, Hst₁.
+    destruct st₁ as [st₁| ].
+     simpl in Hst.
+     destruct (Nbar.lt_dec (fin i) st) as [Hlt₁| Hge₁].
+      destruct (Nbar.lt_dec (fin i) (fin st₁)) as [Hlt₂| Hge₂].
+       Focus 1.
+       rewrite <- Hps₁; simpl.
+       unfold cm_factor; simpl.
+       rewrite Heqnz'₁; simpl.
 bbb.
 
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
