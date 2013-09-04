@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.453 2013-09-04 17:50:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.454 2013-09-04 18:47:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1070,6 +1070,19 @@ rewrite Pos2Nat.inj_add.
 rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
 Qed.
 
+Lemma padded_in_stretched : ∀ s k i,
+  (0 < i mod Pos.to_nat k)%nat
+  → series_nth_fld fld i (stretch_series fld k s) = zero fld.
+Proof.
+intros s k i Hi.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld; simpl.
+destruct (zerop (i mod Pos.to_nat k)) as [Hz| Hnz].
+ exfalso; revert Hi; rewrite Hz; apply Nat.lt_irrefl.
+
+ destruct (Nbar.lt_dec (fin i) (stop s * fin (Pos.to_nat k))); reflexivity.
+Qed.
+
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
@@ -1347,7 +1360,16 @@ destruct n as [n| ].
 
        apply Pos2Nat_ne_0.
 
-     Focus 1.
+     rewrite padded_in_stretched; [ idtac | assumption ].
+     rewrite fld_add_ident.
+     remember (Pos.to_nat (nz_comden nz)) as x.
+     rewrite <- Nat.mul_1_l in Heqx.
+     subst x.
+     rewrite <- stretch_pad_series_distr.
+     rewrite padded_in_stretched; [ reflexivity | idtac ].
+     rewrite Nat.mul_1_l in Hnz; assumption.
+
+    Focus 1.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
