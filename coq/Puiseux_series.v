@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.438 2013-09-04 02:28:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.439 2013-09-04 03:07:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1075,6 +1075,7 @@ Definition nz_tail nz :=
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
+bbb.
 unfold nz_add.
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as nz'.
 remember (first_nonzero fld nz') as n eqn:Hn ; subst nz'.
@@ -1093,6 +1094,24 @@ destruct n as [n| ].
     remember (nz_comden nz) as c eqn:Hc .
     remember (nz_valnum nz) as v eqn:Hv .
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
+    symmetry in Hv.
+    destruct v as [| v| v]; simpl.
+     Focus 1.
+     rewrite Nat.add_0_r, Nat.sub_0_r.
+     rewrite Nat.max_id.
+     destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁].
+      inversion Hlt₁.
+      exfalso; revert H1; apply Nat.nle_succ_0.
+
+      destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat c))) as [Hlt₂| ].
+       rewrite series_pad_left_0.
+       unfold stretch_series; simpl.
+       unfold series_nth_fld; simpl.
+       rewrite Nat.add_0_r.
+       destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat c))) as [Hlt₃| ];
+        [ idtac | contradiction ].
+       destruct (lt_dec i (Pos.to_nat c)) as [Hlt₄| Hgt₄].
+        Focus 1.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
