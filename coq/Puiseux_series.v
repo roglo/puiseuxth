@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.451 2013-09-04 16:22:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.452 2013-09-04 17:26:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1114,69 +1114,172 @@ destruct n as [n| ].
          simpl in Hlt₁, Hlt₂.
          exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
 
-         destruct st as [| st].
-          rewrite Nat.mul_1_l in Hlt₁, Hlt₂.
-          subst i.
-          rewrite Nat.mul_comm.
-          rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-          remember (fin (Pos.to_nat (nz_comden nz))) as x.
-          rewrite <- Nbar.mul_1_r in Heqx; subst x.
-          rewrite Nbar.fin_inj_mul in Hlt₂.
-          apply Nbar.mul_lt_mono_pos_l in Hlt₂.
-           destruct k as [k| ]; [ idtac | inversion Hlt₂ ].
-            rewrite Nat.mul_0_l.
-            remember (series_head (nz_terms nz)) as x.
-            remember (stretch_series fld (nz_comden nz) x) as y.
-            subst x.
-            remember (series_nth_fld fld 0 y) as s eqn:Hs ; subst y.
-            unfold series_nth_fld, stretch_series in Hs.
-            unfold series_head in Hs; simpl in Hs.
-            rewrite Nat.mod_0_l in Hs; simpl in Hs.
-             rewrite Nat.div_0_l in Hs; simpl in Hs.
-              unfold series_nth_fld in Hs; simpl in Hs.
-              rewrite Nat.add_0_r in Hs.
-              rewrite Nat.mul_0_r, Nat.max_id in Hlt₁.
-              destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
-               as [Hlt₃| Hge₃].
-               destruct (Nbar.lt_dec 0 1) as [Hlt₄| Hge₄].
-                subst s.
-                unfold stretch_series, series_tail; simpl.
-                unfold series_pad_left; simpl.
-                unfold series_nth_fld; simpl.
-                rewrite Hst; simpl.
-                destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
-                 as [Hlt₅| Hge₅].
-                 destruct (lt_dec 0 (Pos.to_nat (nz_comden nz)))
-                  as [Hlt₆| Hge₆].
-                  destruct (Nbar.lt_dec 0 1) as [Hlt₇| Hge₇].
-                   rewrite fld_add_comm, fld_add_ident; reflexivity.
+         Focus 1.
+         subst i.
+         rewrite Nat.mul_comm.
+         rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+         rewrite Nat.mul_comm in Hlt₂.
+         do 2 rewrite Nbar.fin_inj_mul in Hlt₂.
+         apply Nbar.mul_lt_mono_pos_r in Hlt₂.
+          destruct k as [k| ]; [ idtac | inversion Hlt₂ ].
+           rewrite Nat.mul_0_l.
+           remember (series_head (nz_terms nz)) as x.
+           remember (stretch_series fld (nz_comden nz) x) as y.
+           subst x.
+           remember (series_nth_fld fld 0 y) as s eqn:Hs ; subst y.
+           unfold series_nth_fld, stretch_series in Hs.
+           unfold series_head in Hs; simpl in Hs.
+           rewrite Nat.mod_0_l in Hs; simpl in Hs.
+            rewrite Nat.div_0_l in Hs; simpl in Hs.
+             unfold series_nth_fld in Hs; simpl in Hs.
+             rewrite Nat.add_0_r in Hs.
+             rewrite Nat.mul_0_r in Hlt₁.
+             destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
+              as [Hlt₃| Hge₃].
+              destruct (Nbar.lt_dec 0 1) as [Hlt₄| Hge₄].
+               subst s.
+               unfold stretch_series, series_tail; simpl.
+               unfold series_pad_left; simpl.
+               unfold series_nth_fld; simpl.
+               rewrite Hst; simpl.
+               rewrite Nat.sub_0_r.
+               rewrite <- Nat.mul_succ_l.
+               destruct
+                (Nbar.lt_dec 0 (fin (S st * Pos.to_nat (nz_comden nz))))
+                as [Hlt₅| Hge₅].
+                destruct (lt_dec 0 (Pos.to_nat (nz_comden nz)))
+                 as [Hlt₆| Hge₆].
+                 destruct (Nbar.lt_dec 0 (fin (S st))) as [Hlt₇| Hge₇].
+                  rewrite fld_add_comm, fld_add_ident; reflexivity.
 
-                   exfalso; apply Hge₇.
-                   constructor; constructor.
+                  exfalso; apply Hge₇.
+                  constructor.
+                  apply le_n_S, le_0_n.
 
-                  inversion Hlt₁; contradiction.
+                 exfalso; apply Hge₆.
+                 apply Pos2Nat.is_pos.
 
-                 contradiction.
+                exfalso; apply Hge₅.
+                constructor.
+                remember (Pos.to_nat (nz_comden nz)) as p.
+                destruct p.
+                 exfalso; symmetry in Heqp; revert Heqp; apply Pos2Nat_ne_0.
 
-                exfalso; apply Hge₄.
-                constructor; constructor.
+                 simpl.
+                 apply le_n_S, le_0_n.
 
-               contradiction.
+               exfalso; apply Hge₄.
+               constructor; constructor.
 
-              apply Pos2Nat_ne_0.
+              exfalso; apply Hge₃.
+              constructor.
+              remember (Pos.to_nat (nz_comden nz)) as p.
+              destruct p.
+               exfalso; symmetry in Heqp; revert Heqp; apply Pos2Nat_ne_0.
+
+               simpl.
+               apply le_n_S, le_0_n.
 
              apply Pos2Nat_ne_0.
 
-            apply lt_S_n in H1.
-            exfalso; revert H1; apply Nat.nlt_0_r.
+            apply Pos2Nat_ne_0.
 
-           constructor; apply Pos2Nat.is_pos.
+           apply lt_S_n in H1.
+           subst n0 m.
+           remember (series_tail (nz_terms nz)) as x.
+           remember (stretch_series fld (nz_comden nz) x) as y.
+           subst x.
+           remember
+            (series_nth_fld fld (S k * Pos.to_nat (nz_comden nz))
+               (series_pad_left fld (Pos.to_nat (nz_comden nz)) y)) as s
+            eqn:Hs .
+           subst y.
+           unfold series_tail in Hs; simpl in Hs.
+           unfold series_nth_fld, stretch_series in Hs.
+           rewrite Nat.add_comm in Hs.
+           rewrite <- Nat.mul_succ_l in Hs.
+           unfold series_pad_left in Hs.
+           simpl in Hs.
+           rewrite Nat.add_comm in Hs.
+           rewrite <- Nat.mul_succ_l in Hs.
+           rewrite Hst in Hs.
+           simpl in Hs.
+           rewrite Nat.sub_0_r in Hs.
+           rewrite <- Nat.mul_succ_l in Hs.
+           rewrite Nat.add_comm in Hs.
+           rewrite <- Nat.mul_succ_l in Hs.
+           destruct
+            (Nbar.lt_dec (fin (S k * Pos.to_nat (nz_comden nz)))
+               (fin (S st * Pos.to_nat (nz_comden nz))))%Nbar 
+            as [Hlt₃| Hge₃].
+            destruct
+             (lt_dec (S k * Pos.to_nat (nz_comden nz))
+                (Pos.to_nat (nz_comden nz))) as [Hlt₄| Hge₄].
+             exfalso; apply gt_not_le in Hlt₄; apply Hlt₄.
+             simpl.
+             apply le_plus_l.
 
-           intros H; discriminate H.
+             simpl in Hs.
+             rewrite minus_plus in Hs.
+             rewrite Nat.mod_mul in Hs.
+              simpl in Hs.
+              rewrite Nat.div_mul in Hs.
+               unfold series_nth_fld in Hs.
+               simpl in Hs.
+               destruct (Nbar.lt_dec (fin k) (fin st)) as [Hlt₅| Hge₅].
+                subst s.
+                unfold stretch_series, series_head; simpl.
+                unfold series_nth_fld; simpl.
+                rewrite Hst; simpl.
+                rewrite Nat.add_0_r.
+                rewrite Nat.add_comm.
+                rewrite <- Nat.mul_succ_l.
+                remember (Pos.to_nat (nz_comden nz)) as x.
+                destruct (Nbar.lt_dec (fin (S k * x)) (fin x))
+                 as [Hlt₆| Hge₆].
+                 inversion_clear Hlt₆.
+                 apply gt_not_le in H.
+                 exfalso; apply H, le_plus_l.
 
-           intros H; discriminate H.
+                 rewrite fld_add_ident.
+                 destruct (Nbar.lt_dec (fin (S k)) (fin (S st)))
+                  as [Hlt₇| Hge₇].
+                  reflexivity.
 
-          Focus 1.
+                  exfalso; apply Hge₇.
+                  constructor.
+                  apply lt_n_S; assumption.
+
+                exfalso; apply Hge₅.
+                constructor; assumption.
+
+               apply Pos2Nat_ne_0.
+
+              apply Pos2Nat_ne_0.
+
+            exfalso; apply Hge₃.
+            constructor.
+            apply Nat.mul_lt_mono_pos_r.
+             apply Pos2Nat.is_pos.
+
+             apply lt_n_S; assumption.
+
+          constructor.
+          apply Pos2Nat.is_pos.
+
+          intros H; discriminate H.
+
+          intros H; discriminate H.
+
+        destruct st as [| st].
+         simpl in Hlt₂.
+         exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
+
+         apply le_n_S, le_0_n.
+
+       apply Z.le_0_1.
+
+       apply Z.lt_le_incl, Pos2Z.is_pos.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
