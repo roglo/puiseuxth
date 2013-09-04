@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.456 2013-09-04 20:20:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.457 2013-09-04 21:22:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1391,9 +1391,37 @@ destruct n as [n| ].
      remember (stop (nz_terms nz)) as st.
      symmetry in Heqst.
      destruct st as [st| ].
-      Focus 1.
       simpl in Hlt₁ |- *.
       simpl in Heqst₂.
+      rewrite <- Z.mul_sub_distr_r in Hlt₁.
+      rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁; simpl in Hlt₁.
+      rewrite <- Z.mul_sub_distr_r in Hlt₁.
+      rewrite Z.add_simpl_l in Hlt₁.
+      rewrite Nat.add_0_r in Hlt₁.
+      rewrite Z2Nat.inj_mul in Hlt₁.
+       rewrite Z2Nat.inj_pos in Hlt₁.
+       rewrite Z2Nat.inj_pos in Hlt₁.
+       rewrite <- Nat.mul_add_distr_r in Hlt₁.
+       remember (Pos.to_nat (nz_comden nz)) as x.
+       destruct (Nbar.lt_dec (fin i) (fin x)) as [Hlt₃| Hge₃].
+        destruct (zerop (i mod x)) as [Hz| Hnz].
+         apply Nat.mod_divides in Hz.
+          destruct Hz as (k, Hi).
+          subst i.
+          rewrite Nat.mul_comm, Nat.div_mul.
+           unfold Pos.to_nat in Hlt₁.
+           simpl in Hlt₁.
+           destruct st as [| st].
+            simpl.
+            simpl in Hlt₁.
+            rewrite Nat.add_0_r, Nat.max_id in Hlt₁.
+            rewrite Nat.add_0_r.
+            destruct (Nbar.lt_dec (fin (k * x)) (fin x)) as [Hlt₄| Hge₄].
+             unfold series_nth_fld; simpl.
+             rewrite Heqst.
+             simpl.
+             destruct (Nbar.lt_dec (fin k) 1) as [Hlt₅| Hge₅].
+            Focus 1.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
