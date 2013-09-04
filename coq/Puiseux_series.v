@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.440 2013-09-04 03:09:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.441 2013-09-04 08:31:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1072,6 +1072,17 @@ Definition nz_tail nz :=
      nz_valnum := nz_valnum nz + 1;
      nz_comden := nz_comden nz |}.
 
+Lemma Z2Nat_sub_mul_succ_l : ∀ a b,
+  (Z.to_nat (a * ' b) - Z.to_nat ((a + 1) * ' b))%nat = O.
+Proof.
+intros a b.
+destruct a as [| a| a]; [ reflexivity | simpl | reflexivity ].
+do 2 rewrite Pos2Nat.inj_mul.
+rewrite <- Nat.mul_sub_distr_r.
+rewrite Pos2Nat.inj_add.
+rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
+Qed.
+
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
@@ -1083,7 +1094,23 @@ destruct n as [n| ].
  constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
   rewrite stretch_series_1.
   constructor; intros i.
+  remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s₁ eqn:Hs₁ .
+  remember (stretch_series fld (nz_comden nz) (nz_terms nz)) as s₂ eqn:Hs₂ .
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₁| Hge₁].
+   destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
+    subst s₁ s₂; simpl.
+    rewrite Z2Nat_sub_mul_succ_l, series_pad_left_0.
 bbb.
+     replace
+      (Z.to_nat ((nz_valnum nz + 1) * ' nz_comden nz) -
+       Z.to_nat (nz_valnum nz * ' nz_comden nz))%nat with
+      (Z.to_nat (Zpos (nz_comden nz))) .
+      simpl.
+      simpl in Hlt₂.
+      simpl in Hlt₁.
+
+
   unfold series_nth_fld; simpl.
   remember (stop (nz_terms nz)) as st eqn:Hst .
   destruct st as [st| ].
