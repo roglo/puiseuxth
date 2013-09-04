@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.448 2013-09-04 14:27:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.449 2013-09-04 14:51:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1090,36 +1090,26 @@ destruct n as [n| ].
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
     rewrite Z.sub_add_distr, Z.sub_diag; simpl.
     rewrite Z.add_simpl_l.
-    rewrite series_pad_left_0.
-bbb.
-
-  unfold series_nth_fld; simpl.
-  remember (stop (nz_terms nz)) as st eqn:Hst .
-  destruct st as [st| ].
-   symmetry in Hst.
-   destruct st as [st| ]; simpl.
-    Focus 1.
-    rewrite Nat.add_0_r.
-    remember (nz_comden nz) as c eqn:Hc .
-    remember (nz_valnum nz) as v eqn:Hv .
-    rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    symmetry in Hv.
-    destruct v as [| v| v]; simpl.
-     Focus 1.
-     rewrite Nat.add_0_r, Nat.sub_0_r.
-     rewrite Nat.max_id.
-     destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁].
-      inversion Hlt₁.
-      exfalso; revert H1; apply Nat.nle_succ_0.
-
-      destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat c))) as [Hlt₂| ].
-       rewrite series_pad_left_0.
-       unfold stretch_series; simpl.
-       unfold series_nth_fld; simpl.
-       rewrite Nat.add_0_r.
-       destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat c))) as [Hlt₃| ];
-        [ idtac | contradiction ].
-       destruct (lt_dec i (Pos.to_nat c)) as [Hlt₄| Hgt₄].
+    rewrite series_pad_left_0; simpl.
+    destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
+     simpl in Hlt₁, Hlt₂.
+     remember (stop (nz_terms nz)) as st eqn:Hst .
+     symmetry in Hst.
+     destruct st as [st| ]; simpl in Hlt₁, Hlt₂.
+      rewrite Nat.add_0_r in Hlt₁.
+      rewrite <- Z.mul_sub_distr_r in Hlt₁.
+      rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁.
+      simpl in Hlt₁.
+      rewrite Nat.add_0_r in Hlt₁.
+      rewrite <- Z.mul_sub_distr_r in Hlt₁.
+      rewrite Z.add_simpl_l in Hlt₁.
+      rewrite Z2Nat.inj_mul in Hlt₁.
+       rewrite Z2Nat.inj_pos in Hlt₁.
+       rewrite Z2Nat.inj_pos in Hlt₁.
+       rewrite <- Nat.mul_add_distr_r in Hlt₁.
+       rewrite Nat.sub_add in Hlt₁.
+        apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+        destruct Hz as (k, Hi).
         Focus 1.
 bbb.
 
