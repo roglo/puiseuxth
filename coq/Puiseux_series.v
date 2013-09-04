@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.443 2013-09-04 09:18:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.444 2013-09-04 09:46:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -927,6 +927,26 @@ apply lt_first_nonzero.
 rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
+
+Lemma zzz : ∀ x y z,
+  (Z.to_nat (Z.min x y - z) + Z.to_nat (x - y))%nat =
+  Z.to_nat (x - Z.min y z).
+Proof.
+intros x y z.
+rewrite <- Z.sub_min_distr_r.
+rewrite <- Z.sub_max_distr_l.
+destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
+ rewrite Z.min_l; [ idtac | assumption ].
+ destruct (Z_le_dec (x - y) (x - z)) as [Hle₂| Hgt₂].
+  rewrite Z.max_r; [ idtac | assumption ].
+  apply Z.sub_le_mono_r in Hle₁.
+  rewrite Z.sub_le_mono_r with (p := y) in Hle₁.
+  rewrite Z.sub_diag in Hle₁.
+  rewrite Nat.add_comm.
+  destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hle₁.
+  exfalso; apply Hle₁, Pos2Z.is_pos.
+bbb.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
