@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.449 2013-09-04 14:51:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.450 2013-09-04 15:28:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1110,7 +1110,25 @@ destruct n as [n| ].
        rewrite Nat.sub_add in Hlt₁.
         apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
         destruct Hz as (k, Hi).
-        Focus 1.
+        destruct st as [| st].
+         simpl in Hlt₁, Hlt₂.
+         exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
+
+         destruct st as [| st].
+          Focus 1.
+          rewrite Nat.mul_1_l in Hlt₁, Hlt₂.
+          subst i.
+          rewrite Nat.mul_comm.
+          rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+          remember (fin (Pos.to_nat (nz_comden nz))) as x.
+          rewrite <- Nbar.mul_1_r in Heqx; subst x.
+          rewrite Nbar.fin_inj_mul in Hlt₂.
+          apply Nbar.mul_lt_mono_pos_l in Hlt₂.
+           destruct k as [k| ]; [ idtac | inversion Hlt₂ ].
+            rewrite Nat.mul_0_l.
+            Focus 2.
+            apply lt_S_n in H1.
+            exfalso; revert H1; apply Nat.nlt_0_r.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,

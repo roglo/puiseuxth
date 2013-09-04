@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.39 2013-09-02 15:15:29 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.40 2013-09-04 15:28:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -167,6 +167,15 @@ destruct m as [m| ]; simpl.
   eapply Nat.mul_lt_mono_pos_r; [ inversion Hp | inversion H ]; eassumption.
 
  split; intros H; constructor.
+Qed.
+
+Theorem mul_lt_mono_pos_l : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
+  n < m ↔ p * n < p * m.
+Proof.
+intros p n m Hp Hpi Hni.
+rewrite Nbar.mul_comm.
+replace (p * m) with (m * p) by apply mul_comm.
+apply mul_lt_mono_pos_r; assumption.
 Qed.
 
 Theorem mul_0_r : ∀ n, n ≠ inf → n * 0 = 0.
