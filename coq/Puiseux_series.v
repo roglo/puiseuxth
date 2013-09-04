@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.436 2013-09-03 19:05:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.437 2013-09-04 01:24:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1072,6 +1072,18 @@ Definition nz_tail nz :=
      nz_valnum := nz_valnum nz + 1;
      nz_comden := nz_comden nz |}.
 
+Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
+Proof.
+intros nz.
+unfold nz_add.
+remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as nz'.
+remember (first_nonzero fld nz') as n eqn:Hn ; subst nz'.
+symmetry in Hn.
+destruct n as [n| ].
+ constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
+  rewrite stretch_series_1.
+bbb.
+
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
   → first_nonzero fld (nz_terms_add fld nz₂ nz₃) = fin 0
@@ -1089,6 +1101,7 @@ induction n₁ as [| n₁]; intros.
  symmetry in Hps₁.
  destruct ps₁ as [nz| ].
   assert (NonZero nz ≈ NonZero nz₁) as H.
+bbb.
    constructor 1 with (k₁ := xH) (k₂ := nz_comden nz₁).
     rewrite stretch_series_1.
     constructor; intros i.
