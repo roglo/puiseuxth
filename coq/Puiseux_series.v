@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.437 2013-09-04 01:24:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.438 2013-09-04 02:28:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1082,6 +1082,17 @@ symmetry in Hn.
 destruct n as [n| ].
  constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
   rewrite stretch_series_1.
+  constructor; intros i.
+  unfold series_nth_fld; simpl.
+  remember (stop (nz_terms nz)) as st eqn:Hst .
+  destruct st as [st| ].
+   symmetry in Hst.
+   destruct st as [st| ]; simpl.
+    Focus 1.
+    rewrite Nat.add_0_r.
+    remember (nz_comden nz) as c eqn:Hc .
+    remember (nz_valnum nz) as v eqn:Hv .
+    rewrite Z.mul_add_distr_r, Z.mul_1_l.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
