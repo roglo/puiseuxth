@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.439 2013-09-04 03:07:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.440 2013-09-04 03:09:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1075,7 +1075,6 @@ Definition nz_tail nz :=
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
-bbb.
 unfold nz_add.
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as nz'.
 remember (first_nonzero fld nz') as n eqn:Hn ; subst nz'.
@@ -1084,6 +1083,7 @@ destruct n as [n| ].
  constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
   rewrite stretch_series_1.
   constructor; intros i.
+bbb.
   unfold series_nth_fld; simpl.
   remember (stop (nz_terms nz)) as st eqn:Hst .
   destruct st as [st| ].
