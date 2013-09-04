@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.446 2013-09-04 12:52:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.447 2013-09-04 14:16:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -928,39 +928,6 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Lemma zzz : ∀ x y z,
-  (Z.to_nat (Z.min x y - z) + Z.to_nat (x - y))%nat =
-  Z.to_nat (x - Z.min y z).
-Proof.
-intros x y z.
-rewrite <- Z.sub_min_distr_r.
-rewrite <- Z.sub_max_distr_l.
-destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
- rewrite Z.min_l; [ idtac | assumption ].
- destruct (Z_le_dec (x - y) (x - z)) as [Hle₂| Hgt₂].
-  rewrite Z.max_r; [ idtac | assumption ].
-  apply Z.sub_le_mono_r in Hle₁.
-  rewrite Z.sub_le_mono_r with (p := y) in Hle₁.
-  rewrite Z.sub_diag in Hle₁.
-  rewrite Nat.add_comm.
-  destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
-  apply Z.le_ngt in Hle₁.
-  exfalso; apply Hle₁, Pos2Z.is_pos.
-
-  apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
-  rewrite Z.max_l; [ idtac | assumption ].
-  apply Z.sub_le_mono_r in Hle₁.
-  apply Z.sub_le_mono_l in Hgt₂.
-  eapply Z.le_trans in Hgt₂; [ idtac | eassumption ].
-  rewrite Z.sub_le_mono_r with (p := z) in Hgt₂.
-  rewrite Z.sub_diag in Hgt₂.
-  destruct (x - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
-  apply Z.le_ngt in Hgt₂.
-  exfalso; apply Hgt₂, Pos2Z.is_pos.
-
- apply Z.nle_gt, Z.lt_le_incl in Hgt₁.
-bbb.
-
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
   nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
@@ -994,52 +961,8 @@ remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
 remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
 rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
-bbb.
-
-intros nz₁ nz₂ nz₃.
-constructor; intros i.
-unfold build_nz_add; simpl.
-unfold cm_factor, cm.
-unfold nz_terms_add; simpl.
-unfold cm_factor, cm.
-remember (nz_valnum nz₁) as v₁ eqn:Hv₁.
-remember (nz_valnum nz₂) as v₂ eqn:Hv₂.
-remember (nz_valnum nz₃) as v₃ eqn:Hv₃.
-remember (nz_comden nz₁) as c₁.
-remember (nz_comden nz₂) as c₂.
-remember (nz_comden nz₃) as c₃.
-do 2 rewrite stretch_series_add_distr.
-do 2 rewrite series_pad_add_distr.
-rewrite series_add_assoc.
-do 4 rewrite stretch_pad_series_distr.
-do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-do 4 rewrite series_pad_pad.
-do 4 rewrite Nat.mul_sub_distr_r.
-do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
-remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
-remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
-rewrite Z.mul_shuffle0, <- Hcvc.
-do 2 rewrite <- Z.add_min_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-do 4 rewrite Z.mul_add_distr_r.
-do 2 rewrite Pos2Z.inj_mul.
-do 2 rewrite Z.mul_assoc.
-rewrite <- Hvcc, <- Hcvc, <- Hccv.
-rewrite Z.mul_shuffle0, <- Hccv.
-rewrite Z.mul_shuffle0, <- Hcvc.
-do 2 rewrite Z2Nat.inj_min.
-simpl.
-do 3 rewrite Z.add_0_r.
-do 2 rewrite min_sub_add_sub.
-rewrite Nat.min_comm.
-rewrite min_sub_add_sub.
-replace (min (Z.to_nat vcc) (Z.to_nat cvc)) with
- (min (Z.to_nat cvc) (Z.to_nat vcc)) by apply Nat.min_comm.
-rewrite min_sub_add_sub.
-replace (min (Z.to_nat vcc) (Z.to_nat ccv)) with
- (min (Z.to_nat ccv) (Z.to_nat vcc)) by apply Nat.min_comm.
+do 2 rewrite Z2Nat_sub_min2.
+do 2 rewrite Z2Nat_sub_min1.
 rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
 reflexivity.

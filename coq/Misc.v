@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.59 2013-09-04 12:23:38 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.60 2013-09-04 14:16:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -750,34 +750,111 @@ destruct (le_dec x y) as [Hle| Hgt].
  apply le_plus_minus_r, Nat.lt_le_incl; assumption.
 Qed.
 
-Lemma min_sub_add_sub : ∀ x y z, (min x y - z + (x - y) = x - min y z)%nat.
+Lemma Z2Nat_sub_min1 : ∀ x y z,
+  (Z.to_nat (Z.min x y - z) + Z.to_nat (y - x))%nat =
+  Z.to_nat (y - Z.min z x).
 Proof.
 intros x y z.
-destruct (le_dec x y) as [Hle| Hgt].
- rewrite Nat.min_l; [ idtac | assumption ].
- destruct (le_dec y z) as [Hle₁| Hgt].
-  rewrite Nat.min_l; [ idtac | assumption ].
-  eapply le_trans in Hle₁; [ idtac | eassumption ].
-  apply Nat.sub_0_le in Hle; rewrite Hle.
-  apply Nat.sub_0_le in Hle₁; rewrite Hle₁; reflexivity.
+rewrite <- Z.sub_min_distr_r.
+rewrite <- Z.sub_max_distr_l.
+destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
+ rewrite Z.min_l; [ idtac | assumption ].
+ apply Z.sub_le_mono_r in Hle₁.
+ destruct (Z_le_dec (y - z) (y - x)) as [Hle₂| Hgt₂].
+  rewrite Z.max_r; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hle₂.
+  rewrite Z.sub_le_mono_r with (p := z) in Hle₂.
+  rewrite Z.sub_diag in Hle₂.
+  destruct (x - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hle₂.
+  exfalso; apply Hle₂, Pos2Z.is_pos.
 
-  apply not_ge in Hgt.
-  rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
-  apply Nat.sub_0_le in Hle; rewrite Hle.
-  rewrite plus_0_r; reflexivity.
+  apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
+  rewrite Z.max_l; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hgt₂.
+  rewrite Z.sub_le_mono_r with (p := x) in Hle₁.
+  rewrite Z.sub_diag in Hle₁.
+  rewrite Z.sub_le_mono_r with (p := z) in Hgt₂.
+  rewrite Z.sub_diag in Hgt₂.
+  rewrite <- Z2Nat.inj_add; [ idtac | assumption | assumption ].
+  rewrite Z.add_comm, Z.add_sub_assoc, Z.sub_add.
+  reflexivity.
 
- apply not_ge in Hgt.
- rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
- destruct (le_dec y z) as [Hle| Hgt₁].
-  rewrite Nat.min_l; [ idtac | assumption ].
-  apply Nat.sub_0_le in Hle; rewrite Hle; reflexivity.
+ apply Z.nle_gt, Z.lt_le_incl in Hgt₁.
+ rewrite Z.min_r; [ idtac | assumption ].
+ apply Z.sub_le_mono_r in Hgt₁.
+ destruct (Z_le_dec (y - z) (y - x)) as [Hle₂| Hgt₂].
+  rewrite Z.max_r; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hle₂.
+  eapply Z.le_trans in Hle₂; [ idtac | eassumption ].
+  rewrite Z.sub_le_mono_r with (p := z) in Hle₂.
+  rewrite Z.sub_diag in Hle₂.
+  destruct (y - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hle₂.
+  exfalso; apply Hle₂, Pos2Z.is_pos.
 
-  apply not_ge in Hgt₁.
-  rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
-  rewrite plus_comm.
-  rewrite Nat.add_sub_assoc; [ idtac | apply Nat.lt_le_incl; assumption ].
-  rewrite plus_comm.
-  rewrite le_plus_minus_r; [ reflexivity | apply Nat.lt_le_incl; assumption ].
+  apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
+  rewrite Z.max_l; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hgt₂.
+  rewrite Z.sub_le_mono_r with (p := x) in Hgt₁.
+  rewrite Z.sub_diag in Hgt₁.
+  rewrite Nat.add_comm.
+  destruct (y - x)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hgt₁.
+  exfalso; apply Hgt₁, Pos2Z.is_pos.
+Qed.
+
+Lemma Z2Nat_sub_min2 : ∀ x y z,
+  (Z.to_nat (Z.min x y - z) + Z.to_nat (x - y))%nat =
+  Z.to_nat (x - Z.min y z).
+Proof.
+intros x y z.
+rewrite <- Z.sub_min_distr_r.
+rewrite <- Z.sub_max_distr_l.
+destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
+ rewrite Z.min_l; [ idtac | assumption ].
+ apply Z.sub_le_mono_r in Hle₁.
+ destruct (Z_le_dec (x - y) (x - z)) as [Hle₂| Hgt₂].
+  rewrite Z.max_r; [ idtac | assumption ].
+  rewrite Z.sub_le_mono_r with (p := y) in Hle₁.
+  rewrite Z.sub_diag in Hle₁.
+  rewrite Nat.add_comm.
+  destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hle₁.
+  exfalso; apply Hle₁, Pos2Z.is_pos.
+
+  apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
+  rewrite Z.max_l; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hgt₂.
+  eapply Z.le_trans in Hgt₂; [ idtac | eassumption ].
+  rewrite Z.sub_le_mono_r with (p := z) in Hgt₂.
+  rewrite Z.sub_diag in Hgt₂.
+  destruct (x - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hgt₂.
+  exfalso; apply Hgt₂, Pos2Z.is_pos.
+
+ apply Z.nle_gt, Z.lt_le_incl in Hgt₁.
+ rewrite Z.min_r; [ idtac | assumption ].
+ apply Z.sub_le_mono_r in Hgt₁.
+ destruct (Z_le_dec (x - y) (x - z)) as [Hle₂| Hgt₂].
+  rewrite Z.max_r; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hle₂.
+  rewrite Z.sub_le_mono_r with (p := y) in Hgt₁.
+  rewrite Z.sub_diag in Hgt₁.
+  rewrite Z.sub_le_mono_r with (p := z) in Hle₂.
+  rewrite Z.sub_diag in Hle₂.
+  rewrite <- Z2Nat.inj_add; [ idtac | assumption | assumption ].
+  rewrite Z.add_comm, Z.add_sub_assoc, Z.sub_add.
+  reflexivity.
+
+  apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
+  rewrite Z.max_l; [ idtac | assumption ].
+  apply Z.sub_le_mono_l in Hgt₂.
+  rewrite Z.sub_le_mono_r with (p := z) in Hgt₂.
+  rewrite Z.sub_diag in Hgt₂.
+  destruct (y - z)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+  apply Z.le_ngt in Hgt₂.
+  exfalso; apply Hgt₂, Pos2Z.is_pos.
 Qed.
 
 Lemma Z2Nat_inj_mul_pos_r : ∀ n m,
