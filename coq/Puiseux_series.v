@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.442 2013-09-04 08:55:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.443 2013-09-04 09:18:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -432,8 +432,8 @@ Definition nz_terms_add nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
   series_add fld
-    (series_pad_left (Z.to_nat v₁ - Z.to_nat v₂)%nat s₁)
-    (series_pad_left (Z.to_nat v₂ - Z.to_nat v₁)%nat s₂).
+    (series_pad_left (Z.to_nat (v₁ - v₂)) s₁)
+    (series_pad_left (Z.to_nat (v₂ - v₁)) s₂).
 
 Definition build_nz_add v (nz₁ nz₂ : nz_ps α) :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
@@ -932,6 +932,37 @@ Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
   nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃.
+constructor; intros i.
+unfold build_nz_add; simpl.
+do 2 rewrite Z.add_0_r.
+unfold cm_factor, cm.
+unfold nz_terms_add; simpl.
+unfold cm_factor, cm.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+remember (nz_comden nz₁) as c₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_comden nz₃) as c₃.
+do 2 rewrite stretch_series_add_distr.
+do 2 rewrite series_pad_add_distr.
+rewrite series_add_assoc.
+do 4 rewrite stretch_pad_series_distr.
+do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite series_pad_pad.
+do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+do 4 rewrite Z.mul_sub_distr_r.
+do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+rewrite Z.mul_shuffle0, <- Hccv.
+rewrite Z.mul_shuffle0, <- Hcvc.
+bbb.
+
 intros nz₁ nz₂ nz₃.
 constructor; intros i.
 unfold build_nz_add; simpl.
