@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.452 2013-09-04 17:26:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.453 2013-09-04 17:50:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1114,7 +1114,6 @@ destruct n as [n| ].
          simpl in Hlt₁, Hlt₂.
          exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
 
-         Focus 1.
          subst i.
          rewrite Nat.mul_comm.
          rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
@@ -1280,6 +1279,75 @@ destruct n as [n| ].
        apply Z.le_0_1.
 
        apply Z.lt_le_incl, Pos2Z.is_pos.
+
+      apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+      destruct Hz as (k, Hi).
+      subst i.
+      rewrite Nat.mul_comm, Nat.div_mul.
+       clear Hlt₁ Hlt₂.
+       unfold series_nth_fld.
+       destruct (Nbar.lt_dec (fin k) (stop (nz_terms nz))) as [Hlt₁| Hge₁].
+        unfold stretch_series; simpl.
+        rewrite Nat.div_mul.
+         rewrite Nat.add_0_r.
+         remember (Pos.to_nat (nz_comden nz)) as x.
+         rewrite Hst; simpl.
+         destruct (Nbar.lt_dec (fin (k * x)) inf)%Nbar as [Hlt₂| Hge₂].
+          destruct (Nbar.lt_dec (fin (k * x)) (fin x)) as [Hlt₃| Hge₃].
+           rewrite Nat.mod_mul; simpl.
+            destruct (lt_dec (k * x) x) as [Hlt₄| Hge₄].
+             rewrite fld_add_comm, fld_add_ident.
+             unfold series_head; simpl.
+             unfold series_nth_fld; simpl.
+             destruct (Nbar.lt_dec (fin k) 1) as [Hlt₅| Hge₅].
+              reflexivity.
+
+              destruct k as [| k].
+               exfalso; apply Hge₅; constructor; apply Nat.lt_0_1.
+
+               apply gt_not_le in Hlt₄.
+               exfalso; apply Hlt₄; simpl.
+               apply le_plus_l.
+
+             inversion Hlt₃; contradiction.
+
+            subst x; apply Pos2Nat_ne_0.
+
+           destruct (lt_dec (k * x) x) as [Hlt₄| Hge₄].
+            exfalso; apply Hge₃; constructor; assumption.
+
+            rewrite fld_add_ident.
+            destruct k.
+             simpl in Hge₃.
+             simpl in Hge₄.
+             exfalso; subst x; apply Hge₄; apply Pos2Nat.is_pos.
+
+             simpl.
+             rewrite minus_plus.
+             rewrite Nat.mod_mul.
+              simpl.
+              rewrite Nat.div_mul.
+               unfold series_nth_fld, series_tail.
+               simpl.
+               rewrite Hst.
+               destruct (Nbar.lt_dec (fin k) inf) as [Hlt₅| Hge₅];
+                [ reflexivity | idtac ].
+               exfalso; apply Hge₅; constructor.
+
+               subst x; apply Pos2Nat_ne_0.
+
+              subst x; apply Pos2Nat_ne_0.
+
+          exfalso; apply Hge₂; constructor.
+
+         apply Pos2Nat_ne_0.
+
+        exfalso; apply Hge₁; rewrite Hst.
+        constructor.
+
+       apply Pos2Nat_ne_0.
+
+     Focus 1.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
