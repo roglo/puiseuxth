@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.441 2013-09-04 08:31:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.442 2013-09-04 08:55:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1083,6 +1083,27 @@ rewrite Pos2Nat.inj_add.
 rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
 Qed.
 
+Lemma www : ∀ a b,
+  (Z.to_nat ((a + 1) * ' b) - Z.to_nat (a * ' b))%nat = Pos.to_nat b.
+Proof.
+intros a b.
+destruct a as [| a| a]; simpl.
+ rewrite Nat.sub_0_r; reflexivity.
+
+ do 2 rewrite Pos2Nat.inj_mul.
+ rewrite <- Nat.mul_sub_distr_r.
+ rewrite Pos2Nat.inj_add.
+ rewrite Nat.add_comm, Nat.add_sub, Nat.mul_1_l; reflexivity.
+
+ rewrite Nat.sub_0_r.
+ rewrite <- Pos2Z.add_pos_neg, Z.mul_add_distr_r, Z.mul_1_l.
+ simpl.
+ rewrite Z.pos_sub_lt.
+  simpl.
+Abort. (*
+bbb.
+*)
+
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
@@ -1101,6 +1122,14 @@ destruct n as [n| ].
    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
     subst s₁ s₂; simpl.
     rewrite Z2Nat_sub_mul_succ_l, series_pad_left_0.
+    simpl in Hlt₁.
+    rewrite Nat.add_0_r in Hlt₁.
+    rewrite Z2Nat_sub_mul_succ_l in Hlt₁.
+    rewrite Nat.add_0_r in Hlt₁.
+    remember (stop (nz_terms nz)) as st eqn:Hst .
+    symmetry in Hst.
+    destruct st as [st| ]; simpl in Hlt₁.
+     rewrite Nat.mul_sub_distr_r in Hlt₁.
 bbb.
      replace
       (Z.to_nat ((nz_valnum nz + 1) * ' nz_comden nz) -
