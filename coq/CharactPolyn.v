@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.21 2013-08-17 01:42:05 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.22 2013-09-04 12:23:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -981,7 +981,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
 
        rewrite <- Heqkk, Hkn; reflexivity.
 
-      apply lt_le_weak.
+      apply Nat.lt_le_incl.
       eapply j_lt_k.
        subst pts; eassumption.
 
@@ -1071,7 +1071,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
          rewrite <- H in Hn.
          apply Zlt_not_le in Hn.
          apply Hn.
-         apply Zlt_le_weak.
+         apply Z.lt_le_incl.
          revert Hjk; clear; intros; omega.
 Qed.
 
@@ -1366,7 +1366,7 @@ split.
     simpl in Hns.
     apply Zlt_not_le in Hns.
     exfalso; apply Hns.
-    apply Zlt_le_weak.
+    apply Z.lt_le_incl.
     apply Zlt_neg_0.
 
     reflexivity.
@@ -1401,7 +1401,7 @@ split.
   apply Zplus_lt_reg_r in Hns.
   apply Zlt_not_le in Hns.
   exfalso; apply Hns.
-  apply Zlt_le_weak.
+  apply Z.lt_le_incl.
   apply Zlt_neg_0.
 Qed.
 
@@ -1465,10 +1465,10 @@ induction s; intros.
    rewrite <- plus_n_Sm in Hjsk.
    assumption.
 
-  apply lt_le_weak; assumption.
+  apply Nat.lt_le_incl; assumption.
 
   rewrite <- plus_n_Sm in Hjsk.
-  apply lt_le_weak; assumption.
+  apply Nat.lt_le_incl; assumption.
 Qed.
 
 Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,

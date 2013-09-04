@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.444 2013-09-04 09:46:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.445 2013-09-04 12:23:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -946,6 +946,9 @@ destruct (Z_le_dec (x - z) (y - z)) as [Hle₁| Hgt₁].
   destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
   apply Z.le_ngt in Hle₁.
   exfalso; apply Hle₁, Pos2Z.is_pos.
+
+  apply Z.nle_gt, Z.lt_le_incl in Hgt₂.
+  rewrite Z.max_l; [ idtac | assumption ].
 bbb.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,

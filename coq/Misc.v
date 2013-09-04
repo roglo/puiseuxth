@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.58 2013-09-02 02:48:25 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.59 2013-09-04 12:23:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -519,7 +519,7 @@ destruct a as [| a| a]; simpl.
  reflexivity.
 
  apply Zlt_not_le in Ha.
- exfalso; apply Ha, Zlt_le_weak, Zlt_neg_0.
+ exfalso; apply Ha, Z.lt_le_incl, Zlt_neg_0.
 Qed.
 
 Lemma Qden_inv : ∀ a, (0 < Qnum a)%Z → Zpos (Qden (/ a)) = Qnum a.
@@ -532,7 +532,7 @@ destruct a as [| a| a]; simpl.
  reflexivity.
 
  apply Zlt_not_le in Ha.
- exfalso; apply Ha, Zlt_le_weak, Zlt_neg_0.
+ exfalso; apply Ha, Z.lt_le_incl, Zlt_neg_0.
 Qed.
 
 Lemma Qdiv_mul : ∀ a b c d,
@@ -746,8 +746,8 @@ destruct (le_dec x y) as [Hle| Hgt].
  apply Nat.sub_0_le in Hle; rewrite Hle, plus_0_r; reflexivity.
 
  apply not_ge in Hgt.
- rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
- apply le_plus_minus_r, lt_le_weak; assumption.
+ rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
+ apply le_plus_minus_r, Nat.lt_le_incl; assumption.
 Qed.
 
 Lemma min_sub_add_sub : ∀ x y z, (min x y - z + (x - y) = x - min y z)%nat.
@@ -762,22 +762,22 @@ destruct (le_dec x y) as [Hle| Hgt].
   apply Nat.sub_0_le in Hle₁; rewrite Hle₁; reflexivity.
 
   apply not_ge in Hgt.
-  rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+  rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
   apply Nat.sub_0_le in Hle; rewrite Hle.
   rewrite plus_0_r; reflexivity.
 
  apply not_ge in Hgt.
- rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+ rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
  destruct (le_dec y z) as [Hle| Hgt₁].
   rewrite Nat.min_l; [ idtac | assumption ].
   apply Nat.sub_0_le in Hle; rewrite Hle; reflexivity.
 
   apply not_ge in Hgt₁.
-  rewrite Nat.min_r; [ idtac | apply lt_le_weak; assumption ].
+  rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
   rewrite plus_comm.
-  rewrite Nat.add_sub_assoc; [ idtac | apply lt_le_weak; assumption ].
+  rewrite Nat.add_sub_assoc; [ idtac | apply Nat.lt_le_incl; assumption ].
   rewrite plus_comm.
-  rewrite le_plus_minus_r; [ reflexivity | apply lt_le_weak; assumption ].
+  rewrite le_plus_minus_r; [ reflexivity | apply Nat.lt_le_incl; assumption ].
 Qed.
 
 Lemma Z2Nat_inj_mul_pos_r : ∀ n m,
@@ -855,7 +855,7 @@ destruct n as [| n| n].
   exfalso; apply Hnm, Pos2Z.is_nonneg.
 
   simpl.
-  apply lt_le_weak.
+  apply Nat.lt_le_incl.
   apply Pos2Nat.inj_lt.
   assumption.
 
@@ -878,14 +878,14 @@ destruct n as [| n| n].
   exfalso; revert Hnm; apply Nat.lt_irrefl.
 
  destruct m as [| m| m].
-  apply lt_le_weak in Hnm.
+  apply Nat.lt_le_incl in Hnm.
   apply le_not_lt in Hnm.
   exfalso; apply Hnm; apply Pos2Nat.is_pos.
 
   apply Pos2Nat.inj_lt in Hnm; assumption.
 
   simpl in Hnm.
-  apply lt_le_weak in Hnm.
+  apply Nat.lt_le_incl in Hnm.
   apply le_not_lt in Hnm.
   exfalso; apply Hnm; apply Pos2Nat.is_pos.
 

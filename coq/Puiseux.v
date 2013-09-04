@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 1.1113 2013-08-19 13:16:28 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 1.1114 2013-09-04 12:23:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -431,10 +431,10 @@ induction s; intros.
    rewrite <- minus_Sn_m; [ apply nth_S_pad_S | idtac ].
    rewrite plus_n_Sm; assumption.
 
-  apply lt_le_weak; assumption.
+  apply Nat.lt_le_incl; assumption.
 
   rewrite <- plus_n_Sm in Hjsk.
-  apply lt_le_weak; assumption.
+  apply Nat.lt_le_incl; assumption.
 Qed.
 
 (* *)
