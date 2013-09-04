@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.454 2013-09-04 18:47:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.455 2013-09-04 19:55:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1369,7 +1369,22 @@ destruct n as [n| ].
      rewrite padded_in_stretched; [ reflexivity | idtac ].
      rewrite Nat.mul_1_l in Hnz; assumption.
 
-    Focus 1.
+    remember (stop s₂) as st₂.
+    destruct st₂ as [st₂| ].
+     apply Nbar.nlt_ge in Hge₂; [ idtac | intros H; discriminate H ].
+     symmetry in Heqst₂.
+     subst s₁ s₂.
+     simpl.
+     rewrite Z.mul_add_distr_r, Z.mul_1_l.
+     rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+     rewrite Z.add_simpl_l.
+     rewrite series_pad_left_0; simpl.
+     remember (Pos.to_nat (nz_comden nz)) as x.
+     rewrite <- Nat.mul_1_l in Heqx.
+     subst x.
+     rewrite <- stretch_pad_series_distr.
+     simpl in Heqst₂.
+     unfold series_nth_fld; simpl.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
