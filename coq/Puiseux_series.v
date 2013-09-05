@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.475 2013-09-05 14:25:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.476 2013-09-05 14:40:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1135,9 +1135,11 @@ apply Nbar.nlt_ge in Hlt₁.
  intros H; discriminate H.
 Qed.
 
-Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
+Lemma xxx : ∀ nz,
+  stop (nz_terms nz) ≠ fin 0
+  → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
-intros nz.
+intros nz Hst.
 unfold nz_add.
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as nz'.
 remember (first_nonzero fld nz') as n eqn:Hn ; subst nz'.
@@ -1160,8 +1162,8 @@ destruct n as [n| ].
      simpl in Hlt₁, Hlt₂.
      unfold series_head, series_tail in Hlt₁ |- *.
      simpl in Hlt₁ |- *.
-     remember (stop (nz_terms nz)) as st eqn:Hst .
-     symmetry in Hst.
+     remember (stop (nz_terms nz)) as st.
+     symmetry in Heqst.
      destruct st as [st| ]; simpl in Hlt₁, Hlt₂.
       destruct st as [| st]; [ idtac | simpl in Hlt₁ |- * ].
        exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
@@ -1191,7 +1193,7 @@ destruct n as [n| ].
         destruct (Nbar.lt_dec (fin (c * k)) (fin (c * S st))) as [Hlt₄| Hge₄].
          destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
           unfold series_nth_fld; simpl.
-          rewrite Hst.
+          rewrite Heqst.
           rewrite fld_add_comm, fld_add_ident.
           destruct (Nbar.lt_dec (fin k) 1) as [Hlt₆| Hge₆].
            destruct (Nbar.lt_dec (fin k) (fin (S st))) as [| Hge₇].
@@ -1240,7 +1242,7 @@ destruct n as [n| ].
              intros H; discriminate H.
 
             rewrite fld_add_ident.
-            rewrite Hst.
+            rewrite Heqst.
             destruct (Nbar.lt_dec (fin k) (fin st)) as [Hlt₇| Hge₇].
              destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [Hlt₈| Hge₈].
               reflexivity.
@@ -1272,7 +1274,7 @@ destruct n as [n| ].
           rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
           rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
           unfold series_nth_fld; simpl.
-          rewrite Hst.
+          rewrite Heqst.
           destruct k.
            rewrite Nat.mul_0_r in Hge₅.
            exfalso; apply Hge₅; subst c; apply Pos2Nat.is_pos.
@@ -1309,7 +1311,7 @@ destruct n as [n| ].
        destruct (Nbar.lt_dec (fin (c * k)) inf) as [Hlt₄| Hge₄].
         destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
          rewrite fld_add_comm, fld_add_ident.
-         rewrite Hst.
+         rewrite Heqst.
          destruct (Nbar.lt_dec (fin k) inf) as [Hlt₆| Hge₆].
           unfold series_nth_fld; simpl.
           destruct (Nbar.lt_dec (fin k) 1) as [Hlt₇| Hge₇].
@@ -1337,7 +1339,7 @@ destruct n as [n| ].
          rewrite Nat.mul_comm.
          rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
          rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-         rewrite Hst.
+         rewrite Heqst.
          unfold series_nth_fld; simpl.
          destruct (Nbar.lt_dec (fin (pred k)) inf) as [Hlt₆| Hge₆].
           destruct (Nbar.lt_dec (fin k) inf) as [Hlt₇| Hge₇].
@@ -1355,75 +1357,17 @@ destruct n as [n| ].
      rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
      rewrite padded_in_stretched; [ reflexivity | assumption ].
 
-    remember (stop (nz_terms nz)) as st eqn:Hst .
-    symmetry in Hst.
+    remember (stop (nz_terms nz)) as st.
+    symmetry in Heqst.
     destruct st as [st| ].
-     destruct st as [| st].
-      unfold nz_terms_add in Hs₁; simpl in Hs₁.
-      rewrite Z.mul_add_distr_r, Z.mul_1_l in Hs₁.
-      rewrite Z.sub_add_distr, Z.sub_diag in Hs₁; simpl in Hs₁.
-      rewrite Z.add_simpl_l in Hs₁.
-      subst s₁ s₂.
-      simpl in Hlt₁, Hge₂ |- *.
-      rewrite series_pad_left_0; simpl.
-      rewrite Nbar.add_0_r in Hlt₁.
-      unfold series_head, series_tail in Hlt₁.
-      rewrite Hst in Hlt₁.
-      rewrite Hst in Hlt₁; simpl in Hlt₁.
-      rewrite Hst in Hge₂.
-      unfold series_head, series_tail; simpl.
-      rewrite Hst; simpl.
-      rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
-      rewrite fld_add_ident.
-      destruct i; simpl.
-       unfold series_nth_fld; simpl.
-       rewrite Hst; simpl.
-       destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
-        as [Hlt₃| Hge₃].
-        destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [Hlt₄| Hge₄].
-         reflexivity.
-
-         rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
-         rewrite Nat.div_0_l; [ simpl | apply Pos2Nat_ne_0 ].
-         unfold series_nth_fld; simpl.
-         rewrite Hst; simpl.
-         destruct (Nbar.lt_dec 0 0) as [Hlt₅| ]; [ idtac | reflexivity ].
-         exfalso; revert Hlt₅; apply Nbar.lt_irrefl.
-         intros H; discriminate H.
-
-        reflexivity.
-
-       rewrite <- stretch_pad_1_series_distr.
-       rewrite padded_in_stretched.
-        reflexivity.
-
-        inversion Hlt₁; subst.
-        remember (S i mod Pos.to_nat (nz_comden nz))%nat as j.
-        symmetry in Heqj.
-        destruct j.
-         apply Nat.mod_divides in Heqj.
-          destruct Heqj as (k, Hj).
-          rewrite Hj in H1.
-          destruct k.
-           rewrite Nat.mul_0_r in Hj; discriminate Hj.
-
-           apply Nat.nlt_ge in H1.
-           exfalso; apply H1.
-           rewrite Nat.mul_comm; simpl.
-           rewrite <- plus_Sn_m.
-           apply le_plus_l.
-
-          apply Pos2Nat_ne_0.
-
-         apply lt_0_Sn.
-
-      subst s₁ s₂.
-      rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
-      intros H; rewrite H in Hst; discriminate Hst.
+     destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
+     subst s₁ s₂.
+     rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
+     intros H; rewrite Heqst in H; discriminate H.
 
      subst s₁ s₂.
      rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
-     intros H; rewrite H in Hst; discriminate Hst.
+     intros H; rewrite Heqst in H; discriminate H.
 
    destruct (Nbar.eq_dec (stop (nz_terms nz)) 0) as [Heq| Hne].
     destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
@@ -1453,26 +1397,11 @@ destruct n as [n| ].
     apply first_nonzero_nonzero_fin in Hn.
     unfold series_nth_fld in Hn; simpl in Hn.
     unfold series_head, series_tail in Hn; simpl in Hn.
-    remember (stop (nz_terms nz)) as st eqn:Hst .
-    symmetry in Hst.
+    remember (stop (nz_terms nz)) as st.
+    symmetry in Heqst.
     destruct st as [st| ]; simpl in Hn.
-     Focus 1.
      destruct st as [| st]; simpl in Hn.
-      rewrite <- Z.mul_sub_distr_r in Hn.
-      rewrite Z.sub_add_distr, Z.sub_diag in Hn.
-      rewrite <- Z.mul_sub_distr_r in Hn.
-      rewrite Z.add_simpl_l in Hn.
-      rewrite Z.mul_1_l in Hn.
-      simpl in Hn.
-      rewrite Hst in Hn; simpl in Hn.
-      destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
-       as [Hlt₁| Hge₁].
-       rewrite series_pad_left_0 in Hn.
-       rewrite <- stretch_pad_1_series_distr in Hn.
-       unfold series_nth_fld in Hn; simpl in Hn.
-       rewrite Hst in Hn.
-       simpl in Hn.
-       rewrite Nat.mod_0_l in Hn; [ simpl in Hn | apply Pos2Nat_ne_0 ].
+      exfalso; apply Hst; reflexivity.
 bbb.
 *)
 
