@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.42 2013-09-04 19:55:24 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.43 2013-09-05 13:16:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -209,6 +209,14 @@ destruct m as [m| ]; [ simpl | inversion Hmp ].
 destruct n as [n| ]; [ simpl | inversion Hnm ].
 inversion Hnm; inversion Hmp; constructor.
 eapply Nat.lt_trans; eassumption.
+Qed.
+
+Theorem lt_irrefl : ∀ n, n ≠ ∞ → ¬(n < n).
+Proof.
+intros n Hn.
+destruct n; [ idtac | exfalso; apply Hn; reflexivity ].
+intros H.
+inversion H; revert H2; apply Nat.lt_irrefl.
 Qed.
 
 (*

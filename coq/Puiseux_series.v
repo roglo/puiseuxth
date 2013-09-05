@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.471 2013-09-05 12:35:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.472 2013-09-05 13:16:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1121,6 +1121,20 @@ destruct st as [| st]; simpl.
  rewrite Nat.mul_comm, Nat.add_comm; reflexivity.
 Qed.
 
+Lemma stop_0_series_nth_fld_0 : ∀ s n i,
+  stop s = 0%Nbar
+  → series_nth_fld fld i (stretch_series fld n s) = zero fld.
+Proof.
+intros s n i Hs.
+unfold series_nth_fld; simpl.
+rewrite Hs; simpl.
+destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁]; [ idtac | reflexivity ].
+apply Nbar.nlt_ge in Hlt₁.
+ exfalso; apply Hlt₁; constructor; apply lt_0_Sn.
+
+ intros H; discriminate H.
+Qed.
+
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
@@ -1359,13 +1373,53 @@ destruct n as [n| ].
       rewrite Hst in Hge₂.
       unfold series_head, series_tail; simpl.
       rewrite Hst; simpl.
-      destruct (Nbar.lt_dec (fin i) 0) as [Hlt₂| Hge₂]; simpl.
-       Focus 1.
-       destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
-        apply Nat.mod_divides in Hz.
-         destruct Hz as (k, Hi); subst i.
-         rewrite Nat.mul_comm.
-         rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
+      rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
+      rewrite fld_add_ident.
+      destruct i; simpl.
+       unfold series_nth_fld; simpl.
+       rewrite Hst; simpl.
+       destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
+        as [Hlt₃| Hge₃].
+        destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [Hlt₄| Hge₄].
+         reflexivity.
+
+         rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+         rewrite Nat.div_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+         unfold series_nth_fld; simpl.
+         rewrite Hst; simpl.
+         destruct (Nbar.lt_dec 0 0) as [Hlt₅| ]; [ idtac | reflexivity ].
+         exfalso; revert Hlt₅; apply Nbar.lt_irrefl.
+         intros H; discriminate H.
+
+        reflexivity.
+
+       rewrite <- stretch_pad_1_series_distr.
+       rewrite padded_in_stretched.
+        reflexivity.
+
+        inversion Hlt₁; subst.
+        remember (S i mod Pos.to_nat (nz_comden nz))%nat as j.
+        symmetry in Heqj.
+        destruct j.
+         apply Nat.mod_divides in Heqj.
+          destruct Heqj as (k, Hj).
+          rewrite Hj in H1.
+          destruct k.
+           rewrite Nat.mul_0_r in Hj; discriminate Hj.
+
+           apply Nat.nlt_ge in H1.
+           exfalso; apply H1.
+           rewrite Nat.mul_comm; simpl.
+           rewrite <- plus_Sn_m.
+           apply le_plus_l.
+
+          apply Pos2Nat_ne_0.
+
+         apply lt_0_Sn.
+
+      subst s₁ s₂.
+      rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
+      intros H; rewrite H in Hst; discriminate Hst.
 bbb.
 *)
 
