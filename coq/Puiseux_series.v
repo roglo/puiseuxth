@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.477 2013-09-05 17:52:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.478 2013-09-05 18:10:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1415,6 +1415,22 @@ destruct n as [n| ].
       remember (Pos.to_nat (nz_comden nz)) as x.
       destruct (Nbar.lt_dec 0 (fin (S st * x))) as [Hlt₁| Hge₁].
        rewrite series_pad_left_0 in Hn.
+       unfold series_pad_left in Hn.
+       simpl in Hn.
+       unfold series_nth_fld in Hn; simpl in Hn.
+       rewrite Nat.mod_0_l in Hn; [ idtac | apply Pos2Nat_ne_0 ].
+       simpl in Hn.
+       rewrite Nat.div_0_l in Hn; [ idtac | apply Pos2Nat_ne_0 ].
+       rewrite Nat.add_0_r in Hn.
+       rewrite <- Heqx in Hn.
+       destruct (Nbar.lt_dec 0 (fin x)) as [Hlt₂| Hge₂].
+        unfold series_nth_fld in Hn.
+        simpl in Hn.
+        destruct (Nbar.lt_dec 0 1) as [Hlt₃| Hge₃].
+         rewrite <- Nat.mul_succ_l in Hn.
+         destruct (Nbar.lt_dec 0 (fin (S st * x))) as [Hlt₄| Hge₄].
+          destruct (lt_dec 0 x) as [Hlt₅| Hge₅].
+           rewrite fld_add_comm, fld_add_ident in Hn.
 bbb.
 *)
 
