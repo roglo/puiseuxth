@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.45 2013-09-05 15:07:16 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.46 2013-09-05 15:14:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -470,16 +470,16 @@ Theorem max_lt_iff : ∀ n m p, p < max n m ↔ p < n ∨ p < m.
 Proof.
 intros n m p.
 split; intros H.
+ destruct p as [p| ]; [ idtac | inversion H ].
  destruct n as [n| ]; [ idtac | left; constructor ].
  destruct m as [m| ]; [ idtac | right; constructor ].
- destruct p as [p| ]; [ idtac | inversion H ].
  inversion_clear H; subst.
  apply Nat.max_lt_iff in H0.
  destruct H0; [ left | right ]; constructor; assumption.
 
+ destruct p as [p| ]; [ idtac | destruct H; inversion H ].
  destruct n as [n| ]; [ idtac | constructor ].
  destruct m as [m| ]; [ idtac | constructor ].
- destruct p as [p| ]; [ idtac | destruct H; inversion H ].
  constructor.
  apply Nat.max_lt_iff.
  destruct H as [H| H]; [ left | right ]; inversion H; assumption.
@@ -488,8 +488,8 @@ Qed.
 Theorem lt_le_incl : ∀ n m, n < m → n ≤ m.
 Proof.
 intros n m H.
-destruct m as [m| ]; [ idtac | constructor ].
 destruct n as [n| ]; [ idtac | inversion H ].
+destruct m as [m| ]; [ idtac | constructor ].
 constructor; apply Nat.lt_le_incl; inversion H; assumption.
 Qed.
 
@@ -497,8 +497,8 @@ Theorem nlt_ge : ∀ n m, m ≠ ∞ → ¬(n < m) ↔ m ≤ n.
 Proof.
 intros n m Hm.
 split; intros H.
- destruct n as [n| ]; [ idtac | constructor ].
  destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
+ destruct n as [n| ]; [ idtac | constructor ].
  constructor; apply Nat.nlt_ge; intros I; apply H.
  constructor; assumption.
 
