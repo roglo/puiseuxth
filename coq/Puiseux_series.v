@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.473 2013-09-05 13:28:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.474 2013-09-05 13:33:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1424,6 +1424,8 @@ destruct n as [n| ].
      subst s₁ s₂.
      rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
      intros H; rewrite H in Hst; discriminate Hst.
+
+   destruct (Nbar.eq_dec (stop (nz_terms nz)) 0) as [Heq| Hne].
 bbb.
 *)
 

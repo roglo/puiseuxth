@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.43 2013-09-05 13:16:11 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.44 2013-09-05 13:33:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -183,6 +183,25 @@ Proof.
 intros n Hn.
 destruct n; [ idtac | exfalso; apply Hn; reflexivity ].
 rewrite mul_comm; reflexivity.
+Qed.
+
+Theorem eq_dec : ∀ n m : Nbar, {n = m} + {n ≠ m}.
+Proof.
+intros n m.
+destruct n as [n| ].
+ destruct m as [m| ].
+  destruct (Nat.eq_dec n m) as [Hlt| Hge].
+   left; subst; reflexivity.
+
+   right; intros H; apply Hge.
+   inversion H; subst; reflexivity.
+
+  right; intros H; discriminate H.
+
+ destruct m as [m| ].
+  right; intros H; discriminate H.
+
+  left; reflexivity.
 Qed.
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
