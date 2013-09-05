@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.457 2013-09-04 21:22:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.458 2013-09-05 03:00:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1421,7 +1421,48 @@ destruct n as [n| ].
              rewrite Heqst.
              simpl.
              destruct (Nbar.lt_dec (fin k) 1) as [Hlt₅| Hge₅].
-            Focus 1.
+              Focus 1.
+              simpl in Heqst₂.
+              assert (k = O); [ idtac | subst k ].
+               destruct k; [ reflexivity | idtac ].
+               inversion Hlt₅.
+               apply lt_S_n in H1.
+               apply gt_not_le in H1.
+               exfalso; apply H1, le_0_n.
+
+               simpl in *.
+               rewrite Nat.mul_0_r in Hlt₁.
+               clear Hlt₃ Hlt₄ Hlt₅.
+               Unfocus.
+               Focus 2.
+               rewrite fld_add_ident; reflexivity.
+
+              Focus 2.
+              rewrite Nat.mul_comm in Hge₄; contradiction.
+
+             Focus 2.
+             simpl in Hlt₁.
+             rewrite Nat.sub_0_r, Nat.add_1_r in Hlt₁.
+             rewrite Nat.max_r in Hlt₁.
+              rewrite Heqst₂ in Hlt₁.
+              apply Nbar.nlt_ge in Hge₂; [ contradiction | idtac ].
+              intros H; discriminate H.
+
+              apply le_plus_l.
+
+            Focus 2.
+            subst x; apply Pos2Nat_ne_0.
+
+           Focus 2.
+           subst x; apply Pos2Nat_ne_0.
+
+          Focus 2.
+          rewrite fld_add_ident.
+          destruct (Nbar.lt_dec (fin i) (fin ((st - 1 + 1) * x)));
+           reflexivity.
+
+         Focus 2.
+         rewrite fld_add_ident.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
