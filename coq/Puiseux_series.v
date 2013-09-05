@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.466 2013-09-05 10:45:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.467 2013-09-05 10:58:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1244,6 +1244,44 @@ destruct n as [n| ].
              reflexivity.
 
          contradiction.
+
+      simpl.
+      apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+      destruct Hz as (k, Hi).
+      subst i.
+      rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+      remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+      unfold series_nth_fld; simpl.
+      rewrite Nat.add_0_r.
+      rewrite <- Hc.
+      rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+      rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+      rewrite Nat.mul_comm, <- Nat.mul_pred_r.
+      destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [Hlt₃| Hge₃].
+       destruct (Nbar.lt_dec (fin (c * k)) inf) as [Hlt₄| Hge₄].
+        destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
+         rewrite fld_add_comm, fld_add_ident.
+         rewrite Hst.
+         destruct (Nbar.lt_dec (fin k) inf) as [Hlt₆| Hge₆].
+          unfold series_nth_fld; simpl.
+          destruct (Nbar.lt_dec (fin k) 1) as [Hlt₇| Hge₇].
+           reflexivity.
+
+           destruct k.
+            exfalso; apply Hge₇; constructor; apply Nat.lt_0_1.
+
+            apply Nat.nlt_ge in Hlt₅.
+            exfalso; apply Hlt₅, le_n_S; rewrite Nat.mul_comm; simpl.
+            apply le_plus_l.
+
+          exfalso; apply Hge₆; constructor.
+
+         exfalso; apply Hge₅.
+         inversion Hlt₃; assumption.
+
+        exfalso; apply Hge₄; constructor.
+
+       rewrite fld_add_ident.
 bbb.
 
 intros nz.
