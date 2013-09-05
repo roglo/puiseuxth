@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.461 2013-09-05 03:51:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.462 2013-09-05 09:12:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1042,12 +1042,16 @@ apply nz_add_assoc_base.
 Qed.
 
 Definition series_head (s : series α) :=
-  {| terms := terms s;
-     stop := 1 |}.
+  match stop s with
+  | fin 0 => s
+  | _ => {| terms := terms s; stop := 1 |}
+  end.
 
 Definition series_tail (s : series α) :=
-  {| terms i := terms s (S i);
-     stop := stop s - 1 |}.
+  match stop s with
+  | fin 0 => s
+  | _ => {| terms i := terms s (S i); stop := stop s - 1 |}
+  end.
 
 Definition nz_head nz :=
   {| nz_terms := series_head (nz_terms nz);
@@ -1085,6 +1089,100 @@ Qed.
 
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
+intros nz.
+unfold nz_add.
+remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as nz'.
+remember (first_nonzero fld nz') as n eqn:Hn ; subst nz'.
+symmetry in Hn.
+destruct n as [n| ].
+ Focus 1.
+ constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
+  Focus 1.
+  rewrite stretch_series_1.
+  constructor; intros i.
+  remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s₁ eqn:Hs₁ .
+  remember (stretch_series fld (nz_comden nz) (nz_terms nz)) as s₂ eqn:Hs₂ .
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₁| Hge₁].
+   destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
+    Focus 1.
+    subst s₁ s₂; simpl.
+    rewrite Z.mul_add_distr_r, Z.mul_1_l.
+    rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+    rewrite Z.add_simpl_l.
+    rewrite series_pad_left_0; simpl.
+    destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
+     Focus 1.
+     simpl in Hlt₁, Hlt₂.
+     unfold series_head, series_tail in Hlt₁ |- *.
+     simpl in Hlt₁ |- *.
+     remember (stop (nz_terms nz)) as st eqn:Hst .
+     symmetry in Hst.
+     destruct st as [st| ]; simpl in Hlt₁, Hlt₂.
+      Focus 1.
+      destruct st as [| st]; [ idtac | simpl in Hlt₁ |- * ].
+       exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
+
+       rewrite Nat.add_0_r, Nat.sub_0_r in Hlt₁.
+       rewrite Z.mul_add_distr_r, Z.mul_1_l in Hlt₁.
+       rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁.
+       rewrite Z.add_simpl_l in Hlt₁.
+       simpl in Hlt₁.
+       rewrite Nat.add_0_r in Hlt₁.
+       rewrite <- Nat.mul_succ_l in Hlt₁.
+       apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+       destruct Hz as (k, Hi).
+       subst i.
+       rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+       rewrite Nat.sub_0_r.
+       remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+       unfold series_nth_fld; simpl.
+       rewrite Nat.add_0_r.
+       rewrite <- Hc.
+       rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+       rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+       rewrite Nat.mul_comm, <- Nat.mul_pred_r.
+       destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [Hlt₃| Hge₃].
+        Focus 1.
+        remember (c * k)%nat as x.
+        rewrite Nat.mul_comm, <- Nat.mul_succ_r; subst x.
+        destruct (Nbar.lt_dec (fin (c * k)) (fin (c * S st))) as [Hlt₄| Hge₄].
+         destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
+          unfold series_nth_fld; simpl.
+          rewrite Hst.
+          rewrite fld_add_comm, fld_add_ident.
+          destruct (Nbar.lt_dec (fin k) 1) as [Hlt₆| Hge₆].
+           destruct (Nbar.lt_dec (fin k) (fin (S st))) as [| Hge₇].
+            reflexivity.
+
+            exfalso; apply Hge₇; clear Hge₇.
+            do 2 rewrite Nbar.fin_inj_mul in Hlt₂.
+            apply' Nbar.mul_lt_mono_pos_r (* Generic printer *).
+             rewrite Nbar.mul_comm; eassumption.
+
+             intros H; discriminate H.
+
+             intros H; discriminate H.
+
+             destruct k; [ rewrite Nat.mul_0_r in Hlt₃; assumption | idtac ].
+             apply Nbar.nlt_ge in Hlt₆.
+              exfalso; apply Hlt₆.
+              constructor; apply le_n_S, le_n_S, le_0_n.
+
+              intros H; discriminate H.
+
+           apply Nbar.nlt_ge in Hge₆; [ idtac | intros H; discriminate H ].
+           destruct k.
+            apply Nbar.nlt_ge in Hge₆; [ idtac | intros H; discriminate H ].
+            exfalso; apply Hge₆; constructor; apply Nat.lt_0_1.
+
+            apply Nbar.nlt_ge in Hlt₃; [ idtac | intros H; discriminate H ].
+            exfalso; apply Hlt₃.
+            constructor.
+            apply le_n_S; rewrite Nat.mul_comm; simpl.
+            apply le_plus_l.
+bbb.
+
 intros nz.
 unfold nz_add.
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as nz'.
