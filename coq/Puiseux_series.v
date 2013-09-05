@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.460 2013-09-05 03:46:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.461 2013-09-05 03:51:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1372,6 +1372,7 @@ destruct n as [n| ].
     remember (stop s₂) as st₂.
     destruct st₂ as [st₂| ].
      apply Nbar.nlt_ge in Hge₂; [ idtac | intros H; discriminate H ].
+bbb.
      symmetry in Heqst₂.
      subst s₁ s₂.
      simpl.
