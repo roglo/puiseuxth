@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.474 2013-09-05 13:33:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.475 2013-09-05 14:25:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1426,6 +1426,53 @@ destruct n as [n| ].
      intros H; rewrite H in Hst; discriminate Hst.
 
    destruct (Nbar.eq_dec (stop (nz_terms nz)) 0) as [Heq| Hne].
+    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
+     subst s₂.
+     simpl in Hlt₂.
+     rewrite Heq in Hlt₂; simpl in Hlt₂.
+     exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
+
+     reflexivity.
+
+    subst s₁ s₂.
+    rewrite stop_head_tail in Hge₁; [ idtac | assumption ].
+    remember (stretch_series fld (nz_comden nz) (nz_terms nz)) as s₂ eqn:Hs₂ .
+    destruct (Nbar.lt_dec (fin i) (stop s₂)); [ contradiction | reflexivity ].
+
+  rewrite Z.mul_1_r.
+  rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.min_l.
+   Focus 3.
+   rewrite Pos.mul_1_r.
+   reflexivity.
+
+   destruct n.
+    rewrite Z.add_0_r; reflexivity.
+
+    exfalso.
+    apply first_nonzero_nonzero_fin in Hn.
+    unfold series_nth_fld in Hn; simpl in Hn.
+    unfold series_head, series_tail in Hn; simpl in Hn.
+    remember (stop (nz_terms nz)) as st eqn:Hst .
+    symmetry in Hst.
+    destruct st as [st| ]; simpl in Hn.
+     Focus 1.
+     destruct st as [| st]; simpl in Hn.
+      rewrite <- Z.mul_sub_distr_r in Hn.
+      rewrite Z.sub_add_distr, Z.sub_diag in Hn.
+      rewrite <- Z.mul_sub_distr_r in Hn.
+      rewrite Z.add_simpl_l in Hn.
+      rewrite Z.mul_1_l in Hn.
+      simpl in Hn.
+      rewrite Hst in Hn; simpl in Hn.
+      destruct (Nbar.lt_dec 0 (fin (Pos.to_nat (nz_comden nz))))
+       as [Hlt₁| Hge₁].
+       rewrite series_pad_left_0 in Hn.
+       rewrite <- stretch_pad_1_series_distr in Hn.
+       unfold series_nth_fld in Hn; simpl in Hn.
+       rewrite Hst in Hn.
+       simpl in Hn.
+       rewrite Nat.mod_0_l in Hn; [ simpl in Hn | apply Pos2Nat_ne_0 ].
 bbb.
 *)
 
