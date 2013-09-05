@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.469 2013-09-05 11:43:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.470 2013-09-05 12:30:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -748,6 +748,16 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
    intros H; discriminate H.
 Qed.
 
+Lemma stretch_pad_1_series_distr : ∀ kp s,
+  stretch_series fld kp (series_pad_left fld 1 s) ≃
+  series_pad_left fld (Pos.to_nat kp) (stretch_series fld kp s).
+Proof.
+intros kp s.
+remember (Pos.to_nat kp) as x.
+rewrite <- Nat.mul_1_l in Heqx; subst x.
+apply stretch_pad_series_distr.
+Qed.
+
 (* *)
 
 Lemma Pcm_factor_mul : ∀ x y,
@@ -1087,6 +1097,30 @@ destruct (zerop (i mod Pos.to_nat k)) as [Hz| Hnz].
  destruct (Nbar.lt_dec (fin i) (stop s * fin (Pos.to_nat k))); reflexivity.
 Qed.
 
+Lemma stop_head_tail : ∀ nz,
+  stop (nz_terms nz) ≠ fin 0
+  → stop (nz_terms_add fld (nz_head nz) (nz_tail nz)) =
+    stop (stretch_series fld (nz_comden nz) (nz_terms nz)).
+Proof.
+intros nz Hst.
+unfold nz_terms_add; simpl.
+rewrite Z.mul_add_distr_r, Z.mul_1_l.
+rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+rewrite Z.add_simpl_l.
+rewrite Nbar.add_0_r.
+simpl.
+remember (Pos.to_nat (nz_comden nz)) as c.
+unfold series_head, series_tail; simpl.
+remember (stop (nz_terms nz)) as st.
+destruct st as [st| ]; [ simpl | reflexivity ].
+destruct st as [| st]; simpl.
+ exfalso; apply Hst; reflexivity.
+
+ rewrite Nat.add_0_r, Nat.sub_0_r.
+ rewrite Nat.max_r; [ idtac | apply le_plus_r ].
+ rewrite Nat.mul_comm, Nat.add_comm; reflexivity.
+Qed.
+
 Lemma xxx : ∀ nz, nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
@@ -1303,7 +1337,28 @@ destruct n as [n| ].
 
         exfalso; apply Hge₄; constructor.
 
-     simpl.
+     rewrite <- stretch_pad_1_series_distr.
+     rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
+     rewrite padded_in_stretched; [ reflexivity | assumption ].
+
+    remember (stop (nz_terms nz)) as st eqn:Hst .
+    symmetry in Hst.
+    destruct st as [st| ].
+     destruct st as [| st].
+      unfold nz_terms_add in Hs₁; simpl in Hs₁.
+      rewrite Z.mul_add_distr_r, Z.mul_1_l in Hs₁.
+      rewrite Z.sub_add_distr, Z.sub_diag in Hs₁; simpl in Hs₁.
+      rewrite Z.add_simpl_l in Hs₁.
+      subst s₁ s₂.
+      simpl in Hlt₁, Hge₂ |- *.
+      rewrite series_pad_left_0; simpl.
+      rewrite Nbar.add_0_r in Hlt₁.
+      unfold series_head, series_tail in Hlt₁.
+      rewrite Hst in Hlt₁.
+      rewrite Hst in Hlt₁; simpl in Hlt₁.
+      rewrite Hst in Hge₂.
+      unfold series_head, series_tail; simpl.
+      rewrite Hst; simpl.
 bbb.
 *)
 
