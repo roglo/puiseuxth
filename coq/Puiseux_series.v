@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.476 2013-09-05 14:40:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.477 2013-09-05 17:52:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1402,6 +1402,19 @@ destruct n as [n| ].
     destruct st as [st| ]; simpl in Hn.
      destruct st as [| st]; simpl in Hn.
       exfalso; apply Hst; reflexivity.
+
+      rewrite Nat.add_0_r, Nat.sub_0_r in Hn.
+      rewrite <- Z.mul_sub_distr_r in Hn.
+      rewrite Z.sub_add_distr, Z.sub_diag in Hn.
+      rewrite <- Z.mul_sub_distr_r in Hn.
+      rewrite Z.add_simpl_l in Hn.
+      rewrite Nat.add_0_r, Z.mul_1_l in Hn.
+      simpl in Hn.
+      rewrite Nat.max_r in Hn; [ idtac | apply le_plus_r ].
+      rewrite <- Nat.mul_succ_l in Hn.
+      remember (Pos.to_nat (nz_comden nz)) as x.
+      destruct (Nbar.lt_dec 0 (fin (S st * x))) as [Hlt₁| Hge₁].
+       rewrite series_pad_left_0 in Hn.
 bbb.
 *)
 
