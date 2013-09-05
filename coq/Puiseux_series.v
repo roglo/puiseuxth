@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.472 2013-09-05 13:16:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.473 2013-09-05 13:28:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1420,6 +1420,10 @@ destruct n as [n| ].
       subst s₁ s₂.
       rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
       intros H; rewrite H in Hst; discriminate Hst.
+
+     subst s₁ s₂.
+     rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
+     intros H; rewrite H in Hst; discriminate Hst.
 bbb.
 *)
 
