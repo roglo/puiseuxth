@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.459 2013-09-05 03:44:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.460 2013-09-05 03:46:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1430,6 +1430,7 @@ destruct n as [n| ].
                apply gt_not_le in H1.
                exfalso; apply H1, le_0_n.
 
+bbb.
                simpl in *.
                rewrite Nat.mul_0_r in Hlt₁.
                clear Hlt₃ Hlt₄ Hlt₅.
