@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.470 2013-09-05 12:30:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.471 2013-09-05 12:35:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1359,6 +1359,13 @@ destruct n as [n| ].
       rewrite Hst in Hge₂.
       unfold series_head, series_tail; simpl.
       rewrite Hst; simpl.
+      destruct (Nbar.lt_dec (fin i) 0) as [Hlt₂| Hge₂]; simpl.
+       Focus 1.
+       destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
+        apply Nat.mod_divides in Hz.
+         destruct Hz as (k, Hi); subst i.
+         rewrite Nat.mul_comm.
+         rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
 bbb.
 *)
 
