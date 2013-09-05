@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.458 2013-09-05 03:00:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.459 2013-09-05 03:44:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1463,6 +1463,12 @@ destruct n as [n| ].
 
          Focus 2.
          rewrite fld_add_ident.
+         Unfocus.
+         3: apply Z.le_0_1.
+
+        3: apply Pos2Z.is_nonneg.
+
+       Focus 1.
 bbb.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
