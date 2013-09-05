@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.463 2013-09-05 09:19:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.464 2013-09-05 09:29:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1181,6 +1181,24 @@ destruct n as [n| ].
             constructor.
             apply le_n_S; rewrite Nat.mul_comm; simpl.
             apply le_plus_l.
+
+          destruct k.
+           exfalso; apply Hge₅; rewrite Nat.mul_0_r; subst c.
+           apply Pos2Nat.is_pos.
+
+           unfold series_nth_fld; simpl.
+           rewrite Nat.mul_comm.
+           rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+           rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+           destruct (Nbar.lt_dec (fin (S k)) 1) as [Hlt₆| Hge₆].
+            apply Nbar.nlt_ge in Hlt₆.
+             exfalso; apply Hlt₆.
+             constructor; apply le_n_S, le_n_S, le_0_n.
+
+             intros H; discriminate H.
+
+            rewrite fld_add_ident.
+            rewrite Hst.
 bbb.
 
 intros nz.
