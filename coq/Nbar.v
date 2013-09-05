@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.44 2013-09-05 13:33:59 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.45 2013-09-05 15:07:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -60,7 +60,7 @@ Infix "*" := mul : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
-  | le_inf : ∀ n, n ≤ ∞
+  | le_inf : ∀ n, fin n ≤ ∞
 
 where "n ≤ m" := (le n m) : Nbar_scope.
 
@@ -138,18 +138,21 @@ Proof.
 intros n m p Hp.
 split; intros H.
  destruct n as [n| ].
-  destruct m as [m| ]; [ idtac | constructor ].
-  destruct p as [p| ]; [ idtac | constructor ].
-  constructor; apply Nat.add_lt_mono_r; inversion H; assumption.
+  destruct m as [m| ].
+   destruct p as [p| ].
+    constructor; apply Nat.add_lt_mono_r; inversion H; assumption.
 
-  destruct m as [m| ]; [ inversion H | constructor ].
+    exfalso; apply Hp; reflexivity.
 
+   destruct p as [p| ]; [ constructor | idtac ].
+   exfalso; apply Hp; reflexivity.
+
+  destruct m; inversion H.
+
+ destruct n as [n| ]; [ idtac | inversion H ].
  destruct m as [m| ]; [ idtac | constructor ].
- destruct n as [n| ].
-  destruct p as [p| ]; [ idtac | exfalso; apply Hp; reflexivity ].
-  constructor; inversion H; apply Nat.add_lt_mono_r in H2; assumption.
-
-  destruct p; [ inversion H | exfalso; apply Hp; reflexivity ].
+ destruct p as [p| ]; [ idtac | inversion H ].
+ constructor; inversion H; apply Nat.add_lt_mono_r in H2; assumption.
 Qed.
 
 Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
@@ -217,25 +220,30 @@ destruct n as [n| ].
 
   left; constructor.
 
- destruct m as [m| ]; [ right; intros H; inversion H | left; constructor ].
+ destruct m as [m| ]; [ right; intros H; inversion H | idtac ].
+ right; intros H; inversion H.
 Qed.
 
 Theorem lt_trans : ∀ n m p, n < m → m < p → n < p.
 Proof.
 intros n m p Hnm Hmp.
-destruct p as [p| ]; [ idtac | constructor ].
-destruct m as [m| ]; [ simpl | inversion Hmp ].
-destruct n as [n| ]; [ simpl | inversion Hnm ].
-inversion Hnm; inversion Hmp; constructor.
-eapply Nat.lt_trans; eassumption.
+destruct p as [p| ].
+ destruct m as [m| ]; [ simpl | inversion Hmp ].
+ destruct n as [n| ]; [ simpl | inversion Hnm ].
+ inversion Hnm; inversion Hmp; constructor.
+ eapply Nat.lt_trans; eassumption.
+
+ destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.
 
-Theorem lt_irrefl : ∀ n, n ≠ ∞ → ¬(n < n).
+Theorem lt_irrefl : ∀ n, ¬(n < n).
 Proof.
-intros n Hn.
-destruct n; [ idtac | exfalso; apply Hn; reflexivity ].
-intros H.
-inversion H; revert H2; apply Nat.lt_irrefl.
+intros n.
+destruct n as [n| ].
+ intros H.
+ inversion H; revert H2; apply Nat.lt_irrefl.
+
+ intros H; inversion H.
 Qed.
 
 (*
