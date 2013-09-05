@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.462 2013-09-05 09:12:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.463 2013-09-05 09:19:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1157,7 +1157,7 @@ destruct n as [n| ].
 
             exfalso; apply Hge₇; clear Hge₇.
             do 2 rewrite Nbar.fin_inj_mul in Hlt₂.
-            apply' Nbar.mul_lt_mono_pos_r (* Generic printer *).
+            apply <- Nbar.mul_lt_mono_pos_r.
              rewrite Nbar.mul_comm; eassumption.
 
              intros H; discriminate H.
