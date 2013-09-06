@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.491 2013-09-06 22:53:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.492 2013-09-06 23:42:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -490,6 +490,8 @@ destruct (Nbar.lt_dec n₁ n₂) as [Hlt₁| Hge₁].
      exfalso; apply Hge₂; subst mst.
      unfold series_nth_fld in Hnz₂.
      destruct (Nbar.lt_dec (fin n₂) (stop s₂)) as [Hlt₃| Hge₃].
+      eapply Nbar.lt_trans; [ eassumption | idtac ].
+      eapply Nbar.lt_le_trans; [ eassumption | idtac ].
 bbb.
 
 Axiom first_nonzero_pad : ∀ s n,
