@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.47 2013-09-06 09:16:01 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.48 2013-09-06 13:17:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -84,6 +84,12 @@ Proof. reflexivity. Qed.
 Theorem fin_inj_add : ∀ n m, fin (n + m) = fin n + fin m.
 Proof. reflexivity. Qed.
 
+Theorem fin_inj_wd : ∀ n1 n2, fin n1 = fin n2 ↔ n1 = n2.
+Proof.
+intros n₁ n₂.
+split; intros H; [ inversion H | subst ]; reflexivity.
+Qed.
+
 (*
 Theorem fin_inj_sub : ∀ n m, fin (n - m) = fin n - fin m.
 Proof. reflexivity. Qed.
@@ -130,6 +136,29 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_l; reflexivity.
 Qed.
 *)
+
+Theorem lt_irrefl : ∀ n, ¬(n < n).
+Proof.
+intros n.
+destruct n as [n| ].
+ intros H.
+ inversion H; revert H2; apply Nat.lt_irrefl.
+
+ intros H; inversion H.
+Qed.
+
+Theorem fin_lt_mono : ∀ n m, (n < m)%nat ↔ fin n < fin m.
+Proof.
+intros n m.
+split; intros H.
+ destruct n as [n| ]; [ idtac | constructor; assumption ].
+ destruct m as [m| ]; [ idtac | constructor; assumption ].
+ exfalso; revert H; apply Nat.lt_irrefl.
+
+ destruct n as [n| ]; [ idtac | inversion H; assumption ].
+ destruct m as [m| ]; [ idtac | inversion H; assumption ].
+ exfalso; revert H; apply lt_irrefl.
+Qed.
 
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
 Proof.
@@ -232,16 +261,6 @@ destruct p as [p| ].
  eapply Nat.lt_trans; eassumption.
 
  destruct n as [n| ]; [ constructor | inversion Hnm ].
-Qed.
-
-Theorem lt_irrefl : ∀ n, ¬(n < n).
-Proof.
-intros n.
-destruct n as [n| ].
- intros H.
- inversion H; revert H2; apply Nat.lt_irrefl.
-
- intros H; inversion H.
 Qed.
 
 (*

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.485 2013-09-06 09:30:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.486 2013-09-06 13:17:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -417,11 +417,36 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
-Axiom lt_first_nonzero : ∀ s n,
-  (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
+Axiom first_nonzero_fin_iff : ∀ s n,
+  first_nonzero fld s = fin n
+  ↔ (∀ i, (i < n)%nat → series_nth_fld fld i s ≍ zero fld) ∧
+    series_nth_fld fld n s ≭ zero fld.
 
-Axiom eq_first_nonzero : ∀ s n,
+Axiom first_nonzero_inf_iff : ∀ s,
+  first_nonzero fld s = inf
+  ↔ (∀ i, series_nth_fld fld i s ≍ zero fld).
+
+Theorem lt_first_nonzero : ∀ s n,
+  (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
+Proof.
+intros s n Hn.
+remember (first_nonzero fld s) as v eqn:Hv .
+symmetry in Hv.
+destruct v as [v| ].
+ remember Hv as Hc; clear HeqHc.
+ apply first_nonzero_fin_iff in Hc.
+ destruct Hc as (Hvz, Hvnz).
+ apply Hvz.
+ apply Nbar.fin_lt_mono; assumption.
+
+ remember Hv as Hc; clear HeqHc.
+ apply first_nonzero_inf_iff; assumption.
+Qed.
+
+Theorem eq_first_nonzero : ∀ s n,
   first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
+Proof.
+bbb.
 
 Axiom first_nonzero_stretch : ∀ k s,
   first_nonzero fld (stretch_series fld k s) =
