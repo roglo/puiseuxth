@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.481 2013-09-06 01:38:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.482 2013-09-06 01:55:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1134,6 +1134,25 @@ apply Nbar.nlt_ge in Hlt₁.
 
  intros H; discriminate H.
 Qed.
+
+Lemma ps_cons2 : ∀ nz,
+  nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
+Proof.
+intros nz.
+unfold nz_add.
+remember (first_nonzero fld (nz_terms nz)) as n eqn:Hn .
+remember
+ (first_nonzero fld (nz_terms_add fld (nz_head nz) (nz_tail nz))) as m eqn:Hm .
+symmetry in Hn, Hm.
+unfold nz_terms_add in Hm.
+simpl in Hm.
+rewrite Z.mul_add_distr_r, Z.mul_1_l in Hm.
+rewrite Z.sub_add_distr, Z.sub_diag in Hm; simpl in Hm.
+rewrite Z.add_simpl_l in Hm; simpl in Hm.
+rewrite series_pad_left_0 in Hm.
+rewrite <- stretch_pad_1_series_distr in Hm.
+rewrite <- stretch_series_add_distr in Hm.
+bbb.
 
 Lemma ps_cons : ∀ nz,
   first_nonzero fld (nz_terms_add fld (nz_head nz) (nz_tail nz)) = fin 0
