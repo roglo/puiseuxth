@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.488 2013-09-06 16:36:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.489 2013-09-06 17:03:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -94,17 +94,6 @@ destruct (Nbar.lt_dec (fin i) 0) as [Hlt| ]; [ idtac | reflexivity ].
 inversion Hlt as [a b H d e| ]; subst.
 exfalso; revert H; apply Nat.nle_succ_0.
 Qed.
-
-(*
-Lemma first_nonzero_fin : ∀ s v,
-  first_nonzero fld s = fin v
-  → not (∀ i : nat, series_nth_fld fld i s ≍ zero fld).
-Proof.
-intros s v Hf H.
-apply first_nonzero_inf in H.
-rewrite Hf in H; discriminate H.
-Qed.
-*)
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -478,6 +467,10 @@ destruct n₁ as [n₁| ].
  destruct Hn₁ as (Hiz₁, Hnz₁).
  destruct n₂ as [n₂| ].
   destruct Hn₂ as (Hiz₂, Hnz₂).
+  simpl.
+  apply Nbar.fin_inj_wd.
+  destruct (lt_eq_lt_dec n₁ (Pos.to_nat k * n₂)) as [[Hlt| Hneq]| Hgt].
+   exfalso; apply Hnz₁.
 bbb.
 
 Axiom first_nonzero_add : ∀ s₁ s₂,
