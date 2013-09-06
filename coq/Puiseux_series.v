@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.487 2013-09-06 15:23:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.488 2013-09-06 16:36:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,17 +34,6 @@ Axiom first_nonzero_iff : ∀ s n,
     | inf =>
         (∀ i, series_nth_fld fld i s ≍ zero fld)
     end.
-
-(*
-Axiom first_nonzero_fin_iff : ∀ s n,
-  first_nonzero fld s = fin n
-  ↔ (∀ i, (i < n)%nat → series_nth_fld fld i s ≍ zero fld) ∧
-    series_nth_fld fld n s ≭ zero fld.
-
-Axiom first_nonzero_inf_iff : ∀ s,
-  first_nonzero fld s = inf
-  ↔ (∀ i, series_nth_fld fld i s ≍ zero fld).
-*)
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -461,22 +450,17 @@ Proof.
 intros s n Hn.
 remember (first_nonzero fld s) as v eqn:Hv .
 symmetry in Hv.
-destruct v as [v| ].
- remember Hv as Hc; clear HeqHc.
- apply first_nonzero_fin_iff in Hc.
- destruct Hc as (Hvz, Hvnz).
- apply Hvz.
- apply Nbar.fin_lt_mono; assumption.
-
- remember Hv as Hc; clear HeqHc.
- apply first_nonzero_inf_iff; assumption.
+apply first_nonzero_iff in Hv.
+destruct v as [v| ]; [ idtac | apply Hv ].
+destruct Hv as (Hvz, Hvnz).
+apply Hvz, Nbar.fin_lt_mono; assumption.
 Qed.
 
 Theorem eq_first_nonzero : ∀ s n,
   first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
 Proof.
 intros s n Hn.
-apply first_nonzero_fin_iff in Hn.
+apply first_nonzero_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
