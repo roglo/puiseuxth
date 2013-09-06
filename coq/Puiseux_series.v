@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.486 2013-09-06 13:17:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.487 2013-09-06 15:23:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,6 +19,32 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+
+(* [first_nonzero fld s] return the position of the first non null
+   coefficient in the series [s]. *)
+Definition first_nonzero : ∀ α, field α → series α → Nbar.
+Admitted.
+
+Axiom first_nonzero_iff : ∀ s n,
+  first_nonzero fld s = n
+  ↔ match n with
+    | fin k =>
+        (∀ i, (i < k)%nat → series_nth_fld fld i s ≍ zero fld) ∧
+         series_nth_fld fld k s ≭ zero fld
+    | inf =>
+        (∀ i, series_nth_fld fld i s ≍ zero fld)
+    end.
+
+(*
+Axiom first_nonzero_fin_iff : ∀ s n,
+  first_nonzero fld s = fin n
+  ↔ (∀ i, (i < n)%nat → series_nth_fld fld i s ≍ zero fld) ∧
+    series_nth_fld fld n s ≭ zero fld.
+
+Axiom first_nonzero_inf_iff : ∀ s,
+  first_nonzero fld s = inf
+  ↔ (∀ i, series_nth_fld fld i s ≍ zero fld).
+*)
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -361,6 +387,38 @@ Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
  transitivity proved by (eq_ps_trans (fld := fld))
  as eq_ps_rel.
 
+Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
+with signature (eq_series fld) ==> eq as first_nonzero_morph.
+Proof.
+intros s₁ s₂ Heq.
+remember (first_nonzero fld s₁) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s₂) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+apply first_nonzero_iff in Hn₁.
+apply first_nonzero_iff in Hn₂.
+destruct n₁ as [n₁| ].
+ destruct Hn₁ as (Hiz₁, Hnz₁).
+ destruct n₂ as [n₂| ].
+  destruct Hn₂ as (Hiz₂, Hnz₂).
+  apply Nbar.fin_inj_wd.
+  destruct (lt_eq_lt_dec n₁ n₂) as [[Hlt| Hneq]| Hgt].
+   exfalso; apply Hnz₁.
+   rewrite Heq.
+   apply Hiz₂; assumption.
+
+   assumption.
+
+   exfalso; apply Hnz₂.
+   rewrite <- Heq.
+   apply Hiz₁; assumption.
+
+  exfalso; apply Hnz₁; rewrite Heq; apply Hn₂.
+
+ destruct n₂ as [n₂| ]; [ idtac | reflexivity ].
+ destruct Hn₂ as (Hiz₂, Hnz₂).
+ exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
+Qed.
+
 Section fld₂.
 
 Variable α : Type.
@@ -397,35 +455,6 @@ Definition series_pad_left n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n);
      stop := stop s + fin n |}.
 
-End fld₂.
-
-(* [first_nonzero fld s] return the position of the first non null
-   coefficient in the series [s]. *)
-Definition first_nonzero : ∀ α, field α → series α → Nbar.
-Admitted.
-
-Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
-with signature (eq_series fld) ==> eq as first_nonzero_morph.
-Admitted.
-
-Section fld_axioms.
-
-Variable α : Type.
-Variable fld : field α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
-
-Axiom first_nonzero_fin_iff : ∀ s n,
-  first_nonzero fld s = fin n
-  ↔ (∀ i, (i < n)%nat → series_nth_fld fld i s ≍ zero fld) ∧
-    series_nth_fld fld n s ≭ zero fld.
-
-Axiom first_nonzero_inf_iff : ∀ s,
-  first_nonzero fld s = inf
-  ↔ (∀ i, series_nth_fld fld i s ≍ zero fld).
-
 Theorem lt_first_nonzero : ∀ s n,
   (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
 Proof.
@@ -446,11 +475,26 @@ Qed.
 Theorem eq_first_nonzero : ∀ s n,
   first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
 Proof.
-bbb.
+intros s n Hn.
+apply first_nonzero_fin_iff in Hn.
+destruct Hn; assumption.
+Qed.
 
-Axiom first_nonzero_stretch : ∀ k s,
+Theorem first_nonzero_stretch : ∀ k s,
   first_nonzero fld (stretch_series fld k s) =
     (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
+Proof.
+intros k s.
+remember (first_nonzero fld (stretch_series fld k s)) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+apply first_nonzero_iff in Hn₁.
+apply first_nonzero_iff in Hn₂.
+destruct n₁ as [n₁| ].
+ destruct Hn₁ as (Hiz₁, Hnz₁).
+ destruct n₂ as [n₂| ].
+  destruct Hn₂ as (Hiz₂, Hnz₂).
+bbb.
 
 Axiom first_nonzero_add : ∀ s₁ s₂,
   first_nonzero fld (series_add fld s₁ s₂) =
@@ -459,17 +503,6 @@ Axiom first_nonzero_add : ∀ s₁ s₂,
 Axiom first_nonzero_pad : ∀ s n,
   first_nonzero fld (series_pad_left fld n s) =
     (fin n + first_nonzero fld s)%Nbar.
-
-End fld_axioms.
-
-Section fld₃.
-
-Variable α : Type.
-Variable fld : field α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 (* ps_add *)
 
