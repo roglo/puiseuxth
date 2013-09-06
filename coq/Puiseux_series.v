@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.484 2013-09-06 09:16:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.485 2013-09-06 09:30:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -393,6 +393,10 @@ Definition adjust k ps :=
       Zero _
   end.
 
+Definition series_pad_left n s :=
+  {| terms i := if lt_dec i n then zero fld else terms s (i - n);
+     stop := stop s + fin n |}.
+
 End fld₂.
 
 (* [first_nonzero fld s] return the position of the first non null
@@ -425,7 +429,11 @@ Axiom first_nonzero_stretch : ∀ k s,
 
 Axiom first_nonzero_add : ∀ s₁ s₂,
   first_nonzero fld (series_add fld s₁ s₂) =
-  Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
+    Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
+
+Axiom first_nonzero_pad : ∀ s n,
+  first_nonzero fld (series_pad_left fld n s) =
+    (fin n + first_nonzero fld s)%Nbar.
 
 End fld_axioms.
 
@@ -439,10 +447,6 @@ Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 (* ps_add *)
-
-Definition series_pad_left n s :=
-  {| terms i := if lt_dec i n then zero fld else terms s (i - n);
-     stop := stop s + fin n |}.
 
 (*
 Definition cm ps₁ ps₂ := Plcm (nz_comden ps₁) (nz_comden ps₂).
@@ -462,8 +466,8 @@ Definition nz_terms_add nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
   series_add fld
-    (series_pad_left (Z.to_nat (v₁ - v₂)) s₁)
-    (series_pad_left (Z.to_nat (v₂ - v₁)) s₂).
+    (series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁)
+    (series_pad_left fld (Z.to_nat (v₂ - v₁)) s₂).
 
 Definition build_nz_add v (nz₁ nz₂ : nz_ps α) :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
@@ -1184,6 +1188,7 @@ rewrite <- stretch_pad_1_series_distr in Hm.
 rewrite <- stretch_series_add_distr in Hm.
 rewrite first_nonzero_stretch in Hm.
 rewrite first_nonzero_add in Hm.
+rewrite first_nonzero_pad in Hm.
 bbb.
 
 Lemma ps_cons : ∀ nz,
