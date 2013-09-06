@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.482 2013-09-06 01:55:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.483 2013-09-06 08:30:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,15 +12,6 @@ Require Import Zbar.
 
 Set Implicit Arguments.
 
-(* [first_nonzero fld s] return the position of the first non null
-   coefficient in the series [s]. *)
-Definition first_nonzero : ∀ α, field α → series α → Nbar.
-Admitted.
-
-Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
-with signature (eq_series fld) ==> eq as first_nonzero_morph.
-Admitted.
-
 Section fld.
 
 Variable α : Type.
@@ -28,12 +19,6 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-
-Axiom lt_first_nonzero : ∀ s n,
-  (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
-
-Axiom eq_first_nonzero : ∀ s n,
-  first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -408,6 +393,47 @@ Definition adjust k ps :=
       Zero _
   end.
 
+End fld₂.
+
+(* [first_nonzero fld s] return the position of the first non null
+   coefficient in the series [s]. *)
+Definition first_nonzero : ∀ α, field α → series α → Nbar.
+Admitted.
+
+Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
+with signature (eq_series fld) ==> eq as first_nonzero_morph.
+Admitted.
+
+Section fld_axioms.
+
+Variable α : Type.
+Variable fld : field α.
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+
+Axiom lt_first_nonzero : ∀ s n,
+  (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
+
+Axiom eq_first_nonzero : ∀ s n,
+  first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
+
+Axiom first_nonzero_stretch : ∀ k s,
+  first_nonzero fld (stretch_series fld k s) =
+    (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
+
+End fld_axioms.
+
+Section fld₃.
+
+Variable α : Type.
+Variable fld : field α.
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+
 (* ps_add *)
 
 Definition series_pad_left n s :=
@@ -511,7 +537,7 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   end.
 *)
 
-End fld₂.
+End fld₃.
 
 Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
@@ -581,7 +607,7 @@ destruct (lt_dec i n) as [Hlt| Hge].
    reflexivity.
 Qed.
 
-Section fld₃.
+Section fld₄.
 
 Variable α : Type.
 Variable fld : field α.
@@ -1152,6 +1178,7 @@ rewrite Z.add_simpl_l in Hm; simpl in Hm.
 rewrite series_pad_left_0 in Hm.
 rewrite <- stretch_pad_1_series_distr in Hm.
 rewrite <- stretch_series_add_distr in Hm.
+rewrite first_nonzero_stretch in Hm.
 bbb.
 
 Lemma ps_cons : ∀ nz,
@@ -2140,4 +2167,4 @@ Definition ps_fld : field (puiseux_series α) :=
      fld_add_compat := ps_add_compat;
      fld_mul_ident := ps_mul_ident |}.
 
-End fld₃.
+End fld₄.
