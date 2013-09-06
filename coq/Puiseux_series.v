@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.480 2013-09-06 01:26:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.481 2013-09-06 01:38:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1147,50 +1147,44 @@ destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
   rewrite stretch_series_1.
   constructor; intros i.
   rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
-  unfold series_nth_fld.
-  simpl.
-  unfold series_head, series_tail.
-  simpl.
+  unfold series_nth_fld; simpl.
+  unfold series_head, series_tail; simpl.
   rewrite Hst; simpl.
   rewrite Hst; simpl.
   rewrite Z.mul_add_distr_r, Z.mul_1_l.
   rewrite Z.sub_add_distr, Z.sub_diag; simpl.
-  rewrite Z.add_simpl_l.
-  simpl.
-  destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat (nz_comden nz))))
-   as [Hlt₁| Hge₁].
+  rewrite Z.add_simpl_l; simpl.
+  remember (Pos.to_nat (nz_comden nz)) as c.
+  destruct (Nbar.lt_dec (fin i) (fin c)) as [Hlt₁| Hge₁].
    rewrite series_pad_left_0.
+   rewrite Heqc.
    rewrite <- stretch_pad_1_series_distr.
    rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
    rewrite fld_add_ident.
    unfold series_nth_fld; simpl.
    rewrite Hst; simpl.
    rewrite Nat.add_0_r.
-   destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat (nz_comden nz))))
-    as [Hlt₂| Hge₂].
-    destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
-     apply Nat.mod_divides in Hz.
-      destruct Hz as (k, Hi).
-      subst i.
-      rewrite Nat.mul_comm.
-      rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-      unfold series_nth_fld; simpl.
-      rewrite Hst; simpl.
-      destruct k.
-       simpl.
-       destruct (Nbar.lt_dec 0 1); reflexivity.
+   rewrite <- Heqc.
+   destruct (Nbar.lt_dec (fin i) (fin c)) as [Hlt₂| Hge₂].
+    destruct (zerop (i mod c)) as [Hz| Hnz].
+     apply Nat.mod_divides in Hz; [ idtac | subst c; apply Pos2Nat_ne_0 ].
+     destruct Hz as (k, Hi).
+     subst i.
+     rewrite Nat.mul_comm.
+     rewrite Nat.div_mul; [ idtac | subst c; apply Pos2Nat_ne_0 ].
+     unfold series_nth_fld; simpl.
+     rewrite Hst; simpl.
+     destruct k.
+      simpl.
+      destruct (Nbar.lt_dec 0 1); reflexivity.
 
-       exfalso.
-       apply Nbar.nlt_ge in Hlt₁.
-        apply Hlt₁; simpl.
-        constructor.
-        rewrite Nat.mul_comm; simpl.
-        rewrite <- plus_Sn_m.
-        apply le_plus_l.
-
-        intros H; discriminate H.
-
-      apply Pos2Nat_ne_0.
+      exfalso.
+      apply Nbar.nlt_ge in Hlt₁; [ idtac | intros H; discriminate H ].
+      apply Hlt₁; simpl.
+      constructor.
+      rewrite Nat.mul_comm; simpl.
+      rewrite <- plus_Sn_m.
+      apply le_plus_l.
 
      reflexivity.
 
