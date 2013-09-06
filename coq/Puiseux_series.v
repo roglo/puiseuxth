@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.489 2013-09-06 17:03:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.490 2013-09-06 18:11:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -453,32 +453,21 @@ apply first_nonzero_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
-Theorem first_nonzero_stretch : ∀ k s,
-  first_nonzero fld (stretch_series fld k s) =
-    (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
+Theorem first_nonzero_add : ∀ s₁ s₂,
+  first_nonzero fld (series_add fld s₁ s₂) =
+    Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
 Proof.
-intros k s.
-remember (first_nonzero fld (stretch_series fld k s)) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s) as n₂ eqn:Hn₂ .
+intros s₁ s₂.
+remember (first_nonzero fld s₁) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s₂) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 apply first_nonzero_iff in Hn₁.
 apply first_nonzero_iff in Hn₂.
-destruct n₁ as [n₁| ].
- destruct Hn₁ as (Hiz₁, Hnz₁).
- destruct n₂ as [n₂| ].
-  destruct Hn₂ as (Hiz₂, Hnz₂).
-  simpl.
-  apply Nbar.fin_inj_wd.
-  destruct (lt_eq_lt_dec n₁ (Pos.to_nat k * n₂)) as [[Hlt| Hneq]| Hgt].
-   exfalso; apply Hnz₁.
+apply first_nonzero_iff.
 bbb.
 
-Axiom first_nonzero_add : ∀ s₁ s₂,
-  first_nonzero fld (series_add fld s₁ s₂) =
-    Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
-
 Axiom first_nonzero_pad : ∀ s n,
-  first_nonzero fld (series_pad_left fld n s) =
+  first_nonzero fld (series_pad_left n s) =
     (fin n + first_nonzero fld s)%Nbar.
 
 (* ps_add *)
@@ -1203,6 +1192,26 @@ apply Nbar.nlt_ge in Hlt₁.
 
  intros H; discriminate H.
 Qed.
+
+Theorem first_nonzero_stretch : ∀ k s,
+  first_nonzero fld (stretch_series fld k s) =
+    (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
+Proof.
+intros k s.
+remember (first_nonzero fld (stretch_series fld k s)) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+apply first_nonzero_iff in Hn₁.
+apply first_nonzero_iff in Hn₂.
+destruct n₁ as [n₁| ].
+ destruct Hn₁ as (Hiz₁, Hnz₁).
+ destruct n₂ as [n₂| ].
+  destruct Hn₂ as (Hiz₂, Hnz₂).
+  simpl.
+  apply Nbar.fin_inj_wd.
+  destruct (lt_eq_lt_dec n₁ (Pos.to_nat k * n₂)) as [[Hlt| Hneq]| Hgt].
+   exfalso; apply Hnz₁.
+bbb.
 
 Lemma ps_cons2 : ∀ nz,
   nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
