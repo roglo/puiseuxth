@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.46 2013-09-05 15:14:25 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.47 2013-09-06 09:16:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -40,9 +40,7 @@ Definition binop f dx dy xb yb :=
 Definition add := binop plus ∞ ∞.
 Definition mul := binop mult ∞ ∞.
 Definition max := binop max ∞ ∞.
-(*
 Definition min x y := binop min x y x y.
-*)
 
 Definition sub xb yb :=
   match yb with

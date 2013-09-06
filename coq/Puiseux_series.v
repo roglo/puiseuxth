@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.483 2013-09-06 08:30:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.484 2013-09-06 09:16:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -422,6 +422,10 @@ Axiom eq_first_nonzero : ∀ s n,
 Axiom first_nonzero_stretch : ∀ k s,
   first_nonzero fld (stretch_series fld k s) =
     (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
+
+Axiom first_nonzero_add : ∀ s₁ s₂,
+  first_nonzero fld (series_add fld s₁ s₂) =
+  Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
 
 End fld_axioms.
 
@@ -1179,6 +1183,7 @@ rewrite series_pad_left_0 in Hm.
 rewrite <- stretch_pad_1_series_distr in Hm.
 rewrite <- stretch_series_add_distr in Hm.
 rewrite first_nonzero_stretch in Hm.
+rewrite first_nonzero_add in Hm.
 bbb.
 
 Lemma ps_cons : ∀ nz,
