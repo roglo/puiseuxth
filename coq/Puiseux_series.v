@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.490 2013-09-06 18:11:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.491 2013-09-06 22:53:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,6 +12,11 @@ Require Import Zbar.
 
 Set Implicit Arguments.
 
+(* [first_nonzero fld s] return the position of the first non null
+   coefficient in the series [s]. *)
+Definition first_nonzero : ∀ α, field α → series α → Nbar.
+Admitted.
+
 Section fld.
 
 Variable α : Type.
@@ -19,11 +24,6 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-
-(* [first_nonzero fld s] return the position of the first non null
-   coefficient in the series [s]. *)
-Definition first_nonzero : ∀ α, field α → series α → Nbar.
-Admitted.
 
 Axiom first_nonzero_iff : ∀ s n,
   first_nonzero fld s = n
@@ -464,6 +464,32 @@ symmetry in Hn₁, Hn₂.
 apply first_nonzero_iff in Hn₁.
 apply first_nonzero_iff in Hn₂.
 apply first_nonzero_iff.
+destruct (Nbar.lt_dec n₁ n₂) as [Hlt₁| Hge₁].
+ rewrite Nbar.min_l; [ idtac | apply Nbar.lt_le_incl; assumption ].
+ destruct n₁ as [n₁| ].
+  destruct Hn₁ as (Hiz₁, Hnz₁).
+  destruct n₂ as [n₂| ].
+   destruct Hn₂ as (Hiz₂, Hnz₂).
+   split; [ intros i Hin₁ | idtac ].
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))).
+     rewrite Hiz₁; [ idtac | assumption ].
+     rewrite Hiz₂; [ apply fld_add_ident | idtac ].
+     transitivity n₁; [ assumption | idtac ].
+     apply Nbar.fin_lt_mono; assumption.
+
+     reflexivity.
+
+    unfold series_nth_fld; simpl.
+    remember (Nbar.max (stop s₁) (stop s₂)) as mst eqn:Hmst .
+    destruct (Nbar.lt_dec (fin n₁) mst) as [Hlt₂| Hge₂].
+     apply Nbar.fin_lt_mono in Hlt₁.
+     rewrite Hiz₂; [ idtac | assumption ].
+     rewrite fld_add_comm, fld_add_ident; assumption.
+
+     exfalso; apply Hge₂; subst mst.
+     unfold series_nth_fld in Hnz₂.
+     destruct (Nbar.lt_dec (fin n₂) (stop s₂)) as [Hlt₃| Hge₃].
 bbb.
 
 Axiom first_nonzero_pad : ∀ s n,

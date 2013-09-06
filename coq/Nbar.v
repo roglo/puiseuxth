@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.48 2013-09-06 13:17:20 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.49 2013-09-06 22:53:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -251,6 +251,17 @@ destruct n as [n| ].
  right; intros H; inversion H.
 Qed.
 
+Theorem min_dec : ∀ n m, {min n m = n} + {min n m = m}.
+Proof.
+intros n m.
+destruct n as [n| ]; [ idtac | destruct m; right; reflexivity ].
+destruct m as [m| ]; [ idtac | left; reflexivity ].
+destruct (Nat.min_dec n m) as [H| H].
+ left; apply fin_inj_wd; assumption.
+
+ right; apply fin_inj_wd; assumption.
+Qed.
+
 Theorem lt_trans : ∀ n m p, n < m → m < p → n < p.
 Proof.
 intros n m p Hnm Hmp.
@@ -452,6 +463,22 @@ destruct n as [n| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ simpl | reflexivity ].
 rewrite Nat.max_assoc; reflexivity.
+Qed.
+
+Theorem min_l : ∀ n m, n ≤ m → min n m = n.
+Proof.
+intros n m H.
+destruct m as [m| ]; [ idtac | destruct n; reflexivity ].
+destruct n as [n| ]; [ simpl | inversion H ].
+rewrite Nat.min_l; [ reflexivity | inversion H; assumption ].
+Qed.
+
+Theorem min_r: ∀ n m, m ≤ n → min n m = m.
+Proof.
+intros n m H.
+destruct n as [n| ]; [ idtac | destruct m; reflexivity ].
+destruct m as [m| ]; [ simpl | inversion H ].
+rewrite Nat.min_r; [ reflexivity | inversion H; assumption ].
 Qed.
 
 Theorem max_l : ∀ n m, m ≤ n → max n m = n.
