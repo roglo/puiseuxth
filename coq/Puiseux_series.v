@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.502 2013-09-07 11:06:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.503 2013-09-07 15:42:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1442,23 +1442,20 @@ destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
              intros H; discriminate H.
 
              destruct k; [ rewrite Nat.mul_0_r in Hlt₃; assumption | idtac ].
-bbb.
-             apply Nbar.nlt_ge in Hlt₆.
-              exfalso; apply Hlt₆.
+             apply Nbar.nle_gt in Hlt₆.
+             exfalso; apply Hlt₆.
+             constructor; apply le_n_S, le_0_n.
 
-              constructor; apply le_n_S, le_0_n.
-
-           apply Nbar.nlt_ge in Hge₆; [ idtac | intros H; discriminate H ].
+           apply Nbar.nlt_ge in Hge₆.
            destruct k.
-            apply Nbar.nlt_ge in Hge₆; [ idtac | intros H; discriminate H ].
+            apply Nbar.nlt_ge in Hge₆.
             exfalso; apply Hge₆; constructor; apply Nat.lt_0_1.
 
-            apply Nbar.nlt_ge in Hlt₃; [ idtac | intros H; discriminate H ].
+            apply Nbar.nlt_ge in Hlt₃.
             exfalso; apply Hlt₃.
             constructor.
-            apply le_n_S; rewrite Nat.mul_comm; simpl.
+            rewrite Nat.mul_comm; simpl.
             apply le_plus_l.
-*)
 
           destruct k.
            exfalso; apply Hge₅; rewrite Nat.mul_0_r; subst c.
@@ -1470,10 +1467,8 @@ bbb.
            rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
            destruct (Nbar.lt_dec (fin (S k)) 1) as [Hlt₆| Hge₆].
             apply Nbar.nlt_ge in Hlt₆.
-             exfalso; apply Hlt₆.
-             constructor; apply le_n_S, le_n_S, le_0_n.
-
-             intros H; discriminate H.
+            exfalso; apply Hlt₆.
+            constructor; apply le_n_S, le_0_n.
 
             rewrite fld_add_ident.
             rewrite Heqst.

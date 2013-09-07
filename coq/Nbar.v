@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.53 2013-09-07 11:07:09 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.54 2013-09-07 15:42:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -577,7 +577,22 @@ Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
 Proof.
 intros n m.
 split; intros H.
-bbb.
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | exfalso; apply H; constructor ].
+  apply fin_lt_mono, Nat.nlt_ge.
+  intros I; apply H.
+  apply fin_le_mono, le_S_n; assumption.
+
+  destruct m; [ constructor | exfalso; apply H; constructor ].
+
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | inversion H ].
+  apply fin_lt_mono, Nat.nle_gt in H.
+  intros I; apply H; clear H.
+  apply fin_le_mono; assumption.
+
+  destruct m; [ intros I; inversion I | inversion H ].
+Qed.
 
 Theorem nlt_ge : ∀ n m, ¬(n < m) ↔ m ≤ n.
 Proof.
