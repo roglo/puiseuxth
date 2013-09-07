@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.493 2013-09-07 00:11:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.494 2013-09-07 00:44:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -487,15 +487,31 @@ destruct (Nbar.lt_dec n₁ n₂) as [Hlt₁| Hge₁].
      rewrite Hiz₂; [ idtac | assumption ].
      rewrite fld_add_comm, fld_add_ident; assumption.
 
-     exfalso; apply Hge₂; subst mst.
+     exfalso; apply Hge₂; clear Hge₂; subst mst.
      unfold series_nth_fld in Hnz₂.
      destruct (Nbar.lt_dec (fin n₂) (stop s₂)) as [Hlt₃| Hge₃].
       eapply Nbar.lt_trans; [ eassumption | idtac ].
       eapply Nbar.lt_le_trans; [ eassumption | idtac ].
       apply Nbar.le_max_r.
 
-      apply Nbar.nlt_ge in Hge₃.
-      apply Nbar.nlt_ge in Hge₂.
+      exfalso; apply Hnz₂; reflexivity.
+
+   split; [ intros i Hin₁ | idtac ].
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))).
+     rewrite Hiz₁; [ idtac | assumption ].
+     rewrite Hn₂, fld_add_ident; reflexivity.
+
+     reflexivity.
+
+    unfold series_nth_fld; simpl.
+    remember (Nbar.max (stop s₁) (stop s₂)) as mst eqn:Hmst .
+    destruct (Nbar.lt_dec (fin n₁) mst) as [Hlt₂| Hge₂].
+     rewrite Hn₂, fld_add_comm, fld_add_ident; assumption.
+
+     subst mst.
+     exfalso; apply Hge₂; clear Hge₂.
+
 bbb.
 
 Axiom first_nonzero_pad : ∀ s n,
