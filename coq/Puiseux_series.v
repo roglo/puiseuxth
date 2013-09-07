@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.496 2013-09-07 07:30:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.497 2013-09-07 07:52:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -453,96 +453,11 @@ apply first_nonzero_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
+(* false; counter-example : s₁ = [1, ...] s₂ = [-1, ...]
 Theorem first_nonzero_add : ∀ s₁ s₂,
   first_nonzero fld (series_add fld s₁ s₂) =
     Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
-Proof.
-intros s₁ s₂.
-remember (first_nonzero fld s₁) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s₂) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
-apply first_nonzero_iff in Hn₁.
-apply first_nonzero_iff in Hn₂.
-apply first_nonzero_iff.
-destruct (Nbar.lt_dec n₁ n₂) as [Hlt₁| Hge₁].
- rewrite Nbar.min_l; [ idtac | apply Nbar.lt_le_incl; assumption ].
- destruct n₁ as [n₁| ].
-  destruct Hn₁ as (Hiz₁, Hnz₁).
-  destruct n₂ as [n₂| ].
-   destruct Hn₂ as (Hiz₂, Hnz₂).
-   split; [ intros i Hin₁ | idtac ].
-    unfold series_nth_fld; simpl.
-    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))).
-     rewrite Hiz₁; [ idtac | assumption ].
-     rewrite Hiz₂; [ apply fld_add_ident | idtac ].
-     transitivity n₁; [ assumption | idtac ].
-     apply Nbar.fin_lt_mono; assumption.
-
-     reflexivity.
-
-    unfold series_nth_fld; simpl.
-    remember (Nbar.max (stop s₁) (stop s₂)) as mst eqn:Hmst .
-    destruct (Nbar.lt_dec (fin n₁) mst) as [Hlt₂| Hge₂].
-     apply Nbar.fin_lt_mono in Hlt₁.
-     rewrite Hiz₂; [ idtac | assumption ].
-     rewrite fld_add_comm, fld_add_ident; assumption.
-
-     exfalso; apply Hge₂; clear Hge₂; subst mst.
-     unfold series_nth_fld in Hnz₂.
-     destruct (Nbar.lt_dec (fin n₂) (stop s₂)) as [Hlt₃| Hge₃].
-      eapply Nbar.lt_trans; [ eassumption | idtac ].
-      eapply Nbar.lt_le_trans; [ eassumption | idtac ].
-      apply Nbar.le_max_r.
-
-      exfalso; apply Hnz₂; reflexivity.
-
-   split; [ intros i Hin₁ | idtac ].
-    unfold series_nth_fld; simpl.
-    destruct (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))).
-     rewrite Hiz₁; [ idtac | assumption ].
-     rewrite Hn₂, fld_add_ident; reflexivity.
-
-     reflexivity.
-
-    unfold series_nth_fld; simpl.
-    remember (Nbar.max (stop s₁) (stop s₂)) as mst eqn:Hmst .
-    destruct (Nbar.lt_dec (fin n₁) mst) as [Hlt₂| Hge₂].
-     rewrite Hn₂, fld_add_comm, fld_add_ident; assumption.
-
-     subst mst.
-     exfalso; apply Hge₂; clear Hge₂.
-     unfold series_nth_fld in Hnz₁.
-     destruct (Nbar.lt_dec (fin n₁) (stop s₁)) as [Hlt₂| Hge₂].
-      apply Nbar.max_lt_iff; left; assumption.
-
-      exfalso; apply Hnz₁; reflexivity.
-
-  apply Nbar.nlt_ge in Hlt₁; [ contradiction | constructor ].
-
- apply Nbar.nlt_ge in Hge₁.
- destruct (Nbar.eq_dec n₁ n₂) as [Heq| Hne].
-  subst n₂.
-  rewrite Nbar.min_id.
-  destruct n₁ as [n₁| ].
-   destruct Hn₁ as (Hiz₁, Hnz₁).
-   destruct Hn₂ as (Hiz₂, Hnz₂).
-   split; [ intros i Hin₁ | idtac ].
-    unfold series_nth_fld; simpl.
-    remember (Nbar.max (stop s₁) (stop s₂)) as mst eqn:Hmst .
-    destruct (Nbar.lt_dec (fin i) mst) as [Hlt₂| Hge₂]; subst mst.
-     rewrite Hiz₁; [ idtac | assumption ].
-     rewrite Hiz₂; [ idtac | assumption ].
-     apply fld_add_ident.
-
-     reflexivity.
-
-    unfold series_nth_fld; simpl.
-    remember (Nbar.max (stop s₁) (stop s₂)) as mst eqn:Hmst .
-    destruct (Nbar.lt_dec (fin n₁) mst) as [Hlt₂| Hge₂]; subst mst.
-     unfold series_nth_fld in Hnz₁.
-     destruct (Nbar.lt_dec (fin n₁) (stop s₁)) as [Hlt₃| Hge₃].
-
-bbb.
+*)
 
 Axiom first_nonzero_pad : ∀ s n,
   first_nonzero fld (series_pad_left n s) =
@@ -568,8 +483,8 @@ Definition nz_terms_add nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
   series_add fld
-    (series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁)
-    (series_pad_left fld (Z.to_nat (v₂ - v₁)) s₂).
+    (series_pad_left (Z.to_nat (v₁ - v₂)) s₁)
+    (series_pad_left (Z.to_nat (v₂ - v₁)) s₂).
 
 Definition build_nz_add v (nz₁ nz₂ : nz_ps α) :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
@@ -647,7 +562,7 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   end.
 *)
 
-End fld₃.
+End fld₂.
 
 Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
@@ -1268,7 +1183,7 @@ destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁]; [ idtac | reflexivity ].
 apply Nbar.nlt_ge in Hlt₁.
  exfalso; apply Hlt₁; constructor; apply lt_0_Sn.
 
- intros H; discriminate H.
+ constructor; apply Nat.le_0_l.
 Qed.
 
 Theorem first_nonzero_stretch : ∀ k s,
