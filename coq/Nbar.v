@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.54 2013-09-07 15:42:24 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.55 2013-09-07 16:05:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -621,6 +621,12 @@ intros n H.
 destruct n as [n| ]; [ idtac | inversion H ].
 inversion_clear H.
 revert H0; apply Nat.nlt_0_r.
+Qed.
+
+Theorem add_0_l : ∀ n, 0 + n = n.
+Proof.
+intros n.
+destruct n; reflexivity.
 Qed.
 
 Theorem add_0_r : ∀ n, n + 0 = n.

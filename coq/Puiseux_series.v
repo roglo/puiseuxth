@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.503 2013-09-07 15:42:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.504 2013-09-07 16:05:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -459,9 +459,22 @@ Theorem first_nonzero_add : ∀ s₁ s₂,
     Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
 *)
 
-Axiom first_nonzero_pad : ∀ s n,
+Lemma series_pad_left_0 : ∀ s, series_pad_left 0 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_pad_left, series_nth_fld; simpl.
+rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
+Qed.
+
+Theorem first_nonzero_pad : ∀ s n,
   first_nonzero fld (series_pad_left n s) =
     (fin n + first_nonzero fld s)%Nbar.
+Proof.
+intros s n.
+induction n.
+ rewrite series_pad_left_0, Nbar.add_0_l; reflexivity.
+bbb.
 
 (* ps_add *)
 
@@ -1029,14 +1042,6 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
-Lemma series_pad_left_0 : ∀ s, series_pad_left fld 0 s ≃ s.
-Proof.
-intros s.
-constructor; intros i.
-unfold series_pad_left, series_nth_fld; simpl.
-rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
-Qed.
-
 Definition terms_add ps₁ ps₂ :=
   match ps₁ with
   | NonZero nz₁ =>
@@ -1287,11 +1292,12 @@ destruct n₁ as [n₁| ].
  assumption.
 Qed.
 
-(*
+(**)
 Lemma ps_cons2 : ∀ nz,
   nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
+bbb.
 unfold nz_add.
 remember (first_nonzero fld (nz_terms nz)) as n eqn:Hn .
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as a.
