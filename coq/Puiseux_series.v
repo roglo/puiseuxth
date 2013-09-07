@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.499 2013-09-07 08:51:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.500 2013-09-07 09:15:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1216,11 +1216,11 @@ destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
   reflexivity.
 Qed.
 
-Lemma zero_series_stretched : ∀ s n k,
+Lemma zero_series_stretched : ∀ s,
   (∀ i : nat, series_nth_fld fld i s ≍ zero fld)
-  → series_nth_fld fld n (stretch_series fld k s) ≍ zero fld.
+  → ∀ n k, series_nth_fld fld n (stretch_series fld k s) ≍ zero fld.
 Proof.
-intros s n k H.
+intros s H n k.
 unfold series_nth_fld; simpl.
 remember (stop s * fin (Pos.to_nat k))%Nbar as x.
 destruct (Nbar.lt_dec (fin n) x) as [Hlt₁| ]; [ subst x | reflexivity ].
@@ -1230,6 +1230,13 @@ destruct Hz as (c, Hn); subst n.
 rewrite Nat.mul_comm.
 rewrite Nat.div_mul; [ apply H | apply Pos2Nat_ne_0 ].
 Qed.
+
+Lemma zero_stretched_series : ∀ s k,
+  (∀ i : nat, series_nth_fld fld i (stretch_series fld k s) ≍ zero fld)
+  → ∀ n, series_nth_fld fld n s ≍ zero fld.
+Proof.
+intros s k H n.
+bbb.
 
 Theorem first_nonzero_stretch : ∀ k s,
   first_nonzero fld (stretch_series fld k s) =
@@ -1269,6 +1276,9 @@ destruct n₁ as [n₁| ].
 
   exfalso; apply Hnz₁; clear Hnz₁.
   apply zero_series_stretched; assumption.
+
+ destruct n₂ as [n₂| ]; [ idtac | reflexivity ].
+ destruct Hn₂ as (Hiz₂, Hnz₂).
 bbb.
 
 Lemma ps_cons2 : ∀ nz,
