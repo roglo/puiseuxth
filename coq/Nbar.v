@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.49 2013-09-06 22:53:53 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.50 2013-09-07 00:11:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -58,25 +58,13 @@ Infix "*" := mul : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
-  | le_inf : ∀ n, fin n ≤ ∞
-
+  | le_inf : ∀ n, n ≤ ∞
 where "n ≤ m" := (le n m) : Nbar_scope.
 
-Definition lt n m := S n ≤ m.
-(*
-Definition gt n m := lt m n.
-*)
-
-Infix "<" := lt : Nbar_scope.
-(*
-Infix ">" := gt : Nbar_scope.
-
-Definition to_nat nb :=
-  match nb with
-  | fin n => n
-  | inf => O
-  end.
-*)
+Inductive lt : Nbar → Nbar → Prop :=
+  | lt_fin : ∀ n m, (n < m)%nat → fin n < fin m
+  | lt_inf : ∀ n, fin n < ∞
+where "n < m" := (lt n m) : Nbar_scope.
 
 Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
 Proof. reflexivity. Qed.
@@ -145,6 +133,19 @@ destruct n as [n| ].
  inversion H; revert H2; apply Nat.lt_irrefl.
 
  intros H; inversion H.
+Qed.
+
+Theorem fin_le_mono : ∀ n m, (n <= m)%nat ↔ fin n ≤ fin m.
+Proof.
+intros n m.
+split; intros H.
+ destruct n as [n| ]; [ idtac | constructor; assumption ].
+ destruct m as [m| ]; [ idtac | constructor; assumption ].
+ constructor; assumption.
+
+ destruct n as [n| ]; [ idtac | inversion H; assumption ].
+ destruct m as [m| ]; [ idtac | inversion H; assumption ].
+ inversion H; assumption.
 Qed.
 
 Theorem fin_lt_mono : ∀ n m, (n < m)%nat ↔ fin n < fin m.
@@ -270,6 +271,18 @@ destruct p as [p| ].
  destruct n as [n| ]; [ simpl | inversion Hnm ].
  inversion Hnm; inversion Hmp; constructor.
  eapply Nat.lt_trans; eassumption.
+
+ destruct n as [n| ]; [ constructor | inversion Hnm ].
+Qed.
+
+Theorem lt_le_trans : ∀ n m p, n < m → m ≤ p → n < p.
+Proof.
+intros n m p Hnm Hmp.
+destruct p as [p| ].
+ destruct m as [m| ]; [ simpl | inversion Hmp ].
+ destruct n as [n| ]; [ simpl | inversion Hnm ].
+ inversion Hnm; inversion Hmp; constructor.
+ eapply Nat.lt_le_trans; eassumption.
 
  destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.
@@ -510,6 +523,22 @@ destruct (Nat.max_dec n m) as [H| H]; rewrite Hnm in H; subst.
  split; [ simpl in Hnm; subst; reflexivity | reflexivity ].
 Qed.
 
+Theorem le_max_l : ∀ n m, n ≤ max n m.
+Proof.
+intros n m.
+destruct n as [n| ]; [ idtac | constructor ].
+destruct m as [m| ]; [ simpl | constructor ].
+apply fin_le_mono, Nat.le_max_l.
+Qed.
+
+Theorem le_max_r : ∀ n m, m ≤ max n m.
+Proof.
+intros n m.
+destruct n as [n| ]; [ idtac | constructor ].
+destruct m as [m| ]; [ simpl | constructor ].
+apply fin_le_mono, Nat.le_max_r.
+Qed.
+
 Theorem max_lt_iff : ∀ n m p, p < max n m ↔ p < n ∨ p < m.
 Proof.
 intros n m p.
@@ -537,24 +566,25 @@ destruct m as [m| ]; [ idtac | constructor ].
 constructor; apply Nat.lt_le_incl; inversion H; assumption.
 Qed.
 
-Theorem nlt_ge : ∀ n m, m ≠ ∞ → ¬(n < m) ↔ m ≤ n.
+Theorem nlt_ge : ∀ n m, ¬(n < m) ↔ m ≤ n.
 Proof.
-intros n m Hm.
+intros n m.
 split; intros H.
- destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
  destruct n as [n| ]; [ idtac | constructor ].
- constructor; apply Nat.nlt_ge; intros I; apply H.
- constructor; assumption.
+ destruct m as [m| ].
+  apply fin_le_mono, Nat.nlt_ge.
+  intros I; apply H.
+  apply fin_lt_mono; assumption.
+
+  exfalso; apply H; constructor.
 
  destruct n as [n| ].
-  destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
-  inversion H; subst.
-  apply Nat.nlt_ge in H2.
-  intros I; apply H2; clear H2.
-  inversion I; assumption.
+  destruct m as [m| ]; [ idtac | inversion H ].
+  apply fin_le_mono, Nat.nlt_ge in H.
+  intros I; apply H.
+  apply fin_lt_mono; assumption.
 
-  destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
-  intros I; inversion I.
+  destruct m; intros I; inversion I.
 Qed.
 
 Theorem nlt_0_r : ∀ n, ¬(n < 0).

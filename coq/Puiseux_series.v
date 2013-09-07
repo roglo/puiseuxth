@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.492 2013-09-06 23:42:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.493 2013-09-07 00:11:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -492,6 +492,10 @@ destruct (Nbar.lt_dec n₁ n₂) as [Hlt₁| Hge₁].
      destruct (Nbar.lt_dec (fin n₂) (stop s₂)) as [Hlt₃| Hge₃].
       eapply Nbar.lt_trans; [ eassumption | idtac ].
       eapply Nbar.lt_le_trans; [ eassumption | idtac ].
+      apply Nbar.le_max_r.
+
+      apply Nbar.nlt_ge in Hge₃.
+      apply Nbar.nlt_ge in Hge₂.
 bbb.
 
 Axiom first_nonzero_pad : ∀ s n,
