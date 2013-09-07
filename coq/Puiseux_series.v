@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.501 2013-09-07 10:47:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.502 2013-09-07 11:06:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1287,14 +1287,15 @@ destruct n₁ as [n₁| ].
  assumption.
 Qed.
 
+(*
 Lemma ps_cons2 : ∀ nz,
   nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz.
 unfold nz_add.
 remember (first_nonzero fld (nz_terms nz)) as n eqn:Hn .
-remember
- (first_nonzero fld (nz_terms_add fld (nz_head nz) (nz_tail nz))) as m eqn:Hm .
+remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as a.
+remember (first_nonzero fld a) as m eqn:Hm ; subst a.
 symmetry in Hn, Hm.
 unfold nz_terms_add in Hm.
 simpl in Hm.
@@ -1308,6 +1309,7 @@ rewrite first_nonzero_stretch in Hm.
 rewrite first_nonzero_add in Hm.
 rewrite first_nonzero_pad in Hm.
 bbb.
+*)
 
 Lemma ps_cons : ∀ nz,
   first_nonzero fld (nz_terms_add fld (nz_head nz) (nz_tail nz)) = fin 0
@@ -1352,12 +1354,9 @@ destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
       simpl.
       destruct (Nbar.lt_dec 0 1); reflexivity.
 
-      exfalso.
-      apply Nbar.nlt_ge in Hlt₁; [ idtac | intros H; discriminate H ].
-      apply Hlt₁; simpl.
+      exfalso; revert Hlt₁; apply Nbar.nlt_ge.
       constructor.
       rewrite Nat.mul_comm; simpl.
-      rewrite <- plus_Sn_m.
       apply le_plus_l.
 
      reflexivity.
@@ -1443,11 +1442,11 @@ destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
              intros H; discriminate H.
 
              destruct k; [ rewrite Nat.mul_0_r in Hlt₃; assumption | idtac ].
+bbb.
              apply Nbar.nlt_ge in Hlt₆.
               exfalso; apply Hlt₆.
-              constructor; apply le_n_S, le_n_S, le_0_n.
 
-              intros H; discriminate H.
+              constructor; apply le_n_S, le_0_n.
 
            apply Nbar.nlt_ge in Hge₆; [ idtac | intros H; discriminate H ].
            destruct k.
@@ -1459,6 +1458,7 @@ destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
             constructor.
             apply le_n_S; rewrite Nat.mul_comm; simpl.
             apply le_plus_l.
+*)
 
           destruct k.
            exfalso; apply Hge₅; rewrite Nat.mul_0_r; subst c.

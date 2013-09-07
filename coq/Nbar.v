@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.52 2013-09-07 11:06:42 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.53 2013-09-07 11:07:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -573,7 +573,7 @@ destruct m as [m| ]; [ idtac | constructor ].
 constructor; apply Nat.lt_le_incl; inversion H; assumption.
 Qed.
 
-Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ (m < n)%nat.
+Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
 Proof.
 intros n m.
 split; intros H.
