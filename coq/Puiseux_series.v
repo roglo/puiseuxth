@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.500 2013-09-07 09:15:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.501 2013-09-07 10:47:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1236,7 +1236,10 @@ Lemma zero_stretched_series : ∀ s k,
   → ∀ n, series_nth_fld fld n s ≍ zero fld.
 Proof.
 intros s k H n.
-bbb.
+pose proof (H (Pos.to_nat k * n)%nat) as Hn.
+rewrite series_nth_fld_mul_stretch in Hn.
+assumption.
+Qed.
 
 Theorem first_nonzero_stretch : ∀ k s,
   first_nonzero fld (stretch_series fld k s) =
@@ -1279,7 +1282,10 @@ destruct n₁ as [n₁| ].
 
  destruct n₂ as [n₂| ]; [ idtac | reflexivity ].
  destruct Hn₂ as (Hiz₂, Hnz₂).
-bbb.
+ exfalso; apply Hnz₂; clear Hnz₂.
+ apply zero_stretched_series with (k := k).
+ assumption.
+Qed.
 
 Lemma ps_cons2 : ∀ nz,
   nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
