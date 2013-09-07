@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.504 2013-09-07 16:05:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.505 2013-09-07 18:13:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -466,6 +466,23 @@ constructor; intros i.
 unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
+
+Lemma zzz : ∀ s n,
+  first_nonzero fld (series_pad_left (S n) s) =
+  NS (first_nonzero fld (series_pad_left n s)).
+Proof.
+intros s n.
+remember (first_nonzero fld (series_pad_left n s)) as u eqn:Hu .
+remember (first_nonzero fld (series_pad_left (S n) s)) as v eqn:Hv .
+symmetry in Hu, Hv.
+apply first_nonzero_iff in Hu.
+apply first_nonzero_iff in Hv.
+destruct u as [u| ].
+ destruct Hu as (Hiu, Hu).
+ destruct v as [v| ].
+  destruct Hv as (Hiv, Hv).
+  apply Nbar.fin_inj_wd.
+bbb.
 
 Theorem first_nonzero_pad : ∀ s n,
   first_nonzero fld (series_pad_left n s) =

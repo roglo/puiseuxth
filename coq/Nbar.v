@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.55 2013-09-07 16:05:22 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.56 2013-09-07 18:13:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -17,15 +17,15 @@ Notation "∞" := inf.
 Notation "0" := (fin 0) : Nbar_scope.
 Notation "1" := (fin 1) : Nbar_scope.
 
-Open Scope Nbar_scope.
-
-Module Nbar.
-
-Definition S n :=
+Definition NS n :=
   match n with
   | fin n => fin (S n)
   | ∞ => ∞
   end.
+
+Open Scope Nbar_scope.
+
+Module Nbar.
 
 Definition binop f dx dy xb yb :=
   match xb with
