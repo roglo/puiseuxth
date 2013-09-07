@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.494 2013-09-07 00:44:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.495 2013-09-07 02:08:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -511,6 +511,17 @@ destruct (Nbar.lt_dec n₁ n₂) as [Hlt₁| Hge₁].
 
      subst mst.
      exfalso; apply Hge₂; clear Hge₂.
+     unfold series_nth_fld in Hnz₁.
+     destruct (Nbar.lt_dec (fin n₁) (stop s₁)) as [Hlt₂| Hge₂].
+      apply Nbar.max_lt_iff; left; assumption.
+
+      exfalso; apply Hnz₁; reflexivity.
+
+  apply Nbar.nlt_ge in Hlt₁; [ contradiction | constructor ].
+
+ apply Nbar.nlt_ge in Hge₁.
+ destruct (Nbar.eq_dec n₁ n₂) as [Heq| Hne].
+  subst n₂.
 
 bbb.
 
