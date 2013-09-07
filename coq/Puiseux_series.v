@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.506 2013-09-07 19:03:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.507 2013-09-07 19:11:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -467,7 +467,7 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma yyy : ∀ s n i,
+Lemma series_nth_pad_S : ∀ s n i,
   series_nth_fld fld i (series_pad_left n s) =
   series_nth_fld fld (S i) (series_pad_left (S n) s).
 Proof.
@@ -490,7 +490,15 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
    rewrite <- Nat.add_succ_r in Hlt₁; contradiction.
 
    exfalso; apply Hge₂; constructor.
-bbb.
+
+ destruct (Nbar.lt_dec (fin (S i)) (stop s + fin (S n))) as [Hlt₂| Hge₂].
+  exfalso; apply Hge₁, Nbar.succ_lt_mono.
+  destruct (stop s) as [st| ]; [ idtac | constructor ].
+  simpl in Hlt₂ |- *.
+  rewrite <- Nat.add_succ_r; assumption.
+
+  reflexivity.
+Qed.
 
 Lemma zzz : ∀ s n,
   first_nonzero fld (series_pad_left (S n) s) =
@@ -507,6 +515,7 @@ destruct u as [u| ].
  destruct v as [v| ].
   destruct Hv as (Hiv, Hv).
   apply Nbar.fin_inj_wd.
+  rewrite series_nth_pad_S in Hu.
 bbb.
   destruct (lt_eq_lt_dec v (S u)) as [[Hlt₁| Heq₁]| Hgt₁].
    destruct (eq_nat_dec v u) as [Heq| Hne].
