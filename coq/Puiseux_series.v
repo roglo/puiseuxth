@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.505 2013-09-07 18:13:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.506 2013-09-07 19:03:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -467,6 +467,31 @@ unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
+Lemma yyy : ∀ s n i,
+  series_nth_fld fld i (series_pad_left n s) =
+  series_nth_fld fld (S i) (series_pad_left (S n) s).
+Proof.
+intros s n i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
+ destruct (Nbar.lt_dec (fin (S i)) (stop s + fin (S n))) as [Hlt₂| Hge₂].
+  destruct (lt_dec i n) as [Hlt₃| Hge₃].
+   destruct (lt_dec (S i) (S n)) as [Hlt₄| Hge₄]; [ reflexivity | idtac ].
+   apply Nat.succ_lt_mono in Hlt₃; contradiction.
+
+   destruct (lt_dec (S i) (S n)) as [Hlt₄| Hge₄]; [ idtac | reflexivity ].
+   apply Nat.succ_lt_mono in Hlt₄; contradiction.
+
+  remember (stop s) as st eqn:Hst .
+  symmetry in Hst.
+  destruct st as [st| ].
+   simpl in Hlt₁.
+   apply Nbar.succ_lt_mono in Hlt₁; simpl in Hlt₁.
+   rewrite <- Nat.add_succ_r in Hlt₁; contradiction.
+
+   exfalso; apply Hge₂; constructor.
+bbb.
+
 Lemma zzz : ∀ s n,
   first_nonzero fld (series_pad_left (S n) s) =
   NS (first_nonzero fld (series_pad_left n s)).
@@ -482,6 +507,36 @@ destruct u as [u| ].
  destruct v as [v| ].
   destruct Hv as (Hiv, Hv).
   apply Nbar.fin_inj_wd.
+bbb.
+  destruct (lt_eq_lt_dec v (S u)) as [[Hlt₁| Heq₁]| Hgt₁].
+   destruct (eq_nat_dec v u) as [Heq| Hne].
+    subst v.
+    unfold series_nth_fld in Hu; simpl in Hu.
+    unfold series_nth_fld in Hv; simpl in Hv.
+    unfold series_nth_fld in Hiu; simpl in Hiu.
+    unfold series_nth_fld in Hiv; simpl in Hiv.
+    exfalso; clear Hlt₁.
+    destruct (Nbar.lt_dec (fin u) (stop s + fin n)) as [Hlt₁| Hge₁].
+     destruct (lt_dec u n) as [Hlt₂| Hge₂]; [ apply Hu; reflexivity | idtac ].
+     apply Nat.nlt_ge in Hge₂.
+     destruct (Nbar.lt_dec (fin u) (stop s + fin (S n))) as [Hlt₃| Hge₃].
+      destruct (lt_dec u (S n)) as [| Hge₄].
+       apply Hv; reflexivity.
+
+       apply Nat.nlt_ge in Hge₄.
+       destruct u.
+        revert Hge₄; apply Nat.nle_succ_0.
+
+        pose proof (Hiv n Hge₄) as H.
+        destruct (Nbar.lt_dec (fin n) (stop s + fin (S n))) as [Hlt₅| Hge₅].
+         clear H.
+         pose proof (Hiu n Hge₄) as H.
+         destruct (Nbar.lt_dec (fin n) (stop s + fin n)) as [Hlt₆| Hge₆].
+          destruct (lt_dec n n) as [Hlt₇| Hge₇].
+           revert Hlt₇; apply lt_irrefl.
+
+           rewrite Nat.sub_diag in H.
+           Focus 1.
 bbb.
 
 Theorem first_nonzero_pad : ∀ s n,

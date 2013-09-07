@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.56 2013-09-07 18:13:33 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.57 2013-09-07 19:03:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -159,6 +159,21 @@ split; intros H.
  destruct n as [n| ]; [ idtac | inversion H; assumption ].
  destruct m as [m| ]; [ idtac | inversion H; assumption ].
  exfalso; revert H; apply lt_irrefl.
+Qed.
+
+Theorem succ_lt_mono : ∀ n m, n < m ↔ NS n < NS m.
+Proof.
+intros n m.
+split; intros H.
+ destruct n as [n| ]; [ simpl | destruct m; inversion H ].
+ destruct m as [m| ]; [ simpl | constructor ].
+ apply fin_lt_mono, Nat.succ_lt_mono in H.
+ apply fin_lt_mono; assumption.
+
+ destruct n as [n| ]; [ simpl | destruct m; inversion H ].
+ destruct m as [m| ]; [ simpl in H | constructor ].
+ apply fin_lt_mono, Nat.succ_lt_mono.
+ apply fin_lt_mono; assumption.
 Qed.
 
 Theorem add_lt_mono_r : ∀ n m p, p ≠ ∞ → n < m ↔ n + p < m + p.
