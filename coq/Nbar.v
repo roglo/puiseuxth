@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.50 2013-09-07 00:11:13 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.51 2013-09-07 07:30:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -425,6 +425,13 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_sub_distr_r; reflexivity.
 Qed.
 *)
+
+Theorem min_id : ∀ n, min n n = n.
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+rewrite Nat.min_id; reflexivity.
+Qed.
 
 Theorem max_id : ∀ n, max n n = n.
 Proof.
