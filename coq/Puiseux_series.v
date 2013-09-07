@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.497 2013-09-07 07:52:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.498 2013-09-07 08:36:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1186,6 +1186,36 @@ apply Nbar.nlt_ge in Hlt₁.
  constructor; apply Nat.le_0_l.
 Qed.
 
+Lemma series_nth_fld_mul_stretch : ∀ s k i,
+  series_nth_fld fld (Pos.to_nat k * i) (stretch_series fld k s) =
+  series_nth_fld fld i s.
+Proof.
+intros s k i.
+unfold series_nth_fld; simpl.
+rewrite Nat.mul_comm.
+rewrite Nat.mod_mul; [ simpl | apply Pos2Nat_ne_0 ].
+rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
+unfold series_nth_fld.
+remember (fin (i * Pos.to_nat k)) as x.
+remember (stop s * fin (Pos.to_nat k))%Nbar as y.
+destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
+ reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [Hlt₂| Hge₂].
+  exfalso; apply Hge₁.
+  rewrite Nbar.fin_inj_mul.
+  apply Nbar.mul_lt_mono_pos_r.
+   constructor; apply Pos2Nat.is_pos.
+
+   intros H; discriminate H.
+
+   intros H; discriminate H.
+
+   assumption.
+
+  reflexivity.
+Qed.
+
 Theorem first_nonzero_stretch : ∀ k s,
   first_nonzero fld (stretch_series fld k s) =
     (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
@@ -1203,7 +1233,26 @@ destruct n₁ as [n₁| ].
   simpl.
   apply Nbar.fin_inj_wd.
   destruct (lt_eq_lt_dec n₁ (Pos.to_nat k * n₂)) as [[Hlt| Hneq]| Hgt].
-   exfalso; apply Hnz₁.
+   exfalso; apply Hnz₁; clear Hnz₁.
+   destruct (lt_dec 0 (n₁ mod Pos.to_nat k)) as [Hlt₁| Hge₁].
+    rewrite padded_in_stretched; [ reflexivity | assumption ].
+
+    apply Nat.nlt_ge in Hge₁.
+    apply Nat.le_0_r in Hge₁.
+    apply Nat.mod_divides in Hge₁; [ idtac | apply Pos2Nat_ne_0 ].
+    destruct Hge₁ as (c, Hn).
+    rewrite Hn.
+    rewrite series_nth_fld_mul_stretch.
+    apply Hiz₂; subst n₁.
+    apply Nat.mul_lt_mono_pos_l in Hlt; [ assumption | apply Pos2Nat.is_pos ].
+
+   assumption.
+
+   exfalso; apply Hnz₂.
+   erewrite <- series_nth_fld_mul_stretch.
+   apply Hiz₁; assumption.
+
+  exfalso; apply Hnz₁; clear Hnz₁.
 bbb.
 
 Lemma ps_cons2 : ∀ nz,
