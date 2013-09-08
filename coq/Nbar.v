@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.58 2013-09-08 02:08:25 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.59 2013-09-08 03:16:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -302,13 +302,18 @@ destruct p as [p| ].
  destruct n as [n| ]; [ constructor | inversion Hnm ].
 Qed.
 
-(*
-Theorem lt_0_succ: ∀ n : Nbar, 0 < S n.
+Theorem lt_0_succ: ∀ n, 0 < NS n.
 Proof.
 intros n.
 destruct n; [ constructor; apply Nat.lt_0_succ | constructor ].
 Qed.
 
+Theorem lt_0_1: 0 < 1.
+Proof.
+apply lt_0_succ with (n := 0).
+Qed.
+
+(*
 Theorem le_antisymm : ∀ n m, n ≤ m → m ≤ n → n = m.
 Proof.
 intros n m Hnm Hmn.

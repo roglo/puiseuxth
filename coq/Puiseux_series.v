@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.511 2013-09-08 02:30:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.512 2013-09-08 03:16:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1703,6 +1703,77 @@ destruct n as [[| n]| ].
  rewrite Hn in Hzz.
  negation Hzz.
 Qed.
+
+Lemma stop_head_tail₂ : ∀ nz,
+  stop (nz_terms nz) ≠ 0%Nbar
+  → stop (nz_terms_add fld (nz_head nz) (nz_tail nz))
+    = (fin (Pos.to_nat (nz_comden nz)) * stop (nz_terms nz))%Nbar.
+Proof.
+intros nz Hstnz.
+unfold nz_terms_add; simpl.
+unfold series_head, series_tail; simpl.
+remember (stop (nz_terms nz)) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ]; [ simpl | reflexivity ].
+destruct st as [| st]; [ negation Hstnz | simpl ].
+rewrite Nat.add_0_r, Nat.sub_0_r.
+rewrite Z.mul_add_distr_r, Z.mul_1_l.
+rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+rewrite Z.add_simpl_l; simpl.
+rewrite Nat.add_0_r.
+rewrite max_r.
+ rewrite <- Nat.mul_succ_l, Nat.mul_comm; reflexivity.
+
+ rewrite Nat.add_comm.
+ apply Nat.le_add_r.
+Qed.
+
+Lemma zzz : ∀ nz,
+  series_nth_fld fld 0 (nz_terms nz)
+  ≍ series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz)).
+Proof.
+intros nz.
+unfold series_nth_fld.
+remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s eqn:Hs .
+destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [Hlt₁| Hge₁].
+ destruct (Nbar.lt_dec 0 (stop s)) as [Hlt₂| Hge₂].
+  subst s; simpl.
+  rewrite Z.mul_add_distr_r, Z.mul_1_l.
+  rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+  rewrite Z.add_simpl_l; simpl.
+  rewrite series_pad_left_0.
+  unfold series_head, series_tail; simpl.
+  remember (stop (nz_terms nz)) as st eqn:Hst .
+  symmetry in Hst.
+  destruct st as [st| ]; simpl.
+   destruct st as [| st].
+    exfalso; revert Hlt₁; apply Nbar.lt_irrefl.
+
+    unfold series_nth_fld; simpl.
+    rewrite Nat.add_0_r, Nat.sub_0_r.
+    rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+    remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+    destruct (Nbar.lt_dec 0 (fin c)) as [Hlt₃| Hge₃].
+     rewrite Nat.div_0_l; [ idtac | subst c; apply Pos2Nat_ne_0 ].
+     rewrite <- Nat.mul_succ_l.
+     destruct (Nbar.lt_dec 0 (fin (S st * c))) as [Hlt₄| Hge₄].
+      destruct (lt_dec 0 c) as [Hlt₅| Hge₅].
+       rewrite fld_add_comm, fld_add_ident.
+       unfold series_nth_fld; simpl.
+       destruct (Nbar.lt_dec 0 1) as [Hlt₆| Hge₆]; [ reflexivity | idtac ].
+       exfalso; apply Hge₆, Nbar.lt_0_1.
+
+       exfalso; apply Hge₅, Nbar.fin_lt_mono; assumption.
+
+      exfalso; apply Hge₄; subst c; constructor.
+      apply Nat.mul_pos_pos.
+       apply Nat.lt_0_succ.
+
+       apply Pos2Nat.is_pos.
+
+     exfalso; apply Hge₃; constructor.
+     subst c; apply Pos2Nat.is_pos.
+bbb.
 
 (**)
 Lemma ps_cons2 : ∀ nz,
