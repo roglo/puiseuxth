@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.510 2013-09-08 02:08:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.511 2013-09-08 02:30:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1706,11 +1706,10 @@ Qed.
 
 (**)
 Lemma ps_cons2 : ∀ nz,
-  series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz))
-     ≭ zero fld
+  series_nth_fld fld 0 (nz_terms nz) ≭ zero fld
   → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
-intros nz Hzz.
+intros nz Hznz.
 bbb.
 unfold nz_add.
 remember (first_nonzero fld (nz_terms nz)) as n eqn:Hn .
