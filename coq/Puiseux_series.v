@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.513 2013-09-08 03:48:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.514 2013-09-08 04:48:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1727,6 +1727,23 @@ rewrite max_r.
  rewrite Nat.add_comm.
  apply Nat.le_add_r.
 Qed.
+
+Lemma stop_head_tail_pos_if : ∀ nz,
+  (0 < stop (nz_terms_add fld (nz_head nz) (nz_tail nz)))%Nbar
+  → (0 < stop (nz_terms nz))%Nbar.
+Proof.
+intros nz H.
+unfold nz_terms_add in H; simpl in H.
+unfold series_head, series_tail in H; simpl in H.
+remember (stop (nz_terms nz)) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ]; [ idtac | constructor ].
+destruct st as [| st]; [ idtac | constructor; apply Nat.lt_0_succ ].
+rewrite Hst in H; simpl in H.
+rewrite Z.mul_add_distr_r, Z.mul_1_l in H.
+rewrite Z.sub_add_distr, Z.sub_diag in H; simpl in H.
+rewrite Z.add_simpl_l in H; simpl in H.
+bbb.
 
 Lemma zzz : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz)
