@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.514 2013-09-08 04:48:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.515 2013-09-08 15:39:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1193,26 +1193,28 @@ apply nz_add_assoc_base.
 Qed.
 
 Definition series_head (s : series α) :=
-  match stop s with
-  | fin 0 => s
-  | _ => {| terms := terms s; stop := 1 |}
-  end.
+  {| terms := terms s; stop := 1 |}.
 
 Definition series_tail (s : series α) :=
-  match stop s with
-  | fin 0 => s
-  | _ => {| terms i := terms s (S i); stop := stop s - 1 |}
-  end.
+  {| terms i := terms s (S i); stop := stop s - 1 |}.
 
 Definition nz_head nz :=
-  {| nz_terms := series_head (nz_terms nz);
-     nz_valnum := nz_valnum nz;
-     nz_comden := nz_comden nz |}.
+  match stop (nz_terms nz) with
+  | fin 0 => nz
+  | _ =>
+      {| nz_terms := series_head (nz_terms nz);
+         nz_valnum := nz_valnum nz;
+         nz_comden := nz_comden nz |}
+  end.
 
 Definition nz_tail nz :=
-  {| nz_terms := series_tail (nz_terms nz);
-     nz_valnum := nz_valnum nz + 1;
-     nz_comden := nz_comden nz |}.
+  match stop (nz_terms nz) with
+  | fin 0 => nz
+  | _ =>
+      {| nz_terms := series_tail (nz_terms nz);
+         nz_valnum := nz_valnum nz + 1;
+         nz_comden := nz_comden nz |}
+  end.
 
 Lemma Z2Nat_sub_mul_succ_l : ∀ a b,
   (Z.to_nat (a * ' b) - Z.to_nat ((a + 1) * ' b))%nat = O.
@@ -1245,19 +1247,19 @@ Lemma stop_head_tail : ∀ nz,
 Proof.
 intros nz Hst.
 unfold nz_terms_add; simpl.
+unfold nz_head, nz_tail.
+remember (stop (nz_terms nz)) as st.
+destruct st as [st| ]; [ simpl | simpl; rewrite <- Heqst; reflexivity ].
+destruct st as [| st]; [ negation Hst | simpl ].
+rewrite Nat.add_0_r.
+rewrite <- Heqst; simpl.
+rewrite Nat.sub_0_r.
 rewrite Z.mul_add_distr_r, Z.mul_1_l.
 rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+rewrite Nat.add_0_r.
 rewrite Z.add_simpl_l.
-rewrite Nbar.add_0_r.
-simpl.
-remember (Pos.to_nat (nz_comden nz)) as c.
-unfold series_head, series_tail; simpl.
-remember (stop (nz_terms nz)) as st.
-destruct st as [st| ]; [ simpl | reflexivity ].
-destruct st as [| st]; [ negation Hst | simpl ].
-rewrite Nat.add_0_r, Nat.sub_0_r.
-rewrite Nat.max_r; [ idtac | apply le_plus_r ].
-rewrite Nat.mul_comm, Nat.add_comm; reflexivity.
+rewrite Nat.max_r; [ rewrite Nat.add_comm; reflexivity | idtac ].
+apply Nat.le_sub_le_add_r; rewrite Nat.sub_diag; apply Nat.le_0_l.
 Qed.
 
 Lemma stop_0_series_nth_fld_0 : ∀ s n i,
@@ -1728,7 +1730,7 @@ rewrite max_r.
  apply Nat.le_add_r.
 Qed.
 
-Lemma stop_head_tail_pos_if : ∀ nz,
+Lemma yyy : ∀ nz,
   (0 < stop (nz_terms_add fld (nz_head nz) (nz_tail nz)))%Nbar
   → (0 < stop (nz_terms nz))%Nbar.
 Proof.
