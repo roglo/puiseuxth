@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.515 2013-09-08 15:39:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.516 2013-09-08 17:32:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1395,55 +1395,21 @@ destruct n as [[| n]| ].
    constructor; intros i.
    rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
    unfold series_nth_fld; simpl.
-   unfold series_head, series_tail; simpl.
+   unfold nz_head, nz_tail; simpl.
    rewrite Hst; simpl.
    rewrite Hst; simpl.
-   rewrite Z.mul_add_distr_r, Z.mul_1_l.
-   rewrite Z.sub_add_distr, Z.sub_diag; simpl.
-   rewrite Z.add_simpl_l; simpl.
-   remember (Pos.to_nat (nz_comden nz)) as c.
-   destruct (Nbar.lt_dec (fin i) (fin c)) as [Hlt₁| Hge₁].
-    rewrite series_pad_left_0.
-    rewrite Heqc.
-    rewrite <- stretch_pad_1_series_distr.
-    rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
-    rewrite fld_add_ident.
-    unfold series_nth_fld; simpl.
-    rewrite Hst; simpl.
-    rewrite Nat.add_0_r.
-    rewrite <- Heqc.
-    destruct (Nbar.lt_dec (fin i) (fin c)) as [Hlt₂| Hge₂].
-     destruct (zerop (i mod c)) as [Hz| Hnz].
-      apply Nat.mod_divides in Hz; [ idtac | subst c; apply Pos2Nat_ne_0 ].
-      destruct Hz as (k, Hi).
-      subst i.
-      rewrite Nat.mul_comm.
-      rewrite Nat.div_mul; [ idtac | subst c; apply Pos2Nat_ne_0 ].
-      unfold series_nth_fld; simpl.
-      rewrite Hst; simpl.
-      destruct k.
-       simpl.
-       destruct (Nbar.lt_dec 0 1); reflexivity.
+   rewrite Z.sub_diag; simpl.
+   destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁]; [ idtac | reflexivity ].
+   apply Nbar.nle_gt in Hlt₁.
+   exfalso; apply Hlt₁, Nbar.le_0_l.
 
-       exfalso; revert Hlt₁; apply Nbar.nlt_ge.
-       constructor.
-       rewrite Nat.mul_comm; simpl.
-       apply le_plus_l.
+   unfold nz_head, nz_tail; simpl.
+   rewrite Hst.
+   rewrite Z.add_0_r, Z.mul_1_r.
+   rewrite Z.min_id; reflexivity.
 
-      reflexivity.
-
-     reflexivity.
-
-    reflexivity.
-
-   rewrite Z.min_l; [ ring | idtac ].
-   rewrite Z.mul_add_distr_r, Z.mul_1_l.
-   eapply Z.sub_le_mono_r.
-   rewrite Z.sub_diag.
-   rewrite Z.add_simpl_l.
-   apply Pos2Z.is_nonneg.
-
-   unfold cm; simpl.
+   unfold nz_head, nz_tail; simpl.
+   rewrite Hst.
    rewrite Pos.mul_1_r; reflexivity.
 
   unfold nz_add.
