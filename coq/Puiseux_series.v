@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.516 2013-09-08 17:32:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.517 2013-09-08 19:09:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1423,42 +1423,43 @@ destruct n as [[| n]| ].
    destruct (Nbar.lt_dec (fin i) (stop s₁)) as [Hlt₁| Hge₁].
     destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
      subst s₁ s₂; simpl.
-     rewrite Z.mul_add_distr_r, Z.mul_1_l.
-     rewrite Z.sub_add_distr, Z.sub_diag; simpl.
-     rewrite Z.add_simpl_l.
-     rewrite series_pad_left_0; simpl.
-     destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
-      simpl in Hlt₁, Hlt₂.
-      unfold series_head, series_tail in Hlt₁ |- *.
-      simpl in Hlt₁ |- *.
-      remember (stop (nz_terms nz)) as st.
-      symmetry in Heqst.
-      destruct st as [st| ]; simpl in Hlt₁, Hlt₂.
-       destruct st as [| st]; [ idtac | simpl in Hlt₁ |- * ].
-        exfalso; revert Hlt₂; apply Nbar.nlt_0_r.
-
-        rewrite Nat.add_0_r, Nat.sub_0_r in Hlt₁.
-        rewrite Z.mul_add_distr_r, Z.mul_1_l in Hlt₁.
-        rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁.
-        rewrite Z.add_simpl_l in Hlt₁.
-        simpl in Hlt₁.
-        rewrite Nat.add_0_r in Hlt₁.
-        rewrite <- Nat.mul_succ_l in Hlt₁.
-        apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-        destruct Hz as (k, Hi).
-        subst i.
-        rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-        rewrite Nat.sub_0_r.
-        remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
-        unfold series_nth_fld; simpl.
-        rewrite Nat.add_0_r.
-        rewrite <- Hc.
-        rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-        rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-        rewrite Nat.mul_comm, <- Nat.mul_pred_r.
-        destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [Hlt₃| Hge₃].
-         remember (c * k)%nat as x.
-         rewrite Nat.mul_comm, <- Nat.mul_succ_r; subst x.
+     unfold nz_head, nz_tail; simpl.
+     remember (stop (nz_terms nz)) as st.
+     symmetry in Heqst.
+     destruct st as [st| ]; simpl in Hlt₁, Hlt₂ |- *.
+      destruct st as [| st]; [ negation Hst | simpl in Hlt₁ |- * ].
+      rewrite Z.mul_add_distr_r, Z.mul_1_l.
+      rewrite Z.sub_add_distr, Z.sub_diag.
+      rewrite Z.add_simpl_l; simpl.
+      rewrite series_pad_left_0.
+      destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
+       unfold nz_head, nz_tail in Hlt₁.
+       rewrite Heqst in Hlt₁; simpl in Hlt₁.
+       rewrite Heqst in Hlt₁; simpl in Hlt₁.
+       rewrite Nat.add_0_r, Nat.sub_0_r in Hlt₁.
+       rewrite Z.mul_add_distr_r, Z.mul_1_l in Hlt₁.
+       rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁.
+       rewrite Z.add_simpl_l in Hlt₁.
+       simpl in Hlt₁.
+       rewrite Nat.add_0_r in Hlt₁.
+       rewrite <- Nat.mul_succ_l in Hlt₁.
+       apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
+       destruct Hz as (k, Hi).
+       subst i.
+       rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+       unfold series_head, series_tail; simpl.
+       rewrite Heqst; simpl.
+       rewrite Nat.sub_0_r.
+       remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+       unfold series_nth_fld; simpl.
+       rewrite Nat.add_0_r.
+       rewrite <- Hc.
+       rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+       rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+       rewrite Nat.mul_comm, <- Nat.mul_pred_r.
+       destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [Hlt₃| Hge₃].
+        remember (c * k)%nat as x.
+        rewrite Nat.mul_comm, <- Nat.mul_succ_r; subst x.
          destruct (Nbar.lt_dec (fin (c * k)) (fin (c * S st)))
           as [Hlt₄| Hge₄].
           destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
@@ -1670,7 +1671,7 @@ destruct n as [[| n]| ].
  apply first_nonzero_iff in Hn.
  rewrite Hn in Hzz.
  negation Hzz.
-Qed.
+qed.
 
 Lemma stop_head_tail₂ : ∀ nz,
   stop (nz_terms nz) ≠ 0%Nbar
