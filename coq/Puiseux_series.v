@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.512 2013-09-08 03:16:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.513 2013-09-08 03:48:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1752,9 +1752,9 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [Hlt₁| Hge₁].
     unfold series_nth_fld; simpl.
     rewrite Nat.add_0_r, Nat.sub_0_r.
     rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+    rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
     remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
     destruct (Nbar.lt_dec 0 (fin c)) as [Hlt₃| Hge₃].
-     rewrite Nat.div_0_l; [ idtac | subst c; apply Pos2Nat_ne_0 ].
      rewrite <- Nat.mul_succ_l.
      destruct (Nbar.lt_dec 0 (fin (S st * c))) as [Hlt₄| Hge₄].
       destruct (lt_dec 0 c) as [Hlt₅| Hge₅].
@@ -1766,13 +1766,52 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [Hlt₁| Hge₁].
        exfalso; apply Hge₅, Nbar.fin_lt_mono; assumption.
 
       exfalso; apply Hge₄; subst c; constructor.
-      apply Nat.mul_pos_pos.
-       apply Nat.lt_0_succ.
-
-       apply Pos2Nat.is_pos.
+      apply Nat.mul_pos_pos; [ apply Nat.lt_0_succ | apply Pos2Nat.is_pos ].
 
      exfalso; apply Hge₃; constructor.
      subst c; apply Pos2Nat.is_pos.
+
+   unfold series_nth_fld; simpl.
+   rewrite Nat.add_0_r.
+   rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+   rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
+   remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+   destruct (Nbar.lt_dec 0 (fin c)) as [Hlt₃| Hge₃].
+    destruct (Nbar.lt_dec 0 inf) as [Hlt₄| Hge₄].
+     destruct (lt_dec 0 c) as [Hlt₅| Hge₅].
+      rewrite fld_add_comm, fld_add_ident.
+      unfold series_nth_fld; simpl.
+      destruct (Nbar.lt_dec 0 1) as [Hlt₆| Hge₆]; [ reflexivity | idtac ].
+      exfalso; apply Hge₆, Nbar.lt_0_1.
+
+      exfalso; apply Hge₅, Nbar.fin_lt_mono; assumption.
+
+     exfalso; apply Hge₄; constructor.
+
+    exfalso; apply Hge₃; constructor.
+    subst c; apply Pos2Nat.is_pos.
+
+  exfalso; apply Hge₂; clear Hge₂; subst s.
+  rewrite stop_head_tail₂.
+   destruct (stop (nz_terms nz)) as [st| ].
+    simpl.
+    apply Nbar.fin_lt_mono.
+    apply Nbar.fin_lt_mono in Hlt₁.
+    apply Nat.mul_pos_pos; [ apply Pos2Nat.is_pos | assumption ].
+
+    constructor.
+
+   intros H; rewrite H in Hlt₁; revert Hlt₁; apply Nbar.lt_irrefl.
+
+ destruct (Nbar.lt_dec 0 (stop s)) as [Hlt₂| ]; [ idtac | reflexivity ].
+ exfalso; apply Hge₁; clear Hge₁; subst s.
+bbb.
+ rewrite stop_head_tail₂ in Hlt₂.
+  destruct (stop (nz_terms nz)) as [st| ]; [ idtac | constructor ].
+  simpl in Hlt₂.
+  apply Nbar.fin_lt_mono.
+  apply Nbar.fin_lt_mono in Hlt₂.
+  apply Nat.mul_pos_cancel_l in Hlt₂; [ assumption | apply Pos2Nat.is_pos ].
 bbb.
 
 (**)
