@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.22 2013-09-04 12:23:38 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.23 2013-09-08 02:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1525,7 +1525,7 @@ induction tl as [| t]; intros.
    rewrite <- plus_Sn_m in Himq.
    rewrite Nat.mod_add in Himq.
     rewrite Nat.mod_same in Himq.
-     exfalso; apply Himq; reflexivity.
+     negation Himq.
 
      intros H; discriminate H.
 

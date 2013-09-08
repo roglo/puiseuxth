@@ -1,4 +1,4 @@
-(* $Id: Zbar.v,v 1.31 2013-09-02 15:15:29 deraugla Exp $ *)
+(* $Id: Zbar.v,v 1.32 2013-09-08 02:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -89,7 +89,7 @@ Qed.
 Theorem sub_diag : ∀ n, n ≠ ∞ → n - n = 0.
 Proof.
 intros n Hn.
-destruct n; [ simpl | exfalso; apply Hn; reflexivity ].
+destruct n; [ simpl | negation Hn ].
 rewrite Z.sub_diag; reflexivity.
 Qed.
 
@@ -133,7 +133,7 @@ Theorem mul_cancel_r : ∀ n m p, not_0_inf p →
   n * p = m * p ↔ n = m.
 Proof.
 intros n m p (Hp, Hpi).
-destruct p as [p| ]; [ clear Hpi | exfalso; apply Hpi; reflexivity ].
+destruct p as [p| ]; [ clear Hpi | negation Hpi ].
 induction n as [n| ]; simpl.
  induction m as [m| ]; simpl.
   split; intros H.
@@ -272,8 +272,8 @@ Theorem inj_add : ∀ n m, 0 ≤ n → 0 ≤ m → n ≠ ∞ → m ≠ ∞ →
   Zbar.to_nat (n + m) = (Zbar.to_nat n + Zbar.to_nat m)%nat.
 Proof.
 intros n m Hn Hm Hni Hmi.
-destruct n as [n| ]; [ simpl | exfalso; apply Hni; reflexivity ].
-destruct m as [m| ]; [ simpl | exfalso; apply Hmi; reflexivity ].
+destruct n as [n| ]; [ simpl | negation Hni ].
+destruct m as [m| ]; [ simpl | negation Hmi ].
 apply Z2Nat.inj_add; [ inversion Hn; assumption | inversion Hm; assumption ].
 Qed.
 
@@ -281,8 +281,8 @@ Theorem inj_min : ∀ n m, n ≠ ∞ → m ≠ ∞ →
   Zbar.to_nat (Zbar.min n m) = min (Zbar.to_nat n) (Zbar.to_nat m).
 Proof.
 intros n m Hn Hm.
-destruct n as [n| ]; [ simpl | exfalso; apply Hn; reflexivity ].
-destruct m as [m| ]; [ simpl | exfalso; apply Hm; reflexivity ].
+destruct n as [n| ]; [ simpl | negation Hn ].
+destruct m as [m| ]; [ simpl | negation Hm ].
 apply Z2Nat.inj_min.
 Qed.
 

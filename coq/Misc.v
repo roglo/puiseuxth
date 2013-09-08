@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.60 2013-09-04 14:16:00 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.61 2013-09-08 02:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,6 +10,8 @@ Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
+
+Ltac negation H := exfalso; apply H; reflexivity.
 
 Set Implicit Arguments.
 

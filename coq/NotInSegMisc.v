@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.48 2013-07-07 07:02:17 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 1.49 2013-09-08 02:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -353,7 +353,7 @@ induction pts as [| pt₁]; intros.
    simpl in Heqc₁, Hseg, Hep.
    apply Decidable.not_or in Hseg.
    destruct Hseg as (Hne₂, Hseg).
-   exfalso; apply Hne₂; reflexivity.
+   negation Hne₂.
 
    simpl in Heqc₁, Hseg, Hep.
    injection Hep; clear Hep; intros; subst h αh.
@@ -378,7 +378,7 @@ induction pts as [| pt₁]; intros.
    simpl in Heqc₁, Hseg, Hep.
    apply Decidable.not_or in Hseg.
    destruct Hseg as (Hne₂, Hseg).
-   exfalso; apply Hne₂; reflexivity.
+   negation Hne₂.
 
    simpl in Heqc₁, Hseg, Hep.
    injection Hep; clear Hep; intros; subst h αh.
@@ -432,7 +432,7 @@ destruct Hαh as [Hαh| Hαh].
    destruct c; subst ms₁.
     simpl in Hep₁, Hseg, Hnp.
     apply Decidable.not_or in Hseg.
-    destruct Hseg as (H); exfalso; apply H; reflexivity.
+    destruct Hseg as (H); negation H.
 
     simpl in Hep₁, Hseg, Hnp.
     injection Hep₁; clear Hep₁; intros; subst h αh.

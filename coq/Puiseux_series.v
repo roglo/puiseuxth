@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.509 2013-09-08 01:34:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.510 2013-09-08 02:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -517,7 +517,7 @@ destruct u as [u| ].
   apply Nbar.fin_inj_wd.
   rewrite series_nth_pad_S in Hu.
   destruct (lt_dec (S u) v) as [Hlt₁| Hge₁].
-   rewrite Hiv in Hu; [ exfalso; apply Hu; reflexivity | assumption ].
+   rewrite Hiv in Hu; [ negation Hu | assumption ].
 
    apply Nat.nlt_ge in Hge₁.
    destruct v.
@@ -1254,12 +1254,10 @@ remember (Pos.to_nat (nz_comden nz)) as c.
 unfold series_head, series_tail; simpl.
 remember (stop (nz_terms nz)) as st.
 destruct st as [st| ]; [ simpl | reflexivity ].
-destruct st as [| st]; simpl.
- exfalso; apply Hst; reflexivity.
-
- rewrite Nat.add_0_r, Nat.sub_0_r.
- rewrite Nat.max_r; [ idtac | apply le_plus_r ].
- rewrite Nat.mul_comm, Nat.add_comm; reflexivity.
+destruct st as [| st]; [ negation Hst | simpl ].
+rewrite Nat.add_0_r, Nat.sub_0_r.
+rewrite Nat.max_r; [ idtac | apply le_plus_r ].
+rewrite Nat.mul_comm, Nat.add_comm; reflexivity.
 Qed.
 
 Lemma stop_0_series_nth_fld_0 : ∀ s n i,
@@ -1663,7 +1661,7 @@ destruct n as [[| n]| ].
      remember (stop (nz_terms nz)) as st.
      symmetry in Heqst.
      destruct st as [st| ].
-      destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
+      destruct st as [| st]; [ negation Hst | idtac ].
       subst s₁ s₂.
       rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
       intros H; rewrite Heqst in H; discriminate H.
@@ -1699,18 +1697,20 @@ destruct n as [[| n]| ].
  apply first_nonzero_iff in Hn.
  destruct Hn as (Hn, _).
  rewrite Hn in Hzz; [ idtac | apply Nat.lt_0_succ ].
- exfalso; apply Hzz; reflexivity.
+ negation Hzz.
 
  apply first_nonzero_iff in Hn.
  rewrite Hn in Hzz.
- exfalso; apply Hzz; reflexivity.
+ negation Hzz.
 Qed.
 
 (**)
 Lemma ps_cons2 : ∀ nz,
-  nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
+  series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz))
+     ≭ zero fld
+  → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
-intros nz.
+intros nz Hzz.
 bbb.
 unfold nz_add.
 remember (first_nonzero fld (nz_terms nz)) as n eqn:Hn .

@@ -1,8 +1,10 @@
-(* $Id: Nbar.v,v 1.57 2013-09-07 19:03:41 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.58 2013-09-08 02:08:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
 Require Import NPeano.
+
+Ltac negation H := exfalso; apply H; reflexivity.
 
 Set Implicit Arguments.
 
@@ -185,10 +187,9 @@ split; intros H.
    destruct p as [p| ].
     constructor; apply Nat.add_lt_mono_r; inversion H; assumption.
 
-    exfalso; apply Hp; reflexivity.
+    negation Hp.
 
-   destruct p as [p| ]; [ constructor | idtac ].
-   exfalso; apply Hp; reflexivity.
+   destruct p as [p| ]; [ constructor | negation Hp ].
 
   destruct m; inversion H.
 
@@ -202,8 +203,8 @@ Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →
   n < m ↔ n * p < m * p.
 Proof.
 intros p n m Hp Hpi Hni.
-destruct p as [p| ]; [ simpl | exfalso; apply Hpi; reflexivity ].
-destruct n as [n| ]; [ simpl | exfalso; apply Hni; reflexivity ].
+destruct p as [p| ]; [ simpl | negation Hpi ].
+destruct n as [n| ]; [ simpl | negation Hni ].
 destruct m as [m| ]; simpl.
  split; intros.
   constructor.
@@ -227,8 +228,7 @@ Qed.
 Theorem mul_0_r : ∀ n, n ≠ inf → n * 0 = 0.
 Proof.
 intros n Hn.
-destruct n; [ idtac | exfalso; apply Hn; reflexivity ].
-rewrite mul_comm; reflexivity.
+destruct n; [ apply mul_comm; reflexivity | negation Hn ].
 Qed.
 
 Theorem eq_dec : ∀ n m : Nbar, {n = m} + {n ≠ m}.
@@ -338,7 +338,7 @@ destruct n as [n| ].
  constructor; apply Nat.lt_sub_lt_add_r.
  inversion H; subst; assumption.
 
- exfalso; apply Hn; reflexivity.
+ negation Hn.
 Qed.
 
 Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.
@@ -434,7 +434,7 @@ Qed.
 Theorem mul_sub_distr_r : ∀ n m p, p ≠ ∞ → (n - m) * p = n * p - m * p.
 Proof.
 intros n m p Hp.
-destruct p as [p| ]; [ simpl | exfalso; apply Hp; reflexivity ].
+destruct p as [p| ]; [ simpl | negation Hp ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_sub_distr_r; reflexivity.
@@ -666,8 +666,8 @@ Theorem inj_add : ∀ p q : Nbar, p ≠ ∞ → q ≠ ∞ →
   Nbar.to_nat (p + q) = (Nbar.to_nat p + Nbar.to_nat q)%nat.
 Proof.
 intros p q Hp Hq.
-destruct p as [p| ]; [ simpl | exfalso; apply Hp; reflexivity ].
-destruct q as [q| ]; [ reflexivity | exfalso; apply Hq; reflexivity ].
+destruct p as [p| ]; [ simpl | negation Hp ].
+destruct q as [q| ]; [ reflexivity | negation Hq ].
 Qed.
 
 Theorem inj_mul : ∀ p q : Nbar,

@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.234 2013-07-07 07:02:17 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 1.235 2013-09-08 02:08:25 deraugla Exp $ *)
 
 (* points not in newton segment *)
 
@@ -386,7 +386,7 @@ eapply sorted_qeq_eq with (k := k) (αk := αk) in Hαh.
  destruct Hnαh as (_, Hnαh).
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (Hnαh, _).
- exfalso; apply Hnαh; reflexivity.
+ negation Hnαh.
 
  assumption.
 
@@ -503,7 +503,7 @@ eapply sorted_qeq_eq with (k := j) (αk := αj) in Hαh; try eassumption.
  simpl in Hnαh.
  apply Decidable.not_or in Hnαh.
  destruct Hnαh as (Hnαh, _).
- exfalso; apply Hnαh; reflexivity.
+ negation Hnαh.
 
  eapply in_ch_in_pts with (n := n).
  rewrite Hnp.
