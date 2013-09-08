@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.517 2013-09-08 19:09:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.518 2013-09-08 19:27:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1471,7 +1471,7 @@ destruct n as [[| n]| ].
              reflexivity.
 
              exfalso; apply Hge₇; clear Hge₇.
-             do 2 rewrite Nbar.fin_inj_mul in Hlt₂.
+             rewrite Heqst, Nbar.fin_inj_mul in Hlt₂.
              apply <- Nbar.mul_lt_mono_pos_r.
               rewrite Nbar.mul_comm; eassumption.
 
@@ -1527,6 +1527,7 @@ destruct n as [[| n]| ].
 
                reflexivity.
 
+         rewrite Heqst in Hlt₂.
           replace (c * S st)%nat with (S st * c)%nat in Hge₄ .
            contradiction.
 
@@ -1563,8 +1564,10 @@ destruct n as [[| n]| ].
 
               reflexivity.
 
+         rewrite Heqst in Hlt₂.
           contradiction.
 
+bbb.
        simpl.
        apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
        destruct Hz as (k, Hi).
