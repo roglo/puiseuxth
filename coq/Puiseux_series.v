@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.524 2013-09-09 08:46:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.525 2013-09-09 08:56:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1742,6 +1742,19 @@ destruct n as [[| n]| ].
 
       apply Nbar.nlt_ge in Hge₂.
       exfalso; apply Hge₂; constructor.
+
+    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [Hlt₂| Hge₂].
+     subst s₁ s₂.
+     simpl in Hge₁, Hlt₂.
+     unfold nz_head, nz_tail in Hge₁; simpl in Hge₁.
+     remember (stop (nz_terms nz)) as st.
+     symmetry in Heqst.
+     destruct st as [st| ].
+      destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
+      simpl in Hge₁.
+      rewrite Heqst in Hge₁.
+      simpl in Hge₁.
+      rewrite Nat.add_0_r, Nat.sub_0_r in Hge₁.
 bbb.
      unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
