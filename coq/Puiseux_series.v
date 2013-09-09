@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.519 2013-09-09 02:04:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.520 2013-09-09 02:31:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,7 +8,6 @@ Require Import Field.
 Require Import Misc.
 Require Import Series.
 Require Import Nbar.
-Require Import Zbar.
 
 Set Implicit Arguments.
 
@@ -1581,6 +1580,45 @@ destruct n as [[| n]| ].
        rewrite Nat.mul_comm, <- Nat.mul_pred_r.
        destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [Hlt₃| Hge₃].
         remember (c * k)%nat as x.
+        rewrite Heqst.
+        destruct (Nbar.lt_dec (fin x) inf) as [Hlt₄| Hge₄].
+         subst x.
+         destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
+          rewrite fld_add_comm, fld_add_ident.
+          destruct (Nbar.lt_dec (fin k) inf) as [Hlt₆| Hge₆].
+           unfold series_nth_fld; simpl.
+           destruct (Nbar.lt_dec (fin k) 1) as [Hlt₇| Hge₇].
+            reflexivity.
+
+            exfalso; apply Hge₇.
+            destruct k; [ apply Nbar.lt_0_1 | idtac ].
+            apply Nat.nle_gt in Hlt₅.
+            exfalso; apply Hlt₅.
+            rewrite Nat.mul_comm; simpl.
+            apply Nat.le_add_r.
+
+           exfalso; apply Hge₆; constructor.
+
+          rewrite Nat.mul_comm.
+          rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+          rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+          destruct (Nbar.lt_dec (fin k) ∞) as [Hlt₆| Hge₆].
+           destruct k.
+            exfalso; apply Hge₅; rewrite Nat.mul_0_r.
+            subst c; apply Pos2Nat.is_pos.
+
+            apply Nbar.nle_gt in Hlt₃.
+            exfalso; apply Hlt₃.
+            constructor.
+            rewrite Nat.mul_comm; simpl.
+            apply Nat.le_add_r.
+
+           exfalso; apply Hge₆.
+           constructor.
+
+         exfalso; apply Hge₄; constructor.
+
+        Focus 1.
 bbb.
      unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
