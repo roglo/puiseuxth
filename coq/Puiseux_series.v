@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.532 2013-09-09 12:03:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.533 2013-09-09 12:20:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1955,31 +1955,14 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
  apply stop_nz_add_pos_pos; assumption.
 Qed.
 
-(**)
 Lemma ps_cons2 : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz) ≭ zero fld
   → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz Hznz.
-bbb.
-unfold nz_add.
-remember (first_nonzero fld (nz_terms nz)) as n eqn:Hn .
-remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as a.
-remember (first_nonzero fld a) as m eqn:Hm ; subst a.
-symmetry in Hn, Hm.
-unfold nz_terms_add in Hm.
-simpl in Hm.
-rewrite Z.mul_add_distr_r, Z.mul_1_l in Hm.
-rewrite Z.sub_add_distr, Z.sub_diag in Hm; simpl in Hm.
-rewrite Z.add_simpl_l in Hm; simpl in Hm.
-rewrite series_pad_left_0 in Hm.
-rewrite <- stretch_pad_1_series_distr in Hm.
-rewrite <- stretch_series_add_distr in Hm.
-rewrite first_nonzero_stretch in Hm.
-rewrite first_nonzero_add in Hm.
-rewrite first_nonzero_pad in Hm.
-bbb.
-*)
+apply ps_cons.
+rewrite <- series_nth_add_head_tail; assumption.
+Qed.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
