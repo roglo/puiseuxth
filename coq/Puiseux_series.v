@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.537 2013-09-09 14:30:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.538 2013-09-09 15:28:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2038,9 +2038,57 @@ destruct ps₁ as [nz₁| ].
    symmetry in Hn₂, Hn₃.
    destruct n₂ as [n₂| ].
     destruct n₃ as [n₃| ].
-bbb.
-   apply first_nonzero_iff in Hn₁.
-   apply first_nonzero_iff in Hn₃.
+     inversion H₂₃; subst.
+     unfold build_nz_add.
+     unfold cm_factor; simpl.
+     unfold cm; simpl.
+     constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
+      unfold nz_terms_add.
+      unfold cm_factor, cm; simpl.
+      do 2 rewrite stretch_series_add_distr.
+      do 4 rewrite stretch_pad_series_distr.
+      do 4 rewrite <- stretch_stretch_series.
+      rewrite Pos.mul_comm, stretch_stretch_series.
+      rewrite Pos.mul_comm, stretch_stretch_series.
+      rewrite Pos.mul_comm, stretch_stretch_series.
+      rewrite Pos.mul_comm, stretch_stretch_series.
+      rewrite H1.
+      do 3 rewrite <- stretch_stretch_series.
+      rewrite H3.
+      rewrite <- Z2Nat_inj_mul_pos_r.
+      rewrite <- Z2Nat_inj_mul_pos_r.
+      rewrite <- Z2Nat_inj_mul_pos_r.
+      rewrite <- Z2Nat_inj_mul_pos_r.
+      rewrite Z.mul_sub_distr_r.
+      rewrite Z.mul_sub_distr_r.
+      rewrite Z.mul_sub_distr_r.
+      rewrite Z.mul_sub_distr_r.
+      rewrite <- Z.mul_assoc.
+      rewrite <- Pos2Z.inj_mul.
+      rewrite H3.
+      rewrite Pos2Z.inj_mul.
+      rewrite Z.mul_assoc.
+      replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
+       (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
+       reflexivity.
+
+       rewrite Z.mul_shuffle0, <- H2.
+       rewrite Z.mul_shuffle0; reflexivity.
+
+      do 2 rewrite Z.mul_add_distr_r.
+      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+      rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, H3.
+      rewrite Pos2Z.inj_mul, Z.mul_assoc.
+      replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
+       (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
+       f_equal.
+       rewrite <- Z.mul_assoc, Z.mul_comm.
+       rewrite Z.mul_shuffle0.
+       rewrite <- Z.mul_assoc, <- H2.
+       rewrite <- Z.mul_assoc, Z.mul_comm.
+       rewrite <- Z.mul_shuffle0, Z.mul_assoc.
+       reflexivity.
 bbb.
 *)
 
