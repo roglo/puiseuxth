@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.527 2013-09-09 09:13:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.528 2013-09-09 09:38:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1815,13 +1815,13 @@ Lemma stop_head_tail₂ : ∀ nz,
   → stop (nz_terms_add fld (nz_head nz) (nz_tail nz))
     = (fin (Pos.to_nat (nz_comden nz)) * stop (nz_terms nz))%Nbar.
 Proof.
-intros nz Hstnz.
+intros nz Hst.
 unfold nz_terms_add; simpl.
-unfold series_head, series_tail; simpl.
-remember (stop (nz_terms nz)) as st eqn:Hst .
-symmetry in Hst.
-destruct st as [st| ]; [ simpl | reflexivity ].
-destruct st as [| st]; [ negation Hstnz | simpl ].
+unfold nz_head, nz_tail.
+remember (stop (nz_terms nz)) as st.
+destruct st as [st| ]; [ simpl | simpl; rewrite <- Heqst; reflexivity ].
+destruct st as [| st]; [ negation Hst | simpl ].
+rewrite <- Heqst; simpl.
 rewrite Nat.add_0_r, Nat.sub_0_r.
 rewrite Z.mul_add_distr_r, Z.mul_1_l.
 rewrite Z.sub_add_distr, Z.sub_diag; simpl.
