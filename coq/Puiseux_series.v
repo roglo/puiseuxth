@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.545 2013-09-09 19:43:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.546 2013-09-09 20:47:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2095,6 +2095,12 @@ rewrite <- Nat.sub_succ_l.
   apply -> Nat.succ_le_mono; apply Nat.le_0_l.
 Qed.
 
+Lemma stop_tail_0 : ∀ s, stop s = fin 0 → stop (series_tail s) = fin 0.
+Proof.
+intros s H; simpl.
+rewrite H; reflexivity.
+Qed.
+
 Lemma terms_S_tail : ∀ s n, terms s (S n) = terms (series_tail s) n.
 Proof.
 intros s n.
@@ -2216,8 +2222,67 @@ induction n; intros.
 
        negation Hsn.
 
-     rewrite Hst.
-     constructor.
+     rewrite Hst; constructor.
+
+   remember (stop (nz_terms_add fld nz₁ nz₃)) as st eqn:Hst .
+   symmetry in Hst.
+   destruct st as [st| ].
+    destruct st as [| st].
+     destruct (Nbar.lt_dec (fin i) 0) as [H₁| ].
+      apply Nbar.nle_gt in H₁.
+      exfalso; apply H₁; constructor; apply Nat.le_0_l.
+
+      assert (i < S n)%nat as H by omega.
+      apply Hisn in H.
+      unfold series_nth_fld in H.
+      remember Hst as Hst₂; clear HeqHst₂.
+      apply stop_0_series_nth_fld_0 with (i := S i) (n := xH) in Hst.
+      rewrite <- Hst.
+      rewrite stretch_series_1.
+      unfold series_nth_fld.
+      rewrite <- terms_S_tail.
+      rewrite Hst₂.
+      rewrite stop_tail_0; [ idtac | assumption ].
+      destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
+       contradiction.
+
+       destruct (Nbar.lt_dec (fin (S i)) 0) as [H₂| H₂].
+        apply Nbar.nle_gt in H₂.
+        exfalso; apply H₂; constructor; apply Nat.le_0_l.
+
+        reflexivity.
+
+     apply Nat.succ_lt_mono in Hin.
+     apply Hisn in Hin.
+     unfold series_nth_fld.
+     rename Hin into H.
+     unfold series_nth_fld in H.
+     remember Hst as Hst₂; clear HeqHst₂.
+     rewrite stop_tail in H.
+      remember (series_tail (nz_terms_add fld nz₁ nz₃)) as s.
+      destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
+       destruct (Nbar.lt_dec (fin (S i)) (NS (stop s))) as [H₂| H₂].
+        rewrite Heqs.
+        rewrite <- terms_S_tail.
+        assumption.
+
+        exfalso; apply H₂.
+        destruct (stop s) as [st₁| ].
+         destruct st₁ as [| st₁].
+          apply Nbar.nle_gt in H₁.
+          exfalso; apply H₁, Nbar.le_0_l.
+
+          simpl.
+          constructor.
+          apply Nbar.fin_lt_mono in H₁.
+          apply Nat.succ_lt_mono in H₁; assumption.
+
+         constructor.
+
+       reflexivity.
+
+      rewrite Hst.
+      constructor; apply Nat.lt_0_succ.
 bbb.
 *)
 
