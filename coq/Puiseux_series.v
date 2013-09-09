@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.521 2013-09-09 02:54:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.522 2013-09-09 03:24:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1669,6 +1669,15 @@ destruct n as [[| n]| ].
 
         rewrite fld_add_ident.
         destruct (Nbar.lt_dec (fin i) ∞) as [Hlt₄| Hge₄].
+         destruct (lt_dec i c) as [Hlt₅| Hge₅].
+          reflexivity.
+
+          destruct (zerop ((i - c) mod c)) as [Hlt₆| Hge₆].
+           apply Nat.mod_divides in Hlt₆.
+            destruct Hlt₆ as (k, Hic).
+            rewrite Hic.
+            rewrite Nat.mul_comm.
+            rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
 bbb.
      unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
