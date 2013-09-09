@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.533 2013-09-09 12:20:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.534 2013-09-09 12:35:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1965,24 +1965,25 @@ rewrite <- series_nth_add_head_tail; assumption.
 Qed.
 
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
-  first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
-  → first_nonzero fld (nz_terms_add fld nz₂ nz₃) = fin 0
-    → nz_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≈
-      nz_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
+  series_nth_fld fld 0 (nz_terms nz₁) ≭ zero fld
+  → first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
+    → first_nonzero fld (nz_terms_add fld nz₂ nz₃) = fin 0
+      → nz_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≈
+        nz_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃ n₁ Hn₁ Hn₂.
-revert nz₁ nz₂ nz₃ Hn₁ Hn₂.
-induction n₁ as [| n₁]; intros.
- apply nz_add_assoc_base.
+intros nz₁ nz₂ nz₃ n₁ Hs₁ Hn₁ Hn₂.
+revert nz₁ nz₂ nz₃ Hs₁ Hn₁ Hn₂.
+induction n₁ as [| n₁]; intros; [ apply nz_add_assoc_base | idtac ].
+remember (nz_head nz₁) as pm₁.
+remember (nz_tail nz₁) as nz'₁.
+remember (nz_add fld pm₁ nz'₁) as ps₁ eqn:Hps₁ .
+symmetry in Hps₁.
+subst pm₁ nz'₁.
+destruct ps₁ as [nz| ].
+ assert (NonZero nz ≈ NonZero nz₁) as H.
+  rewrite <- Hps₁; apply ps_cons2; assumption.
 
- remember (nz_head nz₁) as pm₁.
- remember (nz_tail nz₁) as nz'₁.
- remember (nz_add fld pm₁ nz'₁) as ps₁ eqn:Hps₁ .
- symmetry in Hps₁.
- destruct ps₁ as [nz| ].
-  assert (NonZero nz ≈ NonZero nz₁) as H.
-   rewrite <- Hps₁, Heqpm₁, Heqnz'₁.
-   apply ps_cons.
+  rewrite <- Hps₁ in H.
 bbb.
    constructor 1 with (k₁ := xH) (k₂ := nz_comden nz₁).
     rewrite stretch_series_1.
