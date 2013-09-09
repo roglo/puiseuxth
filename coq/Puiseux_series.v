@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.523 2013-09-09 08:28:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.524 2013-09-09 08:46:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1712,6 +1712,36 @@ destruct n as [[| n]| ].
            reflexivity.
 
          reflexivity.
+
+     clear Hn.
+     rewrite Hs₂ in Hge₂.
+     simpl in Hge₂.
+     apply Nbar.nlt_ge in Hge₂.
+     rewrite Hs₁ in Hlt₁.
+     simpl in Hlt₁.
+     unfold nz_head, nz_tail in Hlt₁.
+     remember (stop (nz_terms nz)) as st.
+     symmetry in Heqst.
+     destruct st as [st| ].
+      destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
+      simpl in Hlt₁.
+      rewrite Heqst in Hlt₁.
+      simpl in Hlt₁.
+      rewrite Nat.add_0_r, Nat.sub_0_r in Hlt₁.
+      rewrite Z.mul_add_distr_r, Z.mul_1_l in Hlt₁.
+      rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁.
+      rewrite Z.add_simpl_l in Hlt₁; simpl in Hlt₁.
+      rewrite Nat.add_0_r in Hlt₁.
+      rewrite Nat.max_r in Hlt₁.
+       rewrite <- Nat.mul_succ_l in Hlt₁.
+       rewrite Nbar.fin_inj_mul in Hlt₁.
+       apply Nbar.nlt_ge in Hge₂.
+       contradiction.
+
+       rewrite Nat.add_comm; apply Nat.le_add_r.
+
+      apply Nbar.nlt_ge in Hge₂.
+      exfalso; apply Hge₂; constructor.
 bbb.
      unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
