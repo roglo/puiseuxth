@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.535 2013-09-09 13:54:37 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.536 2013-09-09 14:20:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1965,11 +1965,6 @@ rewrite <- series_nth_add_head_tail; assumption.
 Qed.
 
 (*
-  NonZero (build_nz_add fld n nz₁ nz₂)
-  = ps_add fld (nz_add fld (nz_head nz₁) (nz_tail nz₁)) (Nonzero nz₂).
-*)
-
-(*
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
   series_nth_fld fld 0 (nz_terms nz₁) ≭ zero fld
   → first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
@@ -2027,6 +2022,48 @@ bbb.
        unfold stretch_series; simpl.
 bbb.
 *)
+Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
+  ps₂ ≈ ps₃
+  → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
+Proof.
+intros ps₁ ps₂ ps₃ H₂₃.
+unfold ps_add.
+destruct ps₁ as [nz₁| ].
+ destruct ps₂ as [nz₂| ].
+  destruct ps₃ as [nz₃| ].
+   unfold nz_add.
+   remember (first_nonzero fld (nz_terms_add fld nz₁ nz₂)) as n₁ eqn:Hn₁ .
+   remember (first_nonzero fld (nz_terms_add fld nz₁ nz₃)) as n₃ eqn:Hn₃ .
+   symmetry in Hn₁, Hn₃.
+   apply first_nonzero_iff in Hn₁.
+   apply first_nonzero_iff in Hn₃.
+   destruct n₁ as [n₁| ].
+    destruct n₃ as [n₃| ].
+bbb.
+
+Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
+  ps₁ ≈ ps₂
+  → ps₃ ≈ ps₄
+    → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₄.
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
+transitivity (ps_add fld ps₁ ps₄).
+ apply ps_add_cancel_l; assumption.
+
+ rewrite ps_add_comm; symmetry.
+ rewrite ps_add_comm; symmetry.
+ apply ps_add_cancel_l; assumption.
+Qed.
+
+(*
+  NonZero (build_nz_add fld n nz₁ nz₂)
+  = ps_add fld (nz_add fld (nz_head nz₁) (nz_tail nz₁)) (Nonzero nz₂).
+*)
+
+    fld_add_compat_r : ∀ a b c, fld_eq a b → fld_eq (add a c) (add b c);
+
+Add Parametric Morphism : (ps_add fld) with 
+signature (eq_ps fld) ==> (eq_ps fld) ==> (eq_ps fld) as ps_add_morph.
 
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
   first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
@@ -2034,6 +2071,15 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
     → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
       ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
+revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
+induction n₁; intros.
+ apply ps_add_assoc_base; assumption.
+
+ destruct ps₁ as [nz₁| ].
+bbb.
+rewrite <- ps_cons2.
+
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
@@ -2546,20 +2592,6 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   assumption.
 
  reflexivity.
-Qed.
-
-Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
-  ps₁ ≈ ps₂
-  → ps₃ ≈ ps₄
-    → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₄.
-Proof.
-intros ps₁ ps₂ ps₃ ps₄ H₁ H₂.
-transitivity (ps_add fld ps₁ ps₄).
- apply ps_add_cancel_l; assumption.
-
- rewrite ps_add_comm; symmetry.
- rewrite ps_add_comm; symmetry.
- apply ps_add_cancel_l; assumption.
 Qed.
 *)
 
