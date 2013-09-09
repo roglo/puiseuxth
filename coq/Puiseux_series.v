@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.520 2013-09-09 02:31:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.521 2013-09-09 02:54:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1618,7 +1618,57 @@ destruct n as [[| n]| ].
 
          exfalso; apply Hge₄; constructor.
 
-        Focus 1.
+        rewrite fld_add_ident.
+        destruct k.
+         exfalso; apply Hge₃; rewrite Nat.mul_0_r.
+         constructor.
+         subst c; apply Pos2Nat.is_pos.
+
+         destruct (Nbar.lt_dec (fin (c * S k)) ∞) as [Hlt₄| Hge₄].
+          destruct (lt_dec (c * S k) c) as [Hlt₅| Hge₅].
+           apply Nat.nle_gt in Hlt₅.
+           exfalso; apply Hlt₅.
+           rewrite Nat.mul_comm; simpl.
+           apply Nat.le_add_r.
+
+           rewrite Nat.mul_comm.
+           rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+           rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+           rewrite Heqst.
+           destruct (Nbar.lt_dec (fin (S k)) ∞) as [Hlt₆| Hge₆].
+            unfold series_nth_fld; simpl.
+            destruct (Nbar.lt_dec (fin k) ∞) as [Hlt₇| Hge₇].
+             reflexivity.
+
+             exfalso; apply Hge₇; constructor.
+
+            exfalso; apply Hge₆; constructor.
+
+          exfalso; apply Hge₄; constructor.
+
+       unfold series_head, series_tail; simpl.
+       unfold series_nth_fld; simpl.
+       unfold series_nth_fld; simpl.
+       rewrite Heqst; simpl.
+       rewrite Nat.add_0_r.
+       remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+       destruct (Nbar.lt_dec (fin i) (fin c)) as [Hlt₃| Hge₃].
+        destruct (zerop (i mod c)) as [Hz| Hnz₂].
+         rewrite Hz in Hnz.
+         exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+         rewrite fld_add_ident.
+         destruct (Nbar.lt_dec (fin i) ∞) as [Hlt₄| Hge₄].
+          destruct (lt_dec i c) as [Hlt₅| Hge₅].
+           reflexivity.
+
+           apply Nbar.fin_lt_mono in Hlt₃.
+           contradiction.
+
+          reflexivity.
+
+        rewrite fld_add_ident.
+        destruct (Nbar.lt_dec (fin i) ∞) as [Hlt₄| Hge₄].
 bbb.
      unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
