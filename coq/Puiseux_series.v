@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.543 2013-09-09 18:43:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.544 2013-09-09 19:02:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2081,6 +2081,20 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  reflexivity.
 Qed.
 
+Lemma stop_tail : ∀ s, (0 < stop s)%Nbar → stop s = NS (stop (series_tail s)).
+Proof.
+intros s Hs.
+unfold series_tail; simpl.
+destruct (stop s) as [| st]; [ simpl | reflexivity ].
+rewrite <- Nat.sub_succ_l.
+ simpl; rewrite Nat.sub_0_r; reflexivity.
+
+ destruct x.
+  exfalso; revert Hs; apply Nbar.lt_irrefl.
+
+  apply -> Nat.succ_le_mono; apply Nat.le_0_l.
+Qed.
+
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
@@ -2146,8 +2160,18 @@ induction n; intros.
   destruct Hn₃ as (Hisn, Hsn).
   split; [ intros i Hin | idtac ].
    Focus 2.
-   unfold series_nth_fld in Hsn; simpl in Hsn.
-   unfold series_nth_fld; simpl.
+   unfold series_nth_fld.
+   unfold series_nth_fld in Hsn.
+   remember (stop (nz_terms_add fld nz₁ nz₃)) as st eqn:Hst .
+   symmetry in Hst.
+   destruct st as [st| ].
+    destruct st as [| st].
+     destruct (Nbar.lt_dec (fin (S n)) 0) as [H₁| ]; [ idtac | negation Hsn ].
+     apply Nbar.nle_gt in H₁.
+     exfalso; apply H₁; constructor; apply Nat.le_0_l.
+
+     rewrite <- Hst in Hsn.
+     rewrite stop_tail in Hsn.
 bbb.
    unfold series_tail.
    assert (i < S n)%nat as H by omega.
