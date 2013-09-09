@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.546 2013-09-09 20:47:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.547 2013-09-09 20:55:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2166,6 +2166,7 @@ induction n; intros.
   rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
   reflexivity.
 
+ (* faire un lemme *)
  assert (first_nonzero fld (series_tail (nz_terms_add fld nz₁ nz₃)) = fin n).
   apply first_nonzero_iff in Hn₃.
   apply first_nonzero_iff.
@@ -2283,6 +2284,39 @@ induction n; intros.
 
       rewrite Hst.
       constructor; apply Nat.lt_0_succ.
+
+    apply Nat.succ_lt_mono in Hin.
+    apply Hisn in Hin.
+    unfold series_nth_fld.
+    rename Hin into H.
+    unfold series_nth_fld in H.
+    remember Hst as Hst₂; clear HeqHst₂.
+    rewrite stop_tail in H.
+     remember (series_tail (nz_terms_add fld nz₁ nz₃)) as s.
+     destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
+      destruct (Nbar.lt_dec (fin (S i)) (NS (stop s))) as [H₂| H₂].
+       rewrite Heqs.
+       rewrite <- terms_S_tail.
+       assumption.
+
+       exfalso; apply H₂.
+       destruct (stop s) as [st₁| ].
+        destruct st₁ as [| st₁].
+         apply Nbar.nle_gt in H₁.
+         exfalso; apply H₁, Nbar.le_0_l.
+
+         simpl.
+         constructor.
+         apply Nbar.fin_lt_mono in H₁.
+         apply Nat.succ_lt_mono in H₁; assumption.
+
+        constructor.
+
+      reflexivity.
+
+     rewrite Hst.
+     constructor.
+
 bbb.
 *)
 
