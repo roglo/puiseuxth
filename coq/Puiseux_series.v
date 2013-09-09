@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.531 2013-09-09 11:48:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.532 2013-09-09 12:03:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1834,7 +1834,7 @@ rewrite max_r.
  apply Nat.le_add_r.
 Qed.
 
-Lemma stop_nz_add_pos : ∀ nz,
+Lemma stop_nz_add_pos_pos : ∀ nz,
   (0 < stop (nz_terms_add fld (nz_head nz) (nz_tail nz)))%Nbar
   → (0 < stop (nz_terms nz))%Nbar.
 Proof.
@@ -1849,7 +1849,35 @@ rewrite Hst in H; simpl in H.
 rewrite Z.sub_diag in H; assumption.
 Qed.
 
-Lemma zzz : ∀ nz,
+Lemma stop_nz_pos_add_pos : ∀ nz,
+  (0 < stop (nz_terms nz))%Nbar
+  → (0 < stop (nz_terms_add fld (nz_head nz) (nz_tail nz)))%Nbar.
+Proof.
+intros nz H.
+unfold nz_terms_add; simpl.
+unfold nz_head, nz_tail; simpl.
+remember (stop (nz_terms nz)) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ]; [ simpl | simpl; rewrite Hst; constructor ].
+destruct st as [| st]; simpl.
+ exfalso; revert H; apply Nbar.lt_irrefl.
+
+ rewrite Hst; simpl.
+ rewrite Nat.add_0_r, Nat.sub_0_r.
+ rewrite Z.mul_add_distr_r, Z.mul_1_l.
+ rewrite Z.sub_add_distr, Z.sub_diag.
+ rewrite Z.add_simpl_l; simpl.
+ rewrite Nat.add_0_r.
+ rewrite Nat.max_r.
+  rewrite <- Nat.mul_succ_l.
+  rewrite Nbar.fin_inj_mul.
+  constructor.
+  apply Nat.mul_pos_pos; [ apply Nat.lt_0_succ | apply Pos2Nat.is_pos ].
+
+  rewrite Nat.add_comm; apply Nat.le_add_r.
+Qed.
+
+Lemma series_nth_add_head_tail : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz)
   ≍ series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz)).
 Proof.
@@ -1918,89 +1946,14 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
      exfalso; apply H₄, Nbar.lt_0_1.
 
     exfalso; apply H₃; subst c; constructor; apply Pos2Nat.is_pos.
-bbb.
 
-intros nz.
-unfold series_nth_fld.
-remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s eqn:Hs .
-destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
- destruct (Nbar.lt_dec 0 (stop s)) as [H₂| H₂].
-  subst s; simpl.
-  rewrite Z.mul_add_distr_r, Z.mul_1_l.
-  rewrite Z.sub_add_distr, Z.sub_diag; simpl.
-  rewrite Z.add_simpl_l; simpl.
-  rewrite series_pad_left_0.
-  unfold series_head, series_tail; simpl.
-  remember (stop (nz_terms nz)) as st eqn:Hst .
-  symmetry in Hst.
-  destruct st as [st| ]; simpl.
-   destruct st as [| st].
-    exfalso; revert H₁; apply Nbar.lt_irrefl.
+  exfalso; apply H₂; subst s.
+  apply stop_nz_pos_add_pos; assumption.
 
-    unfold series_nth_fld; simpl.
-    rewrite Nat.add_0_r, Nat.sub_0_r.
-    rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
-    rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
-    remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
-    destruct (Nbar.lt_dec 0 (fin c)) as [H₃| H₃].
-     rewrite <- Nat.mul_succ_l.
-     destruct (Nbar.lt_dec 0 (fin (S st * c))) as [H₄| H₄].
-      destruct (lt_dec 0 c) as [H₅| H₅].
-       rewrite fld_add_comm, fld_add_ident.
-       unfold series_nth_fld; simpl.
-       destruct (Nbar.lt_dec 0 1) as [H₆| H₆]; [ reflexivity | idtac ].
-       exfalso; apply H₆, Nbar.lt_0_1.
-
-       exfalso; apply H₅, Nbar.fin_lt_mono; assumption.
-
-      exfalso; apply H₄; subst c; constructor.
-      apply Nat.mul_pos_pos; [ apply Nat.lt_0_succ | apply Pos2Nat.is_pos ].
-
-     exfalso; apply H₃; constructor.
-     subst c; apply Pos2Nat.is_pos.
-
-   unfold series_nth_fld; simpl.
-   rewrite Nat.add_0_r.
-   rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
-   rewrite Nat.div_0_l; [ idtac | apply Pos2Nat_ne_0 ].
-   remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
-   destruct (Nbar.lt_dec 0 (fin c)) as [H₃| H₃].
-    destruct (Nbar.lt_dec 0 inf) as [H₄| H₄].
-     destruct (lt_dec 0 c) as [H₅| H₅].
-      rewrite fld_add_comm, fld_add_ident.
-      unfold series_nth_fld; simpl.
-      destruct (Nbar.lt_dec 0 1) as [H₆| H₆]; [ reflexivity | idtac ].
-      exfalso; apply H₆, Nbar.lt_0_1.
-
-      exfalso; apply H₅, Nbar.fin_lt_mono; assumption.
-
-     exfalso; apply H₄; constructor.
-
-    exfalso; apply H₃; constructor.
-    subst c; apply Pos2Nat.is_pos.
-
-  exfalso; apply H₂; clear H₂; subst s.
-  rewrite stop_head_tail₂.
-   destruct (stop (nz_terms nz)) as [st| ].
-    simpl.
-    apply Nbar.fin_lt_mono.
-    apply Nbar.fin_lt_mono in H₁.
-    apply Nat.mul_pos_pos; [ apply Pos2Nat.is_pos | assumption ].
-
-    constructor.
-
-   intros H; rewrite H in H₁; revert H₁; apply Nbar.lt_irrefl.
-
- destruct (Nbar.lt_dec 0 (stop s)) as [H₂| ]; [ idtac | reflexivity ].
- exfalso; apply H₁; clear H₁; subst s.
-bbb.
- rewrite stop_head_tail₂ in H₂.
-  destruct (stop (nz_terms nz)) as [st| ]; [ idtac | constructor ].
-  simpl in H₂.
-  apply Nbar.fin_lt_mono.
-  apply Nbar.fin_lt_mono in H₂.
-  apply Nat.mul_pos_cancel_l in H₂; [ assumption | apply Pos2Nat.is_pos ].
-bbb.
+ destruct (Nbar.lt_dec 0 (stop s)) as [H₂| H₂]; [ idtac | reflexivity ].
+ exfalso; apply H₁; subst s.
+ apply stop_nz_add_pos_pos; assumption.
+Qed.
 
 (**)
 Lemma ps_cons2 : ∀ nz,
