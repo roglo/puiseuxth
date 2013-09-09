@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.538 2013-09-09 15:28:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.539 2013-09-09 16:40:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2023,10 +2023,27 @@ bbb.
 bbb.
 *)
 
+(**)
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
   → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
 Proof.
+intros ps₁ ps₂ ps₃ H₂₃.
+destruct ps₁ as [nz₁| ].
+ destruct ps₂ as [nz₂| ].
+  destruct ps₃ as [nz₃| ]; simpl.
+   remember (first_nonzero fld (nz_terms_add fld nz₁ nz₂)) as n₂ eqn:Hn₂ .
+   symmetry in Hn₂.
+   destruct n₂ as [n₂| ].
+    revert nz₁ nz₂ nz₃ H₂₃ Hn₂.
+    induction n₂; intros.
+     remember (first_nonzero fld (nz_terms_add fld nz₁ nz₃)) as n₃ eqn:Hn₃ .
+     symmetry in Hn₃.
+     destruct n₃ as [n₃| ].
+      revert nz₁ nz₂ nz₃ H₂₃ Hn₂ Hn₃.
+      induction n₃; intros.
+bbb.
+
 intros ps₁ ps₂ ps₃ H₂₃.
 unfold ps_add.
 destruct ps₁ as [nz₁| ].
@@ -2083,6 +2100,7 @@ destruct ps₁ as [nz₁| ].
       replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
        (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
        f_equal.
+bbb.
        rewrite <- Z.mul_assoc, Z.mul_comm.
        rewrite Z.mul_shuffle0.
        rewrite <- Z.mul_assoc, <- H2.
@@ -2092,6 +2110,7 @@ destruct ps₁ as [nz₁| ].
 bbb.
 *)
 
+(**)
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₂
   → ps₃ ≈ ps₄
@@ -2113,11 +2132,13 @@ Qed.
   = ps_add fld (nz_add fld (nz_head nz₁) (nz_tail nz₁)) (Nonzero nz₂).
 *)
 
+(**)
 Add Parametric Morphism : (ps_add fld) with 
 signature (eq_ps fld) ==> (eq_ps fld) ==> (eq_ps fld) as ps_add_morph.
 Proof.
 intros ps₁ ps₃ H₁ ps₂ ps₄ H₂.
 bbb.
+*)
 
 (* ps_add_assoc_further... *)
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
