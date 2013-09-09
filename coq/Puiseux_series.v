@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.529 2013-09-09 09:42:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.530 2013-09-09 09:57:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1853,6 +1853,53 @@ Lemma zzz : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz)
   ≍ series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz)).
 Proof.
+intros nz.
+unfold series_nth_fld.
+remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s eqn:Hs .
+destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
+ destruct (Nbar.lt_dec 0 (stop s)) as [H₂| H₂].
+  subst s; simpl.
+  unfold nz_head, nz_tail; simpl.
+  remember (stop (nz_terms nz)) as st.
+  symmetry in Heqst.
+  destruct st as [st| ]; simpl.
+   destruct st as [st| ]; simpl.
+    exfalso; revert H₁; apply Nbar.lt_irrefl.
+
+    rewrite Z.mul_add_distr_r, Z.mul_1_l.
+    rewrite Z.sub_add_distr, Z.sub_diag; simpl.
+    rewrite Z.add_simpl_l; simpl.
+    rewrite series_pad_left_0.
+    unfold series_head, series_tail; simpl.
+    rewrite Heqst; simpl.
+    rewrite Nat.sub_0_r.
+    unfold series_nth_fld; simpl.
+    rewrite Nat.add_0_r.
+    rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+    rewrite Nat.div_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+    remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
+    destruct (Nbar.lt_dec 0 (fin c)) as [H₃| H₃].
+     unfold series_nth_fld; simpl.
+     destruct (Nbar.lt_dec 0 1) as [H₄| H₄].
+      destruct (Nbar.lt_dec 0 (fin (st * c + c))) as [H₅| H₅].
+       destruct (lt_dec 0 c) as [H₆| H₆].
+        rewrite fld_add_comm, fld_add_ident.
+        reflexivity.
+
+        exfalso; apply H₆.
+        subst c; apply Pos2Nat.is_pos.
+
+       rewrite fld_add_comm, fld_add_ident.
+       reflexivity.
+
+      exfalso; apply H₄.
+      apply Nbar.lt_0_1.
+
+     exfalso; apply H₃.
+     constructor.
+     subst c; apply Pos2Nat.is_pos.
+bbb.
+
 intros nz.
 unfold series_nth_fld.
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s eqn:Hs .
