@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.540 2013-09-09 17:30:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.541 2013-09-09 17:49:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2077,7 +2077,9 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
   reflexivity.
 
  unfold cm.
-bbb.
+ rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
+ reflexivity.
+Qed.
 
 (**)
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
@@ -2098,7 +2100,7 @@ destruct ps₁ as [nz₁| ].
      destruct n₃ as [n₃| ].
       revert nz₁ nz₂ nz₃ H₂₃ Hn₂ Hn₃.
       induction n₃; intros.
-       apply ps_add_cancel_0_0_l.
+       apply ps_add_cancel_0_0_l; assumption.
 bbb.
 *)
 
