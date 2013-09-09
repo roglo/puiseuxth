@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.526 2013-09-09 09:07:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.527 2013-09-09 09:13:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1381,6 +1381,7 @@ Lemma ps_cons : ∀ nz,
      ≭ zero fld
   → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
+(* à nettoyer *)
 intros nz Hzz.
 remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s.
 remember (first_nonzero fld s) as n eqn:Hn ; subst s.
@@ -1449,116 +1450,114 @@ destruct n as [[| n]| ].
        destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [H₃| H₃].
         remember (c * k)%nat as x.
         rewrite Nat.mul_comm, <- Nat.mul_succ_r; subst x.
-         destruct (Nbar.lt_dec (fin (c * k)) (fin (c * S st)))
-          as [H₄| H₄].
-          destruct (lt_dec (c * k) c) as [H₅| H₅].
-           unfold series_nth_fld; simpl.
-           rewrite Heqst.
-           rewrite fld_add_comm, fld_add_ident.
-           destruct (Nbar.lt_dec (fin k) 1) as [H₆| H₆].
-            destruct (Nbar.lt_dec (fin k) (fin (S st))) as [| H₇].
-             reflexivity.
+        destruct (Nbar.lt_dec (fin (c * k)) (fin (c * S st))) as [H₄| H₄].
+         destruct (lt_dec (c * k) c) as [H₅| H₅].
+          unfold series_nth_fld; simpl.
+          rewrite Heqst.
+          rewrite fld_add_comm, fld_add_ident.
+          destruct (Nbar.lt_dec (fin k) 1) as [H₆| H₆].
+           destruct (Nbar.lt_dec (fin k) (fin (S st))) as [| H₇].
+            reflexivity.
 
-             exfalso; apply H₇; clear H₇.
-             rewrite Heqst, Nbar.fin_inj_mul in H₂.
-             apply <- Nbar.mul_lt_mono_pos_r.
-              rewrite Nbar.mul_comm; eassumption.
+            exfalso; apply H₇; clear H₇.
+            rewrite Heqst, Nbar.fin_inj_mul in H₂.
+            apply <- Nbar.mul_lt_mono_pos_r.
+             rewrite Nbar.mul_comm; eassumption.
 
-              intros H; discriminate H.
+             intros H; discriminate H.
 
-              intros H; discriminate H.
+             intros H; discriminate H.
 
-              destruct k; [ rewrite Nat.mul_0_r in H₃; assumption | idtac ].
-              apply Nbar.nle_gt in H₆.
-              exfalso; apply H₆.
-              constructor; apply le_n_S, le_0_n.
+             destruct k; [ rewrite Nat.mul_0_r in H₃; assumption | idtac ].
+             apply Nbar.nle_gt in H₆.
+             exfalso; apply H₆.
+             constructor; apply le_n_S, le_0_n.
 
-            apply Nbar.nlt_ge in H₆.
-            destruct k.
-             apply Nbar.nlt_ge in H₆.
-             exfalso; apply H₆; constructor; apply Nat.lt_0_1.
-
-             apply Nbar.nlt_ge in H₃.
-              exfalso; apply H₃.
-
-              constructor.
-              rewrite Nat.mul_comm; simpl.
-              apply le_plus_l.
-
+           apply Nbar.nlt_ge in H₆.
            destruct k.
-            exfalso; apply H₅; rewrite Nat.mul_0_r; subst c.
-            apply Pos2Nat.is_pos.
+            apply Nbar.nlt_ge in H₆.
+            exfalso; apply H₆; constructor; apply Nat.lt_0_1.
 
-            unfold series_nth_fld; simpl.
-            rewrite Nat.mul_comm.
-            rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-            rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-            destruct (Nbar.lt_dec (fin (S k)) 1) as [H₆| H₆].
-             apply Nbar.nlt_ge in H₆.
-              exfalso; apply H₆.
+            apply Nbar.nlt_ge in H₃.
+             exfalso; apply H₃.
 
-              constructor; apply le_n_S, le_0_n.
+             constructor.
+             rewrite Nat.mul_comm; simpl.
+             apply le_plus_l.
 
-             rewrite fld_add_ident.
-             rewrite Heqst.
-             destruct (Nbar.lt_dec (fin k) (fin st)) as [H₇| H₇].
-              destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
-               reflexivity.
+          destruct k.
+           exfalso; apply H₅; rewrite Nat.mul_0_r; subst c.
+           apply Pos2Nat.is_pos.
 
-               exfalso; apply H₈.
-               constructor; apply lt_n_S.
-               inversion H₇; assumption.
-
-              destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
-               exfalso; apply H₇.
-               constructor; apply lt_S_n.
-               inversion H₈; assumption.
-
-               reflexivity.
-
-         rewrite Heqst in H₂.
-          replace (c * S st)%nat with (S st * c)%nat in H₄ .
-           contradiction.
-
-           apply Nat.mul_comm.
-
-         rewrite fld_add_ident.
-         rewrite <- Nat.mul_succ_l.
-         destruct (Nbar.lt_dec (fin (c * k)) (fin (S st * c)))
-          as [H₄| H₄].
-          destruct (lt_dec (c * k) c) as [H₅| H₅].
-           exfalso; apply H₃.
-           constructor; assumption.
-
+           unfold series_nth_fld; simpl.
            rewrite Nat.mul_comm.
            rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
            rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-           unfold series_nth_fld; simpl.
-           rewrite Heqst.
-           destruct k.
-            rewrite Nat.mul_0_r in H₅.
-            exfalso; apply H₅; subst c; apply Pos2Nat.is_pos.
+           destruct (Nbar.lt_dec (fin (S k)) 1) as [H₆| H₆].
+            apply Nbar.nlt_ge in H₆.
+             exfalso; apply H₆.
 
-            simpl.
-            destruct (Nbar.lt_dec (fin k) (fin st)) as [H₆| H₆].
-             destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₇| H₇].
+             constructor; apply le_n_S, le_0_n.
+
+            rewrite fld_add_ident.
+            rewrite Heqst.
+            destruct (Nbar.lt_dec (fin k) (fin st)) as [H₇| H₇].
+             destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
               reflexivity.
 
-              exfalso; apply H₇; constructor; apply lt_n_S.
-              inversion H₆; assumption.
-
-             destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₇| H₇].
-              exfalso; apply H₆; constructor; apply lt_S_n.
+              exfalso; apply H₈.
+              constructor; apply lt_n_S.
               inversion H₇; assumption.
+
+             destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
+              exfalso; apply H₇.
+              constructor; apply lt_S_n.
+              inversion H₈; assumption.
 
               reflexivity.
 
          rewrite Heqst in H₂.
+         replace (c * S st)%nat with (S st * c)%nat in H₄ .
           contradiction.
 
-      rewrite <- stretch_pad_1_series_distr.
-      rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
-      rewrite padded_in_stretched; [ reflexivity | assumption ].
+          apply Nat.mul_comm.
+
+        rewrite fld_add_ident.
+        rewrite <- Nat.mul_succ_l.
+        destruct (Nbar.lt_dec (fin (c * k)) (fin (S st * c))) as [H₄| H₄].
+         destruct (lt_dec (c * k) c) as [H₅| H₅].
+          exfalso; apply H₃.
+          constructor; assumption.
+
+          rewrite Nat.mul_comm.
+          rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+          rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+          unfold series_nth_fld; simpl.
+          rewrite Heqst.
+          destruct k.
+           rewrite Nat.mul_0_r in H₅.
+           exfalso; apply H₅; subst c; apply Pos2Nat.is_pos.
+
+           simpl.
+           destruct (Nbar.lt_dec (fin k) (fin st)) as [H₆| H₆].
+            destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₇| H₇].
+             reflexivity.
+
+             exfalso; apply H₇; constructor; apply lt_n_S.
+             inversion H₆; assumption.
+
+            destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₇| H₇].
+             exfalso; apply H₆; constructor; apply lt_S_n.
+             inversion H₇; assumption.
+
+             reflexivity.
+
+         rewrite Heqst in H₂.
+         contradiction.
+
+       rewrite <- stretch_pad_1_series_distr.
+       rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
+       rewrite padded_in_stretched; [ reflexivity | assumption ].
 
       rewrite Z.mul_add_distr_r, Z.mul_1_l.
       rewrite Z.sub_add_distr, Z.sub_diag.
@@ -1783,43 +1782,23 @@ destruct n as [[| n]| ].
     apply Z.le_sub_le_add_l.
     rewrite Z.sub_diag.
     apply Pos2Z.is_nonneg.
-bbb.
-     unfold series_head, series_tail; simpl.
-     remember (stop (nz_terms nz)) as st.
-     symmetry in Heqst.
-     destruct st as [st| ].
-      destruct st as [| st]; [ discriminate Heqst | idtac ].
-      subst s₁ s₂.
-      rewrite stop_head_tail in H₁; [ contradiction | idtac ].
-      intros H; rewrite Heqst in H; discriminate H.
 
-      subst s₁ s₂.
-      rewrite stop_head_tail in H₁; [ contradiction | idtac ].
-      intros H; rewrite Heqst in H; discriminate H.
+    rewrite Z.min_l; [ reflexivity | idtac ].
+    rewrite Z.add_1_r.
+    rewrite Z.mul_succ_l.
+    apply Z.le_sub_le_add_l.
+    rewrite Z.sub_diag.
+    apply Pos2Z.is_nonneg.
 
-    destruct (Nbar.eq_dec (stop (nz_terms nz)) 0) as [Heq| Hne].
-     destruct (Nbar.lt_dec (fin i) (stop s₂)) as [H₂| H₂].
-      subst s₂.
-      simpl in H₂.
-      rewrite Heq in H₂; simpl in H₂.
-      exfalso; revert H₂; apply Nbar.nlt_0_r.
+   rewrite Pos.mul_1_r.
+   unfold nz_head, nz_tail; simpl.
+   remember (stop (nz_terms nz)) as st.
+   symmetry in Heqst.
+   destruct st as [st| ].
+    destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
+    reflexivity.
 
-      reflexivity.
-
-     subst s₁ s₂.
-     rewrite stop_head_tail in H₁; [ idtac | assumption ].
-     remember (stretch_series fld (nz_comden nz) (nz_terms nz)) as s₂ eqn:Hs₂ .
-     destruct (Nbar.lt_dec (fin i) (stop s₂));
-      [ contradiction | reflexivity ].
-
-   rewrite Z.mul_1_r.
-   rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite Z.min_l.
-    rewrite Z.add_0_r; reflexivity.
-
-    rewrite Z.add_1_r; apply Z.le_succ_diag_r.
-
-   rewrite Pos.mul_1_r; reflexivity.
+    reflexivity.
 
  apply first_nonzero_iff in Hn.
  destruct Hn as (Hn, _).
@@ -1829,7 +1808,7 @@ bbb.
  apply first_nonzero_iff in Hn.
  rewrite Hn in Hzz.
  negation Hzz.
-qed.
+Qed.
 
 Lemma stop_head_tail₂ : ∀ nz,
   stop (nz_terms nz) ≠ 0%Nbar
