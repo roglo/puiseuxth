@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.544 2013-09-09 19:02:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.545 2013-09-09 19:43:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2095,6 +2095,12 @@ rewrite <- Nat.sub_succ_l.
   apply -> Nat.succ_le_mono; apply Nat.le_0_l.
 Qed.
 
+Lemma terms_S_tail : ∀ s n, terms s (S n) = terms (series_tail s) n.
+Proof.
+intros s n.
+unfold series_tail; reflexivity.
+Qed.
+
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
@@ -2172,29 +2178,46 @@ induction n; intros.
 
      rewrite <- Hst in Hsn.
      rewrite stop_tail in Hsn.
-bbb.
-   unfold series_tail.
-   assert (i < S n)%nat as H by omega.
-   apply Hisn in H.
-   unfold series_nth_fld; simpl.
-   unfold series_nth_fld in H; simpl in H.
-   unfold cm_factor in H; simpl in H.
-   unfold cm_factor; simpl.
-bbb.
-   remember
-    (Nbar.max
-       (stop (nz_terms nz₁) * fin (Pos.to_nat (nz_comden nz₃)) +
-        fin
-          (Z.to_nat
-             (nz_valnum nz₁ * ' nz_comden nz₃ -
-              nz_valnum nz₃ * ' nz_comden nz₁)))
-       (stop (nz_terms nz₃) * fin (Pos.to_nat (nz_comden nz₁)) +
-        fin
-          (Z.to_nat
-             (nz_valnum nz₃ * ' nz_comden nz₁ -
-              nz_valnum nz₁ * ' nz_comden nz₃)))) as x.
-   destruct x; simpl in H |- *.
-    Focus 1.
+      remember (stop (series_tail (nz_terms_add fld nz₁ nz₃))) as st₁.
+      destruct (Nbar.lt_dec (fin n) st₁) as [H₁| H₁].
+       destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+        rewrite <- terms_S_tail; assumption.
+
+        negation Hsn.
+
+       destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+        exfalso; apply H₁.
+        destruct st₁ as [st₁| ]; [ idtac | constructor ].
+        constructor.
+        apply Nat.succ_lt_mono.
+        inversion H₂; assumption.
+
+        negation Hsn.
+
+      rewrite Hst.
+      constructor.
+      apply Nat.lt_0_succ.
+
+    rewrite <- Hst in Hsn.
+    rewrite stop_tail in Hsn.
+     remember (stop (series_tail (nz_terms_add fld nz₁ nz₃))) as st₁.
+     destruct (Nbar.lt_dec (fin n) st₁) as [H₁| H₁].
+      destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+       rewrite <- terms_S_tail; assumption.
+
+       negation Hsn.
+
+      destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+       exfalso; apply H₁.
+       destruct st₁ as [st₁| ]; [ idtac | constructor ].
+       constructor.
+       apply Nat.succ_lt_mono.
+       inversion H₂; assumption.
+
+       negation Hsn.
+
+     rewrite Hst.
+     constructor.
 bbb.
 *)
 
