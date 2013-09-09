@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.534 2013-09-09 12:35:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.535 2013-09-09 13:54:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1964,6 +1964,12 @@ apply ps_cons.
 rewrite <- series_nth_add_head_tail; assumption.
 Qed.
 
+(*
+  NonZero (build_nz_add fld n nz₁ nz₂)
+  = ps_add fld (nz_add fld (nz_head nz₁) (nz_tail nz₁)) (Nonzero nz₂).
+*)
+
+(*
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
   series_nth_fld fld 0 (nz_terms nz₁) ≭ zero fld
   → first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
@@ -1984,6 +1990,7 @@ destruct ps₁ as [nz| ].
   rewrite <- Hps₁; apply ps_cons2; assumption.
 
   rewrite <- Hps₁ in H.
+  clear nz Hps₁.
 bbb.
    constructor 1 with (k₁ := xH) (k₂ := nz_comden nz₁).
     rewrite stretch_series_1.
@@ -2019,6 +2026,7 @@ bbb.
        rewrite Heqnz'₁; simpl.
        unfold stretch_series; simpl.
 bbb.
+*)
 
 Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
   first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
