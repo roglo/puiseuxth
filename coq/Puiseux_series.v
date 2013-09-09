@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.541 2013-09-09 17:49:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.542 2013-09-09 18:22:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2082,6 +2082,67 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
 Qed.
 
 (**)
+Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
+  first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
+  → first_nonzero fld (nz_terms_add fld nz₁ nz₃) = fin n
+    → NonZero nz₂ ≈ NonZero nz₃
+      → NonZero (build_nz_add fld 0 nz₁ nz₂)
+        ≈ NonZero (build_nz_add fld n nz₁ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
+revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
+induction n; intros.
+ inversion H₂₃; subst.
+ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
+  inversion H1; subst.
+  constructor; intros i.
+  unfold nz_terms_add.
+  unfold cm_factor, cm; simpl.
+  do 2 rewrite stretch_series_add_distr.
+  do 4 rewrite stretch_pad_series_distr.
+  do 4 rewrite <- stretch_stretch_series.
+  do 4 rewrite Pos.mul_comm, stretch_stretch_series.
+  rewrite H1.
+  do 3 rewrite <- stretch_stretch_series.
+  rewrite H3.
+  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+  do 4 rewrite Z.mul_sub_distr_r.
+  rewrite <- Z.mul_assoc.
+  rewrite <- Pos2Z.inj_mul.
+  rewrite H3.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc.
+  replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
+   (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
+   reflexivity.
+
+   rewrite Z.mul_shuffle0, <- H2.
+   rewrite Z.mul_shuffle0; reflexivity.
+
+  unfold cm_factor; simpl.
+  do 2 rewrite Z.add_0_r.
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, H3.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
+   (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
+   reflexivity.
+
+   rewrite <- Z.mul_assoc, Z.mul_comm.
+   rewrite Z.mul_shuffle0.
+   rewrite <- Z.mul_assoc, <- H2.
+   rewrite <- Z.mul_assoc, Z.mul_comm.
+   rewrite <- Z.mul_shuffle0, Z.mul_assoc.
+   reflexivity.
+
+  unfold cm.
+  rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
+  reflexivity.
+bbb.
+*)
+
+(**)
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
   → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
@@ -2098,6 +2159,9 @@ destruct ps₁ as [nz₁| ].
      remember (first_nonzero fld (nz_terms_add fld nz₁ nz₃)) as n₃ eqn:Hn₃ .
      symmetry in Hn₃.
      destruct n₃ as [n₃| ].
+      unfold nz_add.
+      rewrite Hn₂, Hn₃.
+bbb.
       revert nz₁ nz₂ nz₃ H₂₃ Hn₂ Hn₃.
       induction n₃; intros.
        apply ps_add_cancel_0_0_l; assumption.
