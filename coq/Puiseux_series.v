@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.542 2013-09-09 18:22:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.543 2013-09-09 18:43:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2139,6 +2139,38 @@ induction n; intros.
   unfold cm.
   rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
   reflexivity.
+
+ assert (first_nonzero fld (series_tail (nz_terms_add fld nz₁ nz₃)) = fin n).
+  apply first_nonzero_iff in Hn₃.
+  apply first_nonzero_iff.
+  destruct Hn₃ as (Hisn, Hsn).
+  split; [ intros i Hin | idtac ].
+   Focus 2.
+   unfold series_nth_fld in Hsn; simpl in Hsn.
+   unfold series_nth_fld; simpl.
+bbb.
+   unfold series_tail.
+   assert (i < S n)%nat as H by omega.
+   apply Hisn in H.
+   unfold series_nth_fld; simpl.
+   unfold series_nth_fld in H; simpl in H.
+   unfold cm_factor in H; simpl in H.
+   unfold cm_factor; simpl.
+bbb.
+   remember
+    (Nbar.max
+       (stop (nz_terms nz₁) * fin (Pos.to_nat (nz_comden nz₃)) +
+        fin
+          (Z.to_nat
+             (nz_valnum nz₁ * ' nz_comden nz₃ -
+              nz_valnum nz₃ * ' nz_comden nz₁)))
+       (stop (nz_terms nz₃) * fin (Pos.to_nat (nz_comden nz₁)) +
+        fin
+          (Z.to_nat
+             (nz_valnum nz₃ * ' nz_comden nz₁ -
+              nz_valnum nz₁ * ' nz_comden nz₃)))) as x.
+   destruct x; simpl in H |- *.
+    Focus 1.
 bbb.
 *)
 
