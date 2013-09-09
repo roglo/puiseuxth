@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.522 2013-09-09 03:24:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.523 2013-09-09 08:28:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1678,6 +1678,40 @@ destruct n as [[| n]| ].
             rewrite Hic.
             rewrite Nat.mul_comm.
             rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
+            apply Nat.nlt_ge in Hge₅.
+            destruct k.
+             rewrite Nat.mul_0_r in Hic.
+             apply Nat.sub_0_le in Hic.
+             apply Nat.le_antisymm in Hic; [ idtac | assumption ].
+             rewrite Hic in Hnz.
+             destruct i.
+              simpl in Hnz.
+              exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+              rewrite Nat.mod_same in Hnz.
+               exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+               intros H; discriminate H.
+
+             apply Nat.add_sub_eq_nz in Hic.
+              rewrite Nat.add_comm in Hic.
+              rewrite <- Nat.mul_succ_r in Hic.
+              rewrite <- Hic in Hnz.
+              rewrite Nat.mul_comm in Hnz.
+              rewrite Nat.mod_mul in Hnz.
+               exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+               subst c; apply Pos2Nat_ne_0.
+
+              apply Nat.neq_mul_0.
+              split; [ idtac | intros H; discriminate H ].
+              subst c; apply Pos2Nat_ne_0.
+
+            subst c; apply Pos2Nat_ne_0.
+
+           reflexivity.
+
+         reflexivity.
 bbb.
      unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
