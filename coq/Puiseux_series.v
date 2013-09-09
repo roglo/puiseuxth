@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.518 2013-09-08 19:27:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.519 2013-09-09 02:04:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1433,16 +1433,6 @@ destruct n as [[| n]| ].
       rewrite Z.add_simpl_l; simpl.
       rewrite series_pad_left_0.
       destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
-       unfold nz_head, nz_tail in Hlt₁.
-       rewrite Heqst in Hlt₁; simpl in Hlt₁.
-       rewrite Heqst in Hlt₁; simpl in Hlt₁.
-       rewrite Nat.add_0_r, Nat.sub_0_r in Hlt₁.
-       rewrite Z.mul_add_distr_r, Z.mul_1_l in Hlt₁.
-       rewrite Z.sub_add_distr, Z.sub_diag in Hlt₁.
-       rewrite Z.add_simpl_l in Hlt₁.
-       simpl in Hlt₁.
-       rewrite Nat.add_0_r in Hlt₁.
-       rewrite <- Nat.mul_succ_l in Hlt₁.
        apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
        destruct Hz as (k, Hi).
        subst i.
@@ -1567,12 +1557,21 @@ destruct n as [[| n]| ].
          rewrite Heqst in Hlt₂.
           contradiction.
 
-bbb.
-       simpl.
+      rewrite <- stretch_pad_1_series_distr.
+      rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
+      rewrite padded_in_stretched; [ reflexivity | assumption ].
+
+      rewrite Z.mul_add_distr_r, Z.mul_1_l.
+      rewrite Z.sub_add_distr, Z.sub_diag.
+      rewrite Z.add_simpl_l; simpl.
+      rewrite series_pad_left_0.
+      destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
        apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
        destruct Hz as (k, Hi).
        subst i.
        rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+       unfold series_head, series_tail; simpl.
+       rewrite Heqst; simpl.
        remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
        unfold series_nth_fld; simpl.
        rewrite Nat.add_0_r.
@@ -1581,59 +1580,13 @@ bbb.
        rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
        rewrite Nat.mul_comm, <- Nat.mul_pred_r.
        destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [Hlt₃| Hge₃].
-        destruct (Nbar.lt_dec (fin (c * k)) inf) as [Hlt₄| Hge₄].
-         destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
-          rewrite fld_add_comm, fld_add_ident.
-          rewrite Heqst.
-          destruct (Nbar.lt_dec (fin k) inf) as [Hlt₆| Hge₆].
-           unfold series_nth_fld; simpl.
-           destruct (Nbar.lt_dec (fin k) 1) as [Hlt₇| Hge₇].
-            reflexivity.
-
-            destruct k.
-             exfalso; apply Hge₇; constructor; apply Nat.lt_0_1.
-
-             apply Nat.nlt_ge in Hlt₅.
-             exfalso; apply Hlt₅, le_n_S; rewrite Nat.mul_comm; simpl.
-             apply le_plus_l.
-
-           exfalso; apply Hge₆; constructor.
-
-          exfalso; apply Hge₅.
-          inversion Hlt₃; assumption.
-
-         exfalso; apply Hge₄; constructor.
-
-        rewrite fld_add_ident.
-        destruct (Nbar.lt_dec (fin (c * k)) inf) as [Hlt₄| Hge₄].
-         destruct (lt_dec (c * k) c) as [Hlt₅| Hge₅].
-          exfalso; apply Hge₃; constructor; assumption.
-
-          rewrite Nat.mul_comm.
-          rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-          rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-          rewrite Heqst.
-          unfold series_nth_fld; simpl.
-          destruct (Nbar.lt_dec (fin (pred k)) inf) as [Hlt₆| Hge₆].
-           destruct (Nbar.lt_dec (fin k) inf) as [Hlt₇| Hge₇].
-            destruct k; [ simpl | reflexivity ].
-            rewrite Nat.mul_0_r in Hge₅.
-            exfalso; apply Hge₅; subst c; apply Pos2Nat.is_pos.
-
-            exfalso; apply Hge₇; constructor.
-
-           exfalso; apply Hge₆; constructor.
-
-         exfalso; apply Hge₄; constructor.
-
-      rewrite <- stretch_pad_1_series_distr.
-      rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
-      rewrite padded_in_stretched; [ reflexivity | assumption ].
-
+        remember (c * k)%nat as x.
+bbb.
+     unfold series_head, series_tail; simpl.
      remember (stop (nz_terms nz)) as st.
      symmetry in Heqst.
      destruct st as [st| ].
-      destruct st as [| st]; [ negation Hst | idtac ].
+      destruct st as [| st]; [ discriminate Heqst | idtac ].
       subst s₁ s₂.
       rewrite stop_head_tail in Hlt₁; [ contradiction | idtac ].
       intros H; rewrite Heqst in H; discriminate H.
