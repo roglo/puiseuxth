@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.549 2013-09-10 01:54:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.550 2013-09-10 03:02:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1261,7 +1261,21 @@ rewrite Nat.max_r; [ rewrite Nat.add_comm; reflexivity | idtac ].
 apply Nat.le_sub_le_add_r; rewrite Nat.sub_diag; apply Nat.le_0_l.
 Qed.
 
-Lemma stop_0_series_nth_fld_0 : ∀ s n i,
+Lemma stop_0_series_nth_0 : ∀ s i,
+  stop s = 0%Nbar
+  → series_nth_fld fld i s = zero fld.
+Proof.
+intros s i Hs.
+unfold series_nth_fld; simpl.
+rewrite Hs; simpl.
+destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁]; [ idtac | reflexivity ].
+apply Nbar.nlt_ge in Hlt₁.
+ exfalso; apply Hlt₁; constructor; apply lt_0_Sn.
+
+ constructor; apply Nat.le_0_l.
+Qed.
+
+Lemma stop_0_series_nth_stretch_0 : ∀ s n i,
   stop s = 0%Nbar
   → series_nth_fld fld i (stretch_series fld n s) = zero fld.
 Proof.
@@ -1273,6 +1287,20 @@ apply Nbar.nlt_ge in Hlt₁.
  exfalso; apply Hlt₁; constructor; apply lt_0_Sn.
 
  constructor; apply Nat.le_0_l.
+Qed.
+
+Lemma stop_0_series_nth_pad_stretch_0 : ∀ s i n k,
+  stop s = 0%Nbar
+  → series_nth_fld fld i (series_pad_left fld n (stretch_series fld k s))
+    = zero fld.
+Proof.
+intros s i n k Hs.
+unfold series_nth_fld; simpl.
+rewrite Hs; simpl.
+destruct (Nbar.lt_dec (fin i) (fin n)) as [H₁| H₁]; [ idtac | reflexivity ].
+destruct (lt_dec i n) as [H₂| H₂]; [ reflexivity | idtac ].
+exfalso; apply H₂.
+apply Nbar.fin_lt_mono; assumption.
 Qed.
 
 Lemma series_nth_fld_mul_stretch : ∀ s k i,
@@ -1393,7 +1421,7 @@ destruct n as [[| n]| ].
   constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
    rewrite stretch_series_1.
    constructor; intros i.
-   rewrite stop_0_series_nth_fld_0; [ idtac | assumption ].
+   rewrite stop_0_series_nth_stretch_0; [ idtac | assumption ].
    unfold series_nth_fld; simpl.
    unfold nz_head, nz_tail; simpl.
    rewrite Hst; simpl.
@@ -2128,7 +2156,7 @@ split; [ intros i Hin | idtac ].
     apply Hisn in H.
     unfold series_nth_fld in H.
     remember Hst as Hst₂; clear HeqHst₂.
-    apply stop_0_series_nth_fld_0 with (i := S i) (n := xH) in Hst.
+    apply stop_0_series_nth_stretch_0 with (i := S i) (n := xH) in Hst.
     rewrite <- Hst.
     rewrite stretch_series_1.
     unfold series_nth_fld.
@@ -2259,6 +2287,43 @@ split; [ intros i Hin | idtac ].
 
    rewrite Hst; constructor.
 Qed.
+
+Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
+  series_tail (nz_terms_add fld nz₁ nz₂)
+  ≃ nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂).
+Proof.
+intros nz₁ nz₂.
+constructor; intros i.
+unfold series_nth_fld.
+remember (nz_terms_add fld nz₁ nz₂) as s₁ eqn:Hs₁ .
+remember (nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂)) as s₂ eqn:Hs₂ .
+destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s₂)) as [H₂| H₂].
+  simpl.
+  rewrite Hs₁, Hs₂; simpl.
+  unfold cm_factor; simpl.
+  unfold nz_tail; simpl.
+  remember (stop (nz_terms nz₁)) as st₁ eqn:Hst₁ .
+  remember (stop (nz_terms nz₂)) as st₂ eqn:Hst₂ .
+  symmetry in Hst₁, Hst₂.
+  destruct st₁ as [[| st₁]| ].
+   destruct st₂ as [[| st₂]| ]; simpl.
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    reflexivity.
+    reflexivity.
+
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    symmetry.
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    rewrite fld_add_ident.
+    rewrite fld_add_ident.
+    rewrite series_nth_pad_S.
+    unfold series_tail; simpl.
+    Focus 1.
+bbb.
 
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
