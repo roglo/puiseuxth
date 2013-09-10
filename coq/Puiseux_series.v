@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.552 2013-09-10 09:50:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.553 2013-09-10 09:55:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2317,6 +2317,19 @@ Lemma yyy : ∀ k s,
   stretch_series fld k (series_tail s)
   ≃ series_tail_n (Pos.to_nat k) (stretch_series fld k s).
 Proof.
+intros k s.
+constructor; intros i.
+revert k.
+induction i; intros.
+ unfold series_nth_fld.
+ simpl.
+ rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+ rewrite Nat.div_0_l; [ simpl | apply Pos2Nat_ne_0 ].
+ remember (stop s) as st eqn:Hst .
+ symmetry in Hst.
+ destruct st as [st| ].
+bbb.
+
 intros k s.
 rewrite stretch_series_to_nat.
 rewrite stretch_series_to_nat.
