@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.555 2013-09-10 15:09:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.556 2013-09-10 15:30:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2352,72 +2352,37 @@ destruct st as [st| ].
   exfalso; apply H₁; constructor.
 Qed.
 
-Lemma yyy : ∀ k s,
+Lemma stretch_series_tail : ∀ k s,
   stretch_series fld k (series_tail s)
   ≃ series_tail_n (Pos.to_nat k) (stretch_series fld k s).
 Proof.
 intros k s.
 constructor; intros i.
-revert k.
-induction i; intros.
- unfold series_nth_fld; simpl.
- rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
- rewrite Nat.div_0_l; [ simpl | apply Pos2Nat_ne_0 ].
- remember (stop s) as st eqn:Hst .
- symmetry in Hst.
- destruct st as [st| ].
-  simpl.
-  rewrite Nat.mod_same; [ simpl | apply Pos2Nat_ne_0 ].
-  rewrite Nat.div_same; [ simpl | apply Pos2Nat_ne_0 ].
-  rewrite Nat.mul_sub_distr_r, Nat.mul_1_l.
-  unfold series_nth_fld; simpl.
-  rewrite Hst.
-  destruct (Nbar.lt_dec 0 (fin (st - 1))) as [H₁| H₁].
-   destruct (Nbar.lt_dec 1 (fin st)) as [H₂| H₂]; [ reflexivity | idtac ].
-   destruct st.
-    apply Nbar.nle_gt in H₁.
-    exfalso; apply H₁; constructor.
-    constructor.
+unfold series_nth_fld; simpl.
+rewrite Nat.add_mod; [ idtac | apply Pos2Nat_ne_0 ].
+rewrite Nat.mod_same; [ idtac | apply Pos2Nat_ne_0 ].
+rewrite Nat.add_0_r.
+rewrite Nat.mod_mod; [ idtac | apply Pos2Nat_ne_0 ].
+remember (stop s) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ]; simpl.
+ rewrite Nat.mul_sub_distr_r, Nat.mul_1_l.
+ rewrite series_nth_tail.
+ remember (Pos.to_nat k) as x.
+ replace (i + x)%nat with (i + 1 * x)%nat .
+  rewrite Nat.div_add; [ idtac | subst x; apply Pos2Nat_ne_0 ].
+  rewrite Nat.add_comm; reflexivity.
 
-    exfalso; apply H₂.
-    apply Nbar.succ_lt_mono in H₁; simpl in H₁.
-    rewrite Nat.sub_0_r in H₁; assumption.
+  rewrite Nat.mul_1_l; reflexivity.
 
-   destruct st.
-    destruct (Nbar.lt_dec 1 0) as [H₂| H₂]; [ idtac | reflexivity ].
-    apply Nbar.nle_gt in H₂.
-    exfalso; apply H₂, Nbar.le_0_l.
+ rewrite series_nth_tail.
+ remember (Pos.to_nat k) as x.
+ replace (i + x)%nat with (i + 1 * x)%nat .
+  rewrite Nat.div_add; [ idtac | subst x; apply Pos2Nat_ne_0 ].
+  rewrite Nat.add_comm; reflexivity.
 
-    simpl in H₁.
-    rewrite Nat.sub_0_r in H₁.
-    destruct (Nbar.lt_dec 1 (fin (S st))) as [H₂| ]; [ idtac | reflexivity ].
-    exfalso; apply H₁.
-    apply Nbar.succ_lt_mono; assumption.
-
-  rewrite Nat.mod_same; [ simpl | apply Pos2Nat_ne_0 ].
-  rewrite Nat.div_same; [ simpl | apply Pos2Nat_ne_0 ].
-  unfold series_nth_fld; simpl.
-  rewrite Hst.
-  destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁]; [ idtac | reflexivity ].
-  destruct (Nbar.lt_dec 1 ∞) as [H₂| H₂]; [ reflexivity | idtac ].
-  exfalso; apply H₂; constructor.
-
- unfold series_nth_fld; simpl.
- rewrite <- Nat.add_succ_l.
- rewrite Nat.add_mod; [ idtac | apply Pos2Nat_ne_0 ].
- rewrite Nat.mod_same; [ idtac | apply Pos2Nat_ne_0 ].
- rewrite Nat.add_0_r.
- rewrite Nat.mod_mod; [ idtac | apply Pos2Nat_ne_0 ].
- remember (stop s) as st eqn:Hst .
- symmetry in Hst.
- destruct st as [st| ].
-  simpl.
-  rewrite Nat.mul_sub_distr_r, Nat.mul_1_l.
-  remember (fin (st * Pos.to_nat k - Pos.to_nat k)) as x.
-  destruct (Nbar.lt_dec (fin (S i)) x) as [H₁| ]; [ idtac | reflexivity ].
-  destruct (zerop (S i mod Pos.to_nat k)) as [H₂| ]; [ idtac | reflexivity ].
-  rewrite series_nth_tail.
-bbb.
+  rewrite Nat.mul_1_l; reflexivity.
+Qed.
 
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
   series_tail (nz_terms_add fld nz₁ nz₂)
@@ -2453,6 +2418,7 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
+    rewrite stretch_series_tail.
     Focus 1.
 bbb.
 
