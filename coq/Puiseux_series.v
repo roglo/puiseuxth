@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.551 2013-09-10 03:42:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.552 2013-09-10 09:50:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2288,6 +2288,54 @@ split; [ intros i Hin | idtac ].
    rewrite Hst; constructor.
 Qed.
 
+Fixpoint series_tail_n n (s : series α) :=
+  match n with
+  | O => s
+  | S n₁ => series_tail (series_tail_n n₁ s)
+  end.
+
+Definition stretch_series_nat n s :=
+  {| terms i :=
+       if zerop (i mod n) then
+         series_nth_fld fld (i / n) s
+       else zero fld;
+     stop :=
+       stop s * fin n |}.
+
+Lemma stretch_series_to_nat : ∀ k s,
+  stretch_series fld k s = stretch_series_nat (Pos.to_nat k) s.
+Proof. reflexivity. Qed.
+
+Lemma series_tail_n_tail_comm : ∀ n s,
+  series_tail (series_tail_n n s) = series_tail_n n (series_tail s).
+Proof.
+intros n s.
+induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
+Qed.
+
+Lemma yyy : ∀ k s,
+  stretch_series fld k (series_tail s)
+  ≃ series_tail_n (Pos.to_nat k) (stretch_series fld k s).
+Proof.
+intros k s.
+rewrite stretch_series_to_nat.
+rewrite stretch_series_to_nat.
+remember (Pos.to_nat k) as n.
+symmetry in Heqn.
+destruct n.
+ exfalso; revert Heqn; apply Pos2Nat_ne_0.
+
+ remember (S n) as x.
+ assert (0 < x)%nat as Hn by omega.
+ clear k n Heqx Heqn.
+ rename x into n.
+ induction n; intros.
+  exfalso; revert Hn; apply Nat.lt_irrefl.
+
+  clear Hn.
+  simpl.
+bbb.
+
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
   series_tail (nz_terms_add fld nz₁ nz₂)
   ≃ nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂).
@@ -2317,10 +2365,11 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     symmetry.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    rewrite fld_add_ident.
-    rewrite fld_add_ident.
+    do 2 rewrite fld_add_ident.
     rewrite series_nth_pad_S.
-    unfold series_tail; simpl.
+    rewrite Z.mul_add_distr_r, Z.mul_1_l.
+    remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
+    remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
     Focus 1.
 bbb.
 
