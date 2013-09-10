@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.548 2013-09-10 01:51:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.549 2013-09-10 01:54:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2116,59 +2116,6 @@ apply first_nonzero_iff in Hn₃.
 apply first_nonzero_iff.
 destruct Hn₃ as (Hisn, Hsn).
 split; [ intros i Hin | idtac ].
- Focus 2.
- unfold series_nth_fld.
- unfold series_nth_fld in Hsn.
- remember (stop s) as st eqn:Hst .
- symmetry in Hst.
- destruct st as [st| ].
-  destruct st as [| st].
-   destruct (Nbar.lt_dec (fin (S n)) 0) as [H₁| ]; [ idtac | negation Hsn ].
-   apply Nbar.nle_gt in H₁.
-   exfalso; apply H₁; constructor; apply Nat.le_0_l.
-
-   rewrite <- Hst in Hsn.
-   rewrite stop_tail in Hsn.
-    remember (stop (series_tail s)) as st₁.
-    destruct (Nbar.lt_dec (fin n) st₁) as [H₁| H₁].
-     destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
-      rewrite <- terms_S_tail; assumption.
-
-      negation Hsn.
-
-     destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
-      exfalso; apply H₁.
-      destruct st₁ as [st₁| ]; [ idtac | constructor ].
-      constructor.
-      apply Nat.succ_lt_mono.
-      inversion H₂; assumption.
-
-      negation Hsn.
-
-    rewrite Hst.
-    constructor.
-    apply Nat.lt_0_succ.
-
-  rewrite <- Hst in Hsn.
-  rewrite stop_tail in Hsn.
-   remember (stop (series_tail s)) as st₁.
-   destruct (Nbar.lt_dec (fin n) st₁) as [H₁| H₁].
-    destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
-     rewrite <- terms_S_tail; assumption.
-
-     negation Hsn.
-
-    destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
-     exfalso; apply H₁.
-     destruct st₁ as [st₁| ]; [ idtac | constructor ].
-     constructor.
-     apply Nat.succ_lt_mono.
-     inversion H₂; assumption.
-
-     negation Hsn.
-
-   rewrite Hst; constructor.
-
  remember (stop s) as st eqn:Hst .
  symmetry in Hst.
  destruct st as [st| ].
@@ -2258,8 +2205,59 @@ split; [ intros i Hin | idtac ].
 
     reflexivity.
 
-   rewrite Hst.
-   constructor.
+   rewrite Hst; constructor.
+
+ unfold series_nth_fld.
+ unfold series_nth_fld in Hsn.
+ remember (stop s) as st eqn:Hst .
+ symmetry in Hst.
+ destruct st as [st| ].
+  destruct st as [| st].
+   destruct (Nbar.lt_dec (fin (S n)) 0) as [H₁| ]; [ idtac | negation Hsn ].
+   apply Nbar.nle_gt in H₁.
+   exfalso; apply H₁; constructor; apply Nat.le_0_l.
+
+   rewrite <- Hst in Hsn.
+   rewrite stop_tail in Hsn.
+    remember (stop (series_tail s)) as st₁.
+    destruct (Nbar.lt_dec (fin n) st₁) as [H₁| H₁].
+     destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+      rewrite <- terms_S_tail; assumption.
+
+      negation Hsn.
+
+     destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+      exfalso; apply H₁.
+      destruct st₁ as [st₁| ]; [ idtac | constructor ].
+      constructor.
+      apply Nat.succ_lt_mono.
+      inversion H₂; assumption.
+
+      negation Hsn.
+
+    rewrite Hst.
+    constructor.
+    apply Nat.lt_0_succ.
+
+  rewrite <- Hst in Hsn.
+  rewrite stop_tail in Hsn.
+   remember (stop (series_tail s)) as st₁.
+   destruct (Nbar.lt_dec (fin n) st₁) as [H₁| H₁].
+    destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+     rewrite <- terms_S_tail; assumption.
+
+     negation Hsn.
+
+    destruct (Nbar.lt_dec (fin (S n)) (NS st₁)) as [H₂| H₂].
+     exfalso; apply H₁.
+     destruct st₁ as [st₁| ]; [ idtac | constructor ].
+     constructor.
+     apply Nat.succ_lt_mono.
+     inversion H₂; assumption.
+
+     negation Hsn.
+
+   rewrite Hst; constructor.
 Qed.
 
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
