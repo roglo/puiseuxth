@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.557 2013-09-10 18:40:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.558 2013-09-10 19:05:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1992,65 +1992,6 @@ apply ps_cons.
 rewrite <- series_nth_add_head_tail; assumption.
 Qed.
 
-(*
-Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁,
-  series_nth_fld fld 0 (nz_terms nz₁) ≭ zero fld
-  → first_nonzero fld (nz_terms_add fld nz₁ nz₂) = fin n₁
-    → first_nonzero fld (nz_terms_add fld nz₂ nz₃) = fin 0
-      → nz_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≈
-        nz_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
-Proof.
-intros nz₁ nz₂ nz₃ n₁ Hs₁ Hn₁ Hn₂.
-revert nz₁ nz₂ nz₃ Hs₁ Hn₁ Hn₂.
-induction n₁ as [| n₁]; intros; [ apply nz_add_assoc_base | idtac ].
-remember (nz_head nz₁) as pm₁.
-remember (nz_tail nz₁) as nz'₁.
-remember (nz_add fld pm₁ nz'₁) as ps₁ eqn:Hps₁ .
-symmetry in Hps₁.
-subst pm₁ nz'₁.
-destruct ps₁ as [nz| ].
- assert (NonZero nz ≈ NonZero nz₁) as H.
-  rewrite <- Hps₁; apply ps_cons2; assumption.
-
-  rewrite <- Hps₁ in H.
-  clear nz Hps₁.
-bbb.
-   constructor 1 with (k₁ := xH) (k₂ := nz_comden nz₁).
-    rewrite stretch_series_1.
-    constructor; intros i.
-    unfold series_nth_fld.
-    unfold nz_add in Hps₁.
-    rewrite Heqpm₁ in Hps₁.
-    remember (nz_terms_add fld (nz_head nz₁) nz'₁) as nz₁₂.
-    remember (first_nonzero fld nz₁₂) as n₁₂ eqn:Hn₁₂ .
-    subst nz₁₂; symmetry in Hn₁₂.
-    destruct n₁₂ as [n₁₂| ]; [ idtac | discriminate Hps₁ ].
-    injection Hps₁; clear Hps₁; intros Hps₁.
-    rewrite <- Heqpm₁ in Hn₁₂.
-    remember (stop (nz_terms nz)) as st eqn:Hst .
-    rewrite <- Hps₁ in Hst; simpl in Hst.
-    rewrite Heqnz'₁ in Hst; simpl in Hst.
-    rewrite Nat.add_0_r in Hst.
-    remember (stop (nz_terms nz₁)) as st₁ eqn:Hst₁ .
-    symmetry in Hst, Hst₁.
-    destruct st₁ as [st₁| ].
-     simpl in Hst.
-     destruct (Nbar.lt_dec (fin i) st) as [H₁| H₁].
-      remember (stretch_series fld (nz_comden nz₁) (nz_terms nz₁)) as s.
-      remember (stop s) as st₂ eqn:Hst₂ ; subst s.
-      symmetry in Hst₂.
-      simpl in Hst₂.
-      rewrite Hst₁ in Hst₂.
-      simpl in Hst₂.
-      destruct (Nbar.lt_dec (fin i) st₂) as [H₂| H₂].
-       Focus 1.
-       rewrite <- Hps₁; simpl.
-       unfold cm_factor; simpl.
-       rewrite Heqnz'₁; simpl.
-       unfold stretch_series; simpl.
-bbb.
-*)
-
 Lemma ps_add_cancel_0_0_l : ∀ nz₁ nz₂ nz₃,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
   → first_nonzero fld (nz_terms_add fld nz₁ nz₃) = 0%Nbar
@@ -2384,6 +2325,15 @@ destruct st as [st| ]; simpl.
   rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
+Lemma yyy : ∀ s x c,
+  series_pad_left fld (S (Z.to_nat (x + ' c )))
+    (series_tail_n (Pos.to_nat (c)) (stretch_series fld c s))
+  ≃ series_pad_left fld (Z.to_nat x) (stretch_series fld c s).
+Proof.
+intros s x c.
+bbb.
+*)
+
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
   series_tail (nz_terms_add fld nz₁ nz₂)
   ≃ nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂).
@@ -2419,10 +2369,40 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
     rewrite stretch_series_tail.
-    Focus 2.
+    Focus 1.
+    rewrite Z.add_sub_swap.
+    rewrite yyy; reflexivity.
+
+    Focus 1.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     symmetry.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    do 2 rewrite fld_add_ident.
+    rewrite series_nth_pad_S.
+    rewrite Z.mul_add_distr_r, Z.mul_1_l.
+    remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
+    remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
+    rewrite stretch_series_tail.
+    rewrite Z.add_sub_swap.
+    rewrite yyy; reflexivity.
+
+   Focus 1.
+   destruct st₂ as [[| st₂]| ]; simpl.
+    Focus 1.
+    rewrite fld_add_comm.
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    symmetry.
+    rewrite fld_add_comm.
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    do 2 rewrite fld_add_ident.
+    rewrite series_nth_pad_S.
+    rewrite Z.mul_add_distr_r, Z.mul_1_l.
+    remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
+    remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
+    rewrite stretch_series_tail.
+    rewrite Z.add_sub_swap.
+    rewrite yyy; reflexivity.
+
     Unfocus.
     Focus 3.
     destruct st₂ as [[| st₂]| ]; simpl.
@@ -2432,6 +2412,14 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
      symmetry.
      rewrite fld_add_comm.
      rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+     do 2 rewrite fld_add_ident.
+     rewrite series_nth_pad_S.
+     rewrite Z.mul_add_distr_r, Z.mul_1_l.
+     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
+     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
+     rewrite stretch_series_tail.
+     rewrite Z.add_sub_swap.
+     rewrite yyy; reflexivity.
 bbb.
 
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
