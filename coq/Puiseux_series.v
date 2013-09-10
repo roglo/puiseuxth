@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.559 2013-09-10 19:08:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.560 2013-09-10 19:10:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2331,7 +2331,11 @@ Lemma yyy : ∀ s x c,
   ≃ series_pad_left fld (Z.to_nat x) (stretch_series fld c s).
 Proof.
 intros s x c.
-Admitted. (*
+rewrite <- stretch_series_tail.
+destruct x as [| x| x].
+ simpl.
+ rewrite series_pad_left_0.
+ rewrite stretch_series_tail.
 bbb.
 *)
 
