@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.556 2013-09-10 15:30:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.557 2013-09-10 18:40:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2419,7 +2419,19 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
     rewrite stretch_series_tail.
-    Focus 1.
+    Focus 2.
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    symmetry.
+    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+    Unfocus.
+    Focus 3.
+    destruct st₂ as [[| st₂]| ]; simpl.
+     Focus 1.
+     rewrite fld_add_comm.
+     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
+     symmetry.
+     rewrite fld_add_comm.
+     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
 bbb.
 
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
