@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.561 2013-09-10 19:20:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.562 2013-09-10 20:27:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2331,9 +2331,19 @@ Lemma yyy : ∀ s x c,
   ≃ series_pad_left fld (Z.to_nat x) (stretch_series fld c s).
 Proof.
 intros s x c.
-destruct x as [| x| x].
- simpl.
+destruct x as [| x| x]; simpl.
  rewrite series_pad_left_0.
+ rewrite <- Pos2Nat.inj_succ.
+Abort. (* ça a pas l'air vrai : un pad peut pas être égal à un stretch
+bbb.
+*)
+
+Lemma yyy : ∀ s v₁ v₂ c₁ c₂,
+  series_pad_left fld (S (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂ + ' c₁)))
+    (stretch_series fld c₁ (series_tail s))
+  ≃ series_pad_left fld (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))
+      (stretch_series fld c₁ s).
+Proof.
 bbb.
 *)
 
@@ -2369,12 +2379,11 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     do 2 rewrite fld_add_ident.
     rewrite series_nth_pad_S.
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
-    remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
     rewrite Z.add_sub_swap.
     rewrite yyy; reflexivity.
 
     Focus 1.
+bbb.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     symmetry.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
