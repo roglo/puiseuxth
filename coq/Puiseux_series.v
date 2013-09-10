@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.558 2013-09-10 19:05:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.559 2013-09-10 19:08:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2327,10 +2327,11 @@ Qed.
 
 Lemma yyy : ∀ s x c,
   series_pad_left fld (S (Z.to_nat (x + ' c )))
-    (series_tail_n (Pos.to_nat (c)) (stretch_series fld c s))
+    (stretch_series fld c (series_tail s))
   ≃ series_pad_left fld (Z.to_nat x) (stretch_series fld c s).
 Proof.
 intros s x c.
+Admitted. (*
 bbb.
 *)
 
@@ -2368,8 +2369,6 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
-    rewrite stretch_series_tail.
-    Focus 1.
     rewrite Z.add_sub_swap.
     rewrite yyy; reflexivity.
 
@@ -2382,7 +2381,6 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
-    rewrite stretch_series_tail.
     rewrite Z.add_sub_swap.
     rewrite yyy; reflexivity.
 
@@ -2399,7 +2397,6 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
-    rewrite stretch_series_tail.
     rewrite Z.add_sub_swap.
     rewrite yyy; reflexivity.
 
@@ -2417,7 +2414,6 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
      rewrite Z.mul_add_distr_r, Z.mul_1_l.
      remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
      remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
-     rewrite stretch_series_tail.
      rewrite Z.add_sub_swap.
      rewrite yyy; reflexivity.
 bbb.
