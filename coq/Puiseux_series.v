@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.550 2013-09-10 03:02:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.551 2013-09-10 03:42:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2312,7 +2312,6 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    reflexivity.
     reflexivity.
 
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
