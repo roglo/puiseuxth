@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.554 2013-09-10 14:22:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.555 2013-09-10 15:09:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2314,6 +2314,44 @@ rewrite <- Nat.sub_add_distr, Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
+Lemma series_nth_tail : ∀ i s,
+  series_nth_fld fld i (series_tail s) = series_nth_fld fld (S i) s.
+Proof.
+intros i s.
+unfold series_nth_fld, series_tail; simpl.
+remember (stop s) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ].
+ destruct (Nbar.lt_dec (fin i) (fin (st - 1))) as [H₁| H₁].
+  destruct (Nbar.lt_dec (fin (S i)) (fin st)) as [H₂| H₂].
+   reflexivity.
+
+   destruct st as [| st].
+    apply Nbar.nle_gt in H₁.
+    exfalso; apply H₁, Nbar.le_0_l.
+
+    simpl in H₁; rewrite Nat.sub_0_r in H₁.
+    apply Nbar.succ_lt_mono in H₁.
+    exfalso; apply H₂; assumption.
+
+  destruct (Nbar.lt_dec (fin (S i)) (fin st)) as [H₂| H₂].
+   destruct st as [| st].
+    apply Nbar.nle_gt in H₂.
+    exfalso; apply H₂, Nbar.le_0_l.
+
+    simpl in H₁; rewrite Nat.sub_0_r in H₁.
+    exfalso; apply H₁, Nbar.succ_lt_mono.
+    assumption.
+
+   reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
+  destruct (Nbar.lt_dec (fin (S i)) ∞) as [H₂| H₂]; [ reflexivity | idtac ].
+  exfalso; apply H₂; constructor.
+
+  exfalso; apply H₁; constructor.
+Qed.
+
 Lemma yyy : ∀ k s,
   stretch_series fld k (series_tail s)
   ≃ series_tail_n (Pos.to_nat k) (stretch_series fld k s).
@@ -2363,6 +2401,22 @@ induction i; intros.
   destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁]; [ idtac | reflexivity ].
   destruct (Nbar.lt_dec 1 ∞) as [H₂| H₂]; [ reflexivity | idtac ].
   exfalso; apply H₂; constructor.
+
+ unfold series_nth_fld; simpl.
+ rewrite <- Nat.add_succ_l.
+ rewrite Nat.add_mod; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.mod_same; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.add_0_r.
+ rewrite Nat.mod_mod; [ idtac | apply Pos2Nat_ne_0 ].
+ remember (stop s) as st eqn:Hst .
+ symmetry in Hst.
+ destruct st as [st| ].
+  simpl.
+  rewrite Nat.mul_sub_distr_r, Nat.mul_1_l.
+  remember (fin (st * Pos.to_nat k - Pos.to_nat k)) as x.
+  destruct (Nbar.lt_dec (fin (S i)) x) as [H₁| ]; [ idtac | reflexivity ].
+  destruct (zerop (S i mod Pos.to_nat k)) as [H₂| ]; [ idtac | reflexivity ].
+  rewrite series_nth_tail.
 bbb.
 
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
