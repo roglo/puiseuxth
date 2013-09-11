@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.570 2013-09-11 20:32:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.571 2013-09-11 21:06:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2431,6 +2431,34 @@ intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
 rewrite Nat.mul_0_l.
+revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
+induction n; intros.
+ inversion H₂₃; subst.
+ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
+  inversion H1; subst.
+  constructor; intros i.
+  remember norm_nz as f.
+  unfold nz_terms_add.
+  unfold cm_factor, cm; simpl.
+  do 2 rewrite stretch_series_add_distr.
+  do 4 rewrite stretch_pad_series_distr.
+  do 4 rewrite <- stretch_stretch_series.
+  do 4 rewrite Pos.mul_comm, stretch_stretch_series.
+  subst f; simpl.
+  unfold cm_factor, cm; simpl.
+  remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+  remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+  remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+  remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+  remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+  remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
+  rewrite Z.min_comm, Pos.mul_comm, Z.sub_diag; symmetry.
+  rewrite Z.min_comm, Pos.mul_comm, Z.sub_diag; symmetry.
+  simpl.
+  do 4 rewrite series_pad_left_0.
+  do 8 rewrite stretch_pad_series_distr.
+  do 8 rewrite <- stretch_stretch_series.
+  Focus 1.
 bbb.
 
 intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
