@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.564 2013-09-11 02:07:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.565 2013-09-11 02:24:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2339,7 +2339,7 @@ Abort. ça a pas l'air vrai : un pad peut pas être égal à un stretch
 bbb.
 *)
 
-(**)
+(*
 Lemma yyy : ∀ s v₁ v₂ c₁ c₂ i,
    series_nth_fld fld (S i)
      (series_pad_left fld (S (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂ + ' c₁)))
@@ -2376,8 +2376,17 @@ destruct st as [st| ]; simpl.
     destruct (lt_dec (S i) (S p₁)) as [H₂| H₂].
      destruct (Nbar.lt_dec (fin (S i)) (fin (p₁ + st * p₁))) as [H₃| H₃].
       destruct (zerop (S i mod p₁)) as [H₄| ]; [ idtac | reflexivity ].
+      apply Nat.mod_divides in H₄; [ idtac | subst p₁; apply Pos2Nat_ne_0 ].
+      destruct H₄ as (k, Hi); rewrite Hi in H₁, H₂, H₃.
+      destruct k.
+       rewrite Nat.mul_0_r in Hi; discriminate Hi.
+
+       destruct k.
+        rewrite Nat.mul_1_r in H₁, H₂, H₃, Hi.
+        clear H₁ H₂.
 Focus 1.
 bbb.
+pas démontrable et pas de contradiction : lemme faux.
 *)
 
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
