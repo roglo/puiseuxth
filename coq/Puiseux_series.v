@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.562 2013-09-10 20:27:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.563 2013-09-11 02:01:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2325,6 +2325,7 @@ destruct st as [st| ]; simpl.
   rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
+(*
 Lemma yyy : ∀ s x c,
   series_pad_left fld (S (Z.to_nat (x + ' c )))
     (stretch_series fld c (series_tail s))
@@ -2334,17 +2335,55 @@ intros s x c.
 destruct x as [| x| x]; simpl.
  rewrite series_pad_left_0.
  rewrite <- Pos2Nat.inj_succ.
-Abort. (* ça a pas l'air vrai : un pad peut pas être égal à un stretch
+Abort. ça a pas l'air vrai : un pad peut pas être égal à un stretch
 bbb.
 *)
 
-Lemma yyy : ∀ s v₁ v₂ c₁ c₂,
-  series_pad_left fld (S (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂ + ' c₁)))
-    (stretch_series fld c₁ (series_tail s))
-  ≃ series_pad_left fld (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))
-      (stretch_series fld c₁ s).
+(**)
+Lemma yyy : ∀ s v₁ v₂ c₁ c₂ i,
+   series_nth_fld fld (S i)
+     (series_pad_left fld (S (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂ + ' c₁)))
+        (stretch_series fld c₁ (series_tail s)))
+   ≍ series_nth_fld fld (S i)
+       (series_pad_left fld (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))
+          (stretch_series fld c₁ s)).
 Proof.
+intros s v₁ v₂ c₁ c₂ i.
 bbb.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+remember (stop s) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ]; simpl.
+ remember (v₂ * ' c₁ - v₁ * ' c₂)%Z as vcvc eqn:Hvcvc .
+ symmetry in Hvcvc.
+ destruct vcvc as [| vcvc| vcvc]; simpl.
+  rewrite Nat.add_0_r, Nat.sub_0_r.
+  destruct st as [| st]; simpl.
+   destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
+    apply Nbar.nle_gt in H₁.
+    exfalso; apply H₁, Nbar.le_0_l.
+
+    clear H₁.
+    destruct (Nbar.lt_dec (fin i) (fin (S (Pos.to_nat c₁)))) as [H₁| H₁].
+     destruct (lt_dec i (S (Pos.to_nat c₁))) as [H₂| H₂].
+      reflexivity.
+
+      exfalso; apply H₂, Nbar.fin_lt_mono; assumption.
+
+     reflexivity.
+
+   rewrite Nat.sub_0_r.
+   remember (Pos.to_nat c₁) as p₁ eqn:Hp₁ .
+   destruct (Nbar.lt_dec (fin i) (fin (st * p₁ + S p₁))) as [H₁| H₁].
+    destruct (lt_dec i (S p₁)) as [H₂| H₂].
+     destruct (Nbar.lt_dec (fin i) (fin (p₁ + st * p₁))) as [H₃| H₃].
+      destruct (zerop (i mod p₁)) as [H₄| ]; [ idtac | reflexivity ].
+      apply Nat.mod_divides in H₄; [ idtac | subst p₁; apply Pos2Nat_ne_0 ].
+      destruct H₄ as (k, Hi); subst i.
+Focus 1.
+bbb.
+bloqué : c'est faux
 *)
 
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
@@ -2380,18 +2419,16 @@ destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
     rewrite series_nth_pad_S.
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
     rewrite Z.add_sub_swap.
+Focus 1.
     rewrite yyy; reflexivity.
 
     Focus 1.
-bbb.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     symmetry.
     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
     do 2 rewrite fld_add_ident.
     rewrite series_nth_pad_S.
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
-    remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
     rewrite Z.add_sub_swap.
     rewrite yyy; reflexivity.
 
@@ -2406,8 +2443,6 @@ bbb.
     do 2 rewrite fld_add_ident.
     rewrite series_nth_pad_S.
     rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
-    remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
     rewrite Z.add_sub_swap.
     rewrite yyy; reflexivity.
 
@@ -2423,8 +2458,6 @@ bbb.
      do 2 rewrite fld_add_ident.
      rewrite series_nth_pad_S.
      rewrite Z.mul_add_distr_r, Z.mul_1_l.
-     remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as x.
-     remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as y.
      rewrite Z.add_sub_swap.
      rewrite yyy; reflexivity.
 bbb.
