@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.566 2013-09-11 02:44:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.567 2013-09-11 13:53:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2326,83 +2326,23 @@ destruct st as [st| ]; simpl.
 Qed.
 
 (*
-c'est faux : il y a des stretch et des pad avant l'égalité
-Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
+Mouais... faudra peut-être passer par là quand même...
+Definition norm_nz v nz₁ nz₂ :=
+  let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
+  let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
+  let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
+  let s'₁ := series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁ in
+  {| nz_terms := s'₁;
+     nz_valnum := Z.min v₁ v₂ + Z.of_nat v;
+     nz_comden := cm nz₁ nz₂ |}.
+
+Lemma yyy : ∀ nz₁ nz₂ v,
   series_tail (nz_terms_add fld nz₁ nz₂)
-  ≃ nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂).
+  ≃ nz_terms_add fld
+      (nz_tail (norm_nz v nz₁ nz₂))
+      (nz_tail (norm_nz v nz₂ nz₁)).
 Proof.
-intros nz₁ nz₂.
-bbb.
-semble bloquer...
-constructor; intros i.
-unfold series_nth_fld.
-remember (nz_terms_add fld nz₁ nz₂) as s₁ eqn:Hs₁ .
-remember (nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂)) as s₂ eqn:Hs₂ .
-destruct (Nbar.lt_dec (fin i) (stop (series_tail s₁))) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop s₂)) as [H₂| H₂].
-  simpl.
-  rewrite Hs₁, Hs₂; simpl.
-  unfold cm_factor; simpl.
-  unfold nz_tail; simpl.
-  remember (stop (nz_terms nz₁)) as st₁ eqn:Hst₁ .
-  remember (stop (nz_terms nz₂)) as st₂ eqn:Hst₂ .
-  symmetry in Hst₁, Hst₂.
-  destruct st₁ as [[| st₁]| ].
-   destruct st₂ as [[| st₂]| ]; simpl.
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    reflexivity.
-
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    symmetry.
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    do 2 rewrite fld_add_ident.
-    rewrite series_nth_pad_S.
-    rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    rewrite Z.add_sub_swap.
-Focus 1.
-    rewrite yyy; reflexivity.
-
-    Focus 1.
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    symmetry.
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    do 2 rewrite fld_add_ident.
-    rewrite series_nth_pad_S.
-    rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    rewrite Z.add_sub_swap.
-    rewrite yyy; reflexivity.
-
-   Focus 1.
-   destruct st₂ as [[| st₂]| ]; simpl.
-    Focus 1.
-    rewrite fld_add_comm.
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    symmetry.
-    rewrite fld_add_comm.
-    rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-    do 2 rewrite fld_add_ident.
-    rewrite series_nth_pad_S.
-    rewrite Z.mul_add_distr_r, Z.mul_1_l.
-    rewrite Z.add_sub_swap.
-    rewrite yyy; reflexivity.
-
-    Unfocus.
-    Focus 3.
-    destruct st₂ as [[| st₂]| ]; simpl.
-     Focus 1.
-     rewrite fld_add_comm.
-     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-     symmetry.
-     rewrite fld_add_comm.
-     rewrite stop_0_series_nth_pad_stretch_0; [ idtac | assumption ].
-     do 2 rewrite fld_add_ident.
-     rewrite series_nth_pad_S.
-     rewrite Z.mul_add_distr_r, Z.mul_1_l.
-     rewrite Z.add_sub_swap.
-     rewrite yyy; reflexivity.
+Admitted.
 bbb.
 *)
 
