@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.565 2013-09-11 02:24:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.566 2013-09-11 02:44:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2326,74 +2326,14 @@ destruct st as [st| ]; simpl.
 Qed.
 
 (*
-Lemma yyy : ∀ s x c,
-  series_pad_left fld (S (Z.to_nat (x + ' c )))
-    (stretch_series fld c (series_tail s))
-  ≃ series_pad_left fld (Z.to_nat x) (stretch_series fld c s).
-Proof.
-intros s x c.
-destruct x as [| x| x]; simpl.
- rewrite series_pad_left_0.
- rewrite <- Pos2Nat.inj_succ.
-Abort. ça a pas l'air vrai : un pad peut pas être égal à un stretch
-bbb.
-*)
-
-(*
-Lemma yyy : ∀ s v₁ v₂ c₁ c₂ i,
-   series_nth_fld fld (S i)
-     (series_pad_left fld (S (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂ + ' c₁)))
-        (stretch_series fld c₁ (series_tail s)))
-   ≍ series_nth_fld fld (S i)
-       (series_pad_left fld (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))
-          (stretch_series fld c₁ s)).
-Proof.
-intros s v₁ v₂ c₁ c₂ i.
-unfold series_nth_fld; simpl.
-remember (stop s) as st eqn:Hst .
-symmetry in Hst.
-destruct st as [st| ]; simpl.
- remember (v₂ * ' c₁ - v₁ * ' c₂)%Z as vcvc eqn:Hvcvc .
- symmetry in Hvcvc.
- destruct vcvc as [| vcvc| vcvc]; simpl.
-  destruct st as [| st]; simpl.
-   destruct (Nbar.lt_dec (fin (S i)) 0) as [H₁| H₁].
-    apply Nbar.nle_gt in H₁.
-    exfalso; apply H₁, Nbar.le_0_l.
-
-    clear H₁.
-    destruct (Nbar.lt_dec (fin (S i)) (fin (S (Pos.to_nat c₁)))) as [H₁| H₁].
-     destruct (lt_dec (S i) (S (Pos.to_nat c₁))) as [H₂| H₂].
-      reflexivity.
-
-      exfalso; apply H₂, Nbar.fin_lt_mono; assumption.
-
-     reflexivity.
-
-   rewrite Nat.sub_0_r, Nat.add_0_r.
-   remember (Pos.to_nat c₁) as p₁ eqn:Hp₁ .
-   destruct (Nbar.lt_dec (fin (S i)) (fin (st * p₁ + S p₁))) as [H₁| H₁].
-    destruct (lt_dec (S i) (S p₁)) as [H₂| H₂].
-     destruct (Nbar.lt_dec (fin (S i)) (fin (p₁ + st * p₁))) as [H₃| H₃].
-      destruct (zerop (S i mod p₁)) as [H₄| ]; [ idtac | reflexivity ].
-      apply Nat.mod_divides in H₄; [ idtac | subst p₁; apply Pos2Nat_ne_0 ].
-      destruct H₄ as (k, Hi); rewrite Hi in H₁, H₂, H₃.
-      destruct k.
-       rewrite Nat.mul_0_r in Hi; discriminate Hi.
-
-       destruct k.
-        rewrite Nat.mul_1_r in H₁, H₂, H₃, Hi.
-        clear H₁ H₂.
-Focus 1.
-bbb.
-pas démontrable et pas de contradiction : lemme faux.
-*)
-
+c'est faux : il y a des stretch et des pad avant l'égalité
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
   series_tail (nz_terms_add fld nz₁ nz₂)
   ≃ nz_terms_add fld (nz_tail nz₁) (nz_tail nz₂).
 Proof.
 intros nz₁ nz₂.
+bbb.
+semble bloquer...
 constructor; intros i.
 unfold series_nth_fld.
 remember (nz_terms_add fld nz₁ nz₂) as s₁ eqn:Hs₁ .
@@ -2464,6 +2404,7 @@ Focus 1.
      rewrite Z.add_sub_swap.
      rewrite yyy; reflexivity.
 bbb.
+*)
 
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
