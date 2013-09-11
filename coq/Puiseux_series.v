@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.567 2013-09-11 13:53:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.568 2013-09-11 16:43:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2325,27 +2325,40 @@ destruct st as [st| ]; simpl.
   rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
-(*
-Mouais... faudra peut-être passer par là quand même...
-Definition norm_nz v nz₁ nz₂ :=
+Definition norm_nz nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
   let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
   let s'₁ := series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁ in
   {| nz_terms := s'₁;
-     nz_valnum := Z.min v₁ v₂ + Z.of_nat v;
+     nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
 Lemma yyy : ∀ nz₁ nz₂ v,
-  series_tail (nz_terms_add fld nz₁ nz₂)
-  ≃ nz_terms_add fld
-      (nz_tail (norm_nz v nz₁ nz₂))
-      (nz_tail (norm_nz v nz₂ nz₁)).
+  NonZero (build_nz_add fld v nz₁ nz₂)
+  ≈ NonZero
+      (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
+         (norm_nz nz₁ nz₂) (norm_nz nz₂ nz₁)).
 Proof.
-Admitted.
+intros nz₁ nz₂ v.
+remember (nz_comden nz₁ * nz_comden nz₂)%positive as c.
+constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
+bbb.
+
+ 2: unfold cm_factor, cm; simpl.
+ 2: remember (nz_valnum nz₁) as v₁.
+ 2: remember (nz_valnum nz₂) as v₂.
+ 2: remember (nz_comden nz₂) as c₂.
+ 2: remember (nz_comden nz₁) as c₁.
+ 2: rewrite Z.mul_1_r.
+ 2: symmetry.
+ 2: rewrite Z.min_l.
+  2: rewrite Nat2Z.inj_mul.
+  2: rewrite positive_nat_Z.
 bbb.
 *)
 
+(**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
   → first_nonzero fld (nz_terms_add fld nz₁ nz₃) = fin n
@@ -2353,6 +2366,12 @@ Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
       → NonZero (build_nz_add fld 0 nz₁ nz₂)
         ≈ NonZero (build_nz_add fld n nz₁ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
+rewrite yyy; symmetry.
+rewrite yyy; symmetry.
+rewrite Nat.mul_0_l.
+bbb.
+
 intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
 revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
 induction n; intros.
