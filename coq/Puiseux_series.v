@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.563 2013-09-11 02:01:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.564 2013-09-11 02:07:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2349,8 +2349,6 @@ Lemma yyy : ∀ s v₁ v₂ c₁ c₂ i,
           (stretch_series fld c₁ s)).
 Proof.
 intros s v₁ v₂ c₁ c₂ i.
-bbb.
-constructor; intros i.
 unfold series_nth_fld; simpl.
 remember (stop s) as st eqn:Hst .
 symmetry in Hst.
@@ -2358,32 +2356,28 @@ destruct st as [st| ]; simpl.
  remember (v₂ * ' c₁ - v₁ * ' c₂)%Z as vcvc eqn:Hvcvc .
  symmetry in Hvcvc.
  destruct vcvc as [| vcvc| vcvc]; simpl.
-  rewrite Nat.add_0_r, Nat.sub_0_r.
   destruct st as [| st]; simpl.
-   destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
+   destruct (Nbar.lt_dec (fin (S i)) 0) as [H₁| H₁].
     apply Nbar.nle_gt in H₁.
     exfalso; apply H₁, Nbar.le_0_l.
 
     clear H₁.
-    destruct (Nbar.lt_dec (fin i) (fin (S (Pos.to_nat c₁)))) as [H₁| H₁].
-     destruct (lt_dec i (S (Pos.to_nat c₁))) as [H₂| H₂].
+    destruct (Nbar.lt_dec (fin (S i)) (fin (S (Pos.to_nat c₁)))) as [H₁| H₁].
+     destruct (lt_dec (S i) (S (Pos.to_nat c₁))) as [H₂| H₂].
       reflexivity.
 
       exfalso; apply H₂, Nbar.fin_lt_mono; assumption.
 
      reflexivity.
 
-   rewrite Nat.sub_0_r.
+   rewrite Nat.sub_0_r, Nat.add_0_r.
    remember (Pos.to_nat c₁) as p₁ eqn:Hp₁ .
-   destruct (Nbar.lt_dec (fin i) (fin (st * p₁ + S p₁))) as [H₁| H₁].
-    destruct (lt_dec i (S p₁)) as [H₂| H₂].
-     destruct (Nbar.lt_dec (fin i) (fin (p₁ + st * p₁))) as [H₃| H₃].
-      destruct (zerop (i mod p₁)) as [H₄| ]; [ idtac | reflexivity ].
-      apply Nat.mod_divides in H₄; [ idtac | subst p₁; apply Pos2Nat_ne_0 ].
-      destruct H₄ as (k, Hi); subst i.
+   destruct (Nbar.lt_dec (fin (S i)) (fin (st * p₁ + S p₁))) as [H₁| H₁].
+    destruct (lt_dec (S i) (S p₁)) as [H₂| H₂].
+     destruct (Nbar.lt_dec (fin (S i)) (fin (p₁ + st * p₁))) as [H₃| H₃].
+      destruct (zerop (S i mod p₁)) as [H₄| ]; [ idtac | reflexivity ].
 Focus 1.
 bbb.
-bloqué : c'est faux
 *)
 
 Lemma series_tail_nz_terms_add : ∀ nz₁ nz₂,
