@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.568 2013-09-11 16:43:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.569 2013-09-11 18:10:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2343,6 +2343,46 @@ Proof.
 intros nz₁ nz₂ v.
 remember (nz_comden nz₁ * nz_comden nz₂)%positive as c.
 constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
+ constructor; intros i.
+ unfold norm_nz; simpl.
+ unfold series_nth_fld; simpl.
+ unfold cm_factor, cm; simpl.
+ remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+ remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+ remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+ remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+ rewrite divmod_div.
+ rewrite Nat.div_1_r.
+ rewrite Z.min_comm.
+ replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
+ rewrite Z.sub_diag.
+ simpl.
+ do 2 rewrite Nbar.add_0_r.
+ remember (Z.to_nat (v₁ * ' c₂ - v₂ * ' c₁))%Z as vc₁ eqn:Hvc₁ .
+ remember (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))%Z as vc₂ eqn:Hvc₂ .
+ rewrite Nbar.mul_1_r.
+ rewrite Nbar.mul_max_distr_r.
+ remember
+  (Nbar.max (stop (nz_terms nz₁) * fin (Pos.to_nat c₂) + fin vc₁)
+     (stop (nz_terms nz₂) * fin (Pos.to_nat c₁) + fin vc₂) *
+   fin (Pos.to_nat (c₁ * c₂)))%Nbar as x.
+ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
+  destruct (zerop (i mod Pos.to_nat (c₁ * c₂))) as [H₂| H₂].
+   apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H₂ as (k, Hi).
+   rewrite Hi.
+   rewrite Nat.mul_comm.
+   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+   unfold nz_terms_add; simpl.
+   unfold cm_factor; simpl.
+   rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
+   rewrite <- Hvc₁, <- Hvc₂.
+   rewrite Z.sub_diag; simpl.
+   do 2 rewrite series_pad_left_0.
+   rewrite <- stretch_series_add_distr.
+   rewrite Nat.mul_comm.
+   rewrite series_nth_fld_mul_stretch.
+   reflexivity.
 bbb.
 
  2: unfold cm_factor, cm; simpl.
