@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.569 2013-09-11 18:10:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.570 2013-09-11 20:32:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2334,7 +2334,7 @@ Definition norm_nz nz₁ nz₂ :=
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
-Lemma yyy : ∀ nz₁ nz₂ v,
+Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
   ≈ NonZero
       (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
@@ -2344,7 +2344,6 @@ intros nz₁ nz₂ v.
 remember (nz_comden nz₁ * nz_comden nz₂)%positive as c.
 constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  constructor; intros i.
- unfold norm_nz; simpl.
  unfold series_nth_fld; simpl.
  unfold cm_factor, cm; simpl.
  remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
@@ -2355,8 +2354,7 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  rewrite Nat.div_1_r.
  rewrite Z.min_comm.
  replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
- rewrite Z.sub_diag.
- simpl.
+ rewrite Z.sub_diag; simpl.
  do 2 rewrite Nbar.add_0_r.
  remember (Z.to_nat (v₁ * ' c₂ - v₂ * ' c₁))%Z as vc₁ eqn:Hvc₁ .
  remember (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))%Z as vc₂ eqn:Hvc₂ .
@@ -2366,37 +2364,60 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   (Nbar.max (stop (nz_terms nz₁) * fin (Pos.to_nat c₂) + fin vc₁)
      (stop (nz_terms nz₂) * fin (Pos.to_nat c₁) + fin vc₂) *
    fin (Pos.to_nat (c₁ * c₂)))%Nbar as x.
- destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
-  destruct (zerop (i mod Pos.to_nat (c₁ * c₂))) as [H₂| H₂].
-   apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct H₂ as (k, Hi).
-   rewrite Hi.
-   rewrite Nat.mul_comm.
-   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-   unfold nz_terms_add; simpl.
-   unfold cm_factor; simpl.
-   rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
-   rewrite <- Hvc₁, <- Hvc₂.
-   rewrite Z.sub_diag; simpl.
-   do 2 rewrite series_pad_left_0.
-   rewrite <- stretch_series_add_distr.
-   rewrite Nat.mul_comm.
-   rewrite series_nth_fld_mul_stretch.
-   reflexivity.
-bbb.
+ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
+ destruct (zerop (i mod Pos.to_nat (c₁ * c₂))) as [H₂| H₂].
+  apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+  destruct H₂ as (k, Hi).
+  rewrite Hi.
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+  unfold nz_terms_add; simpl.
+  unfold cm_factor, cm; simpl.
+  rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
+  rewrite <- Hvc₁, <- Hvc₂.
+  rewrite Z.min_comm.
+  replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
+  rewrite Z.sub_diag; simpl.
+  do 2 rewrite series_pad_left_0.
+  rewrite <- stretch_series_add_distr.
+  rewrite Nat.mul_comm.
+  rewrite series_nth_fld_mul_stretch.
+  reflexivity.
 
- 2: unfold cm_factor, cm; simpl.
- 2: remember (nz_valnum nz₁) as v₁.
- 2: remember (nz_valnum nz₂) as v₂.
- 2: remember (nz_comden nz₂) as c₂.
- 2: remember (nz_comden nz₁) as c₁.
- 2: rewrite Z.mul_1_r.
- 2: symmetry.
- 2: rewrite Z.min_l.
-  2: rewrite Nat2Z.inj_mul.
-  2: rewrite positive_nat_Z.
-bbb.
-*)
+  remember (norm_nz nz₁ nz₂) as nz'₁.
+  remember (norm_nz nz₂ nz₁) as nz'₂.
+  unfold nz_terms_add.
+  subst nz'₁ nz'₂; simpl.
+  Focus 1.
+  unfold cm_factor, cm; simpl.
+  rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
+  rewrite <- Hvc₁, <- Hvc₂.
+  rewrite Z.min_comm.
+  replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
+  rewrite Z.sub_diag; simpl.
+  do 2 rewrite series_pad_left_0.
+  rewrite <- stretch_series_add_distr.
+  symmetry.
+  rewrite padded_in_stretched; [ reflexivity | assumption ].
+
+ unfold cm_factor, cm; simpl.
+ rewrite Z.mul_1_r.
+ symmetry.
+ rewrite Z.min_l.
+  rewrite Nat2Z.inj_mul.
+  rewrite positive_nat_Z.
+  rewrite Z.mul_add_distr_r.
+  rewrite Pos.mul_comm.
+  reflexivity.
+
+  rewrite Z.min_comm, Pos.mul_comm; reflexivity.
+
+ rewrite Pos.mul_1_r.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ f_equal.
+ apply Pos.mul_comm.
+Qed.
 
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
@@ -2407,8 +2428,8 @@ Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
         ≈ NonZero (build_nz_add fld n nz₁ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
-rewrite yyy; symmetry.
-rewrite yyy; symmetry.
+rewrite nz_add_norm; symmetry.
+rewrite nz_add_norm; symmetry.
 rewrite Nat.mul_0_l.
 bbb.
 
