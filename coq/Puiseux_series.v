@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.575 2013-09-12 08:54:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.576 2013-09-12 10:00:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2332,6 +2332,19 @@ Definition norm_nz v c nz :=
   {| nz_terms := series_pad_left fld (Z.to_nat (v₁ - v₂)) s;
      nz_valnum := Z.min v₁ v₂;
      nz_comden := c * nz_comden nz |}.
+
+(*
+Lemma yyy : ∀ v₃ c₃ nz₁ nz₂ v,
+  NonZero (build_nz_add fld v nz₁ nz₂)
+  ≈ NonZero
+      (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
+         (norm_nz (nz_valnum nz₂ * v₃) (nz_comden nz₂ * c₃) nz₁)
+         (norm_nz (nz_valnum nz₁ * v₃) (nz_comden nz₁ * c₃) nz₂)).
+Proof.
+intros v₃ c₃ nz₁ nz₂ v.
+Admitted. (*
+bbb.
+*)
 
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
