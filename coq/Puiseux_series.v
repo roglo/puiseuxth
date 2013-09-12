@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.582 2013-09-12 19:36:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.583 2013-09-12 20:11:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2544,6 +2544,21 @@ induction n; intros.
               (stretch_series fld (c₁ * c₃ * k₂) (nz_terms nz₁)))
            (series_pad_left fld (y * Pos.to_nat c₁)
               (stretch_series fld (c₁ * k₂ * c₁) (nz_terms nz₃)))) as z.
+       do 2 rewrite <- Pos.mul_assoc in Heqz.
+       subst z.
+       rewrite stretch_stretch_series.
+       rewrite <- stretch_pad_series_distr.
+       rewrite series_add_comm.
+       rewrite stretch_stretch_series.
+       rewrite <- stretch_pad_series_distr.
+       rewrite <- stretch_series_add_distr.
+       remember
+        (stretch_series fld c₁
+           (series_add fld
+              (series_pad_left fld y
+                 (stretch_series fld (k₂ * c₁) (nz_terms nz₃)))
+              (series_pad_left fld x
+                 (stretch_series fld (c₃ * k₂) (nz_terms nz₁))))) as z.
 Focus 1.
 bbb.
 *)
