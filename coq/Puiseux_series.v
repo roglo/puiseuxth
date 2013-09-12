@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.572 2013-09-12 01:49:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.573 2013-09-12 02:38:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2334,16 +2334,6 @@ Definition norm_nz nz₁ nz₂ :=
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
-Lemma nz_norm : ∀ nz₁ nz₂,
-  NonZero nz₁ ≈ NonZero (norm_nz nz₁ nz₂).
-Proof.
-intros nz₁ nz₂.
-remember (nz_comden nz₂)%positive as c.
-constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
- 3: unfold cm; simpl.
- 2: unfold cm_factor; simpl.
-bbb.
-
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
   ≈ NonZero
@@ -2398,7 +2388,6 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   remember (norm_nz nz₂ nz₁) as nz'₂.
   unfold nz_terms_add.
   subst nz'₁ nz'₂; simpl.
-  Focus 1.
   unfold cm_factor, cm; simpl.
   rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
   rewrite <- Hvc₁, <- Hvc₂.
@@ -2429,6 +2418,33 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  apply Pos.mul_comm.
 Qed.
 
+Lemma nz_norm : ∀ nz₁ nz₂,
+  NonZero nz₁ ≈ NonZero (norm_nz nz₁ nz₂).
+Proof.
+intros nz₁ nz₂.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
+destruct (Z.min_dec (v₁ * ' c₂) (v₂ * ' c₁)) as [H₁| H₁].
+ constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
+  2: unfold cm_factor; simpl.
+  2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+  3: unfold cm; simpl.
+  3: rewrite Hc₁, Hc₂.
+  2: rewrite H₁.
+  unfold cm_factor.
+  rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+  Focus 4.
+  constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
+   2: unfold cm_factor; simpl.
+   2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+   2: rewrite H₁.
+   3: unfold cm; simpl.
+   3: rewrite Hc₁, Hc₂.
+bbb.
+
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
@@ -2441,6 +2457,7 @@ intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
 rewrite Nat.mul_0_l.
+bbb.
 revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
 induction n; intros.
  inversion H₂₃; subst; simpl.
