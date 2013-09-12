@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.580 2013-09-12 14:27:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.581 2013-09-12 14:45:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2516,6 +2516,36 @@ induction n; intros.
       rewrite Pos_mul_shuffle0; reflexivity.
 
      rewrite H₁; clear H₁.
+     rewrite Nat.mul_assoc.
+     assert (c₁ * c₂ * k₂ * c₁ = c₂ * (c₁ * k₂ * c₁))%positive as H₁.
+      rewrite Pos.mul_assoc; f_equal.
+      rewrite Pos.mul_assoc; f_equal.
+      apply Pos.mul_comm.
+
+      rewrite H₁; clear H₁.
+      rewrite stretch_stretch_series.
+      rewrite <- stretch_pad_series_distr.
+      rewrite <- stretch_series_add_distr.
+      rewrite series_add_comm.
+      symmetry.
+      rewrite series_add_comm.
+      rewrite Nat.mul_assoc.
+      assert (c₁ * c₃ * k₂ * c₁ = c₃ * (c₁ * k₂ * c₁))%positive as H₁.
+       rewrite Pos.mul_assoc; f_equal.
+       rewrite Pos.mul_assoc; f_equal.
+       apply Pos.mul_comm.
+
+       rewrite H₁; clear H₁.
+       rewrite stretch_stretch_series.
+       rewrite <- stretch_pad_series_distr.
+       rewrite <- stretch_series_add_distr.
+       rewrite series_add_comm.
+       remember
+        (series_add fld
+           (series_pad_left fld (x * Pos.to_nat c₁)
+              (stretch_series fld (c₁ * c₃ * k₂) (nz_terms nz₁)))
+           (series_pad_left fld (y * Pos.to_nat c₁)
+              (stretch_series fld (c₁ * k₂ * c₁) (nz_terms nz₃)))) as z.
 Focus 1.
 bbb.
 *)
