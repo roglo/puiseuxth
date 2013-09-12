@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.576 2013-09-12 10:00:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.577 2013-09-12 11:43:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2342,7 +2342,28 @@ Lemma yyy : ∀ v₃ c₃ nz₁ nz₂ v,
          (norm_nz (nz_valnum nz₁ * v₃) (nz_comden nz₁ * c₃) nz₂)).
 Proof.
 intros v₃ c₃ nz₁ nz₂ v.
-Admitted. (*
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
+remember (c₁ * c₂ * c₃ * c₃)%positive as c.
+constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
+ Focus 3.
+ rewrite Pos.mul_1_r.
+ unfold cm; simpl.
+ rewrite Hc₁, Hc₂.
+ Unfocus.
+ Focus 2.
+ unfold cm_factor; simpl.
+ rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+ rewrite Z.mul_1_r.
+ remember (c₁ * c₂ * c₃)%positive as ccc eqn:Hccc .
+ rewrite Pos_mul_shuffle0 in Hccc.
+ rewrite <- Hccc.
+ rewrite Pos.mul_comm, Pos.mul_assoc, Pos_mul_shuffle0 in Hccc.
+ rewrite <- Hccc.
+ rewrite Z.mul_add_distr_r.
 bbb.
 *)
 
