@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.577 2013-09-12 11:43:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.578 2013-09-12 11:47:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2325,54 +2325,19 @@ destruct st as [st| ]; simpl.
   rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
-Definition norm_nz v c nz :=
-  let v₁ := (nz_valnum nz * 'c)%Z in
-  let v₂ := (v * 'nz_comden nz)%Z in
-  let s := stretch_series fld c (nz_terms nz) in
-  {| nz_terms := series_pad_left fld (Z.to_nat (v₁ - v₂)) s;
+Definition norm_nz nz₁ nz₂ :=
+  let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
+  let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
+  let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
+  {| nz_terms := series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁;
      nz_valnum := Z.min v₁ v₂;
-     nz_comden := c * nz_comden nz |}.
-
-(*
-Lemma yyy : ∀ v₃ c₃ nz₁ nz₂ v,
-  NonZero (build_nz_add fld v nz₁ nz₂)
-  ≈ NonZero
-      (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
-         (norm_nz (nz_valnum nz₂ * v₃) (nz_comden nz₂ * c₃) nz₁)
-         (norm_nz (nz_valnum nz₁ * v₃) (nz_comden nz₁ * c₃) nz₂)).
-Proof.
-intros v₃ c₃ nz₁ nz₂ v.
-remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
-remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
-remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
-remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
-symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
-remember (c₁ * c₂ * c₃ * c₃)%positive as c.
-constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
- Focus 3.
- rewrite Pos.mul_1_r.
- unfold cm; simpl.
- rewrite Hc₁, Hc₂.
- Unfocus.
- Focus 2.
- unfold cm_factor; simpl.
- rewrite Hv₁, Hv₂, Hc₁, Hc₂.
- rewrite Z.mul_1_r.
- remember (c₁ * c₂ * c₃)%positive as ccc eqn:Hccc .
- rewrite Pos_mul_shuffle0 in Hccc.
- rewrite <- Hccc.
- rewrite Pos.mul_comm, Pos.mul_assoc, Pos_mul_shuffle0 in Hccc.
- rewrite <- Hccc.
- rewrite Z.mul_add_distr_r.
-bbb.
-*)
+     nz_comden := cm nz₁ nz₂ |}.
 
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
   ≈ NonZero
       (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
-         (norm_nz (nz_valnum nz₂) (nz_comden nz₂) nz₁)
-         (norm_nz (nz_valnum nz₁) (nz_comden nz₁) nz₂)).
+         (norm_nz nz₁ nz₂) (norm_nz nz₂ nz₁)).
 Proof.
 intros nz₁ nz₂ v.
 remember (nz_comden nz₁ * nz_comden nz₂)%positive as c.
@@ -2384,6 +2349,7 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
  remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
  remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+ symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
  rewrite divmod_div.
  rewrite Nat.div_1_r.
  rewrite Z.min_comm.
@@ -2392,6 +2358,7 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  do 2 rewrite Nbar.add_0_r.
  remember (Z.to_nat (v₁ * ' c₂ - v₂ * ' c₁))%Z as vc₁ eqn:Hvc₁ .
  remember (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂))%Z as vc₂ eqn:Hvc₂ .
+ symmetry in Hvc₁, Hvc₂.
  rewrite Nbar.mul_1_r.
  rewrite Nbar.mul_max_distr_r.
  remember
@@ -2407,8 +2374,8 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
   unfold nz_terms_add; simpl.
   unfold cm_factor, cm; simpl.
-  rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
-  rewrite <- Hvc₁, <- Hvc₂.
+  rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+  rewrite Hvc₁, Hvc₂.
   rewrite Z.min_comm.
   replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
   rewrite Z.sub_diag; simpl.
@@ -2418,13 +2385,13 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   rewrite series_nth_fld_mul_stretch.
   reflexivity.
 
-  remember (norm_nz v₂ c₂ nz₁) as nz'₁.
-  remember (norm_nz v₁ c₁ nz₂) as nz'₂.
+  remember (norm_nz nz₁ nz₂) as nz'₁.
+  remember (norm_nz nz₂ nz₁) as nz'₂.
   unfold nz_terms_add.
   subst nz'₁ nz'₂; simpl.
   unfold cm_factor, cm; simpl.
-  rewrite <- Hv₁, <- Hv₂, <- Hc₁, <- Hc₂.
-  rewrite <- Hvc₁, <- Hvc₂.
+  rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+  rewrite Hvc₁, Hvc₂.
   rewrite Z.min_comm.
   replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
   rewrite Z.sub_diag; simpl.
