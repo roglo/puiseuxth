@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.571 2013-09-11 21:06:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.572 2013-09-12 01:49:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2334,6 +2334,16 @@ Definition norm_nz nz₁ nz₂ :=
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
+Lemma nz_norm : ∀ nz₁ nz₂,
+  NonZero nz₁ ≈ NonZero (norm_nz nz₁ nz₂).
+Proof.
+intros nz₁ nz₂.
+remember (nz_comden nz₂)%positive as c.
+constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
+ 3: unfold cm; simpl.
+ 2: unfold cm_factor; simpl.
+bbb.
+
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
   ≈ NonZero
@@ -2433,7 +2443,7 @@ rewrite nz_add_norm; symmetry.
 rewrite Nat.mul_0_l.
 revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
 induction n; intros.
- inversion H₂₃; subst.
+ inversion H₂₃; subst; simpl.
  constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
   inversion H1; subst.
   constructor; intros i.
