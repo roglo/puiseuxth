@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.573 2013-09-12 02:38:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.574 2013-09-12 03:48:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2325,14 +2325,54 @@ destruct st as [st| ]; simpl.
   rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
-Definition norm_nz nz₁ nz₂ :=
-  let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
-  let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
-  let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
-  let s'₁ := series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁ in
-  {| nz_terms := s'₁;
+Definition norm_nz v c nz :=
+  let v₁ := (nz_valnum nz * 'c)%Z in
+  let v₂ := (v * 'nz_comden nz)%Z in
+  let s := stretch_series fld c (nz_terms nz) in
+  {| nz_terms := series_pad_left fld (Z.to_nat (v₁ - v₂)) s;
      nz_valnum := Z.min v₁ v₂;
-     nz_comden := cm nz₁ nz₂ |}.
+     nz_comden := c * nz_comden nz |}.
+
+Lemma nz_norm : ∀ nz v c, NonZero nz ≈ NonZero (norm_nz v c nz).
+Proof.
+intros nz v c.
+remember (nz_valnum nz) as v₁ eqn:Hv₁ .
+remember (nz_comden nz) as c₁ eqn:Hc₁ .
+symmetry in Hv₁, Hc₁.
+destruct (Z.min_dec (v₁ * ' c) (v * ' c₁)) as [H₁| H₁].
+ constructor 1 with (k₁ := c) (k₂ := xH); simpl.
+  2: rewrite Hv₁, Hc₁.
+  2: rewrite H₁.
+  3: rewrite Hc₁.
+  Focus 4.
+  destruct v as [| v| v].
+   unfold norm_nz.
+   simpl.
+bbb.
+intros nz₁ nz₂.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
+destruct (Z.min_dec (v₁ * ' c₂) (v₂ * ' c₁)) as [H₁| H₁].
+ constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
+  2: unfold cm_factor; simpl.
+  2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+  3: unfold cm; simpl.
+  3: rewrite Hc₁, Hc₂.
+  2: rewrite H₁.
+  unfold cm_factor.
+  rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+  Focus 4.
+  constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
+   2: unfold cm_factor; simpl.
+   2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
+   2: rewrite H₁.
+   3: unfold cm; simpl.
+   3: rewrite Hc₁, Hc₂.
+bbb.
+*)
 
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
@@ -2417,33 +2457,6 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  f_equal.
  apply Pos.mul_comm.
 Qed.
-
-Lemma nz_norm : ∀ nz₁ nz₂,
-  NonZero nz₁ ≈ NonZero (norm_nz nz₁ nz₂).
-Proof.
-intros nz₁ nz₂.
-remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
-remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
-remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
-remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
-symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
-destruct (Z.min_dec (v₁ * ' c₂) (v₂ * ' c₁)) as [H₁| H₁].
- constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
-  2: unfold cm_factor; simpl.
-  2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
-  3: unfold cm; simpl.
-  3: rewrite Hc₁, Hc₂.
-  2: rewrite H₁.
-  unfold cm_factor.
-  rewrite Hv₁, Hv₂, Hc₁, Hc₂.
-  Focus 4.
-  constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
-   2: unfold cm_factor; simpl.
-   2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
-   2: rewrite H₁.
-   3: unfold cm; simpl.
-   3: rewrite Hc₁, Hc₂.
-bbb.
 
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
