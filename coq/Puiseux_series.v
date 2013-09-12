@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.581 2013-09-12 14:45:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.582 2013-09-12 19:36:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2421,17 +2421,15 @@ Qed.
 
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
-  first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
-  → first_nonzero fld (nz_terms_add fld nz₁ nz₃) = fin n
-    → NonZero nz₂ ≈ NonZero nz₃
-      → NonZero (build_nz_add fld 0 nz₁ nz₂)
-        ≈ NonZero (build_nz_add fld n nz₁ nz₃).
+  NonZero nz₂ ≈ NonZero nz₃
+  → NonZero (build_nz_add fld 0 nz₁ nz₂)
+    ≈ NonZero (build_nz_add fld n nz₁ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
+intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
 rewrite Nat.mul_0_l.
-revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
+revert nz₁ nz₂ nz₃ H₂₃.
 induction n; intros.
  inversion H₂₃; subst; simpl.
  constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
