@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.579 2013-09-12 13:41:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.580 2013-09-12 14:27:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2458,85 +2458,65 @@ induction n; intros.
   do 4 rewrite series_pad_left_0.
   do 8 rewrite stretch_pad_series_distr.
   do 8 rewrite <- stretch_stretch_series.
-  Focus 1.
   move H1 at bottom.
   move H2 at bottom.
   move H3 at bottom.
-  assert
-   (Z.to_nat (v₁ * ' c₂ - v₂ * ' c₁) * Pos.to_nat k₁ =
-    Z.to_nat (v₁ * ' c₃ - v₃ * ' c₁) * Pos.to_nat k₂)%nat 
-   as H₁.
+  remember (Z.to_nat (v₁ * ' c₃ - v₃ * ' c₁) * Pos.to_nat k₂)%nat as x.
+  assert (Z.to_nat (v₁ * ' c₂ - v₂ * ' c₁) * Pos.to_nat k₁ = x)%nat as H₁.
+   subst x.
    do 2 rewrite <- Z2Nat_inj_mul_pos_r.
    do 2 rewrite Z.mul_sub_distr_r.
    assert (v₂ * ' c₁ * ' k₁ = v₃ * ' c₁ * ' k₂)%Z as H₁.
-    rewrite Z.mul_shuffle0.
-    rewrite H2.
-    rewrite Z.mul_shuffle0.
-    reflexivity.
+    rewrite Z.mul_shuffle0, H2, Z.mul_shuffle0; reflexivity.
 
-    rewrite H₁; clear H₁.
-    rewrite <- Z.mul_assoc.
-    rewrite <- Pos2Z.inj_mul.
-    rewrite H3.
-    rewrite Pos2Z.inj_mul.
-    rewrite Z.mul_assoc; reflexivity.
+    rewrite H₁; clear H₁; rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+    rewrite H3, Pos2Z.inj_mul, Z.mul_assoc; reflexivity.
 
    rewrite H₁; clear H₁.
-  Focus 1.
-bbb.
+   rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
+   rewrite Pos.mul_comm.
+   rewrite stretch_stretch_series.
+   rewrite <- stretch_pad_series_distr.
+   rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
+   symmetry.
+   rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
+   rewrite Pos.mul_comm.
+   rewrite stretch_stretch_series.
+   rewrite <- stretch_pad_series_distr.
+   symmetry.
+   rewrite series_add_comm.
+   remember (Z.to_nat (v₃ * ' c₁ - v₁ * ' c₃) * Pos.to_nat k₂)%nat as y.
+   assert (Z.to_nat (v₂ * ' c₁ - v₁ * ' c₂) * Pos.to_nat k₁ = y)%nat as H₁.
+    subst y.
+    do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+    do 2 rewrite Z.mul_sub_distr_r.
+    assert (v₁ * ' c₂ * ' k₁ = v₁ * ' c₃ * ' k₂)%Z as H₁.
+     rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+     rewrite H3.
+     rewrite Pos2Z.inj_mul, Z.mul_assoc.
+     reflexivity.
 
-intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
-revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
-induction n; intros.
- inversion H₂₃; subst.
- constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
-  inversion H1; subst.
-  constructor; intros i.
-  unfold nz_terms_add.
-  unfold cm_factor, cm; simpl.
-  do 2 rewrite stretch_series_add_distr.
-  do 4 rewrite stretch_pad_series_distr.
-  do 4 rewrite <- stretch_stretch_series.
-  do 4 rewrite Pos.mul_comm, stretch_stretch_series.
-  rewrite H1.
-  do 3 rewrite <- stretch_stretch_series.
-  rewrite H3.
-  do 4 rewrite <- Z2Nat_inj_mul_pos_r.
-  do 4 rewrite Z.mul_sub_distr_r.
-  rewrite <- Z.mul_assoc.
-  rewrite <- Pos2Z.inj_mul.
-  rewrite H3.
-  rewrite Pos2Z.inj_mul.
-  rewrite Z.mul_assoc.
-  replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
-   (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
-   reflexivity.
+     rewrite H₁; clear H₁.
+     rewrite Z.mul_shuffle0, H2, Z.mul_shuffle0.
+     reflexivity.
 
-   rewrite Z.mul_shuffle0, <- H2.
-   rewrite Z.mul_shuffle0; reflexivity.
+    rewrite H₁; clear H₁.
+    assert
+     (stretch_series fld (c₁ * c₃ * k₂ * c₁) (nz_terms nz₂)
+      ≃ stretch_series fld (c₁ * c₂ * k₂ * c₁) (nz_terms nz₃)) 
+     as H₁.
+     assert (c₁ * c₃ * k₂ * c₁ = c₁ * c₂ * k₁ * c₁)%positive as H₁.
+      f_equal.
+      rewrite <- Pos.mul_assoc, <- H3, Pos.mul_assoc.
+      reflexivity.
 
-  unfold cm_factor; simpl.
-  do 2 rewrite Z.add_0_r.
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, H3.
-  rewrite Pos2Z.inj_mul, Z.mul_assoc.
-  replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
-   (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
-   reflexivity.
+      rewrite H₁; clear H₁.
+      rewrite Pos_mul_shuffle0.
+      rewrite stretch_stretch_series, H1, <- stretch_stretch_series.
+      rewrite Pos_mul_shuffle0; reflexivity.
 
-   rewrite <- Z.mul_assoc, Z.mul_comm.
-   rewrite Z.mul_shuffle0.
-   rewrite <- Z.mul_assoc, <- H2.
-   rewrite <- Z.mul_assoc, Z.mul_comm.
-   rewrite <- Z.mul_shuffle0, Z.mul_assoc.
-   reflexivity.
-
-  unfold cm.
-  rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
-  reflexivity.
-
- apply first_nonzero_S_tail in Hn₃.
+     rewrite H₁; clear H₁.
+Focus 1.
 bbb.
 *)
 
