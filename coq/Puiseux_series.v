@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.574 2013-09-12 03:48:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.575 2013-09-12 08:54:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2333,52 +2333,12 @@ Definition norm_nz v c nz :=
      nz_valnum := Z.min v₁ v₂;
      nz_comden := c * nz_comden nz |}.
 
-Lemma nz_norm : ∀ nz v c, NonZero nz ≈ NonZero (norm_nz v c nz).
-Proof.
-intros nz v c.
-remember (nz_valnum nz) as v₁ eqn:Hv₁ .
-remember (nz_comden nz) as c₁ eqn:Hc₁ .
-symmetry in Hv₁, Hc₁.
-destruct (Z.min_dec (v₁ * ' c) (v * ' c₁)) as [H₁| H₁].
- constructor 1 with (k₁ := c) (k₂ := xH); simpl.
-  2: rewrite Hv₁, Hc₁.
-  2: rewrite H₁.
-  3: rewrite Hc₁.
-  Focus 4.
-  destruct v as [| v| v].
-   unfold norm_nz.
-   simpl.
-bbb.
-intros nz₁ nz₂.
-remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
-remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
-remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
-remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
-symmetry in Hv₁, Hv₂, Hc₁, Hc₂.
-destruct (Z.min_dec (v₁ * ' c₂) (v₂ * ' c₁)) as [H₁| H₁].
- constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
-  2: unfold cm_factor; simpl.
-  2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
-  3: unfold cm; simpl.
-  3: rewrite Hc₁, Hc₂.
-  2: rewrite H₁.
-  unfold cm_factor.
-  rewrite Hv₁, Hv₂, Hc₁, Hc₂.
-  Focus 4.
-  constructor 1 with (k₁ := c₂) (k₂ := xH); simpl.
-   2: unfold cm_factor; simpl.
-   2: rewrite Hv₁, Hv₂, Hc₁, Hc₂.
-   2: rewrite H₁.
-   3: unfold cm; simpl.
-   3: rewrite Hc₁, Hc₂.
-bbb.
-*)
-
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
   NonZero (build_nz_add fld v nz₁ nz₂)
   ≈ NonZero
       (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
-         (norm_nz nz₁ nz₂) (norm_nz nz₂ nz₁)).
+         (norm_nz (nz_valnum nz₂) (nz_comden nz₂) nz₁)
+         (norm_nz (nz_valnum nz₁) (nz_comden nz₁) nz₂)).
 Proof.
 intros nz₁ nz₂ v.
 remember (nz_comden nz₁ * nz_comden nz₂)%positive as c.
@@ -2424,8 +2384,8 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   rewrite series_nth_fld_mul_stretch.
   reflexivity.
 
-  remember (norm_nz nz₁ nz₂) as nz'₁.
-  remember (norm_nz nz₂ nz₁) as nz'₂.
+  remember (norm_nz v₂ c₂ nz₁) as nz'₁.
+  remember (norm_nz v₁ c₁ nz₂) as nz'₂.
   unfold nz_terms_add.
   subst nz'₁ nz'₂; simpl.
   unfold cm_factor, cm; simpl.
