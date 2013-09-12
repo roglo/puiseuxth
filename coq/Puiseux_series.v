@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.578 2013-09-12 11:47:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.579 2013-09-12 13:41:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2431,7 +2431,6 @@ intros nz₁ nz₂ nz₃ n Hn₂ Hn₃ H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
 rewrite Nat.mul_0_l.
-bbb.
 revert nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
 induction n; intros.
  inversion H₂₃; subst; simpl.
@@ -2459,6 +2458,30 @@ induction n; intros.
   do 4 rewrite series_pad_left_0.
   do 8 rewrite stretch_pad_series_distr.
   do 8 rewrite <- stretch_stretch_series.
+  Focus 1.
+  move H1 at bottom.
+  move H2 at bottom.
+  move H3 at bottom.
+  assert
+   (Z.to_nat (v₁ * ' c₂ - v₂ * ' c₁) * Pos.to_nat k₁ =
+    Z.to_nat (v₁ * ' c₃ - v₃ * ' c₁) * Pos.to_nat k₂)%nat 
+   as H₁.
+   do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+   do 2 rewrite Z.mul_sub_distr_r.
+   assert (v₂ * ' c₁ * ' k₁ = v₃ * ' c₁ * ' k₂)%Z as H₁.
+    rewrite Z.mul_shuffle0.
+    rewrite H2.
+    rewrite Z.mul_shuffle0.
+    reflexivity.
+
+    rewrite H₁; clear H₁.
+    rewrite <- Z.mul_assoc.
+    rewrite <- Pos2Z.inj_mul.
+    rewrite H3.
+    rewrite Pos2Z.inj_mul.
+    rewrite Z.mul_assoc; reflexivity.
+
+   rewrite H₁; clear H₁.
   Focus 1.
 bbb.
 
