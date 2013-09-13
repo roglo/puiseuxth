@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.589 2013-09-13 18:07:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.590 2013-09-13 22:45:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1092,6 +1092,32 @@ Definition Qmin₃ x y z :=
   else
     if Qlt_le_dec z x then z else x.
 
+(**)
+Lemma xxx : ∀ V₁ V₂ V₃ n₁ n₂ qn₁ qn₂ vcc cvc ccv,
+  qn₁ = Z.of_nat n₁ # Qden V₁ * Qden V₂
+  → qn₂ = Z.of_nat n₂ # Qden V₂ * Qden V₃
+  → vcc = (Qnum V₁ * ' Qden V₂ * ' Qden V₃)%Z
+  → cvc = (Qnum V₂ * ' Qden V₁ * ' Qden V₃)%Z
+  → ccv = (Qnum V₃ * ' Qden V₂ * ' Qden V₁)%Z
+  → Qmin₃ V₁ V₂ (V₃ - qn₁) == Qmin₃ V₁ (V₂ + qn₂) (V₃ + qn₂)
+  → Z.to_nat (vcc - Z.min cvc (ccv - Z.of_nat n₁ * ' Qden V₃)) =
+    Z.to_nat (vcc - (Z.min cvc ccv + Z.of_nat n₂ * ' Qden V₁)).
+Proof.
+intros; subst.
+simpl in H4.
+unfold Qmin₃ in H4.
+destruct (Qlt_le_dec V₂ V₁) as [H₁| H₁].
+ destruct (Qlt_le_dec (V₃ - (Z.of_nat n₁ # Qden V₁ * Qden V₂)) V₂)
+  as [H₂| H₂].
+  destruct (Qlt_le_dec (V₂ + (Z.of_nat n₂ # Qden V₂ * Qden V₃)) V₁)
+   as [H₃| H₃].
+   destruct (Qlt_le_dec (V₃ + (Z.of_nat n₂ # Qden V₂ * Qden V₃))) as [H₄| H₄].
+    Focus 1.
+    unfold Qeq in H4.
+    simpl in H4.
+bbb.
+*)
+
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂ qn₁ qn₂ V₁ V₂ V₃,
   V₁ = nz_valnum nz₁ # nz_comden nz₁
   → V₂ = nz_valnum nz₂ # nz_comden nz₂
@@ -1137,10 +1163,15 @@ rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
 do 2 rewrite Z2Nat_sub_min1.
 rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
-subst V₁ V₂ V₃.
-unfold Qeq in Hm.
-
+replace c₁ with (Qden V₁) in * by (rewrite HV₁; reflexivity).
+replace c₂ with (Qden V₂) in * by (rewrite HV₂; reflexivity).
+replace c₃ with (Qden V₃) in * by (rewrite HV₃; reflexivity).
+replace v₁ with (Qnum V₁) in * by (rewrite HV₁; reflexivity).
+replace v₂ with (Qnum V₂) in * by (rewrite HV₂; reflexivity).
+replace v₃ with (Qnum V₃) in * by (rewrite HV₃; reflexivity).
+erewrite xxx; try eassumption.
 bbb.
+
 intros nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃.
 intros Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hm.
 constructor; intros i.
