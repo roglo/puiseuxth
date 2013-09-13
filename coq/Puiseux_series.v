@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.584 2013-09-13 02:09:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.585 2013-09-13 08:32:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1085,6 +1085,13 @@ apply lt_first_nonzero.
 rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
+
+Lemma yyy : ∀ nz₁ nz₂ nz₃ n,
+  nz_terms_add fld (build_nz_add fld n nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld nz₁ (build_nz_add fld n nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃.
+bbb.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
@@ -2325,6 +2332,7 @@ destruct st as [st| ]; simpl.
   rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
+(*
 Definition norm_nz nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
@@ -2464,8 +2472,9 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
    rewrite Z.min_assoc.
 bbb.
 mmm.... pas sûr que ce soit bon.
+*)
 
-(**)
+(*
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   NonZero nz₂ ≈ NonZero nz₃
   → NonZero (build_nz_add fld 0 nz₁ nz₂)
@@ -2475,7 +2484,6 @@ intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm₂ with (nz₃ := nz₃); symmetry.
 rewrite nz_add_norm₂ with (nz₃ := nz₂); symmetry; simpl.
 bbb.
-
 intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
@@ -2614,7 +2622,7 @@ Focus 1.
 bbb.
 *)
 
-(**)
+(*
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
   → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
@@ -2640,7 +2648,7 @@ bbb.
 bbb.
 *)
 
-(**)
+(*
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₂
   → ps₃ ≈ ps₄
@@ -2662,7 +2670,7 @@ Qed.
   = ps_add fld (nz_add fld (nz_head nz₁) (nz_tail nz₁)) (Nonzero nz₂).
 *)
 
-(**)
+(*
 Add Parametric Morphism : (ps_add fld) with 
 signature (eq_ps fld) ==> (eq_ps fld) ==> (eq_ps fld) as ps_add_morph.
 Proof.
@@ -2677,6 +2685,30 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
     → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
       ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
+destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
+simpl in Hn₁, Hn₂.
+simpl.
+rewrite ps_add_comm; simpl.
+remember (nz_add fld nz₁ nz₂) as ps₁₂ eqn:Hps₁₂ .
+symmetry in Hps₁₂.
+destruct ps₁₂ as [nz₁₂| ]; simpl.
+ rewrite nz_add_comm.
+ remember (nz_add fld nz₂ nz₃) as ps₂₃ eqn:Hps₂₃ .
+ symmetry in Hps₂₃.
+ destruct ps₂₃ as [nz₂₃| ]; simpl.
+  unfold nz_add in Hps₁₂, Hps₂₃.
+  rewrite Hn₁ in Hps₁₂.
+  rewrite Hn₂ in Hps₂₃.
+  injection Hps₁₂; clear Hps₁₂; intros; subst nz₁₂.
+  injection Hps₂₃; clear Hps₂₃; intros; subst nz₂₃.
+  rewrite <- nz_add_assoc_base.
+  unfold nz_add.
+  rewrite nz_terms_add_assoc.
+bbb.
+
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
 revert ps₁ ps₂ ps₃ Hn₁ Hn₂.
 induction n₁; intros.
