@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.587 2013-09-13 09:20:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.588 2013-09-13 14:14:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1086,23 +1086,30 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂,
-  nz_terms_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld nz₁ (build_nz_add fld n₂ nz₂ nz₃).
+Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃,
+  nz_valnum nz₁ = v₁
+  → nz_valnum nz₂ = v₂
+  → nz_valnum nz₃ = v₃
+  → nz_comden nz₁ = c₁
+  → nz_comden nz₂ = c₂
+  → nz_comden nz₃ = c₃
+  → Z.to_nat
+      (v₁ * ' c₂ * ' c₃ -
+       Z.min (v₂ * ' c₁ * ' c₃) (v₃ * ' c₂ * ' c₁ - Z.of_nat n₁ * ' c₃)) =
+    Z.to_nat
+      (v₁ * ' c₂ * ' c₃ -
+       Z.min (v₂ * ' c₁ * ' c₃) (v₃ * ' c₂ * ' c₁) + Z.of_nat n₂ * ' c₁)
+  → nz_terms_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
+    nz_terms_add fld nz₁ (build_nz_add fld n₂ nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃ n₁ n₂.
+intros nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃.
+intros Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hm.
 constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
 unfold cm_factor, cm.
-remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
-remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
-remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
-remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
-remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
-remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
-symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
+rewrite Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
 do 2 rewrite stretch_series_add_distr.
 do 2 rewrite series_pad_add_distr.
 rewrite series_add_assoc.
@@ -1125,7 +1132,9 @@ rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
 do 2 rewrite Z2Nat_sub_min1.
 rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
+rewrite Hm.
 bbb.
+*)
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
@@ -2741,6 +2750,20 @@ destruct ps₁₂ as [nz₁₂| ]; simpl.
   rewrite <- nz_add_assoc_base.
   unfold nz_add.
   rewrite nz_terms_add_assoc.
+  remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+  remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+  remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+  remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+  remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+  remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
+  symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
+  rewrite yyy with (n₂ := O); try eassumption.
+   2: simpl; rewrite Z.add_0_r.
+   Focus 2.
+   remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+   remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+   remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+   apply first_nonzero_iff in Hn₁.
 bbb.
 
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
