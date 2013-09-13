@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.586 2013-09-13 09:07:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.587 2013-09-13 09:20:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1086,12 +1086,11 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Lemma yyy : ∀ nz₁ nz₂ nz₃ n,
-  nz_terms_add fld (build_nz_add fld n nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld nz₁ (build_nz_add fld n nz₂ nz₃).
+Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂,
+  nz_terms_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld nz₁ (build_nz_add fld n₂ nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃.
-intros n.
+intros nz₁ nz₂ nz₃ n₁ n₂.
 constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
@@ -1121,6 +1120,11 @@ remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
 remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
 rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
+rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
+rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
+do 2 rewrite Z2Nat_sub_min1.
+rewrite Pos.mul_comm.
+replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
 bbb.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
