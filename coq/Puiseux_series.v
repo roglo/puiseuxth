@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.585 2013-09-13 08:32:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.586 2013-09-13 09:07:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1091,6 +1091,36 @@ Lemma yyy : ∀ nz₁ nz₂ nz₃ n,
   nz_terms_add fld nz₁ (build_nz_add fld n nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃.
+intros n.
+constructor; intros i.
+unfold build_nz_add; simpl.
+unfold cm_factor, cm.
+unfold nz_terms_add; simpl.
+unfold cm_factor, cm.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
+symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
+do 2 rewrite stretch_series_add_distr.
+do 2 rewrite series_pad_add_distr.
+rewrite series_add_assoc.
+do 4 rewrite stretch_pad_series_distr.
+do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite series_pad_pad.
+do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+do 4 rewrite Z.mul_sub_distr_r.
+do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+do 2 rewrite Z.mul_add_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+rewrite Z.mul_shuffle0, <- Hccv.
+rewrite Z.mul_shuffle0, <- Hcvc.
 bbb.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
