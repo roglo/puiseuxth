@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.583 2013-09-12 20:11:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.584 2013-09-13 02:09:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2419,12 +2419,63 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
  apply Pos.mul_comm.
 Qed.
 
+Definition norm₂_nz (nz₁ nz₂ nz₃ : nz_ps α) :=
+  let c₁ := nz_comden nz₁ in
+  let c₂ := nz_comden nz₂ in
+  let c₃ := nz_comden nz₃ in
+  let v₁ := (nz_valnum nz₁ * 'c₂ * 'c₃)%Z in
+  let v₂ := (nz_valnum nz₂ * 'c₃ * 'c₁)%Z in
+  let v₃ := (nz_valnum nz₃ * 'c₁ * 'c₂)%Z in
+  let vm := Z.min v₁ (Z.min v₂ v₃) in
+  let s₁ := stretch_series fld (c₂ * c₃) (nz_terms nz₁) in
+  {| nz_terms := series_pad_left fld (Z.to_nat (v₁ - vm)) s₁;
+     nz_valnum := vm;
+     nz_comden := c₁ * c₂ * c₃ |}.
+
+Lemma nz_add_norm₂ : ∀ nz₁ nz₂ nz₃ v,
+  NonZero (build_nz_add fld v nz₁ nz₂)
+  ≈ NonZero
+      (build_nz_add fld
+         (v *
+          Pos.to_nat
+            (nz_comden nz₁ * nz_comden nz₂ * nz_comden nz₃ * nz_comden nz₃))
+         (norm₂_nz nz₁ nz₂ nz₃) (norm₂_nz nz₂ nz₁ nz₃)).
+Proof.
+intros nz₁ nz₂ nz₃ v.
+remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
+symmetry in Hc₁, Hc₂, Hc₃.
+remember (c₁ * c₂ * c₃ * c₃)%positive as c.
+constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
+ 3: unfold cm; simpl.
+ 3: rewrite Hc₁, Hc₂, Hc₃.
+ Focus 2.
+ unfold cm_factor.
+ rewrite Hc₁, Hc₂, Hc₃.
+ remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+ remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+ remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+ rewrite Z.mul_add_distr_r.
+ rewrite Z.mul_1_r.
+ f_equal.
+  symmetry.
+  rewrite Z.min_l.
+   rewrite Z.min_assoc.
+bbb.
+mmm.... pas sûr que ce soit bon.
+
 (**)
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   NonZero nz₂ ≈ NonZero nz₃
   → NonZero (build_nz_add fld 0 nz₁ nz₂)
     ≈ NonZero (build_nz_add fld n nz₁ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ n H₂₃.
+rewrite nz_add_norm₂ with (nz₃ := nz₃); symmetry.
+rewrite nz_add_norm₂ with (nz₃ := nz₂); symmetry; simpl.
+bbb.
+
 intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
