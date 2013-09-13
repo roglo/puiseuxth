@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.588 2013-09-13 14:14:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.589 2013-09-13 18:07:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1086,22 +1086,61 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃,
-  nz_valnum nz₁ = v₁
-  → nz_valnum nz₂ = v₂
-  → nz_valnum nz₃ = v₃
-  → nz_comden nz₁ = c₁
-  → nz_comden nz₂ = c₂
-  → nz_comden nz₃ = c₃
-  → Z.to_nat
-      (v₁ * ' c₂ * ' c₃ -
-       Z.min (v₂ * ' c₁ * ' c₃) (v₃ * ' c₂ * ' c₁ - Z.of_nat n₁ * ' c₃)) =
-    Z.to_nat
-      (v₁ * ' c₂ * ' c₃ -
-       Z.min (v₂ * ' c₁ * ' c₃) (v₃ * ' c₂ * ' c₁) + Z.of_nat n₂ * ' c₁)
-  → nz_terms_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
-    nz_terms_add fld nz₁ (build_nz_add fld n₂ nz₂ nz₃).
+Definition Qmin₃ x y z :=
+  if Qlt_le_dec y x then
+    if Qlt_le_dec z y then z else y
+  else
+    if Qlt_le_dec z x then z else x.
+
+Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂ qn₁ qn₂ V₁ V₂ V₃,
+  V₁ = nz_valnum nz₁ # nz_comden nz₁
+  → V₂ = nz_valnum nz₂ # nz_comden nz₂
+    → V₃ = nz_valnum nz₃ # nz_comden nz₃
+      → qn₁ = Z.of_nat n₁ # nz_comden nz₁ * nz_comden nz₂
+        → qn₂ = Z.of_nat n₂ # nz_comden nz₂ * nz_comden nz₃
+          → Qmin₃ V₁ V₂ (V₃ - qn₁) == Qmin₃ V₁ (V₂ + qn₂) (V₃ + qn₂)
+            → nz_terms_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
+              nz_terms_add fld nz₁ (build_nz_add fld n₂ nz₂ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ n₁ n₂ qn₁ qn₂ V₁ V₂ V₃.
+intros HV₁ HV₂ HV₃ Hqn₁ Hqn₂ Hm.
+constructor; intros i.
+unfold build_nz_add; simpl.
+unfold cm_factor, cm.
+unfold nz_terms_add; simpl.
+unfold cm_factor, cm.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
+do 2 rewrite stretch_series_add_distr.
+do 2 rewrite series_pad_add_distr.
+rewrite series_add_assoc.
+do 4 rewrite stretch_pad_series_distr.
+do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite series_pad_pad.
+do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+do 4 rewrite Z.mul_sub_distr_r.
+do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+do 2 rewrite Z.mul_add_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+rewrite Z.mul_shuffle0, <- Hccv.
+rewrite Z.mul_shuffle0, <- Hcvc.
+rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
+rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
+do 2 rewrite Z2Nat_sub_min1.
+rewrite Pos.mul_comm.
+replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
+subst V₁ V₂ V₃.
+unfold Qeq in Hm.
+
+bbb.
 intros nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃.
 intros Hv₁ Hv₂ Hv₃ Hc₁ Hc₂ Hc₃ Hm.
 constructor; intros i.
@@ -1132,6 +1171,7 @@ rewrite Z.add_sub_swap, <- Z.sub_sub_distr, Z2Nat_sub_min2.
 do 2 rewrite Z2Nat_sub_min1.
 rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
+bbb.
 rewrite Hm.
 bbb.
 *)
