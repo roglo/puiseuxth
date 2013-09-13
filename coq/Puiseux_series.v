@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.590 2013-09-13 22:45:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.591 2013-09-13 23:46:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1086,11 +1086,14 @@ rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
 
-Definition Qmin₃ x y z :=
-  if Qlt_le_dec y x then
-    if Qlt_le_dec z y then z else y
-  else
-    if Qlt_le_dec z x then z else x.
+Definition Qmin x y :=
+  match x ?= y with
+  | Eq => x
+  | Lt => x
+  | Gt => y
+  end.
+
+Definition Qmin₃ x y z := Qmin (Qmin x y) z.
 
 (**)
 Lemma xxx : ∀ V₁ V₂ V₃ n₁ n₂ qn₁ qn₂ vcc cvc ccv,
@@ -1104,6 +1107,8 @@ Lemma xxx : ∀ V₁ V₂ V₃ n₁ n₂ qn₁ qn₂ vcc cvc ccv,
     Z.to_nat (vcc - (Z.min cvc ccv + Z.of_nat n₂ * ' Qden V₁)).
 Proof.
 intros; subst.
+bbb.
+
 simpl in H4.
 unfold Qmin₃ in H4.
 destruct (Qlt_le_dec V₂ V₁) as [H₁| H₁].
@@ -2828,13 +2833,9 @@ destruct ps₁₂ as [nz₁₂| ]; simpl.
   remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
   remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
   symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
-  rewrite yyy with (n₂ := O); try eassumption.
-   2: simpl; rewrite Z.add_0_r.
-   Focus 2.
-   remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
-   remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
-   remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
-   apply first_nonzero_iff in Hn₁.
+  rewrite yyy with (n₂ := O); try reflexivity.
+   2: unfold Qplus, Qminus; simpl.
+   2: do 2 rewrite Z.add_0_r.
 bbb.
 
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
