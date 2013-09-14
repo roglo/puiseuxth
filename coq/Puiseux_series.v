@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.592 2013-09-14 07:31:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.593 2013-09-14 12:04:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -432,6 +432,10 @@ Definition series_pad_left n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n);
      stop := stop s + fin n |}.
 
+Definition series_empty_left n (s : series α) :=
+  {| terms i := terms s (i + n);
+     stop := stop s - fin n |}.
+
 Theorem lt_first_nonzero : ∀ s n,
   (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
 Proof.
@@ -574,24 +578,25 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
 
-Definition nz_terms_add nz₁ nz₂ :=
+Definition nz_terms_add v nz₁ nz₂ :=
   let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
   let s₂ := stretch_series fld (cm_factor nz₂ nz₁) (nz_terms nz₂) in
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
-  series_add fld
-    (series_pad_left (Z.to_nat (v₁ - v₂)) s₁)
-    (series_pad_left (Z.to_nat (v₂ - v₁)) s₂).
+  series_empty_left v
+    (series_add fld
+      (series_pad_left (Z.to_nat (v₁ - v₂)) s₁)
+      (series_pad_left (Z.to_nat (v₂ - v₁)) s₂)).
 
 Definition build_nz_add v (nz₁ nz₂ : nz_ps α) :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
-  {| nz_terms := nz_terms_add nz₁ nz₂;
+  {| nz_terms := nz_terms_add v nz₁ nz₂;
      nz_valnum := Z.min v₁ v₂ + Z.of_nat v;
      nz_comden := cm nz₁ nz₂ |}.
 
 Definition nz_add nz₁ nz₂ :=
-  match first_nonzero fld (nz_terms_add nz₁ nz₂) with
+  match first_nonzero fld (nz_terms_add 0 nz₁ nz₂) with
   | fin v => NonZero (build_nz_add v nz₁ nz₂)
   | inf => Zero _
   end.
@@ -661,12 +666,75 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
 
 End fld₂.
 
+Add Parametric Morphism α (fld : field α) : (@series_empty_left α) with 
+signature eq ==> eq_series fld ==> eq_series fld as series_empty_morph.
+Proof.
+intros n s₁ s₂ Heq.
+constructor; intros i.
+inversion Heq; subst.
+pose proof (H (i + n)%nat) as Hi.
+unfold series_empty_left.
+remember (stop s₁ - fin n)%Nbar as sn₁.
+remember (stop s₂ - fin n)%Nbar as sn₂.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld in Hi; simpl in Hi.
+destruct (Nbar.lt_dec (fin i) sn₁) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin (i + n)) (stop s₁)) as [H₂| H₂].
+  destruct (Nbar.lt_dec (fin i) sn₂) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i + n)) (stop s₂)) as [H₄| H₄].
+    assumption.
+
+    exfalso; apply H₄.
+    subst sn₂.
+    destruct (stop s₂) as [st₂| ]; [ idtac | constructor ].
+    apply Nbar.fin_lt_mono.
+    apply Nbar.fin_lt_mono in H₃.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+   destruct (Nbar.lt_dec (fin (i + n)) (stop s₂)) as [H₄| H₄].
+    exfalso; apply H₃.
+    subst sn₂.
+    destruct (stop s₂) as [st₂| ]; [ idtac | constructor ].
+    apply Nbar.fin_lt_mono.
+    apply Nbar.fin_lt_mono in H₄.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+    assumption.
+
+  exfalso; apply H₂.
+  subst sn₁.
+  destruct (stop s₁) as [st₁| ]; [ idtac | constructor ].
+  apply Nbar.fin_lt_mono.
+  apply Nbar.fin_lt_mono in H₁.
+  apply Nat.lt_add_lt_sub_r; assumption.
+
+ destruct (Nbar.lt_dec (fin (i + n)) (stop s₁)) as [H₂| H₂].
+  exfalso; apply H₁.
+  subst sn₁.
+  destruct (stop s₁) as [st₁| ]; [ idtac | constructor ].
+  apply Nbar.fin_lt_mono.
+  apply Nbar.fin_lt_mono in H₂.
+  apply Nat.lt_add_lt_sub_r; assumption.
+
+  destruct (Nbar.lt_dec (fin i) sn₂) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i + n)) (stop s₂)) as [H₄| H₄].
+    assumption.
+
+    exfalso; apply H₄.
+    subst sn₂.
+    destruct (stop s₂) as [st₂| ]; [ idtac | constructor ].
+    apply Nbar.fin_lt_mono.
+    apply Nbar.fin_lt_mono in H₃.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+   reflexivity.
+Qed.
+
 Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
 Proof.
 intros n s₁ s₂ Heq.
-constructor; simpl.
-intros i.
+constructor; intros i.
 inversion Heq; subst.
 unfold series_nth_fld; simpl.
 unfold series_nth_fld in H; simpl in H.
@@ -921,11 +989,12 @@ rewrite Pos2Nat.id.
 apply Pos.mul_comm.
 Qed.
 
-Lemma nz_terms_add_comm : ∀ ps₁ ps₂,
-  nz_terms_add fld ps₁ ps₂ ≃ nz_terms_add fld ps₂ ps₁.
+Lemma nz_terms_add_comm : ∀ ps₁ ps₂ n,
+  nz_terms_add fld n ps₁ ps₂ ≃ nz_terms_add fld n ps₂ ps₁.
 Proof.
-intros ps₁ ps₂.
-apply series_add_comm.
+intros ps₁ ps₂ n.
+unfold nz_terms_add.
+rewrite series_add_comm; reflexivity.
 Qed.
 
 Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add fld nz₁ nz₂ ≈ nz_add fld nz₂ nz₁.
@@ -1176,7 +1245,6 @@ replace v₁ with (Qnum V₁) in * by (rewrite HV₁; reflexivity).
 replace v₂ with (Qnum V₂) in * by (rewrite HV₂; reflexivity).
 replace v₃ with (Qnum V₃) in * by (rewrite HV₃; reflexivity).
 erewrite xxx; try eassumption.
-Admitted. (*
 bbb.
 
 intros nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃.
