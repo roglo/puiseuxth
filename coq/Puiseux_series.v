@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.596 2013-09-14 12:53:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.597 2013-09-14 13:08:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1304,7 +1304,7 @@ remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
 remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
-do 4 rewrite series_empty_left_0.
+do 2 rewrite series_empty_left_0.
 do 2 rewrite stretch_series_add_distr.
 do 2 rewrite series_pad_add_distr.
 rewrite series_add_assoc.
@@ -1328,12 +1328,11 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
-(*
 Definition terms_add ps₁ ps₂ :=
   match ps₁ with
   | NonZero nz₁ =>
       match ps₂ with
-      | NonZero nz₂ => nz_terms_add fld nz₁ nz₂
+      | NonZero nz₂ => nz_terms_add fld 0 nz₁ nz₂
       | Zero => nz_terms nz₁
       end
   | Zero =>
@@ -1342,7 +1341,6 @@ Definition terms_add ps₁ ps₂ :=
       | Zero => series_0 fld
       end
   end.
-*)
 
 Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
   nz_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≈
@@ -1445,7 +1443,7 @@ Qed.
 
 Lemma stop_head_tail : ∀ nz,
   stop (nz_terms nz) ≠ fin 0
-  → stop (nz_terms_add fld (nz_head nz) (nz_tail nz)) =
+  → stop (nz_terms_add fld 0 (nz_head nz) (nz_tail nz)) =
     stop (stretch_series fld (nz_comden nz) (nz_terms nz)).
 Proof.
 intros nz Hst.
@@ -1459,7 +1457,7 @@ rewrite <- Heqst; simpl.
 rewrite Nat.sub_0_r.
 rewrite Z.mul_add_distr_r, Z.mul_1_l.
 rewrite Z.sub_add_distr, Z.sub_diag; simpl.
-rewrite Nat.add_0_r.
+rewrite Nat.add_0_r, Nat.sub_0_r.
 rewrite Z.add_simpl_l.
 rewrite Nat.max_r; [ rewrite Nat.add_comm; reflexivity | idtac ].
 apply Nat.le_sub_le_add_r; rewrite Nat.sub_diag; apply Nat.le_0_l.
@@ -1609,13 +1607,13 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Lemma ps_cons : ∀ nz,
-  series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz))
+  series_nth_fld fld 0 (nz_terms_add fld 0 (nz_head nz) (nz_tail nz))
      ≭ zero fld
   → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 (* à nettoyer *)
 intros nz Hzz.
-remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s.
+remember (nz_terms_add fld 0 (nz_head nz) (nz_tail nz)) as s.
 remember (first_nonzero fld s) as n eqn:Hn ; subst s.
 symmetry in Hn.
 destruct n as [[| n]| ].
@@ -1649,7 +1647,7 @@ destruct n as [[| n]| ].
   constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
    rewrite stretch_series_1.
    constructor; intros i.
-   remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s₁ eqn:Hs₁ .
+   remember (nz_terms_add fld 0 (nz_head nz) (nz_tail nz)) as s₁ eqn:Hs₁ .
    remember (stretch_series fld (nz_comden nz) (nz_terms nz)) as s₂ eqn:Hs₂ .
    unfold series_nth_fld; simpl.
    destruct (Nbar.lt_dec (fin i) (stop s₁)) as [H₁| H₁].
