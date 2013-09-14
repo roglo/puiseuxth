@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.591 2013-09-13 23:46:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.592 2013-09-14 07:31:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1107,6 +1107,7 @@ Lemma xxx : ∀ V₁ V₂ V₃ n₁ n₂ qn₁ qn₂ vcc cvc ccv,
     Z.to_nat (vcc - (Z.min cvc ccv + Z.of_nat n₂ * ' Qden V₁)).
 Proof.
 intros; subst.
+Admitted. (*
 bbb.
 
 simpl in H4.
@@ -1175,6 +1176,7 @@ replace v₁ with (Qnum V₁) in * by (rewrite HV₁; reflexivity).
 replace v₂ with (Qnum V₂) in * by (rewrite HV₂; reflexivity).
 replace v₃ with (Qnum V₃) in * by (rewrite HV₃; reflexivity).
 erewrite xxx; try eassumption.
+Admitted. (*
 bbb.
 
 intros nz₁ nz₂ nz₃ n₁ n₂ v₁ v₂ v₃ c₁ c₂ c₃.
@@ -2834,8 +2836,11 @@ destruct ps₁₂ as [nz₁₂| ]; simpl.
   remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
   symmetry in Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃.
   rewrite yyy with (n₂ := O); try reflexivity.
-   2: unfold Qplus, Qminus; simpl.
-   2: do 2 rewrite Z.add_0_r.
+   Focus 2.
+   rewrite Hv₁, Hv₂, Hv₃, Hc₁, Hc₂, Hc₃; simpl.
+   remember (v₁ # c₁) as V₁ eqn:HV₁ .
+   remember (v₂ # c₂) as V₂ eqn:HV₂ .
+   remember (v₃ # c₃) as V₃ eqn:HV₃ .
 bbb.
 
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
@@ -2906,6 +2911,7 @@ bbb.
      rewrite Hv₁, Hv₂; simpl.
      unfold cm_factor; simpl.
 bbb.
+*)
 
 (* peut-être inutile *)
 Lemma ps_add_nz_assoc : ∀ ps₁ ps₂ ps₃ v₁ v₂ v₃ v₁₂ v₂₃,
