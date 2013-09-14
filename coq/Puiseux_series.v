@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.593 2013-09-14 12:04:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.594 2013-09-14 12:18:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1002,7 +1002,7 @@ Proof.
 intros nz₁ nz₂.
 unfold nz_add.
 rewrite nz_terms_add_comm.
-remember (first_nonzero fld (nz_terms_add fld nz₂ nz₁)) as v.
+remember (first_nonzero fld (nz_terms_add fld 0 nz₂ nz₁)) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
@@ -1193,6 +1193,7 @@ destruct (Qlt_le_dec V₂ V₁) as [H₁| H₁].
 bbb.
 *)
 
+(*
 Lemma yyy : ∀ nz₁ nz₂ nz₃ n₁ n₂ qn₁ qn₂ V₁ V₂ V₃,
   V₁ = nz_valnum nz₁ # nz_comden nz₁
   → V₂ = nz_valnum nz₂ # nz_comden nz₂
@@ -1282,14 +1283,28 @@ rewrite Hm.
 bbb.
 *)
 
-Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  nz_terms_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
+(**)
+Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃ n₁ n₂,
+  nz_terms_add fld n₁ (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld n₂ nz₁ (build_nz_add fld n₂ nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃.
+intros nz₁ nz₂ nz₃ n₁ n₂.
 constructor; intros i.
 unfold build_nz_add; simpl.
-do 2 rewrite Z.add_0_r.
+unfold cm_factor, cm.
+unfold nz_terms_add; simpl.
+unfold cm_factor, cm.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+remember (nz_comden nz₁) as c₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_comden nz₃) as c₃.
+bbb.
+
+intros nz₁ nz₂ nz₃ n₁ n₂.
+constructor; intros i.
+unfold build_nz_add; simpl.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
 unfold cm_factor, cm.
@@ -1321,7 +1336,9 @@ rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
 reflexivity.
 Qed.
+*)
 
+(*
 Definition terms_add ps₁ ps₂ :=
   match ps₁ with
   | NonZero nz₁ =>
@@ -1335,6 +1352,7 @@ Definition terms_add ps₁ ps₂ :=
       | Zero => series_0 fld
       end
   end.
+*)
 
 Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
   nz_add fld (build_nz_add fld 0 nz₁ nz₂) nz₃ ≈
