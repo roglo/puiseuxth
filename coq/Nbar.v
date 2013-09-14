@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.60 2013-09-08 17:32:21 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.61 2013-09-14 12:52:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -661,6 +661,13 @@ Proof.
 intros n.
 destruct n as [n| ]; [ idtac | reflexivity ].
 simpl; rewrite Nat.add_0_r; reflexivity.
+Qed.
+
+Theorem sub_0_r : ∀ n, n - 0 = n.
+Proof.
+intros n.
+destruct n as [n| ]; [ idtac | reflexivity ].
+simpl; rewrite Nat.sub_0_r; reflexivity.
 Qed.
 
 End Nbar.

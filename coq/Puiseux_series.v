@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.594 2013-09-14 12:18:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.595 2013-09-14 12:52:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -456,18 +456,21 @@ apply first_nonzero_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
-(* false; counter-example : s₁ = [1, ...] s₂ = [-1, ...]
-Theorem first_nonzero_add : ∀ s₁ s₂,
-  first_nonzero fld (series_add fld s₁ s₂) =
-    Nbar.min (first_nonzero fld s₁) (first_nonzero fld s₂).
-*)
-
 Lemma series_pad_left_0 : ∀ s, series_pad_left 0 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
 unfold series_pad_left, series_nth_fld; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
+Qed.
+
+Lemma series_empty_left_0 : ∀ s, series_empty_left 0 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_empty_left, series_nth_fld.
+rewrite Nbar.sub_0_r; simpl.
+rewrite Nat.add_0_r; reflexivity.
 Qed.
 
 Lemma series_nth_pad_S : ∀ s n i,
@@ -1284,13 +1287,14 @@ bbb.
 *)
 
 (**)
-Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃ n₁ n₂,
-  nz_terms_add fld n₁ (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld n₂ nz₁ (build_nz_add fld n₂ nz₂ nz₃).
+Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
+  nz_terms_add fld 0 (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld 0 nz₁ (build_nz_add fld 0 nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃ n₁ n₂.
+intros nz₁ nz₂ nz₃.
 constructor; intros i.
 unfold build_nz_add; simpl.
+do 2 rewrite Z.add_0_r.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
 unfold cm_factor, cm.
@@ -1300,20 +1304,7 @@ remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
 remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
-bbb.
-
-intros nz₁ nz₂ nz₃ n₁ n₂.
-constructor; intros i.
-unfold build_nz_add; simpl.
-unfold cm_factor, cm.
-unfold nz_terms_add; simpl.
-unfold cm_factor, cm.
-remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
-remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
-remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
-remember (nz_comden nz₁) as c₁.
-remember (nz_comden nz₂) as c₂.
-remember (nz_comden nz₃) as c₃.
+do 4 rewrite series_empty_left_0.
 do 2 rewrite stretch_series_add_distr.
 do 2 rewrite series_pad_add_distr.
 rewrite series_add_assoc.
@@ -1336,7 +1327,6 @@ rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
 reflexivity.
 Qed.
-*)
 
 (*
 Definition terms_add ps₁ ps₂ :=
@@ -1361,7 +1351,7 @@ Proof.
 intros nz₁ nz₂ nz₃.
 unfold nz_add.
 rewrite nz_terms_add_assoc.
-remember (nz_terms_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃)) as nz.
+remember (nz_terms_add fld 0 nz₁ (build_nz_add fld 0 nz₂ nz₃)) as nz.
 remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
