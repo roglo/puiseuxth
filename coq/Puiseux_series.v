@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.595 2013-09-14 12:52:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.596 2013-09-14 12:53:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1287,11 +1287,11 @@ bbb.
 *)
 
 (**)
-Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  nz_terms_add fld 0 (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld 0 nz₁ (build_nz_add fld 0 nz₂ nz₃).
+Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃ n,
+  nz_terms_add fld n (build_nz_add fld 0 nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld n nz₁ (build_nz_add fld 0 nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃.
+intros nz₁ nz₂ nz₃ n.
 constructor; intros i.
 unfold build_nz_add; simpl.
 do 2 rewrite Z.add_0_r.
