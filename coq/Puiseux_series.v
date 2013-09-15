@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.603 2013-09-15 18:08:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.604 2013-09-15 19:19:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -435,6 +435,13 @@ Definition series_pad_left n s :=
 Definition series_empty_left n (s : series α) :=
   {| terms i := terms s (i + n);
      stop := stop s - fin n |}.
+
+Definition series_shift v s :=
+  match v with
+  | Z0 => s
+  | Zpos p => series_pad_left (Pos.to_nat p) s
+  | Zneg p => series_empty_left (Pos.to_nat p) s
+  end.
 
 Theorem lt_first_nonzero : ∀ s n,
   (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
@@ -1256,7 +1263,7 @@ Definition Qmin x y :=
 
 Definition Qmin₃ x y z := Qmin (Qmin x y) z.
 
-(**)
+(*
 Lemma xxx : ∀ V₁ V₂ V₃ n₁ n₂ qn₁ qn₂ vcc cvc ccv,
   qn₁ = Z.of_nat n₁ # Qden V₁ * Qden V₂
   → qn₂ = Z.of_nat n₂ # Qden V₂ * Qden V₃
@@ -1268,7 +1275,6 @@ Lemma xxx : ∀ V₁ V₂ V₃ n₁ n₂ qn₁ qn₂ vcc cvc ccv,
     Z.to_nat (vcc - (Z.min cvc ccv + Z.of_nat n₂ * ' Qden V₁)).
 Proof.
 intros; subst.
-Admitted. (*
 bbb.
 
 simpl in H4.
@@ -1417,13 +1423,49 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
+Lemma series_shift_neg : ∀ n s,
+  (n < 0)%Z
+  → series_shift fld n s = series_empty_left (Z.to_nat (-n)) s.
+Proof.
+intros n s Hn.
+destruct n as [| n| n].
+ exfalso; revert Hn; apply Z.lt_irrefl.
+
+ apply Z.nle_gt in Hn.
+ exfalso; apply Hn, Pos2Z.is_nonneg.
+
+ reflexivity.
+Qed.
+
+Lemma xxx : ∀ n m s,
+  series_empty_left n (series_pad_left fld m s) ≃
+  series_shift fld (Z.of_nat n - Z.of_nat m) s.
+Proof.
+intros n m s.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar_fold_sub.
+remember (series_shift fld (Z.of_nat n - Z.of_nat m) s) as t eqn:Ht .
+destruct (Nbar.lt_dec (fin i) (stop s + fin m - fin n)) as [H₁| H₁].
+ destruct (lt_dec (i + n) m) as [H₂| H₂].
+  destruct (Nbar.lt_dec (fin i) (stop t)) as [H₃| ]; [ idtac | reflexivity ].
+  rewrite Ht in H₃; simpl in H₃.
+  rewrite series_shift_neg in H₃.
+   rewrite Z.opp_sub_distr in H₃.
+   rewrite Z.add_opp_l in H₃.
+   simpl in H₃.
+   destruct (stop s) as [st| ].
+    rewrite Z2Nat.inj_sub in H₃; [ idtac | apply Nat2Z.is_nonneg ].
+    do 2 rewrite Nat2Z.id in H₃.
+    simpl in H₁.
+bbb.
+parti en couille...
+
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
   nz_terms_add fld n₃ nz₁ (build_nz_add fld n₄ nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄.
-bbb. Chais pas si ça peut le faire... à réfléchir
-
 constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
@@ -1436,7 +1478,6 @@ remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
 do 4 rewrite series_empty_add_distr.
-Admitted. (*
 bbb.
 do 2 rewrite series_empty_left_0.
 do 2 rewrite stretch_series_add_distr.
