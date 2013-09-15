@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.601 2013-09-15 12:06:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.602 2013-09-15 12:22:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1422,6 +1422,8 @@ Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n n₁,
   nz_terms_add fld n nz₁ (build_nz_add fld n₁ nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ n n₁.
+bbb. Chais pas si c'est vrai, ça... à réfléchir
+
 constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
@@ -1434,6 +1436,7 @@ remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
 do 4 rewrite series_empty_add_distr.
+Admitted. (*
 bbb.
 do 2 rewrite series_empty_left_0.
 do 2 rewrite stretch_series_add_distr.
@@ -1458,6 +1461,7 @@ rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
 reflexivity.
 Qed.
+*)
 
 Definition terms_add ps₁ ps₂ :=
   match ps₁ with
@@ -1508,6 +1512,8 @@ Proof.
 intros nz₁ nz₂ nz₃ n₁.
 unfold nz_add.
 bbb.
+rewrite nz_terms_add_assoc_zzz.
+
 rewrite nz_terms_add_assoc.
 remember (nz_terms_add fld 0 nz₁ (build_nz_add fld 0 nz₂ nz₃)) as nz.
 remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
