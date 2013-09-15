@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.600 2013-09-15 10:51:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.601 2013-09-15 12:06:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1086,6 +1086,95 @@ destruct (lt_dec i n) as [Hlt| Hge].
     assumption.
 Qed.
 
+Lemma Nbar_fold_sub : ∀ x n,
+  match x with
+  | fin m => fin (m - n)
+  | ∞ => ∞
+  end = (x - fin n)%Nbar.
+Proof. reflexivity. Qed.
+
+Lemma series_empty_add_distr : ∀ s₁ s₂ n,
+  series_empty_left n (series_add fld s₁ s₂)
+  ≃ series_add fld (series_empty_left n s₁) (series_empty_left n s₂).
+Proof.
+intros s₁ s₂ n.
+constructor.
+intros i.
+unfold series_add, series_nth_fld; simpl.
+do 3 rewrite Nbar_fold_sub.
+remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) - fin n)) as c₁.
+remember (Nbar.max (stop s₁ - fin n) (stop s₂ - fin n)) as x.
+remember (Nbar.lt_dec (fin i) x) as c₂; subst x.
+remember (Nbar.lt_dec (fin (i + n)) (stop s₁)) as c₃.
+remember (Nbar.lt_dec (fin i) (stop s₁ - fin n)) as c₄.
+remember (Nbar.lt_dec (fin (i + n)) (stop s₂)) as c₅.
+remember (Nbar.lt_dec (fin i) (stop s₂ - fin n)) as c₆.
+clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅ Heqc₆.
+destruct c₁ as [H₁| H₁].
+ destruct c₂ as [H₂| H₂]; simpl.
+  destruct c₃ as [H₃| H₃].
+   destruct c₄ as [H₄| H₄].
+    destruct c₅ as [H₅| H₅].
+     destruct c₆ as [H₆| H₆]; [ reflexivity | idtac ].
+     exfalso; apply H₆.
+     destruct (stop s₂) as [st| ]; [ simpl | constructor ].
+     apply Nbar.fin_lt_mono in H₅.
+     apply Nbar.fin_lt_mono.
+     apply Nat.lt_add_lt_sub_r; assumption.
+
+     destruct c₆ as [H₆| H₆]; [ idtac | reflexivity ].
+     exfalso; apply H₅.
+     destruct (stop s₂) as [st| ]; [ simpl | constructor ].
+     apply Nbar.fin_lt_mono in H₆.
+     apply Nbar.fin_lt_mono.
+     apply Nat.lt_add_lt_sub_r; assumption.
+
+    exfalso; apply H₄.
+    destruct (stop s₁) as [st| ]; [ simpl | constructor ].
+    apply Nbar.fin_lt_mono in H₃.
+    apply Nbar.fin_lt_mono.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+   destruct c₄ as [H₄| H₄].
+    exfalso; apply H₃.
+    destruct (stop s₁) as [st| ]; [ simpl | constructor ].
+    apply Nbar.fin_lt_mono in H₄.
+    apply Nbar.fin_lt_mono.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+    destruct c₅ as [H₅| H₅].
+     destruct c₆ as [H₆| H₆]; [ reflexivity | idtac ].
+     exfalso; apply H₆.
+     destruct (stop s₂) as [st| ]; [ simpl | constructor ].
+     apply Nbar.fin_lt_mono in H₅.
+     apply Nbar.fin_lt_mono.
+     apply Nat.lt_add_lt_sub_r; assumption.
+
+     destruct c₆ as [H₆| H₆]; [ idtac | reflexivity ].
+     exfalso; apply H₅.
+     destruct (stop s₂) as [st| ]; [ simpl | constructor ].
+     apply Nbar.fin_lt_mono in H₆.
+     apply Nbar.fin_lt_mono.
+     apply Nat.lt_add_lt_sub_r; assumption.
+
+  exfalso; apply H₂.
+  destruct (stop s₁) as [st₁| ]; [ simpl | constructor ].
+  destruct (stop s₂) as [st₂| ]; [ simpl | constructor ].
+  simpl in H₁.
+  apply Nbar.fin_lt_mono in H₁.
+  apply Nbar.fin_lt_mono.
+  rewrite Nat.sub_max_distr_r; assumption.
+
+ destruct c₂ as [H₂| H₂]; [ idtac | reflexivity ].
+ exfalso; apply H₁.
+ destruct (stop s₁) as [st₁| ]; [ simpl | constructor ].
+ destruct (stop s₂) as [st₂| ]; [ simpl | constructor ].
+ simpl in H₂.
+ rewrite Nat.sub_max_distr_r in H₂.
+ apply Nbar.fin_lt_mono in H₂.
+ apply Nbar.fin_lt_mono; assumption.
+Qed.
+
 Lemma series_pad_pad : ∀ x y ps,
   series_pad_left fld x (series_pad_left fld y ps) ≃
   series_pad_left fld (x + y) ps.
@@ -1344,6 +1433,7 @@ remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
 remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
+do 4 rewrite series_empty_add_distr.
 bbb.
 do 2 rewrite series_empty_left_0.
 do 2 rewrite stretch_series_add_distr.
