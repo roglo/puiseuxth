@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.597 2013-09-14 13:08:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.598 2013-09-15 07:23:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1653,6 +1653,7 @@ destruct n as [[| n]| ].
    destruct (Nbar.lt_dec (fin i) (stop s₁)) as [H₁| H₁].
     destruct (Nbar.lt_dec (fin i) (stop s₂)) as [H₂| H₂].
      subst s₁ s₂; simpl.
+     rewrite Nat.add_0_r.
      unfold nz_head, nz_tail; simpl.
      remember (stop (nz_terms nz)) as st.
      symmetry in Heqst.
@@ -1664,8 +1665,7 @@ destruct n as [[| n]| ].
       rewrite series_pad_left_0.
       destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
        apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-       destruct Hz as (k, Hi).
-       subst i.
+       destruct Hz as (k, Hi); subst i.
        rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
        unfold series_head, series_tail; simpl.
        rewrite Heqst; simpl.
@@ -1956,7 +1956,8 @@ destruct n as [[| n]| ].
       simpl in H₁.
       rewrite Heqst in H₁.
       simpl in H₁.
-      rewrite Nat.add_0_r, Nat.sub_0_r in H₁.
+      rewrite Nat.add_0_r in H₁.
+      do 2 rewrite Nat.sub_0_r in H₁.
       rewrite Z.mul_add_distr_r, Z.mul_1_l in H₁.
       rewrite Z.sub_add_distr, Z.sub_diag in H₁.
       rewrite Z.add_simpl_l in H₁; simpl in H₁.
@@ -1987,6 +1988,7 @@ destruct n as [[| n]| ].
       rewrite Z.sub_add_distr, Z.sub_diag in H₁.
       rewrite Z.add_simpl_l in H₁; simpl in H₁.
       rewrite Nat.add_0_r in H₁.
+      rewrite Nat.sub_0_r in H₁.
       rewrite Nat.max_r in H₁.
        rewrite <- Nat.mul_succ_l in H₁.
        rewrite Nbar.fin_inj_mul in H₁.
