@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.602 2013-09-15 12:22:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.603 2013-09-15 18:08:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1417,12 +1417,12 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
-Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n n₁,
-  nz_terms_add fld n (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld n nz₁ (build_nz_add fld n₁ nz₂ nz₃).
+Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
+  nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld n₃ nz₁ (build_nz_add fld n₄ nz₂ nz₃).
 Proof.
-intros nz₁ nz₂ nz₃ n n₁.
-bbb. Chais pas si c'est vrai, ça... à réfléchir
+intros nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄.
+bbb. Chais pas si ça peut le faire... à réfléchir
 
 constructor; intros i.
 unfold build_nz_add; simpl.
