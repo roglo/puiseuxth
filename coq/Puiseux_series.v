@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.599 2013-09-15 07:57:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.600 2013-09-15 10:51:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1328,6 +1328,47 @@ replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm
 reflexivity.
 Qed.
 
+Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n n₁,
+  nz_terms_add fld n (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld n nz₁ (build_nz_add fld n₁ nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ n n₁.
+constructor; intros i.
+unfold build_nz_add; simpl.
+unfold cm_factor, cm.
+unfold nz_terms_add; simpl.
+unfold cm_factor, cm.
+remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+remember (nz_comden nz₁) as c₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_comden nz₃) as c₃.
+bbb.
+do 2 rewrite series_empty_left_0.
+do 2 rewrite stretch_series_add_distr.
+do 2 rewrite series_pad_add_distr.
+rewrite series_add_assoc.
+do 4 rewrite stretch_pad_series_distr.
+do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite series_pad_pad.
+do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+do 4 rewrite Z.mul_sub_distr_r.
+do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
+remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
+remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+rewrite Z.mul_shuffle0, <- Hccv.
+rewrite Z.mul_shuffle0, <- Hcvc.
+do 2 rewrite Z2Nat_sub_min2.
+do 2 rewrite Z2Nat_sub_min1.
+rewrite Pos.mul_comm.
+replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
+reflexivity.
+Qed.
+
 Definition terms_add ps₁ ps₂ :=
   match ps₁ with
   | NonZero nz₁ =>
@@ -1348,6 +1389,35 @@ Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
 Proof.
 intros nz₁ nz₂ nz₃.
 unfold nz_add.
+rewrite nz_terms_add_assoc.
+remember (nz_terms_add fld 0 nz₁ (build_nz_add fld 0 nz₂ nz₃)) as nz.
+remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
+destruct n as [n| ]; [ idtac | reflexivity ].
+constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
+ rewrite nz_terms_add_assoc; reflexivity.
+
+ do 2 rewrite Z.add_0_r, Z.mul_1_r.
+ unfold cm_factor, cm; simpl.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Z.min_assoc.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ do 2 f_equal; [ f_equal; apply Z.mul_shuffle0 | apply Z.mul_shuffle0 ].
+
+ do 2 rewrite Pos.mul_1_r.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ rewrite Pos.mul_assoc; reflexivity.
+Qed.
+
+Lemma nz_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁,
+  nz_add fld (build_nz_add fld n₁ nz₁ nz₂) nz₃ ≈
+  nz_add fld nz₁ (build_nz_add fld 0 nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ n₁.
+unfold nz_add.
+bbb.
 rewrite nz_terms_add_assoc.
 remember (nz_terms_add fld 0 nz₁ (build_nz_add fld 0 nz₂ nz₃)) as nz.
 remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
@@ -2884,6 +2954,18 @@ Lemma zzz : ∀ ps₁ ps₂ ps₃ n₁,
     → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
       ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
+intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
+destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
+simpl in Hn₁, Hn₂.
+remember (ps_add fld (NonZero nz₁) (NonZero nz₂)) as x.
+remember (ps_add fld (NonZero nz₂) (NonZero nz₃)) as y.
+simpl in Heqx, Heqy; subst x y.
+unfold nz_add.
+rewrite Hn₁, Hn₂; simpl.
+bbb.
+
 intros ps₁ ps₂ ps₃ n₁ Hn₁ Hn₂.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
