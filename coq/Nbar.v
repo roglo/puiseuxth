@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.62 2013-09-16 02:42:32 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.63 2013-09-16 10:00:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -67,6 +67,13 @@ Inductive lt : Nbar → Nbar → Prop :=
   | lt_fin : ∀ n m, (n < m)%nat → fin n < fin m
   | lt_inf : ∀ n, fin n < ∞
 where "n < m" := (lt n m) : Nbar_scope.
+
+Theorem fold_sub : ∀ x n,
+  match x with
+  | fin m => fin (m - n)
+  | ∞ => ∞
+  end = x - fin n.
+Proof. reflexivity. Qed.
 
 Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
 Proof. reflexivity. Qed.

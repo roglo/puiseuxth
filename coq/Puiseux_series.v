@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.607 2013-09-16 09:03:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.608 2013-09-16 10:00:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -983,13 +983,6 @@ rewrite <- Nat.mul_1_l in Heqx; subst x.
 apply stretch_pad_series_distr.
 Qed.
 
-Lemma Nbar_fold_sub : ∀ x n,
-  match x with
-  | fin m => fin (m - n)
-  | ∞ => ∞
-  end = (x - fin n)%Nbar.
-Proof. reflexivity. Qed.
-
 Lemma stretch_empty_series_distr : ∀ kp n s,
   stretch_series fld kp (series_empty_left n s) ≃
   series_empty_left (n * Pos.to_nat kp) (stretch_series fld kp s).
@@ -997,7 +990,7 @@ Proof.
 intros kp n s.
 constructor; intros i.
 unfold stretch_series, series_nth_fld; simpl.
-do 2 rewrite Nbar_fold_sub.
+do 2 rewrite Nbar.fold_sub.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -1176,7 +1169,7 @@ intros s₁ s₂ n.
 constructor.
 intros i.
 unfold series_add, series_nth_fld; simpl.
-do 3 rewrite Nbar_fold_sub.
+do 3 rewrite Nbar.fold_sub.
 remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) - fin n)) as c₁.
 remember (Nbar.max (stop s₁ - fin n) (stop s₂ - fin n)) as x.
 remember (Nbar.lt_dec (fin i) x) as c₂; subst x.
@@ -1505,31 +1498,30 @@ destruct n as [| n| n].
  reflexivity.
 Qed.
 
-(*
-Lemma xxx : ∀ n m s,
-  series_empty_left n (series_pad_left fld m s) ≃
-  series_shift fld (Z.of_nat n - Z.of_nat m) s.
+Lemma www : ∀ s n m,
+  (m ≤ n)%nat
+  → series_empty_left m (series_pad_left fld n s) ≃
+    series_pad_left fld (n - m) s.
 Proof.
-intros n m s.
+intros s n m Hmn.
 constructor; intros i.
 unfold series_nth_fld; simpl.
-rewrite Nbar_fold_sub.
-remember (series_shift fld (Z.of_nat n - Z.of_nat m) s) as t eqn:Ht .
-destruct (Nbar.lt_dec (fin i) (stop s + fin m - fin n)) as [H₁| H₁].
- destruct (lt_dec (i + n) m) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin i) (stop t)) as [H₃| ]; [ idtac | reflexivity ].
-  rewrite Ht in H₃; simpl in H₃.
-  rewrite series_shift_neg in H₃.
-   rewrite Z.opp_sub_distr in H₃.
-   rewrite Z.add_opp_l in H₃.
-   simpl in H₃.
-   destruct (stop s) as [st| ].
-    rewrite Z2Nat.inj_sub in H₃; [ idtac | apply Nat2Z.is_nonneg ].
-    do 2 rewrite Nat2Z.id in H₃.
-    simpl in H₁.
+rewrite Nbar.fold_sub.
+destruct (Nbar.lt_dec (fin i) (stop s + fin n - fin m)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s + fin (n - m))) as [H₂| H₂].
+  destruct (lt_dec (i + m) n) as [H₃| H₃].
+   destruct (lt_dec i (n - m)) as [H₄| H₄]; [ reflexivity | idtac ].
+   exfalso; apply H₄.
+   apply Nat.lt_add_lt_sub_r; assumption.
+
+   destruct (lt_dec i (n - m)) as [H₄| H₄].
+    exfalso; apply H₃.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+    rewrite Nat_sub_sub_distr; [ reflexivity | assumption ].
+
+  exfalso; apply H₂.
 bbb.
-parti en couille...
-*)
 
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃

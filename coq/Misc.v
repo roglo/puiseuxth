@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.61 2013-09-08 02:08:25 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.62 2013-09-16 10:00:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -983,4 +983,20 @@ intros n m p Hnm.
 apply Z.add_lt_mono_r with (p := p).
 apply Z2Nat_lt_lt.
 assumption.
+Qed.
+
+Lemma Nat_sub_sub_distr : ∀ n m p, (p ≤ m → n - (m - p) = n + p - m)%nat.
+Proof.
+intros n m p Hpm.
+rewrite Nat.add_comm.
+revert n m Hpm.
+induction p; intros.
+ rewrite Nat.sub_0_r, Nat.add_0_l; reflexivity.
+
+ destruct m as [| m].
+  exfalso; revert Hpm; apply Nat.nle_succ_0.
+
+  rewrite Nat.sub_succ; simpl.
+  apply Nat.succ_le_mono in Hpm.
+  apply IHp; assumption.
 Qed.
