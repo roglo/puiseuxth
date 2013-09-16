@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.604 2013-09-15 19:19:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.605 2013-09-16 01:56:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -984,6 +984,98 @@ rewrite <- Nat.mul_1_l in Heqx; subst x.
 apply stretch_pad_series_distr.
 Qed.
 
+Lemma stretch_empty_series_distr : ∀ kp n s,
+  stretch_series fld kp (series_empty_left n s) ≃
+  series_empty_left (n * Pos.to_nat kp) (stretch_series fld kp s).
+Proof.
+intros kp n s.
+constructor.
+intros i.
+unfold stretch_series, series_nth_fld; simpl.
+remember (Pos.to_nat kp) as k.
+assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
+destruct (zerop (i mod k)) as [Hz| Hnz].
+ apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ destruct Hz as (c, Hi).
+ subst i.
+ rewrite mult_comm.
+bbb.
+ rewrite <- Nat.mul_sub_distr_r.
+ rewrite Nat.div_mul; [ idtac | assumption ].
+ rewrite Nat.div_mul; [ idtac | assumption ].
+ rewrite Nat.mod_mul; [ simpl | assumption ].
+ rewrite Nbar.fin_inj_mul.
+ rewrite Nbar.fin_inj_mul.
+ rewrite <- Nbar.mul_add_distr_r.
+ rewrite <- Nbar.fin_inj_mul.
+ remember (Nbar.lt_dec (fin (c * k)) ((stop s + fin n) * fin k)) as c₁.
+ remember (Nbar.lt_dec (fin c) (stop s + fin n)) as c₂.
+ remember (lt_dec (c * k) (n * k)) as c₄.
+ remember (Nbar.lt_dec (fin (c - n)) (stop s)) as c₅.
+ clear Heqc₁ Heqc₂ Heqc₄ Heqc₅.
+ destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
+ destruct (lt_dec c n) as [Hlt| Hge].
+  destruct c₄ as [| H₄]; [ destruct c₂; reflexivity | idtac ].
+  destruct c₅ as [H₅| ]; [ idtac | destruct c₂; reflexivity ].
+  exfalso; apply H₄.
+  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+  rewrite Heqk; apply Pos2Nat.is_pos.
+
+  apply not_gt in Hge.
+  remember (c - n)%nat as m.
+  assert (m + n = c)%nat by (subst m; apply Nat.sub_add; assumption).
+  subst c; clear Heqm Hge.
+  destruct c₄ as [H₄| H₄].
+   exfalso; apply lt_not_le in H₄; apply H₄.
+   rewrite Nat.mul_add_distr_r.
+   apply le_plus_r.
+
+   destruct c₂ as [H₂| H₂].
+    destruct c₅ as [| H₅]; [ reflexivity | idtac ].
+    rewrite Nbar.fin_inj_add in H₂.
+    apply Nbar.add_lt_mono_r in H₂; [ idtac | intros H; discriminate H ].
+    contradiction.
+
+    destruct c₅ as [H₅| ]; [ idtac | reflexivity ].
+    exfalso; apply H₂.
+    rewrite Nbar.fin_inj_add.
+    apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+    intros H; discriminate H.
+
+ rewrite Nbar.fin_inj_mul.
+ rewrite <- Nbar.mul_add_distr_r.
+ remember (Nbar.lt_dec (fin i) ((stop s + fin n) * fin k)) as c₁.
+ remember (lt_dec i (n * k)) as c₂.
+ remember (zerop ((i - n * k) mod k)) as c₃.
+ remember (Nbar.lt_dec (fin ((i - n * k) / k)) (stop s)) as c₄.
+ clear Heqc₁ Heqc₂ Heqc₃ Heqc₄.
+ destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
+ destruct c₂ as [| H₂]; [ reflexivity | idtac ].
+ destruct c₃ as [H₃| ]; [ idtac | reflexivity ].
+ destruct c₄ as [H₄| ]; [ idtac | reflexivity ].
+ apply Nat.mod_divides in H₃; [ idtac | assumption ].
+ destruct H₃ as (c, H₃).
+ destruct c as [| c].
+  rewrite Nat.mul_0_r in H₃.
+  apply Nat.sub_0_le in H₃.
+  apply Nat.nlt_ge in H₂.
+  apply le_antisym in H₃; [ idtac | assumption ].
+  subst i.
+  rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+  exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+  apply Nat.add_sub_eq_nz in H₃.
+   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in H₃.
+   subst i.
+   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
+   exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+   apply Nat.neq_mul_0.
+   split; [ assumption | idtac ].
+   intros H; discriminate H.
+Qed.
+*)
+
 (* *)
 
 Lemma Pcm_factor_mul : ∀ x y,
@@ -1437,6 +1529,7 @@ destruct n as [| n| n].
  reflexivity.
 Qed.
 
+(*
 Lemma xxx : ∀ n m s,
   series_empty_left n (series_pad_left fld m s) ≃
   series_shift fld (Z.of_nat n - Z.of_nat m) s.
@@ -1460,6 +1553,7 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin m - fin n)) as [H₁| H₁].
     simpl in H₁.
 bbb.
 parti en couille...
+*)
 
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
@@ -1478,13 +1572,15 @@ remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
 do 4 rewrite series_empty_add_distr.
-bbb.
-do 2 rewrite series_empty_left_0.
 do 2 rewrite stretch_series_add_distr.
 do 2 rewrite series_pad_add_distr.
+do 2 rewrite series_empty_add_distr.
 rewrite series_add_assoc.
+do 4 rewrite stretch_empty_series_distr.
 do 4 rewrite stretch_pad_series_distr.
 do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+bbb.
+
 do 4 rewrite series_pad_pad.
 do 4 rewrite <- Z2Nat_inj_mul_pos_r.
 do 4 rewrite Z.mul_sub_distr_r.
