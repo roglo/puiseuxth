@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.613 2013-09-16 14:47:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.614 2013-09-16 14:48:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -805,6 +805,14 @@ destruct (lt_dec i n) as [Hlt| Hge].
      intros H; discriminate H.
 
    reflexivity.
+Qed.
+
+Add Parametric Morphism α (fld : field α) : (series_shift fld) with
+signature eq ==> eq_series fld ==> eq_series fld as series_shift_morph.
+Proof.
+intros n s₁ s₂ Heq.
+unfold series_shift.
+destruct n; rewrite Heq; reflexivity.
 Qed.
 
 Section fld₄.
@@ -1647,25 +1655,6 @@ destruct (le_dec m n) as [H₁| H₁].
   destruct Hd as (_, Hd).
   exfalso; revert Hd; apply Pos2Nat_ne_0.
 Qed.
-
-End fld₄.
-
-Add Parametric Morphism α (fld : field α) : (series_shift fld) with
-signature eq ==> eq_series fld ==> eq_series fld as series_shift_morph.
-Proof.
-intros n s₁ s₂ Heq.
-unfold series_shift.
-destruct n; rewrite Heq; reflexivity.
-Qed.
-
-Section fld₅.
-
-Variable α : Type.
-Variable fld : field α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
