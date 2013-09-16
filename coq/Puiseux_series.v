@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.611 2013-09-16 13:03:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.612 2013-09-16 14:30:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1577,6 +1577,77 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n - fin m)) as [H₁| H₁].
   reflexivity.
 Qed.
 
+Lemma series_empty_pad_shift : ∀ n m s,
+  series_empty_left n (series_pad_left fld m s) ≃
+  series_shift fld (Z.of_nat m - Z.of_nat n) s.
+Proof.
+intros n m s.
+destruct (le_dec m n) as [H₁| H₁].
+ rewrite series_empty_pad_empty; [ idtac | assumption ].
+ unfold series_shift.
+ remember (Z.of_nat m - Z.of_nat n)%Z as d eqn:Hd .
+ symmetry in Hd.
+ destruct d as [| d| d].
+  apply Z.sub_move_0_r with (m := Z.of_nat n) in Hd.
+  apply Nat2Z.inj in Hd; subst n.
+  rewrite Nat.sub_diag.
+  constructor; intros i.
+  unfold series_nth_fld; simpl; rewrite Nbar.fold_sub.
+  rewrite Nbar.sub_0_r, Nat.add_0_r; reflexivity.
+
+  rewrite <- Z.add_opp_l in Hd.
+  rewrite <- Z.opp_sub_distr in Hd.
+  apply Z.eq_opp_l in Hd.
+  rewrite <- Nat2Z.inj_sub in Hd; [ idtac | assumption ].
+  apply Z.add_move_0_r in Hd.
+  rewrite <- positive_nat_Z in Hd.
+  rewrite <- Nat2Z.inj_add in Hd.
+  rewrite <- Nat2Z.inj_0 in Hd.
+  apply Nat2Z.inj_iff in Hd.
+  apply Nat.eq_add_0 in Hd.
+  destruct Hd as (_, Hd).
+  exfalso; revert Hd; apply Pos2Nat_ne_0.
+
+  rewrite <- Pos2Z.opp_pos in Hd.
+  rewrite <- positive_nat_Z in Hd.
+  apply Z.eq_opp_l in Hd.
+  rewrite Z.opp_sub_distr in Hd.
+  rewrite Z.add_opp_l in Hd.
+  rewrite <- Nat2Z.inj_sub in Hd; [ idtac | assumption ].
+  apply Nat2Z.inj_iff in Hd.
+  rewrite <- Hd; reflexivity.
+
+ apply Nat.nle_gt in H₁.
+ apply Nat.lt_le_incl in H₁.
+ rewrite series_empty_pad_pad; [ idtac | assumption ].
+ unfold series_shift.
+ remember (Z.of_nat m - Z.of_nat n)%Z as d eqn:Hd .
+ symmetry in Hd.
+ destruct d as [| d| d].
+  apply Z.sub_move_0_r with (m := Z.of_nat n) in Hd.
+  apply Nat2Z.inj in Hd; subst n.
+  rewrite Nat.sub_diag.
+  constructor; intros i.
+  unfold series_nth_fld; simpl.
+  rewrite Nat.sub_0_r, Nbar.add_0_r; reflexivity.
+
+  rewrite <- positive_nat_Z in Hd.
+  rewrite <- Nat2Z.inj_sub in Hd; [ idtac | assumption ].
+  apply Nat2Z.inj_iff in Hd.
+  rewrite <- Hd; reflexivity.
+
+  rewrite <- Nat2Z.inj_sub in Hd; [ idtac | assumption ].
+  rewrite <- Pos2Z.opp_pos in Hd.
+  apply Z.add_move_0_r in Hd.
+  rewrite <- positive_nat_Z in Hd.
+  rewrite <- Nat2Z.inj_add in Hd.
+  rewrite <- Nat2Z.inj_0 in Hd.
+  apply Nat2Z.inj_iff in Hd.
+  apply Nat.eq_add_0 in Hd.
+  destruct Hd as (_, Hd).
+  exfalso; revert Hd; apply Pos2Nat_ne_0.
+Qed.
+
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
   nz_terms_add fld n₃ nz₁ (build_nz_add fld n₄ nz₂ nz₃).
@@ -1601,6 +1672,7 @@ rewrite series_add_assoc.
 do 4 rewrite stretch_empty_series_distr.
 do 4 rewrite stretch_pad_series_distr.
 do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+rewrite series_empty_pad_shift.
 bbb.
 
 do 4 rewrite series_pad_pad.
