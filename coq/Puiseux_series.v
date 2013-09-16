@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.615 2013-09-16 15:19:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.616 2013-09-16 16:06:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1709,7 +1709,6 @@ do 4 rewrite stretch_empty_series_distr.
 do 4 rewrite stretch_pad_series_distr.
 do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
 do 10 rewrite series_empty_pad_shift.
-do 4 rewrite series_shift_shift.
 bbb.
 
 do 4 rewrite series_pad_pad.
