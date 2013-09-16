@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.617 2013-09-16 21:34:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.618 2013-09-16 21:58:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1685,11 +1685,12 @@ bbb. FAUX !
 *)
 
 Lemma xxx : ∀ s V₁ V₂ V₃ n n₁ n₂,
-  series_shift fld (Z.min V₁ V₂ + n₁ - V₃ - n)
-    (series_shift fld (V₁ - V₂ - n₁) s) ≃
-  series_shift fld (V₁ - Z.min V₂ V₃ + n₂ - n) s.
+  series_shift fld (Z.max 0 (Z.min V₁ V₂ + n₁ - V₃) - n)
+    (series_shift fld (Z.max 0 (V₁ - V₂) - n₁) s) ≃
+  series_shift fld (Z.max 0 (V₁ - Z.min V₂ V₃ + n₂) - n) s.
 Proof.
 intros s V₁ V₂ V₃ n n₁ n₂.
+Admitted. (* à voir...
 bbb.
 *)
 
@@ -1724,6 +1725,8 @@ do 10 rewrite series_empty_pad_shift.
 do 2 rewrite Nat2Z.inj_mul.
 do 8 rewrite Z2Nat_id_max.
 do 2 rewrite positive_nat_Z.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 bbb.
 
 do 4 rewrite series_pad_pad.
