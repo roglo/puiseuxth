@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.612 2013-09-16 14:30:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.613 2013-09-16 14:47:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1648,6 +1648,25 @@ destruct (le_dec m n) as [H₁| H₁].
   exfalso; revert Hd; apply Pos2Nat_ne_0.
 Qed.
 
+End fld₄.
+
+Add Parametric Morphism α (fld : field α) : (series_shift fld) with
+signature eq ==> eq_series fld ==> eq_series fld as series_shift_morph.
+Proof.
+intros n s₁ s₂ Heq.
+unfold series_shift.
+destruct n; rewrite Heq; reflexivity.
+Qed.
+
+Section fld₅.
+
+Variable α : Type.
+Variable fld : field α.
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
   nz_terms_add fld n₃ nz₁ (build_nz_add fld n₄ nz₂ nz₃).
@@ -1672,7 +1691,7 @@ rewrite series_add_assoc.
 do 4 rewrite stretch_empty_series_distr.
 do 4 rewrite stretch_pad_series_distr.
 do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-rewrite series_empty_pad_shift.
+do 10 rewrite series_empty_pad_shift.
 bbb.
 
 do 4 rewrite series_pad_pad.
