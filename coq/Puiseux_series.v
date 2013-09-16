@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.616 2013-09-16 16:06:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.617 2013-09-16 21:34:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1684,11 +1684,20 @@ Abort. (*
 bbb. FAUX !
 *)
 
-Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
-  nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld n₃ nz₁ (build_nz_add fld n₄ nz₂ nz₃).
+Lemma xxx : ∀ s V₁ V₂ V₃ n n₁ n₂,
+  series_shift fld (Z.min V₁ V₂ + n₁ - V₃ - n)
+    (series_shift fld (V₁ - V₂ - n₁) s) ≃
+  series_shift fld (V₁ - Z.min V₂ V₃ + n₂ - n) s.
 Proof.
-intros nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄.
+intros s V₁ V₂ V₃ n n₁ n₂.
+bbb.
+*)
+
+Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n n₂ n₄,
+  nz_terms_add fld n (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
+  nz_terms_add fld n nz₁ (build_nz_add fld n₄ nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ n n₁ n₂.
 constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
@@ -1708,7 +1717,13 @@ rewrite series_add_assoc.
 do 4 rewrite stretch_empty_series_distr.
 do 4 rewrite stretch_pad_series_distr.
 do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite <- Z2Nat_inj_mul_pos_r.
+do 4 rewrite Z.mul_sub_distr_r.
+do 2 rewrite Z.mul_add_distr_r.
 do 10 rewrite series_empty_pad_shift.
+do 2 rewrite Nat2Z.inj_mul.
+do 8 rewrite Z2Nat_id_max.
+do 2 rewrite positive_nat_Z.
 bbb.
 
 do 4 rewrite series_pad_pad.

@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.62 2013-09-16 10:00:23 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.63 2013-09-16 21:34:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -999,4 +999,11 @@ induction p; intros.
   rewrite Nat.sub_succ; simpl.
   apply Nat.succ_le_mono in Hpm.
   apply IHp; assumption.
+Qed.
+
+Lemma Z2Nat_id_max : ∀ x, Z.of_nat (Z.to_nat x) = Z.max 0 x.
+Proof.
+intros x.
+destruct x as [| x| x]; [ reflexivity | idtac | reflexivity ].
+rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
 Qed.
