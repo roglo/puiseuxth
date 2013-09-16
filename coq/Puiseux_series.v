@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.606 2013-09-16 02:42:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.607 2013-09-16 09:03:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1035,40 +1035,29 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 
  rewrite Nbar.fin_inj_mul.
  rewrite <- Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
-
-bbb.
-
- remember (Nbar.lt_dec (fin i) ((stop s + fin n) * fin k)) as c₁.
- remember (lt_dec i (n * k)) as c₂.
- remember (zerop ((i - n * k) mod k)) as c₃.
- remember (Nbar.lt_dec (fin ((i - n * k) / k)) (stop s)) as c₄.
- clear Heqc₁ Heqc₂ Heqc₃ Heqc₄.
+ remember (Nbar.lt_dec (fin i) ((stop s - fin n) * fin k)) as c₁.
+ remember (zerop ((i + n * k) mod k)) as c₃.
+ remember (Nbar.lt_dec (fin ((i + n * k) / k)) (stop s)) as c₄.
+ clear Heqc₁ Heqc₃ Heqc₄.
  destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
- destruct c₂ as [| H₂]; [ reflexivity | idtac ].
  destruct c₃ as [H₃| ]; [ idtac | reflexivity ].
  destruct c₄ as [H₄| ]; [ idtac | reflexivity ].
  apply Nat.mod_divides in H₃; [ idtac | assumption ].
  destruct H₃ as (c, H₃).
  destruct c as [| c].
   rewrite Nat.mul_0_r in H₃.
-  apply Nat.sub_0_le in H₃.
-  apply Nat.nlt_ge in H₂.
-  apply le_antisym in H₃; [ idtac | assumption ].
+  apply Nat.eq_add_0 in H₃.
+  destruct H₃ as (Hi, H₃).
+  subst i.
+  rewrite Nat.mod_0_l in Hnz; [ idtac | assumption ].
+  exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+  apply Nat.add_sub_eq_r in H₃.
+  rewrite Nat.mul_comm, <- Nat.mul_sub_distr_r in H₃.
   subst i.
   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
   exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-  apply Nat.add_sub_eq_nz in H₃.
-   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in H₃.
-   subst i.
-   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
-   exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-   apply Nat.neq_mul_0.
-   split; [ assumption | idtac ].
-   intros H; discriminate H.
 Qed.
-*)
 
 (* *)
 
