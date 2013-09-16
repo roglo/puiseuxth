@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.609 2013-09-16 11:30:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.610 2013-09-16 12:54:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1541,9 +1541,27 @@ Qed.
 Lemma series_empty_pad_empty : ∀ s n m,
   (n ≤ m)%nat
   → series_empty_left m (series_pad_left fld n s) ≃
-    series_empty_left fld (m - n) s.
+    series_empty_left (m - n) s.
 Proof.
 intros s n m Hnm.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+do 2 rewrite Nbar.fold_sub.
+destruct (Nbar.lt_dec (fin i) (stop s + fin n - fin m)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s - fin (m - n))) as [H₂| H₂].
+  destruct (lt_dec (i + m) n) as [H₃| H₃].
+   Focus 2.
+   rewrite Nat.add_sub_assoc; [ reflexivity | assumption ].
+
+   exfalso; apply Nat.nle_gt in H₃; apply H₃.
+   transitivity (i + n)%nat.
+    apply Nat.le_sub_le_add_r; rewrite Nat.sub_diag.
+    apply Nat.le_0_l.
+
+    apply Nat.add_le_mono_l; assumption.
+
+  exfalso; apply H₂.
+  rewrite Nbar.fin_inj_sub.
 bbb.
 
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,

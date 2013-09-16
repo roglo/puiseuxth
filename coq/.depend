@@ -5,7 +5,7 @@ Field.vo Field.glob Field.v.beautified: Field.v
 Fpolynomial.vo Fpolynomial.glob Fpolynomial.v.beautified: Fpolynomial.v Field.vo Misc.vo Polynomial.vo
 InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Newton.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
-Nbar.vo Nbar.glob Nbar.v.beautified: Nbar.v
+Nbar.vo Nbar.glob Nbar.v.beautified: Nbar.v Misc.vo
 Newton.vo Newton.glob Newton.v.beautified: Newton.v ConvexHull.vo
 NotInSegMisc.vo NotInSegMisc.glob NotInSegMisc.v.beautified: NotInSegMisc.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo
 NotInSegment.vo NotInSegment.glob NotInSegment.v.beautified: NotInSegment.v Misc.vo Slope_base.vo SlopeMisc.vo ConvexHull.vo ConvexHullMisc.vo Newton.vo NotInSegMisc.vo

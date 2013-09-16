@@ -1,8 +1,9 @@
-(* $Id: Nbar.v,v 1.64 2013-09-16 11:30:45 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.65 2013-09-16 12:54:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
 Require Import NPeano.
+Require Import Misc.
 
 Ltac negation H := exfalso; apply H; reflexivity.
 
@@ -499,6 +500,18 @@ destruct n as [n| ]; simpl.
   destruct p as [p| ]; [ reflexivity | exfalso; apply Hp; reflexivity ].
 
  destruct p as [p| ]; [ reflexivity | exfalso; apply Hp; reflexivity ].
+Qed.
+
+Theorem sub_sub_distr : ∀ n m p, m ≠ ∞ → p ≤ m → n - (m - p) = n + p - m.
+Proof.
+intros n m p Hm Hpm.
+destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
+destruct p as [p| ].
+ destruct n as [n| ]; [ simpl | reflexivity ].
+ apply fin_le_mono in Hpm.
+ rewrite Nat_sub_sub_distr; [ reflexivity | assumption ].
+
+ exfalso; apply nlt_ge in Hpm; apply Hpm; constructor.
 Qed.
 
 Theorem mul_eq_0_l : ∀ n m, n * m = 0 → m ≠ 0 → n = 0.
