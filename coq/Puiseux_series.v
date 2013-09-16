@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.605 2013-09-16 01:56:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.606 2013-09-16 02:42:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -889,8 +889,7 @@ Lemma stretch_pad_series_distr : ∀ kp n s,
   series_pad_left fld (n * Pos.to_nat kp) (stretch_series fld kp s).
 Proof.
 intros kp n s.
-constructor.
-intros i.
+constructor; intros i.
 unfold stretch_series, series_nth_fld; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
@@ -984,14 +983,21 @@ rewrite <- Nat.mul_1_l in Heqx; subst x.
 apply stretch_pad_series_distr.
 Qed.
 
+Lemma Nbar_fold_sub : ∀ x n,
+  match x with
+  | fin m => fin (m - n)
+  | ∞ => ∞
+  end = (x - fin n)%Nbar.
+Proof. reflexivity. Qed.
+
 Lemma stretch_empty_series_distr : ∀ kp n s,
   stretch_series fld kp (series_empty_left n s) ≃
   series_empty_left (n * Pos.to_nat kp) (stretch_series fld kp s).
 Proof.
 intros kp n s.
-constructor.
-intros i.
+constructor; intros i.
 unfold stretch_series, series_nth_fld; simpl.
+do 2 rewrite Nbar_fold_sub.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -999,51 +1005,39 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  destruct Hz as (c, Hi).
  subst i.
  rewrite mult_comm.
-bbb.
- rewrite <- Nat.mul_sub_distr_r.
  rewrite Nat.div_mul; [ idtac | assumption ].
- rewrite Nat.div_mul; [ idtac | assumption ].
- rewrite Nat.mod_mul; [ simpl | assumption ].
- rewrite Nbar.fin_inj_mul.
- rewrite Nbar.fin_inj_mul.
- rewrite <- Nbar.mul_add_distr_r.
+ do 2 rewrite Nbar.fin_inj_mul.
+ rewrite <- Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
  rewrite <- Nbar.fin_inj_mul.
- remember (Nbar.lt_dec (fin (c * k)) ((stop s + fin n) * fin k)) as c₁.
- remember (Nbar.lt_dec (fin c) (stop s + fin n)) as c₂.
- remember (lt_dec (c * k) (n * k)) as c₄.
- remember (Nbar.lt_dec (fin (c - n)) (stop s)) as c₅.
- clear Heqc₁ Heqc₂ Heqc₄ Heqc₅.
+ remember (Nbar.lt_dec (fin (c * k)) ((stop s - fin n) * fin k)) as c₁.
+ remember (Nbar.lt_dec (fin c) (stop s - fin n)) as c₂.
+ rewrite <- Nat.mul_add_distr_r.
+ rewrite Nat.mod_mul; [ simpl | assumption ].
+ rewrite Nat.div_mul; [ simpl | assumption ].
+ remember (Nbar.lt_dec (fin (c + n)) (stop s)) as c₅.
+ clear Heqc₁ Heqc₂ Heqc₅.
  destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
- destruct (lt_dec c n) as [Hlt| Hge].
-  destruct c₄ as [| H₄]; [ destruct c₂; reflexivity | idtac ].
-  destruct c₅ as [H₅| ]; [ idtac | destruct c₂; reflexivity ].
-  exfalso; apply H₄.
-  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
-  rewrite Heqk; apply Pos2Nat.is_pos.
+ destruct c₂ as [H₂| H₂].
+  destruct c₅ as [H₃| H₃]; [ reflexivity | idtac ].
+  exfalso; apply H₃.
+  apply Nbar.lt_add_lt_sub_r in H₂; assumption.
 
-  apply not_gt in Hge.
-  remember (c - n)%nat as m.
-  assert (m + n = c)%nat by (subst m; apply Nat.sub_add; assumption).
-  subst c; clear Heqm Hge.
-  destruct c₄ as [H₄| H₄].
-   exfalso; apply lt_not_le in H₄; apply H₄.
-   rewrite Nat.mul_add_distr_r.
-   apply le_plus_r.
+  exfalso; apply H₂.
+  rewrite Nbar.fin_inj_mul in H₁.
+  apply Nbar.mul_lt_mono_pos_r in H₁.
+   assumption.
 
-   destruct c₂ as [H₂| H₂].
-    destruct c₅ as [| H₅]; [ reflexivity | idtac ].
-    rewrite Nbar.fin_inj_add in H₂.
-    apply Nbar.add_lt_mono_r in H₂; [ idtac | intros H; discriminate H ].
-    contradiction.
+   rewrite Heqk; constructor; apply Pos2Nat.is_pos.
 
-    destruct c₅ as [H₅| ]; [ idtac | reflexivity ].
-    exfalso; apply H₂.
-    rewrite Nbar.fin_inj_add.
-    apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-    intros H; discriminate H.
+   intros H; discriminate H.
+
+   intros H; discriminate H.
 
  rewrite Nbar.fin_inj_mul.
- rewrite <- Nbar.mul_add_distr_r.
+ rewrite <- Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
+
+bbb.
+
  remember (Nbar.lt_dec (fin i) ((stop s + fin n) * fin k)) as c₁.
  remember (lt_dec i (n * k)) as c₂.
  remember (zerop ((i - n * k) mod k)) as c₃.
@@ -1184,13 +1178,6 @@ destruct (lt_dec i n) as [Hlt| Hge].
     apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
     assumption.
 Qed.
-
-Lemma Nbar_fold_sub : ∀ x n,
-  match x with
-  | fin m => fin (m - n)
-  | ∞ => ∞
-  end = (x - fin n)%Nbar.
-Proof. reflexivity. Qed.
 
 Lemma series_empty_add_distr : ∀ s₁ s₂ n,
   series_empty_left n (series_add fld s₁ s₂)

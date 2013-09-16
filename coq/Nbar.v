@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.61 2013-09-14 12:52:59 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.62 2013-09-16 02:42:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -320,6 +320,87 @@ Proof.
 apply lt_0_succ with (n := 0).
 Qed.
 
+Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
+Proof.
+intros n m.
+split; intros H.
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | exfalso; apply H; constructor ].
+  apply fin_lt_mono, Nat.nlt_ge.
+  intros I; apply H.
+  apply fin_le_mono, le_S_n; assumption.
+
+  destruct m; [ constructor | exfalso; apply H; constructor ].
+
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | inversion H ].
+  apply fin_lt_mono, Nat.nle_gt in H.
+  intros I; apply H; clear H.
+  apply fin_le_mono; assumption.
+
+  destruct m; [ intros I; inversion I | inversion H ].
+Qed.
+
+Theorem nlt_ge : ∀ n m, ¬(n < m) ↔ m ≤ n.
+Proof.
+intros n m.
+split; intros H.
+ destruct n as [n| ]; [ idtac | constructor ].
+ destruct m as [m| ].
+  apply fin_le_mono, Nat.nlt_ge.
+  intros I; apply H.
+  apply fin_lt_mono; assumption.
+
+  exfalso; apply H; constructor.
+
+ destruct n as [n| ].
+  destruct m as [m| ]; [ idtac | inversion H ].
+  apply fin_le_mono, Nat.nlt_ge in H.
+  intros I; apply H.
+  apply fin_lt_mono; assumption.
+
+  destruct m; intros I; inversion I.
+Qed.
+
+Theorem lt_add_lt_sub_r : ∀ n m p, n + p < m ↔ n < m - p.
+Proof.
+intros n m p.
+split; intros H.
+ destruct m as [m| ]; simpl.
+  destruct p as [p| ]; simpl.
+   destruct n as [n| ]; simpl.
+    apply fin_lt_mono in H.
+    apply fin_lt_mono.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+    exfalso; apply nle_gt in H; apply H; constructor.
+
+   exfalso; apply nle_gt in H; apply H; rewrite add_comm; constructor.
+
+  destruct p as [p| ]; simpl.
+   destruct n as [n| ]; [ constructor | simpl ].
+   exfalso; apply nle_gt in H; apply H; constructor.
+
+   exfalso; apply nle_gt in H; apply H; rewrite add_comm; constructor.
+
+ destruct m as [m| ]; simpl.
+  destruct p as [p| ]; simpl.
+   destruct n as [n| ]; simpl.
+    apply fin_lt_mono in H.
+    apply fin_lt_mono.
+    apply Nat.lt_add_lt_sub_r; assumption.
+
+    exfalso; apply nle_gt in H; apply H; constructor.
+
+   exfalso; apply nle_gt in H; apply H, le_0_l.
+
+  destruct p as [p| ]; simpl.
+   destruct n as [n| ]; [ constructor | simpl ].
+   exfalso; apply nle_gt in H; apply H; constructor.
+
+   exfalso; apply nle_gt in H; apply H, le_0_l.
+Qed.
+
 (*
 Theorem le_antisymm : ∀ n m, n ≤ m → m ≤ n → n = m.
 Proof.
@@ -442,7 +523,6 @@ destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.mul_add_distr_r; reflexivity.
 Qed.
 
-(*
 Theorem mul_sub_distr_r : ∀ n m p, p ≠ ∞ → (n - m) * p = n * p - m * p.
 Proof.
 intros n m p Hp.
@@ -451,7 +531,6 @@ destruct m as [m| ]; [ simpl | reflexivity ].
 destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.mul_sub_distr_r; reflexivity.
 Qed.
-*)
 
 Theorem min_id : ∀ n, min n n = n.
 Proof.
@@ -598,48 +677,6 @@ intros n m H.
 destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
 constructor; apply Nat.lt_le_incl; inversion H; assumption.
-Qed.
-
-Theorem  nle_gt : ∀ n m, ¬n ≤ m ↔ m < n.
-Proof.
-intros n m.
-split; intros H.
- destruct n as [n| ].
-  destruct m as [m| ]; [ idtac | exfalso; apply H; constructor ].
-  apply fin_lt_mono, Nat.nlt_ge.
-  intros I; apply H.
-  apply fin_le_mono, le_S_n; assumption.
-
-  destruct m; [ constructor | exfalso; apply H; constructor ].
-
- destruct n as [n| ].
-  destruct m as [m| ]; [ idtac | inversion H ].
-  apply fin_lt_mono, Nat.nle_gt in H.
-  intros I; apply H; clear H.
-  apply fin_le_mono; assumption.
-
-  destruct m; [ intros I; inversion I | inversion H ].
-Qed.
-
-Theorem nlt_ge : ∀ n m, ¬(n < m) ↔ m ≤ n.
-Proof.
-intros n m.
-split; intros H.
- destruct n as [n| ]; [ idtac | constructor ].
- destruct m as [m| ].
-  apply fin_le_mono, Nat.nlt_ge.
-  intros I; apply H.
-  apply fin_lt_mono; assumption.
-
-  exfalso; apply H; constructor.
-
- destruct n as [n| ].
-  destruct m as [m| ]; [ idtac | inversion H ].
-  apply fin_le_mono, Nat.nlt_ge in H.
-  intros I; apply H.
-  apply fin_lt_mono; assumption.
-
-  destruct m; intros I; inversion I.
 Qed.
 
 Theorem nlt_0_r : ∀ n, ¬(n < 0).
