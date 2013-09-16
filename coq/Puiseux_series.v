@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.614 2013-09-16 14:48:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.615 2013-09-16 15:19:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1656,6 +1656,34 @@ destruct (le_dec m n) as [H₁| H₁].
   exfalso; revert Hd; apply Pos2Nat_ne_0.
 Qed.
 
+(* oups...
+Lemma www : ∀ n m s,
+  series_pad_left fld n (series_empty_left m s)
+  ≃ series_shift fld (Z.of_nat m - Z.of_nat n) s.
+Proof.
+bbb.
+*)
+
+Lemma series_shift_shift : ∀ n m s,
+  series_shift fld n (series_shift fld m s) ≃ series_shift fld (n + m) s.
+Proof.
+intros n m s.
+unfold series_shift; simpl.
+destruct n as [| n| n]; [ reflexivity | simpl | simpl ].
+ destruct m as [| m| m]; [ reflexivity | simpl | simpl ].
+  rewrite Pos2Nat.inj_add.
+  apply series_pad_pad.
+
+  rewrite Z.pos_sub_spec.
+  remember (n ?= m)%positive as c eqn:Hc .
+  symmetry in Hc.
+  destruct c.
+   apply Pos.compare_eq_iff in Hc.
+   subst m.
+Abort. (*
+bbb. FAUX !
+*)
+
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
   nz_terms_add fld n₁ (build_nz_add fld n₂ nz₁ nz₂) nz₃ ≃
   nz_terms_add fld n₃ nz₁ (build_nz_add fld n₄ nz₂ nz₃).
@@ -1681,6 +1709,7 @@ do 4 rewrite stretch_empty_series_distr.
 do 4 rewrite stretch_pad_series_distr.
 do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
 do 10 rewrite series_empty_pad_shift.
+do 4 rewrite series_shift_shift.
 bbb.
 
 do 4 rewrite series_pad_pad.
