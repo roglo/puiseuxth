@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.63 2013-09-16 10:00:23 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.64 2013-09-16 11:30:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -87,10 +87,10 @@ intros n₁ n₂.
 split; intros H; [ inversion H | subst ]; reflexivity.
 Qed.
 
-(*
 Theorem fin_inj_sub : ∀ n m, fin (n - m) = fin n - fin m.
 Proof. reflexivity. Qed.
 
+(*
 Theorem fin_inj_S : ∀ n, fin (Datatypes.S n) = S (fin n).
 Proof. reflexivity. Qed.
 
@@ -485,6 +485,20 @@ intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Nat.add_assoc; reflexivity | reflexivity ].
+Qed.
+
+Theorem add_sub_assoc : ∀ n m p, p ≠ ∞ → p ≤ m → n + (m - p) = n + m - p.
+Proof.
+intros n m p Hp Hpm.
+destruct n as [n| ]; simpl.
+ destruct m as [m| ]; simpl.
+  destruct p as [p| ]; [ simpl | exfalso; apply Hp; reflexivity ].
+  apply fin_le_mono in Hpm.
+  rewrite Nat.add_sub_assoc; [ reflexivity | assumption ].
+
+  destruct p as [p| ]; [ reflexivity | exfalso; apply Hp; reflexivity ].
+
+ destruct p as [p| ]; [ reflexivity | exfalso; apply Hp; reflexivity ].
 Qed.
 
 Theorem mul_eq_0_l : ∀ n m, n * m = 0 → m ≠ 0 → n = 0.

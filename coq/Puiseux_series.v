@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.608 2013-09-16 10:00:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.609 2013-09-16 11:30:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1498,7 +1498,7 @@ destruct n as [| n| n].
  reflexivity.
 Qed.
 
-Lemma www : ∀ s n m,
+Lemma series_empty_pad_pad : ∀ s n m,
   (m ≤ n)%nat
   → series_empty_left m (series_pad_left fld n s) ≃
     series_pad_left fld (n - m) s.
@@ -1521,6 +1521,29 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n - fin m)) as [H₁| H₁].
     rewrite Nat_sub_sub_distr; [ reflexivity | assumption ].
 
   exfalso; apply H₂.
+  rewrite Nbar.fin_inj_sub.
+  rewrite Nbar.add_sub_assoc; [ assumption | idtac | idtac ].
+   intros H; discriminate H.
+
+   apply Nbar.fin_le_mono; assumption.
+
+ destruct (Nbar.lt_dec (fin i) (stop s + fin (n - m))) as [H₂| H₂].
+  exfalso; apply H₁.
+  rewrite Nbar.fin_inj_sub in H₂.
+  rewrite Nbar.add_sub_assoc in H₂; [ assumption | idtac | idtac ].
+   intros H; discriminate H.
+
+   apply Nbar.fin_le_mono; assumption.
+
+  reflexivity.
+Qed.
+
+Lemma series_empty_pad_empty : ∀ s n m,
+  (n ≤ m)%nat
+  → series_empty_left m (series_pad_left fld n s) ≃
+    series_empty_left fld (m - n) s.
+Proof.
+intros s n m Hnm.
 bbb.
 
 Lemma nz_terms_add_assoc_zzz : ∀ nz₁ nz₂ nz₃ n₁ n₂ n₃ n₄,
