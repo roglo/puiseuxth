@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.618 2013-09-16 21:58:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.619 2013-09-17 13:44:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1727,6 +1727,12 @@ do 8 rewrite Z2Nat_id_max.
 do 2 rewrite positive_nat_Z.
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+remember (v₁ * ' c₂ * ' c₃)%Z as V₁ eqn:HV₁ .
+remember (v₂ * ' c₁ * ' c₃)%Z as V₂ eqn:HV₂ .
+remember (v₃ * ' c₁ * ' c₂)%Z as V₃ eqn:HV₃ .
+rewrite Z.mul_shuffle0, <- HV₂.
+rewrite Z.mul_shuffle0, <- HV₃.
 bbb.
 
 do 4 rewrite series_pad_pad.
