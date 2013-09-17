@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.619 2013-09-17 13:44:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.620 2013-09-17 14:30:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1683,6 +1683,35 @@ destruct n as [| n| n]; [ reflexivity | simpl | simpl ].
 Abort. (*
 bbb. FAUX !
 *)
+
+Open Scope Z_scope.
+
+Lemma xxx : ∀ v₁ v₂ v₃ c₁ c₂ c₃ n₁ n₂ V₁ V₂ V₃ N₁ N₂ N s,
+  V₁ = v₁ * ' c₂ * ' c₃
+  → V₂ = v₂ * ' c₃ * ' c₁
+    → V₃ = v₃ * ' c₁ * ' c₂
+      → N₁ = n₁ * 'c₃
+        → N₂ = n₂ * 'c₁
+          → series_shift fld
+              (Z.max 0 (Z.min V₁ V₂ + N₁ - V₃) - N)
+              (series_shift fld (Z.max 0 (V₁ - V₂) - N₁) s) ≃
+           series_shift fld
+              (Z.max 0 (V₁ - (Z.min V₂ V₃ + N₂)) - N)
+              s.
+Proof.
+intros v₁ v₂ v₃ c₁ c₂ c₃ n₁ n₂ V₁ V₂ V₃ N₁ N₂ N s.
+intros HV₁ HV₂ HV₃ HN₁ HN₂.
+unfold series_shift.
+remember (Z.max 0 (Z.min V₁ V₂ + N₁ - V₃) - N) as x₁ eqn:Hx₁ .
+remember (Z.max 0 (V₁ - (Z.min V₂ V₃ + N₂)) - N) as x₂ eqn:Hx₂ .
+remember (Z.max 0 (V₁ - V₂) - N₁) as x₃ eqn:Hx₃ .
+symmetry in Hx₁, Hx₂, Hx₃.
+destruct x₁ as [| x₁| x₁].
+ destruct x₃ as [| x₃| x₃].
+  destruct x₂ as [| x₂| x₂]; [ reflexivity | idtac | idtac ].
+bbb.
+
+Close Scope.
 
 Lemma xxx : ∀ s V₁ V₂ V₃ n n₁ n₂,
   series_shift fld (Z.max 0 (Z.min V₁ V₂ + n₁ - V₃) - n)
