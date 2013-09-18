@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.622 2013-09-18 15:58:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.623 2013-09-18 17:16:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -444,8 +444,24 @@ Qed.
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
-induction H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
- induction H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
+inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
+ inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
+  remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
+  remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
+  remember n₁₁ as n₁ eqn:Hn₁ .
+  remember n₁₂ as n₂ eqn:Hn₂ .
+  constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
+   Focus 3.
+   subst k₁ k₂.
+   rewrite Pos.mul_assoc, Pos.mul_assoc, Hck₁.
+   symmetry.
+   rewrite Pos.mul_assoc, Pos.mul_assoc, Pos.mul_comm.
+   rewrite Pos_mul_shuffle0, <- Hck₂.
+   do 3 rewrite <- Pos.mul_assoc; f_equal.
+   rewrite Pos.mul_comm, Pos.mul_assoc; f_equal.
+   apply Pos.mul_comm.
+
+   Focus 2.
 bbb.
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
