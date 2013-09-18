@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.623 2013-09-18 17:16:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.624 2013-09-18 18:57:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -282,6 +282,73 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
   destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
 Qed.
 
+Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
+signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
+Proof.
+intros n s₁ s₂ Heq.
+constructor; intros i.
+inversion Heq; subst.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld in H; simpl in H.
+pose proof (H (i - n)%nat) as Hi; clear H.
+destruct (lt_dec i n) as [Hlt| Hge].
+ destruct (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
+  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)); reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)); reflexivity.
+
+ apply not_gt in Hge.
+ remember (i - n)%nat as m.
+ assert (m + n = i)%nat by (subst m; apply Nat.sub_add; assumption).
+ subst i; clear Heqm Hge.
+ destruct (Nbar.lt_dec (fin (m + n)) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
+  destruct (Nbar.lt_dec (fin (m + n)) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
+   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
+    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
+     assumption.
+
+     exfalso; apply Hge₄; clear Hge₄.
+     rewrite Nbar.fin_inj_add in Hlt₂.
+     apply Nbar.add_lt_mono_r in Hlt₂; [ assumption | idtac ].
+     intros H; discriminate H.
+
+    exfalso; apply Hge₃; clear Hge₃.
+    rewrite Nbar.fin_inj_add in Hlt₁.
+    apply Nbar.add_lt_mono_r in Hlt₁; [ assumption | idtac ].
+    intros H; discriminate H.
+
+   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
+    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
+     exfalso; apply Hge₂; clear Hge₂.
+     rewrite Nbar.fin_inj_add.
+     apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+     intros H; discriminate H.
+
+     assumption.
+
+    exfalso; apply Hge₃; clear Hge₃.
+    rewrite Nbar.fin_inj_add in Hlt₁.
+    apply Nbar.add_lt_mono_r in Hlt₁; [ assumption | idtac ].
+    intros H; discriminate H.
+
+  destruct (Nbar.lt_dec (fin (m + n)) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
+   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
+    exfalso; apply Hge₁; clear Hge₁.
+    rewrite Nbar.fin_inj_add.
+    apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+    intros H; discriminate H.
+
+    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
+     assumption.
+
+     exfalso; apply Hge₄; clear Hge₄.
+     rewrite Nbar.fin_inj_add in Hlt₂.
+     apply Nbar.add_lt_mono_r in Hlt₂; [ assumption | idtac ].
+     intros H; discriminate H.
+
+   reflexivity.
+Qed.
+
 Section fld₁.
 
 Variable α : Type.
@@ -441,6 +508,44 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
    intros H; discriminate H.
 Qed.
 
+Lemma series_pad_pad : ∀ x y ps,
+  series_pad_left fld x (series_pad_left fld y ps) ≃
+  series_pad_left fld (x + y) ps.
+Proof.
+intros x y ps.
+constructor; simpl.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_shuffle0.
+rewrite Nbar.fin_inj_add, Nbar.add_assoc.
+remember (Nbar.lt_dec (fin i) (stop ps + fin x + fin y)) as c₁.
+remember (lt_dec (i - x) y) as c₂.
+remember (lt_dec i (x + y)) as c₃.
+clear Heqc₁ Heqc₂ Heqc₃.
+destruct (lt_dec i x) as [Hlt| Hge].
+ destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
+ destruct c₁ as [c₁| ]; [ idtac | reflexivity ].
+ exfalso; apply H₃.
+ apply Nat.lt_lt_add_r; assumption.
+
+ destruct c₂ as [H₂| H₂].
+  destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
+  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
+  exfalso; apply H₃.
+  apply not_gt in Hge.
+  apply Nat.lt_sub_lt_add_l; assumption.
+
+  rewrite Nat.sub_add_distr.
+  destruct c₃ as [H₃| H₃]; [ idtac | reflexivity ].
+  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
+  apply not_gt in Hge.
+  exfalso; apply H₂.
+  unfold lt.
+  rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
+  apply Nat.le_sub_le_add_l.
+  assumption.
+Qed.
+
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
@@ -448,8 +553,8 @@ inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv�
  inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
-  remember n₁₁ as n₁ eqn:Hn₁ .
-  remember n₁₂ as n₂ eqn:Hn₂ .
+  remember (42 * n₁₁ * Pos.to_nat k₁)%nat as n₁ eqn:Hn₁ .
+  remember (27 * Pos.to_nat k₂)%nat as n₂ eqn:Hn₂ .
   constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
    Focus 3.
    subst k₁ k₂.
@@ -461,8 +566,28 @@ inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv�
    rewrite Pos.mul_comm, Pos.mul_assoc; f_equal.
    apply Pos.mul_comm.
 
-   Focus 2.
+   Focus 1.
+   rewrite <- H0 in H1.
+   injection H1; clear H1; intros; subst nz₂₁.
+   subst k₁ k₂ n₁ n₂.
+   replace (k₁₁ * k₂₁ * nz_comden nz₁₂)%positive with
+    (k₂₁ * nz_comden nz₁₂ * k₁₁)%positive .
+    rewrite stretch_stretch_series.
+    replace (42 * n₁₁ * Pos.to_nat (k₂₁ * nz_comden nz₁₂ * k₁₁))%nat with
+     (42 * Pos.to_nat k₁₁ * n₁₁ * Pos.to_nat (k₂₁ * nz_comden nz₁₂))%nat .
+     rewrite <- stretch_pad_series_distr.
+     remember (42 * Pos.to_nat k₁₁)%nat as x eqn:Hx .
+     symmetry in Hx.
+     destruct x.
+      exfalso; revert Hx.
+      apply Nat.neq_mul_0.
+      split; [ intros I; discriminate I | apply Pos2Nat_ne_0 ].
+
+      rewrite Nat.mul_succ_l.
+      rewrite <- series_pad_pad.
+      rewrite Hss₁.
 bbb.
+
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
   remember (n₁₁ * Pos.to_nat k₁₁ + n₂₁ * Pos.to_nat k₂₁)%nat as n₁ eqn:Hn₁ .
@@ -824,84 +949,6 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   end.
 *)
 
-End fld₂.
-
-Add Parametric Morphism α (fld : field α) : (series_pad_left fld) with 
-signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
-Proof.
-intros n s₁ s₂ Heq.
-constructor; intros i.
-inversion Heq; subst.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld in H; simpl in H.
-pose proof (H (i - n)%nat) as Hi; clear H.
-destruct (lt_dec i n) as [Hlt| Hge].
- destruct (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
-  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)); reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)); reflexivity.
-
- apply not_gt in Hge.
- remember (i - n)%nat as m.
- assert (m + n = i)%nat by (subst m; apply Nat.sub_add; assumption).
- subst i; clear Heqm Hge.
- destruct (Nbar.lt_dec (fin (m + n)) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
-  destruct (Nbar.lt_dec (fin (m + n)) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
-   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
-    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
-     assumption.
-
-     exfalso; apply Hge₄; clear Hge₄.
-     rewrite Nbar.fin_inj_add in Hlt₂.
-     apply Nbar.add_lt_mono_r in Hlt₂; [ assumption | idtac ].
-     intros H; discriminate H.
-
-    exfalso; apply Hge₃; clear Hge₃.
-    rewrite Nbar.fin_inj_add in Hlt₁.
-    apply Nbar.add_lt_mono_r in Hlt₁; [ assumption | idtac ].
-    intros H; discriminate H.
-
-   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
-    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
-     exfalso; apply Hge₂; clear Hge₂.
-     rewrite Nbar.fin_inj_add.
-     apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-     intros H; discriminate H.
-
-     assumption.
-
-    exfalso; apply Hge₃; clear Hge₃.
-    rewrite Nbar.fin_inj_add in Hlt₁.
-    apply Nbar.add_lt_mono_r in Hlt₁; [ assumption | idtac ].
-    intros H; discriminate H.
-
-  destruct (Nbar.lt_dec (fin (m + n)) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
-   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
-    exfalso; apply Hge₁; clear Hge₁.
-    rewrite Nbar.fin_inj_add.
-    apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-    intros H; discriminate H.
-
-    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
-     assumption.
-
-     exfalso; apply Hge₄; clear Hge₄.
-     rewrite Nbar.fin_inj_add in Hlt₂.
-     apply Nbar.add_lt_mono_r in Hlt₂; [ assumption | idtac ].
-     intros H; discriminate H.
-
-   reflexivity.
-Qed.
-
-Section fld₄.
-
-Variable α : Type.
-Variable fld : field α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
-
 Lemma stretch_series_add_distr : ∀ k s₁ s₂,
   stretch_series fld k (series_add fld s₁ s₂) ≃
   series_add fld (stretch_series fld k s₁) (stretch_series fld k s₂).
@@ -1087,44 +1134,6 @@ destruct (lt_dec i n) as [Hlt| Hge].
     rewrite Nbar.fin_inj_add.
     apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
     assumption.
-Qed.
-
-Lemma series_pad_pad : ∀ x y ps,
-  series_pad_left fld x (series_pad_left fld y ps) ≃
-  series_pad_left fld (x + y) ps.
-Proof.
-intros x y ps.
-constructor; simpl.
-intros i.
-unfold series_nth_fld; simpl.
-rewrite Nbar.add_shuffle0.
-rewrite Nbar.fin_inj_add, Nbar.add_assoc.
-remember (Nbar.lt_dec (fin i) (stop ps + fin x + fin y)) as c₁.
-remember (lt_dec (i - x) y) as c₂.
-remember (lt_dec i (x + y)) as c₃.
-clear Heqc₁ Heqc₂ Heqc₃.
-destruct (lt_dec i x) as [Hlt| Hge].
- destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
- destruct c₁ as [c₁| ]; [ idtac | reflexivity ].
- exfalso; apply H₃.
- apply Nat.lt_lt_add_r; assumption.
-
- destruct c₂ as [H₂| H₂].
-  destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
-  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
-  exfalso; apply H₃.
-  apply not_gt in Hge.
-  apply Nat.lt_sub_lt_add_l; assumption.
-
-  rewrite Nat.sub_add_distr.
-  destruct c₃ as [H₃| H₃]; [ idtac | reflexivity ].
-  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
-  apply not_gt in Hge.
-  exfalso; apply H₂.
-  unfold lt.
-  rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
-  apply Nat.le_sub_le_add_l.
-  assumption.
 Qed.
 
 Lemma first_nonzero_nonzero_fin : ∀ s n,
