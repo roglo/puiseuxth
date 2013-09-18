@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.624 2013-09-18 18:57:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.625 2013-09-18 19:57:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -554,7 +554,7 @@ inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv�
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
   remember (42 * n₁₁ * Pos.to_nat k₁)%nat as n₁ eqn:Hn₁ .
-  remember (27 * Pos.to_nat k₂)%nat as n₂ eqn:Hn₂ .
+  remember (27 * n₂₂ * Pos.to_nat k₂)%nat as n₂ eqn:Hn₂ .
   constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
    Focus 3.
    subst k₁ k₂.
@@ -586,7 +586,60 @@ inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv�
       rewrite Nat.mul_succ_l.
       rewrite <- series_pad_pad.
       rewrite Hss₁.
+      symmetry.
+      replace (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive with
+       (k₁₂ * nz_comden nz₁₂ * k₂₂)%positive .
+       rewrite stretch_stretch_series.
+       replace (27 * n₂₂ * Pos.to_nat (k₁₂ * nz_comden nz₁₂ * k₂₂))%nat with
+        (27 * Pos.to_nat k₂₂ * n₂₂ * Pos.to_nat (k₁₂ * nz_comden nz₁₂))%nat .
+        rewrite <- stretch_pad_series_distr.
+        remember (27 * Pos.to_nat k₂₂)%nat as y eqn:Hy .
+        symmetry in Hy.
+        destruct y.
+         exfalso; revert Hy.
+         apply Nat.neq_mul_0.
+         split; [ intros I; discriminate I | apply Pos2Nat_ne_0 ].
+
+         rewrite Nat.mul_succ_l.
+         rewrite <- series_pad_pad.
+         rewrite <- Hss₂.
+         symmetry.
+         do 2 rewrite series_pad_pad.
+         do 2 rewrite stretch_pad_series_distr.
+         do 2 rewrite <- stretch_stretch_series.
 bbb.
+  Hx : (42 * Pos.to_nat k₁₁)%nat = S x
+  Hy : (27 * Pos.to_nat k₂₂)%nat = S y
+(x * n₁₁ + n₁₂) * Pos.to_nat k₂₁ =
+(y * n₂₂ + n₂₁) * Pos.to_nat k₁₂
+
+(x n₁₁ + n₁₂) k₂₁ = (y n₂₂ + n₂₁) k₁₂
+((42 k₁₁ - 1) n₁₁ + n₁₂) k₂₁ = ((27 k₂₂ - 1) n₂₂ + n₂₁) k₁₂
+((v₁ k₁₁ - 1) n₁₁ + n₁₂) k₂₁ = ((v₂ k₂₂ - 1) n₂₂ + n₂₁) k₁₂
+(v₁ k₁₁ n₁₁ - n₁₁ + n₁₂) k₂₁ = (v₂ k₂₂ n₂₂ - n₂₂ + n₂₁) k₁₂
+v₁ k₁₁ k₂₁ n₁₁ - k₂₁ n₁₁ + k₂₁ n₁₂ = v₂ k₁₂ k₂₂ n₂₂ - k₁₂ n₂₂ + k₁₂ n₂₁
+v₁ k₁₁ k₂₁ n₁₁ - v₂ k₁₂ k₂₂ n₂₂ =  k₂₁ n₁₁ - k₂₁ n₁₂ - k₁₂ n₂₂ + k₁₂ n₂₁
+v₁ k₁₁ k₂₁ n₁₁ - v₂ k₁₂ k₂₂ n₂₂ = k₂₁ (v₁₁ + n₁₂ - v₁₂) - k₂₁ n₁₂ - k₁₂ n₂₂ + k₁₂ n₂₁
+v₁ k₁₁ k₂₁ n₁₁ - v₂ k₁₂ k₂₂ n₂₂ = k₂₁ (v₁₁ - v₁₂) - k₁₂ (v₂₂ + n₂₁ - v₁₂) + k₁₂ n₂₁
+v₁ k₁₁ k₂₁ n₁₁ - v₂ k₁₂ k₂₂ n₂₂ = k₂₁ (v₁₁ - v₁₂) - k₁₂ (v₂₂ - v₁₂)
+v₁ k₁₁ k₂₁ n₁₁ - v₂ k₁₂ k₂₂ n₂₂ = k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂)
+
+k₁ = k₁₁ k₂₁ c₂₁
+k₂ = k₁₂ k₂₂ c₁₂
+n₁ = v₁ n₁₁ k₁
+n₂ = v₂ n₂₂ k₂
+
+n₁ k₁₁ k₂₁ k₂ - k₁ v₂ k₁₂ k₂₂ k₂ n₂₂ = k₁ k₂ k₂₁ (v₁₁ - v₁₂) + k₁ k₂ k₁₂ (v₁₂ - v₂₂)
+n₁ k₁₁ k₂₁ k₂ - v₂ n₂₂ k₂ k₁ k₁₂ k₂₂ = k₁ k₂ k₂₁ (v₁₁ - v₁₂) + k₁ k₂ k₁₂ (v₁₂ - v₂₂)
+n₁ k₁₁ k₂₁ k₂ - n₂ k₁ k₁₂ k₂₂ = k₁ k₂ k₂₁ (v₁₁ - v₁₂) + k₁ k₂ k₁₂ (v₁₂ - v₂₂)
+n₁ k₁₁ k₂₁ k₂ - n₂ k₁ k₁₂ k₂₂ = k₁₁ k₂₁ k₁₂ k₂₁ c₁₂ c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
+
+n₁ k₁₁ k₂₁ k₁₂ k₂₂ c₁₂ - n₂ k₁₁ k₂₁ c₂₁ k₁₂ k₂₂ = k₁₁ k₂₁ k₁₂ k₂₁ c₁₂ c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
+
+n₁ c₁₂ - n₂ c₂₁ = c₁₂ c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
+
+n₁ = c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
+n₂ = c₁₂ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
 
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
