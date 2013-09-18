@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.621 2013-09-18 11:47:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.622 2013-09-18 15:58:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -57,12 +57,10 @@ Inductive puiseux_series α :=
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ n₁ n₂ nz₁ nz₂,
-      stretch_series k₁ (series_pad_left n₁ (nz_terms nz₁)) ≃
-      stretch_series k₂ (series_pad_left n₂ (nz_terms nz₂))
-      → ((nz_valnum nz₁ + Z.of_nat n₁) * 'k₁ =
-         (nz_valnum nz₂ + Z.of_nat n₂) * 'k₂)%Z
-        → (nz_comden nz₁ * k₁ =
-           nz_comden nz₂ * k₂)%positive
+      series_pad_left n₁ (stretch_series k₁ (nz_terms nz₁)) ≃
+      series_pad_left n₂ (stretch_series k₂ (nz_terms nz₂))
+      → (nz_valnum nz₁ + Z.of_nat n₂ = nz_valnum nz₂ + Z.of_nat n₁)%Z
+        → (nz_comden nz₁ * k₁ = nz_comden nz₂ * k₂)%positive
           → eq_ps (NonZero nz₁) (NonZero nz₂)
   | eq_ps_zero :
       eq_ps (Zero _) (Zero _).
@@ -448,6 +446,7 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
  induction H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
+bbb.
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
   remember (n₁₁ * Pos.to_nat k₁₁ + n₂₁ * Pos.to_nat k₂₁)%nat as n₁ eqn:Hn₁ .
