@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.626 2013-09-19 02:28:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.627 2013-09-19 02:46:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -59,8 +59,10 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ n₁ n₂ nz₁ nz₂,
       series_pad_left n₁ (stretch_series k₁ (nz_terms nz₁)) ≃
       series_pad_left n₂ (stretch_series k₂ (nz_terms nz₂))
-      → (nz_valnum nz₁ + Z.of_nat n₂ = nz_valnum nz₂ + Z.of_nat n₁)%Z
-        → (nz_comden nz₁ * k₁ = nz_comden nz₂ * k₂)%positive
+      → ((nz_valnum nz₁ + Z.of_nat n₂) * 'k₁ =
+         (nz_valnum nz₂ + Z.of_nat n₁) * 'k₂)%Z
+        → (nz_comden nz₁ * k₁ =
+           nz_comden nz₂ * k₂)%positive
           → eq_ps (NonZero nz₁) (NonZero nz₂)
   | eq_ps_zero :
       eq_ps (Zero _) (Zero _).
