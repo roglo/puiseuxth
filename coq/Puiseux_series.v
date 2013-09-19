@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.625 2013-09-18 19:57:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.626 2013-09-19 02:28:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -638,8 +638,8 @@ n₁ k₁₁ k₂₁ k₁₂ k₂₂ c₁₂ - n₂ k₁₁ k₂₁ c₂₁ k₁
 
 n₁ c₁₂ - n₂ c₂₁ = c₁₂ c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
 
-n₁ = c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
-n₂ = c₁₂ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂))
+n₁ = c₂₁ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂)) + k c₂₁
+n₂ = c₁₂ (k₂₁ (v₁₁ - v₁₂) + k₁₂ (v₁₂ - v₂₂)) + k c₁₂
 
   remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
