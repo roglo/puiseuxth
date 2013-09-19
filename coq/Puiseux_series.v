@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.628 2013-09-19 03:26:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.629 2013-09-19 09:05:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -553,24 +553,67 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
  inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
-  remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
-  remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
-  remember (42 * n₁₁ * Pos.to_nat k₁)%nat as n₁ eqn:Hn₁ .
-  remember (27 * n₂₂ * Pos.to_nat k₂)%nat as n₂ eqn:Hn₂ .
+  rewrite <- H0 in H1.
+  injection H1; clear H1; intros; subst nz₂₁.
+  remember (k₁₁ * k₂₁)%positive as k₁ eqn:Hk₁ .
+  remember (k₁₂ * k₂₂)%positive as k₂ eqn:Hk₂ .
+  remember (n₂₁ + 42 * Pos.to_nat k₂₁)%nat as n₁ eqn:Hn₁ .
+  remember (n₁₂ + 27 * Pos.to_nat k₁₂)%nat as n₂ eqn:Hn₂ .
   constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
    Focus 3.
    subst k₁ k₂.
-   rewrite Pos.mul_assoc, Pos.mul_assoc, Hck₁.
-   symmetry.
-   rewrite Pos.mul_assoc, Pos.mul_assoc, Pos.mul_comm.
-   rewrite Pos_mul_shuffle0, <- Hck₂.
-   do 3 rewrite <- Pos.mul_assoc; f_equal.
-   rewrite Pos.mul_comm, Pos.mul_assoc; f_equal.
-   apply Pos.mul_comm.
+   rewrite Pos.mul_assoc, Hck₁.
+   rewrite Pos_mul_shuffle0, Hck₂, Pos_mul_shuffle0.
+   rewrite <- Pos.mul_assoc.
+   reflexivity.
 
+   Focus 2.
+   subst k₁ k₂ n₁ n₂.
+   do 2 rewrite Nat2Z.inj_add.
+   do 2 rewrite Z.add_assoc.
+   rewrite Z.mul_add_distr_r; symmetry.
+   rewrite Z.mul_add_distr_r; symmetry.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc, Hvv₁; symmetry.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0, <- Hvv₂.
+   rewrite Z.mul_shuffle0.
+   do 2 rewrite Z.mul_add_distr_r; symmetry.
+   do 2 rewrite Z.mul_add_distr_r; symmetry.
+   do 2 rewrite <- Z.add_assoc.
+   f_equal.
+   remember 42 as v₁.
+   remember 27 as v₂ in |- *.
+   simpl.
+   do 2 rewrite Nat2Z.inj_mul.
+   do 2 rewrite positive_nat_Z.
+   do 2 rewrite Pos2Z.inj_mul.
+   do 2 rewrite Z.mul_assoc.
+   replace (Z.of_nat v₁ * ' k₂₁ * ' k₁₂ * ' k₂₂)%Z with
+    (Z.of_nat v₁ * ' k₂₂ * ' k₁₂ * ' k₂₁)%Z .
+    replace (Z.of_nat v₂ * ' k₁₂ * ' k₁₁ * ' k₂₁)%Z with
+     (Z.of_nat v₂ * ' k₁₁ * ' k₁₂ * ' k₂₁)%Z .
+     do 4 rewrite <- Z.mul_add_distr_r.
+     do 2 f_equal.
+bbb.
+
+intros ps₁ ps₂ ps₃ H₁ H₂.
+inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
+ inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
+  rewrite <- H0 in H1.
+  injection H1; clear H1; intros; subst nz₂₁.
+  remember (k₁₁ * k₂₁)%positive as k₁ eqn:Hk₁ .
+  remember (k₁₂ * k₂₂)%positive as k₂ eqn:Hk₂ .
+  remember n₂₁ as n₁ eqn:Hn₁ .
+  remember n₁₂ as n₂ eqn:Hn₂ .
+  constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
+   Focus 3.
+   subst k₁ k₂.
+   rewrite Pos.mul_assoc, Hck₁.
+   rewrite Pos_mul_shuffle0, Hck₂, Pos_mul_shuffle0.
+   rewrite <- Pos.mul_assoc.
+   reflexivity.
+
+bbb.
    Focus 1.
-   rewrite <- H0 in H1.
-   injection H1; clear H1; intros; subst nz₂₁.
    subst k₁ k₂ n₁ n₂.
    replace (k₁₁ * k₂₁ * nz_comden nz₁₂)%positive with
     (k₂₁ * nz_comden nz₁₂ * k₁₁)%positive .
