@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.632 2013-09-19 17:42:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.633 2013-09-19 17:55:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -574,28 +574,23 @@ Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁.
+ rewrite <- H3 in H₂.
  inversion H₂.
-  rewrite <- H3 in H7.
-  injection H7; intros; subst nz₁0.
   constructor; etransitivity; eassumption.
 
-  rewrite <- H3 in H11.
-  injection H11; intros; subst nz₁0.
-  rewrite <- H in *.
-  rewrite <- H0 in *.
-  rewrite <- H1 in *.
+  rewrite <- H, <- H0, <- H1 in *.
   econstructor 2; eassumption.
 
-  rewrite <- H3 in H11.
-  injection H11; intros; subst nz₁0.
-  rewrite <- H in *.
-  rewrite <- H0 in *.
-  rewrite <- H1 in *.
+  rewrite <- H, <- H0, <- H1 in *.
   econstructor 3; eassumption.
 
-  rewrite <- H3 in H4; discriminate H4.
+ rewrite <- H7 in H₂.
+ inversion H₂; subst.
+  rewrite H9, H10, H11 in *.
+  econstructor 2; eassumption.
 
- Focus 1.
+  Focus 1.
+  econstructor 2; try eassumption.
 bbb.
 
 intros ps₁ ps₂ ps₃ H₁ H₂.
