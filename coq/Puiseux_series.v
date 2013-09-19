@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.629 2013-09-19 09:05:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.630 2013-09-19 15:29:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -59,8 +59,8 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ k₁ k₂ n₁ n₂ nz₁ nz₂,
       series_pad_left n₁ (stretch_series k₁ (nz_terms nz₁)) ≃
       series_pad_left n₂ (stretch_series k₂ (nz_terms nz₂))
-      → ((nz_valnum nz₁ + Z.of_nat n₂) * 'k₁ =
-         (nz_valnum nz₂ + Z.of_nat n₁) * 'k₂)%Z
+      → (nz_valnum nz₁ * 'k₂ + Z.of_nat n₂ * 'k₁ =
+         nz_valnum nz₂ * 'k₁ + Z.of_nat n₁ * 'k₂)%Z
         → (nz_comden nz₁ * k₁ =
            nz_comden nz₂ * k₂)%positive
           → eq_ps (NonZero nz₁) (NonZero nz₂)
@@ -557,8 +557,11 @@ inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv�
   injection H1; clear H1; intros; subst nz₂₁.
   remember (k₁₁ * k₂₁)%positive as k₁ eqn:Hk₁ .
   remember (k₁₂ * k₂₂)%positive as k₂ eqn:Hk₂ .
-  remember (n₂₁ + 42 * Pos.to_nat k₂₁)%nat as n₁ eqn:Hn₁ .
-  remember (n₁₂ + 27 * Pos.to_nat k₁₂)%nat as n₂ eqn:Hn₂ .
+  remember 42 as v₁.
+  remember 27 as v₂.
+  clear Heqv₁ Heqv₂.
+  remember v₁ as n₁ eqn:Hn₁ .
+  remember v₂ as n₂ eqn:Hn₂ in |-* .
   constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
    Focus 3.
    subst k₁ k₂.
