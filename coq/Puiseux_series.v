@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.630 2013-09-19 15:29:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.631 2013-09-19 15:57:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -56,14 +56,29 @@ Inductive puiseux_series α :=
   | Zero : puiseux_series α.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_ps_base : ∀ k₁ k₂ n₁ n₂ nz₁ nz₂,
-      series_pad_left n₁ (stretch_series k₁ (nz_terms nz₁)) ≃
-      series_pad_left n₂ (stretch_series k₂ (nz_terms nz₂))
-      → (nz_valnum nz₁ * 'k₂ + Z.of_nat n₂ * 'k₁ =
-         nz_valnum nz₂ * 'k₁ + Z.of_nat n₁ * 'k₂)%Z
-        → (nz_comden nz₁ * k₁ =
-           nz_comden nz₂ * k₂)%positive
+  | eq_ps_base : ∀ nz₁ nz₂,
+      nz_valnum nz₁ = nz_valnum nz₂
+      → nz_comden nz₁ = nz_comden nz₂
+        → nz_terms nz₁ ≃ nz_terms nz₂
           → eq_ps (NonZero nz₁) (NonZero nz₂)
+  | eq_ps_stretch : ∀ nz₁ nz₂ nz₃ nz₄ k₁ k₂,
+      nz_valnum nz₁ = (nz_valnum nz₃ * 'k₁)%Z
+      → nz_valnum nz₂ = (nz_valnum nz₄ * 'k₂)%Z
+        → nz_comden nz₁ = (nz_comden nz₃ * k₁)%positive
+          → nz_comden nz₂ = (nz_comden nz₄ * k₂)%positive
+            → nz_terms nz₁ ≃ stretch_series k₁ (nz_terms nz₃)
+              → nz_terms nz₂ ≃ stretch_series k₂ (nz_terms nz₄)
+                → eq_ps (NonZero nz₃) (NonZero nz₄)
+                  → eq_ps (NonZero nz₁) (NonZero nz₂)
+  | eq_ps_pad : ∀ nz₁ nz₂ nz₃ nz₄ n₁ n₂,
+      nz_valnum nz₁ = (nz_valnum nz₃ + Z.of_nat n₁)%Z
+      → nz_valnum nz₂ = (nz_valnum nz₄ + Z.of_nat n₂)%Z
+        → nz_comden nz₁ = nz_comden nz₃
+          → nz_comden nz₂ = nz_comden nz₄
+            → nz_terms nz₁ ≃ series_pad_left n₁ (nz_terms nz₃)
+              → nz_terms nz₂ ≃ series_pad_left n₂ (nz_terms nz₄)
+                → eq_ps (NonZero nz₃) (NonZero nz₄)
+                  → eq_ps (NonZero nz₁) (NonZero nz₂)
   | eq_ps_zero :
       eq_ps (Zero _) (Zero _).
 
@@ -122,17 +137,34 @@ inversion Hlt as [a b H d e| ]; subst.
 exfalso; revert H; apply Nat.nle_succ_0.
 Qed.
 
+Lemma stretch_series_1 : ∀ s, stretch_series 1 s ≃ s.
+Proof.
+intros s.
+unfold stretch_series; simpl.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
+destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
+Qed.
+
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ idtac | constructor ].
-constructor 1 with (k₁ := xH) (k₂ := xH) (n₁ := O) (n₂ := O); reflexivity.
+constructor; reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
-inversion H; econstructor; symmetry; eassumption.
+induction H.
+ constructor; symmetry; assumption.
+
+ econstructor 2; eassumption.
+
+ econstructor 3; eassumption.
+
+ constructor.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
@@ -360,16 +392,6 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
-Lemma stretch_series_1 : ∀ s, stretch_series fld 1 s ≃ s.
-Proof.
-intros s.
-unfold stretch_series; simpl.
-constructor; intros i.
-unfold series_nth_fld; simpl.
-rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
-destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
-Qed.
-
 Lemma stretch_series_series_0 : ∀ k,
   stretch_series fld k (series_0 fld) ≃ series_0 fld.
 Proof.
@@ -551,6 +573,7 @@ Qed.
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
+bbb.
 inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
  inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
   rewrite <- H0 in H1.
