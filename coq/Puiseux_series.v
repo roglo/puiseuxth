@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.645 2013-09-20 13:10:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.646 2013-09-20 15:39:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1230,7 +1230,31 @@ Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
     (normalise_nz fld (build_nz_add nz₁ (build_nz_add nz₂ nz₃))).
 Proof.
 intros nz₁ nz₂ nz₃.
-bbb.
+unfold normalise_nz; simpl.
+rewrite nz_terms_add_assoc.
+remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃))) as n
+ eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; constructor; simpl.
+ unfold cm_factor, cm; simpl.
+ f_equal.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Z.min_assoc.
+ f_equal.
+  f_equal.
+  apply Z.mul_shuffle0.
+
+  apply Z.mul_shuffle0.
+
+ unfold cm; simpl.
+ unfold cm; simpl.
+ rewrite Pos.mul_assoc; reflexivity.
+
+ rewrite nz_terms_add_assoc; reflexivity.
+Qed.
 
 Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
   nz_add (build_nz_add nz₁ nz₂) nz₃ ≈
@@ -1242,23 +1266,7 @@ rewrite nz_terms_add_assoc.
 remember (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) as nz.
 remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
 destruct n as [n| ]; [ constructor | reflexivity ].
-bbb.
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- rewrite nz_terms_add_assoc; reflexivity.
-
- do 2 rewrite Z.mul_1_r.
- unfold cm_factor, cm; simpl.
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite Z.min_assoc.
- do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_assoc.
- f_equal; [ f_equal; apply Z.mul_shuffle0 | apply Z.mul_shuffle0 ].
-
- do 2 rewrite Pos.mul_1_r.
- unfold cm; simpl.
- unfold cm; simpl.
- rewrite Pos.mul_assoc; reflexivity.
+apply nz_norm_add_assoc.
 Qed.
 
 Delimit Scope ps_scope with ps.
