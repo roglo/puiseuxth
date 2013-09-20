@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.643 2013-09-20 12:49:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.644 2013-09-20 13:04:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -56,7 +56,7 @@ Inductive puiseux_series α :=
   | Zero : puiseux_series α.
 
 Definition normalise_series n (s : series α) :=
-  {| terms i := terms s (i - n); stop := stop s - fin n |}.
+  {| terms i := terms s (i + n); stop := stop s - fin n |}.
 
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) with
@@ -324,38 +324,44 @@ Proof.
 intros n ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
-unfold series_nth_fld in H |- *.
-simpl.
+unfold series_nth_fld in H |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
+pose proof (H (i + n)%nat) as Hi.
 destruct (Nbar.lt_dec (fin i) (stop ps₁ - fin n)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (stop ps₂ - fin n)) as [H₂| H₂].
-  pose proof (H (i - n)%nat) as Hi.
-  destruct (Nbar.lt_dec (fin (i - n)) (stop ps₁)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin (i - n)) (stop ps₂)) as [H₄| H₄].
+  destruct (Nbar.lt_dec (fin (i + n)) (stop ps₁)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i + n)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
     exfalso; apply H₄.
-    apply Nbar.lt_add_lt_sub_r in H₂.
-    eapply Nbar.le_lt_trans; [ idtac | eassumption ].
-    simpl; apply Nbar.fin_le_mono.
-    apply Nat.le_sub_le_add_r.
-    rewrite <- Nat.add_assoc.
-    apply le_plus_l.
+    apply Nbar.lt_add_lt_sub_r in H₂; assumption.
 
    exfalso; apply H₃.
-   apply Nbar.lt_add_lt_sub_r in H₁.
-   eapply Nbar.le_lt_trans; [ idtac | eassumption ].
-   simpl; apply Nbar.fin_le_mono.
-   apply Nat.le_sub_le_add_r.
-   rewrite <- Nat.add_assoc.
-   apply le_plus_l.
+   apply Nbar.lt_add_lt_sub_r in H₁; assumption.
 
-  pose proof (H (i - n)%nat) as Hi.
-  destruct (Nbar.lt_dec (fin (i - n)) (stop ps₁)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin (i - n)) (stop ps₂)) as [H₄| H₄].
+  destruct (Nbar.lt_dec (fin (i + n)) (stop ps₁)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i + n)) (stop ps₂)) as [H₄| H₄].
     exfalso; apply H₂.
-    apply Nbar.lt_add_lt_sub_r.
-bbb.
+    apply Nbar.lt_add_lt_sub_r; assumption.
+
+    assumption.
+
+   exfalso; apply H₃.
+   apply Nbar.lt_add_lt_sub_r in H₁; assumption.
+
+ destruct (Nbar.lt_dec (fin i) (stop ps₂ - fin n)) as [H₂| H₂].
+  destruct (Nbar.lt_dec (fin (i + n)) (stop ps₁)) as [H₃| H₃].
+   exfalso; apply H₁.
+   apply Nbar.lt_add_lt_sub_r; assumption.
+
+   destruct (Nbar.lt_dec (fin (i + n)) (stop ps₂)) as [H₄| H₄].
+    assumption.
+
+    exfalso; apply H₄.
+    apply Nbar.lt_add_lt_sub_r in H₂; assumption.
+
+  reflexivity.
+Qed.
 
 Section fld₁.
 
@@ -1050,19 +1056,21 @@ intros nz₁ nz₂.
 unfold normalise_nz.
 remember (first_nonzero fld (nz_terms (build_nz_add nz₁ nz₂))) as n₁ eqn:Hn₁ .
 remember (first_nonzero fld (nz_terms (build_nz_add nz₂ nz₁))) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
+simpl in Hn₁, Hn₂.
+rewrite nz_terms_add_comm in Hn₁.
+rewrite <- Hn₁ in Hn₂.
+subst n₂.
+symmetry in Hn₁.
 destruct n₁ as [n₁| ].
- destruct n₂ as [n₂| ].
-  simpl in Hn₁, Hn₂.
-  rewrite nz_terms_add_comm in Hn₁.
-  rewrite Hn₁ in Hn₂.
-  apply Nbar.fin_inj_wd in Hn₂; subst n₂.
-  constructor; simpl.
-   rewrite Z.min_comm; reflexivity.
+ constructor; simpl.
+  rewrite Z.min_comm; reflexivity.
 
-   unfold cm; apply Pos.mul_comm.
-bbb.
-rewrite nz_terms_add_comm.
+  unfold cm; apply Pos.mul_comm.
+
+  rewrite nz_terms_add_comm; reflexivity.
+
+ constructor.
+Qed.
 
 Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add nz₁ nz₂ ≈ nz_add nz₂ nz₁.
 Proof.
