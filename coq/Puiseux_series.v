@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.646 2013-09-20 15:39:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.647 2013-09-20 16:12:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1276,16 +1276,16 @@ Notation "a + b" := (ps_add fld a b) : ps_scope.
 Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ n₁ n₂,
   first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
   → first_nonzero fld (terms_add ps₂ ps₃) = fin n₂
-    → ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈
-      ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+    → ps_add (ps_add ps₁ ps₂) ps₃ ≈
+      ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ n₁ n₂ Hn₁ Hn₂.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
 simpl in Hn₁, Hn₂.
-remember (ps_add fld (NonZero nz₁) (NonZero nz₂)) as x.
-remember (ps_add fld (NonZero nz₂) (NonZero nz₃)) as y.
+remember (ps_add (NonZero nz₁) (NonZero nz₂)) as x.
+remember (ps_add (NonZero nz₂) (NonZero nz₃)) as y.
 simpl in Heqx, Heqy; subst x y.
 unfold nz_add.
 rewrite Hn₁, Hn₂; simpl.
@@ -1318,7 +1318,7 @@ Qed.
 
 Lemma stop_head_tail : ∀ nz,
   stop (nz_terms nz) ≠ fin 0
-  → stop (nz_terms_add fld (nz_head nz) (nz_tail nz)) =
+  → stop (nz_terms_add (nz_head nz) (nz_tail nz)) =
     stop (stretch_series fld (nz_comden nz) (nz_terms nz)).
 Proof.
 intros nz Hst.
@@ -1482,19 +1482,19 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Lemma ps_cons : ∀ nz,
-  series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz))
-     ≭ zero fld
-  → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
+  series_nth_fld fld 0 (nz_terms_add (nz_head nz) (nz_tail nz)) ≭ zero fld
+  → nz_add (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 (* à nettoyer *)
 intros nz Hzz.
-remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s.
+remember (nz_terms_add (nz_head nz) (nz_tail nz)) as s.
 remember (first_nonzero fld s) as n eqn:Hn ; subst s.
 symmetry in Hn.
 destruct n as [[| n]| ].
  destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
   unfold nz_add.
   rewrite Hn.
+Abort. (* à voir...
   constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
    rewrite stretch_series_1.
    constructor; intros i.
@@ -1914,10 +1914,11 @@ destruct n as [[| n]| ].
  rewrite Hn in Hzz.
  negation Hzz.
 Qed.
+*)
 
 Lemma stop_head_tail₂ : ∀ nz,
   stop (nz_terms nz) ≠ 0%Nbar
-  → stop (nz_terms_add fld (nz_head nz) (nz_tail nz))
+  → stop (nz_terms_add (nz_head nz) (nz_tail nz))
     = (fin (Pos.to_nat (nz_comden nz)) * stop (nz_terms nz))%Nbar.
 Proof.
 intros nz Hst.
@@ -1941,7 +1942,7 @@ rewrite max_r.
 Qed.
 
 Lemma stop_nz_add_pos_pos : ∀ nz,
-  (0 < stop (nz_terms_add fld (nz_head nz) (nz_tail nz)))%Nbar
+  (0 < stop (nz_terms_add (nz_head nz) (nz_tail nz)))%Nbar
   → (0 < stop (nz_terms nz))%Nbar.
 Proof.
 intros nz H.
@@ -1957,7 +1958,7 @@ Qed.
 
 Lemma stop_nz_pos_add_pos : ∀ nz,
   (0 < stop (nz_terms nz))%Nbar
-  → (0 < stop (nz_terms_add fld (nz_head nz) (nz_tail nz)))%Nbar.
+  → (0 < stop (nz_terms_add (nz_head nz) (nz_tail nz)))%Nbar.
 Proof.
 intros nz H.
 unfold nz_terms_add; simpl.
@@ -1985,11 +1986,11 @@ Qed.
 
 Lemma series_nth_add_head_tail : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz)
-  ≍ series_nth_fld fld 0 (nz_terms_add fld (nz_head nz) (nz_tail nz)).
+  ≍ series_nth_fld fld 0 (nz_terms_add (nz_head nz) (nz_tail nz)).
 Proof.
 intros nz.
 unfold series_nth_fld.
-remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s eqn:Hs .
+remember (nz_terms_add (nz_head nz) (nz_tail nz)) as s eqn:Hs .
 destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
  destruct (Nbar.lt_dec 0 (stop s)) as [H₂| H₂].
   subst s; simpl.
@@ -2063,23 +2064,26 @@ Qed.
 
 Lemma ps_cons2 : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz) ≭ zero fld
-  → nz_add fld (nz_head nz) (nz_tail nz) ≈ NonZero nz.
+  → nz_add (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz Hznz.
+Abort. (* à voir...
 apply ps_cons.
 rewrite <- series_nth_add_head_tail; assumption.
 Qed.
+*)
 
 Lemma ps_add_cancel_0_0_l : ∀ nz₁ nz₂ nz₃,
-  first_nonzero fld (nz_terms_add fld nz₁ nz₂) = 0%Nbar
-  → first_nonzero fld (nz_terms_add fld nz₁ nz₃) = 0%Nbar
+  first_nonzero fld (nz_terms_add nz₁ nz₂) = 0%Nbar
+  → first_nonzero fld (nz_terms_add nz₁ nz₃) = 0%Nbar
     → NonZero nz₂ ≈ NonZero nz₃
-      → nz_add fld nz₁ nz₂ ≈ nz_add fld nz₁ nz₃.
+      → nz_add nz₁ nz₂ ≈ nz_add nz₁ nz₃.
 Proof.
 intros nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
 unfold nz_add; simpl.
 rewrite Hn₂, Hn₃.
 inversion H₂₃; subst.
+Abort. (* à voir...
 constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  inversion H1; subst.
  constructor; intros i.
@@ -2126,6 +2130,7 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
  reflexivity.
 Qed.
+*)
 
 Lemma stop_tail : ∀ s, (0 < stop s)%Nbar → stop s = NS (stop (series_tail s)).
 Proof.
