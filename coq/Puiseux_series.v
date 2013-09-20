@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.648 2013-09-20 18:09:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.649 2013-09-20 18:19:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2943,6 +2943,14 @@ intros ps.
 unfold ps_zero.
 unfold ps_add; simpl.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
+unfold build_nz_add.
+unfold nz_neg; simpl.
+unfold cm_factor; simpl.
+rewrite Z.min_id.
+unfold cm; simpl.
+unfold nz_terms_add; simpl.
+unfold cm_factor; simpl.
+rewrite Z.sub_diag; simpl.
 bbb.
 constructor 2; [ idtac | reflexivity ].
 unfold ps_add; simpl.
