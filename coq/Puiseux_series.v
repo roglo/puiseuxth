@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.647 2013-09-20 16:12:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.648 2013-09-20 18:09:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -877,17 +877,11 @@ Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
-Definition nz_add nz₁ nz₂ :=
-  match first_nonzero fld (nz_terms_add nz₁ nz₂) with
-  | fin _ => NonZero (build_nz_add nz₁ nz₂)
-  | inf => Zero _
-  end.
-
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
   | NonZero nz₁ =>
       match ps₂ with
-      | NonZero nz₂ => nz_add nz₁ nz₂
+      | NonZero nz₂ => NonZero (build_nz_add nz₁ nz₂)
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -1072,6 +1066,7 @@ destruct n₁ as [n₁| ].
  constructor.
 Qed.
 
+(*
 Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add nz₁ nz₂ ≈ nz_add nz₂ nz₁.
 Proof.
 intros nz₁ nz₂.
@@ -1082,6 +1077,7 @@ symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
 constructor; rewrite nz_norm_add_comm; reflexivity.
 Qed.
+*)
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
@@ -1089,7 +1085,7 @@ intros ps₁ ps₂.
 unfold ps_add; simpl.
 destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
-apply nz_add_comm.
+constructor; apply nz_norm_add_comm.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -1256,6 +1252,7 @@ destruct n as [n| ]; constructor; simpl.
  rewrite nz_terms_add_assoc; reflexivity.
 Qed.
 
+(*
 Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
   nz_add (build_nz_add nz₁ nz₂) nz₃ ≈
   nz_add nz₁ (build_nz_add nz₂ nz₃).
@@ -1268,10 +1265,11 @@ remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
 destruct n as [n| ]; [ constructor | reflexivity ].
 apply nz_norm_add_assoc.
 Qed.
+*)
 
 Delimit Scope ps_scope with ps.
 Bind Scope ps_scope with puiseux_series.
-Notation "a + b" := (ps_add fld a b) : ps_scope.
+Notation "a + b" := (ps_add a b) : ps_scope.
 
 Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ n₁ n₂,
   first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
@@ -1280,16 +1278,15 @@ Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ n₁ n₂,
       ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ n₁ n₂ Hn₁ Hn₂.
+clear n₁ n₂ Hn₁ Hn₂.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
-simpl in Hn₁, Hn₂.
 remember (ps_add (NonZero nz₁) (NonZero nz₂)) as x.
 remember (ps_add (NonZero nz₂) (NonZero nz₃)) as y.
 simpl in Heqx, Heqy; subst x y.
-unfold nz_add.
-rewrite Hn₁, Hn₂; simpl.
-apply nz_add_assoc_base.
+simpl; constructor.
+apply nz_norm_add_assoc.
 Qed.
 
 Lemma Z2Nat_sub_mul_succ_l : ∀ a b,
@@ -1481,11 +1478,11 @@ destruct n₁ as [n₁| ].
  assumption.
 Qed.
 
+(* à voir...
 Lemma ps_cons : ∀ nz,
   series_nth_fld fld 0 (nz_terms_add (nz_head nz) (nz_tail nz)) ≭ zero fld
   → nz_add (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
-(* à nettoyer *)
 intros nz Hzz.
 remember (nz_terms_add (nz_head nz) (nz_tail nz)) as s.
 remember (first_nonzero fld s) as n eqn:Hn ; subst s.
@@ -1494,7 +1491,6 @@ destruct n as [[| n]| ].
  destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
   unfold nz_add.
   rewrite Hn.
-Abort. (* à voir...
   constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
    rewrite stretch_series_1.
    constructor; intros i.
@@ -2062,17 +2058,18 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
  apply stop_nz_add_pos_pos; assumption.
 Qed.
 
+(* à voir...
 Lemma ps_cons2 : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz) ≭ zero fld
   → nz_add (nz_head nz) (nz_tail nz) ≈ NonZero nz.
 Proof.
 intros nz Hznz.
-Abort. (* à voir...
 apply ps_cons.
 rewrite <- series_nth_add_head_tail; assumption.
 Qed.
 *)
 
+(* à voir...
 Lemma ps_add_cancel_0_0_l : ∀ nz₁ nz₂ nz₃,
   first_nonzero fld (nz_terms_add nz₁ nz₂) = 0%Nbar
   → first_nonzero fld (nz_terms_add nz₁ nz₃) = 0%Nbar
@@ -2083,7 +2080,6 @@ intros nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
 unfold nz_add; simpl.
 rewrite Hn₂, Hn₃.
 inversion H₂₃; subst.
-Abort. (* à voir...
 constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
  inversion H1; subst.
  constructor; intros i.
@@ -2132,6 +2128,7 @@ constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
 Qed.
 *)
 
+(* à voir...
 Lemma stop_tail : ∀ s, (0 < stop s)%Nbar → stop s = NS (stop (series_tail s)).
 Proof.
 intros s Hs.
@@ -2310,6 +2307,7 @@ split; [ intros i Hin | idtac ].
 
    rewrite Hst; constructor.
 Qed.
+*)
 
 Definition series_tail_n n (s : series α) :=
   {| terms i := terms s (i + n); stop := stop s - fin n |}.
@@ -2753,8 +2751,9 @@ intros ps₁ ps₃ H₁ ps₂ ps₄ H₂.
 bbb.
 *)
 
+(* probablement plus nécessaire...
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_add fld (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
+  ps_add (ps_add fld ps₁ ps₂) ps₃ ≈ ps_add fld ps₁ (ps_add fld ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold ps_add.
@@ -2909,16 +2908,22 @@ constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
 Qed.
 *)
 
-Theorem ps_add_ident : ∀ ps, ps_add fld (ps_zero fld) ps ≈ ps.
+Theorem ps_add_ident : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
 Proof. reflexivity. Qed.
 
 Definition series_neg s :=
   {| terms i := neg fld (terms s i); stop := stop s |}.
 
+Definition nz_neg nz :=
+  {| nz_terms := series_neg (nz_terms nz);
+     nz_valnum := nz_valnum nz;
+     nz_comden := nz_comden nz |}.
+
 Definition ps_neg ps :=
-  {| nz_terms := series_neg (nz_terms ps);
-     nz_valnum := nz_valnum ps;
-     nz_comden := nz_comden ps |}.
+  match ps with
+  | NonZero nz => NonZero (nz_neg nz)
+  | Zero => Zero _
+  end.
 
 Lemma add_neg_nth : ∀ s i,
   add fld (series_nth_fld fld i s) (series_nth_fld fld i (series_neg s)) ≍
@@ -2932,9 +2937,13 @@ destruct (Nbar.lt_dec (fin i) (stop s)).
  apply fld_add_ident.
 Qed.
 
-Theorem ps_add_neg : ∀ ps, ps_add fld ps (ps_neg ps) ≈ ps_zero fld.
+Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
 Proof.
 intros ps.
+unfold ps_zero.
+unfold ps_add; simpl.
+destruct ps as [nz| ]; [ simpl | reflexivity ].
+bbb.
 constructor 2; [ idtac | reflexivity ].
 unfold ps_add; simpl.
 remember (nz_valnum ps) as v.
