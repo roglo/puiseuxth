@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.649 2013-09-20 18:19:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.650 2013-09-20 23:29:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -660,6 +660,19 @@ Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
  symmetry proved by (eq_ps_sym (fld := fld))
  transitivity proved by (eq_ps_trans (fld := fld))
  as eq_ps_rel.
+
+(*
+Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
+
+Lemma fold_mk_nonzero : ∀ (s : series α) v c,
+  NonZero (mknz s v c) = mk_nonzero s v c.
+Proof. reflexivity. Qed.
+
+Add Parametric Morphism : mk_nonzero
+with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
+Proof.
+bbb.
+*)
 
 Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
 with signature (eq_series fld) ==> eq as first_nonzero_morph.
@@ -2937,6 +2950,68 @@ destruct (Nbar.lt_dec (fin i) (stop s)).
  apply fld_add_ident.
 Qed.
 
+(*
+Definition eq_nz nz₁ nz₂ :=
+  nz_valnum nz₁ = nz_valnum nz₂ ∧
+  nz_comden nz₁ = nz_comden nz₂ ∧
+  nz_terms nz₁ ≃ nz_terms nz₂.
+
+Add Parametric Morphism : (@mknz α)
+with signature eq_series fld ==> eq ==> eq ==> eq_nz as mknz_morph.
+Proof.
+bbb.
+*)
+
+(*
+Definition eq_nz nz₁ nz₂ :=
+  nz_valnum nz₁ = nz_valnum nz₂ ∧
+  nz_comden nz₁ = nz_comden nz₂ ∧
+  nz_terms nz₁ ≃ nz_terms nz₂.
+
+Axiom eq_nz_refl : reflexive _ eq_nz.
+Axiom eq_nz_sym : symmetric _ eq_nz.
+Axiom eq_nz_trans : transitive _ eq_nz.
+
+Add Parametric Relation : (nz_ps α) eq_nz
+ reflexivity proved by eq_nz_refl
+ symmetry proved by eq_nz_sym
+ transitivity proved by eq_nz_trans
+ as eq_nz_rel.
+
+Add Parametric Morphism : (@NonZero α)
+with signature eq_nz ==> eq_ps fld as NonZero_morph.
+Proof.
+bbb.
+*)
+
+(*
+Add Parametric Morphism :
+  (λ s v c, NonZero {| nz_terms := s; nz_valnum := v; nz_comden := c |})
+with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph₁.
+Proof.
+bbb.
+*)
+
+Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
+
+Lemma fold_mk_nonzero : ∀ (s : series α) v c,
+  NonZero (mknz s v c) = mk_nonzero s v c.
+Proof. reflexivity. Qed.
+
+Add Parametric Morphism : mk_nonzero
+with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
+Proof.
+intros s₁ s₂ Heq v c.
+constructor.
+unfold normalise_nz; simpl.
+rewrite <- Heq.
+remember (first_nonzero fld s₁) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | reflexivity ].
+constructor; [ reflexivity | reflexivity | simpl ].
+rewrite Heq; reflexivity.
+Qed.
+
 Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
 Proof.
 intros ps.
@@ -2951,6 +3026,9 @@ unfold cm; simpl.
 unfold nz_terms_add; simpl.
 unfold cm_factor; simpl.
 rewrite Z.sub_diag; simpl.
+rewrite fold_mk_nonzero.
+do 2 rewrite series_pad_left_0.
+unfold mk_nonzero.
 bbb.
 constructor 2; [ idtac | reflexivity ].
 unfold ps_add; simpl.
