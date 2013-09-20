@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.634 2013-09-19 19:30:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.635 2013-09-20 01:04:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,34 +55,30 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
-Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
-  | eq_nz_base : ∀ nz₁ nz₂,
+Definition normalise_nz nz :=
+  match first_nonzero fld (nz_terms nz) with
+  | fin n =>
+      NonZero
+        {| nz_terms :=
+             {| terms i := terms (nz_terms nz) (i - n);
+                stop := stop (nz_terms nz) - fin n |};
+           nz_valnum := nz_valnum nz + Z.of_nat n;
+           nz_comden := nz_comden nz |}
+  | ∞ =>
+      Zero _
+  end.
+
+Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_ps_base : ∀ nz₁ nz₂,
       nz_valnum nz₁ = nz_valnum nz₂
       → nz_comden nz₁ = nz_comden nz₂
         → nz_terms nz₁ ≃ nz_terms nz₂
-          → eq_nz nz₁ nz₂
-  | eq_nz_stretch : ∀ nz₁ nz₂ nz₃ nz₄ k₁ k₂,
-      nz_valnum nz₁ = (nz_valnum nz₃ * 'k₁)%Z
-      → nz_valnum nz₂ = (nz_valnum nz₄ * 'k₂)%Z
-        → nz_comden nz₁ = (nz_comden nz₃ * k₁)%positive
-          → nz_comden nz₂ = (nz_comden nz₄ * k₂)%positive
-            → nz_terms nz₁ ≃ stretch_series k₁ (nz_terms nz₃)
-              → nz_terms nz₂ ≃ stretch_series k₂ (nz_terms nz₄)
-                → eq_nz nz₃ nz₄
-                  → eq_nz nz₁ nz₂
-  | eq_nz_pad : ∀ nz₁ nz₂ nz₃ nz₄ n₁ n₂,
-      nz_valnum nz₁ = (nz_valnum nz₃ + Z.of_nat n₁)%Z
-      → nz_valnum nz₂ = (nz_valnum nz₄ + Z.of_nat n₂)%Z
-        → nz_comden nz₁ = nz_comden nz₃
-          → nz_comden nz₂ = nz_comden nz₄
-            → nz_terms nz₁ ≃ series_pad_left n₁ (nz_terms nz₃)
-              → nz_terms nz₂ ≃ series_pad_left n₂ (nz_terms nz₄)
-                → eq_nz nz₃ nz₄
-                  → eq_nz nz₁ nz₂.
-
-Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_ps_nz : ∀ nz₁ nz₂, eq_nz nz₁ nz₂ → eq_ps (NonZero nz₁) (NonZero nz₂)
-  | eq_ps_zero : eq_ps (Zero _) (Zero _).
+          → eq_ps (NonZero nz₁) (NonZero nz₂)
+  | eq_ps_norm : ∀ nz₁ nz₂,
+      eq_ps (normalise_nz nz₁) (normalise_nz nz₂)
+      → eq_ps (NonZero nz₁) (NonZero nz₂)
+  | eq_ps_zero :
+      eq_ps (Zero _) (Zero _).
 
 Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
@@ -149,49 +145,6 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
-Theorem eq_nz_refl : reflexive _ eq_nz.
-Proof.
-intros nz.
-constructor; reflexivity.
-Qed.
-
-Theorem eq_nz_sym : symmetric _ eq_nz.
-Proof.
-intros nz₁ nz₂ H.
-induction H.
- constructor; symmetry; assumption.
-
- econstructor 2; eassumption.
-
- econstructor 3; eassumption.
-Qed.
-
-Theorem eq_nz_trans : transitive _ eq_nz.
-Proof.
-intros nz₁ nz₂ nz₃ H₁ H₂.
-inversion H₁; subst.
- inversion H₂; subst.
-  constructor; etransitivity; eassumption.
-
-  rewrite <- H, <- H0, <- H1 in *.
-  econstructor 2; eassumption.
-
-  rewrite <- H, <- H0, <- H1 in *.
-  econstructor 3; eassumption.
-
- inversion H₂; subst.
-  econstructor 2; try eassumption.
-   rewrite <- H6; eassumption.
-
-   rewrite <- H7; eassumption.
-
-   rewrite <- H8; eassumption.
-
-  Focus 1.
-bbb.
-
-(* *)
-
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
@@ -208,8 +161,6 @@ induction H.
  econstructor 2; eassumption.
 
  econstructor 3; eassumption.
-
- constructor.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
@@ -617,6 +568,26 @@ Qed.
 
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
+intros ps₁ ps₂ ps₃ H₁ H₂.
+induction H₁.
+ inversion H₂.
+  constructor; etransitivity; eassumption.
+
+  subst.
+  constructor 2.
+  unfold normalise_nz; simpl.
+  unfold normalise_nz in H3; simpl in H3.
+  remember (first_nonzero fld (nz_terms nz₂0)) as n₃ eqn:Hn₃ .
+  remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
+  remember (first_nonzero fld (nz_terms nz₁)) as n₁ eqn:Hn₁ .
+  symmetry in Hn₁, Hn₂, Hn₃.
+  destruct n₃ as [n₃| ].
+   Focus 1.
+   destruct n₁ as [n₁| ].
+    Focus 1.
+    constructor; simpl.
+bbb.
+
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁.
  rewrite <- H3 in H₂.
