@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.642 2013-09-20 12:23:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.643 2013-09-20 12:49:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -317,6 +317,45 @@ destruct (lt_dec i n) as [Hlt| Hge].
 
    reflexivity.
 Qed.
+
+Add Parametric Morphism α (fld : field α) : (@normalise_series α) with 
+signature eq ==> (eq_series fld) ==> (eq_series fld) as normalise_morph.
+Proof.
+intros n ps₁ ps₂ Heq.
+constructor; intros i.
+inversion Heq; subst.
+unfold series_nth_fld in H |- *.
+simpl.
+do 2 rewrite Nbar.fold_sub.
+destruct (Nbar.lt_dec (fin i) (stop ps₁ - fin n)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop ps₂ - fin n)) as [H₂| H₂].
+  pose proof (H (i - n)%nat) as Hi.
+  destruct (Nbar.lt_dec (fin (i - n)) (stop ps₁)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i - n)) (stop ps₂)) as [H₄| H₄].
+    assumption.
+
+    exfalso; apply H₄.
+    apply Nbar.lt_add_lt_sub_r in H₂.
+    eapply Nbar.le_lt_trans; [ idtac | eassumption ].
+    simpl; apply Nbar.fin_le_mono.
+    apply Nat.le_sub_le_add_r.
+    rewrite <- Nat.add_assoc.
+    apply le_plus_l.
+
+   exfalso; apply H₃.
+   apply Nbar.lt_add_lt_sub_r in H₁.
+   eapply Nbar.le_lt_trans; [ idtac | eassumption ].
+   simpl; apply Nbar.fin_le_mono.
+   apply Nat.le_sub_le_add_r.
+   rewrite <- Nat.add_assoc.
+   apply le_plus_l.
+
+  pose proof (H (i - n)%nat) as Hi.
+  destruct (Nbar.lt_dec (fin (i - n)) (stop ps₁)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i - n)) (stop ps₂)) as [H₄| H₄].
+    exfalso; apply H₂.
+    apply Nbar.lt_add_lt_sub_r.
+bbb.
 
 Section fld₁.
 
@@ -1002,13 +1041,6 @@ unfold nz_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Lemma first_nonzero_add_comm : ∀ nz₁ nz₂,
-  first_nonzero fld (nz_terms (build_nz_add nz₁ nz₂)) =
-  first_nonzero fld (nz_terms (build_nz_add nz₂ nz₁)).
-Proof.
-intros nz₁ nz₂.
-bbb.
-
 Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
   eq_norm_ps fld
     (normalise_nz fld (build_nz_add nz₁ nz₂))
@@ -1021,7 +1053,8 @@ remember (first_nonzero fld (nz_terms (build_nz_add nz₂ nz₁))) as n₂ eqn:H
 symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
-  rewrite first_nonzero_add_comm in Hn₁.
+  simpl in Hn₁, Hn₂.
+  rewrite nz_terms_add_comm in Hn₁.
   rewrite Hn₁ in Hn₂.
   apply Nbar.fin_inj_wd in Hn₂; subst n₂.
   constructor; simpl.
