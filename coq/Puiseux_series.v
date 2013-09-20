@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.644 2013-09-20 13:04:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.645 2013-09-20 13:10:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1080,17 +1080,10 @@ rewrite nz_terms_add_comm.
 remember (first_nonzero fld (nz_terms_add nz₂ nz₁)) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
-bbb.
-constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
- rewrite nz_terms_add_comm; reflexivity.
-
- rewrite Z.min_comm; reflexivity.
-
- unfold cm.
- do 2 rewrite Pos.mul_1_r; apply Pos.mul_comm.
+constructor; rewrite nz_norm_add_comm; reflexivity.
 Qed.
 
-Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add fld ps₁ ps₂ ≈ ps_add fld ps₂ ps₁.
+Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
@@ -1179,8 +1172,8 @@ Definition Qmin x y :=
 Definition Qmin₃ x y z := Qmin (Qmin x y) z.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  nz_terms_add fld (build_nz_add fld nz₁ nz₂) nz₃ ≃
-  nz_terms_add fld nz₁ (build_nz_add fld nz₂ nz₃).
+  nz_terms_add (build_nz_add nz₁ nz₂) nz₃ ≃
+  nz_terms_add nz₁ (build_nz_add nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃.
 constructor; intros i.
@@ -1221,7 +1214,7 @@ Definition terms_add ps₁ ps₂ :=
   match ps₁ with
   | NonZero nz₁ =>
       match ps₂ with
-      | NonZero nz₂ => nz_terms_add fld nz₁ nz₂
+      | NonZero nz₂ => nz_terms_add nz₁ nz₂
       | Zero => nz_terms nz₁
       end
   | Zero =>
@@ -1231,16 +1224,25 @@ Definition terms_add ps₁ ps₂ :=
       end
   end.
 
+Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
+  eq_norm_ps fld
+    (normalise_nz fld (build_nz_add (build_nz_add nz₁ nz₂) nz₃))
+    (normalise_nz fld (build_nz_add nz₁ (build_nz_add nz₂ nz₃))).
+Proof.
+intros nz₁ nz₂ nz₃.
+bbb.
+
 Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
-  nz_add fld (build_nz_add fld nz₁ nz₂) nz₃ ≈
-  nz_add fld nz₁ (build_nz_add fld nz₂ nz₃).
+  nz_add (build_nz_add nz₁ nz₂) nz₃ ≈
+  nz_add nz₁ (build_nz_add nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃.
 unfold nz_add.
 rewrite nz_terms_add_assoc.
-remember (nz_terms_add fld nz₁ (build_nz_add fld nz₂ nz₃)) as nz.
+remember (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) as nz.
 remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
-destruct n as [n| ]; [ idtac | reflexivity ].
+destruct n as [n| ]; [ constructor | reflexivity ].
+bbb.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite nz_terms_add_assoc; reflexivity.
 
