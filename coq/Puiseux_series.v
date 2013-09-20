@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.639 2013-09-20 09:38:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.640 2013-09-20 11:15:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -168,26 +168,32 @@ Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁.
  inversion H₂.
-  constructor.
-bbb.
+  rewrite <- H3 in H7.
+  injection H7; clear H7; intros; subst nz₁0.
+  constructor; etransitivity; eassumption.
 
-Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_norm_ps fld)
- reflexivity proved by (eq_norm_ps_refl fld)
- symmetry proved by (eq_norm_ps_sym (fld := fld))
- transitivity proved by (eq_norm_ps_trans (fld := fld))
+  rewrite <- H4 in H3; discriminate H3.
+
+ inversion H₂; [ idtac | constructor ].
+ rewrite <- H0 in H4; discriminate H4.
+Qed.
+
+Add Parametric Relation : (puiseux_series α) eq_norm_ps
+ reflexivity proved by eq_norm_ps_refl
+ symmetry proved by eq_norm_ps_sym
+ transitivity proved by eq_norm_ps_trans
  as eq_norm_ps_rel.
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-destruct ps as [nz| ]; constructor.
-apply eq_norm_ps_refl.
+destruct ps as [nz| ]; constructor; reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
-induction H; constructor; apply eq_norm_ps_sym; assumption.
+induction H; constructor; symmetry; assumption.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
