@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.640 2013-09-20 11:15:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.641 2013-09-20 11:28:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -178,108 +178,14 @@ inversion H₁.
  rewrite <- H0 in H4; discriminate H4.
 Qed.
 
-Add Parametric Relation : (puiseux_series α) eq_norm_ps
- reflexivity proved by eq_norm_ps_refl
- symmetry proved by eq_norm_ps_sym
- transitivity proved by eq_norm_ps_trans
- as eq_norm_ps_rel.
-
-Theorem eq_ps_refl : reflexive _ eq_ps.
-Proof.
-intros ps.
-destruct ps as [nz| ]; constructor; reflexivity.
-Qed.
-
-Theorem eq_ps_sym : symmetric _ eq_ps.
-Proof.
-intros ps₁ ps₂ H.
-induction H; constructor; symmetry; assumption.
-Qed.
-
-Lemma stretch_stretch_series : ∀ a b s,
-  stretch_series (a * b) s ≃ stretch_series a (stretch_series b s).
-Proof.
-intros ap bp s.
-unfold stretch_series; simpl.
-constructor; simpl.
-intros i.
-unfold series_nth_fld; simpl.
-rewrite Pos2Nat.inj_mul.
-remember (Pos.to_nat ap) as a.
-remember (Pos.to_nat bp) as b.
-assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
-assert (b ≠ O) as Hb by (subst b; apply Pos2Nat_ne_0).
-rewrite Nbar.fin_inj_mul, Nbar.mul_shuffle0, Nbar.mul_assoc.
-remember (Nbar.lt_dec (fin i) (stop s * fin a * fin b)) as n.
-destruct n as [Hlt| ]; [ clear Heqn | reflexivity ].
-destruct (zerop (i mod (a * b))) as [Hz| Hnz].
- apply Nat.mod_divides in Hz.
-  destruct Hz as (c, Hz).
-  subst i.
-  rewrite Nat.mul_comm, Nat.div_mul.
-   destruct (Nbar.lt_dec (fin c) (stop s)) as [Hlt₁| Hge₁].
-    rewrite Nat.mul_comm, <- Nat.mul_assoc, Nat.mul_comm.
-    rewrite Nat.mod_mul; [ simpl | assumption ].
-    rewrite Nat.div_mul; [ simpl | assumption ].
-    rewrite Nbar.fin_inj_mul, Nbar.mul_comm.
-    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
-     rewrite Nat.mul_comm, Nat.mod_mul; [ simpl | assumption ].
-     rewrite Nat.div_mul; [ simpl | assumption ].
-     destruct (Nbar.lt_dec (fin c) (stop s)); [ reflexivity | contradiction ].
-
-     exfalso; apply Hge₂; clear Hge₂.
-     apply Nbar.mul_lt_mono_pos_r.
-      constructor.
-      apply neq_0_lt, Nat.neq_sym; assumption.
-
-      intros H; discriminate H.
-
-      intros H; discriminate H.
-
-      assumption.
-
-    rewrite Nat.mul_assoc, Nat.mul_shuffle0.
-    rewrite Nat.mod_mul; [ simpl | assumption ].
-    rewrite Nat.div_mul; [ simpl | assumption ].
-    rewrite Nbar.fin_inj_mul.
-    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
-     exfalso; apply Hge₁.
-     apply Nbar.mul_lt_mono_pos_r in Hlt₂.
-      assumption.
-
-      constructor.
-      apply neq_0_lt, Nat.neq_sym; assumption.
-
-      intros H; discriminate H.
-
-      intros H; discriminate H.
-
-     reflexivity.
-
-   apply Nat.neq_mul_0; split; assumption.
-
-  apply Nat.neq_mul_0; split; assumption.
-
- destruct (zerop (i mod a)) as [Hz| ]; [ idtac | reflexivity ].
- apply Nat.mod_divides in Hz; [ idtac | assumption ].
- destruct Hz as (c, Hz).
- subst i.
- rewrite Nat.mul_comm, Nat.div_mul; [ idtac | assumption ].
- destruct (Nbar.lt_dec (fin c) (stop s * fin b)) as [Hlt₁| Hgt₁].
-  destruct (zerop (c mod b)) as [Hlt₂| ]; [ idtac | reflexivity ].
-  apply Nat.mod_divides in Hlt₂; [ idtac | assumption ].
-  destruct Hlt₂ as (c₂, Hlt₂).
-  subst c.
-  rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
-  rewrite Nat.mod_mul in Hnz.
-   exfalso; revert Hnz; apply lt_irrefl.
-
-   apply Nat.neq_mul_0; split; assumption.
-
-  reflexivity.
-Qed.
-
 End fld.
+
+Add Parametric Relation α (fld : field α) : (puiseux_series α)
+   (eq_norm_ps fld)
+ reflexivity proved by (eq_norm_ps_refl fld)
+ symmetry proved by (eq_norm_ps_sym (fld := fld))
+ transitivity proved by (eq_norm_ps_trans (fld := fld))
+ as eq_norm_ps_rel.
 
 Lemma mul_lt_mono_positive_r : ∀ a b c,
   (fin a < b)%Nbar
@@ -420,6 +326,102 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+
+Theorem eq_ps_refl : reflexive _ (eq_ps fld).
+Proof.
+intros ps.
+destruct ps as [nz| ]; constructor; reflexivity.
+Qed.
+
+Theorem eq_ps_sym : symmetric _ (eq_ps fld).
+Proof.
+intros ps₁ ps₂ H.
+induction H; constructor; symmetry; assumption.
+Qed.
+
+Lemma stretch_stretch_series : ∀ a b s,
+  stretch_series fld (a * b) s ≃
+  stretch_series fld a (stretch_series fld b s).
+Proof.
+intros ap bp s.
+unfold stretch_series; simpl.
+constructor; simpl.
+intros i.
+unfold series_nth_fld; simpl.
+rewrite Pos2Nat.inj_mul.
+remember (Pos.to_nat ap) as a.
+remember (Pos.to_nat bp) as b.
+assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
+assert (b ≠ O) as Hb by (subst b; apply Pos2Nat_ne_0).
+rewrite Nbar.fin_inj_mul, Nbar.mul_shuffle0, Nbar.mul_assoc.
+remember (Nbar.lt_dec (fin i) (stop s * fin a * fin b)) as n.
+destruct n as [Hlt| ]; [ clear Heqn | reflexivity ].
+destruct (zerop (i mod (a * b))) as [Hz| Hnz].
+ apply Nat.mod_divides in Hz.
+  destruct Hz as (c, Hz).
+  subst i.
+  rewrite Nat.mul_comm, Nat.div_mul.
+   destruct (Nbar.lt_dec (fin c) (stop s)) as [Hlt₁| Hge₁].
+    rewrite Nat.mul_comm, <- Nat.mul_assoc, Nat.mul_comm.
+    rewrite Nat.mod_mul; [ simpl | assumption ].
+    rewrite Nat.div_mul; [ simpl | assumption ].
+    rewrite Nbar.fin_inj_mul, Nbar.mul_comm.
+    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
+     rewrite Nat.mul_comm, Nat.mod_mul; [ simpl | assumption ].
+     rewrite Nat.div_mul; [ simpl | assumption ].
+     destruct (Nbar.lt_dec (fin c) (stop s)); [ reflexivity | contradiction ].
+
+     exfalso; apply Hge₂; clear Hge₂.
+     apply Nbar.mul_lt_mono_pos_r.
+      constructor.
+      apply neq_0_lt, Nat.neq_sym; assumption.
+
+      intros H; discriminate H.
+
+      intros H; discriminate H.
+
+      assumption.
+
+    rewrite Nat.mul_assoc, Nat.mul_shuffle0.
+    rewrite Nat.mod_mul; [ simpl | assumption ].
+    rewrite Nat.div_mul; [ simpl | assumption ].
+    rewrite Nbar.fin_inj_mul.
+    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
+     exfalso; apply Hge₁.
+     apply Nbar.mul_lt_mono_pos_r in Hlt₂.
+      assumption.
+
+      constructor.
+      apply neq_0_lt, Nat.neq_sym; assumption.
+
+      intros H; discriminate H.
+
+      intros H; discriminate H.
+
+     reflexivity.
+
+   apply Nat.neq_mul_0; split; assumption.
+
+  apply Nat.neq_mul_0; split; assumption.
+
+ destruct (zerop (i mod a)) as [Hz| ]; [ idtac | reflexivity ].
+ apply Nat.mod_divides in Hz; [ idtac | assumption ].
+ destruct Hz as (c, Hz).
+ subst i.
+ rewrite Nat.mul_comm, Nat.div_mul; [ idtac | assumption ].
+ destruct (Nbar.lt_dec (fin c) (stop s * fin b)) as [Hlt₁| Hgt₁].
+  destruct (zerop (c mod b)) as [Hlt₂| ]; [ idtac | reflexivity ].
+  apply Nat.mod_divides in Hlt₂; [ idtac | assumption ].
+  destruct Hlt₂ as (c₂, Hlt₂).
+  subst c.
+  rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
+  rewrite Nat.mod_mul in Hnz.
+   exfalso; revert Hnz; apply lt_irrefl.
+
+   apply Nat.neq_mul_0; split; assumption.
+
+  reflexivity.
+Qed.
 
 Lemma stretch_series_series_0 : ∀ k,
   stretch_series fld k (series_0 fld) ≃ series_0 fld.
@@ -602,256 +604,8 @@ Qed.
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
-induction H₁.
- inversion H₂.
-  constructor; etransitivity; eassumption.
-
-  subst.
-  rename nz₂0 into nz₂'.
-  constructor 2.
-bbb.
-
-  subst.
-  constructor 2.
-  unfold normalise_nz; simpl.
-  unfold normalise_nz in H3; simpl in H3.
-  remember (first_nonzero fld (nz_terms nz₂0)) as n₃ eqn:Hn₃ .
-  remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
-  remember (first_nonzero fld (nz_terms nz₁)) as n₁ eqn:Hn₁ .
-  symmetry in Hn₁, Hn₂, Hn₃.
-  destruct n₃ as [n₃| ].
-   Focus 1.
-   destruct n₁ as [n₁| ].
-    Focus 1.
-    constructor; simpl.
-bbb.
-
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁.
- rewrite <- H3 in H₂.
- inversion H₂.
-  constructor; etransitivity; eassumption.
-
-  rewrite <- H, <- H0, <- H1 in *.
-  econstructor 2; eassumption.
-
-  rewrite <- H, <- H0, <- H1 in *.
-  econstructor 3; eassumption.
-
- rewrite <- H7 in H₂.
- inversion H₂; subst.
-  rewrite H9, H10, H11 in *.
-  econstructor 2; eassumption.
-
-  Focus 1.
-  econstructor 2; try eassumption.
-bbb.
-
-intros ps₁ ps₂ ps₃ H₁ H₂.
-bbb.
-inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
- inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
-  rewrite <- H0 in H1.
-  injection H1; clear H1; intros; subst nz₂₁.
-  remember (k₁₁ * k₂₁)%positive as k₁ eqn:Hk₁ .
-  remember (k₁₂ * k₂₂)%positive as k₂ eqn:Hk₂ .
-  remember 42 as v₁.
-  remember 27 as v₂.
-  clear Heqv₁ Heqv₂.
-  remember v₁ as n₁ eqn:Hn₁ .
-  remember v₂ as n₂ eqn:Hn₂ in |-* .
-  constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
-   Focus 3.
-   subst k₁ k₂.
-   rewrite Pos.mul_assoc, Hck₁.
-   rewrite Pos_mul_shuffle0, Hck₂, Pos_mul_shuffle0.
-   rewrite <- Pos.mul_assoc.
-   reflexivity.
-
-   Focus 2.
-   subst k₁ k₂ n₁ n₂.
-   do 2 rewrite Nat2Z.inj_add.
-   do 2 rewrite Z.add_assoc.
-   rewrite Z.mul_add_distr_r; symmetry.
-   rewrite Z.mul_add_distr_r; symmetry.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc, Hvv₁; symmetry.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0, <- Hvv₂.
-   rewrite Z.mul_shuffle0.
-   do 2 rewrite Z.mul_add_distr_r; symmetry.
-   do 2 rewrite Z.mul_add_distr_r; symmetry.
-   do 2 rewrite <- Z.add_assoc.
-   f_equal.
-   remember 42 as v₁.
-   remember 27 as v₂ in |- *.
-   simpl.
-   do 2 rewrite Nat2Z.inj_mul.
-   do 2 rewrite positive_nat_Z.
-   do 2 rewrite Pos2Z.inj_mul.
-   do 2 rewrite Z.mul_assoc.
-   replace (Z.of_nat v₁ * ' k₂₁ * ' k₁₂ * ' k₂₂)%Z with
-    (Z.of_nat v₁ * ' k₂₂ * ' k₁₂ * ' k₂₁)%Z .
-    replace (Z.of_nat v₂ * ' k₁₂ * ' k₁₁ * ' k₂₁)%Z with
-     (Z.of_nat v₂ * ' k₁₁ * ' k₁₂ * ' k₂₁)%Z .
-     do 4 rewrite <- Z.mul_add_distr_r.
-     do 2 f_equal.
-bbb.
-
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁ as [k₁₁ k₁₂ n₁₁ n₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ].
- inversion H₂ as [k₂₁ k₂₂ n₂₁ n₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ].
-  rewrite <- H0 in H1.
-  injection H1; clear H1; intros; subst nz₂₁.
-  remember (k₁₁ * k₂₁)%positive as k₁ eqn:Hk₁ .
-  remember (k₁₂ * k₂₂)%positive as k₂ eqn:Hk₂ .
-  remember n₂₁ as n₁ eqn:Hn₁ .
-  remember n₁₂ as n₂ eqn:Hn₂ .
-  constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
-   Focus 3.
-   subst k₁ k₂.
-   rewrite Pos.mul_assoc, Hck₁.
-   rewrite Pos_mul_shuffle0, Hck₂, Pos_mul_shuffle0.
-   rewrite <- Pos.mul_assoc.
-   reflexivity.
-
-bbb.
-   Focus 1.
-   subst k₁ k₂ n₁ n₂.
-   replace (k₁₁ * k₂₁ * nz_comden nz₁₂)%positive with
-    (k₂₁ * nz_comden nz₁₂ * k₁₁)%positive .
-    rewrite stretch_stretch_series.
-    replace (42 * n₁₁ * Pos.to_nat (k₂₁ * nz_comden nz₁₂ * k₁₁))%nat with
-     (42 * Pos.to_nat k₁₁ * n₁₁ * Pos.to_nat (k₂₁ * nz_comden nz₁₂))%nat .
-     rewrite <- stretch_pad_series_distr.
-     remember (42 * Pos.to_nat k₁₁)%nat as x eqn:Hx .
-     symmetry in Hx.
-     destruct x.
-      exfalso; revert Hx.
-      apply Nat.neq_mul_0.
-      split; [ intros I; discriminate I | apply Pos2Nat_ne_0 ].
-
-      rewrite Nat.mul_succ_l.
-      rewrite <- series_pad_pad.
-      rewrite Hss₁.
-      symmetry.
-      replace (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive with
-       (k₁₂ * nz_comden nz₁₂ * k₂₂)%positive .
-       rewrite stretch_stretch_series.
-       replace (27 * n₂₂ * Pos.to_nat (k₁₂ * nz_comden nz₁₂ * k₂₂))%nat with
-        (27 * Pos.to_nat k₂₂ * n₂₂ * Pos.to_nat (k₁₂ * nz_comden nz₁₂))%nat .
-        rewrite <- stretch_pad_series_distr.
-        remember (27 * Pos.to_nat k₂₂)%nat as y eqn:Hy .
-        symmetry in Hy.
-        destruct y.
-         exfalso; revert Hy.
-         apply Nat.neq_mul_0.
-         split; [ intros I; discriminate I | apply Pos2Nat_ne_0 ].
-
-         rewrite Nat.mul_succ_l.
-         rewrite <- series_pad_pad.
-         rewrite <- Hss₂.
-         symmetry.
-         do 2 rewrite series_pad_pad.
-         do 2 rewrite stretch_pad_series_distr.
-         do 2 rewrite <- stretch_stretch_series.
-bbb.
-  Hx : (42 * Pos.to_nat k₁₁)%nat = S x
-  Hy : (27 * Pos.to_nat k₂₂)%nat = S y
-
-  Hx : v₁ k₁₁ = S x
-  Hy : v₂ k₂₂ = S y
-  Hvv₁ : (v₁₁ + n₁₂) k₁₁ = (v₁₂ + n₁₁) k₁₂
-  Hvv₂ : (v₁₂ + n₂₂) k₂₁ = (v₂₂ + n₂₁) k₂₂
-  Hck₁ : c₁₁ k₁₁ = c₁₂ k₁₂
-  Hck₂ : c₁₂ k₂₁ = c₂₂ k₂₂
-
-? (x n₁₁ + n₁₂) k₂₁ c₁₂ = (y n₂₂ + n₂₁) k₁₂ c₁₂
-
-(x n₁₁ + n₁₂) k₂₁ c₁₂ = (y n₂₂ + n₂₁) k₁₂ c₁₂
-((v₁ k₁₁ - 1) n₁₁ + n₁₂) k₂₁ = ((v₂ k₂₂ - 1) n₂₂ + n₂₁) k₁₂
-(v₁ k₁₁ n₁₁ - n₁₁ + n₁₂) k₂₁ = (v₂ k₂₂ n₂₂ - n₂₂ + n₂₁) k₁₂
-v₁ k₁₁ n₁₁ k₂₁ - n₁₁ k₂₁ + n₁₂ k₂₁ = v₂ k₂₂ n₂₂ k₁₂ - n₂₂ k₁₂ + n₂₁ k₁₂
-c₁₁ v₁ k₁₁ n₁₁ k₂₁ - c₁₁ n₁₁ k₂₁ + c₁₁ n₁₂ k₂₁ = c₁₁ v₂ k₂₂ n₂₂ k₁₂ - c₁₁ n₂₂ k₁₂ + c₁₁ n₂₁ k₁₂
-c₁₂ k₁₂ v₁ n₁₁ k₂₁ - c₁₁ n₁₁ k₂₁ + c₁₁ n₁₂ k₂₁ = c₁₁ v₂ k₂₂ n₂₂ k₁₂ - c₁₁ n₂₂ k₁₂ + c₁₁ n₂₁ k₁₂
-c₁₂ k₁₂ v₁ n₁₁ k₂₁ + c₁₁ n₁₂ k₂₁ + c₁₁ n₂₂ k₁₂ = c₁₁ v₂ k₂₂ n₂₂ k₁₂ + c₁₁ n₂₁ k₁₂ + c₁₁ n₁₁ k₂₁
-c₁₂ c₂₂ k₁₂ v₁ n₁₁ k₂₁ + c₁₁ c₂₂ n₁₂ k₂₁ + c₁₁ c₂₂ n₂₂ k₁₂ = c₁₁ v₂ c₂₂ k₂₂ n₂₂ k₁₂ + c₁₁ c₂₂ n₂₁ k₁₂ + c₁₁ c₂₂ n₁₁ k₂₁
-c₁₂ c₂₂ k₁₂ v₁ n₁₁ k₂₁ + c₁₁ c₂₂ n₁₂ k₂₁ + c₁₁ c₂₂ n₂₂ k₁₂ = c₁₁ v₂ c₁₂ k₂₁ n₂₂ k₁₂ + c₁₁ c₂₂ n₂₁ k₁₂ + c₁₁ c₂₂ n₁₁ k₂₁
-c₁₂ c₂₂ v₁ n₁₁ k₁₂ k₂₁ + c₁₁ c₂₂ n₁₂ k₂₁ + c₁₁ c₂₂ n₂₂ k₁₂ = c₁₁ c₁₂ v₂ n₂₂ k₂₁ k₁₂ + c₁₁ c₂₂ n₂₁ k₁₂ + c₁₁ c₂₂ n₁₁ k₂₁
-c₁₂ c₂₂ n₁₁ k₁₂ k₂₁ v₁ - c₁₁ c₁₂ n₂₂ k₂₁ k₁₂ v₂ = c₁₁ c₂₂ n₂₁ k₁₂ + c₁₁ c₂₂ n₁₁ k₂₁ - c₁₁ c₂₂ n₁₂ k₂₁ - c₁₁ c₂₂ n₂₂ k₁₂
-c₁₂ c₂₂ n₁₁ k₁₂ k₂₁ v₁ - c₁₁ c₁₂ n₂₂ k₂₁ k₁₂ v₂ = c₁₁ c₂₂ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-c₁₂ k₁₂ k₂₁ (c₂₂ n₁₁ v₁ - c₁₁ n₂₂ v₂) = c₁₁ c₂₂ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-c₁₂ k₁₂ k₂₁ k₂₂ (c₂₂ n₁₁ v₁ - c₁₁ n₂₂ v₂) = c₁₁ c₂₂ k₂₂ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-c₁₂ k₁₂ k₂₁ k₂₂ (c₂₂ n₁₁ v₁ - c₁₁ n₂₂ v₂) = c₁₁ c₁₂ k₂₁ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-k₁₂ k₂₂ c₂₂ n₁₁ v₁ - k₁₂ k₂₂ c₁₁ n₂₂ v₂ = c₁₁ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-k₁₂ (c₁₂ k₂₁ n₁₁ v₁ - k₂₂ c₁₁ n₂₂ v₂) = c₁₁ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-
-k₁₂ (c₁₂ k₂₁ n₁₁ v₁ - k₂₂ c₁₁ n₂₂ v₂) = c₁₁ (n₂₁ k₁₂ + n₁₁ k₂₁ - n₁₂ k₂₁ - n₂₂ k₁₂)
-
-  remember (k₁₁ * k₂₁ * nz_comden nz₂₁)%positive as k₁ eqn:Hk₁ .
-  remember (k₁₂ * k₂₂ * nz_comden nz₁₂)%positive as k₂ eqn:Hk₂ .
-  remember (n₁₁ * Pos.to_nat k₁₁ + n₂₁ * Pos.to_nat k₂₁)%nat as n₁ eqn:Hn₁ .
-  remember (n₁₂ * Pos.to_nat k₁₂ + n₂₂ * Pos.to_nat k₂₂)%nat as n₂ eqn:Hn₂ .
-  constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
-   Focus 3.
-   subst k₁ k₂ n₁ n₂.
-   rewrite Pos.mul_assoc.
-   rewrite Pos.mul_assoc.
-   rewrite Hck₁.
-   symmetry.
-   rewrite Pos.mul_assoc.
-   rewrite Pos.mul_assoc.
-   rewrite Pos.mul_comm.
-   rewrite Pos_mul_shuffle0.
-   rewrite <- Hck₂.
-   rewrite <- Pos.mul_assoc.
-   rewrite <- Pos.mul_assoc.
-   rewrite <- Pos.mul_assoc.
-   f_equal.
-   rewrite Pos.mul_comm.
-   symmetry.
-   rewrite Pos.mul_comm.
-   rewrite Pos_mul_shuffle0; reflexivity.
-
-   Focus 2.
-bbb.
-  constructor 1 with (k₁ := k₁) (k₂ := k₂) (n₁ := n₁) (n₂ := n₂).
-   subst k₁ k₂ n₁ n₂.
-   do 2 rewrite stretch_pad_series_distr.
-   Focus 2.
-   subst k₁ k₂ n₁ n₂.
-   rewrite Nat2Z.inj_add.
-   rewrite Nat2Z.inj_mul.
-   rewrite positive_nat_Z.
-   Unfocus.
-   Focus 3.
-   subst k₁ k₂ n₁ n₂.
-   rewrite Pos.mul_assoc.
-   rewrite Hck₁.
-
-bbb.
-
-intros ps₁ ps₂ ps₃ H₁ H₂.
-induction H₁ as [k₁₁ k₁₂ nz₁₁ nz₁₂ Hss₁ Hvv₁ Hck₁| ]; subst.
- induction H₂ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst.
- remember (k₁₁ * k₂₁)%positive as k₁ eqn:Hk₁ .
- remember (k₁₂ * k₂₂)%positive as k₂ eqn:Hk₂ .
- constructor 1 with (k₁ := k₁) (k₂ := k₂); subst k₁ k₂.
-  rewrite Pos.mul_comm.
-  rewrite stretch_stretch_series, Hss₁, <- stretch_stretch_series.
-  rewrite Pos.mul_comm.
-  rewrite stretch_stretch_series, Hss₂, <- stretch_stretch_series.
-  reflexivity.
-
-  rewrite Pos2Z.inj_mul, Z.mul_assoc, Hvv₁.
-  rewrite Z.mul_shuffle0, Hvv₂, Z.mul_shuffle0.
-  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
-  reflexivity.
-
-  rewrite Pos.mul_assoc, Hck₁.
-  rewrite Pos_mul_shuffle0, Hck₂, Pos_mul_shuffle0.
-  rewrite <- Pos.mul_assoc.
-  reflexivity.
-
- assumption.
+induction H₁; [ idtac | assumption ].
+inversion H₂; constructor; etransitivity; eassumption.
 Qed.
 
 End fld₁.
@@ -946,7 +700,7 @@ apply first_nonzero_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
-Lemma series_pad_left_0 : ∀ s, series_pad_left 0 s ≃ s.
+Lemma series_pad_left_0 : ∀ s, series_pad_left fld 0 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
@@ -955,8 +709,8 @@ rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
 Lemma series_nth_pad_S : ∀ s n i,
-  series_nth_fld fld i (series_pad_left n s) =
-  series_nth_fld fld (S i) (series_pad_left (S n) s).
+  series_nth_fld fld i (series_pad_left fld n s) =
+  series_nth_fld fld (S i) (series_pad_left fld (S n) s).
 Proof.
 intros s n i.
 unfold series_nth_fld; simpl.
@@ -988,12 +742,12 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
 Qed.
 
 Lemma first_nonzero_pad_S : ∀ s n,
-  first_nonzero fld (series_pad_left (S n) s) =
-  NS (first_nonzero fld (series_pad_left n s)).
+  first_nonzero fld (series_pad_left fld (S n) s) =
+  NS (first_nonzero fld (series_pad_left fld n s)).
 Proof.
 intros s n.
-remember (first_nonzero fld (series_pad_left n s)) as u eqn:Hu .
-remember (first_nonzero fld (series_pad_left (S n) s)) as v eqn:Hv .
+remember (first_nonzero fld (series_pad_left fld n s)) as u eqn:Hu .
+remember (first_nonzero fld (series_pad_left fld (S n) s)) as v eqn:Hv .
 symmetry in Hu, Hv.
 apply first_nonzero_iff in Hu.
 apply first_nonzero_iff in Hv.
@@ -1035,7 +789,7 @@ destruct u as [u| ].
 Qed.
 
 Theorem first_nonzero_pad : ∀ s n,
-  first_nonzero fld (series_pad_left n s) =
+  first_nonzero fld (series_pad_left fld n s) =
     (fin n + first_nonzero fld s)%Nbar.
 Proof.
 intros s n.
@@ -1068,8 +822,8 @@ Definition nz_terms_add nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
   series_add fld
-    (series_pad_left (Z.to_nat (v₁ - v₂)) s₁)
-    (series_pad_left (Z.to_nat (v₂ - v₁)) s₂).
+    (series_pad_left fld (Z.to_nat (v₁ - v₂)) s₁)
+    (series_pad_left fld (Z.to_nat (v₂ - v₁)) s₂).
 
 Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
@@ -1214,7 +968,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
  destruct a, b, c, d; try rewrite fld_add_ident; reflexivity.
 Qed.
-o
+
 Lemma stretch_pad_1_series_distr : ∀ kp s,
   stretch_series fld kp (series_pad_left fld 1 s) ≃
   series_pad_left fld (Pos.to_nat kp) (stretch_series fld kp s).
@@ -1241,21 +995,22 @@ apply Pos.mul_comm.
 Qed.
 
 Lemma nz_terms_add_comm : ∀ ps₁ ps₂,
-  nz_terms_add fld ps₁ ps₂ ≃ nz_terms_add fld ps₂ ps₁.
+  nz_terms_add ps₁ ps₂ ≃ nz_terms_add ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold nz_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add fld nz₁ nz₂ ≈ nz_add fld nz₂ nz₁.
+Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add nz₁ nz₂ ≈ nz_add nz₂ nz₁.
 Proof.
 intros nz₁ nz₂.
 unfold nz_add.
 rewrite nz_terms_add_comm.
-remember (first_nonzero fld (nz_terms_add fld nz₂ nz₁)) as v.
+remember (first_nonzero fld (nz_terms_add nz₂ nz₁)) as v.
 symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
+bbb.
 constructor 1 with (k₁ := xH) (k₂ := xH); simpl.
  rewrite nz_terms_add_comm; reflexivity.
 
