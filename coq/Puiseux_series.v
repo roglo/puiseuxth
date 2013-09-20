@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.636 2013-09-20 09:07:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.637 2013-09-20 09:17:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -573,6 +573,11 @@ intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁.
  inversion H₂.
   constructor; etransitivity; eassumption.
+
+  subst.
+  rename nz₂0 into nz₂'.
+  constructor 2.
+bbb.
 
   subst.
   constructor 2.
