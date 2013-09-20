@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.637 2013-09-20 09:17:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.638 2013-09-20 09:30:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -69,14 +69,18 @@ Definition normalise_nz nz :=
       Zero _
   end.
 
-Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_ps_base : ∀ nz₁ nz₂,
+Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_norm_ps_base : ∀ nz₁ nz₂,
       nz_valnum nz₁ = nz_valnum nz₂
       → nz_comden nz₁ = nz_comden nz₂
         → nz_terms nz₁ ≃ nz_terms nz₂
-          → eq_ps (NonZero nz₁) (NonZero nz₂)
-  | eq_ps_norm : ∀ nz₁ nz₂,
-      eq_ps (normalise_nz nz₁) (normalise_nz nz₂)
+          → eq_norm_ps (NonZero nz₁) (NonZero nz₂)
+  | eq_norm_ps_zero :
+      eq_norm_ps (Zero _) (Zero _).
+
+Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_ps_base : ∀ nz₁ nz₂,
+      eq_norm_ps (normalise_nz nz₁) (normalise_nz nz₂)
       → eq_ps (NonZero nz₁) (NonZero nz₂)
   | eq_ps_zero :
       eq_ps (Zero _) (Zero _).
@@ -146,22 +150,30 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
-Theorem eq_ps_refl : reflexive _ eq_ps.
+Lemma eq_norm_ps_refl : reflexive _ eq_norm_ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ idtac | constructor ].
 constructor; reflexivity.
 Qed.
 
+Theorem eq_ps_refl : reflexive _ eq_ps.
+Proof.
+intros ps.
+destruct ps as [nz| ]; constructor.
+apply eq_norm_ps_refl.
+Qed.
+
+Lemma eq_norm_ps_sym : symmetric _ eq_norm_ps.
+Proof.
+intros ps₁ ps₂ H.
+induction H; constructor; symmetry; assumption.
+Qed.
+
 Theorem eq_ps_sym : symmetric _ eq_ps.
 Proof.
 intros ps₁ ps₂ H.
-induction H.
- constructor; symmetry; assumption.
-
- econstructor 2; eassumption.
-
- econstructor 3; eassumption.
+induction H; constructor; apply eq_norm_ps_sym; assumption.
 Qed.
 
 Lemma stretch_stretch_series : ∀ a b s,
