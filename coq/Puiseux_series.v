@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.641 2013-09-20 11:28:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.642 2013-09-20 12:23:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1001,6 +1001,35 @@ intros ps₁ ps₂.
 unfold nz_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
+
+Lemma first_nonzero_add_comm : ∀ nz₁ nz₂,
+  first_nonzero fld (nz_terms (build_nz_add nz₁ nz₂)) =
+  first_nonzero fld (nz_terms (build_nz_add nz₂ nz₁)).
+Proof.
+intros nz₁ nz₂.
+bbb.
+
+Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
+  eq_norm_ps fld
+    (normalise_nz fld (build_nz_add nz₁ nz₂))
+    (normalise_nz fld (build_nz_add nz₂ nz₁)).
+Proof.
+intros nz₁ nz₂.
+unfold normalise_nz.
+remember (first_nonzero fld (nz_terms (build_nz_add nz₁ nz₂))) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms (build_nz_add nz₂ nz₁))) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ].
+  rewrite first_nonzero_add_comm in Hn₁.
+  rewrite Hn₁ in Hn₂.
+  apply Nbar.fin_inj_wd in Hn₂; subst n₂.
+  constructor; simpl.
+   rewrite Z.min_comm; reflexivity.
+
+   unfold cm; apply Pos.mul_comm.
+bbb.
+rewrite nz_terms_add_comm.
 
 Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add nz₁ nz₂ ≈ nz_add nz₂ nz₁.
 Proof.
