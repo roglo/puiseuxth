@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.638 2013-09-20 09:30:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.639 2013-09-20 09:38:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -150,24 +150,38 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
-Lemma eq_norm_ps_refl : reflexive _ eq_norm_ps.
+Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ idtac | constructor ].
 constructor; reflexivity.
 Qed.
 
+Theorem eq_norm_ps_sym : symmetric _ eq_norm_ps.
+Proof.
+intros ps₁ ps₂ H.
+induction H; constructor; symmetry; assumption.
+Qed.
+
+Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
+Proof.
+intros ps₁ ps₂ ps₃ H₁ H₂.
+inversion H₁.
+ inversion H₂.
+  constructor.
+bbb.
+
+Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_norm_ps fld)
+ reflexivity proved by (eq_norm_ps_refl fld)
+ symmetry proved by (eq_norm_ps_sym (fld := fld))
+ transitivity proved by (eq_norm_ps_trans (fld := fld))
+ as eq_norm_ps_rel.
+
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; constructor.
 apply eq_norm_ps_refl.
-Qed.
-
-Lemma eq_norm_ps_sym : symmetric _ eq_norm_ps.
-Proof.
-intros ps₁ ps₂ H.
-induction H; constructor; symmetry; assumption.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
