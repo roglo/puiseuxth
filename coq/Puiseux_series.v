@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.635 2013-09-20 01:04:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.636 2013-09-20 09:07:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,13 +55,14 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
+Definition normalise_series n (s : series α) :=
+  {| terms i := terms s (i - n); stop := stop s - fin n |}.
+
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) with
   | fin n =>
       NonZero
-        {| nz_terms :=
-             {| terms i := terms (nz_terms nz) (i - n);
-                stop := stop (nz_terms nz) - fin n |};
+        {| nz_terms := normalise_series n (nz_terms nz);
            nz_valnum := nz_valnum nz + Z.of_nat n;
            nz_comden := nz_comden nz |}
   | ∞ =>
