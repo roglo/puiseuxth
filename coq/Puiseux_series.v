@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.657 2013-09-21 13:09:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.658 2013-09-21 13:11:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1348,14 +1348,10 @@ Delimit Scope ps_scope with ps.
 Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add a b) : ps_scope.
 
-Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ n₁ n₂,
-  first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
-  → first_nonzero fld (terms_add ps₂ ps₃) = fin n₂
-    → ps_add (ps_add ps₁ ps₂) ps₃ ≈
-      ps_add ps₁ (ps_add ps₂ ps₃).
+Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
+  ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
-intros ps₁ ps₂ ps₃ n₁ n₂ Hn₁ Hn₂.
-clear n₁ n₂ Hn₁ Hn₂.
+intros ps₁ ps₂ ps₃.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
@@ -3096,9 +3092,9 @@ unfold mk_nonzero.
 constructor; reflexivity.
 Qed.
 
-Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
+Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
-  → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
+  → ps_add ps₁ ps₂ ≈ ps_add ps₁ ps₃.
 Proof.
 intros ps₁ ps₂ ps₃ H₂₃.
 unfold ps_add.
