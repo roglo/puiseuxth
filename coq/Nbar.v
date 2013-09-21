@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.67 2013-09-21 17:59:48 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.68 2013-09-21 18:21:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -440,6 +440,35 @@ split; intros H.
    exfalso; apply nle_gt in H; apply H, le_0_l.
 Qed.
 
+Theorem nlt_0_r : ∀ n, ¬(n < 0).
+Proof.
+intros n H.
+destruct n as [n| ]; [ idtac | inversion H ].
+inversion_clear H.
+revert H0; apply Nat.nlt_0_r.
+Qed.
+
+Theorem div_lt_upper_bound : ∀ a b q, b ≠ 0 → b ≠ ∞ → a < b * q → a / b < q.
+Proof.
+intros a b q Hb Hbi Ha.
+destruct a as [a| ].
+ destruct b as [b| ].
+  destruct q as [q| ]; [ idtac | constructor ].
+  apply fin_lt_mono.
+  destruct b as [| b].
+   exfalso; revert Ha; apply nlt_0_r.
+
+   apply Nat.div_lt_upper_bound.
+    intros H; discriminate H.
+
+    apply fin_lt_mono; assumption.
+
+  exfalso; apply Hbi; reflexivity.
+
+ destruct b as [b| ]; [ inversion Ha | idtac ].
+ exfalso; apply Hbi; reflexivity.
+Qed.
+
 (*
 Theorem le_antisymm : ∀ n m, n ≤ m → m ≤ n → n = m.
 Proof.
@@ -742,14 +771,6 @@ intros n m H.
 destruct n as [n| ]; [ idtac | inversion H ].
 destruct m as [m| ]; [ idtac | constructor ].
 constructor; apply Nat.lt_le_incl; inversion H; assumption.
-Qed.
-
-Theorem nlt_0_r : ∀ n, ¬(n < 0).
-Proof.
-intros n H.
-destruct n as [n| ]; [ idtac | inversion H ].
-inversion_clear H.
-revert H0; apply Nat.nlt_0_r.
 Qed.
 
 Theorem add_0_l : ∀ n, 0 + n = n.
