@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.660 2013-09-21 13:47:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.661 2013-09-21 14:14:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2948,7 +2948,6 @@ remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ 
 symmetry in Hn₁₂, Hn₁₃.
 destruct n₁₂ as [n₁₂| ].
  destruct n₁₃ as [n₁₃| ].
-  Focus 1.
   constructor; simpl.
    unfold cm_factor; simpl.
    unfold normalise_nz in Heq; simpl in Heq.
@@ -2960,6 +2959,17 @@ destruct n₁₂ as [n₁₂| ].
      Focus 1.
      inversion_clear Heq; simpl in *.
      rewrite H0.
+     unfold nz_terms_add in Hn₁₂, Hn₁₃.
+     unfold cm_factor in Hn₁₂, Hn₁₃.
+     rewrite H0 in Hn₁₂.
+     remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
+     remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
+     remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
+     remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
+     remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
+     remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
+     move H0 at top; subst c₃.
+     inversion_clear H1.
 bbb.
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
