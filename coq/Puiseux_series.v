@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.651 2013-09-21 00:55:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.652 2013-09-21 08:07:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -890,11 +890,17 @@ Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
+Definition nz_add nz₁ nz₂ :=
+  match first_nonzero fld (nz_terms_add nz₁ nz₂) with
+  | fin _ => NonZero (build_nz_add nz₁ nz₂)
+  | inf => Zero _
+  end.
+
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
   | NonZero nz₁ =>
       match ps₂ with
-      | NonZero nz₂ => NonZero (build_nz_add nz₁ nz₂)
+      | NonZero nz₂ => nz_add nz₁ nz₂
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -1079,7 +1085,6 @@ destruct n₁ as [n₁| ].
  constructor.
 Qed.
 
-(*
 Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add nz₁ nz₂ ≈ nz_add nz₂ nz₁.
 Proof.
 intros nz₁ nz₂.
@@ -1090,7 +1095,6 @@ symmetry in Heqv.
 destruct v as [v| ]; [ idtac | reflexivity ].
 constructor; rewrite nz_norm_add_comm; reflexivity.
 Qed.
-*)
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
@@ -1098,7 +1102,7 @@ intros ps₁ ps₂.
 unfold ps_add; simpl.
 destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
-constructor; apply nz_norm_add_comm.
+apply nz_add_comm.
 Qed.
 
 Lemma series_pad_add_distr : ∀ s₁ s₂ n,
@@ -1265,8 +1269,7 @@ destruct n as [n| ]; constructor; simpl.
  rewrite nz_terms_add_assoc; reflexivity.
 Qed.
 
-(*
-Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
+Lemma nz_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_add (build_nz_add nz₁ nz₂) nz₃ ≈
   nz_add nz₁ (build_nz_add nz₂ nz₃).
 Proof.
@@ -1278,7 +1281,6 @@ remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
 destruct n as [n| ]; [ constructor | reflexivity ].
 apply nz_norm_add_assoc.
 Qed.
-*)
 
 Delimit Scope ps_scope with ps.
 Bind Scope ps_scope with puiseux_series.
@@ -1287,20 +1289,50 @@ Notation "a + b" := (ps_add a b) : ps_scope.
 Lemma ps_add_assoc_base : ∀ ps₁ ps₂ ps₃ n₁ n₂,
   first_nonzero fld (terms_add ps₁ ps₂) = fin n₁
   → first_nonzero fld (terms_add ps₂ ps₃) = fin n₂
-    → ps_add (ps_add ps₁ ps₂) ps₃ ≈
-      ps_add ps₁ (ps_add ps₂ ps₃).
+    → ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ n₁ n₂ Hn₁ Hn₂.
-clear n₁ n₂ Hn₁ Hn₂.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
 remember (ps_add (NonZero nz₁) (NonZero nz₂)) as x.
 remember (ps_add (NonZero nz₂) (NonZero nz₃)) as y.
 simpl in Heqx, Heqy; subst x y.
-simpl; constructor.
-apply nz_norm_add_assoc.
+simpl in Hn₁, Hn₂.
+unfold nz_add; rewrite Hn₁, Hn₂; simpl.
+apply nz_add_assoc.
 Qed.
+
+(*
+Lemma first_nonzero_inf_nz_add : ∀ nz₁ nz₂,
+  first_nonzero fld (nz_terms nz₂) = ∞
+  → first_nonzero fld (nz_terms_add nz₁ nz₂) =
+    first_nonzero fld (nz_terms nz₁).
+Proof.
+intros nz₁ nz₂.
+bbb.
+*)
+
+Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
+  ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
+Proof.
+intros ps₁ ps₂ ps₃.
+destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
+remember (ps_add (NonZero nz₁) (NonZero nz₂)) as x.
+remember (ps_add (NonZero nz₂) (NonZero nz₃)) as y.
+simpl in Heqx, Heqy; subst x y.
+unfold nz_add; simpl.
+remember (first_nonzero fld (nz_terms_add nz₁ nz₂)) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms_add nz₂ nz₃)) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ]; simpl.
+ destruct n₂ as [n₂| ]; simpl.
+  apply nz_add_assoc.
+
+  rewrite nz_add_assoc.
+bbb.
 
 Lemma Z2Nat_sub_mul_succ_l : ∀ a b,
   (Z.to_nat (a * ' b) - Z.to_nat ((a + 1) * ' b))%nat = O.
