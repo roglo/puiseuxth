@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.661 2013-09-21 14:14:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.662 2013-09-21 17:59:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,6 +14,9 @@ Set Implicit Arguments.
 (* [first_nonzero fld s] return the position of the first non null
    coefficient in the series [s]. *)
 Definition first_nonzero : ∀ α, field α → series α → Nbar.
+Admitted.
+
+Definition stretching_factor : ∀ α, field α → series α → nat.
 Admitted.
 
 Section fld.
@@ -33,6 +36,14 @@ Axiom first_nonzero_iff : ∀ s n,
     | inf =>
         (∀ i, series_nth_fld fld i s ≍ zero fld)
     end.
+
+Axiom stretching_factor_iff : ∀ s k,
+  stretching_factor fld s = k
+  ↔ (first_nonzero fld s = ∞ ∧ k = O) ∨
+    (first_nonzero fld s ≠ ∞ ∧ k ≠ O ∧
+     (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
+     (∀ k₁, (k < k₁)%nat →
+      ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld i s ≭ zero fld)).
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -55,14 +66,16 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
-Definition normalise_series n (s : series α) :=
-  {| terms i := terms s (i + n); stop := stop s - fin n |}.
+Definition normalise_series n k (s : series α) :=
+  {| terms i := terms s ((i + n) / k);
+     stop := (stop s - fin n) / fin k |}.
 
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) with
   | fin n =>
+      let k := stretching_factor fld (nz_terms nz) in
       NonZero
-        {| nz_terms := normalise_series n (nz_terms nz);
+        {| nz_terms := normalise_series n k (nz_terms nz);
            nz_valnum := nz_valnum nz + Z.of_nat n;
            nz_comden := nz_comden nz |}
   | ∞ =>
@@ -357,21 +370,23 @@ destruct (lt_dec i n) as [Hlt| Hge].
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (@normalise_series α) with 
-signature eq ==> (eq_series fld) ==> (eq_series fld) as normalise_morph.
+signature eq ==> eq ==> (eq_series fld) ==> (eq_series fld) as normalise_morph.
 Proof.
-intros n ps₁ ps₂ Heq.
+intros n k ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
 unfold series_nth_fld in H |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
-pose proof (H (i + n)%nat) as Hi.
-destruct (Nbar.lt_dec (fin i) (stop ps₁ - fin n)) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop ps₂ - fin n)) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin (i + n)) (stop ps₁)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin (i + n)) (stop ps₂)) as [H₄| H₄].
+do 2 rewrite Nbar.fold_div.
+pose proof (H ((i + n) / k)%nat) as Hi.
+destruct (Nbar.lt_dec (fin i) ((stop ps₁ - fin n) / fin k)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) ((stop ps₂ - fin n) / fin k)) as [H₂| H₂].
+  destruct (Nbar.lt_dec (fin ((i + n) / k)) (stop ps₁)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin ((i + n) / k)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
     exfalso; apply H₄.
+bbb.
     apply Nbar.lt_add_lt_sub_r in H₂; assumption.
 
    exfalso; apply H₃.

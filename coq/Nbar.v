@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.66 2013-09-20 12:49:06 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.67 2013-09-21 17:59:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -40,8 +40,8 @@ Definition binop f dx dy xb yb :=
   | ∞ => dy
   end.
 
-Definition add := binop plus ∞ ∞.
-Definition mul := binop mult ∞ ∞.
+Definition add := binop Nat.add ∞ ∞.
+Definition mul := binop Nat.mul ∞ ∞.
 Definition max := binop max ∞ ∞.
 Definition min x y := binop min x y x y.
 
@@ -49,7 +49,17 @@ Definition sub xb yb :=
   match yb with
   | fin y =>
       match xb with
-      | fin x => fin (minus x y)
+      | fin x => fin (Nat.sub x y)
+      | ∞ => ∞
+      end
+  | ∞ => 0
+  end.
+
+Definition div xb yb :=
+  match yb with
+  | fin y =>
+      match xb with
+      | fin x => fin (Nat.div x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -58,6 +68,7 @@ Definition sub xb yb :=
 Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
+Infix "/" := div : Nbar_scope.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
@@ -74,6 +85,13 @@ Theorem fold_sub : ∀ x n,
   | fin m => fin (m - n)
   | ∞ => ∞
   end = x - fin n.
+Proof. reflexivity. Qed.
+
+Theorem fold_div : ∀ x n,
+  match x with
+  | fin m => fin (m / n)
+  | ∞ => ∞
+  end = x / fin n.
 Proof. reflexivity. Qed.
 
 Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
@@ -759,6 +777,7 @@ End Nbar.
 Infix "+" := Nbar.add : Nbar_scope.
 Infix "-" := Nbar.sub : Nbar_scope.
 Infix "*" := Nbar.mul : Nbar_scope.
+Infix "/" := Nbar.div : Nbar_scope.
 Infix "<" := Nbar.lt : Nbar_scope.
 (*
 Infix "≤" := Nbar.le : Nbar_scope.
