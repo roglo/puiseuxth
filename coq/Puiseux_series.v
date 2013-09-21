@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.659 2013-09-21 13:12:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.660 2013-09-21 13:47:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2935,10 +2935,46 @@ unfold mk_nonzero.
 constructor; reflexivity.
 Qed.
 
+Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
+  eq_norm_ps fld (normalise_nz fld nz₂) (normalise_nz fld nz₃)
+  → eq_norm_ps fld
+      (normalise_nz fld (build_nz_add nz₁ nz₂))
+      (normalise_nz fld (build_nz_add nz₁ nz₃)).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+unfold normalise_nz; simpl.
+remember (first_nonzero fld (nz_terms_add nz₁ nz₂)) as n₁₂ eqn:Hn₁₂ .
+remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
+symmetry in Hn₁₂, Hn₁₃.
+destruct n₁₂ as [n₁₂| ].
+ destruct n₁₃ as [n₁₃| ].
+  Focus 1.
+  constructor; simpl.
+   unfold cm_factor; simpl.
+   unfold normalise_nz in Heq; simpl in Heq.
+   remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
+   remember (first_nonzero fld (nz_terms nz₃)) as n₃ eqn:Hn₃ .
+   symmetry in Hn₂, Hn₃.
+   destruct n₂ as [n₂| ].
+    destruct n₃ as [n₃| ].
+     Focus 1.
+     inversion_clear Heq; simpl in *.
+     rewrite H0.
+bbb.
+
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₂ ≈ ps₃
   → ps_add ps₁ ps₂ ≈ ps_add ps₁ ps₃.
 Proof.
+intros ps₁ ps₂ ps₃ H₂₃.
+unfold ps_add.
+destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
+destruct ps₂ as [nz₂| ].
+ destruct ps₃ as [nz₃| ].
+  constructor.
+  inversion_clear H₂₃.
+bbb.
+
 intros ps₁ ps₂ ps₃ H₂₃.
 unfold ps_add.
 inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a b H₂ H₃]; subst.
