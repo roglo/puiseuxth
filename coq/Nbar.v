@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.68 2013-09-21 18:21:13 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.69 2013-09-21 20:31:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -446,6 +446,47 @@ intros n H.
 destruct n as [n| ]; [ idtac | inversion H ].
 inversion_clear H.
 revert H0; apply Nat.nlt_0_r.
+Qed.
+
+Theorem lt_div_lt_mul_r : ∀ n m p, n < m / p → n * p < m.
+Proof.
+intros n m p Hn.
+destruct p as [p| ].
+ destruct p as [| p].
+  destruct m as [m| ].
+   simpl in Hn.
+   destruct m as [m| ].
+    destruct n as [n| ]; [ constructor | assumption ].
+    exfalso; revert Hn; apply nlt_0_r.
+
+    exfalso; revert Hn; apply nlt_0_r.
+
+   destruct n as [n| ]; [ constructor | assumption ].
+
+  destruct m as [m| ].
+   destruct n as [n| ].
+    simpl in Hn |- *.
+    rewrite divmod_div in Hn.
+    apply fin_lt_mono in Hn.
+    apply (Nat.mul_lt_mono_pos_r (S p)) in Hn.
+     apply Nat.lt_le_trans with (p := (S p * m / S p)%nat) in Hn.
+      remember (n * S p)%nat as x; rewrite Nat.mul_comm in Hn; subst x.
+      rewrite Nat.div_mul in Hn.
+       apply fin_lt_mono; assumption.
+
+       intros H; discriminate H.
+
+      rewrite Nat.mul_comm.
+      apply Nat.div_mul_le.
+      intros H; discriminate H.
+
+     apply Nat.lt_0_succ.
+
+    inversion Hn.
+
+   destruct n as [n| ]; [ constructor | assumption ].
+
+ exfalso; revert Hn; apply nlt_0_r.
 Qed.
 
 Theorem div_lt_upper_bound : ∀ a b q, b ≠ 0 → b ≠ ∞ → a < b * q → a / b < q.

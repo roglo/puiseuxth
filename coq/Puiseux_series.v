@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.663 2013-09-21 18:21:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.664 2013-09-21 20:31:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -67,7 +67,7 @@ Inductive puiseux_series α :=
   | Zero : puiseux_series α.
 
 Definition normalise_series n k (s : series α) :=
-  {| terms i := terms s ((i + n) * k);
+  {| terms i := terms s (n + i * k);
      stop := (stop s - fin n) / fin k |}.
 
 Definition normalise_nz nz :=
@@ -76,8 +76,8 @@ Definition normalise_nz nz :=
       let k := stretching_factor fld (nz_terms nz) in
       NonZero
         {| nz_terms := normalise_series n k (nz_terms nz);
-           nz_valnum := nz_valnum nz + Z.of_nat n;
-           nz_comden := nz_comden nz |}
+           nz_valnum := nz_valnum nz / Z.of_nat k + Z.of_nat n;
+           nz_comden := Z.to_pos (' nz_comden nz / Z.of_nat k) |}
   | ∞ =>
       Zero _
   end.
@@ -378,19 +378,20 @@ inversion Heq; subst.
 unfold series_nth_fld in H |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
 do 2 rewrite Nbar.fold_div.
-pose proof (H ((i + n) * k)%nat) as Hi.
+pose proof (H (n + i * k)%nat) as Hi.
 destruct (Nbar.lt_dec (fin i) ((stop ps₁ - fin n) / fin k)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) ((stop ps₂ - fin n) / fin k)) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin ((i + n) * k)) (stop ps₁)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin ((i + n) * k)) (stop ps₂)) as [H₄| H₄].
+  destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
     exfalso; apply H₄.
+    rewrite Nbar.fin_inj_add, Nbar.add_comm.
+    apply Nbar.lt_add_lt_sub_r.
+    rewrite Nbar.fin_inj_mul.
+    apply Nbar.lt_div_lt_mul_r.
+    assumption.
 bbb.
-Nat.div_lt_upper_bound:
-  ∀ a b q : nat, b ≠ 0 → (a < b * q)%nat → (a / b < q)%nat
-
-    apply Nbar.lt_add_lt_sub_r in H₂; assumption.
 
    exfalso; apply H₃.
    apply Nbar.lt_add_lt_sub_r in H₁; assumption.
