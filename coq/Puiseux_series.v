@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.653 2013-09-21 08:48:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.654 2013-09-21 11:57:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -665,13 +665,19 @@ induction H₁.
   remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
   symmetry in Hn₁, Hn₂.
   destruct n₁ as [n₁| ].
-   destruct n₂ as [n₂| ].
-bbb.
+   destruct n₂ as [n₂| ]; [ idtac | inversion H ].
+   apply first_nonzero_iff in Hn₂.
+   destruct Hn₂ as (_, Hn₂).
+   exfalso; apply Hn₂; rewrite H1.
+   unfold series_nth_fld; simpl.
+   destruct (Nbar.lt_dec (fin n₂) 0); reflexivity.
 
-intros ps₁ ps₂ ps₃ H₁ H₂.
-induction H₁; [ idtac | assumption ].
-inversion H₂; constructor; etransitivity; eassumption.
-Qed.
+   destruct n₂ as [n₂| ]; [ inversion H | idtac ].
+   apply first_nonzero_iff in Hn₁.
+   constructor; intros i.
+   unfold series_nth_fld at 2; simpl.
+   destruct (Nbar.lt_dec (fin i) 0); apply Hn₁.
+bbb.
 
 End fld₁.
 
