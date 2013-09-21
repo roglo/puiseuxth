@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.656 2013-09-21 12:54:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.657 2013-09-21 13:09:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3093,37 +3093,7 @@ rewrite <- stretch_series_add_distr.
 rewrite series_add_neg.
 rewrite stretch_series_series_0.
 unfold mk_nonzero.
-bbb.
-constructor 2; [ idtac | reflexivity ].
-unfold ps_add; simpl.
-remember (nz_valnum ps) as v.
-symmetry in Heqv.
-destruct v as [v| ]; [ simpl | assumption ].
-unfold ps_add_nz; simpl.
-remember (adjust fld (nz_comden ps) ps) as ps₁.
-remember (adjust fld (cm_factor (ps_neg ps) ps) (ps_neg ps)) as ps₂.
-remember (first_nonzero fld (nz_terms_add fld ps₁ ps₂)) as w.
-symmetry in Heqw.
-destruct w; [ simpl | reflexivity ].
-apply first_nonzero_fin in Heqw.
-exfalso; apply Heqw; clear Heqw; intros i.
-rewrite Heqps₁, Heqps₂.
-unfold nz_terms_add, ps_neg, cm_factor; simpl.
-rewrite Nat.sub_diag.
-unfold series_add, series_nth_fld; simpl.
-rewrite Nbar.add_0_r, Nat.sub_0_r, Nbar.max_id.
-remember (stop (nz_terms ps) * fin (Pos.to_nat (nz_comden ps)))%Nbar as y.
-destruct (Nbar.lt_dec (fin i) y); [ idtac | reflexivity ].
-destruct (zerop (i mod Pos.to_nat (nz_comden ps))) as [Hz| Hnz].
- unfold series_neg; simpl.
- unfold series_nth_fld; simpl.
- remember (fin (i / Pos.to_nat (nz_comden ps))) as z.
- destruct (Nbar.lt_dec z (stop (nz_terms ps))) as [H| H].
-  apply fld_add_neg.
-
-  apply fld_add_ident.
-
- apply fld_add_ident.
+constructor; reflexivity.
 Qed.
 
 Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
