@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.650 2013-09-20 23:29:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.651 2013-09-21 00:55:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2924,11 +2924,8 @@ Qed.
 Theorem ps_add_ident : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
 Proof. reflexivity. Qed.
 
-Definition series_neg s :=
-  {| terms i := neg fld (terms s i); stop := stop s |}.
-
 Definition nz_neg nz :=
-  {| nz_terms := series_neg (nz_terms nz);
+  {| nz_terms := series_neg fld (nz_terms nz);
      nz_valnum := nz_valnum nz;
      nz_comden := nz_comden nz |}.
 
@@ -2939,7 +2936,7 @@ Definition ps_neg ps :=
   end.
 
 Lemma add_neg_nth : ∀ s i,
-  add fld (series_nth_fld fld i s) (series_nth_fld fld i (series_neg s)) ≍
+  add fld (series_nth_fld fld i s) (series_nth_fld fld i (series_neg fld s)) ≍
   zero fld.
 Proof.
 intros s i.
@@ -3028,6 +3025,9 @@ unfold cm_factor; simpl.
 rewrite Z.sub_diag; simpl.
 rewrite fold_mk_nonzero.
 do 2 rewrite series_pad_left_0.
+rewrite <- stretch_series_add_distr.
+rewrite series_add_neg.
+rewrite stretch_series_series_0.
 unfold mk_nonzero.
 bbb.
 constructor 2; [ idtac | reflexivity ].

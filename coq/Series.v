@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.61 2013-08-30 12:06:21 deraugla Exp $ *)
+(* $Id: Series.v,v 1.62 2013-09-21 00:55:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -70,6 +70,9 @@ Qed.
 Definition series_add s₁ s₂ :=
   {| terms i := add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
      stop := Nbar.max (stop s₁) (stop s₂) |}.
+
+Definition series_neg s :=
+  {| terms i := neg fld (terms s i); stop := stop s |}.
 
 Lemma series_add_comm : ∀ s₁ s₂,
   series_add s₁ s₂ ≃ series_add s₂ s₁.
@@ -146,6 +149,21 @@ destruct lt₄ as [Hlt₄| Hge₄].
     destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
     exfalso; apply Hge₅; clear Hge₅.
     apply Nbar.max_lt_iff; right; assumption.
+Qed.
+
+Lemma series_add_neg : ∀ s, series_add s (series_neg s) ≃ series_0.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.max_id.
+destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
+ exfalso; revert H₁; apply Nbar.nlt_0_r.
+
+ clear H₁.
+ unfold series_nth_fld; simpl.
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
+ apply fld_add_neg.
 Qed.
 
 End field.
