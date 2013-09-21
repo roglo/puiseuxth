@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.664 2013-09-21 20:31:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.665 2013-09-21 21:05:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -380,8 +380,8 @@ do 2 rewrite Nbar.fold_sub.
 do 2 rewrite Nbar.fold_div.
 pose proof (H (n + i * k)%nat) as Hi.
 destruct (Nbar.lt_dec (fin i) ((stop ps₁ - fin n) / fin k)) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) ((stop ps₂ - fin n) / fin k)) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₃| H₃].
+ destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₂| H₂].
+  destruct (Nbar.lt_dec (fin i) ((stop ps₂ - fin n) / fin k)) as [H₃| H₃].
    destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
@@ -391,6 +391,12 @@ destruct (Nbar.lt_dec (fin i) ((stop ps₁ - fin n) / fin k)) as [H₁| H₁].
     rewrite Nbar.fin_inj_mul.
     apply Nbar.lt_div_lt_mul_r.
     assumption.
+
+   destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
+    exfalso; apply H₃.
+    rewrite Nbar.fin_inj_add, Nbar.add_comm in H₄.
+    apply Nbar.lt_add_lt_sub_r in H₄.
+    rewrite Nbar.fin_inj_mul in H₄.
 bbb.
 
    exfalso; apply H₃.
