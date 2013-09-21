@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.654 2013-09-21 11:57:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.655 2013-09-21 12:46:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -207,6 +207,38 @@ apply Nbar.mul_lt_mono_pos_r.
  intros H; discriminate H.
 
  assumption.
+Qed.
+
+Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
+with signature (eq_series fld) ==> eq as first_nonzero_morph.
+Proof.
+intros s₁ s₂ Heq.
+remember (first_nonzero fld s₁) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s₂) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+apply first_nonzero_iff in Hn₁.
+apply first_nonzero_iff in Hn₂.
+destruct n₁ as [n₁| ].
+ destruct Hn₁ as (Hiz₁, Hnz₁).
+ destruct n₂ as [n₂| ].
+  destruct Hn₂ as (Hiz₂, Hnz₂).
+  apply Nbar.fin_inj_wd.
+  destruct (lt_eq_lt_dec n₁ n₂) as [[Hlt| Hneq]| Hgt].
+   exfalso; apply Hnz₁.
+   rewrite Heq.
+   apply Hiz₂; assumption.
+
+   assumption.
+
+   exfalso; apply Hnz₂.
+   rewrite <- Heq.
+   apply Hiz₁; assumption.
+
+  exfalso; apply Hnz₁; rewrite Heq; apply Hn₂.
+
+ destruct n₂ as [n₂| ]; [ idtac | reflexivity ].
+ destruct Hn₂ as (Hiz₂, Hnz₂).
+ exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
@@ -654,7 +686,6 @@ Qed.
 
 Theorem eq_ps_trans : transitive _ (eq_ps fld).
 Proof.
-intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁.
  inversion H₂; subst.
   constructor; etransitivity; eassumption.
@@ -677,6 +708,20 @@ induction H₁.
    constructor; intros i.
    unfold series_nth_fld at 2; simpl.
    destruct (Nbar.lt_dec (fin i) 0); apply Hn₁.
+
+ inversion H₂; subst.
+  rename nz0 into nz₃.
+  constructor.
+  unfold normalise_nz.
+  rewrite H, H0.
+  remember (first_nonzero fld (series_0 fld)) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ]; [ idtac | reflexivity ].
+  apply first_nonzero_iff in Hn.
+  destruct Hn as (_, Hn).
+  exfalso; apply Hn.
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin n) 0); reflexivity.
 bbb.
 
 End fld₁.
@@ -699,38 +744,6 @@ with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
 Proof.
 bbb.
 *)
-
-Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
-with signature (eq_series fld) ==> eq as first_nonzero_morph.
-Proof.
-intros s₁ s₂ Heq.
-remember (first_nonzero fld s₁) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s₂) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
-apply first_nonzero_iff in Hn₁.
-apply first_nonzero_iff in Hn₂.
-destruct n₁ as [n₁| ].
- destruct Hn₁ as (Hiz₁, Hnz₁).
- destruct n₂ as [n₂| ].
-  destruct Hn₂ as (Hiz₂, Hnz₂).
-  apply Nbar.fin_inj_wd.
-  destruct (lt_eq_lt_dec n₁ n₂) as [[Hlt| Hneq]| Hgt].
-   exfalso; apply Hnz₁.
-   rewrite Heq.
-   apply Hiz₂; assumption.
-
-   assumption.
-
-   exfalso; apply Hnz₂.
-   rewrite <- Heq.
-   apply Hiz₁; assumption.
-
-  exfalso; apply Hnz₁; rewrite Heq; apply Hn₂.
-
- destruct n₂ as [n₂| ]; [ idtac | reflexivity ].
- destruct Hn₂ as (Hiz₂, Hnz₂).
- exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
-Qed.
 
 Section fld₂.
 
