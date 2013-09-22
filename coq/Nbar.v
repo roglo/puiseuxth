@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.70 2013-09-22 11:13:30 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.71 2013-09-22 14:37:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -460,13 +460,45 @@ split; intros Hn.
 
     destruct n as [n| ]; [ constructor | assumption ].
 
-   replace (m + fin (S p) - 1) with (m + fin p) in Hn .
-    destruct m as [m| ].
-     destruct n as [n| ].
-      simpl in Hn.
-      rewrite divmod_div in Hn.
-      apply fin_lt_mono in Hn.
-      apply (Nat.mul_lt_mono_pos_r (S p)) in Hn.
+   destruct m as [m| ].
+    destruct n as [n| ].
+     simpl in Hn.
+     rewrite divmod_div in Hn.
+     apply fin_lt_mono in Hn.
+     apply fin_lt_mono.
+     destruct (zerop (m mod S p)) as [Hz| Hnz].
+      apply Nat.mod_divide in Hz.
+       destruct Hz as (k, Hz).
+       subst m.
+       rewrite Nat.add_comm in Hn.
+       simpl in Hn.
+       rewrite divmod_div in Hn.
+       rewrite Nat.sub_0_r in Hn.
+       rewrite Nat.div_add in Hn.
+        rewrite Nat.div_small in Hn.
+         simpl in Hn.
+         apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+         apply Nat.lt_0_succ.
+
+         apply Nat.lt_succ_r; reflexivity.
+
+        intros H; discriminate H.
+
+       intros H; discriminate H.
+
+      destruct m as [| m].
+       rewrite Nat.mod_0_l in Hnz.
+        exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+        intros H; discriminate H.
+
+       simpl in Hn.
+       rewrite divmod_div in Hn.
+       rewrite Nat.sub_0_r in Hn.
+       remember (m + S p)%nat as q.
+       replace (S p) with (1 * S p)%nat in Heqq .
+        subst q.
+        rewrite Nat.div_add in Hn.
 bbb.
 
 Theorem lt_div_lt_mul_r : ∀ n m p, n < m / p → n * p < m.
