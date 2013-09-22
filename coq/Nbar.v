@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.71 2013-09-22 14:37:11 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.72 2013-09-22 22:29:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -499,6 +499,26 @@ split; intros Hn.
        replace (S p) with (1 * S p)%nat in Heqq .
         subst q.
         rewrite Nat.div_add in Hn.
+         rewrite Nat.add_1_r in Hn.
+         apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
+         apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
+          eapply Nat.le_lt_trans; [ eassumption | idtac ].
+          apply Nat.succ_le_mono with (m := m).
+          rewrite Nat.mul_comm.
+          apply Nat.mul_div_le.
+          intros H; discriminate H.
+
+          apply Nat.lt_0_succ.
+
+         intros H; discriminate H.
+
+        rewrite Nat.mul_1_l; reflexivity.
+
+     inversion Hn.
+
+    destruct n as [n| ]; [ constructor | assumption ].
+
+  exfalso; revert Hn; apply nlt_0_r.
 bbb.
 
 Theorem lt_div_lt_mul_r : ∀ n m p, n < m / p → n * p < m.
