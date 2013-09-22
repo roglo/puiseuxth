@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.72 2013-09-22 22:29:40 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.73 2013-09-22 22:41:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -448,76 +448,81 @@ inversion_clear H.
 revert H0; apply Nat.nlt_0_r.
 Qed.
 
-Theorem glop : ∀ n m p, n < (m + p - 1) / p ↔ n * p < m.
+Open Scope nat_scope.
+
+Theorem Nat_lt_div_sup_lt_mul_r : ∀ n m p, n < (m + p - 1) / p ↔ n * p < m.
 Proof.
 intros n m p.
 split; intros Hn.
- destruct p as [p| ].
-  destruct p as [| p].
-   destruct m as [m| ].
+ destruct p as [| p].
+  exfalso; revert Hn; apply Nat.nlt_0_r.
+
+  destruct (zerop (m mod S p)) as [Hz| Hnz].
+   apply Nat.mod_divide in Hz.
+    destruct Hz as (k, Hz).
+    subst m.
+    rewrite Nat.add_comm in Hn.
     simpl in Hn.
-    exfalso; revert Hn; apply nlt_0_r.
+    rewrite divmod_div in Hn.
+    rewrite Nat.sub_0_r in Hn.
+    rewrite Nat.div_add in Hn.
+     rewrite Nat.div_small in Hn.
+      simpl in Hn.
+      apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+      apply Nat.lt_0_succ.
 
-    destruct n as [n| ]; [ constructor | assumption ].
+      apply Nat.lt_succ_r; reflexivity.
 
-   destruct m as [m| ].
-    destruct n as [n| ].
-     simpl in Hn.
-     rewrite divmod_div in Hn.
-     apply fin_lt_mono in Hn.
-     apply fin_lt_mono.
-     destruct (zerop (m mod S p)) as [Hz| Hnz].
-      apply Nat.mod_divide in Hz.
-       destruct Hz as (k, Hz).
-       subst m.
-       rewrite Nat.add_comm in Hn.
-       simpl in Hn.
-       rewrite divmod_div in Hn.
-       rewrite Nat.sub_0_r in Hn.
-       rewrite Nat.div_add in Hn.
-        rewrite Nat.div_small in Hn.
-         simpl in Hn.
-         apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
-         apply Nat.lt_0_succ.
+     intros H; discriminate H.
 
-         apply Nat.lt_succ_r; reflexivity.
+    intros H; discriminate H.
 
-        intros H; discriminate H.
+   destruct m as [| m].
+    rewrite Nat.mod_0_l in Hnz.
+     exfalso; revert Hnz; apply Nat.lt_irrefl.
 
+     intros H; discriminate H.
+
+    simpl in Hn.
+    rewrite divmod_div in Hn.
+    rewrite Nat.sub_0_r in Hn.
+    remember (m + S p)%nat as q.
+    replace (S p) with (1 * S p)%nat in Heqq .
+     subst q.
+     rewrite Nat.div_add in Hn.
+      rewrite Nat.add_1_r in Hn.
+      apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
+      apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
+       eapply Nat.le_lt_trans; [ eassumption | idtac ].
+       apply Nat.succ_le_mono with (m := m).
+       rewrite Nat.mul_comm.
+       apply Nat.mul_div_le.
        intros H; discriminate H.
 
-      destruct m as [| m].
-       rewrite Nat.mod_0_l in Hnz.
-        exfalso; revert Hnz; apply Nat.lt_irrefl.
+       apply Nat.lt_0_succ.
 
-        intros H; discriminate H.
+      intros H; discriminate H.
 
-       simpl in Hn.
-       rewrite divmod_div in Hn.
-       rewrite Nat.sub_0_r in Hn.
-       remember (m + S p)%nat as q.
-       replace (S p) with (1 * S p)%nat in Heqq .
-        subst q.
-        rewrite Nat.div_add in Hn.
-         rewrite Nat.add_1_r in Hn.
-         apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
-         apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
-          eapply Nat.le_lt_trans; [ eassumption | idtac ].
-          apply Nat.succ_le_mono with (m := m).
-          rewrite Nat.mul_comm.
-          apply Nat.mul_div_le.
-          intros H; discriminate H.
+     rewrite Nat.mul_1_l; reflexivity.
+bbb.
+*)
 
-          apply Nat.lt_0_succ.
+Close Scope nat_scope.
 
-         intros H; discriminate H.
+Theorem lt_div_sup_lt_mul_r : ∀ n m p, n < (m + p - 1) / p ↔ n * p < m.
+Proof.
+intros n m p.
+split; intros Hn.
+ destruct n as [n| ]; [ idtac | inversion Hn ].
+ destruct m as [m| ].
+  destruct p as [p| ]; simpl in Hn.
+   apply fin_lt_mono.
+   apply fin_lt_mono in Hn.
+   apply Nat_lt_div_sup_lt_mul_r; assumption.
 
-        rewrite Nat.mul_1_l; reflexivity.
+   exfalso; revert Hn; apply nlt_0_r.
 
-     inversion Hn.
-
-    destruct n as [n| ]; [ constructor | assumption ].
-
+  destruct p as [p| ]; [ constructor | idtac ].
   exfalso; revert Hn; apply nlt_0_r.
 bbb.
 
