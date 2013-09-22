@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.69 2013-09-21 20:31:51 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.70 2013-09-22 11:13:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -40,8 +40,8 @@ Definition binop f dx dy xb yb :=
   | ∞ => dy
   end.
 
-Definition add := binop Nat.add ∞ ∞.
-Definition mul := binop Nat.mul ∞ ∞.
+Definition add := binop plus ∞ ∞.
+Definition mul := binop mult ∞ ∞.
 Definition max := binop max ∞ ∞.
 Definition min x y := binop min x y x y.
 
@@ -49,7 +49,7 @@ Definition sub xb yb :=
   match yb with
   | fin y =>
       match xb with
-      | fin x => fin (Nat.sub x y)
+      | fin x => fin (minus x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -59,7 +59,7 @@ Definition div xb yb :=
   match yb with
   | fin y =>
       match xb with
-      | fin x => fin (Nat.div x y)
+      | fin x => fin (div x y)
       | ∞ => ∞
       end
   | ∞ => 0
@@ -447,6 +447,27 @@ destruct n as [n| ]; [ idtac | inversion H ].
 inversion_clear H.
 revert H0; apply Nat.nlt_0_r.
 Qed.
+
+Theorem glop : ∀ n m p, n < (m + p - 1) / p ↔ n * p < m.
+Proof.
+intros n m p.
+split; intros Hn.
+ destruct p as [p| ].
+  destruct p as [| p].
+   destruct m as [m| ].
+    simpl in Hn.
+    exfalso; revert Hn; apply nlt_0_r.
+
+    destruct n as [n| ]; [ constructor | assumption ].
+
+   replace (m + fin (S p) - 1) with (m + fin p) in Hn .
+    destruct m as [m| ].
+     destruct n as [n| ].
+      simpl in Hn.
+      rewrite divmod_div in Hn.
+      apply fin_lt_mono in Hn.
+      apply (Nat.mul_lt_mono_pos_r (S p)) in Hn.
+bbb.
 
 Theorem lt_div_lt_mul_r : ∀ n m p, n < m / p → n * p < m.
 Proof.
