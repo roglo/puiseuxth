@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.670 2013-09-23 08:18:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.671 2013-09-23 08:21:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -290,6 +290,9 @@ destruct Hk₁ as [Hk₁| Hk₁].
   apply first_nonzero_iff; intros i.
   rewrite H.
   apply Hk₂.
+
+  destruct Hk₁ as (Hs₁, (Hk₁, (Hnz₁, Hlt₁))).
+  destruct Hk₂ as (Hs₂, (Hk₂, (Hnz₂, Hlt₂))).
 bbb.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
