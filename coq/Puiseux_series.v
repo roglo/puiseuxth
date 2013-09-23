@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.671 2013-09-23 08:21:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.672 2013-09-23 09:01:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,6 +15,35 @@ Set Implicit Arguments.
    coefficient in the series [s]. *)
 Definition first_nonzero : ∀ α, field α → series α → Nbar.
 Admitted.
+
+(*
+Definition is_zero : ∀ α, field α → α → bool.
+Admitted.
+
+Definition stretching_factor_fin α (fld : field α) n s :=
+  let fix loop_i cnt i k :=
+    match cnt with
+    | O => true
+    | S cnt' =>
+        if zerop (i mod k) then loop_i cnt' (S i) k
+        else if is_zero fld (series_nth_fld fld i s) then loop_i cnt' (S i) k
+        else false
+    end
+  in
+  let fix loop_k cnt k :=
+    match cnt with
+    | O => 1%nat
+    | S cnt' => if loop_i n O k then k else loop_k cnt' k
+    end
+ in
+ loop_k n 2.
+
+Definition stretching_factor α fld s :=
+  match first_nonzero fld s with
+  | fin n => stretching_factor_fin fld n s
+  | inf => stretching_factor_inf fld s
+  end.
+*)
 
 Definition stretching_factor : ∀ α, field α → series α → nat.
 Admitted.
@@ -39,11 +68,13 @@ Axiom first_nonzero_iff : ∀ s n,
 
 Axiom stretching_factor_iff : ∀ s k,
   stretching_factor fld s = k
-  ↔ (first_nonzero fld s = ∞ ∧ k = O) ∨
-    (first_nonzero fld s ≠ ∞ ∧ k ≠ O ∧
-     (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
-     (∀ k₁, (k < k₁)%nat →
-      ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld i s ≭ zero fld)).
+  ↔ match k with
+    | O => first_nonzero fld s = ∞
+    | S _ =>
+        (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
+        (∀ k₁, (k < k₁)%nat →
+           ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld i s ≭ zero fld)
+    end.
 
 Definition stretch_series k s :=
   {| terms i :=
@@ -263,6 +294,19 @@ Qed.
 Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
 with signature (eq_series fld) ==> eq as stretching_morph.
 Proof.
+intros s₁ s₂ Heq.
+remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
+remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
+symmetry in Hk₁, Hk₂.
+apply stretching_factor_iff in Hk₁.
+apply stretching_factor_iff in Hk₂.
+inversion Heq; subst.
+destruct k₁ as [| k₁].
+ destruct k₂ as [| k₂]; [ reflexivity | idtac ].
+ destruct Hk₂ as (Hk₂, _).
+ apply first_nonzero_iff in Hk₁.
+bbb.
+
 intros s₁ s₂ Heq.
 remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
