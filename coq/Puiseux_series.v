@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.673 2013-09-23 09:07:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.674 2013-09-23 09:23:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -310,39 +310,30 @@ destruct k₁ as [| k₁].
  exfalso; apply Hinz₂.
  rewrite <- H; apply Hk₁.
 
-bbb.
-
-intros s₁ s₂ Heq.
-remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
-remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
-symmetry in Hk₁, Hk₂.
-apply stretching_factor_iff in Hk₁.
-apply stretching_factor_iff in Hk₂.
-inversion Heq; subst.
-destruct Hk₁ as [Hk₁| Hk₁].
- destruct Hk₂ as [Hk₂| Hk₂].
-  destruct Hk₁, Hk₂; subst; reflexivity.
-
-  destruct Hk₁ as (Hk₁, _).
-  destruct Hk₂ as (Hk₂, _).
-  apply first_nonzero_iff in Hk₁.
-  exfalso; apply Hk₂.
-  apply first_nonzero_iff; intros i.
-  rewrite <- H.
-  apply Hk₁.
-
- destruct Hk₂ as [Hk₂| Hk₂].
-  destruct Hk₁ as (Hk₁, _).
-  destruct Hk₂ as (Hk₂, _).
+ destruct k₂ as [| k₂].
+  destruct Hk₁ as (Hk₁, (Hi₁, Hlt₁)).
   apply first_nonzero_iff in Hk₂.
-  exfalso; apply Hk₁.
-  apply first_nonzero_iff; intros i.
-  rewrite H.
-  apply Hk₂.
+  destruct Hi₁ as (i, (Hiz₁, Hinz₁)).
+  exfalso; apply Hinz₁.
+  rewrite H; apply Hk₂.
 
-  destruct Hk₁ as (Hs₁, (Hk₁, (Hnz₁, Hlt₁))).
-  destruct Hk₂ as (Hs₂, (Hk₂, (Hnz₂, Hlt₂))).
-bbb.
+  destruct Hk₁ as (Hk₁, (Hi₁, Hlt₁)).
+  destruct Hk₂ as (Hk₂, (Hi₂, Hlt₂)).
+  destruct (lt_eq_lt_dec (S k₁) (S k₂)) as [[H₁| H₁]| H₁].
+   apply Hlt₁ in H₁.
+   destruct H₁ as (i, H₁).
+   destruct H₁ as (Hinz, H₁).
+   exfalso; apply H₁.
+   rewrite H; apply Hk₂; assumption.
+
+   assumption.
+
+   apply Hlt₂ in H₁.
+   destruct H₁ as (i, H₁).
+   destruct H₁ as (Hinz, H₁).
+   exfalso; apply H₁.
+   rewrite <- H; apply Hk₁; assumption.
+Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
@@ -1258,6 +1249,11 @@ symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite Z.min_comm.
+ rewrite nz_terms_add_comm; reflexivity.
+
+ unfold cm.
+ rewrite Pos.mul_comm.
+ rewrite nz_terms_add_comm; reflexivity.
 bbb.
 
 intros nz₁ nz₂.
