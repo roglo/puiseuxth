@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.676 2013-09-23 09:35:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.677 2013-09-23 12:10:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1420,13 +1420,16 @@ destruct n as [n| ]; constructor; simpl.
  rewrite Z.min_assoc.
  f_equal.
   f_equal.
-  f_equal; apply Z.mul_shuffle0.
+   f_equal; apply Z.mul_shuffle0.
 
-  apply Z.mul_shuffle0.
+   apply Z.mul_shuffle0.
+
+  rewrite nz_terms_add_assoc; reflexivity.
 
  unfold cm; simpl.
  unfold cm; simpl.
- rewrite Pos.mul_assoc; reflexivity.
+ rewrite Pos.mul_assoc.
+ rewrite nz_terms_add_assoc; reflexivity.
 
  rewrite nz_terms_add_assoc; reflexivity.
 Qed.
@@ -3010,8 +3013,7 @@ rewrite <- Heq.
 remember (first_nonzero fld s₁) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; [ reflexivity | reflexivity | simpl ].
-rewrite Heq; reflexivity.
+constructor; simpl; rewrite Heq; reflexivity.
 Qed.
 
 Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
