@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.675 2013-09-23 09:26:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.676 2013-09-23 09:35:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1420,7 +1420,7 @@ destruct n as [n| ]; constructor; simpl.
  rewrite Z.min_assoc.
  f_equal.
   f_equal.
-  apply Z.mul_shuffle0.
+  f_equal; apply Z.mul_shuffle0.
 
   apply Z.mul_shuffle0.
 
