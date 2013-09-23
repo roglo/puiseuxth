@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.674 2013-09-23 09:23:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.675 2013-09-23 09:26:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1254,40 +1254,9 @@ constructor; simpl.
  unfold cm.
  rewrite Pos.mul_comm.
  rewrite nz_terms_add_comm; reflexivity.
-bbb.
 
-intros nz₁ nz₂.
-unfold normalise_nz.
-remember (first_nonzero fld (nz_terms (build_nz_add nz₁ nz₂))) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld (nz_terms (build_nz_add nz₂ nz₁))) as n₂ eqn:Hn₂ .
-simpl in Hn₁, Hn₂.
-rewrite nz_terms_add_comm in Hn₁.
-rewrite <- Hn₁ in Hn₂.
-subst n₂.
-symmetry in Hn₁.
-destruct n₁ as [n₁| ].
- constructor; simpl.
-  rewrite Z.min_comm; reflexivity.
-
-  unfold cm; apply Pos.mul_comm.
-
-  rewrite nz_terms_add_comm; reflexivity.
-
- constructor.
+ rewrite nz_terms_add_comm; reflexivity.
 Qed.
-
-(*
-Lemma nz_add_comm : ∀ nz₁ nz₂, nz_add nz₁ nz₂ ≈ nz_add nz₂ nz₁.
-Proof.
-intros nz₁ nz₂.
-unfold nz_add.
-rewrite nz_terms_add_comm.
-remember (first_nonzero fld (nz_terms_add nz₂ nz₁)) as v.
-symmetry in Heqv.
-destruct v as [v| ]; [ idtac | reflexivity ].
-constructor; rewrite nz_norm_add_comm; reflexivity.
-Qed.
-*)
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
 Proof.
