@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.668 2013-09-23 02:33:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.669 2013-09-23 02:44:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -406,41 +406,42 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
     rewrite Nbar.fin_inj_add, Nbar.add_comm.
     apply Nbar.lt_add_lt_sub_r.
     assumption.
-bbb.
 
    destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
-bbb.
     exfalso; apply H₃.
-    rewrite Nbar.fin_inj_add, Nbar.add_comm in H₄.
-    apply Nbar.lt_add_lt_sub_r in H₄.
-    rewrite Nbar.fin_inj_mul in H₄.
-bbb.
+    apply Nbar.lt_mul_r_lt_div_sup.
+     apply Nbar.fin_lt_mono; assumption.
 
-   exfalso; apply H₃.
-   apply Nbar.lt_add_lt_sub_r in H₁; assumption.
-
-  destruct (Nbar.lt_dec (fin (i + n)) (stop ps₁)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin (i + n)) (stop ps₂)) as [H₄| H₄].
-    exfalso; apply H₂.
-    apply Nbar.lt_add_lt_sub_r; assumption.
+     apply Nbar.lt_add_lt_sub_r.
+     rewrite Nbar.add_comm; assumption.
 
     assumption.
 
-   exfalso; apply H₃.
-   apply Nbar.lt_add_lt_sub_r in H₁; assumption.
+  exfalso; apply H₂.
+  apply Nbar.lt_div_sup_lt_mul_r in H₁.
+  rewrite Nbar.fin_inj_add, Nbar.add_comm.
+  apply Nbar.lt_add_lt_sub_r.
+  assumption.
 
- destruct (Nbar.lt_dec (fin i) (stop ps₂ - fin n)) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin (i + n)) (stop ps₁)) as [H₃| H₃].
-   exfalso; apply H₁.
-   apply Nbar.lt_add_lt_sub_r; assumption.
+ destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₂| H₂].
+  exfalso; apply H₁.
+  apply Nbar.lt_mul_r_lt_div_sup.
+   apply Nbar.fin_lt_mono; assumption.
 
-   destruct (Nbar.lt_dec (fin (i + n)) (stop ps₂)) as [H₄| H₄].
+   apply Nbar.lt_add_lt_sub_r.
+   rewrite Nbar.add_comm; assumption.
+
+  destruct (Nbar.lt_dec (fin i) d₂) as [H₃| H₃]; subst d₂.
+   destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
     exfalso; apply H₄.
-    apply Nbar.lt_add_lt_sub_r in H₂; assumption.
+    apply Nbar.lt_div_sup_lt_mul_r in H₃.
+    rewrite Nbar.fin_inj_add, Nbar.add_comm.
+    apply Nbar.lt_add_lt_sub_r.
+    assumption.
 
-  reflexivity.
+   reflexivity.
 Qed.
 
 Section fld₁.
