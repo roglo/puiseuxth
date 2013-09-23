@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.667 2013-09-23 00:40:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.668 2013-09-23 02:33:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -69,8 +69,12 @@ Inductive puiseux_series α :=
 Definition Nbar_div_sup x y := Nbar.div (x + y - 1) y.
 
 Definition normalise_series n k (s : series α) :=
-  {| terms i := terms s (n + i * k);
-     stop := Nbar_div_sup (stop s - fin n) (fin k) |}.
+  match k with
+  | O => series_0 fld
+  | S _ =>
+      {| terms i := terms s (n + i * k);
+         stop := Nbar_div_sup (stop s - fin n) (fin k) |}
+  end.
 
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) with
@@ -371,16 +375,24 @@ destruct (lt_dec i n) as [Hlt| Hge].
    reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@normalise_series α) with 
+Add Parametric Morphism α (fld : field α) : (@normalise_series α fld) with 
 signature eq ==> eq ==> (eq_series fld) ==> (eq_series fld) as normalise_morph.
 Proof.
 intros n k ps₁ ps₂ Heq.
+destruct k as [| k]; [ reflexivity | idtac ].
 constructor; intros i.
 inversion Heq; subst.
-unfold series_nth_fld in H |- *; simpl.
-do 4 rewrite Nbar.fold_sub.
-do 2 rewrite Nbar.fold_div.
+unfold normalise_series.
+remember Nbar_div_sup as f; simpl; subst f.
+do 2 rewrite Nbar.fold_sub.
+remember (S k) as k₁.
+assert (0 < k₁)%nat as Hk by (subst k₁; apply Nat.lt_0_succ).
+clear k Heqk₁; rename k₁ into k.
 pose proof (H (n + i * k)%nat) as Hi.
+remember Nbar_div_sup as f.
+unfold series_nth_fld in Hi |- *; simpl.
+do 2 rewrite Nbar.fold_sub.
+subst f; unfold Nbar_div_sup.
 remember ((stop ps₁ - fin n + fin k - 1) / fin k)%Nbar as d₁ eqn:Hd₁ .
 remember ((stop ps₂ - fin n + fin k - 1) / fin k)%Nbar as d₂ eqn:Hd₂ .
 destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
