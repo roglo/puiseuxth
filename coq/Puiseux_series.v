@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.681 2013-09-23 23:08:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.682 2013-09-23 23:20:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3103,16 +3103,16 @@ destruct n₁ as [n₁| ].
 bbb.
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  ps₂ ≈ ps₃
-  → ps_add ps₁ ps₂ ≈ ps_add ps₁ ps₃.
+  ps₁ ≈ ps₂
+  → ps_add ps₁ ps₃ ≈ ps_add ps₂ ps₃.
 Proof.
-intros ps₁ ps₂ ps₃ H₂₃.
+intros ps₁ ps₂ ps₃ H₁₂.
 unfold ps_add.
-destruct ps₁ as [nz₁| ]; [ idtac | assumption ].
-destruct ps₂ as [nz₂| ].
- destruct ps₃ as [nz₃| ].
-  constructor.
-  inversion_clear H₂₃.
+destruct ps₁ as [nz₁| ].
+ destruct ps₂ as [nz₂| ].
+  destruct ps₃ as [nz₃| ].
+   constructor.
+   inversion_clear H₁₂.
 bbb.
 
 intros ps₁ ps₂ ps₃ H₂₃.
