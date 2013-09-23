@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.679 2013-09-23 13:06:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.680 2013-09-23 16:51:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -894,8 +894,9 @@ Variable α : Type.
 Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 Definition valuation (ps : puiseux_series α) :=
   match ps with
@@ -1452,6 +1453,7 @@ Qed.
 Delimit Scope ps_scope with ps.
 Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add a b) : ps_scope.
+Notation "a ∔ b" := (build_nz_add a b) (at level 70).
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
@@ -3062,6 +3064,7 @@ destruct n₂ as [n₂| ].
   rewrite Hn₃ in Hk₃.
   destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
   destruct k₃ as [| k₃]; [ discriminate Hk₃ | idtac ].
+bbb.
   unfold normalise_nz; simpl.
   remember (first_nonzero fld (nz_terms_add nz₁ nz₂)) as n₁₂ eqn:Hn₁₂ .
   remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
@@ -3083,6 +3086,7 @@ destruct n₂ as [n₂| ].
      destruct k₁₂ as [| k₁₂]; [ discriminate Hk₁₂ | idtac ].
      destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
 bbb.
+
      inversion_clear Heq; simpl in *.
      rewrite H0.
      unfold nz_terms_add in Hn₁₂, Hn₁₃.
