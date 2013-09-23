@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.74 2013-09-22 23:02:20 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.75 2013-09-23 00:09:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -504,6 +504,50 @@ split; intros Hn.
   rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
   rewrite Nat.div_small; [ simpl | apply Nat.lt_succ_diag_r ].
   apply Nat.mul_lt_mono_pos_r in Hn; [ assumption | apply Nat.lt_0_succ ].
+
+  assert (m = S p * (m / S p) + m mod S p) as Hm.
+   apply Nat.div_mod; intros H; discriminate H.
+
+   rewrite Hm in Hn.
+   remember (m / S p) as q.
+   remember (m mod S p) as r.
+   apply Nat.lt_trans with (p := S p * q + S p * 1) in Hn.
+    rewrite <- Nat.mul_add_distr_l in Hn.
+    rewrite Nat.mul_comm in Hn.
+    apply Nat.mul_lt_mono_pos_l in Hn; [ idtac | apply Nat.lt_0_succ ].
+    rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
+    rewrite Hm.
+    rewrite Nat.add_assoc, Nat.add_shuffle0.
+    rewrite Nat.mul_comm.
+    rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+    rewrite Nat.add_1_r in Hn.
+    apply Nat.lt_succ_r with (n := n) in Hn.
+    eapply Nat.le_lt_trans; [ eassumption | idtac ].
+    assert (1 <= (p + r) / S p) as Hq.
+     destruct r; [ exfalso; revert Hnz; apply Nat.lt_irrefl | idtac ].
+     rewrite <- Nat.add_succ_comm, Nat.add_comm.
+     remember (r + S p) as x.
+     replace (S p) with (1 * S p) in Heqx ; subst x.
+      rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+      rewrite Nat.add_comm; simpl.
+      apply Nat.succ_le_mono with (n := 0).
+      apply Nat.le_0_l.
+
+      rewrite Nat.mul_1_l; reflexivity.
+
+     destruct ((p + r) / S p).
+      apply Nat.nlt_ge in Hq.
+      exfalso; apply Hq; apply Nat.lt_0_1.
+
+      apply Nat.lt_succ_r with (m := n0 + q).
+      apply Nat.le_sub_le_add_r.
+      rewrite Nat.sub_diag.
+      apply Nat.le_0_l.
+
+    apply Nat.add_lt_mono_l.
+    rewrite Nat.mul_1_r, Heqr.
+    apply Nat.mod_upper_bound.
+    intros H; discriminate H.
 bbb.
 *)
 
