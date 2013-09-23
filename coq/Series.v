@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.62 2013-09-21 00:55:59 deraugla Exp $ *)
+(* $Id: Series.v,v 1.63 2013-09-23 09:07:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -169,6 +169,7 @@ Qed.
 End field.
 
 Notation "a ≍ b" := (fld_eq _ a b) (at level 70).
+Notation "a ≭ b" := (not (fld_eq _ a b)) (at level 70).
 
 Add Parametric Relation α (fld : field α) : (series α) (eq_series fld)
  reflexivity proved by (eq_series_refl fld)

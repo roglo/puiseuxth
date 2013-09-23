@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.672 2013-09-23 09:01:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.673 2013-09-23 09:07:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -72,6 +72,7 @@ Axiom stretching_factor_iff : ∀ s k,
     | O => first_nonzero fld s = ∞
     | S _ =>
         (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
+        (∃ i, i mod k = O ∧ series_nth_fld fld i s ≭ zero fld) ∧
         (∀ k₁, (k < k₁)%nat →
            ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld i s ≭ zero fld)
     end.
@@ -303,8 +304,12 @@ apply stretching_factor_iff in Hk₂.
 inversion Heq; subst.
 destruct k₁ as [| k₁].
  destruct k₂ as [| k₂]; [ reflexivity | idtac ].
- destruct Hk₂ as (Hk₂, _).
+ destruct Hk₂ as (Hk₂, (Hi₂, Hlt₂)).
  apply first_nonzero_iff in Hk₁.
+ destruct Hi₂ as (i, (Hiz₂, Hinz₂)).
+ exfalso; apply Hinz₂.
+ rewrite <- H; apply Hk₁.
+
 bbb.
 
 intros s₁ s₂ Heq.
