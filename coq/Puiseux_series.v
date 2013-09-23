@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.678 2013-09-23 12:41:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.679 2013-09-23 13:06:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3046,45 +3046,42 @@ Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
       (normalise_nz fld (build_nz_add nz₁ nz₃)).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-unfold normalise_nz; simpl.
-remember (first_nonzero fld (nz_terms_add nz₁ nz₂)) as n₁₂ eqn:Hn₁₂ .
-remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
-symmetry in Hn₁₂, Hn₁₃.
-destruct n₁₂ as [n₁₂| ].
- destruct n₁₃ as [n₁₃| ].
-  constructor; simpl.
-   unfold cm_factor; simpl.
-   unfold normalise_nz in Heq; simpl in Heq.
-   remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
-   remember (first_nonzero fld (nz_terms nz₃)) as n₃ eqn:Hn₃ .
-   symmetry in Hn₂, Hn₃.
-   destruct n₂ as [n₂| ].
-    destruct n₃ as [n₃| ].
+unfold normalise_nz in Heq; simpl in Heq.
+remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
+remember (first_nonzero fld (nz_terms nz₃)) as n₃ eqn:Hn₃ .
+symmetry in Hn₂, Hn₃.
+destruct n₂ as [n₂| ].
+ destruct n₃ as [n₃| ].
+  inversion_clear Heq; simpl in *.
+  remember (stretching_factor fld (nz_terms nz₂)) as k₂ eqn:Hk₂ .
+  remember (stretching_factor fld (nz_terms nz₃)) as k₃ eqn:Hk₃ .
+  symmetry in Hk₂, Hk₃.
+  apply stretching_factor_iff in Hk₂.
+  apply stretching_factor_iff in Hk₃.
+  rewrite Hn₂ in Hk₂.
+  rewrite Hn₃ in Hk₃.
+  destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
+  destruct k₃ as [| k₃]; [ discriminate Hk₃ | idtac ].
+  unfold normalise_nz; simpl.
+  remember (first_nonzero fld (nz_terms_add nz₁ nz₂)) as n₁₂ eqn:Hn₁₂ .
+  remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
+  symmetry in Hn₁₂, Hn₁₃.
+  destruct n₁₂ as [n₁₂| ].
+   destruct n₁₃ as [n₁₃| ].
+    constructor; simpl.
      Focus 1.
-     inversion_clear Heq; simpl in *.
-     remember (stretching_factor fld (nz_terms nz₂)) as k₂ eqn:Hk₂ .
-     remember (stretching_factor fld (nz_terms nz₃)) as k₃ eqn:Hk₃ .
-     symmetry in Hk₂, Hk₃.
-     apply stretching_factor_iff in Hk₂.
-     apply stretching_factor_iff in Hk₃.
-     destruct k₂ as [| k₂].
-      simpl in H, H0, H1.
-      destruct k₃ as [| k₃].
-       simpl in H, H0, H1.
-       remember (stretching_factor fld (nz_terms_add nz₁ nz₂)) as k₁₂.
-       rename Heqk₁₂ into Hk₁₂.
-       remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
-       rename Heqk₁₃ into Hk₁₃.
-       symmetry in Hk₁₂, Hk₁₃.
-       apply stretching_factor_iff in Hk₁₂.
-       apply stretching_factor_iff in Hk₁₃.
-       rewrite Hn₁₂ in Hk₁₂.
-       rewrite Hn₁₃ in Hk₁₃.
-       destruct k₁₂ as [| k₁₂]; [ discriminate Hk₁₂ | idtac ].
-       destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
-       apply first_nonzero_iff in Hn₁₂.
-       apply first_nonzero_iff in Hn₁₃.
-       clear H0 H1.
+     unfold cm_factor; simpl.
+     remember (stretching_factor fld (nz_terms_add nz₁ nz₂)) as k₁₂.
+     remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
+     rename Heqk₁₂ into Hk₁₂.
+     rename Heqk₁₃ into Hk₁₃.
+     symmetry in Hk₁₂, Hk₁₃.
+     apply stretching_factor_iff in Hk₁₂.
+     apply stretching_factor_iff in Hk₁₃.
+     rewrite Hn₁₂ in Hk₁₂.
+     rewrite Hn₁₃ in Hk₁₃.
+     destruct k₁₂ as [| k₁₂]; [ discriminate Hk₁₂ | idtac ].
+     destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
 bbb.
      inversion_clear Heq; simpl in *.
      rewrite H0.
