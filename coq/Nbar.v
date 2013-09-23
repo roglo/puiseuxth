@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.76 2013-09-23 00:18:38 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.77 2013-09-23 00:40:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -450,138 +450,145 @@ Qed.
 
 Open Scope nat_scope.
 
-Theorem Nat_lt_div_sup_lt_mul_r : ∀ n m p, 0 < p →
-  n < (m + p - 1) / p ↔ n * p < m.
+Theorem Nat_lt_div_sup_lt_mul_r : ∀ n m p,
+  n < (m + p - 1) / p → n * p < m.
 Proof.
-intros n m p Hp.
-split; intros Hn.
- destruct p as [| p]; [ exfalso; revert Hn; apply Nat.nlt_0_r | idtac ].
- destruct (zerop (m mod S p)) as [Hz| Hnz].
-  apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
-  destruct Hz as (k, Hz).
-  subst m.
-  rewrite Nat.add_comm in Hn.
+intros n m p Hn.
+destruct p as [| p]; [ exfalso; revert Hn; apply Nat.nlt_0_r | idtac ].
+destruct (zerop (m mod S p)) as [Hz| Hnz].
+ apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
+ destruct Hz as (k, Hz).
+ subst m.
+ rewrite Nat.add_comm in Hn.
+ simpl in Hn.
+ rewrite divmod_div in Hn.
+ rewrite Nat.sub_0_r in Hn.
+ rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
+ rewrite Nat.div_small in Hn.
+  simpl in Hn.
+  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+  apply Nat.lt_0_succ.
+
+  apply Nat.lt_succ_r; reflexivity.
+
+ destruct m as [| m].
+  rewrite Nat.mod_0_l in Hnz; [ idtac | intros H; discriminate H ].
+  exfalso; revert Hnz; apply Nat.lt_irrefl.
+
   simpl in Hn.
   rewrite divmod_div in Hn.
   rewrite Nat.sub_0_r in Hn.
-  rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
-  rewrite Nat.div_small in Hn.
-   simpl in Hn.
-   apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
-   apply Nat.lt_0_succ.
-
-   apply Nat.lt_succ_r; reflexivity.
-
-  destruct m as [| m].
-   rewrite Nat.mod_0_l in Hnz; [ idtac | intros H; discriminate H ].
-   exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-   simpl in Hn.
-   rewrite divmod_div in Hn.
-   rewrite Nat.sub_0_r in Hn.
-   remember (m + S p)%nat as q.
-   replace (S p) with (1 * S p)%nat in Heqq .
-    subst q.
-    rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
-    rewrite Nat.add_1_r in Hn.
-    apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
-    apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
-     eapply Nat.le_lt_trans; [ eassumption | idtac ].
-     apply Nat.succ_le_mono with (m := m).
-     rewrite Nat.mul_comm.
-     apply Nat.mul_div_le.
-     intros H; discriminate H.
-
-     apply Nat.lt_0_succ.
-
-    rewrite Nat.mul_1_l; reflexivity.
-
- destruct p as [| p]; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
- destruct (zerop (m mod S p)) as [Hz| Hnz].
-  apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
-  destruct Hz as (k, Hz); subst m.
-  rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
-  rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
-  rewrite Nat.div_small; [ simpl | apply Nat.lt_succ_diag_r ].
-  apply Nat.mul_lt_mono_pos_r in Hn; [ assumption | apply Nat.lt_0_succ ].
-
-  (* à revoir... *)
-  assert (m = S p * (m / S p) + m mod S p) as Hm.
-   apply Nat.div_mod; intros H; discriminate H.
-
-   rewrite Hm in Hn.
-   remember (m / S p) as q.
-   remember (m mod S p) as r.
-   apply Nat.lt_trans with (p := S p * q + S p * 1) in Hn.
-    rewrite <- Nat.mul_add_distr_l in Hn.
-    rewrite Nat.mul_comm in Hn.
-    apply Nat.mul_lt_mono_pos_l in Hn; [ idtac | apply Nat.lt_0_succ ].
-    rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
-    rewrite Hm.
-    rewrite Nat.add_assoc, Nat.add_shuffle0.
-    rewrite Nat.mul_comm.
-    rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
-    rewrite Nat.add_1_r in Hn.
-    apply Nat.lt_succ_r with (n := n) in Hn.
+  remember (m + S p)%nat as q.
+  replace (S p) with (1 * S p)%nat in Heqq .
+   subst q.
+   rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
+   rewrite Nat.add_1_r in Hn.
+   apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
+   apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
     eapply Nat.le_lt_trans; [ eassumption | idtac ].
-    assert (1 <= (p + r) / S p) as Hq.
-     destruct r; [ exfalso; revert Hnz; apply Nat.lt_irrefl | idtac ].
-     rewrite <- Nat.add_succ_comm, Nat.add_comm.
-     remember (r + S p) as x.
-     replace (S p) with (1 * S p) in Heqx ; subst x.
-      rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
-      rewrite Nat.add_comm; simpl.
-      apply Nat.succ_le_mono with (n := 0).
-      apply Nat.le_0_l.
-
-      rewrite Nat.mul_1_l; reflexivity.
-
-     destruct ((p + r) / S p).
-      apply Nat.nlt_ge in Hq.
-      exfalso; apply Hq; apply Nat.lt_0_1.
-
-      apply Nat.lt_succ_r with (m := n0 + q).
-      apply Nat.le_sub_le_add_r.
-      rewrite Nat.sub_diag.
-      apply Nat.le_0_l.
-
-    apply Nat.add_lt_mono_l.
-    rewrite Nat.mul_1_r, Heqr.
-    apply Nat.mod_upper_bound.
+    apply Nat.succ_le_mono with (m := m).
+    rewrite Nat.mul_comm.
+    apply Nat.mul_div_le.
     intros H; discriminate H.
+
+    apply Nat.lt_0_succ.
+
+   rewrite Nat.mul_1_l; reflexivity.
+Qed.
+
+Theorem Nat_lt_mul_r_lt_div_sup : ∀ n m p, 0 < p →
+  n * p < m → n < (m + p - 1) / p.
+Proof.
+intros n m p Hp Hn.
+destruct p as [| p]; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
+destruct (zerop (m mod S p)) as [Hz| Hnz].
+ apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
+ destruct Hz as (k, Hz); subst m.
+ rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
+ rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+ rewrite Nat.div_small; [ simpl | apply Nat.lt_succ_diag_r ].
+ apply Nat.mul_lt_mono_pos_r in Hn; [ assumption | apply Nat.lt_0_succ ].
+
+ (* à revoir... *)
+ assert (m = S p * (m / S p) + m mod S p) as Hm.
+  apply Nat.div_mod; intros H; discriminate H.
+
+  rewrite Hm in Hn.
+  remember (m / S p) as q.
+  remember (m mod S p) as r.
+  apply Nat.lt_trans with (p := S p * q + S p * 1) in Hn.
+   rewrite <- Nat.mul_add_distr_l in Hn.
+   rewrite Nat.mul_comm in Hn.
+   apply Nat.mul_lt_mono_pos_l in Hn; [ idtac | apply Nat.lt_0_succ ].
+   rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
+   rewrite Hm.
+   rewrite Nat.add_assoc, Nat.add_shuffle0.
+   rewrite Nat.mul_comm.
+   rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+   rewrite Nat.add_1_r in Hn.
+   apply Nat.lt_succ_r with (n := n) in Hn.
+   eapply Nat.le_lt_trans; [ eassumption | idtac ].
+   assert (1 <= (p + r) / S p) as Hq.
+    destruct r; [ exfalso; revert Hnz; apply Nat.lt_irrefl | idtac ].
+    rewrite <- Nat.add_succ_comm, Nat.add_comm.
+    remember (r + S p) as x.
+    replace (S p) with (1 * S p) in Heqx ; subst x.
+     rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+     rewrite Nat.add_comm; simpl.
+     apply Nat.succ_le_mono with (n := 0).
+     apply Nat.le_0_l.
+
+     rewrite Nat.mul_1_l; reflexivity.
+
+    destruct ((p + r) / S p).
+     apply Nat.nlt_ge in Hq.
+     exfalso; apply Hq; apply Nat.lt_0_1.
+
+     apply Nat.lt_succ_r with (m := n0 + q).
+     apply Nat.le_sub_le_add_r.
+     rewrite Nat.sub_diag.
+     apply Nat.le_0_l.
+
+   apply Nat.add_lt_mono_l.
+   rewrite Nat.mul_1_r, Heqr.
+   apply Nat.mod_upper_bound.
+   intros H; discriminate H.
 Qed.
 
 Close Scope nat_scope.
 
-Theorem lt_div_sup_lt_mul_r : ∀ n m p, 0 < p →
-  n < (m + p - 1) / p ↔ n * p < m.
+Theorem lt_div_sup_lt_mul_r : ∀ n m p,
+  n < (m + p - 1) / p → n * p < m.
 Proof.
-intros n m p Hp.
-split; intros Hn.
- destruct n as [n| ]; [ idtac | inversion Hn ].
- destruct m as [m| ].
-  destruct p as [p| ]; simpl in Hn.
-   apply fin_lt_mono in Hp.
-   apply fin_lt_mono in Hn.
-   apply fin_lt_mono.
-   apply Nat_lt_div_sup_lt_mul_r; assumption.
+intros n m p Hn.
+destruct n as [n| ]; [ idtac | inversion Hn ].
+destruct m as [m| ].
+ destruct p as [p| ]; simpl in Hn.
+  apply fin_lt_mono in Hn.
+  apply fin_lt_mono.
+  apply Nat_lt_div_sup_lt_mul_r; assumption.
 
-   exfalso; revert Hn; apply nlt_0_r.
-
-  destruct p as [p| ]; [ constructor | idtac ].
   exfalso; revert Hn; apply nlt_0_r.
 
- destruct n as [n| ]; [ idtac | inversion Hn ].
- destruct m as [m| ].
-  destruct p as [p| ]; simpl in Hn.
-   apply fin_lt_mono in Hp.
-   apply fin_lt_mono in Hn.
-   apply fin_lt_mono.
-   apply Nat_lt_div_sup_lt_mul_r; assumption.
+ destruct p as [p| ]; [ constructor | idtac ].
+ exfalso; revert Hn; apply nlt_0_r.
+Qed.
 
-   inversion Hn.
+Theorem lt_mul_r_lt_div_sup : ∀ n m p, 0 < p → 
+  n * p < m → n < (m + p - 1) / p.
+Proof.
+intros n m p Hp Hn.
+destruct n as [n| ]; [ idtac | inversion Hn ].
+destruct m as [m| ].
+ destruct p as [p| ]; simpl in Hn.
+  apply fin_lt_mono in Hp.
+  apply fin_lt_mono in Hn.
+  apply fin_lt_mono.
+  apply Nat_lt_mul_r_lt_div_sup; assumption.
 
-  destruct p as [p| ]; [ constructor | inversion Hn ].
+  inversion Hn.
+
+ destruct p as [p| ]; [ constructor | inversion Hn ].
 Qed.
 
 Theorem lt_div_lt_mul_r : ∀ n m p, n < m / p → n * p < m.

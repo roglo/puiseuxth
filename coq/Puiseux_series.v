@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.666 2013-09-22 04:18:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.667 2013-09-23 00:40:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -390,12 +390,11 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
     assumption.
 
     exfalso; apply H₄.
+    apply Nbar.lt_div_sup_lt_mul_r in H₃.
     rewrite Nbar.fin_inj_add, Nbar.add_comm.
     apply Nbar.lt_add_lt_sub_r.
-    rewrite Nbar.fin_inj_mul.
-    apply Nbar.lt_div_lt_mul_r.
-bbb.
     assumption.
+bbb.
 
    destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
 bbb.
