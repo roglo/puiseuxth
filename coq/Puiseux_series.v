@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.669 2013-09-23 02:44:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.670 2013-09-23 08:18:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -259,6 +259,38 @@ destruct n₁ as [n₁| ].
  destruct Hn₂ as (Hiz₂, Hnz₂).
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
+
+Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
+with signature (eq_series fld) ==> eq as stretching_morph.
+Proof.
+intros s₁ s₂ Heq.
+remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
+remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
+symmetry in Hk₁, Hk₂.
+apply stretching_factor_iff in Hk₁.
+apply stretching_factor_iff in Hk₂.
+inversion Heq; subst.
+destruct Hk₁ as [Hk₁| Hk₁].
+ destruct Hk₂ as [Hk₂| Hk₂].
+  destruct Hk₁, Hk₂; subst; reflexivity.
+
+  destruct Hk₁ as (Hk₁, _).
+  destruct Hk₂ as (Hk₂, _).
+  apply first_nonzero_iff in Hk₁.
+  exfalso; apply Hk₂.
+  apply first_nonzero_iff; intros i.
+  rewrite <- H.
+  apply Hk₁.
+
+ destruct Hk₂ as [Hk₂| Hk₂].
+  destruct Hk₁ as (Hk₁, _).
+  destruct Hk₂ as (Hk₂, _).
+  apply first_nonzero_iff in Hk₂.
+  exfalso; apply Hk₁.
+  apply first_nonzero_iff; intros i.
+  rewrite H.
+  apply Hk₂.
+bbb.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
@@ -1166,6 +1198,16 @@ Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
     (normalise_nz fld (build_nz_add nz₁ nz₂))
     (normalise_nz fld (build_nz_add nz₂ nz₁)).
 Proof.
+intros nz₁ nz₂.
+unfold normalise_nz; simpl.
+rewrite nz_terms_add_comm.
+remember (first_nonzero fld (nz_terms_add nz₂ nz₁)) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | reflexivity ].
+constructor; simpl.
+ rewrite Z.min_comm.
+bbb.
+
 intros nz₁ nz₂.
 unfold normalise_nz.
 remember (first_nonzero fld (nz_terms (build_nz_add nz₁ nz₂))) as n₁ eqn:Hn₁ .
