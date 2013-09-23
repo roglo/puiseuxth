@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.680 2013-09-23 16:51:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.681 2013-09-23 23:08:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3041,65 +3041,65 @@ unfold mk_nonzero.
 constructor; reflexivity.
 Qed.
 
-Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
+(*
+Definition nz_zero :=
+  {| nz_terms := series_0 fld;
+     nz_valnum := 0;
+     nz_comden := 1 |}.
+
+Lemma glop : ∀ nz₂ nz₃,
   eq_norm_ps fld (normalise_nz fld nz₂) (normalise_nz fld nz₃)
   → eq_norm_ps fld
-      (normalise_nz fld (build_nz_add nz₁ nz₂))
-      (normalise_nz fld (build_nz_add nz₁ nz₃)).
+      (normalise_nz fld (build_nz_add nz_zero nz₂))
+      (normalise_nz fld (build_nz_add nz_zero nz₃)).
+Proof.
+intros nz₂ nz₃ Heq.
+bbb.
+*)
+
+Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
+  eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
+  → eq_norm_ps fld
+      (normalise_nz fld (build_nz_add nz₁ nz₃))
+      (normalise_nz fld (build_nz_add nz₂ nz₃)).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 unfold normalise_nz in Heq; simpl in Heq.
+remember (first_nonzero fld (nz_terms nz₁)) as n₁ eqn:Hn₁ .
 remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
-remember (first_nonzero fld (nz_terms nz₃)) as n₃ eqn:Hn₃ .
-symmetry in Hn₂, Hn₃.
-destruct n₂ as [n₂| ].
- destruct n₃ as [n₃| ].
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ].
   inversion_clear Heq; simpl in *.
+  remember (stretching_factor fld (nz_terms nz₁)) as k₁ eqn:Hk₁ .
   remember (stretching_factor fld (nz_terms nz₂)) as k₂ eqn:Hk₂ .
-  remember (stretching_factor fld (nz_terms nz₃)) as k₃ eqn:Hk₃ .
-  symmetry in Hk₂, Hk₃.
+  symmetry in Hk₁, Hk₂.
+  apply stretching_factor_iff in Hk₁.
   apply stretching_factor_iff in Hk₂.
-  apply stretching_factor_iff in Hk₃.
+  rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
-  rewrite Hn₃ in Hk₃.
+  destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
   destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
-  destruct k₃ as [| k₃]; [ discriminate Hk₃ | idtac ].
-bbb.
   unfold normalise_nz; simpl.
-  remember (first_nonzero fld (nz_terms_add nz₁ nz₂)) as n₁₂ eqn:Hn₁₂ .
   remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
-  symmetry in Hn₁₂, Hn₁₃.
-  destruct n₁₂ as [n₁₂| ].
-   destruct n₁₃ as [n₁₃| ].
+  remember (first_nonzero fld (nz_terms_add nz₂ nz₃)) as n₂₃ eqn:Hn₂₃ .
+  symmetry in Hn₁₃, Hn₂₃.
+  destruct n₁₃ as [n₁₃| ].
+    destruct n₂₃ as [n₂₃| ].
     constructor; simpl.
      Focus 1.
      unfold cm_factor; simpl.
-     remember (stretching_factor fld (nz_terms_add nz₁ nz₂)) as k₁₂.
      remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
-     rename Heqk₁₂ into Hk₁₂.
+     remember (stretching_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃.
      rename Heqk₁₃ into Hk₁₃.
-     symmetry in Hk₁₂, Hk₁₃.
-     apply stretching_factor_iff in Hk₁₂.
+     rename Heqk₂₃ into Hk₂₃.
+     symmetry in Hk₁₃, Hk₂₃.
      apply stretching_factor_iff in Hk₁₃.
-     rewrite Hn₁₂ in Hk₁₂.
+     apply stretching_factor_iff in Hk₂₃.
      rewrite Hn₁₃ in Hk₁₃.
-     destruct k₁₂ as [| k₁₂]; [ discriminate Hk₁₂ | idtac ].
+     rewrite Hn₂₃ in Hk₂₃.
      destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
-bbb.
-
-     inversion_clear Heq; simpl in *.
-     rewrite H0.
-     unfold nz_terms_add in Hn₁₂, Hn₁₃.
-     unfold cm_factor in Hn₁₂, Hn₁₃.
-     rewrite H0 in Hn₁₂.
-     remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
-     remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
-     remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
-     remember (nz_comden nz₃) as c₃ eqn:Hc₃ .
-     remember (nz_comden nz₂) as c₂ eqn:Hc₂ .
-     remember (nz_comden nz₁) as c₁ eqn:Hc₁ .
-     move H0 at top; subst c₃.
-     inversion_clear H1.
+     destruct k₂₃ as [| k₂₃]; [ discriminate Hk₂₃ | idtac ].
 bbb.
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
