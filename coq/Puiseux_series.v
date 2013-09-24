@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.687 2013-09-24 08:56:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.688 2013-09-24 12:21:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3081,15 +3081,19 @@ Lemma glop : ∀ nz,
 Proof.
 intros nz.
 unfold normalise_nz; simpl.
-remember (first_nonzero fld (nz_terms_add nz nz_zero)) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld (nz_terms nz)) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
-destruct n₁ as [n₁| ].
- destruct n₂ as [n₂| ].
-  constructor; simpl.
-   Focus 1.
-   rewrite Z.mul_1_r.
-   rewrite nz_add_0_r.
+rewrite nz_add_0_r.
+rewrite first_nonzero_pad.
+remember (first_nonzero fld (nz_terms nz)) as n₁ eqn:Hn₁ .
+symmetry in Hn₁.
+rewrite Nbar.add_comm.
+destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
+constructor; simpl.
+ rewrite Z.mul_1_r.
+ rewrite nz_add_0_r.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.add_assoc, Z.add_shuffle0.
+ f_equal.
+ rewrite Z2Nat_id_max, Z.min_comm.
 bbb.
 
 (*
