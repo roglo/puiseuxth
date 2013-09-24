@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 1.22 2013-08-26 15:08:38 deraugla Exp $ *)
+(* $Id: Field.v,v 1.23 2013-09-24 00:55:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -17,11 +17,11 @@ Record field α :=
     fld_eq_trans : ∀ a b c, fld_eq a b → fld_eq b c → fld_eq a c;
     fld_add_comm : ∀ a b, fld_eq (add a b) (add b a);
     fld_add_assoc : ∀ a b c, fld_eq (add (add a b) c) (add a (add b c));
-    fld_add_ident : ∀ a, fld_eq (add zero a) a;
+    fld_add_0_l : ∀ a, fld_eq (add zero a) a;
     fld_add_neg : ∀ a, fld_eq (add a (neg a)) zero;
     fld_add_compat_r : ∀ a b c, fld_eq a b → fld_eq (add a c) (add b c);
     fld_mul_comm : ∀ a b, fld_eq (mul a b) (mul b a);
-    fld_mul_ident : ∀ a, fld_eq (mul one a) a;
+    fld_mul_1_l : ∀ a, fld_eq (mul one a) a;
     fld_mul_compat_r : ∀ a b c, fld_eq a b → fld_eq (mul a c) (mul b c) }.
 
 Add Parametric Relation α (fld : field α) : α (fld_eq fld)

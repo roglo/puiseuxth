@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.683 2013-09-24 00:07:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.684 2013-09-24 00:51:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3041,21 +3041,37 @@ unfold mk_nonzero.
 constructor; reflexivity.
 Qed.
 
-(*
+(* just to test... *)
 Definition nz_zero :=
   {| nz_terms := series_0 fld;
      nz_valnum := 0;
      nz_comden := 1 |}.
 
+Lemma series_pad_series_0 : ∀ n,
+  series_pad_left fld n (series_0 fld) ≃ series_0 fld.
+Proof.
+intros n.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+remember (Nbar.lt_dec (fin i) (fin n)) as d₁.
+remember (lt_dec i n) as d₂.
+remember (Nbar.lt_dec (fin i) 0) as d₃.
+destruct d₁, d₂, d₃; reflexivity.
+Qed.
+
 Lemma nz_add_0_r : ∀ nz, nz_terms_add nz nz_zero ≃ nz_terms nz.
 Proof.
 intros nz.
-constructor; intros i.
-unfold series_nth_fld.
-simpl.
-rewrite Z.mul_1_r, Z.sub_0_r, Nbar.mul_1_r.
+unfold nz_terms_add; simpl.
+rewrite Z.mul_1_r, Z.sub_0_r.
+rewrite stretch_series_1.
+rewrite stretch_series_series_0.
+rewrite series_pad_series_0.
+rewrite series_add_comm.
 bbb.
+*)
 
+(*
 Lemma glop : ∀ nz₁ nz₂,
   eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
   → eq_norm_ps fld
