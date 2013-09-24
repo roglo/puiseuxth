@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.685 2013-09-24 00:55:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.686 2013-09-24 01:12:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3068,7 +3068,9 @@ rewrite stretch_series_1.
 rewrite stretch_series_series_0.
 rewrite series_pad_series_0.
 rewrite series_add_comm.
+rewrite series_add_0_l.
 bbb.
+Ah merde, c'est faux.
 *)
 
 (*

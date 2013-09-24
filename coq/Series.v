@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.64 2013-09-24 00:55:16 deraugla Exp $ *)
+(* $Id: Series.v,v 1.65 2013-09-24 01:12:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -149,6 +149,33 @@ destruct lt₄ as [Hlt₄| Hge₄].
     destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
     exfalso; apply Hge₅; clear Hge₅.
     apply Nbar.max_lt_iff; right; assumption.
+Qed.
+
+Lemma stop_series_add_0_l : ∀ s, stop (series_add series_0 s) = stop s.
+Proof.
+intros s; simpl.
+destruct (stop s); reflexivity.
+Qed.
+
+Lemma series_nth_series_0 : ∀ i, series_nth_fld fld i series_0 ≍ zero fld.
+Proof.
+intros i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) 0); reflexivity.
+Qed.
+
+Lemma series_add_0_l : ∀ s, series_add series_0 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld.
+rewrite stop_series_add_0_l; simpl.
+remember (Nbar.lt_dec (fin i) (stop s)) as d.
+destruct d as [H₁| H₁]; [ idtac | reflexivity ].
+rewrite series_nth_series_0.
+rewrite fld_add_0_l.
+unfold series_nth_fld.
+rewrite <- Heqd; reflexivity.
 Qed.
 
 Lemma series_add_neg : ∀ s, series_add s (series_neg s) ≃ series_0.
