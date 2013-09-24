@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.692 2013-09-24 13:44:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.693 2013-09-24 14:06:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3147,6 +3147,7 @@ destruct k₁ as [| k₁].
   destruct (lt_eq_lt_dec (S k₁) (S k₂)) as [[H₁| H₁]| H₁].
    pose proof (Hk₁ (S k₂) H₁) as Hk.
    destruct Hk as (i, (Hinm, Hnz)).
+bbb.
    exfalso; apply Hnz.
    revert Hinm₂ Hinm; clear; intros.
    revert i Hinm.
