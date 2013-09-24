@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.684 2013-09-24 00:51:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.685 2013-09-24 00:55:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1194,14 +1194,14 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
     exfalso; apply Hge₁; clear Hge₁.
     apply Nbar.max_lt_iff; right; assumption.
 
-    destruct lt₄, lt₅; rewrite fld_add_ident; reflexivity.
+    destruct lt₄, lt₅; rewrite fld_add_0_l; reflexivity.
 
  remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
  remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
  remember (Nbar.lt_dec (fin i) n) as b.
  remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
- destruct a, b, c, d; try rewrite fld_add_ident; reflexivity.
+ destruct a, b, c, d; try rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Lemma stretch_pad_1_series_distr : ∀ kp s,
@@ -1284,7 +1284,7 @@ remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
 remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
 clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
 destruct (lt_dec i n) as [Hlt| Hge].
- destruct c₁, c₂, c₃; try rewrite fld_add_ident; reflexivity.
+ destruct c₁, c₂, c₃; try rewrite fld_add_0_l; reflexivity.
 
  apply not_gt in Hge.
  remember (i - n)%nat as m.
@@ -1734,7 +1734,7 @@ destruct n as [[| n]| ].
          destruct (lt_dec (c * k) c) as [H₅| H₅].
           unfold series_nth_fld; simpl.
           rewrite Heqst.
-          rewrite fld_add_comm, fld_add_ident.
+          rewrite fld_add_comm, fld_add_0_l.
           destruct (Nbar.lt_dec (fin k) 1) as [H₆| H₆].
            destruct (Nbar.lt_dec (fin k) (fin (S st))) as [| H₇].
             reflexivity.
@@ -1779,7 +1779,7 @@ destruct n as [[| n]| ].
 
              constructor; apply le_n_S, le_0_n.
 
-            rewrite fld_add_ident.
+            rewrite fld_add_0_l.
             rewrite Heqst.
             destruct (Nbar.lt_dec (fin k) (fin st)) as [H₇| H₇].
              destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
@@ -1802,7 +1802,7 @@ destruct n as [[| n]| ].
 
           apply Nat.mul_comm.
 
-        rewrite fld_add_ident.
+        rewrite fld_add_0_l.
         rewrite <- Nat.mul_succ_l.
         destruct (Nbar.lt_dec (fin (c * k)) (fin (S st * c))) as [H₄| H₄].
          destruct (lt_dec (c * k) c) as [H₅| H₅].
@@ -1836,7 +1836,7 @@ destruct n as [[| n]| ].
          contradiction.
 
        rewrite <- stretch_pad_1_series_distr.
-       rewrite padded_in_stretched; [ rewrite fld_add_ident | assumption ].
+       rewrite padded_in_stretched; [ rewrite fld_add_0_l | assumption ].
        rewrite padded_in_stretched; [ reflexivity | assumption ].
 
       rewrite Z.mul_add_distr_r, Z.mul_1_l.
@@ -1863,7 +1863,7 @@ destruct n as [[| n]| ].
         destruct (Nbar.lt_dec (fin x) inf) as [H₄| H₄].
          subst x.
          destruct (lt_dec (c * k) c) as [H₅| H₅].
-          rewrite fld_add_comm, fld_add_ident.
+          rewrite fld_add_comm, fld_add_0_l.
           destruct (Nbar.lt_dec (fin k) inf) as [H₆| H₆].
            unfold series_nth_fld; simpl.
            destruct (Nbar.lt_dec (fin k) 1) as [H₇| H₇].
@@ -1897,7 +1897,7 @@ destruct n as [[| n]| ].
 
          exfalso; apply H₄; constructor.
 
-        rewrite fld_add_ident.
+        rewrite fld_add_0_l.
         destruct k.
          exfalso; apply H₃; rewrite Nat.mul_0_r.
          constructor.
@@ -1936,7 +1936,7 @@ destruct n as [[| n]| ].
          rewrite Hz in Hnz.
          exfalso; revert Hnz; apply Nat.lt_irrefl.
 
-         rewrite fld_add_ident.
+         rewrite fld_add_0_l.
          destruct (Nbar.lt_dec (fin i) ∞) as [H₄| H₄].
           destruct (lt_dec i c) as [H₅| H₅].
            reflexivity.
@@ -1946,7 +1946,7 @@ destruct n as [[| n]| ].
 
           reflexivity.
 
-        rewrite fld_add_ident.
+        rewrite fld_add_0_l.
         destruct (Nbar.lt_dec (fin i) ∞) as [H₄| H₄].
          destruct (lt_dec i c) as [H₅| H₅].
           reflexivity.
@@ -2194,11 +2194,11 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
      destruct (Nbar.lt_dec 0 1) as [H₄| H₄].
       destruct (Nbar.lt_dec 0 (fin (st * c + c))) as [H₅| H₅].
        destruct (lt_dec 0 c) as [H₆| H₆].
-        rewrite fld_add_comm, fld_add_ident; reflexivity.
+        rewrite fld_add_comm, fld_add_0_l; reflexivity.
 
         exfalso; apply H₆; subst c; apply Pos2Nat.is_pos.
 
-       rewrite fld_add_comm, fld_add_ident; reflexivity.
+       rewrite fld_add_comm, fld_add_0_l; reflexivity.
 
       exfalso; apply H₄; apply Nbar.lt_0_1.
 
@@ -2220,7 +2220,7 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
     destruct (Nbar.lt_dec 0 1) as [H₄| H₄].
      destruct (Nbar.lt_dec 0 inf) as [H₅| H₅].
       destruct (lt_dec 0 c) as [H₆| H₆].
-       rewrite fld_add_comm, fld_add_ident; reflexivity.
+       rewrite fld_add_comm, fld_add_0_l; reflexivity.
 
        exfalso; apply H₆; subst c; apply Pos2Nat.is_pos.
 
@@ -2931,7 +2931,7 @@ intros ps₁ ps₃ H₁ ps₂ ps₄ H₂.
 bbb.
 *)
 
-Theorem ps_add_ident : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
+Theorem ps_add_0_l : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
 Proof. reflexivity. Qed.
 
 Definition nz_neg nz :=
@@ -2954,7 +2954,7 @@ unfold series_nth_fld; simpl.
 destruct (Nbar.lt_dec (fin i) (stop s)).
  apply fld_add_neg.
 
- apply fld_add_ident.
+ apply fld_add_0_l.
 Qed.
 
 (*
@@ -3365,7 +3365,7 @@ Definition ps_fld : field (puiseux_series α) :=
      fld_eq_trans := eq_ps_trans (fld := fld);
      fld_add_comm := ps_add_comm;
      fld_add_assoc := ps_add_assoc;
-     fld_add_ident := ps_add_ident;
+     fld_add_0_l := ps_add_ident;
      fld_add_compat := ps_add_compat;
      fld_mul_ident := ps_mul_ident |}.
 
