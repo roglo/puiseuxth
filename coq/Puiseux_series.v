@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.682 2013-09-23 23:20:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.683 2013-09-24 00:07:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3047,11 +3047,20 @@ Definition nz_zero :=
      nz_valnum := 0;
      nz_comden := 1 |}.
 
-Lemma glop : ∀ nz₂ nz₃,
-  eq_norm_ps fld (normalise_nz fld nz₂) (normalise_nz fld nz₃)
+Lemma nz_add_0_r : ∀ nz, nz_terms_add nz nz_zero ≃ nz_terms nz.
+Proof.
+intros nz.
+constructor; intros i.
+unfold series_nth_fld.
+simpl.
+rewrite Z.mul_1_r, Z.sub_0_r, Nbar.mul_1_r.
+bbb.
+
+Lemma glop : ∀ nz₁ nz₂,
+  eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
   → eq_norm_ps fld
-      (normalise_nz fld (build_nz_add nz_zero nz₂))
-      (normalise_nz fld (build_nz_add nz_zero nz₃)).
+      (normalise_nz fld (build_nz_add nz₁ nz_zero))
+      (normalise_nz fld (build_nz_add nz₂ nz_zero)).
 Proof.
 intros nz₂ nz₃ Heq.
 bbb.
