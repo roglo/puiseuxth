@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.686 2013-09-24 01:12:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.687 2013-09-24 08:56:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3059,7 +3059,9 @@ remember (Nbar.lt_dec (fin i) 0) as d₃.
 destruct d₁, d₂, d₃; reflexivity.
 Qed.
 
-Lemma nz_add_0_r : ∀ nz, nz_terms_add nz nz_zero ≃ nz_terms nz.
+Lemma nz_add_0_r : ∀ nz,
+  nz_terms_add nz nz_zero ≃
+  series_pad_left fld (Z.to_nat (nz_valnum nz)) (nz_terms nz).
 Proof.
 intros nz.
 unfold nz_terms_add; simpl.
@@ -3069,9 +3071,26 @@ rewrite stretch_series_series_0.
 rewrite series_pad_series_0.
 rewrite series_add_comm.
 rewrite series_add_0_l.
+reflexivity.
+Qed.
+
+Lemma glop : ∀ nz,
+  eq_norm_ps fld
+    (normalise_nz fld (build_nz_add nz nz_zero))
+    (normalise_nz fld nz).
+Proof.
+intros nz.
+unfold normalise_nz; simpl.
+remember (first_nonzero fld (nz_terms_add nz nz_zero)) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms nz)) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ].
+  constructor; simpl.
+   Focus 1.
+   rewrite Z.mul_1_r.
+   rewrite nz_add_0_r.
 bbb.
-Ah merde, c'est faux.
-*)
 
 (*
 Lemma glop : ∀ nz₁ nz₂,
@@ -3080,10 +3099,11 @@ Lemma glop : ∀ nz₁ nz₂,
       (normalise_nz fld (build_nz_add nz₁ nz_zero))
       (normalise_nz fld (build_nz_add nz₂ nz_zero)).
 Proof.
-intros nz₂ nz₃ Heq.
+intros nz₁ nz₂ Heq.
 bbb.
 *)
 
+(*
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
   → eq_norm_ps fld
@@ -3128,6 +3148,25 @@ destruct n₁ as [n₁| ].
      destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
      destruct k₂₃ as [| k₂₃]; [ discriminate Hk₂₃ | idtac ].
 bbb.
+*)
+(*
+     assert (nz₃ = nz_zero).
+      Focus 2.
+      subst nz₃; simpl.
+      rewrite nz_add_0_r in Hn₁₃.
+      rewrite nz_add_0_r in Hn₂₃.
+      rewrite first_nonzero_pad in Hn₁₃.
+      rewrite first_nonzero_pad in Hn₂₃.
+      do 2 rewrite Z.mul_1_r.
+      rewrite Hn₁ in Hn₁₃.
+      rewrite Hn₂ in Hn₂₃.
+      simpl in Hn₁₃, Hn₂₃.
+      injection Hn₁₃; clear Hn₁₃; intros Hn₁₃.
+      injection Hn₂₃; clear Hn₂₃; intros Hn₂₃.
+      rewrite <- Hn₁₃, <- Hn₂₃.
+      do 2 rewrite Nat2Z.inj_add.
+      do 2 rewrite Z2Nat_id_max.
+*)
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
