@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.688 2013-09-24 12:21:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.689 2013-09-24 12:55:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3073,6 +3073,48 @@ rewrite series_add_comm.
 rewrite series_add_0_l.
 reflexivity.
 Qed.
+
+Lemma yyy : ∀ n s,
+  stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
+Proof.
+intros n s.
+remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
+remember (stretching_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
+symmetry in Hk₁, Hk₂.
+apply stretching_factor_iff in Hk₁.
+apply stretching_factor_iff in Hk₂.
+destruct k₁ as [| k₁].
+ destruct k₂ as [| k₂]; [ reflexivity | exfalso ].
+ destruct Hk₂ as (Hinm, ((i, (Him, Hinz)), Hk)).
+ apply first_nonzero_iff in Hk₁.
+ apply Hinz.
+ revert Hk₁; clear; intros.
+ revert i.
+ induction n as [| n]; intros.
+  rewrite series_pad_left_0; apply Hk₁.
+
+  destruct i.
+   unfold series_nth_fld; simpl.
+   destruct (Nbar.lt_dec 0 (stop s + fin (S n))); reflexivity.
+
+   rewrite <- series_nth_pad_S; apply IHn.
+
+ destruct k₂ as [| k₂]; [ exfalso | idtac ].
+  destruct Hk₁ as (Hinm, ((i, (Him, Hinz)), Hk)).
+  apply first_nonzero_iff in Hk₂.
+  apply Hinz.
+  revert Hk₂; clear; intros.
+  revert i.
+  induction n as [| n]; intros.
+   rewrite <- series_pad_left_0; apply Hk₂.
+
+   apply IHn; intros j.
+   rewrite series_nth_pad_S; apply Hk₂.
+
+  apply Nat.succ_inj_wd.
+  destruct Hk₁ as (Hinm₁, ((i₁, (Him₁, Hinz₁)), Hk₁)).
+  destruct Hk₂ as (Hinm₂, ((i₂, (Him₂, Hinz₂)), Hk₂)).
+bbb.
 
 Lemma glop : ∀ nz,
   eq_norm_ps fld
