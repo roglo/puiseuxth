@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.693 2013-09-24 14:06:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.694 2013-09-24 15:12:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3120,9 +3120,38 @@ induction n; intros.
 bbb.
 *)
 
+Lemma series_nth_add_pad : ∀ s i n,
+  series_nth_fld fld (i + n) (series_pad_left fld n s) ≍
+  series_nth_fld fld i s.
+Proof.
+intros s i n.
+unfold series_nth_fld; simpl.
+rewrite Nat.add_sub.
+destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
+  destruct (lt_dec (i + n) n) as [H₃| H₃]; [ idtac | reflexivity ].
+  apply Nat.lt_add_lt_sub_r in H₃.
+  rewrite Nat.sub_diag in H₃.
+  exfalso; revert H₃; apply Nat.nlt_0_r.
+
+  rewrite Nbar.fin_inj_add in H₁.
+  apply Nbar.add_lt_mono_r with (n := fin i) in H₁; [ contradiction | idtac ].
+  intros H; discriminate H.
+
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂]; [ idtac | reflexivity ].
+ exfalso; apply H₁.
+ rewrite Nbar.fin_inj_add.
+ apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
+Qed.
+
 Lemma yyy : ∀ n s,
   stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
+intros n s.
+revert s.
+induction n; intros; [ rewrite series_pad_left_0; reflexivity | idtac ].
+bbb.
+
 intros n s.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
@@ -3147,6 +3176,12 @@ destruct k₁ as [| k₁].
   destruct (lt_eq_lt_dec (S k₁) (S k₂)) as [[H₁| H₁]| H₁].
    pose proof (Hk₁ (S k₂) H₁) as Hk.
    destruct Hk as (i, (Hinm, Hnz)).
+   destruct (eq_nat_dec ((i + n) mod S k₂) 0) as [H₂| H₂].
+    Focus 2.
+    apply Hinm₂ in H₂.
+    exfalso; apply Hnz.
+    rewrite series_nth_add_pad in H₂.
+    assumption.
 bbb.
    exfalso; apply Hnz.
    revert Hinm₂ Hinm; clear; intros.
