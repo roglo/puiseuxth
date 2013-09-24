@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.691 2013-09-24 13:11:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.692 2013-09-24 13:44:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3103,6 +3103,23 @@ induction n as [| n]; intros.
  rewrite series_nth_pad_S; apply H.
 Qed.
 
+(*
+Lemma series_nth_pad_0_P_series_nth_0 : ∀ s n P,
+  (∀ i, P i → series_nth_fld fld i (series_pad_left fld n s) ≍ zero fld)
+  → ∀ i, P i
+    → series_nth_fld fld i s ≍ zero fld.
+Proof.
+intros s n P H i Pi.
+revert i Pi.
+induction n; intros.
+ rewrite <- series_pad_left_0.
+ apply H; assumption.
+
+ apply IHn; [ intros j Pj | assumption ].
+ rewrite series_nth_pad_S.
+bbb.
+*)
+
 Lemma yyy : ∀ n s,
   stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
@@ -3124,6 +3141,35 @@ destruct k₁ as [| k₁].
   apply first_nonzero_iff in Hk₂.
   apply Hinz.
   eapply series_nth_pad_0_series_nth_0; eassumption.
+
+  destruct Hk₁ as (Hinm₁, ((i₁, (Him₁, Hinz₁)), Hk₁)).
+  destruct Hk₂ as (Hinm₂, ((i₂, (Him₂, Hinz₂)), Hk₂)).
+  destruct (lt_eq_lt_dec (S k₁) (S k₂)) as [[H₁| H₁]| H₁].
+   pose proof (Hk₁ (S k₂) H₁) as Hk.
+   destruct Hk as (i, (Hinm, Hnz)).
+   exfalso; apply Hnz.
+   revert Hinm₂ Hinm; clear; intros.
+   revert i Hinm.
+   induction n; intros.
+    rewrite <- series_pad_left_0.
+    apply Hinm₂; assumption.
+
+    apply Hinm₂ in Hinm.
+    destruct i.
+
+bbb.
+   exfalso; apply Hnz.
+   eapply series_nth_pad_0_P_series_nth_0 with (P := λ i, i mod S k₂ ≠ O).
+    eassumption.
+
+    assumption.
+
+   symmetry; assumption.
+
+   pose proof (Hk₂ (S k₁) H₁) as Hk.
+   destruct Hk as (i, (Hinm, Hnz)).
+   exfalso; apply Hnz.
+   eapply series_nth_0_P_series_nth_pad_0 with (P := λ i, i mod S k₂ ≠ O).
 bbb.
 
 Lemma glop : ∀ nz,
