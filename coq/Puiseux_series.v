@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.697 2013-09-25 01:11:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.698 2013-09-25 08:15:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3178,12 +3178,6 @@ unfold series_nth_fld.
 remember Nbar_div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
- Focus 2.
- simpl.
- destruct (stop s) as [st| ]; [ simpl | reflexivity ].
- apply Nbar.fin_inj_wd.
- omega.
-
  remember (Nbar_div_sup (stop s - fin n) (fin (S k))) as x eqn:Hx .
  destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
  subst x.
@@ -3195,6 +3189,11 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  apply Nat.nle_gt in H₂.
  exfalso; apply H₂.
  apply Nat.le_add_r.
+
+ simpl.
+ destruct (stop s) as [st| ]; [ simpl | reflexivity ].
+ apply Nbar.fin_inj_wd.
+ omega.
 Qed.
 
 Lemma normalise_nz_add_0_r : ∀ nz,
@@ -3261,6 +3260,15 @@ destruct n₁ as [n₁| ].
   apply stretching_factor_iff in Hk₂.
   rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
+  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+  unfold normalise_nz.
+  remember (first_nonzero fld (nz_terms (nz₁ ∔ nz₃))) as n₁₃ eqn:Hn₁₃ .
+  remember (first_nonzero fld (nz_terms (nz₂ ∔ nz₃))) as n₂₃ eqn:Hn₂₃ .
+  symmetry in Hn₁₃, Hn₂₃.
+  destruct n₁₃ as [n₁₃| ].
+   destruct n₂₃ as [n₂₃| ].
+    Focus 1.
 bbb.
   destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
   destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
