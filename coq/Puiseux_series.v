@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.699 2013-09-25 09:35:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.700 2013-09-25 09:51:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3266,32 +3266,27 @@ destruct n₁ as [n₁| ].
   remember (first_nonzero fld (nz_terms (nz₁ ∔ nz₃))) as n₁₃ eqn:Hn₁₃ .
   remember (first_nonzero fld (nz_terms (nz₂ ∔ nz₃))) as n₂₃ eqn:Hn₂₃ .
   symmetry in Hn₁₃, Hn₂₃.
+  simpl in Hn₁₃, Hn₂₃.
+  simpl.
+  remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃ eqn:Hk₁₃ .
+  remember (stretching_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃ eqn:Hk₂₃ .
+  symmetry in Hk₁₃, Hk₂₃.
   destruct n₁₃ as [n₁₃| ].
    destruct n₂₃ as [n₂₃| ].
-    constructor; simpl.
-     unfold cm_factor.
-     remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃ eqn:Hk₁₃ .
-     remember (stretching_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃ eqn:Hk₂₃ .
-     symmetry in Hk₁₃, Hk₂₃.
-     destruct k₁₃ as [k₁₃| ].
-      apply stretching_factor_iff in Hk₁₃.
-      simpl in Hn₁₃; rewrite Hn₁₃ in Hk₁₃.
-      destruct Hk₁₃ as (Hk, _).
+    destruct k₁₃ as [k₁₃| ].
+     apply stretching_factor_iff in Hk₁₃.
+     rewrite Hn₁₃ in Hk₁₃.
+     destruct Hk₁₃ as (Hk, _).
+     exfalso; apply Hk; reflexivity.
+
+     destruct k₂₃ as [k₂₃| ].
+      apply stretching_factor_iff in Hk₂₃.
+      rewrite Hn₂₃ in Hk₂₃.
+      destruct Hk₂₃ as (Hk, _).
       exfalso; apply Hk; reflexivity.
 
-      destruct k₂₃ as [k₂₃| ].
-       apply stretching_factor_iff in Hk₂₃.
-       simpl in Hn₂₃; rewrite Hn₂₃ in Hk₂₃.
-       destruct Hk₂₃ as (Hk, _).
-       exfalso; apply Hk; reflexivity.
-
-       apply stretching_factor_iff in Hk₁₃.
-       apply stretching_factor_iff in Hk₂₃.
-       simpl in Hn₁₃, Hn₂₃.
-       rewrite Hn₁₃ in Hk₁₃.
-       rewrite Hn₂₃ in Hk₂₃.
-       destruct Hk₁₃ as (_, (Hik₁₃, Hlt₁₃)).
-       destruct Hk₂₃ as (_, (Hik₂₃, Hlt₂₃)).
+      constructor; [ simpl | simpl | idtac ].
+       unfold cm_factor.
     Focus 1.
 bbb.
   destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
