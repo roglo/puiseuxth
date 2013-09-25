@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.704 2013-09-25 16:55:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.705 2013-09-25 20:10:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1197,6 +1197,7 @@ Lemma stretching_factor_stretch : ∀ k s,
   stretching_factor fld (stretch_series fld k s) =
   (stretching_factor fld s * Pos.to_nat k)%nat.
 Proof.
+intros k s.
 remember (stretching_factor fld (stretch_series fld k s)) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld s) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
@@ -1206,10 +1207,11 @@ rewrite first_nonzero_stretch in Hk₁.
 rewrite Nbar.mul_comm in Hk₁.
 remember (first_nonzero fld s) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [n| ]; simpl in Hk₁.
- destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
- destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
- destruct (lt_eq_lt_dec k₁ (k₂ * Pos.to_nat k)) as [[H₁| H₁]| H₁].
+destruct n as [n| ]; simpl in Hk₁; [ idtac | subst; reflexivity ].
+destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+bbb.
+destruct (lt_eq_lt_dec k₁ (k₂ * Pos.to_nat k)) as [[H₁| H₁]| H₁].
   assert (k₁ / Pos.to_nat k < k₂)%nat as Hkk.
    Focus 2.
    apply Hlt₂ in Hkk.
