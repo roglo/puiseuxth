@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.702 2013-09-25 15:01:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.703 2013-09-25 15:25:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -99,6 +99,7 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
+Definition div_sup x y := ((x + y - 1) / y)%nat.
 Definition Nbar_div_sup x y := Nbar.div (x + y - 1) y.
 
 Definition normalise_series n k (s : series α) :=
@@ -1191,6 +1192,31 @@ destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
  rewrite Nat.add_shuffle0.
  apply Hik₂; assumption.
 Qed.
+
+Lemma stretching_factor_stretch : ∀ k s,
+  stretching_factor fld (stretch_series fld k s) =
+  (stretching_factor fld s * Pos.to_nat k)%nat.
+Proof.
+intros k s.
+remember (stretching_factor fld (stretch_series fld k s)) as k₁ eqn:Hk₁ .
+remember (stretching_factor fld s) as k₂ eqn:Hk₂ .
+symmetry in Hk₁, Hk₂.
+apply stretching_factor_iff in Hk₁.
+apply stretching_factor_iff in Hk₂.
+rewrite first_nonzero_stretch in Hk₁.
+rewrite Nbar.mul_comm in Hk₁.
+remember (first_nonzero fld s) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; simpl in Hk₁.
+ destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+ destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+ destruct (lt_eq_lt_dec k₁ (k₂ * Pos.to_nat k)) as [[H₁| H₁]| H₁].
+  assert (k₁ / Pos.to_nat k < k₂)%nat as Hkk.
+   Focus 2.
+   apply Hlt₂ in Hkk.
+   destruct Hkk as (i, (Him, Hin)).
+   exfalso; apply Hin.
+bbb.
 
 (* ps_add *)
 
