@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.705 2013-09-25 20:10:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.706 2013-09-25 21:47:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1198,30 +1198,49 @@ Lemma stretching_factor_stretch : ∀ k s,
   (stretching_factor fld s * Pos.to_nat k)%nat.
 Proof.
 intros k s.
-remember (stretching_factor fld (stretch_series fld k s)) as k₁ eqn:Hk₁ .
-remember (stretching_factor fld s) as k₂ eqn:Hk₂ .
-symmetry in Hk₁, Hk₂.
+remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
+symmetry in Hk₁.
 apply stretching_factor_iff in Hk₁.
-apply stretching_factor_iff in Hk₂.
-rewrite first_nonzero_stretch in Hk₁.
-rewrite Nbar.mul_comm in Hk₁.
+apply stretching_factor_iff.
+rewrite first_nonzero_stretch.
+rewrite Nbar.mul_comm.
 remember (first_nonzero fld s) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [n| ]; simpl in Hk₁; [ idtac | subst; reflexivity ].
+destruct n as [n| ]; [ simpl | subst; reflexivity ].
 destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-bbb.
-destruct (lt_eq_lt_dec k₁ (k₂ * Pos.to_nat k)) as [[H₁| H₁]| H₁].
-  assert (k₁ / Pos.to_nat k < k₂)%nat as Hkk.
-   Focus 2.
-   apply Hlt₂ in Hkk.
-   destruct Hkk as (i, (Him, Hin)).
-   exfalso; apply Hin.
-   rewrite <- series_nth_fld_mul_stretch with (k := k).
-   rewrite Nat.mul_add_distr_l.
-   rewrite Nat.mul_comm.
-   apply Hik₁.
-   Unfocus.
+split.
+ apply Nat.neq_mul_0; split; [ assumption | apply Pos2Nat_ne_0 ].
+
+ split.
+  intros i Him.
+  destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+   apply Nat.mod_divides in H₁.
+    destruct H₁ as (c, H₁).
+    rewrite H₁.
+    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+    rewrite series_nth_fld_mul_stretch.
+    apply Hik₁.
+    intros H; apply Him; clear Him.
+    apply Nat.mod_divides in H.
+     destruct H as (d, H).
+     subst i c.
+     rewrite Nat.mul_assoc, Nat.mul_shuffle0.
+     rewrite Nat.mul_comm, Nat.mul_assoc.
+     rewrite Nat.mul_comm.
+     apply Nat.mod_mul.
+     apply Nat.neq_mul_0.
+     split; [ assumption | apply Pos2Nat_ne_0 ].
+
+     assumption.
+
+    apply Pos2Nat_ne_0.
+
+   rewrite padded_in_stretched; [ reflexivity | idtac ].
+   rewrite Nat.add_comm.
+   rewrite Nat.mod_add; [ assumption | idtac ].
+   apply Pos2Nat_ne_0.
+
+  intros k₂ Hlt.
 bbb.
 *)
 
@@ -1254,7 +1273,7 @@ rewrite first_nonzero_stretch.
 rewrite Nbar.add_comm, Nbar.mul_comm.
 remember (first_nonzero fld (nz_terms nz)) as m eqn:Hm .
 symmetry in Hm.
-destruct m; simpl; [ idtac | reflexivity ].
+destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite stretching_factor_pad.
  rewrite stretching_factor_stretch.
