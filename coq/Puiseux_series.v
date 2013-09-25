@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.700 2013-09-25 09:51:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.701 2013-09-25 14:29:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3238,6 +3238,41 @@ constructor; simpl.
  rewrite normalise_series_add_pad.
  reflexivity.
 Qed.
+
+(*
+Lemma yyy : ∀ nz₁ nz₂ n₁ n₂,
+  first_nonzero fld (nz_terms nz₁) = n₁
+  → first_nonzero fld (nz_terms nz₂) = n₂
+    → first_nonzero fld (nz_terms_add nz₁ nz₂) = Nbar.min n₁ n₂.
+Proof.
+intros nz₁ nz₂ n₁ n₂ Hn₁ Hn₂.
+apply first_nonzero_iff in Hn₁.
+apply first_nonzero_iff in Hn₂.
+apply first_nonzero_iff.
+destruct n₁ as [n₁| ].
+ destruct Hn₁ as (Hin₁, Hnn₁).
+ destruct n₂ as [n₂| ].
+  destruct Hn₂ as (Hin₂, Hnn₂).
+  simpl; split.
+   intros i Hlt.
+   destruct (lt_dec n₁ n₂) as [H₁| H₁].
+    rewrite Nat.min_l in Hlt; [ idtac | apply Nat.lt_le_incl; assumption ].
+    remember Hlt as H₂; clear HeqH₂.
+    apply Hin₁ in H₂.
+    apply Nat.lt_trans with (n := i) in H₁; [ idtac | assumption ].
+    apply Hin₂ in H₁.
+    unfold series_nth_fld.
+    unfold series_nth_fld in H₁.
+    unfold series_nth_fld in H₂.
+    destruct (Nbar.lt_dec (fin i) (stop (nz_terms nz₂))) as [H₃| H₃].
+     destruct (Nbar.lt_dec (fin i) (stop (nz_terms nz₁))) as [H₄| H₄].
+      destruct (Nbar.lt_dec (fin i) (stop (nz_terms_add nz₁ nz₂)))
+       as [H₅| H₅].
+       simpl.
+       unfold cm_factor.
+       Focus 1.
+bbb.
+*)
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
