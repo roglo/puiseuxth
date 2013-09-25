@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.703 2013-09-25 15:25:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.704 2013-09-25 16:55:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1197,7 +1197,6 @@ Lemma stretching_factor_stretch : ∀ k s,
   stretching_factor fld (stretch_series fld k s) =
   (stretching_factor fld s * Pos.to_nat k)%nat.
 Proof.
-intros k s.
 remember (stretching_factor fld (stretch_series fld k s)) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld s) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
@@ -1216,7 +1215,13 @@ destruct n as [n| ]; simpl in Hk₁.
    apply Hlt₂ in Hkk.
    destruct Hkk as (i, (Him, Hin)).
    exfalso; apply Hin.
+   rewrite <- series_nth_fld_mul_stretch with (k := k).
+   rewrite Nat.mul_add_distr_l.
+   rewrite Nat.mul_comm.
+   apply Hik₁.
+   Unfocus.
 bbb.
+*)
 
 (* ps_add *)
 
@@ -1234,7 +1239,7 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
 
 Definition adjust_nz n k nz :=
   {| nz_terms := series_pad_left fld n (stretch_series fld k (nz_terms nz));
-     nz_valnum := nz_valnum nz * Zpos k + Z.of_nat n;
+     nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
 Theorem glop : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
@@ -1250,6 +1255,12 @@ symmetry in Hm.
 destruct m; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite stretching_factor_pad.
+ rewrite stretching_factor_stretch.
+ simpl.
+ rewrite Nat2Z.inj_add.
+ rewrite Nat2Z.inj_mul.
+ rewrite Nat2Z.inj_mul.
+ rewrite positive_nat_Z.
 bbb.
 *)
 
