@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.695 2013-09-25 00:12:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.696 2013-09-25 01:10:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -115,7 +115,7 @@ Definition normalise_nz nz :=
       let k := stretching_factor fld (nz_terms nz) in
       NonZero
         {| nz_terms := normalise_series n k (nz_terms nz);
-           nz_valnum := nz_valnum nz / Z.of_nat k + Z.of_nat n;
+           nz_valnum := (nz_valnum nz + Z.of_nat n) / Z.of_nat k;
            nz_comden := Z.to_pos (' nz_comden nz / Z.of_nat k) |}
   | ∞ =>
       Zero _
@@ -3166,7 +3166,38 @@ destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
  apply Hik₂; assumption.
 Qed.
 
-Lemma glop : ∀ nz,
+Lemma normalise_series_add_pad : ∀ s n m k,
+  normalise_series fld (n + m) k (series_pad_left fld m s)
+  ≃ normalise_series fld n k s.
+Proof.
+intros s n m k.
+unfold normalise_series.
+destruct k; [ reflexivity | idtac ].
+constructor; intros i.
+unfold series_nth_fld.
+remember Nbar_div_sup as f; simpl; subst f.
+do 2 rewrite Nbar.fold_sub.
+replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
+ Focus 2.
+ simpl.
+ destruct (stop s) as [st| ]; [ simpl | reflexivity ].
+ apply Nbar.fin_inj_wd.
+ omega.
+
+ remember (Nbar_div_sup (stop s - fin n) (fin (S k))) as x eqn:Hx .
+ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
+ subst x.
+ remember (i * S k)%nat as x.
+ replace (n + m + x - m)%nat with (n + x)%nat by omega.
+ subst x.
+ destruct (lt_dec (n + m + i * S k) m) as [H₂| H₂]; [ idtac | reflexivity ].
+ rewrite Nat.add_shuffle0, Nat.add_comm in H₂.
+ apply Nat.nle_gt in H₂.
+ exfalso; apply H₂.
+ apply Nat.le_add_r.
+Qed.
+
+Lemma normalise_nz_add_0_r : ∀ nz,
   eq_norm_ps fld
     (normalise_nz fld (build_nz_add nz nz_zero))
     (normalise_nz fld nz).
@@ -3184,28 +3215,31 @@ constructor; simpl.
  rewrite nz_add_0_r.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
- f_equal.
- rewrite Z2Nat_id_max, Z.min_comm.
  rewrite stretching_factor_pad.
- remember (stretching_factor fld (nz_terms nz)) as k eqn:Hk .
- symmetry in Hk.
- apply stretching_factor_iff in Hk.
- rewrite Hn₁ in Hk.
- destruct Hk as (Hk, (Hik, Hlt)).
-bbb.
+ do 2 f_equal.
+ rewrite Z2Nat_id_max, Z.min_comm.
+ destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
+  rewrite Z.min_r; [ idtac | assumption ].
+  rewrite Z.max_l; [ idtac | assumption ].
+  rewrite Z.add_0_r; reflexivity.
 
-(*
-Lemma glop : ∀ nz₁ nz₂,
-  eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
-  → eq_norm_ps fld
-      (normalise_nz fld (build_nz_add nz₁ nz_zero))
-      (normalise_nz fld (build_nz_add nz₂ nz_zero)).
-Proof.
-intros nz₁ nz₂ Heq.
-bbb.
-*)
+  apply Z.nle_gt, Z.lt_le_incl in H₁.
+  rewrite Z.min_l; [ idtac | assumption ].
+  rewrite Z.max_r; [ idtac | assumption ].
+  reflexivity.
 
-(*
+ unfold cm; simpl.
+ rewrite Pos.mul_1_r.
+ rewrite nz_add_0_r.
+ rewrite stretching_factor_pad.
+ reflexivity.
+
+ rewrite nz_add_0_r.
+ rewrite stretching_factor_pad.
+ rewrite normalise_series_add_pad.
+ reflexivity.
+Qed.
+
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps fld (normalise_nz fld nz₁) (normalise_nz fld nz₂)
   → eq_norm_ps fld
