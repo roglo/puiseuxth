@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.696 2013-09-25 01:10:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.697 2013-09-25 01:11:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3261,6 +3261,7 @@ destruct n₁ as [n₁| ].
   apply stretching_factor_iff in Hk₂.
   rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
+bbb.
   destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
   destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
   unfold normalise_nz; simpl.
