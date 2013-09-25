@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.694 2013-09-24 15:12:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.695 2013-09-25 00:12:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -68,13 +68,14 @@ Axiom first_nonzero_iff : ∀ s n,
 
 Axiom stretching_factor_iff : ∀ s k,
   stretching_factor fld s = k
-  ↔ match k with
-    | O => first_nonzero fld s = ∞
-    | S _ =>
-        (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
-        (∃ i, i mod k = O ∧ series_nth_fld fld i s ≭ zero fld) ∧
-        (∀ k₁, (k < k₁)%nat →
-           ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld i s ≭ zero fld)
+  ↔ match first_nonzero fld s with
+    | fin n =>
+        k ≠ O ∧
+        (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
+        (∀ k₁, (k₁ < k)%nat →
+           ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+    | ∞ =>
+        k = O
     end.
 
 Definition stretch_series k s :=
@@ -301,38 +302,25 @@ remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
 apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff in Hk₂.
-inversion Heq; subst.
-destruct k₁ as [| k₁].
- destruct k₂ as [| k₂]; [ reflexivity | idtac ].
- destruct Hk₂ as (Hk₂, (Hi₂, Hlt₂)).
- apply first_nonzero_iff in Hk₁.
- destruct Hi₂ as (i, (Hiz₂, Hinz₂)).
- exfalso; apply Hinz₂.
- rewrite <- H; apply Hk₁.
+remember (first_nonzero fld s₁) as n eqn:Hn .
+rewrite Heq in Hn.
+rewrite <- Hn in Hk₂.
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | subst; reflexivity ].
+destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
+ apply Hlt₂ in H₁.
+ destruct H₁ as (j, (Hjn, Hnj)).
+ exfalso; apply Hnj; rewrite <- Heq.
+ apply Hik₁; assumption.
 
- destruct k₂ as [| k₂].
-  destruct Hk₁ as (Hk₁, (Hi₁, Hlt₁)).
-  apply first_nonzero_iff in Hk₂.
-  destruct Hi₁ as (i, (Hiz₁, Hinz₁)).
-  exfalso; apply Hinz₁.
-  rewrite H; apply Hk₂.
+ assumption.
 
-  destruct Hk₁ as (Hk₁, (Hi₁, Hlt₁)).
-  destruct Hk₂ as (Hk₂, (Hi₂, Hlt₂)).
-  destruct (lt_eq_lt_dec (S k₁) (S k₂)) as [[H₁| H₁]| H₁].
-   apply Hlt₁ in H₁.
-   destruct H₁ as (i, H₁).
-   destruct H₁ as (Hinz, H₁).
-   exfalso; apply H₁.
-   rewrite H; apply Hk₂; assumption.
-
-   assumption.
-
-   apply Hlt₂ in H₁.
-   destruct H₁ as (i, H₁).
-   destruct H₁ as (Hinz, H₁).
-   exfalso; apply H₁.
-   rewrite <- H; apply Hk₁; assumption.
+ apply Hlt₁ in H₁.
+ destruct H₁ as (j, (Hjn, Hnj)).
+ exfalso; apply Hnj; rewrite Heq.
+ apply Hik₂; assumption.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
@@ -3144,69 +3132,39 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
-Lemma yyy : ∀ n s,
+Lemma stretching_factor_pad : ∀ n s,
   stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
-intros n s.
-revert s.
-induction n; intros; [ rewrite series_pad_left_0; reflexivity | idtac ].
-bbb.
-
 intros n s.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
 apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff in Hk₂.
-destruct k₁ as [| k₁].
- destruct k₂ as [| k₂]; [ reflexivity | exfalso ].
- destruct Hk₂ as (Hinm, ((i, (Him, Hinz)), Hk)).
- apply first_nonzero_iff in Hk₁.
- apply Hinz.
- apply series_nth_0_series_nth_pad_0; assumption.
+rewrite first_nonzero_pad in Hk₂.
+rewrite Nbar.add_comm in Hk₂.
+remember (first_nonzero fld s) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; simpl in Hk₂; [ idtac | subst; reflexivity ].
+destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
+ apply Hlt₂ in H₁.
+ destruct H₁ as (j, (Hjn, Hnj)).
+ exfalso; apply Hnj.
+ rewrite Nat.add_shuffle0.
+ rewrite series_nth_add_pad.
+ apply Hik₁; assumption.
 
- destruct k₂ as [| k₂]; [ exfalso | idtac ].
-  destruct Hk₁ as (Hinm, ((i, (Him, Hinz)), Hk)).
-  apply first_nonzero_iff in Hk₂.
-  apply Hinz.
-  eapply series_nth_pad_0_series_nth_0; eassumption.
+ symmetry; assumption.
 
-  destruct Hk₁ as (Hinm₁, ((i₁, (Him₁, Hinz₁)), Hk₁)).
-  destruct Hk₂ as (Hinm₂, ((i₂, (Him₂, Hinz₂)), Hk₂)).
-  destruct (lt_eq_lt_dec (S k₁) (S k₂)) as [[H₁| H₁]| H₁].
-   pose proof (Hk₁ (S k₂) H₁) as Hk.
-   destruct Hk as (i, (Hinm, Hnz)).
-   destruct (eq_nat_dec ((i + n) mod S k₂) 0) as [H₂| H₂].
-    Focus 2.
-    apply Hinm₂ in H₂.
-    exfalso; apply Hnz.
-    rewrite series_nth_add_pad in H₂.
-    assumption.
-bbb.
-   exfalso; apply Hnz.
-   revert Hinm₂ Hinm; clear; intros.
-   revert i Hinm.
-   induction n; intros.
-    rewrite <- series_pad_left_0.
-    apply Hinm₂; assumption.
-
-    apply Hinm₂ in Hinm.
-    destruct i.
-
-bbb.
-   exfalso; apply Hnz.
-   eapply series_nth_pad_0_P_series_nth_0 with (P := λ i, i mod S k₂ ≠ O).
-    eassumption.
-
-    assumption.
-
-   symmetry; assumption.
-
-   pose proof (Hk₂ (S k₁) H₁) as Hk.
-   destruct Hk as (i, (Hinm, Hnz)).
-   exfalso; apply Hnz.
-   eapply series_nth_0_P_series_nth_pad_0 with (P := λ i, i mod S k₂ ≠ O).
-bbb.
+ apply Hlt₁ in H₁.
+ destruct H₁ as (j, (Hjn, Hnj)).
+ exfalso; apply Hnj.
+ erewrite <- series_nth_add_pad.
+ rewrite Nat.add_shuffle0.
+ apply Hik₂; assumption.
+Qed.
 
 Lemma glop : ∀ nz,
   eq_norm_ps fld
@@ -3228,6 +3186,12 @@ constructor; simpl.
  rewrite Z.add_assoc, Z.add_shuffle0.
  f_equal.
  rewrite Z2Nat_id_max, Z.min_comm.
+ rewrite stretching_factor_pad.
+ remember (stretching_factor fld (nz_terms nz)) as k eqn:Hk .
+ symmetry in Hk.
+ apply stretching_factor_iff in Hk.
+ rewrite Hn₁ in Hk.
+ destruct Hk as (Hk, (Hik, Hlt)).
 bbb.
 
 (*
