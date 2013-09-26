@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.716 2013-09-26 17:05:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.717 2013-09-26 18:31:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1345,6 +1345,9 @@ destruct Hk₁ as [Hk₁| Hk₁].
      rewrite Nat.add_comm; simpl.
      apply -> Nat.succ_lt_mono.
      apply Nat.lt_0_succ.
+
+  split.
+   intros i Him.
 bbb.
 
 destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
