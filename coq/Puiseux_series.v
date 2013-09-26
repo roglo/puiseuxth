@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.713 2013-09-26 14:26:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.714 2013-09-26 15:51:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -66,14 +66,18 @@ Axiom first_nonzero_iff : ∀ s n,
         (∀ i, series_nth_fld fld i s ≍ zero fld)
     end.
 
+Definition is_shrink_factor s n k :=
+  (k > 1)%nat ∧
+  (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
+  (∀ k₁, (1 < k₁ < k)%nat →
+     ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
+
 Axiom shrink_factor_iff : ∀ s k,
   shrink_factor fld s = k
   ↔ match first_nonzero fld s with
     | fin n =>
-        k ≠ O ∧
-        (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-        (∀ k₁, (0 < k₁ < k)%nat →
-           ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+        is_shrink_factor s n k ∨
+        (k = 1%nat ∧ ∀ k', not (is_shrink_factor s n k'))
     | ∞ =>
         k = O
     end.
@@ -308,30 +312,73 @@ rewrite Heq in Hn.
 rewrite <- Hn in Hk₂.
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | subst; reflexivity ].
-destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
- assert (0 < k₁ < k₂)%nat as H₂.
-  split; [ idtac | assumption ].
-  destruct k₁; [ exfalso; apply Hk₁; reflexivity | idtac ].
-  apply Nat.lt_0_succ.
+destruct Hk₁ as [Hk₁| Hk₁].
+ destruct Hk₂ as [Hk₂| Hk₂].
+  unfold is_shrink_factor in Hk₁.
+  unfold is_shrink_factor in Hk₂.
+  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+  destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
+   assert (1 < k₁ < k₂)%nat as H₂.
+    split; assumption.
 
-  apply Hlt₂ in H₂.
-  destruct H₂ as (j, (Hjn, Hnj)).
-  exfalso; apply Hnj; rewrite <- Heq.
-  apply Hik₁; assumption.
+    apply Hlt₂ in H₂.
+    destruct H₂ as (j, (Hjn, Hnj)).
+    exfalso; apply Hnj; rewrite <- Heq.
+    apply Hik₁; assumption.
 
- assumption.
+   assumption.
 
- assert (0 < k₂ < k₁)%nat as H₂.
-  split; [ idtac | assumption ].
-  destruct k₂; [ exfalso; apply Hk₂; reflexivity | idtac ].
-  apply Nat.lt_0_succ.
+   assert (1 < k₂ < k₁)%nat as H₂.
+    split; assumption.
 
-  apply Hlt₁ in H₂.
-  destruct H₂ as (j, (Hjn, Hnj)).
-  exfalso; apply Hnj; rewrite Heq.
-  apply Hik₂; assumption.
+    apply Hlt₁ in H₂.
+    destruct H₂ as (j, (Hjn, Hnj)).
+    exfalso; apply Hnj; rewrite Heq.
+    apply Hik₂; assumption.
+
+  destruct Hk₂ as (Hk₂, Hk').
+  subst k₂.
+  unfold is_shrink_factor in Hk₁.
+  pose proof (Hk' k₁) as Hk'₁.
+  exfalso; apply Hk'₁.
+  unfold is_shrink_factor.
+  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  split; [ assumption | idtac ].
+  split.
+   intros i Him.
+   rewrite <- Heq.
+   apply Hik₁; assumption.
+
+   intros k₂ Hkk.
+   apply Hlt₁ in Hkk.
+   destruct Hkk as (i, (Hkk, Hss)).
+   exists i.
+   split; [ assumption | idtac ].
+   rewrite <- Heq; assumption.
+
+ destruct Hk₂ as [Hk₂| Hk₂].
+  destruct Hk₁ as (Hk₁, Hk').
+  subst k₁.
+  unfold is_shrink_factor in Hk₂.
+  pose proof (Hk' k₂) as Hk'₂.
+  exfalso; apply Hk'₂.
+  unfold is_shrink_factor.
+  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+  split; [ assumption | idtac ].
+  split.
+   intros i Him.
+   rewrite Heq.
+   apply Hik₂; assumption.
+
+   intros k₁ Hkk.
+   apply Hlt₂ in Hkk.
+   destruct Hkk as (i, (Hkk, Hss)).
+   exists i.
+   split; [ assumption | idtac ].
+   rewrite Heq; assumption.
+
+  destruct Hk₁, Hk₂; subst; reflexivity.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
