@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.714 2013-09-26 15:51:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.715 2013-09-26 16:39:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1230,34 +1230,83 @@ rewrite Nbar.add_comm in Hk₂.
 remember (first_nonzero fld s) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl in Hk₂; [ idtac | subst; reflexivity ].
-destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
- assert (0 < k₁ < k₂)%nat as H₂.
-  split; [ idtac | assumption ].
-  destruct k₁; [ exfalso; apply Hk₁; reflexivity | idtac ].
-  apply Nat.lt_0_succ.
+destruct Hk₁ as [Hk₁| Hk₁].
+ destruct Hk₂ as [Hk₂| Hk₂].
+  unfold is_shrink_factor in Hk₁.
+  unfold is_shrink_factor in Hk₂.
+  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+  destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
+   assert (1 < k₁ < k₂)%nat as H₂.
+    split; assumption.
 
-  apply Hlt₂ in H₂.
-  destruct H₂ as (j, (Hjn, Hnj)).
-  exfalso; apply Hnj.
-  rewrite Nat.add_shuffle0.
-  rewrite series_nth_add_pad.
-  apply Hik₁; assumption.
+    apply Hlt₂ in H₂.
+    destruct H₂ as (j, (Hjn, Hnj)).
+    exfalso; apply Hnj.
+    rewrite Nat.add_shuffle0.
+    rewrite series_nth_add_pad.
+    apply Hik₁; assumption.
 
- symmetry; assumption.
+   symmetry; assumption.
 
- assert (0 < k₂ < k₁)%nat as H₂.
-  split; [ idtac | assumption ].
-  destruct k₂; [ exfalso; apply Hk₂; reflexivity | idtac ].
-  apply Nat.lt_0_succ.
+   assert (1 < k₂ < k₁)%nat as H₂.
+    split; assumption.
 
-  apply Hlt₁ in H₂.
-  destruct H₂ as (j, (Hjn, Hnj)).
-  exfalso; apply Hnj.
-  erewrite <- series_nth_add_pad.
-  rewrite Nat.add_shuffle0.
-  apply Hik₂; assumption.
+    apply Hlt₁ in H₂.
+    destruct H₂ as (j, (Hjn, Hnj)).
+    exfalso; apply Hnj.
+    erewrite <- series_nth_add_pad.
+    rewrite Nat.add_shuffle0.
+    apply Hik₂; assumption.
+
+  destruct Hk₂ as (Hk₂, Hk').
+  subst k₂.
+  unfold is_shrink_factor in Hk₁.
+  pose proof (Hk' k₁) as Hk'₁.
+  exfalso; apply Hk'₁.
+  unfold is_shrink_factor.
+  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  split; [ assumption | idtac ].
+  split.
+   intros i Him.
+   rewrite Nat.add_shuffle0.
+   rewrite series_nth_add_pad.
+   apply Hik₁; assumption.
+
+   intros k₂ Hkk.
+   apply Hlt₁ in Hkk.
+   destruct Hkk as (i, (Hkk, Hss)).
+   exists i.
+   split; [ assumption | idtac ].
+   rewrite Nat.add_shuffle0.
+   rewrite series_nth_add_pad.
+   assumption.
+
+ destruct Hk₂ as [Hk₂| Hk₂].
+  destruct Hk₁ as (Hk₁, Hk').
+  subst k₁.
+  unfold is_shrink_factor in Hk₂.
+  pose proof (Hk' k₂) as Hk'₂.
+  exfalso; apply Hk'₂.
+  unfold is_shrink_factor.
+  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
+  split; [ assumption | idtac ].
+  split.
+   intros i Him.
+   rewrite <- series_nth_add_pad.
+   rewrite Nat.add_shuffle0.
+   apply Hik₂; assumption.
+
+   intros k₁ Hkk.
+   apply Hlt₂ in Hkk.
+   destruct Hkk as (i, (Hkk, Hss)).
+   exists i.
+   split; [ assumption | idtac ].
+   rewrite <- series_nth_add_pad.
+   rewrite Nat.add_shuffle0.
+   eassumption.
+
+  destruct Hk₁, Hk₂; subst; reflexivity.
 Qed.
 
 Lemma shrink_factor_stretch : ∀ k s,
