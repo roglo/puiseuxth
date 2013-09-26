@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.708 2013-09-26 09:25:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.709 2013-09-26 12:38:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -61,7 +61,7 @@ Axiom first_nonzero_iff : ∀ s n,
   ↔ match n with
     | fin k =>
         (∀ i, (i < k)%nat → series_nth_fld fld i s ≍ zero fld) ∧
-         series_nth_fld fld k s ≭ zero fld
+        series_nth_fld fld k s ≭ zero fld
     | inf =>
         (∀ i, series_nth_fld fld i s ≍ zero fld)
     end.
