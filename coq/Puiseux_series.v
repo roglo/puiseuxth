@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.709 2013-09-26 12:38:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.710 2013-09-26 13:41:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -39,7 +39,7 @@ Definition stretching_factor_fin α (fld : field α) n s :=
  loop_k n 2.
 
 Definition stretching_factor α fld s :=
-  match first_nonzero fld s with
+  match stop s with
   | fin n => stretching_factor_fin fld n s
   | inf => stretching_factor_inf fld s
   end.
