@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.707 2013-09-25 22:28:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.708 2013-09-26 09:25:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -72,7 +72,7 @@ Axiom stretching_factor_iff : ∀ s k,
     | fin n =>
         k ≠ O ∧
         (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-        (∀ k₁, (k₁ < k)%nat →
+        (∀ k₁, (0 < k₁ < k)%nat →
            ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
     | ∞ =>
         k = O
@@ -311,17 +311,27 @@ destruct n as [n| ]; [ idtac | subst; reflexivity ].
 destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
 destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
 destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
- apply Hlt₂ in H₁.
- destruct H₁ as (j, (Hjn, Hnj)).
- exfalso; apply Hnj; rewrite <- Heq.
- apply Hik₁; assumption.
+ assert (0 < k₁ < k₂)%nat as H₂.
+  split; [ idtac | assumption ].
+  destruct k₁; [ exfalso; apply Hk₁; reflexivity | idtac ].
+  apply Nat.lt_0_succ.
+
+  apply Hlt₂ in H₂.
+  destruct H₂ as (j, (Hjn, Hnj)).
+  exfalso; apply Hnj; rewrite <- Heq.
+  apply Hik₁; assumption.
 
  assumption.
 
- apply Hlt₁ in H₁.
- destruct H₁ as (j, (Hjn, Hnj)).
- exfalso; apply Hnj; rewrite Heq.
- apply Hik₂; assumption.
+ assert (0 < k₂ < k₁)%nat as H₂.
+  split; [ idtac | assumption ].
+  destruct k₂; [ exfalso; apply Hk₂; reflexivity | idtac ].
+  apply Nat.lt_0_succ.
+
+  apply Hlt₁ in H₂.
+  destruct H₂ as (j, (Hjn, Hnj)).
+  exfalso; apply Hnj; rewrite Heq.
+  apply Hik₂; assumption.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
@@ -1176,21 +1186,31 @@ destruct m as [m| ]; simpl in Hk₂; [ idtac | subst; reflexivity ].
 destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
 destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
 destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
- apply Hlt₂ in H₁.
- destruct H₁ as (j, (Hjn, Hnj)).
- exfalso; apply Hnj.
- rewrite Nat.add_shuffle0.
- rewrite series_nth_add_pad.
- apply Hik₁; assumption.
+ assert (0 < k₁ < k₂)%nat as H₂.
+  split; [ idtac | assumption ].
+  destruct k₁; [ exfalso; apply Hk₁; reflexivity | idtac ].
+  apply Nat.lt_0_succ.
+
+  apply Hlt₂ in H₂.
+  destruct H₂ as (j, (Hjn, Hnj)).
+  exfalso; apply Hnj.
+  rewrite Nat.add_shuffle0.
+  rewrite series_nth_add_pad.
+  apply Hik₁; assumption.
 
  symmetry; assumption.
 
- apply Hlt₁ in H₁.
- destruct H₁ as (j, (Hjn, Hnj)).
- exfalso; apply Hnj.
- erewrite <- series_nth_add_pad.
- rewrite Nat.add_shuffle0.
- apply Hik₂; assumption.
+ assert (0 < k₂ < k₁)%nat as H₂.
+  split; [ idtac | assumption ].
+  destruct k₂; [ exfalso; apply Hk₂; reflexivity | idtac ].
+  apply Nat.lt_0_succ.
+
+  apply Hlt₁ in H₂.
+  destruct H₂ as (j, (Hjn, Hnj)).
+  exfalso; apply Hnj.
+  erewrite <- series_nth_add_pad.
+  rewrite Nat.add_shuffle0.
+  apply Hik₂; assumption.
 Qed.
 
 Lemma stretching_factor_stretch : ∀ k s,
@@ -1246,7 +1266,10 @@ split.
    destruct H₁ as (c, H₁).
    rewrite H₁ in Hlt.
    rewrite Nat.mul_comm in Hlt.
+   destruct Hlt as (Hck, Hlt).
    apply Nat.mul_lt_mono_pos_r in Hlt; [ idtac | apply Pos2Nat.is_pos ].
+   apply Nat.mul_pos_cancel_r in Hck; [ idtac | apply Pos2Nat.is_pos ].
+   apply conj with (A := (0 < c)%nat) in Hlt; [ idtac | assumption ].
    apply Hlt₁ in Hlt.
    destruct Hlt as (i, (Him, Hin)).
    exists (i * Pos.to_nat k)%nat.
