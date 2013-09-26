@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.711 2013-09-26 13:43:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.712 2013-09-26 14:07:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -20,7 +20,7 @@ Admitted.
 Definition is_zero : ∀ α, field α → α → bool.
 Admitted.
 
-Definition reduction_factor_fin α (fld : field α) n s :=
+Definition shrink_factor_fin α (fld : field α) n s :=
   let fix loop_i cnt i k :=
     match cnt with
     | O => true
@@ -38,14 +38,14 @@ Definition reduction_factor_fin α (fld : field α) n s :=
  in
  loop_k n 2.
 
-Definition reduction_factor α fld s :=
+Definition shrink_factor α fld s :=
   match stop s with
-  | fin n => reduction_factor_fin fld n s
-  | inf => reduction_factor_inf fld s
+  | fin n => shrink_factor_fin fld n s
+  | inf => shrink_factor_inf fld s
   end.
 *)
 
-Definition reduction_factor : ∀ α, field α → series α → nat.
+Definition shrink_factor : ∀ α, field α → series α → nat.
 Admitted.
 
 Section fld.
@@ -66,8 +66,8 @@ Axiom first_nonzero_iff : ∀ s n,
         (∀ i, series_nth_fld fld i s ≍ zero fld)
     end.
 
-Axiom reduction_factor_iff : ∀ s k,
-  reduction_factor fld s = k
+Axiom shrink_factor_iff : ∀ s k,
+  shrink_factor fld s = k
   ↔ match first_nonzero fld s with
     | fin n =>
         k ≠ O ∧
@@ -113,7 +113,7 @@ Definition normalise_series n k (s : series α) :=
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) with
   | fin n =>
-      let k := reduction_factor fld (nz_terms nz) in
+      let k := shrink_factor fld (nz_terms nz) in
       NonZero
         {| nz_terms := normalise_series n k (nz_terms nz);
            nz_valnum := (nz_valnum nz + Z.of_nat n) / Z.of_nat k;
@@ -294,15 +294,15 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (reduction_factor fld)
+Add Parametric Morphism α (fld : field α) : (shrink_factor fld)
 with signature (eq_series fld) ==> eq as stretching_morph.
 Proof.
 intros s₁ s₂ Heq.
-remember (reduction_factor fld s₁) as k₁ eqn:Hk₁ .
-remember (reduction_factor fld s₂) as k₂ eqn:Hk₂ .
+remember (shrink_factor fld s₁) as k₁ eqn:Hk₁ .
+remember (shrink_factor fld s₂) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
-apply reduction_factor_iff in Hk₁.
-apply reduction_factor_iff in Hk₂.
+apply shrink_factor_iff in Hk₁.
+apply shrink_factor_iff in Hk₂.
 remember (first_nonzero fld s₁) as n eqn:Hn .
 rewrite Heq in Hn.
 rewrite <- Hn in Hk₂.
@@ -1169,15 +1169,15 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
-Lemma reduction_factor_pad : ∀ n s,
-  reduction_factor fld (series_pad_left fld n s) = reduction_factor fld s.
+Lemma shrink_factor_pad : ∀ n s,
+  shrink_factor fld (series_pad_left fld n s) = shrink_factor fld s.
 Proof.
 intros n s.
-remember (reduction_factor fld s) as k₁ eqn:Hk₁ .
-remember (reduction_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
+remember (shrink_factor fld s) as k₁ eqn:Hk₁ .
+remember (shrink_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
-apply reduction_factor_iff in Hk₁.
-apply reduction_factor_iff in Hk₂.
+apply shrink_factor_iff in Hk₁.
+apply shrink_factor_iff in Hk₂.
 rewrite first_nonzero_pad in Hk₂.
 rewrite Nbar.add_comm in Hk₂.
 remember (first_nonzero fld s) as m eqn:Hm .
@@ -1213,15 +1213,15 @@ destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
   apply Hik₂; assumption.
 Qed.
 
-Lemma reduction_factor_stretch : ∀ k s,
-  reduction_factor fld (stretch_series fld k s) =
-  (reduction_factor fld s * Pos.to_nat k)%nat.
+Lemma shrink_factor_stretch : ∀ k s,
+  shrink_factor fld (stretch_series fld k s) =
+  (shrink_factor fld s * Pos.to_nat k)%nat.
 Proof.
 intros k s.
-remember (reduction_factor fld s) as k₁ eqn:Hk₁ .
+remember (shrink_factor fld s) as k₁ eqn:Hk₁ .
 symmetry in Hk₁.
-apply reduction_factor_iff in Hk₁.
-apply reduction_factor_iff.
+apply shrink_factor_iff in Hk₁.
+apply shrink_factor_iff.
 rewrite first_nonzero_stretch.
 rewrite Nbar.mul_comm.
 remember (first_nonzero fld s) as n eqn:Hn .
@@ -1323,8 +1323,8 @@ remember (first_nonzero fld (nz_terms nz)) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
- rewrite reduction_factor_pad.
- rewrite reduction_factor_stretch.
+ rewrite shrink_factor_pad.
+ rewrite shrink_factor_stretch.
  simpl.
  rewrite Nat2Z.inj_add.
  rewrite Nat2Z.inj_mul.
@@ -3330,7 +3330,7 @@ constructor; simpl.
  rewrite nz_add_0_r.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
- rewrite reduction_factor_pad.
+ rewrite shrink_factor_pad.
  do 2 f_equal.
  rewrite Z2Nat_id_max, Z.min_comm.
  destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
@@ -3346,11 +3346,11 @@ constructor; simpl.
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
  rewrite nz_add_0_r.
- rewrite reduction_factor_pad.
+ rewrite shrink_factor_pad.
  reflexivity.
 
  rewrite nz_add_0_r.
- rewrite reduction_factor_pad.
+ rewrite shrink_factor_pad.
  rewrite normalise_series_add_pad.
  reflexivity.
 Qed.
@@ -3404,11 +3404,11 @@ symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
   inversion_clear Heq; simpl in *.
-  remember (reduction_factor fld (nz_terms nz₁)) as k₁ eqn:Hk₁ .
-  remember (reduction_factor fld (nz_terms nz₂)) as k₂ eqn:Hk₂ .
+  remember (shrink_factor fld (nz_terms nz₁)) as k₁ eqn:Hk₁ .
+  remember (shrink_factor fld (nz_terms nz₂)) as k₂ eqn:Hk₂ .
   symmetry in Hk₁, Hk₂.
-  apply reduction_factor_iff in Hk₁.
-  apply reduction_factor_iff in Hk₂.
+  apply shrink_factor_iff in Hk₁.
+  apply shrink_factor_iff in Hk₂.
   rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
@@ -3419,19 +3419,19 @@ destruct n₁ as [n₁| ].
   symmetry in Hn₁₃, Hn₂₃.
   simpl in Hn₁₃, Hn₂₃.
   simpl.
-  remember (reduction_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃ eqn:Hk₁₃ .
-  remember (reduction_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃ eqn:Hk₂₃ .
+  remember (shrink_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃ eqn:Hk₁₃ .
+  remember (shrink_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃ eqn:Hk₂₃ .
   symmetry in Hk₁₃, Hk₂₃.
   destruct n₁₃ as [n₁₃| ].
    destruct n₂₃ as [n₂₃| ].
     destruct k₁₃ as [k₁₃| ].
-     apply reduction_factor_iff in Hk₁₃.
+     apply shrink_factor_iff in Hk₁₃.
      rewrite Hn₁₃ in Hk₁₃.
      destruct Hk₁₃ as (Hk, _).
      exfalso; apply Hk; reflexivity.
 
      destruct k₂₃ as [k₂₃| ].
-      apply reduction_factor_iff in Hk₂₃.
+      apply shrink_factor_iff in Hk₂₃.
       rewrite Hn₂₃ in Hk₂₃.
       destruct Hk₂₃ as (Hk, _).
       exfalso; apply Hk; reflexivity.
@@ -3451,13 +3451,13 @@ bbb.
     constructor; simpl.
      Focus 1.
      unfold cm_factor; simpl.
-     remember (reduction_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
-     remember (reduction_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃.
+     remember (shrink_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
+     remember (shrink_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃.
      rename Heqk₁₃ into Hk₁₃.
      rename Heqk₂₃ into Hk₂₃.
      symmetry in Hk₁₃, Hk₂₃.
-     apply reduction_factor_iff in Hk₁₃.
-     apply reduction_factor_iff in Hk₂₃.
+     apply shrink_factor_iff in Hk₁₃.
+     apply shrink_factor_iff in Hk₂₃.
      rewrite Hn₁₃ in Hk₁₃.
      rewrite Hn₂₃ in Hk₂₃.
      destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
