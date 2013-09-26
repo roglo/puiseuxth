@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.712 2013-09-26 14:07:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.713 2013-09-26 14:26:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -295,7 +295,7 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (shrink_factor fld)
-with signature (eq_series fld) ==> eq as stretching_morph.
+with signature (eq_series fld) ==> eq as shrinking_morph.
 Proof.
 intros s₁ s₂ Heq.
 remember (shrink_factor fld s₁) as k₁ eqn:Hk₁ .
