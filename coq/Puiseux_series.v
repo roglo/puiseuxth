@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.715 2013-09-26 16:39:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.716 2013-09-26 17:05:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1323,6 +1323,30 @@ rewrite Nbar.mul_comm.
 remember (first_nonzero fld s) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ simpl | subst; reflexivity ].
+destruct Hk₁ as [Hk₁| Hk₁].
+ left.
+ unfold is_shrink_factor.
+ unfold is_shrink_factor in Hk₁.
+ destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+ split.
+  destruct k₁ as [| k₁].
+   apply Nat.lt_asymm in Hk₁.
+   exfalso; apply Hk₁, Nat.lt_0_1.
+
+   remember (Pos.to_nat k) as kn.
+   symmetry in Heqkn.
+   destruct kn.
+    exfalso; revert Heqkn; apply Pos2Nat_ne_0.
+
+    destruct k₁ as [| k₁].
+     exfalso; revert Hk₁; apply Nat.lt_irrefl.
+
+     simpl.
+     rewrite Nat.add_comm; simpl.
+     apply -> Nat.succ_lt_mono.
+     apply Nat.lt_0_succ.
+bbb.
+
 destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
 split.
  apply Nat.neq_mul_0; split; [ assumption | apply Pos2Nat_ne_0 ].
