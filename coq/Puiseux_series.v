@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.722 2013-09-27 14:25:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.723 2013-09-27 19:04:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,39 +11,11 @@ Require Import Nbar.
 
 Set Implicit Arguments.
 
-(* [first_nonzero fld s] return the position of the first non null
-   coefficient in the series [s]. *)
-Definition first_nonzero : ∀ α, field α → series α → Nbar.
+(* [first_nonzero fld s n] return the position of the first non null
+   coefficient in the series [s], starting from the [n]th one (first
+   one being 0). *)
+Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
 Admitted.
-
-(*
-Definition is_zero : ∀ α, field α → α → bool.
-Admitted.
-
-Definition stretching_factor_fin α (fld : field α) n s :=
-  let fix loop_i cnt i k :=
-    match cnt with
-    | O => true
-    | S cnt' =>
-        if zerop (i mod k) then loop_i cnt' (S i) k
-        else if is_zero fld (series_nth_fld fld i s) then loop_i cnt' (S i) k
-        else false
-    end
-  in
-  let fix loop_k cnt k :=
-    match cnt with
-    | O => 1%nat
-    | S cnt' => if loop_i n O k then k else loop_k cnt' k
-    end
- in
- loop_k n 2.
-
-Definition stretching_factor α fld s :=
-  match stop s with
-  | fin n => stretching_factor_fin fld n s
-  | inf => stretching_factor_inf fld s
-  end.
-*)
 
 Definition stretching_factor : ∀ α, field α → series α → nat.
 Admitted.
@@ -55,15 +27,17 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "x ≤ y < z" :=
+  (x <= y ∧ y < z)%nat (at level 70, y at next level) : nat_scope.
 
-Axiom first_nonzero_iff : ∀ s n,
-  first_nonzero fld s = n
+Axiom first_nonzero_iff : ∀ s c n,
+  first_nonzero fld s c = n
   ↔ match n with
     | fin k =>
-        (∀ i, (i < k)%nat → series_nth_fld fld i s ≍ zero fld) ∧
-        series_nth_fld fld k s ≭ zero fld
-    | inf =>
-        (∀ i, series_nth_fld fld i s ≍ zero fld)
+        (∀ i, (i < k)%nat → series_nth_fld fld (c + i) s ≍ zero fld) ∧
+        series_nth_fld fld (c + k) s ≭ zero fld
+    | ∞ =>
+        (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
     end.
 
 Definition is_stretching_factor s n k :=
@@ -74,12 +48,12 @@ Definition is_stretching_factor s n k :=
 
 Axiom stretching_factor_iff : ∀ s k,
   stretching_factor fld s = k
-  ↔ match first_nonzero fld s with
+  ↔ match first_nonzero fld s 1 with
     | fin n =>
-        is_stretching_factor s n k ∨
-        (k = 1%nat ∧ ∀ k', not (is_stretching_factor s n k'))
+        is_stretching_factor s (1 + n) k ∨
+        (k = 1%nat ∧ ∀ k', not (is_stretching_factor s (1 + n) k'))
     | ∞ =>
-        k = O
+        k = 1%nat
     end.
 
 Definition stretch_series k s :=
@@ -115,7 +89,7 @@ Definition normalise_series n k (s : series α) :=
   end.
 
 Definition normalise_nz nz :=
-  match first_nonzero fld (nz_terms nz) with
+  match first_nonzero fld (nz_terms nz) 0 with
   | fin n =>
       let k := stretching_factor fld (nz_terms nz) in
       NonZero
@@ -267,11 +241,11 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
-with signature (eq_series fld) ==> eq as first_nonzero_morph.
+with signature (eq_series fld) ==> eq ==> eq as first_nonzero_morph.
 Proof.
-intros s₁ s₂ Heq.
-remember (first_nonzero fld s₁) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s₂) as n₂ eqn:Hn₂ .
+intros s₁ s₂ Heq n.
+remember (first_nonzero fld s₁ n) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s₂ n) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 apply first_nonzero_iff in Hn₁.
 apply first_nonzero_iff in Hn₂.
@@ -307,7 +281,7 @@ remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
 apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff in Hk₂.
-remember (first_nonzero fld s₁) as n eqn:Hn .
+remember (first_nonzero fld s₁ 1) as n eqn:Hn .
 rewrite Heq in Hn.
 rewrite <- Hn in Hk₂.
 symmetry in Hn.
