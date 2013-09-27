@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.719 2013-09-27 13:30:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.720 2013-09-27 14:06:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1348,9 +1348,36 @@ destruct Hk₁ as [Hk₁| Hk₁].
 
   split.
    intros i Him.
-   rewrite padded_in_stretched; [ reflexivity | idtac ].
-   rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+    apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+    destruct H₁ as (c, H₁).
+    rewrite H₁.
+    rewrite Nat.mul_comm.
+    rewrite <- Nat.mul_add_distr_l.
+    rewrite series_nth_fld_mul_stretch.
+    apply Hik₁.
+    intros H.
+    apply Nat.mod_divides in H.
+     destruct H as (d, H).
+     rewrite H in H₁.
+     rewrite H₁ in Him.
+     rewrite Nat.mul_assoc in Him.
+     rewrite Nat.mul_comm, Nat.mul_assoc in Him.
+     rewrite Nat.mul_shuffle0, <- Nat.mul_assoc in Him.
+     rewrite Nat.mod_mul in Him.
+      apply Him; reflexivity.
+
+      clear H; intros H.
+      apply Nat.mul_eq_0 in H.
+      destruct H as [H| H]; [ idtac | revert H; apply Pos2Nat_ne_0 ].
+      rewrite H in Hk₁.
+      apply Nat.nlt_ge in Hk₁.
+      exfalso; apply Hk₁; apply Nat.lt_0_succ.
+
+     clear H; intros H.
+     rewrite H in Hk₁.
+     apply Nat.nlt_ge in Hk₁.
+     exfalso; apply Hk₁; apply Nat.lt_0_succ.
 bbb.
 
 destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
