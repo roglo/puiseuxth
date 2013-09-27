@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.721 2013-09-27 14:23:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.722 2013-09-27 14:25:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -69,8 +69,8 @@ Axiom first_nonzero_iff : ∀ s n,
 Definition is_stretching_factor s n k :=
   (k > 1)%nat ∧
   (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-  (∀ k₁, (1 < k₁ < k)%nat →
-     ∃ i, i mod k₁ ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
+  (∀ k', (1 < k' < k)%nat →
+     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
 
 Axiom stretching_factor_iff : ∀ s k,
   stretching_factor fld s = k
