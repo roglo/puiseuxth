@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.723 2013-09-27 19:04:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.724 2013-09-27 21:11:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -831,8 +831,8 @@ induction H₁.
 
   constructor.
   unfold normalise_nz in H.
-  remember (first_nonzero fld (nz_terms nz₁)) as n₁ eqn:Hn₁ .
-  remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
+  remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+  remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
   symmetry in Hn₁, Hn₂.
   destruct n₁ as [n₁| ].
    destruct n₂ as [n₂| ]; [ idtac | inversion H ].
@@ -853,7 +853,7 @@ induction H₁.
   constructor.
   unfold normalise_nz.
   rewrite H, H0.
-  remember (first_nonzero fld (series_0 fld)) as n eqn:Hn .
+  remember (first_nonzero fld (series_0 fld) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
   apply first_nonzero_iff in Hn.
@@ -867,8 +867,8 @@ induction H₁.
  inversion H₂; constructor; subst.
  unfold normalise_nz in H1.
  rename nz into nz₁.
- remember (first_nonzero fld (nz_terms nz₁)) as n₁ eqn:Hn₁ .
- remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
+ remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+ remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
  symmetry in Hn₁, Hn₂.
  destruct n₁ as [n₁| ].
   rewrite H in Hn₁.
@@ -930,11 +930,12 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | Zero => zero fld
   end.
 
-Theorem lt_first_nonzero : ∀ s n,
-  (fin n < first_nonzero fld s)%Nbar → series_nth_fld fld n s ≍ zero fld.
+Theorem lt_first_nonzero : ∀ s c n,
+  (fin n < first_nonzero fld s c)%Nbar
+  → series_nth_fld fld (c + n) s ≍ zero fld.
 Proof.
-intros s n Hn.
-remember (first_nonzero fld s) as v eqn:Hv .
+intros s c n Hn.
+remember (first_nonzero fld s c) as v eqn:Hv .
 symmetry in Hv.
 apply first_nonzero_iff in Hv.
 destruct v as [v| ]; [ idtac | apply Hv ].
@@ -942,10 +943,11 @@ destruct Hv as (Hvz, Hvnz).
 apply Hvz, Nbar.fin_lt_mono; assumption.
 Qed.
 
-Theorem eq_first_nonzero : ∀ s n,
-  first_nonzero fld s = fin n → ¬ (series_nth_fld fld n s ≍ zero fld).
+Theorem eq_first_nonzero : ∀ s c n,
+  first_nonzero fld s c = fin n
+  → series_nth_fld fld (c + n) s ≭ zero fld.
 Proof.
-intros s n Hn.
+intros s c n Hn.
 apply first_nonzero_iff in Hn.
 destruct Hn; assumption.
 Qed.
@@ -991,13 +993,13 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
   reflexivity.
 Qed.
 
-Lemma first_nonzero_pad_S : ∀ s n,
-  first_nonzero fld (series_pad_left fld (S n) s) =
-  NS (first_nonzero fld (series_pad_left fld n s)).
+Lemma first_nonzero_pad_S : ∀ s c n,
+  first_nonzero fld (series_pad_left fld (S n) s) c =
+  NS (first_nonzero fld (series_pad_left fld n s) c).
 Proof.
-intros s n.
-remember (first_nonzero fld (series_pad_left fld n s)) as u eqn:Hu .
-remember (first_nonzero fld (series_pad_left fld (S n) s)) as v eqn:Hv .
+intros s c n.
+remember (first_nonzero fld (series_pad_left fld n s) c) as u eqn:Hu .
+remember (first_nonzero fld (series_pad_left fld (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
 apply first_nonzero_iff in Hu.
 apply first_nonzero_iff in Hv.
@@ -1007,14 +1009,19 @@ destruct u as [u| ].
   destruct Hv as (Hiv, Hv).
   apply Nbar.fin_inj_wd.
   rewrite series_nth_pad_S in Hu.
+bbb.
   destruct (lt_dec (S u) v) as [Hlt₁| Hge₁].
+   rewrite <- Nat.add_succ_r in Hu.
    rewrite Hiv in Hu; [ negation Hu | assumption ].
 
    apply Nat.nlt_ge in Hge₁.
    destruct v.
     unfold series_nth_fld in Hv; simpl in Hv.
     exfalso.
-    destruct (Nbar.lt_dec 0 (stop s + fin (S n))); apply Hv; reflexivity.
+    destruct (Nbar.lt_dec (fin c) (stop s + fin (S n))) as [H₁| H₁].
+     destruct (lt_dec c (S n)) as [H₂| H₂].
+      apply Hv; reflexivity.
+bbb.
 
     destruct (lt_dec v u) as [Hlt₂| Hge₂].
      apply Hiu in Hlt₂.
