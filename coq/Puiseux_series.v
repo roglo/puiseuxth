@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.730 2013-09-28 18:27:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.731 2013-09-28 23:47:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1793,6 +1793,7 @@ Lemma first_nonzero_nonzero_fin : ∀ s n,
   → series_nth_fld fld 0 s ≍ zero fld.
 Proof.
 intros s n Hn.
+replace 0%nat with (0 + 0)%nat by reflexivity.
 apply lt_first_nonzero.
 rewrite Hn.
 constructor; apply lt_0_Sn.
@@ -1868,7 +1869,7 @@ Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
-remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃))) as n
+remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) 0) as n
  eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
@@ -3358,7 +3359,7 @@ intros s₁ s₂ Heq v c.
 constructor.
 unfold normalise_nz; simpl.
 rewrite <- Heq.
-remember (first_nonzero fld s₁) as n eqn:Hn .
+remember (first_nonzero fld s₁ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl; rewrite Heq; reflexivity.
@@ -3505,7 +3506,7 @@ intros nz.
 unfold normalise_nz; simpl.
 rewrite nz_add_0_r.
 rewrite first_nonzero_pad.
-remember (first_nonzero fld (nz_terms nz)) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 rewrite Nbar.add_comm.
 destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
