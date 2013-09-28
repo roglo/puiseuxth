@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.728 2013-09-28 14:06:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.729 2013-09-28 16:17:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1074,6 +1074,30 @@ induction n.
  destruct (first_nonzero fld s); reflexivity.
 Qed.
 
+Theorem first_nonzero_pad_from_1 : ∀ s n,
+  (0 < first_nonzero fld s 1)%Nbar
+  → first_nonzero fld (series_pad_left fld n s) 1 =
+      (fin n + first_nonzero fld s 1)%Nbar.
+Proof.
+intros s n Hnz.
+induction n.
+ rewrite series_pad_left_0, Nbar.add_0_l; reflexivity.
+
+ destruct (le_dec 1 n) as [H₁| H₁].
+  rewrite first_nonzero_pad_S; [ idtac | assumption ].
+  rewrite IHn; simpl.
+  destruct (first_nonzero fld s); reflexivity.
+
+  apply Nat.nle_gt in H₁.
+  apply Nat.lt_1_r in H₁; subst n.
+  simpl in IHn |- *.
+  remember (first_nonzero fld s 1) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m as [m| ].
+   destruct m as [| m]; [ exfalso; revert Hnz; apply Nbar.lt_irrefl | idtac ].
+   clear Hnz.
+bbb.
+
 Lemma padded_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
   → series_nth_fld fld i (stretch_series fld k s) = zero fld.
@@ -1213,9 +1237,10 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
 Qed.
 
 Lemma stretching_factor_pad : ∀ n s,
-  stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
+  series_nth_fld fld 0 s ≭ zero fld
+  → stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
-intros n s.
+intros n s Hns.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
