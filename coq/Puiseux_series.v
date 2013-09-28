@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.725 2013-09-28 03:47:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.726 2013-09-28 05:12:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1062,11 +1062,32 @@ destruct u as [u| ].
 Qed.
 
 Theorem first_nonzero_pad : ∀ s c n,
-  first_nonzero fld (series_pad_left fld n s) c =
-    (fin n + first_nonzero fld s c)%Nbar.
+  c ≤ n
+  → first_nonzero fld (series_pad_left fld n s) c =
+      (fin (n - c) + first_nonzero fld s 0)%Nbar.
 Proof.
-intros s c n.
-induction n.
+intros s c n Hcn.
+revert c Hcn.
+induction n; intros.
+ apply Nat.le_0_r in Hcn; subst c.
+ rewrite series_pad_left_0, Nbar.add_0_l; reflexivity.
+
+ destruct c.
+  rewrite Nat.sub_0_r.
+  rewrite first_nonzero_pad_S; [ idtac | apply Nat.le_0_l ].
+  rewrite IHn; [ idtac | apply Nat.le_0_l ].
+  rewrite Nat.sub_0_r.
+  simpl.
+  destruct (first_nonzero fld s 0); reflexivity.
+
+  apply Nat.succ_le_mono in Hcn.
+  rewrite Nat.sub_succ.
+  rewrite <- IHn; [ idtac | assumption ].
+bbb.
+
+intros s c n Hcn.
+revert c Hcn.
+induction n; intros.
  rewrite series_pad_left_0, Nbar.add_0_l; reflexivity.
 
  rewrite first_nonzero_pad_S.
