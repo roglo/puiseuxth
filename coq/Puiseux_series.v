@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.724 2013-09-27 21:11:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.725 2013-09-28 03:47:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -994,10 +994,11 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
 Qed.
 
 Lemma first_nonzero_pad_S : ∀ s c n,
-  first_nonzero fld (series_pad_left fld (S n) s) c =
-  NS (first_nonzero fld (series_pad_left fld n s) c).
+  (c ≤ n)%nat
+  → first_nonzero fld (series_pad_left fld (S n) s) c =
+    NS (first_nonzero fld (series_pad_left fld n s) c).
 Proof.
-intros s c n.
+intros s c n Hcn.
 remember (first_nonzero fld (series_pad_left fld n s) c) as u eqn:Hu .
 remember (first_nonzero fld (series_pad_left fld (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
@@ -1009,7 +1010,6 @@ destruct u as [u| ].
   destruct Hv as (Hiv, Hv).
   apply Nbar.fin_inj_wd.
   rewrite series_nth_pad_S in Hu.
-bbb.
   destruct (lt_dec (S u) v) as [Hlt₁| Hge₁].
    rewrite <- Nat.add_succ_r in Hu.
    rewrite Hiv in Hu; [ negation Hu | assumption ].
@@ -1017,14 +1017,20 @@ bbb.
    apply Nat.nlt_ge in Hge₁.
    destruct v.
     unfold series_nth_fld in Hv; simpl in Hv.
+    rewrite Nat.add_0_r in Hv.
     exfalso.
     destruct (Nbar.lt_dec (fin c) (stop s + fin (S n))) as [H₁| H₁].
      destruct (lt_dec c (S n)) as [H₂| H₂].
       apply Hv; reflexivity.
-bbb.
+
+      apply H₂.
+      apply -> Nat.succ_le_mono; assumption.
+
+     apply Hv; reflexivity.
 
     destruct (lt_dec v u) as [Hlt₂| Hge₂].
      apply Hiu in Hlt₂.
+     rewrite Nat.add_succ_r in Hv.
      rewrite <- series_nth_pad_S in Hv; contradiction.
 
      apply Nat.nlt_ge in Hge₂.
@@ -1032,24 +1038,34 @@ bbb.
      apply Nat.succ_le_mono in Hge₂; assumption.
 
   rewrite series_nth_pad_S in Hu.
+  rewrite <- Nat.add_succ_r in Hu.
   exfalso; apply Hu, Hv.
 
  destruct v as [v| ]; [ idtac | reflexivity ].
  destruct Hv as (Hiv, Hv).
  destruct v.
   unfold series_nth_fld in Hv; simpl in Hv.
+  rewrite Nat.add_0_r in Hv.
   exfalso.
-  destruct (Nbar.lt_dec 0 (stop s + fin (S n))); apply Hv; reflexivity.
+  destruct (Nbar.lt_dec (fin c) (stop s + fin (S n))) as [H₁| H₁].
+   destruct (lt_dec c (S n)) as [H₂| H₂].
+    apply Hv; reflexivity.
 
+    apply H₂.
+    apply -> Nat.succ_le_mono; assumption.
+
+   apply Hv; reflexivity.
+
+  rewrite Nat.add_succ_r in Hv.
   rewrite <- series_nth_pad_S in Hv.
   exfalso; apply Hv, Hu.
 Qed.
 
-Theorem first_nonzero_pad : ∀ s n,
-  first_nonzero fld (series_pad_left fld n s) =
-    (fin n + first_nonzero fld s)%Nbar.
+Theorem first_nonzero_pad : ∀ s c n,
+  first_nonzero fld (series_pad_left fld n s) c =
+    (fin n + first_nonzero fld s c)%Nbar.
 Proof.
-intros s n.
+intros s c n.
 induction n.
  rewrite series_pad_left_0, Nbar.add_0_l; reflexivity.
 
