@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.729 2013-09-28 16:17:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.730 2013-09-28 18:27:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1074,6 +1074,7 @@ induction n.
  destruct (first_nonzero fld s); reflexivity.
 Qed.
 
+(* à voir...
 Theorem first_nonzero_pad_from_1 : ∀ s n,
   (0 < first_nonzero fld s 1)%Nbar
   → first_nonzero fld (series_pad_left fld n s) 1 =
@@ -1097,6 +1098,7 @@ induction n.
    destruct m as [| m]; [ exfalso; revert Hnz; apply Nbar.lt_irrefl | idtac ].
    clear Hnz.
 bbb.
+*)
 
 Lemma padded_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
@@ -1236,6 +1238,7 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
+(* à voir...
 Lemma stretching_factor_pad : ∀ n s,
   series_nth_fld fld 0 s ≭ zero fld
   → stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
@@ -1329,7 +1332,9 @@ destruct Hk₁ as [Hk₁| Hk₁].
 
   destruct Hk₁, Hk₂; subst; reflexivity.
 Qed.
+*)
 
+(* à voir...
 Lemma stretching_factor_stretch : ∀ k s,
   stretching_factor fld (stretch_series fld k s) =
   (stretching_factor fld s * Pos.to_nat k)%nat.
@@ -1497,10 +1502,11 @@ unfold normalise_nz; simpl.
 rewrite first_nonzero_pad.
 rewrite first_nonzero_stretch.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (first_nonzero fld (nz_terms nz)) as m eqn:Hm .
+remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
+Abort. (*
  rewrite stretching_factor_pad.
  rewrite stretching_factor_stretch.
  simpl.
@@ -1699,7 +1705,7 @@ Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_comm.
-remember (first_nonzero fld (nz_terms_add nz₂ nz₁)) as n eqn:Hn .
+remember (first_nonzero fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
@@ -1783,7 +1789,7 @@ destruct (lt_dec i n) as [Hlt| Hge].
 Qed.
 
 Lemma first_nonzero_nonzero_fin : ∀ s n,
-  first_nonzero fld s = fin (S n)
+  first_nonzero fld s 0 = fin (S n)
   → series_nth_fld fld 0 s ≍ zero fld.
 Proof.
 intros s n Hn.
