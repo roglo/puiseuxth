@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.727 2013-09-28 10:39:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.728 2013-09-28 14:06:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1143,12 +1143,12 @@ assumption.
 Qed.
 
 Theorem first_nonzero_stretch : ∀ k s,
-  first_nonzero fld (stretch_series fld k s) =
-    (fin (Pos.to_nat k) * first_nonzero fld s)%Nbar.
+  first_nonzero fld (stretch_series fld k s) 0 =
+    (fin (Pos.to_nat k) * first_nonzero fld s 0)%Nbar.
 Proof.
 intros k s.
-remember (first_nonzero fld (stretch_series fld k s)) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s) as n₂ eqn:Hn₂ .
+remember (first_nonzero fld (stretch_series fld k s) 0) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld s 0) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 apply first_nonzero_iff in Hn₁.
 apply first_nonzero_iff in Hn₂.
@@ -1167,7 +1167,7 @@ destruct n₁ as [n₁| ].
     apply Nat.le_0_r in Hge₁.
     apply Nat.mod_divides in Hge₁; [ idtac | apply Pos2Nat_ne_0 ].
     destruct Hge₁ as (c, Hn).
-    rewrite Hn.
+    simpl; rewrite Hn.
     rewrite series_nth_fld_mul_stretch.
     apply Hiz₂; subst n₁.
     apply Nat.mul_lt_mono_pos_l in Hlt; [ assumption | apply Pos2Nat.is_pos ].
