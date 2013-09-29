@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.731 2013-09-28 23:47:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.732 2013-09-29 00:36:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1074,13 +1074,46 @@ induction n.
  destruct (first_nonzero fld s); reflexivity.
 Qed.
 
-(* à voir...
-Theorem first_nonzero_pad_from_1 : ∀ s n,
-  (0 < first_nonzero fld s 1)%Nbar
+Lemma xxx : ∀ s,
+  series_nth_fld fld 0 s ≍ zero fld
+  → NS (first_nonzero fld s 1) = first_nonzero fld s 0.
+Proof.
+intros s Hz.
+remember (first_nonzero fld s 1) as n eqn:Hn .
+remember (first_nonzero fld s 0) as p eqn:Hp .
+symmetry in Hn, Hp.
+apply first_nonzero_iff in Hn.
+apply first_nonzero_iff in Hp.
+destruct n as [n| ].
+ destruct Hn as (Hin, Hn).
+ destruct p as [p| ]; simpl.
+  destruct Hp as (Hip, Hp).
+  apply Nbar.fin_inj_wd.
+  simpl in Hin, Hn, Hp, Hip.
+  destruct (lt_eq_lt_dec (S n) p) as [[H₁| H₁]| H₁].
+   rewrite Hip in Hn; [ exfalso; apply Hn; reflexivity | assumption ].
+
+   assumption.
+
+   destruct (eq_nat_dec n p) as [H₂| H₂].
+    subst p.
+    destruct n as [| n].
+     rewrite Hz in Hp; exfalso; apply Hp; reflexivity.
+
+     rewrite Hin in Hp; [ idtac | apply Nat.lt_succ_diag_r ].
+     exfalso; apply Hp; reflexivity.
+
+    assert (p < n)%nat as H₃ by omega.
+    destruct p as [| p].
+     rewrite Hz in Hp; exfalso; apply Hp; reflexivity.
+bbb.
+
+Theorem first_nonzero_1_pad : ∀ s n,
+  series_nth_fld fld 0 s ≍ zero fld
   → first_nonzero fld (series_pad_left fld n s) 1 =
       (fin n + first_nonzero fld s 1)%Nbar.
 Proof.
-intros s n Hnz.
+intros s n Hz.
 induction n.
  rewrite series_pad_left_0, Nbar.add_0_l; reflexivity.
 
@@ -1095,8 +1128,6 @@ induction n.
   remember (first_nonzero fld s 1) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
-   destruct m as [| m]; [ exfalso; revert Hnz; apply Nbar.lt_irrefl | idtac ].
-   clear Hnz.
 bbb.
 *)
 
@@ -1238,12 +1269,10 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
-(* à voir...
 Lemma stretching_factor_pad : ∀ n s,
-  series_nth_fld fld 0 s ≭ zero fld
-  → stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
+  stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
-intros n s Hns.
+intros n s.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
@@ -1251,7 +1280,7 @@ apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff in Hk₂.
 rewrite first_nonzero_pad in Hk₂.
 rewrite Nbar.add_comm in Hk₂.
-remember (first_nonzero fld s) as m eqn:Hm .
+remember (first_nonzero fld s 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl in Hk₂; [ idtac | subst; reflexivity ].
 destruct Hk₁ as [Hk₁| Hk₁].
