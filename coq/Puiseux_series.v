@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.737 2013-09-29 10:16:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.738 2013-09-29 13:27:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1291,6 +1291,36 @@ destruct m as [| m]; simpl.
    apply (Hns k').
    eapply is_stretching_morph; [ idtac | eassumption ].
    rewrite series_pad_left_0; reflexivity.
+
+  remember (first_nonzero fld s 1) as k₁ eqn:Hk₁ .
+  symmetry in Hk₁.
+  destruct k₁ as [k₁| ].
+   destruct Hk as [Hk| Hk].
+    left.
+    unfold is_stretching_factor in Hk |- *.
+    destruct Hk as (Hk, (Hms, Hex)).
+    split; [ assumption | idtac ].
+    split.
+     intros i Him.
+     simpl in Hms.
+     rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm.
+     rewrite series_nth_add_pad.
+     apply Hms; assumption.
+
+     intros k' H.
+     apply Hex in H.
+     destruct H as (i, (Him, Hns)).
+     exists i.
+     split; [ assumption | idtac ].
+     rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm.
+     rewrite series_nth_add_pad.
+     assumption.
+
+    right.
+    destruct Hk as (Hk, Hns).
+    split; [ assumption | idtac ].
+    intros k' Hs.
+    apply (Hns k').
 
 bbb.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
