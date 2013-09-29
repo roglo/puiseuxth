@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.743 2013-09-29 17:53:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.744 2013-09-29 22:32:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1245,6 +1245,32 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
+Lemma first_nonzero_pad_add : ∀ s m n,
+  first_nonzero fld (series_pad_left fld m s) (m + n) = first_nonzero fld s n.
+Proof.
+intros s m n.
+remember (first_nonzero fld s n) as v eqn:Hv .
+symmetry in Hv.
+apply first_nonzero_iff in Hv.
+apply first_nonzero_iff.
+destruct v as [v| ].
+ destruct Hv as (Hltz, Hnz).
+ split.
+  intros i Hiv.
+  rewrite <- Nat.add_assoc, Nat.add_comm.
+  rewrite series_nth_add_pad.
+  apply Hltz; assumption.
+
+  rewrite <- Nat.add_assoc, Nat.add_comm.
+  rewrite series_nth_add_pad.
+  assumption.
+
+ intros i.
+ rewrite <- Nat.add_assoc, Nat.add_comm.
+ rewrite series_nth_add_pad.
+ apply Hv.
+Qed.
+
 Lemma stretching_factor_pad : ∀ n s,
   stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
@@ -1258,170 +1284,53 @@ rewrite Nbar.add_comm.
 remember (first_nonzero fld s 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ simpl | assumption ].
-bbb.
+rewrite <- Nat.add_succ_l, Nat.add_comm.
+rewrite first_nonzero_pad_add.
+remember (first_nonzero fld s (S m)) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ]; [ idtac | assumption ].
+destruct Hk as [Hk| Hk].
+ left.
+ unfold is_stretching_factor in Hk |- *.
+ destruct Hk as (Hk, (Him, Hrng)).
+ split; [ assumption | idtac ].
+ split.
+  intros i Hik.
+  rewrite <- Nat.add_assoc, Nat.add_comm.
+  rewrite series_nth_add_pad.
+  apply Him; assumption.
 
-destruct m as [| m]; simpl.
- destruct n as [| n].
-  remember (first_nonzero fld (series_pad_left fld 0 s) 1) as x.
-  rewrite series_pad_left_0 in Heqx; subst x.
-  remember (first_nonzero fld s 1) as k₁ eqn:Hk₁ .
-  symmetry in Hk₁.
-  destruct k₁ as [k₁| ]; [ idtac | assumption ].
-  destruct Hk as [Hk| Hk].
-   left.
-   eapply is_stretching_morph; [ idtac | eassumption ].
-   rewrite series_pad_left_0; reflexivity.
-
-   right.
-   destruct Hk as (Hk, Hns).
-   split; [ assumption | idtac ].
-   intros k' H.
-   apply (Hns k').
-   eapply is_stretching_morph; [ idtac | eassumption ].
-   rewrite series_pad_left_0; reflexivity.
-
-  remember (first_nonzero fld s 1) as k₁ eqn:Hk₁ .
-  symmetry in Hk₁.
-  destruct k₁ as [k₁| ].
-   destruct Hk as [Hk| Hk].
-    left.
-    unfold is_stretching_factor in Hk |- *.
-    destruct Hk as (Hk, (Hms, Hex)).
-    split; [ assumption | idtac ].
-    split.
-     intros i Him.
-     simpl in Hms.
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm.
-     rewrite series_nth_add_pad.
-     apply Hms; assumption.
-
-     intros k' H.
-     apply Hex in H.
-     destruct H as (i, (Him, Hns)).
-     exists i.
-     split; [ assumption | idtac ].
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm.
-     rewrite series_nth_add_pad.
-     assumption.
-
-    right.
-    destruct Hk as (Hk, Hns).
-    split; [ assumption | idtac ].
-    intros k' Hs.
-    apply (Hns k').
-    unfold is_stretching_factor in Hs |- *.
-    destruct Hs as (Hs, (Hms, Hex)).
-    split; [ assumption | idtac ].
-    split.
-     intros i Him.
-     apply Hms in Him.
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm in Him.
-     rewrite series_nth_add_pad in Him.
-     assumption.
-
-     intros k'' Hrng.
-     apply Hex in Hrng.
-     destruct Hrng as (i, (Him, Hin)).
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm in Hin.
-     rewrite series_nth_add_pad in Hin.
-     exists i; split; assumption.
-
-   right.
-   split; [ assumption | idtac ].
-   intros k' Hsf.
-   unfold is_stretching_factor in Hsf.
-   destruct Hsf as (Hk', (Hmz, Hmn)).
-
-bbb.
-remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
-remember (stretching_factor fld (series_pad_left fld n s)) as k₂ eqn:Hk₂ .
-symmetry in Hk₁, Hk₂.
-apply stretching_factor_iff in Hk₁.
-apply stretching_factor_iff in Hk₂.
-rewrite first_nonzero_pad in Hk₂.
-rewrite Nbar.add_comm in Hk₂.
-remember (first_nonzero fld s 1) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; simpl in Hk₂; [ idtac | subst; reflexivity ].
-destruct Hk₁ as [Hk₁| Hk₁].
- destruct Hk₂ as [Hk₂| Hk₂].
-  unfold is_stretching_factor in Hk₁.
-  unfold is_stretching_factor in Hk₂.
-  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-  destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
-   assert (1 < k₁ < k₂)%nat as H₂.
-    split; assumption.
-
-    apply Hlt₂ in H₂.
-    destruct H₂ as (j, (Hjn, Hnj)).
-    exfalso; apply Hnj.
-    rewrite Nat.add_shuffle0.
-    rewrite series_nth_add_pad.
-    apply Hik₁; assumption.
-
-   symmetry; assumption.
-
-   assert (1 < k₂ < k₁)%nat as H₂.
-    split; assumption.
-
-    apply Hlt₁ in H₂.
-    destruct H₂ as (j, (Hjn, Hnj)).
-    exfalso; apply Hnj.
-    erewrite <- series_nth_add_pad.
-    rewrite Nat.add_shuffle0.
-    apply Hik₂; assumption.
-
-  destruct Hk₂ as (Hk₂, Hk').
-  subst k₂.
-  unfold is_stretching_factor in Hk₁.
-  pose proof (Hk' k₁) as Hk'₁.
-  exfalso; apply Hk'₁.
-  unfold is_stretching_factor.
-  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  intros k' Hrng'.
+  apply Hrng in Hrng'.
+  destruct Hrng' as (i, (Him', Hnz)).
+  exists i.
   split; [ assumption | idtac ].
-  split.
-   intros i Him.
-   rewrite Nat.add_shuffle0.
-   rewrite series_nth_add_pad.
-   apply Hik₁; assumption.
+  rewrite <- Nat.add_assoc, Nat.add_comm.
+  rewrite series_nth_add_pad.
+  assumption.
 
-   intros k₂ Hkk.
-   apply Hlt₁ in Hkk.
-   destruct Hkk as (i, (Hkk, Hss)).
-   exists i.
-   split; [ assumption | idtac ].
-   rewrite Nat.add_shuffle0.
-   rewrite series_nth_add_pad.
-   assumption.
+ right.
+ destruct Hk as (Hk, Hnsf).
+ split; [ assumption | idtac ].
+ intros k' H.
+ apply (Hnsf k').
+ unfold is_stretching_factor in H |- *.
+ destruct H as (Hk', (Hmk', Hrng')).
+ split; [ assumption | idtac ].
+ split.
+  intros i Him.
+  apply Hmk' in Him.
+  rewrite <- Nat.add_assoc, Nat.add_comm in Him.
+  rewrite series_nth_add_pad in Him.
+  assumption.
 
- destruct Hk₂ as [Hk₂| Hk₂].
-  destruct Hk₁ as (Hk₁, Hk').
-  subst k₁.
-  unfold is_stretching_factor in Hk₂.
-  pose proof (Hk' k₂) as Hk'₂.
-  exfalso; apply Hk'₂.
-  unfold is_stretching_factor.
-  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-  split; [ assumption | idtac ].
-  split.
-   intros i Him.
-   rewrite <- series_nth_add_pad.
-   rewrite Nat.add_shuffle0.
-   apply Hik₂; assumption.
-
-   intros k₁ Hkk.
-   apply Hlt₂ in Hkk.
-   destruct Hkk as (i, (Hkk, Hss)).
-   exists i.
-   split; [ assumption | idtac ].
-   rewrite <- series_nth_add_pad.
-   rewrite Nat.add_shuffle0.
-   eassumption.
-
-  destruct Hk₁, Hk₂; subst; reflexivity.
+  intros k'' Hrng.
+  apply Hrng' in Hrng.
+  destruct Hrng as (i, (Him, Hnz)).
+  rewrite <- Nat.add_assoc, Nat.add_comm in Hnz.
+  rewrite series_nth_add_pad in Hnz.
+  exists i; split; assumption.
 Qed.
-*)
 
 (* à voir...
 Lemma stretching_factor_stretch : ∀ k s,
@@ -3616,8 +3525,7 @@ constructor; simpl.
    rewrite Z.max_r; [ idtac | assumption ].
    reflexivity.
 
-bbb.
- rewrite stretching_factor_pad.
+  rewrite stretching_factor_pad; reflexivity.
 
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
@@ -3674,8 +3582,8 @@ Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 unfold normalise_nz in Heq; simpl in Heq.
-remember (first_nonzero fld (nz_terms nz₁)) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld (nz_terms nz₂)) as n₂ eqn:Hn₂ .
+remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
@@ -3687,6 +3595,7 @@ destruct n₁ as [n₁| ].
   apply stretching_factor_iff in Hk₂.
   rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
+bbb.
   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
   destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
   unfold normalise_nz.
