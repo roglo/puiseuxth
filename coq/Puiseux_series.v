@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.734 2013-09-29 09:14:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.735 2013-09-29 09:30:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -279,6 +279,27 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
+Lemma is_stretching_morph : ∀ α (fld : field α) s₁ s₂ n k,
+  eq_series fld s₁ s₂
+  → is_stretching_factor fld s₁ n k
+    → is_stretching_factor fld s₂ n k.
+Proof.
+intros α fld s₁ s₂ n k Heq Hsf.
+unfold is_stretching_factor in Hsf |- *.
+destruct Hsf as (Hk, (Him, Hex)).
+split; [ assumption | idtac ].
+split.
+ intros i Hi.
+ rewrite <- Heq.
+ apply Him; assumption.
+
+ intros k' Hrng.
+ apply Hex in Hrng.
+ destruct Hrng as (i, Hi).
+ rewrite Heq in Hi.
+ exists i; assumption.
+Qed.
+
 Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
 with signature (eq_series fld) ==> eq as stretching_morph.
 Proof.
@@ -294,125 +315,31 @@ rewrite Hn.
 remember (first_nonzero fld s₁ 1) as m eqn:Hm .
 symmetry in Hm.
 rewrite Heq in Hm; rewrite Hm.
-destruct n as [[| n]| ].
+destruct n as [[| n]| ]; [ idtac | idtac | assumption ].
  destruct m as [m| ]; [ idtac | assumption ].
  destruct Hk₁ as [Hk₁| Hk₁].
   left.
-  unfold is_stretching_factor in Hk₁ |- *.
-  destruct Hk₁ as (Hk₁, (Hik₁, Hex₁)).
-  split; [ assumption | idtac ].
-  split.
-   intros i Him.
-   rewrite <- Heq.
-   apply Hik₁; assumption.
+  eapply is_stretching_morph; eassumption.
 
-   intros k' Hik'r.
-   apply Hex₁ in Hik'r.
-   destruct Hik'r as (i, Him).
-   rewrite Heq in Him.
-   exists i; assumption.
-
-  destruct Hk₁ as (Hk₁, Hns₁).
   right.
+  destruct Hk₁ as (Hk₁, Hns₁).
   split; [ assumption | idtac ].
   intros k' H.
   apply (Hns₁ k').
-  unfold is_stretching_factor in H |- *.
-  destruct H as (Hk, (Hik, Hex)).
-  split; [ assumption | idtac ].
-  split.
-   intros i Him.
-   rewrite Heq.
-   apply Hik; assumption.
-
-   intros k'' Hrng.
-   apply Hex in Hrng.
-   destruct Hrng as (i, H).
-   rewrite <- Heq in H.
-   exists i; assumption.
+  symmetry in Heq.
+  eapply is_stretching_morph; eassumption.
 
  destruct Hk₁ as [Hk₁| Hk₁].
   left.
-  unfold is_stretching_factor in Hk₁ |- *.
-bbb.
+  eapply is_stretching_morph; eassumption.
 
-remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
-remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
-symmetry in Hk₁, Hk₂.
-apply stretching_factor_iff in Hk₁.
-apply stretching_factor_iff in Hk₂.
-remember (first_nonzero fld s₁ 1) as n eqn:Hn .
-rewrite Heq in Hn.
-rewrite <- Hn in Hk₂.
-symmetry in Hn.
-destruct n as [n| ]; [ idtac | subst; reflexivity ].
-destruct Hk₁ as [Hk₁| Hk₁].
- destruct Hk₂ as [Hk₂| Hk₂].
-  unfold is_stretching_factor in Hk₁.
-  unfold is_stretching_factor in Hk₂.
-  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-  destruct (lt_eq_lt_dec k₁ k₂) as [[H₁| H₁]| H₁].
-   assert (1 < k₁ < k₂)%nat as H₂.
-    split; assumption.
-
-    apply Hlt₂ in H₂.
-    destruct H₂ as (j, (Hjn, Hnj)).
-    exfalso; apply Hnj; rewrite <- Heq.
-    apply Hik₁; assumption.
-
-   assumption.
-
-   assert (1 < k₂ < k₁)%nat as H₂.
-    split; assumption.
-
-    apply Hlt₁ in H₂.
-    destruct H₂ as (j, (Hjn, Hnj)).
-    exfalso; apply Hnj; rewrite Heq.
-    apply Hik₂; assumption.
-
-  destruct Hk₂ as (Hk₂, Hk').
-  subst k₂.
-  unfold is_stretching_factor in Hk₁.
-  pose proof (Hk' k₁) as Hk'₁.
-  exfalso; apply Hk'₁.
-  unfold is_stretching_factor.
-  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+  right.
+  destruct Hk₁ as (Hk₁, Hns₁).
   split; [ assumption | idtac ].
-  split.
-   intros i Him.
-   rewrite <- Heq.
-   apply Hik₁; assumption.
-
-   intros k₂ Hkk.
-   apply Hlt₁ in Hkk.
-   destruct Hkk as (i, (Hkk, Hss)).
-   exists i.
-   split; [ assumption | idtac ].
-   rewrite <- Heq; assumption.
-
- destruct Hk₂ as [Hk₂| Hk₂].
-  destruct Hk₁ as (Hk₁, Hk').
-  subst k₁.
-  unfold is_stretching_factor in Hk₂.
-  pose proof (Hk' k₂) as Hk'₂.
-  exfalso; apply Hk'₂.
-  unfold is_stretching_factor.
-  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-  split; [ assumption | idtac ].
-  split.
-   intros i Him.
-   rewrite Heq.
-   apply Hik₂; assumption.
-
-   intros k₁ Hkk.
-   apply Hlt₂ in Hkk.
-   destruct Hkk as (i, (Hkk, Hss)).
-   exists i.
-   split; [ assumption | idtac ].
-   rewrite Heq; assumption.
-
-  destruct Hk₁, Hk₂; subst; reflexivity.
+  intros k' H.
+  apply (Hns₁ k').
+  symmetry in Heq.
+  eapply is_stretching_morph; eassumption.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
