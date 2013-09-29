@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.744 2013-09-29 22:32:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.745 2013-09-29 22:54:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3595,6 +3595,13 @@ destruct n₁ as [n₁| ].
   apply stretching_factor_iff in Hk₂.
   rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
+  remember (first_nonzero fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
+  remember (first_nonzero fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
+  symmetry in Hsn₁, Hsn₂.
+  destruct sn₁ as [sn₁| ].
+   destruct sn₂ as [sn₂| ].
+    destruct Hk₁ as [Hk₁| Hk₁].
+     destruct Hk₂ as [Hk₂| Hk₂].
 bbb.
   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
   destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
