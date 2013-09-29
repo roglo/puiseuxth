@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.736 2013-09-29 09:41:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.737 2013-09-29 10:16:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1274,6 +1274,23 @@ symmetry in Hm.
 destruct m as [m| ]; [ simpl | assumption ].
 destruct m as [| m]; simpl.
  destruct n as [| n].
+  remember (first_nonzero fld (series_pad_left fld 0 s) 1) as x.
+  rewrite series_pad_left_0 in Heqx; subst x.
+  remember (first_nonzero fld s 1) as k₁ eqn:Hk₁ .
+  symmetry in Hk₁.
+  destruct k₁ as [k₁| ]; [ idtac | assumption ].
+  destruct Hk as [Hk| Hk].
+   left.
+   eapply is_stretching_morph; [ idtac | eassumption ].
+   rewrite series_pad_left_0; reflexivity.
+
+   right.
+   destruct Hk as (Hk, Hns).
+   split; [ assumption | idtac ].
+   intros k' H.
+   apply (Hns k').
+   eapply is_stretching_morph; [ idtac | eassumption ].
+   rewrite series_pad_left_0; reflexivity.
 
 bbb.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
