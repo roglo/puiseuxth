@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.745 2013-09-29 22:54:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.746 2013-09-29 23:30:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3602,20 +3602,25 @@ destruct n₁ as [n₁| ].
    destruct sn₂ as [sn₂| ].
     destruct Hk₁ as [Hk₁| Hk₁].
      destruct Hk₂ as [Hk₂| Hk₂].
+      unfold normalise_nz.
+      remember (first_nonzero fld (nz_terms (nz₁ ∔ nz₃)) 0) as n₁₃ eqn:Hn₁₃ .
+      remember (first_nonzero fld (nz_terms (nz₂ ∔ nz₃)) 0) as n₂₃ eqn:Hn₂₃ .
+      symmetry in Hn₁₃, Hn₂₃.
+      simpl in Hn₁₃, Hn₂₃.
+      simpl.
+      remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃ eqn:Hk₁₃ .
+      remember (stretching_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃ eqn:Hk₂₃ .
+      symmetry in Hk₁₃, Hk₂₃.
+      destruct n₁₃ as [n₁₃| ].
+       destruct n₂₃ as [n₂₃| ].
+        constructor; simpl.
+         unfold cm_factor.
+         apply stretching_factor_iff in Hk₁₃.
+         rewrite Hn₁₃ in Hk₁₃.
+Focus 1.
 bbb.
   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
   destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-  unfold normalise_nz.
-  remember (first_nonzero fld (nz_terms (nz₁ ∔ nz₃))) as n₁₃ eqn:Hn₁₃ .
-  remember (first_nonzero fld (nz_terms (nz₂ ∔ nz₃))) as n₂₃ eqn:Hn₂₃ .
-  symmetry in Hn₁₃, Hn₂₃.
-  simpl in Hn₁₃, Hn₂₃.
-  simpl.
-  remember (stretching_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃ eqn:Hk₁₃ .
-  remember (stretching_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃ eqn:Hk₂₃ .
-  symmetry in Hk₁₃, Hk₂₃.
-  destruct n₁₃ as [n₁₃| ].
-   destruct n₂₃ as [n₂₃| ].
     destruct k₁₃ as [k₁₃| ].
      apply stretching_factor_iff in Hk₁₃.
      rewrite Hn₁₃ in Hk₁₃.
