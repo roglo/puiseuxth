@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.740 2013-09-29 13:59:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.741 2013-09-29 14:04:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1337,6 +1337,12 @@ destruct m as [| m]; simpl.
      rewrite Nat.add_succ_l, <- Nat.add_succ_r, Nat.add_comm in Hin.
      rewrite series_nth_add_pad in Hin.
      exists i; split; assumption.
+
+   right.
+   split; [ assumption | idtac ].
+   intros k' Hsf.
+   unfold is_stretching_factor in Hsf.
+   destruct Hsf as (Hk', (Hmz, Hmn)).
 
 bbb.
 remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
