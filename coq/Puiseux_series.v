@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.732 2013-09-29 00:36:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.733 2013-09-29 06:55:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1074,6 +1074,7 @@ induction n.
  destruct (first_nonzero fld s); reflexivity.
 Qed.
 
+(* à voir...
 Lemma xxx : ∀ s,
   series_nth_fld fld 0 s ≍ zero fld
   → NS (first_nonzero fld s 1) = first_nonzero fld s 0.
@@ -1107,7 +1108,9 @@ destruct n as [n| ].
     destruct p as [| p].
      rewrite Hz in Hp; exfalso; apply Hp; reflexivity.
 bbb.
+*)
 
+(* à voir...
 Theorem first_nonzero_1_pad : ∀ s n,
   series_nth_fld fld 0 s ≍ zero fld
   → first_nonzero fld (series_pad_left fld n s) 1 =
@@ -1269,6 +1272,7 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
+(* à voir...
 Lemma stretching_factor_pad : ∀ n s,
   stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
@@ -3544,18 +3548,20 @@ constructor; simpl.
  rewrite nz_add_0_r.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
- rewrite stretching_factor_pad.
- do 2 f_equal.
  rewrite Z2Nat_id_max, Z.min_comm.
- destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
-  rewrite Z.min_r; [ idtac | assumption ].
-  rewrite Z.max_l; [ idtac | assumption ].
-  rewrite Z.add_0_r; reflexivity.
+ do 2 f_equal.
+  destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
+   rewrite Z.min_r; [ idtac | assumption ].
+   rewrite Z.max_l; [ idtac | assumption ].
+   rewrite Z.add_0_r; reflexivity.
 
-  apply Z.nle_gt, Z.lt_le_incl in H₁.
-  rewrite Z.min_l; [ idtac | assumption ].
-  rewrite Z.max_r; [ idtac | assumption ].
-  reflexivity.
+   apply Z.nle_gt, Z.lt_le_incl in H₁.
+   rewrite Z.min_l; [ idtac | assumption ].
+   rewrite Z.max_r; [ idtac | assumption ].
+   reflexivity.
+
+bbb.
+ rewrite stretching_factor_pad.
 
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
