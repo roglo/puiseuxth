@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.742 2013-09-29 17:26:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.743 2013-09-29 17:53:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1253,12 +1253,13 @@ remember (stretching_factor fld s) as k eqn:Hk .
 symmetry in Hk.
 apply stretching_factor_iff in Hk.
 apply stretching_factor_iff.
-bbb.
 rewrite first_nonzero_pad.
 rewrite Nbar.add_comm.
 remember (first_nonzero fld s 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ simpl | assumption ].
+bbb.
+
 destruct m as [| m]; simpl.
  destruct n as [| n].
   remember (first_nonzero fld (series_pad_left fld 0 s) 1) as x.
