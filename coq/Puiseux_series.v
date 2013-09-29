@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.733 2013-09-29 06:55:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.734 2013-09-29 09:14:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -48,12 +48,19 @@ Definition is_stretching_factor s n k :=
 
 Axiom stretching_factor_iff : ∀ s k,
   stretching_factor fld s = k
-  ↔ match first_nonzero fld s 1 with
-    | fin n =>
+  ↔ match first_nonzero fld s 0 with
+    | fin 0 =>
+        match first_nonzero fld s 1 with
+        | fin m =>
+            is_stretching_factor s 1 k ∨
+            (k = 1%nat ∧ ∀ k', not (is_stretching_factor s 1 k'))
+        | ∞ => k = 1%nat
+        end
+    | fin (S _ as n) =>
         is_stretching_factor s (1 + n) k ∨
         (k = 1%nat ∧ ∀ k', not (is_stretching_factor s (1 + n) k'))
     | ∞ =>
-        k = 1%nat
+        k = 0%nat
     end.
 
 Definition stretch_series k s :=
@@ -276,6 +283,59 @@ Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
 with signature (eq_series fld) ==> eq as stretching_morph.
 Proof.
 intros s₁ s₂ Heq.
+remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
+symmetry in Hk₁ |- *.
+apply stretching_factor_iff in Hk₁.
+apply stretching_factor_iff.
+remember (first_nonzero fld s₁ 0) as n eqn:Hn .
+symmetry in Hn.
+rewrite Heq in Hn.
+rewrite Hn.
+remember (first_nonzero fld s₁ 1) as m eqn:Hm .
+symmetry in Hm.
+rewrite Heq in Hm; rewrite Hm.
+destruct n as [[| n]| ].
+ destruct m as [m| ]; [ idtac | assumption ].
+ destruct Hk₁ as [Hk₁| Hk₁].
+  left.
+  unfold is_stretching_factor in Hk₁ |- *.
+  destruct Hk₁ as (Hk₁, (Hik₁, Hex₁)).
+  split; [ assumption | idtac ].
+  split.
+   intros i Him.
+   rewrite <- Heq.
+   apply Hik₁; assumption.
+
+   intros k' Hik'r.
+   apply Hex₁ in Hik'r.
+   destruct Hik'r as (i, Him).
+   rewrite Heq in Him.
+   exists i; assumption.
+
+  destruct Hk₁ as (Hk₁, Hns₁).
+  right.
+  split; [ assumption | idtac ].
+  intros k' H.
+  apply (Hns₁ k').
+  unfold is_stretching_factor in H |- *.
+  destruct H as (Hk, (Hik, Hex)).
+  split; [ assumption | idtac ].
+  split.
+   intros i Him.
+   rewrite Heq.
+   apply Hik; assumption.
+
+   intros k'' Hrng.
+   apply Hex in Hrng.
+   destruct Hrng as (i, H).
+   rewrite <- Heq in H.
+   exists i; assumption.
+
+ destruct Hk₁ as [Hk₁| Hk₁].
+  left.
+  unfold is_stretching_factor in Hk₁ |- *.
+bbb.
+
 remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld s₂) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
