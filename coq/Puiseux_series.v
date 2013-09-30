@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.749 2013-09-30 14:59:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.750 2013-09-30 15:54:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1332,6 +1332,7 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
+(* faisable, peut-être... pas sûr...
 Lemma stretching_factor_stretch : ∀ k s,
   stretching_factor fld (stretch_series fld k s) =
   (stretching_factor fld s * Pos.to_nat k)%nat.
@@ -1390,6 +1391,13 @@ destruct m as [m| ].
         apply Pos2Nat_ne_0.
 
        apply Pos2Nat_ne_0.
+
+      rewrite padded_in_stretched; [ reflexivity | idtac ].
+      rewrite Nat.add_comm.
+      rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+      assumption.
+
+     intros k₂ Hrng.
 bbb.
 destruct Hk₁ as [Hk₁| Hk₁].
  left.
@@ -1549,7 +1557,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
 rewrite stretching_factor_pad.
-bbb. (*
+Abort. (*
  rewrite stretching_factor_stretch.
  simpl.
  rewrite Nat2Z.inj_add.
