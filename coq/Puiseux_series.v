@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.746 2013-09-29 23:30:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.747 2013-09-30 08:50:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,8 +52,8 @@ Axiom stretching_factor_iff : ∀ s k,
     | fin n =>
         match first_nonzero fld s (S n) with
         | fin m =>
-            is_stretching_factor s (S n) k ∨
-            (k = 1%nat ∧ ∀ k', not (is_stretching_factor s (S n) k'))
+            is_stretching_factor s n k ∨
+            (k = 1%nat ∧ ∀ k', not (is_stretching_factor s n k'))
         | ∞ => k = 1%nat
         end
     | ∞ =>
@@ -1296,7 +1296,7 @@ destruct Hk as [Hk| Hk].
  split; [ assumption | idtac ].
  split.
   intros i Hik.
-  rewrite <- Nat.add_assoc, Nat.add_comm.
+  rewrite Nat.add_shuffle0.
   rewrite series_nth_add_pad.
   apply Him; assumption.
 
@@ -1305,7 +1305,7 @@ destruct Hk as [Hk| Hk].
   destruct Hrng' as (i, (Him', Hnz)).
   exists i.
   split; [ assumption | idtac ].
-  rewrite <- Nat.add_assoc, Nat.add_comm.
+  rewrite Nat.add_shuffle0.
   rewrite series_nth_add_pad.
   assumption.
 
@@ -1320,14 +1320,14 @@ destruct Hk as [Hk| Hk].
  split.
   intros i Him.
   apply Hmk' in Him.
-  rewrite <- Nat.add_assoc, Nat.add_comm in Him.
+  rewrite Nat.add_shuffle0 in Him.
   rewrite series_nth_add_pad in Him.
   assumption.
 
   intros k'' Hrng.
   apply Hrng' in Hrng.
   destruct Hrng as (i, (Him, Hnz)).
-  rewrite <- Nat.add_assoc, Nat.add_comm in Hnz.
+  rewrite Nat.add_shuffle0 in Hnz.
   rewrite series_nth_add_pad in Hnz.
   exists i; split; assumption.
 Qed.
