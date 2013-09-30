@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.63 2013-09-16 21:34:15 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.64 2013-09-30 14:59:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,6 +12,7 @@ Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
 
 Ltac negation H := exfalso; apply H; reflexivity.
+Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
 
 Set Implicit Arguments.
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.748 2013-09-30 09:21:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.749 2013-09-30 14:59:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1332,7 +1332,6 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
-(* à voir...
 Lemma stretching_factor_stretch : ∀ k s,
   stretching_factor fld (stretch_series fld k s) =
   (stretching_factor fld s * Pos.to_nat k)%nat.
@@ -1344,9 +1343,54 @@ apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff.
 rewrite first_nonzero_stretch.
 rewrite Nbar.mul_comm.
-remember (first_nonzero fld s) as n eqn:Hn .
+remember (first_nonzero fld s 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ simpl | subst; reflexivity ].
+remember (first_nonzero fld s (S n)) as m eqn:Hm .
+symmetry in Hm.
+remember (S (n * Pos.to_nat k)) as x.
+remember (first_nonzero fld (stretch_series fld k s) x) as p eqn:Hp .
+subst x.
+symmetry in Hp.
+destruct m as [m| ].
+ destruct p as [p| ].
+  destruct Hk₁ as [Hk₁| Hk₁].
+   left.
+   unfold is_stretching_factor in Hk₁ |- *.
+   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
+   split.
+    destruct k₁; [ fast_omega Hk₁ | idtac ].
+    destruct k₁; [ fast_omega Hk₁ | idtac ].
+    remember (Pos.to_nat k) as x.
+    symmetry in Heqx.
+    destruct x; [ exfalso; revert Heqx; apply Pos2Nat_ne_0 | idtac ].
+    simpl.
+    rewrite Nat.add_succ_r.
+    apply -> Nat.succ_lt_mono.
+    apply Nat.lt_0_succ.
+
+    split.
+     intros i Him.
+     destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+      apply Nat.mod_divides in H₁.
+       destruct H₁ as (c, H₁).
+       rewrite H₁.
+       rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+       rewrite series_nth_fld_mul_stretch.
+       apply Hik₁.
+       rewrite H₁ in Him.
+       rewrite Nat.mul_comm in Him.
+       rewrite Nat.mul_mod_distr_r in Him.
+        apply Nat.neq_mul_0 in Him.
+        destruct Him; assumption.
+
+        destruct k₁ as [| k₁]; [ exfalso; fast_omega Hk₁ | idtac ].
+        intros H; discriminate H.
+
+        apply Pos2Nat_ne_0.
+
+       apply Pos2Nat_ne_0.
+bbb.
 destruct Hk₁ as [Hk₁| Hk₁].
  left.
  unfold is_stretching_factor.
@@ -1504,8 +1548,8 @@ remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
-Abort. (*
- rewrite stretching_factor_pad.
+rewrite stretching_factor_pad.
+bbb. (*
  rewrite stretching_factor_stretch.
  simpl.
  rewrite Nat2Z.inj_add.
