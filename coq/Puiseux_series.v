@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.753 2013-10-01 08:13:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.754 2013-10-01 08:50:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1166,51 +1166,42 @@ rewrite series_nth_fld_mul_stretch in Hn.
 assumption.
 Qed.
 
-Theorem first_nonzero_stretch : ∀ k s,
-  first_nonzero fld (stretch_series fld k s) 0 =
-    (fin (Pos.to_nat k) * first_nonzero fld s 0)%Nbar.
+Theorem first_nonzero_stretch : ∀ s b k,
+  first_nonzero fld (stretch_series fld k s) (b * Pos.to_nat k) =
+    (fin (Pos.to_nat k) * first_nonzero fld s b)%Nbar.
 Proof.
-intros k s.
-remember (first_nonzero fld (stretch_series fld k s) 0) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s 0) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
-apply first_nonzero_iff in Hn₁.
-apply first_nonzero_iff in Hn₂.
-destruct n₁ as [n₁| ].
- destruct Hn₁ as (Hiz₁, Hnz₁).
- destruct n₂ as [n₂| ].
-  destruct Hn₂ as (Hiz₂, Hnz₂).
-  simpl.
-  apply Nbar.fin_inj_wd.
-  destruct (lt_eq_lt_dec n₁ (Pos.to_nat k * n₂)) as [[Hlt| Hneq]| Hgt].
-   exfalso; apply Hnz₁; clear Hnz₁.
-   destruct (lt_dec 0 (n₁ mod Pos.to_nat k)) as [Hlt₁| Hge₁].
-    rewrite padded_in_stretched; [ reflexivity | assumption ].
+intros s b k.
+remember (first_nonzero fld s b) as n eqn:Hn .
+symmetry in Hn.
+apply first_nonzero_iff in Hn.
+apply first_nonzero_iff.
+rewrite Nbar.mul_comm.
+destruct n as [n| ]; simpl.
+ destruct Hn as (Hz, Hnz).
+ split.
+  intros i Hin.
+  destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+   apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H₁ as (c, H₁).
+   rewrite H₁.
+   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+   rewrite series_nth_fld_mul_stretch.
+   apply Hz.
+   rewrite H₁ in Hin.
+   rewrite Nat.mul_comm in Hin.
+   apply Nat.mul_lt_mono_pos_r in Hin; [ assumption | apply Pos2Nat.is_pos ].
 
-    apply Nat.nlt_ge in Hge₁.
-    apply Nat.le_0_r in Hge₁.
-    apply Nat.mod_divides in Hge₁; [ idtac | apply Pos2Nat_ne_0 ].
-    destruct Hge₁ as (c, Hn).
-    simpl; rewrite Hn.
-    rewrite series_nth_fld_mul_stretch.
-    apply Hiz₂; subst n₁.
-    apply Nat.mul_lt_mono_pos_l in Hlt; [ assumption | apply Pos2Nat.is_pos ].
+   rewrite padded_in_stretched; [ reflexivity | idtac ].
+   rewrite Nat.add_comm.
+   rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
 
-   assumption.
+  rewrite <- Nat.mul_add_distr_r.
+  rewrite Nat.mul_comm.
+  rewrite series_nth_fld_mul_stretch.
+  assumption.
 
-   exfalso; apply Hnz₂.
-   erewrite <- series_nth_fld_mul_stretch.
-   apply Hiz₁; assumption.
-
-  exfalso; apply Hnz₁; clear Hnz₁.
-  apply zero_series_stretched; assumption.
-
- destruct n₂ as [n₂| ]; [ idtac | reflexivity ].
- destruct Hn₂ as (Hiz₂, Hnz₂).
- exfalso; apply Hnz₂; clear Hnz₂.
- apply zero_stretched_series with (k := k).
- assumption.
-Qed.
+ intros i.
+bbb.
 
 Lemma series_nth_add_pad : ∀ s i n,
   series_nth_fld fld (i + n) (series_pad_left fld n s) ≍
@@ -1320,13 +1311,12 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
-(* faisable, peut-être... pas sûr...
-Lemma stretching_factor_stretch : ∀ k s,
-  stretching_factor fld (stretch_series fld k s) =
-  (stretching_factor fld s * Pos.to_nat k)%nat.
+Lemma stretching_factor_stretch : ∀ s n k,
+  stretching_factor fld (stretch_series fld k s) (n * Pos.to_nat k) =
+  stretching_factor fld s n.
 Proof.
-intros k s.
-remember (stretching_factor fld s) as k₁ eqn:Hk₁ .
+intros s n k.
+remember (stretching_factor fld s n) as k₁ eqn:Hk₁ .
 symmetry in Hk₁.
 apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff.
