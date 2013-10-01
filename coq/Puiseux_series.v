@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.752 2013-10-01 04:18:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.753 2013-10-01 08:13:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1267,21 +1267,16 @@ Lemma stretching_factor_pad : ∀ n s b,
   stretching_factor fld s b.
 Proof.
 intros n s b.
-bbb.
 remember (stretching_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
 apply stretching_factor_iff in Hk.
 apply stretching_factor_iff.
-rewrite first_nonzero_pad.
-rewrite Nbar.add_comm.
-remember (first_nonzero fld s 0) as m eqn:Hm .
+rewrite <- Nat.add_succ_l.
+rewrite Nat.add_comm.
+rewrite first_nonzero_pad_add.
+remember (first_nonzero fld s (S b)) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ simpl | assumption ].
-rewrite <- Nat.add_succ_l, Nat.add_comm.
-rewrite first_nonzero_pad_add.
-remember (first_nonzero fld s (S m)) as p eqn:Hp .
-symmetry in Hp.
-destruct p as [p| ]; [ idtac | assumption ].
 destruct Hk as [Hk| Hk].
  left.
  unfold is_stretching_factor in Hk |- *.
@@ -1324,7 +1319,6 @@ destruct Hk as [Hk| Hk].
   rewrite series_nth_add_pad in Hnz.
   exists i; split; assumption.
 Qed.
-*)
 
 (* faisable, peut-être... pas sûr...
 Lemma stretching_factor_stretch : ∀ k s,
@@ -1551,7 +1545,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite stretching_factor_pad.
-Abort. (*
+bbb. (*
  rewrite stretching_factor_stretch.
  simpl.
  rewrite Nat2Z.inj_add.
