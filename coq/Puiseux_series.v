@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.751 2013-10-01 04:03:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.752 2013-10-01 04:18:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,7 +17,7 @@ Set Implicit Arguments.
 Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
 Admitted.
 
-Definition stretching_factor : ∀ α, field α → series α → nat.
+Definition stretching_factor : ∀ α, field α → series α → nat → nat.
 Admitted.
 
 Section fld.
@@ -40,25 +40,20 @@ Axiom first_nonzero_iff : ∀ s c n,
         (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
     end.
 
-Definition is_stretching_factor s k :=
+Definition is_stretching_factor s n k :=
   (k > 1)%nat ∧
-  (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
+  (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
   (∀ k', (1 < k' < k)%nat →
-     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld i s ≭ zero fld).
+     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
 
-Axiom stretching_factor_iff : ∀ s k,
-  stretching_factor fld s = k
-  ↔ match first_nonzero fld s 0 with
-    | fin n =>
-        match first_nonzero fld s (S n) with
-        | fin _ =>
-            is_stretching_factor s k ∨
-            (k = 1%nat ∧ ∀ k', not (is_stretching_factor s k'))
-        | ∞ =>
-            k = 1%nat
-        end
+Axiom stretching_factor_iff : ∀ s n k,
+  stretching_factor fld s n = k
+  ↔ match first_nonzero fld s (S n) with
+    | fin _ =>
+        is_stretching_factor s n k ∨
+        (k = 1%nat ∧ ∀ k', not (is_stretching_factor s n k'))
     | ∞ =>
-        k = 0%nat
+        k = 1%nat
     end.
 
 Definition stretch_series k s :=
@@ -96,7 +91,7 @@ Definition normalise_series n k (s : series α) :=
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) 0 with
   | fin n =>
-      let k := stretching_factor fld (nz_terms nz) in
+      let k := stretching_factor fld (nz_terms nz) n in
       NonZero
         {| nz_terms := normalise_series n k (nz_terms nz);
            nz_valnum := (nz_valnum nz + Z.of_nat n) / Z.of_nat k;
@@ -277,12 +272,12 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Lemma is_stretching_morph : ∀ α (fld : field α) s₁ s₂ k,
+Lemma is_stretching_morph : ∀ α (fld : field α) s₁ s₂ n k,
   eq_series fld s₁ s₂
-  → is_stretching_factor fld s₁ k
-    → is_stretching_factor fld s₂ k.
+  → is_stretching_factor fld s₁ k n
+    → is_stretching_factor fld s₂ k n.
 Proof.
-intros α fld s₁ s₂ k Heq Hsf.
+intros α fld s₁ s₂ n k Heq Hsf.
 unfold is_stretching_factor in Hsf |- *.
 destruct Hsf as (Hk, (Him, Hex)).
 split; [ assumption | idtac ].
@@ -299,18 +294,13 @@ split.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
-with signature (eq_series fld) ==> eq as stretching_morph.
+with signature (eq_series fld) ==> eq ==> eq as stretching_morph.
 Proof.
-intros s₁ s₂ Heq.
-remember (stretching_factor fld s₁) as k₁ eqn:Hk₁ .
+intros s₁ s₂ Heq n.
+remember (stretching_factor fld s₁ n) as k₁ eqn:Hk₁ .
 symmetry in Hk₁ |- *.
 apply stretching_factor_iff in Hk₁.
 apply stretching_factor_iff.
-remember (first_nonzero fld s₁ 0) as n eqn:Hn .
-symmetry in Hn.
-rewrite Heq in Hn.
-rewrite Hn.
-destruct n as [n| ]; [ idtac | assumption ].
 remember (first_nonzero fld s₁ (S n)) as m eqn:Hm .
 symmetry in Hm.
 rewrite Heq in Hm.
@@ -1272,12 +1262,13 @@ destruct v as [v| ].
  apply Hv.
 Qed.
 
-(* à voir...
-Lemma stretching_factor_pad : ∀ n s,
-  stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
+Lemma stretching_factor_pad : ∀ n s b,
+  stretching_factor fld (series_pad_left fld n s) (b + n) =
+  stretching_factor fld s b.
 Proof.
-intros n s.
-remember (stretching_factor fld s) as k eqn:Hk .
+intros n s b.
+bbb.
+remember (stretching_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
 apply stretching_factor_iff in Hk.
 apply stretching_factor_iff.
