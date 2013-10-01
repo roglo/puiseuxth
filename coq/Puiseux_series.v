@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.760 2013-10-01 14:35:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.761 2013-10-01 15:53:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3522,6 +3522,46 @@ constructor; simpl.
  rewrite normalise_series_add_pad.
  reflexivity.
 Qed.
+
+(* oui bof, hein...
+Lemma bof : ∀ nz₁ nz₂,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → first_nonzero fld (nz_terms nz₁) 0 = first_nonzero fld (nz_terms nz₂) 0.
+Proof.
+intros nz₁ nz₂ Heq.
+remember (first_nonzero fld (nz_terms nz₂) 0) as n eqn:Hn .
+symmetry in Hn.
+apply first_nonzero_iff in Hn.
+apply first_nonzero_iff.
+simpl in Hn |- *.
+destruct n as [n| ].
+ destruct Hn as (Hz, Hnz).
+ split.
+  intros i Hin.
+  unfold normalise_nz in Heq.
+  remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+  remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+  symmetry in Hn₁, Hn₂.
+  destruct n₁ as [n₁| ].
+   destruct n₂ as [n₂| ].
+    inversion_clear Heq; simpl in *.
+    unfold normalise_series in H1.
+    remember (stretching_factor fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
+    remember (stretching_factor fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
+    symmetry in Hk₁, Hk₂.
+    destruct k₁, k₂.
+bbb.
+*)
+
+(* mouais... faut voir...
+Lemma yyy : ∀ nz₁ nz₂ nz₃,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → first_nonzero fld (nz_terms_add nz₁ nz₃) 0 =
+    first_nonzero fld (nz_terms_add nz₂ nz₃) 0.
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+bbb.
+*)
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
