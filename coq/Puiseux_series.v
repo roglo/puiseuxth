@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.754 2013-10-01 08:50:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.755 2013-10-01 09:01:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1166,6 +1166,26 @@ rewrite series_nth_fld_mul_stretch in Hn.
 assumption.
 Qed.
 
+Lemma stretch_finite_series : ∀ s b k,
+  (∀ i : nat, series_nth_fld fld (b + i) s ≍ zero fld)
+  → ∀ i,
+    series_nth_fld fld (b * Pos.to_nat k + i) (stretch_series fld k s)
+    ≍ zero fld.
+Proof.
+intros s b k Hz i.
+destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+ apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+ destruct H₁ as (c, H₁).
+ subst i.
+ rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+ rewrite series_nth_fld_mul_stretch.
+ apply Hz.
+
+ rewrite padded_in_stretched; [ reflexivity | idtac ].
+ rewrite Nat.add_comm.
+ rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
+Qed.
+
 Theorem first_nonzero_stretch : ∀ s b k,
   first_nonzero fld (stretch_series fld k s) (b * Pos.to_nat k) =
     (fin (Pos.to_nat k) * first_nonzero fld s b)%Nbar.
@@ -1201,7 +1221,8 @@ destruct n as [n| ]; simpl.
   assumption.
 
  intros i.
-bbb.
+ apply stretch_finite_series; assumption.
+Qed.
 
 Lemma series_nth_add_pad : ∀ s i n,
   series_nth_fld fld (i + n) (series_pad_left fld n s) ≍
