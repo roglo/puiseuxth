@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.758 2013-10-01 11:48:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.759 2013-10-01 12:01:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1430,9 +1430,9 @@ destruct n₁ as [n₁| ].
     unfold is_stretching_factor in Hk₁, Hk₂.
     destruct Hk₁ as (Hk₁, (Hz₁, Hnz₁)).
     destruct Hk₂ as (Hk₂, (Hz₂, Hnz₂)).
-bbb.
-    destruct (lt_eq_lt_dec (k₂ * Pos.to_nat k) k₁) as [[H₁| H₁]| H₁].
+    destruct (lt_eq_lt_dec k₂ (Pos.to_nat k * k₁)) as [[H₁| H₁]| H₁].
      exfalso.
+bbb.
      assert (1 < k₂ * Pos.to_nat k ∧ k₂ * Pos.to_nat k < k₁)%nat as H₂.
       split.
        destruct k₂ as [| k₂].
