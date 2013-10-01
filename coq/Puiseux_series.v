@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.759 2013-10-01 12:01:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.760 2013-10-01 14:35:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1405,7 +1405,7 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
-(**)
+(* à voir...
 Lemma stretching_factor_stretch : ∀ s b k,
   stretching_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
   (Pos.to_nat k * stretching_factor fld s b)%nat.
@@ -1477,6 +1477,7 @@ Definition adjust_nz n k nz :=
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
+(* à voir...
 Theorem glop : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
 intros nz n k.
@@ -1490,7 +1491,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite stretching_factor_pad.
-bbb. (*
+bbb.
  rewrite stretching_factor_stretch.
  simpl.
  rewrite Nat2Z.inj_add.
@@ -3534,11 +3535,12 @@ symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
   inversion_clear Heq; simpl in *.
-  remember (stretching_factor fld (nz_terms nz₁)) as k₁ eqn:Hk₁ .
-  remember (stretching_factor fld (nz_terms nz₂)) as k₂ eqn:Hk₂ .
+  remember (stretching_factor fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
+  remember (stretching_factor fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
   symmetry in Hk₁, Hk₂.
   apply stretching_factor_iff in Hk₁.
   apply stretching_factor_iff in Hk₂.
+bbb.
   rewrite Hn₁ in Hk₁.
   rewrite Hn₂ in Hk₂.
   remember (first_nonzero fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
