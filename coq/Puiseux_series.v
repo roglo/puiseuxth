@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.757 2013-10-01 11:16:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.758 2013-10-01 11:48:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1405,197 +1405,56 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
-(*
+(**)
 Lemma stretching_factor_stretch : ∀ s b k,
   stretching_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
-  stretching_factor fld s b.
+  (Pos.to_nat k * stretching_factor fld s b)%nat.
 Proof.
 intros s b k.
 remember (stretching_factor fld s b) as k₁ eqn:Hk₁ .
-symmetry in Hk₁.
+remember (stretch_series fld k s) as t.
+remember (stretching_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
+subst t.
+symmetry in Hk₁, Hk₂.
 apply stretching_factor_iff in Hk₁.
-apply stretching_factor_iff.
-bbb.
-rewrite first_nonzero_stretch.
-rewrite Nbar.mul_comm.
-remember (first_nonzero fld s 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ simpl | subst; reflexivity ].
-remember (first_nonzero fld s (S n)) as m eqn:Hm .
-symmetry in Hm.
-remember (S (n * Pos.to_nat k)) as x.
-remember (first_nonzero fld (stretch_series fld k s) x) as p eqn:Hp .
-subst x.
-symmetry in Hp.
-destruct m as [m| ].
- destruct p as [p| ].
+apply stretching_factor_iff in Hk₂.
+remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
+remember (stretch_series fld k s) as t.
+remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
+subst t.
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ].
   destruct Hk₁ as [Hk₁| Hk₁].
-   left.
-   unfold is_stretching_factor in Hk₁ |- *.
-   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-   split.
-    destruct k₁; [ fast_omega Hk₁ | idtac ].
-    destruct k₁; [ fast_omega Hk₁ | idtac ].
-    remember (Pos.to_nat k) as x.
-    symmetry in Heqx.
-    destruct x; [ exfalso; revert Heqx; apply Pos2Nat_ne_0 | idtac ].
-    simpl.
-    rewrite Nat.add_succ_r.
-    apply -> Nat.succ_lt_mono.
-    apply Nat.lt_0_succ.
-
-    split.
-     intros i Him.
-     destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
-      apply Nat.mod_divides in H₁.
-       destruct H₁ as (c, H₁).
-       rewrite H₁.
-       rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
-       rewrite series_nth_fld_mul_stretch.
-       apply Hik₁.
-       rewrite H₁ in Him.
-       rewrite Nat.mul_comm in Him.
-       rewrite Nat.mul_mod_distr_r in Him.
-        apply Nat.neq_mul_0 in Him.
-        destruct Him; assumption.
-
-        destruct k₁ as [| k₁]; [ exfalso; fast_omega Hk₁ | idtac ].
-        intros H; discriminate H.
-
-        apply Pos2Nat_ne_0.
-
-       apply Pos2Nat_ne_0.
-
-      rewrite padded_in_stretched; [ reflexivity | idtac ].
-      rewrite Nat.add_comm.
-      rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
-      assumption.
-
-     intros k₂ Hrng.
+   destruct Hk₂ as [Hk₂| Hk₂].
+    unfold is_stretching_factor in Hk₁, Hk₂.
+    destruct Hk₁ as (Hk₁, (Hz₁, Hnz₁)).
+    destruct Hk₂ as (Hk₂, (Hz₂, Hnz₂)).
 bbb.
-destruct Hk₁ as [Hk₁| Hk₁].
- left.
- unfold is_stretching_factor.
- unfold is_stretching_factor in Hk₁.
- destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
- split.
-  destruct k₁ as [| k₁].
-   apply Nat.lt_asymm in Hk₁.
-   exfalso; apply Hk₁, Nat.lt_0_1.
+    destruct (lt_eq_lt_dec (k₂ * Pos.to_nat k) k₁) as [[H₁| H₁]| H₁].
+     exfalso.
+     assert (1 < k₂ * Pos.to_nat k ∧ k₂ * Pos.to_nat k < k₁)%nat as H₂.
+      split.
+       destruct k₂ as [| k₂].
+        exfalso; apply Nat.nle_gt in Hk₂.
+        apply Hk₂, Nat.le_0_1.
 
-   remember (Pos.to_nat k) as kn.
-   symmetry in Heqkn.
-   destruct kn.
-    exfalso; revert Heqkn; apply Pos2Nat_ne_0.
+        remember (Pos.to_nat k) as kn eqn:Hkn .
+        symmetry in Hkn.
+        destruct kn as [| kn].
+         exfalso; revert Hkn; apply Pos2Nat_ne_0.
 
-    destruct k₁ as [| k₁].
-     exfalso; revert Hk₁; apply Nat.lt_irrefl.
+         destruct k₂ as [| k₂].
+          exfalso; revert Hk₂; apply Nat.lt_irrefl.
 
-     simpl.
-     rewrite Nat.add_comm; simpl.
-     apply -> Nat.succ_lt_mono.
-     apply Nat.lt_0_succ.
+          rewrite Nat.mul_comm; simpl.
+          apply * Nat.succ_lt_mono.
+          apply Nat.lt_0_succ.
 
-  split.
-   intros i Him.
-   destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
-    apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
-    destruct H₁ as (c, H₁).
-    rewrite H₁.
-    rewrite Nat.mul_comm.
-    rewrite <- Nat.mul_add_distr_l.
-    rewrite series_nth_fld_mul_stretch.
-    apply Hik₁.
-    intros H.
-    apply Nat.mod_divides in H.
-     destruct H as (d, H).
-     rewrite H in H₁.
-     rewrite H₁ in Him.
-     rewrite Nat.mul_assoc in Him.
-     rewrite Nat.mul_comm, Nat.mul_assoc in Him.
-     rewrite Nat.mul_shuffle0, <- Nat.mul_assoc in Him.
-     rewrite Nat.mod_mul in Him.
-      apply Him; reflexivity.
+       assumption.
 
-      clear H; intros H.
-      apply Nat.mul_eq_0 in H.
-      destruct H as [H| H]; [ idtac | revert H; apply Pos2Nat_ne_0 ].
-      rewrite H in Hk₁.
-      apply Nat.nlt_ge in Hk₁.
-      exfalso; apply Hk₁; apply Nat.lt_0_succ.
-
-     clear H; intros H.
-     rewrite H in Hk₁.
-     apply Nat.nlt_ge in Hk₁.
-     exfalso; apply Hk₁; apply Nat.lt_0_succ.
-
-    rewrite padded_in_stretched; [ reflexivity | idtac ].
-    rewrite Nat.add_comm.
-    rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
-bbb.
-
-destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-split.
- apply Nat.neq_mul_0; split; [ assumption | apply Pos2Nat_ne_0 ].
-
- split.
-  intros i Him.
-  destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
-   apply Nat.mod_divides in H₁.
-    destruct H₁ as (c, H₁).
-    rewrite H₁.
-    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
-    rewrite series_nth_fld_mul_stretch.
-    apply Hik₁.
-    intros H; apply Him; clear Him.
-    apply Nat.mod_divides in H.
-     destruct H as (d, H).
-     subst i c.
-     rewrite Nat.mul_assoc, Nat.mul_shuffle0.
-     rewrite Nat.mul_comm, Nat.mul_assoc.
-     rewrite Nat.mul_comm.
-     apply Nat.mod_mul.
-     apply Nat.neq_mul_0.
-     split; [ assumption | apply Pos2Nat_ne_0 ].
-
-     assumption.
-
-    apply Pos2Nat_ne_0.
-
-   rewrite padded_in_stretched; [ reflexivity | idtac ].
-   rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [ assumption | idtac ].
-   apply Pos2Nat_ne_0.
-
-  intros k₂ Hlt.
-  destruct (zerop (k₂ mod Pos.to_nat k)) as [H₁| H₁].
-   apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct H₁ as (c, H₁).
-   rewrite H₁ in Hlt.
-   rewrite Nat.mul_comm in Hlt.
-   destruct Hlt as (Hck, Hlt).
-   apply Nat.mul_lt_mono_pos_r in Hlt; [ idtac | apply Pos2Nat.is_pos ].
-   apply Nat.mul_pos_cancel_r in Hck; [ idtac | apply Pos2Nat.is_pos ].
-   apply conj with (A := (0 < c)%nat) in Hlt; [ idtac | assumption ].
-   apply Hlt₁ in Hlt.
-   destruct Hlt as (i, (Him, Hin)).
-   exists (i * Pos.to_nat k)%nat.
-   split.
-    intros H; apply Him; clear Him.
-    rewrite H₁ in H.
-    rewrite Nat.mul_comm in H.
-    destruct c; [ reflexivity | idtac ].
-    rewrite Nat.mul_mod_distr_l in H.
-     apply Nat.eq_mul_0_r in H; [ assumption | apply Pos2Nat_ne_0 ].
-
-     intros HH; discriminate HH.
-
-     apply Pos2Nat_ne_0.
-
-    rewrite <- Nat.mul_add_distr_r.
-    rewrite Nat.mul_comm.
-    rewrite series_nth_fld_mul_stretch.
-    assumption.
+      apply Hnz₁ in H₂.
+      destruct H₂ as (i, (Hnz, Hz)).
 bbb.
 *)
 
