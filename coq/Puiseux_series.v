@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.750 2013-09-30 15:54:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.751 2013-10-01 04:03:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -40,21 +40,22 @@ Axiom first_nonzero_iff : ∀ s c n,
         (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
     end.
 
-Definition is_stretching_factor s n k :=
+Definition is_stretching_factor s k :=
   (k > 1)%nat ∧
-  (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
+  (∀ i, i mod k ≠ O → series_nth_fld fld i s ≍ zero fld) ∧
   (∀ k', (1 < k' < k)%nat →
-     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
+     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld i s ≭ zero fld).
 
 Axiom stretching_factor_iff : ∀ s k,
   stretching_factor fld s = k
   ↔ match first_nonzero fld s 0 with
     | fin n =>
         match first_nonzero fld s (S n) with
-        | fin m =>
-            is_stretching_factor s n k ∨
-            (k = 1%nat ∧ ∀ k', not (is_stretching_factor s n k'))
-        | ∞ => k = 1%nat
+        | fin _ =>
+            is_stretching_factor s k ∨
+            (k = 1%nat ∧ ∀ k', not (is_stretching_factor s k'))
+        | ∞ =>
+            k = 1%nat
         end
     | ∞ =>
         k = 0%nat
@@ -276,12 +277,12 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Lemma is_stretching_morph : ∀ α (fld : field α) s₁ s₂ n k,
+Lemma is_stretching_morph : ∀ α (fld : field α) s₁ s₂ k,
   eq_series fld s₁ s₂
-  → is_stretching_factor fld s₁ n k
-    → is_stretching_factor fld s₂ n k.
+  → is_stretching_factor fld s₁ k
+    → is_stretching_factor fld s₂ k.
 Proof.
-intros α fld s₁ s₂ n k Heq Hsf.
+intros α fld s₁ s₂ k Heq Hsf.
 unfold is_stretching_factor in Hsf |- *.
 destruct Hsf as (Hk, (Him, Hex)).
 split; [ assumption | idtac ].
@@ -1271,6 +1272,7 @@ destruct v as [v| ].
  apply Hv.
 Qed.
 
+(* à voir...
 Lemma stretching_factor_pad : ∀ n s,
   stretching_factor fld (series_pad_left fld n s) = stretching_factor fld s.
 Proof.
@@ -1331,6 +1333,7 @@ destruct Hk as [Hk| Hk].
   rewrite series_nth_add_pad in Hnz.
   exists i; split; assumption.
 Qed.
+*)
 
 (* faisable, peut-être... pas sûr...
 Lemma stretching_factor_stretch : ∀ k s,
@@ -1556,7 +1559,7 @@ remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
-rewrite stretching_factor_pad.
+ rewrite stretching_factor_pad.
 Abort. (*
  rewrite stretching_factor_stretch.
  simpl.
