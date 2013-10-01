@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.756 2013-10-01 09:52:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.757 2013-10-01 11:16:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1224,6 +1224,16 @@ destruct n as [n| ]; simpl.
  apply stretch_finite_series; assumption.
 Qed.
 
+Lemma first_nonzero_stretch_0 : ∀ s k,
+  first_nonzero fld (stretch_series fld k s) 0 =
+    (fin (Pos.to_nat k) * first_nonzero fld s 0)%Nbar.
+Proof.
+intros s k.
+rewrite <- first_nonzero_stretch.
+rewrite Nat.mul_0_l; reflexivity.
+Qed.
+
+(*
 Lemma stretch_succ : ∀ s b k,
   first_nonzero fld (stretch_series fld k s) (S b * Pos.to_nat k) =
   first_nonzero fld (stretch_series fld k s) (S (b * Pos.to_nat k)).
@@ -1255,7 +1265,7 @@ destruct n as [n| ].
     rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
     rewrite Hkn.
     rewrite Nat.mod_1_l; [ apply Nat.lt_0_1 | idtac ].
-    apply * Nat.succ_lt_mono.
+    apply -> Nat.succ_lt_mono.
     apply Nat.lt_0_succ.
 
     destruct (lt_dec (S i) (Pos.to_nat k)) as [H₂| H₂].
@@ -1285,6 +1295,7 @@ destruct n as [n| ].
      rewrite Nat.add_succ_l, <- Nat.add_succ_r.
      apply le_plus_r.
 bbb.
+*)
 
 Lemma series_nth_add_pad : ∀ s i n,
   series_nth_fld fld (i + n) (series_pad_left fld n s) ≍
@@ -1394,6 +1405,7 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
+(*
 Lemma stretching_factor_stretch : ∀ s b k,
   stretching_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
   stretching_factor fld s b.
@@ -1612,7 +1624,7 @@ intros nz n k.
 constructor.
 unfold normalise_nz; simpl.
 rewrite first_nonzero_pad.
-rewrite first_nonzero_stretch.
+rewrite first_nonzero_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
 remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
