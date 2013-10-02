@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.766 2013-10-02 14:28:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.767 2013-10-02 14:36:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3483,7 +3483,7 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
 Qed.
 
 (* exercice... *)
-Lemma stretching_factor_normalised : ∀ nz nz₁,
+Lemma normalised_stretching_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
   → stretching_factor fld (nz_terms nz) 0 = 1%nat.
 Proof.
@@ -3506,6 +3506,11 @@ rename nz₁ into nz.
 remember (stretching_factor fld (nz_terms nz) m) as k₁ eqn:Hk₁ .
 remember (normalise_series fld m k₁ (nz_terms nz)) as s eqn:Hs .
 symmetry in Hk₁.
+intros H.
+unfold is_stretching_factor in H.
+destruct H as (Hk, (Hz, Hnz)).
+simpl in Hz, Hnz.
+destruct Hn as (Hiz, Hnnz).
 bbb.
 
 Lemma first_nonzero_normalised : ∀ nz nz₁ n,
