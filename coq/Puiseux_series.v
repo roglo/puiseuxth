@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.771 2013-10-02 16:31:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.772 2013-10-02 16:46:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3497,7 +3497,6 @@ destruct m as [m| ]; [ idtac | reflexivity ].
 right.
 split; [ reflexivity | idtac ].
 intros k₁ Hk₁.
-subst t.
 apply first_nonzero_iff in Hm.
 simpl in Hm.
 apply first_nonzero_iff in Hn.
@@ -3507,6 +3506,24 @@ destruct Hm as (Hmz, Hmnz).
 apply stretching_factor_iff in Hk.
 unfold is_stretching_factor in Hk₁.
 destruct Hk₁ as (Hk₁, (Hkz, Hknz)).
+unfold normalise_series in Heqt.
+destruct k as [| k].
+ subst t.
+ apply Hmnz.
+ unfold series_nth_fld; simpl.
+ destruct (Nbar.lt_dec (fin (S m)) 0); reflexivity.
+
+ remember (first_nonzero fld s (S n)) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  destruct Hk as [Hk| Hk].
+   apply first_nonzero_iff in Hp.
+   destruct Hp as (Hpz, Hpnz).
+   unfold is_stretching_factor in Hk.
+   rename Hkz into Hk₁z.
+   rename Hknz into Hk₁nz.
+   destruct Hk as (Hk, (Hkz, Hknz)).
+   simpl in Hk₁z, Hk₁nz.
 bbb.
 
 (* exercice... *)
