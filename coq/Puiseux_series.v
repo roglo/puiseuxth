@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.762 2013-10-01 19:05:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.763 2013-10-02 09:21:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3481,6 +3481,37 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  apply Nbar.fin_inj_wd.
  omega.
 Qed.
+
+(* exercice... *)
+Lemma first_nonzero_normalised : ∀ nz nz₁ n,
+  normalise_nz fld nz₁ = NonZero nz
+  → first_nonzero fld (nz_terms nz) 0 = fin n
+    → n = O.
+Proof.
+intros nz nz₁ n Hnorm Hnz.
+apply first_nonzero_iff in Hnz.
+simpl in Hnz.
+destruct Hnz as (Hz, Hnz).
+destruct n; [ reflexivity | exfalso ].
+unfold normalise_nz in Hnorm.
+remember (first_nonzero fld (nz_terms nz₁) 0) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; [ idtac | discriminate Hnorm ].
+injection Hnorm; clear Hnorm; intros; subst nz; simpl.
+rename nz₁ into nz.
+simpl in Hz, Hnz.
+remember (stretching_factor fld (nz_terms nz) m) as k eqn:Hk .
+remember (normalise_series fld m k (nz_terms nz)) as s eqn:Hs .
+symmetry in Hk.
+apply stretching_factor_iff in Hk.
+remember (first_nonzero fld (nz_terms nz) (S m)) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ].
+ destruct Hk as [Hk| Hk].
+  unfold is_stretching_factor in Hk.
+  destruct Hk as (Hk, (Hmz, Hmnz)).
+  (* parti en couille : faut que je réfléchisse *)
+bbb.
 
 Lemma normalise_nz_add_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
