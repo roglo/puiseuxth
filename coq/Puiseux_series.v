@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.768 2013-10-02 14:52:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.769 2013-10-02 15:15:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3495,6 +3495,12 @@ destruct m as [m| ]; [ idtac | reflexivity ].
 apply first_nonzero_iff in Hn.
 simpl in Hn.
 destruct Hn as (Hz, Hnz).
+right.
+split; [ reflexivity | idtac ].
+intros k₁ Hk₁.
+unfold is_stretching_factor in Hk₁.
+simpl in Hk₁.
+destruct Hk₁ as (Hk₁, (Hiz, Hinz)).
 bbb.
 
 (* exercice... *)
