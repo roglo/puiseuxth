@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.772 2013-10-02 16:46:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.773 2013-10-02 17:30:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3480,6 +3480,40 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  destruct (stop s) as [st| ]; [ simpl | reflexivity ].
  apply Nbar.fin_inj_wd.
  omega.
+Qed.
+
+Lemma stretching_factor_le : ∀ s n₁ n₂ k,
+  first_nonzero fld s 0 = fin n₁
+  → first_nonzero fld s (S n₁) = fin n₂
+    → stretching_factor fld s n₁ = k
+      → (k ≤ S n₂)%nat.
+Proof.
+intros s n₁ n₂ k Hn₁ Hn₂ Hk.
+apply stretching_factor_iff in Hk.
+rewrite Hn₂ in Hk.
+destruct Hk as [Hk| Hk].
+ unfold is_stretching_factor in Hk.
+ destruct Hk as (Hk, (Hkz, Hknz)).
+ apply first_nonzero_iff in Hn₁.
+ apply first_nonzero_iff in Hn₂.
+ destruct Hn₁ as (Hn₁z, Hn₁nz).
+ destruct Hn₂ as (Hn₂z, Hn₂nz).
+ simpl in Hn₁z, Hn₁nz.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn₂nz.
+ destruct (lt_dec (S n₂) k) as [H₁| H₁].
+  2: apply Nat.nlt_ge; assumption.
+
+  exfalso.
+  assert (S n₂ mod k ≠ 0)%nat as H.
+   rewrite Nat.mod_small; [ intros H; discriminate H | assumption ].
+
+   apply Hkz in H.
+   rewrite H in Hn₂nz; apply Hn₂nz; reflexivity.
+
+ destruct Hk as (Hk, Hnk).
+ subst k.
+ apply -> Nat.succ_le_mono.
+ apply Nat.le_0_l.
 Qed.
 
 (* exercice... *)
