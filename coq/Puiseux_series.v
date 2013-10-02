@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.775 2013-10-02 20:39:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.776 2013-10-02 21:33:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3513,6 +3513,7 @@ destruct Hk as [Hk| Hk].
 Qed.
 
 (* exercice... *)
+(* mmm... à voir...
 Lemma stretching_factor_divides : ∀ s n₁ n₂ k,
   first_nonzero fld s (S n₁) = fin n₂
   → stretching_factor fld s n₁ = k
@@ -3520,6 +3521,7 @@ Lemma stretching_factor_divides : ∀ s n₁ n₂ k,
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
 bbb.
+*)
 
 (* exercice... *)
 Lemma normalised_series_stretching_factor : ∀ s n k,
@@ -3528,6 +3530,7 @@ Lemma normalised_series_stretching_factor : ∀ s n k,
     → stretching_factor fld (normalise_series fld n k s) 0 = 1%nat.
 Proof.
 intros s n k Hn Hk.
+bbb.
 remember (normalise_series fld n k s) as t.
 apply stretching_factor_iff.
 remember (first_nonzero fld t 1) as m eqn:Hm .
