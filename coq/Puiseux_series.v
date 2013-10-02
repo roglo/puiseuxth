@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.763 2013-10-02 09:21:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.764 2013-10-02 10:30:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3489,28 +3489,51 @@ Lemma first_nonzero_normalised : ∀ nz nz₁ n,
     → n = O.
 Proof.
 intros nz nz₁ n Hnorm Hnz.
+destruct n as [| n]; [ reflexivity | exfalso ].
 apply first_nonzero_iff in Hnz.
 simpl in Hnz.
 destruct Hnz as (Hz, Hnz).
-destruct n; [ reflexivity | exfalso ].
+pose proof (Hz O (Nat.lt_0_succ n)) as H₀.
+clear Hz.
 unfold normalise_nz in Hnorm.
 remember (first_nonzero fld (nz_terms nz₁) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ idtac | discriminate Hnorm ].
-injection Hnorm; clear Hnorm; intros; subst nz; simpl.
+injection Hnorm; clear Hnorm; intros; subst nz.
+simpl in Hnz, H₀.
 rename nz₁ into nz.
-simpl in Hz, Hnz.
 remember (stretching_factor fld (nz_terms nz) m) as k eqn:Hk .
-remember (normalise_series fld m k (nz_terms nz)) as s eqn:Hs .
 symmetry in Hk.
+remember (normalise_series fld m k (nz_terms nz)) as s eqn:Hs .
 apply stretching_factor_iff in Hk.
 remember (first_nonzero fld (nz_terms nz) (S m)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ].
  destruct Hk as [Hk| Hk].
-  unfold is_stretching_factor in Hk.
-  destruct Hk as (Hk, (Hmz, Hmnz)).
-  (* parti en couille : faut que je réfléchisse *)
+  unfold normalise_series in Hs.
+  destruct k as [| k].
+   apply Hnz; subst s.
+   unfold series_nth_fld; simpl.
+   destruct (Nbar.lt_dec (fin (S n)) 0); reflexivity.
+
+   rewrite Hs in H₀; simpl in H₀.
+   do 2 rewrite Nbar.fold_sub in H₀.
+   remember (stop (nz_terms nz) - fin m + fin (S k) - 1)%Nbar as x.
+   symmetry in Heqx.
+   destruct x as [x| ].
+    unfold series_nth_fld in H₀.
+    simpl in H₀.
+    rewrite divmod_div in H₀.
+    rewrite Nat.add_0_r in H₀.
+    destruct (Nbar.lt_dec 0 (fin (x / S k))) as [H₁| H₁].
+     apply first_nonzero_iff in Hm.
+     destruct Hm as (Hmz, Hmnz).
+     simpl in Hmnz.
+     unfold series_nth_fld in Hmnz.
+     destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz))) as [H₂| H₂].
+      rewrite H₀ in Hmnz; apply Hmnz; reflexivity.
+
+      apply Hmnz; reflexivity.
 bbb.
 
 Lemma normalise_nz_add_0_r : ∀ nz,
