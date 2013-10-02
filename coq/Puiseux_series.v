@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.767 2013-10-02 14:36:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.768 2013-10-02 14:52:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3483,7 +3483,22 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
 Qed.
 
 (* exercice... *)
-Lemma normalised_stretching_factor : ∀ nz nz₁,
+Lemma normalised_series_stretching_factor : ∀ s n k,
+  stretching_factor fld (normalise_series fld n (S k) s) 0 = 1%nat.
+Proof.
+intros s n k.
+remember (normalise_series fld n (S k) s) as t.
+apply stretching_factor_iff.
+remember (first_nonzero fld t 1) as m eqn:Hn .
+symmetry in Hn.
+destruct m as [m| ]; [ idtac | reflexivity ].
+apply first_nonzero_iff in Hn.
+simpl in Hn.
+destruct Hn as (Hz, Hnz).
+bbb.
+
+(* exercice... *)
+Lemma normalised_ps_stretching_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
   → stretching_factor fld (nz_terms nz) 0 = 1%nat.
 Proof.
