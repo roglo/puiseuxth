@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.770 2013-10-02 15:41:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.771 2013-10-02 16:31:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3484,30 +3484,29 @@ Qed.
 
 (* exercice... *)
 Lemma normalised_series_stretching_factor : ∀ s n k,
-  stretching_factor fld (normalise_series fld n k s) 0 = 1%nat.
+  first_nonzero fld s 0 = fin n
+  → stretching_factor fld s n = k
+    → stretching_factor fld (normalise_series fld n k s) 0 = 1%nat.
 Proof.
-intros s n k.
+intros s n k Hn Hk.
 remember (normalise_series fld n k s) as t.
 apply stretching_factor_iff.
-remember (first_nonzero fld t 1) as m eqn:Hn .
-symmetry in Hn.
+remember (first_nonzero fld t 1) as m eqn:Hm .
+symmetry in Hm.
 destruct m as [m| ]; [ idtac | reflexivity ].
-apply first_nonzero_iff in Hn.
-simpl in Hn.
-destruct Hn as (Hz, Hnz).
 right.
 split; [ reflexivity | idtac ].
 intros k₁ Hk₁.
+subst t.
+apply first_nonzero_iff in Hm.
+simpl in Hm.
+apply first_nonzero_iff in Hn.
+simpl in Hn.
+destruct Hn as (Hnz, Hnnz).
+destruct Hm as (Hmz, Hmnz).
+apply stretching_factor_iff in Hk.
 unfold is_stretching_factor in Hk₁.
-simpl in Hk₁.
-destruct Hk₁ as (Hk₁, (Hiz, Hinz)).
-destruct m.
- assert (1 mod k₁ ≠ 0)%nat as Hm.
-  rewrite Nat.mod_1_l; [ intros H; discriminate H | assumption ].
-
-  apply Hiz in Hm.
-  rewrite Hm in Hnz.
-  apply Hnz; reflexivity.
+destruct Hk₁ as (Hk₁, (Hkz, Hknz)).
 bbb.
 
 (* exercice... *)
