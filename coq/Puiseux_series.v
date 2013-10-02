@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.769 2013-10-02 15:15:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.770 2013-10-02 15:41:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3484,10 +3484,10 @@ Qed.
 
 (* exercice... *)
 Lemma normalised_series_stretching_factor : ∀ s n k,
-  stretching_factor fld (normalise_series fld n (S k) s) 0 = 1%nat.
+  stretching_factor fld (normalise_series fld n k s) 0 = 1%nat.
 Proof.
 intros s n k.
-remember (normalise_series fld n (S k) s) as t.
+remember (normalise_series fld n k s) as t.
 apply stretching_factor_iff.
 remember (first_nonzero fld t 1) as m eqn:Hn .
 symmetry in Hn.
@@ -3501,6 +3501,13 @@ intros k₁ Hk₁.
 unfold is_stretching_factor in Hk₁.
 simpl in Hk₁.
 destruct Hk₁ as (Hk₁, (Hiz, Hinz)).
+destruct m.
+ assert (1 mod k₁ ≠ 0)%nat as Hm.
+  rewrite Nat.mod_1_l; [ intros H; discriminate H | assumption ].
+
+  apply Hiz in Hm.
+  rewrite Hm in Hnz.
+  apply Hnz; reflexivity.
 bbb.
 
 (* exercice... *)
