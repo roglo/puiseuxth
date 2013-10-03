@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.79 2013-10-03 03:56:43 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.80 2013-10-03 12:36:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -460,6 +460,17 @@ intros n H.
 destruct n as [n| ]; [ idtac | inversion H ].
 inversion_clear H.
 revert H0; apply Nat.nlt_0_r.
+Qed.
+
+Theorem mul_div_le : ∀ a b, b ≠ 0 → b ≠ ∞ → b * (a / b) ≤ a.
+Proof.
+intros a b Hb Hbi.
+destruct a as [a| ]; [ idtac | constructor ].
+destruct b as [b| ]; [ simpl | exfalso; apply Hbi; reflexivity ].
+apply le_fin.
+apply Nat.mul_div_le.
+intros H; apply Hb.
+subst b; reflexivity.
 Qed.
 
 Open Scope nat_scope.
