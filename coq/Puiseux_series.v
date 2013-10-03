@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.784 2013-10-03 11:48:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.785 2013-10-03 12:16:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3644,6 +3644,51 @@ destruct n₁ as [n₁| ].
           intros H; discriminate H.
 
           intros H; discriminate H.
+
+        destruct k as [| k].
+         exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+         intros H; discriminate H.
+
+       destruct k as [| k].
+        exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+        intros H; discriminate H.
+
+      assert (i mod k ≠ 0)%nat as Hik.
+       intros Hik.
+       apply Nat.mod_divides in Hik.
+        destruct Hik as (c, Hi).
+        subst i.
+        rewrite Nat.mul_comm in H₃.
+        rewrite Nat.mod_mul in H₃.
+         revert H₃; apply Nat.lt_irrefl.
+
+         destruct k as [| k].
+          exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+          intros H; discriminate H.
+
+        destruct k as [| k].
+         exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+         intros H; discriminate H.
+
+       apply Hz in Hik.
+       unfold series_nth_fld in Hik.
+       symmetry; rewrite Nat.add_comm.
+       destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
+        assumption.
+
+        exfalso; apply H₄.
+        simpl in H₂.
+        destruct (stop s) as [st| ].
+         apply Nbar.lt_fin.
+         apply Nbar.fin_lt_mono in H₂.
+         apply Nat.add_le_lt_mono with (n := n) (m := n) in H₂.
+          rewrite Nat.add_sub_assoc in H₂.
+           replace (n + st)%nat with (st + n)%nat in H₂ by apply Nat.add_comm.
+           rewrite Nat.add_sub in H₂; assumption.
 bbb.
 
 (* exercice... *)
