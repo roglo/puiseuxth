@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.788 2013-10-03 13:25:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.789 2013-10-03 14:51:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3706,10 +3706,65 @@ destruct n₁ as [n₁| ].
 
          constructor.
 
-     exfalso; apply H₂; clear H₂.
-     rewrite Nbar.mul_comm in H₁.
-     eapply Nbar.lt_le_trans; [ eassumption | idtac ].
-     subst x.
+     destruct (zerop (i mod k)) as [H₃| H₃].
+      apply Nat.mod_divides in H₃.
+       destruct H₃ as (c, Hi).
+       subst i.
+       rewrite Nat.mul_comm.
+       rewrite Nat.div_mul.
+        destruct (Nbar.lt_dec (fin c) x) as [H₃| H₃].
+         subst x.
+         apply Nbar.lt_div_sup_lt_mul_r in H₃.
+         exfalso; apply H₂.
+         rewrite Nat.mul_comm; assumption.
+
+         reflexivity.
+
+        destruct k as [| k].
+         exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+         intros H; discriminate H.
+
+       destruct k as [| k].
+        exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+        intros H; discriminate H.
+
+      reflexivity.
+
+    destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+     destruct (zerop (i mod k)) as [H₃| H₃].
+      apply Nat.mod_divides in H₃.
+       destruct H₃ as (c, Hi).
+       subst i.
+       rewrite Nat.mul_comm.
+       exfalso; apply H₁.
+       subst x.
+       rewrite Nat.mul_comm.
+       rewrite Nbar.fin_inj_mul.
+       apply Nbar.mul_lt_mono_pos_r.
+        destruct k as [| k].
+         exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+         apply Nbar.lt_fin, Nat.lt_0_succ.
+
+        intros H; discriminate H.
+
+        intros H; discriminate H.
+
+        apply Nbar.lt_mul_r_lt_div_sup.
+         destruct k as [| k].
+          exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+          apply Nbar.lt_fin, Nat.lt_0_succ.
+
+         rewrite Nbar.mul_comm.
+         assumption.
+
+       destruct k as [| k].
+        exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+        intros H; discriminate H.
 bbb.
 
 (* exercice... *)
