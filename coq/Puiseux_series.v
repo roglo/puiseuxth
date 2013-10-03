@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.792 2013-10-03 15:34:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.793 2013-10-03 17:24:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3795,6 +3795,9 @@ Lemma normalised_series_shrink_factor : ∀ s n k,
     → shrink_factor fld (normalise_series fld n k s) 0 = 1%nat.
 Proof.
 intros s n k Hn Hk.
+remember Hk as H; clear HeqH.
+apply exists_shrinked_series in H.
+destruct H as (s', Hs').
 remember Hk as H; clear HeqH.
 apply shrink_factor_iff in Hk.
 remember (first_nonzero fld s (S n)) as p eqn:Hp .
