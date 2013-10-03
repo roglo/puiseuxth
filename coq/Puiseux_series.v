@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.783 2013-10-03 09:55:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.784 2013-10-03 11:48:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -81,7 +81,7 @@ Definition series_shift n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n);
      stop := stop s + fin n |}.
 
-Definition series_right_shift n (s : series α) :=
+Definition series_left_shift n (s : series α) :=
   {| terms i := terms s (i + n);
      stop := stop s - fin n |}.
 
@@ -3597,24 +3597,8 @@ Qed.
 
 Lemma exists_shrinked_series : ∀ s n k,
   shrink_factor fld s n = k
-  → ∃ s', stretch_series fld (Pos.of_nat k) s' ≃ series_right_shift n s.
+  → ∃ s', stretch_series fld (Pos.of_nat k) s' ≃ series_left_shift n s.
 Proof.
-intros s n k Hsf.
-apply shrink_factor_iff in Hsf.
-remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
-symmetry in Hn₁.
-destruct n₁ as [n₁| ].
- destruct Hsf as [Hsf| Hsf].
-  unfold is_shrink_factor in Hsf.
-  destruct Hsf as (Hk, (Hz, Hnz)).
-  exists {| terms := fun i => terms s (i / k); stop := stop s / fin k |}.
-  constructor; intros i.
-  unfold series_nth_fld; simpl.
-  rewrite Nbar.fold_div.
-  rewrite Nat2Pos.id.
-   rewrite Nbar.fold_sub.
-bbb.
-
 intros s n k Hsf.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
@@ -3625,19 +3609,41 @@ destruct n₁ as [n₁| ].
   destruct Hsf as (Hk, (Hz, Hnz)).
   exists
    {|
-   terms := fun i => terms s (i / k);
-   stop := stop s / fin k |}.
-  unfold series_shift; simpl.
+   terms := fun i => terms s (n + i * k);
+   stop := (stop s - fin n) / fin k |}.
   constructor; intros i.
   unfold series_nth_fld; simpl.
-  remember (stop s) as st eqn:Hst .
-  symmetry in Hst.
-  destruct st as [st| ].
-   rewrite Nat2Pos.id.
-    simpl.
-    destruct (Nbar.lt_dec (fin i) (fin ((st - n) / k * k + n))) as [H₁| H₁].
-     destruct (lt_dec i n) as [H₂| H₂].
-      destruct (Nbar.lt_dec (fin i) (fin st)) as [H₃| H₃].
+  unfold series_nth_fld; simpl.
+  rewrite Nbar.fold_div.
+  rewrite Nbar.fold_sub.
+  rewrite Nat2Pos.id.
+   remember ((stop s - fin n) / fin k * fin k)%Nbar as x.
+   destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; subst x.
+    destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+     destruct (zerop (i mod k)) as [H₃| H₃].
+      apply Nat.mod_divides in H₃.
+       destruct H₃ as (c, H₃).
+       rewrite Nat.mul_comm in H₃.
+       subst i.
+       rewrite Nat.div_mul.
+        destruct (Nbar.lt_dec (fin c) ((stop s - fin n) / fin k)) as [H₃| H₃].
+         rewrite Nat.add_comm; reflexivity.
+
+         exfalso; apply H₃; clear H₃.
+         simpl in H₁ |- *.
+         destruct (stop s) as [st| ]; [ idtac | constructor ].
+         rewrite Nbar.fin_inj_mul in H₁.
+         apply Nbar.mul_lt_mono_pos_r in H₁.
+          assumption.
+
+          destruct k as [k| ].
+           exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+
+           apply Nbar.lt_fin, Nat.lt_0_succ.
+
+          intros H; discriminate H.
+
+          intros H; discriminate H.
 bbb.
 
 (* exercice... *)
