@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.776 2013-10-02 21:33:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.777 2013-10-03 03:06:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -78,14 +78,13 @@ Inductive puiseux_series α :=
   | Zero : puiseux_series α.
 
 Definition div_sup x y := ((x + y - 1) / y)%nat.
-Definition Nbar_div_sup x y := Nbar.div (x + y - 1) y.
 
 Definition normalise_series n k (s : series α) :=
   match k with
   | O => series_0 fld
   | S _ =>
       {| terms i := terms s (n + i * k);
-         stop := Nbar_div_sup (stop s - fin n) (fin k) |}
+         stop := Nbar.div_sup (stop s - fin n) (fin k) |}
   end.
 
 Definition normalise_nz nz :=
@@ -442,16 +441,16 @@ destruct k as [| k]; [ reflexivity | idtac ].
 constructor; intros i.
 inversion Heq; subst.
 unfold normalise_series.
-remember Nbar_div_sup as f; simpl; subst f.
+remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 remember (S k) as k₁.
 assert (0 < k₁)%nat as Hk by (subst k₁; apply Nat.lt_0_succ).
 clear k Heqk₁; rename k₁ into k.
 pose proof (H (n + i * k)%nat) as Hi.
-remember Nbar_div_sup as f.
+remember Nbar.div_sup as f.
 unfold series_nth_fld in Hi |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
-subst f; unfold Nbar_div_sup.
+subst f; unfold Nbar.div_sup.
 remember ((stop ps₁ - fin n + fin k - 1) / fin k)%Nbar as d₁ eqn:Hd₁ .
 remember ((stop ps₂ - fin n + fin k - 1) / fin k)%Nbar as d₂ eqn:Hd₂ .
 destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
@@ -3461,10 +3460,10 @@ unfold normalise_series.
 destruct k; [ reflexivity | idtac ].
 constructor; intros i.
 unfold series_nth_fld.
-remember Nbar_div_sup as f; simpl; subst f.
+remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
- remember (Nbar_div_sup (stop s - fin n) (fin (S k))) as x eqn:Hx .
+ remember (Nbar.div_sup (stop s - fin n) (fin (S k))) as x eqn:Hx .
  destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
  subst x.
  remember (i * S k)%nat as x.
@@ -3530,7 +3529,6 @@ Lemma normalised_series_stretching_factor : ∀ s n k,
     → stretching_factor fld (normalise_series fld n k s) 0 = 1%nat.
 Proof.
 intros s n k Hn Hk.
-bbb.
 remember (normalise_series fld n k s) as t.
 apply stretching_factor_iff.
 remember (first_nonzero fld t 1) as m eqn:Hm .

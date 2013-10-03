@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.77 2013-09-23 00:40:06 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.78 2013-10-03 03:06:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -69,6 +69,8 @@ Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
 Infix "/" := div : Nbar_scope.
+
+Definition div_sup x y := (x + y - 1) / y.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
