@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.790 2013-10-03 15:02:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.791 2013-10-03 15:28:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3737,6 +3737,40 @@ destruct n₁ as [n₁| ].
           assumption.
 
         assumption.
+
+       assert (i mod k ≠ 0)%nat as Hik.
+        intros Hik.
+        apply Nat.mod_divides in Hik; [ idtac | assumption ].
+        destruct Hik as (c, Hi).
+        subst i.
+        rewrite Nat.mul_comm in H₃.
+        rewrite Nat.mod_mul in H₃; [ idtac | assumption ].
+        revert H₃; apply Nat.lt_irrefl.
+
+        apply Hz in Hik.
+        unfold series_nth_fld in Hik.
+        destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
+         symmetry; rewrite Nat.add_comm.
+         assumption.
+
+         exfalso; apply H₄; clear H₄.
+         destruct (Nbar.lt_dec (stop s) (fin n)) as [H₄| H₄].
+          destruct (stop s) as [st| ]; [ idtac | constructor ].
+          apply Nbar.fin_lt_mono in H₂.
+          apply Nbar.fin_lt_mono.
+          apply Nbar.fin_lt_mono in H₄.
+          fast_omega H₂ H₄.
+
+          apply Nbar.nlt_ge in H₄.
+          destruct (stop s) as [st| ]; [ idtac | constructor ].
+          apply Nbar.fin_lt_mono in H₂.
+          apply Nbar.fin_lt_mono.
+          apply Nbar.fin_le_mono in H₄.
+          fast_omega H₂ H₄.
+
+      reflexivity.
+
+    assumption.
 bbb.
 
 (* exercice... *)
