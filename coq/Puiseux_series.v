@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.791 2013-10-03 15:28:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.792 2013-10-03 15:34:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3599,6 +3599,7 @@ Lemma exists_shrinked_series : ∀ s n k,
   shrink_factor fld s n = k
   → ∃ s', stretch_series fld (Pos.of_nat k) s' ≃ series_left_shift n s.
 Proof.
+(* à voir si simplifiable... *)
 intros s n k Hsf.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
@@ -3771,7 +3772,21 @@ destruct n₁ as [n₁| ].
       reflexivity.
 
     assumption.
-bbb.
+
+  destruct Hsf as (Hk, Hnsf); subst k.
+  exists {| terms := fun i => terms s (n + i); stop := stop s - fin n |}.
+  constructor; intros i.
+  rewrite stretch_series_1.
+  unfold series_nth_fld; simpl.
+  rewrite Nat.add_comm; reflexivity.
+
+ subst k.
+ exists {| terms := fun i => terms s (n + i); stop := stop s - fin n |}.
+ constructor; intros i.
+ rewrite stretch_series_1.
+ unfold series_nth_fld; simpl.
+ rewrite Nat.add_comm; reflexivity.
+Qed.
 
 (* exercice... *)
 Lemma normalised_series_shrink_factor : ∀ s n k,
