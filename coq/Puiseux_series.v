@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.777 2013-10-03 03:06:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.778 2013-10-03 03:15:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3512,7 +3512,7 @@ destruct Hk as [Hk| Hk].
 Qed.
 
 (* exercice... *)
-(* mmm... à voir...
+(* mmm... à voir... not sure it can be proved cause ¬∀ doesn't imply ∃
 Lemma stretching_factor_divides : ∀ s n₁ n₂ k,
   first_nonzero fld s (S n₁) = fin n₂
   → stretching_factor fld s n₁ = k
@@ -3529,33 +3529,36 @@ Lemma normalised_series_stretching_factor : ∀ s n k,
     → stretching_factor fld (normalise_series fld n k s) 0 = 1%nat.
 Proof.
 intros s n k Hn Hk.
-remember (normalise_series fld n k s) as t.
-apply stretching_factor_iff.
-remember (first_nonzero fld t 1) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ idtac | reflexivity ].
-right.
-split; [ reflexivity | idtac ].
-intros k₁ Hk₁.
-apply first_nonzero_iff in Hm.
-simpl in Hm.
-apply first_nonzero_iff in Hn.
-simpl in Hn.
-destruct Hn as (Hnz, Hnnz).
-destruct Hm as (Hmz, Hmnz).
+remember Hk as H; clear HeqH.
 apply stretching_factor_iff in Hk.
-unfold is_stretching_factor in Hk₁.
-destruct Hk₁ as (Hk₁, (Hkz, Hknz)).
-unfold normalise_series in Heqt.
-destruct k as [| k].
- subst t.
- apply Hmnz.
- unfold series_nth_fld; simpl.
- destruct (Nbar.lt_dec (fin (S m)) 0); reflexivity.
+remember (first_nonzero fld s (S n)) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ].
+ eapply stretching_factor_le in H; [ idtac | eassumption ].
+ rename H into Hkp.
+ remember (normalise_series fld n k s) as t.
+ apply stretching_factor_iff.
+ remember (first_nonzero fld t 1) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ]; [ idtac | reflexivity ].
+ right.
+ split; [ reflexivity | idtac ].
+ intros k₁ Hk₁.
+ apply first_nonzero_iff in Hm.
+ simpl in Hm.
+ apply first_nonzero_iff in Hn.
+ simpl in Hn.
+ destruct Hn as (Hnz, Hnnz).
+ destruct Hm as (Hmz, Hmnz).
+ unfold is_stretching_factor in Hk₁.
+ destruct Hk₁ as (Hk₁, (Hkz, Hknz)).
+ unfold normalise_series in Heqt.
+ destruct k as [| k].
+  subst t.
+  apply Hmnz.
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin (S m)) 0); reflexivity.
 
- remember (first_nonzero fld s (S n)) as p eqn:Hp .
- symmetry in Hp.
- destruct p as [p| ].
   destruct Hk as [Hk| Hk].
    apply first_nonzero_iff in Hp.
    destruct Hp as (Hpz, Hpnz).
@@ -3564,6 +3567,8 @@ destruct k as [| k].
    rename Hknz into Hk₁nz.
    destruct Hk as (Hk, (Hkz, Hknz)).
    simpl in Hk₁z, Hk₁nz.
+   apply Nat.succ_le_mono in Hkp.
+   apply Nat.succ_lt_mono in Hk.
 bbb.
 
 (* exercice... *)
