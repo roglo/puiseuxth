@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.787 2013-10-03 13:08:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.788 2013-10-03 13:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3632,56 +3632,15 @@ destruct n₁ as [n₁| ].
          subst x.
          destruct (stop s) as [st| ]; [ idtac | constructor ].
          rewrite Nbar.fin_inj_mul in H₁.
-bbb.
-
-intros s n k Hsf.
-apply shrink_factor_iff in Hsf.
-remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
-symmetry in Hn₁.
-destruct n₁ as [n₁| ].
- destruct Hsf as [Hsf| Hsf].
-  unfold is_shrink_factor in Hsf.
-  destruct Hsf as (Hk, (Hz, Hnz)).
-  exists
-   {|
-   terms := fun i => terms s (n + i * k);
-   stop := Nbar.div_sup (stop s - fin n) (fin k) |}.
-  constructor; intros i.
-  unfold series_nth_fld; simpl.
-  unfold series_nth_fld; simpl.
-  rewrite Nbar.fold_div.
-  rewrite Nbar.fold_sub.
-  rewrite Nat2Pos.id.
-bbb.
-   remember ((stop s - fin n) / fin k * fin k)%Nbar as x.
-   destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; subst x.
-    destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
-     destruct (zerop (i mod k)) as [H₃| H₃].
-      apply Nat.mod_divides in H₃.
-       destruct H₃ as (c, H₃).
-       rewrite Nat.mul_comm in H₃.
-       subst i.
-       rewrite Nat.div_mul.
-        destruct (Nbar.lt_dec (fin c) ((stop s - fin n) / fin k)) as [H₃| H₃].
-         rewrite Nat.add_comm; reflexivity.
-
-         exfalso; apply H₃; clear H₃.
-         simpl in H₁ |- *.
-         destruct (stop s) as [st| ]; [ idtac | constructor ].
-         rewrite Nbar.fin_inj_mul in H₁.
-         apply Nbar.mul_lt_mono_pos_r in H₁.
-          assumption.
-
+         apply Nbar.lt_mul_r_lt_div_sup.
           destruct k as [k| ].
            exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
 
            apply Nbar.lt_fin, Nat.lt_0_succ.
 
-          intros H; discriminate H.
+          assumption.
 
-          intros H; discriminate H.
-
-        destruct k as [| k].
+        destruct k as [k| ].
          exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
 
          intros H; discriminate H.
@@ -3718,7 +3677,7 @@ bbb.
 
         exfalso; apply H₄.
         simpl in H₂.
-        remember (stop s) as st eqn:Hst.
+        remember (stop s) as st eqn:Hst .
         destruct st as [st| ].
          apply Nbar.lt_fin.
          apply Nbar.fin_lt_mono in H₂.
@@ -3728,16 +3687,18 @@ bbb.
            rewrite Nat.add_sub in H₂; assumption.
 
            destruct (lt_dec st n) as [H₅| H₅].
+            subst x.
             simpl in H₁.
             replace (st - n)%nat with O in H₁ by fast_omega H₅.
-            rewrite Nat.div_0_l in H₁.
-             simpl in H₁.
+            simpl in H₁.
+            rewrite Nat.div_small in H₁.
              exfalso; revert H₁; apply Nbar.nlt_0_r.
 
              destruct k as [| k].
               exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
 
-              intros H; discriminate H.
+              simpl; rewrite Nat.sub_0_r.
+              apply Nat.lt_succ_r; reflexivity.
 
             apply Nat.nlt_ge in H₅; assumption.
 
@@ -3748,16 +3709,7 @@ bbb.
      exfalso; apply H₂; clear H₂.
      rewrite Nbar.mul_comm in H₁.
      eapply Nbar.lt_le_trans; [ eassumption | idtac ].
-     apply Nbar.mul_div_le.
-      destruct k as [| k].
-       exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
-
-       intros H; discriminate H.
-
-      intros H; discriminate H.
-
-    destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
-     exfalso; apply H₁.
+     subst x.
 bbb.
 
 (* exercice... *)
