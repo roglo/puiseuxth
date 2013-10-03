@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.781 2013-10-03 09:28:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.782 2013-10-03 09:41:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3603,17 +3603,24 @@ destruct n₁ as [n₁| ].
  destruct Hsf as [Hsf| Hsf].
   unfold is_shrink_factor in Hsf.
   destruct Hsf as (Hk, (Hz, Hnz)).
-  remember (fin 42) as xxx.
-  clear Heqxxx.
-  exists {| terms := fun i => terms s i; stop := xxx |}.
+  exists
+   {|
+   terms := fun i => terms s ((i - n) / k);
+   stop := match stop s with
+           | fin st => fin ((st - n) / k)
+           | ∞ => ∞
+           end |}.
   unfold series_shift; simpl.
-  constructor.
-  intros i.
+  constructor; intros i.
   unfold series_nth_fld; simpl.
-  rewrite Nat2Pos.id.
-   destruct (Nbar.lt_dec (fin i) (xxx * fin k + fin n)) as [H₁| H₁].
-    destruct (lt_dec i n) as [H₂| H₂].
-     destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
+  remember (stop s) as st eqn:Hst .
+  symmetry in Hst.
+  destruct st as [st| ].
+   rewrite Nat2Pos.id.
+    simpl.
+    destruct (Nbar.lt_dec (fin i) (fin ((st - n) / k * k + n))) as [H₁| H₁].
+     destruct (lt_dec i n) as [H₂| H₂].
+      destruct (Nbar.lt_dec (fin i) (fin st)) as [H₃| H₃].
 bbb.
 
 (* exercice... *)
