@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.78 2013-10-03 03:06:03 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.79 2013-10-03 03:56:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -348,6 +348,18 @@ Proof.
 intros n.
 destruct n as [n| ]; [ idtac | constructor ].
 constructor; apply Nat.le_0_l.
+Qed.
+
+Theorem le_0_r : ∀ n, n ≤ 0 ↔ n = 0.
+Proof.
+intros n.
+split; intros Hn.
+ destruct n as [n| ]; [ idtac | inversion Hn ].
+ apply fin_inj_wd.
+ apply fin_le_mono in Hn.
+ apply Nat.le_0_r; assumption.
+
+ subst n; apply le_0_l.
 Qed.
 
 Theorem lt_0_succ: ∀ n, 0 < NS n.

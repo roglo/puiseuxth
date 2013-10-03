@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.778 2013-10-03 03:15:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.779 2013-10-03 03:56:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3521,6 +3521,62 @@ Proof.
 intros s n₁ n₂ k Hn₂ Hk.
 bbb.
 *)
+
+Lemma normalised_series_first_nonzero : ∀ s n k,
+  k ≠ O
+  → first_nonzero fld s 0 = fin n
+    → first_nonzero fld (normalise_series fld n k s) 0 = fin 0.
+Proof.
+intros s n k Hk Hn.
+apply first_nonzero_iff in Hn.
+apply first_nonzero_iff.
+simpl in Hn |- *.
+destruct Hn as (Hz, Hnz).
+split.
+ intros i Hi.
+ exfalso; revert Hi; apply Nat.nlt_0_r.
+
+ unfold series_nth_fld in Hnz.
+ destruct (Nbar.lt_dec (fin n) (stop s)) as [H₁| H₁].
+  unfold series_nth_fld.
+  remember (normalise_series fld n k s) as t eqn:Ht .
+  destruct (Nbar.lt_dec 0 (stop t)) as [H₂| H₂].
+   unfold normalise_series in Ht.
+   destruct k as [| k].
+    rewrite Ht in H₂; simpl in H₂.
+    exfalso; revert H₂; apply Nbar.lt_irrefl.
+
+    rewrite Ht; simpl.
+    rewrite Nat.add_0_r; assumption.
+
+   apply Nbar.nlt_ge in H₂.
+   apply Nbar.le_0_r in H₂.
+   rewrite Ht in H₂.
+   unfold normalise_series in H₂.
+   destruct k as [| k]; [ exfalso; apply Hk; reflexivity | idtac ].
+   simpl in H₂.
+   destruct (stop s) as [st| ]; [ idtac | discriminate H₂ ].
+   simpl in H₂.
+   rewrite divmod_div in H₂.
+   apply Nbar.fin_inj_wd in H₂.
+   apply Nbar.fin_lt_mono in H₁.
+   remember (st - n)%nat as stn eqn:Hstn .
+   symmetry in Hstn.
+   destruct stn as [| stn].
+    exfalso; revert Hstn; apply Nat.sub_gt; assumption.
+
+    simpl in H₂.
+    rewrite Nat.sub_0_r in H₂.
+    rewrite divmod_div in H₂.
+    remember (stn + S k)%nat as x.
+    replace (S k) with (1 * S k)%nat in Heqx by apply Nat.mul_1_l.
+    subst x.
+    rewrite Nat.div_add in H₂; [ idtac | intros H; discriminate H ].
+    apply Nat.eq_add_0 in H₂.
+    destruct H₂ as (_, H); discriminate H.
+
+  exfalso; apply Hnz; reflexivity.
+Qed.
 
 (* exercice... *)
 Lemma normalised_series_stretching_factor : ∀ s n k,
