@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.786 2013-10-03 12:36:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.787 2013-10-03 13:08:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -467,9 +467,9 @@ pose proof (H (n + i * k)%nat) as Hi.
 remember Nbar.div_sup as f.
 unfold series_nth_fld in Hi |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
-subst f; unfold Nbar.div_sup.
-remember ((stop ps₁ - fin n + fin k - 1) / fin k)%Nbar as d₁ eqn:Hd₁ .
-remember ((stop ps₂ - fin n + fin k - 1) / fin k)%Nbar as d₂ eqn:Hd₂ .
+subst f.
+remember (Nbar.div_sup (stop ps₁ - fin n) (fin k))%Nbar as d₁ eqn:Hd₁ .
+remember (Nbar.div_sup (stop ps₂ - fin n) (fin k))%Nbar as d₂ eqn:Hd₂ .
 destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
  destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₂| H₂].
   destruct (Nbar.lt_dec (fin i) d₂) as [H₃| H₃]; subst d₂.
@@ -3610,13 +3610,49 @@ destruct n₁ as [n₁| ].
   exists
    {|
    terms := fun i => terms s (n + i * k);
-   stop := (stop s - fin n) / fin k |}.
+   stop := Nbar.div_sup (stop s - fin n) (fin k) |}.
+  constructor; intros i.
+  remember (Nbar.div_sup (stop s - fin n) (fin k)) as x.
+  unfold series_nth_fld; simpl.
+  unfold series_nth_fld; simpl.
+  rewrite Nbar.fold_sub.
+  rewrite Nat2Pos.id.
+   destruct (Nbar.lt_dec (fin i) (x * fin k)) as [H₁| H₁].
+    destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+     destruct (zerop (i mod k)) as [H₃| H₃].
+      apply Nat.mod_divides in H₃.
+       destruct H₃ as (c, H₃).
+       rewrite Nat.mul_comm in H₃.
+       subst i.
+       rewrite Nat.div_mul.
+        destruct (Nbar.lt_dec (fin c) x) as [H₃| H₃].
+         rewrite Nat.add_comm; reflexivity.
+
+         exfalso; apply H₃; clear H₃.
+         subst x.
+         destruct (stop s) as [st| ]; [ idtac | constructor ].
+         rewrite Nbar.fin_inj_mul in H₁.
+bbb.
+
+intros s n k Hsf.
+apply shrink_factor_iff in Hsf.
+remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
+symmetry in Hn₁.
+destruct n₁ as [n₁| ].
+ destruct Hsf as [Hsf| Hsf].
+  unfold is_shrink_factor in Hsf.
+  destruct Hsf as (Hk, (Hz, Hnz)).
+  exists
+   {|
+   terms := fun i => terms s (n + i * k);
+   stop := Nbar.div_sup (stop s - fin n) (fin k) |}.
   constructor; intros i.
   unfold series_nth_fld; simpl.
   unfold series_nth_fld; simpl.
   rewrite Nbar.fold_div.
   rewrite Nbar.fold_sub.
   rewrite Nat2Pos.id.
+bbb.
    remember ((stop s - fin n) / fin k * fin k)%Nbar as x.
    destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; subst x.
     destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].

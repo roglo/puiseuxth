@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.80 2013-10-03 12:36:35 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.81 2013-10-03 13:08:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -583,7 +583,7 @@ Qed.
 Close Scope nat_scope.
 
 Theorem lt_div_sup_lt_mul_r : ∀ n m p,
-  n < (m + p - 1) / p → n * p < m.
+  n < div_sup m p → n * p < m.
 Proof.
 intros n m p Hn.
 destruct n as [n| ]; [ idtac | inversion Hn ].
@@ -600,7 +600,7 @@ destruct m as [m| ].
 Qed.
 
 Theorem lt_mul_r_lt_div_sup : ∀ n m p, 0 < p → 
-  n * p < m → n < (m + p - 1) / p.
+  n * p < m → n < div_sup m p.
 Proof.
 intros n m p Hp Hn.
 destruct n as [n| ]; [ idtac | inversion Hn ].
