@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.782 2013-10-03 09:41:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.783 2013-10-03 09:55:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -80,6 +80,10 @@ Definition stretch_series k s :=
 Definition series_shift n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n);
      stop := stop s + fin n |}.
+
+Definition series_right_shift n (s : series α) :=
+  {| terms i := terms s (i + n);
+     stop := stop s - fin n |}.
 
 Record nz_ps α := mknz
   { nz_terms : series α;
@@ -3593,8 +3597,24 @@ Qed.
 
 Lemma exists_shrinked_series : ∀ s n k,
   shrink_factor fld s n = k
-  → ∃ s', series_shift fld n (stretch_series fld (Pos.of_nat k) s') ≃ s.
+  → ∃ s', stretch_series fld (Pos.of_nat k) s' ≃ series_right_shift n s.
 Proof.
+intros s n k Hsf.
+apply shrink_factor_iff in Hsf.
+remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
+symmetry in Hn₁.
+destruct n₁ as [n₁| ].
+ destruct Hsf as [Hsf| Hsf].
+  unfold is_shrink_factor in Hsf.
+  destruct Hsf as (Hk, (Hz, Hnz)).
+  exists {| terms := fun i => terms s (i / k); stop := stop s / fin k |}.
+  constructor; intros i.
+  unfold series_nth_fld; simpl.
+  rewrite Nbar.fold_div.
+  rewrite Nat2Pos.id.
+   rewrite Nbar.fold_sub.
+bbb.
+
 intros s n k Hsf.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
@@ -3605,11 +3625,8 @@ destruct n₁ as [n₁| ].
   destruct Hsf as (Hk, (Hz, Hnz)).
   exists
    {|
-   terms := fun i => terms s ((i - n) / k);
-   stop := match stop s with
-           | fin st => fin ((st - n) / k)
-           | ∞ => ∞
-           end |}.
+   terms := fun i => terms s (i / k);
+   stop := stop s / fin k |}.
   unfold series_shift; simpl.
   constructor; intros i.
   unfold series_nth_fld; simpl.
