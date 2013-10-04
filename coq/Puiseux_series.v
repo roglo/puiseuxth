@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.798 2013-10-04 12:09:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.799 2013-10-04 19:34:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3845,84 +3845,25 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-(* exercice... *)
+(* provable but supposes to use Bézout's identity
+   probably complicated
 Lemma normalised_series_shrink_factor : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → shrink_factor fld s n = k
     → shrink_factor fld (normalise_series n k s) 0 = 1%positive.
 Proof.
 intros s n k Hn Hk.
-remember Hk as Hsn; clear HeqHsn.
-apply normalised_series in Hsn; [ idtac | assumption ].
-remember Hk as H; clear HeqH.
-apply shrink_factor_iff in Hk.
-remember (first_nonzero fld s (S n)) as p eqn:Hp .
-symmetry in Hp.
-destruct p as [p| ].
- eapply shrink_factor_le in H; [ idtac | eassumption ].
- rename H into Hkp.
- remember (normalise_series n k s) as t.
- apply shrink_factor_iff.
- remember (first_nonzero fld t 1) as m eqn:Hm .
- symmetry in Hm.
- destruct m as [m| ]; [ idtac | reflexivity ].
- right.
- split; [ reflexivity | idtac ].
- intros k₁ Hk₁.
- apply first_nonzero_iff in Hm.
- simpl in Hm.
- apply first_nonzero_iff in Hn.
- simpl in Hn.
- destruct Hn as (Hnz, Hnnz).
- destruct Hm as (Hmz, Hmnz).
- unfold is_shrink_factor in Hk₁.
- destruct Hk₁ as (Hk₁, (Hkz, Hknz)).
- unfold normalise_series in Heqt.
- destruct Hk as [Hk| Hk].
-  apply first_nonzero_iff in Hp.
-  destruct Hp as (Hpz, Hpnz).
-  unfold is_shrink_factor in Hk.
-  rename Hkz into Hk₁z.
-  rename Hknz into Hk₁nz.
-  destruct Hk as (Hk, (Hkz, Hknz)).
-  simpl in Hk₁z, Hk₁nz.
-  inversion_clear Hsn.
 bbb.
-*)
 
-(* exercice...
 Lemma normalised_ps_shrink_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
   → shrink_factor fld (nz_terms nz) 0 = 1%positive.
 Proof.
 intros nz nz₁ Hnorm.
-apply shrink_factor_iff.
-remember (first_nonzero fld (nz_terms nz) 1) as n eqn:Hn .
-symmetry in Hn.
-apply first_nonzero_iff in Hn.
-destruct n as [n| ]; [ idtac | reflexivity ].
-right.
-split; [ reflexivity | idtac ].
-intros k.
-unfold normalise_nz in Hnorm.
-remember (first_nonzero fld (nz_terms nz₁) 0) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ idtac | discriminate Hnorm ].
-injection Hnorm; clear Hnorm; intros; subst nz.
-simpl in Hn |- *.
-rename nz₁ into nz.
-remember (shrink_factor fld (nz_terms nz) m) as k₁ eqn:Hk₁ .
-remember (normalise_series m k₁ (nz_terms nz)) as s eqn:Hs .
-symmetry in Hk₁.
-intros H.
-unfold is_shrink_factor in H.
-destruct H as (Hk, (Hz, Hnz)).
-simpl in Hz, Hnz.
-destruct Hn as (Hiz, Hnnz).
 bbb.
 *)
 
-(*
+(**)
 Lemma first_nonzero_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
   → first_nonzero fld (nz_terms nz) 0 = fin n
