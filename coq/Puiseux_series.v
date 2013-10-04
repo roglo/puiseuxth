@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.795 2013-10-04 01:52:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.796 2013-10-04 01:59:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3582,13 +3582,12 @@ split.
   exfalso; apply Hnz; reflexivity.
 Qed.
 
-Lemma exists_shrinked_series : ∀ s n k,
+Lemma normalised_stretched_series : ∀ s n k,
   shrink_factor fld s n = k
-  → ∃ s', stretch_series fld k s' ≃ series_left_shift n s.
+  → stretch_series fld k (normalise_series n k s) ≃ series_left_shift n s.
 Proof.
 (* à voir si simplifiable... *)
 intros s n k Hsf.
-exists (normalise_series n k s);
 unfold normalise_series.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
@@ -3767,9 +3766,8 @@ Lemma normalised_series_shrink_factor : ∀ s n k,
     → shrink_factor fld (normalise_series n k s) 0 = 1%positive.
 Proof.
 intros s n k Hn Hk.
-remember Hk as H; clear HeqH.
-apply exists_shrinked_series in H.
-destruct H as (s', Hs').
+remember Hk as Hsn; clear HeqHsn.
+apply normalised_stretched_series in Hsn.
 remember Hk as H; clear HeqH.
 apply shrink_factor_iff in Hk.
 remember (first_nonzero fld s (S n)) as p eqn:Hp .
@@ -3802,6 +3800,7 @@ destruct p as [p| ].
   rename Hknz into Hk₁nz.
   destruct Hk as (Hk, (Hkz, Hknz)).
   simpl in Hk₁z, Hk₁nz.
+  inversion_clear Hsn.
 bbb.
 *)
 
