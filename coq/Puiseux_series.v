@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.797 2013-10-04 09:47:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.798 2013-10-04 12:09:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3803,6 +3803,48 @@ destruct (lt_dec i n) as [H₃| H₃].
     inversion H₁.
 Qed.
 
+Lemma normalise_nz_add_0_r : ∀ nz,
+  normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
+Proof.
+intros nz.
+unfold normalise_nz; simpl.
+rewrite nz_add_0_r.
+rewrite first_nonzero_shift.
+remember (first_nonzero fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
+symmetry in Hn₁.
+rewrite Nbar.add_comm.
+destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
+constructor; simpl.
+ rewrite Z.mul_1_r.
+ rewrite nz_add_0_r.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.add_assoc, Z.add_shuffle0.
+ rewrite Z2Nat_id_max, Z.min_comm.
+ do 2 f_equal.
+  destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
+   rewrite Z.min_r; [ idtac | assumption ].
+   rewrite Z.max_l; [ idtac | assumption ].
+   rewrite Z.add_0_r; reflexivity.
+
+   apply Z.nle_gt, Z.lt_le_incl in H₁.
+   rewrite Z.min_l; [ idtac | assumption ].
+   rewrite Z.max_r; [ idtac | assumption ].
+   reflexivity.
+
+  rewrite shrink_factor_shift; reflexivity.
+
+ unfold cm; simpl.
+ rewrite Pos.mul_1_r.
+ rewrite nz_add_0_r.
+ rewrite shrink_factor_shift.
+ reflexivity.
+
+ rewrite nz_add_0_r.
+ rewrite shrink_factor_shift.
+ rewrite normalise_series_add_shift.
+ reflexivity.
+Qed.
+
 (* exercice... *)
 Lemma normalised_series_shrink_factor : ∀ s n k,
   first_nonzero fld s 0 = fin n
@@ -3848,7 +3890,7 @@ destruct p as [p| ].
 bbb.
 *)
 
-(* exercice... *)
+(* exercice...
 Lemma normalised_ps_shrink_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
   → shrink_factor fld (nz_terms nz) 0 = 1%positive.
@@ -3880,6 +3922,7 @@ destruct Hn as (Hiz, Hnnz).
 bbb.
 *)
 
+(*
 Lemma first_nonzero_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
   → first_nonzero fld (nz_terms nz) 0 = fin n
@@ -3934,48 +3977,6 @@ destruct p as [p| ].
       apply Hmnz; reflexivity.
 bbb.
 *)
-
-Lemma normalise_nz_add_0_r : ∀ nz,
-  normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
-Proof.
-intros nz.
-unfold normalise_nz; simpl.
-rewrite nz_add_0_r.
-rewrite first_nonzero_shift.
-remember (first_nonzero fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
-symmetry in Hn₁.
-rewrite Nbar.add_comm.
-destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
-constructor; simpl.
- rewrite Z.mul_1_r.
- rewrite nz_add_0_r.
- rewrite Nat2Z.inj_add.
- rewrite Z.add_assoc, Z.add_shuffle0.
- rewrite Z2Nat_id_max, Z.min_comm.
- do 2 f_equal.
-  destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
-   rewrite Z.min_r; [ idtac | assumption ].
-   rewrite Z.max_l; [ idtac | assumption ].
-   rewrite Z.add_0_r; reflexivity.
-
-   apply Z.nle_gt, Z.lt_le_incl in H₁.
-   rewrite Z.min_l; [ idtac | assumption ].
-   rewrite Z.max_r; [ idtac | assumption ].
-   reflexivity.
-
-  rewrite shrink_factor_shift; reflexivity.
-
- unfold cm; simpl.
- rewrite Pos.mul_1_r.
- rewrite nz_add_0_r.
- rewrite shrink_factor_shift.
- reflexivity.
-
- rewrite nz_add_0_r.
- rewrite shrink_factor_shift.
- rewrite normalise_series_add_shift.
- reflexivity.
-Qed.
 
 (* oui bof, hein...
 Lemma bof : ∀ nz₁ nz₂,
