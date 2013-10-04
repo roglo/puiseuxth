@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.794 2013-10-04 00:46:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.795 2013-10-04 01:52:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,13 +38,13 @@ Axiom first_nonzero_iff : ∀ s c n,
    series [s] starting at position [n], i.e. there is a series [s'] which
    can be stretched by [stretch_series] (below) with a factor of [k] to
    give [s] back. *)
-Definition shrink_factor : ∀ α, field α → series α → nat → nat.
+Definition shrink_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
 Definition is_shrink_factor s n k :=
-  (k > 1)%nat ∧
-  (∀ i, i mod k ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-  (∀ k', (1 < k' < k)%nat →
+  (k > 1)%positive ∧
+  (∀ i, i mod (Pos.to_nat k) ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
+  (∀ k', (1 < k' < Pos.to_nat k)%nat →
      ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
 
 Axiom shrink_factor_iff : ∀ s n k,
@@ -52,9 +52,9 @@ Axiom shrink_factor_iff : ∀ s n k,
   ↔ match first_nonzero fld s (S n) with
     | fin _ =>
         is_shrink_factor s n k ∨
-        (k = 1%nat ∧ ∀ k', not (is_shrink_factor s n k'))
+        (k = 1%positive ∧ ∀ k', not (is_shrink_factor s n k'))
     | ∞ =>
-        k = 1%nat
+        k = 1%positive
     end.
 
 End Axioms.
@@ -97,12 +97,8 @@ Inductive puiseux_series α :=
 Definition div_sup x y := ((x + y - 1) / y)%nat.
 
 Definition normalise_series n k (s : series α) :=
-  match k with
-  | O => series_0 fld
-  | S _ =>
-      {| terms i := terms s (n + i * k);
-         stop := Nbar.div_sup (stop s - fin n) (fin k) |}
-  end.
+  {| terms i := terms s (n + i * Pos.to_nat k);
+     stop := Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k)) |}.
 
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) 0 with
@@ -110,8 +106,8 @@ Definition normalise_nz nz :=
       let k := shrink_factor fld (nz_terms nz) n in
       NonZero
         {| nz_terms := normalise_series n k (nz_terms nz);
-           nz_valnum := (nz_valnum nz + Z.of_nat n) / Z.of_nat k;
-           nz_comden := Z.to_pos (' nz_comden nz / Z.of_nat k) |}
+           nz_valnum := (nz_valnum nz + Z.of_nat n) / ' k;
+           nz_comden := Z.to_pos (' nz_comden nz / ' k) |}
   | ∞ =>
       Zero _
   end.
@@ -450,30 +446,28 @@ destruct (lt_dec i n) as [Hlt| Hge].
    reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@normalise_series α fld) with 
+Add Parametric Morphism α (fld : field α) : (@normalise_series α) with 
 signature eq ==> eq ==> (eq_series fld) ==> (eq_series fld) as normalise_morph.
 Proof.
 intros n k ps₁ ps₂ Heq.
-destruct k as [| k]; [ reflexivity | idtac ].
 constructor; intros i.
 inversion Heq; subst.
 unfold normalise_series.
 remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
-remember (S k) as k₁.
-assert (0 < k₁)%nat as Hk by (subst k₁; apply Nat.lt_0_succ).
-clear k Heqk₁; rename k₁ into k.
-pose proof (H (n + i * k)%nat) as Hi.
+pose proof (H (n + i * Pos.to_nat k)%nat) as Hi.
 remember Nbar.div_sup as f.
 unfold series_nth_fld in Hi |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
 subst f.
-remember (Nbar.div_sup (stop ps₁ - fin n) (fin k))%Nbar as d₁ eqn:Hd₁ .
-remember (Nbar.div_sup (stop ps₂ - fin n) (fin k))%Nbar as d₂ eqn:Hd₂ .
+remember (fin (Pos.to_nat k)) as fink.
+remember (Nbar.div_sup (stop ps₁ - fin n) fink)%Nbar as d₁ eqn:Hd₁ .
+remember (Nbar.div_sup (stop ps₂ - fin n) fink)%Nbar as d₂ eqn:Hd₂ .
+subst fink.
 destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
- destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₂| H₂].
+ destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₁)) as [H₂| H₂].
   destruct (Nbar.lt_dec (fin i) d₂) as [H₃| H₃]; subst d₂.
-   destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
+   destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
     exfalso; apply H₄.
@@ -482,10 +476,10 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
     apply Nbar.lt_add_lt_sub_r.
     assumption.
 
-   destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
+   destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₂)) as [H₄| H₄].
     exfalso; apply H₃.
     apply Nbar.lt_mul_r_lt_div_sup.
-     apply Nbar.fin_lt_mono; assumption.
+     apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
 
      apply Nbar.lt_add_lt_sub_r.
      rewrite Nbar.add_comm; assumption.
@@ -498,16 +492,16 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
   apply Nbar.lt_add_lt_sub_r.
   assumption.
 
- destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₁)) as [H₂| H₂].
+ destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₁)) as [H₂| H₂].
   exfalso; apply H₁.
   apply Nbar.lt_mul_r_lt_div_sup.
-   apply Nbar.fin_lt_mono; assumption.
+   apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
 
    apply Nbar.lt_add_lt_sub_r.
    rewrite Nbar.add_comm; assumption.
 
   destruct (Nbar.lt_dec (fin i) d₂) as [H₃| H₃]; subst d₂.
-   destruct (Nbar.lt_dec (fin (n + i * k)) (stop ps₂)) as [H₄| H₄].
+   destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₂)) as [H₄| H₄].
     assumption.
 
     exfalso; apply H₄.
@@ -3469,28 +3463,29 @@ bbb.
 *)
 
 Lemma normalise_series_add_shift : ∀ s n m k,
-  normalise_series fld (n + m) k (series_shift fld m s)
-  ≃ normalise_series fld n k s.
+  normalise_series (n + m) k (series_shift fld m s)
+  ≃ normalise_series n k s.
 Proof.
 intros s n m k.
 unfold normalise_series.
-destruct k; [ reflexivity | idtac ].
 constructor; intros i.
 unfold series_nth_fld.
 remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
- remember (Nbar.div_sup (stop s - fin n) (fin (S k))) as x eqn:Hx .
+ remember (Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k))) as x eqn:Hx .
  destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
  subst x.
- remember (i * S k)%nat as x.
+ remember (i * Pos.to_nat k)%nat as x.
  replace (n + m + x - m)%nat with (n + x)%nat by omega.
  subst x.
- destruct (lt_dec (n + m + i * S k) m) as [H₂| H₂]; [ idtac | reflexivity ].
- rewrite Nat.add_shuffle0, Nat.add_comm in H₂.
- apply Nat.nle_gt in H₂.
- exfalso; apply H₂.
- apply Nat.le_add_r.
+ destruct (lt_dec (n + m + i * Pos.to_nat k) m) as [H₂| H₂].
+  rewrite Nat.add_shuffle0, Nat.add_comm in H₂.
+  apply Nat.nle_gt in H₂.
+  exfalso; apply H₂.
+  apply Nat.le_add_r.
+
+  reflexivity.
 
  simpl.
  destruct (stop s) as [st| ]; [ simpl | reflexivity ].
@@ -3501,7 +3496,7 @@ Qed.
 Lemma shrink_factor_le : ∀ s n₁ n₂ k,
   first_nonzero fld s (S n₁) = fin n₂
   → shrink_factor fld s n₁ = k
-    → (k ≤ S n₂)%nat.
+    → (Pos.to_nat k ≤ S n₂)%nat.
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
 apply shrink_factor_iff in Hk.
@@ -3512,9 +3507,9 @@ destruct Hk as [Hk| Hk].
  apply first_nonzero_iff in Hn₂.
  destruct Hn₂ as (Hn₂z, Hn₂nz).
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hn₂nz.
- destruct (lt_dec (S n₂) k) as [H₁| H₁].
+ destruct (lt_dec (S n₂) (Pos.to_nat k)) as [H₁| H₁].
   exfalso.
-  assert (S n₂ mod k ≠ 0)%nat as H.
+  assert (S n₂ mod Pos.to_nat k ≠ 0)%nat as H.
    rewrite Nat.mod_small; [ intros H; discriminate H | assumption ].
 
    apply Hkz in H.
@@ -3540,11 +3535,10 @@ bbb.
 *)
 
 Lemma normalised_series_first_nonzero : ∀ s n k,
-  k ≠ O
-  → first_nonzero fld s 0 = fin n
-    → first_nonzero fld (normalise_series fld n k s) 0 = fin 0.
+  first_nonzero fld s 0 = fin n
+  → first_nonzero fld (normalise_series n k s) 0 = fin 0.
 Proof.
-intros s n k Hk Hn.
+intros s n k Hn.
 apply first_nonzero_iff in Hn.
 apply first_nonzero_iff.
 simpl in Hn |- *.
@@ -3556,25 +3550,18 @@ split.
  unfold series_nth_fld in Hnz.
  destruct (Nbar.lt_dec (fin n) (stop s)) as [H₁| H₁].
   unfold series_nth_fld.
-  remember (normalise_series fld n k s) as t eqn:Ht .
+  remember (normalise_series n k s) as t eqn:Ht .
   destruct (Nbar.lt_dec 0 (stop t)) as [H₂| H₂].
-   unfold normalise_series in Ht.
-   destruct k as [| k].
-    rewrite Ht in H₂; simpl in H₂.
-    exfalso; revert H₂; apply Nbar.lt_irrefl.
-
-    rewrite Ht; simpl.
-    rewrite Nat.add_0_r; assumption.
+   rewrite Ht; simpl.
+   rewrite Nat.add_0_r; assumption.
 
    apply Nbar.nlt_ge in H₂.
    apply Nbar.le_0_r in H₂.
    rewrite Ht in H₂.
    unfold normalise_series in H₂.
-   destruct k as [| k]; [ exfalso; apply Hk; reflexivity | idtac ].
    simpl in H₂.
    destruct (stop s) as [st| ]; [ idtac | discriminate H₂ ].
    simpl in H₂.
-   rewrite divmod_div in H₂.
    apply Nbar.fin_inj_wd in H₂.
    apply Nbar.fin_lt_mono in H₁.
    remember (st - n)%nat as stn eqn:Hstn .
@@ -3584,11 +3571,11 @@ split.
 
     simpl in H₂.
     rewrite Nat.sub_0_r in H₂.
-    rewrite divmod_div in H₂.
-    remember (stn + S k)%nat as x.
-    replace (S k) with (1 * S k)%nat in Heqx by apply Nat.mul_1_l.
-    subst x.
-    rewrite Nat.div_add in H₂; [ idtac | intros H; discriminate H ].
+    remember (Pos.to_nat k) as pk.
+    remember (stn + pk)%nat as x.
+    replace pk with (1 * pk)%nat in Heqx by apply Nat.mul_1_l.
+    subst pk x.
+    rewrite Nat.div_add in H₂; [ idtac | apply Pos2Nat_ne_0 ].
     apply Nat.eq_add_0 in H₂.
     destruct H₂ as (_, H); discriminate H.
 
@@ -3597,14 +3584,12 @@ Qed.
 
 Lemma exists_shrinked_series : ∀ s n k,
   shrink_factor fld s n = k
-  → ∃ s', stretch_series fld (Pos.of_nat k) s' ≃ series_left_shift n s.
+  → ∃ s', stretch_series fld k s' ≃ series_left_shift n s.
 Proof.
 (* à voir si simplifiable... *)
 intros s n k Hsf.
-exists
- {|
- terms := fun i => terms s (n + i * k);
- stop := Nbar.div_sup (stop s - fin n) (fin k) |}.
+exists (normalise_series n k s);
+unfold normalise_series.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
@@ -3612,166 +3597,147 @@ destruct n₁ as [n₁| ].
  destruct Hsf as [Hsf| Hsf].
   unfold is_shrink_factor in Hsf.
   destruct Hsf as (Hk, (Hz, Hnz)).
-  assert (k ≠ 0)%nat as Hknz.
-   destruct k as [| k].
-    exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+  assert (Pos.to_nat k ≠ 0)%nat as Hknz by apply Pos2Nat_ne_0.
+  constructor; intros i.
+  remember (Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k))) as x.
+  unfold series_nth_fld; simpl.
+  unfold series_nth_fld; simpl.
+  rewrite Nbar.fold_sub.
+  destruct (Nbar.lt_dec (fin i) (x * fin (Pos.to_nat k))) as [H₁| H₁].
+   destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+    destruct (zerop (i mod Pos.to_nat k)) as [H₃| H₃].
+     apply Nat.mod_divides in H₃; [ idtac | assumption ].
+     destruct H₃ as (c, H₃).
+     rewrite Nat.mul_comm in H₃.
+     subst i.
+     rewrite Nat.div_mul; [ idtac | assumption ].
+     destruct (Nbar.lt_dec (fin c) x) as [H₃| H₃].
+      rewrite Nat.add_comm; reflexivity.
 
-    intros H; discriminate H.
+      exfalso; apply H₃; clear H₃.
+      subst x.
+      destruct (stop s) as [st| ]; [ idtac | constructor ].
+      rewrite Nbar.fin_inj_mul in H₁.
+      apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
+      apply Nbar.lt_fin, Pos2Nat.is_pos.
 
-   constructor; intros i.
-   remember (Nbar.div_sup (stop s - fin n) (fin k)) as x.
-   unfold series_nth_fld; simpl.
-   unfold series_nth_fld; simpl.
-   rewrite Nbar.fold_sub.
-   rewrite Nat2Pos.id.
-    destruct (Nbar.lt_dec (fin i) (x * fin k)) as [H₁| H₁].
-     destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
-      destruct (zerop (i mod k)) as [H₃| H₃].
-       apply Nat.mod_divides in H₃; [ idtac | assumption ].
-       destruct H₃ as (c, H₃).
-       rewrite Nat.mul_comm in H₃.
-       subst i.
-       rewrite Nat.div_mul; [ idtac | assumption ].
-       destruct (Nbar.lt_dec (fin c) x) as [H₃| H₃].
-        rewrite Nat.add_comm; reflexivity.
+     assert (i mod Pos.to_nat k ≠ 0)%nat as Hik.
+      intros Hik.
+      apply Nat.mod_divides in Hik; [ idtac | assumption ].
+      destruct Hik as (c, Hi).
+      subst i.
+      rewrite Nat.mul_comm in H₃.
+      rewrite Nat.mod_mul in H₃; [ idtac | assumption ].
+      revert H₃; apply Nat.lt_irrefl.
 
-        exfalso; apply H₃; clear H₃.
-        subst x.
-        destruct (stop s) as [st| ]; [ idtac | constructor ].
-        rewrite Nbar.fin_inj_mul in H₁.
-        apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
-        destruct k as [k| ].
-         exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+      apply Hz in Hik.
+      unfold series_nth_fld in Hik.
+      symmetry; rewrite Nat.add_comm.
+      destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
+       assumption.
 
-         apply Nbar.lt_fin, Nat.lt_0_succ.
+       exfalso; apply H₄.
+       simpl in H₂.
+       remember (stop s) as st eqn:Hst .
+       destruct st as [st| ].
+        apply Nbar.lt_fin.
+        apply Nbar.fin_lt_mono in H₂.
+        apply Nat.add_le_lt_mono with (n := n) (m := n) in H₂.
+         rewrite Nat.add_sub_assoc in H₂.
+          replace (n + st)%nat with (st + n)%nat in H₂ by apply Nat.add_comm.
+          rewrite Nat.add_sub in H₂; assumption.
 
-       assert (i mod k ≠ 0)%nat as Hik.
-        intros Hik.
-        apply Nat.mod_divides in Hik; [ idtac | assumption ].
-        destruct Hik as (c, Hi).
-        subst i.
-        rewrite Nat.mul_comm in H₃.
-        rewrite Nat.mod_mul in H₃; [ idtac | assumption ].
-        revert H₃; apply Nat.lt_irrefl.
+          destruct (lt_dec st n) as [H₅| H₅].
+           subst x.
+           simpl in H₁.
+           replace (st - n)%nat with O in H₁ by fast_omega H₅.
+           simpl in H₁.
+           rewrite Nat.div_small in H₁.
+            exfalso; revert H₁; apply Nbar.nlt_0_r.
 
-        apply Hz in Hik.
-        unfold series_nth_fld in Hik.
-        symmetry; rewrite Nat.add_comm.
-        destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
-         assumption.
+            remember (Pos.to_nat k) as pk.
+            destruct pk as [| pk]; [ assumption | idtac ].
+            simpl; rewrite Nat.sub_0_r.
+            apply Nat.lt_succ_diag_r.
 
-         exfalso; apply H₄.
-         simpl in H₂.
-         remember (stop s) as st eqn:Hst .
-         destruct st as [st| ].
-          apply Nbar.lt_fin.
-          apply Nbar.fin_lt_mono in H₂.
-          apply Nat.add_le_lt_mono with (n := n) (m := n) in H₂.
-           rewrite Nat.add_sub_assoc in H₂.
-            replace (n + st)%nat with (st + n)%nat in H₂
-             by apply Nat.add_comm.
-            rewrite Nat.add_sub in H₂; assumption.
+           apply Nat.nlt_ge in H₅; assumption.
 
-            destruct (lt_dec st n) as [H₅| H₅].
-             subst x.
-             simpl in H₁.
-             replace (st - n)%nat with O in H₁ by fast_omega H₅.
-             simpl in H₁.
-             rewrite Nat.div_small in H₁.
-              exfalso; revert H₁; apply Nbar.nlt_0_r.
+         reflexivity.
 
-              destruct k as [| k].
-               exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
+        constructor.
 
-               simpl; rewrite Nat.sub_0_r.
-               apply Nat.lt_succ_r; reflexivity.
-
-             apply Nat.nlt_ge in H₅; assumption.
-
-           reflexivity.
-
-          constructor.
-
-      destruct (zerop (i mod k)) as [H₃| H₃].
-       apply Nat.mod_divides in H₃; [ idtac | assumption ].
-       destruct H₃ as (c, Hi).
-       subst i.
-       rewrite Nat.mul_comm.
-       rewrite Nat.div_mul; [ idtac | assumption ].
-       destruct (Nbar.lt_dec (fin c) x) as [H₃| H₃].
-        subst x.
-        apply Nbar.lt_div_sup_lt_mul_r in H₃.
-        exfalso; apply H₂.
-        rewrite Nat.mul_comm; assumption.
-
-        reflexivity.
-
-       reflexivity.
-
-     destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
-      destruct (zerop (i mod k)) as [H₃| H₃].
-       apply Nat.mod_divides in H₃.
-        destruct H₃ as (c, Hi).
-        subst i.
-        rewrite Nat.mul_comm.
-        exfalso; apply H₁.
-        subst x.
-        rewrite Nat.mul_comm.
-        rewrite Nbar.fin_inj_mul.
-        apply Nbar.mul_lt_mono_pos_r.
-         destruct k as [| k].
-          exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
-
-          apply Nbar.lt_fin, Nat.lt_0_succ.
-
-         intros H; discriminate H.
-
-         intros H; discriminate H.
-
-         apply Nbar.lt_mul_r_lt_div_sup.
-          destruct k as [| k].
-           exfalso; apply Nat.nlt_ge in Hk; apply Hk, Nat.lt_0_succ.
-
-           apply Nbar.lt_fin, Nat.lt_0_succ.
-
-          rewrite Nbar.mul_comm.
-          assumption.
-
-        assumption.
-
-       assert (i mod k ≠ 0)%nat as Hik.
-        intros Hik.
-        apply Nat.mod_divides in Hik; [ idtac | assumption ].
-        destruct Hik as (c, Hi).
-        subst i.
-        rewrite Nat.mul_comm in H₃.
-        rewrite Nat.mod_mul in H₃; [ idtac | assumption ].
-        revert H₃; apply Nat.lt_irrefl.
-
-        apply Hz in Hik.
-        unfold series_nth_fld in Hik.
-        destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
-         symmetry; rewrite Nat.add_comm.
-         assumption.
-
-         exfalso; apply H₄; clear H₄.
-         destruct (Nbar.lt_dec (stop s) (fin n)) as [H₄| H₄].
-          destruct (stop s) as [st| ]; [ idtac | constructor ].
-          apply Nbar.fin_lt_mono in H₂.
-          apply Nbar.fin_lt_mono.
-          apply Nbar.fin_lt_mono in H₄.
-          fast_omega H₂ H₄.
-
-          apply Nbar.nlt_ge in H₄.
-          destruct (stop s) as [st| ]; [ idtac | constructor ].
-          apply Nbar.fin_lt_mono in H₂.
-          apply Nbar.fin_lt_mono.
-          apply Nbar.fin_le_mono in H₄.
-          fast_omega H₂ H₄.
+    destruct (zerop (i mod Pos.to_nat k)) as [H₃| H₃].
+     apply Nat.mod_divides in H₃; [ idtac | assumption ].
+     destruct H₃ as (c, Hi).
+     subst i.
+     rewrite Nat.mul_comm.
+     rewrite Nat.div_mul; [ idtac | assumption ].
+     destruct (Nbar.lt_dec (fin c) x) as [H₃| H₃].
+      subst x.
+      apply Nbar.lt_div_sup_lt_mul_r in H₃.
+      exfalso; apply H₂.
+      rewrite Nat.mul_comm; assumption.
 
       reflexivity.
 
-    assumption.
+     reflexivity.
+
+   destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+    destruct (zerop (i mod Pos.to_nat k)) as [H₃| H₃].
+     apply Nat.mod_divides in H₃.
+      destruct H₃ as (c, Hi).
+      subst i.
+      rewrite Nat.mul_comm.
+      exfalso; apply H₁.
+      subst x.
+      rewrite Nat.mul_comm.
+      rewrite Nbar.fin_inj_mul.
+      apply Nbar.mul_lt_mono_pos_r.
+       apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
+
+       intros H; discriminate H.
+
+       intros H; discriminate H.
+
+       apply Nbar.lt_mul_r_lt_div_sup.
+        apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
+
+        rewrite Nbar.mul_comm.
+        assumption.
+
+      assumption.
+
+     assert (i mod Pos.to_nat k ≠ 0)%nat as Hik.
+      intros Hik.
+      apply Nat.mod_divides in Hik; [ idtac | assumption ].
+      destruct Hik as (c, Hi).
+      subst i.
+      rewrite Nat.mul_comm in H₃.
+      rewrite Nat.mod_mul in H₃; [ idtac | assumption ].
+      revert H₃; apply Nat.lt_irrefl.
+
+      apply Hz in Hik.
+      unfold series_nth_fld in Hik.
+      destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
+       symmetry; rewrite Nat.add_comm.
+       assumption.
+
+       exfalso; apply H₄; clear H₄.
+       destruct (Nbar.lt_dec (stop s) (fin n)) as [H₄| H₄].
+        destruct (stop s) as [st| ]; [ idtac | constructor ].
+        apply Nbar.fin_lt_mono in H₂.
+        apply Nbar.fin_lt_mono.
+        apply Nbar.fin_lt_mono in H₄.
+        fast_omega H₂ H₄.
+
+        apply Nbar.nlt_ge in H₄.
+        destruct (stop s) as [st| ]; [ idtac | constructor ].
+        apply Nbar.fin_lt_mono in H₂.
+        apply Nbar.fin_lt_mono.
+        apply Nbar.fin_le_mono in H₄.
+        fast_omega H₂ H₄.
+
+    reflexivity.
 
   destruct Hsf as (Hk, Hnsf); subst k.
   constructor; intros i.
@@ -3798,7 +3764,7 @@ Qed.
 Lemma normalised_series_shrink_factor : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → shrink_factor fld s n = k
-    → shrink_factor fld (normalise_series fld n k s) 0 = 1%nat.
+    → shrink_factor fld (normalise_series n k s) 0 = 1%positive.
 Proof.
 intros s n k Hn Hk.
 remember Hk as H; clear HeqH.
@@ -3811,7 +3777,7 @@ symmetry in Hp.
 destruct p as [p| ].
  eapply shrink_factor_le in H; [ idtac | eassumption ].
  rename H into Hkp.
- remember (normalise_series fld n k s) as t.
+ remember (normalise_series n k s) as t.
  apply shrink_factor_iff.
  remember (first_nonzero fld t 1) as m eqn:Hm .
  symmetry in Hm.
@@ -3828,28 +3794,21 @@ destruct p as [p| ].
  unfold is_shrink_factor in Hk₁.
  destruct Hk₁ as (Hk₁, (Hkz, Hknz)).
  unfold normalise_series in Heqt.
- destruct k as [| k].
-  subst t.
-  apply Hmnz.
-  unfold series_nth_fld; simpl.
-  destruct (Nbar.lt_dec (fin (S m)) 0); reflexivity.
-
-  destruct Hk as [Hk| Hk].
-   apply first_nonzero_iff in Hp.
-   destruct Hp as (Hpz, Hpnz).
-   unfold is_shrink_factor in Hk.
-   rename Hkz into Hk₁z.
-   rename Hknz into Hk₁nz.
-   destruct Hk as (Hk, (Hkz, Hknz)).
-   simpl in Hk₁z, Hk₁nz.
-   apply Nat.succ_le_mono in Hkp.
-   apply Nat.succ_lt_mono in Hk.
+ destruct Hk as [Hk| Hk].
+  apply first_nonzero_iff in Hp.
+  destruct Hp as (Hpz, Hpnz).
+  unfold is_shrink_factor in Hk.
+  rename Hkz into Hk₁z.
+  rename Hknz into Hk₁nz.
+  destruct Hk as (Hk, (Hkz, Hknz)).
+  simpl in Hk₁z, Hk₁nz.
 bbb.
+*)
 
 (* exercice... *)
 Lemma normalised_ps_shrink_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
-  → shrink_factor fld (nz_terms nz) 0 = 1%nat.
+  → shrink_factor fld (nz_terms nz) 0 = 1%positive.
 Proof.
 intros nz nz₁ Hnorm.
 apply shrink_factor_iff.
@@ -3868,7 +3827,7 @@ injection Hnorm; clear Hnorm; intros; subst nz.
 simpl in Hn |- *.
 rename nz₁ into nz.
 remember (shrink_factor fld (nz_terms nz) m) as k₁ eqn:Hk₁ .
-remember (normalise_series fld m k₁ (nz_terms nz)) as s eqn:Hs .
+remember (normalise_series m k₁ (nz_terms nz)) as s eqn:Hs .
 symmetry in Hk₁.
 intros H.
 unfold is_shrink_factor in H.
@@ -3876,6 +3835,7 @@ destruct H as (Hk, (Hz, Hnz)).
 simpl in Hz, Hnz.
 destruct Hn as (Hiz, Hnnz).
 bbb.
+*)
 
 Lemma first_nonzero_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
@@ -3930,6 +3890,7 @@ destruct p as [p| ].
 
       apply Hmnz; reflexivity.
 bbb.
+*)
 
 Lemma normalise_nz_add_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
