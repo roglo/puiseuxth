@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.793 2013-10-03 17:24:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.794 2013-10-04 00:46:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3601,6 +3601,10 @@ Lemma exists_shrinked_series : ∀ s n k,
 Proof.
 (* à voir si simplifiable... *)
 intros s n k Hsf.
+exists
+ {|
+ terms := fun i => terms s (n + i * k);
+ stop := Nbar.div_sup (stop s - fin n) (fin k) |}.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
@@ -3614,10 +3618,6 @@ destruct n₁ as [n₁| ].
 
     intros H; discriminate H.
 
-   exists
-    {|
-    terms := fun i => terms s (n + i * k);
-    stop := Nbar.div_sup (stop s - fin n) (fin k) |}.
    constructor; intros i.
    remember (Nbar.div_sup (stop s - fin n) (fin k)) as x.
    unfold series_nth_fld; simpl.
@@ -3774,18 +3774,24 @@ destruct n₁ as [n₁| ].
     assumption.
 
   destruct Hsf as (Hk, Hnsf); subst k.
-  exists {| terms := fun i => terms s (n + i); stop := stop s - fin n |}.
   constructor; intros i.
   rewrite stretch_series_1.
   unfold series_nth_fld; simpl.
-  rewrite Nat.add_comm; reflexivity.
+  destruct (stop s) as [st| ]; simpl.
+   rewrite divmod_div, Nat.div_1_r, Nat.add_sub.
+   rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
+
+   rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
 
  subst k.
- exists {| terms := fun i => terms s (n + i); stop := stop s - fin n |}.
  constructor; intros i.
  rewrite stretch_series_1.
  unfold series_nth_fld; simpl.
- rewrite Nat.add_comm; reflexivity.
+ destruct (stop s) as [st| ]; simpl.
+  rewrite divmod_div, Nat.div_1_r, Nat.add_sub.
+  rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
+
+  rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
 Qed.
 
 (* exercice... *)
