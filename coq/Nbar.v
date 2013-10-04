@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.81 2013-10-03 13:08:13 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.82 2013-10-04 09:47:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -276,6 +276,23 @@ destruct n as [n| ].
   right; intros H; discriminate H.
 
   left; reflexivity.
+Qed.
+
+Theorem le_dec : ∀ (n m : Nbar), {n ≤ m} + {~ n ≤ m}.
+Proof.
+intros n m.
+destruct n as [n| ].
+ destruct m as [m| ].
+  destruct (le_dec n m) as [Hlt| Hge].
+   left; constructor; assumption.
+
+   right; intros H; apply Hge; clear Hge.
+   inversion H; assumption.
+
+  left; constructor.
+
+ destruct m as [m| ]; [ right; intros H; inversion H | idtac ].
+ left; constructor.
 Qed.
 
 Theorem lt_dec : ∀ (n m : Nbar), {n < m} + {~ n < m}.
@@ -721,6 +738,17 @@ rewrite Nat.sub_add_distr; reflexivity.
 Qed.
 *)
 
+Theorem sub_add: ∀ n m, n ≤ m → m - n + n = m.
+Proof.
+intros n m Hnm.
+destruct n as [n| ]; simpl.
+ destruct m as [m| ]; [ simpl | reflexivity ].
+ rewrite Nat.sub_add; [ reflexivity | idtac ].
+ rewrite fin_le_mono; assumption.
+
+ destruct m as [m| ]; [ inversion Hnm | reflexivity ].
+Qed.
+
 Theorem eq_add_0 : ∀ n m, n + m = 0 ↔ n = 0 ∧ m = 0.
 Proof.
 intros n m.
@@ -755,6 +783,14 @@ intros n m p.
 destruct n as [n| ]; [ simpl | reflexivity ].
 destruct m as [m| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ rewrite Nat.add_assoc; reflexivity | reflexivity ].
+Qed.
+
+Theorem add_sub: ∀ n m, m ≠ ∞ → n + m - m = n.
+Proof.
+intros n m Hm.
+destruct m as [m| ]; [ idtac | exfalso; apply Hm; reflexivity ].
+destruct n as [n| ]; [ simpl | reflexivity ].
+rewrite Nat.add_sub; reflexivity.
 Qed.
 
 Theorem add_sub_assoc : ∀ n m p, p ≠ ∞ → p ≤ m → n + (m - p) = n + m - p.

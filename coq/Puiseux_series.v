@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.796 2013-10-04 01:59:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.797 2013-10-04 09:47:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -80,10 +80,6 @@ Definition stretch_series k s :=
 Definition series_shift n s :=
   {| terms i := if lt_dec i n then zero fld else terms s (i - n);
      stop := stop s + fin n |}.
-
-Definition series_left_shift n (s : series α) :=
-  {| terms i := terms s (i + n);
-     stop := stop s - fin n |}.
 
 Record nz_ps α := mknz
   { nz_terms : series α;
@@ -3582,6 +3578,10 @@ split.
   exfalso; apply Hnz; reflexivity.
 Qed.
 
+Definition series_left_shift n (s : series α) :=
+  {| terms i := terms s (i + n);
+     stop := stop s - fin n |}.
+
 Lemma normalised_stretched_series : ∀ s n k,
   shrink_factor fld s n = k
   → stretch_series fld k (normalise_series n k s) ≃ series_left_shift n s.
@@ -3759,6 +3759,50 @@ destruct n₁ as [n₁| ].
   rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
 Qed.
 
+Lemma normalised_series : ∀ s n k,
+  first_nonzero fld s 0 = fin n
+  → shrink_factor fld s n = k
+    → series_shift fld n (stretch_series fld k (normalise_series n k s)) ≃ s.
+Proof.
+intros s n k Hfn Hsf.
+rewrite normalised_stretched_series; [ idtac | assumption ].
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.fold_sub.
+apply first_nonzero_iff in Hfn; simpl in Hfn.
+destruct Hfn as (Hsz, Hsnz).
+unfold series_nth_fld in Hsz.
+destruct (lt_dec i n) as [H₃| H₃].
+ apply Hsz in H₃; simpl in H₃.
+ rewrite H₃.
+ destruct (Nbar.lt_dec (fin i) (stop s - fin n + fin n)); reflexivity.
+
+ apply Nat.nlt_ge in H₃.
+ rewrite Nat.sub_add; [ idtac | assumption ].
+ destruct (Nbar.lt_dec (fin n) (stop s)) as [H₁| H₁].
+  rewrite Nbar.sub_add; [ reflexivity | idtac ].
+  apply Nbar.lt_le_incl; assumption.
+
+  apply Nbar.nlt_ge in H₁.
+  replace (stop s - fin n)%Nbar with 0%Nbar ; simpl.
+   destruct (Nbar.lt_dec (fin i) (fin n)) as [H₂| H₂].
+    apply Nbar.fin_lt_mono in H₂.
+    apply Nat.nle_gt in H₂; contradiction.
+
+    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
+     exfalso; apply H₂.
+     eapply Nbar.lt_le_trans; eassumption.
+
+     reflexivity.
+
+   destruct (stop s) as [st| ].
+    apply Nbar.fin_le_mono in H₁.
+    replace (st - n)%nat with O by fast_omega H₁.
+    reflexivity.
+
+    inversion H₁.
+Qed.
+
 (* exercice... *)
 Lemma normalised_series_shrink_factor : ∀ s n k,
   first_nonzero fld s 0 = fin n
@@ -3767,7 +3811,7 @@ Lemma normalised_series_shrink_factor : ∀ s n k,
 Proof.
 intros s n k Hn Hk.
 remember Hk as Hsn; clear HeqHsn.
-apply normalised_stretched_series in Hsn.
+apply normalised_series in Hsn; [ idtac | assumption ].
 remember Hk as H; clear HeqH.
 apply shrink_factor_iff in Hk.
 remember (first_nonzero fld s (S n)) as p eqn:Hp .
