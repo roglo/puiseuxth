@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.803 2013-10-05 19:01:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.804 2013-10-05 19:28:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,21 +41,11 @@ Axiom first_nonzero_iff : ∀ s c n,
 Definition shrink_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
-Definition is_shrink_factor s n k :=
-  (k > 1)%positive ∧
-  (∀ i, i mod (Pos.to_nat k) ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-  (∀ k', (1 < k' < Pos.to_nat k)%nat →
-     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
-
 Axiom shrink_factor_iff : ∀ s n k,
   shrink_factor fld s n = k
-  ↔ match first_nonzero fld s (S n) with
-    | fin _ =>
-        is_shrink_factor s n k ∨
-        (k = 1%positive ∧ ∀ k', not (is_shrink_factor s n k'))
-    | ∞ =>
-        k = 1%positive
-    end.
+  ↔ (∀ i, i mod (Pos.to_nat k) ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
+    (∀ k', (Pos.to_nat k < k')%nat →
+     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
 
 End Axioms.
 
@@ -280,51 +270,25 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Lemma is_shrink_morph : ∀ α (fld : field α) s₁ s₂ n k,
-  eq_series fld s₁ s₂
-  → is_shrink_factor fld s₁ k n
-    → is_shrink_factor fld s₂ k n.
-Proof.
-intros α fld s₁ s₂ n k Heq Hsf.
-unfold is_shrink_factor in Hsf |- *.
-destruct Hsf as (Hk, (Him, Hex)).
-split; [ assumption | idtac ].
-split.
- intros i Hi.
- rewrite <- Heq.
- apply Him; assumption.
-
- intros k' Hrng.
- apply Hex in Hrng.
- destruct Hrng as (i, Hi).
- rewrite Heq in Hi.
- exists i; assumption.
-Qed.
-
 Add Parametric Morphism α (fld : field α) : (shrink_factor fld)
 with signature (eq_series fld) ==> eq ==> eq as shrink_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (shrink_factor fld s₁ n) as k₁ eqn:Hk₁ .
-symmetry in Hk₁ |- *.
-apply shrink_factor_iff in Hk₁.
+remember (shrink_factor fld s₂ n) as k eqn:Hk .
+symmetry in Hk.
+apply shrink_factor_iff in Hk.
 apply shrink_factor_iff.
-remember (first_nonzero fld s₁ (S n)) as m eqn:Hm .
-symmetry in Hm.
-rewrite Heq in Hm.
-rewrite Hm.
-destruct m as [m| ]; [ idtac | assumption ].
-destruct Hk₁ as [Hk₁| Hk₁].
- left.
- eapply is_shrink_morph; eassumption.
+destruct Hk as (Hz, Hnz).
+split.
+ intros i Him.
+ rewrite Heq.
+ apply Hz; assumption.
 
- right.
- destruct Hk₁ as (Hk₁, Hns₁).
- split; [ assumption | idtac ].
- intros k' H.
- apply (Hns₁ k').
- symmetry in Heq.
- eapply is_shrink_morph; eassumption.
+ intros k₁ Hk₁.
+ apply Hnz in Hk₁.
+ destruct Hk₁ as (i, Hk₁).
+ rewrite <- Heq in Hk₁.
+ exists i; assumption.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
