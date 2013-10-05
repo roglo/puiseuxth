@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.82 2013-10-04 09:47:55 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.83 2013-10-05 03:01:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -737,6 +737,24 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.sub_add_distr; reflexivity.
 Qed.
 *)
+
+Theorem sub_gt : ∀ n m, m < n → n - m ≠ 0.
+Proof.
+intros n m Hmn.
+destruct n as [n| ]; simpl.
+ destruct m as [m| ]; simpl.
+  apply fin_lt_mono in Hmn.
+  apply Nat.sub_gt in Hmn.
+  intros H; apply Hmn.
+  injection H; clear H; intros H; rewrite H; reflexivity.
+
+  inversion Hmn.
+
+ destruct m as [m| ]; simpl.
+  intros H; discriminate H.
+
+  inversion Hmn.
+Qed.
 
 Theorem sub_add: ∀ n m, n ≤ m → m - n + n = m.
 Proof.

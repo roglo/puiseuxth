@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.799 2013-10-04 19:34:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.800 2013-10-05 03:01:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3863,7 +3863,6 @@ intros nz nz₁ Hnorm.
 bbb.
 *)
 
-(**)
 Lemma first_nonzero_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
   → first_nonzero fld (nz_terms nz) 0 = fin n
@@ -3875,49 +3874,58 @@ apply first_nonzero_iff in Hnz.
 simpl in Hnz.
 destruct Hnz as (Hz, Hnz).
 pose proof (Hz O (Nat.lt_0_succ n)) as H₀.
-clear Hz.
 unfold normalise_nz in Hnorm.
 remember (first_nonzero fld (nz_terms nz₁) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ idtac | discriminate Hnorm ].
-injection Hnorm; clear Hnorm; intros; subst nz.
-simpl in Hnz, H₀.
-rename nz₁ into nz.
-bbb.
-remember (shrink_factor fld (nz_terms nz) m) as k eqn:Hk .
-symmetry in Hk.
-remember (normalise_series fld m k (nz_terms nz)) as s eqn:Hs .
-apply shrink_factor_iff in Hk.
-remember (first_nonzero fld (nz_terms nz) (S m)) as p eqn:Hp .
-symmetry in Hp.
-destruct p as [p| ].
- destruct Hk as [Hk| Hk].
-  unfold normalise_series in Hs.
-  destruct k as [| k].
-   apply Hnz; subst s.
-   unfold series_nth_fld; simpl.
-   destruct (Nbar.lt_dec (fin (S n)) 0); reflexivity.
+apply first_nonzero_iff in Hm.
+simpl in Hm.
+destruct Hm as (Hmz, Hmnz).
+unfold series_nth_fld in Hmnz.
+destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
+ injection Hnorm; clear Hnorm; intros; subst nz.
+ simpl in Hz, Hnz, H₀.
+ unfold series_nth_fld in H₀.
+ simpl in H₀.
+ rewrite Nbar.fold_sub in H₀.
+ rewrite Nbar.fold_sub in H₀.
+ rewrite Nbar.fold_div in H₀.
+ remember (shrink_factor fld (nz_terms nz₁) m) as k eqn:Hk .
+ symmetry in Hk.
+ remember (stop (nz_terms nz₁) - fin m + fin (Pos.to_nat k) - 1)%Nbar as x.
+ symmetry in Heqx.
+ rewrite Nat.add_0_r in H₀.
+ destruct (Nbar.lt_dec 0 (x / fin (Pos.to_nat k))) as [H₁| H₁].
+  rewrite H₀ in Hmnz; apply Hmnz; reflexivity.
 
-   rewrite Hs in H₀; simpl in H₀.
-   do 2 rewrite Nbar.fold_sub in H₀.
-   remember (stop (nz_terms nz) - fin m + fin (S k) - 1)%Nbar as x.
-   symmetry in Heqx.
-   destruct x as [x| ].
-    unfold series_nth_fld in H₀.
-    simpl in H₀.
-    rewrite divmod_div in H₀.
-    rewrite Nat.add_0_r in H₀.
-    destruct (Nbar.lt_dec 0 (fin (x / S k))) as [H₁| H₁].
-     apply first_nonzero_iff in Hm.
-     destruct Hm as (Hmz, Hmnz).
-     simpl in Hmnz.
-     unfold series_nth_fld in Hmnz.
-     destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz))) as [H₂| H₂].
-      rewrite H₀ in Hmnz; apply Hmnz; reflexivity.
+  remember (stop (nz_terms nz₁) - fin m)%Nbar as y.
+  symmetry in Heqy.
+  destruct y as [y| ].
+   destruct y as [| y].
+    revert Heqy; apply Nbar.sub_gt; assumption.
 
-      apply Hmnz; reflexivity.
-bbb.
-*)
+    simpl in Heqx.
+    rewrite Nat.sub_0_r in Heqx.
+    apply H₁.
+    rewrite <- Heqx; simpl.
+    remember (y + Pos.to_nat k)%nat as z.
+    replace (Pos.to_nat k) with (1 * Pos.to_nat k)%nat in Heqz .
+     subst z.
+     rewrite Nat.div_add.
+      apply Nbar.lt_fin.
+      rewrite Nat.add_comm.
+      apply Nat.lt_0_succ.
+
+      apply Pos2Nat_ne_0.
+
+     rewrite Nat.mul_1_l; reflexivity.
+
+   subst x; simpl.
+   apply H₁; simpl.
+   constructor.
+
+ apply Hmnz; reflexivity.
+Qed.
 
 (* oui bof, hein...
 Lemma bof : ∀ nz₁ nz₂,
