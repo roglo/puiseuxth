@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.806 2013-10-05 20:08:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.807 2013-10-05 21:10:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1376,6 +1376,25 @@ destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
   rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
 
  apply Nat.nlt_ge in H₂.
+ rewrite Pos2Nat.inj_mul in H₂.
+ apply le_neq_lt in H₂.
+  assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
+   eapply Nat.le_lt_trans; [ idtac | eassumption ].
+   rewrite <- Pos2Nat.inj_mul.
+   apply Pos2Nat.inj_le.
+   rewrite <- Pos.mul_1_l in |- * at 1.
+   apply Pos.mul_le_mono_r.
+   apply Pos.le_1_l.
+
+bbb.
+   apply Hnz₁ in H₃.
+   destruct H₃ as (i, (Him, Hin)).
+   apply Hz₂ in Him.
+   destruct (zerop (i mod Pos.to_nat k)) as [H₃| H₃].
+    apply Nat.mod_divides in H₃.
+     destruct H₃ as (c, H₃); subst i.
+     rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Him.
+     rewrite series_nth_fld_mul_stretch in Him.
 bbb.
 *)
 
