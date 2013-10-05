@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.804 2013-10-05 19:28:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.805 2013-10-05 19:35:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1326,53 +1326,19 @@ remember (shrink_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
 apply shrink_factor_iff in Hk.
 apply shrink_factor_iff.
-rewrite <- Nat.add_succ_l.
-rewrite Nat.add_comm.
-rewrite first_nonzero_shift_add.
-remember (first_nonzero fld s (S b)) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ simpl | assumption ].
-destruct Hk as [Hk| Hk].
- left.
- unfold is_shrink_factor in Hk |- *.
- destruct Hk as (Hk, (Him, Hrng)).
- split; [ assumption | idtac ].
- split.
-  intros i Hik.
-  rewrite Nat.add_shuffle0.
-  rewrite series_nth_add_shift.
-  apply Him; assumption.
+destruct Hk as (Hz, Hnz).
+split.
+ intros i Him.
+ rewrite Nat.add_shuffle0.
+ rewrite series_nth_add_shift.
+ apply Hz; assumption.
 
-  intros k' Hrng'.
-  apply Hrng in Hrng'.
-  destruct Hrng' as (i, (Him', Hnz)).
-  exists i.
-  split; [ assumption | idtac ].
-  rewrite Nat.add_shuffle0.
-  rewrite series_nth_add_shift.
-  assumption.
-
- right.
- destruct Hk as (Hk, Hnsf).
- split; [ assumption | idtac ].
- intros k' H.
- apply (Hnsf k').
- unfold is_shrink_factor in H |- *.
- destruct H as (Hk', (Hmk', Hrng')).
- split; [ assumption | idtac ].
- split.
-  intros i Him.
-  apply Hmk' in Him.
-  rewrite Nat.add_shuffle0 in Him.
-  rewrite series_nth_add_shift in Him.
-  assumption.
-
-  intros k'' Hrng.
-  apply Hrng' in Hrng.
-  destruct Hrng as (i, (Him, Hnz)).
-  rewrite Nat.add_shuffle0 in Hnz.
-  rewrite series_nth_add_shift in Hnz.
-  exists i; split; assumption.
+ intros k₁ Hk₁.
+ apply Hnz in Hk₁.
+ destruct Hk₁ as (i, Hk₁).
+ rewrite <- series_nth_add_shift with (n := n) in Hk₁.
+ rewrite Nat.add_shuffle0 in Hk₁.
+ exists i; assumption.
 Qed.
 
 (* à voir... *)
