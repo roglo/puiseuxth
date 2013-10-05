@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.802 2013-10-05 11:43:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.803 2013-10-05 19:01:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -134,12 +134,12 @@ Notation "a ≈ b" := (eq_ps a b) (at level 70).
 
 Definition ps_zero : puiseux_series α := Zero _.
 
-Definition ps_monom (c : α) pow :=
-  NonZero
-    {| nz_terms := {| terms i := c; stop := 1 |};
-       nz_valnum := Qnum pow;
-       nz_comden := Qden pow |}.
+Definition nz_monom (c : α) pow :=
+  {| nz_terms := {| terms i := c; stop := 1 |};
+     nz_valnum := Qnum pow;
+     nz_comden := Qden pow |}.
 
+Definition ps_monom c pow := NonZero (nz_monom c pow).
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (one fld).
 
@@ -1411,7 +1411,7 @@ destruct Hk as [Hk| Hk].
   exists i; split; assumption.
 Qed.
 
-(* à voir...
+(* à voir... *)
 Lemma shrink_factor_stretch : ∀ s b k,
   shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
   (k * shrink_factor fld s b)%positive.
@@ -1478,13 +1478,14 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
 
-(* for a possible redefinition of ps_add... *)
+(* for a possible redefinition of ps_add, or perhaps to change a
+   representation for another to manage to make proofs... *)
 Definition adjust_nz n k nz :=
   {| nz_terms := series_shift fld n (stretch_series fld k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
-(* à voir...
+(* à voir... *)
 Theorem glop : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
 intros nz n k.
@@ -3929,12 +3930,25 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
  apply Hmnz; reflexivity.
 Qed.
 
-Lemma www : ∀ nz₁ nz₂,
+Lemma nz_norm_add_0 : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz_zero) ≐ normalise_nz fld (nz₂ ∔ nz_zero).
 Proof.
 intros nz₁ nz₂ Heq.
+rewrite normalise_nz_add_0_r.
+rewrite normalise_nz_add_0_r.
+assumption.
+Qed.
+
+(* bof, mouais, pourquoi pas, faut voir, pour essayer...
+Lemma www : ∀ nz₁ nz₂ c p,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → normalise_nz fld (nz₁ ∔ nz_monom c p) ≐
+    normalise_nz fld (nz₂ ∔ nz_monom c p).
+Proof.
+intros nz₁ nz₂ c p Heq.
 bbb.
+*)
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
