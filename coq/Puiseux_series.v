@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.801 2013-10-05 03:15:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.802 2013-10-05 11:43:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1414,7 +1414,7 @@ Qed.
 (* à voir...
 Lemma shrink_factor_stretch : ∀ s b k,
   shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
-  (Pos.to_nat k * shrink_factor fld s b)%nat.
+  (k * shrink_factor fld s b)%positive.
 Proof.
 intros s b k.
 remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
@@ -3928,6 +3928,13 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
 
  apply Hmnz; reflexivity.
 Qed.
+
+Lemma www : ∀ nz₁ nz₂,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → normalise_nz fld (nz₁ ∔ nz_zero) ≐ normalise_nz fld (nz₂ ∔ nz_zero).
+Proof.
+intros nz₁ nz₂ Heq.
+bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
