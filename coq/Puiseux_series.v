@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.810 2013-10-06 04:44:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.811 2013-10-06 05:18:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1362,10 +1362,12 @@ Qed.
    c'est le modèle à qui il manque quelque chose... ou qui est faux... *)
 Lemma shrink_factor_stretch : ∀ s b k,
   first_nonzero fld s 0 = fin b
-  → shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
-    (k * shrink_factor fld s b)%positive.
+  → first_nonzero fld s (S b) ≠ ∞
+    → shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
+      (k * shrink_factor fld s b)%positive.
 Proof.
-intros s b k Hb.
+intros s b k Hb Hsb.
+Admitted. (*
 remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
 remember (stretch_series fld k s) as t.
 remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
@@ -1488,7 +1490,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite shrink_factor_shift.
- rewrite shrink_factor_stretch; [ idtac | assumption ].
+ rewrite shrink_factor_stretch; [ idtac | assumption | idtac ].
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
  rewrite Z.sub_add.
