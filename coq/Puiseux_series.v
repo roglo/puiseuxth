@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.809 2013-10-06 04:17:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.810 2013-10-06 04:44:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1358,11 +1358,14 @@ split.
  exists i; assumption.
 Qed.
 
+(* ça déconne... manque peut-être une hypothèse bien sentie, ou alors
+   c'est le modèle à qui il manque quelque chose... ou qui est faux... *)
 Lemma shrink_factor_stretch : ∀ s b k,
-  shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
-  (k * shrink_factor fld s b)%positive.
+  first_nonzero fld s 0 = fin b
+  → shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
+    (k * shrink_factor fld s b)%positive.
 Proof.
-intros s b k.
+intros s b k Hb.
 remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
 remember (stretch_series fld k s) as t.
 remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
@@ -1431,6 +1434,12 @@ destruct n₁ as [n₁| ].
      apply Pos.mul_le_mono_r.
      apply Pos.le_1_l.
 
+     Focus 3.
+     subst k₁; rewrite Pos.mul_1_r.
+     destruct n₂ as [n₂| ].
+      Focus 2.
+      subst k₂.
+
 bbb.
    apply Hnz₁ in H₃.
    destruct H₃ as (i, (Him, Hin)).
@@ -1465,7 +1474,8 @@ Definition adjust_nz n k nz :=
      nz_comden := nz_comden nz * k |}.
 
 (* à voir... *)
-Theorem glop : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
+Theorem glop : ∀ nz n k,
+  NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
 intros nz n k.
 constructor.
@@ -1478,13 +1488,15 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite shrink_factor_shift.
-bbb.
- rewrite shrink_factor_stretch.
- simpl.
- rewrite Nat2Z.inj_add.
- rewrite Nat2Z.inj_mul.
- rewrite Nat2Z.inj_mul.
- rewrite positive_nat_Z.
+ rewrite shrink_factor_stretch; [ idtac | assumption ].
+ rewrite Nat2Z.inj_add, Z.add_assoc.
+ rewrite Z.add_shuffle0.
+ rewrite Z.sub_add.
+ rewrite Nat2Z.inj_mul, positive_nat_Z.
+ rewrite <- Z.mul_add_distr_r.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_comm.
+ rewrite Z.div_mul_cancel_l; try apply Zpos_ne_0; reflexivity.
 bbb.
 *)
 
