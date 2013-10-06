@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.811 2013-10-06 05:18:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.812 2013-10-06 09:16:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1358,8 +1358,6 @@ split.
  exists i; assumption.
 Qed.
 
-(* ça déconne... manque peut-être une hypothèse bien sentie, ou alors
-   c'est le modèle à qui il manque quelque chose... ou qui est faux... *)
 Lemma shrink_factor_stretch : ∀ s b k,
   first_nonzero fld s 0 = fin b
   → first_nonzero fld s (S b) ≠ ∞
@@ -1367,7 +1365,6 @@ Lemma shrink_factor_stretch : ∀ s b k,
       (k * shrink_factor fld s b)%positive.
 Proof.
 intros s b k Hb Hsb.
-Admitted. (*
 remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
 remember (stretch_series fld k s) as t.
 remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
@@ -1380,67 +1377,61 @@ remember (stretch_series fld k s) as t.
 remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
 subst t.
 symmetry in Hn₁, Hn₂.
-destruct n₁ as [n₁| ].
- destruct n₂ as [n₂| ].
-  Focus 2.
-  subst k₂.
-  apply first_nonzero_iff in Hn₁.
-  apply first_nonzero_iff in Hn₂.
-  destruct Hn₁ as (Hz₁, Hnz₁).
-  rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
-  rewrite Nat.mul_add_distr_l in Hnz₁.
-  rewrite Nat.mul_comm in Hnz₁.
-  simpl in Hnz₁.
-  rewrite <- Nat.add_assoc, Nat.add_comm in Hnz₁.
-  remember (Pos.to_nat k) as kn eqn:Hkn .
-  symmetry in Hkn.
-  destruct kn as [| kn].
-   exfalso; revert Hkn; apply Pos2Nat_ne_0.
+destruct n₁ as [n₁| ]; [ idtac | exfalso; apply Hsb; reflexivity ].
+destruct n₂ as [n₂| ].
+ Focus 2.
+ subst k₂.
+ apply first_nonzero_iff in Hn₁.
+ apply first_nonzero_iff in Hn₂.
+ destruct Hn₁ as (Hz₁, Hnz₁).
+ rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
+ rewrite Nat.mul_add_distr_l in Hnz₁.
+ rewrite Nat.mul_comm in Hnz₁.
+ simpl in Hnz₁.
+ rewrite <- Nat.add_assoc, Nat.add_comm in Hnz₁.
+ remember (Pos.to_nat k) as kn eqn:Hkn .
+ symmetry in Hkn.
+ destruct kn as [| kn].
+  exfalso; revert Hkn; apply Pos2Nat_ne_0.
 
-   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnz₁.
-   rewrite <- Nat.add_succ_l in Hnz₁.
-   rewrite <- Nat.add_assoc in Hnz₁.
-   rewrite Hn₂ in Hnz₁.
-   exfalso; apply Hnz₁; reflexivity.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnz₁.
+  rewrite <- Nat.add_succ_l in Hnz₁.
+  rewrite <- Nat.add_assoc in Hnz₁.
+  rewrite Hn₂ in Hnz₁.
+  exfalso; apply Hnz₁; reflexivity.
 
-  destruct Hk₁ as (Hz₁, Hnz₁).
-  destruct Hk₂ as (Hz₂, Hnz₂).
-  destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
-  destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
-   apply Hnz₂ in H₂.
-   destruct H₂ as (i, (Him, Hin)).
-   destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-    apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-    destruct H₂ as (c, Hi); subst i.
-    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hin.
-    rewrite series_nth_fld_mul_stretch in Hin.
-    rewrite Pos2Nat.inj_mul in Him.
-    rewrite Nat.mul_mod_distr_l in Him; try apply Pos2Nat_ne_0.
-    apply Nat.neq_mul_0 in Him.
-    destruct Him as (_, Him).
-    apply Hin, Hz₁; assumption.
+ destruct Hk₁ as (Hz₁, Hnz₁).
+ destruct Hk₂ as (Hz₂, Hnz₂).
+ destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
+ destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
+  apply Hnz₂ in H₂.
+  destruct H₂ as (i, (Him, Hin)).
+  destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+   apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H₂ as (c, Hi); subst i.
+   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hin.
+   rewrite series_nth_fld_mul_stretch in Hin.
+   rewrite Pos2Nat.inj_mul in Him.
+   rewrite Nat.mul_mod_distr_l in Him; try apply Pos2Nat_ne_0.
+   apply Nat.neq_mul_0 in Him.
+   destruct Him as (_, Him).
+   apply Hin, Hz₁; assumption.
 
-    apply Hin.
-    rewrite shifted_in_stretched; [ reflexivity | idtac ].
-    rewrite Nat.add_comm.
-    rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
+   apply Hin.
+   rewrite shifted_in_stretched; [ reflexivity | idtac ].
+   rewrite Nat.add_comm.
+   rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
 
-   apply Nat.nlt_ge in H₂.
-   rewrite Pos2Nat.inj_mul in H₂.
-   apply le_neq_lt in H₂.
-    assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
-     eapply Nat.le_lt_trans; [ idtac | eassumption ].
-     rewrite <- Pos2Nat.inj_mul.
-     apply Pos2Nat.inj_le.
-     rewrite <- Pos.mul_1_l in |- * at 1.
-     apply Pos.mul_le_mono_r.
-     apply Pos.le_1_l.
-
-     Focus 3.
-     subst k₁; rewrite Pos.mul_1_r.
-     destruct n₂ as [n₂| ].
-      Focus 2.
-      subst k₂.
+  apply Nat.nlt_ge in H₂.
+  rewrite Pos2Nat.inj_mul in H₂.
+  apply le_neq_lt in H₂.
+   assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
+    eapply Nat.le_lt_trans; [ idtac | eassumption ].
+    rewrite <- Pos2Nat.inj_mul.
+    apply Pos2Nat.inj_le.
+    rewrite <- Pos.mul_1_l in |- * at 1.
+    apply Pos.mul_le_mono_r.
+    apply Pos.le_1_l.
 
 bbb.
    apply Hnz₁ in H₃.
