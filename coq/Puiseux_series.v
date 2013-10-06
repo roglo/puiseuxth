@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.807 2013-10-05 21:10:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.808 2013-10-06 02:53:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -43,9 +43,15 @@ Admitted.
 
 Axiom shrink_factor_iff : ∀ s n k,
   shrink_factor fld s n = k
-  ↔ (∀ i, i mod (Pos.to_nat k) ≠ O → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-    (∀ k', (Pos.to_nat k < k')%nat →
-     ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld).
+  ↔ match first_nonzero fld s (S n) with
+    | fin _ =>
+        (∀ i, i mod (Pos.to_nat k) ≠ O →
+         series_nth_fld fld (n + i) s ≍ zero fld) ∧
+        (∀ k', (Pos.to_nat k < k')%nat →
+         ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+    | ∞ =>
+        k = 1%positive
+    end.
 
 End Axioms.
 
@@ -278,6 +284,11 @@ remember (shrink_factor fld s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply shrink_factor_iff in Hk.
 apply shrink_factor_iff.
+remember (first_nonzero fld s₁ (S n)) as m eqn:Hm .
+symmetry in Hm.
+rewrite Heq in Hm.
+rewrite Hm in Hk.
+destruct m as [m| ]; [ idtac | assumption ].
 destruct Hk as (Hz, Hnz).
 split.
  intros i Him.
@@ -1326,6 +1337,12 @@ remember (shrink_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
 apply shrink_factor_iff in Hk.
 apply shrink_factor_iff.
+rewrite <- Nat.add_succ_l.
+rewrite Nat.add_comm.
+rewrite first_nonzero_shift_add.
+remember (first_nonzero fld s (S b)) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; [ simpl | assumption ].
 destruct Hk as (Hz, Hnz).
 split.
  intros i Him.
@@ -1353,38 +1370,45 @@ subst t.
 symmetry in Hk₁, Hk₂.
 apply shrink_factor_iff in Hk₁.
 apply shrink_factor_iff in Hk₂.
-destruct Hk₁ as (Hz₁, Hnz₁).
-destruct Hk₂ as (Hz₂, Hnz₂).
-destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
-destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
- apply Hnz₂ in H₂.
- destruct H₂ as (i, (Him, Hin)).
- destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-  apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-  destruct H₂ as (c, Hi); subst i.
-  rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hin.
-  rewrite series_nth_fld_mul_stretch in Hin.
-  rewrite Pos2Nat.inj_mul in Him.
-  rewrite Nat.mul_mod_distr_l in Him; try apply Pos2Nat_ne_0.
-  apply Nat.neq_mul_0 in Him.
-  destruct Him as (_, Him).
-  apply Hin, Hz₁; assumption.
+remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
+remember (stretch_series fld k s) as t.
+remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
+subst t.
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ].
+  destruct Hk₁ as (Hz₁, Hnz₁).
+  destruct Hk₂ as (Hz₂, Hnz₂).
+  destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
+  destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
+   apply Hnz₂ in H₂.
+   destruct H₂ as (i, (Him, Hin)).
+   destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+    apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+    destruct H₂ as (c, Hi); subst i.
+    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hin.
+    rewrite series_nth_fld_mul_stretch in Hin.
+    rewrite Pos2Nat.inj_mul in Him.
+    rewrite Nat.mul_mod_distr_l in Him; try apply Pos2Nat_ne_0.
+    apply Nat.neq_mul_0 in Him.
+    destruct Him as (_, Him).
+    apply Hin, Hz₁; assumption.
 
-  apply Hin.
-  rewrite shifted_in_stretched; [ reflexivity | idtac ].
-  rewrite Nat.add_comm.
-  rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
+    apply Hin.
+    rewrite shifted_in_stretched; [ reflexivity | idtac ].
+    rewrite Nat.add_comm.
+    rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
 
- apply Nat.nlt_ge in H₂.
- rewrite Pos2Nat.inj_mul in H₂.
- apply le_neq_lt in H₂.
-  assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
-   eapply Nat.le_lt_trans; [ idtac | eassumption ].
-   rewrite <- Pos2Nat.inj_mul.
-   apply Pos2Nat.inj_le.
-   rewrite <- Pos.mul_1_l in |- * at 1.
-   apply Pos.mul_le_mono_r.
-   apply Pos.le_1_l.
+   apply Nat.nlt_ge in H₂.
+   rewrite Pos2Nat.inj_mul in H₂.
+   apply le_neq_lt in H₂.
+    assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
+     eapply Nat.le_lt_trans; [ idtac | eassumption ].
+     rewrite <- Pos2Nat.inj_mul.
+     apply Pos2Nat.inj_le.
+     rewrite <- Pos.mul_1_l in |- * at 1.
+     apply Pos.mul_le_mono_r.
+     apply Pos.le_1_l.
 
 bbb.
    apply Hnz₁ in H₃.
