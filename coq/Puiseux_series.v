@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.817 2013-10-07 13:19:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.818 2013-10-07 13:37:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3988,10 +3988,11 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
  rewrite Nbar.fold_div in H₀.
  remember (shrink_factor fld (nz_terms nz₁) m) as k eqn:Hk .
  symmetry in Hk.
- remember (stop (nz_terms nz₁) - fin m + fin (Pos.to_nat k) - 1)%Nbar as x.
+ remember (gcd_nz m k nz₁) as g eqn:Hg .
+ remember (stop (nz_terms nz₁) - fin m + fin (Pos.to_nat g) - 1)%Nbar as x.
  symmetry in Heqx.
  rewrite Nat.add_0_r in H₀.
- destruct (Nbar.lt_dec 0 (x / fin (Pos.to_nat k))) as [H₁| H₁].
+ destruct (Nbar.lt_dec 0 (x / fin (Pos.to_nat g))) as [H₁| H₁].
   rewrite H₀ in Hmnz; apply Hmnz; reflexivity.
 
   remember (stop (nz_terms nz₁) - fin m)%Nbar as y.
@@ -4004,8 +4005,8 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
     rewrite Nat.sub_0_r in Heqx.
     apply H₁.
     rewrite <- Heqx; simpl.
-    remember (y + Pos.to_nat k)%nat as z.
-    replace (Pos.to_nat k) with (1 * Pos.to_nat k)%nat in Heqz .
+    remember (y + Pos.to_nat g)%nat as z.
+    replace (Pos.to_nat g) with (1 * Pos.to_nat g)%nat in Heqz .
      subst z.
      rewrite Nat.div_add.
       apply Nbar.lt_fin.
@@ -4022,7 +4023,6 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
 
  apply Hmnz; reflexivity.
 Qed.
-*)
 
 Lemma nz_norm_add_0 : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
