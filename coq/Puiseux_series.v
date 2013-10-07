@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.813 2013-10-07 02:13:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.814 2013-10-07 03:00:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1864,31 +1864,36 @@ remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) 0) a
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
- unfold cm_factor, cm; simpl.
  f_equal.
-  do 2 rewrite Pos2Z.inj_mul.
-  do 2 rewrite Z.mul_assoc.
+  f_equal.
   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
   rewrite Z.min_assoc.
-  f_equal.
-  f_equal; [ f_equal; apply Z.mul_shuffle0 | apply Z.mul_shuffle0 ].
+  unfold cm_factor, cm.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
+  f_equal; rewrite Z.mul_shuffle0; reflexivity.
 
   f_equal.
   f_equal; [ idtac | rewrite nz_terms_add_assoc; reflexivity ].
-  f_equal; [ idtac | unfold cm; rewrite Pos.mul_assoc; reflexivity ].
-  do 2 f_equal.
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.min_assoc.
-  do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
-  f_equal; [ idtac | apply Z.mul_shuffle0 ].
-  f_equal; apply Z.mul_shuffle0.
+  f_equal.
+   do 2 f_equal.
+   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite Z.min_assoc.
+   unfold cm_factor, cm.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
+   f_equal; rewrite Z.mul_shuffle0; reflexivity.
+
+   unfold cm; simpl; unfold cm; simpl.
+   rewrite Pos.mul_assoc; reflexivity.
 
  f_equal.
  f_equal.
-  unfold cm; simpl.
-  unfold cm; simpl.
+  unfold cm; simpl; unfold cm; simpl.
   rewrite Pos.mul_assoc; reflexivity.
 
   f_equal.
@@ -1899,16 +1904,32 @@ destruct n as [n| ]; constructor; simpl.
    rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
    rewrite Z.min_assoc.
    unfold cm_factor, cm.
-   do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   f_equal; [ idtac | apply Z.mul_shuffle0 ].
-   f_equal; apply Z.mul_shuffle0.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
+   f_equal; rewrite Z.mul_shuffle0; reflexivity.
 
-   unfold cm; simpl.
-   unfold cm; simpl.
+   unfold cm; simpl; unfold cm; simpl.
    rewrite Pos.mul_assoc; reflexivity.
 
-bbb.
- rewrite nz_terms_add_assoc; reflexivity.
+ unfold cm_factor, cm; simpl.
+ unfold cm.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ rewrite Pos.mul_assoc.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Z.min_assoc.
+ rewrite nz_terms_add_assoc.
+ replace (nz_valnum nz₃ * ' nz_comden nz₁ * ' nz_comden nz₂)%Z with
+  (nz_valnum nz₃ * ' nz_comden nz₂ * ' nz_comden nz₁)%Z .
+  replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' nz_comden nz₃)%Z with
+   (nz_valnum nz₂ * ' nz_comden nz₃ * ' nz_comden nz₁)%Z .
+   reflexivity.
+
+   apply Z.mul_shuffle0.
+
+  apply Z.mul_shuffle0.
 Qed.
 
 (*
