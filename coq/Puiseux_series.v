@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.819 2013-10-07 13:39:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.820 2013-10-07 14:45:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1445,16 +1445,20 @@ destruct n₂ as [n₂| ].
     apply Pos.mul_le_mono_r.
     apply Pos.le_1_l.
 
-Abort. (* à terminer...
+    assert (n₂ = b * n₁)%nat.
+     destruct (lt_eq_lt_dec n₂ (b * n₁)) as [[H₄| H₄]| H₄].
 bbb.
-   apply Hnz₁ in H₃.
-   destruct H₃ as (i, (Him, Hin)).
-   apply Hz₂ in Him.
-   destruct (zerop (i mod Pos.to_nat k)) as [H₃| H₃].
-    apply Nat.mod_divides in H₃.
-     destruct H₃ as (c, H₃); subst i.
-     rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Him.
-     rewrite series_nth_fld_mul_stretch in Him.
+      apply first_nonzero_iff in Hn₂.
+      apply first_nonzero_iff in Hn₁.
+      destruct (zerop (n₂ mod b)) as [H₅| H₅].
+       apply Nat.mod_divides in H₅.
+        destruct H₅ as (c, H₅).
+        subst n₂.
+        destruct b as [| b].
+         exfalso; revert H₄; apply Nat.lt_irrefl.
+
+         apply Nat.mul_lt_mono_pos_l in H₄.
+          apply Hn₁ in H₄.
 bbb.
 *)
 
@@ -1494,7 +1498,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite shrink_factor_shift.
-Abort. (* à terminer...
+bbb.
  rewrite shrink_factor_stretch; [ idtac | assumption | idtac ].
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
@@ -4048,6 +4052,30 @@ Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ Heq.
+unfold normalise_nz; simpl.
+remember (first_nonzero fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
+remember (first_nonzero fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
+symmetry in Hn₁₃, Hn₂₃.
+apply first_nonzero_iff in Hn₁₃.
+apply first_nonzero_iff in Hn₂₃.
+simpl in Hn₁₃, Hn₂₃.
+destruct n₁₃ as [n₁₃| ]; simpl.
+ destruct n₂₃ as [n₂₃| ]; simpl.
+  constructor; simpl.
+   unfold normalise_nz in Heq; simpl in Heq.
+   remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+   remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+   symmetry in Hn₁, Hn₂.
+   apply first_nonzero_iff in Hn₁.
+   apply first_nonzero_iff in Hn₂.
+   simpl in Hn₁, Hn₂.
+   destruct n₁ as [n₁| ]; simpl.
+    destruct n₂ as [n₂| ]; simpl.
+     inversion_clear Heq; simpl in *.
+     Focus 1.
+bbb.
+
 intros nz₁ nz₂ nz₃ Heq.
 unfold normalise_nz in Heq; simpl in Heq.
 remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
