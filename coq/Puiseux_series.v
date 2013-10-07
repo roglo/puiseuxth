@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.812 2013-10-06 09:16:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.813 2013-10-07 02:13:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -92,14 +92,23 @@ Definition normalise_series n k (s : series α) :=
   {| terms i := terms s (n + i * Pos.to_nat k);
      stop := Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k)) |}.
 
+Definition pos_abs z :=
+  match z with
+  | 0%Z => xH
+  | Zpos p => p
+  | Zneg p => p
+  end.
+
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) 0 with
   | fin n =>
       let k := shrink_factor fld (nz_terms nz) n in
+      let g := Pos.gcd (pos_abs (nz_valnum nz + Z.of_nat n)) (nz_comden nz) in
+      let k' := Pos.gcd g k in
       NonZero
-        {| nz_terms := normalise_series n k (nz_terms nz);
-           nz_valnum := (nz_valnum nz + Z.of_nat n) / ' k;
-           nz_comden := Z.to_pos (' nz_comden nz / ' k) |}
+        {| nz_terms := normalise_series n k' (nz_terms nz);
+           nz_valnum := (nz_valnum nz + Z.of_nat n) / ' k';
+           nz_comden := Z.to_pos (' nz_comden nz / ' k') |}
   | ∞ =>
       Zero _
   end.
@@ -1433,6 +1442,7 @@ destruct n₂ as [n₂| ].
     apply Pos.mul_le_mono_r.
     apply Pos.le_1_l.
 
+Abort. (* à terminer...
 bbb.
    apply Hnz₁ in H₃.
    destruct H₃ as (i, (Him, Hin)).
@@ -1481,6 +1491,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite shrink_factor_shift.
+Abort. (* à terminer...
  rewrite shrink_factor_stretch; [ idtac | assumption | idtac ].
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
@@ -1673,6 +1684,13 @@ unfold nz_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
+Lemma cm_comm : ∀ nz₁ nz₂, cm nz₁ nz₂ = cm nz₂ nz₁.
+Proof.
+intros nz₁ nz₂.
+unfold cm.
+apply Pos.mul_comm.
+Qed.
+
 Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
   eq_norm_ps fld
     (normalise_nz fld (build_nz_add nz₁ nz₂))
@@ -1685,14 +1703,11 @@ remember (first_nonzero fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
- rewrite Z.min_comm.
- rewrite nz_terms_add_comm; reflexivity.
+ rewrite Z.min_comm, cm_comm, nz_terms_add_comm; reflexivity.
 
- unfold cm.
- rewrite Pos.mul_comm.
- rewrite nz_terms_add_comm; reflexivity.
+ rewrite Z.min_comm, cm_comm, nz_terms_add_comm; reflexivity.
 
- rewrite nz_terms_add_comm; reflexivity.
+ rewrite Z.min_comm, cm_comm, nz_terms_add_comm; reflexivity.
 Qed.
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
@@ -1845,30 +1860,54 @@ Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
-remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) 0) as n
- eqn:Hn .
+remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) 0) as n.
+rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
  unfold cm_factor, cm; simpl.
  f_equal.
- do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_assoc.
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite Z.min_assoc.
- f_equal.
+  do 2 rewrite Pos2Z.inj_mul.
+  do 2 rewrite Z.mul_assoc.
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.min_assoc.
   f_equal.
+  f_equal; [ f_equal; apply Z.mul_shuffle0 | apply Z.mul_shuffle0 ].
+
+  f_equal.
+  f_equal; [ idtac | rewrite nz_terms_add_assoc; reflexivity ].
+  f_equal; [ idtac | unfold cm; rewrite Pos.mul_assoc; reflexivity ].
+  do 2 f_equal.
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.min_assoc.
+  do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  f_equal; [ idtac | apply Z.mul_shuffle0 ].
+  f_equal; apply Z.mul_shuffle0.
+
+ f_equal.
+ f_equal.
+  unfold cm; simpl.
+  unfold cm; simpl.
+  rewrite Pos.mul_assoc; reflexivity.
+
+  f_equal.
+  f_equal; [ idtac | rewrite nz_terms_add_assoc; reflexivity ].
+  f_equal.
+   do 2 f_equal.
+   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite Z.min_assoc.
+   unfold cm_factor, cm.
+   do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   f_equal; [ idtac | apply Z.mul_shuffle0 ].
    f_equal; apply Z.mul_shuffle0.
 
-   apply Z.mul_shuffle0.
+   unfold cm; simpl.
+   unfold cm; simpl.
+   rewrite Pos.mul_assoc; reflexivity.
 
-  rewrite nz_terms_add_assoc; reflexivity.
-
- unfold cm; simpl.
- unfold cm; simpl.
- rewrite Pos.mul_assoc.
- rewrite nz_terms_add_assoc; reflexivity.
-
+bbb.
  rewrite nz_terms_add_assoc; reflexivity.
 Qed.
 
