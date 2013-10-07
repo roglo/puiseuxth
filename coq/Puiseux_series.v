@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.820 2013-10-07 14:45:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.821 2013-10-07 15:40:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1377,42 +1377,53 @@ Lemma shrink_factor_stretch : ∀ s b k,
       (k * shrink_factor fld s b)%positive.
 Proof.
 intros s b k Hb Hsb.
-remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
-remember (stretch_series fld k s) as t.
-remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
-subst t.
-symmetry in Hk₁, Hk₂.
-apply shrink_factor_iff in Hk₁.
-apply shrink_factor_iff in Hk₂.
-remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
-remember (stretch_series fld k s) as t.
-remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
-subst t.
-symmetry in Hn₁, Hn₂.
-destruct n₁ as [n₁| ]; [ idtac | exfalso; apply Hsb; reflexivity ].
-destruct n₂ as [n₂| ].
- Focus 2.
- subst k₂.
- apply first_nonzero_iff in Hn₁.
- apply first_nonzero_iff in Hn₂.
- destruct Hn₁ as (Hz₁, Hnz₁).
- rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
- rewrite Nat.mul_add_distr_l in Hnz₁.
- rewrite Nat.mul_comm in Hnz₁.
- simpl in Hnz₁.
- rewrite <- Nat.add_assoc, Nat.add_comm in Hnz₁.
- remember (Pos.to_nat k) as kn eqn:Hkn .
- symmetry in Hkn.
+remember (Pos.to_nat k) as kn eqn:Hkn .
+symmetry in Hkn.
+destruct kn as [| kn].
+ exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
  destruct kn as [| kn].
-  exfalso; revert Hkn; apply Pos2Nat_ne_0.
+  rewrite Nat.mul_1_r.
+  replace 1%nat with (Pos.to_nat xH) in Hkn ; [ idtac | reflexivity ].
+  apply Pos2Nat.inj in Hkn.
+  subst k.
+  rewrite stretch_series_1, Pos.mul_1_l.
+  reflexivity.
 
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnz₁.
-  rewrite <- Nat.add_succ_l in Hnz₁.
-  rewrite <- Nat.add_assoc in Hnz₁.
-  rewrite Hn₂ in Hnz₁.
-  exfalso; apply Hnz₁; reflexivity.
+  rewrite <- Hkn.
+  remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
+  remember (stretch_series fld k s) as t.
+  remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
+  subst t.
+  symmetry in Hk₁, Hk₂.
+  apply shrink_factor_iff in Hk₁.
+  apply shrink_factor_iff in Hk₂.
+  remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
+  remember (stretch_series fld k s) as t.
+  remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
+  subst t.
+  symmetry in Hn₁, Hn₂.
+  destruct n₁ as [n₁| ]; [ idtac | exfalso; apply Hsb; reflexivity ].
+  destruct n₂ as [n₂| ].
+   Focus 2.
+   subst k₂.
+   apply first_nonzero_iff in Hn₁.
+   apply first_nonzero_iff in Hn₂.
+   destruct Hn₁ as (Hz₁, Hnz₁).
+   rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
+   rewrite Nat.mul_add_distr_l in Hnz₁.
+   rewrite Nat.mul_comm in Hnz₁.
+   simpl in Hnz₁.
+   rewrite <- Nat.add_assoc, Nat.add_comm in Hnz₁.
+   rewrite Hkn in Hnz₁.
+   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnz₁.
+   rewrite <- Nat.add_succ_l in Hnz₁.
+   rewrite <- Nat.add_assoc in Hnz₁.
+   rewrite <- Hkn in Hnz₁.
+   rewrite Hn₂ in Hnz₁.
+   exfalso; apply Hnz₁; reflexivity.
 
- destruct Hk₁ as (Hz₁, Hnz₁).
+   destruct Hk₁ as (Hz₁, Hnz₁).
  destruct Hk₂ as (Hz₂, Hnz₂).
  destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
  destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
@@ -1445,20 +1456,39 @@ destruct n₂ as [n₂| ].
     apply Pos.mul_le_mono_r.
     apply Pos.le_1_l.
 
-    assert (n₂ = b * n₁)%nat.
-     destruct (lt_eq_lt_dec n₂ (b * n₁)) as [[H₄| H₄]| H₄].
-bbb.
+    assert (n₂ = Pos.to_nat k * n₁)%nat.
+     destruct (lt_eq_lt_dec n₂ (Pos.to_nat k * n₁)) as [[H₄| H₄]| H₄].
       apply first_nonzero_iff in Hn₂.
       apply first_nonzero_iff in Hn₁.
-      destruct (zerop (n₂ mod b)) as [H₅| H₅].
+      destruct (zerop (n₂ mod Pos.to_nat k)) as [H₅| H₅].
        apply Nat.mod_divides in H₅.
         destruct H₅ as (c, H₅).
         subst n₂.
-        destruct b as [| b].
-         exfalso; revert H₄; apply Nat.lt_irrefl.
+        apply Nat.mul_lt_mono_pos_l in H₄.
+         apply Hn₁ in H₄.
+         destruct Hn₂ as (Hz, Hnz).
+         rewrite shifted_in_stretched in Hnz.
+          exfalso; apply Hnz; reflexivity.
 
-         apply Nat.mul_lt_mono_pos_l in H₄.
-          apply Hn₁ in H₄.
+          rewrite <- Nat.add_1_r.
+          rewrite Nat.add_shuffle0.
+          rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+          rewrite Nat.add_comm.
+          rewrite Nat.mul_comm.
+          rewrite Nat.mod_add.
+             rewrite Hkn.
+             rewrite Nat.mod_small.
+              apply Nat.lt_0_1.
+
+              apply Nat.lt_succ_r.
+              apply -> Nat.succ_le_mono.
+              apply Nat.le_0_l.
+
+             apply Pos2Nat_ne_0.
+
+           apply Pos2Nat.is_pos.
+
+          apply Pos2Nat_ne_0.
 bbb.
 *)
 
