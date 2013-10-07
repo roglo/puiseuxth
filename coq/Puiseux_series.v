@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.818 2013-10-07 13:37:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.819 2013-10-07 13:39:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4033,7 +4033,6 @@ rewrite normalise_nz_add_0_r.
 rewrite normalise_nz_add_0_r.
 assumption.
 Qed.
-*)
 
 (* bof, mouais, pourquoi pas, faut voir, pour essayer...
 Lemma www : ∀ nz₁ nz₂ c p,
