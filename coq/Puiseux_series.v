@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.814 2013-10-07 03:00:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.815 2013-10-07 10:18:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -99,12 +99,15 @@ Definition pos_abs z :=
   | Zneg p => p
   end.
 
+Definition gcd_nz n k (nz : nz_ps α) :=
+  let g := Pos.gcd (pos_abs (nz_valnum nz + Z.of_nat n)) (nz_comden nz) in
+  Pos.gcd g k.
+
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) 0 with
   | fin n =>
       let k := shrink_factor fld (nz_terms nz) n in
-      let g := Pos.gcd (pos_abs (nz_valnum nz + Z.of_nat n)) (nz_comden nz) in
-      let k' := Pos.gcd g k in
+      let k' := gcd_nz n k nz in
       NonZero
         {| nz_terms := normalise_series n k' (nz_terms nz);
            nz_valnum := (nz_valnum nz + Z.of_nat n) / ' k';
@@ -1691,6 +1694,16 @@ unfold cm.
 apply Pos.mul_comm.
 Qed.
 
+Lemma gcd_nz_add_comm : ∀ nz₁ nz₂ n k,
+  gcd_nz n k (build_nz_add nz₁ nz₂)%Z =
+  gcd_nz n k (build_nz_add nz₂ nz₁)%Z.
+Proof.
+intros nz₁ nz₂ n k.
+unfold gcd_nz; simpl.
+rewrite cm_comm, Z.min_comm.
+reflexivity.
+Qed.
+
 Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
   eq_norm_ps fld
     (normalise_nz fld (build_nz_add nz₁ nz₂))
@@ -1703,11 +1716,11 @@ remember (first_nonzero fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
- rewrite Z.min_comm, cm_comm, nz_terms_add_comm; reflexivity.
+ rewrite nz_terms_add_comm, gcd_nz_add_comm, Z.min_comm; reflexivity.
 
- rewrite Z.min_comm, cm_comm, nz_terms_add_comm; reflexivity.
+ rewrite nz_terms_add_comm, gcd_nz_add_comm, cm_comm; reflexivity.
 
- rewrite Z.min_comm, cm_comm, nz_terms_add_comm; reflexivity.
+ rewrite nz_terms_add_comm, gcd_nz_add_comm; reflexivity.
 Qed.
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
@@ -1852,6 +1865,24 @@ Definition terms_add ps₁ ps₂ :=
       end
   end.
 
+Lemma gcd_nz_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
+  gcd_nz n k (build_nz_add (build_nz_add nz₁ nz₂) nz₃)%Z =
+  gcd_nz n k (build_nz_add nz₁ (build_nz_add nz₂ nz₃))%Z.
+Proof.
+intros nz₁ nz₂ nz₃ n k.
+unfold gcd_nz; simpl.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite Z.min_assoc.
+unfold cm_factor, cm; simpl; unfold cm; simpl.
+do 2 rewrite Pos2Z.inj_mul.
+do 2 rewrite Z.mul_assoc.
+rewrite Pos.mul_assoc.
+do 4 f_equal.
+f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
+f_equal; rewrite Z.mul_shuffle0; reflexivity.
+Qed.
+
 Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps fld
     (normalise_nz fld (build_nz_add (build_nz_add nz₁ nz₂) nz₃))
@@ -1864,72 +1895,28 @@ remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) 0) a
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
- f_equal.
-  f_equal.
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.min_assoc.
-  unfold cm_factor, cm.
-  rewrite Pos2Z.inj_mul, Z.mul_assoc.
-  rewrite Pos2Z.inj_mul, Z.mul_assoc.
-  f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
-  f_equal; rewrite Z.mul_shuffle0; reflexivity.
-
-  f_equal.
-  f_equal; [ idtac | rewrite nz_terms_add_assoc; reflexivity ].
-  f_equal.
-   do 2 f_equal.
-   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite Z.min_assoc.
-   unfold cm_factor, cm.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
-   f_equal; rewrite Z.mul_shuffle0; reflexivity.
-
-   unfold cm; simpl; unfold cm; simpl.
-   rewrite Pos.mul_assoc; reflexivity.
-
- f_equal.
- f_equal.
-  unfold cm; simpl; unfold cm; simpl.
-  rewrite Pos.mul_assoc; reflexivity.
-
-  f_equal.
-  f_equal; [ idtac | rewrite nz_terms_add_assoc; reflexivity ].
-  f_equal.
-   do 2 f_equal.
-   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite Z.min_assoc.
-   unfold cm_factor, cm.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
-   f_equal; rewrite Z.mul_shuffle0; reflexivity.
-
-   unfold cm; simpl; unfold cm; simpl.
-   rewrite Pos.mul_assoc; reflexivity.
-
+ rewrite nz_terms_add_assoc.
+ rewrite gcd_nz_add_assoc.
+ do 2 f_equal.
  unfold cm_factor, cm; simpl.
- unfold cm.
- do 2 rewrite Pos2Z.inj_mul.
- do 2 rewrite Z.mul_assoc.
- rewrite Pos.mul_assoc.
  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.min_assoc.
+ do 2 rewrite Pos2Z.inj_mul.
+ do 2 rewrite Z.mul_assoc.
+ f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
+ f_equal; rewrite Z.mul_shuffle0; reflexivity.
+
  rewrite nz_terms_add_assoc.
- replace (nz_valnum nz₃ * ' nz_comden nz₁ * ' nz_comden nz₂)%Z with
-  (nz_valnum nz₃ * ' nz_comden nz₂ * ' nz_comden nz₁)%Z .
-  replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' nz_comden nz₃)%Z with
-   (nz_valnum nz₂ * ' nz_comden nz₃ * ' nz_comden nz₁)%Z .
-   reflexivity.
+ rewrite gcd_nz_add_assoc.
+ unfold cm_factor, cm; simpl; unfold cm; simpl.
+ do 4 rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_assoc.
+ reflexivity.
 
-   apply Z.mul_shuffle0.
-
-  apply Z.mul_shuffle0.
+ rewrite nz_terms_add_assoc.
+ rewrite gcd_nz_add_assoc.
+ reflexivity.
 Qed.
 
 (*
@@ -3374,14 +3361,6 @@ Proof.
 bbb.
 *)
 
-(*
-Add Parametric Morphism :
-  (λ s v c, NonZero {| nz_terms := s; nz_valnum := v; nz_comden := c |})
-with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph₁.
-Proof.
-bbb.
-*)
-
 Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
 
 Lemma fold_mk_nonzero : ∀ (s : series α) v c,
@@ -3398,7 +3377,12 @@ rewrite <- Heq.
 remember (first_nonzero fld s₁ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; simpl; rewrite Heq; reflexivity.
+constructor; simpl.
+ rewrite Heq in |- * at 1; reflexivity.
+
+ rewrite Heq in |- * at 1; reflexivity.
+
+ rewrite Heq in |- * at 1 3; reflexivity.
 Qed.
 
 Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
@@ -3542,6 +3526,7 @@ Proof.
 intros s n₁ n₂ k Hn₂ Hk.
 apply shrink_factor_iff in Hk.
 rewrite Hn₂ in Hk.
+bbb.
 destruct Hk as [Hk| Hk].
  unfold is_shrink_factor in Hk.
  destruct Hk as (Hk, (Hkz, Hknz)).
@@ -3563,6 +3548,7 @@ destruct Hk as [Hk| Hk].
  apply -> Nat.succ_le_mono.
  apply Nat.le_0_l.
 Qed.
+*)
 
 (* exercice... *)
 (* mmm... à voir... not sure it can be proved cause ¬∀ doesn't imply ∃
@@ -3631,7 +3617,6 @@ Lemma normalised_stretched_series : ∀ s n k,
   shrink_factor fld s n = k
   → stretch_series fld k (normalise_series n k s) ≃ series_left_shift n s.
 Proof.
-(* à voir si simplifiable... *)
 intros s n k Hsf.
 unfold normalise_series.
 apply shrink_factor_iff in Hsf.
@@ -3803,6 +3788,7 @@ destruct n₁ as [n₁| ].
 
   rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
 Qed.
+*)
 
 Lemma normalised_series : ∀ s n k,
   first_nonzero fld s 0 = fin n
@@ -3847,6 +3833,7 @@ destruct (lt_dec i n) as [H₃| H₃].
 
     inversion H₁.
 Qed.
+*)
 
 Lemma normalise_nz_add_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
@@ -3889,6 +3876,7 @@ constructor; simpl.
  rewrite normalise_series_add_shift.
  reflexivity.
 Qed.
+*)
 
 (* provable but supposes to use Bézout's identity
    probably complicated
@@ -3973,6 +3961,7 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
 
  apply Hmnz; reflexivity.
 Qed.
+*)
 
 Lemma nz_norm_add_0 : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
@@ -3983,6 +3972,7 @@ rewrite normalise_nz_add_0_r.
 rewrite normalise_nz_add_0_r.
 assumption.
 Qed.
+*)
 
 (* bof, mouais, pourquoi pas, faut voir, pour essayer...
 Lemma www : ∀ nz₁ nz₂ c p,
