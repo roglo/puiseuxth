@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.816 2013-10-07 10:52:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.817 2013-10-07 13:19:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3813,6 +3813,7 @@ Qed.
 Lemma normalise_nz_add_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
 Proof.
+(* à nettoyer *)
 intros nz.
 unfold normalise_nz; simpl.
 rewrite nz_add_0_r.
@@ -3838,21 +3839,105 @@ constructor; simpl.
    rewrite Z.max_r; [ idtac | assumption ].
    reflexivity.
 
-bbb.
-  rewrite shrink_factor_shift; reflexivity.
+  rewrite shrink_factor_shift.
+  unfold gcd_nz; simpl.
+  rewrite Z.mul_1_r.
+  rewrite Nat2Z.inj_add.
+  rewrite Z.add_assoc.
+  rewrite Z.add_shuffle0.
+  rewrite <- Z.add_assoc.
+  rewrite Z.add_comm.
+  unfold cm.
+  simpl.
+  rewrite Pos.mul_1_r.
+  f_equal.
+  f_equal.
+  unfold pos_abs.
+  destruct (nz_valnum nz) as [| p| p].
+   simpl.
+   rewrite Z.min_id, Z.add_0_r.
+   reflexivity.
+
+   simpl.
+   rewrite positive_nat_Z; simpl.
+   destruct (Z.of_nat n₁) as [| p₁| p₁].
+    reflexivity.
+
+    reflexivity.
+
+    destruct (Z.pos_sub p p₁) as [| p₂| p₂].
+     reflexivity.
+
+     reflexivity.
+
+     reflexivity.
+
+   simpl.
+   destruct (Z.of_nat n₁) as [| p₁| p₁].
+    reflexivity.
+
+    reflexivity.
+
+    apply Pos.add_comm.
 
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
+ f_equal.
+ f_equal.
+ unfold gcd_nz.
+ simpl.
+ unfold cm; simpl.
+ rewrite Pos.mul_1_r.
+ rewrite Z.mul_1_r.
  rewrite nz_add_0_r.
  rewrite shrink_factor_shift.
- reflexivity.
+ f_equal.
+ f_equal.
+ f_equal.
+ unfold pos_abs.
+ rewrite Nat2Z.inj_add.
+ destruct (nz_valnum nz) as [| p| p]; simpl.
+  rewrite Z.add_0_r; reflexivity.
+
+  destruct (Z.of_nat n₁) as [| p₁| p₁].
+   simpl.
+   rewrite positive_nat_Z; reflexivity.
+
+   simpl.
+   rewrite positive_nat_Z, Pos.add_comm; reflexivity.
+
+   simpl.
+   rewrite positive_nat_Z; reflexivity.
+
+  rewrite Z.add_0_r.
+  reflexivity.
 
  rewrite nz_add_0_r.
  rewrite shrink_factor_shift.
+ constructor; intros i.
  rewrite normalise_series_add_shift.
- reflexivity.
+ unfold gcd_nz.
+ simpl.
+ unfold cm; simpl.
+ rewrite Z.mul_1_r, Pos.mul_1_r.
+ unfold pos_abs.
+ rewrite Nat2Z.inj_add.
+ destruct (nz_valnum nz) as [| p| p]; simpl.
+  rewrite Z.add_0_r; reflexivity.
+
+  destruct (Z.of_nat n₁) as [| p₁| p₁].
+   simpl.
+   rewrite positive_nat_Z; reflexivity.
+
+   simpl.
+   rewrite positive_nat_Z, Pos.add_comm; reflexivity.
+
+   simpl.
+   rewrite positive_nat_Z; reflexivity.
+
+  rewrite Z.add_0_r.
+  reflexivity.
 Qed.
-*)
 
 (* provable but supposes to use Bézout's identity
    probably complicated
