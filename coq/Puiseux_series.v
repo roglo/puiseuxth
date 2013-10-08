@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.829 2013-10-08 16:17:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.830 2013-10-08 17:27:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1425,58 +1425,58 @@ destruct kn as [| kn].
    exfalso; apply Hnz₁; reflexivity.
 
    destruct Hk₁ as (Hz₁, Hnz₁).
- destruct Hk₂ as (Hz₂, Hnz₂).
- destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
- destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
-  apply Hnz₂ in H₂.
-  destruct H₂ as (i, (Him, Hin)).
-  destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-   apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct H₂ as (c, Hi); subst i.
-   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hin.
-   rewrite series_nth_fld_mul_stretch in Hin.
-   rewrite Pos2Nat.inj_mul in Him.
-   rewrite Nat.mul_mod_distr_l in Him; try apply Pos2Nat_ne_0.
-   apply Nat.neq_mul_0 in Him.
-   destruct Him as (_, Him).
-   apply Hin, Hz₁; assumption.
+   destruct Hk₂ as (Hz₂, Hnz₂).
+   destruct (Pos.eq_dec k₂ (k * k₁)) as [H₁| H₁]; [ assumption | exfalso ].
+   destruct (lt_dec (Pos.to_nat k₂) (Pos.to_nat (k * k₁))) as [H₂| H₂].
+    apply Hnz₂ in H₂.
+    destruct H₂ as (i, (Him, Hin)).
+    destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+     apply Nat.mod_divides in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+     destruct H₂ as (c, Hi); subst i.
+     rewrite Nat.mul_comm, <- Nat.mul_add_distr_l in Hin.
+     rewrite series_nth_fld_mul_stretch in Hin.
+     rewrite Pos2Nat.inj_mul in Him.
+     rewrite Nat.mul_mod_distr_l in Him; try apply Pos2Nat_ne_0.
+     apply Nat.neq_mul_0 in Him.
+     destruct Him as (_, Him).
+     apply Hin, Hz₁; assumption.
 
-   apply Hin.
-   rewrite shifted_in_stretched; [ reflexivity | idtac ].
-   rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
+     apply Hin.
+     rewrite shifted_in_stretched; [ reflexivity | idtac ].
+     rewrite Nat.add_comm.
+     rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
 
-  apply Nat.nlt_ge in H₂.
-  rewrite Pos2Nat.inj_mul in H₂.
-  apply le_neq_lt in H₂.
-   assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
-    eapply Nat.le_lt_trans; [ idtac | eassumption ].
-    rewrite <- Pos2Nat.inj_mul.
-    apply Pos2Nat.inj_le.
-    rewrite <- Pos.mul_1_l in |- * at 1.
-    apply Pos.mul_le_mono_r.
-    apply Pos.le_1_l.
+    apply Nat.nlt_ge in H₂.
+    rewrite Pos2Nat.inj_mul in H₂.
+    apply le_neq_lt in H₂.
+     assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₃.
+      eapply Nat.le_lt_trans; [ idtac | eassumption ].
+      rewrite <- Pos2Nat.inj_mul.
+      apply Pos2Nat.inj_le.
+      rewrite <- Pos.mul_1_l in |- * at 1.
+      apply Pos.mul_le_mono_r.
+      apply Pos.le_1_l.
 
-    assert (n₂ = Pos.to_nat k * n₁)%nat.
-     destruct (lt_eq_lt_dec n₂ (Pos.to_nat k * n₁)) as [[H₄| H₄]| H₄].
-      apply first_nonzero_iff in Hn₂.
-      apply first_nonzero_iff in Hn₁.
-      destruct (zerop (n₂ mod Pos.to_nat k)) as [H₅| H₅].
-       apply Nat.mod_divides in H₅.
-        destruct H₅ as (c, H₅).
-        subst n₂.
-        apply Nat.mul_lt_mono_pos_l in H₄.
-         apply Hn₁ in H₄.
-         destruct Hn₂ as (Hz, Hnz).
-         rewrite shifted_in_stretched in Hnz.
-          exfalso; apply Hnz; reflexivity.
+      assert (n₂ = Pos.to_nat k * n₁)%nat.
+       destruct (lt_eq_lt_dec n₂ (Pos.to_nat k * n₁)) as [[H₄| H₄]| H₄].
+        apply first_nonzero_iff in Hn₂.
+        apply first_nonzero_iff in Hn₁.
+        destruct (zerop (n₂ mod Pos.to_nat k)) as [H₅| H₅].
+         apply Nat.mod_divides in H₅.
+          destruct H₅ as (c, H₅).
+          subst n₂.
+          apply Nat.mul_lt_mono_pos_l in H₄.
+           apply Hn₁ in H₄.
+           destruct Hn₂ as (Hz, Hnz).
+           rewrite shifted_in_stretched in Hnz.
+            exfalso; apply Hnz; reflexivity.
 
-          rewrite <- Nat.add_1_r.
-          rewrite Nat.add_shuffle0.
-          rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
-          rewrite Nat.add_comm.
-          rewrite Nat.mul_comm.
-          rewrite Nat.mod_add.
+            rewrite <- Nat.add_1_r.
+            rewrite Nat.add_shuffle0.
+            rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+            rewrite Nat.add_comm.
+            rewrite Nat.mul_comm.
+            rewrite Nat.mod_add.
              rewrite Hkn.
              rewrite Nat.mod_small.
               apply Nat.lt_0_1.
@@ -1490,6 +1490,8 @@ destruct kn as [| kn].
            apply Pos2Nat.is_pos.
 
           apply Pos2Nat_ne_0.
+
+         Focus 1.
 bbb.
 *)
 
