@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.821 2013-10-07 15:40:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.822 2013-10-08 10:08:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1370,6 +1370,7 @@ split.
  exists i; assumption.
 Qed.
 
+(* mouais... faut voir...
 Lemma shrink_factor_stretch : ∀ s b k,
   first_nonzero fld s 0 = fin b
   → first_nonzero fld s (S b) ≠ ∞
@@ -1508,12 +1509,15 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
 
 (* for a possible redefinition of ps_add, or perhaps to change a
    representation for another to manage to make proofs... *)
+(* mmm... bizarre... nz_valnum n'a pas l'air de coller avec la définition
+   dans build_nz_add et adjust_series... à voir
 Definition adjust_nz n k nz :=
   {| nz_terms := series_shift fld n (stretch_series fld k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
+*)
 
-(* à voir... *)
+(* à voir...
 Theorem glop : ∀ nz n k,
   NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
@@ -1541,19 +1545,17 @@ bbb.
 bbb.
 *)
 
-Definition nz_terms_add nz₁ nz₂ :=
-  let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
-  let s₂ := stretch_series fld (cm_factor nz₂ nz₁) (nz_terms nz₂) in
-  let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
-  let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
-  series_add fld
-    (series_shift fld (Z.to_nat (v₁ - v₂)) s₁)
-    (series_shift fld (Z.to_nat (v₂ - v₁)) s₂).
+Definition adjust_series n k s :=
+  series_shift fld n (stretch_series fld k s).
 
 Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
-  let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
-  let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
-  {| nz_terms := nz_terms_add nz₁ nz₂;
+  let k₁ := cm_factor nz₁ nz₂ in
+  let k₂ := cm_factor nz₂ nz₁ in
+  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  let s₁ := adjust_series (Z.to_nat (v₁ - v₂)) k₁ (nz_terms nz₁) in
+  let s₂ := adjust_series (Z.to_nat (v₂ - v₁)) k₂ (nz_terms nz₂) in
+  {| nz_terms := series_add fld s₁ s₂;
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
 
