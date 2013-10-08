@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.827 2013-10-08 14:14:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.828 2013-10-08 14:19:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3909,6 +3909,7 @@ symmetry in Hn₁.
 rewrite Nbar.add_comm.
 destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
 constructor; simpl.
+ unfold nz_valnum_add.
  rewrite Z.mul_1_r.
  rewrite nz_add_0_r.
  rewrite Nat2Z.inj_add.
@@ -3927,6 +3928,7 @@ constructor; simpl.
 
   rewrite shrink_factor_shift.
   unfold gcd_nz; simpl.
+  unfold nz_valnum_add.
   rewrite Z.mul_1_r.
   rewrite Nat2Z.inj_add.
   rewrite Z.add_assoc.
@@ -3974,6 +3976,7 @@ constructor; simpl.
  simpl.
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
+ unfold nz_valnum_add.
  rewrite Z.mul_1_r.
  rewrite nz_add_0_r.
  rewrite shrink_factor_shift.
@@ -4005,6 +4008,7 @@ constructor; simpl.
  unfold gcd_nz.
  simpl.
  unfold cm; simpl.
+ unfold nz_valnum_add.
  rewrite Z.mul_1_r, Pos.mul_1_r.
  unfold pos_abs.
  rewrite Nat2Z.inj_add.
