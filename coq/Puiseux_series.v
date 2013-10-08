@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.824 2013-10-08 13:20:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.825 2013-10-08 13:41:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1944,6 +1944,8 @@ Lemma gcd_nz_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
 Proof.
 intros nz₁ nz₂ nz₃ n k.
 unfold gcd_nz; simpl.
+unfold nz_valnum_add; simpl.
+unfold nz_valnum_add; simpl.
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Z.min_assoc.
@@ -1971,6 +1973,8 @@ destruct n as [n| ]; constructor; simpl.
  rewrite nz_terms_add_assoc.
  rewrite gcd_nz_add_assoc.
  do 2 f_equal.
+ unfold nz_valnum_add; simpl.
+ unfold nz_valnum_add; simpl.
  unfold cm_factor, cm; simpl.
  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
@@ -2037,6 +2041,7 @@ rewrite Pos2Nat.inj_add.
 rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
 Qed.
 
+(* à revoir, si nécessaire...
 Lemma stop_head_tail : ∀ nz,
   stop (nz_terms nz) ≠ fin 0
   → stop (nz_terms_add (nz_head nz) (nz_tail nz)) =
@@ -2058,6 +2063,7 @@ rewrite Z.add_simpl_l.
 rewrite Nat.max_r; [ rewrite Nat.add_comm; reflexivity | idtac ].
 apply Nat.le_sub_le_add_r; rewrite Nat.sub_diag; apply Nat.le_0_l.
 Qed.
+*)
 
 Lemma stop_0_series_nth_0 : ∀ s i,
   stop s = 0%Nbar
@@ -2535,6 +2541,7 @@ destruct n as [[| n]| ].
 Qed.
 *)
 
+(* à revoir, si nécessaire...
 Lemma stop_head_tail₂ : ∀ nz,
   stop (nz_terms nz) ≠ 0%Nbar
   → stop (nz_terms_add (nz_head nz) (nz_tail nz))
@@ -2559,7 +2566,9 @@ rewrite max_r.
  rewrite Nat.add_comm.
  apply Nat.le_add_r.
 Qed.
+*)
 
+(* à revoir, si nécessaire...
 Lemma stop_nz_add_pos_pos : ∀ nz,
   (0 < stop (nz_terms_add (nz_head nz) (nz_tail nz)))%Nbar
   → (0 < stop (nz_terms nz))%Nbar.
@@ -2574,7 +2583,9 @@ destruct st as [| st]; [ idtac | constructor; apply Nat.lt_0_succ ].
 rewrite Hst in H; simpl in H.
 rewrite Z.sub_diag in H; assumption.
 Qed.
+*)
 
+(* à revoir, si nécessaire...
 Lemma stop_nz_pos_add_pos : ∀ nz,
   (0 < stop (nz_terms nz))%Nbar
   → (0 < stop (nz_terms_add (nz_head nz) (nz_tail nz)))%Nbar.
@@ -2602,7 +2613,9 @@ destruct st as [| st]; simpl.
 
   rewrite Nat.add_comm; apply Nat.le_add_r.
 Qed.
+*)
 
+(* à revoir, si nécessaire...
 Lemma series_nth_add_head_tail : ∀ nz,
   series_nth_fld fld 0 (nz_terms nz)
   ≍ series_nth_fld fld 0 (nz_terms_add (nz_head nz) (nz_tail nz)).
@@ -2680,6 +2693,7 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
  exfalso; apply H₁; subst s.
  apply stop_nz_add_pos_pos; assumption.
 Qed.
+*)
 
 (* à voir...
 Lemma ps_cons2 : ∀ nz,
