@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.828 2013-10-08 14:19:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.829 2013-10-08 16:17:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4124,15 +4124,30 @@ rewrite normalise_nz_add_0_r.
 assumption.
 Qed.
 
-(* bof, mouais, pourquoi pas, faut voir, pour essayer...
-Lemma www : ∀ nz₁ nz₂ c p,
+(* bof, une idée, comme ça... *)
+Lemma www : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → normalise_nz fld (nz₁ ∔ nz_monom c p) ≐
-    normalise_nz fld (nz₂ ∔ nz_monom c p).
+  → (normalise_nz fld nz₁ + normalise_nz fld nz₃ ≈
+     normalise_nz fld nz₂ + normalise_nz fld nz₃)%ps.
 Proof.
-intros nz₁ nz₂ c p Heq.
+intros nz₁ nz₂ nz₃ Heqp.
+unfold normalise_nz.
+remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+remember (first_nonzero fld (nz_terms nz₃) 0) as n₃ eqn:Hn₃ .
+symmetry in Hn₁, Hn₂, Hn₃.
+destruct n₃ as [n₃| ]; simpl.
+ destruct n₁ as [n₁| ]; simpl.
+  destruct n₂ as [n₂| ]; simpl.
+   Focus 1.
+   constructor.
+   remember (gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁) as k₁.
+   rename Heqk₁ into Hk₁.
+   remember (gcd_nz n₂ (shrink_factor fld (nz_terms nz₂) n₂) nz₂) as k₂.
+   rename Heqk₂ into Hk₂.
+   remember (gcd_nz n₃ (shrink_factor fld (nz_terms nz₃) n₃) nz₃) as k₃.
+   rename Heqk₃ into Hk₃.
 bbb.
-*)
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
