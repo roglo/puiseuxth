@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.826 2013-10-08 14:10:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.827 2013-10-08 14:14:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3516,6 +3516,8 @@ Lemma nz_add_0_r : ∀ nz,
 Proof.
 intros nz.
 unfold nz_terms_add; simpl.
+unfold adjust_series.
+rewrite Z2Nat_sub_min.
 rewrite Z.mul_1_r, Z.sub_0_r.
 rewrite stretch_series_1.
 rewrite stretch_series_series_0.
