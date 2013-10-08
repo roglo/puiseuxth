@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.822 2013-10-08 10:08:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.823 2013-10-08 12:08:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1553,8 +1553,10 @@ Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
   let k₂ := cm_factor nz₂ nz₁ in
   let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
   let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
-  let s₁ := adjust_series (Z.to_nat (v₁ - v₂)) k₁ (nz_terms nz₁) in
-  let s₂ := adjust_series (Z.to_nat (v₂ - v₁)) k₂ (nz_terms nz₂) in
+  let n₁ := Z.to_nat (v₁ - Z.min v₁ v₂) in
+  let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
+  let s₁ := adjust_series n₁ k₁ (nz_terms nz₁) in
+  let s₂ := adjust_series n₂ k₂ (nz_terms nz₂) in
   {| nz_terms := series_add fld s₁ s₂;
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
