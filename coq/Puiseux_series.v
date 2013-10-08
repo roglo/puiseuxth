@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.823 2013-10-08 12:08:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.824 2013-10-08 13:20:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1548,7 +1548,7 @@ bbb.
 Definition adjust_series n k s :=
   series_shift fld n (stretch_series fld k s).
 
-Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
+Definition nz_terms_add (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in
   let k₂ := cm_factor nz₂ nz₁ in
   let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
@@ -1557,8 +1557,18 @@ Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
   let s₁ := adjust_series n₁ k₁ (nz_terms nz₁) in
   let s₂ := adjust_series n₂ k₂ (nz_terms nz₂) in
-  {| nz_terms := series_add fld s₁ s₂;
-     nz_valnum := Z.min v₁ v₂;
+  series_add fld s₁ s₂.
+
+Definition nz_valnum_add (nz₁ nz₂ : nz_ps α) :=
+  let k₁ := cm_factor nz₁ nz₂ in
+  let k₂ := cm_factor nz₂ nz₁ in
+  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  Z.min v₁ v₂.
+
+Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
+  {| nz_terms := nz_terms_add nz₁ nz₂;
+     nz_valnum := nz_valnum_add nz₁ nz₂;
      nz_comden := cm nz₁ nz₂ |}.
 
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
@@ -1738,6 +1748,7 @@ Lemma gcd_nz_add_comm : ∀ nz₁ nz₂ n k,
 Proof.
 intros nz₁ nz₂ n k.
 unfold gcd_nz; simpl.
+unfold nz_valnum_add; simpl.
 rewrite cm_comm, Z.min_comm.
 reflexivity.
 Qed.
@@ -1754,6 +1765,7 @@ remember (first_nonzero fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
+ unfold nz_valnum_add.
  rewrite nz_terms_add_comm, gcd_nz_add_comm, Z.min_comm; reflexivity.
 
  rewrite nz_terms_add_comm, gcd_nz_add_comm, cm_comm; reflexivity.
@@ -1850,6 +1862,21 @@ Definition Qmin x y :=
 
 Definition Qmin₃ x y z := Qmin (Qmin x y) z.
 
+Lemma Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
+Proof.
+intros x y.
+destruct (Z.min_dec x y) as [H₁| H₁].
+ rewrite H₁.
+ rewrite Z.sub_diag.
+ apply Z.min_l_iff in H₁.
+ apply Z.le_sub_0 in H₁.
+ destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+ apply Z.nlt_ge in H₁.
+ exfalso; apply H₁, Pos2Z.is_pos.
+
+ rewrite H₁; reflexivity.
+Qed.
+
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
   nz_terms_add (build_nz_add nz₁ nz₂) nz₃ ≃
   nz_terms_add nz₁ (build_nz_add nz₂ nz₃).
@@ -1859,6 +1886,7 @@ constructor; intros i.
 unfold build_nz_add; simpl.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
+unfold nz_valnum_add; simpl.
 unfold cm_factor, cm.
 remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
 remember (nz_valnum nz₂) as v₂ eqn:Hv₂ .
@@ -1866,6 +1894,7 @@ remember (nz_valnum nz₃) as v₃ eqn:Hv₃ .
 remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
+unfold adjust_series.
 do 2 rewrite stretch_series_add_distr.
 do 2 rewrite series_shift_add_distr.
 rewrite series_add_assoc.
@@ -1877,15 +1906,21 @@ do 4 rewrite Z.mul_sub_distr_r.
 do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
 remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
 remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+do 2 rewrite Z.min_assoc.
 rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
-do 2 rewrite Z2Nat_sub_min2.
-do 2 rewrite Z2Nat_sub_min1.
 rewrite Pos.mul_comm.
 replace (c₃ * c₁)%positive with (c₁ * c₃)%positive by apply Pos.mul_comm.
+do 6 rewrite Z2Nat_sub_min.
+do 2 rewrite Z2Nat_sub_min1.
+do 2 rewrite Z2Nat_sub_min2.
+do 2 rewrite <- Z.min_assoc.
+do 2 rewrite Z2Nat_sub_min.
 reflexivity.
 Qed.
 
