@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.832 2013-10-09 15:37:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.833 2013-10-09 17:23:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4276,12 +4276,29 @@ Definition normalise_ps ps :=
   | Zero => Zero _
   end.
 
-Lemma www : ∀ ps, normalise_ps ps ≈ normalise_ps (normalise_ps ps).
+Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
 remember (normalise_nz fld nz) as ps eqn:Hps .
+rewrite Hps in |- * at 2.
+symmetry in Hps.
+destruct ps as [nz'| ]; simpl.
+ unfold normalise_nz; simpl.
+ remember (first_nonzero fld (nz_terms nz') 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ].
+  Focus 1.
+  eapply first_nonzero_normalised in Hn; [ idtac | eassumption ].
+  subst n; simpl.
+  rewrite Z.add_0_r.
+bbb.
+
+intros ps.
+destruct ps as [nz| ]; [ simpl | reflexivity ].
+remember (normalise_nz fld nz) as ps eqn:Hps .
 destruct ps as [nz₁| ]; [ simpl | reflexivity ].
+bbb.
 symmetry in Hps |- *.
 unfold normalise_nz.
 unfold normalise_nz in Hps.
