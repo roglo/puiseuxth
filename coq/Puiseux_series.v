@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.833 2013-10-09 17:23:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.834 2013-10-09 17:54:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4276,6 +4276,22 @@ Definition normalise_ps ps :=
   | Zero => Zero _
   end.
 
+Lemma vvv : ∀ nz nz',
+  normalise_nz fld nz = NonZero nz'
+  → shrink_factor fld (nz_terms nz') 0 = 1%positive.
+Proof.
+intros nz nz' Heq.
+apply shrink_factor_iff.
+remember (first_nonzero fld (nz_terms nz') 1) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ simpl | reflexivity ].
+split.
+ intros i H.
+ exfalso; apply H; reflexivity.
+
+ intros k' Hk'.
+bbb.
+
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
 intros ps.
@@ -4288,10 +4304,15 @@ destruct ps as [nz'| ]; simpl.
  remember (first_nonzero fld (nz_terms nz') 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
-  Focus 1.
   eapply first_nonzero_normalised in Hn; [ idtac | eassumption ].
   subst n; simpl.
   rewrite Z.add_0_r.
+bbb.
+  remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ].
+   Focus 1.
+   constructor; simpl.
 bbb.
 
 intros ps.
