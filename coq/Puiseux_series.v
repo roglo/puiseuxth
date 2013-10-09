@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.830 2013-10-08 17:27:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.831 2013-10-09 09:23:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4126,30 +4126,130 @@ rewrite normalise_nz_add_0_r.
 assumption.
 Qed.
 
-(* bof, une idée, comme ça... *)
-Lemma www : ∀ nz₁ nz₂ nz₃,
+(* une idée, comme ça... mais qui marche ! *)
+Lemma normalised_nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → (normalise_nz fld nz₁ + normalise_nz fld nz₃ ≈
      normalise_nz fld nz₂ + normalise_nz fld nz₃)%ps.
 Proof.
+(* à nettoyer sérieusement *)
 intros nz₁ nz₂ nz₃ Heqp.
-unfold normalise_nz.
-remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
-remember (first_nonzero fld (nz_terms nz₃) 0) as n₃ eqn:Hn₃ .
-symmetry in Hn₁, Hn₂, Hn₃.
-destruct n₃ as [n₃| ]; simpl.
- destruct n₁ as [n₁| ]; simpl.
-  destruct n₂ as [n₂| ]; simpl.
-   Focus 1.
+remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
+remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
+remember (normalise_nz fld nz₃) as ps₃ eqn:Hps₃ .
+symmetry in Hps₁, Hps₂, Hps₃.
+destruct ps₃ as [nz'₃| ].
+ destruct ps₁ as [nz'₁| ].
+  destruct ps₂ as [nz'₂| ].
+   simpl.
    constructor.
-   remember (gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁) as k₁.
-   rename Heqk₁ into Hk₁.
-   remember (gcd_nz n₂ (shrink_factor fld (nz_terms nz₂) n₂) nz₂) as k₂.
-   rename Heqk₂ into Hk₂.
-   remember (gcd_nz n₃ (shrink_factor fld (nz_terms nz₃) n₃) nz₃) as k₃.
-   rename Heqk₃ into Hk₃.
-bbb.
+   inversion Heqp.
+   clear nz₁0 H.
+   clear nz₂0 H0.
+   unfold normalise_nz.
+   simpl.
+   remember (first_nonzero fld (nz_terms_add nz'₁ nz'₃) 0) as n₁ eqn:Hn₁ .
+   remember (first_nonzero fld (nz_terms_add nz'₂ nz'₃) 0) as n₂ eqn:Hn₂ .
+   symmetry in Hn₁, Hn₂.
+   unfold nz_terms_add in Hn₁.
+   unfold nz_terms_add in Hn₂.
+   unfold cm_factor in Hn₁.
+   unfold cm_factor in Hn₂.
+   rewrite H1, H2 in Hn₁.
+   unfold adjust_series in Hn₁, Hn₂.
+   rewrite H3 in Hn₁.
+   rewrite Hn₁ in Hn₂.
+   move Hn₂ at top; subst n₁.
+   destruct n₂ as [n₂| ].
+    constructor; simpl.
+     unfold nz_valnum_add, gcd_nz; simpl.
+     unfold nz_valnum_add; simpl.
+     unfold cm_factor, cm; simpl.
+     rewrite H1, H2.
+     f_equal.
+     f_equal.
+     f_equal.
+     unfold nz_terms_add.
+     unfold cm_factor; simpl.
+     rewrite H1, H2.
+     unfold adjust_series.
+     rewrite H3.
+     reflexivity.
+
+     unfold cm; simpl.
+     unfold nz_terms_add; simpl.
+     unfold cm_factor; simpl.
+     rewrite H1, H2.
+     unfold adjust_series; simpl.
+     rewrite H3.
+     f_equal.
+     f_equal.
+     f_equal.
+     unfold gcd_nz.
+     simpl.
+     unfold nz_valnum_add; simpl.
+     rewrite H1.
+     unfold cm_factor.
+     unfold cm.
+     rewrite H2.
+     reflexivity.
+
+     unfold gcd_nz; simpl.
+     unfold nz_valnum_add; simpl.
+     unfold cm_factor, cm; simpl.
+     rewrite H1.
+     rewrite H2.
+     unfold nz_terms_add; simpl.
+     unfold cm_factor, cm; simpl.
+     rewrite H1.
+     rewrite H2.
+     constructor; simpl.
+     unfold adjust_series; simpl.
+     intros i.
+     rewrite H3 in |- * at 1.
+     rewrite H3 in |- * at 1.
+     reflexivity.
+
+    constructor.
+
+   simpl.
+   constructor.
+   unfold normalise_nz.
+   simpl.
+   inversion Heqp.
+
+  inversion Heqp.
+  reflexivity.
+
+ inversion Heqp.
+  simpl.
+  constructor.
+  unfold normalise_nz; simpl.
+  rewrite H1.
+  remember (first_nonzero fld (nz_terms nz₂0) 0) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ]; [ idtac | reflexivity ].
+  constructor; simpl.
+   rewrite H1.
+   rewrite H.
+   unfold gcd_nz.
+   rewrite H0.
+   rewrite H.
+   reflexivity.
+
+   rewrite H0.
+   rewrite H1.
+   unfold gcd_nz.
+   rewrite H0.
+   rewrite H.
+   reflexivity.
+
+   unfold gcd_nz.
+   rewrite H, H0, H1.
+   reflexivity.
+
+  reflexivity.
+Qed.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
