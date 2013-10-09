@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.834 2013-10-09 17:54:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.835 2013-10-09 18:37:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4290,6 +4290,23 @@ split.
  exfalso; apply H; reflexivity.
 
  intros k' Hk'.
+ unfold normalise_nz in Heq.
+ remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ].
+  destruct (zerop (S n mod k')) as [H₁| H₁].
+   Focus 2.
+   exists (S n).
+   split.
+    intros H.
+    rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
+
+    apply first_nonzero_iff in Hn.
+    destruct Hn; assumption.
+
+   apply Nat.mod_divides in H₁.
+    destruct H₁ as (c, H₁).
+    injection Heq; clear Heq; intros Heq.
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
