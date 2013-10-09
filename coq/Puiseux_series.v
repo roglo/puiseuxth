@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.831 2013-10-09 09:23:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.832 2013-10-09 15:37:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -862,7 +862,7 @@ Proof. reflexivity. Qed.
 Add Parametric Morphism : mk_nonzero
 with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
 Proof.
-bbb.
+aaa.
 *)
 
 Section fld₂.
@@ -1064,7 +1064,7 @@ destruct n as [n| ].
     assert (p < n)%nat as H₃ by omega.
     destruct p as [| p].
      rewrite Hz in Hp; exfalso; apply Hp; reflexivity.
-bbb.
+aaa.
 *)
 
 (* à voir...
@@ -1088,7 +1088,7 @@ induction n.
   remember (first_nonzero fld s 1) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
-bbb.
+aaa.
 *)
 
 Lemma shifted_in_stretched : ∀ s k i,
@@ -1287,7 +1287,7 @@ destruct n as [n| ].
      rewrite Hkn.
      rewrite Nat.add_succ_l, <- Nat.add_succ_r.
      apply le_plus_r.
-bbb.
+aaa.
 *)
 
 Lemma series_nth_add_shift : ∀ s i n,
@@ -1492,7 +1492,7 @@ destruct kn as [| kn].
           apply Pos2Nat_ne_0.
 
          Focus 1.
-bbb.
+aaa.
 *)
 
 (* ps_add *)
@@ -1534,7 +1534,7 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite shrink_factor_shift.
-bbb.
+aaa.
  rewrite shrink_factor_stretch; [ idtac | assumption | idtac ].
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
@@ -1544,7 +1544,7 @@ bbb.
  rewrite Pos2Z.inj_mul.
  rewrite Z.mul_comm.
  rewrite Z.div_mul_cancel_l; try apply Zpos_ne_0; reflexivity.
-bbb.
+aaa.
 *)
 
 Definition adjust_series n k s :=
@@ -3182,7 +3182,7 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   symmetry.
   rewrite Z.min_l.
    rewrite Z.min_assoc.
-bbb.
+aaa.
 mmm.... pas sûr que ce soit bon.
 *)
 
@@ -3195,7 +3195,7 @@ Proof.
 intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm₂ with (nz₃ := nz₃); symmetry.
 rewrite nz_add_norm₂ with (nz₃ := nz₂); symmetry; simpl.
-bbb.
+aaa.
 intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm; symmetry.
 rewrite nz_add_norm; symmetry.
@@ -3331,7 +3331,7 @@ induction n; intros.
               (series_shift fld x
                  (stretch_series fld (c₃ * k₂) (nz_terms nz₁))))) as z.
 Focus 1.
-bbb.
+aaa.
 *)
 
 (*
@@ -3353,11 +3353,11 @@ destruct ps₁ as [nz₁| ].
      destruct n₃ as [n₃| ].
       unfold nz_add.
       rewrite Hn₂, Hn₃.
-bbb.
+aaa.
       revert nz₁ nz₂ nz₃ H₂₃ Hn₂ Hn₃.
       induction n₃; intros.
        apply ps_add_cancel_0_0_l; assumption.
-bbb.
+aaa.
 *)
 
 (*
@@ -3368,7 +3368,7 @@ Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
 Proof.
 intros ps₁ ps₃ ps₂ ps₄ H₁ H₂.
 transitivity (ps_add fld ps₁ ps₄).
-bbb.
+aaa.
  apply ps_add_cancel_l; assumption.
 
  rewrite ps_add_comm; symmetry.
@@ -3387,7 +3387,7 @@ Add Parametric Morphism : (ps_add fld) with
 signature (eq_ps fld) ==> (eq_ps fld) ==> (eq_ps fld) as ps_add_morph.
 Proof.
 intros ps₁ ps₃ H₁ ps₂ ps₄ H₂.
-bbb.
+aaa.
 *)
 
 Theorem ps_add_0_l : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
@@ -3425,7 +3425,7 @@ Definition eq_nz nz₁ nz₂ :=
 Add Parametric Morphism : (@mknz α)
 with signature eq_series fld ==> eq ==> eq ==> eq_nz as mknz_morph.
 Proof.
-bbb.
+aaa.
 *)
 
 (*
@@ -3447,7 +3447,7 @@ Add Parametric Relation : (nz_ps α) eq_nz
 Add Parametric Morphism : (@NonZero α)
 with signature eq_nz ==> eq_ps fld as NonZero_morph.
 Proof.
-bbb.
+aaa.
 *)
 
 Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
@@ -3572,7 +3572,7 @@ induction n; intros.
 
  apply IHn; [ intros j Pj | assumption ].
  rewrite series_nth_shift_S.
-bbb.
+aaa.
 *)
 
 Lemma normalise_series_add_shift : ∀ s n m k,
@@ -3635,7 +3635,7 @@ Lemma shrink_factor_divides : ∀ s n₁ n₂ k,
     → (k | S n₂)%nat.
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
-bbb.
+aaa.
 *)
 
 Lemma normalised_series_first_nonzero : ∀ s n k,
@@ -4039,14 +4039,14 @@ Lemma normalised_series_shrink_factor : ∀ s n k,
     → shrink_factor fld (normalise_series n k s) 0 = 1%positive.
 Proof.
 intros s n k Hn Hk.
-bbb.
+aaa.
 
 Lemma normalised_ps_shrink_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
   → shrink_factor fld (nz_terms nz) 0 = 1%positive.
 Proof.
 intros nz nz₁ Hnorm.
-bbb.
+aaa.
 *)
 
 (* probablement démontrable aussi avec first_nonzero ... = fin 0 comme but
@@ -4251,11 +4251,77 @@ destruct ps₃ as [nz'₃| ].
   reflexivity.
 Qed.
 
+(*
+Lemma www : ∀ nz₁ nz₂ nz₃,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → nz_valnum_add nz₁ nz₃ = nz_valnum_add nz₂ nz₃.
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+unfold nz_valnum_add.
+unfold cm_factor.
+unfold normalise_nz in Heq.
+remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ].
+  inversion_clear Heq; simpl in *.
+  unfold gcd_nz in H.
+bbb.
+*)
+
+Definition normalise_ps ps :=
+  match ps with
+  | NonZero nz => normalise_nz fld nz
+  | Zero => Zero _
+  end.
+
+Lemma www : ∀ ps, normalise_ps ps ≈ normalise_ps (normalise_ps ps).
+Proof.
+intros ps.
+destruct ps as [nz| ]; [ simpl | reflexivity ].
+remember (normalise_nz fld nz) as ps eqn:Hps .
+destruct ps as [nz₁| ]; [ simpl | reflexivity ].
+symmetry in Hps |- *.
+unfold normalise_nz.
+unfold normalise_nz in Hps.
+remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
+remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+symmetry in Hn, Hn₁.
+destruct n as [n| ].
+ destruct n₁ as [n₁| ].
+  Focus 1.
+  constructor.
+  injection Hps; clear Hps; intros Hps.
+  symmetry in Hps.
+  remember
+   {|
+   nz_terms := normalise_series n₁
+                 (gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁)
+                 (nz_terms nz₁);
+   nz_valnum := (nz_valnum nz₁ + Z.of_nat n₁) /
+                ' gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁;
+   nz_comden := Z.to_pos
+                  (' nz_comden nz₁ /
+                   ' gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁) |} as toto.
+  unfold normalise_nz.
+  rewrite Hn₁.
+  remember (first_nonzero fld (nz_terms toto) 0) as n₂.
+  rewrite Heqtoto in Heqn₂.
+  simpl in Heqn₂.
+  symmetry in Heqn₂.
+  destruct n₂ as [n₂| ].
+   constructor; simpl.
+    rewrite Heqtoto in |- * at 1.
+    simpl.
+bbb.
+
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
+bbb.
 unfold normalise_nz; simpl.
 remember (first_nonzero fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
 remember (first_nonzero fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
