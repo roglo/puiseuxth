@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.835 2013-10-09 18:37:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.836 2013-10-09 18:51:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4307,6 +4307,20 @@ split.
    apply Nat.mod_divides in H₁.
     destruct H₁ as (c, H₁).
     injection Heq; clear Heq; intros Heq.
+    remember (shrink_factor fld (nz_terms nz) m) as k eqn:Hk .
+    symmetry in Hk.
+    apply shrink_factor_iff in Hk.
+    remember (first_nonzero fld (nz_terms nz) (S m)) as p eqn:Hp .
+    symmetry in Hp.
+    destruct p as [p| ].
+     Focus 2.
+     subst k.
+     rewrite <- Heq in Hn; simpl in Hn.
+     apply first_nonzero_iff in Hn.
+     apply first_nonzero_iff in Hp.
+     simpl in Hn.
+     destruct Hn as (Hz, Hnz).
+     exfalso.
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
