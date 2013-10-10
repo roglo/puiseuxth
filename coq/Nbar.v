@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.83 2013-10-05 03:01:29 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.84 2013-10-10 09:34:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -69,8 +69,6 @@ Infix "+" := add : Nbar_scope.
 Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
 Infix "/" := div : Nbar_scope.
-
-Definition div_sup x y := (x + y - 1) / y.
 
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
@@ -492,52 +490,6 @@ Qed.
 
 Open Scope nat_scope.
 
-Theorem Nat_lt_div_sup_lt_mul_r : ∀ n m p,
-  n < (m + p - 1) / p → n * p < m.
-Proof.
-intros n m p Hn.
-destruct p as [| p]; [ exfalso; revert Hn; apply Nat.nlt_0_r | idtac ].
-destruct (zerop (m mod S p)) as [Hz| Hnz].
- apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
- destruct Hz as (k, Hz).
- subst m.
- rewrite Nat.add_comm in Hn.
- simpl in Hn.
- rewrite divmod_div in Hn.
- rewrite Nat.sub_0_r in Hn.
- rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
- rewrite Nat.div_small in Hn.
-  simpl in Hn.
-  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
-  apply Nat.lt_0_succ.
-
-  apply Nat.lt_succ_r; reflexivity.
-
- destruct m as [| m].
-  rewrite Nat.mod_0_l in Hnz; [ idtac | intros H; discriminate H ].
-  exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-  simpl in Hn.
-  rewrite divmod_div in Hn.
-  rewrite Nat.sub_0_r in Hn.
-  remember (m + S p)%nat as q.
-  replace (S p) with (1 * S p)%nat in Heqq .
-   subst q.
-   rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
-   rewrite Nat.add_1_r in Hn.
-   apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
-   apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
-    eapply Nat.le_lt_trans; [ eassumption | idtac ].
-    apply Nat.succ_le_mono with (m := m).
-    rewrite Nat.mul_comm.
-    apply Nat.mul_div_le.
-    intros H; discriminate H.
-
-    apply Nat.lt_0_succ.
-
-   rewrite Nat.mul_1_l; reflexivity.
-Qed.
-
 Theorem Nat_lt_mul_r_lt_div_sup : ∀ n m p, 0 < p →
   n * p < m → n < (m + p - 1) / p.
 Proof.
@@ -598,6 +550,8 @@ destruct (zerop (m mod S p)) as [Hz| Hnz].
 Qed.
 
 Close Scope nat_scope.
+
+Definition div_sup x y := (x + y - 1) / y.
 
 Theorem lt_div_sup_lt_mul_r : ∀ n m p,
   n < div_sup m p → n * p < m.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.840 2013-10-10 09:19:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.841 2013-10-10 09:34:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,8 +85,6 @@ Record nz_ps α := mknz
 Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
-
-Definition div_sup x y := ((x + y - 1) / y)%nat.
 
 Definition normalise_series n k (s : series α) :=
   {| terms i := terms s (n + i * Pos.to_nat k);
@@ -4301,7 +4299,18 @@ remember (fin (n + i * k'n)) as y.
 destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
  destruct (Nbar.lt_dec y (stop (nz_terms nz))) as [H₂| H₂].
   reflexivity.
-Admitted. (*
+
+  subst x y k'n.
+  exfalso; apply H₂; clear H₂.
+  remember (stop (nz_terms nz)) as st eqn:Hst .
+  symmetry in Hst.
+  destruct st as [st| ]; [ idtac | constructor ].
+  simpl in H₁.
+  apply Nbar.fin_lt_mono in H₁.
+  apply Nbar.fin_lt_mono.
+  rewrite Nat_fold_div_sup in H₁.
+  apply Nat_lt_div_sup_lt_mul_r in H₁.
+  apply Nat.lt_add_lt_sub_l; assumption.
 bbb.
 *)
 

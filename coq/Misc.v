@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.64 2013-09-30 14:59:41 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.65 2013-10-10 09:34:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1007,4 +1007,56 @@ Proof.
 intros x.
 destruct x as [| x| x]; [ reflexivity | idtac | reflexivity ].
 rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
+Qed.
+
+Definition Nat_div_sup x y := ((x + y - 1) / y)%nat.
+
+Theorem Nat_fold_div_sup : ∀ x y, ((x + y - 1) / y)%nat = Nat_div_sup x y.
+Proof. reflexivity. Qed.
+
+Theorem Nat_lt_div_sup_lt_mul_r : ∀ n m p,
+  (n < Nat_div_sup m p → n * p < m)%nat.
+Proof.
+intros n m p Hn.
+unfold Nat_div_sup in Hn.
+destruct p as [| p]; [ exfalso; revert Hn; apply Nat.nlt_0_r | idtac ].
+destruct (zerop (m mod S p)) as [Hz| Hnz].
+ apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
+ destruct Hz as (k, Hz).
+ subst m.
+ rewrite Nat.add_comm in Hn.
+ simpl in Hn.
+ rewrite divmod_div in Hn.
+ rewrite Nat.sub_0_r in Hn.
+ rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
+ rewrite Nat.div_small in Hn.
+  simpl in Hn.
+  apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
+  apply Nat.lt_0_succ.
+
+  apply Nat.lt_succ_r; reflexivity.
+
+ destruct m as [| m].
+  rewrite Nat.mod_0_l in Hnz; [ idtac | intros H; discriminate H ].
+  exfalso; revert Hnz; apply Nat.lt_irrefl.
+
+  simpl in Hn.
+  rewrite divmod_div in Hn.
+  rewrite Nat.sub_0_r in Hn.
+  remember (m + S p)%nat as q.
+  replace (S p) with (1 * S p)%nat in Heqq .
+   subst q.
+   rewrite Nat.div_add in Hn; [ idtac | intros H; discriminate H ].
+   rewrite Nat.add_1_r in Hn.
+   apply Nat.lt_succ_r with (m := (m / S p)%nat) in Hn.
+   apply Nat.mul_le_mono_pos_r with (p := S p) in Hn.
+    eapply Nat.le_lt_trans; [ eassumption | idtac ].
+    apply Nat.succ_le_mono with (m := m).
+    rewrite Nat.mul_comm.
+    apply Nat.mul_div_le.
+    intros H; discriminate H.
+
+    apply Nat.lt_0_succ.
+
+   rewrite Nat.mul_1_l; reflexivity.
 Qed.
