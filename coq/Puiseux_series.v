@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.836 2013-10-09 18:51:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.837 2013-10-10 03:29:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4276,6 +4276,20 @@ Definition normalise_ps ps :=
   | Zero => Zero _
   end.
 
+  
+Lemma uuu : ∀ nz nz' n k,
+  normalise_nz fld nz = NonZero nz'
+  → first_nonzero fld (nz_terms nz) 0 = fin n
+    → shrink_factor fld (nz_terms nz) n = k
+      → ∀ i,
+        series_nth_fld fld (i) (nz_terms nz') =
+        series_nth_fld fld (S n + i * Pos.to_nat k) (nz_terms nz).
+Proof.
+intros nz nz' n k Heq Hn Hk i.
+Admitted. (*
+bbb.
+*)
+
 Lemma vvv : ∀ nz nz',
   normalise_nz fld nz = NonZero nz'
   → shrink_factor fld (nz_terms nz') 0 = 1%positive.
@@ -4294,6 +4308,7 @@ split.
  remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ].
+  injection Heq; clear Heq; intros Heq.
   destruct (zerop (S n mod k')) as [H₁| H₁].
    Focus 2.
    exists (S n).
@@ -4306,7 +4321,6 @@ split.
 
    apply Nat.mod_divides in H₁.
     destruct H₁ as (c, H₁).
-    injection Heq; clear Heq; intros Heq.
     remember (shrink_factor fld (nz_terms nz) m) as k eqn:Hk .
     symmetry in Hk.
     apply shrink_factor_iff in Hk.
@@ -4314,13 +4328,19 @@ split.
     symmetry in Hp.
     destruct p as [p| ].
      Focus 2.
+     exfalso.
      subst k.
      rewrite <- Heq in Hn; simpl in Hn.
      apply first_nonzero_iff in Hn.
      apply first_nonzero_iff in Hp.
      simpl in Hn.
      destruct Hn as (Hz, Hnz).
-     exfalso.
+     remember (gcd_nz m 1 nz) as k eqn:Hk .
+     pose proof (Hp (S n * Pos.to_nat k)%nat) as Hpk.
+     rewrite <- uuu with (nz' := nz') in Hpk; try assumption.
+      rewrite <- Heq in Hpk; simpl in Hpk.
+      rewrite Hpk in Hnz.
+      apply Hnz; reflexivity.
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
