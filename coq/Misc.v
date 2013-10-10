@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.65 2013-10-10 09:34:46 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.66 2013-10-10 09:48:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1059,4 +1059,64 @@ destruct (zerop (m mod S p)) as [Hz| Hnz].
     apply Nat.lt_0_succ.
 
    rewrite Nat.mul_1_l; reflexivity.
+Qed.
+
+Theorem Nat_lt_mul_r_lt_div_sup : ∀ n m p, (0 < p →
+  n * p < m → n < Nat_div_sup m p)%nat.
+Proof.
+intros n m p Hp Hn.
+unfold Nat_div_sup.
+destruct p as [| p]; [ exfalso; revert Hp; apply Nat.lt_irrefl | idtac ].
+destruct (zerop (m mod S p)) as [Hz| Hnz].
+ apply Nat.mod_divide in Hz; [ idtac | intros H; discriminate H ].
+ destruct Hz as (k, Hz); subst m.
+ rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
+ rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+ rewrite Nat.div_small; [ simpl | apply Nat.lt_succ_diag_r ].
+ apply Nat.mul_lt_mono_pos_r in Hn; [ assumption | apply Nat.lt_0_succ ].
+
+ (* à revoir... *)
+ assert (m = S p * (m / S p) + m mod S p)%nat as Hm.
+  apply Nat.div_mod; intros H; discriminate H.
+
+  rewrite Hm in Hn.
+  remember (m / S p)%nat as q.
+  remember (m mod S p) as r.
+  apply Nat.lt_trans with (p := (S p * q + S p * 1)%nat) in Hn.
+   rewrite <- Nat.mul_add_distr_l in Hn.
+   rewrite Nat.mul_comm in Hn.
+   apply Nat.mul_lt_mono_pos_l in Hn; [ idtac | apply Nat.lt_0_succ ].
+   rewrite Nat.add_comm; simpl; rewrite divmod_div, Nat.sub_0_r.
+   rewrite Hm.
+   rewrite Nat.add_assoc, Nat.add_shuffle0.
+   rewrite Nat.mul_comm.
+   rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+   rewrite Nat.add_1_r in Hn.
+   apply Nat.lt_succ_r with (n := n) in Hn.
+   eapply Nat.le_lt_trans; [ eassumption | idtac ].
+   assert (1 <= (p + r) / S p)%nat as Hq.
+    destruct r; [ exfalso; revert Hnz; apply Nat.lt_irrefl | idtac ].
+    rewrite <- Nat.add_succ_comm, Nat.add_comm.
+    remember (r + S p)%nat as x.
+    replace (S p) with (1 * S p)%nat in Heqx ; subst x.
+     rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+     rewrite Nat.add_comm; simpl.
+     apply Nat.succ_le_mono with (n := O).
+     apply Nat.le_0_l.
+
+     rewrite Nat.mul_1_l; reflexivity.
+
+    destruct ((p + r) / S p)%nat.
+     apply Nat.nlt_ge in Hq.
+     exfalso; apply Hq; apply Nat.lt_0_1.
+
+     apply Nat.lt_succ_r with (m := (n0 + q)%nat).
+     apply Nat.le_sub_le_add_r.
+     rewrite Nat.sub_diag.
+     apply Nat.le_0_l.
+
+   apply Nat.add_lt_mono_l.
+   rewrite Nat.mul_1_r, Heqr.
+   apply Nat.mod_upper_bound.
+   intros H; discriminate H.
 Qed.

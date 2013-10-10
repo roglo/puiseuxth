@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.842 2013-10-10 09:39:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.843 2013-10-10 09:48:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4274,8 +4274,7 @@ Definition normalise_ps ps :=
   | Zero => Zero _
   end.
 
-  
-Lemma uuu : ∀ nz nz' n k k',
+Lemma series_nth_normalised : ∀ nz nz' n k k',
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
     → shrink_factor fld (nz_terms nz) n = k
@@ -4322,8 +4321,11 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   apply Nbar.fin_lt_mono in H₂.
   apply Nbar.fin_lt_mono.
   rewrite Nat_fold_div_sup.
-bbb.
-*)
+  apply Nat_lt_mul_r_lt_div_sup; [ apply Pos2Nat.is_pos | idtac ].
+  apply Nat.lt_add_lt_sub_l; assumption.
+
+  reflexivity.
+Qed.
 
 Lemma vvv : ∀ nz nz',
   normalise_nz fld nz = NonZero nz'
@@ -4377,7 +4379,9 @@ split.
      rewrite Nat.add_sub_assoc in Hnk.
       rewrite Nat.add_sub_swap in Hnk.
        symmetry in Hk.
-       rewrite <- uuu with (nz' := nz') (k := xH) in Hnk; try assumption.
+       rewrite <- series_nth_normalised with (nz' := nz') (k := xH) in Hnk.
+        2: assumption.
+
         2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
 
         2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
@@ -4386,6 +4390,13 @@ split.
 
         rewrite <- Heq in Hnk; simpl in Hnk.
         rewrite Hnk in Hnz; apply Hnz; reflexivity.
+
+       apply -> Nat.succ_le_mono; apply Nat.le_0_l.
+
+      remember (Pos.to_nat k) as kn eqn:Hkn .
+      symmetry in Hkn.
+      destruct kn as [| kn].
+       exfalso; revert Hkn; apply Pos2Nat_ne_0.
 
        apply -> Nat.succ_le_mono; apply Nat.le_0_l.
 bbb.
