@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.846 2013-10-10 13:44:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.847 2013-10-10 15:56:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4274,14 +4274,14 @@ Definition normalise_ps ps :=
   | Zero => Zero _
   end.
 
-Lemma series_nth_normalised : ∀ nz nz' n k k',
+Lemma series_nth_normalised : ∀ nz nz' n k g,
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
     → shrink_factor fld (nz_terms nz) n = k
-      → gcd_nz n k nz = k'
+      → gcd_nz n k nz = g
         → ∀ i,
           series_nth_fld fld i (nz_terms nz') =
-          series_nth_fld fld (n + i * Pos.to_nat k') (nz_terms nz).
+          series_nth_fld fld (n + i * Pos.to_nat g) (nz_terms nz).
 Proof.
 intros nz nz' n k k' Heq Hn Hk Hk' i.
 unfold normalise_nz in Heq.
@@ -4327,28 +4327,20 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   reflexivity.
 Qed.
 
-(*
-Lemma ttt : ∀ nz n m k,
-  first_nonzero fld (nz_terms nz) 0 = fin n
-  → shrink_factor fld (nz_terms nz) n = k
-    → first_nonzero fld (nz_terms nz) (S n) = fin m
-      → m = Pos.to_nat k.
-Proof.
-intros nz n m k Hn Hk Hm.
-apply shrink_factor_iff in Hk.
-rewrite Hm in Hk.
-bbb.
-*)
-
-Lemma uuu : ∀ nz nz' n m k k',
+Lemma uuu : ∀ nz nz' n m k g,
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
     → first_nonzero fld (nz_terms nz') 1 = fin m
      → shrink_factor fld (nz_terms nz) n = k
-       → gcd_nz n k nz = k'
-         → Pos.to_nat k = (m * Pos.to_nat k')%nat.
+       → gcd_nz n k nz = g
+         → Pos.to_nat k = (m * Pos.to_nat g)%nat.
 Proof.
-intros nz nz' n m k k₁ Heq Hn Hm Hk Hk₁.
+intros nz nz' n m k g Heq Hn Hm Hk Hg.
+destruct (lt_dec (Pos.to_nat k) (m * Pos.to_nat g)) as [H₁| H₁].
+ exfalso.
+bbb.
+
+intros nz nz' n m k g Heq Hn Hm Hk Hg.
 apply first_nonzero_iff in Hm.
 simpl in Hm.
 destruct Hm as (Hz, Hnz).
