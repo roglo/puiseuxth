@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.838 2013-10-10 07:59:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.839 2013-10-10 08:26:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4286,6 +4286,14 @@ Lemma uuu : ∀ nz nz' n k,
         series_nth_fld fld (S n + i * Pos.to_nat k) (nz_terms nz).
 Proof.
 intros nz nz' n k Heq Hn Hk i.
+unfold normalise_nz in Heq.
+rewrite Hn in Heq.
+injection Heq; clear Heq; intros Heq; subst nz'; simpl.
+rewrite Hk.
+unfold series_nth_fld; simpl.
+do 2 rewrite Nbar.fold_sub.
+rewrite Nbar.fold_div.
+remember (Pos.to_nat (gcd_nz n k nz)) as k' eqn:Hk' .
 bbb.
 *)
 
