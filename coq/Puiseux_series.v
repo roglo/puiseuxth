@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.844 2013-10-10 10:16:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.845 2013-10-10 12:34:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4327,6 +4327,21 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   reflexivity.
 Qed.
 
+Lemma uuu : ∀ nz nz' n m k k',
+  normalise_nz fld nz = NonZero nz'
+  → first_nonzero fld (nz_terms nz) 0 = fin n
+    → first_nonzero fld (nz_terms nz') 1 = fin m
+     → shrink_factor fld (nz_terms nz) n = k
+       → gcd_nz n k nz = k'
+         → Pos.to_nat k = (m * Pos.to_nat k')%nat.
+Proof.
+intros nz nz' n m k k' Heq Hn Hm Hk Hk'.
+apply first_nonzero_iff in Hm.
+simpl in Hm.
+destruct Hm as (Hz, Hnz).
+erewrite series_nth_normalised in Hnz; try eassumption.
+bbb.
+
 Lemma vvv : ∀ nz nz',
   normalise_nz fld nz = NonZero nz'
   → shrink_factor fld (nz_terms nz') 0 = 1%positive.
@@ -4401,6 +4416,10 @@ split.
        apply -> Nat.succ_le_mono; apply Nat.le_0_l.
 
      destruct Hk as (Hz, Hnz).
+     remember (gcd_nz m k nz) as k₁ eqn:Hk₁ .
+     remember Hk₁ as H; clear HeqH.
+     symmetry in H.
+     apply uuu with (nz' := nz') (m := n) in H; try eassumption.
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
