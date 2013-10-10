@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.839 2013-10-10 08:26:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.840 2013-10-10 09:19:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4277,15 +4277,16 @@ Definition normalise_ps ps :=
   end.
 
   
-Lemma uuu : ∀ nz nz' n k,
+Lemma uuu : ∀ nz nz' n k k',
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
     → shrink_factor fld (nz_terms nz) n = k
-      → ∀ i,
-        series_nth_fld fld (i) (nz_terms nz') =
-        series_nth_fld fld (S n + i * Pos.to_nat k) (nz_terms nz).
+      → gcd_nz n k nz = k'
+        → ∀ i,
+          series_nth_fld fld i (nz_terms nz') =
+          series_nth_fld fld (n + i * Pos.to_nat k') (nz_terms nz).
 Proof.
-intros nz nz' n k Heq Hn Hk i.
+intros nz nz' n k k' Heq Hn Hk Hk' i.
 unfold normalise_nz in Heq.
 rewrite Hn in Heq.
 injection Heq; clear Heq; intros Heq; subst nz'; simpl.
@@ -4293,7 +4294,14 @@ rewrite Hk.
 unfold series_nth_fld; simpl.
 do 2 rewrite Nbar.fold_sub.
 rewrite Nbar.fold_div.
-remember (Pos.to_nat (gcd_nz n k nz)) as k' eqn:Hk' .
+rewrite Hk'.
+remember (Pos.to_nat k') as k'n.
+remember ((stop (nz_terms nz) - fin n + fin k'n - 1) / fin k'n)%Nbar as x.
+remember (fin (n + i * k'n)) as y.
+destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
+ destruct (Nbar.lt_dec y (stop (nz_terms nz))) as [H₂| H₂].
+  reflexivity.
+Admitted. (*
 bbb.
 *)
 
@@ -4345,11 +4353,21 @@ split.
      simpl in Hn.
      destruct Hn as (Hz, Hnz).
      remember (gcd_nz m 1 nz) as k eqn:Hk .
-     pose proof (Hp (S n * Pos.to_nat 1)%nat) as Hpk.
-     rewrite <- uuu with (nz' := nz') in Hpk; try assumption.
-      rewrite <- Heq in Hpk; simpl in Hpk.
-      rewrite Hpk in Hnz.
-      apply Hnz; reflexivity.
+     pose proof (Hp (S n * Pos.to_nat k - 1)%nat) as Hnk.
+     rewrite Nat.add_sub_assoc in Hnk.
+      rewrite Nat.add_sub_swap in Hnk.
+       symmetry in Hk.
+       rewrite <- uuu with (nz' := nz') (k := xH) in Hnk; try assumption.
+        2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
+
+        2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
+
+        2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
+
+        rewrite <- Heq in Hnk; simpl in Hnk.
+        rewrite Hnk in Hnz; apply Hnz; reflexivity.
+
+       apply -> Nat.succ_le_mono; apply Nat.le_0_l.
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
