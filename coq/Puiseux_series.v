@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.841 2013-10-10 09:34:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.842 2013-10-10 09:39:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4311,6 +4311,17 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   rewrite Nat_fold_div_sup in H₁.
   apply Nat_lt_div_sup_lt_mul_r in H₁.
   apply Nat.lt_add_lt_sub_l; assumption.
+
+ destruct (Nbar.lt_dec y (stop (nz_terms nz))) as [H₂| H₂].
+  subst x y k'n.
+  exfalso; apply H₁; clear H₁.
+  remember (stop (nz_terms nz)) as st eqn:Hst .
+  symmetry in Hst.
+  destruct st as [st| ]; [ idtac | constructor ].
+  simpl.
+  apply Nbar.fin_lt_mono in H₂.
+  apply Nbar.fin_lt_mono.
+  rewrite Nat_fold_div_sup.
 bbb.
 *)
 
