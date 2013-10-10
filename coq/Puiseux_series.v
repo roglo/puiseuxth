@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.845 2013-10-10 12:34:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.846 2013-10-10 13:44:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4327,6 +4327,19 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   reflexivity.
 Qed.
 
+(*
+Lemma ttt : ∀ nz n m k,
+  first_nonzero fld (nz_terms nz) 0 = fin n
+  → shrink_factor fld (nz_terms nz) n = k
+    → first_nonzero fld (nz_terms nz) (S n) = fin m
+      → m = Pos.to_nat k.
+Proof.
+intros nz n m k Hn Hk Hm.
+apply shrink_factor_iff in Hk.
+rewrite Hm in Hk.
+bbb.
+*)
+
 Lemma uuu : ∀ nz nz' n m k k',
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
@@ -4335,7 +4348,7 @@ Lemma uuu : ∀ nz nz' n m k k',
        → gcd_nz n k nz = k'
          → Pos.to_nat k = (m * Pos.to_nat k')%nat.
 Proof.
-intros nz nz' n m k k' Heq Hn Hm Hk Hk'.
+intros nz nz' n m k k₁ Heq Hn Hm Hk Hk₁.
 apply first_nonzero_iff in Hm.
 simpl in Hm.
 destruct Hm as (Hz, Hnz).
