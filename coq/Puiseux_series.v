@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.837 2013-10-10 03:29:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.838 2013-10-10 07:59:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4286,7 +4286,6 @@ Lemma uuu : ∀ nz nz' n k,
         series_nth_fld fld (S n + i * Pos.to_nat k) (nz_terms nz).
 Proof.
 intros nz nz' n k Heq Hn Hk i.
-Admitted. (*
 bbb.
 *)
 
@@ -4295,6 +4294,7 @@ Lemma vvv : ∀ nz nz',
   → shrink_factor fld (nz_terms nz') 0 = 1%positive.
 Proof.
 intros nz nz' Heq.
+remember Heq as Heq_v; clear HeqHeq_v.
 apply shrink_factor_iff.
 remember (first_nonzero fld (nz_terms nz') 1) as n eqn:Hn .
 symmetry in Hn.
@@ -4323,6 +4323,7 @@ split.
     destruct H₁ as (c, H₁).
     remember (shrink_factor fld (nz_terms nz) m) as k eqn:Hk .
     symmetry in Hk.
+    remember Hk as Hk_v; clear HeqHk_v.
     apply shrink_factor_iff in Hk.
     remember (first_nonzero fld (nz_terms nz) (S m)) as p eqn:Hp .
     symmetry in Hp.
@@ -4336,7 +4337,7 @@ split.
      simpl in Hn.
      destruct Hn as (Hz, Hnz).
      remember (gcd_nz m 1 nz) as k eqn:Hk .
-     pose proof (Hp (S n * Pos.to_nat k)%nat) as Hpk.
+     pose proof (Hp (S n * Pos.to_nat 1)%nat) as Hpk.
      rewrite <- uuu with (nz' := nz') in Hpk; try assumption.
       rewrite <- Heq in Hpk; simpl in Hpk.
       rewrite Hpk in Hnz.
