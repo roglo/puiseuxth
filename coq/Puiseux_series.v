@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.843 2013-10-10 09:48:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.844 2013-10-10 10:16:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4399,6 +4399,8 @@ split.
        exfalso; revert Hkn; apply Pos2Nat_ne_0.
 
        apply -> Nat.succ_le_mono; apply Nat.le_0_l.
+
+     destruct Hk as (Hz, Hnz).
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
