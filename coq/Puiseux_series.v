@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.848 2013-10-11 14:18:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.849 2013-10-11 21:03:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4326,6 +4326,29 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
 
   reflexivity.
 Qed.
+
+Fixpoint nth_nonzero s b n :=
+  match n with
+  | O => first_nonzero fld s b
+  | S n' =>
+      match first_nonzero fld s b with
+      | fin m => nth_nonzero s (S m) n'
+      | ∞ => ∞
+      end
+  end.
+
+Lemma ttt : ∀ nz nz' n i j,
+  normalise_nz fld nz = NonZero nz'
+  → nth_nonzero (nz_terms nz) 0 n = fin i
+    → nth_nonzero (nz_terms nz') 0 n = fin j
+      → series_nth_fld fld i (nz_terms nz) =
+        series_nth_fld fld j (nz_terms nz').
+Proof.
+intros nz nz' n i j Heq Hi Hj.
+revert i j Hi Hj.
+induction n; intros.
+ simpl in Hi, Hj.
+bbb.
 
 Lemma uuu : ∀ nz nz' n m p k g,
   normalise_nz fld nz = NonZero nz'
