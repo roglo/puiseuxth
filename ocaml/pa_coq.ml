@@ -1,4 +1,4 @@
-(* $Id: pa_coq.ml,v 1.59 2013-08-07 08:20:06 deraugla Exp $ *)
+(* $Id: pa_coq.ml,v 1.60 2013-10-11 12:27:21 deraugla Exp $ *)
 
 #load "pa_extend.cmo";
 #load "q_MLast.cmo";
@@ -67,7 +67,7 @@ EXTEND
       | "Definition"; l = V (LIST1 coq_binding SEP "and") →
           <:str_item< value $_list:l$ >>
       | "Inductive"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter);
-        ":="; cdl = V (LIST0 coq_constr_decl) →
+        _ = OPT ind_typ; ":="; cdl = V (LIST0 coq_constr_decl) →
           <:str_item< type $_tp:n$ $_list:tpl$ = [ $_list:cdl$ ] >>
       | "CoInductive"; n = V type_patt "tp"; tpl = V (LIST0 type_parameter);
         ":="; cdl = V (LIST0 coq_constr_decl) →
@@ -105,10 +105,17 @@ EXTEND
           in
           <:str_item< declare $list:[d :: dl]$ end >> ] ]
   ;
+  ind_typ:
+    [ [ ":"; UIDENT "Set" → () ] ]
+  ;
   coq_constr_decl:
-    [ [ "|"; ci = V UIDENT "uid"; ":"; t = ctyp →
+    [ [ "|"; ci = coq_constr_id; ":"; t = ctyp →
         let (tl, rt) = generalized_type_of_type t in
         (loc, ci, <:vala< tl >>, None) ] ]
+  ;
+  coq_constr_id:
+    [ [ ci = V UIDENT "uid" → ci
+      | ci = V LIDENT "lid" → ci ] ]
   ;
   label_declaration:
     [ [ i = label_ident; ":"; t = ctyp -> (loc, i, False, t) ] ]
@@ -119,15 +126,19 @@ EXTEND
   ctyp: LEVEL "simple"
     [ [ UIDENT "Q" → <:ctyp< Q.t >>
       | UIDENT "Z" → <:ctyp< I.t >>
+      | UIDENT "Nbar" → <:ctyp< Nbar.t >>
       | LIDENT "positive" → <:ctyp< I.t >>
-      | LIDENT "nat" → <:ctyp< int >> ] ]
+      | LIDENT "nat" → <:ctyp< int >>
+      | "∀"; id = LIDENT; ":"; ti = ctyp; ","; t = ctyp →
+          <:ctyp< $ti$ → $t$ >> ] ]
   ;
   label_ident:
     [ [ i = LIDENT → i
       | i = GIDENT → i ] ]
   ;
   type_patt:
-    [ [ n = V LIDENT -> (loc, n) ] ]
+    [ [ n = V UIDENT -> (loc, if unvala n = "Nbar" then <:vala< "t" >> else n)
+      | n = V LIDENT -> (loc, n) ] ]
   ;
   type_parameter:
     [ [ i = GIDENT -> (<:vala< Some (greek_ascii_equiv i) >>, None) ] ]
@@ -184,6 +195,8 @@ EXTEND
           <:expr< I.of_int >>
       | UIDENT "Z"; "."; LIDENT "to_nat" →
           <:expr< I.to_int >>
+      | UIDENT "Nbar"; "."; v = LIDENT  →
+          <:expr< Nbar.$lid:v$ >>
       | UIDENT "Pos"; "."; LIDENT "to_nat" →
           <:expr< I.to_int >>
       | UIDENT "Pos"; "."; LIDENT "of_nat" →
@@ -263,11 +276,20 @@ EXTEND
       | LIDENT "false" →
           <:expr< False >>
       | LIDENT "true" →
-          <:expr< True >> ] ]
+          <:expr< True >>
+      | LIDENT "fin" →
+          <:expr< $uid:"fin"$ >>
+      | LIDENT "inf" →
+          <:expr< $uid:"inf"$ >> ] ]
   ;
   patt: LEVEL "simple"
     [ [ "["; pl = LIST1 patt SEP ";"; last = cons_patt_opt; "]" ->
-          mklistpat loc last pl ] ]
+          mklistpat loc last pl
+      | LIDENT "fin" →
+          <:patt< $uid:"fin"$ >>
+      | LIDENT "inf" →
+          <:patt< $uid:"inf"$ >> ] ]
+
   ;
   cons_patt_opt:
     [ [ "…"; p = patt -> Some p

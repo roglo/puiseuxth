@@ -1,19 +1,24 @@
-(* $Id: series.ml,v 1.13 2013-10-11 08:44:47 deraugla Exp $ *)
+(* $Id: series.ml,v 1.14 2013-10-11 12:27:21 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
 open Field;
+open Nbar;
+
+(*
 
 Record series α :=
   { terms : nat → α;
-    stop : option nat }.
-
-(*
+    stop : Nbar }.
 
 Definition series_nth_fld α fld n (s : series α) :=
   if Nbar.lt_dec (fin n) (stop s) then terms s n else zero fld.
 
 *)
+
+Record series α :=
+  { terms : nat → α;
+    stop : option nat }.
 
 Definition series_nth α n (s : series α) :=
   match stop s with
