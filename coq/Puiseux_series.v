@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.847 2013-10-10 15:56:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.848 2013-10-11 14:18:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4327,6 +4327,21 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   reflexivity.
 Qed.
 
+Lemma uuu : ∀ nz nz' n m p k g,
+  normalise_nz fld nz = NonZero nz'
+  → first_nonzero fld (nz_terms nz) 0 = fin n
+    → first_nonzero fld (nz_terms nz) (S n) = fin p
+      → first_nonzero fld (nz_terms nz') 1 = fin m
+       → shrink_factor fld (nz_terms nz) n = k
+         → gcd_nz n k nz = g
+           → S p = (S m * Pos.to_nat g)%nat.
+Proof.
+intros nz nz' n m p k g Heq Hn Hp Hm Hk Hg.
+destruct (lt_dec (S p) (S m * Pos.to_nat g)) as [H₁| H₁].
+ exfalso.
+bbb.
+
+(* ça devrait être faux, ça, je crois...
 Lemma uuu : ∀ nz nz' n m k g,
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
@@ -4346,6 +4361,7 @@ simpl in Hm.
 destruct Hm as (Hz, Hnz).
 erewrite series_nth_normalised in Hnz; try eassumption.
 bbb.
+*)
 
 Lemma vvv : ∀ nz nz',
   normalise_nz fld nz = NonZero nz'
@@ -4424,7 +4440,7 @@ split.
      remember (gcd_nz m k nz) as k₁ eqn:Hk₁ .
      remember Hk₁ as H; clear HeqH.
      symmetry in H.
-     apply uuu with (nz' := nz') (m := n) in H; try eassumption.
+     apply uuu with (nz' := nz') (m := n) (p := p) in H; try eassumption.
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
