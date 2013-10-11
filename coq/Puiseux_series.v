@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.849 2013-10-11 21:03:49 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.850 2013-10-11 21:41:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4348,6 +4348,13 @@ intros nz nz' n i j Heq Hi Hj.
 revert i j Hi Hj.
 induction n; intros.
  simpl in Hi, Hj.
+ remember (shrink_factor fld (nz_terms nz) i) as k eqn:Hk .
+ remember (gcd_nz i k nz) as g eqn:Hg .
+ symmetry in Hk, Hg.
+ erewrite series_nth_normalised with (nz := nz) (nz' := nz'); try eassumption.
+ eapply first_nonzero_normalised in Heq; [ idtac | eassumption ].
+ subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
+
 bbb.
 
 Lemma uuu : ∀ nz nz' n m p k g,
