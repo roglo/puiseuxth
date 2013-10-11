@@ -1,4 +1,4 @@
-(* $Id: series.ml,v 1.12 2013-08-07 08:20:06 deraugla Exp $ *)
+(* $Id: series.ml,v 1.13 2013-10-11 08:44:47 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -8,11 +8,20 @@ Record series α :=
   { terms : nat → α;
     stop : option nat }.
 
+(*
+
+Definition series_nth_fld α fld n (s : series α) :=
+  if Nbar.lt_dec (fin n) (stop s) then terms s n else zero fld.
+
+*)
+
 Definition series_nth α n (s : series α) :=
   match stop s with
   | Some st => if lt_dec n st then Some (terms s n) else None
   | None => None
   end.
+
+(**)
 
 Definition series_add fld s₁ s₂ :=
   {| terms i := add fld (terms s₁ i) (terms s₂ i);

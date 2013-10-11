@@ -1,4 +1,4 @@
-(* $Id: puiseux_series.ml,v 1.222 2013-08-11 02:38:44 deraugla Exp $ *)
+(* $Id: puiseux_series.ml,v 1.223 2013-10-11 08:44:47 deraugla Exp $ *)
 
 #load "./pa_coq.cmo";
 
@@ -8,6 +8,24 @@ open Coq;
 open Field;
 open Pnums;
 open Series;
+
+(*
+
+Record nz_ps α := mknz
+  { nz_terms : series α;
+    nz_valnum : Z;
+    nz_comden : positive }.
+
+Inductive puiseux_series α :=
+  | NonZero : nz_ps α → puiseux_series α
+  | Zero : puiseux_series α.
+
+value rec first_nonzero s c =
+  if series_nth_fld fld c s = zero fld then c
+  else first_nonzero s (c + 1)
+;
+
+*)
 
 Record puiseux_series α :=
   { ps_terms : series α;
@@ -19,6 +37,8 @@ value rec series_head is_zero n s =
   | None → None
   end
 ;
+
+(**)
 
 Definition valuation fld (ps : puiseux_series α) :=
   match series_head (fld_eq fld (zero fld)) 0 (ps_terms ps) with
