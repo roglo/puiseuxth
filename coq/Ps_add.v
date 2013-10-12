@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.1 2013-10-12 04:10:07 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.2 2013-10-12 04:25:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2863,6 +2863,28 @@ Fixpoint nonzero_list s b n :=
       end
   | ∞ => []
   end.
+
+Lemma sss : ∀ nz nz' n zl zl',
+  normalise_nz fld nz = NonZero nz'
+  → zl = nonzero_list (nz_terms nz) 0 n
+    → zl' = nonzero_list (nz_terms nz') 0 n
+      → List.map (λ i, series_nth_fld fld i (nz_terms nz)) zl =
+        List.map (λ i, series_nth_fld fld i (nz_terms nz')) zl'.
+Proof.
+intros nz nz' n zl zl' Heq Hzl Hzl'.
+subst zl zl'.
+induction n as [| n]; simpl.
+ remember (first_nonzero fld (nz_terms nz) 0) as i eqn:Hi .
+ remember (first_nonzero fld (nz_terms nz') 0) as j eqn:Hj .
+ symmetry in Hi, Hj.
+ destruct i as [i| ].
+  destruct j as [j| ]; [ simpl | exfalso ].
+   f_equal.
+   erewrite series_nth_normalised with (nz' := nz'); eauto .
+   eapply first_nonzero_normalised in Heq; [ idtac | eassumption ].
+   subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
+
+bbb.
 
 Fixpoint nth_nonzero s b n :=
   match n with
