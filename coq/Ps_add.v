@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.2 2013-10-12 04:25:05 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.3 2013-10-12 09:39:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2883,6 +2883,15 @@ induction n as [| n]; simpl.
    erewrite series_nth_normalised with (nz' := nz'); eauto .
    eapply first_nonzero_normalised in Heq; [ idtac | eassumption ].
    subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
+
+   eapply series_nth_normalised with (i := O) in Heq; eauto .
+   rewrite Nat.mul_0_l, Nat.add_0_r in Heq.
+   apply first_nonzero_iff in Hi; simpl in Hi.
+   apply first_nonzero_iff in Hj; simpl in Hj.
+   destruct Hi as (Hz, Hnz).
+   apply Hnz.
+   rewrite <- Heq.
+   apply Hj; reflexivity.
 
 bbb.
 
