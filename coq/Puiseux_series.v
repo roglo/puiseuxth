@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.851 2013-10-12 03:04:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.852 2013-10-12 04:01:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -4326,6 +4326,16 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
 
   reflexivity.
 Qed.
+
+Fixpoint nonzero_list s b n :=
+  match first_nonzero fld s b with
+  | fin m =>
+      match n with
+      | O => [m]
+      | S n' => [m … nonzero_list s (S m) n']
+      end
+  | ∞ => []
+  end.
 
 Fixpoint nth_nonzero s b n :=
   match n with
