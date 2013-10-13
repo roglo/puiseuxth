@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.5 2013-10-13 07:27:20 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.6 2013-10-13 08:15:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2962,7 +2962,22 @@ Lemma vvv : ∀ nz n k g,
           Pos.of_nat (Pos.to_nat k / Pos.to_nat g).
 Proof.
 intros nz n k g Hn Hk Hg.
+apply shrink_factor_iff.
+remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
+remember (first_nonzero fld s 1) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; simpl.
+ Focus 1.
+ split.
+  intros i H.
+  rewrite Nat2Pos.id in H.
+   apply shrink_factor_iff in Hk.
+   remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+   symmetry in Hp.
+   destruct p as [p| ].
 bbb.
+
+intros nz n k g Hn Hk Hg.
 apply shrink_factor_iff.
 remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
 remember (first_nonzero fld s 1) as m eqn:Hm .
