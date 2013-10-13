@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.15 2013-10-13 19:00:48 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.16 2013-10-13 19:15:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3133,6 +3133,9 @@ destruct x as [| x| x]; simpl.
    replace 2%positive with (Pos.succ 1) by reflexivity.
    apply -> Pos.succ_le_mono.
    apply Pos.le_1_l.
+
+  rewrite <- Pos2Z.opp_pos.
+  rewrite <- Z.div_opp_opp; simpl.
 
 bbb.
   symmetry.
