@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.6 2013-10-13 08:15:31 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.7 2013-10-13 08:47:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2801,7 +2801,48 @@ Definition normalise_ps ps :=
   | Zero => Zero _
   end.
 
-Lemma series_nth_normalised : ∀ nz nz' n k g,
+Lemma series_nth_normalised : ∀ s n g,
+  first_nonzero fld s 0 = fin n
+  → ∀ i,
+    series_nth_fld fld i (normalise_series n g s) =
+    series_nth_fld fld (n + i * Pos.to_nat g) s.
+Proof.
+intros s n g Hn i.
+unfold series_nth_fld; simpl.
+do 2 rewrite Nbar.fold_sub.
+rewrite Nbar.fold_div.
+remember (Pos.to_nat g) as gn eqn:Hgn .
+remember ((stop s - fin n + fin gn - 1) / fin gn)%Nbar as x.
+remember (fin (n + i * gn)) as y.
+destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
+ destruct (Nbar.lt_dec y (stop s)) as [H₂| H₂]; [ reflexivity | exfalso ].
+ subst x y gn.
+ apply H₂; clear H₂.
+ remember (stop s) as st eqn:Hst .
+ symmetry in Hst.
+ destruct st as [st| ]; [ idtac | constructor ].
+ simpl in H₁.
+ apply Nbar.fin_lt_mono in H₁.
+ apply Nbar.fin_lt_mono.
+ rewrite Nat_fold_div_sup in H₁.
+ apply Nat_lt_div_sup_lt_mul_r in H₁.
+ apply Nat.lt_add_lt_sub_l; assumption.
+
+ destruct (Nbar.lt_dec y (stop s)) as [H₂| H₂]; [ exfalso | reflexivity ].
+ subst x y gn.
+ apply H₁; clear H₁.
+ remember (stop s) as st eqn:Hst .
+ symmetry in Hst.
+ destruct st as [st| ]; [ simpl | constructor ].
+ apply Nbar.fin_lt_mono in H₂.
+ apply Nbar.fin_lt_mono.
+ rewrite Nat_fold_div_sup.
+ apply Nat_lt_mul_r_lt_div_sup; [ apply Pos2Nat.is_pos | idtac ].
+ apply Nat.lt_add_lt_sub_l; assumption.
+Qed.
+
+(* peut-être pas nécessaire... *)
+Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
     → shrink_factor fld (nz_terms nz) n = k
@@ -2810,48 +2851,12 @@ Lemma series_nth_normalised : ∀ nz nz' n k g,
           series_nth_fld fld i (nz_terms nz') =
           series_nth_fld fld (n + i * Pos.to_nat g) (nz_terms nz).
 Proof.
-intros nz nz' n k k' Heq Hn Hk Hk' i.
+intros nz nz' n k g Heq Hn Hk Hg i.
 unfold normalise_nz in Heq.
 rewrite Hn in Heq.
 injection Heq; clear Heq; intros Heq; subst nz'; simpl.
-rewrite Hk.
-unfold series_nth_fld; simpl.
-do 2 rewrite Nbar.fold_sub.
-rewrite Nbar.fold_div.
-rewrite Hk'.
-remember (Pos.to_nat k') as k'n.
-remember ((stop (nz_terms nz) - fin n + fin k'n - 1) / fin k'n)%Nbar as x.
-remember (fin (n + i * k'n)) as y.
-destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
- destruct (Nbar.lt_dec y (stop (nz_terms nz))) as [H₂| H₂].
-  reflexivity.
-
-  subst x y k'n.
-  exfalso; apply H₂; clear H₂.
-  remember (stop (nz_terms nz)) as st eqn:Hst .
-  symmetry in Hst.
-  destruct st as [st| ]; [ idtac | constructor ].
-  simpl in H₁.
-  apply Nbar.fin_lt_mono in H₁.
-  apply Nbar.fin_lt_mono.
-  rewrite Nat_fold_div_sup in H₁.
-  apply Nat_lt_div_sup_lt_mul_r in H₁.
-  apply Nat.lt_add_lt_sub_l; assumption.
-
- destruct (Nbar.lt_dec y (stop (nz_terms nz))) as [H₂| H₂].
-  subst x y k'n.
-  exfalso; apply H₁; clear H₁.
-  remember (stop (nz_terms nz)) as st eqn:Hst .
-  symmetry in Hst.
-  destruct st as [st| ]; [ idtac | constructor ].
-  simpl.
-  apply Nbar.fin_lt_mono in H₂.
-  apply Nbar.fin_lt_mono.
-  rewrite Nat_fold_div_sup.
-  apply Nat_lt_mul_r_lt_div_sup; [ apply Pos2Nat.is_pos | idtac ].
-  apply Nat.lt_add_lt_sub_l; assumption.
-
-  reflexivity.
+rewrite Hk, Hg.
+eapply series_nth_normalised; assumption.
 Qed.
 
 (* pas mieux que sans liste... l'induction par n déconne...
@@ -2967,14 +2972,19 @@ remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
 remember (first_nonzero fld s 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl.
- Focus 1.
  split.
   intros i H.
   rewrite Nat2Pos.id in H.
+   rewrite Hs.
+   rewrite series_nth_normalised; [ idtac | assumption ].
    apply shrink_factor_iff in Hk.
    remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ].
+    Focus 1.
+    destruct Hk as (Hz, Hnz).
+    apply Hz.
+    intros H₁; apply H; clear H.
 bbb.
 
 intros nz n k g Hn Hk Hg.
