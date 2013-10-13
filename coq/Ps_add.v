@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.3 2013-10-12 09:39:50 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.4 2013-10-13 00:43:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2854,6 +2854,7 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
   reflexivity.
 Qed.
 
+(* pas mieux que sans liste... l'induction par n déconne...
 Fixpoint nonzero_list s b n :=
   match first_nonzero fld s b with
   | fin m =>
@@ -2893,7 +2894,11 @@ induction n as [| n]; simpl.
    rewrite <- Heq.
    apply Hj; reflexivity.
 
+  destruct j as [j| ]; [ exfalso | reflexivity ].
+  unfold normalise_nz in Heq.
+  rewrite Hi in Heq; discriminate Heq.
 bbb.
+*)
 
 Fixpoint nth_nonzero s b n :=
   match n with
@@ -2905,6 +2910,7 @@ Fixpoint nth_nonzero s b n :=
       end
   end.
 
+(*
 Lemma ttt : ∀ nz nz' n i j,
   normalise_nz fld nz = NonZero nz'
   → nth_nonzero (nz_terms nz) 0 n = fin i
@@ -2930,7 +2936,9 @@ induction n; intros.
   erewrite series_nth_normalised with (nz' := nz'); eauto .
 
 bbb.
+*)
 
+(*
 Lemma uuu : ∀ nz nz' n m p k g,
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
@@ -2944,30 +2952,55 @@ intros nz nz' n m p k g Heq Hn Hp Hm Hk Hg.
 destruct (lt_dec (S p) (S m * Pos.to_nat g)) as [H₁| H₁].
  exfalso.
 bbb.
-
-(* ça devrait être faux, ça, je crois...
-Lemma uuu : ∀ nz nz' n m k g,
-  normalise_nz fld nz = NonZero nz'
-  → first_nonzero fld (nz_terms nz) 0 = fin n
-    → first_nonzero fld (nz_terms nz') 1 = fin m
-     → shrink_factor fld (nz_terms nz) n = k
-       → gcd_nz n k nz = g
-         → Pos.to_nat k = (m * Pos.to_nat g)%nat.
-Proof.
-intros nz nz' n m k g Heq Hn Hm Hk Hg.
-destruct (lt_dec (Pos.to_nat k) (m * Pos.to_nat g)) as [H₁| H₁].
- exfalso.
-bbb.
-
-intros nz nz' n m k g Heq Hn Hm Hk Hg.
-apply first_nonzero_iff in Hm.
-simpl in Hm.
-destruct Hm as (Hz, Hnz).
-erewrite series_nth_normalised in Hnz; try eassumption.
-bbb.
 *)
 
-Lemma vvv : ∀ nz nz',
+Lemma vvv : ∀ nz n k g,
+  first_nonzero fld (nz_terms nz) 0 = fin n
+  → shrink_factor fld (nz_terms nz) n = k
+    → gcd_nz n k nz = g
+      → shrink_factor fld (normalise_series n g (nz_terms nz)) 0 = 1%positive.
+Proof.
+intros nz n k g Hn Hk Hg.
+apply shrink_factor_iff.
+remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
+remember (first_nonzero fld s 1) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; [ simpl | reflexivity ].
+split.
+ intros i H.
+ exfalso; apply H; reflexivity.
+
+ intros k' Hk'.
+ destruct (zerop (S m mod k')) as [H₁| H₁].
+  Focus 2.
+  exists (S m).
+  split.
+   intros H.
+   rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
+
+   apply first_nonzero_iff in Hm.
+   destruct Hm; assumption.
+
+  apply Nat.mod_divides in H₁.
+   destruct H₁ as (c, H₁).
+   remember Hk as Hk_v; clear HeqHk_v.
+   apply shrink_factor_iff in Hk.
+   remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+   symmetry in Hp.
+   destruct p as [p| ].
+    Focus 2.
+    subst k.
+    apply first_nonzero_iff in Hm.
+    apply first_nonzero_iff in Hp.
+    simpl in Hm.
+    destruct Hm as (Hz, Hnz).
+    pose proof (Hp m) as Hmk.
+    rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hmk.
+    rewrite H₁ in Hmk.
+bbb.
+
+(*
+Lemma vvv₁ : ∀ nz nz',
   normalise_nz fld nz = NonZero nz'
   → shrink_factor fld (nz_terms nz') 0 = 1%positive.
 Proof.
@@ -3046,6 +3079,7 @@ split.
      symmetry in H.
      apply uuu with (nz' := nz') (m := n) (p := p) in H; try eassumption.
 bbb.
+*)
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
@@ -3062,51 +3096,35 @@ destruct ps as [nz'| ]; simpl.
   eapply first_nonzero_normalised in Hn; [ idtac | eassumption ].
   subst n; simpl.
   rewrite Z.add_0_r.
-bbb.
   remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ].
-   Focus 1.
    constructor; simpl.
-bbb.
-
-intros ps.
-destruct ps as [nz| ]; [ simpl | reflexivity ].
-remember (normalise_nz fld nz) as ps eqn:Hps .
-destruct ps as [nz₁| ]; [ simpl | reflexivity ].
-bbb.
-symmetry in Hps |- *.
-unfold normalise_nz.
-unfold normalise_nz in Hps.
-remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
-remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-symmetry in Hn, Hn₁.
-destruct n as [n| ].
- destruct n₁ as [n₁| ].
-  Focus 1.
-  constructor.
-  injection Hps; clear Hps; intros Hps.
-  symmetry in Hps.
-  remember
-   {|
-   nz_terms := normalise_series n₁
-                 (gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁)
-                 (nz_terms nz₁);
-   nz_valnum := (nz_valnum nz₁ + Z.of_nat n₁) /
-                ' gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁;
-   nz_comden := Z.to_pos
-                  (' nz_comden nz₁ /
-                   ' gcd_nz n₁ (shrink_factor fld (nz_terms nz₁) n₁) nz₁) |} as toto.
-  unfold normalise_nz.
-  rewrite Hn₁.
-  remember (first_nonzero fld (nz_terms toto) 0) as n₂.
-  rewrite Heqtoto in Heqn₂.
-  simpl in Heqn₂.
-  symmetry in Heqn₂.
-  destruct n₂ as [n₂| ].
-   constructor; simpl.
-    rewrite Heqtoto in |- * at 1.
-    simpl.
+   unfold normalise_nz in Hps.
+   rewrite Hn in Hps.
+   injection Hps; clear Hps; intros; subst nz'; simpl.
+   remember (shrink_factor fld (nz_terms nz) n) as k eqn:Hk .
+   remember (gcd_nz n k nz) as g eqn:Hg .
+   remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
+   remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
+   unfold gcd_nz; simpl.
+   rewrite Z.add_0_r.
+   remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
+   remember (Z.to_pos (' nz_comden nz / ' g)) as cg eqn:Hcg .
+   remember (Pos.gcd (Pos.gcd (pos_abs (vn / ' g)) cg) k₁) as g₁ eqn:Hg₁ .
+   unfold normalise_nz; simpl.
+   remember (first_nonzero fld s 0) as m eqn:Hm .
+   rewrite Hs in Hm.
+   rewrite normalised_series_first_nonzero in Hm; [ idtac | assumption ].
+   subst m.
+   rewrite normalised_series_first_nonzero.
+    constructor; simpl.
+     Focus 1.
+     rewrite Z.add_0_r.
+     rewrite Z.add_0_r.
+     unfold gcd_nz; simpl.
+     rewrite Z.add_0_r.
+     rewrite Z.add_0_r.
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
