@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.4 2013-10-13 00:43:09 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.5 2013-10-13 07:27:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2958,9 +2958,11 @@ Lemma vvv : ∀ nz n k g,
   first_nonzero fld (nz_terms nz) 0 = fin n
   → shrink_factor fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
-      → shrink_factor fld (normalise_series n g (nz_terms nz)) 0 = 1%positive.
+      → shrink_factor fld (normalise_series n g (nz_terms nz)) 0 =
+          Pos.of_nat (Pos.to_nat k / Pos.to_nat g).
 Proof.
 intros nz n k g Hn Hk Hg.
+bbb.
 apply shrink_factor_iff.
 remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
 remember (first_nonzero fld s 1) as m eqn:Hm .
@@ -2997,87 +2999,6 @@ split.
     pose proof (Hp m) as Hmk.
     rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hmk.
     rewrite H₁ in Hmk.
-bbb.
-
-(*
-Lemma vvv₁ : ∀ nz nz',
-  normalise_nz fld nz = NonZero nz'
-  → shrink_factor fld (nz_terms nz') 0 = 1%positive.
-Proof.
-intros nz nz' Heq.
-remember Heq as Heq_v; clear HeqHeq_v.
-apply shrink_factor_iff.
-remember (first_nonzero fld (nz_terms nz') 1) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ simpl | reflexivity ].
-split.
- intros i H.
- exfalso; apply H; reflexivity.
-
- intros k' Hk'.
- unfold normalise_nz in Heq.
- remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
- symmetry in Hm.
- destruct m as [m| ].
-  injection Heq; clear Heq; intros Heq.
-  destruct (zerop (S n mod k')) as [H₁| H₁].
-   Focus 2.
-   exists (S n).
-   split.
-    intros H.
-    rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
-
-    apply first_nonzero_iff in Hn.
-    destruct Hn; assumption.
-
-   apply Nat.mod_divides in H₁.
-    destruct H₁ as (c, H₁).
-    remember (shrink_factor fld (nz_terms nz) m) as k eqn:Hk .
-    symmetry in Hk.
-    remember Hk as Hk_v; clear HeqHk_v.
-    apply shrink_factor_iff in Hk.
-    remember (first_nonzero fld (nz_terms nz) (S m)) as p eqn:Hp .
-    symmetry in Hp.
-    destruct p as [p| ].
-     Focus 2.
-     exfalso.
-     subst k.
-     rewrite <- Heq in Hn; simpl in Hn.
-     apply first_nonzero_iff in Hn.
-     apply first_nonzero_iff in Hp.
-     simpl in Hn.
-     destruct Hn as (Hz, Hnz).
-     remember (gcd_nz m 1 nz) as k eqn:Hk .
-     pose proof (Hp (S n * Pos.to_nat k - 1)%nat) as Hnk.
-     rewrite Nat.add_sub_assoc in Hnk.
-      rewrite Nat.add_sub_swap in Hnk.
-       symmetry in Hk.
-       rewrite <- series_nth_normalised with (nz' := nz') (k := xH) in Hnk.
-        2: assumption.
-
-        2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
-
-        2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
-
-        2: rewrite Nat.sub_succ, Nat.sub_0_r; assumption.
-
-        rewrite <- Heq in Hnk; simpl in Hnk.
-        rewrite Hnk in Hnz; apply Hnz; reflexivity.
-
-       apply -> Nat.succ_le_mono; apply Nat.le_0_l.
-
-      remember (Pos.to_nat k) as kn eqn:Hkn .
-      symmetry in Hkn.
-      destruct kn as [| kn].
-       exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-       apply -> Nat.succ_le_mono; apply Nat.le_0_l.
-
-     destruct Hk as (Hz, Hnz).
-     remember (gcd_nz m k nz) as k₁ eqn:Hk₁ .
-     remember Hk₁ as H; clear HeqH.
-     symmetry in H.
-     apply uuu with (nz' := nz') (m := n) (p := p) in H; try eassumption.
 bbb.
 *)
 
