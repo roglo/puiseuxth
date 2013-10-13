@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.12 2013-10-13 16:59:47 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.13 2013-10-13 17:03:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3152,11 +3152,12 @@ destruct ps as [nz'| ]; simpl.
    rewrite normalised_series_first_nonzero.
     constructor; simpl.
      Focus 1.
-     rewrite Z.add_0_r.
-     rewrite Z.add_0_r.
+     do 2 rewrite Z.add_0_r.
      unfold gcd_nz; simpl.
-     rewrite Z.add_0_r.
-     rewrite Z.add_0_r.
+     do 2 rewrite Z.add_0_r.
+     rewrite Hs in Hk₁.
+     symmetry in Hk, Hg.
+     erewrite normalised_shrink_factor in Hk₁; try eassumption.
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
