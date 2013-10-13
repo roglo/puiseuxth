@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.8 2013-10-13 09:59:35 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.9 2013-10-13 10:33:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2967,6 +2967,11 @@ Lemma vvv : ∀ nz n k g,
           Pos.of_nat (Pos.to_nat k / Pos.to_nat g).
 Proof.
 intros nz n k g Hn Hk Hg.
+unfold gcd_nz in Hg.
+remember (pos_abs (nz_valnum nz + Z.of_nat n)) as vn eqn:Hvn .
+pose proof (Pos.gcd_divide_r (Pos.gcd vn (nz_comden nz)) k) as H.
+rewrite Hg in H.
+destruct H as (k', Hk').
 apply shrink_factor_iff.
 remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
 remember (first_nonzero fld s 1) as m eqn:Hm .
@@ -2984,11 +2989,6 @@ destruct m as [m| ]; simpl.
     destruct Hk as (Hz, Hnz).
     apply Hz.
     intros H₁; apply H; clear H.
-    unfold gcd_nz in Hg.
-    remember (pos_abs (nz_valnum nz + Z.of_nat n)) as vn eqn:Hvn .
-    pose proof (Pos.gcd_divide_r (Pos.gcd vn (nz_comden nz)) k) as H₂.
-    rewrite Hg in H₂.
-    destruct H₂ as (k', Hk').
     rewrite Hk' in H₁ |- *.
     rewrite Pos2Nat.inj_mul.
     rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
@@ -2997,27 +2997,47 @@ destruct m as [m| ]; simpl.
     apply Nat.mul_eq_0_l in H₁; [ assumption | apply Pos2Nat_ne_0 ].
 
     subst k.
-    apply first_nonzero_iff in Hp.
-    destruct i as [| i].
-     exfalso.
-     unfold gcd_nz in Hg.
-     remember (pos_abs (nz_valnum nz + Z.of_nat n)) as vn eqn:Hvn .
-     pose proof (Pos.gcd_divide_r (Pos.gcd vn (nz_comden nz)) 1) as H₂.
-     rewrite Hg in H₂.
-     destruct H₂ as (g', Hg').
-     symmetry in Hg'.
-     apply Pos.mul_eq_1_r in Hg'.
-     move Hg' at top; subst g.
-     apply H; reflexivity.
+    symmetry in Hk'.
+    apply Pos.mul_eq_1_r in Hk'.
+    move Hk' at top; subst g.
+    exfalso; apply H; reflexivity.
 
-     remember (Pos.to_nat g) as gn eqn:Hgn .
-     symmetry in Hgn.
-     destruct gn as [| gn].
-      exfalso; revert Hgn; apply Pos2Nat_ne_0.
+   rewrite Hk'.
+   rewrite Pos2Nat.inj_mul.
+   rewrite Nat.div_mul; apply Pos2Nat_ne_0.
 
-      simpl.
-      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-      apply Hp.
+  intros k₁ Hk₁.
+  rewrite Nat2Pos.id in Hk₁.
+   rewrite Hk' in Hk₁.
+   rewrite Pos2Nat.inj_mul in Hk₁.
+   rewrite Nat.div_mul in Hk₁.
+    apply shrink_factor_iff in Hk.
+    remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+    symmetry in Hp.
+    destruct p as [p| ].
+     destruct Hk as (Hz, Hnz).
+     apply Nat.mul_lt_mono_pos_r with (p := Pos.to_nat g) in Hk₁.
+      rewrite <- Pos2Nat.inj_mul, <- Hk' in Hk₁.
+      apply Hnz in Hk₁.
+      destruct Hk₁ as (j, (Hjm, Hjn)).
+      destruct (zerop (j mod Pos.to_nat g)) as [H₁| H₁].
+       apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+       destruct H₁ as (j', Hj').
+       subst j.
+       rewrite Nat.mul_comm in Hjn.
+       rewrite <- series_nth_normalised in Hjn; [ idtac | assumption ].
+       rewrite <- Hs in Hjn.
+       rewrite Nat.mul_comm in Hjm.
+       destruct k₁ as [| k₁]; [ exfalso; apply Hjm; reflexivity | idtac ].
+       rewrite Nat.mul_mod_distr_r in Hjm.
+        apply Nat.neq_mul_0 in Hjm.
+        destruct Hjm as (Hjk, Hgz).
+        exists j'; split; assumption.
+
+        intros H; discriminate H.
+
+        apply Pos2Nat_ne_0.
+
 bbb.
 
 intros nz n k g Hn Hk Hg.
