@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.10 2013-10-13 13:39:21 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.11 2013-10-13 14:04:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3050,6 +3050,36 @@ destruct m as [m| ]; simpl.
         exfalso; apply Hjn, Hz; assumption.
 
       apply Pos2Nat.is_pos.
+
+     subst k.
+     symmetry in Hk'.
+     apply Pos.mul_eq_1_r in Hk'.
+     move Hk' at top; subst g.
+     exfalso.
+     apply first_nonzero_iff in Hm.
+     destruct Hm as (Hz, Hnz).
+     apply Hnz; simpl.
+     rewrite Hs.
+     rewrite series_nth_normalised; [ idtac | assumption ].
+     apply first_nonzero_iff in Hp.
+     rewrite Nat.mul_1_r.
+     rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+     apply Hp.
+
+    apply Pos2Nat_ne_0.
+
+   rewrite Hk'.
+   rewrite Pos2Nat.inj_mul.
+   rewrite Nat.div_mul; apply Pos2Nat_ne_0.
+
+ apply shrink_factor_iff in Hk.
+ remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  apply first_nonzero_iff in Hm; simpl in Hm.
+  apply first_nonzero_iff in Hp; simpl in Hp.
+  destruct Hp as (Hz, Hnz).
+  rewrite <- Nat.add_succ_r in Hnz.
 bbb.
 
 intros nz n k g Hn Hk Hg.
