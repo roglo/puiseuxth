@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.13 2013-10-13 17:03:00 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.14 2013-10-13 17:16:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3158,6 +3158,8 @@ destruct ps as [nz'| ]; simpl.
      rewrite Hs in Hk₁.
      symmetry in Hk, Hg.
      erewrite normalised_shrink_factor in Hk₁; try eassumption.
+     subst k₁; rewrite Hcg in Hg₁.
+(* faut prouver que g₁ = 1 *)
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
