@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.11 2013-10-13 14:04:23 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.12 2013-10-13 16:59:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2959,7 +2959,7 @@ destruct (lt_dec (S p) (S m * Pos.to_nat g)) as [H₁| H₁].
 bbb.
 *)
 
-Lemma vvv : ∀ nz n k g,
+Lemma normalised_shrink_factor : ∀ nz n k g,
   first_nonzero fld (nz_terms nz) 0 = fin n
   → shrink_factor fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
@@ -3080,47 +3080,38 @@ destruct m as [m| ]; simpl.
   apply first_nonzero_iff in Hp; simpl in Hp.
   destruct Hp as (Hz, Hnz).
   rewrite <- Nat.add_succ_r in Hnz.
-bbb.
+  destruct (zerop (S p mod Pos.to_nat k)) as [H₁| H₁].
+   apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H₁ as (p', Hp').
+   rewrite Hp' in Hnz.
+   exfalso; apply Hnz.
+   rewrite Nat.mul_comm.
+   rewrite Hk'.
+   rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
+   rewrite <- series_nth_normalised; [ idtac | assumption ].
+   rewrite <- Hs.
+   remember (p' * Pos.to_nat k')%nat as pk eqn:Hpk .
+   symmetry in Hpk.
+   destruct pk as [| pk].
+    apply Nat.mul_eq_0_l in Hpk; [ idtac | apply Pos2Nat_ne_0 ].
+    subst p'.
+    rewrite Nat.mul_0_r in Hp'; discriminate Hp'.
 
-intros nz n k g Hn Hk Hg.
-apply shrink_factor_iff.
-remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
-remember (first_nonzero fld s 1) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ simpl | reflexivity ].
-split.
- intros i H.
- exfalso; apply H; reflexivity.
+    apply Hm.
 
- intros k' Hk'.
- destruct (zerop (S m mod k')) as [H₁| H₁].
-  Focus 2.
-  exists (S m).
-  split.
-   intros H.
-   rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
+   destruct Hk as (Hz₁, Hnz₁).
+   rewrite Hz₁ in Hnz.
+    exfalso; apply Hnz; reflexivity.
 
-   apply first_nonzero_iff in Hm.
-   destruct Hm; assumption.
+    intros H.
+    rewrite H in H₁.
+    revert H₁; apply Nat.lt_irrefl.
 
-  apply Nat.mod_divides in H₁.
-   destruct H₁ as (c, H₁).
-   remember Hk as Hk_v; clear HeqHk_v.
-   apply shrink_factor_iff in Hk.
-   remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
-   symmetry in Hp.
-   destruct p as [p| ].
-    Focus 2.
-    subst k.
-    apply first_nonzero_iff in Hm.
-    apply first_nonzero_iff in Hp.
-    simpl in Hm.
-    destruct Hm as (Hz, Hnz).
-    pose proof (Hp m) as Hmk.
-    rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hmk.
-    rewrite H₁ in Hmk.
-bbb.
-*)
+  subst k.
+  symmetry in Hk'.
+  apply Pos.mul_eq_1_r in Hk'.
+  rewrite Hk'; reflexivity.
+Qed.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
