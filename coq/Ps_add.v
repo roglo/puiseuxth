@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.9 2013-10-13 10:33:53 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.10 2013-10-13 13:39:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3038,6 +3038,18 @@ destruct m as [m| ]; simpl.
 
         apply Pos2Nat_ne_0.
 
+       assert (j mod Pos.to_nat k ≠ 0)%nat as H₂.
+        intros H.
+        apply Nat.mod_divides in H; [ idtac | apply Pos2Nat_ne_0 ].
+        destruct H as (j', Hj'); subst j.
+        rewrite Hk' in H₁.
+        rewrite Pos2Nat.inj_mul, Nat.mul_shuffle0 in H₁.
+        rewrite Nat.mod_mul in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+        revert H₁; apply Nat.lt_irrefl.
+
+        exfalso; apply Hjn, Hz; assumption.
+
+      apply Pos2Nat.is_pos.
 bbb.
 
 intros nz n k g Hn Hk Hg.
