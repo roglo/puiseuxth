@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.7 2013-10-13 08:47:15 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.8 2013-10-13 09:59:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2981,10 +2981,43 @@ destruct m as [m| ]; simpl.
    remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ].
-    Focus 1.
     destruct Hk as (Hz, Hnz).
     apply Hz.
     intros H₁; apply H; clear H.
+    unfold gcd_nz in Hg.
+    remember (pos_abs (nz_valnum nz + Z.of_nat n)) as vn eqn:Hvn .
+    pose proof (Pos.gcd_divide_r (Pos.gcd vn (nz_comden nz)) k) as H₂.
+    rewrite Hg in H₂.
+    destruct H₂ as (k', Hk').
+    rewrite Hk' in H₁ |- *.
+    rewrite Pos2Nat.inj_mul.
+    rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+    rewrite Pos2Nat.inj_mul in H₁.
+    rewrite Nat.mul_mod_distr_r in H₁; try apply Pos2Nat_ne_0.
+    apply Nat.mul_eq_0_l in H₁; [ assumption | apply Pos2Nat_ne_0 ].
+
+    subst k.
+    apply first_nonzero_iff in Hp.
+    destruct i as [| i].
+     exfalso.
+     unfold gcd_nz in Hg.
+     remember (pos_abs (nz_valnum nz + Z.of_nat n)) as vn eqn:Hvn .
+     pose proof (Pos.gcd_divide_r (Pos.gcd vn (nz_comden nz)) 1) as H₂.
+     rewrite Hg in H₂.
+     destruct H₂ as (g', Hg').
+     symmetry in Hg'.
+     apply Pos.mul_eq_1_r in Hg'.
+     move Hg' at top; subst g.
+     apply H; reflexivity.
+
+     remember (Pos.to_nat g) as gn eqn:Hgn .
+     symmetry in Hgn.
+     destruct gn as [| gn].
+      exfalso; revert Hgn; apply Pos2Nat_ne_0.
+
+      simpl.
+      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+      apply Hp.
 bbb.
 
 intros nz n k g Hn Hk Hg.
