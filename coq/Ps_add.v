@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.14 2013-10-13 17:16:05 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.15 2013-10-13 19:00:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3113,6 +3113,32 @@ destruct m as [m| ]; simpl.
   rewrite Hk'; reflexivity.
 Qed.
 
+Lemma vvv : ∀ x y, pos_abs (x / y) = Z.to_pos (' pos_abs x / y).
+Proof.
+intros x y.
+unfold pos_abs.
+destruct x as [| x| x]; simpl.
+ destruct y as [| y| y].
+  reflexivity.
+
+  destruct (Pos.eq_dec y 1) as [H₁| H₁].
+   subst y.
+   reflexivity.
+
+   rewrite Z.div_small; [ reflexivity | idtac ].
+   split; [ apply Z.le_0_1 | idtac ].
+   apply Pos.succ_pred in H₁.
+   rewrite <- H₁; simpl.
+   apply Pos.le_succ_l; simpl.
+   replace 2%positive with (Pos.succ 1) by reflexivity.
+   apply -> Pos.succ_le_mono.
+   apply Pos.le_1_l.
+
+bbb.
+  symmetry.
+  apply Z2Pos.to_pos_nonpos.
+  rewrite <- Pos2Z.opp_pos.
+
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
 intros ps.
@@ -3158,9 +3184,18 @@ destruct ps as [nz'| ]; simpl.
      rewrite Hs in Hk₁.
      symmetry in Hk, Hg.
      erewrite normalised_shrink_factor in Hk₁; try eassumption.
-     subst k₁; rewrite Hcg in Hg₁.
+     remember (Pos.gcd (pos_abs (vn / ' g)) cg) as g₂ eqn:Hg₂ .
+     rewrite Hcg in Hg₂.
+     symmetry in Hg.
+     unfold gcd_nz in Hg.
+     rewrite <- Hvn in Hg.
+     remember (Pos.gcd (pos_abs vn) (nz_comden nz)) as g₃ eqn:Hg₃ .
+     move Hg₂ at bottom.
+     move Hg₃ at bottom.
 (* faut prouver que g₁ = 1 *)
 bbb.
+Z.gcd_div_gcd:
+  ∀ a b g : Z, g ≠ 0%Z → g = Z.gcd a b → Z.gcd (a / g) (b / g) = 1%Z
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
