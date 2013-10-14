@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.18 2013-10-14 01:32:25 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.19 2013-10-14 02:03:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3118,24 +3118,23 @@ Proof.
 intros x y.
 unfold pos_abs.
 destruct x as [| x| x]; simpl.
- destruct y as [| y| y].
-  reflexivity.
-
-  destruct (Pos.eq_dec y 1) as [H₁| H₁].
-   subst y.
-   reflexivity.
-
-   rewrite Z.div_small; [ reflexivity | idtac ].
-   split; [ apply Z.le_0_1 | idtac ].
-   apply Pos.succ_pred in H₁.
-   rewrite <- H₁; simpl.
-   apply Pos.le_succ_l; simpl.
-   replace 2%positive with (Pos.succ 1) by reflexivity.
-   apply -> Pos.succ_le_mono.
-   apply Pos.le_1_l.
+ destruct y as [| y| y]; [ reflexivity | idtac | idtac ].
+  destruct (Pos.eq_dec y 1) as [H| H]; [ subst y; reflexivity | idtac ].
+  rewrite Z.div_small; [ reflexivity | idtac ].
+  split; [ apply Z.le_0_1 | idtac ].
+  apply Pos.succ_pred in H.
+  rewrite <- H; simpl.
+  apply Pos.le_succ_l; simpl.
+  replace 2%positive with (Pos.succ 1) by reflexivity.
+  apply -> Pos.succ_le_mono.
+  apply Pos.le_1_l.
 
   unfold Z.div; simpl.
   destruct (2 <=? ' y)%Z; reflexivity.
+
+ remember (' x / y)%Z as z eqn:Hz .
+ destruct z as [| z| z]; try reflexivity.
+ destruct y as [| y| y]; [ discriminate Hz | idtac | idtac ].
 bbb.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
