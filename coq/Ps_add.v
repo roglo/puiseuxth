@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.25 2013-10-14 15:12:22 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.26 2013-10-14 16:19:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2441,7 +2441,46 @@ constructor; simpl.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
  rewrite Z2Nat_id_max, Z.min_comm.
- rewrite shrink_factor_shift.
+ f_equal.
+  remember (nz_valnum nz) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z; reflexivity.
+
+  unfold gcd_nz; simpl.
+  unfold nz_valnum_add.
+  rewrite Z.mul_1_r.
+  rewrite Nat2Z.inj_add.
+  rewrite Z.add_assoc.
+  rewrite Z.add_shuffle0.
+  rewrite <- Z.add_assoc.
+  rewrite Z.add_comm.
+  unfold cm; simpl.
+  rewrite Pos.mul_1_r.
+  remember (nz_valnum nz) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z as [| z| z].
+   simpl.
+   rewrite Z.min_id.
+   rewrite Z.add_0_r, Nat.add_0_r.
+   rewrite series_shift_0.
+   reflexivity.
+
+   rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite shrink_factor_shift.
+   rewrite Z.add_0_r.
+   rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
+   reflexivity.
+
+   rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
+   rewrite shrink_factor_shift.
+   f_equal.
+   f_equal.
+   symmetry; rewrite Z.add_comm.
+   reflexivity.
+
+ unfold cm; simpl.
+ rewrite Pos.mul_1_r.
+ do 2 f_equal.
  unfold gcd_nz; simpl.
  unfold nz_valnum_add.
  rewrite Z.mul_1_r.
@@ -2455,62 +2494,38 @@ constructor; simpl.
  remember (nz_valnum nz) as z eqn:Hz .
  symmetry in Hz.
  destruct z as [| z| z].
-  rewrite Z.min_id, Z.max_id; simpl.
-  do 2 rewrite Z.add_0_r; reflexivity.
-
-  rewrite Z.max_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.min_l; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.add_0_r.
-  f_equal; [ apply Z.add_comm | idtac ].
-  rewrite Z.add_0_l.
-  f_equal.
-  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite Z.add_comm; reflexivity.
-
-  rewrite Z.max_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
-  rewrite Z.min_r; [ idtac | apply Pos2Z.neg_is_nonpos ].
-  rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
-  rewrite Z.add_0_r.
-  f_equal; [ apply Z.add_comm | idtac ].
-  f_equal; simpl.
-  rewrite Z.add_0_r; reflexivity.
-
-bbb.
- unfold cm; simpl.
- rewrite Pos.mul_1_r.
- f_equal.
- f_equal.
- unfold gcd_nz.
- simpl.
- unfold cm; simpl.
- rewrite Pos.mul_1_r.
- unfold nz_valnum_add.
- rewrite Z.mul_1_r.
- rewrite nz_add_0_r.
- rewrite shrink_factor_shift.
- f_equal.
- f_equal.
- f_equal.
- unfold pos_abs.
- rewrite Nat2Z.inj_add.
- destruct (nz_valnum nz) as [| p| p]; simpl.
-  rewrite Z.add_0_r; reflexivity.
-
-  destruct (Z.of_nat n₁) as [| p₁| p₁].
-   simpl.
-   rewrite positive_nat_Z; reflexivity.
-
-   simpl.
-   rewrite positive_nat_Z, Pos.add_comm; reflexivity.
-
-   simpl.
-   rewrite positive_nat_Z; reflexivity.
-
-  rewrite Z.add_0_r.
+  simpl.
+  rewrite Z.min_id.
+  rewrite Z.add_0_r, Nat.add_0_r.
+  rewrite nz_add_0_r.
+  rewrite Hz.
+  rewrite series_shift_0.
   reflexivity.
 
+  rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite nz_add_0_r.
+  rewrite Z.add_0_r.
+  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
+  f_equal.
+  simpl.
+  f_equal.
+  rewrite Hz.
+  rewrite shrink_factor_shift.
+  reflexivity.
+
+  rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
+  f_equal.
+   f_equal.
+   rewrite Z.add_shuffle0; reflexivity.
+
+   simpl.
+   rewrite Nat.add_0_r.
+   rewrite nz_add_0_r.
+   rewrite Hz; simpl.
+   rewrite series_shift_0; reflexivity.
+
  rewrite nz_add_0_r.
+bbb.
  rewrite shrink_factor_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.
