@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.26 2013-10-14 16:19:03 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.27 2013-10-14 17:25:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2525,7 +2525,6 @@ constructor; simpl.
    rewrite series_shift_0; reflexivity.
 
  rewrite nz_add_0_r.
-bbb.
  rewrite shrink_factor_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.
@@ -2534,7 +2533,6 @@ bbb.
  unfold cm; simpl.
  unfold nz_valnum_add.
  rewrite Z.mul_1_r, Pos.mul_1_r.
- unfold pos_abs.
  rewrite Nat2Z.inj_add.
  destruct (nz_valnum nz) as [| p| p]; simpl.
   rewrite Z.add_0_r; reflexivity.
