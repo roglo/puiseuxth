@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.23 2013-10-14 13:25:17 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.24 2013-10-14 14:16:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -477,10 +477,9 @@ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Z.min_assoc.
 unfold cm_factor, cm; simpl; unfold cm; simpl.
-do 2 rewrite Pos2Z.inj_mul.
-do 2 rewrite Z.mul_assoc.
-rewrite Pos.mul_assoc.
-do 4 f_equal.
+do 6 rewrite Pos2Z.inj_mul.
+do 3 rewrite Z.mul_assoc.
+do 3 f_equal.
 f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
 f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.

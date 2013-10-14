@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.854 2013-10-13 08:15:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.855 2013-10-14 14:16:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -90,16 +90,9 @@ Definition normalise_series n k (s : series α) :=
   {| terms i := terms s (n + i * Pos.to_nat k);
      stop := Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k)) |}.
 
-Definition pos_abs z :=
-  match z with
-  | 0%Z => xH
-  | Zpos p => p
-  | Zneg p => p
-  end.
-
 Definition gcd_nz n k (nz : nz_ps α) :=
-  let g := Pos.gcd (pos_abs (nz_valnum nz + Z.of_nat n)) (nz_comden nz) in
-  Pos.gcd g k.
+  let g := Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz) in
+  Z.gcd g (' k).
 
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) 0 with
@@ -107,9 +100,9 @@ Definition normalise_nz nz :=
       let k := shrink_factor fld (nz_terms nz) n in
       let g := gcd_nz n k nz in
       NonZero
-        {| nz_terms := normalise_series n g (nz_terms nz);
-           nz_valnum := (nz_valnum nz + Z.of_nat n) / ' g;
-           nz_comden := Z.to_pos (' nz_comden nz / ' g) |}
+        {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
+           nz_valnum := (nz_valnum nz + Z.of_nat n) / g;
+           nz_comden := Z.to_pos (' nz_comden nz / g) |}
   | ∞ =>
       Zero _
   end.
