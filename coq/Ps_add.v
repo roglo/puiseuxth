@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.22 2013-10-14 09:35:21 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.23 2013-10-14 13:25:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3122,7 +3122,7 @@ apply Z_div_pos.
  apply Pos2Z.is_nonneg.
 Qed.
 
-(* mouais... pas sûr si x < 0
+(* mouais... pas sûr si x < 0 *)
 Lemma vvv : ∀ x y, pos_abs (x / 'y) = Z.to_pos (' pos_abs x / 'y).
 Proof.
 intros x y.
