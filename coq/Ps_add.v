@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.27 2013-10-14 17:25:07 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.28 2013-10-14 18:24:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2422,10 +2422,50 @@ destruct (lt_dec i n) as [H₃| H₃].
     inversion H₁.
 Qed.
 
+Lemma gcd_nz_add : ∀ nz n,
+  gcd_nz (n + Z.to_nat (nz_valnum nz))
+    (shrink_factor fld
+       (series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz))
+       (n + Z.to_nat (nz_valnum nz))) (nz ∔ nz_zero) =
+  gcd_nz n (shrink_factor fld (nz_terms nz) n) nz.
+Proof.
+intros nz n.
+unfold gcd_nz; simpl.
+unfold nz_valnum_add.
+rewrite Z.mul_1_r.
+rewrite Nat2Z.inj_add.
+rewrite Z.add_assoc.
+rewrite Z.add_shuffle0.
+rewrite <- Z.add_assoc.
+rewrite Z.add_comm.
+unfold cm; simpl.
+rewrite Pos.mul_1_r.
+remember (nz_valnum nz) as z eqn:Hz .
+symmetry in Hz.
+destruct z as [| z| z].
+ simpl.
+ rewrite Z.min_id.
+ rewrite Z.add_0_r, Nat.add_0_r.
+ rewrite series_shift_0.
+ reflexivity.
+
+ rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite shrink_factor_shift.
+ rewrite Z.add_0_r.
+ rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
+ reflexivity.
+
+ rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
+ rewrite shrink_factor_shift.
+ f_equal.
+ f_equal.
+ symmetry; rewrite Z.add_comm.
+ reflexivity.
+Qed.
+
 Lemma normalise_nz_add_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
 Proof.
-(* à nettoyer *)
 intros nz.
 unfold normalise_nz; simpl.
 rewrite nz_add_0_r.
@@ -2446,83 +2486,13 @@ constructor; simpl.
   symmetry in Hz.
   destruct z; reflexivity.
 
-  unfold gcd_nz; simpl.
-  unfold nz_valnum_add.
-  rewrite Z.mul_1_r.
-  rewrite Nat2Z.inj_add.
-  rewrite Z.add_assoc.
-  rewrite Z.add_shuffle0.
-  rewrite <- Z.add_assoc.
-  rewrite Z.add_comm.
-  unfold cm; simpl.
-  rewrite Pos.mul_1_r.
-  remember (nz_valnum nz) as z eqn:Hz .
-  symmetry in Hz.
-  destruct z as [| z| z].
-   simpl.
-   rewrite Z.min_id.
-   rewrite Z.add_0_r, Nat.add_0_r.
-   rewrite series_shift_0.
-   reflexivity.
-
-   rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite shrink_factor_shift.
-   rewrite Z.add_0_r.
-   rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
-   reflexivity.
-
-   rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
-   rewrite shrink_factor_shift.
-   f_equal.
-   f_equal.
-   symmetry; rewrite Z.add_comm.
-   reflexivity.
+  apply gcd_nz_add.
 
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
  do 2 f_equal.
- unfold gcd_nz; simpl.
- unfold nz_valnum_add.
- rewrite Z.mul_1_r.
- rewrite Nat2Z.inj_add.
- rewrite Z.add_assoc.
- rewrite Z.add_shuffle0.
- rewrite <- Z.add_assoc.
- rewrite Z.add_comm.
- unfold cm; simpl.
- rewrite Pos.mul_1_r.
- remember (nz_valnum nz) as z eqn:Hz .
- symmetry in Hz.
- destruct z as [| z| z].
-  simpl.
-  rewrite Z.min_id.
-  rewrite Z.add_0_r, Nat.add_0_r.
-  rewrite nz_add_0_r.
-  rewrite Hz.
-  rewrite series_shift_0.
-  reflexivity.
-
-  rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
-  rewrite nz_add_0_r.
-  rewrite Z.add_0_r.
-  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
-  f_equal.
-  simpl.
-  f_equal.
-  rewrite Hz.
-  rewrite shrink_factor_shift.
-  reflexivity.
-
-  rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
-  f_equal.
-   f_equal.
-   rewrite Z.add_shuffle0; reflexivity.
-
-   simpl.
-   rewrite Nat.add_0_r.
-   rewrite nz_add_0_r.
-   rewrite Hz; simpl.
-   rewrite series_shift_0; reflexivity.
+ rewrite nz_add_0_r.
+ apply gcd_nz_add.
 
  rewrite nz_add_0_r.
  rewrite shrink_factor_shift.
@@ -2770,25 +2740,6 @@ destruct ps₃ as [nz'₃| ].
 
   reflexivity.
 Qed.
-
-(*
-Lemma www : ∀ nz₁ nz₂ nz₃,
-  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → nz_valnum_add nz₁ nz₃ = nz_valnum_add nz₂ nz₃.
-Proof.
-intros nz₁ nz₂ nz₃ Heq.
-unfold nz_valnum_add.
-unfold cm_factor.
-unfold normalise_nz in Heq.
-remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
-destruct n₁ as [n₁| ].
- destruct n₂ as [n₂| ].
-  inversion_clear Heq; simpl in *.
-  unfold gcd_nz in H.
-bbb.
-*)
 
 Definition normalise_ps ps :=
   match ps with
