@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.28 2013-10-14 18:24:54 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.29 2013-10-14 18:31:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2481,12 +2481,10 @@ constructor; simpl.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
  rewrite Z2Nat_id_max, Z.min_comm.
- f_equal.
-  remember (nz_valnum nz) as z eqn:Hz .
-  symmetry in Hz.
-  destruct z; reflexivity.
-
-  apply gcd_nz_add.
+ f_equal; [ idtac | apply gcd_nz_add ].
+ remember (nz_valnum nz) as z eqn:Hz .
+ symmetry in Hz.
+ destruct z; reflexivity.
 
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
@@ -2498,8 +2496,7 @@ constructor; simpl.
  rewrite shrink_factor_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.
- unfold gcd_nz.
- simpl.
+ unfold gcd_nz; simpl.
  unfold cm; simpl.
  unfold nz_valnum_add.
  rewrite Z.mul_1_r, Pos.mul_1_r.
@@ -2507,18 +2504,11 @@ constructor; simpl.
  destruct (nz_valnum nz) as [| p| p]; simpl.
   rewrite Z.add_0_r; reflexivity.
 
-  destruct (Z.of_nat n₁) as [| p₁| p₁].
-   simpl.
-   rewrite positive_nat_Z; reflexivity.
+  rewrite positive_nat_Z.
+  destruct (Z.of_nat n₁); try reflexivity.
+  rewrite Pos.add_comm; reflexivity.
 
-   simpl.
-   rewrite positive_nat_Z, Pos.add_comm; reflexivity.
-
-   simpl.
-   rewrite positive_nat_Z; reflexivity.
-
-  rewrite Z.add_0_r.
-  reflexivity.
+  rewrite Z.add_0_r; reflexivity.
 Qed.
 
 (* provable but supposes to use Bézout's identity
