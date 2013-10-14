@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.20 2013-10-14 02:41:38 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.21 2013-10-14 09:00:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3139,6 +3139,63 @@ destruct x as [| x| x]; simpl.
    destruct (Z_lt_dec (' x) (' y)) as [H| H].
     rewrite Z.div_small in Hz; [ discriminate Hz | idtac ].
     split; [ apply Pos2Z.is_nonneg | assumption ].
+
+    apply Z.nlt_ge in H.
+    symmetry in Ht.
+    apply Z.div_small_iff in Ht; [ idtac | apply Zpos_ne_0 ].
+    destruct Ht as [Ht| Ht].
+     destruct Ht as (Ht, _).
+     apply Z.nlt_ge in Ht.
+     exfalso; apply Ht, Pos2Z.neg_is_neg.
+
+     destruct Ht as (Ht, _).
+     apply Z.nle_gt in Ht.
+     exfalso; apply Ht.
+     transitivity 0%Z; [ apply Pos2Z.neg_is_nonpos | apply Pos2Z.is_nonneg ].
+
+   reflexivity.
+
+  destruct z as [| z| z].
+   symmetry in Hz.
+   apply Z.div_small_iff in Hz; [ idtac | apply Zpos_ne_0 ].
+   destruct Hz as [Hz| Hz].
+    rewrite <- Pos2Z.opp_pos in Ht.
+    destruct (Z.eq_dec (' x mod ' y) 0) as [H| H].
+     rewrite Z.div_opp_l_z in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
+     rewrite Z.div_small in Ht; [ idtac | assumption ].
+     discriminate Ht.
+
+     rewrite Z.div_opp_l_nz in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
+     rewrite Z.div_small in Ht; [ idtac | assumption ].
+     discriminate Ht.
+
+    destruct Hz as (_, Hz).
+    apply Z.nlt_ge in Hz.
+    exfalso; apply Hz; apply Pos2Z.is_pos.
+
+   exfalso.
+   rewrite <- Pos2Z.opp_pos in Ht.
+   destruct (Z.eq_dec (' x mod ' y) 0) as [H| H].
+    rewrite Z.div_opp_l_z in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
+    apply Z.mod_divide in H.
+     destruct H as (k, H).
+     rewrite H in Ht.
+     rewrite Z.div_mul in Ht.
+      destruct k as [| k| k].
+       discriminate Ht.
+
+       discriminate Ht.
+
+       discriminate H.
+
+      apply Zpos_ne_0.
+
+     apply Zpos_ne_0.
+
+    rewrite Z.div_opp_l_nz in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
+    rewrite Z.sub_opp_l in Ht.
+    rewrite <- Hz in Ht.
+    discriminate Ht.
 bbb.
 *)
 
