@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.19 2013-10-14 02:03:39 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.20 2013-10-14 02:41:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3113,29 +3113,34 @@ destruct m as [m| ]; simpl.
   rewrite Hk'; reflexivity.
 Qed.
 
-Lemma vvv : ∀ x y, pos_abs (x / y) = Z.to_pos (' pos_abs x / y).
+(* mouais... pas sûr si x < 0 *)
+Lemma vvv : ∀ x y, pos_abs (x / 'y) = Z.to_pos (' pos_abs x / 'y).
 Proof.
 intros x y.
 unfold pos_abs.
 destruct x as [| x| x]; simpl.
- destruct y as [| y| y]; [ reflexivity | idtac | idtac ].
-  destruct (Pos.eq_dec y 1) as [H| H]; [ subst y; reflexivity | idtac ].
-  rewrite Z.div_small; [ reflexivity | idtac ].
-  split; [ apply Z.le_0_1 | idtac ].
-  apply Pos.succ_pred in H.
-  rewrite <- H; simpl.
-  apply Pos.le_succ_l; simpl.
-  replace 2%positive with (Pos.succ 1) by reflexivity.
-  apply -> Pos.succ_le_mono.
-  apply Pos.le_1_l.
+ unfold Z.div; simpl.
+ destruct (2 <=? ' y)%Z; reflexivity.
 
-  unfold Z.div; simpl.
-  destruct (2 <=? ' y)%Z; reflexivity.
+ remember (' x / ' y)%Z as z eqn:Hz .
+ destruct z as [| z| z]; try reflexivity; exfalso.
+ assert (0 <= ' x / ' y)%Z as H.
+  apply Z_div_pos; [ idtac | apply Pos2Z.is_nonneg ].
+  apply Z.lt_gt, Pos2Z.is_pos.
 
- remember (' x / y)%Z as z eqn:Hz .
- destruct z as [| z| z]; try reflexivity.
- destruct y as [| y| y]; [ discriminate Hz | idtac | idtac ].
+  rewrite <- Hz in H.
+  apply Z.nlt_ge in H.
+  apply H, Pos2Z.neg_is_neg.
+
+ remember (' x / ' y)%Z as z eqn:Hz .
+ remember (Z.neg x / ' y)%Z as t eqn:Ht .
+ destruct t as [| t| t].
+  destruct z as [| z| z]; [ reflexivity | idtac | idtac ].
+   destruct (Z_lt_dec (' x) (' y)) as [H| H].
+    rewrite Z.div_small in Hz; [ discriminate Hz | idtac ].
+    split; [ apply Pos2Z.is_nonneg | assumption ].
 bbb.
+*)
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
