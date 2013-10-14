@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.31 2013-10-14 23:11:56 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.32 2013-10-14 23:15:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2780,7 +2780,7 @@ Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
       → gcd_nz n k nz = g
         → ∀ i,
           series_nth_fld fld i (nz_terms nz') =
-          series_nth_fld fld (n + i * Z.to_nat g) (nz_terms nz).
+          series_nth_fld fld (n + i * Pos.to_nat (Z.to_pos g)) (nz_terms nz).
 Proof.
 intros nz nz' n k g Heq Hn Hk Hg i.
 unfold normalise_nz in Heq.
@@ -2894,8 +2894,8 @@ Lemma normalised_shrink_factor : ∀ nz n k g,
   first_nonzero fld (nz_terms nz) 0 = fin n
   → shrink_factor fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
-      → shrink_factor fld (normalise_series n g (nz_terms nz)) 0 =
-          Pos.of_nat (Pos.to_nat k / Pos.to_nat g).
+      → shrink_factor fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
+          Pos.of_nat (Pos.to_nat k / Z.to_nat g).
 Proof.
 intros nz n k g Hn Hk Hg.
 unfold gcd_nz in Hg.
