@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.21 2013-10-14 09:00:03 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.22 2013-10-14 09:35:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3113,7 +3113,16 @@ destruct m as [m| ]; simpl.
   rewrite Hk'; reflexivity.
 Qed.
 
-(* mouais... pas sûr si x < 0 *)
+Lemma Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
+Proof.
+intros x y.
+apply Z_div_pos.
+ apply Z.lt_gt, Pos2Z.is_pos.
+
+ apply Pos2Z.is_nonneg.
+Qed.
+
+(* mouais... pas sûr si x < 0
 Lemma vvv : ∀ x y, pos_abs (x / 'y) = Z.to_pos (' pos_abs x / 'y).
 Proof.
 intros x y.
@@ -3196,6 +3205,36 @@ destruct x as [| x| x]; simpl.
     rewrite Z.sub_opp_l in Ht.
     rewrite <- Hz in Ht.
     discriminate Ht.
+
+   pose proof (Z_div_pos_is_nonneg x y) as H.
+   rewrite <- Hz in H.
+   apply Z.nlt_ge in H.
+   exfalso; apply H, Pos2Z.neg_is_neg.
+
+  apply Z.opp_inj_wd in Ht.
+  simpl in Ht.
+  destruct (Z.eq_dec (' x mod ' y) 0) as [H| H].
+   apply Z.div_opp_l_z in H.
+    simpl in H.
+    rewrite H in Ht.
+    rewrite Z.opp_involutive in Ht.
+    rewrite <- Hz in Ht.
+    rewrite <- Ht; reflexivity.
+
+    apply Zpos_ne_0.
+
+   apply Z.div_opp_l_nz in H.
+    simpl in H.
+    rewrite H in Ht.
+    rewrite <- Hz in Ht.
+    rewrite Z.opp_sub_distr in Ht.
+    rewrite Z.opp_involutive in Ht.
+    destruct z as [| z| z].
+     simpl in Ht |- *.
+     injection Ht; intros; assumption.
+
+     simpl in Ht.
+     injection Ht; intros.
 bbb.
 *)
 
