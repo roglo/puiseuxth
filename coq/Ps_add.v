@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.17 2013-10-14 00:21:33 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.18 2013-10-14 01:32:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3134,36 +3134,9 @@ destruct x as [| x| x]; simpl.
    apply -> Pos.succ_le_mono.
    apply Pos.le_1_l.
 
-  rewrite <- Pos2Z.opp_pos.
-  rewrite <- Z.div_opp_opp.
-   destruct (Z_eq_dec (- 1 mod ' y) 0) as [H| H].
-    rewrite Z.div_opp_l_z; [ simpl | apply Zpos_ne_0 | simpl ].
-     unfold Z.to_pos.
-     remember (- (1 / ' y))%Z as z eqn:Hz .
-     destruct z as [| z| z]; try reflexivity.
-     apply Z.mod_divide in H.
-      destruct H as (x, H).
-      apply Z.opp_inj_wd in H; simpl in H.
-      symmetry in H.
-      rewrite <- Z.mul_opp_l, Z.mul_comm in H.
-      apply Z.eq_mul_1 in H.
-      destruct H as [H| H]; [ idtac | discriminate H ].
-      rewrite H in Hz; discriminate Hz.
-
-      apply Zpos_ne_0.
-
-     apply Z.mod_opp_l_z in H; [ assumption | idtac ].
-     apply Zpos_ne_0.
-
-    simpl.
-    replace (- 1)%Z with (- (1))%Z by reflexivity.
-    rewrite Z.div_opp_l_nz; [ simpl | apply Zpos_ne_0 | simpl ].
-     rewrite <- Z.add_opp_r, <- Z.opp_add_distr.
-
+  unfold Z.div; simpl.
+  destruct (2 <=? ' y)%Z; reflexivity.
 bbb.
-  symmetry.
-  apply Z2Pos.to_pos_nonpos.
-  rewrite <- Pos2Z.opp_pos.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
