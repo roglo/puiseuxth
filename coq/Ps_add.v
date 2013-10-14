@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.30 2013-10-14 18:47:16 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.31 2013-10-14 23:11:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2647,9 +2647,7 @@ destruct ps₃ as [nz'₃| ].
      unfold nz_valnum_add; simpl.
      unfold cm_factor, cm; simpl.
      rewrite H1, H2.
-     f_equal.
-     f_equal.
-     f_equal.
+     do 3 f_equal.
      unfold nz_terms_add.
      unfold cm_factor; simpl.
      rewrite H1, H2.
@@ -2663,15 +2661,11 @@ destruct ps₃ as [nz'₃| ].
      rewrite H1, H2.
      unfold adjust_series; simpl.
      rewrite H3.
-     f_equal.
-     f_equal.
-     f_equal.
-     unfold gcd_nz.
-     simpl.
+     do 2 f_equal.
+     unfold gcd_nz; simpl.
      unfold nz_valnum_add; simpl.
      rewrite H1.
-     unfold cm_factor.
-     unfold cm.
+     unfold cm_factor, cm.
      rewrite H2.
      reflexivity.
 
@@ -2786,7 +2780,7 @@ Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
       → gcd_nz n k nz = g
         → ∀ i,
           series_nth_fld fld i (nz_terms nz') =
-          series_nth_fld fld (n + i * Pos.to_nat g) (nz_terms nz).
+          series_nth_fld fld (n + i * Z.to_nat g) (nz_terms nz).
 Proof.
 intros nz nz' n k g Heq Hn Hk Hg i.
 unfold normalise_nz in Heq.
