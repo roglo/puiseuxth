@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.34 2013-10-15 08:35:26 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.35 2013-10-15 09:03:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2936,6 +2936,12 @@ assert (g ≠ 0)%Z as Hgnz.
       rewrite Hk' in H₁ |- *.
       rewrite Z2Nat.inj_mul; try assumption.
       rewrite Nat.div_mul.
+       rewrite Z2Nat.inj_mul in H₁; try assumption.
+       rewrite Z2Pos.id in H₁.
+        rewrite Nat.mul_mod_distr_r in H₁.
+         apply Nat.mul_eq_0_l in H₁; [ assumption | idtac ].
+         intros H; apply Hgnz.
+         apply Z2Nat.inj; [ assumption | reflexivity | assumption ].
 bbb.
       rewrite Z2Nat.inj_mul in H₁.
     rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
