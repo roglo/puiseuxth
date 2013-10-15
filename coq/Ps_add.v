@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.40 2013-10-15 14:11:31 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.41 2013-10-15 14:18:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3224,122 +3224,6 @@ apply Z_div_pos.
  apply Pos2Z.is_nonneg.
 Qed.
 
-(* mouais... pas sûr si x < 0 *)
-Lemma vvv : ∀ x y, pos_abs (x / 'y) = Z.to_pos (' pos_abs x / 'y).
-Proof.
-intros x y.
-unfold pos_abs.
-destruct x as [| x| x]; simpl.
- unfold Z.div; simpl.
- destruct (2 <=? ' y)%Z; reflexivity.
-
- remember (' x / ' y)%Z as z eqn:Hz .
- destruct z as [| z| z]; try reflexivity; exfalso.
- assert (0 <= ' x / ' y)%Z as H.
-  apply Z_div_pos; [ idtac | apply Pos2Z.is_nonneg ].
-  apply Z.lt_gt, Pos2Z.is_pos.
-
-  rewrite <- Hz in H.
-  apply Z.nlt_ge in H.
-  apply H, Pos2Z.neg_is_neg.
-
- remember (' x / ' y)%Z as z eqn:Hz .
- remember (Z.neg x / ' y)%Z as t eqn:Ht .
- destruct t as [| t| t].
-  destruct z as [| z| z]; [ reflexivity | idtac | idtac ].
-   destruct (Z_lt_dec (' x) (' y)) as [H| H].
-    rewrite Z.div_small in Hz; [ discriminate Hz | idtac ].
-    split; [ apply Pos2Z.is_nonneg | assumption ].
-
-    apply Z.nlt_ge in H.
-    symmetry in Ht.
-    apply Z.div_small_iff in Ht; [ idtac | apply Zpos_ne_0 ].
-    destruct Ht as [Ht| Ht].
-     destruct Ht as (Ht, _).
-     apply Z.nlt_ge in Ht.
-     exfalso; apply Ht, Pos2Z.neg_is_neg.
-
-     destruct Ht as (Ht, _).
-     apply Z.nle_gt in Ht.
-     exfalso; apply Ht.
-     transitivity 0%Z; [ apply Pos2Z.neg_is_nonpos | apply Pos2Z.is_nonneg ].
-
-   reflexivity.
-
-  destruct z as [| z| z].
-   symmetry in Hz.
-   apply Z.div_small_iff in Hz; [ idtac | apply Zpos_ne_0 ].
-   destruct Hz as [Hz| Hz].
-    rewrite <- Pos2Z.opp_pos in Ht.
-    destruct (Z.eq_dec (' x mod ' y) 0) as [H| H].
-     rewrite Z.div_opp_l_z in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
-     rewrite Z.div_small in Ht; [ idtac | assumption ].
-     discriminate Ht.
-
-     rewrite Z.div_opp_l_nz in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
-     rewrite Z.div_small in Ht; [ idtac | assumption ].
-     discriminate Ht.
-
-    destruct Hz as (_, Hz).
-    apply Z.nlt_ge in Hz.
-    exfalso; apply Hz; apply Pos2Z.is_pos.
-
-   exfalso.
-   rewrite <- Pos2Z.opp_pos in Ht.
-   destruct (Z.eq_dec (' x mod ' y) 0) as [H| H].
-    rewrite Z.div_opp_l_z in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
-    apply Z.mod_divide in H.
-     destruct H as (k, H).
-     rewrite H in Ht.
-     rewrite Z.div_mul in Ht.
-      destruct k as [| k| k].
-       discriminate Ht.
-
-       discriminate Ht.
-
-       discriminate H.
-
-      apply Zpos_ne_0.
-
-     apply Zpos_ne_0.
-
-    rewrite Z.div_opp_l_nz in Ht; [ idtac | apply Zpos_ne_0 | assumption ].
-    rewrite Z.sub_opp_l in Ht.
-    rewrite <- Hz in Ht.
-    discriminate Ht.
-
-   pose proof (Z_div_pos_is_nonneg x y) as H.
-   rewrite <- Hz in H.
-   apply Z.nlt_ge in H.
-   exfalso; apply H, Pos2Z.neg_is_neg.
-
-  apply Z.opp_inj_wd in Ht.
-  simpl in Ht.
-  destruct (Z.eq_dec (' x mod ' y) 0) as [H| H].
-   apply Z.div_opp_l_z in H.
-    simpl in H.
-    rewrite H in Ht.
-    rewrite Z.opp_involutive in Ht.
-    rewrite <- Hz in Ht.
-    rewrite <- Ht; reflexivity.
-
-    apply Zpos_ne_0.
-
-   apply Z.div_opp_l_nz in H.
-    simpl in H.
-    rewrite H in Ht.
-    rewrite <- Hz in Ht.
-    rewrite Z.opp_sub_distr in Ht.
-    rewrite Z.opp_involutive in Ht.
-    destruct z as [| z| z].
-     simpl in Ht |- *.
-     injection Ht; intros; assumption.
-
-     simpl in Ht.
-     injection Ht; intros.
-bbb.
-*)
-
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
 intros ps.
@@ -3364,13 +3248,13 @@ destruct ps as [nz'| ]; simpl.
    injection Hps; clear Hps; intros; subst nz'; simpl.
    remember (shrink_factor fld (nz_terms nz) n) as k eqn:Hk .
    remember (gcd_nz n k nz) as g eqn:Hg .
-   remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
+   remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
    remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
    unfold gcd_nz; simpl.
    rewrite Z.add_0_r.
    remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
-   remember (Z.to_pos (' nz_comden nz / ' g)) as cg eqn:Hcg .
-   remember (Pos.gcd (Pos.gcd (pos_abs (vn / ' g)) cg) k₁) as g₁ eqn:Hg₁ .
+   remember (Z.to_pos (' nz_comden nz / g)) as cg eqn:Hcg .
+   remember (Z.gcd (Z.gcd (vn / g) (' cg)) (' k₁)) as g₁ eqn:Hg₁ .
    unfold normalise_nz; simpl.
    remember (first_nonzero fld s 0) as m eqn:Hm .
    rewrite Hs in Hm.
@@ -3385,12 +3269,12 @@ destruct ps as [nz'| ]; simpl.
      rewrite Hs in Hk₁.
      symmetry in Hk, Hg.
      erewrite normalised_shrink_factor in Hk₁; try eassumption.
-     remember (Pos.gcd (pos_abs (vn / ' g)) cg) as g₂ eqn:Hg₂ .
+     remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
      rewrite Hcg in Hg₂.
      symmetry in Hg.
      unfold gcd_nz in Hg.
      rewrite <- Hvn in Hg.
-     remember (Pos.gcd (pos_abs vn) (nz_comden nz)) as g₃ eqn:Hg₃ .
+     remember (Z.gcd vn (' nz_comden nz)) as g₃ eqn:Hg₃ .
      move Hg₂ at bottom.
      move Hg₃ at bottom.
 (* faut prouver que g₁ = 1 *)
