@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.85 2013-10-10 09:48:33 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.86 2013-10-15 19:41:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -656,6 +656,13 @@ destruct n as [n| ]; simpl.
  rewrite fin_le_mono; assumption.
 
  destruct m as [m| ]; [ inversion Hnm | reflexivity ].
+Qed.
+
+Theorem sub_diag : ∀ n, n - n = 0.
+Proof.
+intros n.
+destruct n as [n| ]; [ simpl | reflexivity ].
+rewrite Nat.sub_diag; reflexivity.
 Qed.
 
 Theorem eq_add_0 : ∀ n m, n + m = 0 ↔ n = 0 ∧ m = 0.

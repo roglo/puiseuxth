@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.41 2013-10-15 14:18:09 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.42 2013-10-15 19:41:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3224,6 +3224,49 @@ apply Z_div_pos.
  apply Pos2Z.is_nonneg.
 Qed.
 
+Lemma normalise_series_0_1 : ∀ s : series α, normalise_series 0 1 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld.
+remember (normalise_series 0 1 s) as ns eqn:Hns .
+destruct (Nbar.lt_dec (fin i) (stop ns)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
+  rewrite Hns; simpl.
+  rewrite Nat.mul_1_r; reflexivity.
+
+  exfalso; apply H₂; clear H₂.
+  rewrite Hns in H₁; simpl in H₁.
+  destruct (stop s) as [st| ]; [ idtac | constructor ].
+  simpl in H₁.
+  rewrite Nat.sub_0_r in H₁.
+  rewrite Pos2Nat.inj_1 in H₁.
+  rewrite <- Nat_sub_sub_distr in H₁; [ idtac | reflexivity ].
+  rewrite Nat.sub_diag, Nat.sub_0_r in H₁.
+  rewrite divmod_div in H₁.
+  rewrite Nat.div_1_r in H₁; assumption.
+
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| ]; [ idtac | reflexivity ].
+ exfalso; apply H₁; clear H₁.
+ subst ns; simpl.
+ destruct (stop s) as [st| ]; [ simpl | constructor ].
+ rewrite Nat.sub_0_r.
+ rewrite Pos2Nat.inj_1.
+ rewrite <- Nat_sub_sub_distr; [ idtac | reflexivity ].
+ rewrite Nat.sub_diag, Nat.sub_0_r.
+ rewrite divmod_div.
+ rewrite Nat.div_1_r; assumption.
+Qed.
+
+Lemma Z_gcd3_div_gcd3 : ∀ a b c g,
+  g ≠ 0%Z
+  → g = Z.gcd (Z.gcd a b) c
+    → Z.gcd (Z.gcd (a / g) (b / g)) (c / g) = 1%Z.
+Proof.
+intros a b c g Hg Hgabc.
+bbb.
+*)
+
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
 intros ps.
@@ -3271,16 +3314,35 @@ destruct ps as [nz'| ]; simpl.
      erewrite normalised_shrink_factor in Hk₁; try eassumption.
      remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
      rewrite Hcg in Hg₂.
+     remember Hg as Hg_v; clear HeqHg_v.
      symmetry in Hg.
      unfold gcd_nz in Hg.
      rewrite <- Hvn in Hg.
      remember (Z.gcd vn (' nz_comden nz)) as g₃ eqn:Hg₃ .
      move Hg₂ at bottom.
      move Hg₃ at bottom.
-(* faut prouver que g₁ = 1 *)
+     rewrite Hs.
+     erewrite normalised_shrink_factor; try eassumption.
+     rewrite Hg₃ in Hg.
+     apply Z_gcd3_div_gcd3 in Hg.
+      rewrite Z2Pos.id in Hg₂.
+       rewrite <- Hg₂ in Hg.
+       rewrite Hk₁ in Hg₁.
+       rewrite Zposnat2Znat in Hg₁.
+        rewrite div_Zdiv in Hg₁.
+         rewrite positive_nat_Z in Hg₁.
+         rewrite Z2Nat.id in Hg₁.
+          rewrite Hg in Hg₁.
+          subst g₁.
+          do 2 rewrite Z.div_1_r.
+          rewrite Z2Pos.id.
+           simpl.
+           rewrite Hcg.
+           rewrite Z2Pos.id.
+            rewrite <- Hg₂.
+            rewrite normalise_series_0_1.
+            erewrite normalised_shrink_factor; try eassumption; reflexivity.
 bbb.
-Z.gcd_div_gcd:
-  ∀ a b g : Z, g ≠ 0%Z → g = Z.gcd a b → Z.gcd (a / g) (b / g) = 1%Z
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
