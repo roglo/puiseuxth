@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.33 2013-10-15 00:43:47 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.34 2013-10-15 08:35:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2903,30 +2903,41 @@ remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
 pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
 rewrite Hg in H.
 destruct H as (k', Hk').
-apply shrink_factor_iff.
-remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
-remember (first_nonzero fld s 1) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; simpl.
- split.
-  intros i H.
-  rewrite Nat2Pos.id in H.
-   rewrite Hs.
-   rewrite series_nth_normalised; [ idtac | assumption ].
-   apply shrink_factor_iff in Hk.
-   remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
-   symmetry in Hp.
-   destruct p as [p| ].
-    destruct Hk as (Hz, Hnz).
-    apply Hz.
-    intros H₁; apply H; clear H.
-    do 2 rewrite <- Z2Nat.inj_pos in H₁.
-    rewrite <- Z2Nat.inj_pos.
-    rewrite Hk' in H₁ |- *.
-    rewrite Z2Nat.inj_mul.
-     rewrite Nat.div_mul.
-      rewrite Z2Nat.inj_mul in H₁.
+assert (0 <= g)%Z as Hgpos by (subst g; unfold gcd_nz; apply Z.gcd_nonneg).
+assert (g ≠ 0)%Z as Hgnz.
+ subst g; intros H; apply Z.gcd_eq_0_r in H.
+ revert H; apply Zpos_ne_0.
+
+ assert (0 <= k')%Z as Hk'pos.
+  apply Z.mul_nonneg_cancel_r with (m := g).
+   fast_omega Hgpos Hgnz.
+
+   rewrite <- Hk'; apply Pos2Z.is_nonneg.
+
+  apply shrink_factor_iff.
+  remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
+  remember (first_nonzero fld s 1) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m as [m| ]; simpl.
+   split.
+    intros i H.
+    rewrite Nat2Pos.id in H.
+     rewrite Hs.
+     rewrite series_nth_normalised; [ idtac | assumption ].
+     apply shrink_factor_iff in Hk.
+     remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+     symmetry in Hp.
+     destruct p as [p| ].
+      destruct Hk as (Hz, Hnz).
+      apply Hz.
+      intros H₁; apply H; clear H.
+      do 2 rewrite <- Z2Nat.inj_pos in H₁.
+      rewrite <- Z2Nat.inj_pos.
+      rewrite Hk' in H₁ |- *.
+      rewrite Z2Nat.inj_mul; try assumption.
+      rewrite Nat.div_mul.
 bbb.
+      rewrite Z2Nat.inj_mul in H₁.
     rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
     rewrite Pos2Nat.inj_mul in H₁.
     rewrite Nat.mul_mod_distr_r in H₁; try apply Pos2Nat_ne_0.
