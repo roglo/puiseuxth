@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.42 2013-10-15 19:41:43 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.43 2013-10-15 20:04:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3264,8 +3264,27 @@ Lemma Z_gcd3_div_gcd3 : ∀ a b c g,
     → Z.gcd (Z.gcd (a / g) (b / g)) (c / g) = 1%Z.
 Proof.
 intros a b c g Hg Hgabc.
-bbb.
-*)
+rewrite Z.gcd_div_factor.
+ rewrite Z.gcd_div_factor.
+  rewrite <- Hgabc.
+  rewrite Z.div_same; [ reflexivity | assumption ].
+
+  pose proof (Z.gcd_nonneg (Z.gcd a b) c) as H.
+  rewrite <- Hgabc in H; clear Hgabc; omega.
+
+  subst g; apply Z.gcd_divide_l.
+
+  subst g; apply Z.gcd_divide_r.
+
+ pose proof (Z.gcd_nonneg (Z.gcd a b) c) as H.
+ rewrite <- Hgabc in H; clear Hgabc; omega.
+
+ subst g.
+ etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_l ].
+
+ subst g.
+ etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
+Qed.
 
 Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
