@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.32 2013-10-14 23:15:05 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.33 2013-10-15 00:43:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2899,12 +2899,12 @@ Lemma normalised_shrink_factor : ∀ nz n k g,
 Proof.
 intros nz n k g Hn Hk Hg.
 unfold gcd_nz in Hg.
-remember (pos_abs (nz_valnum nz + Z.of_nat n)) as vn eqn:Hvn .
-pose proof (Pos.gcd_divide_r (Pos.gcd vn (nz_comden nz)) k) as H.
+remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
+pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
 rewrite Hg in H.
 destruct H as (k', Hk').
 apply shrink_factor_iff.
-remember (normalise_series n g (nz_terms nz)) as s eqn:Hs .
+remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
 remember (first_nonzero fld s 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl.
@@ -2920,8 +2920,13 @@ destruct m as [m| ]; simpl.
     destruct Hk as (Hz, Hnz).
     apply Hz.
     intros H₁; apply H; clear H.
+    do 2 rewrite <- Z2Nat.inj_pos in H₁.
+    rewrite <- Z2Nat.inj_pos.
     rewrite Hk' in H₁ |- *.
-    rewrite Pos2Nat.inj_mul.
+    rewrite Z2Nat.inj_mul.
+     rewrite Nat.div_mul.
+      rewrite Z2Nat.inj_mul in H₁.
+bbb.
     rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
     rewrite Pos2Nat.inj_mul in H₁.
     rewrite Nat.mul_mod_distr_r in H₁; try apply Pos2Nat_ne_0.
