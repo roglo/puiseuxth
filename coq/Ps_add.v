@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.39 2013-10-15 13:40:33 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.40 2013-10-15 14:11:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2976,6 +2976,7 @@ Lemma normalised_shrink_factor : ∀ nz n k g,
       → shrink_factor fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
           Pos.of_nat (Pos.to_nat k / Z.to_nat g).
 Proof.
+(* gros nettoyage à faire : grosse répétition *)
 intros nz n k g Hn Hk Hg.
 unfold gcd_nz in Hg.
 remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
@@ -3136,11 +3137,19 @@ destruct m as [m| ]; simpl.
 
     eapply gcd_mul_le in Hk'; [ idtac | eassumption ].
     destruct Hk'; assumption.
-bbb.
 
-   rewrite Hk'.
-   rewrite Pos2Nat.inj_mul.
-   rewrite Nat.div_mul; apply Pos2Nat_ne_0.
+   rewrite <- Z2Nat.inj_pos, Hk'.
+   rewrite Z2Nat.inj_mul.
+    rewrite Nat.div_mul.
+     eapply gcd_mul_ne_0; eassumption.
+
+     eapply Z2Nat_gcd_ne_0; eassumption.
+
+    eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+    destruct Hg; assumption.
+
+    eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+    destruct Hg; assumption.
 
  apply shrink_factor_iff in Hk.
  remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
@@ -3156,18 +3165,31 @@ bbb.
    rewrite Hp' in Hnz.
    exfalso; apply Hnz.
    rewrite Nat.mul_comm.
-   rewrite Hk'.
-   rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
-   rewrite <- series_nth_normalised; [ idtac | assumption ].
-   rewrite <- Hs.
-   remember (p' * Pos.to_nat k')%nat as pk eqn:Hpk .
-   symmetry in Hpk.
-   destruct pk as [| pk].
-    apply Nat.mul_eq_0_l in Hpk; [ idtac | apply Pos2Nat_ne_0 ].
-    subst p'.
-    rewrite Nat.mul_0_r in Hp'; discriminate Hp'.
+   rewrite <- Z2Nat.inj_pos, Hk'.
+   rewrite Z2Nat.inj_mul, Nat.mul_assoc.
+    rewrite Nat.mul_comm.
+    rewrite <- Pos2Nat_to_pos.
+     rewrite Nat.mul_comm.
+     rewrite <- series_nth_normalised; [ idtac | assumption ].
+     rewrite <- Hs.
+     remember (p' * Z.to_nat k')%nat as pk eqn:Hpk .
+     symmetry in Hpk.
+     destruct pk as [| pk].
+      apply Nat.mul_eq_0_l in Hpk.
+       subst p'.
+       rewrite Nat.mul_0_r in Hp'; discriminate Hp'.
 
-    apply Hm.
+       eapply gcd_mul_ne_0; eassumption.
+
+      apply Hm.
+
+     eapply gcd_pos_pos; eassumption.
+
+    eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+    destruct Hg; assumption.
+
+    eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+    destruct Hg; assumption.
 
    destruct Hk as (Hz₁, Hnz₁).
    rewrite Hz₁ in Hnz.
@@ -3179,8 +3201,18 @@ bbb.
 
   subst k.
   symmetry in Hk'.
-  apply Pos.mul_eq_1_r in Hk'.
-  rewrite Hk'; reflexivity.
+  rewrite Z.mul_comm in Hk'.
+  apply Z.mul_eq_1 in Hk'.
+  destruct Hk' as [Hk'| Hk'].
+   move Hk' at top; subst g.
+   rewrite Nat.div_same; [ idtac | intros H₁; discriminate H₁ ].
+   reflexivity.
+
+   apply gcd_pos_pos in Hg.
+   subst g.
+   apply Z.nle_gt in Hg.
+   exfalso; apply Hg.
+   apply Z.opp_nonpos_nonneg, Z.le_0_1.
 Qed.
 
 Lemma Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
