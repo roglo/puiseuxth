@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.36 2013-10-15 09:17:46 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.37 2013-10-15 13:02:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2909,6 +2909,52 @@ assert (g ≠ 0)%Z as Hgnz.
   rewrite <- Hb; apply Pos2Z.is_nonneg.
 Qed.
 
+Lemma gcd_pos_pos : ∀ a b g,
+  Z.gcd a (' b) = g
+  → (0 < g)%Z.
+Proof.
+intros a b g Hg.
+destruct (Z_dec 0 g) as [[H| H]| H].
+ assumption.
+
+ exfalso; apply Z.gt_lt, Z.nle_gt in H.
+ apply H; subst g; apply Z.gcd_nonneg.
+
+ rewrite <- H in Hg.
+ apply Z.gcd_eq_0_r in Hg.
+ exfalso; revert Hg; apply Zpos_ne_0.
+Qed.
+
+Lemma Z2Nat_gcd_ne_0 : ∀ a b g,
+  Z.gcd a (' b) = g
+  → (Z.to_nat g ≠ 0)%nat.
+Proof.
+intros a b g Hg.
+apply gcd_pos_pos in Hg.
+destruct g; [ exfalso; revert Hg; apply Z.lt_irrefl | idtac | idtac ].
+ apply Pos2Nat_ne_0.
+
+ exfalso; apply Z.nle_gt in Hg.
+ apply Hg, Pos2Z.neg_is_nonpos.
+Qed.
+
+Lemma gcd_mul_ne_0 : ∀ a b c g,
+  Z.gcd a (' b) = g
+  → (' b = c * g)%Z
+    → (Z.to_nat c ≠ 0)%nat.
+Proof.
+intros a b c g Hg Hb.
+eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+destruct Hg as (Hg, Hc).
+destruct c as [| c| c].
+ exfalso; revert Hb; apply Zpos_ne_0.
+
+ apply Pos2Nat_ne_0.
+
+ exfalso; apply Z.nlt_ge in Hc.
+ apply Hc, Pos2Z.neg_is_neg.
+Qed.
+
 Lemma normalised_shrink_factor : ∀ nz n k g,
   first_nonzero fld (nz_terms nz) 0 = fin n
   → shrink_factor fld (nz_terms nz) n = k
@@ -2943,90 +2989,68 @@ destruct m as [m| ]; simpl.
     rewrite <- Z2Nat.inj_pos.
     rewrite Hk' in H₁ |- *.
     rewrite Z2Nat.inj_mul; try (edestruct gcd_mul_le; eassumption).
-bbb.
+    rewrite Z2Pos.id in H₁; [ idtac | eapply gcd_pos_pos; eassumption ].
+    rewrite Z2Nat.inj_mul in H₁; try (edestruct gcd_mul_le; eassumption).
+    rewrite Nat.mul_mod_distr_r in H₁.
+     apply Nat.mul_eq_0_l in H₁.
+      rewrite Nat.div_mul; [ idtac | eapply Z2Nat_gcd_ne_0; eassumption ].
+      assumption.
 
-intros nz n k g Hn Hk Hg.
-unfold gcd_nz in Hg.
-remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
-pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
-rewrite Hg in H.
-destruct H as (k', Hk').
-bbb.
-assert (0 <= g)%Z as Hgpos by (subst g; unfold gcd_nz; apply Z.gcd_nonneg).
-assert (g ≠ 0)%Z as Hgnz.
- subst g; intros H; apply Z.gcd_eq_0_r in H.
- revert H; apply Zpos_ne_0.
+      eapply Z2Nat_gcd_ne_0; eassumption.
 
- assert (0 <= k')%Z as Hk'pos.
-  apply Z.mul_nonneg_cancel_r with (m := g).
-   fast_omega Hgpos Hgnz.
+     eapply gcd_mul_ne_0; eassumption.
 
-   rewrite <- Hk'; apply Pos2Z.is_nonneg.
+     eapply Z2Nat_gcd_ne_0; eassumption.
 
-  apply shrink_factor_iff.
-  remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
-  remember (first_nonzero fld s 1) as m eqn:Hm .
-  symmetry in Hm.
-  destruct m as [m| ]; simpl.
-   split.
-    intros i H.
-    rewrite Nat2Pos.id in H.
-     rewrite Hs.
-     rewrite series_nth_normalised; [ idtac | assumption ].
+    subst k.
+    symmetry in Hk'.
+    rewrite Z.mul_comm in Hk'.
+    apply Z.eq_mul_1 in Hk'.
+    destruct Hk' as [Hk'| Hk'].
+     move Hk' at top; subst g.
+     rewrite Nat.div_same in H; [ idtac | intros H₁; discriminate H₁ ].
+     exfalso; apply H; reflexivity.
+
+     apply gcd_pos_pos in Hg.
+     subst g.
+     apply Z.nle_gt in Hg.
+     exfalso; apply Hg.
+     apply Z.opp_nonpos_nonneg, Z.le_0_1.
+
+   rewrite <- Z2Nat.inj_pos, Hk'.
+   rewrite Z2Nat.inj_mul.
+    rewrite Nat.div_mul.
+     eapply gcd_mul_ne_0; eassumption.
+
+     eapply Z2Nat_gcd_ne_0; eassumption.
+
+    eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+    destruct Hg; assumption.
+
+    eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+    destruct Hg; assumption.
+
+  intros k₁ Hk₁.
+  rewrite Nat2Pos.id in Hk₁.
+   rewrite <- Z2Nat.inj_pos in Hk₁.
+   rewrite Hk' in Hk₁.
+   rewrite Z2Nat.inj_mul in Hk₁.
+    rewrite Nat.div_mul in Hk₁.
      apply shrink_factor_iff in Hk.
      remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
      symmetry in Hp.
      destruct p as [p| ].
       destruct Hk as (Hz, Hnz).
-      apply Hz.
-      intros H₁; apply H; clear H.
-      do 2 rewrite <- Z2Nat.inj_pos in H₁.
-      rewrite <- Z2Nat.inj_pos.
-      rewrite Hk' in H₁ |- *.
-      rewrite Z2Nat.inj_mul; try assumption.
-      rewrite Nat.div_mul.
-       rewrite Z2Nat.inj_mul in H₁; try assumption.
-       rewrite Z2Pos.id in H₁.
-        rewrite Nat.mul_mod_distr_r in H₁.
-         apply Nat.mul_eq_0_l in H₁; [ assumption | idtac ].
-         intros H; apply Hgnz.
-         apply Z2Nat.inj; [ assumption | reflexivity | assumption ].
+      apply Nat.mul_lt_mono_pos_r with (p := Z.to_nat g) in Hk₁.
+       rewrite <- Z2Nat.inj_mul, <- Hk' in Hk₁.
+        apply Hnz in Hk₁.
+        destruct Hk₁ as (j, (Hjm, Hjn)).
+        destruct (zerop (j mod Z.to_nat g)) as [H₁| H₁].
+         apply Nat.mod_divides in H₁.
+          destruct H₁ as (j', Hj').
+          subst j.
+          rewrite Nat.mul_comm in Hjn.
 bbb.
-      rewrite Z2Nat.inj_mul in H₁.
-    rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-    rewrite Pos2Nat.inj_mul in H₁.
-    rewrite Nat.mul_mod_distr_r in H₁; try apply Pos2Nat_ne_0.
-    apply Nat.mul_eq_0_l in H₁; [ assumption | apply Pos2Nat_ne_0 ].
-
-    subst k.
-    symmetry in Hk'.
-    apply Pos.mul_eq_1_r in Hk'.
-    move Hk' at top; subst g.
-    exfalso; apply H; reflexivity.
-
-   rewrite Hk'.
-   rewrite Pos2Nat.inj_mul.
-   rewrite Nat.div_mul; apply Pos2Nat_ne_0.
-
-  intros k₁ Hk₁.
-  rewrite Nat2Pos.id in Hk₁.
-   rewrite Hk' in Hk₁.
-   rewrite Pos2Nat.inj_mul in Hk₁.
-   rewrite Nat.div_mul in Hk₁.
-    apply shrink_factor_iff in Hk.
-    remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
-    symmetry in Hp.
-    destruct p as [p| ].
-     destruct Hk as (Hz, Hnz).
-     apply Nat.mul_lt_mono_pos_r with (p := Pos.to_nat g) in Hk₁.
-      rewrite <- Pos2Nat.inj_mul, <- Hk' in Hk₁.
-      apply Hnz in Hk₁.
-      destruct Hk₁ as (j, (Hjm, Hjn)).
-      destruct (zerop (j mod Pos.to_nat g)) as [H₁| H₁].
-       apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
-       destruct H₁ as (j', Hj').
-       subst j.
-       rewrite Nat.mul_comm in Hjn.
        rewrite <- series_nth_normalised in Hjn; [ idtac | assumption ].
        rewrite <- Hs in Hjn.
        rewrite Nat.mul_comm in Hjm.
