@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.35 2013-10-15 09:03:06 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.36 2013-10-15 09:17:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2890,6 +2890,25 @@ destruct (lt_dec (S p) (S m * Pos.to_nat g)) as [H₁| H₁].
 bbb.
 *)
 
+(* pas très joli mais bon, si ça fait l'affaire... *)
+Lemma gcd_mul_le : ∀ a b c g,
+  Z.gcd a (' b) = g
+  → (' b = c * g)%Z
+    → (0 <= g ∧ 0 <= c)%Z.
+Proof.
+intros a b c g Hg Hb.
+assert (0 <= g)%Z as Hgpos by (subst g; unfold gcd_nz; apply Z.gcd_nonneg).
+split; [ assumption | idtac ].
+assert (g ≠ 0)%Z as Hgnz.
+ subst g; intros H; apply Z.gcd_eq_0_r in H.
+ revert H; apply Zpos_ne_0.
+
+ apply Z.mul_nonneg_cancel_r with (m := g).
+  fast_omega Hgpos Hgnz.
+
+  rewrite <- Hb; apply Pos2Z.is_nonneg.
+Qed.
+
 Lemma normalised_shrink_factor : ∀ nz n k g,
   first_nonzero fld (nz_terms nz) 0 = fin n
   → shrink_factor fld (nz_terms nz) n = k
@@ -2903,6 +2922,36 @@ remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
 pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
 rewrite Hg in H.
 destruct H as (k', Hk').
+apply shrink_factor_iff.
+remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
+remember (first_nonzero fld s 1) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; simpl.
+ split.
+  intros i H.
+  rewrite Nat2Pos.id in H.
+   rewrite Hs.
+   rewrite series_nth_normalised; [ idtac | assumption ].
+   apply shrink_factor_iff in Hk.
+   remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+   symmetry in Hp.
+   destruct p as [p| ].
+    destruct Hk as (Hz, Hnz).
+    apply Hz.
+    intros H₁; apply H; clear H.
+    do 2 rewrite <- Z2Nat.inj_pos in H₁.
+    rewrite <- Z2Nat.inj_pos.
+    rewrite Hk' in H₁ |- *.
+    rewrite Z2Nat.inj_mul; try (edestruct gcd_mul_le; eassumption).
+bbb.
+
+intros nz n k g Hn Hk Hg.
+unfold gcd_nz in Hg.
+remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
+pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
+rewrite Hg in H.
+destruct H as (k', Hk').
+bbb.
 assert (0 <= g)%Z as Hgpos by (subst g; unfold gcd_nz; apply Z.gcd_nonneg).
 assert (g ≠ 0)%Z as Hgnz.
  subst g; intros H; apply Z.gcd_eq_0_r in H.
