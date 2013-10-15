@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.38 2013-10-15 13:33:18 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.39 2013-10-15 13:40:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3107,24 +3107,36 @@ destruct m as [m| ]; simpl.
 
         eapply gcd_mul_le in Hk'; [ idtac | eassumption ].
         destruct Hk'; assumption.
+
+       rewrite <- Z2Nat.inj_0.
+       apply Z2Nat.inj_lt; [ reflexivity | idtac | idtac ].
+        eapply gcd_mul_le in Hk'; [ idtac | eassumption ].
+        destruct Hk'; assumption.
+
+        eapply gcd_pos_pos; eassumption.
+
+      subst k.
+      rewrite Z.gcd_1_r in Hg.
+      move Hg at top; subst g.
+      exfalso.
+      apply first_nonzero_iff in Hm.
+      destruct Hm as (Hz, Hnz).
+      apply Hnz; simpl.
+      rewrite Hs.
+      rewrite series_nth_normalised; [ idtac | assumption ].
+      apply first_nonzero_iff in Hp.
+      rewrite Nat.mul_1_r.
+      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+      apply Hp.
+
+     eapply Z2Nat_gcd_ne_0; eassumption.
+
+    eapply gcd_mul_le in Hk'; [ idtac | eassumption ].
+    destruct Hk'; assumption.
+
+    eapply gcd_mul_le in Hk'; [ idtac | eassumption ].
+    destruct Hk'; assumption.
 bbb.
-
-     subst k.
-     symmetry in Hk'.
-     apply Pos.mul_eq_1_r in Hk'.
-     move Hk' at top; subst g.
-     exfalso.
-     apply first_nonzero_iff in Hm.
-     destruct Hm as (Hz, Hnz).
-     apply Hnz; simpl.
-     rewrite Hs.
-     rewrite series_nth_normalised; [ idtac | assumption ].
-     apply first_nonzero_iff in Hp.
-     rewrite Nat.mul_1_r.
-     rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-     apply Hp.
-
-    apply Pos2Nat_ne_0.
 
    rewrite Hk'.
    rewrite Pos2Nat.inj_mul.
