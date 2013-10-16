@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.45 2013-10-16 12:01:28 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.46 2013-10-16 12:52:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3336,6 +3336,32 @@ destruct ps as [nz'| ]; simpl.
    injection Hps; clear Hps; intros; subst nz'; simpl.
    remember (shrink_factor fld (nz_terms nz) n) as k eqn:Hk .
    remember (gcd_nz n k nz) as g eqn:Hg .
+   symmetry in Hg.
+   assert (0 <= g)%Z as A₁ by (rewrite <- Hg; apply Z.gcd_nonneg).
+   assert (g ≠ 0)%Z as A₂ by (eapply gcd_pos_ne_0; eassumption).
+   assert (Z.to_nat g ≠ 0)%nat as A₃ by (eapply Z2Nat_gcd_ne_0; eassumption).
+   assert (0 < ' nz_comden nz / g)%Z as A₄
+    by (unfold gcd_nz in Hg; rewrite Z.gcd_comm, Z.gcd_assoc in Hg;
+         remember (Z.gcd (' k) (nz_valnum nz + Z.of_nat n)) as a;
+         pose proof (Z.gcd_divide_r a (' nz_comden nz)) as H; 
+         rewrite Hg in H; destruct H as (c, H); rewrite H; 
+         rewrite Z.div_mul; [ idtac | assumption ]; 
+         eapply gcd_mul_pos; eassumption).
+   assert (0 < Pos.to_nat k / Z.to_nat g)%nat as A₅
+    by (unfold gcd_nz in Hg;
+         pose proof
+          (Z.gcd_divide_r
+             (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) 
+             (' k)) as H; rewrite Hg in H; rewrite <- Z2Nat.inj_pos;
+         destruct H as (c, H); rewrite H; rewrite Z2Nat.inj_mul;
+         [ rewrite Nat.div_mul; [ idtac | assumption ]; apply Nat.neq_0_lt_0;
+            eapply gcd_mul_ne_0; eassumption
+         | eapply gcd_mul_le in Hg; [ idtac | eassumption ]; destruct Hg;
+            assumption
+         | eapply gcd_mul_le in Hg; [ idtac | eassumption ]; destruct Hg;
+            assumption ]).
+   assert (0 < ' Z.to_pos (' nz_comden nz / g))%Z as A₆
+    by (rewrite Z2Pos.id; assumption).
    remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
    remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
    unfold gcd_nz; simpl.
@@ -3350,17 +3376,15 @@ destruct ps as [nz'| ]; simpl.
    subst m.
    rewrite normalised_series_first_nonzero.
     constructor; simpl.
-     Focus 1.
      do 2 rewrite Z.add_0_r.
      unfold gcd_nz; simpl.
      do 2 rewrite Z.add_0_r.
      rewrite Hs in Hk₁.
-     symmetry in Hk, Hg.
+     symmetry in Hk.
      erewrite normalised_shrink_factor in Hk₁; try eassumption.
      remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
      rewrite Hcg in Hg₂.
      remember Hg as Hg_v; clear HeqHg_v.
-     symmetry in Hg.
      unfold gcd_nz in Hg.
      rewrite <- Hvn in Hg.
      remember (Z.gcd vn (' nz_comden nz)) as g₃ eqn:Hg₃ .
@@ -3369,47 +3393,26 @@ destruct ps as [nz'| ]; simpl.
      rewrite Hs.
      erewrite normalised_shrink_factor; try eassumption.
      rewrite Hg₃ in Hg.
-     apply Z_gcd3_div_gcd3 in Hg.
-      rewrite Z2Pos.id in Hg₂.
-       rewrite <- Hg₂ in Hg.
-       rewrite Hk₁ in Hg₁.
-       rewrite Zposnat2Znat in Hg₁.
-        rewrite div_Zdiv in Hg₁.
-         rewrite positive_nat_Z in Hg₁.
-         rewrite Z2Nat.id in Hg₁.
-          rewrite Hg in Hg₁.
-          subst g₁.
-          do 2 rewrite Z.div_1_r.
-          rewrite Z2Pos.id.
-           simpl.
-           rewrite Hcg.
-           rewrite Z2Pos.id.
-            rewrite <- Hg₂.
-            rewrite normalise_series_0_1.
-            erewrite normalised_shrink_factor; try eassumption; reflexivity.
+     symmetry in Hg.
+     apply Z_gcd3_div_gcd3 in Hg; [ idtac | assumption ].
+     rewrite Z2Pos.id in Hg₂; [ idtac | assumption ].
+     rewrite <- Hg₂ in Hg.
+     rewrite Hk₁ in Hg₁.
+     rewrite Zposnat2Znat in Hg₁; [ idtac | assumption ].
+     rewrite div_Zdiv in Hg₁; [ idtac | assumption ].
+     rewrite positive_nat_Z in Hg₁.
+     rewrite Z2Nat.id in Hg₁; [ idtac | assumption ].
+     rewrite Hg in Hg₁; subst g₁.
+     do 2 rewrite Z.div_1_r.
+     rewrite Hcg.
+     rewrite Z2Pos.id; [ simpl | assumption ].
+     rewrite Z2Pos.id; [ idtac | assumption ].
+     rewrite <- Hg₂.
+     rewrite normalise_series_0_1.
+     erewrite normalised_shrink_factor; try eassumption; reflexivity.
 
-            unfold gcd_nz in Hg_v.
-            rewrite Z.gcd_comm, Z.gcd_assoc in Hg_v.
-            remember (Z.gcd (' k) (nz_valnum nz + Z.of_nat n)) as a.
-            pose proof (Z.gcd_divide_r a (' nz_comden nz)) as H.
-            rewrite Hg_v in H.
-            destruct H as (c, H).
-            rewrite H.
-            rewrite Z.div_mul;
-             eapply gcd_mul_pos; eassumption.
+     Focus 1.
 
-             eapply gcd_pos_ne_0; eassumption.
-
-           rewrite Hcg.
-           unfold gcd_nz in Hg_v.
-           rewrite Z.gcd_comm, Z.gcd_assoc in Hg_v.
-           remember (Z.gcd (' k) (nz_valnum nz + Z.of_nat n)) as a.
-           pose proof (Z.gcd_divide_r a (' nz_comden nz)) as H.
-           rewrite Hg_v in H.
-           destruct H as (c, H).
-           rewrite H.
-           rewrite Z.div_mul.
-            apply Pos2Z.is_pos.
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
