@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.51 2013-10-16 14:37:42 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.52 2013-10-16 15:48:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2772,20 +2772,6 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
  apply Nat.lt_add_lt_sub_l; assumption.
 Qed.
 
-Lemma Pos2Nat_to_pos : ∀ x,
-  (0 < x)%Z
-  → Pos.to_nat (Z.to_pos x) = Z.to_nat x.
-Proof.
-intros x Hx.
-destruct x as [| x| x].
- exfalso; revert Hx; apply Z.lt_irrefl.
-
- reflexivity.
-
- exfalso; apply Z.nle_gt in Hx.
- apply Hx, Pos2Z.neg_is_nonpos.
-Qed.
-
 (* peut-être pas nécessaire... *)
 Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
   normalise_nz fld nz = NonZero nz'
@@ -3282,34 +3268,6 @@ destruct (Nbar.lt_dec (fin i) (stop ns)) as [H₁| H₁].
  rewrite Nat.sub_diag, Nat.sub_0_r.
  rewrite divmod_div.
  rewrite Nat.div_1_r; assumption.
-Qed.
-
-Lemma Z_gcd3_div_gcd3 : ∀ a b c g,
-  g ≠ 0%Z
-  → g = Z.gcd (Z.gcd a b) c
-    → Z.gcd (Z.gcd (a / g) (b / g)) (c / g) = 1%Z.
-Proof.
-intros a b c g Hg Hgabc.
-rewrite Z.gcd_div_factor.
- rewrite Z.gcd_div_factor.
-  rewrite <- Hgabc.
-  rewrite Z.div_same; [ reflexivity | assumption ].
-
-  pose proof (Z.gcd_nonneg (Z.gcd a b) c) as H.
-  rewrite <- Hgabc in H; clear Hgabc; omega.
-
-  subst g; apply Z.gcd_divide_l.
-
-  subst g; apply Z.gcd_divide_r.
-
- pose proof (Z.gcd_nonneg (Z.gcd a b) c) as H.
- rewrite <- Hgabc in H; clear Hgabc; omega.
-
- subst g.
- etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_l ].
-
- subst g.
- etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
 Qed.
 
 Lemma normalise_nz_is_projection : ∀ nz,

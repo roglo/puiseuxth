@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.67 2013-10-16 04:08:09 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.68 2013-10-16 15:48:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1128,4 +1128,46 @@ apply Z_div_pos.
  apply Z.lt_gt, Pos2Z.is_pos.
 
  apply Pos2Z.is_nonneg.
+Qed.
+
+Lemma Pos2Nat_to_pos : ∀ x,
+  (0 < x)%Z
+  → Pos.to_nat (Z.to_pos x) = Z.to_nat x.
+Proof.
+intros x Hx.
+destruct x as [| x| x].
+ exfalso; revert Hx; apply Z.lt_irrefl.
+
+ reflexivity.
+
+ exfalso; apply Z.nle_gt in Hx.
+ apply Hx, Pos2Z.neg_is_nonpos.
+Qed.
+
+Lemma Z_gcd3_div_gcd3 : ∀ a b c g,
+  g ≠ 0%Z
+  → g = Z.gcd (Z.gcd a b) c
+    → Z.gcd (Z.gcd (a / g) (b / g)) (c / g) = 1%Z.
+Proof.
+intros a b c g Hg Hgabc.
+rewrite Z.gcd_div_factor.
+ rewrite Z.gcd_div_factor.
+  rewrite <- Hgabc.
+  rewrite Z.div_same; [ reflexivity | assumption ].
+
+  pose proof (Z.gcd_nonneg (Z.gcd a b) c) as H.
+  rewrite <- Hgabc in H; clear Hgabc; omega.
+
+  subst g; apply Z.gcd_divide_l.
+
+  subst g; apply Z.gcd_divide_r.
+
+ pose proof (Z.gcd_nonneg (Z.gcd a b) c) as H.
+ rewrite <- Hgabc in H; clear Hgabc; omega.
+
+ subst g.
+ etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_l ].
+
+ subst g.
+ etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
 Qed.
