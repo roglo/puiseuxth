@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.857 2013-10-16 22:15:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.858 2013-10-16 23:14:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1360,7 +1360,39 @@ split.
  exists i; assumption.
 Qed.
 
-(* vraiment intéressant... à voir...
+Lemma first_nonzero_succ : ∀ s n,
+  first_nonzero fld s (S n) =
+  match first_nonzero fld s n with
+  | fin O => first_nonzero fld s (S n)
+  | fin (S m) => fin m
+  | ∞ => ∞
+  end.
+Proof.
+intros s n.
+remember (first_nonzero fld s n) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ].
+ destruct m as [| m]; [ reflexivity | idtac ].
+ apply first_nonzero_iff in Hm.
+ apply first_nonzero_iff.
+ destruct Hm as (Hz, Hnz).
+ split.
+  intros i Him.
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+  apply Hz.
+  apply -> Nat.succ_lt_mono; assumption.
+
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+  assumption.
+
+ apply first_nonzero_iff in Hm.
+ apply first_nonzero_iff.
+ intros i.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+ apply Hm.
+Qed.
+
+(* vraiment intéressant... à voir... *)
 Lemma shrink_factor_stretch : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) ≠ ∞
@@ -1382,6 +1414,13 @@ destruct kn as [| kn].
   reflexivity.
 
   rewrite <- Hkn.
+  remember (stretch_series fld k s) as s₁.
+  remember (shrink_factor fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
+  symmetry in Hk₁.
+  apply shrink_factor_iff in Hk₁.
+  remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m as [m| ].
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (stretch_series fld k s) as t.
