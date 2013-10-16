@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.47 2013-10-16 13:13:24 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.48 2013-10-16 13:31:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3411,7 +3411,17 @@ destruct ps as [nz'| ]; simpl.
      rewrite Z2Pos.id; [ idtac | assumption ].
      reflexivity.
 
-     Focus 1.
+     constructor; intros i.
+     rewrite normalise_series_0_1 in |- * at 1.
+     unfold gcd_nz; simpl.
+     rewrite normalise_series_0_1.
+     do 2 rewrite Z.div_1_r.
+     rewrite Pos2Z.id.
+     reflexivity.
+
+    rewrite Hs.
+    apply normalised_series_first_nonzero; assumption.
+
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
