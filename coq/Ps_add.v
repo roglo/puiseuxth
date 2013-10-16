@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.49 2013-10-16 13:36:58 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.50 2013-10-16 13:42:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3312,7 +3312,8 @@ rewrite Z.gcd_div_factor.
  etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
 Qed.
 
-Lemma www : ∀ ps, normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
+Lemma normalise_is_projection : ∀ ps,
+  normalise_ps (normalise_ps ps) ≈ normalise_ps ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
@@ -3426,7 +3427,26 @@ destruct ps as [nz'| ]; simpl.
    rewrite Hn in Hps.
    discriminate Hps.
 
-bbb.
+  rename Hn into Hm.
+  unfold normalise_nz in Hps.
+  remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ]; [ idtac | reflexivity ].
+  constructor; simpl.
+  injection Hps; clear Hps; intros; subst nz'; simpl.
+  simpl in Hm.
+  remember (shrink_factor fld (nz_terms nz) n) as k eqn:Hk .
+  remember (gcd_nz n k nz) as g eqn:Hg .
+  symmetry in Hg.
+  constructor; intros i.
+  apply first_nonzero_iff in Hm.
+  simpl in Hm.
+  rewrite Hm.
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
+
+ rewrite Hps; reflexivity.
+Qed.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
