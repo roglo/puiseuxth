@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.43 2013-10-15 20:04:38 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.44 2013-10-16 04:08:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2939,6 +2939,24 @@ destruct (Z_dec 0 g) as [[H| H]| H].
  exfalso; revert Hg; apply Zpos_ne_0.
 Qed.
 
+Lemma gcd_pos_ne_0 : ∀ a b g,
+  Z.gcd a (' b) = g
+  → (g ≠ 0)%Z.
+Proof.
+intros a b g Hg.
+destruct (Z_dec 0 g) as [[H| H]| H].
+ intros HH; rewrite HH in H.
+ revert H; apply Z.lt_irrefl.
+
+ intros HH; rewrite HH in H.
+ apply Z.gt_lt in H.
+ revert H; apply Z.lt_irrefl.
+
+ rewrite <- H in Hg.
+ apply Z.gcd_eq_0_r in Hg.
+ exfalso; revert Hg; apply Zpos_ne_0.
+Qed.
+
 Lemma Z2Nat_gcd_ne_0 : ∀ a b g,
   Z.gcd a (' b) = g
   → (Z.to_nat g ≠ 0)%nat.
@@ -2964,6 +2982,23 @@ destruct c as [| c| c].
  exfalso; revert Hb; apply Zpos_ne_0.
 
  apply Pos2Nat_ne_0.
+
+ exfalso; apply Z.nlt_ge in Hc.
+ apply Hc, Pos2Z.neg_is_neg.
+Qed.
+
+Lemma gcd_mul_pos : ∀ a b c g,
+  Z.gcd a (' b) = g
+  → (' b = c * g)%Z
+    → (0 < c)%Z.
+Proof.
+intros a b c g Hg Hb.
+eapply gcd_mul_le in Hg; [ idtac | eassumption ].
+destruct Hg as (Hg, Hc).
+destruct c as [| c| c].
+ exfalso; revert Hb; apply Zpos_ne_0.
+
+ apply Pos2Z.is_pos.
 
  exfalso; apply Z.nlt_ge in Hc.
  apply Hc, Pos2Z.neg_is_neg.
@@ -3215,15 +3250,6 @@ destruct m as [m| ]; simpl.
    apply Z.opp_nonpos_nonneg, Z.le_0_1.
 Qed.
 
-Lemma Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
-Proof.
-intros x y.
-apply Z_div_pos.
- apply Z.lt_gt, Pos2Z.is_pos.
-
- apply Pos2Z.is_nonneg.
-Qed.
-
 Lemma normalise_series_0_1 : ∀ s : series α, normalise_series 0 1 s ≃ s.
 Proof.
 intros s.
@@ -3361,6 +3387,18 @@ destruct ps as [nz'| ]; simpl.
             rewrite <- Hg₂.
             rewrite normalise_series_0_1.
             erewrite normalised_shrink_factor; try eassumption; reflexivity.
+
+            unfold gcd_nz in Hg_v.
+            rewrite Z.gcd_comm, Z.gcd_assoc in Hg_v.
+            remember (Z.gcd (' k) (nz_valnum nz + Z.of_nat n)) as a.
+            pose proof (Z.gcd_divide_r a (' nz_comden nz)) as H.
+            rewrite Hg_v in H.
+            destruct H as (c, H).
+            rewrite H.
+            rewrite Z.div_mul.
+             eapply gcd_mul_pos; eassumption.
+
+             eapply gcd_pos_ne_0; eassumption.
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,

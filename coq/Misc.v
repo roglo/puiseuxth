@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.66 2013-10-10 09:48:33 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.67 2013-10-16 04:08:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1119,4 +1119,13 @@ destruct (zerop (m mod S p)) as [Hz| Hnz].
    rewrite Nat.mul_1_r, Heqr.
    apply Nat.mod_upper_bound.
    intros H; discriminate H.
+Qed.
+
+Lemma Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
+Proof.
+intros x y.
+apply Z_div_pos.
+ apply Z.lt_gt, Pos2Z.is_pos.
+
+ apply Pos2Z.is_nonneg.
 Qed.
