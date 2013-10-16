@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.44 2013-10-16 04:08:10 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.45 2013-10-16 12:01:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3395,10 +3395,21 @@ destruct ps as [nz'| ]; simpl.
             rewrite Hg_v in H.
             destruct H as (c, H).
             rewrite H.
-            rewrite Z.div_mul.
+            rewrite Z.div_mul;
              eapply gcd_mul_pos; eassumption.
 
              eapply gcd_pos_ne_0; eassumption.
+
+           rewrite Hcg.
+           unfold gcd_nz in Hg_v.
+           rewrite Z.gcd_comm, Z.gcd_assoc in Hg_v.
+           remember (Z.gcd (' k) (nz_valnum nz + Z.of_nat n)) as a.
+           pose proof (Z.gcd_divide_r a (' nz_comden nz)) as H.
+           rewrite Hg_v in H.
+           destruct H as (c, H).
+           rewrite H.
+           rewrite Z.div_mul.
+            apply Pos2Z.is_pos.
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
