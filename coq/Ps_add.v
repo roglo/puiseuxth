@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.53 2013-10-16 18:20:13 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.54 2013-10-16 22:15:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,15 +36,12 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
 
 (* for a possible redefinition of ps_add, or perhaps to change a
    representation for another to manage to make proofs... *)
-(* mmm... bizarre... nz_valnum n'a pas l'air de coller avec la définition
-   dans nz_add et adjust_series... à voir
 Definition adjust_nz n k nz :=
   {| nz_terms := series_shift fld n (stretch_series fld k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
-*)
 
-(* à voir...
+(*
 Theorem glop : ∀ nz n k,
   NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
@@ -59,17 +56,31 @@ symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
  rewrite shrink_factor_shift.
-aaa.
- rewrite shrink_factor_stretch; [ idtac | assumption | idtac ].
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
  rewrite Z.sub_add.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  rewrite <- Z.mul_add_distr_r.
- rewrite Pos2Z.inj_mul.
  rewrite Z.mul_comm.
- rewrite Z.div_mul_cancel_l; try apply Zpos_ne_0; reflexivity.
-aaa.
+ rewrite shrink_factor_stretch.
+  unfold gcd_nz.
+  remember (' k)%Z as kp.
+  simpl.
+  rewrite Nat2Z.inj_add.
+  rewrite Z.sub_add_simpl_r_r.
+  rewrite Nat2Z.inj_mul.
+  rewrite positive_nat_Z.
+  rewrite <- Z.mul_add_distr_r.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.gcd_mul_mono_r_nonneg.
+   rewrite Pos.mul_comm.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.gcd_mul_mono_r_nonneg.
+    rewrite Z.mul_comm.
+    subst kp.
+    rewrite Z.div_mul_cancel_r.
+     reflexivity.
+bbb.
 *)
 
 Definition adjust_series n k s :=

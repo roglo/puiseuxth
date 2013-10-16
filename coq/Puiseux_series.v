@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.856 2013-10-16 15:19:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.857 2013-10-16 22:15:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1360,14 +1360,14 @@ split.
  exists i; assumption.
 Qed.
 
-(* mouais... faut voir...
-Lemma shrink_factor_stretch : ∀ s b k,
-  first_nonzero fld s 0 = fin b
-  → first_nonzero fld s (S b) ≠ ∞
-    → shrink_factor fld (stretch_series fld k s) (b * Pos.to_nat k) =
-      (k * shrink_factor fld s b)%positive.
+(* vraiment intéressant... à voir...
+Lemma shrink_factor_stretch : ∀ s n k,
+  first_nonzero fld s 0 = fin n
+  → first_nonzero fld s (S n) ≠ ∞
+    → shrink_factor fld (stretch_series fld k s) (n * Pos.to_nat k) =
+      (k * shrink_factor fld s n)%positive.
 Proof.
-intros s b k Hb Hsb.
+intros s n k Hn Hsn.
 remember (Pos.to_nat k) as kn eqn:Hkn .
 symmetry in Hkn.
 destruct kn as [| kn].
@@ -1382,6 +1382,7 @@ destruct kn as [| kn].
   reflexivity.
 
   rewrite <- Hkn.
+bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (stretch_series fld k s) as t.
   remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
