@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.48 2013-10-16 13:31:30 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.49 2013-10-16 13:36:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3421,6 +3421,10 @@ destruct ps as [nz'| ]; simpl.
 
     rewrite Hs.
     apply normalised_series_first_nonzero; assumption.
+
+   unfold normalise_nz in Hps.
+   rewrite Hn in Hps.
+   discriminate Hps.
 
 bbb.
 
