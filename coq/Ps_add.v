@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.52 2013-10-16 15:48:16 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.53 2013-10-16 18:20:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,7 +37,7 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
 (* for a possible redefinition of ps_add, or perhaps to change a
    representation for another to manage to make proofs... *)
 (* mmm... bizarre... nz_valnum n'a pas l'air de coller avec la définition
-   dans build_nz_add et adjust_series... à voir
+   dans nz_add et adjust_series... à voir
 Definition adjust_nz n k nz :=
   {| nz_terms := series_shift fld n (stretch_series fld k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
@@ -93,7 +93,7 @@ Definition nz_valnum_add (nz₁ nz₂ : nz_ps α) :=
   let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
   Z.min v₁ v₂.
 
-Definition build_nz_add (nz₁ nz₂ : nz_ps α) :=
+Definition nz_add (nz₁ nz₂ : nz_ps α) :=
   {| nz_terms := nz_terms_add nz₁ nz₂;
      nz_valnum := nz_valnum_add nz₁ nz₂;
      nz_comden := cm nz₁ nz₂ |}.
@@ -102,7 +102,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
   | NonZero nz₁ =>
       match ps₂ with
-      | NonZero nz₂ => NonZero (build_nz_add nz₁ nz₂)
+      | NonZero nz₂ => NonZero (nz_add nz₁ nz₂)
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -270,8 +270,7 @@ apply Pos.mul_comm.
 Qed.
 
 Lemma gcd_nz_add_comm : ∀ nz₁ nz₂ n k,
-  gcd_nz n k (build_nz_add nz₁ nz₂)%Z =
-  gcd_nz n k (build_nz_add nz₂ nz₁)%Z.
+  gcd_nz n k (nz_add nz₁ nz₂)%Z = gcd_nz n k (nz_add nz₂ nz₁)%Z.
 Proof.
 intros nz₁ nz₂ n k.
 unfold gcd_nz; simpl.
@@ -282,8 +281,8 @@ Qed.
 
 Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
   eq_norm_ps fld
-    (normalise_nz fld (build_nz_add nz₁ nz₂))
-    (normalise_nz fld (build_nz_add nz₂ nz₁)).
+    (normalise_nz fld (nz_add nz₁ nz₂))
+    (normalise_nz fld (nz_add nz₂ nz₁)).
 Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
@@ -405,12 +404,12 @@ destruct (Z.min_dec x y) as [H₁| H₁].
 Qed.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  nz_terms_add (build_nz_add nz₁ nz₂) nz₃ ≃
-  nz_terms_add nz₁ (build_nz_add nz₂ nz₃).
+  nz_terms_add (nz_add nz₁ nz₂) nz₃ ≃
+  nz_terms_add nz₁ (nz_add nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃.
 constructor; intros i.
-unfold build_nz_add; simpl.
+unfold nz_add; simpl.
 unfold cm_factor, cm.
 unfold nz_terms_add; simpl.
 unfold nz_valnum_add; simpl.
@@ -466,8 +465,8 @@ Definition terms_add ps₁ ps₂ :=
   end.
 
 Lemma gcd_nz_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
-  gcd_nz n k (build_nz_add (build_nz_add nz₁ nz₂) nz₃)%Z =
-  gcd_nz n k (build_nz_add nz₁ (build_nz_add nz₂ nz₃))%Z.
+  gcd_nz n k (nz_add (nz_add nz₁ nz₂) nz₃)%Z =
+  gcd_nz n k (nz_add nz₁ (nz_add nz₂ nz₃))%Z.
 Proof.
 intros nz₁ nz₂ nz₃ n k.
 unfold gcd_nz; simpl.
@@ -486,13 +485,13 @@ Qed.
 
 Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps fld
-    (normalise_nz fld (build_nz_add (build_nz_add nz₁ nz₂) nz₃))
-    (normalise_nz fld (build_nz_add nz₁ (build_nz_add nz₂ nz₃))).
+    (normalise_nz fld (nz_add (nz_add nz₁ nz₂) nz₃))
+    (normalise_nz fld (nz_add nz₁ (nz_add nz₂ nz₃))).
 Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
-remember (first_nonzero fld (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) 0) as n.
+remember (first_nonzero fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
@@ -522,25 +521,10 @@ destruct n as [n| ]; constructor; simpl.
  reflexivity.
 Qed.
 
-(*
-Lemma nz_add_assoc_base : ∀ nz₁ nz₂ nz₃,
-  nz_add (build_nz_add nz₁ nz₂) nz₃ ≈
-  nz_add nz₁ (build_nz_add nz₂ nz₃).
-Proof.
-intros nz₁ nz₂ nz₃.
-unfold nz_add.
-rewrite nz_terms_add_assoc.
-remember (nz_terms_add nz₁ (build_nz_add nz₂ nz₃)) as nz.
-remember (first_nonzero fld nz) as n eqn:Hn ; subst nz.
-destruct n as [n| ]; [ constructor | reflexivity ].
-apply nz_norm_add_assoc.
-Qed.
-*)
-
 Delimit Scope ps_scope with ps.
 Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a ∔ b" := (build_nz_add a b) (at level 70).
+Notation "a ∔ b" := (nz_add a b) (at level 70).
 
 Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
@@ -632,440 +616,6 @@ destruct (lt_dec i n) as [H₂| H₂]; [ reflexivity | idtac ].
 exfalso; apply H₂.
 apply Nbar.fin_lt_mono; assumption.
 Qed.
-
-(* à voir...
-Lemma ps_cons : ∀ nz,
-  series_nth_fld fld 0 (nz_terms_add (nz_head nz) (nz_tail nz)) ≭ zero fld
-  → nz_add (nz_head nz) (nz_tail nz) ≈ NonZero nz.
-Proof.
-intros nz Hzz.
-remember (nz_terms_add (nz_head nz) (nz_tail nz)) as s.
-remember (first_nonzero fld s) as n eqn:Hn ; subst s.
-symmetry in Hn.
-destruct n as [[| n]| ].
- destruct (Nbar.eq_dec (stop (nz_terms nz)) (fin 0)) as [Hst| Hst].
-  unfold nz_add.
-  rewrite Hn.
-  constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
-   rewrite stretch_series_1.
-   constructor; intros i.
-   rewrite stop_0_series_nth_stretch_0; [ idtac | assumption ].
-   unfold series_nth_fld; simpl.
-   unfold nz_head, nz_tail; simpl.
-   rewrite Hst; simpl.
-   rewrite Hst; simpl.
-   rewrite Z.sub_diag; simpl.
-   destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁]; [ idtac | reflexivity ].
-   apply Nbar.nle_gt in H₁.
-   exfalso; apply H₁, Nbar.le_0_l.
-
-   unfold nz_head, nz_tail; simpl.
-   rewrite Hst.
-   rewrite Z.mul_1_r.
-   rewrite Z.min_id; reflexivity.
-
-   unfold nz_head, nz_tail; simpl.
-   rewrite Hst.
-   rewrite Pos.mul_1_r; reflexivity.
-
-  unfold nz_add.
-  rewrite Hn.
-  constructor 1 with (k₁ := xH) (k₂ := nz_comden nz); simpl.
-   rewrite stretch_series_1.
-   constructor; intros i.
-   remember (nz_terms_add fld (nz_head nz) (nz_tail nz)) as s₁ eqn:Hs₁ .
-   remember (stretch_series fld (nz_comden nz) (nz_terms nz)) as s₂ eqn:Hs₂ .
-   unfold series_nth_fld; simpl.
-   destruct (Nbar.lt_dec (fin i) (stop s₁)) as [H₁| H₁].
-    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [H₂| H₂].
-     subst s₁ s₂; simpl.
-     unfold nz_head, nz_tail; simpl.
-     remember (stop (nz_terms nz)) as st.
-     symmetry in Heqst.
-     destruct st as [st| ]; simpl in H₁, H₂ |- *.
-      destruct st as [| st]; [ negation Hst | simpl in H₁ |- * ].
-      rewrite Z.mul_add_distr_r, Z.mul_1_l.
-      rewrite Z.sub_add_distr, Z.sub_diag.
-      rewrite Z.add_simpl_l; simpl.
-      rewrite series_shift_0.
-      destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
-       apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-       destruct Hz as (k, Hi); subst i.
-       rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-       unfold series_head, series_tail; simpl.
-       rewrite Heqst; simpl.
-       rewrite Nat.sub_0_r.
-       remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
-       unfold series_nth_fld; simpl.
-       rewrite Nat.add_0_r.
-       rewrite <- Hc.
-       rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-       rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-       rewrite Nat.mul_comm, <- Nat.mul_pred_r.
-       destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [H₃| H₃].
-        remember (c * k)%nat as x.
-        rewrite Nat.mul_comm, <- Nat.mul_succ_r; subst x.
-        destruct (Nbar.lt_dec (fin (c * k)) (fin (c * S st))) as [H₄| H₄].
-         destruct (lt_dec (c * k) c) as [H₅| H₅].
-          unfold series_nth_fld; simpl.
-          rewrite Heqst.
-          rewrite fld_add_comm, fld_add_0_l.
-          destruct (Nbar.lt_dec (fin k) 1) as [H₆| H₆].
-           destruct (Nbar.lt_dec (fin k) (fin (S st))) as [| H₇].
-            reflexivity.
-
-            exfalso; apply H₇; clear H₇.
-            rewrite Heqst, Nbar.fin_inj_mul in H₂.
-            apply <- Nbar.mul_lt_mono_pos_r.
-             rewrite Nbar.mul_comm; eassumption.
-
-             intros H; discriminate H.
-
-             intros H; discriminate H.
-
-             destruct k; [ rewrite Nat.mul_0_r in H₃; assumption | idtac ].
-             apply Nbar.nle_gt in H₆.
-             exfalso; apply H₆.
-             constructor; apply le_n_S, le_0_n.
-
-           apply Nbar.nlt_ge in H₆.
-           destruct k.
-            apply Nbar.nlt_ge in H₆.
-            exfalso; apply H₆; constructor; apply Nat.lt_0_1.
-
-            apply Nbar.nlt_ge in H₃.
-             exfalso; apply H₃.
-
-             constructor.
-             rewrite Nat.mul_comm; simpl.
-             apply le_plus_l.
-
-          destruct k.
-           exfalso; apply H₅; rewrite Nat.mul_0_r; subst c.
-           apply Pos2Nat.is_pos.
-
-           unfold series_nth_fld; simpl.
-           rewrite Nat.mul_comm.
-           rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-           rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-           destruct (Nbar.lt_dec (fin (S k)) 1) as [H₆| H₆].
-            apply Nbar.nlt_ge in H₆.
-             exfalso; apply H₆.
-
-             constructor; apply le_n_S, le_0_n.
-
-            rewrite fld_add_0_l.
-            rewrite Heqst.
-            destruct (Nbar.lt_dec (fin k) (fin st)) as [H₇| H₇].
-             destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
-              reflexivity.
-
-              exfalso; apply H₈.
-              constructor; apply lt_n_S.
-              inversion H₇; assumption.
-
-             destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₈| H₈].
-              exfalso; apply H₇.
-              constructor; apply lt_S_n.
-              inversion H₈; assumption.
-
-              reflexivity.
-
-         rewrite Heqst in H₂.
-         replace (c * S st)%nat with (S st * c)%nat in H₄ .
-          contradiction.
-
-          apply Nat.mul_comm.
-
-        rewrite fld_add_0_l.
-        rewrite <- Nat.mul_succ_l.
-        destruct (Nbar.lt_dec (fin (c * k)) (fin (S st * c))) as [H₄| H₄].
-         destruct (lt_dec (c * k) c) as [H₅| H₅].
-          exfalso; apply H₃.
-          constructor; assumption.
-
-          rewrite Nat.mul_comm.
-          rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-          rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-          unfold series_nth_fld; simpl.
-          rewrite Heqst.
-          destruct k.
-           rewrite Nat.mul_0_r in H₅.
-           exfalso; apply H₅; subst c; apply Pos2Nat.is_pos.
-
-           simpl.
-           destruct (Nbar.lt_dec (fin k) (fin st)) as [H₆| H₆].
-            destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₇| H₇].
-             reflexivity.
-
-             exfalso; apply H₇; constructor; apply lt_n_S.
-             inversion H₆; assumption.
-
-            destruct (Nbar.lt_dec (fin (S k)) (fin (S st))) as [H₇| H₇].
-             exfalso; apply H₆; constructor; apply lt_S_n.
-             inversion H₇; assumption.
-
-             reflexivity.
-
-         rewrite Heqst in H₂.
-         contradiction.
-
-       rewrite <- stretch_shift_1_series_distr.
-       rewrite shifted_in_stretched; [ rewrite fld_add_0_l | assumption ].
-       rewrite shifted_in_stretched; [ reflexivity | assumption ].
-
-      rewrite Z.mul_add_distr_r, Z.mul_1_l.
-      rewrite Z.sub_add_distr, Z.sub_diag.
-      rewrite Z.add_simpl_l; simpl.
-      rewrite series_shift_0.
-      destruct (zerop (i mod Pos.to_nat (nz_comden nz))) as [Hz| Hnz].
-       apply Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-       destruct Hz as (k, Hi).
-       subst i.
-       rewrite Nat.mul_comm, Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-       unfold series_head, series_tail; simpl.
-       rewrite Heqst; simpl.
-       remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
-       unfold series_nth_fld; simpl.
-       rewrite Nat.add_0_r.
-       rewrite <- Hc.
-       rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-       rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-       rewrite Nat.mul_comm, <- Nat.mul_pred_r.
-       destruct (Nbar.lt_dec (fin (c * k)) (fin c)) as [H₃| H₃].
-        remember (c * k)%nat as x.
-        rewrite Heqst.
-        destruct (Nbar.lt_dec (fin x) inf) as [H₄| H₄].
-         subst x.
-         destruct (lt_dec (c * k) c) as [H₅| H₅].
-          rewrite fld_add_comm, fld_add_0_l.
-          destruct (Nbar.lt_dec (fin k) inf) as [H₆| H₆].
-           unfold series_nth_fld; simpl.
-           destruct (Nbar.lt_dec (fin k) 1) as [H₇| H₇].
-            reflexivity.
-
-            exfalso; apply H₇.
-            destruct k; [ apply Nbar.lt_0_1 | idtac ].
-            apply Nat.nle_gt in H₅.
-            exfalso; apply H₅.
-            rewrite Nat.mul_comm; simpl.
-            apply Nat.le_add_r.
-
-           exfalso; apply H₆; constructor.
-
-          rewrite Nat.mul_comm.
-          rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-          rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-          destruct (Nbar.lt_dec (fin k) ∞) as [H₆| H₆].
-           destruct k.
-            exfalso; apply H₅; rewrite Nat.mul_0_r.
-            subst c; apply Pos2Nat.is_pos.
-
-            apply Nbar.nle_gt in H₃.
-            exfalso; apply H₃.
-            constructor.
-            rewrite Nat.mul_comm; simpl.
-            apply Nat.le_add_r.
-
-           exfalso; apply H₆.
-           constructor.
-
-         exfalso; apply H₄; constructor.
-
-        rewrite fld_add_0_l.
-        destruct k.
-         exfalso; apply H₃; rewrite Nat.mul_0_r.
-         constructor.
-         subst c; apply Pos2Nat.is_pos.
-
-         destruct (Nbar.lt_dec (fin (c * S k)) ∞) as [H₄| H₄].
-          destruct (lt_dec (c * S k) c) as [H₅| H₅].
-           apply Nat.nle_gt in H₅.
-           exfalso; apply H₅.
-           rewrite Nat.mul_comm; simpl.
-           apply Nat.le_add_r.
-
-           rewrite Nat.mul_comm.
-           rewrite Nat.mod_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-           rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-           rewrite Heqst.
-           destruct (Nbar.lt_dec (fin (S k)) ∞) as [H₆| H₆].
-            unfold series_nth_fld; simpl.
-            destruct (Nbar.lt_dec (fin k) ∞) as [H₇| H₇].
-             reflexivity.
-
-             exfalso; apply H₇; constructor.
-
-            exfalso; apply H₆; constructor.
-
-          exfalso; apply H₄; constructor.
-
-       unfold series_head, series_tail; simpl.
-       unfold series_nth_fld; simpl.
-       unfold series_nth_fld; simpl.
-       rewrite Heqst; simpl.
-       rewrite Nat.add_0_r.
-       remember (Pos.to_nat (nz_comden nz)) as c eqn:Hc .
-       destruct (Nbar.lt_dec (fin i) (fin c)) as [H₃| H₃].
-        destruct (zerop (i mod c)) as [Hz| Hnz₂].
-         rewrite Hz in Hnz.
-         exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-         rewrite fld_add_0_l.
-         destruct (Nbar.lt_dec (fin i) ∞) as [H₄| H₄].
-          destruct (lt_dec i c) as [H₅| H₅].
-           reflexivity.
-
-           apply Nbar.fin_lt_mono in H₃.
-           contradiction.
-
-          reflexivity.
-
-        rewrite fld_add_0_l.
-        destruct (Nbar.lt_dec (fin i) ∞) as [H₄| H₄].
-         destruct (lt_dec i c) as [H₅| H₅].
-          reflexivity.
-
-          destruct (zerop ((i - c) mod c)) as [H₆| H₆].
-           apply Nat.mod_divides in H₆.
-            destruct H₆ as (k, Hic).
-            rewrite Hic.
-            rewrite Nat.mul_comm.
-            rewrite Nat.div_mul; [ simpl | subst c; apply Pos2Nat_ne_0 ].
-            apply Nat.nlt_ge in H₅.
-            destruct k.
-             rewrite Nat.mul_0_r in Hic.
-             apply Nat.sub_0_le in Hic.
-             apply Nat.le_antisymm in Hic; [ idtac | assumption ].
-             rewrite Hic in Hnz.
-             destruct i.
-              simpl in Hnz.
-              exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-              rewrite Nat.mod_same in Hnz.
-               exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-               intros H; discriminate H.
-
-             apply Nat.add_sub_eq_nz in Hic.
-              rewrite Nat.add_comm in Hic.
-              rewrite <- Nat.mul_succ_r in Hic.
-              rewrite <- Hic in Hnz.
-              rewrite Nat.mul_comm in Hnz.
-              rewrite Nat.mod_mul in Hnz.
-               exfalso; revert Hnz; apply Nat.lt_irrefl.
-
-               subst c; apply Pos2Nat_ne_0.
-
-              apply Nat.neq_mul_0.
-              split; [ idtac | intros H; discriminate H ].
-              subst c; apply Pos2Nat_ne_0.
-
-            subst c; apply Pos2Nat_ne_0.
-
-           reflexivity.
-
-         reflexivity.
-
-     clear Hn.
-     rewrite Hs₂ in H₂.
-     simpl in H₂.
-     apply Nbar.nlt_ge in H₂.
-     rewrite Hs₁ in H₁.
-     simpl in H₁.
-     unfold nz_head, nz_tail in H₁.
-     remember (stop (nz_terms nz)) as st.
-     symmetry in Heqst.
-     destruct st as [st| ].
-      destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
-      simpl in H₁.
-      rewrite Heqst in H₁.
-      simpl in H₁.
-      rewrite Nat.add_0_r in H₁.
-      rewrite Nat.sub_0_r in H₁.
-      rewrite Z.mul_add_distr_r, Z.mul_1_l in H₁.
-      rewrite Z.sub_add_distr, Z.sub_diag in H₁.
-      rewrite Z.add_simpl_l in H₁; simpl in H₁.
-      rewrite Nat.add_0_r in H₁.
-      rewrite Nat.max_r in H₁.
-       rewrite <- Nat.mul_succ_l in H₁.
-       rewrite Nbar.fin_inj_mul in H₁.
-       apply Nbar.nlt_ge in H₂.
-       contradiction.
-
-       rewrite Nat.add_comm; apply Nat.le_add_r.
-
-      apply Nbar.nlt_ge in H₂.
-      exfalso; apply H₂; constructor.
-
-    destruct (Nbar.lt_dec (fin i) (stop s₂)) as [H₂| H₂].
-     subst s₁ s₂.
-     simpl in H₁, H₂.
-     unfold nz_head, nz_tail in H₁; simpl in H₁.
-     remember (stop (nz_terms nz)) as st.
-     symmetry in Heqst.
-     destruct st as [st| ].
-      destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
-      simpl in H₁.
-      rewrite Heqst in H₁; simpl in H₁.
-      rewrite Nat.add_0_r, Nat.sub_0_r in H₁.
-      rewrite Z.mul_add_distr_r, Z.mul_1_l in H₁.
-      rewrite Z.sub_add_distr, Z.sub_diag in H₁.
-      rewrite Z.add_simpl_l in H₁; simpl in H₁.
-      rewrite Nat.add_0_r in H₁.
-      rewrite Nat.max_r in H₁.
-       rewrite <- Nat.mul_succ_l in H₁.
-       rewrite Nbar.fin_inj_mul in H₁.
-       contradiction.
-
-       rewrite Nat.add_comm; apply Nat.le_add_r.
-
-      simpl in H₁.
-      rewrite Heqst in H₁; simpl in H₁.
-      exfalso; apply H₁; constructor.
-
-     reflexivity.
-
-   rewrite Z.mul_1_r.
-   unfold nz_head, nz_tail; simpl.
-   remember (stop (nz_terms nz)) as st.
-   symmetry in Heqst.
-   destruct st as [st| ]; simpl.
-    destruct st as [| st]; [ exfalso; apply Hst; reflexivity | simpl ].
-    rewrite Z.min_l; [ reflexivity | idtac ].
-    rewrite Z.add_1_r.
-    rewrite Z.mul_succ_l.
-    apply Z.le_sub_le_add_l.
-    rewrite Z.sub_diag.
-    apply Pos2Z.is_nonneg.
-
-    rewrite Z.min_l; [ reflexivity | idtac ].
-    rewrite Z.add_1_r.
-    rewrite Z.mul_succ_l.
-    apply Z.le_sub_le_add_l.
-    rewrite Z.sub_diag.
-    apply Pos2Z.is_nonneg.
-
-   rewrite Pos.mul_1_r.
-   unfold nz_head, nz_tail; simpl.
-   remember (stop (nz_terms nz)) as st.
-   symmetry in Heqst.
-   destruct st as [st| ].
-    destruct st as [| st]; [ exfalso; apply Hst; reflexivity | idtac ].
-    reflexivity.
-
-    reflexivity.
-
- apply first_nonzero_iff in Hn.
- destruct Hn as (Hn, _).
- rewrite Hn in Hzz; [ idtac | apply Nat.lt_0_succ ].
- negation Hzz.
-
- apply first_nonzero_iff in Hn.
- rewrite Hn in Hzz.
- negation Hzz.
-Qed.
-*)
 
 (* à revoir, si nécessaire...
 Lemma stop_head_tail₂ : ∀ nz,
@@ -1218,76 +768,6 @@ destruct (Nbar.lt_dec 0 (stop (nz_terms nz))) as [H₁| H₁].
  destruct (Nbar.lt_dec 0 (stop s)) as [H₂| H₂]; [ idtac | reflexivity ].
  exfalso; apply H₁; subst s.
  apply stop_nz_add_pos_pos; assumption.
-Qed.
-*)
-
-(* à voir...
-Lemma ps_cons2 : ∀ nz,
-  series_nth_fld fld 0 (nz_terms nz) ≭ zero fld
-  → nz_add (nz_head nz) (nz_tail nz) ≈ NonZero nz.
-Proof.
-intros nz Hznz.
-apply ps_cons.
-rewrite <- series_nth_add_head_tail; assumption.
-Qed.
-*)
-
-(* à voir...
-Lemma ps_add_cancel_0_0_l : ∀ nz₁ nz₂ nz₃,
-  first_nonzero fld (nz_terms_add nz₁ nz₂) = 0%Nbar
-  → first_nonzero fld (nz_terms_add nz₁ nz₃) = 0%Nbar
-    → NonZero nz₂ ≈ NonZero nz₃
-      → nz_add nz₁ nz₂ ≈ nz_add nz₁ nz₃.
-Proof.
-intros nz₁ nz₂ nz₃ Hn₂ Hn₃ H₂₃.
-unfold nz_add; simpl.
-rewrite Hn₂, Hn₃.
-inversion H₂₃; subst.
-constructor 1 with (k₁ := k₁) (k₂ := k₂); simpl.
- inversion H1; subst.
- constructor; intros i.
- unfold nz_terms_add.
- unfold cm_factor, cm; simpl.
- do 2 rewrite stretch_series_add_distr.
- do 4 rewrite stretch_shift_series_distr.
- do 4 rewrite <- stretch_stretch_series.
- do 4 rewrite Pos.mul_comm, stretch_stretch_series.
- rewrite H1.
- do 3 rewrite <- stretch_stretch_series.
- rewrite H3.
- do 4 rewrite <- Z2Nat_inj_mul_pos_r.
- do 4 rewrite Z.mul_sub_distr_r.
- rewrite <- Z.mul_assoc.
- rewrite <- Pos2Z.inj_mul.
- rewrite H3.
- rewrite Pos2Z.inj_mul.
- rewrite Z.mul_assoc.
- replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
-  (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
-  reflexivity.
-
-  rewrite Z.mul_shuffle0, <- H2.
-  rewrite Z.mul_shuffle0; reflexivity.
-
- unfold cm_factor; simpl.
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, H3.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- replace (nz_valnum nz₂ * ' nz_comden nz₁ * ' k₁)%Z with
-  (nz_valnum nz₃ * ' nz_comden nz₁ * ' k₂)%Z .
-  reflexivity.
-
-  rewrite <- Z.mul_assoc, Z.mul_comm.
-  rewrite Z.mul_shuffle0.
-  rewrite <- Z.mul_assoc, <- H2.
-  rewrite <- Z.mul_assoc, Z.mul_comm.
-  rewrite <- Z.mul_shuffle0, Z.mul_assoc.
-  reflexivity.
-
- unfold cm.
- rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
- reflexivity.
 Qed.
 *)
 
@@ -1578,9 +1058,9 @@ Definition norm_nz nz₁ nz₂ :=
      nz_comden := cm nz₁ nz₂ |}.
 
 Lemma nz_add_norm : ∀ nz₁ nz₂ v,
-  NonZero (build_nz_add fld v nz₁ nz₂)
+  NonZero (nz_add fld v nz₁ nz₂)
   ≈ NonZero
-      (build_nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
+      (nz_add fld (v * Pos.to_nat (nz_comden nz₁ * nz_comden nz₂))%nat
          (norm_nz nz₁ nz₂) (norm_nz nz₂ nz₁)).
 Proof.
 intros nz₁ nz₂ v.
@@ -1677,9 +1157,9 @@ Definition norm₂_nz (nz₁ nz₂ nz₃ : nz_ps α) :=
      nz_comden := c₁ * c₂ * c₃ |}.
 
 Lemma nz_add_norm₂ : ∀ nz₁ nz₂ nz₃ v,
-  NonZero (build_nz_add fld v nz₁ nz₂)
+  NonZero (nz_add fld v nz₁ nz₂)
   ≈ NonZero
-      (build_nz_add fld
+      (nz_add fld
          (v *
           Pos.to_nat
             (nz_comden nz₁ * nz_comden nz₂ * nz_comden nz₃ * nz_comden nz₃))
@@ -1713,8 +1193,8 @@ mmm.... pas sûr que ce soit bon.
 (*
 Lemma zzz : ∀ nz₁ nz₂ nz₃ n,
   NonZero nz₂ ≈ NonZero nz₃
-  → NonZero (build_nz_add fld 0 nz₁ nz₂)
-    ≈ NonZero (build_nz_add fld n nz₁ nz₃).
+  → NonZero (nz_add fld 0 nz₁ nz₂)
+    ≈ NonZero (nz_add fld n nz₁ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ n H₂₃.
 rewrite nz_add_norm₂ with (nz₃ := nz₃); symmetry.
@@ -1859,32 +1339,6 @@ aaa.
 *)
 
 (*
-Lemma ps_add_cancel_l : ∀ ps₁ ps₂ ps₃,
-  ps₂ ≈ ps₃
-  → ps_add fld ps₁ ps₂ ≈ ps_add fld ps₁ ps₃.
-Proof.
-intros ps₁ ps₂ ps₃ H₂₃.
-destruct ps₁ as [nz₁| ].
- destruct ps₂ as [nz₂| ].
-  destruct ps₃ as [nz₃| ]; simpl.
-   remember (first_nonzero fld (nz_terms_add fld nz₁ nz₂)) as n₂ eqn:Hn₂ .
-   symmetry in Hn₂.
-   destruct n₂ as [n₂| ].
-    revert nz₁ nz₂ nz₃ H₂₃ Hn₂.
-    induction n₂; intros.
-     remember (first_nonzero fld (nz_terms_add fld nz₁ nz₃)) as n₃ eqn:Hn₃ .
-     symmetry in Hn₃.
-     destruct n₃ as [n₃| ].
-      unfold nz_add.
-      rewrite Hn₂, Hn₃.
-aaa.
-      revert nz₁ nz₂ nz₃ H₂₃ Hn₂ Hn₃.
-      induction n₃; intros.
-       apply ps_add_cancel_0_0_l; assumption.
-aaa.
-*)
-
-(*
 Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
   ps₁ ≈ ps₂
   → ps₃ ≈ ps₄
@@ -1899,11 +1353,6 @@ aaa.
  rewrite ps_add_comm; symmetry.
  apply ps_add_cancel_l; assumption.
 Qed.
-*)
-
-(*
-  NonZero (build_nz_add fld n nz₁ nz₂)
-  = ps_add fld (nz_add fld (nz_head nz₁) (nz_tail nz₁)) (Nonzero nz₂).
 *)
 
 (*
