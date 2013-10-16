@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.46 2013-10-16 12:52:44 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.47 2013-10-16 13:13:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -3374,45 +3374,44 @@ destruct ps as [nz'| ]; simpl.
    rewrite Hs in Hm.
    rewrite normalised_series_first_nonzero in Hm; [ idtac | assumption ].
    subst m.
+   rewrite Hs in Hk₁.
+   symmetry in Hk.
+   erewrite normalised_shrink_factor in Hk₁; try eassumption.
+   remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
+   rewrite Hcg in Hg₂.
+   remember Hg as Hg_v; clear HeqHg_v.
+   unfold gcd_nz in Hg.
+   rewrite <- Hvn in Hg.
+   remember (Z.gcd vn (' nz_comden nz)) as g₃ eqn:Hg₃ .
+   rewrite Hg₃ in Hg.
+   symmetry in Hg.
+   apply Z_gcd3_div_gcd3 in Hg; [ idtac | assumption ].
+   rewrite Z2Pos.id in Hg₂; [ idtac | assumption ].
+   rewrite <- Hg₂ in Hg.
+   rewrite Hk₁ in Hg₁.
+   rewrite Zposnat2Znat in Hg₁; [ idtac | assumption ].
+   rewrite div_Zdiv in Hg₁; [ idtac | assumption ].
+   rewrite positive_nat_Z in Hg₁.
+   rewrite Z2Nat.id in Hg₁; [ idtac | assumption ].
+   rewrite Hg in Hg₁; subst g₁.
    rewrite normalised_series_first_nonzero.
     constructor; simpl.
      do 2 rewrite Z.add_0_r.
      unfold gcd_nz; simpl.
      do 2 rewrite Z.add_0_r.
-     rewrite Hs in Hk₁.
-     symmetry in Hk.
-     erewrite normalised_shrink_factor in Hk₁; try eassumption.
-     remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
-     rewrite Hcg in Hg₂.
-     remember Hg as Hg_v; clear HeqHg_v.
-     unfold gcd_nz in Hg.
-     rewrite <- Hvn in Hg.
-     remember (Z.gcd vn (' nz_comden nz)) as g₃ eqn:Hg₃ .
-     move Hg₂ at bottom.
-     move Hg₃ at bottom.
-     rewrite Hs.
-     erewrite normalised_shrink_factor; try eassumption.
-     rewrite Hg₃ in Hg.
-     symmetry in Hg.
-     apply Z_gcd3_div_gcd3 in Hg; [ idtac | assumption ].
-     rewrite Z2Pos.id in Hg₂; [ idtac | assumption ].
-     rewrite <- Hg₂ in Hg.
-     rewrite Hk₁ in Hg₁.
-     rewrite Zposnat2Znat in Hg₁; [ idtac | assumption ].
-     rewrite div_Zdiv in Hg₁; [ idtac | assumption ].
-     rewrite positive_nat_Z in Hg₁.
-     rewrite Z2Nat.id in Hg₁; [ idtac | assumption ].
-     rewrite Hg in Hg₁; subst g₁.
      do 2 rewrite Z.div_1_r.
-     rewrite Hcg.
-     rewrite Z2Pos.id; [ simpl | assumption ].
-     rewrite Z2Pos.id; [ idtac | assumption ].
-     rewrite <- Hg₂.
      rewrite normalise_series_0_1.
-     erewrite normalised_shrink_factor; try eassumption; reflexivity.
+     rewrite Z2Pos.id; [ idtac | assumption ].
+     reflexivity.
+
+     unfold gcd_nz; simpl.
+     do 2 rewrite Z.add_0_r.
+     do 2 rewrite Z.div_1_r.
+     rewrite normalise_series_0_1.
+     rewrite Z2Pos.id; [ idtac | assumption ].
+     reflexivity.
 
      Focus 1.
-
 bbb.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
