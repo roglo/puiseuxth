@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.862 2013-10-17 09:46:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.863 2013-10-17 09:54:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1392,12 +1392,13 @@ destruct m as [m| ].
  apply Hm.
 Qed.
 
-Lemma zzz : ∀ s n p k,
+Lemma first_nonzero_stretch_succ : ∀ s n p k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) = fin p
     → first_nonzero fld (stretch_series fld k s) (S (n * Pos.to_nat k)) =
         fin (S p * Pos.to_nat k - 1).
 Proof.
+(* à nettoyer *)
 intros s n p k Hn Hp.
 remember (stretch_series fld k s) as s₁ eqn:Hs₁ .
 remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
@@ -1502,7 +1503,25 @@ destruct q as [q| ].
    assumption.
 
  exfalso.
-bbb.
+ apply first_nonzero_iff in Hp.
+ destruct Hp as (Hzp, Hnzp).
+ rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnzp.
+ rewrite <- Hs₁ in Hnzp.
+ rewrite Nat.mul_add_distr_l in Hnzp.
+ rewrite Nat.mul_succ_r in Hnzp.
+ rewrite Nat.mul_comm in Hnzp.
+ rewrite Nat.add_shuffle0, <- Nat.add_assoc in Hnzp.
+ rewrite <- Nat.mul_succ_r in Hnzp.
+ remember (Pos.to_nat k) as kn eqn:Hkn .
+ symmetry in Hkn.
+ destruct kn as [| kn].
+  exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+  simpl in Hnzp.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnzp.
+  rewrite Hq in Hnzp.
+  apply Hnzp; reflexivity.
+Qed.
 
 (* vraiment intéressant... à voir... *)
 Lemma shrink_factor_stretch : ∀ s n k,
@@ -1537,7 +1556,7 @@ destruct kn as [| kn].
    remember (first_nonzero fld s (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ]; [ clear Hsn | exfalso; apply Hsn; reflexivity ].
-   erewrite zzz in Hm; try eassumption.
+   erewrite first_nonzero_stretch_succ in Hm; try eassumption.
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (stretch_series fld k s) as t.
