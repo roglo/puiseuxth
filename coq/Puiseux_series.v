@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.859 2013-10-17 06:39:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.860 2013-10-17 08:15:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1396,9 +1396,27 @@ Lemma zzz : ∀ s n p k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) = fin p
     → first_nonzero fld (stretch_series fld k s) (S (n * Pos.to_nat k)) =
-        fin (S (n + p)).
+        fin (S p * Pos.to_nat k - 1).
 Proof.
 intros s n p k Hn Hp.
+remember (stretch_series fld k s) as s₁ eqn:Hs₁ .
+remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
+symmetry in Hq.
+apply first_nonzero_iff in Hq.
+destruct q as [q| ].
+ destruct Hq as (Hzq, Hnzq).
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzq.
+ destruct (zerop (S q mod Pos.to_nat k)) as [H₁| H₁].
+  apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+  destruct H₁ as (q', Hq').
+  rewrite Hq' in Hnzq.
+  rewrite Nat.mul_comm in Hnzq.
+  rewrite <- Nat.mul_add_distr_l in Hnzq.
+  rewrite Hs₁ in Hnzq.
+  rewrite series_nth_fld_mul_stretch in Hnzq.
+  apply first_nonzero_iff in Hp.
+  destruct Hp as (Hzp, Hnzp).
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
 bbb.
 
 (* vraiment intéressant... à voir... *)
