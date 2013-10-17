@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.860 2013-10-17 08:15:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.861 2013-10-17 09:24:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1417,6 +1417,33 @@ destruct q as [q| ].
   apply first_nonzero_iff in Hp.
   destruct Hp as (Hzp, Hnzp).
   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
+  apply Nbar.fin_inj_wd.
+  assert (q' = S p) as H.
+   destruct (lt_eq_lt_dec q' (S p)) as [[H₁| H₁]| H₁].
+    exfalso.
+    destruct (eq_nat_dec q' p) as [H₂| H₂].
+     subst q'.
+     clear H₁.
+     destruct p as [| p].
+      rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
+
+      assert (p < S p)%nat as H by fast_omega .
+      apply Hzp in H.
+      rewrite Nat.add_succ_l, <- Nat.add_succ_r in H.
+      rewrite H in Hnzq; apply Hnzq; reflexivity.
+
+     assert (q' < p)%nat as H by fast_omega H₁ H₂.
+     destruct q' as [| q'].
+      rewrite Nat.mul_0_r in Hq'; discriminate Hq'.
+
+      apply lt_S_n in H₁.
+      apply Hzp in H₁.
+      rewrite Nat.add_succ_l, <- Nat.add_succ_r in H₁.
+      rewrite H₁ in Hnzq; apply Hnzq; reflexivity.
+
+    assumption.
+
+    exfalso.
 bbb.
 
 (* vraiment intéressant... à voir... *)
