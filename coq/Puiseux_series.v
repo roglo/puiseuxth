@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.863 2013-10-17 09:54:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.864 2013-10-17 12:09:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1556,7 +1556,23 @@ destruct kn as [| kn].
    remember (first_nonzero fld s (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ]; [ clear Hsn | exfalso; apply Hsn; reflexivity ].
-   erewrite first_nonzero_stretch_succ in Hm; try eassumption.
+   remember Hm as Hm'; clear HeqHm'.
+   erewrite first_nonzero_stretch_succ in Hm'; try eassumption.
+   rewrite <- Hm' in Hm; clear Hm'.
+   clear m.
+   remember (shrink_factor fld s n) as k₂ eqn:Hk₂ .
+   symmetry in Hk₂.
+   destruct (Z_dec (Zpos k₁) (Zpos (k * k₂))) as [[H₁| H₁]| H₁].
+    Focus 3.
+    injection H₁; clear H₁; intros; subst k₁.
+    reflexivity.
+
+    exfalso.
+    do 2 rewrite <- positive_nat_Z in H₁.
+    apply Nat2Z.inj_lt in H₁.
+    apply Pos2Nat.inj_lt in H₁.
+    apply shrink_factor_iff in Hk₂.
+    rewrite Hp in Hk₂.
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (stretch_series fld k s) as t.
