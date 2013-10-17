@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.858 2013-10-16 23:14:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.859 2013-10-17 06:39:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1392,6 +1392,15 @@ destruct m as [m| ].
  apply Hm.
 Qed.
 
+Lemma zzz : ∀ s n p k,
+  first_nonzero fld s 0 = fin n
+  → first_nonzero fld s (S n) = fin p
+    → first_nonzero fld (stretch_series fld k s) (S (n * Pos.to_nat k)) =
+        fin (S (n + p)).
+Proof.
+intros s n p k Hn Hp.
+bbb.
+
 (* vraiment intéressant... à voir... *)
 Lemma shrink_factor_stretch : ∀ s n k,
   first_nonzero fld s 0 = fin n
@@ -1421,6 +1430,11 @@ destruct kn as [| kn].
   remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
+   rewrite Heqs₁ in Hm.
+   remember (first_nonzero fld s (S n)) as p eqn:Hp .
+   symmetry in Hp.
+   destruct p as [p| ]; [ clear Hsn | exfalso; apply Hsn; reflexivity ].
+   erewrite zzz in Hm; try eassumption.
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (stretch_series fld k s) as t.
