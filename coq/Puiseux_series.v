@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.861 2013-10-17 09:24:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.862 2013-10-17 09:46:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1444,6 +1444,64 @@ destruct q as [q| ].
     assumption.
 
     exfalso.
+    assert (Pos.to_nat k * S p - 1 < q)%nat as H.
+     Focus 2.
+     apply Hzq in H.
+     rewrite Nat.add_sub_assoc in H.
+      simpl in H.
+      rewrite Nat.sub_0_r in H.
+      rewrite Nat.mul_comm in H.
+      rewrite <- Nat.mul_add_distr_l in H.
+      rewrite Hs₁ in H.
+      rewrite series_nth_fld_mul_stretch in H.
+      rewrite H in Hnzp.
+      apply Hnzp; reflexivity.
+
+      remember (Pos.to_nat k) as kn eqn:Hkn .
+      symmetry in Hkn.
+      destruct kn as [| kn].
+       exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+       simpl; apply le_n_S.
+       apply le_0_n.
+
+     apply plus_lt_reg_l with (p := 1%nat).
+     simpl.
+     rewrite <- Nat.sub_succ_l.
+      simpl.
+      rewrite Nat.sub_0_r.
+      rewrite Hq'.
+      apply mult_lt_compat_l.
+       assumption.
+
+       apply Pos2Nat.is_pos.
+
+      remember (Pos.to_nat k) as kn eqn:Hkn .
+      symmetry in Hkn.
+      destruct kn as [| kn].
+       exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+       simpl; apply le_n_S.
+       apply le_0_n.
+
+   subst q'.
+   rewrite Nat.mul_comm.
+   rewrite <- Hq'.
+   simpl.
+   rewrite Nat.sub_0_r; reflexivity.
+
+  assert (0 < (n * Pos.to_nat k + S q) mod Pos.to_nat k)%nat as H.
+   Focus 2.
+   apply shifted_in_stretched with (s := s) in H.
+   rewrite <- Hs₁ in H.
+   rewrite H in Hnzq.
+   exfalso; apply Hnzq; reflexivity.
+
+   rewrite Nat.add_comm.
+   rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+   assumption.
+
+ exfalso.
 bbb.
 
 (* vraiment intéressant... à voir... *)
