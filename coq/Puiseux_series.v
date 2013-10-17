@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.864 2013-10-17 12:09:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.865 2013-10-17 19:43:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1522,6 +1522,27 @@ destruct q as [q| ].
   rewrite Hq in Hnzp.
   apply Hnzp; reflexivity.
 Qed.
+
+Lemma zzz : ∀ s k,
+  first_nonzero fld s 1 ≠ ∞
+  → shrink_factor fld (stretch_series fld k s) 0 =
+      (k * shrink_factor fld s 0)%positive.
+Proof.
+intros s k H.
+remember (first_nonzero fld s 1) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ clear H | exfalso; apply H; reflexivity ].
+remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
+remember (shrink_factor fld (stretch_series fld k s) 0) as k₂ eqn:Hk₂ .
+symmetry in Hk₁, Hk₂.
+destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
+ exfalso.
+ apply shrink_factor_iff in Hk₂.
+ remember (first_nonzero fld (stretch_series fld k s) 1) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ].
+  simpl in Hk₂.
+bbb.
 
 (* vraiment intéressant... à voir... *)
 Lemma shrink_factor_stretch : ∀ s n k,
