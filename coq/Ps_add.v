@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.55 2013-10-16 23:14:43 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.56 2013-10-18 01:58:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,6 +62,7 @@ constructor; simpl.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  rewrite <- Z.mul_add_distr_r.
  rewrite Z.mul_comm.
+Abort. (*
  rewrite shrink_factor_stretch.
   unfold gcd_nz.
   remember (' k)%Z as kp.
@@ -1565,6 +1566,7 @@ Lemma normalise_series_add_shift : ∀ s n m k,
 Proof.
 intros s n m k.
 unfold normalise_series.
+unfold shrink_series, series_left_shift.
 constructor; intros i.
 unfold series_nth_fld.
 remember Nbar.div_sup as f; simpl; subst f.
@@ -1670,16 +1672,15 @@ split.
   exfalso; apply Hnz; reflexivity.
 Qed.
 
-Definition series_left_shift n (s : series α) :=
-  {| terms i := terms s (i + n);
-     stop := stop s - fin n |}.
-
 Lemma normalised_stretched_series : ∀ s n k,
   shrink_factor fld s n = k
   → stretch_series fld k (normalise_series n k s) ≃ series_left_shift n s.
 Proof.
 intros s n k Hsf.
 unfold normalise_series.
+unfold shrink_series, series_left_shift.
+remember Nbar.div_sup as f; simpl; subst f.
+rewrite Nbar.fold_sub.
 apply shrink_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
@@ -1720,7 +1721,7 @@ destruct n₁ as [n₁| ].
 
      apply Hz in Hik.
      unfold series_nth_fld in Hik.
-     symmetry; rewrite Nat.add_comm.
+     symmetry.
      destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
       assumption.
 
@@ -1807,8 +1808,7 @@ destruct n₁ as [n₁| ].
      apply Hz in Hik.
      unfold series_nth_fld in Hik.
      destruct (Nbar.lt_dec (fin (n + i)) (stop s)) as [H₄| H₄].
-      symmetry; rewrite Nat.add_comm.
-      assumption.
+      symmetry; assumption.
 
       exfalso; apply H₄; clear H₄.
       destruct (Nbar.lt_dec (stop s) (fin n)) as [H₄| H₄].
@@ -1857,7 +1857,7 @@ destruct (lt_dec i n) as [H₃| H₃].
  destruct (Nbar.lt_dec (fin i) (stop s - fin n + fin n)); reflexivity.
 
  apply Nat.nlt_ge in H₃.
- rewrite Nat.sub_add; [ idtac | assumption ].
+ rewrite Nat.add_comm, Nat.sub_add; [ idtac | assumption ].
  destruct (Nbar.lt_dec (fin n) (stop s)) as [H₁| H₁].
   rewrite Nbar.sub_add; [ reflexivity | idtac ].
   apply Nbar.lt_le_incl; assumption.
