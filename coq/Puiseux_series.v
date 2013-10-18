@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.866 2013-10-18 01:58:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.867 2013-10-18 02:01:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -65,7 +65,7 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "x ≤ y < z" :=
   (x <= y ∧ y < z)%nat (at level 70, y at next level) : nat_scope.
 
-Definition stretch_series k s :=
+Definition series_stretch k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then
          series_nth_fld fld (i / Pos.to_nat k) s
@@ -86,7 +86,7 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
-Definition shrink_series k (s : series α) :=
+Definition series_shrink k (s : series α) :=
   {| terms i := terms s (i * Pos.to_nat k);
      stop := Nbar.div_sup (stop s) (fin (Pos.to_nat k)) |}.
 
@@ -95,7 +95,7 @@ Definition series_left_shift n (s : series α) :=
      stop := stop s - fin n |}.
 
 Definition normalise_series n k (s : series α) :=
-  shrink_series k (series_left_shift n s).
+  series_shrink k (series_left_shift n s).
 
 Definition gcd_nz n k (nz : nz_ps α) :=
   Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
@@ -190,10 +190,10 @@ inversion Hlt as [a b H d e| ]; subst.
 exfalso; revert H; apply Nat.nle_succ_0.
 Qed.
 
-Lemma stretch_series_1 : ∀ s, stretch_series 1 s ≃ s.
+Lemma series_stretch_1 : ∀ s, series_stretch 1 s ≃ s.
 Proof.
 intros s.
-unfold stretch_series; simpl.
+unfold series_stretch; simpl.
 constructor; intros i.
 unfold series_nth_fld; simpl.
 rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
@@ -311,7 +311,7 @@ split.
  exists i; assumption.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (stretch_series fld) with 
+Add Parametric Morphism α (fld : field α) : (series_stretch fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
 Proof.
 intros kp s₁ s₂ Heq.
@@ -433,7 +433,7 @@ intros n k ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
 unfold normalise_series.
-unfold shrink_series, series_left_shift.
+unfold series_shrink, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 pose proof (H (n + i * Pos.to_nat k)%nat) as Hi.
@@ -515,12 +515,12 @@ intros ps₁ ps₂ H.
 induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
-Lemma stretch_stretch_series : ∀ a b s,
-  stretch_series fld (a * b) s ≃
-  stretch_series fld a (stretch_series fld b s).
+Lemma stretch_series_stretch : ∀ a b s,
+  series_stretch fld (a * b) s ≃
+  series_stretch fld a (series_stretch fld b s).
 Proof.
 intros ap bp s.
-unfold stretch_series; simpl.
+unfold series_stretch; simpl.
 constructor; simpl.
 intros i.
 unfold series_nth_fld; simpl.
@@ -599,8 +599,8 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   reflexivity.
 Qed.
 
-Lemma stretch_series_series_0 : ∀ k,
-  stretch_series fld k (series_0 fld) ≃ series_0 fld.
+Lemma series_stretch_series_0 : ∀ k,
+  series_stretch fld k (series_0 fld) ≃ series_0 fld.
 Proof.
 intros k.
 constructor; intros i.
@@ -611,8 +611,8 @@ unfold series_nth_fld; simpl.
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
-Lemma stretch_series_0_if : ∀ k s,
-  stretch_series fld k s ≃ series_0 fld
+Lemma series_stretch_0_if : ∀ k s,
+  series_stretch fld k s ≃ series_0 fld
   → s ≃ series_0 fld.
 Proof.
 intros k s Hs.
@@ -651,12 +651,12 @@ destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
 Qed.
 
 Lemma stretch_shift_series_distr : ∀ kp n s,
-  stretch_series fld kp (series_shift fld n s) ≃
-  series_shift fld (n * Pos.to_nat kp) (stretch_series fld kp s).
+  series_stretch fld kp (series_shift fld n s) ≃
+  series_shift fld (n * Pos.to_nat kp) (series_stretch fld kp s).
 Proof.
 intros kp n s.
 constructor; intros i.
-unfold stretch_series, series_nth_fld; simpl.
+unfold series_stretch, series_nth_fld; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -1091,7 +1091,7 @@ aaa.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → series_nth_fld fld i (stretch_series fld k s) = zero fld.
+  → series_nth_fld fld i (series_stretch fld k s) = zero fld.
 Proof.
 intros s k i Hi.
 unfold series_nth_fld; simpl.
@@ -1103,7 +1103,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [Hz| Hnz].
 Qed.
 
 Lemma series_nth_fld_mul_stretch : ∀ s k i,
-  series_nth_fld fld (Pos.to_nat k * i) (stretch_series fld k s) =
+  series_nth_fld fld (Pos.to_nat k * i) (series_stretch fld k s) =
   series_nth_fld fld i s.
 Proof.
 intros s k i.
@@ -1134,7 +1134,7 @@ Qed.
 
 Lemma zero_series_stretched : ∀ s,
   (∀ i : nat, series_nth_fld fld i s ≍ zero fld)
-  → ∀ n k, series_nth_fld fld n (stretch_series fld k s) ≍ zero fld.
+  → ∀ n k, series_nth_fld fld n (series_stretch fld k s) ≍ zero fld.
 Proof.
 intros s H n k.
 unfold series_nth_fld; simpl.
@@ -1148,7 +1148,7 @@ rewrite Nat.div_mul; [ apply H | apply Pos2Nat_ne_0 ].
 Qed.
 
 Lemma zero_stretched_series : ∀ s k,
-  (∀ i : nat, series_nth_fld fld i (stretch_series fld k s) ≍ zero fld)
+  (∀ i : nat, series_nth_fld fld i (series_stretch fld k s) ≍ zero fld)
   → ∀ n, series_nth_fld fld n s ≍ zero fld.
 Proof.
 intros s k H n.
@@ -1160,7 +1160,7 @@ Qed.
 Lemma stretch_finite_series : ∀ s b k,
   (∀ i : nat, series_nth_fld fld (b + i) s ≍ zero fld)
   → ∀ i,
-    series_nth_fld fld (b * Pos.to_nat k + i) (stretch_series fld k s)
+    series_nth_fld fld (b * Pos.to_nat k + i) (series_stretch fld k s)
     ≍ zero fld.
 Proof.
 intros s b k Hz i.
@@ -1178,7 +1178,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Lemma first_nonzero_stretch : ∀ s b k,
-  first_nonzero fld (stretch_series fld k s) (b * Pos.to_nat k) =
+  first_nonzero fld (series_stretch fld k s) (b * Pos.to_nat k) =
     (fin (Pos.to_nat k) * first_nonzero fld s b)%Nbar.
 Proof.
 intros s b k.
@@ -1216,7 +1216,7 @@ destruct n as [n| ]; simpl.
 Qed.
 
 Lemma first_nonzero_stretch_0 : ∀ s k,
-  first_nonzero fld (stretch_series fld k s) 0 =
+  first_nonzero fld (series_stretch fld k s) 0 =
     (fin (Pos.to_nat k) * first_nonzero fld s 0)%Nbar.
 Proof.
 intros s k.
@@ -1226,11 +1226,11 @@ Qed.
 
 (*
 Lemma stretch_succ : ∀ s b k,
-  first_nonzero fld (stretch_series fld k s) (S b * Pos.to_nat k) =
-  first_nonzero fld (stretch_series fld k s) (S (b * Pos.to_nat k)).
+  first_nonzero fld (series_stretch fld k s) (S b * Pos.to_nat k) =
+  first_nonzero fld (series_stretch fld k s) (S (b * Pos.to_nat k)).
 Proof.
 intros s b k.
-remember (stretch_series fld k s) as t.
+remember (series_stretch fld k s) as t.
 remember (first_nonzero fld t (S b * Pos.to_nat k)) as n eqn:Hn .
 subst t.
 symmetry in Hn |- *.
@@ -1403,12 +1403,12 @@ Qed.
 Lemma first_nonzero_stretch_succ : ∀ s n p k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) = fin p
-    → first_nonzero fld (stretch_series fld k s) (S (n * Pos.to_nat k)) =
+    → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
         fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
 intros s n p k Hn Hp.
-remember (stretch_series fld k s) as s₁ eqn:Hs₁ .
+remember (series_stretch fld k s) as s₁ eqn:Hs₁ .
 remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
 apply first_nonzero_iff in Hq.
@@ -1533,7 +1533,7 @@ Qed.
 
 Lemma zzz : ∀ s k,
   first_nonzero fld s 1 ≠ ∞
-  → shrink_factor fld (stretch_series fld k s) 0 =
+  → shrink_factor fld (series_stretch fld k s) 0 =
       (k * shrink_factor fld s 0)%positive.
 Proof.
 intros s k H.
@@ -1541,12 +1541,12 @@ remember (first_nonzero fld s 1) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ clear H | exfalso; apply H; reflexivity ].
 remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
-remember (shrink_factor fld (stretch_series fld k s) 0) as k₂ eqn:Hk₂ .
+remember (shrink_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
 destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
  exfalso.
  apply shrink_factor_iff in Hk₂.
- remember (first_nonzero fld (stretch_series fld k s) 1) as m eqn:Hm .
+ remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ].
   simpl in Hk₂.
@@ -1558,7 +1558,7 @@ bbb.
 Lemma shrink_factor_stretch : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) ≠ ∞
-    → shrink_factor fld (stretch_series fld k s) (n * Pos.to_nat k) =
+    → shrink_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
       (k * shrink_factor fld s n)%positive.
 Proof.
 intros s n k Hn Hsn.
@@ -1572,11 +1572,11 @@ destruct kn as [| kn].
   replace 1%nat with (Pos.to_nat xH) in Hkn ; [ idtac | reflexivity ].
   apply Pos2Nat.inj in Hkn.
   subst k.
-  rewrite stretch_series_1, Pos.mul_1_l.
+  rewrite series_stretch_1, Pos.mul_1_l.
   reflexivity.
 
   rewrite <- Hkn.
-  remember (stretch_series fld k s) as s₁.
+  remember (series_stretch fld k s) as s₁.
   remember (shrink_factor fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
   symmetry in Hk₁.
   apply shrink_factor_iff in Hk₁.
@@ -1607,14 +1607,14 @@ destruct kn as [| kn].
 Abort. (*
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
-  remember (stretch_series fld k s) as t.
+  remember (series_stretch fld k s) as t.
   remember (shrink_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
   subst t.
   symmetry in Hk₁, Hk₂.
   apply shrink_factor_iff in Hk₁.
   apply shrink_factor_iff in Hk₂.
   remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
-  remember (stretch_series fld k s) as t.
+  remember (series_stretch fld k s) as t.
   remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
   subst t.
   symmetry in Hn₁, Hn₂.

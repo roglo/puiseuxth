@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.57 2013-10-18 02:01:38 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.58 2013-10-18 02:03:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -62,7 +62,6 @@ constructor; simpl.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  rewrite <- Z.mul_add_distr_r.
  rewrite Z.mul_comm.
-Abort. (*
  rewrite shrink_factor_stretch.
   unfold gcd_nz.
   remember (' k)%Z as kp.
