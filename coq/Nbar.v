@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.86 2013-10-15 19:41:43 deraugla Exp $ *)
+(* $Id: Nbar.v,v 1.87 2013-10-18 09:57:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -70,6 +70,8 @@ Infix "-" := sub : Nbar_scope.
 Infix "*" := mul : Nbar_scope.
 Infix "/" := div : Nbar_scope.
 
+Definition div_sup x y := (x + y - 1) / y.
+
 Inductive le : Nbar → Nbar → Prop :=
   | le_fin : ∀ n m, (n <= m)%nat → fin n ≤ fin m
   | le_inf : ∀ n, n ≤ ∞
@@ -92,6 +94,9 @@ Theorem fold_div : ∀ x n,
   | fin m => fin (m / n)
   | ∞ => ∞
   end = x / fin n.
+Proof. reflexivity. Qed.
+
+Theorem fold_div_sup : ∀ x y, (x + y - 1) / y = div_sup x y.
 Proof. reflexivity. Qed.
 
 Theorem fin_inj_mul : ∀ n m, fin (n * m) = fin n * fin m.
@@ -488,7 +493,35 @@ intros H; apply Hb.
 subst b; reflexivity.
 Qed.
 
-Definition div_sup x y := (x + y - 1) / y.
+Theorem div_mul : ∀ a b, b ≠ 0 → b ≠ ∞ → a * b / b = a.
+Proof.
+intros a b Hb Hbi.
+destruct b as [b| ]; [ idtac | exfalso; apply Hbi; reflexivity ].
+destruct b as [| b]; [ exfalso; apply Hb; reflexivity | simpl ].
+destruct a as [a| ]; [ simpl | reflexivity ].
+rewrite divmod_div.
+rewrite Nat.div_mul; [ reflexivity | idtac ].
+intros H; discriminate H.
+Qed.
+
+Theorem div_sup_mul : ∀ a b, b ≠ 0 → b ≠ ∞ → div_sup (a * b) b = a.
+Proof.
+intros a b Hb Hbi.
+destruct b as [b| ]; [ idtac | exfalso; apply Hbi; reflexivity ].
+destruct b as [| b]; [ exfalso; apply Hb; reflexivity | simpl ].
+destruct a as [a| ]; [ simpl | reflexivity ].
+rewrite divmod_div.
+rewrite <- Nat.add_sub_assoc.
+ rewrite Nat.add_comm.
+ rewrite Nat.div_add.
+  rewrite Nat.div_small; [ reflexivity | simpl ].
+  rewrite Nat.sub_0_r.
+  apply Nat.lt_succ_diag_r.
+
+  intros H; discriminate H.
+
+ apply Le.le_n_S, Le.le_0_n.
+Qed.
 
 Theorem lt_div_sup_lt_mul_r : ∀ n m p,
   n < div_sup m p → n * p < m.

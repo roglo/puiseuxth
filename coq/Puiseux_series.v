@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.868 2013-10-18 02:03:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.869 2013-10-18 09:57:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1531,25 +1531,60 @@ destruct q as [q| ].
   apply Hnzp; reflexivity.
 Qed.
 
+Lemma series_shrink_stretch : ∀ s k,
+  series_shrink k (series_stretch fld k s) ≃ s.
+Proof.
+intros s k.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.fold_sub.
+rewrite Nbar.fold_div.
+rewrite Nbar.fold_div_sup.
+rewrite Nbar.div_sup_mul.
+ rewrite Nat.mod_mul; simpl.
+  rewrite Nat.div_mul; simpl.
+   unfold series_nth_fld.
+   destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
+
+   apply Pos2Nat_ne_0.
+
+  apply Pos2Nat_ne_0.
+
+ intros H; apply Nbar.fin_inj_wd in H.
+ revert H; apply Pos2Nat_ne_0.
+
+ intros H; discriminate H.
+Qed.
+
 Lemma zzz : ∀ s k,
   first_nonzero fld s 1 ≠ ∞
   → shrink_factor fld (series_stretch fld k s) 0 =
       (k * shrink_factor fld s 0)%positive.
 Proof.
 intros s k H.
+bbb.
+(* à voir, peut-être, sous cette forme-là...
+remember (shrink_factor fld (series_stretch fld k s) 0) as k₁ eqn:Hk₁ .
+pose proof (yyy s k) as Hs₂.
+rewrite <- Hs₂.
+rewrite Hk₁.
+remember (series_stretch fld k s) as s₁ eqn:Hs₁ .
+*)
 remember (first_nonzero fld s 1) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ clear H | exfalso; apply H; reflexivity ].
 remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
 remember (shrink_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
-destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
- exfalso.
- apply shrink_factor_iff in Hk₂.
- remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
- symmetry in Hm.
- destruct m as [m| ].
-  simpl in Hk₂.
+apply shrink_factor_iff in Hk₁.
+apply shrink_factor_iff in Hk₂.
+rewrite Hn in Hk₁.
+simpl in Hk₁, Hk₂.
+destruct Hk₁ as (Hz₁, Hnz₁).
+remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ].
+ destruct Hk₂ as (Hz₂, Hnz₂).
 bbb.
 *)
 
