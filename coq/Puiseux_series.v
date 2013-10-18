@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.867 2013-10-18 02:01:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.868 2013-10-18 02:03:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1550,7 +1550,6 @@ destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
  symmetry in Hm.
  destruct m as [m| ].
   simpl in Hk₂.
-Abort. (*
 bbb.
 *)
 
@@ -1604,7 +1603,6 @@ destruct kn as [| kn].
     apply Pos2Nat.inj_lt in H₁.
     apply shrink_factor_iff in Hk₂.
     rewrite Hp in Hk₂.
-Abort. (*
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (series_stretch fld k s) as t.
