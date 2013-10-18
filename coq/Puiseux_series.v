@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.869 2013-10-18 09:57:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.870 2013-10-18 13:40:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1554,6 +1554,132 @@ rewrite Nbar.div_sup_mul.
  revert H; apply Pos2Nat_ne_0.
 
  intros H; discriminate H.
+Qed.
+
+Lemma le_div_sup_mul : ∀ a b, (0 < b → a ≤ Nat_div_sup a b * b)%nat.
+Proof.
+intros a b Hbpos.
+unfold Nat_div_sup.
+rewrite Nat.mul_comm.
+apply Nat.add_le_mono_r with (p := (a + b - 1) mod b).
+rewrite <- Nat.div_mod.
+ rewrite <- Nat.add_sub_assoc.
+  apply Nat.add_le_mono_l.
+  rewrite Nat.sub_1_r.
+  apply Nat.lt_le_pred.
+  apply Nat.mod_upper_bound.
+  intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
+
+  apply lt_le_S; assumption.
+
+ intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
+Qed.
+
+Lemma series_stretch_shrink : ∀ s k,
+  (k | shrink_factor fld s 0)%positive
+  → series_stretch fld k (series_shrink k s) ≃ s.
+Proof.
+(* à nettoyer (quelques nettoyages faciles avec les Focus *)
+intros s k Hk.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.fold_sub.
+rewrite Nbar.fold_div.
+rewrite Nbar.fold_div_sup.
+remember (fin (Pos.to_nat k)) as kn eqn:Hkn .
+destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
+ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+  unfold series_nth_fld.
+  apply Nat.mod_divides in H₂.
+   destruct H₂ as (c, Hc).
+   rewrite Hc.
+   rewrite Nat.mul_comm.
+   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
+   rewrite Nat.mul_comm, <- Hc.
+   destruct (Nbar.lt_dec (fin c) (stop (series_shrink k s))) as [H₂| H₂].
+    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
+     simpl; rewrite Nat.mul_comm, <- Hc.
+     reflexivity.
+
+     exfalso; apply H₃; clear H₃.
+     simpl in H₂.
+     rewrite Nbar.fold_sub in H₂.
+     rewrite Nbar.fold_div in H₂.
+     rewrite Nbar.fold_div_sup in H₂.
+     apply Nbar.lt_div_sup_lt_mul_r in H₂.
+     simpl in H₂.
+     rewrite Nat.mul_comm, <- Hc in H₂.
+     assumption.
+
+    simpl in H₂.
+    rewrite Nbar.fold_sub in H₂.
+    rewrite Nbar.fold_div in H₂.
+    rewrite Nbar.fold_div_sup in H₂.
+    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
+     exfalso; apply H₂; clear H₂.
+     apply Nbar.lt_mul_r_lt_div_sup.
+      apply Nbar.lt_fin, Pos2Nat.is_pos.
+
+      simpl; rewrite Nat.mul_comm, <- Hc.
+      assumption.
+
+     reflexivity.
+
+   apply Pos2Nat_ne_0.
+
+  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
+   destruct Hk as (c, Hk).
+   apply shrink_factor_iff in Hk.
+   remember (first_nonzero fld s 1) as n eqn:Hn .
+   symmetry in Hn.
+   destruct n as [n| ].
+    simpl in Hk.
+    destruct Hk as (Hz, Hnz).
+    assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
+     intros H.
+     apply Nat.mod_divides in H.
+      destruct H as (d, Hd).
+      rewrite Pos2Nat.inj_mul, Nat.mul_shuffle0 in Hd.
+      rewrite Hd in H₂.
+      rewrite Nat.mod_mul in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+      revert H₂; apply Nat.lt_irrefl.
+
+      apply Pos2Nat_ne_0.
+
+     apply Hz in H.
+     unfold series_nth_fld in H.
+     destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
+      symmetry; assumption.
+
+      contradiction.
+
+    apply Pos.mul_eq_1_r in Hk.
+    subst k.
+    rewrite Nat.mod_1_r in H₂.
+    exfalso; revert H₂; apply Nat.lt_irrefl.
+
+   reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
+  exfalso; apply H₁; clear H₁.
+  eapply Nbar.lt_le_trans; [ eassumption | idtac ].
+  unfold Nbar.div_sup.
+  simpl.
+  destruct (stop s) as [st| ]; simpl.
+   Focus 2.
+   unfold Nbar.div.
+   destruct kn; constructor.
+
+   destruct kn as [kn| ]; simpl.
+    apply Nbar.le_fin.
+    2: constructor.
+
+    2: reflexivity.
+
+  rewrite Nat_fold_div_sup.
+  apply le_div_sup_mul.
+  injection Hkn; intros; subst kn.
+  apply Pos2Nat.is_pos.
 Qed.
 
 Lemma zzz : ∀ s k,
