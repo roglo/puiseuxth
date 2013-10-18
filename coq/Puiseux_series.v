@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.871 2013-10-18 13:46:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.872 2013-10-18 16:47:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1663,12 +1663,12 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
-Lemma zzz : ∀ s k,
-  first_nonzero fld s 1 ≠ ∞
+Lemma zzz : ∀ s n k,
+  first_nonzero fld s 1 = fin n
   → shrink_factor fld (series_stretch fld k s) 0 =
       (k * shrink_factor fld s 0)%positive.
 Proof.
-intros s k H.
+intros s n k Hn.
 bbb.
 (* à voir, peut-être, sous cette forme-là...
 remember (shrink_factor fld (series_stretch fld k s) 0) as k₁ eqn:Hk₁ .
@@ -1677,9 +1677,6 @@ rewrite <- Hs₂.
 rewrite Hk₁.
 remember (series_stretch fld k s) as s₁ eqn:Hs₁ .
 *)
-remember (first_nonzero fld s 1) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ clear H | exfalso; apply H; reflexivity ].
 remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
 remember (shrink_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
