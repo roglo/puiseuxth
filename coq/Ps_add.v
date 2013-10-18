@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.56 2013-10-18 01:58:39 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.57 2013-10-18 02:01:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,7 +37,7 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
 (* for a possible redefinition of ps_add, or perhaps to change a
    representation for another to manage to make proofs... *)
 Definition adjust_nz n k nz :=
-  {| nz_terms := series_shift fld n (stretch_series fld k (nz_terms nz));
+  {| nz_terms := series_shift fld n (series_stretch fld k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
@@ -85,7 +85,7 @@ bbb.
 *)
 
 Definition adjust_series n k s :=
-  series_shift fld n (stretch_series fld k s).
+  series_shift fld n (series_stretch fld k s).
 
 Definition nz_terms_add (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in
@@ -173,12 +173,12 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   end.
 *)
 
-Lemma stretch_series_add_distr : ∀ k s₁ s₂,
-  stretch_series fld k (series_add fld s₁ s₂) ≃
-  series_add fld (stretch_series fld k s₁) (stretch_series fld k s₂).
+Lemma series_stretch_add_distr : ∀ k s₁ s₂,
+  series_stretch fld k (series_add fld s₁ s₂) ≃
+  series_add fld (series_stretch fld k s₁) (series_stretch fld k s₂).
 Proof.
 intros kp s₁ s₂.
-unfold stretch_series; simpl.
+unfold series_stretch; simpl.
 unfold series_add; simpl.
 constructor; simpl.
 intros i.
@@ -242,8 +242,8 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 Qed.
 
 Lemma stretch_shift_1_series_distr : ∀ kp s,
-  stretch_series fld kp (series_shift fld 1 s) ≃
-  series_shift fld (Pos.to_nat kp) (stretch_series fld kp s).
+  series_stretch fld kp (series_shift fld 1 s) ≃
+  series_shift fld (Pos.to_nat kp) (series_stretch fld kp s).
 Proof.
 intros kp s.
 remember (Pos.to_nat kp) as x.
@@ -433,11 +433,11 @@ remember (nz_comden nz₁) as c₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_comden nz₃) as c₃.
 unfold adjust_series.
-do 2 rewrite stretch_series_add_distr.
+do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
 rewrite series_add_assoc.
 do 4 rewrite stretch_shift_series_distr.
-do 4 rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+do 4 rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
 do 4 rewrite series_shift_shift.
 do 4 rewrite <- Z2Nat_inj_mul_pos_r.
 do 4 rewrite Z.mul_sub_distr_r.
@@ -567,7 +567,7 @@ Qed.
 Lemma stop_head_tail : ∀ nz,
   stop (nz_terms nz) ≠ fin 0
   → stop (nz_terms_add (nz_head nz) (nz_tail nz)) =
-    stop (stretch_series fld (nz_comden nz) (nz_terms nz)).
+    stop (series_stretch fld (nz_comden nz) (nz_terms nz)).
 Proof.
 intros nz Hst.
 unfold nz_terms_add; simpl.
@@ -603,7 +603,7 @@ Qed.
 
 Lemma stop_0_series_nth_stretch_0 : ∀ s n i,
   stop s = 0%Nbar
-  → series_nth_fld fld i (stretch_series fld n s) = zero fld.
+  → series_nth_fld fld i (series_stretch fld n s) = zero fld.
 Proof.
 intros s n i Hs.
 unfold series_nth_fld; simpl.
@@ -617,7 +617,7 @@ Qed.
 
 Lemma stop_0_series_nth_shift_stretch_0 : ∀ s i n k,
   stop s = 0%Nbar
-  → series_nth_fld fld i (series_shift fld n (stretch_series fld k s))
+  → series_nth_fld fld i (series_shift fld n (series_stretch fld k s))
     = zero fld.
 Proof.
 intros s i n k Hs.
@@ -833,7 +833,7 @@ split; [ intros i Hin | idtac ].
     remember Hst as Hst₂; clear HeqHst₂.
     apply stop_0_series_nth_stretch_0 with (i := S i) (n := xH) in Hst.
     rewrite <- Hst.
-    rewrite stretch_series_1.
+    rewrite series_stretch_1.
     unfold series_nth_fld.
     rewrite <- terms_S_tail.
     rewrite Hst₂.
@@ -967,7 +967,7 @@ Qed.
 Definition series_tail_n n (s : series α) :=
   {| terms i := terms s (i + n); stop := stop s - fin n |}.
 
-Definition stretch_series_nat n s :=
+Definition series_stretch_nat n s :=
   {| terms i :=
        if zerop (i mod n) then
          series_nth_fld fld (i / n) s
@@ -975,8 +975,8 @@ Definition stretch_series_nat n s :=
      stop :=
        stop s * fin n |}.
 
-Lemma stretch_series_to_nat : ∀ k s,
-  stretch_series fld k s = stretch_series_nat (Pos.to_nat k) s.
+Lemma series_stretch_to_nat : ∀ k s,
+  series_stretch fld k s = series_stretch_nat (Pos.to_nat k) s.
 Proof. reflexivity. Qed.
 
 Lemma series_tail_n_tail_comm : ∀ n s,
@@ -1028,9 +1028,9 @@ destruct st as [st| ].
   exfalso; apply H₁; constructor.
 Qed.
 
-Lemma stretch_series_tail : ∀ k s,
-  stretch_series fld k (series_tail s)
-  ≃ series_tail_n (Pos.to_nat k) (stretch_series fld k s).
+Lemma series_stretch_tail : ∀ k s,
+  series_stretch fld k (series_tail s)
+  ≃ series_tail_n (Pos.to_nat k) (series_stretch fld k s).
 Proof.
 intros k s.
 constructor; intros i.
@@ -1064,7 +1064,7 @@ Qed.
 Definition norm_nz nz₁ nz₂ :=
   let v₁ := (nz_valnum nz₁ * 'cm_factor nz₁ nz₂)%Z in
   let v₂ := (nz_valnum nz₂ * 'cm_factor nz₂ nz₁)%Z in
-  let s₁ := stretch_series fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
+  let s₁ := series_stretch fld (cm_factor nz₁ nz₂) (nz_terms nz₁) in
   {| nz_terms := series_shift fld (Z.to_nat (v₁ - v₂)) s₁;
      nz_valnum := Z.min v₁ v₂;
      nz_comden := cm nz₁ nz₂ |}.
@@ -1116,7 +1116,7 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
   rewrite Z.sub_diag; simpl.
   do 2 rewrite series_shift_0.
-  rewrite <- stretch_series_add_distr.
+  rewrite <- series_stretch_add_distr.
   rewrite Nat.mul_comm.
   rewrite series_nth_fld_mul_stretch.
   reflexivity.
@@ -1132,7 +1132,7 @@ constructor 1 with (k₁ := c) (k₂ := xH); subst c; simpl.
   replace (c₂ * c₁)%positive with (c₁ * c₂)%positive by apply Pos.mul_comm.
   rewrite Z.sub_diag; simpl.
   do 2 rewrite series_shift_0.
-  rewrite <- stretch_series_add_distr.
+  rewrite <- series_stretch_add_distr.
   symmetry.
   rewrite shifted_in_stretched; [ reflexivity | assumption ].
 
@@ -1163,7 +1163,7 @@ Definition norm₂_nz (nz₁ nz₂ nz₃ : nz_ps α) :=
   let v₂ := (nz_valnum nz₂ * 'c₃ * 'c₁)%Z in
   let v₃ := (nz_valnum nz₃ * 'c₁ * 'c₂)%Z in
   let vm := Z.min v₁ (Z.min v₂ v₃) in
-  let s₁ := stretch_series fld (c₂ * c₃) (nz_terms nz₁) in
+  let s₁ := series_stretch fld (c₂ * c₃) (nz_terms nz₁) in
   {| nz_terms := series_shift fld (Z.to_nat (v₁ - vm)) s₁;
      nz_valnum := vm;
      nz_comden := c₁ * c₂ * c₃ |}.
@@ -1225,10 +1225,10 @@ induction n; intros.
   remember norm_nz as f.
   unfold nz_terms_add.
   unfold cm_factor, cm; simpl.
-  do 2 rewrite stretch_series_add_distr.
+  do 2 rewrite series_stretch_add_distr.
   do 4 rewrite stretch_shift_series_distr.
-  do 4 rewrite <- stretch_stretch_series.
-  do 4 rewrite Pos.mul_comm, stretch_stretch_series.
+  do 4 rewrite <- stretch_series_stretch.
+  do 4 rewrite Pos.mul_comm, stretch_series_stretch.
   subst f; simpl.
   unfold cm_factor, cm; simpl.
   remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
@@ -1242,7 +1242,7 @@ induction n; intros.
   simpl.
   do 4 rewrite series_shift_0.
   do 8 rewrite stretch_shift_series_distr.
-  do 8 rewrite <- stretch_stretch_series.
+  do 8 rewrite <- stretch_series_stretch.
   move H1 at bottom.
   move H2 at bottom.
   move H3 at bottom.
@@ -1260,13 +1260,13 @@ induction n; intros.
    rewrite H₁; clear H₁.
    rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
    rewrite Pos.mul_comm.
-   rewrite stretch_stretch_series.
+   rewrite stretch_series_stretch.
    rewrite <- stretch_shift_series_distr.
    rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
    symmetry.
    rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
    rewrite Pos.mul_comm.
-   rewrite stretch_stretch_series.
+   rewrite stretch_series_stretch.
    rewrite <- stretch_shift_series_distr.
    symmetry.
    rewrite series_add_comm.
@@ -1287,8 +1287,8 @@ induction n; intros.
 
     rewrite H₁; clear H₁.
     assert
-     (stretch_series fld (c₁ * c₃ * k₂ * c₁) (nz_terms nz₂)
-      ≃ stretch_series fld (c₁ * c₂ * k₂ * c₁) (nz_terms nz₃)) 
+     (series_stretch fld (c₁ * c₃ * k₂ * c₁) (nz_terms nz₂)
+      ≃ series_stretch fld (c₁ * c₂ * k₂ * c₁) (nz_terms nz₃)) 
      as H₁.
      assert (c₁ * c₃ * k₂ * c₁ = c₁ * c₂ * k₁ * c₁)%positive as H₁.
       f_equal.
@@ -1297,7 +1297,7 @@ induction n; intros.
 
       rewrite H₁; clear H₁.
       rewrite Pos_mul_shuffle0.
-      rewrite stretch_stretch_series, H1, <- stretch_stretch_series.
+      rewrite stretch_series_stretch, H1, <- stretch_series_stretch.
       rewrite Pos_mul_shuffle0; reflexivity.
 
      rewrite H₁; clear H₁.
@@ -1308,9 +1308,9 @@ induction n; intros.
       apply Pos.mul_comm.
 
       rewrite H₁; clear H₁.
-      rewrite stretch_stretch_series.
+      rewrite stretch_series_stretch.
       rewrite <- stretch_shift_series_distr.
-      rewrite <- stretch_series_add_distr.
+      rewrite <- series_stretch_add_distr.
       rewrite series_add_comm.
       symmetry.
       rewrite series_add_comm.
@@ -1321,31 +1321,31 @@ induction n; intros.
        apply Pos.mul_comm.
 
        rewrite H₁; clear H₁.
-       rewrite stretch_stretch_series.
+       rewrite stretch_series_stretch.
        rewrite <- stretch_shift_series_distr.
-       rewrite <- stretch_series_add_distr.
+       rewrite <- series_stretch_add_distr.
        rewrite series_add_comm.
        remember
         (series_add fld
            (series_shift fld (x * Pos.to_nat c₁)
-              (stretch_series fld (c₁ * c₃ * k₂) (nz_terms nz₁)))
+              (series_stretch fld (c₁ * c₃ * k₂) (nz_terms nz₁)))
            (series_shift fld (y * Pos.to_nat c₁)
-              (stretch_series fld (c₁ * k₂ * c₁) (nz_terms nz₃)))) as z.
+              (series_stretch fld (c₁ * k₂ * c₁) (nz_terms nz₃)))) as z.
        do 2 rewrite <- Pos.mul_assoc in Heqz.
        subst z.
-       rewrite stretch_stretch_series.
+       rewrite stretch_series_stretch.
        rewrite <- stretch_shift_series_distr.
        rewrite series_add_comm.
-       rewrite stretch_stretch_series.
+       rewrite stretch_series_stretch.
        rewrite <- stretch_shift_series_distr.
-       rewrite <- stretch_series_add_distr.
+       rewrite <- series_stretch_add_distr.
        remember
-        (stretch_series fld c₁
+        (series_stretch fld c₁
            (series_add fld
               (series_shift fld y
-                 (stretch_series fld (k₂ * c₁) (nz_terms nz₃)))
+                 (series_stretch fld (k₂ * c₁) (nz_terms nz₃)))
               (series_shift fld x
-                 (stretch_series fld (c₃ * k₂) (nz_terms nz₁))))) as z.
+                 (series_stretch fld (c₃ * k₂) (nz_terms nz₁))))) as z.
 Focus 1.
 aaa.
 *)
@@ -1473,9 +1473,9 @@ rewrite Z.min_id.
 rewrite Z.sub_diag; simpl.
 unfold adjust_series.
 do 2 rewrite series_shift_0.
-rewrite <- stretch_series_add_distr.
+rewrite <- series_stretch_add_distr.
 rewrite series_add_neg.
-rewrite stretch_series_series_0.
+rewrite series_stretch_series_0.
 reflexivity.
 Qed.
 
@@ -1506,8 +1506,8 @@ unfold nz_terms_add; simpl.
 unfold adjust_series.
 rewrite Z2Nat_sub_min.
 rewrite Z.mul_1_r, Z.sub_0_r.
-rewrite stretch_series_1.
-rewrite stretch_series_series_0.
+rewrite series_stretch_1.
+rewrite series_stretch_series_0.
 rewrite series_shift_series_0.
 rewrite series_add_comm.
 rewrite series_add_0_l.
@@ -1566,7 +1566,7 @@ Lemma normalise_series_add_shift : ∀ s n m k,
 Proof.
 intros s n m k.
 unfold normalise_series.
-unfold shrink_series, series_left_shift.
+unfold series_shrink, series_left_shift.
 constructor; intros i.
 unfold series_nth_fld.
 remember Nbar.div_sup as f; simpl; subst f.
@@ -1674,11 +1674,11 @@ Qed.
 
 Lemma normalised_stretched_series : ∀ s n k,
   shrink_factor fld s n = k
-  → stretch_series fld k (normalise_series n k s) ≃ series_left_shift n s.
+  → series_stretch fld k (normalise_series n k s) ≃ series_left_shift n s.
 Proof.
 intros s n k Hsf.
 unfold normalise_series.
-unfold shrink_series, series_left_shift.
+unfold series_shrink, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 rewrite Nbar.fold_sub.
 apply shrink_factor_iff in Hsf.
@@ -1829,7 +1829,7 @@ destruct n₁ as [n₁| ].
 
  subst k.
  constructor; intros i.
- rewrite stretch_series_1.
+ rewrite series_stretch_1.
  unfold series_nth_fld; simpl.
  destruct (stop s) as [st| ]; simpl.
   rewrite divmod_div, Nat.div_1_r, Nat.add_sub.
@@ -1841,7 +1841,7 @@ Qed.
 Lemma normalised_series : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → shrink_factor fld s n = k
-    → series_shift fld n (stretch_series fld k (normalise_series n k s)) ≃ s.
+    → series_shift fld n (series_stretch fld k (normalise_series n k s)) ≃ s.
 Proof.
 intros s n k Hfn Hsf.
 rewrite normalised_stretched_series; [ idtac | assumption ].
@@ -3020,9 +3020,9 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
   unfold ps_add_nz, cm_factor; simpl.
   rewrite Heqv₁, Heqv₂, Heqv₃; simpl.
   constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold cm_factor; simpl.
-   do 2 rewrite stretch_series_add_distr.
+   do 2 rewrite series_stretch_add_distr.
    do 4 rewrite stretch_shift_series_distr.
-   do 4 rewrite <- stretch_stretch_series.
+   do 4 rewrite <- stretch_series_stretch.
    do 4 rewrite Nat.mul_sub_distr_r.
    do 4 rewrite <- Z2Nat_inj_mul_pos_r.
    do 4 rewrite <- Z.mul_assoc; simpl.
@@ -3032,9 +3032,9 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
    rewrite Hck₂.
    replace (k₂₁ * nz_comden ps₁)%positive with
     (nz_comden ps₁ * k₂₁)%positive by apply Pos.mul_comm.
-   do 2 rewrite stretch_stretch_series.
+   do 2 rewrite stretch_series_stretch.
    rewrite Hss₂.
-   do 2 rewrite <- stretch_stretch_series.
+   do 2 rewrite <- stretch_series_stretch.
    replace (nz_comden ps₁ * k₂₂)%positive with
     (k₂₂ * nz_comden ps₁)%positive by apply Pos.mul_comm.
    replace (v₂ * ' (nz_comden ps₁ * k₂₁))%Z with
@@ -3088,15 +3088,15 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   remember (nz_comden nz₂₂) as c₂₂.
   remember (nz_valnum nz₂₁) as v₂₁.
   remember (nz_valnum nz₂₂) as v₂₂.
-  do 2 rewrite stretch_series_add_distr.
+  do 2 rewrite series_stretch_add_distr.
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
-  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
-  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
 -- à nettoyer
   rewrite Nat.mul_sub_distr_r.
   rewrite <- Nat.mul_assoc.
@@ -3133,9 +3133,9 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite series_add_comm.
   rewrite Pos2Nat.inj_mul.
   rewrite Nat.mul_comm.
-  rewrite stretch_stretch_series; try apply Pos2Nat_ne_0.
+  rewrite stretch_series_stretch; try apply Pos2Nat_ne_0.
   rewrite Hss₂.
-  rewrite <- stretch_stretch_series; try apply Pos2Nat_ne_0.
+  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
   rewrite Nat.mul_comm.
   rewrite <- Pos2Nat.inj_mul.
   rewrite series_add_comm.
@@ -3166,8 +3166,8 @@ destruct ps as [nz| ]; [ idtac | reflexivity ].
 unfold cm_factor; simpl.
 rewrite Z.mul_1_r.
 apply eq_non_zero_ps with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
-rewrite stretch_series_1.
-rewrite stretch_series_1 in |- * at 2.
+rewrite series_stretch_1.
+rewrite series_stretch_1 in |- * at 2.
 apply eq_series_base; simpl.
 bbb.
  intros i.
@@ -3196,15 +3196,15 @@ destruct ps as [nz| ]; [ idtac | reflexivity ].
 unfold cm_factor; simpl.
 rewrite Z.mul_1_r.
 constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
-rewrite stretch_series_1.
-rewrite stretch_series_1 in |- * at 2.
+rewrite series_stretch_1.
+rewrite series_stretch_1 in |- * at 2.
 constructor; simpl.
  intros i.
  remember
   (sum_mul_coeff fld 1 i
-     (stretch_series fld (Pos.to_nat (nz_comden nz))
+     (series_stretch fld (Pos.to_nat (nz_comden nz))
         {| terms := λ _ : nat, one fld; stop := 1 |})
-     (stretch_series fld (Pos.to_nat 1) (nz_terms nz))) as x.
+     (series_stretch fld (Pos.to_nat 1) (nz_terms nz))) as x.
  symmetry in Heqx.
  destruct x as [x| ].
   unfold series_nth; simpl.

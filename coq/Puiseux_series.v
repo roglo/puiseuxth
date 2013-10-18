@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.865 2013-10-17 19:43:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.866 2013-10-18 01:58:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -86,9 +86,16 @@ Inductive puiseux_series α :=
   | NonZero : nz_ps α → puiseux_series α
   | Zero : puiseux_series α.
 
+Definition shrink_series k (s : series α) :=
+  {| terms i := terms s (i * Pos.to_nat k);
+     stop := Nbar.div_sup (stop s) (fin (Pos.to_nat k)) |}.
+
+Definition series_left_shift n (s : series α) :=
+  {| terms i := terms s (n + i);
+     stop := stop s - fin n |}.
+
 Definition normalise_series n k (s : series α) :=
-  {| terms i := terms s (n + i * Pos.to_nat k);
-     stop := Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k)) |}.
+  shrink_series k (series_left_shift n s).
 
 Definition gcd_nz n k (nz : nz_ps α) :=
   Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
@@ -426,6 +433,7 @@ intros n k ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
 unfold normalise_series.
+unfold shrink_series, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 pose proof (H (n + i * Pos.to_nat k)%nat) as Hi.
@@ -1542,7 +1550,9 @@ destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
  symmetry in Hm.
  destruct m as [m| ].
   simpl in Hk₂.
+Abort. (*
 bbb.
+*)
 
 (* vraiment intéressant... à voir... *)
 Lemma shrink_factor_stretch : ∀ s n k,
@@ -1594,6 +1604,7 @@ destruct kn as [| kn].
     apply Pos2Nat.inj_lt in H₁.
     apply shrink_factor_iff in Hk₂.
     rewrite Hp in Hk₂.
+Abort. (*
 bbb.
   remember (shrink_factor fld s b) as k₁ eqn:Hk₁ .
   remember (stretch_series fld k s) as t.
