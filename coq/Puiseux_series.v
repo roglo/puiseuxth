@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.872 2013-10-18 16:47:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.873 2013-10-18 22:11:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1669,14 +1669,6 @@ Lemma zzz : ∀ s n k,
       (k * shrink_factor fld s 0)%positive.
 Proof.
 intros s n k Hn.
-bbb.
-(* à voir, peut-être, sous cette forme-là...
-remember (shrink_factor fld (series_stretch fld k s) 0) as k₁ eqn:Hk₁ .
-pose proof (yyy s k) as Hs₂.
-rewrite <- Hs₂.
-rewrite Hk₁.
-remember (series_stretch fld k s) as s₁ eqn:Hs₁ .
-*)
 remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
 remember (shrink_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 symmetry in Hk₁, Hk₂.
@@ -1689,6 +1681,21 @@ remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ].
  destruct Hk₂ as (Hz₂, Hnz₂).
+ destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
+  exfalso.
+  do 2 rewrite <- positive_nat_Z in H₁.
+  apply Nat2Z.inj_lt in H₁.
+  apply Hnz₂ in H₁.
+  destruct H₁ as (i, (Him, Hin)).
+  destruct (zerop (i mod Pos.to_nat k₁)) as [H₁| H₁].
+   apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H₁ as (c, Hc).
+   rewrite Hc in Him.
+   rewrite Pos2Nat.inj_mul in Him.
+   rewrite Nat.mul_comm in Him.
+   rewrite Nat.mul_mod_distr_r in Him; try apply Pos2Nat_ne_0.
+   apply Nat.neq_mul_0 in Him.
+   destruct Him as (Him, _).
 bbb.
 *)
 
