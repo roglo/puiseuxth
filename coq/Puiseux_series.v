@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.870 2013-10-18 13:40:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.871 2013-10-18 13:46:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1554,25 +1554,6 @@ rewrite Nbar.div_sup_mul.
  revert H; apply Pos2Nat_ne_0.
 
  intros H; discriminate H.
-Qed.
-
-Lemma le_div_sup_mul : ∀ a b, (0 < b → a ≤ Nat_div_sup a b * b)%nat.
-Proof.
-intros a b Hbpos.
-unfold Nat_div_sup.
-rewrite Nat.mul_comm.
-apply Nat.add_le_mono_r with (p := (a + b - 1) mod b).
-rewrite <- Nat.div_mod.
- rewrite <- Nat.add_sub_assoc.
-  apply Nat.add_le_mono_l.
-  rewrite Nat.sub_1_r.
-  apply Nat.lt_le_pred.
-  apply Nat.mod_upper_bound.
-  intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
-
-  apply lt_le_S; assumption.
-
- intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
 Qed.
 
 Lemma series_stretch_shrink : ∀ s k,

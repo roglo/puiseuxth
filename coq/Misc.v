@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.68 2013-10-16 15:48:16 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.69 2013-10-18 13:46:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1119,6 +1119,25 @@ destruct (zerop (m mod S p)) as [Hz| Hnz].
    rewrite Nat.mul_1_r, Heqr.
    apply Nat.mod_upper_bound.
    intros H; discriminate H.
+Qed.
+
+Lemma le_div_sup_mul : ∀ a b, (0 < b → a ≤ Nat_div_sup a b * b)%nat.
+Proof.
+intros a b Hbpos.
+unfold Nat_div_sup.
+rewrite Nat.mul_comm.
+apply Nat.add_le_mono_r with (p := (a + b - 1) mod b).
+rewrite <- Nat.div_mod.
+ rewrite <- Nat.add_sub_assoc.
+  apply Nat.add_le_mono_l.
+  rewrite Nat.sub_1_r.
+  apply Nat.lt_le_pred.
+  apply Nat.mod_upper_bound.
+  intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
+
+  apply lt_le_S; assumption.
+
+ intros H; subst b; revert Hbpos; apply Nat.lt_irrefl.
 Qed.
 
 Lemma Z_div_pos_is_nonneg : ∀ x y, (0 <= ' x / ' y)%Z.
