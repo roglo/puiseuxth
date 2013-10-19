@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.875 2013-10-19 07:16:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.876 2013-10-19 07:21:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1720,6 +1720,9 @@ destruct m as [m| ].
 
       apply Hz₁ in H.
       rewrite H in Hin; apply Hin; reflexivity.
+
+    rewrite shifted_in_stretched in Hin; [ idtac | assumption ].
+    apply Hin; reflexivity.
 bbb.
 *)
 
