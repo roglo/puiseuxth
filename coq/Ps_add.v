@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.58 2013-10-18 02:03:12 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.59 2013-10-19 07:12:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,14 +55,14 @@ remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
- rewrite shrink_factor_shift.
+ rewrite stretch_factor_shift.
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
  rewrite Z.sub_add.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  rewrite <- Z.mul_add_distr_r.
  rewrite Z.mul_comm.
- rewrite shrink_factor_stretch.
+ rewrite stretch_factor_stretch.
   unfold gcd_nz.
   remember (' k)%Z as kp.
   simpl.
@@ -1591,13 +1591,13 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  omega.
 Qed.
 
-Lemma shrink_factor_le : ∀ s n₁ n₂ k,
+Lemma stretch_factor_le : ∀ s n₁ n₂ k,
   first_nonzero fld s (S n₁) = fin n₂
-  → shrink_factor fld s n₁ = k
+  → stretch_factor fld s n₁ = k
     → (Pos.to_nat k ≤ S n₂)%nat.
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
-apply shrink_factor_iff in Hk.
+apply stretch_factor_iff in Hk.
 rewrite Hn₂ in Hk.
 destruct Hk as (Hz, Hnz).
 apply Nat.nlt_ge; intros H₁.
@@ -1614,9 +1614,9 @@ Qed.
 
 (* exercice... *)
 (* mmm... à voir... not sure it can be proved cause ¬∀ doesn't imply ∃
-Lemma shrink_factor_divides : ∀ s n₁ n₂ k,
+Lemma stretch_factor_divides : ∀ s n₁ n₂ k,
   first_nonzero fld s (S n₁) = fin n₂
-  → shrink_factor fld s n₁ = k
+  → stretch_factor fld s n₁ = k
     → (k | S n₂)%nat.
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
@@ -1672,7 +1672,7 @@ split.
 Qed.
 
 Lemma normalised_stretched_series : ∀ s n k,
-  shrink_factor fld s n = k
+  stretch_factor fld s n = k
   → series_stretch fld k (normalise_series n k s) ≃ series_left_shift n s.
 Proof.
 intros s n k Hsf.
@@ -1680,7 +1680,7 @@ unfold normalise_series.
 unfold series_shrink, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 rewrite Nbar.fold_sub.
-apply shrink_factor_iff in Hsf.
+apply stretch_factor_iff in Hsf.
 remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 destruct n₁ as [n₁| ].
@@ -1839,7 +1839,7 @@ Qed.
 
 Lemma normalised_series : ∀ s n k,
   first_nonzero fld s 0 = fin n
-  → shrink_factor fld s n = k
+  → stretch_factor fld s n = k
     → series_shift fld n (series_stretch fld k (normalise_series n k s)) ≃ s.
 Proof.
 intros s n k Hfn Hsf.
@@ -1883,10 +1883,10 @@ Qed.
 
 Lemma gcd_nz_add : ∀ nz n,
   gcd_nz (n + Z.to_nat (nz_valnum nz))
-    (shrink_factor fld
+    (stretch_factor fld
        (series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz))
        (n + Z.to_nat (nz_valnum nz))) (nz ∔ nz_zero) =
-  gcd_nz n (shrink_factor fld (nz_terms nz) n) nz.
+  gcd_nz n (stretch_factor fld (nz_terms nz) n) nz.
 Proof.
 intros nz n.
 unfold gcd_nz; simpl.
@@ -1909,13 +1909,13 @@ destruct z as [| z| z].
  reflexivity.
 
  rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite shrink_factor_shift.
+ rewrite stretch_factor_shift.
  rewrite Z.add_0_r.
  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
  reflexivity.
 
  rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
- rewrite shrink_factor_shift.
+ rewrite stretch_factor_shift.
  f_equal.
  f_equal.
  symmetry; rewrite Z.add_comm.
@@ -1952,7 +1952,7 @@ constructor; simpl.
  apply gcd_nz_add.
 
  rewrite nz_add_0_r.
- rewrite shrink_factor_shift.
+ rewrite stretch_factor_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.
  unfold gcd_nz; simpl.
@@ -1972,17 +1972,17 @@ Qed.
 
 (* provable but supposes to use Bézout's identity
    probably complicated
-Lemma normalised_series_shrink_factor : ∀ s n k,
+Lemma normalised_series_stretch_factor : ∀ s n k,
   first_nonzero fld s 0 = fin n
-  → shrink_factor fld s n = k
-    → shrink_factor fld (normalise_series n k s) 0 = 1%positive.
+  → stretch_factor fld s n = k
+    → stretch_factor fld (normalise_series n k s) 0 = 1%positive.
 Proof.
 intros s n k Hn Hk.
 aaa.
 
-Lemma normalised_ps_shrink_factor : ∀ nz nz₁,
+Lemma normalised_ps_stretch_factor : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
-  → shrink_factor fld (nz_terms nz) 0 = 1%positive.
+  → stretch_factor fld (nz_terms nz) 0 = 1%positive.
 Proof.
 intros nz nz₁ Hnorm.
 aaa.
@@ -2017,7 +2017,7 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
  rewrite Nbar.fold_sub in H₀.
  rewrite Nbar.fold_sub in H₀.
  rewrite Nbar.fold_div in H₀.
- remember (shrink_factor fld (nz_terms nz₁) m) as k eqn:Hk .
+ remember (stretch_factor fld (nz_terms nz₁) m) as k eqn:Hk .
  symmetry in Hk.
  remember (gcd_nz m k nz₁) as g eqn:Hg .
  remember (Z.to_pos g) as gp eqn:Hgp .
@@ -2235,7 +2235,7 @@ Qed.
 Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
   normalise_nz fld nz = NonZero nz'
   → first_nonzero fld (nz_terms nz) 0 = fin n
-    → shrink_factor fld (nz_terms nz) n = k
+    → stretch_factor fld (nz_terms nz) n = k
       → gcd_nz n k nz = g
         → ∀ i,
           series_nth_fld fld i (nz_terms nz') =
@@ -2339,7 +2339,7 @@ Lemma uuu : ∀ nz nz' n m p k g,
   → first_nonzero fld (nz_terms nz) 0 = fin n
     → first_nonzero fld (nz_terms nz) (S n) = fin p
       → first_nonzero fld (nz_terms nz') 1 = fin m
-       → shrink_factor fld (nz_terms nz) n = k
+       → stretch_factor fld (nz_terms nz) n = k
          → gcd_nz n k nz = g
            → S p = (S m * Pos.to_nat g)%nat.
 Proof.
@@ -2449,11 +2449,11 @@ destruct c as [| c| c].
  apply Hc, Pos2Z.neg_is_neg.
 Qed.
 
-Lemma normalised_shrink_factor : ∀ nz n k g,
+Lemma normalised_stretch_factor : ∀ nz n k g,
   first_nonzero fld (nz_terms nz) 0 = fin n
-  → shrink_factor fld (nz_terms nz) n = k
+  → stretch_factor fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
-      → shrink_factor fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
+      → stretch_factor fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
           Pos.of_nat (Pos.to_nat k / Z.to_nat g).
 Proof.
 (* gros nettoyage à faire : grosse répétition *)
@@ -2463,7 +2463,7 @@ remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
 pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
 rewrite Hg in H.
 destruct H as (k', Hk').
-apply shrink_factor_iff.
+apply stretch_factor_iff.
 remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
 remember (first_nonzero fld s 1) as m eqn:Hm .
 symmetry in Hm.
@@ -2473,7 +2473,7 @@ destruct m as [m| ]; simpl.
   rewrite Nat2Pos.id in H.
    rewrite Hs.
    rewrite series_nth_normalised; [ idtac | assumption ].
-   apply shrink_factor_iff in Hk.
+   apply stretch_factor_iff in Hk.
    remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ].
@@ -2531,7 +2531,7 @@ destruct m as [m| ]; simpl.
    rewrite Hk' in Hk₁.
    rewrite Z2Nat.inj_mul in Hk₁.
     rewrite Nat.div_mul in Hk₁.
-     apply shrink_factor_iff in Hk.
+     apply stretch_factor_iff in Hk.
      remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
      symmetry in Hp.
      destruct p as [p| ].
@@ -2631,7 +2631,7 @@ destruct m as [m| ]; simpl.
     eapply gcd_mul_le in Hg; [ idtac | eassumption ].
     destruct Hg; assumption.
 
- apply shrink_factor_iff in Hk.
+ apply stretch_factor_iff in Hk.
  remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
@@ -2751,7 +2751,7 @@ destruct ps as [nz'| ]; simpl.
    unfold normalise_nz in Hps.
    rewrite Hn in Hps.
    injection Hps; clear Hps; intros; subst nz'; simpl.
-   remember (shrink_factor fld (nz_terms nz) n) as k eqn:Hk .
+   remember (stretch_factor fld (nz_terms nz) n) as k eqn:Hk .
    remember (gcd_nz n k nz) as g eqn:Hg .
    symmetry in Hg.
    assert (0 <= g)%Z as A₁ by (rewrite <- Hg; apply Z.gcd_nonneg).
@@ -2780,7 +2780,7 @@ destruct ps as [nz'| ]; simpl.
    assert (0 < ' Z.to_pos (' nz_comden nz / g))%Z as A₆
     by (rewrite Z2Pos.id; assumption).
    remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
-   remember (shrink_factor fld s 0) as k₁ eqn:Hk₁ .
+   remember (stretch_factor fld s 0) as k₁ eqn:Hk₁ .
    unfold gcd_nz; simpl.
    rewrite Z.add_0_r.
    remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
@@ -2793,7 +2793,7 @@ destruct ps as [nz'| ]; simpl.
    subst m.
    rewrite Hs in Hk₁.
    symmetry in Hk.
-   erewrite normalised_shrink_factor in Hk₁; try eassumption.
+   erewrite normalised_stretch_factor in Hk₁; try eassumption.
    remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
    rewrite Hcg in Hg₂.
    remember Hg as Hg_v; clear HeqHg_v.
@@ -2851,7 +2851,7 @@ destruct ps as [nz'| ]; simpl.
   constructor; simpl.
   injection Hps; clear Hps; intros; subst nz'; simpl.
   simpl in Hm.
-  remember (shrink_factor fld (nz_terms nz) n) as k eqn:Hk .
+  remember (stretch_factor fld (nz_terms nz) n) as k eqn:Hk .
   remember (gcd_nz n k nz) as g eqn:Hg .
   symmetry in Hg.
   constructor; intros i.
@@ -2909,11 +2909,11 @@ symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
   inversion_clear Heq; simpl in *.
-  remember (shrink_factor fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
-  remember (shrink_factor fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
+  remember (stretch_factor fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
+  remember (stretch_factor fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
   symmetry in Hk₁, Hk₂.
-  apply shrink_factor_iff in Hk₁.
-  apply shrink_factor_iff in Hk₂.
+  apply stretch_factor_iff in Hk₁.
+  apply stretch_factor_iff in Hk₂.
   remember (first_nonzero fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
   remember (first_nonzero fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
   symmetry in Hsn₁, Hsn₂.
@@ -2935,13 +2935,13 @@ bbb.
   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
   destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
     destruct k₁₃ as [k₁₃| ].
-     apply shrink_factor_iff in Hk₁₃.
+     apply stretch_factor_iff in Hk₁₃.
      rewrite Hn₁₃ in Hk₁₃.
      destruct Hk₁₃ as (Hk, _).
      exfalso; apply Hk; reflexivity.
 
      destruct k₂₃ as [k₂₃| ].
-      apply shrink_factor_iff in Hk₂₃.
+      apply stretch_factor_iff in Hk₂₃.
       rewrite Hn₂₃ in Hk₂₃.
       destruct Hk₂₃ as (Hk, _).
       exfalso; apply Hk; reflexivity.
@@ -2961,13 +2961,13 @@ bbb.
     constructor; simpl.
      Focus 1.
      unfold cm_factor; simpl.
-     remember (shrink_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
-     remember (shrink_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃.
+     remember (stretch_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
+     remember (stretch_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃.
      rename Heqk₁₃ into Hk₁₃.
      rename Heqk₂₃ into Hk₂₃.
      symmetry in Hk₁₃, Hk₂₃.
-     apply shrink_factor_iff in Hk₁₃.
-     apply shrink_factor_iff in Hk₂₃.
+     apply stretch_factor_iff in Hk₁₃.
+     apply stretch_factor_iff in Hk₂₃.
      rewrite Hn₁₃ in Hk₁₃.
      rewrite Hn₂₃ in Hk₂₃.
      destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
