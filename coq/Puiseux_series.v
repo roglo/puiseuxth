@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.876 2013-10-19 07:21:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.877 2013-10-19 07:45:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1723,6 +1723,44 @@ destruct m as [m| ].
 
     rewrite shifted_in_stretched in Hin; [ idtac | assumption ].
     apply Hin; reflexivity.
+
+   assert (i mod Pos.to_nat k₁ ≠ 0)%nat as H.
+    intros H; rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
+
+    apply Hz₁ in H.
+    destruct (eq_nat_dec (Pos.to_nat k) 1) as [H₂| H₂].
+     replace k with xH in Hin .
+      rewrite series_stretch_1 in Hin.
+      rewrite H in Hin; apply Hin; reflexivity.
+
+      apply Pos2Nat.inj.
+      symmetry; assumption.
+
+     assert (Pos.to_nat k₁ < Pos.to_nat (k * k₁))%nat as H₃.
+      rewrite Pos2Nat.inj_mul.
+      remember (Pos.to_nat k) as kn eqn:Hkn .
+      destruct kn as [| kn].
+       symmetry in Hkn.
+       exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+       destruct kn as [| kn].
+        exfalso; apply H₂; reflexivity.
+
+        simpl.
+        remember (Pos.to_nat k₁) as kn₁ eqn:Hkn₁ .
+        symmetry in Hkn₁.
+        destruct kn₁ as [| kn₁].
+         exfalso; revert Hkn₁; apply Pos2Nat_ne_0.
+
+         rewrite Nat.add_succ_l.
+         rewrite Nat.add_succ_l.
+         rewrite Nat.add_succ_r.
+         apply le_n_S.
+         apply le_n_S.
+         apply le_plus_l.
+
+      apply Hnz₁ in H₃.
+      destruct H₃ as (j, (Hjm, Hjn)).
 bbb.
 *)
 
