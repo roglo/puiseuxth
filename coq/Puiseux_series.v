@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.874 2013-10-19 07:12:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.875 2013-10-19 07:16:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1697,23 +1697,29 @@ destruct m as [m| ].
    apply Nat.neq_mul_0 in Him.
    destruct Him as (Him, _).
    destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
-    apply Nat.mod_divides in H₁.
-     destruct H₁ as (d, Hd).
-     remember Hin as Hin_v; clear HeqHin_v.
-     rewrite Hd in Hin.
-     rewrite series_nth_fld_mul_stretch in Hin.
-     destruct (zerop (d mod Pos.to_nat k₁)) as [H₁| H₁].
-      apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
-      destruct H₁ as (e, He).
-      rewrite He in Hd.
-      rewrite Hc in Hd.
-      rewrite Nat.mul_assoc, Nat.mul_shuffle0 in Hd.
-      rewrite Nat.mul_comm in Hd.
-      rewrite Nat.mul_cancel_r in Hd; [ idtac | apply Pos2Nat_ne_0 ].
-      rewrite Hd in Him.
-      rewrite Nat.mul_comm in Him.
-      rewrite Nat.mod_mul in Him; [ idtac | apply Pos2Nat_ne_0 ].
-      apply Him; reflexivity.
+    apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+    destruct H₁ as (d, Hd).
+    remember Hin as Hin_v; clear HeqHin_v.
+    rewrite Hd in Hin.
+    rewrite series_nth_fld_mul_stretch in Hin.
+    destruct (zerop (d mod Pos.to_nat k₁)) as [H₁| H₁].
+     apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+     destruct H₁ as (e, He).
+     rewrite He in Hd.
+     rewrite Hc in Hd.
+     rewrite Nat.mul_assoc, Nat.mul_shuffle0 in Hd.
+     rewrite Nat.mul_comm in Hd.
+     rewrite Nat.mul_cancel_r in Hd; [ idtac | apply Pos2Nat_ne_0 ].
+     rewrite Hd in Him.
+     rewrite Nat.mul_comm in Him.
+     rewrite Nat.mod_mul in Him; [ idtac | apply Pos2Nat_ne_0 ].
+     apply Him; reflexivity.
+
+     assert (d mod Pos.to_nat k₁ ≠ 0)%nat as H.
+      intros H; rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
+
+      apply Hz₁ in H.
+      rewrite H in Hin; apply Hin; reflexivity.
 bbb.
 *)
 
