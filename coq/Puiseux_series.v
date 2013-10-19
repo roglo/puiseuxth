@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.877 2013-10-19 07:45:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.878 2013-10-19 11:58:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1724,43 +1724,35 @@ destruct m as [m| ].
     rewrite shifted_in_stretched in Hin; [ idtac | assumption ].
     apply Hin; reflexivity.
 
-   assert (i mod Pos.to_nat k₁ ≠ 0)%nat as H.
+   assert (i mod Pos.to_nat k₁ ≠ 0)%nat as H₂.
     intros H; rewrite H in H₁; revert H₁; apply Nat.lt_irrefl.
 
-    apply Hz₁ in H.
-    destruct (eq_nat_dec (Pos.to_nat k) 1) as [H₂| H₂].
-     replace k with xH in Hin .
-      rewrite series_stretch_1 in Hin.
-      rewrite H in Hin; apply Hin; reflexivity.
+    destruct (zerop (i mod Pos.to_nat k)) as [H₃| H₃].
+     apply Nat.mod_divides in H₃; [ idtac | apply Pos2Nat_ne_0 ].
+     destruct H₃ as (c, Hc).
+     rewrite Hc in Hin.
+     rewrite series_nth_fld_mul_stretch in Hin.
+     destruct (zerop (c mod Pos.to_nat k₁)) as [H₃| H₃].
+      apply Nat.mod_divides in H₃; [ idtac | apply Pos2Nat_ne_0 ].
+      destruct H₃ as (d, Hd).
+      rewrite Hd in Hc.
+      rewrite Nat.mul_assoc, Nat.mul_shuffle0, Nat.mul_comm in Hc.
+      rewrite Nat.mul_assoc, <- Pos2Nat.inj_mul in Hc.
+      rewrite Nat.mul_comm in Hc.
+      rewrite Pos.mul_comm in Him.
+      rewrite Hc in Him.
+      rewrite Nat.mod_mul in Him; [ idtac | apply Pos2Nat_ne_0 ].
+      apply Him; reflexivity.
 
-      apply Pos2Nat.inj.
-      symmetry; assumption.
+      assert (c mod Pos.to_nat k₁ ≠ 0)%nat as H₄ by fast_omega H₃.
+      apply Hz₁ in H₄.
+      rewrite H₄ in Hin.
+      apply Hin; reflexivity.
 
-     assert (Pos.to_nat k₁ < Pos.to_nat (k * k₁))%nat as H₃.
-      rewrite Pos2Nat.inj_mul.
-      remember (Pos.to_nat k) as kn eqn:Hkn .
-      destruct kn as [| kn].
-       symmetry in Hkn.
-       exfalso; revert Hkn; apply Pos2Nat_ne_0.
+     rewrite shifted_in_stretched in Hin; [ idtac | assumption ].
+     apply Hin; reflexivity.
 
-       destruct kn as [| kn].
-        exfalso; apply H₂; reflexivity.
-
-        simpl.
-        remember (Pos.to_nat k₁) as kn₁ eqn:Hkn₁ .
-        symmetry in Hkn₁.
-        destruct kn₁ as [| kn₁].
-         exfalso; revert Hkn₁; apply Pos2Nat_ne_0.
-
-         rewrite Nat.add_succ_l.
-         rewrite Nat.add_succ_l.
-         rewrite Nat.add_succ_r.
-         apply le_n_S.
-         apply le_n_S.
-         apply le_plus_l.
-
-      apply Hnz₁ in H₃.
-      destruct H₃ as (j, (Hjm, Hjn)).
+  exfalso.
 bbb.
 *)
 
