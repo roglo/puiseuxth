@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.878 2013-10-19 11:58:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.879 2013-10-19 20:17:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1753,6 +1753,17 @@ destruct m as [m| ].
      apply Hin; reflexivity.
 
   exfalso.
+  destruct (Z_zerop (' k₂ mod ' (k * k₁))) as [H₂| H₂].
+   apply Z.mod_divide in H₂.
+    destruct H₂ as (c, H₂).
+    destruct c as [| c| c].
+     revert H₂; apply Zpos_ne_0.
+
+     destruct (Pos.eq_dec c 1) as [H₃| H₃].
+      subst c.
+      rewrite Z.mul_1_l in H₂.
+      apply Z.gt_lt in H₁.
+      rewrite H₂ in H₁; revert H₁; apply Z.lt_irrefl.
 bbb.
 *)
 
