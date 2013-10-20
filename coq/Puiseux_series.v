@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.883 2013-10-20 08:55:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.884 2013-10-20 09:56:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1787,6 +1787,17 @@ destruct m as [m| ].
        apply Nat.eq_mul_0_l in H; [ assumption | apply Pos2Nat_ne_0 ].
 
        intros k' Hk'; simpl.
+       apply stretch_factor_iff in Hk₁.
+       simpl in Hk₁.
+       rewrite Hn in Hk₁.
+       destruct Hk₁ as (Hz₁, Hnz₁).
+       apply Hnz₁.
+       eapply Nat.le_lt_trans; [ idtac | eassumption ].
+       rewrite Pos2Nat.inj_mul.
+       edestruct mult_O_le; [ idtac | eassumption ].
+       exfalso; revert H; apply Pos2Nat_ne_0.
+
+      rewrite Hk₁ in H₄.
 bbb.
 *)
 
