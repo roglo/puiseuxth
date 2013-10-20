@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.882 2013-10-20 07:14:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.883 2013-10-20 08:55:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1765,23 +1765,28 @@ destruct m as [m| ].
      apply Z.gt_lt in H₁.
      rewrite H₂ in H₁; revert H₁; apply Z.lt_irrefl.
 
-bbb.
-      assert (Pos.to_nat (k * k₁) mod Pos.to_nat k₂ ≠ 0)%nat as H₄.
-       rewrite Nat.mod_small; [ apply Pos2Nat_ne_0 | idtac ].
-       apply Pos2Nat.inj_lt.
+     assert (stretch_factor fld s 0 = c * k₁)%positive as H₄.
+      apply stretch_factor_iff.
+      rewrite Hn.
+      split.
+       intros i Him; simpl.
+       apply stretch_factor_iff in Hk₂.
+       rewrite Hm in Hk₂.
+       simpl in Hk₂.
+       destruct Hk₂ as (Hz₂, Hnz₂).
+       rewrite <- series_nth_fld_mul_stretch with (k := k).
+       apply Hz₂.
+       intros H; apply Him; clear Him.
        simpl in H₂.
-       injection H₂; clear H₂; intros H₂.
-       replace (k * k₁)%positive with (1 * k * k₁)%positive .
-        rewrite H₂.
-        rewrite <- Pos.mul_assoc.
-        apply Pos.mul_lt_mono_r.
-        Focus 2.
-        reflexivity.
+       do 2 rewrite <- positive_nat_Z in H₂.
+       apply Nat2Z.inj in H₂.
+       rewrite H₂ in H.
+       rewrite Pos.mul_assoc, Pos_mul_shuffle0, Nat.mul_comm in H.
+       rewrite Pos2Nat.inj_mul in H.
+       rewrite Nat.mul_mod_distr_r in H; try apply Pos2Nat_ne_0.
+       apply Nat.eq_mul_0_l in H; [ assumption | apply Pos2Nat_ne_0 ].
 
-        Focus 2.
-        apply Hz₂ in H₄.
-        rewrite Pos2Nat.inj_mul in H₄.
-        rewrite series_nth_fld_mul_stretch in H₄.
+       intros k' Hk'; simpl.
 bbb.
 *)
 
