@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.885 2013-10-20 10:16:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.886 2013-10-20 16:41:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1804,6 +1804,23 @@ destruct m as [m| ].
 
     simpl in H₂.
     discriminate H₂.
+
+   assert (' (k * k₁) ≠ 0)%Z as H₃ by apply Pos2Z_ne_0.
+   apply Z.div_mod with (a := Zpos k₂) in H₃.
+   remember (' k₂ / ' (k * k₁))%Z as q eqn:Hq .
+   remember (' k₂ mod ' (k * k₁))%Z as r eqn:Hr .
+   apply stretch_factor_iff in Hk₂.
+   simpl in Hk₂.
+   rewrite Hm in Hk₂.
+   destruct Hk₂ as (Hz₂, Hnz₂).
+   assert (Pos.to_nat k₂ < Z.to_nat (' (k * k₁) * (q + 1)))%nat as H₄.
+    Focus 2.
+    apply Hnz₂ in H₄.
+    destruct H₄ as (i, (Him, Hin)).
+    assert (i mod Pos.to_nat k₂ ≠ 0)%nat as H₄.
+     Focus 2.
+     apply Hz₂ in H₄.
+     rewrite H₄ in Hin; apply Hin; reflexivity.
 bbb.
 *)
 
