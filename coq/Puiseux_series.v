@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.884 2013-10-20 09:56:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.885 2013-10-20 10:16:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1798,6 +1798,12 @@ destruct m as [m| ].
        exfalso; revert H; apply Pos2Nat_ne_0.
 
       rewrite Hk₁ in H₄.
+      symmetry in H₄.
+      rewrite <- Pos.mul_1_l in H₄.
+      apply Pos.mul_reg_r in H₄; contradiction.
+
+    simpl in H₂.
+    discriminate H₂.
 bbb.
 *)
 
