@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.888 2013-10-20 22:46:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.889 2013-10-20 22:59:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1826,7 +1826,33 @@ destruct m as [m| ].
       apply Hz₂ in H₅.
       rewrite H₅ in Hin; apply Hin; reflexivity.
 
+     destruct (zerop (i mod Pos.to_nat k)) as [H₅| H₅].
+      apply Nat.mod_divides in H₅; [ idtac | apply Pos2Nat_ne_0 ].
+      destruct H₅ as (c, Hc).
+      rewrite Hc in Hin.
+      rewrite series_nth_fld_mul_stretch in Hin.
+      apply stretch_factor_iff in Hk₁.
+      simpl in Hk₁.
+      rewrite Hn in Hk₁.
+      destruct Hk₁ as (Hz₁, Hnz₁).
+      assert (Pos.to_nat k₁ < Pos.to_nat k₂)%nat as H₅.
+       do 2 rewrite <- positive_nat_Z in H₁.
+       apply Z.gt_lt in H₁.
+       apply Nat2Z.inj_lt in H₁.
+       rewrite Pos2Nat.inj_mul in H₁.
+       eapply le_lt_trans; [ idtac | eassumption ].
+       remember (Pos.to_nat k) as kn eqn:Hkn .
+       symmetry in Hkn.
+       destruct kn as [| kn].
+        exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+        simpl.
+        apply le_plus_l.
+
+       apply Hnz₁ in H₅.
+       destruct H₅ as (j, (Hjm, Hjn)).
 bbb.
+So what ?
 *)
 
 (* vraiment intéressant... à voir... *)
