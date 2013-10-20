@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.880 2013-10-19 23:39:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.881 2013-10-20 06:43:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1671,14 +1671,14 @@ Proof.
 intros s n k Hn.
 remember (stretch_factor fld s 0) as k₁ eqn:Hk₁ .
 remember (stretch_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
-symmetry in Hk₁, Hk₂.
+remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
+symmetry in Hk₁, Hk₂, Hm.
 apply stretch_factor_iff in Hk₁.
 apply stretch_factor_iff in Hk₂.
 rewrite Hn in Hk₁.
+rewrite Hm in Hk₂.
 simpl in Hk₁, Hk₂.
 destruct Hk₁ as (Hz₁, Hnz₁).
-remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
-symmetry in Hm.
 destruct m as [m| ].
  destruct Hk₂ as (Hz₂, Hnz₂).
  destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
@@ -1765,6 +1765,7 @@ destruct m as [m| ].
       apply Z.gt_lt in H₁.
       rewrite H₂ in H₁; revert H₁; apply Z.lt_irrefl.
 
+bbb.
       assert (Pos.to_nat (k * k₁) mod Pos.to_nat k₂ ≠ 0)%nat as H₄.
        rewrite Nat.mod_small; [ apply Pos2Nat_ne_0 | idtac ].
        apply Pos2Nat.inj_lt.
