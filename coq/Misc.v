@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.69 2013-10-18 13:46:48 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.70 2013-10-20 07:14:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -504,7 +504,7 @@ intros A P a l H.
 inversion H; split; assumption.
 Qed.
 
-Lemma Zpos_ne_0 : ∀ p, (' p ≠ 0)%Z.
+Lemma Pos2Z_ne_0 : ∀ p, (' p ≠ 0)%Z.
 Proof.
 intros p H.
 pose proof (Zgt_pos_0 p) as HH.
@@ -550,12 +550,12 @@ rewrite Z.mul_shuffle1; symmetry.
 rewrite Z.mul_shuffle1.
 apply Z.mul_cancel_l.
  apply Z.neq_mul_0.
- split; [ assumption | apply Zpos_ne_0 ].
+ split; [ assumption | apply Pos2Z_ne_0 ].
 
  rewrite Qden_inv; [ idtac | assumption ].
  rewrite Qnum_inv; [ idtac | assumption ].
  remember Zmult as f; simpl; subst f.
- apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+ apply Z.mul_cancel_l; [ apply Pos2Z_ne_0 | idtac ].
  symmetry; apply Z2Pos.id; assumption.
 Qed.
 
@@ -619,7 +619,7 @@ remember (Z.lcm (' a) (' b)) as l.
 symmetry in Heql.
 destruct l as [| l| l].
  apply Z.lcm_eq_0 in Heql.
- destruct Heql as [Heql | Heql]; exfalso; revert Heql; apply Zpos_ne_0.
+ destruct Heql as [Heql | Heql]; exfalso; revert Heql; apply Pos2Z_ne_0.
 
  apply Pos2Z.is_pos.
 
@@ -667,8 +667,8 @@ Proof.
 intros a b Hab.
 destruct Hab as (c, Hab).
 rewrite Hab.
-rewrite Z.div_mul; [ idtac | apply Zpos_ne_0 ].
-destruct c; [ discriminate Hab | apply Zpos_ne_0 | discriminate Hab ].
+rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
+destruct c; [ discriminate Hab | apply Pos2Z_ne_0 | discriminate Hab ].
 Qed.
 
 Close Scope Z_scope.

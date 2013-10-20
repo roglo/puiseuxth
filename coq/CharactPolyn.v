@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.23 2013-09-08 02:08:25 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 1.24 2013-10-20 07:14:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -672,7 +672,7 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Z.mul_assoc, Z.mul_comm, <- Z.mul_assoc.
  symmetry; rewrite Z.mul_comm, <- Z.mul_assoc.
- apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+ apply Z.mul_cancel_l; [ apply Pos2Z_ne_0 | idtac ].
  rewrite Z.mul_comm; symmetry; assumption.
 Qed.
 
@@ -870,7 +870,7 @@ destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
  rewrite Z.mul_comm; symmetry.
  rewrite Z.mul_comm; symmetry.
  do 2 rewrite <- Z.mul_assoc.
- apply Z.mul_cancel_l; [ apply Zpos_ne_0 | idtac ].
+ apply Z.mul_cancel_l; [ apply Pos2Z_ne_0 | idtac ].
  rewrite Zmult_1_r.
  pose proof (Z.gcd_divide_r (mj - mk) (k - j)) as H.
  destruct H as (u, Hu).
@@ -1121,14 +1121,14 @@ do 2 rewrite Pos2Z.inj_mul in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
 rewrite Zmult_comm in Hpq; symmetry in Hpq.
 do 2 rewrite <- Zmult_assoc in Hpq.
-apply Z.mul_cancel_l in Hpq; [ idtac | apply Zpos_ne_0 ].
+apply Z.mul_cancel_l in Hpq; [ idtac | apply Pos2Z_ne_0 ].
 rewrite Zmult_assoc, Zmult_comm in Hpq.
 rewrite Qden_inv in Hpq.
  rewrite Qnum_inv in Hpq.
   symmetry in Hpq.
   rewrite Zmult_comm in Hpq.
   symmetry in Hpq.
-  apply Z.div_unique_exact in Hpq; [ idtac | apply Zpos_ne_0 ].
+  apply Z.div_unique_exact in Hpq; [ idtac | apply Pos2Z_ne_0 ].
   rewrite Hpq.
   rewrite Znumtheory.Zdivide_Zdiv_eq_2.
    rewrite Zdiv_1_r; reflexivity.

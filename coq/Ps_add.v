@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.59 2013-10-19 07:12:43 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.60 2013-10-20 07:14:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2360,7 +2360,7 @@ assert (0 <= g)%Z as Hgpos by (subst g; unfold gcd_nz; apply Z.gcd_nonneg).
 split; [ assumption | idtac ].
 assert (g ≠ 0)%Z as Hgnz.
  subst g; intros H; apply Z.gcd_eq_0_r in H.
- revert H; apply Zpos_ne_0.
+ revert H; apply Pos2Z_ne_0.
 
  apply Z.mul_nonneg_cancel_r with (m := g).
   fast_omega Hgpos Hgnz.
@@ -2381,7 +2381,7 @@ destruct (Z_dec 0 g) as [[H| H]| H].
 
  rewrite <- H in Hg.
  apply Z.gcd_eq_0_r in Hg.
- exfalso; revert Hg; apply Zpos_ne_0.
+ exfalso; revert Hg; apply Pos2Z_ne_0.
 Qed.
 
 Lemma gcd_pos_ne_0 : ∀ a b g,
@@ -2399,7 +2399,7 @@ destruct (Z_dec 0 g) as [[H| H]| H].
 
  rewrite <- H in Hg.
  apply Z.gcd_eq_0_r in Hg.
- exfalso; revert Hg; apply Zpos_ne_0.
+ exfalso; revert Hg; apply Pos2Z_ne_0.
 Qed.
 
 Lemma Z2Nat_gcd_ne_0 : ∀ a b g,
@@ -2424,7 +2424,7 @@ intros a b c g Hg Hb.
 eapply gcd_mul_le in Hg; [ idtac | eassumption ].
 destruct Hg as (Hg, Hc).
 destruct c as [| c| c].
- exfalso; revert Hb; apply Zpos_ne_0.
+ exfalso; revert Hb; apply Pos2Z_ne_0.
 
  apply Pos2Nat_ne_0.
 
@@ -2441,7 +2441,7 @@ intros a b c g Hg Hb.
 eapply gcd_mul_le in Hg; [ idtac | eassumption ].
 destruct Hg as (Hg, Hc).
 destruct c as [| c| c].
- exfalso; revert Hb; apply Zpos_ne_0.
+ exfalso; revert Hb; apply Pos2Z_ne_0.
 
  apply Pos2Z.is_pos.
 
@@ -3043,7 +3043,7 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
     do 2 rewrite Pos2Z.inj_mul.
     do 2 rewrite Z.mul_assoc.
     symmetry; rewrite Z.mul_shuffle0.
-    apply Z.mul_cancel_r; [ apply Zpos_ne_0 | idtac ].
+    apply Z.mul_cancel_r; [ apply Pos2Z_ne_0 | idtac ].
     inversion Hvv₂; subst.
     reflexivity.
 

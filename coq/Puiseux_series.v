@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.881 2013-10-20 06:43:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.882 2013-10-20 07:14:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1673,16 +1673,16 @@ remember (stretch_factor fld s 0) as k₁ eqn:Hk₁ .
 remember (stretch_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hk₁, Hk₂, Hm.
-apply stretch_factor_iff in Hk₁.
-apply stretch_factor_iff in Hk₂.
-rewrite Hn in Hk₁.
-rewrite Hm in Hk₂.
-simpl in Hk₁, Hk₂.
-destruct Hk₁ as (Hz₁, Hnz₁).
 destruct m as [m| ].
- destruct Hk₂ as (Hz₂, Hnz₂).
  destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
   exfalso.
+  apply stretch_factor_iff in Hk₁.
+  apply stretch_factor_iff in Hk₂.
+  rewrite Hn in Hk₁.
+  rewrite Hm in Hk₂.
+  simpl in Hk₁, Hk₂.
+  destruct Hk₁ as (Hz₁, Hnz₁).
+  destruct Hk₂ as (Hz₂, Hnz₂).
   do 2 rewrite <- positive_nat_Z in H₁.
   apply Nat2Z.inj_lt in H₁.
   apply Hnz₂ in H₁.
@@ -1754,16 +1754,16 @@ destruct m as [m| ].
 
   exfalso.
   destruct (Z_zerop (' k₂ mod ' (k * k₁))) as [H₂| H₂].
-   apply Z.mod_divide in H₂.
-    destruct H₂ as (c, H₂).
-    destruct c as [| c| c].
-     revert H₂; apply Zpos_ne_0.
+   apply Z.mod_divide in H₂; [ idtac | apply Pos2Z_ne_0 ].
+   destruct H₂ as (c, H₂).
+   destruct c as [| c| c].
+    revert H₂; apply Pos2Z_ne_0.
 
-     destruct (Pos.eq_dec c 1) as [H₃| H₃].
-      subst c.
-      rewrite Z.mul_1_l in H₂.
-      apply Z.gt_lt in H₁.
-      rewrite H₂ in H₁; revert H₁; apply Z.lt_irrefl.
+    destruct (Pos.eq_dec c 1) as [H₃| H₃].
+     subst c.
+     rewrite Z.mul_1_l in H₂.
+     apply Z.gt_lt in H₁.
+     rewrite H₂ in H₁; revert H₁; apply Z.lt_irrefl.
 
 bbb.
       assert (Pos.to_nat (k * k₁) mod Pos.to_nat k₂ ≠ 0)%nat as H₄.
