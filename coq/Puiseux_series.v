@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.892 2013-10-21 10:09:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.893 2013-10-21 11:52:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1877,6 +1877,21 @@ destruct m as [m| ].
 
        apply Hnz₁ in H₅.
        destruct H₅ as (j, (Hjm, Hjn)).
+       assert (i mod Pos.to_nat (k * k₁) = 0)%nat as H₅.
+        rewrite Hc.
+        rewrite Pos2Nat.inj_mul.
+        rewrite Nat.mul_mod_distr_l; try apply Pos2Nat_ne_0.
+        destruct (zerop (c mod Pos.to_nat k₁)) as [H₅| H₅].
+         rewrite H₅, Nat.mul_comm; reflexivity.
+
+         assert (c mod Pos.to_nat k₁ ≠ 0)%nat as H₆.
+          intros H; rewrite H in H₅; revert H₅; apply Nat.lt_irrefl.
+
+          apply Hz₁ in H₆.
+          rewrite H₆ in Hin; exfalso; apply Hin; reflexivity.
+
+        apply Nat.mod_divides in H₅; [ idtac | apply Pos2Nat_ne_0 ].
+        destruct H₅ as (u, Hu).
 bbb.
 So what ?
 *)
