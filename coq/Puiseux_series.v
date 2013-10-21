@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.890 2013-10-21 08:36:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.891 2013-10-21 09:52:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1826,10 +1826,15 @@ destruct m as [m| ].
       rewrite H₅ in Hin; apply Hin; reflexivity.
 
      destruct (zerop (i mod Pos.to_nat k)) as [H₅| H₅].
+      Focus 2.
+      apply shifted_in_stretched with (s := s) in H₅.
+      rewrite H₅ in Hin; apply Hin; reflexivity.
+
       apply Nat.mod_divides in H₅; [ idtac | apply Pos2Nat_ne_0 ].
       destruct H₅ as (c, Hc).
       rewrite Hc in Hin.
       rewrite series_nth_fld_mul_stretch in Hin.
+      (* aussi : c mod k₁ = 0 ! *)
       apply stretch_factor_iff in Hk₁.
       simpl in Hk₁.
       rewrite Hn in Hk₁.
