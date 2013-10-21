@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.894 2013-10-21 12:36:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.895 2013-10-21 13:53:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1663,7 +1663,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
-(* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai !
+(* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai ! *)
 Lemma zzz : ∀ s n k,
   first_nonzero fld s 1 = fin n
   → stretch_factor fld (series_stretch fld k s) 0 =
