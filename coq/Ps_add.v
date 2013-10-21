@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 1.60 2013-10-20 07:14:04 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 1.61 2013-10-21 12:36:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,7 +41,7 @@ Definition adjust_nz n k nz :=
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
-(* *)
+(* manque stretch_factor_stretch...
 Theorem glop : ∀ nz n k,
   NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
