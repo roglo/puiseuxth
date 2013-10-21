@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.891 2013-10-21 09:52:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.892 2013-10-21 10:09:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1813,7 +1813,29 @@ destruct m as [m| ].
    rewrite Hm in Hk₂.
    destruct Hk₂ as (Hz₂, Hnz₂).
    assert (Pos.to_nat k₂ < Z.to_nat (' (k * k₁) * (q + 1)))%nat as H₄.
-    Focus 2.
+    rewrite <- positive_nat_Z in H₃.
+    apply Nat2Z.inj_lt.
+    rewrite H₃.
+    rewrite Z2Nat.id.
+     rewrite Z.mul_add_distr_l.
+     apply Z.add_lt_mono_l.
+     rewrite Z.mul_1_r.
+     rewrite Hr.
+     assert (0 < ' (k * k₁))%Z as H₄ by apply Pos2Z.is_pos.
+     apply Z.mod_pos_bound with (a := Zpos k₂) in H₄.
+     destruct H₄; assumption.
+
+     assert (0 <= q)%Z as H₄.
+      rewrite Hq; apply Z_div_pos_is_nonneg.
+
+      destruct q as [| q| q].
+       apply Pos2Z.is_nonneg.
+
+       apply Pos2Z.is_nonneg.
+
+       apply Z.nlt_ge in H₄.
+       exfalso; apply H₄; apply Pos2Z.neg_is_neg.
+
     apply Hnz₂ in H₄.
     destruct H₄ as (i, (Him, Hin)).
     destruct (zerop (i mod Pos.to_nat k₂)) as [H₄| H₄].
