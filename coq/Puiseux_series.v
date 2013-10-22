@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.900 2013-10-22 09:42:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.901 2013-10-22 17:09:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,10 +34,10 @@ Axiom first_nonzero_iff : ∀ s c n,
         (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
     end.
 
-(* [stretch_factor fld s n] returns the maximal shrink factor [k] of the
-   series [s] starting at position [n], i.e. there is a series [s'] which
-   can be stretched by [stretch_series] (below) with a factor of [k] to
-   give [s] back. *)
+(* [stretch_factor fld s n] returns the maximal stretching factor [k] of
+   the series [s] starting at position [n], i.e. there is a series [s']
+   which can be stretched by [stretch_series] (below) with a factor of [k]
+   to give [s] back. *)
 Definition stretch_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
