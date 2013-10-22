@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.897 2013-10-22 00:09:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.898 2013-10-22 00:16:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1701,13 +1701,12 @@ destruct m as [m| ].
 
    apply Hnz in H₁.
    destruct H₁ as (i, (Him, Hin)).
-   exists (Pos.to_nat k * i)%nat.
-   rewrite <- series_nth_fld_mul_stretch with (k := k) in Hin.
-   split; [ idtac | assumption ].
-   intros H; apply Him; clear Him.
-   apply Nat.mod_divides in H; [ idtac | fast_omega Hk' ].
-   destruct H as (c, Hc).
-   rewrite <- Hkn in Hk'.
+   destruct (zerop ((Pos.to_nat k * i) mod k')) as [H₁| H₁].
+    Focus 2.
+    exists (Pos.to_nat k * i)%nat.
+    rewrite <- series_nth_fld_mul_stretch with (k := k) in Hin.
+    split; [ idtac | assumption ].
+    apply Nat.neq_0_lt_0; assumption.
 bbb.
 
 (* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai ! *)
