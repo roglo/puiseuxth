@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.898 2013-10-22 00:16:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.899 2013-10-22 07:48:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1675,6 +1675,20 @@ rewrite Hn in Hs.
 remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ].
+ Focus 2.
+ destruct Hs as (_, Hnz).
+ apply first_nonzero_iff in Hn.
+ destruct Hn as (Hz₁, Hnz₁).
+ apply first_nonzero_iff in Hm.
+ rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
+ remember (Pos.to_nat k) as kn eqn:Hkn .
+ symmetry in Hkn.
+ destruct kn as [| kn]; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
+ simpl in Hnz₁.
+ rewrite <- Nat.add_1_r, Nat.add_comm in Hnz₁.
+ rewrite Hm in Hnz₁.
+ exfalso; apply Hnz₁; reflexivity.
+
  destruct Hs as (_, Hnz).
  split.
   intros i Him.
@@ -1682,6 +1696,7 @@ destruct m as [m| ].
   apply Nat.neq_0_lt_0; assumption.
 
   intros k' Hk'.
+bbb.
   remember (Pos.to_nat k) as kn eqn:Hkn .
   symmetry in Hkn.
   destruct kn; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
