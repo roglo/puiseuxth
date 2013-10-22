@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.901 2013-10-22 17:09:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.902 2013-10-22 18:11:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -24,15 +24,17 @@ Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
 Admitted.
 
+Definition first_nonzero_prop s c n :=
+  match n with
+  | fin k =>
+      (∀ i, (i < k)%nat → series_nth_fld fld (c + i) s ≍ zero fld) ∧
+      series_nth_fld fld (c + k) s ≭ zero fld
+  | ∞ =>
+      (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
+  end.
+
 Axiom first_nonzero_iff : ∀ s c n,
-  first_nonzero fld s c = n
-  ↔ match n with
-    | fin k =>
-        (∀ i, (i < k)%nat → series_nth_fld fld (c + i) s ≍ zero fld) ∧
-        series_nth_fld fld (c + k) s ≭ zero fld
-    | ∞ =>
-        (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
-    end.
+  first_nonzero fld s c = n ↔ first_nonzero_prop s c n.
 
 (* [stretch_factor fld s n] returns the maximal stretching factor [k] of
    the series [s] starting at position [n], i.e. there is a series [s']
@@ -41,17 +43,19 @@ Axiom first_nonzero_iff : ∀ s c n,
 Definition stretch_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
+Definition stretch_factor_prop s n k :=
+  match first_nonzero fld s (S n) with
+  | fin _ =>
+      (∀ i, i mod (Pos.to_nat k) ≠ O →
+       series_nth_fld fld (n + i) s ≍ zero fld) ∧
+      (∀ k', (Pos.to_nat k < k')%nat →
+       ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+  | ∞ =>
+      k = 1%positive
+  end.
+
 Axiom stretch_factor_iff : ∀ s n k,
-  stretch_factor fld s n = k
-  ↔ match first_nonzero fld s (S n) with
-    | fin _ =>
-        (∀ i, i mod (Pos.to_nat k) ≠ O →
-         series_nth_fld fld (n + i) s ≍ zero fld) ∧
-        (∀ k', (Pos.to_nat k < k')%nat →
-         ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
-    | ∞ =>
-        k = 1%positive
-    end.
+  stretch_factor fld s n = k ↔ stretch_factor_prop s n k.
 
 End Axioms.
 
@@ -291,8 +295,8 @@ Proof.
 intros s₁ s₂ Heq n.
 remember (stretch_factor fld s₂ n) as k eqn:Hk .
 symmetry in Hk.
-apply stretch_factor_iff in Hk.
-apply stretch_factor_iff.
+apply stretch_factor_iff in Hk; unfold stretch_factor_prop in Hk.
+apply stretch_factor_iff; unfold stretch_factor_prop.
 remember (first_nonzero fld s₁ (S n)) as m eqn:Hm .
 symmetry in Hm.
 rewrite Heq in Hm.
@@ -1347,6 +1351,7 @@ remember (stretch_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
 apply stretch_factor_iff in Hk.
 apply stretch_factor_iff.
+unfold stretch_factor_prop in Hk |- *.
 rewrite <- Nat.add_succ_l.
 rewrite Nat.add_comm.
 rewrite first_nonzero_shift_add.
@@ -1611,6 +1616,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
    destruct Hk as (c, Hk).
    apply stretch_factor_iff in Hk.
+   unfold stretch_factor_prop in Hk.
    remember (first_nonzero fld s 1) as n eqn:Hn .
    symmetry in Hn.
    destruct n as [n| ].
@@ -1669,8 +1675,10 @@ Lemma yyy : ∀ s n k,
     → stretch_factor fld (series_stretch fld k s) 0 = k.
 Proof.
 intros s n k Hn Hs.
-apply stretch_factor_iff in Hs; simpl in Hs.
-apply stretch_factor_iff; simpl.
+apply stretch_factor_iff in Hs.
+apply stretch_factor_iff.
+unfold stretch_factor_prop in Hs |- *.
+simpl in Hs |- *.
 rewrite Hn in Hs.
 remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hm.
