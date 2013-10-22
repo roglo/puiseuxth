@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.896 2013-10-21 23:15:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.897 2013-10-22 00:09:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1669,6 +1669,45 @@ Lemma yyy : ∀ s n k,
     → stretch_factor fld (series_stretch fld k s) 0 = k.
 Proof.
 intros s n k Hn Hs.
+apply stretch_factor_iff in Hs; simpl in Hs.
+apply stretch_factor_iff; simpl.
+rewrite Hn in Hs.
+remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ].
+ destruct Hs as (_, Hnz).
+ split.
+  intros i Him.
+  rewrite shifted_in_stretched; [ reflexivity | idtac ].
+  apply Nat.neq_0_lt_0; assumption.
+
+  intros k' Hk'.
+  remember (Pos.to_nat k) as kn eqn:Hkn .
+  symmetry in Hkn.
+  destruct kn; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
+  assert (Pos.to_nat 1 < k')%nat as H₁.
+   destruct k' as [| k'].
+    apply Nat.nle_gt in Hk'.
+    exfalso; apply Hk', le_0_n.
+
+    unfold Pos.to_nat; simpl.
+    apply lt_n_S.
+    apply lt_S_n in Hk'.
+    destruct k' as [| k'].
+     apply Nat.nle_gt in Hk'.
+     exfalso; apply Hk', le_0_n.
+
+     apply lt_0_Sn.
+
+   apply Hnz in H₁.
+   destruct H₁ as (i, (Him, Hin)).
+   exists (Pos.to_nat k * i)%nat.
+   rewrite <- series_nth_fld_mul_stretch with (k := k) in Hin.
+   split; [ idtac | assumption ].
+   intros H; apply Him; clear Him.
+   apply Nat.mod_divides in H; [ idtac | fast_omega Hk' ].
+   destruct H as (c, Hc).
+   rewrite <- Hkn in Hk'.
 bbb.
 
 (* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai ! *)
