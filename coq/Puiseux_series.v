@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.899 2013-10-22 07:48:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.900 2013-10-22 09:42:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1695,33 +1695,45 @@ destruct m as [m| ].
   rewrite shifted_in_stretched; [ reflexivity | idtac ].
   apply Nat.neq_0_lt_0; assumption.
 
-  intros k' Hk'.
-bbb.
+  intros k₁ Hk₁.
   remember (Pos.to_nat k) as kn eqn:Hkn .
   symmetry in Hkn.
   destruct kn; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
-  assert (Pos.to_nat 1 < k')%nat as H₁.
-   destruct k' as [| k'].
-    apply Nat.nle_gt in Hk'.
-    exfalso; apply Hk', le_0_n.
+  assert (Pos.to_nat 1 < k₁)%nat as H₁.
+   destruct k₁ as [| k₁].
+    apply Nat.nle_gt in Hk₁.
+    exfalso; apply Hk₁, le_0_n.
 
     unfold Pos.to_nat; simpl.
     apply lt_n_S.
-    apply lt_S_n in Hk'.
-    destruct k' as [| k'].
-     apply Nat.nle_gt in Hk'.
-     exfalso; apply Hk', le_0_n.
+    apply lt_S_n in Hk₁.
+    destruct k₁ as [| k₁].
+     apply Nat.nle_gt in Hk₁.
+     exfalso; apply Hk₁, le_0_n.
 
      apply lt_0_Sn.
 
    apply Hnz in H₁.
    destruct H₁ as (i, (Him, Hin)).
-   destruct (zerop ((Pos.to_nat k * i) mod k')) as [H₁| H₁].
+   destruct (zerop ((Pos.to_nat k * i) mod k₁)) as [H₁| H₁].
     Focus 2.
     exists (Pos.to_nat k * i)%nat.
     rewrite <- series_nth_fld_mul_stretch with (k := k) in Hin.
     split; [ idtac | assumption ].
     apply Nat.neq_0_lt_0; assumption.
+
+    rename i into b.
+    apply Nat.mod_divides in H₁; [ idtac | fast_omega Hk₁ ].
+    destruct H₁ as (a, Ha).
+    rewrite Nat.mul_comm in Ha.
+    symmetry in Ha; rewrite Nat.mul_comm in Ha.
+    rewrite <- Hkn in Hk₁.
+    destruct kn as [| kn].
+     exists b.
+     split; [ assumption | idtac ].
+     rewrite <- Pos2Nat.inj_1 in Hkn.
+     apply Pos2Nat.inj in Hkn.
+     subst k; rewrite series_stretch_1; assumption.
 bbb.
 
 (* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai ! *)
