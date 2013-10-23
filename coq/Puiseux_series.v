@@ -1,7 +1,8 @@
-(* $Id: Puiseux_series.v,v 1.905 2013-10-23 09:52:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.906 2013-10-23 18:10:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
+Require Import Znumtheory.
 Require Import NPeano.
 
 Require Import Field.
@@ -1695,6 +1696,49 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   injection Hkn; intros; subst kn.
   apply Pos2Nat.is_pos.
 Qed.
+
+Definition stretch_factor_prime_prop s n k :=
+  match first_nonzero fld s (S n) with
+  | fin _ =>
+      (∀ i, i mod (Pos.to_nat k) ≠ O →
+       series_nth_fld fld (n + i) s ≍ zero fld) ∧
+      (∀ k', (Pos.to_nat k < k')%nat
+       → prime (Z.of_nat k')
+         → ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+  | ∞ =>
+      k = 1%positive
+  end.
+
+Lemma xxx : ∀ s n k,
+  stretch_factor_prop fld s n k ↔ stretch_factor_prime_prop s n k.
+Proof.
+intros s n k.
+split; intros H.
+ unfold stretch_factor_prop in H.
+ unfold stretch_factor_prime_prop.
+ remember (first_nonzero fld s (S n)) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ]; [ idtac | assumption ].
+ destruct H as (Hz, Hnz).
+ split.
+  intros i Him.
+  apply Hz; assumption.
+
+  intros k' Hk' Hpk'.
+  apply Hnz; assumption.
+
+ unfold stretch_factor_prime_prop in H.
+ unfold stretch_factor_prop.
+ remember (first_nonzero fld s (S n)) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ]; [ idtac | assumption ].
+ destruct H as (Hz, Hnz).
+ split.
+  intros i Him.
+  apply Hz; assumption.
+
+  intros k' Hk'.
+bbb.
 
 Lemma yyy : ∀ s n k,
   first_nonzero fld s 1 = fin n
