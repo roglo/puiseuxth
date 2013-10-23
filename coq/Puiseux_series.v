@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.902 2013-10-22 18:11:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.903 2013-10-23 01:56:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,9 +21,6 @@ Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 (* [first_nonzero fld s n] returns the position of the first non null
    coefficient in the series [s], starting from the [n]th one (first
    one being 0). *)
-Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
-Admitted.
-
 Definition first_nonzero_prop s c n :=
   match n with
   | fin k =>
@@ -33,8 +30,22 @@ Definition first_nonzero_prop s c n :=
       (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
   end.
 
+Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
+Admitted.
+
 Axiom first_nonzero_iff : ∀ s c n,
   first_nonzero fld s c = n ↔ first_nonzero_prop s c n.
+
+(*
+Require Import ClassicalEpsilon.
+
+Definition first_nonzero s c :=
+  epsilon (inhabits 0%Nbar) (first_nonzero_prop s c).
+Definition first_nonzero_iff s c :=
+  epsilon_spec (inhabits 0%Nbar) (first_nonzero_prop s c) (zzz s c).
+*)
+
+(**)
 
 (* [stretch_factor fld s n] returns the maximal stretching factor [k] of
    the series [s] starting at position [n], i.e. there is a series [s']
