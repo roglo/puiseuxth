@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.906 2013-10-23 18:10:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.907 2013-10-23 19:15:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1708,6 +1708,43 @@ Definition stretch_factor_prime_prop s n k :=
   | ∞ =>
       k = 1%positive
   end.
+
+Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
+Proof.
+intros n Hn.
+destruct (prime_dec n) as [H₁| H₁].
+ exists n.
+ split; [ assumption | reflexivity ].
+
+ apply not_prime_divide in H₁; [ idtac | assumption ].
+ destruct H₁ as (m, (Hm, Hd)).
+ destruct Hd as (c, Hc).
+ subst n.
+ destruct (prime_dec m) as [H₁| H₁].
+  exists m.
+  split; [ assumption | idtac ].
+  apply Z.divide_factor_r.
+
+  apply not_prime_divide in H₁; [ idtac | destruct Hm; assumption ].
+  destruct H₁ as (n, (Hq, Hd)).
+  destruct Hd as (d, Hd).
+  subst m.
+  destruct (prime_dec n) as [H₁| H₁].
+   exists n.
+   split; [ assumption | idtac ].
+   rewrite Z.mul_assoc.
+   apply Z.divide_factor_r.
+
+   apply not_prime_divide in H₁; [ idtac | destruct Hq; assumption ].
+   destruct H₁ as (m, (Hr, Hd)).
+bbb.
+
+Lemma first_prime_divisor : ∀ n,
+  ¬prime (Z.of_nat n)
+  → ∃ p, p < n ∧ prime p ∧ (p | Z.of_nat n)%Z.
+Proof.
+intros n Hn.
+bbb.
 
 Lemma xxx : ∀ s n k,
   stretch_factor_prop fld s n k ↔ stretch_factor_prime_prop s n k.
