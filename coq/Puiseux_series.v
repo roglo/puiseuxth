@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.904 2013-10-23 02:29:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.905 2013-10-23 09:52:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,10 +41,24 @@ Axiom first_nonzero_iff : ∀ s c n,
 (*
 Require Import ClassicalEpsilon.
 
-Definition first_nonzero s c :=
-  epsilon (inhabits 0%Nbar) (first_nonzero_prop s c).
-Definition first_nonzero_iff s c :=
-  epsilon_spec (inhabits 0%Nbar) (first_nonzero_prop s c) (zzz s c).
+Definition first_nonzero₁ s c :=
+  epsilon (inhabits ∞) (first_nonzero_prop s c).
+
+Theorem zzz : ∀ s c, ∃ n : Nbar, first_nonzero_prop s c n.
+Proof.
+intros s c.
+unfold first_nonzero_prop.
+exists (first_nonzero₁ s c).
+remember (first_nonzero₁ s c) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ split.
+  intros i Hin.
+bbb.
+
+Definition first_nonzero_iff₁ s c :=
+  epsilon_spec (inhabits ∞) (first_nonzero_prop s c) (zzz s c).
+
 *)
 
 (**)
