@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.903 2013-10-23 01:56:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.904 2013-10-23 02:29:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -30,11 +30,13 @@ Definition first_nonzero_prop s c n :=
       (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
   end.
 
+(**)
 Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
 Admitted.
 
 Axiom first_nonzero_iff : ∀ s c n,
   first_nonzero fld s c = n ↔ first_nonzero_prop s c n.
+(**)
 
 (*
 Require Import ClassicalEpsilon.
