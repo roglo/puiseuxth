@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.913 2013-10-24 16:22:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.914 2013-10-24 20:45:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1835,10 +1835,10 @@ Definition stretch_factor_prime_prop s n k :=
       k = 1%positive
   end.
 
-Lemma xxx : ∀ s n k,
-  stretch_factor_prop fld s n k ↔ stretch_factor_prime_prop s n k.
+Lemma xxx : ∀ s n,
+  stretch_factor_prop fld s n 1 ↔ stretch_factor_prime_prop s n 1.
 Proof.
-intros s n k.
+intros s n.
 split; intros H.
  unfold stretch_factor_prop in H.
  unfold stretch_factor_prime_prop.
@@ -1869,7 +1869,10 @@ split; intros H.
    apply exists_prime_divisor in Hk.
    destruct Hk as (p, (Hp, Hpk')).
    exists (Z.to_nat p).
-   assert (Pos.to_nat k < Z.to_nat p)%nat.
+   assert (Pos.to_nat 1 < Z.to_nat p)%nat as H.
+    Focus 2.
+    apply Hnz in H.
+     destruct H as (j, (Hjm, Hjn)).
 bbb.
 
 Lemma yyy : ∀ s n k,
