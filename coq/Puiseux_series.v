@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.912 2013-10-24 16:14:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.913 2013-10-24 16:22:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1697,18 +1697,6 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
-Definition stretch_factor_prime_prop s n k :=
-  match first_nonzero fld s (S n) with
-  | fin _ =>
-      (∀ i, i mod (Pos.to_nat k) ≠ O →
-       series_nth_fld fld (n + i) s ≍ zero fld) ∧
-      (∀ k', (Pos.to_nat k < k')%nat
-       → prime (Z.of_nat k')
-         → ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
-  | ∞ =>
-      k = 1%positive
-  end.
-
 Lemma all_lt_all : ∀ P : nat → Prop,
   (∀ n, (∀ m, (m < n)%nat → P m) → P n)
   → ∀ n, P n.
@@ -1835,6 +1823,18 @@ assert (n = Z.of_nat nn) as H.
       omega.
 Qed.
 
+Definition stretch_factor_prime_prop s n k :=
+  match first_nonzero fld s (S n) with
+  | fin _ =>
+      (∀ i, i mod (Pos.to_nat k) ≠ O →
+       series_nth_fld fld (n + i) s ≍ zero fld) ∧
+      (∀ k', (Pos.to_nat k < k')%nat
+       → prime (Z.of_nat k')
+         → ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+  | ∞ =>
+      k = 1%positive
+  end.
+
 Lemma xxx : ∀ s n k,
   stretch_factor_prop fld s n k ↔ stretch_factor_prime_prop s n k.
 Proof.
@@ -1864,6 +1864,12 @@ split; intros H.
   apply Hz; assumption.
 
   intros k' Hk'.
+  assert (1 < Z.of_nat k')%Z as Hk.
+   Focus 2.
+   apply exists_prime_divisor in Hk.
+   destruct Hk as (p, (Hp, Hpk')).
+   exists (Z.to_nat p).
+   assert (Pos.to_nat k < Z.to_nat p)%nat.
 bbb.
 
 Lemma yyy : ∀ s n k,
