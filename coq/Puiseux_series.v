@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.911 2013-10-24 15:52:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.912 2013-10-24 16:14:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1728,24 +1728,27 @@ induction n; intros.
 Qed.
 
 Lemma infinite_descent : ∀ P : nat → Prop,
-  (∀ n, { P n } + { ¬ (P n) })
-  → P O
-    → (∀ n, ¬(P n) → ∃ m, (m < n)%nat ∧ ¬(P m))
-      → ∀ n, P n.
+  P O
+  → (∀ n, (∀ m, n ≤ m ∨ P m) → P n)
+    → ∀ n, P n.
 Proof.
-intros P Pdec P₀ HP.
+intros P P₀ HP.
 apply all_lt_all.
 intros n Hmn.
 induction n as [| n]; [ assumption | idtac ].
-case (Pdec (S n)); intros H; [ assumption | idtac ].
-apply HP in H.
-destruct H as (m, (Hmsn, Hm)).
-exfalso; apply Hm.
-apply Hmn; assumption.
+apply HP.
+intros m.
+destruct (le_dec (S n) m) as [H₁| H₁].
+ left; assumption.
+
+ right.
+ apply Hmn.
+ omega.
 Qed.
 
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
 Proof.
+(* à nettoyer sérieux, putain con, les mecs *)
 intros n Hn.
 remember (Z.to_nat n) as nn eqn:Hnn .
 assert (n = Z.of_nat nn) as H.
@@ -1764,20 +1767,19 @@ assert (n = Z.of_nat nn) as H.
    clear Hn.
    revert nn.
    apply infinite_descent; intros.
-    Focus 2.
     exists 2%Z.
     split; [ apply prime_2 | idtac ].
     reflexivity.
 
-    Focus 2.
     case (prime_dec (Z.of_nat (S (S n)))); intros H₁.
-     exfalso; apply H.
-     exists (Z.of_nat (S (S n))); split; [ assumption | reflexivity ].
+     exists (Z.of_nat (S (S n))).
+     split; [ assumption | idtac ].
+     reflexivity.
 
      apply not_prime_divide in H₁.
       destruct H₁ as (m, ((Hm, Hmn), (p, Hp))).
-      exists (Z.to_nat (m - 2)).
-      split.
+      pose proof (H (Z.to_nat (m - 2))) as HH.
+      destruct HH as [HH| HH].
        Focus 2.
        assert (S (S (Z.to_nat (m - 2))) = Z.to_nat m)%nat.
         revert Hm; clear; intros.
@@ -1802,19 +1804,18 @@ assert (n = Z.of_nat nn) as H.
 
           omega.
 
-        rewrite H0.
-        rewrite Z2Nat.id; [ idtac | omega ].
-        intros HH.
-        apply H; clear H.
+        rewrite H0 in HH.
+        rewrite Z2Nat.id in HH; [ idtac | omega ].
         destruct HH as (q, (Hq, Hqm)).
         exists q.
         split; [ assumption | idtac ].
         rewrite Hp.
-        destruct Hqm as (qq, Hqq).
-        rewrite Hqq.
-        rewrite Z.mul_assoc.
+        destruct Hqm as (c, Hc).
+        rewrite Hc, Z.mul_assoc.
         apply Z.divide_factor_r.
 
+       apply Nat.nlt_ge in HH.
+       exfalso; apply HH; clear HH.
        apply Nat2Z.inj_lt.
        rewrite Z2Nat.id.
         2: omega.
@@ -1832,7 +1833,7 @@ assert (n = Z.of_nat nn) as H.
       rewrite Nat2Z.inj_succ.
       rewrite Nat2Z.inj_succ.
       omega.
-bbb.
+Qed.
 
 Lemma xxx : ∀ s n k,
   stretch_factor_prop fld s n k ↔ stretch_factor_prime_prop s n k.
