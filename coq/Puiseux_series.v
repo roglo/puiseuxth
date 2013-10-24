@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.909 2013-10-24 09:50:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.910 2013-10-24 14:51:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1709,48 +1709,88 @@ Definition stretch_factor_prime_prop s n k :=
       k = 1%positive
   end.
 
+Lemma all_lt_all : ∀ P : nat → Prop,
+  (∀ n, (∀ m, (m < n)%nat → P m) → P n)
+  → ∀ n, P n.
+Proof.
+intros P Hm n.
+apply Hm.
+intros m Hmn.
+revert m Hmn.
+induction n; intros.
+ apply Nat.nle_gt in Hmn.
+ exfalso; apply Hmn, Nat.le_0_l.
+
+ destruct (eq_nat_dec m n) as [H₁| H₁].
+  subst m; apply Hm; assumption.
+
+  apply IHn; omega.
+Qed.
+
+Lemma infinite_descent : ∀ P : nat → Prop,
+  (∀ n, { P n } + { ¬ (P n) })
+  → P O
+    → (∀ n, ¬(P n) → ∃ m, (m < n)%nat ∧ ¬(P m))
+      → ∀ n, P n.
+Proof.
+intros P Pdec P₀ HP.
+apply all_lt_all.
+intros n Hmn.
+induction n as [| n]; [ assumption | idtac ].
+case (Pdec (S n)); intros H; [ assumption | idtac ].
+apply HP in H.
+destruct H as (m, (Hmsn, Hm)).
+exfalso; apply Hm.
+apply Hmn; assumption.
+Qed.
+
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
 Proof.
 intros n Hn.
-case (prime_dec n); intros H₁.
- exists n; split; [ assumption | idtac ].
- reflexivity.
+remember (Z.to_nat n) as nn eqn:Hnn .
+assert (n = Z.of_nat nn) as H.
+ subst nn.
+ rewrite Z2Nat.id; [ reflexivity | omega ].
 
- apply not_prime_divide in H₁; [ idtac | assumption ].
- destruct H₁ as (n₁, ((Hn₁, Hn₁n), (m₁, Hm₁))).
+ clear Hnn.
  subst n.
- clear Hn₁n.
- rename n₁ into n.
- case (prime_dec n); intros H₁.
-  exists n; split; [ assumption | idtac ].
-  apply Z.divide_factor_r.
+ clear Hn.
+ revert nn.
+ apply infinite_descent; intros.
+  Focus 2.
+  exists 2%Z.
+  split; [ apply prime_2 | idtac ].
+  apply Z.divide_0_r.
 
-  apply not_prime_divide in H₁; [ idtac | assumption ].
-  destruct H₁ as (n₁, ((Hn₂, Hn₁n), (m₂, Hm))).
-  subst n.
-  clear Hn₁n.
-  rewrite Z.mul_assoc.
-  rename n₁ into n.
-  case (prime_dec n); intros H₁.
-   exists n; split; [ assumption | idtac ].
-   apply Z.divide_factor_r.
+  Focus 2.
+  case (prime_dec (Z.of_nat n)); intros H₁.
+   exfalso; apply H.
+   exists (Z.of_nat n); split; [ assumption | reflexivity ].
 
-   apply not_prime_divide in H₁; [ idtac | assumption ].
-   destruct H₁ as (n₁, ((Hn₃, Hn₁n), (m₃, Hm))).
-   subst n.
-   clear Hn₁n.
-   rewrite Z.mul_assoc.
-   rename n₁ into n.
-   case (prime_dec n); intros H₁.
-    exists n; split; [ assumption | idtac ].
-    apply Z.divide_factor_r.
-bbb.
+   apply not_prime_divide in H₁.
+    destruct H₁ as (m, ((Hm, Hmn), (p, Hp))).
+    exists (Z.to_nat m).
+    split.
+     Focus 2.
+     rewrite Z2Nat.id; [ idtac | omega ].
+     intros HH.
+     apply H; clear H.
+     destruct HH as (q, (Hq, Hqm)).
+     exists q.
+     split; [ assumption | idtac ].
+     rewrite Hp.
+     destruct Hqm as (qq, Hqq).
+     rewrite Hqq.
+     rewrite Z.mul_assoc.
+     apply Z.divide_factor_r.
 
-Lemma first_prime_divisor : ∀ n,
-  ¬prime (Z.of_nat n)
-  → ∃ p, p < n ∧ prime p ∧ (p | Z.of_nat n)%Z.
-Proof.
-intros n Hn.
+     apply Nat2Z.inj_lt.
+     rewrite Z2Nat.id.
+      assumption.
+
+      omega.
+
+    Unfocus.
 bbb.
 
 Lemma xxx : ∀ s n k,
