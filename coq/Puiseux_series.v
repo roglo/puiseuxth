@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.910 2013-10-24 14:51:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.911 2013-10-24 15:52:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1754,43 +1754,84 @@ assert (n = Z.of_nat nn) as H.
 
  clear Hnn.
  subst n.
- clear Hn.
- revert nn.
- apply infinite_descent; intros.
-  Focus 2.
-  exists 2%Z.
-  split; [ apply prime_2 | idtac ].
-  apply Z.divide_0_r.
+ destruct nn.
+  apply Z.nle_gt in Hn.
+  exfalso; apply Hn, Z.le_0_1.
 
-  Focus 2.
-  case (prime_dec (Z.of_nat n)); intros H₁.
-   exfalso; apply H.
-   exists (Z.of_nat n); split; [ assumption | reflexivity ].
+  destruct nn.
+   exfalso; revert Hn; apply Z.lt_irrefl.
 
-   apply not_prime_divide in H₁.
-    destruct H₁ as (m, ((Hm, Hmn), (p, Hp))).
-    exists (Z.to_nat m).
-    split.
-     Focus 2.
-     rewrite Z2Nat.id; [ idtac | omega ].
-     intros HH.
-     apply H; clear H.
-     destruct HH as (q, (Hq, Hqm)).
-     exists q.
-     split; [ assumption | idtac ].
-     rewrite Hp.
-     destruct Hqm as (qq, Hqq).
-     rewrite Hqq.
-     rewrite Z.mul_assoc.
-     apply Z.divide_factor_r.
+   clear Hn.
+   revert nn.
+   apply infinite_descent; intros.
+    Focus 2.
+    exists 2%Z.
+    split; [ apply prime_2 | idtac ].
+    reflexivity.
 
-     apply Nat2Z.inj_lt.
-     rewrite Z2Nat.id.
-      assumption.
+    Focus 2.
+    case (prime_dec (Z.of_nat (S (S n)))); intros H₁.
+     exfalso; apply H.
+     exists (Z.of_nat (S (S n))); split; [ assumption | reflexivity ].
 
+     apply not_prime_divide in H₁.
+      destruct H₁ as (m, ((Hm, Hmn), (p, Hp))).
+      exists (Z.to_nat (m - 2)).
+      split.
+       Focus 2.
+       assert (S (S (Z.to_nat (m - 2))) = Z.to_nat m)%nat.
+        revert Hm; clear; intros.
+        rewrite Z2Nat.inj_sub; [ idtac | omega ].
+        rewrite <- Nat.sub_succ_l.
+         rewrite <- Nat.sub_succ_l.
+          simpl.
+          rewrite Nat.sub_0_r; reflexivity.
+
+          rewrite <- Z2Nat.inj_succ; [ idtac | omega ].
+          apply Z2Nat.inj_le.
+           omega.
+
+           omega.
+
+           omega.
+
+         apply Z2Nat.inj_le.
+          omega.
+
+          omega.
+
+          omega.
+
+        rewrite H0.
+        rewrite Z2Nat.id; [ idtac | omega ].
+        intros HH.
+        apply H; clear H.
+        destruct HH as (q, (Hq, Hqm)).
+        exists q.
+        split; [ assumption | idtac ].
+        rewrite Hp.
+        destruct Hqm as (qq, Hqq).
+        rewrite Hqq.
+        rewrite Z.mul_assoc.
+        apply Z.divide_factor_r.
+
+       apply Nat2Z.inj_lt.
+       rewrite Z2Nat.id.
+        2: omega.
+
+        apply Z.add_lt_mono_r with (p := 2%Z).
+        rewrite Z.sub_add.
+        rewrite Nat2Z.inj_succ in Hmn.
+        rewrite Nat2Z.inj_succ in Hmn.
+        simpl in Hmn.
+        rewrite <- Z.add_1_r in Hmn.
+        rewrite <- Z.add_1_r in Hmn.
+        rewrite <- Z.add_assoc in Hmn.
+        assumption.
+
+      rewrite Nat2Z.inj_succ.
+      rewrite Nat2Z.inj_succ.
       omega.
-
-    Unfocus.
 bbb.
 
 Lemma xxx : ∀ s n k,
