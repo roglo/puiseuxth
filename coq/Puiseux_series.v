@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.907 2013-10-23 19:15:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.908 2013-10-24 02:30:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1709,6 +1709,14 @@ Definition stretch_factor_prime_prop s n k :=
       k = 1%positive
   end.
 
+Inductive glop : Z → Prop :=
+  | glop_composed : ∀ a b, glop a → glop b → glop (a * b)%Z
+  | glop_prime : ∀ a, prime a → glop a.
+
+Lemma www : ∀ a, (1 < a)%Z → glop a.
+Proof.
+bbb.
+
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
 Proof.
 intros n Hn.
@@ -1720,6 +1728,7 @@ destruct (prime_dec n) as [H₁| H₁].
  destruct H₁ as (m, (Hm, Hd)).
  destruct Hd as (c, Hc).
  subst n.
+bbb.
  destruct (prime_dec m) as [H₁| H₁].
   exists m.
   split; [ assumption | idtac ].
