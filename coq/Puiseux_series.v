@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.919 2013-10-25 13:06:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.920 2013-10-25 13:25:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1968,6 +1968,16 @@ destruct m as [m| ].
      apply lt_0_Sn.
 
    apply Hnz in H₁.
+   destruct H₁ as (j, (Hjm, Hjn)).
+   destruct (zerop ((Pos.to_nat k * j) mod k₁)) as [H₁| H₁].
+    Focus 2.
+    exists (Pos.to_nat k * j)%nat.
+    rewrite <- series_nth_fld_mul_stretch with (k := k) in Hjn.
+    split; [ idtac | assumption ].
+    apply Nat.neq_0_lt_0; assumption.
+
+    rewrite <- Hkn in Hk₁.
+bbb.
    destruct H₁ as (i, (Him, Hin)).
    destruct (zerop ((Pos.to_nat k * i) mod k₁)) as [H₁| H₁].
     Focus 2.
