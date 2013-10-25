@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.915 2013-10-25 04:59:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.916 2013-10-25 09:42:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1697,10 +1697,10 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
-(* Allows proof by induction by changing the case
-     true for n implies true for S n
-   into
-     true for all nats before n implies true for S n.
+(* Allows proof by induction with the case
+     proved for n implies proved for S n
+   changed into
+     proved for all nats before n implies proved for S n.
 
    Then, the proof may be easier to perform.
 *)
