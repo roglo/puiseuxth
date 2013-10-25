@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.921 2013-10-25 13:39:22 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.922 2013-10-25 13:52:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1722,24 +1722,26 @@ induction n; intros m Hmn.
   apply Nat.succ_le_mono; assumption.
 Qed.
 
+(* it makes 'exists_prime_divisor' work, that's a miracle.
+   I was supposed to program 'infinite descent' method, but
+   it turned out like this by some rewrittings *)
 Lemma infinite_descent : ∀ P : nat → Prop,
   (∀ n, (∀ m, n ≤ m ∨ P m) → P n)
   → ∀ n, P n.
 Proof.
-intros P HP.
-apply all_lt_all.
-intros n Hmn.
-induction n as [| n].
- apply HP; left.
- apply Nat.le_0_l.
+intros P HP n.
+apply HP.
+induction n; intros m.
+ left; apply Nat.le_0_l.
 
- apply HP.
- intros m.
- destruct (le_dec (S n) m) as [H₁| H₁].
-  left; assumption.
+ destruct (eq_nat_dec n m) as [H₁| H₁].
+  subst m.
+  apply HP in IHn.
+  right; assumption.
 
-  right; apply Hmn.
-  apply Nat.nle_gt; assumption.
+  pose proof (IHn m) as Hm.
+  destruct Hm as [Hm| Hm]; [ idtac | right; assumption ].
+  left; apply le_neq_lt; assumption.
 Qed.
 
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
