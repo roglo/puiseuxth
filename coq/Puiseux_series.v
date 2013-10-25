@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.914 2013-10-24 20:45:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.915 2013-10-25 04:59:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1697,22 +1697,29 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
+(* Allows proof by induction by changing the case
+     true for n implies true for S n
+   into
+     true for all nats before n implies true for S n.
+
+   Then, the proof may be easier to perform.
+*)
 Lemma all_lt_all : ∀ P : nat → Prop,
   (∀ n, (∀ m, (m < n)%nat → P m) → P n)
   → ∀ n, P n.
 Proof.
 intros P Hm n.
 apply Hm.
-intros m Hmn.
-revert m Hmn.
-induction n; intros.
+induction n; intros m Hmn.
  apply Nat.nle_gt in Hmn.
  exfalso; apply Hmn, Nat.le_0_l.
 
  destruct (eq_nat_dec m n) as [H₁| H₁].
   subst m; apply Hm; assumption.
 
-  apply IHn; omega.
+  apply IHn.
+  apply le_neq_lt; [ idtac | assumption ].
+  apply Nat.succ_le_mono; assumption.
 Qed.
 
 Lemma infinite_descent : ∀ P : nat → Prop,
@@ -1729,9 +1736,8 @@ intros m.
 destruct (le_dec (S n) m) as [H₁| H₁].
  left; assumption.
 
- right.
- apply Hmn.
- omega.
+ right; apply Hmn.
+ apply Nat.nle_gt; assumption.
 Qed.
 
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
@@ -1778,19 +1784,9 @@ assert (n = Z.of_nat nn) as H.
           rewrite Nat.sub_0_r; reflexivity.
 
           rewrite <- Z2Nat.inj_succ; [ idtac | omega ].
-          apply Z2Nat.inj_le.
-           omega.
+          apply Z2Nat.inj_le; omega.
 
-           omega.
-
-           omega.
-
-         apply Z2Nat.inj_le.
-          omega.
-
-          omega.
-
-          omega.
+         apply Z2Nat.inj_le; omega.
 
         rewrite H0 in HH.
         rewrite Z2Nat.id in HH; [ idtac | omega ].
@@ -1806,8 +1802,6 @@ assert (n = Z.of_nat nn) as H.
        exfalso; apply HH; clear HH.
        apply Nat2Z.inj_lt.
        rewrite Z2Nat.id.
-        2: omega.
-
         apply Z.add_lt_mono_r with (p := 2%Z).
         rewrite Z.sub_add.
         rewrite Nat2Z.inj_succ in Hmn.
@@ -1817,6 +1811,8 @@ assert (n = Z.of_nat nn) as H.
         rewrite <- Z.add_1_r in Hmn.
         rewrite <- Z.add_assoc in Hmn.
         assumption.
+
+        omega.
 
       rewrite Nat2Z.inj_succ.
       rewrite Nat2Z.inj_succ.
