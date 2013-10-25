@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.916 2013-10-25 09:42:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.917 2013-10-25 09:44:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1742,7 +1742,7 @@ Qed.
 
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
 Proof.
-(* à nettoyer sérieux, putain con, les mecs *)
+(* à nettoyer *)
 intros n Hn.
 remember (Z.to_nat n) as nn eqn:Hnn .
 assert (n = Z.of_nat nn) as H.
@@ -1767,14 +1767,28 @@ assert (n = Z.of_nat nn) as H.
 
     case (prime_dec (Z.of_nat (S (S n)))); intros H₁.
      exists (Z.of_nat (S (S n))).
-     split; [ assumption | idtac ].
-     reflexivity.
+     split; [ assumption | reflexivity ].
 
      apply not_prime_divide in H₁.
       destruct H₁ as (m, ((Hm, Hmn), (p, Hp))).
       pose proof (H (Z.to_nat (m - 2))) as HH.
       destruct HH as [HH| HH].
-       Focus 2.
+       apply Nat.nlt_ge in HH.
+       exfalso; apply HH; clear HH.
+       apply Nat2Z.inj_lt.
+       rewrite Z2Nat.id.
+        apply Z.add_lt_mono_r with (p := 2%Z).
+        rewrite Z.sub_add.
+        rewrite Nat2Z.inj_succ in Hmn.
+        rewrite Nat2Z.inj_succ in Hmn.
+        simpl in Hmn.
+        rewrite <- Z.add_1_r in Hmn.
+        rewrite <- Z.add_1_r in Hmn.
+        rewrite <- Z.add_assoc in Hmn.
+        assumption.
+
+        omega.
+
        assert (S (S (Z.to_nat (m - 2))) = Z.to_nat m)%nat.
         revert Hm; clear; intros.
         rewrite Z2Nat.inj_sub; [ idtac | omega ].
@@ -1798,24 +1812,7 @@ assert (n = Z.of_nat nn) as H.
         rewrite Hc, Z.mul_assoc.
         apply Z.divide_factor_r.
 
-       apply Nat.nlt_ge in HH.
-       exfalso; apply HH; clear HH.
-       apply Nat2Z.inj_lt.
-       rewrite Z2Nat.id.
-        apply Z.add_lt_mono_r with (p := 2%Z).
-        rewrite Z.sub_add.
-        rewrite Nat2Z.inj_succ in Hmn.
-        rewrite Nat2Z.inj_succ in Hmn.
-        simpl in Hmn.
-        rewrite <- Z.add_1_r in Hmn.
-        rewrite <- Z.add_1_r in Hmn.
-        rewrite <- Z.add_assoc in Hmn.
-        assumption.
-
-        omega.
-
-      rewrite Nat2Z.inj_succ.
-      rewrite Nat2Z.inj_succ.
+      do 2 rewrite Nat2Z.inj_succ.
       omega.
 Qed.
 
