@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.917 2013-10-25 09:44:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.918 2013-10-25 10:15:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1742,12 +1742,13 @@ Qed.
 
 Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
 Proof.
-(* à nettoyer *)
+(* à nettoyer, peut-être *)
 intros n Hn.
 remember (Z.to_nat n) as nn eqn:Hnn .
 assert (n = Z.of_nat nn) as H.
  subst nn.
- rewrite Z2Nat.id; [ reflexivity | omega ].
+ rewrite Z2Nat.id; [ reflexivity | idtac ].
+ eapply Z.le_trans; [ apply Z.le_0_1 | apply Z.lt_le_incl; assumption ].
 
  clear Hnn.
  subst n.
@@ -1762,8 +1763,7 @@ assert (n = Z.of_nat nn) as H.
    revert nn.
    apply infinite_descent; intros.
     exists 2%Z.
-    split; [ apply prime_2 | idtac ].
-    reflexivity.
+    split; [ apply prime_2 | reflexivity ].
 
     case (prime_dec (Z.of_nat (S (S n)))); intros H₁.
      exists (Z.of_nat (S (S n))).
@@ -1787,15 +1787,16 @@ assert (n = Z.of_nat nn) as H.
         rewrite <- Z.add_assoc in Hmn.
         assumption.
 
-        omega.
+        apply Z.add_le_mono_r with (p := 2%Z).
+        rewrite Z.sub_simpl_r.
+        apply Z.lt_pred_le; assumption.
 
        assert (S (S (Z.to_nat (m - 2))) = Z.to_nat m)%nat.
         revert Hm; clear; intros.
-        rewrite Z2Nat.inj_sub; [ idtac | omega ].
+        rewrite Z2Nat.inj_sub; [ idtac | apply Zle_0_pos ].
         rewrite <- Nat.sub_succ_l.
          rewrite <- Nat.sub_succ_l.
-          simpl.
-          rewrite Nat.sub_0_r; reflexivity.
+          simpl; rewrite Nat.sub_0_r; reflexivity.
 
           rewrite <- Z2Nat.inj_succ; [ idtac | omega ].
           apply Z2Nat.inj_le; omega.
@@ -1803,7 +1804,7 @@ assert (n = Z.of_nat nn) as H.
          apply Z2Nat.inj_le; omega.
 
         rewrite H0 in HH.
-        rewrite Z2Nat.id in HH; [ idtac | omega ].
+        rewrite Z2Nat.id in HH; [ idtac | fast_omega Hm ].
         destruct HH as (q, (Hq, Hqm)).
         exists q.
         split; [ assumption | idtac ].
@@ -1813,7 +1814,7 @@ assert (n = Z.of_nat nn) as H.
         apply Z.divide_factor_r.
 
       do 2 rewrite Nat2Z.inj_succ.
-      omega.
+      fast_omega.
 Qed.
 
 Definition stretch_factor_prime_prop s n k :=
