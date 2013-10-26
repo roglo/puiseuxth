@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.937 2013-10-26 17:26:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.938 2013-10-26 18:13:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2099,6 +2099,27 @@ split.
   destruct q as [q| ].
    rewrite divmod_mod.
    rewrite <- Nat.add_succ_r.
+   rewrite first_nonzero_stretch_succ with (p := p) in Hq;
+    [ idtac | assumption ].
+   injection Hq; clear Hq; intros; subst q.
+   rewrite <- Nat.sub_succ_l.
+    rewrite Nat.sub_succ.
+    rewrite Nat.sub_0_r.
+    rewrite Nat.add_assoc, Nat.add_shuffle0, <- Nat.add_assoc.
+    rewrite <- Nat.mul_succ_l.
+    rewrite <- Nat.mul_add_distr_r.
+    remember (n + S p)%nat as x.
+    rewrite Nat.add_comm.
+    rewrite <- Nat.mul_succ_l.
+    subst x.
+    rewrite Nat.mul_comm.
+    rewrite stretching_factor_lim_stretch.
+    rewrite Nat.mul_comm.
+    rewrite Nat.mul_mod_distr_r.
+     rewrite Nat.gcd_mul_mono_r.
+     rewrite Pos2Nat.inj_mul.
+     rewrite Nat.mul_comm.
+     rewrite Nat.mul_mod_distr_l.
 bbb.
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne... *)L
