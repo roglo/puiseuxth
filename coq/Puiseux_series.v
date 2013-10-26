@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.930 2013-10-26 14:36:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.931 2013-10-26 15:16:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -64,14 +64,14 @@ Definition first_nonzero_iff₁ s c :=
 
 (**)
 
-(* [stretch_factor fld s n] returns the maximal stretching factor [k] of
+(* [stretching_factor fld s n] returns the maximal stretching factor [k] of
    the series [s] starting at position [n], i.e. there is a series [s']
    which can be stretched by [stretch_series] (below) with a factor of [k]
    to give [s] back. *)
-Definition stretch_factor : ∀ α, field α → series α → nat → positive.
+Definition stretching_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
-Definition stretch_factor_prop s n k :=
+Definition stretching_factor_prop s n k :=
   match first_nonzero fld s (S n) with
   | fin _ =>
       (∀ i, i mod (Pos.to_nat k) ≠ O →
@@ -82,8 +82,8 @@ Definition stretch_factor_prop s n k :=
       k = 1%positive
   end.
 
-Axiom stretch_factor_iff : ∀ s n k,
-  stretch_factor fld s n = k ↔ stretch_factor_prop s n k.
+Axiom stretching_factor_iff : ∀ s n k,
+  stretching_factor fld s n = k ↔ stretching_factor_prop s n k.
 
 End Axioms.
 
@@ -135,7 +135,7 @@ Definition gcd_nz n k (nz : nz_ps α) :=
 Definition normalise_nz nz :=
   match first_nonzero fld (nz_terms nz) 0 with
   | fin n =>
-      let k := stretch_factor fld (nz_terms nz) n in
+      let k := stretching_factor fld (nz_terms nz) n in
       let g := gcd_nz n k nz in
       NonZero
         {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
@@ -317,14 +317,14 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (stretch_factor fld)
+Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
 with signature (eq_series fld) ==> eq ==> eq as shrink_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (stretch_factor fld s₂ n) as k eqn:Hk .
+remember (stretching_factor fld s₂ n) as k eqn:Hk .
 symmetry in Hk.
-apply stretch_factor_iff in Hk; unfold stretch_factor_prop in Hk.
-apply stretch_factor_iff; unfold stretch_factor_prop.
+apply stretching_factor_iff in Hk; unfold stretching_factor_prop in Hk.
+apply stretching_factor_iff; unfold stretching_factor_prop.
 remember (first_nonzero fld s₁ (S n)) as m eqn:Hm .
 symmetry in Hm.
 rewrite Heq in Hm.
@@ -1370,16 +1370,16 @@ destruct v as [v| ].
  apply Hv.
 Qed.
 
-Lemma stretch_factor_shift : ∀ n s b,
-  stretch_factor fld (series_shift fld n s) (b + n) =
-  stretch_factor fld s b.
+Lemma stretching_factor_shift : ∀ n s b,
+  stretching_factor fld (series_shift fld n s) (b + n) =
+  stretching_factor fld s b.
 Proof.
 intros n s b.
-remember (stretch_factor fld s b) as k eqn:Hk .
+remember (stretching_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
-apply stretch_factor_iff in Hk.
-apply stretch_factor_iff.
-unfold stretch_factor_prop in Hk |- *.
+apply stretching_factor_iff in Hk.
+apply stretching_factor_iff.
+unfold stretching_factor_prop in Hk |- *.
 rewrite <- Nat.add_succ_l.
 rewrite Nat.add_comm.
 rewrite first_nonzero_shift_add.
@@ -1590,7 +1590,7 @@ rewrite Nbar.div_sup_mul.
 Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
-  (k | stretch_factor fld s 0)%positive
+  (k | stretching_factor fld s 0)%positive
   → series_stretch fld k (series_shrink k s) ≃ s.
 Proof.
 (* à nettoyer (quelques nettoyages faciles avec les Focus *)
@@ -1643,8 +1643,8 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
 
   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
    destruct Hk as (c, Hk).
-   apply stretch_factor_iff in Hk.
-   unfold stretch_factor_prop in Hk.
+   apply stretching_factor_iff in Hk.
+   unfold stretching_factor_prop in Hk.
    remember (first_nonzero fld s 1) as n eqn:Hn .
    symmetry in Hn.
    destruct n as [n| ].
@@ -1697,26 +1697,26 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
-Fixpoint stretch_factor_lim cnt s (n : nat) :=
+Fixpoint stretching_factor_lim cnt s (n : nat) :=
   match cnt with
   | O => 0%nat
   | S cnt' =>
       match first_nonzero fld s (S n) with
-      | fin m => Nat.gcd (S m) (stretch_factor_lim cnt' s (S n + m))
+      | fin m => Nat.gcd (S m) (stretching_factor_lim cnt' s (S n + m))
       | ∞ => 0%nat
       end
   end.
 
-Definition stretch_factor_gcd_prop s n k :=
-  (∀ cnt, stretch_factor_lim cnt s n mod k = 0%nat) ∧
-  (∀ k', (k < k')%nat → ∃ cnt, stretch_factor_lim cnt s n mod k' ≠ O).
+Definition stretching_factor_gcd_prop s n k :=
+  (∀ cnt, stretching_factor_lim cnt s n mod k = 0%nat) ∧
+  (∀ k', (k < k')%nat → ∃ cnt, stretching_factor_lim cnt s n mod k' ≠ O).
 
 Lemma www : ∀ s n k,
-  stretch_factor_prop fld s n k ↔ stretch_factor_gcd_prop s n (Pos.to_nat k).
+  stretching_factor_prop fld s n k ↔ stretching_factor_gcd_prop s n (Pos.to_nat k).
 Proof.
 intros s n k.
 split; intros H.
- unfold stretch_factor_gcd_prop.
+ unfold stretching_factor_gcd_prop.
  split.
   intros cnt.
   revert k cnt H.
@@ -1724,7 +1724,7 @@ split; intros H.
    destruct cnt; simpl.
     rewrite Nat.mod_0_l; [ reflexivity | apply Pos2Nat_ne_0 ].
 
-    unfold stretch_factor_prop in H.
+    unfold stretching_factor_prop in H.
     remember (first_nonzero fld s 1) as m eqn:Hm .
     symmetry in Hm.
     destruct m as [m| ].
@@ -1853,7 +1853,7 @@ assert (n = Z.of_nat nn) as H.
      fast_omega .
 Qed.
 
-Definition stretch_factor_prime_prop s n k :=
+Definition stretching_factor_prime_prop s n k :=
   match first_nonzero fld s (S n) with
   | fin _ =>
       (∀ i, i mod (Pos.to_nat k) ≠ O →
@@ -1865,13 +1865,13 @@ Definition stretch_factor_prime_prop s n k :=
       k = 1%positive
   end.
 
-Lemma stretch_factor_prop_1 : ∀ s n,
-  stretch_factor_prop fld s n 1 ↔ stretch_factor_prime_prop s n 1.
+Lemma stretching_factor_prop_1 : ∀ s n,
+  stretching_factor_prop fld s n 1 ↔ stretching_factor_prime_prop s n 1.
 Proof.
 intros s n.
 split; intros H.
- unfold stretch_factor_prop in H.
- unfold stretch_factor_prime_prop.
+ unfold stretching_factor_prop in H.
+ unfold stretching_factor_prime_prop.
  remember (first_nonzero fld s (S n)) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | assumption ].
@@ -1883,8 +1883,8 @@ split; intros H.
   intros k' Hk' Hpk'.
   apply Hnz; assumption.
 
- unfold stretch_factor_prime_prop in H.
- unfold stretch_factor_prop.
+ unfold stretching_factor_prime_prop in H.
+ unfold stretching_factor_prop.
  remember (first_nonzero fld s (S n)) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | assumption ].
@@ -1952,8 +1952,8 @@ split; intros H.
 Qed.
 
 Lemma uuu : ∀ s n k cnt,
-  stretch_factor_lim cnt (series_stretch fld k s) (Pos.to_nat k * n) =
-    (Pos.to_nat k * stretch_factor_lim cnt s n)%nat.
+  stretching_factor_lim cnt (series_stretch fld k s) (Pos.to_nat k * n) =
+    (Pos.to_nat k * stretching_factor_lim cnt s n)%nat.
 Proof.
 intros s n k cnt.
 revert s n k.
@@ -1995,22 +1995,22 @@ induction cnt; intros.
 bbb.
 ouais, y a un truc qui déconne quelque part...
 
-(* en supposant que la version stretch_factor_gcd_prop fonctionne...
+(* en supposant que la version stretching_factor_gcd_prop fonctionne...
    ou alors en le prenant comme définition ? pourquoi pas. *)
 Lemma vvv : ∀ s n p k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) = fin p
-    → stretch_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
-      (k * stretch_factor fld s n)%positive.
+    → stretching_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
+      (k * stretching_factor fld s n)%positive.
 Proof.
 intros s n p k Hn Hp.
-remember (stretch_factor fld s n) as m eqn:Hm .
+remember (stretching_factor fld s n) as m eqn:Hm .
 symmetry in Hm.
-apply stretch_factor_iff in Hm.
-apply stretch_factor_iff.
+apply stretching_factor_iff in Hm.
+apply stretching_factor_iff.
 apply www in Hm.
 apply www.
-unfold stretch_factor_gcd_prop in Hm |- *.
+unfold stretching_factor_gcd_prop in Hm |- *.
 destruct Hm as (Hz, Hnz).
 split.
  intros cnt.
@@ -2029,18 +2029,18 @@ split.
    rewrite <- Nat.add_succ_r.
 bbb.
 
-(* en supposant que la version stretch_factor_gcd_prop fonctionne... *)L
+(* en supposant que la version stretching_factor_gcd_prop fonctionne... *)L
 Lemma yyy : ∀ s n k,
   first_nonzero fld s 1 = fin n
-  → stretch_factor fld s 0 = 1%positive
-    → stretch_factor fld (series_stretch fld k s) 0 = k.
+  → stretching_factor fld s 0 = 1%positive
+    → stretching_factor fld (series_stretch fld k s) 0 = k.
 Proof.
 intros s n k Hn Hs.
-apply stretch_factor_iff in Hs.
-apply stretch_factor_iff.
+apply stretching_factor_iff in Hs.
+apply stretching_factor_iff.
 apply www in Hs.
 apply www.
-unfold stretch_factor_gcd_prop in Hs |- *.
+unfold stretching_factor_gcd_prop in Hs |- *.
 destruct Hs as (_, Hnz).
 split.
  intros cnt.
@@ -2061,14 +2061,14 @@ bbb.
 
 Lemma yyy : ∀ s n k,
   first_nonzero fld s 1 = fin n
-  → stretch_factor fld s 0 = 1%positive
-    → stretch_factor fld (series_stretch fld k s) 0 = k.
+  → stretching_factor fld s 0 = 1%positive
+    → stretching_factor fld (series_stretch fld k s) 0 = k.
 Proof.
-(* si la version stretch_factor_gcd_prop ne fonctionne pas... *)
+(* si la version stretching_factor_gcd_prop ne fonctionne pas... *)
 intros s n k Hn Hs.
-apply stretch_factor_iff in Hs.
-apply stretch_factor_iff.
-unfold stretch_factor_prop in Hs |- *.
+apply stretching_factor_iff in Hs.
+apply stretching_factor_iff.
+unfold stretching_factor_prop in Hs |- *.
 simpl in Hs |- *.
 rewrite Hn in Hs.
 remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
@@ -2148,19 +2148,19 @@ bbb.
 (* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai ! *)
 Lemma zzz : ∀ s n k,
   first_nonzero fld s 1 = fin n
-  → stretch_factor fld (series_stretch fld k s) 0 =
-      (k * stretch_factor fld s 0)%positive.
+  → stretching_factor fld (series_stretch fld k s) 0 =
+      (k * stretching_factor fld s 0)%positive.
 Proof.
 intros s n k Hn.
-remember (stretch_factor fld s 0) as k₁ eqn:Hk₁ .
-remember (stretch_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
+remember (stretching_factor fld s 0) as k₁ eqn:Hk₁ .
+remember (stretching_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hk₁, Hk₂, Hm.
 destruct m as [m| ].
  destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
   exfalso.
-  apply stretch_factor_iff in Hk₁.
-  apply stretch_factor_iff in Hk₂.
+  apply stretching_factor_iff in Hk₁.
+  apply stretching_factor_iff in Hk₂.
   rewrite Hn in Hk₁.
   rewrite Hm in Hk₂.
   simpl in Hk₁, Hk₂.
@@ -2248,12 +2248,12 @@ destruct m as [m| ].
      apply Z.gt_lt in H₁.
      rewrite Hq in H₁; revert H₁; apply Z.lt_irrefl.
 
-     assert (stretch_factor fld s 0 = q * k₁)%positive as H₄.
-      apply stretch_factor_iff.
+     assert (stretching_factor fld s 0 = q * k₁)%positive as H₄.
+      apply stretching_factor_iff.
       rewrite Hn.
       split.
        intros i Him; simpl.
-       apply stretch_factor_iff in Hk₂.
+       apply stretching_factor_iff in Hk₂.
        rewrite Hm in Hk₂.
        simpl in Hk₂.
        destruct Hk₂ as (Hz₂, Hnz₂).
@@ -2270,7 +2270,7 @@ destruct m as [m| ].
        apply Nat.eq_mul_0_l in H; [ assumption | apply Pos2Nat_ne_0 ].
 
        intros k' Hk'; simpl.
-       apply stretch_factor_iff in Hk₁.
+       apply stretching_factor_iff in Hk₁.
        simpl in Hk₁.
        rewrite Hn in Hk₁.
        destruct Hk₁ as (Hz₁, Hnz₁).
@@ -2291,7 +2291,7 @@ destruct m as [m| ].
    apply Z.div_mod with (a := Zpos k₂) in H₃.
    remember (' k₂ / ' (k * k₁))%Z as q eqn:Hq .
    remember (' k₂ mod ' (k * k₁))%Z as r eqn:Hr .
-   apply stretch_factor_iff in Hk₂.
+   apply stretching_factor_iff in Hk₂.
    simpl in Hk₂.
    rewrite Hm in Hk₂.
    destruct Hk₂ as (Hz₂, Hnz₂).
@@ -2340,7 +2340,7 @@ destruct m as [m| ].
       rewrite Hc in Hin.
       rewrite series_nth_fld_mul_stretch in Hin.
       (* aussi : c mod k₁ = 0 ! *)
-      apply stretch_factor_iff in Hk₁.
+      apply stretching_factor_iff in Hk₁.
       simpl in Hk₁.
       rewrite Hn in Hk₁.
       destruct Hk₁ as (Hz₁, Hnz₁).
@@ -2381,11 +2381,11 @@ So what ?
 
 (* vraiment intéressant... à voir...
    oui mais avec zzz plus simple ci-dessus (n = 0), j'y arrive même pas !
-Lemma stretch_factor_stretch : ∀ s n k,
+Lemma stretching_factor_stretch : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) ≠ ∞
-    → stretch_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
-      (k * stretch_factor fld s n)%positive.
+    → stretching_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
+      (k * stretching_factor fld s n)%positive.
 Proof.
 intros s n k Hn Hsn.
 remember (Pos.to_nat k) as kn eqn:Hkn .
@@ -2403,9 +2403,9 @@ destruct kn as [| kn].
 
   rewrite <- Hkn.
   remember (series_stretch fld k s) as s₁.
-  remember (stretch_factor fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
+  remember (stretching_factor fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
   symmetry in Hk₁.
-  apply stretch_factor_iff in Hk₁.
+  apply stretching_factor_iff in Hk₁.
   remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
@@ -2417,7 +2417,7 @@ destruct kn as [| kn].
    erewrite first_nonzero_stretch_succ in Hm'; try eassumption.
    rewrite <- Hm' in Hm; clear Hm'.
    clear m.
-   remember (stretch_factor fld s n) as k₂ eqn:Hk₂ .
+   remember (stretching_factor fld s n) as k₂ eqn:Hk₂ .
    symmetry in Hk₂.
    destruct (Z_dec (Zpos k₁) (Zpos (k * k₂))) as [[H₁| H₁]| H₁].
     Focus 3.
@@ -2428,16 +2428,16 @@ destruct kn as [| kn].
     do 2 rewrite <- positive_nat_Z in H₁.
     apply Nat2Z.inj_lt in H₁.
     apply Pos2Nat.inj_lt in H₁.
-    apply stretch_factor_iff in Hk₂.
+    apply stretching_factor_iff in Hk₂.
     rewrite Hp in Hk₂.
 bbb.
-  remember (stretch_factor fld s b) as k₁ eqn:Hk₁ .
+  remember (stretching_factor fld s b) as k₁ eqn:Hk₁ .
   remember (series_stretch fld k s) as t.
-  remember (stretch_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
+  remember (stretching_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
   subst t.
   symmetry in Hk₁, Hk₂.
-  apply stretch_factor_iff in Hk₁.
-  apply stretch_factor_iff in Hk₂.
+  apply stretching_factor_iff in Hk₁.
+  apply stretching_factor_iff in Hk₂.
   remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
   remember (series_stretch fld k s) as t.
   remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
