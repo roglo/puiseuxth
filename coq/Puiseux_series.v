@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.933 2013-10-26 16:16:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.934 2013-10-26 16:18:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1434,13 +1434,12 @@ destruct m as [m| ].
 Qed.
 
 Lemma first_nonzero_stretch_succ : ∀ s n p k,
-  first_nonzero fld s 0 = fin n
-  → first_nonzero fld s (S n) = fin p
-    → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
-        fin (S p * Pos.to_nat k - 1).
+  first_nonzero fld s (S n) = fin p
+  → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
+      fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
-intros s n p k Hn Hp.
+intros s n p k Hp.
 remember (series_stretch fld k s) as s₁ eqn:Hs₁ .
 remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
