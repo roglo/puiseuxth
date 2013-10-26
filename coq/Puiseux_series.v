@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.926 2013-10-26 09:15:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.927 2013-10-26 09:50:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1966,12 +1966,12 @@ unfold stretch_factor_gcd_prop in Hs |- *.
 destruct Hs as (_, Hnz).
 split.
  intros cnt.
- destruct cnt.
-  simpl.
+ clear Hnz.
+ revert n Hn.
+ induction cnt; intros; simpl.
   rewrite Nat.mod_0_l; auto.
   apply Pos2Nat_ne_0.
 
-  simpl.
   replace 1%nat with (S (0 * Pos.to_nat k))%nat by reflexivity.
   rewrite first_nonzero_stretch_succ with (p := n).
    rewrite divmod_mod.
