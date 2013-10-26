@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.932 2013-10-26 16:09:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.933 2013-10-26 16:16:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1988,6 +1988,42 @@ induction cnt; intros.
         rewrite Nat.gcd_mul_mono_l.
         rewrite Nat.add_succ_r.
         reflexivity.
+
+        intros H; discriminate H.
+
+        apply Pos2Nat_ne_0.
+
+       remember (Pos.to_nat k) as kn eqn:Hkn .
+       symmetry in Hkn.
+       destruct kn.
+        exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+        simpl.
+        apply le_n_S, Nat.le_0_l.
+
+      rewrite <- Nat.mul_add_distr_l.
+      remember (Pos.to_nat k) as kn eqn:Hkn .
+      symmetry in Hkn.
+      destruct kn.
+       exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+       simpl.
+       rewrite Nat.add_succ_r; simpl.
+       apply le_n_S, Nat.le_0_l.
+
+     remember (Pos.to_nat k) as kn eqn:Hkn .
+     symmetry in Hkn.
+     destruct kn.
+      exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+      simpl.
+      apply le_n_S, Nat.le_0_l.
+
+    rewrite Nat.mul_comm in Hm.
+    rewrite first_nonzero_stretch_succ with (p := p) in Hm; try assumption.
+     symmetry in Hm.
+     rewrite Nat.mul_comm.
+     injection Hm; intros; assumption.
 bbb.
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne...
