@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.928 2013-10-26 10:22:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.929 2013-10-26 13:44:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1951,7 +1951,15 @@ split; intros H.
    assumption.
 Qed.
 
-(* en supposant que la version stretch_factor_gcd_prop fonctionne... *)
+Lemma uuu : ∀ s n k cnt,
+  stretch_factor_lim cnt (series_stretch fld k s) (Pos.to_nat k * n) =
+    (Pos.to_nat k * stretch_factor_lim cnt s n)%nat.
+Proof.
+intros s n k cnt.
+bbb.
+
+(* en supposant que la version stretch_factor_gcd_prop fonctionne...
+   ou alors en le prenant comme définition ? pourquoi pas. *)
 Lemma vvv : ∀ s n p k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) = fin p
