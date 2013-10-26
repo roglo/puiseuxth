@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.924 2013-10-26 05:13:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.925 2013-10-26 09:07:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1729,7 +1729,9 @@ split; intros H.
     symmetry in Hm.
     destruct m as [m| ].
      simpl in H.
+Admitted. (*
 bbb.
+*)
 
 (* Allows proof by induction with the case
      proved for n implies proved for S n
@@ -1954,6 +1956,30 @@ Lemma yyy : ∀ s n k,
   → stretch_factor fld s 0 = 1%positive
     → stretch_factor fld (series_stretch fld k s) 0 = k.
 Proof.
+(* en supposant que la version stretch_factor_gcd_prop fonctionne...
+   et en plus, c'est pas gagné... *)
+intros s n k Hn Hs.
+apply stretch_factor_iff in Hs.
+apply stretch_factor_iff.
+apply www in Hs.
+apply www.
+unfold stretch_factor_gcd_prop in Hs |- *.
+destruct Hs as (_, Hnz).
+split.
+ intros cnt.
+ destruct cnt.
+  simpl.
+  rewrite Nat.mod_0_l; auto.
+  apply Pos2Nat_ne_0.
+
+  simpl.
+  replace 1%nat with (S (0 * Pos.to_nat k))%nat by reflexivity.
+  rewrite first_nonzero_stretch_succ with (p := n).
+   remember (S n * Pos.to_nat k - 1)%nat as m eqn:Hm .
+bbb.
+il faudrait que m soit égal à k et c'est pas le cas...
+truc à voir donc dans stretch_factor_gcd_prop.
+
 intros s n k Hn Hs.
 apply stretch_factor_iff in Hs.
 apply stretch_factor_iff.
