@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.925 2013-10-26 09:07:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.926 2013-10-26 09:15:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1702,7 +1702,7 @@ Fixpoint stretch_factor_lim cnt s (n : nat) :=
   | O => 0%nat
   | S cnt' =>
       match first_nonzero fld s (S n) with
-      | fin m => Nat.gcd m (stretch_factor_lim cnt' s (S n + m))
+      | fin m => Nat.gcd (S m) (stretch_factor_lim cnt' s (S n + m))
       | ∞ => 0%nat
       end
   end.
@@ -1956,8 +1956,7 @@ Lemma yyy : ∀ s n k,
   → stretch_factor fld s 0 = 1%positive
     → stretch_factor fld (series_stretch fld k s) 0 = k.
 Proof.
-(* en supposant que la version stretch_factor_gcd_prop fonctionne...
-   et en plus, c'est pas gagné... *)
+(* en supposant que la version stretch_factor_gcd_prop fonctionne... *)
 intros s n k Hn Hs.
 apply stretch_factor_iff in Hs.
 apply stretch_factor_iff.
@@ -1975,11 +1974,14 @@ split.
   simpl.
   replace 1%nat with (S (0 * Pos.to_nat k))%nat by reflexivity.
   rewrite first_nonzero_stretch_succ with (p := n).
-   remember (S n * Pos.to_nat k - 1)%nat as m eqn:Hm .
+   rewrite divmod_mod.
+   rewrite <- Nat.sub_succ_l.
+    rewrite Nat.sub_succ.
+    rewrite Nat.sub_0_r.
+    remember (S n * Pos.to_nat k)%nat as m eqn:Hm .
 bbb.
-il faudrait que m soit égal à k et c'est pas le cas...
-truc à voir donc dans stretch_factor_gcd_prop.
 
+(* si la version stretch_factor_gcd_prop ne fonctionne pas... *)
 intros s n k Hn Hs.
 apply stretch_factor_iff in Hs.
 apply stretch_factor_iff.
