@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.934 2013-10-26 16:18:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.935 2013-10-26 16:45:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1432,6 +1432,19 @@ destruct m as [m| ].
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
  apply Hm.
 Qed.
+
+Lemma first_nonzero_stretch_succ_inf : ∀ s n k,
+  first_nonzero fld s (S n) = ∞
+  → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) = ∞.
+Proof.
+intros s n k Hp.
+apply first_nonzero_iff in Hp.
+apply first_nonzero_iff.
+unfold first_nonzero_prop in Hp |- *.
+intros i.
+rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+bbb.
+cf stretch_finite_series
 
 Lemma first_nonzero_stretch_succ : ∀ s n p k,
   first_nonzero fld s (S n) = fin p
