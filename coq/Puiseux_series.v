@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.935 2013-10-26 16:45:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.936 2013-10-26 17:11:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1433,19 +1433,6 @@ destruct m as [m| ].
  apply Hm.
 Qed.
 
-Lemma first_nonzero_stretch_succ_inf : ∀ s n k,
-  first_nonzero fld s (S n) = ∞
-  → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) = ∞.
-Proof.
-intros s n k Hp.
-apply first_nonzero_iff in Hp.
-apply first_nonzero_iff.
-unfold first_nonzero_prop in Hp |- *.
-intros i.
-rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-bbb.
-cf stretch_finite_series
-
 Lemma first_nonzero_stretch_succ : ∀ s n p k,
   first_nonzero fld s (S n) = fin p
   → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
@@ -1574,6 +1561,34 @@ destruct q as [q| ].
   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hnzp.
   rewrite Hq in Hnzp.
   apply Hnzp; reflexivity.
+Qed.
+
+Lemma first_nonzero_stretch_succ_inf : ∀ s n k,
+  first_nonzero fld s (S n) = ∞
+  → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) = ∞.
+Proof.
+intros s n k Hp.
+apply first_nonzero_iff in Hp.
+apply first_nonzero_iff.
+unfold first_nonzero_prop in Hp |- *.
+intros i.
+destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
+ rewrite shifted_in_stretched; [ reflexivity | simpl ].
+ rewrite Nat.add_comm.
+ rewrite <- Nat.add_succ_l.
+ rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
+ rewrite Nat.mod_small; [ idtac | assumption ].
+ apply Nat.lt_0_succ.
+
+ apply Nat.nlt_ge in H.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+ replace (S i) with (Pos.to_nat k + (S i - Pos.to_nat k))%nat by omega.
+ rewrite Nat.add_assoc.
+ rewrite Nat.mul_comm.
+ rewrite <- Nat.mul_succ_r.
+ rewrite Nat.mul_comm.
+ apply stretch_finite_series.
+ assumption.
 Qed.
 
 Lemma series_shrink_stretch : ∀ s k,
@@ -1970,7 +1985,6 @@ Proof.
 intros s n k cnt.
 revert s n k.
 induction cnt; intros.
- simpl.
  auto.
 
  simpl.
@@ -2033,9 +2047,21 @@ induction cnt; intros.
 
     rewrite Nat.mul_comm in Hm.
     rewrite first_nonzero_stretch_succ with (p := p) in Hm; try assumption.
-     symmetry in Hm.
-     rewrite Nat.mul_comm.
-     injection Hm; intros; assumption.
+    symmetry in Hm.
+    rewrite Nat.mul_comm.
+    injection Hm; intros; assumption.
+
+   rewrite Nat.mul_comm in Hm.
+   rewrite first_nonzero_stretch_succ_inf in Hm.
+    discriminate Hm.
+
+    assumption.
+
+  rewrite Nat.mul_comm in Hm.
+  remember (first_nonzero fld s (S n)) as p eqn:Hp .
+  symmetry in Hp.
+  destruct p as [p| ]; [ idtac | auto ].
+  rewrite divmod_mod.
 bbb.
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne...
