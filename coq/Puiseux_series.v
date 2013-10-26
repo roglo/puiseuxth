@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.936 2013-10-26 17:11:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.937 2013-10-26 17:26:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1978,10 +1978,11 @@ split; intros H.
    assumption.
 Qed.
 
-Lemma uuu : ∀ s n k cnt,
+Lemma stretching_factor_lim_stretch : ∀ s n k cnt,
   stretching_factor_lim cnt (series_stretch fld k s) (Pos.to_nat k * n) =
     (Pos.to_nat k * stretching_factor_lim cnt s n)%nat.
 Proof.
+(* à nettoyer *)
 intros s n k cnt.
 revert s n k.
 induction cnt; intros.
@@ -2061,8 +2062,10 @@ induction cnt; intros.
   remember (first_nonzero fld s (S n)) as p eqn:Hp .
   symmetry in Hp.
   destruct p as [p| ]; [ idtac | auto ].
-  rewrite divmod_mod.
-bbb.
+  apply first_nonzero_stretch_succ with (k := k) in Hp.
+  rewrite Hm in Hp.
+  discriminate Hp.
+Qed.
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne...
    ou alors en le prenant comme définition ? pourquoi pas. *)
