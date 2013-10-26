@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.929 2013-10-26 13:44:14 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.930 2013-10-26 14:36:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1956,7 +1956,44 @@ Lemma uuu : ∀ s n k cnt,
     (Pos.to_nat k * stretch_factor_lim cnt s n)%nat.
 Proof.
 intros s n k cnt.
+revert s n k.
+induction cnt; intros.
+ simpl.
+ auto.
+
+ simpl.
+ remember
+  (first_nonzero fld (series_stretch fld k s) (S (Pos.to_nat k * n))) as m
+  eqn:Hm .
+ symmetry in Hm.
+ destruct m as [m| ].
+  rewrite divmod_mod.
+  remember (first_nonzero fld s (S n)) as p eqn:Hp .
+  symmetry in Hp.
+  destruct p as [p| ].
+   rewrite divmod_mod.
+   assert (m = Pos.to_nat k * p - 1)%nat.
+    Focus 2.
+    subst m.
+    destruct p.
+     rewrite Nat.mul_0_r; simpl.
+     rewrite Nat.mul_0_r in Hm.
+     simpl in Hm.
+     Focus 2.
+     rewrite Nat.add_sub_assoc.
+      rewrite <- Nat.sub_succ_l.
+       rewrite Nat.sub_succ.
+       rewrite Nat.sub_0_r.
+       rewrite <- Nat.mul_add_distr_l.
+       rewrite <- Nat.sub_succ_l.
+        rewrite Nat.sub_succ.
+        rewrite Nat.sub_0_r.
+        rewrite IHcnt.
+        rewrite Nat.mul_mod_distr_l.
+         rewrite Nat.gcd_mul_mono_l.
+         f_equal.
 bbb.
+ouais, y a un truc qui déconne quelque part...
 
 (* en supposant que la version stretch_factor_gcd_prop fonctionne...
    ou alors en le prenant comme définition ? pourquoi pas. *)
