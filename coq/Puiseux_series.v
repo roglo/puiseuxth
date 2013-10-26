@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.922 2013-10-25 13:52:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.923 2013-10-26 00:24:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1696,6 +1696,22 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   injection Hkn; intros; subst kn.
   apply Pos2Nat.is_pos.
 Qed.
+
+Fixpoint stretch_factor_lim cnt s (n : nat) :=
+  match cnt with
+  | O => 0%nat
+  | S cnt' =>
+      match first_nonzero fld s (S n) with
+      | fin m => Nat.gcd m (stretch_factor_lim cnt' s (S n + m))
+      | ∞ => 0%nat
+      end
+  end.
+
+Definition stretch_factor_gcd_prop s n k :=
+  (∀ cnt, stretch_factor_lim cnt s n mod k = 0%nat) ∧
+  (∀ k', (k < k')%nat → ∃ cnt, stretch_factor_lim cnt s n mod k' ≠ O).
+
+bbb.
 
 (* Allows proof by induction with the case
      proved for n implies proved for S n
