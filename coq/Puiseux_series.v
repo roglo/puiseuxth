@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.931 2013-10-26 15:16:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.932 2013-10-26 16:09:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1702,7 +1702,7 @@ Fixpoint stretching_factor_lim cnt s (n : nat) :=
   | O => 0%nat
   | S cnt' =>
       match first_nonzero fld s (S n) with
-      | fin m => Nat.gcd (S m) (stretching_factor_lim cnt' s (S n + m))
+      | fin m => gcd (S m) (stretching_factor_lim cnt' s (S n + m))
       | ∞ => 0%nat
       end
   end.
@@ -1972,28 +1972,23 @@ induction cnt; intros.
   symmetry in Hp.
   destruct p as [p| ].
    rewrite divmod_mod.
-   assert (m = Pos.to_nat k * p - 1)%nat.
+   assert (m = Pos.to_nat k * S p - 1)%nat.
     Focus 2.
     subst m.
-    destruct p.
-     rewrite Nat.mul_0_r; simpl.
-     rewrite Nat.mul_0_r in Hm.
-     simpl in Hm.
-     Focus 2.
-     rewrite Nat.add_sub_assoc.
+    rewrite Nat.add_sub_assoc.
+     rewrite <- Nat.sub_succ_l.
+      rewrite Nat.sub_succ.
+      rewrite Nat.sub_0_r.
+      rewrite <- Nat.mul_add_distr_l.
       rewrite <- Nat.sub_succ_l.
        rewrite Nat.sub_succ.
        rewrite Nat.sub_0_r.
-       rewrite <- Nat.mul_add_distr_l.
-       rewrite <- Nat.sub_succ_l.
-        rewrite Nat.sub_succ.
-        rewrite Nat.sub_0_r.
-        rewrite IHcnt.
-        rewrite Nat.mul_mod_distr_l.
-         rewrite Nat.gcd_mul_mono_l.
-         f_equal.
+       rewrite IHcnt.
+       rewrite Nat.mul_mod_distr_l.
+        rewrite Nat.gcd_mul_mono_l.
+        rewrite Nat.add_succ_r.
+        reflexivity.
 bbb.
-ouais, y a un truc qui déconne quelque part...
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne...
    ou alors en le prenant comme définition ? pourquoi pas. *)
