@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.923 2013-10-26 00:24:44 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.924 2013-10-26 05:13:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1711,6 +1711,24 @@ Definition stretch_factor_gcd_prop s n k :=
   (∀ cnt, stretch_factor_lim cnt s n mod k = 0%nat) ∧
   (∀ k', (k < k')%nat → ∃ cnt, stretch_factor_lim cnt s n mod k' ≠ O).
 
+Lemma www : ∀ s n k,
+  stretch_factor_prop fld s n k ↔ stretch_factor_gcd_prop s n (Pos.to_nat k).
+Proof.
+intros s n k.
+split; intros H.
+ unfold stretch_factor_gcd_prop.
+ split.
+  intros cnt.
+  revert k cnt H.
+  induction n; intros.
+   destruct cnt; simpl.
+    rewrite Nat.mod_0_l; [ reflexivity | apply Pos2Nat_ne_0 ].
+
+    unfold stretch_factor_prop in H.
+    remember (first_nonzero fld s 1) as m eqn:Hm .
+    symmetry in Hm.
+    destruct m as [m| ].
+     simpl in H.
 bbb.
 
 (* Allows proof by induction with the case
