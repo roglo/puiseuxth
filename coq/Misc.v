@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.70 2013-10-20 07:14:04 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.71 2013-10-26 10:36:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1189,4 +1189,11 @@ rewrite Z.gcd_div_factor.
 
  subst g.
  etransitivity; [ apply Z.gcd_divide_l | apply Z.gcd_divide_r ].
+Qed.
+
+Lemma Nat_mod_add_1 : ∀ a b, (b ≠ 0 → (a + b) mod b = a mod b)%nat.
+Proof.
+intros a b Hb.
+symmetry.
+rewrite <- Nat.mod_add with (b := 1%nat); auto with arith.
 Qed.
