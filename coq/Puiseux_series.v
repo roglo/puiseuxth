@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.927 2013-10-26 09:50:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.928 2013-10-26 10:22:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1951,12 +1951,45 @@ split; intros H.
    assumption.
 Qed.
 
+(* en supposant que la version stretch_factor_gcd_prop fonctionne... *)
+Lemma vvv : ∀ s n p k,
+  first_nonzero fld s 0 = fin n
+  → first_nonzero fld s (S n) = fin p
+    → stretch_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
+      (k * stretch_factor fld s n)%positive.
+Proof.
+intros s n p k Hn Hp.
+remember (stretch_factor fld s n) as m eqn:Hm .
+symmetry in Hm.
+apply stretch_factor_iff in Hm.
+apply stretch_factor_iff.
+apply www in Hm.
+apply www.
+unfold stretch_factor_gcd_prop in Hm |- *.
+destruct Hm as (Hz, Hnz).
+split.
+ intros cnt.
+ clear Hnz.
+ revert n m p Hn Hp Hz.
+ induction cnt; intros; simpl.
+  rewrite Nat.mod_0_l; auto.
+  apply Pos2Nat_ne_0.
+
+  remember
+   (first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k))) as q
+   eqn:Hq .
+  symmetry in Hq.
+  destruct q as [q| ].
+   rewrite divmod_mod.
+   rewrite <- Nat.add_succ_r.
+bbb.
+
+(* en supposant que la version stretch_factor_gcd_prop fonctionne... *)L
 Lemma yyy : ∀ s n k,
   first_nonzero fld s 1 = fin n
   → stretch_factor fld s 0 = 1%positive
     → stretch_factor fld (series_stretch fld k s) 0 = k.
 Proof.
-(* en supposant que la version stretch_factor_gcd_prop fonctionne... *)
 intros s n k Hn Hs.
 apply stretch_factor_iff in Hs.
 apply stretch_factor_iff.
@@ -1981,6 +2014,11 @@ split.
     remember (S n * Pos.to_nat k)%nat as m eqn:Hm .
 bbb.
 
+Lemma yyy : ∀ s n k,
+  first_nonzero fld s 1 = fin n
+  → stretch_factor fld s 0 = 1%positive
+    → stretch_factor fld (series_stretch fld k s) 0 = k.
+Proof.
 (* si la version stretch_factor_gcd_prop ne fonctionne pas... *)
 intros s n k Hn Hs.
 apply stretch_factor_iff in Hs.
