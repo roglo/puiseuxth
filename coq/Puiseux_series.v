@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.945 2013-10-27 10:52:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.946 2013-10-27 13:34:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1398,16 +1398,24 @@ destruct v as [v| ].
  apply Hv.
 Qed.
 
-(*
-Lemma www : ∀ s b k,
-  (0 < k)%nat
-  → (∀ cnt : nat, stretching_factor_lim fld cnt s b mod k = O)
-    → ∀ cnt n,
-      stretching_factor_lim fld cnt (series_shift fld n s) (b + n) mod k = O.
+Lemma stretching_factor_lim_shift : ∀ cnt s n b,
+  stretching_factor_lim fld cnt (series_shift fld n s) (b + n) =
+  stretching_factor_lim fld cnt s b.
 Proof.
-intros s b k Hk Hz cnt n.
-bbb.
-*)
+intros cnt s n b.
+revert s n b.
+induction cnt; intros; [ reflexivity | simpl ].
+rewrite <- Nat.add_succ_l, Nat.add_comm.
+rewrite first_nonzero_shift_add.
+remember (first_nonzero fld s (S b)) as m eqn:Hm .
+symmetry in Hm.
+destruct m as [m| ]; [ idtac | reflexivity ].
+do 2 rewrite divmod_mod.
+do 2 f_equal.
+rewrite Nat.add_shuffle0.
+rewrite <- Nat.add_succ_l.
+apply IHcnt.
+Qed.
 
 Lemma stretching_factor_shift : ∀ n s b,
   stretching_factor fld (series_shift fld n s) (b + n) =
@@ -1419,10 +1427,13 @@ symmetry in Hk.
 apply stretching_factor_iff in Hk.
 apply stretching_factor_iff.
 unfold stretching_factor_gcd_prop in Hk |- *.
-unfold stretching_factor_gcd_prop in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
+ rewrite stretching_factor_lim_shift.
+ apply Hz.
+
+ intros k₁ Hk₁.
 bbb.
 
 intros n s b.
