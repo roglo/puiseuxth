@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.939 2013-10-27 03:01:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.940 2013-10-27 03:03:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -70,6 +70,20 @@ Definition first_nonzero_iff₁ s c :=
    to give [s] back. *)
 Definition stretching_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
+
+Fixpoint stretching_factor_lim cnt s (n : nat) :=
+  match cnt with
+  | O => 0%nat
+  | S cnt' =>
+      match first_nonzero fld s (S n) with
+      | fin m => gcd (S m) (stretching_factor_lim cnt' s (S n + m))
+      | ∞ => 0%nat
+      end
+  end.
+
+Definition stretching_factor_gcd_prop s n k :=
+  (∀ cnt, stretching_factor_lim cnt s n mod k = 0%nat) ∧
+  (∀ k', (k < k')%nat → ∃ cnt, stretching_factor_lim cnt s n mod k' ≠ O).
 
 Definition stretching_factor_prop s n k :=
   match first_nonzero fld s (S n) with
@@ -1724,23 +1738,9 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   apply Pos2Nat.is_pos.
 Qed.
 
-Fixpoint stretching_factor_lim cnt s (n : nat) :=
-  match cnt with
-  | O => 0%nat
-  | S cnt' =>
-      match first_nonzero fld s (S n) with
-      | fin m => gcd (S m) (stretching_factor_lim cnt' s (S n + m))
-      | ∞ => 0%nat
-      end
-  end.
-
-Definition stretching_factor_gcd_prop s n k :=
-  (∀ cnt, stretching_factor_lim cnt s n mod k = 0%nat) ∧
-  (∀ k', (k < k')%nat → ∃ cnt, stretching_factor_lim cnt s n mod k' ≠ O).
-
 Lemma www : ∀ s n k,
   stretching_factor_prop fld s n k ↔
-  stretching_factor_gcd_prop s n (Pos.to_nat k).
+  stretching_factor_gcd_prop fld s n (Pos.to_nat k).
 Proof.
 intros s n k.
 split; intros H.
@@ -1981,8 +1981,8 @@ split; intros H.
 Qed.
 
 Lemma stretching_factor_lim_stretch : ∀ s n k cnt,
-  stretching_factor_lim cnt (series_stretch fld k s) (Pos.to_nat k * n) =
-    (Pos.to_nat k * stretching_factor_lim cnt s n)%nat.
+  stretching_factor_lim fld cnt (series_stretch fld k s) (Pos.to_nat k * n) =
+    (Pos.to_nat k * stretching_factor_lim fld cnt s n)%nat.
 Proof.
 (* à nettoyer *)
 intros s n k cnt.
