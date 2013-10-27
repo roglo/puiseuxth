@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.950 2013-10-27 18:32:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.951 2013-10-27 22:40:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1656,6 +1656,21 @@ rewrite Nbar.div_sup_mul.
  intros H; discriminate H.
 Qed.
 
+Fixpoint rank_of_nonzero_before_from s n i b :=
+  if lt_dec b i then
+    match n with
+    | O => O
+    | S n₁ =>
+        match first_nonzero fld s (S b) with
+        | fin m => S (rank_of_nonzero_before_from s n₁ i (S b + m)%nat)
+        | ∞ => O
+        end
+    end
+  else O.
+
+Definition rank_of_nonzero_before s i :=
+  rank_of_nonzero_before_from s i i 0.
+
 Lemma www : ∀ s k,
   (∀ cnt, stretching_factor_lim fld cnt s 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
@@ -1663,6 +1678,9 @@ Lemma www : ∀ s k,
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
 intros s k Hs i Hi.
+remember (rank_of_nonzero_before s i) as cnt.
+pose proof (Hs cnt) as H.
+subst cnt.
 bbb.
 
 Lemma series_stretch_shrink : ∀ s k,
