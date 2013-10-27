@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.948 2013-10-27 14:24:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.949 2013-10-27 17:57:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1655,6 +1655,15 @@ rewrite Nbar.div_sup_mul.
 
  intros H; discriminate H.
 Qed.
+
+Lemma www : ∀ cnt s k,
+  stretching_factor_lim fld cnt s 0 mod Pos.to_nat k = 0%nat
+  → ∀ i,
+    (i mod Pos.to_nat k ≠ 0)%nat
+    → terms s i ≍ zero fld.
+Proof.
+intros cnt s k Hs i Hi.
+bbb.
 
 Lemma series_stretch_shrink : ∀ s k,
   (k | stretching_factor fld s 0)%positive
