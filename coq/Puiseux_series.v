@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.942 2013-10-27 03:15:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.943 2013-10-27 03:29:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,6 +85,11 @@ Definition stretching_factor_gcd_prop s n k :=
   (∀ cnt, stretching_factor_lim cnt s n mod k = 0%nat) ∧
   (∀ k', (k < k')%nat → ∃ cnt, stretching_factor_lim cnt s n mod k' ≠ O).
 
+Axiom stretching_factor_iff : ∀ s n k,
+  stretching_factor fld s n = k ↔
+  stretching_factor_gcd_prop s n (Pos.to_nat k).
+
+(*
 Definition stretching_factor_prop s n k :=
   match first_nonzero fld s (S n) with
   | fin _ =>
@@ -98,6 +103,7 @@ Definition stretching_factor_prop s n k :=
 
 Axiom stretching_factor_iff : ∀ s n k,
   stretching_factor fld s n = k ↔ stretching_factor_prop s n k.
+*)
 
 End Axioms.
 
@@ -353,23 +359,16 @@ remember (stretching_factor fld s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply stretching_factor_iff in Hk.
 apply stretching_factor_iff.
-unfold stretching_factor_prop in Hk |-*.
-remember (first_nonzero fld s₁ (S n)) as m eqn:Hm .
-symmetry in Hm.
-rewrite Heq in Hm.
-rewrite Hm in Hk.
-destruct m as [m| ]; [ idtac | assumption ].
+unfold stretching_factor_gcd_prop in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
- intros i Him.
- rewrite Heq.
- apply Hz; assumption.
+ intros cnt.
+ rewrite Heq; apply Hz.
 
  intros k₁ Hk₁.
  apply Hnz in Hk₁.
- destruct Hk₁ as (i, Hk₁).
- rewrite <- Heq in Hk₁.
- exists i; assumption.
+ destruct Hk₁ as (cnt, Hcnt).
+ exists cnt; rewrite Heq; assumption.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (series_stretch fld) with 
@@ -1403,6 +1402,18 @@ Lemma stretching_factor_shift : ∀ n s b,
   stretching_factor fld (series_shift fld n s) (b + n) =
   stretching_factor fld s b.
 Proof.
+intros n s b.
+remember (stretching_factor fld s b) as k eqn:Hk .
+symmetry in Hk.
+apply stretching_factor_iff in Hk.
+apply stretching_factor_iff.
+unfold stretching_factor_gcd_prop in Hk |- *.
+unfold stretching_factor_gcd_prop in Hk |- *.
+destruct Hk as (Hz, Hnz).
+split.
+ intros cnt.
+bbb.
+
 intros n s b.
 remember (stretching_factor fld s b) as k eqn:Hk .
 symmetry in Hk.
