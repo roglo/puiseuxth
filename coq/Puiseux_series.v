@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.947 2013-10-27 13:56:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.948 2013-10-27 14:24:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1711,6 +1711,10 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
    destruct Hk as (c, Hk).
    apply stretching_factor_iff in Hk.
+   unfold stretching_factor_gcd_prop in Hk.
+   destruct Hk as (Hz, Hnz).
+bbb.
+
    unfold stretching_factor_prop in Hk.
    remember (first_nonzero fld s 1) as n eqn:Hn .
    symmetry in Hn.
