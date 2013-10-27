@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.938 2013-10-26 18:13:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.939 2013-10-27 03:01:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1739,7 +1739,8 @@ Definition stretching_factor_gcd_prop s n k :=
   (∀ k', (k < k')%nat → ∃ cnt, stretching_factor_lim cnt s n mod k' ≠ O).
 
 Lemma www : ∀ s n k,
-  stretching_factor_prop fld s n k ↔ stretching_factor_gcd_prop s n (Pos.to_nat k).
+  stretching_factor_prop fld s n k ↔
+  stretching_factor_gcd_prop s n (Pos.to_nat k).
 Proof.
 intros s n k.
 split; intros H.
@@ -1756,6 +1757,7 @@ split; intros H.
     symmetry in Hm.
     destruct m as [m| ].
      simpl in H.
+     rewrite divmod_mod.
 Admitted. (*
 bbb.
 *)
