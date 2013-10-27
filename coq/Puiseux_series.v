@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.941 2013-10-27 03:08:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.942 2013-10-27 03:15:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -331,15 +331,22 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-(*
 Add Parametric Morphism α (fld : field α) : (stretching_factor_lim fld)
-with signature eq ==> (eq_series fld) ==> eq ==> eq as shrink_morph.
+  with signature eq ==> (eq_series fld) ==> eq ==> eq
+  as stretching_factor_lim_morph.
 Proof.
-bbb.
-*)
+intros cnt s₁ s₂ Heq n.
+revert n.
+induction cnt; intros; [ reflexivity | simpl ].
+rewrite Heq.
+remember (first_nonzero fld s₂ (S n)) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ]; [ idtac | reflexivity ].
+rewrite IHcnt; reflexivity.
+Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
-with signature (eq_series fld) ==> eq ==> eq as shrink_morph.
+with signature (eq_series fld) ==> eq ==> eq as stretching_factor_morph.
 Proof.
 intros s₁ s₂ Heq n.
 remember (stretching_factor fld s₂ n) as k eqn:Hk .
