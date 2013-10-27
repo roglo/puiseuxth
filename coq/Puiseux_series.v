@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.949 2013-10-27 17:57:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.950 2013-10-27 18:32:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1656,13 +1656,13 @@ rewrite Nbar.div_sup_mul.
  intros H; discriminate H.
 Qed.
 
-Lemma www : ∀ cnt s k,
-  stretching_factor_lim fld cnt s 0 mod Pos.to_nat k = 0%nat
+Lemma www : ∀ s k,
+  (∀ cnt, stretching_factor_lim fld cnt s 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → terms s i ≍ zero fld.
+    → series_nth_fld fld i s ≍ zero fld.
 Proof.
-intros cnt s k Hs i Hi.
+intros s k Hs i Hi.
 bbb.
 
 Lemma series_stretch_shrink : ∀ s k,
@@ -1722,6 +1722,23 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
    apply stretching_factor_iff in Hk.
    unfold stretching_factor_gcd_prop in Hk.
    destruct Hk as (Hz, Hnz).
+   symmetry.
+   assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
+    intros H.
+    apply Nat.mod_divides in H.
+     destruct H as (d, Hd).
+     rewrite Pos2Nat.inj_mul, Nat.mul_shuffle0 in Hd.
+     rewrite Hd in H₂.
+     rewrite Nat.mod_mul in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+     revert H₂; apply Nat.lt_irrefl.
+
+     apply Pos2Nat_ne_0.
+
+    apply www with (s := s) in H; [ idtac | assumption ].
+    unfold series_nth_fld in H.
+    destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
+
+   reflexivity.
 bbb.
 
    unfold stretching_factor_prop in Hk.
