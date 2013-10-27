@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.946 2013-10-27 13:34:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.947 2013-10-27 13:56:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1434,33 +1434,11 @@ split.
  apply Hz.
 
  intros k₁ Hk₁.
-bbb.
-
-intros n s b.
-remember (stretching_factor fld s b) as k eqn:Hk .
-symmetry in Hk.
-apply stretching_factor_iff in Hk.
-apply stretching_factor_iff.
-unfold stretching_factor_prop in Hk |- *.
-rewrite <- Nat.add_succ_l.
-rewrite Nat.add_comm.
-rewrite first_nonzero_shift_add.
-remember (first_nonzero fld s (S b)) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ simpl | assumption ].
-destruct Hk as (Hz, Hnz).
-split.
- intros i Him.
- rewrite Nat.add_shuffle0.
- rewrite series_nth_add_shift.
- apply Hz; assumption.
-
- intros k₁ Hk₁.
  apply Hnz in Hk₁.
- destruct Hk₁ as (i, Hk₁).
- rewrite <- series_nth_add_shift with (n := n) in Hk₁.
- rewrite Nat.add_shuffle0 in Hk₁.
- exists i; assumption.
+ destruct Hk₁ as (cnt, H).
+ exists cnt.
+ rewrite stretching_factor_lim_shift.
+ assumption.
 Qed.
 
 Lemma first_nonzero_succ : ∀ s n,
