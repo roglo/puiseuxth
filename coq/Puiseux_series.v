@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.959 2013-10-28 13:00:47 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.960 2013-10-28 14:38:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1649,16 +1649,16 @@ rewrite Nbar.div_sup_mul.
 Qed.
 
 Fixpoint rank_of_nonzero_after_from s n i b :=
-  if lt_dec b i then
-    match n with
-    | O => O
-    | S n₁ =>
+  match n with
+  | O => O
+  | S n₁ =>
+      if lt_dec b i then
         match first_nonzero fld s (S b) with
         | fin m => S (rank_of_nonzero_after_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
-    end
-  else O.
+      else O
+  end.
 
 Definition rank_of_nonzero_before s i :=
   pred (rank_of_nonzero_after_from s i i 0).
@@ -1666,25 +1666,73 @@ Definition rank_of_nonzero_before s i :=
 (**)
 Lemma vvv : ∀ s i c b k,
   nth_nonzero_interval fld s
-   (pred (rank_of_nonzero_after_from s i c b)) b
+   (pred (rank_of_nonzero_after_from s c i b)) b
     mod Pos.to_nat k = O
-  → i mod Pos.to_nat k ≠ O
-    → series_nth_fld fld i s ≍ zero fld.
+  → (S b + i) mod Pos.to_nat k ≠ O
+    → series_nth_fld fld (S b + i) s ≍ zero fld.
 Proof.
 intros s i c b k Hs Hm.
-bbb.
-
-revert b Hs Hm.
+revert b c Hs Hm.
 induction i; intros.
- rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
- exfalso; apply Hm; reflexivity.
+bbb.
+ rewrite Nat.add_0_r in Hm |- *.
+ simpl in Hs.
+ replace (if lt_dec b c then 0 else 0)%nat with 0%nat in Hs .
+  simpl in Hs.
+  remember (first_nonzero fld s (S b)) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ].
+   apply first_nonzero_iff in Hn.
+   simpl in Hn.
+   destruct n.
+    remember (Pos.to_nat k) as kn eqn:Hkn .
+    symmetry in Hkn.
+    destruct kn as [| kn].
+     exfalso; revert Hkn; apply Pos2Nat_ne_0.
 
- destruct c in Hs; simpl in Hs.
-  destruct (lt_dec b (S i)) as [H₁| H₁].
+     destruct kn as [| kn].
+      rewrite Nat.mod_1_r in Hm.
+      exfalso; apply Hm; reflexivity.
+
+      rewrite Nat.mod_1_l in Hs; [ discriminate Hs | fast_omega  ].
+
+    replace b with (b + 0)%nat by auto.
+    apply Hn; apply Nat.lt_0_succ.
+
+   apply first_nonzero_iff in Hn; simpl in Hn.
+   replace b with (b + 0)%nat by auto.
+   apply Hn.
+
+  destruct (lt_dec b c); reflexivity.
+
+ simpl in Hs.
+ destruct (lt_dec b c) as [H₁| H₁]; simpl in Hs.
+  remember (first_nonzero fld s (S b)) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ].
+   apply first_nonzero_iff in Hn.
+   simpl in Hn.
    simpl in Hs.
-   remember (first_nonzero fld s (S b)) as n eqn:Hn .
-   symmetry in Hn.
-   destruct n as [n| ].
+   destruct n.
+    remember (Pos.to_nat k) as kn eqn:Hkn .
+    symmetry in Hkn.
+    destruct kn as [| kn].
+     exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+     destruct kn as [| kn].
+      rewrite Nat.mod_1_r in Hm.
+      exfalso; apply Hm; reflexivity.
+
+      rewrite Nat.add_0_r in Hs.
+      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+      rewrite Nat.add_succ_r in Hm.
+      apply IHi with (c := c); [ idtac | assumption ].
+      remember (S kn) as skn; simpl.
+      rewrite divmod_mod; subst skn.
+      remember (S kn) as skn; simpl.
+      rewrite divmod_mod.
+      destruct c; simpl.
+       rewrite divmod_mod.
 bbb.
 *)
 
