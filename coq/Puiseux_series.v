@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.955 2013-10-28 07:56:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.956 2013-10-28 08:52:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1706,20 +1706,21 @@ Fixpoint rank_of_nonzero_before_from s n i b :=
 
 Definition rank_of_nonzero_before s i :=
   rank_of_nonzero_before_from s i i 0.
+*)
 
 Lemma www : ∀ s k,
-  (∀ cnt, stretching_factor_lim fld cnt s 0 mod Pos.to_nat k = 0%nat)
+  (∀ cnt, nth_nonzero_interval_from fld s cnt 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
 intros s k Hs i Hi.
+bbb.
 remember (rank_of_nonzero_before s i) as cnt.
 pose proof (Hs cnt) as H.
 subst cnt.
 unfold rank_of_nonzero_before in H.
 bbb.
-*)
 
 Lemma series_stretch_shrink : ∀ s k,
   (k | stretching_factor fld s 0)%positive
