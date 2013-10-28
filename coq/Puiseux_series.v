@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.962 2013-10-28 17:37:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.963 2013-10-28 20:20:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1710,6 +1710,9 @@ induction i; intros.
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | assumption ].
   destruct c; assumption.
+
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hm.
 
 bbb.
 
