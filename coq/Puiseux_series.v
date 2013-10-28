@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.961 2013-10-28 17:04:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.962 2013-10-28 17:37:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1666,8 +1666,8 @@ Definition rank_of_nonzero_before s i :=
 (**)
 Lemma vvv : ∀ s i c b k,
   nth_nonzero_interval fld s
-   (pred (rank_of_nonzero_after_from s c i b)) b
-     mod Pos.to_nat k = O
+   (pred (rank_of_nonzero_after_from s c (S i) b)) b
+   mod Pos.to_nat k = O
   → (S b + i) mod Pos.to_nat k ≠ O
     → series_nth_fld fld (S b + i) s ≍ zero fld.
 Proof.
@@ -1675,40 +1675,41 @@ intros s i c b k Hs Hm.
 revert b c Hs Hm.
 induction i; intros.
  rewrite Nat.add_0_r in Hm |- *.
- remember (pred (rank_of_nonzero_after_from s c 0 b)) as x eqn:Hx .
+ remember (pred (rank_of_nonzero_after_from s c 1 b)) as x eqn:Hx .
  symmetry in Hx.
- replace x with 0%nat in Hs ; [ idtac | destruct c; assumption ].
- simpl in Hs.
- remember (first_nonzero fld s (S b)) as n eqn:Hn .
- symmetry in Hn.
- destruct n as [n| ].
-  apply first_nonzero_iff in Hn.
-  simpl in Hn.
-  destruct n.
-   remember (Pos.to_nat k) as kn eqn:Hkn .
-   symmetry in Hkn.
-   destruct kn as [| kn].
-    exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-    destruct kn as [| kn].
-     rewrite Nat.mod_1_r in Hm.
-     exfalso; apply Hm; reflexivity.
-
-     rewrite Nat.mod_1_l in Hs; [ discriminate Hs | fast_omega  ].
-
-   replace b with (b + 0)%nat by auto.
-   apply Hn; apply Nat.lt_0_succ.
-
-  apply first_nonzero_iff in Hn; simpl in Hn.
-  replace b with (b + 0)%nat by auto.
-  apply Hn.
-
- destruct c; simpl in Hs.
+ replace x with 0%nat in Hs .
+  simpl in Hs.
   remember (first_nonzero fld s (S b)) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ].
    apply first_nonzero_iff in Hn.
    simpl in Hn.
+   destruct n.
+    remember (Pos.to_nat k) as kn eqn:Hkn .
+    symmetry in Hkn.
+    destruct kn as [| kn].
+     exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+     destruct kn as [| kn].
+      rewrite Nat.mod_1_r in Hm.
+      exfalso; apply Hm; reflexivity.
+
+      rewrite Nat.mod_1_l in Hs; [ discriminate Hs | fast_omega  ].
+
+    replace b with (b + 0)%nat by auto.
+    apply Hn; apply Nat.lt_0_succ.
+
+   apply first_nonzero_iff in Hn; simpl in Hn.
+   replace b with (b + 0)%nat by auto.
+   apply Hn.
+
+  destruct c; [ assumption | simpl in Hx ].
+  destruct (lt_dec b 1) as [H₁| H₁]; [ idtac | assumption ].
+  apply Nat.lt_1_r in H₁; subst b.
+  remember (first_nonzero fld s 1) as n eqn:Hn .
+  symmetry in Hn.
+  destruct n as [n| ]; [ idtac | assumption ].
+  destruct c; assumption.
 
 bbb.
 
@@ -1755,6 +1756,10 @@ pose proof (Hs cnt) as H.
 subst cnt.
 clear Hs.
 unfold rank_of_nonzero_before in H.
+destruct i.
+ rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+ exfalso; apply Hi; reflexivity.
+
 bbb.
 apply vvv in H.
  rewrite Nat.sub_0_r in H; assumption.
@@ -1890,6 +1895,7 @@ bbb.
   apply Pos2Nat.is_pos.
 Qed.
 
+(*
 Lemma www : ∀ s n k,
   stretching_factor_prop fld s n k ↔
   stretching_factor_gcd_prop fld s n (Pos.to_nat k).
@@ -1910,7 +1916,6 @@ split; intros H.
     destruct m as [m| ].
      simpl in H.
      rewrite divmod_mod.
-Admitted. (*
 bbb.
 *)
 
