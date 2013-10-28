@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.960 2013-10-28 14:38:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.961 2013-10-28 17:04:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1667,43 +1667,50 @@ Definition rank_of_nonzero_before s i :=
 Lemma vvv : ∀ s i c b k,
   nth_nonzero_interval fld s
    (pred (rank_of_nonzero_after_from s c i b)) b
-    mod Pos.to_nat k = O
+     mod Pos.to_nat k = O
   → (S b + i) mod Pos.to_nat k ≠ O
     → series_nth_fld fld (S b + i) s ≍ zero fld.
 Proof.
 intros s i c b k Hs Hm.
 revert b c Hs Hm.
 induction i; intros.
-bbb.
  rewrite Nat.add_0_r in Hm |- *.
+ remember (pred (rank_of_nonzero_after_from s c 0 b)) as x eqn:Hx .
+ symmetry in Hx.
+ replace x with 0%nat in Hs ; [ idtac | destruct c; assumption ].
  simpl in Hs.
- replace (if lt_dec b c then 0 else 0)%nat with 0%nat in Hs .
-  simpl in Hs.
+ remember (first_nonzero fld s (S b)) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ].
+  apply first_nonzero_iff in Hn.
+  simpl in Hn.
+  destruct n.
+   remember (Pos.to_nat k) as kn eqn:Hkn .
+   symmetry in Hkn.
+   destruct kn as [| kn].
+    exfalso; revert Hkn; apply Pos2Nat_ne_0.
+
+    destruct kn as [| kn].
+     rewrite Nat.mod_1_r in Hm.
+     exfalso; apply Hm; reflexivity.
+
+     rewrite Nat.mod_1_l in Hs; [ discriminate Hs | fast_omega  ].
+
+   replace b with (b + 0)%nat by auto.
+   apply Hn; apply Nat.lt_0_succ.
+
+  apply first_nonzero_iff in Hn; simpl in Hn.
+  replace b with (b + 0)%nat by auto.
+  apply Hn.
+
+ destruct c; simpl in Hs.
   remember (first_nonzero fld s (S b)) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ].
    apply first_nonzero_iff in Hn.
    simpl in Hn.
-   destruct n.
-    remember (Pos.to_nat k) as kn eqn:Hkn .
-    symmetry in Hkn.
-    destruct kn as [| kn].
-     exfalso; revert Hkn; apply Pos2Nat_ne_0.
 
-     destruct kn as [| kn].
-      rewrite Nat.mod_1_r in Hm.
-      exfalso; apply Hm; reflexivity.
-
-      rewrite Nat.mod_1_l in Hs; [ discriminate Hs | fast_omega  ].
-
-    replace b with (b + 0)%nat by auto.
-    apply Hn; apply Nat.lt_0_succ.
-
-   apply first_nonzero_iff in Hn; simpl in Hn.
-   replace b with (b + 0)%nat by auto.
-   apply Hn.
-
-  destruct (lt_dec b c); reflexivity.
+bbb.
 
  simpl in Hs.
  destruct (lt_dec b c) as [H₁| H₁]; simpl in Hs.
