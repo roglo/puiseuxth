@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.956 2013-10-28 08:52:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.957 2013-10-28 09:40:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -31,38 +31,11 @@ Definition first_nonzero_prop s c n :=
       (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
   end.
 
-(**)
 Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
 Admitted.
 
 Axiom first_nonzero_iff : ∀ s c n,
   first_nonzero fld s c = n ↔ first_nonzero_prop s c n.
-(**)
-
-(*
-Require Import ClassicalEpsilon.
-
-Definition first_nonzero₁ s c :=
-  epsilon (inhabits ∞) (first_nonzero_prop s c).
-
-Theorem zzz : ∀ s c, ∃ n : Nbar, first_nonzero_prop s c n.
-Proof.
-intros s c.
-unfold first_nonzero_prop.
-exists (first_nonzero₁ s c).
-remember (first_nonzero₁ s c) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ].
- split.
-  intros i Hin.
-bbb.
-
-Definition first_nonzero_iff₁ s c :=
-  epsilon_spec (inhabits ∞) (first_nonzero_prop s c) (zzz s c).
-
-*)
-
-(**)
 
 (* [stretching_factor fld s n] returns the maximal stretching factor of
    the series [s] starting at position [n], i.e. there is a series [s']
@@ -71,39 +44,23 @@ Definition first_nonzero_iff₁ s c :=
 Definition stretching_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
-Fixpoint nth_nonzero_interval_from s c n :=
+Fixpoint nth_nonzero_interval s c n :=
   match first_nonzero fld s (S n) with
   | fin p =>
       match c with
       | O => S p
-      | S c₁ => nth_nonzero_interval_from s c₁ (S n + p)%nat
+      | S c₁ => nth_nonzero_interval s c₁ (S n + p)%nat
       end
   | ∞ => O
   end.
 
 Definition stretching_factor_gcd_prop s n k :=
-  (∀ cnt, nth_nonzero_interval_from s cnt n mod k = O) ∧
-  (∀ k', (k < k')%nat → ∃ cnt, nth_nonzero_interval_from s cnt n mod k' ≠ O).
+  (∀ cnt, nth_nonzero_interval s cnt n mod k = O) ∧
+  (∀ k', (k < k')%nat → ∃ cnt, nth_nonzero_interval s cnt n mod k' ≠ O).
 
 Axiom stretching_factor_iff : ∀ s n k,
   stretching_factor fld s n = k ↔
   stretching_factor_gcd_prop s n (Pos.to_nat k).
-
-(*
-Definition stretching_factor_prop s n k :=
-  match first_nonzero fld s (S n) with
-  | fin _ =>
-      (∀ i, i mod (Pos.to_nat k) ≠ O →
-       series_nth_fld fld (n + i) s ≍ zero fld) ∧
-      (∀ k', (Pos.to_nat k < k')%nat →
-       ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
-  | ∞ =>
-      k = 1%positive
-  end.
-
-Axiom stretching_factor_iff : ∀ s n k,
-  stretching_factor fld s n = k ↔ stretching_factor_prop s n k.
-*)
 
 End Axioms.
 
@@ -353,9 +310,9 @@ rewrite IHcnt; reflexivity.
 Qed.
 *)
 
-Add Parametric Morphism α (fld : field α) : (nth_nonzero_interval_from fld)
+Add Parametric Morphism α (fld : field α) : (nth_nonzero_interval fld)
   with signature (eq_series fld) ==> eq ==> eq ==> eq
-  as nth_nonzero_interval_from_morph.
+  as nth_nonzero_interval_morph.
 Proof.
 intros s₁ s₂ Heq c n.
 revert n.
@@ -1432,15 +1389,15 @@ Qed.
 *)
 
 Lemma nth_nonzero_interval_shift : ∀ s cnt n b,
-  nth_nonzero_interval_from fld (series_shift fld n s) cnt (b + n) =
-  nth_nonzero_interval_from fld s cnt b.
+  nth_nonzero_interval fld (series_shift fld n s) cnt (b + n) =
+  nth_nonzero_interval fld s cnt b.
 Proof.
 intros s cnt n b.
 revert b.
 induction cnt; intros; simpl.
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite first_nonzero_shift_add.
- reflexivity.
+ destruct (first_nonzero fld s (S b)); reflexivity.
 
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite first_nonzero_shift_add.
@@ -1691,35 +1648,34 @@ rewrite Nbar.div_sup_mul.
  intros H; discriminate H.
 Qed.
 
-(*
-Fixpoint rank_of_nonzero_before_from s n i b :=
+Fixpoint rank_of_nonzero_from s n i b :=
   if lt_dec b i then
     match n with
     | O => O
     | S n₁ =>
         match first_nonzero fld s (S b) with
-        | fin m => S (rank_of_nonzero_before_from s n₁ i (S b + m)%nat)
+        | fin m => S (rank_of_nonzero_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
     end
   else O.
 
-Definition rank_of_nonzero_before s i :=
-  rank_of_nonzero_before_from s i i 0.
-*)
+Definition rank_of_nonzero s i :=
+  rank_of_nonzero_from s i i 0.
 
 Lemma www : ∀ s k,
-  (∀ cnt, nth_nonzero_interval_from fld s cnt 0 mod Pos.to_nat k = 0%nat)
+  (∀ cnt, nth_nonzero_interval fld s cnt 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
 intros s k Hs i Hi.
 bbb.
-remember (rank_of_nonzero_before s i) as cnt.
+remember (rank_of_nonzero s i) as cnt.
 pose proof (Hs cnt) as H.
 subst cnt.
-unfold rank_of_nonzero_before in H.
+bbb.
+unfold rank_of_nonzero in H.
 bbb.
 
 Lemma series_stretch_shrink : ∀ s k,
