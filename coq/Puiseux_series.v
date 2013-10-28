@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.953 2013-10-28 07:23:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.954 2013-10-28 07:31:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -64,9 +64,9 @@ Definition first_nonzero_iff₁ s c :=
 
 (**)
 
-(* [stretching_factor fld s n] returns the maximal stretching factor [k] of
+(* [stretching_factor fld s n] returns the maximal stretching factor of
    the series [s] starting at position [n], i.e. there is a series [s']
-   which can be stretched by [stretch_series] (below) with a factor of [k]
+   which can be stretched by [stretch_series] (below) with this factor
    to give [s] back. *)
 Definition stretching_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
