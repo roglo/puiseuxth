@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.952 2013-10-28 01:02:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.953 2013-10-28 07:23:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -71,19 +71,19 @@ Definition first_nonzero_iff₁ s c :=
 Definition stretching_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
-Fixpoint stretching_factor_lim cnt s (n : nat) :=
-  match cnt with
-  | O => 0%nat
-  | S cnt' =>
-      match first_nonzero fld s (S n) with
-      | fin m => gcd (S m) (stretching_factor_lim cnt' s (S n + m))
-      | ∞ => 0%nat
+Fixpoint nth_nonzero_interval_from s c n :=
+  match first_nonzero fld s (S n) with
+  | fin p =>
+      match c with
+      | O => S p
+      | S c₁ => nth_nonzero_interval_from s c₁ (S n + p)%nat
       end
+  | ∞ => O
   end.
 
 Definition stretching_factor_gcd_prop s n k :=
-  (∀ cnt, stretching_factor_lim cnt s n mod k = 0%nat) ∧
-  (∀ k', (k < k')%nat → ∃ cnt, stretching_factor_lim cnt s n mod k' ≠ O).
+  (∀ cnt, nth_nonzero_interval_from s cnt n mod k = O) ∧
+  (∀ k', (k < k')%nat → ∃ cnt, nth_nonzero_interval_from s cnt n mod k' ≠ O).
 
 Axiom stretching_factor_iff : ∀ s n k,
   stretching_factor fld s n = k ↔
@@ -337,6 +337,7 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
+(*
 Add Parametric Morphism α (fld : field α) : (stretching_factor_lim fld)
   with signature eq ==> (eq_series fld) ==> eq ==> eq
   as stretching_factor_lim_morph.
@@ -349,6 +350,17 @@ remember (first_nonzero fld s₂ (S n)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ]; [ idtac | reflexivity ].
 rewrite IHcnt; reflexivity.
+Qed.
+*)
+
+Add Parametric Morphism α (fld : field α) : (nth_nonzero_interval_from fld)
+  with signature (eq_series fld) ==> eq ==> eq ==> eq
+  as nth_nonzero_interval_from_morph.
+Proof.
+intros s₁ s₂ Heq c n.
+revert n.
+induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
+destruct (first_nonzero fld s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
@@ -1398,6 +1410,7 @@ destruct v as [v| ].
  apply Hv.
 Qed.
 
+(*
 Lemma stretching_factor_lim_shift : ∀ cnt s n b,
   stretching_factor_lim fld cnt (series_shift fld n s) (b + n) =
   stretching_factor_lim fld cnt s b.
@@ -1416,6 +1429,7 @@ rewrite Nat.add_shuffle0.
 rewrite <- Nat.add_succ_l.
 apply IHcnt.
 Qed.
+*)
 
 Lemma stretching_factor_shift : ∀ n s b,
   stretching_factor fld (series_shift fld n s) (b + n) =
