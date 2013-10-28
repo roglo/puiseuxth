@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.951 2013-10-27 22:40:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.952 2013-10-28 01:02:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1681,6 +1681,7 @@ intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
 pose proof (Hs cnt) as H.
 subst cnt.
+unfold rank_of_nonzero_before in H.
 bbb.
 
 Lemma series_stretch_shrink : ∀ s k,
