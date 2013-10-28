@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.958 2013-10-28 10:39:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.959 2013-10-28 13:00:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1648,29 +1648,33 @@ rewrite Nbar.div_sup_mul.
  intros H; discriminate H.
 Qed.
 
-Fixpoint rank_of_nonzero_before_from s n i b :=
+Fixpoint rank_of_nonzero_after_from s n i b :=
   if lt_dec b i then
     match n with
     | O => O
     | S n₁ =>
         match first_nonzero fld s (S b) with
-        | fin m => S (rank_of_nonzero_before_from s n₁ i (S b + m)%nat)
+        | fin m => S (rank_of_nonzero_after_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
     end
   else O.
 
-Definition rank_of_nonzero_before s i := rank_of_nonzero_before_from s i i 0.
+Definition rank_of_nonzero_before s i :=
+  pred (rank_of_nonzero_after_from s i i 0).
 
 (**)
-Lemma vvv : ∀ s c i b k,
-  nth_nonzero_interval fld s (rank_of_nonzero_before_from s c i b) b
+Lemma vvv : ∀ s i c b k,
+  nth_nonzero_interval fld s
+   (pred (rank_of_nonzero_after_from s i c b)) b
     mod Pos.to_nat k = O
   → i mod Pos.to_nat k ≠ O
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
-intros s c i b k Hs Hm.
-revert b c Hs Hm.
+intros s i c b k Hs Hm.
+bbb.
+
+revert b Hs Hm.
 induction i; intros.
  rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
  exfalso; apply Hm; reflexivity.
