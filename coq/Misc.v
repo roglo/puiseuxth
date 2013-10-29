@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 1.72 2013-10-29 09:47:21 deraugla Exp $ *)
+(* $Id: Misc.v,v 1.73 2013-10-29 09:53:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1266,8 +1266,9 @@ assert (n = Z.of_nat nn) as H.
   destruct nn.
    exfalso; revert Hn; apply Z.lt_irrefl.
 
-   clear Hn; revert nn.
-   apply infinite_descent; intros.
+   clear Hn.
+   induction nn using infinite_descent.
+   rename nn into n.
    case (prime_dec (Z.of_nat (S (S n)))); intros H₁.
     exists (Z.of_nat (S (S n))).
     split; [ assumption | reflexivity ].
