@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.969 2013-10-29 14:58:48 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.970 2013-10-29 18:41:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1706,6 +1706,34 @@ Lemma ttt : ∀ s c i b n last_b len,
        → first_nonzero fld s (S n) = fin len
          → i < S n + len)%nat.
 Proof.
+intros s c i b n last_b len Hc Hbi Hn Hlen.
+revert i b n last_b len Hc Hbi Hn Hlen.
+induction c; intros.
+ simpl in Hn.
+ apply Nat.le_0_r in Hc; subst n i; fast_omega .
+
+ simpl in Hn.
+ remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+ symmetry in Hlen₁.
+ destruct (lt_dec b i) as [H₁| H₁]; [ clear H₁ | contradiction ].
+ destruct len₁ as [len₁| ].
+  destruct (eq_nat_dec i (S c)) as [H₂| H₂].
+   Focus 2.
+   eapply IHc.
+    3: eassumption.
+
+    fast_omega Hc H₂.
+
+    2: assumption.
+
+    Unfocus.
+    Focus 3.
+    subst b; rewrite Hlen₁ in Hlen; discriminate Hlen.
+
+bbb.
+   Focus 2.
+   eapply index_of_nonzero_before_from_lt in Hbi.
+
 intros s c i b n last_b len Hc Hbi Hn Hlen.
 revert i b n last_b len Hc Hbi Hn Hlen.
 induction c using all_lt_all; intros.
