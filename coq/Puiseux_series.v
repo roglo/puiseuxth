@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.970 2013-10-29 18:41:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.971 2013-10-29 23:41:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1679,7 +1679,7 @@ Definition index_of_nonzero_before s i :=
 
 Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
   (last_b < i
-  → index_of_nonzero_before_from s n i b last_b < i)%nat.
+   → index_of_nonzero_before_from s n i b last_b < i)%nat.
 Proof.
 intros s n i b last_b Hbi.
 revert i b last_b Hbi.
