@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.965 2013-10-29 05:38:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.966 2013-10-29 09:19:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1700,25 +1700,26 @@ intros s i Hi.
 apply index_of_nonzero_before_from_lt; assumption.
 Qed.
 
-Lemma ttt : ∀ s n i b last_b len,
+Lemma ttt : ∀ s c i b n last_b len,
   (last_b < i
-   → index_of_nonzero_before_from s n i b last_b = n
+   → index_of_nonzero_before_from s c i b last_b = n
      → first_nonzero fld s (S n) = fin len
        → i < S n + len)%nat.
 Proof.
-intros s n i b last_b len Hbi Hn Hlen.
+intros s c i b n last_b len Hbi Hn Hlen.
 revert i b last_b len Hbi Hn Hlen.
 induction n; intros; simpl.
 bbb.
-mouais... faut voir...
 
 Lemma uuu : ∀ s i n len,
-  (index_of_nonzero_before s i = n
-   → first_nonzero fld s (S n) = fin len
-     → i < S n + len)%nat.
+  (0 < i
+   → index_of_nonzero_before s i = n
+     → first_nonzero fld s (S n) = fin len
+       → i < S n + len)%nat.
 Proof.
-intros s i n len Hi Hn.
-bbb.
+intros s i n len Hi Hn Hlen.
+eapply ttt; eassumption.
+qed.
 
 (**)
 Lemma vvv : ∀ s i c b k,
