@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.963 2013-10-28 20:20:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.964 2013-10-29 05:08:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1660,17 +1660,40 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
       else O
   end.
 
+Fixpoint index_of_nonzero_before_from s n i b last_b :=
+  match n with
+  | O => O
+  | S n₁ =>
+      if lt_dec b i then
+        match first_nonzero fld s (S b) with
+        | fin m => index_of_nonzero_before_from s n₁ i (S b + m)%nat b
+        | ∞ => b
+        end
+      else last_b
+  end.
+
 Definition rank_of_nonzero_before s i :=
   pred (rank_of_nonzero_after_from s i i 0).
+
+Definition index_of_nonzero_before s i :=
+  index_of_nonzero_before_from s i i 0 0.
 
 (**)
 Lemma vvv : ∀ s i c b k,
   nth_nonzero_interval fld s
-   (pred (rank_of_nonzero_after_from s c (S i) b)) b
+   (pred (rank_of_nonzero_after_from s c (b + i) b)) b
    mod Pos.to_nat k = O
-  → (S b + i) mod Pos.to_nat k ≠ O
-    → series_nth_fld fld (S b + i) s ≍ zero fld.
+  → i mod Pos.to_nat k ≠ O
+    → series_nth_fld fld (b + i) s ≍ zero fld.
 Proof.
+intros s i c b k Hs Hm.
+remember (index_of_nonzero_before s (b + i)) as n eqn:Hn .
+remember (first_nonzero fld s (S n)) as len eqn:Hlen .
+symmetry in Hlen.
+destruct len as [len| ].
+ assert (n < b + i < n + len)%nat as Houais.
+bbb.
+
 intros s i c b k Hs Hm.
 revert b c Hs Hm.
 induction i; intros.
