@@ -1,8 +1,7 @@
-(* $Id: Puiseux_series.v,v 1.966 2013-10-29 09:19:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.967 2013-10-29 09:47:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
-Require Import Znumtheory.
 Require Import NPeano.
 
 Require Import Field.
@@ -1707,8 +1706,30 @@ Lemma ttt : ∀ s c i b n last_b len,
        → i < S n + len)%nat.
 Proof.
 intros s c i b n last_b len Hbi Hn Hlen.
-revert i b last_b len Hbi Hn Hlen.
-induction n; intros; simpl.
+revert i b n last_b len Hbi Hn Hlen.
+induction c using all_lt_all; intros.
+destruct c.
+ Focus 2.
+ simpl in Hn.
+ destruct (lt_dec b i) as [H₁| H₁].
+  remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+  symmetry in Hlen₁.
+  destruct len₁ as [len₁| ].
+   eapply H in Hn.
+    4: eassumption.
+
+    assumption.
+
+    auto.
+
+    assumption.
+
+   subst n.
+   rewrite Hlen₁ in Hlen; discriminate Hlen.
+
+  Unfocus.
+  simpl in Hn.
+  subst n.
 bbb.
 
 Lemma uuu : ∀ s i n len,
@@ -1994,126 +2015,6 @@ split; intros H.
      rewrite divmod_mod.
 bbb.
 *)
-
-(* Allows proof by induction with the case
-     proved for n implies proved for S n
-   changed into
-     proved for all nats before n implies proved for S n.
-
-   Then, the proof may be easier to perform.
-*)
-Lemma all_lt_all : ∀ P : nat → Prop,
-  (∀ n, (∀ m, (m < n)%nat → P m) → P n)
-  → ∀ n, P n.
-Proof.
-intros P Hm n.
-apply Hm.
-induction n; intros m Hmn.
- apply Nat.nle_gt in Hmn.
- exfalso; apply Hmn, Nat.le_0_l.
-
- destruct (eq_nat_dec m n) as [H₁| H₁].
-  subst m; apply Hm; assumption.
-
-  apply IHn.
-  apply le_neq_lt; [ idtac | assumption ].
-  apply Nat.succ_le_mono; assumption.
-Qed.
-
-(* it makes 'exists_prime_divisor' work, that's a miracle.
-   I was supposed to program 'infinite descent' method, but
-   it turned out like this by some rewrittings *)
-Lemma infinite_descent : ∀ P : nat → Prop,
-  (∀ n, (∀ m, n ≤ m ∨ P m) → P n)
-  → ∀ n, P n.
-Proof.
-intros P HP n.
-apply HP.
-induction n; intros m.
- left; apply Nat.le_0_l.
-
- destruct (eq_nat_dec n m) as [H₁| H₁].
-  subst m.
-  apply HP in IHn.
-  right; assumption.
-
-  pose proof (IHn m) as Hm.
-  destruct Hm as [Hm| Hm]; [ idtac | right; assumption ].
-  left; apply le_neq_lt; assumption.
-Qed.
-
-Lemma exists_prime_divisor : ∀ n, (1 < n)%Z → ∃ p, prime p ∧ (p | n)%Z.
-Proof.
-(* à nettoyer, peut-être *)
-intros n Hn.
-remember (Z.to_nat n) as nn eqn:Hnn .
-assert (n = Z.of_nat nn) as H.
- subst nn.
- rewrite Z2Nat.id; [ reflexivity | idtac ].
- eapply Z.le_trans; [ apply Z.le_0_1 | apply Z.lt_le_incl; assumption ].
-
- clear Hnn.
- subst n.
- destruct nn.
-  apply Z.nle_gt in Hn.
-  exfalso; apply Hn, Z.le_0_1.
-
-  destruct nn.
-   exfalso; revert Hn; apply Z.lt_irrefl.
-
-   clear Hn; revert nn.
-   apply infinite_descent; intros.
-   case (prime_dec (Z.of_nat (S (S n)))); intros H₁.
-    exists (Z.of_nat (S (S n))).
-    split; [ assumption | reflexivity ].
-
-    apply not_prime_divide in H₁.
-     destruct H₁ as (m, ((Hm, Hmn), (p, Hp))).
-     pose proof (H (Z.to_nat (m - 2))) as HH.
-     destruct HH as [HH| HH].
-      apply Nat.nlt_ge in HH.
-      exfalso; apply HH; clear HH.
-      apply Nat2Z.inj_lt.
-      rewrite Z2Nat.id.
-       apply Z.add_lt_mono_r with (p := 2%Z).
-       rewrite Z.sub_add.
-       rewrite Nat2Z.inj_succ in Hmn.
-       rewrite Nat2Z.inj_succ in Hmn.
-       simpl in Hmn.
-       rewrite <- Z.add_1_r in Hmn.
-       rewrite <- Z.add_1_r in Hmn.
-       rewrite <- Z.add_assoc in Hmn.
-       assumption.
-
-       apply Z.add_le_mono_r with (p := 2%Z).
-       rewrite Z.sub_simpl_r.
-       apply Z.lt_pred_le; assumption.
-
-      assert (S (S (Z.to_nat (m - 2))) = Z.to_nat m)%nat.
-       revert Hm; clear; intros.
-       rewrite Z2Nat.inj_sub; [ idtac | apply Zle_0_pos ].
-       rewrite <- Nat.sub_succ_l.
-        rewrite <- Nat.sub_succ_l.
-         simpl; rewrite Nat.sub_0_r; reflexivity.
-
-         rewrite <- Z2Nat.inj_succ; [ idtac | omega ].
-         apply Z2Nat.inj_le; omega.
-
-        apply Z2Nat.inj_le; omega.
-
-       rewrite H0 in HH.
-       rewrite Z2Nat.id in HH; [ idtac | fast_omega Hm ].
-       destruct HH as (q, (Hq, Hqm)).
-       exists q.
-       split; [ assumption | idtac ].
-       rewrite Hp.
-       destruct Hqm as (c, Hc).
-       rewrite Hc, Z.mul_assoc.
-       apply Z.divide_factor_r.
-
-     do 2 rewrite Nat2Z.inj_succ.
-     fast_omega .
-Qed.
 
 Definition stretching_factor_prime_prop s n k :=
   match first_nonzero fld s (S n) with
