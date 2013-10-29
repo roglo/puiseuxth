@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.967 2013-10-29 09:47:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.968 2013-10-29 10:35:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1700,36 +1700,45 @@ apply index_of_nonzero_before_from_lt; assumption.
 Qed.
 
 Lemma ttt : ∀ s c i b n last_b len,
-  (last_b < i
-   → index_of_nonzero_before_from s c i b last_b = n
-     → first_nonzero fld s (S n) = fin len
-       → i < S n + len)%nat.
+  (i ≤ c
+   → last_b ≤ b
+     → b < i
+       → index_of_nonzero_before_from s c i b last_b = n
+         → first_nonzero fld s (S n) = fin len
+           → i < S n + len)%nat.
 Proof.
-intros s c i b n last_b len Hbi Hn Hlen.
-revert i b n last_b len Hbi Hn Hlen.
+intros s c i b n last_b len Hc Hb Hbi Hn Hlen.
+revert i b n last_b len Hc Hb Hbi Hn Hlen.
 induction c using all_lt_all; intros.
-destruct c.
+destruct c; [ fast_omega Hc | idtac ].
+simpl in Hn.
+destruct (lt_dec b i) as [H₁| ]; [ idtac | contradiction ].
+remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+symmetry in Hlen₁.
+destruct len₁ as [len₁| ].
  Focus 2.
- simpl in Hn.
- destruct (lt_dec b i) as [H₁| H₁].
-  remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
-  symmetry in Hlen₁.
-  destruct len₁ as [len₁| ].
-   eapply H in Hn.
-    4: eassumption.
+ subst b; rewrite Hlen₁ in Hlen; discriminate Hlen.
 
-    assumption.
-
-    auto.
-
-    assumption.
-
-   subst n.
-   rewrite Hlen₁ in Hlen; discriminate Hlen.
-
-  Unfocus.
+ destruct c.
   simpl in Hn.
   subst n.
+  destruct i; [ exfalso; fast_omega H₁ | idtac ].
+  apply Nat.succ_le_mono, Nat.le_0_r in Hc.
+  subst i.
+  apply Nat.lt_1_r in H₁; subst b.
+  apply Nat.le_0_r in Hb; subst last_b.
+  Focus 2.
+  destruct (eq_nat_dec i (S (S c))) as [H₂| H₂].
+   Focus 2.
+   eapply H in Hn; try eassumption.
+    apply Nat.lt_succ_r; reflexivity.
+
+    fast_omega Hc H₂.
+
+    fast_omega .
+
+    Unfocus.
+    subst i.
 bbb.
 
 Lemma uuu : ∀ s i n len,
