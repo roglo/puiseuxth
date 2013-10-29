@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.964 2013-10-29 05:08:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.965 2013-10-29 05:38:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1678,6 +1678,48 @@ Definition rank_of_nonzero_before s i :=
 Definition index_of_nonzero_before s i :=
   index_of_nonzero_before_from s i i 0 0.
 
+Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
+  (last_b < i
+  → index_of_nonzero_before_from s n i b last_b < i)%nat.
+Proof.
+intros s n i b last_b Hbi.
+revert i b last_b Hbi.
+induction n; intros; simpl; [ omega | idtac ].
+destruct (lt_dec b i) as [H₁| H₁]; [ idtac | assumption ].
+remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+symmetry in Hlen.
+destruct len as [len| ]; [ idtac | assumption ].
+apply IHn; assumption.
+Qed.
+
+Lemma index_of_nonzero_before_lt : ∀ s i,
+  (0 < i
+   → index_of_nonzero_before s i < i)%nat.
+Proof.
+intros s i Hi.
+apply index_of_nonzero_before_from_lt; assumption.
+Qed.
+
+Lemma ttt : ∀ s n i b last_b len,
+  (last_b < i
+   → index_of_nonzero_before_from s n i b last_b = n
+     → first_nonzero fld s (S n) = fin len
+       → i < S n + len)%nat.
+Proof.
+intros s n i b last_b len Hbi Hn Hlen.
+revert i b last_b len Hbi Hn Hlen.
+induction n; intros; simpl.
+bbb.
+mouais... faut voir...
+
+Lemma uuu : ∀ s i n len,
+  (index_of_nonzero_before s i = n
+   → first_nonzero fld s (S n) = fin len
+     → i < S n + len)%nat.
+Proof.
+intros s i n len Hi Hn.
+bbb.
+
 (**)
 Lemma vvv : ∀ s i c b k,
   nth_nonzero_interval fld s
@@ -1692,6 +1734,13 @@ remember (first_nonzero fld s (S n)) as len eqn:Hlen .
 symmetry in Hlen.
 destruct len as [len| ].
  assert (n < b + i < n + len)%nat as Houais.
+  split.
+   rewrite Hn.
+   apply index_of_nonzero_before_lt.
+   destruct i; [ idtac | fast_omega ].
+   rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
+   exfalso; apply Hm; reflexivity.
+
 bbb.
 
 intros s i c b k Hs Hm.
