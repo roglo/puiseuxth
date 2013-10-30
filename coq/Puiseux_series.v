@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.977 2013-10-30 16:09:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.978 2013-10-30 23:51:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1682,6 +1682,7 @@ Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
    → i < n
      → index_of_nonzero_before_from s n i b last_b < i)%nat.
 Proof.
+(* à nettoyer *)
 intros s n i b last_b Hbi Hin.
 destruct n; simpl.
  exfalso; fast_omega Hin.
@@ -1704,9 +1705,12 @@ destruct n; simpl.
   rename len₂ into len.
   rename Hb₁ into Hb.
   rename H₂ into Hbi.
-(*1*)
-bbb.
-  destruct n; simpl.
+  remember 1%nat as k.
+  replace (S (S n)) with (n + k + 1)%nat in Hin by omega.
+  replace (S x) with (x + k)%nat in Hb by omega.
+  clear Heqk.
+  revert i k b x len Hin Hb Hbi.
+  induction n; intros; simpl.
    fast_omega Hin Hb Hbi.
 
    remember (S (b + len)) as b₁.
@@ -1718,172 +1722,26 @@ bbb.
    rename b₁ into b.
    simpl in Heqb₁.
    remember (x + len)%nat as y.
+   rewrite Nat.add_shuffle0 in Heqb₁.
+   rewrite <- Heqy in Heqb₁.
    clear x Heqy.
    rename y into x.
    clear len.
    rename len₁ into len.
    rename H₁ into Hbi.
    rename Heqb₁ into Hb.
-(*2*)
-   destruct n; simpl.
-    fast_omega Hin Hb Hbi.
-
-   remember (S (b + len)) as b₁.
-   destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-   destruct (first_nonzero fld s (S b₁)) as [len₁| ]; [ idtac | assumption ].
-   rewrite <- Nat.add_succ_l, <- Heqb₁.
-   subst b.
-   clear Hbi.
-   rename b₁ into b.
-   simpl in Heqb₁.
-   remember (x + len)%nat as y.
-   clear x Heqy.
-   rename y into x.
-   clear len.
-   rename len₁ into len.
-   rename H₁ into Hbi.
-   rename Heqb₁ into Hb.
-   destruct n; simpl.
-    fast_omega Hin Hb Hbi.
-
-    remember (S (b + len)) as b₁.
-    destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-    destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-     [ idtac | assumption ].
-    rewrite <- Nat.add_succ_l, <- Heqb₁.
-    subst b.
-    clear Hbi.
-    rename b₁ into b.
-    simpl in Heqb₁.
-    remember (x + len)%nat as y.
-    clear x Heqy.
-    rename y into x.
-    clear len.
-    rename len₁ into len.
-    rename H₁ into Hbi.
-    rename Heqb₁ into Hb.
-    destruct n; simpl.
-     fast_omega Hin Hb Hbi.
-
-     remember (S (b + len)) as b₁.
-     destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-     destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-      [ idtac | assumption ].
-     rewrite <- Nat.add_succ_l, <- Heqb₁.
-     subst b.
-     clear Hbi.
-     rename b₁ into b.
-     simpl in Heqb₁.
-     remember (x + len)%nat as y.
-     clear x Heqy.
-     rename y into x.
-     clear len.
-     rename len₁ into len.
-     rename H₁ into Hbi.
-     rename Heqb₁ into Hb.
-     destruct n; simpl.
-      fast_omega Hin Hb Hbi.
-
-      remember (S (b + len)) as b₁.
-      destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-      destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-       [ idtac | assumption ].
-      rewrite <- Nat.add_succ_l, <- Heqb₁.
-      subst b.
-      clear Hbi.
-      rename b₁ into b.
-      simpl in Heqb₁.
-      remember (x + len)%nat as y.
-      clear x Heqy.
-      rename y into x.
-      clear len.
-      rename len₁ into len.
-      rename H₁ into Hbi.
-      rename Heqb₁ into Hb.
-      destruct n; simpl.
-       fast_omega Hin Hb Hbi.
-
-       remember (S (b + len)) as b₁.
-       destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-       destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-        [ idtac | assumption ].
-       rewrite <- Nat.add_succ_l, <- Heqb₁.
-       subst b.
-       clear Hbi.
-       rename b₁ into b.
-       simpl in Heqb₁.
-       remember (x + len)%nat as y.
-       clear x Heqy.
-       rename y into x.
-       clear len.
-       rename len₁ into len.
-       rename H₁ into Hbi.
-       rename Heqb₁ into Hb.
-       destruct n; simpl.
-        fast_omega Hin Hb Hbi.
-
-        remember (S (b + len)) as b₁.
-        destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-        destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-         [ idtac | assumption ].
-        rewrite <- Nat.add_succ_l, <- Heqb₁.
-        subst b.
-        clear Hbi.
-        rename b₁ into b.
-        simpl in Heqb₁.
-        remember (x + len)%nat as y.
-        clear x Heqy.
-        rename y into x.
-        clear len.
-        rename len₁ into len.
-        rename H₁ into Hbi.
-        rename Heqb₁ into Hb.
-        destruct n; simpl.
-         fast_omega Hin Hb Hbi.
-
-         remember (S (b + len)) as b₁.
-         destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-         destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-          [ idtac | assumption ].
-         rewrite <- Nat.add_succ_l, <- Heqb₁.
-         subst b.
-         clear Hbi.
-         rename b₁ into b.
-         simpl in Heqb₁.
-         remember (x + len)%nat as y.
-         clear x Heqy.
-         rename y into x.
-         clear len.
-         rename len₁ into len.
-         rename H₁ into Hbi.
-         rename Heqb₁ into Hb.
-         destruct n; simpl.
-          fast_omega Hin Hb Hbi.
-
-          remember (S (b + len)) as b₁.
-          destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
-          destruct (first_nonzero fld s (S b₁)) as [len₁| ];
-           [ idtac | assumption ].
-          rewrite <- Nat.add_succ_l, <- Heqb₁.
-          subst b.
-          clear Hbi.
-          rename b₁ into b.
-          simpl in Heqb₁.
-          remember (x + len)%nat as y.
-          clear x Heqy.
-          rename y into x.
-          clear len.
-          rename len₁ into len.
-          rename H₁ into Hbi.
-          rename Heqb₁ into Hb.
-bbb.
+   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
+   rewrite <- Nat.add_succ_r in Hb.
+   eapply IHn; eassumption.
+Qed.
 
 Lemma index_of_nonzero_before_lt : ∀ s i,
   (0 < i
    → index_of_nonzero_before s i < i)%nat.
 Proof.
 intros s i Hi.
-apply index_of_nonzero_before_from_lt; assumption.
+apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
+apply Nat.lt_succ_r; reflexivity.
 Qed.
 
 Lemma ttt : ∀ s c i b n last_b len,
