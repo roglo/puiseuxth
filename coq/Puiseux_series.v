@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.971 2013-10-29 23:41:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.972 2013-10-30 00:40:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1683,7 +1683,7 @@ Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
 Proof.
 intros s n i b last_b Hbi.
 revert i b last_b Hbi.
-induction n; intros; simpl; [ omega | idtac ].
+induction n; intros; simpl; [ fast_omega Hbi | idtac ].
 destruct (lt_dec b i) as [H₁| H₁]; [ idtac | assumption ].
 remember (first_nonzero fld s (S b)) as len eqn:Hlen .
 symmetry in Hlen.
