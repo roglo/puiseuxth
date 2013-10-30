@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.975 2013-10-30 08:05:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.976 2013-10-30 12:35:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1704,8 +1704,32 @@ destruct n; simpl.
    destruct (lt_dec b₂ i) as [H₁| H₁]; [ clear Hbi | assumption ].
    destruct (first_nonzero fld s (S b₂)) as [len₃| ]; [ idtac | assumption ].
    rewrite <- Nat.add_succ_l, <- Hb₂.
+   subst b₁.
    destruct n; simpl.
-    exfalso; fast_omega Hin H₁ Hb₁ Hb₂.
+    exfalso; fast_omega Hin H₁ Hb₂.
+
+    rename H₁ into Hbi.
+    rename b₂ into b₁.
+    rename Hb₂ into Hb₁.
+    remember (S (b₁ + len₃)) as b₂ eqn:Hb₂ .
+    destruct (lt_dec b₂ i) as [H₁| H₁]; [ clear Hbi | assumption ].
+    destruct (first_nonzero fld s (S b₂)) as [len₄| ]; [ idtac | assumption ].
+    rewrite <- Nat.add_succ_l, <- Hb₂.
+    subst b₁.
+    destruct n; simpl.
+     exfalso; fast_omega Hin H₁ Hb₂.
+
+     rename H₁ into Hbi.
+     rename b₂ into b₁.
+     rename Hb₂ into Hb₁.
+     remember (S (b₁ + len₄)) as b₂ eqn:Hb₂ .
+     destruct (lt_dec b₂ i) as [H₁| H₁]; [ clear Hbi | assumption ].
+     destruct (first_nonzero fld s (S b₂)) as [len₅| ];
+      [ idtac | assumption ].
+     rewrite <- Nat.add_succ_l, <- Hb₂.
+     subst b₁.
+     destruct n; simpl.
+      exfalso; fast_omega Hin H₁ Hb₂.
 bbb.
 
 Lemma index_of_nonzero_before_lt : ∀ s i,
