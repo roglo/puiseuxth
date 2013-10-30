@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.972 2013-10-30 00:40:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.973 2013-10-30 01:04:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1661,7 +1661,7 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
 
 Fixpoint index_of_nonzero_before_from s n i b last_b :=
   match n with
-  | O => O
+  | O => b
   | S n₁ =>
       if lt_dec b i then
         match first_nonzero fld s (S b) with
@@ -1672,24 +1672,43 @@ Fixpoint index_of_nonzero_before_from s n i b last_b :=
   end.
 
 Definition rank_of_nonzero_before s i :=
-  pred (rank_of_nonzero_after_from s i i 0).
+  pred (rank_of_nonzero_after_from s (S i) i 0).
 
 Definition index_of_nonzero_before s i :=
-  index_of_nonzero_before_from s i i 0 0.
+  index_of_nonzero_before_from s (S i) i 0 0.
 
 Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
   (last_b < i
-   → index_of_nonzero_before_from s n i b last_b < i)%nat.
+   → i < n
+     → index_of_nonzero_before_from s n i b last_b < i)%nat.
 Proof.
-intros s n i b last_b Hbi.
-revert i b last_b Hbi.
-induction n; intros; simpl; [ fast_omega Hbi | idtac ].
-destruct (lt_dec b i) as [H₁| H₁]; [ idtac | assumption ].
-remember (first_nonzero fld s (S b)) as len eqn:Hlen .
-symmetry in Hlen.
-destruct len as [len| ]; [ idtac | assumption ].
-apply IHn; assumption.
-Qed.
+intros s n i b last_b Hbi Hin.
+destruct n; simpl.
+ exfalso; fast_omega Hin.
+
+ destruct (lt_dec b i) as [H₁| H₁]; [ idtac | assumption ].
+ remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+ symmetry in Hlen₁.
+ destruct len₁ as [len₁| ]; [ idtac | assumption ].
+ destruct n; simpl.
+  exfalso; fast_omega Hin H₁.
+
+  destruct (lt_dec (S (b + len₁)) i) as [H₂| H₂]; [ idtac | assumption ].
+  remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+  symmetry in Hlen₂.
+  destruct len₂ as [len₂| ]; [ idtac | assumption ].
+  destruct n; simpl.
+   exfalso; fast_omega Hin H₁ H₂.
+
+   destruct (lt_dec (S (S (b + len₁ + len₂))) i) as [H₃| H₃];
+    [ idtac | assumption ].
+   remember (first_nonzero fld s (S (S (S (b + len₁ + len₂))))) as len₃
+    eqn:Hlen₃ .
+   symmetry in Hlen₃.
+   destruct len₃ as [len₃| ]; [ idtac | assumption ].
+   destruct n; simpl.
+    exfalso; fast_omega Hin H₁ H₂ H₃.
+bbb.
 
 Lemma index_of_nonzero_before_lt : ∀ s i,
   (0 < i
