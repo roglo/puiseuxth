@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.973 2013-10-30 01:04:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.974 2013-10-30 07:25:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1693,21 +1693,23 @@ destruct n; simpl.
  destruct n; simpl.
   exfalso; fast_omega Hin H₁.
 
-  destruct (lt_dec (S (b + len₁)) i) as [H₂| H₂]; [ idtac | assumption ].
-  remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+  remember (S (b + len₁)) as b₁ eqn:Hb₁ .
+  destruct (lt_dec b₁ i) as [H₂| H₂]; [ idtac | assumption ].
+  remember (first_nonzero fld s (S b₁)) as len₂ eqn:Hlen₂ .
   symmetry in Hlen₂.
   destruct len₂ as [len₂| ]; [ idtac | assumption ].
+  rewrite <- Nat.add_succ_l, <- Hb₁.
   destruct n; simpl.
-   exfalso; fast_omega Hin H₁ H₂.
+   exfalso; fast_omega Hin H₂ Hb₁.
 
-   destruct (lt_dec (S (S (b + len₁ + len₂))) i) as [H₃| H₃];
-    [ idtac | assumption ].
-   remember (first_nonzero fld s (S (S (S (b + len₁ + len₂))))) as len₃
-    eqn:Hlen₃ .
+   remember (S (b₁ + len₂)) as b₂ eqn:Hb₂ .
+   destruct (lt_dec b₂ i) as [H₃| H₃]; [ idtac | assumption ].
+   remember (first_nonzero fld s (S b₂)) as len₃ eqn:Hlen₃ .
    symmetry in Hlen₃.
    destruct len₃ as [len₃| ]; [ idtac | assumption ].
+   rewrite <- Nat.add_succ_l, <- Hb₂.
    destruct n; simpl.
-    exfalso; fast_omega Hin H₁ H₂ H₃.
+    exfalso; fast_omega Hin H₃ Hb₁ Hb₂.
 bbb.
 
 Lemma index_of_nonzero_before_lt : ∀ s i,
