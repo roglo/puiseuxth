@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.983 2013-10-31 07:59:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.984 2013-10-31 09:30:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1727,7 +1727,7 @@ apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
-Lemma sss : ∀ s c i b n last_b len,
+Lemma ttt : ∀ s c i b n last_b len,
   (b < i
    → last_b < i
      → i < c
@@ -1750,106 +1750,52 @@ destruct c; simpl in Hn.
   destruct c; simpl in Hn; [ exfalso; omega | idtac ].
   destruct (lt_dec (S (b + len₁)) i) as [H₂| H₂].
    Focus 2.
-   subst b.
-   apply Nat.nlt_ge in H₂.
-   rewrite Hlen in Hlen₁.
-   injection Hlen₁; intros; subst len₁.
-   rewrite Nat.add_succ_l.
-   assumption.
-bbb.
+   subst n.
+   rewrite Hlen₁ in Hlen.
+   injection Hlen; clear Hlen; intros; subst len.
+   simpl; apply Nat.nlt_ge; assumption.
 
-Lemma ttt : ∀ s c i b n last_b len,
-  (i ≤ c
-   → b < i
-     → index_of_nonzero_before_from s c i b last_b = n
-       → first_nonzero fld s (S n) = fin len
-         → i < S n + len)%nat.
-Proof.
-intros s c i b n last_b len Hc Hbi Hn Hlen.
-revert i b n last_b len Hc Hbi Hn Hlen.
-induction c; intros.
- simpl in Hn.
- apply Nat.le_0_r in Hc; subst n i; fast_omega .
+   remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+   symmetry in Hlen₂.
+   destruct len₂ as [len₂| ].
+    Focus 2.
+    subst n.
+    rewrite Hlen₂ in Hlen; discriminate Hlen.
 
- simpl in Hn.
- remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
- symmetry in Hlen₁.
- destruct (lt_dec b i) as [H₁| H₁]; [ clear H₁ | contradiction ].
- destruct len₁ as [len₁| ].
-  destruct (eq_nat_dec i (S c)) as [H₂| H₂].
-   Focus 2.
-   eapply IHc.
-    3: eassumption.
+    destruct c; simpl in Hn; [ exfalso; omega | idtac ].
+    destruct (lt_dec (S (S (b + len₁ + len₂))) i) as [H₃| H₃].
+     Focus 2.
+     subst n.
+     rewrite Hlen₂ in Hlen.
+     injection Hlen; clear Hlen; intros; subst len.
+     simpl; apply Nat.nlt_ge; assumption.
 
-    fast_omega Hc H₂.
+     remember (first_nonzero fld s (S (S (S (b + len₁ + len₂))))) as len₃
+      eqn:Hlen₃ .
+     symmetry in Hlen₃.
+     destruct len₃ as [len₃| ].
+      Focus 2.
+      subst n.
+      rewrite Hlen₃ in Hlen; discriminate Hlen.
 
-    2: assumption.
-
-    Unfocus.
-    Focus 3.
-    subst b; rewrite Hlen₁ in Hlen; discriminate Hlen.
-
-bbb.
-   Focus 2.
-   eapply index_of_nonzero_before_from_lt in Hbi.
-
-intros s c i b n last_b len Hc Hbi Hn Hlen.
-revert i b n last_b len Hc Hbi Hn Hlen.
-induction c using all_lt_all; intros.
-destruct c; [ fast_omega Hc | idtac ].
-simpl in Hn.
-destruct (lt_dec b i) as [H₁| ]; [ clear H₁ | contradiction ].
-remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
-symmetry in Hlen₁.
-destruct len₁ as [len₁| ].
- 2: subst b; rewrite Hlen₁ in Hlen; discriminate Hlen.
-
- destruct (eq_nat_dec i (S c)) as [H₂| H₂].
-
-bbb.
-
-intros s c i b n last_b len Hc Hb Hbi Hn Hlen.
-revert i b n last_b len Hc Hb Hbi Hn Hlen.
-induction c using all_lt_all; intros.
-destruct c; [ fast_omega Hc | idtac ].
-simpl in Hn.
-destruct (lt_dec b i) as [H₁| ]; [ idtac | contradiction ].
-remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
-symmetry in Hlen₁.
-destruct len₁ as [len₁| ].
- Focus 2.
- subst b; rewrite Hlen₁ in Hlen; discriminate Hlen.
-
- destruct c.
-  simpl in Hn.
-  subst n.
-  destruct i; [ exfalso; fast_omega H₁ | idtac ].
-  apply Nat.succ_le_mono, Nat.le_0_r in Hc.
-  subst i.
-  apply Nat.lt_1_r in H₁; subst b.
-  apply Nat.le_0_r in Hb; subst last_b.
-  Focus 2.
-  destruct (eq_nat_dec i (S (S c))) as [H₂| H₂].
-   Focus 2.
-   eapply H in Hn; try eassumption.
-    apply Nat.lt_succ_r; reflexivity.
-
-    fast_omega Hc H₂.
-
-    fast_omega .
-
-    Unfocus.
-    subst i.
+      destruct c; simpl in Hn; [ exfalso; omega | idtac ].
+      destruct (lt_dec (S (S (S (b + len₁ + len₂ + len₃)))) i) as [H₄| H₄].
+       Focus 2.
+       subst n.
+       rewrite Hlen₃ in Hlen.
+       injection Hlen; clear Hlen; intros; subst len.
+       simpl; apply Nat.nlt_ge; assumption.
 bbb.
 
 Lemma uuu : ∀ s i n len,
   (0 < i
    → index_of_nonzero_before s i = n
      → first_nonzero fld s (S n) = fin len
-       → i < S n + len)%nat.
+       → i ≤ S n + len)%nat.
 Proof.
 intros s i n len Hi Hn Hlen.
-eapply ttt; eassumption.
+eapply ttt; try eassumption.
+apply Nat.lt_succ_r; reflexivity.
 qed.
 
 (**)
