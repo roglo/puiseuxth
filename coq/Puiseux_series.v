@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.990 2013-10-31 13:03:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.991 2013-10-31 13:20:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1823,6 +1823,16 @@ destruct len as [len| ].
 
     rewrite Nat.add_succ_r; simpl.
     apply Nat.lt_0_succ.
+
+   apply first_nonzero_iff in Hlen; simpl in Hlen.
+   destruct Hlen as (Hz, Hnz).
+   destruct (eq_nat_dec (b + i) (S n + len)) as [H₁| H₁].
+    Focus 2.
+    replace (b + i)%nat with (S (n + (b + i - S n)))%nat by omega.
+    apply Hz.
+    fast_omega Hnbi Hbin H₁.
+
+    clear Hbin.
 
 bbb.
 
