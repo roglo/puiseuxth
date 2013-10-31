@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.978 2013-10-30 23:51:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.979 2013-10-31 00:44:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1717,21 +1717,10 @@ destruct n; simpl.
    destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
    destruct (first_nonzero fld s (S b₁)) as [len₁| ]; [ idtac | assumption ].
    rewrite <- Nat.add_succ_l, <- Heqb₁.
-   subst b.
-   clear Hbi.
-   rename b₁ into b.
-   simpl in Heqb₁.
-   remember (x + len)%nat as y.
-   rewrite Nat.add_shuffle0 in Heqb₁.
-   rewrite <- Heqy in Heqb₁.
-   clear x Heqy.
-   rename y into x.
-   clear len.
-   rename len₁ into len.
-   rename H₁ into Hbi.
-   rename Heqb₁ into Hb.
    rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
-   rewrite <- Nat.add_succ_r in Hb.
+   subst b.
+   rewrite Nat.add_shuffle0 in Heqb₁.
+   rewrite <- Nat.add_succ_r in Heqb₁.
    eapply IHn; eassumption.
 Qed.
 
