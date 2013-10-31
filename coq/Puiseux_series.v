@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.981 2013-10-31 01:09:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.982 2013-10-31 01:44:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1726,6 +1726,37 @@ intros s i Hi.
 apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
 apply Nat.lt_succ_r; reflexivity.
 Qed.
+
+Lemma sss : ∀ s c i b n last_b len,
+  (b < i
+   → last_b < i
+     → i < c
+       → index_of_nonzero_before_from s c i b last_b = n
+         → first_nonzero fld s (S n) = fin len
+           → i < S n + len)%nat.
+Proof.
+intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
+destruct c; simpl in Hn.
+ apply Nat.nlt_0_r in Hic; contradiction.
+
+ destruct (lt_dec b i) as [H₁| H₁]; [ idtac | exfalso; omega ].
+ remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+ symmetry in Hlen₁.
+ destruct len₁ as [len₁| ].
+  Focus 2.
+  subst n.
+  rewrite Hlen₁ in Hlen; discriminate Hlen.
+
+  destruct c; simpl in Hn; [ exfalso; omega | idtac ].
+  destruct (lt_dec (S (b + len₁)) i) as [H₂| H₂].
+   Focus 2.
+   subst b.
+   apply Nat.nlt_ge in H₂.
+   clear H₁.
+   rewrite Hlen in Hlen₁.
+   injection Hlen₁; intros; subst len₁.
+   clear Hlen₁.
+bbb.
 
 Lemma ttt : ∀ s c i b n last_b len,
   (i ≤ c
