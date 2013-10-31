@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.989 2013-10-31 12:45:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.990 2013-10-31 13:03:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1807,13 +1807,22 @@ remember (index_of_nonzero_before s (b + i)) as n eqn:Hn .
 remember (first_nonzero fld s (S n)) as len eqn:Hlen .
 symmetry in Hlen.
 destruct len as [len| ].
- assert (n < b + i < n + len)%nat as Houais.
-  split.
-   rewrite Hn.
-   apply index_of_nonzero_before_lt.
-   destruct i; [ idtac | fast_omega ].
-   rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
-   exfalso; apply Hm; reflexivity.
+ assert (n < b + i)%nat as Hnbi.
+  rewrite Hn.
+  apply index_of_nonzero_before_lt.
+  destruct i; [ idtac | fast_omega  ].
+  rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
+  exfalso; apply Hm; reflexivity.
+
+  assert (b + i ≤ S n + len)%nat as Hbin.
+   symmetry in Hn.
+   eapply index_of_nonzero_before_right_bound; try eassumption.
+   destruct i.
+    rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
+    exfalso; apply Hm; reflexivity.
+
+    rewrite Nat.add_succ_r; simpl.
+    apply Nat.lt_0_succ.
 
 bbb.
 
