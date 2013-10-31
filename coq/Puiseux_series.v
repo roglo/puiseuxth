@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.980 2013-10-31 00:54:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.981 2013-10-31 01:09:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1677,39 +1677,45 @@ Definition rank_of_nonzero_before s i :=
 Definition index_of_nonzero_before s i :=
   index_of_nonzero_before_from s (S i) i 0 0.
 
+Lemma ind_of_nz_bef_lt_step : ∀ k m s b i n len,
+  (i < n + k + 1
+   → b = m + k
+     → b < i
+       → index_of_nonzero_before_from s n i (S (b + len)) b < i)%nat.
+Proof.
+intros k m s b i n len Hin Hb Hbi.
+revert b i k m len Hin Hb Hbi.
+induction n; intros; simpl.
+ exfalso; omega.
+
+ remember (S (b + len)) as b₁.
+ destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
+ destruct (first_nonzero fld s (S b₁)) as [len₁| ]; [ idtac | assumption ].
+ rewrite <- Nat.add_succ_l, <- Heqb₁.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
+ subst b.
+ rewrite Nat.add_shuffle0 in Heqb₁.
+ rewrite <- Nat.add_succ_r in Heqb₁.
+ eapply IHn; eassumption.
+Qed.
+
 Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
   (last_b < i
    → i < n
      → index_of_nonzero_before_from s n i b last_b < i)%nat.
 Proof.
-(* à nettoyer *)
 intros s n i b last_b Hbi Hin.
 destruct n; simpl.
  exfalso; fast_omega Hin.
 
  destruct (lt_dec b i) as [H₁| H₁]; [ clear Hbi | assumption ].
  destruct (first_nonzero fld s (S b)) as [len₁| ]; [ idtac | assumption ].
- clear last_b.
- remember O as k.
- replace (S n) with (n + k + 1)%nat in Hin by omega.
- remember b as x.
- rewrite Heqx in *.
- symmetry in Heqx.
- replace x with (x + k)%nat in Heqx by omega.
- clear Heqk.
- revert i k b x len₁ Hin Heqx H₁.
- induction n; intros; simpl.
-  exfalso; omega.
+ apply (ind_of_nz_bef_lt_step O b).
+  rewrite <- Nat.add_assoc, Nat.add_comm; assumption.
 
-  remember (S (b + len₁)) as b₁.
-  destruct (lt_dec b₁ i) as [H₂| H₂]; [ idtac | assumption ].
-  destruct (first_nonzero fld s (S b₁)) as [len₂| ]; [ idtac | assumption ].
-  rewrite <- Nat.add_succ_l, <- Heqb₁.
-  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
-  subst b.
-  rewrite Nat.add_shuffle0 in Heqb₁.
-  rewrite <- Nat.add_succ_r in Heqb₁.
-  eapply IHn; eassumption.
+  rewrite Nat.add_comm; reflexivity.
+
+  assumption.
 Qed.
 
 Lemma index_of_nonzero_before_lt : ∀ s i,
