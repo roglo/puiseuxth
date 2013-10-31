@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.986 2013-10-31 10:42:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.987 2013-10-31 10:54:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1727,7 +1727,7 @@ apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
-Lemma sss : ∀ k m c s b i n len len₁,
+Lemma index_of_nonzero_before_from_right_bound : ∀ k c m s b i n len len₁,
   (i < c + k + 1
    → b = m + k
      → b < i
@@ -1736,9 +1736,41 @@ Lemma sss : ∀ k m c s b i n len len₁,
            → index_of_nonzero_before_from s c i (S (b + len₁)) b = n
              → i ≤ S n + len)%nat.
 Proof.
-intros k m c s b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
-bbb.
-*)
+(* à nettoyer *)
+intros k c m s b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
+revert k m b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
+induction c; intros; simpl in Hn; [ exfalso; omega | idtac ].
+destruct (lt_dec (S (b + len₁)) i) as [H₁| H₁].
+ Focus 2.
+ subst n.
+ rewrite Hlen₁ in Hlen.
+ injection Hlen; clear Hlen; intros; subst len.
+ simpl; apply Nat.nlt_ge; assumption.
+
+ remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+ symmetry in Hlen₂.
+ destruct len₂ as [len₂| ].
+  Focus 2.
+  subst n.
+  rewrite Hlen₂ in Hlen; discriminate Hlen.
+
+  eapply IHc.
+   4: assumption.
+
+   4: apply Hlen₂.
+
+   4: assumption.
+
+   3: assumption.
+
+   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hic.
+   eassumption.
+
+   rewrite Hb.
+   rewrite Nat.add_shuffle0.
+   rewrite Nat.add_succ_r.
+   reflexivity.
+Qed.
 
 Lemma ttt : ∀ s c i b n last_b len,
   (b < i
@@ -1748,6 +1780,7 @@ Lemma ttt : ∀ s c i b n last_b len,
          → first_nonzero fld s (S n) = fin len
            → i ≤ S n + len)%nat.
 Proof.
+(* à nettoyer sérieusement *)
 intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
 destruct c; simpl in Hn.
  apply Nat.nlt_0_r in Hic; contradiction.
@@ -1822,7 +1855,7 @@ destruct c; simpl in Hn.
         subst b₁.
         simpl in Heqb₂0.
         clear H₁ Hlen₃.
-        eapply sss with (k := 3) (c := c).
+        eapply (index_of_nonzero_before_from_right_bound 3 c).
          rewrite Nat.add_comm; simpl.
          rewrite Nat.add_comm; simpl.
          assumption.
