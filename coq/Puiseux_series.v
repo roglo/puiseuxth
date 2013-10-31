@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.982 2013-10-31 01:44:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.983 2013-10-31 07:59:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1733,7 +1733,7 @@ Lemma sss : ∀ s c i b n last_b len,
      → i < c
        → index_of_nonzero_before_from s c i b last_b = n
          → first_nonzero fld s (S n) = fin len
-           → i < S n + len)%nat.
+           → i ≤ S n + len)%nat.
 Proof.
 intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
 destruct c; simpl in Hn.
@@ -1752,10 +1752,10 @@ destruct c; simpl in Hn.
    Focus 2.
    subst b.
    apply Nat.nlt_ge in H₂.
-   clear H₁.
    rewrite Hlen in Hlen₁.
    injection Hlen₁; intros; subst len₁.
-   clear Hlen₁.
+   rewrite Nat.add_succ_l.
+   assumption.
 bbb.
 
 Lemma ttt : ∀ s c i b n last_b len,
