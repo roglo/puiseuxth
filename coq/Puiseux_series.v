@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.985 2013-10-31 10:31:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.986 2013-10-31 10:42:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1727,6 +1727,19 @@ apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
+Lemma sss : ∀ k m c s b i n len len₁,
+  (i < c + k + 1
+   → b = m + k
+     → b < i
+       → first_nonzero fld s (S n) = fin len
+         → first_nonzero fld s (S b) = fin len₁
+           → index_of_nonzero_before_from s c i (S (b + len₁)) b = n
+             → i ≤ S n + len)%nat.
+Proof.
+intros k m c s b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
+bbb.
+*)
+
 Lemma ttt : ∀ s c i b n last_b len,
   (b < i
    → last_b < i
@@ -1809,21 +1822,23 @@ destruct c; simpl in Hn.
         subst b₁.
         simpl in Heqb₂0.
         clear H₁ Hlen₃.
-        destruct c; simpl in Hn; [ exfalso; omega | idtac ].
-        destruct (lt_dec (S (b₂ + len₄)) i) as [H₃| H₃].
-         Focus 2.
-         subst n.
-         rewrite Hlen₄ in Hlen.
-         injection Hlen; clear Hlen; intros; subst len.
-         simpl; apply Nat.nlt_ge; assumption.
+        eapply sss with (k := 3) (c := c).
+         rewrite Nat.add_comm; simpl.
+         rewrite Nat.add_comm; simpl.
+         assumption.
 
-         remember (first_nonzero fld s (S (S (b₂ + len₄)))) as len₅ eqn:Hlen₅ .
-         symmetry in Hlen₅.
-         destruct len₅ as [len₅| ].
-          Focus 2.
-          subst n.
-          rewrite Hlen₅ in Hlen; discriminate Hlen.
-bbb.
+         2: eassumption.
+
+         2: eassumption.
+
+         2: eassumption.
+
+         2: eassumption.
+
+         rewrite Nat.add_comm.
+         simpl.
+         eassumption.
+qed.
 
 Lemma uuu : ∀ s i n len,
   (0 < i
