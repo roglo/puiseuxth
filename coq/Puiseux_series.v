@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.988 2013-10-31 12:39:17 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.989 2013-10-31 12:45:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1727,7 +1727,7 @@ apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
-Lemma index_of_nonzero_before_from_right_bound : ∀ k c m s b i n len len₁,
+Lemma ind_of_nz_bef_rgt_bnd : ∀ k c m s b i n len len₁,
   (i < c + k + 1
    → b = m + k
      → b < i
@@ -1758,7 +1758,7 @@ destruct (lt_dec (S (b + len₁)) i) as [H₁| H₁].
  simpl; apply Nat.nlt_ge; assumption.
 Qed.
 
-Lemma ttt : ∀ s c i b n last_b len,
+Lemma index_of_nonzero_before_from_right_bound : ∀ s c i b n last_b len,
   (b < i
    → last_b < i
      → i < c
@@ -1766,7 +1766,6 @@ Lemma ttt : ∀ s c i b n last_b len,
          → first_nonzero fld s (S n) = fin len
            → i ≤ S n + len)%nat.
 Proof.
-(* à nettoyer sérieusement *)
 intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
 destruct c; simpl in Hn.
  apply Nat.nlt_0_r in Hic; contradiction.
@@ -1775,100 +1774,25 @@ destruct c; simpl in Hn.
  remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
  symmetry in Hlen₁.
  destruct len₁ as [len₁| ].
-  Focus 2.
+  eapply (ind_of_nz_bef_rgt_bnd 0 c); try eassumption.
+   rewrite Nat.add_comm, Nat.add_0_r; assumption.
+
+   rewrite Nat.add_0_r; reflexivity.
+
   subst n.
   rewrite Hlen₁ in Hlen; discriminate Hlen.
+Qed.
 
-  destruct c; simpl in Hn; [ exfalso; omega | idtac ].
-  destruct (lt_dec (S (b + len₁)) i) as [H₂| H₂].
-   Focus 2.
-   subst n.
-   rewrite Hlen₁ in Hlen.
-   injection Hlen; clear Hlen; intros; subst len.
-   simpl; apply Nat.nlt_ge; assumption.
-
-   remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
-   symmetry in Hlen₂.
-   destruct len₂ as [len₂| ].
-    Focus 2.
-    subst n.
-    rewrite Hlen₂ in Hlen; discriminate Hlen.
-
-    clear last_b Hli H₁ Hlen₁ Hbi.
-    rename H₂ into Hbi.
-    rewrite <- Nat.add_succ_l in Hn.
-    remember (S (b + len₁)) as b₁.
-    destruct c; simpl in Hn; [ exfalso; omega | idtac ].
-    destruct (lt_dec (S (b₁ + len₂)) i) as [H₁| H₁].
-     Focus 2.
-     subst n.
-     rewrite Hlen₂ in Hlen.
-     injection Hlen; clear Hlen; intros; subst len.
-     simpl; apply Nat.nlt_ge; assumption.
-
-     remember (S (b₁ + len₂)) as b₂.
-     subst b₁.
-     remember (first_nonzero fld s (S b₂)) as len₃ eqn:Hlen₃ .
-     symmetry in Hlen₃.
-     destruct len₃ as [len₃| ].
-      Focus 2.
-      subst n.
-      rewrite Hlen₃ in Hlen; discriminate Hlen.
-
-      rewrite <- Nat.add_succ_l in Hn.
-      rewrite <- Heqb₂ in Hn.
-      rename b₂ into b₁.
-      simpl in Heqb₂.
-      clear Hbi.
-      clear Hlen₂.
-      destruct c; simpl in Hn; [ exfalso; omega | idtac ].
-      destruct (lt_dec (S (b₁ + len₃)) i) as [H₂| H₂].
-       Focus 2.
-       subst n.
-       rewrite Hlen₃ in Hlen.
-       injection Hlen; clear Hlen; intros; subst len.
-       simpl; apply Nat.nlt_ge; assumption.
-
-       remember (first_nonzero fld s (S (S (b₁ + len₃)))) as len₄ eqn:Hlen₄ .
-       symmetry in Hlen₄.
-       destruct len₄ as [len₄| ].
-        Focus 2.
-        subst n.
-        rewrite Hlen₄ in Hlen; discriminate Hlen.
-
-        rewrite <- Nat.add_succ_l in Hn.
-        remember (S (b₁ + len₃)) as b₂.
-        subst b₁.
-        simpl in Heqb₂0.
-        clear H₁ Hlen₃.
-        eapply (index_of_nonzero_before_from_right_bound 3 c).
-         rewrite Nat.add_comm; simpl.
-         rewrite Nat.add_comm; simpl.
-         assumption.
-
-         2: eassumption.
-
-         2: eassumption.
-
-         2: eassumption.
-
-         2: eassumption.
-
-         rewrite Nat.add_comm.
-         simpl.
-         eassumption.
-qed.
-
-Lemma uuu : ∀ s i n len,
+Lemma index_of_nonzero_before_right_bound : ∀ s i n len,
   (0 < i
    → index_of_nonzero_before s i = n
      → first_nonzero fld s (S n) = fin len
        → i ≤ S n + len)%nat.
 Proof.
 intros s i n len Hi Hn Hlen.
-eapply ttt; try eassumption.
+eapply index_of_nonzero_before_from_right_bound; try eassumption.
 apply Nat.lt_succ_r; reflexivity.
-qed.
+Qed.
 
 (**)
 Lemma vvv : ∀ s i c b k,
