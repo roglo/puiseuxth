@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.994 2013-11-01 02:51:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.995 2013-11-01 10:34:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1833,7 +1833,8 @@ destruct len as [len| ].
     apply Hz.
     fast_omega Hnbi Hbin H₁.
 
-    clear Hbin.
+    clear Hbin Hnz Hnbi.
+bbb.
     destruct c; [ exfalso; fast_omega Hic | idtac ].
     simpl in Hs.
     destruct (lt_dec b (b + i)) as [H₂| H₂].
