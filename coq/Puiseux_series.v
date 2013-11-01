@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.993 2013-11-01 02:22:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.994 2013-11-01 02:51:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1885,6 +1885,25 @@ destruct len as [len| ].
         replace (b + i)%nat with (S (S (b + len₁ + (i - S (S len₁)))))%nat
          by omega.
         apply Hlen₂.
+
+        destruct c; [ exfalso; fast_omega Hic H₃ | idtac ].
+        simpl in Hs.
+        rewrite Hlen₁ in Hs.
+        destruct (lt_dec (S (S (b + len₁ + len₂))) (b + i)) as [H₄| H₄].
+         Focus 2.
+         apply Nat.nlt_ge in H₄.
+         simpl in Hs.
+         rewrite Hlen₂ in Hs.
+         rewrite <- Nat.add_succ_r in H₄.
+         rewrite <- Nat.add_succ_r in H₄.
+         rewrite <- Nat.add_assoc in H₄.
+         apply Nat.add_le_mono_l in H₄.
+         apply first_nonzero_iff in Hlen₂; simpl in Hlen₂.
+         destruct Hlen₂ as (Hz₁, Hnz₁).
+         destruct i; [ exfalso; fast_omega H₂ | idtac ].
+         destruct (eq_nat_dec i len₂) as [H₅| H₅].
+          subst i.
+          rewrite Hs in Hm; exfalso; apply Hm; reflexivity.
 
 bbb.
 
