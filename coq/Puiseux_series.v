@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.992 2013-11-01 01:31:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.993 2013-11-01 02:22:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1853,6 +1853,38 @@ destruct len as [len| ].
       destruct i; [ exfalso; fast_omega H₂ | idtac ].
       rewrite Nat.add_succ_r.
       apply Hlen₁.
+
+      destruct c; [ exfalso; fast_omega Hic H₂ | idtac ].
+      simpl in Hs.
+      destruct (lt_dec (S (b + len₁)) (b + i)) as [H₃| H₃].
+       Focus 2.
+       apply Nat.nlt_ge in H₃.
+       simpl in Hs.
+       rewrite Hlen₁ in Hs.
+       rewrite <- Nat.add_succ_r in H₃.
+       apply Nat.add_le_mono_l in H₃.
+       apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+       destruct Hlen₁ as (Hz₁, Hnz₁).
+       destruct i; [ exfalso; fast_omega H₂ | idtac ].
+       destruct (eq_nat_dec i len₁) as [H₄| H₄].
+        subst i.
+        rewrite Hs in Hm; exfalso; apply Hm; reflexivity.
+
+        assert (i < len₁)%nat as H₅ by fast_omega H₃ H₄.
+        apply Hz₁ in H₅.
+        rewrite Nat.add_succ_r; assumption.
+
+       remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+       symmetry in Hlen₂.
+       destruct len₂ as [len₂| ].
+        Focus 2.
+        apply first_nonzero_iff in Hlen₂; simpl in Hlen₂.
+        simpl in Hs.
+        rewrite Hlen₁ in Hs.
+        rewrite <- Nat.add_succ_r in H₃.
+        replace (b + i)%nat with (S (S (b + len₁ + (i - S (S len₁)))))%nat
+         by omega.
+        apply Hlen₂.
 
 bbb.
 
