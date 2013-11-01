@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.995 2013-11-01 10:34:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.996 2013-11-01 10:56:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1834,7 +1834,28 @@ destruct len as [len| ].
     fast_omega Hnbi Hbin H₁.
 
     clear Hbin Hnz Hnbi.
+    remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n₁ eqn:Hn₁ .
+    assert (nth_nonzero_interval fld s n₁ b = len).
+     clear Hz H₁.
+     clear Hm.
+     clear k Hs.
+     revert i n n₁ Hic Hn₁ Hn.
+     induction c; intros; [ exfalso; omega | idtac ].
+     simpl in Hn₁.
+     destruct (lt_dec b (b + i)) as [H₁| H₁].
+      remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+      unfold index_of_nonzero_before in Hn.
+      destruct len₁ as [len₁| ].
+       destruct c.
+        simpl in Hn₁.
+        exfalso; fast_omega Hic H₁.
+
+        simpl in Hn₁.
 bbb.
+
+J'avais essayé de trouver la règle d'induction, là, mais ça a l'air
+de se compliquer...
+
     destruct c; [ exfalso; fast_omega Hic | idtac ].
     simpl in Hs.
     destruct (lt_dec b (b + i)) as [H₂| H₂].
