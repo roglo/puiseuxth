@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.997 2013-11-01 16:10:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.998 2013-11-01 16:13:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1806,9 +1806,7 @@ Proof.
 intros s i c b k Hic Hs Hm.
 remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n eqn:Hn .
 symmetry in Hn.
-revert i b k n Hic Hn Hs Hm.
-induction c; intros; [ exfalso; omega | idtac ].
-simpl in Hn.
+destruct c; [ exfalso; omega | simpl in Hn ].
 destruct i.
  rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
  exfalso; apply Hm; reflexivity.
@@ -1825,6 +1823,7 @@ destruct i.
   apply Hlen.
 
   simpl in Hn.
+  (* faire l'induction sur c à partir de là... *)
 bbb.
 
 intros s i c b k Hic Hs Hm.
