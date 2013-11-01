@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.991 2013-10-31 13:20:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.992 2013-11-01 01:31:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1796,13 +1796,14 @@ Qed.
 
 (**)
 Lemma vvv : ∀ s i c b k,
-  nth_nonzero_interval fld s
-   (pred (rank_of_nonzero_after_from s c (b + i) b)) b
-   mod Pos.to_nat k = O
-  → i mod Pos.to_nat k ≠ O
-    → series_nth_fld fld (b + i) s ≍ zero fld.
+  (i < c)%nat
+  → nth_nonzero_interval fld s
+     (pred (rank_of_nonzero_after_from s c (b + i) b)) b
+     mod Pos.to_nat k = O
+    → i mod Pos.to_nat k ≠ O
+      → series_nth_fld fld (b + i) s ≍ zero fld.
 Proof.
-intros s i c b k Hs Hm.
+intros s i c b k Hic Hs Hm.
 remember (index_of_nonzero_before s (b + i)) as n eqn:Hn .
 remember (first_nonzero fld s (S n)) as len eqn:Hlen .
 symmetry in Hlen.
@@ -1833,6 +1834,25 @@ destruct len as [len| ].
     fast_omega Hnbi Hbin H₁.
 
     clear Hbin.
+    destruct c; [ exfalso; fast_omega Hic | idtac ].
+    simpl in Hs.
+    destruct (lt_dec b (b + i)) as [H₂| H₂].
+     Focus 2.
+     apply Nat.nlt_ge in H₂.
+     apply Nat.le_add_le_sub_l in H₂.
+     rewrite Nat.sub_diag in H₂.
+     apply Nat.le_0_r in H₂; subst i.
+     rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
+     exfalso; apply Hm; reflexivity.
+
+     remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+     symmetry in Hlen₁.
+     destruct len₁ as [len₁| ].
+      Focus 2.
+      apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+      destruct i; [ exfalso; fast_omega H₂ | idtac ].
+      rewrite Nat.add_succ_r.
+      apply Hlen₁.
 
 bbb.
 
