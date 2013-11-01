@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.996 2013-11-01 10:56:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.997 2013-11-01 16:10:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1803,6 +1803,30 @@ Lemma vvv : ∀ s i c b k,
     → i mod Pos.to_nat k ≠ O
       → series_nth_fld fld (b + i) s ≍ zero fld.
 Proof.
+intros s i c b k Hic Hs Hm.
+remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n eqn:Hn .
+symmetry in Hn.
+revert i b k n Hic Hn Hs Hm.
+induction c; intros; [ exfalso; omega | idtac ].
+simpl in Hn.
+destruct i.
+ rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
+ exfalso; apply Hm; reflexivity.
+
+ apply Nat.succ_lt_mono in Hic.
+ destruct (lt_dec b (b + S i)) as [H₁| H₁]; [ idtac | exfalso; omega ].
+ clear H₁.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  Focus 2.
+  rewrite Nat.add_succ_r.
+  apply first_nonzero_iff in Hlen; simpl in Hlen.
+  apply Hlen.
+
+  simpl in Hn.
+bbb.
+
 intros s i c b k Hic Hs Hm.
 remember (index_of_nonzero_before s (b + i)) as n eqn:Hn .
 remember (first_nonzero fld s (S n)) as len eqn:Hlen .
