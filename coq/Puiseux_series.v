@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.998 2013-11-01 16:13:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.999 2013-11-01 17:51:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1823,7 +1823,8 @@ destruct i.
   apply Hlen.
 
   simpl in Hn.
-  (* faire l'induction sur c à partir de là... *)
+  (* faire l'induction sur c à partir de là...
+     faire un lemme plus général pour rank_of_nonzero_after_from *)
 bbb.
 
 intros s i c b k Hic Hs Hm.
