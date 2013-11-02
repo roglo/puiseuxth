@@ -1,4 +1,4 @@
-(* $Id: Polynomial.v,v 1.3 2013-07-08 21:12:35 deraugla Exp $ *)
+(* $Id: Polynomial.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.

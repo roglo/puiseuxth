@@ -1,4 +1,4 @@
-(* $Id: PolyConvexHull.v,v 1.6 2013-07-06 05:36:20 deraugla Exp $ *)
+(* $Id: PolyConvexHull.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.

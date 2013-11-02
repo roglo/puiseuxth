@@ -1,4 +1,4 @@
-(* $Id: CharactPolyn.v,v 1.24 2013-10-20 07:14:04 deraugla Exp $ *)
+(* $Id: CharactPolyn.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.

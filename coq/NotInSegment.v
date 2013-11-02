@@ -1,4 +1,4 @@
-(* $Id: NotInSegment.v,v 1.235 2013-09-08 02:08:25 deraugla Exp $ *)
+(* $Id: NotInSegment.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 (* points not in newton segment *)
 

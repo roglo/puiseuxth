@@ -1,4 +1,4 @@
-(* $Id: NotInSegMisc.v,v 1.49 2013-09-08 02:08:25 deraugla Exp $ *)
+(* $Id: NotInSegMisc.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.

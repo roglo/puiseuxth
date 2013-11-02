@@ -1,4 +1,4 @@
-(* $Id: InSegment.v,v 1.18 2013-07-06 05:36:20 deraugla Exp $ *)
+(* $Id: InSegment.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 (* points in newton segment *)
 

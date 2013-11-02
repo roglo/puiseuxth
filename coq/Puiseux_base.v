@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 1.39 2013-10-12 04:10:07 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 2.0 2013-11-02 01:12:59 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 

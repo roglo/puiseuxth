@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 1.65 2013-09-24 01:12:02 deraugla Exp $ *)
+(* $Id: Series.v,v 2.0 2013-11-02 01:12:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2013-07-22 01:10:57 deraugla Exp $
+# $Id: Makefile,v 2.0 2013-11-02 01:12:58 deraugla Exp $
 
 TARGET=PolyConvexHull.vo CharactPolyn.vo Puiseux.vo
 

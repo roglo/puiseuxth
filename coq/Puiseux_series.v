@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.1000 2013-11-02 01:06:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.0 2013-11-02 01:12:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.

@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 1.87 2013-10-18 09:57:32 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
