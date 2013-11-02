@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 1.999 2013-11-01 17:51:18 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 1.1000 2013-11-02 01:06:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1825,6 +1825,8 @@ destruct i.
   simpl in Hn.
   (* faire l'induction sur c à partir de là...
      faire un lemme plus général pour rank_of_nonzero_after_from *)
+  (* mouais... *)
+Abort. (*
 bbb.
 
 intros s i c b k Hic Hs Hm.
@@ -2045,12 +2047,14 @@ destruct i.
  rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
  exfalso; apply Hi; reflexivity.
 
+Abort. (*
 bbb.
 apply vvv in H.
  rewrite Nat.sub_0_r in H; assumption.
 
  rewrite Nat.sub_0_r; assumption.
 qed.
+*)
 
 Lemma series_stretch_shrink : ∀ s k,
   (k | stretching_factor fld s 0)%positive
