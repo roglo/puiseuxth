@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.1 2013-11-02 08:53:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.2 2013-11-02 16:55:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2039,6 +2039,44 @@ Lemma www : ∀ s k,
 Proof.
 intros s k Hs i Hi.
 bbb.
+remember (i / Pos.to_nat k)%nat as n eqn:Hn .
+symmetry in Hn.
+revert k i Hs Hi Hn.
+induction n; intros.
+ apply Nat.div_small_iff in Hn; [ idtac | apply Pos2Nat_ne_0 ].
+ pose proof (Hs O) as H.
+ simpl in H.
+ remember (first_nonzero fld s 1) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  apply first_nonzero_iff in Hlen; simpl in Hlen.
+  destruct Hlen as (Hz, Hnz).
+  destruct i.
+   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+   exfalso; apply Hi; reflexivity.
+
+   apply Hz.
+   apply Nat.mod_divides in H; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H as (c, Hc).
+   destruct c.
+    rewrite Nat.mul_comm in Hc; discriminate Hc.
+
+    rewrite Nat.mul_comm in Hc; simpl in Hc.
+    remember (c * Pos.to_nat k)%nat as x.
+    omega.
+
+  apply first_nonzero_iff in Hlen; simpl in Hlen.
+  destruct i.
+   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+   exfalso; apply Hi; reflexivity.
+
+   apply Hlen.
+
+ pose proof (Nat.div_mod i (Pos.to_nat k) (Pos2Nat_ne_0 k)) as Hdiv.
+ rewrite Hn in Hdiv.
+bbb.
+
+intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
 pose proof (Hs cnt) as H.
 subst cnt.
