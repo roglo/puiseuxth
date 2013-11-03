@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.4 2013-11-03 06:50:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.5 2013-11-03 08:06:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2031,13 +2031,6 @@ bbb.
 bbb.
 *)
 
-(*
-  nni fld s (S (S n)) b =
-  nni fld s (S n) (b + nni fld s 0 b).
-  nni fld s n (b + nni fld s 0 b + nni s 0 (b + nni fld s 0 b)).
-  nni fld s n (b + nni fld s 0 b + nni s 1 b)
-*)
-
 Lemma nth_nonzero_interval_succ : ∀ s n b,
   nth_nonzero_interval fld s (S n) b =
   nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
@@ -2058,6 +2051,73 @@ destruct n; simpl.
 
   rewrite Nat.add_0_r, Hlen; reflexivity.
 Qed.
+
+Fixpoint sigma_aux b len f :=
+  match len with
+  | O => f b
+  | S len₁ => (f b + sigma_aux (S b) len₁ f)%nat
+  end.
+
+Definition sigma b e f := sigma_aux b (e - b) f.
+
+(*
+Notation "'Σ' ( i = b , e ) f" := (sigma b e (λ i, f))
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10,
+   format "'Σ' ( i = b , e ) f").
+
+Lemma nth_nonzero_interval_eq : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s 0
+     (b + Σ (i = 0,n) (nth_nonzero_interval fld s i b)).
+Proof.
+bbb.
+*)
+
+(*
+  nni fld s (S (S n)) b =
+  nni fld s (S n) (b + nni fld s 0 b) =
+  nni fld s n (b + nni fld s 0 b + nni s 0 (b + nni fld s 0 b)) =
+  nni fld s n (b + nni fld s 0 b + nni s 1 b)
+
+  nni fld s n b =
+    nni fld s (n - 1) (b + nni fld s 0 b) =
+    nni fld s (n - 2) (b + nni fld s 0 b + nni fld s 1 b) =
+    nni fld s (n - 3) (b + nni fld s 0 b + nni fld s 1 b + nni s 2 b) =
+    ...
+
+    nni fld 0 (b + Σ (i = 0) (n - 1) (nni s i b))
+*)
+
+Lemma nth_nonzero_interval_eq : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s 0
+     (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
+Proof.
+intros s n b.
+revert b.
+induction n; intros.
+ rewrite nth_nonzero_interval_succ.
+ reflexivity.
+
+ destruct n.
+  rewrite nth_nonzero_interval_succ.
+  rewrite nth_nonzero_interval_succ.
+  f_equal.
+  rewrite <- Nat.add_assoc.
+  f_equal.
+  unfold sigma.
+  rewrite Nat.sub_0_r.
+  simpl.
+  remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+  symmetry in Hlen.
+  destruct len as [len| ].
+   rewrite Nat.add_succ_r.
+   reflexivity.
+
+   rewrite Nat.add_0_r.
+   rewrite Hlen.
+   reflexivity.
+bbb.
 
 Lemma www : ∀ s k,
   (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
