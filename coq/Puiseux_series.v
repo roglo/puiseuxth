@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.10 2013-11-03 18:35:02 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.11 2013-11-03 20:01:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2134,11 +2134,14 @@ Lemma www : ∀ s k,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
+(* démontré, non sans mal, que c'est vrai pour i=0 et i=1 mais la
+   récurrence sur i me paraît mal barrée... *)
 intros s k Hs i Hi.
 destruct i.
  exfalso; apply Hi; rewrite Nat.mod_0_l; auto.
 
- destruct i.
+ revert k Hs Hi.
+ induction i; intros.
   remember (Pos.to_nat k) as kn eqn:Hkn .
   symmetry in Hkn.
   destruct kn; [ exfalso; auto | idtac ].
@@ -2149,6 +2152,50 @@ destruct i.
    destruct c.
     rewrite Nat.mul_0_r in Hc.
     simpl in Hc.
+    pose proof (Hs O) as H₀.
+    apply Nat.mod_divides in H₀.
+     destruct H₀ as (c₀, Hc₀).
+     remember (S (S kn) * c₀)%nat as x.
+     simpl in Hc₀; subst x.
+     remember (first_nonzero fld s 1) as len₁ eqn:Hlen₁ .
+     symmetry in Hlen₁.
+     destruct len₁ as [len₁| ].
+      destruct len₁.
+       rewrite Nat.mul_comm in Hc₀.
+       destruct c₀; discriminate Hc₀.
+
+       apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+       destruct Hlen₁ as (Hz, Hnz).
+       apply Hz.
+       apply Nat.lt_0_succ.
+
+      apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+      apply Hlen₁.
+
+     intros H; discriminate H.
+
+    simpl in Hc.
+    remember (first_nonzero fld s 1) as len₁ eqn:Hlen₁ .
+    symmetry in Hlen₁.
+    destruct len₁ as [len₁| ]; [ idtac | discriminate Hc ].
+    destruct len₁.
+     pose proof (Hs O) as H₀.
+     apply Nat.mod_divides in H₀.
+      destruct H₀ as (c₀, Hc₀).
+      remember (S (S kn) * c₀)%nat as x.
+      simpl in Hc₀; subst x.
+      rewrite Hlen₁ in Hc₀.
+      rewrite Nat.mul_comm in Hc₀.
+      destruct c₀; discriminate Hc₀.
+
+      intros H; discriminate H.
+
+     apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+     destruct Hlen₁ as (Hz, Hnz).
+     apply Hz.
+     apply Nat.lt_0_succ.
+
+   clear H; intros H; discriminate H.
 bbb.
 
 intros s k Hs i Hi.
