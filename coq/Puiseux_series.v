@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.9 2013-11-03 13:41:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.10 2013-11-03 18:35:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2134,6 +2134,23 @@ Lemma www : ∀ s k,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
+intros s k Hs i Hi.
+destruct i.
+ exfalso; apply Hi; rewrite Nat.mod_0_l; auto.
+
+ destruct i.
+  remember (Pos.to_nat k) as kn eqn:Hkn .
+  symmetry in Hkn.
+  destruct kn; [ exfalso; auto | idtac ].
+  destruct kn; [ exfalso; auto | idtac ].
+  pose proof (Hs 1%nat) as H.
+  apply Nat.mod_divides in H.
+   destruct H as (c, Hc).
+   destruct c.
+    rewrite Nat.mul_0_r in Hc.
+    simpl in Hc.
+bbb.
+
 intros s k Hs i Hi.
 bbb.
 remember (i / Pos.to_nat k)%nat as n eqn:Hn .

@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* $Id: Misc.v,v 2.1 2013-11-03 18:35:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -659,6 +659,7 @@ pose proof Pos2Nat.is_pos a as HH.
 rewrite H in HH.
 revert HH; apply lt_irrefl.
 Qed.
+Hint Resolve Pos2Nat_ne_0.
 
 Open Scope Z_scope.
 
