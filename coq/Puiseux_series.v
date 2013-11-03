@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.11 2013-11-03 20:01:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.12 2013-11-03 20:10:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2134,6 +2134,45 @@ Lemma www : ∀ s k,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
+(* essai d'induction sur i/k *)
+intros s k Hs i Hi.
+remember (i / Pos.to_nat k)%nat as n eqn:Hn .
+symmetry in Hn.
+revert k i Hs Hi Hn.
+induction n; intros.
+ apply Nat.div_small_iff in Hn; [ idtac | apply Pos2Nat_ne_0 ].
+ pose proof (Hs O) as H.
+ simpl in H.
+ remember (first_nonzero fld s 1) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  apply first_nonzero_iff in Hlen; simpl in Hlen.
+  destruct Hlen as (Hz, Hnz).
+  destruct i.
+   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+   exfalso; apply Hi; reflexivity.
+
+   apply Hz.
+   apply Nat.mod_divides in H; [ idtac | apply Pos2Nat_ne_0 ].
+   destruct H as (c, Hc).
+   destruct c.
+    rewrite Nat.mul_comm in Hc; discriminate Hc.
+
+    rewrite Nat.mul_comm in Hc; simpl in Hc.
+    remember (c * Pos.to_nat k)%nat as x.
+    omega.
+
+  apply first_nonzero_iff in Hlen; simpl in Hlen.
+  destruct i.
+   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+   exfalso; apply Hi; reflexivity.
+
+   apply Hlen.
+
+ pose proof (Nat.div_mod i (Pos.to_nat k) (Pos2Nat_ne_0 k)) as Hdiv.
+ rewrite Hn in Hdiv.
+bbb.
+
 (* démontré, non sans mal, que c'est vrai pour i=0 et i=1 mais la
    récurrence sur i me paraît mal barrée... *)
 intros s k Hs i Hi.
@@ -2196,45 +2235,6 @@ destruct i.
      apply Nat.lt_0_succ.
 
    clear H; intros H; discriminate H.
-bbb.
-
-intros s k Hs i Hi.
-bbb.
-remember (i / Pos.to_nat k)%nat as n eqn:Hn .
-symmetry in Hn.
-revert k i Hs Hi Hn.
-induction n; intros.
- apply Nat.div_small_iff in Hn; [ idtac | apply Pos2Nat_ne_0 ].
- pose proof (Hs O) as H.
- simpl in H.
- remember (first_nonzero fld s 1) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  apply first_nonzero_iff in Hlen; simpl in Hlen.
-  destruct Hlen as (Hz, Hnz).
-  destruct i.
-   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
-   exfalso; apply Hi; reflexivity.
-
-   apply Hz.
-   apply Nat.mod_divides in H; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct H as (c, Hc).
-   destruct c.
-    rewrite Nat.mul_comm in Hc; discriminate Hc.
-
-    rewrite Nat.mul_comm in Hc; simpl in Hc.
-    remember (c * Pos.to_nat k)%nat as x.
-    omega.
-
-  apply first_nonzero_iff in Hlen; simpl in Hlen.
-  destruct i.
-   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
-   exfalso; apply Hi; reflexivity.
-
-   apply Hlen.
-
- pose proof (Nat.div_mod i (Pos.to_nat k) (Pos2Nat_ne_0 k)) as Hdiv.
- rewrite Hn in Hdiv.
 bbb.
 
 intros s k Hs i Hi.
