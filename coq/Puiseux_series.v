@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.5 2013-11-03 08:06:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.6 2013-11-03 12:59:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2111,12 +2111,36 @@ induction n; intros.
   remember (first_nonzero fld s (S b)) as len eqn:Hlen .
   symmetry in Hlen.
   destruct len as [len| ].
-   rewrite Nat.add_succ_r.
-   reflexivity.
+   rewrite Nat.add_succ_r; reflexivity.
 
-   rewrite Nat.add_0_r.
-   rewrite Hlen.
-   reflexivity.
+   rewrite Nat.add_0_r, Hlen; reflexivity.
+
+  destruct n.
+   rewrite nth_nonzero_interval_succ.
+   rewrite nth_nonzero_interval_succ.
+   rewrite nth_nonzero_interval_succ.
+   f_equal.
+   rewrite <- Nat.add_assoc.
+   rewrite <- Nat.add_assoc.
+   f_equal.
+   unfold sigma.
+   rewrite Nat.sub_0_r.
+   simpl.
+   remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+   symmetry in Hlen.
+   destruct len as [len| ].
+    f_equal.
+    rewrite Nat.add_succ_r.
+    f_equal.
+    remember (first_nonzero fld s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
+    symmetry in Hlen₁.
+    destruct len₁ as [len₁| ].
+     rewrite Nat.add_succ_r; reflexivity.
+
+     rewrite Nat.add_0_r, Hlen₁; reflexivity.
+
+    rewrite Nat.add_0_r, Hlen.
+    rewrite Nat.add_0_r, Hlen; reflexivity.
 bbb.
 
 Lemma www : ∀ s k,
