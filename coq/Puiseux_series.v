@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.7 2013-11-03 13:18:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.8 2013-11-03 13:38:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2088,10 +2088,38 @@ bbb.
     nni fld 0 (b + Σ (i = 0) (n - 1) (nni s i b))
 *)
 
+Lemma sigma_aux_fin_succ : ∀ s b n l len,
+  first_nonzero fld s (S b) = fin len
+  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
+    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i (S (b + len))).
+Proof.
+intros s b n l len H.
+revert n.
+induction l; intros.
+ simpl; rewrite H; reflexivity.
+
+ simpl; rewrite H; f_equal; apply IHl.
+Qed.
+
+Lemma sigma_aux_inf_succ : ∀ s b n l,
+  first_nonzero fld s (S b) = ∞
+  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
+    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i b).
+Proof.
+intros s b n l H.
+revert n.
+induction l; intros.
+ simpl; rewrite H.
+ destruct n; simpl; rewrite H; reflexivity.
+
+ simpl; rewrite H, IHl; f_equal.
+ destruct n; simpl; rewrite H; reflexivity.
+Qed.
+
 Lemma nth_nonzero_interval_eq : ∀ s n b,
   nth_nonzero_interval fld s (S n) b =
   nth_nonzero_interval fld s 0
-     (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
+    (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
 Proof.
 intros s n b.
 revert b.
@@ -2108,23 +2136,12 @@ induction n; intros.
  destruct len as [len| ].
   rewrite Nat.sub_0_r; f_equal.
   destruct n; simpl; rewrite Hlen, Nat.add_succ_r; [ reflexivity | f_equal ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | f_equal ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | f_equal ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | f_equal ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | f_equal ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | f_equal ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | f_equal ].
-  Focus 2.
-  rewrite Nat.sub_0_r, Nat.add_0_r; simpl.
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
-  destruct n; simpl; rewrite Hlen; [ reflexivity | idtac ].
+  symmetry.
+  apply sigma_aux_fin_succ; assumption.
 
-bbb.
+  rewrite Nat.sub_0_r, Nat.add_0_r; symmetry; simpl.
+  apply sigma_aux_inf_succ; assumption.
+Qed.
 
 Lemma www : ∀ s k,
   (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
