@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.3 2013-11-03 05:35:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.4 2013-11-03 06:50:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2029,6 +2029,13 @@ bbb.
       destruct c; simpl.
        rewrite divmod_mod.
 bbb.
+*)
+
+(*
+  nni fld s (S (S n)) b =
+  nni fld s (S n) (b + nni fld s 0 b).
+  nni fld s n (b + nni fld s 0 b + nni s 0 (b + nni fld s 0 b)).
+  nni fld s n (b + nni fld s 0 b + nni s 1 b)
 *)
 
 Lemma nth_nonzero_interval_succ : ∀ s n b,
