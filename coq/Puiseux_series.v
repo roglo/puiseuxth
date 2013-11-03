@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.2 2013-11-02 16:55:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.3 2013-11-03 05:35:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -43,12 +43,12 @@ Axiom first_nonzero_iff : ∀ s c n,
 Definition stretching_factor : ∀ α, field α → series α → nat → positive.
 Admitted.
 
-Fixpoint nth_nonzero_interval s c n :=
-  match first_nonzero fld s (S n) with
+Fixpoint nth_nonzero_interval s n b :=
+  match first_nonzero fld s (S b) with
   | fin p =>
-      match c with
+      match n with
       | O => S p
-      | S c₁ => nth_nonzero_interval s c₁ (S n + p)%nat
+      | S n₁ => nth_nonzero_interval s n₁ (S b + p)%nat
       end
   | ∞ => O
   end.
@@ -2031,8 +2031,29 @@ bbb.
 bbb.
 *)
 
+Lemma nth_nonzero_interval_succ : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
+Proof.
+intros s n b.
+destruct n; simpl.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.add_succ_r; reflexivity.
+
+  rewrite Nat.add_0_r, Hlen; reflexivity.
+
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.add_succ_r; reflexivity.
+
+  rewrite Nat.add_0_r, Hlen; reflexivity.
+Qed.
+
 Lemma www : ∀ s k,
-  (∀ cnt, nth_nonzero_interval fld s cnt 0 mod Pos.to_nat k = 0%nat)
+  (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
