@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.8 2013-11-03 13:38:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.9 2013-11-03 13:41:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2031,27 +2031,6 @@ bbb.
 bbb.
 *)
 
-Lemma nth_nonzero_interval_succ : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
-Proof.
-intros s n b.
-destruct n; simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.add_succ_r; reflexivity.
-
-  rewrite Nat.add_0_r, Hlen; reflexivity.
-
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.add_succ_r; reflexivity.
-
-  rewrite Nat.add_0_r, Hlen; reflexivity.
-Qed.
-
 Fixpoint sigma_aux b len f :=
   match len with
   | O => f b
@@ -2071,21 +2050,6 @@ Lemma nth_nonzero_interval_eq : ∀ s n b,
      (b + Σ (i = 0,n) (nth_nonzero_interval fld s i b)).
 Proof.
 bbb.
-*)
-
-(*
-  nni fld s (S (S n)) b =
-  nni fld s (S n) (b + nni fld s 0 b) =
-  nni fld s n (b + nni fld s 0 b + nni s 0 (b + nni fld s 0 b)) =
-  nni fld s n (b + nni fld s 0 b + nni s 1 b)
-
-  nni fld s n b =
-    nni fld s (n - 1) (b + nni fld s 0 b) =
-    nni fld s (n - 2) (b + nni fld s 0 b + nni fld s 1 b) =
-    nni fld s (n - 3) (b + nni fld s 0 b + nni fld s 1 b + nni s 2 b) =
-    ...
-
-    nni fld 0 (b + Σ (i = 0) (n - 1) (nni s i b))
 *)
 
 Lemma sigma_aux_fin_succ : ∀ s b n l len,
@@ -2116,7 +2080,28 @@ induction l; intros.
  destruct n; simpl; rewrite H; reflexivity.
 Qed.
 
-Lemma nth_nonzero_interval_eq : ∀ s n b,
+Lemma nth_nonzero_interval_succ : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
+Proof.
+intros s n b.
+destruct n; simpl.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.add_succ_r; reflexivity.
+
+  rewrite Nat.add_0_r, Hlen; reflexivity.
+
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.add_succ_r; reflexivity.
+
+  rewrite Nat.add_0_r, Hlen; reflexivity.
+Qed.
+
+Lemma nth_nonzero_interval_succ_sum : ∀ s n b,
   nth_nonzero_interval fld s (S n) b =
   nth_nonzero_interval fld s 0
     (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
