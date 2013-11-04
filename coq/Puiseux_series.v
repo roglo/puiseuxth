@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.21 2013-11-04 20:23:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.22 2013-11-04 21:04:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2176,6 +2176,58 @@ induction cnt; intros.
 Qed.
 *)
 
+Lemma nth_nonzero_interval_stretch : ∀ s b n k,
+  nth_nonzero_interval fld (series_stretch fld k s) n (b * Pos.to_nat k) =
+  (Pos.to_nat k * nth_nonzero_interval fld s n b)%nat.
+Proof.
+intros s b n k.
+revert b.
+induction n; intros.
+ simpl.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  erewrite first_nonzero_stretch_succ; eauto .
+  rewrite Nat.mul_comm.
+  remember (Pos.to_nat k * S len)%nat as x eqn:Hx .
+  symmetry in Hx.
+  destruct x; simpl.
+   apply Nat.mul_eq_0 in Hx.
+   destruct Hx as [Hx| Hx]; [ idtac | discriminate Hx ].
+   exfalso; revert Hx; apply Pos2Nat_ne_0.
+
+   rewrite Nat.sub_0_r; reflexivity.
+
+  rewrite first_nonzero_stretch_succ_inf; [ idtac | assumption ].
+  rewrite Nat.mul_comm; reflexivity.
+
+ simpl.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  erewrite first_nonzero_stretch_succ; eauto .
+  rewrite Nat.add_sub_assoc.
+   rewrite <- Nat.mul_add_distr_r.
+   rewrite Nat.add_succ_r.
+   remember (S (b + len) * Pos.to_nat k)%nat as x eqn:Hx .
+   symmetry in Hx.
+   destruct x; simpl.
+    apply Nat.mul_eq_0 in Hx.
+    destruct Hx as [Hx| Hx]; [ discriminate Hx | idtac ].
+    exfalso; revert Hx; apply Pos2Nat_ne_0.
+
+    rewrite Nat.sub_0_r, <- Hx.
+    apply IHn.
+
+   remember (Pos.to_nat k) as kn eqn:Hkn .
+   symmetry in Hkn.
+   destruct kn; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
+   simpl; apply le_n_S, Nat.le_0_l.
+
+  rewrite first_nonzero_stretch_succ_inf; [ idtac | assumption ].
+  rewrite Nat.mul_comm; reflexivity.
+Qed.
+
 (* en supposant que la version stretching_factor_gcd_prop fonctionne...
    ou alors en le prenant comme définition ? pourquoi pas. *)
 Lemma vvv : ∀ s n p k,
@@ -2186,11 +2238,20 @@ Lemma vvv : ∀ s n p k,
 Proof.
 intros s n p k Hn Hp.
 remember (stretching_factor fld s n) as m eqn:Hm .
-bbb.
-
 symmetry in Hm.
 apply stretching_factor_iff in Hm.
 apply stretching_factor_iff.
+unfold stretching_factor_gcd_prop in Hm.
+destruct Hm as (Hm, Hnm).
+unfold stretching_factor_gcd_prop.
+split.
+ intros cnt.
+ rewrite nth_nonzero_interval_stretch.
+ rewrite Pos2Nat.inj_mul.
+ rewrite Nat.mul_mod_distr_l; auto.
+ rewrite Hm; auto.
+
+ intros k₁ Hk₁.
 bbb.
 
 apply www in Hm.
