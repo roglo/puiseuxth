@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.17 2013-11-04 17:40:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.18 2013-11-04 17:47:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1891,8 +1891,7 @@ induction n; intros.
   apply sigma_aux_inf_succ; assumption.
 Qed.
 
-(**)
-Lemma vvv : ∀ s i c b k,
+Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
   → (∀ n : nat, nth_nonzero_interval fld s n b mod Pos.to_nat k = 0)%nat
     → nth_nonzero_interval fld s
@@ -1901,6 +1900,7 @@ Lemma vvv : ∀ s i c b k,
       → i mod Pos.to_nat k ≠ O
         → series_nth_fld fld (b + i) s ≍ zero fld.
 Proof.
+(* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
 remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n eqn:Hn .
 symmetry in Hn.
@@ -1981,9 +1981,9 @@ destruct i.
     rewrite Nat.add_succ_r.
     apply Hz.
     apply le_neq_lt; assumption.
-qed.
+Qed.
 
-Lemma www : ∀ s k,
+Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
@@ -1999,113 +1999,8 @@ destruct i.
  exfalso; apply Hi; reflexivity.
 
  replace (S i) with (0 + S i)%nat in H by reflexivity.
- apply vvv in H; auto.
-qed.
-
-(* essai d'induction sur i/k *)
-intros s k Hs i Hi.
-intros s k Hs i Hi.
-remember (i / Pos.to_nat k)%nat as n eqn:Hn .
-symmetry in Hn.
-revert k i Hs Hi Hn.
-induction n; intros.
- apply Nat.div_small_iff in Hn; [ idtac | apply Pos2Nat_ne_0 ].
- pose proof (Hs O) as H.
- simpl in H.
- remember (first_nonzero fld s 1) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  apply first_nonzero_iff in Hlen; simpl in Hlen.
-  destruct Hlen as (Hz, Hnz).
-  destruct i.
-   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
-   exfalso; apply Hi; reflexivity.
-
-   apply Hz.
-   apply Nat.mod_divides in H; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct H as (c, Hc).
-   destruct c.
-    rewrite Nat.mul_comm in Hc; discriminate Hc.
-
-    rewrite Nat.mul_comm in Hc; simpl in Hc.
-    remember (c * Pos.to_nat k)%nat as x.
-    omega.
-
-  apply first_nonzero_iff in Hlen; simpl in Hlen.
-  destruct i.
-   rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
-   exfalso; apply Hi; reflexivity.
-
-   apply Hlen.
-
- pose proof (Nat.div_mod i (Pos.to_nat k) (Pos2Nat_ne_0 k)) as Hdiv.
- rewrite Hn in Hdiv.
-bbb.
-
-(* démontré, non sans mal, que c'est vrai pour i=0 et i=1 mais la
-   récurrence sur i me paraît mal barrée... *)
-intros s k Hs i Hi.
-destruct i.
- exfalso; apply Hi; rewrite Nat.mod_0_l; auto.
-
- revert k Hs Hi.
- induction i; intros.
-  remember (Pos.to_nat k) as kn eqn:Hkn .
-  symmetry in Hkn.
-  destruct kn; [ exfalso; auto | idtac ].
-  destruct kn; [ exfalso; auto | idtac ].
-  pose proof (Hs 1%nat) as H.
-  apply Nat.mod_divides in H.
-   destruct H as (c, Hc).
-   destruct c.
-    rewrite Nat.mul_0_r in Hc.
-    simpl in Hc.
-    pose proof (Hs O) as H₀.
-    apply Nat.mod_divides in H₀.
-     destruct H₀ as (c₀, Hc₀).
-     remember (S (S kn) * c₀)%nat as x.
-     simpl in Hc₀; subst x.
-     remember (first_nonzero fld s 1) as len₁ eqn:Hlen₁ .
-     symmetry in Hlen₁.
-     destruct len₁ as [len₁| ].
-      destruct len₁.
-       rewrite Nat.mul_comm in Hc₀.
-       destruct c₀; discriminate Hc₀.
-
-       apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
-       destruct Hlen₁ as (Hz, Hnz).
-       apply Hz.
-       apply Nat.lt_0_succ.
-
-      apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
-      apply Hlen₁.
-
-     intros H; discriminate H.
-
-    simpl in Hc.
-    remember (first_nonzero fld s 1) as len₁ eqn:Hlen₁ .
-    symmetry in Hlen₁.
-    destruct len₁ as [len₁| ]; [ idtac | discriminate Hc ].
-    destruct len₁.
-     pose proof (Hs O) as H₀.
-     apply Nat.mod_divides in H₀.
-      destruct H₀ as (c₀, Hc₀).
-      remember (S (S kn) * c₀)%nat as x.
-      simpl in Hc₀; subst x.
-      rewrite Hlen₁ in Hc₀.
-      rewrite Nat.mul_comm in Hc₀.
-      destruct c₀; discriminate Hc₀.
-
-      intros H; discriminate H.
-
-     apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
-     destruct Hlen₁ as (Hz, Hnz).
-     apply Hz.
-     apply Nat.lt_0_succ.
-
-   clear H; intros H; discriminate H.
-bbb.
-*)
+ apply series_nth_0_in_interval_from_any in H; auto.
+Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
   (k | stretching_factor fld s 0)%positive
@@ -2175,7 +2070,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
 
      apply Pos2Nat_ne_0.
 
-    apply www with (s := s) in H; [ idtac | assumption ].
+    apply series_nth_0_in_interval with (s := s) in H; [ idtac | assumption ].
     unfold series_nth_fld in H.
     destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
 
