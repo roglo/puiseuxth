@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.19 2013-11-04 18:57:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.20 2013-11-04 19:12:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2086,130 +2086,6 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
 Qed.
 
 (*
-Lemma www : ∀ s n k,
-  stretching_factor_prop fld s n k ↔
-  stretching_factor_gcd_prop fld s n (Pos.to_nat k).
-Proof.
-intros s n k.
-split; intros H.
- unfold stretching_factor_gcd_prop.
- split.
-  intros cnt.
-  revert k cnt H.
-  induction n; intros.
-   destruct cnt; simpl.
-    rewrite Nat.mod_0_l; [ reflexivity | apply Pos2Nat_ne_0 ].
-
-    unfold stretching_factor_prop in H.
-    remember (first_nonzero fld s 1) as m eqn:Hm .
-    symmetry in Hm.
-    destruct m as [m| ].
-     simpl in H.
-     rewrite divmod_mod.
-bbb.
-*)
-
-(*
-Definition stretching_factor_prime_prop s n k :=
-  match first_nonzero fld s (S n) with
-  | fin _ =>
-      (∀ i, i mod (Pos.to_nat k) ≠ O →
-       series_nth_fld fld (n + i) s ≍ zero fld) ∧
-      (∀ k', (Pos.to_nat k < k')%nat
-       → prime (Z.of_nat k')
-         → ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
-  | ∞ =>
-      k = 1%positive
-  end.
-
-Lemma stretching_factor_prop_1 : ∀ s n,
-  stretching_factor_prop fld s n 1 ↔ stretching_factor_prime_prop s n 1.
-Proof.
-intros s n.
-split; intros H.
- unfold stretching_factor_prop in H.
- unfold stretching_factor_prime_prop.
- remember (first_nonzero fld s (S n)) as m eqn:Hm .
- symmetry in Hm.
- destruct m as [m| ]; [ idtac | assumption ].
- destruct H as (Hz, Hnz).
- split.
-  intros i Him.
-  apply Hz; assumption.
-
-  intros k' Hk' Hpk'.
-  apply Hnz; assumption.
-
- unfold stretching_factor_prime_prop in H.
- unfold stretching_factor_prop.
- remember (first_nonzero fld s (S n)) as m eqn:Hm .
- symmetry in Hm.
- destruct m as [m| ]; [ idtac | assumption ].
- destruct H as (_, Hnz).
- split.
-  intros i Him.
-  exfalso; apply Him; apply Nat.mod_1_r.
-
-  intros k' Hk'.
-  assert (1 < Z.of_nat k')%Z as Hk.
-   Focus 2.
-   apply exists_prime_divisor in Hk.
-   destruct Hk as (p, (Hp, Hpk')).
-   remember (Z.to_nat p) as pn eqn:Hpn .
-   assert (p = Z.of_nat pn) as Hpp.
-    rewrite Hpn.
-    rewrite Z2Nat.id; [ reflexivity | idtac ].
-    apply prime_ge_2 in Hp.
-    fast_omega Hp.
-
-    remember Hp as Hpr; clear HeqHpr.
-    rewrite Hpp in Hp.
-    apply Hnz in Hp.
-     destruct Hp as (j, (Hjm, Hjn)).
-     exists j; split; [ idtac | assumption ].
-     intros H; apply Hjm; clear Hjm.
-     apply Nat.mod_divides in H; [ idtac | fast_omega Hk' ].
-     destruct H as (c, Hc).
-     destruct Hpk' as (d, Hd).
-     rewrite Hc.
-     apply Z2Nat.inj_iff in Hd.
-      rewrite Nat2Z.id in Hd.
-      destruct p as [| p| p].
-       rewrite Z.mul_0_r in Hd; simpl in Hd.
-       subst k'.
-       fast_omega Hk'.
-
-       rewrite Z2Nat_inj_mul_pos_r in Hd.
-       rewrite <- positive_nat_Z in Hpp.
-       apply Nat2Z.inj in Hpp.
-       rewrite Hpp in Hd.
-       rewrite Hd.
-       rewrite Nat.mul_shuffle0.
-       apply Nat.mod_mul.
-       rewrite Hpn; simpl.
-       apply Pos2Nat_ne_0.
-
-       simpl in Hpn.
-       subst pn; discriminate Hpp.
-
-      apply Nat2Z.is_nonneg.
-
-      rewrite <- Hd.
-      apply Nat2Z.is_nonneg.
-
-     apply prime_ge_2 in Hpr.
-     rewrite Hpn.
-     apply Nat2Z.inj_lt.
-     rewrite positive_nat_Z.
-     rewrite Z2Nat.id; fast_omega Hpr.
-
-   apply Z2Nat_lt_lt.
-   rewrite Nat2Z.id.
-   assumption.
-Qed.
-*)
-
-(*
 Lemma stretching_factor_lim_stretch : ∀ s n k cnt,
   stretching_factor_lim fld cnt (series_stretch fld k s) (Pos.to_nat k * n) =
     (Pos.to_nat k * stretching_factor_lim fld cnt s n)%nat.
@@ -2473,7 +2349,7 @@ bbb.
      subst k; rewrite series_stretch_1; assumption.
 bbb.
 
-(* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai ! *)
+(* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai !
 Lemma zzz : ∀ s n k,
   first_nonzero fld s 1 = fin n
   → stretching_factor fld (series_stretch fld k s) 0 =
@@ -2707,8 +2583,7 @@ bbb.
 So what ?
 *)
 
-(* vraiment intéressant... à voir...
-   oui mais avec zzz plus simple ci-dessus (n = 0), j'y arrive même pas !
+(* vraiment intéressant... à voir... *)
 Lemma stretching_factor_stretch : ∀ s n k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) ≠ ∞
