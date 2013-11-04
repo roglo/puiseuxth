@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.14 2013-11-04 12:25:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.15 2013-11-04 13:46:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1794,16 +1794,114 @@ eapply index_of_nonzero_before_from_right_bound; try eassumption.
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
+Fixpoint sigma_aux b len f :=
+  match len with
+  | O => f b
+  | S len₁ => (f b + sigma_aux (S b) len₁ f)%nat
+  end.
+
+Definition sigma b e f := sigma_aux b (e - b) f.
+
+(*
+Notation "'Σ' ( i = b , e ) f" := (sigma b e (λ i, f))
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10,
+   format "'Σ' ( i = b , e ) f").
+
+Lemma nth_nonzero_interval_eq : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s 0
+     (b + Σ (i = 0,n) (nth_nonzero_interval fld s i b)).
+Proof.
+bbb.
+*)
+
+Lemma sigma_aux_fin_succ : ∀ s b n l len,
+  first_nonzero fld s (S b) = fin len
+  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
+    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i (S (b + len))).
+Proof.
+intros s b n l len H.
+revert n.
+induction l; intros.
+ simpl; rewrite H; reflexivity.
+
+ simpl; rewrite H; f_equal; apply IHl.
+Qed.
+
+Lemma sigma_aux_inf_succ : ∀ s b n l,
+  first_nonzero fld s (S b) = ∞
+  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
+    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i b).
+Proof.
+intros s b n l H.
+revert n.
+induction l; intros.
+ simpl; rewrite H.
+ destruct n; simpl; rewrite H; reflexivity.
+
+ simpl; rewrite H, IHl; f_equal.
+ destruct n; simpl; rewrite H; reflexivity.
+Qed.
+
+Lemma nth_nonzero_interval_succ : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
+Proof.
+intros s n b.
+destruct n; simpl.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.add_succ_r; reflexivity.
+
+  rewrite Nat.add_0_r, Hlen; reflexivity.
+
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.add_succ_r; reflexivity.
+
+  rewrite Nat.add_0_r, Hlen; reflexivity.
+Qed.
+
+Lemma nth_nonzero_interval_succ_sum : ∀ s n b,
+  nth_nonzero_interval fld s (S n) b =
+  nth_nonzero_interval fld s 0
+    (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
+Proof.
+intros s n b.
+revert b.
+induction n; intros.
+ rewrite nth_nonzero_interval_succ.
+ reflexivity.
+
+ rewrite nth_nonzero_interval_succ.
+ rewrite IHn; f_equal.
+ rewrite <- Nat.add_assoc; f_equal; simpl.
+ unfold sigma; simpl.
+ remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  rewrite Nat.sub_0_r; f_equal.
+  destruct n; simpl; rewrite Hlen, Nat.add_succ_r; [ reflexivity | f_equal ].
+  symmetry.
+  apply sigma_aux_fin_succ; assumption.
+
+  rewrite Nat.sub_0_r, Nat.add_0_r; symmetry; simpl.
+  apply sigma_aux_inf_succ; assumption.
+Qed.
+
 (**)
 Lemma vvv : ∀ s i c b k,
   (i < c)%nat
-  → nth_nonzero_interval fld s
-     (pred (rank_of_nonzero_after_from s c (b + i) b)) b
-     mod Pos.to_nat k = O
-    → i mod Pos.to_nat k ≠ O
-      → series_nth_fld fld (b + i) s ≍ zero fld.
+  → (∀ n : nat, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0)%nat
+    → nth_nonzero_interval fld s
+       (pred (rank_of_nonzero_after_from s c (b + i) b)) b
+       mod Pos.to_nat k = O
+      → i mod Pos.to_nat k ≠ O
+        → series_nth_fld fld (b + i) s ≍ zero fld.
 Proof.
-intros s i c b k Hic Hs Hm.
+intros s i c b k Hic Has Hs Hm.
 remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n eqn:Hn .
 symmetry in Hn.
 destruct c; [ exfalso; omega | simpl in Hn ].
@@ -1822,10 +1920,34 @@ destruct i.
   apply first_nonzero_iff in Hlen; simpl in Hlen.
   apply Hlen.
 
+  assert (S len mod Pos.to_nat k = 0)%nat as Hlenk.
+bbb.
+
   simpl in Hn.
-  (* faire l'induction sur c à partir de là...
-     faire un lemme plus général pour rank_of_nonzero_after_from *)
-  (* mouais... *)
+  revert i b len n Hic Hlen Hn Hs Hm.
+  induction c; intros; [ exfalso; fast_omega Hic | idtac ].
+  simpl in Hn.
+  destruct (lt_dec (S (b + len)) (b + S i)) as [H₁| H₁].
+   remember (first_nonzero fld s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
+   symmetry in Hlen₁.
+   destruct len₁ as [len₁| ].
+    destruct n; [ discriminate Hn | idtac ].
+    apply Nat.succ_inj in Hn.
+    destruct i.
+     exfalso; fast_omega H₁.
+
+     apply Nat.succ_lt_mono in Hic.
+     replace (b + S (S i))%nat with (S (b + len) + S (i - len))%nat by omega.
+     eapply IHc; try eassumption.
+      omega.
+
+      replace (S (b + len) + S (i - len))%nat with (b + S (S i))%nat by omega.
+      simpl.
+      apply Hn.
+
+      simpl in Hs.
+      rewrite Hlen in Hs.
+      assumption.
 bbb.
 
 intros s i c b k Hic Hs Hm.
@@ -2030,103 +2152,6 @@ bbb.
 bbb.
 *)
 
-Fixpoint sigma_aux b len f :=
-  match len with
-  | O => f b
-  | S len₁ => (f b + sigma_aux (S b) len₁ f)%nat
-  end.
-
-Definition sigma b e f := sigma_aux b (e - b) f.
-
-(*
-Notation "'Σ' ( i = b , e ) f" := (sigma b e (λ i, f))
-  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10,
-   format "'Σ' ( i = b , e ) f").
-
-Lemma nth_nonzero_interval_eq : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s 0
-     (b + Σ (i = 0,n) (nth_nonzero_interval fld s i b)).
-Proof.
-bbb.
-*)
-
-Lemma sigma_aux_fin_succ : ∀ s b n l len,
-  first_nonzero fld s (S b) = fin len
-  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
-    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i (S (b + len))).
-Proof.
-intros s b n l len H.
-revert n.
-induction l; intros.
- simpl; rewrite H; reflexivity.
-
- simpl; rewrite H; f_equal; apply IHl.
-Qed.
-
-Lemma sigma_aux_inf_succ : ∀ s b n l,
-  first_nonzero fld s (S b) = ∞
-  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
-    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i b).
-Proof.
-intros s b n l H.
-revert n.
-induction l; intros.
- simpl; rewrite H.
- destruct n; simpl; rewrite H; reflexivity.
-
- simpl; rewrite H, IHl; f_equal.
- destruct n; simpl; rewrite H; reflexivity.
-Qed.
-
-Lemma nth_nonzero_interval_succ : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
-Proof.
-intros s n b.
-destruct n; simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.add_succ_r; reflexivity.
-
-  rewrite Nat.add_0_r, Hlen; reflexivity.
-
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.add_succ_r; reflexivity.
-
-  rewrite Nat.add_0_r, Hlen; reflexivity.
-Qed.
-
-Lemma nth_nonzero_interval_succ_sum : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s 0
-    (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
-Proof.
-intros s n b.
-revert b.
-induction n; intros.
- rewrite nth_nonzero_interval_succ.
- reflexivity.
-
- rewrite nth_nonzero_interval_succ.
- rewrite IHn; f_equal.
- rewrite <- Nat.add_assoc; f_equal; simpl.
- unfold sigma; simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.sub_0_r; f_equal.
-  destruct n; simpl; rewrite Hlen, Nat.add_succ_r; [ reflexivity | f_equal ].
-  symmetry.
-  apply sigma_aux_fin_succ; assumption.
-
-  rewrite Nat.sub_0_r, Nat.add_0_r; symmetry; simpl.
-  apply sigma_aux_inf_succ; assumption.
-Qed.
-
 Lemma www : ∀ s k,
   (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
   → ∀ i,
@@ -2137,7 +2162,6 @@ intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
 pose proof (Hs cnt) as H.
 subst cnt.
-clear Hs.
 unfold rank_of_nonzero_before in H.
 destruct i.
  rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
