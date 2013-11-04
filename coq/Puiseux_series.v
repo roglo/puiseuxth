@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.15 2013-11-04 13:46:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.16 2013-11-04 17:23:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1894,7 +1894,7 @@ Qed.
 (**)
 Lemma vvv : ∀ s i c b k,
   (i < c)%nat
-  → (∀ n : nat, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0)%nat
+  → (∀ n : nat, nth_nonzero_interval fld s n b mod Pos.to_nat k = 0)%nat
     → nth_nonzero_interval fld s
        (pred (rank_of_nonzero_after_from s c (b + i) b)) b
        mod Pos.to_nat k = O
@@ -1920,11 +1920,8 @@ destruct i.
   apply first_nonzero_iff in Hlen; simpl in Hlen.
   apply Hlen.
 
-  assert (S len mod Pos.to_nat k = 0)%nat as Hlenk.
-bbb.
-
   simpl in Hn.
-  revert i b len n Hic Hlen Hn Hs Hm.
+  revert i b len n Has Hic Hlen Hn Hs Hm.
   induction c; intros; [ exfalso; fast_omega Hic | idtac ].
   simpl in Hn.
   destruct (lt_dec (S (b + len)) (b + S i)) as [H₁| H₁].
@@ -1939,6 +1936,12 @@ bbb.
      apply Nat.succ_lt_mono in Hic.
      replace (b + S (S i))%nat with (S (b + len) + S (i - len))%nat by omega.
      eapply IHc; try eassumption.
+      intros m.
+      pose proof (Has (S m)) as H.
+      simpl in H.
+      rewrite Hlen in H.
+      assumption.
+
       omega.
 
       replace (S (b + len) + S (i - len))%nat with (b + S (S i))%nat by omega.
@@ -1948,6 +1951,15 @@ bbb.
       simpl in Hs.
       rewrite Hlen in Hs.
       assumption.
+
+      replace (S (S i)) with (S (i - len) + S len)%nat in Hm by omega.
+      pose proof (Has O) as H.
+      simpl in H.
+      rewrite Hlen in H.
+      rewrite Nat.add_mod in Hm; auto.
+      rewrite H in Hm.
+      rewrite Nat.add_0_r in Hm.
+      rewrite Nat.mod_mod in Hm; auto.
 bbb.
 
 intros s i c b k Hic Hs Hm.
