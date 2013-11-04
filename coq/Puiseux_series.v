@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.23 2013-11-04 21:29:51 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.24 2013-11-04 21:53:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -53,9 +53,9 @@ Fixpoint nth_nonzero_interval s n b :=
   | ∞ => O
   end.
 
-Definition stretching_factor_gcd_prop s n k :=
-  (∀ cnt, nth_nonzero_interval s cnt n mod k = O) ∧
-  (∀ k', (k < k')%nat → ∃ cnt, nth_nonzero_interval s cnt n mod k' ≠ O).
+Definition stretching_factor_gcd_prop s b k :=
+  (∀ n, nth_nonzero_interval s n b mod k = O) ∧
+  (∀ k', (k < k')%nat → ∃ n, nth_nonzero_interval s n b mod k' ≠ O).
 
 Axiom stretching_factor_iff : ∀ s n k,
   stretching_factor fld s n = k ↔
@@ -2228,28 +2228,29 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
-Lemma vvv : ∀ s n p k,
-  first_nonzero fld s 0 = fin n
-  → first_nonzero fld s (S n) = fin p
-    → stretching_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
-      (k * stretching_factor fld s n)%positive.
+Lemma vvv : ∀ s b p k,
+  first_nonzero fld s 0 = fin b
+  → first_nonzero fld s (S b) = fin p
+    → stretching_factor fld (series_stretch fld k s) (b * Pos.to_nat k) =
+      (k * stretching_factor fld s b)%positive.
 Proof.
-intros s n p k Hn Hp.
-remember (stretching_factor fld s n) as m eqn:Hm .
+intros s b p k Hb Hp.
+remember (stretching_factor fld s b) as m eqn:Hm .
 symmetry in Hm.
-apply stretching_factor_iff in Hm.
 apply stretching_factor_iff.
-unfold stretching_factor_gcd_prop in Hm.
-destruct Hm as (Hm, Hnm).
 unfold stretching_factor_gcd_prop.
 split.
- intros cnt.
+ intros n.
  rewrite nth_nonzero_interval_stretch.
  rewrite Pos2Nat.inj_mul.
  rewrite Nat.mul_mod_distr_l; auto.
+ apply stretching_factor_iff in Hm.
+ destruct Hm as (Hm, Hnm).
  rewrite Hm; auto.
 
  intros k₁ Hk₁.
+
+bbb.
  assert (Pos.to_nat m < k₁)%nat as Hmk.
   eapply le_lt_trans; [ idtac | eassumption ].
   rewrite Pos2Nat.inj_mul.
