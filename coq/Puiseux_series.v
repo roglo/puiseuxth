@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.20 2013-11-04 19:12:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.21 2013-11-04 20:23:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2186,6 +2186,8 @@ Lemma vvv : ∀ s n p k,
 Proof.
 intros s n p k Hn Hp.
 remember (stretching_factor fld s n) as m eqn:Hm .
+bbb.
+
 symmetry in Hm.
 apply stretching_factor_iff in Hm.
 apply stretching_factor_iff.
@@ -2233,7 +2235,7 @@ split.
      rewrite Nat.mul_mod_distr_l.
 bbb.
 
-(* en supposant que la version stretching_factor_gcd_prop fonctionne... *)L
+(* en supposant que la version stretching_factor_gcd_prop fonctionne... *)
 Lemma yyy : ∀ s n k,
   first_nonzero fld s 1 = fin n
   → stretching_factor fld s 0 = 1%positive
