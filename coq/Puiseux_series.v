@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.13 2013-11-04 01:34:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.14 2013-11-04 12:25:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1826,7 +1826,6 @@ destruct i.
   (* faire l'induction sur c à partir de là...
      faire un lemme plus général pour rank_of_nonzero_after_from *)
   (* mouais... *)
-Abort. (*
 bbb.
 
 intros s i c b k Hic Hs Hm.
@@ -2135,9 +2134,21 @@ Lemma www : ∀ s k,
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
 intros s k Hs i Hi.
-bbb.
+remember (rank_of_nonzero_before s i) as cnt.
+pose proof (Hs cnt) as H.
+subst cnt.
+clear Hs.
+unfold rank_of_nonzero_before in H.
+destruct i.
+ rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
+ exfalso; apply Hi; reflexivity.
+
+ replace (S i) with (0 + S i)%nat in H by reflexivity.
+ apply vvv in H; auto.
+qed.
 
 (* essai d'induction sur i/k *)
+intros s k Hs i Hi.
 intros s k Hs i Hi.
 remember (i / Pos.to_nat k)%nat as n eqn:Hn .
 symmetry in Hn.
@@ -2239,25 +2250,6 @@ destruct i.
 
    clear H; intros H; discriminate H.
 bbb.
-
-intros s k Hs i Hi.
-remember (rank_of_nonzero_before s i) as cnt.
-pose proof (Hs cnt) as H.
-subst cnt.
-clear Hs.
-unfold rank_of_nonzero_before in H.
-destruct i.
- rewrite Nat.mod_0_l in Hi; [ idtac | apply Pos2Nat_ne_0 ].
- exfalso; apply Hi; reflexivity.
-
-Abort. (*
-bbb.
-apply vvv in H.
- rewrite Nat.sub_0_r in H; assumption.
-
- rewrite Nat.sub_0_r; assumption.
-qed.
-*)
 *)
 
 Lemma series_stretch_shrink : ∀ s k,
