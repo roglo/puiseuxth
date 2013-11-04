@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.12 2013-11-03 20:10:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.13 2013-11-04 01:34:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2134,6 +2134,9 @@ Lemma www : ∀ s k,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
 Proof.
+intros s k Hs i Hi.
+bbb.
+
 (* essai d'induction sur i/k *)
 intros s k Hs i Hi.
 remember (i / Pos.to_nat k)%nat as n eqn:Hn .
@@ -2254,6 +2257,7 @@ apply vvv in H.
 
  rewrite Nat.sub_0_r; assumption.
 qed.
+*)
 *)
 
 Lemma series_stretch_shrink : ∀ s k,
