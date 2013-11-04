@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.16 2013-11-04 17:23:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.17 2013-11-04 17:40:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1960,209 +1960,28 @@ destruct i.
       rewrite H in Hm.
       rewrite Nat.add_0_r in Hm.
       rewrite Nat.mod_mod in Hm; auto.
-bbb.
 
-intros s i c b k Hic Hs Hm.
-remember (index_of_nonzero_before s (b + i)) as n eqn:Hn .
-remember (first_nonzero fld s (S n)) as len eqn:Hlen .
-symmetry in Hlen.
-destruct len as [len| ].
- assert (n < b + i)%nat as Hnbi.
-  rewrite Hn.
-  apply index_of_nonzero_before_lt.
-  destruct i; [ idtac | fast_omega  ].
-  rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
-  exfalso; apply Hm; reflexivity.
+    apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+    pose proof (Hlen₁ (i - len - 1)%nat) as H.
+    replace (b + S i)%nat with (S (S (b + len + (i - len - 1)))) by omega.
+    assumption.
 
-  assert (b + i ≤ S n + len)%nat as Hbin.
-   symmetry in Hn.
-   eapply index_of_nonzero_before_right_bound; try eassumption.
-   destruct i.
-    rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
-    exfalso; apply Hm; reflexivity.
-
-    rewrite Nat.add_succ_r; simpl.
-    apply Nat.lt_0_succ.
-
-   apply first_nonzero_iff in Hlen; simpl in Hlen.
-   destruct Hlen as (Hz, Hnz).
-   destruct (eq_nat_dec (b + i) (S n + len)) as [H₁| H₁].
-    Focus 2.
-    replace (b + i)%nat with (S (n + (b + i - S n)))%nat by omega.
-    apply Hz.
-    fast_omega Hnbi Hbin H₁.
-
-    clear Hbin Hnz Hnbi.
-    remember (pred (rank_of_nonzero_after_from s c (b + i) b)) as n₁ eqn:Hn₁ .
-    assert (nth_nonzero_interval fld s n₁ b = len).
-     clear Hz H₁.
-     clear Hm.
-     clear k Hs.
-     revert i n n₁ Hic Hn₁ Hn.
-     induction c; intros; [ exfalso; omega | idtac ].
-     simpl in Hn₁.
-     destruct (lt_dec b (b + i)) as [H₁| H₁].
-      remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
-      unfold index_of_nonzero_before in Hn.
-      destruct len₁ as [len₁| ].
-       destruct c.
-        simpl in Hn₁.
-        exfalso; fast_omega Hic H₁.
-
-        simpl in Hn₁.
-bbb.
-
-J'avais essayé de trouver la règle d'induction, là, mais ça a l'air
-de se compliquer...
-
-    destruct c; [ exfalso; fast_omega Hic | idtac ].
+   apply Nat.nlt_ge in H₁.
+   rewrite Nat.add_succ_r in H₁.
+   apply Nat.succ_le_mono in H₁.
+   apply Nat.add_le_mono_l in H₁.
+   destruct (eq_nat_dec i len) as [H₂| H₂].
+    subst n len.
     simpl in Hs.
-    destruct (lt_dec b (b + i)) as [H₂| H₂].
-     Focus 2.
-     apply Nat.nlt_ge in H₂.
-     apply Nat.le_add_le_sub_l in H₂.
-     rewrite Nat.sub_diag in H₂.
-     apply Nat.le_0_r in H₂; subst i.
-     rewrite Nat.mod_0_l in Hm; [ idtac | apply Pos2Nat_ne_0 ].
-     exfalso; apply Hm; reflexivity.
+    rewrite Hlen in Hs.
+    contradiction.
 
-     remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
-     symmetry in Hlen₁.
-     destruct len₁ as [len₁| ].
-      Focus 2.
-      apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
-      destruct i; [ exfalso; fast_omega H₂ | idtac ].
-      rewrite Nat.add_succ_r.
-      apply Hlen₁.
-
-      destruct c; [ exfalso; fast_omega Hic H₂ | idtac ].
-      simpl in Hs.
-      destruct (lt_dec (S (b + len₁)) (b + i)) as [H₃| H₃].
-       Focus 2.
-       apply Nat.nlt_ge in H₃.
-       simpl in Hs.
-       rewrite Hlen₁ in Hs.
-       rewrite <- Nat.add_succ_r in H₃.
-       apply Nat.add_le_mono_l in H₃.
-       apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
-       destruct Hlen₁ as (Hz₁, Hnz₁).
-       destruct i; [ exfalso; fast_omega H₂ | idtac ].
-       destruct (eq_nat_dec i len₁) as [H₄| H₄].
-        subst i.
-        rewrite Hs in Hm; exfalso; apply Hm; reflexivity.
-
-        assert (i < len₁)%nat as H₅ by fast_omega H₃ H₄.
-        apply Hz₁ in H₅.
-        rewrite Nat.add_succ_r; assumption.
-
-       remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
-       symmetry in Hlen₂.
-       destruct len₂ as [len₂| ].
-        Focus 2.
-        apply first_nonzero_iff in Hlen₂; simpl in Hlen₂.
-        simpl in Hs.
-        rewrite Hlen₁ in Hs.
-        rewrite <- Nat.add_succ_r in H₃.
-        replace (b + i)%nat with (S (S (b + len₁ + (i - S (S len₁)))))%nat
-         by omega.
-        apply Hlen₂.
-
-        destruct c; [ exfalso; fast_omega Hic H₃ | idtac ].
-        simpl in Hs.
-        rewrite Hlen₁ in Hs.
-        destruct (lt_dec (S (S (b + len₁ + len₂))) (b + i)) as [H₄| H₄].
-         Focus 2.
-         apply Nat.nlt_ge in H₄.
-         simpl in Hs.
-         rewrite Hlen₂ in Hs.
-         rewrite <- Nat.add_succ_r in H₄.
-         rewrite <- Nat.add_succ_r in H₄.
-         rewrite <- Nat.add_assoc in H₄.
-         apply Nat.add_le_mono_l in H₄.
-         apply first_nonzero_iff in Hlen₂; simpl in Hlen₂.
-         destruct Hlen₂ as (Hz₁, Hnz₁).
-         destruct i; [ exfalso; fast_omega H₂ | idtac ].
-         destruct (eq_nat_dec i len₂) as [H₅| H₅].
-          subst i.
-          rewrite Hs in Hm; exfalso; apply Hm; reflexivity.
-
-bbb.
-
-intros s i c b k Hs Hm.
-revert b c Hs Hm.
-induction i; intros.
- rewrite Nat.add_0_r in Hm |- *.
- remember (pred (rank_of_nonzero_after_from s c 1 b)) as x eqn:Hx .
- symmetry in Hx.
- replace x with 0%nat in Hs .
-  simpl in Hs.
-  remember (first_nonzero fld s (S b)) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ].
-   apply first_nonzero_iff in Hn.
-   simpl in Hn.
-   destruct n.
-    remember (Pos.to_nat k) as kn eqn:Hkn .
-    symmetry in Hkn.
-    destruct kn as [| kn].
-     exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-     destruct kn as [| kn].
-      rewrite Nat.mod_1_r in Hm.
-      exfalso; apply Hm; reflexivity.
-
-      rewrite Nat.mod_1_l in Hs; [ discriminate Hs | fast_omega  ].
-
-    replace b with (b + 0)%nat by auto.
-    apply Hn; apply Nat.lt_0_succ.
-
-   apply first_nonzero_iff in Hn; simpl in Hn.
-   replace b with (b + 0)%nat by auto.
-   apply Hn.
-
-  destruct c; [ assumption | simpl in Hx ].
-  destruct (lt_dec b 1) as [H₁| H₁]; [ idtac | assumption ].
-  apply Nat.lt_1_r in H₁; subst b.
-  remember (first_nonzero fld s 1) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ]; [ idtac | assumption ].
-  destruct c; assumption.
-
- rewrite Nat.add_succ_r, <- Nat.add_succ_l.
- rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hm.
-
-bbb.
-
- simpl in Hs.
- destruct (lt_dec b c) as [H₁| H₁]; simpl in Hs.
-  remember (first_nonzero fld s (S b)) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ].
-   apply first_nonzero_iff in Hn.
-   simpl in Hn.
-   simpl in Hs.
-   destruct n.
-    remember (Pos.to_nat k) as kn eqn:Hkn .
-    symmetry in Hkn.
-    destruct kn as [| kn].
-     exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-     destruct kn as [| kn].
-      rewrite Nat.mod_1_r in Hm.
-      exfalso; apply Hm; reflexivity.
-
-      rewrite Nat.add_0_r in Hs.
-      rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-      rewrite Nat.add_succ_r in Hm.
-      apply IHi with (c := c); [ idtac | assumption ].
-      remember (S kn) as skn; simpl.
-      rewrite divmod_mod; subst skn.
-      remember (S kn) as skn; simpl.
-      rewrite divmod_mod.
-      destruct c; simpl.
-       rewrite divmod_mod.
-bbb.
-*)
+    apply first_nonzero_iff in Hlen; simpl in Hlen.
+    destruct Hlen as (Hz, Hnz).
+    rewrite Nat.add_succ_r.
+    apply Hz.
+    apply le_neq_lt; assumption.
+qed.
 
 Lemma www : ∀ s k,
   (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
