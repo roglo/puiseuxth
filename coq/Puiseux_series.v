@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.18 2013-11-04 17:47:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.19 2013-11-04 18:57:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2075,59 +2075,14 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
     destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
 
    reflexivity.
-bbb.
 
-   unfold stretching_factor_prop in Hk.
-   remember (first_nonzero fld s 1) as n eqn:Hn .
-   symmetry in Hn.
-   destruct n as [n| ].
-    simpl in Hk.
-    destruct Hk as (Hz, Hnz).
-    assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
-     intros H.
-     apply Nat.mod_divides in H.
-      destruct H as (d, Hd).
-      rewrite Pos2Nat.inj_mul, Nat.mul_shuffle0 in Hd.
-      rewrite Hd in H₂.
-      rewrite Nat.mod_mul in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-      revert H₂; apply Nat.lt_irrefl.
-
-      apply Pos2Nat_ne_0.
-
-     apply Hz in H.
-     unfold series_nth_fld in H.
-     destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
-      symmetry; assumption.
-
-      contradiction.
-
-    apply Pos.mul_eq_1_r in Hk.
-    subst k.
-    rewrite Nat.mod_1_r in H₂.
-    exfalso; revert H₂; apply Nat.lt_irrefl.
-
-   reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
-  exfalso; apply H₁; clear H₁.
-  eapply Nbar.lt_le_trans; [ eassumption | idtac ].
-  unfold Nbar.div_sup.
-  simpl.
-  destruct (stop s) as [st| ]; simpl.
-   Focus 2.
-   unfold Nbar.div.
-   destruct kn; constructor.
-
-   destruct kn as [kn| ]; simpl.
-    apply Nbar.le_fin.
-    2: constructor.
-
-    2: reflexivity.
-
-  rewrite Nat_fold_div_sup.
-  apply le_div_sup_mul.
-  injection Hkn; intros; subst kn.
-  apply Pos2Nat.is_pos.
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂]; [ idtac | reflexivity ].
+ exfalso; apply H₁.
+ eapply Nbar.lt_le_trans; [ eassumption | idtac ].
+ apply Nbar.le_mul_div_sup.
+ subst kn.
+ intros H.
+ injection H; apply Pos2Nat_ne_0.
 Qed.
 
 (*
@@ -2154,6 +2109,7 @@ split; intros H.
 bbb.
 *)
 
+(*
 Definition stretching_factor_prime_prop s n k :=
   match first_nonzero fld s (S n) with
   | fin _ =>
@@ -2251,12 +2207,14 @@ split; intros H.
    rewrite Nat2Z.id.
    assumption.
 Qed.
+*)
 
+(*
 Lemma stretching_factor_lim_stretch : ∀ s n k cnt,
   stretching_factor_lim fld cnt (series_stretch fld k s) (Pos.to_nat k * n) =
     (Pos.to_nat k * stretching_factor_lim fld cnt s n)%nat.
 Proof.
-(* à nettoyer *)
+-- à nettoyer
 intros s n k cnt.
 revert s n k.
 induction cnt; intros.
@@ -2340,6 +2298,7 @@ induction cnt; intros.
   rewrite Hm in Hp.
   discriminate Hp.
 Qed.
+*)
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne...
    ou alors en le prenant comme définition ? pourquoi pas. *)
@@ -2354,6 +2313,8 @@ remember (stretching_factor fld s n) as m eqn:Hm .
 symmetry in Hm.
 apply stretching_factor_iff in Hm.
 apply stretching_factor_iff.
+bbb.
+
 apply www in Hm.
 apply www.
 unfold stretching_factor_gcd_prop in Hm |- *.

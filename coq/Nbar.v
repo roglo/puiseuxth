@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.1 2013-11-04 18:57:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -502,6 +502,34 @@ destruct a as [a| ]; [ simpl | reflexivity ].
 rewrite divmod_div.
 rewrite Nat.div_mul; [ reflexivity | idtac ].
 intros H; discriminate H.
+Qed.
+
+Theorem Nat_le_mul_div_sup : ∀ a b, (b ≠ 0 → a <= Nat_div_sup a b * b)%nat.
+Proof.
+intros a b Hb.
+unfold Nat_div_sup.
+pose proof (Nat.div_mod (a + b - 1) b Hb) as H.
+remember ((a + b - 1) / b)%nat as q eqn:Hq .
+remember ((a + b - 1) mod b) as r eqn:Hr .
+rewrite Nat.mul_comm.
+apply Nat.add_le_mono_r with (p := r).
+rewrite <- H.
+rewrite <- Nat.add_sub_assoc; [ idtac | fast_omega Hb ].
+apply Nat.add_le_mono_l.
+rewrite Hr.
+apply (Nat.mod_upper_bound (a + b - 1)) in Hb.
+fast_omega Hb.
+Qed.
+
+Theorem le_mul_div_sup : ∀ a b, b ≠ 0 → a ≤ div_sup a b * b.
+Proof.
+intros a b Hb.
+destruct b as [b| ]; [ idtac | constructor ].
+destruct a as [a| ]; [ simpl | constructor ].
+apply le_fin.
+rewrite Nat_fold_div_sup.
+apply Nat_le_mul_div_sup.
+intros H; apply Hb; subst b; reflexivity.
 Qed.
 
 Theorem div_sup_mul : ∀ a b, b ≠ 0 → b ≠ ∞ → div_sup (a * b) b = a.
