@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.22 2013-11-04 21:04:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.23 2013-11-04 21:29:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2228,8 +2228,6 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
-(* en supposant que la version stretching_factor_gcd_prop fonctionne...
-   ou alors en le prenant comme définition ? pourquoi pas. *)
 Lemma vvv : ∀ s n p k,
   first_nonzero fld s 0 = fin n
   → first_nonzero fld s (S n) = fin p
@@ -2252,6 +2250,21 @@ split.
  rewrite Hm; auto.
 
  intros k₁ Hk₁.
+ assert (Pos.to_nat m < k₁)%nat as Hmk.
+  eapply le_lt_trans; [ idtac | eassumption ].
+  rewrite Pos2Nat.inj_mul.
+  replace (Pos.to_nat m) with (1 * Pos.to_nat m)%nat by apply Nat.mul_1_l.
+  rewrite Nat.mul_1_l in |- * at 2.
+  apply Nat.mul_le_mono_r.
+  apply Pos2Nat.is_pos.
+
+  apply Hnm in Hmk.
+  destruct Hmk as (cnt, Hcnt).
+  exists cnt.
+  rewrite nth_nonzero_interval_stretch.
+  remember (nth_nonzero_interval fld s cnt n) as len eqn:Hlen .
+  symmetry in Hlen.
+  intros H; apply Hcnt; clear Hcnt.
 bbb.
 
 apply www in Hm.
