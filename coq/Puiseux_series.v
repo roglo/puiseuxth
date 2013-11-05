@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.24 2013-11-04 21:53:38 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.25 2013-11-05 02:25:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2228,6 +2228,17 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
+Lemma exists_nth_nonzero_interval_stretch : ∀ s b k k₁,
+  (∃ n, Pos.to_nat k * nth_nonzero_interval fld s n b mod k₁ ≠ 0)%nat
+  → (∃ n, nth_nonzero_interval fld (series_stretch fld k s) n (b * Pos.to_nat k)
+     mod k₁ ≠ 0)%nat.
+Proof.
+intros s b k k₁ (n, H).
+exists n.
+rewrite nth_nonzero_interval_stretch.
+assumption.
+Qed.
+
 Lemma vvv : ∀ s b p k,
   first_nonzero fld s 0 = fin b
   → first_nonzero fld s (S b) = fin p
@@ -2249,6 +2260,7 @@ split.
  rewrite Hm; auto.
 
  intros k₁ Hk₁.
+ apply exists_nth_nonzero_interval_stretch.
 
 bbb.
  assert (Pos.to_nat m < k₁)%nat as Hmk.
