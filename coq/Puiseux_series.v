@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.26 2013-11-05 10:58:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.27 2013-11-05 15:01:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2270,6 +2270,9 @@ split.
   move Hmn at top; subst m.
   rewrite Pos.mul_1_r in Hk₁.
   destruct b.
+   apply stretching_factor_iff in Hm.
+   destruct Hm as (Hm, Hnm).
+   clear Hm.
 
 bbb.
  assert (Pos.to_nat m < k₁)%nat as Hmk.
