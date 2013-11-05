@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.1 2013-11-05 10:58:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -48,10 +48,10 @@ Proof.
 intros nz n k.
 constructor.
 unfold normalise_nz; simpl.
-rewrite first_nonzero_shift.
-rewrite first_nonzero_stretch_0.
+rewrite number_of_zeroes_from_shift.
+rewrite number_of_zeroes_from_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
+remember (number_of_zeroes_from fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
@@ -298,7 +298,7 @@ Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_comm.
-remember (first_nonzero fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
+remember (number_of_zeroes_from fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
@@ -379,13 +379,13 @@ destruct (lt_dec i n) as [Hlt| Hge].
     assumption.
 Qed.
 
-Lemma first_nonzero_nonzero_fin : ∀ s n,
-  first_nonzero fld s 0 = fin (S n)
+Lemma number_of_zeroes_from_nonzero_fin : ∀ s n,
+  number_of_zeroes_from fld s 0 = fin (S n)
   → series_nth_fld fld 0 s ≍ zero fld.
 Proof.
 intros s n Hn.
 replace 0%nat with (0 + 0)%nat by reflexivity.
-apply lt_first_nonzero.
+apply lt_number_of_zeroes_from.
 rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
@@ -502,7 +502,7 @@ Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
-remember (first_nonzero fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
+remember (number_of_zeroes_from fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
@@ -809,13 +809,13 @@ intros s n.
 unfold series_tail; reflexivity.
 Qed.
 
-Lemma first_nonzero_S_tail : ∀ s n,
-  first_nonzero fld s = fin (S n)
-  → first_nonzero fld (series_tail s) = fin n.
+Lemma number_of_zeroes_from_S_tail : ∀ s n,
+  number_of_zeroes_from fld s = fin (S n)
+  → number_of_zeroes_from fld (series_tail s) = fin n.
 Proof.
 intros s n Hn₃.
-apply first_nonzero_iff in Hn₃.
-apply first_nonzero_iff.
+apply number_of_zeroes_from_iff in Hn₃.
+apply number_of_zeroes_from_iff.
 destruct Hn₃ as (Hisn, Hsn).
 split; [ intros i Hin | idtac ].
  remember (stop s) as st eqn:Hst .
@@ -1447,7 +1447,7 @@ intros s₁ s₂ Heq v c.
 constructor.
 unfold normalise_nz; simpl.
 rewrite <- Heq.
-remember (first_nonzero fld s₁ 0) as n eqn:Hn .
+remember (number_of_zeroes_from fld s₁ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
@@ -1592,7 +1592,7 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
 Qed.
 
 Lemma stretch_factor_le : ∀ s n₁ n₂ k,
-  first_nonzero fld s (S n₁) = fin n₂
+  number_of_zeroes_from fld s (S n₁) = fin n₂
   → stretch_factor fld s n₁ = k
     → (Pos.to_nat k ≤ S n₂)%nat.
 Proof.
@@ -1605,7 +1605,7 @@ assert (S n₂ mod Pos.to_nat k ≠ 0)%nat as H.
  rewrite Nat.mod_small; [ intros H; discriminate H | assumption ].
 
  apply Hz in H.
- apply first_nonzero_iff in Hn₂.
+ apply number_of_zeroes_from_iff in Hn₂.
  destruct Hn₂ as (_, Hn₂).
  apply Hn₂.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
@@ -1615,7 +1615,7 @@ Qed.
 (* exercice... *)
 (* mmm... à voir... not sure it can be proved cause ¬∀ doesn't imply ∃
 Lemma stretch_factor_divides : ∀ s n₁ n₂ k,
-  first_nonzero fld s (S n₁) = fin n₂
+  number_of_zeroes_from fld s (S n₁) = fin n₂
   → stretch_factor fld s n₁ = k
     → (k | S n₂)%nat.
 Proof.
@@ -1623,13 +1623,13 @@ intros s n₁ n₂ k Hn₂ Hk.
 aaa.
 *)
 
-Lemma normalised_series_first_nonzero : ∀ s n k,
-  first_nonzero fld s 0 = fin n
-  → first_nonzero fld (normalise_series n k s) 0 = fin 0.
+Lemma normalised_series_number_of_zeroes_from : ∀ s n k,
+  number_of_zeroes_from fld s 0 = fin n
+  → number_of_zeroes_from fld (normalise_series n k s) 0 = fin 0.
 Proof.
 intros s n k Hn.
-apply first_nonzero_iff in Hn.
-apply first_nonzero_iff.
+apply number_of_zeroes_from_iff in Hn.
+apply number_of_zeroes_from_iff.
 simpl in Hn |- *.
 destruct Hn as (Hz, Hnz).
 split.
@@ -1681,7 +1681,7 @@ unfold series_shrink, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 rewrite Nbar.fold_sub.
 apply stretch_factor_iff in Hsf.
-remember (first_nonzero fld s (S n)) as n₁ eqn:Hn₁ .
+remember (number_of_zeroes_from fld s (S n)) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 destruct n₁ as [n₁| ].
  destruct Hsf as (Hz, Hnz).
@@ -1838,7 +1838,7 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Lemma normalised_series : ∀ s n k,
-  first_nonzero fld s 0 = fin n
+  number_of_zeroes_from fld s 0 = fin n
   → stretch_factor fld s n = k
     → series_shift fld n (series_stretch fld k (normalise_series n k s)) ≃ s.
 Proof.
@@ -1847,7 +1847,7 @@ rewrite normalised_stretched_series; [ idtac | assumption ].
 constructor; intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.fold_sub.
-apply first_nonzero_iff in Hfn; simpl in Hfn.
+apply number_of_zeroes_from_iff in Hfn; simpl in Hfn.
 destruct Hfn as (Hsz, Hsnz).
 unfold series_nth_fld in Hsz.
 destruct (lt_dec i n) as [H₃| H₃].
@@ -1928,8 +1928,8 @@ Proof.
 intros nz.
 unfold normalise_nz; simpl.
 rewrite nz_add_0_r.
-rewrite first_nonzero_shift.
-remember (first_nonzero fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
+rewrite number_of_zeroes_from_shift.
+remember (number_of_zeroes_from fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 rewrite Nbar.add_comm.
 destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
@@ -1973,7 +1973,7 @@ Qed.
 (* provable but supposes to use Bézout's identity
    probably complicated
 Lemma normalised_series_stretch_factor : ∀ s n k,
-  first_nonzero fld s 0 = fin n
+  number_of_zeroes_from fld s 0 = fin n
   → stretch_factor fld s n = k
     → stretch_factor fld (normalise_series n k s) 0 = 1%positive.
 Proof.
@@ -1988,24 +1988,24 @@ intros nz nz₁ Hnorm.
 aaa.
 *)
 
-(* probablement démontrable aussi avec first_nonzero ... = fin 0 comme but
+(* probablement démontrable aussi avec number_of_zeroes_from ... = fin 0 comme but
    à voir, peut-être, si nécessaire *)
-Lemma first_nonzero_normalised : ∀ nz nz₁ n,
+Lemma number_of_zeroes_from_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
-  → first_nonzero fld (nz_terms nz) 0 = fin n
+  → number_of_zeroes_from fld (nz_terms nz) 0 = fin n
     → n = O.
 Proof.
 intros nz nz₁ n Hnorm Hnz.
 destruct n as [| n]; [ reflexivity | exfalso ].
-apply first_nonzero_iff in Hnz.
+apply number_of_zeroes_from_iff in Hnz.
 simpl in Hnz.
 destruct Hnz as (Hz, Hnz).
 pose proof (Hz O (Nat.lt_0_succ n)) as H₀.
 unfold normalise_nz in Hnorm.
-remember (first_nonzero fld (nz_terms nz₁) 0) as m eqn:Hm .
+remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ idtac | discriminate Hnorm ].
-apply first_nonzero_iff in Hm.
+apply number_of_zeroes_from_iff in Hm.
 simpl in Hm.
 destruct Hm as (Hmz, Hmnz).
 unfold series_nth_fld in Hmnz.
@@ -2088,8 +2088,8 @@ destruct ps₃ as [nz'₃| ].
    clear nz₂0 H0.
    unfold normalise_nz.
    simpl.
-   remember (first_nonzero fld (nz_terms_add nz'₁ nz'₃) 0) as n₁ eqn:Hn₁ .
-   remember (first_nonzero fld (nz_terms_add nz'₂ nz'₃) 0) as n₂ eqn:Hn₂ .
+   remember (number_of_zeroes_from fld (nz_terms_add nz'₁ nz'₃) 0) as n₁ eqn:Hn₁ .
+   remember (number_of_zeroes_from fld (nz_terms_add nz'₂ nz'₃) 0) as n₂ eqn:Hn₂ .
    symmetry in Hn₁, Hn₂.
    unfold nz_terms_add in Hn₁.
    unfold nz_terms_add in Hn₂.
@@ -2160,7 +2160,7 @@ destruct ps₃ as [nz'₃| ].
   constructor.
   unfold normalise_nz; simpl.
   rewrite H1.
-  remember (first_nonzero fld (nz_terms nz₂0) 0) as n eqn:Hn .
+  remember (number_of_zeroes_from fld (nz_terms nz₂0) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
   constructor; simpl.
@@ -2192,7 +2192,7 @@ Definition normalise_ps ps :=
   end.
 
 Lemma series_nth_normalised : ∀ s n g,
-  first_nonzero fld s 0 = fin n
+  number_of_zeroes_from fld s 0 = fin n
   → ∀ i,
     series_nth_fld fld i (normalise_series n g s) =
     series_nth_fld fld (n + i * Pos.to_nat g) s.
@@ -2234,7 +2234,7 @@ Qed.
 (* peut-être pas nécessaire... *)
 Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
   normalise_nz fld nz = NonZero nz'
-  → first_nonzero fld (nz_terms nz) 0 = fin n
+  → number_of_zeroes_from fld (nz_terms nz) 0 = fin n
     → stretch_factor fld (nz_terms nz) n = k
       → gcd_nz n k nz = g
         → ∀ i,
@@ -2251,7 +2251,7 @@ Qed.
 
 (* pas mieux que sans liste... l'induction par n déconne...
 Fixpoint nonzero_list s b n :=
-  match first_nonzero fld s b with
+  match number_of_zeroes_from fld s b with
   | fin m =>
       match n with
       | O => [m]
@@ -2270,20 +2270,20 @@ Proof.
 intros nz nz' n zl zl' Heq Hzl Hzl'.
 subst zl zl'.
 induction n as [| n]; simpl.
- remember (first_nonzero fld (nz_terms nz) 0) as i eqn:Hi .
- remember (first_nonzero fld (nz_terms nz') 0) as j eqn:Hj .
+ remember (number_of_zeroes_from fld (nz_terms nz) 0) as i eqn:Hi .
+ remember (number_of_zeroes_from fld (nz_terms nz') 0) as j eqn:Hj .
  symmetry in Hi, Hj.
  destruct i as [i| ].
   destruct j as [j| ]; [ simpl | exfalso ].
    f_equal.
    erewrite series_nth_normalised with (nz' := nz'); eauto .
-   eapply first_nonzero_normalised in Heq; [ idtac | eassumption ].
+   eapply number_of_zeroes_from_normalised in Heq; [ idtac | eassumption ].
    subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
 
    eapply series_nth_normalised with (i := O) in Heq; eauto .
    rewrite Nat.mul_0_l, Nat.add_0_r in Heq.
-   apply first_nonzero_iff in Hi; simpl in Hi.
-   apply first_nonzero_iff in Hj; simpl in Hj.
+   apply number_of_zeroes_from_iff in Hi; simpl in Hi.
+   apply number_of_zeroes_from_iff in Hj; simpl in Hj.
    destruct Hi as (Hz, Hnz).
    apply Hnz.
    rewrite <- Heq.
@@ -2297,9 +2297,9 @@ bbb.
 
 Fixpoint nth_nonzero s b n :=
   match n with
-  | O => first_nonzero fld s b
+  | O => number_of_zeroes_from fld s b
   | S n' =>
-      match first_nonzero fld s b with
+      match number_of_zeroes_from fld s b with
       | fin m => nth_nonzero s (S m) n'
       | ∞ => ∞
       end
@@ -2317,12 +2317,12 @@ intros nz nz' n i j Heq Hi Hj.
 revert i j Hi Hj.
 induction n; intros.
  erewrite series_nth_normalised with (nz' := nz'); eauto .
- eapply first_nonzero_normalised in Heq; [ idtac | eassumption ].
+ eapply number_of_zeroes_from_normalised in Heq; [ idtac | eassumption ].
  subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
 
  simpl in Hi, Hj.
- remember (first_nonzero fld (nz_terms nz) 0) as m eqn:Hm .
- remember (first_nonzero fld (nz_terms nz') 0) as m' eqn:Hm' .
+ remember (number_of_zeroes_from fld (nz_terms nz) 0) as m eqn:Hm .
+ remember (number_of_zeroes_from fld (nz_terms nz') 0) as m' eqn:Hm' .
  symmetry in Hm, Hm'.
  destruct m as [m| ]; [ idtac | discriminate Hi ].
  destruct m' as [m'| ]; [ idtac | discriminate Hj ].
@@ -2336,9 +2336,9 @@ bbb.
 (*
 Lemma uuu : ∀ nz nz' n m p k g,
   normalise_nz fld nz = NonZero nz'
-  → first_nonzero fld (nz_terms nz) 0 = fin n
-    → first_nonzero fld (nz_terms nz) (S n) = fin p
-      → first_nonzero fld (nz_terms nz') 1 = fin m
+  → number_of_zeroes_from fld (nz_terms nz) 0 = fin n
+    → number_of_zeroes_from fld (nz_terms nz) (S n) = fin p
+      → number_of_zeroes_from fld (nz_terms nz') 1 = fin m
        → stretch_factor fld (nz_terms nz) n = k
          → gcd_nz n k nz = g
            → S p = (S m * Pos.to_nat g)%nat.
@@ -2450,7 +2450,7 @@ destruct c as [| c| c].
 Qed.
 
 Lemma normalised_stretch_factor : ∀ nz n k g,
-  first_nonzero fld (nz_terms nz) 0 = fin n
+  number_of_zeroes_from fld (nz_terms nz) 0 = fin n
   → stretch_factor fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
       → stretch_factor fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
@@ -2465,7 +2465,7 @@ rewrite Hg in H.
 destruct H as (k', Hk').
 apply stretch_factor_iff.
 remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
-remember (first_nonzero fld s 1) as m eqn:Hm .
+remember (number_of_zeroes_from fld s 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl.
  split.
@@ -2474,7 +2474,7 @@ destruct m as [m| ]; simpl.
    rewrite Hs.
    rewrite series_nth_normalised; [ idtac | assumption ].
    apply stretch_factor_iff in Hk.
-   remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+   remember (number_of_zeroes_from fld (nz_terms nz) (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ].
     destruct Hk as (Hz, Hnz).
@@ -2532,7 +2532,7 @@ destruct m as [m| ]; simpl.
    rewrite Z2Nat.inj_mul in Hk₁.
     rewrite Nat.div_mul in Hk₁.
      apply stretch_factor_iff in Hk.
-     remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+     remember (number_of_zeroes_from fld (nz_terms nz) (S n)) as p eqn:Hp .
      symmetry in Hp.
      destruct p as [p| ].
       destruct Hk as (Hz, Hnz).
@@ -2600,12 +2600,12 @@ destruct m as [m| ]; simpl.
       rewrite Z.gcd_1_r in Hg.
       move Hg at top; subst g.
       exfalso.
-      apply first_nonzero_iff in Hm.
+      apply number_of_zeroes_from_iff in Hm.
       destruct Hm as (Hz, Hnz).
       apply Hnz; simpl.
       rewrite Hs.
       rewrite series_nth_normalised; [ idtac | assumption ].
-      apply first_nonzero_iff in Hp.
+      apply number_of_zeroes_from_iff in Hp.
       rewrite Nat.mul_1_r.
       rewrite Nat.add_succ_r, <- Nat.add_succ_l.
       apply Hp.
@@ -2632,11 +2632,11 @@ destruct m as [m| ]; simpl.
     destruct Hg; assumption.
 
  apply stretch_factor_iff in Hk.
- remember (first_nonzero fld (nz_terms nz) (S n)) as p eqn:Hp .
+ remember (number_of_zeroes_from fld (nz_terms nz) (S n)) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
-  apply first_nonzero_iff in Hm; simpl in Hm.
-  apply first_nonzero_iff in Hp; simpl in Hp.
+  apply number_of_zeroes_from_iff in Hm; simpl in Hm.
+  apply number_of_zeroes_from_iff in Hp; simpl in Hp.
   destruct Hp as (Hz, Hnz).
   rewrite <- Nat.add_succ_r in Hnz.
   destruct (zerop (S p mod Pos.to_nat k)) as [H₁| H₁].
@@ -2738,13 +2738,13 @@ rewrite Hps in |- * at 2.
 symmetry in Hps.
 destruct ps as [nz'| ]; simpl.
  unfold normalise_nz; simpl.
- remember (first_nonzero fld (nz_terms nz') 0) as n eqn:Hn .
+ remember (number_of_zeroes_from fld (nz_terms nz') 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
-  eapply first_nonzero_normalised in Hn; [ idtac | eassumption ].
+  eapply number_of_zeroes_from_normalised in Hn; [ idtac | eassumption ].
   subst n; simpl.
   rewrite Z.add_0_r.
-  remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
+  remember (number_of_zeroes_from fld (nz_terms nz) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ].
    constructor; simpl.
@@ -2787,9 +2787,9 @@ destruct ps as [nz'| ]; simpl.
    remember (Z.to_pos (' nz_comden nz / g)) as cg eqn:Hcg .
    remember (Z.gcd (Z.gcd (vn / g) (' cg)) (' k₁)) as g₁ eqn:Hg₁ .
    unfold normalise_nz; simpl.
-   remember (first_nonzero fld s 0) as m eqn:Hm .
+   remember (number_of_zeroes_from fld s 0) as m eqn:Hm .
    rewrite Hs in Hm.
-   rewrite normalised_series_first_nonzero in Hm; [ idtac | assumption ].
+   rewrite normalised_series_number_of_zeroes_from in Hm; [ idtac | assumption ].
    subst m.
    rewrite Hs in Hk₁.
    symmetry in Hk.
@@ -2811,7 +2811,7 @@ destruct ps as [nz'| ]; simpl.
    rewrite positive_nat_Z in Hg₁.
    rewrite Z2Nat.id in Hg₁; [ idtac | assumption ].
    rewrite Hg in Hg₁; subst g₁.
-   rewrite normalised_series_first_nonzero.
+   rewrite normalised_series_number_of_zeroes_from.
     constructor; simpl.
      do 2 rewrite Z.add_0_r.
      unfold gcd_nz; simpl.
@@ -2837,7 +2837,7 @@ destruct ps as [nz'| ]; simpl.
      reflexivity.
 
     rewrite Hs.
-    apply normalised_series_first_nonzero; assumption.
+    apply normalised_series_number_of_zeroes_from; assumption.
 
    unfold normalise_nz in Hps.
    rewrite Hn in Hps.
@@ -2845,7 +2845,7 @@ destruct ps as [nz'| ]; simpl.
 
   rename Hn into Hm.
   unfold normalise_nz in Hps.
-  remember (first_nonzero fld (nz_terms nz) 0) as n eqn:Hn .
+  remember (number_of_zeroes_from fld (nz_terms nz) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
   constructor; simpl.
@@ -2855,7 +2855,7 @@ destruct ps as [nz'| ]; simpl.
   remember (gcd_nz n k nz) as g eqn:Hg .
   symmetry in Hg.
   constructor; intros i.
-  apply first_nonzero_iff in Hm.
+  apply number_of_zeroes_from_iff in Hm.
   simpl in Hm.
   rewrite Hm.
   unfold series_nth_fld; simpl.
@@ -2879,21 +2879,21 @@ Proof.
 intros nz₁ nz₂ nz₃ Heq.
 bbb.
 unfold normalise_nz; simpl.
-remember (first_nonzero fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
-remember (first_nonzero fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
+remember (number_of_zeroes_from fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
+remember (number_of_zeroes_from fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
 symmetry in Hn₁₃, Hn₂₃.
-apply first_nonzero_iff in Hn₁₃.
-apply first_nonzero_iff in Hn₂₃.
+apply number_of_zeroes_from_iff in Hn₁₃.
+apply number_of_zeroes_from_iff in Hn₂₃.
 simpl in Hn₁₃, Hn₂₃.
 destruct n₁₃ as [n₁₃| ]; simpl.
  destruct n₂₃ as [n₂₃| ]; simpl.
   constructor; simpl.
    unfold normalise_nz in Heq; simpl in Heq.
-   remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-   remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+   remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+   remember (number_of_zeroes_from fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
    symmetry in Hn₁, Hn₂.
-   apply first_nonzero_iff in Hn₁.
-   apply first_nonzero_iff in Hn₂.
+   apply number_of_zeroes_from_iff in Hn₁.
+   apply number_of_zeroes_from_iff in Hn₂.
    simpl in Hn₁, Hn₂.
    destruct n₁ as [n₁| ]; simpl.
     destruct n₂ as [n₂| ]; simpl.
@@ -2903,8 +2903,8 @@ bbb.
 
 intros nz₁ nz₂ nz₃ Heq.
 unfold normalise_nz in Heq; simpl in Heq.
-remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+remember (number_of_zeroes_from fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
@@ -2914,16 +2914,16 @@ destruct n₁ as [n₁| ].
   symmetry in Hk₁, Hk₂.
   apply stretch_factor_iff in Hk₁.
   apply stretch_factor_iff in Hk₂.
-  remember (first_nonzero fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
-  remember (first_nonzero fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
+  remember (number_of_zeroes_from fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
+  remember (number_of_zeroes_from fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
   symmetry in Hsn₁, Hsn₂.
   destruct sn₁ as [sn₁| ].
    destruct sn₂ as [sn₂| ].
     destruct Hk₁ as [Hk₁| Hk₁].
      destruct Hk₂ as [Hk₂| Hk₂].
       unfold normalise_nz.
-      remember (first_nonzero fld (nz_terms (nz₁ ∔ nz₃)) 0) as n₁₃ eqn:Hn₁₃ .
-      remember (first_nonzero fld (nz_terms (nz₂ ∔ nz₃)) 0) as n₂₃ eqn:Hn₂₃ .
+      remember (number_of_zeroes_from fld (nz_terms (nz₁ ∔ nz₃)) 0) as n₁₃ eqn:Hn₁₃ .
+      remember (number_of_zeroes_from fld (nz_terms (nz₂ ∔ nz₃)) 0) as n₂₃ eqn:Hn₂₃ .
       symmetry in Hn₁₃, Hn₂₃.
       simpl in Hn₁₃, Hn₂₃ |- *.
       destruct n₁₃ as [n₁₃| ].
@@ -2953,8 +2953,8 @@ bbb.
   destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
   destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
   unfold normalise_nz; simpl.
-  remember (first_nonzero fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
-  remember (first_nonzero fld (nz_terms_add nz₂ nz₃)) as n₂₃ eqn:Hn₂₃ .
+  remember (number_of_zeroes_from fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
+  remember (number_of_zeroes_from fld (nz_terms_add nz₂ nz₃)) as n₂₃ eqn:Hn₂₃ .
   symmetry in Hn₁₃, Hn₂₃.
   destruct n₁₃ as [n₁₃| ].
     destruct n₂₃ as [n₂₃| ].
@@ -2980,8 +2980,8 @@ bbb.
       subst nz₃; simpl.
       rewrite nz_add_0_r in Hn₁₃.
       rewrite nz_add_0_r in Hn₂₃.
-      rewrite first_nonzero_shift in Hn₁₃.
-      rewrite first_nonzero_shift in Hn₂₃.
+      rewrite number_of_zeroes_from_shift in Hn₁₃.
+      rewrite number_of_zeroes_from_shift in Hn₂₃.
       do 2 rewrite Z.mul_1_r.
       rewrite Hn₁ in Hn₁₃.
       rewrite Hn₂ in Hn₂₃.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.25 2013-11-05 02:25:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.26 2013-11-05 10:58:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -18,10 +18,10 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
-(* [first_nonzero fld s n] returns the position of the first non null
-   coefficient in the series [s], starting from the [n]th one (first
-   one being 0). *)
-Definition first_nonzero_prop s c n :=
+(* [number_of_zeroes_from fld s n] returns the number of consecutive
+    null coefficients in the series [s], starting from the [n]th one
+   (first one being 0). *)
+Definition number_of_zeroes_from_prop s c n :=
   match n with
   | fin k =>
       (∀ i, (i < k)%nat → series_nth_fld fld (c + i) s ≍ zero fld) ∧
@@ -30,11 +30,11 @@ Definition first_nonzero_prop s c n :=
       (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
   end.
 
-Definition first_nonzero : ∀ α, field α → series α → nat → Nbar.
+Definition number_of_zeroes_from : ∀ α, field α → series α → nat → Nbar.
 Admitted.
 
-Axiom first_nonzero_iff : ∀ s c n,
-  first_nonzero fld s c = n ↔ first_nonzero_prop s c n.
+Axiom number_of_zeroes_from_iff : ∀ s c n,
+  number_of_zeroes_from fld s c = n ↔ number_of_zeroes_from_prop s c n.
 
 (* [stretching_factor fld s n] returns the maximal stretching factor of
    the series [s] starting at position [n], i.e. there is a series [s']
@@ -44,7 +44,7 @@ Definition stretching_factor : ∀ α, field α → series α → nat → positi
 Admitted.
 
 Fixpoint nth_nonzero_interval s n b :=
-  match first_nonzero fld s (S b) with
+  match number_of_zeroes_from fld s (S b) with
   | fin p =>
       match n with
       | O => S p
@@ -109,7 +109,7 @@ Definition gcd_nz n k (nz : nz_ps α) :=
   Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
 
 Definition normalise_nz nz :=
-  match first_nonzero fld (nz_terms nz) 0 with
+  match number_of_zeroes_from fld (nz_terms nz) 0 with
   | fin n =>
       let k := stretching_factor fld (nz_terms nz) n in
       let g := gcd_nz n k nz in
@@ -261,15 +261,15 @@ apply Nbar.mul_lt_mono_pos_r.
  assumption.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (first_nonzero fld)
-with signature (eq_series fld) ==> eq ==> eq as first_nonzero_morph.
+Add Parametric Morphism α (fld : field α) : (number_of_zeroes_from fld)
+with signature (eq_series fld) ==> eq ==> eq as number_of_zeroes_from_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (first_nonzero fld s₁ n) as n₁ eqn:Hn₁ .
-remember (first_nonzero fld s₂ n) as n₂ eqn:Hn₂ .
+remember (number_of_zeroes_from fld s₁ n) as n₁ eqn:Hn₁ .
+remember (number_of_zeroes_from fld s₂ n) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
-apply first_nonzero_iff in Hn₁.
-apply first_nonzero_iff in Hn₂.
+apply number_of_zeroes_from_iff in Hn₁.
+apply number_of_zeroes_from_iff in Hn₂.
 destruct n₁ as [n₁| ].
  destruct Hn₁ as (Hiz₁, Hnz₁).
  destruct n₂ as [n₂| ].
@@ -302,7 +302,7 @@ intros cnt s₁ s₂ Heq n.
 revert n.
 induction cnt; intros; [ reflexivity | simpl ].
 rewrite Heq.
-remember (first_nonzero fld s₂ (S n)) as p eqn:Hp .
+remember (number_of_zeroes_from fld s₂ (S n)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ]; [ idtac | reflexivity ].
 rewrite IHcnt; reflexivity.
@@ -316,7 +316,7 @@ Proof.
 intros s₁ s₂ Heq c n.
 revert n.
 induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
-destruct (first_nonzero fld s₂ (S n)); [ apply IHc | reflexivity ].
+destruct (number_of_zeroes_from fld s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
@@ -814,19 +814,19 @@ induction H₁.
 
   constructor.
   unfold normalise_nz in H.
-  remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-  remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+  remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+  remember (number_of_zeroes_from fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
   symmetry in Hn₁, Hn₂.
   destruct n₁ as [n₁| ].
    destruct n₂ as [n₂| ]; [ idtac | inversion H ].
-   apply first_nonzero_iff in Hn₂.
+   apply number_of_zeroes_from_iff in Hn₂.
    destruct Hn₂ as (_, Hn₂).
    exfalso; apply Hn₂; rewrite H1.
    unfold series_nth_fld; simpl.
    destruct (Nbar.lt_dec (fin n₂) 0); reflexivity.
 
    destruct n₂ as [n₂| ]; [ inversion H | idtac ].
-   apply first_nonzero_iff in Hn₁.
+   apply number_of_zeroes_from_iff in Hn₁.
    constructor; intros i.
    unfold series_nth_fld at 2; simpl.
    destruct (Nbar.lt_dec (fin i) 0); apply Hn₁.
@@ -836,10 +836,10 @@ induction H₁.
   constructor.
   unfold normalise_nz.
   rewrite H, H0.
-  remember (first_nonzero fld (series_0 fld) 0) as n eqn:Hn .
+  remember (number_of_zeroes_from fld (series_0 fld) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
-  apply first_nonzero_iff in Hn.
+  apply number_of_zeroes_from_iff in Hn.
   destruct Hn as (_, Hn).
   exfalso; apply Hn.
   unfold series_nth_fld; simpl.
@@ -850,19 +850,19 @@ induction H₁.
  inversion H₂; constructor; subst.
  unfold normalise_nz in H1.
  rename nz into nz₁.
- remember (first_nonzero fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
- remember (first_nonzero fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+ remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+ remember (number_of_zeroes_from fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
  symmetry in Hn₁, Hn₂.
  destruct n₁ as [n₁| ].
   rewrite H in Hn₁.
-  apply first_nonzero_iff in Hn₁.
+  apply number_of_zeroes_from_iff in Hn₁.
   destruct Hn₁ as (_, Hn₁).
   exfalso; apply Hn₁.
   unfold series_nth_fld; simpl.
   destruct (Nbar.lt_dec (fin n₁) 0); reflexivity.
 
   destruct n₂ as [n₂| ]; [ inversion H1 | idtac ].
-  apply first_nonzero_iff in Hn₂.
+  apply number_of_zeroes_from_iff in Hn₂.
   constructor; intros i.
   unfold series_nth_fld at 2; simpl.
   destruct (Nbar.lt_dec (fin i) 0); apply Hn₂.
@@ -913,25 +913,25 @@ Definition valuation_coeff (ps : puiseux_series α) :=
   | Zero => zero fld
   end.
 
-Theorem lt_first_nonzero : ∀ s c n,
-  (fin n < first_nonzero fld s c)%Nbar
+Theorem lt_number_of_zeroes_from : ∀ s c n,
+  (fin n < number_of_zeroes_from fld s c)%Nbar
   → series_nth_fld fld (c + n) s ≍ zero fld.
 Proof.
 intros s c n Hn.
-remember (first_nonzero fld s c) as v eqn:Hv .
+remember (number_of_zeroes_from fld s c) as v eqn:Hv .
 symmetry in Hv.
-apply first_nonzero_iff in Hv.
+apply number_of_zeroes_from_iff in Hv.
 destruct v as [v| ]; [ idtac | apply Hv ].
 destruct Hv as (Hvz, Hvnz).
 apply Hvz, Nbar.fin_lt_mono; assumption.
 Qed.
 
-Theorem eq_first_nonzero : ∀ s c n,
-  first_nonzero fld s c = fin n
+Theorem eq_number_of_zeroes_from : ∀ s c n,
+  number_of_zeroes_from fld s c = fin n
   → series_nth_fld fld (c + n) s ≭ zero fld.
 Proof.
 intros s c n Hn.
-apply first_nonzero_iff in Hn.
+apply number_of_zeroes_from_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
@@ -976,17 +976,17 @@ destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
   reflexivity.
 Qed.
 
-Lemma first_nonzero_shift_S : ∀ s c n,
+Lemma number_of_zeroes_from_shift_S : ∀ s c n,
   (c ≤ n)%nat
-  → first_nonzero fld (series_shift fld (S n) s) c =
-    NS (first_nonzero fld (series_shift fld n s) c).
+  → number_of_zeroes_from fld (series_shift fld (S n) s) c =
+    NS (number_of_zeroes_from fld (series_shift fld n s) c).
 Proof.
 intros s c n Hcn.
-remember (first_nonzero fld (series_shift fld n s) c) as u eqn:Hu .
-remember (first_nonzero fld (series_shift fld (S n) s) c) as v eqn:Hv .
+remember (number_of_zeroes_from fld (series_shift fld n s) c) as u eqn:Hu .
+remember (number_of_zeroes_from fld (series_shift fld (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
-apply first_nonzero_iff in Hu.
-apply first_nonzero_iff in Hv.
+apply number_of_zeroes_from_iff in Hu.
+apply number_of_zeroes_from_iff in Hv.
 destruct u as [u| ].
  destruct Hu as (Hiu, Hu).
  destruct v as [v| ].
@@ -1044,30 +1044,30 @@ destruct u as [u| ].
   exfalso; apply Hv, Hu.
 Qed.
 
-Theorem first_nonzero_shift : ∀ s n,
-  first_nonzero fld (series_shift fld n s) 0 =
-    (fin n + first_nonzero fld s 0)%Nbar.
+Theorem number_of_zeroes_from_shift : ∀ s n,
+  number_of_zeroes_from fld (series_shift fld n s) 0 =
+    (fin n + number_of_zeroes_from fld s 0)%Nbar.
 Proof.
 intros s n.
 induction n.
  rewrite series_shift_0, Nbar.add_0_l; reflexivity.
 
- rewrite first_nonzero_shift_S; [ idtac | apply Nat.le_0_l ].
+ rewrite number_of_zeroes_from_shift_S; [ idtac | apply Nat.le_0_l ].
  rewrite IHn; simpl.
- destruct (first_nonzero fld s); reflexivity.
+ destruct (number_of_zeroes_from fld s); reflexivity.
 Qed.
 
 (* à voir...
 Lemma xxx : ∀ s,
   series_nth_fld fld 0 s ≍ zero fld
-  → NS (first_nonzero fld s 1) = first_nonzero fld s 0.
+  → NS (number_of_zeroes_from fld s 1) = number_of_zeroes_from fld s 0.
 Proof.
 intros s Hz.
-remember (first_nonzero fld s 1) as n eqn:Hn .
-remember (first_nonzero fld s 0) as p eqn:Hp .
+remember (number_of_zeroes_from fld s 1) as n eqn:Hn .
+remember (number_of_zeroes_from fld s 0) as p eqn:Hp .
 symmetry in Hn, Hp.
-apply first_nonzero_iff in Hn.
-apply first_nonzero_iff in Hp.
+apply number_of_zeroes_from_iff in Hn.
+apply number_of_zeroes_from_iff in Hp.
 destruct n as [n| ].
  destruct Hn as (Hin, Hn).
  destruct p as [p| ]; simpl.
@@ -1094,24 +1094,24 @@ aaa.
 *)
 
 (* à voir...
-Theorem first_nonzero_1_shift : ∀ s n,
+Theorem number_of_zeroes_from_1_shift : ∀ s n,
   series_nth_fld fld 0 s ≍ zero fld
-  → first_nonzero fld (series_shift fld n s) 1 =
-      (fin n + first_nonzero fld s 1)%Nbar.
+  → number_of_zeroes_from fld (series_shift fld n s) 1 =
+      (fin n + number_of_zeroes_from fld s 1)%Nbar.
 Proof.
 intros s n Hz.
 induction n.
  rewrite series_shift_0, Nbar.add_0_l; reflexivity.
 
  destruct (le_dec 1 n) as [H₁| H₁].
-  rewrite first_nonzero_shift_S; [ idtac | assumption ].
+  rewrite number_of_zeroes_from_shift_S; [ idtac | assumption ].
   rewrite IHn; simpl.
-  destruct (first_nonzero fld s); reflexivity.
+  destruct (number_of_zeroes_from fld s); reflexivity.
 
   apply Nat.nle_gt in H₁.
   apply Nat.lt_1_r in H₁; subst n.
   simpl in IHn |- *.
-  remember (first_nonzero fld s 1) as m eqn:Hm .
+  remember (number_of_zeroes_from fld s 1) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
 aaa.
@@ -1205,15 +1205,15 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
  rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
 Qed.
 
-Lemma first_nonzero_stretch : ∀ s b k,
-  first_nonzero fld (series_stretch fld k s) (b * Pos.to_nat k) =
-    (fin (Pos.to_nat k) * first_nonzero fld s b)%Nbar.
+Lemma number_of_zeroes_from_stretch : ∀ s b k,
+  number_of_zeroes_from fld (series_stretch fld k s) (b * Pos.to_nat k) =
+    (fin (Pos.to_nat k) * number_of_zeroes_from fld s b)%Nbar.
 Proof.
 intros s b k.
-remember (first_nonzero fld s b) as n eqn:Hn .
+remember (number_of_zeroes_from fld s b) as n eqn:Hn .
 symmetry in Hn.
-apply first_nonzero_iff in Hn.
-apply first_nonzero_iff.
+apply number_of_zeroes_from_iff in Hn.
+apply number_of_zeroes_from_iff.
 rewrite Nbar.mul_comm.
 destruct n as [n| ]; simpl.
  destruct Hn as (Hz, Hnz).
@@ -1243,27 +1243,27 @@ destruct n as [n| ]; simpl.
  apply stretch_finite_series; assumption.
 Qed.
 
-Lemma first_nonzero_stretch_0 : ∀ s k,
-  first_nonzero fld (series_stretch fld k s) 0 =
-    (fin (Pos.to_nat k) * first_nonzero fld s 0)%Nbar.
+Lemma number_of_zeroes_from_stretch_0 : ∀ s k,
+  number_of_zeroes_from fld (series_stretch fld k s) 0 =
+    (fin (Pos.to_nat k) * number_of_zeroes_from fld s 0)%Nbar.
 Proof.
 intros s k.
-rewrite <- first_nonzero_stretch.
+rewrite <- number_of_zeroes_from_stretch.
 rewrite Nat.mul_0_l; reflexivity.
 Qed.
 
 (*
 Lemma stretch_succ : ∀ s b k,
-  first_nonzero fld (series_stretch fld k s) (S b * Pos.to_nat k) =
-  first_nonzero fld (series_stretch fld k s) (S (b * Pos.to_nat k)).
+  number_of_zeroes_from fld (series_stretch fld k s) (S b * Pos.to_nat k) =
+  number_of_zeroes_from fld (series_stretch fld k s) (S (b * Pos.to_nat k)).
 Proof.
 intros s b k.
 remember (series_stretch fld k s) as t.
-remember (first_nonzero fld t (S b * Pos.to_nat k)) as n eqn:Hn .
+remember (number_of_zeroes_from fld t (S b * Pos.to_nat k)) as n eqn:Hn .
 subst t.
 symmetry in Hn |- *.
-apply first_nonzero_iff in Hn.
-apply first_nonzero_iff.
+apply number_of_zeroes_from_iff in Hn.
+apply number_of_zeroes_from_iff.
 destruct n as [n| ].
  destruct Hn as (Hz, Hnz).
  split.
@@ -1340,14 +1340,14 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
 Qed.
 
-Lemma first_nonzero_shift_add : ∀ s m n,
-  first_nonzero fld (series_shift fld m s) (m + n) = first_nonzero fld s n.
+Lemma number_of_zeroes_from_shift_add : ∀ s m n,
+  number_of_zeroes_from fld (series_shift fld m s) (m + n) = number_of_zeroes_from fld s n.
 Proof.
 intros s m n.
-remember (first_nonzero fld s n) as v eqn:Hv .
+remember (number_of_zeroes_from fld s n) as v eqn:Hv .
 symmetry in Hv.
-apply first_nonzero_iff in Hv.
-apply first_nonzero_iff.
+apply number_of_zeroes_from_iff in Hv.
+apply number_of_zeroes_from_iff.
 destruct v as [v| ].
  destruct Hv as (Hltz, Hnz).
  split.
@@ -1375,8 +1375,8 @@ intros cnt s n b.
 revert s n b.
 induction cnt; intros; [ reflexivity | simpl ].
 rewrite <- Nat.add_succ_l, Nat.add_comm.
-rewrite first_nonzero_shift_add.
-remember (first_nonzero fld s (S b)) as m eqn:Hm .
+rewrite number_of_zeroes_from_shift_add.
+remember (number_of_zeroes_from fld s (S b)) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ idtac | reflexivity ].
 do 2 rewrite divmod_mod.
@@ -1395,12 +1395,12 @@ intros s cnt n b.
 revert b.
 induction cnt; intros; simpl.
  rewrite <- Nat.add_succ_l, Nat.add_comm.
- rewrite first_nonzero_shift_add.
- destruct (first_nonzero fld s (S b)); reflexivity.
+ rewrite number_of_zeroes_from_shift_add.
+ destruct (number_of_zeroes_from fld s (S b)); reflexivity.
 
  rewrite <- Nat.add_succ_l, Nat.add_comm.
- rewrite first_nonzero_shift_add.
- remember (first_nonzero fld s (S b)) as m eqn:Hm .
+ rewrite number_of_zeroes_from_shift_add.
+ remember (number_of_zeroes_from fld s (S b)) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | reflexivity ].
  rewrite Nat.add_shuffle0.
@@ -1432,21 +1432,21 @@ split.
  assumption.
 Qed.
 
-Lemma first_nonzero_succ : ∀ s n,
-  first_nonzero fld s (S n) =
-  match first_nonzero fld s n with
-  | fin O => first_nonzero fld s (S n)
+Lemma number_of_zeroes_from_succ : ∀ s n,
+  number_of_zeroes_from fld s (S n) =
+  match number_of_zeroes_from fld s n with
+  | fin O => number_of_zeroes_from fld s (S n)
   | fin (S m) => fin m
   | ∞ => ∞
   end.
 Proof.
 intros s n.
-remember (first_nonzero fld s n) as m eqn:Hm .
+remember (number_of_zeroes_from fld s n) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ].
  destruct m as [| m]; [ reflexivity | idtac ].
- apply first_nonzero_iff in Hm.
- apply first_nonzero_iff.
+ apply number_of_zeroes_from_iff in Hm.
+ apply number_of_zeroes_from_iff.
  destruct Hm as (Hz, Hnz).
  split.
   intros i Him.
@@ -1457,24 +1457,24 @@ destruct m as [m| ].
   rewrite Nat.add_succ_l, <- Nat.add_succ_r.
   assumption.
 
- apply first_nonzero_iff in Hm.
- apply first_nonzero_iff.
+ apply number_of_zeroes_from_iff in Hm.
+ apply number_of_zeroes_from_iff.
  intros i.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
  apply Hm.
 Qed.
 
-Lemma first_nonzero_stretch_succ : ∀ s n p k,
-  first_nonzero fld s (S n) = fin p
-  → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
+Lemma number_of_zeroes_from_stretch_succ : ∀ s n p k,
+  number_of_zeroes_from fld s (S n) = fin p
+  → number_of_zeroes_from fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
       fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
 intros s n p k Hp.
 remember (series_stretch fld k s) as s₁ eqn:Hs₁ .
-remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
+remember (number_of_zeroes_from fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
-apply first_nonzero_iff in Hq.
+apply number_of_zeroes_from_iff in Hq.
 destruct q as [q| ].
  destruct Hq as (Hzq, Hnzq).
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzq.
@@ -1486,7 +1486,7 @@ destruct q as [q| ].
   rewrite <- Nat.mul_add_distr_l in Hnzq.
   rewrite Hs₁ in Hnzq.
   rewrite series_nth_fld_mul_stretch in Hnzq.
-  apply first_nonzero_iff in Hp.
+  apply number_of_zeroes_from_iff in Hp.
   destruct Hp as (Hzp, Hnzp).
   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
   apply Nbar.fin_inj_wd.
@@ -1574,7 +1574,7 @@ destruct q as [q| ].
    assumption.
 
  exfalso.
- apply first_nonzero_iff in Hp.
+ apply number_of_zeroes_from_iff in Hp.
  destruct Hp as (Hzp, Hnzp).
  rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnzp.
  rewrite <- Hs₁ in Hnzp.
@@ -1594,14 +1594,14 @@ destruct q as [q| ].
   apply Hnzp; reflexivity.
 Qed.
 
-Lemma first_nonzero_stretch_succ_inf : ∀ s n k,
-  first_nonzero fld s (S n) = ∞
-  → first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k)) = ∞.
+Lemma number_of_zeroes_from_stretch_succ_inf : ∀ s n k,
+  number_of_zeroes_from fld s (S n) = ∞
+  → number_of_zeroes_from fld (series_stretch fld k s) (S (n * Pos.to_nat k)) = ∞.
 Proof.
 intros s n k Hp.
-apply first_nonzero_iff in Hp.
-apply first_nonzero_iff.
-unfold first_nonzero_prop in Hp |- *.
+apply number_of_zeroes_from_iff in Hp.
+apply number_of_zeroes_from_iff.
+unfold number_of_zeroes_from_prop in Hp |- *.
 intros i.
 destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
  rewrite shifted_in_stretched; [ reflexivity | simpl ].
@@ -1652,7 +1652,7 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
   | O => O
   | S n₁ =>
       if lt_dec b i then
-        match first_nonzero fld s (S b) with
+        match number_of_zeroes_from fld s (S b) with
         | fin m => S (rank_of_nonzero_after_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
@@ -1664,7 +1664,7 @@ Fixpoint index_of_nonzero_before_from s n i b last_b :=
   | O => b
   | S n₁ =>
       if lt_dec b i then
-        match first_nonzero fld s (S b) with
+        match number_of_zeroes_from fld s (S b) with
         | fin m => index_of_nonzero_before_from s n₁ i (S b + m)%nat b
         | ∞ => b
         end
@@ -1690,7 +1690,7 @@ induction n; intros; simpl.
 
  remember (S (b + len)) as b₁.
  destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
- destruct (first_nonzero fld s (S b₁)) as [len₁| ]; [ idtac | assumption ].
+ destruct (number_of_zeroes_from fld s (S b₁)) as [len₁| ]; [ idtac | assumption ].
  rewrite <- Nat.add_succ_l, <- Heqb₁.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
  subst b.
@@ -1709,7 +1709,7 @@ destruct n; simpl.
  exfalso; fast_omega Hin.
 
  destruct (lt_dec b i) as [H₁| H₁]; [ clear Hbi | assumption ].
- destruct (first_nonzero fld s (S b)) as [len₁| ]; [ idtac | assumption ].
+ destruct (number_of_zeroes_from fld s (S b)) as [len₁| ]; [ idtac | assumption ].
  apply (ind_of_nz_bef_lt_step O b).
   rewrite <- Nat.add_assoc, Nat.add_comm; assumption.
 
@@ -1731,8 +1731,8 @@ Lemma ind_of_nz_bef_rgt_bnd : ∀ k c m s b i n len len₁,
   (i < c + k + 1
    → b = m + k
      → b < i
-       → first_nonzero fld s (S n) = fin len
-         → first_nonzero fld s (S b) = fin len₁
+       → number_of_zeroes_from fld s (S n) = fin len
+         → number_of_zeroes_from fld s (S b) = fin len₁
            → index_of_nonzero_before_from s c i (S (b + len₁)) b = n
              → i ≤ S n + len)%nat.
 Proof.
@@ -1740,7 +1740,7 @@ intros k c m s b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
 revert k m b len₁ Hic Hb Hbi Hlen₁ Hn.
 induction c; intros; simpl in Hn; [ exfalso; omega | idtac ].
 destruct (lt_dec (S (b + len₁)) i) as [H₁| H₁].
- remember (first_nonzero fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+ remember (number_of_zeroes_from fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
  symmetry in Hlen₂.
  destruct len₂ as [len₂| ].
   clear Hlen₁.
@@ -1763,7 +1763,7 @@ Lemma index_of_nonzero_before_from_right_bound : ∀ s c i b n last_b len,
    → last_b < i
      → i < c
        → index_of_nonzero_before_from s c i b last_b = n
-         → first_nonzero fld s (S n) = fin len
+         → number_of_zeroes_from fld s (S n) = fin len
            → i ≤ S n + len)%nat.
 Proof.
 intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
@@ -1771,7 +1771,7 @@ destruct c; simpl in Hn.
  apply Nat.nlt_0_r in Hic; contradiction.
 
  destruct (lt_dec b i) as [H₁| H₁]; [ idtac | exfalso; omega ].
- remember (first_nonzero fld s (S b)) as len₁ eqn:Hlen₁ .
+ remember (number_of_zeroes_from fld s (S b)) as len₁ eqn:Hlen₁ .
  symmetry in Hlen₁.
  destruct len₁ as [len₁| ].
   eapply (ind_of_nz_bef_rgt_bnd 0 c); try eassumption.
@@ -1786,7 +1786,7 @@ Qed.
 Lemma index_of_nonzero_before_right_bound : ∀ s i n len,
   (0 < i
    → index_of_nonzero_before s i = n
-     → first_nonzero fld s (S n) = fin len
+     → number_of_zeroes_from fld s (S n) = fin len
        → i ≤ S n + len)%nat.
 Proof.
 intros s i n len Hi Hn Hlen.
@@ -1816,7 +1816,7 @@ bbb.
 *)
 
 Lemma sigma_aux_fin_succ : ∀ s b n l len,
-  first_nonzero fld s (S b) = fin len
+  number_of_zeroes_from fld s (S b) = fin len
   → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
     sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i (S (b + len))).
 Proof.
@@ -1829,7 +1829,7 @@ induction l; intros.
 Qed.
 
 Lemma sigma_aux_inf_succ : ∀ s b n l,
-  first_nonzero fld s (S b) = ∞
+  number_of_zeroes_from fld s (S b) = ∞
   → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
     sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i b).
 Proof.
@@ -1849,14 +1849,14 @@ Lemma nth_nonzero_interval_succ : ∀ s n b,
 Proof.
 intros s n b.
 destruct n; simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   rewrite Nat.add_succ_r; reflexivity.
 
   rewrite Nat.add_0_r, Hlen; reflexivity.
 
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   rewrite Nat.add_succ_r; reflexivity.
@@ -1879,7 +1879,7 @@ induction n; intros.
  rewrite IHn; f_equal.
  rewrite <- Nat.add_assoc; f_equal; simpl.
  unfold sigma; simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   rewrite Nat.sub_0_r; f_equal.
@@ -1912,12 +1912,12 @@ destruct i.
  apply Nat.succ_lt_mono in Hic.
  destruct (lt_dec b (b + S i)) as [H₁| H₁]; [ idtac | exfalso; omega ].
  clear H₁.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   Focus 2.
   rewrite Nat.add_succ_r.
-  apply first_nonzero_iff in Hlen; simpl in Hlen.
+  apply number_of_zeroes_from_iff in Hlen; simpl in Hlen.
   apply Hlen.
 
   simpl in Hn.
@@ -1925,7 +1925,7 @@ destruct i.
   induction c; intros; [ exfalso; fast_omega Hic | idtac ].
   simpl in Hn.
   destruct (lt_dec (S (b + len)) (b + S i)) as [H₁| H₁].
-   remember (first_nonzero fld s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
+   remember (number_of_zeroes_from fld s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
    symmetry in Hlen₁.
    destruct len₁ as [len₁| ].
     destruct n; [ discriminate Hn | idtac ].
@@ -1961,7 +1961,7 @@ destruct i.
       rewrite Nat.add_0_r in Hm.
       rewrite Nat.mod_mod in Hm; auto.
 
-    apply first_nonzero_iff in Hlen₁; simpl in Hlen₁.
+    apply number_of_zeroes_from_iff in Hlen₁; simpl in Hlen₁.
     pose proof (Hlen₁ (i - len - 1)%nat) as H.
     replace (b + S i)%nat with (S (S (b + len + (i - len - 1)))) by omega.
     assumption.
@@ -1976,7 +1976,7 @@ destruct i.
     rewrite Hlen in Hs.
     contradiction.
 
-    apply first_nonzero_iff in Hlen; simpl in Hlen.
+    apply number_of_zeroes_from_iff in Hlen; simpl in Hlen.
     destruct Hlen as (Hz, Hnz).
     rewrite Nat.add_succ_r.
     apply Hz.
@@ -2098,12 +2098,12 @@ induction cnt; intros.
 
  simpl.
  remember
-  (first_nonzero fld (series_stretch fld k s) (S (Pos.to_nat k * n))) as m
+  (number_of_zeroes_from fld (series_stretch fld k s) (S (Pos.to_nat k * n))) as m
   eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ].
   rewrite divmod_mod.
-  remember (first_nonzero fld s (S n)) as p eqn:Hp .
+  remember (number_of_zeroes_from fld s (S n)) as p eqn:Hp .
   symmetry in Hp.
   destruct p as [p| ].
    rewrite divmod_mod.
@@ -2155,22 +2155,22 @@ induction cnt; intros.
       apply le_n_S, Nat.le_0_l.
 
     rewrite Nat.mul_comm in Hm.
-    rewrite first_nonzero_stretch_succ with (p := p) in Hm; try assumption.
+    rewrite number_of_zeroes_from_stretch_succ with (p := p) in Hm; try assumption.
     symmetry in Hm.
     rewrite Nat.mul_comm.
     injection Hm; intros; assumption.
 
    rewrite Nat.mul_comm in Hm.
-   rewrite first_nonzero_stretch_succ_inf in Hm.
+   rewrite number_of_zeroes_from_stretch_succ_inf in Hm.
     discriminate Hm.
 
     assumption.
 
   rewrite Nat.mul_comm in Hm.
-  remember (first_nonzero fld s (S n)) as p eqn:Hp .
+  remember (number_of_zeroes_from fld s (S n)) as p eqn:Hp .
   symmetry in Hp.
   destruct p as [p| ]; [ idtac | auto ].
-  apply first_nonzero_stretch_succ with (k := k) in Hp.
+  apply number_of_zeroes_from_stretch_succ with (k := k) in Hp.
   rewrite Hm in Hp.
   discriminate Hp.
 Qed.
@@ -2184,10 +2184,10 @@ intros s b n k.
 revert b.
 induction n; intros.
  simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
-  erewrite first_nonzero_stretch_succ; eauto .
+  erewrite number_of_zeroes_from_stretch_succ; eauto .
   rewrite Nat.mul_comm.
   remember (Pos.to_nat k * S len)%nat as x eqn:Hx .
   symmetry in Hx.
@@ -2198,14 +2198,14 @@ induction n; intros.
 
    rewrite Nat.sub_0_r; reflexivity.
 
-  rewrite first_nonzero_stretch_succ_inf; [ idtac | assumption ].
+  rewrite number_of_zeroes_from_stretch_succ_inf; [ idtac | assumption ].
   rewrite Nat.mul_comm; reflexivity.
 
  simpl.
- remember (first_nonzero fld s (S b)) as len eqn:Hlen .
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
-  erewrite first_nonzero_stretch_succ; eauto .
+  erewrite number_of_zeroes_from_stretch_succ; eauto .
   rewrite Nat.add_sub_assoc.
    rewrite <- Nat.mul_add_distr_r.
    rewrite Nat.add_succ_r.
@@ -2224,7 +2224,7 @@ induction n; intros.
    destruct kn; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
    simpl; apply le_n_S, Nat.le_0_l.
 
-  rewrite first_nonzero_stretch_succ_inf; [ idtac | assumption ].
+  rewrite number_of_zeroes_from_stretch_succ_inf; [ idtac | assumption ].
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
@@ -2240,8 +2240,8 @@ assumption.
 Qed.
 
 Lemma vvv : ∀ s b p k,
-  first_nonzero fld s 0 = fin b
-  → first_nonzero fld s (S b) = fin p
+  number_of_zeroes_from fld s 0 = fin b
+  → number_of_zeroes_from fld s (S b) = fin p
     → stretching_factor fld (series_stretch fld k s) (b * Pos.to_nat k) =
       (k * stretching_factor fld s b)%positive.
 Proof.
@@ -2261,6 +2261,15 @@ split.
 
  intros k₁ Hk₁.
  apply exists_nth_nonzero_interval_stretch.
+ remember (Pos.to_nat m) as mn eqn:Hmn .
+ symmetry in Hmn.
+ destruct mn; [ exfalso; revert Hmn; apply Pos2Nat_ne_0 | idtac ].
+ destruct mn.
+  rewrite <- Pos2Nat.inj_1 in Hmn.
+  apply Pos2Nat.inj in Hmn.
+  move Hmn at top; subst m.
+  rewrite Pos.mul_1_r in Hk₁.
+  destruct b.
 
 bbb.
  assert (Pos.to_nat m < k₁)%nat as Hmk.
@@ -2293,13 +2302,13 @@ split.
   apply Pos2Nat_ne_0.
 
   remember
-   (first_nonzero fld (series_stretch fld k s) (S (n * Pos.to_nat k))) as q
+   (number_of_zeroes_from fld (series_stretch fld k s) (S (n * Pos.to_nat k))) as q
    eqn:Hq .
   symmetry in Hq.
   destruct q as [q| ].
    rewrite divmod_mod.
    rewrite <- Nat.add_succ_r.
-   rewrite first_nonzero_stretch_succ with (p := p) in Hq;
+   rewrite number_of_zeroes_from_stretch_succ with (p := p) in Hq;
     [ idtac | assumption ].
    injection Hq; clear Hq; intros; subst q.
    rewrite <- Nat.sub_succ_l.
@@ -2324,7 +2333,7 @@ bbb.
 
 (* en supposant que la version stretching_factor_gcd_prop fonctionne... *)
 Lemma yyy : ∀ s n k,
-  first_nonzero fld s 1 = fin n
+  number_of_zeroes_from fld s 1 = fin n
   → stretching_factor fld s 0 = 1%positive
     → stretching_factor fld (series_stretch fld k s) 0 = k.
 Proof.
@@ -2344,7 +2353,7 @@ split.
   apply Pos2Nat_ne_0.
 
   replace 1%nat with (S (0 * Pos.to_nat k))%nat by reflexivity.
-  rewrite first_nonzero_stretch_succ with (p := n).
+  rewrite number_of_zeroes_from_stretch_succ with (p := n).
    rewrite divmod_mod.
    rewrite <- Nat.sub_succ_l.
     rewrite Nat.sub_succ.
@@ -2353,7 +2362,7 @@ split.
 bbb.
 
 Lemma yyy : ∀ s n k,
-  first_nonzero fld s 1 = fin n
+  number_of_zeroes_from fld s 1 = fin n
   → stretching_factor fld s 0 = 1%positive
     → stretching_factor fld (series_stretch fld k s) 0 = k.
 Proof.
@@ -2364,14 +2373,14 @@ apply stretching_factor_iff.
 unfold stretching_factor_prop in Hs |- *.
 simpl in Hs |- *.
 rewrite Hn in Hs.
-remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
+remember (number_of_zeroes_from fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ].
  Focus 2.
  destruct Hs as (_, Hnz).
- apply first_nonzero_iff in Hn.
+ apply number_of_zeroes_from_iff in Hn.
  destruct Hn as (Hz₁, Hnz₁).
- apply first_nonzero_iff in Hm.
+ apply number_of_zeroes_from_iff in Hm.
  rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
  remember (Pos.to_nat k) as kn eqn:Hkn .
  symmetry in Hkn.
@@ -2440,14 +2449,14 @@ bbb.
 
 (* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai !
 Lemma zzz : ∀ s n k,
-  first_nonzero fld s 1 = fin n
+  number_of_zeroes_from fld s 1 = fin n
   → stretching_factor fld (series_stretch fld k s) 0 =
       (k * stretching_factor fld s 0)%positive.
 Proof.
 intros s n k Hn.
 remember (stretching_factor fld s 0) as k₁ eqn:Hk₁ .
 remember (stretching_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
-remember (first_nonzero fld (series_stretch fld k s) 1) as m eqn:Hm .
+remember (number_of_zeroes_from fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hk₁, Hk₂, Hm.
 destruct m as [m| ].
  destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
@@ -2674,8 +2683,8 @@ So what ?
 
 (* vraiment intéressant... à voir... *)
 Lemma stretching_factor_stretch : ∀ s n k,
-  first_nonzero fld s 0 = fin n
-  → first_nonzero fld s (S n) ≠ ∞
+  number_of_zeroes_from fld s 0 = fin n
+  → number_of_zeroes_from fld s (S n) ≠ ∞
     → stretching_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
       (k * stretching_factor fld s n)%positive.
 Proof.
@@ -2698,15 +2707,15 @@ destruct kn as [| kn].
   remember (stretching_factor fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
   symmetry in Hk₁.
   apply stretching_factor_iff in Hk₁.
-  remember (first_nonzero fld s₁ (S (n * Pos.to_nat k))) as m eqn:Hm .
+  remember (number_of_zeroes_from fld s₁ (S (n * Pos.to_nat k))) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
    rewrite Heqs₁ in Hm.
-   remember (first_nonzero fld s (S n)) as p eqn:Hp .
+   remember (number_of_zeroes_from fld s (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ]; [ clear Hsn | exfalso; apply Hsn; reflexivity ].
    remember Hm as Hm'; clear HeqHm'.
-   erewrite first_nonzero_stretch_succ in Hm'; try eassumption.
+   erewrite number_of_zeroes_from_stretch_succ in Hm'; try eassumption.
    rewrite <- Hm' in Hm; clear Hm'.
    clear m.
    remember (stretching_factor fld s n) as k₂ eqn:Hk₂ .
@@ -2730,17 +2739,17 @@ bbb.
   symmetry in Hk₁, Hk₂.
   apply stretching_factor_iff in Hk₁.
   apply stretching_factor_iff in Hk₂.
-  remember (first_nonzero fld s (S b)) as n₁ eqn:Hn₁ .
+  remember (number_of_zeroes_from fld s (S b)) as n₁ eqn:Hn₁ .
   remember (series_stretch fld k s) as t.
-  remember (first_nonzero fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
+  remember (number_of_zeroes_from fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
   subst t.
   symmetry in Hn₁, Hn₂.
   destruct n₁ as [n₁| ]; [ idtac | exfalso; apply Hsb; reflexivity ].
   destruct n₂ as [n₂| ].
    Focus 2.
    subst k₂.
-   apply first_nonzero_iff in Hn₁.
-   apply first_nonzero_iff in Hn₂.
+   apply number_of_zeroes_from_iff in Hn₁.
+   apply number_of_zeroes_from_iff in Hn₂.
    destruct Hn₁ as (Hz₁, Hnz₁).
    rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnz₁.
    rewrite Nat.mul_add_distr_l in Hnz₁.
@@ -2790,8 +2799,8 @@ bbb.
 
       assert (n₂ = Pos.to_nat k * n₁)%nat.
        destruct (lt_eq_lt_dec n₂ (Pos.to_nat k * n₁)) as [[H₄| H₄]| H₄].
-        apply first_nonzero_iff in Hn₂.
-        apply first_nonzero_iff in Hn₁.
+        apply number_of_zeroes_from_iff in Hn₂.
+        apply number_of_zeroes_from_iff in Hn₁.
         destruct (zerop (n₂ mod Pos.to_nat k)) as [H₅| H₅].
          apply Nat.mod_divides in H₅.
           destruct H₅ as (c, H₅).
