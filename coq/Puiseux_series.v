@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.27 2013-11-05 15:01:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.28 2013-11-05 19:43:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,6 +36,8 @@ Admitted.
 Axiom number_of_zeroes_from_iff : ∀ s c n,
   number_of_zeroes_from fld s c = n ↔ number_of_zeroes_from_prop s c n.
 
+(* *)
+
 (* [stretching_factor fld s n] returns the maximal stretching factor of
    the series [s] starting at position [n], i.e. there is a series [s']
    which can be stretched by [stretch_series] (below) with this factor
@@ -52,6 +54,9 @@ Fixpoint nth_nonzero_interval s n b :=
       end
   | ∞ => O
   end.
+
+Definition is_a_series_power s b k :=
+  (∀ n, nth_nonzero_interval s n b mod k = O).
 
 Definition stretching_factor_gcd_prop s b k :=
   (∀ n, nth_nonzero_interval s n b mod k = O) ∧
@@ -2238,6 +2243,31 @@ exists n.
 rewrite nth_nonzero_interval_stretch.
 assumption.
 Qed.
+
+Lemma uuu : ∀ s b k l,
+  is_a_series_power fld s b k
+  → is_a_series_power fld s b l
+    → is_a_series_power fld s b (Nat.lcm k l).
+Proof.
+intros s b k l Hk Hl.
+unfold is_a_series_power.
+intros n.
+unfold is_a_series_power in Hk, Hl.
+destruct n.
+ simpl.
+ pose proof (Hk O) as Hk₀.
+ pose proof (Hl O) as Hl₀.
+ simpl in Hk₀, Hl₀.
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  apply Nat.mod_divides in Hk₀.
+   apply Nat.mod_divides in Hl₀.
+    apply Nat.mod_divides.
+     Focus 2.
+     destruct Hk₀ as (k₁, Hk₁).
+     destruct Hl₀ as (l₁, Hl₁).
+bbb.
 
 Lemma vvv : ∀ s b p k,
   number_of_zeroes_from fld s 0 = fin b
