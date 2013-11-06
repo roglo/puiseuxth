@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.34 2013-11-06 09:43:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.35 2013-11-06 10:49:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,9 +37,9 @@ Axiom number_of_zeroes_from_iff : ∀ s c n,
   number_of_zeroes_from fld s c = n ↔ number_of_zeroes_from_prop s c n.
 
 (* [greatest_series_x_power fld s b] returns the maximal x power of
-   the [s] starting at position [b]. If the result is [k], it means
-   that [s], from rank [b], is a series in [x^k] and [k] is the greatest
-   value having this property. *)
+   the [s] starting at position [b] (monomial [x^b]). If the result
+   is [k], it means that [s], from rank [b], is a series in [x^k] and
+   [k] is the greatest value having this property. *)
 Definition greatest_series_x_power : ∀ α, field α → series α → nat → positive.
 Admitted.
 
@@ -54,7 +54,7 @@ Fixpoint nth_nonzero_interval s n b :=
   end.
 
 Definition is_a_series_in_x_power s b k :=
-  ∀ n, nth_nonzero_interval s n b mod k = O.
+  ∀ n, (k | nth_nonzero_interval s n b).
 
 Definition greatest_series_x_power_prop s b k :=
   is_a_series_in_x_power s b k ∧
@@ -1896,10 +1896,10 @@ Qed.
 
 Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
-  → (∀ n : nat, nth_nonzero_interval fld s n b mod Pos.to_nat k = 0)%nat
-    → nth_nonzero_interval fld s
-       (pred (rank_of_nonzero_after_from s c (b + i) b)) b
-       mod Pos.to_nat k = O
+  → (∀ n, (Pos.to_nat k | nth_nonzero_interval fld s n b)%nat)
+    → (Pos.to_nat k |
+       nth_nonzero_interval fld s
+         (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
         → series_nth_fld fld (b + i) s ≍ zero fld.
 Proof.
@@ -1960,8 +1960,9 @@ destruct i.
       simpl in H.
       rewrite Hlen in H.
       rewrite Nat.add_mod in Hm; auto.
-      rewrite H in Hm.
-      rewrite Nat.add_0_r in Hm.
+      destruct H as (c₁, Hc₁).
+      rewrite Hc₁ in Hm.
+      rewrite Nat.mod_mul, Nat.add_0_r in Hm; auto.
       rewrite Nat.mod_mod in Hm; auto.
 
     apply number_of_zeroes_from_iff in Hlen₁; simpl in Hlen₁.
@@ -1977,7 +1978,10 @@ destruct i.
     subst n len.
     simpl in Hs.
     rewrite Hlen in Hs.
-    contradiction.
+    destruct Hs as (c₁, Hc₁).
+    rewrite Hc₁ in Hm.
+    rewrite Nat.mod_mul in Hm; auto.
+    exfalso; apply Hm; reflexivity.
 
     apply number_of_zeroes_from_iff in Hlen; simpl in Hlen.
     destruct Hlen as (Hz, Hnz).
@@ -1987,7 +1991,7 @@ destruct i.
 Qed.
 
 Lemma series_nth_0_in_interval : ∀ s k,
-  (∀ n, nth_nonzero_interval fld s n 0 mod Pos.to_nat k = 0%nat)
+  (∀ n, (Pos.to_nat k | nth_nonzero_interval fld s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
@@ -2238,7 +2242,10 @@ Proof.
 intros s b k k₁ (n, Hn) H.
 unfold is_a_series_in_x_power in H.
 rewrite <- nth_nonzero_interval_stretch in Hn.
-apply Hn, H.
+apply Hn.
+destruct k₁; [ reflexivity | idtac ].
+apply Nat.mod_divides; [ intros HH; discriminate HH | idtac ].
+apply Nat_divides_l, H.
 Qed.
 
 Lemma exists_nth_nonzero_interval_stretch : ∀ s b k k₁,
@@ -2250,66 +2257,6 @@ intros s b k k₁ (n, H).
 exists n.
 rewrite nth_nonzero_interval_stretch.
 assumption.
-Qed.
-
-Lemma Nat_mod_lcm : ∀ a b c,
-  (a ≠ 0
-   → b ≠ 0
-     → c mod a = 0
-       → c mod b = 0
-         → c mod Nat.lcm a b = 0)%nat.
-Proof.
-intros k l c Hkp Hlp Hkm Hlm.
-apply Nat.mod_divides in Hkm; [ idtac | assumption ].
-apply Nat.mod_divides in Hlm; [ idtac | assumption ].
-apply Nat.mod_divides.
- intros H; apply Nat.lcm_eq_0 in H.
- destruct H; contradiction.
-
- destruct Hkm as (k₁, Hk₁).
- destruct Hlm as (l₁, Hl₁).
- pose proof (Nat.gcd_divide_l k l) as Hk'.
- pose proof (Nat.gcd_divide_r k l) as Hl'.
- destruct Hk' as (k', Hk').
- destruct Hl' as (l', Hl').
- remember (gcd k l) as g eqn:Hg .
- subst k l.
- apply Nat.gcd_div_gcd in Hg.
-  rewrite Nat.div_mul in Hg.
-   rewrite Nat.div_mul in Hg.
-    unfold Nat.lcm.
-    rewrite Nat.gcd_mul_mono_r.
-    rewrite Hg, Nat.mul_1_l.
-    rewrite Nat.div_mul.
-     rewrite Hk₁ in Hl₁.
-     rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
-     rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
-     apply Nat.mul_cancel_r in Hl₁.
-      exists (k₁ / l')%nat.
-      rewrite <- Nat.mul_assoc.
-      rewrite <- Nat.divide_div_mul_exact.
-       replace (l' * k₁)%nat with (k₁ * l')%nat by apply Nat.mul_comm.
-       rewrite Nat.div_mul.
-        assumption.
-
-        intros H; apply Hlp; subst l'; reflexivity.
-
-       intros H; apply Hlp; subst l'; reflexivity.
-
-       apply Nat.gauss with (m := k').
-        rewrite Hl₁; exists l₁; apply Nat.mul_comm.
-
-        rewrite Nat.gcd_comm; assumption.
-
-      intros H; apply Hlp; subst g; auto.
-
-     intros H; apply Hlp; subst g; auto.
-
-    intros H; apply Hlp; subst g; auto.
-
-   intros H; apply Hlp; subst g; auto.
-
-  intros H; apply Hlp; subst g; auto.
 Qed.
 
 Lemma is_a_series_in_x_power_lcm : ∀ s b k l,
@@ -2331,14 +2278,14 @@ destruct n.
  simpl in Hk₀, Hl₀ |- *.
  remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
- destruct len; apply Nat_mod_lcm; assumption.
+ destruct len; apply Nat_lcm_divides; assumption.
 
  pose proof (Hk (S n)) as Hkn.
  pose proof (Hl (S n)) as Hln.
  simpl in Hkn, Hln |- *.
  remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
- destruct len; apply Nat_mod_lcm; assumption.
+ destruct len; apply Nat_lcm_divides; assumption.
 Qed.
 
 Lemma vvv : ∀ s b p k,
@@ -2354,12 +2301,17 @@ apply greatest_series_x_power_iff.
 unfold greatest_series_x_power_prop.
 split.
  intros n.
- rewrite nth_nonzero_interval_stretch.
- rewrite Pos2Nat.inj_mul.
- rewrite Nat.mul_mod_distr_l; auto.
  apply greatest_series_x_power_iff in Hm.
  destruct Hm as (Hm, Hnm).
- rewrite Hm; auto.
+ unfold is_a_series_in_x_power in Hm.
+ rewrite nth_nonzero_interval_stretch.
+ apply Nat_divides_l.
+ apply Nat.mod_divides; auto.
+ rewrite Pos2Nat.inj_mul.
+ rewrite Nat.mul_mod_distr_l; auto.
+ eapply Nat.mul_eq_0; right.
+ apply Nat.mod_divides; auto.
+ apply Nat_divides_l, Hm.
 
  intros k₁ Hk₁.
  apply stretch_is_not_a_series_in_x_power.

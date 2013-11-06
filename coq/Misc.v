@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 2.1 2013-11-03 18:35:02 deraugla Exp $ *)
+(* $Id: Misc.v,v 2.2 2013-11-06 10:49:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1320,4 +1320,72 @@ assert (n = Z.of_nat nn) as H.
 
      do 2 rewrite Nat2Z.inj_succ.
      fast_omega .
+Qed.
+
+Lemma Nat_divides_l : ∀ a b, (∃ c, a = (b * c)%nat) ↔ (b | a)%nat.
+Proof.
+intros a b.
+split; intros H.
+ destruct H as (c, Hc); subst a.
+ exists c; apply Nat.mul_comm.
+
+ destruct H as (c, Hc); subst a.
+ exists c; apply Nat.mul_comm.
+Qed.
+
+Lemma Nat_lcm_divides : ∀ a b c,
+  (a ≠ 0
+   → b ≠ 0
+     → (a | c)
+       → (b | c)
+         → (Nat.lcm a b | c))%nat.
+Proof.
+intros k l c Hkp Hlp Hkm Hlm.
+apply Nat_divides_l in Hkm.
+apply Nat_divides_l in Hlm.
+apply Nat_divides_l.
+destruct Hkm as (k₁, Hk₁).
+destruct Hlm as (l₁, Hl₁).
+pose proof (Nat.gcd_divide_l k l) as Hk'.
+pose proof (Nat.gcd_divide_r k l) as Hl'.
+destruct Hk' as (k', Hk').
+destruct Hl' as (l', Hl').
+remember (gcd k l) as g eqn:Hg .
+subst k l.
+apply Nat.gcd_div_gcd in Hg.
+ rewrite Nat.div_mul in Hg.
+  rewrite Nat.div_mul in Hg.
+   unfold Nat.lcm.
+   rewrite Nat.gcd_mul_mono_r.
+   rewrite Hg, Nat.mul_1_l.
+   rewrite Nat.div_mul.
+    rewrite Hk₁ in Hl₁.
+    rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
+    rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
+    apply Nat.mul_cancel_r in Hl₁.
+     exists (k₁ / l')%nat.
+     rewrite <- Nat.mul_assoc.
+     rewrite <- Nat.divide_div_mul_exact.
+      replace (l' * k₁)%nat with (k₁ * l')%nat by apply Nat.mul_comm.
+      rewrite Nat.div_mul.
+       assumption.
+
+       intros H; apply Hlp; subst l'; reflexivity.
+
+      intros H; apply Hlp; subst l'; reflexivity.
+
+      apply Nat.gauss with (m := k').
+       rewrite Hl₁; exists l₁; apply Nat.mul_comm.
+
+       rewrite Nat.gcd_comm; assumption.
+
+     intros H; apply Hlp; subst g; auto.
+
+    intros H; apply Hlp; subst g; auto.
+
+   intros H; apply Hlp; subst g; auto.
+
+  intros H; apply Hlp; subst g; auto.
+
+ intros H; apply Hlp; subst g; auto.
 Qed.
