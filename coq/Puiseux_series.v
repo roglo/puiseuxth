@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.31 2013-11-06 02:50:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.32 2013-11-06 03:04:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2244,7 +2244,67 @@ rewrite nth_nonzero_interval_stretch.
 assumption.
 Qed.
 
-Lemma uuu : ∀ s b k l,
+Lemma Nat_mod_lcm : ∀ a b c,
+  (a ≠ 0
+   → b ≠ 0
+     → c mod a = 0
+       → c mod b = 0
+         → c mod Nat.lcm a b = 0)%nat.
+Proof.
+intros k l c Hkp Hlp Hkm Hlm.
+apply Nat.mod_divides in Hkm; [ idtac | assumption ].
+apply Nat.mod_divides in Hlm; [ idtac | assumption ].
+apply Nat.mod_divides.
+ intros H; apply Nat.lcm_eq_0 in H.
+ destruct H; contradiction.
+
+ destruct Hkm as (k₁, Hk₁).
+ destruct Hlm as (l₁, Hl₁).
+ pose proof (Nat.gcd_divide_l k l) as Hk'.
+ pose proof (Nat.gcd_divide_r k l) as Hl'.
+ destruct Hk' as (k', Hk').
+ destruct Hl' as (l', Hl').
+ remember (gcd k l) as g eqn:Hg .
+ subst k l.
+ apply Nat.gcd_div_gcd in Hg.
+  rewrite Nat.div_mul in Hg.
+   rewrite Nat.div_mul in Hg.
+    unfold Nat.lcm.
+    rewrite Nat.gcd_mul_mono_r.
+    rewrite Hg, Nat.mul_1_l.
+    rewrite Nat.div_mul.
+     rewrite Hk₁ in Hl₁.
+     rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
+     rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
+     apply Nat.mul_cancel_r in Hl₁.
+      exists (k₁ / l')%nat.
+      rewrite <- Nat.mul_assoc.
+      rewrite <- Nat.divide_div_mul_exact.
+       replace (l' * k₁)%nat with (k₁ * l')%nat by apply Nat.mul_comm.
+       rewrite Nat.div_mul.
+        assumption.
+
+        intros H; apply Hlp; subst l'; reflexivity.
+
+       intros H; apply Hlp; subst l'; reflexivity.
+
+       apply Nat.gauss with (m := k').
+        rewrite Hl₁; exists l₁; apply Nat.mul_comm.
+
+        rewrite Nat.gcd_comm; assumption.
+
+      intros H; apply Hlp; subst g; auto.
+
+     intros H; apply Hlp; subst g; auto.
+
+    intros H; apply Hlp; subst g; auto.
+
+   intros H; apply Hlp; subst g; auto.
+
+  intros H; apply Hlp; subst g; auto.
+Qed.
+
+Lemma is_a_series_in_x_power_lcm : ∀ s b k l,
   is_a_series_in_x_power fld s b k
   → is_a_series_in_x_power fld s b l
     → is_a_series_in_x_power fld s b (Nat.lcm k l).
@@ -2253,7 +2313,7 @@ intros s b k l Hk Hl.
 destruct k; [ rewrite Nat.lcm_0_l; assumption | idtac ].
 destruct l; [ rewrite Nat.lcm_0_r; assumption | idtac ].
 assert (S k ≠ 0)%nat as Hkp by (intros H; discriminate H).
-assert (S l ≠ 0)%nat as Hkl by (intros H; discriminate H).
+assert (S l ≠ 0)%nat as Hlp by (intros H; discriminate H).
 remember (S k) as k'; clear k Heqk'; rename k' into k.
 remember (S l) as l'; clear l Heql'; rename l' into l.
 unfold is_a_series_in_x_power in Hk, Hl |- *.
@@ -2263,87 +2323,15 @@ destruct n.
  simpl in Hk₀, Hl₀ |- *.
  remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
- destruct len as [len| ].
-  apply Nat.mod_divides in Hk₀; [ idtac | assumption ].
-  apply Nat.mod_divides in Hl₀; [ idtac | assumption ].
-  apply Nat.mod_divides.
-   intros H; apply Nat.lcm_eq_0 in H.
-   destruct H; contradiction.
-
-   destruct Hk₀ as (k₁, Hk₁).
-   destruct Hl₀ as (l₁, Hl₁).
-   pose proof (Nat.gcd_divide_l k l) as Hk'.
-   pose proof (Nat.gcd_divide_r k l) as Hl'.
-   destruct Hk' as (k', Hk').
-   destruct Hl' as (l', Hl').
-   remember (gcd k l) as g eqn:Hg .
-   subst k l.
-   apply Nat.gcd_div_gcd in Hg.
-    rewrite Nat.div_mul in Hg.
-     rewrite Nat.div_mul in Hg.
-      unfold Nat.lcm.
-      rewrite Nat.gcd_mul_mono_r.
-      rewrite Hg, Nat.mul_1_l.
-      rewrite Nat.div_mul.
-       rewrite Hk₁ in Hl₁.
-       rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
-       rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
-       apply Nat.mul_cancel_r in Hl₁.
-        exists (k₁ / l')%nat.
-        rewrite <- Nat.mul_assoc.
-        rewrite <- Nat.divide_div_mul_exact.
-         replace (l' * k₁)%nat with (k₁ * l')%nat by apply Nat.mul_comm.
-         rewrite Nat.div_mul.
-          assumption.
-
-          intros H; apply Hkl; subst l'; reflexivity.
-
-         intros H; apply Hkl; subst l'; reflexivity.
-
-         apply Nat.gauss with (m := k').
-          rewrite Hl₁; exists l₁; apply Nat.mul_comm.
-
-          rewrite Nat.gcd_comm; assumption.
-
-        intros H; apply Hkl; subst g; auto.
-
-       intros H; apply Hkl; subst g; auto.
-
-      intros H; apply Hkl; subst g; auto.
-
-     intros H; apply Hkl; subst g; auto.
-
-    intros H; apply Hkl; subst g; auto.
-
-  rewrite Nat.mod_0_l; [ reflexivity | idtac ].
-  unfold Nat.lcm.
-  intros H; apply Nat.mul_eq_0 in H.
-  destruct H as [| H]; [ contradiction | idtac ].
-  pose proof (Nat.gcd_divide_r k l) as HH.
-  destruct HH as (l', Hl').
-  remember (gcd k l) as g eqn:Hg .
-  subst l.
-  rewrite Nat.div_mul in H.
-   subst l'; apply Hkl; reflexivity.
-
-   intros HH; apply Hkl; subst g; auto.
+ destruct len; apply Nat_mod_lcm; assumption.
 
  pose proof (Hk (S n)) as Hkn.
  pose proof (Hl (S n)) as Hln.
  simpl in Hkn, Hln |- *.
  remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
- destruct len as [len| ].
-  remember (nth_nonzero_interval fld s n (S (b + len))) as len₁ eqn:Hlen₁ .
-  apply Nat.mod_divides in Hkn; [ idtac | assumption ].
-  apply Nat.mod_divides in Hln; [ idtac | assumption ].
-  apply Nat.mod_divides.
-   intros H; apply Nat.lcm_eq_0 in H.
-   destruct H; contradiction.
-
-   destruct Hkn as (k₁, Hk₁).
-   destruct Hln as (l₁, Hl₁).
-bbb.
+ destruct len; apply Nat_mod_lcm; assumption.
+Qed.
 
 Lemma vvv : ∀ s b p k,
   number_of_zeroes_from fld s 0 = fin b
