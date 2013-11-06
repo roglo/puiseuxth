@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.37 2013-11-06 13:20:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.38 2013-11-06 14:40:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1845,7 +1845,8 @@ Qed.
 
 Lemma nth_null_coeff_range_length_succ : ∀ s n b,
   nth_null_coeff_range_length fld s (S n) b =
-  nth_null_coeff_range_length fld s n (b + nth_null_coeff_range_length fld s 0 b).
+  nth_null_coeff_range_length fld s n
+    (b + nth_null_coeff_range_length fld s 0 b).
 Proof.
 intros s n b.
 destruct n; simpl.
@@ -2181,7 +2182,8 @@ Qed.
 *)
 
 Lemma nth_null_coeff_range_length_stretch : ∀ s b n k,
-  nth_null_coeff_range_length fld (series_stretch fld k s) n (b * Pos.to_nat k) =
+  nth_null_coeff_range_length fld (series_stretch fld k s) n
+    (b * Pos.to_nat k) =
   (Pos.to_nat k * nth_null_coeff_range_length fld s n b)%nat.
 Proof.
 intros s b n k.
@@ -2247,8 +2249,9 @@ Qed.
 
 Lemma exists_nth_null_coeff_range_length_stretch : ∀ s b k k₁,
   (∃ n, Pos.to_nat k * nth_null_coeff_range_length fld s n b mod k₁ ≠ 0)%nat
-  → (∃ n, nth_null_coeff_range_length fld (series_stretch fld k s) n (b * Pos.to_nat k)
-     mod k₁ ≠ 0)%nat.
+  → (∃ n,
+     nth_null_coeff_range_length fld (series_stretch fld k s) n
+       (b * Pos.to_nat k) mod k₁ ≠ 0)%nat.
 Proof.
 intros s b k k₁ (n, H).
 exists n.
@@ -2311,7 +2314,7 @@ split.
  apply Nat_divides_l, Hm.
 
  intros k₁ Hk₁.
- apply stretch_is_not_a_series_in_x_power.
+ (* studying simple case: m = 1 and b = 0 *)
  remember (Pos.to_nat m) as mn eqn:Hmn .
  symmetry in Hmn.
  destruct mn; [ exfalso; revert Hmn; apply Pos2Nat_ne_0 | idtac ].
@@ -2324,6 +2327,9 @@ split.
    apply greatest_series_x_power_iff in Hm.
    destruct Hm as (Hm, Hnm).
    clear Hm.
+   rewrite Nat.mul_0_l.
+bbb.
+   apply stretch_is_not_a_series_in_x_power.
 
 bbb.
  assert (Pos.to_nat m < k₁)%nat as Hmk.
