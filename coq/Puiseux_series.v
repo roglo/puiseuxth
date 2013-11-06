@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.30 2013-11-06 02:46:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.31 2013-11-06 02:50:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2327,6 +2327,22 @@ destruct n.
    subst l'; apply Hkl; reflexivity.
 
    intros HH; apply Hkl; subst g; auto.
+
+ pose proof (Hk (S n)) as Hkn.
+ pose proof (Hl (S n)) as Hln.
+ simpl in Hkn, Hln |- *.
+ remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
+ symmetry in Hlen.
+ destruct len as [len| ].
+  remember (nth_nonzero_interval fld s n (S (b + len))) as len₁ eqn:Hlen₁ .
+  apply Nat.mod_divides in Hkn; [ idtac | assumption ].
+  apply Nat.mod_divides in Hln; [ idtac | assumption ].
+  apply Nat.mod_divides.
+   intros H; apply Nat.lcm_eq_0 in H.
+   destruct H; contradiction.
+
+   destruct Hkn as (k₁, Hk₁).
+   destruct Hln as (l₁, Hl₁).
 bbb.
 
 Lemma vvv : ∀ s b p k,
