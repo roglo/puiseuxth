@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.36 2013-11-06 10:55:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.37 2013-11-06 13:20:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,7 +19,7 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 
 (* [null_coeff_range_length fld s n] returns the number of consecutive
-   null coefficients in the series [s], starting from the [n]th one. *)
+   null coefficients in the series [s], from the [n]th one. *)
 Definition null_coeff_range_length : ∀ α, field α → series α → nat → Nbar.
 Admitted.
 
@@ -40,18 +40,18 @@ Axiom null_coeff_range_length_iff : ∀ s n v,
 Definition greatest_series_x_power : ∀ α, field α → series α → nat → positive.
 Admitted.
 
-Fixpoint nth_nonzero_interval s n b :=
+Fixpoint nth_null_coeff_range_length s n b :=
   match null_coeff_range_length fld s (S b) with
   | fin p =>
       match n with
       | O => S p
-      | S n₁ => nth_nonzero_interval s n₁ (S b + p)%nat
+      | S n₁ => nth_null_coeff_range_length s n₁ (S b + p)%nat
       end
   | ∞ => O
   end.
 
 Definition is_a_series_in_x_power s b k :=
-  ∀ n, (k | nth_nonzero_interval s n b).
+  ∀ n, (k | nth_null_coeff_range_length s n b).
 
 Definition greatest_series_x_power_prop s b k :=
   is_a_series_in_x_power s b k ∧
@@ -309,9 +309,9 @@ rewrite IHcnt; reflexivity.
 Qed.
 *)
 
-Add Parametric Morphism α (fld : field α) : (nth_nonzero_interval fld)
+Add Parametric Morphism α (fld : field α) : (nth_null_coeff_range_length fld)
   with signature (eq_series fld) ==> eq ==> eq ==> eq
-  as nth_nonzero_interval_morph.
+  as nth_null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq c n.
 revert n.
@@ -1388,9 +1388,9 @@ apply IHcnt.
 Qed.
 *)
 
-Lemma nth_nonzero_interval_shift : ∀ s cnt n b,
-  nth_nonzero_interval fld (series_shift fld n s) cnt (b + n) =
-  nth_nonzero_interval fld s cnt b.
+Lemma nth_null_coeff_range_length_shift : ∀ s cnt n b,
+  nth_null_coeff_range_length fld (series_shift fld n s) cnt (b + n) =
+  nth_null_coeff_range_length fld s cnt b.
 Proof.
 intros s cnt n b.
 revert b.
@@ -1422,14 +1422,14 @@ unfold greatest_series_x_power_prop in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
- rewrite nth_nonzero_interval_shift.
+ rewrite nth_null_coeff_range_length_shift.
  apply Hz.
 
  intros k₁ Hk₁.
  apply Hnz in Hk₁.
  intros H; apply Hk₁.
  unfold is_a_series_in_x_power in H |- *.
- intros m; erewrite <- nth_nonzero_interval_shift; apply H.
+ intros m; erewrite <- nth_null_coeff_range_length_shift; apply H.
 Qed.
 
 Lemma null_coeff_range_length_succ : ∀ s n,
@@ -1807,18 +1807,18 @@ Notation "'Σ' ( i = b , e ) f" := (sigma b e (λ i, f))
   (at level 0, i at level 0, b at level 0, e at level 0, f at level 10,
    format "'Σ' ( i = b , e ) f").
 
-Lemma nth_nonzero_interval_eq : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s 0
-     (b + Σ (i = 0,n) (nth_nonzero_interval fld s i b)).
+Lemma nth_null_coeff_range_length_eq : ∀ s n b,
+  nth_null_coeff_range_length fld s (S n) b =
+  nth_null_coeff_range_length fld s 0
+     (b + Σ (i = 0,n) (nth_null_coeff_range_length fld s i b)).
 Proof.
 bbb.
 *)
 
 Lemma sigma_aux_fin_succ : ∀ s b n l len,
   null_coeff_range_length fld s (S b) = fin len
-  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
-    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i (S (b + len))).
+  → sigma_aux (S n) l (λ i : nat, nth_null_coeff_range_length fld s i b) =
+    sigma_aux n l (λ i : nat, nth_null_coeff_range_length fld s i (S (b + len))).
 Proof.
 intros s b n l len H.
 revert n.
@@ -1830,8 +1830,8 @@ Qed.
 
 Lemma sigma_aux_inf_succ : ∀ s b n l,
   null_coeff_range_length fld s (S b) = ∞
-  → sigma_aux (S n) l (λ i : nat, nth_nonzero_interval fld s i b) =
-    sigma_aux n l (λ i : nat, nth_nonzero_interval fld s i b).
+  → sigma_aux (S n) l (λ i : nat, nth_null_coeff_range_length fld s i b) =
+    sigma_aux n l (λ i : nat, nth_null_coeff_range_length fld s i b).
 Proof.
 intros s b n l H.
 revert n.
@@ -1843,9 +1843,9 @@ induction l; intros.
  destruct n; simpl; rewrite H; reflexivity.
 Qed.
 
-Lemma nth_nonzero_interval_succ : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s n (b + nth_nonzero_interval fld s 0 b).
+Lemma nth_null_coeff_range_length_succ : ∀ s n b,
+  nth_null_coeff_range_length fld s (S n) b =
+  nth_null_coeff_range_length fld s n (b + nth_null_coeff_range_length fld s 0 b).
 Proof.
 intros s n b.
 destruct n; simpl.
@@ -1864,18 +1864,18 @@ destruct n; simpl.
   rewrite Nat.add_0_r, Hlen; reflexivity.
 Qed.
 
-Lemma nth_nonzero_interval_succ_sum : ∀ s n b,
-  nth_nonzero_interval fld s (S n) b =
-  nth_nonzero_interval fld s 0
-    (b + sigma 0 n (λ i, nth_nonzero_interval fld s i b)).
+Lemma nth_null_coeff_range_length_succ_sum : ∀ s n b,
+  nth_null_coeff_range_length fld s (S n) b =
+  nth_null_coeff_range_length fld s 0
+    (b + sigma 0 n (λ i, nth_null_coeff_range_length fld s i b)).
 Proof.
 intros s n b.
 revert b.
 induction n; intros.
- rewrite nth_nonzero_interval_succ.
+ rewrite nth_null_coeff_range_length_succ.
  reflexivity.
 
- rewrite nth_nonzero_interval_succ.
+ rewrite nth_null_coeff_range_length_succ.
  rewrite IHn; f_equal.
  rewrite <- Nat.add_assoc; f_equal; simpl.
  unfold sigma; simpl.
@@ -1893,9 +1893,9 @@ Qed.
 
 Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
-  → (∀ n, (Pos.to_nat k | nth_nonzero_interval fld s n b)%nat)
+  → (∀ n, (Pos.to_nat k | nth_null_coeff_range_length fld s n b)%nat)
     → (Pos.to_nat k |
-       nth_nonzero_interval fld s
+       nth_null_coeff_range_length fld s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
         → series_nth_fld fld (b + i) s ≍ zero fld.
@@ -1988,7 +1988,7 @@ destruct i.
 Qed.
 
 Lemma series_nth_0_in_interval : ∀ s k,
-  (∀ n, (Pos.to_nat k | nth_nonzero_interval fld s n 0)%nat)
+  (∀ n, (Pos.to_nat k | nth_null_coeff_range_length fld s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
     → series_nth_fld fld i s ≍ zero fld.
@@ -2180,9 +2180,9 @@ induction cnt; intros.
 Qed.
 *)
 
-Lemma nth_nonzero_interval_stretch : ∀ s b n k,
-  nth_nonzero_interval fld (series_stretch fld k s) n (b * Pos.to_nat k) =
-  (Pos.to_nat k * nth_nonzero_interval fld s n b)%nat.
+Lemma nth_null_coeff_range_length_stretch : ∀ s b n k,
+  nth_null_coeff_range_length fld (series_stretch fld k s) n (b * Pos.to_nat k) =
+  (Pos.to_nat k * nth_null_coeff_range_length fld s n b)%nat.
 Proof.
 intros s b n k.
 revert b.
@@ -2233,26 +2233,26 @@ induction n; intros.
 Qed.
 
 Lemma stretch_is_not_a_series_in_x_power : ∀ s b k k₁,
-  (∃ n, Pos.to_nat k * nth_nonzero_interval fld s n b mod k₁ ≠ 0)%nat
+  (∃ n, Pos.to_nat k * nth_null_coeff_range_length fld s n b mod k₁ ≠ 0)%nat
   → ¬is_a_series_in_x_power fld (series_stretch fld k s) (b * Pos.to_nat k) k₁.
 Proof.
 intros s b k k₁ (n, Hn) H.
 unfold is_a_series_in_x_power in H.
-rewrite <- nth_nonzero_interval_stretch in Hn.
+rewrite <- nth_null_coeff_range_length_stretch in Hn.
 apply Hn.
 destruct k₁; [ reflexivity | idtac ].
 apply Nat.mod_divides; [ intros HH; discriminate HH | idtac ].
 apply Nat_divides_l, H.
 Qed.
 
-Lemma exists_nth_nonzero_interval_stretch : ∀ s b k k₁,
-  (∃ n, Pos.to_nat k * nth_nonzero_interval fld s n b mod k₁ ≠ 0)%nat
-  → (∃ n, nth_nonzero_interval fld (series_stretch fld k s) n (b * Pos.to_nat k)
+Lemma exists_nth_null_coeff_range_length_stretch : ∀ s b k k₁,
+  (∃ n, Pos.to_nat k * nth_null_coeff_range_length fld s n b mod k₁ ≠ 0)%nat
+  → (∃ n, nth_null_coeff_range_length fld (series_stretch fld k s) n (b * Pos.to_nat k)
      mod k₁ ≠ 0)%nat.
 Proof.
 intros s b k k₁ (n, H).
 exists n.
-rewrite nth_nonzero_interval_stretch.
+rewrite nth_null_coeff_range_length_stretch.
 assumption.
 Qed.
 
@@ -2301,7 +2301,7 @@ split.
  apply greatest_series_x_power_iff in Hm.
  destruct Hm as (Hm, Hnm).
  unfold is_a_series_in_x_power in Hm.
- rewrite nth_nonzero_interval_stretch.
+ rewrite nth_null_coeff_range_length_stretch.
  apply Nat_divides_l.
  apply Nat.mod_divides; auto.
  rewrite Pos2Nat.inj_mul.
@@ -2337,8 +2337,8 @@ bbb.
   apply Hnm in Hmk.
   destruct Hmk as (cnt, Hcnt).
   exists cnt.
-  rewrite nth_nonzero_interval_stretch.
-  remember (nth_nonzero_interval fld s cnt n) as len eqn:Hlen .
+  rewrite nth_null_coeff_range_length_stretch.
+  remember (nth_null_coeff_range_length fld s cnt n) as len eqn:Hlen .
   symmetry in Hlen.
   intros H; apply Hcnt; clear Hcnt.
 bbb.
