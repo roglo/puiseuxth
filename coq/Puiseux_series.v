@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.29 2013-11-06 01:48:25 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.30 2013-11-06 02:46:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2272,6 +2272,61 @@ destruct n.
 
    destruct Hk₀ as (k₁, Hk₁).
    destruct Hl₀ as (l₁, Hl₁).
+   pose proof (Nat.gcd_divide_l k l) as Hk'.
+   pose proof (Nat.gcd_divide_r k l) as Hl'.
+   destruct Hk' as (k', Hk').
+   destruct Hl' as (l', Hl').
+   remember (gcd k l) as g eqn:Hg .
+   subst k l.
+   apply Nat.gcd_div_gcd in Hg.
+    rewrite Nat.div_mul in Hg.
+     rewrite Nat.div_mul in Hg.
+      unfold Nat.lcm.
+      rewrite Nat.gcd_mul_mono_r.
+      rewrite Hg, Nat.mul_1_l.
+      rewrite Nat.div_mul.
+       rewrite Hk₁ in Hl₁.
+       rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
+       rewrite Nat.mul_shuffle0 in Hl₁; symmetry in Hl₁.
+       apply Nat.mul_cancel_r in Hl₁.
+        exists (k₁ / l')%nat.
+        rewrite <- Nat.mul_assoc.
+        rewrite <- Nat.divide_div_mul_exact.
+         replace (l' * k₁)%nat with (k₁ * l')%nat by apply Nat.mul_comm.
+         rewrite Nat.div_mul.
+          assumption.
+
+          intros H; apply Hkl; subst l'; reflexivity.
+
+         intros H; apply Hkl; subst l'; reflexivity.
+
+         apply Nat.gauss with (m := k').
+          rewrite Hl₁; exists l₁; apply Nat.mul_comm.
+
+          rewrite Nat.gcd_comm; assumption.
+
+        intros H; apply Hkl; subst g; auto.
+
+       intros H; apply Hkl; subst g; auto.
+
+      intros H; apply Hkl; subst g; auto.
+
+     intros H; apply Hkl; subst g; auto.
+
+    intros H; apply Hkl; subst g; auto.
+
+  rewrite Nat.mod_0_l; [ reflexivity | idtac ].
+  unfold Nat.lcm.
+  intros H; apply Nat.mul_eq_0 in H.
+  destruct H as [| H]; [ contradiction | idtac ].
+  pose proof (Nat.gcd_divide_r k l) as HH.
+  destruct HH as (l', Hl').
+  remember (gcd k l) as g eqn:Hg .
+  subst l.
+  rewrite Nat.div_mul in H.
+   subst l'; apply Hkl; reflexivity.
+
+   intros HH; apply Hkl; subst g; auto.
 bbb.
 
 Lemma vvv : ∀ s b p k,
