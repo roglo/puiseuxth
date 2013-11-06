@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.33 2013-11-06 03:44:07 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.34 2013-11-06 09:43:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,6 +21,9 @@ Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 (* [number_of_zeroes_from fld s n] returns the number of consecutive
     null coefficients in the series [s], starting from the [n]th one
    (first one being 0). *)
+Definition number_of_zeroes_from : ∀ α, field α → series α → nat → Nbar.
+Admitted.
+
 Definition number_of_zeroes_from_prop s c n :=
   match n with
   | fin k =>
@@ -30,17 +33,14 @@ Definition number_of_zeroes_from_prop s c n :=
       (∀ i, series_nth_fld fld (c + i) s ≍ zero fld)
   end.
 
-Definition number_of_zeroes_from : ∀ α, field α → series α → nat → Nbar.
-Admitted.
-
 Axiom number_of_zeroes_from_iff : ∀ s c n,
   number_of_zeroes_from fld s c = n ↔ number_of_zeroes_from_prop s c n.
 
-(* [stretching_factor fld s n] returns the maximal stretching factor of
-   the series [s] starting at position [n], i.e. there is a series [s']
-   which can be stretched by [stretch_series] (below) with this factor
-   to give [s] back. *)
-Definition stretching_factor : ∀ α, field α → series α → nat → positive.
+(* [greatest_series_x_power fld s b] returns the maximal x power of
+   the [s] starting at position [b]. If the result is [k], it means
+   that [s], from rank [b], is a series in [x^k] and [k] is the greatest
+   value having this property. *)
+Definition greatest_series_x_power : ∀ α, field α → series α → nat → positive.
 Admitted.
 
 Fixpoint nth_nonzero_interval s n b :=
@@ -56,13 +56,13 @@ Fixpoint nth_nonzero_interval s n b :=
 Definition is_a_series_in_x_power s b k :=
   ∀ n, nth_nonzero_interval s n b mod k = O.
 
-Definition stretching_factor_gcd_prop s b k :=
+Definition greatest_series_x_power_prop s b k :=
   is_a_series_in_x_power s b k ∧
   (∀ k', (k < k')%nat → ¬is_a_series_in_x_power s b k').
 
-Axiom stretching_factor_iff : ∀ s n k,
-  stretching_factor fld s n = k ↔
-  stretching_factor_gcd_prop s n (Pos.to_nat k).
+Axiom greatest_series_x_power_iff : ∀ s n k,
+  greatest_series_x_power fld s n = k ↔
+  greatest_series_x_power_prop s n (Pos.to_nat k).
 
 End Axioms.
 
@@ -114,7 +114,7 @@ Definition gcd_nz n k (nz : nz_ps α) :=
 Definition normalise_nz nz :=
   match number_of_zeroes_from fld (nz_terms nz) 0 with
   | fin n =>
-      let k := stretching_factor fld (nz_terms nz) n in
+      let k := greatest_series_x_power fld (nz_terms nz) n in
       let g := gcd_nz n k nz in
       NonZero
         {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
@@ -297,9 +297,9 @@ destruct n₁ as [n₁| ].
 Qed.
 
 (*
-Add Parametric Morphism α (fld : field α) : (stretching_factor_lim fld)
+Add Parametric Morphism α (fld : field α) : (greatest_series_x_power_lim fld)
   with signature eq ==> (eq_series fld) ==> eq ==> eq
-  as stretching_factor_lim_morph.
+  as greatest_series_x_power_lim_morph.
 Proof.
 intros cnt s₁ s₂ Heq n.
 revert n.
@@ -322,15 +322,15 @@ induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
 destruct (number_of_zeroes_from fld s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (stretching_factor fld)
-with signature (eq_series fld) ==> eq ==> eq as stretching_factor_morph.
+Add Parametric Morphism α (fld : field α) : (greatest_series_x_power fld)
+with signature (eq_series fld) ==> eq ==> eq as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (stretching_factor fld s₂ n) as k eqn:Hk .
+remember (greatest_series_x_power fld s₂ n) as k eqn:Hk .
 symmetry in Hk.
-apply stretching_factor_iff in Hk.
-apply stretching_factor_iff.
-unfold stretching_factor_gcd_prop in Hk |- *.
+apply greatest_series_x_power_iff in Hk.
+apply greatest_series_x_power_iff.
+unfold greatest_series_x_power_prop in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
@@ -1371,9 +1371,9 @@ destruct v as [v| ].
 Qed.
 
 (*
-Lemma stretching_factor_lim_shift : ∀ cnt s n b,
-  stretching_factor_lim fld cnt (series_shift fld n s) (b + n) =
-  stretching_factor_lim fld cnt s b.
+Lemma greatest_series_x_power_lim_shift : ∀ cnt s n b,
+  greatest_series_x_power_lim fld cnt (series_shift fld n s) (b + n) =
+  greatest_series_x_power_lim fld cnt s b.
 Proof.
 intros cnt s n b.
 revert s n b.
@@ -1412,16 +1412,16 @@ induction cnt; intros; simpl.
  apply IHcnt.
 Qed.
 
-Lemma stretching_factor_shift : ∀ n s b,
-  stretching_factor fld (series_shift fld n s) (b + n) =
-  stretching_factor fld s b.
+Lemma greatest_series_x_power_shift : ∀ n s b,
+  greatest_series_x_power fld (series_shift fld n s) (b + n) =
+  greatest_series_x_power fld s b.
 Proof.
 intros n s b.
-remember (stretching_factor fld s b) as k eqn:Hk .
+remember (greatest_series_x_power fld s b) as k eqn:Hk .
 symmetry in Hk.
-apply stretching_factor_iff in Hk.
-apply stretching_factor_iff.
-unfold stretching_factor_gcd_prop in Hk |- *.
+apply greatest_series_x_power_iff in Hk.
+apply greatest_series_x_power_iff.
+unfold greatest_series_x_power_prop in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
@@ -2006,7 +2006,7 @@ destruct i.
 Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
-  (k | stretching_factor fld s 0)%positive
+  (k | greatest_series_x_power fld s 0)%positive
   → series_stretch fld k (series_shrink k s) ≃ s.
 Proof.
 intros s k Hk.
@@ -2058,8 +2058,8 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
 
   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
    destruct Hk as (c, Hk).
-   apply stretching_factor_iff in Hk.
-   unfold stretching_factor_gcd_prop in Hk.
+   apply greatest_series_x_power_iff in Hk.
+   unfold greatest_series_x_power_prop in Hk.
    destruct Hk as (Hz, Hnz).
    symmetry.
    assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
@@ -2089,9 +2089,9 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
 Qed.
 
 (*
-Lemma stretching_factor_lim_stretch : ∀ s n k cnt,
-  stretching_factor_lim fld cnt (series_stretch fld k s) (Pos.to_nat k * n) =
-    (Pos.to_nat k * stretching_factor_lim fld cnt s n)%nat.
+Lemma greatest_series_x_power_lim_stretch : ∀ s n k cnt,
+  greatest_series_x_power_lim fld cnt (series_stretch fld k s) (Pos.to_nat k * n) =
+    (Pos.to_nat k * greatest_series_x_power_lim fld cnt s n)%nat.
 Proof.
 -- à nettoyer
 intros s n k cnt.
@@ -2344,20 +2344,20 @@ Qed.
 Lemma vvv : ∀ s b p k,
   number_of_zeroes_from fld s 0 = fin b
   → number_of_zeroes_from fld s (S b) = fin p
-    → stretching_factor fld (series_stretch fld k s) (b * Pos.to_nat k) =
-      (k * stretching_factor fld s b)%positive.
+    → greatest_series_x_power fld (series_stretch fld k s) (b * Pos.to_nat k) =
+      (k * greatest_series_x_power fld s b)%positive.
 Proof.
 intros s b p k Hb Hp.
-remember (stretching_factor fld s b) as m eqn:Hm .
+remember (greatest_series_x_power fld s b) as m eqn:Hm .
 symmetry in Hm.
-apply stretching_factor_iff.
-unfold stretching_factor_gcd_prop.
+apply greatest_series_x_power_iff.
+unfold greatest_series_x_power_prop.
 split.
  intros n.
  rewrite nth_nonzero_interval_stretch.
  rewrite Pos2Nat.inj_mul.
  rewrite Nat.mul_mod_distr_l; auto.
- apply stretching_factor_iff in Hm.
+ apply greatest_series_x_power_iff in Hm.
  destruct Hm as (Hm, Hnm).
  rewrite Hm; auto.
 
@@ -2372,7 +2372,7 @@ split.
   move Hmn at top; subst m.
   rewrite Pos.mul_1_r in Hk₁.
   destruct b.
-   apply stretching_factor_iff in Hm.
+   apply greatest_series_x_power_iff in Hm.
    destruct Hm as (Hm, Hnm).
    clear Hm.
 
@@ -2396,7 +2396,7 @@ bbb.
 
 apply www in Hm.
 apply www.
-unfold stretching_factor_gcd_prop in Hm |- *.
+unfold greatest_series_x_power_prop in Hm |- *.
 destruct Hm as (Hz, Hnz).
 split.
  intros cnt.
@@ -2427,7 +2427,7 @@ split.
     rewrite <- Nat.mul_succ_l.
     subst x.
     rewrite Nat.mul_comm.
-    rewrite stretching_factor_lim_stretch.
+    rewrite greatest_series_x_power_lim_stretch.
     rewrite Nat.mul_comm.
     rewrite Nat.mul_mod_distr_r.
      rewrite Nat.gcd_mul_mono_r.
@@ -2436,18 +2436,17 @@ split.
      rewrite Nat.mul_mod_distr_l.
 bbb.
 
-(* en supposant que la version stretching_factor_gcd_prop fonctionne... *)
 Lemma yyy : ∀ s n k,
   number_of_zeroes_from fld s 1 = fin n
-  → stretching_factor fld s 0 = 1%positive
-    → stretching_factor fld (series_stretch fld k s) 0 = k.
+  → greatest_series_x_power fld s 0 = 1%positive
+    → greatest_series_x_power fld (series_stretch fld k s) 0 = k.
 Proof.
 intros s n k Hn Hs.
-apply stretching_factor_iff in Hs.
-apply stretching_factor_iff.
+apply greatest_series_x_power_iff in Hs.
+apply greatest_series_x_power_iff.
 apply www in Hs.
 apply www.
-unfold stretching_factor_gcd_prop in Hs |- *.
+unfold greatest_series_x_power_prop in Hs |- *.
 destruct Hs as (_, Hnz).
 split.
  intros cnt.
@@ -2468,14 +2467,14 @@ bbb.
 
 Lemma yyy : ∀ s n k,
   number_of_zeroes_from fld s 1 = fin n
-  → stretching_factor fld s 0 = 1%positive
-    → stretching_factor fld (series_stretch fld k s) 0 = k.
+  → greatest_series_x_power fld s 0 = 1%positive
+    → greatest_series_x_power fld (series_stretch fld k s) 0 = k.
 Proof.
-(* si la version stretching_factor_gcd_prop ne fonctionne pas... *)
+(* si la version greatest_series_x_power_prop ne fonctionne pas... *)
 intros s n k Hn Hs.
-apply stretching_factor_iff in Hs.
-apply stretching_factor_iff.
-unfold stretching_factor_prop in Hs |- *.
+apply greatest_series_x_power_iff in Hs.
+apply greatest_series_x_power_iff.
+unfold greatest_series_x_power_prop in Hs |- *.
 simpl in Hs |- *.
 rewrite Hn in Hs.
 remember (number_of_zeroes_from fld (series_stretch fld k s) 1) as m eqn:Hm .
@@ -2555,19 +2554,19 @@ bbb.
 (* c'est la merde, je trouve pas. Pourtant, ça a l'air vrai !
 Lemma zzz : ∀ s n k,
   number_of_zeroes_from fld s 1 = fin n
-  → stretching_factor fld (series_stretch fld k s) 0 =
-      (k * stretching_factor fld s 0)%positive.
+  → greatest_series_x_power fld (series_stretch fld k s) 0 =
+      (k * greatest_series_x_power fld s 0)%positive.
 Proof.
 intros s n k Hn.
-remember (stretching_factor fld s 0) as k₁ eqn:Hk₁ .
-remember (stretching_factor fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
+remember (greatest_series_x_power fld s 0) as k₁ eqn:Hk₁ .
+remember (greatest_series_x_power fld (series_stretch fld k s) 0) as k₂ eqn:Hk₂ .
 remember (number_of_zeroes_from fld (series_stretch fld k s) 1) as m eqn:Hm .
 symmetry in Hk₁, Hk₂, Hm.
 destruct m as [m| ].
  destruct (Z_dec (' k₂) (' (k * k₁))) as [[H₁| H₁]| H₁].
   exfalso.
-  apply stretching_factor_iff in Hk₁.
-  apply stretching_factor_iff in Hk₂.
+  apply greatest_series_x_power_iff in Hk₁.
+  apply greatest_series_x_power_iff in Hk₂.
   rewrite Hn in Hk₁.
   rewrite Hm in Hk₂.
   simpl in Hk₁, Hk₂.
@@ -2655,12 +2654,12 @@ destruct m as [m| ].
      apply Z.gt_lt in H₁.
      rewrite Hq in H₁; revert H₁; apply Z.lt_irrefl.
 
-     assert (stretching_factor fld s 0 = q * k₁)%positive as H₄.
-      apply stretching_factor_iff.
+     assert (greatest_series_x_power fld s 0 = q * k₁)%positive as H₄.
+      apply greatest_series_x_power_iff.
       rewrite Hn.
       split.
        intros i Him; simpl.
-       apply stretching_factor_iff in Hk₂.
+       apply greatest_series_x_power_iff in Hk₂.
        rewrite Hm in Hk₂.
        simpl in Hk₂.
        destruct Hk₂ as (Hz₂, Hnz₂).
@@ -2677,7 +2676,7 @@ destruct m as [m| ].
        apply Nat.eq_mul_0_l in H; [ assumption | apply Pos2Nat_ne_0 ].
 
        intros k' Hk'; simpl.
-       apply stretching_factor_iff in Hk₁.
+       apply greatest_series_x_power_iff in Hk₁.
        simpl in Hk₁.
        rewrite Hn in Hk₁.
        destruct Hk₁ as (Hz₁, Hnz₁).
@@ -2698,7 +2697,7 @@ destruct m as [m| ].
    apply Z.div_mod with (a := Zpos k₂) in H₃.
    remember (' k₂ / ' (k * k₁))%Z as q eqn:Hq .
    remember (' k₂ mod ' (k * k₁))%Z as r eqn:Hr .
-   apply stretching_factor_iff in Hk₂.
+   apply greatest_series_x_power_iff in Hk₂.
    simpl in Hk₂.
    rewrite Hm in Hk₂.
    destruct Hk₂ as (Hz₂, Hnz₂).
@@ -2747,7 +2746,7 @@ destruct m as [m| ].
       rewrite Hc in Hin.
       rewrite series_nth_fld_mul_stretch in Hin.
       (* aussi : c mod k₁ = 0 ! *)
-      apply stretching_factor_iff in Hk₁.
+      apply greatest_series_x_power_iff in Hk₁.
       simpl in Hk₁.
       rewrite Hn in Hk₁.
       destruct Hk₁ as (Hz₁, Hnz₁).
@@ -2787,11 +2786,11 @@ So what ?
 *)
 
 (* vraiment intéressant... à voir... *)
-Lemma stretching_factor_stretch : ∀ s n k,
+Lemma greatest_series_x_power_stretch : ∀ s n k,
   number_of_zeroes_from fld s 0 = fin n
   → number_of_zeroes_from fld s (S n) ≠ ∞
-    → stretching_factor fld (series_stretch fld k s) (n * Pos.to_nat k) =
-      (k * stretching_factor fld s n)%positive.
+    → greatest_series_x_power fld (series_stretch fld k s) (n * Pos.to_nat k) =
+      (k * greatest_series_x_power fld s n)%positive.
 Proof.
 intros s n k Hn Hsn.
 remember (Pos.to_nat k) as kn eqn:Hkn .
@@ -2809,9 +2808,9 @@ destruct kn as [| kn].
 
   rewrite <- Hkn.
   remember (series_stretch fld k s) as s₁.
-  remember (stretching_factor fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
+  remember (greatest_series_x_power fld s₁ (n * Pos.to_nat k)) as k₁ eqn:Hk₁ .
   symmetry in Hk₁.
-  apply stretching_factor_iff in Hk₁.
+  apply greatest_series_x_power_iff in Hk₁.
   remember (number_of_zeroes_from fld s₁ (S (n * Pos.to_nat k))) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
@@ -2823,7 +2822,7 @@ destruct kn as [| kn].
    erewrite number_of_zeroes_from_stretch_succ in Hm'; try eassumption.
    rewrite <- Hm' in Hm; clear Hm'.
    clear m.
-   remember (stretching_factor fld s n) as k₂ eqn:Hk₂ .
+   remember (greatest_series_x_power fld s n) as k₂ eqn:Hk₂ .
    symmetry in Hk₂.
    destruct (Z_dec (Zpos k₁) (Zpos (k * k₂))) as [[H₁| H₁]| H₁].
     Focus 3.
@@ -2834,16 +2833,16 @@ destruct kn as [| kn].
     do 2 rewrite <- positive_nat_Z in H₁.
     apply Nat2Z.inj_lt in H₁.
     apply Pos2Nat.inj_lt in H₁.
-    apply stretching_factor_iff in Hk₂.
+    apply greatest_series_x_power_iff in Hk₂.
     rewrite Hp in Hk₂.
 bbb.
-  remember (stretching_factor fld s b) as k₁ eqn:Hk₁ .
+  remember (greatest_series_x_power fld s b) as k₁ eqn:Hk₁ .
   remember (series_stretch fld k s) as t.
-  remember (stretching_factor fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
+  remember (greatest_series_x_power fld t (b * Pos.to_nat k)) as k₂ eqn:Hk₂ .
   subst t.
   symmetry in Hk₁, Hk₂.
-  apply stretching_factor_iff in Hk₁.
-  apply stretching_factor_iff in Hk₂.
+  apply greatest_series_x_power_iff in Hk₁.
+  apply greatest_series_x_power_iff in Hk₂.
   remember (number_of_zeroes_from fld s (S b)) as n₁ eqn:Hn₁ .
   remember (series_stretch fld k s) as t.
   remember (number_of_zeroes_from fld t (S (b * Pos.to_nat k))) as n₂ eqn:Hn₂ .
