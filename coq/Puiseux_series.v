@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.32 2013-11-06 03:04:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.33 2013-11-06 03:44:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,8 +36,6 @@ Admitted.
 Axiom number_of_zeroes_from_iff : ∀ s c n,
   number_of_zeroes_from fld s c = n ↔ number_of_zeroes_from_prop s c n.
 
-(* *)
-
 (* [stretching_factor fld s n] returns the maximal stretching factor of
    the series [s] starting at position [n], i.e. there is a series [s']
    which can be stretched by [stretch_series] (below) with this factor
@@ -60,7 +58,7 @@ Definition is_a_series_in_x_power s b k :=
 
 Definition stretching_factor_gcd_prop s b k :=
   is_a_series_in_x_power s b k ∧
-  (∀ k', (k < k')%nat → ∃ n, nth_nonzero_interval s n b mod k' ≠ O).
+  (∀ k', (k < k')%nat → ¬is_a_series_in_x_power s b k').
 
 Axiom stretching_factor_iff : ∀ s n k,
   stretching_factor fld s n = k ↔
@@ -340,8 +338,9 @@ split.
 
  intros k₁ Hk₁.
  apply Hnz in Hk₁.
- destruct Hk₁ as (cnt, Hcnt).
- exists cnt; rewrite Heq; assumption.
+ intros H; apply Hk₁.
+ unfold is_a_series_in_x_power in H |- *.
+ intros m; rewrite <- Heq; apply H.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (series_stretch fld) with 
@@ -1431,10 +1430,9 @@ split.
 
  intros k₁ Hk₁.
  apply Hnz in Hk₁.
- destruct Hk₁ as (cnt, H).
- exists cnt.
- rewrite nth_nonzero_interval_shift.
- assumption.
+ intros H; apply Hk₁.
+ unfold is_a_series_in_x_power in H |- *.
+ intros m; erewrite <- nth_nonzero_interval_shift; apply H.
 Qed.
 
 Lemma number_of_zeroes_from_succ : ∀ s n,
@@ -2233,6 +2231,16 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
+Lemma stretch_is_not_a_series_in_x_power : ∀ s b k k₁,
+  (∃ n, Pos.to_nat k * nth_nonzero_interval fld s n b mod k₁ ≠ 0)%nat
+  → ¬is_a_series_in_x_power fld (series_stretch fld k s) (b * Pos.to_nat k) k₁.
+Proof.
+intros s b k k₁ (n, Hn) H.
+unfold is_a_series_in_x_power in H.
+rewrite <- nth_nonzero_interval_stretch in Hn.
+apply Hn, H.
+Qed.
+
 Lemma exists_nth_nonzero_interval_stretch : ∀ s b k k₁,
   (∃ n, Pos.to_nat k * nth_nonzero_interval fld s n b mod k₁ ≠ 0)%nat
   → (∃ n, nth_nonzero_interval fld (series_stretch fld k s) n (b * Pos.to_nat k)
@@ -2354,7 +2362,7 @@ split.
  rewrite Hm; auto.
 
  intros k₁ Hk₁.
- apply exists_nth_nonzero_interval_stretch.
+ apply stretch_is_not_a_series_in_x_power.
  remember (Pos.to_nat m) as mn eqn:Hmn .
  symmetry in Hmn.
  destruct mn; [ exfalso; revert Hmn; apply Pos2Nat_ne_0 | idtac ].
