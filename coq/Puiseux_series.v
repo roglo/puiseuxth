@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.28 2013-11-05 19:43:16 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.29 2013-11-06 01:48:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,11 +55,11 @@ Fixpoint nth_nonzero_interval s n b :=
   | ∞ => O
   end.
 
-Definition is_a_series_power s b k :=
-  (∀ n, nth_nonzero_interval s n b mod k = O).
+Definition is_a_series_in_x_power s b k :=
+  ∀ n, nth_nonzero_interval s n b mod k = O.
 
 Definition stretching_factor_gcd_prop s b k :=
-  (∀ n, nth_nonzero_interval s n b mod k = O) ∧
+  is_a_series_in_x_power s b k ∧
   (∀ k', (k < k')%nat → ∃ n, nth_nonzero_interval s n b mod k' ≠ O).
 
 Axiom stretching_factor_iff : ∀ s n k,
@@ -2245,28 +2245,33 @@ assumption.
 Qed.
 
 Lemma uuu : ∀ s b k l,
-  is_a_series_power fld s b k
-  → is_a_series_power fld s b l
-    → is_a_series_power fld s b (Nat.lcm k l).
+  is_a_series_in_x_power fld s b k
+  → is_a_series_in_x_power fld s b l
+    → is_a_series_in_x_power fld s b (Nat.lcm k l).
 Proof.
 intros s b k l Hk Hl.
-unfold is_a_series_power.
-intros n.
-unfold is_a_series_power in Hk, Hl.
+destruct k; [ rewrite Nat.lcm_0_l; assumption | idtac ].
+destruct l; [ rewrite Nat.lcm_0_r; assumption | idtac ].
+assert (S k ≠ 0)%nat as Hkp by (intros H; discriminate H).
+assert (S l ≠ 0)%nat as Hkl by (intros H; discriminate H).
+remember (S k) as k'; clear k Heqk'; rename k' into k.
+remember (S l) as l'; clear l Heql'; rename l' into l.
+unfold is_a_series_in_x_power in Hk, Hl |- *.
 destruct n.
- simpl.
  pose proof (Hk O) as Hk₀.
  pose proof (Hl O) as Hl₀.
- simpl in Hk₀, Hl₀.
+ simpl in Hk₀, Hl₀ |- *.
  remember (number_of_zeroes_from fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
-  apply Nat.mod_divides in Hk₀.
-   apply Nat.mod_divides in Hl₀.
-    apply Nat.mod_divides.
-     Focus 2.
-     destruct Hk₀ as (k₁, Hk₁).
-     destruct Hl₀ as (l₁, Hl₁).
+  apply Nat.mod_divides in Hk₀; [ idtac | assumption ].
+  apply Nat.mod_divides in Hl₀; [ idtac | assumption ].
+  apply Nat.mod_divides.
+   intros H; apply Nat.lcm_eq_0 in H.
+   destruct H; contradiction.
+
+   destruct Hk₀ as (k₁, Hk₁).
+   destruct Hl₀ as (l₁, Hl₁).
 bbb.
 
 Lemma vvv : ∀ s b p k,
