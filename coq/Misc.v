@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 2.2 2013-11-06 10:49:00 deraugla Exp $ *)
+(* $Id: Misc.v,v 2.3 2013-11-07 10:57:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1388,4 +1388,33 @@ apply Nat.gcd_div_gcd in Hg.
   intros H; apply Hlp; subst g; auto.
 
  intros H; apply Hlp; subst g; auto.
+Qed.
+
+Lemma Nat_gcd_le_l : ∀ a b, (a ≠ 0 → Nat.gcd a b ≤ a)%nat.
+Proof.
+intros a b Ha.
+pose proof (Nat.gcd_divide_l a b) as Hg.
+destruct Hg as (c, Hg).
+rewrite Hg in |- * at 2.
+unfold Nat.gcd.
+destruct c; [ contradiction | simpl ].
+apply le_plus_l.
+Qed.
+
+Lemma Nat_le_lcm_l : ∀ a b, (b ≠ 0 → a ≤ Nat.lcm a b)%nat.
+Proof.
+intros a b Hb.
+remember Hb as Hab; clear HeqHab.
+apply Nat_gcd_le_l with (b := a) in Hab.
+rewrite Nat.gcd_comm in Hab.
+unfold Nat.lcm.
+eapply Nat.div_le_mono in Hab.
+ rewrite Nat.div_same in Hab.
+  apply Nat.mul_le_mono_l with (p := a) in Hab.
+  rewrite Nat.mul_1_r in Hab; assumption.
+
+  destruct a; [ assumption | idtac ].
+  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
+
+ intros H; apply Nat.gcd_eq_0_r in H; contradiction.
 Qed.

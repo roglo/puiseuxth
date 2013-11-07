@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.42 2013-11-07 09:58:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.43 2013-11-07 10:57:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2299,6 +2299,11 @@ destruct n.
  destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
 Qed.
 
+Lemma ttt : ∀ a b, (a | Nat.lcm a b)%nat.
+Proof.
+intros a b.
+bbb.
+
 Lemma uuu : ∀ s b k l,
   is_a_series_in_x_power fld s b k
   → is_the_greatest_series_x_power fld s b l
@@ -2316,32 +2321,20 @@ destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
 
  apply Nat.nlt_ge in H₁.
  rewrite Pos2Nat_lcm in H₁.
-ggg.
- rewrite Nat.lcm_comm in H₁.
- unfold Nat.lcm in H₁.
- rewrite <- Nat.mul_1_r in H₁.
- eapply Nat.mul_le_mono_pos_l in H₁; [ idtac | apply Pos2Nat.is_pos ].
- remember (gcd (Pos.to_nat l) (Pos.to_nat k)) as g eqn:Hg .
- apply Nat.mul_le_mono_l with (p := g) in H₁.
- rewrite <- Nat.divide_div_mul_exact in H₁.
-  rewrite Nat.mul_comm in H₁.
-  rewrite Nat.div_mul in H₁.
-   rewrite Nat.mul_1_r in H₁; subst g.
-   pose proof (Nat.gcd_divide_l (Pos.to_nat k) (Pos.to_nat l)) as H₂.
-   destruct H₂ as (c, Hc).
-   rewrite Nat.gcd_comm in Hc.
-   rewrite Hc in H₁ at 1.
-   rewrite <- Nat.mul_1_l in H₁.
-   apply Nat.mul_le_mono_pos_r in H₁.
-    destruct c; simpl in Hc.
-     exfalso; revert Hc; apply Pos2Nat_ne_0.
-
-     destruct c.
-      rewrite Nat.mul_0_l, Nat.add_0_r in Hc.
-      unfold Pos.divide.
-      exists (Pos.of_nat (Pos.to_nat l / Pos.to_nat k)).
-      rewrite Pos_div_mul_r.
-       reflexivity.
+ assert (Pos.to_nat k ≠ 0)%nat as Hknz by auto.
+ apply Nat_le_lcm_l with (a := Pos.to_nat l) in Hknz.
+ rewrite Nat.lcm_comm in Hknz.
+ apply Nat.le_antisymm in H₁; [ idtac | assumption ].
+ assert (Pos.to_nat k | Pos.to_nat l)%nat as Hdkl.
+  rewrite H₁.
+  Focus 2.
+  destruct Hdkl as (c, Hc).
+  exists (Pos.of_nat c).
+  apply Pos2Nat.inj.
+  rewrite Pos2Nat.inj_mul.
+  rewrite Nat2Pos.id; [ assumption | idtac ].
+  destruct c; [ idtac | intros H; discriminate H ].
+  exfalso; revert Hc; apply Pos2Nat_ne_0.
 bbb.
 
 Lemma vvv : ∀ s b p k,
