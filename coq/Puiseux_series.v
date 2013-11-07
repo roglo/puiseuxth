@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.38 2013-11-06 14:40:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.39 2013-11-07 01:20:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2287,6 +2287,17 @@ destruct n.
  symmetry in Hlen.
  destruct len; apply Nat_lcm_divides; assumption.
 Qed.
+
+Lemma uuu : ∀ s b k l,
+  is_a_series_in_x_power fld s b k
+  → greatest_series_x_power fld s b = l
+    → (k | Pos.to_nat l)%nat.
+Proof.
+intros s b k l Hk Hl.
+apply greatest_series_x_power_iff in Hl.
+unfold greatest_series_x_power_prop in Hl.
+destruct Hl as (Hl, Hkl).
+bbb.
 
 Lemma vvv : ∀ s b p k,
   null_coeff_range_length fld s 0 = fin b
