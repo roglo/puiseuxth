@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.45 2013-11-07 14:07:35 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.46 2013-11-07 14:49:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2381,6 +2381,61 @@ split; intros H.
    rewrite Nat2Pos.id; [ idtac | intros H; discriminate H ].
    unfold Pos.to_nat; simpl.
    apply lt_n_S, Nat.lt_0_succ.
+
+ unfold is_the_greatest_series_x_power₂ in H.
+ destruct H as (Hp, Hnp).
+ split; [ assumption | idtac ].
+ intros k₁ Hk₁.
+ intros Hk.
+ remember Hk as Hkk; clear HeqHkk.
+ apply series_in_x_power_lcm with (k := k) in Hkk.
+  unfold Pos_lcm in Hkk.
+  unfold Pos_lcm, Nat.lcm in Hkk.
+  rewrite Nat2Pos.inj_mul in Hkk; auto.
+   remember (gcd (Pos.to_nat k) (Pos.to_nat k₁)) as g eqn:Hg .
+   rewrite Pos2Nat.id in Hkk.
+   destruct (lt_dec 1 (Pos.to_nat k₁ / g)) as [H₁| H₁].
+    rewrite Pos.mul_comm in Hkk.
+    revert Hkk; apply Hnp.
+    apply Pos2Nat.inj_lt.
+    rewrite Nat2Pos.id; [ assumption | idtac ].
+    intros H₂.
+    apply Nat.div_small_iff in H₂.
+     apply Nat.nle_gt in H₂.
+     apply H₂; rewrite Hg.
+     rewrite Nat.gcd_comm.
+     apply Nat_gcd_le_l; auto.
+
+     rewrite Hg; intros H₃.
+     apply Nat.gcd_eq_0 in H₃.
+     destruct H₃ as (H₃, _); revert H₃; apply Pos2Nat_ne_0.
+
+    apply Nat.nlt_ge in H₁.
+    apply Nat.mul_le_mono_l with (p := g) in H₁.
+    rewrite <- Nat.divide_div_mul_exact in H₁.
+     rewrite Nat.mul_comm in H₁.
+     rewrite Nat.div_mul in H₁.
+      rewrite Nat.mul_1_r in H₁.
+      rewrite Hg in H₁.
+      assert (Pos.to_nat k₁ ≠ 0)%nat as H₂ by apply Pos2Nat_ne_0.
+      apply Nat_gcd_le_l with (b := Pos.to_nat k) in H₂.
+      rewrite Nat.gcd_comm in H₂.
+      apply Nat.le_antisymm in H₂; [ idtac | assumption ].
+      apply Pos2Nat.inj_lt in Hk₁.
+      rewrite H₂ in Hk₁.
+      apply Nat.nle_gt in Hk₁.
+      apply Hk₁, Nat_gcd_le_l; auto.
+
+      rewrite Hg; intros H₂.
+      apply Nat.gcd_eq_0_l in H₂.
+      revert H₂; apply Pos2Nat_ne_0.
+
+     rewrite Hg; intros H₂.
+     apply Nat.gcd_eq_0_l in H₂.
+     revert H₂; apply Pos2Nat_ne_0.
+
+     rewrite Hg.
+     apply Nat.gcd_divide_r.
 bbb.
 
 Lemma vvv : ∀ s b p k,
