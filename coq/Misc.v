@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 2.3 2013-11-07 10:57:10 deraugla Exp $ *)
+(* $Id: Misc.v,v 2.4 2013-11-07 11:03:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1417,4 +1417,12 @@ eapply Nat.div_le_mono in Hab.
   intros H; apply Nat.gcd_eq_0_r in H; contradiction.
 
  intros H; apply Nat.gcd_eq_0_r in H; contradiction.
+Qed.
+
+Lemma Nat_divides_lcm_l : ∀ a b, (a | Nat.lcm a b)%nat.
+Proof.
+intros a b.
+unfold Nat.lcm.
+exists (b / gcd a b)%nat.
+apply Nat.mul_comm.
 Qed.

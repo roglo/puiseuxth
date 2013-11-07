@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.43 2013-11-07 10:57:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.44 2013-11-07 11:03:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2276,7 +2276,7 @@ rewrite Nat2Pos.id.
  destruct H; revert H; apply Pos2Nat_ne_0.
 Qed.
 
-Lemma is_a_series_in_x_power_lcm : ∀ s b k l,
+Lemma series_in_x_power_lcm : ∀ s b k l,
   is_a_series_in_x_power fld s b k
   → is_a_series_in_x_power fld s b l
     → is_a_series_in_x_power fld s b (Pos_lcm k l).
@@ -2299,12 +2299,7 @@ destruct n.
  destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
 Qed.
 
-Lemma ttt : ∀ a b, (a | Nat.lcm a b)%nat.
-Proof.
-intros a b.
-bbb.
-
-Lemma uuu : ∀ s b k l,
+Lemma series_in_x_power_divides_greatest : ∀ s b k l,
   is_a_series_in_x_power fld s b k
   → is_the_greatest_series_x_power fld s b l
     → (k | l)%positive.
@@ -2313,7 +2308,7 @@ intros s b k l Hk Hl.
 unfold is_the_greatest_series_x_power in Hl.
 destruct Hl as (Hl, Hkl).
 remember Hl as Hlcm; clear HeqHlcm.
-eapply is_a_series_in_x_power_lcm in Hlcm; [ idtac | eexact Hk ].
+eapply series_in_x_power_lcm in Hlcm; [ idtac | eexact Hk ].
 destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
  apply Pos2Nat.inj_lt in H₁.
  apply Hkl in H₁.
@@ -2327,7 +2322,8 @@ destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
  apply Nat.le_antisymm in H₁; [ idtac | assumption ].
  assert (Pos.to_nat k | Pos.to_nat l)%nat as Hdkl.
   rewrite H₁.
-  Focus 2.
+  apply Nat_divides_lcm_l.
+  
   destruct Hdkl as (c, Hc).
   exists (Pos.of_nat c).
   apply Pos2Nat.inj.
@@ -2335,7 +2331,7 @@ destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
   rewrite Nat2Pos.id; [ assumption | idtac ].
   destruct c; [ idtac | intros H; discriminate H ].
   exfalso; revert Hc; apply Pos2Nat_ne_0.
-bbb.
+Qed.
 
 Lemma vvv : ∀ s b p k,
   null_coeff_range_length fld s 0 = fin b
