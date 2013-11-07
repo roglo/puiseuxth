@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.39 2013-11-07 01:20:24 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.40 2013-11-07 03:17:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -51,15 +51,15 @@ Fixpoint nth_null_coeff_range_length s n b :=
   end.
 
 Definition is_a_series_in_x_power s b k :=
-  ∀ n, (k | nth_null_coeff_range_length s n b).
+  ∀ n, (Pos.to_nat k | nth_null_coeff_range_length s n b).
 
 Definition greatest_series_x_power_prop s b k :=
   is_a_series_in_x_power s b k ∧
-  (∀ k', (k < k')%nat → ¬is_a_series_in_x_power s b k').
+  (∀ k', (k < k')%positive → ¬is_a_series_in_x_power s b k').
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
   greatest_series_x_power fld s n = k ↔
-  greatest_series_x_power_prop s n (Pos.to_nat k).
+  greatest_series_x_power_prop s n k.
 
 End Axioms.
 
@@ -2235,15 +2235,16 @@ induction n; intros.
 Qed.
 
 Lemma stretch_is_not_a_series_in_x_power : ∀ s b k k₁,
-  (∃ n, Pos.to_nat k * nth_null_coeff_range_length fld s n b mod k₁ ≠ 0)%nat
+  (∃ n,
+   Pos.to_nat k * nth_null_coeff_range_length fld s n b mod
+   Pos.to_nat k₁ ≠ 0)%nat
   → ¬is_a_series_in_x_power fld (series_stretch fld k s) (b * Pos.to_nat k) k₁.
 Proof.
 intros s b k k₁ (n, Hn) H.
 unfold is_a_series_in_x_power in H.
 rewrite <- nth_null_coeff_range_length_stretch in Hn.
 apply Hn.
-destruct k₁; [ reflexivity | idtac ].
-apply Nat.mod_divides; [ intros HH; discriminate HH | idtac ].
+apply Nat.mod_divides; auto.
 apply Nat_divides_l, H.
 Qed.
 
@@ -2259,18 +2260,28 @@ rewrite nth_null_coeff_range_length_stretch.
 assumption.
 Qed.
 
+(* redéfinition de Plcm: Pos_lcm... euh... pas très joli joli, ça... *)
+Definition Pos_lcm a b := Pos.of_nat (Nat.lcm (Pos.to_nat a) (Pos.to_nat b)).
+
+Lemma Pos2Nat_lcm : ∀ a b,
+  Pos.to_nat (Pos_lcm a b) = Nat.lcm (Pos.to_nat a) (Pos.to_nat b).
+Proof.
+intros a b.
+unfold Pos_lcm.
+rewrite Nat2Pos.id.
+ reflexivity.
+
+ intros H.
+ apply Nat.lcm_eq_0 in H.
+ destruct H; revert H; apply Pos2Nat_ne_0.
+Qed.
+
 Lemma is_a_series_in_x_power_lcm : ∀ s b k l,
   is_a_series_in_x_power fld s b k
   → is_a_series_in_x_power fld s b l
-    → is_a_series_in_x_power fld s b (Nat.lcm k l).
+    → is_a_series_in_x_power fld s b (Pos_lcm k l).
 Proof.
 intros s b k l Hk Hl.
-destruct k; [ rewrite Nat.lcm_0_l; assumption | idtac ].
-destruct l; [ rewrite Nat.lcm_0_r; assumption | idtac ].
-assert (S k ≠ 0)%nat as Hkp by (intros H; discriminate H).
-assert (S l ≠ 0)%nat as Hlp by (intros H; discriminate H).
-remember (S k) as k'; clear k Heqk'; rename k' into k.
-remember (S l) as l'; clear l Heql'; rename l' into l.
 unfold is_a_series_in_x_power in Hk, Hl |- *.
 destruct n.
  pose proof (Hk O) as Hk₀.
@@ -2278,20 +2289,20 @@ destruct n.
  simpl in Hk₀, Hl₀ |- *.
  remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
- destruct len; apply Nat_lcm_divides; assumption.
+ destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
 
  pose proof (Hk (S n)) as Hkn.
  pose proof (Hl (S n)) as Hln.
  simpl in Hkn, Hln |- *.
  remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
- destruct len; apply Nat_lcm_divides; assumption.
+ destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
 Qed.
 
 Lemma uuu : ∀ s b k l,
   is_a_series_in_x_power fld s b k
   → greatest_series_x_power fld s b = l
-    → (k | Pos.to_nat l)%nat.
+    → (k | l)%positive.
 Proof.
 intros s b k l Hk Hl.
 apply greatest_series_x_power_iff in Hl.
