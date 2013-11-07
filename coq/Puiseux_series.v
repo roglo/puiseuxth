@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.49 2013-11-07 19:00:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.50 2013-11-07 19:18:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2451,6 +2451,21 @@ split; intros H.
   assumption.
 Qed.
 
+Lemma Nat_exists_mul_mod_distr_l : ∀ A (a : A → nat) b c,
+  (b ≠ 0
+   → c ≠ 0
+     → (∃ n, a n mod b ≠ 0)
+      → ∃ n, (c * a n) mod (c * b) ≠ 0)%nat.
+Proof.
+intros A a b c Hb Hc Hn.
+destruct Hn as (n, Hn).
+exists n.
+rewrite Nat.mul_mod_distr_l; try assumption.
+intros H; apply Hn.
+apply Nat.mul_eq_0 in H.
+destruct H; [ contradiction | assumption ].
+Qed.
+
 Lemma vvv : ∀ s b p k,
   null_coeff_range_length fld s 0 = fin b
   → null_coeff_range_length fld s (S b) = fin p
@@ -2489,6 +2504,7 @@ split.
   Focus 2.
   apply Hmk in Hmq.
   unfold is_a_series_in_x_power in Hmq.
+  apply Nat_exists_mul_mod_distr_l; auto.
 bbb.
 
  (* if studying simple case: m = 1 and b = 0 *)
