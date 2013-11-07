@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.47 2013-11-07 14:55:13 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.48 2013-11-07 17:50:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2461,7 +2461,8 @@ intros s b p k Hb Hp.
 remember (greatest_series_x_power fld s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
-unfold is_the_greatest_series_x_power.
+apply is_the_greatest_series_x_power_equiv.
+unfold is_the_greatest_series_x_power₂.
 split.
  intros n.
  apply greatest_series_x_power_iff in Hm.
@@ -2476,7 +2477,8 @@ split.
  apply Nat.mod_divides; auto.
  apply Nat_divides_l, Hm.
 
- intros k₁ Hk₁.
+ intros n Hn.
+bbb.
  (* studying simple case: m = 1 and b = 0 *)
  remember (Pos.to_nat m) as mn eqn:Hmn .
  symmetry in Hmn.
@@ -2485,12 +2487,11 @@ split.
   rewrite <- Pos2Nat.inj_1 in Hmn.
   apply Pos2Nat.inj in Hmn.
   move Hmn at top; subst m.
-  rewrite Pos.mul_1_r in Hk₁.
   destruct b.
    apply greatest_series_x_power_iff in Hm.
    destruct Hm as (Hm, Hnm).
    clear Hm.
-   rewrite Nat.mul_0_l.
+   rewrite Nat.mul_0_l, Pos.mul_1_r.
 bbb.
    apply stretch_is_not_a_series_in_x_power.
 
