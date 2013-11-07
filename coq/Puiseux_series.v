@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.41 2013-11-07 03:22:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.42 2013-11-07 09:58:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2307,6 +2307,41 @@ Proof.
 intros s b k l Hk Hl.
 unfold is_the_greatest_series_x_power in Hl.
 destruct Hl as (Hl, Hkl).
+remember Hl as Hlcm; clear HeqHlcm.
+eapply is_a_series_in_x_power_lcm in Hlcm; [ idtac | eexact Hk ].
+destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
+ apply Pos2Nat.inj_lt in H₁.
+ apply Hkl in H₁.
+ contradiction.
+
+ apply Nat.nlt_ge in H₁.
+ rewrite Pos2Nat_lcm in H₁.
+ggg.
+ rewrite Nat.lcm_comm in H₁.
+ unfold Nat.lcm in H₁.
+ rewrite <- Nat.mul_1_r in H₁.
+ eapply Nat.mul_le_mono_pos_l in H₁; [ idtac | apply Pos2Nat.is_pos ].
+ remember (gcd (Pos.to_nat l) (Pos.to_nat k)) as g eqn:Hg .
+ apply Nat.mul_le_mono_l with (p := g) in H₁.
+ rewrite <- Nat.divide_div_mul_exact in H₁.
+  rewrite Nat.mul_comm in H₁.
+  rewrite Nat.div_mul in H₁.
+   rewrite Nat.mul_1_r in H₁; subst g.
+   pose proof (Nat.gcd_divide_l (Pos.to_nat k) (Pos.to_nat l)) as H₂.
+   destruct H₂ as (c, Hc).
+   rewrite Nat.gcd_comm in Hc.
+   rewrite Hc in H₁ at 1.
+   rewrite <- Nat.mul_1_l in H₁.
+   apply Nat.mul_le_mono_pos_r in H₁.
+    destruct c; simpl in Hc.
+     exfalso; revert Hc; apply Pos2Nat_ne_0.
+
+     destruct c.
+      rewrite Nat.mul_0_l, Nat.add_0_r in Hc.
+      unfold Pos.divide.
+      exists (Pos.of_nat (Pos.to_nat l / Pos.to_nat k)).
+      rewrite Pos_div_mul_r.
+       reflexivity.
 bbb.
 
 Lemma vvv : ∀ s b p k,
