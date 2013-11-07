@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.48 2013-11-07 17:50:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.49 2013-11-07 19:00:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2478,8 +2478,21 @@ split.
  apply Nat_divides_l, Hm.
 
  intros n Hn.
+ apply stretch_is_not_a_series_in_x_power.
+ rename n into q.
+ rewrite Pos.mul_comm, <- Pos.mul_assoc.
+ rewrite Pos2Nat.inj_mul.
+ apply greatest_series_x_power_iff in Hm.
+ unfold is_the_greatest_series_x_power in Hm.
+ destruct Hm as (Hm, Hmk).
+ assert (m < m * q)%positive as Hmq.
+  Focus 2.
+  apply Hmk in Hmq.
+  unfold is_a_series_in_x_power in Hmq.
 bbb.
- (* studying simple case: m = 1 and b = 0 *)
+
+ (* if studying simple case: m = 1 and b = 0 *)
+ intros n Hn.
  remember (Pos.to_nat m) as mn eqn:Hmn .
  symmetry in Hmn.
  destruct mn; [ exfalso; revert Hmn; apply Pos2Nat_ne_0 | idtac ].
