@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.44 2013-11-07 11:03:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.45 2013-11-07 14:07:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2332,6 +2332,56 @@ destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
   destruct c; [ idtac | intros H; discriminate H ].
   exfalso; revert Hc; apply Pos2Nat_ne_0.
 Qed.
+
+Definition is_the_greatest_series_x_power₂ s b k :=
+  is_a_series_in_x_power fld s b k ∧
+  (∀ n, (1 < n)%positive → ¬is_a_series_in_x_power fld s b (n * k)).
+
+Lemma uuu : ∀ s b k,
+  is_the_greatest_series_x_power fld s b k
+  ↔ is_the_greatest_series_x_power₂ s b k.
+Proof.
+intros s b k.
+split; intros H.
+ unfold is_the_greatest_series_x_power in H.
+ unfold is_the_greatest_series_x_power₂.
+ destruct H as (Hp, Hnp).
+ split; [ assumption | idtac ].
+ intros n Hn.
+ remember (Pos.to_nat n) as nn eqn:Hnn .
+ symmetry in Hnn.
+ destruct nn; [ exfalso; revert Hnn; apply Pos2Nat_ne_0 | idtac ].
+ destruct nn.
+  rewrite <- Pos2Nat.inj_1 in Hnn.
+  apply Pos2Nat.inj in Hnn.
+  subst n; exfalso; revert Hn; apply Pos.lt_irrefl.
+
+  apply Hnp.
+  rewrite <- SuccNat2Pos.id_succ in Hnn.
+  apply Pos2Nat.inj in Hnn.
+  subst n; simpl.
+  rewrite Pos.of_nat_succ.
+  destruct nn.
+   rewrite Pos.mul_comm; simpl.
+   replace k with (k * 1)%positive .
+    rewrite <- Pos.mul_assoc; simpl.
+    apply Pos.mul_lt_mono_l.
+    apply Pos2Nat.inj_lt.
+    unfold Pos.to_nat; simpl.
+    apply Nat.lt_1_2.
+
+    rewrite Pos.mul_1_r; reflexivity.
+
+   replace k with (1 * k)%positive by reflexivity.
+   rewrite Pos.mul_assoc.
+   apply Pos.mul_lt_mono_r.
+   rewrite Pos.mul_1_r.
+   apply Pos2Nat.inj_lt.
+   rewrite Pos2Nat.inj_succ.
+   rewrite Nat2Pos.id; [ idtac | intros H; discriminate H ].
+   unfold Pos.to_nat; simpl.
+   apply lt_n_S, Nat.lt_0_succ.
+bbb.
 
 Lemma vvv : ∀ s b p k,
   null_coeff_range_length fld s 0 = fin b
