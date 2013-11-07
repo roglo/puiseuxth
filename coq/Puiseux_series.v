@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.46 2013-11-07 14:49:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.47 2013-11-07 14:55:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2337,7 +2337,7 @@ Definition is_the_greatest_series_x_power₂ s b k :=
   is_a_series_in_x_power fld s b k ∧
   (∀ n, (1 < n)%positive → ¬is_a_series_in_x_power fld s b (n * k)).
 
-Lemma uuu : ∀ s b k,
+Lemma is_the_greatest_series_x_power_equiv : ∀ s b k,
   is_the_greatest_series_x_power fld s b k
   ↔ is_the_greatest_series_x_power₂ s b k.
 Proof.
@@ -2436,7 +2436,20 @@ split; intros H.
 
      rewrite Hg.
      apply Nat.gcd_divide_r.
-bbb.
+
+   intros H₁.
+   apply Nat.div_small_iff in H₁.
+    apply Nat.nle_gt in H₁.
+    apply H₁.
+    rewrite Nat.gcd_comm.
+    apply Nat_gcd_le_l; auto.
+
+    intros H₂.
+    apply Nat.gcd_eq_0_l in H₂.
+    revert H₂; apply Pos2Nat_ne_0.
+
+  assumption.
+Qed.
 
 Lemma vvv : ∀ s b p k,
   null_coeff_range_length fld s 0 = fin b
