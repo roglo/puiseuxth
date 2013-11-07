@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.40 2013-11-07 03:17:19 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.41 2013-11-07 03:22:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -53,13 +53,13 @@ Fixpoint nth_null_coeff_range_length s n b :=
 Definition is_a_series_in_x_power s b k :=
   ∀ n, (Pos.to_nat k | nth_null_coeff_range_length s n b).
 
-Definition greatest_series_x_power_prop s b k :=
+Definition is_the_greatest_series_x_power s b k :=
   is_a_series_in_x_power s b k ∧
   (∀ k', (k < k')%positive → ¬is_a_series_in_x_power s b k').
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
   greatest_series_x_power fld s n = k ↔
-  greatest_series_x_power_prop s n k.
+  is_the_greatest_series_x_power s n k.
 
 End Axioms.
 
@@ -327,7 +327,7 @@ remember (greatest_series_x_power fld s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-unfold greatest_series_x_power_prop in Hk |- *.
+unfold is_the_greatest_series_x_power in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
@@ -1418,7 +1418,7 @@ remember (greatest_series_x_power fld s b) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
-unfold greatest_series_x_power_prop in Hk |- *.
+unfold is_the_greatest_series_x_power in Hk |- *.
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
@@ -2061,7 +2061,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
    destruct Hk as (c, Hk).
    apply greatest_series_x_power_iff in Hk.
-   unfold greatest_series_x_power_prop in Hk.
+   unfold is_the_greatest_series_x_power in Hk.
    destruct Hk as (Hz, Hnz).
    symmetry.
    assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
@@ -2301,12 +2301,11 @@ Qed.
 
 Lemma uuu : ∀ s b k l,
   is_a_series_in_x_power fld s b k
-  → greatest_series_x_power fld s b = l
+  → is_the_greatest_series_x_power fld s b l
     → (k | l)%positive.
 Proof.
 intros s b k l Hk Hl.
-apply greatest_series_x_power_iff in Hl.
-unfold greatest_series_x_power_prop in Hl.
+unfold is_the_greatest_series_x_power in Hl.
 destruct Hl as (Hl, Hkl).
 bbb.
 
@@ -2320,7 +2319,7 @@ intros s b p k Hb Hp.
 remember (greatest_series_x_power fld s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
-unfold greatest_series_x_power_prop.
+unfold is_the_greatest_series_x_power.
 split.
  intros n.
  apply greatest_series_x_power_iff in Hm.
@@ -2373,7 +2372,7 @@ bbb.
 
 apply www in Hm.
 apply www.
-unfold greatest_series_x_power_prop in Hm |- *.
+unfold is_the_greatest_series_x_power in Hm |- *.
 destruct Hm as (Hz, Hnz).
 split.
  intros cnt.
@@ -2423,7 +2422,7 @@ apply greatest_series_x_power_iff in Hs.
 apply greatest_series_x_power_iff.
 apply www in Hs.
 apply www.
-unfold greatest_series_x_power_prop in Hs |- *.
+unfold is_the_greatest_series_x_power in Hs |- *.
 destruct Hs as (_, Hnz).
 split.
  intros cnt.
@@ -2447,11 +2446,11 @@ Lemma yyy : ∀ s n k,
   → greatest_series_x_power fld s 0 = 1%positive
     → greatest_series_x_power fld (series_stretch fld k s) 0 = k.
 Proof.
-(* si la version greatest_series_x_power_prop ne fonctionne pas... *)
+(* si la version is_the_greatest_series_x_power ne fonctionne pas... *)
 intros s n k Hn Hs.
 apply greatest_series_x_power_iff in Hs.
 apply greatest_series_x_power_iff.
-unfold greatest_series_x_power_prop in Hs |- *.
+unfold is_the_greatest_series_x_power in Hs |- *.
 simpl in Hs |- *.
 rewrite Hn in Hs.
 remember (null_coeff_range_length fld (series_stretch fld k s) 1) as m eqn:Hm .
