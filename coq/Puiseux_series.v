@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.52 2013-11-08 02:21:43 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.53 2013-11-08 09:44:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2441,14 +2441,12 @@ apply Nat.mul_eq_0 in H.
 destruct H; [ contradiction | assumption ].
 Qed.
 
-Lemma greatest_series_x_power_stretch : ∀ s b p k,
-  null_coeff_range_length fld s 0 = fin b
-  → null_coeff_range_length fld s (S b) = fin p
-    → greatest_series_x_power fld (series_stretch fld k s) (b * Pos.to_nat k) =
-      (k * greatest_series_x_power fld s b)%positive.
+Lemma greatest_series_x_power_stretch : ∀ s b k,
+  greatest_series_x_power fld (series_stretch fld k s) (b * Pos.to_nat k) =
+    (k * greatest_series_x_power fld s b)%positive.
 Proof.
 (* à nettoyer *)
-intros s b p k Hb Hp.
+intros s b k.
 remember (greatest_series_x_power fld s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
