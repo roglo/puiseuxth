@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.3 2013-11-08 09:44:42 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.4 2013-11-08 10:01:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -78,9 +78,27 @@ constructor; simpl.
  rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.mul_comm.
  subst kp.
- rewrite Z.div_mul_cancel_r.
-  reflexivity.
+ rewrite Z.div_mul_cancel_r; [ reflexivity | idtac | apply Pos2Z_ne_0 ].
+ intros H₁.
+ apply Z.gcd_eq_0_r in H₁.
+ revert H₁; apply Pos2Z_ne_0.
 
+ rewrite greatest_series_x_power_shift.
+ rewrite greatest_series_x_power_stretch.
+ unfold gcd_nz; simpl.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.sub_add_simpl_r_r.
+ rewrite Nat2Z.inj_mul.
+ rewrite positive_nat_Z.
+ rewrite <- Z.mul_add_distr_r.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.gcd_mul_mono_r; simpl.
+ rewrite Pos2Z.inj_mul.
+ rewrite Pos.mul_comm.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.gcd_mul_mono_r; simpl.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.div_mul_cancel_r; auto.
   intros H₁.
   apply Z.gcd_eq_0_r in H₁.
   revert H₁; apply Pos2Z_ne_0.
