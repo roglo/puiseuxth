@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.50 2013-11-07 19:18:30 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.51 2013-11-08 01:54:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,7 +55,8 @@ Definition is_a_series_in_x_power s b k :=
 
 Definition is_the_greatest_series_x_power s b k :=
   is_a_series_in_x_power s b k ∧
-  (∀ k', (k < k')%positive → ¬is_a_series_in_x_power s b k').
+  (∀ k', (k < k')%positive
+   → ∃ n, ¬(Pos.to_nat k' | nth_null_coeff_range_length s n b)).
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
   greatest_series_x_power fld s n = k ↔
@@ -335,9 +336,8 @@ split.
 
  intros k₁ Hk₁.
  apply Hnz in Hk₁.
- intros H; apply Hk₁.
- unfold is_a_series_in_x_power in H |- *.
- intros m; rewrite <- Heq; apply H.
+ destruct Hk₁ as (m, Hm).
+ exists m; rewrite Heq; assumption.
 Qed.
 
 Add Parametric Morphism α (fld : field α) : (series_stretch fld) with 
@@ -1427,9 +1427,8 @@ split.
 
  intros k₁ Hk₁.
  apply Hnz in Hk₁.
- intros H; apply Hk₁.
- unfold is_a_series_in_x_power in H |- *.
- intros m; erewrite <- nth_null_coeff_range_length_shift; apply H.
+ destruct Hk₁ as (m, Hm).
+ exists m; erewrite nth_null_coeff_range_length_shift; assumption.
 Qed.
 
 Lemma null_coeff_range_length_succ : ∀ s n,
@@ -2312,7 +2311,9 @@ eapply series_in_x_power_lcm in Hlcm; [ idtac | eexact Hk ].
 destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
  apply Pos2Nat.inj_lt in H₁.
  apply Hkl in H₁.
- contradiction.
+ unfold is_a_series_in_x_power in Hlcm.
+ destruct H₁ as (n, Hn).
+ exfalso; apply Hn, Hlcm.
 
  apply Nat.nlt_ge in H₁.
  rewrite Pos2Nat_lcm in H₁.
@@ -2335,7 +2336,8 @@ Qed.
 
 Definition is_the_greatest_series_x_power₂ s b k :=
   is_a_series_in_x_power fld s b k ∧
-  (∀ n, (1 < n)%positive → ¬is_a_series_in_x_power fld s b (n * k)).
+  (∀ u, (1 < u)%positive
+   → ∃ n, ¬(Pos.to_nat (u * k) | nth_null_coeff_range_length fld s n b)).
 
 Lemma is_the_greatest_series_x_power_equiv : ∀ s b k,
   is_the_greatest_series_x_power fld s b k
@@ -2386,69 +2388,42 @@ split; intros H.
  destruct H as (Hp, Hnp).
  split; [ assumption | idtac ].
  intros k₁ Hk₁.
- intros Hk.
- remember Hk as Hkk; clear HeqHkk.
- apply series_in_x_power_lcm with (k := k) in Hkk.
-  unfold Pos_lcm in Hkk.
-  unfold Pos_lcm, Nat.lcm in Hkk.
-  rewrite Nat2Pos.inj_mul in Hkk; auto.
-   remember (gcd (Pos.to_nat k) (Pos.to_nat k₁)) as g eqn:Hg .
-   rewrite Pos2Nat.id in Hkk.
-   destruct (lt_dec 1 (Pos.to_nat k₁ / g)) as [H₁| H₁].
-    rewrite Pos.mul_comm in Hkk.
-    revert Hkk; apply Hnp.
-    apply Pos2Nat.inj_lt.
-    rewrite Nat2Pos.id; [ assumption | idtac ].
-    intros H₂.
-    apply Nat.div_small_iff in H₂.
-     apply Nat.nle_gt in H₂.
-     apply H₂; rewrite Hg.
-     rewrite Nat.gcd_comm.
-     apply Nat_gcd_le_l; auto.
+ remember (Pos_lcm k k₁) as kk eqn:Hkk .
+ remember Hkk as Hk; clear HeqHk.
+ apply Pos2Nat.inj_iff in Hkk.
+ rewrite Pos2Nat_lcm in Hkk.
+ pose proof (Nat_divides_lcm_l (Pos.to_nat k) (Pos.to_nat k₁)) as Hdl.
+ destruct Hdl as (u, Hu).
+ rewrite <- Hkk in Hu.
+ destruct u; [ exfalso; revert Hu; apply Pos2Nat_ne_0 | idtac ].
+ destruct u.
+  rewrite Nat.mul_1_l in Hu.
+  apply Pos2Nat.inj_iff in Hu.
+  move Hu at top; subst kk.
+  rewrite Hk in Hk₁.
+  apply Pos2Nat.inj_lt in Hk₁.
+  rewrite Pos2Nat_lcm in Hk₁.
+  apply Nat.nle_gt in Hk₁.
+  exfalso; apply Hk₁.
+  rewrite Nat.lcm_comm.
+  apply Nat_le_lcm_l; auto.
 
-     rewrite Hg; intros H₃.
-     apply Nat.gcd_eq_0 in H₃.
-     destruct H₃ as (H₃, _); revert H₃; apply Pos2Nat_ne_0.
+  assert (1 < Pos.of_nat (S (S u)))%positive as H₁.
+   apply Pos2Nat.inj_lt.
+   rewrite Nat2Pos.id; [ idtac | intros H; discriminate H ].
+   rewrite Pos2Nat.inj_1.
+   apply lt_n_S, Nat.lt_0_succ.
 
-    apply Nat.nlt_ge in H₁.
-    apply Nat.mul_le_mono_l with (p := g) in H₁.
-    rewrite <- Nat.divide_div_mul_exact in H₁.
-     rewrite Nat.mul_comm in H₁.
-     rewrite Nat.div_mul in H₁.
-      rewrite Nat.mul_1_r in H₁.
-      rewrite Hg in H₁.
-      assert (Pos.to_nat k₁ ≠ 0)%nat as H₂ by apply Pos2Nat_ne_0.
-      apply Nat_gcd_le_l with (b := Pos.to_nat k) in H₂.
-      rewrite Nat.gcd_comm in H₂.
-      apply Nat.le_antisymm in H₂; [ idtac | assumption ].
-      apply Pos2Nat.inj_lt in Hk₁.
-      rewrite H₂ in Hk₁.
-      apply Nat.nle_gt in Hk₁.
-      apply Hk₁, Nat_gcd_le_l; auto.
-
-      rewrite Hg; intros H₂.
-      apply Nat.gcd_eq_0_l in H₂.
-      revert H₂; apply Pos2Nat_ne_0.
-
-     rewrite Hg; intros H₂.
-     apply Nat.gcd_eq_0_l in H₂.
-     revert H₂; apply Pos2Nat_ne_0.
-
-     rewrite Hg.
-     apply Nat.gcd_divide_r.
-
-   intros H₁.
-   apply Nat.div_small_iff in H₁.
-    apply Nat.nle_gt in H₁.
-    apply H₁.
-    rewrite Nat.gcd_comm.
-    apply Nat_gcd_le_l; auto.
-
-    intros H₂.
-    apply Nat.gcd_eq_0_l in H₂.
-    revert H₂; apply Pos2Nat_ne_0.
-
-  assumption.
+   apply Hnp in H₁.
+   destruct H₁ as (m, Hm).
+   rewrite Pos2Nat.inj_mul in Hm.
+   rewrite Nat2Pos.id in Hm; [ idtac | intros H; discriminate H ].
+   rewrite <- Hu, Hkk in Hm.
+   exists m.
+   intros H₁; apply Hm.
+   unfold is_a_series_in_x_power in Hp.
+   pose proof (Hp m) as H₂.
+   apply Nat_lcm_divides; auto.
 Qed.
 
 Lemma Nat_exists_mul_mod_distr_l : ∀ A (a : A → nat) b c,
@@ -2492,6 +2467,8 @@ split.
  apply Nat.mod_divides; auto.
  apply Nat_divides_l, Hm.
 
+ intros u Hu.
+bbb.
  intros n Hn.
  apply stretch_is_not_a_series_in_x_power.
  rename n into q.
