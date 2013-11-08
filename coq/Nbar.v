@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.3 2013-11-08 12:50:47 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.4 2013-11-08 15:02:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -504,6 +504,17 @@ rewrite Nat.div_mul; [ reflexivity | idtac ].
 intros H; discriminate H.
 Qed.
 
+Theorem div_sup_0_l : ∀ a, div_sup 0 a = 0.
+Proof.
+intros a.
+unfold div_sup.
+destruct a as [a| ]; [ simpl | reflexivity ].
+destruct a; [ reflexivity | idtac ].
+rewrite Nat.div_small; [ reflexivity | simpl ].
+rewrite Nat.sub_0_r.
+apply Nat.lt_succ_r; reflexivity.
+Qed.
+
 Theorem div_sup_div_sup : ∀ a b c,
   b ≠ 0 → 0 < c → div_sup (div_sup a b) c = div_sup a (b * c).
 Proof.
@@ -535,7 +546,43 @@ destruct a as [a| ].
 
         rewrite Nat.sub_succ.
         rewrite Nat.sub_0_r.
-bbb.
+        apply Nat.lt_succ_r; reflexivity.
+
+       destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
+       rewrite Nat.sub_0_r.
+       apply Nat.lt_succ_r; reflexivity.
+
+     simpl.
+     do 2 rewrite Nat.sub_0_r.
+     rewrite Nat.mul_comm, Nat.div_add.
+      replace (a + b)%nat with (a + 1 * b)%nat .
+       rewrite Nat.div_add.
+        rewrite Nat.add_shuffle0.
+        rewrite Nat.add_sub; reflexivity.
+
+        destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
+        intros H; discriminate H.
+
+       rewrite Nat.mul_1_l; reflexivity.
+
+      destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
+      intros H; discriminate H.
+
+    destruct b; [ exfalso; apply Hb; reflexivity | simpl ].
+    intros H; discriminate H.
+
+    destruct c; [ exfalso; revert Hc; apply lt_irrefl | simpl ].
+    intros H; discriminate H.
+
+   reflexivity.
+
+  simpl; rewrite div_sup_0_l; reflexivity.
+
+ destruct b as [b| ].
+  destruct c as [c| ]; reflexivity.
+
+  simpl; rewrite div_sup_0_l; reflexivity.
+Qed.
 
 Theorem Nat_le_mul_div_sup : ∀ a b, (b ≠ 0 → a <= Nat_div_sup a b * b)%nat.
 Proof.
