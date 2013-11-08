@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.54 2013-11-08 15:29:58 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.55 2013-11-08 16:51:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -392,7 +392,58 @@ Add Parametric Morphism α (fld : field α) : (@series_shrink α) with
 signature eq ==> (eq_series fld) ==> (eq_series fld) as shrink_morph.
 Proof.
 intros n s₁ s₂ Heq.
-bbb.
+constructor; intros.
+unfold series_nth_fld; simpl.
+do 2 rewrite Nbar.fold_sub, Nbar.fold_div, Nbar.fold_div_sup.
+inversion Heq; subst.
+clear Heq; rename H into Heq.
+unfold series_nth_fld in Heq; simpl in Heq.
+remember (Pos.to_nat n) as nn eqn:Hnn .
+symmetry in Hnn.
+pose proof (Heq (i * nn)%nat) as Hin.
+destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₁) (fin nn))) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin (i * nn)) (stop s₁)) as [H₃| H₃].
+  destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₂) (fin nn)))
+   as [H₂| H₂].
+   destruct (Nbar.lt_dec (fin (i * nn)) (stop s₂)) as [H₄| H₄].
+    assumption.
+
+    exfalso; apply H₄.
+    rewrite Nbar.fin_inj_mul.
+    apply Nbar.lt_div_sup_lt_mul_r; assumption.
+
+   destruct (Nbar.lt_dec (fin (i * nn)) (stop s₂)) as [H₄| H₄].
+    exfalso; apply H₂.
+    rewrite Nbar.fin_inj_mul in H₄.
+    apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
+    destruct nn; [ exfalso; revert Hnn; apply Pos2Nat_ne_0 | idtac ].
+    apply Nbar.lt_fin, Nat.lt_succ_r, Nat.le_0_l.
+
+    assumption.
+
+  exfalso; apply H₃.
+  rewrite Nbar.fin_inj_mul.
+  apply Nbar.lt_div_sup_lt_mul_r; assumption.
+
+ destruct (Nbar.lt_dec (fin (i * nn)) (stop s₁)) as [H₃| H₃].
+  exfalso; apply H₁.
+  rewrite Nbar.fin_inj_mul in H₃.
+  apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
+  destruct nn; [ exfalso; revert Hnn; apply Pos2Nat_ne_0 | idtac ].
+  apply Nbar.lt_fin.
+  apply Nat.lt_succ_r, Nat.le_0_l.
+
+  destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₂) (fin nn)))
+   as [H₂| H₂].
+   destruct (Nbar.lt_dec (fin (i * nn)) (stop s₂)) as [H₄| H₄].
+    assumption.
+
+    exfalso; apply H₄.
+    rewrite Nbar.fin_inj_mul.
+    apply Nbar.lt_div_sup_lt_mul_r; assumption.
+
+   reflexivity.
+Qed.
 
 Add Parametric Morphism α (fld : field α) : (series_shift fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_shift_morph.
@@ -810,6 +861,29 @@ destruct (lt_dec i x) as [Hlt| Hge].
   rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
   apply Nat.le_sub_le_add_l.
   assumption.
+Qed.
+
+Theorem series_left_shift_shift : ∀ s n m,
+  (m ≤ n)%nat
+  → series_left_shift n (series_shift fld m s) ≃ series_left_shift (n - m) s.
+Proof.
+intros s n m Hmn.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+do 2 rewrite Nbar.fold_sub.
+rewrite Nbar.fin_inj_sub.
+rewrite Nbar.sub_sub_distr.
+ destruct (Nbar.lt_dec (fin i) (stop s + fin m - fin n)) as [H₁| H₁].
+  destruct (lt_dec (n + i) m) as [H₂| H₂].
+   exfalso; fast_omega Hmn H₂.
+
+   rewrite Nat.add_sub_swap; [ reflexivity | assumption ].
+
+  reflexivity.
+
+ intros H; discriminate H.
+
+ apply Nbar.le_fin; assumption.
 Qed.
 
 Theorem eq_ps_trans : transitive _ (eq_ps fld).

@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.9 2013-11-08 15:29:58 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.10 2013-11-08 16:51:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -33,12 +33,6 @@ Definition cm (nz₁ nz₂ : nz_ps α) :=
 Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
-
-Lemma yyy : ∀ s n m,
-  (n ≤ m)%nat
-  → series_left_shift n (series_shift fld m s) ≃ series_shift fld (m - n) s.
-Proof.
-bbb.
 
 (* for a possible redefinition of ps_add, or perhaps to change a
    representation for another to manage to make proofs... *)
@@ -126,6 +120,8 @@ constructor; simpl.
  rewrite Z.mul_comm; simpl.
  rewrite Z2Pos.inj_mul; simpl.
   rewrite series_shrink_shrink.
+  rewrite series_left_shift_shift.
+   rewrite Nat.add_sub.
 bbb.
 *)
 
