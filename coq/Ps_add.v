@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.1 2013-11-05 10:58:05 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.2 2013-11-08 09:19:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,28 +41,28 @@ Definition adjust_nz n k nz :=
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
-(* manque stretch_factor_stretch...
+(* manque greatest_series_x_power_stretch... *)
 Theorem glop : ∀ nz n k,
   NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
 intros nz n k.
 constructor.
 unfold normalise_nz; simpl.
-rewrite number_of_zeroes_from_shift.
-rewrite number_of_zeroes_from_stretch_0.
+rewrite null_coeff_range_length_shift.
+rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (number_of_zeroes_from fld (nz_terms nz) 0) as m eqn:Hm .
+remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
- rewrite stretch_factor_shift.
+ rewrite greatest_series_x_power_shift.
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
  rewrite Z.sub_add.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  rewrite <- Z.mul_add_distr_r.
  rewrite Z.mul_comm.
- rewrite stretch_factor_stretch.
+ erewrite greatest_series_x_power_stretch.
   unfold gcd_nz.
   remember (' k)%Z as kp.
   simpl.
@@ -80,6 +80,18 @@ constructor; simpl.
     subst kp.
     rewrite Z.div_mul_cancel_r.
      reflexivity.
+
+     intros H₁.
+     apply Z.gcd_eq_0_r in H₁.
+     revert H₁; apply Pos2Z_ne_0.
+
+     apply Pos2Z_ne_0.
+
+    apply Pos2Z.is_nonneg.
+
+   apply Pos2Z.is_nonneg.
+
+  assumption.
 bbb.
 *)
 
@@ -298,7 +310,7 @@ Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_comm.
-remember (number_of_zeroes_from fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
+remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
@@ -379,13 +391,13 @@ destruct (lt_dec i n) as [Hlt| Hge].
     assumption.
 Qed.
 
-Lemma number_of_zeroes_from_nonzero_fin : ∀ s n,
-  number_of_zeroes_from fld s 0 = fin (S n)
+Lemma null_coeff_range_length_nonzero_fin : ∀ s n,
+  null_coeff_range_length fld s 0 = fin (S n)
   → series_nth_fld fld 0 s ≍ zero fld.
 Proof.
 intros s n Hn.
 replace 0%nat with (0 + 0)%nat by reflexivity.
-apply lt_number_of_zeroes_from.
+apply lt_null_coeff_range_length.
 rewrite Hn.
 constructor; apply lt_0_Sn.
 Qed.
@@ -502,7 +514,7 @@ Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
-remember (number_of_zeroes_from fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
+remember (null_coeff_range_length fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; simpl.
@@ -809,13 +821,13 @@ intros s n.
 unfold series_tail; reflexivity.
 Qed.
 
-Lemma number_of_zeroes_from_S_tail : ∀ s n,
-  number_of_zeroes_from fld s = fin (S n)
-  → number_of_zeroes_from fld (series_tail s) = fin n.
+Lemma null_coeff_range_length_S_tail : ∀ s n,
+  null_coeff_range_length fld s = fin (S n)
+  → null_coeff_range_length fld (series_tail s) = fin n.
 Proof.
 intros s n Hn₃.
-apply number_of_zeroes_from_iff in Hn₃.
-apply number_of_zeroes_from_iff.
+apply null_coeff_range_length_iff in Hn₃.
+apply null_coeff_range_length_iff.
 destruct Hn₃ as (Hisn, Hsn).
 split; [ intros i Hin | idtac ].
  remember (stop s) as st eqn:Hst .
@@ -1447,7 +1459,7 @@ intros s₁ s₂ Heq v c.
 constructor.
 unfold normalise_nz; simpl.
 rewrite <- Heq.
-remember (number_of_zeroes_from fld s₁ 0) as n eqn:Hn .
+remember (null_coeff_range_length fld s₁ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
@@ -1591,13 +1603,13 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  omega.
 Qed.
 
-Lemma stretch_factor_le : ∀ s n₁ n₂ k,
-  number_of_zeroes_from fld s (S n₁) = fin n₂
-  → stretch_factor fld s n₁ = k
+Lemma greatest_series_x_power_le : ∀ s n₁ n₂ k,
+  null_coeff_range_length fld s (S n₁) = fin n₂
+  → greatest_series_x_power fld s n₁ = k
     → (Pos.to_nat k ≤ S n₂)%nat.
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
-apply stretch_factor_iff in Hk.
+apply greatest_series_x_power_iff in Hk.
 rewrite Hn₂ in Hk.
 destruct Hk as (Hz, Hnz).
 apply Nat.nlt_ge; intros H₁.
@@ -1605,7 +1617,7 @@ assert (S n₂ mod Pos.to_nat k ≠ 0)%nat as H.
  rewrite Nat.mod_small; [ intros H; discriminate H | assumption ].
 
  apply Hz in H.
- apply number_of_zeroes_from_iff in Hn₂.
+ apply null_coeff_range_length_iff in Hn₂.
  destruct Hn₂ as (_, Hn₂).
  apply Hn₂.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
@@ -1614,22 +1626,22 @@ Qed.
 
 (* exercice... *)
 (* mmm... à voir... not sure it can be proved cause ¬∀ doesn't imply ∃
-Lemma stretch_factor_divides : ∀ s n₁ n₂ k,
-  number_of_zeroes_from fld s (S n₁) = fin n₂
-  → stretch_factor fld s n₁ = k
+Lemma greatest_series_x_power_divides : ∀ s n₁ n₂ k,
+  null_coeff_range_length fld s (S n₁) = fin n₂
+  → greatest_series_x_power fld s n₁ = k
     → (k | S n₂)%nat.
 Proof.
 intros s n₁ n₂ k Hn₂ Hk.
 aaa.
 *)
 
-Lemma normalised_series_number_of_zeroes_from : ∀ s n k,
-  number_of_zeroes_from fld s 0 = fin n
-  → number_of_zeroes_from fld (normalise_series n k s) 0 = fin 0.
+Lemma normalised_series_null_coeff_range_length : ∀ s n k,
+  null_coeff_range_length fld s 0 = fin n
+  → null_coeff_range_length fld (normalise_series n k s) 0 = fin 0.
 Proof.
 intros s n k Hn.
-apply number_of_zeroes_from_iff in Hn.
-apply number_of_zeroes_from_iff.
+apply null_coeff_range_length_iff in Hn.
+apply null_coeff_range_length_iff.
 simpl in Hn |- *.
 destruct Hn as (Hz, Hnz).
 split.
@@ -1672,7 +1684,7 @@ split.
 Qed.
 
 Lemma normalised_stretched_series : ∀ s n k,
-  stretch_factor fld s n = k
+  greatest_series_x_power fld s n = k
   → series_stretch fld k (normalise_series n k s) ≃ series_left_shift n s.
 Proof.
 intros s n k Hsf.
@@ -1680,8 +1692,8 @@ unfold normalise_series.
 unfold series_shrink, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 rewrite Nbar.fold_sub.
-apply stretch_factor_iff in Hsf.
-remember (number_of_zeroes_from fld s (S n)) as n₁ eqn:Hn₁ .
+apply greatest_series_x_power_iff in Hsf.
+remember (null_coeff_range_length fld s (S n)) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 destruct n₁ as [n₁| ].
  destruct Hsf as (Hz, Hnz).
@@ -1838,8 +1850,8 @@ destruct n₁ as [n₁| ].
 Qed.
 
 Lemma normalised_series : ∀ s n k,
-  number_of_zeroes_from fld s 0 = fin n
-  → stretch_factor fld s n = k
+  null_coeff_range_length fld s 0 = fin n
+  → greatest_series_x_power fld s n = k
     → series_shift fld n (series_stretch fld k (normalise_series n k s)) ≃ s.
 Proof.
 intros s n k Hfn Hsf.
@@ -1847,7 +1859,7 @@ rewrite normalised_stretched_series; [ idtac | assumption ].
 constructor; intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.fold_sub.
-apply number_of_zeroes_from_iff in Hfn; simpl in Hfn.
+apply null_coeff_range_length_iff in Hfn; simpl in Hfn.
 destruct Hfn as (Hsz, Hsnz).
 unfold series_nth_fld in Hsz.
 destruct (lt_dec i n) as [H₃| H₃].
@@ -1883,10 +1895,10 @@ Qed.
 
 Lemma gcd_nz_add : ∀ nz n,
   gcd_nz (n + Z.to_nat (nz_valnum nz))
-    (stretch_factor fld
+    (greatest_series_x_power fld
        (series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz))
        (n + Z.to_nat (nz_valnum nz))) (nz ∔ nz_zero) =
-  gcd_nz n (stretch_factor fld (nz_terms nz) n) nz.
+  gcd_nz n (greatest_series_x_power fld (nz_terms nz) n) nz.
 Proof.
 intros nz n.
 unfold gcd_nz; simpl.
@@ -1909,13 +1921,13 @@ destruct z as [| z| z].
  reflexivity.
 
  rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite stretch_factor_shift.
+ rewrite greatest_series_x_power_shift.
  rewrite Z.add_0_r.
  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
  reflexivity.
 
  rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
- rewrite stretch_factor_shift.
+ rewrite greatest_series_x_power_shift.
  f_equal.
  f_equal.
  symmetry; rewrite Z.add_comm.
@@ -1928,8 +1940,8 @@ Proof.
 intros nz.
 unfold normalise_nz; simpl.
 rewrite nz_add_0_r.
-rewrite number_of_zeroes_from_shift.
-remember (number_of_zeroes_from fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
+rewrite null_coeff_range_length_shift.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 rewrite Nbar.add_comm.
 destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
@@ -1952,7 +1964,7 @@ constructor; simpl.
  apply gcd_nz_add.
 
  rewrite nz_add_0_r.
- rewrite stretch_factor_shift.
+ rewrite greatest_series_x_power_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.
  unfold gcd_nz; simpl.
@@ -1972,40 +1984,40 @@ Qed.
 
 (* provable but supposes to use Bézout's identity
    probably complicated
-Lemma normalised_series_stretch_factor : ∀ s n k,
-  number_of_zeroes_from fld s 0 = fin n
-  → stretch_factor fld s n = k
-    → stretch_factor fld (normalise_series n k s) 0 = 1%positive.
+Lemma normalised_series_greatest_series_x_power : ∀ s n k,
+  null_coeff_range_length fld s 0 = fin n
+  → greatest_series_x_power fld s n = k
+    → greatest_series_x_power fld (normalise_series n k s) 0 = 1%positive.
 Proof.
 intros s n k Hn Hk.
 aaa.
 
-Lemma normalised_ps_stretch_factor : ∀ nz nz₁,
+Lemma normalised_ps_greatest_series_x_power : ∀ nz nz₁,
   normalise_nz fld nz₁ = NonZero nz
-  → stretch_factor fld (nz_terms nz) 0 = 1%positive.
+  → greatest_series_x_power fld (nz_terms nz) 0 = 1%positive.
 Proof.
 intros nz nz₁ Hnorm.
 aaa.
 *)
 
-(* probablement démontrable aussi avec number_of_zeroes_from ... = fin 0 comme but
+(* probablement démontrable aussi avec null_coeff_range_length ... = fin 0 comme but
    à voir, peut-être, si nécessaire *)
-Lemma number_of_zeroes_from_normalised : ∀ nz nz₁ n,
+Lemma null_coeff_range_length_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
-  → number_of_zeroes_from fld (nz_terms nz) 0 = fin n
+  → null_coeff_range_length fld (nz_terms nz) 0 = fin n
     → n = O.
 Proof.
 intros nz nz₁ n Hnorm Hnz.
 destruct n as [| n]; [ reflexivity | exfalso ].
-apply number_of_zeroes_from_iff in Hnz.
+apply null_coeff_range_length_iff in Hnz.
 simpl in Hnz.
 destruct Hnz as (Hz, Hnz).
 pose proof (Hz O (Nat.lt_0_succ n)) as H₀.
 unfold normalise_nz in Hnorm.
-remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as m eqn:Hm .
+remember (null_coeff_range_length fld (nz_terms nz₁) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ idtac | discriminate Hnorm ].
-apply number_of_zeroes_from_iff in Hm.
+apply null_coeff_range_length_iff in Hm.
 simpl in Hm.
 destruct Hm as (Hmz, Hmnz).
 unfold series_nth_fld in Hmnz.
@@ -2017,7 +2029,7 @@ destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
  rewrite Nbar.fold_sub in H₀.
  rewrite Nbar.fold_sub in H₀.
  rewrite Nbar.fold_div in H₀.
- remember (stretch_factor fld (nz_terms nz₁) m) as k eqn:Hk .
+ remember (greatest_series_x_power fld (nz_terms nz₁) m) as k eqn:Hk .
  symmetry in Hk.
  remember (gcd_nz m k nz₁) as g eqn:Hg .
  remember (Z.to_pos g) as gp eqn:Hgp .
@@ -2088,8 +2100,8 @@ destruct ps₃ as [nz'₃| ].
    clear nz₂0 H0.
    unfold normalise_nz.
    simpl.
-   remember (number_of_zeroes_from fld (nz_terms_add nz'₁ nz'₃) 0) as n₁ eqn:Hn₁ .
-   remember (number_of_zeroes_from fld (nz_terms_add nz'₂ nz'₃) 0) as n₂ eqn:Hn₂ .
+   remember (null_coeff_range_length fld (nz_terms_add nz'₁ nz'₃) 0) as n₁ eqn:Hn₁ .
+   remember (null_coeff_range_length fld (nz_terms_add nz'₂ nz'₃) 0) as n₂ eqn:Hn₂ .
    symmetry in Hn₁, Hn₂.
    unfold nz_terms_add in Hn₁.
    unfold nz_terms_add in Hn₂.
@@ -2160,7 +2172,7 @@ destruct ps₃ as [nz'₃| ].
   constructor.
   unfold normalise_nz; simpl.
   rewrite H1.
-  remember (number_of_zeroes_from fld (nz_terms nz₂0) 0) as n eqn:Hn .
+  remember (null_coeff_range_length fld (nz_terms nz₂0) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
   constructor; simpl.
@@ -2192,7 +2204,7 @@ Definition normalise_ps ps :=
   end.
 
 Lemma series_nth_normalised : ∀ s n g,
-  number_of_zeroes_from fld s 0 = fin n
+  null_coeff_range_length fld s 0 = fin n
   → ∀ i,
     series_nth_fld fld i (normalise_series n g s) =
     series_nth_fld fld (n + i * Pos.to_nat g) s.
@@ -2234,8 +2246,8 @@ Qed.
 (* peut-être pas nécessaire... *)
 Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
   normalise_nz fld nz = NonZero nz'
-  → number_of_zeroes_from fld (nz_terms nz) 0 = fin n
-    → stretch_factor fld (nz_terms nz) n = k
+  → null_coeff_range_length fld (nz_terms nz) 0 = fin n
+    → greatest_series_x_power fld (nz_terms nz) n = k
       → gcd_nz n k nz = g
         → ∀ i,
           series_nth_fld fld i (nz_terms nz') =
@@ -2251,7 +2263,7 @@ Qed.
 
 (* pas mieux que sans liste... l'induction par n déconne...
 Fixpoint nonzero_list s b n :=
-  match number_of_zeroes_from fld s b with
+  match null_coeff_range_length fld s b with
   | fin m =>
       match n with
       | O => [m]
@@ -2270,20 +2282,20 @@ Proof.
 intros nz nz' n zl zl' Heq Hzl Hzl'.
 subst zl zl'.
 induction n as [| n]; simpl.
- remember (number_of_zeroes_from fld (nz_terms nz) 0) as i eqn:Hi .
- remember (number_of_zeroes_from fld (nz_terms nz') 0) as j eqn:Hj .
+ remember (null_coeff_range_length fld (nz_terms nz) 0) as i eqn:Hi .
+ remember (null_coeff_range_length fld (nz_terms nz') 0) as j eqn:Hj .
  symmetry in Hi, Hj.
  destruct i as [i| ].
   destruct j as [j| ]; [ simpl | exfalso ].
    f_equal.
    erewrite series_nth_normalised with (nz' := nz'); eauto .
-   eapply number_of_zeroes_from_normalised in Heq; [ idtac | eassumption ].
+   eapply null_coeff_range_length_normalised in Heq; [ idtac | eassumption ].
    subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
 
    eapply series_nth_normalised with (i := O) in Heq; eauto .
    rewrite Nat.mul_0_l, Nat.add_0_r in Heq.
-   apply number_of_zeroes_from_iff in Hi; simpl in Hi.
-   apply number_of_zeroes_from_iff in Hj; simpl in Hj.
+   apply null_coeff_range_length_iff in Hi; simpl in Hi.
+   apply null_coeff_range_length_iff in Hj; simpl in Hj.
    destruct Hi as (Hz, Hnz).
    apply Hnz.
    rewrite <- Heq.
@@ -2297,9 +2309,9 @@ bbb.
 
 Fixpoint nth_nonzero s b n :=
   match n with
-  | O => number_of_zeroes_from fld s b
+  | O => null_coeff_range_length fld s b
   | S n' =>
-      match number_of_zeroes_from fld s b with
+      match null_coeff_range_length fld s b with
       | fin m => nth_nonzero s (S m) n'
       | ∞ => ∞
       end
@@ -2317,12 +2329,12 @@ intros nz nz' n i j Heq Hi Hj.
 revert i j Hi Hj.
 induction n; intros.
  erewrite series_nth_normalised with (nz' := nz'); eauto .
- eapply number_of_zeroes_from_normalised in Heq; [ idtac | eassumption ].
+ eapply null_coeff_range_length_normalised in Heq; [ idtac | eassumption ].
  subst j; rewrite Nat.mul_0_l, Nat.add_0_r; reflexivity.
 
  simpl in Hi, Hj.
- remember (number_of_zeroes_from fld (nz_terms nz) 0) as m eqn:Hm .
- remember (number_of_zeroes_from fld (nz_terms nz') 0) as m' eqn:Hm' .
+ remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
+ remember (null_coeff_range_length fld (nz_terms nz') 0) as m' eqn:Hm' .
  symmetry in Hm, Hm'.
  destruct m as [m| ]; [ idtac | discriminate Hi ].
  destruct m' as [m'| ]; [ idtac | discriminate Hj ].
@@ -2336,10 +2348,10 @@ bbb.
 (*
 Lemma uuu : ∀ nz nz' n m p k g,
   normalise_nz fld nz = NonZero nz'
-  → number_of_zeroes_from fld (nz_terms nz) 0 = fin n
-    → number_of_zeroes_from fld (nz_terms nz) (S n) = fin p
-      → number_of_zeroes_from fld (nz_terms nz') 1 = fin m
-       → stretch_factor fld (nz_terms nz) n = k
+  → null_coeff_range_length fld (nz_terms nz) 0 = fin n
+    → null_coeff_range_length fld (nz_terms nz) (S n) = fin p
+      → null_coeff_range_length fld (nz_terms nz') 1 = fin m
+       → greatest_series_x_power fld (nz_terms nz) n = k
          → gcd_nz n k nz = g
            → S p = (S m * Pos.to_nat g)%nat.
 Proof.
@@ -2449,11 +2461,11 @@ destruct c as [| c| c].
  apply Hc, Pos2Z.neg_is_neg.
 Qed.
 
-Lemma normalised_stretch_factor : ∀ nz n k g,
-  number_of_zeroes_from fld (nz_terms nz) 0 = fin n
-  → stretch_factor fld (nz_terms nz) n = k
+Lemma normalised_greatest_series_x_power : ∀ nz n k g,
+  null_coeff_range_length fld (nz_terms nz) 0 = fin n
+  → greatest_series_x_power fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
-      → stretch_factor fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
+      → greatest_series_x_power fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
           Pos.of_nat (Pos.to_nat k / Z.to_nat g).
 Proof.
 (* gros nettoyage à faire : grosse répétition *)
@@ -2463,9 +2475,9 @@ remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
 pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
 rewrite Hg in H.
 destruct H as (k', Hk').
-apply stretch_factor_iff.
+apply greatest_series_x_power_iff.
 remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
-remember (number_of_zeroes_from fld s 1) as m eqn:Hm .
+remember (null_coeff_range_length fld s 1) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl.
  split.
@@ -2473,8 +2485,8 @@ destruct m as [m| ]; simpl.
   rewrite Nat2Pos.id in H.
    rewrite Hs.
    rewrite series_nth_normalised; [ idtac | assumption ].
-   apply stretch_factor_iff in Hk.
-   remember (number_of_zeroes_from fld (nz_terms nz) (S n)) as p eqn:Hp .
+   apply greatest_series_x_power_iff in Hk.
+   remember (null_coeff_range_length fld (nz_terms nz) (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ].
     destruct Hk as (Hz, Hnz).
@@ -2531,8 +2543,8 @@ destruct m as [m| ]; simpl.
    rewrite Hk' in Hk₁.
    rewrite Z2Nat.inj_mul in Hk₁.
     rewrite Nat.div_mul in Hk₁.
-     apply stretch_factor_iff in Hk.
-     remember (number_of_zeroes_from fld (nz_terms nz) (S n)) as p eqn:Hp .
+     apply greatest_series_x_power_iff in Hk.
+     remember (null_coeff_range_length fld (nz_terms nz) (S n)) as p eqn:Hp .
      symmetry in Hp.
      destruct p as [p| ].
       destruct Hk as (Hz, Hnz).
@@ -2600,12 +2612,12 @@ destruct m as [m| ]; simpl.
       rewrite Z.gcd_1_r in Hg.
       move Hg at top; subst g.
       exfalso.
-      apply number_of_zeroes_from_iff in Hm.
+      apply null_coeff_range_length_iff in Hm.
       destruct Hm as (Hz, Hnz).
       apply Hnz; simpl.
       rewrite Hs.
       rewrite series_nth_normalised; [ idtac | assumption ].
-      apply number_of_zeroes_from_iff in Hp.
+      apply null_coeff_range_length_iff in Hp.
       rewrite Nat.mul_1_r.
       rewrite Nat.add_succ_r, <- Nat.add_succ_l.
       apply Hp.
@@ -2631,12 +2643,12 @@ destruct m as [m| ]; simpl.
     eapply gcd_mul_le in Hg; [ idtac | eassumption ].
     destruct Hg; assumption.
 
- apply stretch_factor_iff in Hk.
- remember (number_of_zeroes_from fld (nz_terms nz) (S n)) as p eqn:Hp .
+ apply greatest_series_x_power_iff in Hk.
+ remember (null_coeff_range_length fld (nz_terms nz) (S n)) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
-  apply number_of_zeroes_from_iff in Hm; simpl in Hm.
-  apply number_of_zeroes_from_iff in Hp; simpl in Hp.
+  apply null_coeff_range_length_iff in Hm; simpl in Hm.
+  apply null_coeff_range_length_iff in Hp; simpl in Hp.
   destruct Hp as (Hz, Hnz).
   rewrite <- Nat.add_succ_r in Hnz.
   destruct (zerop (S p mod Pos.to_nat k)) as [H₁| H₁].
@@ -2738,20 +2750,20 @@ rewrite Hps in |- * at 2.
 symmetry in Hps.
 destruct ps as [nz'| ]; simpl.
  unfold normalise_nz; simpl.
- remember (number_of_zeroes_from fld (nz_terms nz') 0) as n eqn:Hn .
+ remember (null_coeff_range_length fld (nz_terms nz') 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
-  eapply number_of_zeroes_from_normalised in Hn; [ idtac | eassumption ].
+  eapply null_coeff_range_length_normalised in Hn; [ idtac | eassumption ].
   subst n; simpl.
   rewrite Z.add_0_r.
-  remember (number_of_zeroes_from fld (nz_terms nz) 0) as n eqn:Hn .
+  remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ].
    constructor; simpl.
    unfold normalise_nz in Hps.
    rewrite Hn in Hps.
    injection Hps; clear Hps; intros; subst nz'; simpl.
-   remember (stretch_factor fld (nz_terms nz) n) as k eqn:Hk .
+   remember (greatest_series_x_power fld (nz_terms nz) n) as k eqn:Hk .
    remember (gcd_nz n k nz) as g eqn:Hg .
    symmetry in Hg.
    assert (0 <= g)%Z as A₁ by (rewrite <- Hg; apply Z.gcd_nonneg).
@@ -2780,20 +2792,20 @@ destruct ps as [nz'| ]; simpl.
    assert (0 < ' Z.to_pos (' nz_comden nz / g))%Z as A₆
     by (rewrite Z2Pos.id; assumption).
    remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
-   remember (stretch_factor fld s 0) as k₁ eqn:Hk₁ .
+   remember (greatest_series_x_power fld s 0) as k₁ eqn:Hk₁ .
    unfold gcd_nz; simpl.
    rewrite Z.add_0_r.
    remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
    remember (Z.to_pos (' nz_comden nz / g)) as cg eqn:Hcg .
    remember (Z.gcd (Z.gcd (vn / g) (' cg)) (' k₁)) as g₁ eqn:Hg₁ .
    unfold normalise_nz; simpl.
-   remember (number_of_zeroes_from fld s 0) as m eqn:Hm .
+   remember (null_coeff_range_length fld s 0) as m eqn:Hm .
    rewrite Hs in Hm.
-   rewrite normalised_series_number_of_zeroes_from in Hm; [ idtac | assumption ].
+   rewrite normalised_series_null_coeff_range_length in Hm; [ idtac | assumption ].
    subst m.
    rewrite Hs in Hk₁.
    symmetry in Hk.
-   erewrite normalised_stretch_factor in Hk₁; try eassumption.
+   erewrite normalised_greatest_series_x_power in Hk₁; try eassumption.
    remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
    rewrite Hcg in Hg₂.
    remember Hg as Hg_v; clear HeqHg_v.
@@ -2811,7 +2823,7 @@ destruct ps as [nz'| ]; simpl.
    rewrite positive_nat_Z in Hg₁.
    rewrite Z2Nat.id in Hg₁; [ idtac | assumption ].
    rewrite Hg in Hg₁; subst g₁.
-   rewrite normalised_series_number_of_zeroes_from.
+   rewrite normalised_series_null_coeff_range_length.
     constructor; simpl.
      do 2 rewrite Z.add_0_r.
      unfold gcd_nz; simpl.
@@ -2837,7 +2849,7 @@ destruct ps as [nz'| ]; simpl.
      reflexivity.
 
     rewrite Hs.
-    apply normalised_series_number_of_zeroes_from; assumption.
+    apply normalised_series_null_coeff_range_length; assumption.
 
    unfold normalise_nz in Hps.
    rewrite Hn in Hps.
@@ -2845,17 +2857,17 @@ destruct ps as [nz'| ]; simpl.
 
   rename Hn into Hm.
   unfold normalise_nz in Hps.
-  remember (number_of_zeroes_from fld (nz_terms nz) 0) as n eqn:Hn .
+  remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
   constructor; simpl.
   injection Hps; clear Hps; intros; subst nz'; simpl.
   simpl in Hm.
-  remember (stretch_factor fld (nz_terms nz) n) as k eqn:Hk .
+  remember (greatest_series_x_power fld (nz_terms nz) n) as k eqn:Hk .
   remember (gcd_nz n k nz) as g eqn:Hg .
   symmetry in Hg.
   constructor; intros i.
-  apply number_of_zeroes_from_iff in Hm.
+  apply null_coeff_range_length_iff in Hm.
   simpl in Hm.
   rewrite Hm.
   unfold series_nth_fld; simpl.
@@ -2879,21 +2891,21 @@ Proof.
 intros nz₁ nz₂ nz₃ Heq.
 bbb.
 unfold normalise_nz; simpl.
-remember (number_of_zeroes_from fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
-remember (number_of_zeroes_from fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
+remember (null_coeff_range_length fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
+remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
 symmetry in Hn₁₃, Hn₂₃.
-apply number_of_zeroes_from_iff in Hn₁₃.
-apply number_of_zeroes_from_iff in Hn₂₃.
+apply null_coeff_range_length_iff in Hn₁₃.
+apply null_coeff_range_length_iff in Hn₂₃.
 simpl in Hn₁₃, Hn₂₃.
 destruct n₁₃ as [n₁₃| ]; simpl.
  destruct n₂₃ as [n₂₃| ]; simpl.
   constructor; simpl.
    unfold normalise_nz in Heq; simpl in Heq.
-   remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-   remember (number_of_zeroes_from fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+   remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+   remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
    symmetry in Hn₁, Hn₂.
-   apply number_of_zeroes_from_iff in Hn₁.
-   apply number_of_zeroes_from_iff in Hn₂.
+   apply null_coeff_range_length_iff in Hn₁.
+   apply null_coeff_range_length_iff in Hn₂.
    simpl in Hn₁, Hn₂.
    destruct n₁ as [n₁| ]; simpl.
     destruct n₂ as [n₂| ]; simpl.
@@ -2903,27 +2915,27 @@ bbb.
 
 intros nz₁ nz₂ nz₃ Heq.
 unfold normalise_nz in Heq; simpl in Heq.
-remember (number_of_zeroes_from fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-remember (number_of_zeroes_from fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 destruct n₁ as [n₁| ].
  destruct n₂ as [n₂| ].
   inversion_clear Heq; simpl in *.
-  remember (stretch_factor fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
-  remember (stretch_factor fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
+  remember (greatest_series_x_power fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
+  remember (greatest_series_x_power fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
   symmetry in Hk₁, Hk₂.
-  apply stretch_factor_iff in Hk₁.
-  apply stretch_factor_iff in Hk₂.
-  remember (number_of_zeroes_from fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
-  remember (number_of_zeroes_from fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
+  apply greatest_series_x_power_iff in Hk₁.
+  apply greatest_series_x_power_iff in Hk₂.
+  remember (null_coeff_range_length fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
+  remember (null_coeff_range_length fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
   symmetry in Hsn₁, Hsn₂.
   destruct sn₁ as [sn₁| ].
    destruct sn₂ as [sn₂| ].
     destruct Hk₁ as [Hk₁| Hk₁].
      destruct Hk₂ as [Hk₂| Hk₂].
       unfold normalise_nz.
-      remember (number_of_zeroes_from fld (nz_terms (nz₁ ∔ nz₃)) 0) as n₁₃ eqn:Hn₁₃ .
-      remember (number_of_zeroes_from fld (nz_terms (nz₂ ∔ nz₃)) 0) as n₂₃ eqn:Hn₂₃ .
+      remember (null_coeff_range_length fld (nz_terms (nz₁ ∔ nz₃)) 0) as n₁₃ eqn:Hn₁₃ .
+      remember (null_coeff_range_length fld (nz_terms (nz₂ ∔ nz₃)) 0) as n₂₃ eqn:Hn₂₃ .
       symmetry in Hn₁₃, Hn₂₃.
       simpl in Hn₁₃, Hn₂₃ |- *.
       destruct n₁₃ as [n₁₃| ].
@@ -2935,13 +2947,13 @@ bbb.
   destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
   destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
     destruct k₁₃ as [k₁₃| ].
-     apply stretch_factor_iff in Hk₁₃.
+     apply greatest_series_x_power_iff in Hk₁₃.
      rewrite Hn₁₃ in Hk₁₃.
      destruct Hk₁₃ as (Hk, _).
      exfalso; apply Hk; reflexivity.
 
      destruct k₂₃ as [k₂₃| ].
-      apply stretch_factor_iff in Hk₂₃.
+      apply greatest_series_x_power_iff in Hk₂₃.
       rewrite Hn₂₃ in Hk₂₃.
       destruct Hk₂₃ as (Hk, _).
       exfalso; apply Hk; reflexivity.
@@ -2953,21 +2965,21 @@ bbb.
   destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
   destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
   unfold normalise_nz; simpl.
-  remember (number_of_zeroes_from fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
-  remember (number_of_zeroes_from fld (nz_terms_add nz₂ nz₃)) as n₂₃ eqn:Hn₂₃ .
+  remember (null_coeff_range_length fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
+  remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₃)) as n₂₃ eqn:Hn₂₃ .
   symmetry in Hn₁₃, Hn₂₃.
   destruct n₁₃ as [n₁₃| ].
     destruct n₂₃ as [n₂₃| ].
     constructor; simpl.
      Focus 1.
      unfold cm_factor; simpl.
-     remember (stretch_factor fld (nz_terms_add nz₁ nz₃)) as k₁₃.
-     remember (stretch_factor fld (nz_terms_add nz₂ nz₃)) as k₂₃.
+     remember (greatest_series_x_power fld (nz_terms_add nz₁ nz₃)) as k₁₃.
+     remember (greatest_series_x_power fld (nz_terms_add nz₂ nz₃)) as k₂₃.
      rename Heqk₁₃ into Hk₁₃.
      rename Heqk₂₃ into Hk₂₃.
      symmetry in Hk₁₃, Hk₂₃.
-     apply stretch_factor_iff in Hk₁₃.
-     apply stretch_factor_iff in Hk₂₃.
+     apply greatest_series_x_power_iff in Hk₁₃.
+     apply greatest_series_x_power_iff in Hk₂₃.
      rewrite Hn₁₃ in Hk₁₃.
      rewrite Hn₂₃ in Hk₂₃.
      destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
@@ -2980,8 +2992,8 @@ bbb.
       subst nz₃; simpl.
       rewrite nz_add_0_r in Hn₁₃.
       rewrite nz_add_0_r in Hn₂₃.
-      rewrite number_of_zeroes_from_shift in Hn₁₃.
-      rewrite number_of_zeroes_from_shift in Hn₂₃.
+      rewrite null_coeff_range_length_shift in Hn₁₃.
+      rewrite null_coeff_range_length_shift in Hn₂₃.
       do 2 rewrite Z.mul_1_r.
       rewrite Hn₁ in Hn₁₃.
       rewrite Hn₂ in Hn₂₃.
