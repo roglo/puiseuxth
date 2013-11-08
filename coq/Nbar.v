@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.2 2013-11-08 10:29:54 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.3 2013-11-08 12:50:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -507,6 +507,34 @@ Qed.
 Theorem div_sup_div_sup : ∀ a b c,
   b ≠ 0 → 0 < c → div_sup (div_sup a b) c = div_sup a (b * c).
 Proof.
+intros a b c Hb Hc.
+destruct a as [a| ].
+ destruct b as [b| ].
+  destruct c as [c| ].
+   simpl.
+   apply fin_inj_wd.
+   rewrite <- Nat.div_div.
+    destruct a.
+     simpl.
+     rewrite Nat.div_small.
+      rewrite Nat.div_small.
+       reflexivity.
+
+       apply Nat.div_lt_upper_bound.
+        intros H₁; apply Hb; subst b; reflexivity.
+
+        destruct b; [ exfalso; apply Hb; reflexivity | idtac ].
+        destruct c; [ exfalso; revert Hc; apply lt_irrefl | idtac ].
+        simpl.
+        apply Le.le_n_S.
+        rewrite Nat.sub_0_r; reflexivity.
+
+      rewrite Nat.div_small; simpl.
+       destruct c.
+        exfalso; revert Hc; apply lt_irrefl.
+
+        rewrite Nat.sub_succ.
+        rewrite Nat.sub_0_r.
 bbb.
 
 Theorem Nat_le_mul_div_sup : ∀ a b, (b ≠ 0 → a <= Nat_div_sup a b * b)%nat.
