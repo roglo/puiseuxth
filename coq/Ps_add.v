@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.4 2013-11-08 10:01:11 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.5 2013-11-08 10:06:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -98,12 +98,15 @@ constructor; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Z.gcd_mul_mono_r; simpl.
  rewrite Pos2Z.inj_mul.
- rewrite Z.div_mul_cancel_r; auto.
-  intros H₁.
-  apply Z.gcd_eq_0_r in H₁.
-  revert H₁; apply Pos2Z_ne_0.
+ rewrite Z.div_mul_cancel_r; auto; [ idtac | apply Pos2Z_ne_0 ].
+ intros H₁.
+ apply Z.gcd_eq_0_r in H₁.
+ revert H₁; apply Pos2Z_ne_0.
 
-  apply Pos2Z_ne_0.
+ rewrite greatest_series_x_power_shift.
+ rewrite greatest_series_x_power_stretch.
+ constructor; intros i.
+ unfold normalise_series.
 bbb.
 *)
 
