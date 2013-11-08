@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.6 2013-11-08 10:11:18 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.7 2013-11-08 10:29:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -34,6 +34,28 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
 
+Lemma yyy : ∀ (s : series α) k₁ k₂,
+  series_shrink (k₁ * k₂) s ≃ series_shrink k₁ (series_shrink k₂ s).
+Proof.
+intros s k₁ k₂.
+constructor; intros i.
+unfold series_shrink; simpl.
+unfold series_nth_fld; simpl.
+do 3 rewrite Nbar.fold_sub.
+do 3 rewrite Nbar.fold_div.
+do 3 rewrite Nbar.fold_div_sup.
+rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
+rewrite Nbar_div_sup_div_sup.
+ rewrite Nbar.fin_inj_mul.
+ rewrite Nbar.mul_comm.
+ reflexivity.
+
+ intros H₁.
+ injection H₁; apply Pos2Nat_ne_0.
+
+ apply Nbar.lt_fin, Pos2Nat.is_pos.
+qed.
+
 (* for a possible redefinition of ps_add, or perhaps to change a
    representation for another to manage to make proofs... *)
 Definition adjust_nz n k nz :=
@@ -41,7 +63,6 @@ Definition adjust_nz n k nz :=
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
-(* manque greatest_series_x_power_stretch... *)
 Theorem glop : ∀ nz n k,
   NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
@@ -119,6 +140,7 @@ constructor; simpl.
  rewrite Z.mul_comm.
  rewrite Z.gcd_mul_mono_l.
  rewrite Z.mul_comm; simpl.
+ rewrite Z2Pos.inj_mul; simpl.
 bbb.
 *)
 

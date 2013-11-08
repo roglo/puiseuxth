@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.1 2013-11-04 18:57:03 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.2 2013-11-08 10:29:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -503,6 +503,11 @@ rewrite divmod_div.
 rewrite Nat.div_mul; [ reflexivity | idtac ].
 intros H; discriminate H.
 Qed.
+
+Theorem div_sup_div_sup : ∀ a b c,
+  b ≠ 0 → 0 < c → div_sup (div_sup a b) c = div_sup a (b * c).
+Proof.
+bbb.
 
 Theorem Nat_le_mul_div_sup : ∀ a b, (b ≠ 0 → a <= Nat_div_sup a b * b)%nat.
 Proof.
