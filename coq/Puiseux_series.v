@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.53 2013-11-08 09:44:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.54 2013-11-08 15:29:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -387,6 +387,12 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 
   destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
 Qed.
+
+Add Parametric Morphism α (fld : field α) : (@series_shrink α) with 
+signature eq ==> (eq_series fld) ==> (eq_series fld) as shrink_morph.
+Proof.
+intros n s₁ s₂ Heq.
+bbb.
 
 Add Parametric Morphism α (fld : field α) : (series_shift fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_shift_morph.
@@ -1619,6 +1625,28 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
  rewrite Nat.mul_comm.
  apply stretch_finite_series.
  assumption.
+Qed.
+
+Lemma series_shrink_shrink : ∀ (s : series α) k₁ k₂,
+  series_shrink (k₁ * k₂) s ≃ series_shrink k₁ (series_shrink k₂ s).
+Proof.
+intros s k₁ k₂.
+constructor; intros i.
+unfold series_shrink; simpl.
+unfold series_nth_fld; simpl.
+do 3 rewrite Nbar.fold_sub.
+do 3 rewrite Nbar.fold_div.
+do 3 rewrite Nbar.fold_div_sup.
+rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
+rewrite Nbar.div_sup_div_sup.
+ rewrite Nbar.fin_inj_mul.
+ rewrite Nbar.mul_comm.
+ reflexivity.
+
+ intros H₁.
+ injection H₁; apply Pos2Nat_ne_0.
+
+ apply Nbar.lt_fin, Pos2Nat.is_pos.
 Qed.
 
 Lemma series_shrink_stretch : ∀ s k,
