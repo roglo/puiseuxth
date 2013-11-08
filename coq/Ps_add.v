@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.5 2013-11-08 10:06:15 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.6 2013-11-08 10:11:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -107,6 +107,18 @@ constructor; simpl.
  rewrite greatest_series_x_power_stretch.
  constructor; intros i.
  unfold normalise_series.
+ unfold gcd_nz; simpl.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.sub_add_simpl_r_r.
+ rewrite Nat2Z.inj_mul.
+ rewrite positive_nat_Z.
+ rewrite <- Z.mul_add_distr_r.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.gcd_mul_mono_r; simpl.
+ rewrite Pos2Z.inj_mul.
+ rewrite Z.mul_comm.
+ rewrite Z.gcd_mul_mono_l.
+ rewrite Z.mul_comm; simpl.
 bbb.
 *)
 
