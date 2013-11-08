@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.12 2013-11-08 18:33:26 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.13 2013-11-08 19:16:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,8 +41,7 @@ Definition adjust_nz n k nz :=
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
-Theorem glop : ∀ nz n k,
-  NonZero nz ≈ NonZero (adjust_nz n k nz).
+Theorem nonzero_adjust_eq : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
 Proof.
 intros nz n k.
 constructor.
@@ -127,8 +126,19 @@ constructor; simpl.
    reflexivity.
 
    apply le_plus_r.
-bbb.
-*)
+
+  apply Z.nle_gt.
+  pose proof
+   (Z.gcd_nonneg (Z.gcd (nz_valnum nz + Z.of_nat m) (' nz_comden nz))
+      (' greatest_series_x_power fld (nz_terms nz) m)) 
+   as H₁.
+  intros H₂.
+  apply Z.le_antisymm in H₁; [ idtac | assumption ].
+  apply Z.gcd_eq_0_r in H₁.
+  revert H₁; apply Pos2Z_ne_0.
+
+  apply Pos2Z.is_pos.
+Qed.
 
 Definition adjust_series n k s :=
   series_shift fld n (series_stretch fld k s).
