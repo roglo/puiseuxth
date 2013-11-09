@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.15 2013-11-09 09:21:47 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.16 2013-11-09 09:39:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2512,6 +2512,8 @@ destruct c as [| c| c].
  apply Hc, Pos2Z.neg_is_neg.
 Qed.
 
+(* compatibilité avec l'ancienne version, vu que les preuves y avaient
+   été faites avec ça et les reprendre semble pas simple *)
 Definition is_the_greatest_series_x_power₃ s n k :=
   match null_coeff_range_length fld s (S n) with
   | fin _ =>
@@ -2527,6 +2529,18 @@ Lemma yyy : ∀ s n k,
   is_the_greatest_series_x_power fld s n k
   ↔ is_the_greatest_series_x_power₃ s n k.
 Proof.
+intros s n k.
+split; intros H₁.
+ unfold is_the_greatest_series_x_power in H₁.
+ unfold is_the_greatest_series_x_power₃.
+ destruct H₁ as (H₁, H₂).
+ unfold is_a_series_in_x_power in H₁.
+ rename n into m.
+ remember (null_coeff_range_length fld s (S m)) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  split.
+   intros i H₃.
 bbb.
 *)
 
