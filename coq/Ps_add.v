@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.16 2013-11-09 09:39:22 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.17 2013-11-09 11:19:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2541,6 +2541,17 @@ split; intros H₁.
  destruct p as [p| ].
   split.
    intros i H₃.
+   assert
+    (forall n,
+     nth_null_coeff_range_length fld s n m ≠ 0
+     → i mod nth_null_coeff_range_length fld s n m ≠ 0)%nat 
+    as H₄.
+    intros n H₄ H₅; apply H₃.
+    apply Nat.mod_divides; auto.
+    apply Nat_divides_l.
+    apply Nat.mod_divides in H₅; [ idtac | assumption ].
+    apply Nat_divides_l in H₅.
+    etransitivity; [ apply H₁ | eassumption ].
 bbb.
 *)
 
