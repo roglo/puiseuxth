@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.2 2013-11-09 16:29:51 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.3 2013-11-09 18:35:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1365,6 +1365,7 @@ destruct ps as [nz'| ]; simpl.
    subst m.
    rewrite Hs in Hk₁.
    symmetry in Hk.
+bbb.
    erewrite normalised_greatest_series_x_power in Hk₁; try eassumption.
    remember (Z.gcd (vn / g) (' cg)) as g₂ eqn:Hg₂ .
    rewrite Hcg in Hg₂.
