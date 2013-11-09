@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.1 2013-11-09 16:06:34 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.2 2013-11-09 16:29:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,41 +27,6 @@ Delimit Scope ps_scope with ps.
 Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add fld a b) : ps_scope.
 Notation "a ∔ b" := (nz_add fld a b) (at level 70).
-
-(* just to test... *)
-Definition nz_zero :=
-  {| nz_terms := series_0 fld;
-     nz_valnum := 0;
-     nz_comden := 1 |}.
-
-Lemma series_shift_series_0 : ∀ n,
-  series_shift fld n (series_0 fld) ≃ series_0 fld.
-Proof.
-intros n.
-constructor; intros i.
-unfold series_nth_fld; simpl.
-remember (Nbar.lt_dec (fin i) (fin n)) as d₁.
-remember (lt_dec i n) as d₂.
-remember (Nbar.lt_dec (fin i) 0) as d₃.
-destruct d₁, d₂, d₃; reflexivity.
-Qed.
-
-Lemma nz_add_0_r : ∀ nz,
-  nz_terms_add fld nz nz_zero ≃
-  series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz).
-Proof.
-intros nz.
-unfold nz_terms_add; simpl.
-unfold adjust_series.
-rewrite Z2Nat_sub_min.
-rewrite Z.mul_1_r, Z.sub_0_r.
-rewrite series_stretch_1.
-rewrite series_stretch_series_0.
-rewrite series_shift_series_0.
-rewrite series_add_comm.
-rewrite series_add_0_l.
-reflexivity.
-Qed.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, series_nth_fld fld i s ≍ zero fld)
@@ -441,7 +406,7 @@ Lemma gcd_nz_add : ∀ nz n,
   gcd_nz (n + Z.to_nat (nz_valnum nz))
     (greatest_series_x_power fld
        (series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz))
-       (n + Z.to_nat (nz_valnum nz))) (nz ∔ nz_zero) =
+       (n + Z.to_nat (nz_valnum nz))) (nz ∔ nz_zero fld) =
   gcd_nz n (greatest_series_x_power fld (nz_terms nz) n) nz.
 Proof.
 intros nz n.
@@ -479,7 +444,7 @@ destruct z as [| z| z].
 Qed.
 
 Lemma normalise_nz_add_0_r : ∀ nz,
-  normalise_nz fld (nz ∔ nz_zero) ≐ normalise_nz fld nz.
+  normalise_nz fld (nz ∔ nz_zero fld) ≐ normalise_nz fld nz.
 Proof.
 intros nz.
 unfold normalise_nz; simpl.
@@ -614,7 +579,8 @@ Qed.
 
 Lemma nz_norm_add_0 : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → normalise_nz fld (nz₁ ∔ nz_zero) ≐ normalise_nz fld (nz₂ ∔ nz_zero).
+  → normalise_nz fld (nz₁ ∔ nz_zero fld) ≐
+    normalise_nz fld (nz₂ ∔ nz_zero fld).
 Proof.
 intros nz₁ nz₂ Heq.
 rewrite normalise_nz_add_0_r.

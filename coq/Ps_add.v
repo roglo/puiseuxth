@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.18 2013-11-09 16:06:34 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.19 2013-11-09 16:29:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1532,6 +1532,40 @@ do 2 rewrite series_shift_0.
 rewrite <- series_stretch_add_distr.
 rewrite series_add_neg.
 rewrite series_stretch_series_0.
+reflexivity.
+Qed.
+
+Definition nz_zero :=
+  {| nz_terms := series_0 fld;
+     nz_valnum := 0;
+     nz_comden := 1 |}.
+
+Lemma series_shift_series_0 : ∀ n,
+  series_shift fld n (series_0 fld) ≃ series_0 fld.
+Proof.
+intros n.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+remember (Nbar.lt_dec (fin i) (fin n)) as d₁.
+remember (lt_dec i n) as d₂.
+remember (Nbar.lt_dec (fin i) 0) as d₃.
+destruct d₁, d₂, d₃; reflexivity.
+Qed.
+
+Lemma nz_add_0_r : ∀ nz,
+  nz_terms_add nz nz_zero ≃
+  series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz).
+Proof.
+intros nz.
+unfold nz_terms_add; simpl.
+unfold adjust_series.
+rewrite Z2Nat_sub_min.
+rewrite Z.mul_1_r, Z.sub_0_r.
+rewrite series_stretch_1.
+rewrite series_stretch_series_0.
+rewrite series_shift_series_0.
+rewrite series_add_comm.
+rewrite series_add_0_l.
 reflexivity.
 Qed.
 
