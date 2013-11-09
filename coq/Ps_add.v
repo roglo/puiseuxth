@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.14 2013-11-09 01:24:42 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.15 2013-11-09 09:21:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2512,7 +2512,24 @@ destruct c as [| c| c].
  apply Hc, Pos2Z.neg_is_neg.
 Qed.
 
-(* à revoir, si nécessaire...
+Definition is_the_greatest_series_x_power₃ s n k :=
+  match null_coeff_range_length fld s (S n) with
+  | fin _ =>
+      (∀ i, i mod (Pos.to_nat k) ≠ O →
+       series_nth_fld fld (n + i) s ≍ zero fld) ∧
+      (∀ k', (Pos.to_nat k < k')%nat →
+       ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
+  | ∞ =>
+      k = 1%positive
+  end.
+
+Lemma yyy : ∀ s n k,
+  is_the_greatest_series_x_power fld s n k
+  ↔ is_the_greatest_series_x_power₃ s n k.
+Proof.
+bbb.
+*)
+
 Lemma normalised_greatest_series_x_power : ∀ nz n k g,
   null_coeff_range_length fld (nz_terms nz) 0 = fin n
   → greatest_series_x_power fld (nz_terms nz) n = k
@@ -2521,14 +2538,17 @@ Lemma normalised_greatest_series_x_power : ∀ nz n k g,
           (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
         Pos.of_nat (Pos.to_nat k / Z.to_nat g).
 Proof.
--- gros nettoyage à faire : grosse répétition --
+(* gros nettoyage à faire : grosse répétition *)
 intros nz n k g Hn Hk Hg.
 unfold gcd_nz in Hg.
 remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
 pose proof (Z.gcd_divide_r (Z.gcd vn (' nz_comden nz)) (' k)) as H.
 rewrite Hg in H.
 destruct H as (k', Hk').
+apply greatest_series_x_power_iff in Hk.
+apply yyy in Hk; unfold is_the_greatest_series_x_power₃ in Hk.
 apply greatest_series_x_power_iff.
+apply yyy; unfold is_the_greatest_series_x_power₃.
 remember (normalise_series n (Z.to_pos g) (nz_terms nz)) as s eqn:Hs .
 remember (null_coeff_range_length fld s 1) as m eqn:Hm .
 symmetry in Hm.
@@ -2538,7 +2558,6 @@ destruct m as [m| ]; simpl.
   rewrite Nat2Pos.id in H.
    rewrite Hs.
    rewrite series_nth_normalised; [ idtac | assumption ].
-   apply greatest_series_x_power_iff in Hk.
    remember (null_coeff_range_length fld (nz_terms nz) (S n)) as p eqn:Hp .
    symmetry in Hp.
    destruct p as [p| ].
@@ -2596,7 +2615,6 @@ destruct m as [m| ]; simpl.
    rewrite Hk' in Hk₁.
    rewrite Z2Nat.inj_mul in Hk₁.
     rewrite Nat.div_mul in Hk₁.
-     apply greatest_series_x_power_iff in Hk.
      remember (null_coeff_range_length fld (nz_terms nz) (S n)) as p eqn:Hp .
      symmetry in Hp.
      destruct p as [p| ].
@@ -2696,7 +2714,6 @@ destruct m as [m| ]; simpl.
     eapply gcd_mul_le in Hg; [ idtac | eassumption ].
     destruct Hg; assumption.
 
- apply greatest_series_x_power_iff in Hk.
  remember (null_coeff_range_length fld (nz_terms nz) (S n)) as p eqn:Hp .
  symmetry in Hp.
  destruct p as [p| ].
@@ -2759,7 +2776,6 @@ destruct m as [m| ]; simpl.
    exfalso; apply Hg.
    apply Z.opp_nonpos_nonneg, Z.le_0_1.
 Qed.
-*)
 
 Lemma normalise_series_0_1 : ∀ s : series α, normalise_series 0 1 s ≃ s.
 Proof.
