@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.13 2013-11-08 19:16:14 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.14 2013-11-09 01:24:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1648,6 +1648,7 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  omega.
 Qed.
 
+(* à revoir, s'il le faut...
 Lemma greatest_series_x_power_le : ∀ s n₁ n₂ k,
   null_coeff_range_length fld s (S n₁) = fin n₂
   → greatest_series_x_power fld s n₁ = k
@@ -1668,6 +1669,7 @@ assert (S n₂ mod Pos.to_nat k ≠ 0)%nat as H.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
  assumption.
 Qed.
+*)
 
 (* exercice... *)
 (* mmm... à voir... not sure it can be proved cause ¬∀ doesn't imply ∃
@@ -1728,6 +1730,7 @@ split.
   exfalso; apply Hnz; reflexivity.
 Qed.
 
+(* à revoir, si nécessaire...
 Lemma normalised_stretched_series : ∀ s n k,
   greatest_series_x_power fld s n = k
   → series_stretch fld k (normalise_series n k s) ≃ series_left_shift n s.
@@ -1893,7 +1896,9 @@ destruct n₁ as [n₁| ].
 
   rewrite Nat.mul_1_r, Nat.add_comm; reflexivity.
 Qed.
+*)
 
+(* à revoir si nécessaire...
 Lemma normalised_series : ∀ s n k,
   null_coeff_range_length fld s 0 = fin n
   → greatest_series_x_power fld s n = k
@@ -1937,6 +1942,7 @@ destruct (lt_dec i n) as [H₃| H₃].
 
     inversion H₁.
 Qed.
+*)
 
 Lemma gcd_nz_add : ∀ nz n,
   gcd_nz (n + Z.to_nat (nz_valnum nz))
@@ -2506,14 +2512,16 @@ destruct c as [| c| c].
  apply Hc, Pos2Z.neg_is_neg.
 Qed.
 
+(* à revoir, si nécessaire...
 Lemma normalised_greatest_series_x_power : ∀ nz n k g,
   null_coeff_range_length fld (nz_terms nz) 0 = fin n
   → greatest_series_x_power fld (nz_terms nz) n = k
     → gcd_nz n k nz = g
-      → greatest_series_x_power fld (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
-          Pos.of_nat (Pos.to_nat k / Z.to_nat g).
+      → greatest_series_x_power fld
+          (normalise_series n (Z.to_pos g) (nz_terms nz)) 0 =
+        Pos.of_nat (Pos.to_nat k / Z.to_nat g).
 Proof.
-(* gros nettoyage à faire : grosse répétition *)
+-- gros nettoyage à faire : grosse répétition --
 intros nz n k g Hn Hk Hg.
 unfold gcd_nz in Hg.
 remember (nz_valnum nz + Z.of_nat n)%Z as vn eqn:Hvn .
@@ -2751,6 +2759,7 @@ destruct m as [m| ]; simpl.
    exfalso; apply Hg.
    apply Z.opp_nonpos_nonneg, Z.le_0_1.
 Qed.
+*)
 
 Lemma normalise_series_0_1 : ∀ s : series α, normalise_series 0 1 s ≃ s.
 Proof.
@@ -2846,7 +2855,8 @@ destruct ps as [nz'| ]; simpl.
    unfold normalise_nz; simpl.
    remember (null_coeff_range_length fld s 0) as m eqn:Hm .
    rewrite Hs in Hm.
-   rewrite normalised_series_null_coeff_range_length in Hm; [ idtac | assumption ].
+   rewrite normalised_series_null_coeff_range_length in Hm;
+     [ idtac | assumption ].
    subst m.
    rewrite Hs in Hk₁.
    symmetry in Hk.
