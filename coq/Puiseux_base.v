@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 2.0 2013-11-02 01:12:59 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 2.1 2013-11-09 16:06:34 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -13,6 +13,7 @@ Require Import Newton.
 Require Import Polynomial.
 Require Import Puiseux_series.
 Require Import Ps_add.
+Require Import SandBox.
 
 Set Implicit Arguments.
 
