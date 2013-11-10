@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.4 2013-11-10 00:45:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.5 2013-11-10 01:04:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1451,6 +1451,27 @@ Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ Heq.
+unfold normalise_nz; simpl.
+remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
+ eqn:Hn₁₃ .
+remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂₃
+ eqn:Hn₂₃ .
+symmetry in Hn₁₃, Hn₂₃.
+destruct n₁₃ as [n₁₃| ]; simpl.
+ destruct n₂₃ as [n₂₃| ]; simpl.
+  constructor; simpl.
+   Focus 1.
+   remember
+    (greatest_series_x_power fld (nz_terms_add fld nz₁ nz₃) n₁₃) as k₁₃
+    eqn:Hk₁₃ .
+   remember
+    (greatest_series_x_power fld (nz_terms_add fld nz₂ nz₃) n₂₃) as k₂₃
+    eqn:Hk₂₃ .
+   remember (gcd_nz n₁₃ k₁₃ (nz₁ ∔ nz₃)) as g₁₃ eqn:Hg₁₃ .
+   remember (gcd_nz n₂₃ k₂₃ (nz₂ ∔ nz₃)) as g₂₃ eqn:Hg₂₃ .
+bbb.
+
 intros nz₁ nz₂ nz₃ Heq.
 unfold normalise_nz; simpl.
 remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
