@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.22 2013-11-10 11:52:32 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.23 2013-11-10 17:54:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,7 +52,7 @@ rewrite Nbar.add_comm, Nbar.mul_comm.
 remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
-constructor; simpl.
+constructor; constructor; simpl.
  rewrite greatest_series_x_power_shift.
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
@@ -380,9 +380,7 @@ reflexivity.
 Qed.
 
 Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
-  eq_norm_ps fld
-    (normalise_nz fld (nz_add nz₁ nz₂))
-    (normalise_nz fld (nz_add nz₂ nz₁)).
+  normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add nz₂ nz₁).
 Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
@@ -390,7 +388,7 @@ rewrite nz_terms_add_comm.
 remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; simpl.
+constructor; constructor; simpl.
  unfold nz_valnum_add.
  rewrite nz_terms_add_comm, gcd_nz_add_comm, Z.min_comm; reflexivity.
 
@@ -584,17 +582,17 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
-  eq_norm_ps fld
-    (normalise_nz fld (nz_add (nz_add nz₁ nz₂) nz₃))
-    (normalise_nz fld (nz_add nz₁ (nz_add nz₂ nz₃))).
+  normalise_nz fld (nz_add (nz_add nz₁ nz₂) nz₃)
+  ≐ normalise_nz fld (nz_add nz₁ (nz_add nz₂ nz₃)).
 Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
-remember (null_coeff_range_length fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
+remember
+  (null_coeff_range_length fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
-destruct n as [n| ]; constructor; simpl.
+destruct n as [n| ]; constructor; constructor; simpl.
  rewrite nz_terms_add_assoc.
  rewrite gcd_nz_add_assoc.
  do 2 f_equal.
@@ -1539,7 +1537,7 @@ rewrite <- Heq.
 remember (null_coeff_range_length fld s₁ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; simpl.
+constructor; constructor; simpl.
  rewrite Heq in |- * at 1; reflexivity.
 
  rewrite Heq in |- * at 1; reflexivity.
@@ -1600,6 +1598,10 @@ rewrite series_add_comm.
 rewrite series_add_0_l.
 reflexivity.
 Qed.
+
+Lemma yyy : ∀ nz₁ nz₂, eq_nz fld (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
+Proof.
+bbb.
 
 Lemma eq_nz_norm_add_nz_norm_add₂ : ∀ nz₁ nz₂,
   normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add₂ nz₁ nz₂).

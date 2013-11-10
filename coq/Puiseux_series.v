@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.56 2013-11-08 18:33:26 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.57 2013-11-10 17:54:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -122,12 +122,16 @@ Definition normalise_nz nz :=
       Zero _
   end.
 
-Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_norm_ps_base : ∀ nz₁ nz₂,
+Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
+  | eq_nz_base : ∀ nz₁ nz₂,
       nz_valnum nz₁ = nz_valnum nz₂
       → nz_comden nz₁ = nz_comden nz₂
         → nz_terms nz₁ ≃ nz_terms nz₂
-          → eq_norm_ps (NonZero nz₁) (NonZero nz₂)
+          → eq_nz nz₁ nz₂.
+
+Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_norm_ps_base : ∀ nz₁ nz₂,
+      eq_nz nz₁ nz₂ → eq_norm_ps (NonZero nz₁) (NonZero nz₂)
   | eq_norm_ps_zero :
       eq_norm_ps (Zero _) (Zero _).
 
@@ -209,35 +213,49 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
+Theorem eq_nz_refl : reflexive _ eq_nz.
+Proof. intros nz; constructor; reflexivity. Qed.
+
+Theorem eq_nz_sym : symmetric _ eq_nz.
+Proof. intros nz₁ nz₂ H; induction H; constructor; symmetry; assumption. Qed.
+
+Theorem eq_nz_trans : transitive _ eq_nz.
+Proof.
+intros nz₁ nz₂ nz₃ H₁ H₂.
+induction H₁, H₂.
+constructor; etransitivity; eassumption.
+Qed.
+
 Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ idtac | constructor ].
-constructor; reflexivity.
+constructor; constructor; reflexivity.
 Qed.
 
 Theorem eq_norm_ps_sym : symmetric _ eq_norm_ps.
 Proof.
 intros ps₁ ps₂ H.
-induction H; constructor; symmetry; assumption.
+induction H; constructor; apply eq_nz_sym; assumption.
 Qed.
 
 Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁.
- inversion H₂.
-  rewrite <- H3 in H7.
-  injection H7; clear H7; intros; subst nz₁0.
-  constructor; etransitivity; eassumption.
+inversion H₁; subst.
+ inversion H₂; subst; constructor.
+ eapply eq_nz_trans; eassumption.
 
-  rewrite <- H4 in H3; discriminate H3.
-
- inversion H₂; [ idtac | constructor ].
- rewrite <- H0 in H4; discriminate H4.
+ inversion H₂; subst; constructor.
 Qed.
 
 End fld.
+
+Add Parametric Relation α (fld : field α) : (nz_ps α) (eq_nz fld)
+ reflexivity proved by (eq_nz_refl fld)
+ symmetry proved by (eq_nz_sym (fld := fld))
+ transitivity proved by (eq_nz_trans (fld := fld))
+ as eq_nz_rel.
 
 Add Parametric Relation α (fld : field α) : (puiseux_series α)
    (eq_norm_ps fld)
