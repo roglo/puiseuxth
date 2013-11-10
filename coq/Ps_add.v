@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.20 2013-11-10 01:18:10 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.21 2013-11-10 11:36:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -178,6 +178,31 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   | NonZero nz₁ =>
       match ps₂ with
       | NonZero nz₂ => NonZero (nz_add nz₁ nz₂)
+      | Zero => ps₁
+      end
+  | Zero => ps₂
+  end.
+
+(* version with adjust_nz, just to see... *)
+Definition adjusted_nz_add nz'₁ nz'₂ :=
+  {| nz_terms := series_add fld (nz_terms nz'₁) (nz_terms nz'₂);
+     nz_valnum := nz_valnum nz'₁;
+     nz_comden := nz_comden nz'₁ |}.
+
+Definition nz_add₂ (nz₁ nz₂ : nz_ps α) :=
+  let k₁ := cm_factor nz₁ nz₂ in
+  let k₂ := cm_factor nz₂ nz₁ in
+  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  let nz'₁ := adjust_nz (Z.to_nat (v₁ - Z.min v₁ v₂)) k₁ nz₁ in
+  let nz'₂ := adjust_nz (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂ in
+  adjusted_nz_add nz'₁ nz'₂.
+
+Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
+  match ps₁ with
+  | NonZero nz₁ =>
+      match ps₂ with
+      | NonZero nz₂ => NonZero (nz_add₂ nz₁ nz₂)
       | Zero => ps₁
       end
   | Zero => ps₂
@@ -1575,5 +1600,28 @@ rewrite series_add_comm.
 rewrite series_add_0_l.
 reflexivity.
 Qed.
+
+Lemma nz_add_eq_nz_add₂ : ∀ nz₁ nz₂,
+  NonZero (nz_add nz₁ nz₂) ≈ NonZero (nz_add₂ nz₁ nz₂).
+Proof.
+intros nz₁ nz₂.
+constructor.
+unfold nz_add, nz_add₂.
+unfold cm, cm_factor; simpl.
+unfold adjusted_nz_add; simpl.
+unfold nz_valnum_add.
+unfold cm_factor.
+rewrite Z2Nat.id.
+ rewrite Z.sub_sub_distr.
+ rewrite Z.sub_diag; simpl.
+ unfold nz_terms_add.
+ unfold cm_factor.
+ unfold adjust_series.
+ remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as vc₁ eqn:Hvc₁ .
+ remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as vc₂ eqn:Hvc₂ .
+ remember (Z.min vc₁ vc₂) as m eqn:Hm .
+ rewrite Z.min_comm, <- Hm.
+ reflexivity.
+bbb.
 
 End fld.
