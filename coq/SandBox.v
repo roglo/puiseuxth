@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.8 2013-11-10 11:52:32 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.9 2013-11-10 17:15:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1468,24 +1468,20 @@ symmetry in Heq.
 rewrite nz_adjust_eq in Heq.
 *)
 bbb.
+remember (nz₁ ∔ nz₃) as nz₁₃ eqn:Hnz₁₃ .
+remember (nz₂ ∔ nz₃) as nz₂₃ eqn:Hnz₂₃ .
 unfold normalise_nz; simpl.
-remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
- eqn:Hn₁₃ .
-remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂₃
- eqn:Hn₂₃ .
+remember (null_coeff_range_length fld (nz_terms nz₁₃) 0) as n₁₃ eqn:Hn₁₃ .
+remember (null_coeff_range_length fld (nz_terms nz₂₃) 0) as n₂₃ eqn:Hn₂₃ .
 symmetry in Hn₁₃, Hn₂₃.
 destruct n₁₃ as [n₁₃| ]; simpl.
  destruct n₂₃ as [n₂₃| ]; simpl.
   constructor; simpl.
    Focus 1.
-   remember
-    (greatest_series_x_power fld (nz_terms_add fld nz₁ nz₃) n₁₃) as k₁₃
-    eqn:Hk₁₃ .
-   remember
-    (greatest_series_x_power fld (nz_terms_add fld nz₂ nz₃) n₂₃) as k₂₃
-    eqn:Hk₂₃ .
-   remember (gcd_nz n₁₃ k₁₃ (nz₁ ∔ nz₃)) as g₁₃ eqn:Hg₁₃ .
-   remember (gcd_nz n₂₃ k₂₃ (nz₂ ∔ nz₃)) as g₂₃ eqn:Hg₂₃ .
+   remember (greatest_series_x_power fld (nz_terms nz₁₃) n₁₃) as k₁₃ eqn:Hk₁₃ .
+   remember (greatest_series_x_power fld (nz_terms nz₂₃) n₂₃) as k₂₃ eqn:Hk₂₃ .
+   remember (gcd_nz n₁₃ k₁₃ nz₁₃) as g₁₃ eqn:Hg₁₃ .
+   remember (gcd_nz n₂₃ k₂₃ nz₂₃) as g₂₃ eqn:Hg₂₃ .
 bbb.
 
 intros nz₁ nz₂ nz₃ Heq.
