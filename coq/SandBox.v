@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.5 2013-11-10 01:04:01 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.6 2013-11-10 08:12:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -509,8 +509,8 @@ intros nz nz₁ Hnorm.
 aaa.
 *)
 
-(* probablement démontrable aussi avec null_coeff_range_length ... = fin 0 comme but
-   à voir, peut-être, si nécessaire *)
+(* probablement démontrable aussi avec null_coeff_range_length ... = fin 0
+   comme but; à voir, peut-être, si nécessaire *)
 Lemma null_coeff_range_length_normalised : ∀ nz nz₁ n,
   normalise_nz fld nz₁ = NonZero nz
   → null_coeff_range_length fld (nz_terms nz) 0 = fin n
@@ -1447,11 +1447,13 @@ apply normalise_nz_is_projection.
 Qed.
 *)
 
+(* cf adjust_nz_eq, normalised_nz_norm_add_compat_r *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
+bbb.
 unfold normalise_nz; simpl.
 remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
  eqn:Hn₁₃ .
