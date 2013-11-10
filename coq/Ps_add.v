@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.21 2013-11-10 11:36:55 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.22 2013-11-10 11:52:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1601,11 +1601,10 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma nz_add_eq_nz_add₂ : ∀ nz₁ nz₂,
-  NonZero (nz_add nz₁ nz₂) ≈ NonZero (nz_add₂ nz₁ nz₂).
+Lemma eq_nz_norm_add_nz_norm_add₂ : ∀ nz₁ nz₂,
+  normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
-constructor.
 unfold nz_add, nz_add₂.
 unfold cm, cm_factor; simpl.
 unfold adjusted_nz_add; simpl.
@@ -1622,6 +1621,18 @@ rewrite Z2Nat.id.
  remember (Z.min vc₁ vc₂) as m eqn:Hm .
  rewrite Z.min_comm, <- Hm.
  reflexivity.
-bbb.
+
+ rewrite <- Z.sub_max_distr_l.
+ rewrite Z.sub_diag.
+ apply Z.le_max_l.
+Qed.
+
+Lemma eq_nz_add_nz_add₂ : ∀ nz₁ nz₂,
+  NonZero (nz_add nz₁ nz₂) ≈ NonZero (nz_add₂ nz₁ nz₂).
+Proof.
+intros nz₁ nz₂.
+constructor.
+apply eq_nz_norm_add_nz_norm_add₂.
+Qed.
 
 End fld.
