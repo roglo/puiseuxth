@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.6 2013-11-10 08:12:09 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.7 2013-11-10 08:59:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1447,12 +1447,20 @@ apply normalise_nz_is_projection.
 Qed.
 *)
 
-(* cf adjust_nz_eq, normalised_nz_norm_add_compat_r *)
+(* cf nz_adjust_eq, normalised_nz_norm_add_compat_r *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
+(*
+rewrite nz_adjust_eq.
+symmetry.
+rewrite nz_adjust_eq.
+rewrite nz_adjust_eq in Heq.
+symmetry in Heq.
+rewrite nz_adjust_eq in Heq.
+*)
 bbb.
 unfold normalise_nz; simpl.
 remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
