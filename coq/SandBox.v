@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.3 2013-11-09 18:35:44 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.4 2013-11-10 00:45:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1300,6 +1300,7 @@ destruct (Nbar.lt_dec (fin i) (stop ns)) as [H₁| H₁].
  rewrite Nat.div_1_r; assumption.
 Qed.
 
+(* mouais... à voir si nécessaire...
 Lemma normalise_nz_is_projection : ∀ nz,
   normalise_ps (normalise_nz fld nz) ≈ normalise_nz fld nz.
 Proof.
@@ -1444,19 +1445,23 @@ intros ps.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
 apply normalise_nz_is_projection.
 Qed.
+*)
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-bbb.
 unfold normalise_nz; simpl.
-remember (null_coeff_range_length fld (nz_terms_add nz₁ nz₃) 0) as n₁₃ eqn:Hn₁₃ .
-remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₃) 0) as n₂₃ eqn:Hn₂₃ .
+remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
+ eqn:Hn₁₃ .
+remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂₃
+ eqn:Hn₂₃ .
 symmetry in Hn₁₃, Hn₂₃.
 apply null_coeff_range_length_iff in Hn₁₃.
+unfold null_coeff_range_length_prop in Hn₁₃.
 apply null_coeff_range_length_iff in Hn₂₃.
+unfold null_coeff_range_length_prop in Hn₂₃.
 simpl in Hn₁₃, Hn₂₃.
 destruct n₁₃ as [n₁₃| ]; simpl.
  destruct n₂₃ as [n₂₃| ]; simpl.
@@ -1467,10 +1472,13 @@ destruct n₁₃ as [n₁₃| ]; simpl.
    symmetry in Hn₁, Hn₂.
    apply null_coeff_range_length_iff in Hn₁.
    apply null_coeff_range_length_iff in Hn₂.
+   unfold null_coeff_range_length_prop in Hn₁, Hn₂.
    simpl in Hn₁, Hn₂.
    destruct n₁ as [n₁| ]; simpl.
     destruct n₂ as [n₂| ]; simpl.
      inversion_clear Heq; simpl in *.
+     unfold nz_valnum_add.
+     unfold cm_factor.
      Focus 1.
 bbb.
 
