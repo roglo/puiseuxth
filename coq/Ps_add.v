@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.19 2013-11-09 16:29:51 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.20 2013-11-10 01:18:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,10 +41,10 @@ Definition adjust_nz n k nz :=
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
-Theorem nonzero_adjust_eq : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
+Lemma nz_adjust_eq : ∀ nz n k,
+  normalise_nz fld nz ≐ normalise_nz fld (adjust_nz n k nz).
 Proof.
 intros nz n k.
-constructor.
 unfold normalise_nz; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
@@ -138,6 +138,13 @@ constructor; simpl.
   revert H₁; apply Pos2Z_ne_0.
 
   apply Pos2Z.is_pos.
+Qed.
+
+Theorem ps_adjust_eq : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
+Proof.
+intros nz n k.
+constructor.
+apply nz_adjust_eq.
 Qed.
 
 Definition adjust_series n k s :=
