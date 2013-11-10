@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.23 2013-11-10 17:54:10 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.24 2013-11-10 23:13:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1599,14 +1599,35 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma yyy : ∀ nz₁ nz₂, eq_nz fld (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
+Lemma eq_nz_add_nz_add₂ : ∀ nz₁ nz₂,
+  eq_nz fld (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
 Proof.
-bbb.
+intros nz₁ nz₂.
+constructor; [ simpl | reflexivity | simpl ].
+ unfold nz_valnum_add.
+ rewrite Z2Nat.id.
+  rewrite Z.sub_sub_distr.
+  rewrite Z.sub_diag; simpl.
+  reflexivity.
+
+  rewrite <- Z.sub_max_distr_l.
+  rewrite Z.sub_diag.
+  apply Z.le_max_l.
+
+ unfold nz_terms_add.
+ unfold adjust_series.
+ remember (nz_valnum nz₂ * ' cm_factor nz₂ nz₁)%Z as vc₂₁.
+ remember (nz_valnum nz₁ * ' cm_factor nz₁ nz₂)%Z as vc₁₂.
+ remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
+ rewrite Z.min_comm, <- Hm.
+ reflexivity.
+Qed.
 
 Lemma eq_nz_norm_add_nz_norm_add₂ : ∀ nz₁ nz₂,
   normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
+bbb.
 unfold nz_add, nz_add₂.
 unfold cm, cm_factor; simpl.
 unfold adjusted_nz_add; simpl.
