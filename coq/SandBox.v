@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.13 2013-11-11 10:10:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.14 2013-11-11 22:50:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1432,6 +1432,28 @@ apply normalise_nz_is_projection.
 Qed.
 *)
 
+Lemma eq_nz_add_compat_r : ∀ nz₁ nz₂ nz₃,
+  eq_nz fld nz₁ nz₂
+  → eq_nz fld (nz_add fld nz₁ nz₃) (nz_add fld nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+induction Heq.
+constructor; simpl.
+ unfold nz_valnum_add.
+ unfold cm_factor.
+ rewrite H, H0.
+ reflexivity.
+
+ unfold cm.
+ rewrite H0; reflexivity.
+
+ unfold nz_terms_add.
+ unfold cm_factor.
+ unfold adjust_series.
+ rewrite H, H0, H1.
+ reflexivity.
+Qed.
+
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
       eq_nz_add_add₂, eq_nz_norm_add_add₂ *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
@@ -1440,8 +1462,8 @@ Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 (* truc à essayer :
-rewrite eq_nz_norm_add_add₂.
-rewrite eq_nz_norm_add_add₂.
+rewrite eq_nz_add_add₂.
+rewrite eq_nz_add_add₂.
 unfold nz_add₂.
 *)
 (* truc à essayer aussi :
@@ -1461,11 +1483,12 @@ symmetry in Hn₁₃, Hn₂₃.
 destruct n₁₃ as [n₁₃| ]; simpl.
  destruct n₂₃ as [n₂₃| ]; simpl.
   constructor; simpl.
-   Focus 1.
-   remember (greatest_series_x_power fld (nz_terms nz₁₃) n₁₃) as k₁₃ eqn:Hk₁₃ .
-   remember (greatest_series_x_power fld (nz_terms nz₂₃) n₂₃) as k₂₃ eqn:Hk₂₃ .
-   remember (gcd_nz n₁₃ k₁₃ nz₁₃) as g₁₃ eqn:Hg₁₃ .
-   remember (gcd_nz n₂₃ k₂₃ nz₂₃) as g₂₃ eqn:Hg₂₃ .
+  Focus 1.
+  remember (greatest_series_x_power fld (nz_terms nz₁₃) n₁₃) as k₁₃ eqn:Hk₁₃ .
+  remember (greatest_series_x_power fld (nz_terms nz₂₃) n₂₃) as k₂₃ eqn:Hk₂₃ .
+  remember (gcd_nz n₁₃ k₁₃ nz₁₃) as g₁₃ eqn:Hg₁₃ .
+  remember (gcd_nz n₂₃ k₂₃ nz₂₃) as g₂₃ eqn:Hg₂₃ .
+  constructor; simpl.
 bbb.
 
 intros nz₁ nz₂ nz₃ Heq.
