@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.14 2013-11-11 22:50:02 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.15 2013-11-11 23:13:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1434,7 +1434,7 @@ Qed.
 
 Lemma eq_nz_add_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_nz fld nz₁ nz₂
-  → eq_nz fld (nz_add fld nz₁ nz₃) (nz_add fld nz₂ nz₃).
+  → eq_nz fld (nz₁ ∔ nz₃) (nz₂ ∔ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
