@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.25 2013-11-11 00:01:00 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.26 2013-11-11 09:48:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1565,7 +1565,7 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma eq_nz_add_nz_add₂ : ∀ nz₁ nz₂,
+Lemma eq_nz_add_add₂ : ∀ nz₁ nz₂,
   eq_nz fld (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
@@ -1589,20 +1589,20 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_nz_norm_add_nz_norm_add₂ : ∀ nz₁ nz₂,
+Lemma eq_nz_norm_add_add₂ : ∀ nz₁ nz₂,
   normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
-rewrite eq_nz_add_nz_add₂; reflexivity.
+rewrite eq_nz_add_add₂; reflexivity.
 Qed.
 
 (* should be ps_add equality... à refaire... *)
-Lemma eq_ps_add_ps_add₂ : ∀ nz₁ nz₂,
+Lemma eq_ps_add_add₂ : ∀ nz₁ nz₂,
   NonZero (nz_add nz₁ nz₂) ≈ NonZero (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
 constructor.
-apply eq_nz_norm_add_nz_norm_add₂.
+apply eq_nz_norm_add_add₂.
 Qed.
 
 End fld.
