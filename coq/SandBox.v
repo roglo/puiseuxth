@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.9 2013-11-10 17:15:29 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.10 2013-11-11 00:01:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -454,7 +454,7 @@ remember (null_coeff_range_length fld (nz_terms nz) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 rewrite Nbar.add_comm.
 destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
-constructor; simpl.
+constructor; constructor; simpl.
  unfold nz_valnum_add.
  rewrite Z.mul_1_r.
  rewrite nz_add_0_r.
@@ -619,6 +619,7 @@ destruct ps₃ as [nz'₃| ].
    unfold nz_terms_add in Hn₂.
    unfold cm_factor in Hn₁.
    unfold cm_factor in Hn₂.
+bbb.
    rewrite H1, H2 in Hn₁.
    unfold adjust_series in Hn₁, Hn₂.
    rewrite H3 in Hn₁.
@@ -1448,7 +1449,7 @@ Qed.
 *)
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
-      eq_nz_norm_add_nz_norm_add₂ *)
+      eq_nz_add_nz_add₂, eq_nz_norm_add_nz_norm_add₂ *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).

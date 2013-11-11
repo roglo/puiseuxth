@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.24 2013-11-10 23:13:32 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.25 2013-11-11 00:01:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1487,40 +1487,6 @@ destruct (Nbar.lt_dec (fin i) (stop s)).
  apply fld_add_0_l.
 Qed.
 
-(*
-Definition eq_nz nz₁ nz₂ :=
-  nz_valnum nz₁ = nz_valnum nz₂ ∧
-  nz_comden nz₁ = nz_comden nz₂ ∧
-  nz_terms nz₁ ≃ nz_terms nz₂.
-
-Add Parametric Morphism : (@mknz α)
-with signature eq_series fld ==> eq ==> eq ==> eq_nz as mknz_morph.
-Proof.
-aaa.
-*)
-
-(*
-Definition eq_nz nz₁ nz₂ :=
-  nz_valnum nz₁ = nz_valnum nz₂ ∧
-  nz_comden nz₁ = nz_comden nz₂ ∧
-  nz_terms nz₁ ≃ nz_terms nz₂.
-
-Axiom eq_nz_refl : reflexive _ eq_nz.
-Axiom eq_nz_sym : symmetric _ eq_nz.
-Axiom eq_nz_trans : transitive _ eq_nz.
-
-Add Parametric Relation : (nz_ps α) eq_nz
- reflexivity proved by eq_nz_refl
- symmetry proved by eq_nz_sym
- transitivity proved by eq_nz_trans
- as eq_nz_rel.
-
-Add Parametric Morphism : (@NonZero α)
-with signature eq_nz ==> eq_ps fld as NonZero_morph.
-Proof.
-aaa.
-*)
-
 Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
 
 Lemma fold_mk_nonzero : ∀ (s : series α) v c,
@@ -1627,30 +1593,11 @@ Lemma eq_nz_norm_add_nz_norm_add₂ : ∀ nz₁ nz₂,
   normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
-bbb.
-unfold nz_add, nz_add₂.
-unfold cm, cm_factor; simpl.
-unfold adjusted_nz_add; simpl.
-unfold nz_valnum_add.
-unfold cm_factor.
-rewrite Z2Nat.id.
- rewrite Z.sub_sub_distr.
- rewrite Z.sub_diag; simpl.
- unfold nz_terms_add.
- unfold cm_factor.
- unfold adjust_series.
- remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as vc₁ eqn:Hvc₁ .
- remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as vc₂ eqn:Hvc₂ .
- remember (Z.min vc₁ vc₂) as m eqn:Hm .
- rewrite Z.min_comm, <- Hm.
- reflexivity.
-
- rewrite <- Z.sub_max_distr_l.
- rewrite Z.sub_diag.
- apply Z.le_max_l.
+rewrite eq_nz_add_nz_add₂; reflexivity.
 Qed.
 
-Lemma eq_nz_add_nz_add₂ : ∀ nz₁ nz₂,
+(* should be ps_add equality... à refaire... *)
+Lemma eq_ps_add_ps_add₂ : ∀ nz₁ nz₂,
   NonZero (nz_add nz₁ nz₂) ≈ NonZero (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.

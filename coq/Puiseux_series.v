@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.57 2013-11-10 17:54:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.58 2013-11-11 00:01:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -596,6 +596,21 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
     assumption.
 
    reflexivity.
+Qed.
+
+Add Parametric Morphism α (fld : field α) : (normalise_nz fld) with 
+signature (eq_nz fld) ==> (eq_norm_ps fld) as normalise_nz_morph.
+Proof.
+intros nz₁ nz₂ Heq.
+inversion Heq; subst.
+unfold normalise_nz.
+rewrite H, H0, H1.
+remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; constructor.
+unfold gcd_nz.
+rewrite H, H0.
+constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
 Section fld₁.
