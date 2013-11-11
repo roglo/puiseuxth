@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.10 2013-11-11 00:01:01 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.11 2013-11-11 08:13:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -619,54 +619,53 @@ destruct ps₃ as [nz'₃| ].
    unfold nz_terms_add in Hn₂.
    unfold cm_factor in Hn₁.
    unfold cm_factor in Hn₂.
-bbb.
-   rewrite H1, H2 in Hn₁.
+   inversion_clear H1.
    unfold adjust_series in Hn₁, Hn₂.
-   rewrite H3 in Hn₁.
+   rewrite H, H0, H2 in Hn₁.
    rewrite Hn₁ in Hn₂.
    move Hn₂ at top; subst n₁.
    destruct n₂ as [n₂| ].
-    constructor; simpl.
+    constructor; constructor; simpl.
      unfold nz_valnum_add, gcd_nz; simpl.
      unfold nz_valnum_add; simpl.
      unfold cm_factor, cm; simpl.
-     rewrite H1, H2.
+     rewrite H, H0.
      do 3 f_equal.
      unfold nz_terms_add.
      unfold cm_factor; simpl.
-     rewrite H1, H2.
+     rewrite H, H0.
      unfold adjust_series.
-     rewrite H3.
+     rewrite H2.
      reflexivity.
 
      unfold cm; simpl.
      unfold nz_terms_add; simpl.
      unfold cm_factor; simpl.
-     rewrite H1, H2.
+     rewrite H, H0.
      unfold adjust_series; simpl.
-     rewrite H3.
+     rewrite H2.
      do 2 f_equal.
      unfold gcd_nz; simpl.
      unfold nz_valnum_add; simpl.
-     rewrite H1.
+     rewrite H.
      unfold cm_factor, cm.
-     rewrite H2.
+     rewrite H0.
      reflexivity.
 
      unfold gcd_nz; simpl.
      unfold nz_valnum_add; simpl.
      unfold cm_factor, cm; simpl.
-     rewrite H1.
-     rewrite H2.
+     rewrite H.
+     rewrite H0.
      unfold nz_terms_add; simpl.
      unfold cm_factor, cm; simpl.
-     rewrite H1.
-     rewrite H2.
+     rewrite H.
+     rewrite H0.
      constructor; simpl.
      unfold adjust_series; simpl.
      intros i.
-     rewrite H3 in |- * at 1.
-     rewrite H3 in |- * at 1.
+     rewrite H2 in |- * at 1.
+     rewrite H2 in |- * at 1.
      reflexivity.
 
     constructor.
@@ -684,28 +683,13 @@ bbb.
   simpl.
   constructor.
   unfold normalise_nz; simpl.
-  rewrite H1.
+  inversion_clear H.
+  rewrite H4.
   remember (null_coeff_range_length fld (nz_terms nz₂0) 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
-  constructor; simpl.
-   rewrite H1.
-   rewrite H.
-   unfold gcd_nz.
-   rewrite H0.
-   rewrite H.
-   reflexivity.
-
-   rewrite H0.
-   rewrite H1.
-   unfold gcd_nz.
-   rewrite H0.
-   rewrite H.
-   reflexivity.
-
-   unfold gcd_nz.
-   rewrite H, H0, H1.
-   reflexivity.
+  unfold gcd_nz.
+  constructor; constructor; simpl; rewrite H2, H3, H4; reflexivity.
 
   reflexivity.
 Qed.
