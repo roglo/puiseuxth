@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.12 2013-11-11 09:48:12 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.13 2013-11-11 10:10:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1452,7 +1452,6 @@ rewrite nz_adjust_eq in Heq.
 symmetry in Heq.
 rewrite nz_adjust_eq in Heq.
 *)
-bbb.
 remember (nz₁ ∔ nz₃) as nz₁₃ eqn:Hnz₁₃ .
 remember (nz₂ ∔ nz₃) as nz₂₃ eqn:Hnz₂₃ .
 unfold normalise_nz; simpl.
