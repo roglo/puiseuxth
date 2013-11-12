@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.23 2013-11-12 19:12:50 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.24 2013-11-12 21:09:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1495,7 +1495,7 @@ Proof.
 intros nz₁ nz₂ n k.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
-bbb.
+unfold adjust_nz_from.
 unfold cm_factor; simpl.
 rewrite nz_adjust_adjust.
 symmetry.
@@ -1511,17 +1511,16 @@ simpl.
 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add.
  rewrite <- Z.sub_add_distr.
- replace
-  (nn * ' c₂ + Z.min (v₁ * ' k * ' c₂ - nn * ' c₂) (v₂ * ' (c₁ * k)))%Z with
-  (Z.min (v₁ * ' k * ' c₂ - nn * ' c₂) (v₂ * ' (c₁ * k)) + nn * ' c₂)%Z
-  by apply Z.add_comm.
+ rewrite <- Z.add_sub_swap.
  rewrite Z.sub_add_distr.
- rewrite Z.sub_simpl_r.
+ rewrite Z.add_simpl_r.
  rewrite Pos2Z.inj_mul, Z.mul_assoc.
  rewrite Z.mul_shuffle0.
  remember (v₁ * ' c₂)%Z as vc₁.
  remember (v₂ * ' c₁)%Z as vc₂.
+ rewrite Z.min_comm.
  symmetry.
+ rewrite Z.min_comm.
  rewrite nz_adjust_eq with (n := n) (k := k).
  rewrite nz_adjust_adjusted.
  do 2 rewrite nz_adjust_adjust.
