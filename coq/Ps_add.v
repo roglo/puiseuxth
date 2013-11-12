@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.29 2013-11-12 11:12:32 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.30 2013-11-12 18:25:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -188,6 +188,13 @@ Definition adjusted_nz_add nz'₁ nz'₂ :=
   {| nz_terms := series_add fld (nz_terms nz'₁) (nz_terms nz'₂);
      nz_valnum := nz_valnum nz'₁;
      nz_comden := nz_comden nz'₁ |}.
+
+Definition adjust_nz_from nz₁ nz₂ :=
+  let k₁ := cm_factor nz₁ nz₂ in
+  let k₂ := cm_factor nz₂ nz₁ in
+  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  adjust_nz (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂.
 
 Definition nz_add₂ (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in

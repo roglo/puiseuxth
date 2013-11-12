@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.21 2013-11-12 16:53:46 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.22 2013-11-12 18:25:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1493,6 +1493,7 @@ Lemma xxx : ∀ nz₁ nz₂ n k,
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
 intros nz₁ nz₂ n k.
+bbb.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
 unfold cm_factor; simpl.
@@ -1521,6 +1522,43 @@ rewrite <- Z2Nat.inj_add.
  remember (v₁ * ' c₂)%Z as vc₁.
  remember (v₂ * ' c₁)%Z as vc₂.
  symmetry.
+ rewrite nz_adjust_eq with (n := n) (k := k).
+ rewrite nz_adjust_adjusted.
+ do 2 rewrite nz_adjust_adjust.
+ do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+bbb.
+
+intros nz₁ nz₂ n k.
+do 2 rewrite eq_nz_norm_add_add₂.
+unfold nz_add₂; simpl.
+unfold cm_factor; simpl.
+rewrite nz_adjust_adjust.
+symmetry.
+rewrite Pos2Z.inj_mul.
+remember (nz_valnum nz₁) as v₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_valnum nz₂) as v₂.
+remember (nz_comden nz₁) as c₁.
+remember (Z.of_nat n) as nn.
+rewrite Z.mul_sub_distr_r.
+replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
+symmetry.
+rewrite nz_adjust_eq with (n := (n * Pos.to_nat c₂)%nat) (k := k).
+rewrite nz_adjust_adjusted.
+do 2 rewrite nz_adjust_adjust.
+do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+rewrite Nat.add_comm.
+replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
+rewrite <- Z2Nat_inj_mul_pos_r.
+remember (v₁ * ' c₂)%Z as vc₁.
+remember (v₂ * ' c₁)%Z as vc₂.
+rewrite Z.mul_shuffle0.
+rewrite Z.mul_assoc.
+rewrite <- Heqvc₁, <- Heqvc₂.
+replace (k * c₂)%positive with (c₂ * k)%positive by apply Pos.mul_comm.
+replace (k * c₁)%positive with (c₁ * k)%positive by apply Pos.mul_comm.
+rewrite Z.mul_sub_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r.
 bbb.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
