@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.18 2013-11-12 11:08:34 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.19 2013-11-12 14:05:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1477,15 +1477,29 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma xxx : ∀ nz₁ nz₂ k n,
-  normalise_nz fld (nz₁ ∔ nz₂) ≐
-  normalise_nz fld (adjust_nz fld k n nz₁ ∔ nz₂).
+Lemma nz_adjust_adjusted : ∀ nz₁ nz₂ n k,
+  eq_nz fld (adjust_nz fld n k (adjusted_nz_add fld nz₁ nz₂))
+    (adjusted_nz_add fld (adjust_nz fld n k nz₁) (adjust_nz fld n k nz₂)).
 Proof.
-intros nz₁ nz₂ k n.
+intros nz₁ nz₂ n k.
+constructor; simpl; try reflexivity.
+rewrite series_stretch_add_distr.
+rewrite series_shift_add_distr.
+reflexivity.
+Qed.
+
+Lemma xxx : ∀ nz₁ nz₂ n k,
+  normalise_nz fld (nz₁ ∔ nz₂) ≐
+  normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
+Proof.
+intros nz₁ nz₂ n k.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
 unfold cm_factor; simpl.
 rewrite nz_adjust_adjust.
+rewrite nz_adjust_eq with (n := n) (k := k).
+rewrite nz_adjust_adjusted.
+do 2 rewrite nz_adjust_adjust.
 bbb.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
