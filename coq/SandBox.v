@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.19 2013-11-12 14:05:31 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.20 2013-11-12 16:23:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1497,9 +1497,32 @@ do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
 unfold cm_factor; simpl.
 rewrite nz_adjust_adjust.
-rewrite nz_adjust_eq with (n := n) (k := k).
-rewrite nz_adjust_adjusted.
-do 2 rewrite nz_adjust_adjust.
+symmetry.
+rewrite Pos2Z.inj_mul.
+remember (nz_valnum nz₁) as v₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_valnum nz₂) as v₂.
+remember (nz_comden nz₁) as c₁.
+remember (Z.of_nat n) as nn.
+rewrite Z.mul_sub_distr_r.
+replace n with (Z.to_nat nn) .
+ 2: rewrite Heqnn.
+ 2: rewrite Nat2Z.id; reflexivity.
+
+ simpl.
+ rewrite <- Z2Nat_inj_mul_pos_r.
+ rewrite <- Z2Nat.inj_add.
+  rewrite <- Z.sub_add_distr.
+  replace
+   (nn * ' c₂ + Z.min (v₁ * ' k * ' c₂ - nn * ' c₂) (v₂ * ' (c₁ * k)))%Z with
+   (Z.min (v₁ * ' k * ' c₂ - nn * ' c₂) (v₂ * ' (c₁ * k)) + nn * ' c₂)%Z
+   by apply Z.add_comm.
+  rewrite Z.sub_add_distr.
+  rewrite Z.sub_simpl_r.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  rewrite Z.mul_shuffle0.
+  remember (v₁ * ' c₂)%Z as vc₁.
+  remember (v₂ * ' c₁)%Z as vc₂.
 bbb.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
