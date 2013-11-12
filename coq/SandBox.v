@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.17 2013-11-12 11:00:27 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.18 2013-11-12 11:08:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1485,6 +1485,7 @@ intros nz₁ nz₂ k n.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
 unfold cm_factor; simpl.
+rewrite nz_adjust_adjust.
 bbb.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,

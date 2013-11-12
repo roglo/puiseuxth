@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.28 2013-11-12 11:08:34 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.29 2013-11-12 11:12:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1611,5 +1611,10 @@ Add Parametric Morphism α (fld : field α) : (adjusted_nz_add fld)
 with signature (eq_nz fld) ==> (eq_nz fld) ==> (eq_nz fld)
 as adjusted_nz_add_morph.
 Proof.
-bbb.
-*)
+intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+unfold adjusted_nz_add.
+induction Heq₁, Heq₂.
+rewrite H, H0.
+constructor; simpl; try reflexivity.
+rewrite H1, H4; reflexivity.
+Qed.
