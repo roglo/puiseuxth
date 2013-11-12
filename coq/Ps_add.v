@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.30 2013-11-12 18:25:04 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.31 2013-11-12 19:12:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -197,13 +197,7 @@ Definition adjust_nz_from nz₁ nz₂ :=
   adjust_nz (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂.
 
 Definition nz_add₂ (nz₁ nz₂ : nz_ps α) :=
-  let k₁ := cm_factor nz₁ nz₂ in
-  let k₂ := cm_factor nz₂ nz₁ in
-  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
-  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
-  let nz'₁ := adjust_nz (Z.to_nat (v₁ - Z.min v₁ v₂)) k₁ nz₁ in
-  let nz'₂ := adjust_nz (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂ in
-  adjusted_nz_add nz'₁ nz'₂.
+  adjusted_nz_add (adjust_nz_from nz₂ nz₁) (adjust_nz_from nz₁ nz₂).
 
 Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
@@ -1581,11 +1575,11 @@ constructor; [ simpl | reflexivity | simpl ].
  rewrite Z2Nat.id.
   rewrite Z.sub_sub_distr.
   rewrite Z.sub_diag; simpl.
-  reflexivity.
+  apply Z.min_comm.
 
   rewrite <- Z.sub_max_distr_l.
   rewrite Z.sub_diag.
-  apply Z.le_max_l.
+  apply Z.le_max_r.
 
  unfold nz_terms_add.
  unfold adjust_series.

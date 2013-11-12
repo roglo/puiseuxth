@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.22 2013-11-12 18:25:04 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.23 2013-11-12 19:12:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1493,9 +1493,9 @@ Lemma xxx : ∀ nz₁ nz₂ n k,
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
 intros nz₁ nz₂ n k.
-bbb.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
+bbb.
 unfold cm_factor; simpl.
 rewrite nz_adjust_adjust.
 symmetry.
