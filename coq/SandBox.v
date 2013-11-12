@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.15 2013-11-11 23:13:41 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.16 2013-11-12 00:37:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1455,7 +1455,7 @@ constructor; simpl.
 Qed.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
-      eq_nz_add_add₂, eq_nz_norm_add_add₂ *)
+      eq_nz_add_add₂, eq_nz_norm_add_add₂, eq_nz_add_compat_r *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
