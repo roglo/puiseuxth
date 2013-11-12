@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.27 2013-11-12 11:00:27 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.28 2013-11-12 11:08:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1606,3 +1606,10 @@ apply eq_nz_norm_add_add₂.
 Qed.
 
 End fld.
+
+Add Parametric Morphism α (fld : field α) : (adjusted_nz_add fld)
+with signature (eq_nz fld) ==> (eq_nz fld) ==> (eq_nz fld)
+as adjusted_nz_add_morph.
+Proof.
+bbb.
+*)
