@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.16 2013-11-12 00:37:13 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.17 2013-11-12 11:00:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1454,6 +1454,39 @@ constructor; simpl.
  reflexivity.
 Qed.
 
+Lemma nz_adjust_adjust : ∀ nz n₁ n₂ k₁ k₂,
+  eq_nz fld (adjust_nz fld n₁ k₁ (adjust_nz fld n₂ k₂ nz))
+    (adjust_nz fld (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) nz).
+Proof.
+intros nz n₁ n₂ k₁ k₂.
+unfold adjust_nz; simpl.
+constructor; simpl.
+ rewrite Z.mul_sub_distr_r.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+ rewrite <- Z.sub_add_distr; f_equal.
+ rewrite Nat2Z.inj_add, Z.add_comm; f_equal.
+ rewrite Nat2Z.inj_mul, positive_nat_Z.
+ reflexivity.
+
+ rewrite Pos.mul_assoc, Pos_mul_shuffle0.
+ reflexivity.
+
+ rewrite stretch_shift_series_distr.
+ rewrite series_shift_shift.
+ rewrite series_stretch_stretch.
+ reflexivity.
+Qed.
+
+Lemma xxx : ∀ nz₁ nz₂ k n,
+  normalise_nz fld (nz₁ ∔ nz₂) ≐
+  normalise_nz fld (adjust_nz fld k n nz₁ ∔ nz₂).
+Proof.
+intros nz₁ nz₂ k n.
+do 2 rewrite eq_nz_norm_add_add₂.
+unfold nz_add₂; simpl.
+unfold cm_factor; simpl.
+bbb.
+
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
       eq_nz_add_add₂, eq_nz_norm_add_add₂, eq_nz_add_compat_r *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
@@ -1642,7 +1675,7 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
   constructor 1 with (k₁ := k₂₁) (k₂ := k₂₂); unfold cm_factor; simpl.
    do 2 rewrite series_stretch_add_distr.
    do 4 rewrite stretch_shift_series_distr.
-   do 4 rewrite <- stretch_series_stretch.
+   do 4 rewrite <- series_stretch_stretch.
    do 4 rewrite Nat.mul_sub_distr_r.
    do 4 rewrite <- Z2Nat_inj_mul_pos_r.
    do 4 rewrite <- Z.mul_assoc; simpl.
@@ -1652,9 +1685,9 @@ inversion H₂₃ as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| a 
    rewrite Hck₂.
    replace (k₂₁ * nz_comden ps₁)%positive with
     (nz_comden ps₁ * k₂₁)%positive by apply Pos.mul_comm.
-   do 2 rewrite stretch_series_stretch.
+   do 2 rewrite series_stretch_stretch.
    rewrite Hss₂.
-   do 2 rewrite <- stretch_series_stretch.
+   do 2 rewrite <- series_stretch_stretch.
    replace (nz_comden ps₁ * k₂₂)%positive with
     (k₂₂ * nz_comden ps₁)%positive by apply Pos.mul_comm.
    replace (v₂ * ' (nz_comden ps₁ * k₂₁))%Z with
@@ -1713,10 +1746,10 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
   rewrite stretch_shift_series_distr; [ idtac | apply Pos2Nat_ne_0 ].
-  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
-  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
-  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
-  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
 -- à nettoyer
   rewrite Nat.mul_sub_distr_r.
   rewrite <- Nat.mul_assoc.
@@ -1753,9 +1786,9 @@ inversion H as [k₂₁ k₂₂ nz₂₁ nz₂₂ Hss₂ Hvv₂ Hck₂| ]; subst
   rewrite series_add_comm.
   rewrite Pos2Nat.inj_mul.
   rewrite Nat.mul_comm.
-  rewrite stretch_series_stretch; try apply Pos2Nat_ne_0.
+  rewrite series_stretch_stretch; try apply Pos2Nat_ne_0.
   rewrite Hss₂.
-  rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
+  rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
   rewrite Nat.mul_comm.
   rewrite <- Pos2Nat.inj_mul.
   rewrite series_add_comm.

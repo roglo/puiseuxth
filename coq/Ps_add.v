@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.26 2013-11-11 09:48:12 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.27 2013-11-12 11:00:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -523,7 +523,7 @@ do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
 rewrite series_add_assoc.
 do 4 rewrite stretch_shift_series_distr.
-do 4 rewrite <- stretch_series_stretch; try apply Pos2Nat_ne_0.
+do 4 rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
 do 4 rewrite series_shift_shift.
 do 4 rewrite <- Z2Nat_inj_mul_pos_r.
 do 4 rewrite Z.mul_sub_distr_r.
@@ -1313,8 +1313,8 @@ induction n; intros.
   unfold cm_factor, cm; simpl.
   do 2 rewrite series_stretch_add_distr.
   do 4 rewrite stretch_shift_series_distr.
-  do 4 rewrite <- stretch_series_stretch.
-  do 4 rewrite Pos.mul_comm, stretch_series_stretch.
+  do 4 rewrite <- series_stretch_stretch.
+  do 4 rewrite Pos.mul_comm, series_stretch_stretch.
   subst f; simpl.
   unfold cm_factor, cm; simpl.
   remember (nz_valnum nz₁) as v₁ eqn:Hv₁ .
@@ -1328,7 +1328,7 @@ induction n; intros.
   simpl.
   do 4 rewrite series_shift_0.
   do 8 rewrite stretch_shift_series_distr.
-  do 8 rewrite <- stretch_series_stretch.
+  do 8 rewrite <- series_stretch_stretch.
   move H1 at bottom.
   move H2 at bottom.
   move H3 at bottom.
@@ -1346,13 +1346,13 @@ induction n; intros.
    rewrite H₁; clear H₁.
    rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
    rewrite Pos.mul_comm.
-   rewrite stretch_series_stretch.
+   rewrite series_stretch_stretch.
    rewrite <- stretch_shift_series_distr.
    rewrite <- Pos.mul_assoc, H3, Pos.mul_assoc.
    symmetry.
    rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
    rewrite Pos.mul_comm.
-   rewrite stretch_series_stretch.
+   rewrite series_stretch_stretch.
    rewrite <- stretch_shift_series_distr.
    symmetry.
    rewrite series_add_comm.
@@ -1383,7 +1383,7 @@ induction n; intros.
 
       rewrite H₁; clear H₁.
       rewrite Pos_mul_shuffle0.
-      rewrite stretch_series_stretch, H1, <- stretch_series_stretch.
+      rewrite series_stretch_stretch, H1, <- series_stretch_stretch.
       rewrite Pos_mul_shuffle0; reflexivity.
 
      rewrite H₁; clear H₁.
@@ -1394,7 +1394,7 @@ induction n; intros.
       apply Pos.mul_comm.
 
       rewrite H₁; clear H₁.
-      rewrite stretch_series_stretch.
+      rewrite series_stretch_stretch.
       rewrite <- stretch_shift_series_distr.
       rewrite <- series_stretch_add_distr.
       rewrite series_add_comm.
@@ -1407,7 +1407,7 @@ induction n; intros.
        apply Pos.mul_comm.
 
        rewrite H₁; clear H₁.
-       rewrite stretch_series_stretch.
+       rewrite series_stretch_stretch.
        rewrite <- stretch_shift_series_distr.
        rewrite <- series_stretch_add_distr.
        rewrite series_add_comm.
@@ -1419,10 +1419,10 @@ induction n; intros.
               (series_stretch fld (c₁ * k₂ * c₁) (nz_terms nz₃)))) as z.
        do 2 rewrite <- Pos.mul_assoc in Heqz.
        subst z.
-       rewrite stretch_series_stretch.
+       rewrite series_stretch_stretch.
        rewrite <- stretch_shift_series_distr.
        rewrite series_add_comm.
-       rewrite stretch_series_stretch.
+       rewrite series_stretch_stretch.
        rewrite <- stretch_shift_series_distr.
        rewrite <- series_stretch_add_distr.
        remember
@@ -1596,11 +1596,11 @@ intros nz₁ nz₂.
 rewrite eq_nz_add_add₂; reflexivity.
 Qed.
 
-(* should be ps_add equality... à refaire... *)
-Lemma eq_ps_add_add₂ : ∀ nz₁ nz₂,
-  NonZero (nz_add nz₁ nz₂) ≈ NonZero (nz_add₂ nz₁ nz₂).
+Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≈ ps_add₂ ps₁ ps₂.
 Proof.
-intros nz₁ nz₂.
+intros ps₁ ps₂.
+destruct ps₁ as [ps₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [ps₂| ]; [ idtac | reflexivity ].
 constructor.
 apply eq_nz_norm_add_add₂.
 Qed.

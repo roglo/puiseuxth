@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.58 2013-11-11 00:01:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.59 2013-11-12 11:00:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -634,7 +634,7 @@ intros ps₁ ps₂ H.
 induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
-Lemma stretch_series_stretch : ∀ a b s,
+Lemma series_stretch_stretch : ∀ a b s,
   series_stretch fld (a * b) s ≃
   series_stretch fld a (series_stretch fld b s).
 Proof.
