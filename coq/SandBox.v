@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.24 2013-11-12 21:09:23 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.25 2013-11-13 04:56:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1488,6 +1488,52 @@ rewrite series_shift_add_distr.
 reflexivity.
 Qed.
 
+Lemma adjust_nz_mul_r : ∀ nz n k₁ k₂,
+  eq_nz fld
+    (adjust_nz fld n (k₁ * k₂) nz)
+    (adjust_nz fld n k₁ (adjust_nz fld 0 k₂ nz)).
+Proof.
+intros nz n k₁ k₂.
+constructor; simpl.
+ rewrite Z.sub_0_r.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
+ reflexivity.
+
+ rewrite Pos.mul_assoc, Pos_mul_shuffle0.
+ reflexivity.
+
+ rewrite series_shift_0.
+ rewrite series_stretch_stretch.
+ reflexivity.
+Qed.
+
+Lemma www : ∀ nz₁ nz₂ k,
+  normalise_nz fld (nz₁ ∔ nz₂) ≐
+  normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂).
+Proof.
+intros nz₁ nz₂ k.
+do 2 rewrite eq_nz_norm_add_add₂.
+unfold nz_add₂; simpl.
+unfold adjust_nz_from.
+unfold cm_factor; simpl.
+rewrite Z.sub_0_r.
+rewrite nz_adjust_adjust.
+rewrite Nat.mul_0_l, Nat.add_0_r.
+symmetry.
+rewrite Pos2Z.inj_mul, Z.mul_assoc.
+remember (nz_valnum nz₁ * ' k * ' nz_comden nz₂)%Z as x eqn:Hx .
+rewrite Z.mul_shuffle0 in Hx; subst x.
+rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_sub_distr_r.
+rewrite <- Z.mul_sub_distr_r.
+rewrite Z2Nat.inj_mul.
+ rewrite Z2Nat.inj_mul.
+  Focus 1.
+  simpl.
+  do 2 rewrite adjust_nz_mul_r.
+bbb.
+
 Lemma xxx : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
@@ -1526,6 +1572,24 @@ rewrite <- Z2Nat.inj_add.
  do 2 rewrite nz_adjust_adjust.
  do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 bbb.
+
+(* expérimentation, sachant que c'est normalise_nz qui fait le boulot,
+   en fait... *)
+intros nz₁ nz₂ n k.
+do 2 rewrite eq_nz_norm_add_add₂.
+unfold normalise_nz.
+remember
+ (null_coeff_range_length fld (nz_terms (nz_add₂ fld nz₁ nz₂)) 0) as len₁
+ eqn:Hlen₁ .
+remember
+ (null_coeff_range_length fld
+    (nz_terms (nz_add₂ fld (adjust_nz fld n k nz₁) nz₂)) 0) as len₂ eqn:Hlen₂ .
+simpl in Hlen₁, Hlen₂.
+unfold cm_factor in Hlen₁, Hlen₂.
+rewrite stretch_shift_series_distr in Hlen₂.
+rewrite series_shift_shift in Hlen₂.
+rewrite <- series_stretch_stretch in Hlen₂.
+bbb
 
 intros nz₁ nz₂ n k.
 do 2 rewrite eq_nz_norm_add_add₂.
