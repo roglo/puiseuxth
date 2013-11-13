@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.34 2013-11-13 18:15:16 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.35 2013-11-13 18:26:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1666,10 +1666,11 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma vvv : ∀ nz₁ nz₂ n k m,
+Lemma normalise_nz_adjust_nz_add : ∀ nz₁ nz₂ n k m,
   normalise_nz fld (adjust_nz fld m k nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
+(* à nettoyer : focus, simplifier peut-être... *)
 intros nz₁ nz₂ n k.
 intros m.
 do 2 rewrite eq_nz_norm_add_add₂.
@@ -1769,9 +1770,43 @@ rewrite <- Z2Nat.inj_add.
      rewrite Z.add_sub_swap.
      rewrite <- Z.sub_sub_distr.
      remember (vc₁ - vc₂)%Z as x.
+     rewrite <- Z2Nat.inj_sub.
+      2: omega.
 
-bbb.
-*)
+      rewrite <- Z2Nat.inj_sub.
+       2: omega.
+
+       remember (Z.to_nat (nn * ' c₂ - x)) as y.
+       replace y with (y + 0)%nat by omega.
+       rewrite <- Nat.add_assoc; simpl.
+       rewrite normalise_nz_adjust_add.
+       clear y Heqy.
+       remember (Z.to_nat (mm * ' c₂ - x)) as y.
+       replace y with (y + 0)%nat by omega.
+       rewrite <- Nat.add_assoc; simpl.
+       rewrite normalise_nz_adjust_add.
+       reflexivity.
+
+    rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+    apply Z.le_max_l.
+
+   rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+   apply Z.le_max_l.
+
+  rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+  apply Z.le_max_r.
+
+  subst nn.
+  destruct n; [ reflexivity | simpl ].
+  apply Pos2Z.is_nonneg.
+
+ rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+ apply Z.le_max_r.
+
+ subst mm.
+ destruct m; [ reflexivity | simpl ].
+ apply Pos2Z.is_nonneg.
+Qed.
 
 Lemma www : ∀ nz₁ nz₂ n k,
   normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂) ≐
