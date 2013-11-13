@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.25 2013-11-13 04:56:21 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.26 2013-11-13 05:21:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1507,6 +1507,30 @@ constructor; simpl.
  reflexivity.
 Qed.
 
+Lemma adjust_nz_mul : ∀ nz n k u,
+  eq_nz fld
+    (adjust_nz fld (n * Pos.to_nat u) (k * u) nz)
+    (adjust_nz fld 0 u (adjust_nz fld n k nz)).
+Proof.
+intros nz n k u.
+constructor; simpl.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc.
+ rewrite Z.mul_sub_distr_r.
+ rewrite Z.sub_0_r.
+ f_equal.
+ rewrite Nat2Z.inj_mul.
+ rewrite positive_nat_Z.
+ reflexivity.
+
+ rewrite Pos.mul_assoc; reflexivity.
+
+ rewrite stretch_shift_series_distr.
+ rewrite series_shift_0.
+ rewrite Pos.mul_comm.
+ rewrite series_stretch_stretch.
+ reflexivity.
+Qed.
+
 Lemma www : ∀ nz₁ nz₂ k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂).
@@ -1531,7 +1555,10 @@ rewrite Z2Nat.inj_mul.
  rewrite Z2Nat.inj_mul.
   Focus 1.
   simpl.
-  do 2 rewrite adjust_nz_mul_r.
+  do 2 rewrite adjust_nz_mul.
+  rewrite <- nz_adjust_adjusted.
+  rewrite <- nz_adjust_eq.
+  reflexivity.
 bbb.
 
 Lemma xxx : ∀ nz₁ nz₂ n k,
