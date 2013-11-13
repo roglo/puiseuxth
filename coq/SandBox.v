@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.37 2013-11-13 18:48:09 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.38 2013-11-13 20:27:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1816,6 +1816,95 @@ intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_l with (k := k).
 apply normalise_nz_adjust_nz_add.
 Qed.
+
+Lemma www : ∀ nz nz₁,
+  normalise_nz fld nz = NonZero nz₁
+  → ∃ n k, eq_nz fld nz (adjust_nz fld n k nz₁).
+Proof.
+intros nz nz₁ Heq.
+unfold normalise_nz in Heq.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as len₁.
+symmetry in Heqlen₁.
+destruct len₁ as [len₁| ]; [ idtac | discriminate Heq ].
+injection Heq; clear Heq; intros Heq; symmetry in Heq.
+subst nz₁.
+unfold adjust_nz.
+simpl.
+remember (greatest_series_x_power fld (nz_terms nz) len₁) as k.
+remember (gcd_nz len₁ k nz) as g.
+symmetry in Heqg.
+destruct g as [| g| g]; simpl.
+ Focus 1.
+ unfold gcd_nz in Heqg.
+ apply Z.gcd_eq_0_r in Heqg.
+ exfalso; revert Heqg; apply Pos2Z_ne_0.
+
+ exists len₁, g.
+ constructor; simpl.
+  unfold gcd_nz in Heqg.
+  remember (nz_valnum nz + Z.of_nat len₁)%Z as v.
+  remember (' nz_comden nz)%Z as c.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k)) as H₁.
+  destruct H₁ as (a, Ha).
+  rewrite Heqg in Ha.
+  pose proof (Z.gcd_divide_l v c) as H₁.
+  destruct H₁ as (b, Hb).
+  rewrite Ha in Hb.
+  rewrite Z.mul_assoc in Hb.
+  rewrite Hb.
+  rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
+  rewrite <- Hb.
+  rewrite Heqv.
+  rewrite Z.add_simpl_r.
+  reflexivity.
+
+  unfold gcd_nz in Heqg.
+  remember (nz_valnum nz + Z.of_nat len₁)%Z as v.
+  remember (' nz_comden nz)%Z as c.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k)) as H₁.
+  destruct H₁ as (a, Ha).
+  rewrite Heqg in Ha.
+  pose proof (Z.gcd_divide_r v c) as H₁.
+  destruct H₁ as (b, Hb).
+  rewrite Ha in Hb.
+  rewrite Z.mul_assoc in Hb.
+  rewrite Hb.
+  rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
+  replace g with (Z.to_pos (' g)) by apply Pos2Z.id.
+  rewrite <- Z2Pos.inj_mul.
+   rewrite <- Hb.
+   rewrite Heqc; simpl.
+   reflexivity.
+
+   apply Z.mul_lt_mono_pos_r with (p := Zpos g).
+    apply Pos2Z.is_pos.
+
+    rewrite <- Hb; simpl.
+    rewrite Heqc; apply Pos2Z.is_pos.
+
+   apply Pos2Z.is_pos.
+
+  unfold normalise_series.
+  rewrite series_stretch_shrink.
+bbb.
+
+(*
+Lemma xxx : ∀ nz₁ nz₂,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → ∃ n₁ k₁ n₂ k₂,
+    eq_nz fld (adjust_nz fld n₁ k₁ nz₁) (adjust_nz fld n₂ k₂ nz₂).
+Proof.
+intros nz₁ nz₂ Heq.
+unfold normalise_nz in Heq.
+remember (null_coeff_range_length fld (nz_terms nz₁) 0) as len₁.
+remember (null_coeff_range_length fld (nz_terms nz₂) 0) as len₂.
+symmetry in Heqlen₁, Heqlen₂.
+destruct len₁ as [len₁| ].
+ destruct len₂ as [len₂| ].
+  inversion Heq.
+  subst.
+bbb.
+*)
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
       eq_nz_add_add₂, eq_nz_norm_add_add₂, eq_nz_add_compat_r *)
