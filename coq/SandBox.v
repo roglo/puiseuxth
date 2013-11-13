@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.32 2013-11-13 15:15:57 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.33 2013-11-13 18:06:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1666,7 +1666,6 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-(* mmm... pas sûr que ça marche... *)
 Lemma vvv : ∀ nz₁ nz₂ n k m,
   normalise_nz fld (adjust_nz fld m k nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
@@ -1722,11 +1721,16 @@ rewrite <- Z2Nat.inj_add.
    symmetry.
    rewrite Z2Nat.inj_sub.
     rewrite Z.add_comm.
-    rewrite Z2Nat.inj_add.
-     rewrite Z.add_comm.
+    Focus 1.
+    destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
+     Focus 1.
      rewrite Z2Nat.inj_add.
-      destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
-       Focus 1.
+      3: omega.
+
+      rewrite Z.add_comm.
+      rewrite Z2Nat.inj_add.
+       3: omega.
+
        rewrite Z.min_l; auto.
        rewrite Z.sub_diag.
        do 2 rewrite Nat.sub_0_r.
@@ -1744,55 +1748,18 @@ rewrite <- Z2Nat.inj_add.
        rewrite normalise_nz_adjust_add.
        reflexivity.
 
-       apply Z.nle_gt in H₁.
-       Focus 1.
-       rewrite Z.min_r; [ idtac | apply Z.lt_le_incl; assumption ].
-       remember (Z.to_nat (vc₂ - vc₁)) as x.
-       rewrite <- Z2Nat_sub_min in Heqx.
-       rewrite <- Z.sub_max_distr_l in Heqx.
-       rewrite Z.sub_diag in Heqx.
-       rewrite Z.max_l in Heqx; [ idtac | omega ].
-       subst x.
-       rewrite Nat.add_0_r.
-       rewrite Nat.add_0_r.
-       Focus 1.
-       destruct m.
-        Focus 1.
-        subst mm; simpl.
-        remember (Z.to_nat (nn * ' c₂) - Z.to_nat (vc₁ - vc₂))%nat as q.
-        remember (Z.to_nat (nn * ' c₂)) as r.
-        destruct (le_dec r q) as [H₂| H₂].
-         rewrite Heqq in H₂.
-         remember (vc₁ - vc₂)%Z as x.
-         destruct x as [| x| x].
-          exfalso; fast_omega H₁ Heqx.
+       subst mm; simpl.
+       destruct m; [ reflexivity | idtac ].
+       simpl.
+       apply Pos2Z.is_nonneg.
 
-          simpl in H₂.
-          remember (Pos.to_nat x) as xx.
-          symmetry in Heqxx.
-          destruct xx.
-           exfalso; revert Heqxx; apply Pos2Nat_ne_0.
+      subst nn; simpl.
+      destruct n; [ reflexivity | simpl ].
+      apply Pos2Z.is_nonneg.
 
-           destruct r.
-            simpl in Heqq.
-            subst q.
-            simpl.
-            reflexivity.
+     apply Z.nle_gt in H₁.
+     rewrite Z.min_r; [ idtac | apply Z.lt_le_incl; assumption ].
 
-            exfalso; fast_omega H₂.
-
-          simpl in Heqq.
-          simpl.
-          apply Z.lt_0_sub in H₁.
-          rewrite <- Heqx in H₁.
-          apply Z.nle_gt in H₁.
-          exfalso; apply H₁.
-          apply Pos2Z.neg_is_nonpos.
-
-         apply Nat.nle_gt in H₂.
-         replace r with (q + (r - q))%nat by fast_omega H₂.
-         rewrite normalise_nz_adjust_add.
-(* bloqué *)
 bbb.
 *)
 
