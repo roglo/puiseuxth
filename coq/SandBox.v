@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.27 2013-11-13 05:30:43 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.28 2013-11-13 10:56:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1572,22 +1572,33 @@ rewrite Z2Nat.inj_mul.
  apply Pos2Z.is_nonneg.
 Qed.
 
-Lemma xxx : ∀ nz₁ nz₂ n k,
-  normalise_nz fld (nz₁ ∔ nz₂) ≐
+(* c'est peut-être bon, faut voir, ou un truc du genre, mais 
+   pour l'instant, pas sûr que ça serve...
+Lemma vvv : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
+  normalise_nz fld
+    (adjusted_nz_add fld
+       (adjust_nz fld (n + n₁) k₁ nz₁)
+       (adjust_nz fld (n + n₂) k₂ nz₂)) ≐
+  normalise_nz fld
+    (adjusted_nz_add fld
+       (adjust_nz fld n₁ k₁ nz₁)
+       (adjust_nz fld n₂ k₂ nz₂)).
+Proof.
+bbb.
+*)
+
+Lemma www : ∀ nz₁ nz₂ n k,
+  normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
-(* version expérimentale *)
-intros nz₁ nz₂ n k.
-rewrite eq_norm_ps_add_adjust_l with (k := k).
-bbb.
-
-(* version classique *)
 intros nz₁ nz₂ n k.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
 unfold adjust_nz_from.
 unfold cm_factor; simpl.
-rewrite nz_adjust_adjust.
+rewrite Z.sub_0_r.
+do 2 rewrite nz_adjust_adjust.
+rewrite Nat.add_0_r.
 symmetry.
 rewrite Pos2Z.inj_mul.
 remember (nz_valnum nz₁) as v₁.
@@ -1614,58 +1625,16 @@ rewrite <- Z2Nat.inj_add.
  rewrite nz_adjust_eq with (n := n) (k := k).
  rewrite nz_adjust_adjusted.
  do 2 rewrite nz_adjust_adjust.
+bbb.
  do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 bbb.
 
-(* expérimentation, sachant que c'est normalise_nz qui fait le boulot,
-   en fait... *)
+Lemma xxx : ∀ nz₁ nz₂ n k,
+  normalise_nz fld (nz₁ ∔ nz₂) ≐
+  normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
+Proof.
 intros nz₁ nz₂ n k.
-do 2 rewrite eq_nz_norm_add_add₂.
-unfold normalise_nz.
-remember
- (null_coeff_range_length fld (nz_terms (nz_add₂ fld nz₁ nz₂)) 0) as len₁
- eqn:Hlen₁ .
-remember
- (null_coeff_range_length fld
-    (nz_terms (nz_add₂ fld (adjust_nz fld n k nz₁) nz₂)) 0) as len₂ eqn:Hlen₂ .
-simpl in Hlen₁, Hlen₂.
-unfold cm_factor in Hlen₁, Hlen₂.
-rewrite stretch_shift_series_distr in Hlen₂.
-rewrite series_shift_shift in Hlen₂.
-rewrite <- series_stretch_stretch in Hlen₂.
-bbb
-
-intros nz₁ nz₂ n k.
-do 2 rewrite eq_nz_norm_add_add₂.
-unfold nz_add₂; simpl.
-unfold cm_factor; simpl.
-rewrite nz_adjust_adjust.
-symmetry.
-rewrite Pos2Z.inj_mul.
-remember (nz_valnum nz₁) as v₁.
-remember (nz_comden nz₂) as c₂.
-remember (nz_valnum nz₂) as v₂.
-remember (nz_comden nz₁) as c₁.
-remember (Z.of_nat n) as nn.
-rewrite Z.mul_sub_distr_r.
-replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
-symmetry.
-rewrite nz_adjust_eq with (n := (n * Pos.to_nat c₂)%nat) (k := k).
-rewrite nz_adjust_adjusted.
-do 2 rewrite nz_adjust_adjust.
-do 2 rewrite <- Z2Nat_inj_mul_pos_r.
-rewrite Nat.add_comm.
-replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
-rewrite <- Z2Nat_inj_mul_pos_r.
-remember (v₁ * ' c₂)%Z as vc₁.
-remember (v₂ * ' c₁)%Z as vc₂.
-rewrite Z.mul_shuffle0.
-rewrite Z.mul_assoc.
-rewrite <- Heqvc₁, <- Heqvc₂.
-replace (k * c₂)%positive with (c₂ * k)%positive by apply Pos.mul_comm.
-replace (k * c₁)%positive with (c₁ * k)%positive by apply Pos.mul_comm.
-rewrite Z.mul_sub_distr_r.
-rewrite <- Z.mul_min_distr_nonneg_r.
+rewrite eq_norm_ps_add_adjust_l with (k := k).
 bbb.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
