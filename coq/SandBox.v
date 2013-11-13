@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.35 2013-11-13 18:26:31 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.36 2013-11-13 18:33:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1808,66 +1808,14 @@ rewrite <- Z2Nat.inj_add.
  apply Pos2Z.is_nonneg.
 Qed.
 
-Lemma www : ∀ nz₁ nz₂ n k,
-  normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂) ≐
-  normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
-Proof.
-intros nz₁ nz₂ n k.
-do 2 rewrite eq_nz_norm_add_add₂.
-unfold nz_add₂; simpl.
-unfold adjust_nz_from.
-unfold cm_factor; simpl.
-rewrite Z.sub_0_r.
-do 2 rewrite nz_adjust_adjust.
-rewrite Nat.add_0_r.
-symmetry.
-rewrite Pos2Z.inj_mul.
-remember (nz_valnum nz₁) as v₁.
-remember (nz_comden nz₂) as c₂.
-remember (nz_valnum nz₂) as v₂.
-remember (nz_comden nz₁) as c₁.
-remember (Z.of_nat n) as nn.
-rewrite Z.mul_sub_distr_r.
-replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
-simpl.
-rewrite <- Z2Nat_inj_mul_pos_r.
-rewrite <- Z2Nat.inj_add.
- rewrite <- Z.sub_add_distr.
- rewrite <- Z.add_sub_swap.
- rewrite Z.sub_add_distr.
- rewrite Z.add_simpl_r.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- rewrite Z.mul_shuffle0.
- remember (v₁ * ' c₂)%Z as vc₁.
- remember (v₂ * ' c₁)%Z as vc₂.
- rewrite Z.min_comm.
- symmetry.
- rewrite Z.min_comm.
- symmetry.
- rewrite <- Z2Nat_sub_min2.
- rewrite <- Z2Nat_sub_min1.
- rewrite Z.min_id.
- rewrite Z.sub_diag.
- rewrite Nat.add_0_r.
- rewrite Z.sub_sub_distr.
- rewrite Z.sub_diag.
- simpl.
- rewrite Z.min_r.
-bbb.
- rewrite nz_adjust_eq with (n := n) (k := k).
- rewrite nz_adjust_adjusted.
- do 2 rewrite nz_adjust_adjust.
-bbb.
- do 2 rewrite <- Z2Nat_inj_mul_pos_r.
-bbb.
-
-Lemma xxx : ∀ nz₁ nz₂ n k,
+Lemma normalise_nz_adjust_nz_r : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_l with (k := k).
-bbb.
+apply normalise_nz_adjust_nz_add.
+Qed.
 
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
       eq_nz_add_add₂, eq_nz_norm_add_add₂, eq_nz_add_compat_r *)
