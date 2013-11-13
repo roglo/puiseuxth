@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.36 2013-11-13 18:33:57 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.37 2013-11-13 18:48:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1824,6 +1824,7 @@ Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
+bbb.
 (* truc à essayer :
 rewrite eq_nz_add_add₂.
 rewrite eq_nz_add_add₂.
