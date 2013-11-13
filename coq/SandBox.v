@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.29 2013-11-13 11:08:16 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.30 2013-11-13 12:46:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1573,8 +1573,8 @@ rewrite Z2Nat.inj_mul.
 Qed.
 
 (* c'est peut-être bon, faut voir, ou un truc du genre, mais 
-   pour l'instant, pas sûr que ça serve...
-Lemma vvv : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
+   pour l'instant, pas sûr que ça serve... *)
+Lemma uuu : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
   normalise_nz fld
     (adjusted_nz_add fld
        (adjust_nz fld (n + n₁) k₁ nz₁)
@@ -1584,8 +1584,84 @@ Lemma vvv : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
        (adjust_nz fld n₁ k₁ nz₁)
        (adjust_nz fld n₂ k₂ nz₂)).
 Proof.
+intros nz₁ nz₂ n n₁ n₂ k₁ k₂.
+replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
+ replace (n + n₂)%nat with (n + n₂ * Pos.to_nat 1)%nat .
+  replace k₁ with (1 * k₁)%positive .
+   rewrite <- nz_adjust_adjust.
+   replace k₂ with (1 * k₂)%positive .
+    rewrite <- nz_adjust_adjust.
 bbb.
 *)
+
+Lemma vvv : ∀ nz₁ nz₂ n k m,
+  normalise_nz fld (adjust_nz fld m k nz₁ ∔ nz₂) ≐
+  normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
+Proof.
+intros nz₁ nz₂ n k.
+intros m.
+do 2 rewrite eq_nz_norm_add_add₂.
+unfold nz_add₂; simpl.
+unfold adjust_nz_from.
+unfold cm_factor; simpl.
+do 2 rewrite nz_adjust_adjust.
+rewrite Pos2Z.inj_mul.
+remember (nz_valnum nz₁) as v₁.
+remember (nz_comden nz₂) as c₂.
+remember (nz_valnum nz₂) as v₂.
+remember (nz_comden nz₁) as c₁.
+remember (Z.of_nat n) as nn.
+remember (Z.of_nat m) as mm.
+rewrite Z.mul_sub_distr_r.
+rewrite Z.mul_sub_distr_r.
+replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
+replace m with (Z.to_nat mm) by (rewrite Heqmm, Nat2Z.id; reflexivity).
+simpl.
+do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+rewrite <- Z2Nat.inj_add.
+ rewrite <- Z2Nat.inj_add.
+  do 2 rewrite <- Z.sub_add_distr.
+  do 2 rewrite <- Z.add_sub_swap.
+  do 2 rewrite Z.sub_add_distr.
+  do 2 rewrite Z.add_simpl_r.
+  rewrite Pos2Z.inj_mul, Z.mul_assoc.
+  rewrite Z.mul_shuffle0.
+  remember (v₁ * ' c₂ * ' k)%Z as vc₁.
+  remember (v₂ * ' c₁ * ' k)%Z as vc₂.
+  rewrite <- Z2Nat_sub_min2.
+  rewrite <- Z2Nat_sub_min1.
+  rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
+  rewrite <- Z2Nat_sub_min2.
+  rewrite <- Z2Nat_sub_min1.
+  rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
+  do 4 rewrite Z.sub_sub_distr.
+  rewrite Z.add_comm.
+  rewrite Z.add_sub_assoc.
+  rewrite Z.add_sub_swap.
+  rewrite <- Z.sub_sub_distr.
+  symmetry.
+  rewrite Z.add_comm.
+  rewrite Z.add_sub_assoc.
+  rewrite Z.add_sub_swap.
+  rewrite <- Z.sub_sub_distr.
+  symmetry.
+  rewrite Z2Nat.inj_sub.
+   symmetry.
+   rewrite Z2Nat.inj_sub.
+    rewrite Z.add_comm.
+    rewrite Z2Nat.inj_add.
+     rewrite Z.add_comm.
+     rewrite Z2Nat.inj_add.
+      destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
+       Focus 1.
+       rewrite Z.min_l; auto.
+       rewrite Z.sub_diag.
+       do 2 rewrite Nat.sub_0_r.
+       rewrite <- Z2Nat_sub_min.
+       rewrite Z.min_l; auto.
+       rewrite Z.sub_diag, Nat.add_0_r.
+       rewrite Nat.add_0_r.
+bbb.
 
 Lemma www : ∀ nz₁ nz₂ n k,
   normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂) ≐
