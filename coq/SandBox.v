@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.30 2013-11-13 12:46:12 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.31 2013-11-13 14:24:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1572,9 +1572,76 @@ rewrite Z2Nat.inj_mul.
  apply Pos2Z.is_nonneg.
 Qed.
 
-(* c'est peut-être bon, faut voir, ou un truc du genre, mais 
-   pour l'instant, pas sûr que ça serve... *)
-Lemma uuu : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
+Lemma normalise_nz_adjust : ∀ nz₁ nz₂ n,
+  normalise_nz fld
+    (adjusted_nz_add fld (adjust_nz fld n 1 nz₁) (adjust_nz fld n 1 nz₂))
+  ≐ normalise_nz fld
+      (adjusted_nz_add fld nz₁ nz₂).
+Proof.
+(* gros nettoyage à faire : factorisation, focus, etc. *)
+intros nz₁ nz₂ n.
+rewrite <- nz_adjust_adjusted.
+unfold normalise_nz.
+simpl.
+rewrite null_coeff_range_length_shift.
+rewrite series_stretch_1.
+remember
+ (null_coeff_range_length fld (series_add fld (nz_terms nz₁) (nz_terms nz₂))
+    0)%Nbar as x.
+rewrite Nbar.add_comm.
+destruct x as [x| ]; [ simpl | reflexivity ].
+constructor.
+constructor; simpl.
+ Focus 1.
+ rewrite Z.mul_1_r.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.sub_add_simpl_r_r.
+ f_equal.
+ rewrite series_stretch_1.
+ remember (series_add fld (nz_terms nz₁) (nz_terms nz₂)) as s.
+ symmetry in Heqx.
+ apply null_coeff_range_length_iff in Heqx.
+ simpl in Heqx.
+ destruct Heqx as (Hz, Hnz).
+ unfold gcd_nz.
+ simpl.
+ rewrite Z.mul_1_r.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.sub_add_simpl_r_r.
+ rewrite Pos.mul_1_r.
+ rewrite greatest_series_x_power_shift.
+ reflexivity.
+
+ Focus 1.
+ rewrite Pos.mul_1_r.
+ f_equal.
+ f_equal.
+ rewrite series_stretch_1.
+ remember (series_add fld (nz_terms nz₁) (nz_terms nz₂)) as s.
+ symmetry in Heqx.
+ unfold gcd_nz.
+ simpl.
+ rewrite Z.mul_1_r.
+ rewrite Pos.mul_1_r.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.sub_add_simpl_r_r.
+ rewrite greatest_series_x_power_shift.
+ reflexivity.
+
+ rewrite series_stretch_1.
+ rewrite normalise_series_add_shift.
+ remember (series_add fld (nz_terms nz₁) (nz_terms nz₂)) as s.
+ unfold gcd_nz.
+ simpl.
+ rewrite Z.mul_1_r.
+ rewrite Pos.mul_1_r.
+ rewrite Nat2Z.inj_add.
+ rewrite Z.sub_add_simpl_r_r.
+ rewrite greatest_series_x_power_shift.
+ reflexivity.
+Qed.
+
+Lemma normalise_nz_adjust_add : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
   normalise_nz fld
     (adjusted_nz_add fld
        (adjust_nz fld (n + n₁) k₁ nz₁)
@@ -1587,12 +1654,17 @@ Proof.
 intros nz₁ nz₂ n n₁ n₂ k₁ k₂.
 replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  replace (n + n₂)%nat with (n + n₂ * Pos.to_nat 1)%nat .
-  replace k₁ with (1 * k₁)%positive .
-   rewrite <- nz_adjust_adjust.
-   replace k₂ with (1 * k₂)%positive .
-    rewrite <- nz_adjust_adjust.
-bbb.
-*)
+  replace k₁ with (1 * k₁)%positive by reflexivity.
+  rewrite <- nz_adjust_adjust.
+  replace k₂ with (1 * k₂)%positive by reflexivity.
+  rewrite <- nz_adjust_adjust.
+  do 2 rewrite Pos.mul_1_l.
+  rewrite normalise_nz_adjust; reflexivity.
+
+  rewrite Nat.mul_1_r; reflexivity.
+
+ rewrite Nat.mul_1_r; reflexivity.
+Qed.
 
 Lemma vvv : ∀ nz₁ nz₂ n k m,
   normalise_nz fld (adjust_nz fld m k nz₁ ∔ nz₂) ≐
