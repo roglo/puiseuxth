@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.26 2013-11-13 05:21:45 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.27 2013-11-13 05:30:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1531,10 +1531,11 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma www : ∀ nz₁ nz₂ k,
+Lemma eq_norm_ps_add_adjust_l : ∀ nz₁ nz₂ k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂).
 Proof.
+(* à nettoyer (Focus) *)
 intros nz₁ nz₂ k.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
@@ -1559,12 +1560,28 @@ rewrite Z2Nat.inj_mul.
   rewrite <- nz_adjust_adjusted.
   rewrite <- nz_adjust_eq.
   reflexivity.
-bbb.
+
+  rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+  apply Z.le_max_r.
+
+  apply Pos2Z.is_nonneg.
+
+ rewrite <- Z.sub_max_distr_l, Z.sub_diag.
+ apply Z.le_max_r.
+
+ apply Pos2Z.is_nonneg.
+Qed.
 
 Lemma xxx : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
+(* version expérimentale *)
+intros nz₁ nz₂ n k.
+rewrite eq_norm_ps_add_adjust_l with (k := k).
+bbb.
+
+(* version classique *)
 intros nz₁ nz₂ n k.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
