@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.33 2013-11-13 18:06:11 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.34 2013-11-13 18:15:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1759,6 +1759,16 @@ rewrite <- Z2Nat.inj_add.
 
      apply Z.nle_gt in H₁.
      rewrite Z.min_r; [ idtac | apply Z.lt_le_incl; assumption ].
+     rewrite Z.add_sub_assoc.
+     symmetry.
+     rewrite Z.add_comm.
+     rewrite Z.add_sub_assoc.
+     rewrite Z.add_sub_swap.
+     rewrite <- Z.sub_sub_distr.
+     symmetry.
+     rewrite Z.add_sub_swap.
+     rewrite <- Z.sub_sub_distr.
+     remember (vc₁ - vc₂)%Z as x.
 
 bbb.
 *)
