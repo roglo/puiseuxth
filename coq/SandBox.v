@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.28 2013-11-13 10:56:34 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.29 2013-11-13 11:08:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1622,6 +1622,7 @@ rewrite <- Z2Nat.inj_add.
  rewrite Z.min_comm.
  symmetry.
  rewrite Z.min_comm.
+bbb.
  rewrite nz_adjust_eq with (n := n) (k := k).
  rewrite nz_adjust_adjusted.
  do 2 rewrite nz_adjust_adjust.
