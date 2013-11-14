@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.38 2013-11-13 20:27:37 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.39 2013-11-14 03:20:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1839,6 +1839,7 @@ destruct g as [| g| g]; simpl.
  apply Z.gcd_eq_0_r in Heqg.
  exfalso; revert Heqg; apply Pos2Z_ne_0.
 
+bbb.
  exists len₁, g.
  constructor; simpl.
   unfold gcd_nz in Heqg.
@@ -1886,6 +1887,7 @@ destruct g as [| g| g]; simpl.
 
   unfold normalise_series.
   rewrite series_stretch_shrink.
+   rewrite series_shift_left_shift; [ reflexivity | assumption ].
 bbb.
 
 (*
