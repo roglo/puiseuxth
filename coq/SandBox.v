@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.44 2013-11-14 13:41:46 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.45 2013-11-14 13:46:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1950,12 +1950,12 @@ induction n; intros; simpl.
   reflexivity.
 Qed.
 
-Lemma greatest_series_x_power_left_shift : ∀ s n,
-  greatest_series_x_power fld (series_left_shift n s) 0 =
-  greatest_series_x_power fld s n.
+Lemma greatest_series_x_power_left_shift : ∀ s n p,
+  greatest_series_x_power fld (series_left_shift n s) p =
+  greatest_series_x_power fld s (n + p).
 Proof.
-intros s n.
-remember (greatest_series_x_power fld s n) as k eqn:Hk .
+intros s n p.
+remember (greatest_series_x_power fld s (n + p)) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
@@ -1966,7 +1966,6 @@ split.
  rename n into m.
  intros n.
  rewrite nth_null_coeff_range_length_left_shift.
- rewrite Nat.add_0_r.
  apply Hxp.
 
  intros k₁ Hk₁.
@@ -1974,7 +1973,6 @@ split.
  destruct Hk₁ as (m, Hm).
  exists m.
  rewrite nth_null_coeff_range_length_left_shift.
- rewrite Nat.add_0_r.
  assumption.
 Qed.
 
