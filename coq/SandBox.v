@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.50 2013-11-14 17:41:13 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.51 2013-11-14 19:27:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2062,6 +2062,24 @@ destruct g as [| g| g]; simpl.
  apply H, Z.gcd_nonneg.
 Qed.
 
+Lemma vvv : ∀ nz s,
+  normalise_nz fld nz = Zero α
+  → series_add fld (nz_terms nz) s ≃ s.
+Proof.
+bbb.
+
+Lemma www : ∀ nz n,
+  normalise_nz fld nz = Zero α
+  → series_shift fld n (nz_terms nz) ≃ nz_terms nz.
+Proof.
+bbb.
+
+Lemma xxx : ∀ nz k,
+  normalise_nz fld nz = Zero α
+  → series_stretch fld k (nz_terms nz) ≃ nz_terms nz.
+Proof.
+bbb.
+
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
@@ -2086,15 +2104,18 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
- unfold normalise_nz in Hps₁, Hps₂.
- remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
- remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
- symmetry in Hn₁, Hn₂.
- destruct n₁; [ discriminate Hps₁ | clear Hps₁ ].
- destruct n₂; [ discriminate Hps₂ | clear Hps₂ ].
- apply null_coeff_range_length_iff in Hn₁.
- apply null_coeff_range_length_iff in Hn₂.
- simpl in Hn₁, Hn₂.
+ unfold normalise_nz; simpl.
+ rewrite nz_terms_add_comm.
+ remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂
+  eqn:Hn₂ .
+ unfold nz_terms_add in Hn₂.
+ unfold adjust_series in Hn₂.
+ rewrite xxx in Hn₂; [ idtac | assumption ].
+ rewrite www in Hn₂; [ idtac | assumption ].
+ rewrite vvv in Hn₂; [ idtac | assumption ].
+ rewrite null_coeff_range_length_shift in Hn₂.
+ unfold cm_factor in Hn₂.
+ rewrite null_coeff_range_length_stretch_0 in Hn₂.
 qqq.
 
 (* avant... *)
