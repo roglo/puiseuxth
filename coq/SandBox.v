@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.52 2013-11-14 19:37:49 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.53 2013-11-14 20:05:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2094,12 +2094,15 @@ Lemma www : ∀ nz n,
   → series_shift fld n (nz_terms nz) ≃ nz_terms nz.
 Proof.
 bbb.
+*)
 
 Lemma xxx : ∀ nz k,
   normalise_nz fld nz = Zero α
   → series_stretch fld k (nz_terms nz) ≃ nz_terms nz.
 Proof.
+Admitted. (*
 bbb.
+*)
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
@@ -2126,17 +2129,46 @@ destruct ps₁ as [nz'₁| ].
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
  unfold normalise_nz; simpl.
- rewrite nz_terms_add_comm.
+ remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁
+  eqn:Hn₁ .
  remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂
   eqn:Hn₂ .
- unfold nz_terms_add in Hn₂.
- unfold adjust_series in Hn₂.
+ unfold nz_terms_add in Hn₁, Hn₂.
+ unfold adjust_series in Hn₁, Hn₂.
+ rewrite xxx in Hn₁; [ idtac | assumption ].
  rewrite xxx in Hn₂; [ idtac | assumption ].
+ rewrite www in Hn₁; [ idtac | assumption ].
  rewrite www in Hn₂; [ idtac | assumption ].
+ rewrite normalise_nz_0_series_add_l in Hn₁; [ idtac | assumption ].
  rewrite normalise_nz_0_series_add_l in Hn₂; [ idtac | assumption ].
- rewrite null_coeff_range_length_shift in Hn₂.
- unfold cm_factor in Hn₂.
- rewrite null_coeff_range_length_stretch_0 in Hn₂.
+ rewrite null_coeff_range_length_shift in Hn₁, Hn₂.
+ unfold cm_factor in Hn₁, Hn₂.
+ rewrite null_coeff_range_length_stretch_0 in Hn₁, Hn₂.
+ remember (null_coeff_range_length fld (nz_terms nz₃) 0) as n eqn:Hn .
+ rewrite Nbar.mul_comm in Hn₁, Hn₂.
+ rewrite Nbar.add_comm in Hn₁, Hn₂.
+ symmetry in Hn.
+ destruct n as [n| ].
+  Focus 1.
+  simpl in Hn₁, Hn₂.
+  subst n₁ n₂.
+  constructor.
+  constructor; simpl.
+   Focus 1.
+   unfold nz_valnum_add; simpl.
+   unfold cm_factor; simpl.
+   unfold gcd_nz; simpl.
+   unfold nz_valnum_add; simpl.
+   unfold cm_factor.
+   Unfocus.
+   Focus 2.
+   unfold cm.
+   unfold gcd_nz; simpl.
+   unfold cm.
+   unfold nz_valnum_add.
+   unfold cm_factor.
+   Unfocus.
+   Focus 3.
 qqq.
 
 (* avant... *)
