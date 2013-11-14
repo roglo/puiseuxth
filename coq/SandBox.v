@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.45 2013-11-14 13:46:35 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.46 2013-11-14 13:53:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1976,7 +1976,7 @@ split.
  assumption.
 Qed.
 
-Lemma www : ∀ nz nz₁,
+Lemma normalised_exists_adjust : ∀ nz nz₁,
   normalise_nz fld nz = NonZero nz₁
   → ∃ n k, eq_nz fld nz (adjust_nz fld n k nz₁).
 Proof.
@@ -2046,7 +2046,22 @@ destruct g as [| g| g]; simpl.
   unfold normalise_series.
   rewrite series_stretch_shrink.
    rewrite series_shift_left_shift; [ reflexivity | assumption ].
-bbb.
+
+   rewrite greatest_series_x_power_left_shift.
+   rewrite Nat.add_0_r.
+   rewrite <- Heqk₁.
+   unfold gcd_nz in Heqg.
+   apply Pos2Z.inj_divide.
+   rewrite <- Heqg.
+   apply Z.gcd_divide_r.
+
+ exfalso.
+ pose proof (Zlt_neg_0 g) as H.
+ rewrite <- Heqg in H.
+ unfold gcd_nz in H.
+ apply Z.nle_gt in H.
+ apply H, Z.gcd_nonneg.
+Qed.
 
 (*
 Lemma xxx : ∀ nz₁ nz₂,
