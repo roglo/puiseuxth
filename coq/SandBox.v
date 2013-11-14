@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.47 2013-11-14 14:26:06 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.48 2013-11-14 14:38:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2074,19 +2074,21 @@ remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
 remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
 symmetry in Hps₁, Hps₂.
 destruct ps₁ as [nz'₁| ].
- destruct ps₂ as [nz'₂| ].
-  apply normalised_exists_adjust in Hps₁.
-  apply normalised_exists_adjust in Hps₂.
-  destruct Hps₁ as (n₁, (k₁, Hps₁)).
-  destruct Hps₂ as (n₂, (k₂, Hps₂)).
-  inversion Heq; subst.
-  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
-  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
-  rewrite Hps₁, Hps₂.
-  rewrite <- normalise_nz_adjust_nz_r.
-  rewrite <- normalise_nz_adjust_nz_r.
-  apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
-  rewrite H1; reflexivity.
+ destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
+ apply normalised_exists_adjust in Hps₁.
+ apply normalised_exists_adjust in Hps₂.
+ destruct Hps₁ as (n₁, (k₁, Hps₁)).
+ destruct Hps₂ as (n₂, (k₂, Hps₂)).
+ inversion Heq; subst.
+ apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
+ apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
+ rewrite Hps₁, Hps₂.
+ rewrite <- normalise_nz_adjust_nz_r.
+ rewrite <- normalise_nz_adjust_nz_r.
+ apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
+ rewrite H1; reflexivity.
+
+ destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
 qqq.
 
 (* avant... *)
