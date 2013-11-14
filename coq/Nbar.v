@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.4 2013-11-08 15:02:26 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.5 2013-11-14 13:25:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -759,6 +759,7 @@ destruct n as [n| ].
 
  negation Hn.
 Qed.
+*)
 
 Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.
 Proof.
@@ -768,7 +769,6 @@ destruct p as [p| ]; [ simpl | reflexivity ].
 destruct n as [n| ]; [ simpl | reflexivity ].
 rewrite Nat.sub_add_distr; reflexivity.
 Qed.
-*)
 
 Theorem sub_gt : ∀ n m, m < n → n - m ≠ 0.
 Proof.

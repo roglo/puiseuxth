@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.41 2013-11-14 11:33:04 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.42 2013-11-14 13:25:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1826,24 +1826,158 @@ rewrite Nbar.fold_sub, Nbar.sub_0_r.
 reflexivity.
 Qed.
 
-Lemma ttt : ∀ nz m,
-  null_coeff_range_length fld (nz_terms nz) 0 = fin m
-  → null_coeff_range_length fld (nz_terms nz) (S m) =
-    null_coeff_range_length fld (series_left_shift m (nz_terms nz)) 1.
+Lemma null_coeff_range_length_succ2 : ∀ s m,
+  null_coeff_range_length fld s (S m) =
+  null_coeff_range_length fld (series_left_shift m s) 1.
 Proof.
-intros nz m Hm.
-apply null_coeff_range_length_iff in Hm.
+intros s m.
+remember (null_coeff_range_length fld s (S m)) as n eqn:Hn .
+symmetry in Hn |- *.
+apply null_coeff_range_length_iff in Hn.
+apply null_coeff_range_length_iff.
+unfold null_coeff_range_length_prop in Hn |- *.
+destruct n as [n| ].
+ destruct Hn as (Hz, Hnz).
+ split.
+  intros i Hin.
+  unfold series_nth_fld; simpl.
+  rewrite Nbar.fold_sub.
+  destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₁| H₁].
+   rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+   apply Hz in Hin.
+   unfold series_nth_fld in Hin.
+   destruct (Nbar.lt_dec (fin (S m + i)) (stop s)) as [H₂| H₂].
+    assumption.
+
+    exfalso; apply H₂.
+    apply Nbar.lt_add_lt_sub_r in H₁.
+    simpl in H₁.
+    rewrite Nat.add_comm, <- Nat.add_succ_l in H₁.
+    assumption.
+
+   reflexivity.
+
+  unfold series_nth_fld; simpl.
+  rewrite Nbar.fold_sub.
+  unfold series_nth_fld in Hnz; simpl in Hnz.
+  destruct (Nbar.lt_dec (fin (S (m + n))) (stop s)) as [H₁| H₁].
+   rewrite <- Nat.add_succ_r in Hnz.
+   destruct (Nbar.lt_dec (fin (S n)) (stop s - fin m)) as [H₂| H₂].
+    assumption.
+
+    exfalso; apply H₂.
+    apply Nbar.lt_add_lt_sub_r.
+    simpl; rewrite Nat.add_comm; assumption.
+
+   exfalso; apply Hnz; reflexivity.
+
+ intros i.
+ pose proof (Hn i) as Hi.
+ unfold series_nth_fld; simpl.
+ rewrite Nbar.fold_sub.
+ unfold series_nth_fld in Hi; simpl in Hi.
+ destruct (Nbar.lt_dec (fin (S (m + i))) (stop s)) as [H₁| H₁].
+  rewrite <- Nat.add_succ_r in Hi.
+  destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₂| H₂].
+   assumption.
+
+   reflexivity.
+
+  destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₂| H₂].
+   exfalso; apply H₁.
+   apply Nbar.lt_add_lt_sub_r in H₂.
+   simpl in H₂.
+   rewrite Nat.add_comm, <- Nat.add_succ_l in H₂.
+   assumption.
+
+   reflexivity.
+Qed.
+
+(* non
+Lemma ttt : ∀ nz m p,
+  null_coeff_range_length fld (nz_terms nz) m = fin p
+  → ∀ n,
+    nth_null_coeff_range_length fld (series_left_shift p (nz_terms nz)) n m =
+    nth_null_coeff_range_length fld (nz_terms nz) n p.
+Proof.
+intros nz m p Hm n.
+revert m p Hm.
+induction n; intros.
+ simpl.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
+bbb.
+*)
+
+Lemma series_left_shift_left_shift : ∀ (s : series α) m n,
+  series_left_shift m (series_left_shift n s) ≃ series_left_shift (m + n) s.
+Proof.
+intros s m n.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+do 3 rewrite Nbar.fold_sub.
+rewrite Nbar.fin_inj_add.
+rewrite Nbar.add_comm.
+rewrite Nbar.sub_add_distr.
+rewrite Nat.add_comm, Nat.add_shuffle0.
+reflexivity.
+Qed.
+
+Lemma sss : ∀ s m n p,
+  nth_null_coeff_range_length fld (series_left_shift m s) n p =
+  nth_null_coeff_range_length fld s n (m + p).
+Proof.
+intros s m n p.
+revert m p.
+induction n; intros.
+ simpl.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
 bbb.
 
-Lemma uuu : ∀ nz m,
-  null_coeff_range_length fld (nz_terms nz) 0 = fin m
-  → ∀ n,
-    nth_null_coeff_range_length fld (series_left_shift m (nz_terms nz)) n 0 =
-    nth_null_coeff_range_length fld (nz_terms nz) n m.
+Lemma ttt : ∀ s m n,
+  nth_null_coeff_range_length fld (series_left_shift m s) n 0 =
+  nth_null_coeff_range_length fld s n m.
 Proof.
-intros nz m Hm n.
+intros s m n.
+revert m.
+induction n; intros.
+ simpl.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
+ reflexivity.
+
+ simpl.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
+ remember (null_coeff_range_length fld (series_left_shift m s) 1) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  symmetry.
+bbb.
+
+Lemma uuu : ∀ s m,
+  null_coeff_range_length fld s 0 = fin m
+  → ∀ n,
+    nth_null_coeff_range_length fld (series_left_shift m s) n 0 =
+    nth_null_coeff_range_length fld s n m.
+Proof.
+intros s m Hm n.
 induction n.
  simpl.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
+ reflexivity.
+
+ simpl.
+ symmetry.
+ rewrite null_coeff_range_length_succ2.
+ remember (null_coeff_range_length fld (series_left_shift m s) 1) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  symmetry.
 bbb.
 
 Lemma vvv : ∀ nz n,
