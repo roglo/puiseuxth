@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.46 2013-11-14 13:53:50 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.47 2013-11-14 14:26:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2063,30 +2063,33 @@ destruct g as [| g| g]; simpl.
  apply H, Z.gcd_nonneg.
 Qed.
 
-(*
-Lemma xxx : ∀ nz₁ nz₂,
-  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → ∃ n₁ k₁ n₂ k₂,
-    eq_nz fld (adjust_nz fld n₁ k₁ nz₁) (adjust_nz fld n₂ k₂ nz₂).
-Proof.
-intros nz₁ nz₂ Heq.
-unfold normalise_nz in Heq.
-remember (null_coeff_range_length fld (nz_terms nz₁) 0) as len₁.
-remember (null_coeff_range_length fld (nz_terms nz₂) 0) as len₂.
-symmetry in Heqlen₁, Heqlen₂.
-destruct len₁ as [len₁| ].
- destruct len₂ as [len₂| ].
-  inversion Heq.
-  subst.
-bbb.
-*)
-
 (* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
       eq_nz_add_add₂, eq_nz_norm_add_add₂, eq_nz_add_compat_r *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ Heq.
+remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
+remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
+symmetry in Hps₁, Hps₂.
+destruct ps₁ as [nz'₁| ].
+ destruct ps₂ as [nz'₂| ].
+  apply normalised_exists_adjust in Hps₁.
+  apply normalised_exists_adjust in Hps₂.
+  destruct Hps₁ as (n₁, (k₁, Hps₁)).
+  destruct Hps₂ as (n₂, (k₂, Hps₂)).
+  inversion Heq; subst.
+  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
+  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
+  rewrite Hps₁, Hps₂.
+  rewrite <- normalise_nz_adjust_nz_r.
+  rewrite <- normalise_nz_adjust_nz_r.
+  apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
+  rewrite H1; reflexivity.
+qqq.
+
+(* avant... *)
 intros nz₁ nz₂ nz₃ Heq.
 bbb.
 (* truc à essayer :
