@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.42 2013-11-14 13:25:18 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.43 2013-11-14 13:35:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1923,25 +1923,39 @@ rewrite Nat.add_comm, Nat.add_shuffle0.
 reflexivity.
 Qed.
 
-Lemma sss : ∀ s m n p,
+Lemma nth_null_coeff_range_length_left_shift : ∀ s m n p,
   nth_null_coeff_range_length fld (series_left_shift m s) n p =
   nth_null_coeff_range_length fld s n (m + p).
 Proof.
 intros s m n p.
 revert m p.
-induction n; intros.
- simpl.
- symmetry.
- rewrite null_coeff_range_length_succ2.
- symmetry.
- rewrite null_coeff_range_length_succ2.
-bbb.
+induction n; intros; simpl.
+ rewrite null_coeff_range_length_succ2; symmetry.
+ rewrite null_coeff_range_length_succ2; symmetry.
+ rewrite series_left_shift_left_shift.
+ rewrite Nat.add_comm; reflexivity.
+
+ rewrite null_coeff_range_length_succ2; symmetry.
+ rewrite null_coeff_range_length_succ2; symmetry.
+ rewrite series_left_shift_left_shift.
+ rewrite Nat.add_comm.
+ remember (null_coeff_range_length fld (series_left_shift (m + p) s) 1) as q.
+ symmetry in Heqq.
+ destruct q as [q| ].
+  symmetry.
+  rewrite <- Nat.add_assoc, <- Nat.add_succ_r.
+  symmetry.
+  apply IHn.
+
+  reflexivity.
+Qed.
 
 Lemma ttt : ∀ s m n,
   nth_null_coeff_range_length fld (series_left_shift m s) n 0 =
   nth_null_coeff_range_length fld s n m.
 Proof.
 intros s m n.
+bbb.
 revert m.
 induction n; intros.
  simpl.
