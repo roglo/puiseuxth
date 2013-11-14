@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.49 2013-11-14 16:56:22 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.50 2013-11-14 17:41:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2255,7 +2255,7 @@ bbb.
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
-  → ps_add ps₁ ps₃ ≈ ps_add ps₂ ps₃.
+  → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₃.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 unfold ps_add.
