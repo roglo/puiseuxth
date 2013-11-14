@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.51 2013-11-14 19:27:36 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.52 2013-11-14 19:37:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2062,11 +2062,32 @@ destruct g as [| g| g]; simpl.
  apply H, Z.gcd_nonneg.
 Qed.
 
-Lemma vvv : ∀ nz s,
+Lemma normalise_nz_0_series_add_l : ∀ nz s,
   normalise_nz fld nz = Zero α
   → series_add fld (nz_terms nz) s ≃ s.
 Proof.
-bbb.
+intros nz s Heq.
+unfold normalise_nz in Heq.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n; [ discriminate Heq | clear Heq ].
+apply null_coeff_range_length_iff in Hn.
+simpl in Hn.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) (Nbar.max (stop (nz_terms nz)) (stop s)))
+ as [H₁| H₁].
+ rewrite Hn.
+ rewrite fld_add_0_l.
+ reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
+  exfalso; apply H₁.
+  eapply Nbar.lt_le_trans; [ eassumption | idtac ].
+  apply Nbar.le_max_r.
+
+  reflexivity.
+Qed.
 
 Lemma www : ∀ nz n,
   normalise_nz fld nz = Zero α
@@ -2112,7 +2133,7 @@ destruct ps₁ as [nz'₁| ].
  unfold adjust_series in Hn₂.
  rewrite xxx in Hn₂; [ idtac | assumption ].
  rewrite www in Hn₂; [ idtac | assumption ].
- rewrite vvv in Hn₂; [ idtac | assumption ].
+ rewrite normalise_nz_0_series_add_l in Hn₂; [ idtac | assumption ].
  rewrite null_coeff_range_length_shift in Hn₂.
  unfold cm_factor in Hn₂.
  rewrite null_coeff_range_length_stretch_0 in Hn₂.
