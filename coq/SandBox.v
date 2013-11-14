@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.39 2013-11-14 03:20:17 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.40 2013-11-14 10:45:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1830,8 +1830,8 @@ injection Heq; clear Heq; intros Heq; symmetry in Heq.
 subst nz₁.
 unfold adjust_nz.
 simpl.
-remember (greatest_series_x_power fld (nz_terms nz) len₁) as k.
-remember (gcd_nz len₁ k nz) as g.
+remember (greatest_series_x_power fld (nz_terms nz) len₁) as k₁.
+remember (gcd_nz len₁ k₁ nz) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
  Focus 1.
@@ -1845,7 +1845,7 @@ bbb.
   unfold gcd_nz in Heqg.
   remember (nz_valnum nz + Z.of_nat len₁)%Z as v.
   remember (' nz_comden nz)%Z as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k)) as H₁.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
   pose proof (Z.gcd_divide_l v c) as H₁.
@@ -1862,7 +1862,7 @@ bbb.
   unfold gcd_nz in Heqg.
   remember (nz_valnum nz + Z.of_nat len₁)%Z as v.
   remember (' nz_comden nz)%Z as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k)) as H₁.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
   pose proof (Z.gcd_divide_r v c) as H₁.
