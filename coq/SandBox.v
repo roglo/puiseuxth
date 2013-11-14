@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.48 2013-11-14 14:38:19 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.49 2013-11-14 16:56:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1987,8 +1987,7 @@ symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | discriminate Heq ].
 injection Heq; clear Heq; intros Heq; symmetry in Heq.
 subst nz₁.
-unfold adjust_nz.
-simpl.
+unfold adjust_nz; simpl.
 remember (greatest_series_x_power fld (nz_terms nz) len₁) as k₁.
 remember (gcd_nz len₁ k₁ nz) as g.
 symmetry in Heqg.
@@ -2063,8 +2062,6 @@ destruct g as [| g| g]; simpl.
  apply H, Z.gcd_nonneg.
 Qed.
 
-(* cf nz_adjust_eq, normalised_nz_norm_add_compat_r,
-      eq_nz_add_add₂, eq_nz_norm_add_add₂, eq_nz_add_compat_r *)
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
@@ -2089,6 +2086,15 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
+ unfold normalise_nz in Hps₁, Hps₂.
+ remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+ remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+ symmetry in Hn₁, Hn₂.
+ destruct n₁; [ discriminate Hps₁ | clear Hps₁ ].
+ destruct n₂; [ discriminate Hps₂ | clear Hps₂ ].
+ apply null_coeff_range_length_iff in Hn₁.
+ apply null_coeff_range_length_iff in Hn₂.
+ simpl in Hn₁, Hn₂.
 qqq.
 
 (* avant... *)
