@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.40 2013-11-14 10:45:17 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.41 2013-11-14 11:33:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1817,6 +1817,53 @@ rewrite eq_norm_ps_add_adjust_l with (k := k).
 apply normalise_nz_adjust_nz_add.
 Qed.
 
+Lemma series_left_shift_0 : ∀ s, series_left_shift 0 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.fold_sub, Nbar.sub_0_r.
+reflexivity.
+Qed.
+
+Lemma ttt : ∀ nz m,
+  null_coeff_range_length fld (nz_terms nz) 0 = fin m
+  → null_coeff_range_length fld (nz_terms nz) (S m) =
+    null_coeff_range_length fld (series_left_shift m (nz_terms nz)) 1.
+Proof.
+intros nz m Hm.
+apply null_coeff_range_length_iff in Hm.
+bbb.
+
+Lemma uuu : ∀ nz m,
+  null_coeff_range_length fld (nz_terms nz) 0 = fin m
+  → ∀ n,
+    nth_null_coeff_range_length fld (series_left_shift m (nz_terms nz)) n 0 =
+    nth_null_coeff_range_length fld (nz_terms nz) n m.
+Proof.
+intros nz m Hm n.
+induction n.
+ simpl.
+bbb.
+
+Lemma vvv : ∀ nz n,
+  null_coeff_range_length fld (nz_terms nz) 0 = fin n
+  → greatest_series_x_power fld (series_left_shift n (nz_terms nz)) 0 =
+    greatest_series_x_power fld (nz_terms nz) n.
+Proof.
+intros nz n Hn.
+remember (greatest_series_x_power fld (nz_terms nz) n) as k eqn:Hk .
+symmetry in Hk.
+apply greatest_series_x_power_iff in Hk.
+apply greatest_series_x_power_iff.
+unfold is_the_greatest_series_x_power in Hk |- *.
+destruct Hk as (Hxp, Hnxp).
+split.
+ unfold is_a_series_in_x_power in Hxp |- *.
+ rename n into m.
+ intros n.
+bbb.
+
 Lemma www : ∀ nz nz₁,
   normalise_nz fld nz = NonZero nz₁
   → ∃ n k, eq_nz fld nz (adjust_nz fld n k nz₁).
@@ -1839,7 +1886,6 @@ destruct g as [| g| g]; simpl.
  apply Z.gcd_eq_0_r in Heqg.
  exfalso; revert Heqg; apply Pos2Z_ne_0.
 
-bbb.
  exists len₁, g.
  constructor; simpl.
   unfold gcd_nz in Heqg.
