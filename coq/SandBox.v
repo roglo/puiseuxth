@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.43 2013-11-14 13:35:55 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.44 2013-11-14 13:41:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1950,57 +1950,12 @@ induction n; intros; simpl.
   reflexivity.
 Qed.
 
-Lemma ttt : ∀ s m n,
-  nth_null_coeff_range_length fld (series_left_shift m s) n 0 =
-  nth_null_coeff_range_length fld s n m.
+Lemma greatest_series_x_power_left_shift : ∀ s n,
+  greatest_series_x_power fld (series_left_shift n s) 0 =
+  greatest_series_x_power fld s n.
 Proof.
-intros s m n.
-bbb.
-revert m.
-induction n; intros.
- simpl.
- symmetry.
- rewrite null_coeff_range_length_succ2.
- reflexivity.
-
- simpl.
- symmetry.
- rewrite null_coeff_range_length_succ2.
- remember (null_coeff_range_length fld (series_left_shift m s) 1) as p eqn:Hp .
- symmetry in Hp.
- destruct p as [p| ].
-  symmetry.
-bbb.
-
-Lemma uuu : ∀ s m,
-  null_coeff_range_length fld s 0 = fin m
-  → ∀ n,
-    nth_null_coeff_range_length fld (series_left_shift m s) n 0 =
-    nth_null_coeff_range_length fld s n m.
-Proof.
-intros s m Hm n.
-induction n.
- simpl.
- symmetry.
- rewrite null_coeff_range_length_succ2.
- reflexivity.
-
- simpl.
- symmetry.
- rewrite null_coeff_range_length_succ2.
- remember (null_coeff_range_length fld (series_left_shift m s) 1) as p eqn:Hp .
- symmetry in Hp.
- destruct p as [p| ].
-  symmetry.
-bbb.
-
-Lemma vvv : ∀ nz n,
-  null_coeff_range_length fld (nz_terms nz) 0 = fin n
-  → greatest_series_x_power fld (series_left_shift n (nz_terms nz)) 0 =
-    greatest_series_x_power fld (nz_terms nz) n.
-Proof.
-intros nz n Hn.
-remember (greatest_series_x_power fld (nz_terms nz) n) as k eqn:Hk .
+intros s n.
+remember (greatest_series_x_power fld s n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
@@ -2010,7 +1965,18 @@ split.
  unfold is_a_series_in_x_power in Hxp |- *.
  rename n into m.
  intros n.
-bbb.
+ rewrite nth_null_coeff_range_length_left_shift.
+ rewrite Nat.add_0_r.
+ apply Hxp.
+
+ intros k₁ Hk₁.
+ apply Hnxp in Hk₁.
+ destruct Hk₁ as (m, Hm).
+ exists m.
+ rewrite nth_null_coeff_range_length_left_shift.
+ rewrite Nat.add_0_r.
+ assumption.
+Qed.
 
 Lemma www : ∀ nz nz₁,
   normalise_nz fld nz = NonZero nz₁
