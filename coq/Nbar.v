@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.5 2013-11-14 13:25:18 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.6 2013-11-15 21:50:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -747,6 +747,7 @@ destruct n as [n| ].
 
  destruct m as [m| ]; [ inversion H | constructor ].
 Qed.
+*)
 
 Theorem lt_sub_lt_add_r : ∀ n m p, n ≠ ∞ → n - p < m → n < m + p.
 Proof.
@@ -759,7 +760,6 @@ destruct n as [n| ].
 
  negation Hn.
 Qed.
-*)
 
 Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.
 Proof.

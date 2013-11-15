@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.35 2013-11-15 21:30:17 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.36 2013-11-15 21:50:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1627,7 +1627,76 @@ Add Parametric Morphism α (fld : field α) : (adjust_series fld)
 with signature eq ==> eq ==> eq_series fld ==> eq_series fld
 as adjust_series_morph.
 Proof.
-bbb.
+(* à nettoyer *)
+intros n k s₁ s₂ Heq.
+constructor; intros.
+induction Heq.
+unfold series_nth_fld.
+simpl.
+destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
+ as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s₂ * fin (Pos.to_nat k) + fin n))
+  as [H₂| H₂].
+  destruct (lt_dec i n) as [H₃| H₃]; [ reflexivity | idtac ].
+  destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
+   [ idtac | reflexivity ].
+  apply H.
+
+  destruct (lt_dec i n) as [H₃| H₃].
+   reflexivity.
+
+   destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
+    [ idtac | reflexivity ].
+   rewrite H.
+   unfold series_nth_fld.
+   destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₂))
+    as [H₅| H₅]; [ idtac | reflexivity ].
+   exfalso; apply H₂.
+   apply Nbar.lt_sub_lt_add_r; [ intros I; discriminate I | simpl ].
+   apply Nat.mod_divides in H₄; auto.
+   destruct H₄ as (c, H₄).
+   rewrite Nat.mul_comm in H₄.
+   rewrite H₄ in H₅ |- *.
+   rewrite Nat.div_mul in H₅; auto.
+   rewrite Nbar.fin_inj_mul.
+   apply Nbar.mul_lt_mono_pos_r.
+    apply Nbar.lt_fin, Pos2Nat.is_pos.
+
+    intros I; discriminate I.
+
+    intros I; discriminate I.
+
+    assumption.
+
+ destruct (Nbar.lt_dec (fin i) (stop s₂ * fin (Pos.to_nat k) + fin n))
+  as [H₂| H₂].
+  destruct (lt_dec i n) as [H₃| H₃]; [ reflexivity | idtac ].
+  destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
+   [ idtac | reflexivity ].
+  symmetry.
+  rewrite <- H.
+  unfold series_nth_fld.
+  destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₁)) as [H₅| H₅];
+   [ idtac | reflexivity ].
+  exfalso; apply H₁.
+  apply Nbar.lt_sub_lt_add_r; [ intros I; discriminate I | simpl ].
+  apply Nat.mod_divides in H₄; auto.
+  destruct H₄ as (c, H₄).
+  rewrite Nat.mul_comm in H₄.
+  rewrite H₄ in H₅ |- *.
+  rewrite Nat.div_mul in H₅; auto.
+  rewrite Nbar.fin_inj_mul.
+  apply Nbar.mul_lt_mono_pos_r.
+   apply Nbar.lt_fin, Pos2Nat.is_pos.
+
+   intros I; discriminate I.
+
+   intros I; discriminate I.
+
+   assumption.
+
+  reflexivity.
+Qed.
 
 Add Parametric Morphism α (fld : field α) : (nz_terms_add fld)
 with signature eq_nz fld ==> eq_nz fld ==> eq_series fld
