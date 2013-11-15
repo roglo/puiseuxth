@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.53 2013-11-14 20:05:53 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.54 2013-11-15 00:24:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2100,7 +2100,50 @@ Lemma xxx : ∀ nz k,
   normalise_nz fld nz = Zero α
   → series_stretch fld k (nz_terms nz) ≃ nz_terms nz.
 Proof.
-Admitted. (*
+bbb.
+*)
+
+Lemma yyy : ∀ nz₁ nz₂,
+  normalise_nz fld nz₁ = Zero α
+  → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
+Proof.
+intros nz₁ nz₂ Hps.
+unfold normalise_nz; simpl.
+remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₂) 0) as n₁
+ eqn:Hn₁ .
+remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+unfold nz_terms_add in Hn₁.
+unfold adjust_series in Hn₁.
+rewrite xxx in Hn₁; [ idtac | assumption ].
+rewrite www in Hn₁; [ idtac | assumption ].
+rewrite normalise_nz_0_series_add_l in Hn₁; [ idtac | assumption ].
+rewrite null_coeff_range_length_shift in Hn₁.
+unfold cm_factor in Hn₁.
+rewrite null_coeff_range_length_stretch_0 in Hn₁.
+rewrite <- Hn₂ in Hn₁.
+rewrite Nbar.mul_comm, Nbar.add_comm in Hn₁.
+symmetry in Hn₂.
+destruct n₂ as [| n₂].
+ Focus 1.
+ simpl in Hn₁.
+ subst n₁.
+ constructor.
+ constructor; simpl.
+  Focus 1.
+  unfold nz_valnum_add; simpl.
+  unfold cm_factor; simpl.
+  unfold gcd_nz; simpl.
+  unfold nz_valnum_add; simpl.
+  unfold cm_factor.
+  Unfocus.
+  Focus 2.
+  unfold cm.
+  unfold gcd_nz; simpl.
+  unfold cm.
+  unfold nz_valnum_add.
+  unfold cm_factor.
+  Unfocus.
+  Focus 3.
 bbb.
 *)
 
@@ -2128,48 +2171,10 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
- unfold normalise_nz; simpl.
- remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁
-  eqn:Hn₁ .
- remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂
-  eqn:Hn₂ .
- unfold nz_terms_add in Hn₁, Hn₂.
- unfold adjust_series in Hn₁, Hn₂.
- rewrite xxx in Hn₁; [ idtac | assumption ].
- rewrite xxx in Hn₂; [ idtac | assumption ].
- rewrite www in Hn₁; [ idtac | assumption ].
- rewrite www in Hn₂; [ idtac | assumption ].
- rewrite normalise_nz_0_series_add_l in Hn₁; [ idtac | assumption ].
- rewrite normalise_nz_0_series_add_l in Hn₂; [ idtac | assumption ].
- rewrite null_coeff_range_length_shift in Hn₁, Hn₂.
- unfold cm_factor in Hn₁, Hn₂.
- rewrite null_coeff_range_length_stretch_0 in Hn₁, Hn₂.
- remember (null_coeff_range_length fld (nz_terms nz₃) 0) as n eqn:Hn .
- rewrite Nbar.mul_comm in Hn₁, Hn₂.
- rewrite Nbar.add_comm in Hn₁, Hn₂.
- symmetry in Hn.
- destruct n as [n| ].
-  Focus 1.
-  simpl in Hn₁, Hn₂.
-  subst n₁ n₂.
-  constructor.
-  constructor; simpl.
-   Focus 1.
-   unfold nz_valnum_add; simpl.
-   unfold cm_factor; simpl.
-   unfold gcd_nz; simpl.
-   unfold nz_valnum_add; simpl.
-   unfold cm_factor.
-   Unfocus.
-   Focus 2.
-   unfold cm.
-   unfold gcd_nz; simpl.
-   unfold cm.
-   unfold nz_valnum_add.
-   unfold cm_factor.
-   Unfocus.
-   Focus 3.
-qqq.
+ rewrite yyy; [ idtac | assumption ].
+ rewrite yyy; [ idtac | assumption ].
+ reflexivity.
+qed.
 
 (* avant... *)
 intros nz₁ nz₂ nz₃ Heq.
@@ -2186,145 +2191,6 @@ rewrite nz_adjust_eq.
 rewrite nz_adjust_eq in Heq.
 symmetry in Heq.
 rewrite nz_adjust_eq in Heq.
-*)
-remember (nz₁ ∔ nz₃) as nz₁₃ eqn:Hnz₁₃ .
-remember (nz₂ ∔ nz₃) as nz₂₃ eqn:Hnz₂₃ .
-unfold normalise_nz; simpl.
-remember (null_coeff_range_length fld (nz_terms nz₁₃) 0) as n₁₃ eqn:Hn₁₃ .
-remember (null_coeff_range_length fld (nz_terms nz₂₃) 0) as n₂₃ eqn:Hn₂₃ .
-symmetry in Hn₁₃, Hn₂₃.
-destruct n₁₃ as [n₁₃| ]; simpl.
- destruct n₂₃ as [n₂₃| ]; simpl.
-  constructor; simpl.
-  Focus 1.
-  remember (greatest_series_x_power fld (nz_terms nz₁₃) n₁₃) as k₁₃ eqn:Hk₁₃ .
-  remember (greatest_series_x_power fld (nz_terms nz₂₃) n₂₃) as k₂₃ eqn:Hk₂₃ .
-  remember (gcd_nz n₁₃ k₁₃ nz₁₃) as g₁₃ eqn:Hg₁₃ .
-  remember (gcd_nz n₂₃ k₂₃ nz₂₃) as g₂₃ eqn:Hg₂₃ .
-  constructor; simpl.
-bbb.
-
-intros nz₁ nz₂ nz₃ Heq.
-unfold normalise_nz; simpl.
-remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₃) 0) as n₁₃
- eqn:Hn₁₃ .
-remember (null_coeff_range_length fld (nz_terms_add fld nz₂ nz₃) 0) as n₂₃
- eqn:Hn₂₃ .
-symmetry in Hn₁₃, Hn₂₃.
-apply null_coeff_range_length_iff in Hn₁₃.
-unfold null_coeff_range_length_prop in Hn₁₃.
-apply null_coeff_range_length_iff in Hn₂₃.
-unfold null_coeff_range_length_prop in Hn₂₃.
-simpl in Hn₁₃, Hn₂₃.
-destruct n₁₃ as [n₁₃| ]; simpl.
- destruct n₂₃ as [n₂₃| ]; simpl.
-  constructor; simpl.
-   unfold normalise_nz in Heq; simpl in Heq.
-   remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-   remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
-   symmetry in Hn₁, Hn₂.
-   apply null_coeff_range_length_iff in Hn₁.
-   apply null_coeff_range_length_iff in Hn₂.
-   unfold null_coeff_range_length_prop in Hn₁, Hn₂.
-   simpl in Hn₁, Hn₂.
-   destruct n₁ as [n₁| ]; simpl.
-    destruct n₂ as [n₂| ]; simpl.
-     inversion_clear Heq; simpl in *.
-     unfold nz_valnum_add.
-     unfold cm_factor.
-     Focus 1.
-bbb.
-
-intros nz₁ nz₂ nz₃ Heq.
-unfold normalise_nz in Heq; simpl in Heq.
-remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
-symmetry in Hn₁, Hn₂.
-destruct n₁ as [n₁| ].
- destruct n₂ as [n₂| ].
-  inversion_clear Heq; simpl in *.
-  remember (greatest_series_x_power fld (nz_terms nz₁) n₁) as k₁ eqn:Hk₁ .
-  remember (greatest_series_x_power fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
-  symmetry in Hk₁, Hk₂.
-  apply greatest_series_x_power_iff in Hk₁.
-  apply greatest_series_x_power_iff in Hk₂.
-  remember (null_coeff_range_length fld (nz_terms nz₁) (S n₁)) as sn₁ eqn:Hsn₁ .
-  remember (null_coeff_range_length fld (nz_terms nz₂) (S n₂)) as sn₂ eqn:Hsn₂ .
-  symmetry in Hsn₁, Hsn₂.
-  destruct sn₁ as [sn₁| ].
-   destruct sn₂ as [sn₂| ].
-    destruct Hk₁ as [Hk₁| Hk₁].
-     destruct Hk₂ as [Hk₂| Hk₂].
-      unfold normalise_nz.
-      remember (null_coeff_range_length fld (nz_terms (nz₁ ∔ nz₃)) 0) as n₁₃ eqn:Hn₁₃ .
-      remember (null_coeff_range_length fld (nz_terms (nz₂ ∔ nz₃)) 0) as n₂₃ eqn:Hn₂₃ .
-      symmetry in Hn₁₃, Hn₂₃.
-      simpl in Hn₁₃, Hn₂₃ |- *.
-      destruct n₁₃ as [n₁₃| ].
-       destruct n₂₃ as [n₂₃| ].
-        constructor; simpl.
-         unfold cm_factor.
-Focus 1.
-bbb.
-  destruct Hk₁ as (Hk₁, (Hik₁, Hlt₁)).
-  destruct Hk₂ as (Hk₂, (Hik₂, Hlt₂)).
-    destruct k₁₃ as [k₁₃| ].
-     apply greatest_series_x_power_iff in Hk₁₃.
-     rewrite Hn₁₃ in Hk₁₃.
-     destruct Hk₁₃ as (Hk, _).
-     exfalso; apply Hk; reflexivity.
-
-     destruct k₂₃ as [k₂₃| ].
-      apply greatest_series_x_power_iff in Hk₂₃.
-      rewrite Hn₂₃ in Hk₂₃.
-      destruct Hk₂₃ as (Hk, _).
-      exfalso; apply Hk; reflexivity.
-
-      constructor; [ simpl | simpl | idtac ].
-       unfold cm_factor.
-    Focus 1.
-bbb.
-  destruct k₁ as [| k₁]; [ discriminate Hk₁ | idtac ].
-  destruct k₂ as [| k₂]; [ discriminate Hk₂ | idtac ].
-  unfold normalise_nz; simpl.
-  remember (null_coeff_range_length fld (nz_terms_add nz₁ nz₃)) as n₁₃ eqn:Hn₁₃ .
-  remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₃)) as n₂₃ eqn:Hn₂₃ .
-  symmetry in Hn₁₃, Hn₂₃.
-  destruct n₁₃ as [n₁₃| ].
-    destruct n₂₃ as [n₂₃| ].
-    constructor; simpl.
-     Focus 1.
-     unfold cm_factor; simpl.
-     remember (greatest_series_x_power fld (nz_terms_add nz₁ nz₃)) as k₁₃.
-     remember (greatest_series_x_power fld (nz_terms_add nz₂ nz₃)) as k₂₃.
-     rename Heqk₁₃ into Hk₁₃.
-     rename Heqk₂₃ into Hk₂₃.
-     symmetry in Hk₁₃, Hk₂₃.
-     apply greatest_series_x_power_iff in Hk₁₃.
-     apply greatest_series_x_power_iff in Hk₂₃.
-     rewrite Hn₁₃ in Hk₁₃.
-     rewrite Hn₂₃ in Hk₂₃.
-     destruct k₁₃ as [| k₁₃]; [ discriminate Hk₁₃ | idtac ].
-     destruct k₂₃ as [| k₂₃]; [ discriminate Hk₂₃ | idtac ].
-bbb.
-*)
-(*
-     assert (nz₃ = nz_zero).
-      Focus 2.
-      subst nz₃; simpl.
-      rewrite nz_add_0_r in Hn₁₃.
-      rewrite nz_add_0_r in Hn₂₃.
-      rewrite null_coeff_range_length_shift in Hn₁₃.
-      rewrite null_coeff_range_length_shift in Hn₂₃.
-      do 2 rewrite Z.mul_1_r.
-      rewrite Hn₁ in Hn₁₃.
-      rewrite Hn₂ in Hn₂₃.
-      simpl in Hn₁₃, Hn₂₃.
-      injection Hn₁₃; clear Hn₁₃; intros Hn₁₃.
-      injection Hn₂₃; clear Hn₂₃; intros Hn₂₃.
-      rewrite <- Hn₁₃, <- Hn₂₃.
-      do 2 rewrite Nat2Z.inj_add.
-      do 2 rewrite Z2Nat_id_max.
 *)
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
