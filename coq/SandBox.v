@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.58 2013-11-15 09:49:42 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.59 2013-11-15 10:22:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2116,10 +2116,58 @@ apply zero_series_stretched.
 apply normalise_nz_is_0; assumption.
 Qed.
 
+(*
+Lemma www : ∀ nz₁ nz₂,
+  normalise_nz fld nz₁ = Zero α
+  → null_coeff_range_length fld (nz_terms nz₁) 0 = ∞
+    → nz_terms_add fld nz₁ nz₂ ≃ nz_terms nz₂.
+Proof.
+intros nz₁ nz₂ Hz Hinf.
+constructor; intros i.
+unfold series_nth_fld.
+destruct (Nbar.lt_dec (fin i) (stop (nz_terms_add fld nz₁ nz₂))) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop (nz_terms nz₂))) as [H₂| H₂].
+  unfold nz_terms_add.
+  unfold cm_factor.
+  unfold adjust_series.
+bbb.
+*)
+
 Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
   → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
 Proof.
+intros nz₁ nz₂ Hps.
+unfold normalise_nz; simpl.
+remember (nz_terms_add fld nz₁ nz₂) as s eqn:Hs .
+remember (null_coeff_range_length fld s 0) as n₁ eqn:Hn₁ .
+remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+rewrite Hs in Hn₁.
+unfold nz_terms_add in Hn₁.
+unfold adjust_series in Hn₁.
+rewrite series_0_stretch in Hn₁; [ idtac | assumption ].
+rewrite series_0_shift in Hn₁; [ idtac | assumption ].
+rewrite series_0_add_l in Hn₁; [ idtac | assumption ].
+rewrite null_coeff_range_length_shift in Hn₁.
+unfold cm_factor in Hn₁.
+rewrite null_coeff_range_length_stretch_0 in Hn₁.
+rewrite <- Hn₂ in Hn₁.
+rewrite Nbar.mul_comm, Nbar.add_comm in Hn₁.
+symmetry in Hn₂.
+destruct n₂ as [n₂| ]; [ simpl in Hn₁ | subst n₁; reflexivity ].
+destruct n₁ as [n₁| ]; [ idtac | discriminate Hn₁ ].
+apply Nbar.fin_inj_wd in Hn₁.
+constructor; constructor; simpl.
+ remember (greatest_series_x_power fld s n₁) as k₁ eqn:Hk₁ .
+ remember (greatest_series_x_power fld (nz_terms nz₂) n₂) as k₂ eqn:Hk₂ .
+ symmetry in Hk₁, Hk₂.
+ unfold normalise_nz in Hps.
+ remember (null_coeff_range_length fld (nz_terms nz₁) 0) as m eqn:Hm .
+ symmetry in Hm.
+ destruct m; [ discriminate Hps | clear Hps ].
+ rewrite Hs in Hk₁.
+bbb.
+
 intros nz₁ nz₂ Hps.
 unfold normalise_nz; simpl.
 remember (nz_terms_add fld nz₁ nz₂) as s eqn:Hs.
