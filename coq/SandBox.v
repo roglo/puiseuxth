@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.55 2013-11-15 01:49:01 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.56 2013-11-15 02:37:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2122,9 +2122,10 @@ Lemma xxx : ∀ nz₁ nz₂,
 Proof.
 intros nz₁ nz₂ Hps.
 unfold normalise_nz; simpl.
-remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₂) 0) as n₁
- eqn:Hn₁ .
+remember (nz_terms_add fld nz₁ nz₂) as s eqn:Hs.
+remember (null_coeff_range_length fld s 0) as n₁ eqn:Hn₁.
 remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+rewrite Hs in Hn₁.
 unfold nz_terms_add in Hn₁.
 unfold adjust_series in Hn₁.
 rewrite series_0_stretch in Hn₁; [ idtac | assumption ].
@@ -2136,27 +2137,10 @@ rewrite null_coeff_range_length_stretch_0 in Hn₁.
 rewrite <- Hn₂ in Hn₁.
 rewrite Nbar.mul_comm, Nbar.add_comm in Hn₁.
 symmetry in Hn₂.
-destruct n₂ as [| n₂].
- Focus 1.
- simpl in Hn₁.
- subst n₁.
- constructor.
- constructor; simpl.
-  Focus 1.
-  unfold nz_valnum_add; simpl.
-  unfold cm_factor; simpl.
-  unfold gcd_nz; simpl.
-  unfold nz_valnum_add; simpl.
-  unfold cm_factor.
-  Unfocus.
-  Focus 2.
-  unfold cm.
-  unfold gcd_nz; simpl.
-  unfold cm.
-  unfold nz_valnum_add.
-  unfold cm_factor.
-  Unfocus.
-  Focus 3.
+destruct n₂ as [n₂| ]; [ simpl in Hn₁ | subst n₁; reflexivity ].
+destruct n₁ as [n₁| ]; [ idtac | discriminate Hn₁ ].
+apply Nbar.fin_inj_wd in Hn₁.
+constructor; constructor; simpl.
 bbb.
 *)
 
