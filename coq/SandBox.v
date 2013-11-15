@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.54 2013-11-15 00:24:26 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.55 2013-11-15 01:49:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2062,48 +2062,61 @@ destruct g as [| g| g]; simpl.
  apply H, Z.gcd_nonneg.
 Qed.
 
-Lemma normalise_nz_0_series_add_l : ∀ nz s,
+Lemma normalise_nz_is_0 : ∀ nz,
+  normalise_nz fld nz = Zero α
+  → ∀ i : nat, series_nth_fld fld i (nz_terms nz) ≍ zero fld.
+Proof.
+intros nz Heq i.
+unfold normalise_nz in Heq.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
+symmetry in Hm.
+destruct m; [ discriminate Heq | idtac ].
+apply null_coeff_range_length_iff in Hm; simpl in Hm.
+apply Hm.
+Qed.
+
+Lemma series_0_add_l : ∀ nz s,
   normalise_nz fld nz = Zero α
   → series_add fld (nz_terms nz) s ≃ s.
 Proof.
 intros nz s Heq.
-unfold normalise_nz in Heq.
-remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n; [ discriminate Heq | clear Heq ].
-apply null_coeff_range_length_iff in Hn.
-simpl in Hn.
 constructor; intros i.
 unfold series_nth_fld; simpl.
-destruct (Nbar.lt_dec (fin i) (Nbar.max (stop (nz_terms nz)) (stop s)))
- as [H₁| H₁].
- rewrite Hn.
- rewrite fld_add_0_l.
- reflexivity.
+remember (Nbar.max (stop (nz_terms nz)) (stop s)) as m.
+destruct (Nbar.lt_dec (fin i) m) as [H₁| H₁]; subst m.
+ rewrite normalise_nz_is_0; [ idtac | assumption ].
+ rewrite fld_add_0_l; reflexivity.
 
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
   exfalso; apply H₁.
-  eapply Nbar.lt_le_trans; [ eassumption | idtac ].
-  apply Nbar.le_max_r.
+  eapply Nbar.lt_le_trans; [ eassumption | apply Nbar.le_max_r ].
 
   reflexivity.
 Qed.
 
-Lemma www : ∀ nz n,
+Lemma series_0_shift : ∀ nz n,
   normalise_nz fld nz = Zero α
   → series_shift fld n (nz_terms nz) ≃ nz_terms nz.
 Proof.
-bbb.
-*)
+intros nz n Heq.
+constructor; intros i.
+rewrite normalise_nz_is_0; [ idtac | assumption ].
+apply series_nth_0_series_nth_shift_0.
+apply normalise_nz_is_0; assumption.
+Qed.
 
-Lemma xxx : ∀ nz k,
+Lemma series_0_stretch : ∀ nz k,
   normalise_nz fld nz = Zero α
   → series_stretch fld k (nz_terms nz) ≃ nz_terms nz.
 Proof.
-bbb.
-*)
+intros nz n Heq.
+constructor; intros i.
+rewrite normalise_nz_is_0; [ idtac | assumption ].
+apply zero_series_stretched.
+apply normalise_nz_is_0; assumption.
+Qed.
 
-Lemma yyy : ∀ nz₁ nz₂,
+Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
   → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
 Proof.
@@ -2114,9 +2127,9 @@ remember (null_coeff_range_length fld (nz_terms_add fld nz₁ nz₂) 0) as n₁
 remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
 unfold nz_terms_add in Hn₁.
 unfold adjust_series in Hn₁.
-rewrite xxx in Hn₁; [ idtac | assumption ].
-rewrite www in Hn₁; [ idtac | assumption ].
-rewrite normalise_nz_0_series_add_l in Hn₁; [ idtac | assumption ].
+rewrite series_0_stretch in Hn₁; [ idtac | assumption ].
+rewrite series_0_shift in Hn₁; [ idtac | assumption ].
+rewrite series_0_add_l in Hn₁; [ idtac | assumption ].
 rewrite null_coeff_range_length_shift in Hn₁.
 unfold cm_factor in Hn₁.
 rewrite null_coeff_range_length_stretch_0 in Hn₁.
@@ -2171,8 +2184,8 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
- rewrite yyy; [ idtac | assumption ].
- rewrite yyy; [ idtac | assumption ].
+ rewrite xxx; [ idtac | assumption ].
+ rewrite xxx; [ idtac | assumption ].
  reflexivity.
 qed.
 
