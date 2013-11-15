@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.36 2013-11-15 21:50:58 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.37 2013-11-15 22:12:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1723,5 +1723,23 @@ remember (stop (nz_terms nz₃) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₂.
 remember (stop (nz_terms nz₄) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₂.
 destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
+  rewrite H1, H4; reflexivity.
+
+  unfold adjust_series.
+  unfold series_nth_fld.
+  simpl.
+  rewrite <- Heqx₁, <- Heqy₁.
+  destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
+   Focus 1.
+   destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
+    destruct (lt_dec i x) as [H₅| H₅].
+     destruct (lt_dec i y) as [H₆| H₆].
+      apply fld_add_0_l.
+
+      rewrite fld_add_0_l.
+      destruct (zerop ((i - y) mod Pos.to_nat c₃)) as [H₇| H₇];
+       [ idtac | reflexivity ].
+      apply Nat.mod_divides in H₇; auto.
+      destruct H₇ as (c, H₇).
+      rewrite Nat.mul_comm in H₇.
 bbb.
-rewrite H1.
