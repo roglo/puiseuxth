@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.59 2013-11-15 10:22:45 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.60 2013-11-15 17:28:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2137,6 +2137,38 @@ Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
   → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
 Proof.
+(* truc bizarre mais qui pourrait peut-être le faire, allez savoir *)
+intros nz₁ nz₂ Hps.
+remember (normalise_nz fld (nz_zero fld)) as x.
+destruct x as [x| ].
+ unfold normalise_nz in Heqx.
+ remember (null_coeff_range_length fld (nz_terms (nz_zero fld)) 0) as y.
+ symmetry in Heqy.
+ destruct y; [ idtac | discriminate Heqx ].
+ simpl in Heqx.
+ apply null_coeff_range_length_iff in Heqy.
+ simpl in Heqy.
+ destruct Heqy as (Hz, Hnz).
+ clear Heqx.
+ exfalso; apply Hnz.
+ apply series_nth_series_0.
+
+ rewrite <- Hps in Heqx.
+ assert (normalise_nz fld nz₁ ≐ normalise_nz fld (nz_zero fld)).
+  rewrite Heqx; reflexivity.
+
+  rewrite nz_norm_add_comm.
+  symmetry.
+  rewrite <- normalise_nz_add_0_r.
+  rewrite nz_norm_add_comm.
+  symmetry.
+  rewrite nz_norm_add_comm.
+  rewrite normalise_nz_adjust_nz_r.
+  symmetry.
+  rewrite normalise_nz_adjust_nz_r.
+bbb.
+
+(* classique *)
 intros nz₁ nz₂ Hps.
 unfold normalise_nz; simpl.
 remember (nz_terms_add fld nz₁ nz₂) as s eqn:Hs .
