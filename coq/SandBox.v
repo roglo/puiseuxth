@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.56 2013-11-15 02:37:47 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.57 2013-11-15 09:37:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2141,6 +2141,7 @@ destruct n₂ as [n₂| ]; [ simpl in Hn₁ | subst n₁; reflexivity ].
 destruct n₁ as [n₁| ]; [ idtac | discriminate Hn₁ ].
 apply Nbar.fin_inj_wd in Hn₁.
 constructor; constructor; simpl.
+Abort. (*
 bbb.
 *)
 
@@ -2168,26 +2169,11 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
+Abort. (*
  rewrite xxx; [ idtac | assumption ].
  rewrite xxx; [ idtac | assumption ].
  reflexivity.
 qed.
-
-(* avant... *)
-intros nz₁ nz₂ nz₃ Heq.
-bbb.
-(* truc à essayer :
-rewrite eq_nz_add_add₂.
-rewrite eq_nz_add_add₂.
-unfold nz_add₂.
-*)
-(* truc à essayer aussi :
-rewrite nz_adjust_eq.
-symmetry.
-rewrite nz_adjust_eq.
-rewrite nz_adjust_eq in Heq.
-symmetry in Heq.
-rewrite nz_adjust_eq in Heq.
 *)
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
@@ -2195,12 +2181,32 @@ Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₃.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
+destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_add_0_r; assumption ].
+bbb.
+
+intros ps₁ ps₂ ps₃ H₁₂.
 unfold ps_add.
 destruct ps₁ as [nz₁| ].
  destruct ps₂ as [nz₂| ].
   destruct ps₃ as [nz₃| ].
    constructor.
-   inversion_clear H₁₂.
+   Focus 2.
+   assumption.
+
+   Focus 2.
+   destruct ps₃ as [nz₃| ].
+    inversion H₁₂; subst.
+    2: assumption.
+
+    Unfocus.
+    Focus 3.
+    destruct ps₂ as [nz₂| ].
+     destruct ps₃ as [nz₃| ].
+      2: assumption.
+
+      2: reflexivity.
+
+     Unfocus.
 bbb.
 
 intros ps₁ ps₂ ps₃ H₂₃.

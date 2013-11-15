@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.31 2013-11-12 19:12:50 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.32 2013-11-15 09:37:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1464,6 +1464,9 @@ aaa.
 
 Theorem ps_add_0_l : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
 Proof. reflexivity. Qed.
+
+Theorem ps_add_0_r : ∀ ps, ps_add ps (ps_zero _) ≈ ps.
+Proof. intros ps; rewrite ps_add_comm; reflexivity. Qed.
 
 Definition nz_neg nz :=
   {| nz_terms := series_neg fld (nz_terms nz);
