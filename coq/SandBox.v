@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.57 2013-11-15 09:37:51 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.58 2013-11-15 09:49:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2141,7 +2141,6 @@ destruct n₂ as [n₂| ]; [ simpl in Hn₁ | subst n₁; reflexivity ].
 destruct n₁ as [n₁| ]; [ idtac | discriminate Hn₁ ].
 apply Nbar.fin_inj_wd in Hn₁.
 constructor; constructor; simpl.
-Abort. (*
 bbb.
 *)
 
@@ -2169,12 +2168,19 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
-Abort. (*
  rewrite xxx; [ idtac | assumption ].
  rewrite xxx; [ idtac | assumption ].
  reflexivity.
 qed.
 *)
+
+Lemma www : ∀ nz₁ nz₂ nz₃,
+  NonZero nz₁ ≈ NonZero nz₂
+  → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ Hnz.
+inversion Hnz; subst; rename H1 into Heq.
+bbb.
 
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
@@ -2182,6 +2188,12 @@ Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_add_0_r; assumption ].
+destruct ps₁ as [nz₁| ].
+ Focus 2.
+ destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
+ Unfocus.
+ destruct ps₂ as [nz₂| ]; [ idtac | simpl ].
+  constructor.
 bbb.
 
 intros ps₁ ps₂ ps₃ H₁₂.
