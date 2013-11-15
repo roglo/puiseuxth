@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.60 2013-11-15 17:28:26 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.61 2013-11-15 20:46:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2133,6 +2133,13 @@ destruct (Nbar.lt_dec (fin i) (stop (nz_terms_add fld nz₁ nz₂))) as [H₁| H
 bbb.
 *)
 
+Lemma www : ∀ nz,
+  normalise_nz fld nz = Zero α
+  → ∃ n₁ n₂ k₁ k₂,
+    eq_nz fld (adjust_nz fld n₁ k₁ nz) (adjust_nz fld n₂ k₂ (nz_zero fld)).
+Proof.
+bbb.
+
 Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
   → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
@@ -2163,10 +2170,21 @@ destruct x as [x| ].
   rewrite nz_norm_add_comm.
   symmetry.
   rewrite nz_norm_add_comm.
-  rewrite normalise_nz_adjust_nz_r.
+  apply www in Hps.
+  destruct Hps as (n₁, (n₂, (k₁, (k₂, H₁)))).
+  rewrite normalise_nz_adjust_nz_r with (n := n₁) (k := k₁).
   symmetry.
-  rewrite normalise_nz_adjust_nz_r.
+  rewrite normalise_nz_adjust_nz_r with (n := n₂) (k := k₂).
+  unfold normalise_nz; simpl.
+  remember (nz_terms_add fld (adjust_nz fld n₁ k₁ nz₁) nz₂) as s₁ eqn:Hs₁ .
+  remember (nz_terms_add fld (adjust_nz fld n₂ k₂ (nz_zero fld)) nz₂) as s₂
+   eqn:Hs₂ .
+  remember (null_coeff_range_length fld s₁ 0) as m₁ eqn:Hm₁ .
+  remember (null_coeff_range_length fld s₂ 0) as m₂ eqn:Hm₂ .
+  rewrite Hs₁ in Hm₁.
+  rewrite Hs₂ in Hm₂.
 bbb.
+rewrite H₁ in Hm₁.
 
 (* classique *)
 intros nz₁ nz₂ Hps.

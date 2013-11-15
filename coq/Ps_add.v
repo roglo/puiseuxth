@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.33 2013-11-15 20:46:23 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.34 2013-11-15 20:49:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1627,4 +1627,6 @@ Add Parametric Morphism α (fld : field α) : (nz_terms_add fld)
 with signature eq_nz fld ==> eq_nz fld ==> eq_series fld
 as nz_terms_add_morph.
 Proof.
+intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+constructor; intros i.
 bbb.
