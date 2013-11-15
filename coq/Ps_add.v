@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.34 2013-11-15 20:49:17 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.35 2013-11-15 21:30:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1623,10 +1623,36 @@ constructor; simpl; try reflexivity.
 rewrite H1, H4; reflexivity.
 Qed.
 
+Add Parametric Morphism α (fld : field α) : (adjust_series fld)
+with signature eq ==> eq ==> eq_series fld ==> eq_series fld
+as adjust_series_morph.
+Proof.
+bbb.
+
 Add Parametric Morphism α (fld : field α) : (nz_terms_add fld)
 with signature eq_nz fld ==> eq_nz fld ==> eq_series fld
 as nz_terms_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 constructor; intros i.
+inversion_clear Heq₁.
+inversion_clear Heq₂.
+unfold series_nth_fld.
+simpl.
+unfold cm_factor.
+rewrite H, H0, H2, H3.
+simpl.
+remember (nz_comden nz₃) as c₃.
+remember (nz_comden nz₄) as c₄.
+remember (nz_valnum nz₃) as v₃.
+remember (nz_valnum nz₄) as v₄.
+remember (Z.to_nat (v₃ * ' c₄ - Z.min (v₃ * ' c₄) (v₄ * ' c₃))) as x.
+remember (Z.to_nat (v₄ * ' c₃ - Z.min (v₄ * ' c₃) (v₃ * ' c₄))) as y.
+remember (stop (nz_terms nz₁) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₁.
+remember (stop (nz_terms nz₂) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₁.
+remember (stop (nz_terms nz₃) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₂.
+remember (stop (nz_terms nz₄) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₂.
+destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
 bbb.
+rewrite H1.
