@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.70 2013-11-16 18:41:45 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.71 2013-11-16 23:01:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2211,11 +2211,41 @@ destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
 bbb.
 *)
 
+Lemma vvv : ∀ nz,
+  null_coeff_range_length fld (nz_terms_add fld nz nz_neg_zero) 0 =
+  null_coeff_range_length fld (nz_terms nz) 0.
+Proof.
+intros nz.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
+symmetry in Hm.
+apply null_coeff_range_length_iff in Hm.
+apply null_coeff_range_length_iff.
+unfold null_coeff_range_length_prop in Hm |- *.
+simpl in Hm |- *.
+destruct m as [m| ].
+ destruct Hm as (Hz, Hnz).
+ split.
+  intros i Him.
+  apply Hz in Him.
+  unfold series_nth_fld in Him |- *.
+  remember (nz_terms_add fld nz nz_neg_zero) as s eqn:Hs .
+  unfold nz_terms_add in Hs.
+  unfold cm_factor in Hs.
+  remember Z.sub as f.
+  simpl in Hs; subst f.
+  rewrite Z.mul_1_r in Hs.
+  unfold adjust_series in Hs.
+bbb.
+
 Lemma normalise_nz_add_neg_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_neg_zero) ≐ normalise_nz fld nz.
 Proof.
 intros nz.
-unfold normalise_nz; simpl.
+uunfold normalise_nz; simpl.
+remember (nz_terms_add fld nz nz_neg_zero) as s eqn:Hs .
+remember (null_coeff_range_length fld s 0) as n₁ eqn:Hn₁ .
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n₂ eqn:Hn₂ .
+rewrite Hs in Hn₁.
 bbb.
 
 Lemma xxx : ∀ nz₁ nz₂,
