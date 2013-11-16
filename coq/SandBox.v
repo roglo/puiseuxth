@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.67 2013-11-16 17:28:17 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.68 2013-11-16 18:02:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2116,15 +2116,15 @@ apply zero_series_stretched.
 apply normalise_nz_is_0; assumption.
 Qed.
 
-Definition nz_minus_zero :=
+Definition nz_neg_zero :=
   {| nz_terms := series_0 fld;
      nz_valnum := -1;
      nz_comden := 1 |}.
 
-Lemma eq_nz_adjust_zero_minus_zero : ∀ nz,
+Lemma eq_nz_adjust_zero_neg_zero : ∀ nz,
   normalise_nz fld nz = Zero α
   → ∃ n₁ n₂ k₁ k₂,
-    eq_nz fld (adjust_nz fld n₁ k₁ nz) (adjust_nz fld n₂ k₂ nz_minus_zero).
+    eq_nz fld (adjust_nz fld n₁ k₁ nz) (adjust_nz fld n₂ k₂ nz_neg_zero).
 Proof.
 intros nz Hz.
 unfold normalise_nz in Hz.
@@ -2217,6 +2217,47 @@ Lemma xxx : ∀ nz₁ nz₂,
 Proof.
 (* truc bizarre mais qui pourrait peut-être le faire, allez savoir *)
 intros nz₁ nz₂ Hps.
+remember (normalise_nz fld nz_neg_zero) as x.
+destruct x as [x| ].
+ unfold normalise_nz in Heqx.
+ remember (null_coeff_range_length fld (nz_terms nz_neg_zero) 0) as y.
+ symmetry in Heqy.
+ destruct y; [ idtac | discriminate Heqx ].
+ simpl in Heqx.
+ apply null_coeff_range_length_iff in Heqy.
+ simpl in Heqy.
+ destruct Heqy as (Hz, Hnz).
+ clear Heqx.
+ exfalso; apply Hnz.
+ apply series_nth_series_0.
+
+ rewrite <- Hps in Heqx.
+ assert (normalise_nz fld nz₁ ≐ normalise_nz fld nz_neg_zero).
+  rewrite Heqx; reflexivity.
+
+  rewrite nz_norm_add_comm; symmetry.
+bbb.
+  rewrite <- normalise_nz_add_0_r.
+  rewrite nz_norm_add_comm; symmetry.
+  rewrite nz_norm_add_comm.
+  apply eq_nz_adjust_zero_neg_zero in Hps.
+  destruct Hps as (n₁, (n₂, (k₁, (k₂, H₁)))).
+  rewrite normalise_nz_adjust_nz_r with (n := n₁) (k := k₁).
+  symmetry.
+  rewrite normalise_nz_adjust_nz_r with (n := n₂) (k := k₂).
+  unfold normalise_nz; simpl.
+  remember (nz_terms_add fld (adjust_nz fld n₁ k₁ nz₁) nz₂) as s₁ eqn:Hs₁ .
+  remember (nz_terms_add fld (adjust_nz fld n₂ k₂ (nz_zero fld)) nz₂) as s₂
+   eqn:Hs₂ .
+  remember (null_coeff_range_length fld s₁ 0) as m₁ eqn:Hm₁ .
+  remember (null_coeff_range_length fld s₂ 0) as m₂ eqn:Hm₂ .
+  rewrite Hs₁ in Hm₁.
+  rewrite Hs₂ in Hm₂.
+  rewrite H₁ in Hm₁.
+bbb.
+
+intros nz₁ nz₂ Hps.
+bbb.
 remember (normalise_nz fld (nz_zero fld)) as x.
 destruct x as [x| ].
  unfold normalise_nz in Heqx.
