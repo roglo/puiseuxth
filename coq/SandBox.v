@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.69 2013-11-16 18:16:58 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.70 2013-11-16 18:41:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2215,6 +2215,7 @@ Lemma normalise_nz_add_neg_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_neg_zero) ≐ normalise_nz fld nz.
 Proof.
 intros nz.
+unfold normalise_nz; simpl.
 bbb.
 
 Lemma xxx : ∀ nz₁ nz₂,
