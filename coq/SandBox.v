@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.63 2013-11-16 12:06:09 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.64 2013-11-16 12:15:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2139,6 +2139,12 @@ Lemma www : ∀ nz,
     eq_nz fld (adjust_nz fld n₁ k₁ nz) (adjust_nz fld n₂ k₂ (nz_zero fld)).
 Proof.
 intros nz Hz.
+unfold normalise_nz in Hz.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n; [ discriminate Hz | clear Hz ].
+apply null_coeff_range_length_iff in Hn.
+simpl in Hn.
 destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
  exists (Z.to_nat (nz_valnum nz)), 0%nat, 1%positive, (nz_comden nz).
  constructor; simpl.
@@ -2152,12 +2158,6 @@ destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
   rewrite series_shift_0.
   constructor; intros i.
   rewrite series_stretch_series_0.
-  unfold normalise_nz in Hz.
-  remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n; [ discriminate Hz | clear Hz ].
-  apply null_coeff_range_length_iff in Hn.
-  simpl in Hn.
   rewrite series_nth_0_series_nth_shift_0.
    symmetry.
    apply series_nth_series_0.
