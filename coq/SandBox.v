@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.66 2013-11-16 17:13:54 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.67 2013-11-16 17:28:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2121,7 +2121,7 @@ Definition nz_minus_zero :=
      nz_valnum := -1;
      nz_comden := 1 |}.
 
-Lemma vvv : ∀ nz,
+Lemma eq_nz_adjust_zero_minus_zero : ∀ nz,
   normalise_nz fld nz = Zero α
   → ∃ n₁ n₂ k₁ k₂,
     eq_nz fld (adjust_nz fld n₁ k₁ nz) (adjust_nz fld n₂ k₂ nz_minus_zero).
@@ -2133,9 +2133,29 @@ symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
 apply null_coeff_range_length_iff in Hn.
 simpl in Hn.
-destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
+destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
+ exists (Z.to_nat (nz_valnum nz + ' nz_comden nz)), O, xH, (nz_comden nz).
+ constructor; simpl.
+  rewrite Z2Nat.id.
+   rewrite Z.mul_1_r.
+   rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
+
+   apply Z.add_nonneg_nonneg; [ assumption | idtac ].
+   apply Pos2Z.is_nonneg.
+
+  rewrite Pos.mul_1_r; reflexivity.
+
+  rewrite series_stretch_series_0.
+  rewrite series_shift_series_0.
+  rewrite series_stretch_1.
+  constructor; intros i.
+  rewrite series_nth_0_series_nth_shift_0.
+   rewrite series_nth_series_0; reflexivity.
+
+   assumption.
+
  exists (Pos.to_nat (nz_comden nz)), (Z.to_nat (- nz_valnum nz)), 
-  1%positive, (nz_comden nz).
+  xH, (nz_comden nz).
  constructor; simpl.
   rewrite Z.mul_1_r.
   rewrite Z2Nat.id; [ idtac | omega ].
@@ -2155,37 +2175,9 @@ destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
    rewrite series_nth_series_0; reflexivity.
 
    assumption.
+Qed.
 
- apply Z.nle_gt in H₁.
- remember 1%positive as k₁.
- exists (Z.to_nat ((nz_valnum nz + ' nz_comden nz) * ' k₁)), 
-  O, k₁, (nz_comden nz * k₁)%positive.
- constructor; simpl.
-  rewrite Z2Nat.id.
-   rewrite Z.mul_add_distr_r.
-   rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
-
-   apply Z.mul_nonneg_nonneg.
-    apply Z.add_nonneg_nonneg.
-     apply Z.lt_le_incl; assumption.
-
-     apply Pos2Z.is_nonneg.
-
-    apply Pos2Z.is_nonneg.
-
-  reflexivity.
-
-  rewrite series_stretch_series_0.
-  rewrite series_shift_series_0.
-  constructor; intros i.
-  rewrite series_nth_0_series_nth_shift_0.
-   rewrite series_nth_series_0; reflexivity.
-
-   intros j.
-   apply zero_series_stretched.
-   assumption.
-qed.
-
+(*
 Lemma www : ∀ nz,
   normalise_nz fld nz = Zero α
   → ∃ n₁ n₂ k₁ k₂,
@@ -2217,6 +2209,7 @@ destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
 
    assumption.
 bbb.
+*)
 
 Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
