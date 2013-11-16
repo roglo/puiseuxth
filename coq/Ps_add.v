@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.38 2013-11-16 05:06:32 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.39 2013-11-16 05:28:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1740,7 +1740,20 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
      eapply Nbar.lt_le_trans; [ eassumption | idtac ].
      apply Nbar.le_add_l.
 
-     Focus 1.
      destruct (lt_dec i y) as [H₆| H₆].
-      rewrite fld_add_0_r.
+      exfalso.
+      apply H₂.
+      rewrite Heqy₂.
+      apply Nbar.max_lt_iff; right.
+      apply Nbar.lt_fin in H₆.
+      eapply Nbar.lt_le_trans; [ eassumption | idtac ].
+      apply Nbar.le_add_l.
+
+      destruct (zerop ((i - x) mod Pos.to_nat c₄)) as [H₇| H₇].
+       unfold series_nth_fld.
+       destruct
+        (Nbar.lt_dec (fin ((i - x) / Pos.to_nat c₄)) (stop (nz_terms nz₁)))
+        as [H₈| H₈].
+        Focus 1.
+        exfalso.
 bbb.
