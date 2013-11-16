@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.37 2013-11-15 22:12:13 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.38 2013-11-16 05:06:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1730,16 +1730,17 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
   simpl.
   rewrite <- Heqx₁, <- Heqy₁.
   destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
-   Focus 1.
    destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
     destruct (lt_dec i x) as [H₅| H₅].
-     destruct (lt_dec i y) as [H₆| H₆].
-      apply fld_add_0_l.
+     exfalso.
+     apply H₂.
+     rewrite Heqx₂.
+     apply Nbar.max_lt_iff; left.
+     apply Nbar.lt_fin in H₅.
+     eapply Nbar.lt_le_trans; [ eassumption | idtac ].
+     apply Nbar.le_add_l.
 
-      rewrite fld_add_0_l.
-      destruct (zerop ((i - y) mod Pos.to_nat c₃)) as [H₇| H₇];
-       [ idtac | reflexivity ].
-      apply Nat.mod_divides in H₇; auto.
-      destruct H₇ as (c, H₇).
-      rewrite Nat.mul_comm in H₇.
+     Focus 1.
+     destruct (lt_dec i y) as [H₆| H₆].
+      rewrite fld_add_0_r.
 bbb.

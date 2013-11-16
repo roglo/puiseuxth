@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.6 2013-11-15 21:50:58 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.7 2013-11-16 05:06:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -1031,6 +1031,17 @@ destruct (Nat.max_dec n m) as [H| H]; rewrite Hnm in H; subst.
  rewrite Nat.max_comm in Hnm.
  split; [ simpl in Hnm; subst; reflexivity | reflexivity ].
 Qed.
+
+Theorem le_add_r : ∀ n m, n ≤ n + m.
+Proof.
+intros n m.
+destruct n as [n| ]; [ idtac | constructor ].
+destruct m as [m| ]; [ simpl | constructor ].
+apply le_fin, Nat.le_add_r.
+Qed.
+
+Theorem le_add_l : ∀ n m, n ≤ m + n.
+Proof. intros n m; rewrite add_comm; apply le_add_r. Qed.
 
 Theorem le_max_l : ∀ n m, n ≤ max n m.
 Proof.

@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.0 2013-11-02 01:12:59 deraugla Exp $ *)
+(* $Id: Series.v,v 2.1 2013-11-16 05:06:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -112,16 +112,16 @@ destruct lt₄ as [Hlt₄| Hge₄].
   destruct lt₁ as [Hlt₁| Hge₁].
    destruct lt₂ as [Hlt₂| Hge₂].
     destruct lt₃ as [Hlt₃| Hge₃]; [ apply fld_add_assoc | idtac ].
-    rewrite fld_add_comm, fld_add_0_l; symmetry.
+    rewrite fld_add_0_r; symmetry.
     rewrite <- fld_add_assoc.
-    rewrite fld_add_comm, fld_add_0_l; reflexivity.
+    rewrite fld_add_0_r; reflexivity.
 
     rewrite fld_add_assoc, fld_add_0_l; reflexivity.
 
    rewrite fld_add_assoc, fld_add_0_l; reflexivity.
 
   symmetry.
-  rewrite fld_add_comm, fld_add_0_l; symmetry.
+  rewrite fld_add_0_r; symmetry.
   destruct lt₂ as [Hlt₂| Hge₂].
    exfalso; apply Hge₅; clear Hge₅.
    apply Nbar.max_lt_iff; left; assumption.
@@ -131,7 +131,7 @@ destruct lt₄ as [Hlt₄| Hge₄].
     exfalso; apply Hge₅; clear Hge₅.
     apply Nbar.max_lt_iff; right; assumption.
 
-    rewrite fld_add_comm, fld_add_0_l; reflexivity.
+    rewrite fld_add_0_r; reflexivity.
 
  rewrite fld_add_0_l.
  destruct lt₁ as [Hlt₁| Hge₁].

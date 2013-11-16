@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* $Id: Field.v,v 2.1 2013-11-16 05:06:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -50,4 +50,12 @@ rewrite fld_mul_compat_r; [ idtac | eassumption ].
 rewrite fld_mul_comm; symmetry.
 rewrite fld_mul_comm; symmetry.
 rewrite fld_mul_compat_r; [ reflexivity | eassumption ].
+Qed.
+
+Theorem fld_add_0_r : ∀ α (fld : field α) a,
+  fld_eq fld (add fld a (zero fld)) a.
+Proof.
+intros α fld a.
+rewrite fld_add_comm.
+apply fld_add_0_l.
 Qed.
