@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.39 2013-11-16 05:28:50 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.40 2013-11-16 09:47:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1706,11 +1706,14 @@ intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 constructor; intros i.
 inversion_clear Heq₁.
 inversion_clear Heq₂.
+inversion H1.
+clear s₁ s₂ H6 H7.
+inversion H4.
+clear s₁ s₂ H7 H8.
 unfold series_nth_fld.
 simpl.
 unfold cm_factor.
-rewrite H, H0, H2, H3.
-simpl.
+rewrite H, H0, H2, H3; simpl.
 remember (nz_comden nz₃) as c₃.
 remember (nz_comden nz₄) as c₄.
 remember (nz_valnum nz₃) as v₃.
@@ -1722,15 +1725,16 @@ remember (stop (nz_terms nz₂) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₁.
 remember (stop (nz_terms nz₃) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₂.
 remember (stop (nz_terms nz₄) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₂.
 destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
+ rewrite H1, H4.
  destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
-  rewrite H1, H4; reflexivity.
+  reflexivity.
 
   unfold adjust_series.
   unfold series_nth_fld.
   simpl.
-  rewrite <- Heqx₁, <- Heqy₁.
-  destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
+  rewrite <- Heqx₂, <- Heqy₂.
+  destruct (Nbar.lt_dec (fin i) x₂) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin i) y₂) as [H₄| H₄].
     destruct (lt_dec i x) as [H₅| H₅].
      exfalso.
      apply H₂.
@@ -1752,8 +1756,9 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
       destruct (zerop ((i - x) mod Pos.to_nat c₄)) as [H₇| H₇].
        unfold series_nth_fld.
        destruct
-        (Nbar.lt_dec (fin ((i - x) / Pos.to_nat c₄)) (stop (nz_terms nz₁)))
+        (Nbar.lt_dec (fin ((i - x) / Pos.to_nat c₄)) (stop (nz_terms nz₃)))
         as [H₈| H₈].
         Focus 1.
         exfalso.
 bbb.
+*)
