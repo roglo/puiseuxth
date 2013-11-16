@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.61 2013-11-15 20:46:23 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.62 2013-11-16 11:06:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2183,8 +2183,11 @@ destruct x as [x| ].
   remember (null_coeff_range_length fld s₂ 0) as m₂ eqn:Hm₂ .
   rewrite Hs₁ in Hm₁.
   rewrite Hs₂ in Hm₂.
+  rewrite H₁ in Hm₁.
+  rewrite <- Hm₁ in Hm₂.
+  subst m₂.
+  destruct m₁ as [m₁| ]; [ idtac | reflexivity ].
 bbb.
-rewrite H₁ in Hm₁.
 
 (* classique *)
 intros nz₁ nz₂ Hps.

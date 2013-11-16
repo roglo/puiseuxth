@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.43 2013-11-16 10:53:45 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.44 2013-11-16 11:03:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1739,20 +1739,20 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
     reflexivity.
 
  destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
+  rewrite <- H1, <- H4.
   unfold adjust_series.
   unfold series_nth_fld; simpl.
-  rewrite <- Heqx₂, <- Heqy₂.
-  destruct (Nbar.lt_dec (fin i) x₂) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin i) y₂) as [H₄| H₄].
-    destruct (lt_dec i x) as [H₅| H₅].
-     rewrite fld_add_0_l.
-     destruct (lt_dec i y) as [H₆| H₆]; [ reflexivity | idtac ].
-     destruct (zerop ((i - y) mod Pos.to_nat c₃)) as [H₇| H₇].
-      Focus 1.
-bbb.
-      unfold series_nth_fld.
-      destruct
-       (Nbar.lt_dec (fin ((i - y) / Pos.to_nat c₃)) (stop (nz_terms nz₄)))
-       as [H₈| H₈].
-bbb.
-*)
+  rewrite <- Heqx₁, <- Heqy₁.
+  destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
+   exfalso; apply H₁.
+   apply Nbar.max_lt_iff; left; assumption.
+
+   rewrite fld_add_0_l.
+   destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
+    exfalso; apply H₁.
+    apply Nbar.max_lt_iff; right; assumption.
+
+    reflexivity.
+
+  reflexivity.
+Qed.
