@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.65 2013-11-16 12:56:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.66 2013-11-16 17:13:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2155,7 +2155,36 @@ destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
    rewrite series_nth_series_0; reflexivity.
 
    assumption.
-bbb.
+
+ apply Z.nle_gt in H₁.
+ remember 1%positive as k₁.
+ exists (Z.to_nat ((nz_valnum nz + ' nz_comden nz) * ' k₁)), 
+  O, k₁, (nz_comden nz * k₁)%positive.
+ constructor; simpl.
+  rewrite Z2Nat.id.
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.sub_add_distr, Z.sub_diag; reflexivity.
+
+   apply Z.mul_nonneg_nonneg.
+    apply Z.add_nonneg_nonneg.
+     apply Z.lt_le_incl; assumption.
+
+     apply Pos2Z.is_nonneg.
+
+    apply Pos2Z.is_nonneg.
+
+  reflexivity.
+
+  rewrite series_stretch_series_0.
+  rewrite series_shift_series_0.
+  constructor; intros i.
+  rewrite series_nth_0_series_nth_shift_0.
+   rewrite series_nth_series_0; reflexivity.
+
+   intros j.
+   apply zero_series_stretched.
+   assumption.
+qed.
 
 Lemma www : ∀ nz,
   normalise_nz fld nz = Zero α
