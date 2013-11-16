@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.64 2013-11-16 12:15:27 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.65 2013-11-16 12:56:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2116,22 +2116,46 @@ apply zero_series_stretched.
 apply normalise_nz_is_0; assumption.
 Qed.
 
-(*
-Lemma www : ∀ nz₁ nz₂,
-  normalise_nz fld nz₁ = Zero α
-  → null_coeff_range_length fld (nz_terms nz₁) 0 = ∞
-    → nz_terms_add fld nz₁ nz₂ ≃ nz_terms nz₂.
+Definition nz_minus_zero :=
+  {| nz_terms := series_0 fld;
+     nz_valnum := -1;
+     nz_comden := 1 |}.
+
+Lemma vvv : ∀ nz,
+  normalise_nz fld nz = Zero α
+  → ∃ n₁ n₂ k₁ k₂,
+    eq_nz fld (adjust_nz fld n₁ k₁ nz) (adjust_nz fld n₂ k₂ nz_minus_zero).
 Proof.
-intros nz₁ nz₂ Hz Hinf.
-constructor; intros i.
-unfold series_nth_fld.
-destruct (Nbar.lt_dec (fin i) (stop (nz_terms_add fld nz₁ nz₂))) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop (nz_terms nz₂))) as [H₂| H₂].
-  unfold nz_terms_add.
-  unfold cm_factor.
-  unfold adjust_series.
+intros nz Hz.
+unfold normalise_nz in Hz.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n; [ discriminate Hz | clear Hz ].
+apply null_coeff_range_length_iff in Hn.
+simpl in Hn.
+destruct (Z_le_dec (nz_valnum nz) 0) as [H₁| H₁].
+ exists (Pos.to_nat (nz_comden nz)), (Z.to_nat (- nz_valnum nz)), 
+  1%positive, (nz_comden nz).
+ constructor; simpl.
+  rewrite Z.mul_1_r.
+  rewrite Z2Nat.id; [ idtac | omega ].
+  rewrite Z.opp_involutive.
+  remember (nz_valnum nz) as v.
+  rewrite positive_nat_Z.
+  destruct v; [ reflexivity | reflexivity | simpl ].
+  rewrite Pos.add_comm; reflexivity.
+
+  rewrite Pos.mul_1_r; reflexivity.
+
+  rewrite series_stretch_1.
+  rewrite series_stretch_series_0.
+  constructor; intros i.
+  rewrite series_nth_0_series_nth_shift_0.
+   rewrite series_shift_series_0.
+   rewrite series_nth_series_0; reflexivity.
+
+   assumption.
 bbb.
-*)
 
 Lemma www : ∀ nz,
   normalise_nz fld nz = Zero α
@@ -2189,11 +2213,9 @@ destruct x as [x| ].
  assert (normalise_nz fld nz₁ ≐ normalise_nz fld (nz_zero fld)).
   rewrite Heqx; reflexivity.
 
-  rewrite nz_norm_add_comm.
-  symmetry.
+  rewrite nz_norm_add_comm; symmetry.
   rewrite <- normalise_nz_add_0_r.
-  rewrite nz_norm_add_comm.
-  symmetry.
+  rewrite nz_norm_add_comm; symmetry.
   rewrite nz_norm_add_comm.
   apply www in Hps.
   destruct Hps as (n₁, (n₂, (k₁, (k₂, H₁)))).
