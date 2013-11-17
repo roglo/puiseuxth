@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.72 2013-11-17 04:04:47 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.73 2013-11-17 19:02:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2287,7 +2287,7 @@ Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
   → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
 Proof.
-(* truc bizarre mais qui pourrait peut-être le faire, allez savoir *)
+(* truc bizarre qui aurait pu le faire, mais non...
 intros nz₁ nz₂ Hps.
 remember (normalise_nz fld nz_neg_zero) as x.
 destruct x as [x| ].
@@ -2303,6 +2303,10 @@ destruct x as [x| ].
  exfalso; apply Hnz.
  apply series_nth_series_0.
 
+ rewrite <- Hps in Heqx.
+ rewrite nz_norm_add_comm; symmetry.
+
+bbb.
  rewrite <- Hps in Heqx.
  assert (normalise_nz fld nz₁ ≐ normalise_nz fld nz_neg_zero).
   rewrite Heqx; reflexivity.
@@ -2331,6 +2335,7 @@ destruct x as [x| ].
   constructor; constructor; simpl.
    unfold nz_valnum_add.
 bbb.
+*)
 
 intros nz₁ nz₂ Hps.
 bbb.
