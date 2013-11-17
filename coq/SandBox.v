@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.71 2013-11-16 23:01:27 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.72 2013-11-17 04:04:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2211,10 +2211,12 @@ destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
 bbb.
 *)
 
+(* bizarre, ça bloque... ça semble faux, j'arrive pas à voir pourquoi
 Lemma vvv : ∀ nz,
   null_coeff_range_length fld (nz_terms_add fld nz nz_neg_zero) 0 =
   null_coeff_range_length fld (nz_terms nz) 0.
 Proof.
+intros nz.
 intros nz.
 remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
@@ -2229,24 +2231,57 @@ destruct m as [m| ].
   apply Hz in Him.
   unfold series_nth_fld in Him |- *.
   remember (nz_terms_add fld nz nz_neg_zero) as s eqn:Hs .
-  unfold nz_terms_add in Hs.
-  unfold cm_factor in Hs.
-  remember Z.sub as f.
-  simpl in Hs; subst f.
-  rewrite Z.mul_1_r in Hs.
-  unfold adjust_series in Hs.
-bbb.
+  destruct (Nbar.lt_dec (fin i) (stop (nz_terms nz))) as [H₁| H₁].
+   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| ]; [ idtac | reflexivity ].
+   unfold nz_terms_add in Hs.
+   remember Z.sub as f; simpl in Hs; subst f.
+   rewrite Z.mul_1_r in Hs.
+   unfold cm_factor in Hs.
+   rewrite Z.min_comm in Hs.
+   remember (Z.min (Z.neg (nz_comden nz)) (nz_valnum nz)) as zm eqn:Hzm .
+   remember (Z.to_nat (nz_valnum nz - zm)) as n₁ eqn:Hn₁ .
+   remember (Z.to_nat (Z.neg (nz_comden nz) - zm)) as n₂ eqn:Hn₂ .
+   rewrite Hs; simpl.
+   unfold series_nth_fld; simpl.
+   rewrite Pos2Nat.inj_1, Nbar.mul_1_r.
+   destruct (Nbar.lt_dec (fin i) (stop (nz_terms nz) + fin n₁)) as [H₃| H₃].
+    destruct (lt_dec i n₁) as [H₄| H₄].
+     Focus 1.
+     rewrite fld_add_0_l.
+     destruct (Nbar.lt_dec (fin i) (fin n₂)) as [H₅| H₅].
+      destruct (lt_dec i n₂) as [H₆| H₆].
+       reflexivity.
 
+       exfalso; apply H₆.
+       apply Nbar.fin_lt_mono; assumption.
+
+      reflexivity.
+
+     Focus 1.
+     rewrite divmod_div.
+     rewrite Nat.div_1_r.
+     unfold series_nth_fld.
+     simpl.
+     destruct (Nbar.lt_dec (fin (i - n₁)) (stop (nz_terms nz))) as [H₅| H₅].
+      Focus 1.
+      rewrite Hs in H₂.
+      simpl in H₂.
+      rewrite Pos2Nat.inj_1, Nbar.mul_1_r in H₂.
+bbb.
+*)
+
+(* bof... pas l'air de le faire...
 Lemma normalise_nz_add_neg_0_r : ∀ nz,
   normalise_nz fld (nz ∔ nz_neg_zero) ≐ normalise_nz fld nz.
 Proof.
 intros nz.
-uunfold normalise_nz; simpl.
+unfold normalise_nz; simpl.
 remember (nz_terms_add fld nz nz_neg_zero) as s eqn:Hs .
 remember (null_coeff_range_length fld s 0) as n₁ eqn:Hn₁ .
 remember (null_coeff_range_length fld (nz_terms nz) 0) as n₂ eqn:Hn₂ .
 rewrite Hs in Hn₁.
 bbb.
+*)
 
 Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
