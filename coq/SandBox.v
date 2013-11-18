@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.74 2013-11-18 16:01:18 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.75 2013-11-18 16:05:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2467,18 +2467,13 @@ destruct ps₁ as [nz'₁| ].
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
  rewrite normalise_nz_adjust_nz_r with (n := n₁) (k := k₁).
- rewrite Hps₁.
- symmetry.
+ rewrite Hps₁; symmetry.
  rewrite normalise_nz_adjust_nz_r with (n := n₃) (k := k₃).
- rewrite Hps₂.
- symmetry.
-bbb.
-
- rewrite xxx; [ idtac | assumption ].
- rewrite xxx; [ idtac | assumption ].
+ rewrite Hps₂; symmetry.
+ rewrite <- normalise_nz_adjust_nz_r.
+ rewrite <- normalise_nz_adjust_nz_r.
  reflexivity.
-qed.
-*)
+Qed.
 
 Lemma www : ∀ nz₁ nz₂ nz₃,
   NonZero nz₁ ≈ NonZero nz₂
