@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.44 2013-11-16 11:03:25 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.45 2013-11-18 18:42:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -208,59 +208,6 @@ Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
       end
   | Zero => ps₂
   end.
-
-(* ps_mul *)
-
-Fixpoint sum_mul_coeff i ni₁ s₁ s₂ :=
-  match ni₁ with
-  | O => None
-  | S ni =>
-      match sum_mul_coeff (S i) ni s₁ s₂ with
-      | Some c =>
-          match series_nth i s₁ with
-          | Some c₁ =>
-              match series_nth ni s₂ with
-              | Some c₂ => Some (add fld (mul fld c₁ c₂) c)
-              | None => Some c
-              end
-          | None => Some c
-          end
-      | None =>
-          match series_nth i s₁ with
-          | Some c₁ =>
-              match series_nth ni s₂ with
-              | Some c₂ => Some (mul fld c₁ c₂)
-              | None => None
-              end
-          | None => None
-          end
-      end
-  end.
-
-Definition series_mul_term (s₁ s₂ : series α) :=
-  {| terms i :=
-       match sum_mul_coeff 0 (S i) s₁ s₂ with
-       | Some c => c
-       | None => zero fld
-       end;
-     stop := Nbar.max (stop s₁) (stop s₂) |}.
-
-(*
-Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
-  match nz_valnum ps₁ with
-  | zfin _ =>
-      match nz_valnum ps₂ with
-      | zfin _ =>
-          let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
-          let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-          {| nz_terms := series_mul_term (nz_terms aps₁) (nz_terms aps₂);
-             nz_valnum := nz_valnum aps₁ + nz_valnum aps₂;
-             nz_comden := nz_comden aps₁ |}
-      | ∞ => ps_zero fld
-      end
-  | ∞ => ps_zero fld
-  end.
-*)
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
   series_stretch fld k (series_add fld s₁ s₂) ≃
