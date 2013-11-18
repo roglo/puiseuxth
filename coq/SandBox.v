@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.73 2013-11-17 19:02:25 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.74 2013-11-18 16:01:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2283,6 +2283,7 @@ rewrite Hs in Hn₁.
 bbb.
 *)
 
+(*
 Lemma xxx : ∀ nz₁ nz₂,
   normalise_nz fld nz₁ = Zero α
   → normalise_nz fld (nz₁ ∔ nz₂) ≐ normalise_nz fld nz₂.
@@ -2338,7 +2339,6 @@ bbb.
 *)
 
 intros nz₁ nz₂ Hps.
-bbb.
 remember (normalise_nz fld (nz_zero fld)) as x.
 destruct x as [x| ].
  unfold normalise_nz in Heqx.
@@ -2460,6 +2460,20 @@ destruct ps₁ as [nz'₁| ].
  rewrite H1; reflexivity.
 
  destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
+ apply eq_nz_adjust_zero_neg_zero in Hps₁.
+ apply eq_nz_adjust_zero_neg_zero in Hps₂.
+ destruct Hps₁ as (n₁, (n₂, (k₁, (k₂, Hps₁)))).
+ destruct Hps₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
+ apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
+ apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
+ rewrite normalise_nz_adjust_nz_r with (n := n₁) (k := k₁).
+ rewrite Hps₁.
+ symmetry.
+ rewrite normalise_nz_adjust_nz_r with (n := n₃) (k := k₃).
+ rewrite Hps₂.
+ symmetry.
+bbb.
+
  rewrite xxx; [ idtac | assumption ].
  rewrite xxx; [ idtac | assumption ].
  reflexivity.
