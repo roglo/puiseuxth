@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.75 2013-11-18 16:05:44 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.76 2013-11-18 16:13:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2475,18 +2475,19 @@ destruct ps₁ as [nz'₁| ].
  reflexivity.
 Qed.
 
-Lemma www : ∀ nz₁ nz₂ nz₃,
-  NonZero nz₁ ≈ NonZero nz₂
-  → normalise_nz fld (nz₁ ∔ nz₃) ≐ normalise_nz fld (nz₂ ∔ nz₃).
-Proof.
-intros nz₁ nz₂ nz₃ Hnz.
-inversion Hnz; subst; rename H1 into Heq.
-bbb.
-
 Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
   → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₃.
 Proof.
+intros ps₁ ps₂ ps₃ H₁₂.
+destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_add_0_r; assumption ].
+destruct ps₁ as [nz₁| ].
+ destruct ps₂ as [nz₂| ]; [ idtac | simpl ].
+  constructor.
+  apply nz_norm_add_compat_r.
+  inversion H₁₂; assumption.
+bbb.
+
 intros ps₁ ps₂ ps₃ H₁₂.
 destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_add_0_r; assumption ].
 destruct ps₁ as [nz₁| ].
