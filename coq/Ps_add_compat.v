@@ -1,7 +1,7 @@
-(* $Id: Ps_add_compat.v,v 2.2 2013-11-18 18:45:53 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.3 2013-11-18 19:11:48 deraugla Exp $ *)
 
 Require Import Utf8.
-Require Import QArith.
+Require Import ZArith.
 Require Import NPeano.
 
 Require Import Field.
@@ -11,20 +11,16 @@ Require Import Nbar.
 Require Import Ps_add.
 Require Import Misc.
 
-Set Implicit Arguments.
-
 Section fld.
 
 Variable α : Type.
 Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 Delimit Scope ps_scope with ps.
-Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add fld a b) : ps_scope.
 Notation "a ∔ b" := (nz_add fld a b) (at level 70).
 
@@ -42,19 +38,6 @@ induction n as [| n]; intros.
   destruct (Nbar.lt_dec 0 (stop s + fin (S n))); reflexivity.
 
   rewrite <- series_nth_shift_S; apply IHn.
-Qed.
-
-Lemma series_nth_shift_0_series_nth_0 : ∀ s n,
-  (∀ i : nat, series_nth_fld fld i (series_shift fld n s) ≍ zero fld)
-  → ∀ i, series_nth_fld fld i s ≍ zero fld.
-Proof.
-intros s n H i.
-revert i.
-induction n as [| n]; intros.
- rewrite <- series_shift_0; apply H.
-
- apply IHn; intros j.
- rewrite series_nth_shift_S; apply H.
 Qed.
 
 Lemma normalise_series_add_shift : ∀ s n m k,
@@ -87,54 +70,6 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  destruct (stop s) as [st| ]; [ simpl | reflexivity ].
  apply Nbar.fin_inj_wd.
  omega.
-Qed.
-
-Lemma normalised_series_null_coeff_range_length : ∀ s n k,
-  null_coeff_range_length fld s 0 = fin n
-  → null_coeff_range_length fld (normalise_series n k s) 0 = fin 0.
-Proof.
-intros s n k Hn.
-apply null_coeff_range_length_iff in Hn.
-apply null_coeff_range_length_iff.
-simpl in Hn |- *.
-destruct Hn as (Hz, Hnz).
-split.
- intros i Hi.
- exfalso; revert Hi; apply Nat.nlt_0_r.
-
- unfold series_nth_fld in Hnz.
- destruct (Nbar.lt_dec (fin n) (stop s)) as [H₁| H₁].
-  unfold series_nth_fld.
-  remember (normalise_series n k s) as t eqn:Ht .
-  destruct (Nbar.lt_dec 0 (stop t)) as [H₂| H₂].
-   rewrite Ht; simpl.
-   rewrite Nat.add_0_r; assumption.
-
-   apply Nbar.nlt_ge in H₂.
-   apply Nbar.le_0_r in H₂.
-   rewrite Ht in H₂.
-   unfold normalise_series in H₂.
-   simpl in H₂.
-   destruct (stop s) as [st| ]; [ idtac | discriminate H₂ ].
-   simpl in H₂.
-   apply Nbar.fin_inj_wd in H₂.
-   apply Nbar.fin_lt_mono in H₁.
-   remember (st - n)%nat as stn eqn:Hstn .
-   symmetry in Hstn.
-   destruct stn as [| stn].
-    exfalso; revert Hstn; apply Nat.sub_gt; assumption.
-
-    simpl in H₂.
-    rewrite Nat.sub_0_r in H₂.
-    remember (Pos.to_nat k) as pk.
-    remember (stn + pk)%nat as x.
-    replace pk with (1 * pk)%nat in Heqx by apply Nat.mul_1_l.
-    subst pk x.
-    rewrite Nat.div_add in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-    apply Nat.eq_add_0 in H₂.
-    destruct H₂ as (_, H); discriminate H.
-
-  exfalso; apply Hnz; reflexivity.
 Qed.
 
 Lemma gcd_nz_add : ∀ nz n,
@@ -226,412 +161,6 @@ constructor; constructor; simpl.
   rewrite Z.add_0_r; reflexivity.
 Qed.
 
-(* probablement démontrable aussi avec null_coeff_range_length ... = fin 0
-   comme but; à voir, peut-être, si nécessaire *)
-Lemma null_coeff_range_length_normalised : ∀ nz nz₁ n,
-  normalise_nz fld nz₁ = NonZero nz
-  → null_coeff_range_length fld (nz_terms nz) 0 = fin n
-    → n = O.
-Proof.
-intros nz nz₁ n Hnorm Hnz.
-destruct n as [| n]; [ reflexivity | exfalso ].
-apply null_coeff_range_length_iff in Hnz.
-simpl in Hnz.
-destruct Hnz as (Hz, Hnz).
-pose proof (Hz O (Nat.lt_0_succ n)) as H₀.
-unfold normalise_nz in Hnorm.
-remember (null_coeff_range_length fld (nz_terms nz₁) 0) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ idtac | discriminate Hnorm ].
-apply null_coeff_range_length_iff in Hm.
-simpl in Hm.
-destruct Hm as (Hmz, Hmnz).
-unfold series_nth_fld in Hmnz.
-destruct (Nbar.lt_dec (fin m) (stop (nz_terms nz₁))) as [H₂| H₂].
- injection Hnorm; clear Hnorm; intros; subst nz.
- simpl in Hz, Hnz, H₀.
- unfold series_nth_fld in H₀.
- simpl in H₀.
- rewrite Nbar.fold_sub in H₀.
- rewrite Nbar.fold_sub in H₀.
- rewrite Nbar.fold_div in H₀.
- remember (greatest_series_x_power fld (nz_terms nz₁) m) as k eqn:Hk .
- symmetry in Hk.
- remember (gcd_nz m k nz₁) as g eqn:Hg .
- remember (Z.to_pos g) as gp eqn:Hgp .
- remember (stop (nz_terms nz₁) - fin m + fin (Pos.to_nat gp) - 1)%Nbar as x.
- symmetry in Heqx.
- rewrite Nat.add_0_r in H₀.
- destruct (Nbar.lt_dec 0 (x / fin (Pos.to_nat gp))) as [H₁| H₁].
-  rewrite H₀ in Hmnz; apply Hmnz; reflexivity.
-
-  remember (stop (nz_terms nz₁) - fin m)%Nbar as y.
-  symmetry in Heqy.
-  destruct y as [y| ].
-   destruct y as [| y].
-    revert Heqy; apply Nbar.sub_gt; assumption.
-
-    simpl in Heqx.
-    rewrite Nat.sub_0_r in Heqx.
-    apply H₁.
-    rewrite <- Heqx; simpl.
-    remember (y + Pos.to_nat gp)%nat as z.
-    replace (Pos.to_nat gp) with (1 * Pos.to_nat gp)%nat in Heqz .
-     subst z.
-     rewrite Nat.div_add.
-      apply Nbar.lt_fin.
-      rewrite Nat.add_comm.
-      apply Nat.lt_0_succ.
-
-      apply Pos2Nat_ne_0.
-
-     rewrite Nat.mul_1_l; reflexivity.
-
-   subst x; simpl.
-   apply H₁; simpl.
-   constructor.
-
- apply Hmnz; reflexivity.
-Qed.
-
-Lemma nz_norm_add_0 : ∀ nz₁ nz₂,
-  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → normalise_nz fld (nz₁ ∔ nz_zero fld) ≐
-    normalise_nz fld (nz₂ ∔ nz_zero fld).
-Proof.
-intros nz₁ nz₂ Heq.
-rewrite normalise_nz_add_0_r.
-rewrite normalise_nz_add_0_r.
-assumption.
-Qed.
-
-(* une idée, comme ça... mais qui marche ! *)
-Lemma normalised_nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
-  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → (normalise_nz fld nz₁ + normalise_nz fld nz₃ ≈
-     normalise_nz fld nz₂ + normalise_nz fld nz₃)%ps.
-Proof.
-(* à nettoyer sérieusement *)
-intros nz₁ nz₂ nz₃ Heqp.
-remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
-remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
-remember (normalise_nz fld nz₃) as ps₃ eqn:Hps₃ .
-symmetry in Hps₁, Hps₂, Hps₃.
-destruct ps₃ as [nz'₃| ].
- destruct ps₁ as [nz'₁| ].
-  destruct ps₂ as [nz'₂| ].
-   simpl.
-   constructor.
-   inversion Heqp.
-   clear nz₁0 H.
-   clear nz₂0 H0.
-   unfold normalise_nz.
-   simpl.
-   remember (null_coeff_range_length fld (nz_terms_add fld nz'₁ nz'₃) 0) as
-     n₁ eqn:Hn₁ .
-   remember (null_coeff_range_length fld (nz_terms_add fld nz'₂ nz'₃) 0) as
-     n₂ eqn:Hn₂ .
-   symmetry in Hn₁, Hn₂.
-   unfold nz_terms_add in Hn₁.
-   unfold nz_terms_add in Hn₂.
-   unfold cm_factor in Hn₁.
-   unfold cm_factor in Hn₂.
-   inversion_clear H1.
-   unfold adjust_series in Hn₁, Hn₂.
-   rewrite H, H0, H2 in Hn₁.
-   rewrite Hn₁ in Hn₂.
-   move Hn₂ at top; subst n₁.
-   destruct n₂ as [n₂| ].
-    constructor; constructor; simpl.
-     unfold nz_valnum_add, gcd_nz; simpl.
-     unfold nz_valnum_add; simpl.
-     unfold cm_factor, cm; simpl.
-     rewrite H, H0.
-     do 3 f_equal.
-     unfold nz_terms_add.
-     unfold cm_factor; simpl.
-     rewrite H, H0.
-     unfold adjust_series.
-     rewrite H2.
-     reflexivity.
-
-     unfold cm; simpl.
-     unfold nz_terms_add; simpl.
-     unfold cm_factor; simpl.
-     rewrite H, H0.
-     unfold adjust_series; simpl.
-     rewrite H2.
-     do 2 f_equal.
-     unfold gcd_nz; simpl.
-     unfold nz_valnum_add; simpl.
-     rewrite H.
-     unfold cm_factor, cm.
-     rewrite H0.
-     reflexivity.
-
-     unfold gcd_nz; simpl.
-     unfold nz_valnum_add; simpl.
-     unfold cm_factor, cm; simpl.
-     rewrite H.
-     rewrite H0.
-     unfold nz_terms_add; simpl.
-     unfold cm_factor, cm; simpl.
-     rewrite H.
-     rewrite H0.
-     constructor; simpl.
-     unfold adjust_series; simpl.
-     intros i.
-     rewrite H2 in |- * at 1.
-     rewrite H2 in |- * at 1.
-     reflexivity.
-
-    constructor.
-
-   simpl.
-   constructor.
-   unfold normalise_nz.
-   simpl.
-   inversion Heqp.
-
-  inversion Heqp.
-  reflexivity.
-
- inversion Heqp.
-  simpl.
-  constructor.
-  unfold normalise_nz; simpl.
-  inversion_clear H.
-  rewrite H4.
-  remember (null_coeff_range_length fld (nz_terms nz₂0) 0) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ]; [ idtac | reflexivity ].
-  unfold gcd_nz.
-  constructor; constructor; simpl; rewrite H2, H3, H4; reflexivity.
-
-  reflexivity.
-Qed.
-
-Definition normalise_ps ps :=
-  match ps with
-  | NonZero nz => normalise_nz fld nz
-  | Zero => Zero _
-  end.
-
-Lemma series_nth_normalised : ∀ s n g,
-  null_coeff_range_length fld s 0 = fin n
-  → ∀ i,
-    series_nth_fld fld i (normalise_series n g s) =
-    series_nth_fld fld (n + i * Pos.to_nat g) s.
-Proof.
-intros s n g Hn i.
-unfold series_nth_fld; simpl.
-do 2 rewrite Nbar.fold_sub.
-rewrite Nbar.fold_div.
-remember (Pos.to_nat g) as gn eqn:Hgn .
-remember ((stop s - fin n + fin gn - 1) / fin gn)%Nbar as x.
-remember (fin (n + i * gn)) as y.
-destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁].
- destruct (Nbar.lt_dec y (stop s)) as [H₂| H₂]; [ reflexivity | exfalso ].
- subst x y gn.
- apply H₂; clear H₂.
- remember (stop s) as st eqn:Hst .
- symmetry in Hst.
- destruct st as [st| ]; [ idtac | constructor ].
- simpl in H₁.
- apply Nbar.fin_lt_mono in H₁.
- apply Nbar.fin_lt_mono.
- rewrite Nat_fold_div_sup in H₁.
- apply Nat_lt_div_sup_lt_mul_r in H₁.
- apply Nat.lt_add_lt_sub_l; assumption.
-
- destruct (Nbar.lt_dec y (stop s)) as [H₂| H₂]; [ exfalso | reflexivity ].
- subst x y gn.
- apply H₁; clear H₁.
- remember (stop s) as st eqn:Hst .
- symmetry in Hst.
- destruct st as [st| ]; [ simpl | constructor ].
- apply Nbar.fin_lt_mono in H₂.
- apply Nbar.fin_lt_mono.
- rewrite Nat_fold_div_sup.
- apply Nat_lt_mul_r_lt_div_sup; [ apply Pos2Nat.is_pos | idtac ].
- apply Nat.lt_add_lt_sub_l; assumption.
-Qed.
-
-(* peut-être pas nécessaire... *)
-Lemma series_nth_normalised₁ : ∀ nz nz' n k g,
-  normalise_nz fld nz = NonZero nz'
-  → null_coeff_range_length fld (nz_terms nz) 0 = fin n
-    → greatest_series_x_power fld (nz_terms nz) n = k
-      → gcd_nz n k nz = g
-        → ∀ i,
-          series_nth_fld fld i (nz_terms nz') =
-          series_nth_fld fld (n + i * Pos.to_nat (Z.to_pos g)) (nz_terms nz).
-Proof.
-intros nz nz' n k g Heq Hn Hk Hg i.
-unfold normalise_nz in Heq.
-rewrite Hn in Heq.
-injection Heq; clear Heq; intros Heq; subst nz'; simpl.
-rewrite Hk, Hg.
-eapply series_nth_normalised; assumption.
-Qed.
-
-Fixpoint nth_nonzero s b n :=
-  match n with
-  | O => null_coeff_range_length fld s b
-  | S n' =>
-      match null_coeff_range_length fld s b with
-      | fin m => nth_nonzero s (S m) n'
-      | ∞ => ∞
-      end
-  end.
-
-(* pas très joli mais bon, si ça fait l'affaire... *)
-Lemma gcd_mul_le : ∀ a b c g,
-  Z.gcd a (' b) = g
-  → (' b = c * g)%Z
-    → (0 <= g ∧ 0 <= c)%Z.
-Proof.
-intros a b c g Hg Hb.
-assert (0 <= g)%Z as Hgpos by (subst g; unfold gcd_nz; apply Z.gcd_nonneg).
-split; [ assumption | idtac ].
-assert (g ≠ 0)%Z as Hgnz.
- subst g; intros H; apply Z.gcd_eq_0_r in H.
- revert H; apply Pos2Z_ne_0.
-
- apply Z.mul_nonneg_cancel_r with (m := g).
-  fast_omega Hgpos Hgnz.
-
-  rewrite <- Hb; apply Pos2Z.is_nonneg.
-Qed.
-
-Lemma gcd_pos_pos : ∀ a b g,
-  Z.gcd a (' b) = g
-  → (0 < g)%Z.
-Proof.
-intros a b g Hg.
-destruct (Z_dec 0 g) as [[H| H]| H].
- assumption.
-
- exfalso; apply Z.gt_lt, Z.nle_gt in H.
- apply H; subst g; apply Z.gcd_nonneg.
-
- rewrite <- H in Hg.
- apply Z.gcd_eq_0_r in Hg.
- exfalso; revert Hg; apply Pos2Z_ne_0.
-Qed.
-
-Lemma gcd_pos_ne_0 : ∀ a b g,
-  Z.gcd a (' b) = g
-  → (g ≠ 0)%Z.
-Proof.
-intros a b g Hg.
-destruct (Z_dec 0 g) as [[H| H]| H].
- intros HH; rewrite HH in H.
- revert H; apply Z.lt_irrefl.
-
- intros HH; rewrite HH in H.
- apply Z.gt_lt in H.
- revert H; apply Z.lt_irrefl.
-
- rewrite <- H in Hg.
- apply Z.gcd_eq_0_r in Hg.
- exfalso; revert Hg; apply Pos2Z_ne_0.
-Qed.
-
-Lemma Z2Nat_gcd_ne_0 : ∀ a b g,
-  Z.gcd a (' b) = g
-  → (Z.to_nat g ≠ 0)%nat.
-Proof.
-intros a b g Hg.
-apply gcd_pos_pos in Hg.
-destruct g; [ exfalso; revert Hg; apply Z.lt_irrefl | idtac | idtac ].
- apply Pos2Nat_ne_0.
-
- exfalso; apply Z.nle_gt in Hg.
- apply Hg, Pos2Z.neg_is_nonpos.
-Qed.
-
-Lemma gcd_mul_ne_0 : ∀ a b c g,
-  Z.gcd a (' b) = g
-  → (' b = c * g)%Z
-    → (Z.to_nat c ≠ 0)%nat.
-Proof.
-intros a b c g Hg Hb.
-eapply gcd_mul_le in Hg; [ idtac | eassumption ].
-destruct Hg as (Hg, Hc).
-destruct c as [| c| c].
- exfalso; revert Hb; apply Pos2Z_ne_0.
-
- apply Pos2Nat_ne_0.
-
- exfalso; apply Z.nlt_ge in Hc.
- apply Hc, Pos2Z.neg_is_neg.
-Qed.
-
-Lemma gcd_mul_pos : ∀ a b c g,
-  Z.gcd a (' b) = g
-  → (' b = c * g)%Z
-    → (0 < c)%Z.
-Proof.
-intros a b c g Hg Hb.
-eapply gcd_mul_le in Hg; [ idtac | eassumption ].
-destruct Hg as (Hg, Hc).
-destruct c as [| c| c].
- exfalso; revert Hb; apply Pos2Z_ne_0.
-
- apply Pos2Z.is_pos.
-
- exfalso; apply Z.nlt_ge in Hc.
- apply Hc, Pos2Z.neg_is_neg.
-Qed.
-
-(* compatibilité avec l'ancienne version, vu que les preuves y avaient
-   été faites avec ça et les reprendre semble pas simple *)
-Definition is_the_greatest_series_x_power₃ s n k :=
-  match null_coeff_range_length fld s (S n) with
-  | fin _ =>
-      (∀ i, i mod (Pos.to_nat k) ≠ O →
-       series_nth_fld fld (n + i) s ≍ zero fld) ∧
-      (∀ k', (Pos.to_nat k < k')%nat →
-       ∃ i, i mod k' ≠ O ∧ series_nth_fld fld (n + i) s ≭ zero fld)
-  | ∞ =>
-      k = 1%positive
-  end.
-
-Lemma normalise_series_0_1 : ∀ s : series α, normalise_series 0 1 s ≃ s.
-Proof.
-intros s.
-constructor; intros i.
-unfold series_nth_fld.
-remember (normalise_series 0 1 s) as ns eqn:Hns .
-destruct (Nbar.lt_dec (fin i) (stop ns)) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
-  rewrite Hns; simpl.
-  rewrite Nat.mul_1_r; reflexivity.
-
-  exfalso; apply H₂; clear H₂.
-  rewrite Hns in H₁; simpl in H₁.
-  destruct (stop s) as [st| ]; [ idtac | constructor ].
-  simpl in H₁.
-  rewrite Nat.sub_0_r in H₁.
-  rewrite Pos2Nat.inj_1 in H₁.
-  rewrite <- Nat_sub_sub_distr in H₁; [ idtac | reflexivity ].
-  rewrite Nat.sub_diag, Nat.sub_0_r in H₁.
-  rewrite divmod_div in H₁.
-  rewrite Nat.div_1_r in H₁; assumption.
-
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| ]; [ idtac | reflexivity ].
- exfalso; apply H₁; clear H₁.
- subst ns; simpl.
- destruct (stop s) as [st| ]; [ simpl | constructor ].
- rewrite Nat.sub_0_r.
- rewrite Pos2Nat.inj_1.
- rewrite <- Nat_sub_sub_distr; [ idtac | reflexivity ].
- rewrite Nat.sub_diag, Nat.sub_0_r.
- rewrite divmod_div.
- rewrite Nat.div_1_r; assumption.
-Qed.
-
 Lemma eq_nz_add_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_nz fld nz₁ nz₂
   → eq_nz fld (nz₁ ∔ nz₃) (nz₂ ∔ nz₃).
@@ -688,25 +217,6 @@ rewrite series_shift_add_distr.
 reflexivity.
 Qed.
 
-Lemma adjust_nz_mul_r : ∀ nz n k₁ k₂,
-  eq_nz fld
-    (adjust_nz fld n (k₁ * k₂) nz)
-    (adjust_nz fld n k₁ (adjust_nz fld 0 k₂ nz)).
-Proof.
-intros nz n k₁ k₂.
-constructor; simpl.
- rewrite Z.sub_0_r.
- rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
- reflexivity.
-
- rewrite Pos.mul_assoc, Pos_mul_shuffle0.
- reflexivity.
-
- rewrite series_shift_0.
- rewrite series_stretch_stretch.
- reflexivity.
-Qed.
-
 Lemma adjust_nz_mul : ∀ nz n k u,
   eq_nz fld
     (adjust_nz fld (n * Pos.to_nat u) (k * u) nz)
@@ -746,7 +256,7 @@ rewrite nz_adjust_adjust.
 rewrite Nat.mul_0_l, Nat.add_0_r.
 symmetry.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
-remember (nz_valnum nz₁ * ' k * ' nz_comden nz₂)%Z as x eqn:Hx .
+remember (nz_valnum nz₁ * Zpos k * Zpos (nz_comden nz₂))%Z as x eqn:Hx .
 rewrite Z.mul_shuffle0 in Hx; subst x.
 rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
@@ -899,8 +409,8 @@ rewrite <- Z2Nat.inj_add.
   do 2 rewrite Z.add_simpl_r.
   rewrite Pos2Z.inj_mul, Z.mul_assoc.
   rewrite Z.mul_shuffle0.
-  remember (v₁ * ' c₂ * ' k)%Z as vc₁.
-  remember (v₂ * ' c₁ * ' k)%Z as vc₂.
+  remember (v₁ * Zpos c₂ * Zpos k)%Z as vc₁.
+  remember (v₂ * Zpos c₁ * Zpos k)%Z as vc₂.
   rewrite <- Z2Nat_sub_min2.
   rewrite <- Z2Nat_sub_min1.
   rewrite Z.min_id, Z.sub_diag, Nat.add_0_r.
@@ -939,11 +449,11 @@ rewrite <- Z2Nat.inj_add.
        rewrite Z.min_l; auto.
        rewrite Z.sub_diag, Nat.add_0_r.
        rewrite Nat.add_0_r.
-       replace (Z.to_nat (nn * ' c₂)) with (Z.to_nat (nn * ' c₂) + 0)%nat
+       replace (Z.to_nat (nn * Zpos c₂)) with (Z.to_nat (nn * Zpos c₂) + 0)%nat
         by omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
-       replace (Z.to_nat (mm * ' c₂)) with (Z.to_nat (mm * ' c₂) + 0)%nat
+       replace (Z.to_nat (mm * Zpos c₂)) with (Z.to_nat (mm * Zpos c₂) + 0)%nat
         by omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
@@ -976,12 +486,12 @@ rewrite <- Z2Nat.inj_add.
       rewrite <- Z2Nat.inj_sub.
        2: omega.
 
-       remember (Z.to_nat (nn * ' c₂ - x)) as y.
+       remember (Z.to_nat (nn * Zpos c₂ - x)) as y.
        replace y with (y + 0)%nat by omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
        clear y Heqy.
-       remember (Z.to_nat (mm * ' c₂ - x)) as y.
+       remember (Z.to_nat (mm * Zpos c₂ - x)) as y.
        replace y with (y + 0)%nat by omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
@@ -1015,15 +525,6 @@ Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_l with (k := k).
 apply normalise_nz_adjust_nz_add.
-Qed.
-
-Lemma series_left_shift_0 : ∀ s, series_left_shift 0 s ≃ s.
-Proof.
-intros s.
-constructor; intros i.
-unfold series_nth_fld; simpl.
-rewrite Nbar.fold_sub, Nbar.sub_0_r.
-reflexivity.
 Qed.
 
 Lemma null_coeff_range_length_succ2 : ∀ s m,
@@ -1185,8 +686,8 @@ destruct g as [| g| g]; simpl.
  constructor; simpl.
   unfold gcd_nz in Heqg.
   remember (nz_valnum nz + Z.of_nat len₁)%Z as v.
-  remember (' nz_comden nz)%Z as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k₁)) as H₁.
+  remember (Zpos (nz_comden nz))%Z as c.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (Zpos k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
   pose proof (Z.gcd_divide_l v c) as H₁.
@@ -1202,8 +703,8 @@ destruct g as [| g| g]; simpl.
 
   unfold gcd_nz in Heqg.
   remember (nz_valnum nz + Z.of_nat len₁)%Z as v.
-  remember (' nz_comden nz)%Z as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (' k₁)) as H₁.
+  remember (Zpos (nz_comden nz)) as c.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (Zpos k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
   pose proof (Z.gcd_divide_r v c) as H₁.
@@ -1212,7 +713,7 @@ destruct g as [| g| g]; simpl.
   rewrite Z.mul_assoc in Hb.
   rewrite Hb.
   rewrite Z.div_mul; [ idtac | apply Pos2Z_ne_0 ].
-  replace g with (Z.to_pos (' g)) by apply Pos2Z.id.
+  replace g with (Z.to_pos (Zpos g)) by apply Pos2Z.id.
   rewrite <- Z2Pos.inj_mul.
    rewrite <- Hb.
    rewrite Heqc; simpl.
@@ -1246,60 +747,6 @@ destruct g as [| g| g]; simpl.
  apply H, Z.gcd_nonneg.
 Qed.
 
-Lemma normalise_nz_is_0 : ∀ nz,
-  normalise_nz fld nz = Zero α
-  → ∀ i : nat, series_nth_fld fld i (nz_terms nz) ≍ zero fld.
-Proof.
-intros nz Heq i.
-unfold normalise_nz in Heq.
-remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
-symmetry in Hm.
-destruct m; [ discriminate Heq | idtac ].
-apply null_coeff_range_length_iff in Hm; simpl in Hm.
-apply Hm.
-Qed.
-
-Lemma series_0_add_l : ∀ nz s,
-  normalise_nz fld nz = Zero α
-  → series_add fld (nz_terms nz) s ≃ s.
-Proof.
-intros nz s Heq.
-constructor; intros i.
-unfold series_nth_fld; simpl.
-remember (Nbar.max (stop (nz_terms nz)) (stop s)) as m.
-destruct (Nbar.lt_dec (fin i) m) as [H₁| H₁]; subst m.
- rewrite normalise_nz_is_0; [ idtac | assumption ].
- rewrite fld_add_0_l; reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
-  exfalso; apply H₁.
-  eapply Nbar.lt_le_trans; [ eassumption | apply Nbar.le_max_r ].
-
-  reflexivity.
-Qed.
-
-Lemma series_0_shift : ∀ nz n,
-  normalise_nz fld nz = Zero α
-  → series_shift fld n (nz_terms nz) ≃ nz_terms nz.
-Proof.
-intros nz n Heq.
-constructor; intros i.
-rewrite normalise_nz_is_0; [ idtac | assumption ].
-apply series_nth_0_series_nth_shift_0.
-apply normalise_nz_is_0; assumption.
-Qed.
-
-Lemma series_0_stretch : ∀ nz k,
-  normalise_nz fld nz = Zero α
-  → series_stretch fld k (nz_terms nz) ≃ nz_terms nz.
-Proof.
-intros nz n Heq.
-constructor; intros i.
-rewrite normalise_nz_is_0; [ idtac | assumption ].
-apply zero_series_stretched.
-apply normalise_nz_is_0; assumption.
-Qed.
-
 Definition nz_neg_zero :=
   {| nz_terms := series_0 fld;
      nz_valnum := -1;
@@ -1318,7 +765,7 @@ destruct n; [ discriminate Hz | clear Hz ].
 apply null_coeff_range_length_iff in Hn.
 simpl in Hn.
 destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
- exists (Z.to_nat (nz_valnum nz + ' nz_comden nz)), O, xH, (nz_comden nz).
+ exists (Z.to_nat (nz_valnum nz + Zpos (nz_comden nz))), O, xH, (nz_comden nz).
  constructor; simpl.
   rewrite Z2Nat.id.
    rewrite Z.mul_1_r.
