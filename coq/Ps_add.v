@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.47 2013-11-19 02:23:00 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.48 2013-11-19 02:45:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -17,8 +17,6 @@ Section fld.
 Variable α : Type.
 Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
@@ -34,8 +32,6 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
   nz_comden nz₂.
 (**)
 
-(* for a possible redefinition of ps_add, or perhaps to change a
-   representation for another to manage to make proofs... *)
 Definition adjust_nz n k nz :=
   {| nz_terms := series_shift fld n (series_stretch fld k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
@@ -153,8 +149,8 @@ Definition adjust_series n k s :=
 Definition nz_terms_add (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in
   let k₂ := cm_factor nz₂ nz₁ in
-  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
-  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  let v₁ := (nz_valnum nz₁ * Zpos k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * Zpos k₂)%Z in
   let n₁ := Z.to_nat (v₁ - Z.min v₁ v₂) in
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
   let s₁ := adjust_series n₁ k₁ (nz_terms nz₁) in
@@ -164,8 +160,8 @@ Definition nz_terms_add (nz₁ nz₂ : nz_ps α) :=
 Definition nz_valnum_add (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in
   let k₂ := cm_factor nz₂ nz₁ in
-  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
-  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  let v₁ := (nz_valnum nz₁ * Zpos k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * Zpos k₂)%Z in
   Z.min v₁ v₂.
 
 Definition nz_add (nz₁ nz₂ : nz_ps α) :=
@@ -183,7 +179,6 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₂
   end.
 
-(* version with adjust_nz, just to see... *)
 Definition adjusted_nz_add nz'₁ nz'₂ :=
   {| nz_terms := series_add fld (nz_terms nz'₁) (nz_terms nz'₂);
      nz_valnum := nz_valnum nz'₁;
@@ -192,8 +187,8 @@ Definition adjusted_nz_add nz'₁ nz'₂ :=
 Definition adjust_nz_from nz₁ nz₂ :=
   let k₁ := cm_factor nz₁ nz₂ in
   let k₂ := cm_factor nz₂ nz₁ in
-  let v₁ := (nz_valnum nz₁ * ' k₁)%Z in
-  let v₂ := (nz_valnum nz₂ * ' k₂)%Z in
+  let v₁ := (nz_valnum nz₁ * Zpos k₁)%Z in
+  let v₂ := (nz_valnum nz₂ * Zpos k₂)%Z in
   adjust_nz (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂.
 
 Definition nz_add₂ (nz₁ nz₂ : nz_ps α) :=
@@ -275,31 +270,6 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
  destruct a, b, c, d; try rewrite fld_add_0_l; reflexivity.
-Qed.
-
-Lemma stretch_shift_1_series_distr : ∀ kp s,
-  series_stretch fld kp (series_shift fld 1 s) ≃
-  series_shift fld (Pos.to_nat kp) (series_stretch fld kp s).
-Proof.
-intros kp s.
-remember (Pos.to_nat kp) as x.
-rewrite <- Nat.mul_1_l in Heqx; subst x.
-apply stretch_shift_series_distr.
-Qed.
-
-(* *)
-
-Lemma Pcm_factor_mul : ∀ x y,
-  (x * Pos.of_nat (Pos.to_nat (Plcm x y) / Pos.to_nat x))%positive = Plcm x y.
-Proof.
-intros x y.
-pose proof (Pos_divides_lcm_l x y) as H.
-destruct H as (k, H).
-rewrite H.
-rewrite Pos2Nat.inj_mul.
-rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-rewrite Pos2Nat.id.
-apply Pos.mul_comm.
 Qed.
 
 Lemma nz_terms_add_comm : ∀ ps₁ ps₂,
@@ -414,26 +384,6 @@ destruct (lt_dec i n) as [Hlt| Hge].
     assumption.
 Qed.
 
-Lemma null_coeff_range_length_nonzero_fin : ∀ s n,
-  null_coeff_range_length fld s 0 = fin (S n)
-  → series_nth_fld fld 0 s ≍ zero fld.
-Proof.
-intros s n Hn.
-replace 0%nat with (0 + 0)%nat by reflexivity.
-apply lt_null_coeff_range_length.
-rewrite Hn.
-constructor; apply lt_0_Sn.
-Qed.
-
-Definition Qmin x y :=
-  match x ?= y with
-  | Eq => x
-  | Lt => x
-  | Gt => y
-  end.
-
-Definition Qmin₃ x y z := Qmin (Qmin x y) z.
-
 Lemma Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
 Proof.
 intros x y.
@@ -480,9 +430,9 @@ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-remember (v₁ * ' c₂ * ' c₃)%Z as vcc eqn:Hvcc .
-remember (v₂ * ' c₁ * ' c₃)%Z as cvc eqn:Hcvc .
-remember (v₃ * ' c₂ * ' c₁)%Z as ccv eqn:Hccv .
+remember (v₁ * Zpos c₂ * Zpos c₃)%Z as vcc eqn:Hvcc .
+remember (v₂ * Zpos c₁ * Zpos c₃)%Z as cvc eqn:Hcvc .
+remember (v₃ * Zpos c₂ * Zpos c₁)%Z as ccv eqn:Hccv .
 do 2 rewrite Z.min_assoc.
 rewrite Z.mul_shuffle0, <- Hccv.
 rewrite Z.mul_shuffle0, <- Hcvc.
@@ -495,20 +445,6 @@ do 2 rewrite <- Z.min_assoc.
 do 2 rewrite Z2Nat_sub_min.
 reflexivity.
 Qed.
-
-Definition terms_add ps₁ ps₂ :=
-  match ps₁ with
-  | NonZero nz₁ =>
-      match ps₂ with
-      | NonZero nz₂ => nz_terms_add nz₁ nz₂
-      | Zero => nz_terms nz₁
-      end
-  | Zero =>
-      match ps₂ with
-      | NonZero nz₂ => nz_terms nz₂
-      | Zero => series_0 fld
-      end
-  end.
 
 Lemma gcd_nz_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
   gcd_nz n k (nz_add (nz_add nz₁ nz₂) nz₃)%Z =
@@ -568,9 +504,7 @@ destruct n as [n| ]; constructor; constructor; simpl.
 Qed.
 
 Delimit Scope ps_scope with ps.
-Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a ∔ b" := (nz_add a b) (at level 70).
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
@@ -584,155 +518,6 @@ remember (ps_add (NonZero nz₂) (NonZero nz₃)) as y.
 simpl in Heqx, Heqy; subst x y.
 simpl; constructor.
 apply nz_norm_add_assoc.
-Qed.
-
-Lemma Z2Nat_sub_mul_succ_l : ∀ a b,
-  (Z.to_nat (a * ' b) - Z.to_nat ((a + 1) * ' b))%nat = O.
-Proof.
-intros a b.
-destruct a as [| a| a]; [ reflexivity | simpl | reflexivity ].
-do 2 rewrite Pos2Nat.inj_mul.
-rewrite <- Nat.mul_sub_distr_r.
-rewrite Pos2Nat.inj_add.
-rewrite Nat.sub_add_distr, Nat.sub_diag; reflexivity.
-Qed.
-
-Lemma stop_0_series_nth_0 : ∀ s i,
-  stop s = 0%Nbar
-  → series_nth_fld fld i s = zero fld.
-Proof.
-intros s i Hs.
-unfold series_nth_fld; simpl.
-rewrite Hs; simpl.
-destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁]; [ idtac | reflexivity ].
-apply Nbar.nlt_ge in Hlt₁.
- exfalso; apply Hlt₁; constructor; apply lt_0_Sn.
-
- constructor; apply Nat.le_0_l.
-Qed.
-
-Lemma stop_0_series_nth_stretch_0 : ∀ s n i,
-  stop s = 0%Nbar
-  → series_nth_fld fld i (series_stretch fld n s) = zero fld.
-Proof.
-intros s n i Hs.
-unfold series_nth_fld; simpl.
-rewrite Hs; simpl.
-destruct (Nbar.lt_dec (fin i) 0) as [Hlt₁| Hge₁]; [ idtac | reflexivity ].
-apply Nbar.nlt_ge in Hlt₁.
- exfalso; apply Hlt₁; constructor; apply lt_0_Sn.
-
- constructor; apply Nat.le_0_l.
-Qed.
-
-Lemma stop_0_series_nth_shift_stretch_0 : ∀ s i n k,
-  stop s = 0%Nbar
-  → series_nth_fld fld i (series_shift fld n (series_stretch fld k s))
-    = zero fld.
-Proof.
-intros s i n k Hs.
-unfold series_nth_fld; simpl.
-rewrite Hs; simpl.
-destruct (Nbar.lt_dec (fin i) (fin n)) as [H₁| H₁]; [ idtac | reflexivity ].
-destruct (lt_dec i n) as [H₂| H₂]; [ reflexivity | idtac ].
-exfalso; apply H₂.
-apply Nbar.fin_lt_mono; assumption.
-Qed.
-
-Definition series_tail_n n (s : series α) :=
-  {| terms i := terms s (i + n); stop := stop s - fin n |}.
-
-Definition series_stretch_nat n s :=
-  {| terms i :=
-       if zerop (i mod n) then
-         series_nth_fld fld (i / n) s
-       else zero fld;
-     stop :=
-       stop s * fin n |}.
-
-Lemma series_stretch_to_nat : ∀ k s,
-  series_stretch fld k s = series_stretch_nat (Pos.to_nat k) s.
-Proof. reflexivity. Qed.
-
-Lemma series_tail_n_tail_comm : ∀ n s,
-  series_tail (series_tail_n n s) = series_tail_n n (series_tail s).
-Proof.
-intros n s.
-unfold series_tail_n, series_tail.
-simpl; f_equal.
-destruct (stop s) as [st| ]; [ idtac | reflexivity ].
-rewrite <- Nat.sub_add_distr, Nat.add_comm, Nat.sub_add_distr.
-reflexivity.
-Qed.
-
-Lemma series_nth_tail : ∀ i s,
-  series_nth_fld fld i (series_tail s) = series_nth_fld fld (S i) s.
-Proof.
-intros i s.
-unfold series_nth_fld, series_tail; simpl.
-remember (stop s) as st eqn:Hst .
-symmetry in Hst.
-destruct st as [st| ].
- destruct (Nbar.lt_dec (fin i) (fin (st - 1))) as [H₁| H₁].
-  destruct (Nbar.lt_dec (fin (S i)) (fin st)) as [H₂| H₂].
-   reflexivity.
-
-   destruct st as [| st].
-    apply Nbar.nle_gt in H₁.
-    exfalso; apply H₁, Nbar.le_0_l.
-
-    simpl in H₁; rewrite Nat.sub_0_r in H₁.
-    apply Nbar.succ_lt_mono in H₁.
-    exfalso; apply H₂; assumption.
-
-  destruct (Nbar.lt_dec (fin (S i)) (fin st)) as [H₂| H₂].
-   destruct st as [| st].
-    apply Nbar.nle_gt in H₂.
-    exfalso; apply H₂, Nbar.le_0_l.
-
-    simpl in H₁; rewrite Nat.sub_0_r in H₁.
-    exfalso; apply H₁, Nbar.succ_lt_mono.
-    assumption.
-
-   reflexivity.
-
- destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
-  destruct (Nbar.lt_dec (fin (S i)) ∞) as [H₂| H₂]; [ reflexivity | idtac ].
-  exfalso; apply H₂; constructor.
-
-  exfalso; apply H₁; constructor.
-Qed.
-
-Lemma series_stretch_tail : ∀ k s,
-  series_stretch fld k (series_tail s)
-  ≃ series_tail_n (Pos.to_nat k) (series_stretch fld k s).
-Proof.
-intros k s.
-constructor; intros i.
-unfold series_nth_fld; simpl.
-rewrite Nat.add_mod; [ idtac | apply Pos2Nat_ne_0 ].
-rewrite Nat.mod_same; [ idtac | apply Pos2Nat_ne_0 ].
-rewrite Nat.add_0_r.
-rewrite Nat.mod_mod; [ idtac | apply Pos2Nat_ne_0 ].
-remember (stop s) as st eqn:Hst .
-symmetry in Hst.
-destruct st as [st| ]; simpl.
- rewrite Nat.mul_sub_distr_r, Nat.mul_1_l.
- rewrite series_nth_tail.
- remember (Pos.to_nat k) as x.
- replace (i + x)%nat with (i + 1 * x)%nat .
-  rewrite Nat.div_add; [ idtac | subst x; apply Pos2Nat_ne_0 ].
-  rewrite Nat.add_comm; reflexivity.
-
-  rewrite Nat.mul_1_l; reflexivity.
-
- rewrite series_nth_tail.
- remember (Pos.to_nat k) as x.
- replace (i + x)%nat with (i + 1 * x)%nat .
-  rewrite Nat.div_add; [ idtac | subst x; apply Pos2Nat_ne_0 ].
-  rewrite Nat.add_comm; reflexivity.
-
-  rewrite Nat.mul_1_l; reflexivity.
 Qed.
 
 Theorem ps_add_0_l : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
@@ -751,42 +536,6 @@ Definition ps_neg ps :=
   | NonZero nz => NonZero (nz_neg nz)
   | Zero => Zero _
   end.
-
-Lemma add_neg_nth : ∀ s i,
-  add fld (series_nth_fld fld i s) (series_nth_fld fld i (series_neg fld s)) ≍
-  zero fld.
-Proof.
-intros s i.
-unfold series_nth_fld; simpl.
-destruct (Nbar.lt_dec (fin i) (stop s)).
- apply fld_add_neg.
-
- apply fld_add_0_l.
-Qed.
-
-Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
-
-Lemma fold_mk_nonzero : ∀ (s : series α) v c,
-  NonZero (mknz s v c) = mk_nonzero s v c.
-Proof. reflexivity. Qed.
-
-Add Parametric Morphism : mk_nonzero
-with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
-Proof.
-intros s₁ s₂ Heq v c.
-constructor.
-unfold normalise_nz; simpl.
-rewrite <- Heq.
-remember (null_coeff_range_length fld s₁ 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; constructor; simpl.
- rewrite Heq in |- * at 1; reflexivity.
-
- rewrite Heq in |- * at 1; reflexivity.
-
- rewrite Heq in |- * at 1 3; reflexivity.
-Qed.
 
 Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
 Proof.
@@ -859,8 +608,8 @@ constructor; [ simpl | reflexivity | simpl ].
 
  unfold nz_terms_add.
  unfold adjust_series.
- remember (nz_valnum nz₂ * ' cm_factor nz₂ nz₁)%Z as vc₂₁.
- remember (nz_valnum nz₁ * ' cm_factor nz₁ nz₂)%Z as vc₁₂.
+ remember (nz_valnum nz₂ * Zpos (cm_factor nz₂ nz₁))%Z as vc₂₁.
+ remember (nz_valnum nz₁ * Zpos (cm_factor nz₁ nz₂))%Z as vc₁₂.
  remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
  rewrite Z.min_comm, <- Hm.
  reflexivity.
@@ -895,6 +644,8 @@ rewrite H, H0.
 constructor; simpl; try reflexivity.
 rewrite H1, H4; reflexivity.
 Qed.
+
+(* pas utilisés, mais bon, je les garde, on sait jamais *)
 
 Add Parametric Morphism α (fld : field α) : (adjust_series fld)
 with signature eq ==> eq ==> eq_series fld ==> eq_series fld
