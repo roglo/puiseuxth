@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.48 2013-11-19 02:45:05 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.49 2013-11-19 13:15:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -272,10 +272,10 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  destruct a, b, c, d; try rewrite fld_add_0_l; reflexivity.
 Qed.
 
-Lemma nz_terms_add_comm : ∀ ps₁ ps₂,
-  nz_terms_add ps₁ ps₂ ≃ nz_terms_add ps₂ ps₁.
+Lemma nz_terms_add_comm : ∀ nz₁ nz₂,
+  nz_terms_add nz₁ nz₂ ≃ nz_terms_add nz₂ nz₁.
 Proof.
-intros ps₁ ps₂.
+intros nz₁ nz₂.
 unfold nz_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.

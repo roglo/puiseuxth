@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.79 2013-11-19 13:04:18 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.80 2013-11-19 13:15:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -16,6 +16,7 @@ Section fld.
 
 Variable α : Type.
 Variable fld : field α.
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
@@ -31,12 +32,12 @@ Fixpoint convol_mul k j s₁ s₂ :=
         (convol_mul k j₁ s₁ s₂)
   end.
 
-Definition series_mul_term s₁ s₂ :=
+Definition series_mul s₁ s₂ :=
   {| terms k := convol_mul k k s₁ s₂;
      stop := Nbar.add (stop s₁) (stop s₂) |}.
 
 Definition nz_mul nz₁ nz₂ :=
-  {| nz_terms := series_mul_term (nz_terms nz₁) (nz_terms nz₂);
+  {| nz_terms := series_mul (nz_terms nz₁) (nz_terms nz₂);
      nz_valnum := (nz_valnum nz₁ * nz_valnum nz₂)%Z;
      nz_comden := nz_comden nz₁ * nz_comden nz₂ |}.
 
@@ -50,9 +51,20 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₁
   end.
 
+Lemma series_mul_comm : ∀ s₁ s₂, series_mul s₁ s₂ ≃ series_mul s₂ s₁.
+Proof.
+intros s₁ s₂.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_comm.
+destruct (Nbar.lt_dec (fin i) (stop s₂ + stop s₁)) as [H₁| H₁].
+bbb.
+
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐ normalise_nz fld (nz_mul nz₂ nz₁).
 Proof.
+intros nz₁ nz₂.
+unfold normalise_nz; simpl.
 bbb.
 
 Theorem ps_mul_comm : ∀ ps₁ ps₂, ps_mul ps₁ ps₂ ≈ ps_mul ps₂ ps₁.
