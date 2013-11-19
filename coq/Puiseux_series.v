@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.60 2013-11-14 02:43:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.61 2013-11-19 22:25:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2026,6 +2026,7 @@ eapply index_of_nonzero_before_from_right_bound; try eassumption.
 apply Nat.lt_succ_r; reflexivity.
 Qed.
 
+(*
 Fixpoint sigma_aux b len f :=
   match len with
   | O => f b
@@ -2034,7 +2035,6 @@ Fixpoint sigma_aux b len f :=
 
 Definition sigma b e f := sigma_aux b (e - b) f.
 
-(*
 Notation "'Σ' ( i = b , e ) f" := (sigma b e (λ i, f))
   (at level 0, i at level 0, b at level 0, e at level 0, f at level 10,
    format "'Σ' ( i = b , e ) f").
@@ -2045,7 +2045,6 @@ Lemma nth_null_coeff_range_length_eq : ∀ s n b,
      (b + Σ (i = 0,n) (nth_null_coeff_range_length fld s i b)).
 Proof.
 bbb.
-*)
 
 Lemma sigma_aux_fin_succ : ∀ s b n l len,
   null_coeff_range_length fld s (S b) = fin len
@@ -2123,6 +2122,7 @@ induction n; intros.
   rewrite Nat.sub_0_r, Nat.add_0_r; symmetry; simpl.
   apply sigma_aux_inf_succ; assumption.
 Qed.
+*)
 
 Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
