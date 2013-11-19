@@ -1,7 +1,8 @@
-# $Id: HISTORY,v 2.0 2013-11-02 01:12:58 deraugla Exp $
+# $Id: HISTORY,v 2.1 2013-11-19 02:15:06 deraugla Exp $
 
 Started around 27 Mar 2013 in directory coq_puiseux.
 Transfered in present directory 4 Apr 2013.
+
 Convex Hull lemmas terminated 18 May 2013.
 
 Time      : 7 weeks
@@ -17,3 +18,22 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
   → ns ∈ newton_segments fld pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
+
+
+On 19 Nov 2013, I managed to prove that the addition of Puiseux series
+is an abelian group compatible with the equality.
+
+Time            : 6 months
+Total code size : 14948 lines
+
+Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
+
+Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
+  ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
+
+Theorem ps_add_0_l : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
+
+Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
+
+Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
+  ps₁ ≈ ps₂ → ps_add ps₁ ps₃ ≈ ps_add ps₂ ps₃.

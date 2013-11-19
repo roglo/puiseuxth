@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.3 2013-11-18 19:11:48 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.4 2013-11-19 02:15:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -880,7 +880,7 @@ rewrite nz_norm_add_compat_r with (nz₂ := nz_zero fld).
  apply series_nth_series_0.
 Qed.
 
-Lemma ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
+Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
   → (ps₁ + ps₃)%ps ≈ (ps₂ + ps₃)%ps.
 Proof.

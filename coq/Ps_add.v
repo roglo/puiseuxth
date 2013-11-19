@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.45 2013-11-18 18:42:23 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.46 2013-11-19 02:15:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -572,7 +572,7 @@ Bind Scope ps_scope with puiseux_series.
 Notation "a + b" := (ps_add a b) : ps_scope.
 Notation "a ∔ b" := (nz_add a b) (at level 70).
 
-Lemma ps_add_assoc : ∀ ps₁ ps₂ ps₃,
+Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃.
@@ -1382,23 +1382,6 @@ induction n; intros.
                  (series_stretch fld (c₃ * k₂) (nz_terms nz₁))))) as z.
 Focus 1.
 aaa.
-*)
-
-(*
-Theorem ps_add_compat : ∀ ps₁ ps₂ ps₃ ps₄,
-  ps₁ ≈ ps₂
-  → ps₃ ≈ ps₄
-    → ps_add fld ps₁ ps₃ ≈ ps_add fld ps₂ ps₄.
-Proof.
-intros ps₁ ps₃ ps₂ ps₄ H₁ H₂.
-transitivity (ps_add fld ps₁ ps₄).
-aaa.
- apply ps_add_cancel_l; assumption.
-
- rewrite ps_add_comm; symmetry.
- rewrite ps_add_comm; symmetry.
- apply ps_add_cancel_l; assumption.
-Qed.
 *)
 
 (*
