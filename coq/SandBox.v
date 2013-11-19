@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.82 2013-11-19 14:16:11 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.83 2013-11-19 14:28:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -24,28 +24,18 @@ Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 (* ps_mul *)
 
-Fixpoint convol_mul k j s₁ s₂ :=
+Fixpoint convol_mul i j s₁ s₂ :=
   match j with
   | O =>
-      mul fld (series_nth_fld fld k s₁) (series_nth_fld fld O s₂)
+      mul fld (series_nth_fld fld i s₁) (series_nth_fld fld j s₂)
   | S j₁ =>
       add fld
-        (mul fld (series_nth_fld fld (k - j) s₁) (series_nth_fld fld j s₂))
-        (convol_mul k j₁ s₁ s₂)
-  end.
-
-Fixpoint convol_comm_mul k i s₁ s₂ :=
-  match i with
-  | O =>
-      mul fld (series_nth_fld fld 0 s₁) (series_nth_fld fld k s₂)
-  | S i₁ =>
-      add fld
-        (mul fld (series_nth_fld fld i s₁) (series_nth_fld fld (k - i) s₂))
-        (convol_comm_mul k i₁ s₁ s₂)
+        (mul fld (series_nth_fld fld i s₁) (series_nth_fld fld j s₂))
+        (convol_mul (S i) j₁ s₁ s₂)
   end.
 
 Definition series_mul s₁ s₂ :=
-  {| terms k := convol_mul k k s₁ s₂;
+  {| terms k := convol_mul 0 k s₁ s₂;
      stop := Nbar.add (stop s₁) (stop s₂) |}.
 
 Definition nz_mul nz₁ nz₂ :=
@@ -63,32 +53,13 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₁
   end.
 
-(* faux.
-Lemma yyy : ∀ s₁ s₂ i k, convol_mul k i s₁ s₂ ≍ convol_comm_mul k i s₁ s₂.
-Proof.
-bbb.
-*)
-
-Lemma convol_mul_comm : ∀ s₁ s₂ j k,
-  convol_mul k j s₁ s₂ ≍ convol_comm_mul k j s₂ s₁.
-Proof.
-intros s₁ s₂ j k.
-induction j; simpl.
- rewrite fld_mul_comm; reflexivity.
-
- rewrite IHj.
- rewrite fld_mul_comm; reflexivity.
-Qed.
-
 Lemma series_mul_comm : ∀ s₁ s₂, series_mul s₁ s₂ ≃ series_mul s₂ s₁.
 Proof.
-series_mul_comm < Show Script.
 intros s₁ s₂.
 constructor; intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin i) (stop s₂ + stop s₁)) as [H₁| H₁].
- rewrite convol_mul_comm.
 bbb.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
