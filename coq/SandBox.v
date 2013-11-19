@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.85 2013-11-19 18:48:17 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.86 2013-11-19 19:10:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -24,20 +24,19 @@ Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 (* ps_mul *)
 
+Definition δ i j := if eq_nat_dec i j then one fld else zero fld.
+
 Fixpoint convol_mul_ij a b k i j :=
   match j with
   | O =>
-      if eq_nat_dec (i + j) k then
-        mul fld (series_nth_fld fld i a) (series_nth_fld fld j b)
-      else
-        zero fld
+      mul fld (mul fld (δ i k) (series_nth_fld fld i a))
+        (series_nth_fld fld O b)
   | S j₁ =>
-      if eq_nat_dec (i + j) k then
-        add fld
-          (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))
-          (convol_mul_ij a b k i j₁)
-      else
-        convol_mul_ij a b k i j₁
+      add fld
+        (mul fld
+           (mul fld (δ (i + j) k) (series_nth_fld fld i a))
+           (series_nth_fld fld j b))
+        (convol_mul_ij a b k i j₁)
   end.
 
 Fixpoint convol_mul_i a b k i :=
