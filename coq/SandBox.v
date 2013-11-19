@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.86 2013-11-19 19:10:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.87 2013-11-19 23:23:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -26,27 +26,24 @@ Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 Definition δ i j := if eq_nat_dec i j then one fld else zero fld.
 
-Fixpoint convol_mul_ij a b k i j :=
-  match j with
-  | O =>
-      mul fld (mul fld (δ i k) (series_nth_fld fld i a))
-        (series_nth_fld fld O b)
-  | S j₁ =>
-      add fld
-        (mul fld
-           (mul fld (δ (i + j) k) (series_nth_fld fld i a))
-           (series_nth_fld fld j b))
-        (convol_mul_ij a b k i j₁)
+Fixpoint sigma_aux b len f :=
+  match len with
+  | O => f b
+  | S len₁ => add fld (f b) (sigma_aux (S b) len₁ f)
   end.
 
-Fixpoint convol_mul_i a b k i :=
-  match i with
-  | O => convol_mul_ij a b k i k
-  | S i₁ => add fld (convol_mul_ij a b k i k) (convol_mul_i a b k i₁)
-  end.
+Definition sigma b e f := sigma_aux b (e - b) f.
+
+Notation "'Σ' ( i = b ) ' ' e f" := (sigma b e (λ i, f))
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10).
+
+Definition convol_mul a b k :=
+  Σ (i = 0)   k Σ (j = 0)   k
+    (mul fld (δ (i + j) k)
+       (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))).
 
 Definition series_mul a b :=
-  {| terms k := convol_mul_i a b k k;
+  {| terms k := convol_mul a b k;
      stop := Nbar.add (stop a) (stop b) |}.
 
 Definition nz_mul nz₁ nz₂ :=
@@ -64,13 +61,35 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₁
   end.
 
-Lemma series_mul_comm : ∀ s₁ s₂, series_mul s₁ s₂ ≃ series_mul s₂ s₁.
+(*
+Lemma sigma_sigma_comm : ∀ f i₀ i₁ j₀ j₁,
+  Σ (i = i₀)   i₁ Σ (j = j₀)   j₁ (f i j)
+  ≍ Σ (j = j₀)   j₁ Σ (i = i₀)   i₁ (f i j).
 Proof.
-intros s₁ s₂.
-constructor; intros i.
+bbb.
+*)
+
+Lemma sigma_sigma_mul_mul_comm : ∀ a b i₁ i₂ j₁ j₂ k,
+   Σ (i = i₁)   i₂
+   Σ (j = j₁)   j₂
+   mul fld (δ (i + j) k)
+     (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))
+   ≍ Σ (i = i₁)   i₂
+     Σ (j = j₁)   j₂
+     mul fld (δ (i + j) k)
+       (mul fld (series_nth_fld fld i b) (series_nth_fld fld j a)).
+Proof.
+bbb.
+*)
+
+Lemma series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
+Proof.
+intros a b.
+constructor; intros k.
 unfold series_nth_fld; simpl.
 rewrite Nbar.add_comm.
-destruct (Nbar.lt_dec (fin i) (stop s₂ + stop s₁)) as [H₁| H₁].
+destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
+ unfold convol_mul.
 bbb.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
