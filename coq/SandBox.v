@@ -1,9 +1,13 @@
-(* $Id: SandBox.v,v 2.78 2013-11-18 18:42:23 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.79 2013-11-19 13:04:18 deraugla Exp $ *)
 
 Require Import Utf8.
+Require Import ZArith.
 
+Require Import Nbar.
 Require Import Field.
+Require Import Series.
 Require Import Puiseux_series.
+Require Import Ps_add.
 Require Import Ps_add_compat.
 
 Set Implicit Arguments.
@@ -13,61 +17,57 @@ Section fld.
 Variable α : Type.
 Variable fld : field α.
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 (* ps_mul *)
 
-Fixpoint sum_mul_coeff i ni₁ s₁ s₂ :=
-  match ni₁ with
-  | O => None
-  | S ni =>
-      match sum_mul_coeff (S i) ni s₁ s₂ with
-      | Some c =>
-          match series_nth i s₁ with
-          | Some c₁ =>
-              match series_nth ni s₂ with
-              | Some c₂ => Some (add fld (mul fld c₁ c₂) c)
-              | None => Some c
-              end
-          | None => Some c
-          end
-      | None =>
-          match series_nth i s₁ with
-          | Some c₁ =>
-              match series_nth ni s₂ with
-              | Some c₂ => Some (mul fld c₁ c₂)
-              | None => None
-              end
-          | None => None
-          end
-      end
+Fixpoint convol_mul k j s₁ s₂ :=
+  match j with
+  | O =>
+      mul fld (series_nth_fld fld k s₁) (series_nth_fld fld O s₂)
+  | S j₁ =>
+      add fld
+        (mul fld (series_nth_fld fld (k - j) s₁) (series_nth_fld fld j s₂))
+        (convol_mul k j₁ s₁ s₂)
   end.
 
-Definition series_mul_term (s₁ s₂ : series α) :=
-  {| terms i :=
-       match sum_mul_coeff 0 (S i) s₁ s₂ with
-       | Some c => c
-       | None => zero fld
-       end;
-     stop := Nbar.max (stop s₁) (stop s₂) |}.
+Definition series_mul_term s₁ s₂ :=
+  {| terms k := convol_mul k k s₁ s₂;
+     stop := Nbar.add (stop s₁) (stop s₂) |}.
 
-(*
+Definition nz_mul nz₁ nz₂ :=
+  {| nz_terms := series_mul_term (nz_terms nz₁) (nz_terms nz₂);
+     nz_valnum := (nz_valnum nz₁ * nz_valnum nz₂)%Z;
+     nz_comden := nz_comden nz₁ * nz_comden nz₂ |}.
+
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
-  match nz_valnum ps₁ with
-  | zfin _ =>
-      match nz_valnum ps₂ with
-      | zfin _ =>
-          let aps₁ := adjust (cm_factor ps₁ ps₂) ps₁ in
-          let aps₂ := adjust (cm_factor ps₂ ps₁) ps₂ in
-          {| nz_terms := series_mul_term (nz_terms aps₁) (nz_terms aps₂);
-             nz_valnum := nz_valnum aps₁ + nz_valnum aps₂;
-             nz_comden := nz_comden aps₁ |}
-      | ∞ => ps_zero fld
+  match ps₁ with
+  | NonZero nz₁ =>
+      match ps₂ with
+      | NonZero nz₂ => NonZero (nz_mul nz₁ nz₂)
+      | Zero => ps₂
       end
-  | ∞ => ps_zero fld
+  | Zero => ps₁
   end.
-*)
 
-Theorem ps_mul_ident : ∀ ps, ps_mul fld ps_one ps ≈ ps.
+Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
+  normalise_nz fld (nz_mul nz₁ nz₂) ≐ normalise_nz fld (nz_mul nz₂ nz₁).
+Proof.
+bbb.
+
+Theorem ps_mul_comm : ∀ ps₁ ps₂, ps_mul ps₁ ps₂ ≈ ps_mul ps₂ ps₁.
+Proof.
+intros ps₁ ps₂.
+unfold ps_mul; simpl.
+destruct ps₁ as [nz₁| ].
+ destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+ constructor.
+ apply nz_norm_mul_comm.
+
+ destruct ps₂; reflexivity.
+qed.
+
+Theorem ps_mul_ident : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
 Proof.
 intros ps.
 unfold ps_mul; simpl.
