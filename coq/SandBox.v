@@ -1,7 +1,8 @@
-(* $Id: SandBox.v,v 2.80 2013-11-19 13:15:34 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.81 2013-11-19 13:52:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
+Require Import NPeano.
 
 Require Import Nbar.
 Require Import Field.
@@ -17,6 +18,7 @@ Section fld.
 Variable α : Type.
 Variable fld : field α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
