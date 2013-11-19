@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.83 2013-11-19 14:28:38 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.84 2013-11-19 14:59:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -24,18 +24,30 @@ Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 (* ps_mul *)
 
-Fixpoint convol_mul i j s₁ s₂ :=
+Fixpoint convol_mul_ij s₁ s₂ k i j :=
   match j with
   | O =>
-      mul fld (series_nth_fld fld i s₁) (series_nth_fld fld j s₂)
+      if eq_nat_dec (i + j) k then
+        mul fld (series_nth_fld fld i s₁) (series_nth_fld fld j s₂)
+      else
+        zero fld
   | S j₁ =>
-      add fld
-        (mul fld (series_nth_fld fld i s₁) (series_nth_fld fld j s₂))
-        (convol_mul (S i) j₁ s₁ s₂)
+      if eq_nat_dec (i + j) k then
+        add fld
+          (mul fld (series_nth_fld fld i s₁) (series_nth_fld fld j s₂))
+          (convol_mul_ij s₁ s₂ k i j₁)
+      else
+        convol_mul_ij s₁ s₂ k i j₁
+  end.
+
+Fixpoint convol_mul_i s₁ s₂ k i :=
+  match i with
+  | O => convol_mul_ij s₁ s₂ k i k
+  | S i₁ => add fld (convol_mul_ij s₁ s₂ k i k) (convol_mul_i s₁ s₂ k i₁)
   end.
 
 Definition series_mul s₁ s₂ :=
-  {| terms k := convol_mul 0 k s₁ s₂;
+  {| terms k := convol_mul_i s₁ s₂ k k;
      stop := Nbar.add (stop s₁) (stop s₂) |}.
 
 Definition nz_mul nz₁ nz₂ :=
