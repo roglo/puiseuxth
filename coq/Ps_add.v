@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.49 2013-11-19 13:15:34 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.50 2013-11-20 19:49:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -526,25 +526,25 @@ Proof. reflexivity. Qed.
 Theorem ps_add_0_r : ∀ ps, ps_add ps (ps_zero _) ≈ ps.
 Proof. intros ps; rewrite ps_add_comm; reflexivity. Qed.
 
-Definition nz_neg nz :=
-  {| nz_terms := series_neg fld (nz_terms nz);
+Definition nz_opp nz :=
+  {| nz_terms := series_opp fld (nz_terms nz);
      nz_valnum := nz_valnum nz;
      nz_comden := nz_comden nz |}.
 
-Definition ps_neg ps :=
+Definition ps_opp ps :=
   match ps with
-  | NonZero nz => NonZero (nz_neg nz)
+  | NonZero nz => NonZero (nz_opp nz)
   | Zero => Zero _
   end.
 
-Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
+Theorem ps_add_opp : ∀ ps, ps_add ps (ps_opp ps) ≈ ps_zero _.
 Proof.
 intros ps.
 unfold ps_zero.
 unfold ps_add; simpl.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
 constructor; simpl.
-unfold nz_neg; simpl.
+unfold nz_opp; simpl.
 unfold nz_terms_add; simpl.
 unfold cm_factor; simpl.
 rewrite Z.min_id.
@@ -552,7 +552,7 @@ rewrite Z.sub_diag; simpl.
 unfold adjust_series.
 do 2 rewrite series_shift_0.
 rewrite <- series_stretch_add_distr.
-rewrite series_add_neg.
+rewrite series_add_opp.
 rewrite series_stretch_series_0.
 reflexivity.
 Qed.

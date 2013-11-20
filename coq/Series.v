@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.5 2013-11-20 12:30:22 deraugla Exp $ *)
+(* $Id: Series.v,v 2.6 2013-11-20 19:49:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -78,8 +78,8 @@ Definition series_add s₁ s₂ :=
   {| terms i := add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
      stop := Nbar.max (stop s₁) (stop s₂) |}.
 
-Definition series_neg s :=
-  {| terms i := neg fld (terms s i); stop := stop s |}.
+Definition series_opp s :=
+  {| terms i := opp fld (terms s i); stop := stop s |}.
 
 Theorem series_add_comm : ∀ s₁ s₂,
   series_add s₁ s₂ ≃ series_add s₂ s₁.
@@ -184,7 +184,7 @@ unfold series_nth_fld.
 rewrite <- Heqd; reflexivity.
 Qed.
 
-Theorem series_add_neg : ∀ s, series_add s (series_neg s) ≃ series_0.
+Theorem series_add_opp : ∀ s, series_add s (series_opp s) ≃ series_0.
 Proof.
 intros s.
 constructor; intros i.
@@ -196,7 +196,7 @@ destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
  clear H₁.
  unfold series_nth_fld; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
- apply fld_add_neg.
+ apply fld_add_opp_diag_r.
 Qed.
 
 (* series_mul *)
@@ -297,7 +297,9 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
    exfalso; revert H₂; apply Nbar.lt_irrefl.
 
    destruct (Nbar.lt_dec 0 (stop s)) as [H₃| H₃].
+Abort. (*
 bbb.
+*)
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
@@ -327,7 +329,9 @@ destruct (Nbar.lt_dec (fin i) (stop (series_mul series_1 s))) as [H₁| H₁].
     unfold δ; simpl.
     rewrite fld_mul_1_l.
     rewrite fld_mul_1_l.
+Abort. (*
 bbb.
+*)
 
 End field.
 
