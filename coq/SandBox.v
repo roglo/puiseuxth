@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.90 2013-11-20 09:10:39 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.91 2013-11-20 09:16:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -63,10 +63,6 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
       end
   | Zero => ps₁
   end.
-
-Lemma fld_add_shuffle0 : ∀ n m p, (n + m + p ≍ n + p + m)%fld.
-Proof.
-bbb.
 
 Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
   (∀ i j, f i j ≍ g i j)
