@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.91 2013-11-20 09:16:54 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.92 2013-11-20 09:23:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -71,7 +71,6 @@ Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
 Proof.
 (* utiliser fld_add_shuffle0 *)
 intros f g i di j dj Hfg.
-bbb.
 revert i j dj.
 induction di; intros; simpl.
  revert i j.
@@ -86,6 +85,7 @@ induction di; intros; simpl.
 
   rewrite Hfg.
   rewrite <- IHdj.
+bbb.
   rewrite fld_add_assoc.
   rewrite fld_add_assoc.
   rewrite fld_add_comm; symmetry.
