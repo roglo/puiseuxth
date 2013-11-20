@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 2.1 2013-11-20 09:10:39 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -121,23 +121,23 @@ revert an₁ an₂ an₃ al₂ al₃.
 induction al₁; intros.
  destruct al₂.
   destruct al₃; [ apply list_eq_refl | idtac ].
-  constructor; [ apply fld_add_assoc | apply list_eq_refl ].
+  constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
 
   destruct al₃; simpl.
-   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
 
-   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
 
  destruct al₂.
   destruct al₃; simpl.
-   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
 
-   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
 
   destruct al₃; simpl.
-   constructor; [ apply fld_add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
 
-   constructor; [ apply fld_add_assoc | apply IHal₁ ].
+   constructor; [ symmetry; apply fld_add_assoc | apply IHal₁ ].
 Qed.
 
 Lemma pol_add_loop_an_assoc :
@@ -155,7 +155,7 @@ subst rp₁ rp₂.
 revert an₁ an₂ an₃ al₂ al₃.
 induction al₁; intros.
  destruct al₂.
-  destruct al₃; [ apply fld_add_assoc | reflexivity ].
+  destruct al₃; [ symmetry; apply fld_add_assoc | reflexivity ].
 
   destruct al₃; reflexivity.
 

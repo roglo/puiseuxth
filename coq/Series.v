@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.1 2013-11-16 05:06:32 deraugla Exp $ *)
+(* $Id: Series.v,v 2.2 2013-11-20 09:10:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -91,7 +91,7 @@ destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
 Qed.
 
 Lemma series_add_assoc : ∀ s₁ s₂ s₃,
-  series_add (series_add s₁ s₂) s₃ ≃ series_add s₁ (series_add s₂ s₃).
+  series_add s₁ (series_add s₂ s₃) ≃ series_add (series_add s₁ s₂) s₃.
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
@@ -116,17 +116,16 @@ destruct lt₄ as [Hlt₄| Hge₄].
     rewrite <- fld_add_assoc.
     rewrite fld_add_0_r; reflexivity.
 
-    rewrite fld_add_assoc, fld_add_0_l; reflexivity.
+    rewrite <- fld_add_assoc, fld_add_0_l; reflexivity.
 
-   rewrite fld_add_assoc, fld_add_0_l; reflexivity.
+   rewrite <- fld_add_assoc, fld_add_0_l; reflexivity.
 
-  symmetry.
   rewrite fld_add_0_r; symmetry.
   destruct lt₂ as [Hlt₂| Hge₂].
    exfalso; apply Hge₅; clear Hge₅.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite fld_add_assoc, fld_add_0_l.
+   rewrite <- fld_add_assoc, fld_add_0_l.
    destruct lt₃ as [Hlt₃| Hge₃].
     exfalso; apply Hge₅; clear Hge₅.
     apply Nbar.max_lt_iff; right; assumption.
