@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.92 2013-11-20 09:23:20 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.93 2013-11-20 10:04:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -85,6 +85,8 @@ induction di; intros; simpl.
 
   rewrite Hfg.
   rewrite <- IHdj.
+  rewrite fld_add_assoc; symmetry.
+  rewrite fld_add_assoc; symmetry.
 bbb.
   rewrite fld_add_assoc.
   rewrite fld_add_assoc.
