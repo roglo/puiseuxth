@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.88 2013-11-20 00:46:21 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.89 2013-11-20 06:55:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -22,6 +22,9 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
+Delimit Scope fld_scope with fld.
+Notation "a + b" := (add fld a b) : fld_scope.
+
 (* ps_mul *)
 
 Definition δ i j := if eq_nat_dec i j then one fld else zero fld.
@@ -29,7 +32,7 @@ Definition δ i j := if eq_nat_dec i j then one fld else zero fld.
 Fixpoint sigma_aux b len f :=
   match len with
   | O => f b
-  | S len₁ => add fld (f b) (sigma_aux (S b) len₁ f)
+  | S len₁ => (f b + sigma_aux (S b) len₁ f)%fld
   end.
 
 Definition sigma b e f := sigma_aux b (e - b) f.
@@ -61,49 +64,61 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₁
   end.
 
-Lemma sigma_sigma_comm : ∀ f i₀ i₁ j₀ j₁,
-  Σ (i = i₀)   i₁ Σ (j = j₀)   j₁ (f i j)
-  ≍ Σ (j = j₀)   j₁ Σ (i = i₀)   i₁ (f i j).
+Lemma fld_add_shuffle0 : ∀ n m p, (n + m + p = n + p + m)%fld.
 Proof.
-Abort. (*
 bbb.
-*)
 
-bbb.
-faire un fld_mul_shuffle0 !
-
-Lemma sigma_sigma_mul_mul_comm : ∀ a b i₁ i₂ j₁ j₂ k,
-  Σ (i = i₁)   i₂
-  Σ (j = j₁)   j₂
-  mul fld (δ (i + j) k)
-    (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))
-  ≍ Σ (j = j₁)   j₂
-    Σ (i = i₁)   i₂
-    mul fld (δ (j + i) k)
-      (mul fld (series_nth_fld fld j b) (series_nth_fld fld i a)).
+Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
+  (∀ i j, f i j ≍ g i j)
+  → sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
+    ≍ sigma_aux j dj (λ j, sigma_aux i di (λ i, g i j)).
 Proof.
-intros.
-unfold sigma; simpl.
-revert i₁ j₁ j₂.
-induction i₂; intros; [ simpl | idtac ].
- revert i₁ j₁.
- induction j₂; intros; [ simpl | idtac ].
-  rewrite Nat.add_comm.
-  remember (series_nth_fld fld i₁ a) as x.
-  remember (series_nth_fld fld j₁ b) as y.
-  remember (mul fld x y) as z.
-  assert (z ≍ mul fld x y) as H by (subst; reflexivity).
-  rewrite fld_mul_comm in H.
-  rewrite H; reflexivity.
-
-  destruct j₁.
-   Focus 1.
-   rewrite Nat.sub_0_r.
-   simpl.
-   rewrite Nat.add_0_r.
-   (* ouille *)
+(* utiliser fld_add_shuffle0 *)
+intros f g i di j dj Hfg.
 bbb.
-*)
+revert i j dj.
+induction di; intros; simpl.
+ revert i j.
+ induction dj; intros; [ apply Hfg | simpl ].
+ rewrite Hfg, IHdj; reflexivity.
+
+ rewrite IHdi.
+ clear IHdi.
+ revert i j.
+ induction dj; intros; simpl.
+  rewrite Hfg; reflexivity.
+
+  rewrite Hfg.
+  rewrite <- IHdj.
+  rewrite fld_add_assoc.
+  rewrite fld_add_assoc.
+  rewrite fld_add_comm; symmetry.
+  rewrite fld_add_comm; symmetry.
+  do 2 rewrite fld_add_assoc; symmetry.
+  do 2 rewrite fld_add_assoc; symmetry.
+  rewrite fld_add_comm.
+  do 2 rewrite fld_add_assoc.
+  rewrite fld_add_comm.
+  do 2 rewrite fld_add_assoc.
+  symmetry.
+  rewrite fld_add_comm.
+  do 2 rewrite fld_add_assoc.
+  rewrite fld_add_comm.
+  do 2 rewrite fld_add_assoc.
+  remember (sigma_aux (S j) dj (λ j : nat, f i j)) as x.
+  remember (sigma_aux (S i) di (λ i : nat, g i j)) as y.
+  assert (x + y ≍ y + x)%fld as H₁ by apply fld_add_comm.
+  rewrite H₁; reflexivity.
+Qed.
+
+Lemma sigma_sigma_comm : ∀ f g i₁ i₂ j₁ j₂,
+  (∀ i j, f i j ≍ g i j)
+  → Σ (i = i₁)   i₂ Σ (j = j₁)   j₂ (f i j)
+    ≍ Σ (j = j₁)   j₂ Σ (i = i₁)   i₂ (g i j).
+Proof.
+intros f g i₁ i₂ j₁ j₂ Hfg.
+apply sigma_aux_sigma_aux_comm; assumption.
+Qed.
 
 Lemma series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
 Proof.
@@ -113,10 +128,9 @@ unfold series_nth_fld; simpl.
 rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  unfold convol_mul.
- apply sigma_sigma_mul_mul_comm.
-
- reflexivity.
-qed.
+ apply sigma_sigma_comm.
+ intros i j.
+bbb.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐ normalise_nz fld (nz_mul nz₂ nz₁).
