@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.7 2013-11-20 10:35:32 deraugla Exp $ *)
+(* $Id: Field.v,v 2.8 2013-11-20 12:30:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -61,7 +61,13 @@ rewrite fld_add_comm.
 apply fld_add_0_l.
 Qed.
 
-Lemma fld_add_shuffle0 : ∀ α (fld : field α) n m p,
+Theorem fld_mul_0_l : ∀ α (fld : field α) a,
+  fld_eq fld (mul fld (zero fld) a) a.
+Proof.
+intros α fld a.
+bbb.
+
+Theorem fld_add_shuffle0 : ∀ α (fld : field α) n m p,
   fld_eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
 Proof.
 intros α fld n m p.
@@ -70,7 +76,7 @@ assert (fld_eq fld (add fld m p) (add fld p m)) as H by apply fld_add_comm.
 rewrite H; reflexivity.
 Qed.
 
-Lemma fld_mul_shuffle0 : ∀ α (fld : field α) n m p,
+Theorem fld_mul_shuffle0 : ∀ α (fld : field α) n m p,
   fld_eq fld (mul fld (mul fld n m) p) (mul fld (mul fld n p) m).
 Proof.
 intros α fld n m p.

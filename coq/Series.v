@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.4 2013-11-20 12:07:13 deraugla Exp $ *)
+(* $Id: Series.v,v 2.5 2013-11-20 12:30:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -81,7 +81,7 @@ Definition series_add s₁ s₂ :=
 Definition series_neg s :=
   {| terms i := neg fld (terms s i); stop := stop s |}.
 
-Lemma series_add_comm : ∀ s₁ s₂,
+Theorem series_add_comm : ∀ s₁ s₂,
   series_add s₁ s₂ ≃ series_add s₂ s₁.
 Proof.
 intros s₁ s₂.
@@ -97,7 +97,7 @@ destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
  rewrite fld_add_comm; reflexivity.
 Qed.
 
-Lemma series_add_assoc : ∀ s₁ s₂ s₃,
+Theorem series_add_assoc : ∀ s₁ s₂ s₃,
   series_add s₁ (series_add s₂ s₃) ≃ series_add (series_add s₁ s₂) s₃.
 Proof.
 intros s₁ s₂ s₃.
@@ -170,7 +170,7 @@ unfold series_nth_fld; simpl.
 destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Lemma series_add_0_l : ∀ s, series_add series_0 s ≃ s.
+Theorem series_add_0_l : ∀ s, series_add series_0 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
@@ -184,7 +184,7 @@ unfold series_nth_fld.
 rewrite <- Heqd; reflexivity.
 Qed.
 
-Lemma series_add_neg : ∀ s, series_add s (series_neg s) ≃ series_0.
+Theorem series_add_neg : ∀ s, series_add s (series_neg s) ≃ series_0.
 Proof.
 intros s.
 constructor; intros i.
@@ -256,7 +256,7 @@ intros f g i₁ i₂ j₁ j₂ Hfg.
 apply sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
-Lemma series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
+Theorem series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
 Proof.
 intros a b.
 constructor; intros k.
@@ -272,6 +272,62 @@ destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
 
  reflexivity.
 Qed.
+
+Lemma stop_series_mul_0_l : ∀ s, stop (series_mul series_0 s) = stop s.
+Proof.
+intros s; simpl.
+destruct (stop s); reflexivity.
+Qed.
+
+Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld.
+rewrite stop_series_mul_0_l; simpl.
+destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
+ unfold convol_mul, sigma.
+ rewrite Nat.sub_0_r.
+ induction i.
+  simpl.
+  unfold δ; simpl.
+  unfold series_nth_fld; simpl.
+  rewrite fld_mul_1_l.
+  destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
+   exfalso; revert H₂; apply Nbar.lt_irrefl.
+
+   destruct (Nbar.lt_dec 0 (stop s)) as [H₃| H₃].
+bbb.
+
+Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld.
+destruct (Nbar.lt_dec (fin i) (stop (series_mul series_1 s))) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
+  simpl.
+  unfold convol_mul, sigma.
+  rewrite Nat.sub_0_r.
+  destruct i; simpl.
+   unfold δ; simpl.
+   rewrite fld_mul_1_l.
+   unfold series_nth_fld; simpl.
+   destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
+    destruct (Nbar.lt_dec 0 (stop s)) as [H₄| H₄].
+     rewrite fld_mul_1_l; reflexivity.
+
+     contradiction.
+
+    exfalso; apply H₃, Nbar.lt_0_1.
+
+   destruct i.
+    Focus 1.
+    simpl.
+    unfold δ; simpl.
+    rewrite fld_mul_1_l.
+    rewrite fld_mul_1_l.
+bbb.
 
 End field.
 
