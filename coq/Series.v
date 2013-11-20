@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.3 2013-11-20 10:35:32 deraugla Exp $ *)
+(* $Id: Series.v,v 2.4 2013-11-20 12:07:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -40,7 +40,8 @@ Delimit Scope fld_scope with fld.
 Notation "a + b" :=
   (add fld a b) (left associativity, at level 50) : fld_scope.
 
-Definition series_0 := {| terms i := zero fld; stop := fin 0 |}.
+Definition series_0 := {| terms i := zero fld; stop := 0 |}.
+Definition series_1 := {| terms i := one fld; stop := 1 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,

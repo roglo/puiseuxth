@@ -1,7 +1,7 @@
-(* $Id: SandBox.v,v 2.97 2013-11-20 11:55:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.98 2013-11-20 12:07:13 deraugla Exp $ *)
 
 Require Import Utf8.
-Require Import ZArith.
+Require Import QArith.
 Require Import NPeano.
 
 Require Import Nbar.
@@ -80,6 +80,9 @@ Proof.
 intros ps; simpl.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
 constructor.
+unfold normalise_nz; simpl.
+replace {| terms := λ _, one fld; stop := 1 |} with 
+ (series_1 fld) by reflexivity.
 
 bbb.
 
