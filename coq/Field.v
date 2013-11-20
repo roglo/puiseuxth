@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.13 2013-11-20 20:13:06 deraugla Exp $ *)
+(* $Id: Field.v,v 2.14 2013-11-20 21:00:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -89,21 +89,47 @@ assert (fld_eq fld (mul fld z y) (mul fld y z)) as H.
  rewrite H; reflexivity.
 Qed.
 
-(* oui, bon, mais qu'est-ce qu'on en fait, de ces trucs-là ? *)
+Lemma fld_ring :
+  @ring_theory α (zero fld) (one fld) (add fld) (mul fld)
+    (λ x y, add fld x (opp fld y)) (opp fld) (fld_eq fld).
+Proof.
+constructor.
+ apply fld_add_0_l.
 
-Definition my_ring :=
-  {| Radd_0_l := fld_add_0_l fld;
-     Radd_comm := fld_add_comm fld;
-     Radd_assoc := fld_add_assoc fld;
-     Rmul_1_l := fld_mul_1_l fld;
-     Rmul_comm := fld_mul_comm fld;
-     Rmul_assoc := fld_mul_assoc fld;
-     Rdistr_l := fld_mul_add_distr_r;
-     Rsub_def x y := fld_eq_refl fld (add fld x (opp fld y));
-     Ropp_def := fld_add_opp_diag_r fld |}.
+ apply fld_add_comm.
 
-Definition my_field :=
-  {| F_R := my_ring;
+ apply fld_add_assoc.
+
+ apply fld_mul_1_l.
+
+ apply fld_mul_comm.
+
+ apply fld_mul_assoc.
+
+ apply fld_mul_add_distr_r.
+
+ reflexivity.
+
+ apply fld_add_opp_diag_r.
+Qed.
+
+(* comment ça marche, ce truc-là ?
+
+Lemma fld_ring_morph :
+  @ring_morph α (zero fld) (one fld) (add fld) (mul fld)
+    (λ x y, add fld x (opp fld y)) (opp fld) (fld_eq fld).
+
+(R : Type) (rO rI : R) (radd rmul rsub : R → R → R)
+(ropp : R → R) (req : R → R → Prop) (C : Type) (cO cI : C)
+(cadd cmul csub : C → C → C) (copp : C → C) (ceqb : C → C → bool)
+(phi : C → R) : Prop := mkmorph
+
+Add Ring fld_ring : fld_ring (morphism glop).
+bbb.
+*)
+
+Definition fld_field :=
+  {| F_R := fld_ring;
      F_1_neq_0 := fld_1_neq_0 fld;
      Fdiv_def x y := fld_eq_refl fld (mul fld x (inv fld y));
      Finv_l := fld_mul_inv fld |}.
