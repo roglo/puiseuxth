@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.6 2013-11-20 10:04:51 deraugla Exp $ *)
+(* $Id: Field.v,v 2.7 2013-11-20 10:35:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -67,5 +67,14 @@ Proof.
 intros α fld n m p.
 do 2 rewrite <- fld_add_assoc.
 assert (fld_eq fld (add fld m p) (add fld p m)) as H by apply fld_add_comm.
+rewrite H; reflexivity.
+Qed.
+
+Lemma fld_mul_shuffle0 : ∀ α (fld : field α) n m p,
+  fld_eq fld (mul fld (mul fld n m) p) (mul fld (mul fld n p) m).
+Proof.
+intros α fld n m p.
+do 2 rewrite <- fld_mul_assoc.
+assert (fld_eq fld (mul fld m p) (mul fld p m)) as H by apply fld_mul_comm.
 rewrite H; reflexivity.
 Qed.

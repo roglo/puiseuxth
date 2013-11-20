@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.2 2013-11-20 09:10:39 deraugla Exp $ *)
+(* $Id: Series.v,v 2.3 2013-11-20 10:35:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,6 +36,10 @@ Variable α : Type.
 Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
+Delimit Scope fld_scope with fld.
+Notation "a + b" :=
+  (add fld a b) (left associativity, at level 50) : fld_scope.
+
 Definition series_0 := {| terms i := zero fld; stop := fin 0 |}.
 
 Inductive eq_series : series α → series α → Prop :=
@@ -66,6 +70,8 @@ inversion H₁; inversion H₂; subst.
 constructor.
 etransitivity; [ apply H | apply H2 ].
 Qed.
+
+(* series_add *)
 
 Definition series_add s₁ s₂ :=
   {| terms i := add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
@@ -190,6 +196,80 @@ destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
  unfold series_nth_fld; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
  apply fld_add_neg.
+Qed.
+
+(* series_mul *)
+
+Definition δ i j := if eq_nat_dec i j then one fld else zero fld.
+
+Fixpoint sigma_aux b len f :=
+  match len with
+  | O => f b
+  | S len₁ => (f b + sigma_aux (S b) len₁ f)%fld
+  end.
+
+Definition sigma b e f := sigma_aux b (e - b) f.
+
+Notation "'Σ' ( i = b ) ' ' e f" := (sigma b e (λ i, f))
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10).
+
+Definition convol_mul a b k :=
+  Σ (i = 0)   k Σ (j = 0)   k
+    (mul fld (δ (i + j) k)
+       (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))).
+
+Definition series_mul a b :=
+  {| terms k := convol_mul a b k;
+     stop := Nbar.add (stop a) (stop b) |}.
+
+Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
+  (∀ i j, f i j ≍ g i j)
+  → sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
+    ≍ sigma_aux j dj (λ j, sigma_aux i di (λ i, g i j)).
+Proof.
+intros f g i di j dj Hfg.
+revert i.
+induction di; intros; simpl.
+ revert j.
+ induction dj; intros; [ apply Hfg | simpl ].
+ rewrite Hfg, IHdj; reflexivity.
+
+ rewrite IHdi; clear IHdi.
+ revert j.
+ induction dj; intros; simpl.
+  rewrite Hfg; reflexivity.
+
+  rewrite Hfg.
+  rewrite <- IHdj.
+  rewrite fld_add_assoc, fld_add_comm; symmetry.
+  rewrite fld_add_assoc, fld_add_comm; symmetry.
+  rewrite fld_add_shuffle0; reflexivity.
+Qed.
+
+Lemma sigma_sigma_comm : ∀ f g i₁ i₂ j₁ j₂,
+  (∀ i j, f i j ≍ g i j)
+  → Σ (i = i₁)   i₂ Σ (j = j₁)   j₂ (f i j)
+    ≍ Σ (j = j₁)   j₂ Σ (i = i₁)   i₂ (g i j).
+Proof.
+intros f g i₁ i₂ j₁ j₂ Hfg.
+apply sigma_aux_sigma_aux_comm; assumption.
+Qed.
+
+Lemma series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
+Proof.
+intros a b.
+constructor; intros k.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_comm.
+destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
+ unfold convol_mul.
+ apply sigma_sigma_comm.
+ intros i j.
+ rewrite Nat.add_comm.
+ do 2 rewrite fld_mul_assoc.
+ rewrite fld_mul_shuffle0; reflexivity.
+
+ reflexivity.
 Qed.
 
 End field.
