@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.10 2013-11-20 14:06:02 deraugla Exp $ *)
+(* $Id: Field.v,v 2.11 2013-11-20 18:21:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -55,25 +55,60 @@ rewrite fld_mul_comm; symmetry.
 rewrite fld_mul_compat_r; [ reflexivity | eassumption ].
 Qed.
 
-Theorem fld_add_0_r : ∀ α (fld : field α) a,
-  fld_eq fld (add fld a (zero fld)) a.
+Section fld.
+
+Variable α : Type.
+Variable fld : field α.
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+
+Delimit Scope fld_scope with fld.
+Notation "0" := (zero fld).
+Notation "- a" := (opp fld a) : fld_scope.
+Notation "a + b" := (add fld a b)
+  (left associativity, at level 50) : fld_scope.
+Notation "a - b" := (add fld a (opp fld b))
+  (left associativity, at level 50) : fld_scope.
+Notation "a * b" := (mul fld a b)
+  (left associativity, at level 40) : fld_scope.
+
+Theorem fld_add_0_r : ∀ a, (a + 0 ≍ a)%fld.
 Proof.
-intros α fld a.
+intros a.
 rewrite fld_add_comm.
 apply fld_add_0_l.
 Qed.
 
-Theorem fld_opp_0 : ∀ α (fld : field α),
-  fld_eq fld (opp fld (zero fld)) (zero fld).
+Theorem fld_opp_0 : (- 0 ≍ 0)%fld.
 Proof.
-intros α fld.
-etransitivity; [ idtac | apply fld_add_opp_diag_r ].
-symmetry; apply fld_add_0_l.
+etransitivity; [ symmetry; apply fld_add_0_l | idtac ].
+apply fld_add_opp_diag_r.
 Qed.
 
-Theorem fld_mul_opp_l : ∀ α (fld : field α) a b,
-  fld_eq fld (mul fld (opp fld a) b) (opp fld (mul fld a b)).
+(*
+Theorem add_cancel_l : ∀ a b c, (c + a ≍ c + b ↔ a ≍ b)%fld.
 Proof.
+bbb.
+
+Theorem add_cancel_r : ∀ a b c, (a + c ≍ b + c ↔ a ≍ b)%fld.
+Proof.
+bbb.
+
+Theorem sub_cancel_r : ∀ a b c, (a - c = b - c ↔ a = b)%fld.
+Proof.
+bbb.
+
+Theorem add_move_l : ∀ a b c, a + b = c ↔ a = c - b.
+Proof.
+bbb.
+
+Theorem add_move_0_r : ∀ a b, a + b = 0 ↔ a = -b.
+Proof.
+bbb.
+*)
+
+Theorem fld_mul_opp_l : ∀ a b, (- a * b ≍ - (a * b))%fld
+Proof.
+intros a b.
 bbb.
 
 Theorem fld_mul_0_l : ∀ α (fld : field α) a,
