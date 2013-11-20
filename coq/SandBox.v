@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.96 2013-11-20 10:35:32 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.97 2013-11-20 11:55:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -53,7 +53,15 @@ constructor; constructor; simpl.
  unfold gcd_nz; simpl.
  rewrite series_mul_comm, Z.mul_comm, Pos.mul_comm.
  reflexivity.
-bbb.
+
+ unfold gcd_nz; simpl.
+ rewrite series_mul_comm, Z.mul_comm, Pos.mul_comm.
+ reflexivity.
+
+ unfold gcd_nz; simpl.
+ rewrite series_mul_comm, Z.mul_comm, Pos.mul_comm.
+ reflexivity.
+Qed.
 
 Theorem ps_mul_comm : ∀ ps₁ ps₂, ps_mul ps₁ ps₂ ≈ ps_mul ps₂ ps₁.
 Proof.
@@ -65,7 +73,15 @@ destruct ps₁ as [nz₁| ].
  apply nz_norm_mul_comm.
 
  destruct ps₂; reflexivity.
-qed.
+Qed.
+
+Theorem ps_add_0_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
+Proof.
+intros ps; simpl.
+destruct ps as [nz| ]; [ simpl | reflexivity ].
+constructor.
+
+bbb.
 
 Theorem ps_mul_ident : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
 Proof.
