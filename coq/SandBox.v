@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.93 2013-11-20 10:04:51 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.94 2013-11-20 10:19:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -23,7 +23,8 @@ Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
 Delimit Scope fld_scope with fld.
-Notation "a + b" := (add fld a b) : fld_scope.
+Notation "a + b" :=
+  (add fld a b) (left associativity, at level 50) : fld_scope.
 
 (* ps_mul *)
 
@@ -69,44 +70,24 @@ Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
   → sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
     ≍ sigma_aux j dj (λ j, sigma_aux i di (λ i, g i j)).
 Proof.
-(* utiliser fld_add_shuffle0 *)
 intros f g i di j dj Hfg.
-revert i j dj.
+revert i.
 induction di; intros; simpl.
- revert i j.
+ revert j.
  induction dj; intros; [ apply Hfg | simpl ].
  rewrite Hfg, IHdj; reflexivity.
 
- rewrite IHdi.
- clear IHdi.
- revert i j.
+ rewrite IHdi; clear IHdi.
+ revert j.
  induction dj; intros; simpl.
   rewrite Hfg; reflexivity.
 
   rewrite Hfg.
   rewrite <- IHdj.
-  rewrite fld_add_assoc; symmetry.
-  rewrite fld_add_assoc; symmetry.
-bbb.
-  rewrite fld_add_assoc.
-  rewrite fld_add_assoc.
-  rewrite fld_add_comm; symmetry.
-  rewrite fld_add_comm; symmetry.
-  do 2 rewrite fld_add_assoc; symmetry.
-  do 2 rewrite fld_add_assoc; symmetry.
-  rewrite fld_add_comm.
-  do 2 rewrite fld_add_assoc.
-  rewrite fld_add_comm.
-  do 2 rewrite fld_add_assoc.
-  symmetry.
-  rewrite fld_add_comm.
-  do 2 rewrite fld_add_assoc.
-  rewrite fld_add_comm.
-  do 2 rewrite fld_add_assoc.
-  remember (sigma_aux (S j) dj (λ j : nat, f i j)) as x.
-  remember (sigma_aux (S i) di (λ i : nat, g i j)) as y.
-  assert (x + y ≍ y + x)%fld as H₁ by apply fld_add_comm.
-  rewrite H₁; reflexivity.
+  rewrite fld_add_assoc, fld_add_comm; symmetry.
+  rewrite fld_add_assoc, fld_add_comm; symmetry.
+  do 4 rewrite fld_add_assoc.
+  rewrite fld_add_shuffle0; reflexivity.
 Qed.
 
 Lemma sigma_sigma_comm : ∀ f g i₁ i₂ j₁ j₂,
