@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.87 2013-11-19 23:23:48 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.88 2013-11-20 00:46:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -61,24 +61,47 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₁
   end.
 
-(*
 Lemma sigma_sigma_comm : ∀ f i₀ i₁ j₀ j₁,
   Σ (i = i₀)   i₁ Σ (j = j₀)   j₁ (f i j)
   ≍ Σ (j = j₀)   j₁ Σ (i = i₀)   i₁ (f i j).
 Proof.
+Abort. (*
 bbb.
 *)
 
+bbb.
+faire un fld_mul_shuffle0 !
+
 Lemma sigma_sigma_mul_mul_comm : ∀ a b i₁ i₂ j₁ j₂ k,
-   Σ (i = i₁)   i₂
-   Σ (j = j₁)   j₂
-   mul fld (δ (i + j) k)
-     (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))
-   ≍ Σ (i = i₁)   i₂
-     Σ (j = j₁)   j₂
-     mul fld (δ (i + j) k)
-       (mul fld (series_nth_fld fld i b) (series_nth_fld fld j a)).
+  Σ (i = i₁)   i₂
+  Σ (j = j₁)   j₂
+  mul fld (δ (i + j) k)
+    (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))
+  ≍ Σ (j = j₁)   j₂
+    Σ (i = i₁)   i₂
+    mul fld (δ (j + i) k)
+      (mul fld (series_nth_fld fld j b) (series_nth_fld fld i a)).
 Proof.
+intros.
+unfold sigma; simpl.
+revert i₁ j₁ j₂.
+induction i₂; intros; [ simpl | idtac ].
+ revert i₁ j₁.
+ induction j₂; intros; [ simpl | idtac ].
+  rewrite Nat.add_comm.
+  remember (series_nth_fld fld i₁ a) as x.
+  remember (series_nth_fld fld j₁ b) as y.
+  remember (mul fld x y) as z.
+  assert (z ≍ mul fld x y) as H by (subst; reflexivity).
+  rewrite fld_mul_comm in H.
+  rewrite H; reflexivity.
+
+  destruct j₁.
+   Focus 1.
+   rewrite Nat.sub_0_r.
+   simpl.
+   rewrite Nat.add_0_r.
+   (* ouille *)
 bbb.
 *)
 
@@ -90,7 +113,10 @@ unfold series_nth_fld; simpl.
 rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  unfold convol_mul.
-bbb.
+ apply sigma_sigma_mul_mul_comm.
+
+ reflexivity.
+qed.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐ normalise_nz fld (nz_mul nz₂ nz₁).

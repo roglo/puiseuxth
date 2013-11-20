@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.1 2013-11-16 05:06:31 deraugla Exp $ *)
+(* $Id: Field.v,v 2.2 2013-11-20 00:46:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -21,6 +21,7 @@ Record field α :=
     fld_add_neg : ∀ a, fld_eq (add a (neg a)) zero;
     fld_add_compat_r : ∀ a b c, fld_eq a b → fld_eq (add a c) (add b c);
     fld_mul_comm : ∀ a b, fld_eq (mul a b) (mul b a);
+    fld_mul_assoc : ∀ a b c, fld_eq (mul (mul a b) c) (mul a (mul b c));
     fld_mul_1_l : ∀ a, fld_eq (mul one a) a;
     fld_mul_compat_r : ∀ a b c, fld_eq a b → fld_eq (mul a c) (mul b c) }.
 
