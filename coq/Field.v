@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.14 2013-11-20 21:00:20 deraugla Exp $ *)
+(* $Id: Field.v,v 2.15 2013-11-21 04:49:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -113,7 +113,7 @@ constructor.
  apply fld_add_opp_diag_r.
 Qed.
 
-(* comment ça marche, ce truc-là ?
+(* comment ça marche, ce truc-là ? et à quoi ça sert ?
 
 Lemma fld_ring_morph :
   @ring_morph α (zero fld) (one fld) (add fld) (mul fld)
