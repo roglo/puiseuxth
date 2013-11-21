@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.9 2013-11-21 18:23:14 deraugla Exp $ *)
+(* $Id: Series.v,v 2.10 2013-11-21 19:35:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -280,10 +280,18 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Lemma zzz : ∀ f i₁ i₂,
+Lemma all_0_sigma_0 : ∀ f i₁ i₂,
   (∀ i, f i ≍ 0%fld) → Σ (i = i₁)   i₂ f i ≍ 0%fld.
 Proof.
-bbb.
+intros f i₁ i₂ H.
+unfold sigma.
+remember (i₂ - i₁)%nat as len.
+clear i₂ Heqlen.
+revert i₁.
+induction len; intros; [ apply H | simpl ].
+rewrite H, fld_add_0_l.
+apply IHlen.
+Qed.
 
 Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
 Proof.
@@ -295,34 +303,19 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  unfold convol_mul.
  rename i into k.
  destruct (Nbar.lt_dec (fin k) 0) as [H₂| H₂].
-  apply zzz; intros i.
-  apply zzz; intros j.
+  apply Nbar.nle_gt in H₂.
+  exfalso; apply H₂, Nbar.le_0_l.
+
+  apply all_0_sigma_0; intros i.
+  apply all_0_sigma_0; intros j.
   rewrite fld_mul_assoc, fld_mul_shuffle0.
   rewrite fld_mul_comm.
   rewrite series_nth_series_0.
   rewrite fld_mul_0_l.
   reflexivity.
-bbb.
 
-
-intros s.
-constructor; intros i.
-unfold series_nth_fld.
-rewrite stop_series_mul_0_l; simpl.
-destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
- unfold convol_mul, sigma.
- rewrite Nat.sub_0_r.
- induction i.
-  simpl.
-  unfold δ; simpl.
-  unfold series_nth_fld; simpl.
-  rewrite fld_mul_1_l.
-  destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
-   exfalso; revert H₂; apply Nbar.lt_irrefl.
-
-   destruct (Nbar.lt_dec 0 (stop s)); rewrite fld_mul_0_l; reflexivity.
-bbb.
-*)
+ destruct (Nbar.lt_dec (fin i) 0); reflexivity.
+Qed.
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
