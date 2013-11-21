@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.7 2013-11-21 05:14:01 deraugla Exp $ *)
+(* $Id: Series.v,v 2.8 2013-11-21 14:39:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -296,7 +296,7 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
   destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
    exfalso; revert H₂; apply Nbar.lt_irrefl.
 
-   destruct (Nbar.lt_dec 0 (stop s)) as [H₃| H₃].
+   destruct (Nbar.lt_dec 0 (stop s)); rewrite fld_mul_0_l; reflexivity.
 bbb.
 *)
 

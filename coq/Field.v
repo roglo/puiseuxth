@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.17 2013-11-21 13:42:34 deraugla Exp $ *)
+(* $Id: Field.v,v 2.18 2013-11-21 14:39:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -67,8 +67,8 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Delimit Scope fld_scope with fld.
-Notation "0" := (zero fld).
-Notation "1" := (one fld).
+Notation "0" := (zero fld) : fld_scope.
+Notation "1" := (one fld) : fld_scope.
 Notation "- a" := (opp fld a) : fld_scope.
 Notation "a + b" := (add fld a b)
   (left associativity, at level 50) : fld_scope.
@@ -172,22 +172,25 @@ Proof.
 bbb.
 *)
 
-Theorem add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
+Theorem fld_add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%fld.
 Proof.
-intros a b Hab.
-apply fld_add_compat_r with (c := (- a)%fld) in Hab.
-rewrite fld_add_opp_diag_r in Hab.
-rewrite fld_add_comm, fld_add_assoc in Hab.
-rewrite fld_add_comm in Hab.
-assert (- a + a ≍ a - a)%fld as H.
- apply fld_add_comm.
-
- rewrite H in Hab.
- rewrite fld_add_opp_diag_r in Hab.
- rewrite fld_add_comm, fld_add_0_l in Hab.
- assumption.
+intros a b c Habc.
+apply fld_add_compat_r with (c := (- c)%fld) in Habc.
+do 2 rewrite <- fld_add_assoc in Habc.
+rewrite fld_add_opp_diag_r in Habc.
+do 2 rewrite fld_add_0_r in Habc.
+assumption.
 Qed.
 
+Theorem fld_add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
+Proof.
+intros a b Hab.
+rewrite fld_add_comm in Hab.
+apply fld_add_reg_r with (c := a).
+rewrite fld_add_0_l; assumption.
+Qed.
+
+(*
 Theorem mul_id_uniq : ∀ a b, (a ≠ 0 → a * b ≍ a → b ≍ 1)%fld.
 Proof.
 intros a b Ha Hab.
@@ -206,20 +209,22 @@ Theorem fld_mul_opp_l : ∀ a b, (- a * b ≍ - (a * b))%fld.
 Proof.
 intros a b.
 bbb.
+*)
 
 Theorem fld_mul_0_l : ∀ a, (0 * a ≍ 0)%fld.
 Proof.
 intros a.
-assert (0 ≍ 0 - 0)%fld as H.
- symmetry.
- apply fld_add_opp_diag_r.
+assert (0 * a + a ≍ a)%fld as H.
+ transitivity (0 * a + 1 * a)%fld.
+  rewrite fld_mul_1_l; reflexivity.
 
- rewrite H in |- * at 1.
- rewrite fld_mul_add_distr_r.
- rewrite fld_mul_opp_l.
- rewrite fld_add_opp_diag_r.
- reflexivity.
-qed.
+  rewrite <- fld_mul_add_distr_r.
+  rewrite fld_add_0_l, fld_mul_1_l.
+  reflexivity.
+
+ apply fld_add_reg_r with (c := a).
+ rewrite fld_add_0_l; assumption.
+Qed.
 
 Theorem fld_add_shuffle0 : ∀ n m p,
   fld_eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
