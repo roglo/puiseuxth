@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.16 2013-11-21 05:14:01 deraugla Exp $ *)
+(* $Id: Field.v,v 2.17 2013-11-21 13:42:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -68,6 +68,7 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Delimit Scope fld_scope with fld.
 Notation "0" := (zero fld).
+Notation "1" := (one fld).
 Notation "- a" := (opp fld a) : fld_scope.
 Notation "a + b" := (add fld a b)
   (left associativity, at level 50) : fld_scope.
@@ -170,6 +171,36 @@ Theorem add_move_0_r : ∀ a b, a + b = 0 ↔ a = -b.
 Proof.
 bbb.
 *)
+
+Theorem add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
+Proof.
+intros a b Hab.
+apply fld_add_compat_r with (c := (- a)%fld) in Hab.
+rewrite fld_add_opp_diag_r in Hab.
+rewrite fld_add_comm, fld_add_assoc in Hab.
+rewrite fld_add_comm in Hab.
+assert (- a + a ≍ a - a)%fld as H.
+ apply fld_add_comm.
+
+ rewrite H in Hab.
+ rewrite fld_add_opp_diag_r in Hab.
+ rewrite fld_add_comm, fld_add_0_l in Hab.
+ assumption.
+Qed.
+
+Theorem mul_id_uniq : ∀ a b, (a ≠ 0 → a * b ≍ a → b ≍ 1)%fld.
+Proof.
+intros a b Ha Hab.
+assert (a ≍ a * 1)%fld as Hab₁.
+ rewrite fld_mul_comm, fld_mul_1_l; reflexivity.
+
+ rewrite Hab₁ in Hab at 2.
+ clear Hab₁.
+bbb.
+
+Theorem opp_uniq : ∀ a b, (a + b ≍ 0 → b ≍ - a)%fld.
+Proof.
+bbb.
 
 Theorem fld_mul_opp_l : ∀ a b, (- a * b ≍ - (a * b))%fld.
 Proof.
