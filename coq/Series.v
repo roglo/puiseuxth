@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.10 2013-11-21 19:35:00 deraugla Exp $ *)
+(* $Id: Series.v,v 2.11 2013-11-21 23:44:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -332,19 +332,27 @@ destruct (Nbar.lt_dec (fin i) (stop (series_mul series_1 s))) as [H₁| H₁].
    rewrite fld_mul_1_l.
    unfold series_nth_fld; simpl.
    destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-    destruct (Nbar.lt_dec 0 (stop s)) as [H₄| H₄].
-     rewrite fld_mul_1_l; reflexivity.
-
-     contradiction.
+    destruct (Nbar.lt_dec 0 (stop s)) as [H₄| H₄]; [ idtac | contradiction ].
+    rewrite fld_mul_1_l; reflexivity.
 
     exfalso; apply H₃, Nbar.lt_0_1.
 
    destruct i.
-    Focus 1.
-    simpl.
-    unfold δ; simpl.
-    rewrite fld_mul_1_l.
-    rewrite fld_mul_1_l.
+    simpl; unfold δ; simpl.
+    do 2 rewrite fld_mul_1_l.
+    rewrite fld_mul_0_l, fld_add_0_l.
+    rewrite fld_mul_0_l, fld_add_0_r.
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
+     rewrite fld_mul_1_l.
+     destruct (Nbar.lt_dec 1 (stop s)) as [H₄| H₄]; [ idtac | contradiction ].
+     destruct (Nbar.lt_dec 1 1) as [H₅| H₅].
+      exfalso; revert H₅; apply Nbar.lt_irrefl.
+
+      rewrite fld_mul_0_l, fld_add_0_r.
+      reflexivity.
+
+     exfalso; apply H₃, Nbar.lt_0_1.
 bbb.
 *)
 
