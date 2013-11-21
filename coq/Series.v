@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.8 2013-11-21 14:39:01 deraugla Exp $ *)
+(* $Id: Series.v,v 2.9 2013-11-21 18:23:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,6 +37,7 @@ Variable fld : field α.
 Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Delimit Scope fld_scope with fld.
+Notation "0" := (zero fld) : fld_scope.
 Notation "a + b" :=
   (add fld a b) (left associativity, at level 50) : fld_scope.
 
@@ -279,8 +280,31 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
+Lemma zzz : ∀ f i₁ i₂,
+  (∀ i, f i ≍ 0%fld) → Σ (i = i₁)   i₂ f i ≍ 0%fld.
+Proof.
+bbb.
+
 Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
 Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld.
+rewrite stop_series_mul_0_l; simpl.
+destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
+ unfold convol_mul.
+ rename i into k.
+ destruct (Nbar.lt_dec (fin k) 0) as [H₂| H₂].
+  apply zzz; intros i.
+  apply zzz; intros j.
+  rewrite fld_mul_assoc, fld_mul_shuffle0.
+  rewrite fld_mul_comm.
+  rewrite series_nth_series_0.
+  rewrite fld_mul_0_l.
+  reflexivity.
+bbb.
+
+
 intros s.
 constructor; intros i.
 unfold series_nth_fld.
