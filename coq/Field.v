@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.15 2013-11-21 04:49:49 deraugla Exp $ *)
+(* $Id: Field.v,v 2.16 2013-11-21 05:14:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -169,25 +169,26 @@ bbb.
 Theorem add_move_0_r : ∀ a b, a + b = 0 ↔ a = -b.
 Proof.
 bbb.
+*)
 
 Theorem fld_mul_opp_l : ∀ a b, (- a * b ≍ - (a * b))%fld.
 Proof.
 intros a b.
 bbb.
 
-Theorem fld_mul_0_l : ∀ α (fld : field α) a,
-  fld_eq fld (mul fld (zero fld) a) (zero fld).
+Theorem fld_mul_0_l : ∀ a, (0 * a ≍ 0)%fld.
 Proof.
-intros α fld a.
-assert (fld_eq fld (zero fld) (add fld (zero fld) (opp fld (zero fld)))).
+intros a.
+assert (0 ≍ 0 - 0)%fld as H.
  symmetry.
  apply fld_add_opp_diag_r.
 
  rewrite H in |- * at 1.
- rewrite fld_mul_comm.
- rewrite fld_mul_add_distr_l.
-bbb.
-*)
+ rewrite fld_mul_add_distr_r.
+ rewrite fld_mul_opp_l.
+ rewrite fld_add_opp_diag_r.
+ reflexivity.
+qed.
 
 Theorem fld_add_shuffle0 : ∀ n m p,
   fld_eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
