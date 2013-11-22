@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.61 2013-11-19 22:25:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.62 2013-11-22 19:20:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,22 +14,22 @@ Set Implicit Arguments.
 Section Axioms.
 
 Variable α : Type.
-Variable fld : field α.
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+Variable fld : Field.t α.
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
 
 (* [null_coeff_range_length fld s n] returns the number of consecutive
    null coefficients in the series [s], from the [n]th one. *)
-Definition null_coeff_range_length : ∀ α, field α → series α → nat → Nbar.
+Definition null_coeff_range_length : ∀ α, Field.t α → series α → nat → Nbar.
 Admitted.
 
 Definition null_coeff_range_length_prop s n v :=
   match v with
   | fin k =>
-      (∀ i, (i < k)%nat → series_nth_fld fld (n + i) s ≍ zero fld) ∧
-      series_nth_fld fld (n + k) s ≭ zero fld
+      (∀ i, (i < k)%nat → series_nth_fld fld (n + i) s ≍ Field.zero fld) ∧
+      series_nth_fld fld (n + k) s ≭ Field.zero fld
   | ∞ =>
-      (∀ i, series_nth_fld fld (n + i) s ≍ zero fld)
+      (∀ i, series_nth_fld fld (n + i) s ≍ Field.zero fld)
   end.
 
 Axiom null_coeff_range_length_iff : ∀ s n v,
@@ -37,7 +37,8 @@ Axiom null_coeff_range_length_iff : ∀ s n v,
 
 (* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
-Definition greatest_series_x_power : ∀ α, field α → series α → nat → positive.
+Definition greatest_series_x_power : ∀ α,
+  Field.t α → series α → nat → positive.
 Admitted.
 
 Fixpoint nth_null_coeff_range_length s n b :=
@@ -67,9 +68,9 @@ End Axioms.
 Section fld.
 
 Variable α : Type.
-Variable fld : field α.
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+Variable fld : Field.t α.
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "x ≤ y < z" :=
   (x <= y ∧ y < z)%nat (at level 70, y at next level) : nat_scope.
@@ -78,12 +79,12 @@ Definition series_stretch k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then
          series_nth_fld fld (i / Pos.to_nat k) s
-       else zero fld;
+       else Field.zero fld;
      stop :=
        stop s * fin (Pos.to_nat k) |}.
 
 Definition series_shift n s :=
-  {| terms i := if lt_dec i n then zero fld else terms s (i - n);
+  {| terms i := if lt_dec i n then Field.zero fld else terms s (i - n);
      stop := stop s + fin n |}.
 
 Record nz_ps α := mknz
@@ -159,7 +160,7 @@ Definition nz_monom (c : α) pow :=
 
 Definition ps_monom c pow := NonZero (nz_monom c pow).
 Definition ps_const c : puiseux_series α := ps_monom c 0.
-Definition ps_one := ps_const (one fld).
+Definition ps_one := ps_const (Field.one fld).
 
 Definition series_head (s : series α) :=
   {| terms := terms s; stop := 1 |}.
@@ -187,7 +188,7 @@ Definition nz_tail nz :=
 
 Theorem null_series : ∀ s,
   series_nth 0 s = None
-  → ∀ i : nat, series_nth_fld fld i s = zero fld.
+  → ∀ i : nat, series_nth_fld fld i s = Field.zero fld.
 Proof.
 intros s H i.
 unfold series_nth_fld; simpl.
@@ -251,13 +252,13 @@ Qed.
 
 End fld.
 
-Add Parametric Relation α (fld : field α) : (nz_ps α) (eq_nz fld)
+Add Parametric Relation α (fld : Field.t α) : (nz_ps α) (eq_nz fld)
  reflexivity proved by (eq_nz_refl fld)
  symmetry proved by (eq_nz_sym (fld := fld))
  transitivity proved by (eq_nz_trans (fld := fld))
  as eq_nz_rel.
 
-Add Parametric Relation α (fld : field α) : (puiseux_series α)
+Add Parametric Relation α (fld : Field.t α) : (puiseux_series α)
    (eq_norm_ps fld)
  reflexivity proved by (eq_norm_ps_refl fld)
  symmetry proved by (eq_norm_ps_sym (fld := fld))
@@ -280,7 +281,7 @@ apply Nbar.mul_lt_mono_pos_r.
  assumption.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (null_coeff_range_length fld)
+Add Parametric Morphism α (fld : Field.t α) : (null_coeff_range_length fld)
 with signature (eq_series fld) ==> eq ==> eq as null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq n.
@@ -313,7 +314,7 @@ destruct n₁ as [n₁| ].
 Qed.
 
 (*
-Add Parametric Morphism α (fld : field α) : (greatest_series_x_power_lim fld)
+Add Parametric Morphism α (fld : Field.t α) : (greatest_series_x_power_lim fld)
   with signature eq ==> (eq_series fld) ==> eq ==> eq
   as greatest_series_x_power_lim_morph.
 Proof.
@@ -328,7 +329,8 @@ rewrite IHcnt; reflexivity.
 Qed.
 *)
 
-Add Parametric Morphism α (fld : field α) : (nth_null_coeff_range_length fld)
+Add Parametric Morphism α (fld : Field.t α) :
+    (nth_null_coeff_range_length fld)
   with signature (eq_series fld) ==> eq ==> eq ==> eq
   as nth_null_coeff_range_length_morph.
 Proof.
@@ -338,7 +340,7 @@ induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
 destruct (null_coeff_range_length fld s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (greatest_series_x_power fld)
+Add Parametric Morphism α (fld : Field.t α) : (greatest_series_x_power fld)
 with signature (eq_series fld) ==> eq ==> eq as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
@@ -358,7 +360,7 @@ split.
  exists m; rewrite Heq; assumption.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (series_stretch fld) with 
+Add Parametric Morphism α (fld : Field.t α) : (series_stretch fld) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as stretch_morph.
 Proof.
 intros kp s₁ s₂ Heq.
@@ -406,7 +408,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
   destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@series_shrink α) with 
+Add Parametric Morphism α (fld : Field.t α) : (@series_shrink α) with 
 signature eq ==> (eq_series fld) ==> (eq_series fld) as shrink_morph.
 Proof.
 intros n s₁ s₂ Heq.
@@ -463,7 +465,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₁) (fin nn))) as [H₁| H�
    reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (series_shift fld) with 
+Add Parametric Morphism α (fld : Field.t α) : (series_shift fld) with 
 signature eq ==> eq_series fld ==> eq_series fld as series_shift_morph.
 Proof.
 intros n s₁ s₂ Heq.
@@ -530,7 +532,7 @@ destruct (lt_dec i n) as [Hlt| Hge].
    reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (@normalise_series α) with 
+Add Parametric Morphism α (fld : Field.t α) : (@normalise_series α) with 
 signature eq ==> eq ==> (eq_series fld) ==> (eq_series fld) as normalise_morph.
 Proof.
 intros n k ps₁ ps₂ Heq.
@@ -598,7 +600,7 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
    reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (normalise_nz fld) with 
+Add Parametric Morphism α (fld : Field.t α) : (normalise_nz fld) with 
 signature (eq_nz fld) ==> (eq_norm_ps fld) as normalise_nz_morph.
 Proof.
 intros nz₁ nz₂ Heq.
@@ -616,11 +618,11 @@ Qed.
 Section fld₁.
 
 Variable α : Type.
-Variable fld : field α.
+Variable fld : Field.t α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
 
 Theorem eq_ps_refl : reflexive _ (eq_ps fld).
 Proof.
@@ -1084,7 +1086,7 @@ Qed.
 
 End fld₁.
 
-Add Parametric Relation α (fld : field α) : (puiseux_series α) (eq_ps fld)
+Add Parametric Relation α (fld : Field.t α) : (puiseux_series α) (eq_ps fld)
  reflexivity proved by (eq_ps_refl fld)
  symmetry proved by (eq_ps_sym (fld := fld))
  transitivity proved by (eq_ps_trans (fld := fld))
@@ -1106,10 +1108,10 @@ aaa.
 Section fld₂.
 
 Variable α : Type.
-Variable fld : field α.
+Variable fld : Field.t α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (fld_eq fld a b)) (at level 70).
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
@@ -1122,12 +1124,12 @@ Definition valuation (ps : puiseux_series α) :=
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
   | NonZero nz => series_nth_fld fld 0 (nz_terms nz)
-  | Zero => zero fld
+  | Zero => Field.zero fld
   end.
 
 Theorem lt_null_coeff_range_length : ∀ s c n,
   (fin n < null_coeff_range_length fld s c)%Nbar
-  → series_nth_fld fld (c + n) s ≍ zero fld.
+  → series_nth_fld fld (c + n) s ≍ Field.zero fld.
 Proof.
 intros s c n Hn.
 remember (null_coeff_range_length fld s c) as v eqn:Hv .
@@ -1140,7 +1142,7 @@ Qed.
 
 Theorem eq_null_coeff_range_length : ∀ s c n,
   null_coeff_range_length fld s c = fin n
-  → series_nth_fld fld (c + n) s ≭ zero fld.
+  → series_nth_fld fld (c + n) s ≭ Field.zero fld.
 Proof.
 intros s c n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -1271,7 +1273,7 @@ Qed.
 
 (* à voir...
 Lemma xxx : ∀ s,
-  series_nth_fld fld 0 s ≍ zero fld
+  series_nth_fld fld 0 s ≍ Field.zero fld
   → NS (null_coeff_range_length fld s 1) = null_coeff_range_length fld s 0.
 Proof.
 intros s Hz.
@@ -1307,7 +1309,7 @@ aaa.
 
 (* à voir...
 Theorem null_coeff_range_length_1_shift : ∀ s n,
-  series_nth_fld fld 0 s ≍ zero fld
+  series_nth_fld fld 0 s ≍ Field.zero fld
   → null_coeff_range_length fld (series_shift fld n s) 1 =
       (fin n + null_coeff_range_length fld s 1)%Nbar.
 Proof.
@@ -1331,7 +1333,7 @@ aaa.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → series_nth_fld fld i (series_stretch fld k s) = zero fld.
+  → series_nth_fld fld i (series_stretch fld k s) = Field.zero fld.
 Proof.
 intros s k i Hi.
 unfold series_nth_fld; simpl.
@@ -1373,8 +1375,8 @@ destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
 Qed.
 
 Lemma zero_series_stretched : ∀ s,
-  (∀ i : nat, series_nth_fld fld i s ≍ zero fld)
-  → ∀ n k, series_nth_fld fld n (series_stretch fld k s) ≍ zero fld.
+  (∀ i : nat, series_nth_fld fld i s ≍ Field.zero fld)
+  → ∀ n k, series_nth_fld fld n (series_stretch fld k s) ≍ Field.zero fld.
 Proof.
 intros s H n k.
 unfold series_nth_fld; simpl.
@@ -1388,8 +1390,8 @@ rewrite Nat.div_mul; [ apply H | apply Pos2Nat_ne_0 ].
 Qed.
 
 Lemma zero_stretched_series : ∀ s k,
-  (∀ i : nat, series_nth_fld fld i (series_stretch fld k s) ≍ zero fld)
-  → ∀ n, series_nth_fld fld n s ≍ zero fld.
+  (∀ i : nat, series_nth_fld fld i (series_stretch fld k s) ≍ Field.zero fld)
+  → ∀ n, series_nth_fld fld n s ≍ Field.zero fld.
 Proof.
 intros s k H n.
 pose proof (H (Pos.to_nat k * n)%nat) as Hn.
@@ -1398,10 +1400,10 @@ assumption.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i : nat, series_nth_fld fld (b + i) s ≍ zero fld)
+  (∀ i : nat, series_nth_fld fld (b + i) s ≍ Field.zero fld)
   → ∀ i,
     series_nth_fld fld (b * Pos.to_nat k + i) (series_stretch fld k s)
-    ≍ zero fld.
+    ≍ Field.zero fld.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -2131,7 +2133,7 @@ Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
        nth_null_coeff_range_length fld s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
-        → series_nth_fld fld (b + i) s ≍ zero fld.
+        → series_nth_fld fld (b + i) s ≍ Field.zero fld.
 Proof.
 (* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
@@ -2224,7 +2226,7 @@ Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, (Pos.to_nat k | nth_null_coeff_range_length fld s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → series_nth_fld fld i s ≍ zero fld.
+    → series_nth_fld fld i s ≍ Field.zero fld.
 Proof.
 intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.

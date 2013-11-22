@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.20 2013-11-22 10:00:13 deraugla Exp $ *)
+(* $Id: Field.v,v 2.21 2013-11-22 19:20:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -7,227 +7,231 @@ Require Import Setoid.
 
 Set Implicit Arguments.
 
-Record field α :=
+Module Field.
+
+Record t α :=
   { zero : α;
     one : α;
     add : α → α → α;
     mul : α → α → α;
     opp : α → α;
     inv : α → α;
-    fld_eq : α → α → Prop;
-    fld_eq_refl : ∀ a, fld_eq a a;
-    fld_eq_sym : ∀ a b, fld_eq a b → fld_eq b a;
-    fld_eq_trans : ∀ a b c, fld_eq a b → fld_eq b c → fld_eq a c;
-    fld_1_neq_0 : not (fld_eq one zero);
-    fld_add_comm : ∀ a b, fld_eq (add a b) (add b a);
-    fld_add_assoc : ∀ a b c, fld_eq (add a (add b c)) (add (add a b) c);
-    fld_add_0_l : ∀ a, fld_eq (add zero a) a;
-    fld_add_opp_diag_r : ∀ a, fld_eq (add a (opp a)) zero;
-    fld_add_compat_r : ∀ a b c, fld_eq a b → fld_eq (add a c) (add b c);
-    fld_mul_comm : ∀ a b, fld_eq (mul a b) (mul b a);
-    fld_mul_assoc : ∀ a b c, fld_eq (mul a (mul b c)) (mul (mul a b) c);
-    fld_mul_1_l : ∀ a, fld_eq (mul one a) a;
-    fld_mul_compat_r : ∀ a b c, fld_eq a b → fld_eq (mul a c) (mul b c);
-    fld_mul_inv : ∀ a, not (fld_eq a zero) → fld_eq (mul (inv a) a) one;
-    fld_mul_add_distr_l : ∀ a b c,
-      fld_eq (mul a (add b c)) (add (mul a b) (mul a c)) }.
+    eq : α → α → Prop;
+    eq_refl : ∀ a, eq a a;
+    eq_sym : ∀ a b, eq a b → eq b a;
+    eq_trans : ∀ a b c, eq a b → eq b c → eq a c;
+    neq_1_0 : not (eq one zero);
+    add_comm : ∀ a b, eq (add a b) (add b a);
+    add_assoc : ∀ a b c, eq (add a (add b c)) (add (add a b) c);
+    add_0_l : ∀ a, eq (add zero a) a;
+    add_opp_diag_r : ∀ a, eq (add a (opp a)) zero;
+    add_compat_r : ∀ a b c, eq a b → eq (add a c) (add b c);
+    mul_comm : ∀ a b, eq (mul a b) (mul b a);
+    mul_assoc : ∀ a b c, eq (mul a (mul b c)) (mul (mul a b) c);
+    mul_1_l : ∀ a, eq (mul one a) a;
+    mul_compat_r : ∀ a b c, eq a b → eq (mul a c) (mul b c);
+    mul_inv : ∀ a, not (eq a zero) → eq (mul (inv a) a) one;
+    mul_add_distr_l : ∀ a b c,
+      eq (mul a (add b c)) (add (mul a b) (mul a c)) }.
 
-Add Parametric Relation α (fld : field α) : α (fld_eq fld)
- reflexivity proved by (fld_eq_refl fld)
- symmetry proved by (fld_eq_sym fld)
- transitivity proved by (fld_eq_trans fld)
- as fld_eq_rel.
+Add Parametric Relation α (fld : t α) : α (eq fld)
+ reflexivity proved by (eq_refl fld)
+ symmetry proved by (eq_sym fld)
+ transitivity proved by (eq_trans fld)
+ as eq_rel.
 
-Add Parametric Morphism α (fld : field α) : (add fld) with 
-signature fld_eq fld ==> fld_eq fld ==> fld_eq fld
-  as fld_add_morph.
+Add Parametric Morphism α (fld : t α) : (add fld) with 
+signature eq fld ==> eq fld ==> eq fld
+  as add_morph.
 Proof.
 intros a b Hab c d Hcd.
-rewrite fld_add_compat_r; [ idtac | eassumption ].
-rewrite fld_add_comm; symmetry.
-rewrite fld_add_comm; symmetry.
-rewrite fld_add_compat_r; [ reflexivity | eassumption ].
+rewrite add_compat_r; [ idtac | eassumption ].
+rewrite add_comm; symmetry.
+rewrite add_comm; symmetry.
+rewrite add_compat_r; [ reflexivity | eassumption ].
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (mul fld) with 
-signature fld_eq fld ==> fld_eq fld ==> fld_eq fld
-  as fld_mul_morph.
+Add Parametric Morphism α (fld : t α) : (mul fld) with 
+signature eq fld ==> eq fld ==> eq fld
+  as mul_morph.
 Proof.
 intros a b Hab c d Hcd.
-rewrite fld_mul_compat_r; [ idtac | eassumption ].
-rewrite fld_mul_comm; symmetry.
-rewrite fld_mul_comm; symmetry.
-rewrite fld_mul_compat_r; [ reflexivity | eassumption ].
+rewrite mul_compat_r; [ idtac | eassumption ].
+rewrite mul_comm; symmetry.
+rewrite mul_comm; symmetry.
+rewrite mul_compat_r; [ reflexivity | eassumption ].
 Qed.
 
 Section fld.
 
 Variable α : Type.
-Variable fld : field α.
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Variable fld : t α.
+Notation "a ≍ b" := (eq fld a b) (at level 70).
 
-Delimit Scope fld_scope with fld.
-Notation "0" := (zero fld) : fld_scope.
-Notation "1" := (one fld) : fld_scope.
-Notation "- a" := (opp fld a) : fld_scope.
+Delimit Scope scope with fld.
+Notation "0" := (zero fld) : scope.
+Notation "1" := (one fld) : scope.
+Notation "- a" := (opp fld a) : scope.
 Notation "a + b" := (add fld a b)
-  (left associativity, at level 50) : fld_scope.
+  (left associativity, at level 50) : scope.
 Notation "a - b" := (add fld a (opp fld b))
-  (left associativity, at level 50) : fld_scope.
+  (left associativity, at level 50) : scope.
 Notation "a * b" := (mul fld a b)
-  (left associativity, at level 40) : fld_scope.
+  (left associativity, at level 40) : scope.
 
-Theorem fld_mul_add_distr_r : ∀ x y z,
+Theorem mul_add_distr_r : ∀ x y z,
  ((x + y) * z)%fld ≍ (x * z + y * z)%fld.
 Proof.
 intros x y z.
-rewrite fld_mul_comm.
-rewrite fld_mul_add_distr_l.
-rewrite fld_mul_comm.
-assert (fld_eq fld (mul fld z y) (mul fld y z)) as H.
- apply fld_mul_comm.
+rewrite mul_comm.
+rewrite mul_add_distr_l.
+rewrite mul_comm.
+assert (eq fld (mul fld z y) (mul fld y z)) as H.
+ apply mul_comm.
 
  rewrite H; reflexivity.
 Qed.
 
-Lemma fld_ring :
+Lemma ring :
   @ring_theory α (zero fld) (one fld) (add fld) (mul fld)
-    (λ x y, add fld x (opp fld y)) (opp fld) (fld_eq fld).
+    (λ x y, add fld x (opp fld y)) (opp fld) (eq fld).
 Proof.
 constructor.
- apply fld_add_0_l.
+ apply add_0_l.
 
- apply fld_add_comm.
+ apply add_comm.
 
- apply fld_add_assoc.
+ apply add_assoc.
 
- apply fld_mul_1_l.
+ apply mul_1_l.
 
- apply fld_mul_comm.
+ apply mul_comm.
 
- apply fld_mul_assoc.
+ apply mul_assoc.
 
- apply fld_mul_add_distr_r.
+ apply mul_add_distr_r.
 
  reflexivity.
 
- apply fld_add_opp_diag_r.
+ apply add_opp_diag_r.
 Qed.
 
 (* comment ça marche, ce truc-là ? et à quoi ça sert ?
 
-Lemma fld_ring_morph :
+Lemma ring_morph :
   @ring_morph α (zero fld) (one fld) (add fld) (mul fld)
-    (λ x y, add fld x (opp fld y)) (opp fld) (fld_eq fld).
+    (λ x y, add fld x (opp fld y)) (opp fld) (eq fld).
 
 (R : Type) (rO rI : R) (radd rmul rsub : R → R → R)
 (ropp : R → R) (req : R → R → Prop) (C : Type) (cO cI : C)
 (cadd cmul csub : C → C → C) (copp : C → C) (ceqb : C → C → bool)
 (phi : C → R) : Prop := mkmorph
 
-Add Ring fld_ring : fld_ring (morphism glop).
+Add Ring ring : ring (morphism glop).
 bbb.
 *)
 
-Definition fld_field :=
-  {| F_R := fld_ring;
-     F_1_neq_0 := fld_1_neq_0 fld;
-     Fdiv_def x y := fld_eq_refl fld (mul fld x (inv fld y));
-     Finv_l := fld_mul_inv fld |}.
+Definition field :=
+  {| F_R := ring;
+     F_1_neq_0 := neq_1_0 fld;
+     Fdiv_def x y := eq_refl fld (mul fld x (inv fld y));
+     Finv_l := mul_inv fld |}.
 
 (* *)
 
-Theorem fld_add_0_r : ∀ a, (a + 0 ≍ a)%fld.
+Theorem add_0_r : ∀ a, (a + 0 ≍ a)%fld.
 Proof.
 intros a.
-rewrite fld_add_comm.
-apply fld_add_0_l.
+rewrite add_comm.
+apply add_0_l.
 Qed.
 
-Theorem fld_opp_0 : (- 0 ≍ 0)%fld.
+Theorem opp_0 : (- 0 ≍ 0)%fld.
 Proof.
-etransitivity; [ symmetry; apply fld_add_0_l | idtac ].
-apply fld_add_opp_diag_r.
+etransitivity; [ symmetry; apply add_0_l | idtac ].
+apply add_opp_diag_r.
 Qed.
 
-Theorem fld_add_compat_l : ∀ a b c, (a ≍ b → c + a ≍ c + b)%fld.
+Theorem add_compat_l : ∀ a b c, (a ≍ b → c + a ≍ c + b)%fld.
 Proof.
 intros a b c Hab.
 rewrite Hab; reflexivity.
 Qed.
 
-Theorem fld_add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%fld.
+Theorem add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%fld.
 Proof.
 intros a b c Habc.
-apply fld_add_compat_r with (c := (- c)%fld) in Habc.
-do 2 rewrite <- fld_add_assoc in Habc.
-rewrite fld_add_opp_diag_r in Habc.
-do 2 rewrite fld_add_0_r in Habc.
+apply add_compat_r with (c := (- c)%fld) in Habc.
+do 2 rewrite <- add_assoc in Habc.
+rewrite add_opp_diag_r in Habc.
+do 2 rewrite add_0_r in Habc.
 assumption.
 Qed.
 
-Theorem fld_add_reg_l : ∀ a b c, (c + a ≍ c + b → a ≍ b)%fld.
+Theorem add_reg_l : ∀ a b c, (c + a ≍ c + b → a ≍ b)%fld.
 Proof.
 intros a b c Habc.
-apply fld_add_reg_r with (c := c).
-rewrite fld_add_comm; symmetry.
-rewrite fld_add_comm; symmetry.
+apply add_reg_r with (c := c).
+rewrite add_comm; symmetry.
+rewrite add_comm; symmetry.
 assumption.
 Qed.
 
-Theorem fld_add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
+Theorem add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
 Proof.
 intros a b Hab.
-rewrite fld_add_comm in Hab.
-apply fld_add_reg_r with (c := a).
-rewrite fld_add_0_l; assumption.
+rewrite add_comm in Hab.
+apply add_reg_r with (c := a).
+rewrite add_0_l; assumption.
 Qed.
 
-Theorem fld_mul_0_l : ∀ a, (0 * a ≍ 0)%fld.
+Theorem mul_0_l : ∀ a, (0 * a ≍ 0)%fld.
 Proof.
 intros a.
 assert (0 * a + a ≍ a)%fld as H.
  transitivity (0 * a + 1 * a)%fld.
-  rewrite fld_mul_1_l; reflexivity.
+  rewrite mul_1_l; reflexivity.
 
-  rewrite <- fld_mul_add_distr_r.
-  rewrite fld_add_0_l, fld_mul_1_l.
+  rewrite <- mul_add_distr_r.
+  rewrite add_0_l, mul_1_l.
   reflexivity.
 
- apply fld_add_reg_r with (c := a).
- rewrite fld_add_0_l; assumption.
+ apply add_reg_r with (c := a).
+ rewrite add_0_l; assumption.
 Qed.
 
-Theorem fld_mul_0_r : ∀ a, (a * 0 ≍ 0)%fld.
+Theorem mul_0_r : ∀ a, (a * 0 ≍ 0)%fld.
 Proof.
 intros a.
-rewrite fld_mul_comm, fld_mul_0_l.
+rewrite mul_comm, mul_0_l.
 reflexivity.
 Qed.
 
-Theorem fld_mul_1_r : ∀ a, (a * 1 ≍ a)%fld.
+Theorem mul_1_r : ∀ a, (a * 1 ≍ a)%fld.
 Proof.
 intros a.
-rewrite fld_mul_comm, fld_mul_1_l.
+rewrite mul_comm, mul_1_l.
 reflexivity.
 Qed.
 
-Theorem fld_add_shuffle0 : ∀ n m p,
-  fld_eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
+Theorem add_shuffle0 : ∀ n m p,
+  eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
 Proof.
 intros n m p.
-do 2 rewrite <- fld_add_assoc.
-assert (fld_eq fld (add fld m p) (add fld p m)) as H by apply fld_add_comm.
+do 2 rewrite <- add_assoc.
+assert (eq fld (add fld m p) (add fld p m)) as H by apply add_comm.
 rewrite H; reflexivity.
 Qed.
 
-Theorem fld_mul_shuffle0 : ∀ n m p,
-  fld_eq fld (mul fld (mul fld n m) p) (mul fld (mul fld n p) m).
+Theorem mul_shuffle0 : ∀ n m p,
+  eq fld (mul fld (mul fld n m) p) (mul fld (mul fld n p) m).
 Proof.
 intros n m p.
-do 2 rewrite <- fld_mul_assoc.
-assert (fld_eq fld (mul fld m p) (mul fld p m)) as H by apply fld_mul_comm.
+do 2 rewrite <- mul_assoc.
+assert (eq fld (mul fld m p) (mul fld p m)) as H by apply mul_comm.
 rewrite H; reflexivity.
 Qed.
 
 End fld.
+
+End Field.

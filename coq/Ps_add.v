@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.50 2013-11-20 19:49:55 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.51 2013-11-22 19:20:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,7 +15,7 @@ Set Implicit Arguments.
 Section fld.
 
 Variable α : Type.
-Variable fld : field α.
+Variable fld : Field.t α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
@@ -262,14 +262,14 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
     exfalso; apply Hge₁; clear Hge₁.
     apply Nbar.max_lt_iff; right; assumption.
 
-    destruct lt₄, lt₅; rewrite fld_add_0_l; reflexivity.
+    destruct lt₄, lt₅; rewrite Field.add_0_l; reflexivity.
 
  remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
  remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
  remember (Nbar.lt_dec (fin i) n) as b.
  remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
- destruct a, b, c, d; try rewrite fld_add_0_l; reflexivity.
+ destruct a, b, c, d; try rewrite Field.add_0_l; reflexivity.
 Qed.
 
 Lemma nz_terms_add_comm : ∀ nz₁ nz₂,
@@ -340,7 +340,7 @@ remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
 remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
 clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
 destruct (lt_dec i n) as [Hlt| Hge].
- destruct c₁, c₂, c₃; try rewrite fld_add_0_l; reflexivity.
+ destruct c₁, c₂, c₃; try rewrite Field.add_0_l; reflexivity.
 
  apply not_gt in Hge.
  remember (i - n)%nat as m.
@@ -633,7 +633,7 @@ Qed.
 
 End fld.
 
-Add Parametric Morphism α (fld : field α) : (adjusted_nz_add fld)
+Add Parametric Morphism α (fld : Field.t α) : (adjusted_nz_add fld)
 with signature (eq_nz fld) ==> (eq_nz fld) ==> (eq_nz fld)
 as adjusted_nz_add_morph.
 Proof.
@@ -647,7 +647,7 @@ Qed.
 
 (* pas utilisés, mais bon, je les garde, on sait jamais *)
 
-Add Parametric Morphism α (fld : field α) : (adjust_series fld)
+Add Parametric Morphism α (fld : Field.t α) : (adjust_series fld)
 with signature eq ==> eq ==> eq_series fld ==> eq_series fld
 as adjust_series_morph.
 Proof.
@@ -722,7 +722,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : field α) : (nz_terms_add fld)
+Add Parametric Morphism α (fld : Field.t α) : (nz_terms_add fld)
 with signature eq_nz fld ==> eq_nz fld ==> eq_series fld
 as nz_terms_add_morph.
 Proof.
@@ -755,7 +755,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
    exfalso; apply H₂.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite fld_add_0_l.
+   rewrite Field.add_0_l.
    destruct (Nbar.lt_dec (fin i) y₂) as [H₄| H₄].
     exfalso; apply H₂.
     apply Nbar.max_lt_iff; right; assumption.
@@ -771,7 +771,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
    exfalso; apply H₁.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite fld_add_0_l.
+   rewrite Field.add_0_l.
    destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
     exfalso; apply H₁.
     apply Nbar.max_lt_iff; right; assumption.

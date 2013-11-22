@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.98 2013-11-20 12:07:13 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.99 2013-11-22 19:20:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,9 +16,9 @@ Set Implicit Arguments.
 Section fld.
 
 Variable α : Type.
-Variable fld : field α.
+Variable fld : Field.t α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
@@ -75,13 +75,13 @@ destruct ps₁ as [nz₁| ].
  destruct ps₂; reflexivity.
 Qed.
 
-Theorem ps_add_0_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
+Theorem ps_mul_1_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
 Proof.
 intros ps; simpl.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
 constructor.
 unfold normalise_nz; simpl.
-replace {| terms := λ _, one fld; stop := 1 |} with 
+replace {| terms := λ _, Field.one fld; stop := 1 |} with 
  (series_1 fld) by reflexivity.
 
 bbb.

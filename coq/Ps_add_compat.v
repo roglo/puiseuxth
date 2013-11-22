@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.4 2013-11-19 02:15:06 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.5 2013-11-22 19:20:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -14,9 +14,9 @@ Require Import Misc.
 Section fld.
 
 Variable α : Type.
-Variable fld : field α.
+Variable fld : Field.t α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 
@@ -25,8 +25,8 @@ Notation "a + b" := (ps_add fld a b) : ps_scope.
 Notation "a ∔ b" := (nz_add fld a b) (at level 70).
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
-  (∀ i, series_nth_fld fld i s ≍ zero fld)
-  → ∀ i, series_nth_fld fld i (series_shift fld n s) ≍ zero fld.
+  (∀ i, series_nth_fld fld i s ≍ Field.zero fld)
+  → ∀ i, series_nth_fld fld i (series_shift fld n s) ≍ Field.zero fld.
 Proof.
 intros s n H i.
 revert i.
