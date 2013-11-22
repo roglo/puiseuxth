@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.16 2013-11-22 09:22:35 deraugla Exp $ *)
+(* $Id: Series.v,v 2.17 2013-11-22 10:00:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -215,7 +215,7 @@ Fixpoint sigma_aux b len f :=
 Definition sigma b e f := sigma_aux b (e - b) f.
 
 Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
-  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10).
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
 
 Definition convol_mul a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
@@ -325,24 +325,25 @@ intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
-Lemma zzz : ∀ f b c k,
-  (∀ i j, (c < i)%nat → f i j ≍ 0%fld)
-  → Σ (i = c, k)   Σ (j = b, k)   (δ (i + j) k * f i j)%fld
-    ≍ Σ (j = b, k)   (δ (c + j) k * f c j)%fld.
+Lemma sigma_compat : ∀ f g k,
+  (∀ i, f i ≍ g i)
+  → Σ (i = 0, k)  f i ≍ Σ (i = 0, k)   g i.
 Proof.
-intros f b c k Hij.
-unfold sigma.
-rewrite sigma_aux_sigma_aux_comm with (g := λ i j, (δ (i + j) k * f i j)%fld).
- revert b c Hij.
- induction k; [ reflexivity | intros ].
- destruct b.
-  rewrite Nat.sub_0_r.
-  destruct c.
-   rewrite Nat.sub_0_r.
-   simpl.
-   rewrite delta_0_succ, fld_mul_0_l, fld_add_0_l.
-   rewrite fld_add_0_l.
-   (* ouais, bin c'est la merde... *)
+intros f g k Hfg.
+unfold sigma; rewrite Nat.sub_0_r.
+remember 0%nat as b; clear Heqb.
+revert b.
+induction k; intros; [ apply Hfg | simpl ].
+rewrite Hfg.
+apply fld_add_compat_l, IHk.
+Qed.
+
+Lemma zzz : ∀ f g k,
+  Σ (i = 0, k)   Σ (j = 0, k)   (δ (i + j) k * (f i * g i j))%fld
+  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   δ (i + j) k * g i j)%fld.
+Proof.
+intros f g k.
+apply sigma_compat; intros i.
 bbb.
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.

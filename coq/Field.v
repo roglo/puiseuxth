@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.19 2013-11-22 00:18:58 deraugla Exp $ *)
+(* $Id: Field.v,v 2.20 2013-11-22 10:00:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -150,27 +150,11 @@ etransitivity; [ symmetry; apply fld_add_0_l | idtac ].
 apply fld_add_opp_diag_r.
 Qed.
 
-(*
-Theorem add_cancel_l : ∀ a b c, (c + a ≍ c + b ↔ a ≍ b)%fld.
+Theorem fld_add_compat_l : ∀ a b c, (a ≍ b → c + a ≍ c + b)%fld.
 Proof.
-bbb.
-
-Theorem add_cancel_r : ∀ a b c, (a + c ≍ b + c ↔ a ≍ b)%fld.
-Proof.
-bbb.
-
-Theorem sub_cancel_r : ∀ a b c, (a - c = b - c ↔ a = b)%fld.
-Proof.
-bbb.
-
-Theorem add_move_l : ∀ a b c, a + b = c ↔ a = c - b.
-Proof.
-bbb.
-
-Theorem add_move_0_r : ∀ a b, a + b = 0 ↔ a = -b.
-Proof.
-bbb.
-*)
+intros a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
 
 Theorem fld_add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%fld.
 Proof.
@@ -182,6 +166,15 @@ do 2 rewrite fld_add_0_r in Habc.
 assumption.
 Qed.
 
+Theorem fld_add_reg_l : ∀ a b c, (c + a ≍ c + b → a ≍ b)%fld.
+Proof.
+intros a b c Habc.
+apply fld_add_reg_r with (c := c).
+rewrite fld_add_comm; symmetry.
+rewrite fld_add_comm; symmetry.
+assumption.
+Qed.
+
 Theorem fld_add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
 Proof.
 intros a b Hab.
@@ -189,27 +182,6 @@ rewrite fld_add_comm in Hab.
 apply fld_add_reg_r with (c := a).
 rewrite fld_add_0_l; assumption.
 Qed.
-
-(*
-Theorem mul_id_uniq : ∀ a b, (a ≠ 0 → a * b ≍ a → b ≍ 1)%fld.
-Proof.
-intros a b Ha Hab.
-assert (a ≍ a * 1)%fld as Hab₁.
- rewrite fld_mul_comm, fld_mul_1_l; reflexivity.
-
- rewrite Hab₁ in Hab at 2.
- clear Hab₁.
-bbb.
-
-Theorem opp_uniq : ∀ a b, (a + b ≍ 0 → b ≍ - a)%fld.
-Proof.
-bbb.
-
-Theorem fld_mul_opp_l : ∀ a b, (- a * b ≍ - (a * b))%fld.
-Proof.
-intros a b.
-bbb.
-*)
 
 Theorem fld_mul_0_l : ∀ a, (0 * a ≍ 0)%fld.
 Proof.
