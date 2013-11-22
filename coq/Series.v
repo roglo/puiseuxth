@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.13 2013-11-22 00:24:04 deraugla Exp $ *)
+(* $Id: Series.v,v 2.14 2013-11-22 00:39:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -317,6 +317,14 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
+Lemma zzz : ∀ f k,
+  (∀ i j, (0 < i)%nat → f i j ≍ 0%fld)
+  → Σ (i = 0)   k Σ (j = 0)   k mul fld (δ (i + j) k) (f i j) ≍
+    Σ (j = 0)   k mul fld (δ j k) (f 0%nat j).
+Proof.
+intros f k Hij.
+bbb.
+
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
 intros s.
@@ -367,6 +375,7 @@ destruct st as [st| ].
 
    unfold convol_mul.
    rename i into k.
+   rewrite zzz.
 bbb.
 
 intros s.
