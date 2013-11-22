@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.12 2013-11-22 00:18:58 deraugla Exp $ *)
+(* $Id: Series.v,v 2.13 2013-11-22 00:24:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -325,6 +325,11 @@ unfold series_nth_fld; simpl.
 remember (stop s) as st eqn:Hst .
 symmetry in Hst.
 destruct st as [st| ].
+ Focus 2.
+ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
+ unfold convol_mul.
+ rename i into k.
+ Unfocus.
  destruct (Nbar.lt_dec (fin i) (fin st)) as [H₁| H₁].
   Focus 2.
   destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
