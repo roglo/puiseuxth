@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.18 2013-11-22 13:22:32 deraugla Exp $ *)
+(* $Id: Series.v,v 2.19 2013-11-22 13:47:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -358,6 +358,45 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
+Lemma sigma_first_only : ∀ f b k,
+  (b ≤ k)%nat
+  → (∀ i, (b < i)%nat → f i ≍ 0)%fld
+    → Σ (i = b, k)   f i ≍ f b.
+Proof.
+intros f b k Hbk Hi.
+remember (k - b)%nat as len.
+replace k with (b + len)%nat by omega.
+clear k Hbk Heqlen.
+revert b Hi.
+induction len; intros; simpl.
+ rewrite Nat.add_0_r.
+ unfold sigma.
+ rewrite Nat.sub_diag; reflexivity.
+
+ unfold sigma.
+ rewrite Nat.add_comm, Nat.add_sub; simpl.
+ clear IHlen.
+ revert b Hi.
+ induction len; intros; simpl.
+  rewrite fld_add_comm.
+  rewrite Hi.
+   rewrite fld_add_0_l; reflexivity.
+
+   apply Nat.lt_succ_r; reflexivity.
+
+  rewrite IHlen.
+   rewrite fld_add_comm.
+   rewrite Hi.
+    rewrite fld_add_0_l; reflexivity.
+
+    apply Nat.lt_succ_r; reflexivity.
+
+   intros i H.
+   apply Hi.
+   transitivity (S b); [ idtac | assumption ].
+   apply Nat.lt_succ_r; reflexivity.
+Qed.
+
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
 intros s.
@@ -409,6 +448,11 @@ destruct st as [st| ].
    unfold convol_mul.
    rename i into k.
    rewrite sigma_mul_sigma.
+   rewrite sigma_first_only.
+    simpl.
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
+     rewrite fld_mul_1_l.
 bbb.
 
 intros s.
