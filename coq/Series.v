@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.17 2013-11-22 10:00:13 deraugla Exp $ *)
+(* $Id: Series.v,v 2.18 2013-11-22 13:22:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -338,13 +338,25 @@ rewrite Hfg.
 apply fld_add_compat_l, IHk.
 Qed.
 
-Lemma zzz : ∀ f g k,
+Lemma sigma_mul_sigma : ∀ f g k,
   Σ (i = 0, k)   Σ (j = 0, k)   (δ (i + j) k * (f i * g i j))%fld
   ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   δ (i + j) k * g i j)%fld.
 Proof.
 intros f g k.
 apply sigma_compat; intros i.
-bbb.
+unfold sigma.
+remember (k - 0)%nat as len; clear Heqlen.
+remember 0%nat as b; clear Heqb.
+revert b k.
+induction len; intros; simpl.
+ rewrite fld_mul_assoc, fld_mul_shuffle0, fld_mul_comm.
+ reflexivity.
+
+ rewrite IHlen.
+ rewrite fld_mul_assoc, fld_mul_shuffle0, fld_mul_comm.
+ rewrite fld_mul_add_distr_l.
+ reflexivity.
+Qed.
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
@@ -396,7 +408,7 @@ destruct st as [st| ].
 
    unfold convol_mul.
    rename i into k.
-   rewrite zzz.
+   rewrite sigma_mul_sigma.
 bbb.
 
 intros s.
