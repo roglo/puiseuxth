@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.20 2013-11-22 19:20:29 deraugla Exp $ *)
+(* $Id: Series.v,v 2.21 2013-11-22 20:24:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -360,12 +360,47 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma sigma_first_only : ∀ f b k,
-  (b ≤ k)%nat
-  → (∀ i, (b < i)%nat → f i ≍ 0)%fld
-    → Σ (i = b, k)   f i ≍ f b.
+Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
+
+Lemma yyy : ∀ f b len,
+  f b ≍ 0%fld
+  → sigma_aux (S b) len f ≍ sigma_aux b (S len) f.
 Proof.
-intros f b k Hbk Hi.
+intros f b len Hb; simpl.
+rewrite Hb, Field.add_0_l; reflexivity.
+Qed.
+
+Lemma zzz : ∀ f b v k,
+  (b ≤ v ≤ k)%nat
+  → (∀ i, (i ≠ v)%nat → f i ≍ 0)%fld
+    → Σ (i = b, k)   f i ≍ f v.
+Proof.
+intros f b v k (Hbv, Hvk) Hi.
+unfold sigma.
+remember (k - b)%nat as len.
+replace k with (b + len)%nat in * by omega.
+clear k Heqlen.
+revert b v Hbv Hvk Hi.
+induction len; intros; simpl.
+ rewrite Nat.add_0_r in Hvk.
+ apply Nat.le_antisymm in Hvk; [ idtac | assumption ].
+ subst b; reflexivity.
+
+ destruct (eq_nat_dec b v) as [H₁| H₁].
+  subst b.
+  assert (f v ≍ f v + 0)%fld as H.
+   rewrite Field.add_0_r; reflexivity.
+
+   rewrite H in |- * at 2.
+   apply Field.add_compat_l.
+   clear IHlen Hbv Hvk H.
+bbb.
+   induction len; intros; simpl.
+    rewrite Hi; [ reflexivity | idtac ].
+    apply Nat.neq_succ_diag_l.
+bbb.
+
+intros f b v k (Hbv, Hvk) Hi.
 remember (k - b)%nat as len.
 replace k with (b + len)%nat by omega.
 clear k Hbk Heqlen.
