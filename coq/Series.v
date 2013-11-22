@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.15 2013-11-22 01:08:24 deraugla Exp $ *)
+(* $Id: Series.v,v 2.16 2013-11-22 09:22:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -214,11 +214,11 @@ Fixpoint sigma_aux b len f :=
 
 Definition sigma b e f := sigma_aux b (e - b) f.
 
-Notation "'Σ' ( i = b ) ' ' e f" := (sigma b e (λ i, f))
+Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
   (at level 0, i at level 0, b at level 0, e at level 0, f at level 10).
 
 Definition convol_mul a b k :=
-  Σ (i = 0)   k Σ (j = 0)   k
+  Σ (i = 0, k)   Σ (j = 0, k)  
     (mul fld (δ (i + j) k)
        (mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))).
 
@@ -252,8 +252,8 @@ Qed.
 
 Lemma sigma_sigma_comm : ∀ f g i₁ i₂ j₁ j₂,
   (∀ i j, f i j ≍ g i j)
-  → Σ (i = i₁)   i₂ Σ (j = j₁)   j₂ (f i j)
-    ≍ Σ (j = j₁)   j₂ Σ (i = i₁)   i₂ (g i j).
+  → Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   (f i j)
+    ≍ Σ (j = j₁, j₂)   Σ (i = i₁, i₂)   (g i j).
 Proof.
 intros f g i₁ i₂ j₁ j₂ Hfg.
 apply sigma_aux_sigma_aux_comm; assumption.
@@ -283,7 +283,7 @@ destruct (stop s); reflexivity.
 Qed.
 
 Lemma all_0_sigma_0 : ∀ f i₁ i₂,
-  (∀ i, f i ≍ 0%fld) → Σ (i = i₁)   i₂ f i ≍ 0%fld.
+  (∀ i, f i ≍ 0%fld) → Σ (i = i₁, i₂)   f i ≍ 0%fld.
 Proof.
 intros f i₁ i₂ H.
 unfold sigma.
@@ -327,8 +327,8 @@ Qed.
 
 Lemma zzz : ∀ f b c k,
   (∀ i j, (c < i)%nat → f i j ≍ 0%fld)
-  → Σ (i = c)   k Σ (j = b)   k (δ (i + j) k * f i j)%fld
-    ≍ Σ (j = b)   k (δ (c + j) k * f c j)%fld.
+  → Σ (i = c, k)   Σ (j = b, k)   (δ (i + j) k * f i j)%fld
+    ≍ Σ (j = b, k)   (δ (c + j) k * f c j)%fld.
 Proof.
 intros f b c k Hij.
 unfold sigma.
