@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.14 2013-11-22 00:39:27 deraugla Exp $ *)
+(* $Id: Series.v,v 2.15 2013-11-22 01:08:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,8 +38,10 @@ Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
 
 Delimit Scope fld_scope with fld.
 Notation "0" := (zero fld) : fld_scope.
-Notation "a + b" :=
-  (add fld a b) (left associativity, at level 50) : fld_scope.
+Notation "a + b" := (add fld a b)
+  (left associativity, at level 50) : fld_scope.
+Notation "a * b" := (mul fld a b)
+  (left associativity, at level 40) : fld_scope.
 
 Definition series_0 := {| terms i := zero fld; stop := 0 |}.
 Definition series_1 := {| terms i := one fld; stop := 1 |}.
@@ -317,12 +319,30 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Lemma zzz : ∀ f k,
-  (∀ i j, (0 < i)%nat → f i j ≍ 0%fld)
-  → Σ (i = 0)   k Σ (j = 0)   k mul fld (δ (i + j) k) (f i j) ≍
-    Σ (j = 0)   k mul fld (δ j k) (f 0%nat j).
+Lemma delta_0_succ : ∀ i, δ 0 (S i) ≍ 0%fld.
 Proof.
-intros f k Hij.
+intros i; unfold δ.
+destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
+Qed.
+
+Lemma zzz : ∀ f b c k,
+  (∀ i j, (c < i)%nat → f i j ≍ 0%fld)
+  → Σ (i = c)   k Σ (j = b)   k (δ (i + j) k * f i j)%fld
+    ≍ Σ (j = b)   k (δ (c + j) k * f c j)%fld.
+Proof.
+intros f b c k Hij.
+unfold sigma.
+rewrite sigma_aux_sigma_aux_comm with (g := λ i j, (δ (i + j) k * f i j)%fld).
+ revert b c Hij.
+ induction k; [ reflexivity | intros ].
+ destruct b.
+  rewrite Nat.sub_0_r.
+  destruct c.
+   rewrite Nat.sub_0_r.
+   simpl.
+   rewrite delta_0_succ, fld_mul_0_l, fld_add_0_l.
+   rewrite fld_add_0_l.
+   (* ouais, bin c'est la merde... *)
 bbb.
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
