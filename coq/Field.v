@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.18 2013-11-21 14:39:01 deraugla Exp $ *)
+(* $Id: Field.v,v 2.19 2013-11-22 00:18:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -224,6 +224,20 @@ assert (0 * a + a ≍ a)%fld as H.
 
  apply fld_add_reg_r with (c := a).
  rewrite fld_add_0_l; assumption.
+Qed.
+
+Theorem fld_mul_0_r : ∀ a, (a * 0 ≍ 0)%fld.
+Proof.
+intros a.
+rewrite fld_mul_comm, fld_mul_0_l.
+reflexivity.
+Qed.
+
+Theorem fld_mul_1_r : ∀ a, (a * 1 ≍ a)%fld.
+Proof.
+intros a.
+rewrite fld_mul_comm, fld_mul_1_l.
+reflexivity.
 Qed.
 
 Theorem fld_add_shuffle0 : ∀ n m p,

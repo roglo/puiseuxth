@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.11 2013-11-21 23:44:54 deraugla Exp $ *)
+(* $Id: Series.v,v 2.12 2013-11-22 00:18:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -319,6 +319,51 @@ Qed.
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
+intros s.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+remember (stop s) as st eqn:Hst .
+symmetry in Hst.
+destruct st as [st| ].
+ destruct (Nbar.lt_dec (fin i) (fin st)) as [H₁| H₁].
+  Focus 2.
+  destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
+   unfold convol_mul.
+   rename i into k.
+   apply all_0_sigma_0; intros i.
+   apply all_0_sigma_0; intros j.
+   destruct i; simpl.
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec (fin j) (stop s)) as [H₃| H₃].
+     unfold δ.
+     destruct (eq_nat_dec j k) as [H₄| H₄].
+      subst j.
+      rewrite Hst in H₃; contradiction.
+
+      rewrite fld_mul_0_l; reflexivity.
+
+     rewrite fld_mul_assoc, fld_mul_0_r; reflexivity.
+
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec (fin (S i)) 1) as [H₃| H₃].
+     apply Nbar.nle_gt in H₃.
+     exfalso; apply H₃.
+     apply Nbar.fin_le_mono, le_n_S, Nat.le_0_l.
+
+     rewrite fld_mul_0_l, fld_mul_0_r; reflexivity.
+
+   reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
+   Focus 2.
+   exfalso; apply H₂.
+   eapply Nbar.lt_trans; [ eassumption | idtac ].
+   apply Nbar.lt_fin, Nat.lt_succ_r; reflexivity.
+
+   unfold convol_mul.
+   rename i into k.
+bbb.
+
 intros s.
 constructor; intros i.
 unfold series_nth_fld.
