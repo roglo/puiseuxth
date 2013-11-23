@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.22 2013-11-23 03:47:20 deraugla Exp $ *)
+(* $Id: Series.v,v 2.23 2013-11-23 03:52:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -518,11 +518,12 @@ destruct st as [st| ].
     split; [ reflexivity | apply Nat.le_0_l ].
 
     intros i Hi.
-bbb.
-    simpl.
-    unfold series_nth_fld; simpl.
-    destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-     rewrite Field.mul_1_l.
+    unfold series_nth_fld at 1; simpl.
+    destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
+     apply Nbar.fin_lt_mono in H₃.
+     apply Nat.lt_1_r in H₃; contradiction.
+
+     apply Field.mul_0_l.
 bbb.
 
 intros s.
