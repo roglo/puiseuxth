@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.25 2013-11-23 13:27:39 deraugla Exp $ *)
+(* $Id: Series.v,v 2.26 2013-11-23 16:38:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -287,6 +287,7 @@ destruct (stop s); reflexivity.
 Qed.
 
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
   (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
@@ -393,14 +394,6 @@ induction len; intros; simpl.
  rewrite Field.mul_assoc, Field.mul_shuffle0, Field.mul_comm.
  rewrite Field.mul_add_distr_l.
  reflexivity.
-Qed.
-
-Lemma yyy : ∀ f b len,
-  f b ≍ 0%fld
-  → sigma_aux (S b) len f ≍ sigma_aux b (S len) f.
-Proof.
-intros f b len Hb; simpl.
-rewrite Hb, Field.add_0_l; reflexivity.
 Qed.
 
 Lemma sigma_only_one_non_0 : ∀ f b v k,
@@ -553,6 +546,17 @@ destruct st as [st| ].
    apply Field.mul_0_l.
 Qed.
 
+Lemma zzz : ∀ f i₁ i₂ a,
+  (a * Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₂)   a * f i)%fld.
+Proof.
+bbb.
+
+Lemma xxx : ∀ f i₁ i₂ i₃,
+  (∀ i, i₂ < i ≤ i₃ → f i ≍ 0%fld)
+  → Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₃)   f i.
+Proof.
+bbb.
+
 Theorem series_mul_assoc : ∀ a b c,
   series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c.
 Proof.
@@ -577,6 +581,16 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop b + stop c)) as [H₁| H₁].
     destruct (Nbar.lt_dec (fin j) (stop b + stop c)) as [H₅| H₅].
      destruct (Nbar.lt_dec (fin j) (stop c)) as [H₆| H₆].
       unfold convol_mul.
+      rename i into i₁.
+      rename j into j₁.
+      rewrite zzz, Field.mul_comm, zzz.
+      rewrite xxx with (i₃ := k); symmetry.
+       rewrite xxx with (i₃ := k); symmetry.
+        apply sigma_compat.
+        intros i₂.
+        do 2 rewrite zzz.
+        rewrite xxx with (i₃ := k); symmetry.
+         rewrite xxx with (i₃ := k); symmetry.
 bbb.
 
 End field.
