@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.104 2013-11-23 11:14:36 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.105 2013-11-23 11:28:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -61,16 +61,20 @@ constructor; constructor; simpl.
  rewrite series_mul_comm.
  f_equal; [ f_equal; apply Z.add_comm | f_equal ].
  f_equal; [ f_equal; apply Z.add_comm | idtac ].
- rewrite Pos.add_comm; reflexivity.
+ rewrite Pos.mul_comm; reflexivity.
+
+ rewrite Pos.mul_comm, series_mul_comm.
+ unfold gcd_nz; simpl.
+ do 3 f_equal.
+ f_equal; [ f_equal; apply Z.add_comm | idtac ].
+ rewrite Pos.mul_comm; reflexivity.
 
  unfold gcd_nz; simpl.
- rewrite series_mul_comm, Pos.add_comm.
- do 5 f_equal; apply Z.add_comm.
-
- unfold gcd_nz; simpl.
- rewrite series_mul_comm, Pos.add_comm.
- rewrite Z.add_comm, Z.add_assoc, Z.add_shuffle0.
- rewrite <- Z.add_assoc, Z.add_comm; reflexivity.
+ rewrite Pos.mul_comm, series_mul_comm.
+ remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as x eqn:Hx .
+ remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as y eqn:Hy .
+ replace (x + y)%Z with (y + x)%Z by apply Z.add_comm.
+ reflexivity.
 Qed.
 
 Theorem ps_mul_comm : ∀ ps₁ ps₂, ps_mul ps₁ ps₂ ≈ ps_mul ps₂ ps₁.
