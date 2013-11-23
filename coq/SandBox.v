@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.101 2013-11-23 04:18:23 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.102 2013-11-23 10:12:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -30,8 +30,8 @@ Notation "1" := (Field.one fld) : fld_scope.
 
 Definition nz_mul nz₁ nz₂ :=
   {| nz_terms := series_mul fld (nz_terms nz₁) (nz_terms nz₂);
-     nz_valnum := (nz_valnum nz₁ * nz_valnum nz₂)%Z;
-     nz_comden := nz_comden nz₁ * nz_comden nz₂ |}.
+     nz_valnum := (nz_valnum nz₁ + nz_valnum nz₂)%Z;
+     nz_comden := nz_comden nz₁ + nz_comden nz₂ |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
@@ -55,16 +55,19 @@ symmetry in Hn; subst x.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
  unfold gcd_nz; simpl.
- rewrite series_mul_comm, Z.mul_comm, Pos.mul_comm.
- reflexivity.
+ rewrite series_mul_comm.
+ f_equal; [ f_equal; apply Z.add_comm | f_equal ].
+ f_equal; [ f_equal; apply Z.add_comm | idtac ].
+ rewrite Pos.add_comm; reflexivity.
 
  unfold gcd_nz; simpl.
- rewrite series_mul_comm, Z.mul_comm, Pos.mul_comm.
- reflexivity.
+ rewrite series_mul_comm, Pos.add_comm.
+ do 5 f_equal; apply Z.add_comm.
 
  unfold gcd_nz; simpl.
- rewrite series_mul_comm, Z.mul_comm, Pos.mul_comm.
- reflexivity.
+ rewrite series_mul_comm, Pos.add_comm.
+ rewrite Z.add_comm, Z.add_assoc, Z.add_shuffle0.
+ rewrite <- Z.add_assoc, Z.add_comm; reflexivity.
 Qed.
 
 Theorem ps_mul_comm : ∀ ps₁ ps₂, ps_mul ps₁ ps₂ ≈ ps_mul ps₂ ps₁.
@@ -95,6 +98,7 @@ constructor; constructor; simpl.
  unfold gcd_nz; simpl.
 bbb.
 
+(* ancienne version *)
 Theorem ps_mul_ident : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
 Proof.
 intros ps.
