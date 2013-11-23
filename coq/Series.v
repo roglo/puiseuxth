@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.30 2013-11-23 19:22:56 deraugla Exp $ *)
+(* $Id: Series.v,v 2.31 2013-11-23 20:00:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -245,10 +245,43 @@ Definition series_mul a b :=
   {| terms k := convol_mul a b k;
      stop := Nbar.add (stop a) (stop b) |}.
 
+End field.
+
+(*
+Add Parametric Morphism α (fld : Field.t α) : (series_add fld) with 
+signature eq_series fld ==> eq_series fld ==> eq_series fld
+
+as series_add_morph.
+Add Parametric
+  H : a ≃ series_inf fld a
+  ============================
+   series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c
+*)
+
+Section field₂.
+ 
+Variable α : Type.
+Variable fld : Field.t α.
+Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
+
+Delimit Scope fld_scope with fld.
+Notation "0" := (Field.zero fld) : fld_scope.
+Notation "1" := (Field.one fld) : fld_scope.
+Notation "a + b" := (Field.add fld a b)
+  (left associativity, at level 50) : fld_scope.
+Notation "a * b" := (Field.mul fld a b)
+  (left associativity, at level 40) : fld_scope.
+
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+
+Notation "'Σ' ( i = b , e ) ' ' f" := (sigma fld b e (λ i, f))
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
+
 Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
   (∀ i j, f i j ≍ g i j)
-  → sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
-    ≍ sigma_aux j dj (λ j, sigma_aux i di (λ i, g i j)).
+  → sigma_aux fld i di (λ i, sigma_aux fld j dj (λ j, f i j))
+    ≍ sigma_aux fld j dj (λ j, sigma_aux fld i di (λ i, g i j)).
 Proof.
 intros f g i di j dj Hfg.
 revert i.
@@ -278,7 +311,7 @@ intros f g i₁ i₂ j₁ j₂ Hfg.
 apply sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
-Theorem series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
+Theorem series_mul_comm : ∀ a b, series_mul fld a b ≃ series_mul fld b a.
 Proof.
 intros a b.
 constructor; intros k.
@@ -295,7 +328,8 @@ destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma stop_series_mul_0_l : ∀ s, stop (series_mul series_0 s) = stop s.
+Lemma stop_series_mul_0_l : ∀ s,
+  stop (series_mul fld (series_0 fld) s) = stop s.
 Proof.
 intros s; simpl.
 destruct (stop s); reflexivity.
@@ -306,7 +340,7 @@ Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level)
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
   (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
-  → sigma_aux b len (λ i, f i) ≍ 0%fld.
+  → sigma_aux fld b len (λ i, f i) ≍ 0%fld.
 Proof.
 intros f b len H.
 revert b H.
@@ -334,7 +368,7 @@ apply all_0_sigma_aux_0.
 intros; apply H.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
+Theorem series_mul_0_l : ∀ s, series_mul fld (series_0 fld) s ≃ series_0 fld.
 Proof.
 intros s.
 constructor; intros i.
@@ -358,20 +392,20 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Lemma delta_0_succ : ∀ i, δ 0 (S i) ≍ 0%fld.
+Lemma delta_0_succ : ∀ i, δ fld 0 (S i) ≍ 0%fld.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
-Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
+Lemma delta_id : ∀ i, δ fld i i ≍ 1%fld.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
 exfalso; apply H₁; reflexivity.
 Qed.
 
-Lemma delta_neq : ∀ i j, i ≠ j → δ i j ≍ 0%fld.
+Lemma delta_neq : ∀ i j, i ≠ j → δ fld i j ≍ 0%fld.
 Proof.
 intros i j Hij; unfold δ.
 destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
@@ -392,8 +426,8 @@ apply Field.add_compat_l, IHk.
 Qed.
 
 Lemma sigma_mul_sigma : ∀ f g k,
-  Σ (i = 0, k)   Σ (j = 0, k)   (δ (i + j) k * (f i * g i j))%fld
-  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   δ (i + j) k * g i j)%fld.
+  Σ (i = 0, k)   Σ (j = 0, k)   (δ fld (i + j) k * (f i * g i j))%fld
+  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   δ fld (i + j) k * g i j)%fld.
 Proof.
 intros f g k.
 apply sigma_compat; intros i.
@@ -452,7 +486,7 @@ induction len; intros; simpl.
   apply Nat.le_antisymm; assumption.
 Qed.
 
-Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
+Theorem series_mul_1_l : ∀ s, series_mul fld (series_1 fld) s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
@@ -562,8 +596,8 @@ destruct st as [st| ].
 Qed.
 
 Lemma mul_sigma_aux_inj : ∀ f a b len,
-  (a * sigma_aux b len (λ i, f i))%fld
-   ≍ sigma_aux b len (λ i, (a * f i)%fld).
+  (a * sigma_aux fld b len (λ i, f i))%fld
+   ≍ sigma_aux fld b len (λ i, (a * f i)%fld).
 Proof.
 intros f a b len.
 revert b.
@@ -582,8 +616,8 @@ Qed.
 Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
   len₁ ≤ len₂
   → (∀ i, b + len₁ < i ≤ b + len₂ → f i ≍ 0%fld)
-    → sigma_aux b len₁ (λ i, f i)
-      ≍ sigma_aux b len₂ (λ i, f i).
+    → sigma_aux fld b len₁ (λ i, f i)
+      ≍ sigma_aux fld b len₂ (λ i, f i).
 Proof.
 intros f b len₁ len₂ Hlen Hi.
 revert b len₁ Hlen Hi.
@@ -616,7 +650,8 @@ apply Hi; omega.
 Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
-  series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c.
+  series_mul fld a (series_mul fld b c)
+  ≃ series_mul fld (series_mul fld a b) c.
 Proof.
 intros a b c.
 assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
