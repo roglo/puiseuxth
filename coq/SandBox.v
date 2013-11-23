@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.102 2013-11-23 10:12:39 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.103 2013-11-23 10:27:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,6 +28,8 @@ Notation "1" := (Field.one fld) : fld_scope.
 
 (* ps_mul *)
 
+(* hou la laaaaaa.... *)
+bbb.
 Definition nz_mul nz₁ nz₂ :=
   {| nz_terms := series_mul fld (nz_terms nz₁) (nz_terms nz₂);
      nz_valnum := (nz_valnum nz₁ + nz_valnum nz₂)%Z;
@@ -82,8 +84,17 @@ destruct ps₁ as [nz₁| ].
  destruct ps₂; reflexivity.
 Qed.
 
+Lemma nz_mul_1_l : ∀ nz, eq_nz fld (nz_mul (nz_monom 1%fld 0) nz) nz.
+Proof.
+bbb.
+
 Theorem ps_mul_1_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
 Proof.
+intros ps; simpl.
+destruct ps as [nz| ]; [ constructor | reflexivity ].
+unfold normalise_nz.
+bbb.
+
 intros ps; simpl.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
 constructor.
