@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.107 2013-11-23 13:03:52 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.108 2013-11-23 13:27:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -45,6 +45,10 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
       end
   | Zero => ps₁
   end.
+
+Delimit Scope ps_scope with ps.
+Notation "a + b" := (ps_add fld a b) : ps_scope.
+Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐ normalise_nz fld (nz_mul nz₂ nz₁).
@@ -133,6 +137,18 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
   apply H₃, Nbar.lt_0_1.
 Qed.
 
+Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
+  ps_mul ps₁ (ps_mul ps₂ ps₃) ≈ ps_mul (ps_mul ps₁ ps₂) ps₃.
+Proof.
+intros ps₁ ps₂ ps₃.
+unfold ps_mul; simpl.
+destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ constructor | reflexivity ].
+unfold normalise_nz; simpl.
+bbb.
+rewrite series_mul_assoc.
+
 Definition ps_fld : Field.t (puiseux_series α) :=
   {| Field.zero := @ps_zero α;
      Field.one := @ps_one α fld;
@@ -153,7 +169,7 @@ Definition ps_fld : Field.t (puiseux_series α) :=
      Field.add_opp_l := @ps_add_opp_l α fld;
      Field.add_compat_l := @ps_add_compat_l α fld;
      Field.mul_comm := @ps_mul_comm;
-     Field.mul_assoc := 0;
+     Field.mul_assoc := @ps_mul_assoc;
      Field.mul_1_l := @ps_mul_1_l
 (*
      Field.mul_compat_l := 0;

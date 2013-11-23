@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.24 2013-11-23 04:11:41 deraugla Exp $ *)
+(* $Id: Series.v,v 2.25 2013-11-23 13:27:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -552,6 +552,32 @@ destruct st as [st| ].
 
    apply Field.mul_0_l.
 Qed.
+
+Theorem series_mul_assoc : ∀ a b c,
+  series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c.
+Proof.
+intros a b c.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_assoc.
+destruct (Nbar.lt_dec (fin i) (stop a + stop b + stop c)) as [H₁| H₁].
+ rename i into k.
+ apply sigma_compat; intros i.
+ apply sigma_compat; intros j.
+ destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
+  Focus 2.
+  rewrite delta_neq; [ idtac | assumption ].
+  do 2 rewrite Field.mul_0_l; reflexivity.
+
+  rewrite H₂, delta_id.
+  do 2 rewrite Field.mul_1_l.
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin i) (stop a)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin i) (stop a + stop b)) as [H₄| H₄].
+    destruct (Nbar.lt_dec (fin j) (stop b + stop c)) as [H₅| H₅].
+     destruct (Nbar.lt_dec (fin j) (stop c)) as [H₆| H₆].
+      unfold convol_mul.
+bbb.
 
 End field.
 
