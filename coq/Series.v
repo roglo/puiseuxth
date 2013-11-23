@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.27 2013-11-23 17:21:59 deraugla Exp $ *)
+(* $Id: Series.v,v 2.28 2013-11-23 18:38:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -564,11 +564,41 @@ intros f i₁ i₂ a.
 apply mul_sigma_aux_inj.
 Qed.
 
-Lemma xxx : ∀ f i₁ i₂ i₃,
-  (∀ i, i₂ < i ≤ i₃ → f i ≍ 0%fld)
-  → Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₃)   f i.
+Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
+  len₁ ≤ len₂
+  → (∀ i, b + len₁ < i ≤ b + len₂ → f i ≍ 0%fld)
+    → sigma_aux b len₁ (λ i, f i)
+      ≍ sigma_aux b len₂ (λ i, f i).
 Proof.
-bbb.
+intros f b len₁ len₂ Hlen Hi.
+revert b len₁ Hlen Hi.
+induction len₂; intros; simpl.
+ apply le_n_0_eq in Hlen; subst len₁; reflexivity.
+
+ destruct len₁; simpl.
+  rewrite all_0_sigma_aux_0.
+   rewrite Field.add_0_r; reflexivity.
+
+   intros i H.
+   apply Hi; omega.
+
+  apply Nat.succ_le_mono in Hlen.
+  apply Field.add_compat_l.
+  apply IHlen₂; [ assumption | idtac ].
+  intros i H.
+  apply Hi; omega.
+Qed.
+
+Lemma sigma_extend_0 : ∀ f i₁ i₂ i₃,
+  i₂ ≤ i₃
+  → (∀ i, i₂ < i ≤ i₃ → f i ≍ 0%fld)
+    → Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₃)   f i.
+Proof.
+intros f i₁ i₂ i₃ Hi₂₃ Hi.
+apply sigma_aux_extend_0; [ omega | idtac ].
+intros i (Hi₁, Hi₂).
+apply Hi; omega.
+Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
   series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c.
@@ -593,17 +623,43 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop b + stop c)) as [H₁| H₁].
    destruct (Nbar.lt_dec (fin i) (stop a + stop b)) as [H₄| H₄].
     destruct (Nbar.lt_dec (fin j) (stop b + stop c)) as [H₅| H₅].
      destruct (Nbar.lt_dec (fin j) (stop c)) as [H₆| H₆].
+      clear H₄ H₅.
+bbb.
       unfold convol_mul.
       rename i into i₁.
       rename j into j₁.
       rewrite mul_sigma_inj, Field.mul_comm, mul_sigma_inj.
-      rewrite xxx with (i₃ := k); symmetry.
-       rewrite xxx with (i₃ := k); symmetry.
-        apply sigma_compat.
-        intros i₂.
+      rewrite sigma_extend_0 with (i₃ := k).
+       symmetry.
+       rewrite sigma_extend_0 with (i₃ := k).
+        symmetry.
+        apply sigma_compat; intros i₂.
         do 2 rewrite mul_sigma_inj.
-        rewrite xxx with (i₃ := k); symmetry.
-         rewrite xxx with (i₃ := k); symmetry.
+        rewrite sigma_extend_0 with (i₃ := k).
+         symmetry.
+         rewrite sigma_extend_0 with (i₃ := k).
+          Focus 1.
+bbb.
+          rewrite sigma_only_one_non_0 with (v := (i₁ - i₂)%nat).
+           rewrite sigma_only_one_non_0 with (v := (j₁ - i₂)%nat).
+            Focus 1.
+            destruct (le_dec i₂ i₁) as [H₇| H₇].
+             rewrite <- le_plus_minus; [ idtac | assumption ].
+             rewrite delta_id, Field.mul_1_l.
+             destruct (le_dec i₂ j₁) as [H₈| H₈].
+              rewrite <- le_plus_minus; [ idtac | assumption ].
+              rewrite delta_id, Field.mul_1_l.
+              Unfocus.
+              Unfocus.
+              4: omega.
+
+              11: omega.
+
+             12: omega.
+
+            9: omega.
+
+            5: omega.
 bbb.
 
 End field.
