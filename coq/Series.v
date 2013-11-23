@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.26 2013-11-23 16:38:27 deraugla Exp $ *)
+(* $Id: Series.v,v 2.27 2013-11-23 17:21:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -546,10 +546,23 @@ destruct st as [st| ].
    apply Field.mul_0_l.
 Qed.
 
-Lemma zzz : ∀ f i₁ i₂ a,
+Lemma mul_sigma_aux_inj : ∀ f a b len,
+  (a * sigma_aux b len (λ i, f i))%fld
+   ≍ sigma_aux b len (λ i, (a * f i)%fld).
+Proof.
+intros f a b len.
+revert b.
+induction len; intros; [ reflexivity | simpl ].
+rewrite Field.mul_add_distr_l.
+rewrite IHlen; reflexivity.
+Qed.
+
+Lemma mul_sigma_inj : ∀ f i₁ i₂ a,
   (a * Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₂)   a * f i)%fld.
 Proof.
-bbb.
+intros f i₁ i₂ a.
+apply mul_sigma_aux_inj.
+Qed.
 
 Lemma xxx : ∀ f i₁ i₂ i₃,
   (∀ i, i₂ < i ≤ i₃ → f i ≍ 0%fld)
@@ -583,12 +596,12 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop b + stop c)) as [H₁| H₁].
       unfold convol_mul.
       rename i into i₁.
       rename j into j₁.
-      rewrite zzz, Field.mul_comm, zzz.
+      rewrite mul_sigma_inj, Field.mul_comm, mul_sigma_inj.
       rewrite xxx with (i₃ := k); symmetry.
        rewrite xxx with (i₃ := k); symmetry.
         apply sigma_compat.
         intros i₂.
-        do 2 rewrite zzz.
+        do 2 rewrite mul_sigma_inj.
         rewrite xxx with (i₃ := k); symmetry.
          rewrite xxx with (i₃ := k); symmetry.
 bbb.
