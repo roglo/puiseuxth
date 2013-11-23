@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.105 2013-11-23 11:28:20 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.106 2013-11-23 12:06:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -93,119 +93,51 @@ Lemma fold_series_1 :
   {| terms := λ _, Field.one fld; stop := 1 |} = series_1 fld.
 Proof. reflexivity. Qed.
 
-Lemma nz_comden_mul_1_l : ∀ nz,
-  nz_comden (nz_mul (nz_monom 1%fld 0) nz) = Pos.succ (nz_comden nz).
-Proof.
-intros nz.
-bbb.
-
 Theorem ps_mul_1_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
 Proof.
 intros ps; simpl.
 destruct ps as [nz| ]; [ constructor | reflexivity ].
-unfold normalise_nz.
-remember nz_comden as f; simpl; subst f.
+unfold normalise_nz; simpl.
 rewrite fold_series_1, series_mul_1_l.
 remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; constructor; remember nz_mul as f; simpl; subst f.
- rewrite series_mul_1_l.
- unfold gcd_nz; remember nz_mul as f; simpl; subst f.
- remember nz_comden as f; simpl; subst f.
-bbb.
-
-intros ps; simpl.
-destruct ps as [nz| ]; [ simpl | reflexivity ].
-constructor.
-unfold normalise_nz; simpl.
-replace {| terms := λ _, Field.one fld; stop := 1 |} with 
- (series_1 fld) by reflexivity.
-rewrite series_mul_1_l.
-remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
-destruct n; [ idtac | reflexivity ].
 constructor; constructor; simpl.
  rewrite series_mul_1_l.
  unfold gcd_nz; simpl.
-bbb.
+ rewrite Z.mul_1_r; reflexivity.
 
-(* ancienne version *)
-Theorem ps_mul_ident : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
-Proof.
-intros ps.
-unfold ps_mul; simpl.
-destruct ps as [nz| ]; [ idtac | reflexivity ].
-unfold cm_factor; simpl.
-rewrite Z.mul_1_r.
-apply eq_non_zero_ps with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
-rewrite series_stretch_1.
-rewrite series_stretch_1 in |- * at 2.
-apply eq_series_base; simpl.
-bbb.
- intros i.
- destruct i; simpl.
-  unfold series_nth; simpl.
-  rewrite Nat.add_0_r.
-  destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [H| H].
-   rewrite Nbar.mul_1_r.
-   remember (stop (nz_terms nz)) as st.
-   destruct st as [st| ]; simpl.
-    destruct (lt_dec 0 st) as [H₁| H₁].
-     rewrite Nat.mod_0_l; simpl.
-      rewrite fld_mul_ident; reflexivity.
+ rewrite series_mul_1_l.
+ unfold gcd_nz; simpl.
+ rewrite Z.mul_1_r; reflexivity.
 
-      apply Pos2Nat_ne_0.
+ rewrite series_mul_1_l.
+ unfold gcd_nz; simpl.
+ rewrite Z.mul_1_r; reflexivity.
+Qed.
 
-     apply not_gt in H₁.
-     apply Nat.le_0_r in H₁.
-     subst st.
-Focus 1.
-bbb.
-
-intros ps.
-unfold ps_mul; simpl.
-destruct ps as [nz| ]; [ idtac | reflexivity ].
-unfold cm_factor; simpl.
-rewrite Z.mul_1_r.
-constructor 1 with (k₁ := xH) (k₂ := xH); try reflexivity; simpl.
-rewrite series_stretch_1.
-rewrite series_stretch_1 in |- * at 2.
-constructor; simpl.
- intros i.
- remember
-  (sum_mul_coeff fld 1 i
-     (series_stretch fld (Pos.to_nat (nz_comden nz))
-        {| terms := λ _ : nat, one fld; stop := 1 |})
-     (series_stretch fld (Pos.to_nat 1) (nz_terms nz))) as x.
- symmetry in Heqx.
- destruct x as [x| ].
-  unfold series_nth; simpl.
-  rewrite Nat.add_0_r.
-  destruct (lt_dec 0 (Pos.to_nat (nz_comden nz))) as [| Bad].
-   rewrite Nbar.mul_1_r.
-   remember (stop (nz_terms nz)) as st.
-   symmetry in Heqst.
-   destruct st as [st| ].
-    destruct (lt_dec i st) as [H| H].
-     rewrite Nat.mod_0_l; [ simpl | apply Pos2Nat_ne_0 ].
-     rewrite divmod_div.
-     rewrite Nat.div_1_r.
-     rewrite fld_mul_ident.
-bbb.
-
-Definition ps_fld : field (puiseux_series α) :=
-  {| zero := ps_zero;
-     one := ps_one;
-     add := ps_add fld;
-     mul := ps_mul fld;
-     fld_eq := eq_ps fld;
-     fld_eq_refl := eq_ps_refl fld;
-     fld_eq_sym := eq_ps_sym (fld := fld);
-     fld_eq_trans := eq_ps_trans (fld := fld);
-     fld_add_comm := ps_add_comm;
-     fld_add_assoc := ps_add_assoc;
-     fld_add_0_l := ps_add_ident;
-     fld_add_compat := ps_add_compat;
-     fld_mul_ident := ps_mul_ident |}.
+Definition ps_fld : Field.t (puiseux_series α) :=
+  {| Field.zero := @ps_zero α;
+     Field.one := @ps_one α fld;
+     Field.add := @ps_add α fld;
+     Field.mul := @ps_mul;
+     Field.opp := 0;
+     Field.inv := 0;
+     Field.eq := eq_ps fld;
+     Field.eq_refl := 0;
+     Field.eq_sym := 0;
+     Field.eq_trans := 0;
+     Field.neq_1_0 := 0;
+     Field.add_comm := 0;
+     Field.add_assoc := 0;
+     Field.add_0_l := 0;
+     Field.add_opp_l := 0;
+     Field.add_compat_l := 0;
+     Field.mul_comm := 0;
+     Field.mul_assoc := 0;
+     Field.mul_1_l := 0;
+     Field.mul_compat_l := 0;
+     Field.mul_inv_l := 0;
+     Field.mul_add_distr_l := 0 |}.
 
 End fld₄.
