@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.100 2013-11-23 04:13:40 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.101 2013-11-23 04:18:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,6 +21,10 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
 Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
+
+Delimit Scope fld_scope with fld.
+Notation "0" := (Field.zero fld) : fld_scope.
+Notation "1" := (Field.one fld) : fld_scope.
 
 (* ps_mul *)
 
@@ -85,6 +89,10 @@ replace {| terms := λ _, Field.one fld; stop := 1 |} with
  (series_1 fld) by reflexivity.
 rewrite series_mul_1_l.
 remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
+destruct n; [ idtac | reflexivity ].
+constructor; constructor; simpl.
+ rewrite series_mul_1_l.
+ unfold gcd_nz; simpl.
 bbb.
 
 Theorem ps_mul_ident : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
