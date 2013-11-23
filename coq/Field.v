@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.21 2013-11-22 19:20:28 deraugla Exp $ *)
+(* $Id: Field.v,v 2.22 2013-11-23 03:47:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -24,13 +24,13 @@ Record t α :=
     add_comm : ∀ a b, eq (add a b) (add b a);
     add_assoc : ∀ a b c, eq (add a (add b c)) (add (add a b) c);
     add_0_l : ∀ a, eq (add zero a) a;
-    add_opp_diag_r : ∀ a, eq (add a (opp a)) zero;
-    add_compat_r : ∀ a b c, eq a b → eq (add a c) (add b c);
+    add_opp_l : ∀ a, eq (add (opp a) a) zero;
+    add_compat_l : ∀ a b c, eq a b → eq (add c a) (add c b);
     mul_comm : ∀ a b, eq (mul a b) (mul b a);
     mul_assoc : ∀ a b c, eq (mul a (mul b c)) (mul (mul a b) c);
     mul_1_l : ∀ a, eq (mul one a) a;
-    mul_compat_r : ∀ a b c, eq a b → eq (mul a c) (mul b c);
-    mul_inv : ∀ a, not (eq a zero) → eq (mul (inv a) a) one;
+    mul_compat_l : ∀ a b c, eq a b → eq (mul c a) (mul c b);
+    mul_inv_l : ∀ a, not (eq a zero) → eq (mul (inv a) a) one;
     mul_add_distr_l : ∀ a b c,
       eq (mul a (add b c)) (add (mul a b) (mul a c)) }.
 
@@ -45,10 +45,12 @@ signature eq fld ==> eq fld ==> eq fld
   as add_morph.
 Proof.
 intros a b Hab c d Hcd.
-rewrite add_compat_r; [ idtac | eassumption ].
 rewrite add_comm; symmetry.
 rewrite add_comm; symmetry.
-rewrite add_compat_r; [ reflexivity | eassumption ].
+rewrite add_compat_l; [ idtac | eassumption ].
+rewrite add_comm; symmetry.
+rewrite add_comm; symmetry.
+rewrite add_compat_l; [ reflexivity | eassumption ].
 Qed.
 
 Add Parametric Morphism α (fld : t α) : (mul fld) with 
@@ -56,10 +58,12 @@ signature eq fld ==> eq fld ==> eq fld
   as mul_morph.
 Proof.
 intros a b Hab c d Hcd.
-rewrite mul_compat_r; [ idtac | eassumption ].
 rewrite mul_comm; symmetry.
 rewrite mul_comm; symmetry.
-rewrite mul_compat_r; [ reflexivity | eassumption ].
+rewrite mul_compat_l; [ idtac | eassumption ].
+rewrite mul_comm; symmetry.
+rewrite mul_comm; symmetry.
+rewrite mul_compat_l; [ reflexivity | eassumption ].
 Qed.
 
 Section fld.
@@ -67,6 +71,7 @@ Section fld.
 Variable α : Type.
 Variable fld : t α.
 Notation "a ≍ b" := (eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (eq fld a b)) (at level 70).
 
 Delimit Scope scope with fld.
 Notation "0" := (zero fld) : scope.
@@ -78,6 +83,37 @@ Notation "a - b" := (add fld a (opp fld b))
   (left associativity, at level 50) : scope.
 Notation "a * b" := (mul fld a b)
   (left associativity, at level 40) : scope.
+
+Theorem add_opp_r : ∀ x, (x + (-x) ≍ 0)%fld.
+Proof.
+intros x; rewrite add_comm.
+apply add_opp_l.
+Qed.
+
+Theorem mul_1_r : ∀ a, (a * 1 ≍ a)%fld.
+Proof.
+intros a.
+rewrite mul_comm, mul_1_l.
+reflexivity.
+Qed.
+
+Theorem mul_inv_r : ∀ x, (x ≭ 0 → x * inv fld x ≍ 1)%fld.
+Proof.
+intros x H; rewrite mul_comm.
+apply mul_inv_l; assumption.
+Qed.
+
+Theorem add_compat_r : ∀ a b c, (a ≍ b → a + c ≍ b + c)%fld.
+Proof.
+intros a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
+
+Theorem mul_compat_r : ∀ a b c, (a ≍ b → a * c ≍ b * c)%fld.
+Proof.
+intros a b c Hab.
+rewrite Hab; reflexivity.
+Qed.
 
 Theorem mul_add_distr_r : ∀ x y z,
  ((x + y) * z)%fld ≍ (x * z + y * z)%fld.
@@ -113,7 +149,7 @@ constructor.
 
  reflexivity.
 
- apply add_opp_diag_r.
+ apply add_opp_r.
 Qed.
 
 (* comment ça marche, ce truc-là ? et à quoi ça sert ?
@@ -135,7 +171,7 @@ Definition field :=
   {| F_R := ring;
      F_1_neq_0 := neq_1_0 fld;
      Fdiv_def x y := eq_refl fld (mul fld x (inv fld y));
-     Finv_l := mul_inv fld |}.
+     Finv_l := mul_inv_l fld |}.
 
 (* *)
 
@@ -149,13 +185,7 @@ Qed.
 Theorem opp_0 : (- 0 ≍ 0)%fld.
 Proof.
 etransitivity; [ symmetry; apply add_0_l | idtac ].
-apply add_opp_diag_r.
-Qed.
-
-Theorem add_compat_l : ∀ a b c, (a ≍ b → c + a ≍ c + b)%fld.
-Proof.
-intros a b c Hab.
-rewrite Hab; reflexivity.
+apply add_opp_r.
 Qed.
 
 Theorem add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%fld.
@@ -163,7 +193,7 @@ Proof.
 intros a b c Habc.
 apply add_compat_r with (c := (- c)%fld) in Habc.
 do 2 rewrite <- add_assoc in Habc.
-rewrite add_opp_diag_r in Habc.
+rewrite add_opp_r in Habc.
 do 2 rewrite add_0_r in Habc.
 assumption.
 Qed.
@@ -175,6 +205,24 @@ apply add_reg_r with (c := c).
 rewrite add_comm; symmetry.
 rewrite add_comm; symmetry.
 assumption.
+Qed.
+
+Theorem mul_reg_r : ∀ a b c, (c ≭ 0 → a * c ≍ b * c → a ≍ b)%fld.
+Proof.
+intros a b c Hc Habc.
+apply mul_compat_r with (c := inv fld c) in Habc.
+do 2 rewrite <- mul_assoc in Habc.
+rewrite mul_inv_r in Habc; [ idtac | assumption ].
+do 2 rewrite mul_1_r in Habc.
+assumption.
+Qed.
+
+Theorem mul_reg_l : ∀ a b c, (c ≭ 0 → c * a ≍ c * b → a ≍ b)%fld.
+Proof.
+intros a b c Hc Habc.
+rewrite mul_comm in Habc; symmetry in Habc.
+rewrite mul_comm in Habc; symmetry in Habc.
+eapply mul_reg_r; eassumption.
 Qed.
 
 Theorem add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
@@ -207,13 +255,6 @@ rewrite mul_comm, mul_0_l.
 reflexivity.
 Qed.
 
-Theorem mul_1_r : ∀ a, (a * 1 ≍ a)%fld.
-Proof.
-intros a.
-rewrite mul_comm, mul_1_l.
-reflexivity.
-Qed.
-
 Theorem add_shuffle0 : ∀ n m p,
   eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
 Proof.
@@ -230,6 +271,26 @@ intros n m p.
 do 2 rewrite <- mul_assoc.
 assert (eq fld (mul fld m p) (mul fld p m)) as H by apply mul_comm.
 rewrite H; reflexivity.
+Qed.
+
+Theorem mul_eq_0 : ∀ n m, (n ≍ 0 ∨ m ≍ 0 → n * m ≍ 0)%fld.
+Proof.
+intros n m H.
+destruct H as [H| H]; rewrite H; [ apply mul_0_l | apply mul_0_r ].
+Qed.
+
+Theorem eq_mul_0_l : ∀ n m, (n * m ≍ 0 → m ≭ 0 → n ≍ 0)%fld.
+Proof.
+intros n m Hnm Hm.
+rewrite <- mul_0_l with (a := m) in Hnm.
+apply mul_reg_r in Hnm; assumption.
+Qed.
+
+Theorem eq_mul_0_r : ∀ n m, (n * m ≍ 0 → n ≭ 0 → m ≍ 0)%fld.
+Proof.
+intros n m Hnm Hm.
+rewrite <- mul_0_r with (a := n) in Hnm.
+apply mul_reg_l in Hnm; assumption.
 Qed.
 
 End fld.
