@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.29 2013-11-23 18:52:23 deraugla Exp $ *)
+(* $Id: Series.v,v 2.30 2013-11-23 19:22:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -21,6 +21,9 @@ Definition series_nth α n (s : series α) :=
 
 Definition series_nth_fld α fld n (s : series α) :=
   if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.zero fld.
+
+Definition series_inf α fld (a : series α) :=
+  {| terms i := series_nth_fld fld i a; stop := ∞ |}.
 
 Theorem stop_0_series_nth_None : ∀ α (s : series α),
   stop s = 0%Nbar → series_nth 0 s = None.
@@ -75,6 +78,18 @@ intros s₁ s₂ s₃ H₁ H₂.
 inversion H₁; inversion H₂; subst.
 constructor.
 etransitivity; [ apply H | apply H2 ].
+Qed.
+
+(* *)
+
+Lemma series_inf_eq : ∀ a, a ≃ series_inf fld a.
+Proof.
+intros a.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ reflexivity | idtac ].
+exfalso; apply H₁; constructor.
 Qed.
 
 (* series_add *)
@@ -604,11 +619,18 @@ Theorem series_mul_assoc : ∀ a b c,
   series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c.
 Proof.
 intros a b c.
+assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
+bbb.
+rewrite H.
+
+intros a b c.
+bbb.
 constructor; intros i.
 unfold series_nth_fld; simpl.
 rewrite Nbar.add_assoc.
 destruct (Nbar.lt_dec (fin i) (stop a + stop b + stop c)) as [H₁| H₁].
  rename i into k.
+bbb.
  apply sigma_compat; intros i.
  apply sigma_compat; intros j.
  destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
