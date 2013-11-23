@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.23 2013-11-23 03:52:02 deraugla Exp $ *)
+(* $Id: Series.v,v 2.24 2013-11-23 04:11:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -452,46 +452,8 @@ unfold series_nth_fld; simpl.
 remember (stop s) as st eqn:Hst .
 symmetry in Hst.
 destruct st as [st| ].
- Focus 2.
- destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
- unfold convol_mul.
- rename i into k.
- Unfocus.
  destruct (Nbar.lt_dec (fin i) (fin st)) as [H₁| H₁].
-  Focus 2.
   destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
-   unfold convol_mul.
-   rename i into k.
-   apply all_0_sigma_0; intros i.
-   apply all_0_sigma_0; intros j.
-   destruct i; simpl.
-    unfold series_nth_fld; simpl.
-    destruct (Nbar.lt_dec (fin j) (stop s)) as [H₃| H₃].
-     unfold δ.
-     destruct (eq_nat_dec j k) as [H₄| H₄].
-      subst j.
-      rewrite Hst in H₃; contradiction.
-
-      rewrite Field.mul_0_l; reflexivity.
-
-     rewrite Field.mul_assoc, Field.mul_0_r; reflexivity.
-
-    unfold series_nth_fld; simpl.
-    destruct (Nbar.lt_dec (fin (S i)) 1) as [H₃| H₃].
-     apply Nbar.nle_gt in H₃.
-     exfalso; apply H₃.
-     apply Nbar.fin_le_mono, le_n_S, Nat.le_0_l.
-
-     rewrite Field.mul_0_l, Field.mul_0_r; reflexivity.
-
-   reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
-   Focus 2.
-   exfalso; apply H₂.
-   eapply Nbar.lt_trans; [ eassumption | idtac ].
-   apply Nbar.lt_fin, Nat.lt_succ_r; reflexivity.
-
    unfold convol_mul.
    rename i into k.
    rewrite sigma_mul_sigma.
@@ -524,44 +486,72 @@ destruct st as [st| ].
      apply Nat.lt_1_r in H₃; contradiction.
 
      apply Field.mul_0_l.
-bbb.
 
-intros s.
-constructor; intros i.
-unfold series_nth_fld.
-destruct (Nbar.lt_dec (fin i) (stop (series_mul series_1 s))) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
-  simpl.
-  unfold convol_mul, sigma.
-  rewrite Nat.sub_0_r.
-  destruct i; simpl.
-   unfold δ; simpl.
-   rewrite Field.mul_1_l.
-   unfold series_nth_fld; simpl.
-   destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-    destruct (Nbar.lt_dec 0 (stop s)) as [H₄| H₄]; [ idtac | contradiction ].
-    rewrite Field.mul_1_l; reflexivity.
+   exfalso; apply H₂.
+   eapply Nbar.lt_trans; [ eassumption | idtac ].
+   apply Nbar.lt_fin, Nat.lt_succ_r; reflexivity.
 
-    exfalso; apply H₃, Nbar.lt_0_1.
-
-   destruct i.
-    simpl; unfold δ; simpl.
-    do 2 rewrite Field.mul_1_l.
-    rewrite Field.mul_0_l, Field.add_0_l.
-    rewrite Field.mul_0_l, Field.add_0_r.
+  destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
+   unfold convol_mul.
+   rename i into k.
+   apply all_0_sigma_0; intros i.
+   apply all_0_sigma_0; intros j.
+   destruct i; simpl.
     unfold series_nth_fld; simpl.
-    destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-     rewrite Field.mul_1_l.
-     destruct (Nbar.lt_dec 1 (stop s)) as [H₄| H₄]; [ idtac | contradiction ].
-     destruct (Nbar.lt_dec 1 1) as [H₅| H₅].
-      exfalso; revert H₅; apply Nbar.lt_irrefl.
+    destruct (Nbar.lt_dec (fin j) (stop s)) as [H₃| H₃].
+     unfold δ.
+     destruct (eq_nat_dec j k) as [H₄| H₄].
+      subst j.
+      rewrite Hst in H₃; contradiction.
 
-      rewrite Field.mul_0_l, Field.add_0_r.
-      reflexivity.
+      rewrite Field.mul_0_l; reflexivity.
 
-     exfalso; apply H₃, Nbar.lt_0_1.
-bbb.
-*)
+     rewrite Field.mul_assoc, Field.mul_0_r; reflexivity.
+
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec (fin (S i)) 1) as [H₃| H₃].
+     apply Nbar.nle_gt in H₃.
+     exfalso; apply H₃.
+     apply Nbar.fin_le_mono, le_n_S, Nat.le_0_l.
+
+     rewrite Field.mul_0_l, Field.mul_0_r; reflexivity.
+
+   reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
+ unfold convol_mul.
+ rename i into k.
+ rewrite sigma_mul_sigma.
+ rewrite sigma_only_one_non_0 with (v := O).
+  simpl.
+  unfold series_nth_fld at 1; simpl.
+  destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
+   rewrite Field.mul_1_l.
+   rewrite sigma_only_one_non_0 with (v := k).
+    rewrite delta_id, Field.mul_1_l.
+    unfold series_nth_fld.
+    rewrite <- Hst in H₁.
+    destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
+    reflexivity.
+
+    split; [ apply Nat.le_0_l | reflexivity ].
+
+    intros i Hik.
+    rewrite delta_neq; [ idtac | assumption ].
+    apply Field.mul_0_l.
+
+   exfalso; apply H₃, Nbar.lt_0_1.
+
+  split; [ reflexivity | apply Nat.le_0_l ].
+
+  intros i Hi.
+  unfold series_nth_fld at 1; simpl.
+  destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
+   apply Nbar.fin_lt_mono in H₃.
+   apply Nat.lt_1_r in H₃; contradiction.
+
+   apply Field.mul_0_l.
+Qed.
 
 End field.
 

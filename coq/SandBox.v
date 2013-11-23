@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.99 2013-11-22 19:20:29 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.100 2013-11-23 04:13:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,7 +83,8 @@ constructor.
 unfold normalise_nz; simpl.
 replace {| terms := λ _, Field.one fld; stop := 1 |} with 
  (series_1 fld) by reflexivity.
-
+rewrite series_mul_1_l.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
 bbb.
 
 Theorem ps_mul_ident : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
