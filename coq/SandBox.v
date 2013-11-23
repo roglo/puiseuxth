@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.103 2013-11-23 10:27:14 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.104 2013-11-23 11:14:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,12 +28,13 @@ Notation "1" := (Field.one fld) : fld_scope.
 
 (* ps_mul *)
 
-(* hou la laaaaaa.... *)
-bbb.
 Definition nz_mul nz₁ nz₂ :=
-  {| nz_terms := series_mul fld (nz_terms nz₁) (nz_terms nz₂);
-     nz_valnum := (nz_valnum nz₁ + nz_valnum nz₂)%Z;
-     nz_comden := nz_comden nz₁ + nz_comden nz₂ |}.
+  {| nz_terms :=
+       series_mul fld (nz_terms nz₁) (nz_terms nz₂);
+     nz_valnum :=
+       (nz_valnum nz₁ * ' nz_comden nz₂ + nz_valnum nz₂ * ' nz_comden nz₁)%Z;
+     nz_comden :=
+       nz_comden nz₁ * nz_comden nz₂ |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
@@ -84,8 +85,14 @@ destruct ps₁ as [nz₁| ].
  destruct ps₂; reflexivity.
 Qed.
 
-Lemma nz_mul_1_l : ∀ nz, eq_nz fld (nz_mul (nz_monom 1%fld 0) nz) nz.
+Lemma fold_series_1 :
+  {| terms := λ _, Field.one fld; stop := 1 |} = series_1 fld.
+Proof. reflexivity. Qed.
+
+Lemma nz_comden_mul_1_l : ∀ nz,
+  nz_comden (nz_mul (nz_monom 1%fld 0) nz) = Pos.succ (nz_comden nz).
 Proof.
+intros nz.
 bbb.
 
 Theorem ps_mul_1_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
@@ -93,6 +100,15 @@ Proof.
 intros ps; simpl.
 destruct ps as [nz| ]; [ constructor | reflexivity ].
 unfold normalise_nz.
+remember nz_comden as f; simpl; subst f.
+rewrite fold_series_1, series_mul_1_l.
+remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | reflexivity ].
+constructor; constructor; remember nz_mul as f; simpl; subst f.
+ rewrite series_mul_1_l.
+ unfold gcd_nz; remember nz_mul as f; simpl; subst f.
+ remember nz_comden as f; simpl; subst f.
 bbb.
 
 intros ps; simpl.
