@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.51 2013-11-22 19:20:28 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.52 2013-11-23 13:03:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -507,9 +507,9 @@ Delimit Scope ps_scope with ps.
 Notation "a + b" := (ps_add a b) : ps_scope.
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_add (ps_add ps₁ ps₂) ps₃ ≈ ps_add ps₁ (ps_add ps₂ ps₃).
+  ps_add ps₁ (ps_add ps₂ ps₃) ≈ ps_add (ps_add ps₁ ps₂) ps₃.
 Proof.
-intros ps₁ ps₂ ps₃.
+intros ps₁ ps₂ ps₃; symmetry.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
@@ -537,7 +537,7 @@ Definition ps_opp ps :=
   | Zero => Zero _
   end.
 
-Theorem ps_add_opp : ∀ ps, ps_add ps (ps_opp ps) ≈ ps_zero _.
+Theorem ps_add_opp_r : ∀ ps, ps_add ps (ps_opp ps) ≈ ps_zero _.
 Proof.
 intros ps.
 unfold ps_zero.
@@ -555,6 +555,13 @@ rewrite <- series_stretch_add_distr.
 rewrite series_add_opp.
 rewrite series_stretch_series_0.
 reflexivity.
+Qed.
+
+Theorem ps_add_opp_l : ∀ ps, ps_add (ps_opp ps) ps ≈ ps_zero _.
+Proof.
+intros ps.
+rewrite ps_add_comm.
+apply ps_add_opp_r.
 Qed.
 
 Definition nz_zero :=

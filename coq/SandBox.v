@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.106 2013-11-23 12:06:24 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.107 2013-11-23 13:03:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -116,28 +116,50 @@ constructor; constructor; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
+Theorem ps_neq_1_0 : not (ps_one fld ≈ ps_zero _).
+Proof.
+intros H.
+inversion_clear H.
+inversion_clear H0.
+pose proof (H O) as H₁.
+unfold series_nth_fld in H₁.
+simpl in H₁.
+destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
+ revert H₂; apply Nbar.lt_irrefl.
+
+ destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
+  apply Field.neq_1_0 in H₁; contradiction.
+
+  apply H₃, Nbar.lt_0_1.
+Qed.
+
 Definition ps_fld : Field.t (puiseux_series α) :=
   {| Field.zero := @ps_zero α;
      Field.one := @ps_one α fld;
      Field.add := @ps_add α fld;
      Field.mul := @ps_mul;
-     Field.opp := 0;
+     Field.opp := @ps_opp α fld;
+(*
      Field.inv := 0;
-     Field.eq := eq_ps fld;
-     Field.eq_refl := 0;
-     Field.eq_sym := 0;
-     Field.eq_trans := 0;
-     Field.neq_1_0 := 0;
-     Field.add_comm := 0;
-     Field.add_assoc := 0;
-     Field.add_0_l := 0;
-     Field.add_opp_l := 0;
-     Field.add_compat_l := 0;
-     Field.mul_comm := 0;
+*)
+     Field.eq := @eq_ps α fld;
+     Field.eq_refl := @eq_ps_refl α fld;
+     Field.eq_sym := @eq_ps_sym α fld;
+     Field.eq_trans := @eq_ps_trans α fld;
+     Field.neq_1_0 := @ps_neq_1_0;
+     Field.add_comm := @ps_add_comm α fld;
+     Field.add_assoc := @ps_add_assoc α fld;
+     Field.add_0_l := @ps_add_0_l α fld;
+     Field.add_opp_l := @ps_add_opp_l α fld;
+     Field.add_compat_l := @ps_add_compat_l α fld;
+     Field.mul_comm := @ps_mul_comm;
      Field.mul_assoc := 0;
-     Field.mul_1_l := 0;
+     Field.mul_1_l := @ps_mul_1_l
+(*
      Field.mul_compat_l := 0;
      Field.mul_inv_l := 0;
-     Field.mul_add_distr_l := 0 |}.
+     Field.mul_add_distr_l := 0
+*)
+   |}.
 
 End fld₄.

@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.5 2013-11-22 19:20:28 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.6 2013-11-23 13:03:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import ZArith.
@@ -899,6 +899,16 @@ destruct ps₁ as [nz₁| ].
  apply ps_add_0_l_compat_r.
  symmetry.
  assumption.
+Qed.
+
+Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
+  ps₁ ≈ ps₂
+  → (ps₃ + ps₁)%ps ≈ (ps₃ + ps₂)%ps.
+Proof.
+intros ps1 ps₂ ps₃ H₁₂.
+rewrite ps_add_comm; symmetry.
+rewrite ps_add_comm; symmetry.
+apply ps_add_compat_r; assumption.
 Qed.
 
 End fld.
