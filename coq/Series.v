@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.31 2013-11-23 20:00:03 deraugla Exp $ *)
+(* $Id: Series.v,v 2.32 2013-11-23 20:26:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -245,17 +245,98 @@ Definition series_mul a b :=
   {| terms k := convol_mul a b k;
      stop := Nbar.add (stop a) (stop b) |}.
 
+Lemma sigma_compat : ∀ f g k,
+  (∀ i, f i ≍ g i)
+  → Σ (i = 0, k)  f i ≍ Σ (i = 0, k)   g i.
+Proof.
+intros f g k Hfg.
+unfold sigma; rewrite Nat.sub_0_r.
+remember 0%nat as b; clear Heqb.
+revert b.
+induction k; intros; [ apply Hfg | simpl ].
+rewrite Hfg.
+apply Field.add_compat_l, IHk.
+Qed.
+
+Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
+
+Lemma all_0_sigma_aux_0 : ∀ f b len,
+  (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
+  → sigma_aux b len (λ i, f i) ≍ 0%fld.
+Proof.
+intros f b len H.
+revert b H.
+induction len; intros; simpl.
+ apply H.
+ rewrite Nat.add_0_r; split; reflexivity.
+
+ rewrite H, Field.add_0_l.
+  apply IHlen.
+  intros i (Hbi, Hib).
+  apply H.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+  split; [ idtac | assumption ].
+  apply Nat.lt_le_incl; assumption.
+
+  split; [ reflexivity | idtac ].
+  apply Nat.le_add_r.
+Qed.
+
+Lemma all_0_sigma_0 : ∀ f i₁ i₂,
+  (∀ i, f i ≍ 0%fld) → Σ (i = i₁, i₂)   f i ≍ 0%fld.
+Proof.
+intros f i₁ i₂ H.
+apply all_0_sigma_aux_0.
+intros; apply H.
+Qed.
+
+Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
+Proof.
+intros i; unfold δ.
+destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
+exfalso; apply H₁; reflexivity.
+Qed.
+
 End field.
 
-(*
-Add Parametric Morphism α (fld : Field.t α) : (series_add fld) with 
-signature eq_series fld ==> eq_series fld ==> eq_series fld
+Add Parametric Relation α (fld : Field.t α) : (series α) (eq_series fld)
+ reflexivity proved by (eq_series_refl fld)
+ symmetry proved by (eq_series_sym (fld := fld))
+ transitivity proved by (eq_series_trans (fld := fld))
+ as eq_series_rel.
 
-as series_add_morph.
-Add Parametric
-  H : a ≃ series_inf fld a
-  ============================
-   series_mul a (series_mul b c) ≃ series_mul (series_mul a b) c
+Add Parametric Morphism α (fld : Field.t α) : (series_mul fld)
+with signature eq_series fld ==> eq_series fld ==> eq_series fld
+as series_mul_morph.
+Proof.
+intros a b Hab c d Hcd.
+constructor.
+intros i.
+inversion Hab; subst.
+inversion Hcd; subst.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
+  unfold convol_mul.
+  rename i into k.
+  apply sigma_compat; intros i.
+  apply sigma_compat; intros j.
+  rewrite H, H0.
+  reflexivity.
+
+  unfold convol_mul.
+  rename i into k.
+  apply all_0_sigma_0; intros i.
+  apply all_0_sigma_0; intros j.
+  destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
+   rewrite H₃, delta_id, Field.mul_1_l, H.
+   unfold series_nth_fld; simpl.
+   destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
+    destruct (Nbar.lt_dec (fin j) (stop c)) as [H₅| H₅].
+     exfalso; apply H₂.
+     rewrite <- H₃.
+bbb.
 *)
 
 Section field₂.
@@ -335,39 +416,6 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
-Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
-
-Lemma all_0_sigma_aux_0 : ∀ f b len,
-  (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
-  → sigma_aux fld b len (λ i, f i) ≍ 0%fld.
-Proof.
-intros f b len H.
-revert b H.
-induction len; intros; simpl.
- apply H.
- rewrite Nat.add_0_r; split; reflexivity.
-
- rewrite H, Field.add_0_l.
-  apply IHlen.
-  intros i (Hbi, Hib).
-  apply H.
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-  split; [ idtac | assumption ].
-  apply Nat.lt_le_incl; assumption.
-
-  split; [ reflexivity | idtac ].
-  apply Nat.le_add_r.
-Qed.
-
-Lemma all_0_sigma_0 : ∀ f i₁ i₂,
-  (∀ i, f i ≍ 0%fld) → Σ (i = i₁, i₂)   f i ≍ 0%fld.
-Proof.
-intros f i₁ i₂ H.
-apply all_0_sigma_aux_0.
-intros; apply H.
-Qed.
-
 Theorem series_mul_0_l : ∀ s, series_mul fld (series_0 fld) s ≃ series_0 fld.
 Proof.
 intros s.
@@ -398,31 +446,11 @@ intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
-Lemma delta_id : ∀ i, δ fld i i ≍ 1%fld.
-Proof.
-intros i; unfold δ.
-destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
-exfalso; apply H₁; reflexivity.
-Qed.
-
 Lemma delta_neq : ∀ i j, i ≠ j → δ fld i j ≍ 0%fld.
 Proof.
 intros i j Hij; unfold δ.
 destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
 exfalso; apply Hij; reflexivity.
-Qed.
-
-Lemma sigma_compat : ∀ f g k,
-  (∀ i, f i ≍ g i)
-  → Σ (i = 0, k)  f i ≍ Σ (i = 0, k)   g i.
-Proof.
-intros f g k Hfg.
-unfold sigma; rewrite Nat.sub_0_r.
-remember 0%nat as b; clear Heqb.
-revert b.
-induction k; intros; [ apply Hfg | simpl ].
-rewrite Hfg.
-apply Field.add_compat_l, IHk.
 Qed.
 
 Lemma sigma_mul_sigma : ∀ f g k,
@@ -724,12 +752,6 @@ End field.
 
 Notation "a ≍ b" := (Field.eq _ a b) (at level 70).
 Notation "a ≭ b" := (not (Field.eq _ a b)) (at level 70).
-
-Add Parametric Relation α (fld : Field.t α) : (series α) (eq_series fld)
- reflexivity proved by (eq_series_refl fld)
- symmetry proved by (eq_series_sym (fld := fld))
- transitivity proved by (eq_series_trans (fld := fld))
- as eq_series_rel.
 
 Add Parametric Morphism α (fld : Field.t α) : (series_add fld) with 
 signature eq_series fld ==> eq_series fld ==> eq_series fld
