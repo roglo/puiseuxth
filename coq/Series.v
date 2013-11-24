@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.35 2013-11-24 02:42:21 deraugla Exp $ *)
+(* $Id: Series.v,v 2.36 2013-11-24 03:06:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -731,6 +731,7 @@ Theorem series_mul_assoc : ∀ a b c,
   ≃ series_mul fld (series_mul fld a b) c.
 Proof.
 intros a b c.
+(* est-ce bien nécessaire d'utiliser des series_inf ? C'est pas sûr... *)
 assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
 rewrite H; clear H.
 assert (b ≃ series_inf fld b) as H by apply series_inf_eq.
