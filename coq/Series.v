@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.37 2013-11-24 10:42:57 deraugla Exp $ *)
+(* $Id: Series.v,v 2.38 2013-11-24 19:29:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -738,12 +738,81 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
+(* à faire, s'il le faut
+Lemma sigma_sigma_compat : ∀ f g k,
+  (∀ i j, f i j ≍ g i j)
+  → Σ (i = 0, k)   Σ (j = 0, k)   f i j ≍
+    Σ (i = 0, k)   Σ (j = 0, k)   g i j.
+Proof.
+bbb.
+*)
+
+Definition convol_mul_inf a b k :=
+  Σ (i = 0, k)   Σ (j = 0, k)  
+    (δ fld (i + j) k * terms a i * terms b j)%fld.
+
+Definition series_mul_inf a b :=
+  {| terms k := convol_mul_inf a b k; stop := ∞ |}.
+
+Lemma series_mul_mul_inf : ∀ a b,
+  series_mul fld a b
+  ≃ series_mul_inf (series_inf fld a) (series_inf fld b).
+Proof.
+intros a b.
+constructor; intros k.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
+ clear H₁.
+ destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₁| H₁].
+  unfold convol_mul, convol_mul_inf.
+  apply sigma_compat; intros i.
+  apply sigma_compat; intros j.
+  rewrite <- Field.mul_assoc.
+  apply Field.mul_compat_l; reflexivity.
+
+  unfold convol_mul_inf.
+  symmetry; unfold convol_mul_inf; simpl.
+  apply all_0_sigma_0; intros i.
+  apply all_0_sigma_0; intros j.
+  unfold series_nth_fld.
+  destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
+   destruct (Nbar.lt_dec (fin j) (stop b)) as [H₃| H₃].
+    destruct (eq_nat_dec (i + j) k) as [H₄| H₄].
+     rewrite H₄, delta_id, Field.mul_1_l.
+     exfalso; apply H₁; subst k.
+     rewrite Nbar.fin_inj_add.
+     remember (stop a) as st eqn:Hst .
+     symmetry in Hst.
+     destruct st as [st| ]; [ idtac | constructor ].
+     apply Nbar.lt_trans with (m := (fin st + fin j)%Nbar).
+      apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+      intros HH; discriminate HH.
+
+      apply Nbar.add_lt_mono_l; [ idtac | assumption ].
+      intros HH; discriminate HH.
+
+     rewrite delta_neq; [ idtac | assumption ].
+     do 2 rewrite Field.mul_0_l; reflexivity.
+
+    rewrite Field.mul_0_r; reflexivity.
+
+   rewrite Field.mul_0_r, Field.mul_0_l; reflexivity.
+
+ apply H₁; constructor.
+Qed.
+
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
   ≃ series_mul fld (series_mul fld a b) c.
 Proof.
+(* expérimentation *)
 intros a b c.
-(* est-ce bien nécessaire d'utiliser des series_inf ? C'est pas sûr... *)
+rewrite series_mul_mul_inf; symmetry.
+rewrite series_mul_mul_inf; symmetry.
+bbb.
+
+(* version classique *)
+intros a b c.
 assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
 rewrite H; clear H.
 assert (b ≃ series_inf fld b) as H by apply series_inf_eq.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.62 2013-11-22 19:20:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.63 2013-11-24 19:29:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1678,8 +1678,8 @@ Qed.
 
 Lemma null_coeff_range_length_stretch_succ : ∀ s n p k,
   null_coeff_range_length fld s (S n) = fin p
-  → null_coeff_range_length fld (series_stretch fld k s) (S (n * Pos.to_nat k)) =
-      fin (S p * Pos.to_nat k - 1).
+  → null_coeff_range_length fld (series_stretch fld k s)
+      (S (n * Pos.to_nat k)) = fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
 intros s n p k Hp.
