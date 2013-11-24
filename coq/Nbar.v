@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.7 2013-11-16 05:06:32 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.8 2013-11-24 02:24:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -228,6 +228,14 @@ split; intros H.
  destruct m as [m| ]; [ idtac | constructor ].
  destruct p as [p| ]; [ idtac | inversion H ].
  constructor; inversion H; apply Nat.add_lt_mono_r in H2; assumption.
+Qed.
+
+Theorem add_lt_mono_l : ∀ n m p, p ≠ ∞ → n < m ↔ p + n < p + m.
+Proof.
+intros n m p Hp.
+rewrite add_comm.
+replace (p + m) with (m + p) by apply add_comm.
+apply add_lt_mono_r; assumption.
 Qed.
 
 Theorem mul_lt_mono_pos_r : ∀ p n m, 0 < p → p ≠ ∞ → n ≠ ∞ →

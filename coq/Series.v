@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.32 2013-11-23 20:26:57 deraugla Exp $ *)
+(* $Id: Series.v,v 2.33 2013-11-24 02:24:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -330,12 +330,26 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   apply all_0_sigma_0; intros i.
   apply all_0_sigma_0; intros j.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
-   rewrite H₃, delta_id, Field.mul_1_l, H.
+   rewrite H₃, delta_id, Field.mul_1_l, H, H0.
    unfold series_nth_fld; simpl.
    destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
-    destruct (Nbar.lt_dec (fin j) (stop c)) as [H₅| H₅].
+    destruct (Nbar.lt_dec (fin j) (stop d)) as [H₅| H₅].
      exfalso; apply H₂.
      rewrite <- H₃.
+     rewrite Nbar.fin_inj_add.
+     remember (stop b) as st eqn:Hst .
+     symmetry in Hst.
+     destruct st as [st| ]; [ idtac | constructor ].
+     apply Nbar.lt_trans with (m := (fin st + fin j)%Nbar).
+      apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+      intros HH; discriminate HH.
+
+      apply Nbar.add_lt_mono_l; [ idtac | assumption ].
+      intros HH; discriminate HH.
+
+     rewrite Field.mul_0_r; reflexivity.
+
+    rewrite Field.mul_0_l; reflexivity.
 bbb.
 *)
 
