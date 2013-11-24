@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.38 2013-11-24 19:29:50 deraugla Exp $ *)
+(* $Id: Series.v,v 2.39 2013-11-24 20:37:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -801,14 +801,36 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
  apply H₁; constructor.
 Qed.
 
+Lemma series_inf_mul : ∀ a b,
+  series_inf fld (series_mul fld a b)
+  ≃ series_mul_inf (series_inf fld a) (series_inf fld b).
+Proof.
+intros a b.
+rewrite <- series_mul_mul_inf.
+rewrite <- series_inf_eq.
+reflexivity.
+Qed.
+
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
   ≃ series_mul fld (series_mul fld a b) c.
 Proof.
 (* expérimentation *)
 intros a b c.
+pose proof (series_mul_mul_inf b c) as H.
+rewrite H; clear H.
+pose proof (series_mul_mul_inf a b) as H.
+rewrite H; clear H.
 rewrite series_mul_mul_inf; symmetry.
 rewrite series_mul_mul_inf; symmetry.
+remember (series_inf fld a) as aa eqn:Haa .
+remember (series_inf fld b) as bb eqn:Hbb .
+remember (series_inf fld c) as cc eqn:Hcc .
+constructor; intros k.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | reflexivity ].
+clear H₁.
+unfold convol_mul_inf; simpl.
 bbb.
 
 (* version classique *)
