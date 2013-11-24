@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.36 2013-11-24 03:06:48 deraugla Exp $ *)
+(* $Id: Series.v,v 2.37 2013-11-24 10:42:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -724,6 +724,18 @@ intros f i₁ i₂ i₃ Hi₂₃ Hi.
 apply sigma_aux_extend_0; [ omega | idtac ].
 intros i (Hi₁, Hi₂).
 apply Hi; omega.
+Qed.
+
+Lemma series_inf_nth : ∀ s t i,
+  s = series_inf fld t
+  → series_nth_fld fld i s ≍ terms s i.
+Proof.
+intros s t i Hs.
+subst s; simpl.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
+exfalso; apply H; constructor.
 Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
