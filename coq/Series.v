@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.33 2013-11-24 02:24:06 deraugla Exp $ *)
+(* $Id: Series.v,v 2.34 2013-11-24 02:32:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -32,6 +32,9 @@ intros α s Hs.
 unfold series_nth.
 rewrite Hs; reflexivity.
 Qed.
+
+Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
+Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 
 Section field.
  
@@ -258,9 +261,6 @@ rewrite Hfg.
 apply Field.add_compat_l, IHk.
 Qed.
 
-Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
-Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
-
 Lemma all_0_sigma_aux_0 : ∀ f b len,
   (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
   → sigma_aux b len (λ i, f i) ≍ 0%fld.
@@ -296,6 +296,13 @@ Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
 exfalso; apply H₁; reflexivity.
+Qed.
+
+Lemma delta_neq : ∀ i j, i ≠ j → δ i j ≍ 0%fld.
+Proof.
+intros i j Hij; unfold δ.
+destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
+exfalso; apply Hij; reflexivity.
 Qed.
 
 End field.
@@ -350,8 +357,43 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
      rewrite Field.mul_0_r; reflexivity.
 
     rewrite Field.mul_0_l; reflexivity.
-bbb.
-*)
+
+   rewrite delta_neq; [ idtac | assumption ].
+   rewrite Field.mul_0_l; reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
+  unfold convol_mul.
+  rename i into k.
+  symmetry.
+  apply all_0_sigma_0; intros i.
+  apply all_0_sigma_0; intros j.
+  destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
+   rewrite H₃, delta_id, Field.mul_1_l, <- H, <- H0.
+   unfold series_nth_fld; simpl.
+   destruct (Nbar.lt_dec (fin i) (stop a)) as [H₄| H₄].
+    destruct (Nbar.lt_dec (fin j) (stop c)) as [H₅| H₅].
+     exfalso; apply H₁.
+     rewrite <- H₃.
+     rewrite Nbar.fin_inj_add.
+     remember (stop a) as st eqn:Hst .
+     symmetry in Hst.
+     destruct st as [st| ]; [ idtac | constructor ].
+     apply Nbar.lt_trans with (m := (fin st + fin j)%Nbar).
+      apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+      intros HH; discriminate HH.
+
+      apply Nbar.add_lt_mono_l; [ idtac | assumption ].
+      intros HH; discriminate HH.
+
+     rewrite Field.mul_0_r; reflexivity.
+
+    rewrite Field.mul_0_l; reflexivity.
+
+   rewrite delta_neq; [ idtac | assumption ].
+   rewrite Field.mul_0_l; reflexivity.
+
+  reflexivity.
+Qed.
 
 Section field₂.
  
@@ -458,13 +500,6 @@ Lemma delta_0_succ : ∀ i, δ fld 0 (S i) ≍ 0%fld.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
-Qed.
-
-Lemma delta_neq : ∀ i j, i ≠ j → δ fld i j ≍ 0%fld.
-Proof.
-intros i j Hij; unfold δ.
-destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
-exfalso; apply Hij; reflexivity.
 Qed.
 
 Lemma sigma_mul_sigma : ∀ f g k,
@@ -697,8 +732,8 @@ Theorem series_mul_assoc : ∀ a b c,
 Proof.
 intros a b c.
 assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
-bbb.
 rewrite H.
+bbb.
 
 intros a b c.
 bbb.
