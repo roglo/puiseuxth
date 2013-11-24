@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.34 2013-11-24 02:32:46 deraugla Exp $ *)
+(* $Id: Series.v,v 2.35 2013-11-24 02:42:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -732,7 +732,19 @@ Theorem series_mul_assoc : ∀ a b c,
 Proof.
 intros a b c.
 assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
-rewrite H.
+rewrite H; clear H.
+assert (b ≃ series_inf fld b) as H by apply series_inf_eq.
+rewrite H; clear H.
+assert (c ≃ series_inf fld c) as H by apply series_inf_eq.
+rewrite H; clear H.
+remember (series_inf fld a) as aa eqn:Haa .
+remember (series_inf fld b) as bb eqn:Hbb .
+remember (series_inf fld c) as cc eqn:Hcc .
+constructor; intros k.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_assoc.
+destruct (Nbar.lt_dec (fin k) (stop aa + stop bb + stop cc)) as [H₁| H₁].
+ unfold convol_mul; simpl.
 bbb.
 
 intros a b c.
