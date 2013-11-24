@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.40 2013-11-24 20:42:14 deraugla Exp $ *)
+(* $Id: Series.v,v 2.41 2013-11-24 20:57:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -811,11 +811,15 @@ rewrite <- series_inf_eq.
 reflexivity.
 Qed.
 
-Lemma zzz : ∀ a b i,
+Lemma series_nth_mul_inf : ∀ a b i,
   series_nth_fld fld i (series_mul_inf a b)
   ≍ terms (series_mul_inf a b) i.
 Proof.
-bbb.
+intros a b i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
+exfalso; apply H; constructor.
+Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
@@ -833,7 +837,7 @@ remember (series_inf fld a) as aa eqn:Haa .
 remember (series_inf fld b) as bb eqn:Hbb .
 remember (series_inf fld c) as cc eqn:Hcc .
 constructor; intros k.
-do 2 rewrite zzz; simpl.
+do 2 rewrite series_nth_mul_inf; simpl.
 unfold convol_mul_inf; simpl.
 bbb.
 
