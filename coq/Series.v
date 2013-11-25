@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.55 2013-11-25 17:45:56 deraugla Exp $ *)
+(* $Id: Series.v,v 2.56 2013-11-25 17:50:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -934,6 +934,9 @@ rewrite sigma_sigma_mul_comm.
 rewrite <- sigma_sigma_mul_assoc.
 rewrite sigma_sigma_mul_swap, sigma_mul_swap.
 apply Field.mul_compat_l.
+symmetry.
+rewrite sigma_mul_comm.
+rewrite <- sigma_sigma_mul_swap.
 bbb.
 *)
 
