@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.46 2013-11-25 13:25:43 deraugla Exp $ *)
+(* $Id: Series.v,v 2.47 2013-11-25 13:28:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -845,13 +845,14 @@ Definition sigma_mul_3 aa bb cc m :=
 
 Lemma zzz : ∀ aa bb cc m,
   Σ (i = 0, m)  
-  Σ (j = 0, m)  
-   (δ fld (i + j) m * terms aa i *
-    Σ (i0 = 0, j)  
-    Σ (j0 = 0, j)   δ fld (i0 + j0) j * terms bb i0 * terms cc j0)%fld
+  Σ (l = 0, m)  
+   (δ fld (i + l) m * terms aa i *
+    Σ (j = 0, l)  
+    Σ (k = 0, l)   δ fld (j + k) l * terms bb j * terms cc k)%fld
   ≍ sigma_mul_3 aa bb cc m.
 Proof.
 bbb.
+*)
 
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
