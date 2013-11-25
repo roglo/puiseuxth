@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.51 2013-11-25 15:10:19 deraugla Exp $ *)
+(* $Id: Series.v,v 2.52 2013-11-25 16:56:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -560,7 +560,23 @@ intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
-(* faire une version avec sigma_aux (x * y) = x * sigma_aux y *)
+Lemma sigma_aux_mul_swap : ∀ a f b len,
+  sigma_aux fld b len (λ i, (a * f i)%fld)
+  ≍ (a * sigma_aux fld b len f)%fld.
+Proof.
+intros a f b len; revert b.
+induction len; intros; [ reflexivity | simpl ].
+rewrite Field.mul_add_distr_l, IHlen; reflexivity.
+Qed.
+
+Lemma sigma_mul_swap : ∀ a f b k,
+  Σ (i = b, k)   (a * f i)%fld
+  ≍ (a * Σ (i = b, k)   f i)%fld.
+Proof.
+intros a f b k.
+apply sigma_aux_mul_swap.
+Qed.
+
 Lemma sigma_aux_mul_sigma_aux : ∀ f g h b₁ b₂ len,
   sigma_aux fld b₁ len
     (λ i, sigma_aux fld b₂ (f i) (λ j, (g i * h i j)%fld))
@@ -570,22 +586,11 @@ Proof.
 intros f g h b₁ b₂ len.
 revert b₁ b₂.
 induction len; intros; simpl.
- remember (f b₁) as len; clear Heqlen.
- revert b₂.
- induction len; intros; [ reflexivity | simpl ].
- rewrite Field.mul_add_distr_l.
- apply Field.add_compat_l.
- apply IHlen.
+ apply sigma_aux_mul_swap.
 
  rewrite IHlen.
  apply Field.add_compat_r.
- clear len IHlen.
- remember (f b₁) as len; clear Heqlen.
- revert b₂.
- induction len; intros; [ reflexivity | simpl ].
- rewrite Field.mul_add_distr_l.
- apply Field.add_compat_l.
- apply IHlen.
+ apply sigma_aux_mul_swap.
 Qed.
 
 Lemma sigma_mul_sigma : ∀ f g h k,
@@ -933,8 +938,7 @@ intros a b c m.
 unfold sigma_mul_3.
 apply sigma_compat; intros i.
 rewrite <- sigma_mul_assoc, sigma_mul_comm, <- sigma_mul_assoc.
-bbb.
-erewrite <- sigma_mul_sigma.
+rewrite sigma_mul_swap; symmetry.
 bbb.
 *)
 
