@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.44 2013-11-25 11:02:44 deraugla Exp $ *)
+(* $Id: Series.v,v 2.45 2013-11-25 11:05:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -861,11 +861,14 @@ rewrite sigma_sigma_compat with (g := f); subst f.
  Focus 2.
  intros i j; rewrite series_nth_mul_inf; reflexivity.
 
-remember
- (λ i j, (δ fld (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%fld) as f.
-rewrite sigma_sigma_compat with (g := f); subst f.
- Focus 2.
- intros i j; rewrite series_nth_mul_inf; reflexivity.
+ symmetry.
+ remember
+  (λ i j, (δ fld (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%fld) as f.
+ rewrite sigma_sigma_compat with (g := f); subst f.
+  Focus 2.
+  intros i j; rewrite series_nth_mul_inf; reflexivity.
+
+  symmetry.
 bbb.
 
 (* version classique *)
