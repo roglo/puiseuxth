@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.50 2013-11-25 14:12:34 deraugla Exp $ *)
+(* $Id: Series.v,v 2.51 2013-11-25 15:10:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -256,6 +256,48 @@ intros f g b len Hfg.
 revert b.
 induction len; intros; [ apply Hfg | simpl; rewrite Hfg ].
 rewrite IHlen; reflexivity.
+Qed.
+
+Lemma sigma_aux_mul_comm : ∀ f g b len,
+  sigma_aux b len (λ i, (f i * g i)%fld)
+  ≍ sigma_aux b len (λ i, (g i * f i)%fld).
+Proof.
+intros f g b len.
+revert b.
+induction len; intros; simpl.
+ apply Field.mul_comm.
+
+ rewrite Field.mul_comm, IHlen.
+ reflexivity.
+Qed.
+
+Lemma sigma_mul_comm : ∀ f g b k,
+  Σ (i = b, k)   (f i * g i)%fld
+  ≍ Σ (i = b, k)   (g i * f i)%fld.
+Proof.
+intros f g b k.
+apply sigma_aux_mul_comm.
+Qed.
+
+Lemma sigma_aux_mul_assoc : ∀ f g h b len,
+  sigma_aux b len (λ i, (f i * (g i * h i))%fld)
+  ≍ sigma_aux b len (λ i, (f i * g i * h i)%fld).
+Proof.
+intros f g h b len.
+revert b.
+induction len; intros; simpl.
+ apply Field.mul_assoc.
+
+ rewrite Field.mul_assoc, IHlen.
+ reflexivity.
+Qed.
+
+Lemma sigma_mul_assoc : ∀ f g h b k,
+  Σ (i = b, k)   (f i * (g i * h i))%fld
+  ≍ Σ (i = b, k)   (f i * g i * h i)%fld.
+Proof.
+intros f g h b k.
+apply sigma_aux_mul_assoc.
 Qed.
 
 Lemma sigma_compat : ∀ f g k,
@@ -890,6 +932,8 @@ Proof.
 intros a b c m.
 unfold sigma_mul_3.
 apply sigma_compat; intros i.
+rewrite <- sigma_mul_assoc, sigma_mul_comm, <- sigma_mul_assoc.
+bbb.
 erewrite <- sigma_mul_sigma.
 bbb.
 *)
