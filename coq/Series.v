@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.47 2013-11-25 13:28:46 deraugla Exp $ *)
+(* $Id: Series.v,v 2.48 2013-11-25 13:40:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -518,16 +518,16 @@ intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
-Lemma sigma_mul_sigma : ∀ f g k,
-  Σ (i = 0, k)   Σ (j = 0, k)   (δ fld (i + j) k * (f i * g i j))%fld
-  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   δ fld (i + j) k * g i j)%fld.
+Lemma sigma_mul_sigma : ∀ f g h k,
+  Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%fld
+  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%fld.
 Proof.
-intros f g k.
+intros f g h k.
 apply sigma_compat; intros i.
 unfold sigma.
 remember (k - 0)%nat as len; clear Heqlen.
-remember 0%nat as b; clear Heqb.
-revert b k.
+remember 0%nat as b; clear Heqb k.
+revert b.
 induction len; intros; simpl.
  rewrite Field.mul_assoc, Field.mul_shuffle0, Field.mul_comm.
  reflexivity.
@@ -851,6 +851,9 @@ Lemma zzz : ∀ aa bb cc m,
     Σ (k = 0, l)   δ fld (j + k) l * terms bb j * terms cc k)%fld
   ≍ sigma_mul_3 aa bb cc m.
 Proof.
+intros a b c m.
+unfold sigma_mul_3.
+apply sigma_compat; intros i.
 bbb.
 *)
 
