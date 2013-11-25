@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.48 2013-11-25 13:40:09 deraugla Exp $ *)
+(* $Id: Series.v,v 2.49 2013-11-25 13:54:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -519,6 +519,13 @@ destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
 Lemma sigma_mul_sigma : ∀ f g h k,
+  Σ (i = 0, k)   Σ (j = 0, f i)   (g i * h i j)%fld
+  ≍ Σ (i = 0, k)   (g i * Σ (j = 0, f i)   h i j)%fld.
+Proof.
+bbb.
+*)
+
+Lemma glop : ∀ f g h k,
   Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%fld
   ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%fld.
 Proof.
@@ -591,7 +598,7 @@ destruct st as [st| ].
   destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
    unfold convol_mul.
    rename i into k.
-   rewrite sigma_mul_sigma.
+   rewrite glop.
    rewrite sigma_only_one_non_0 with (v := O).
     simpl.
     unfold series_nth_fld at 1; simpl.
@@ -656,7 +663,7 @@ destruct st as [st| ].
  destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
  unfold convol_mul.
  rename i into k.
- rewrite sigma_mul_sigma.
+ rewrite glop.
  rewrite sigma_only_one_non_0 with (v := O).
   simpl.
   unfold series_nth_fld at 1; simpl.
@@ -854,6 +861,7 @@ Proof.
 intros a b c m.
 unfold sigma_mul_3.
 apply sigma_compat; intros i.
+erewrite <- sigma_mul_sigma.
 bbb.
 *)
 
