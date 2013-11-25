@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.49 2013-11-25 13:54:14 deraugla Exp $ *)
+(* $Id: Series.v,v 2.50 2013-11-25 14:12:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -518,12 +518,41 @@ intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
+(* faire une version avec sigma_aux (x * y) = x * sigma_aux y *)
+Lemma sigma_aux_mul_sigma_aux : ∀ f g h b₁ b₂ len,
+  sigma_aux fld b₁ len
+    (λ i, sigma_aux fld b₂ (f i) (λ j, (g i * h i j)%fld))
+  ≍ sigma_aux fld b₁ len
+      (λ i, (g i * sigma_aux fld b₂ (f i) (λ j, h i j))%fld).
+Proof.
+intros f g h b₁ b₂ len.
+revert b₁ b₂.
+induction len; intros; simpl.
+ remember (f b₁) as len; clear Heqlen.
+ revert b₂.
+ induction len; intros; [ reflexivity | simpl ].
+ rewrite Field.mul_add_distr_l.
+ apply Field.add_compat_l.
+ apply IHlen.
+
+ rewrite IHlen.
+ apply Field.add_compat_r.
+ clear len IHlen.
+ remember (f b₁) as len; clear Heqlen.
+ revert b₂.
+ induction len; intros; [ reflexivity | simpl ].
+ rewrite Field.mul_add_distr_l.
+ apply Field.add_compat_l.
+ apply IHlen.
+Qed.
+
 Lemma sigma_mul_sigma : ∀ f g h k,
   Σ (i = 0, k)   Σ (j = 0, f i)   (g i * h i j)%fld
   ≍ Σ (i = 0, k)   (g i * Σ (j = 0, f i)   h i j)%fld.
 Proof.
-bbb.
-*)
+intros f g h k.
+apply sigma_aux_mul_sigma_aux.
+Qed.
 
 Lemma glop : ∀ f g h k,
   Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%fld
