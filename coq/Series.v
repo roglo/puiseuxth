@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.53 2013-11-25 17:12:01 deraugla Exp $ *)
+(* $Id: Series.v,v 2.54 2013-11-25 17:14:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -571,7 +571,7 @@ intros a f b k.
 apply sigma_aux_mul_swap.
 Qed.
 
-Lemma sigma_aux_mul_sigma_aux : ∀ f g h b₁ b₂ len,
+Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
   sigma_aux fld b₁ len
     (λ i, sigma_aux fld b₂ (f i) (λ j, (g i * h i j)%fld))
   ≍ sigma_aux fld b₁ len
@@ -587,12 +587,12 @@ induction len; intros; simpl.
  apply sigma_aux_mul_swap.
 Qed.
 
-Lemma sigma_mul_sigma : ∀ f g h k,
+Lemma sigma_sigma_mul_swap : ∀ f g h k,
   Σ (i = 0, k)   Σ (j = 0, f i)   (g i * h i j)%fld
   ≍ Σ (i = 0, k)   (g i * Σ (j = 0, f i)   h i j)%fld.
 Proof.
 intros f g h k.
-apply sigma_aux_mul_sigma_aux.
+apply sigma_aux_sigma_aux_mul_swap.
 Qed.
 
 Lemma glop : ∀ f g h k,
@@ -936,7 +936,7 @@ rewrite sigma_mul_swap; symmetry.
 do 2 rewrite <- sigma_sigma_mul_assoc.
 rewrite sigma_sigma_mul_comm.
 rewrite <- sigma_sigma_mul_assoc.
-rewrite sigma_mul_sigma, sigma_mul_swap.
+rewrite sigma_sigma_mul_swap, sigma_mul_swap.
 apply Field.mul_compat_l.
 bbb.
 *)
