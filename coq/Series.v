@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.54 2013-11-25 17:14:01 deraugla Exp $ *)
+(* $Id: Series.v,v 2.55 2013-11-25 17:45:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -467,36 +467,31 @@ Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "'Σ' ( i = b , e ) ' ' f" := (sigma fld b e (λ i, f))
   (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
 
-Lemma sigma_aux_sigma_aux_comm : ∀ f g i di j dj,
-  (∀ i j, f i j ≍ g i j)
-  → sigma_aux fld i di (λ i, sigma_aux fld j dj (λ j, f i j))
-    ≍ sigma_aux fld j dj (λ j, sigma_aux fld i di (λ i, g i j)).
+Lemma sigma_aux_sigma_aux_comm : ∀ f i di j dj,
+  sigma_aux fld i di (λ i, sigma_aux fld j dj (λ j, f i j))
+  ≍ sigma_aux fld j dj (λ j, sigma_aux fld i di (λ i, f i j)).
 Proof.
-intros f g i di j dj Hfg.
+intros f i di j dj.
 revert i.
 induction di; intros; simpl.
- revert j.
- induction dj; intros; [ apply Hfg | simpl ].
- rewrite Hfg, IHdj; reflexivity.
+ reflexivity.
 
  rewrite IHdi; clear IHdi.
  revert j.
  induction dj; intros; simpl.
-  rewrite Hfg; reflexivity.
+  reflexivity.
 
-  rewrite Hfg.
   rewrite <- IHdj.
   rewrite Field.add_assoc, Field.add_comm; symmetry.
   rewrite Field.add_assoc, Field.add_comm; symmetry.
   rewrite Field.add_shuffle0; reflexivity.
 Qed.
 
-Lemma sigma_sigma_comm : ∀ f g i₁ i₂ j₁ j₂,
-  (∀ i j, f i j ≍ g i j)
-  → Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   (f i j)
-    ≍ Σ (j = j₁, j₂)   Σ (i = i₁, i₂)   (g i j).
+Lemma sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂,
+  Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   (f i j)
+  ≍ Σ (j = j₁, j₂)   Σ (i = i₁, i₂)   (f i j).
 Proof.
-intros f g i₁ i₂ j₁ j₂ Hfg.
+intros f i₁ i₂ j₁ j₂.
 apply sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
@@ -508,8 +503,9 @@ unfold series_nth_fld; simpl.
 rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  unfold convol_mul.
- apply sigma_sigma_comm.
- intros i j.
+ rewrite sigma_sigma_comm.
+ apply sigma_compat; intros i.
+ apply sigma_compat; intros j.
  rewrite Nat.add_comm.
  do 2 rewrite Field.mul_assoc.
  rewrite Field.mul_shuffle0; reflexivity.
