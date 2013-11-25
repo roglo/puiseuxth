@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.45 2013-11-25 11:05:37 deraugla Exp $ *)
+(* $Id: Series.v,v 2.46 2013-11-25 13:25:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -837,6 +837,22 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
+Definition sigma_mul_3 aa bb cc m :=
+  Σ (i = 0, m)  
+  Σ (j = 0, m)  
+  Σ (k = 0, m)  
+    (δ fld (i + j + k) m * terms aa i * terms bb j * terms cc k)%fld.
+
+Lemma zzz : ∀ aa bb cc m,
+  Σ (i = 0, m)  
+  Σ (j = 0, m)  
+   (δ fld (i + j) m * terms aa i *
+    Σ (i0 = 0, j)  
+    Σ (j0 = 0, j)   δ fld (i0 + j0) j * terms bb i0 * terms cc j0)%fld
+  ≍ sigma_mul_3 aa bb cc m.
+Proof.
+bbb.
+
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
   ≃ series_mul fld (series_mul fld a b) c.
@@ -868,6 +884,10 @@ rewrite sigma_sigma_compat with (g := f); subst f.
   Focus 2.
   intros i j; rewrite series_nth_mul_inf; reflexivity.
 
+  symmetry.
+  unfold series_mul_inf; simpl.
+  unfold convol_mul_inf.
+  rewrite zzz.
   symmetry.
 bbb.
 
