@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.41 2013-11-24 20:57:58 deraugla Exp $ *)
+(* $Id: Series.v,v 2.42 2013-11-25 10:51:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -260,6 +260,13 @@ induction k; intros; [ apply Hfg | simpl ].
 rewrite Hfg.
 apply Field.add_compat_l, IHk.
 Qed.
+
+Lemma sigma_sigma_compat : ∀ f g k,
+  (∀ i j, f i j ≍ g i j)
+  → Σ (i = 0, k)   Σ (j = 0, k)   f i j ≍ Σ (i = 0, k)   Σ (j = 0, k)   g i j.
+Proof.
+bbb.
+*)
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
   (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
@@ -839,6 +846,11 @@ remember (series_inf fld c) as cc eqn:Hcc .
 constructor; intros k.
 do 2 rewrite series_nth_mul_inf; simpl.
 unfold convol_mul_inf; simpl.
+remember
+ (λ i j, (δ fld (i + j) k * terms aa i * terms (series_mul_inf bb cc) j)%fld) as f.
+rewrite sigma_sigma_compat with (g := f); subst f.
+ Focus 2.
+ intros i j; rewrite series_nth_mul_inf; reflexivity.
 bbb.
 
 (* version classique *)
