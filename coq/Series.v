@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.52 2013-11-25 16:56:01 deraugla Exp $ *)
+(* $Id: Series.v,v 2.53 2013-11-25 17:12:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -258,38 +258,32 @@ induction len; intros; [ apply Hfg | simpl; rewrite Hfg ].
 rewrite IHlen; reflexivity.
 Qed.
 
-Lemma sigma_aux_mul_comm : ∀ f g b len,
-  sigma_aux b len (λ i, (f i * g i)%fld)
-  ≍ sigma_aux b len (λ i, (g i * f i)%fld).
+Lemma sigma_compat : ∀ f g b k,
+  (∀ i, f i ≍ g i)
+  → Σ (i = b, k)  f i ≍ Σ (i = b, k)   g i.
 Proof.
-intros f g b len.
-revert b.
-induction len; intros; simpl.
- apply Field.mul_comm.
+intros f g b k Hfg.
+apply sigma_aux_compat; assumption.
+Qed.
 
- rewrite Field.mul_comm, IHlen.
- reflexivity.
+Lemma sigma_sigma_compat : ∀ f g b₁ k₁ b₂ k₂,
+  (∀ i j, f i j ≍ g i j)
+  → Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j
+    ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   g i j.
+Proof.
+intros f g b₁ k₁ b₂ k₂ Hfg.
+apply sigma_aux_compat; intros l.
+apply sigma_aux_compat; intros m.
+apply Hfg.
 Qed.
 
 Lemma sigma_mul_comm : ∀ f g b k,
   Σ (i = b, k)   (f i * g i)%fld
   ≍ Σ (i = b, k)   (g i * f i)%fld.
 Proof.
-intros f g b k.
-apply sigma_aux_mul_comm.
-Qed.
-
-Lemma sigma_aux_mul_assoc : ∀ f g h b len,
-  sigma_aux b len (λ i, (f i * (g i * h i))%fld)
-  ≍ sigma_aux b len (λ i, (f i * g i * h i)%fld).
-Proof.
-intros f g h b len.
-revert b.
-induction len; intros; simpl.
- apply Field.mul_assoc.
-
- rewrite Field.mul_assoc, IHlen.
- reflexivity.
+intros f g b len.
+apply sigma_compat; intros i.
+apply Field.mul_comm.
 Qed.
 
 Lemma sigma_mul_assoc : ∀ f g h b k,
@@ -297,26 +291,26 @@ Lemma sigma_mul_assoc : ∀ f g h b k,
   ≍ Σ (i = b, k)   (f i * g i * h i)%fld.
 Proof.
 intros f g h b k.
-apply sigma_aux_mul_assoc.
+apply sigma_compat; intros i.
+apply Field.mul_assoc.
 Qed.
 
-Lemma sigma_compat : ∀ f g k,
-  (∀ i, f i ≍ g i)
-  → Σ (i = 0, k)  f i ≍ Σ (i = 0, k)   g i.
+Lemma sigma_sigma_mul_comm : ∀ f g b₁ k₁ b₂ k₂,
+  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j)%fld
+  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (g i j * f i j)%fld.
 Proof.
-intros f g k Hfg.
-apply sigma_aux_compat; assumption.
+intros f g b₁ k₁ b₂ k₂.
+apply sigma_sigma_compat; intros i j.
+apply Field.mul_comm.
 Qed.
 
-Lemma sigma_sigma_compat : ∀ f g k,
-  (∀ i j, f i j ≍ g i j)
-  → Σ (i = 0, k)   Σ (j = 0, k)   f i j ≍ Σ (i = 0, k)   Σ (j = 0, k)   g i j.
+Lemma sigma_sigma_mul_assoc : ∀ f g h b₁ k₁ b₂ k₂,
+  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * (g i j * h i j))%fld
+  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j * h i j)%fld.
 Proof.
-intros f g k Hfg.
-unfold sigma.
-apply sigma_aux_compat; intros l.
-apply sigma_aux_compat; intros m.
-apply Hfg.
+intros f g h b₁ k₁ b₂ k₂.
+apply sigma_sigma_compat; intros i j.
+apply Field.mul_assoc.
 Qed.
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
@@ -939,6 +933,11 @@ unfold sigma_mul_3.
 apply sigma_compat; intros i.
 rewrite <- sigma_mul_assoc, sigma_mul_comm, <- sigma_mul_assoc.
 rewrite sigma_mul_swap; symmetry.
+do 2 rewrite <- sigma_sigma_mul_assoc.
+rewrite sigma_sigma_mul_comm.
+rewrite <- sigma_sigma_mul_assoc.
+rewrite sigma_mul_sigma, sigma_mul_swap.
+apply Field.mul_compat_l.
 bbb.
 *)
 
