@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.42 2013-11-25 10:51:10 deraugla Exp $ *)
+(* $Id: Series.v,v 2.43 2013-11-25 10:59:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -248,25 +248,34 @@ Definition series_mul a b :=
   {| terms k := convol_mul a b k;
      stop := Nbar.add (stop a) (stop b) |}.
 
+Lemma sigma_aux_compat : ∀ f g b len,
+  (∀ i, f i ≍ g i)
+  → sigma_aux b len f ≍ sigma_aux b len g.
+Proof.
+intros f g b len Hfg.
+revert b.
+induction len; intros; [ apply Hfg | simpl; rewrite Hfg ].
+rewrite IHlen; reflexivity.
+Qed.
+
 Lemma sigma_compat : ∀ f g k,
   (∀ i, f i ≍ g i)
   → Σ (i = 0, k)  f i ≍ Σ (i = 0, k)   g i.
 Proof.
 intros f g k Hfg.
-unfold sigma; rewrite Nat.sub_0_r.
-remember 0%nat as b; clear Heqb.
-revert b.
-induction k; intros; [ apply Hfg | simpl ].
-rewrite Hfg.
-apply Field.add_compat_l, IHk.
+apply sigma_aux_compat; assumption.
 Qed.
 
 Lemma sigma_sigma_compat : ∀ f g k,
   (∀ i j, f i j ≍ g i j)
   → Σ (i = 0, k)   Σ (j = 0, k)   f i j ≍ Σ (i = 0, k)   Σ (j = 0, k)   g i j.
 Proof.
-bbb.
-*)
+intros f g k Hfg.
+unfold sigma.
+apply sigma_aux_compat; intros l.
+apply sigma_aux_compat; intros m.
+apply Hfg.
+Qed.
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
   (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
