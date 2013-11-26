@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.108 2013-11-23 13:27:39 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.109 2013-11-26 19:51:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -146,8 +146,17 @@ destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ constructor | reflexivity ].
 unfold normalise_nz; simpl.
-bbb.
 rewrite series_mul_assoc.
+remember (series_mul fld (nz_terms nz₁) (nz_terms nz₂)) as s₁₂.
+remember (series_mul fld s₁₂ (nz_terms nz₃)) as s₁₂₃; subst s₁₂.
+remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | reflexivity ].
+constructor; constructor; simpl.
+ Focus 1.
+ rewrite series_mul_assoc, <- Heqs₁₂₃.
+ unfold gcd_nz; simpl.
+bbb.
 
 Definition ps_fld : Field.t (puiseux_series α) :=
   {| Field.zero := @ps_zero α;
