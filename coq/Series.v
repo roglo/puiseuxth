@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.65 2013-11-26 13:37:16 deraugla Exp $ *)
+(* $Id: Series.v,v 2.66 2013-11-26 14:51:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1022,11 +1022,21 @@ rewrite sigma_sigma_extend_0.
    rewrite Field.mul_0_l; reflexivity.
 Qed.
 
+Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
+  Σ (i = 0, k)  
+  Σ (j = 0, k)  
+   ((δ fld (i + j) k *
+     Σ (i0 = 0, i)  
+     (Σ (j0 = 0, i)   δ fld (i0 + j0) i * terms aa i0 * terms bb j0)) *
+     terms cc j)%fld ≍ sigma_mul_3 aa bb cc k.
+Proof.
+bbb.
+*)
+
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
   ≃ series_mul fld (series_mul fld a b) c.
 Proof.
-(* expérimentation *)
 intros a b c.
 pose proof (series_mul_mul_inf b c) as H.
 rewrite H; clear H.
@@ -1057,87 +1067,8 @@ rewrite sigma_sigma_compat with (g := f); subst f.
   unfold series_mul_inf; simpl.
   unfold convol_mul_inf.
   rewrite convol_mul_assoc_1; symmetry.
-bbb.
-
-(* version classique *)
-intros a b c.
-assert (a ≃ series_inf fld a) as H by apply series_inf_eq.
-rewrite H; clear H.
-assert (b ≃ series_inf fld b) as H by apply series_inf_eq.
-rewrite H; clear H.
-assert (c ≃ series_inf fld c) as H by apply series_inf_eq.
-rewrite H; clear H.
-remember (series_inf fld a) as aa eqn:Haa .
-remember (series_inf fld b) as bb eqn:Hbb .
-remember (series_inf fld c) as cc eqn:Hcc .
-constructor; intros k.
-unfold series_nth_fld; simpl.
-rewrite Nbar.add_assoc.
-destruct (Nbar.lt_dec (fin k) (stop aa + stop bb + stop cc)) as [H₁| H₁].
- unfold convol_mul; simpl.
-bbb.
-
-intros a b c.
-bbb.
-constructor; intros i.
-unfold series_nth_fld; simpl.
-rewrite Nbar.add_assoc.
-destruct (Nbar.lt_dec (fin i) (stop a + stop b + stop c)) as [H₁| H₁].
- rename i into k.
-bbb.
- apply sigma_compat; intros i.
- apply sigma_compat; intros j.
- destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
-  Focus 2.
-  rewrite delta_neq; [ idtac | assumption ].
-  do 2 rewrite Field.mul_0_l; reflexivity.
-
-  rewrite H₂, delta_id.
-  do 2 rewrite Field.mul_1_l.
-bbb.
-  unfold series_nth_fld; simpl.
-  destruct (Nbar.lt_dec (fin i) (stop a)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin i) (stop a + stop b)) as [H₄| H₄].
-    destruct (Nbar.lt_dec (fin j) (stop b + stop c)) as [H₅| H₅].
-     destruct (Nbar.lt_dec (fin j) (stop c)) as [H₆| H₆].
-      clear H₄ H₅.
-bbb.
-      unfold convol_mul.
-      rename i into i₁.
-      rename j into j₁.
-      rewrite mul_sigma_inj, Field.mul_comm, mul_sigma_inj.
-      rewrite sigma_extend_0 with (i₃ := k).
-       symmetry.
-       rewrite sigma_extend_0 with (i₃ := k).
-        symmetry.
-        apply sigma_compat; intros i₂.
-        do 2 rewrite mul_sigma_inj.
-        rewrite sigma_extend_0 with (i₃ := k).
-         symmetry.
-         rewrite sigma_extend_0 with (i₃ := k).
-          Focus 1.
-bbb.
-          rewrite sigma_only_one_non_0 with (v := (i₁ - i₂)%nat).
-           rewrite sigma_only_one_non_0 with (v := (j₁ - i₂)%nat).
-            Focus 1.
-            destruct (le_dec i₂ i₁) as [H₇| H₇].
-             rewrite <- le_plus_minus; [ idtac | assumption ].
-             rewrite delta_id, Field.mul_1_l.
-             destruct (le_dec i₂ j₁) as [H₈| H₈].
-              rewrite <- le_plus_minus; [ idtac | assumption ].
-              rewrite delta_id, Field.mul_1_l.
-              Unfocus.
-              Unfocus.
-              4: omega.
-
-              11: omega.
-
-             12: omega.
-
-            9: omega.
-
-            5: omega.
-bbb.
+  apply convol_mul_assoc_2.
+qed.
 
 End field.
 
