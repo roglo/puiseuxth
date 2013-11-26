@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.63 2013-11-26 12:57:37 deraugla Exp $ *)
+(* $Id: Series.v,v 2.64 2013-11-26 13:07:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -904,26 +904,30 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
-Lemma xxx : ∀ f g b₁ b₂ len₁ len₂,
+Lemma sigma_aux_sigma_aux_extend_0 : ∀ f g b₁ b₂ len₁ len₂,
   (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
   → (∀ i j, (b₂ + g i ≤ j)%nat → f i j ≍ 0%fld)
     → sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ (g i) (λ j, f i j))
       ≍ sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ len₂ (λ j, f i j)).
 Proof.
 intros f g b₁ b₂ len₁ len₂ Hg Hfg.
-apply sigma_aux_compat; intros i.
+apply sigma_aux_compat; intros i Hi.
 apply sigma_aux_extend_0.
-bbb.
+ apply Hg; assumption.
 
-Lemma yyy : ∀ f m,
+ intros j Hj.
+ apply Hfg; assumption.
+Qed.
+
+Lemma sigma_sigma_extend_0 : ∀ f m,
   (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
   → Σ (i = 0, m)   Σ (j = 0, i)   f i j
     ≍ Σ (i = 0, m)   Σ (j = 0, m)   f i j.
 Proof.
 intros f m Hf.
-apply xxx; assumption.
-bbb.
-*)
+apply sigma_aux_sigma_aux_extend_0; [ idtac | assumption ].
+intros i Hi; omega.
+Qed.
 
 Definition sigma_mul_3 aa bb cc m :=
   Σ (i = 0, m)  
@@ -941,7 +945,7 @@ Lemma zzz : ∀ aa bb cc m,
 Proof.
 intros a b c m.
 unfold sigma_mul_3.
-apply sigma_compat; intros i.
+apply sigma_compat; intros i Hi.
 rewrite <- sigma_mul_assoc, sigma_mul_comm, <- sigma_mul_assoc.
 rewrite sigma_mul_swap; symmetry.
 do 2 rewrite <- sigma_sigma_mul_assoc.
@@ -952,7 +956,7 @@ apply Field.mul_compat_l.
 symmetry.
 rewrite sigma_mul_comm.
 rewrite <- sigma_sigma_mul_swap.
-rewrite yyy.
+rewrite sigma_sigma_extend_0.
  Focus 2.
  intros u j Huhm.
  rewrite all_0_sigma_0.
@@ -963,9 +967,13 @@ rewrite yyy.
    rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
 
    intros H; subst u.
-   destruct Huhm as (Hjkj, _).
-   apply Nat.nle_gt in Hjkj.
-   apply Hjkj, le_plus_l.
+   apply Nat.nle_gt in Huhm.
+   apply Huhm, le_plus_l.
+
+ rewrite sigma_sigma_comm; symmetry.
+ rewrite sigma_sigma_comm; symmetry.
+ apply sigma_compat; intros j Hj.
+ apply sigma_compat; intros k Hk.
 bbb.
 *)
 
