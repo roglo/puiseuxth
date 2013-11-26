@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.109 2013-11-26 19:51:50 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.110 2013-11-26 20:28:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -153,10 +153,37 @@ remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
- Focus 1.
  rewrite series_mul_assoc, <- Heqs₁₂₃.
  unfold gcd_nz; simpl.
-bbb.
+ f_equal.
+  apply Z.add_cancel_r.
+  do 2 rewrite Pos2Z.inj_mul; ring.
+
+  do 2 f_equal.
+   do 2 rewrite Pos2Z.inj_mul; ring.
+
+   rewrite Pos.mul_assoc; reflexivity.
+
+ rewrite series_mul_assoc, <- Heqs₁₂₃.
+ do 2 f_equal.
+  do 4 rewrite Pos2Z.inj_mul.
+  rewrite Z.mul_assoc; reflexivity.
+
+  unfold gcd_nz; simpl.
+  do 2 f_equal.
+   do 2 rewrite Pos2Z.inj_mul; ring.
+
+   rewrite Pos.mul_assoc; reflexivity.
+
+ rewrite series_mul_assoc, <- Heqs₁₂₃.
+ apply eq_series_eq.
+ do 2 f_equal.
+ unfold gcd_nz; simpl.
+ do 2 f_equal.
+  do 2 rewrite Pos2Z.inj_mul; ring.
+
+  rewrite Pos.mul_assoc; reflexivity.
+Qed.
 
 Definition ps_fld : Field.t (puiseux_series α) :=
   {| Field.zero := @ps_zero α;
@@ -179,9 +206,9 @@ Definition ps_fld : Field.t (puiseux_series α) :=
      Field.add_compat_l := @ps_add_compat_l α fld;
      Field.mul_comm := @ps_mul_comm;
      Field.mul_assoc := @ps_mul_assoc;
-     Field.mul_1_l := @ps_mul_1_l
+     Field.mul_1_l := @ps_mul_1_l;
+     Field.mul_compat_l := @ps_mul_compat_l
 (*
-     Field.mul_compat_l := 0;
      Field.mul_inv_l := 0;
      Field.mul_add_distr_l := 0
 *)

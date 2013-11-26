@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.71 2013-11-26 19:39:59 deraugla Exp $ *)
+(* $Id: Series.v,v 2.72 2013-11-26 20:28:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1228,3 +1228,6 @@ intros s₁ s₂ Heq.
 inversion Heq; subst.
 apply H.
 Qed.
+
+Lemma eq_series_eq : ∀ α (fld : Field.t α) a b, a = b → eq_series fld a b.
+Proof. intros; subst a; reflexivity. Qed.
