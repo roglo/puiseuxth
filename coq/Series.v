@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.68 2013-11-26 16:21:19 deraugla Exp $ *)
+(* $Id: Series.v,v 2.69 2013-11-26 18:25:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -468,8 +468,7 @@ Lemma sigma_aux_sigma_aux_comm : ∀ f i di j dj,
   sigma_aux fld i di (λ i, sigma_aux fld j dj (λ j, f i j))
   ≍ sigma_aux fld j dj (λ j, sigma_aux fld i di (λ i, f i j)).
 Proof.
-intros f i di j dj.
-revert i.
+intros f i di j dj; revert i.
 induction di; intros; simpl.
  symmetry; apply all_0_sigma_aux_0.
  intros; reflexivity.
@@ -504,7 +503,12 @@ Lemma sigma_aux_sigma_aux_sigma_aux_comm : ∀ f i di j dj k dk,
        sigma_aux fld k dk
          (λ k, sigma_aux fld j dj (λ j, f i j k))).
 Proof.
-bbb.
+intros f i di j dj k dk; revert i.
+induction di; intros; [ reflexivity | simpl ].
+rewrite IHdi.
+apply Field.add_compat_r.
+apply sigma_aux_sigma_aux_comm.
+Qed.
 
 Lemma sigma_sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂ k₁ k₂,
   Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   Σ (k = k₁, k₂)   (f i j k)
