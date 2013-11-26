@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.58 2013-11-26 02:31:53 deraugla Exp $ *)
+(* $Id: Series.v,v 2.59 2013-11-26 02:42:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -913,15 +913,20 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
+(* mouahifffffff.... *)
 Lemma xxx : ∀ f b len,
   (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
-  → sigma_aux fld b len (λ i, sigma_aux fld 0 (i - b) (λ j, f i j))
-    ≍ sigma_aux fld b len (λ i, sigma_aux fld 0 len (λ j, f i j)).
+  → sigma_aux fld b len (λ i, sigma_aux fld b (i - b) (λ j, f i j))
+    ≍ sigma_aux fld b len (λ i, sigma_aux fld b len (λ j, f i j)).
 Proof.
 intros f b len Hf.
 revert b.
 induction len; intros; simpl.
  rewrite Nat.sub_diag; reflexivity.
+
+ rewrite Nat.sub_diag; simpl.
+ rewrite <- Field.add_assoc.
+ apply Field.add_compat_l.
 bbb.
 *)
 
