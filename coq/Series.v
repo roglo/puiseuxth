@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.67 2013-11-26 15:05:18 deraugla Exp $ *)
+(* $Id: Series.v,v 2.68 2013-11-26 16:21:19 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -492,6 +492,26 @@ Lemma sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂,
 Proof.
 intros f i₁ i₂ j₁ j₂.
 apply sigma_aux_sigma_aux_comm; assumption.
+Qed.
+
+Lemma sigma_aux_sigma_aux_sigma_aux_comm : ∀ f i di j dj k dk,
+  sigma_aux fld i di
+    (λ i,
+     sigma_aux fld j dj
+       (λ j, sigma_aux fld k dk (λ k, f i j k)))
+  ≍ sigma_aux fld i di
+      (λ i,
+       sigma_aux fld k dk
+         (λ k, sigma_aux fld j dj (λ j, f i j k))).
+Proof.
+bbb.
+
+Lemma sigma_sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂ k₁ k₂,
+  Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   Σ (k = k₁, k₂)   (f i j k)
+  ≍ Σ (i = i₁, i₂)   Σ (k = k₁, k₂)   Σ (j = j₁, j₂)   (f i j k).
+Proof.
+intros f i₁ i₂ j₁ j₂ k₁ k₂.
+apply sigma_aux_sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
 Theorem series_mul_comm : ∀ a b, series_mul fld a b ≃ series_mul fld b a.
@@ -1032,6 +1052,16 @@ Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
 Proof.
 intros a b c m.
 unfold sigma_mul_3.
+rewrite sigma_sigma_comm; symmetry.
+rewrite sigma_sigma_sigma_comm.
+rewrite sigma_sigma_comm.
+apply sigma_compat; intros k Hk.
+rewrite sigma_sigma_mul_comm.
+rewrite sigma_sigma_mul_swap.
+rewrite sigma_mul_swap; symmetry.
+rewrite sigma_mul_comm.
+rewrite sigma_mul_swap; symmetry.
+apply Field.mul_compat_l.
 bbb.
 *)
 
