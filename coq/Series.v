@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.60 2013-11-26 11:01:00 deraugla Exp $ *)
+(* $Id: Series.v,v 2.61 2013-11-26 12:38:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -326,20 +326,10 @@ Lemma all_0_sigma_aux_0 : ∀ f b len,
 Proof.
 intros f b len H.
 revert b H.
-induction len; intros; simpl.
- apply H.
- rewrite Nat.add_0_r; split; reflexivity.
-
- rewrite H, Field.add_0_l.
-  apply IHlen.
-  intros i (Hbi, Hib).
-  apply H.
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-  split; [ idtac | assumption ].
-  apply Nat.lt_le_incl; assumption.
-
-  split; [ reflexivity | idtac ].
-  apply Nat.le_add_r.
+induction len; intros; [ reflexivity | simpl ].
+rewrite H; [ idtac | omega ].
+rewrite Field.add_0_l, IHlen; [ reflexivity | idtac ].
+intros i Hi; apply H; omega.
 Qed.
 
 Lemma all_0_sigma_0 : ∀ f i₁ i₂,
@@ -386,8 +376,8 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
   unfold convol_mul.
   rename i into k.
-  apply sigma_compat; intros i.
-  apply sigma_compat; intros j.
+  apply sigma_compat; intros i Hi.
+  apply sigma_compat; intros j Hj.
   rewrite H, H0.
   reflexivity.
 
@@ -481,17 +471,19 @@ Proof.
 intros f i di j dj.
 revert i.
 induction di; intros; simpl.
- reflexivity.
+ symmetry; apply all_0_sigma_aux_0.
+ intros; reflexivity.
 
  rewrite IHdi; clear IHdi.
  revert j.
  induction dj; intros; simpl.
-  reflexivity.
+  apply Field.add_0_r.
 
   rewrite <- IHdj.
-  rewrite Field.add_assoc, Field.add_comm; symmetry.
-  rewrite Field.add_assoc, Field.add_comm; symmetry.
-  rewrite Field.add_shuffle0; reflexivity.
+  do 2 rewrite <- Field.add_assoc.
+  apply Field.add_compat_l.
+  rewrite Field.add_comm, <- Field.add_assoc.
+  apply Field.add_compat_l, Field.add_comm.
 Qed.
 
 Lemma sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂,
@@ -511,8 +503,8 @@ rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  unfold convol_mul.
  rewrite sigma_sigma_comm.
- apply sigma_compat; intros i.
- apply sigma_compat; intros j.
+ apply sigma_compat; intros i Hi.
+ apply sigma_compat; intros j Hj.
  rewrite Nat.add_comm.
  do 2 rewrite Field.mul_assoc.
  rewrite Field.mul_shuffle0; reflexivity.
