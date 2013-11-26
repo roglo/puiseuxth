@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.62 2013-11-26 12:53:33 deraugla Exp $ *)
+(* $Id: Series.v,v 2.63 2013-11-26 12:57:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -782,7 +782,7 @@ Qed.
 
 Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
   len₁ ≤ len₂
-  → (∀ i, (b + len₁ < i)%nat → f i ≍ 0%fld)
+  → (∀ i, (b + len₁ ≤ i)%nat → f i ≍ 0%fld)
     → sigma_aux fld b len₁ (λ i, f i)
       ≍ sigma_aux fld b len₂ (λ i, f i).
 Proof.
@@ -793,7 +793,9 @@ induction len₂; intros; simpl.
 
  destruct len₁; simpl.
   rewrite all_0_sigma_aux_0.
-   rewrite Field.add_0_r; reflexivity.
+   symmetry; rewrite Field.add_0_r.
+   apply Hi.
+   rewrite Nat.add_0_r; reflexivity.
 
    intros i H.
    apply Hi; omega.
@@ -802,7 +804,7 @@ induction len₂; intros; simpl.
   apply Field.add_compat_l.
   apply IHlen₂; [ assumption | idtac ].
   intros i H.
-  apply Hi; omega.
+  apply Hi; rewrite Nat.add_succ_r, <- Nat.add_succ_l; assumption.
 Qed.
 
 Lemma sigma_extend_0 : ∀ f i₁ i₂ i₃,
@@ -846,8 +848,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
  clear H₁.
  destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₁| H₁].
   unfold convol_mul, convol_mul_inf.
-  apply sigma_compat; intros i.
-  apply sigma_compat; intros j.
+  apply sigma_compat; intros i Hi.
+  apply sigma_compat; intros j Hj.
   rewrite <- Field.mul_assoc.
   apply Field.mul_compat_l; reflexivity.
 
@@ -904,7 +906,7 @@ Qed.
 
 Lemma xxx : ∀ f g b₁ b₂ len₁ len₂,
   (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
-  → (∀ i j, (b₂ + g i < j)%nat → f i j ≍ 0%fld)
+  → (∀ i j, (b₂ + g i ≤ j)%nat → f i j ≍ 0%fld)
     → sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ (g i) (λ j, f i j))
       ≍ sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ len₂ (λ j, f i j)).
 Proof.
