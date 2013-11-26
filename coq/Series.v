@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.57 2013-11-26 02:04:24 deraugla Exp $ *)
+(* $Id: Series.v,v 2.58 2013-11-26 02:31:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,6 +35,7 @@ Qed.
 
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
+Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
 Section field.
  
@@ -912,20 +913,24 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
-Lemma xxx : ∀ f b₁ b₂ m len,
-  (∀ i j, i < j ≤ m → f i j ≍ 0%fld)
-  → sigma_aux fld b₁ len (λ i, sigma_aux fld b₂ (i - b₂) (λ j, f i j))
-    ≍ sigma_aux fld b₁ len (λ i, sigma_aux fld b₂ (m - b₂) (λ j, f i j)).
+Lemma xxx : ∀ f b len,
+  (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
+  → sigma_aux fld b len (λ i, sigma_aux fld 0 (i - b) (λ j, f i j))
+    ≍ sigma_aux fld b len (λ i, sigma_aux fld 0 len (λ j, f i j)).
 Proof.
+intros f b len Hf.
+revert b.
+induction len; intros; simpl.
+ rewrite Nat.sub_diag; reflexivity.
 bbb.
 *)
 
-Lemma yyy : ∀ f b₁ b₂ m,
-  (∀ i j, i < j ≤ m → f i j ≍ 0%fld)
-  → Σ (i = b₁, m)   Σ (j = b₂, i)   f i j
-    ≍ Σ (i = b₁, m)   Σ (j = b₂, m)   f i j.
+Lemma yyy : ∀ f m,
+  (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
+  → Σ (i = 0, m)   Σ (j = 0, i)   f i j
+    ≍ Σ (i = 0, m)   Σ (j = 0, m)   f i j.
 Proof.
-intros f b₁ b₂ m Hf.
+intros f m Hf.
 apply xxx; assumption.
 bbb.
 *)
