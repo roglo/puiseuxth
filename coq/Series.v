@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.61 2013-11-26 12:38:04 deraugla Exp $ *)
+(* $Id: Series.v,v 2.62 2013-11-26 12:53:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -554,8 +554,11 @@ Lemma sigma_aux_mul_swap : ∀ a f b len,
   ≍ (a * sigma_aux fld b len f)%fld.
 Proof.
 intros a f b len; revert b.
-induction len; intros; [ reflexivity | simpl ].
-rewrite Field.mul_add_distr_l, IHlen; reflexivity.
+induction len; intros; simpl.
+ rewrite Field.mul_0_r; reflexivity.
+
+ rewrite IHlen, Field.mul_add_distr_l.
+ reflexivity.
 Qed.
 
 Lemma sigma_mul_swap : ∀ a f b k,
@@ -574,12 +577,10 @@ Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
 Proof.
 intros f g h b₁ b₂ len.
 revert b₁ b₂.
-induction len; intros; simpl.
- apply sigma_aux_mul_swap.
-
- rewrite IHlen.
- apply Field.add_compat_r.
- apply sigma_aux_mul_swap.
+induction len; intros; [ reflexivity | simpl ].
+rewrite IHlen.
+apply Field.add_compat_r.
+apply sigma_aux_mul_swap.
 Qed.
 
 Lemma sigma_sigma_mul_swap : ∀ f g h k,
@@ -606,19 +607,11 @@ Lemma glop : ∀ f g h k,
   ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%fld.
 Proof.
 intros f g h k.
-apply sigma_compat; intros i.
-unfold sigma.
-remember (k - 0)%nat as len; clear Heqlen.
-remember 0%nat as b; clear Heqb k.
-revert b.
-induction len; intros; simpl.
- rewrite Field.mul_assoc, Field.mul_shuffle0, Field.mul_comm.
- reflexivity.
-
- rewrite IHlen.
- rewrite Field.mul_assoc, Field.mul_shuffle0, Field.mul_comm.
- rewrite Field.mul_add_distr_l.
- reflexivity.
+apply sigma_compat; intros i Hi.
+rewrite <- sigma_mul_swap.
+apply sigma_compat; intros j Hj.
+rewrite Field.mul_comm, Field.mul_shuffle0, Field.mul_assoc.
+reflexivity.
 Qed.
 
 Lemma sigma_only_one_non_0 : ∀ f b v k,
@@ -628,38 +621,35 @@ Lemma sigma_only_one_non_0 : ∀ f b v k,
 Proof.
 intros f b v k (Hbv, Hvk) Hi.
 unfold sigma.
-remember (k - b)%nat as len.
-replace k with (b + len)%nat in * by omega.
+remember (S k - b)%nat as len.
+apply le_n_S in Hvk.
+replace (S k) with (b + len)%nat in * by omega.
 clear k Heqlen.
 revert b v Hbv Hvk Hi.
-induction len; intros; simpl.
- rewrite Nat.add_0_r in Hvk.
- apply Nat.le_antisymm in Hvk; [ idtac | assumption ].
- subst b; reflexivity.
+induction len; intros; [ exfalso; omega | simpl ].
+destruct (eq_nat_dec b v) as [H₁| H₁].
+ subst b.
+ assert (f v ≍ f v + 0)%fld as H.
+  rewrite Field.add_0_r; reflexivity.
 
- destruct (eq_nat_dec b v) as [H₁| H₁].
-  subst b.
-  assert (f v ≍ f v + 0)%fld as H.
-   rewrite Field.add_0_r; reflexivity.
+  rewrite H in |- * at 2.
+  apply Field.add_compat_l.
+  clear IHlen Hbv Hvk H.
+  apply all_0_sigma_aux_0.
+  intros i (Hvi, Hiv).
+  apply Hi.
+  intros H; subst i.
+  apply Nat.nlt_ge in Hvi.
+  apply Hvi, Nat.lt_succ_r; reflexivity.
 
-   rewrite H in |- * at 2.
-   apply Field.add_compat_l.
-   clear IHlen Hbv Hvk H.
-   apply all_0_sigma_aux_0.
-   intros i (Hvi, Hiv).
-   apply Hi.
-   intros H; subst i.
-   apply Nat.nlt_ge in Hvi.
-   apply Hvi, Nat.lt_succ_r; reflexivity.
-
-  rewrite Hi; [ idtac | assumption ].
-  rewrite Field.add_0_l.
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
-  apply IHlen; [ idtac | assumption | assumption ].
-  apply Nat.nlt_ge.
-  intros H; apply H₁.
-  apply Nat.succ_le_mono in H.
-  apply Nat.le_antisymm; assumption.
+ rewrite Hi; [ idtac | assumption ].
+ rewrite Field.add_0_l.
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
+ apply IHlen; [ idtac | assumption | assumption ].
+ apply Nat.nlt_ge.
+ intros H; apply H₁.
+ apply Nat.succ_le_mono in H.
+ apply Nat.le_antisymm; assumption.
 Qed.
 
 Theorem series_mul_1_l : ∀ s, series_mul fld (series_1 fld) s ≃ s.
@@ -775,11 +765,12 @@ Lemma mul_sigma_aux_inj : ∀ f a b len,
   (a * sigma_aux fld b len (λ i, f i))%fld
    ≍ sigma_aux fld b len (λ i, (a * f i)%fld).
 Proof.
-intros f a b len.
-revert b.
-induction len; intros; [ reflexivity | simpl ].
-rewrite Field.mul_add_distr_l.
-rewrite IHlen; reflexivity.
+intros f a b len; revert b.
+induction len; intros; simpl.
+ rewrite Field.mul_0_r; reflexivity.
+
+ rewrite <- IHlen.
+ apply Field.mul_add_distr_l.
 Qed.
 
 Lemma mul_sigma_inj : ∀ f i₁ i₂ a,
