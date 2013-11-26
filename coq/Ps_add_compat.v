@@ -1,7 +1,7 @@
-(* $Id: Ps_add_compat.v,v 2.6 2013-11-23 13:03:52 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.7 2013-11-26 20:56:10 deraugla Exp $ *)
 
 Require Import Utf8.
-Require Import ZArith.
+Require Import QArith.
 Require Import NPeano.
 
 Require Import Field.
@@ -912,3 +912,14 @@ apply ps_add_compat_r; assumption.
 Qed.
 
 End fld.
+
+Add Parametric Morphism α (fld : Field.t α) : (ps_add fld)
+with signature eq_ps fld ==> eq_ps fld ==> eq_ps fld
+as ps_add_morph.
+Proof.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
+transitivity (ps_add fld ps₁ ps₄).
+ apply ps_add_compat_l; assumption.
+
+ apply ps_add_compat_r; assumption.
+Qed.

@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.110 2013-11-26 20:28:14 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.111 2013-11-26 20:56:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -120,6 +120,15 @@ constructor; constructor; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
+Theorem ps_mul_1_r : ∀ ps, ps_mul ps (ps_one fld) ≈ ps.
+Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
+
+Theorem ps_mul_0_l : ∀ ps, ps_mul (ps_zero _) ps ≈ (ps_zero _).
+Proof. intros ps; constructor. Qed.
+
+Theorem ps_mul_0_r : ∀ ps, ps_mul ps (ps_zero _) ≈ (ps_zero _).
+Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
+
 Theorem ps_neq_1_0 : not (ps_one fld ≈ ps_zero _).
 Proof.
 intros H.
@@ -185,7 +194,18 @@ constructor; constructor; simpl.
   rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
-Definition ps_fld : Field.t (puiseux_series α) :=
+Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
+  ps₁ ≈ ps₂
+  → (ps₁ * ps₃)%ps ≈ (ps₂ * ps₃)%ps.
+Proof.
+intros ps₁ ps₂ ps₃ H₁₂.
+destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_mul_0_r; reflexivity ].
+destruct ps₁ as [nz₁| ].
+ destruct ps₂ as [nz₂| ]; [ idtac | simpl ].
+  constructor.
+bbb.
+
+Definition ps_fld α : Field.t (puiseux_series α) :=
   {| Field.zero := @ps_zero α;
      Field.one := @ps_one α fld;
      Field.add := @ps_add α fld;
@@ -214,4 +234,11 @@ Definition ps_fld : Field.t (puiseux_series α) :=
 *)
    |}.
 
-End fld₄.
+End fld.
+
+Add Parametric Morphism α (fld : Field.t α) : (ps_mul fld)
+with signature eq_ps fld ==> eq_ps fld ==> eq_ps fld
+as ps_mul_morph.
+Proof.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
+bbb.
