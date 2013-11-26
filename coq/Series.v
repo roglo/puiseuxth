@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.59 2013-11-26 02:42:07 deraugla Exp $ *)
+(* $Id: Series.v,v 2.60 2013-11-26 11:01:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -231,11 +231,11 @@ Definition δ i j := if eq_nat_dec i j then Field.one fld else Field.zero fld.
 
 Fixpoint sigma_aux b len f :=
   match len with
-  | O => f b
+  | O => 0%fld
   | S len₁ => (f b + sigma_aux (S b) len₁ f)%fld
   end.
 
-Definition sigma b e f := sigma_aux b (e - b) f.
+Definition sigma b e f := sigma_aux b (S e - b) f.
 
 Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
   (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
@@ -250,21 +250,27 @@ Definition series_mul a b :=
      stop := Nbar.add (stop a) (stop b) |}.
 
 Lemma sigma_aux_compat : ∀ f g b len,
-  (∀ i, f i ≍ g i)
+  (∀ i, b ≤ i < b + len → f i ≍ g i)
   → sigma_aux b len f ≍ sigma_aux b len g.
 Proof.
 intros f g b len Hfg.
-revert b.
-induction len; intros; [ apply Hfg | simpl; rewrite Hfg ].
-rewrite IHlen; reflexivity.
+revert b Hfg.
+induction len; intros; [ reflexivity | simpl ].
+rewrite Hfg; [ idtac | omega ].
+rewrite IHlen; [ reflexivity | idtac ].
+intros i Hi.
+apply Hfg.
+omega.
 Qed.
 
 Lemma sigma_compat : ∀ f g b k,
-  (∀ i, f i ≍ g i)
+  (∀ i, b ≤ i ≤ k → f i ≍ g i)
   → Σ (i = b, k)  f i ≍ Σ (i = b, k)   g i.
 Proof.
 intros f g b k Hfg.
-apply sigma_aux_compat; assumption.
+apply sigma_aux_compat.
+intros i (Hbi, Hib).
+apply Hfg; omega.
 Qed.
 
 Lemma sigma_sigma_compat : ∀ f g b₁ k₁ b₂ k₂,
@@ -273,8 +279,8 @@ Lemma sigma_sigma_compat : ∀ f g b₁ k₁ b₂ k₂,
     ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   g i j.
 Proof.
 intros f g b₁ k₁ b₂ k₂ Hfg.
-apply sigma_aux_compat; intros l.
-apply sigma_aux_compat; intros m.
+apply sigma_aux_compat; intros l Hl.
+apply sigma_aux_compat; intros m Hm.
 apply Hfg.
 Qed.
 
@@ -283,7 +289,7 @@ Lemma sigma_mul_comm : ∀ f g b k,
   ≍ Σ (i = b, k)   (g i * f i)%fld.
 Proof.
 intros f g b len.
-apply sigma_compat; intros i.
+apply sigma_compat; intros i Hi.
 apply Field.mul_comm.
 Qed.
 
@@ -292,7 +298,7 @@ Lemma sigma_mul_assoc : ∀ f g h b k,
   ≍ Σ (i = b, k)   (f i * g i * h i)%fld.
 Proof.
 intros f g h b k.
-apply sigma_compat; intros i.
+apply sigma_compat; intros i Hi.
 apply Field.mul_assoc.
 Qed.
 
@@ -793,7 +799,7 @@ Qed.
 
 Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
   len₁ ≤ len₂
-  → (∀ i, b + len₁ < i ≤ b + len₂ → f i ≍ 0%fld)
+  → (∀ i, (b + len₁ < i)%nat → f i ≍ 0%fld)
     → sigma_aux fld b len₁ (λ i, f i)
       ≍ sigma_aux fld b len₂ (λ i, f i).
 Proof.
@@ -818,12 +824,12 @@ Qed.
 
 Lemma sigma_extend_0 : ∀ f i₁ i₂ i₃,
   i₂ ≤ i₃
-  → (∀ i, i₂ < i ≤ i₃ → f i ≍ 0%fld)
+  → (∀ i, (i₂ < i)%nat → f i ≍ 0%fld)
     → Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₃)   f i.
 Proof.
 intros f i₁ i₂ i₃ Hi₂₃ Hi.
 apply sigma_aux_extend_0; [ omega | idtac ].
-intros i (Hi₁, Hi₂).
+intros i Hi₁.
 apply Hi; omega.
 Qed.
 
@@ -913,22 +919,16 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
-(* mouahifffffff.... *)
-Lemma xxx : ∀ f b len,
-  (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
-  → sigma_aux fld b len (λ i, sigma_aux fld b (i - b) (λ j, f i j))
-    ≍ sigma_aux fld b len (λ i, sigma_aux fld b len (λ j, f i j)).
+Lemma xxx : ∀ f g b₁ b₂ len₁ len₂,
+  (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
+  → (∀ i j, (b₂ + g i < j)%nat → f i j ≍ 0%fld)
+    → sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ (g i) (λ j, f i j))
+      ≍ sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ len₂ (λ j, f i j)).
 Proof.
-intros f b len Hf.
-revert b.
-induction len; intros; simpl.
- rewrite Nat.sub_diag; reflexivity.
-
- rewrite Nat.sub_diag; simpl.
- rewrite <- Field.add_assoc.
- apply Field.add_compat_l.
+intros f g b₁ b₂ len₁ len₂ Hg Hfg.
+apply sigma_aux_compat; intros i.
+apply sigma_aux_extend_0.
 bbb.
-*)
 
 Lemma yyy : ∀ f m,
   (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
