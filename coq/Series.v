@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.64 2013-11-26 13:07:15 deraugla Exp $ *)
+(* $Id: Series.v,v 2.65 2013-11-26 13:37:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -935,7 +935,7 @@ Definition sigma_mul_3 aa bb cc m :=
   Σ (k = 0, m)  
     (δ fld (i + j + k) m * terms aa i * terms bb j * terms cc k)%fld.
 
-Lemma zzz : ∀ aa bb cc m,
+Lemma convol_mul_assoc_1 : ∀ aa bb cc m,
   Σ (i = 0, m)  
   Σ (l = 0, m)  
    (δ fld (i + l) m * terms aa i *
@@ -943,6 +943,7 @@ Lemma zzz : ∀ aa bb cc m,
     Σ (k = 0, l)   δ fld (j + k) l * terms bb j * terms cc k)%fld
   ≍ sigma_mul_3 aa bb cc m.
 Proof.
+(* à nettoyer *)
 intros a b c m.
 unfold sigma_mul_3.
 apply sigma_compat; intros i Hi.
@@ -970,12 +971,56 @@ rewrite sigma_sigma_extend_0.
    apply Nat.nle_gt in Huhm.
    apply Huhm, le_plus_l.
 
- rewrite sigma_sigma_comm; symmetry.
- rewrite sigma_sigma_comm; symmetry.
+ rewrite sigma_sigma_comm.
  apply sigma_compat; intros j Hj.
- apply sigma_compat; intros k Hk.
-bbb.
-*)
+ rewrite <- sigma_sigma_mul_swap.
+ rewrite sigma_sigma_extend_0.
+  rewrite sigma_sigma_comm.
+  apply sigma_compat; intros k Hk.
+  destruct (le_dec (j + k) m) as [H₁| H₁].
+   rewrite sigma_only_one_non_0 with (v := (j + k)%nat).
+    rewrite delta_id, Field.mul_1_l.
+    rewrite Nat.add_assoc, Field.mul_comm.
+    reflexivity.
+
+    split; [ apply Nat.le_0_l | assumption ].
+
+    intros l Hl.
+    rewrite Field.mul_comm.
+    apply Nat.neq_sym in Hl.
+    rewrite delta_neq; [ idtac | assumption ].
+    do 3 rewrite Field.mul_0_l; reflexivity.
+
+   rewrite all_0_sigma_0.
+    rewrite delta_neq.
+     rewrite Field.mul_0_r; reflexivity.
+
+     omega.
+
+    intros l.
+    destruct (eq_nat_dec (i + l) m) as [H₂| H₂].
+     rewrite H₂, delta_id, Field.mul_1_l.
+     destruct (eq_nat_dec (j + k) l) as [H₃| H₃].
+      exfalso; omega.
+
+      rewrite delta_neq; [ idtac | assumption ].
+      rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
+
+     rewrite delta_neq; [ idtac | assumption ].
+     rewrite Field.mul_0_l; reflexivity.
+
+  intros l k Hlk.
+  destruct (eq_nat_dec (i + l) m) as [H₂| H₂].
+   rewrite H₂, delta_id, Field.mul_1_l.
+   destruct (eq_nat_dec (j + k) l) as [H₃| H₃].
+    exfalso; omega.
+
+    rewrite delta_neq; [ idtac | assumption ].
+    rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
+
+   rewrite delta_neq; [ idtac | assumption ].
+   rewrite Field.mul_0_l; reflexivity.
+Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
   series_mul fld a (series_mul fld b c)
@@ -1011,8 +1056,7 @@ rewrite sigma_sigma_compat with (g := f); subst f.
   symmetry.
   unfold series_mul_inf; simpl.
   unfold convol_mul_inf.
-  rewrite zzz.
-  symmetry.
+  rewrite convol_mul_assoc_1; symmetry.
 bbb.
 
 (* version classique *)
