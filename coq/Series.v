@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.69 2013-11-26 18:25:54 deraugla Exp $ *)
+(* $Id: Series.v,v 2.70 2013-11-26 18:47:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1066,6 +1066,25 @@ rewrite sigma_mul_swap; symmetry.
 rewrite sigma_mul_comm.
 rewrite sigma_mul_swap; symmetry.
 apply Field.mul_compat_l.
+rewrite <- sigma_sigma_mul_swap.
+symmetry.
+rewrite sigma_sigma_extend_0.
+ rewrite sigma_sigma_comm.
+ apply sigma_compat; intros i Hi.
+ rewrite <- sigma_sigma_mul_swap.
+ rewrite sigma_sigma_extend_0.
+  rewrite sigma_sigma_comm.
+  apply sigma_compat; intros j Hj.
+  rewrite sigma_mul_assoc, sigma_mul_comm.
+  rewrite sigma_mul_swap; symmetry.
+  rewrite Field.mul_comm.
+  apply Field.mul_compat_l.
+  rewrite Field.mul_comm; symmetry.
+  rewrite sigma_mul_assoc, sigma_mul_comm.
+  rewrite sigma_mul_swap.
+  apply Field.mul_compat_l.
+  destruct (eq_nat_dec (i + j + k) m) as [H₁| H₁].
+   rewrite H₁, delta_id.
 bbb.
 *)
 
