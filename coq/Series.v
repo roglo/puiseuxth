@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.56 2013-11-25 17:50:16 deraugla Exp $ *)
+(* $Id: Series.v,v 2.57 2013-11-26 02:04:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -591,6 +591,17 @@ intros f g h k.
 apply sigma_aux_sigma_aux_mul_swap.
 Qed.
 
+(*
+Lemma sigma_sigma_sigma_mul_swap : ∀ f g h l b₁ b₂ b₃ e,
+  Σ (i = b₁, e)  
+  Σ (j = b₂, f i)   Σ (k = b₃, g i j)   (h i j * l i j k)%fld
+  ≍ Σ (i = b₁, e)  
+    Σ (j = b₂, f i)   (h i j * Σ (k = b₃, g i j)   l i j k)%fld.
+Proof.
+intros f g h l b₁ b₂ b₃ e.
+bbb.
+*)
+
 Lemma glop : ∀ f g h k,
   Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%fld
   ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%fld.
@@ -827,15 +838,6 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
-(* à faire, s'il le faut
-Lemma sigma_sigma_compat : ∀ f g k,
-  (∀ i j, f i j ≍ g i j)
-  → Σ (i = 0, k)   Σ (j = 0, k)   f i j ≍
-    Σ (i = 0, k)   Σ (j = 0, k)   g i j.
-Proof.
-bbb.
-*)
-
 Definition convol_mul_inf a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
     (δ fld (i + j) k * terms a i * terms b j)%fld.
@@ -910,6 +912,24 @@ destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
+Lemma xxx : ∀ f b₁ b₂ m len,
+  (∀ i j, i < j ≤ m → f i j ≍ 0%fld)
+  → sigma_aux fld b₁ len (λ i, sigma_aux fld b₂ (i - b₂) (λ j, f i j))
+    ≍ sigma_aux fld b₁ len (λ i, sigma_aux fld b₂ (m - b₂) (λ j, f i j)).
+Proof.
+bbb.
+*)
+
+Lemma yyy : ∀ f b₁ b₂ m,
+  (∀ i j, i < j ≤ m → f i j ≍ 0%fld)
+  → Σ (i = b₁, m)   Σ (j = b₂, i)   f i j
+    ≍ Σ (i = b₁, m)   Σ (j = b₂, m)   f i j.
+Proof.
+intros f b₁ b₂ m Hf.
+apply xxx; assumption.
+bbb.
+*)
+
 Definition sigma_mul_3 aa bb cc m :=
   Σ (i = 0, m)  
   Σ (j = 0, m)  
@@ -937,6 +957,20 @@ apply Field.mul_compat_l.
 symmetry.
 rewrite sigma_mul_comm.
 rewrite <- sigma_sigma_mul_swap.
+rewrite yyy.
+ Focus 2.
+ intros u j Huhm.
+ rewrite all_0_sigma_0.
+  rewrite Field.mul_0_r; reflexivity.
+
+  intros k.
+  rewrite delta_neq.
+   rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
+
+   intros H; subst u.
+   destruct Huhm as (Hjkj, _).
+   apply Nat.nle_gt in Hjkj.
+   apply Hjkj, le_plus_l.
 bbb.
 *)
 
