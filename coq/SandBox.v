@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.111 2013-11-26 20:56:10 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.112 2013-11-26 21:05:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -194,6 +194,17 @@ constructor; constructor; simpl.
   rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
+Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
+  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
+  → normalise_nz fld (nz_mul nz₁ nz₃) ≐ normalise_nz fld (nz_mul nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
+remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
+symmetry in Hps₁, Hps₂.
+destruct ps₁ as [nz'₁| ].
+bbb.
+
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
   → (ps₁ * ps₃)%ps ≈ (ps₂ * ps₃)%ps.
@@ -203,6 +214,8 @@ destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_mul_0_r; reflexivity ].
 destruct ps₁ as [nz₁| ].
  destruct ps₂ as [nz₂| ]; [ idtac | simpl ].
   constructor.
+  apply nz_norm_mul_compat_r.
+  inversion H₁₂; assumption.
 bbb.
 
 Definition ps_fld α : Field.t (puiseux_series α) :=
