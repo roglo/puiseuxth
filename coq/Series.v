@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.66 2013-11-26 14:51:06 deraugla Exp $ *)
+(* $Id: Series.v,v 2.67 2013-11-26 15:05:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1030,6 +1030,8 @@ Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
      (Σ (j0 = 0, i)   δ fld (i0 + j0) i * terms aa i0 * terms bb j0)) *
      terms cc j)%fld ≍ sigma_mul_3 aa bb cc k.
 Proof.
+intros a b c m.
+unfold sigma_mul_3.
 bbb.
 *)
 
