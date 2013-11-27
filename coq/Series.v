@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.72 2013-11-26 20:28:14 deraugla Exp $ *)
+(* $Id: Series.v,v 2.73 2013-11-27 14:24:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -852,6 +852,13 @@ unfold series_nth_fld; simpl.
 unfold series_nth_fld; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
+Qed.
+
+Lemma series_nth_inf : ∀ a i,
+  series_nth_fld fld i (series_inf fld a) ≍ terms (series_inf fld a) i.
+Proof.
+intros a i.
+rewrite series_inf_nth; reflexivity.
 Qed.
 
 Definition convol_mul_inf a b k :=

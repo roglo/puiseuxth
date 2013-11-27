@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.117 2013-11-27 13:08:09 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.118 2013-11-27 14:24:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -209,13 +209,106 @@ constructor; simpl.
  rewrite H1; reflexivity.
 Qed.
 
+Lemma series_mul_stretch_mul_inf : ∀ a b k,
+  series_mul fld (series_stretch fld k a) b
+  ≃ series_mul_inf fld (series_stretch fld k (series_inf fld a))
+      (series_inf fld b).
+Proof.
+intros a b l.
+constructor; intros k.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
+ remember (stop a * fin (Pos.to_nat l) + stop b)%Nbar as x.
+ destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
+  unfold convol_mul, convol_mul_inf.
+  apply sigma_compat; intros i Hi.
+  apply sigma_compat; intros j Hj.
+  rewrite <- Field.mul_assoc.
+  destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
+   rewrite H₂, delta_id.
+   do 2 rewrite Field.mul_1_l.
+   simpl.
+   destruct (zerop (i mod Pos.to_nat l)) as [H₃| H₃].
+    apply Nat.mod_divides in H₃; auto.
+    destruct H₃ as (c, Hc).
+    rewrite Hc.
+    rewrite series_nth_fld_mul_stretch.
+    rewrite Nat.mul_comm.
+    rewrite Nat.div_mul; auto.
+    rewrite series_nth_inf.
+    reflexivity.
+
+    rewrite shifted_in_stretched; [ reflexivity | assumption ].
+
+   rewrite delta_neq; [ idtac | assumption ].
+   do 2 rewrite Field.mul_0_l; reflexivity.
+
+  symmetry.
+  apply Nbar.nlt_ge in H₁.
+  unfold convol_mul_inf.
+  apply all_0_sigma_0; intros i.
+  apply all_0_sigma_0; intros j.
+  destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
+   rewrite H₂, delta_id.
+   rewrite Field.mul_1_l.
+   simpl.
+   destruct (zerop (i mod Pos.to_nat l)) as [H₃| H₃].
+    apply Nat.mod_divides in H₃; auto.
+    destruct H₃ as (c, Hc).
+    rewrite Hc.
+    rewrite Nat.mul_comm.
+    rewrite Nat.div_mul; auto.
+    rewrite series_nth_inf.
+    simpl.
+    unfold series_nth_fld; simpl.
+    destruct (Nbar.lt_dec (fin c) (stop a)) as [H₃| H₃].
+     destruct (Nbar.lt_dec (fin j) (stop b)) as [H₄| H₄].
+      rewrite <- H₂ in H₁.
+      rewrite Nbar.fin_inj_add in H₁.
+      apply Nbar.nlt_ge in H₁.
+      exfalso; apply H₁.
+      apply Nbar.lt_trans with (m := (fin i + stop b)%Nbar).
+       apply Nbar.add_lt_mono_l; [ idtac | assumption ].
+       intros H; discriminate H.
+
+       remember (stop b) as st eqn:Hst .
+       symmetry in Hst.
+       destruct st as [st| ].
+        apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
+        rewrite Hc.
+        rewrite Nbar.fin_inj_mul.
+        rewrite Nbar.mul_comm.
+        apply Nbar.mul_lt_mono_pos_r.
+         apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
+
+         intros H; discriminate H.
+
+         intros H; discriminate H.
+
+         assumption.
+
+        exfalso; apply H₁; simpl.
+        rewrite Nbar.add_comm; constructor.
+
+      rewrite Field.mul_0_r; reflexivity.
+
+     rewrite Field.mul_0_l; reflexivity.
+
+    rewrite Field.mul_0_l; reflexivity.
+
+   rewrite delta_neq; [ idtac | assumption ].
+   do 2 rewrite Field.mul_0_l; reflexivity.
+
+ apply H; constructor.
+Qed.
+
 Lemma zzz : ∀ a b k,
   series_stretch fld k (series_mul fld a b)
   ≃ series_mul fld (series_stretch fld k a) b.
 Proof.
 intros a b k.
-rewrite series_mul_mul_inf; symmetry.
-rewrite series_mul_mul_inf; symmetry.
+rewrite series_mul_stretch_mul_inf.
+rewrite series_mul_mul_inf.
 remember (series_inf fld a) as aa eqn:Haa .
 remember (series_inf fld b) as bb eqn:Hbb .
 constructor; intros i.
