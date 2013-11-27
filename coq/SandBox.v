@@ -1,10 +1,11 @@
-(* $Id: SandBox.v,v 2.113 2013-11-27 02:46:40 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.114 2013-11-27 03:26:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
 Require Import Nbar.
+Require Import Misc.
 Require Import Field.
 Require Import Series.
 Require Import Puiseux_series.
@@ -208,6 +209,28 @@ constructor; simpl.
  rewrite H1; reflexivity.
 Qed.
 
+Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
+  normalise_nz fld (nz_mul nz₁ nz₂) ≐
+  normalise_nz fld (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
+Proof.
+intros nz₁ nz₂ k.
+unfold nz_mul; simpl.
+rewrite Z.sub_0_r.
+rewrite Pos2Z.inj_mul, Z.mul_assoc.
+rewrite Z.mul_shuffle0.
+rewrite <- Z.mul_add_distr_r.
+rewrite Pos_mul_shuffle0.
+bbb.
+
+Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
+  normalise_nz fld (nz_mul nz₁ nz₂) ≐
+  normalise_nz fld (nz_mul (adjust_nz fld n k nz₁) nz₂).
+Proof.
+intros nz₁ nz₂ n k.
+rewrite eq_norm_ps_mul_adjust_0_l with (k := k).
+apply normalise_nz_adjust_nz_mul.
+bbb.
+
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz_mul nz₁ nz₃) ≐ normalise_nz fld (nz_mul nz₂ nz₃).
@@ -226,6 +249,8 @@ destruct ps₁ as [nz'₁| ].
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
  rewrite Hps₁, Hps₂.
+ rewrite <- normalise_nz_adjust_nz_mul_r.
+ rewrite <- normalise_nz_adjust_nz_mul_r.
 bbb.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
