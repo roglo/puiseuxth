@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.116 2013-11-27 09:31:56 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.117 2013-11-27 13:08:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -209,7 +209,27 @@ constructor; simpl.
  rewrite H1; reflexivity.
 Qed.
 
-Lemma eq_norm_ps_mul_adjust_0_l : ∀ nz₁ nz₂ k,
+Lemma zzz : ∀ a b k,
+  series_stretch fld k (series_mul fld a b)
+  ≃ series_mul fld (series_stretch fld k a) b.
+Proof.
+intros a b k.
+rewrite series_mul_mul_inf; symmetry.
+rewrite series_mul_mul_inf; symmetry.
+remember (series_inf fld a) as aa eqn:Haa .
+remember (series_inf fld b) as bb eqn:Hbb .
+constructor; intros i.
+rewrite series_nth_mul_inf; simpl.
+destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+ apply Nat.mod_divides in H₁; auto.
+ destruct H₁ as (j, Hj).
+ rewrite Hj in |- * at 1.
+ rewrite series_nth_fld_mul_stretch.
+ rewrite series_nth_mul_inf.
+ unfold series_mul_inf; simpl.
+bbb.
+
+Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐
   normalise_nz fld (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
 Proof.
@@ -222,9 +242,10 @@ rewrite Pos2Z.inj_mul, Z.mul_assoc.
 rewrite Z.mul_shuffle0.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos_mul_shuffle0.
-Abort. (*
+do 2 rewrite series_shift_0.
+apply normalise_nz_morph.
+constructor; try reflexivity; simpl.
 bbb.
-*)
 
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐
@@ -241,6 +262,7 @@ rewrite Z.mul_shuffle0.
 rewrite <- Z.add_sub_swap.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos_mul_shuffle0.
+bbb.
 assert
  (series_mul fld (series_shift fld n (series_stretch fld k (nz_terms nz₁)))
     (nz_terms nz₂) ≃

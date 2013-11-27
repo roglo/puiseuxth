@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.66 2013-11-27 10:19:55 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.67 2013-11-27 13:08:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -281,6 +281,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
  apply H₁; constructor.
 Qed.
 
+(* mmmm... probablement faux... à réfléchir...
 Lemma zzz : ∀ a b n k,
   series_mul fld (series_shift n (series_stretch k a)) b
   ≃ series_shift n (series_stretch k (series_mul fld a b)).
@@ -290,7 +291,35 @@ rewrite series_inf_eq; symmetry.
 rewrite series_inf_eq; symmetry.
 rewrite series_inf_mul; symmetry.
 rewrite series_inf_shift.
-bbb.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
+ destruct (lt_dec i n) as [H₁| H₁].
+  symmetry.
+  unfold convol_mul_inf.
+  apply all_0_sigma_0; intros l.
+  apply all_0_sigma_0; intros j.
+  simpl.
+  destruct (eq_nat_dec (l + j) i) as [H₂| H₂].
+   rewrite H₂, delta_id, Field.mul_1_l.
+   unfold series_nth_fld at 1.
+   remember terms as f; simpl; subst f.
+   remember (stop a * fin (Pos.to_nat k) + fin n)%Nbar as x.
+   destruct (Nbar.lt_dec (fin l) x) as [H₃| H₃]; subst x.
+    simpl.
+    destruct (lt_dec l n) as [H₄| H₄].
+     rewrite Field.mul_0_l; reflexivity.
+
+     exfalso; omega.
+
+    rewrite Field.mul_0_l; reflexivity.
+
+   rewrite delta_neq; [ idtac | assumption ].
+   do 2 rewrite Field.mul_0_l; reflexivity.
+
+  symmetry.
+  apply Nat.nlt_ge in H₁.
+*)
 
 End fld.
 
