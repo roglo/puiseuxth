@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.119 2013-11-27 14:48:36 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.120 2013-11-27 18:31:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -302,11 +302,25 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
  apply H; constructor.
 Qed.
 
+(*
+Notation "'Σ' ( i = b , e ) ' ' f" := (sigma fld b e (λ i, f))
+  (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
+Lemma inserted_0_sigma : ∀ f g k n,
+  (∀ i, i mod n ≠ O → f i ≍ 0%fld)
+  → (∀ i, f (n * i)%nat ≍ g i)
+    → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
+Proof.
+intros f g k n Hf Hfg.
+bbb.
+*)
+
+(*
 Lemma zzz : ∀ a b k,
   series_stretch fld k (series_mul fld a b)
-  ≃ series_mul fld (series_stretch fld k a) b.
+  ≃ series_mul fld (series_stretch fld k a) (series_stretch fld k b).
 Proof.
 intros a b k.
+bbb.
 rewrite series_mul_stretch_mul_inf.
 rewrite series_mul_mul_inf.
 remember (series_inf fld a) as aa eqn:Haa .
@@ -324,7 +338,9 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
  rewrite Nat.mul_comm in Hj; rewrite Hj.
  rewrite inserted_0_sigma.
 bbb.
+*)
 
+(*
 Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐
   normalise_nz fld (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
@@ -342,7 +358,9 @@ do 2 rewrite series_shift_0.
 apply normalise_nz_morph.
 constructor; try reflexivity; simpl.
 bbb.
+*)
 
+(*
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐
   normalise_nz fld (nz_mul (adjust_nz fld n k nz₁) nz₂).

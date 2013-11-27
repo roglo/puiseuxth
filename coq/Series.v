@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.75 2013-11-27 15:05:17 deraugla Exp $ *)
+(* $Id: Series.v,v 2.76 2013-11-27 18:31:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -340,7 +340,7 @@ apply all_0_sigma_aux_0.
 intros; apply H.
 Qed.
 
-(* mouais, bon, c'est pas ça qu'y faut, pute vierge... *)
+(* mouais, bon, c'est pas ça qu'y faut, pute vierge...
 Lemma inserted_0_sigma_aux : ∀ f k b len,
   (1 < k)%nat
   → (∀ i, i mod k ≠ O → f (b + i)%nat ≍ 0%fld)
@@ -360,6 +360,7 @@ induction len; intros.
 bbb.
 *)
 
+(*
 Lemma inserted_0_sigma : ∀ f k n,
   (∀ i, i mod k ≠ O → f i ≍ 0%fld)
   → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   f i.
@@ -369,6 +370,7 @@ unfold sigma.
 do 2 rewrite Nat.sub_0_r.
 apply inserted_0_sigma_aux; assumption.
 qed.
+*)
 
 Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
 Proof.

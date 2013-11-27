@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.22 2013-11-23 03:47:20 deraugla Exp $ *)
+(* $Id: Field.v,v 2.23 2013-11-27 18:32:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -73,16 +73,16 @@ Variable fld : t α.
 Notation "a ≍ b" := (eq fld a b) (at level 70).
 Notation "a ≭ b" := (not (eq fld a b)) (at level 70).
 
-Delimit Scope scope with fld.
-Notation "0" := (zero fld) : scope.
-Notation "1" := (one fld) : scope.
-Notation "- a" := (opp fld a) : scope.
+Delimit Scope fld_scope with fld.
+Notation "0" := (zero fld) : fld_scope.
+Notation "1" := (one fld) : fld_scope.
+Notation "- a" := (opp fld a) : fld_scope.
 Notation "a + b" := (add fld a b)
-  (left associativity, at level 50) : scope.
+  (left associativity, at level 50) : fld_scope.
 Notation "a - b" := (add fld a (opp fld b))
-  (left associativity, at level 50) : scope.
+  (left associativity, at level 50) : fld_scope.
 Notation "a * b" := (mul fld a b)
-  (left associativity, at level 40) : scope.
+  (left associativity, at level 40) : fld_scope.
 
 Theorem add_opp_r : ∀ x, (x + (-x) ≍ 0)%fld.
 Proof.
