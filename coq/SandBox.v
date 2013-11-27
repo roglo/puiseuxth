@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.118 2013-11-27 14:24:00 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.119 2013-11-27 14:48:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -320,6 +320,9 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
  rewrite series_nth_fld_mul_stretch.
  rewrite series_nth_mul_inf.
  unfold series_mul_inf; simpl.
+ unfold convol_mul_inf.
+ rewrite Nat.mul_comm in Hj; rewrite Hj.
+ rewrite inserted_0_sigma.
 bbb.
 
 Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,

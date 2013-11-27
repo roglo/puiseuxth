@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.73 2013-11-27 14:24:00 deraugla Exp $ *)
+(* $Id: Series.v,v 2.74 2013-11-27 14:48:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -321,7 +321,7 @@ apply Field.mul_assoc.
 Qed.
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
-  (∀ i, (b ≤ i ≤ b + len)%nat → f i ≍ 0%fld)
+  (∀ i, (b ≤ i < b + len)%nat → f i ≍ 0%fld)
   → sigma_aux b len (λ i, f i) ≍ 0%fld.
 Proof.
 intros f b len H.
@@ -339,6 +339,32 @@ intros f i₁ i₂ H.
 apply all_0_sigma_aux_0.
 intros; apply H.
 Qed.
+
+(*
+Lemma inserted_0_sigma_aux : ∀ f k b len,
+  (∀ i, (b + i)%nat mod k ≠ O → f (b + i)%nat ≍ 0%fld)
+  → sigma_aux b (k * len) f ≍ sigma_aux b k f.
+Proof.
+intros f k b len Hf.
+revert b.
+induction len; intros.
+ rewrite Nat.mul_0_r; simpl.
+ symmetry.
+ apply all_0_sigma_aux_0.
+ intros i Hi.
+ apply Hf.
+bbb.
+
+Lemma inserted_0_sigma : ∀ f k n,
+  (∀ i, i mod k ≠ O → f i ≍ 0%fld)
+  → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   f i.
+Proof.
+intros f k n Hf.
+unfold sigma.
+do 2 rewrite Nat.sub_0_r; simpl.
+rewrite inserted_0_sigma_aux; [ reflexivity | assumption ].
+Qed.
+*)
 
 Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
 Proof.
