@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.114 2013-11-27 03:26:41 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.115 2013-11-27 04:23:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -209,27 +209,52 @@ constructor; simpl.
  rewrite H1; reflexivity.
 Qed.
 
-Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
+Lemma eq_norm_ps_mul_adjust_0_l : ∀ nz₁ nz₂ k,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐
   normalise_nz fld (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ k.
+rewrite nz_adjust_eq with (n := O) (k := k).
 unfold nz_mul; simpl.
-rewrite Z.sub_0_r.
+unfold adjust_nz; simpl.
+do 2 rewrite Z.sub_0_r.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 rewrite Z.mul_shuffle0.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos_mul_shuffle0.
+Abort. (*
 bbb.
+*)
 
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz_mul nz₁ nz₂) ≐
   normalise_nz fld (nz_mul (adjust_nz fld n k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ n k.
+rewrite nz_adjust_eq with (n := n) (k := k).
+unfold nz_mul; simpl.
+unfold adjust_nz; simpl.
+symmetry.
+rewrite Pos2Z.inj_mul, Z.mul_assoc.
+rewrite Z.mul_sub_distr_r.
+rewrite Z.mul_shuffle0.
+rewrite <- Z.add_sub_swap.
+rewrite <- Z.mul_add_distr_r.
+rewrite Pos_mul_shuffle0.
+assert
+ (series_mul fld (series_shift fld n (series_stretch fld k (nz_terms nz₁)))
+    (nz_terms nz₂) ≃
+  series_shift fld n
+    (series_stretch fld k (series_mul fld (nz_terms nz₁) (nz_terms nz₂)))).
+ Focus 2.
+bbb.
+rewrite H.
+
+intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_mul_adjust_0_l with (k := k).
 apply normalise_nz_adjust_nz_mul.
 bbb.
+*)
 
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂

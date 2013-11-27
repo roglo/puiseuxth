@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 2.0 2013-11-02 01:12:59 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 2.1 2013-11-27 04:23:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -260,19 +260,6 @@ constructor; simpl.
 
  inversion H; rewrite H1; reflexivity.
 Qed.
-
-(*
-Add Parametric Morphism : (@ps_terms α) with 
-signature eq_ps fld ==> eq_series fld as ps_terms_morph.
-Proof.
-intros ps₁ ps₂ Hps.
-inversion Hps; subst.
-constructor.
- intros i.
- inversion H; subst.
- simpl in H2, H3.
-bbb.
-*)
 
 (* *)
 

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.63 2013-11-24 19:29:50 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.64 2013-11-27 04:23:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -614,6 +614,19 @@ unfold gcd_nz.
 rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
+
+(*
+Add Parametric Morphism α (fld : Field.t α) : (@nz_terms α) with 
+signature eq_nz fld ==> eq_series fld as nz_terms_morph.
+Proof.
+intros nz₁ nz₂ Hnz.
+inversion Hnz; subst.
+constructor.
+ intros i.
+ inversion H; subst.
+ simpl in H2, H3.
+bbb.
+*)
 
 Section fld₁.
 
