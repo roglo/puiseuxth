@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.8 2013-11-27 02:46:39 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.9 2013-11-27 03:37:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -241,7 +241,7 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_norm_ps_add_adjust_l : ∀ nz₁ nz₂ k,
+Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld 0 k nz₁ ∔ nz₂).
 Proof.
@@ -523,7 +523,7 @@ Lemma normalise_nz_adjust_nz_add_r : ∀ nz₁ nz₂ n k,
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
 intros nz₁ nz₂ n k.
-rewrite eq_norm_ps_add_adjust_l with (k := k).
+rewrite eq_norm_ps_add_adjust_0_l with (k := k).
 apply normalise_nz_adjust_nz_add.
 Qed.
 
