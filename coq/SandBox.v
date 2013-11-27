@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.112 2013-11-26 21:05:03 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.113 2013-11-27 02:46:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -194,6 +194,20 @@ constructor; constructor; simpl.
   rewrite Pos.mul_assoc; reflexivity.
 Qed.
 
+Lemma eq_nz_mul_compat_r : ∀ nz₁ nz₂ nz₃,
+  eq_nz fld nz₁ nz₂
+  → eq_nz fld (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+induction Heq.
+constructor; simpl.
+ rewrite H, H0; reflexivity.
+
+ rewrite H0; reflexivity.
+
+ rewrite H1; reflexivity.
+Qed.
+
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
   → normalise_nz fld (nz_mul nz₁ nz₃) ≐ normalise_nz fld (nz_mul nz₂ nz₃).
@@ -203,6 +217,15 @@ remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
 remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
 symmetry in Hps₁, Hps₂.
 destruct ps₁ as [nz'₁| ].
+ destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
+ apply normalised_exists_adjust in Hps₁.
+ apply normalised_exists_adjust in Hps₂.
+ destruct Hps₁ as (n₁, (k₁, Hps₁)).
+ destruct Hps₂ as (n₂, (k₂, Hps₂)).
+ inversion Heq; subst.
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
+ rewrite Hps₁, Hps₂.
 bbb.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,

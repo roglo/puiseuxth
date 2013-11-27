@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.7 2013-11-26 20:56:10 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.8 2013-11-27 02:46:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -518,7 +518,7 @@ rewrite <- Z2Nat.inj_add.
  apply Pos2Z.is_nonneg.
 Qed.
 
-Lemma normalise_nz_adjust_nz_r : ∀ nz₁ nz₂ n k,
+Lemma normalise_nz_adjust_nz_add_r : ∀ nz₁ nz₂ n k,
   normalise_nz fld (nz₁ ∔ nz₂) ≐
   normalise_nz fld (adjust_nz fld n k nz₁ ∔ nz₂).
 Proof.
@@ -826,8 +826,8 @@ destruct ps₁ as [nz'₁| ].
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
  rewrite Hps₁, Hps₂.
- rewrite <- normalise_nz_adjust_nz_r.
- rewrite <- normalise_nz_adjust_nz_r.
+ rewrite <- normalise_nz_adjust_nz_add_r.
+ rewrite <- normalise_nz_adjust_nz_add_r.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
  rewrite H1; reflexivity.
 
@@ -838,12 +838,12 @@ destruct ps₁ as [nz'₁| ].
  destruct Hps₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
- rewrite normalise_nz_adjust_nz_r with (n := n₁) (k := k₁).
+ rewrite normalise_nz_adjust_nz_add_r with (n := n₁) (k := k₁).
  rewrite Hps₁; symmetry.
- rewrite normalise_nz_adjust_nz_r with (n := n₃) (k := k₃).
+ rewrite normalise_nz_adjust_nz_add_r with (n := n₃) (k := k₃).
  rewrite Hps₂; symmetry.
- rewrite <- normalise_nz_adjust_nz_r.
- rewrite <- normalise_nz_adjust_nz_r.
+ rewrite <- normalise_nz_adjust_nz_add_r.
+ rewrite <- normalise_nz_adjust_nz_add_r.
  reflexivity.
 Qed.
 
