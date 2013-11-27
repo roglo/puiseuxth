@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.115 2013-11-27 04:23:46 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.116 2013-11-27 09:31:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -247,8 +247,8 @@ assert
   series_shift fld n
     (series_stretch fld k (series_mul fld (nz_terms nz₁) (nz_terms nz₂)))).
  Focus 2.
+ rewrite H.
 bbb.
-rewrite H.
 
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_mul_adjust_0_l with (k := k).

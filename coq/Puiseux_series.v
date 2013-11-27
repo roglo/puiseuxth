@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.64 2013-11-27 04:23:46 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.65 2013-11-27 09:31:56 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -279,6 +279,14 @@ apply Nbar.mul_lt_mono_pos_r.
  intros H; discriminate H.
 
  assumption.
+Qed.
+
+Add Parametric Morphism α (fld : Field.t α) : (@mknz α)
+with signature eq_series fld ==> eq ==> eq ==> eq_nz fld
+as mknz_morphism.
+Proof.
+intros a b Hab v n.
+constructor; auto.
 Qed.
 
 Add Parametric Morphism α (fld : Field.t α) : (null_coeff_range_length fld)
