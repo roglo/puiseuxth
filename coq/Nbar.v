@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.8 2013-11-24 02:24:06 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.9 2013-11-27 10:19:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -767,6 +767,32 @@ destruct n as [n| ].
  inversion H; subst; assumption.
 
  negation Hn.
+Qed.
+
+Theorem lt_add_lt_sub_l : ∀ n m p, p ≤ n → n < m + p → n - p < m.
+Proof.
+intros n m p Hpn Hnm.
+destruct n as [n| ].
+ destruct p as [p| ]; simpl.
+  destruct m as [m| ]; [ simpl | constructor ].
+  simpl in Hnm.
+  apply lt_fin.
+  apply fin_le_mono in Hpn.
+  apply fin_lt_mono in Hnm.
+  omega.
+
+  apply nlt_ge in Hpn.
+  exfalso; apply Hpn; constructor.
+
+ destruct p as [p| ]; simpl.
+  destruct m as [m| ]; simpl.
+   apply nle_gt in Hnm.
+   exfalso; apply Hnm; constructor.
+
+   assumption.
+
+  apply nle_gt in Hnm.
+  exfalso; apply Hnm; constructor.
 Qed.
 
 Theorem sub_add_distr : ∀ n m p, n - (m + p) = n - m - p.

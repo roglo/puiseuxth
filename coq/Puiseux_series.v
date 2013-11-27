@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.65 2013-11-27 09:31:56 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.66 2013-11-27 10:19:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -249,6 +249,48 @@ inversion H₁; subst.
 
  inversion H₂; subst; constructor.
 Qed.
+
+Lemma series_inf_shift : ∀ a n,
+  series_inf fld (series_shift n a) ≃ series_shift n (series_inf fld a).
+Proof.
+intros a n.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
+ destruct (lt_dec i n) as [H₂| H₂].
+  destruct (Nbar.lt_dec (fin i) (stop a + fin n)); reflexivity.
+
+  apply Nat.nlt_ge in H₂.
+  destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin (i - n)) (stop a)) as [H₄| H₄].
+    reflexivity.
+
+    exfalso; apply H₄.
+    rewrite Nbar.fin_inj_sub.
+    apply Nbar.lt_add_lt_sub_l; [ idtac | assumption ].
+    apply Nbar.le_fin; assumption.
+
+   destruct (Nbar.lt_dec (fin (i - n)) (stop a)) as [H₄| H₄].
+    exfalso; apply H₃.
+    apply Nbar.lt_sub_lt_add_r; [ idtac | assumption ].
+    intros H; discriminate H.
+
+    reflexivity.
+
+ apply H₁; constructor.
+Qed.
+
+Lemma zzz : ∀ a b n k,
+  series_mul fld (series_shift n (series_stretch k a)) b
+  ≃ series_shift n (series_stretch k (series_mul fld a b)).
+Proof.
+intros a b n k.
+rewrite series_inf_eq; symmetry.
+rewrite series_inf_eq; symmetry.
+rewrite series_inf_mul; symmetry.
+rewrite series_inf_shift.
+bbb.
 
 End fld.
 
