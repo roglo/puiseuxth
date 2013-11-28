@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.121 2013-11-28 01:57:23 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.122 2013-11-28 10:46:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -347,7 +347,7 @@ bbb.
 (*
 Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
-  normalise_nz (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
+  normalise_nz (nz_mul (adjust_nz 0 k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ k.
 rewrite nz_adjust_eq with (n := O) (k := k).
@@ -367,7 +367,7 @@ bbb.
 (*
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
-  normalise_nz (nz_mul (adjust_nz fld n k nz₁) nz₂).
+  normalise_nz (nz_mul (adjust_nz n k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ n k.
 rewrite nz_adjust_eq with (n := n) (k := k).
@@ -382,9 +382,9 @@ rewrite <- Z.mul_add_distr_r.
 rewrite Pos_mul_shuffle0.
 bbb.
 assert
- (series_mul (series_shift fld n (series_stretch k (nz_terms nz₁)))
+ (series_mul (series_shift n (series_stretch k (nz_terms nz₁)))
     (nz_terms nz₂) ≃
-  series_shift fld n
+  series_shift n
     (series_stretch k (series_mul (nz_terms nz₁) (nz_terms nz₂)))).
  Focus 2.
  rewrite H.
@@ -414,9 +414,14 @@ destruct ps₁ as [nz'₁| ].
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
  rewrite Hps₁, Hps₂.
- rewrite <- normalise_nz_adjust_nz_mul_r.
- rewrite <- normalise_nz_adjust_nz_mul_r.
+ unfold nz_mul; simpl.
+ inversion H1; subst.
+ unfold normalise_nz; simpl.
+ rewrite H, H0, H2.
 bbb.
+ inversion H1; subst.
+ rewrite <- normalise_nz_adjust_nz_mul_r.
+ rewrite <- normalise_nz_adjust_nz_mul_r.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
