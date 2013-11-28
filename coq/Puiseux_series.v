@@ -1,12 +1,9 @@
-(* $Id: Puiseux_series.v,v 2.68 2013-11-28 01:14:33 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.69 2013-11-28 02:07:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-(*
-Require Field.
-*)
 Require Import Misc.
 Require Import Series.
 Require Import Nbar.
@@ -14,13 +11,6 @@ Require Import Nbar.
 Set Implicit Arguments.
 
 Section Axioms.
-
-(*
-Variable α : Type.
-Variable fld : Field.t α.
-Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
-*)
 
 (* [null_coeff_range_length fld s n] returns the number of consecutive
    null coefficients in the series [s], from the [n]th one. *)
@@ -68,18 +58,6 @@ Axiom greatest_series_x_power_iff : ∀ s n k,
   is_the_greatest_series_x_power s n k.
 
 End Axioms.
-
-(*
-Section fld.
-
-Variable α : Type.
-Variable fld : Lfield.t α.
-Notation "a ≍ b" := (Lfield.eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (Lfield.eq fld a b)) (at level 70).
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "x ≤ y < z" :=
-  (x <= y ∧ y < z)%nat (at level 70, y at next level) : nat_scope.
-*)
 
 Definition series_stretch k s :=
   {| terms i :=
@@ -325,10 +303,6 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
 
   symmetry.
   apply Nat.nlt_ge in H₁.
-*)
-
-(*
-End fld.
 *)
 
 Add Parametric Relation : (nz_ps α) eq_nz
@@ -718,17 +692,6 @@ constructor.
  inversion H; subst.
  simpl in H2, H3.
 bbb.
-*)
-
-(*
-Section fld₁.
-
-Variable α : Type.
-Variable fld : Lfield.t α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (Lfield.eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≭ b" := (not (Lfield.eq fld a b)) (at level 70).
 *)
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
@@ -1191,10 +1154,6 @@ induction H₁.
  assumption.
 Qed.
 
-(*
-End fld₁.
-*)
-
 Add Parametric Relation : (puiseux_series α) eq_ps
  reflexivity proved by eq_ps_refl
  symmetry proved by eq_ps_sym
@@ -1212,18 +1171,6 @@ Add Parametric Morphism : mk_nonzero
 with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
 Proof.
 aaa.
-*)
-
-(*
-Section fld₂.
-
-Variable α : Type.
-Variable fld : Lfield.t α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (Lfield.eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (Lfield.eq fld a b)) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 *)
 
 Definition valuation (ps : puiseux_series α) :=
@@ -2853,7 +2800,3 @@ split.
    apply le_n_S.
    apply le_plus_l.
 Qed.
-
-(*
-End fld₂.
-*)

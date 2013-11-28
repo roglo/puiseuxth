@@ -1,11 +1,19 @@
-(* $Id: Fpolynomial.v,v 2.2 2013-11-22 19:20:28 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 2.3 2013-11-28 02:04:16 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
 Require Import Utf8.
 Require Import QArith.
 
-Require Import Field.
+Require Field.
+Module Field_inst : Field.FieldType.
+  Variable α : Type.
+  Variable fld : Field.Tdef.t α.
+End Field_inst.
+Module Lfield := Field.Make Field_inst.
+Export Field_inst.
+Export Lfield.Syntax.
+
 Require Import Misc.
 Require Import Polynomial.
 
@@ -13,22 +21,21 @@ Set Implicit Arguments.
 
 Definition list_eq := List.Forall2.
 
-Definition eq_poly α fld (x y : polynomial α) :=
-  list_eq (Field.eq fld) (al x ++ [an x]) (al y ++ [an y]).
+Definition eq_poly (x y : polynomial α) :=
+  list_eq (Lfield.eq fld) (al x ++ [an x]) (al y ++ [an y]).
 
-Definition poly_add α (fld : Field.t α) :=
-  pol_add (Field.add fld).
+Definition poly_add :=
+  pol_add (Lfield.add fld).
 
-Definition poly_mul α (fld : Field.t α) :=
-  pol_mul (Field.zero fld) (Field.add fld) (Field.mul fld).
+Definition poly_mul :=
+  pol_mul (Lfield.zero fld) (Lfield.add fld) (Lfield.mul fld).
 
-Definition Pdivide α fld (x y : polynomial α) :=
-  ∃ z, eq_poly fld y (poly_mul fld z x).
+Definition Pdivide (x y : polynomial α) :=
+  ∃ z, eq_poly y (poly_mul z x).
 
-Lemma list_eq_refl : ∀ α (fld : Field.t α) l,
-  list_eq (Field.eq fld) l l.
+Lemma list_eq_refl : ∀ l, list_eq (Lfield.eq fld) l l.
 Proof.
-intros α fld l.
+intros l.
 induction l; constructor; [ reflexivity | assumption ].
 Qed.
 
@@ -59,42 +66,42 @@ Qed.
 
 (* addition commutativity *)
 
-Lemma pol_add_loop_al_comm : ∀ α (fld : Field.t α) an₁ an₂ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (Field.add fld) an₁ an₂ al₁ al₂
-  → rp₂ = pol_add_loop (Field.add fld) an₂ an₁ al₂ al₁
-    → list_eq (Field.eq fld) (al rp₁) (al rp₂).
+Lemma pol_add_loop_al_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
+  rp₁ = pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂
+  → rp₂ = pol_add_loop (Lfield.add fld) an₂ an₁ al₂ al₁
+    → list_eq (Lfield.eq fld) (al rp₁) (al rp₂).
 Proof.
-intros α fld an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
+intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
 revert an₁ an₂ al₂.
 induction al₁; intros.
  destruct al₂; [ apply list_eq_refl | simpl ].
- constructor; [ apply Field.add_comm | apply list_eq_refl ].
+ constructor; [ apply Lfield.add_comm | apply list_eq_refl ].
 
  destruct al₂.
-  constructor; [ apply Field.add_comm | apply list_eq_refl ].
+  constructor; [ apply Lfield.add_comm | apply list_eq_refl ].
 
-  constructor; [ apply Field.add_comm | apply IHal₁ ].
+  constructor; [ apply Lfield.add_comm | apply IHal₁ ].
 Qed.
 
-Lemma pol_add_loop_an_comm : ∀ α (fld : Field.t α) an₁ an₂ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (Field.add fld) an₁ an₂ al₁ al₂
-  → rp₂ = pol_add_loop (Field.add fld) an₂ an₁ al₂ al₁
-    → Field.eq fld (an rp₁) (an rp₂).
+Lemma pol_add_loop_an_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
+  rp₁ = pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂
+  → rp₂ = pol_add_loop (Lfield.add fld) an₂ an₁ al₂ al₁
+    → Lfield.eq fld (an rp₁) (an rp₂).
 Proof.
-intros α fld an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
+intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
 revert an₁ an₂ al₂.
 induction al₁; intros.
- destruct al₂; [ apply Field.add_comm | reflexivity ].
+ destruct al₂; [ apply Lfield.add_comm | reflexivity ].
 
  destruct al₂; [ reflexivity | eapply IHal₁; reflexivity ].
 Qed.
 
-Lemma poly_add_comm : ∀ α (fld : Field.t α) pol₁ pol₂,
-  eq_poly fld (poly_add fld pol₁ pol₂) (poly_add fld pol₂ pol₁).
+Lemma poly_add_comm : ∀ pol₁ pol₂,
+  eq_poly (poly_add pol₁ pol₂) (poly_add pol₂ pol₁).
 Proof.
-intros α fld pol₁ pol₂.
+intros pol₁ pol₂.
 unfold eq_poly.
 apply list_eq_append_one.
 split.
@@ -105,57 +112,55 @@ Qed.
 
 (* addition associativity *)
 
-Lemma pol_add_loop_al_assoc :
-    ∀ α (fld : Field.t α) an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (Field.add fld)
-          (an (pol_add_loop (Field.add fld) an₁ an₂ al₁ al₂)) an₃
-          (al (pol_add_loop (Field.add fld) an₁ an₂ al₁ al₂)) al₃
-  → rp₂ = pol_add_loop (Field.add fld)
-           an₁ (an (pol_add_loop (Field.add fld) an₂ an₃ al₂ al₃))
-           al₁ (al (pol_add_loop (Field.add fld) an₂ an₃ al₂ al₃))
-    → list_eq (Field.eq fld) (al rp₁) (al rp₂).
+Lemma pol_add_loop_al_assoc : ∀ an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
+  rp₁ = pol_add_loop (Lfield.add fld)
+          (an (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) an₃
+          (al (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) al₃
+  → rp₂ = pol_add_loop (Lfield.add fld)
+           an₁ (an (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
+           al₁ (al (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
+    → list_eq (Lfield.eq fld) (al rp₁) (al rp₂).
 Proof.
-intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
+intros an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
 revert an₁ an₂ an₃ al₂ al₃.
 induction al₁; intros.
  destruct al₂.
   destruct al₃; [ apply list_eq_refl | idtac ].
-  constructor; [ symmetry; apply Field.add_assoc | apply list_eq_refl ].
+  constructor; [ symmetry; apply Lfield.add_assoc | apply list_eq_refl ].
 
   destruct al₃; simpl.
-   constructor; [ symmetry; apply Field.add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply Lfield.add_assoc | apply list_eq_refl ].
 
-   constructor; [ symmetry; apply Field.add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply Lfield.add_assoc | apply list_eq_refl ].
 
  destruct al₂.
   destruct al₃; simpl.
-   constructor; [ symmetry; apply Field.add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply Lfield.add_assoc | apply list_eq_refl ].
 
-   constructor; [ symmetry; apply Field.add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply Lfield.add_assoc | apply list_eq_refl ].
 
   destruct al₃; simpl.
-   constructor; [ symmetry; apply Field.add_assoc | apply list_eq_refl ].
+   constructor; [ symmetry; apply Lfield.add_assoc | apply list_eq_refl ].
 
-   constructor; [ symmetry; apply Field.add_assoc | apply IHal₁ ].
+   constructor; [ symmetry; apply Lfield.add_assoc | apply IHal₁ ].
 Qed.
 
-Lemma pol_add_loop_an_assoc :
-    ∀ α (fld : Field.t α) an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (Field.add fld)
-          (an (pol_add_loop (Field.add fld) an₁ an₂ al₁ al₂)) an₃
-          (al (pol_add_loop (Field.add fld) an₁ an₂ al₁ al₂)) al₃
-  → rp₂ = pol_add_loop (Field.add fld)
-           an₁ (an (pol_add_loop (Field.add fld) an₂ an₃ al₂ al₃))
-           al₁ (al (pol_add_loop (Field.add fld) an₂ an₃ al₂ al₃))
-    → Field.eq fld (an rp₁) (an rp₂).
+Lemma pol_add_loop_an_assoc : ∀ an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
+  rp₁ = pol_add_loop (Lfield.add fld)
+          (an (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) an₃
+          (al (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) al₃
+  → rp₂ = pol_add_loop (Lfield.add fld)
+           an₁ (an (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
+           al₁ (al (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
+    → Lfield.eq fld (an rp₁) (an rp₂).
 Proof.
-intros α fld an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
+intros an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
 revert an₁ an₂ an₃ al₂ al₃.
 induction al₁; intros.
  destruct al₂.
-  destruct al₃; [ symmetry; apply Field.add_assoc | reflexivity ].
+  destruct al₃; [ symmetry; apply Lfield.add_assoc | reflexivity ].
 
   destruct al₃; reflexivity.
 
@@ -165,12 +170,12 @@ induction al₁; intros.
   destruct al₃; [ reflexivity | eapply IHal₁; reflexivity ].
 Qed.
 
-Lemma poly_add_assoc : ∀ α (fld : Field.t α) pol₁ pol₂ pol₃,
-  eq_poly fld
-    (poly_add fld (poly_add fld pol₁ pol₂) pol₃)
-    (poly_add fld pol₁ (poly_add fld pol₂ pol₃)).
+Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
+  eq_poly
+    (poly_add (poly_add pol₁ pol₂) pol₃)
+    (poly_add pol₁ (poly_add pol₂ pol₃)).
 Proof.
-intros α fld pol₁ pol₂ pol₃.
+intros pol₁ pol₂ pol₃.
 unfold eq_poly.
 apply list_eq_append_one.
 split.

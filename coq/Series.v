@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.77 2013-11-28 01:14:33 deraugla Exp $ *)
+(* $Id: Series.v,v 2.78 2013-11-28 02:07:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -44,23 +44,6 @@ Qed.
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
-
-(*
-Section field.
- 
-Variable α : Type.
-Variable fld : Field.t α.
-Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
-
-Delimit Scope fld_scope with fld.
-Notation "0" := (Field.zero fld) : fld_scope.
-Notation "1" := (Field.one fld) : fld_scope.
-Notation "a + b" := (Field.add fld a b)
-  (left associativity, at level 50) : fld_scope.
-Notation "a * b" := (Field.mul fld a b)
-  (left associativity, at level 40) : fld_scope.
-*)
 
 Definition series_0 := {| terms i := Lfield.zero fld; stop := 0 |}.
 Definition series_1 := {| terms i := Lfield.one fld; stop := 1 |}.
@@ -396,10 +379,6 @@ destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
 exfalso; apply Hij; reflexivity.
 Qed.
 
-(*
-End field.
-*)
-
 Add Parametric Relation : (series α) eq_series
  reflexivity proved by eq_series_refl
  symmetry proved by eq_series_sym
@@ -487,28 +466,6 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
 
   reflexivity.
 Qed.
-
-(*
-Section field₂.
- 
-Variable α : Type.
-Variable fld : Lfield.t α.
-Notation "a ≍ b" := (Lfield.eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (Lfield.eq fld a b)) (at level 70).
-
-Delimit Scope fld_scope with fld.
-Notation "0" := (Lfield.zero fld) : fld_scope.
-Notation "1" := (Lfield.one fld) : fld_scope.
-Notation "a + b" := (Lfield.add fld a b)
-  (left associativity, at level 50) : fld_scope.
-Notation "a * b" := (Lfield.mul fld a b)
-  (left associativity, at level 40) : fld_scope.
-
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-
-Notation "'Σ' ( i = b , e ) ' ' f" := (sigma fld b e (λ i, f))
-  (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
-*)
 
 Lemma sigma_aux_sigma_aux_comm : ∀ f i di j dj,
   sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
@@ -1216,13 +1173,6 @@ rewrite sigma_sigma_compat with (g := f); subst f.
   rewrite convol_mul_assoc_1; symmetry.
   apply convol_mul_assoc_2.
 Qed.
-
-(*
-End field₂.
-
-Notation "a ≍ b" := (Lfield.eq _ a b) (at level 70).
-Notation "a ≭ b" := (not (Lfield.eq _ a b)) (at level 70).
-*)
 
 Add Parametric Morphism : series_add
 with  signature eq_series ==> eq_series ==> eq_series
