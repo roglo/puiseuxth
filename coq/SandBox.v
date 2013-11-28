@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.120 2013-11-27 18:31:12 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.121 2013-11-28 01:57:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -6,7 +6,9 @@ Require Import NPeano.
 
 Require Import Nbar.
 Require Import Misc.
+(*
 Require Import Field.
+*)
 Require Import Series.
 Require Import Puiseux_series.
 Require Import Ps_add.
@@ -14,6 +16,7 @@ Require Import Ps_add_compat.
 
 Set Implicit Arguments.
 
+(*
 Section fld.
 
 Variable α : Type.
@@ -26,12 +29,13 @@ Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 Delimit Scope fld_scope with fld.
 Notation "0" := (Field.zero fld) : fld_scope.
 Notation "1" := (Field.one fld) : fld_scope.
+*)
 
 (* ps_mul *)
 
 Definition nz_mul nz₁ nz₂ :=
   {| nz_terms :=
-       series_mul fld (nz_terms nz₁) (nz_terms nz₂);
+       series_mul (nz_terms nz₁) (nz_terms nz₂);
      nz_valnum :=
        (nz_valnum nz₁ * ' nz_comden nz₂ + nz_valnum nz₂ * ' nz_comden nz₁)%Z;
      nz_comden :=
@@ -52,12 +56,12 @@ Notation "a + b" := (ps_add fld a b) : ps_scope.
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
-  normalise_nz fld (nz_mul nz₁ nz₂) ≐ normalise_nz fld (nz_mul nz₂ nz₁).
+  normalise_nz (nz_mul nz₁ nz₂) ≐ normalise_nz (nz_mul nz₂ nz₁).
 Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
 rewrite series_mul_comm.
-remember (series_mul fld (nz_terms nz₂) (nz_terms nz₁)) as x.
+remember (series_mul (nz_terms nz₂) (nz_terms nz₁)) as x.
 remember (null_coeff_range_length fld x 0) as n eqn:Hn .
 symmetry in Hn; subst x.
 destruct n as [n| ]; [ idtac | reflexivity ].
@@ -95,10 +99,10 @@ destruct ps₁ as [nz₁| ].
 Qed.
 
 Lemma fold_series_1 :
-  {| terms := λ _, Field.one fld; stop := 1 |} = series_1 fld.
+  {| terms := λ _, Lfield.one fld; stop := 1 |} = series_1.
 Proof. reflexivity. Qed.
 
-Theorem ps_mul_1_l : ∀ ps, ps_mul (ps_one fld) ps ≈ ps.
+Theorem ps_mul_1_l : ∀ ps, ps_mul ps_one ps ≈ ps.
 Proof.
 intros ps; simpl.
 destruct ps as [nz| ]; [ constructor | reflexivity ].
@@ -121,16 +125,16 @@ constructor; constructor; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
-Theorem ps_mul_1_r : ∀ ps, ps_mul ps (ps_one fld) ≈ ps.
+Theorem ps_mul_1_r : ∀ ps, ps_mul ps ps_one ≈ ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
 
-Theorem ps_mul_0_l : ∀ ps, ps_mul (ps_zero _) ps ≈ (ps_zero _).
+Theorem ps_mul_0_l : ∀ ps, ps_mul ps_zero ps ≈ ps_zero.
 Proof. intros ps; constructor. Qed.
 
-Theorem ps_mul_0_r : ∀ ps, ps_mul ps (ps_zero _) ≈ (ps_zero _).
+Theorem ps_mul_0_r : ∀ ps, ps_mul ps ps_zero ≈ ps_zero.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
-Theorem ps_neq_1_0 : not (ps_one fld ≈ ps_zero _).
+Theorem ps_neq_1_0 : not (ps_one ≈ ps_zero).
 Proof.
 intros H.
 inversion_clear H.
@@ -142,7 +146,7 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
  revert H₂; apply Nbar.lt_irrefl.
 
  destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-  apply Field.neq_1_0 in H₁; contradiction.
+  apply Lfield.neq_1_0 in H₁; contradiction.
 
   apply H₃, Nbar.lt_0_1.
 Qed.
@@ -157,8 +161,8 @@ destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ constructor | reflexivity ].
 unfold normalise_nz; simpl.
 rewrite series_mul_assoc.
-remember (series_mul fld (nz_terms nz₁) (nz_terms nz₂)) as s₁₂.
-remember (series_mul fld s₁₂ (nz_terms nz₃)) as s₁₂₃; subst s₁₂.
+remember (series_mul (nz_terms nz₁) (nz_terms nz₂)) as s₁₂.
+remember (series_mul s₁₂ (nz_terms nz₃)) as s₁₂₃; subst s₁₂.
 remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
@@ -196,8 +200,8 @@ constructor; constructor; simpl.
 Qed.
 
 Lemma eq_nz_mul_compat_r : ∀ nz₁ nz₂ nz₃,
-  eq_nz fld nz₁ nz₂
-  → eq_nz fld (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
+  eq_nz nz₁ nz₂
+  → eq_nz (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -210,8 +214,8 @@ constructor; simpl.
 Qed.
 
 Lemma series_mul_stretch_mul_inf : ∀ a b k,
-  series_mul fld (series_stretch fld k a) b
-  ≃ series_mul_inf fld (series_stretch fld k (series_inf fld a))
+  series_mul (series_stretch k a) b
+  ≃ series_mul_inf (series_stretch k (series_inf fld a))
       (series_inf fld b).
 Proof.
 intros a b l.
@@ -223,10 +227,10 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
   unfold convol_mul, convol_mul_inf.
   apply sigma_compat; intros i Hi.
   apply sigma_compat; intros j Hj.
-  rewrite <- Field.mul_assoc.
+  rewrite <- Lfield.mul_assoc.
   destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
    rewrite H₂, delta_id.
-   do 2 rewrite Field.mul_1_l.
+   do 2 rewrite Lfield.mul_1_l.
    simpl.
    destruct (zerop (i mod Pos.to_nat l)) as [H₃| H₃].
     apply Nat.mod_divides in H₃; auto.
@@ -241,7 +245,7 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
     rewrite shifted_in_stretched; [ reflexivity | assumption ].
 
    rewrite delta_neq; [ idtac | assumption ].
-   do 2 rewrite Field.mul_0_l; reflexivity.
+   do 2 rewrite Lfield.mul_0_l; reflexivity.
 
   symmetry.
   apply Nbar.nlt_ge in H₁.
@@ -250,7 +254,7 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
   apply all_0_sigma_0; intros j.
   destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
    rewrite H₂, delta_id.
-   rewrite Field.mul_1_l.
+   rewrite Lfield.mul_1_l.
    simpl.
    destruct (zerop (i mod Pos.to_nat l)) as [H₃| H₃].
     apply Nat.mod_divides in H₃; auto.
@@ -290,14 +294,14 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
         exfalso; apply H₁; simpl.
         rewrite Nbar.add_comm; constructor.
 
-      rewrite Field.mul_0_r; reflexivity.
+      rewrite Lfield.mul_0_r; reflexivity.
 
-     rewrite Field.mul_0_l; reflexivity.
+     rewrite Lfield.mul_0_l; reflexivity.
 
-    rewrite Field.mul_0_l; reflexivity.
+    rewrite Lfield.mul_0_l; reflexivity.
 
    rewrite delta_neq; [ idtac | assumption ].
-   do 2 rewrite Field.mul_0_l; reflexivity.
+   do 2 rewrite Lfield.mul_0_l; reflexivity.
 
  apply H; constructor.
 Qed.
@@ -316,8 +320,8 @@ bbb.
 
 (*
 Lemma zzz : ∀ a b k,
-  series_stretch fld k (series_mul fld a b)
-  ≃ series_mul fld (series_stretch fld k a) (series_stretch fld k b).
+  series_stretch k (series_mul a b)
+  ≃ series_mul (series_stretch k a) (series_stretch k b).
 Proof.
 intros a b k.
 bbb.
@@ -342,8 +346,8 @@ bbb.
 
 (*
 Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,
-  normalise_nz fld (nz_mul nz₁ nz₂) ≐
-  normalise_nz fld (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
+  normalise_nz (nz_mul nz₁ nz₂) ≐
+  normalise_nz (nz_mul (adjust_nz fld 0 k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ k.
 rewrite nz_adjust_eq with (n := O) (k := k).
@@ -362,8 +366,8 @@ bbb.
 
 (*
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
-  normalise_nz fld (nz_mul nz₁ nz₂) ≐
-  normalise_nz fld (nz_mul (adjust_nz fld n k nz₁) nz₂).
+  normalise_nz (nz_mul nz₁ nz₂) ≐
+  normalise_nz (nz_mul (adjust_nz fld n k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ n k.
 rewrite nz_adjust_eq with (n := n) (k := k).
@@ -378,10 +382,10 @@ rewrite <- Z.mul_add_distr_r.
 rewrite Pos_mul_shuffle0.
 bbb.
 assert
- (series_mul fld (series_shift fld n (series_stretch fld k (nz_terms nz₁)))
+ (series_mul (series_shift fld n (series_stretch k (nz_terms nz₁)))
     (nz_terms nz₂) ≃
   series_shift fld n
-    (series_stretch fld k (series_mul fld (nz_terms nz₁) (nz_terms nz₂)))).
+    (series_stretch k (series_mul (nz_terms nz₁) (nz_terms nz₂)))).
  Focus 2.
  rewrite H.
 bbb.
@@ -393,12 +397,12 @@ bbb.
 *)
 
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
-  normalise_nz fld nz₁ ≐ normalise_nz fld nz₂
-  → normalise_nz fld (nz_mul nz₁ nz₃) ≐ normalise_nz fld (nz_mul nz₂ nz₃).
+  normalise_nz nz₁ ≐ normalise_nz nz₂
+  → normalise_nz (nz_mul nz₁ nz₃) ≐ normalise_nz (nz_mul nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-remember (normalise_nz fld nz₁) as ps₁ eqn:Hps₁ .
-remember (normalise_nz fld nz₂) as ps₂ eqn:Hps₂ .
+remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
+remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
 symmetry in Hps₁, Hps₂.
 destruct ps₁ as [nz'₁| ].
  destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
@@ -427,38 +431,38 @@ destruct ps₁ as [nz₁| ].
   inversion H₁₂; assumption.
 bbb.
 
-Definition ps_fld α : Field.t (puiseux_series α) :=
-  {| Field.zero := @ps_zero α;
-     Field.one := @ps_one α fld;
-     Field.add := @ps_add α fld;
-     Field.mul := @ps_mul;
-     Field.opp := @ps_opp α fld;
+Definition ps_fld α : Lfield.t (puiseux_series α) :=
+  {| Lfield.zero := @ps_zero α;
+     Lfield.one := @ps_one α fld;
+     Lfield.add := @ps_add α fld;
+     Lfield.mul := @ps_mul;
+     Lfield.opp := @ps_opp α fld;
 (*
-     Field.inv := 0;
+     Lfield.inv := 0;
 *)
-     Field.eq := @eq_ps α fld;
-     Field.eq_refl := @eq_ps_refl α fld;
-     Field.eq_sym := @eq_ps_sym α fld;
-     Field.eq_trans := @eq_ps_trans α fld;
-     Field.neq_1_0 := @ps_neq_1_0;
-     Field.add_comm := @ps_add_comm α fld;
-     Field.add_assoc := @ps_add_assoc α fld;
-     Field.add_0_l := @ps_add_0_l α fld;
-     Field.add_opp_l := @ps_add_opp_l α fld;
-     Field.add_compat_l := @ps_add_compat_l α fld;
-     Field.mul_comm := @ps_mul_comm;
-     Field.mul_assoc := @ps_mul_assoc;
-     Field.mul_1_l := @ps_mul_1_l;
-     Field.mul_compat_l := @ps_mul_compat_l
+     Lfield.eq := @eq_ps α fld;
+     Lfield.eq_refl := @eq_ps_refl α fld;
+     Lfield.eq_sym := @eq_ps_sym α fld;
+     Lfield.eq_trans := @eq_ps_trans α fld;
+     Lfield.neq_1_0 := @ps_neq_1_0;
+     Lfield.add_comm := @ps_add_comm α fld;
+     Lfield.add_assoc := @ps_add_assoc α fld;
+     Lfield.add_0_l := @ps_add_0_l α fld;
+     Lfield.add_opp_l := @ps_add_opp_l α fld;
+     Lfield.add_compat_l := @ps_add_compat_l α fld;
+     Lfield.mul_comm := @ps_mul_comm;
+     Lfield.mul_assoc := @ps_mul_assoc;
+     Lfield.mul_1_l := @ps_mul_1_l;
+     Lfield.mul_compat_l := @ps_mul_compat_l
 (*
-     Field.mul_inv_l := 0;
-     Field.mul_add_distr_l := 0
+     Lfield.mul_inv_l := 0;
+     Lfield.mul_add_distr_l := 0
 *)
    |}.
 
 End fld.
 
-Add Parametric Morphism α (fld : Field.t α) : (ps_mul fld)
+Add Parametric Morphism α (fld : Lfield.t α) : (ps_mul fld)
 with signature eq_ps fld ==> eq_ps fld ==> eq_ps fld
 as ps_mul_morph.
 Proof.
