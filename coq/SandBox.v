@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.122 2013-11-28 10:46:35 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.123 2013-11-28 13:39:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -318,13 +318,14 @@ intros f g k n Hf Hfg.
 bbb.
 *)
 
-(*
+(* faux ; exemple pour k > 1 :
+   - terme de gauche : a₀b₀ + 0 x + ...
+   - terme de droite : a₀b₀ + a₀b₁x + ...
 Lemma zzz : ∀ a b k,
   series_stretch k (series_mul a b)
-  ≃ series_mul (series_stretch k a) (series_stretch k b).
+  ≃ series_mul (series_stretch k a) b.
 Proof.
 intros a b k.
-bbb.
 rewrite series_mul_stretch_mul_inf.
 rewrite series_mul_mul_inf.
 remember (series_inf fld a) as aa eqn:Haa .
@@ -340,11 +341,11 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
  unfold series_mul_inf; simpl.
  unfold convol_mul_inf.
  rewrite Nat.mul_comm in Hj; rewrite Hj.
- rewrite inserted_0_sigma.
 bbb.
+ rewrite inserted_0_sigma.
 *)
 
-(*
+(* faux car nécessite lemme zzz ci-dessus, lequel est faux
 Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz 0 k nz₁) nz₂).
@@ -364,7 +365,7 @@ constructor; try reflexivity; simpl.
 bbb.
 *)
 
-(*
+(* faux car faux pour n = 0 du lemme ci-dessus qui est faux
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz n k nz₁) nz₂).
@@ -414,11 +415,13 @@ destruct ps₁ as [nz'₁| ].
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
  rewrite Hps₁, Hps₂.
+bbb.
  unfold nz_mul; simpl.
  inversion H1; subst.
- unfold normalise_nz; simpl.
  rewrite H, H0, H2.
 bbb.
+ unfold normalise_nz; simpl.
+
  inversion H1; subst.
  rewrite <- normalise_nz_adjust_nz_mul_r.
  rewrite <- normalise_nz_adjust_nz_mul_r.
