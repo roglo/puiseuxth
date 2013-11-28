@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.69 2013-11-28 02:07:29 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.70 2013-11-28 02:14:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2085,104 +2085,6 @@ intros s i n len Hi Hn Hlen.
 eapply index_of_nonzero_before_from_right_bound; try eassumption.
 apply Nat.lt_succ_r; reflexivity.
 Qed.
-
-(*
-Fixpoint sigma_aux b len f :=
-  match len with
-  | O => f b
-  | S len₁ => (f b + sigma_aux (S b) len₁ f)%nat
-  end.
-
-Definition sigma b e f := sigma_aux b (e - b) f.
-
-Notation "'Σ' ( i = b , e ) f" := (sigma b e (λ i, f))
-  (at level 0, i at level 0, b at level 0, e at level 0, f at level 10,
-   format "'Σ' ( i = b , e ) f").
-
-Lemma nth_null_coeff_range_length_eq : ∀ s n b,
-  nth_null_coeff_range_length s (S n) b =
-  nth_null_coeff_range_length s 0
-     (b + Σ (i = 0,n) (nth_null_coeff_range_length s i b)).
-Proof.
-bbb.
-
-Lemma sigma_aux_fin_succ : ∀ s b n l len,
-  null_coeff_range_length fld s (S b) = fin len
-  → sigma_aux (S n) l (λ i : nat, nth_null_coeff_range_length s i b) =
-    sigma_aux n l (λ i : nat, nth_null_coeff_range_length s i (S (b + len))).
-Proof.
-intros s b n l len H.
-revert n.
-induction l; intros.
- simpl; rewrite H; reflexivity.
-
- simpl; rewrite H; f_equal; apply IHl.
-Qed.
-
-Lemma sigma_aux_inf_succ : ∀ s b n l,
-  null_coeff_range_length fld s (S b) = ∞
-  → sigma_aux (S n) l (λ i : nat, nth_null_coeff_range_length s i b) =
-    sigma_aux n l (λ i : nat, nth_null_coeff_range_length s i b).
-Proof.
-intros s b n l H.
-revert n.
-induction l; intros.
- simpl; rewrite H.
- destruct n; simpl; rewrite H; reflexivity.
-
- simpl; rewrite H, IHl; f_equal.
- destruct n; simpl; rewrite H; reflexivity.
-Qed.
-
-Lemma nth_null_coeff_range_length_succ : ∀ s n b,
-  nth_null_coeff_range_length s (S n) b =
-  nth_null_coeff_range_length s n
-    (b + nth_null_coeff_range_length s 0 b).
-Proof.
-intros s n b.
-destruct n; simpl.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.add_succ_r; reflexivity.
-
-  rewrite Nat.add_0_r, Hlen; reflexivity.
-
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.add_succ_r; reflexivity.
-
-  rewrite Nat.add_0_r, Hlen; reflexivity.
-Qed.
-
-Lemma nth_null_coeff_range_length_succ_sum : ∀ s n b,
-  nth_null_coeff_range_length s (S n) b =
-  nth_null_coeff_range_length s 0
-    (b + sigma 0 n (λ i, nth_null_coeff_range_length s i b)).
-Proof.
-intros s n b.
-revert b.
-induction n; intros.
- rewrite nth_null_coeff_range_length_succ.
- reflexivity.
-
- rewrite nth_null_coeff_range_length_succ.
- rewrite IHn; f_equal.
- rewrite <- Nat.add_assoc; f_equal; simpl.
- unfold sigma; simpl.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len as [len| ].
-  rewrite Nat.sub_0_r; f_equal.
-  destruct n; simpl; rewrite Hlen, Nat.add_succ_r; [ reflexivity | f_equal ].
-  symmetry.
-  apply sigma_aux_fin_succ; assumption.
-
-  rewrite Nat.sub_0_r, Nat.add_0_r; symmetry; simpl.
-  apply sigma_aux_inf_succ; assumption.
-Qed.
-*)
 
 Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
