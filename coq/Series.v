@@ -1,10 +1,18 @@
-(* $Id: Series.v,v 2.76 2013-11-27 18:31:13 deraugla Exp $ *)
+(* $Id: Series.v,v 2.77 2013-11-28 01:14:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Field.
+Require Field.
+Module Field_inst : Field.FieldType.
+  Variable α : Type.
+  Variable fld : Field.Tdef.t α.
+End Field_inst.
+Module Lfield := Field.Make Field_inst.
+Export Field_inst.
+Export Lfield.Syntax.
+
 Require Import Nbar.
 
 Set Implicit Arguments.
@@ -20,7 +28,7 @@ Definition series_nth α n (s : series α) :=
   end.
 
 Definition series_nth_fld α fld n (s : series α) :=
-  if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.zero fld.
+  if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.Tdef.zero fld.
 
 Definition series_inf α fld (a : series α) :=
   {| terms i := series_nth_fld fld i a; stop := ∞ |}.
@@ -37,6 +45,7 @@ Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next le
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
+(*
 Section field.
  
 Variable α : Type.
@@ -51,9 +60,10 @@ Notation "a + b" := (Field.add fld a b)
   (left associativity, at level 50) : fld_scope.
 Notation "a * b" := (Field.mul fld a b)
   (left associativity, at level 40) : fld_scope.
+*)
 
-Definition series_0 := {| terms i := Field.zero fld; stop := 0 |}.
-Definition series_1 := {| terms i := Field.one fld; stop := 1 |}.
+Definition series_0 := {| terms i := Lfield.zero fld; stop := 0 |}.
+Definition series_1 := {| terms i := Lfield.one fld; stop := 1 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
@@ -100,12 +110,12 @@ Qed.
 
 Definition series_add s₁ s₂ :=
   {| terms i :=
-       Field.add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
+       Lfield.add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
      stop :=
        Nbar.max (stop s₁) (stop s₂) |}.
 
 Definition series_opp s :=
-  {| terms i := Field.opp fld (terms s i); stop := stop s |}.
+  {| terms i := Lfield.opp fld (terms s i); stop := stop s |}.
 
 Theorem series_add_comm : ∀ s₁ s₂,
   series_add s₁ s₂ ≃ series_add s₂ s₁.
@@ -117,10 +127,10 @@ unfold series_nth_fld; simpl.
 rewrite Nbar.max_comm.
 destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
  destruct (Nbar.lt_dec (fin i) (fin n)) as [Hlt| ]; [ idtac | reflexivity ].
- rewrite Field.add_comm; reflexivity.
+ rewrite Lfield.add_comm; reflexivity.
 
  destruct (Nbar.lt_dec (fin i) ∞); [ idtac | reflexivity ].
- rewrite Field.add_comm; reflexivity.
+ rewrite Lfield.add_comm; reflexivity.
 Qed.
 
 Theorem series_add_assoc : ∀ s₁ s₂ s₃,
@@ -144,39 +154,39 @@ destruct lt₄ as [Hlt₄| Hge₄].
  destruct lt₅ as [Hlt₅| Hge₅].
   destruct lt₁ as [Hlt₁| Hge₁].
    destruct lt₂ as [Hlt₂| Hge₂].
-    destruct lt₃ as [Hlt₃| Hge₃]; [ apply Field.add_assoc | idtac ].
-    rewrite Field.add_0_r; symmetry.
-    rewrite <- Field.add_assoc.
-    rewrite Field.add_0_r; reflexivity.
+    destruct lt₃ as [Hlt₃| Hge₃]; [ apply Lfield.add_assoc | idtac ].
+    rewrite Lfield.add_0_r; symmetry.
+    rewrite <- Lfield.add_assoc.
+    rewrite Lfield.add_0_r; reflexivity.
 
-    rewrite <- Field.add_assoc, Field.add_0_l; reflexivity.
+    rewrite <- Lfield.add_assoc, Lfield.add_0_l; reflexivity.
 
-   rewrite <- Field.add_assoc, Field.add_0_l; reflexivity.
+   rewrite <- Lfield.add_assoc, Lfield.add_0_l; reflexivity.
 
-  rewrite Field.add_0_r; symmetry.
+  rewrite Lfield.add_0_r; symmetry.
   destruct lt₂ as [Hlt₂| Hge₂].
    exfalso; apply Hge₅; clear Hge₅.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite <- Field.add_assoc, Field.add_0_l.
+   rewrite <- Lfield.add_assoc, Lfield.add_0_l.
    destruct lt₃ as [Hlt₃| Hge₃].
     exfalso; apply Hge₅; clear Hge₅.
     apply Nbar.max_lt_iff; right; assumption.
 
-    rewrite Field.add_0_r; reflexivity.
+    rewrite Lfield.add_0_r; reflexivity.
 
- rewrite Field.add_0_l.
+ rewrite Lfield.add_0_l.
  destruct lt₁ as [Hlt₁| Hge₁].
   exfalso; apply Hge₄; clear Hge₄.
   apply Nbar.max_lt_iff; left; assumption.
 
-  rewrite Field.add_0_l.
+  rewrite Lfield.add_0_l.
   destruct lt₂ as [Hlt₂| Hge₂].
    exfalso; apply Hge₄; clear Hge₄.
    apply Nbar.max_lt_iff; right; assumption.
 
    destruct lt₅ as [Hlt₅| Hge₅].
-    rewrite Field.add_0_l; reflexivity.
+    rewrite Lfield.add_0_l; reflexivity.
 
     destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
     exfalso; apply Hge₅; clear Hge₅.
@@ -189,7 +199,7 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, series_nth_fld fld i series_0 ≍ Field.zero fld.
+Lemma series_nth_series_0 : ∀ i, series_nth_fld fld i series_0 ≍ Lfield.zero fld.
 Proof.
 intros i.
 unfold series_nth_fld; simpl.
@@ -205,7 +215,7 @@ rewrite stop_series_add_0_l; simpl.
 remember (Nbar.lt_dec (fin i) (stop s)) as d.
 destruct d as [H₁| H₁]; [ idtac | reflexivity ].
 rewrite series_nth_series_0.
-rewrite Field.add_0_l.
+rewrite Lfield.add_0_l.
 unfold series_nth_fld.
 rewrite <- Heqd; reflexivity.
 Qed.
@@ -222,12 +232,12 @@ destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
  clear H₁.
  unfold series_nth_fld; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
- apply Field.add_opp_r.
+ apply Lfield.add_opp_r.
 Qed.
 
 (* series_mul *)
 
-Definition δ i j := if eq_nat_dec i j then Field.one fld else Field.zero fld.
+Definition δ i j := if eq_nat_dec i j then Lfield.one fld else Lfield.zero fld.
 
 Fixpoint sigma_aux b len f :=
   match len with
@@ -242,8 +252,8 @@ Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
 
 Definition convol_mul a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
-    (Field.mul fld (δ (i + j) k)
-       (Field.mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))).
+    (Lfield.mul fld (δ (i + j) k)
+       (Lfield.mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))).
 
 Definition series_mul a b :=
   {| terms k := convol_mul a b k;
@@ -290,7 +300,7 @@ Lemma sigma_mul_comm : ∀ f g b k,
 Proof.
 intros f g b len.
 apply sigma_compat; intros i Hi.
-apply Field.mul_comm.
+apply Lfield.mul_comm.
 Qed.
 
 Lemma sigma_mul_assoc : ∀ f g h b k,
@@ -299,7 +309,7 @@ Lemma sigma_mul_assoc : ∀ f g h b k,
 Proof.
 intros f g h b k.
 apply sigma_compat; intros i Hi.
-apply Field.mul_assoc.
+apply Lfield.mul_assoc.
 Qed.
 
 Lemma sigma_sigma_mul_comm : ∀ f g b₁ k₁ b₂ k₂,
@@ -308,7 +318,7 @@ Lemma sigma_sigma_mul_comm : ∀ f g b₁ k₁ b₂ k₂,
 Proof.
 intros f g b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
-apply Field.mul_comm.
+apply Lfield.mul_comm.
 Qed.
 
 Lemma sigma_sigma_mul_assoc : ∀ f g h b₁ k₁ b₂ k₂,
@@ -317,7 +327,7 @@ Lemma sigma_sigma_mul_assoc : ∀ f g h b₁ k₁ b₂ k₂,
 Proof.
 intros f g h b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
-apply Field.mul_assoc.
+apply Lfield.mul_assoc.
 Qed.
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
@@ -328,7 +338,7 @@ intros f b len H.
 revert b H.
 induction len; intros; [ reflexivity | simpl ].
 rewrite H; [ idtac | omega ].
-rewrite Field.add_0_l, IHlen; [ reflexivity | idtac ].
+rewrite Lfield.add_0_l, IHlen; [ reflexivity | idtac ].
 intros i Hi; apply H; omega.
 Qed.
 
@@ -347,7 +357,7 @@ Lemma inserted_0_sigma_aux : ∀ f k b len,
     → sigma_aux b (S (k * len)) f ≍ sigma_aux b (S k) f.
 Proof.
 intros f k b len Hk Hf; simpl.
-apply Field.add_compat_l.
+apply Lfield.add_compat_l.
 revert b Hf.
 induction len; intros.
  rewrite Nat.mul_0_r; simpl; symmetry.
@@ -386,16 +396,18 @@ destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
 exfalso; apply Hij; reflexivity.
 Qed.
 
+(*
 End field.
+*)
 
-Add Parametric Relation α (fld : Field.t α) : (series α) (eq_series fld)
- reflexivity proved by (eq_series_refl fld)
- symmetry proved by (eq_series_sym (fld := fld))
- transitivity proved by (eq_series_trans (fld := fld))
+Add Parametric Relation : (series α) eq_series
+ reflexivity proved by eq_series_refl
+ symmetry proved by eq_series_sym
+ transitivity proved by eq_series_trans
  as eq_series_rel.
 
-Add Parametric Morphism α (fld : Field.t α) : (series_mul fld)
-with signature eq_series fld ==> eq_series fld ==> eq_series fld
+Add Parametric Morphism : series_mul
+with signature eq_series ==> eq_series ==> eq_series
 as series_mul_morph.
 Proof.
 intros a b Hab c d Hcd.
@@ -418,7 +430,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   apply all_0_sigma_0; intros i.
   apply all_0_sigma_0; intros j.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
-   rewrite H₃, delta_id, Field.mul_1_l, H, H0.
+   rewrite H₃, delta_id, Lfield.mul_1_l, H, H0.
    unfold series_nth_fld; simpl.
    destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
     destruct (Nbar.lt_dec (fin j) (stop d)) as [H₅| H₅].
@@ -435,12 +447,12 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
       apply Nbar.add_lt_mono_l; [ idtac | assumption ].
       intros HH; discriminate HH.
 
-     rewrite Field.mul_0_r; reflexivity.
+     rewrite Lfield.mul_0_r; reflexivity.
 
-    rewrite Field.mul_0_l; reflexivity.
+    rewrite Lfield.mul_0_l; reflexivity.
 
    rewrite delta_neq; [ idtac | assumption ].
-   rewrite Field.mul_0_l; reflexivity.
+   rewrite Lfield.mul_0_l; reflexivity.
 
  destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
   unfold convol_mul.
@@ -449,7 +461,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   apply all_0_sigma_0; intros i.
   apply all_0_sigma_0; intros j.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
-   rewrite H₃, delta_id, Field.mul_1_l, <- H, <- H0.
+   rewrite H₃, delta_id, Lfield.mul_1_l, <- H, <- H0.
    unfold series_nth_fld; simpl.
    destruct (Nbar.lt_dec (fin i) (stop a)) as [H₄| H₄].
     destruct (Nbar.lt_dec (fin j) (stop c)) as [H₅| H₅].
@@ -466,39 +478,41 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
       apply Nbar.add_lt_mono_l; [ idtac | assumption ].
       intros HH; discriminate HH.
 
-     rewrite Field.mul_0_r; reflexivity.
+     rewrite Lfield.mul_0_r; reflexivity.
 
-    rewrite Field.mul_0_l; reflexivity.
+    rewrite Lfield.mul_0_l; reflexivity.
 
    rewrite delta_neq; [ idtac | assumption ].
-   rewrite Field.mul_0_l; reflexivity.
+   rewrite Lfield.mul_0_l; reflexivity.
 
   reflexivity.
 Qed.
 
+(*
 Section field₂.
  
 Variable α : Type.
-Variable fld : Field.t α.
-Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
-Notation "a ≭ b" := (not (Field.eq fld a b)) (at level 70).
+Variable fld : Lfield.t α.
+Notation "a ≍ b" := (Lfield.eq fld a b) (at level 70).
+Notation "a ≭ b" := (not (Lfield.eq fld a b)) (at level 70).
 
 Delimit Scope fld_scope with fld.
-Notation "0" := (Field.zero fld) : fld_scope.
-Notation "1" := (Field.one fld) : fld_scope.
-Notation "a + b" := (Field.add fld a b)
+Notation "0" := (Lfield.zero fld) : fld_scope.
+Notation "1" := (Lfield.one fld) : fld_scope.
+Notation "a + b" := (Lfield.add fld a b)
   (left associativity, at level 50) : fld_scope.
-Notation "a * b" := (Field.mul fld a b)
+Notation "a * b" := (Lfield.mul fld a b)
   (left associativity, at level 40) : fld_scope.
 
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 
 Notation "'Σ' ( i = b , e ) ' ' f" := (sigma fld b e (λ i, f))
   (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
+*)
 
 Lemma sigma_aux_sigma_aux_comm : ∀ f i di j dj,
-  sigma_aux fld i di (λ i, sigma_aux fld j dj (λ j, f i j))
-  ≍ sigma_aux fld j dj (λ j, sigma_aux fld i di (λ i, f i j)).
+  sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
+  ≍ sigma_aux j dj (λ j, sigma_aux i di (λ i, f i j)).
 Proof.
 intros f i di j dj; revert i.
 induction di; intros; simpl.
@@ -508,13 +522,13 @@ induction di; intros; simpl.
  rewrite IHdi; clear IHdi.
  revert j.
  induction dj; intros; simpl.
-  apply Field.add_0_r.
+  apply Lfield.add_0_r.
 
   rewrite <- IHdj.
-  do 2 rewrite <- Field.add_assoc.
-  apply Field.add_compat_l.
-  rewrite Field.add_comm, <- Field.add_assoc.
-  apply Field.add_compat_l, Field.add_comm.
+  do 2 rewrite <- Lfield.add_assoc.
+  apply Lfield.add_compat_l.
+  rewrite Lfield.add_comm, <- Lfield.add_assoc.
+  apply Lfield.add_compat_l, Lfield.add_comm.
 Qed.
 
 Lemma sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂,
@@ -526,19 +540,19 @@ apply sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
 Lemma sigma_aux_sigma_aux_sigma_aux_comm : ∀ f i di j dj k dk,
-  sigma_aux fld i di
+  sigma_aux i di
     (λ i,
-     sigma_aux fld j dj
-       (λ j, sigma_aux fld k dk (λ k, f i j k)))
-  ≍ sigma_aux fld i di
+     sigma_aux j dj
+       (λ j, sigma_aux k dk (λ k, f i j k)))
+  ≍ sigma_aux i di
       (λ i,
-       sigma_aux fld k dk
-         (λ k, sigma_aux fld j dj (λ j, f i j k))).
+       sigma_aux k dk
+         (λ k, sigma_aux j dj (λ j, f i j k))).
 Proof.
 intros f i di j dj k dk; revert i.
 induction di; intros; [ reflexivity | simpl ].
 rewrite IHdi.
-apply Field.add_compat_r.
+apply Lfield.add_compat_r.
 apply sigma_aux_sigma_aux_comm.
 Qed.
 
@@ -550,7 +564,7 @@ intros f i₁ i₂ j₁ j₂ k₁ k₂.
 apply sigma_aux_sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
-Theorem series_mul_comm : ∀ a b, series_mul fld a b ≃ series_mul fld b a.
+Theorem series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
 Proof.
 intros a b.
 constructor; intros k.
@@ -562,20 +576,19 @@ destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  apply sigma_compat; intros i Hi.
  apply sigma_compat; intros j Hj.
  rewrite Nat.add_comm.
- do 2 rewrite Field.mul_assoc.
- rewrite Field.mul_shuffle0; reflexivity.
+ do 2 rewrite Lfield.mul_assoc.
+ rewrite Lfield.mul_shuffle0; reflexivity.
 
  reflexivity.
 Qed.
 
-Lemma stop_series_mul_0_l : ∀ s,
-  stop (series_mul fld (series_0 fld) s) = stop s.
+Lemma stop_series_mul_0_l : ∀ s, stop (series_mul series_0 s) = stop s.
 Proof.
 intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, series_mul fld (series_0 fld) s ≃ series_0 fld.
+Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
 Proof.
 intros s.
 constructor; intros i.
@@ -590,30 +603,30 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
 
   apply all_0_sigma_0; intros i.
   apply all_0_sigma_0; intros j.
-  rewrite Field.mul_assoc, Field.mul_shuffle0.
-  rewrite Field.mul_comm.
+  rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
+  rewrite Lfield.mul_comm.
   rewrite series_nth_series_0.
-  rewrite Field.mul_0_l.
+  rewrite Lfield.mul_0_l.
   reflexivity.
 
  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Lemma delta_0_succ : ∀ i, δ fld 0 (S i) ≍ 0%fld.
+Lemma delta_0_succ : ∀ i, δ 0 (S i) ≍ 0%fld.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
 Lemma sigma_aux_mul_swap : ∀ a f b len,
-  sigma_aux fld b len (λ i, (a * f i)%fld)
-  ≍ (a * sigma_aux fld b len f)%fld.
+  sigma_aux b len (λ i, (a * f i)%fld)
+  ≍ (a * sigma_aux b len f)%fld.
 Proof.
 intros a f b len; revert b.
 induction len; intros; simpl.
- rewrite Field.mul_0_r; reflexivity.
+ rewrite Lfield.mul_0_r; reflexivity.
 
- rewrite IHlen, Field.mul_add_distr_l.
+ rewrite IHlen, Lfield.mul_add_distr_l.
  reflexivity.
 Qed.
 
@@ -626,16 +639,16 @@ apply sigma_aux_mul_swap.
 Qed.
 
 Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
-  sigma_aux fld b₁ len
-    (λ i, sigma_aux fld b₂ (f i) (λ j, (g i * h i j)%fld))
-  ≍ sigma_aux fld b₁ len
-      (λ i, (g i * sigma_aux fld b₂ (f i) (λ j, h i j))%fld).
+  sigma_aux b₁ len
+    (λ i, sigma_aux b₂ (f i) (λ j, (g i * h i j)%fld))
+  ≍ sigma_aux b₁ len
+      (λ i, (g i * sigma_aux b₂ (f i) (λ j, h i j))%fld).
 Proof.
 intros f g h b₁ b₂ len.
 revert b₁ b₂.
 induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen.
-apply Field.add_compat_r.
+apply Lfield.add_compat_r.
 apply sigma_aux_mul_swap.
 Qed.
 
@@ -666,7 +679,7 @@ intros f g h k.
 apply sigma_compat; intros i Hi.
 rewrite <- sigma_mul_swap.
 apply sigma_compat; intros j Hj.
-rewrite Field.mul_comm, Field.mul_shuffle0, Field.mul_assoc.
+rewrite Lfield.mul_comm, Lfield.mul_shuffle0, Lfield.mul_assoc.
 reflexivity.
 Qed.
 
@@ -686,10 +699,10 @@ induction len; intros; [ exfalso; omega | simpl ].
 destruct (eq_nat_dec b v) as [H₁| H₁].
  subst b.
  assert (f v ≍ f v + 0)%fld as H.
-  rewrite Field.add_0_r; reflexivity.
+  rewrite Lfield.add_0_r; reflexivity.
 
   rewrite H in |- * at 2.
-  apply Field.add_compat_l.
+  apply Lfield.add_compat_l.
   clear IHlen Hbv Hvk H.
   apply all_0_sigma_aux_0.
   intros i (Hvi, Hiv).
@@ -699,7 +712,7 @@ destruct (eq_nat_dec b v) as [H₁| H₁].
   apply Hvi, Nat.lt_succ_r; reflexivity.
 
  rewrite Hi; [ idtac | assumption ].
- rewrite Field.add_0_l.
+ rewrite Lfield.add_0_l.
  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
  apply IHlen; [ idtac | assumption | assumption ].
  apply Nat.nlt_ge.
@@ -708,7 +721,7 @@ destruct (eq_nat_dec b v) as [H₁| H₁].
  apply Nat.le_antisymm; assumption.
 Qed.
 
-Theorem series_mul_1_l : ∀ s, series_mul fld (series_1 fld) s ≃ s.
+Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
@@ -725,9 +738,9 @@ destruct st as [st| ].
     simpl.
     unfold series_nth_fld at 1; simpl.
     destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-     rewrite Field.mul_1_l.
+     rewrite Lfield.mul_1_l.
      rewrite sigma_only_one_non_0 with (v := k).
-      rewrite delta_id, Field.mul_1_l.
+      rewrite delta_id, Lfield.mul_1_l.
       unfold series_nth_fld.
       rewrite <- Hst in H₁.
       destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
@@ -737,7 +750,7 @@ destruct st as [st| ].
 
       intros i Hik.
       rewrite delta_neq; [ idtac | assumption ].
-      apply Field.mul_0_l.
+      apply Lfield.mul_0_l.
 
      exfalso; apply H₃, Nbar.lt_0_1.
 
@@ -749,7 +762,7 @@ destruct st as [st| ].
      apply Nbar.fin_lt_mono in H₃.
      apply Nat.lt_1_r in H₃; contradiction.
 
-     apply Field.mul_0_l.
+     apply Lfield.mul_0_l.
 
    exfalso; apply H₂.
    eapply Nbar.lt_trans; [ eassumption | idtac ].
@@ -768,9 +781,9 @@ destruct st as [st| ].
       subst j.
       rewrite Hst in H₃; contradiction.
 
-      rewrite Field.mul_0_l; reflexivity.
+      rewrite Lfield.mul_0_l; reflexivity.
 
-     rewrite Field.mul_assoc, Field.mul_0_r; reflexivity.
+     rewrite Lfield.mul_assoc, Lfield.mul_0_r; reflexivity.
 
     unfold series_nth_fld; simpl.
     destruct (Nbar.lt_dec (fin (S i)) 1) as [H₃| H₃].
@@ -778,7 +791,7 @@ destruct st as [st| ].
      exfalso; apply H₃.
      apply Nbar.fin_le_mono, le_n_S, Nat.le_0_l.
 
-     rewrite Field.mul_0_l, Field.mul_0_r; reflexivity.
+     rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
 
    reflexivity.
 
@@ -790,9 +803,9 @@ destruct st as [st| ].
   simpl.
   unfold series_nth_fld at 1; simpl.
   destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-   rewrite Field.mul_1_l.
+   rewrite Lfield.mul_1_l.
    rewrite sigma_only_one_non_0 with (v := k).
-    rewrite delta_id, Field.mul_1_l.
+    rewrite delta_id, Lfield.mul_1_l.
     unfold series_nth_fld.
     rewrite <- Hst in H₁.
     destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
@@ -802,7 +815,7 @@ destruct st as [st| ].
 
     intros i Hik.
     rewrite delta_neq; [ idtac | assumption ].
-    apply Field.mul_0_l.
+    apply Lfield.mul_0_l.
 
    exfalso; apply H₃, Nbar.lt_0_1.
 
@@ -814,19 +827,19 @@ destruct st as [st| ].
    apply Nbar.fin_lt_mono in H₃.
    apply Nat.lt_1_r in H₃; contradiction.
 
-   apply Field.mul_0_l.
+   apply Lfield.mul_0_l.
 Qed.
 
 Lemma mul_sigma_aux_inj : ∀ f a b len,
-  (a * sigma_aux fld b len (λ i, f i))%fld
-   ≍ sigma_aux fld b len (λ i, (a * f i)%fld).
+  (a * sigma_aux b len (λ i, f i))%fld
+   ≍ sigma_aux b len (λ i, (a * f i)%fld).
 Proof.
 intros f a b len; revert b.
 induction len; intros; simpl.
- rewrite Field.mul_0_r; reflexivity.
+ rewrite Lfield.mul_0_r; reflexivity.
 
  rewrite <- IHlen.
- apply Field.mul_add_distr_l.
+ apply Lfield.mul_add_distr_l.
 Qed.
 
 Lemma mul_sigma_inj : ∀ f i₁ i₂ a,
@@ -839,8 +852,8 @@ Qed.
 Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
   len₁ ≤ len₂
   → (∀ i, (b + len₁ ≤ i)%nat → f i ≍ 0%fld)
-    → sigma_aux fld b len₁ (λ i, f i)
-      ≍ sigma_aux fld b len₂ (λ i, f i).
+    → sigma_aux b len₁ (λ i, f i)
+      ≍ sigma_aux b len₂ (λ i, f i).
 Proof.
 intros f b len₁ len₂ Hlen Hi.
 revert b len₁ Hlen Hi.
@@ -849,7 +862,7 @@ induction len₂; intros; simpl.
 
  destruct len₁; simpl.
   rewrite all_0_sigma_aux_0.
-   symmetry; rewrite Field.add_0_r.
+   symmetry; rewrite Lfield.add_0_r.
    apply Hi.
    rewrite Nat.add_0_r; reflexivity.
 
@@ -857,7 +870,7 @@ induction len₂; intros; simpl.
    apply Hi; omega.
 
   apply Nat.succ_le_mono in Hlen.
-  apply Field.add_compat_l.
+  apply Lfield.add_compat_l.
   apply IHlen₂; [ assumption | idtac ].
   intros i H.
   apply Hi; rewrite Nat.add_succ_r, <- Nat.add_succ_l; assumption.
@@ -895,13 +908,13 @@ Qed.
 
 Definition convol_mul_inf a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
-    (δ fld (i + j) k * terms a i * terms b j)%fld.
+    (δ (i + j) k * terms a i * terms b j)%fld.
 
 Definition series_mul_inf a b :=
   {| terms k := convol_mul_inf a b k; stop := ∞ |}.
 
 Lemma series_mul_mul_inf : ∀ a b,
-  series_mul fld a b
+  series_mul a b
   ≃ series_mul_inf (series_inf fld a) (series_inf fld b).
 Proof.
 intros a b.
@@ -913,8 +926,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
   unfold convol_mul, convol_mul_inf.
   apply sigma_compat; intros i Hi.
   apply sigma_compat; intros j Hj.
-  rewrite <- Field.mul_assoc.
-  apply Field.mul_compat_l; reflexivity.
+  rewrite <- Lfield.mul_assoc.
+  apply Lfield.mul_compat_l; reflexivity.
 
   unfold convol_mul_inf.
   symmetry; unfold convol_mul_inf; simpl.
@@ -924,7 +937,7 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
   destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
    destruct (Nbar.lt_dec (fin j) (stop b)) as [H₃| H₃].
     destruct (eq_nat_dec (i + j) k) as [H₄| H₄].
-     rewrite H₄, delta_id, Field.mul_1_l.
+     rewrite H₄, delta_id, Lfield.mul_1_l.
      exfalso; apply H₁; subst k.
      rewrite Nbar.fin_inj_add.
      remember (stop a) as st eqn:Hst .
@@ -938,17 +951,17 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
       intros HH; discriminate HH.
 
      rewrite delta_neq; [ idtac | assumption ].
-     do 2 rewrite Field.mul_0_l; reflexivity.
+     do 2 rewrite Lfield.mul_0_l; reflexivity.
 
-    rewrite Field.mul_0_r; reflexivity.
+    rewrite Lfield.mul_0_r; reflexivity.
 
-   rewrite Field.mul_0_r, Field.mul_0_l; reflexivity.
+   rewrite Lfield.mul_0_r, Lfield.mul_0_l; reflexivity.
 
  apply H₁; constructor.
 Qed.
 
 Lemma series_inf_mul : ∀ a b,
-  series_inf fld (series_mul fld a b)
+  series_inf fld (series_mul a b)
   ≃ series_mul_inf (series_inf fld a) (series_inf fld b).
 Proof.
 intros a b.
@@ -970,8 +983,8 @@ Qed.
 Lemma sigma_aux_sigma_aux_extend_0 : ∀ f g b₁ b₂ len₁ len₂,
   (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
   → (∀ i j, (b₂ + g i ≤ j)%nat → f i j ≍ 0%fld)
-    → sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ (g i) (λ j, f i j))
-      ≍ sigma_aux fld b₁ len₁ (λ i, sigma_aux fld b₂ len₂ (λ j, f i j)).
+    → sigma_aux b₁ len₁ (λ i, sigma_aux b₂ (g i) (λ j, f i j))
+      ≍ sigma_aux b₁ len₁ (λ i, sigma_aux b₂ len₂ (λ j, f i j)).
 Proof.
 intros f g b₁ b₂ len₁ len₂ Hg Hfg.
 apply sigma_aux_compat; intros i Hi.
@@ -996,14 +1009,14 @@ Definition sigma_mul_3 aa bb cc m :=
   Σ (i = 0, m)  
   Σ (j = 0, m)  
   Σ (k = 0, m)  
-    (δ fld (i + j + k) m * terms aa i * terms bb j * terms cc k)%fld.
+    (δ (i + j + k) m * terms aa i * terms bb j * terms cc k)%fld.
 
 Lemma convol_mul_assoc_1 : ∀ aa bb cc m,
   Σ (i = 0, m)  
   Σ (l = 0, m)  
-   (δ fld (i + l) m * terms aa i *
+   (δ (i + l) m * terms aa i *
     Σ (j = 0, l)  
-    Σ (k = 0, l)   δ fld (j + k) l * terms bb j * terms cc k)%fld
+    Σ (k = 0, l)   δ (j + k) l * terms bb j * terms cc k)%fld
   ≍ sigma_mul_3 aa bb cc m.
 Proof.
 (* à nettoyer *)
@@ -1016,7 +1029,7 @@ do 2 rewrite <- sigma_sigma_mul_assoc.
 rewrite sigma_sigma_mul_comm.
 rewrite <- sigma_sigma_mul_assoc.
 rewrite sigma_sigma_mul_swap, sigma_mul_swap.
-apply Field.mul_compat_l.
+apply Lfield.mul_compat_l.
 symmetry.
 rewrite sigma_mul_comm.
 rewrite <- sigma_sigma_mul_swap.
@@ -1024,11 +1037,11 @@ rewrite sigma_sigma_extend_0.
  Focus 2.
  intros u j Huhm.
  rewrite all_0_sigma_0.
-  rewrite Field.mul_0_r; reflexivity.
+  rewrite Lfield.mul_0_r; reflexivity.
 
   intros k.
   rewrite delta_neq.
-   rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
+   rewrite Lfield.mul_0_l, Lfield.mul_0_l; reflexivity.
 
    intros H; subst u.
    apply Nat.nle_gt in Huhm.
@@ -1042,55 +1055,55 @@ rewrite sigma_sigma_extend_0.
   apply sigma_compat; intros k Hk.
   destruct (le_dec (j + k) m) as [H₁| H₁].
    rewrite sigma_only_one_non_0 with (v := (j + k)%nat).
-    rewrite delta_id, Field.mul_1_l.
-    rewrite Nat.add_assoc, Field.mul_comm.
+    rewrite delta_id, Lfield.mul_1_l.
+    rewrite Nat.add_assoc, Lfield.mul_comm.
     reflexivity.
 
     split; [ apply Nat.le_0_l | assumption ].
 
     intros l Hl.
-    rewrite Field.mul_comm.
+    rewrite Lfield.mul_comm.
     apply Nat.neq_sym in Hl.
     rewrite delta_neq; [ idtac | assumption ].
-    do 3 rewrite Field.mul_0_l; reflexivity.
+    do 3 rewrite Lfield.mul_0_l; reflexivity.
 
    rewrite all_0_sigma_0.
     rewrite delta_neq.
-     rewrite Field.mul_0_r; reflexivity.
+     rewrite Lfield.mul_0_r; reflexivity.
 
      omega.
 
     intros l.
     destruct (eq_nat_dec (i + l) m) as [H₂| H₂].
-     rewrite H₂, delta_id, Field.mul_1_l.
+     rewrite H₂, delta_id, Lfield.mul_1_l.
      destruct (eq_nat_dec (j + k) l) as [H₃| H₃].
       exfalso; omega.
 
       rewrite delta_neq; [ idtac | assumption ].
-      rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
+      rewrite Lfield.mul_0_l, Lfield.mul_0_l; reflexivity.
 
      rewrite delta_neq; [ idtac | assumption ].
-     rewrite Field.mul_0_l; reflexivity.
+     rewrite Lfield.mul_0_l; reflexivity.
 
   intros l k Hlk.
   destruct (eq_nat_dec (i + l) m) as [H₂| H₂].
-   rewrite H₂, delta_id, Field.mul_1_l.
+   rewrite H₂, delta_id, Lfield.mul_1_l.
    destruct (eq_nat_dec (j + k) l) as [H₃| H₃].
     exfalso; omega.
 
     rewrite delta_neq; [ idtac | assumption ].
-    rewrite Field.mul_0_l, Field.mul_0_l; reflexivity.
+    rewrite Lfield.mul_0_l, Lfield.mul_0_l; reflexivity.
 
    rewrite delta_neq; [ idtac | assumption ].
-   rewrite Field.mul_0_l; reflexivity.
+   rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
 Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
   Σ (i = 0, k)  
   Σ (j = 0, k)  
-   ((δ fld (i + j) k *
+   ((δ (i + j) k *
      Σ (i0 = 0, i)  
-     (Σ (j0 = 0, i)   δ fld (i0 + j0) i * terms aa i0 * terms bb j0)) *
+     (Σ (j0 = 0, i)   δ (i0 + j0) i * terms aa i0 * terms bb j0)) *
      terms cc j)%fld ≍ sigma_mul_3 aa bb cc k.
 Proof.
 intros a b c m.
@@ -1104,7 +1117,7 @@ rewrite sigma_sigma_mul_swap.
 rewrite sigma_mul_swap; symmetry.
 rewrite sigma_mul_comm.
 rewrite sigma_mul_swap; symmetry.
-apply Field.mul_compat_l.
+apply Lfield.mul_compat_l.
 rewrite <- sigma_sigma_mul_swap.
 symmetry.
 rewrite sigma_sigma_extend_0.
@@ -1116,27 +1129,27 @@ rewrite sigma_sigma_extend_0.
   apply sigma_compat; intros j Hj.
   rewrite sigma_mul_assoc, sigma_mul_comm.
   rewrite sigma_mul_swap; symmetry.
-  rewrite Field.mul_comm.
-  apply Field.mul_compat_l.
-  rewrite Field.mul_comm; symmetry.
+  rewrite Lfield.mul_comm.
+  apply Lfield.mul_compat_l.
+  rewrite Lfield.mul_comm; symmetry.
   rewrite sigma_mul_assoc, sigma_mul_comm.
   rewrite sigma_mul_swap.
-  apply Field.mul_compat_l.
+  apply Lfield.mul_compat_l.
   destruct (eq_nat_dec (i + j + k) m) as [H₁| H₁].
    rewrite H₁, delta_id.
    destruct (le_dec (i + j) m) as [H₂| H₂].
     rewrite sigma_only_one_non_0 with (v := (i + j)%nat).
      rewrite H₁.
      do 2 rewrite delta_id.
-     rewrite Field.mul_1_r; reflexivity.
+     rewrite Lfield.mul_1_r; reflexivity.
 
      split; [ apply Nat.le_0_l | assumption ].
 
      intros l Hl.
-     rewrite Field.mul_comm.
+     rewrite Lfield.mul_comm.
      apply Nat.neq_sym in Hl.
      rewrite delta_neq; [ idtac | assumption ].
-     rewrite Field.mul_0_l; reflexivity.
+     rewrite Lfield.mul_0_l; reflexivity.
 
     exfalso; omega.
 
@@ -1148,28 +1161,28 @@ rewrite sigma_sigma_extend_0.
      rewrite <- H₂ in H₃; contradiction.
 
      rewrite delta_neq; [ idtac | assumption ].
-     rewrite Field.mul_0_l; reflexivity.
+     rewrite Lfield.mul_0_l; reflexivity.
 
-    rewrite Field.mul_comm, delta_neq; [ idtac | assumption ].
-    rewrite Field.mul_0_l; reflexivity.
+    rewrite Lfield.mul_comm, delta_neq; [ idtac | assumption ].
+    rewrite Lfield.mul_0_l; reflexivity.
 
   intros l j Hj.
-  rewrite Field.mul_comm.
+  rewrite Lfield.mul_comm.
   rewrite delta_neq; [ idtac | omega ].
-  do 3 rewrite Field.mul_0_l; reflexivity.
+  do 3 rewrite Lfield.mul_0_l; reflexivity.
 
  intros l i Hil.
  rewrite all_0_sigma_0.
-  rewrite Field.mul_0_r; reflexivity.
+  rewrite Lfield.mul_0_r; reflexivity.
 
   intros j.
   rewrite delta_neq; [ idtac | omega ].
-  do 2 rewrite Field.mul_0_l; reflexivity.
+  do 2 rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
 Theorem series_mul_assoc : ∀ a b c,
-  series_mul fld a (series_mul fld b c)
-  ≃ series_mul fld (series_mul fld a b) c.
+  series_mul a (series_mul b c)
+  ≃ series_mul (series_mul a b) c.
 Proof.
 intros a b c.
 pose proof (series_mul_mul_inf b c) as H.
@@ -1185,14 +1198,14 @@ constructor; intros k.
 do 2 rewrite series_nth_mul_inf; simpl.
 unfold convol_mul_inf; simpl.
 remember
- (λ i j, (δ fld (i + j) k * terms aa i * terms (series_mul_inf bb cc) j)%fld) as f.
+ (λ i j, (δ (i + j) k * terms aa i * terms (series_mul_inf bb cc) j)%fld) as f.
 rewrite sigma_sigma_compat with (g := f); subst f.
  Focus 2.
  intros i j; rewrite series_nth_mul_inf; reflexivity.
 
  symmetry.
  remember
-  (λ i j, (δ fld (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%fld) as f.
+  (λ i j, (δ (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%fld) as f.
  rewrite sigma_sigma_compat with (g := f); subst f.
   Focus 2.
   intros i j; rewrite series_nth_mul_inf; reflexivity.
@@ -1204,13 +1217,15 @@ rewrite sigma_sigma_compat with (g := f); subst f.
   apply convol_mul_assoc_2.
 Qed.
 
+(*
 End field₂.
 
-Notation "a ≍ b" := (Field.eq _ a b) (at level 70).
-Notation "a ≭ b" := (not (Field.eq _ a b)) (at level 70).
+Notation "a ≍ b" := (Lfield.eq _ a b) (at level 70).
+Notation "a ≭ b" := (not (Lfield.eq _ a b)) (at level 70).
+*)
 
-Add Parametric Morphism α (fld : Field.t α) : (series_add fld) with 
-signature eq_series fld ==> eq_series fld ==> eq_series fld
+Add Parametric Morphism : series_add
+with  signature eq_series ==> eq_series ==> eq_series
 as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
@@ -1245,7 +1260,7 @@ destruct lt₅ as [Hlt₅| Hge₅].
    exfalso; apply Hge₆; clear Hge₆.
    apply Nbar.max_lt_iff; right; assumption.
 
-   rewrite Field.add_0_l; reflexivity.
+   rewrite Lfield.add_0_l; reflexivity.
 
  destruct lt₁ as [Hlt₁| Hge₁].
   exfalso; apply Hge₅; clear Hge₅.
@@ -1257,16 +1272,17 @@ destruct lt₅ as [Hlt₅| Hge₅].
 
    destruct lt₆ as [Hlt₆| Hge₆]; [ idtac | reflexivity ].
    rewrite <- Hi₁, <- Hi₂.
-   rewrite Field.add_0_l; reflexivity.
+   rewrite Lfield.add_0_l; reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : Field.t α) i : (series_nth_fld fld i) with 
-signature (eq_series fld) ==> (Field.eq fld) as series_nth_fld_morph.
+Add Parametric Morphism : (series_nth_fld fld)
+with signature eq ==> eq_series ==> (Lfield.eq fld)
+as series_nth_fld_morph.
 Proof.
-intros s₁ s₂ Heq.
+intros s₁ s₂ i Heq.
 inversion Heq; subst.
 apply H.
 Qed.
 
-Lemma eq_series_eq : ∀ α (fld : Field.t α) a b, a = b → eq_series fld a b.
+Lemma eq_series_eq : ∀ a b, a = b → eq_series a b.
 Proof. intros; subst a; reflexivity. Qed.
