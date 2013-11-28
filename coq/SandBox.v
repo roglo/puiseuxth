@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.123 2013-11-28 13:39:38 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.124 2013-11-28 15:50:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -396,6 +396,19 @@ rewrite eq_norm_ps_mul_adjust_0_l with (k := k).
 apply normalise_nz_adjust_nz_mul.
 bbb.
 *)
+
+Lemma yyy : ∀ nz n,
+  normalise_nz nz ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) nz).
+Proof.
+intros nz n.
+bbb.
+
+Lemma zzz : ∀ nz n k,
+  normalise_nz nz
+  ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) (adjust_nz 0 k nz)).
+Proof.
+intros nz n k.
+bbb.
 
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂

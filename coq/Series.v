@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.78 2013-11-28 02:07:29 deraugla Exp $ *)
+(* $Id: Series.v,v 2.79 2013-11-28 15:50:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -47,6 +47,7 @@ Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level)
 
 Definition series_0 := {| terms i := Lfield.zero fld; stop := 0 |}.
 Definition series_1 := {| terms i := Lfield.one fld; stop := 1 |}.
+Definition series_const (c : α) := {| terms i := c; stop := 1 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
