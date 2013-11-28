@@ -1,10 +1,12 @@
-(* $Id: Ps_add.v,v 2.53 2013-11-28 01:14:33 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.54 2013-11-28 01:28:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
+(*
 Require Field.
+*)
 Require Import Series.
 Require Import Puiseux_series.
 Require Import Nbar.
@@ -12,13 +14,15 @@ Require Import Misc.
 
 Set Implicit Arguments.
 
+(*
 Section fld.
 
 Variable α : Type.
 Variable fld : Field.t α.
 Notation "a ≃ b" := (eq_series fld a b) (at level 70).
 Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
+*)
+Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 
 (*
 Definition cm ps₁ ps₂ := Plcm (nz_comden ps₁) (nz_comden ps₂).
@@ -33,12 +37,12 @@ Definition cm_factor α (nz₁ nz₂ : nz_ps α) :=
 (**)
 
 Definition adjust_nz n k nz :=
-  {| nz_terms := series_shift fld n (series_stretch fld k (nz_terms nz));
+  {| nz_terms := series_shift n (series_stretch k (nz_terms nz));
      nz_valnum := nz_valnum nz * Zpos k - Z.of_nat n;
      nz_comden := nz_comden nz * k |}.
 
 Lemma nz_adjust_eq : ∀ nz n k,
-  normalise_nz fld nz ≐ normalise_nz fld (adjust_nz n k nz).
+  normalise_nz nz ≐ normalise_nz (adjust_nz n k nz).
 Proof.
 intros nz n k.
 unfold normalise_nz; simpl.
@@ -144,7 +148,7 @@ apply nz_adjust_eq.
 Qed.
 
 Definition adjust_series n k s :=
-  series_shift fld n (series_stretch fld k s).
+  series_shift n (series_stretch k s).
 
 Definition nz_terms_add (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in
@@ -155,7 +159,7 @@ Definition nz_terms_add (nz₁ nz₂ : nz_ps α) :=
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
   let s₁ := adjust_series n₁ k₁ (nz_terms nz₁) in
   let s₂ := adjust_series n₂ k₂ (nz_terms nz₂) in
-  series_add fld s₁ s₂.
+  series_add s₁ s₂.
 
 Definition nz_valnum_add (nz₁ nz₂ : nz_ps α) :=
   let k₁ := cm_factor nz₁ nz₂ in
@@ -180,7 +184,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   end.
 
 Definition adjusted_nz_add nz'₁ nz'₂ :=
-  {| nz_terms := series_add fld (nz_terms nz'₁) (nz_terms nz'₂);
+  {| nz_terms := series_add (nz_terms nz'₁) (nz_terms nz'₂);
      nz_valnum := nz_valnum nz'₁;
      nz_comden := nz_comden nz'₁ |}.
 
@@ -205,8 +209,8 @@ Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
   end.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
-  series_stretch fld k (series_add fld s₁ s₂) ≃
-  series_add fld (series_stretch fld k s₁) (series_stretch fld k s₂).
+  series_stretch k (series_add s₁ s₂) ≃
+  series_add (series_stretch k s₁) (series_stretch k s₂).
 Proof.
 intros kp s₁ s₂.
 unfold series_stretch; simpl.
@@ -262,14 +266,14 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
     exfalso; apply Hge₁; clear Hge₁.
     apply Nbar.max_lt_iff; right; assumption.
 
-    destruct lt₄, lt₅; rewrite Field.add_0_l; reflexivity.
+    destruct lt₄, lt₅; rewrite Lfield.add_0_l; reflexivity.
 
  remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
  remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
  remember (Nbar.lt_dec (fin i) n) as b.
  remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
- destruct a, b, c, d; try rewrite Field.add_0_l; reflexivity.
+ destruct a, b, c, d; try rewrite Lfield.add_0_l; reflexivity.
 Qed.
 
 Lemma nz_terms_add_comm : ∀ nz₁ nz₂,
@@ -298,7 +302,7 @@ reflexivity.
 Qed.
 
 Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
-  normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add nz₂ nz₁).
+  normalise_nz (nz_add nz₁ nz₂) ≐ normalise_nz (nz_add nz₂ nz₁).
 Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
@@ -325,8 +329,8 @@ constructor; apply nz_norm_add_comm.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
-  series_shift fld n (series_add fld s₁ s₂)
-  ≃ series_add fld (series_shift fld n s₁) (series_shift fld n s₂).
+  series_shift n (series_add s₁ s₂)
+  ≃ series_add (series_shift n s₁) (series_shift n s₂).
 Proof.
 intros s₁ s₂ n.
 constructor.
@@ -340,7 +344,7 @@ remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
 remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
 clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
 destruct (lt_dec i n) as [Hlt| Hge].
- destruct c₁, c₂, c₃; try rewrite Field.add_0_l; reflexivity.
+ destruct c₁, c₂, c₃; try rewrite Lfield.add_0_l; reflexivity.
 
  apply not_gt in Hge.
  remember (i - n)%nat as m.
@@ -466,8 +470,8 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
-  normalise_nz fld (nz_add (nz_add nz₁ nz₂) nz₃)
-  ≐ normalise_nz fld (nz_add nz₁ (nz_add nz₂ nz₃)).
+  normalise_nz (nz_add (nz_add nz₁ nz₂) nz₃)
+  ≐ normalise_nz (nz_add nz₁ (nz_add nz₂ nz₃)).
 Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
@@ -520,14 +524,14 @@ simpl; constructor.
 apply nz_norm_add_assoc.
 Qed.
 
-Theorem ps_add_0_l : ∀ ps, ps_add (ps_zero _) ps ≈ ps.
+Theorem ps_add_0_l : ∀ ps, ps_add ps_zero ps ≈ ps.
 Proof. reflexivity. Qed.
 
-Theorem ps_add_0_r : ∀ ps, ps_add ps (ps_zero _) ≈ ps.
+Theorem ps_add_0_r : ∀ ps, ps_add ps ps_zero ≈ ps.
 Proof. intros ps; rewrite ps_add_comm; reflexivity. Qed.
 
 Definition nz_opp nz :=
-  {| nz_terms := series_opp fld (nz_terms nz);
+  {| nz_terms := series_opp (nz_terms nz);
      nz_valnum := nz_valnum nz;
      nz_comden := nz_comden nz |}.
 
@@ -537,7 +541,7 @@ Definition ps_opp ps :=
   | Zero => Zero _
   end.
 
-Theorem ps_add_opp_r : ∀ ps, ps_add ps (ps_opp ps) ≈ ps_zero _.
+Theorem ps_add_opp_r : ∀ ps, ps_add ps (ps_opp ps) ≈ ps_zero.
 Proof.
 intros ps.
 unfold ps_zero.
@@ -557,7 +561,7 @@ rewrite series_stretch_series_0.
 reflexivity.
 Qed.
 
-Theorem ps_add_opp_l : ∀ ps, ps_add (ps_opp ps) ps ≈ ps_zero _.
+Theorem ps_add_opp_l : ∀ ps, ps_add (ps_opp ps) ps ≈ ps_zero.
 Proof.
 intros ps.
 rewrite ps_add_comm.
@@ -565,12 +569,11 @@ apply ps_add_opp_r.
 Qed.
 
 Definition nz_zero :=
-  {| nz_terms := series_0 fld;
+  {| nz_terms := series_0;
      nz_valnum := 0;
      nz_comden := 1 |}.
 
-Lemma series_shift_series_0 : ∀ n,
-  series_shift fld n (series_0 fld) ≃ series_0 fld.
+Lemma series_shift_series_0 : ∀ n, series_shift n series_0 ≃ series_0.
 Proof.
 intros n.
 constructor; intros i.
@@ -583,7 +586,7 @@ Qed.
 
 Lemma nz_add_0_r : ∀ nz,
   nz_terms_add nz nz_zero ≃
-  series_shift fld (Z.to_nat (nz_valnum nz)) (nz_terms nz).
+  series_shift (Z.to_nat (nz_valnum nz)) (nz_terms nz).
 Proof.
 intros nz.
 unfold nz_terms_add; simpl.
@@ -598,8 +601,7 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma eq_nz_add_add₂ : ∀ nz₁ nz₂,
-  eq_nz fld (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
+Lemma eq_nz_add_add₂ : ∀ nz₁ nz₂, eq_nz (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
 constructor; [ simpl | reflexivity | simpl ].
@@ -623,7 +625,7 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_nz_norm_add_add₂ : ∀ nz₁ nz₂,
-  normalise_nz fld (nz_add nz₁ nz₂) ≐ normalise_nz fld (nz_add₂ nz₁ nz₂).
+  normalise_nz (nz_add nz₁ nz₂) ≐ normalise_nz (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
 rewrite eq_nz_add_add₂; reflexivity.
@@ -638,11 +640,13 @@ constructor.
 apply eq_nz_norm_add_add₂.
 Qed.
 
+(*
 End fld.
+*)
 
-Add Parametric Morphism α (fld : Field.t α) : (adjusted_nz_add fld)
-with signature (eq_nz fld) ==> (eq_nz fld) ==> (eq_nz fld)
-as adjusted_nz_add_morph.
+Add Parametric Morphism : adjusted_nz_add
+  with signature eq_nz ==> eq_nz ==> eq_nz
+  as adjusted_nz_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 unfold adjusted_nz_add.
@@ -654,8 +658,8 @@ Qed.
 
 (* pas utilisés, mais bon, je les garde, on sait jamais *)
 
-Add Parametric Morphism α (fld : Field.t α) : (adjust_series fld)
-with signature eq ==> eq ==> eq_series fld ==> eq_series fld
+Add Parametric Morphism : adjust_series
+with signature eq ==> eq ==> eq_series ==> eq_series
 as adjust_series_morph.
 Proof.
 (* à nettoyer *)
@@ -729,9 +733,9 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (fld : Field.t α) : (nz_terms_add fld)
-with signature eq_nz fld ==> eq_nz fld ==> eq_series fld
-as nz_terms_add_morph.
+Add Parametric Morphism : nz_terms_add
+  with signature eq_nz ==> eq_nz ==> eq_series
+  as nz_terms_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 constructor; intros i.
@@ -762,7 +766,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
    exfalso; apply H₂.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite Field.add_0_l.
+   rewrite Lfield.add_0_l.
    destruct (Nbar.lt_dec (fin i) y₂) as [H₄| H₄].
     exfalso; apply H₂.
     apply Nbar.max_lt_iff; right; assumption.
@@ -778,7 +782,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
    exfalso; apply H₁.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite Field.add_0_l.
+   rewrite Lfield.add_0_l.
    destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
     exfalso; apply H₁.
     apply Nbar.max_lt_iff; right; assumption.

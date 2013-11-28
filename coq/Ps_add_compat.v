@@ -1,16 +1,19 @@
-(* $Id: Ps_add_compat.v,v 2.9 2013-11-27 03:37:03 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.10 2013-11-28 01:28:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
+(*
 Require Import Field.
+*)
 Require Import Series.
 Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Ps_add.
 Require Import Misc.
 
+(*
 Section fld.
 
 Variable α : Type.
@@ -23,6 +26,7 @@ Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
 Delimit Scope ps_scope with ps.
 Notation "a + b" := (ps_add fld a b) : ps_scope.
 Notation "a ∔ b" := (nz_add fld a b) (at level 70).
+*)
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, series_nth_fld fld i s ≍ Field.zero fld)
