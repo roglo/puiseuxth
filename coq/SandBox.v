@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.125 2013-11-29 12:55:54 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.126 2013-11-29 12:59:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -202,6 +202,20 @@ Qed.
 Lemma eq_nz_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_nz nz₁ nz₂
   → eq_nz (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+induction Heq.
+constructor; simpl.
+ rewrite H, H0; reflexivity.
+
+ rewrite H0; reflexivity.
+
+ rewrite H1; reflexivity.
+Qed.
+
+Lemma eq_nz_mul_compat_l : ∀ nz₁ nz₂ nz₃,
+  eq_nz nz₁ nz₂
+  → eq_nz (nz_mul nz₃ nz₁) (nz_mul nz₃ nz₂).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -422,24 +436,35 @@ remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
 symmetry in Hps₁, Hps₂.
 destruct ps₁ as [nz'₁| ].
  destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
- apply normalised_exists_adjust in Hps₁.
- apply normalised_exists_adjust in Hps₂.
- destruct Hps₁ as (n₁, (k₁, Hps₁)).
- destruct Hps₂ as (n₂, (k₂, Hps₂)).
- inversion Heq; subst.
- apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
- apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
- rewrite Hps₁, Hps₂.
+ remember Hps₁ as H; clear HeqH.
+ apply normalised_exists_adjust in H.
+ destruct H as (n₁, (k₁, H)).
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H.
+ rewrite H; clear H.
+ remember Hps₂ as H; clear HeqH.
+ apply normalised_exists_adjust in H.
+ destruct H as (n₂, (k₂, H)).
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H.
+ rewrite H; clear H.
+ rewrite nz_norm_mul_comm; symmetry.
+ rewrite nz_norm_mul_comm; symmetry.
+ remember (normalise_nz nz₃) as ps₃ eqn:Hps₃ .
+ symmetry in Hps₃.
+ destruct ps₃ as [nz'₃| ].
+  remember Hps₃ as H; clear HeqH.
+  apply normalised_exists_adjust in H.
+  destruct H as (n₃, (k₃, H)).
+  remember H as H₁; clear HeqH₁.
+  apply eq_nz_mul_compat_r with (nz₃ := adjust_nz n₁ k₁ nz'₁) in H₁.
+  rewrite H₁; clear H₁.
+  remember H as H₁; clear HeqH₁.
+  apply eq_nz_mul_compat_r with (nz₃ := adjust_nz n₂ k₂ nz'₂) in H₁.
+  rewrite H₁; clear H₁.
+  unfold nz_mul; simpl.
+  inversion Heq; subst.
+  inversion H2; subst.
+  rewrite <- H0, <- H1, <- H3.
 bbb.
- unfold nz_mul; simpl.
- inversion H1; subst.
- rewrite H, H0, H2.
-bbb.
- unfold normalise_nz; simpl.
-
- inversion H1; subst.
- rewrite <- normalise_nz_adjust_nz_mul_r.
- rewrite <- normalise_nz_adjust_nz_mul_r.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
