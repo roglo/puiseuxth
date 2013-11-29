@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.127 2013-11-29 13:43:36 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.128 2013-11-29 14:57:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -359,8 +359,25 @@ bbb.
  rewrite inserted_0_sigma.
 *)
 
-(* faux car nécessite lemme zzz ci-dessus, lequel est faux
-Lemma normalise_nz_adjust_nz_mul_0_r : ∀ nz₁ nz₂ k,
+Lemma zzz : ∀ s k v c,
+ normalise_nz
+   {| nz_terms := series_stretch k s; nz_valnum := v; nz_comden := c |}
+ ≐ normalise_nz
+     {| nz_terms := s; nz_valnum := v; nz_comden := c |}.
+Proof.
+intros s k v c.
+unfold normalise_nz; simpl.
+rewrite null_coeff_range_length_stretch_0.
+rewrite Nbar.mul_comm.
+remember (null_coeff_range_length fld s 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ simpl | reflexivity ].
+constructor; constructor; simpl.
+ unfold gcd_nz; simpl.
+ rewrite greatest_series_x_power_stretch.
+bbb.
+
+Lemma normalise_nz_adjust_nz_mul_0_l : ∀ nz₁ nz₂ k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz 0 k nz₁) nz₂).
 Proof.
@@ -374,6 +391,7 @@ rewrite Z.mul_shuffle0.
 rewrite <- Z.mul_add_distr_r.
 rewrite Pos_mul_shuffle0.
 do 2 rewrite series_shift_0.
+bbb.
 apply normalise_nz_morph.
 constructor; try reflexivity; simpl.
 bbb.
@@ -411,7 +429,7 @@ apply normalise_nz_adjust_nz_mul.
 bbb.
 *)
 
-(* exercice *)
+(* faux
 Lemma yyy : ∀ nz n,
   normalise_nz nz ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) nz).
 Proof.
@@ -419,14 +437,16 @@ intros nz n.
 unfold nz_mul; simpl.
 rewrite series_mul_1_l, Z.mul_1_r.
 bbb.
+*)
 
-(* exercice *)
+(* faux
 Lemma zzz : ∀ nz n k,
   normalise_nz nz
   ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) (adjust_nz 0 k nz)).
 Proof.
 intros nz n k.
 bbb.
+*)
 
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
