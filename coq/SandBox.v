@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.126 2013-11-29 12:59:27 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.127 2013-11-29 13:43:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -416,6 +416,8 @@ Lemma yyy : ∀ nz n,
   normalise_nz nz ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) nz).
 Proof.
 intros nz n.
+unfold nz_mul; simpl.
+rewrite series_mul_1_l, Z.mul_1_r.
 bbb.
 
 (* exercice *)
