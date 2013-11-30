@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.139 2013-11-30 11:09:52 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.140 2013-11-30 11:42:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -213,6 +213,10 @@ induction k₂; intros.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
+Lemma sigma_aux_succ : ∀ f b k,
+  sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%fld.
+Proof. reflexivity. Qed.
+
 Lemma inserted_0_sigma_aux : ∀ f g b k n,
   n ≠ O
   → (∀ i, i mod n ≠ O → f (b + i)%nat ≍ 0%fld)
@@ -221,10 +225,30 @@ Lemma inserted_0_sigma_aux : ∀ f g b k n,
 Proof.
 intros f g b k n Hn Hf Hfg; simpl.
 pose proof (Hfg O) as H.
-rewrite Nat.mul_0_r, Nat.add_0_r in H.
-rewrite H.
-apply Lfield.add_compat_l.
-clear H.
+rewrite Nat.mul_0_r, Nat.add_0_r in H; rewrite H.
+apply Lfield.add_compat_l; clear H.
+destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
+induction k; intros; [ reflexivity | simpl ].
+replace (n + k * S n)%nat with (k * S n + n)%nat by apply Nat.add_comm.
+rewrite sigma_aux_add.
+rewrite Lfield.add_assoc, <- sigma_aux_succ.
+remember (S b) as bb.
+rewrite <- Nat.add_1_r; subst bb.
+rewrite sigma_aux_add.
+rewrite IHk.
+simpl.
+rewrite Lfield.add_0_r.
+symmetry.
+rewrite <- Nat.add_1_r.
+rewrite <- Hfg.
+rewrite Nat.mul_1_r.
+(* bof... *)
+bbb.
+
+intros f g b k n Hn Hf Hfg; simpl.
+pose proof (Hfg O) as H.
+rewrite Nat.mul_0_r, Nat.add_0_r in H; rewrite H.
+apply Lfield.add_compat_l; clear H.
 destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
 revert b Hf Hfg.
 induction k; intros; [ reflexivity | simpl ].
