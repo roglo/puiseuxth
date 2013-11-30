@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.128 2013-11-29 14:57:26 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.129 2013-11-30 00:16:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -359,6 +359,7 @@ bbb.
  rewrite inserted_0_sigma.
 *)
 
+(*
 Lemma zzz : ∀ s k v c,
  normalise_nz
    {| nz_terms := series_stretch k s; nz_valnum := v; nz_comden := c |}
@@ -376,6 +377,7 @@ constructor; constructor; simpl.
  unfold gcd_nz; simpl.
  rewrite greatest_series_x_power_stretch.
 bbb.
+*)
 
 Lemma normalise_nz_adjust_nz_mul_0_l : ∀ nz₁ nz₂ k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
