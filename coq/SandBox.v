@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.132 2013-11-30 02:26:59 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.133 2013-11-30 02:39:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -206,6 +206,27 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
   apply H₃, Nbar.lt_0_1.
 Qed.
 
+Lemma zzz : ∀ a b k,
+  series_stretch k (series_mul a b)
+  ≃ series_mul (series_stretch k a) (series_stretch k b).
+Proof.
+intros a b k.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite <- Nbar.mul_add_distr_r.
+remember ((stop a + stop b) * fin (Pos.to_nat k))%Nbar as x.
+destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ subst x | reflexivity ].
+destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+ apply Nat.mod_divides in H₂.
+  destruct H₂ as (c, Hc).
+  rewrite Hc.
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; auto.
+  unfold series_nth_fld; simpl.
+  destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
+   unfold convol_mul; simpl.
+bbb.
+
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
   ps_mul ps₁ (ps_mul ps₂ ps₃) ≈ ps_mul (ps_mul ps₁ ps₂) ps₃.
 Proof.
@@ -215,6 +236,7 @@ destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ constructor | reflexivity ].
 unfold normalise_nz; simpl.
+bbb.
 rewrite series_mul_assoc.
 remember (series_mul (nz_terms nz₁) (nz_terms nz₂)) as s₁₂.
 remember (series_mul s₁₂ (nz_terms nz₃)) as s₁₂₃; subst s₁₂.
