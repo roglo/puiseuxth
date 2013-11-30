@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.134 2013-11-30 08:47:12 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.135 2013-11-30 09:03:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -6,30 +6,12 @@ Require Import NPeano.
 
 Require Import Nbar.
 Require Import Misc.
-(*
-Require Import Field.
-*)
 Require Import Series.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_add_compat.
 
 Set Implicit Arguments.
-
-(*
-Section fld.
-
-Variable α : Type.
-Variable fld : Field.t α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
-
-Delimit Scope fld_scope with fld.
-Notation "0" := (Field.zero fld) : fld_scope.
-Notation "1" := (Field.one fld) : fld_scope.
-*)
 
 (* ps_mul *)
 
@@ -613,8 +595,6 @@ Definition ps_fld α : Lfield.t (puiseux_series α) :=
      Lfield.mul_add_distr_l := 0
 *)
    |}.
-
-End fld.
 
 Add Parametric Morphism α (fld : Lfield.t α) : (ps_mul fld)
 with signature eq_ps fld ==> eq_ps fld ==> eq_ps fld

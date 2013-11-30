@@ -1,12 +1,9 @@
-(* $Id: Ps_add.v,v 2.54 2013-11-28 01:28:34 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.55 2013-11-30 09:03:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-(*
-Require Field.
-*)
 Require Import Series.
 Require Import Puiseux_series.
 Require Import Nbar.
@@ -14,14 +11,6 @@ Require Import Misc.
 
 Set Implicit Arguments.
 
-(*
-Section fld.
-
-Variable α : Type.
-Variable fld : Field.t α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-*)
 Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 
 (*
@@ -639,10 +628,6 @@ destruct ps₂ as [ps₂| ]; [ idtac | reflexivity ].
 constructor.
 apply eq_nz_norm_add_add₂.
 Qed.
-
-(*
-End fld.
-*)
 
 Add Parametric Morphism : adjusted_nz_add
   with signature eq_nz ==> eq_nz ==> eq_nz

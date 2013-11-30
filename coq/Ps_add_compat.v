@@ -1,28 +1,14 @@
-(* $Id: Ps_add_compat.v,v 2.11 2013-11-28 01:57:23 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.12 2013-11-30 09:03:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-(*
-Require Import Field.
-*)
 Require Import Series.
 Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Ps_add.
 Require Import Misc.
-
-(*
-Section fld.
-
-Variable α : Type.
-Variable fld : Field.t α.
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (Field.eq fld a b) (at level 70).
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≐ b" := (eq_norm_ps fld a b) (at level 70).
-*)
 
 Delimit Scope ps_scope with ps.
 Notation "a + b" := (ps_add a b) : ps_scope.
@@ -914,10 +900,6 @@ rewrite ps_add_comm; symmetry.
 rewrite ps_add_comm; symmetry.
 apply ps_add_compat_r; assumption.
 Qed.
-
-(*
-End fld.
-*)
 
 Add Parametric Morphism : ps_add
 with signature eq_ps ==> eq_ps ==> eq_ps
