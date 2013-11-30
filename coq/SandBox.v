@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.129 2013-11-30 00:16:25 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.130 2013-11-30 00:53:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,11 +35,13 @@ Notation "1" := (Field.one fld) : fld_scope.
 
 Definition nz_mul nz₁ nz₂ :=
   {| nz_terms :=
-       series_mul (nz_terms nz₁) (nz_terms nz₂);
+       series_mul
+         (series_stretch (cm_factor nz₁ nz₂) (nz_terms nz₁))
+         (series_stretch (cm_factor nz₂ nz₁) (nz_terms nz₂));
      nz_valnum :=
        (nz_valnum nz₁ * ' nz_comden nz₂ + nz_valnum nz₂ * ' nz_comden nz₁)%Z;
      nz_comden :=
-       nz_comden nz₁ * nz_comden nz₂ |}.
+       cm nz₁ nz₂ |}.
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   match ps₁ with
@@ -60,26 +62,26 @@ Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
 Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
+remember (series_stretch (cm_factor nz₁ nz₂) (nz_terms nz₁)) as s₁ eqn:Hs₁ .
+remember (series_stretch (cm_factor nz₂ nz₁) (nz_terms nz₂)) as s₂ eqn:Hs₂ .
 rewrite series_mul_comm.
-remember (series_mul (nz_terms nz₂) (nz_terms nz₁)) as x.
-remember (null_coeff_range_length fld x 0) as n eqn:Hn .
-symmetry in Hn; subst x.
+remember (null_coeff_range_length fld (series_mul s₂ s₁) 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
  unfold gcd_nz; simpl.
  rewrite series_mul_comm.
  f_equal; [ f_equal; apply Z.add_comm | f_equal ].
  f_equal; [ f_equal; apply Z.add_comm | idtac ].
- rewrite Pos.mul_comm; reflexivity.
+ unfold cm; rewrite Pos.mul_comm; reflexivity.
 
- rewrite Pos.mul_comm, series_mul_comm.
+ unfold cm; rewrite Pos.mul_comm, series_mul_comm.
  unfold gcd_nz; simpl.
  do 3 f_equal.
  f_equal; [ f_equal; apply Z.add_comm | idtac ].
- rewrite Pos.mul_comm; reflexivity.
+ unfold cm; rewrite Pos.mul_comm; reflexivity.
 
  unfold gcd_nz; simpl.
- rewrite Pos.mul_comm, series_mul_comm.
+ unfold cm; rewrite Pos.mul_comm, series_mul_comm.
  remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as x eqn:Hx .
  remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as y eqn:Hy .
  replace (x + y)%Z with (y + x)%Z by apply Z.add_comm.
