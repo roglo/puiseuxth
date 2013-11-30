@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.141 2013-11-30 18:41:29 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.142 2013-11-30 19:40:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -217,32 +217,53 @@ Lemma sigma_aux_succ : ∀ f b k,
   sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%fld.
 Proof. reflexivity. Qed.
 
-(*
-Lemma xxx : ∀ f b n k,
-  (0 < n)%nat
-  → sigma_aux b (S (k * n)) f
-    ≍ sigma_aux 0 (S k) (λ i, sigma_aux 0 n (λ j, f (b + i * n + j)%nat)).
+Lemma sigma_aux_twice_twice : ∀ f n k,
+  sigma_aux (n + n)%nat (k + k)%nat f
+  ≍ sigma_aux n k (λ i, f (2 * i)%nat + f (2 * i + 1)%nat)%fld.
 Proof.
-intros f b n k Hn.
-bbb.
-*)
+intros f n k.
+revert n; induction k; intros; [ reflexivity | simpl ].
+rewrite <- Lfield.add_assoc.
+rewrite Nat.add_0_r.
+apply Lfield.add_compat_l.
+rewrite Nat.add_succ_r; simpl.
+rewrite Nat.add_1_r.
+apply Lfield.add_compat_l.
+rewrite <- Nat.add_succ_r, <- Nat.add_succ_l.
+apply IHk.
+Qed.
 
-(* merde, c'est faux *)
-Lemma yyy : ∀ f b n k,
+Lemma yyy : ∀ f n k,
   (0 < n)%nat
-  → Σ (i = b, b + k * n - 1)   f i
-    ≍ Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (b + i * n + j)%nat.
+  → (0 < k)%nat
+    → Σ (i = 0, k * n - 1)   f i
+      ≍ Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (i * n + j)%nat.
 Proof.
-intros f b n k Hn.
-unfold sigma.
-do 2 rewrite Nat.sub_0_r.
-rewrite <- Nat.add_succ_r.
-rewrite Nat.add_comm, Nat.add_sub.
-rewrite xxx; [ idtac | assumption ].
-apply sigma_aux_compat; intros i Hi.
-rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
-rewrite Nat.sub_succ, Nat.sub_0_r; reflexivity.
-qed.
+intros f n k Hn Hk.
+unfold sigma; simpl.
+rewrite <- Lfield.add_assoc.
+apply Lfield.add_compat_l.
+destruct n; [ exfalso; revert Hn; apply Nat.lt_irrefl | clear Hn ].
+destruct k; [ exfalso; revert Hk; apply Nat.lt_irrefl | clear Hk ].
+simpl.
+do 3 rewrite Nat.sub_0_r.
+destruct n; simpl.
+ rewrite Nat.mul_1_r, Lfield.add_0_l.
+ apply sigma_aux_compat; intros i Hi.
+ rewrite Nat.mul_1_r, Nat.add_0_r, Lfield.add_0_r; reflexivity.
+
+ rewrite <- Lfield.add_assoc.
+ apply Lfield.add_compat_l.
+ destruct n; simpl.
+  rewrite Lfield.add_0_l.
+  rewrite Nat.mul_comm; simpl; rewrite Nat.add_0_r.
+  rewrite <- Nat.add_1_l.
+  rewrite sigma_aux_twice_twice; simpl.
+  apply sigma_aux_compat; intros i Hi.
+  rewrite Nat.mul_comm; simpl.
+  do 2 rewrite Nat.add_0_r; rewrite Lfield.add_0_r.
+  reflexivity.
+bbb.
 
 Lemma inserted_0_sigma_aux : ∀ f g b k n,
   n ≠ O
