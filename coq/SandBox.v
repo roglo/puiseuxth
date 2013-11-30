@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.137 2013-11-30 10:11:41 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.138 2013-11-30 10:28:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -188,9 +188,14 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
   apply H₃, Nbar.lt_0_1.
 Qed.
 
+Lemma yyy : ∀ f b k₁ k₂,
+  sigma_aux b (k₁ + k₂) f ≍ (sigma_aux b k₁ f + sigma_aux (b + k₁) k₂ f)%fld.
+Proof.
+bbb.
+
 Lemma inserted_0_sigma_aux : ∀ f g b k n,
   n ≠ O
-  → (∀ i, i mod n ≠ O → f (b + i)%nat ≍ 0%fld)
+  → (∀ i, i mod n ≠ O → f i ≍ 0%fld)
     → (∀ i, f (b + n * i)%nat ≍ g (b + i)%nat)
       → sigma_aux b (S (k * n)) f ≍ sigma_aux b (S k) g.
 Proof.
@@ -201,8 +206,12 @@ rewrite H.
 apply Lfield.add_compat_l.
 clear H.
 destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
-revert b Hf Hfg.
+revert b Hfg.
 induction k; intros; [ reflexivity | idtac ].
+simpl.
+rewrite <- IHk.
+ Focus 2.
+ intros i.
 bbb.
 
 Lemma inserted_0_sigma : ∀ f g k n,
