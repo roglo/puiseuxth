@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.135 2013-11-30 09:03:38 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.136 2013-11-30 09:45:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -188,6 +188,43 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
   apply H₃, Nbar.lt_0_1.
 Qed.
 
+Lemma inserted_0_sigma_aux : ∀ f g b k n,
+  n ≠ O
+  → (∀ i, i mod n ≠ O → f (b + i)%nat ≍ 0%fld)
+    → (∀ i, f (b + n * i)%nat ≍ g (b + i)%nat)
+      → sigma_aux b (S (k * n)) f ≍ sigma_aux b (S k) g.
+Proof.
+intros f g b k n Hn Hf Hfg; simpl.
+pose proof (Hfg O) as H.
+rewrite Nat.mul_0_r, Nat.add_0_r in H.
+rewrite H.
+apply Lfield.add_compat_l.
+clear H.
+destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
+revert b k Hf Hfg.
+induction n; intros.
+ rewrite Nat.mul_1_r.
+ apply sigma_aux_compat; intros i Hi.
+ remember (i - S b)%nat as j.
+ replace i with (b + S j)%nat in * by omega.
+ rewrite <- Hfg.
+ rewrite Nat.mul_1_l; reflexivity.
+bbb.
+
+Lemma inserted_0_sigma : ∀ f g k n,
+  (∀ i, i mod n ≠ O → f i ≍ 0%fld)
+  → (∀ i, f (n * i)%nat ≍ g i)
+    → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
+Proof.
+intros f g k n Hf Hfg.
+apply inserted_0_sigma_aux.
+ intros i Hi; simpl.
+ apply Hf; assumption.
+
+ intros i; simpl.
+ apply Hfg.
+qed.
+
 Lemma zzz : ∀ a b k,
   series_stretch k (series_mul a b)
   ≃ series_mul (series_stretch k a) (series_stretch k b).
@@ -207,6 +244,10 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
   unfold series_nth_fld; simpl.
   destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
    unfold convol_mul; simpl.
+   rename k into n, i into k.
+   symmetry.
+   apply inserted_0_sigma.
+    intros i Hi.
 bbb.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
@@ -383,18 +424,6 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
 
  apply H; constructor.
 Qed.
-
-(*
-Notation "'Σ' ( i = b , e ) ' ' f" := (sigma fld b e (λ i, f))
-  (at level 0, i at level 0, b at level 0, e at level 0, f at level 60).
-Lemma inserted_0_sigma : ∀ f g k n,
-  (∀ i, i mod n ≠ O → f i ≍ 0%fld)
-  → (∀ i, f (n * i)%nat ≍ g i)
-    → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
-Proof.
-intros f g k n Hf Hfg.
-bbb.
-*)
 
 (* faux ; exemple pour k > 1 :
    - terme de gauche : a₀b₀ + 0 x + ...
