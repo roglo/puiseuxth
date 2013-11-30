@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.136 2013-11-30 09:45:57 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.137 2013-11-30 10:11:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -201,14 +201,8 @@ rewrite H.
 apply Lfield.add_compat_l.
 clear H.
 destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
-revert b k Hf Hfg.
-induction n; intros.
- rewrite Nat.mul_1_r.
- apply sigma_aux_compat; intros i Hi.
- remember (i - S b)%nat as j.
- replace i with (b + S j)%nat in * by omega.
- rewrite <- Hfg.
- rewrite Nat.mul_1_l; reflexivity.
+revert b Hf Hfg.
+induction k; intros; [ reflexivity | idtac ].
 bbb.
 
 Lemma inserted_0_sigma : ∀ f g k n,
