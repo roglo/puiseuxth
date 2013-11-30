@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.140 2013-11-30 11:42:04 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.141 2013-11-30 18:41:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -216,6 +216,33 @@ Qed.
 Lemma sigma_aux_succ : ∀ f b k,
   sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%fld.
 Proof. reflexivity. Qed.
+
+(*
+Lemma xxx : ∀ f b n k,
+  (0 < n)%nat
+  → sigma_aux b (S (k * n)) f
+    ≍ sigma_aux 0 (S k) (λ i, sigma_aux 0 n (λ j, f (b + i * n + j)%nat)).
+Proof.
+intros f b n k Hn.
+bbb.
+*)
+
+(* merde, c'est faux *)
+Lemma yyy : ∀ f b n k,
+  (0 < n)%nat
+  → Σ (i = b, b + k * n - 1)   f i
+    ≍ Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (b + i * n + j)%nat.
+Proof.
+intros f b n k Hn.
+unfold sigma.
+do 2 rewrite Nat.sub_0_r.
+rewrite <- Nat.add_succ_r.
+rewrite Nat.add_comm, Nat.add_sub.
+rewrite xxx; [ idtac | assumption ].
+apply sigma_aux_compat; intros i Hi.
+rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
+rewrite Nat.sub_succ, Nat.sub_0_r; reflexivity.
+qed.
 
 Lemma inserted_0_sigma_aux : ∀ f g b k n,
   n ≠ O
