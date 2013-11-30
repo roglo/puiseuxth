@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.131 2013-11-30 01:48:41 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.132 2013-11-30 02:26:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -163,25 +163,19 @@ unfold normalise_nz; simpl.
 unfold cm_factor; simpl.
 rewrite fold_series_1, series_stretch_1.
 rewrite stretch_series_1, series_mul_1_l.
-bbb.
-
-intros ps; simpl.
-destruct ps as [nz| ]; [ constructor | reflexivity ].
-unfold normalise_nz; simpl.
-rewrite fold_series_1, series_mul_1_l.
 remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
- rewrite series_mul_1_l.
+ rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_nz; simpl.
  rewrite Z.mul_1_r; reflexivity.
 
- rewrite series_mul_1_l.
+ rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_nz; simpl.
  rewrite Z.mul_1_r; reflexivity.
 
- rewrite series_mul_1_l.
+ rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_nz; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
