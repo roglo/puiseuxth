@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.133 2013-11-30 02:39:03 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.134 2013-11-30 08:47:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -236,6 +236,11 @@ destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ constructor | reflexivity ].
 unfold normalise_nz; simpl.
+rewrite zzz; symmetry.
+rewrite zzz; symmetry.
+do 4 rewrite <- series_stretch_stretch.
+unfold cm, cm_factor; simpl.
+rewrite series_mul_assoc.
 bbb.
 rewrite series_mul_assoc.
 remember (series_mul (nz_terms nz₁) (nz_terms nz₂)) as s₁₂.
