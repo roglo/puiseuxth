@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.130 2013-11-30 00:53:11 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.131 2013-11-30 01:48:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -104,8 +104,67 @@ Lemma fold_series_1 :
   {| terms := λ _, Lfield.one fld; stop := 1 |} = series_1.
 Proof. reflexivity. Qed.
 
+Lemma stretch_series_1 : ∀ k, series_stretch k series_1 ≃ series_1.
+Proof.
+intros k.
+constructor; intros i.
+unfold series_nth_fld; simpl.
+rewrite Nat.add_0_r.
+destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
+ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+  unfold series_nth_fld; simpl.
+  apply Nat.mod_divides in H₂; auto.
+  destruct H₂ as (c, Hc); rewrite Hc.
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; auto.
+  destruct (Nbar.lt_dec (fin c) 1) as [H₂| H₂].
+   apply Nbar.fin_lt_mono in H₂.
+   apply lt_n_Sm_le, Nat.le_0_r in H₂; subst c.
+   rewrite Nat.mul_0_l.
+   destruct (Nbar.lt_dec 0 1) as [H₂| H₂]; [ reflexivity | idtac ].
+   exfalso; apply H₂, Nbar.lt_0_1.
+
+   destruct (Nbar.lt_dec (fin (c * Pos.to_nat k)) 1) as [H₃| H₃].
+    exfalso; apply H₂.
+    apply Nbar.fin_lt_mono in H₃.
+    apply Nbar.fin_lt_mono.
+    apply lt_n_Sm_le, Nat.le_0_r in H₃.
+    apply Nat.eq_mul_0_l in H₃; auto.
+    subst c; apply Nat.lt_0_1.
+
+    reflexivity.
+
+  destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
+   apply Nbar.fin_lt_mono in H₃.
+   destruct i.
+    rewrite Nat.mod_0_l in H₂; auto.
+    exfalso; revert H₂; apply Nat.lt_irrefl.
+
+    apply lt_S_n in H₃.
+    apply Nat.nlt_ge in H₃.
+    exfalso; apply H₃, Nat.lt_0_succ.
+
+   reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
+  apply Nbar.fin_lt_mono in H₂.
+  apply lt_n_Sm_le, Nat.le_0_r in H₂; subst i.
+  exfalso; apply H₁, Nbar.fin_lt_mono.
+  apply Pos2Nat.is_pos.
+
+  reflexivity.
+Qed.
+
 Theorem ps_mul_1_l : ∀ ps, ps_mul ps_one ps ≈ ps.
 Proof.
+intros ps; simpl.
+destruct ps as [nz| ]; [ constructor | reflexivity ].
+unfold normalise_nz; simpl.
+unfold cm_factor; simpl.
+rewrite fold_series_1, series_stretch_1.
+rewrite stretch_series_1, series_mul_1_l.
+bbb.
+
 intros ps; simpl.
 destruct ps as [nz| ]; [ constructor | reflexivity ].
 unfold normalise_nz; simpl.
