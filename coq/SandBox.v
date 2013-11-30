@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.142 2013-11-30 19:40:41 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.143 2013-11-30 19:49:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -219,12 +219,11 @@ Proof. reflexivity. Qed.
 
 Lemma sigma_aux_twice_twice : ∀ f n k,
   sigma_aux (n + n)%nat (k + k)%nat f
-  ≍ sigma_aux n k (λ i, f (2 * i)%nat + f (2 * i + 1)%nat)%fld.
+  ≍ sigma_aux n k (λ i, f (i + i)%nat + f (i + i + 1)%nat)%fld.
 Proof.
 intros f n k.
 revert n; induction k; intros; [ reflexivity | simpl ].
 rewrite <- Lfield.add_assoc.
-rewrite Nat.add_0_r.
 apply Lfield.add_compat_l.
 rewrite Nat.add_succ_r; simpl.
 rewrite Nat.add_1_r.
