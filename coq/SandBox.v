@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.150 2013-12-01 12:18:58 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.151 2013-12-01 17:04:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -213,6 +213,26 @@ induction k₂; intros.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
+Lemma sigma_add : ∀ f k₁ k₂,
+  (0 < k₁)%nat
+  → (0 < k₂)%nat
+    → Σ (i = 0, k₁ + k₂ - 1)   f i
+      ≍ (Σ (i = 0, k₁ - 1)   f i + Σ (i = k₁, k₁ + k₂ - 1)   f i)%fld.
+Proof.
+intros f k₁ k₂ Hk₁ Hk₂.
+unfold sigma.
+do 2 rewrite Nat.sub_0_r.
+rewrite <- Nat.sub_succ_l.
+ rewrite Nat.sub_succ, Nat.sub_0_r.
+ rewrite sigma_aux_add.
+ rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
+ rewrite Nat.sub_succ, Nat.sub_0_r.
+ rewrite Nat.add_0_l, Nat.add_comm.
+ rewrite Nat.add_sub; reflexivity.
+
+ omega.
+Qed.
+
 Lemma sigma_aux_succ : ∀ f b k,
   sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%fld.
 Proof. reflexivity. Qed.
@@ -232,6 +252,38 @@ rewrite <- Nat.add_succ_r, <- Nat.add_succ_l.
 apply IHk.
 Qed.
 
+Lemma sigma_aux_mul_sigma_aux_sigma_aux : ∀ f k n,
+  sigma_aux 0 (S k * S n) f
+  ≍ sigma_aux 0 (S k) (λ i, sigma_aux 0 (S n) (λ j, f (i * S n + j)%nat)).
+Proof.
+intros f k n.
+revert n; induction k; intros.
+ simpl; rewrite Nat.add_0_r, Lfield.add_0_r; reflexivity.
+
+ remember (S n) as x.
+ remember (S k) as y.
+ simpl; subst x y.
+ rewrite Nat.add_comm.
+ rewrite sigma_aux_add, IHk.
+ symmetry; rewrite Lfield.add_comm.
+ symmetry.
+ rewrite sigma_aux_succ.
+ rewrite Lfield.add_shuffle0, Lfield.add_comm.
+ symmetry.
+ replace (S k) with (k + 1)%nat by omega.
+ rewrite sigma_aux_add.
+ rewrite <- Lfield.add_assoc.
+ apply Lfield.add_compat_l.
+ simpl.
+ rewrite Lfield.add_comm.
+ apply Lfield.add_compat_l.
+ symmetry; rewrite Nat.add_comm; simpl.
+ rewrite Nat.add_0_r, Lfield.add_0_r.
+ apply Lfield.add_compat_l.
+ apply sigma_aux_compat; intros i Hi; simpl.
+ rewrite Nat.add_succ_r; reflexivity.
+Qed.
+
 Lemma sigma_mul_sigma_sigma : ∀ f n k,
   (0 < n)%nat
   → (0 < k)%nat
@@ -239,39 +291,18 @@ Lemma sigma_mul_sigma_sigma : ∀ f n k,
       ≍ Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (i * n + j)%nat.
 Proof.
 intros f n k Hn Hk.
-unfold sigma; simpl.
-rewrite <- Lfield.add_assoc.
-apply Lfield.add_compat_l.
+unfold sigma.
+do 2 rewrite Nat.sub_0_r.
 destruct n; [ exfalso; revert Hn; apply Nat.lt_irrefl | clear Hn ].
 destruct k; [ exfalso; revert Hk; apply Nat.lt_irrefl | clear Hk ].
-remember mult as g; simpl; subst g.
-do 2 rewrite Nat.sub_0_r.
-revert n; induction k; intros.
- simpl.
- rewrite Nat.add_0_r, Nat.sub_0_r, Lfield.add_0_r; reflexivity.
+rewrite Nat.sub_succ, Nat.sub_0_r.
+rewrite <- Nat.sub_succ_l, Nat.sub_succ, Nat.sub_0_r.
+ rewrite sigma_aux_mul_sigma_aux_sigma_aux.
+ apply sigma_aux_compat; intros i Hi.
+ rewrite Nat.sub_succ, Nat.sub_0_r, Nat.sub_0_r.
+ reflexivity.
 
- rewrite Nat.mul_succ_l.
- rewrite Nat.add_sub_swap.
-  rewrite sigma_aux_add, IHk.
-  rewrite <- Lfield.add_assoc.
-  apply Lfield.add_compat_l.
-  symmetry.
-  replace (S k) with (k + 1)%nat by apply Nat.add_1_r.
-  rewrite sigma_aux_add.
-  apply Lfield.add_compat_l; simpl.
-  rewrite Nat.add_0_r.
-  replace ((k + 1) * S n - 1)%nat with (n + k * S n)%nat .
-   rewrite Lfield.add_0_r.
-   apply Lfield.add_compat_l.
-   apply sigma_aux_compat; intros i Hi.
-   symmetry.
-   rewrite Nat.add_succ_l, <- Nat.add_succ_r; reflexivity.
-
-   rewrite Nat.mul_add_distr_r, Nat.mul_1_l.
-   rewrite Nat.add_succ_r, Nat.sub_succ, Nat.sub_0_r.
-   apply Nat.add_comm.
-
-  simpl; apply le_n_S, Nat.le_0_l.
+ simpl; apply le_n_S, Nat.le_0_l.
 Qed.
 
 (*
@@ -323,7 +354,13 @@ Lemma inserted_0_sigma : ∀ f g k n,
     → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
 Proof.
 intros f g k n Hf Hfg.
+replace (k * n)%nat with (k * n + 1 - 1)%nat .
+ rewrite sigma_add.
+  rewrite sigma_mul_sigma_sigma.
 bbb.
+n'importe quoi...
+
+intros f g k n Hf Hfg.
 apply inserted_0_sigma_aux.
  intros i Hi; simpl.
  apply Hf; assumption.

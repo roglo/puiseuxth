@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.81 2013-12-01 10:37:09 deraugla Exp $ *)
+(* $Id: Series.v,v 2.82 2013-12-01 17:04:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -232,7 +232,7 @@ Fixpoint sigma_aux b len f :=
 Definition sigma b e f := sigma_aux b (S e - b) f.
 
 Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
-  (at level 0, i at level 0, b at level 60, e at level 60, f at level 60).
+  (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
 
 Definition convol_mul a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
