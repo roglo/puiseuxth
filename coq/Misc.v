@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 2.4 2013-11-07 11:03:50 deraugla Exp $ *)
+(* $Id: Misc.v,v 2.5 2013-12-01 03:07:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1009,6 +1009,9 @@ intros x.
 destruct x as [| x| x]; [ reflexivity | idtac | reflexivity ].
 rewrite Z2Nat.id; [ reflexivity | apply Pos2Z.is_nonneg ].
 Qed.
+
+Lemma Nat_sub_succ_1 : ∀ n, (S n - 1 = n)%nat.
+Proof. intros n; simpl; rewrite Nat.sub_0_r; reflexivity. Qed.
 
 Definition Nat_div_sup x y := ((x + y - 1) / y)%nat.
 

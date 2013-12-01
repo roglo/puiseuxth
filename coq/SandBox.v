@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.143 2013-11-30 19:49:50 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.144 2013-12-01 03:07:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -232,6 +232,15 @@ rewrite <- Nat.add_succ_r, <- Nat.add_succ_l.
 apply IHk.
 Qed.
 
+(*
+Lemma xxx :
+  sigma_aux 1 (S k * S n - 1) f
+  ≍ (sigma_aux 1 n f +
+      sigma_aux 1 k
+        (λ i,
+         f (i * S n)%nat + sigma_aux 1 n (λ j, f (i * S n + j)%nat)))%fld
+*)
+
 Lemma yyy : ∀ f n k,
   (0 < n)%nat
   → (0 < k)%nat
@@ -244,13 +253,15 @@ rewrite <- Lfield.add_assoc.
 apply Lfield.add_compat_l.
 destruct n; [ exfalso; revert Hn; apply Nat.lt_irrefl | clear Hn ].
 destruct k; [ exfalso; revert Hk; apply Nat.lt_irrefl | clear Hk ].
-simpl.
-do 3 rewrite Nat.sub_0_r.
-destruct n; simpl.
+remember mult as g; simpl; subst g.
+do 2 rewrite Nat.sub_0_r.
+destruct n; remember mult as g; simpl; subst g.
  rewrite Nat.mul_1_r, Lfield.add_0_l.
+ rewrite Nat_sub_succ_1.
  apply sigma_aux_compat; intros i Hi.
  rewrite Nat.mul_1_r, Nat.add_0_r, Lfield.add_0_r; reflexivity.
 
+ simpl.
  rewrite <- Lfield.add_assoc.
  apply Lfield.add_compat_l.
  destruct n; simpl.
