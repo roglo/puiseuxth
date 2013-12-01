@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.149 2013-12-01 10:54:46 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.150 2013-12-01 12:18:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -316,7 +316,7 @@ rewrite Lfield.add_assoc.
 bbb.
 *)
 
-(*
+(**)
 Lemma inserted_0_sigma : ∀ f g k n,
   (∀ i, i mod n ≠ O → f i ≍ 0%fld)
   → (∀ i, f (n * i)%nat ≍ g i)
@@ -356,6 +356,13 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
    symmetry.
    apply inserted_0_sigma.
     intros i Hi.
+    apply all_0_sigma_0; intros j.
+    rewrite shifted_in_stretched.
+     rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
+
+     apply neq_0_lt, Nat.neq_sym; assumption.
+
+    intros i.
 bbb.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
