@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.146 2013-12-01 09:35:53 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.147 2013-12-01 10:06:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -259,6 +259,20 @@ revert n; induction k; intros.
   replace (S k) with (k + 1)%nat by apply Nat.add_1_r.
   rewrite sigma_aux_add.
   apply Lfield.add_compat_l.
+  simpl.
+  rewrite Nat.add_0_r.
+  replace (S (n + k * S n))%nat with (S k * S n)%nat by reflexivity.
+  replace (S ((k + 1) * S n - 1))%nat with (S k * S n)%nat .
+   Focus 2.
+   simpl.
+   apply eq_S.
+   rewrite Nat.mul_add_distr_r.
+   rewrite Nat.mul_1_l.
+   rewrite Nat.add_succ_r, Nat.sub_succ, Nat.sub_0_r.
+   apply Nat.add_comm.
+
+   rewrite Lfield.add_0_r.
+   apply Lfield.add_compat_l.
 bbb.
 
 Lemma inserted_0_sigma_aux : ∀ f g b k n,
