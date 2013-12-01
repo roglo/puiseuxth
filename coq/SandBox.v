@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.148 2013-12-01 10:09:06 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.149 2013-12-01 10:54:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -232,7 +232,7 @@ rewrite <- Nat.add_succ_r, <- Nat.add_succ_l.
 apply IHk.
 Qed.
 
-Lemma yyy : ∀ f n k,
+Lemma sigma_mul_sigma_sigma : ∀ f n k,
   (0 < n)%nat
   → (0 < k)%nat
     → Σ (i = 0, k * n - 1)   f i
@@ -261,15 +261,20 @@ revert n; induction k; intros.
   apply Lfield.add_compat_l; simpl.
   rewrite Nat.add_0_r.
   replace ((k + 1) * S n - 1)%nat with (n + k * S n)%nat .
-   Focus 2.
+   rewrite Lfield.add_0_r.
+   apply Lfield.add_compat_l.
+   apply sigma_aux_compat; intros i Hi.
+   symmetry.
+   rewrite Nat.add_succ_l, <- Nat.add_succ_r; reflexivity.
+
    rewrite Nat.mul_add_distr_r, Nat.mul_1_l.
    rewrite Nat.add_succ_r, Nat.sub_succ, Nat.sub_0_r.
    apply Nat.add_comm.
 
-   rewrite Lfield.add_0_r.
-   apply Lfield.add_compat_l.
-bbb.
+  simpl; apply le_n_S, Nat.le_0_l.
+Qed.
 
+(*
 Lemma inserted_0_sigma_aux : ∀ f g b k n,
   n ≠ O
   → (∀ i, i mod n ≠ O → f (b + i)%nat ≍ 0%fld)
@@ -295,8 +300,8 @@ symmetry.
 rewrite <- Nat.add_1_r.
 rewrite <- Hfg.
 rewrite Nat.mul_1_r.
-(* bof... *)
 bbb.
+bof...
 
 intros f g b k n Hn Hf Hfg; simpl.
 pose proof (Hfg O) as H.
@@ -309,13 +314,16 @@ replace (n + k * S n)%nat with (k * S n + n)%nat by apply Nat.add_comm.
 rewrite sigma_aux_add.
 rewrite Lfield.add_assoc.
 bbb.
+*)
 
+(*
 Lemma inserted_0_sigma : ∀ f g k n,
   (∀ i, i mod n ≠ O → f i ≍ 0%fld)
   → (∀ i, f (n * i)%nat ≍ g i)
     → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
 Proof.
 intros f g k n Hf Hfg.
+bbb.
 apply inserted_0_sigma_aux.
  intros i Hi; simpl.
  apply Hf; assumption.
@@ -323,6 +331,7 @@ apply inserted_0_sigma_aux.
  intros i; simpl.
  apply Hfg.
 qed.
+*)
 
 Lemma zzz : ∀ a b k,
   series_stretch k (series_mul a b)
