@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.145 2013-12-01 09:29:37 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.146 2013-12-01 09:35:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -252,9 +252,12 @@ revert n; induction k; intros.
 
  rewrite Nat.mul_succ_l.
  rewrite Nat.add_sub_swap.
-  rewrite sigma_aux_add.
-  rewrite IHk.
+  rewrite sigma_aux_add, IHk.
   rewrite <- Lfield.add_assoc.
+  apply Lfield.add_compat_l.
+  symmetry.
+  replace (S k) with (k + 1)%nat by apply Nat.add_1_r.
+  rewrite sigma_aux_add.
   apply Lfield.add_compat_l.
 bbb.
 
