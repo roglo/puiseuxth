@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.80 2013-11-30 09:45:57 deraugla Exp $ *)
+(* $Id: Series.v,v 2.81 2013-12-01 10:37:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -243,18 +243,27 @@ Definition series_mul a b :=
   {| terms k := convol_mul a b k;
      stop := Nbar.add (stop a) (stop b) |}.
 
-Lemma sigma_aux_compat : ∀ f g b len,
-  (∀ i, b ≤ i < b + len → f i ≍ g i)
-  → sigma_aux b len f ≍ sigma_aux b len g.
+Lemma sigma_aux_compat : ∀ f g b₁ b₂ len,
+  (∀ i, 0 ≤ i < len → f (b₁ + i) ≍ g (b₂ + i))%nat
+  → sigma_aux b₁ len f ≍ sigma_aux b₂ len g.
 Proof.
-intros f g b len Hfg.
-revert b Hfg.
+intros f g b₁ b₂ len Hfg.
+revert b₁ b₂ Hfg.
 induction len; intros; [ reflexivity | simpl ].
-rewrite Hfg; [ idtac | omega ].
-rewrite IHlen; [ reflexivity | idtac ].
-intros i Hi.
-apply Hfg.
-omega.
+rewrite IHlen.
+ apply Lfield.add_compat_r.
+ assert (0 ≤ 0 < S len) as H.
+  split; [ reflexivity | apply Nat.lt_0_succ ].
+
+  apply Hfg in H.
+  do 2 rewrite Nat.add_0_r in H; assumption.
+
+ intros i Hi.
+ do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+ apply Hfg.
+ split; [ apply Nat.le_0_l | idtac ].
+ apply lt_n_S.
+ destruct Hi; assumption.
 Qed.
 
 Lemma sigma_compat : ∀ f g b k,
@@ -263,8 +272,9 @@ Lemma sigma_compat : ∀ f g b k,
 Proof.
 intros f g b k Hfg.
 apply sigma_aux_compat.
-intros i (Hbi, Hib).
-apply Hfg; omega.
+intros i (_, Hi).
+apply Hfg.
+split; [ apply Nat.le_add_r | omega ].
 Qed.
 
 Lemma sigma_sigma_compat : ∀ f g b₁ k₁ b₂ k₂,
@@ -947,7 +957,7 @@ Proof.
 intros f g b₁ b₂ len₁ len₂ Hg Hfg.
 apply sigma_aux_compat; intros i Hi.
 apply sigma_aux_extend_0.
- apply Hg; assumption.
+ apply Hg; omega.
 
  intros j Hj.
  apply Hfg; assumption.
