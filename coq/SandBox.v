@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.165 2013-12-02 19:04:38 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.166 2013-12-02 19:16:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -541,37 +541,20 @@ constructor; constructor; simpl.
   rewrite Pos.mul_comm, <- Hc₃₁.
   rewrite <- Hs₁, <- Hs₂, <- Hs₃.
   rewrite series_mul_assoc; reflexivity.
-bbb.
 
- unfold gcd_nz; simpl.
- f_equal.
-  apply Z.add_cancel_r.
-  do 2 rewrite Pos2Z.inj_mul; ring.
-
-  do 2 f_equal.
-   do 2 rewrite Pos2Z.inj_mul; ring.
-
-   rewrite Pos.mul_assoc; reflexivity.
-
- rewrite series_mul_assoc, <- Heqs₁₂₃.
- do 2 f_equal.
-  do 4 rewrite Pos2Z.inj_mul.
-  rewrite Z.mul_assoc; reflexivity.
-
-  unfold gcd_nz; simpl.
-  do 2 f_equal.
-   do 2 rewrite Pos2Z.inj_mul; ring.
-
-   rewrite Pos.mul_assoc; reflexivity.
-
- rewrite series_mul_assoc, <- Heqs₁₂₃.
- apply eq_series_eq.
- do 2 f_equal.
- unfold gcd_nz; simpl.
- do 2 f_equal.
-  do 2 rewrite Pos2Z.inj_mul; ring.
-
-  rewrite Pos.mul_assoc; reflexivity.
+ constructor; intros i.
+ do 2 rewrite series_stretch_mul.
+ do 4 rewrite <- series_stretch_stretch.
+ rewrite <- Hc₁₂, <- Hc₂₃, <- Hc₃₁.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₂₃.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₃₁.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₁₂.
+ symmetry.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₃₁.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₁₂.
+ rewrite series_mul_assoc.
+ rewrite <- Hs₁, <- Hs₂, <- Hs₃.
+ reflexivity.
 Qed.
 
 Lemma eq_nz_mul_compat_r : ∀ nz₁ nz₂ nz₃,
@@ -583,9 +566,12 @@ induction Heq.
 constructor; simpl.
  rewrite H, H0; reflexivity.
 
+ unfold cm; simpl.
  rewrite H0; reflexivity.
 
- rewrite H1; reflexivity.
+ unfold cm_factor.
+ rewrite H0, H1.
+ reflexivity.
 Qed.
 
 Lemma eq_nz_mul_compat_l : ∀ nz₁ nz₂ nz₃,
@@ -597,9 +583,12 @@ induction Heq.
 constructor; simpl.
  rewrite H, H0; reflexivity.
 
+ unfold cm; simpl.
  rewrite H0; reflexivity.
 
- rewrite H1; reflexivity.
+ unfold cm_factor.
+ rewrite H0, H1.
+ reflexivity.
 Qed.
 
 Lemma series_mul_stretch_mul_inf : ∀ a b k,
