@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.164 2013-12-02 18:56:58 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.165 2013-12-02 19:04:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -499,14 +499,14 @@ remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ 
 remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
+unfold gcd_nz; simpl.
+unfold cm; simpl.
+unfold cm; simpl.
+do 2 rewrite Z.mul_add_distr_r.
+do 6 rewrite Pos2Z.inj_mul.
+do 3 rewrite Z.mul_assoc.
+do 2 rewrite Z.add_assoc.
 constructor; constructor; simpl.
- unfold gcd_nz; simpl.
- unfold cm; simpl.
- unfold cm; simpl.
- do 2 rewrite Z.mul_add_distr_r.
- do 6 rewrite Pos2Z.inj_mul.
- do 3 rewrite Z.mul_assoc.
- do 2 rewrite Z.add_assoc.
  f_equal.
   f_equal.
   f_equal.
@@ -530,13 +530,6 @@ constructor; constructor; simpl.
    rewrite <- Hs₁, <- Hs₂, <- Hs₃.
    rewrite series_mul_assoc; reflexivity.
 
- unfold gcd_nz; simpl.
- unfold cm; simpl.
- unfold cm; simpl.
- do 2 rewrite Z.mul_add_distr_r.
- do 4 rewrite Pos2Z.inj_mul.
- do 3 rewrite Z.mul_assoc.
- rewrite Z.add_assoc.
  do 2 f_equal.
  f_equal.
   do 2 f_equal.
