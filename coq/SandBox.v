@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.160 2013-12-02 14:58:51 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.161 2013-12-02 17:27:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -487,15 +487,36 @@ rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
 unfold cm, cm_factor; simpl.
 rewrite series_mul_assoc.
-bbb.
-rewrite series_mul_assoc.
-remember (series_mul (nz_terms nz₁) (nz_terms nz₂)) as s₁₂.
-remember (series_mul s₁₂ (nz_terms nz₃)) as s₁₂₃; subst s₁₂.
+remember (nz_comden nz₂ * nz_comden nz₃)%positive as c₂₃ eqn:Hc₂₃ .
+remember (nz_comden nz₃ * nz_comden nz₁)%positive as c₃₁ eqn:Hc₃₁ .
+remember (nz_comden nz₁ * nz_comden nz₂)%positive as c₁₂ eqn:Hc₁₂ .
+rewrite Pos.mul_comm in Hc₂₃; rewrite <- Hc₂₃.
+rewrite Pos.mul_comm in Hc₃₁; rewrite <- Hc₃₁.
+remember (series_stretch c₂₃ (nz_terms nz₁)) as s₁ eqn:Hs₁ .
+remember (series_stretch c₃₁ (nz_terms nz₂)) as s₂ eqn:Hs₂ .
+remember (series_stretch c₁₂ (nz_terms nz₃)) as s₃ eqn:Hs₃ .
+remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
 remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
- rewrite series_mul_assoc, <- Heqs₁₂₃.
+ Focus 1.
+ symmetry.
+ rewrite Z.mul_add_distr_r.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+ rewrite Pos.mul_comm in Hc₂₃.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₂₃, <- Hc₃₁.
+ symmetry.
+ rewrite Z.mul_add_distr_r.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
+ rewrite Pos.mul_comm in Hc₃₁.
+ rewrite Pos.mul_comm in Hc₁₂.
+ rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, <- Hc₃₁, <- Hc₁₂.
+ rewrite Z.add_assoc.
+ f_equal.
+ unfold gcd_nz; simpl.
+bbb.
+
  unfold gcd_nz; simpl.
  f_equal.
   apply Z.add_cancel_r.
