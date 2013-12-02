@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.168 2013-12-02 19:48:15 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.169 2013-12-02 20:08:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -722,7 +722,20 @@ unfold cm, cm_factor; simpl.
 rewrite series_stretch_mul.
 rewrite stretch_shift_series_distr.
 do 3 rewrite <- series_stretch_stretch.
-unfold normalise_nz; simpl.
+rewrite Z.mul_sub_distr_r.
+rewrite <- Z.add_sub_swap.
+rewrite Z.mul_shuffle0, <- Z.mul_assoc.
+rewrite Z.mul_shuffle0, Z.mul_assoc.
+rewrite <- Z.mul_add_distr_r.
+rewrite Pos_mul_shuffle0.
+remember (nz_comden nz₁ * k * nz_comden nz₂)%positive as c eqn:Hc .
+remember (nz_valnum nz₁ * ' nz_comden nz₂)%Z as vc₁.
+remember (nz_valnum nz₂ * ' nz_comden nz₁)%Z as vc₂.
+remember ((vc₁ + vc₂) * ' k)%Z as vc eqn:Hvc ; subst vc₁ vc₂.
+remember (series_stretch (k * nz_comden nz₂) (nz_terms nz₁)) as s₁ eqn:Hs₁ .
+remember (series_stretch (nz_comden nz₁ * k) (nz_terms nz₂)) as s₂ eqn:Hs₂ .
+rewrite Pos.mul_comm, <- Hs₂.
+rewrite Pos.mul_comm, <- Hs₁.
 bbb.
 *)
 
