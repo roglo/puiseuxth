@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.155 2013-12-02 11:24:49 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.156 2013-12-02 11:27:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -332,6 +332,8 @@ destruct k.
   rewrite Nat.add_sub_assoc.
    rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
    apply Lfield.add_compat_l, sigma_compat; intros i Hi.
+   rewrite Nat_sub_succ_1.
+bbb.
    rewrite sigma_only_one_non_0 with (v := O).
     rewrite Nat.add_0_r, Nat.mul_comm.
     apply Hfg.
