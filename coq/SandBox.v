@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.162 2013-12-02 18:19:00 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.163 2013-12-02 18:36:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -533,7 +533,24 @@ constructor; constructor; simpl.
   rewrite <- Hs₁, <- Hs₂, <- Hs₃.
   rewrite series_mul_assoc; reflexivity.
 
- Focus 1.
+ unfold gcd_nz; simpl.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ do 2 rewrite Z.mul_add_distr_r.
+ do 4 rewrite Pos2Z.inj_mul.
+ do 3 rewrite Z.mul_assoc.
+ rewrite Z.add_assoc.
+ do 2 f_equal.
+ f_equal.
+  do 2 f_equal.
+  f_equal; [ f_equal | idtac ]; apply Z.mul_shuffle0.
+
+  do 2 rewrite series_stretch_mul.
+  do 4 rewrite <- series_stretch_stretch.
+  rewrite <- Hc₁₂, <- Hc₂₃, <- Hc₃₁.
+  rewrite Pos.mul_comm, <- Hc₃₁.
+  rewrite <- Hs₁, <- Hs₂, <- Hs₃.
+  rewrite series_mul_assoc; reflexivity.
 bbb.
 
  unfold gcd_nz; simpl.
