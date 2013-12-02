@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.156 2013-12-02 11:27:14 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.157 2013-12-02 12:34:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -342,7 +342,9 @@ bbb.
 
     intros j Hj.
     rewrite Hf; [ reflexivity | idtac ].
-    intros H.
+    rewrite Nat.add_comm.
+    rewrite Nat.mod_add; auto.
+    intros H; apply Hj; clear Hj.
     apply Nat.mod_divides in H; auto.
     destruct H as (c, Hc).
 bbb.
