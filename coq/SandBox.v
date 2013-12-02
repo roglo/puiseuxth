@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.167 2013-12-02 19:31:04 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.168 2013-12-02 19:48:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -716,45 +716,13 @@ intros nz₁ nz₂ n k.
 rewrite nz_adjust_eq with (n := n) (k := k).
 unfold nz_mul; simpl.
 unfold adjust_nz; simpl.
-symmetry.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
-rewrite Z.mul_sub_distr_r.
 rewrite Z.mul_shuffle0.
-rewrite <- Z.add_sub_swap.
-rewrite <- Z.mul_add_distr_r.
-rewrite Pos_mul_shuffle0.
-bbb.
-assert
- (series_mul (series_shift n (series_stretch k (nz_terms nz₁)))
-    (nz_terms nz₂) ≃
-  series_shift n
-    (series_stretch k (series_mul (nz_terms nz₁) (nz_terms nz₂)))).
- Focus 2.
- rewrite H.
-bbb.
-
-intros nz₁ nz₂ n k.
-rewrite eq_norm_ps_mul_adjust_0_l with (k := k).
-apply normalise_nz_adjust_nz_mul.
-bbb.
-*)
-
-(* faux
-Lemma yyy : ∀ nz n,
-  normalise_nz nz ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) nz).
-Proof.
-intros nz n.
-unfold nz_mul; simpl.
-rewrite series_mul_1_l, Z.mul_1_r.
-bbb.
-*)
-
-(* faux
-Lemma zzz : ∀ nz n k,
-  normalise_nz nz
-  ≐ normalise_nz (nz_mul (nz_monom 1%fld (Qnat n)) (adjust_nz 0 k nz)).
-Proof.
-intros nz n k.
+unfold cm, cm_factor; simpl.
+rewrite series_stretch_mul.
+rewrite stretch_shift_series_distr.
+do 3 rewrite <- series_stretch_stretch.
+unfold normalise_nz; simpl.
 bbb.
 *)
 
