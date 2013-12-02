@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.159 2013-12-02 14:24:45 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.160 2013-12-02 14:58:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -366,7 +366,22 @@ destruct k.
   rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Lemma zzz : ∀ a b k,
+Lemma delta_mul_cancel_r : ∀ a b c, c ≠ O → δ (a * c) (b * c) ≍ δ a b.
+Proof.
+intros a b c Hc.
+destruct (eq_nat_dec a b) as [H₁| H₁].
+ subst a.
+ do 2 rewrite delta_id; reflexivity.
+
+ rewrite delta_neq.
+  rewrite delta_neq; [ reflexivity | assumption ].
+
+  intros H; apply H₁.
+  apply Nat.mul_cancel_r in H; assumption.
+
+Qed.
+
+Lemma series_stretch_mul : ∀ a b k,
   series_stretch k (series_mul a b)
   ≃ series_mul (series_stretch k a) (series_stretch k b).
 Proof.
@@ -377,26 +392,86 @@ rewrite <- Nbar.mul_add_distr_r.
 remember ((stop a + stop b) * fin (Pos.to_nat k))%Nbar as x.
 destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ subst x | reflexivity ].
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
- apply Nat.mod_divides in H₂.
-  destruct H₂ as (c, Hc).
-  rewrite Hc.
-  rewrite Nat.mul_comm.
-  rewrite Nat.div_mul; auto.
-  unfold series_nth_fld; simpl.
-  destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
-   unfold convol_mul; simpl.
-   rename k into n, i into k.
-   symmetry.
-   apply inserted_0_sigma.
-    intros i Hi.
-    apply all_0_sigma_0; intros j.
-    rewrite shifted_in_stretched.
-     rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
+ apply Nat.mod_divides in H₂; auto.
+ destruct H₂ as (c, Hc).
+ rewrite Hc.
+ rewrite Nat.mul_comm.
+ rewrite Nat.div_mul; auto.
+ unfold series_nth_fld; simpl.
+ destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
+  unfold convol_mul; simpl.
+  rename k into n, i into k.
+  symmetry.
+  apply inserted_0_sigma; auto.
+   intros i Hi.
+   apply all_0_sigma_0; intros j.
+   rewrite shifted_in_stretched.
+    rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
 
-     apply neq_0_lt, Nat.neq_sym; assumption.
+    apply neq_0_lt, Nat.neq_sym; assumption.
 
-    intros i.
-bbb.
+   intros i.
+   apply inserted_0_sigma; auto.
+    intros j Hj.
+    rewrite delta_neq.
+     rewrite Lfield.mul_0_l; reflexivity.
+
+     intros H.
+     apply Hj.
+     apply Nat.mod_divides; auto.
+     exists (c - i)%nat.
+     rewrite Nat.mul_sub_distr_l.
+     symmetry; apply Nat.add_sub_eq_l.
+     symmetry; rewrite Nat.mul_comm; symmetry; assumption.
+
+    intros j.
+    rewrite <- Nat.mul_add_distr_l, Nat.mul_comm.
+    rewrite delta_mul_cancel_r; auto.
+    apply Lfield.mul_compat_l.
+    rewrite series_nth_fld_mul_stretch.
+    rewrite series_nth_fld_mul_stretch.
+    reflexivity.
+
+  exfalso; apply H₂.
+  subst i.
+  rewrite Nat.mul_comm in H₁.
+  rewrite Nbar.fin_inj_mul in H₁.
+  apply Nbar.mul_lt_mono_pos_r in H₁; auto.
+   apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
+
+   intros H; discriminate H.
+
+   intros H; discriminate H.
+
+ unfold convol_mul.
+ symmetry.
+ apply all_0_sigma_0; intros j.
+ apply all_0_sigma_0; intros l.
+ destruct (eq_nat_dec (j + l) i) as [H₃| H₃].
+  destruct (zerop (j mod Pos.to_nat k)) as [H₄| H₄].
+   destruct (zerop (l mod Pos.to_nat k)) as [H₅| H₅].
+    apply Nat.mod_divides in H₄; auto.
+    apply Nat.mod_divides in H₅; auto.
+    destruct H₄ as (c, Hc).
+    destruct H₅ as (d, Hd).
+    subst j l.
+    subst i.
+    rewrite <- Nat.mul_add_distr_l in H₂; auto.
+    rewrite Nat.mul_comm in H₂.
+    rewrite Nat.mod_mul in H₂; auto.
+    exfalso; revert H₂; apply Nat.lt_irrefl.
+
+    rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
+    rewrite shifted_in_stretched; [ idtac | assumption ].
+    rewrite Lfield.mul_0_r, Lfield.mul_0_l; reflexivity.
+
+   rewrite Lfield.mul_assoc.
+   rewrite shifted_in_stretched; [ idtac | assumption ].
+   rewrite Lfield.mul_0_r, Lfield.mul_0_l; reflexivity.
+
+  rewrite delta_neq; [ idtac | assumption ].
+  rewrite Lfield.mul_0_l; reflexivity.
+Qed.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
   ps_mul ps₁ (ps_mul ps₂ ps₃) ≈ ps_mul (ps_mul ps₁ ps₂) ps₃.
@@ -407,8 +482,8 @@ destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ constructor | reflexivity ].
 unfold normalise_nz; simpl.
-rewrite zzz; symmetry.
-rewrite zzz; symmetry.
+rewrite series_stretch_mul; symmetry.
+rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
 unfold cm, cm_factor; simpl.
 rewrite series_mul_assoc.
