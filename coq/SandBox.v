@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.161 2013-12-02 17:27:04 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.162 2013-12-02 18:19:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -500,7 +500,6 @@ remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
- Focus 1.
  symmetry.
  rewrite Z.mul_add_distr_r.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul.
@@ -515,6 +514,26 @@ constructor; constructor; simpl.
  rewrite Z.add_assoc.
  f_equal.
  unfold gcd_nz; simpl.
+ unfold cm; simpl.
+ unfold cm; simpl.
+ do 2 rewrite Z.mul_add_distr_r.
+ do 6 rewrite Pos2Z.inj_mul.
+ do 3 rewrite Z.mul_assoc.
+ rewrite Z.add_assoc.
+ f_equal.
+  do 2 f_equal.
+  f_equal; [ f_equal | idtac ]; apply Z.mul_shuffle0.
+
+  do 2 rewrite series_stretch_mul.
+  do 4 rewrite <- series_stretch_stretch.
+  rewrite <- Hc₃₁.
+  rewrite Pos.mul_comm, <- Hc₃₁.
+  rewrite Pos.mul_comm, <- Hc₁₂.
+  rewrite Pos.mul_comm, <- Hc₂₃.
+  rewrite <- Hs₁, <- Hs₂, <- Hs₃.
+  rewrite series_mul_assoc; reflexivity.
+
+ Focus 1.
 bbb.
 
  unfold gcd_nz; simpl.
