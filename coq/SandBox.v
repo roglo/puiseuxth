@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.153 2013-12-02 11:01:45 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.154 2013-12-02 11:10:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -323,9 +323,15 @@ destruct k.
  replace (S k * S n)%nat with (S k * S n - 1 + 1)%nat .
   rewrite sigma_add.
   rewrite sigma_mul_sigma_sigma; try apply Nat.lt_0_succ.
-  rewrite Nat_sub_succ_1.
-  rewrite Nat.add_comm.
-  rewrite sigma_only_one.
+  rewrite Nat_sub_succ_1, Nat.add_comm, sigma_only_one.
+  symmetry.
+  rewrite <- Nat.add_1_r, sigma_add, Nat.add_1_r.
+  rewrite sigma_only_one, Lfield.add_comm, <- Hfg.
+  symmetry.
+  rewrite Lfield.add_comm.
+  rewrite Nat.add_sub_assoc.
+   rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
+   apply Lfield.add_compat_l, sigma_compat; intros i Hi.
 bbb.
 *)
 
