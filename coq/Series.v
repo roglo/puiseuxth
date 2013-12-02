@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.82 2013-12-01 17:04:02 deraugla Exp $ *)
+(* $Id: Series.v,v 2.83 2013-12-02 14:22:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -653,40 +653,41 @@ Qed.
 
 Lemma sigma_only_one_non_0 : ∀ f b v k,
   (b ≤ v ≤ k)%nat
-  → (∀ i, (i ≠ v)%nat → f i ≍ 0)%fld
+  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → f i ≍ 0)%fld
     → Σ (i = b, k)   f i ≍ f v.
 Proof.
 intros f b v k (Hbv, Hvk) Hi.
 unfold sigma.
-remember (S k - b)%nat as len.
-apply le_n_S in Hvk.
-replace (S k) with (b + len)%nat in * by omega.
+rewrite Nat.sub_succ_l; [ idtac | etransitivity; eassumption ].
+remember (k - b)%nat as len.
+replace k with (b + len)%nat in * by omega.
 clear k Heqlen.
 revert b v Hbv Hvk Hi.
-induction len; intros; [ exfalso; omega | simpl ].
-destruct (eq_nat_dec b v) as [H₁| H₁].
- subst b.
- assert (f v ≍ f v + 0)%fld as H.
-  rewrite Lfield.add_0_r; reflexivity.
-
-  rewrite H in |- * at 2.
-  apply Lfield.add_compat_l.
-  clear IHlen Hbv Hvk H.
-  apply all_0_sigma_aux_0.
-  intros i (Hvi, Hiv).
-  apply Hi.
-  intros H; subst i.
-  apply Nat.nlt_ge in Hvi.
-  apply Hvi, Nat.lt_succ_r; reflexivity.
-
- rewrite Hi; [ idtac | assumption ].
- rewrite Lfield.add_0_l.
- rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hvk.
- apply IHlen; [ idtac | assumption | assumption ].
- apply Nat.nlt_ge.
- intros H; apply H₁.
- apply Nat.succ_le_mono in H.
+induction len; intros.
+ simpl.
+ rewrite Lfield.add_0_r.
+ replace b with v ; [ reflexivity | idtac ].
+ rewrite Nat.add_0_r in Hvk.
  apply Nat.le_antisymm; assumption.
+
+ remember (S len) as x; simpl; subst x.
+ destruct (eq_nat_dec b v) as [H₁| H₁].
+  subst b.
+  rewrite all_0_sigma_aux_0.
+   rewrite Lfield.add_0_r; reflexivity.
+
+   intros j Hj.
+   apply Hi; omega.
+
+  rewrite Hi; [ idtac | omega | assumption ].
+  rewrite Lfield.add_0_l.
+  apply IHlen.
+   omega.
+
+   rewrite Nat.add_succ_l, <- Nat.add_succ_r; assumption.
+
+   intros j Hjb Hj.
+   apply Hi; [ omega | assumption ].
 Qed.
 
 Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
@@ -716,7 +717,7 @@ destruct st as [st| ].
 
       split; [ apply Nat.le_0_l | reflexivity ].
 
-      intros i Hik.
+      intros i Hik Hi.
       rewrite delta_neq; [ idtac | assumption ].
       apply Lfield.mul_0_l.
 
@@ -724,7 +725,7 @@ destruct st as [st| ].
 
     split; [ reflexivity | apply Nat.le_0_l ].
 
-    intros i Hi.
+    intros i Hik Hi.
     unfold series_nth_fld at 1; simpl.
     destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
      apply Nbar.fin_lt_mono in H₃.
@@ -781,7 +782,7 @@ destruct st as [st| ].
 
     split; [ apply Nat.le_0_l | reflexivity ].
 
-    intros i Hik.
+    intros i Hik Hi.
     rewrite delta_neq; [ idtac | assumption ].
     apply Lfield.mul_0_l.
 
@@ -789,7 +790,7 @@ destruct st as [st| ].
 
   split; [ reflexivity | apply Nat.le_0_l ].
 
-  intros i Hi.
+  intros i Hik Hi.
   unfold series_nth_fld at 1; simpl.
   destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
    apply Nbar.fin_lt_mono in H₃.
@@ -1029,7 +1030,7 @@ rewrite sigma_sigma_extend_0.
 
     split; [ apply Nat.le_0_l | assumption ].
 
-    intros l Hl.
+    intros l Hlk Hl.
     rewrite Lfield.mul_comm.
     apply Nat.neq_sym in Hl.
     rewrite delta_neq; [ idtac | assumption ].
@@ -1113,7 +1114,7 @@ rewrite sigma_sigma_extend_0.
 
      split; [ apply Nat.le_0_l | assumption ].
 
-     intros l Hl.
+     intros l Hlk Hl.
      rewrite Lfield.mul_comm.
      apply Nat.neq_sym in Hl.
      rewrite delta_neq; [ idtac | assumption ].

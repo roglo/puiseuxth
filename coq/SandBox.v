@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.158 2013-12-02 14:22:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.159 2013-12-02 14:24:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -359,8 +359,12 @@ destruct k.
      exfalso; apply H.
      apply le_n_S, Nat.le_add_r.
 
-bbb.
-*)
+   simpl; apply le_n_S, Nat.le_0_l.
+
+  simpl.
+  rewrite Nat.sub_0_r.
+  rewrite Nat.add_comm; reflexivity.
+Qed.
 
 Lemma zzz : ∀ a b k,
   series_stretch k (series_mul a b)
