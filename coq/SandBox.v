@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.166 2013-12-02 19:16:42 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.167 2013-12-02 19:31:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -684,53 +684,6 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
  apply H; constructor.
 Qed.
 
-(* faux ; exemple pour k > 1 :
-   - terme de gauche : a₀b₀ + 0 x + ...
-   - terme de droite : a₀b₀ + a₀b₁x + ...
-Lemma zzz : ∀ a b k,
-  series_stretch k (series_mul a b)
-  ≃ series_mul (series_stretch k a) b.
-Proof.
-intros a b k.
-rewrite series_mul_stretch_mul_inf.
-rewrite series_mul_mul_inf.
-remember (series_inf fld a) as aa eqn:Haa .
-remember (series_inf fld b) as bb eqn:Hbb .
-constructor; intros i.
-rewrite series_nth_mul_inf; simpl.
-destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
- apply Nat.mod_divides in H₁; auto.
- destruct H₁ as (j, Hj).
- rewrite Hj in |- * at 1.
- rewrite series_nth_fld_mul_stretch.
- rewrite series_nth_mul_inf.
- unfold series_mul_inf; simpl.
- unfold convol_mul_inf.
- rewrite Nat.mul_comm in Hj; rewrite Hj.
-bbb.
- rewrite inserted_0_sigma.
-*)
-
-(*
-Lemma zzz : ∀ s k v c,
- normalise_nz
-   {| nz_terms := series_stretch k s; nz_valnum := v; nz_comden := c |}
- ≐ normalise_nz
-     {| nz_terms := s; nz_valnum := v; nz_comden := c |}.
-Proof.
-intros s k v c.
-unfold normalise_nz; simpl.
-rewrite null_coeff_range_length_stretch_0.
-rewrite Nbar.mul_comm.
-remember (null_coeff_range_length fld s 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ simpl | reflexivity ].
-constructor; constructor; simpl.
- unfold gcd_nz; simpl.
- rewrite greatest_series_x_power_stretch.
-bbb.
-*)
-
 Lemma normalise_nz_adjust_nz_mul_0_l : ∀ nz₁ nz₂ k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz 0 k nz₁) nz₂).
@@ -743,15 +696,18 @@ do 2 rewrite Z.sub_0_r.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 rewrite Z.mul_shuffle0.
 rewrite <- Z.mul_add_distr_r.
-rewrite Pos_mul_shuffle0.
+unfold cm, cm_factor; simpl.
 do 2 rewrite series_shift_0.
-bbb.
-apply normalise_nz_morph.
-constructor; try reflexivity; simpl.
-bbb.
-*)
+rewrite series_stretch_mul.
+do 3 rewrite <- series_stretch_stretch.
+rewrite Pos_mul_shuffle0.
+rewrite Pos.mul_comm.
+rewrite series_mul_comm.
+rewrite Pos.mul_comm.
+rewrite series_mul_comm.
+reflexivity.
+Qed.
 
-(* faux car faux pour n = 0 du lemme ci-dessus qui est faux
 Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz n k nz₁) nz₂).
