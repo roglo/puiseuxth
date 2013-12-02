@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.157 2013-12-02 12:34:25 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.158 2013-12-02 14:22:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -333,20 +333,32 @@ destruct k.
    rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
    apply Lfield.add_compat_l, sigma_compat; intros i Hi.
    rewrite Nat_sub_succ_1.
-bbb.
+   rewrite <- Hfg.
+   rewrite Nat.mul_comm.
    rewrite sigma_only_one_non_0 with (v := O).
     rewrite Nat.add_0_r, Nat.mul_comm.
-    apply Hfg.
+    reflexivity.
 
     split; [ reflexivity | apply Nat.le_0_l ].
 
-    intros j Hj.
+    intros j Hjn Hj.
     rewrite Hf; [ reflexivity | idtac ].
     rewrite Nat.add_comm.
-    rewrite Nat.mod_add; auto.
+    rewrite Nat.mul_comm, Nat.mod_add; auto.
     intros H; apply Hj; clear Hj.
     apply Nat.mod_divides in H; auto.
     destruct H as (c, Hc).
+    destruct c.
+     rewrite Nat.mul_0_r in Hc; assumption.
+
+     rewrite Hc in Hjn.
+     rewrite Nat.mul_comm in Hjn.
+     simpl in Hjn.
+     destruct Hjn as (_, H).
+     apply Nat.nlt_ge in H.
+     exfalso; apply H.
+     apply le_n_S, Nat.le_add_r.
+
 bbb.
 *)
 
