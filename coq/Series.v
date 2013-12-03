@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.84 2013-12-03 02:59:42 deraugla Exp $ *)
+(* $Id: Series.v,v 2.85 2013-12-03 03:03:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -337,11 +337,13 @@ intros i Hi; apply H; omega.
 Qed.
 
 Lemma all_0_sigma_0 : ∀ f i₁ i₂,
-  (∀ i, f i ≍ 0%fld) → Σ (i = i₁, i₂)   f i ≍ 0%fld.
+  (∀ i, i₁ ≤ i ≤ i₂ → f i ≍ 0%fld) → Σ (i = i₁, i₂)   f i ≍ 0%fld.
 Proof.
 intros f i₁ i₂ H.
 apply all_0_sigma_aux_0.
-intros; apply H.
+intros i (H₁, H₂).
+apply H.
+split; [ assumption | omega ].
 Qed.
 
 Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
@@ -385,8 +387,8 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
 
   unfold convol_mul.
   rename i into k.
-  apply all_0_sigma_0; intros i.
-  apply all_0_sigma_0; intros j.
+  apply all_0_sigma_0; intros i Hi.
+  apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
    rewrite H₃, delta_id, Lfield.mul_1_l, H, H0.
    unfold series_nth_fld; simpl.
@@ -416,8 +418,8 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   unfold convol_mul.
   rename i into k.
   symmetry.
-  apply all_0_sigma_0; intros i.
-  apply all_0_sigma_0; intros j.
+  apply all_0_sigma_0; intros i Hi.
+  apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
    rewrite H₃, delta_id, Lfield.mul_1_l, <- H, <- H0.
    unfold series_nth_fld; simpl.
@@ -537,8 +539,8 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
   apply Nbar.nle_gt in H₂.
   exfalso; apply H₂, Nbar.le_0_l.
 
-  apply all_0_sigma_0; intros i.
-  apply all_0_sigma_0; intros j.
+  apply all_0_sigma_0; intros i Hi.
+  apply all_0_sigma_0; intros j Hj.
   rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
   rewrite Lfield.mul_comm.
   rewrite series_nth_series_0.
@@ -708,8 +710,8 @@ destruct st as [st| ].
   destruct (Nbar.lt_dec (fin i) (fin (S st))) as [H₂| H₂].
    unfold convol_mul.
    rename i into k.
-   apply all_0_sigma_0; intros i.
-   apply all_0_sigma_0; intros j.
+   apply all_0_sigma_0; intros i Hi.
+   apply all_0_sigma_0; intros j Hj.
    destruct i; simpl.
     unfold series_nth_fld; simpl.
     destruct (Nbar.lt_dec (fin j) (stop s)) as [H₃| H₃].
@@ -868,8 +870,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
 
   unfold convol_mul_inf.
   symmetry; unfold convol_mul_inf; simpl.
-  apply all_0_sigma_0; intros i.
-  apply all_0_sigma_0; intros j.
+  apply all_0_sigma_0; intros i Hi.
+  apply all_0_sigma_0; intros j Hj.
   unfold series_nth_fld.
   destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
    destruct (Nbar.lt_dec (fin j) (stop b)) as [H₃| H₃].

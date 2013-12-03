@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.175 2013-12-03 02:59:42 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.176 2013-12-03 03:03:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -445,8 +445,8 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
 
  unfold convol_mul.
  symmetry.
- apply all_0_sigma_0; intros j.
- apply all_0_sigma_0; intros l.
+ apply all_0_sigma_0; intros j Hj.
+ apply all_0_sigma_0; intros l Hl.
  destruct (eq_nat_dec (j + l) i) as [H₃| H₃].
   destruct (zerop (j mod Pos.to_nat k)) as [H₄| H₄].
    destruct (zerop (l mod Pos.to_nat k)) as [H₅| H₅].
@@ -628,8 +628,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
   symmetry.
   apply Nbar.nlt_ge in H₁.
   unfold convol_mul_inf.
-  apply all_0_sigma_0; intros i.
-  apply all_0_sigma_0; intros j.
+  apply all_0_sigma_0; intros i Hi.
+  apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
    rewrite H₂, delta_id.
    rewrite Lfield.mul_1_l.
@@ -729,8 +729,8 @@ rewrite Nbar.add_shuffle0.
 destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
  destruct (lt_dec k n) as [H₂| H₂].
   symmetry; unfold convol_mul; simpl.
-  apply all_0_sigma_0; intros i.
-  apply all_0_sigma_0; intros j.
+  apply all_0_sigma_0; intros i Hi.
+  apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
    rewrite series_nth_lt_shift.
     rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
@@ -754,7 +754,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
    Focus 2.
    intros i.
    rewrite all_0_sigma_0; [ reflexivity | idtac ].
-   intros j.
+   intros j Hj.
 bbb.
 
 Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,
