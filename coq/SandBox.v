@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.177 2013-12-03 03:18:32 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.178 2013-12-03 03:46:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -719,6 +719,11 @@ destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
  reflexivity.
 Qed.
 
+Lemma yyy : ∀ f b k n,
+  Σ (i = b, k)   f i ≍ Σ (i = b + n, k + n)   f (i + n)%nat.
+Proof.
+bbb.
+
 Lemma zzz : ∀ a b n,
   series_shift n (series_mul a b) ≃ series_mul (series_shift n a) b.
 Proof.
@@ -766,6 +771,22 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
     rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
 
     rewrite Lfield.add_0_l.
+    symmetry.
+    rewrite yyy with (n := S n).
+    rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
+    apply sigma_compat; intros i Hi.
+    symmetry.
+    assert (k = (k - S n + S n)%nat) as H by omega.
+    rewrite H in |- * at 1; clear H.
+    rewrite sigma_add.
+    rewrite Lfield.add_comm.
+    rewrite Nat.sub_add; [ idtac | assumption ].
+    rewrite all_0_sigma_0.
+     rewrite Lfield.add_0_l.
+     apply sigma_compat; intros j Hj.
+     assert (i = i - S n + S n)%nat as H by omega.
+     rewrite H in |- * at 2.
+     rewrite series_nth_add_shift.
 bbb.
 
 Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,
