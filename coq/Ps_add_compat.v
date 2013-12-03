@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.19 2013-12-03 17:46:29 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.20 2013-12-03 19:47:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -245,41 +245,29 @@ Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
   normalise_nz (nz₁ ∔ nz₂) ≐
   normalise_nz (adjust_nz 0 k nz₁ ∔ nz₂).
 Proof.
-(* à nettoyer (Focus) *)
 intros nz₁ nz₂ k.
-do 2 rewrite eq_nz_norm_add_add₂.
-unfold nz_add₂; simpl.
-unfold adjust_nz_from.
-unfold cm_factor; simpl.
-rewrite Z.sub_0_r.
-rewrite nz_adjust_adjust.
-rewrite Nat.mul_0_l, Nat.add_0_r.
-symmetry.
-rewrite Pos2Z.inj_mul, Z.mul_assoc.
-remember (nz_valnum nz₁ * Zpos k * Zpos (nz_comden nz₂))%Z as x eqn:Hx .
-rewrite Z.mul_shuffle0 in Hx; subst x.
-rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-rewrite <- Z.mul_sub_distr_r.
-rewrite <- Z.mul_sub_distr_r.
-rewrite Z2Nat.inj_mul.
- rewrite Z2Nat.inj_mul.
-  Focus 1.
-  simpl.
-  do 2 rewrite adjust_nz_mul.
-  rewrite <- nz_adjust_adjusted.
-  rewrite <- nz_adjust_eq.
-  reflexivity.
-
-  rewrite <- Z.sub_max_distr_l, Z.sub_diag.
-  apply Z.le_max_r.
-
-  apply Pos2Z.is_nonneg.
-
- rewrite <- Z.sub_max_distr_l, Z.sub_diag.
- apply Z.le_max_r.
-
- apply Pos2Z.is_nonneg.
+rewrite nz_adjust_eq with (n := O) (k := k).
+unfold nz_add; simpl.
+unfold adjust_nz; simpl.
+unfold nz_terms_add, nz_valnum_add, adjust_series, cm, cm_factor; simpl.
+do 2 rewrite series_shift_0.
+do 2 rewrite Z.sub_0_r.
+rewrite series_stretch_add_distr.
+do 2 rewrite stretch_shift_series_distr.
+do 3 rewrite <- series_stretch_stretch.
+do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+do 2 rewrite Z.mul_sub_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite Pos2Z.inj_mul.
+rewrite Z.mul_assoc.
+remember (nz_valnum nz₁ * ' nz_comden nz₂ * ' k)%Z as x eqn:Hx .
+rewrite Z.mul_shuffle0 in Hx; rewrite <- Hx.
+rewrite Pos.mul_comm.
+remember (k * nz_comden nz₁)%positive as y eqn:Hy .
+rewrite Pos.mul_comm in Hy; rewrite <- Hy.
+rewrite Pos_mul_shuffle0, <- Hy.
+reflexivity.
 Qed.
 
 Lemma normalise_nz_adjust : ∀ nz₁ nz₂ n,
@@ -524,6 +512,7 @@ Lemma normalise_nz_add_adjust_l : ∀ nz₁ nz₂ n k,
 Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_0_l with (k := k).
+bbb.
 apply normalise_nz_add_adjust.
 Qed.
 
