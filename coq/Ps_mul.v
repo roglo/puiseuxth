@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.9 2013-12-03 17:46:29 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.10 2013-12-03 18:46:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -921,6 +921,12 @@ rewrite eq_nz_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
+Lemma normalise_nz_mul_add_adjust_l : ∀ nz₁ nz₂ nz₃ n k,
+  normalise_nz (nz₁ * (nz₂ + nz₃))%nz
+  ≐ normalise_nz (nz₁ * (adjust_nz n k nz₂ + nz₃))%nz.
+Proof.
+bbb.
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃))%ps ≈ (ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
@@ -929,11 +935,6 @@ destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
 constructor.
-pose proof (eq_nz_norm_add_add₂ nz₂ nz₃) as H.
-rewrite nz_norm_mul_comm.
-rewrite nz_norm_mul_compat_r; [ clear H | eassumption ].
-rewrite eq_nz_norm_add_add₂.
-rewrite nz_norm_mul_comm.
 remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
 remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
 remember (normalise_nz nz₃) as ps₃ eqn:Hps₃ .
@@ -949,6 +950,10 @@ destruct ps₁ as [nz'₁| ].
    destruct Hps₃ as (n₃, (k₃, Hps₃)).
    rewrite Hps₁, Hps₂, Hps₃.
    rewrite <- normalise_nz_mul_adjust_l.
+   rewrite <- normalise_nz_mul_add_adjust_l.
+   rewrite nz_add_comm.
+   rewrite <- normalise_nz_mul_add_adjust_l.
+   rewrite nz_add_comm.
 bbb.
 
 intros ps₁ ps₂ ps₃.
