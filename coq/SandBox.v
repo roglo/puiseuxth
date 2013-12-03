@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.179 2013-12-03 03:59:13 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.180 2013-12-03 04:07:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -684,29 +684,6 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
  apply H; constructor.
 Qed.
 
-(* not required if normalise_nz_mul_adjust_l below can be proved! *)
-Lemma normalise_nz_mul_adjust_0_l : ∀ nz₁ nz₂ k,
-  normalise_nz (nz_mul nz₁ nz₂) ≐
-  normalise_nz (nz_mul (adjust_nz 0 k nz₁) nz₂).
-Proof.
-intros nz₁ nz₂ k.
-rewrite nz_adjust_eq with (n := O) (k := k).
-unfold nz_mul; simpl.
-unfold adjust_nz; simpl.
-do 2 rewrite Z.sub_0_r.
-rewrite Pos2Z.inj_mul, Z.mul_assoc.
-rewrite Z.mul_shuffle0.
-rewrite <- Z.mul_add_distr_r.
-unfold cm, cm_factor; simpl.
-do 2 rewrite series_shift_0.
-rewrite series_stretch_mul.
-do 3 rewrite <- series_stretch_stretch.
-rewrite Pos_mul_shuffle0.
-rewrite Pos.mul_comm.
-rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
-reflexivity.
-Qed.
-
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
   → series_nth_fld fld i (series_shift n a) ≍ 0%fld.
@@ -882,6 +859,7 @@ destruct ps₁ as [nz'₁| ].
   unfold nz_mul; simpl.
   inversion Heq; subst.
   inversion H2; subst.
+  unfold cm; simpl.
   rewrite <- H0, <- H1, <- H3.
 bbb.
 
