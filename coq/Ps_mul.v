@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.10 2013-12-03 18:46:24 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.11 2013-12-03 18:54:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -829,6 +829,24 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
+Lemma normalise_nz_mul_add_adjust_l : ∀ nz₁ nz₂ nz₃ n k,
+  normalise_nz (nz₁ * (nz₂ + nz₃))%nz
+  ≐ normalise_nz (nz₁ * (adjust_nz n k nz₂ + nz₃))%nz.
+Proof.
+intros nz₁ nz₂ nz₃ n k.
+remember (Pos.to_nat (nz_comden nz₂) * n)%nat as m eqn:Hm .
+rewrite nz_adjust_eq with (n := m) (k := k); subst m.
+unfold nz_mul; simpl.
+unfold adjust_nz; simpl.
+unfold cm, cm_factor; simpl.
+unfold cm, cm_factor; simpl.
+do 3 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+do 3 rewrite Pos.mul_assoc; rewrite Pos_mul_shuffle0.
+unfold nz_valnum_add; simpl.
+unfold cm, cm_factor; simpl.
+bbb.
+*)
+
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
   → normalise_nz (nz_mul nz₁ nz₃) ≐ normalise_nz (nz_mul nz₂ nz₃).
@@ -920,12 +938,6 @@ rewrite eq_nz_mul_compat_l; [ idtac | eassumption ].
 rewrite eq_nz_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
-
-Lemma normalise_nz_mul_add_adjust_l : ∀ nz₁ nz₂ nz₃ n k,
-  normalise_nz (nz₁ * (nz₂ + nz₃))%nz
-  ≐ normalise_nz (nz₁ * (adjust_nz n k nz₂ + nz₃))%nz.
-Proof.
-bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃))%ps ≈ (ps₁ * ps₂ + ps₁ * ps₃)%ps.
