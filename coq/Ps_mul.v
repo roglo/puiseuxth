@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.7 2013-12-03 15:07:35 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.8 2013-12-03 17:03:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -937,10 +937,16 @@ destruct ps₁ as [nz'₁| ].
   inversion Hps₁; subst.
   inversion Hps₂; subst.
   constructor; simpl.
-   simpl in H, H2.
-   unfold cm, cm_factor in H, H2.
-   rewrite Z2Nat.id in H.
-    rewrite Z2Nat.id in H2.
+   Focus 2.
+   move H0 at bottom.
+   move H3 at bottom.
+   simpl in H0, H3.
+   unfold cm in H0, H3.
+   simpl in H0, H3.
+   unfold cm_factor in H0.
+   rewrite Pos.mul_assoc in H0.
+   rewrite Pos.mul_assoc, Pos_mul_shuffle0 in H3.
+   rewrite H0 in H3.
 bbb.
 
 intros ps₁ ps₂ ps₃.
