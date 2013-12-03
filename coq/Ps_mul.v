@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.5 2013-12-03 12:53:47 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.6 2013-12-03 15:02:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -37,7 +37,14 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
 
 Delimit Scope ps_scope with ps.
 Notation "a + b" := (ps_add a b) : ps_scope.
+Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
 Notation "a * b" := (ps_mul a b) : ps_scope.
+
+Delimit Scope nz_scope with nz.
+Notation "a + b" := (nz_add a b) : nz_scope.
+Notation "a ₊ b" := (nz_add₂ a b) (at level 50) : nz_scope.
+Notation "a * b" := (nz_mul a b) : nz_scope.
+Notation "a = b" := (eq_nz a b) : nz_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
   normalise_nz (nz_mul nz₁ nz₂) ≐ normalise_nz (nz_mul nz₂ nz₁).
@@ -916,6 +923,17 @@ pose proof (eq_nz_norm_add_add₂ nz₂ nz₃) as H.
 rewrite nz_norm_mul_comm.
 rewrite nz_norm_mul_compat_r; [ clear H | eassumption ].
 rewrite eq_nz_norm_add_add₂.
+rewrite nz_norm_mul_comm.
+remember (normalise_nz (nz₁ * (nz₂ ₊ nz₃))%nz) as ps₁ eqn:Hps₁ .
+remember (normalise_nz (nz₁ * nz₂ ₊ nz₁ * nz₃)%nz) as ps₂ eqn:Hps₂ .
+symmetry in Hps₁, Hps₂.
+destruct ps₁ as [nz'₁| ].
+ destruct ps₂ as [nz'₂| ].
+  apply normalised_exists_adjust in Hps₁.
+  apply normalised_exists_adjust in Hps₂.
+  destruct Hps₁ as (n₁, (k₁, Hps₁)).
+  destruct Hps₂ as (n₂, (k₂, Hps₂)).
+  constructor.
 bbb.
 
 intros ps₁ ps₂ ps₃.

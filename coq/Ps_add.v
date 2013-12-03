@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.56 2013-12-03 10:44:45 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.57 2013-12-03 15:02:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -498,6 +498,7 @@ Qed.
 
 Delimit Scope ps_scope with ps.
 Notation "a + b" := (ps_add a b) : ps_scope.
+Notation "a +₂ b" := (ps_add₂ a b) (at level 50): ps_scope.
 
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   ps_add ps₁ (ps_add ps₂ ps₃) ≈ ps_add (ps_add ps₁ ps₂) ps₃.

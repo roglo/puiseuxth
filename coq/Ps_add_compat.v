@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.17 2013-12-03 12:53:47 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.18 2013-12-03 15:02:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,7 +12,7 @@ Require Import Misc.
 
 Delimit Scope ps_scope with ps.
 Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a ∔ b" := (nz_add a b) (at level 70).
+Notation "a ∔ b" := (nz_add a b) (at level 50).
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, series_nth_rng rng i s ≍ Lfield.zero rng)
