@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.12 2013-11-30 09:03:38 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.13 2013-12-03 09:44:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -366,7 +366,7 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
  rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma normalise_nz_adjust_nz_add : ∀ nz₁ nz₂ n k m,
+Lemma normalise_nz_add_adjust : ∀ nz₁ nz₂ n k m,
   normalise_nz (adjust_nz m k nz₁ ∔ nz₂) ≐
   normalise_nz (adjust_nz n k nz₁ ∔ nz₂).
 Proof.
@@ -508,13 +508,13 @@ rewrite <- Z2Nat.inj_add.
  apply Pos2Z.is_nonneg.
 Qed.
 
-Lemma normalise_nz_adjust_nz_add_r : ∀ nz₁ nz₂ n k,
+Lemma normalise_nz_add_adjust_l : ∀ nz₁ nz₂ n k,
   normalise_nz (nz₁ ∔ nz₂) ≐
   normalise_nz (adjust_nz n k nz₁ ∔ nz₂).
 Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_0_l with (k := k).
-apply normalise_nz_adjust_nz_add.
+apply normalise_nz_add_adjust.
 Qed.
 
 Lemma null_coeff_range_length_succ2 : ∀ s m,
@@ -775,8 +775,9 @@ destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
 
    assumption.
 
- exists (Pos.to_nat (nz_comden nz)), (Z.to_nat (- nz_valnum nz)), 
-  xH, (nz_comden nz).
+ exists (Pos.to_nat (nz_comden nz)).
+ exists (Z.to_nat (- nz_valnum nz)).
+ exists xH, (nz_comden nz).
  constructor; simpl.
   rewrite Z.mul_1_r.
   rewrite Z2Nat.id; [ idtac | omega ].
@@ -816,8 +817,8 @@ destruct ps₁ as [nz'₁| ].
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
  rewrite Hps₁, Hps₂.
- rewrite <- normalise_nz_adjust_nz_add_r.
- rewrite <- normalise_nz_adjust_nz_add_r.
+ rewrite <- normalise_nz_add_adjust_l.
+ rewrite <- normalise_nz_add_adjust_l.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
  rewrite H1; reflexivity.
 
@@ -828,12 +829,12 @@ destruct ps₁ as [nz'₁| ].
  destruct Hps₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
- rewrite normalise_nz_adjust_nz_add_r with (n := n₁) (k := k₁).
+ rewrite normalise_nz_add_adjust_l with (n := n₁) (k := k₁).
  rewrite Hps₁; symmetry.
- rewrite normalise_nz_adjust_nz_add_r with (n := n₃) (k := k₃).
+ rewrite normalise_nz_add_adjust_l with (n := n₃) (k := k₃).
  rewrite Hps₂; symmetry.
- rewrite <- normalise_nz_adjust_nz_add_r.
- rewrite <- normalise_nz_adjust_nz_add_r.
+ rewrite <- normalise_nz_add_adjust_l.
+ rewrite <- normalise_nz_add_adjust_l.
  reflexivity.
 Qed.
 

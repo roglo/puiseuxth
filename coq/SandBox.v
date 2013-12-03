@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.180 2013-12-03 04:07:13 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.181 2013-12-03 09:44:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -826,6 +826,26 @@ Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
   → normalise_nz (nz_mul nz₁ nz₃) ≐ normalise_nz (nz_mul nz₂ nz₃).
 Proof.
+intros nz₁ nz₂ nz₃ Heq.
+remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
+remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
+symmetry in Hps₁, Hps₂.
+destruct ps₁ as [nz'₁| ].
+ destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
+ apply normalised_exists_adjust in Hps₁.
+ apply normalised_exists_adjust in Hps₂.
+ destruct Hps₁ as (n₁, (k₁, Hps₁)).
+ destruct Hps₂ as (n₂, (k₂, Hps₂)).
+ inversion Heq; subst.
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
+ rewrite Hps₁, Hps₂.
+ rewrite <- normalise_nz_mul_adjust_l.
+ rewrite <- normalise_nz_mul_adjust_l.
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H1.
+ rewrite H1; reflexivity.
+bbb.
+
 intros nz₁ nz₂ nz₃ Heq.
 remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
 remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
