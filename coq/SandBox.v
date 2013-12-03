@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.173 2013-12-03 02:41:11 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.174 2013-12-03 02:45:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -707,11 +707,17 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
-Lemma yyy : ∀ a i n,
+Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
   → series_nth_fld fld i (series_shift n a) ≍ 0%fld.
 Proof.
-bbb.
+intros a i n Hin.
+unfold series_nth_fld; simpl.
+destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
+ destruct (lt_dec i n) as [| H₂]; [ reflexivity | contradiction ].
+
+ reflexivity.
+Qed.
 
 Lemma zzz : ∀ a b n,
   series_shift n (series_mul a b) ≃ series_mul (series_shift n a) b.
@@ -726,7 +732,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
   apply all_0_sigma_0; intros i.
   apply all_0_sigma_0; intros j.
   destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
-   rewrite yyy.
+   rewrite series_nth_lt_shift.
     rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
 
     eapply le_lt_trans; [ idtac | eassumption ].
