@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.171 2013-12-03 02:02:45 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.172 2013-12-03 02:04:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -703,9 +703,7 @@ rewrite series_stretch_mul.
 do 3 rewrite <- series_stretch_stretch.
 rewrite Pos_mul_shuffle0.
 rewrite Pos.mul_comm.
-rewrite series_mul_comm.
-rewrite Pos.mul_comm.
-rewrite series_mul_comm.
+rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
