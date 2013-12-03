@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.182 2013-12-03 09:52:47 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.183 2013-12-03 10:08:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -861,6 +861,20 @@ destruct ps₁ as [nz'₁| ].
  reflexivity.
 Qed.
 
+Lemma ps_mul_0_l_compat_r : ∀ nz₁ nz₂,
+  NonZero nz₁ ≈ Zero α
+  → NonZero (nz_mul nz₁ nz₂) ≈ Zero α.
+Proof.
+intros nz₁ nz₂ Heq.
+constructor.
+inversion Heq; subst.
+unfold nz_mul; simpl.
+rewrite H0.
+rewrite series_stretch_series_0.
+rewrite series_mul_0_l.
+reflexivity.
+Qed.
+
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
   → (ps₁ * ps₃)%ps ≈ (ps₂ * ps₃)%ps.
@@ -872,35 +886,51 @@ destruct ps₁ as [nz₁| ].
   constructor.
   apply nz_norm_mul_compat_r.
   inversion H₁₂; assumption.
-bbb.
+
+  apply ps_mul_0_l_compat_r; assumption.
+
+ destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
+ symmetry; apply ps_mul_0_l_compat_r.
+ symmetry; assumption.
+Qed.
+
+Theorem ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
+  ps₁ ≈ ps₂
+  → (ps₃ * ps₁)%ps ≈ (ps₃ * ps₂)%ps.
+Proof.
+intros ps₁ ps₂ ps₃ Heq.
+rewrite ps_mul_comm; symmetry.
+rewrite ps_mul_comm; symmetry.
+apply ps_mul_compat_r; assumption.
+Qed.
 
 Definition ps_fld α : Lfield.t (puiseux_series α) :=
-  {| Lfield.zero := @ps_zero α;
-     Lfield.one := @ps_one α fld;
-     Lfield.add := @ps_add α fld;
-     Lfield.mul := @ps_mul;
-     Lfield.opp := @ps_opp α fld;
+  {| Lfield.zero := ps_zero;
+     Lfield.one := ps_one;
+     Lfield.add := ps_add;
+     Lfield.mul := ps_mul;
+     Lfield.opp := ps_opp;
 (*
      Lfield.inv := 0;
 *)
-     Lfield.eq := @eq_ps α fld;
-     Lfield.eq_refl := @eq_ps_refl α fld;
-     Lfield.eq_sym := @eq_ps_sym α fld;
-     Lfield.eq_trans := @eq_ps_trans α fld;
-     Lfield.neq_1_0 := @ps_neq_1_0;
-     Lfield.add_comm := @ps_add_comm α fld;
-     Lfield.add_assoc := @ps_add_assoc α fld;
-     Lfield.add_0_l := @ps_add_0_l α fld;
-     Lfield.add_opp_l := @ps_add_opp_l α fld;
-     Lfield.add_compat_l := @ps_add_compat_l α fld;
-     Lfield.mul_comm := @ps_mul_comm;
-     Lfield.mul_assoc := @ps_mul_assoc;
-     Lfield.mul_1_l := @ps_mul_1_l;
-     Lfield.mul_compat_l := @ps_mul_compat_l
+     Lfield.eq := eq_ps;
+     Lfield.eq_refl := eq_ps_refl;
+     Lfield.eq_sym := eq_ps_sym;
+     Lfield.eq_trans := eq_ps_trans;
+     Lfield.neq_1_0 := ps_neq_1_0;
+     Lfield.add_comm := ps_add_comm;
+     Lfield.add_assoc := ps_add_assoc;
+     Lfield.add_0_l := ps_add_0_l;
+     Lfield.add_opp_l := ps_add_opp_l;
+     Lfield.add_compat_l := ps_add_compat_l;
+     Lfield.mul_comm := ps_mul_comm;
+     Lfield.mul_assoc := ps_mul_assoc;
+     Lfield.mul_1_l := ps_mul_1_l;
+     Lfield.mul_compat_l := ps_mul_compat_l;
 (*
      Lfield.mul_inv_l := 0;
-     Lfield.mul_add_distr_l := 0
 *)
+     Lfield.mul_add_distr_l := ps_mul_add_distr_l
    |}.
 
 Add Parametric Morphism α (fld : Lfield.t α) : (ps_mul fld)

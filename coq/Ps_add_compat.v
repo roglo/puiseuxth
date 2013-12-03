@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.13 2013-12-03 09:44:32 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.14 2013-12-03 10:08:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -849,15 +849,15 @@ Lemma ps_add_0_l_compat_r : ∀ nz₁ nz₂,
   NonZero nz₁ ≈ Zero α
   → NonZero (nz₁ ∔ nz₂) ≈ NonZero nz₂.
 Proof.
-intros nz₁ nz₂.
+intros nz₁ nz₂ Heq.
 constructor.
 rewrite nz_norm_add_compat_r with (nz₂ := nz_zero).
  rewrite nz_norm_add_comm.
  rewrite normalise_nz_add_0_r.
  reflexivity.
 
- inversion H; subst.
- inversion H1; subst.
+ inversion Heq; subst.
+ inversion H0; subst.
  unfold normalise_nz; simpl.
  rewrite null_coeff_range_length_series_0.
  remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
@@ -886,10 +886,8 @@ destruct ps₁ as [nz₁| ].
   apply ps_add_0_l_compat_r; assumption.
 
  destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
- symmetry.
- apply ps_add_0_l_compat_r.
- symmetry.
- assumption.
+ symmetry; apply ps_add_0_l_compat_r.
+ symmetry; assumption.
 Qed.
 
 Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
