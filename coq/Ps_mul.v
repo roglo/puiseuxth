@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.2 2013-12-03 10:44:45 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.3 2013-12-03 10:52:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,7 +36,7 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   end.
 
 Delimit Scope ps_scope with ps.
-Notation "a + b" := (ps_add rng a b) : ps_scope.
+Notation "a + b" := (ps_add a b) : ps_scope.
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
@@ -904,7 +904,13 @@ rewrite ps_mul_comm; symmetry.
 apply ps_mul_compat_r; assumption.
 Qed.
 
-Definition ps_rng α : Lfield.r (puiseux_series α) :=
+Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
+  (ps₁ * (ps₂ + ps₃))%ps ≈ (ps₁ * ps₂ + ps₁ * ps₃)%ps.
+Proof.
+intros ps₁ ps₂ ps₃.
+bbb.
+
+Definition ps_rng : Lfield.r (puiseux_series α) :=
   {| Lfield.zero := ps_zero;
      Lfield.one := ps_one;
      Lfield.add := ps_add;
@@ -924,12 +930,11 @@ Definition ps_rng α : Lfield.r (puiseux_series α) :=
      Lfield.mul_assoc := ps_mul_assoc;
      Lfield.mul_1_l := ps_mul_1_l;
      Lfield.mul_compat_l := ps_mul_compat_l;
-     Lfield.mul_add_distr_l := ps_mul_add_distr_l
-   |}.
+     Lfield.mul_add_distr_l := ps_mul_add_distr_l |}.
 
-Add Parametric Morphism α (rng : Lfield.r α) : (ps_mul rng)
-with signature eq_ps rng ==> eq_ps rng ==> eq_ps rng
-as ps_mul_morph.
+Add Parametric Morphism : ps_mul
+  with signature eq_ps ==> eq_ps ==> eq_ps
+  as ps_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 bbb.

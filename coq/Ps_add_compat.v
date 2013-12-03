@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.15 2013-12-03 10:44:45 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.16 2013-12-03 10:52:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -901,8 +901,8 @@ apply ps_add_compat_r; assumption.
 Qed.
 
 Add Parametric Morphism : ps_add
-with signature eq_ps ==> eq_ps ==> eq_ps
-as ps_add_morph.
+  with signature eq_ps ==> eq_ps ==> eq_ps
+  as ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 transitivity (ps_add ps₁ ps₄).
