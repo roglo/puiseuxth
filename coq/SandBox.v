@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.176 2013-12-03 03:03:53 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.177 2013-12-03 03:18:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -744,17 +744,28 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
   unfold convol_mul; simpl.
   apply Nat.nlt_ge in H₂.
   symmetry.
-  replace k with (n + (k - n))%nat by omega.
-  rewrite sigma_add.
-  rewrite Lfield.add_comm.
-  rewrite Nat.add_sub_assoc; [ idtac | assumption ].
-  rewrite Nat.add_comm, Nat.add_sub.
-  rewrite Lfield.add_comm.
-  rewrite all_0_sigma_0.
-   Focus 2.
-   intros i.
-   rewrite all_0_sigma_0; [ reflexivity | idtac ].
-   intros j Hj.
+  destruct n.
+   rewrite Nat.sub_0_r.
+   apply sigma_compat; intros i Hi.
+   apply sigma_compat; intros j Hj.
+   rewrite series_shift_0; reflexivity.
+
+   assert (k = (n + (k - n))%nat) as H by omega.
+   rewrite H in |- * at 1; clear H.
+   rewrite sigma_add.
+   rewrite Lfield.add_comm.
+   rewrite Nat.add_sub_assoc; [ idtac | omega ].
+   rewrite Nat.add_comm, Nat.add_sub.
+   rewrite Lfield.add_comm.
+   rewrite all_0_sigma_0.
+    Focus 2.
+    intros i Hi.
+    rewrite all_0_sigma_0; [ reflexivity | idtac ].
+    intros j Hj.
+    rewrite series_nth_lt_shift; [ idtac | omega ].
+    rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
+
+    rewrite Lfield.add_0_l.
 bbb.
 
 Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,
