@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.57 2013-12-03 15:02:09 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.58 2013-12-03 17:46:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -290,22 +290,15 @@ rewrite cm_comm, Z.min_comm.
 reflexivity.
 Qed.
 
-Lemma nz_norm_add_comm : ∀ nz₁ nz₂,
-  normalise_nz (nz_add nz₁ nz₂) ≐ normalise_nz (nz_add nz₂ nz₁).
+Lemma nz_add_comm : ∀ nz₁ nz₂, eq_nz (nz_add nz₁ nz₂) (nz_add nz₂ nz₁).
 Proof.
 intros nz₁ nz₂.
-unfold normalise_nz; simpl.
-rewrite nz_terms_add_comm.
-remember (null_coeff_range_length rng (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; constructor; simpl.
- unfold nz_valnum_add.
- rewrite nz_terms_add_comm, gcd_nz_add_comm, Z.min_comm; reflexivity.
+constructor; simpl.
+ apply Z.min_comm.
 
- rewrite nz_terms_add_comm, gcd_nz_add_comm, cm_comm; reflexivity.
+ apply cm_comm.
 
- rewrite nz_terms_add_comm, gcd_nz_add_comm; reflexivity.
+ apply nz_terms_add_comm.
 Qed.
 
 Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
@@ -314,7 +307,7 @@ intros ps₁ ps₂.
 unfold ps_add; simpl.
 destruct ps₁ as [nz₁| ]; [ idtac | destruct ps₂; reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
-constructor; apply nz_norm_add_comm.
+constructor; rewrite nz_add_comm; reflexivity.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,

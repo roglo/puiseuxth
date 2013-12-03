@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.18 2013-12-03 15:02:09 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.19 2013-12-03 17:46:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -171,6 +171,16 @@ constructor; simpl.
  unfold adjust_series.
  rewrite H, H0, H1.
  reflexivity.
+Qed.
+
+Lemma eq_nz_add_compat_l : ∀ nz₁ nz₂ nz₃,
+  eq_nz nz₁ nz₂
+  → eq_nz (nz₃ ∔ nz₁) (nz₃ ∔ nz₂).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+rewrite nz_add_comm; symmetry.
+rewrite nz_add_comm; symmetry.
+apply eq_nz_add_compat_r; assumption.
 Qed.
 
 Lemma nz_adjust_adjust : ∀ nz n₁ n₂ k₁ k₂,
@@ -843,8 +853,8 @@ Lemma nz_norm_add_compat_l : ∀ nz₁ nz₂ nz₃,
   → normalise_nz (nz₃ ∔ nz₁) ≐ normalise_nz (nz₃ ∔ nz₂).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-rewrite nz_norm_add_comm; symmetry.
-rewrite nz_norm_add_comm; symmetry.
+rewrite nz_add_comm; symmetry.
+rewrite nz_add_comm; symmetry.
 apply nz_norm_add_compat_r; assumption.
 Qed.
 
@@ -862,7 +872,7 @@ Proof.
 intros nz₁ nz₂ Heq.
 constructor.
 rewrite nz_norm_add_compat_r with (nz₂ := nz_zero).
- rewrite nz_norm_add_comm.
+ rewrite nz_add_comm.
  rewrite normalise_nz_add_0_r.
  reflexivity.
 
@@ -908,6 +918,27 @@ intros ps1 ps₂ ps₃ H₁₂.
 rewrite ps_add_comm; symmetry.
 rewrite ps_add_comm; symmetry.
 apply ps_add_compat_r; assumption.
+Qed.
+
+Add Parametric Morphism : nz_add
+  with signature eq_nz ==> eq_nz ==> eq_nz
+  as nz_add_morph.
+Proof.
+intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+rewrite eq_nz_add_compat_l; [ idtac | eassumption ].
+rewrite eq_nz_add_compat_r; [ idtac | eassumption ].
+reflexivity.
+Qed.
+
+Add Parametric Morphism : nz_add₂
+  with signature eq_nz ==> eq_nz ==> eq_nz
+  as nz_add₂_morph.
+Proof.
+intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+do 2 rewrite <- eq_nz_add_add₂.
+rewrite eq_nz_add_compat_l; [ idtac | eassumption ].
+rewrite eq_nz_add_compat_r; [ idtac | eassumption ].
+reflexivity.
 Qed.
 
 Add Parametric Morphism : ps_add

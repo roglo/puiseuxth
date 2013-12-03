@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.8 2013-12-03 17:03:05 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.9 2013-12-03 17:46:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -911,6 +911,16 @@ rewrite ps_mul_comm; symmetry.
 apply ps_mul_compat_r; assumption.
 Qed.
 
+Add Parametric Morphism : nz_mul
+  with signature eq_nz ==> eq_nz ==> eq_nz
+  as nz_mul_morph.
+Proof.
+intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+rewrite eq_nz_mul_compat_l; [ idtac | eassumption ].
+rewrite eq_nz_mul_compat_r; [ idtac | eassumption ].
+reflexivity.
+Qed.
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃))%ps ≈ (ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
@@ -924,6 +934,34 @@ rewrite nz_norm_mul_comm.
 rewrite nz_norm_mul_compat_r; [ clear H | eassumption ].
 rewrite eq_nz_norm_add_add₂.
 rewrite nz_norm_mul_comm.
+remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
+remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
+remember (normalise_nz nz₃) as ps₃ eqn:Hps₃ .
+symmetry in Hps₁, Hps₂, Hps₃.
+destruct ps₁ as [nz'₁| ].
+ destruct ps₂ as [nz'₂| ].
+  destruct ps₃ as [nz'₃| ].
+   apply normalised_exists_adjust in Hps₁.
+   apply normalised_exists_adjust in Hps₂.
+   apply normalised_exists_adjust in Hps₃.
+   destruct Hps₁ as (n₁, (k₁, Hps₁)).
+   destruct Hps₂ as (n₂, (k₂, Hps₂)).
+   destruct Hps₃ as (n₃, (k₃, Hps₃)).
+   rewrite Hps₁, Hps₂, Hps₃.
+   rewrite <- normalise_nz_mul_adjust_l.
+bbb.
+
+intros ps₁ ps₂ ps₃.
+destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
+constructor.
+pose proof (eq_nz_norm_add_add₂ nz₂ nz₃) as H.
+rewrite nz_norm_mul_comm.
+rewrite nz_norm_mul_compat_r; [ clear H | eassumption ].
+rewrite eq_nz_norm_add_add₂.
+rewrite nz_norm_mul_comm.
+bbb.
 remember (normalise_nz (nz₁ * (nz₂ ₊ nz₃))%nz) as ps₁ eqn:Hps₁ .
 remember (normalise_nz (nz₁ * nz₂ ₊ nz₁ * nz₃)%nz) as ps₂ eqn:Hps₂ .
 symmetry in Hps₁, Hps₂.
