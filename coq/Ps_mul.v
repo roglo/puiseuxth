@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.6 2013-12-03 15:02:09 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.7 2013-12-03 15:07:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -934,6 +934,13 @@ destruct ps₁ as [nz'₁| ].
   destruct Hps₁ as (n₁, (k₁, Hps₁)).
   destruct Hps₂ as (n₂, (k₂, Hps₂)).
   constructor.
+  inversion Hps₁; subst.
+  inversion Hps₂; subst.
+  constructor; simpl.
+   simpl in H, H2.
+   unfold cm, cm_factor in H, H2.
+   rewrite Z2Nat.id in H.
+    rewrite Z2Nat.id in H2.
 bbb.
 
 intros ps₁ ps₂ ps₃.
