@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.20 2013-12-03 19:47:17 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.21 2013-12-03 20:46:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -368,26 +368,23 @@ Lemma normalise_nz_add_adjust : ∀ nz₁ nz₂ n k m,
   normalise_nz (adjust_nz m k nz₁ ∔ nz₂) ≐
   normalise_nz (adjust_nz n k nz₁ ∔ nz₂).
 Proof.
-(* à nettoyer : focus, simplifier peut-être... *)
-intros nz₁ nz₂ n k.
-intros m.
+intros nz₁ nz₂ n k m.
 do 2 rewrite eq_nz_norm_add_add₂.
 unfold nz_add₂; simpl.
 unfold adjust_nz_from.
 unfold cm_factor; simpl.
 do 2 rewrite nz_adjust_adjust.
 rewrite Pos2Z.inj_mul.
+rewrite Z.mul_assoc.
 remember (nz_valnum nz₁) as v₁.
 remember (nz_comden nz₂) as c₂.
 remember (nz_valnum nz₂) as v₂.
 remember (nz_comden nz₁) as c₁.
 remember (Z.of_nat n) as nn.
 remember (Z.of_nat m) as mm.
-rewrite Z.mul_sub_distr_r.
-rewrite Z.mul_sub_distr_r.
+do 2 rewrite Z.mul_sub_distr_r.
 replace n with (Z.to_nat nn) by (rewrite Heqnn, Nat2Z.id; reflexivity).
 replace m with (Z.to_nat mm) by (rewrite Heqmm, Nat2Z.id; reflexivity).
-simpl.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite <- Z2Nat.inj_add.
  rewrite <- Z2Nat.inj_add.
@@ -395,7 +392,6 @@ rewrite <- Z2Nat.inj_add.
   do 2 rewrite <- Z.add_sub_swap.
   do 2 rewrite Z.sub_add_distr.
   do 2 rewrite Z.add_simpl_r.
-  rewrite Pos2Z.inj_mul, Z.mul_assoc.
   rewrite Z.mul_shuffle0.
   remember (v₁ * Zpos c₂ * Zpos k)%Z as vc₁.
   remember (v₂ * Zpos c₁ * Zpos k)%Z as vc₂.
@@ -420,16 +416,11 @@ rewrite <- Z2Nat.inj_add.
    symmetry.
    rewrite Z2Nat.inj_sub.
     rewrite Z.add_comm.
-    Focus 1.
     destruct (Z_le_dec vc₁ vc₂) as [H₁| H₁].
      Focus 1.
      rewrite Z2Nat.inj_add.
-      3: omega.
-
       rewrite Z.add_comm.
       rewrite Z2Nat.inj_add.
-       3: omega.
-
        rewrite Z.min_l; auto.
        rewrite Z.sub_diag.
        do 2 rewrite Nat.sub_0_r.
@@ -437,24 +428,27 @@ rewrite <- Z2Nat.inj_add.
        rewrite Z.min_l; auto.
        rewrite Z.sub_diag, Nat.add_0_r.
        rewrite Nat.add_0_r.
-       replace (Z.to_nat (nn * Zpos c₂)) with (Z.to_nat (nn * Zpos c₂) + 0)%nat
-        by omega.
+       replace (Z.to_nat (nn * Zpos c₂)) with
+        (Z.to_nat (nn * Zpos c₂) + 0)%nat by omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
-       replace (Z.to_nat (mm * Zpos c₂)) with (Z.to_nat (mm * Zpos c₂) + 0)%nat
-        by omega.
+       replace (Z.to_nat (mm * Zpos c₂)) with
+        (Z.to_nat (mm * Zpos c₂) + 0)%nat by omega.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
        reflexivity.
 
        subst mm; simpl.
-       destruct m; [ reflexivity | idtac ].
-       simpl.
+       destruct m; [ reflexivity | simpl ].
        apply Pos2Z.is_nonneg.
+
+       apply Zle_minus_le_0; assumption.
 
       subst nn; simpl.
       destruct n; [ reflexivity | simpl ].
       apply Pos2Z.is_nonneg.
+
+      apply Zle_minus_le_0; assumption.
 
      apply Z.nle_gt in H₁.
      rewrite Z.min_r; [ idtac | apply Z.lt_le_incl; assumption ].
@@ -469,11 +463,7 @@ rewrite <- Z2Nat.inj_add.
      rewrite <- Z.sub_sub_distr.
      remember (vc₁ - vc₂)%Z as x.
      rewrite <- Z2Nat.inj_sub.
-      2: omega.
-
       rewrite <- Z2Nat.inj_sub.
-       2: omega.
-
        remember (Z.to_nat (nn * Zpos c₂ - x)) as y.
        replace y with (y + 0)%nat by omega.
        rewrite <- Nat.add_assoc; simpl.
@@ -484,6 +474,12 @@ rewrite <- Z2Nat.inj_add.
        rewrite <- Nat.add_assoc; simpl.
        rewrite normalise_nz_adjust_add.
        reflexivity.
+
+       subst x.
+       apply Zle_minus_le_0, Z.lt_le_incl; assumption.
+
+      subst x.
+      apply Zle_minus_le_0, Z.lt_le_incl; assumption.
 
     rewrite <- Z.sub_max_distr_l, Z.sub_diag.
     apply Z.le_max_l.
@@ -512,7 +508,6 @@ Lemma normalise_nz_add_adjust_l : ∀ nz₁ nz₂ n k,
 Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_0_l with (k := k).
-bbb.
 apply normalise_nz_add_adjust.
 Qed.
 
