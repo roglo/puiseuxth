@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.174 2013-12-03 02:45:35 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.175 2013-12-03 02:59:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -742,6 +742,19 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
    rewrite Lfield.mul_0_l; reflexivity.
 
   unfold convol_mul; simpl.
+  apply Nat.nlt_ge in H₂.
+  symmetry.
+  replace k with (n + (k - n))%nat by omega.
+  rewrite sigma_add.
+  rewrite Lfield.add_comm.
+  rewrite Nat.add_sub_assoc; [ idtac | assumption ].
+  rewrite Nat.add_comm, Nat.add_sub.
+  rewrite Lfield.add_comm.
+  rewrite all_0_sigma_0.
+   Focus 2.
+   intros i.
+   rewrite all_0_sigma_0; [ reflexivity | idtac ].
+   intros j.
 bbb.
 
 Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,

@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.83 2013-12-02 14:22:30 deraugla Exp $ *)
+(* $Id: Series.v,v 2.84 2013-12-03 02:59:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -343,38 +343,6 @@ intros f i₁ i₂ H.
 apply all_0_sigma_aux_0.
 intros; apply H.
 Qed.
-
-(* mouais, bon, c'est pas ça qu'y faut, pute vierge...
-Lemma inserted_0_sigma_aux : ∀ f k b len,
-  (1 < k)%nat
-  → (∀ i, i mod k ≠ O → f (b + i)%nat ≍ 0%fld)
-    → sigma_aux b (S (k * len)) f ≍ sigma_aux b (S k) f.
-Proof.
-intros f k b len Hk Hf; simpl.
-apply Lfield.add_compat_l.
-revert b Hf.
-induction len; intros.
- rewrite Nat.mul_0_r; simpl; symmetry.
- destruct k; [ reflexivity | idtac ].
- destruct k.
-  exfalso; revert Hk; apply Nat.lt_irrefl.
-
-  apply all_0_sigma_aux_0.
-  intros i Hi.
-bbb.
-*)
-
-(*
-Lemma inserted_0_sigma : ∀ f k n,
-  (∀ i, i mod k ≠ O → f i ≍ 0%fld)
-  → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   f i.
-Proof.
-intros f k n Hf.
-unfold sigma.
-do 2 rewrite Nat.sub_0_r.
-apply inserted_0_sigma_aux; assumption.
-qed.
-*)
 
 Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
 Proof.
