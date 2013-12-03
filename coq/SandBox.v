@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.170 2013-12-03 02:00:49 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.171 2013-12-03 02:02:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -684,7 +684,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
  apply H; constructor.
 Qed.
 
-Lemma normalise_nz_adjust_nz_mul_0_l : ∀ nz₁ nz₂ k,
+(* not required if normalise_nz_mul_adjust_l below can be proved! *)
+Lemma normalise_nz_mul_adjust_0_l : ∀ nz₁ nz₂ k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz 0 k nz₁) nz₂).
 Proof.
@@ -713,7 +714,7 @@ Lemma zzz : ∀ a b n,
 Proof.
 bbb.
 
-Lemma normalise_nz_adjust_nz_mul_r : ∀ nz₁ nz₂ n k,
+Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
   normalise_nz (nz_mul (adjust_nz n k nz₁) nz₂).
 Proof.
