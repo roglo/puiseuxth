@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.3 2013-12-03 10:52:13 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.4 2013-12-03 10:58:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -908,6 +908,9 @@ Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃))%ps ≈ (ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
+destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
