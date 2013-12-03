@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.4 2013-12-03 10:58:39 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.5 2013-12-03 12:53:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -911,6 +911,18 @@ intros ps₁ ps₂ ps₃.
 destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
+constructor.
+pose proof (eq_nz_norm_add_add₂ nz₂ nz₃) as H.
+rewrite nz_norm_mul_comm.
+rewrite nz_norm_mul_compat_r; [ clear H | eassumption ].
+rewrite eq_nz_norm_add_add₂.
+bbb.
+
+intros ps₁ ps₂ ps₃.
+destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
+destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
+destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
+constructor.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=

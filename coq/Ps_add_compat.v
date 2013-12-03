@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.16 2013-12-03 10:52:13 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.17 2013-12-03 12:53:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -836,6 +836,16 @@ destruct ps₁ as [nz'₁| ].
  rewrite <- normalise_nz_add_adjust_l.
  rewrite <- normalise_nz_add_adjust_l.
  reflexivity.
+Qed.
+
+Lemma nz_norm_add_compat_l : ∀ nz₁ nz₂ nz₃,
+  normalise_nz nz₁ ≐ normalise_nz nz₂
+  → normalise_nz (nz₃ ∔ nz₁) ≐ normalise_nz (nz₃ ∔ nz₂).
+Proof.
+intros nz₁ nz₂ nz₃ Heq.
+rewrite nz_norm_add_comm; symmetry.
+rewrite nz_norm_add_comm; symmetry.
+apply nz_norm_add_compat_r; assumption.
 Qed.
 
 Lemma null_coeff_range_length_series_0 :
