@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 2.3 2013-11-28 02:04:16 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 2.4 2013-12-03 10:44:45 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -8,7 +8,8 @@ Require Import QArith.
 Require Field.
 Module Field_inst : Field.FieldType.
   Variable α : Type.
-  Variable fld : Field.Tdef.t α.
+  Variable fld : Field.Tdef.f α.
+  Definition rng := Field.Tdef.ring fld.
 End Field_inst.
 Module Lfield := Field.Make Field_inst.
 Export Field_inst.
@@ -22,18 +23,18 @@ Set Implicit Arguments.
 Definition list_eq := List.Forall2.
 
 Definition eq_poly (x y : polynomial α) :=
-  list_eq (Lfield.eq fld) (al x ++ [an x]) (al y ++ [an y]).
+  list_eq (Lfield.eq rng) (al x ++ [an x]) (al y ++ [an y]).
 
 Definition poly_add :=
-  pol_add (Lfield.add fld).
+  pol_add (Lfield.add rng).
 
 Definition poly_mul :=
-  pol_mul (Lfield.zero fld) (Lfield.add fld) (Lfield.mul fld).
+  pol_mul (Lfield.zero rng) (Lfield.add rng) (Lfield.mul rng).
 
 Definition Pdivide (x y : polynomial α) :=
   ∃ z, eq_poly y (poly_mul z x).
 
-Lemma list_eq_refl : ∀ l, list_eq (Lfield.eq fld) l l.
+Lemma list_eq_refl : ∀ l, list_eq (Lfield.eq rng) l l.
 Proof.
 intros l.
 induction l; constructor; [ reflexivity | assumption ].
@@ -67,9 +68,9 @@ Qed.
 (* addition commutativity *)
 
 Lemma pol_add_loop_al_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂
-  → rp₂ = pol_add_loop (Lfield.add fld) an₂ an₁ al₂ al₁
-    → list_eq (Lfield.eq fld) (al rp₁) (al rp₂).
+  rp₁ = pol_add_loop (Lfield.add rng) an₁ an₂ al₁ al₂
+  → rp₂ = pol_add_loop (Lfield.add rng) an₂ an₁ al₂ al₁
+    → list_eq (Lfield.eq rng) (al rp₁) (al rp₂).
 Proof.
 intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -85,9 +86,9 @@ induction al₁; intros.
 Qed.
 
 Lemma pol_add_loop_an_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂
-  → rp₂ = pol_add_loop (Lfield.add fld) an₂ an₁ al₂ al₁
-    → Lfield.eq fld (an rp₁) (an rp₂).
+  rp₁ = pol_add_loop (Lfield.add rng) an₁ an₂ al₁ al₂
+  → rp₂ = pol_add_loop (Lfield.add rng) an₂ an₁ al₂ al₁
+    → Lfield.eq rng (an rp₁) (an rp₂).
 Proof.
 intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -113,13 +114,13 @@ Qed.
 (* addition associativity *)
 
 Lemma pol_add_loop_al_assoc : ∀ an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (Lfield.add fld)
-          (an (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) an₃
-          (al (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) al₃
-  → rp₂ = pol_add_loop (Lfield.add fld)
-           an₁ (an (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
-           al₁ (al (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
-    → list_eq (Lfield.eq fld) (al rp₁) (al rp₂).
+  rp₁ = pol_add_loop (Lfield.add rng)
+          (an (pol_add_loop (Lfield.add rng) an₁ an₂ al₁ al₂)) an₃
+          (al (pol_add_loop (Lfield.add rng) an₁ an₂ al₁ al₂)) al₃
+  → rp₂ = pol_add_loop (Lfield.add rng)
+           an₁ (an (pol_add_loop (Lfield.add rng) an₂ an₃ al₂ al₃))
+           al₁ (al (pol_add_loop (Lfield.add rng) an₂ an₃ al₂ al₃))
+    → list_eq (Lfield.eq rng) (al rp₁) (al rp₂).
 Proof.
 intros an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -147,13 +148,13 @@ induction al₁; intros.
 Qed.
 
 Lemma pol_add_loop_an_assoc : ∀ an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (Lfield.add fld)
-          (an (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) an₃
-          (al (pol_add_loop (Lfield.add fld) an₁ an₂ al₁ al₂)) al₃
-  → rp₂ = pol_add_loop (Lfield.add fld)
-           an₁ (an (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
-           al₁ (al (pol_add_loop (Lfield.add fld) an₂ an₃ al₂ al₃))
-    → Lfield.eq fld (an rp₁) (an rp₂).
+  rp₁ = pol_add_loop (Lfield.add rng)
+          (an (pol_add_loop (Lfield.add rng) an₁ an₂ al₁ al₂)) an₃
+          (al (pol_add_loop (Lfield.add rng) an₁ an₂ al₁ al₂)) al₃
+  → rp₂ = pol_add_loop (Lfield.add rng)
+           an₁ (an (pol_add_loop (Lfield.add rng) an₂ an₃ al₂ al₃))
+           al₁ (al (pol_add_loop (Lfield.add rng) an₂ an₃ al₂ al₃))
+    → Lfield.eq rng (an rp₁) (an rp₂).
 Proof.
 intros an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.

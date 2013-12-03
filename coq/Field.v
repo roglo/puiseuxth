@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.25 2013-11-28 02:07:29 deraugla Exp $ *)
+(* $Id: Field.v,v 2.26 2013-12-03 10:44:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -8,13 +8,12 @@ Require Import Setoid.
 Set Implicit Arguments.
 
 Module Tdef.
-  Record t α :=
+  Record r α :=
     { zero : α;
       one : α;
       add : α → α → α;
       mul : α → α → α;
       opp : α → α;
-      inv : α → α;
       eq : α → α → Prop;
       eq_refl : ∀ a, eq a a;
       eq_sym : ∀ a b, eq a b → eq b a;
@@ -29,14 +28,20 @@ Module Tdef.
       mul_assoc : ∀ a b c, eq (mul a (mul b c)) (mul (mul a b) c);
       mul_1_l : ∀ a, eq (mul one a) a;
       mul_compat_l : ∀ a b c, eq a b → eq (mul c a) (mul c b);
-      mul_inv_l : ∀ a, not (eq a zero) → eq (mul (inv a) a) one;
       mul_add_distr_l : ∀ a b c,
         eq (mul a (add b c)) (add (mul a b) (mul a c)) }.
+  Record f α :=
+    { ring : r α;
+      inv : α → α;
+      mul_inv_l : ∀ a,
+        not (eq ring a (zero ring))
+        → eq ring (mul ring (inv a) a) (one ring) }.
 End Tdef.
 
 Module Type FieldType.
   Variable α : Type.
-  Variable fld : Tdef.t α.
+  Variable fld : Tdef.f α.
+  Definition rng := Tdef.ring fld.
 End FieldType.
 
 Module Make (F : FieldType).
@@ -44,14 +49,14 @@ Module Make (F : FieldType).
   Import F.
   Include Tdef.
 
-  Add Parametric Relation : α (eq fld)
-   reflexivity proved by (eq_refl fld)
-   symmetry proved by (eq_sym fld)
-   transitivity proved by (eq_trans fld)
+  Add Parametric Relation : α (eq rng)
+   reflexivity proved by (eq_refl rng)
+   symmetry proved by (eq_sym rng)
+   transitivity proved by (eq_trans rng)
    as eq_rel.
 
-  Add Parametric Morphism : (add fld)
-  with signature eq fld ==> eq fld ==> eq fld
+  Add Parametric Morphism : (add rng)
+  with signature eq rng ==> eq rng ==> eq rng
   as add_morph.
   Proof.
   intros a b Hab c d Hcd.
@@ -63,8 +68,8 @@ Module Make (F : FieldType).
   rewrite add_compat_l; [ reflexivity | eassumption ].
   Qed.
 
-  Add Parametric Morphism : (mul fld)
-  with signature eq fld ==> eq fld ==> eq fld
+  Add Parametric Morphism : (mul rng)
+  with signature eq rng ==> eq rng ==> eq rng
   as mul_morph.
   Proof.
   intros a b Hab c d Hcd.
@@ -78,139 +83,92 @@ Module Make (F : FieldType).
 
   Module Syntax.
 
-  Notation "a ≍ b" := (eq fld a b) (at level 70).
-  Notation "a ≭ b" := (not (eq fld a b)) (at level 70).
+  Notation "a ≍ b" := (eq rng a b) (at level 70).
+  Notation "a ≭ b" := (not (eq rng a b)) (at level 70).
 
-  Delimit Scope fld_scope with fld.
-  Notation "0" := (zero fld) : fld_scope.
-  Notation "1" := (one fld) : fld_scope.
-  Notation "- a" := (opp fld a) : fld_scope.
-  Notation "a + b" := (add fld a b)
-    (left associativity, at level 50) : fld_scope.
-  Notation "a - b" := (add fld a (opp fld b))
-    (left associativity, at level 50) : fld_scope.
-  Notation "a * b" := (mul fld a b)
-    (left associativity, at level 40) : fld_scope.
+  Delimit Scope rng_scope with rng.
+  Notation "0" := (zero rng) : rng_scope.
+  Notation "1" := (one rng) : rng_scope.
+  Notation "- a" := (opp rng a) : rng_scope.
+  Notation "a + b" := (add rng a b)
+    (left associativity, at level 50) : rng_scope.
+  Notation "a - b" := (add rng a (opp rng b))
+    (left associativity, at level 50) : rng_scope.
+  Notation "a * b" := (mul rng a b)
+    (left associativity, at level 40) : rng_scope.
 
   End Syntax.
 
   Import Syntax.
 
-  Theorem add_opp_r : ∀ x, (x + (-x) ≍ 0)%fld.
+  Theorem add_opp_r : ∀ x, (x + (-x) ≍ 0)%rng.
   Proof.
   intros x; rewrite add_comm.
   apply add_opp_l.
   Qed.
 
-  Theorem mul_1_r : ∀ a, (a * 1 ≍ a)%fld.
+  Theorem mul_1_r : ∀ a, (a * 1 ≍ a)%rng.
   Proof.
   intros a.
   rewrite mul_comm, mul_1_l.
   reflexivity.
   Qed.
 
-  Theorem mul_inv_r : ∀ x, (x ≭ 0 → x * inv fld x ≍ 1)%fld.
+  Theorem mul_inv_r : ∀ x, (x ≭ 0 → x * inv fld x ≍ 1)%rng.
   Proof.
   intros x H; rewrite mul_comm.
   apply mul_inv_l; assumption.
   Qed.
 
-  Theorem add_compat_r : ∀ a b c, (a ≍ b → a + c ≍ b + c)%fld.
+  Theorem add_compat_r : ∀ a b c, (a ≍ b → a + c ≍ b + c)%rng.
   Proof.
   intros a b c Hab.
   rewrite Hab; reflexivity.
   Qed.
 
-  Theorem mul_compat_r : ∀ a b c, (a ≍ b → a * c ≍ b * c)%fld.
+  Theorem mul_compat_r : ∀ a b c, (a ≍ b → a * c ≍ b * c)%rng.
   Proof.
   intros a b c Hab.
   rewrite Hab; reflexivity.
   Qed.
 
   Theorem mul_add_distr_r : ∀ x y z,
-   ((x + y) * z)%fld ≍ (x * z + y * z)%fld.
+   ((x + y) * z)%rng ≍ (x * z + y * z)%rng.
   Proof.
   intros x y z.
   rewrite mul_comm.
   rewrite mul_add_distr_l.
   rewrite mul_comm.
-  assert (eq fld (mul fld z y) (mul fld y z)) as H.
+  assert (eq rng (mul rng z y) (mul rng y z)) as H.
    apply mul_comm.
 
    rewrite H; reflexivity.
   Qed.
 
-  Lemma ring :
-    @ring_theory α (zero fld) (one fld) (add fld) (mul fld)
-      (λ x y, add fld x (opp fld y)) (opp fld) (eq fld).
-  Proof.
-  constructor.
-   apply add_0_l.
-
-   apply add_comm.
-
-   apply add_assoc.
-
-   apply mul_1_l.
-
-   apply mul_comm.
-
-   apply mul_assoc.
-
-   apply mul_add_distr_r.
-
-   reflexivity.
-
-   apply add_opp_r.
-  Qed.
-
-  (* comment ça marche, ce truc-là ? et à quoi ça sert ?
-
-  Lemma ring_morph :
-    @ring_morph α (zero fld) (one fld) (add fld) (mul fld)
-      (λ x y, add fld x (opp fld y)) (opp fld) (eq fld).
-
-  (R : Type) (rO rI : R) (radd rmul rsub : R → R → R)
-  (ropp : R → R) (req : R → R → Prop) (C : Type) (cO cI : C)
-  (cadd cmul csub : C → C → C) (copp : C → C) (ceqb : C → C → bool)
-  (phi : C → R) : Prop := mkmorph
-
-  Add Ring ring : ring (morphism glop).
-  bbb.
-  *)
-
-  Definition field :=
-    {| F_R := ring;
-       F_1_neq_0 := neq_1_0 fld;
-       Fdiv_def x y := eq_refl fld (mul fld x (inv fld y));
-       Finv_l := mul_inv_l fld |}.
-
-  (* *)
-
-  Theorem add_0_r : ∀ a, (a + 0 ≍ a)%fld.
+  Theorem add_0_r : ∀ a, (a + 0 ≍ a)%rng.
   Proof.
   intros a.
   rewrite add_comm.
   apply add_0_l.
   Qed.
 
-  Theorem opp_0 : (- 0 ≍ 0)%fld.
+  Theorem opp_0 : (- 0 ≍ 0)%rng.
   Proof.
   etransitivity; [ symmetry; apply add_0_l | idtac ].
   apply add_opp_r.
   Qed.
 
-  Theorem add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%fld.
+  Theorem add_reg_r : ∀ a b c, (a + c ≍ b + c → a ≍ b)%rng.
   Proof.
   intros a b c Habc.
-  apply add_compat_r with (c := (- c)%fld) in Habc.
+  apply add_compat_r with (c := (- c)%rng) in Habc.
   do 2 rewrite <- add_assoc in Habc.
   rewrite add_opp_r in Habc.
   do 2 rewrite add_0_r in Habc.
   assumption.
   Qed.
 
-  Theorem add_reg_l : ∀ a b c, (c + a ≍ c + b → a ≍ b)%fld.
+  Theorem add_reg_l : ∀ a b c, (c + a ≍ c + b → a ≍ b)%rng.
   Proof.
   intros a b c Habc.
   apply add_reg_r with (c := c).
@@ -219,7 +177,7 @@ Module Make (F : FieldType).
   assumption.
   Qed.
 
-  Theorem mul_reg_r : ∀ a b c, (c ≭ 0 → a * c ≍ b * c → a ≍ b)%fld.
+  Theorem mul_reg_r : ∀ a b c, (c ≭ 0 → a * c ≍ b * c → a ≍ b)%rng.
   Proof.
   intros a b c Hc Habc.
   apply mul_compat_r with (c := inv fld c) in Habc.
@@ -229,7 +187,7 @@ Module Make (F : FieldType).
   assumption.
   Qed.
 
-  Theorem mul_reg_l : ∀ a b c, (c ≭ 0 → c * a ≍ c * b → a ≍ b)%fld.
+  Theorem mul_reg_l : ∀ a b c, (c ≭ 0 → c * a ≍ c * b → a ≍ b)%rng.
   Proof.
   intros a b c Hc Habc.
   rewrite mul_comm in Habc; symmetry in Habc.
@@ -237,7 +195,7 @@ Module Make (F : FieldType).
   eapply mul_reg_r; eassumption.
   Qed.
 
-  Theorem add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%fld.
+  Theorem add_id_uniq : ∀ a b, (a + b ≍ a → b ≍ 0)%rng.
   Proof.
   intros a b Hab.
   rewrite add_comm in Hab.
@@ -245,11 +203,11 @@ Module Make (F : FieldType).
   rewrite add_0_l; assumption.
   Qed.
 
-  Theorem mul_0_l : ∀ a, (0 * a ≍ 0)%fld.
+  Theorem mul_0_l : ∀ a, (0 * a ≍ 0)%rng.
   Proof.
   intros a.
-  assert (0 * a + a ≍ a)%fld as H.
-   transitivity (0 * a + 1 * a)%fld.
+  assert (0 * a + a ≍ a)%rng as H.
+   transitivity (0 * a + 1 * a)%rng.
     rewrite mul_1_l; reflexivity.
 
     rewrite <- mul_add_distr_r.
@@ -260,7 +218,7 @@ Module Make (F : FieldType).
    rewrite add_0_l; assumption.
   Qed.
 
-  Theorem mul_0_r : ∀ a, (a * 0 ≍ 0)%fld.
+  Theorem mul_0_r : ∀ a, (a * 0 ≍ 0)%rng.
   Proof.
   intros a.
   rewrite mul_comm, mul_0_l.
@@ -268,37 +226,37 @@ Module Make (F : FieldType).
   Qed.
 
   Theorem add_shuffle0 : ∀ n m p,
-    eq fld (add fld (add fld n m) p) (add fld (add fld n p) m).
+    eq rng (add rng (add rng n m) p) (add rng (add rng n p) m).
   Proof.
   intros n m p.
   do 2 rewrite <- add_assoc.
-  assert (eq fld (add fld m p) (add fld p m)) as H by apply add_comm.
+  assert (eq rng (add rng m p) (add rng p m)) as H by apply add_comm.
   rewrite H; reflexivity.
   Qed.
 
   Theorem mul_shuffle0 : ∀ n m p,
-    eq fld (mul fld (mul fld n m) p) (mul fld (mul fld n p) m).
+    eq rng (mul rng (mul rng n m) p) (mul rng (mul rng n p) m).
   Proof.
   intros n m p.
   do 2 rewrite <- mul_assoc.
-  assert (eq fld (mul fld m p) (mul fld p m)) as H by apply mul_comm.
+  assert (eq rng (mul rng m p) (mul rng p m)) as H by apply mul_comm.
   rewrite H; reflexivity.
   Qed.
 
-  Theorem mul_eq_0 : ∀ n m, (n ≍ 0 ∨ m ≍ 0 → n * m ≍ 0)%fld.
+  Theorem mul_eq_0 : ∀ n m, (n ≍ 0 ∨ m ≍ 0 → n * m ≍ 0)%rng.
   Proof.
   intros n m H.
   destruct H as [H| H]; rewrite H; [ apply mul_0_l | apply mul_0_r ].
   Qed.
 
-  Theorem eq_mul_0_l : ∀ n m, (n * m ≍ 0 → m ≭ 0 → n ≍ 0)%fld.
+  Theorem eq_mul_0_l : ∀ n m, (n * m ≍ 0 → m ≭ 0 → n ≍ 0)%rng.
   Proof.
   intros n m Hnm Hm.
   rewrite <- mul_0_l with (a := m) in Hnm.
   apply mul_reg_r in Hnm; assumption.
   Qed.
 
-  Theorem eq_mul_0_r : ∀ n m, (n * m ≍ 0 → n ≭ 0 → m ≍ 0)%fld.
+  Theorem eq_mul_0_r : ∀ n m, (n * m ≍ 0 → n ≭ 0 → m ≍ 0)%rng.
   Proof.
   intros n m Hnm Hm.
   rewrite <- mul_0_r with (a := n) in Hnm.

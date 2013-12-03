@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.70 2013-11-28 02:14:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.71 2013-12-03 10:44:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,31 +12,31 @@ Set Implicit Arguments.
 
 Section Axioms.
 
-(* [null_coeff_range_length fld s n] returns the number of consecutive
+(* [null_coeff_range_length rng s n] returns the number of consecutive
    null coefficients in the series [s], from the [n]th one. *)
-Definition null_coeff_range_length : ∀ α, Lfield.t α → series α → nat → Nbar.
+Definition null_coeff_range_length : ∀ α, Lfield.r α → series α → nat → Nbar.
 Admitted.
 
 Definition null_coeff_range_length_prop s n v :=
   match v with
   | fin k =>
-      (∀ i, (i < k)%nat → series_nth_fld fld (n + i) s ≍ Lfield.zero fld) ∧
-      series_nth_fld fld (n + k) s ≭ Lfield.zero fld
+      (∀ i, (i < k)%nat → series_nth_rng rng (n + i) s ≍ Lfield.zero rng) ∧
+      series_nth_rng rng (n + k) s ≭ Lfield.zero rng
   | ∞ =>
-      (∀ i, series_nth_fld fld (n + i) s ≍ Lfield.zero fld)
+      (∀ i, series_nth_rng rng (n + i) s ≍ Lfield.zero rng)
   end.
 
 Axiom null_coeff_range_length_iff : ∀ s n v,
-  null_coeff_range_length fld s n = v ↔ null_coeff_range_length_prop s n v.
+  null_coeff_range_length rng s n = v ↔ null_coeff_range_length_prop s n v.
 
-(* [greatest_series_x_power fld s n] returns the greatest nat value [k]
+(* [greatest_series_x_power rng s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α,
-  Lfield.t α → series α → nat → positive.
+  Lfield.r α → series α → nat → positive.
 Admitted.
 
 Fixpoint nth_null_coeff_range_length s n b :=
-  match null_coeff_range_length fld s (S b) with
+  match null_coeff_range_length rng s (S b) with
   | fin p =>
       match n with
       | O => S p
@@ -54,7 +54,7 @@ Definition is_the_greatest_series_x_power s b k :=
    → ∃ n, ¬(Pos.to_nat k' | nth_null_coeff_range_length s n b)).
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
-  greatest_series_x_power fld s n = k ↔
+  greatest_series_x_power rng s n = k ↔
   is_the_greatest_series_x_power s n k.
 
 End Axioms.
@@ -62,13 +62,13 @@ End Axioms.
 Definition series_stretch k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then
-         series_nth_fld fld (i / Pos.to_nat k) s
-       else Lfield.zero fld;
+         series_nth_rng rng (i / Pos.to_nat k) s
+       else Lfield.zero rng;
      stop :=
        stop s * fin (Pos.to_nat k) |}.
 
 Definition series_shift n s :=
-  {| terms i := if lt_dec i n then Lfield.zero fld else terms s (i - n);
+  {| terms i := if lt_dec i n then Lfield.zero rng else terms s (i - n);
      stop := stop s + fin n |}.
 
 Record nz_ps α := mknz
@@ -95,9 +95,9 @@ Definition gcd_nz n k (nz : nz_ps α) :=
   Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
 
 Definition normalise_nz nz :=
-  match null_coeff_range_length fld (nz_terms nz) 0 with
+  match null_coeff_range_length rng (nz_terms nz) 0 with
   | fin n =>
-      let k := greatest_series_x_power fld (nz_terms nz) n in
+      let k := greatest_series_x_power rng (nz_terms nz) n in
       let g := gcd_nz n k nz in
       NonZero
         {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
@@ -144,7 +144,7 @@ Definition nz_monom (c : α) pow :=
 
 Definition ps_monom c pow := NonZero (nz_monom c pow).
 Definition ps_const c : puiseux_series α := ps_monom c 0.
-Definition ps_one := ps_const (Lfield.one fld).
+Definition ps_one := ps_const (Lfield.one rng).
 
 Definition series_head (s : series α) :=
   {| terms := terms s; stop := 1 |}.
@@ -172,10 +172,10 @@ Definition nz_tail nz :=
 
 Theorem null_series : ∀ s,
   series_nth 0 s = None
-  → ∀ i : nat, series_nth_fld fld i s = Lfield.zero fld.
+  → ∀ i : nat, series_nth_rng rng i s = Lfield.zero rng.
 Proof.
 intros s H i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 unfold series_nth in H.
 remember (stop s) as st; symmetry in Heqst.
 destruct st as [st| ]; [ idtac | discriminate H ].
@@ -193,7 +193,7 @@ Proof.
 intros s.
 unfold series_stretch; simpl.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
@@ -235,12 +235,12 @@ inversion H₁; subst.
 Qed.
 
 Lemma series_inf_shift : ∀ a n,
-  series_inf fld (series_shift n a) ≃ series_shift n (series_inf fld a).
+  series_inf rng (series_shift n a) ≃ series_shift n (series_inf rng a).
 Proof.
 intros a n.
 constructor; intros i.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
  destruct (lt_dec i n) as [H₂| H₂].
   destruct (Nbar.lt_dec (fin i) (stop a + fin n)); reflexivity.
@@ -267,8 +267,8 @@ Qed.
 
 (* mmmm... probablement faux... à réfléchir...
 Lemma zzz : ∀ a b n k,
-  series_mul fld (series_shift n (series_stretch k a)) b
-  ≃ series_shift n (series_stretch k (series_mul fld a b)).
+  series_mul rng (series_shift n (series_stretch k a)) b
+  ≃ series_shift n (series_stretch k (series_mul rng a b)).
 Proof.
 intros a b n k.
 rewrite series_inf_eq; symmetry.
@@ -276,7 +276,7 @@ rewrite series_inf_eq; symmetry.
 rewrite series_inf_mul; symmetry.
 rewrite series_inf_shift.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
  destruct (lt_dec i n) as [H₁| H₁].
   symmetry.
@@ -286,7 +286,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
   simpl.
   destruct (eq_nat_dec (l + j) i) as [H₂| H₂].
    rewrite H₂, delta_id, Lfield.mul_1_l.
-   unfold series_nth_fld at 1.
+   unfold series_nth_rng at 1.
    remember terms as f; simpl; subst f.
    remember (stop a * fin (Pos.to_nat k) + fin n)%Nbar as x.
    destruct (Nbar.lt_dec (fin l) x) as [H₃| H₃]; subst x.
@@ -341,13 +341,13 @@ intros a b Hab v n.
 constructor; auto.
 Qed.
 
-Add Parametric Morphism : (null_coeff_range_length fld)
+Add Parametric Morphism : (null_coeff_range_length rng)
   with signature eq_series ==> eq ==> eq
   as null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (null_coeff_range_length fld s₁ n) as n₁ eqn:Hn₁ .
-remember (null_coeff_range_length fld s₂ n) as n₂ eqn:Hn₂ .
+remember (null_coeff_range_length rng s₁ n) as n₁ eqn:Hn₁ .
+remember (null_coeff_range_length rng s₂ n) as n₂ eqn:Hn₂ .
 symmetry in Hn₁, Hn₂.
 apply null_coeff_range_length_iff in Hn₁.
 apply null_coeff_range_length_iff in Hn₂.
@@ -375,15 +375,15 @@ destruct n₁ as [n₁| ].
 Qed.
 
 (*
-Add Parametric Morphism α (fld : Lfield.t α) : (greatest_series_x_power_lim fld)
-  with signature eq ==> (eq_series fld) ==> eq ==> eq
+Add Parametric Morphism α (rng : Lfield.t α) : (greatest_series_x_power_lim rng)
+  with signature eq ==> (eq_series rng) ==> eq ==> eq
   as greatest_series_x_power_lim_morph.
 Proof.
 intros cnt s₁ s₂ Heq n.
 revert n.
 induction cnt; intros; [ reflexivity | simpl ].
 rewrite Heq.
-remember (null_coeff_range_length fld s₂ (S n)) as p eqn:Hp .
+remember (null_coeff_range_length rng s₂ (S n)) as p eqn:Hp .
 symmetry in Hp.
 destruct p as [p| ]; [ idtac | reflexivity ].
 rewrite IHcnt; reflexivity.
@@ -397,15 +397,15 @@ Proof.
 intros s₁ s₂ Heq c n.
 revert n.
 induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
-destruct (null_coeff_range_length fld s₂ (S n)); [ apply IHc | reflexivity ].
+destruct (null_coeff_range_length rng s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism : (greatest_series_x_power fld)
+Add Parametric Morphism : (greatest_series_x_power rng)
   with signature eq_series ==> eq ==> eq
   as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
-remember (greatest_series_x_power fld s₂ n) as k eqn:Hk .
+remember (greatest_series_x_power rng s₂ n) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
@@ -430,9 +430,9 @@ inversion Heq; subst.
 clear Heq; rename H into Heq.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld in Heq; simpl in Heq.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng in Heq; simpl in Heq.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -476,11 +476,11 @@ Add Parametric Morphism : series_shrink
 Proof.
 intros n s₁ s₂ Heq.
 constructor; intros.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 do 2 rewrite Nbar.fold_sub, Nbar.fold_div, Nbar.fold_div_sup.
 inversion Heq; subst.
 clear Heq; rename H into Heq.
-unfold series_nth_fld in Heq; simpl in Heq.
+unfold series_nth_rng in Heq; simpl in Heq.
 remember (Pos.to_nat n) as nn eqn:Hnn .
 symmetry in Hnn.
 pose proof (Heq (i * nn)%nat) as Hin.
@@ -535,8 +535,8 @@ Proof.
 intros n s₁ s₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld in H; simpl in H.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng in H; simpl in H.
 pose proof (H (i - n)%nat) as Hi; clear H.
 destruct (lt_dec i n) as [Hlt| Hge].
  destruct (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
@@ -609,7 +609,7 @@ remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 pose proof (H (n + i * Pos.to_nat k)%nat) as Hi.
 remember Nbar.div_sup as f.
-unfold series_nth_fld in Hi |- *; simpl.
+unfold series_nth_rng in Hi |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
 subst f.
 remember (fin (Pos.to_nat k)) as fink.
@@ -673,7 +673,7 @@ intros nz₁ nz₂ Heq.
 inversion Heq; subst.
 unfold normalise_nz.
 rewrite H, H0, H1.
-remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
 unfold gcd_nz.
@@ -682,8 +682,8 @@ constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
 (*
-Add Parametric Morphism α (fld : Lfield.t α) : (@nz_terms α) with 
-signature eq_nz fld ==> eq_series fld as nz_terms_morph.
+Add Parametric Morphism α (rng : Lfield.t α) : (@nz_terms α) with 
+signature eq_nz rng ==> eq_series rng as nz_terms_morph.
 Proof.
 intros nz₁ nz₂ Hnz.
 inversion Hnz; subst.
@@ -714,7 +714,7 @@ intros ap bp s.
 unfold series_stretch; simpl.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Pos2Nat.inj_mul.
 remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
@@ -795,10 +795,10 @@ Lemma series_stretch_series_0 : ∀ k,
 Proof.
 intros k.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) 0); [ idtac | reflexivity ].
 destruct (zerop (i mod Pos.to_nat k)); [ idtac | reflexivity ].
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
@@ -811,19 +811,19 @@ constructor.
 intros i.
 inversion Hs; subst.
 pose proof (H (i * Pos.to_nat k)%nat) as Hi.
-unfold series_nth_fld in Hi; simpl in Hi.
+unfold series_nth_rng in Hi; simpl in Hi.
 rewrite Nat.mod_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
 rewrite Nat.div_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
 remember (stop s * fin (Pos.to_nat k))%Nbar as ss.
 destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
  rewrite Hi.
- unfold series_nth_fld; simpl.
+ unfold series_nth_rng; simpl.
  destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) 0).
   destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 
   destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 
- unfold series_nth_fld; simpl.
+ unfold series_nth_rng; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [Hlt| Hge].
   exfalso; apply n; clear n Hi.
   subst ss.
@@ -847,7 +847,7 @@ Lemma stretch_shift_series_distr : ∀ kp n s,
 Proof.
 intros kp n s.
 constructor; intros i.
-unfold series_stretch, series_nth_fld; simpl.
+unfold series_stretch, series_nth_rng; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -937,7 +937,7 @@ Proof.
 intros x y ps.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.add_shuffle0.
 rewrite Nbar.fin_inj_add, Nbar.add_assoc.
 remember (Nbar.lt_dec (fin i) (stop ps + fin x + fin y)) as c₁.
@@ -969,7 +969,7 @@ destruct (lt_dec i x) as [Hlt| Hge].
 Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
-  null_coeff_range_length fld s 0 = fin n
+  null_coeff_range_length rng s 0 = fin n
   → series_shift n (series_left_shift n s) ≃ s.
 Proof.
 intros s n Hn.
@@ -977,14 +977,14 @@ apply null_coeff_range_length_iff in Hn.
 simpl in Hn.
 destruct Hn as (Hz, Hnz).
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.fold_sub.
 destruct (Nbar.le_dec (fin n) (stop s)) as [H₁| H₁].
  rewrite Nbar.sub_add; auto.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
   destruct (lt_dec i n) as [H₃| H₃].
    apply Hz in H₃.
-   unfold series_nth_fld in H₃.
+   unfold series_nth_rng in H₃.
    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
     symmetry; assumption.
 
@@ -1002,7 +1002,7 @@ destruct (Nbar.le_dec (fin n) (stop s)) as [H₁| H₁].
   destruct (Nbar.lt_dec (fin i) (fin n)) as [H₂| H₂].
    destruct (lt_dec i n) as [H₃| H₃].
     apply Hz in H₃.
-    unfold series_nth_fld in H₃.
+    unfold series_nth_rng in H₃.
     destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
      symmetry; assumption.
 
@@ -1034,7 +1034,7 @@ Theorem series_left_shift_shift : ∀ s n m,
 Proof.
 intros s n m Hmn.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 do 2 rewrite Nbar.fold_sub.
 rewrite Nbar.fin_inj_sub.
 rewrite Nbar.sub_sub_distr.
@@ -1057,7 +1057,7 @@ Theorem series_left_shift_stretch : ∀ s n k,
 Proof.
 intros s n k.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 do 2 rewrite Nbar.fold_sub.
 rewrite Nbar.fin_inj_mul.
 rewrite <- Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
@@ -1067,7 +1067,7 @@ rewrite Nat.div_add; auto.
 remember ((stop s - fin n) * fin (Pos.to_nat k))%Nbar as x eqn:Hx .
 destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂]; [ idtac | reflexivity ].
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.fold_sub.
 rewrite Nat.add_comm.
 destruct (Nbar.lt_dec (fin (n + i / Pos.to_nat k)) (stop s)) as [H₃| H₃].
@@ -1098,21 +1098,21 @@ induction H₁.
 
   constructor.
   unfold normalise_nz in H.
-  remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-  remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+  remember (null_coeff_range_length rng (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+  remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
   symmetry in Hn₁, Hn₂.
   destruct n₁ as [n₁| ].
    destruct n₂ as [n₂| ]; [ idtac | inversion H ].
    apply null_coeff_range_length_iff in Hn₂.
    destruct Hn₂ as (_, Hn₂).
    exfalso; apply Hn₂; rewrite H1.
-   unfold series_nth_fld; simpl.
+   unfold series_nth_rng; simpl.
    destruct (Nbar.lt_dec (fin n₂) 0); reflexivity.
 
    destruct n₂ as [n₂| ]; [ inversion H | idtac ].
    apply null_coeff_range_length_iff in Hn₁.
    constructor; intros i.
-   unfold series_nth_fld at 2; simpl.
+   unfold series_nth_rng at 2; simpl.
    destruct (Nbar.lt_dec (fin i) 0); apply Hn₁.
 
  inversion H₂; subst.
@@ -1120,13 +1120,13 @@ induction H₁.
   constructor.
   unfold normalise_nz.
   rewrite H, H0.
-  remember (null_coeff_range_length fld series_0 0) as n eqn:Hn .
+  remember (null_coeff_range_length rng series_0 0) as n eqn:Hn .
   symmetry in Hn.
   destruct n as [n| ]; [ idtac | reflexivity ].
   apply null_coeff_range_length_iff in Hn.
   destruct Hn as (_, Hn).
   exfalso; apply Hn.
-  unfold series_nth_fld; simpl.
+  unfold series_nth_rng; simpl.
   destruct (Nbar.lt_dec (fin n) 0); reflexivity.
 
   constructor; assumption.
@@ -1134,21 +1134,21 @@ induction H₁.
  inversion H₂; constructor; subst.
  unfold normalise_nz in H1.
  rename nz into nz₁.
- remember (null_coeff_range_length fld (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
- remember (null_coeff_range_length fld (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
+ remember (null_coeff_range_length rng (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
+ remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
  symmetry in Hn₁, Hn₂.
  destruct n₁ as [n₁| ].
   rewrite H in Hn₁.
   apply null_coeff_range_length_iff in Hn₁.
   destruct Hn₁ as (_, Hn₁).
   exfalso; apply Hn₁.
-  unfold series_nth_fld; simpl.
+  unfold series_nth_rng; simpl.
   destruct (Nbar.lt_dec (fin n₁) 0); reflexivity.
 
   destruct n₂ as [n₂| ]; [ inversion H1 | idtac ].
   apply null_coeff_range_length_iff in Hn₂.
   constructor; intros i.
-  unfold series_nth_fld at 2; simpl.
+  unfold series_nth_rng at 2; simpl.
   destruct (Nbar.lt_dec (fin i) 0); apply Hn₂.
 
  assumption.
@@ -1168,7 +1168,7 @@ Lemma fold_mk_nonzero : ∀ (s : series α) v c,
 Proof. reflexivity. Qed.
 
 Add Parametric Morphism : mk_nonzero
-with signature eq_series fld ==> eq ==> eq ==> eq_ps fld as NonZero_morph.
+with signature eq_series rng ==> eq ==> eq ==> eq_ps rng as NonZero_morph.
 Proof.
 aaa.
 *)
@@ -1181,16 +1181,16 @@ Definition valuation (ps : puiseux_series α) :=
 
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
-  | NonZero nz => series_nth_fld fld 0 (nz_terms nz)
-  | Zero => Lfield.zero fld
+  | NonZero nz => series_nth_rng rng 0 (nz_terms nz)
+  | Zero => Lfield.zero rng
   end.
 
 Theorem lt_null_coeff_range_length : ∀ s c n,
-  (fin n < null_coeff_range_length fld s c)%Nbar
-  → series_nth_fld fld (c + n) s ≍ Lfield.zero fld.
+  (fin n < null_coeff_range_length rng s c)%Nbar
+  → series_nth_rng rng (c + n) s ≍ Lfield.zero rng.
 Proof.
 intros s c n Hn.
-remember (null_coeff_range_length fld s c) as v eqn:Hv .
+remember (null_coeff_range_length rng s c) as v eqn:Hv .
 symmetry in Hv.
 apply null_coeff_range_length_iff in Hv.
 destruct v as [v| ]; [ idtac | apply Hv ].
@@ -1199,8 +1199,8 @@ apply Hvz, Nbar.fin_lt_mono; assumption.
 Qed.
 
 Theorem eq_null_coeff_range_length : ∀ s c n,
-  null_coeff_range_length fld s c = fin n
-  → series_nth_fld fld (c + n) s ≭ Lfield.zero fld.
+  null_coeff_range_length rng s c = fin n
+  → series_nth_rng rng (c + n) s ≭ Lfield.zero rng.
 Proof.
 intros s c n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -1211,16 +1211,16 @@ Lemma series_shift_0 : ∀ s, series_shift 0 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_shift, series_nth_fld; simpl.
+unfold series_shift, series_nth_rng; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
 Lemma series_nth_shift_S : ∀ s n i,
-  series_nth_fld fld i (series_shift n s) =
-  series_nth_fld fld (S i) (series_shift (S n) s).
+  series_nth_rng rng i (series_shift n s) =
+  series_nth_rng rng (S i) (series_shift (S n) s).
 Proof.
 intros s n i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) (stop s + fin n)) as [Hlt₁| Hge₁].
  destruct (Nbar.lt_dec (fin (S i)) (stop s + fin (S n))) as [Hlt₂| Hge₂].
   destruct (lt_dec i n) as [Hlt₃| Hge₃].
@@ -1250,12 +1250,12 @@ Qed.
 
 Lemma null_coeff_range_length_shift_S : ∀ s c n,
   (c ≤ n)%nat
-  → null_coeff_range_length fld (series_shift (S n) s) c =
-    NS (null_coeff_range_length fld (series_shift n s) c).
+  → null_coeff_range_length rng (series_shift (S n) s) c =
+    NS (null_coeff_range_length rng (series_shift n s) c).
 Proof.
 intros s c n Hcn.
-remember (null_coeff_range_length fld (series_shift n s) c) as u eqn:Hu .
-remember (null_coeff_range_length fld (series_shift (S n) s) c) as v eqn:Hv .
+remember (null_coeff_range_length rng (series_shift n s) c) as u eqn:Hu .
+remember (null_coeff_range_length rng (series_shift (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
 apply null_coeff_range_length_iff in Hu.
 apply null_coeff_range_length_iff in Hv.
@@ -1271,7 +1271,7 @@ destruct u as [u| ].
 
    apply Nat.nlt_ge in Hge₁.
    destruct v.
-    unfold series_nth_fld in Hv; simpl in Hv.
+    unfold series_nth_rng in Hv; simpl in Hv.
     rewrite Nat.add_0_r in Hv.
     exfalso.
     destruct (Nbar.lt_dec (fin c) (stop s + fin (S n))) as [H₁| H₁].
@@ -1299,7 +1299,7 @@ destruct u as [u| ].
  destruct v as [v| ]; [ idtac | reflexivity ].
  destruct Hv as (Hiv, Hv).
  destruct v.
-  unfold series_nth_fld in Hv; simpl in Hv.
+  unfold series_nth_rng in Hv; simpl in Hv.
   rewrite Nat.add_0_r in Hv.
   exfalso.
   destruct (Nbar.lt_dec (fin c) (stop s + fin (S n))) as [H₁| H₁].
@@ -1317,8 +1317,8 @@ destruct u as [u| ].
 Qed.
 
 Theorem null_coeff_range_length_shift : ∀ s n,
-  null_coeff_range_length fld (series_shift n s) 0 =
-    (fin n + null_coeff_range_length fld s 0)%Nbar.
+  null_coeff_range_length rng (series_shift n s) 0 =
+    (fin n + null_coeff_range_length rng s 0)%Nbar.
 Proof.
 intros s n.
 induction n.
@@ -1326,17 +1326,17 @@ induction n.
 
  rewrite null_coeff_range_length_shift_S; [ idtac | apply Nat.le_0_l ].
  rewrite IHn; simpl.
- destruct (null_coeff_range_length fld s); reflexivity.
+ destruct (null_coeff_range_length rng s); reflexivity.
 Qed.
 
 (* à voir...
 Lemma xxx : ∀ s,
-  series_nth_fld fld 0 s ≍ Lfield.zero fld
-  → NS (null_coeff_range_length fld s 1) = null_coeff_range_length fld s 0.
+  series_nth_rng rng 0 s ≍ Lfield.zero rng
+  → NS (null_coeff_range_length rng s 1) = null_coeff_range_length rng s 0.
 Proof.
 intros s Hz.
-remember (null_coeff_range_length fld s 1) as n eqn:Hn .
-remember (null_coeff_range_length fld s 0) as p eqn:Hp .
+remember (null_coeff_range_length rng s 1) as n eqn:Hn .
+remember (null_coeff_range_length rng s 0) as p eqn:Hp .
 symmetry in Hn, Hp.
 apply null_coeff_range_length_iff in Hn.
 apply null_coeff_range_length_iff in Hp.
@@ -1367,9 +1367,9 @@ aaa.
 
 (* à voir...
 Theorem null_coeff_range_length_1_shift : ∀ s n,
-  series_nth_fld fld 0 s ≍ Lfield.zero fld
-  → null_coeff_range_length fld (series_shift n s) 1 =
-      (fin n + null_coeff_range_length fld s 1)%Nbar.
+  series_nth_rng rng 0 s ≍ Lfield.zero rng
+  → null_coeff_range_length rng (series_shift n s) 1 =
+      (fin n + null_coeff_range_length rng s 1)%Nbar.
 Proof.
 intros s n Hz.
 induction n.
@@ -1378,12 +1378,12 @@ induction n.
  destruct (le_dec 1 n) as [H₁| H₁].
   rewrite null_coeff_range_length_shift_S; [ idtac | assumption ].
   rewrite IHn; simpl.
-  destruct (null_coeff_range_length fld s); reflexivity.
+  destruct (null_coeff_range_length rng s); reflexivity.
 
   apply Nat.nle_gt in H₁.
   apply Nat.lt_1_r in H₁; subst n.
   simpl in IHn |- *.
-  remember (null_coeff_range_length fld s 1) as m eqn:Hm .
+  remember (null_coeff_range_length rng s 1) as m eqn:Hm .
   symmetry in Hm.
   destruct m as [m| ].
 aaa.
@@ -1391,27 +1391,27 @@ aaa.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → series_nth_fld fld i (series_stretch k s) = Lfield.zero fld.
+  → series_nth_rng rng i (series_stretch k s) = Lfield.zero rng.
 Proof.
 intros s k i Hi.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [Hz| Hnz].
  exfalso; revert Hi; rewrite Hz; apply Nat.lt_irrefl.
 
  destruct (Nbar.lt_dec (fin i) (stop s * fin (Pos.to_nat k))); reflexivity.
 Qed.
 
-Lemma series_nth_fld_mul_stretch : ∀ s k i,
-  series_nth_fld fld (Pos.to_nat k * i) (series_stretch k s) =
-  series_nth_fld fld i s.
+Lemma series_nth_rng_mul_stretch : ∀ s k i,
+  series_nth_rng rng (Pos.to_nat k * i) (series_stretch k s) =
+  series_nth_rng rng i s.
 Proof.
 intros s k i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nat.mul_comm.
 rewrite Nat.mod_mul; [ simpl | apply Pos2Nat_ne_0 ].
 rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
-unfold series_nth_fld.
+unfold series_nth_rng.
 remember (fin (i * Pos.to_nat k)) as x.
 remember (stop s * fin (Pos.to_nat k))%Nbar as y.
 destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
@@ -1433,11 +1433,11 @@ destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
 Qed.
 
 Lemma zero_series_stretched : ∀ s,
-  (∀ i : nat, series_nth_fld fld i s ≍ Lfield.zero fld)
-  → ∀ n k, series_nth_fld fld n (series_stretch k s) ≍ Lfield.zero fld.
+  (∀ i : nat, series_nth_rng rng i s ≍ Lfield.zero rng)
+  → ∀ n k, series_nth_rng rng n (series_stretch k s) ≍ Lfield.zero rng.
 Proof.
 intros s H n k.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 remember (stop s * fin (Pos.to_nat k))%Nbar as x.
 destruct (Nbar.lt_dec (fin n) x) as [Hlt₁| ]; [ subst x | reflexivity ].
 destruct (zerop (n mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
@@ -1448,20 +1448,20 @@ rewrite Nat.div_mul; [ apply H | apply Pos2Nat_ne_0 ].
 Qed.
 
 Lemma zero_stretched_series : ∀ s k,
-  (∀ i : nat, series_nth_fld fld i (series_stretch k s) ≍ Lfield.zero fld)
-  → ∀ n, series_nth_fld fld n s ≍ Lfield.zero fld.
+  (∀ i : nat, series_nth_rng rng i (series_stretch k s) ≍ Lfield.zero rng)
+  → ∀ n, series_nth_rng rng n s ≍ Lfield.zero rng.
 Proof.
 intros s k H n.
 pose proof (H (Pos.to_nat k * n)%nat) as Hn.
-rewrite series_nth_fld_mul_stretch in Hn.
+rewrite series_nth_rng_mul_stretch in Hn.
 assumption.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i : nat, series_nth_fld fld (b + i) s ≍ Lfield.zero fld)
+  (∀ i : nat, series_nth_rng rng (b + i) s ≍ Lfield.zero rng)
   → ∀ i,
-    series_nth_fld fld (b * Pos.to_nat k + i) (series_stretch k s)
-    ≍ Lfield.zero fld.
+    series_nth_rng rng (b * Pos.to_nat k + i) (series_stretch k s)
+    ≍ Lfield.zero rng.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -1469,7 +1469,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
  destruct H₁ as (c, H₁).
  subst i.
  rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
- rewrite series_nth_fld_mul_stretch.
+ rewrite series_nth_rng_mul_stretch.
  apply Hz.
 
  rewrite shifted_in_stretched; [ reflexivity | idtac ].
@@ -1478,11 +1478,11 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_stretch : ∀ s b k,
-  null_coeff_range_length fld (series_stretch k s) (b * Pos.to_nat k) =
-    (fin (Pos.to_nat k) * null_coeff_range_length fld s b)%Nbar.
+  null_coeff_range_length rng (series_stretch k s) (b * Pos.to_nat k) =
+    (fin (Pos.to_nat k) * null_coeff_range_length rng s b)%Nbar.
 Proof.
 intros s b k.
-remember (null_coeff_range_length fld s b) as n eqn:Hn .
+remember (null_coeff_range_length rng s b) as n eqn:Hn .
 symmetry in Hn.
 apply null_coeff_range_length_iff in Hn.
 apply null_coeff_range_length_iff.
@@ -1496,7 +1496,7 @@ destruct n as [n| ]; simpl.
    destruct H₁ as (c, H₁).
    rewrite H₁.
    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
-   rewrite series_nth_fld_mul_stretch.
+   rewrite series_nth_rng_mul_stretch.
    apply Hz.
    rewrite H₁ in Hin.
    rewrite Nat.mul_comm in Hin.
@@ -1508,7 +1508,7 @@ destruct n as [n| ]; simpl.
 
   rewrite <- Nat.mul_add_distr_r.
   rewrite Nat.mul_comm.
-  rewrite series_nth_fld_mul_stretch.
+  rewrite series_nth_rng_mul_stretch.
   assumption.
 
  intros i.
@@ -1516,8 +1516,8 @@ destruct n as [n| ]; simpl.
 Qed.
 
 Lemma null_coeff_range_length_stretch_0 : ∀ s k,
-  null_coeff_range_length fld (series_stretch k s) 0 =
-    (fin (Pos.to_nat k) * null_coeff_range_length fld s 0)%Nbar.
+  null_coeff_range_length rng (series_stretch k s) 0 =
+    (fin (Pos.to_nat k) * null_coeff_range_length rng s 0)%Nbar.
 Proof.
 intros s k.
 rewrite <- null_coeff_range_length_stretch.
@@ -1526,12 +1526,12 @@ Qed.
 
 (*
 Lemma stretch_succ : ∀ s b k,
-  null_coeff_range_length fld (series_stretch k s) (S b * Pos.to_nat k) =
-  null_coeff_range_length fld (series_stretch k s) (S (b * Pos.to_nat k)).
+  null_coeff_range_length rng (series_stretch k s) (S b * Pos.to_nat k) =
+  null_coeff_range_length rng (series_stretch k s) (S (b * Pos.to_nat k)).
 Proof.
 intros s b k.
 remember (series_stretch k s) as t.
-remember (null_coeff_range_length fld t (S b * Pos.to_nat k)) as n eqn:Hn .
+remember (null_coeff_range_length rng t (S b * Pos.to_nat k)) as n eqn:Hn .
 subst t.
 symmetry in Hn |- *.
 apply null_coeff_range_length_iff in Hn.
@@ -1589,11 +1589,11 @@ aaa.
 *)
 
 Lemma series_nth_add_shift : ∀ s i n,
-  series_nth_fld fld (i + n) (series_shift n s) ≍
-  series_nth_fld fld i s.
+  series_nth_rng rng (i + n) (series_shift n s) ≍
+  series_nth_rng rng i s.
 Proof.
 intros s i n.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nat.add_sub.
 destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
@@ -1613,10 +1613,10 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_shift_add : ∀ s m n,
-  null_coeff_range_length fld (series_shift m s) (m + n) = null_coeff_range_length fld s n.
+  null_coeff_range_length rng (series_shift m s) (m + n) = null_coeff_range_length rng s n.
 Proof.
 intros s m n.
-remember (null_coeff_range_length fld s n) as v eqn:Hv .
+remember (null_coeff_range_length rng s n) as v eqn:Hv .
 symmetry in Hv.
 apply null_coeff_range_length_iff in Hv.
 apply null_coeff_range_length_iff.
@@ -1640,15 +1640,15 @@ Qed.
 
 (*
 Lemma greatest_series_x_power_lim_shift : ∀ cnt s n b,
-  greatest_series_x_power_lim fld cnt (series_shift n s) (b + n) =
-  greatest_series_x_power_lim fld cnt s b.
+  greatest_series_x_power_lim rng cnt (series_shift n s) (b + n) =
+  greatest_series_x_power_lim rng cnt s b.
 Proof.
 intros cnt s n b.
 revert s n b.
 induction cnt; intros; [ reflexivity | simpl ].
 rewrite <- Nat.add_succ_l, Nat.add_comm.
 rewrite null_coeff_range_length_shift_add.
-remember (null_coeff_range_length fld s (S b)) as m eqn:Hm .
+remember (null_coeff_range_length rng s (S b)) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; [ idtac | reflexivity ].
 do 2 rewrite divmod_mod.
@@ -1668,11 +1668,11 @@ revert b.
 induction cnt; intros; simpl.
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite null_coeff_range_length_shift_add.
- destruct (null_coeff_range_length fld s (S b)); reflexivity.
+ destruct (null_coeff_range_length rng s (S b)); reflexivity.
 
  rewrite <- Nat.add_succ_l, Nat.add_comm.
  rewrite null_coeff_range_length_shift_add.
- remember (null_coeff_range_length fld s (S b)) as m eqn:Hm .
+ remember (null_coeff_range_length rng s (S b)) as m eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ]; [ idtac | reflexivity ].
  rewrite Nat.add_shuffle0.
@@ -1681,11 +1681,11 @@ induction cnt; intros; simpl.
 Qed.
 
 Lemma greatest_series_x_power_shift : ∀ n s b,
-  greatest_series_x_power fld (series_shift n s) (b + n) =
-  greatest_series_x_power fld s b.
+  greatest_series_x_power rng (series_shift n s) (b + n) =
+  greatest_series_x_power rng s b.
 Proof.
 intros n s b.
-remember (greatest_series_x_power fld s b) as k eqn:Hk .
+remember (greatest_series_x_power rng s b) as k eqn:Hk .
 symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
@@ -1703,15 +1703,15 @@ split.
 Qed.
 
 Lemma null_coeff_range_length_succ : ∀ s n,
-  null_coeff_range_length fld s (S n) =
-  match null_coeff_range_length fld s n with
-  | fin O => null_coeff_range_length fld s (S n)
+  null_coeff_range_length rng s (S n) =
+  match null_coeff_range_length rng s n with
+  | fin O => null_coeff_range_length rng s (S n)
   | fin (S m) => fin m
   | ∞ => ∞
   end.
 Proof.
 intros s n.
-remember (null_coeff_range_length fld s n) as m eqn:Hm .
+remember (null_coeff_range_length rng s n) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ].
  destruct m as [| m]; [ reflexivity | idtac ].
@@ -1735,14 +1735,14 @@ destruct m as [m| ].
 Qed.
 
 Lemma null_coeff_range_length_stretch_succ : ∀ s n p k,
-  null_coeff_range_length fld s (S n) = fin p
-  → null_coeff_range_length fld (series_stretch k s)
+  null_coeff_range_length rng s (S n) = fin p
+  → null_coeff_range_length rng (series_stretch k s)
       (S (n * Pos.to_nat k)) = fin (S p * Pos.to_nat k - 1).
 Proof.
 (* à nettoyer *)
 intros s n p k Hp.
 remember (series_stretch k s) as s₁ eqn:Hs₁ .
-remember (null_coeff_range_length fld s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
+remember (null_coeff_range_length rng s₁ (S (n * Pos.to_nat k))) as q eqn:Hq .
 symmetry in Hq.
 apply null_coeff_range_length_iff in Hq.
 destruct q as [q| ].
@@ -1755,7 +1755,7 @@ destruct q as [q| ].
   rewrite Nat.mul_comm in Hnzq.
   rewrite <- Nat.mul_add_distr_l in Hnzq.
   rewrite Hs₁ in Hnzq.
-  rewrite series_nth_fld_mul_stretch in Hnzq.
+  rewrite series_nth_rng_mul_stretch in Hnzq.
   apply null_coeff_range_length_iff in Hp.
   destruct Hp as (Hzp, Hnzp).
   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
@@ -1795,7 +1795,7 @@ destruct q as [q| ].
       rewrite Nat.mul_comm in H.
       rewrite <- Nat.mul_add_distr_l in H.
       rewrite Hs₁ in H.
-      rewrite series_nth_fld_mul_stretch in H.
+      rewrite series_nth_rng_mul_stretch in H.
       rewrite H in Hnzp.
       apply Hnzp; reflexivity.
 
@@ -1846,7 +1846,7 @@ destruct q as [q| ].
  exfalso.
  apply null_coeff_range_length_iff in Hp.
  destruct Hp as (Hzp, Hnzp).
- rewrite <- series_nth_fld_mul_stretch with (k := k) in Hnzp.
+ rewrite <- series_nth_rng_mul_stretch with (k := k) in Hnzp.
  rewrite <- Hs₁ in Hnzp.
  rewrite Nat.mul_add_distr_l in Hnzp.
  rewrite Nat.mul_succ_r in Hnzp.
@@ -1865,8 +1865,8 @@ destruct q as [q| ].
 Qed.
 
 Lemma null_coeff_range_length_stretch_succ_inf : ∀ s n k,
-  null_coeff_range_length fld s (S n) = ∞
-  → null_coeff_range_length fld (series_stretch k s) (S (n * Pos.to_nat k)) = ∞.
+  null_coeff_range_length rng s (S n) = ∞
+  → null_coeff_range_length rng (series_stretch k s) (S (n * Pos.to_nat k)) = ∞.
 Proof.
 intros s n k Hp.
 apply null_coeff_range_length_iff in Hp.
@@ -1898,7 +1898,7 @@ Proof.
 intros s k₁ k₂.
 constructor; intros i.
 unfold series_shrink; simpl.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 do 3 rewrite Nbar.fold_sub.
 do 3 rewrite Nbar.fold_div.
 do 3 rewrite Nbar.fold_div_sup.
@@ -1919,14 +1919,14 @@ Lemma series_shrink_stretch : ∀ s k,
 Proof.
 intros s k.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.fold_sub.
 rewrite Nbar.fold_div.
 rewrite Nbar.fold_div_sup.
 rewrite Nbar.div_sup_mul.
  rewrite Nat.mod_mul; simpl.
   rewrite Nat.div_mul; simpl.
-   unfold series_nth_fld.
+   unfold series_nth_rng.
    destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 
    apply Pos2Nat_ne_0.
@@ -1944,7 +1944,7 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
   | O => O
   | S n₁ =>
       if lt_dec b i then
-        match null_coeff_range_length fld s (S b) with
+        match null_coeff_range_length rng s (S b) with
         | fin m => S (rank_of_nonzero_after_from s n₁ i (S b + m)%nat)
         | ∞ => O
         end
@@ -1956,7 +1956,7 @@ Fixpoint index_of_nonzero_before_from s n i b last_b :=
   | O => b
   | S n₁ =>
       if lt_dec b i then
-        match null_coeff_range_length fld s (S b) with
+        match null_coeff_range_length rng s (S b) with
         | fin m => index_of_nonzero_before_from s n₁ i (S b + m)%nat b
         | ∞ => b
         end
@@ -1982,7 +1982,7 @@ induction n; intros; simpl.
 
  remember (S (b + len)) as b₁.
  destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
- destruct (null_coeff_range_length fld s (S b₁)) as [len₁| ]; [ idtac | assumption ].
+ destruct (null_coeff_range_length rng s (S b₁)) as [len₁| ]; [ idtac | assumption ].
  rewrite <- Nat.add_succ_l, <- Heqb₁.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
  subst b.
@@ -2001,7 +2001,7 @@ destruct n; simpl.
  exfalso; fast_omega Hin.
 
  destruct (lt_dec b i) as [H₁| H₁]; [ clear Hbi | assumption ].
- destruct (null_coeff_range_length fld s (S b)) as [len₁| ]; [ idtac | assumption ].
+ destruct (null_coeff_range_length rng s (S b)) as [len₁| ]; [ idtac | assumption ].
  apply (ind_of_nz_bef_lt_step O b).
   rewrite <- Nat.add_assoc, Nat.add_comm; assumption.
 
@@ -2023,8 +2023,8 @@ Lemma ind_of_nz_bef_rgt_bnd : ∀ k c m s b i n len len₁,
   (i < c + k + 1
    → b = m + k
      → b < i
-       → null_coeff_range_length fld s (S n) = fin len
-         → null_coeff_range_length fld s (S b) = fin len₁
+       → null_coeff_range_length rng s (S n) = fin len
+         → null_coeff_range_length rng s (S b) = fin len₁
            → index_of_nonzero_before_from s c i (S (b + len₁)) b = n
              → i ≤ S n + len)%nat.
 Proof.
@@ -2032,7 +2032,7 @@ intros k c m s b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
 revert k m b len₁ Hic Hb Hbi Hlen₁ Hn.
 induction c; intros; simpl in Hn; [ exfalso; omega | idtac ].
 destruct (lt_dec (S (b + len₁)) i) as [H₁| H₁].
- remember (null_coeff_range_length fld s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
+ remember (null_coeff_range_length rng s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
  symmetry in Hlen₂.
  destruct len₂ as [len₂| ].
   clear Hlen₁.
@@ -2055,7 +2055,7 @@ Lemma index_of_nonzero_before_from_right_bound : ∀ s c i b n last_b len,
    → last_b < i
      → i < c
        → index_of_nonzero_before_from s c i b last_b = n
-         → null_coeff_range_length fld s (S n) = fin len
+         → null_coeff_range_length rng s (S n) = fin len
            → i ≤ S n + len)%nat.
 Proof.
 intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
@@ -2063,7 +2063,7 @@ destruct c; simpl in Hn.
  apply Nat.nlt_0_r in Hic; contradiction.
 
  destruct (lt_dec b i) as [H₁| H₁]; [ idtac | exfalso; omega ].
- remember (null_coeff_range_length fld s (S b)) as len₁ eqn:Hlen₁ .
+ remember (null_coeff_range_length rng s (S b)) as len₁ eqn:Hlen₁ .
  symmetry in Hlen₁.
  destruct len₁ as [len₁| ].
   eapply (ind_of_nz_bef_rgt_bnd 0 c); try eassumption.
@@ -2078,7 +2078,7 @@ Qed.
 Lemma index_of_nonzero_before_right_bound : ∀ s i n len,
   (0 < i
    → index_of_nonzero_before s i = n
-     → null_coeff_range_length fld s (S n) = fin len
+     → null_coeff_range_length rng s (S n) = fin len
        → i ≤ S n + len)%nat.
 Proof.
 intros s i n len Hi Hn Hlen.
@@ -2093,7 +2093,7 @@ Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
        nth_null_coeff_range_length s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
-        → series_nth_fld fld (b + i) s ≍ Lfield.zero fld.
+        → series_nth_rng rng (b + i) s ≍ Lfield.zero rng.
 Proof.
 (* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
@@ -2107,7 +2107,7 @@ destruct i.
  apply Nat.succ_lt_mono in Hic.
  destruct (lt_dec b (b + S i)) as [H₁| H₁]; [ idtac | exfalso; omega ].
  clear H₁.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
+ remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   Focus 2.
@@ -2120,7 +2120,7 @@ destruct i.
   induction c; intros; [ exfalso; fast_omega Hic | idtac ].
   simpl in Hn.
   destruct (lt_dec (S (b + len)) (b + S i)) as [H₁| H₁].
-   remember (null_coeff_range_length fld s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
+   remember (null_coeff_range_length rng s (S (S (b + len)))) as len₁ eqn:Hlen₁ .
    symmetry in Hlen₁.
    destruct len₁ as [len₁| ].
     destruct n; [ discriminate Hn | idtac ].
@@ -2186,7 +2186,7 @@ Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, (Pos.to_nat k | nth_null_coeff_range_length s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → series_nth_fld fld i s ≍ Lfield.zero fld.
+    → series_nth_rng rng i s ≍ Lfield.zero rng.
 Proof.
 intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
@@ -2202,19 +2202,19 @@ destruct i.
 Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
-  (k | greatest_series_x_power fld s 0)%positive
+  (k | greatest_series_x_power rng s 0)%positive
   → series_stretch k (series_shrink k s) ≃ s.
 Proof.
 intros s k Hk.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.fold_sub.
 rewrite Nbar.fold_div.
 rewrite Nbar.fold_div_sup.
 remember (fin (Pos.to_nat k)) as kn eqn:Hkn .
 destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
  destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-  unfold series_nth_fld.
+  unfold series_nth_rng.
   apply Nat.mod_divides in H₂.
    destruct H₂ as (c, Hc).
    rewrite Hc.
@@ -2270,7 +2270,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
      apply Pos2Nat_ne_0.
 
     apply series_nth_0_in_interval with (s := s) in H; [ idtac | assumption ].
-    unfold series_nth_fld in H.
+    unfold series_nth_rng in H.
     destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
 
    reflexivity.
@@ -2286,8 +2286,8 @@ Qed.
 
 (*
 Lemma greatest_series_x_power_lim_stretch : ∀ s n k cnt,
-  greatest_series_x_power_lim fld cnt (series_stretch k s) (Pos.to_nat k * n) =
-    (Pos.to_nat k * greatest_series_x_power_lim fld cnt s n)%nat.
+  greatest_series_x_power_lim rng cnt (series_stretch k s) (Pos.to_nat k * n) =
+    (Pos.to_nat k * greatest_series_x_power_lim rng cnt s n)%nat.
 Proof.
 -- à nettoyer
 intros s n k cnt.
@@ -2297,12 +2297,12 @@ induction cnt; intros.
 
  simpl.
  remember
-  (null_coeff_range_length fld (series_stretch k s) (S (Pos.to_nat k * n))) as m
+  (null_coeff_range_length rng (series_stretch k s) (S (Pos.to_nat k * n))) as m
   eqn:Hm .
  symmetry in Hm.
  destruct m as [m| ].
   rewrite divmod_mod.
-  remember (null_coeff_range_length fld s (S n)) as p eqn:Hp .
+  remember (null_coeff_range_length rng s (S n)) as p eqn:Hp .
   symmetry in Hp.
   destruct p as [p| ].
    rewrite divmod_mod.
@@ -2366,7 +2366,7 @@ induction cnt; intros.
     assumption.
 
   rewrite Nat.mul_comm in Hm.
-  remember (null_coeff_range_length fld s (S n)) as p eqn:Hp .
+  remember (null_coeff_range_length rng s (S n)) as p eqn:Hp .
   symmetry in Hp.
   destruct p as [p| ]; [ idtac | auto ].
   apply null_coeff_range_length_stretch_succ with (k := k) in Hp.
@@ -2384,7 +2384,7 @@ intros s b n k.
 revert b.
 induction n; intros.
  simpl.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
+ remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   erewrite null_coeff_range_length_stretch_succ; eauto .
@@ -2402,7 +2402,7 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 
  simpl.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
+ remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len as [len| ].
   erewrite null_coeff_range_length_stretch_succ; eauto .
@@ -2481,14 +2481,14 @@ destruct n.
  pose proof (Hk O) as Hk₀.
  pose proof (Hl O) as Hl₀.
  simpl in Hk₀, Hl₀ |- *.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
+ remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
 
  pose proof (Hk (S n)) as Hkn.
  pose proof (Hl (S n)) as Hln.
  simpl in Hkn, Hln |- *.
- remember (null_coeff_range_length fld s (S b)) as len eqn:Hlen .
+ remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
  symmetry in Hlen.
  destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
 Qed.
@@ -2637,12 +2637,12 @@ destruct H; [ contradiction | assumption ].
 Qed.
 
 Lemma greatest_series_x_power_stretch : ∀ s b k,
-  greatest_series_x_power fld (series_stretch k s) (b * Pos.to_nat k) =
-    (k * greatest_series_x_power fld s b)%positive.
+  greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =
+    (k * greatest_series_x_power rng s b)%positive.
 Proof.
 (* à nettoyer *)
 intros s b k.
-remember (greatest_series_x_power fld s b) as m eqn:Hm .
+remember (greatest_series_x_power rng s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
 apply is_the_greatest_series_x_power_equiv.

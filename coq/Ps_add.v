@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.55 2013-11-30 09:03:38 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.56 2013-12-03 10:44:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,7 +38,7 @@ unfold normalise_nz; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (null_coeff_range_length fld (nz_terms nz) 0) as m eqn:Hm .
+remember (null_coeff_range_length rng (nz_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; constructor; simpl.
@@ -119,7 +119,7 @@ constructor; constructor; simpl.
   apply Z.nle_gt.
   pose proof
    (Z.gcd_nonneg (Z.gcd (nz_valnum nz + Z.of_nat m) (' nz_comden nz))
-      (' greatest_series_x_power fld (nz_terms nz) m)) 
+      (' greatest_series_x_power rng (nz_terms nz) m)) 
    as H₁.
   intros H₂.
   apply Z.le_antisymm in H₁; [ idtac | assumption ].
@@ -206,7 +206,7 @@ unfold series_stretch; simpl.
 unfold series_add; simpl.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -296,7 +296,7 @@ Proof.
 intros nz₁ nz₂.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_comm.
-remember (null_coeff_range_length fld (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (nz_terms_add nz₂ nz₁) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
@@ -324,7 +324,7 @@ Proof.
 intros s₁ s₂ n.
 constructor.
 intros i.
-unfold series_add, series_nth_fld; simpl.
+unfold series_add, series_nth_rng; simpl.
 rewrite Nbar.add_max_distr_r.
 remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) + fin n)) as c₁.
 remember (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as c₂.
@@ -466,7 +466,7 @@ intros nz₁ nz₂ nz₃.
 unfold normalise_nz; simpl.
 rewrite nz_terms_add_assoc.
 remember
-  (null_coeff_range_length fld (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
+  (null_coeff_range_length rng (nz_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; constructor; constructor; simpl.
@@ -566,7 +566,7 @@ Lemma series_shift_series_0 : ∀ n, series_shift n series_0 ≃ series_0.
 Proof.
 intros n.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 remember (Nbar.lt_dec (fin i) (fin n)) as d₁.
 remember (lt_dec i n) as d₂.
 remember (Nbar.lt_dec (fin i) 0) as d₃.
@@ -651,7 +651,7 @@ Proof.
 intros n k s₁ s₂ Heq.
 constructor; intros.
 induction Heq.
-unfold series_nth_fld.
+unfold series_nth_rng.
 simpl.
 destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
  as [H₁| H₁].
@@ -668,7 +668,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
    destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
     [ idtac | reflexivity ].
    rewrite H.
-   unfold series_nth_fld.
+   unfold series_nth_rng.
    destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₂))
     as [H₅| H₅]; [ idtac | reflexivity ].
    exfalso; apply H₂.
@@ -695,7 +695,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
    [ idtac | reflexivity ].
   symmetry.
   rewrite <- H.
-  unfold series_nth_fld.
+  unfold series_nth_rng.
   destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₁)) as [H₅| H₅];
    [ idtac | reflexivity ].
   exfalso; apply H₁.
@@ -726,7 +726,7 @@ intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 constructor; intros i.
 inversion_clear Heq₁.
 inversion_clear Heq₂.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 unfold cm_factor.
 rewrite H, H0, H2, H3; simpl.
 remember (nz_comden nz₃) as c₃.
@@ -745,7 +745,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
   reflexivity.
 
   unfold adjust_series.
-  unfold series_nth_fld; simpl.
+  unfold series_nth_rng; simpl.
   rewrite <- Heqx₂, <- Heqy₂.
   destruct (Nbar.lt_dec (fin i) x₂) as [H₃| H₃].
    exfalso; apply H₂.
@@ -761,7 +761,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
   rewrite <- H1, <- H4.
   unfold adjust_series.
-  unfold series_nth_fld; simpl.
+  unfold series_nth_rng; simpl.
   rewrite <- Heqx₁, <- Heqy₁.
   destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
    exfalso; apply H₁.

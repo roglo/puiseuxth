@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.85 2013-12-03 03:03:53 deraugla Exp $ *)
+(* $Id: Series.v,v 2.86 2013-12-03 10:44:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -7,7 +7,8 @@ Require Import NPeano.
 Require Field.
 Module Field_inst : Field.FieldType.
   Variable α : Type.
-  Variable fld : Field.Tdef.t α.
+  Variable fld : Field.Tdef.f α.
+  Definition rng := Field.Tdef.ring fld.
 End Field_inst.
 Module Lfield := Field.Make Field_inst.
 Export Field_inst.
@@ -27,11 +28,11 @@ Definition series_nth α n (s : series α) :=
   | ∞ => Some (terms s n)
   end.
 
-Definition series_nth_fld α fld n (s : series α) :=
-  if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.Tdef.zero fld.
+Definition series_nth_rng α rng n (s : series α) :=
+  if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.Tdef.zero rng.
 
 Definition series_inf α fld (a : series α) :=
-  {| terms i := series_nth_fld fld i a; stop := ∞ |}.
+  {| terms i := series_nth_rng fld i a; stop := ∞ |}.
 
 Theorem stop_0_series_nth_None : ∀ α (s : series α),
   stop s = 0%Nbar → series_nth 0 s = None.
@@ -45,13 +46,13 @@ Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next le
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
-Definition series_0 := {| terms i := Lfield.zero fld; stop := 0 |}.
-Definition series_1 := {| terms i := Lfield.one fld; stop := 1 |}.
+Definition series_0 := {| terms i := Lfield.zero rng; stop := 0 |}.
+Definition series_1 := {| terms i := Lfield.one rng; stop := 1 |}.
 Definition series_const (c : α) := {| terms i := c; stop := 1 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, series_nth_fld fld i s₁ ≍ series_nth_fld fld i s₂)
+    (∀ i, series_nth_rng rng i s₁ ≍ series_nth_rng rng i s₂)
     → eq_series s₁ s₂.
 
 Notation "a ≃ b" := (eq_series a b) (at level 70).
@@ -80,12 +81,12 @@ Qed.
 
 (* *)
 
-Lemma series_inf_eq : ∀ a, a ≃ series_inf fld a.
+Lemma series_inf_eq : ∀ a, a ≃ series_inf rng a.
 Proof.
 intros a.
 constructor; intros i.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ reflexivity | idtac ].
 exfalso; apply H₁; constructor.
 Qed.
@@ -94,12 +95,12 @@ Qed.
 
 Definition series_add s₁ s₂ :=
   {| terms i :=
-       Lfield.add fld (series_nth_fld fld i s₁) (series_nth_fld fld i s₂);
+       Lfield.add rng (series_nth_rng rng i s₁) (series_nth_rng rng i s₂);
      stop :=
        Nbar.max (stop s₁) (stop s₂) |}.
 
 Definition series_opp s :=
-  {| terms i := Lfield.opp fld (terms s i); stop := stop s |}.
+  {| terms i := Lfield.opp rng (terms s i); stop := stop s |}.
 
 Theorem series_add_comm : ∀ s₁ s₂,
   series_add s₁ s₂ ≃ series_add s₂ s₁.
@@ -107,7 +108,7 @@ Proof.
 intros s₁ s₂.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.max_comm.
 destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
  destruct (Nbar.lt_dec (fin i) (fin n)) as [Hlt| ]; [ idtac | reflexivity ].
@@ -124,7 +125,7 @@ intros s₁ s₂ s₃.
 unfold series_add; simpl.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.max_assoc.
 remember (Nbar.lt_dec (fin i) (stop s₁)) as lt₁.
 remember (Nbar.lt_dec (fin i) (stop s₂)) as lt₂.
@@ -183,10 +184,10 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, series_nth_fld fld i series_0 ≍ Lfield.zero fld.
+Lemma series_nth_series_0 : ∀ i, series_nth_rng rng i series_0 ≍ Lfield.zero rng.
 Proof.
 intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
@@ -194,13 +195,13 @@ Theorem series_add_0_l : ∀ s, series_add series_0 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_nth_fld.
+unfold series_nth_rng.
 rewrite stop_series_add_0_l; simpl.
 remember (Nbar.lt_dec (fin i) (stop s)) as d.
 destruct d as [H₁| H₁]; [ idtac | reflexivity ].
 rewrite series_nth_series_0.
 rewrite Lfield.add_0_l.
-unfold series_nth_fld.
+unfold series_nth_rng.
 rewrite <- Heqd; reflexivity.
 Qed.
 
@@ -208,25 +209,25 @@ Theorem series_add_opp : ∀ s, series_add s (series_opp s) ≃ series_0.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.max_id.
 destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
  exfalso; revert H₁; apply Nbar.nlt_0_r.
 
  clear H₁.
- unfold series_nth_fld; simpl.
+ unfold series_nth_rng; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
  apply Lfield.add_opp_r.
 Qed.
 
 (* series_mul *)
 
-Definition δ i j := if eq_nat_dec i j then Lfield.one fld else Lfield.zero fld.
+Definition δ i j := if eq_nat_dec i j then Lfield.one rng else Lfield.zero rng.
 
 Fixpoint sigma_aux b len f :=
   match len with
-  | O => 0%fld
-  | S len₁ => (f b + sigma_aux (S b) len₁ f)%fld
+  | O => 0%rng
+  | S len₁ => (f b + sigma_aux (S b) len₁ f)%rng
   end.
 
 Definition sigma b e f := sigma_aux b (S e - b) f.
@@ -236,8 +237,8 @@ Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
 
 Definition convol_mul a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
-    (Lfield.mul fld (δ (i + j) k)
-       (Lfield.mul fld (series_nth_fld fld i a) (series_nth_fld fld j b))).
+    (Lfield.mul rng (δ (i + j) k)
+       (Lfield.mul rng (series_nth_rng rng i a) (series_nth_rng rng j b))).
 
 Definition series_mul a b :=
   {| terms k := convol_mul a b k;
@@ -289,8 +290,8 @@ apply Hfg.
 Qed.
 
 Lemma sigma_mul_comm : ∀ f g b k,
-  Σ (i = b, k)   (f i * g i)%fld
-  ≍ Σ (i = b, k)   (g i * f i)%fld.
+  Σ (i = b, k)   (f i * g i)%rng
+  ≍ Σ (i = b, k)   (g i * f i)%rng.
 Proof.
 intros f g b len.
 apply sigma_compat; intros i Hi.
@@ -298,8 +299,8 @@ apply Lfield.mul_comm.
 Qed.
 
 Lemma sigma_mul_assoc : ∀ f g h b k,
-  Σ (i = b, k)   (f i * (g i * h i))%fld
-  ≍ Σ (i = b, k)   (f i * g i * h i)%fld.
+  Σ (i = b, k)   (f i * (g i * h i))%rng
+  ≍ Σ (i = b, k)   (f i * g i * h i)%rng.
 Proof.
 intros f g h b k.
 apply sigma_compat; intros i Hi.
@@ -307,8 +308,8 @@ apply Lfield.mul_assoc.
 Qed.
 
 Lemma sigma_sigma_mul_comm : ∀ f g b₁ k₁ b₂ k₂,
-  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j)%fld
-  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (g i j * f i j)%fld.
+  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j)%rng
+  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (g i j * f i j)%rng.
 Proof.
 intros f g b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
@@ -316,8 +317,8 @@ apply Lfield.mul_comm.
 Qed.
 
 Lemma sigma_sigma_mul_assoc : ∀ f g h b₁ k₁ b₂ k₂,
-  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * (g i j * h i j))%fld
-  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j * h i j)%fld.
+  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * (g i j * h i j))%rng
+  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j * h i j)%rng.
 Proof.
 intros f g h b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
@@ -325,8 +326,8 @@ apply Lfield.mul_assoc.
 Qed.
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
-  (∀ i, (b ≤ i < b + len)%nat → f i ≍ 0%fld)
-  → sigma_aux b len (λ i, f i) ≍ 0%fld.
+  (∀ i, (b ≤ i < b + len)%nat → f i ≍ 0%rng)
+  → sigma_aux b len (λ i, f i) ≍ 0%rng.
 Proof.
 intros f b len H.
 revert b H.
@@ -337,7 +338,7 @@ intros i Hi; apply H; omega.
 Qed.
 
 Lemma all_0_sigma_0 : ∀ f i₁ i₂,
-  (∀ i, i₁ ≤ i ≤ i₂ → f i ≍ 0%fld) → Σ (i = i₁, i₂)   f i ≍ 0%fld.
+  (∀ i, i₁ ≤ i ≤ i₂ → f i ≍ 0%rng) → Σ (i = i₁, i₂)   f i ≍ 0%rng.
 Proof.
 intros f i₁ i₂ H.
 apply all_0_sigma_aux_0.
@@ -346,14 +347,14 @@ apply H.
 split; [ assumption | omega ].
 Qed.
 
-Lemma delta_id : ∀ i, δ i i ≍ 1%fld.
+Lemma delta_id : ∀ i, δ i i ≍ 1%rng.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
 exfalso; apply H₁; reflexivity.
 Qed.
 
-Lemma delta_neq : ∀ i j, i ≠ j → δ i j ≍ 0%fld.
+Lemma delta_neq : ∀ i j, i ≠ j → δ i j ≍ 0%rng.
 Proof.
 intros i j Hij; unfold δ.
 destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
@@ -375,7 +376,7 @@ constructor.
 intros i.
 inversion Hab; subst.
 inversion Hcd; subst.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
   unfold convol_mul.
@@ -391,7 +392,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
    rewrite H₃, delta_id, Lfield.mul_1_l, H, H0.
-   unfold series_nth_fld; simpl.
+   unfold series_nth_rng; simpl.
    destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
     destruct (Nbar.lt_dec (fin j) (stop d)) as [H₅| H₅].
      exfalso; apply H₂.
@@ -422,7 +423,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
    rewrite H₃, delta_id, Lfield.mul_1_l, <- H, <- H0.
-   unfold series_nth_fld; simpl.
+   unfold series_nth_rng; simpl.
    destruct (Nbar.lt_dec (fin i) (stop a)) as [H₄| H₄].
     destruct (Nbar.lt_dec (fin j) (stop c)) as [H₅| H₅].
      exfalso; apply H₁.
@@ -506,7 +507,7 @@ Theorem series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
 Proof.
 intros a b.
 constructor; intros k.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  unfold convol_mul.
@@ -530,7 +531,7 @@ Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_nth_fld.
+unfold series_nth_rng.
 rewrite stop_series_mul_0_l; simpl.
 destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  unfold convol_mul.
@@ -550,15 +551,15 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Lemma delta_0_succ : ∀ i, δ 0 (S i) ≍ 0%fld.
+Lemma delta_0_succ : ∀ i, δ 0 (S i) ≍ 0%rng.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
 Lemma sigma_aux_mul_swap : ∀ a f b len,
-  sigma_aux b len (λ i, (a * f i)%fld)
-  ≍ (a * sigma_aux b len f)%fld.
+  sigma_aux b len (λ i, (a * f i)%rng)
+  ≍ (a * sigma_aux b len f)%rng.
 Proof.
 intros a f b len; revert b.
 induction len; intros; simpl.
@@ -569,8 +570,8 @@ induction len; intros; simpl.
 Qed.
 
 Lemma sigma_mul_swap : ∀ a f b k,
-  Σ (i = b, k)   (a * f i)%fld
-  ≍ (a * Σ (i = b, k)   f i)%fld.
+  Σ (i = b, k)   (a * f i)%rng
+  ≍ (a * Σ (i = b, k)   f i)%rng.
 Proof.
 intros a f b k.
 apply sigma_aux_mul_swap.
@@ -578,9 +579,9 @@ Qed.
 
 Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
   sigma_aux b₁ len
-    (λ i, sigma_aux b₂ (f i) (λ j, (g i * h i j)%fld))
+    (λ i, sigma_aux b₂ (f i) (λ j, (g i * h i j)%rng))
   ≍ sigma_aux b₁ len
-      (λ i, (g i * sigma_aux b₂ (f i) (λ j, h i j))%fld).
+      (λ i, (g i * sigma_aux b₂ (f i) (λ j, h i j))%rng).
 Proof.
 intros f g h b₁ b₂ len.
 revert b₁ b₂.
@@ -591,8 +592,8 @@ apply sigma_aux_mul_swap.
 Qed.
 
 Lemma sigma_sigma_mul_swap : ∀ f g h k,
-  Σ (i = 0, k)   Σ (j = 0, f i)   (g i * h i j)%fld
-  ≍ Σ (i = 0, k)   (g i * Σ (j = 0, f i)   h i j)%fld.
+  Σ (i = 0, k)   Σ (j = 0, f i)   (g i * h i j)%rng
+  ≍ Σ (i = 0, k)   (g i * Σ (j = 0, f i)   h i j)%rng.
 Proof.
 intros f g h k.
 apply sigma_aux_sigma_aux_mul_swap.
@@ -601,17 +602,17 @@ Qed.
 (*
 Lemma sigma_sigma_sigma_mul_swap : ∀ f g h l b₁ b₂ b₃ e,
   Σ (i = b₁, e)  
-  Σ (j = b₂, f i)   Σ (k = b₃, g i j)   (h i j * l i j k)%fld
+  Σ (j = b₂, f i)   Σ (k = b₃, g i j)   (h i j * l i j k)%rng
   ≍ Σ (i = b₁, e)  
-    Σ (j = b₂, f i)   (h i j * Σ (k = b₃, g i j)   l i j k)%fld.
+    Σ (j = b₂, f i)   (h i j * Σ (k = b₃, g i j)   l i j k)%rng.
 Proof.
 intros f g h l b₁ b₂ b₃ e.
 bbb.
 *)
 
 Lemma glop : ∀ f g h k,
-  Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%fld
-  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%fld.
+  Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%rng
+  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%rng.
 Proof.
 intros f g h k.
 apply sigma_compat; intros i Hi.
@@ -623,7 +624,7 @@ Qed.
 
 Lemma sigma_only_one_non_0 : ∀ f b v k,
   (b ≤ v ≤ k)%nat
-  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → f i ≍ 0)%fld
+  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → f i ≍ 0)%rng
     → Σ (i = b, k)   f i ≍ f v.
 Proof.
 intros f b v k (Hbv, Hvk) Hi.
@@ -664,7 +665,7 @@ Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 remember (stop s) as st eqn:Hst .
 symmetry in Hst.
 destruct st as [st| ].
@@ -675,12 +676,12 @@ destruct st as [st| ].
    rewrite glop.
    rewrite sigma_only_one_non_0 with (v := O).
     simpl.
-    unfold series_nth_fld at 1; simpl.
+    unfold series_nth_rng at 1; simpl.
     destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
      rewrite Lfield.mul_1_l.
      rewrite sigma_only_one_non_0 with (v := k).
       rewrite delta_id, Lfield.mul_1_l.
-      unfold series_nth_fld.
+      unfold series_nth_rng.
       rewrite <- Hst in H₁.
       destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
       reflexivity.
@@ -696,7 +697,7 @@ destruct st as [st| ].
     split; [ reflexivity | apply Nat.le_0_l ].
 
     intros i Hik Hi.
-    unfold series_nth_fld at 1; simpl.
+    unfold series_nth_rng at 1; simpl.
     destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
      apply Nbar.fin_lt_mono in H₃.
      apply Nat.lt_1_r in H₃; contradiction.
@@ -713,7 +714,7 @@ destruct st as [st| ].
    apply all_0_sigma_0; intros i Hi.
    apply all_0_sigma_0; intros j Hj.
    destruct i; simpl.
-    unfold series_nth_fld; simpl.
+    unfold series_nth_rng; simpl.
     destruct (Nbar.lt_dec (fin j) (stop s)) as [H₃| H₃].
      unfold δ.
      destruct (eq_nat_dec j k) as [H₄| H₄].
@@ -724,7 +725,7 @@ destruct st as [st| ].
 
      rewrite Lfield.mul_assoc, Lfield.mul_0_r; reflexivity.
 
-    unfold series_nth_fld; simpl.
+    unfold series_nth_rng; simpl.
     destruct (Nbar.lt_dec (fin (S i)) 1) as [H₃| H₃].
      apply Nbar.nle_gt in H₃.
      exfalso; apply H₃.
@@ -740,12 +741,12 @@ destruct st as [st| ].
  rewrite glop.
  rewrite sigma_only_one_non_0 with (v := O).
   simpl.
-  unfold series_nth_fld at 1; simpl.
+  unfold series_nth_rng at 1; simpl.
   destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
    rewrite Lfield.mul_1_l.
    rewrite sigma_only_one_non_0 with (v := k).
     rewrite delta_id, Lfield.mul_1_l.
-    unfold series_nth_fld.
+    unfold series_nth_rng.
     rewrite <- Hst in H₁.
     destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
     reflexivity.
@@ -761,7 +762,7 @@ destruct st as [st| ].
   split; [ reflexivity | apply Nat.le_0_l ].
 
   intros i Hik Hi.
-  unfold series_nth_fld at 1; simpl.
+  unfold series_nth_rng at 1; simpl.
   destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
    apply Nbar.fin_lt_mono in H₃.
    apply Nat.lt_1_r in H₃; contradiction.
@@ -770,8 +771,8 @@ destruct st as [st| ].
 Qed.
 
 Lemma mul_sigma_aux_inj : ∀ f a b len,
-  (a * sigma_aux b len (λ i, f i))%fld
-   ≍ sigma_aux b len (λ i, (a * f i)%fld).
+  (a * sigma_aux b len (λ i, f i))%rng
+   ≍ sigma_aux b len (λ i, (a * f i)%rng).
 Proof.
 intros f a b len; revert b.
 induction len; intros; simpl.
@@ -782,7 +783,7 @@ induction len; intros; simpl.
 Qed.
 
 Lemma mul_sigma_inj : ∀ f i₁ i₂ a,
-  (a * Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₂)   a * f i)%fld.
+  (a * Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₂)   a * f i)%rng.
 Proof.
 intros f i₁ i₂ a.
 apply mul_sigma_aux_inj.
@@ -790,7 +791,7 @@ Qed.
 
 Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
   len₁ ≤ len₂
-  → (∀ i, (b + len₁ ≤ i)%nat → f i ≍ 0%fld)
+  → (∀ i, (b + len₁ ≤ i)%nat → f i ≍ 0%rng)
     → sigma_aux b len₁ (λ i, f i)
       ≍ sigma_aux b len₂ (λ i, f i).
 Proof.
@@ -817,7 +818,7 @@ Qed.
 
 Lemma sigma_extend_0 : ∀ f i₁ i₂ i₃,
   i₂ ≤ i₃
-  → (∀ i, (i₂ < i)%nat → f i ≍ 0%fld)
+  → (∀ i, (i₂ < i)%nat → f i ≍ 0%rng)
     → Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₃)   f i.
 Proof.
 intros f i₁ i₂ i₃ Hi₂₃ Hi.
@@ -827,19 +828,19 @@ apply Hi; omega.
 Qed.
 
 Lemma series_inf_nth : ∀ s t i,
-  s = series_inf fld t
-  → series_nth_fld fld i s ≍ terms s i.
+  s = series_inf rng t
+  → series_nth_rng rng i s ≍ terms s i.
 Proof.
 intros s t i Hs.
 subst s; simpl.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
 Lemma series_nth_inf : ∀ a i,
-  series_nth_fld fld i (series_inf fld a) ≍ terms (series_inf fld a) i.
+  series_nth_rng rng i (series_inf rng a) ≍ terms (series_inf rng a) i.
 Proof.
 intros a i.
 rewrite series_inf_nth; reflexivity.
@@ -847,18 +848,18 @@ Qed.
 
 Definition convol_mul_inf a b k :=
   Σ (i = 0, k)   Σ (j = 0, k)  
-    (δ (i + j) k * terms a i * terms b j)%fld.
+    (δ (i + j) k * terms a i * terms b j)%rng.
 
 Definition series_mul_inf a b :=
   {| terms k := convol_mul_inf a b k; stop := ∞ |}.
 
 Lemma series_mul_mul_inf : ∀ a b,
   series_mul a b
-  ≃ series_mul_inf (series_inf fld a) (series_inf fld b).
+  ≃ series_mul_inf (series_inf rng a) (series_inf rng b).
 Proof.
 intros a b.
 constructor; intros k.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
  clear H₁.
  destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₁| H₁].
@@ -872,7 +873,7 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
   symmetry; unfold convol_mul_inf; simpl.
   apply all_0_sigma_0; intros i Hi.
   apply all_0_sigma_0; intros j Hj.
-  unfold series_nth_fld.
+  unfold series_nth_rng.
   destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
    destruct (Nbar.lt_dec (fin j) (stop b)) as [H₃| H₃].
     destruct (eq_nat_dec (i + j) k) as [H₄| H₄].
@@ -900,8 +901,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
 Qed.
 
 Lemma series_inf_mul : ∀ a b,
-  series_inf fld (series_mul a b)
-  ≃ series_mul_inf (series_inf fld a) (series_inf fld b).
+  series_inf rng (series_mul a b)
+  ≃ series_mul_inf (series_inf rng a) (series_inf rng b).
 Proof.
 intros a b.
 rewrite <- series_mul_mul_inf.
@@ -910,18 +911,18 @@ reflexivity.
 Qed.
 
 Lemma series_nth_mul_inf : ∀ a b i,
-  series_nth_fld fld i (series_mul_inf a b)
+  series_nth_rng rng i (series_mul_inf a b)
   ≍ terms (series_mul_inf a b) i.
 Proof.
 intros a b i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
 Lemma sigma_aux_sigma_aux_extend_0 : ∀ f g b₁ b₂ len₁ len₂,
   (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
-  → (∀ i j, (b₂ + g i ≤ j)%nat → f i j ≍ 0%fld)
+  → (∀ i j, (b₂ + g i ≤ j)%nat → f i j ≍ 0%rng)
     → sigma_aux b₁ len₁ (λ i, sigma_aux b₂ (g i) (λ j, f i j))
       ≍ sigma_aux b₁ len₁ (λ i, sigma_aux b₂ len₂ (λ j, f i j)).
 Proof.
@@ -935,7 +936,7 @@ apply sigma_aux_extend_0.
 Qed.
 
 Lemma sigma_sigma_extend_0 : ∀ f m,
-  (∀ i j, (i < j)%nat → f i j ≍ 0%fld)
+  (∀ i j, (i < j)%nat → f i j ≍ 0%rng)
   → Σ (i = 0, m)   Σ (j = 0, i)   f i j
     ≍ Σ (i = 0, m)   Σ (j = 0, m)   f i j.
 Proof.
@@ -948,14 +949,14 @@ Definition sigma_mul_3 aa bb cc m :=
   Σ (i = 0, m)  
   Σ (j = 0, m)  
   Σ (k = 0, m)  
-    (δ (i + j + k) m * terms aa i * terms bb j * terms cc k)%fld.
+    (δ (i + j + k) m * terms aa i * terms bb j * terms cc k)%rng.
 
 Lemma convol_mul_assoc_1 : ∀ aa bb cc m,
   Σ (i = 0, m)  
   Σ (l = 0, m)  
    (δ (i + l) m * terms aa i *
     Σ (j = 0, l)  
-    Σ (k = 0, l)   δ (j + k) l * terms bb j * terms cc k)%fld
+    Σ (k = 0, l)   δ (j + k) l * terms bb j * terms cc k)%rng
   ≍ sigma_mul_3 aa bb cc m.
 Proof.
 (* à nettoyer *)
@@ -1043,7 +1044,7 @@ Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
    ((δ (i + j) k *
      Σ (i0 = 0, i)  
      (Σ (j0 = 0, i)   δ (i0 + j0) i * terms aa i0 * terms bb j0)) *
-     terms cc j)%fld ≍ sigma_mul_3 aa bb cc k.
+     terms cc j)%rng ≍ sigma_mul_3 aa bb cc k.
 Proof.
 intros a b c m.
 unfold sigma_mul_3.
@@ -1130,21 +1131,21 @@ pose proof (series_mul_mul_inf a b) as H.
 rewrite H; clear H.
 rewrite series_mul_mul_inf; symmetry.
 rewrite series_mul_mul_inf; symmetry.
-remember (series_inf fld a) as aa eqn:Haa .
-remember (series_inf fld b) as bb eqn:Hbb .
-remember (series_inf fld c) as cc eqn:Hcc .
+remember (series_inf rng a) as aa eqn:Haa .
+remember (series_inf rng b) as bb eqn:Hbb .
+remember (series_inf rng c) as cc eqn:Hcc .
 constructor; intros k.
 do 2 rewrite series_nth_mul_inf; simpl.
 unfold convol_mul_inf; simpl.
 remember
- (λ i j, (δ (i + j) k * terms aa i * terms (series_mul_inf bb cc) j)%fld) as f.
+ (λ i j, (δ (i + j) k * terms aa i * terms (series_mul_inf bb cc) j)%rng) as f.
 rewrite sigma_sigma_compat with (g := f); subst f.
  Focus 2.
  intros i j; rewrite series_nth_mul_inf; reflexivity.
 
  symmetry.
  remember
-  (λ i j, (δ (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%fld) as f.
+  (λ i j, (δ (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%rng) as f.
  rewrite sigma_sigma_compat with (g := f); subst f.
   Focus 2.
   intros i j; rewrite series_nth_mul_inf; reflexivity.
@@ -1165,13 +1166,13 @@ inversion Heq₁; subst.
 inversion Heq₂; subst.
 constructor; simpl.
 intros i.
-unfold series_nth_fld; simpl.
-unfold series_nth_fld in H; simpl in H.
-unfold series_nth_fld in H0; simpl in H0.
+unfold series_nth_rng; simpl.
+unfold series_nth_rng in H; simpl in H.
+unfold series_nth_rng in H0; simpl in H0.
 pose proof (H i) as Hi₁.
 pose proof (H0 i) as Hi₂.
 clear H H0.
-unfold series_nth_fld.
+unfold series_nth_rng.
 remember (Nbar.lt_dec (fin i) (stop s₁)) as lt₁.
 remember (Nbar.lt_dec (fin i) (stop s₂)) as lt₂.
 remember (Nbar.lt_dec (fin i) (stop s₃)) as lt₃.
@@ -1207,9 +1208,9 @@ destruct lt₅ as [Hlt₅| Hge₅].
    rewrite Lfield.add_0_l; reflexivity.
 Qed.
 
-Add Parametric Morphism : (series_nth_fld fld)
-with signature eq ==> eq_series ==> (Lfield.eq fld)
-as series_nth_fld_morph.
+Add Parametric Morphism : (series_nth_rng rng)
+with signature eq ==> eq_series ==> (Lfield.eq rng)
+as series_nth_rng_morph.
 Proof.
 intros s₁ s₂ i Heq.
 inversion Heq; subst.

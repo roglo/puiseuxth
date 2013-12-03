@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.1 2013-12-03 10:09:28 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.2 2013-12-03 10:44:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -36,7 +36,7 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   end.
 
 Delimit Scope ps_scope with ps.
-Notation "a + b" := (ps_add fld a b) : ps_scope.
+Notation "a + b" := (ps_add rng a b) : ps_scope.
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
@@ -47,7 +47,7 @@ unfold normalise_nz; simpl.
 remember (series_stretch (cm_factor nz₁ nz₂) (nz_terms nz₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch (cm_factor nz₂ nz₁) (nz_terms nz₂)) as s₂ eqn:Hs₂ .
 rewrite series_mul_comm.
-remember (null_coeff_range_length fld (series_mul s₂ s₁) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (series_mul s₂ s₁) 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
  unfold gcd_nz; simpl.
@@ -83,18 +83,18 @@ destruct ps₁ as [nz₁| ].
 Qed.
 
 Lemma fold_series_1 :
-  {| terms := λ _, Lfield.one fld; stop := 1 |} = series_1.
+  {| terms := λ _, Lfield.one rng; stop := 1 |} = series_1.
 Proof. reflexivity. Qed.
 
 Lemma stretch_series_1 : ∀ k, series_stretch k series_1 ≃ series_1.
 Proof.
 intros k.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nat.add_0_r.
 destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
  destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-  unfold series_nth_fld; simpl.
+  unfold series_nth_rng; simpl.
   apply Nat.mod_divides in H₂; auto.
   destruct H₂ as (c, Hc); rewrite Hc.
   rewrite Nat.mul_comm.
@@ -145,7 +145,7 @@ unfold normalise_nz; simpl.
 unfold cm_factor; simpl.
 rewrite fold_series_1, series_stretch_1.
 rewrite stretch_series_1, series_mul_1_l.
-remember (null_coeff_range_length fld (nz_terms nz) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (nz_terms nz) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
@@ -177,7 +177,7 @@ intros H.
 inversion_clear H.
 inversion_clear H0.
 pose proof (H O) as H₁.
-unfold series_nth_fld in H₁.
+unfold series_nth_rng in H₁.
 simpl in H₁.
 destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
  revert H₂; apply Nbar.lt_irrefl.
@@ -189,7 +189,7 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
 Qed.
 
 Lemma sigma_aux_add : ∀ f b k₁ k₂,
-  sigma_aux b (k₁ + k₂) f ≍ (sigma_aux b k₁ f + sigma_aux (b + k₁) k₂ f)%fld.
+  sigma_aux b (k₁ + k₂) f ≍ (sigma_aux b k₁ f + sigma_aux (b + k₁) k₂ f)%rng.
 Proof.
 intros f b k₁ k₂.
 revert b k₁.
@@ -215,7 +215,7 @@ Qed.
 
 Lemma sigma_add : ∀ f k₁ k₂,
   Σ (i = 0, k₁ + k₂)   f i
-  ≍ (Σ (i = 0, k₁)   f i + Σ (i = S k₁, k₁ + k₂)   f i)%fld.
+  ≍ (Σ (i = 0, k₁)   f i + Σ (i = S k₁, k₁ + k₂)   f i)%rng.
 Proof.
 intros f k₁ k₂.
 unfold sigma.
@@ -226,12 +226,12 @@ rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
 Lemma sigma_aux_succ : ∀ f b k,
-  sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%fld.
+  sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%rng.
 Proof. reflexivity. Qed.
 
 Lemma sigma_aux_twice_twice : ∀ f n k,
   sigma_aux (n + n)%nat (k + k)%nat f
-  ≍ sigma_aux n k (λ i, f (i + i)%nat + f (i + i + 1)%nat)%fld.
+  ≍ sigma_aux n k (λ i, f (i + i)%nat + f (i + i + 1)%nat)%rng.
 Proof.
 intros f n k.
 revert n; induction k; intros; [ reflexivity | simpl ].
@@ -308,7 +308,7 @@ Qed.
 
 Lemma inserted_0_sigma : ∀ f g k n,
   n ≠ O
-  → (∀ i, i mod n ≠ O → f i ≍ 0%fld)
+  → (∀ i, i mod n ≠ O → f i ≍ 0%rng)
     → (∀ i, f (n * i)%nat ≍ g i)
       → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
 Proof.
@@ -387,7 +387,7 @@ Lemma series_stretch_mul : ∀ a b k,
 Proof.
 intros a b k.
 constructor; intros i.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite <- Nbar.mul_add_distr_r.
 remember ((stop a + stop b) * fin (Pos.to_nat k))%Nbar as x.
 destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ subst x | reflexivity ].
@@ -397,7 +397,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  rewrite Hc.
  rewrite Nat.mul_comm.
  rewrite Nat.div_mul; auto.
- unfold series_nth_fld; simpl.
+ unfold series_nth_rng; simpl.
  destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
   unfold convol_mul; simpl.
   rename k into n, i into k.
@@ -428,8 +428,8 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
     rewrite <- Nat.mul_add_distr_l, Nat.mul_comm.
     rewrite delta_mul_cancel_r; auto.
     apply Lfield.mul_compat_l.
-    rewrite series_nth_fld_mul_stretch.
-    rewrite series_nth_fld_mul_stretch.
+    rewrite series_nth_rng_mul_stretch.
+    rewrite series_nth_rng_mul_stretch.
     reflexivity.
 
   exfalso; apply H₂.
@@ -496,7 +496,7 @@ remember (series_stretch c₂₃ (nz_terms nz₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch c₃₁ (nz_terms nz₂)) as s₂ eqn:Hs₂ .
 remember (series_stretch c₁₂ (nz_terms nz₃)) as s₃ eqn:Hs₃ .
 remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
-remember (null_coeff_range_length fld s₁₂₃ 0) as n eqn:Hn .
+remember (null_coeff_range_length rng s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_nz; simpl.
@@ -593,12 +593,12 @@ Qed.
 
 Lemma series_mul_stretch_mul_inf : ∀ a b k,
   series_mul (series_stretch k a) b
-  ≃ series_mul_inf (series_stretch k (series_inf fld a))
-      (series_inf fld b).
+  ≃ series_mul_inf (series_stretch k (series_inf rng a))
+      (series_inf rng b).
 Proof.
 intros a b l.
 constructor; intros k.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
  remember (stop a * fin (Pos.to_nat l) + stop b)%Nbar as x.
  destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
@@ -614,7 +614,7 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
     apply Nat.mod_divides in H₃; auto.
     destruct H₃ as (c, Hc).
     rewrite Hc.
-    rewrite series_nth_fld_mul_stretch.
+    rewrite series_nth_rng_mul_stretch.
     rewrite Nat.mul_comm.
     rewrite Nat.div_mul; auto.
     rewrite series_nth_inf.
@@ -642,7 +642,7 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
     rewrite Nat.div_mul; auto.
     rewrite series_nth_inf.
     simpl.
-    unfold series_nth_fld; simpl.
+    unfold series_nth_rng; simpl.
     destruct (Nbar.lt_dec (fin c) (stop a)) as [H₃| H₃].
      destruct (Nbar.lt_dec (fin j) (stop b)) as [H₄| H₄].
       rewrite <- H₂ in H₁.
@@ -686,10 +686,10 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → series_nth_fld fld i (series_shift n a) ≍ 0%fld.
+  → series_nth_rng rng i (series_shift n a) ≍ 0%rng.
 Proof.
 intros a i n Hin.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
  destruct (lt_dec i n) as [| H₂]; [ reflexivity | contradiction ].
 
@@ -714,7 +714,7 @@ Proof.
 (* à nettoyer *)
 intros a b n.
 constructor; intros k.
-unfold series_nth_fld; simpl.
+unfold series_nth_rng; simpl.
 rewrite Nbar.add_shuffle0.
 destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
  destruct (lt_dec k n) as [H₂| H₂].
@@ -904,15 +904,12 @@ rewrite ps_mul_comm; symmetry.
 apply ps_mul_compat_r; assumption.
 Qed.
 
-Definition ps_fld α : Lfield.t (puiseux_series α) :=
+Definition ps_rng α : Lfield.r (puiseux_series α) :=
   {| Lfield.zero := ps_zero;
      Lfield.one := ps_one;
      Lfield.add := ps_add;
      Lfield.mul := ps_mul;
      Lfield.opp := ps_opp;
-(*
-     Lfield.inv := 0;
-*)
      Lfield.eq := eq_ps;
      Lfield.eq_refl := eq_ps_refl;
      Lfield.eq_sym := eq_ps_sym;
@@ -927,14 +924,11 @@ Definition ps_fld α : Lfield.t (puiseux_series α) :=
      Lfield.mul_assoc := ps_mul_assoc;
      Lfield.mul_1_l := ps_mul_1_l;
      Lfield.mul_compat_l := ps_mul_compat_l;
-(*
-     Lfield.mul_inv_l := 0;
-*)
      Lfield.mul_add_distr_l := ps_mul_add_distr_l
    |}.
 
-Add Parametric Morphism α (fld : Lfield.t α) : (ps_mul fld)
-with signature eq_ps fld ==> eq_ps fld ==> eq_ps fld
+Add Parametric Morphism α (rng : Lfield.r α) : (ps_mul rng)
+with signature eq_ps rng ==> eq_ps rng ==> eq_ps rng
 as ps_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
