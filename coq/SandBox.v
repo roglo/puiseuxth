@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.178 2013-12-03 03:46:10 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.179 2013-12-03 03:59:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -719,14 +719,22 @@ destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma yyy : ∀ f b k n,
-  Σ (i = b, k)   f i ≍ Σ (i = b + n, k + n)   f (i + n)%nat.
+Lemma sigma_add_add_sub : ∀ f b k n,
+  Σ (i = b, k)   f i ≍ Σ (i = b + n, k + n)   f (i - n)%nat.
 Proof.
-bbb.
+intros f b k n.
+unfold sigma.
+replace (S (k + n) - (b + n))%nat with (S k - b)%nat by omega.
+apply sigma_aux_compat.
+intros i Hi.
+replace (b + n + i - n)%nat with (b + i)%nat by omega.
+reflexivity.
+Qed.
 
-Lemma zzz : ∀ a b n,
+Lemma series_shift_mul : ∀ a b n,
   series_shift n (series_mul a b) ≃ series_mul (series_shift n a) b.
 Proof.
+(* à nettoyer *)
 intros a b n.
 constructor; intros k.
 unfold series_nth_fld; simpl.
@@ -772,7 +780,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
 
     rewrite Lfield.add_0_l.
     symmetry.
-    rewrite yyy with (n := S n).
+    rewrite sigma_add_add_sub with (n := S n).
     rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
     apply sigma_compat; intros i Hi.
     symmetry.
@@ -787,7 +795,27 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
      assert (i = i - S n + S n)%nat as H by omega.
      rewrite H in |- * at 2.
      rewrite series_nth_add_shift.
-bbb.
+     apply Lfield.mul_compat_r.
+     rewrite <- Nat.add_sub_swap; [ idtac | destruct Hi; assumption ].
+     destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
+      rewrite H₃.
+      do 2 rewrite delta_id; reflexivity.
+
+      rewrite delta_neq; [ idtac | assumption ].
+      rewrite delta_neq; [ reflexivity | idtac ].
+      clear H.
+      intros H; apply H₃.
+      omega.
+
+     intros j Hj.
+     rewrite delta_neq.
+      rewrite Lfield.mul_0_l; reflexivity.
+
+      intros H.
+      omega.
+
+ reflexivity.
+Qed.
 
 Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,
   normalise_nz (nz_mul nz₁ nz₂) ≐
@@ -811,12 +839,11 @@ rewrite Pos_mul_shuffle0.
 rewrite series_stretch_mul.
 rewrite stretch_shift_series_distr.
 do 3 rewrite <- series_stretch_stretch.
-rewrite zzz.
+rewrite series_shift_mul.
 rewrite Pos.mul_comm.
 rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
-qed.
-*)
+Qed.
 
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
