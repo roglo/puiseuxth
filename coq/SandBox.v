@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.172 2013-12-03 02:04:30 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.173 2013-12-03 02:41:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -707,9 +707,35 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
+Lemma yyy : ∀ a i n,
+  (i < n)%nat
+  → series_nth_fld fld i (series_shift n a) ≍ 0%fld.
+Proof.
+bbb.
+
 Lemma zzz : ∀ a b n,
   series_shift n (series_mul a b) ≃ series_mul (series_shift n a) b.
 Proof.
+intros a b n.
+constructor; intros k.
+unfold series_nth_fld; simpl.
+rewrite Nbar.add_shuffle0.
+destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
+ destruct (lt_dec k n) as [H₂| H₂].
+  symmetry; unfold convol_mul; simpl.
+  apply all_0_sigma_0; intros i.
+  apply all_0_sigma_0; intros j.
+  destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
+   rewrite yyy.
+    rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
+
+    eapply le_lt_trans; [ idtac | eassumption ].
+    rewrite <- H₃; apply Nat.le_add_r.
+
+   rewrite delta_neq; [ idtac | assumption ].
+   rewrite Lfield.mul_0_l; reflexivity.
+
+  unfold convol_mul; simpl.
 bbb.
 
 Lemma normalise_nz_mul_adjust_l : ∀ nz₁ nz₂ n k,
