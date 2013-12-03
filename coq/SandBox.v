@@ -1,4 +1,4 @@
-(* $Id: SandBox.v,v 2.181 2013-12-03 09:44:32 deraugla Exp $ *)
+(* $Id: SandBox.v,v 2.182 2013-12-03 09:52:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -844,44 +844,22 @@ destruct ps₁ as [nz'₁| ].
  rewrite <- normalise_nz_mul_adjust_l.
  apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H1.
  rewrite H1; reflexivity.
-bbb.
 
-intros nz₁ nz₂ nz₃ Heq.
-remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
-remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
-symmetry in Hps₁, Hps₂.
-destruct ps₁ as [nz'₁| ].
- destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
- remember Hps₁ as H; clear HeqH.
- apply normalised_exists_adjust in H.
- destruct H as (n₁, (k₁, H)).
- apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H.
- rewrite H; clear H.
- remember Hps₂ as H; clear HeqH.
- apply normalised_exists_adjust in H.
- destruct H as (n₂, (k₂, H)).
- apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H.
- rewrite H; clear H.
- rewrite nz_norm_mul_comm; symmetry.
- rewrite nz_norm_mul_comm; symmetry.
- remember (normalise_nz nz₃) as ps₃ eqn:Hps₃ .
- symmetry in Hps₃.
- destruct ps₃ as [nz'₃| ].
-  remember Hps₃ as H; clear HeqH.
-  apply normalised_exists_adjust in H.
-  destruct H as (n₃, (k₃, H)).
-  remember H as H₁; clear HeqH₁.
-  apply eq_nz_mul_compat_r with (nz₃ := adjust_nz n₁ k₁ nz'₁) in H₁.
-  rewrite H₁; clear H₁.
-  remember H as H₁; clear HeqH₁.
-  apply eq_nz_mul_compat_r with (nz₃ := adjust_nz n₂ k₂ nz'₂) in H₁.
-  rewrite H₁; clear H₁.
-  unfold nz_mul; simpl.
-  inversion Heq; subst.
-  inversion H2; subst.
-  unfold cm; simpl.
-  rewrite <- H0, <- H1, <- H3.
-bbb.
+ destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
+ apply eq_nz_adjust_zero_neg_zero in Hps₁.
+ apply eq_nz_adjust_zero_neg_zero in Hps₂.
+ destruct Hps₁ as (n₁, (n₂, (k₁, (k₂, Hps₁)))).
+ destruct Hps₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
+ apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
+ rewrite normalise_nz_mul_adjust_l with (n := n₁) (k := k₁).
+ rewrite Hps₁; symmetry.
+ rewrite normalise_nz_mul_adjust_l with (n := n₃) (k := k₃).
+ rewrite Hps₂; symmetry.
+ rewrite <- normalise_nz_mul_adjust_l.
+ rewrite <- normalise_nz_mul_adjust_l.
+ reflexivity.
+Qed.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂
