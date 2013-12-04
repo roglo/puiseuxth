@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.76 2013-12-04 10:11:15 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.77 2013-12-04 11:03:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -107,11 +107,13 @@ Definition normalise_nz nz :=
       Zero _
   end.
 
+(*
 Definition normalise_ps ps :=
   match ps with
   | NonZero nz => normalise_nz nz
   | Zero => ps
   end.
+*)
 
 Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
   | eq_nz_base : ∀ nz₁ nz₂,
@@ -148,7 +150,7 @@ Definition nz_monom (c : α) pow :=
 
 Definition ps_monom c pow := NonZero (nz_monom c pow).
 Definition ps_const c : puiseux_series α := ps_monom c 0.
-Definition ps_one := ps_const (Lfield.one rng).
+Definition ps_one := ps_const 1%rng.
 
 Definition nz_zero :=
   {| nz_terms := series_0;
@@ -168,6 +170,7 @@ Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
 Notation "0" := ps_zero : ps_scope.
 Notation "1" := ps_one : ps_scope.
 
+(*
 Definition series_head (s : series α) :=
   {| terms := terms s; stop := 1 |}.
 
@@ -209,6 +212,7 @@ destruct (Nbar.lt_dec (fin i) 0) as [Hlt| ]; [ idtac | reflexivity ].
 inversion Hlt as [a b H d e| ]; subst.
 exfalso; revert H; apply Nat.nle_succ_0.
 Qed.
+*)
 
 Lemma series_stretch_1 : ∀ s, (series_stretch 1 s = s)%ser.
 Proof.
@@ -256,6 +260,7 @@ inversion H₁; subst.
  inversion H₂; subst; constructor.
 Qed.
 
+(*
 Lemma series_inf_shift : ∀ a n,
   (series_inf rng (series_shift n a) = series_shift n (series_inf rng a))%ser.
 Proof.
@@ -286,6 +291,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
 
  apply H₁; constructor.
 Qed.
+*)
 
 (* mmmm... probablement faux... à réfléchir...
 Lemma zzz : ∀ a b n k,
@@ -397,7 +403,8 @@ destruct n₁ as [n₁| ].
 Qed.
 
 (*
-Add Parametric Morphism α (rng : Lfield.t α) : (greatest_series_x_power_lim rng)
+Add Parametric Morphism α (rng : Lfield.t α) :
+    (greatest_series_x_power_lim rng)
   with signature eq ==> (eq_series rng) ==> eq ==> eq
   as greatest_series_x_power_lim_morph.
 Proof.
@@ -729,8 +736,7 @@ induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
 Lemma series_stretch_stretch : ∀ a b s,
-  (series_stretch (a * b) s =
-   series_stretch a (series_stretch b s))%ser.
+  (series_stretch (a * b) s = series_stretch a (series_stretch b s))%ser.
 Proof.
 intros ap bp s.
 unfold series_stretch; simpl.
@@ -1191,6 +1197,7 @@ Proof.
 aaa.
 *)
 
+(*
 Definition valuation (ps : puiseux_series α) :=
   match ps with
   | NonZero nz => Some (nz_valnum nz # nz_comden nz)
@@ -1224,6 +1231,7 @@ intros s c n Hn.
 apply null_coeff_range_length_iff in Hn.
 destruct Hn; assumption.
 Qed.
+*)
 
 Lemma series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.
 Proof.
@@ -1390,6 +1398,7 @@ destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
   reflexivity.
 Qed.
 
+(*
 Lemma zero_series_stretched : ∀ s,
   (∀ i : nat, series_nth_rng rng i s = 0)%rng
   → (∀ n k, series_nth_rng rng n (series_stretch k s) = 0)%rng.
@@ -1414,6 +1423,7 @@ pose proof (H (Pos.to_nat k * n)%nat) as Hn.
 rewrite series_nth_rng_mul_stretch in Hn.
 assumption.
 Qed.
+*)
 
 Lemma stretch_finite_series : ∀ s b k,
   (∀ i, (series_nth_rng rng (b + i) s = 0)%rng)
@@ -1506,7 +1516,8 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_shift_add : ∀ s m n,
-  null_coeff_range_length rng (series_shift m s) (m + n) = null_coeff_range_length rng s n.
+  null_coeff_range_length rng (series_shift m s) (m + n) =
+  null_coeff_range_length rng s n.
 Proof.
 intros s m n.
 remember (null_coeff_range_length rng s n) as v eqn:Hv .
@@ -1595,6 +1606,7 @@ split.
  exists m; erewrite nth_null_coeff_range_length_shift; assumption.
 Qed.
 
+(*
 Lemma null_coeff_range_length_succ : ∀ s n,
   null_coeff_range_length rng s (S n) =
   match null_coeff_range_length rng s n with
@@ -1626,6 +1638,7 @@ destruct m as [m| ].
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
  apply Hm.
 Qed.
+*)
 
 Lemma null_coeff_range_length_stretch_succ : ∀ s n p k,
   null_coeff_range_length rng s (S n) = fin p
@@ -1759,7 +1772,8 @@ Qed.
 
 Lemma null_coeff_range_length_stretch_succ_inf : ∀ s n k,
   null_coeff_range_length rng s (S n) = ∞
-  → null_coeff_range_length rng (series_stretch k s) (S (n * Pos.to_nat k)) = ∞.
+  → null_coeff_range_length rng (series_stretch k s) (S (n * Pos.to_nat k)) =
+      ∞.
 Proof.
 intros s n k Hp.
 apply null_coeff_range_length_iff in Hp.
@@ -1844,6 +1858,7 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
       else O
   end.
 
+(*
 Fixpoint index_of_nonzero_before_from s n i b last_b :=
   match n with
   | O => b
@@ -1855,10 +1870,12 @@ Fixpoint index_of_nonzero_before_from s n i b last_b :=
         end
       else last_b
   end.
+*)
 
 Definition rank_of_nonzero_before s i :=
   pred (rank_of_nonzero_after_from s (S i) i 0).
 
+(*
 Definition index_of_nonzero_before s i :=
   index_of_nonzero_before_from s (S i) i 0 0.
 
@@ -1978,6 +1995,7 @@ intros s i n len Hi Hn Hlen.
 eapply index_of_nonzero_before_from_right_bound; try eassumption.
 apply Nat.lt_succ_r; reflexivity.
 Qed.
+*)
 
 Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
@@ -2321,6 +2339,7 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
+(*
 Lemma stretch_is_not_a_series_in_x_power : ∀ s b k k₁,
   (∃ n,
    Pos.to_nat k * nth_null_coeff_range_length s n b mod
@@ -2334,6 +2353,7 @@ apply Hn.
 apply Nat.mod_divides; auto.
 apply Nat_divides_l, H.
 Qed.
+*)
 
 Lemma exists_nth_null_coeff_range_length_stretch : ∀ s b k k₁,
   (∃ n, Pos.to_nat k * nth_null_coeff_range_length s n b mod k₁ ≠ 0)%nat
@@ -2363,6 +2383,7 @@ rewrite Nat2Pos.id.
  destruct H; revert H; apply Pos2Nat_ne_0.
 Qed.
 
+(*
 Lemma series_in_x_power_lcm : ∀ s b k l,
   is_a_series_in_x_power s b k
   → is_a_series_in_x_power s b l
@@ -2421,6 +2442,7 @@ destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
   destruct c; [ idtac | intros H; discriminate H ].
   exfalso; revert Hc; apply Pos2Nat_ne_0.
 Qed.
+*)
 
 Definition is_the_greatest_series_x_power₂ s b k :=
   is_a_series_in_x_power s b k ∧
@@ -2514,6 +2536,7 @@ split; intros H.
    apply Nat_lcm_divides; auto.
 Qed.
 
+(*
 Lemma Nat_exists_mul_mod_distr_l : ∀ A (a : A → nat) b c,
   (b ≠ 0
    → c ≠ 0
@@ -2528,6 +2551,7 @@ intros H; apply Hn.
 apply Nat.mul_eq_0 in H.
 destruct H; [ contradiction | assumption ].
 Qed.
+*)
 
 Lemma greatest_series_x_power_stretch : ∀ s b k,
   greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =

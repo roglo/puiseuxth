@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.60 2013-12-04 09:59:04 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.61 2013-12-04 11:03:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -306,7 +306,7 @@ constructor; simpl.
  apply nz_terms_add_comm.
 Qed.
 
-Theorem ps_add_comm : ∀ ps₁ ps₂, (ps_add ps₁ ps₂ = ps_add ps₂ ps₁)%ps.
+Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
