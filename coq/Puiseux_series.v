@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.71 2013-12-03 10:44:45 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.72 2013-12-04 02:11:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -133,8 +133,6 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_zero :
       eq_ps (Zero _) (Zero _).
 
-Notation "a ≈ b" := (eq_ps a b) (at level 70).
-
 Definition ps_zero : puiseux_series α := Zero _.
 
 Definition nz_monom (c : α) pow :=
@@ -145,6 +143,22 @@ Definition nz_monom (c : α) pow :=
 Definition ps_monom c pow := NonZero (nz_monom c pow).
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const (Lfield.one rng).
+
+Definition nz_zero :=
+  {| nz_terms := series_0;
+     nz_valnum := 0;
+     nz_comden := 1 |}.
+
+Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
+
+Delimit Scope nz_scope with nz.
+Notation "a = b" := (eq_nz a b) : nz_scope.
+Notation "0" := nz_zero : nz_scope.
+
+Delimit Scope ps_scope with ps.
+Notation "a = b" := (eq_ps a b) : ps_scope.
+Notation "0" := ps_zero : ps_scope.
+Notation "1" := ps_one : ps_scope.
 
 Definition series_head (s : series α) :=
   {| terms := terms s; stop := 1 |}.

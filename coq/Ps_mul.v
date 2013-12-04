@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.11 2013-12-03 18:54:15 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.12 2013-12-04 02:11:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,16 +35,8 @@ Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
   | Zero => ps₁
   end.
 
-Delimit Scope ps_scope with ps.
-Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
-Notation "a * b" := (ps_mul a b) : ps_scope.
-
-Delimit Scope nz_scope with nz.
-Notation "a + b" := (nz_add a b) : nz_scope.
-Notation "a ₊ b" := (nz_add₂ a b) (at level 50) : nz_scope.
 Notation "a * b" := (nz_mul a b) : nz_scope.
-Notation "a = b" := (eq_nz a b) : nz_scope.
+Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
   normalise_nz (nz_mul nz₁ nz₂) ≐ normalise_nz (nz_mul nz₂ nz₁).

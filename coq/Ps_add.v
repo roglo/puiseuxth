@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.58 2013-12-03 17:46:29 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.59 2013-12-04 02:11:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,8 +10,6 @@ Require Import Nbar.
 Require Import Misc.
 
 Set Implicit Arguments.
-
-Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 
 (*
 Definition cm ps₁ ps₂ := Plcm (nz_comden ps₁) (nz_comden ps₂).
@@ -129,7 +127,8 @@ constructor; constructor; simpl.
   apply Pos2Z.is_pos.
 Qed.
 
-Theorem ps_adjust_eq : ∀ nz n k, NonZero nz ≈ NonZero (adjust_nz n k nz).
+Theorem ps_adjust_eq : ∀ nz n k,
+  (NonZero nz = NonZero (adjust_nz n k nz))%ps.
 Proof.
 intros nz n k.
 constructor.
@@ -196,6 +195,12 @@ Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
       end
   | Zero => ps₂
   end.
+
+Notation "a + b" := (nz_add a b) : nz_scope.
+Notation "a ₊ b" := (nz_add₂ a b) (at level 50) : nz_scope.
+
+Notation "a + b" := (ps_add a b) : ps_scope.
+Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
   series_stretch k (series_add s₁ s₂) ≃
@@ -301,7 +306,7 @@ constructor; simpl.
  apply nz_terms_add_comm.
 Qed.
 
-Theorem ps_add_comm : ∀ ps₁ ps₂, ps_add ps₁ ps₂ ≈ ps_add ps₂ ps₁.
+Theorem ps_add_comm : ∀ ps₁ ps₂, (ps_add ps₁ ps₂ = ps_add ps₂ ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 unfold ps_add; simpl.
@@ -489,28 +494,24 @@ destruct n as [n| ]; constructor; constructor; simpl.
  reflexivity.
 Qed.
 
-Delimit Scope ps_scope with ps.
-Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a +₂ b" := (ps_add₂ a b) (at level 50): ps_scope.
-
 Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_add ps₁ (ps_add ps₂ ps₃) ≈ ps_add (ps_add ps₁ ps₂) ps₃.
+  (ps₁ + (ps₂ + ps₃) = (ps₁ + ps₂) + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃; symmetry.
 destruct ps₁ as [nz₁| ]; [ idtac | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ idtac | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ idtac | rewrite ps_add_comm; reflexivity ].
-remember (ps_add (NonZero nz₁) (NonZero nz₂)) as x.
-remember (ps_add (NonZero nz₂) (NonZero nz₃)) as y.
+remember (NonZero nz₁ + NonZero nz₂)%ps as x.
+remember (NonZero nz₂ + NonZero nz₃)%ps as y.
 simpl in Heqx, Heqy; subst x y.
 simpl; constructor.
 apply nz_norm_add_assoc.
 Qed.
 
-Theorem ps_add_0_l : ∀ ps, ps_add ps_zero ps ≈ ps.
+Theorem ps_add_0_l : ∀ ps, (0 + ps = ps)%ps.
 Proof. reflexivity. Qed.
 
-Theorem ps_add_0_r : ∀ ps, ps_add ps ps_zero ≈ ps.
+Theorem ps_add_0_r : ∀ ps, (ps + 0 = ps)%ps.
 Proof. intros ps; rewrite ps_add_comm; reflexivity. Qed.
 
 Definition nz_opp nz :=
@@ -524,7 +525,12 @@ Definition ps_opp ps :=
   | Zero => Zero _
   end.
 
-Theorem ps_add_opp_r : ∀ ps, ps_add ps (ps_opp ps) ≈ ps_zero.
+Notation "- a" := (nz_opp a) : nz_scope.
+Notation "- a" := (ps_opp a) : ps_scope.
+Notation "a - b" := (nz_add a (nz_opp b)) : nz_scope.
+Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
+
+Theorem ps_add_opp_r : ∀ ps, (ps_add ps (ps_opp ps) = ps_zero)%ps.
 Proof.
 intros ps.
 unfold ps_zero.
@@ -544,17 +550,12 @@ rewrite series_stretch_series_0.
 reflexivity.
 Qed.
 
-Theorem ps_add_opp_l : ∀ ps, ps_add (ps_opp ps) ps ≈ ps_zero.
+Theorem ps_add_opp_l : ∀ ps, (- ps + ps = 0)%ps.
 Proof.
 intros ps.
 rewrite ps_add_comm.
 apply ps_add_opp_r.
 Qed.
-
-Definition nz_zero :=
-  {| nz_terms := series_0;
-     nz_valnum := 0;
-     nz_comden := 1 |}.
 
 Lemma series_shift_series_0 : ∀ n, series_shift n series_0 ≃ series_0.
 Proof.
@@ -608,13 +609,13 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_nz_norm_add_add₂ : ∀ nz₁ nz₂,
-  normalise_nz (nz_add nz₁ nz₂) ≐ normalise_nz (nz_add₂ nz₁ nz₂).
+  normalise_nz (nz₁ + nz₂)%nz ≐ normalise_nz (nz₁ ₊ nz₂)%nz.
 Proof.
 intros nz₁ nz₂.
 rewrite eq_nz_add_add₂; reflexivity.
 Qed.
 
-Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≈ ps_add₂ ps₁ ps₂.
+Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₁ ₊ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
 destruct ps₁ as [ps₁| ]; [ idtac | reflexivity ].

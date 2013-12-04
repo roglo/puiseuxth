@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.21 2013-12-03 20:46:13 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.22 2013-12-04 02:11:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,10 +9,6 @@ Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Ps_add.
 Require Import Misc.
-
-Delimit Scope ps_scope with ps.
-Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a ∔ b" := (nz_add a b) (at level 50).
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, series_nth_rng rng i s ≍ Lfield.zero rng)
@@ -66,7 +62,7 @@ Lemma gcd_nz_add : ∀ nz n,
   gcd_nz (n + Z.to_nat (nz_valnum nz))
     (greatest_series_x_power rng
        (series_shift (Z.to_nat (nz_valnum nz)) (nz_terms nz))
-       (n + Z.to_nat (nz_valnum nz))) (nz ∔ nz_zero) =
+       (n + Z.to_nat (nz_valnum nz))) (nz + 0)%nz =
   gcd_nz n (greatest_series_x_power rng (nz_terms nz) n) nz.
 Proof.
 intros nz n.
@@ -104,7 +100,7 @@ destruct z as [| z| z].
 Qed.
 
 Lemma normalise_nz_add_0_r : ∀ nz,
-  normalise_nz (nz ∔ nz_zero) ≐ normalise_nz nz.
+  normalise_nz (nz + 0)%nz ≐ normalise_nz nz.
 Proof.
 intros nz.
 unfold normalise_nz; simpl.
@@ -152,8 +148,8 @@ constructor; constructor; simpl.
 Qed.
 
 Lemma eq_nz_add_compat_r : ∀ nz₁ nz₂ nz₃,
-  eq_nz nz₁ nz₂
-  → eq_nz (nz₁ ∔ nz₃) (nz₂ ∔ nz₃).
+  (nz₁ = nz₂)%nz
+  → (nz₁ + nz₃ = nz₂ + nz₃)%nz.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -174,8 +170,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_nz_add_compat_l : ∀ nz₁ nz₂ nz₃,
-  eq_nz nz₁ nz₂
-  → eq_nz (nz₃ ∔ nz₁) (nz₃ ∔ nz₂).
+  (nz₁ = nz₂)%nz
+  → (nz₃ + nz₁ = nz₃ + nz₂)%nz.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 rewrite nz_add_comm; symmetry.
@@ -242,8 +238,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
-  normalise_nz (nz₁ ∔ nz₂) ≐
-  normalise_nz (adjust_nz 0 k nz₁ ∔ nz₂).
+  normalise_nz (nz₁ + nz₂)%nz ≐
+  normalise_nz (adjust_nz 0 k nz₁ + nz₂)%nz.
 Proof.
 intros nz₁ nz₂ k.
 rewrite nz_adjust_eq with (n := O) (k := k).
@@ -365,8 +361,8 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
 Qed.
 
 Lemma normalise_nz_add_adjust : ∀ nz₁ nz₂ n k m,
-  normalise_nz (adjust_nz m k nz₁ ∔ nz₂) ≐
-  normalise_nz (adjust_nz n k nz₁ ∔ nz₂).
+  normalise_nz (adjust_nz m k nz₁ + nz₂)%nz ≐
+  normalise_nz (adjust_nz n k nz₁ + nz₂)%nz.
 Proof.
 intros nz₁ nz₂ n k m.
 do 2 rewrite eq_nz_norm_add_add₂.
@@ -503,8 +499,8 @@ rewrite <- Z2Nat.inj_add.
 Qed.
 
 Lemma normalise_nz_add_adjust_l : ∀ nz₁ nz₂ n k,
-  normalise_nz (nz₁ ∔ nz₂) ≐
-  normalise_nz (adjust_nz n k nz₁ ∔ nz₂).
+  normalise_nz (nz₁ + nz₂)%nz ≐
+  normalise_nz (adjust_nz n k nz₁ + nz₂)%nz.
 Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_0_l with (k := k).
@@ -795,7 +791,7 @@ Qed.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
-  → normalise_nz (nz₁ ∔ nz₃) ≐ normalise_nz (nz₂ ∔ nz₃).
+  → normalise_nz (nz₁ + nz₃)%nz ≐ normalise_nz (nz₂ + nz₃)%nz.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
