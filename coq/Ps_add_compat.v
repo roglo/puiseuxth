@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.23 2013-12-04 02:34:39 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.24 2013-12-04 03:27:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,8 +11,8 @@ Require Import Ps_add.
 Require Import Misc.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
-  (∀ i, series_nth_rng rng i s ≍ Lfield.zero rng)
-  → ∀ i, series_nth_rng rng i (series_shift n s) ≍ Lfield.zero rng.
+  (∀ i, (series_nth_rng rng i s = 0)%rng)
+  → ∀ i, (series_nth_rng rng i (series_shift n s) = 0)%rng.
 Proof.
 intros s n H i.
 revert i.

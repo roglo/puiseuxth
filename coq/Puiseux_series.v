@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.73 2013-12-04 02:34:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.74 2013-12-04 03:27:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -20,10 +20,10 @@ Admitted.
 Definition null_coeff_range_length_prop s n v :=
   match v with
   | fin k =>
-      (∀ i, (i < k)%nat → series_nth_rng rng (n + i) s ≍ Lfield.zero rng) ∧
-      series_nth_rng rng (n + k) s ≭ Lfield.zero rng
+      (∀ i, (i < k)%nat → (series_nth_rng rng (n + i) s = 0)%rng) ∧
+      (series_nth_rng rng (n + k) s ≠ 0)%rng
   | ∞ =>
-      (∀ i, series_nth_rng rng (n + i) s ≍ Lfield.zero rng)
+      (∀ i, (series_nth_rng rng (n + i) s = 0)%rng)
   end.
 
 Axiom null_coeff_range_length_iff : ∀ s n v,
@@ -63,12 +63,12 @@ Definition series_stretch k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then
          series_nth_rng rng (i / Pos.to_nat k) s
-       else Lfield.zero rng;
+       else 0%rng;
      stop :=
        stop s * fin (Pos.to_nat k) |}.
 
 Definition series_shift n s :=
-  {| terms i := if lt_dec i n then Lfield.zero rng else terms s (i - n);
+  {| terms i := if lt_dec i n then 0%rng else terms s (i - n);
      stop := stop s + fin n |}.
 
 Record nz_ps α := mknz
@@ -188,7 +188,7 @@ Definition nz_tail nz :=
 
 Theorem null_series : ∀ s,
   series_nth 0 s = None
-  → ∀ i : nat, series_nth_rng rng i s = Lfield.zero rng.
+  → ∀ i : nat, series_nth_rng rng i s = 0%rng.
 Proof.
 intros s H i.
 unfold series_nth_rng; simpl.
@@ -1198,12 +1198,12 @@ Definition valuation (ps : puiseux_series α) :=
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
   | NonZero nz => series_nth_rng rng 0 (nz_terms nz)
-  | Zero => Lfield.zero rng
+  | Zero => 0%rng
   end.
 
 Theorem lt_null_coeff_range_length : ∀ s c n,
   (fin n < null_coeff_range_length rng s c)%Nbar
-  → series_nth_rng rng (c + n) s ≍ Lfield.zero rng.
+  → (series_nth_rng rng (c + n) s = 0)%rng.
 Proof.
 intros s c n Hn.
 remember (null_coeff_range_length rng s c) as v eqn:Hv .
@@ -1216,7 +1216,7 @@ Qed.
 
 Theorem eq_null_coeff_range_length : ∀ s c n,
   null_coeff_range_length rng s c = fin n
-  → series_nth_rng rng (c + n) s ≭ Lfield.zero rng.
+  → (series_nth_rng rng (c + n) s ≠ 0)%rng.
 Proof.
 intros s c n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -1345,69 +1345,9 @@ induction n.
  destruct (null_coeff_range_length rng s); reflexivity.
 Qed.
 
-(* à voir...
-Lemma xxx : ∀ s,
-  series_nth_rng rng 0 s ≍ Lfield.zero rng
-  → NS (null_coeff_range_length rng s 1) = null_coeff_range_length rng s 0.
-Proof.
-intros s Hz.
-remember (null_coeff_range_length rng s 1) as n eqn:Hn .
-remember (null_coeff_range_length rng s 0) as p eqn:Hp .
-symmetry in Hn, Hp.
-apply null_coeff_range_length_iff in Hn.
-apply null_coeff_range_length_iff in Hp.
-destruct n as [n| ].
- destruct Hn as (Hin, Hn).
- destruct p as [p| ]; simpl.
-  destruct Hp as (Hip, Hp).
-  apply Nbar.fin_inj_wd.
-  simpl in Hin, Hn, Hp, Hip.
-  destruct (lt_eq_lt_dec (S n) p) as [[H₁| H₁]| H₁].
-   rewrite Hip in Hn; [ exfalso; apply Hn; reflexivity | assumption ].
-
-   assumption.
-
-   destruct (eq_nat_dec n p) as [H₂| H₂].
-    subst p.
-    destruct n as [| n].
-     rewrite Hz in Hp; exfalso; apply Hp; reflexivity.
-
-     rewrite Hin in Hp; [ idtac | apply Nat.lt_succ_diag_r ].
-     exfalso; apply Hp; reflexivity.
-
-    assert (p < n)%nat as H₃ by omega.
-    destruct p as [| p].
-     rewrite Hz in Hp; exfalso; apply Hp; reflexivity.
-aaa.
-*)
-
-(* à voir...
-Theorem null_coeff_range_length_1_shift : ∀ s n,
-  series_nth_rng rng 0 s ≍ Lfield.zero rng
-  → null_coeff_range_length rng (series_shift n s) 1 =
-      (fin n + null_coeff_range_length rng s 1)%Nbar.
-Proof.
-intros s n Hz.
-induction n.
- rewrite series_shift_0, Nbar.add_0_l; reflexivity.
-
- destruct (le_dec 1 n) as [H₁| H₁].
-  rewrite null_coeff_range_length_shift_S; [ idtac | assumption ].
-  rewrite IHn; simpl.
-  destruct (null_coeff_range_length rng s); reflexivity.
-
-  apply Nat.nle_gt in H₁.
-  apply Nat.lt_1_r in H₁; subst n.
-  simpl in IHn |- *.
-  remember (null_coeff_range_length rng s 1) as m eqn:Hm .
-  symmetry in Hm.
-  destruct m as [m| ].
-aaa.
-*)
-
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → series_nth_rng rng i (series_stretch k s) = Lfield.zero rng.
+  → series_nth_rng rng i (series_stretch k s) = 0%rng.
 Proof.
 intros s k i Hi.
 unfold series_nth_rng; simpl.
@@ -1449,8 +1389,8 @@ destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
 Qed.
 
 Lemma zero_series_stretched : ∀ s,
-  (∀ i : nat, series_nth_rng rng i s ≍ Lfield.zero rng)
-  → ∀ n k, series_nth_rng rng n (series_stretch k s) ≍ Lfield.zero rng.
+  (∀ i : nat, series_nth_rng rng i s = 0)%rng
+  → (∀ n k, series_nth_rng rng n (series_stretch k s) = 0)%rng.
 Proof.
 intros s H n k.
 unfold series_nth_rng; simpl.
@@ -1464,8 +1404,8 @@ rewrite Nat.div_mul; [ apply H | apply Pos2Nat_ne_0 ].
 Qed.
 
 Lemma zero_stretched_series : ∀ s k,
-  (∀ i : nat, series_nth_rng rng i (series_stretch k s) ≍ Lfield.zero rng)
-  → ∀ n, series_nth_rng rng n s ≍ Lfield.zero rng.
+  (∀ i, series_nth_rng rng i (series_stretch k s) = 0)%rng
+  → (∀ n, series_nth_rng rng n s = 0)%rng.
 Proof.
 intros s k H n.
 pose proof (H (Pos.to_nat k * n)%nat) as Hn.
@@ -1474,10 +1414,9 @@ assumption.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i : nat, series_nth_rng rng (b + i) s ≍ Lfield.zero rng)
+  (∀ i, (series_nth_rng rng (b + i) s = 0)%rng)
   → ∀ i,
-    series_nth_rng rng (b * Pos.to_nat k + i) (series_stretch k s)
-    ≍ Lfield.zero rng.
+    (series_nth_rng rng (b * Pos.to_nat k + i) (series_stretch k s) = 0)%rng.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -1540,73 +1479,9 @@ rewrite <- null_coeff_range_length_stretch.
 rewrite Nat.mul_0_l; reflexivity.
 Qed.
 
-(*
-Lemma stretch_succ : ∀ s b k,
-  null_coeff_range_length rng (series_stretch k s) (S b * Pos.to_nat k) =
-  null_coeff_range_length rng (series_stretch k s) (S (b * Pos.to_nat k)).
-Proof.
-intros s b k.
-remember (series_stretch k s) as t.
-remember (null_coeff_range_length rng t (S b * Pos.to_nat k)) as n eqn:Hn .
-subst t.
-symmetry in Hn |- *.
-apply null_coeff_range_length_iff in Hn.
-apply null_coeff_range_length_iff.
-destruct n as [n| ].
- destruct Hn as (Hz, Hnz).
- split.
-  intros i Hin.
-  remember (Pos.to_nat k) as kn eqn:Hkn .
-  symmetry in Hkn.
-  destruct kn as [| kn]; [ exfalso; revert Hkn; apply Pos2Nat_ne_0 | idtac ].
-  destruct kn as [| kn].
-   rewrite Nat.mul_1_r in Hz |- *.
-   apply Hz; assumption.
-
-   rewrite <- Hkn in Hz, Hnz |- *.
-   destruct (zerop i) as [H₁| H₁].
-    subst i.
-    rewrite Nat.add_0_r.
-    rewrite shifted_in_stretched; [ reflexivity | idtac ].
-    rewrite <- Nat.add_1_r, Nat.add_comm.
-    rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
-    rewrite Hkn.
-    rewrite Nat.mod_1_l; [ apply Nat.lt_0_1 | idtac ].
-    apply -> Nat.succ_lt_mono.
-    apply Nat.lt_0_succ.
-
-    destruct (lt_dec (S i) (Pos.to_nat k)) as [H₂| H₂].
-     rewrite shifted_in_stretched; [ reflexivity | idtac ].
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-     rewrite Nat.add_comm.
-     rewrite Nat.mod_add; [ idtac | apply Pos2Nat_ne_0 ].
-     rewrite Nat.mod_small; [ idtac | assumption ].
-     apply Nat.lt_0_succ.
-
-     apply Nat.nlt_ge in H₂.
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-     remember (S i - Pos.to_nat k)%nat as j.
-     assert (S i = Pos.to_nat k + j)%nat by fast_omega H₂ Heqj.
-     replace (Pos.to_nat k) with (1 * Pos.to_nat k)%nat in H
-      by apply Nat.mul_1_l.
-     rewrite H.
-     rewrite Nat.add_assoc.
-     rewrite <- Nat.mul_add_distr_r.
-     rewrite Nat.add_1_r.
-     apply Hz.
-     eapply le_lt_trans; [ idtac | eassumption ].
-     apply Nat.succ_le_mono.
-     rewrite H.
-     rewrite Nat.mul_1_l.
-     rewrite Hkn.
-     rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-     apply le_plus_r.
-aaa.
-*)
-
 Lemma series_nth_add_shift : ∀ s i n,
-  series_nth_rng rng (i + n) (series_shift n s) ≍
-  series_nth_rng rng i s.
+  (series_nth_rng rng (i + n) (series_shift n s) =
+   series_nth_rng rng i s)%rng.
 Proof.
 intros s i n.
 unfold series_nth_rng; simpl.
@@ -2109,7 +1984,7 @@ Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
        nth_null_coeff_range_length s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
-        → series_nth_rng rng (b + i) s ≍ Lfield.zero rng.
+        → (series_nth_rng rng (b + i) s = 0)%rng.
 Proof.
 (* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
@@ -2202,7 +2077,7 @@ Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, (Pos.to_nat k | nth_null_coeff_range_length s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → series_nth_rng rng i s ≍ Lfield.zero rng.
+    → (series_nth_rng rng i s = 0)%rng.
 Proof.
 intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.

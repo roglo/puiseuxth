@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.86 2013-12-03 10:44:45 deraugla Exp $ *)
+(* $Id: Series.v,v 2.87 2013-12-04 03:27:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -52,7 +52,7 @@ Definition series_const (c : α) := {| terms i := c; stop := 1 |}.
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, series_nth_rng rng i s₁ ≍ series_nth_rng rng i s₂)
+    (∀ i, (series_nth_rng rng i s₁ = series_nth_rng rng i s₂)%rng)
     → eq_series s₁ s₂.
 
 Notation "a ≃ b" := (eq_series a b) (at level 70).
@@ -184,7 +184,8 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, series_nth_rng rng i series_0 ≍ Lfield.zero rng.
+Lemma series_nth_series_0 : ∀ i,
+  (series_nth_rng rng i series_0 = Lfield.zero rng)%rng.
 Proof.
 intros i.
 unfold series_nth_rng; simpl.
@@ -245,8 +246,8 @@ Definition series_mul a b :=
      stop := Nbar.add (stop a) (stop b) |}.
 
 Lemma sigma_aux_compat : ∀ f g b₁ b₂ len,
-  (∀ i, 0 ≤ i < len → f (b₁ + i) ≍ g (b₂ + i))%nat
-  → sigma_aux b₁ len f ≍ sigma_aux b₂ len g.
+  (∀ i, 0 ≤ i < len → (f (b₁ + i)%nat = g (b₂ + i)%nat)%rng)
+  → (sigma_aux b₁ len f = sigma_aux b₂ len g)%rng.
 Proof.
 intros f g b₁ b₂ len Hfg.
 revert b₁ b₂ Hfg.
@@ -268,8 +269,8 @@ rewrite IHlen.
 Qed.
 
 Lemma sigma_compat : ∀ f g b k,
-  (∀ i, b ≤ i ≤ k → f i ≍ g i)
-  → Σ (i = b, k)  f i ≍ Σ (i = b, k)   g i.
+  (∀ i, b ≤ i ≤ k → (f i = g i)%rng)
+  → (Σ (i = b, k)  f i = Σ (i = b, k)   g i)%rng.
 Proof.
 intros f g b k Hfg.
 apply sigma_aux_compat.
@@ -279,9 +280,9 @@ split; [ apply Nat.le_add_r | omega ].
 Qed.
 
 Lemma sigma_sigma_compat : ∀ f g b₁ k₁ b₂ k₂,
-  (∀ i j, f i j ≍ g i j)
-  → Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j
-    ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   g i j.
+  (∀ i j, (f i j = g i j)%rng)
+  → (Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j
+     = Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   g i j)%rng.
 Proof.
 intros f g b₁ k₁ b₂ k₂ Hfg.
 apply sigma_aux_compat; intros l Hl.
@@ -290,8 +291,8 @@ apply Hfg.
 Qed.
 
 Lemma sigma_mul_comm : ∀ f g b k,
-  Σ (i = b, k)   (f i * g i)%rng
-  ≍ Σ (i = b, k)   (g i * f i)%rng.
+  (Σ (i = b, k)   f i * g i
+   = Σ (i = b, k)   g i * f i)%rng.
 Proof.
 intros f g b len.
 apply sigma_compat; intros i Hi.
@@ -299,8 +300,8 @@ apply Lfield.mul_comm.
 Qed.
 
 Lemma sigma_mul_assoc : ∀ f g h b k,
-  Σ (i = b, k)   (f i * (g i * h i))%rng
-  ≍ Σ (i = b, k)   (f i * g i * h i)%rng.
+  (Σ (i = b, k)   f i * (g i * h i)
+   = Σ (i = b, k)   (f i * g i) * h i)%rng.
 Proof.
 intros f g h b k.
 apply sigma_compat; intros i Hi.
@@ -308,8 +309,8 @@ apply Lfield.mul_assoc.
 Qed.
 
 Lemma sigma_sigma_mul_comm : ∀ f g b₁ k₁ b₂ k₂,
-  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j)%rng
-  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (g i j * f i j)%rng.
+  (Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j * g i j
+   = Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   g i j * f i j)%rng.
 Proof.
 intros f g b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
@@ -317,8 +318,8 @@ apply Lfield.mul_comm.
 Qed.
 
 Lemma sigma_sigma_mul_assoc : ∀ f g h b₁ k₁ b₂ k₂,
-  Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * (g i j * h i j))%rng
-  ≍ Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j * h i j)%rng.
+  (Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j * (g i j * h i j)
+   = Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   (f i j * g i j) * h i j)%rng.
 Proof.
 intros f g h b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
@@ -326,8 +327,8 @@ apply Lfield.mul_assoc.
 Qed.
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
-  (∀ i, (b ≤ i < b + len)%nat → f i ≍ 0%rng)
-  → sigma_aux b len (λ i, f i) ≍ 0%rng.
+  (∀ i, (b ≤ i < b + len)%nat → (f i = 0)%rng)
+  → (sigma_aux b len (λ i, f i) = 0)%rng.
 Proof.
 intros f b len H.
 revert b H.
@@ -338,7 +339,7 @@ intros i Hi; apply H; omega.
 Qed.
 
 Lemma all_0_sigma_0 : ∀ f i₁ i₂,
-  (∀ i, i₁ ≤ i ≤ i₂ → f i ≍ 0%rng) → Σ (i = i₁, i₂)   f i ≍ 0%rng.
+  (∀ i, i₁ ≤ i ≤ i₂ → (f i = 0)%rng) → (Σ (i = i₁, i₂)   f i = 0)%rng.
 Proof.
 intros f i₁ i₂ H.
 apply all_0_sigma_aux_0.
@@ -347,14 +348,14 @@ apply H.
 split; [ assumption | omega ].
 Qed.
 
-Lemma delta_id : ∀ i, δ i i ≍ 1%rng.
+Lemma delta_id : ∀ i, (δ i i = 1)%rng.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
 exfalso; apply H₁; reflexivity.
 Qed.
 
-Lemma delta_neq : ∀ i j, i ≠ j → δ i j ≍ 0%rng.
+Lemma delta_neq : ∀ i j, i ≠ j → (δ i j = 0)%rng.
 Proof.
 intros i j Hij; unfold δ.
 destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
@@ -450,8 +451,8 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
 Qed.
 
 Lemma sigma_aux_sigma_aux_comm : ∀ f i di j dj,
-  sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
-  ≍ sigma_aux j dj (λ j, sigma_aux i di (λ i, f i j)).
+  (sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
+   = sigma_aux j dj (λ j, sigma_aux i di (λ i, f i j)))%rng.
 Proof.
 intros f i di j dj; revert i.
 induction di; intros; simpl.
@@ -471,22 +472,22 @@ induction di; intros; simpl.
 Qed.
 
 Lemma sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂,
-  Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   (f i j)
-  ≍ Σ (j = j₁, j₂)   Σ (i = i₁, i₂)   (f i j).
+  (Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   f i j
+   = Σ (j = j₁, j₂)   Σ (i = i₁, i₂)   f i j)%rng.
 Proof.
 intros f i₁ i₂ j₁ j₂.
 apply sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
 Lemma sigma_aux_sigma_aux_sigma_aux_comm : ∀ f i di j dj k dk,
-  sigma_aux i di
-    (λ i,
-     sigma_aux j dj
-       (λ j, sigma_aux k dk (λ k, f i j k)))
-  ≍ sigma_aux i di
-      (λ i,
-       sigma_aux k dk
-         (λ k, sigma_aux j dj (λ j, f i j k))).
+  (sigma_aux i di
+     (λ i,
+      sigma_aux j dj
+        (λ j, sigma_aux k dk (λ k, f i j k)))
+   = sigma_aux i di
+       (λ i,
+        sigma_aux k dk
+          (λ k, sigma_aux j dj (λ j, f i j k))))%rng.
 Proof.
 intros f i di j dj k dk; revert i.
 induction di; intros; [ reflexivity | simpl ].
@@ -496,8 +497,8 @@ apply sigma_aux_sigma_aux_comm.
 Qed.
 
 Lemma sigma_sigma_sigma_comm : ∀ f i₁ i₂ j₁ j₂ k₁ k₂,
-  Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   Σ (k = k₁, k₂)   (f i j k)
-  ≍ Σ (i = i₁, i₂)   Σ (k = k₁, k₂)   Σ (j = j₁, j₂)   (f i j k).
+  (Σ (i = i₁, i₂)   Σ (j = j₁, j₂)   Σ (k = k₁, k₂)   f i j k
+   = Σ (i = i₁, i₂)   Σ (k = k₁, k₂)   Σ (j = j₁, j₂)   f i j k)%rng.
 Proof.
 intros f i₁ i₂ j₁ j₂ k₁ k₂.
 apply sigma_aux_sigma_aux_sigma_aux_comm; assumption.
@@ -551,15 +552,14 @@ destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Lemma delta_0_succ : ∀ i, δ 0 (S i) ≍ 0%rng.
+Lemma delta_0_succ : ∀ i, (δ 0 (S i) = 0)%rng.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
 
 Lemma sigma_aux_mul_swap : ∀ a f b len,
-  sigma_aux b len (λ i, (a * f i)%rng)
-  ≍ (a * sigma_aux b len f)%rng.
+  (sigma_aux b len (λ i, a * f i) = a * sigma_aux b len f)%rng.
 Proof.
 intros a f b len; revert b.
 induction len; intros; simpl.
@@ -570,18 +570,17 @@ induction len; intros; simpl.
 Qed.
 
 Lemma sigma_mul_swap : ∀ a f b k,
-  Σ (i = b, k)   (a * f i)%rng
-  ≍ (a * Σ (i = b, k)   f i)%rng.
+  (Σ (i = b, k)   a * f i = a * Σ (i = b, k)   f i)%rng.
 Proof.
 intros a f b k.
 apply sigma_aux_mul_swap.
 Qed.
 
 Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
-  sigma_aux b₁ len
-    (λ i, sigma_aux b₂ (f i) (λ j, (g i * h i j)%rng))
-  ≍ sigma_aux b₁ len
-      (λ i, (g i * sigma_aux b₂ (f i) (λ j, h i j))%rng).
+  (sigma_aux b₁ len
+     (λ i, sigma_aux b₂ (f i) (λ j, g i * h i j))
+   = sigma_aux b₁ len
+       (λ i, (g i * sigma_aux b₂ (f i) (λ j, h i j))))%rng.
 Proof.
 intros f g h b₁ b₂ len.
 revert b₁ b₂.
@@ -592,27 +591,16 @@ apply sigma_aux_mul_swap.
 Qed.
 
 Lemma sigma_sigma_mul_swap : ∀ f g h k,
-  Σ (i = 0, k)   Σ (j = 0, f i)   (g i * h i j)%rng
-  ≍ Σ (i = 0, k)   (g i * Σ (j = 0, f i)   h i j)%rng.
+  (Σ (i = 0, k)   Σ (j = 0, f i)   g i * h i j
+   = Σ (i = 0, k)   g i * Σ (j = 0, f i)   h i j)%rng.
 Proof.
 intros f g h k.
 apply sigma_aux_sigma_aux_mul_swap.
 Qed.
 
-(*
-Lemma sigma_sigma_sigma_mul_swap : ∀ f g h l b₁ b₂ b₃ e,
-  Σ (i = b₁, e)  
-  Σ (j = b₂, f i)   Σ (k = b₃, g i j)   (h i j * l i j k)%rng
-  ≍ Σ (i = b₁, e)  
-    Σ (j = b₂, f i)   (h i j * Σ (k = b₃, g i j)   l i j k)%rng.
-Proof.
-intros f g h l b₁ b₂ b₃ e.
-bbb.
-*)
-
 Lemma glop : ∀ f g h k,
-  Σ (i = 0, k)   Σ (j = 0, k)   (g i j * (f i * h i j))%rng
-  ≍ Σ (i = 0, k)   (f i * Σ (j = 0, k)   g i j * h i j)%rng.
+  (Σ (i = 0, k)   Σ (j = 0, k)   g i j * (f i * h i j)
+   = Σ (i = 0, k)   f i * Σ (j = 0, k)   g i j * h i j)%rng.
 Proof.
 intros f g h k.
 apply sigma_compat; intros i Hi.
@@ -624,8 +612,8 @@ Qed.
 
 Lemma sigma_only_one_non_0 : ∀ f b v k,
   (b ≤ v ≤ k)%nat
-  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → f i ≍ 0)%rng
-    → Σ (i = b, k)   f i ≍ f v.
+  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → (f i = 0)%rng)
+    → (Σ (i = b, k)   f i = f v)%rng.
 Proof.
 intros f b v k (Hbv, Hvk) Hi.
 unfold sigma.
@@ -771,8 +759,7 @@ destruct st as [st| ].
 Qed.
 
 Lemma mul_sigma_aux_inj : ∀ f a b len,
-  (a * sigma_aux b len (λ i, f i))%rng
-   ≍ sigma_aux b len (λ i, (a * f i)%rng).
+  (a * sigma_aux b len f = sigma_aux b len (λ i, a * f i))%rng.
 Proof.
 intros f a b len; revert b.
 induction len; intros; simpl.
@@ -783,7 +770,7 @@ induction len; intros; simpl.
 Qed.
 
 Lemma mul_sigma_inj : ∀ f i₁ i₂ a,
-  (a * Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₂)   a * f i)%rng.
+  (a * Σ (i = i₁, i₂)   f i = Σ (i = i₁, i₂)   a * f i)%rng.
 Proof.
 intros f i₁ i₂ a.
 apply mul_sigma_aux_inj.
@@ -791,9 +778,8 @@ Qed.
 
 Lemma sigma_aux_extend_0 : ∀ f b len₁ len₂,
   len₁ ≤ len₂
-  → (∀ i, (b + len₁ ≤ i)%nat → f i ≍ 0%rng)
-    → sigma_aux b len₁ (λ i, f i)
-      ≍ sigma_aux b len₂ (λ i, f i).
+  → (∀ i, (b + len₁ ≤ i)%nat → (f i = 0)%rng)
+    → (sigma_aux b len₁ f = sigma_aux b len₂ f)%rng.
 Proof.
 intros f b len₁ len₂ Hlen Hi.
 revert b len₁ Hlen Hi.
@@ -818,8 +804,8 @@ Qed.
 
 Lemma sigma_extend_0 : ∀ f i₁ i₂ i₃,
   i₂ ≤ i₃
-  → (∀ i, (i₂ < i)%nat → f i ≍ 0%rng)
-    → Σ (i = i₁, i₂)   f i ≍ Σ (i = i₁, i₃)   f i.
+  → (∀ i, (i₂ < i)%nat → (f i = 0)%rng)
+    → (Σ (i = i₁, i₂)   f i = Σ (i = i₁, i₃)   f i)%rng.
 Proof.
 intros f i₁ i₂ i₃ Hi₂₃ Hi.
 apply sigma_aux_extend_0; [ omega | idtac ].
@@ -829,7 +815,7 @@ Qed.
 
 Lemma series_inf_nth : ∀ s t i,
   s = series_inf rng t
-  → series_nth_rng rng i s ≍ terms s i.
+  → (series_nth_rng rng i s = terms s i)%rng.
 Proof.
 intros s t i Hs.
 subst s; simpl.
@@ -840,7 +826,7 @@ exfalso; apply H; constructor.
 Qed.
 
 Lemma series_nth_inf : ∀ a i,
-  series_nth_rng rng i (series_inf rng a) ≍ terms (series_inf rng a) i.
+  (series_nth_rng rng i (series_inf rng a) = terms (series_inf rng a) i)%rng.
 Proof.
 intros a i.
 rewrite series_inf_nth; reflexivity.
@@ -911,8 +897,8 @@ reflexivity.
 Qed.
 
 Lemma series_nth_mul_inf : ∀ a b i,
-  series_nth_rng rng i (series_mul_inf a b)
-  ≍ terms (series_mul_inf a b) i.
+  (series_nth_rng rng i (series_mul_inf a b)
+   = terms (series_mul_inf a b) i)%rng.
 Proof.
 intros a b i.
 unfold series_nth_rng; simpl.
@@ -922,9 +908,9 @@ Qed.
 
 Lemma sigma_aux_sigma_aux_extend_0 : ∀ f g b₁ b₂ len₁ len₂,
   (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
-  → (∀ i j, (b₂ + g i ≤ j)%nat → f i j ≍ 0%rng)
-    → sigma_aux b₁ len₁ (λ i, sigma_aux b₂ (g i) (λ j, f i j))
-      ≍ sigma_aux b₁ len₁ (λ i, sigma_aux b₂ len₂ (λ j, f i j)).
+  → (∀ i j, (b₂ + g i ≤ j)%nat → (f i j = 0)%rng)
+    → (sigma_aux b₁ len₁ (λ i, sigma_aux b₂ (g i) (λ j, f i j))
+       = sigma_aux b₁ len₁ (λ i, sigma_aux b₂ len₂ (λ j, f i j)))%rng.
 Proof.
 intros f g b₁ b₂ len₁ len₂ Hg Hfg.
 apply sigma_aux_compat; intros i Hi.
@@ -936,9 +922,9 @@ apply sigma_aux_extend_0.
 Qed.
 
 Lemma sigma_sigma_extend_0 : ∀ f m,
-  (∀ i j, (i < j)%nat → f i j ≍ 0%rng)
-  → Σ (i = 0, m)   Σ (j = 0, i)   f i j
-    ≍ Σ (i = 0, m)   Σ (j = 0, m)   f i j.
+  (∀ i j, (i < j)%nat → (f i j = 0)%rng)
+  → (Σ (i = 0, m)   Σ (j = 0, i)   f i j
+     = Σ (i = 0, m)   Σ (j = 0, m)   f i j)%rng.
 Proof.
 intros f m Hf.
 apply sigma_aux_sigma_aux_extend_0; [ idtac | assumption ].
@@ -952,12 +938,12 @@ Definition sigma_mul_3 aa bb cc m :=
     (δ (i + j + k) m * terms aa i * terms bb j * terms cc k)%rng.
 
 Lemma convol_mul_assoc_1 : ∀ aa bb cc m,
-  Σ (i = 0, m)  
-  Σ (l = 0, m)  
-   (δ (i + l) m * terms aa i *
+  (Σ (i = 0, m)  
+   Σ (l = 0, m)  
+    δ (i + l) m * terms aa i *
     Σ (j = 0, l)  
-    Σ (k = 0, l)   δ (j + k) l * terms bb j * terms cc k)%rng
-  ≍ sigma_mul_3 aa bb cc m.
+    Σ (k = 0, l)   δ (j + k) l * terms bb j * terms cc k
+   = sigma_mul_3 aa bb cc m)%rng.
 Proof.
 (* à nettoyer *)
 intros a b c m.
@@ -1039,12 +1025,12 @@ rewrite sigma_sigma_extend_0.
 Qed.
 
 Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
-  Σ (i = 0, k)  
-  Σ (j = 0, k)  
-   ((δ (i + j) k *
-     Σ (i0 = 0, i)  
-     (Σ (j0 = 0, i)   δ (i0 + j0) i * terms aa i0 * terms bb j0)) *
-     terms cc j)%rng ≍ sigma_mul_3 aa bb cc k.
+  (Σ (i = 0, k)  
+   Σ (j = 0, k)  
+    δ (i + j) k *
+    (Σ (i0 = 0, i)  
+     Σ (j0 = 0, i)   (δ (i0 + j0) i * terms aa i0 * terms bb j0)) *
+    terms cc j = sigma_mul_3 aa bb cc k)%rng.
 Proof.
 intros a b c m.
 unfold sigma_mul_3.

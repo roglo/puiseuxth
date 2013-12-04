@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.13 2013-12-04 02:34:39 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.14 2013-12-04 03:27:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -188,7 +188,7 @@ destruct (Nbar.lt_dec 0 0) as [H₂| H₂].
 Qed.
 
 Lemma sigma_aux_add : ∀ f b k₁ k₂,
-  sigma_aux b (k₁ + k₂) f ≍ (sigma_aux b k₁ f + sigma_aux (b + k₁) k₂ f)%rng.
+  (sigma_aux b (k₁ + k₂) f = sigma_aux b k₁ f + sigma_aux (b + k₁) k₂ f)%rng.
 Proof.
 intros f b k₁ k₂.
 revert b k₁.
@@ -213,8 +213,8 @@ induction k₂; intros.
 Qed.
 
 Lemma sigma_add : ∀ f k₁ k₂,
-  Σ (i = 0, k₁ + k₂)   f i
-  ≍ (Σ (i = 0, k₁)   f i + Σ (i = S k₁, k₁ + k₂)   f i)%rng.
+  (Σ (i = 0, k₁ + k₂)   f i
+   = Σ (i = 0, k₁)   f i + Σ (i = S k₁, k₁ + k₂)   f i)%rng.
 Proof.
 intros f k₁ k₂.
 unfold sigma.
@@ -225,12 +225,12 @@ rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
 Lemma sigma_aux_succ : ∀ f b k,
-  sigma_aux b (S k) f ≍ (f b + sigma_aux (S b) k f)%rng.
+  (sigma_aux b (S k) f = f b + sigma_aux (S b) k f)%rng.
 Proof. reflexivity. Qed.
 
 Lemma sigma_aux_twice_twice : ∀ f n k,
-  sigma_aux (n + n)%nat (k + k)%nat f
-  ≍ sigma_aux n k (λ i, f (i + i)%nat + f (i + i + 1)%nat)%rng.
+  (sigma_aux (n + n)%nat (k + k)%nat f
+   = sigma_aux n k (λ i, f (i + i)%nat + f (i + i + 1)%nat))%rng.
 Proof.
 intros f n k.
 revert n; induction k; intros; [ reflexivity | simpl ].
@@ -244,8 +244,9 @@ apply IHk.
 Qed.
 
 Lemma sigma_aux_mul_sigma_aux_sigma_aux : ∀ f k n,
-  sigma_aux 0 (S k * S n) f
-  ≍ sigma_aux 0 (S k) (λ i, sigma_aux 0 (S n) (λ j, f (i * S n + j)%nat)).
+  (sigma_aux 0 (S k * S n) f
+   = sigma_aux 0 (S k)
+       (λ i, sigma_aux 0 (S n) (λ j, f (i * S n + j)%nat)))%rng.
 Proof.
 intros f k n.
 revert n; induction k; intros.
@@ -278,8 +279,8 @@ Qed.
 Lemma sigma_mul_sigma_sigma : ∀ f n k,
   (0 < n)%nat
   → (0 < k)%nat
-    → Σ (i = 0, k * n - 1)   f i
-      ≍ Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (i * n + j)%nat.
+    → (Σ (i = 0, k * n - 1)   f i
+       = Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (i * n + j)%nat)%rng.
 Proof.
 intros f n k Hn Hk.
 unfold sigma.
@@ -296,7 +297,7 @@ rewrite <- Nat.sub_succ_l, Nat.sub_succ, Nat.sub_0_r.
  simpl; apply le_n_S, Nat.le_0_l.
 Qed.
 
-Lemma sigma_only_one : ∀ f n, Σ (i = n, n)   f i ≍ f n.
+Lemma sigma_only_one : ∀ f n, (Σ (i = n, n)   f i = f n)%rng.
 Proof.
 intros f n.
 unfold sigma.
@@ -307,9 +308,9 @@ Qed.
 
 Lemma inserted_0_sigma : ∀ f g k n,
   n ≠ O
-  → (∀ i, i mod n ≠ O → f i ≍ 0%rng)
-    → (∀ i, f (n * i)%nat ≍ g i)
-      → Σ (i = 0, k * n)   f i ≍ Σ (i = 0, k)   g i.
+  → (∀ i, i mod n ≠ O → (f i = 0)%rng)
+    → (∀ i, (f (n * i)%nat = g i)%rng)
+      → (Σ (i = 0, k * n)   f i = Σ (i = 0, k)   g i)%rng.
 Proof.
 intros f g k n Hn Hf Hfg.
 destruct k.
@@ -365,7 +366,7 @@ destruct k.
   rewrite Nat.add_comm; reflexivity.
 Qed.
 
-Lemma delta_mul_cancel_r : ∀ a b c, c ≠ O → δ (a * c) (b * c) ≍ δ a b.
+Lemma delta_mul_cancel_r : ∀ a b c, c ≠ O → (δ (a * c) (b * c) = δ a b)%rng.
 Proof.
 intros a b c Hc.
 destruct (eq_nat_dec a b) as [H₁| H₁].
@@ -685,7 +686,7 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → series_nth_rng rng i (series_shift n a) ≍ 0%rng.
+  → (series_nth_rng rng i (series_shift n a) = 0)%rng.
 Proof.
 intros a i n Hin.
 unfold series_nth_rng; simpl.
@@ -696,7 +697,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
 Qed.
 
 Lemma sigma_add_add_sub : ∀ f b k n,
-  Σ (i = b, k)   f i ≍ Σ (i = b + n, k + n)   f (i - n)%nat.
+  (Σ (i = b, k)   f i = Σ (i = b + n, k + n)   f (i - n)%nat)%rng.
 Proof.
 intros f b k n.
 unfold sigma.
