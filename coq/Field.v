@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.27 2013-12-04 03:27:32 deraugla Exp $ *)
+(* $Id: Field.v,v 2.28 2013-12-04 03:35:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -48,8 +48,6 @@ Module Make (F : FieldType).
 
   Import F.
   Include Tdef.
-  Definition fld := F.fld.
-  Definition rng := F.rng.
 
   Add Parametric Relation : α (eq rng)
    reflexivity proved by (eq_refl rng)
