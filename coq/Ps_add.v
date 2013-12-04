@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.59 2013-12-04 02:11:38 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.60 2013-12-04 09:59:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -203,8 +203,8 @@ Notation "a + b" := (ps_add a b) : ps_scope.
 Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
-  series_stretch k (series_add s₁ s₂) ≃
-  series_add (series_stretch k s₁) (series_stretch k s₂).
+  (series_stretch k (s₁ + s₂) =
+   series_stretch k s₁ + series_stretch k s₂)%ser.
 Proof.
 intros kp s₁ s₂.
 unfold series_stretch; simpl.
@@ -271,7 +271,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 Qed.
 
 Lemma nz_terms_add_comm : ∀ nz₁ nz₂,
-  nz_terms_add nz₁ nz₂ ≃ nz_terms_add nz₂ nz₁.
+  (nz_terms_add nz₁ nz₂ = nz_terms_add nz₂ nz₁)%ser.
 Proof.
 intros nz₁ nz₂.
 unfold nz_terms_add.
@@ -316,8 +316,7 @@ constructor; rewrite nz_add_comm; reflexivity.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
-  series_shift n (series_add s₁ s₂)
-  ≃ series_add (series_shift n s₁) (series_shift n s₂).
+  (series_shift n (s₁ + s₂) = series_shift n s₁ + series_shift n s₂)%ser.
 Proof.
 intros s₁ s₂ n.
 constructor.
@@ -391,8 +390,7 @@ destruct (Z.min_dec x y) as [H₁| H₁].
 Qed.
 
 Lemma nz_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  nz_terms_add (nz_add nz₁ nz₂) nz₃ ≃
-  nz_terms_add nz₁ (nz_add nz₂ nz₃).
+  (nz_terms_add (nz₁ + nz₂)%nz nz₃ = nz_terms_add nz₁ (nz₂ + nz₃)%nz)%ser.
 Proof.
 intros nz₁ nz₂ nz₃.
 constructor; intros i.
@@ -557,7 +555,7 @@ rewrite ps_add_comm.
 apply ps_add_opp_r.
 Qed.
 
-Lemma series_shift_series_0 : ∀ n, series_shift n series_0 ≃ series_0.
+Lemma series_shift_series_0 : ∀ n, (series_shift n 0 = 0)%ser.
 Proof.
 intros n.
 constructor; intros i.
@@ -569,8 +567,8 @@ destruct d₁, d₂, d₃; reflexivity.
 Qed.
 
 Lemma nz_add_0_r : ∀ nz,
-  nz_terms_add nz nz_zero ≃
-  series_shift (Z.to_nat (nz_valnum nz)) (nz_terms nz).
+  (nz_terms_add nz 0%nz =
+   series_shift (Z.to_nat (nz_valnum nz)) (nz_terms nz))%ser.
 Proof.
 intros nz.
 unfold nz_terms_add; simpl.

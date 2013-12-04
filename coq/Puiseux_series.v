@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.74 2013-12-04 03:27:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.75 2013-12-04 09:59:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -111,7 +111,7 @@ Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
   | eq_nz_base : ∀ nz₁ nz₂,
       nz_valnum nz₁ = nz_valnum nz₂
       → nz_comden nz₁ = nz_comden nz₂
-        → nz_terms nz₁ ≃ nz_terms nz₂
+        → (nz_terms nz₁ = nz_terms nz₂)%ser
           → eq_nz nz₁ nz₂.
 
 Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
@@ -204,7 +204,7 @@ inversion Hlt as [a b H d e| ]; subst.
 exfalso; revert H; apply Nat.nle_succ_0.
 Qed.
 
-Lemma series_stretch_1 : ∀ s, series_stretch 1 s ≃ s.
+Lemma series_stretch_1 : ∀ s, (series_stretch 1 s = s)%ser.
 Proof.
 intros s.
 unfold series_stretch; simpl.
@@ -251,7 +251,7 @@ inversion H₁; subst.
 Qed.
 
 Lemma series_inf_shift : ∀ a n,
-  series_inf rng (series_shift n a) ≃ series_shift n (series_inf rng a).
+  (series_inf rng (series_shift n a) = series_shift n (series_inf rng a))%ser.
 Proof.
 intros a n.
 constructor; intros i.
@@ -723,8 +723,8 @@ induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
 Lemma series_stretch_stretch : ∀ a b s,
-  series_stretch (a * b) s ≃
-  series_stretch a (series_stretch b s).
+  (series_stretch (a * b) s =
+   series_stretch a (series_stretch b s))%ser.
 Proof.
 intros ap bp s.
 unfold series_stretch; simpl.
@@ -806,8 +806,7 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   reflexivity.
 Qed.
 
-Lemma series_stretch_series_0 : ∀ k,
-  series_stretch k series_0 ≃ series_0.
+Lemma series_stretch_series_0 : ∀ k, (series_stretch k 0 = 0)%ser.
 Proof.
 intros k.
 constructor; intros i.
@@ -818,9 +817,7 @@ unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
-Lemma series_stretch_0_if : ∀ k s,
-  series_stretch k s ≃ series_0
-  → s ≃ series_0.
+Lemma series_stretch_0_if : ∀ k s, (series_stretch k s = 0)%ser → (s = 0)%ser.
 Proof.
 intros k s Hs.
 constructor.
@@ -858,8 +855,8 @@ destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
 Qed.
 
 Lemma stretch_shift_series_distr : ∀ kp n s,
-  series_stretch kp (series_shift n s) ≃
-  series_shift (n * Pos.to_nat kp) (series_stretch kp s).
+  (series_stretch kp (series_shift n s) =
+   series_shift (n * Pos.to_nat kp) (series_stretch kp s))%ser.
 Proof.
 intros kp n s.
 constructor; intros i.
@@ -947,8 +944,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 Qed.
 
 Lemma series_shift_shift : ∀ x y ps,
-  series_shift x (series_shift y ps) ≃
-  series_shift (x + y) ps.
+  (series_shift x (series_shift y ps) = series_shift (x + y) ps)%ser.
 Proof.
 intros x y ps.
 constructor; simpl.
@@ -986,7 +982,7 @@ Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
   null_coeff_range_length rng s 0 = fin n
-  → series_shift n (series_left_shift n s) ≃ s.
+  → (series_shift n (series_left_shift n s) = s)%ser.
 Proof.
 intros s n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -1046,7 +1042,7 @@ Qed.
 
 Theorem series_left_shift_shift : ∀ s n m,
   (m ≤ n)%nat
-  → series_left_shift n (series_shift m s) ≃ series_left_shift (n - m) s.
+  → (series_left_shift n (series_shift m s) = series_left_shift (n - m) s)%ser.
 Proof.
 intros s n m Hmn.
 constructor; intros i.
@@ -1068,8 +1064,8 @@ rewrite Nbar.sub_sub_distr.
 Qed.
 
 Theorem series_left_shift_stretch : ∀ s n k,
-  series_left_shift (n * Pos.to_nat k) (series_stretch k s) ≃
-  series_stretch k (series_left_shift n s).
+  (series_left_shift (n * Pos.to_nat k) (series_stretch k s) =
+   series_stretch k (series_left_shift n s))%ser.
 Proof.
 intros s n k.
 constructor; intros i.
@@ -1223,7 +1219,7 @@ apply null_coeff_range_length_iff in Hn.
 destruct Hn; assumption.
 Qed.
 
-Lemma series_shift_0 : ∀ s, series_shift 0 s ≃ s.
+Lemma series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -1784,7 +1780,7 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
 Qed.
 
 Lemma series_shrink_shrink : ∀ (s : series α) k₁ k₂,
-  series_shrink (k₁ * k₂) s ≃ series_shrink k₁ (series_shrink k₂ s).
+  (series_shrink (k₁ * k₂) s = series_shrink k₁ (series_shrink k₂ s))%ser.
 Proof.
 intros s k₁ k₂.
 constructor; intros i.
@@ -1806,7 +1802,7 @@ rewrite Nbar.div_sup_div_sup.
 Qed.
 
 Lemma series_shrink_stretch : ∀ s k,
-  series_shrink k (series_stretch k s) ≃ s.
+  (series_shrink k (series_stretch k s) = s)%ser.
 Proof.
 intros s k.
 constructor; intros i.
@@ -2094,7 +2090,7 @@ Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
   (k | greatest_series_x_power rng s 0)%positive
-  → series_stretch k (series_shrink k s) ≃ s.
+  → (series_stretch k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
 constructor; intros i.

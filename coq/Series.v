@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.87 2013-12-04 03:27:33 deraugla Exp $ *)
+(* $Id: Series.v,v 2.88 2013-12-04 09:59:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -55,7 +55,12 @@ Inductive eq_series : series α → series α → Prop :=
     (∀ i, (series_nth_rng rng i s₁ = series_nth_rng rng i s₂)%rng)
     → eq_series s₁ s₂.
 
-Notation "a ≃ b" := (eq_series a b) (at level 70).
+Delimit Scope series_scope with ser.
+
+Notation "0" := series_0 : series_scope.
+Notation "1" := series_1 : series_scope.
+Notation "a = b" := (eq_series a b) : series_scope.
+Notation "a ≠ b" := (not (eq_series a b)) : series_scope.
 
 Theorem eq_series_refl : reflexive _ eq_series.
 Proof.
@@ -81,7 +86,7 @@ Qed.
 
 (* *)
 
-Lemma series_inf_eq : ∀ a, a ≃ series_inf rng a.
+Lemma series_inf_eq : ∀ a, (a = series_inf rng a)%ser.
 Proof.
 intros a.
 constructor; intros i.
@@ -102,8 +107,11 @@ Definition series_add s₁ s₂ :=
 Definition series_opp s :=
   {| terms i := Lfield.opp rng (terms s i); stop := stop s |}.
 
-Theorem series_add_comm : ∀ s₁ s₂,
-  series_add s₁ s₂ ≃ series_add s₂ s₁.
+Notation "- a" := (series_opp a) : series_scope.
+Notation "a + b" := (series_add a b) : series_scope.
+Notation "a - b" := (series_add a (series_opp b)) : series_scope.
+
+Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ = s₂ + s₁)%ser.
 Proof.
 intros s₁ s₂.
 constructor; simpl.
@@ -118,8 +126,7 @@ destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
  rewrite Lfield.add_comm; reflexivity.
 Qed.
 
-Theorem series_add_assoc : ∀ s₁ s₂ s₃,
-  series_add s₁ (series_add s₂ s₃) ≃ series_add (series_add s₁ s₂) s₃.
+Theorem series_add_assoc : ∀ s₁ s₂ s₃, (s₁ + (s₂ + s₃) = (s₁ + s₂) + s₃)%ser.
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
@@ -192,7 +199,7 @@ unfold series_nth_rng; simpl.
 destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Theorem series_add_0_l : ∀ s, series_add series_0 s ≃ s.
+Theorem series_add_0_l : ∀ s, (0 + s = s)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -206,7 +213,7 @@ unfold series_nth_rng.
 rewrite <- Heqd; reflexivity.
 Qed.
 
-Theorem series_add_opp : ∀ s, series_add s (series_opp s) ≃ series_0.
+Theorem series_add_opp : ∀ s, (s - s = 0)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -244,6 +251,8 @@ Definition convol_mul a b k :=
 Definition series_mul a b :=
   {| terms k := convol_mul a b k;
      stop := Nbar.add (stop a) (stop b) |}.
+
+Notation "a * b" := (series_mul a b) : series_scope.
 
 Lemma sigma_aux_compat : ∀ f g b₁ b₂ len,
   (∀ i, 0 ≤ i < len → (f (b₁ + i)%nat = g (b₂ + i)%nat)%rng)
@@ -504,7 +513,7 @@ intros f i₁ i₂ j₁ j₂ k₁ k₂.
 apply sigma_aux_sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
-Theorem series_mul_comm : ∀ a b, series_mul a b ≃ series_mul b a.
+Theorem series_mul_comm : ∀ a b, (a * b = b * a)%ser.
 Proof.
 intros a b.
 constructor; intros k.
@@ -528,7 +537,7 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, series_mul series_0 s ≃ series_0.
+Theorem series_mul_0_l : ∀ s, (0 * s = 0)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -649,7 +658,7 @@ induction len; intros.
    apply Hi; [ omega | assumption ].
 Qed.
 
-Theorem series_mul_1_l : ∀ s, series_mul series_1 s ≃ s.
+Theorem series_mul_1_l : ∀ s, (1 * s = s)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -840,8 +849,7 @@ Definition series_mul_inf a b :=
   {| terms k := convol_mul_inf a b k; stop := ∞ |}.
 
 Lemma series_mul_mul_inf : ∀ a b,
-  series_mul a b
-  ≃ series_mul_inf (series_inf rng a) (series_inf rng b).
+  (a * b = series_mul_inf (series_inf rng a) (series_inf rng b))%ser.
 Proof.
 intros a b.
 constructor; intros k.
@@ -887,8 +895,8 @@ destruct (Nbar.lt_dec (fin k) ∞) as [H₁| H₁]; [ idtac | exfalso ].
 Qed.
 
 Lemma series_inf_mul : ∀ a b,
-  series_inf rng (series_mul a b)
-  ≃ series_mul_inf (series_inf rng a) (series_inf rng b).
+  (series_inf rng (a * b) =
+   series_mul_inf (series_inf rng a) (series_inf rng b))%ser.
 Proof.
 intros a b.
 rewrite <- series_mul_mul_inf.
@@ -1106,9 +1114,7 @@ rewrite sigma_sigma_extend_0.
   do 2 rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
-Theorem series_mul_assoc : ∀ a b c,
-  series_mul a (series_mul b c)
-  ≃ series_mul (series_mul a b) c.
+Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
 intros a b c.
 pose proof (series_mul_mul_inf b c) as H.

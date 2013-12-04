@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.24 2013-12-04 03:27:32 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.25 2013-12-04 09:59:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,8 +27,8 @@ induction n as [| n]; intros.
 Qed.
 
 Lemma normalise_series_add_shift : ∀ s n m k,
-  normalise_series (n + m) k (series_shift m s)
-  ≃ normalise_series n k s.
+  (normalise_series (n + m) k (series_shift m s) =
+   normalise_series n k s)%ser.
 Proof.
 intros s n m k.
 unfold normalise_series.
@@ -575,7 +575,8 @@ destruct n as [n| ].
 Qed.
 
 Lemma series_left_shift_left_shift : ∀ (s : series α) m n,
-  series_left_shift m (series_left_shift n s) ≃ series_left_shift (m + n) s.
+  (series_left_shift m (series_left_shift n s) =
+   series_left_shift (m + n) s)%ser.
 Proof.
 intros s m n.
 constructor; intros i.

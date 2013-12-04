@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.14 2013-12-04 03:27:32 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.15 2013-12-04 09:59:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -81,11 +81,10 @@ destruct ps₁ as [nz₁| ].
  destruct ps₂; reflexivity.
 Qed.
 
-Lemma fold_series_1 :
-  {| terms := λ _, Lfield.one rng; stop := 1 |} = series_1.
+Lemma fold_series_1 : {| terms := λ _, 1%rng; stop := 1 |} = 1%ser.
 Proof. reflexivity. Qed.
 
-Lemma stretch_series_1 : ∀ k, series_stretch k series_1 ≃ series_1.
+Lemma stretch_series_1 : ∀ k, (series_stretch k 1 = 1)%ser.
 Proof.
 intros k.
 constructor; intros i.
@@ -382,8 +381,7 @@ destruct (eq_nat_dec a b) as [H₁| H₁].
 Qed.
 
 Lemma series_stretch_mul : ∀ a b k,
-  series_stretch k (series_mul a b)
-  ≃ series_mul (series_stretch k a) (series_stretch k b).
+  (series_stretch k (a * b) = series_stretch k a * series_stretch k b)%ser.
 Proof.
 intros a b k.
 constructor; intros i.
@@ -592,9 +590,9 @@ constructor; simpl.
 Qed.
 
 Lemma series_mul_stretch_mul_inf : ∀ a b k,
-  series_mul (series_stretch k a) b
-  ≃ series_mul_inf (series_stretch k (series_inf rng a))
-      (series_inf rng b).
+  (series_stretch k a * b =
+   series_mul_inf (series_stretch k (series_inf rng a))
+     (series_inf rng b))%ser.
 Proof.
 intros a b l.
 constructor; intros k.
@@ -709,7 +707,7 @@ reflexivity.
 Qed.
 
 Lemma series_shift_mul : ∀ a b n,
-  series_shift n (series_mul a b) ≃ series_mul (series_shift n a) b.
+  (series_shift n (a * b) = series_shift n a * b)%ser.
 Proof.
 (* à nettoyer *)
 intros a b n.

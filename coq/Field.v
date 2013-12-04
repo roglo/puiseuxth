@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.28 2013-12-04 03:35:34 deraugla Exp $ *)
+(* $Id: Field.v,v 2.29 2013-12-04 09:59:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -83,16 +83,16 @@ Module Make (F : FieldType).
 
   Module Syntax.
 
-  Delimit Scope rng_scope with rng.
+  Delimit Scope ring_scope with rng.
 
-  Notation "0" := (zero rng) : rng_scope.
-  Notation "1" := (one rng) : rng_scope.
-  Notation "- a" := (opp rng a) : rng_scope.
-  Notation "a = b" := (eq rng a b) : rng_scope.
-  Notation "a ≠ b" := (not (eq rng a b)) : rng_scope.
-  Notation "a + b" := (add rng a b) : rng_scope.
-  Notation "a - b" := (add rng a (opp rng b)) : rng_scope.
-  Notation "a * b" := (mul rng a b) : rng_scope.
+  Notation "0" := (zero rng) : ring_scope.
+  Notation "1" := (one rng) : ring_scope.
+  Notation "- a" := (opp rng a) : ring_scope.
+  Notation "a = b" := (eq rng a b) : ring_scope.
+  Notation "a ≠ b" := (not (eq rng a b)) : ring_scope.
+  Notation "a + b" := (add rng a b) : ring_scope.
+  Notation "a - b" := (add rng a (opp rng b)) : ring_scope.
+  Notation "a * b" := (mul rng a b) : ring_scope.
 
   End Syntax.
 
