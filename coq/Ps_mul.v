@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.19 2013-12-04 14:03:03 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.20 2013-12-04 14:04:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -981,6 +981,8 @@ assert (ps₁ = ps'₁)%ps as H.
  Focus 2.
  rewrite H; clear H.
  Unfocus.
+ subst.
+ symmetry; apply zzz.
 bbb.
 
 destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
