@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.77 2013-12-04 11:03:11 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.78 2013-12-04 11:05:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -107,13 +107,11 @@ Definition normalise_nz nz :=
       Zero _
   end.
 
-(*
 Definition normalise_ps ps :=
   match ps with
   | NonZero nz => normalise_nz nz
   | Zero => ps
   end.
-*)
 
 Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
   | eq_nz_base : ∀ nz₁ nz₂,
@@ -169,50 +167,6 @@ Notation "a = b" := (eq_ps a b) : ps_scope.
 Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
 Notation "0" := ps_zero : ps_scope.
 Notation "1" := ps_one : ps_scope.
-
-(*
-Definition series_head (s : series α) :=
-  {| terms := terms s; stop := 1 |}.
-
-Definition series_tail (s : series α) :=
-  {| terms i := terms s (S i); stop := stop s - 1 |}.
-
-Definition nz_head nz :=
-  match stop (nz_terms nz) with
-  | fin 0 => nz
-  | _ =>
-      {| nz_terms := series_head (nz_terms nz);
-         nz_valnum := nz_valnum nz;
-         nz_comden := nz_comden nz |}
-  end.
-
-Definition nz_tail nz :=
-  match stop (nz_terms nz) with
-  | fin 0 => nz
-  | _ =>
-      {| nz_terms := series_tail (nz_terms nz);
-         nz_valnum := nz_valnum nz + 1;
-         nz_comden := nz_comden nz |}
-  end.
-
-Theorem null_series : ∀ s,
-  series_nth 0 s = None
-  → ∀ i : nat, series_nth_rng rng i s = 0%rng.
-Proof.
-intros s H i.
-unfold series_nth_rng; simpl.
-unfold series_nth in H.
-remember (stop s) as st; symmetry in Heqst.
-destruct st as [st| ]; [ idtac | discriminate H ].
-destruct (lt_dec 0 st) as [Hlt| Hge]; [ discriminate H | clear H ].
-apply not_gt in Hge.
-apply Nat.le_0_r in Hge.
-subst st.
-destruct (Nbar.lt_dec (fin i) 0) as [Hlt| ]; [ idtac | reflexivity ].
-inversion Hlt as [a b H d e| ]; subst.
-exfalso; revert H; apply Nat.nle_succ_0.
-Qed.
-*)
 
 Lemma series_stretch_1 : ∀ s, (series_stretch 1 s = s)%ser.
 Proof.
@@ -291,46 +245,6 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
 
  apply H₁; constructor.
 Qed.
-*)
-
-(* mmmm... probablement faux... à réfléchir...
-Lemma zzz : ∀ a b n k,
-  series_mul rng (series_shift n (series_stretch k a)) b
-  ≃ series_shift n (series_stretch k (series_mul rng a b)).
-Proof.
-intros a b n k.
-rewrite series_inf_eq; symmetry.
-rewrite series_inf_eq; symmetry.
-rewrite series_inf_mul; symmetry.
-rewrite series_inf_shift.
-constructor; intros i.
-unfold series_nth_rng; simpl.
-destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
- destruct (lt_dec i n) as [H₁| H₁].
-  symmetry.
-  unfold convol_mul_inf.
-  apply all_0_sigma_0; intros l.
-  apply all_0_sigma_0; intros j.
-  simpl.
-  destruct (eq_nat_dec (l + j) i) as [H₂| H₂].
-   rewrite H₂, delta_id, Lfield.mul_1_l.
-   unfold series_nth_rng at 1.
-   remember terms as f; simpl; subst f.
-   remember (stop a * fin (Pos.to_nat k) + fin n)%Nbar as x.
-   destruct (Nbar.lt_dec (fin l) x) as [H₃| H₃]; subst x.
-    simpl.
-    destruct (lt_dec l n) as [H₄| H₄].
-     rewrite Lfield.mul_0_l; reflexivity.
-
-     exfalso; omega.
-
-    rewrite Lfield.mul_0_l; reflexivity.
-
-   rewrite delta_neq; [ idtac | assumption ].
-   do 2 rewrite Lfield.mul_0_l; reflexivity.
-
-  symmetry.
-  apply Nat.nlt_ge in H₁.
 *)
 
 Add Parametric Relation : (nz_ps α) eq_nz
@@ -1183,19 +1097,6 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  symmetry proved by eq_ps_sym
  transitivity proved by eq_ps_trans
  as eq_ps_rel.
-
-(*
-Definition mk_nonzero (s : series α) v c := NonZero (mknz s v c).
-
-Lemma fold_mk_nonzero : ∀ (s : series α) v c,
-  NonZero (mknz s v c) = mk_nonzero s v c.
-Proof. reflexivity. Qed.
-
-Add Parametric Morphism : mk_nonzero
-with signature eq_series rng ==> eq ==> eq ==> eq_ps rng as NonZero_morph.
-Proof.
-aaa.
-*)
 
 (*
 Definition valuation (ps : puiseux_series α) :=
