@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.18 2013-12-04 13:30:46 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.19 2013-12-04 14:03:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -960,6 +960,16 @@ destruct n as [n| ]; constructor.
  remember (gcd_nz n g nz) as k eqn:Hk .
  rewrite nz_adjust_eq with (k := Z.to_pos k) (n := n).
  unfold adjust_nz; simpl.
+ rewrite Z2Pos.id.
+  unfold gcd_nz in Hk.
+  remember (nz_valnum nz + Z.of_nat n)%Z as x eqn:Hx .
+  rewrite <- Z.gcd_assoc in Hk.
+  assert (x mod k = 0)%Z as H.
+   Focus 2.
+   eapply Z.div_exact in H.
+    rewrite Z.mul_comm, <- H.
+    rewrite Hx.
+    rewrite Z.add_simpl_r.
 bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
