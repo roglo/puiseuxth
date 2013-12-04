@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.16 2013-12-04 10:11:15 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.17 2013-12-04 12:49:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -820,7 +820,7 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
-(**)
+(*
 Lemma normalise_nz_mul_add_adjust_l : ∀ nz₁ nz₂ nz₃ n k,
   normalise_nz (nz₁ * (nz₂ + nz₃))%nz
   ≐ normalise_nz (nz₁ * (adjust_nz n k nz₂ + nz₃))%nz.
@@ -931,10 +931,34 @@ rewrite eq_nz_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
+Add Parametric Morphism : ps_mul
+  with signature eq_ps ==> eq_ps ==> eq_ps
+  as ps_mul_morph.
+Proof.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
+rewrite ps_mul_compat_l; [ idtac | eassumption ].
+rewrite ps_mul_compat_r; [ idtac | eassumption ].
+reflexivity.
+Qed.
+
+Lemma zzz : ∀ ps, (normalise_ps ps = ps)%ps.
+Proof.
+intros ps.
+destruct ps as [nz| ]; [ simpl | reflexivity ].
+(* ah ben non c'est faux, ça *)
+bbb.
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
+remember (normalise_ps ps₁) as ps'₁.
+assert (ps₁ = ps'₁)%ps as H.
+ Focus 2.
+ rewrite H; clear H.
+ Unfocus.
+bbb.
+
 destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
 destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
