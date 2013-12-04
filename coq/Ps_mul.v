@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.17 2013-12-04 12:49:52 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.18 2013-12-04 13:30:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -945,7 +945,21 @@ Lemma zzz : ∀ ps, (normalise_ps ps = ps)%ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
-(* ah ben non c'est faux, ça *)
+unfold normalise_nz.
+remember (null_coeff_range_length rng (nz_terms nz) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; constructor.
+ Focus 2.
+ constructor; intros i.
+ apply null_coeff_range_length_iff in Hn.
+ simpl in Hn.
+ rewrite Hn.
+ rewrite series_nth_series_0; reflexivity.
+
+ remember (greatest_series_x_power rng (nz_terms nz) n) as g eqn:Hg .
+ remember (gcd_nz n g nz) as k eqn:Hk .
+ rewrite nz_adjust_eq with (k := Z.to_pos k) (n := n).
+ unfold adjust_nz; simpl.
 bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
