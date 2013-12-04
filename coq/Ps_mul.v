@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.12 2013-12-04 02:11:39 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.13 2013-12-04 02:34:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -69,7 +69,7 @@ constructor; constructor; simpl.
  reflexivity.
 Qed.
 
-Theorem ps_mul_comm : ∀ ps₁ ps₂, ps_mul ps₁ ps₂ ≈ ps_mul ps₂ ps₁.
+Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 unfold ps_mul; simpl.
@@ -136,7 +136,7 @@ destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Theorem ps_mul_1_l : ∀ ps, ps_mul ps_one ps ≈ ps.
+Theorem ps_mul_1_l : ∀ ps, (1 * ps = ps)%ps.
 Proof.
 intros ps; simpl.
 destruct ps as [nz| ]; [ constructor | reflexivity ].
@@ -161,16 +161,16 @@ constructor; constructor; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
-Theorem ps_mul_1_r : ∀ ps, ps_mul ps ps_one ≈ ps.
+Theorem ps_mul_1_r : ∀ ps, (ps * 1 = ps)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
 
-Theorem ps_mul_0_l : ∀ ps, ps_mul ps_zero ps ≈ ps_zero.
+Theorem ps_mul_0_l : ∀ ps, (0 * ps = 0)%ps.
 Proof. intros ps; constructor. Qed.
 
-Theorem ps_mul_0_r : ∀ ps, ps_mul ps ps_zero ≈ ps_zero.
+Theorem ps_mul_0_r : ∀ ps, (ps * 0 = 0)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
-Theorem ps_neq_1_0 : not (ps_one ≈ ps_zero).
+Theorem ps_neq_1_0 : (1 ≠ 0)%ps.
 Proof.
 intros H.
 inversion_clear H.
@@ -473,7 +473,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
 Qed.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
-  ps_mul ps₁ (ps_mul ps₂ ps₃) ≈ ps_mul (ps_mul ps₁ ps₂) ps₃.
+  (ps₁ * (ps₂ * ps₃) = (ps₁ * ps₂) * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold ps_mul; simpl.
@@ -879,8 +879,8 @@ destruct ps₁ as [nz'₁| ].
 Qed.
 
 Lemma ps_mul_0_l_compat_r : ∀ nz₁ nz₂,
-  NonZero nz₁ ≈ Zero α
-  → NonZero (nz_mul nz₁ nz₂) ≈ Zero α.
+  (NonZero nz₁ = Zero _)%ps
+  → (NonZero (nz₁ * nz₂)%nz = Zero _)%ps.
 Proof.
 intros nz₁ nz₂ Heq.
 constructor.
@@ -893,8 +893,8 @@ reflexivity.
 Qed.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  ps₁ ≈ ps₂
-  → (ps₁ * ps₃)%ps ≈ (ps₂ * ps₃)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₁ * ps₃ = ps₂ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_mul_0_r; reflexivity ].
@@ -912,8 +912,8 @@ destruct ps₁ as [nz₁| ].
 Qed.
 
 Theorem ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  ps₁ ≈ ps₂
-  → (ps₃ * ps₁)%ps ≈ (ps₃ * ps₂)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₃ * ps₁ = ps₃ * ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 rewrite ps_mul_comm; symmetry.
@@ -932,7 +932,7 @@ reflexivity.
 Qed.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ * (ps₂ + ps₃))%ps ≈ (ps₁ * ps₂ + ps₁ * ps₃)%ps.
+  (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
 destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
@@ -1002,6 +1002,7 @@ destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
 destruct ps₃ as [nz₃| ]; [ simpl | reflexivity ].
 constructor.
 bbb.
+*)
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
   {| Lfield.zero := ps_zero;

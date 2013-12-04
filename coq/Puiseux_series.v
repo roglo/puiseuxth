@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.72 2013-12-04 02:11:39 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.73 2013-12-04 02:34:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -153,10 +153,12 @@ Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 
 Delimit Scope nz_scope with nz.
 Notation "a = b" := (eq_nz a b) : nz_scope.
+Notation "a ≠ b" := (not (eq_nz a b)) : nz_scope.
 Notation "0" := nz_zero : nz_scope.
 
 Delimit Scope ps_scope with ps.
 Notation "a = b" := (eq_ps a b) : ps_scope.
+Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
 Notation "0" := ps_zero : ps_scope.
 Notation "1" := ps_one : ps_scope.
 

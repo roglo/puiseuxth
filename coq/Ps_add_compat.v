@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.22 2013-12-04 02:11:39 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.23 2013-12-04 02:34:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -830,7 +830,7 @@ Qed.
 
 Lemma nz_norm_add_compat_l : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
-  → normalise_nz (nz₃ ∔ nz₁) ≐ normalise_nz (nz₃ ∔ nz₂).
+  → normalise_nz (nz₃ + nz₁)%nz ≐ normalise_nz (nz₃ + nz₂)%nz.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 rewrite nz_add_comm; symmetry.
@@ -846,8 +846,8 @@ apply series_nth_series_0.
 Qed.
 
 Lemma ps_add_0_l_compat_r : ∀ nz₁ nz₂,
-  NonZero nz₁ ≈ Zero α
-  → NonZero (nz₁ ∔ nz₂) ≈ NonZero nz₂.
+  (NonZero nz₁ = Zero _)%ps
+  → (NonZero (nz₁ + nz₂)%nz = NonZero nz₂)%ps.
 Proof.
 intros nz₁ nz₂ Heq.
 constructor.
@@ -872,8 +872,8 @@ rewrite nz_norm_add_compat_r with (nz₂ := nz_zero).
 Qed.
 
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  ps₁ ≈ ps₂
-  → (ps₁ + ps₃)%ps ≈ (ps₂ + ps₃)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₁ + ps₃ = ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_add_0_r; assumption ].
@@ -891,8 +891,8 @@ destruct ps₁ as [nz₁| ].
 Qed.
 
 Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  ps₁ ≈ ps₂
-  → (ps₃ + ps₁)%ps ≈ (ps₃ + ps₂)%ps.
+  (ps₁ = ps₂)%ps
+  → (ps₃ + ps₁ = ps₃ + ps₂)%ps.
 Proof.
 intros ps1 ps₂ ps₃ H₁₂.
 rewrite ps_add_comm; symmetry.
