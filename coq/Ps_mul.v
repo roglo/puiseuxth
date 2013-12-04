@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.15 2013-12-04 09:59:04 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.16 2013-12-04 10:11:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -820,6 +820,7 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
+(**)
 Lemma normalise_nz_mul_add_adjust_l : ∀ nz₁ nz₂ nz₃ n k,
   normalise_nz (nz₁ * (nz₂ + nz₃))%nz
   ≐ normalise_nz (nz₁ * (adjust_nz n k nz₂ + nz₃))%nz.
@@ -945,6 +946,7 @@ symmetry in Hps₁, Hps₂, Hps₃.
 destruct ps₁ as [nz'₁| ].
  destruct ps₂ as [nz'₂| ].
   destruct ps₃ as [nz'₃| ].
+bbb.
    apply normalised_exists_adjust in Hps₁.
    apply normalised_exists_adjust in Hps₂.
    apply normalised_exists_adjust in Hps₃.

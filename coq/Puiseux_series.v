@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.75 2013-12-04 09:59:04 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.76 2013-12-04 10:11:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -105,6 +105,12 @@ Definition normalise_nz nz :=
            nz_comden := Z.to_pos (' nz_comden nz / g) |}
   | ∞ =>
       Zero _
+  end.
+
+Definition normalise_ps ps :=
+  match ps with
+  | NonZero nz => normalise_nz nz
+  | Zero => ps
   end.
 
 Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
