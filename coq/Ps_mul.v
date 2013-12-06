@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.20 2013-12-04 14:04:57 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.21 2013-12-06 13:00:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -958,6 +958,7 @@ destruct n as [n| ]; constructor.
 
  remember (greatest_series_x_power rng (nz_terms nz) n) as g eqn:Hg .
  remember (gcd_nz n g nz) as k eqn:Hk .
+bbb,
  rewrite nz_adjust_eq with (k := Z.to_pos k) (n := n).
  unfold adjust_nz; simpl.
  rewrite Z2Pos.id.
