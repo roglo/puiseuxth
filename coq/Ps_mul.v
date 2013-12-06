@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.24 2013-12-06 15:45:21 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.25 2013-12-06 16:00:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -991,6 +991,27 @@ destruct n as [n| ]; constructor.
 
     apply Z.div_exact in Hxk.
      rewrite <- Hxk, Hx, Z.add_simpl_r.
+     rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
+     remember (greatest_series_x_power rng (nz_terms nz) n) as z.
+     pose proof (Z.gcd_divide_l (' nz_comden nz) (Z.gcd (' z) x)) as Hgc.
+     rewrite <- Hg in Hgc.
+     destruct Hgc as (c, Hc).
+     rewrite Hc.
+     rewrite Z.div_mul.
+      rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ].
+       rewrite <- Hc; simpl.
+       destruct nz; reflexivity.
+
+       destruct c as [| c| c].
+        exfalso; revert Hc; apply Pos2Z_ne_0.
+
+        apply Pos2Z.is_pos.
+
+        simpl in Hc.
+        destruct g as [| g| g].
+         exfalso; revert Hc; apply Pos2Z_ne_0.
+
+         rewrite <- Pos2Z.opp_pos in Hc.
 bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
