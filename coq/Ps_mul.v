@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.23 2013-12-06 15:34:05 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.24 2013-12-06 15:45:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -956,21 +956,41 @@ destruct n as [n| ]; constructor.
  rewrite Hn.
  rewrite series_nth_series_0; reflexivity.
 
- remember (greatest_series_x_power rng (nz_terms nz) n) as g eqn:Hg .
- remember (gcd_nz n g nz) as k eqn:Hk .
- rewrite nz_adjust_eq with (k := Z.to_pos k) (n := n).
- unfold adjust_nz; simpl.
- unfold normalise_series.
- rewrite series_stretch_shrink.
-  rewrite series_shift_left_shift; [ idtac | assumption ].
-  rewrite <- positive_nat_Z.
-  rewrite Pos2Nat_to_pos.
-   rewrite Z2Nat.id.
-    rewrite Z.mul_comm.
-    unfold gcd_nz in Hk; simpl in Hk.
-    remember (nz_valnum nz + Z.of_nat n)%Z as x eqn:Hx .
-    assert (x mod k = 0)%Z as Hxk.
-     apply Z.mod_divide.
+ remember (greatest_series_x_power rng (nz_terms nz) n) as x.
+ remember (gcd_nz n x nz) as g eqn:Hg ; subst x.
+ unfold gcd_nz in Hg; simpl in Hg.
+ remember (nz_valnum nz + Z.of_nat n)%Z as x eqn:Hx .
+ rewrite <- Z.gcd_assoc in Hg.
+ remember (' greatest_series_x_power rng (nz_terms nz) n)%Z as z.
+ remember (Z.gcd (' nz_comden nz) z) as y eqn:Hy ; subst z.
+ assert (0 < g)%Z as Hgp.
+  pose proof (Z.gcd_nonneg x y) as Hp.
+  rewrite <- Hg in Hp.
+  destruct (Z_zerop g) as [H₁| H₁]; [ idtac | omega ].
+  move H₁ at top; subst g.
+  symmetry in Hg.
+  apply Z.gcd_eq_0_r in Hg.
+  rewrite Hy in Hg.
+  apply Z.gcd_eq_0_r in Hg.
+  exfalso; revert Hg; apply Pos2Z_ne_0.
+
+  rewrite nz_adjust_eq with (k := Z.to_pos g) (n := n).
+  unfold adjust_nz; simpl.
+  unfold normalise_series.
+  rewrite series_stretch_shrink.
+   rewrite series_shift_left_shift; [ idtac | assumption ].
+   rewrite <- positive_nat_Z.
+   rewrite Pos2Nat_to_pos; [ idtac | assumption ].
+   rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
+   rewrite Z.mul_comm.
+   assert (x mod g = 0)%Z as Hxk.
+    apply Z.mod_divide.
+     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
+
+     rewrite Hg; apply Z.gcd_divide_l.
+
+    apply Z.div_exact in Hxk.
+     rewrite <- Hxk, Hx, Z.add_simpl_r.
 bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
