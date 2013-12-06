@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.25 2013-12-06 16:00:48 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.26 2013-12-06 16:05:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1012,6 +1012,16 @@ destruct n as [n| ]; constructor.
          exfalso; revert Hc; apply Pos2Z_ne_0.
 
          rewrite <- Pos2Z.opp_pos in Hc.
+         apply Z.add_move_0_r in Hc.
+         rewrite <- Pos2Z.inj_add in Hc.
+         exfalso; revert Hc; apply Pos2Z_ne_0.
+
+         apply Z.nle_gt in Hgp.
+         exfalso; apply Hgp; apply Pos2Z.neg_is_nonpos.
+
+      intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
+
+     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
 bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
