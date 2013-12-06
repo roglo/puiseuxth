@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.27 2013-12-06 16:38:06 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.28 2013-12-06 19:15:43 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1046,7 +1046,16 @@ destruct ps'₁ as [nz₁| ].
   destruct ps'₃ as [nz₃| ].
    simpl.
    constructor.
+   clear H₁ H₂ H₃.
    symmetry in Heqps'₁, Heqps'₂, Heqps'₃.
+   destruct ps₁ as [nz'₁| ]; [ simpl in Heqps'₁ | discriminate Heqps'₁ ].
+   destruct ps₂ as [nz'₂| ]; [ simpl in Heqps'₂ | discriminate Heqps'₂ ].
+   destruct ps₃ as [nz'₃| ]; [ simpl in Heqps'₃ | discriminate Heqps'₃ ].
+   unfold normalise_nz in Heqps'₁.
+   remember (null_coeff_range_length rng (nz_terms nz'₁) 0) as n₁ eqn:Hn₁ .
+   symmetry in Hn₁.
+   destruct n₁ as [n₁| ]; [ idtac | discriminate Heqps'₁ ].
+   inversion_clear Heqps'₁.
 bbb.
 
 destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
