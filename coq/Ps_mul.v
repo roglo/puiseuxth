@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.22 2013-12-06 15:22:37 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.23 2013-12-06 15:34:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -958,15 +958,19 @@ destruct n as [n| ]; constructor.
 
  remember (greatest_series_x_power rng (nz_terms nz) n) as g eqn:Hg .
  remember (gcd_nz n g nz) as k eqn:Hk .
- remember xH as k₂; clear Heqk₂.
- remember 1%nat as n₂; clear Heqn₂.
- remember (n * Pos.to_nat k₂ + n₂)%nat as n₁.
- remember (Z.to_pos k * k₂)%positive as k₁.
- rewrite nz_adjust_eq with (k := k₁) (n := n₁).
- symmetry.
- rewrite nz_adjust_eq with (k := k₂) (n := n₂).
+ rewrite nz_adjust_eq with (k := Z.to_pos k) (n := n).
  unfold adjust_nz; simpl.
- subst n₁ k₁.
+ unfold normalise_series.
+ rewrite series_stretch_shrink.
+  rewrite series_shift_left_shift; [ idtac | assumption ].
+  rewrite <- positive_nat_Z.
+  rewrite Pos2Nat_to_pos.
+   rewrite Z2Nat.id.
+    rewrite Z.mul_comm.
+    unfold gcd_nz in Hk; simpl in Hk.
+    remember (nz_valnum nz + Z.of_nat n)%Z as x eqn:Hx .
+    assert (x mod k = 0)%Z as Hxk.
+     apply Z.mod_divide.
 bbb.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
