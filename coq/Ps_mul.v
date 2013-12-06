@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.26 2013-12-06 16:05:35 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.27 2013-12-06 16:38:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -941,7 +941,7 @@ rewrite ps_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Lemma zzz : ∀ ps, (normalise_ps ps = ps)%ps.
+Theorem normalise_ps_eq : ∀ ps, (normalise_ps ps = ps)%ps.
 Proof.
 intros ps.
 destruct ps as [nz| ]; [ simpl | reflexivity ].
@@ -949,13 +949,6 @@ unfold normalise_nz.
 remember (null_coeff_range_length rng (nz_terms nz) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
- Focus 2.
- constructor; intros i.
- apply null_coeff_range_length_iff in Hn.
- simpl in Hn.
- rewrite Hn.
- rewrite series_nth_series_0; reflexivity.
-
  remember (greatest_series_x_power rng (nz_terms nz) n) as x.
  remember (gcd_nz n x nz) as g eqn:Hg ; subst x.
  unfold gcd_nz in Hg; simpl in Hg.
@@ -1022,19 +1015,38 @@ destruct n as [n| ]; constructor.
       intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
 
      intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
-bbb.
+
+   rewrite greatest_series_x_power_left_shift, Nat.add_0_r.
+   apply Pos2Z.inj_divide.
+   rewrite Z2Pos.id; [ idtac | assumption ].
+   rewrite Hg, Hy.
+   rewrite Z.gcd_assoc, Z.gcd_comm.
+   apply Z.gcd_divide_l.
+
+ constructor; intros i.
+ apply null_coeff_range_length_iff in Hn.
+ simpl in Hn.
+ rewrite Hn.
+ rewrite series_nth_series_0; reflexivity.
+Qed.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
 remember (normalise_ps ps₁) as ps'₁.
-assert (ps₁ = ps'₁)%ps as H.
- Focus 2.
- rewrite H; clear H.
- Unfocus.
- subst.
- symmetry; apply zzz.
+remember (normalise_ps ps₂) as ps'₂.
+remember (normalise_ps ps₃) as ps'₃.
+assert (ps'₁ = ps₁)%ps as H₁ by (subst; apply normalise_ps_eq).
+assert (ps'₂ = ps₂)%ps as H₂ by (subst; apply normalise_ps_eq).
+assert (ps'₃ = ps₃)%ps as H₃ by (subst; apply normalise_ps_eq).
+rewrite <- H₁, <- H₂, <- H₃.
+destruct ps'₁ as [nz₁| ].
+ destruct ps'₂ as [nz₂| ].
+  destruct ps'₃ as [nz₃| ].
+   simpl.
+   constructor.
+   symmetry in Heqps'₁, Heqps'₂, Heqps'₃.
 bbb.
 
 destruct ps₁ as [nz₁| ]; [ simpl | reflexivity ].
