@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.86 2013-12-07 19:28:05 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.87 2013-12-07 19:35:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -143,14 +143,14 @@ destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
 Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
-Proof. intros nz; constructor; reflexivity. Qed.
+Proof. intros ps; constructor; reflexivity. Qed.
 
 Theorem eq_norm_ps_sym : symmetric _ eq_norm_ps.
-Proof. intros nz₁ nz₂ H; induction H; constructor; symmetry; assumption. Qed.
+Proof. intros ps₁ ps₂ H; induction H; constructor; symmetry; assumption. Qed.
 
 Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
 Proof.
-intros nz₁ nz₂ nz₃ H₁ H₂.
+intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
@@ -497,11 +497,11 @@ Add Parametric Morphism : normalise_ps
   with signature eq_norm_ps ==> eq_norm_ps
   as normalise_ps_morph.
 Proof.
-intros nz₁ nz₂ Heq.
+intros ps₁ ps₂ Heq.
 inversion Heq; subst.
 unfold normalise_ps.
 rewrite H, H0, H1.
-remember (null_coeff_range_length rng (ps_terms nz₂) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (ps_terms ps₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.

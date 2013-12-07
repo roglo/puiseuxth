@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.68 2013-12-07 19:28:05 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.69 2013-12-07 19:35:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,31 +12,31 @@ Require Import Misc.
 Set Implicit Arguments.
 
 (*
-Definition cm ps₁ ps₂ := Plcm (nz_comden ps₁) (nz_comden ps₂).
+Definition cm ps₁ ps₂ := Plcm (ps_comden ps₁) (ps_comden ps₂).
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (nz_comden ps₁) (nz_comden ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (nz_comden ps₁))%nat.
+  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
 *)
-Definition cm (nz₁ nz₂ : puiseux_series α) :=
-  (ps_comden nz₁ * ps_comden nz₂)%positive.
-Definition cm_factor α (nz₁ nz₂ : puiseux_series α) :=
-  ps_comden nz₂.
+Definition cm (ps₁ ps₂ : puiseux_series α) :=
+  (ps_comden ps₁ * ps_comden ps₂)%positive.
+Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
+  ps_comden ps₂.
 (**)
 
-Definition adjust_nz n k nz :=
-  {| ps_terms := series_shift n (series_stretch k (ps_terms nz));
-     ps_valnum := ps_valnum nz * Zpos k - Z.of_nat n;
-     ps_comden := ps_comden nz * k |}.
+Definition adjust_ps n k ps :=
+  {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
+     ps_valnum := ps_valnum ps * Zpos k - Z.of_nat n;
+     ps_comden := ps_comden ps * k |}.
 
-Lemma nz_adjust_eq : ∀ nz n k,
-  normalise_ps nz ≐ normalise_ps (adjust_nz n k nz).
+Lemma ps_norm_adjust_eq : ∀ ps n k,
+  normalise_ps ps ≐ normalise_ps (adjust_ps n k ps).
 Proof.
-intros nz n k.
+intros ps n k.
 unfold normalise_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (null_coeff_range_length rng (ps_terms nz) 0) as m eqn:Hm .
+remember (null_coeff_range_length rng (ps_terms ps) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 constructor; simpl.
@@ -116,8 +116,8 @@ constructor; simpl.
 
   apply Z.nle_gt.
   pose proof
-   (Z.gcd_nonneg (Z.gcd (ps_valnum nz + Z.of_nat m) (' ps_comden nz))
-      (' greatest_series_x_power rng (ps_terms nz) m)) 
+   (Z.gcd_nonneg (Z.gcd (ps_valnum ps + Z.of_nat m) (' ps_comden ps))
+      (' greatest_series_x_power rng (ps_terms ps) m)) 
    as H₁.
   intros H₂.
   apply Z.le_antisymm in H₁; [ idtac | assumption ].
@@ -127,11 +127,11 @@ constructor; simpl.
   apply Pos2Z.is_pos.
 Qed.
 
-Theorem ps_adjust_eq : ∀ nz n k, (nz = adjust_nz n k nz)%ps.
+Theorem ps_adjust_eq : ∀ nz n k, (nz = adjust_ps n k nz)%ps.
 Proof.
 intros nz n k.
 constructor.
-apply nz_adjust_eq.
+apply ps_norm_adjust_eq.
 Qed.
 
 Definition adjust_series n k s :=
@@ -172,7 +172,7 @@ Definition adjust_nz_from nz₁ nz₂ :=
   let k₂ := cm_factor nz₂ nz₁ in
   let v₁ := (ps_valnum nz₁ * Zpos k₁)%Z in
   let v₂ := (ps_valnum nz₂ * Zpos k₂)%Z in
-  adjust_nz (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂.
+  adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂.
 
 Definition nz_add₂ (nz₁ nz₂ : puiseux_series α) :=
   adjusted_nz_add (adjust_nz_from nz₂ nz₁) (adjust_nz_from nz₁ nz₂).
@@ -503,9 +503,9 @@ rewrite Z.min_id, Z.sub_0_r.
 rewrite Z.sub_diag, Nat.add_0_r.
 symmetry.
 remember (Z.to_nat (ps_valnum ps)) as n eqn:Hn .
-rewrite nz_adjust_eq with (n := n) (k := xH) in |- * at 1.
+rewrite ps_norm_adjust_eq with (n := n) (k := xH) in |- * at 1.
 subst n.
-unfold adjust_nz; simpl.
+unfold adjust_ps; simpl.
 rewrite Pos.mul_1_r, Z.mul_1_r.
 rewrite series_stretch_1.
 rewrite Z2Nat_id_max.
@@ -549,8 +549,8 @@ unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
 remember (ps_comden ps * ps_comden ps)%positive as k eqn:Hk .
-rewrite nz_adjust_eq with (n := O) (k := k); subst k.
-unfold adjust_nz; simpl.
+rewrite ps_norm_adjust_eq with (n := O) (k := k); subst k.
+unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite series_stretch_series_0.
 remember (ps_valnum ps) as v eqn:Hv .
@@ -560,8 +560,8 @@ destruct v as [| v| v].
 
  symmetry.
  remember (Z.to_nat (ps_valnum ps * Zpos (ps_comden ps))) as n.
- rewrite nz_adjust_eq with (n := n) (k := xH); subst n.
- unfold adjust_nz.
+ rewrite ps_norm_adjust_eq with (n := n) (k := xH); subst n.
+ unfold adjust_ps.
  remember Z.sub as f; simpl; subst f.
  rewrite series_stretch_series_0.
  rewrite series_shift_series_0.
@@ -571,8 +571,8 @@ destruct v as [| v| v].
  rewrite Z.sub_diag; reflexivity.
 
  remember (Z.to_nat (Zpos v * Zpos (ps_comden ps))) as n.
- rewrite nz_adjust_eq with (n := n) (k := xH); subst n.
- unfold adjust_nz.
+ rewrite ps_norm_adjust_eq with (n := n) (k := xH); subst n.
+ unfold adjust_ps.
  remember Z.sub as f; simpl; subst f.
  rewrite series_stretch_series_0.
  rewrite series_shift_series_0.

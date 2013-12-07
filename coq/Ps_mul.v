@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.36 2013-12-07 19:28:05 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.37 2013-12-07 19:35:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -789,13 +789,13 @@ Qed.
 
 Lemma normalise_ps_mul_adjust_l : ∀ nz₁ nz₂ n k,
   normalise_ps (nz_mul nz₁ nz₂) ≐
-  normalise_ps (nz_mul (adjust_nz n k nz₁) nz₂).
+  normalise_ps (nz_mul (adjust_ps n k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ n k.
 remember (Pos.to_nat (ps_comden nz₂) * n)%nat as m eqn:Hm .
-rewrite nz_adjust_eq with (n := m) (k := k); subst m.
+rewrite ps_norm_adjust_eq with (n := m) (k := k); subst m.
 unfold nz_mul; simpl.
-unfold adjust_nz; simpl.
+unfold adjust_ps; simpl.
 unfold cm, cm_factor; simpl.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
 rewrite Z.mul_sub_distr_r.
@@ -936,8 +936,8 @@ destruct n as [n| ]; constructor.
   apply Z.gcd_eq_0_r in Hg.
   exfalso; revert Hg; apply Pos2Z_ne_0.
 
-  rewrite nz_adjust_eq with (k := Z.to_pos g) (n := n).
-  unfold adjust_nz; simpl.
+  rewrite ps_norm_adjust_eq with (k := Z.to_pos g) (n := n).
+  unfold adjust_ps; simpl.
   unfold normalise_series.
   rewrite series_stretch_shrink.
    rewrite series_shift_left_shift; [ idtac | assumption ].

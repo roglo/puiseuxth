@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.31 2013-12-07 19:23:41 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.32 2013-12-07 19:35:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -182,11 +182,11 @@ apply eq_norm_ps_add_compat_r; assumption.
 Qed.
 
 Lemma nz_adjust_adjust : ∀ nz n₁ n₂ k₁ k₂,
-  eq_norm_ps (adjust_nz n₁ k₁ (adjust_nz n₂ k₂ nz))
-    (adjust_nz (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) nz).
+  eq_norm_ps (adjust_ps n₁ k₁ (adjust_ps n₂ k₂ nz))
+    (adjust_ps (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) nz).
 Proof.
 intros nz n₁ n₂ k₁ k₂.
-unfold adjust_nz; simpl.
+unfold adjust_ps; simpl.
 constructor; simpl.
  rewrite Z.mul_sub_distr_r.
  rewrite Pos2Z.inj_mul, Z.mul_assoc, Z.mul_shuffle0.
@@ -205,8 +205,8 @@ constructor; simpl.
 Qed.
 
 Lemma nz_adjust_adjusted : ∀ nz₁ nz₂ n k,
-  eq_norm_ps (adjust_nz n k (adjusted_nz_add nz₁ nz₂))
-    (adjusted_nz_add (adjust_nz n k nz₁) (adjust_nz n k nz₂)).
+  eq_norm_ps (adjust_ps n k (adjusted_nz_add nz₁ nz₂))
+    (adjusted_nz_add (adjust_ps n k nz₁) (adjust_ps n k nz₂)).
 Proof.
 intros nz₁ nz₂ n k.
 constructor; simpl; try reflexivity.
@@ -215,10 +215,10 @@ rewrite series_shift_add_distr.
 reflexivity.
 Qed.
 
-Lemma adjust_nz_mul : ∀ nz n k u,
+Lemma adjust_ps_mul : ∀ nz n k u,
   eq_norm_ps
-    (adjust_nz (n * Pos.to_nat u) (k * u) nz)
-    (adjust_nz 0 u (adjust_nz n k nz)).
+    (adjust_ps (n * Pos.to_nat u) (k * u) nz)
+    (adjust_ps 0 u (adjust_ps n k nz)).
 Proof.
 intros nz n k u.
 constructor; simpl.
@@ -241,12 +241,12 @@ Qed.
 
 Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
   normalise_ps (nz₁ + nz₂)%ps ≐
-  normalise_ps (adjust_nz 0 k nz₁ + nz₂)%ps.
+  normalise_ps (adjust_ps 0 k nz₁ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ k.
-rewrite nz_adjust_eq with (n := O) (k := k).
+rewrite ps_norm_adjust_eq with (n := O) (k := k).
 unfold ps_add, nz_add; simpl.
-unfold adjust_nz; simpl.
+unfold adjust_ps; simpl.
 unfold ps_terms_add, ps_valnum_add, adjust_series, cm, cm_factor; simpl.
 do 2 rewrite series_shift_0.
 do 2 rewrite Z.sub_0_r.
@@ -270,7 +270,7 @@ Qed.
 
 Lemma normalise_ps_adjust : ∀ nz₁ nz₂ n,
   normalise_ps
-    (adjusted_nz_add (adjust_nz n 1 nz₁) (adjust_nz n 1 nz₂))
+    (adjusted_nz_add (adjust_ps n 1 nz₁) (adjust_ps n 1 nz₂))
   ≐ normalise_ps
       (adjusted_nz_add nz₁ nz₂).
 Proof.
@@ -339,12 +339,12 @@ Qed.
 Lemma normalise_ps_adjust_add : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
   normalise_ps
     (adjusted_nz_add
-       (adjust_nz (n + n₁) k₁ nz₁)
-       (adjust_nz (n + n₂) k₂ nz₂)) ≐
+       (adjust_ps (n + n₁) k₁ nz₁)
+       (adjust_ps (n + n₂) k₂ nz₂)) ≐
   normalise_ps
     (adjusted_nz_add
-       (adjust_nz n₁ k₁ nz₁)
-       (adjust_nz n₂ k₂ nz₂)).
+       (adjust_ps n₁ k₁ nz₁)
+       (adjust_ps n₂ k₂ nz₂)).
 Proof.
 intros nz₁ nz₂ n n₁ n₂ k₁ k₂.
 replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
@@ -362,8 +362,8 @@ replace (n + n₁)%nat with (n + n₁ * Pos.to_nat 1)%nat .
 Qed.
 
 Lemma normalise_ps_add_adjust : ∀ nz₁ nz₂ n k m,
-  normalise_ps (adjust_nz m k nz₁ + nz₂)%ps ≐
-  normalise_ps (adjust_nz n k nz₁ + nz₂)%ps.
+  normalise_ps (adjust_ps m k nz₁ + nz₂)%ps ≐
+  normalise_ps (adjust_ps n k nz₁ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ n k m.
 do 2 rewrite eq_norm_ps_norm_add_add₂.
@@ -501,7 +501,7 @@ Qed.
 
 Lemma normalise_ps_add_adjust_l : ∀ nz₁ nz₂ n k,
   normalise_ps (nz₁ + nz₂)%ps ≐
-  normalise_ps (adjust_nz n k nz₁ + nz₂)%ps.
+  normalise_ps (adjust_ps n k nz₁ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ n k.
 rewrite eq_norm_ps_add_adjust_0_l with (k := k).
@@ -646,7 +646,7 @@ Qed.
 Lemma normalised_exists_adjust : ∀ nz nz₁,
   null_coeff_range_length rng (ps_terms nz) 0 ≠ ∞
   → normalise_ps nz = nz₁
-    → ∃ n k, eq_norm_ps nz (adjust_nz n k nz₁).
+    → ∃ n k, eq_norm_ps nz (adjust_ps n k nz₁).
 Proof.
 intros nz nz₁ Hnz Heq.
 unfold normalise_ps in Heq.
@@ -654,7 +654,7 @@ remember (null_coeff_range_length rng (ps_terms nz) 0) as len₁.
 symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 subst nz₁.
-unfold adjust_nz; simpl.
+unfold adjust_ps; simpl.
 remember (greatest_series_x_power rng (ps_terms nz) len₁) as k₁.
 remember (gcd_ps len₁ k₁ nz) as g.
 symmetry in Heqg.
@@ -736,7 +736,7 @@ Definition nz_neg_zero :=
 Lemma eq_norm_ps_adjust_zero_neg_zero : ∀ nz,
   null_coeff_range_length rng (ps_terms nz) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
-    eq_norm_ps (adjust_nz n₁ k₁ nz) (adjust_nz n₂ k₂ nz_neg_zero).
+    eq_norm_ps (adjust_ps n₁ k₁ nz) (adjust_ps n₂ k₂ nz_neg_zero).
 Proof.
 intros nz Hz.
 unfold normalise_ps in Hz.
