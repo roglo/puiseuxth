@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.64 2013-12-07 18:36:00 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.65 2013-12-07 18:37:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -48,7 +48,7 @@ constructor; constructor; simpl.
  rewrite <- Z.mul_add_distr_r.
  rewrite Z.mul_comm.
  erewrite greatest_series_x_power_stretch.
- unfold gcd_nz.
+ unfold gcd_ps.
  remember (' k)%Z as kp.
  simpl.
  rewrite Nat2Z.inj_add.
@@ -70,7 +70,7 @@ constructor; constructor; simpl.
 
  rewrite greatest_series_x_power_shift.
  rewrite greatest_series_x_power_stretch.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  rewrite Nat2Z.inj_add.
  rewrite Z.sub_add_simpl_r_r.
  rewrite Nat2Z.inj_mul.
@@ -92,7 +92,7 @@ constructor; constructor; simpl.
  rewrite greatest_series_x_power_stretch.
  constructor; intros i.
  unfold normalise_series.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  rewrite Nat2Z.inj_add.
  rewrite Z.sub_add_simpl_r_r.
  rewrite Nat2Z.inj_mul.
@@ -268,11 +268,11 @@ unfold cm.
 apply Pos.mul_comm.
 Qed.
 
-Lemma gcd_nz_add_comm : ∀ nz₁ nz₂ n k,
-  gcd_nz n k (nz_add nz₁ nz₂)%Z = gcd_nz n k (nz_add nz₂ nz₁)%Z.
+Lemma gcd_ps_add_comm : ∀ nz₁ nz₂ n k,
+  gcd_ps n k (nz_add nz₁ nz₂)%Z = gcd_ps n k (nz_add nz₂ nz₁)%Z.
 Proof.
 intros nz₁ nz₂ n k.
-unfold gcd_nz; simpl.
+unfold gcd_ps; simpl.
 unfold ps_valnum_add; simpl.
 rewrite cm_comm, Z.min_comm.
 reflexivity.
@@ -418,12 +418,12 @@ do 2 rewrite Z2Nat_sub_min.
 reflexivity.
 Qed.
 
-Lemma gcd_nz_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
-  gcd_nz n k (nz_add (nz_add nz₁ nz₂) nz₃)%Z =
-  gcd_nz n k (nz_add nz₁ (nz_add nz₂ nz₃))%Z.
+Lemma gcd_ps_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
+  gcd_ps n k (nz_add (nz_add nz₁ nz₂) nz₃)%Z =
+  gcd_ps n k (nz_add nz₁ (nz_add nz₂ nz₃))%Z.
 Proof.
 intros nz₁ nz₂ nz₃ n k.
-unfold gcd_nz; simpl.
+unfold gcd_ps; simpl.
 unfold ps_valnum_add; simpl.
 unfold ps_valnum_add; simpl.
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
@@ -450,7 +450,7 @@ rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; [ constructor; constructor; simpl | reflexivity ].
  rewrite ps_terms_add_assoc.
- rewrite gcd_nz_add_assoc.
+ rewrite gcd_ps_add_assoc.
  do 2 f_equal.
  unfold ps_valnum_add; simpl.
  unfold ps_valnum_add; simpl.
@@ -464,14 +464,14 @@ destruct n as [n| ]; [ constructor; constructor; simpl | reflexivity ].
  f_equal; rewrite Z.mul_shuffle0; reflexivity.
 
  rewrite ps_terms_add_assoc.
- rewrite gcd_nz_add_assoc.
+ rewrite gcd_ps_add_assoc.
  unfold cm_factor, cm; simpl; unfold cm; simpl.
  do 4 rewrite Pos2Z.inj_mul.
  rewrite Z.mul_assoc.
  reflexivity.
 
  rewrite ps_terms_add_assoc.
- rewrite gcd_nz_add_assoc.
+ rewrite gcd_ps_add_assoc.
  reflexivity.
 Qed.
 

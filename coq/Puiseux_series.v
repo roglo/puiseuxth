@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.80 2013-12-07 18:23:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.81 2013-12-07 18:36:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -71,12 +71,10 @@ Definition series_shift n s :=
   {| terms i := if lt_dec i n then 0%rng else terms s (i - n);
      stop := stop s + fin n |}.
 
-Record nz_ps α := mknz
-  { nz_terms : series α;
-    nz_valnum : Z;
-    nz_comden : positive }.
-
-Definition puiseux_series α := nz_ps α.
+Record puiseux_series α := mkps
+  { ps_terms : series α;
+    ps_valnum : Z;
+    ps_comden : positive }.
 
 Definition series_shrink k (s : series α) :=
   {| terms i := terms s (i * Pos.to_nat k);
@@ -89,31 +87,31 @@ Definition series_left_shift n (s : series α) :=
 Definition normalise_series n k (s : series α) :=
   series_shrink k (series_left_shift n s).
 
-Definition gcd_nz n k (nz : nz_ps α) :=
-  Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
+Definition gcd_nz n k (nz : puiseux_series α) :=
+  Z.gcd (Z.gcd (ps_valnum nz + Z.of_nat n) (' ps_comden nz)) (' k).
 
 Definition ps_zero : puiseux_series α :=
-  {| nz_terms := series_0; nz_valnum := 0; nz_comden := 1 |}.
+  {| ps_terms := series_0; ps_valnum := 0; ps_comden := 1 |}.
 
 Definition normalise_nz nz :=
-  match null_coeff_range_length rng (nz_terms nz) 0 with
+  match null_coeff_range_length rng (ps_terms nz) 0 with
   | fin n =>
-      let k := greatest_series_x_power rng (nz_terms nz) n in
+      let k := greatest_series_x_power rng (ps_terms nz) n in
       let g := gcd_nz n k nz in
-      {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
-         nz_valnum := (nz_valnum nz + Z.of_nat n) / g;
-         nz_comden := Z.to_pos (' nz_comden nz / g) |}
+      {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms nz);
+         ps_valnum := (ps_valnum nz + Z.of_nat n) / g;
+         ps_comden := Z.to_pos (' ps_comden nz / g) |}
   | ∞ =>
       ps_zero
   end.
 
 Definition normalise_ps ps := normalise_nz ps.
 
-Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
+Inductive eq_nz : puiseux_series α → puiseux_series α → Prop :=
   | eq_nz_base : ∀ nz₁ nz₂,
-      nz_valnum nz₁ = nz_valnum nz₂
-      → nz_comden nz₁ = nz_comden nz₂
-        → (nz_terms nz₁ = nz_terms nz₂)%ser
+      ps_valnum nz₁ = ps_valnum nz₂
+      → ps_comden nz₁ = ps_comden nz₂
+        → (ps_terms nz₁ = ps_terms nz₂)%ser
           → eq_nz nz₁ nz₂.
 
 Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
@@ -126,18 +124,18 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
       → eq_ps nz₁ nz₂.
 
 Definition nz_monom (c : α) pow :=
-  {| nz_terms := {| terms i := c; stop := 1 |};
-     nz_valnum := Qnum pow;
-     nz_comden := Qden pow |}.
+  {| ps_terms := {| terms i := c; stop := 1 |};
+     ps_valnum := Qnum pow;
+     ps_comden := Qden pow |}.
 
 Definition ps_monom c pow := nz_monom c pow.
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
 
 Definition nz_zero :=
-  {| nz_terms := 0%ser;
-     nz_valnum := 0;
-     nz_comden := 1 |}.
+  {| ps_terms := 0%ser;
+     ps_valnum := 0;
+     ps_comden := 1 |}.
 
 Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 
@@ -229,7 +227,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
 Qed.
 *)
 
-Add Parametric Relation : (nz_ps α) eq_nz
+Add Parametric Relation : (puiseux_series α) eq_nz
  reflexivity proved by eq_nz_refl
  symmetry proved by eq_nz_sym
  transitivity proved by eq_nz_trans
@@ -257,9 +255,9 @@ apply Nbar.mul_lt_mono_pos_r.
  assumption.
 Qed.
 
-Add Parametric Morphism : (@mknz α)
+Add Parametric Morphism : (@mkps α)
   with signature eq_series ==> eq ==> eq ==> eq_nz
-  as mknz_morphism.
+  as mkps_morphism.
 Proof.
 intros a b Hab v n.
 constructor; auto.
@@ -598,7 +596,7 @@ intros nz₁ nz₂ Heq.
 inversion Heq; subst.
 unfold normalise_nz.
 rewrite H, H0, H1.
-remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (ps_terms nz₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ constructor | reflexivity ].
 unfold gcd_nz.
@@ -607,8 +605,8 @@ constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
 (*
-Add Parametric Morphism α (rng : Lfield.t α) : (@nz_terms α) with 
-signature eq_nz rng ==> eq_series rng as nz_terms_morph.
+Add Parametric Morphism α (rng : Lfield.t α) : (@ps_terms α) with 
+signature eq_nz rng ==> eq_series rng as ps_terms_morph.
 Proof.
 intros nz₁ nz₂ Hnz.
 inversion Hnz; subst.
@@ -1036,13 +1034,13 @@ Add Parametric Relation : (puiseux_series α) eq_ps
 (*
 Definition valuation (ps : puiseux_series α) :=
   match ps with
-  | NonZero nz => Some (nz_valnum nz # nz_comden nz)
+  | NonZero nz => Some (ps_valnum nz # ps_comden nz)
   | Zero => None
   end.
 
 Definition valuation_coeff (ps : puiseux_series α) :=
   match ps with
-  | NonZero nz => series_nth_rng rng 0 (nz_terms nz)
+  | NonZero nz => series_nth_rng rng 0 (ps_terms nz)
   | Zero => 0%rng
   end.
 
