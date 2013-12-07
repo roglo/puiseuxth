@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.67 2013-12-07 19:23:41 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.68 2013-12-07 19:28:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -178,9 +178,6 @@ Definition nz_add₂ (nz₁ nz₂ : puiseux_series α) :=
   adjusted_nz_add (adjust_nz_from nz₂ nz₁) (adjust_nz_from nz₁ nz₂).
 
 Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) := nz_add₂ ps₁ ps₂.
-
-Notation "a + b" := (nz_add a b) : nz_scope.
-Notation "a ₊ b" := (nz_add₂ a b) (at level 50) : nz_scope.
 
 Notation "a + b" := (ps_add a b) : ps_scope.
 Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
@@ -527,9 +524,7 @@ Definition nz_opp nz :=
 
 Definition ps_opp ps := nz_opp ps.
 
-Notation "- a" := (nz_opp a) : nz_scope.
 Notation "- a" := (ps_opp a) : ps_scope.
-Notation "a - b" := (nz_add a (nz_opp b)) : nz_scope.
 Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
 
 Theorem ps_add_opp_r : ∀ ps, (ps - ps = 0)%ps.

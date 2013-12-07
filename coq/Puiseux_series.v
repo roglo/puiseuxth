@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.85 2013-12-07 19:23:41 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.86 2013-12-07 19:28:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -90,8 +90,7 @@ Definition normalise_series n k (s : series α) :=
 Definition gcd_ps n k (ps : puiseux_series α) :=
   Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_comden ps)) (' k).
 
-Definition ps_zero : puiseux_series α :=
-  {| ps_terms := series_0; ps_valnum := 0; ps_comden := 1 |}.
+Definition ps_zero := {| ps_terms := 0%ser; ps_valnum := 0; ps_comden := 1 |}.
 
 Definition normalise_ps ps :=
   match null_coeff_range_length rng (ps_terms ps) 0 with
@@ -106,30 +105,24 @@ Definition normalise_ps ps :=
   end.
 
 Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_norm_ps_base : ∀ nz₁ nz₂,
-      ps_valnum nz₁ = ps_valnum nz₂
-      → ps_comden nz₁ = ps_comden nz₂
-        → (ps_terms nz₁ = ps_terms nz₂)%ser
-          → eq_norm_ps nz₁ nz₂.
+  | eq_norm_ps_base : ∀ ps₁ ps₂,
+      ps_valnum ps₁ = ps_valnum ps₂
+      → ps_comden ps₁ = ps_comden ps₂
+        → (ps_terms ps₁ = ps_terms ps₂)%ser
+          → eq_norm_ps ps₁ ps₂.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_ps_base : ∀ nz₁ nz₂,
-      eq_norm_ps (normalise_ps nz₁) (normalise_ps nz₂)
-      → eq_ps nz₁ nz₂.
+  | eq_ps_base : ∀ ps₁ ps₂,
+      eq_norm_ps (normalise_ps ps₁) (normalise_ps ps₂)
+      → eq_ps ps₁ ps₂.
 
-Definition nz_monom (c : α) pow :=
+Definition ps_monom (c : α) pow :=
   {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := Qnum pow;
      ps_comden := Qden pow |}.
 
-Definition ps_monom c pow := nz_monom c pow.
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
-
-Definition nz_zero :=
-  {| ps_terms := 0%ser;
-     ps_valnum := 0;
-     ps_comden := 1 |}.
 
 Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 

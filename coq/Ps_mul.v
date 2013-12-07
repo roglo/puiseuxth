@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.35 2013-12-07 19:23:41 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.36 2013-12-07 19:28:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,7 +27,6 @@ Definition nz_mul nz₁ nz₂ :=
 
 Definition ps_mul (ps₁ ps₂ : puiseux_series α) := nz_mul ps₁ ps₂.
 
-Notation "a * b" := (nz_mul a b) : nz_scope.
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
