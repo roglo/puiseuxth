@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.81 2013-12-07 18:36:00 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.82 2013-12-07 18:37:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -87,7 +87,7 @@ Definition series_left_shift n (s : series α) :=
 Definition normalise_series n k (s : series α) :=
   series_shrink k (series_left_shift n s).
 
-Definition gcd_nz n k (nz : puiseux_series α) :=
+Definition gcd_ps n k (nz : puiseux_series α) :=
   Z.gcd (Z.gcd (ps_valnum nz + Z.of_nat n) (' ps_comden nz)) (' k).
 
 Definition ps_zero : puiseux_series α :=
@@ -97,7 +97,7 @@ Definition normalise_nz nz :=
   match null_coeff_range_length rng (ps_terms nz) 0 with
   | fin n =>
       let k := greatest_series_x_power rng (ps_terms nz) n in
-      let g := gcd_nz n k nz in
+      let g := gcd_ps n k nz in
       {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms nz);
          ps_valnum := (ps_valnum nz + Z.of_nat n) / g;
          ps_comden := Z.to_pos (' ps_comden nz / g) |}
@@ -599,7 +599,7 @@ rewrite H, H0, H1.
 remember (null_coeff_range_length rng (ps_terms nz₂) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ constructor | reflexivity ].
-unfold gcd_nz.
+unfold gcd_ps.
 rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
