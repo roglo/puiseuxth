@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.32 2013-12-07 19:35:27 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.33 2013-12-07 19:55:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -153,7 +153,7 @@ Lemma eq_norm_ps_add_compat_r : ∀ nz₁ nz₂ nz₃,
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
-unfold ps_add, nz_add.
+unfold ps_add.
 constructor; simpl.
  unfold ps_valnum_add.
  unfold cm_factor.
@@ -175,7 +175,6 @@ Lemma eq_norm_ps_add_compat_l : ∀ nz₁ nz₂ nz₃,
   → (nz₃ + nz₁ ≐ nz₃ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-unfold ps_add.
 rewrite nz_add_comm; symmetry.
 rewrite nz_add_comm; symmetry.
 apply eq_norm_ps_add_compat_r; assumption.
@@ -245,7 +244,7 @@ Lemma eq_norm_ps_add_adjust_0_l : ∀ nz₁ nz₂ k,
 Proof.
 intros nz₁ nz₂ k.
 rewrite ps_norm_adjust_eq with (n := O) (k := k).
-unfold ps_add, nz_add; simpl.
+unfold ps_add; simpl.
 unfold adjust_ps; simpl.
 unfold ps_terms_add, ps_valnum_add, adjust_series, cm, cm_factor; simpl.
 do 2 rewrite series_shift_0.
@@ -1012,7 +1011,6 @@ Lemma nz_norm_add_compat_l : ∀ nz₁ nz₂ nz₃,
   → normalise_ps (nz₃ + nz₁)%ps ≐ normalise_ps (nz₃ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-unfold ps_add.
 rewrite nz_add_comm; symmetry.
 rewrite nz_add_comm; symmetry.
 apply nz_norm_add_compat_r; assumption.
@@ -1048,9 +1046,9 @@ rewrite ps_add_comm; symmetry.
 apply ps_add_compat_r; assumption.
 Qed.
 
-Add Parametric Morphism : nz_add
+Add Parametric Morphism : ps_add
   with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
-  as nz_add_morph.
+  as ps_norm_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 rewrite eq_norm_ps_add_compat_l; [ idtac | eassumption ].
