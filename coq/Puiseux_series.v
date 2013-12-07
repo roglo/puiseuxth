@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.83 2013-12-07 18:40:40 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.84 2013-12-07 18:42:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -87,25 +87,23 @@ Definition series_left_shift n (s : series α) :=
 Definition normalise_series n k (s : series α) :=
   series_shrink k (series_left_shift n s).
 
-Definition gcd_ps n k (nz : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_valnum nz + Z.of_nat n) (' ps_comden nz)) (' k).
+Definition gcd_ps n k (ps : puiseux_series α) :=
+  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_comden ps)) (' k).
 
 Definition ps_zero : puiseux_series α :=
   {| ps_terms := series_0; ps_valnum := 0; ps_comden := 1 |}.
 
-Definition normalise_nz nz :=
-  match null_coeff_range_length rng (ps_terms nz) 0 with
+Definition normalise_ps ps :=
+  match null_coeff_range_length rng (ps_terms ps) 0 with
   | fin n =>
-      let k := greatest_series_x_power rng (ps_terms nz) n in
-      let g := gcd_ps n k nz in
-      {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms nz);
-         ps_valnum := (ps_valnum nz + Z.of_nat n) / g;
-         ps_comden := Z.to_pos (' ps_comden nz / g) |}
+      let k := greatest_series_x_power rng (ps_terms ps) n in
+      let g := gcd_ps n k ps in
+      {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
+         ps_valnum := (ps_valnum ps + Z.of_nat n) / g;
+         ps_comden := Z.to_pos (' ps_comden ps / g) |}
   | ∞ =>
       ps_zero
   end.
-
-Definition normalise_ps ps := normalise_nz ps.
 
 Inductive eq_nz : puiseux_series α → puiseux_series α → Prop :=
   | eq_nz_base : ∀ nz₁ nz₂,
@@ -120,7 +118,7 @@ Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ nz₁ nz₂,
-      eq_norm_ps (normalise_nz nz₁) (normalise_nz nz₂)
+      eq_norm_ps (normalise_ps nz₁) (normalise_ps nz₂)
       → eq_ps nz₁ nz₂.
 
 Definition nz_monom (c : α) pow :=
@@ -538,13 +536,13 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
    reflexivity.
 Qed.
 
-Add Parametric Morphism : normalise_nz
+Add Parametric Morphism : normalise_ps
   with signature eq_nz ==> eq_norm_ps
-  as normalise_nz_morph.
+  as normalise_ps_morph.
 Proof.
 intros nz₁ nz₂ Heq.
 inversion Heq; subst.
-unfold normalise_nz.
+unfold normalise_ps.
 rewrite H, H0, H1.
 remember (null_coeff_range_length rng (ps_terms nz₂) 0) as n eqn:Hn .
 symmetry in Hn.
