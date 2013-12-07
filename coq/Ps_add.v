@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.65 2013-12-07 18:37:42 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.66 2013-12-07 18:42:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -29,10 +29,10 @@ Definition adjust_nz n k nz :=
      ps_comden := ps_comden nz * k |}.
 
 Lemma nz_adjust_eq : ∀ nz n k,
-  normalise_nz nz ≐ normalise_nz (adjust_nz n k nz).
+  normalise_ps nz ≐ normalise_ps (adjust_nz n k nz).
 Proof.
 intros nz n k.
-unfold normalise_nz; simpl.
+unfold normalise_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
@@ -438,11 +438,11 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
-  normalise_nz (nz_add (nz_add nz₁ nz₂) nz₃)
-  ≐ normalise_nz (nz_add nz₁ (nz_add nz₂ nz₃)).
+  normalise_ps (nz_add (nz_add nz₁ nz₂) nz₃)
+  ≐ normalise_ps (nz_add nz₁ (nz_add nz₂ nz₃)).
 Proof.
 intros nz₁ nz₂ nz₃.
-unfold normalise_nz; simpl.
+unfold normalise_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember
   (null_coeff_range_length rng (ps_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
@@ -644,7 +644,7 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_nz_norm_add_add₂ : ∀ nz₁ nz₂,
-  normalise_nz (nz₁ + nz₂)%nz ≐ normalise_nz (nz₁ ₊ nz₂)%nz.
+  normalise_ps (nz₁ + nz₂)%nz ≐ normalise_ps (nz₁ ₊ nz₂)%nz.
 Proof.
 intros nz₁ nz₂.
 rewrite eq_nz_add_add₂; reflexivity.

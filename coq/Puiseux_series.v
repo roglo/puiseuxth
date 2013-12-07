@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.82 2013-12-07 18:37:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.83 2013-12-07 18:40:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -194,39 +194,6 @@ inversion H₂; subst; constructor.
 eapply eq_nz_trans; eassumption.
 Qed.
 
-(*
-Lemma series_inf_shift : ∀ a n,
-  (series_inf rng (series_shift n a) = series_shift n (series_inf rng a))%ser.
-Proof.
-intros a n.
-constructor; intros i.
-unfold series_nth_rng; simpl.
-unfold series_nth_rng; simpl.
-destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁]; [ clear H₁ | exfalso ].
- destruct (lt_dec i n) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin i) (stop a + fin n)); reflexivity.
-
-  apply Nat.nlt_ge in H₂.
-  destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin (i - n)) (stop a)) as [H₄| H₄].
-    reflexivity.
-
-    exfalso; apply H₄.
-    rewrite Nbar.fin_inj_sub.
-    apply Nbar.lt_add_lt_sub_l; [ idtac | assumption ].
-    apply Nbar.le_fin; assumption.
-
-   destruct (Nbar.lt_dec (fin (i - n)) (stop a)) as [H₄| H₄].
-    exfalso; apply H₃.
-    apply Nbar.lt_sub_lt_add_r; [ idtac | assumption ].
-    intros H; discriminate H.
-
-    reflexivity.
-
- apply H₁; constructor.
-Qed.
-*)
-
 Add Parametric Relation : (puiseux_series α) eq_nz
  reflexivity proved by eq_nz_refl
  symmetry proved by eq_nz_sym
@@ -295,23 +262,6 @@ destruct n₁ as [n₁| ].
  destruct Hn₂ as (Hiz₂, Hnz₂).
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
-
-(*
-Add Parametric Morphism α (rng : Lfield.t α) :
-    (greatest_series_x_power_lim rng)
-  with signature eq ==> (eq_series rng) ==> eq ==> eq
-  as greatest_series_x_power_lim_morph.
-Proof.
-intros cnt s₁ s₂ Heq n.
-revert n.
-induction cnt; intros; [ reflexivity | simpl ].
-rewrite Heq.
-remember (null_coeff_range_length rng s₂ (S n)) as p eqn:Hp .
-symmetry in Hp.
-destruct p as [p| ]; [ idtac | reflexivity ].
-rewrite IHcnt; reflexivity.
-Qed.
-*)
 
 Add Parametric Morphism : nth_null_coeff_range_length
   with signature eq_series ==> eq ==> eq ==> eq
@@ -603,19 +553,6 @@ unfold gcd_ps.
 rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
-
-(*
-Add Parametric Morphism α (rng : Lfield.t α) : (@ps_terms α) with 
-signature eq_nz rng ==> eq_series rng as ps_terms_morph.
-Proof.
-intros nz₁ nz₂ Hnz.
-inversion Hnz; subst.
-constructor.
- intros i.
- inversion H; subst.
- simpl in H2, H3.
-bbb.
-*)
 
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
@@ -1031,42 +968,6 @@ Add Parametric Relation : (puiseux_series α) eq_ps
  transitivity proved by eq_ps_trans
  as eq_ps_rel.
 
-(*
-Definition valuation (ps : puiseux_series α) :=
-  match ps with
-  | NonZero nz => Some (ps_valnum nz # ps_comden nz)
-  | Zero => None
-  end.
-
-Definition valuation_coeff (ps : puiseux_series α) :=
-  match ps with
-  | NonZero nz => series_nth_rng rng 0 (ps_terms nz)
-  | Zero => 0%rng
-  end.
-
-Theorem lt_null_coeff_range_length : ∀ s c n,
-  (fin n < null_coeff_range_length rng s c)%Nbar
-  → (series_nth_rng rng (c + n) s = 0)%rng.
-Proof.
-intros s c n Hn.
-remember (null_coeff_range_length rng s c) as v eqn:Hv .
-symmetry in Hv.
-apply null_coeff_range_length_iff in Hv.
-destruct v as [v| ]; [ idtac | apply Hv ].
-destruct Hv as (Hvz, Hvnz).
-apply Hvz, Nbar.fin_lt_mono; assumption.
-Qed.
-
-Theorem eq_null_coeff_range_length : ∀ s c n,
-  null_coeff_range_length rng s c = fin n
-  → (series_nth_rng rng (c + n) s ≠ 0)%rng.
-Proof.
-intros s c n Hn.
-apply null_coeff_range_length_iff in Hn.
-destruct Hn; assumption.
-Qed.
-*)
-
 Lemma series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.
 Proof.
 intros s.
@@ -1256,33 +1157,6 @@ destruct (Nbar.lt_dec (fin (Pos.to_nat k * i)) (stop s)) as [H₁| H₁].
  apply Nbar.lt_div_sup_lt_mul_r; assumption.
 Qed.
 
-(*
-Lemma zero_series_stretched : ∀ s,
-  (∀ i : nat, series_nth_rng rng i s = 0)%rng
-  → (∀ n k, series_nth_rng rng n (series_stretch k s) = 0)%rng.
-Proof.
-intros s H n k.
-unfold series_nth_rng; simpl.
-remember (stop s * fin (Pos.to_nat k))%Nbar as x.
-destruct (Nbar.lt_dec (fin n) x) as [Hlt₁| ]; [ subst x | reflexivity ].
-destruct (zerop (n mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
-rewrite Nat.mod_divides in Hz; [ idtac | apply Pos2Nat_ne_0 ].
-destruct Hz as (c, Hn); subst n.
-rewrite Nat.mul_comm.
-rewrite Nat.div_mul; [ apply H | apply Pos2Nat_ne_0 ].
-Qed.
-
-Lemma zero_stretched_series : ∀ s k,
-  (∀ i, series_nth_rng rng i (series_stretch k s) = 0)%rng
-  → (∀ n, series_nth_rng rng n s = 0)%rng.
-Proof.
-intros s k H n.
-pose proof (H (Pos.to_nat k * n)%nat) as Hn.
-rewrite series_nth_mul_stretch in Hn.
-assumption.
-Qed.
-*)
-
 Lemma stretch_finite_series : ∀ s b k,
   (∀ i, (series_nth_rng rng (b + i) s = 0)%rng)
   → ∀ i,
@@ -1423,27 +1297,6 @@ destruct v as [v| ].
  apply Hv.
 Qed.
 
-(*
-Lemma greatest_series_x_power_lim_shift : ∀ cnt s n b,
-  greatest_series_x_power_lim rng cnt (series_shift n s) (b + n) =
-  greatest_series_x_power_lim rng cnt s b.
-Proof.
-intros cnt s n b.
-revert s n b.
-induction cnt; intros; [ reflexivity | simpl ].
-rewrite <- Nat.add_succ_l, Nat.add_comm.
-rewrite null_coeff_range_length_shift_add.
-remember (null_coeff_range_length rng s (S b)) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ]; [ idtac | reflexivity ].
-do 2 rewrite divmod_mod.
-do 2 f_equal.
-rewrite Nat.add_shuffle0.
-rewrite <- Nat.add_succ_l.
-apply IHcnt.
-Qed.
-*)
-
 Lemma nth_null_coeff_range_length_shift : ∀ s cnt n b,
   nth_null_coeff_range_length (series_shift n s) cnt (b + n) =
   nth_null_coeff_range_length s cnt b.
@@ -1486,40 +1339,6 @@ split.
  destruct Hk₁ as (m, Hm).
  exists m; erewrite nth_null_coeff_range_length_shift; assumption.
 Qed.
-
-(*
-Lemma null_coeff_range_length_succ : ∀ s n,
-  null_coeff_range_length rng s (S n) =
-  match null_coeff_range_length rng s n with
-  | fin O => null_coeff_range_length rng s (S n)
-  | fin (S m) => fin m
-  | ∞ => ∞
-  end.
-Proof.
-intros s n.
-remember (null_coeff_range_length rng s n) as m eqn:Hm .
-symmetry in Hm.
-destruct m as [m| ].
- destruct m as [| m]; [ reflexivity | idtac ].
- apply null_coeff_range_length_iff in Hm.
- apply null_coeff_range_length_iff.
- destruct Hm as (Hz, Hnz).
- split.
-  intros i Him.
-  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-  apply Hz.
-  apply -> Nat.succ_lt_mono; assumption.
-
-  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-  assumption.
-
- apply null_coeff_range_length_iff in Hm.
- apply null_coeff_range_length_iff.
- intros i.
- rewrite Nat.add_succ_l, <- Nat.add_succ_r.
- apply Hm.
-Qed.
-*)
 
 Lemma null_coeff_range_length_stretch_succ : ∀ s n p k,
   null_coeff_range_length rng s (S n) = fin p
@@ -1739,144 +1558,8 @@ Fixpoint rank_of_nonzero_after_from s n i b :=
       else O
   end.
 
-(*
-Fixpoint index_of_nonzero_before_from s n i b last_b :=
-  match n with
-  | O => b
-  | S n₁ =>
-      if lt_dec b i then
-        match null_coeff_range_length rng s (S b) with
-        | fin m => index_of_nonzero_before_from s n₁ i (S b + m)%nat b
-        | ∞ => b
-        end
-      else last_b
-  end.
-*)
-
 Definition rank_of_nonzero_before s i :=
   pred (rank_of_nonzero_after_from s (S i) i 0).
-
-(*
-Definition index_of_nonzero_before s i :=
-  index_of_nonzero_before_from s (S i) i 0 0.
-
-Lemma ind_of_nz_bef_lt_step : ∀ k m s b i n len,
-  (i < n + k + 1
-   → b = m + k
-     → b < i
-       → index_of_nonzero_before_from s n i (S (b + len)) b < i)%nat.
-Proof.
-intros k m s b i n len Hin Hb Hbi.
-revert b i k m len Hin Hb Hbi.
-induction n; intros; simpl.
- exfalso; omega.
-
- remember (S (b + len)) as b₁.
- destruct (lt_dec b₁ i) as [H₁| H₁]; [ idtac | assumption ].
- destruct (null_coeff_range_length rng s (S b₁)) as [len₁| ]; [ idtac | assumption ].
- rewrite <- Nat.add_succ_l, <- Heqb₁.
- rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hin.
- subst b.
- rewrite Nat.add_shuffle0 in Heqb₁.
- rewrite <- Nat.add_succ_r in Heqb₁.
- eapply IHn; eassumption.
-Qed.
-
-Lemma index_of_nonzero_before_from_lt : ∀ s n i b last_b,
-  (last_b < i
-   → i < n
-     → index_of_nonzero_before_from s n i b last_b < i)%nat.
-Proof.
-intros s n i b last_b Hbi Hin.
-destruct n; simpl.
- exfalso; fast_omega Hin.
-
- destruct (lt_dec b i) as [H₁| H₁]; [ clear Hbi | assumption ].
- destruct (null_coeff_range_length rng s (S b)) as [len₁| ]; [ idtac | assumption ].
- apply (ind_of_nz_bef_lt_step O b).
-  rewrite <- Nat.add_assoc, Nat.add_comm; assumption.
-
-  rewrite Nat.add_comm; reflexivity.
-
-  assumption.
-Qed.
-
-Lemma index_of_nonzero_before_lt : ∀ s i,
-  (0 < i
-   → index_of_nonzero_before s i < i)%nat.
-Proof.
-intros s i Hi.
-apply index_of_nonzero_before_from_lt; [ assumption | idtac ].
-apply Nat.lt_succ_r; reflexivity.
-Qed.
-
-Lemma ind_of_nz_bef_rgt_bnd : ∀ k c m s b i n len len₁,
-  (i < c + k + 1
-   → b = m + k
-     → b < i
-       → null_coeff_range_length rng s (S n) = fin len
-         → null_coeff_range_length rng s (S b) = fin len₁
-           → index_of_nonzero_before_from s c i (S (b + len₁)) b = n
-             → i ≤ S n + len)%nat.
-Proof.
-intros k c m s b i n len len₁ Hic Hb Hbi Hlen Hlen₁ Hn.
-revert k m b len₁ Hic Hb Hbi Hlen₁ Hn.
-induction c; intros; simpl in Hn; [ exfalso; omega | idtac ].
-destruct (lt_dec (S (b + len₁)) i) as [H₁| H₁].
- remember (null_coeff_range_length rng s (S (S (b + len₁)))) as len₂ eqn:Hlen₂ .
- symmetry in Hlen₂.
- destruct len₂ as [len₂| ].
-  clear Hlen₁.
-  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hic.
-  eapply IHc; try eassumption.
-  rewrite Hb, Nat.add_shuffle0, Nat.add_succ_r.
-  reflexivity.
-
-  subst n.
-  rewrite Hlen₂ in Hlen; discriminate Hlen.
-
- subst n.
- rewrite Hlen₁ in Hlen.
- injection Hlen; clear Hlen; intros; subst len.
- simpl; apply Nat.nlt_ge; assumption.
-Qed.
-
-Lemma index_of_nonzero_before_from_right_bound : ∀ s c i b n last_b len,
-  (b < i
-   → last_b < i
-     → i < c
-       → index_of_nonzero_before_from s c i b last_b = n
-         → null_coeff_range_length rng s (S n) = fin len
-           → i ≤ S n + len)%nat.
-Proof.
-intros s c i b n last_b len Hbi Hli Hic Hn Hlen.
-destruct c; simpl in Hn.
- apply Nat.nlt_0_r in Hic; contradiction.
-
- destruct (lt_dec b i) as [H₁| H₁]; [ idtac | exfalso; omega ].
- remember (null_coeff_range_length rng s (S b)) as len₁ eqn:Hlen₁ .
- symmetry in Hlen₁.
- destruct len₁ as [len₁| ].
-  eapply (ind_of_nz_bef_rgt_bnd 0 c); try eassumption.
-   rewrite Nat.add_comm, Nat.add_0_r; assumption.
-
-   rewrite Nat.add_0_r; reflexivity.
-
-  subst n.
-  rewrite Hlen₁ in Hlen; discriminate Hlen.
-Qed.
-
-Lemma index_of_nonzero_before_right_bound : ∀ s i n len,
-  (0 < i
-   → index_of_nonzero_before s i = n
-     → null_coeff_range_length rng s (S n) = fin len
-       → i ≤ S n + len)%nat.
-Proof.
-intros s i n len Hi Hn Hlen.
-eapply index_of_nonzero_before_from_right_bound; try eassumption.
-apply Nat.lt_succ_r; reflexivity.
-Qed.
-*)
 
 Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
   (i < c)%nat
@@ -2076,97 +1759,6 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
  injection H; apply Pos2Nat_ne_0.
 Qed.
 
-(*
-Lemma greatest_series_x_power_lim_stretch : ∀ s n k cnt,
-  greatest_series_x_power_lim rng cnt (series_stretch k s) (Pos.to_nat k * n) =
-    (Pos.to_nat k * greatest_series_x_power_lim rng cnt s n)%nat.
-Proof.
--- à nettoyer
-intros s n k cnt.
-revert s n k.
-induction cnt; intros.
- auto.
-
- simpl.
- remember
-  (null_coeff_range_length rng (series_stretch k s) (S (Pos.to_nat k * n))) as m
-  eqn:Hm .
- symmetry in Hm.
- destruct m as [m| ].
-  rewrite divmod_mod.
-  remember (null_coeff_range_length rng s (S n)) as p eqn:Hp .
-  symmetry in Hp.
-  destruct p as [p| ].
-   rewrite divmod_mod.
-   assert (m = Pos.to_nat k * S p - 1)%nat.
-    Focus 2.
-    subst m.
-    rewrite Nat.add_sub_assoc.
-     rewrite <- Nat.sub_succ_l.
-      rewrite Nat.sub_succ.
-      rewrite Nat.sub_0_r.
-      rewrite <- Nat.mul_add_distr_l.
-      rewrite <- Nat.sub_succ_l.
-       rewrite Nat.sub_succ.
-       rewrite Nat.sub_0_r.
-       rewrite IHcnt.
-       rewrite Nat.mul_mod_distr_l.
-        rewrite Nat.gcd_mul_mono_l.
-        rewrite Nat.add_succ_r.
-        reflexivity.
-
-        intros H; discriminate H.
-
-        apply Pos2Nat_ne_0.
-
-       remember (Pos.to_nat k) as kn eqn:Hkn .
-       symmetry in Hkn.
-       destruct kn.
-        exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-        simpl.
-        apply le_n_S, Nat.le_0_l.
-
-      rewrite <- Nat.mul_add_distr_l.
-      remember (Pos.to_nat k) as kn eqn:Hkn .
-      symmetry in Hkn.
-      destruct kn.
-       exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-       simpl.
-       rewrite Nat.add_succ_r; simpl.
-       apply le_n_S, Nat.le_0_l.
-
-     remember (Pos.to_nat k) as kn eqn:Hkn .
-     symmetry in Hkn.
-     destruct kn.
-      exfalso; revert Hkn; apply Pos2Nat_ne_0.
-
-      simpl.
-      apply le_n_S, Nat.le_0_l.
-
-    rewrite Nat.mul_comm in Hm.
-    rewrite null_coeff_range_length_stretch_succ with (p := p) in Hm; try assumption.
-    symmetry in Hm.
-    rewrite Nat.mul_comm.
-    injection Hm; intros; assumption.
-
-   rewrite Nat.mul_comm in Hm.
-   rewrite null_coeff_range_length_stretch_succ_inf in Hm.
-    discriminate Hm.
-
-    assumption.
-
-  rewrite Nat.mul_comm in Hm.
-  remember (null_coeff_range_length rng s (S n)) as p eqn:Hp .
-  symmetry in Hp.
-  destruct p as [p| ]; [ idtac | auto ].
-  apply null_coeff_range_length_stretch_succ with (k := k) in Hp.
-  rewrite Hm in Hp.
-  discriminate Hp.
-Qed.
-*)
-
 Lemma nth_null_coeff_range_length_stretch : ∀ s b n k,
   nth_null_coeff_range_length (series_stretch k s) n
     (b * Pos.to_nat k) =
@@ -2220,22 +1812,6 @@ induction n; intros.
   rewrite Nat.mul_comm; reflexivity.
 Qed.
 
-(*
-Lemma stretch_is_not_a_series_in_x_power : ∀ s b k k₁,
-  (∃ n,
-   Pos.to_nat k * nth_null_coeff_range_length s n b mod
-   Pos.to_nat k₁ ≠ 0)%nat
-  → ¬is_a_series_in_x_power (series_stretch k s) (b * Pos.to_nat k) k₁.
-Proof.
-intros s b k k₁ (n, Hn) H.
-unfold is_a_series_in_x_power in H.
-rewrite <- nth_null_coeff_range_length_stretch in Hn.
-apply Hn.
-apply Nat.mod_divides; auto.
-apply Nat_divides_l, H.
-Qed.
-*)
-
 Lemma exists_nth_null_coeff_range_length_stretch : ∀ s b k k₁,
   (∃ n, Pos.to_nat k * nth_null_coeff_range_length s n b mod k₁ ≠ 0)%nat
   → (∃ n,
@@ -2263,67 +1839,6 @@ rewrite Nat2Pos.id.
  apply Nat.lcm_eq_0 in H.
  destruct H; revert H; apply Pos2Nat_ne_0.
 Qed.
-
-(*
-Lemma series_in_x_power_lcm : ∀ s b k l,
-  is_a_series_in_x_power s b k
-  → is_a_series_in_x_power s b l
-    → is_a_series_in_x_power s b (Pos_lcm k l).
-Proof.
-intros s b k l Hk Hl.
-unfold is_a_series_in_x_power in Hk, Hl |- *.
-destruct n.
- pose proof (Hk O) as Hk₀.
- pose proof (Hl O) as Hl₀.
- simpl in Hk₀, Hl₀ |- *.
- remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
-
- pose proof (Hk (S n)) as Hkn.
- pose proof (Hl (S n)) as Hln.
- simpl in Hkn, Hln |- *.
- remember (null_coeff_range_length rng s (S b)) as len eqn:Hlen .
- symmetry in Hlen.
- destruct len; rewrite Pos2Nat_lcm; apply Nat_lcm_divides; auto.
-Qed.
-
-Lemma series_in_x_power_divides_greatest : ∀ s b k l,
-  is_a_series_in_x_power s b k
-  → is_the_greatest_series_x_power s b l
-    → (k | l)%positive.
-Proof.
-intros s b k l Hk Hl.
-unfold is_the_greatest_series_x_power in Hl.
-destruct Hl as (Hl, Hkl).
-remember Hl as Hlcm; clear HeqHlcm.
-eapply series_in_x_power_lcm in Hlcm; [ idtac | eexact Hk ].
-destruct (lt_dec (Pos.to_nat l) (Pos.to_nat (Pos_lcm k l))) as [H₁| H₁].
- apply Pos2Nat.inj_lt in H₁.
- apply Hkl in H₁.
- unfold is_a_series_in_x_power in Hlcm.
- destruct H₁ as (n, Hn).
- exfalso; apply Hn, Hlcm.
-
- apply Nat.nlt_ge in H₁.
- rewrite Pos2Nat_lcm in H₁.
- assert (Pos.to_nat k ≠ 0)%nat as Hknz by auto.
- apply Nat_le_lcm_l with (a := Pos.to_nat l) in Hknz.
- rewrite Nat.lcm_comm in Hknz.
- apply Nat.le_antisymm in H₁; [ idtac | assumption ].
- assert (Pos.to_nat k | Pos.to_nat l)%nat as Hdkl.
-  rewrite H₁.
-  apply Nat_divides_lcm_l.
-  
-  destruct Hdkl as (c, Hc).
-  exists (Pos.of_nat c).
-  apply Pos2Nat.inj.
-  rewrite Pos2Nat.inj_mul.
-  rewrite Nat2Pos.id; [ assumption | idtac ].
-  destruct c; [ idtac | intros H; discriminate H ].
-  exfalso; revert Hc; apply Pos2Nat_ne_0.
-Qed.
-*)
 
 Definition is_the_greatest_series_x_power₂ s b k :=
   is_a_series_in_x_power s b k ∧
@@ -2416,23 +1931,6 @@ split; intros H.
    pose proof (Hp m) as H₂.
    apply Nat_lcm_divides; auto.
 Qed.
-
-(*
-Lemma Nat_exists_mul_mod_distr_l : ∀ A (a : A → nat) b c,
-  (b ≠ 0
-   → c ≠ 0
-     → (∃ n, a n mod b ≠ 0)
-      → ∃ n, (c * a n) mod (c * b) ≠ 0)%nat.
-Proof.
-intros A a b c Hb Hc Hn.
-destruct Hn as (n, Hn).
-exists n.
-rewrite Nat.mul_mod_distr_l; try assumption.
-intros H; apply Hn.
-apply Nat.mul_eq_0 in H.
-destruct H; [ contradiction | assumption ].
-Qed.
-*)
 
 Lemma greatest_series_x_power_stretch : ∀ s b k,
   greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =
