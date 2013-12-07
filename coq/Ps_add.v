@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.62 2013-12-07 17:42:54 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.63 2013-12-07 18:23:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -127,8 +127,7 @@ constructor; constructor; simpl.
   apply Pos2Z.is_pos.
 Qed.
 
-Theorem ps_adjust_eq : ∀ nz n k,
-  (NonZero nz = NonZero (adjust_nz n k nz))%ps.
+Theorem ps_adjust_eq : ∀ nz n k, (nz = adjust_nz n k nz)%ps.
 Proof.
 intros nz n k.
 constructor.
@@ -161,13 +160,7 @@ Definition nz_add (nz₁ nz₂ : nz_ps α) :=
      nz_valnum := nz_valnum_add nz₁ nz₂;
      nz_comden := cm nz₁ nz₂ |}.
 
-Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
-  match ps₁ with
-  | NonZero nz₁ =>
-      match ps₂ with
-      | NonZero nz₂ => NonZero (nz_add nz₁ nz₂)
-      end
-  end.
+Definition ps_add (ps₁ ps₂ : puiseux_series α) := nz_add ps₁ ps₂.
 
 Definition adjusted_nz_add nz'₁ nz'₂ :=
   {| nz_terms := series_add (nz_terms nz'₁) (nz_terms nz'₂);
@@ -184,13 +177,7 @@ Definition adjust_nz_from nz₁ nz₂ :=
 Definition nz_add₂ (nz₁ nz₂ : nz_ps α) :=
   adjusted_nz_add (adjust_nz_from nz₂ nz₁) (adjust_nz_from nz₁ nz₂).
 
-Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
-  match ps₁ with
-  | NonZero nz₁ =>
-      match ps₂ with
-      | NonZero nz₂ => NonZero (nz_add₂ nz₁ nz₂)
-      end
-  end.
+Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) := nz_add₂ ps₁ ps₂.
 
 Notation "a + b" := (nz_add a b) : nz_scope.
 Notation "a ₊ b" := (nz_add₂ a b) (at level 50) : nz_scope.
@@ -492,13 +479,7 @@ Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
   (ps₁ + (ps₂ + ps₃) = (ps₁ + ps₂) + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃; symmetry.
-destruct ps₁ as (nz₁).
-destruct ps₂ as (nz₂).
-destruct ps₃ as (nz₃).
-remember (NonZero nz₁ + NonZero nz₂)%ps as x.
-remember (NonZero nz₂ + NonZero nz₃)%ps as y.
-simpl in Heqx, Heqy; subst x y.
-simpl; constructor.
+constructor.
 apply nz_norm_add_assoc.
 Qed.
 
@@ -506,7 +487,6 @@ Theorem ps_add_0_l : ∀ ps, (0 + ps = ps)%ps.
 Proof.
 intros ps.
 unfold ps_add; simpl.
-destruct ps as (nz).
 constructor.
 unfold nz_add; simpl.
 unfold nz_terms_add; simpl.
@@ -524,7 +504,7 @@ rewrite <- Z2Nat_sub_min2.
 rewrite Z.min_id, Z.sub_0_r.
 rewrite Z.sub_diag, Nat.add_0_r.
 symmetry.
-remember (Z.to_nat (nz_valnum nz)) as n eqn:Hn .
+remember (Z.to_nat (nz_valnum ps)) as n eqn:Hn .
 rewrite nz_adjust_eq with (n := n) (k := xH) in |- * at 1.
 subst n.
 unfold adjust_nz; simpl.
@@ -544,10 +524,7 @@ Definition nz_opp nz :=
      nz_valnum := nz_valnum nz;
      nz_comden := nz_comden nz |}.
 
-Definition ps_opp ps :=
-  match ps with
-  | NonZero nz => NonZero (nz_opp nz)
-  end.
+Definition ps_opp ps := nz_opp ps.
 
 Notation "- a" := (nz_opp a) : nz_scope.
 Notation "- a" := (ps_opp a) : ps_scope.
@@ -559,7 +536,6 @@ Proof.
 intros ps.
 unfold ps_zero.
 unfold ps_add; simpl.
-destruct ps as (nz); simpl.
 constructor; simpl.
 unfold nz_opp; simpl.
 unfold nz_add; simpl.
@@ -576,18 +552,18 @@ unfold nz_valnum_add; simpl.
 unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
-remember (nz_comden nz * nz_comden nz)%positive as k eqn:Hk .
+remember (nz_comden ps * nz_comden ps)%positive as k eqn:Hk .
 rewrite nz_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_nz; simpl.
 rewrite series_shift_0.
 rewrite series_stretch_series_0.
-remember (nz_valnum nz) as v eqn:Hv .
+remember (nz_valnum ps) as v eqn:Hv .
 symmetry in Hv.
 destruct v as [| v| v].
  reflexivity.
 
  symmetry.
- remember (Z.to_nat (nz_valnum nz * Zpos (nz_comden nz))) as n.
+ remember (Z.to_nat (nz_valnum ps * Zpos (nz_comden ps))) as n.
  rewrite nz_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_nz.
  remember Z.sub as f; simpl; subst f.
@@ -598,7 +574,7 @@ destruct v as [| v| v].
  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.sub_diag; reflexivity.
 
- remember (Z.to_nat (Zpos v * Zpos (nz_comden nz))) as n.
+ remember (Z.to_nat (Zpos v * Zpos (nz_comden ps))) as n.
  rewrite nz_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_nz.
  remember Z.sub as f; simpl; subst f.

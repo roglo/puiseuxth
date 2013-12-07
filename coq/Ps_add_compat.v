@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.26 2013-12-07 17:42:54 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.27 2013-12-07 18:23:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -644,7 +644,7 @@ Qed.
 
 Lemma normalised_exists_adjust : ∀ nz nz₁,
   null_coeff_range_length rng (nz_terms nz) 0 ≠ ∞
-  → normalise_nz nz = NonZero nz₁
+  → normalise_nz nz = nz₁
     → ∃ n k, eq_nz nz (adjust_nz n k nz₁).
 Proof.
 intros nz nz₁ Hnz Heq.
@@ -652,7 +652,6 @@ unfold normalise_nz in Heq.
 remember (null_coeff_range_length rng (nz_terms nz) 0) as len₁.
 symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
-injection Heq; clear Heq; intros Heq; symmetry in Heq.
 subst nz₁.
 unfold adjust_nz; simpl.
 remember (greatest_series_x_power rng (nz_terms nz) len₁) as k₁.
@@ -834,7 +833,7 @@ Qed.
 
 Lemma null_coeff_range_length_inf_iff : ∀ nz,
   null_coeff_range_length rng (nz_terms nz) 0 = ∞
-  ↔ (NonZero nz = 0)%ps.
+  ↔ (nz = 0)%ps.
 Proof.
 intros nz.
 split; intros H.
@@ -852,11 +851,11 @@ split; intros H.
 
  inversion H; subst.
  apply null_coeff_range_length_iff; simpl; intros i.
- unfold normalise_nz in H2; simpl in H2.
+ unfold normalise_nz in H0; simpl in H0.
  remember (null_coeff_range_length rng 0%ser 0) as n eqn:Hn .
  symmetry in Hn.
  destruct n as [n| ].
-  exfalso; clear H2.
+  exfalso; clear H0.
   apply null_coeff_range_length_iff in Hn.
   simpl in Hn.
   destruct Hn as (_, Hn).
@@ -871,9 +870,9 @@ split; intros H.
    simpl in Hm.
    apply Hm.
 
-   inversion_clear H2.
    inversion_clear H0.
-   simpl in H1, H2, H3.
+   inversion_clear H1.
+   simpl in H0, H2, H3.
    remember (greatest_series_x_power rng (nz_terms nz) m) as p eqn:Hp .
    remember (gcd_nz m p nz) as g eqn:Hg .
    unfold normalise_series in H3.
@@ -886,7 +885,7 @@ split; intros H.
    destruct (zerop ((i - m) mod Z.to_nat g)) as [H₂| H₂].
     apply Nat.mod_divides in H₂.
      destruct H₂ as (c, Hc).
-     pose proof (H0 c) as Hi.
+     pose proof (H1 c) as Hi.
      rewrite series_nth_series_0 in Hi.
      rewrite <- series_nth_mul_shrink in Hi.
      rewrite Pos2Nat_to_pos in Hi.
@@ -953,7 +952,7 @@ intros nz₁ nz₂ Heq Hinf.
 apply null_coeff_range_length_inf_iff in Hinf.
 apply null_coeff_range_length_inf_iff.
 inversion Hinf; constructor.
-rewrite <- Heq, <- H1; reflexivity.
+rewrite <- Heq, H; reflexivity.
 Qed.
 
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
@@ -969,8 +968,6 @@ destruct m₁ as [m₁| ].
   remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
   remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
   symmetry in Hps₁, Hps₂.
-  destruct ps₁ as (nz'₁).
-  destruct ps₂ as (nz'₂).
   apply normalised_exists_adjust in Hps₁.
    apply normalised_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
@@ -981,8 +978,8 @@ destruct m₁ as [m₁| ].
     rewrite Hps₁, Hps₂.
     rewrite <- normalise_nz_add_adjust_l.
     rewrite <- normalise_nz_add_adjust_l.
-    apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
-    rewrite H1; reflexivity.
+    apply eq_nz_add_compat_r with (nz₃ := nz₃) in H.
+    rewrite H; reflexivity.
 
     rewrite Hm₂; intros H; discriminate H.
 

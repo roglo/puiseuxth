@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.79 2013-12-07 17:42:54 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.80 2013-12-07 18:23:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -76,8 +76,7 @@ Record nz_ps α := mknz
     nz_valnum : Z;
     nz_comden : positive }.
 
-Inductive puiseux_series α :=
-  | NonZero : nz_ps α → puiseux_series α.
+Definition puiseux_series α := nz_ps α.
 
 Definition series_shrink k (s : series α) :=
   {| terms i := terms s (i * Pos.to_nat k);
@@ -94,25 +93,21 @@ Definition gcd_nz n k (nz : nz_ps α) :=
   Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
 
 Definition ps_zero : puiseux_series α :=
-  NonZero {| nz_terms := series_0; nz_valnum := 0; nz_comden := 1 |}.
+  {| nz_terms := series_0; nz_valnum := 0; nz_comden := 1 |}.
 
 Definition normalise_nz nz :=
   match null_coeff_range_length rng (nz_terms nz) 0 with
   | fin n =>
       let k := greatest_series_x_power rng (nz_terms nz) n in
       let g := gcd_nz n k nz in
-      NonZero
-        {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
-           nz_valnum := (nz_valnum nz + Z.of_nat n) / g;
-           nz_comden := Z.to_pos (' nz_comden nz / g) |}
+      {| nz_terms := normalise_series n (Z.to_pos g) (nz_terms nz);
+         nz_valnum := (nz_valnum nz + Z.of_nat n) / g;
+         nz_comden := Z.to_pos (' nz_comden nz / g) |}
   | ∞ =>
       ps_zero
   end.
 
-Definition normalise_ps ps :=
-  match ps with
-  | NonZero nz => normalise_nz nz
-  end.
+Definition normalise_ps ps := normalise_nz ps.
 
 Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
   | eq_nz_base : ∀ nz₁ nz₂,
@@ -123,19 +118,19 @@ Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
 
 Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_norm_ps_base : ∀ nz₁ nz₂,
-      eq_nz nz₁ nz₂ → eq_norm_ps (NonZero nz₁) (NonZero nz₂).
+      eq_nz nz₁ nz₂ → eq_norm_ps nz₁ nz₂.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ nz₁ nz₂,
       eq_norm_ps (normalise_nz nz₁) (normalise_nz nz₂)
-      → eq_ps (NonZero nz₁) (NonZero nz₂).
+      → eq_ps nz₁ nz₂.
 
 Definition nz_monom (c : α) pow :=
   {| nz_terms := {| terms i := c; stop := 1 |};
      nz_valnum := Qnum pow;
      nz_comden := Qden pow |}.
 
-Definition ps_monom c pow := NonZero (nz_monom c pow).
+Definition ps_monom c pow := nz_monom c pow.
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
 

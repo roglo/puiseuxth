@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.29 2013-12-07 17:42:54 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.30 2013-12-07 18:23:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -25,13 +25,7 @@ Definition nz_mul nz₁ nz₂ :=
      nz_comden :=
        cm nz₁ nz₂ |}.
 
-Definition ps_mul (ps₁ ps₂ : puiseux_series α) :=
-  match ps₁ with
-  | NonZero nz₁ =>
-      match ps₂ with
-      | NonZero nz₂ => NonZero (nz_mul nz₁ nz₂)
-      end
-  end.
+Definition ps_mul (ps₁ ps₂ : puiseux_series α) := nz_mul ps₁ ps₂.
 
 Notation "a * b" := (nz_mul a b) : nz_scope.
 Notation "a * b" := (ps_mul a b) : ps_scope.
@@ -134,13 +128,12 @@ Qed.
 Theorem ps_mul_1_l : ∀ ps, (1 * ps = ps)%ps.
 Proof.
 intros ps; simpl.
-destruct ps as (nz).
 constructor.
 unfold normalise_nz; simpl.
 unfold cm_factor; simpl.
 rewrite fold_series_1, series_stretch_1.
 rewrite stretch_series_1, series_mul_1_l.
-remember (null_coeff_range_length rng (nz_terms nz) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (nz_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
@@ -481,9 +474,6 @@ Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 unfold ps_mul; simpl.
-destruct ps₁ as (nz₁).
-destruct ps₂ as (nz₂).
-destruct ps₃ as (nz₃).
 constructor.
 unfold normalise_nz; simpl.
 rewrite series_stretch_mul; symmetry.
@@ -491,14 +481,14 @@ rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
 unfold cm, cm_factor; simpl.
 rewrite series_mul_assoc.
-remember (nz_comden nz₂ * nz_comden nz₃)%positive as c₂₃ eqn:Hc₂₃ .
-remember (nz_comden nz₃ * nz_comden nz₁)%positive as c₃₁ eqn:Hc₃₁ .
-remember (nz_comden nz₁ * nz_comden nz₂)%positive as c₁₂ eqn:Hc₁₂ .
+remember (nz_comden ps₂ * nz_comden ps₃)%positive as c₂₃ eqn:Hc₂₃ .
+remember (nz_comden ps₃ * nz_comden ps₁)%positive as c₃₁ eqn:Hc₃₁ .
+remember (nz_comden ps₁ * nz_comden ps₂)%positive as c₁₂ eqn:Hc₁₂ .
 rewrite Pos.mul_comm in Hc₂₃; rewrite <- Hc₂₃.
 rewrite Pos.mul_comm in Hc₃₁; rewrite <- Hc₃₁.
-remember (series_stretch c₂₃ (nz_terms nz₁)) as s₁ eqn:Hs₁ .
-remember (series_stretch c₃₁ (nz_terms nz₂)) as s₂ eqn:Hs₂ .
-remember (series_stretch c₁₂ (nz_terms nz₃)) as s₃ eqn:Hs₃ .
+remember (series_stretch c₂₃ (nz_terms ps₁)) as s₁ eqn:Hs₁ .
+remember (series_stretch c₃₁ (nz_terms ps₂)) as s₂ eqn:Hs₂ .
+remember (series_stretch c₁₂ (nz_terms ps₃)) as s₃ eqn:Hs₃ .
 remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
 remember (null_coeff_range_length rng s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
@@ -854,8 +844,6 @@ remember Heq as Heqv; clear HeqHeqv.
 remember (normalise_nz nz₁) as ps₁ eqn:Hps₁  in Heq.
 remember (normalise_nz nz₂) as ps₂ eqn:Hps₂  in Heq.
 symmetry in Hps₁, Hps₂.
-destruct ps₁ as (nz'₁).
-destruct ps₂ as (nz'₂).
 remember (null_coeff_range_length rng (nz_terms nz₁) 0) as m₁ eqn:Hm₁ .
 remember (null_coeff_range_length rng (nz_terms nz₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
@@ -871,8 +859,8 @@ destruct m₁ as [m₁| ].
     rewrite Hps₁, Hps₂.
     rewrite <- normalise_nz_mul_adjust_l.
     rewrite <- normalise_nz_mul_adjust_l.
-    apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H1.
-    rewrite H1; reflexivity.
+    apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H.
+    rewrite H; reflexivity.
 
     intros H; rewrite Hm₂ in H; discriminate H.
 
@@ -962,19 +950,18 @@ Qed.
 Theorem normalise_ps_eq : ∀ ps, (normalise_ps ps = ps)%ps.
 Proof.
 intros ps.
-destruct ps as (nz).
 unfold normalise_ps.
 unfold normalise_nz.
-remember (null_coeff_range_length rng (nz_terms nz) 0) as n eqn:Hn .
+remember (null_coeff_range_length rng (nz_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
- remember (greatest_series_x_power rng (nz_terms nz) n) as x.
- remember (gcd_nz n x nz) as g eqn:Hg ; subst x.
+ remember (greatest_series_x_power rng (nz_terms ps) n) as x.
+ remember (gcd_nz n x ps) as g eqn:Hg ; subst x.
  unfold gcd_nz in Hg; simpl in Hg.
- remember (nz_valnum nz + Z.of_nat n)%Z as x eqn:Hx .
+ remember (nz_valnum ps + Z.of_nat n)%Z as x eqn:Hx .
  rewrite <- Z.gcd_assoc in Hg.
- remember (' greatest_series_x_power rng (nz_terms nz) n)%Z as z.
- remember (Z.gcd (' nz_comden nz) z) as y eqn:Hy ; subst z.
+ remember (' greatest_series_x_power rng (nz_terms ps) n)%Z as z.
+ remember (Z.gcd (' nz_comden ps) z) as y eqn:Hy ; subst z.
  assert (0 < g)%Z as Hgp.
   pose proof (Z.gcd_nonneg x y) as Hp.
   rewrite <- Hg in Hp.
@@ -1004,15 +991,15 @@ destruct n as [n| ]; constructor.
     apply Z.div_exact in Hxk.
      rewrite <- Hxk, Hx, Z.add_simpl_r.
      rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
-     remember (greatest_series_x_power rng (nz_terms nz) n) as z.
-     pose proof (Z.gcd_divide_l (' nz_comden nz) (Z.gcd (' z) x)) as Hgc.
+     remember (greatest_series_x_power rng (nz_terms ps) n) as z.
+     pose proof (Z.gcd_divide_l (' nz_comden ps) (Z.gcd (' z) x)) as Hgc.
      rewrite <- Hg in Hgc.
      destruct Hgc as (c, Hc).
      rewrite Hc.
      rewrite Z.div_mul.
       rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ].
        rewrite <- Hc; simpl.
-       destruct nz; reflexivity.
+       destruct ps; reflexivity.
 
        destruct c as [| c| c].
         exfalso; revert Hc; apply Pos2Z_ne_0.
@@ -1058,19 +1045,13 @@ assert (ps'₁ = ps₁)%ps as H₁ by (subst; apply normalise_ps_eq).
 assert (ps'₂ = ps₂)%ps as H₂ by (subst; apply normalise_ps_eq).
 assert (ps'₃ = ps₃)%ps as H₃ by (subst; apply normalise_ps_eq).
 rewrite <- H₁, <- H₂, <- H₃.
-destruct ps'₁ as (nz₁).
-destruct ps'₂ as (nz₂).
-destruct ps'₃ as (nz₃).
 simpl.
 constructor.
 clear H₁ H₂ H₃.
 symmetry in Heqps'₁, Heqps'₂, Heqps'₃.
-destruct ps₁ as (nz'₁).
-destruct ps₂ as (nz'₂).
-destruct ps₃ as (nz'₃).
 simpl in Heqps'₁, Heqps'₂, Heqps'₃.
 unfold normalise_nz in Heqps'₁.
-remember (null_coeff_range_length rng (nz_terms nz'₁) 0) as n₁ eqn:Hn₁ .
+remember (null_coeff_range_length rng (nz_terms ps₁) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 destruct n₁ as [n₁| ].
 bbb.
