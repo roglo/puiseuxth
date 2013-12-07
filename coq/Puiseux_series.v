@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.84 2013-12-07 18:42:59 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.85 2013-12-07 19:23:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -105,16 +105,12 @@ Definition normalise_ps ps :=
       ps_zero
   end.
 
-Inductive eq_nz : puiseux_series α → puiseux_series α → Prop :=
-  | eq_nz_base : ∀ nz₁ nz₂,
+Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_norm_ps_base : ∀ nz₁ nz₂,
       ps_valnum nz₁ = ps_valnum nz₂
       → ps_comden nz₁ = ps_comden nz₂
         → (ps_terms nz₁ = ps_terms nz₂)%ser
-          → eq_nz nz₁ nz₂.
-
-Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_norm_ps_base : ∀ nz₁ nz₂,
-      eq_nz nz₁ nz₂ → eq_norm_ps nz₁ nz₂.
+          → eq_norm_ps nz₁ nz₂.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ nz₁ nz₂,
@@ -137,11 +133,6 @@ Definition nz_zero :=
 
 Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
 
-Delimit Scope nz_scope with nz.
-Notation "a = b" := (eq_nz a b) : nz_scope.
-Notation "a ≠ b" := (not (eq_nz a b)) : nz_scope.
-Notation "0" := nz_zero : nz_scope.
-
 Delimit Scope ps_scope with ps.
 Notation "a = b" := (eq_ps a b) : ps_scope.
 Notation "a ≠ b" := (not (eq_ps a b)) : ps_scope.
@@ -158,45 +149,18 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
-Theorem eq_nz_refl : reflexive _ eq_nz.
+Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
 Proof. intros nz; constructor; reflexivity. Qed.
 
-Theorem eq_nz_sym : symmetric _ eq_nz.
+Theorem eq_norm_ps_sym : symmetric _ eq_norm_ps.
 Proof. intros nz₁ nz₂ H; induction H; constructor; symmetry; assumption. Qed.
 
-Theorem eq_nz_trans : transitive _ eq_nz.
+Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
 Proof.
 intros nz₁ nz₂ nz₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
-
-Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
-Proof.
-intros ps.
-destruct ps.
-constructor; constructor; reflexivity.
-Qed.
-
-Theorem eq_norm_ps_sym : symmetric _ eq_norm_ps.
-Proof.
-intros ps₁ ps₂ H.
-induction H; constructor; apply eq_nz_sym; assumption.
-Qed.
-
-Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
-Proof.
-intros ps₁ ps₂ ps₃ H₁ H₂.
-inversion H₁; subst.
-inversion H₂; subst; constructor.
-eapply eq_nz_trans; eassumption.
-Qed.
-
-Add Parametric Relation : (puiseux_series α) eq_nz
- reflexivity proved by eq_nz_refl
- symmetry proved by eq_nz_sym
- transitivity proved by eq_nz_trans
- as eq_nz_rel.
 
 Add Parametric Relation : (puiseux_series α) eq_norm_ps
  reflexivity proved by eq_norm_ps_refl
@@ -221,7 +185,7 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_nz
+  with signature eq_series ==> eq ==> eq ==> eq_norm_ps
   as mkps_morphism.
 Proof.
 intros a b Hab v n.
@@ -537,7 +501,7 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
 Qed.
 
 Add Parametric Morphism : normalise_ps
-  with signature eq_nz ==> eq_norm_ps
+  with signature eq_norm_ps ==> eq_norm_ps
   as normalise_ps_morph.
 Proof.
 intros nz₁ nz₂ Heq.
@@ -546,7 +510,7 @@ unfold normalise_ps.
 rewrite H, H0, H1.
 remember (null_coeff_range_length rng (ps_terms nz₂) 0) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [n| ]; [ constructor | reflexivity ].
+destruct n as [n| ]; [ idtac | reflexivity ].
 unfold gcd_ps.
 rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.

@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.66 2013-12-07 18:42:59 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.67 2013-12-07 19:23:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -39,7 +39,7 @@ rewrite Nbar.add_comm, Nbar.mul_comm.
 remember (null_coeff_range_length rng (ps_terms nz) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
-constructor; constructor; simpl.
+constructor; simpl.
  rewrite greatest_series_x_power_shift.
  rewrite Nat2Z.inj_add, Z.add_assoc.
  rewrite Z.add_shuffle0.
@@ -278,7 +278,7 @@ rewrite cm_comm, Z.min_comm.
 reflexivity.
 Qed.
 
-Lemma nz_add_comm : ∀ nz₁ nz₂, eq_nz (nz_add nz₁ nz₂) (nz_add nz₂ nz₁).
+Lemma nz_add_comm : ∀ nz₁ nz₂, eq_norm_ps (nz_add nz₁ nz₂) (nz_add nz₂ nz₁).
 Proof.
 intros nz₁ nz₂.
 constructor; simpl.
@@ -373,11 +373,11 @@ destruct (Z.min_dec x y) as [H₁| H₁].
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  (ps_terms_add (nz₁ + nz₂)%nz nz₃ = ps_terms_add nz₁ (nz₂ + nz₃)%nz)%ser.
+  (ps_terms_add (nz₁ + nz₂)%ps nz₃ = ps_terms_add nz₁ (nz₂ + nz₃)%ps)%ser.
 Proof.
 intros nz₁ nz₂ nz₃.
 constructor; intros i.
-unfold nz_add; simpl.
+unfold ps_add, nz_add; simpl.
 unfold cm_factor, cm.
 unfold ps_terms_add; simpl.
 unfold ps_valnum_add; simpl.
@@ -444,11 +444,12 @@ Proof.
 intros nz₁ nz₂ nz₃.
 unfold normalise_ps; simpl.
 rewrite ps_terms_add_assoc.
+unfold ps_add.
 remember
   (null_coeff_range_length rng (ps_terms_add nz₁ (nz_add nz₂ nz₃)) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
-destruct n as [n| ]; [ constructor; constructor; simpl | reflexivity ].
+destruct n as [n| ]; [ constructor; simpl | reflexivity ].
  rewrite ps_terms_add_assoc.
  rewrite gcd_ps_add_assoc.
  do 2 f_equal.
@@ -604,7 +605,7 @@ destruct d₁, d₂, d₃; reflexivity.
 Qed.
 
 Lemma nz_add_0_r : ∀ nz,
-  (ps_terms_add nz 0%nz =
+  (ps_terms_add nz 0%ps =
    series_shift (Z.to_nat (ps_valnum nz)) (ps_terms nz))%ser.
 Proof.
 intros nz.
@@ -620,7 +621,8 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma eq_nz_add_add₂ : ∀ nz₁ nz₂, eq_nz (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
+Lemma eq_norm_ps_add_add₂ : ∀ nz₁ nz₂,
+  eq_norm_ps (nz_add nz₁ nz₂) (nz_add₂ nz₁ nz₂).
 Proof.
 intros nz₁ nz₂.
 constructor; [ simpl | reflexivity | simpl ].
@@ -643,11 +645,11 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_nz_norm_add_add₂ : ∀ nz₁ nz₂,
-  normalise_ps (nz₁ + nz₂)%nz ≐ normalise_ps (nz₁ ₊ nz₂)%nz.
+Lemma eq_norm_ps_norm_add_add₂ : ∀ nz₁ nz₂,
+  normalise_ps (nz₁ + nz₂)%ps ≐ normalise_ps (nz₁ ₊ nz₂)%ps.
 Proof.
 intros nz₁ nz₂.
-rewrite eq_nz_add_add₂; reflexivity.
+rewrite eq_norm_ps_add_add₂; reflexivity.
 Qed.
 
 Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₁ ₊ ps₂)%ps.
@@ -656,11 +658,11 @@ intros ps₁ ps₂.
 destruct ps₁ as (ps₁).
 destruct ps₂ as (ps₂).
 constructor.
-apply eq_nz_norm_add_add₂.
+apply eq_norm_ps_norm_add_add₂.
 Qed.
 
 Add Parametric Morphism : adjusted_nz_add
-  with signature eq_nz ==> eq_nz ==> eq_nz
+  with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
   as adjusted_nz_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
@@ -749,7 +751,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
 Qed.
 
 Add Parametric Morphism : ps_terms_add
-  with signature eq_nz ==> eq_nz ==> eq_series
+  with signature eq_norm_ps ==> eq_norm_ps ==> eq_series
   as ps_terms_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.

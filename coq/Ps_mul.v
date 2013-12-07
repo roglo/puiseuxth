@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.34 2013-12-07 18:42:59 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.35 2013-12-07 19:23:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -40,7 +40,7 @@ remember (series_stretch (cm_factor nz₂ nz₁) (ps_terms nz₂)) as s₂ eqn:H
 rewrite series_mul_comm.
 remember (null_coeff_range_length rng (series_mul s₂ s₁) 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; constructor; simpl.
+constructor; simpl.
  unfold gcd_ps; simpl.
  rewrite series_mul_comm.
  f_equal; [ f_equal; apply Z.add_comm | f_equal ].
@@ -136,7 +136,7 @@ rewrite stretch_series_1, series_mul_1_l.
 remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-constructor; constructor; simpl.
+constructor; simpl.
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
@@ -500,7 +500,7 @@ do 2 rewrite Z.mul_add_distr_r.
 do 6 rewrite Pos2Z.inj_mul.
 do 3 rewrite Z.mul_assoc.
 do 2 rewrite Z.add_assoc.
-constructor; constructor; simpl.
+constructor; simpl.
  f_equal.
   f_equal.
   f_equal.
@@ -551,9 +551,9 @@ constructor; constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_nz_mul_compat_r : ∀ nz₁ nz₂ nz₃,
-  eq_nz nz₁ nz₂
-  → eq_nz (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
+Lemma eq_norm_ps_mul_compat_r : ∀ nz₁ nz₂ nz₃,
+  eq_norm_ps nz₁ nz₂
+  → eq_norm_ps (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -568,9 +568,9 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_nz_mul_compat_l : ∀ nz₁ nz₂ nz₃,
-  eq_nz nz₁ nz₂
-  → eq_nz (nz_mul nz₃ nz₁) (nz_mul nz₃ nz₂).
+Lemma eq_norm_ps_mul_compat_l : ∀ nz₁ nz₂ nz₃,
+  eq_norm_ps nz₁ nz₂
+  → eq_norm_ps (nz_mul nz₃ nz₁) (nz_mul nz₃ nz₂).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -834,14 +834,13 @@ destruct m₁ as [m₁| ].
    apply normalised_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
-    inversion Heq; subst.
-    apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₁.
-    apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hps₂.
+    apply eq_norm_ps_mul_compat_r with (nz₃ := nz₃) in Hps₁.
+    apply eq_norm_ps_mul_compat_r with (nz₃ := nz₃) in Hps₂.
     rewrite Hps₁, Hps₂.
     rewrite <- normalise_ps_mul_adjust_l.
     rewrite <- normalise_ps_mul_adjust_l.
-    apply eq_nz_mul_compat_r with (nz₃ := nz₃) in H.
-    rewrite H; reflexivity.
+    apply eq_norm_ps_mul_compat_r with (nz₃ := nz₃) in Heq.
+    rewrite Heq; reflexivity.
 
     intros H; rewrite Hm₂ in H; discriminate H.
 
@@ -854,12 +853,12 @@ destruct m₁ as [m₁| ].
  clear Hm₂.
  remember Hm₁ as Hm₂; clear HeqHm₂.
  eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
- apply eq_nz_adjust_zero_neg_zero in Hm₁.
- apply eq_nz_adjust_zero_neg_zero in Hm₂.
+ apply eq_norm_ps_adjust_zero_neg_zero in Hm₁.
+ apply eq_norm_ps_adjust_zero_neg_zero in Hm₂.
  destruct Hm₁ as (n₁, (n₂, (k₁, (k₂, Hm₁)))).
  destruct Hm₂ as (n₃, (n₄, (k₃, (k₄, Hm₂)))).
- apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hm₁.
- apply eq_nz_mul_compat_r with (nz₃ := nz₃) in Hm₂.
+ apply eq_norm_ps_mul_compat_r with (nz₃ := nz₃) in Hm₁.
+ apply eq_norm_ps_mul_compat_r with (nz₃ := nz₃) in Hm₂.
  rewrite normalise_ps_mul_adjust_l with (n := n₁) (k := k₁).
  rewrite Hm₁; symmetry.
  rewrite normalise_ps_mul_adjust_l with (n := n₃) (k := k₃).
@@ -893,12 +892,12 @@ apply ps_mul_compat_r; assumption.
 Qed.
 
 Add Parametric Morphism : nz_mul
-  with signature eq_nz ==> eq_nz ==> eq_nz
+  with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
   as nz_mul_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
-rewrite eq_nz_mul_compat_l; [ idtac | eassumption ].
-rewrite eq_nz_mul_compat_r; [ idtac | eassumption ].
+rewrite eq_norm_ps_mul_compat_l; [ idtac | eassumption ].
+rewrite eq_norm_ps_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
