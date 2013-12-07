@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.31 2013-12-07 18:36:00 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.32 2013-12-07 18:37:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -41,19 +41,19 @@ rewrite series_mul_comm.
 remember (null_coeff_range_length rng (series_mul s₂ s₁) 0) as n eqn:Hn .
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  rewrite series_mul_comm.
  f_equal; [ f_equal; apply Z.add_comm | f_equal ].
  f_equal; [ f_equal; apply Z.add_comm | idtac ].
  unfold cm; rewrite Pos.mul_comm; reflexivity.
 
  unfold cm; rewrite Pos.mul_comm, series_mul_comm.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  do 3 f_equal.
  f_equal; [ f_equal; apply Z.add_comm | idtac ].
  unfold cm; rewrite Pos.mul_comm; reflexivity.
 
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  unfold cm; rewrite Pos.mul_comm, series_mul_comm.
  remember (ps_valnum nz₁ * ' ps_comden nz₂)%Z as x eqn:Hx .
  remember (ps_valnum nz₂ * ' ps_comden nz₁)%Z as y eqn:Hy .
@@ -138,15 +138,15 @@ symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; constructor; simpl.
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
 
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
 
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
@@ -493,7 +493,7 @@ remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ 
 remember (null_coeff_range_length rng s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
-unfold gcd_nz; simpl.
+unfold gcd_ps; simpl.
 unfold cm; simpl.
 unfold cm; simpl.
 do 2 rewrite Z.mul_add_distr_r.
@@ -956,8 +956,8 @@ remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
  remember (greatest_series_x_power rng (ps_terms ps) n) as x.
- remember (gcd_nz n x ps) as g eqn:Hg ; subst x.
- unfold gcd_nz in Hg; simpl in Hg.
+ remember (gcd_ps n x ps) as g eqn:Hg ; subst x.
+ unfold gcd_ps in Hg; simpl in Hg.
  remember (ps_valnum ps + Z.of_nat n)%Z as x eqn:Hx .
  rewrite <- Z.gcd_assoc in Hg.
  remember (' greatest_series_x_power rng (ps_terms ps) n)%Z as z.

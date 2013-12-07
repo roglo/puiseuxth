@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.28 2013-12-07 18:36:00 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.29 2013-12-07 18:37:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -58,15 +58,15 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  omega.
 Qed.
 
-Lemma gcd_nz_add : ∀ nz n,
-  gcd_nz (n + Z.to_nat (ps_valnum nz))
+Lemma gcd_ps_add : ∀ nz n,
+  gcd_ps (n + Z.to_nat (ps_valnum nz))
     (greatest_series_x_power rng
        (series_shift (Z.to_nat (ps_valnum nz)) (ps_terms nz))
        (n + Z.to_nat (ps_valnum nz))) (nz + 0)%nz =
-  gcd_nz n (greatest_series_x_power rng (ps_terms nz) n) nz.
+  gcd_ps n (greatest_series_x_power rng (ps_terms nz) n) nz.
 Proof.
 intros nz n.
-unfold gcd_nz; simpl.
+unfold gcd_ps; simpl.
 unfold ps_valnum_add.
 rewrite Z.mul_1_r.
 rewrite Nat2Z.inj_add.
@@ -117,7 +117,7 @@ constructor; constructor; simpl.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
  rewrite Z2Nat_id_max, Z.min_comm.
- f_equal; [ idtac | apply gcd_nz_add ].
+ f_equal; [ idtac | apply gcd_ps_add ].
  remember (ps_valnum nz) as z eqn:Hz .
  symmetry in Hz.
  destruct z; reflexivity.
@@ -126,13 +126,13 @@ constructor; constructor; simpl.
  rewrite Pos.mul_1_r.
  do 2 f_equal.
  rewrite nz_add_0_r.
- apply gcd_nz_add.
+ apply gcd_ps_add.
 
  rewrite nz_add_0_r.
  rewrite greatest_series_x_power_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.
- unfold gcd_nz; simpl.
+ unfold gcd_ps; simpl.
  unfold cm; simpl.
  unfold ps_valnum_add.
  rewrite Z.mul_1_r, Pos.mul_1_r.
@@ -297,7 +297,7 @@ constructor; simpl.
  apply null_coeff_range_length_iff in Heqx.
  simpl in Heqx.
  destruct Heqx as (Hz, Hnz).
- unfold gcd_nz.
+ unfold gcd_ps.
  simpl.
  rewrite Z.mul_1_r.
  rewrite Nat2Z.inj_add.
@@ -313,7 +313,7 @@ constructor; simpl.
  rewrite series_stretch_1.
  remember (series_add (ps_terms nz₁) (ps_terms nz₂)) as s.
  symmetry in Heqx.
- unfold gcd_nz.
+ unfold gcd_ps.
  simpl.
  rewrite Z.mul_1_r.
  rewrite Pos.mul_1_r.
@@ -325,7 +325,7 @@ constructor; simpl.
  rewrite series_stretch_1.
  rewrite normalise_series_add_shift.
  remember (series_add (ps_terms nz₁) (ps_terms nz₂)) as s.
- unfold gcd_nz.
+ unfold gcd_ps.
  simpl.
  rewrite Z.mul_1_r.
  rewrite Pos.mul_1_r.
@@ -655,16 +655,16 @@ destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 subst nz₁.
 unfold adjust_nz; simpl.
 remember (greatest_series_x_power rng (ps_terms nz) len₁) as k₁.
-remember (gcd_nz len₁ k₁ nz) as g.
+remember (gcd_ps len₁ k₁ nz) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
- unfold gcd_nz in Heqg.
+ unfold gcd_ps in Heqg.
  apply Z.gcd_eq_0_r in Heqg.
  exfalso; revert Heqg; apply Pos2Z_ne_0.
 
  exists len₁, g.
  constructor; simpl.
-  unfold gcd_nz in Heqg.
+  unfold gcd_ps in Heqg.
   remember (ps_valnum nz + Z.of_nat len₁)%Z as v.
   remember (Zpos (ps_comden nz))%Z as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Zpos k₁)) as H₁.
@@ -681,7 +681,7 @@ destruct g as [| g| g]; simpl.
   rewrite Z.add_simpl_r.
   reflexivity.
 
-  unfold gcd_nz in Heqg.
+  unfold gcd_ps in Heqg.
   remember (ps_valnum nz + Z.of_nat len₁)%Z as v.
   remember (Zpos (ps_comden nz)) as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Zpos k₁)) as H₁.
@@ -714,7 +714,7 @@ destruct g as [| g| g]; simpl.
    rewrite greatest_series_x_power_left_shift.
    rewrite Nat.add_0_r.
    rewrite <- Heqk₁.
-   unfold gcd_nz in Heqg.
+   unfold gcd_ps in Heqg.
    apply Pos2Z.inj_divide.
    rewrite <- Heqg.
    apply Z.gcd_divide_r.
@@ -722,7 +722,7 @@ destruct g as [| g| g]; simpl.
  exfalso.
  pose proof (Zlt_neg_0 g) as H.
  rewrite <- Heqg in H.
- unfold gcd_nz in H.
+ unfold gcd_ps in H.
  apply Z.nle_gt in H.
  apply H, Z.gcd_nonneg.
 Qed.
@@ -789,10 +789,10 @@ destruct (Z_le_dec 0 (ps_valnum nz)) as [H₁| H₁].
    assumption.
 Qed.
 
-Lemma gcd_nz_is_pos : ∀ n k nz, (0 < gcd_nz n k nz)%Z.
+Lemma gcd_ps_is_pos : ∀ n k nz, (0 < gcd_ps n k nz)%Z.
 Proof.
 intros n k nz.
-unfold gcd_nz; simpl.
+unfold gcd_ps; simpl.
 remember (ps_valnum nz + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
 remember (Z.gcd (' ps_comden nz) (' k))%Z as y eqn:Hy .
@@ -874,7 +874,7 @@ split; intros H.
    inversion_clear H1.
    simpl in H0, H2, H3.
    remember (greatest_series_x_power rng (ps_terms nz) m) as p eqn:Hp .
-   remember (gcd_nz m p nz) as g eqn:Hg .
+   remember (gcd_ps m p nz) as g eqn:Hg .
    unfold normalise_series in H3.
    inversion_clear H3.
    apply null_coeff_range_length_iff in Hm.
@@ -893,9 +893,9 @@ split; intros H.
       rewrite <- series_nth_add_left_shift in Hi.
       rewrite Nat.sub_add in Hi; assumption.
 
-      rewrite Hg; apply gcd_nz_is_pos.
+      rewrite Hg; apply gcd_ps_is_pos.
 
-     pose proof (gcd_nz_is_pos m p nz) as H₃.
+     pose proof (gcd_ps_is_pos m p nz) as H₃.
      rewrite <- Hg in H₃.
      rewrite <- Z2Nat.inj_0.
      intros H₄.
@@ -911,9 +911,9 @@ split; intros H.
     eapply series_null_power; [ eassumption | idtac ].
     apply Nat.sub_gt in H₂; rewrite Nat.sub_0_r in H₂.
     intros H₃; apply H₂; clear H₂.
-    pose proof (gcd_nz_is_pos m p nz) as Hgp.
+    pose proof (gcd_ps_is_pos m p nz) as Hgp.
     rewrite <- Hg in Hgp.
-    unfold gcd_nz in Hg.
+    unfold gcd_ps in Hg.
     remember (ps_valnum nz + Z.of_nat m)%Z as x.
     remember (Z.gcd x (' ps_comden nz)) as z.
     pose proof (Z.gcd_divide_r z (Zpos p)) as H₄.
