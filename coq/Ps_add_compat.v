@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.25 2013-12-04 09:59:04 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.26 2013-12-07 17:42:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -643,14 +643,15 @@ split.
 Qed.
 
 Lemma normalised_exists_adjust : ∀ nz nz₁,
-  normalise_nz nz = NonZero nz₁
-  → ∃ n k, eq_nz nz (adjust_nz n k nz₁).
+  null_coeff_range_length rng (nz_terms nz) 0 ≠ ∞
+  → normalise_nz nz = NonZero nz₁
+    → ∃ n k, eq_nz nz (adjust_nz n k nz₁).
 Proof.
-intros nz nz₁ Heq.
+intros nz nz₁ Hnz Heq.
 unfold normalise_nz in Heq.
 remember (null_coeff_range_length rng (nz_terms nz) 0) as len₁.
 symmetry in Heqlen₁.
-destruct len₁ as [len₁| ]; [ idtac | discriminate Heq ].
+destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 injection Heq; clear Heq; intros Heq; symmetry in Heq.
 subst nz₁.
 unfold adjust_nz; simpl.
@@ -658,7 +659,6 @@ remember (greatest_series_x_power rng (nz_terms nz) len₁) as k₁.
 remember (gcd_nz len₁ k₁ nz) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
- Focus 1.
  unfold gcd_nz in Heqg.
  apply Z.gcd_eq_0_r in Heqg.
  exfalso; revert Heqg; apply Pos2Z_ne_0.
@@ -734,7 +734,7 @@ Definition nz_neg_zero :=
      nz_comden := 1 |}.
 
 Lemma eq_nz_adjust_zero_neg_zero : ∀ nz,
-  normalise_nz nz = Zero α
+  null_coeff_range_length rng (nz_terms nz) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
     eq_nz (adjust_nz n₁ k₁ nz) (adjust_nz n₂ k₂ nz_neg_zero).
 Proof.
@@ -790,43 +790,225 @@ destruct (Z_le_dec 0 (nz_valnum nz)) as [H₁| H₁].
    assumption.
 Qed.
 
+Lemma gcd_nz_is_pos : ∀ n k nz, (0 < gcd_nz n k nz)%Z.
+Proof.
+intros n k nz.
+unfold gcd_nz; simpl.
+remember (nz_valnum nz + Z.of_nat n)%Z as x.
+rewrite <- Z.gcd_assoc.
+remember (Z.gcd (' nz_comden nz) (' k))%Z as y eqn:Hy .
+pose proof (Z.gcd_nonneg x y) as Hp.
+destruct (Z_zerop (Z.gcd x y)) as [H₁| H₁]; [ idtac | omega ].
+apply Z.gcd_eq_0_r in H₁.
+rewrite Hy in H₁.
+apply Z.gcd_eq_0_r in H₁.
+exfalso; revert H₁; apply Pos2Z_ne_0.
+Qed.
+
+Lemma series_null_power : ∀ s b p,
+  is_a_series_in_x_power s b p
+  → ∀ i,
+    ((i - b) mod Pos.to_nat p)%nat ≠ O
+    → (series_nth_rng rng i s = 0)%rng.
+Proof.
+intros s b p Hxp i Hip.
+destruct (le_dec i b) as [H₁| H₁].
+ apply Nat.sub_0_le in H₁.
+ rewrite H₁, Nat.mod_0_l in Hip; auto.
+ exfalso; apply Hip; reflexivity.
+
+ apply Nat.nle_gt in H₁.
+ remember (i - b)%nat as j eqn:Hj .
+ replace i with (b + j)%nat in * by omega.
+ clear i Hj.
+ eapply series_nth_0_in_interval_from_any with (c := S j).
+  apply Nat.lt_succ_r; reflexivity.
+
+  eassumption.
+
+  unfold is_a_series_in_x_power in Hxp.
+  apply Hxp.
+
+  assumption.
+Qed.
+
+Lemma null_coeff_range_length_inf_iff : ∀ nz,
+  null_coeff_range_length rng (nz_terms nz) 0 = ∞
+  ↔ (NonZero nz = 0)%ps.
+Proof.
+intros nz.
+split; intros H.
+ constructor.
+ unfold normalise_nz; simpl.
+ rewrite H.
+ remember (null_coeff_range_length rng 0%ser 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ]; [ idtac | reflexivity ].
+ apply null_coeff_range_length_iff in Hn.
+ simpl in Hn.
+ destruct Hn as (_, Hn).
+ rewrite series_nth_series_0 in Hn.
+ exfalso; apply Hn; reflexivity.
+
+ inversion H; subst.
+ apply null_coeff_range_length_iff; simpl; intros i.
+ unfold normalise_nz in H2; simpl in H2.
+ remember (null_coeff_range_length rng 0%ser 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ].
+  exfalso; clear H2.
+  apply null_coeff_range_length_iff in Hn.
+  simpl in Hn.
+  destruct Hn as (_, Hn).
+  apply Hn.
+  apply series_nth_series_0.
+
+  remember (null_coeff_range_length rng (nz_terms nz) 0) as m eqn:Hm .
+  symmetry in Hm.
+  destruct m as [m| ].
+   Focus 2.
+   apply null_coeff_range_length_iff in Hm.
+   simpl in Hm.
+   apply Hm.
+
+   inversion_clear H2.
+   inversion_clear H0.
+   simpl in H1, H2, H3.
+   remember (greatest_series_x_power rng (nz_terms nz) m) as p eqn:Hp .
+   remember (gcd_nz m p nz) as g eqn:Hg .
+   unfold normalise_series in H3.
+   inversion_clear H3.
+   apply null_coeff_range_length_iff in Hm.
+   simpl in Hm.
+   destruct Hm as (Hz, Hnz).
+   destruct (lt_dec i m) as [H₁| H₁]; [ apply Hz; assumption | idtac ].
+   apply Nat.nlt_ge in H₁.
+   destruct (zerop ((i - m) mod Z.to_nat g)) as [H₂| H₂].
+    apply Nat.mod_divides in H₂.
+     destruct H₂ as (c, Hc).
+     pose proof (H0 c) as Hi.
+     rewrite series_nth_series_0 in Hi.
+     rewrite <- series_nth_mul_shrink in Hi.
+     rewrite Pos2Nat_to_pos in Hi.
+      rewrite <- Hc in Hi.
+      rewrite <- series_nth_add_left_shift in Hi.
+      rewrite Nat.sub_add in Hi; assumption.
+
+      rewrite Hg; apply gcd_nz_is_pos.
+
+     pose proof (gcd_nz_is_pos m p nz) as H₃.
+     rewrite <- Hg in H₃.
+     rewrite <- Z2Nat.inj_0.
+     intros H₄.
+     apply Z2Nat.inj in H₄; [ idtac | idtac | reflexivity ].
+      rewrite H₄ in H₃; revert H₃; apply Z.lt_irrefl.
+
+      apply Z.lt_le_incl; assumption.
+
+    symmetry in Hp.
+    apply greatest_series_x_power_iff in Hp.
+    unfold is_the_greatest_series_x_power in Hp.
+    destruct Hp as (Hxp, Hnxp).
+    eapply series_null_power; [ eassumption | idtac ].
+    apply Nat.sub_gt in H₂; rewrite Nat.sub_0_r in H₂.
+    intros H₃; apply H₂; clear H₂.
+    pose proof (gcd_nz_is_pos m p nz) as Hgp.
+    rewrite <- Hg in Hgp.
+    unfold gcd_nz in Hg.
+    remember (nz_valnum nz + Z.of_nat m)%Z as x.
+    remember (Z.gcd x (' nz_comden nz)) as z.
+    pose proof (Z.gcd_divide_r z (Zpos p)) as H₄.
+    rewrite <- Hg in H₄.
+    apply Nat.mod_divide in H₃; auto.
+    apply Nat.mod_divide; auto.
+     intros H₅.
+     rewrite <- Z2Nat.inj_0 in H₅.
+     apply Z2Nat.inj in H₅.
+      rewrite H₅ in Hgp; revert Hgp; apply Z.lt_irrefl.
+
+      apply Z.lt_le_incl; assumption.
+
+      reflexivity.
+
+     eapply Nat.divide_trans; [ idtac | eassumption ].
+     destruct H₄ as (c, Hc).
+     rewrite <- Z2Nat.inj_pos.
+     rewrite Hc; simpl.
+     exists (Z.to_nat c).
+     rewrite Z2Nat.inj_mul.
+      reflexivity.
+
+       apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
+      rewrite <- Hc; apply Pos2Z.is_nonneg.
+
+      apply Z.lt_le_incl; assumption.
+Qed.
+
+Lemma null_coeff_range_length_inf_compat : ∀ nz₁ nz₂,
+  normalise_nz nz₁ ≐ normalise_nz nz₂
+  → null_coeff_range_length rng (nz_terms nz₁) 0 = ∞
+    → null_coeff_range_length rng (nz_terms nz₂) 0 = ∞.
+Proof.
+intros nz₁ nz₂ Heq Hinf.
+apply null_coeff_range_length_inf_iff in Hinf.
+apply null_coeff_range_length_inf_iff.
+inversion Hinf; constructor.
+rewrite <- Heq, <- H1; reflexivity.
+Qed.
+
 Lemma nz_norm_add_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_nz nz₁ ≐ normalise_nz nz₂
   → normalise_nz (nz₁ + nz₃)%nz ≐ normalise_nz (nz₂ + nz₃)%nz.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
-remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
-symmetry in Hps₁, Hps₂.
-destruct ps₁ as [nz'₁| ].
- destruct ps₂ as [nz'₂| ]; [ idtac | inversion Heq ].
- apply normalised_exists_adjust in Hps₁.
- apply normalised_exists_adjust in Hps₂.
- destruct Hps₁ as (n₁, (k₁, Hps₁)).
- destruct Hps₂ as (n₂, (k₂, Hps₂)).
- inversion Heq; subst.
- apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
- apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
- rewrite Hps₁, Hps₂.
- rewrite <- normalise_nz_add_adjust_l.
- rewrite <- normalise_nz_add_adjust_l.
- apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
- rewrite H1; reflexivity.
+remember (null_coeff_range_length rng (nz_terms nz₁) 0) as m₁ eqn:Hm₁ .
+remember (null_coeff_range_length rng (nz_terms nz₂) 0) as m₂ eqn:Hm₂ .
+symmetry in Hm₁, Hm₂.
+destruct m₁ as [m₁| ].
+ destruct m₂ as [m₂| ].
+  remember (normalise_nz nz₁) as ps₁ eqn:Hps₁ .
+  remember (normalise_nz nz₂) as ps₂ eqn:Hps₂ .
+  symmetry in Hps₁, Hps₂.
+  destruct ps₁ as (nz'₁).
+  destruct ps₂ as (nz'₂).
+  apply normalised_exists_adjust in Hps₁.
+   apply normalised_exists_adjust in Hps₂.
+    destruct Hps₁ as (n₁, (k₁, Hps₁)).
+    destruct Hps₂ as (n₂, (k₂, Hps₂)).
+    inversion Heq; subst.
+    apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
+    apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
+    rewrite Hps₁, Hps₂.
+    rewrite <- normalise_nz_add_adjust_l.
+    rewrite <- normalise_nz_add_adjust_l.
+    apply eq_nz_add_compat_r with (nz₃ := nz₃) in H1.
+    rewrite H1; reflexivity.
 
- destruct ps₂ as [nz'₂| ]; [ inversion Heq | idtac ].
- apply eq_nz_adjust_zero_neg_zero in Hps₁.
- apply eq_nz_adjust_zero_neg_zero in Hps₂.
- destruct Hps₁ as (n₁, (n₂, (k₁, (k₂, Hps₁)))).
- destruct Hps₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
- apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
- apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
- rewrite normalise_nz_add_adjust_l with (n := n₁) (k := k₁).
- rewrite Hps₁; symmetry.
- rewrite normalise_nz_add_adjust_l with (n := n₃) (k := k₃).
- rewrite Hps₂; symmetry.
- rewrite <- normalise_nz_add_adjust_l.
- rewrite <- normalise_nz_add_adjust_l.
- reflexivity.
+    rewrite Hm₂; intros H; discriminate H.
+
+   rewrite Hm₁; intros H; discriminate H.
+
+  symmetry in Heq.
+  eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
+  rewrite Hm₁ in Hm₂; discriminate Hm₂.
+
+ destruct m₂ as [m₂| ].
+  eapply null_coeff_range_length_inf_compat in Hm₁; [ idtac | eassumption ].
+  rewrite Hm₁ in Hm₂; discriminate Hm₂.
+
+  apply eq_nz_adjust_zero_neg_zero in Hm₁.
+  apply eq_nz_adjust_zero_neg_zero in Hm₂.
+  destruct Hm₁ as (n₁, (n₂, (k₁, (k₂, Hps₁)))).
+  destruct Hm₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
+  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₁.
+  apply eq_nz_add_compat_r with (nz₃ := nz₃) in Hps₂.
+  rewrite normalise_nz_add_adjust_l with (n := n₁) (k := k₁).
+  rewrite Hps₁; symmetry.
+  rewrite normalise_nz_add_adjust_l with (n := n₃) (k := k₃).
+  rewrite Hps₂; symmetry.
+  rewrite <- normalise_nz_add_adjust_l.
+  rewrite <- normalise_nz_add_adjust_l.
+  reflexivity.
 Qed.
 
 Lemma nz_norm_add_compat_l : ∀ nz₁ nz₂ nz₃,
@@ -846,49 +1028,17 @@ apply null_coeff_range_length_iff; simpl.
 apply series_nth_series_0.
 Qed.
 
-Lemma ps_add_0_l_compat_r : ∀ nz₁ nz₂,
-  (NonZero nz₁ = Zero _)%ps
-  → (NonZero (nz₁ + nz₂)%nz = NonZero nz₂)%ps.
-Proof.
-intros nz₁ nz₂ Heq.
-constructor.
-rewrite nz_norm_add_compat_r with (nz₂ := nz_zero).
- rewrite nz_add_comm.
- rewrite normalise_nz_add_0_r.
- reflexivity.
-
- inversion Heq; subst.
- inversion H0; subst.
- unfold normalise_nz; simpl.
- rewrite null_coeff_range_length_series_0.
- remember (null_coeff_range_length rng (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
- symmetry in Hn₁.
- destruct n₁ as [n₁| ]; [ exfalso | reflexivity ].
- apply null_coeff_range_length_iff in Hn₁.
- simpl in Hn₁.
- destruct Hn₁ as (Hz, Hnz).
- rewrite H0 in Hnz.
- apply Hnz.
- apply series_nth_series_0.
-Qed.
-
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   (ps₁ = ps₂)%ps
   → (ps₁ + ps₃ = ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
-destruct ps₃ as [nz₃| ]; [ idtac | do 2 rewrite ps_add_0_r; assumption ].
-destruct ps₁ as [nz₁| ].
- destruct ps₂ as [nz₂| ]; [ idtac | simpl ].
-  constructor.
-  apply nz_norm_add_compat_r.
-  inversion H₁₂; assumption.
-
-  apply ps_add_0_l_compat_r; assumption.
-
- destruct ps₂ as [nz₂| ]; [ simpl | reflexivity ].
- symmetry; apply ps_add_0_l_compat_r.
- symmetry; assumption.
+destruct ps₃ as (nz₃).
+destruct ps₁ as (nz₁).
+destruct ps₂ as (nz₂).
+constructor.
+apply nz_norm_add_compat_r.
+inversion H₁₂; assumption.
 Qed.
 
 Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,

@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.78 2013-12-04 11:05:23 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.79 2013-12-07 17:42:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -77,8 +77,7 @@ Record nz_ps α := mknz
     nz_comden : positive }.
 
 Inductive puiseux_series α :=
-  | NonZero : nz_ps α → puiseux_series α
-  | Zero : puiseux_series α.
+  | NonZero : nz_ps α → puiseux_series α.
 
 Definition series_shrink k (s : series α) :=
   {| terms i := terms s (i * Pos.to_nat k);
@@ -94,6 +93,9 @@ Definition normalise_series n k (s : series α) :=
 Definition gcd_nz n k (nz : nz_ps α) :=
   Z.gcd (Z.gcd (nz_valnum nz + Z.of_nat n) (' nz_comden nz)) (' k).
 
+Definition ps_zero : puiseux_series α :=
+  NonZero {| nz_terms := series_0; nz_valnum := 0; nz_comden := 1 |}.
+
 Definition normalise_nz nz :=
   match null_coeff_range_length rng (nz_terms nz) 0 with
   | fin n =>
@@ -104,13 +106,12 @@ Definition normalise_nz nz :=
            nz_valnum := (nz_valnum nz + Z.of_nat n) / g;
            nz_comden := Z.to_pos (' nz_comden nz / g) |}
   | ∞ =>
-      Zero _
+      ps_zero
   end.
 
 Definition normalise_ps ps :=
   match ps with
   | NonZero nz => normalise_nz nz
-  | Zero => ps
   end.
 
 Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
@@ -122,24 +123,12 @@ Inductive eq_nz : nz_ps α → nz_ps α → Prop :=
 
 Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_norm_ps_base : ∀ nz₁ nz₂,
-      eq_nz nz₁ nz₂ → eq_norm_ps (NonZero nz₁) (NonZero nz₂)
-  | eq_norm_ps_zero :
-      eq_norm_ps (Zero _) (Zero _).
+      eq_nz nz₁ nz₂ → eq_norm_ps (NonZero nz₁) (NonZero nz₂).
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ nz₁ nz₂,
       eq_norm_ps (normalise_nz nz₁) (normalise_nz nz₂)
-      → eq_ps (NonZero nz₁) (NonZero nz₂)
-  | eq_ps_zero_r : ∀ nz,
-      eq_series (nz_terms nz) series_0
-      → eq_ps (NonZero nz) (Zero _)
-  | eq_ps_zero_l : ∀ nz,
-      eq_series (nz_terms nz) series_0
-      → eq_ps (Zero _) (NonZero nz)
-  | eq_ps_zero :
-      eq_ps (Zero _) (Zero _).
-
-Definition ps_zero : puiseux_series α := Zero _.
+      → eq_ps (NonZero nz₁) (NonZero nz₂).
 
 Definition nz_monom (c : α) pow :=
   {| nz_terms := {| terms i := c; stop := 1 |};
@@ -151,7 +140,7 @@ Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
 
 Definition nz_zero :=
-  {| nz_terms := series_0;
+  {| nz_terms := 0%ser;
      nz_valnum := 0;
      nz_comden := 1 |}.
 
@@ -194,7 +183,7 @@ Qed.
 Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
 Proof.
 intros ps.
-destruct ps as [nz| ]; [ idtac | constructor ].
+destruct ps.
 constructor; constructor; reflexivity.
 Qed.
 
@@ -208,10 +197,8 @@ Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 inversion H₁; subst.
- inversion H₂; subst; constructor.
- eapply eq_nz_trans; eassumption.
-
- inversion H₂; subst; constructor.
+inversion H₂; subst; constructor.
+eapply eq_nz_trans; eassumption.
 Qed.
 
 (*
@@ -618,7 +605,7 @@ unfold normalise_nz.
 rewrite H, H0, H1.
 remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n eqn:Hn .
 symmetry in Hn.
-destruct n as [n| ]; constructor.
+destruct n as [n| ]; [ constructor | reflexivity ].
 unfold gcd_nz.
 rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
@@ -640,7 +627,7 @@ bbb.
 Theorem eq_ps_refl : reflexive _ eq_ps.
 Proof.
 intros ps.
-destruct ps as [nz| ]; constructor; reflexivity.
+destruct ps; constructor; reflexivity.
 Qed.
 
 Theorem eq_ps_sym : symmetric _ eq_ps.
@@ -730,6 +717,16 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
    apply Nat.neq_mul_0; split; assumption.
 
   reflexivity.
+Qed.
+
+Lemma series_shift_series_0 : ∀ n, (series_shift n 0 = 0)%ser.
+Proof.
+intros n.
+constructor; intros i.
+rewrite series_nth_series_0.
+unfold series_nth_rng; simpl.
+destruct (Nbar.lt_dec (fin i) (fin n)); [ idtac | reflexivity ].
+destruct (lt_dec i n); reflexivity.
 Qed.
 
 Lemma series_stretch_series_0 : ∀ k, (series_stretch k 0 = 0)%ser.
@@ -1031,65 +1028,8 @@ Theorem eq_ps_trans : transitive _ eq_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁.
- inversion H₂; subst.
-  constructor; etransitivity; eassumption.
-
-  constructor.
-  unfold normalise_nz in H.
-  remember (null_coeff_range_length rng (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
-  remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
-  symmetry in Hn₁, Hn₂.
-  destruct n₁ as [n₁| ].
-   destruct n₂ as [n₂| ]; [ idtac | inversion H ].
-   apply null_coeff_range_length_iff in Hn₂.
-   destruct Hn₂ as (_, Hn₂).
-   exfalso; apply Hn₂; rewrite H1.
-   unfold series_nth_rng; simpl.
-   destruct (Nbar.lt_dec (fin n₂) 0); reflexivity.
-
-   destruct n₂ as [n₂| ]; [ inversion H | idtac ].
-   apply null_coeff_range_length_iff in Hn₁.
-   constructor; intros i.
-   unfold series_nth_rng at 2; simpl.
-   destruct (Nbar.lt_dec (fin i) 0); apply Hn₁.
-
- inversion H₂; subst.
-  rename nz0 into nz₃.
-  constructor.
-  unfold normalise_nz.
-  rewrite H, H0.
-  remember (null_coeff_range_length rng series_0 0) as n eqn:Hn .
-  symmetry in Hn.
-  destruct n as [n| ]; [ idtac | reflexivity ].
-  apply null_coeff_range_length_iff in Hn.
-  destruct Hn as (_, Hn).
-  exfalso; apply Hn.
-  unfold series_nth_rng; simpl.
-  destruct (Nbar.lt_dec (fin n) 0); reflexivity.
-
-  constructor; assumption.
-
- inversion H₂; constructor; subst.
- unfold normalise_nz in H1.
- rename nz into nz₁.
- remember (null_coeff_range_length rng (nz_terms nz₁) 0) as n₁ eqn:Hn₁ .
- remember (null_coeff_range_length rng (nz_terms nz₂) 0) as n₂ eqn:Hn₂ .
- symmetry in Hn₁, Hn₂.
- destruct n₁ as [n₁| ].
-  rewrite H in Hn₁.
-  apply null_coeff_range_length_iff in Hn₁.
-  destruct Hn₁ as (_, Hn₁).
-  exfalso; apply Hn₁.
-  unfold series_nth_rng; simpl.
-  destruct (Nbar.lt_dec (fin n₁) 0); reflexivity.
-
-  destruct n₂ as [n₂| ]; [ inversion H1 | idtac ].
-  apply null_coeff_range_length_iff in Hn₂.
-  constructor; intros i.
-  unfold series_nth_rng at 2; simpl.
-  destruct (Nbar.lt_dec (fin i) 0); apply Hn₂.
-
- assumption.
+inversion H₂; subst.
+constructor; etransitivity; eassumption.
 Qed.
 
 Add Parametric Relation : (puiseux_series α) eq_ps
@@ -1269,7 +1209,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [Hz| Hnz].
  destruct (Nbar.lt_dec (fin i) (stop s * fin (Pos.to_nat k))); reflexivity.
 Qed.
 
-Lemma series_nth_rng_mul_stretch : ∀ s k i,
+Lemma series_nth_mul_stretch : ∀ s k i,
   series_nth_rng rng (Pos.to_nat k * i) (series_stretch k s) =
   series_nth_rng rng i s.
 Proof.
@@ -1299,6 +1239,30 @@ destruct (Nbar.lt_dec x y) as [Hlt₁| Hge₁]; subst x y.
   reflexivity.
 Qed.
 
+Lemma series_nth_mul_shrink : ∀ s k i,
+  series_nth_rng rng (Pos.to_nat k * i) s =
+  series_nth_rng rng i (series_shrink k s).
+Proof.
+intros s k i.
+unfold series_nth_rng; simpl.
+rewrite Nbar.fold_sub.
+rewrite Nbar.fold_div.
+rewrite Nbar.fold_div_sup.
+remember (Nbar.div_sup (stop s) (fin (Pos.to_nat k))) as x eqn:Hx .
+destruct (Nbar.lt_dec (fin (Pos.to_nat k * i)) (stop s)) as [H₁| H₁].
+ rewrite Nat.mul_comm, Nbar.fin_inj_mul in H₁.
+ rewrite Nat.mul_comm.
+ destruct (Nbar.lt_dec (fin i) x) as [| H₂]; [ reflexivity | idtac ].
+ exfalso; apply H₂; subst x.
+ apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
+ apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
+
+ destruct (Nbar.lt_dec (fin i) x) as [H₂| ]; [ idtac | reflexivity ].
+ exfalso; apply H₁; subst x.
+ rewrite Nat.mul_comm, Nbar.fin_inj_mul.
+ apply Nbar.lt_div_sup_lt_mul_r; assumption.
+Qed.
+
 (*
 Lemma zero_series_stretched : ∀ s,
   (∀ i : nat, series_nth_rng rng i s = 0)%rng
@@ -1321,7 +1285,7 @@ Lemma zero_stretched_series : ∀ s k,
 Proof.
 intros s k H n.
 pose proof (H (Pos.to_nat k * n)%nat) as Hn.
-rewrite series_nth_rng_mul_stretch in Hn.
+rewrite series_nth_mul_stretch in Hn.
 assumption.
 Qed.
 *)
@@ -1337,7 +1301,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
  destruct H₁ as (c, H₁).
  subst i.
  rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
- rewrite series_nth_rng_mul_stretch.
+ rewrite series_nth_mul_stretch.
  apply Hz.
 
  rewrite shifted_in_stretched; [ reflexivity | idtac ].
@@ -1364,7 +1328,7 @@ destruct n as [n| ]; simpl.
    destruct H₁ as (c, H₁).
    rewrite H₁.
    rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
-   rewrite series_nth_rng_mul_stretch.
+   rewrite series_nth_mul_stretch.
    apply Hz.
    rewrite H₁ in Hin.
    rewrite Nat.mul_comm in Hin.
@@ -1376,7 +1340,7 @@ destruct n as [n| ]; simpl.
 
   rewrite <- Nat.mul_add_distr_r.
   rewrite Nat.mul_comm.
-  rewrite series_nth_rng_mul_stretch.
+  rewrite series_nth_mul_stretch.
   assumption.
 
  intros i.
@@ -1393,8 +1357,8 @@ rewrite Nat.mul_0_l; reflexivity.
 Qed.
 
 Lemma series_nth_add_shift : ∀ s i n,
-  (series_nth_rng rng (i + n) (series_shift n s) =
-   series_nth_rng rng i s)%rng.
+  series_nth_rng rng (i + n) (series_shift n s) =
+  series_nth_rng rng i s.
 Proof.
 intros s i n.
 unfold series_nth_rng; simpl.
@@ -1414,6 +1378,29 @@ destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  exfalso; apply H₁.
  rewrite Nbar.fin_inj_add.
  apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
+Qed.
+
+Lemma series_nth_add_left_shift : ∀ s i n,
+  series_nth_rng rng (i + n) s =
+  series_nth_rng rng i (series_left_shift n s).
+Proof.
+intros s i n.
+unfold series_nth_rng; simpl.
+rewrite Nbar.fold_sub.
+destruct (Nbar.lt_dec (fin (i + n)) (stop s)) as [H₁| H₁].
+ rewrite Nat.add_comm.
+ destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+  reflexivity.
+
+  exfalso; apply H₂.
+  apply Nbar.lt_add_lt_sub_r; assumption.
+
+ destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
+  exfalso; apply H₁.
+  rewrite Nbar.fin_inj_add.
+  apply Nbar.lt_add_lt_sub_r; assumption.
+
+  reflexivity.
 Qed.
 
 Lemma null_coeff_range_length_shift_add : ∀ s m n,
@@ -1562,7 +1549,7 @@ destruct q as [q| ].
   rewrite Nat.mul_comm in Hnzq.
   rewrite <- Nat.mul_add_distr_l in Hnzq.
   rewrite Hs₁ in Hnzq.
-  rewrite series_nth_rng_mul_stretch in Hnzq.
+  rewrite series_nth_mul_stretch in Hnzq.
   apply null_coeff_range_length_iff in Hp.
   destruct Hp as (Hzp, Hnzp).
   rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hnzp.
@@ -1602,7 +1589,7 @@ destruct q as [q| ].
       rewrite Nat.mul_comm in H.
       rewrite <- Nat.mul_add_distr_l in H.
       rewrite Hs₁ in H.
-      rewrite series_nth_rng_mul_stretch in H.
+      rewrite series_nth_mul_stretch in H.
       rewrite H in Hnzp.
       apply Hnzp; reflexivity.
 
@@ -1653,7 +1640,7 @@ destruct q as [q| ].
  exfalso.
  apply null_coeff_range_length_iff in Hp.
  destruct Hp as (Hzp, Hnzp).
- rewrite <- series_nth_rng_mul_stretch with (k := k) in Hnzp.
+ rewrite <- series_nth_mul_stretch with (k := k) in Hnzp.
  rewrite <- Hs₁ in Hnzp.
  rewrite Nat.mul_add_distr_l in Hnzp.
  rewrite Nat.mul_succ_r in Hnzp.
