@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.79 2013-12-08 09:40:42 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.80 2013-12-08 09:45:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -262,7 +262,7 @@ unfold cm.
 apply Pos.mul_comm.
 Qed.
 
-Theorem eq_strong_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
+Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor; simpl.
@@ -277,7 +277,7 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-rewrite eq_strong_add_comm; reflexivity.
+rewrite eq_strong_ps_add_comm; reflexivity.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
@@ -551,7 +551,7 @@ rewrite ps_add_comm.
 apply ps_add_opp_r.
 Qed.
 
-Lemma eq_strong_add_add₂ : ∀ ps₁ ps₂,
+Lemma eq_strong_ps_add_add₂ : ∀ ps₁ ps₂,
   eq_ps_strong (ps_add ps₁ ps₂) (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
@@ -575,11 +575,11 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_strong_canon_add_add₂ : ∀ ps₁ ps₂,
+Lemma eq_strong_ps_canon_add_add₂ : ∀ ps₁ ps₂,
   canonify_ps (ps₁ + ps₂)%ps ≐ canonify_ps (ps₁ ₊ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
-rewrite eq_strong_add_add₂; reflexivity.
+rewrite eq_strong_ps_add_add₂; reflexivity.
 Qed.
 
 Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₁ ₊ ps₂)%ps.
@@ -588,7 +588,7 @@ intros ps₁ ps₂.
 destruct ps₁ as (ps₁).
 destruct ps₂ as (ps₂).
 constructor.
-apply eq_strong_canon_add_add₂.
+apply eq_strong_ps_canon_add_add₂.
 Qed.
 
 Add Parametric Morphism : adjusted_ps_add
