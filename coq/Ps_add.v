@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.71 2013-12-08 02:32:30 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.72 2013-12-08 02:36:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -248,17 +248,17 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
  destruct a, b, c, d; try rewrite Lfield.add_0_l; reflexivity.
 Qed.
 
-Lemma ps_terms_add_comm : ∀ nz₁ nz₂,
-  (ps_terms_add nz₁ nz₂ = ps_terms_add nz₂ nz₁)%ser.
+Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
+  (ps_terms_add ps₁ ps₂ = ps_terms_add ps₂ ps₁)%ser.
 Proof.
-intros nz₁ nz₂.
+intros ps₁ ps₂.
 unfold ps_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Lemma cm_comm : ∀ nz₁ nz₂, cm nz₁ nz₂ = cm nz₂ nz₁.
+Lemma cm_comm : ∀ ps₁ ps₂, cm ps₁ ps₂ = cm ps₂ ps₁.
 Proof.
-intros nz₁ nz₂.
+intros ps₁ ps₂.
 unfold cm.
 apply Pos.mul_comm.
 Qed.
@@ -266,16 +266,16 @@ Qed.
 Lemma gcd_ps_add_comm : ∀ ps₁ ps₂ n k,
   gcd_ps n k (ps_add ps₁ ps₂) = gcd_ps n k (ps_add ps₂ ps₁).
 Proof.
-intros nz₁ nz₂ n k.
+intros ps₁ ps₂ n k.
 unfold gcd_ps; simpl.
 unfold ps_valnum_add; simpl.
 rewrite cm_comm, Z.min_comm.
 reflexivity.
 Qed.
 
-Lemma nz_add_comm : ∀ nz₁ nz₂, eq_norm_ps (ps_add nz₁ nz₂) (ps_add nz₂ nz₁).
+Lemma eq_norm_ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
-intros nz₁ nz₂.
+intros ps₁ ps₂.
 constructor; simpl.
  apply Z.min_comm.
 
@@ -288,7 +288,7 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-rewrite nz_add_comm; reflexivity.
+rewrite eq_norm_ps_add_comm; reflexivity.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,

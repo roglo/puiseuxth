@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.34 2013-12-08 02:32:30 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.35 2013-12-08 02:36:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -175,8 +175,8 @@ Lemma eq_norm_ps_add_compat_l : ∀ nz₁ nz₂ nz₃,
   → (nz₃ + nz₁ ≐ nz₃ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-rewrite nz_add_comm; symmetry.
-rewrite nz_add_comm; symmetry.
+rewrite eq_norm_ps_add_comm; symmetry.
+rewrite eq_norm_ps_add_comm; symmetry.
 apply eq_norm_ps_add_compat_r; assumption.
 Qed.
 
@@ -1011,8 +1011,8 @@ Lemma nz_norm_add_compat_l : ∀ nz₁ nz₂ nz₃,
   → normalise_ps (nz₃ + nz₁)%ps ≐ normalise_ps (nz₃ + nz₂)%ps.
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
-rewrite nz_add_comm; symmetry.
-rewrite nz_add_comm; symmetry.
+rewrite eq_norm_ps_add_comm; symmetry.
+rewrite eq_norm_ps_add_comm; symmetry.
 apply nz_norm_add_compat_r; assumption.
 Qed.
 
