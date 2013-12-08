@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.42 2013-12-08 03:21:58 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.43 2013-12-08 04:25:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -146,6 +146,13 @@ Qed.
 
 Theorem ps_mul_1_r : ∀ ps, (ps * 1 = ps)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
+
+Lemma null_coeff_range_length_series_0 :
+  null_coeff_range_length rng series_0 0 = ∞.
+Proof.
+apply null_coeff_range_length_iff; simpl.
+apply series_nth_series_0.
+Qed.
 
 Theorem ps_mul_0_l : ∀ ps, (0 * ps = 0)%ps.
 Proof.
@@ -821,9 +828,9 @@ remember (null_coeff_range_length rng (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
 remember (null_coeff_range_length rng (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
- apply canonifyd_exists_adjust in Hps₁.
+ apply canonified_exists_adjust in Hps₁.
   destruct m₂ as [m₂| ].
-   apply canonifyd_exists_adjust in Hps₂.
+   apply canonified_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
     apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hps₁.

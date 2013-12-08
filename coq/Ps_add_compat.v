@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.40 2013-12-08 03:21:58 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.41 2013-12-08 04:25:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -56,95 +56,6 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  destruct (stop s) as [st| ]; [ simpl | reflexivity ].
  apply Nbar.fin_inj_wd.
  omega.
-Qed.
-
-Lemma gcd_ps_add : ∀ ps n,
-  gcd_ps (n + Z.to_nat (ps_valnum ps))
-    (greatest_series_x_power rng
-       (series_shift (Z.to_nat (ps_valnum ps)) (ps_terms ps))
-       (n + Z.to_nat (ps_valnum ps))) (ps + 0)%ps =
-  gcd_ps n (greatest_series_x_power rng (ps_terms ps) n) ps.
-Proof.
-intros ps n.
-unfold gcd_ps; simpl.
-unfold ps_valnum_add.
-rewrite Z.mul_1_r.
-rewrite Nat2Z.inj_add.
-rewrite Z.add_assoc.
-rewrite Z.add_shuffle0.
-rewrite <- Z.add_assoc.
-rewrite Z.add_comm.
-unfold cm; simpl.
-rewrite Pos.mul_1_r.
-remember (ps_valnum ps) as z eqn:Hz .
-symmetry in Hz.
-destruct z as [| z| z].
- simpl.
- rewrite Z.min_id.
- rewrite Z.add_0_r, Nat.add_0_r.
- rewrite series_shift_0.
- reflexivity.
-
- rewrite Z.min_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite greatest_series_x_power_shift.
- rewrite Z.add_0_r.
- rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
- reflexivity.
-
- rewrite Z.min_l; [ idtac | apply Pos2Z.neg_is_nonpos ].
- rewrite greatest_series_x_power_shift.
- f_equal.
- f_equal.
- symmetry; rewrite Z.add_comm.
- reflexivity.
-Qed.
-
-Lemma canonify_ps_add_0_r : ∀ ps,
-  canonify_ps (ps + 0)%ps ≐ canonify_ps ps.
-Proof.
-intros ps.
-unfold canonify_ps; simpl.
-rewrite ps_terms_add_0_r.
-rewrite null_coeff_range_length_shift.
-remember (null_coeff_range_length rng (ps_terms ps) 0) as n₁ eqn:Hn₁ .
-symmetry in Hn₁.
-rewrite Nbar.add_comm.
-destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
-constructor; simpl.
- unfold ps_valnum_add.
- rewrite Z.mul_1_r.
- rewrite ps_terms_add_0_r.
- rewrite Nat2Z.inj_add.
- rewrite Z.add_assoc, Z.add_shuffle0.
- rewrite Z2Nat_id_max, Z.min_comm.
- f_equal; [ idtac | apply gcd_ps_add ].
- remember (ps_valnum ps) as z eqn:Hz .
- symmetry in Hz.
- destruct z; reflexivity.
-
- unfold cm; simpl.
- rewrite Pos.mul_1_r.
- do 2 f_equal.
- rewrite ps_terms_add_0_r.
- apply gcd_ps_add.
-
- rewrite ps_terms_add_0_r.
- rewrite greatest_series_x_power_shift.
- constructor; intros i.
- rewrite canonify_series_add_shift.
- unfold gcd_ps; simpl.
- unfold cm; simpl.
- unfold ps_valnum_add.
- rewrite Z.mul_1_r, Pos.mul_1_r.
- rewrite Nat2Z.inj_add.
- destruct (ps_valnum ps) as [| p| p]; simpl.
-  rewrite Z.add_0_r; reflexivity.
-
-  rewrite positive_nat_Z.
-  destruct (Z.of_nat n₁); try reflexivity.
-  rewrite Pos.add_comm; reflexivity.
-
-  rewrite Z.add_0_r; reflexivity.
 Qed.
 
 Lemma eq_canon_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
@@ -212,30 +123,6 @@ constructor; simpl; try reflexivity.
 rewrite series_stretch_add_distr.
 rewrite series_shift_add_distr.
 reflexivity.
-Qed.
-
-Lemma adjust_ps_mul : ∀ ps n k u,
-  eq_canon_ps
-    (adjust_ps (n * Pos.to_nat u) (k * u) ps)
-    (adjust_ps 0 u (adjust_ps n k ps)).
-Proof.
-intros ps n k u.
-constructor; simpl.
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- rewrite Z.mul_sub_distr_r.
- rewrite Z.sub_0_r.
- f_equal.
- rewrite Nat2Z.inj_mul.
- rewrite positive_nat_Z.
- reflexivity.
-
- rewrite Pos.mul_assoc; reflexivity.
-
- rewrite stretch_shift_series_distr.
- rewrite series_shift_0.
- rewrite Pos.mul_comm.
- rewrite series_stretch_stretch.
- reflexivity.
 Qed.
 
 Lemma eq_canon_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
@@ -640,7 +527,7 @@ split.
  assumption.
 Qed.
 
-Lemma canonifyd_exists_adjust : ∀ ps ps₁,
+Lemma canonified_exists_adjust : ∀ ps ps₁,
   null_coeff_range_length rng (ps_terms ps) 0 ≠ ∞
   → canonify_ps ps = ps₁
     → ∃ n k, eq_canon_ps ps (adjust_ps n k ps₁).
@@ -963,8 +850,8 @@ destruct m₁ as [m₁| ].
   remember (canonify_ps ps₁) as nps₁ eqn:Hps₁ .
   remember (canonify_ps ps₂) as nps₂ eqn:Hps₂ .
   symmetry in Hps₁, Hps₂.
-  apply canonifyd_exists_adjust in Hps₁.
-   apply canonifyd_exists_adjust in Hps₂.
+  apply canonified_exists_adjust in Hps₁.
+   apply canonified_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
     apply eq_canon_ps_add_compat_r with (ps₃ := ps₃) in Hps₁.
@@ -1000,23 +887,6 @@ destruct m₁ as [m₁| ].
   rewrite <- canonify_ps_add_adjust_l.
   rewrite <- canonify_ps_add_adjust_l.
   reflexivity.
-Qed.
-
-Lemma ps_canon_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  canonify_ps ps₁ ≐ canonify_ps ps₂
-  → canonify_ps (ps₃ + ps₁)%ps ≐ canonify_ps (ps₃ + ps₂)%ps.
-Proof.
-intros ps₁ ps₂ ps₃ Heq.
-rewrite eq_canon_ps_add_comm; symmetry.
-rewrite eq_canon_ps_add_comm; symmetry.
-apply ps_canon_add_compat_r; assumption.
-Qed.
-
-Lemma null_coeff_range_length_series_0 :
-  null_coeff_range_length rng series_0 0 = ∞.
-Proof.
-apply null_coeff_range_length_iff; simpl.
-apply series_nth_series_0.
 Qed.
 
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
