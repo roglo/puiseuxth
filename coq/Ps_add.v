@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.75 2013-12-08 03:19:42 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.76 2013-12-08 03:21:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -629,7 +629,7 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_canon_ps_norm_add_add₂ : ∀ ps₁ ps₂,
+Lemma eq_canon_ps_canon_add_add₂ : ∀ ps₁ ps₂,
   canonify_ps (ps₁ + ps₂)%ps ≐ canonify_ps (ps₁ ₊ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
@@ -642,7 +642,7 @@ intros ps₁ ps₂.
 destruct ps₁ as (ps₁).
 destruct ps₂ as (ps₂).
 constructor.
-apply eq_canon_ps_norm_add_add₂.
+apply eq_canon_ps_canon_add_add₂.
 Qed.
 
 Add Parametric Morphism : adjusted_ps_add

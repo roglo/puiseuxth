@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.41 2013-12-08 03:19:42 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.42 2013-12-08 03:21:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -27,7 +27,7 @@ Definition ps_mul ps₁ ps₂ :=
 
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
-Lemma ps_norm_mul_comm : ∀ ps₁ ps₂,
+Lemma ps_canon_mul_comm : ∀ ps₁ ps₂,
   canonify_ps (ps_mul ps₁ ps₂) ≐ canonify_ps (ps_mul ps₂ ps₁).
 Proof.
 intros ps₁ ps₂.
@@ -62,7 +62,7 @@ Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-apply ps_norm_mul_comm.
+apply ps_canon_mul_comm.
 Qed.
 
 Lemma fold_series_1 : {| terms := λ _, 1%rng; stop := 1 |} = 1%ser.
@@ -808,7 +808,7 @@ rewrite series_mul_comm, Pos.mul_comm, series_mul_comm.
 reflexivity.
 Qed.
 
-Lemma ps_norm_mul_compat_r : ∀ ps₁ ps₂ ps₃,
+Lemma ps_canon_mul_compat_r : ∀ ps₁ ps₂ ps₃,
   canonify_ps ps₁ ≐ canonify_ps ps₂
   → canonify_ps (ps_mul ps₁ ps₃) ≐ canonify_ps (ps_mul ps₂ ps₃).
 Proof.
@@ -866,7 +866,7 @@ Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
-apply ps_norm_mul_compat_r.
+apply ps_canon_mul_compat_r.
 inversion H₁₂; assumption.
 Qed.
 
@@ -882,7 +882,7 @@ Qed.
 
 Add Parametric Morphism : ps_mul
   with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
-  as ps_norm_mul_morph.
+  as ps_canon_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 rewrite eq_canon_ps_mul_compat_l; [ idtac | eassumption ].

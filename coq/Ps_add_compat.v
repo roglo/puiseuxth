@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.39 2013-12-08 03:19:42 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.40 2013-12-08 03:21:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -363,7 +363,7 @@ Lemma canonify_ps_add_adjust : ∀ ps₁ ps₂ n k m,
   canonify_ps (adjust_ps n k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k m.
-do 2 rewrite eq_canon_ps_norm_add_add₂.
+do 2 rewrite eq_canon_ps_canon_add_add₂.
 unfold ps_add₂; simpl.
 unfold adjust_ps_from.
 unfold cm_factor; simpl.
@@ -950,7 +950,7 @@ inversion Hinf; constructor.
 rewrite <- Heq, H; reflexivity.
 Qed.
 
-Lemma ps_norm_add_compat_r : ∀ ps₁ ps₂ ps₃,
+Lemma ps_canon_add_compat_r : ∀ ps₁ ps₂ ps₃,
   canonify_ps ps₁ ≐ canonify_ps ps₂
   → canonify_ps (ps₁ + ps₃)%ps ≐ canonify_ps (ps₂ + ps₃)%ps.
 Proof.
@@ -1002,14 +1002,14 @@ destruct m₁ as [m₁| ].
   reflexivity.
 Qed.
 
-Lemma ps_norm_add_compat_l : ∀ ps₁ ps₂ ps₃,
+Lemma ps_canon_add_compat_l : ∀ ps₁ ps₂ ps₃,
   canonify_ps ps₁ ≐ canonify_ps ps₂
   → canonify_ps (ps₃ + ps₁)%ps ≐ canonify_ps (ps₃ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 rewrite eq_canon_ps_add_comm; symmetry.
 rewrite eq_canon_ps_add_comm; symmetry.
-apply ps_norm_add_compat_r; assumption.
+apply ps_canon_add_compat_r; assumption.
 Qed.
 
 Lemma null_coeff_range_length_series_0 :
@@ -1025,7 +1025,7 @@ Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
-apply ps_norm_add_compat_r.
+apply ps_canon_add_compat_r.
 inversion H₁₂; assumption.
 Qed.
 
@@ -1041,7 +1041,7 @@ Qed.
 
 Add Parametric Morphism : ps_add
   with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
-  as ps_norm_add_morph.
+  as ps_canon_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 rewrite eq_canon_ps_add_compat_l; [ idtac | eassumption ].
@@ -1051,7 +1051,7 @@ Qed.
 
 Add Parametric Morphism : ps_add₂
   with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
-  as ps_add₂_morph.
+  as ps_canon_add₂_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 do 2 rewrite <- eq_canon_ps_add_add₂.
