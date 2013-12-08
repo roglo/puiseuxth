@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.51 2013-12-08 17:47:42 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.52 2013-12-08 20:50:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -918,13 +918,39 @@ remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
 remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
 remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₁.
 remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₂.
+rewrite eq_ps_add_add₂.
+rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_comden ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
-remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * (ps₂ + ps₃)))%ps as ps₄ eqn:Hps₄ .
-remember (adjust_ps 0 1 (ps₁ * ps₂ + ps₁ * ps₃))%ps as ps₅ eqn:Hps₅ .
+remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
+ eqn:Hps₄ .
+remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
+rewrite Hps₄ in Hn₄; simpl in Hn₄.
+rewrite series_shift_0 in Hn₄.
+unfold cm, cm_factor in Hn₄.
+rewrite series_stretch_mul in Hn₄.
+do 2 rewrite <- series_stretch_stretch in Hn₄.
+rewrite Hps₅ in Hn₅; simpl in Hn₅.
+rewrite series_shift_0 in Hn₅.
+rewrite series_stretch_1 in Hn₅.
+rewrite series_stretch_mul in Hn₅.
+do 2 rewrite <- series_stretch_stretch in Hn₅.
+unfold cm_factor, cm in Hn₅.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_comden ps₁) as c₁.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_comden ps₃) as c₃.
+rewrite series_shift_mul in Hn₅.
+rewrite series_stretch_mul in Hn₅.
+do 2 rewrite <- series_stretch_stretch in Hn₅.
+rewrite series_shift_mul in Hn₅.
+replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive in Hn₅
+ by apply Pos_mul_shuffle0.
 bbb.
 
 destruct n₄ as [n₄| ].
