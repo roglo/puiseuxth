@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.82 2013-12-08 10:13:08 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.83 2013-12-08 10:22:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -280,12 +280,23 @@ constructor.
 rewrite eq_strong_ps_add_comm; reflexivity.
 Qed.
 
-(*
+(* Experimentation for commutativity of addition for ps_add₂,
+   (in order to replace one day ps_add by ps_add₂):
+   provable but a bit more complicate than ps_add version;
+   supposes to prove ps_valnum_add_comm, ps_comden_add_comm and
+   ps_terms_add_comm; this could be a good thing, however, because
+   has something pretty
+Theorem eq_strong_ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂)%ps ≐ (ps₂ ₊ ps₁)%ps.
+Proof.
+intros ps₁ ps₂.
+constructor; simpl.
+bbb.
+
 Theorem ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂ = ps₂ ₊ ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-rewrite eq_strong_ps_add_comm; reflexivity.
+rewrite eq_strong_ps_add₂_comm; reflexivity.
 Qed.
 *)
 
