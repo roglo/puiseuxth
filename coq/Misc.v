@@ -1,4 +1,4 @@
-(* $Id: Misc.v,v 2.5 2013-12-01 03:07:06 deraugla Exp $ *)
+(* $Id: Misc.v,v 2.6 2013-12-08 09:40:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -752,6 +752,21 @@ destruct (le_dec x y) as [Hle| Hgt].
  apply not_ge in Hgt.
  rewrite Nat.min_r; [ idtac | apply Nat.lt_le_incl; assumption ].
  apply le_plus_minus_r, Nat.lt_le_incl; assumption.
+Qed.
+
+Lemma Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
+Proof.
+intros x y.
+destruct (Z.min_dec x y) as [H₁| H₁].
+ rewrite H₁.
+ rewrite Z.sub_diag.
+ apply Z.min_l_iff in H₁.
+ apply Z.le_sub_0 in H₁.
+ destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
+ apply Z.nlt_ge in H₁.
+ exfalso; apply H₁, Pos2Z.is_pos.
+
+ rewrite H₁; reflexivity.
 Qed.
 
 Lemma Z2Nat_sub_min1 : ∀ x y z,

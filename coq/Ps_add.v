@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.78 2013-12-08 09:27:01 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.79 2013-12-08 09:40:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -134,8 +134,7 @@ constructor.
 apply ps_canon_adjust_eq.
 Qed.
 
-Definition adjust_series n k s :=
-  series_shift n (series_stretch k s).
+Definition adjust_series n k s := series_shift n (series_stretch k s).
 
 Definition ps_terms_add (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
@@ -263,17 +262,7 @@ unfold cm.
 apply Pos.mul_comm.
 Qed.
 
-Lemma gcd_ps_add_comm : ∀ ps₁ ps₂ n k,
-  gcd_ps n k (ps_add ps₁ ps₂) = gcd_ps n k (ps_add ps₂ ps₁).
-Proof.
-intros ps₁ ps₂ n k.
-unfold gcd_ps; simpl.
-unfold ps_valnum_add; simpl.
-rewrite cm_comm, Z.min_comm.
-reflexivity.
-Qed.
-
-Lemma eq_strong_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
+Theorem eq_strong_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor; simpl.
@@ -348,21 +337,6 @@ destruct (lt_dec i n) as [Hlt| Hge].
     rewrite Nbar.fin_inj_add.
     apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
     assumption.
-Qed.
-
-Lemma Z2Nat_sub_min :  ∀ x y, Z.to_nat (x - Z.min x y) = Z.to_nat (x - y).
-Proof.
-intros x y.
-destruct (Z.min_dec x y) as [H₁| H₁].
- rewrite H₁.
- rewrite Z.sub_diag.
- apply Z.min_l_iff in H₁.
- apply Z.le_sub_0 in H₁.
- destruct (x - y)%Z as [| p| p]; [ reflexivity | idtac | reflexivity ].
- apply Z.nlt_ge in H₁.
- exfalso; apply H₁, Pos2Z.is_pos.
-
- rewrite H₁; reflexivity.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
@@ -575,34 +549,6 @@ Proof.
 intros ps.
 rewrite ps_add_comm.
 apply ps_add_opp_r.
-Qed.
-
-Lemma series_shift_series_0 : ∀ n, (series_shift n 0 = 0)%ser.
-Proof.
-intros n.
-constructor; intros i.
-unfold series_nth; simpl.
-remember (Nbar.lt_dec (fin i) (fin n)) as d₁.
-remember (lt_dec i n) as d₂.
-remember (Nbar.lt_dec (fin i) 0) as d₃.
-destruct d₁, d₂, d₃; reflexivity.
-Qed.
-
-Lemma ps_terms_add_0_r : ∀ ps,
-  (ps_terms_add ps 0%ps =
-   series_shift (Z.to_nat (ps_valnum ps)) (ps_terms ps))%ser.
-Proof.
-intros ps.
-unfold ps_terms_add; simpl.
-unfold adjust_series.
-rewrite Z2Nat_sub_min.
-rewrite Z.mul_1_r, Z.sub_0_r.
-rewrite series_stretch_1.
-rewrite series_stretch_series_0.
-rewrite series_shift_series_0.
-rewrite series_add_comm.
-rewrite series_add_0_l.
-reflexivity.
 Qed.
 
 Lemma eq_strong_add_add₂ : ∀ ps₁ ps₂,
