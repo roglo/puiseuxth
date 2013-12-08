@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.42 2013-12-08 04:40:12 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.43 2013-12-08 09:27:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -58,9 +58,9 @@ replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
  omega.
 Qed.
 
-Lemma eq_canon_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_canon_ps ps₁ ps₂
-  → eq_canon_ps (ps₁ + ps₃)%ps (ps₂ + ps₃)%ps.
+Lemma eq_strong_add_compat_r : ∀ ps₁ ps₂ ps₃,
+  eq_ps_strong ps₁ ps₂
+  → eq_ps_strong (ps₁ + ps₃)%ps (ps₂ + ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -81,18 +81,18 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_canon_ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
+Lemma eq_strong_add_compat_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ ≐ ps₂)%ps
   → (ps₃ + ps₁ ≐ ps₃ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
-rewrite eq_canon_ps_add_comm; symmetry.
-rewrite eq_canon_ps_add_comm; symmetry.
-apply eq_canon_ps_add_compat_r; assumption.
+rewrite eq_strong_add_comm; symmetry.
+rewrite eq_strong_add_comm; symmetry.
+apply eq_strong_add_compat_r; assumption.
 Qed.
 
 Lemma ps_adjust_adjust : ∀ ps n₁ n₂ k₁ k₂,
-  eq_canon_ps (adjust_ps n₁ k₁ (adjust_ps n₂ k₂ ps))
+  eq_ps_strong (adjust_ps n₁ k₁ (adjust_ps n₂ k₂ ps))
     (adjust_ps (n₁ + n₂ * Pos.to_nat k₁) (k₁ * k₂) ps).
 Proof.
 intros ps n₁ n₂ k₁ k₂.
@@ -115,7 +115,7 @@ constructor; simpl.
 Qed.
 
 Lemma ps_adjust_adjusted : ∀ ps₁ ps₂ n k,
-  eq_canon_ps (adjust_ps n k (adjusted_ps_add ps₁ ps₂))
+  eq_ps_strong (adjust_ps n k (adjusted_ps_add ps₁ ps₂))
     (adjusted_ps_add (adjust_ps n k ps₁) (adjust_ps n k ps₂)).
 Proof.
 intros ps₁ ps₂ n k.
@@ -125,7 +125,7 @@ rewrite series_shift_add_distr.
 reflexivity.
 Qed.
 
-Lemma eq_canon_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
+Lemma eq_strong_add_adjust_0_l : ∀ ps₁ ps₂ k,
   canonify_ps (ps₁ + ps₂)%ps ≐
   canonify_ps (adjust_ps 0 k ps₁ + ps₂)%ps.
 Proof.
@@ -250,7 +250,7 @@ Lemma canonify_ps_add_adjust : ∀ ps₁ ps₂ n k m,
   canonify_ps (adjust_ps n k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k m.
-do 2 rewrite eq_canon_ps_canon_add_add₂.
+do 2 rewrite eq_strong_canon_add_add₂.
 unfold ps_add₂; simpl.
 unfold adjust_ps_from.
 unfold cm_factor; simpl.
@@ -388,7 +388,7 @@ Lemma canonify_ps_add_adjust_l : ∀ ps₁ ps₂ n k,
   canonify_ps (adjust_ps n k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k.
-rewrite eq_canon_ps_add_adjust_0_l with (k := k).
+rewrite eq_strong_add_adjust_0_l with (k := k).
 apply canonify_ps_add_adjust.
 Qed.
 
@@ -530,7 +530,7 @@ Qed.
 Lemma canonified_exists_adjust : ∀ ps ps₁,
   null_coeff_range_length rng (ps_terms ps) 0 ≠ ∞
   → canonify_ps ps = ps₁
-    → ∃ n k, eq_canon_ps ps (adjust_ps n k ps₁).
+    → ∃ n k, eq_ps_strong ps (adjust_ps n k ps₁).
 Proof.
 intros ps ps₁ Hnz Heq.
 unfold canonify_ps in Heq.
@@ -615,10 +615,10 @@ Qed.
 Definition ps_neg_zero :=
   {| ps_terms := 0%ser; ps_valnum := -1; ps_comden := 1 |}.
 
-Lemma eq_canon_ps_adjust_zero_neg_zero : ∀ ps,
+Lemma eq_strong_adjust_zero_neg_zero : ∀ ps,
   null_coeff_range_length rng (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
-    eq_canon_ps (adjust_ps n₁ k₁ ps) (adjust_ps n₂ k₂ ps_neg_zero).
+    eq_ps_strong (adjust_ps n₁ k₁ ps) (adjust_ps n₂ k₂ ps_neg_zero).
 Proof.
 intros ps Hz.
 unfold canonify_ps in Hz.
@@ -854,12 +854,12 @@ destruct m₁ as [m₁| ].
    apply canonified_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
-    apply eq_canon_ps_add_compat_r with (ps₃ := ps₃) in Hps₁.
-    apply eq_canon_ps_add_compat_r with (ps₃ := ps₃) in Hps₂.
+    apply eq_strong_add_compat_r with (ps₃ := ps₃) in Hps₁.
+    apply eq_strong_add_compat_r with (ps₃ := ps₃) in Hps₂.
     rewrite Hps₁, Hps₂.
     rewrite <- canonify_ps_add_adjust_l.
     rewrite <- canonify_ps_add_adjust_l.
-    apply eq_canon_ps_add_compat_r with (ps₃ := ps₃) in Heq.
+    apply eq_strong_add_compat_r with (ps₃ := ps₃) in Heq.
     rewrite Heq; reflexivity.
 
     rewrite Hm₂; intros H; discriminate H.
@@ -874,12 +874,12 @@ destruct m₁ as [m₁| ].
   eapply null_coeff_range_length_inf_compat in Hm₁; [ idtac | eassumption ].
   rewrite Hm₁ in Hm₂; discriminate Hm₂.
 
-  apply eq_canon_ps_adjust_zero_neg_zero in Hm₁.
-  apply eq_canon_ps_adjust_zero_neg_zero in Hm₂.
+  apply eq_strong_adjust_zero_neg_zero in Hm₁.
+  apply eq_strong_adjust_zero_neg_zero in Hm₂.
   destruct Hm₁ as (n₁, (n₂, (k₁, (k₂, Hps₁)))).
   destruct Hm₂ as (n₃, (n₄, (k₃, (k₄, Hps₂)))).
-  apply eq_canon_ps_add_compat_r with (ps₃ := ps₃) in Hps₁.
-  apply eq_canon_ps_add_compat_r with (ps₃ := ps₃) in Hps₂.
+  apply eq_strong_add_compat_r with (ps₃ := ps₃) in Hps₁.
+  apply eq_strong_add_compat_r with (ps₃ := ps₃) in Hps₂.
   rewrite canonify_ps_add_adjust_l with (n := n₁) (k := k₁).
   rewrite Hps₁; symmetry.
   rewrite canonify_ps_add_adjust_l with (n := n₃) (k := k₃).
@@ -910,23 +910,23 @@ apply ps_add_compat_r; assumption.
 Qed.
 
 Add Parametric Morphism : ps_add
-  with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as ps_canon_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-rewrite eq_canon_ps_add_compat_l; [ idtac | eassumption ].
-rewrite eq_canon_ps_add_compat_r; [ idtac | eassumption ].
+rewrite eq_strong_add_compat_l; [ idtac | eassumption ].
+rewrite eq_strong_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
 Add Parametric Morphism : ps_add₂
-  with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as ps_canon_add₂_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-do 2 rewrite <- eq_canon_ps_add_add₂.
-rewrite eq_canon_ps_add_compat_l; [ idtac | eassumption ].
-rewrite eq_canon_ps_add_compat_r; [ idtac | eassumption ].
+do 2 rewrite <- eq_strong_add_add₂.
+rewrite eq_strong_add_compat_l; [ idtac | eassumption ].
+rewrite eq_strong_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 

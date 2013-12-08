@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.45 2013-12-08 04:40:12 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.46 2013-12-08 09:27:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -535,9 +535,9 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_canon_ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_canon_ps ps₁ ps₂
-  → eq_canon_ps (ps_mul ps₁ ps₃) (ps_mul ps₂ ps₃).
+Lemma eq_strong_mul_compat_r : ∀ ps₁ ps₂ ps₃,
+  eq_ps_strong ps₁ ps₂
+  → eq_ps_strong (ps_mul ps₁ ps₃) (ps_mul ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -552,9 +552,9 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_canon_ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  eq_canon_ps ps₁ ps₂
-  → eq_canon_ps (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
+Lemma eq_strong_mul_compat_l : ∀ ps₁ ps₂ ps₃,
+  eq_ps_strong ps₁ ps₂
+  → eq_ps_strong (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -725,12 +725,12 @@ destruct m₁ as [m₁| ].
    apply canonified_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
-    apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hps₁.
-    apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hps₂.
+    apply eq_strong_mul_compat_r with (ps₃ := ps₃) in Hps₁.
+    apply eq_strong_mul_compat_r with (ps₃ := ps₃) in Hps₂.
     rewrite Hps₁, Hps₂.
     rewrite <- canonify_ps_mul_adjust_l.
     rewrite <- canonify_ps_mul_adjust_l.
-    apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Heq.
+    apply eq_strong_mul_compat_r with (ps₃ := ps₃) in Heq.
     rewrite Heq; reflexivity.
 
     intros H; rewrite Hm₂ in H; discriminate H.
@@ -744,12 +744,12 @@ destruct m₁ as [m₁| ].
  clear Hm₂.
  remember Hm₁ as Hm₂; clear HeqHm₂.
  eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
- apply eq_canon_ps_adjust_zero_neg_zero in Hm₁.
- apply eq_canon_ps_adjust_zero_neg_zero in Hm₂.
+ apply eq_strong_adjust_zero_neg_zero in Hm₁.
+ apply eq_strong_adjust_zero_neg_zero in Hm₂.
  destruct Hm₁ as (n₁, (n₂, (k₁, (k₂, Hm₁)))).
  destruct Hm₂ as (n₃, (n₄, (k₃, (k₄, Hm₂)))).
- apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hm₁.
- apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hm₂.
+ apply eq_strong_mul_compat_r with (ps₃ := ps₃) in Hm₁.
+ apply eq_strong_mul_compat_r with (ps₃ := ps₃) in Hm₂.
  rewrite canonify_ps_mul_adjust_l with (n := n₁) (k := k₁).
  rewrite Hm₁; symmetry.
  rewrite canonify_ps_mul_adjust_l with (n := n₃) (k := k₃).
@@ -780,12 +780,12 @@ apply ps_mul_compat_r; assumption.
 Qed.
 
 Add Parametric Morphism : ps_mul
-  with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as ps_canon_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-rewrite eq_canon_ps_mul_compat_l; [ idtac | eassumption ].
-rewrite eq_canon_ps_mul_compat_r; [ idtac | eassumption ].
+rewrite eq_strong_mul_compat_l; [ idtac | eassumption ].
+rewrite eq_strong_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 

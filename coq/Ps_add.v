@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.77 2013-12-08 04:40:12 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.78 2013-12-08 09:27:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -273,7 +273,7 @@ rewrite cm_comm, Z.min_comm.
 reflexivity.
 Qed.
 
-Lemma eq_canon_ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
+Lemma eq_strong_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor; simpl.
@@ -288,7 +288,7 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-rewrite eq_canon_ps_add_comm; reflexivity.
+rewrite eq_strong_add_comm; reflexivity.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
@@ -605,8 +605,8 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma eq_canon_ps_add_add₂ : ∀ ps₁ ps₂,
-  eq_canon_ps (ps_add ps₁ ps₂) (ps_add₂ ps₁ ps₂).
+Lemma eq_strong_add_add₂ : ∀ ps₁ ps₂,
+  eq_ps_strong (ps_add ps₁ ps₂) (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 constructor; [ simpl | reflexivity | simpl ].
@@ -629,11 +629,11 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_canon_ps_canon_add_add₂ : ∀ ps₁ ps₂,
+Lemma eq_strong_canon_add_add₂ : ∀ ps₁ ps₂,
   canonify_ps (ps₁ + ps₂)%ps ≐ canonify_ps (ps₁ ₊ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
-rewrite eq_canon_ps_add_add₂; reflexivity.
+rewrite eq_strong_add_add₂; reflexivity.
 Qed.
 
 Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₁ ₊ ps₂)%ps.
@@ -642,11 +642,11 @@ intros ps₁ ps₂.
 destruct ps₁ as (ps₁).
 destruct ps₂ as (ps₂).
 constructor.
-apply eq_canon_ps_canon_add_add₂.
+apply eq_strong_canon_add_add₂.
 Qed.
 
 Add Parametric Morphism : adjusted_ps_add
-  with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
   as adjusted_ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -735,7 +735,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
 Qed.
 
 Add Parametric Morphism : ps_terms_add
-  with signature eq_canon_ps ==> eq_canon_ps ==> eq_series
+  with signature eq_ps_strong ==> eq_ps_strong ==> eq_series
   as ps_terms_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.

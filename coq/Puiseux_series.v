@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.89 2013-12-08 04:40:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.90 2013-12-08 09:27:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -61,8 +61,7 @@ End Axioms.
 
 Definition series_stretch k s :=
   {| terms i :=
-       if zerop (i mod Pos.to_nat k) then
-         series_nth rng (i / Pos.to_nat k) s
+       if zerop (i mod Pos.to_nat k) then series_nth rng (i / Pos.to_nat k) s
        else 0%rng;
      stop :=
        stop s * fin (Pos.to_nat k) |}.
@@ -104,16 +103,16 @@ Definition canonify_ps ps :=
       ps_zero
   end.
 
-Inductive eq_canon_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_canon_ps_base : ∀ ps₁ ps₂,
+Inductive eq_ps_strong : puiseux_series α → puiseux_series α → Prop :=
+  | eq_strong_base : ∀ ps₁ ps₂,
       ps_valnum ps₁ = ps_valnum ps₂
       → ps_comden ps₁ = ps_comden ps₂
         → (ps_terms ps₁ = ps_terms ps₂)%ser
-          → eq_canon_ps ps₁ ps₂.
+          → eq_ps_strong ps₁ ps₂.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
-      eq_canon_ps (canonify_ps ps₁) (canonify_ps ps₂)
+      eq_ps_strong (canonify_ps ps₁) (canonify_ps ps₂)
       → eq_ps ps₁ ps₂.
 
 Definition ps_monom (c : α) pow :=
@@ -124,7 +123,7 @@ Definition ps_monom (c : α) pow :=
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
 
-Notation "a ≐ b" := (eq_canon_ps a b) (at level 70).
+Notation "a ≐ b" := (eq_ps_strong a b) (at level 70).
 
 Delimit Scope ps_scope with ps.
 Notation "a = b" := (eq_ps a b) : ps_scope.
@@ -142,24 +141,24 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
-Theorem eq_canon_ps_refl : reflexive _ eq_canon_ps.
+Theorem eq_strong_refl : reflexive _ eq_ps_strong.
 Proof. intros ps; constructor; reflexivity. Qed.
 
-Theorem eq_canon_ps_sym : symmetric _ eq_canon_ps.
+Theorem eq_strong_sym : symmetric _ eq_ps_strong.
 Proof. intros ps₁ ps₂ H; induction H; constructor; symmetry; assumption. Qed.
 
-Theorem eq_canon_ps_trans : transitive _ eq_canon_ps.
+Theorem eq_strong_trans : transitive _ eq_ps_strong.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation : (puiseux_series α) eq_canon_ps
- reflexivity proved by eq_canon_ps_refl
- symmetry proved by eq_canon_ps_sym
- transitivity proved by eq_canon_ps_trans
- as eq_canon_ps_rel.
+Add Parametric Relation : (puiseux_series α) eq_ps_strong
+ reflexivity proved by eq_strong_refl
+ symmetry proved by eq_strong_sym
+ transitivity proved by eq_strong_trans
+ as eq_strong_rel.
 
 Lemma mul_lt_mono_positive_r : ∀ a b c,
   (fin a < b)%Nbar
@@ -178,7 +177,7 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_canon_ps
+  with signature eq_series ==> eq ==> eq ==> eq_ps_strong
   as mkps_morphism.
 Proof.
 intros a b Hab v n.
@@ -494,7 +493,7 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
 Qed.
 
 Add Parametric Morphism : canonify_ps
-  with signature eq_canon_ps ==> eq_canon_ps
+  with signature eq_ps_strong ==> eq_ps_strong
   as canonify_ps_morph.
 Proof.
 intros ps₁ ps₂ Heq.
