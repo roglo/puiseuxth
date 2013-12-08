@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.83 2013-12-08 10:22:38 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.84 2013-12-08 11:02:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -177,7 +177,9 @@ Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
   adjusted_ps_add (adjust_ps_from ps₂ ps₁) (adjust_ps_from ps₁ ps₂).
 
 Notation "a + b" := (ps_add a b) : ps_scope.
+(*
 Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
+*)
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
   (series_stretch k (s₁ + s₂) =
@@ -596,17 +598,15 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_strong_ps_canon_add_add₂ : ∀ ps₁ ps₂,
-  canonic_ps (ps₁ + ps₂)%ps ≐ canonic_ps (ps₁ ₊ ps₂)%ps.
+  canonic_ps (ps₁ + ps₂)%ps ≐ canonic_ps (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 rewrite eq_strong_ps_add_add₂; reflexivity.
 Qed.
 
-Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₁ ₊ ps₂)%ps.
+Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps_add₂ ps₁ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
-destruct ps₁ as (ps₁).
-destruct ps₂ as (ps₂).
 constructor.
 apply eq_strong_ps_canon_add_add₂.
 Qed.

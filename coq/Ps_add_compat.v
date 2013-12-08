@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.45 2013-12-08 10:13:08 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.46 2013-12-08 11:02:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -914,17 +914,6 @@ Add Parametric Morphism : ps_add
   as ps_canon_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-rewrite eq_strong_ps_add_compat_l; [ idtac | eassumption ].
-rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
-reflexivity.
-Qed.
-
-Add Parametric Morphism : ps_add₂
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
-  as ps_canon_add₂_morph.
-Proof.
-intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-do 2 rewrite <- eq_strong_ps_add_add₂.
 rewrite eq_strong_ps_add_compat_l; [ idtac | eassumption ].
 rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
 reflexivity.

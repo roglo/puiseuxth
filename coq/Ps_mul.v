@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.48 2013-12-08 10:13:08 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.49 2013-12-08 11:02:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -886,26 +886,42 @@ destruct n as [n| ]; constructor.
  reflexivity.
 Qed.
 
+Lemma ps_comden_canonic : ∀ ps n p vn,
+  null_coeff_range_length rng (ps_terms ps) 0 = fin n
+  → p = greatest_series_x_power rng (ps_terms ps) n
+    → vn = (ps_valnum ps + Z.of_nat n)%Z
+      → ps_comden (canonic_ps ps) =
+        Z.to_pos (' ps_comden ps / Z.gcd (' ps_comden ps) (Z.gcd (' p) vn)).
+Proof.
+intros ps n p vn Hn Hp Hvn.
+unfold canonic_ps; simpl.
+rewrite Hn; simpl.
+rewrite <- Hp.
+unfold gcd_ps; simpl.
+rewrite <- Z.gcd_assoc, Z.gcd_comm, <- Z.gcd_assoc.
+rewrite <- Hvn.
+reflexivity.
+Qed.
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-remember (canonic_ps ps₁) as ps'₁.
-remember (canonic_ps ps₂) as ps'₂.
-remember (canonic_ps ps₃) as ps'₃.
-assert (ps'₁ = ps₁)%ps as H₁ by (subst; apply canonic_ps_eq).
-assert (ps'₂ = ps₂)%ps as H₂ by (subst; apply canonic_ps_eq).
-assert (ps'₃ = ps₃)%ps as H₃ by (subst; apply canonic_ps_eq).
-rewrite <- H₁, <- H₂, <- H₃.
-simpl.
-constructor.
-clear H₁ H₂ H₃.
-symmetry in Heqps'₁, Heqps'₂, Heqps'₃.
-simpl in Heqps'₁, Heqps'₂, Heqps'₃.
-unfold canonic_ps in Heqps'₁.
+rewrite <- (canonic_ps_eq ps₁).
+rewrite <- (canonic_ps_eq ps₂).
+rewrite <- (canonic_ps_eq ps₃).
+remember (canonic_ps ps₁) as ps'₁ eqn:Hps₁ .
+remember (canonic_ps ps₂) as ps'₂ eqn:Hps₂ .
+remember (canonic_ps ps₃) as ps'₃ eqn:Hps₃ .
+symmetry in Hps₁, Hps₂, Hps₃.
+unfold canonic_ps in Hps₁.
 remember (null_coeff_range_length rng (ps_terms ps₁) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 destruct n₁ as [n₁| ].
+bbb.
+ unfold ps_mul; simpl.
+ unfold ps_add; simpl.
+ unfold cm, cm_factor; simpl.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
