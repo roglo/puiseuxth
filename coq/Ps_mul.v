@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.44 2013-12-08 04:36:40 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.45 2013-12-08 04:40:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -72,11 +72,11 @@ Lemma stretch_series_1 : ∀ k, (series_stretch k 1 = 1)%ser.
 Proof.
 intros k.
 constructor; intros i.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 rewrite Nat.add_0_r.
 destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
  destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-  unfold series_nth_rng; simpl.
+  unfold series_nth; simpl.
   apply Nat.mod_divides in H₂; auto.
   destruct H₂ as (c, Hc); rewrite Hc.
   rewrite Nat.mul_comm.
@@ -176,7 +176,7 @@ apply null_coeff_range_length_inf_iff in H.
 apply null_coeff_range_length_iff in H.
 simpl in H.
 pose proof (H O) as Hi.
-unfold series_nth_rng in Hi.
+unfold series_nth in Hi.
 simpl in Hi.
 destruct (Nbar.lt_dec 0 1) as [H₁| H₁].
  revert Hi; apply Lfield.neq_1_0.
@@ -368,7 +368,7 @@ Lemma series_stretch_mul : ∀ a b k,
 Proof.
 intros a b k.
 constructor; intros i.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 rewrite <- Nbar.mul_add_distr_r.
 remember ((stop a + stop b) * fin (Pos.to_nat k))%Nbar as x.
 destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ subst x | reflexivity ].
@@ -378,7 +378,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  rewrite Hc.
  rewrite Nat.mul_comm.
  rewrite Nat.div_mul; auto.
- unfold series_nth_rng; simpl.
+ unfold series_nth; simpl.
  destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
   unfold convol_mul; simpl.
   rename k into n, i into k.
@@ -571,10 +571,10 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → (series_nth_rng rng i (series_shift n a) = 0)%rng.
+  → (series_nth rng i (series_shift n a) = 0)%rng.
 Proof.
 intros a i n Hin.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
  destruct (lt_dec i n) as [| H₂]; [ reflexivity | contradiction ].
 
@@ -599,7 +599,7 @@ Proof.
 (* à nettoyer *)
 intros a b n.
 constructor; intros k.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 rewrite Nbar.add_shuffle0.
 destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
  destruct (lt_dec k n) as [H₂| H₂].

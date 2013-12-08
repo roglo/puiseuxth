@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.41 2013-12-08 04:25:51 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.42 2013-12-08 04:40:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,8 +11,8 @@ Require Import Ps_add.
 Require Import Misc.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
-  (∀ i, (series_nth_rng rng i s = 0)%rng)
-  → ∀ i, (series_nth_rng rng i (series_shift n s) = 0)%rng.
+  (∀ i, (series_nth rng i s = 0)%rng)
+  → ∀ i, (series_nth rng i (series_shift n s) = 0)%rng.
 Proof.
 intros s n H i.
 revert i.
@@ -20,7 +20,7 @@ induction n as [| n]; intros.
  rewrite series_shift_0; apply H.
 
  destruct i.
-  unfold series_nth_rng; simpl.
+  unfold series_nth; simpl.
   destruct (Nbar.lt_dec 0 (stop s + fin (S n))); reflexivity.
 
   rewrite <- series_nth_shift_S; apply IHn.
@@ -34,7 +34,7 @@ intros s n m k.
 unfold canonify_series.
 unfold series_shrink, series_left_shift.
 constructor; intros i.
-unfold series_nth_rng.
+unfold series_nth.
 remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
 replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
@@ -406,12 +406,12 @@ destruct n as [n| ].
  destruct Hn as (Hz, Hnz).
  split.
   intros i Hin.
-  unfold series_nth_rng; simpl.
+  unfold series_nth; simpl.
   rewrite Nbar.fold_sub.
   destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₁| H₁].
    rewrite Nat.add_succ_r, <- Nat.add_succ_l.
    apply Hz in Hin.
-   unfold series_nth_rng in Hin.
+   unfold series_nth in Hin.
    destruct (Nbar.lt_dec (fin (S m + i)) (stop s)) as [H₂| H₂].
     assumption.
 
@@ -423,9 +423,9 @@ destruct n as [n| ].
 
    reflexivity.
 
-  unfold series_nth_rng; simpl.
+  unfold series_nth; simpl.
   rewrite Nbar.fold_sub.
-  unfold series_nth_rng in Hnz; simpl in Hnz.
+  unfold series_nth in Hnz; simpl in Hnz.
   destruct (Nbar.lt_dec (fin (S (m + n))) (stop s)) as [H₁| H₁].
    rewrite <- Nat.add_succ_r in Hnz.
    destruct (Nbar.lt_dec (fin (S n)) (stop s - fin m)) as [H₂| H₂].
@@ -439,9 +439,9 @@ destruct n as [n| ].
 
  intros i.
  pose proof (Hn i) as Hi.
- unfold series_nth_rng; simpl.
+ unfold series_nth; simpl.
  rewrite Nbar.fold_sub.
- unfold series_nth_rng in Hi; simpl in Hi.
+ unfold series_nth in Hi; simpl in Hi.
  destruct (Nbar.lt_dec (fin (S (m + i))) (stop s)) as [H₁| H₁].
   rewrite <- Nat.add_succ_r in Hi.
   destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₂| H₂].
@@ -465,7 +465,7 @@ Lemma series_left_shift_left_shift : ∀ (s : series α) m n,
 Proof.
 intros s m n.
 constructor; intros i.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 do 3 rewrite Nbar.fold_sub.
 rewrite Nbar.fin_inj_add.
 rewrite Nbar.add_comm.
@@ -691,7 +691,7 @@ Lemma series_null_power : ∀ s b p,
   is_a_series_in_x_power s b p
   → ∀ i,
     ((i - b) mod Pos.to_nat p)%nat ≠ O
-    → (series_nth_rng rng i s = 0)%rng.
+    → (series_nth rng i s = 0)%rng.
 Proof.
 intros s b p Hxp i Hip.
 destruct (le_dec i b) as [H₁| H₁].
