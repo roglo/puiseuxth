@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.37 2013-12-07 19:35:27 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.38 2013-12-08 03:04:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,22 +15,20 @@ Set Implicit Arguments.
 
 (* ps_mul *)
 
-Definition nz_mul nz₁ nz₂ :=
+Definition ps_mul ps₁ ps₂ :=
   {| ps_terms :=
        series_mul
-         (series_stretch (cm_factor nz₁ nz₂) (ps_terms nz₁))
-         (series_stretch (cm_factor nz₂ nz₁) (ps_terms nz₂));
+         (series_stretch (cm_factor ps₁ ps₂) (ps_terms ps₁))
+         (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂));
      ps_valnum :=
-       (ps_valnum nz₁ * ' ps_comden nz₂ + ps_valnum nz₂ * ' ps_comden nz₁)%Z;
+       (ps_valnum ps₁ * ' ps_comden ps₂ + ps_valnum ps₂ * ' ps_comden ps₁)%Z;
      ps_comden :=
-       cm nz₁ nz₂ |}.
-
-Definition ps_mul (ps₁ ps₂ : puiseux_series α) := nz_mul ps₁ ps₂.
+       cm ps₁ ps₂ |}.
 
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma nz_norm_mul_comm : ∀ nz₁ nz₂,
-  normalise_ps (nz_mul nz₁ nz₂) ≐ normalise_ps (nz_mul nz₂ nz₁).
+  normalise_ps (ps_mul nz₁ nz₂) ≐ normalise_ps (ps_mul nz₂ nz₁).
 Proof.
 intros nz₁ nz₂.
 unfold normalise_ps; simpl.
@@ -63,9 +61,6 @@ Qed.
 Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
-unfold ps_mul; simpl.
-destruct ps₁ as (nz₁).
-destruct ps₂ as (nz₂).
 constructor.
 apply nz_norm_mul_comm.
 Qed.
@@ -472,7 +467,6 @@ Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ * ps₃) = (ps₁ * ps₂) * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-unfold ps_mul; simpl.
 constructor.
 unfold normalise_ps; simpl.
 rewrite series_stretch_mul; symmetry.
@@ -552,7 +546,7 @@ Qed.
 
 Lemma eq_norm_ps_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps nz₁ nz₂
-  → eq_norm_ps (nz_mul nz₁ nz₃) (nz_mul nz₂ nz₃).
+  → eq_norm_ps (ps_mul nz₁ nz₃) (ps_mul nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -569,7 +563,7 @@ Qed.
 
 Lemma eq_norm_ps_mul_compat_l : ∀ nz₁ nz₂ nz₃,
   eq_norm_ps nz₁ nz₂
-  → eq_norm_ps (nz_mul nz₃ nz₁) (nz_mul nz₃ nz₂).
+  → eq_norm_ps (ps_mul nz₃ nz₁) (ps_mul nz₃ nz₂).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 induction Heq.
@@ -788,13 +782,13 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
 Qed.
 
 Lemma normalise_ps_mul_adjust_l : ∀ nz₁ nz₂ n k,
-  normalise_ps (nz_mul nz₁ nz₂) ≐
-  normalise_ps (nz_mul (adjust_ps n k nz₁) nz₂).
+  normalise_ps (ps_mul nz₁ nz₂) ≐
+  normalise_ps (ps_mul (adjust_ps n k nz₁) nz₂).
 Proof.
 intros nz₁ nz₂ n k.
 remember (Pos.to_nat (ps_comden nz₂) * n)%nat as m eqn:Hm .
 rewrite ps_norm_adjust_eq with (n := m) (k := k); subst m.
-unfold nz_mul; simpl.
+unfold ps_mul; simpl.
 unfold adjust_ps; simpl.
 unfold cm, cm_factor; simpl.
 rewrite Pos2Z.inj_mul, Z.mul_assoc.
@@ -817,7 +811,7 @@ Qed.
 
 Lemma nz_norm_mul_compat_r : ∀ nz₁ nz₂ nz₃,
   normalise_ps nz₁ ≐ normalise_ps nz₂
-  → normalise_ps (nz_mul nz₁ nz₃) ≐ normalise_ps (nz_mul nz₂ nz₃).
+  → normalise_ps (ps_mul nz₁ nz₃) ≐ normalise_ps (ps_mul nz₂ nz₃).
 Proof.
 intros nz₁ nz₂ nz₃ Heq.
 remember Heq as Heqv; clear HeqHeqv.
@@ -890,9 +884,9 @@ rewrite ps_mul_comm; symmetry.
 apply ps_mul_compat_r; assumption.
 Qed.
 
-Add Parametric Morphism : nz_mul
+Add Parametric Morphism : ps_mul
   with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
-  as nz_mul_morph.
+  as ps_norm_mul_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 rewrite eq_norm_ps_mul_compat_l; [ idtac | eassumption ].
