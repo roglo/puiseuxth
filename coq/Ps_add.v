@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.81 2013-12-08 09:51:30 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.82 2013-12-08 10:13:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -29,10 +29,10 @@ Definition adjust_ps n k ps :=
      ps_comden := ps_comden ps * k |}.
 
 Lemma ps_canon_adjust_eq : ∀ ps n k,
-  canonify_ps ps ≐ canonify_ps (adjust_ps n k ps).
+  canonic_ps ps ≐ canonic_ps (adjust_ps n k ps).
 Proof.
 intros ps n k.
-unfold canonify_ps; simpl.
+unfold canonic_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
@@ -280,6 +280,15 @@ constructor.
 rewrite eq_strong_ps_add_comm; reflexivity.
 Qed.
 
+(*
+Theorem ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂ = ps₂ ₊ ps₁)%ps.
+Proof.
+intros ps₁ ps₂.
+constructor.
+rewrite eq_strong_ps_add_comm; reflexivity.
+Qed.
+*)
+
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
   (series_shift n (s₁ + s₂) = series_shift n s₁ + series_shift n s₂)%ser.
 Proof.
@@ -404,10 +413,10 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma ps_canon_add_assoc : ∀ ps₁ ps₂ ps₃,
-  canonify_ps (ps₁ + ps₂ + ps₃)%ps ≐ canonify_ps (ps₁ + (ps₂ + ps₃))%ps.
+  canonic_ps (ps₁ + ps₂ + ps₃)%ps ≐ canonic_ps (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-unfold canonify_ps; simpl.
+unfold canonic_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember
   (null_coeff_range_length rng (ps_terms_add ps₁ (ps₂ + ps₃)%ps) 0) as n.
@@ -576,7 +585,7 @@ constructor; [ simpl | reflexivity | simpl ].
 Qed.
 
 Lemma eq_strong_ps_canon_add_add₂ : ∀ ps₁ ps₂,
-  canonify_ps (ps₁ + ps₂)%ps ≐ canonify_ps (ps₁ ₊ ps₂)%ps.
+  canonic_ps (ps₁ + ps₂)%ps ≐ canonic_ps (ps₁ ₊ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
 rewrite eq_strong_ps_add_add₂; reflexivity.

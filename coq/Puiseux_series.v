@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.90 2013-12-08 09:27:01 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.91 2013-12-08 10:13:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -91,7 +91,7 @@ Definition gcd_ps n k (ps : puiseux_series α) :=
 
 Definition ps_zero := {| ps_terms := 0%ser; ps_valnum := 0; ps_comden := 1 |}.
 
-Definition canonify_ps ps :=
+Definition canonic_ps ps :=
   match null_coeff_range_length rng (ps_terms ps) 0 with
   | fin n =>
       let k := greatest_series_x_power rng (ps_terms ps) n in
@@ -112,7 +112,7 @@ Inductive eq_ps_strong : puiseux_series α → puiseux_series α → Prop :=
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
-      eq_ps_strong (canonify_ps ps₁) (canonify_ps ps₂)
+      eq_ps_strong (canonic_ps ps₁) (canonic_ps ps₂)
       → eq_ps ps₁ ps₂.
 
 Definition ps_monom (c : α) pow :=
@@ -492,13 +492,13 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
    reflexivity.
 Qed.
 
-Add Parametric Morphism : canonify_ps
+Add Parametric Morphism : canonic_ps
   with signature eq_ps_strong ==> eq_ps_strong
-  as canonify_ps_morph.
+  as canonic_ps_morph.
 Proof.
 intros ps₁ ps₂ Heq.
 inversion Heq; subst.
-unfold canonify_ps.
+unfold canonic_ps.
 rewrite H, H0, H1.
 remember (null_coeff_range_length rng (ps_terms ps₂) 0) as n eqn:Hn .
 symmetry in Hn.
