@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.73 2013-12-08 02:46:59 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.74 2013-12-08 03:16:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -29,10 +29,10 @@ Definition adjust_ps n k ps :=
      ps_comden := ps_comden ps * k |}.
 
 Lemma ps_norm_adjust_eq : ∀ ps n k,
-  normalise_ps ps ≐ normalise_ps (adjust_ps n k ps).
+  canonify_ps ps ≐ canonify_ps (adjust_ps n k ps).
 Proof.
 intros ps n k.
-unfold normalise_ps; simpl.
+unfold canonify_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
@@ -91,7 +91,7 @@ constructor; simpl.
  rewrite greatest_series_x_power_shift.
  rewrite greatest_series_x_power_stretch.
  constructor; intros i.
- unfold normalise_series.
+ unfold canonify_series.
  unfold gcd_ps; simpl.
  rewrite Nat2Z.inj_add.
  rewrite Z.sub_add_simpl_r_r.
@@ -273,7 +273,7 @@ rewrite cm_comm, Z.min_comm.
 reflexivity.
 Qed.
 
-Lemma eq_norm_ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
+Lemma eq_canon_ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor; simpl.
@@ -288,7 +288,7 @@ Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
-rewrite eq_norm_ps_add_comm; reflexivity.
+rewrite eq_canon_ps_add_comm; reflexivity.
 Qed.
 
 Lemma series_shift_add_distr : ∀ s₁ s₂ n,
@@ -430,10 +430,10 @@ f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
 Lemma ps_norm_add_assoc : ∀ ps₁ ps₂ ps₃,
-  normalise_ps (ps₁ + ps₂ + ps₃)%ps ≐ normalise_ps (ps₁ + (ps₂ + ps₃))%ps.
+  canonify_ps (ps₁ + ps₂ + ps₃)%ps ≐ canonify_ps (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-unfold normalise_ps; simpl.
+unfold canonify_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember
   (null_coeff_range_length rng (ps_terms_add ps₁ (ps₂ + ps₃)%ps) 0) as n.
@@ -605,8 +605,8 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma eq_norm_ps_add_add₂ : ∀ ps₁ ps₂,
-  eq_norm_ps (ps_add ps₁ ps₂) (ps_add₂ ps₁ ps₂).
+Lemma eq_canon_ps_add_add₂ : ∀ ps₁ ps₂,
+  eq_canon_ps (ps_add ps₁ ps₂) (ps_add₂ ps₁ ps₂).
 Proof.
 intros ps₁ ps₂.
 constructor; [ simpl | reflexivity | simpl ].
@@ -629,11 +629,11 @@ constructor; [ simpl | reflexivity | simpl ].
  reflexivity.
 Qed.
 
-Lemma eq_norm_ps_norm_add_add₂ : ∀ ps₁ ps₂,
-  normalise_ps (ps₁ + ps₂)%ps ≐ normalise_ps (ps₁ ₊ ps₂)%ps.
+Lemma eq_canon_ps_norm_add_add₂ : ∀ ps₁ ps₂,
+  canonify_ps (ps₁ + ps₂)%ps ≐ canonify_ps (ps₁ ₊ ps₂)%ps.
 Proof.
 intros ps₁ ps₂.
-rewrite eq_norm_ps_add_add₂; reflexivity.
+rewrite eq_canon_ps_add_add₂; reflexivity.
 Qed.
 
 Lemma eq_ps_add_add₂ : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₁ ₊ ps₂)%ps.
@@ -642,11 +642,11 @@ intros ps₁ ps₂.
 destruct ps₁ as (ps₁).
 destruct ps₂ as (ps₂).
 constructor.
-apply eq_norm_ps_norm_add_add₂.
+apply eq_canon_ps_norm_add_add₂.
 Qed.
 
 Add Parametric Morphism : adjusted_ps_add
-  with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
+  with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
   as adjusted_ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -735,7 +735,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
 Qed.
 
 Add Parametric Morphism : ps_terms_add
-  with signature eq_norm_ps ==> eq_norm_ps ==> eq_series
+  with signature eq_canon_ps ==> eq_canon_ps ==> eq_series
   as ps_terms_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.

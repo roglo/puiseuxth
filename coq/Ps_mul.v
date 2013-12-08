@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.39 2013-12-08 03:09:45 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.40 2013-12-08 03:16:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,10 +28,10 @@ Definition ps_mul ps₁ ps₂ :=
 Notation "a * b" := (ps_mul a b) : ps_scope.
 
 Lemma ps_norm_mul_comm : ∀ ps₁ ps₂,
-  normalise_ps (ps_mul ps₁ ps₂) ≐ normalise_ps (ps_mul ps₂ ps₁).
+  canonify_ps (ps_mul ps₁ ps₂) ≐ canonify_ps (ps_mul ps₂ ps₁).
 Proof.
 intros ps₁ ps₂.
-unfold normalise_ps; simpl.
+unfold canonify_ps; simpl.
 remember (series_stretch (cm_factor ps₁ ps₂) (ps_terms ps₁)) as s₁ eqn:Hs₁ .
 remember (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂)) as s₂ eqn:Hs₂ .
 rewrite series_mul_comm.
@@ -123,7 +123,7 @@ Theorem ps_mul_1_l : ∀ ps, (1 * ps = ps)%ps.
 Proof.
 intros ps; simpl.
 constructor.
-unfold normalise_ps; simpl.
+unfold canonify_ps; simpl.
 unfold cm_factor; simpl.
 rewrite fold_series_1, series_stretch_1.
 rewrite stretch_series_1, series_mul_1_l.
@@ -151,7 +151,7 @@ Theorem ps_mul_0_l : ∀ ps, (0 * ps = 0)%ps.
 Proof.
 intros ps.
 constructor.
-unfold normalise_ps; simpl.
+unfold canonify_ps; simpl.
 unfold cm_factor; simpl.
 rewrite series_stretch_series_0.
 rewrite series_mul_0_l.
@@ -467,7 +467,7 @@ Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor.
-unfold normalise_ps; simpl.
+unfold canonify_ps; simpl.
 rewrite series_stretch_mul; symmetry.
 rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
@@ -543,9 +543,9 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_norm_ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_norm_ps ps₁ ps₂
-  → eq_norm_ps (ps_mul ps₁ ps₃) (ps_mul ps₂ ps₃).
+Lemma eq_canon_ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
+  eq_canon_ps ps₁ ps₂
+  → eq_canon_ps (ps_mul ps₁ ps₃) (ps_mul ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -560,9 +560,9 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Lemma eq_norm_ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  eq_norm_ps ps₁ ps₂
-  → eq_norm_ps (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
+Lemma eq_canon_ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
+  eq_canon_ps ps₁ ps₂
+  → eq_canon_ps (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -780,9 +780,9 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma normalise_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
-  normalise_ps (ps_mul ps₁ ps₂) ≐
-  normalise_ps (ps_mul (adjust_ps n k ps₁) ps₂).
+Lemma canonify_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
+  canonify_ps (ps_mul ps₁ ps₂) ≐
+  canonify_ps (ps_mul (adjust_ps n k ps₁) ps₂).
 Proof.
 intros ps₁ ps₂ n k.
 remember (Pos.to_nat (ps_comden ps₂) * n)%nat as m eqn:Hm .
@@ -809,29 +809,29 @@ reflexivity.
 Qed.
 
 Lemma ps_norm_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  normalise_ps ps₁ ≐ normalise_ps ps₂
-  → normalise_ps (ps_mul ps₁ ps₃) ≐ normalise_ps (ps_mul ps₂ ps₃).
+  canonify_ps ps₁ ≐ canonify_ps ps₂
+  → canonify_ps (ps_mul ps₁ ps₃) ≐ canonify_ps (ps_mul ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 remember Heq as Heqv; clear HeqHeqv.
-remember (normalise_ps ps₁) as nps₁ eqn:Hps₁  in Heq.
-remember (normalise_ps ps₂) as nps₂ eqn:Hps₂  in Heq.
+remember (canonify_ps ps₁) as nps₁ eqn:Hps₁  in Heq.
+remember (canonify_ps ps₂) as nps₂ eqn:Hps₂  in Heq.
 symmetry in Hps₁, Hps₂.
 remember (null_coeff_range_length rng (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
 remember (null_coeff_range_length rng (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
- apply normalised_exists_adjust in Hps₁.
+ apply canonifyd_exists_adjust in Hps₁.
   destruct m₂ as [m₂| ].
-   apply normalised_exists_adjust in Hps₂.
+   apply canonifyd_exists_adjust in Hps₂.
     destruct Hps₁ as (n₁, (k₁, Hps₁)).
     destruct Hps₂ as (n₂, (k₂, Hps₂)).
-    apply eq_norm_ps_mul_compat_r with (ps₃ := ps₃) in Hps₁.
-    apply eq_norm_ps_mul_compat_r with (ps₃ := ps₃) in Hps₂.
+    apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hps₁.
+    apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hps₂.
     rewrite Hps₁, Hps₂.
-    rewrite <- normalise_ps_mul_adjust_l.
-    rewrite <- normalise_ps_mul_adjust_l.
-    apply eq_norm_ps_mul_compat_r with (ps₃ := ps₃) in Heq.
+    rewrite <- canonify_ps_mul_adjust_l.
+    rewrite <- canonify_ps_mul_adjust_l.
+    apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Heq.
     rewrite Heq; reflexivity.
 
     intros H; rewrite Hm₂ in H; discriminate H.
@@ -845,18 +845,18 @@ destruct m₁ as [m₁| ].
  clear Hm₂.
  remember Hm₁ as Hm₂; clear HeqHm₂.
  eapply null_coeff_range_length_inf_compat in Hm₂; [ idtac | eassumption ].
- apply eq_norm_ps_adjust_zero_neg_zero in Hm₁.
- apply eq_norm_ps_adjust_zero_neg_zero in Hm₂.
+ apply eq_canon_ps_adjust_zero_neg_zero in Hm₁.
+ apply eq_canon_ps_adjust_zero_neg_zero in Hm₂.
  destruct Hm₁ as (n₁, (n₂, (k₁, (k₂, Hm₁)))).
  destruct Hm₂ as (n₃, (n₄, (k₃, (k₄, Hm₂)))).
- apply eq_norm_ps_mul_compat_r with (ps₃ := ps₃) in Hm₁.
- apply eq_norm_ps_mul_compat_r with (ps₃ := ps₃) in Hm₂.
- rewrite normalise_ps_mul_adjust_l with (n := n₁) (k := k₁).
+ apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hm₁.
+ apply eq_canon_ps_mul_compat_r with (ps₃ := ps₃) in Hm₂.
+ rewrite canonify_ps_mul_adjust_l with (n := n₁) (k := k₁).
  rewrite Hm₁; symmetry.
- rewrite normalise_ps_mul_adjust_l with (n := n₃) (k := k₃).
+ rewrite canonify_ps_mul_adjust_l with (n := n₃) (k := k₃).
  rewrite Hm₂; symmetry.
- rewrite <- normalise_ps_mul_adjust_l.
- rewrite <- normalise_ps_mul_adjust_l.
+ rewrite <- canonify_ps_mul_adjust_l.
+ rewrite <- canonify_ps_mul_adjust_l.
  reflexivity.
 Qed.
 
@@ -881,12 +881,12 @@ apply ps_mul_compat_r; assumption.
 Qed.
 
 Add Parametric Morphism : ps_mul
-  with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
+  with signature eq_canon_ps ==> eq_canon_ps ==> eq_canon_ps
   as ps_norm_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-rewrite eq_norm_ps_mul_compat_l; [ idtac | eassumption ].
-rewrite eq_norm_ps_mul_compat_r; [ idtac | eassumption ].
+rewrite eq_canon_ps_mul_compat_l; [ idtac | eassumption ].
+rewrite eq_canon_ps_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
@@ -900,11 +900,11 @@ rewrite ps_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Theorem normalise_ps_eq : ∀ ps, (normalise_ps ps = ps)%ps.
+Theorem canonify_ps_eq : ∀ ps, (canonify_ps ps = ps)%ps.
 Proof.
 intros ps.
-unfold normalise_ps.
-unfold normalise_ps.
+unfold canonify_ps.
+unfold canonify_ps.
 remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
@@ -928,7 +928,7 @@ destruct n as [n| ]; constructor.
 
   rewrite ps_norm_adjust_eq with (k := Z.to_pos g) (n := n).
   unfold adjust_ps; simpl.
-  unfold normalise_series.
+  unfold canonify_series.
   rewrite series_stretch_shrink.
    rewrite series_shift_left_shift; [ idtac | assumption ].
    rewrite <- positive_nat_Z.
@@ -982,7 +982,7 @@ destruct n as [n| ]; constructor.
    rewrite Z.gcd_assoc, Z.gcd_comm.
    apply Z.gcd_divide_l.
 
- unfold normalise_ps; simpl.
+ unfold canonify_ps; simpl.
  rewrite null_coeff_range_length_series_0, Hn.
  reflexivity.
 Qed.
@@ -991,19 +991,19 @@ Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
-remember (normalise_ps ps₁) as ps'₁.
-remember (normalise_ps ps₂) as ps'₂.
-remember (normalise_ps ps₃) as ps'₃.
-assert (ps'₁ = ps₁)%ps as H₁ by (subst; apply normalise_ps_eq).
-assert (ps'₂ = ps₂)%ps as H₂ by (subst; apply normalise_ps_eq).
-assert (ps'₃ = ps₃)%ps as H₃ by (subst; apply normalise_ps_eq).
+remember (canonify_ps ps₁) as ps'₁.
+remember (canonify_ps ps₂) as ps'₂.
+remember (canonify_ps ps₃) as ps'₃.
+assert (ps'₁ = ps₁)%ps as H₁ by (subst; apply canonify_ps_eq).
+assert (ps'₂ = ps₂)%ps as H₂ by (subst; apply canonify_ps_eq).
+assert (ps'₃ = ps₃)%ps as H₃ by (subst; apply canonify_ps_eq).
 rewrite <- H₁, <- H₂, <- H₃.
 simpl.
 constructor.
 clear H₁ H₂ H₃.
 symmetry in Heqps'₁, Heqps'₂, Heqps'₃.
 simpl in Heqps'₁, Heqps'₂, Heqps'₃.
-unfold normalise_ps in Heqps'₁.
+unfold canonify_ps in Heqps'₁.
 remember (null_coeff_range_length rng (ps_terms ps₁) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
 destruct n₁ as [n₁| ].
