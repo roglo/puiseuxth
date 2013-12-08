@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.49 2013-12-08 11:02:03 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.50 2013-12-08 13:33:29 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -906,6 +906,70 @@ Qed.
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
+intros ips₁ ips₂ ips₃.
+rewrite <- (canonic_ps_eq ips₁).
+rewrite <- (canonic_ps_eq ips₂).
+rewrite <- (canonic_ps_eq ips₃).
+remember (canonic_ps ips₁) as ps₁ eqn:Hps₁ .
+remember (canonic_ps ips₂) as ps₂ eqn:Hps₂ .
+remember (canonic_ps ips₃) as ps₃ eqn:Hps₃ .
+rewrite ps_adjust_eq with (n := O) (k := ps_comden ps₁); symmetry.
+rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
+remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * (ps₂ + ps₃)))%ps as ps₄ eqn:Hps₄ .
+remember (adjust_ps 0 1 (ps₁ * ps₂ + ps₁ * ps₃))%ps as ps₅ eqn:Hps₅ .
+remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
+remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
+symmetry in Hn₄, Hn₅.
+destruct n₄ as [n₄| ].
+ unfold adjust_ps in Hps₄.
+ unfold adjust_ps in Hps₅.
+ rewrite Hps₄, Hps₅.
+ constructor; constructor; simpl.
+  Focus 2.
+  simpl in Hps₄, Hps₅.
+  rewrite <- Hps₄, <- Hps₅.
+  erewrite ps_comden_canonic; try reflexivity; try eassumption.
+  destruct n₅ as [n₅| ].
+   erewrite ps_comden_canonic; try reflexivity; try eassumption.
+   remember Z.gcd as f.
+   rewrite Hps₄, Hps₅; simpl.
+   unfold cm; simpl.
+   unfold cm; simpl.
+   f_equal.
+   f_equal.
+    Focus 1.
+    do 7 rewrite Pos2Z.inj_mul.
+    ring.
+
+    Focus 1.
+    f_equal.
+     do 7 rewrite Pos2Z.inj_mul.
+     ring.
+
+     f_equal.
+      Focus 2.
+      unfold ps_valnum_add; simpl.
+      unfold cm_factor; simpl.
+      rewrite Z.mul_1_r.
+      do 2 rewrite Z.sub_0_r.
+      unfold cm; simpl.
+bbb.
+
+intros ps₁ ps₂ ps₃.
+rewrite <- (canonic_ps_eq ps₁).
+rewrite <- (canonic_ps_eq ps₂).
+rewrite <- (canonic_ps_eq ps₃).
+remember (canonic_ps ps₁) as ps'₁ eqn:Hps₁ .
+remember (canonic_ps ps₂) as ps'₂ eqn:Hps₂ .
+remember (canonic_ps ps₃) as ps'₃ eqn:Hps₃ .
+symmetry in Hps₁, Hps₂, Hps₃.
+rewrite ps_adjust_eq with (k := ps_comden ps'₁); symmetry.
+rewrite ps_adjust_eq with (k := xH); symmetry.
+unfold adjust_ps; simpl.
+unfold cm; simpl.
+unfold cm; simpl.
+bbb.
+
 intros ps₁ ps₂ ps₃.
 rewrite <- (canonic_ps_eq ps₁).
 rewrite <- (canonic_ps_eq ps₂).
