@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.38 2013-12-08 03:16:21 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.39 2013-12-08 03:19:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -243,7 +243,7 @@ Lemma eq_canon_ps_add_adjust_0_l : ∀ ps₁ ps₂ k,
   canonify_ps (adjust_ps 0 k ps₁ + ps₂)%ps.
 Proof.
 intros ps₁ ps₂ k.
-rewrite ps_norm_adjust_eq with (n := O) (k := k).
+rewrite ps_canon_adjust_eq with (n := O) (k := k).
 unfold ps_add; simpl.
 unfold adjust_ps; simpl.
 unfold ps_terms_add, ps_valnum_add, adjust_series, cm, cm_factor; simpl.

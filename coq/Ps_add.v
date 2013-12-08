@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.74 2013-12-08 03:16:21 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.75 2013-12-08 03:19:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -28,7 +28,7 @@ Definition adjust_ps n k ps :=
      ps_valnum := ps_valnum ps * Zpos k - Z.of_nat n;
      ps_comden := ps_comden ps * k |}.
 
-Lemma ps_norm_adjust_eq : ∀ ps n k,
+Lemma ps_canon_adjust_eq : ∀ ps n k,
   canonify_ps ps ≐ canonify_ps (adjust_ps n k ps).
 Proof.
 intros ps n k.
@@ -131,7 +131,7 @@ Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps n k ps)%ps.
 Proof.
 intros ps n k.
 constructor.
-apply ps_norm_adjust_eq.
+apply ps_canon_adjust_eq.
 Qed.
 
 Definition adjust_series n k s :=
@@ -429,7 +429,7 @@ f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
 f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
-Lemma ps_norm_add_assoc : ∀ ps₁ ps₂ ps₃,
+Lemma ps_canon_add_assoc : ∀ ps₁ ps₂ ps₃,
   canonify_ps (ps₁ + ps₂ + ps₃)%ps ≐ canonify_ps (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
@@ -471,7 +471,7 @@ Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃; symmetry.
 constructor.
-apply ps_norm_add_assoc.
+apply ps_canon_add_assoc.
 Qed.
 
 Theorem ps_add_0_l : ∀ ps, (0 + ps = ps)%ps.
@@ -495,7 +495,7 @@ rewrite Z.min_id, Z.sub_0_r.
 rewrite Z.sub_diag, Nat.add_0_r.
 symmetry.
 remember (Z.to_nat (ps_valnum ps)) as n eqn:Hn .
-rewrite ps_norm_adjust_eq with (n := n) (k := xH) in |- * at 1.
+rewrite ps_canon_adjust_eq with (n := n) (k := xH) in |- * at 1.
 subst n.
 unfold adjust_ps; simpl.
 rewrite Pos.mul_1_r, Z.mul_1_r.
@@ -538,7 +538,7 @@ unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
 remember (ps_comden ps * ps_comden ps)%positive as k eqn:Hk .
-rewrite ps_norm_adjust_eq with (n := O) (k := k); subst k.
+rewrite ps_canon_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
 rewrite series_stretch_series_0.
@@ -549,7 +549,7 @@ destruct v as [| v| v].
 
  symmetry.
  remember (Z.to_nat (ps_valnum ps * Zpos (ps_comden ps))) as n.
- rewrite ps_norm_adjust_eq with (n := n) (k := xH); subst n.
+ rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as f; simpl; subst f.
  rewrite series_stretch_series_0.
@@ -560,7 +560,7 @@ destruct v as [| v| v].
  rewrite Z.sub_diag; reflexivity.
 
  remember (Z.to_nat (Zpos v * Zpos (ps_comden ps))) as n.
- rewrite ps_norm_adjust_eq with (n := n) (k := xH); subst n.
+ rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as f; simpl; subst f.
  rewrite series_stretch_series_0.

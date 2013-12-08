@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.87 2013-12-07 19:35:27 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.88 2013-12-08 03:16:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -84,7 +84,7 @@ Definition series_left_shift n (s : series α) :=
   {| terms i := terms s (n + i);
      stop := stop s - fin n |}.
 
-Definition normalise_series n k (s : series α) :=
+Definition canonify_series n k (s : series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps n k (ps : puiseux_series α) :=
@@ -92,28 +92,28 @@ Definition gcd_ps n k (ps : puiseux_series α) :=
 
 Definition ps_zero := {| ps_terms := 0%ser; ps_valnum := 0; ps_comden := 1 |}.
 
-Definition normalise_ps ps :=
+Definition canonify_ps ps :=
   match null_coeff_range_length rng (ps_terms ps) 0 with
   | fin n =>
       let k := greatest_series_x_power rng (ps_terms ps) n in
       let g := gcd_ps n k ps in
-      {| ps_terms := normalise_series n (Z.to_pos g) (ps_terms ps);
+      {| ps_terms := canonify_series n (Z.to_pos g) (ps_terms ps);
          ps_valnum := (ps_valnum ps + Z.of_nat n) / g;
          ps_comden := Z.to_pos (' ps_comden ps / g) |}
   | ∞ =>
       ps_zero
   end.
 
-Inductive eq_norm_ps : puiseux_series α → puiseux_series α → Prop :=
-  | eq_norm_ps_base : ∀ ps₁ ps₂,
+Inductive eq_canon_ps : puiseux_series α → puiseux_series α → Prop :=
+  | eq_canon_ps_base : ∀ ps₁ ps₂,
       ps_valnum ps₁ = ps_valnum ps₂
       → ps_comden ps₁ = ps_comden ps₂
         → (ps_terms ps₁ = ps_terms ps₂)%ser
-          → eq_norm_ps ps₁ ps₂.
+          → eq_canon_ps ps₁ ps₂.
 
 Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
   | eq_ps_base : ∀ ps₁ ps₂,
-      eq_norm_ps (normalise_ps ps₁) (normalise_ps ps₂)
+      eq_canon_ps (canonify_ps ps₁) (canonify_ps ps₂)
       → eq_ps ps₁ ps₂.
 
 Definition ps_monom (c : α) pow :=
@@ -124,7 +124,7 @@ Definition ps_monom (c : α) pow :=
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
 
-Notation "a ≐ b" := (eq_norm_ps a b) (at level 70).
+Notation "a ≐ b" := (eq_canon_ps a b) (at level 70).
 
 Delimit Scope ps_scope with ps.
 Notation "a = b" := (eq_ps a b) : ps_scope.
@@ -142,24 +142,24 @@ rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
 destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
 Qed.
 
-Theorem eq_norm_ps_refl : reflexive _ eq_norm_ps.
+Theorem eq_canon_ps_refl : reflexive _ eq_canon_ps.
 Proof. intros ps; constructor; reflexivity. Qed.
 
-Theorem eq_norm_ps_sym : symmetric _ eq_norm_ps.
+Theorem eq_canon_ps_sym : symmetric _ eq_canon_ps.
 Proof. intros ps₁ ps₂ H; induction H; constructor; symmetry; assumption. Qed.
 
-Theorem eq_norm_ps_trans : transitive _ eq_norm_ps.
+Theorem eq_canon_ps_trans : transitive _ eq_canon_ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation : (puiseux_series α) eq_norm_ps
- reflexivity proved by eq_norm_ps_refl
- symmetry proved by eq_norm_ps_sym
- transitivity proved by eq_norm_ps_trans
- as eq_norm_ps_rel.
+Add Parametric Relation : (puiseux_series α) eq_canon_ps
+ reflexivity proved by eq_canon_ps_refl
+ symmetry proved by eq_canon_ps_sym
+ transitivity proved by eq_canon_ps_trans
+ as eq_canon_ps_rel.
 
 Lemma mul_lt_mono_positive_r : ∀ a b c,
   (fin a < b)%Nbar
@@ -178,7 +178,7 @@ apply Nbar.mul_lt_mono_pos_r.
 Qed.
 
 Add Parametric Morphism : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_norm_ps
+  with signature eq_series ==> eq ==> eq ==> eq_canon_ps
   as mkps_morphism.
 Proof.
 intros a b Hab v n.
@@ -424,14 +424,14 @@ destruct (lt_dec i n) as [Hlt| Hge].
    reflexivity.
 Qed.
 
-Add Parametric Morphism : normalise_series
+Add Parametric Morphism : canonify_series
   with signature eq ==> eq ==> eq_series ==> eq_series
-  as normalise_morph.
+  as canonify_morph.
 Proof.
 intros n k ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
-unfold normalise_series.
+unfold canonify_series.
 unfold series_shrink, series_left_shift.
 remember Nbar.div_sup as f; simpl; subst f.
 do 2 rewrite Nbar.fold_sub.
@@ -493,13 +493,13 @@ destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
    reflexivity.
 Qed.
 
-Add Parametric Morphism : normalise_ps
-  with signature eq_norm_ps ==> eq_norm_ps
-  as normalise_ps_morph.
+Add Parametric Morphism : canonify_ps
+  with signature eq_canon_ps ==> eq_canon_ps
+  as canonify_ps_morph.
 Proof.
 intros ps₁ ps₂ Heq.
 inversion Heq; subst.
-unfold normalise_ps.
+unfold canonify_ps.
 rewrite H, H0, H1.
 remember (null_coeff_range_length rng (ps_terms ps₂) 0) as n eqn:Hn .
 symmetry in Hn.

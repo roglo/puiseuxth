@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.40 2013-12-08 03:16:21 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.41 2013-12-08 03:19:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -786,7 +786,7 @@ Lemma canonify_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
 Proof.
 intros ps₁ ps₂ n k.
 remember (Pos.to_nat (ps_comden ps₂) * n)%nat as m eqn:Hm .
-rewrite ps_norm_adjust_eq with (n := m) (k := k); subst m.
+rewrite ps_canon_adjust_eq with (n := m) (k := k); subst m.
 unfold ps_mul; simpl.
 unfold adjust_ps; simpl.
 unfold cm, cm_factor; simpl.
@@ -926,7 +926,7 @@ destruct n as [n| ]; constructor.
   apply Z.gcd_eq_0_r in Hg.
   exfalso; revert Hg; apply Pos2Z_ne_0.
 
-  rewrite ps_norm_adjust_eq with (k := Z.to_pos g) (n := n).
+  rewrite ps_canon_adjust_eq with (k := Z.to_pos g) (n := n).
   unfold adjust_ps; simpl.
   unfold canonify_series.
   rewrite series_stretch_shrink.
