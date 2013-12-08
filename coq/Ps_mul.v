@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.50 2013-12-08 13:33:29 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.51 2013-12-08 17:47:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -913,6 +913,11 @@ rewrite <- (canonic_ps_eq ips₃).
 remember (canonic_ps ips₁) as ps₁ eqn:Hps₁ .
 remember (canonic_ps ips₂) as ps₂ eqn:Hps₂ .
 remember (canonic_ps ips₃) as ps₃ eqn:Hps₃ .
+remember (ps_valnum ps₁ * ' ps_comden ps₂ * ' ps_comden ps₃)%Z as vcc.
+remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
+remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
+remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₁.
+remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_comden ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
 remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * (ps₂ + ps₃)))%ps as ps₄ eqn:Hps₄ .
@@ -920,6 +925,8 @@ remember (adjust_ps 0 1 (ps₁ * ps₂ + ps₁ * ps₃))%ps as ps₅ eqn:Hps₅ 
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
+bbb.
+
 destruct n₄ as [n₄| ].
  unfold adjust_ps in Hps₄.
  unfold adjust_ps in Hps₅.
@@ -953,6 +960,14 @@ destruct n₄ as [n₄| ].
       rewrite Z.mul_1_r.
       do 2 rewrite Z.sub_0_r.
       unfold cm; simpl.
+      rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Heqvcc.
+      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+      rewrite Pos2Z.inj_mul, Z.mul_assoc.
+      symmetry.
+      rewrite Z.mul_shuffle0.
+      rewrite Z.mul_add_distr_r.
+      rewrite <- Heqvcc.
+      rewrite Pos2Z.inj_mul, Z.mul_assoc.
 bbb.
 
 intros ps₁ ps₂ ps₃.
