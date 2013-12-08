@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.70 2013-12-07 19:55:01 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.71 2013-12-08 02:32:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -160,22 +160,22 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
      ps_valnum := ps_valnum_add ps₁ ps₂;
      ps_comden := cm ps₁ ps₂ |}.
 
-Definition adjusted_nz_add nz'₁ nz'₂ :=
-  {| ps_terms := series_add (ps_terms nz'₁) (ps_terms nz'₂);
-     ps_valnum := ps_valnum nz'₁;
-     ps_comden := ps_comden nz'₁ |}.
+(* other version for addition: could be the main and only one, perhaps ? *)
 
-Definition adjust_nz_from nz₁ nz₂ :=
-  let k₁ := cm_factor nz₁ nz₂ in
-  let k₂ := cm_factor nz₂ nz₁ in
-  let v₁ := (ps_valnum nz₁ * Zpos k₁)%Z in
-  let v₂ := (ps_valnum nz₂ * Zpos k₂)%Z in
-  adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ nz₂.
+Definition adjusted_ps_add ps'₁ ps'₂ :=
+  {| ps_terms := series_add (ps_terms ps'₁) (ps_terms ps'₂);
+     ps_valnum := ps_valnum ps'₁;
+     ps_comden := ps_comden ps'₁ |}.
 
-Definition nz_add₂ (nz₁ nz₂ : puiseux_series α) :=
-  adjusted_nz_add (adjust_nz_from nz₂ nz₁) (adjust_nz_from nz₁ nz₂).
+Definition adjust_ps_from ps₁ ps₂ :=
+  let k₁ := cm_factor ps₁ ps₂ in
+  let k₂ := cm_factor ps₂ ps₁ in
+  let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
+  let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
+  adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
 
-Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) := nz_add₂ ps₁ ps₂.
+Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
+  adjusted_ps_add (adjust_ps_from ps₂ ps₁) (adjust_ps_from ps₁ ps₂).
 
 Notation "a + b" := (ps_add a b) : ps_scope.
 Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
@@ -649,12 +649,12 @@ constructor.
 apply eq_norm_ps_norm_add_add₂.
 Qed.
 
-Add Parametric Morphism : adjusted_nz_add
+Add Parametric Morphism : adjusted_ps_add
   with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
-  as adjusted_nz_add_morph.
+  as adjusted_ps_add_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
-unfold adjusted_nz_add.
+unfold adjusted_ps_add.
 induction Heq₁, Heq₂.
 rewrite H, H0.
 constructor; simpl; try reflexivity.

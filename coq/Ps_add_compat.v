@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.33 2013-12-07 19:55:01 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.34 2013-12-08 02:32:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -204,8 +204,8 @@ constructor; simpl.
 Qed.
 
 Lemma nz_adjust_adjusted : ∀ nz₁ nz₂ n k,
-  eq_norm_ps (adjust_ps n k (adjusted_nz_add nz₁ nz₂))
-    (adjusted_nz_add (adjust_ps n k nz₁) (adjust_ps n k nz₂)).
+  eq_norm_ps (adjust_ps n k (adjusted_ps_add nz₁ nz₂))
+    (adjusted_ps_add (adjust_ps n k nz₁) (adjust_ps n k nz₂)).
 Proof.
 intros nz₁ nz₂ n k.
 constructor; simpl; try reflexivity.
@@ -269,9 +269,9 @@ Qed.
 
 Lemma normalise_ps_adjust : ∀ nz₁ nz₂ n,
   normalise_ps
-    (adjusted_nz_add (adjust_ps n 1 nz₁) (adjust_ps n 1 nz₂))
+    (adjusted_ps_add (adjust_ps n 1 nz₁) (adjust_ps n 1 nz₂))
   ≐ normalise_ps
-      (adjusted_nz_add nz₁ nz₂).
+      (adjusted_ps_add nz₁ nz₂).
 Proof.
 (* gros nettoyage à faire : factorisation, focus, etc. *)
 intros nz₁ nz₂ n.
@@ -337,11 +337,11 @@ Qed.
 
 Lemma normalise_ps_adjust_add : ∀ nz₁ nz₂ n n₁ n₂ k₁ k₂,
   normalise_ps
-    (adjusted_nz_add
+    (adjusted_ps_add
        (adjust_ps (n + n₁) k₁ nz₁)
        (adjust_ps (n + n₂) k₂ nz₂)) ≐
   normalise_ps
-    (adjusted_nz_add
+    (adjusted_ps_add
        (adjust_ps n₁ k₁ nz₁)
        (adjust_ps n₂ k₂ nz₂)).
 Proof.
@@ -366,8 +366,8 @@ Lemma normalise_ps_add_adjust : ∀ nz₁ nz₂ n k m,
 Proof.
 intros nz₁ nz₂ n k m.
 do 2 rewrite eq_norm_ps_norm_add_add₂.
-unfold ps_add₂, nz_add₂; simpl.
-unfold adjust_nz_from.
+unfold ps_add₂; simpl.
+unfold adjust_ps_from.
 unfold cm_factor; simpl.
 do 2 rewrite nz_adjust_adjust.
 rewrite Pos2Z.inj_mul.
@@ -1056,9 +1056,9 @@ rewrite eq_norm_ps_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism : nz_add₂
+Add Parametric Morphism : ps_add₂
   with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
-  as nz_add₂_morph.
+  as ps_add₂_morph.
 Proof.
 intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
 do 2 rewrite <- eq_norm_ps_add_add₂.
