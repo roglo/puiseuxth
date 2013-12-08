@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.76 2013-12-08 03:21:58 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.77 2013-12-08 04:40:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -189,7 +189,7 @@ unfold series_stretch; simpl.
 unfold series_add; simpl.
 constructor; simpl.
 intros i.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
@@ -297,7 +297,7 @@ Proof.
 intros s₁ s₂ n.
 constructor.
 intros i.
-unfold series_add, series_nth_rng; simpl.
+unfold series_add, series_nth; simpl.
 rewrite Nbar.add_max_distr_r.
 remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) + fin n)) as c₁.
 remember (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as c₂.
@@ -581,7 +581,7 @@ Lemma series_shift_series_0 : ∀ n, (series_shift n 0 = 0)%ser.
 Proof.
 intros n.
 constructor; intros i.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 remember (Nbar.lt_dec (fin i) (fin n)) as d₁.
 remember (lt_dec i n) as d₂.
 remember (Nbar.lt_dec (fin i) 0) as d₃.
@@ -667,7 +667,7 @@ Proof.
 intros n k s₁ s₂ Heq.
 constructor; intros.
 induction Heq.
-unfold series_nth_rng.
+unfold series_nth.
 simpl.
 destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
  as [H₁| H₁].
@@ -684,7 +684,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
    destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
     [ idtac | reflexivity ].
    rewrite H.
-   unfold series_nth_rng.
+   unfold series_nth.
    destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₂))
     as [H₅| H₅]; [ idtac | reflexivity ].
    exfalso; apply H₂.
@@ -711,7 +711,7 @@ destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
    [ idtac | reflexivity ].
   symmetry.
   rewrite <- H.
-  unfold series_nth_rng.
+  unfold series_nth.
   destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₁)) as [H₅| H₅];
    [ idtac | reflexivity ].
   exfalso; apply H₁.
@@ -742,7 +742,7 @@ intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 constructor; intros i.
 inversion_clear Heq₁.
 inversion_clear Heq₂.
-unfold series_nth_rng; simpl.
+unfold series_nth; simpl.
 unfold cm_factor.
 rewrite H, H0, H2, H3; simpl.
 remember (ps_comden ps₃) as c₃.
@@ -761,7 +761,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
   reflexivity.
 
   unfold adjust_series.
-  unfold series_nth_rng; simpl.
+  unfold series_nth; simpl.
   rewrite <- Heqx₂, <- Heqy₂.
   destruct (Nbar.lt_dec (fin i) x₂) as [H₃| H₃].
    exfalso; apply H₂.
@@ -777,7 +777,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
   rewrite <- H1, <- H4.
   unfold adjust_series.
-  unfold series_nth_rng; simpl.
+  unfold series_nth; simpl.
   rewrite <- Heqx₁, <- Heqy₁.
   destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
    exfalso; apply H₁.

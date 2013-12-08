@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.43 2013-12-08 04:25:51 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.44 2013-12-08 04:36:40 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -224,21 +224,6 @@ Qed.
 Lemma sigma_aux_succ : ∀ f b k,
   (sigma_aux b (S k) f = f b + sigma_aux (S b) k f)%rng.
 Proof. reflexivity. Qed.
-
-Lemma sigma_aux_twice_twice : ∀ f n k,
-  (sigma_aux (n + n)%nat (k + k)%nat f
-   = sigma_aux n k (λ i, f (i + i)%nat + f (i + i + 1)%nat))%rng.
-Proof.
-intros f n k.
-revert n; induction k; intros; [ reflexivity | simpl ].
-rewrite <- Lfield.add_assoc.
-apply Lfield.add_compat_l.
-rewrite Nat.add_succ_r; simpl.
-rewrite Nat.add_1_r.
-apply Lfield.add_compat_l.
-rewrite <- Nat.add_succ_r, <- Nat.add_succ_l.
-apply IHk.
-Qed.
 
 Lemma sigma_aux_mul_sigma_aux_sigma_aux : ∀ f k n,
   (sigma_aux 0 (S k * S n) f
@@ -582,99 +567,6 @@ constructor; simpl.
  unfold cm_factor.
  rewrite H0, H1.
  reflexivity.
-Qed.
-
-Lemma series_mul_stretch_mul_inf : ∀ a b k,
-  (series_stretch k a * b =
-   series_mul_inf (series_stretch k (series_inf rng a))
-     (series_inf rng b))%ser.
-Proof.
-intros a b l.
-constructor; intros k.
-unfold series_nth_rng; simpl.
-destruct (Nbar.lt_dec (fin k) ∞) as [H| H]; [ clear H | exfalso ].
- remember (stop a * fin (Pos.to_nat l) + stop b)%Nbar as x.
- destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
-  unfold convol_mul, convol_mul_inf.
-  apply sigma_compat; intros i Hi.
-  apply sigma_compat; intros j Hj.
-  rewrite <- Lfield.mul_assoc.
-  destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
-   rewrite H₂, delta_id.
-   do 2 rewrite Lfield.mul_1_l.
-   simpl.
-   destruct (zerop (i mod Pos.to_nat l)) as [H₃| H₃].
-    apply Nat.mod_divides in H₃; auto.
-    destruct H₃ as (c, Hc).
-    rewrite Hc.
-    rewrite series_nth_mul_stretch.
-    rewrite Nat.mul_comm.
-    rewrite Nat.div_mul; auto.
-    rewrite series_nth_inf.
-    reflexivity.
-
-    rewrite shifted_in_stretched; [ reflexivity | assumption ].
-
-   rewrite delta_neq; [ idtac | assumption ].
-   do 2 rewrite Lfield.mul_0_l; reflexivity.
-
-  symmetry.
-  apply Nbar.nlt_ge in H₁.
-  unfold convol_mul_inf.
-  apply all_0_sigma_0; intros i Hi.
-  apply all_0_sigma_0; intros j Hj.
-  destruct (eq_nat_dec (i + j) k) as [H₂| H₂].
-   rewrite H₂, delta_id.
-   rewrite Lfield.mul_1_l.
-   simpl.
-   destruct (zerop (i mod Pos.to_nat l)) as [H₃| H₃].
-    apply Nat.mod_divides in H₃; auto.
-    destruct H₃ as (c, Hc).
-    rewrite Hc.
-    rewrite Nat.mul_comm.
-    rewrite Nat.div_mul; auto.
-    rewrite series_nth_inf.
-    simpl.
-    unfold series_nth_rng; simpl.
-    destruct (Nbar.lt_dec (fin c) (stop a)) as [H₃| H₃].
-     destruct (Nbar.lt_dec (fin j) (stop b)) as [H₄| H₄].
-      rewrite <- H₂ in H₁.
-      rewrite Nbar.fin_inj_add in H₁.
-      apply Nbar.nlt_ge in H₁.
-      exfalso; apply H₁.
-      apply Nbar.lt_trans with (m := (fin i + stop b)%Nbar).
-       apply Nbar.add_lt_mono_l; [ idtac | assumption ].
-       intros H; discriminate H.
-
-       remember (stop b) as st eqn:Hst .
-       symmetry in Hst.
-       destruct st as [st| ].
-        apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
-        rewrite Hc.
-        rewrite Nbar.fin_inj_mul.
-        rewrite Nbar.mul_comm.
-        apply Nbar.mul_lt_mono_pos_r.
-         apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
-
-         intros H; discriminate H.
-
-         intros H; discriminate H.
-
-         assumption.
-
-        exfalso; apply H₁; simpl.
-        rewrite Nbar.add_comm; constructor.
-
-      rewrite Lfield.mul_0_r; reflexivity.
-
-     rewrite Lfield.mul_0_l; reflexivity.
-
-    rewrite Lfield.mul_0_l; reflexivity.
-
-   rewrite delta_neq; [ idtac | assumption ].
-   do 2 rewrite Lfield.mul_0_l; reflexivity.
-
- apply H; constructor.
 Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
