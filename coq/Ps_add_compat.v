@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.35 2013-12-08 02:36:50 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.36 2013-12-08 02:46:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -104,7 +104,7 @@ Lemma normalise_nz_add_0_r : ∀ nz,
 Proof.
 intros nz.
 unfold normalise_ps; simpl.
-rewrite nz_add_0_r.
+rewrite ps_terms_add_0_r.
 rewrite null_coeff_range_length_shift.
 remember (null_coeff_range_length rng (ps_terms nz) 0) as n₁ eqn:Hn₁ .
 symmetry in Hn₁.
@@ -113,7 +113,7 @@ destruct n₁ as [n₁| ]; [ simpl | reflexivity ].
 constructor; simpl.
  unfold ps_valnum_add.
  rewrite Z.mul_1_r.
- rewrite nz_add_0_r.
+ rewrite ps_terms_add_0_r.
  rewrite Nat2Z.inj_add.
  rewrite Z.add_assoc, Z.add_shuffle0.
  rewrite Z2Nat_id_max, Z.min_comm.
@@ -125,10 +125,10 @@ constructor; simpl.
  unfold cm; simpl.
  rewrite Pos.mul_1_r.
  do 2 f_equal.
- rewrite nz_add_0_r.
+ rewrite ps_terms_add_0_r.
  apply gcd_ps_add.
 
- rewrite nz_add_0_r.
+ rewrite ps_terms_add_0_r.
  rewrite greatest_series_x_power_shift.
  constructor; intros i.
  rewrite normalise_series_add_shift.

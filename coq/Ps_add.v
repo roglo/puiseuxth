@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.72 2013-12-08 02:36:50 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.73 2013-12-08 02:46:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -365,22 +365,22 @@ destruct (Z.min_dec x y) as [H₁| H₁].
  rewrite H₁; reflexivity.
 Qed.
 
-Lemma ps_terms_add_assoc : ∀ nz₁ nz₂ nz₃,
-  (ps_terms_add (nz₁ + nz₂)%ps nz₃ = ps_terms_add nz₁ (nz₂ + nz₃)%ps)%ser.
+Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
+  (ps_terms_add (ps₁ + ps₂)%ps ps₃ = ps_terms_add ps₁ (ps₂ + ps₃)%ps)%ser.
 Proof.
-intros nz₁ nz₂ nz₃.
+intros ps₁ ps₂ ps₃.
 constructor; intros i.
 unfold ps_add; simpl.
 unfold cm_factor, cm.
 unfold ps_terms_add; simpl.
 unfold ps_valnum_add; simpl.
 unfold cm_factor, cm.
-remember (ps_valnum nz₁) as v₁ eqn:Hv₁ .
-remember (ps_valnum nz₂) as v₂ eqn:Hv₂ .
-remember (ps_valnum nz₃) as v₃ eqn:Hv₃ .
-remember (ps_comden nz₁) as c₁.
-remember (ps_comden nz₂) as c₂.
-remember (ps_comden nz₃) as c₃.
+remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
+remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
+remember (ps_valnum ps₃) as v₃ eqn:Hv₃ .
+remember (ps_comden ps₁) as c₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_comden ps₃) as c₃.
 unfold adjust_series.
 do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
@@ -411,11 +411,10 @@ do 2 rewrite Z2Nat_sub_min.
 reflexivity.
 Qed.
 
-Lemma gcd_ps_add_assoc : ∀ nz₁ nz₂ nz₃ n k,
-  gcd_ps n k (ps_add (ps_add nz₁ nz₂) nz₃)%Z =
-  gcd_ps n k (ps_add nz₁ (ps_add nz₂ nz₃))%Z.
+Lemma gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,
+  gcd_ps n k (ps₁ + ps₂ + ps₃)%ps = gcd_ps n k (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
-intros nz₁ nz₂ nz₃ n k.
+intros ps₁ ps₂ ps₃ n k.
 unfold gcd_ps; simpl.
 unfold ps_valnum_add; simpl.
 unfold ps_valnum_add; simpl.
@@ -430,15 +429,14 @@ f_equal; [ idtac | rewrite Z.mul_shuffle0; reflexivity ].
 f_equal; rewrite Z.mul_shuffle0; reflexivity.
 Qed.
 
-Lemma nz_norm_add_assoc : ∀ nz₁ nz₂ nz₃,
-  normalise_ps (ps_add (ps_add nz₁ nz₂) nz₃)
-  ≐ normalise_ps (ps_add nz₁ (ps_add nz₂ nz₃)).
+Lemma ps_norm_add_assoc : ∀ ps₁ ps₂ ps₃,
+  normalise_ps (ps₁ + ps₂ + ps₃)%ps ≐ normalise_ps (ps₁ + (ps₂ + ps₃))%ps.
 Proof.
-intros nz₁ nz₂ nz₃.
+intros ps₁ ps₂ ps₃.
 unfold normalise_ps; simpl.
 rewrite ps_terms_add_assoc.
 remember
-  (null_coeff_range_length rng (ps_terms_add nz₁ (ps_add nz₂ nz₃)) 0) as n.
+  (null_coeff_range_length rng (ps_terms_add ps₁ (ps₂ + ps₃)%ps) 0) as n.
 rename Heqn into Hn.
 symmetry in Hn.
 destruct n as [n| ]; [ constructor; simpl | reflexivity ].
@@ -473,7 +471,7 @@ Theorem ps_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃; symmetry.
 constructor.
-apply nz_norm_add_assoc.
+apply ps_norm_add_assoc.
 Qed.
 
 Theorem ps_add_0_l : ∀ ps, (0 + ps = ps)%ps.
@@ -511,12 +509,10 @@ Qed.
 Theorem ps_add_0_r : ∀ ps, (ps + 0 = ps)%ps.
 Proof. intros ps; rewrite ps_add_comm; apply ps_add_0_l. Qed.
 
-Definition nz_opp nz :=
-  {| ps_terms := series_opp (ps_terms nz);
-     ps_valnum := ps_valnum nz;
-     ps_comden := ps_comden nz |}.
-
-Definition ps_opp ps := nz_opp ps.
+Definition ps_opp ps :=
+  {| ps_terms := series_opp (ps_terms ps);
+     ps_valnum := ps_valnum ps;
+     ps_comden := ps_comden ps |}.
 
 Notation "- a" := (ps_opp a) : ps_scope.
 Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
@@ -527,7 +523,7 @@ intros ps.
 unfold ps_zero.
 unfold ps_add; simpl.
 constructor; simpl.
-unfold nz_opp; simpl.
+unfold ps_opp; simpl.
 unfold ps_terms_add; simpl.
 unfold cm_factor; simpl.
 rewrite Z.min_id.
@@ -592,11 +588,11 @@ remember (Nbar.lt_dec (fin i) 0) as d₃.
 destruct d₁, d₂, d₃; reflexivity.
 Qed.
 
-Lemma nz_add_0_r : ∀ nz,
-  (ps_terms_add nz 0%ps =
-   series_shift (Z.to_nat (ps_valnum nz)) (ps_terms nz))%ser.
+Lemma ps_terms_add_0_r : ∀ ps,
+  (ps_terms_add ps 0%ps =
+   series_shift (Z.to_nat (ps_valnum ps)) (ps_terms ps))%ser.
 Proof.
-intros nz.
+intros ps.
 unfold ps_terms_add; simpl.
 unfold adjust_series.
 rewrite Z2Nat_sub_min.
@@ -609,10 +605,10 @@ rewrite series_add_0_l.
 reflexivity.
 Qed.
 
-Lemma eq_norm_ps_add_add₂ : ∀ nz₁ nz₂,
-  eq_norm_ps (ps_add nz₁ nz₂) (ps_add₂ nz₁ nz₂).
+Lemma eq_norm_ps_add_add₂ : ∀ ps₁ ps₂,
+  eq_norm_ps (ps_add ps₁ ps₂) (ps_add₂ ps₁ ps₂).
 Proof.
-intros nz₁ nz₂.
+intros ps₁ ps₂.
 constructor; [ simpl | reflexivity | simpl ].
  unfold ps_valnum_add.
  rewrite Z2Nat.id.
@@ -626,17 +622,17 @@ constructor; [ simpl | reflexivity | simpl ].
 
  unfold ps_terms_add.
  unfold adjust_series.
- remember (ps_valnum nz₂ * Zpos (cm_factor nz₂ nz₁))%Z as vc₂₁.
- remember (ps_valnum nz₁ * Zpos (cm_factor nz₁ nz₂))%Z as vc₁₂.
+ remember (ps_valnum ps₂ * Zpos (cm_factor ps₂ ps₁))%Z as vc₂₁.
+ remember (ps_valnum ps₁ * Zpos (cm_factor ps₁ ps₂))%Z as vc₁₂.
  remember (Z.min vc₁₂ vc₂₁) as m eqn:Hm .
  rewrite Z.min_comm, <- Hm.
  reflexivity.
 Qed.
 
-Lemma eq_norm_ps_norm_add_add₂ : ∀ nz₁ nz₂,
-  normalise_ps (nz₁ + nz₂)%ps ≐ normalise_ps (nz₁ ₊ nz₂)%ps.
+Lemma eq_norm_ps_norm_add_add₂ : ∀ ps₁ ps₂,
+  normalise_ps (ps₁ + ps₂)%ps ≐ normalise_ps (ps₁ ₊ ps₂)%ps.
 Proof.
-intros nz₁ nz₂.
+intros ps₁ ps₂.
 rewrite eq_norm_ps_add_add₂; reflexivity.
 Qed.
 
@@ -653,7 +649,7 @@ Add Parametric Morphism : adjusted_ps_add
   with signature eq_norm_ps ==> eq_norm_ps ==> eq_norm_ps
   as adjusted_ps_add_morph.
 Proof.
-intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 unfold adjusted_ps_add.
 induction Heq₁, Heq₂.
 rewrite H, H0.
@@ -742,23 +738,23 @@ Add Parametric Morphism : ps_terms_add
   with signature eq_norm_ps ==> eq_norm_ps ==> eq_series
   as ps_terms_add_morph.
 Proof.
-intros nz₁ nz₃ Heq₁ nz₂ nz₄ Heq₂.
+intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 constructor; intros i.
 inversion_clear Heq₁.
 inversion_clear Heq₂.
 unfold series_nth_rng; simpl.
 unfold cm_factor.
 rewrite H, H0, H2, H3; simpl.
-remember (ps_comden nz₃) as c₃.
-remember (ps_comden nz₄) as c₄.
-remember (ps_valnum nz₃) as v₃.
-remember (ps_valnum nz₄) as v₄.
+remember (ps_comden ps₃) as c₃.
+remember (ps_comden ps₄) as c₄.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_valnum ps₄) as v₄.
 remember (Z.to_nat (v₃ * ' c₄ - Z.min (v₃ * ' c₄) (v₄ * ' c₃))) as x.
 remember (Z.to_nat (v₄ * ' c₃ - Z.min (v₄ * ' c₃) (v₃ * ' c₄))) as y.
-remember (stop (ps_terms nz₁) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₁.
-remember (stop (ps_terms nz₂) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₁.
-remember (stop (ps_terms nz₃) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₂.
-remember (stop (ps_terms nz₄) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₂.
+remember (stop (ps_terms ps₁) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₁.
+remember (stop (ps_terms ps₂) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₁.
+remember (stop (ps_terms ps₃) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₂.
+remember (stop (ps_terms ps₄) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₂.
 destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
  rewrite H1, H4.
  destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
