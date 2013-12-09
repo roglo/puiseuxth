@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.52 2013-12-08 20:50:57 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.53 2013-12-09 11:50:50 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -951,6 +951,8 @@ do 2 rewrite <- series_stretch_stretch in Hn₅.
 rewrite series_shift_mul in Hn₅.
 replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive in Hn₅
  by apply Pos_mul_shuffle0.
+rewrite series_stretch_add_distr in Hn₄.
+rewrite series_mul_add_distr_l in Hn₄.
 bbb.
 
 destruct n₄ as [n₄| ].
