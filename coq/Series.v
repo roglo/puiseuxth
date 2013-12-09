@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.90 2013-12-09 09:34:11 deraugla Exp $ *)
+(* $Id: Series.v,v 2.91 2013-12-09 09:43:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1170,6 +1170,26 @@ intros f g b e.
 apply sigma_aux_add.
 Qed.
 
+Lemma series_nth_add : ∀ a b i,
+  (series_nth rng i (a + b)%ser =
+   series_nth rng i a + series_nth rng i b)%rng.
+Proof.
+intros a b i.
+unfold series_nth; simpl.
+destruct (Nbar.lt_dec (fin i) (Nbar.max (stop a) (stop b))) as [H₁| H₁].
+ reflexivity.
+
+ destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
+  exfalso; apply H₁.
+  apply Nbar.max_lt_iff; left; assumption.
+
+  destruct (Nbar.lt_dec (fin i) (stop b)) as [H₃| H₃].
+   exfalso; apply H₁.
+   apply Nbar.max_lt_iff; right; assumption.
+
+   rewrite Lfield.add_0_l; reflexivity.
+Qed.
+
 (* exercice... *)
 Theorem series_mul_add_distr_l : ∀ a b c, (a * (b + c) = a * b + a * c)%ser.
 Proof.
@@ -1189,6 +1209,9 @@ destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; subst x.
     apply sigma_compat; intros i (Hi, Hik).
     rewrite sigma_add.
     apply sigma_compat; intros j (Hj, Hjk).
+    rewrite series_nth_add.
+    do 2 rewrite Lfield.mul_add_distr_l.
+    reflexivity.
 bbb.
 
 Add Parametric Morphism : series_add
