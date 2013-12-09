@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.92 2013-12-09 10:41:54 deraugla Exp $ *)
+(* $Id: Series.v,v 2.93 2013-12-09 10:58:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1204,6 +1204,43 @@ do 2 rewrite Lfield.mul_add_distr_l.
 reflexivity.
 Qed.
 
+Lemma add_le_convol_mul_is_0 : ∀ a b i,
+  (stop a + stop b ≤ fin i)%Nbar → (convol_mul a b i = 0)%rng.
+Proof.
+intros a b k Habk.
+unfold convol_mul.
+apply all_0_sigma_0; intros i Hi.
+apply all_0_sigma_0; intros j Hj.
+destruct (eq_nat_dec (i + j) k) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
+  rewrite Lfield.mul_assoc.
+  apply Lfield.mul_eq_0; right.
+  unfold series_nth.
+  destruct (Nbar.lt_dec (fin j) (stop b)) as [H₃| H₃].
+   exfalso; apply Nbar.nlt_ge in Habk; apply Habk.
+   rewrite <- H₁, Nbar.fin_inj_add.
+   remember (stop b) as st eqn:Hst .
+   symmetry in Hst.
+   destruct st as [st| ].
+    apply Nbar.lt_trans with (m := (fin i + fin st)%Nbar).
+     apply Nbar.add_lt_mono_l; [ intros H; discriminate H | assumption ].
+
+     apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
+
+    simpl; rewrite Nbar.add_comm; constructor.
+
+   reflexivity.
+
+  rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
+  apply Lfield.mul_eq_0; right.
+  unfold series_nth.
+  destruct (Nbar.lt_dec (fin i) (stop a)); [ contradiction | idtac ].
+  reflexivity.
+
+ rewrite delta_neq; [ idtac | assumption ].
+ rewrite Lfield.mul_0_l; reflexivity.
+Qed.
+
 (* exercice... *)
 Theorem series_mul_add_distr_l : ∀ a b c, (a * (b + c) = a * b + a * c)%ser.
 Proof.
@@ -1221,37 +1258,11 @@ destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
    destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₄| H₄].
     reflexivity.
 
-    unfold convol_mul.
-    apply all_0_sigma_0; intros i Hi.
-    apply all_0_sigma_0; intros j Hj.
-    destruct (eq_nat_dec (i + j) k) as [H₅| H₅].
-     destruct (Nbar.lt_dec (fin i) (stop a)) as [H₆| H₆].
-      rewrite Lfield.mul_assoc.
-      apply Lfield.mul_eq_0; right.
-      unfold series_nth.
-      destruct (Nbar.lt_dec (fin j) (stop c)) as [H₇| H₇].
-       exfalso; apply H₄.
-       rewrite <- H₅, Nbar.fin_inj_add.
-       remember (stop c) as st eqn:Hst .
-       symmetry in Hst.
-       destruct st as [st| ].
-        apply Nbar.lt_trans with (m := (fin i + fin st)%Nbar).
-         apply Nbar.add_lt_mono_l; [ intros H; discriminate H | assumption ].
+    apply add_le_convol_mul_is_0, Nbar.nlt_ge; assumption.
 
-         apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
-
-        simpl; rewrite Nbar.add_comm; constructor.
-
-       reflexivity.
-
-      rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
-      apply Lfield.mul_eq_0; right.
-      unfold series_nth.
-      destruct (Nbar.lt_dec (fin i) (stop a)); [ contradiction | idtac ].
-      reflexivity.
-
-     rewrite delta_neq; [ idtac | assumption ].
-     rewrite Lfield.mul_0_l; reflexivity.
+   destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₄| H₄].
+    apply Lfield.add_compat_r.
+    apply add_le_convol_mul_is_0, Nbar.nlt_ge; assumption.
 bbb.
 
 Add Parametric Morphism : series_add
