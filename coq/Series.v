@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.93 2013-12-09 10:58:46 deraugla Exp $ *)
+(* $Id: Series.v,v 2.94 2013-12-09 11:37:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1241,7 +1241,6 @@ destruct (eq_nat_dec (i + j) k) as [H₁| H₁].
  rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
-(* exercice... *)
 Theorem series_mul_add_distr_l : ∀ a b c, (a * (b + c) = a * b + a * c)%ser.
 Proof.
 intros a b c.
@@ -1263,7 +1262,20 @@ destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
    destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₄| H₄].
     apply Lfield.add_compat_r.
     apply add_le_convol_mul_is_0, Nbar.nlt_ge; assumption.
-bbb.
+
+    apply Nbar.max_lt_iff in H₂.
+    destruct H₂; contradiction.
+
+  rewrite Nbar.add_max_distr_l in H₂.
+  contradiction.
+
+ remember (Nbar.max (stop a + stop b) (stop a + stop c)) as x.
+ destruct (Nbar.lt_dec (fin k) x) as [H₂| H₂]; subst x.
+  rewrite Nbar.add_max_distr_l in H₂.
+  contradiction.
+
+  reflexivity.
+Qed.
 
 Add Parametric Morphism : series_add
 with  signature eq_series ==> eq_series ==> eq_series
