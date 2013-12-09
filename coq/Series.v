@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.91 2013-12-09 09:43:48 deraugla Exp $ *)
+(* $Id: Series.v,v 2.92 2013-12-09 10:41:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1190,28 +1190,68 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max (stop a) (stop b))) as [H₁| H₁].
    rewrite Lfield.add_0_l; reflexivity.
 Qed.
 
+Lemma convol_mul_add_distr_l : ∀ a b c i,
+  (convol_mul a (b + c)%ser i = convol_mul a b i + convol_mul a c i)%rng.
+Proof.
+intros a b c k.
+unfold convol_mul.
+rewrite sigma_add.
+apply sigma_compat; intros i Hi.
+rewrite sigma_add.
+apply sigma_compat; intros j Hj.
+rewrite series_nth_add.
+do 2 rewrite Lfield.mul_add_distr_l.
+reflexivity.
+Qed.
+
 (* exercice... *)
 Theorem series_mul_add_distr_l : ∀ a b c, (a * (b + c) = a * b + a * c)%ser.
 Proof.
 intros a b c.
-constructor; intros i.
+constructor; intros k.
 unfold series_nth; simpl.
 remember (stop a + Nbar.max (stop b) (stop c))%Nbar as x.
-destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; subst x.
+destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
+ rewrite convol_mul_add_distr_l.
  remember (Nbar.max (stop a + stop b) (stop a + stop c)) as x.
- destruct (Nbar.lt_dec (fin i) x) as [H₂| H₂]; subst x.
+ destruct (Nbar.lt_dec (fin k) x) as [H₂| H₂]; subst x.
   unfold series_nth; simpl.
-  destruct (Nbar.lt_dec (fin i) (stop a + stop b)) as [H₃| H₃].
-   destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₄| H₄].
-    unfold convol_mul.
-    rename i into k.
-    rewrite sigma_add.
-    apply sigma_compat; intros i (Hi, Hik).
-    rewrite sigma_add.
-    apply sigma_compat; intros j (Hj, Hjk).
-    rewrite series_nth_add.
-    do 2 rewrite Lfield.mul_add_distr_l.
+  destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₃| H₃].
+   apply Lfield.add_compat_l.
+   destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₄| H₄].
     reflexivity.
+
+    unfold convol_mul.
+    apply all_0_sigma_0; intros i Hi.
+    apply all_0_sigma_0; intros j Hj.
+    destruct (eq_nat_dec (i + j) k) as [H₅| H₅].
+     destruct (Nbar.lt_dec (fin i) (stop a)) as [H₆| H₆].
+      rewrite Lfield.mul_assoc.
+      apply Lfield.mul_eq_0; right.
+      unfold series_nth.
+      destruct (Nbar.lt_dec (fin j) (stop c)) as [H₇| H₇].
+       exfalso; apply H₄.
+       rewrite <- H₅, Nbar.fin_inj_add.
+       remember (stop c) as st eqn:Hst .
+       symmetry in Hst.
+       destruct st as [st| ].
+        apply Nbar.lt_trans with (m := (fin i + fin st)%Nbar).
+         apply Nbar.add_lt_mono_l; [ intros H; discriminate H | assumption ].
+
+         apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
+
+        simpl; rewrite Nbar.add_comm; constructor.
+
+       reflexivity.
+
+      rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
+      apply Lfield.mul_eq_0; right.
+      unfold series_nth.
+      destruct (Nbar.lt_dec (fin i) (stop a)); [ contradiction | idtac ].
+      reflexivity.
+
+     rewrite delta_neq; [ idtac | assumption ].
+     rewrite Lfield.mul_0_l; reflexivity.
 bbb.
 
 Add Parametric Morphism : series_add
