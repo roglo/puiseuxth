@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.94 2013-12-09 11:37:58 deraugla Exp $ *)
+(* $Id: Series.v,v 2.95 2013-12-09 19:28:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1339,3 +1339,19 @@ Qed.
 
 Lemma eq_series_eq : ∀ a b, a = b → eq_series a b.
 Proof. intros; subst a; reflexivity. Qed.
+
+Theorem series_add_compat_l : ∀ a b c, (a = b)%ser → (c + a = c + b)%ser.
+Proof.
+intros a b c Hab.
+rewrite Hab.
+reflexivity.
+Qed.
+
+Theorem series_mul_add_distr_r : ∀ a b c, ((a + b) * c = a * c + b * c)%ser.
+Proof.
+intros a b c.
+rewrite series_mul_comm, series_mul_add_distr_l.
+rewrite series_mul_comm.
+apply series_add_compat_l.
+apply series_mul_comm.
+Qed.

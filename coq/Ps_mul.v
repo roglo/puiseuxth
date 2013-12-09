@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.56 2013-12-09 18:34:05 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.57 2013-12-09 19:28:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -940,6 +940,20 @@ assert (n₄ = n₅) as Heq₄₅.
  remember (ps_comden ps₃) as c₃.
  do 3 rewrite series_stretch_mul.
  do 6 rewrite <- series_stretch_stretch.
+ rewrite series_stretch_add_distr.
+ do 2 rewrite stretch_shift_series_distr.
+ do 2 rewrite <- series_stretch_stretch.
+ symmetry.
+ rewrite series_mul_comm.
+ rewrite series_shift_mul.
+ rewrite series_add_comm.
+ rewrite series_mul_comm.
+ rewrite series_shift_mul.
+ rewrite series_add_comm.
+ replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive
+  by apply Pos_mul_shuffle0.
+ rewrite <- series_mul_add_distr_r.
+ rewrite series_mul_comm.
 
 bbb.
 symmetry in Hn₄, Hn₅.
