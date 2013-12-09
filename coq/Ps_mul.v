@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.55 2013-12-09 18:14:15 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.56 2013-12-09 18:34:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -938,6 +938,8 @@ assert (n₄ = n₅) as Heq₄₅.
  remember (ps_comden ps₁) as c₁.
  remember (ps_valnum ps₃) as v₃.
  remember (ps_comden ps₃) as c₃.
+ do 3 rewrite series_stretch_mul.
+ do 6 rewrite <- series_stretch_stretch.
 
 bbb.
 symmetry in Hn₄, Hn₅.
