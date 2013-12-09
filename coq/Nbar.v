@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.9 2013-11-27 10:19:55 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.10 2013-12-09 09:52:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -983,6 +983,15 @@ destruct n as [n| ]; [ simpl | reflexivity ].
 destruct p as [p| ]; [ simpl | destruct m; reflexivity ].
 destruct m as [| m]; [ simpl | reflexivity ].
 rewrite Nat.add_max_distr_r; reflexivity.
+Qed.
+
+Theorem add_max_distr_l : ∀ n m p, max (p + n) (p + m) = p + max n m.
+Proof.
+intros n m p.
+rewrite add_comm.
+replace (p + m) with (m + p) by apply add_comm.
+rewrite add_max_distr_r.
+apply add_comm.
 Qed.
 
 Theorem mul_max_distr_r : ∀ n m p, max (n * p) (m * p) = max n m * p.
