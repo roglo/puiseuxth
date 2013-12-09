@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.89 2013-12-08 04:40:12 deraugla Exp $ *)
+(* $Id: Series.v,v 2.90 2013-12-09 09:34:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1148,6 +1148,48 @@ rewrite sigma_sigma_compat with (g := f); subst f.
   rewrite convol_mul_assoc_1; symmetry.
   apply convol_mul_assoc_2.
 Qed.
+
+Lemma sigma_aux_add : ∀ f g b len,
+  (sigma_aux b len f + sigma_aux b len g =
+   sigma_aux b len (λ i, f i + g i))%rng.
+Proof.
+intros f g b len.
+revert b.
+induction len; intros; simpl; [ apply Lfield.add_0_l | idtac ].
+rewrite Lfield.add_shuffle0.
+do 3 rewrite <- Lfield.add_assoc.
+do 2 apply Lfield.add_compat_l.
+rewrite Lfield.add_comm.
+apply IHlen.
+Qed.
+
+Lemma sigma_add : ∀ f g b e,
+  (Σ (i = b, e)   f i + Σ (i = b, e)   g i = Σ (i = b, e)   (f i + g i))%rng.
+Proof.
+intros f g b e.
+apply sigma_aux_add.
+Qed.
+
+(* exercice... *)
+Theorem series_mul_add_distr_l : ∀ a b c, (a * (b + c) = a * b + a * c)%ser.
+Proof.
+intros a b c.
+constructor; intros i.
+unfold series_nth; simpl.
+remember (stop a + Nbar.max (stop b) (stop c))%Nbar as x.
+destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; subst x.
+ remember (Nbar.max (stop a + stop b) (stop a + stop c)) as x.
+ destruct (Nbar.lt_dec (fin i) x) as [H₂| H₂]; subst x.
+  unfold series_nth; simpl.
+  destruct (Nbar.lt_dec (fin i) (stop a + stop b)) as [H₃| H₃].
+   destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₄| H₄].
+    unfold convol_mul.
+    rename i into k.
+    rewrite sigma_add.
+    apply sigma_compat; intros i (Hi, Hik).
+    rewrite sigma_add.
+    apply sigma_compat; intros j (Hj, Hjk).
+bbb.
 
 Add Parametric Morphism : series_add
 with  signature eq_series ==> eq_series ==> eq_series
