@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.91 2013-12-08 10:13:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.92 2013-12-09 08:12:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -9,6 +9,11 @@ Require Import Series.
 Require Import Nbar.
 
 Set Implicit Arguments.
+
+Record puiseux_series α := mkps
+  { ps_terms : series α;
+    ps_valnum : Z;
+    ps_comden : positive }.
 
 Section Axioms.
 
@@ -69,11 +74,6 @@ Definition series_stretch k s :=
 Definition series_shift n s :=
   {| terms i := if lt_dec i n then 0%rng else terms s (i - n);
      stop := stop s + fin n |}.
-
-Record puiseux_series α := mkps
-  { ps_terms : series α;
-    ps_valnum : Z;
-    ps_comden : positive }.
 
 Definition series_shrink k (s : series α) :=
   {| terms i := terms s (i * Pos.to_nat k);
