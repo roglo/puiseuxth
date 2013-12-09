@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.54 2013-12-09 15:10:36 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.55 2013-12-09 18:14:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -928,7 +928,17 @@ remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 assert (n₄ = n₅) as Heq₄₅.
-(* doit pouvoir se démontrer (début) par ci-dessous : *)
+ subst n₄ n₅ ps₄ ps₅; simpl.
+ unfold cm, cm_factor; simpl.
+ do 2 rewrite series_shift_0.
+ rewrite series_stretch_1.
+ remember (ps_valnum ps₁) as v₁.
+ remember (ps_comden ps₂) as c₂.
+ remember (ps_valnum ps₂) as v₂.
+ remember (ps_comden ps₁) as c₁.
+ remember (ps_valnum ps₃) as v₃.
+ remember (ps_comden ps₃) as c₃.
+
 bbb.
 symmetry in Hn₄, Hn₅.
 rewrite Hps₄ in Hn₄; simpl in Hn₄.
