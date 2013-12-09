@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.53 2013-12-09 11:50:50 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.54 2013-12-09 15:10:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -927,6 +927,9 @@ remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as p
 remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
+assert (n₄ = n₅) as Heq₄₅.
+(* doit pouvoir se démontrer (début) par ci-dessous : *)
+bbb.
 symmetry in Hn₄, Hn₅.
 rewrite Hps₄ in Hn₄; simpl in Hn₄.
 rewrite series_shift_0 in Hn₄.
@@ -952,7 +955,26 @@ rewrite series_shift_mul in Hn₅.
 replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive in Hn₅
  by apply Pos_mul_shuffle0.
 rewrite series_stretch_add_distr in Hn₄.
-rewrite series_mul_add_distr_l in Hn₄.
+do 2 rewrite stretch_shift_series_distr in Hn₄.
+do 2 rewrite <- series_stretch_stretch in Hn₄.
+remember (series_stretch (c₁ * c₁ * c₃) (ps_terms ps₂)) as x₁.
+rewrite Pos_mul_shuffle0 in Heqx₁.
+rewrite <- Heqx₁ in Hn₅.
+rewrite Pos.mul_assoc in Hn₄.
+remember (series_stretch (c₁ * c₂ * c₃) (ps_terms ps₁)) as x₂.
+remember (series_stretch (c₁ * c₁ * c₂) (ps_terms ps₃)) as x₃.
+rewrite Pos_mul_shuffle0 in Heqx₃.
+rewrite <- Heqx₃ in Hn₅.
+do 2 rewrite <- series_shift_mul in Hn₅.
+rewrite series_mul_comm in Hn₅.
+rewrite series_shift_mul in Hn₅.
+rewrite series_mul_comm in Hn₅.
+rewrite series_add_comm in Hn₅.
+rewrite series_mul_comm in Hn₅.
+rewrite series_shift_mul in Hn₅.
+rewrite series_mul_comm in Hn₅.
+rewrite <- series_mul_add_distr_l in Hn₅.
+rewrite series_add_comm in Hn₅.
 bbb.
 
 destruct n₄ as [n₄| ].
