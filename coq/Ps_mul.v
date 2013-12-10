@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.57 2013-12-09 19:28:06 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.58 2013-12-10 02:59:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -954,6 +954,32 @@ assert (n₄ = n₅) as Heq₄₅.
   by apply Pos_mul_shuffle0.
  rewrite <- series_mul_add_distr_r.
  rewrite series_mul_comm.
+ do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+ do 4 rewrite Z.mul_add_distr_r.
+ remember (v₁ * ' c₂ * ' c₁ * ' c₃)%Z as x eqn:Hx .
+ replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with x by (subst x; ring).
+ do 2 rewrite Z.add_min_distr_l.
+ do 2 rewrite Z.add_add_simpl_l_l.
+ clear x Hx.
+ do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+ rewrite Pos2Z.inj_mul; do 2 rewrite Z.mul_assoc.
+ do 4 rewrite Z.mul_sub_distr_r.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite Pos.mul_assoc.
+ do 2 f_equal.
+ f_equal.
+  rewrite Pos_mul_shuffle0.
+  do 2 f_equal.
+  f_equal; [ ring | idtac ].
+  f_equal; ring.
+
+  rewrite Pos_mul_shuffle0.
+  do 2 f_equal.
+  f_equal; [ ring | idtac ].
+  f_equal; ring.
 
 bbb.
 symmetry in Hn₄, Hn₅.
