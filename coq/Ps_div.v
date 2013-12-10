@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.2 2013-12-10 22:54:09 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.3 2013-12-10 23:18:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,6 +11,11 @@ Require Import Puiseux_series.
 Require Import Ps_mul.
 
 Set Implicit Arguments.
+
+(* à revoir !!! il faut que le premier coefficient ne soit pas nul;
+   donc utiliser null_coeff_range_length pour shifter la série de
+   Puiseux d'abord *)
+bbb.
 
 Fixpoint term_inv c s n :=
   if zerop n then Lfield.inv fld (series_nth rng O s)
