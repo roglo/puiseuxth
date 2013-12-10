@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.63 2013-12-10 09:55:48 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.64 2013-12-10 10:01:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -990,14 +990,13 @@ symmetry in Hn₄, Hn₅.
 assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add_distr_l).
 move H at top; subst n₅.
 destruct n₄ as [n₄| ].
- unfold adjust_ps in Hps₄.
- unfold adjust_ps in Hps₅.
  constructor; constructor; simpl.
   Focus 2.
+  subst ps₄ ps₅.
   erewrite ps_comden_canonic; try reflexivity; try eassumption.
   erewrite ps_comden_canonic; try reflexivity; try eassumption.
   remember Z.gcd as f.
-  rewrite Hps₄, Hps₅; simpl.
+  unfold adjust_ps;
   unfold cm; simpl.
   unfold cm; simpl.
   f_equal.
