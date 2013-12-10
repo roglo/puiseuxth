@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.58 2013-12-10 02:59:01 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.59 2013-12-10 03:00:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -918,8 +918,7 @@ remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
 remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
 remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₁.
 remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₂.
-rewrite eq_ps_add_add₂.
-rewrite eq_ps_add_add₂.
+do 2 rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_comden ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
 remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
@@ -981,52 +980,6 @@ assert (n₄ = n₅) as Heq₄₅.
   f_equal; [ ring | idtac ].
   f_equal; ring.
 
-bbb.
-symmetry in Hn₄, Hn₅.
-rewrite Hps₄ in Hn₄; simpl in Hn₄.
-rewrite series_shift_0 in Hn₄.
-unfold cm, cm_factor in Hn₄.
-rewrite series_stretch_mul in Hn₄.
-do 2 rewrite <- series_stretch_stretch in Hn₄.
-rewrite Hps₅ in Hn₅; simpl in Hn₅.
-rewrite series_shift_0 in Hn₅.
-rewrite series_stretch_1 in Hn₅.
-rewrite series_stretch_mul in Hn₅.
-do 2 rewrite <- series_stretch_stretch in Hn₅.
-unfold cm_factor, cm in Hn₅.
-remember (ps_valnum ps₁) as v₁.
-remember (ps_comden ps₂) as c₂.
-remember (ps_valnum ps₂) as v₂.
-remember (ps_comden ps₁) as c₁.
-remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₃) as c₃.
-rewrite series_shift_mul in Hn₅.
-rewrite series_stretch_mul in Hn₅.
-do 2 rewrite <- series_stretch_stretch in Hn₅.
-rewrite series_shift_mul in Hn₅.
-replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive in Hn₅
- by apply Pos_mul_shuffle0.
-rewrite series_stretch_add_distr in Hn₄.
-do 2 rewrite stretch_shift_series_distr in Hn₄.
-do 2 rewrite <- series_stretch_stretch in Hn₄.
-remember (series_stretch (c₁ * c₁ * c₃) (ps_terms ps₂)) as x₁.
-rewrite Pos_mul_shuffle0 in Heqx₁.
-rewrite <- Heqx₁ in Hn₅.
-rewrite Pos.mul_assoc in Hn₄.
-remember (series_stretch (c₁ * c₂ * c₃) (ps_terms ps₁)) as x₂.
-remember (series_stretch (c₁ * c₁ * c₂) (ps_terms ps₃)) as x₃.
-rewrite Pos_mul_shuffle0 in Heqx₃.
-rewrite <- Heqx₃ in Hn₅.
-do 2 rewrite <- series_shift_mul in Hn₅.
-rewrite series_mul_comm in Hn₅.
-rewrite series_shift_mul in Hn₅.
-rewrite series_mul_comm in Hn₅.
-rewrite series_add_comm in Hn₅.
-rewrite series_mul_comm in Hn₅.
-rewrite series_shift_mul in Hn₅.
-rewrite series_mul_comm in Hn₅.
-rewrite <- series_mul_add_distr_l in Hn₅.
-rewrite series_add_comm in Hn₅.
 bbb.
 
 destruct n₄ as [n₄| ].
