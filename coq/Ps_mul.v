@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.59 2013-12-10 03:00:48 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.60 2013-12-10 03:14:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -903,6 +903,66 @@ rewrite <- Hvn.
 reflexivity.
 Qed.
 
+Lemma null_range_length_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
+   null_coeff_range_length rng
+     (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
+   null_coeff_range_length rng
+     (ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) 0.
+Proof.
+intros ps₁ ps₂ ps₃; simpl.
+unfold cm, cm_factor; simpl.
+do 2 rewrite series_shift_0.
+rewrite series_stretch_1.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_comden ps₁) as c₁.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_comden ps₃) as c₃.
+do 3 rewrite series_stretch_mul.
+do 6 rewrite <- series_stretch_stretch.
+rewrite series_stretch_add_distr.
+do 2 rewrite stretch_shift_series_distr.
+do 2 rewrite <- series_stretch_stretch.
+symmetry.
+rewrite series_mul_comm.
+rewrite series_shift_mul.
+rewrite series_add_comm.
+rewrite series_mul_comm.
+rewrite series_shift_mul.
+rewrite series_add_comm.
+replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive
+ by apply Pos_mul_shuffle0.
+rewrite <- series_mul_add_distr_r.
+rewrite series_mul_comm.
+do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+do 4 rewrite Z.mul_add_distr_r.
+remember (v₁ * ' c₂ * ' c₁ * ' c₃)%Z as x eqn:Hx .
+replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with x by (subst x; ring).
+do 2 rewrite Z.add_min_distr_l.
+do 2 rewrite Z.add_add_simpl_l_l.
+clear x Hx.
+do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+rewrite Pos2Z.inj_mul; do 2 rewrite Z.mul_assoc.
+do 4 rewrite Z.mul_sub_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite Pos.mul_assoc.
+do 2 f_equal.
+f_equal.
+ rewrite Pos_mul_shuffle0.
+ do 2 f_equal.
+ f_equal; [ ring | idtac ].
+ f_equal; ring.
+
+ rewrite Pos_mul_shuffle0.
+ do 2 f_equal.
+ f_equal; [ ring | idtac ].
+ f_equal; ring.
+Qed.
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
@@ -926,59 +986,9 @@ remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as p
 remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
-assert (n₄ = n₅) as Heq₄₅.
- subst n₄ n₅ ps₄ ps₅; simpl.
- unfold cm, cm_factor; simpl.
- do 2 rewrite series_shift_0.
- rewrite series_stretch_1.
- remember (ps_valnum ps₁) as v₁.
- remember (ps_comden ps₂) as c₂.
- remember (ps_valnum ps₂) as v₂.
- remember (ps_comden ps₁) as c₁.
- remember (ps_valnum ps₃) as v₃.
- remember (ps_comden ps₃) as c₃.
- do 3 rewrite series_stretch_mul.
- do 6 rewrite <- series_stretch_stretch.
- rewrite series_stretch_add_distr.
- do 2 rewrite stretch_shift_series_distr.
- do 2 rewrite <- series_stretch_stretch.
- symmetry.
- rewrite series_mul_comm.
- rewrite series_shift_mul.
- rewrite series_add_comm.
- rewrite series_mul_comm.
- rewrite series_shift_mul.
- rewrite series_add_comm.
- replace (c₁ * c₃ * c₂)%positive with (c₁ * c₂ * c₃)%positive
-  by apply Pos_mul_shuffle0.
- rewrite <- series_mul_add_distr_r.
- rewrite series_mul_comm.
- do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
- do 4 rewrite Z.mul_add_distr_r.
- remember (v₁ * ' c₂ * ' c₁ * ' c₃)%Z as x eqn:Hx .
- replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with x by (subst x; ring).
- do 2 rewrite Z.add_min_distr_l.
- do 2 rewrite Z.add_add_simpl_l_l.
- clear x Hx.
- do 2 rewrite <- Z2Nat_inj_mul_pos_r.
- rewrite Pos2Z.inj_mul; do 2 rewrite Z.mul_assoc.
- do 4 rewrite Z.mul_sub_distr_r.
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite Pos.mul_assoc.
- do 2 f_equal.
- f_equal.
-  rewrite Pos_mul_shuffle0.
-  do 2 f_equal.
-  f_equal; [ ring | idtac ].
-  f_equal; ring.
-
-  rewrite Pos_mul_shuffle0.
-  do 2 f_equal.
-  f_equal; [ ring | idtac ].
-  f_equal; ring.
+symmetry in Hn₄, Hn₅.
+assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add_distr_l).
+move H at top; subst n₅.
 
 bbb.
 

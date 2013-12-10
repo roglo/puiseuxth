@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.84 2013-12-08 11:02:03 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.85 2013-12-10 03:14:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -159,7 +159,8 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
      ps_valnum := ps_valnum_add ps₁ ps₂;
      ps_comden := cm ps₁ ps₂ |}.
 
-(* other version for addition: could be the main and only one, perhaps ? *)
+(* I prefer this other version for addition; proved strongly equal to
+   ps_add below; could be the main and only one, perhaps ? *)
 
 Definition adjusted_ps_add ps₁ ps₂ :=
   {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
