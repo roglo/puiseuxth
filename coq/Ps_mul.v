@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.62 2013-12-10 04:32:49 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.63 2013-12-10 09:55:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -992,11 +992,8 @@ move H at top; subst n₅.
 destruct n₄ as [n₄| ].
  unfold adjust_ps in Hps₄.
  unfold adjust_ps in Hps₅.
- rewrite Hps₄, Hps₅.
  constructor; constructor; simpl.
   Focus 2.
-  simpl in Hps₄, Hps₅.
-  rewrite <- Hps₄, <- Hps₅.
   erewrite ps_comden_canonic; try reflexivity; try eassumption.
   erewrite ps_comden_canonic; try reflexivity; try eassumption.
   remember Z.gcd as f.
