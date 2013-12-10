@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.86 2013-12-10 16:34:09 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.87 2013-12-10 22:54:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,18 +10,6 @@ Require Import Nbar.
 Require Import Misc.
 
 Set Implicit Arguments.
-
-(*
-Definition cm ps₁ ps₂ := Plcm (ps_comden ps₁) (ps_comden ps₂).
-Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
-*)
-Definition cm (ps₁ ps₂ : puiseux_series α) :=
-  (ps_comden ps₁ * ps_comden ps₂)%positive.
-Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  ps_comden ps₂.
-(**)
 
 Definition adjust_ps n k ps :=
   {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
