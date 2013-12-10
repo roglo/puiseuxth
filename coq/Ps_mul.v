@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.61 2013-12-10 03:31:55 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.62 2013-12-10 04:32:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1017,6 +1017,46 @@ destruct n₄ as [n₄| ].
    rewrite Z.mul_shuffle0.
    rewrite Z.mul_add_distr_r.
    rewrite <- Heqvcc.
+   remember (ps_valnum ps₁) as v₁.
+   remember (ps_comden ps₂) as c₂.
+   remember (ps_valnum ps₂) as v₂.
+   remember (ps_comden ps₁) as c₁.
+   remember (ps_valnum ps₃) as v₃.
+   remember (ps_comden ps₃) as c₃.
+   replace (v₂ * ' c₁ * ' c₃)%Z with cvc by (subst; ring).
+   do 4 rewrite Z.mul_add_distr_r.
+   replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with (vcc * ' c₁)%Z by (subst; ring).
+   replace (v₃ * ' c₁ * ' c₁ * ' c₂)%Z with (ccv * ' c₁)%Z by (subst; ring).
+   rewrite Z.add_min_distr_l.
+   rewrite Z.add_add_simpl_l_l.
+   rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
+   rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
+   rewrite <- Z.add_sub_assoc; f_equal.
+   do 3 rewrite <- positive_nat_Z.
+   rewrite Z.mul_sub_distr_r.
+   rewrite <- Nat2Z.inj_mul.
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   do 2 rewrite Z.mul_sub_distr_r.
+   do 3 rewrite positive_nat_Z.
+   replace (v₂ * ' c₃ * ' c₁)%Z with cvc by (subst; ring).
+   replace (v₃ * ' c₂ * ' c₁)%Z with ccv by (subst; ring).
+   rewrite <- Z.mul_sub_distr_r.
+   rewrite <- positive_nat_Z.
+   rewrite <- Nat2Z.inj_mul.
+   rewrite positive_nat_Z.
+   rewrite Z2Nat_inj_mul_pos_r.
+   reflexivity.
+
+   unfold cm_factor; simpl.
+   f_equal.
+   remember (ps_valnum ps₁) as v₁.
+   remember (ps_comden ps₂) as c₂.
+   remember (ps_valnum ps₂) as v₂.
+   remember (ps_comden ps₁) as c₁.
+   remember (ps_valnum ps₃) as v₃.
+   remember (ps_comden ps₃) as c₃.
+   do 2 rewrite series_shift_0.
+   rewrite series_stretch_1.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
