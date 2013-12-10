@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.73 2013-12-10 16:34:09 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.74 2013-12-10 17:40:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1225,3 +1225,5 @@ Definition ps_ring : Lfield.r (puiseux_series α) :=
      Lfield.mul_1_l := ps_mul_1_l;
      Lfield.mul_compat_l := ps_mul_compat_l;
      Lfield.mul_add_distr_l := ps_mul_add_distr_l |}.
+
+Definition ps_inv ps := ???.
