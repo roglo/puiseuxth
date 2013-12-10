@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.66 2013-12-10 10:54:33 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.67 2013-12-10 12:29:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -963,7 +963,6 @@ f_equal.
  f_equal; ring.
 Qed.
 
-(* chais pas si c'est vrai, ça; à vérifier *)
 Lemma ps_valnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
   ps_valnum (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
   ps_valnum (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
@@ -972,7 +971,41 @@ intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
 unfold cm_factor.
 f_equal.
-bbb.
+rewrite Z.mul_1_r.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_comden ps₁) as c₁.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_comden ps₃) as c₃.
+do 3 rewrite Pos2Z.inj_mul.
+do 3 rewrite Z.mul_assoc.
+rewrite Z.mul_sub_distr_r.
+do 3 rewrite <- positive_nat_Z.
+do 5 rewrite Z.mul_add_distr_r.
+rewrite Z.mul_sub_distr_r.
+do 2 rewrite <- Nat2Z.inj_mul.
+do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+do 2 rewrite Z.mul_sub_distr_r.
+do 3 rewrite positive_nat_Z.
+rewrite Z.add_sub_assoc.
+f_equal.
+ rewrite Z.mul_shuffle0.
+ apply Z.add_cancel_l.
+ rewrite <- Z.mul_assoc, Z.mul_shuffle0, Z.mul_assoc.
+ reflexivity.
+
+ do 2 f_equal.
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+ remember (v₁ * ' c₃ * ' c₁ * ' c₂)%Z as x.
+ replace (v₁ * ' c₂ * ' c₁ * ' c₃)%Z with x by (subst; ring).
+ rewrite Z.add_min_distr_l.
+ rewrite Z.add_add_simpl_l_l.
+ clear x Heqx.
+ f_equal; [ ring | idtac ].
+ f_equal; ring.
+Qed.
 
 Lemma ps_comden_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
   ps_comden (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
@@ -998,9 +1031,10 @@ intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_comden_canonic; try reflexivity; try eassumption.
 erewrite ps_comden_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
+rewrite ps_valnum_adjust_mul_add₂_distr_l.
 rewrite ps_comden_adjust_mul_add₂_distr_l.
 rewrite <- Hps₄, <- Hps₅.
-do 3 f_equal.
+do 4 f_equal.
 bbb.
 
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
