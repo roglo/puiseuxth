@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.65 2013-12-10 10:12:07 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.66 2013-12-10 10:54:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -903,7 +903,7 @@ rewrite <- Hvn.
 reflexivity.
 Qed.
 
-Lemma null_range_length_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
+Lemma null_range_length_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
    null_coeff_range_length rng
      (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
    null_coeff_range_length rng
@@ -963,7 +963,31 @@ f_equal.
  f_equal; ring.
 Qed.
 
-Lemma ps_comden_adjust_add_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+(* chais pas si c'est vrai, ça; à vérifier *)
+Lemma ps_valnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
+  ps_valnum (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_valnum (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
+Proof.
+intros ps₁ ps₂ ps₃; simpl.
+unfold cm; simpl.
+unfold cm_factor.
+f_equal.
+bbb.
+
+Lemma ps_comden_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
+  ps_comden (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_comden (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
+Proof.
+intros ps₁ ps₂ ps₃; simpl.
+unfold cm; simpl.
+unfold cm_factor.
+rewrite Pos.mul_1_r.
+do 2 rewrite Pos.mul_assoc.
+rewrite Pos_mul_shuffle0.
+reflexivity.
+Qed.
+
+Lemma ps_comden_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
@@ -971,20 +995,30 @@ Lemma ps_comden_adjust_add_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
         → ps_comden (canonic_ps ps₄) = ps_comden (canonic_ps ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+rewrite Hps₄, Hps₅.
+rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite <- Hps₄, <- Hps₅.
+do 3 f_equal.
+bbb.
+
+intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+subst ps₄ ps₅.
+remember Z.gcd as f.
+unfold adjust_ps.
+unfold cm; simpl.
+unfold cm; simpl.
 remember (ps_valnum ps₁ * ' ps_comden ps₂ * ' ps_comden ps₃)%Z as vcc.
 remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
 remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
-subst ps₄ ps₅.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-remember Z.gcd as f.
-unfold adjust_ps;
-unfold cm; simpl.
-unfold cm; simpl.
 f_equal.
 f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
 f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
 f_equal.
+bbb.
  Focus 2.
  do 2 f_equal.
  rewrite Z.mul_1_r.
