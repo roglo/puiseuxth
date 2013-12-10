@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.67 2013-12-10 12:29:59 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.68 2013-12-10 13:45:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1020,6 +1020,76 @@ rewrite Pos_mul_shuffle0.
 reflexivity.
 Qed.
 
+Lemma gxp_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ n,
+  greatest_series_x_power rng
+    (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) n =
+  greatest_series_x_power rng
+    (ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) n.
+Proof.
+intros ps₁ ps₂ ps₃ n.
+remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)) as ps.
+remember (greatest_series_x_power rng (ps_terms ps) n) as k eqn:Hk .
+subst ps.
+symmetry in Hk.
+simpl in Hk |- *.
+rewrite series_shift_0 in Hk |- *.
+rewrite series_stretch_1 in Hk.
+unfold cm, cm_factor in Hk |- *.
+remember (ps_valnum ps₁) as v₁.
+remember (ps_comden ps₂) as c₂.
+remember (ps_valnum ps₂) as v₂.
+remember (ps_comden ps₁) as c₁.
+remember (ps_valnum ps₃) as v₃.
+remember (ps_comden ps₃) as c₃.
+do 2 rewrite series_stretch_mul in Hk.
+do 4 rewrite <- series_stretch_stretch in Hk.
+rewrite series_stretch_add_distr.
+rewrite series_mul_add_distr_l.
+rewrite Z.min_comm.
+rewrite series_mul_comm in Hk.
+rewrite series_shift_mul in Hk.
+rewrite series_mul_comm in Hk.
+rewrite series_add_comm in Hk.
+rewrite series_mul_comm in Hk.
+rewrite series_shift_mul in Hk.
+rewrite series_mul_comm in Hk.
+do 2 rewrite Pos2Z.inj_mul in Hk.
+do 2 rewrite Z.mul_assoc in Hk.
+do 4 rewrite Z.mul_add_distr_r in Hk.
+remember (v₁ * ' c₃ * ' c₁ * ' c₂)%Z as x.
+replace (v₁ * ' c₂ * ' c₁ * ' c₃)%Z with x in Hk by (subst x; ring).
+do 2 rewrite Z.add_min_distr_l in Hk.
+do 2 rewrite Z.add_add_simpl_l_l in Hk.
+clear x Heqx.
+rewrite series_stretch_add_distr.
+do 2 rewrite series_stretch_mul.
+do 3 rewrite <- series_stretch_stretch.
+do 2 rewrite stretch_shift_series_distr.
+do 2 rewrite <- Z2Nat_inj_mul_pos_r.
+rewrite Pos2Z.inj_mul.
+do 2 rewrite Z.mul_assoc.
+do 4 rewrite Z.mul_sub_distr_r.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+subst k.
+rewrite series_add_comm.
+do 2 rewrite <- series_stretch_stretch.
+f_equal.
+f_equal.
+ rewrite Pos.mul_assoc; f_equal.
+ rewrite Pos_mul_shuffle0; f_equal.
+ f_equal.
+ f_equal; [ ring | idtac ].
+ f_equal; ring.
+
+ rewrite Pos.mul_assoc, Pos_mul_shuffle0; f_equal.
+ rewrite Pos_mul_shuffle0; f_equal.
+ f_equal.
+ f_equal; [ ring | idtac ].
+ rewrite Z.min_comm.
+ f_equal; ring.
+Qed.
+
 Lemma ps_comden_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
   ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
@@ -1035,76 +1105,9 @@ rewrite ps_valnum_adjust_mul_add₂_distr_l.
 rewrite ps_comden_adjust_mul_add₂_distr_l.
 rewrite <- Hps₄, <- Hps₅.
 do 4 f_equal.
-bbb.
-
-intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-subst ps₄ ps₅.
-remember Z.gcd as f.
-unfold adjust_ps.
-unfold cm; simpl.
-unfold cm; simpl.
-remember (ps_valnum ps₁ * ' ps_comden ps₂ * ' ps_comden ps₃)%Z as vcc.
-remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
-remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
-f_equal.
-f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
-f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
-f_equal.
-bbb.
- Focus 2.
- do 2 f_equal.
- rewrite Z.mul_1_r.
- unfold cm_factor; simpl.
- rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Heqvcc.
- do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
- symmetry.
- rewrite Z.mul_shuffle0.
- rewrite Z.mul_add_distr_r.
- rewrite <- Heqvcc.
- remember (ps_valnum ps₁) as v₁.
- remember (ps_comden ps₂) as c₂.
- remember (ps_valnum ps₂) as v₂.
- remember (ps_comden ps₁) as c₁.
- remember (ps_valnum ps₃) as v₃.
- remember (ps_comden ps₃) as c₃.
- replace (v₂ * ' c₁ * ' c₃)%Z with cvc by (subst; ring).
- do 4 rewrite Z.mul_add_distr_r.
- replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with (vcc * ' c₁)%Z by (subst; ring).
- replace (v₃ * ' c₁ * ' c₁ * ' c₂)%Z with (ccv * ' c₁)%Z by (subst; ring).
- rewrite Z.add_min_distr_l.
- rewrite Z.add_add_simpl_l_l.
- rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
- rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
- rewrite <- Z.add_sub_assoc; f_equal.
- do 3 rewrite <- positive_nat_Z.
- rewrite Z.mul_sub_distr_r.
- rewrite <- Nat2Z.inj_mul.
- rewrite <- Z2Nat_inj_mul_pos_r.
- do 2 rewrite Z.mul_sub_distr_r.
- do 3 rewrite positive_nat_Z.
- replace (v₂ * ' c₃ * ' c₁)%Z with cvc by (subst; ring).
- replace (v₃ * ' c₂ * ' c₁)%Z with ccv by (subst; ring).
- rewrite <- Z.mul_sub_distr_r.
- rewrite <- positive_nat_Z.
- rewrite <- Nat2Z.inj_mul.
- rewrite positive_nat_Z.
- rewrite Z2Nat_inj_mul_pos_r.
- reflexivity.
-
- unfold cm_factor; simpl.
- f_equal.
- remember (ps_valnum ps₁) as v₁.
- remember (ps_comden ps₂) as c₂.
- remember (ps_valnum ps₂) as v₂.
- remember (ps_comden ps₁) as c₁.
- remember (ps_valnum ps₃) as v₃.
- remember (ps_comden ps₃) as c₃.
- do 2 rewrite series_shift_0.
- rewrite series_stretch_1.
-bbb.
-*)
+rewrite Hps₄, gxp_adjust_mul_add₂_distr_l.
+rewrite Hps₅; reflexivity.
+Qed.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
@@ -1130,12 +1133,12 @@ remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
-assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add_distr_l).
+assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add₂_distr_l).
 move H at top; subst n₅.
 destruct n₄ as [n₄| ].
  constructor; constructor; simpl.
   Focus 2.
-  eapply ps_comden_adjust_add_distr_l; eassumption.
+  eapply ps_comden_adjust_canonic_mul_add₂_distr_l; eassumption.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
