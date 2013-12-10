@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.71 2013-12-10 15:36:03 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.72 2013-12-10 15:38:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1198,7 +1198,11 @@ destruct n₄ as [n₄| ].
   eapply ps_comden_adjust_canonic_mul_add₂_distr_l; eassumption.
 
   eapply ps_terms_adjust_canonic_mul_add₂_distr_l; eassumption.
-bbb.
+
+ rewrite null_coeff_range_length_inf_iff in Hn₄.
+ rewrite null_coeff_range_length_inf_iff in Hn₅.
+ rewrite Hn₄, Hn₅; reflexivity.
+Qed.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
   {| Lfield.zero := ps_zero;
@@ -1221,10 +1225,3 @@ Definition ps_rng : Lfield.r (puiseux_series α) :=
      Lfield.mul_1_l := ps_mul_1_l;
      Lfield.mul_compat_l := ps_mul_compat_l;
      Lfield.mul_add_distr_l := ps_mul_add_distr_l |}.
-
-Add Parametric Morphism : ps_mul
-  with signature eq_ps ==> eq_ps ==> eq_ps
-  as ps_mul_morph.
-Proof.
-intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-bbb.
