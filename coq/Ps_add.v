@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.85 2013-12-10 03:14:54 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.86 2013-12-10 16:34:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -528,7 +528,7 @@ rewrite Z.sub_diag; simpl.
 unfold adjust_series.
 do 2 rewrite series_shift_0.
 rewrite <- series_stretch_add_distr.
-rewrite series_add_opp.
+rewrite series_add_opp_r.
 rewrite series_stretch_series_0.
 unfold ps_valnum_add; simpl.
 unfold cm_factor, cm; simpl.

@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.95 2013-12-09 19:28:06 deraugla Exp $ *)
+(* $Id: Series.v,v 2.96 2013-12-10 16:34:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,6 +83,12 @@ inversion H₁; inversion H₂; subst.
 constructor.
 etransitivity; [ apply H | apply H2 ].
 Qed.
+
+Add Parametric Relation : (series α) eq_series
+ reflexivity proved by eq_series_refl
+ symmetry proved by eq_series_sym
+ transitivity proved by eq_series_trans
+ as eq_series_rel.
 
 (* *)
 
@@ -213,7 +219,7 @@ unfold series_nth.
 rewrite <- Heqd; reflexivity.
 Qed.
 
-Theorem series_add_opp : ∀ s, (s - s = 0)%ser.
+Theorem series_add_opp_r : ∀ s, (s - s = 0)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -226,6 +232,13 @@ destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
  unfold series_nth; simpl.
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
  apply Lfield.add_opp_r.
+Qed.
+
+Theorem series_add_opp_l : ∀ s, (- s + s = 0)%ser.
+Proof.
+intros s.
+rewrite series_add_comm.
+apply series_add_opp_r.
 Qed.
 
 (* series_mul *)
@@ -370,12 +383,6 @@ intros i j Hij; unfold δ.
 destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
 exfalso; apply Hij; reflexivity.
 Qed.
-
-Add Parametric Relation : (series α) eq_series
- reflexivity proved by eq_series_refl
- symmetry proved by eq_series_sym
- transitivity proved by eq_series_trans
- as eq_series_rel.
 
 Add Parametric Morphism : series_mul
 with signature eq_series ==> eq_series ==> eq_series
@@ -1347,6 +1354,13 @@ rewrite Hab.
 reflexivity.
 Qed.
 
+Theorem series_mul_compat_l : ∀ a b c, (a = b)%ser → (c * a = c * b)%ser.
+Proof.
+intros a b c Hab.
+rewrite Hab.
+reflexivity.
+Qed.
+
 Theorem series_mul_add_distr_r : ∀ a b c, ((a + b) * c = a * c + b * c)%ser.
 Proof.
 intros a b c.
@@ -1355,3 +1369,27 @@ rewrite series_mul_comm.
 apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
+
+(*
+Definition series_ring : Lfield.r (series α) :=
+  {| Lfield.zero := series_zero;
+     Lfield.one := series_one;
+     Lfield.add := series_add;
+     Lfield.mul := series_mul;
+     Lfield.opp := series_opp;
+     Lfield.eq := eq_ps;
+     Lfield.eq_refl := eq_series_refl;
+     Lfield.eq_sym := eq_series_sym;
+     Lfield.eq_trans := eq_series_trans;
+     Lfield.neq_1_0 := series_neq_1_0;
+     Lfield.add_comm := series_add_comm;
+     Lfield.add_assoc := series_add_assoc;
+     Lfield.add_0_l := series_add_0_l;
+     Lfield.add_opp_l := series_add_opp_l;
+     Lfield.add_compat_l := series_add_compat_l;
+     Lfield.mul_comm := series_mul_comm;
+     Lfield.mul_assoc := series_mul_assoc;
+     Lfield.mul_1_l := series_mul_1_l;
+     Lfield.mul_compat_l := series_mul_compat_l;
+     Lfield.mul_add_distr_l := series_mul_add_distr_l |}.
+*)

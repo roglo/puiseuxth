@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.72 2013-12-10 15:38:55 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.73 2013-12-10 16:34:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1204,7 +1204,7 @@ destruct n₄ as [n₄| ].
  rewrite Hn₄, Hn₅; reflexivity.
 Qed.
 
-Definition ps_rng : Lfield.r (puiseux_series α) :=
+Definition ps_ring : Lfield.r (puiseux_series α) :=
   {| Lfield.zero := ps_zero;
      Lfield.one := ps_one;
      Lfield.add := ps_add;
