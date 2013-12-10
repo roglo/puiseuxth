@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.96 2013-12-10 16:34:09 deraugla Exp $ *)
+(* $Id: Series.v,v 2.97 2013-12-10 18:46:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1370,7 +1370,7 @@ apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
 
-(*
+(* to be completed...
 Definition series_ring : Lfield.r (series α) :=
   {| Lfield.zero := series_zero;
      Lfield.one := series_one;
