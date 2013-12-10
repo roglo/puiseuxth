@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.70 2013-12-10 15:17:11 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.71 2013-12-10 15:36:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1064,53 +1064,28 @@ unfold cm; simpl.
 unfold cm_factor.
 do 2 rewrite series_shift_0.
 rewrite series_stretch_1.
-bbb.
-*)
-
-Lemma gxp_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ n,
-  greatest_series_x_power rng
-    (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) n =
-  greatest_series_x_power rng
-    (ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) n.
-Proof.
-intros ps₁ ps₂ ps₃ n.
-remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)) as ps.
-remember (greatest_series_x_power rng (ps_terms ps) n) as k eqn:Hk .
-subst ps.
-symmetry in Hk.
-simpl in Hk |- *.
-rewrite series_shift_0 in Hk |- *.
-rewrite series_stretch_1 in Hk.
-unfold cm, cm_factor in Hk |- *.
 remember (ps_valnum ps₁) as v₁.
 remember (ps_comden ps₂) as c₂.
 remember (ps_valnum ps₂) as v₂.
 remember (ps_comden ps₁) as c₁.
 remember (ps_valnum ps₃) as v₃.
 remember (ps_comden ps₃) as c₃.
-do 2 rewrite series_stretch_mul in Hk.
-do 4 rewrite <- series_stretch_stretch in Hk.
+do 3 rewrite series_stretch_mul.
+do 6 rewrite <- series_stretch_stretch.
 rewrite series_stretch_add_distr.
 rewrite series_mul_add_distr_l.
-rewrite Z.min_comm.
-rewrite series_mul_comm in Hk.
-rewrite series_shift_mul in Hk.
-rewrite series_mul_comm in Hk.
-rewrite series_add_comm in Hk.
-rewrite series_mul_comm in Hk.
-rewrite series_shift_mul in Hk.
-rewrite series_mul_comm in Hk.
-do 2 rewrite Pos2Z.inj_mul in Hk.
-do 2 rewrite Z.mul_assoc in Hk.
-do 4 rewrite Z.mul_add_distr_r in Hk.
+symmetry.
+rewrite series_mul_comm, series_shift_mul, series_mul_comm.
+rewrite series_add_comm.
+rewrite series_mul_comm, series_shift_mul, series_mul_comm.
+do 2 rewrite Pos2Z.inj_mul.
+do 2 rewrite Z.mul_assoc.
+do 4 rewrite Z.mul_add_distr_r.
 remember (v₁ * ' c₃ * ' c₁ * ' c₂)%Z as x.
-replace (v₁ * ' c₂ * ' c₁ * ' c₃)%Z with x in Hk by (subst x; ring).
-do 2 rewrite Z.add_min_distr_l in Hk.
-do 2 rewrite Z.add_add_simpl_l_l in Hk.
+replace (v₁ * ' c₂ * ' c₁ * ' c₃)%Z with x by (subst x; ring).
+do 2 rewrite Z.add_min_distr_l.
+do 2 rewrite Z.add_add_simpl_l_l.
 clear x Heqx.
-rewrite series_stretch_add_distr.
-do 2 rewrite series_stretch_mul.
-do 3 rewrite <- series_stretch_stretch.
 do 2 rewrite stretch_shift_series_distr.
 do 2 rewrite <- Z2Nat_inj_mul_pos_r.
 rewrite Pos2Z.inj_mul.
@@ -1118,39 +1093,24 @@ do 2 rewrite Z.mul_assoc.
 do 4 rewrite Z.mul_sub_distr_r.
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-subst k.
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
+rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite series_add_comm.
 do 2 rewrite <- series_stretch_stretch.
-f_equal.
-f_equal.
- rewrite Pos.mul_assoc; f_equal.
- rewrite Pos_mul_shuffle0; f_equal.
- f_equal.
- f_equal; [ ring | idtac ].
- f_equal; ring.
-
- rewrite Pos.mul_assoc, Pos_mul_shuffle0; f_equal.
- rewrite Pos_mul_shuffle0; f_equal.
- f_equal.
- f_equal; [ ring | idtac ].
- rewrite Z.min_comm.
- f_equal; ring.
-Qed.
-
-Lemma ps_comden_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
-  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
-    → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
-      → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
-        → ps_comden (canonic_ps ps₄) = ps_comden (canonic_ps ps₅).
-Proof.
-intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-rewrite Hps₄, Hps₅.
-rewrite ps_valnum_adjust_mul_add₂_distr_l.
-rewrite ps_comden_adjust_mul_add₂_distr_l.
-rewrite gxp_adjust_mul_add₂_distr_l.
+rewrite Pos.mul_assoc.
+rewrite Pos_mul_shuffle0.
+remember (v₂ * ' c₁ * ' c₁ * ' c₃)%Z as x.
+replace (v₂ * ' c₃ * ' c₁ * ' c₁)%Z with x by (subst; ring).
+subst x.
+remember (v₃ * ' c₁ * ' c₁ * ' c₂)%Z as x.
+replace (v₃ * ' c₂ * ' c₁ * ' c₁)%Z with x by (subst; ring).
+subst x.
+remember (c₁ * c₃ * c₁)%positive as x.
+rewrite Pos_mul_shuffle0 in Heqx.
+subst x.
+remember (c₁ * c₂ * c₁)%positive as x.
+rewrite Pos_mul_shuffle0 in Heqx.
+subst x.
 reflexivity.
 Qed.
 
@@ -1167,7 +1127,24 @@ erewrite ps_valnum_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
 rewrite ps_comden_adjust_mul_add₂_distr_l.
-rewrite gxp_adjust_mul_add₂_distr_l.
+rewrite ps_terms_adjust_mul_add₂_distr_l.
+reflexivity.
+Qed.
+
+Lemma ps_comden_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+    → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
+      → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
+        → ps_comden (canonic_ps ps₄) = ps_comden (canonic_ps ps₅).
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+rewrite Hps₄, Hps₅.
+rewrite ps_valnum_adjust_mul_add₂_distr_l.
+rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
 
@@ -1185,7 +1162,6 @@ rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
 rewrite ps_comden_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
-rewrite gxp_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
 
