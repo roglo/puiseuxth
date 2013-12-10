@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.68 2013-12-10 13:45:20 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.69 2013-12-10 13:55:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -886,6 +886,23 @@ destruct n as [n| ]; constructor.
  reflexivity.
 Qed.
 
+Lemma ps_valnum_canonic : ∀ ps n p vn,
+  null_coeff_range_length rng (ps_terms ps) 0 = fin n
+  → p = greatest_series_x_power rng (ps_terms ps) n
+    → vn = (ps_valnum ps + Z.of_nat n)%Z
+      → ps_valnum (canonic_ps ps) =
+          (vn / Z.gcd vn (Z.gcd (' ps_comden ps) (' p)))%Z.
+Proof.
+intros ps n p vn Hn Hp Hvn.
+unfold canonic_ps; simpl.
+rewrite Hn; simpl.
+rewrite <- Hp.
+unfold gcd_ps; simpl.
+rewrite <- Z.gcd_assoc.
+rewrite <- Hvn.
+reflexivity.
+Qed.
+
 Lemma ps_comden_canonic : ∀ ps n p vn,
   null_coeff_range_length rng (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power rng (ps_terms ps) n
@@ -1109,6 +1126,25 @@ rewrite Hps₄, gxp_adjust_mul_add₂_distr_l.
 rewrite Hps₅; reflexivity.
 Qed.
 
+Lemma ps_valnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+    → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
+      → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
+        → ps_valnum (canonic_ps ps₄) = ps_valnum (canonic_ps ps₅).
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
+erewrite ps_valnum_canonic; try reflexivity; try eassumption.
+erewrite ps_valnum_canonic; try reflexivity; try eassumption.
+rewrite Hps₄, Hps₅.
+rewrite ps_valnum_adjust_mul_add₂_distr_l.
+rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite <- Hps₄, <- Hps₅.
+do 4 f_equal.
+rewrite Hps₄, gxp_adjust_mul_add₂_distr_l.
+rewrite Hps₅; reflexivity.
+Qed.
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
@@ -1137,7 +1173,8 @@ assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add₂_distr_l)
 move H at top; subst n₅.
 destruct n₄ as [n₄| ].
  constructor; constructor; simpl.
-  Focus 2.
+  eapply ps_valnum_adjust_canonic_mul_add₂_distr_l; eassumption.
+
   eapply ps_comden_adjust_canonic_mul_add₂_distr_l; eassumption.
 bbb.
 
