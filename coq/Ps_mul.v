@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.69 2013-12-10 13:55:00 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.70 2013-12-10 15:17:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -920,6 +920,24 @@ rewrite <- Hvn.
 reflexivity.
 Qed.
 
+Lemma ps_terms_canonic : ∀ ps n p vn,
+  null_coeff_range_length rng (ps_terms ps) 0 = fin n
+  → p = greatest_series_x_power rng (ps_terms ps) n
+    → vn = (ps_valnum ps + Z.of_nat n)%Z
+      → ps_terms (canonic_ps ps) =
+        canonify_series n (Z.to_pos (Z.gcd vn (Z.gcd (' ps_comden ps) (' p))))
+          (ps_terms ps).
+Proof.
+intros ps n p vn Hn Hp Hvn.
+unfold canonic_ps; simpl.
+rewrite Hn; simpl.
+rewrite <- Hp.
+unfold gcd_ps; simpl.
+rewrite <- Z.gcd_assoc.
+rewrite <- Hvn.
+reflexivity.
+Qed.
+
 Lemma null_range_length_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
    null_coeff_range_length rng
      (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
@@ -1037,6 +1055,18 @@ rewrite Pos_mul_shuffle0.
 reflexivity.
 Qed.
 
+Lemma ps_terms_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
+  (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+   ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)))%ser.
+Proof.
+intros ps₁ ps₂ ps₃; simpl.
+unfold cm; simpl.
+unfold cm_factor.
+do 2 rewrite series_shift_0.
+rewrite series_stretch_1.
+bbb.
+*)
+
 Lemma gxp_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ n,
   greatest_series_x_power rng
     (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) n =
@@ -1120,10 +1150,8 @@ erewrite ps_comden_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
 rewrite ps_comden_adjust_mul_add₂_distr_l.
-rewrite <- Hps₄, <- Hps₅.
-do 4 f_equal.
-rewrite Hps₄, gxp_adjust_mul_add₂_distr_l.
-rewrite Hps₅; reflexivity.
+rewrite gxp_adjust_mul_add₂_distr_l.
+reflexivity.
 Qed.
 
 Lemma ps_valnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
@@ -1139,10 +1167,26 @@ erewrite ps_valnum_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
 rewrite ps_comden_adjust_mul_add₂_distr_l.
-rewrite <- Hps₄, <- Hps₅.
-do 4 f_equal.
-rewrite Hps₄, gxp_adjust_mul_add₂_distr_l.
-rewrite Hps₅; reflexivity.
+rewrite gxp_adjust_mul_add₂_distr_l.
+reflexivity.
+Qed.
+
+Lemma ps_terms_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+    → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
+      → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
+        → (ps_terms (canonic_ps ps₄) = ps_terms (canonic_ps ps₅))%ser.
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
+erewrite ps_terms_canonic; try reflexivity; try eassumption.
+erewrite ps_terms_canonic; try reflexivity; try eassumption.
+rewrite Hps₄, Hps₅.
+rewrite ps_valnum_adjust_mul_add₂_distr_l.
+rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite ps_terms_adjust_mul_add₂_distr_l.
+rewrite gxp_adjust_mul_add₂_distr_l.
+reflexivity.
 Qed.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
@@ -1176,6 +1220,8 @@ destruct n₄ as [n₄| ].
   eapply ps_valnum_adjust_canonic_mul_add₂_distr_l; eassumption.
 
   eapply ps_comden_adjust_canonic_mul_add₂_distr_l; eassumption.
+
+  eapply ps_terms_adjust_canonic_mul_add₂_distr_l; eassumption.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
