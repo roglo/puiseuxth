@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.64 2013-12-10 10:01:22 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.65 2013-12-10 10:12:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -963,6 +963,81 @@ f_equal.
  f_equal; ring.
 Qed.
 
+Lemma ps_comden_adjust_add_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+    → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
+      → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
+        → ps_comden (canonic_ps ps₄) = ps_comden (canonic_ps ps₅).
+Proof.
+intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
+remember (ps_valnum ps₁ * ' ps_comden ps₂ * ' ps_comden ps₃)%Z as vcc.
+remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
+remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
+subst ps₄ ps₅.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+erewrite ps_comden_canonic; try reflexivity; try eassumption.
+remember Z.gcd as f.
+unfold adjust_ps;
+unfold cm; simpl.
+unfold cm; simpl.
+f_equal.
+f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
+f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
+f_equal.
+ Focus 2.
+ do 2 f_equal.
+ rewrite Z.mul_1_r.
+ unfold cm_factor; simpl.
+ rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Heqvcc.
+ do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+ symmetry.
+ rewrite Z.mul_shuffle0.
+ rewrite Z.mul_add_distr_r.
+ rewrite <- Heqvcc.
+ remember (ps_valnum ps₁) as v₁.
+ remember (ps_comden ps₂) as c₂.
+ remember (ps_valnum ps₂) as v₂.
+ remember (ps_comden ps₁) as c₁.
+ remember (ps_valnum ps₃) as v₃.
+ remember (ps_comden ps₃) as c₃.
+ replace (v₂ * ' c₁ * ' c₃)%Z with cvc by (subst; ring).
+ do 4 rewrite Z.mul_add_distr_r.
+ replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with (vcc * ' c₁)%Z by (subst; ring).
+ replace (v₃ * ' c₁ * ' c₁ * ' c₂)%Z with (ccv * ' c₁)%Z by (subst; ring).
+ rewrite Z.add_min_distr_l.
+ rewrite Z.add_add_simpl_l_l.
+ rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
+ rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
+ rewrite <- Z.add_sub_assoc; f_equal.
+ do 3 rewrite <- positive_nat_Z.
+ rewrite Z.mul_sub_distr_r.
+ rewrite <- Nat2Z.inj_mul.
+ rewrite <- Z2Nat_inj_mul_pos_r.
+ do 2 rewrite Z.mul_sub_distr_r.
+ do 3 rewrite positive_nat_Z.
+ replace (v₂ * ' c₃ * ' c₁)%Z with cvc by (subst; ring).
+ replace (v₃ * ' c₂ * ' c₁)%Z with ccv by (subst; ring).
+ rewrite <- Z.mul_sub_distr_r.
+ rewrite <- positive_nat_Z.
+ rewrite <- Nat2Z.inj_mul.
+ rewrite positive_nat_Z.
+ rewrite Z2Nat_inj_mul_pos_r.
+ reflexivity.
+
+ unfold cm_factor; simpl.
+ f_equal.
+ remember (ps_valnum ps₁) as v₁.
+ remember (ps_comden ps₂) as c₂.
+ remember (ps_valnum ps₂) as v₂.
+ remember (ps_comden ps₁) as c₁.
+ remember (ps_valnum ps₃) as v₃.
+ remember (ps_comden ps₃) as c₃.
+ do 2 rewrite series_shift_0.
+ rewrite series_stretch_1.
+bbb.
+*)
+
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
   (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
 Proof.
@@ -992,67 +1067,7 @@ move H at top; subst n₅.
 destruct n₄ as [n₄| ].
  constructor; constructor; simpl.
   Focus 2.
-  subst ps₄ ps₅.
-  erewrite ps_comden_canonic; try reflexivity; try eassumption.
-  erewrite ps_comden_canonic; try reflexivity; try eassumption.
-  remember Z.gcd as f.
-  unfold adjust_ps;
-  unfold cm; simpl.
-  unfold cm; simpl.
-  f_equal.
-  f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
-  f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
-  f_equal.
-   Focus 2.
-   do 2 f_equal.
-   rewrite Z.mul_1_r.
-   unfold cm_factor; simpl.
-   rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Heqvcc.
-   do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
-   symmetry.
-   rewrite Z.mul_shuffle0.
-   rewrite Z.mul_add_distr_r.
-   rewrite <- Heqvcc.
-   remember (ps_valnum ps₁) as v₁.
-   remember (ps_comden ps₂) as c₂.
-   remember (ps_valnum ps₂) as v₂.
-   remember (ps_comden ps₁) as c₁.
-   remember (ps_valnum ps₃) as v₃.
-   remember (ps_comden ps₃) as c₃.
-   replace (v₂ * ' c₁ * ' c₃)%Z with cvc by (subst; ring).
-   do 4 rewrite Z.mul_add_distr_r.
-   replace (v₁ * ' c₃ * ' c₁ * ' c₂)%Z with (vcc * ' c₁)%Z by (subst; ring).
-   replace (v₃ * ' c₁ * ' c₁ * ' c₂)%Z with (ccv * ' c₁)%Z by (subst; ring).
-   rewrite Z.add_min_distr_l.
-   rewrite Z.add_add_simpl_l_l.
-   rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
-   rewrite Z.min_comm, Z2Nat_sub_min; symmetry.
-   rewrite <- Z.add_sub_assoc; f_equal.
-   do 3 rewrite <- positive_nat_Z.
-   rewrite Z.mul_sub_distr_r.
-   rewrite <- Nat2Z.inj_mul.
-   rewrite <- Z2Nat_inj_mul_pos_r.
-   do 2 rewrite Z.mul_sub_distr_r.
-   do 3 rewrite positive_nat_Z.
-   replace (v₂ * ' c₃ * ' c₁)%Z with cvc by (subst; ring).
-   replace (v₃ * ' c₂ * ' c₁)%Z with ccv by (subst; ring).
-   rewrite <- Z.mul_sub_distr_r.
-   rewrite <- positive_nat_Z.
-   rewrite <- Nat2Z.inj_mul.
-   rewrite positive_nat_Z.
-   rewrite Z2Nat_inj_mul_pos_r.
-   reflexivity.
-
-   unfold cm_factor; simpl.
-   f_equal.
-   remember (ps_valnum ps₁) as v₁.
-   remember (ps_comden ps₂) as c₂.
-   remember (ps_valnum ps₂) as v₂.
-   remember (ps_comden ps₁) as c₁.
-   remember (ps_valnum ps₃) as v₃.
-   remember (ps_comden ps₃) as c₃.
-   do 2 rewrite series_shift_0.
-   rewrite series_stretch_1.
+  eapply ps_comden_adjust_add_distr_l; eassumption.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
