@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.60 2013-12-10 03:14:55 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.61 2013-12-10 03:31:55 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -989,9 +989,6 @@ remember (null_coeff_range_length rng (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
 assert (n₄ = n₅) as H by (subst; apply null_range_length_mul_add_distr_l).
 move H at top; subst n₅.
-
-bbb.
-
 destruct n₄ as [n₄| ].
  unfold adjust_ps in Hps₄.
  unfold adjust_ps in Hps₅.
@@ -1001,71 +998,25 @@ destruct n₄ as [n₄| ].
   simpl in Hps₄, Hps₅.
   rewrite <- Hps₄, <- Hps₅.
   erewrite ps_comden_canonic; try reflexivity; try eassumption.
-  destruct n₅ as [n₅| ].
-   erewrite ps_comden_canonic; try reflexivity; try eassumption.
-   remember Z.gcd as f.
-   rewrite Hps₄, Hps₅; simpl.
-   unfold cm; simpl.
-   unfold cm; simpl.
-   f_equal.
-   f_equal.
-    Focus 1.
-    do 7 rewrite Pos2Z.inj_mul.
-    ring.
-
-    Focus 1.
-    f_equal.
-     do 7 rewrite Pos2Z.inj_mul.
-     ring.
-
-     f_equal.
-      Focus 2.
-      unfold ps_valnum_add; simpl.
-      unfold cm_factor; simpl.
-      rewrite Z.mul_1_r.
-      do 2 rewrite Z.sub_0_r.
-      unfold cm; simpl.
-      rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Heqvcc.
-      rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
-      rewrite Pos2Z.inj_mul, Z.mul_assoc.
-      symmetry.
-      rewrite Z.mul_shuffle0.
-      rewrite Z.mul_add_distr_r.
-      rewrite <- Heqvcc.
-      rewrite Pos2Z.inj_mul, Z.mul_assoc.
-bbb.
-
-intros ps₁ ps₂ ps₃.
-rewrite <- (canonic_ps_eq ps₁).
-rewrite <- (canonic_ps_eq ps₂).
-rewrite <- (canonic_ps_eq ps₃).
-remember (canonic_ps ps₁) as ps'₁ eqn:Hps₁ .
-remember (canonic_ps ps₂) as ps'₂ eqn:Hps₂ .
-remember (canonic_ps ps₃) as ps'₃ eqn:Hps₃ .
-symmetry in Hps₁, Hps₂, Hps₃.
-rewrite ps_adjust_eq with (k := ps_comden ps'₁); symmetry.
-rewrite ps_adjust_eq with (k := xH); symmetry.
-unfold adjust_ps; simpl.
-unfold cm; simpl.
-unfold cm; simpl.
-bbb.
-
-intros ps₁ ps₂ ps₃.
-rewrite <- (canonic_ps_eq ps₁).
-rewrite <- (canonic_ps_eq ps₂).
-rewrite <- (canonic_ps_eq ps₃).
-remember (canonic_ps ps₁) as ps'₁ eqn:Hps₁ .
-remember (canonic_ps ps₂) as ps'₂ eqn:Hps₂ .
-remember (canonic_ps ps₃) as ps'₃ eqn:Hps₃ .
-symmetry in Hps₁, Hps₂, Hps₃.
-unfold canonic_ps in Hps₁.
-remember (null_coeff_range_length rng (ps_terms ps₁) 0) as n₁ eqn:Hn₁ .
-symmetry in Hn₁.
-destruct n₁ as [n₁| ].
-bbb.
- unfold ps_mul; simpl.
- unfold ps_add; simpl.
- unfold cm, cm_factor; simpl.
+  erewrite ps_comden_canonic; try reflexivity; try eassumption.
+  remember Z.gcd as f.
+  rewrite Hps₄, Hps₅; simpl.
+  unfold cm; simpl.
+  unfold cm; simpl.
+  f_equal.
+  f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
+  f_equal; [ do 7 rewrite Pos2Z.inj_mul; unfold cm_factor; ring | idtac ].
+  f_equal.
+   Focus 2.
+   do 2 f_equal.
+   rewrite Z.mul_1_r.
+   unfold cm_factor; simpl.
+   rewrite Pos2Z.inj_mul, Z.mul_assoc, <- Heqvcc.
+   do 2 rewrite Pos2Z.inj_mul, Z.mul_assoc.
+   symmetry.
+   rewrite Z.mul_shuffle0.
+   rewrite Z.mul_add_distr_r.
+   rewrite <- Heqvcc.
 bbb.
 
 Definition ps_rng : Lfield.r (puiseux_series α) :=
