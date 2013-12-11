@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.32 2013-12-11 09:51:34 deraugla Exp $ *)
+(* $Id: Field.v,v 2.33 2013-12-11 15:14:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -262,22 +262,31 @@ Module Make (F : FieldType).
   apply mul_reg_l in Hnm; assumption.
   Qed.
 
-(* problem with decidability of equality perhaps...
-  Add Parametric Morphism : (inv fld)
-    with signature eq rng ==> eq rng
-    as inv_morph.
+  (* AFAIK cannot be do with 'Add Parametric Morphim: (inv fld)
+     because there is a condition 'a ≠ 0'; question: is is possible
+     to do a conditional morphism? *)
+  Theorem inv_compat : ∀ a b,
+    (a ≠ 0)%rng
+    → (a = b)%rng
+      → (inv fld a = inv fld b)%rng.
   Proof.
-  intros a b Heq.
+  intros a b Ha Heq.
+  remember Heq as Hab; clear HeqHab.
   apply mul_compat_l with (c := inv fld b) in Heq.
   unfold rng in Heq.
   rewrite mul_inv_l in Heq.
    apply mul_compat_r with (c := inv fld a) in Heq.
    rewrite mul_1_l in Heq.
    rewrite <- mul_assoc in Heq.
-   rewrite mul_inv_r in Heq.
-    rewrite mul_1_r in Heq.
-    symmetry; assumption.
-bbb.
-*)
+   rewrite mul_inv_r in Heq; [ idtac | assumption ].
+   rewrite mul_1_r in Heq.
+   symmetry; assumption.
+
+   intros H.
+   rewrite H in Heq at 3.
+   rewrite mul_0_r in Heq.
+   rewrite H in Hab.
+   contradiction.
+  Qed.
 
 End Make.

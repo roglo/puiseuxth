@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.93 2013-12-10 22:54:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.94 2013-12-11 15:14:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -178,10 +178,10 @@ Qed.
 
 Add Parametric Morphism : (@mkps α)
   with signature eq_series ==> eq ==> eq ==> eq_ps_strong
-  as mkps_morphism.
+  as mkps_strong_eq_morphism.
 Proof.
 intros a b Hab v n.
-constructor; auto.
+constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
 Add Parametric Morphism : (null_coeff_range_length rng)
@@ -2117,3 +2117,19 @@ Definition cm (ps₁ ps₂ : puiseux_series α) :=
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
   ps_comden ps₂.
 (**)
+
+Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ ps₂ → (ps₁ = ps₂)%ps.
+Proof.
+intros ps₁ ps₂ Heq.
+constructor.
+rewrite Heq.
+reflexivity.
+Qed.
+
+Add Parametric Morphism : (@mkps α)
+  with signature eq_series ==> eq ==> eq ==> eq_ps
+  as mkps_morphism.
+Proof.
+intros a b Hab v n.
+constructor; rewrite Hab; reflexivity.
+Qed.

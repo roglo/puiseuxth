@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.5 2013-12-11 09:51:35 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.6 2013-12-11 15:14:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,14 +35,6 @@ Definition ps_inv ps :=
   | ∞ =>
       ps
   end.
-
-Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ ps₂ → (ps₁ = ps₂)%ps.
-Proof.
-intros ps₁ ps₂ Heq.
-constructor.
-rewrite Heq.
-reflexivity.
-Qed.
 
 Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
@@ -117,6 +109,7 @@ destruct n as [n| ].
  exfalso; revert Hn; apply ps_neq_1_0.
 Qed.
 
+(* faux car ne peut s'appliquer que sur les séries non nulles...
 Add Parametric Morphism : series_inv
   with signature eq_series ==> eq_series
   as series_inv_morph.
@@ -139,6 +132,51 @@ rewrite H.
   destruct (Nbar.lt_dec 0 (stop b)) as [H₂| H₂].
    simpl.
 bbb.
+*)
+
+(*
+Lemma zzz : ∀ a,
+  (a ≠ 0)%ser
+  → (series_inv (series_shift 0 a) = a)%ser.
+Proof.
+intros a Ha.
+bbb.
+*)
+
+(* do not work with Add Morphism 'cause a must be non null:
+   is it possible to add a morphism with a condition? *)
+Lemma xxx : ∀ a b i,
+  (a ≠ 0)%ser
+  → (a = b)%ser
+    → (term_inv i a i = term_inv i b i)%rng.
+Proof.
+intros a b i Ha Hab.
+bbb.
+(* mmm... *)
+induction i.
+ simpl.
+ unfold series_nth; simpl.
+ destruct (Nbar.lt_dec 0 (stop a)) as [H₁| H₁].
+  destruct (Nbar.lt_dec 0 (stop b)) as [H₂| H₂].
+   inversion Hab; subst.
+   pose proof (H O) as HH.
+   apply Lfield.inv_compat.
+    intros HHH; apply Ha.
+    constructor; intros i.
+    rewrite series_nth_series_0.
+    rewrite H.
+bbb.
+
+Lemma yyy : ∀ a b,
+  (a ≠ 0)%ser
+  → (a = b)%ser
+    → (series_inv a = series_inv b)%ser.
+Proof.
+intros a b Ha Hab.
+constructor; intros i.
+unfold series_nth; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
+bbb.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
@@ -149,7 +187,7 @@ symmetry in Hn.
 destruct n as [n| ].
  destruct n.
 bbb.
-
+rewrite yyy.
 
 intros ps Hps.
 remember (ps_terms (ps_inv ps * ps)%ps) as s.
