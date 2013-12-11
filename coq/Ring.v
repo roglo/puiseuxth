@@ -1,13 +1,7 @@
-(* $Id: Field.v,v 2.31 2013-12-11 06:22:23 deraugla Exp $ *)
+(* $Id: Ring.v,v 2.1 2013-12-11 06:22:23 deraugla Exp $ *)
 
 Require Import Utf8.
-Require Import Ring_theory.
-Require Import Field_theory.
 Require Import Setoid.
-
-(* begin new *)
-Require Ring.
-(* end new *)
 
 Set Implicit Arguments.
 
@@ -34,24 +28,31 @@ Module Tdef.
       mul_compat_l : ∀ a b c, eq a b → eq (mul c a) (mul c b);
       mul_add_distr_l : ∀ a b c,
         eq (mul a (add b c)) (add (mul a b) (mul a c)) }.
-  Record f α :=
-    { ring : r α;
-      inv : α → α;
-      mul_inv_l : ∀ a,
-        not (eq ring a (zero ring))
-        → eq ring (mul ring (inv a) a) (one ring) }.
 End Tdef.
 
-Module Type FieldType.
-  Parameter α : Type.
-  Parameter fld : Tdef.f α.
-  Definition rng := Tdef.ring fld.
-End FieldType.
+Module Type RingType.
+  Variable α : Type.
+  Variable rng : Tdef.r α.
+End RingType.
 
-Module Make (F : FieldType).
+Module Make (F : RingType).
 
   Import F.
-  Include Tdef.
+  Import Tdef.
+
+  Module Syntax.
+    Delimit Scope ring_scope with rng.
+    Notation "0" := (zero rng) : ring_scope.
+    Notation "1" := (one rng) : ring_scope.
+    Notation "- a" := (opp rng a) : ring_scope.
+    Notation "a = b" := (eq rng a b) : ring_scope.
+    Notation "a ≠ b" := (not (eq rng a b)) : ring_scope.
+    Notation "a + b" := (add rng a b) : ring_scope.
+    Notation "a - b" := (add rng a (opp rng b)) : ring_scope.
+    Notation "a * b" := (mul rng a b) : ring_scope.
+  End Syntax.
+
+  Import Syntax.
 
   Add Parametric Relation : α (eq rng)
    reflexivity proved by (eq_refl rng)
@@ -85,22 +86,8 @@ Module Make (F : FieldType).
   rewrite mul_compat_l; [ reflexivity | eassumption ].
   Qed.
 
-  Module Syntax.
-
-  Delimit Scope ring_scope with rng.
-
-  Notation "0" := (zero rng) : ring_scope.
-  Notation "1" := (one rng) : ring_scope.
-  Notation "- a" := (opp rng a) : ring_scope.
-  Notation "a = b" := (eq rng a b) : ring_scope.
-  Notation "a ≠ b" := (not (eq rng a b)) : ring_scope.
-  Notation "a + b" := (add rng a b) : ring_scope.
-  Notation "a - b" := (add rng a (opp rng b)) : ring_scope.
-  Notation "a * b" := (mul rng a b) : ring_scope.
-
-  End Syntax.
-
-  Import Syntax.
+  Theorem add_opp_l : ∀ x, (- x + x = 0)%rng.
+  Proof. apply add_opp_l. Qed.
 
   Theorem add_opp_r : ∀ x, (x - x = 0)%rng.
   Proof.
@@ -113,12 +100,6 @@ Module Make (F : FieldType).
   intros a.
   rewrite mul_comm, mul_1_l.
   reflexivity.
-  Qed.
-
-  Theorem mul_inv_r : ∀ x, (x ≠ 0)%rng → (x * inv fld x = 1)%rng.
-  Proof.
-  intros x H; rewrite mul_comm.
-  apply mul_inv_l; assumption.
   Qed.
 
   Theorem add_compat_r : ∀ a b c, (a = b)%rng → (a + c = b + c)%rng.
@@ -177,24 +158,6 @@ Module Make (F : FieldType).
   assumption.
   Qed.
 
-  Theorem mul_reg_r : ∀ a b c, (c ≠ 0)%rng → (a * c = b * c)%rng → (a = b)%rng.
-  Proof.
-  intros a b c Hc Habc.
-  apply mul_compat_r with (c := inv fld c) in Habc.
-  do 2 rewrite <- mul_assoc in Habc.
-  rewrite mul_inv_r in Habc; [ idtac | assumption ].
-  do 2 rewrite mul_1_r in Habc.
-  assumption.
-  Qed.
-
-  Theorem mul_reg_l : ∀ a b c, (c ≠ 0)%rng → (c * a = c * b)%rng → (a = b)%rng.
-  Proof.
-  intros a b c Hc Habc.
-  rewrite mul_comm in Habc; symmetry in Habc.
-  rewrite mul_comm in Habc; symmetry in Habc.
-  eapply mul_reg_r; eassumption.
-  Qed.
-
   Theorem add_id_uniq : ∀ a b, (a + b = a)%rng → (b = 0)%rng.
   Proof.
   intros a b Hab.
@@ -247,50 +210,5 @@ Module Make (F : FieldType).
   intros n m H.
   destruct H as [H| H]; rewrite H; [ apply mul_0_l | apply mul_0_r ].
   Qed.
-
-  Theorem eq_mul_0_l : ∀ n m, (n * m = 0)%rng → (m ≠ 0)%rng → (n = 0)%rng.
-  Proof.
-  intros n m Hnm Hm.
-  rewrite <- mul_0_l with (a := m) in Hnm.
-  apply mul_reg_r in Hnm; assumption.
-  Qed.
-
-  Theorem eq_mul_0_r : ∀ n m, (n * m = 0)%rng → (n ≠ 0)%rng → (m = 0)%rng.
-  Proof.
-  intros n m Hnm Hm.
-  rewrite <- mul_0_r with (a := n) in Hnm.
-  apply mul_reg_l in Hnm; assumption.
-  Qed.
-
-(* problem with decidability of addition perhaps...
-  Add Parametric Morphism : (inv fld)
-    with signature eq rng ==> eq rng
-    as inv_morph.
-  Proof.
-  intros a b Heq.
-bbb.
-  apply mul_compat_l with (c := inv fld b) in Heq.
-  unfold rng in Heq.
-  rewrite mul_inv_l in Heq.
-   apply mul_compat_l with (c := inv fld a) in Heq.
-   symmetry in Heq.
-   rewrite mul_comm in Heq.
-   rewrite mul_1_l in Heq.
-   rewrite Heq.
-   rewrite mul_comm, <- mul_assoc.
-   assert
-    (eq rng (mul (Tdef.ring fld) a (inv fld a))
-       (mul (Tdef.ring fld) (inv fld a) a)) as H.
-    apply mul_comm.
-
-    rewrite H.
-    rewrite mul_inv_l.
-     rewrite mul_comm.
-     rewrite mul_1_l; reflexivity.
-
-     intros HH.
-     rewrite HH in H at 1.
-  bbb.
-*)
 
 End Make.

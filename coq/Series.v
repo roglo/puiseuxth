@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.97 2013-12-10 18:46:06 deraugla Exp $ *)
+(* $Id: Series.v,v 2.98 2013-12-11 06:22:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -6,8 +6,8 @@ Require Import NPeano.
 
 Require Field.
 Module Field_inst : Field.FieldType.
-  Variable α : Type.
-  Variable fld : Field.Tdef.f α.
+  Parameter α : Type.
+  Parameter fld : Field.Tdef.f α.
   Definition rng := Field.Tdef.ring fld.
 End Field_inst.
 Module Lfield := Field.Make Field_inst.
