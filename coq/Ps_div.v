@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.4 2013-12-11 00:51:51 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.5 2013-12-11 09:51:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -129,6 +129,15 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
 clear H₁.
 induction i; intros.
  simpl.
+bbb.
+rewrite H.
+
+ pose proof (H O) as H₀.
+ unfold series_nth; simpl.
+ unfold series_nth in H₀.
+ destruct (Nbar.lt_dec 0 (stop a)) as [H₁| H₁].
+  destruct (Nbar.lt_dec 0 (stop b)) as [H₂| H₂].
+   simpl.
 bbb.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.

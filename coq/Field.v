@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.31 2013-12-11 06:22:23 deraugla Exp $ *)
+(* $Id: Field.v,v 2.32 2013-12-11 09:51:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -262,35 +262,22 @@ Module Make (F : FieldType).
   apply mul_reg_l in Hnm; assumption.
   Qed.
 
-(* problem with decidability of addition perhaps...
+(* problem with decidability of equality perhaps...
   Add Parametric Morphism : (inv fld)
     with signature eq rng ==> eq rng
     as inv_morph.
   Proof.
   intros a b Heq.
-bbb.
   apply mul_compat_l with (c := inv fld b) in Heq.
   unfold rng in Heq.
   rewrite mul_inv_l in Heq.
-   apply mul_compat_l with (c := inv fld a) in Heq.
-   symmetry in Heq.
-   rewrite mul_comm in Heq.
+   apply mul_compat_r with (c := inv fld a) in Heq.
    rewrite mul_1_l in Heq.
-   rewrite Heq.
-   rewrite mul_comm, <- mul_assoc.
-   assert
-    (eq rng (mul (Tdef.ring fld) a (inv fld a))
-       (mul (Tdef.ring fld) (inv fld a) a)) as H.
-    apply mul_comm.
-
-    rewrite H.
-    rewrite mul_inv_l.
-     rewrite mul_comm.
-     rewrite mul_1_l; reflexivity.
-
-     intros HH.
-     rewrite HH in H at 1.
-  bbb.
+   rewrite <- mul_assoc in Heq.
+   rewrite mul_inv_r in Heq.
+    rewrite mul_1_r in Heq.
+    symmetry; assumption.
+bbb.
 *)
 
 End Make.
