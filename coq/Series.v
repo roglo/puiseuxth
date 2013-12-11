@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.98 2013-12-11 06:22:23 deraugla Exp $ *)
+(* $Id: Series.v,v 2.99 2013-12-11 08:54:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1370,14 +1370,27 @@ apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
 
-(* to be completed...
+Theorem series_neq_1_0 : (1 ≠ 0)%ser.
+Proof.
+intros H.
+inversion_clear H.
+pose proof (H0 O) as H.
+rewrite series_nth_series_0 in H.
+unfold series_nth in H.
+simpl in H.
+destruct (Nbar.lt_dec 0 1) as [H₁| H₁].
+ revert H; apply Lfield.neq_1_0.
+
+ apply H₁, Nbar.lt_0_1.
+Qed.
+
 Definition series_ring : Lfield.r (series α) :=
-  {| Lfield.zero := series_zero;
-     Lfield.one := series_one;
+  {| Lfield.zero := series_0;
+     Lfield.one := series_1;
      Lfield.add := series_add;
      Lfield.mul := series_mul;
      Lfield.opp := series_opp;
-     Lfield.eq := eq_ps;
+     Lfield.eq := eq_series;
      Lfield.eq_refl := eq_series_refl;
      Lfield.eq_sym := eq_series_sym;
      Lfield.eq_trans := eq_series_trans;
@@ -1392,4 +1405,3 @@ Definition series_ring : Lfield.r (series α) :=
      Lfield.mul_1_l := series_mul_1_l;
      Lfield.mul_compat_l := series_mul_compat_l;
      Lfield.mul_add_distr_l := series_mul_add_distr_l |}.
-*)
