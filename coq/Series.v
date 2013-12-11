@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.99 2013-12-11 08:54:03 deraugla Exp $ *)
+(* $Id: Series.v,v 2.100 2013-12-11 18:11:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1177,6 +1177,15 @@ intros f g b e.
 apply sigma_aux_add.
 Qed.
 
+Lemma sigma_only_one : ∀ f n, (Σ (i = n, n)   f i = f n)%rng.
+Proof.
+intros f n.
+unfold sigma.
+rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
+rewrite Nat.sub_diag; simpl.
+rewrite Lfield.add_0_r; reflexivity.
+Qed.
+
 Lemma series_nth_add : ∀ a b i,
   (series_nth rng i (a + b)%ser =
    series_nth rng i a + series_nth rng i b)%rng.
@@ -1361,6 +1370,13 @@ rewrite Hab.
 reflexivity.
 Qed.
 
+Theorem series_mul_compat_r : ∀ a b c, (a = b)%ser → (a * c = b * c)%ser.
+Proof.
+intros a b c Hab.
+rewrite Hab.
+reflexivity.
+Qed.
+
 Theorem series_mul_add_distr_r : ∀ a b c, ((a + b) * c = a * c + b * c)%ser.
 Proof.
 intros a b c.
@@ -1405,3 +1421,53 @@ Definition series_ring : Lfield.r (series α) :=
      Lfield.mul_1_l := series_mul_1_l;
      Lfield.mul_compat_l := series_mul_compat_l;
      Lfield.mul_add_distr_l := series_mul_add_distr_l |}.
+
+Fixpoint term_inv c s n :=
+  if zerop n then Lfield.inv fld (series_nth rng O s)
+  else
+    match c with
+    | O => Lfield.zero rng
+    | S c₁ =>
+        (- Lfield.inv fld (series_nth rng 0 s) *
+         Σ (i = 1, n)   series_nth rng i s * term_inv c₁ s (n - i)%nat)%rng
+    end.
+
+Definition series_inv s :=
+  {| terms i := term_inv i s i;
+     stop := ∞ |}.
+
+Theorem zzz : ∀ a, (series_nth rng 0 a ≠ 0)%rng → (series_inv a * a = 1)%ser.
+Proof.
+intros a Ha.
+constructor; intros i.
+unfold series_nth; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
+  apply Nbar.fin_lt_mono in H₂.
+  apply Nat.lt_1_r in H₂; subst i.
+  unfold convol_mul.
+  do 2 rewrite sigma_only_one.
+  rewrite delta_id, Lfield.mul_1_l.
+  unfold series_nth; simpl.
+  clear H₁.
+  destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
+   destruct (Nbar.lt_dec 0 (stop a)) as [H₂| H₂].
+    unfold series_nth; simpl.
+    unfold series_nth in Ha.
+    destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
+     unfold rng.
+     rewrite Lfield.mul_inv_l; [ reflexivity | idtac ].
+     intros H; apply Ha; clear Ha.
+     assumption.
+
+     exfalso; apply Ha; reflexivity.
+
+    exfalso; apply Ha.
+    unfold series_nth; simpl.
+    destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
+     contradiction.
+
+     reflexivity.
+
+   exfalso; apply H₁; constructor.
+bbb.

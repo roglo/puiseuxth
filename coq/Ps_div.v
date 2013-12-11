@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.6 2013-12-11 15:14:10 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.7 2013-12-11 18:11:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,20 +11,6 @@ Require Import Puiseux_series.
 Require Import Ps_mul.
 
 Set Implicit Arguments.
-
-Fixpoint term_inv c s n :=
-  if zerop n then Lfield.inv fld (series_nth rng O s)
-  else
-    match c with
-    | O => Lfield.zero rng
-    | S c₁ =>
-        (- Lfield.inv fld (series_nth rng 0 s) *
-         Σ (i = 1, n)   series_nth rng i s * term_inv c₁ s (n - i)%nat)%rng
-    end.
-
-Definition series_inv s :=
-  {| terms i := term_inv i s i;
-     stop := ∞ |}.
 
 Definition ps_inv ps :=
   match null_coeff_range_length rng (ps_terms ps) O with
@@ -144,7 +130,7 @@ bbb.
 *)
 
 (* do not work with Add Morphism 'cause a must be non null:
-   is it possible to add a morphism with a condition? *)
+   is it possible to add a morphism with a condition?
 Lemma xxx : ∀ a b i,
   (a ≠ 0)%ser
   → (a = b)%ser
@@ -166,12 +152,18 @@ induction i.
     rewrite series_nth_series_0.
     rewrite H.
 bbb.
+*)
 
 Lemma yyy : ∀ a b,
   (a ≠ 0)%ser
   → (a = b)%ser
     → (series_inv a = series_inv b)%ser.
 Proof.
+intros a b Ha Hab.
+apply series_mul_compat_l with (c := series_inv a) in Hab.
+apply series_mul_compat_r with (c := series_inv b) in Hab.
+bbb.
+
 intros a b Ha Hab.
 constructor; intros i.
 unfold series_nth; simpl.

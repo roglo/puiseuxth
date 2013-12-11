@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.75 2013-12-10 21:40:54 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.76 2013-12-11 18:11:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -277,15 +277,6 @@ rewrite <- Nat.sub_succ_l, Nat.sub_succ, Nat.sub_0_r.
  reflexivity.
 
  simpl; apply le_n_S, Nat.le_0_l.
-Qed.
-
-Lemma sigma_only_one : ∀ f n, (Σ (i = n, n)   f i = f n)%rng.
-Proof.
-intros f n.
-unfold sigma.
-rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
-rewrite Nat.sub_diag; simpl.
-rewrite Lfield.add_0_r; reflexivity.
 Qed.
 
 Lemma inserted_0_sigma : ∀ f g k n,

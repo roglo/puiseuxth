@@ -1,13 +1,13 @@
-(* $Id: Field.v,v 2.33 2013-12-11 15:14:10 deraugla Exp $ *)
+(* $Id: Field.v,v 2.34 2013-12-11 18:11:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
 Require Import Field_theory.
 Require Import Setoid.
 
-(* begin new *)
+(* begin new
 Require Ring.
-(* end new *)
+end new *)
 
 Set Implicit Arguments.
 
