@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.102 2013-12-11 20:06:17 deraugla Exp $ *)
+(* $Id: Series.v,v 2.103 2013-12-11 20:17:15 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1440,7 +1440,9 @@ Definition series_inv s :=
 Lemma zzz : ∀ a b, ((-a) * b = - (a * b))%rng.
 Proof.
 intros a b.
+Admitted. (*
 bbb.
+*)
 
 (**)
 Theorem series_mul_inv_l : ∀ a,
@@ -1483,6 +1485,10 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
   clear H₁.
   destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
   clear H₂.
+  rename i into k.
+  induction k using Misc.all_lt_all.
+  unfold convol_mul.
+bbb.
   induction i.
    unfold convol_mul.
    unfold sigma; simpl.
