@@ -1,4 +1,4 @@
-(* $Id: Ring.v,v 2.2 2013-12-11 06:54:52 deraugla Exp $ *)
+(* $Id: Ring.v,v 2.3 2013-12-11 07:11:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -38,7 +38,16 @@ End RingType.
 Module Make (F : RingType).
 
   Import F.
-  Import Tdef.
+
+  Definition zero := Tdef.zero.
+  Definition one := Tdef.one.
+  Definition add := Tdef.add.
+  Definition mul := Tdef.mul.
+  Definition opp := Tdef.opp.
+  Definition eq := Tdef.eq.
+  Definition eq_refl := Tdef.eq_refl.
+  Definition eq_sym := Tdef.eq_sym.
+  Definition eq_trans := Tdef.eq_trans.
 
   Module Syntax.
     Delimit Scope ring_scope with rng.
@@ -53,6 +62,24 @@ Module Make (F : RingType).
   End Syntax.
 
   Import Syntax.
+
+  Theorem add_comm : ∀ a b, (a + b = b + a)%rng.
+  Proof. apply Tdef.add_comm. Qed.
+
+  Theorem add_assoc : ∀ a b c, (a + (b + c) = (a + b) + c)%rng.
+  Proof. apply Tdef.add_assoc. Qed.
+
+  Theorem mul_comm : ∀ a b, (a * b = b * a)%rng.
+  Proof. apply Tdef.mul_comm. Qed.
+
+  Theorem mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%rng.
+  Proof. apply Tdef.mul_assoc. Qed.
+
+  Theorem add_compat_l : ∀ a b c, (a = b)%rng → (c + a = c + b)%rng.
+  Proof. apply Tdef.add_compat_l. Qed.
+
+  Theorem mul_compat_l : ∀ a b c, (a = b)%rng → (c * a = c * b)%rng.
+  Proof. apply Tdef.mul_compat_l. Qed.
 
   Add Parametric Relation : α (eq rng)
    reflexivity proved by (eq_refl rng)
@@ -87,13 +114,16 @@ Module Make (F : RingType).
   Qed.
 
   Theorem add_opp_l : ∀ x, (- x + x = 0)%rng.
-  Proof. apply add_opp_l. Qed.
+  Proof. apply Tdef.add_opp_l. Qed.
 
   Theorem add_opp_r : ∀ x, (x - x = 0)%rng.
   Proof.
   intros x; rewrite add_comm.
   apply add_opp_l.
   Qed.
+
+  Theorem mul_1_l : ∀ a, (1 * a = a)%rng.
+  Proof. apply Tdef.mul_1_l. Qed.
 
   Theorem mul_1_r : ∀ a, (a * 1 = a)%rng.
   Proof.
@@ -114,6 +144,9 @@ Module Make (F : RingType).
   rewrite Hab; reflexivity.
   Qed.
 
+  Theorem mul_add_distr_l : ∀ x y z, (x * (y + z) = x * y + x * z)%rng.
+  Proof. apply Tdef.mul_add_distr_l. Qed.
+
   Theorem mul_add_distr_r : ∀ x y z, ((x + y) * z = x * z + y * z)%rng.
   Proof.
   intros x y z.
@@ -125,6 +158,9 @@ Module Make (F : RingType).
 
    rewrite H; reflexivity.
   Qed.
+
+  Theorem add_0_l : ∀ a, (0 + a = a)%rng.
+  Proof. apply Tdef.add_0_l. Qed.
 
   Theorem add_0_r : ∀ a, (a + 0 = a)%rng.
   Proof.
