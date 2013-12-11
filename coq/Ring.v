@@ -1,4 +1,4 @@
-(* $Id: Ring.v,v 2.1 2013-12-11 06:22:23 deraugla Exp $ *)
+(* $Id: Ring.v,v 2.2 2013-12-11 06:54:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Setoid.
@@ -31,8 +31,8 @@ Module Tdef.
 End Tdef.
 
 Module Type RingType.
-  Variable α : Type.
-  Variable rng : Tdef.r α.
+  Parameter α : Type.
+  Parameter rng : Tdef.r α.
 End RingType.
 
 Module Make (F : RingType).
