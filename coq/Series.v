@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.101 2013-12-11 19:09:25 deraugla Exp $ *)
+(* $Id: Series.v,v 2.102 2013-12-11 20:06:17 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1437,7 +1437,12 @@ Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
 
-(*
+Lemma zzz : ∀ a b, ((-a) * b = - (a * b))%rng.
+Proof.
+intros a b.
+bbb.
+
+(**)
 Theorem series_mul_inv_l : ∀ a,
   (series_nth rng 0 a ≠ 0)%rng
   → (series_inv a * a = 1)%ser.
@@ -1502,5 +1507,50 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
          unfold rng.
          rewrite Lfield.mul_inv_l.
           rewrite Lfield.mul_1_r.
+          rewrite zzz.
+          unfold rng.
+          rewrite Lfield.add_opp_r.
+          reflexivity.
+
+          intros H.
+          apply Ha.
+          unfold series_nth.
+          destruct (Nbar.lt_dec 0 (stop a)) as [H₇| H₇].
+           assumption.
+
+           reflexivity.
+
+         contradiction.
+
+        contradiction.
+
+       exfalso; apply H₄.
+       eapply Nbar.lt_trans; [ idtac | eassumption ].
+       apply Nbar.lt_0_1.
+
+      exfalso; apply H₃; constructor.
+
+     destruct (Nbar.lt_dec 1 (stop (series_inv a))) as [H₃| H₃]; simpl in H₃.
+      destruct (Nbar.lt_dec 0 (stop a)) as [H₄| H₄].
+       rewrite Lfield.mul_0_r, Lfield.add_0_l.
+       simpl.
+       rewrite sigma_only_one; simpl.
+       unfold series_nth; simpl.
+       destruct (Nbar.lt_dec 1 (stop a)) as [H₅| H₅].
+        contradiction.
+
+        rewrite Lfield.mul_0_l, Lfield.mul_0_r.
+        rewrite Lfield.mul_0_l; reflexivity.
+
+       do 2 rewrite Lfield.mul_0_r.
+       rewrite Lfield.add_0_l; reflexivity.
+
+      exfalso; apply H₃; constructor.
+
+    exfalso; apply H₁; constructor.
+
+   unfold convol_mul.
+   rename i into k.
+   unfold convol_mul in IHi.
 bbb.
 *)
