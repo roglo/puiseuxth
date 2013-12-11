@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.29 2013-12-04 09:59:04 deraugla Exp $ *)
+(* $Id: Field.v,v 2.30 2013-12-11 00:51:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -56,8 +56,8 @@ Module Make (F : FieldType).
    as eq_rel.
 
   Add Parametric Morphism : (add rng)
-  with signature eq rng ==> eq rng ==> eq rng
-  as add_morph.
+    with signature eq rng ==> eq rng ==> eq rng
+    as add_morph.
   Proof.
   intros a b Hab c d Hcd.
   rewrite add_comm; symmetry.
@@ -69,8 +69,8 @@ Module Make (F : FieldType).
   Qed.
 
   Add Parametric Morphism : (mul rng)
-  with signature eq rng ==> eq rng ==> eq rng
-  as mul_morph.
+    with signature eq rng ==> eq rng ==> eq rng
+    as mul_morph.
   Proof.
   intros a b Hab c d Hcd.
   rewrite mul_comm; symmetry.
@@ -257,5 +257,34 @@ Module Make (F : FieldType).
   rewrite <- mul_0_r with (a := n) in Hnm.
   apply mul_reg_l in Hnm; assumption.
   Qed.
+
+  Add Parametric Morphism : (inv fld)
+    with signature eq rng ==> eq rng
+    as inv_morph.
+  Proof.
+  intros a b Heq.
+bbb.
+  apply mul_compat_l with (c := inv fld b) in Heq.
+  unfold rng in Heq.
+  rewrite mul_inv_l in Heq.
+   apply mul_compat_l with (c := inv fld a) in Heq.
+   symmetry in Heq.
+   rewrite mul_comm in Heq.
+   rewrite mul_1_l in Heq.
+   rewrite Heq.
+   rewrite mul_comm, <- mul_assoc.
+   assert
+    (eq rng (mul (Tdef.ring fld) a (inv fld a))
+       (mul (Tdef.ring fld) (inv fld a) a)) as H.
+    apply mul_comm.
+
+    rewrite H.
+    rewrite mul_inv_l.
+     rewrite mul_comm.
+     rewrite mul_1_l; reflexivity.
+
+     intros HH.
+     rewrite HH in H at 1.
+  bbb.
 
 End Make.

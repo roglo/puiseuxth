@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.3 2013-12-10 23:18:13 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.4 2013-12-11 00:51:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,11 +11,6 @@ Require Import Puiseux_series.
 Require Import Ps_mul.
 
 Set Implicit Arguments.
-
-(* à revoir !!! il faut que le premier coefficient ne soit pas nul;
-   donc utiliser null_coeff_range_length pour shifter la série de
-   Puiseux d'abord *)
-bbb.
 
 Fixpoint term_inv c s n :=
   if zerop n then Lfield.inv fld (series_nth rng O s)
@@ -32,9 +27,14 @@ Definition series_inv s :=
      stop := ∞ |}.
 
 Definition ps_inv ps :=
-  {| ps_terms := series_inv (ps_terms ps);
-     ps_valnum := - ps_valnum ps;
-     ps_comden := ps_comden ps |}.
+  match null_coeff_range_length rng (ps_terms ps) O with
+  | fin n =>
+      {| ps_terms := series_inv (series_shift n (ps_terms ps));
+         ps_valnum := Z.of_nat n - ps_valnum ps;
+         ps_comden := ps_comden ps |}
+  | ∞ =>
+      ps
+  end.
 
 Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ ps₂ → (ps₁ = ps₂)%ps.
 Proof.
@@ -117,8 +117,31 @@ destruct n as [n| ].
  exfalso; revert Hn; apply ps_neq_1_0.
 Qed.
 
+Add Parametric Morphism : series_inv
+  with signature eq_series ==> eq_series
+  as series_inv_morph.
+Proof.
+intros a b Hab.
+constructor; intros i.
+inversion Hab; subst.
+unfold series_nth; simpl.
+destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
+clear H₁.
+induction i; intros.
+ simpl.
+bbb.
+
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
+intros ps Hps.
+unfold ps_inv; simpl.
+remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ destruct n.
+bbb.
+
+
 intros ps Hps.
 remember (ps_terms (ps_inv ps * ps)%ps) as s.
 remember (null_coeff_range_length rng s 0) as n eqn:Hn ; subst s.
