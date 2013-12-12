@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.34 2013-12-11 18:11:35 deraugla Exp $ *)
+(* $Id: Field.v,v 2.35 2013-12-12 01:50:45 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -53,6 +53,23 @@ Module Make (F : FieldType).
   Import F.
   Include Tdef.
 
+  Module Syntax.
+
+  Delimit Scope ring_scope with rng.
+
+  Notation "0" := (zero rng) : ring_scope.
+  Notation "1" := (one rng) : ring_scope.
+  Notation "- a" := (opp rng a) : ring_scope.
+  Notation "a = b" := (eq rng a b) : ring_scope.
+  Notation "a ≠ b" := (not (eq rng a b)) : ring_scope.
+  Notation "a + b" := (add rng a b) : ring_scope.
+  Notation "a - b" := (add rng a (opp rng b)) : ring_scope.
+  Notation "a * b" := (mul rng a b) : ring_scope.
+
+  End Syntax.
+
+  Import Syntax.
+
   Add Parametric Relation : α (eq rng)
    reflexivity proved by (eq_refl rng)
    symmetry proved by (eq_sym rng)
@@ -72,6 +89,24 @@ Module Make (F : FieldType).
   rewrite add_compat_l; [ reflexivity | eassumption ].
   Qed.
 
+  Add Parametric Morphism : (opp rng)
+    with signature eq rng ==> eq rng
+    as opp_morph.
+  Proof.
+  intros a b Heq.
+  apply add_compat_l with (c := (- b)%rng) in Heq.
+  rewrite add_opp_l in Heq.
+  rewrite add_comm in Heq.
+  apply add_compat_l with (c := (- a)%rng) in Heq.
+  rewrite add_assoc in Heq.
+  rewrite add_opp_l in Heq.
+  rewrite add_0_l in Heq.
+  symmetry in Heq.
+  rewrite add_comm in Heq.
+  rewrite add_0_l in Heq.
+  assumption.
+  Qed.
+
   Add Parametric Morphism : (mul rng)
     with signature eq rng ==> eq rng ==> eq rng
     as mul_morph.
@@ -84,23 +119,6 @@ Module Make (F : FieldType).
   rewrite mul_comm; symmetry.
   rewrite mul_compat_l; [ reflexivity | eassumption ].
   Qed.
-
-  Module Syntax.
-
-  Delimit Scope ring_scope with rng.
-
-  Notation "0" := (zero rng) : ring_scope.
-  Notation "1" := (one rng) : ring_scope.
-  Notation "- a" := (opp rng a) : ring_scope.
-  Notation "a = b" := (eq rng a b) : ring_scope.
-  Notation "a ≠ b" := (not (eq rng a b)) : ring_scope.
-  Notation "a + b" := (add rng a b) : ring_scope.
-  Notation "a - b" := (add rng a (opp rng b)) : ring_scope.
-  Notation "a * b" := (mul rng a b) : ring_scope.
-
-  End Syntax.
-
-  Import Syntax.
 
   Theorem add_opp_r : ∀ x, (x - x = 0)%rng.
   Proof.
@@ -223,6 +241,24 @@ Module Make (F : FieldType).
   intros a.
   rewrite mul_comm, mul_0_l.
   reflexivity.
+  Qed.
+
+  Theorem mul_opp_l : ∀ a b, ((-a) * b = - (a * b))%rng.
+  Proof.
+  intros a b.
+  apply add_reg_l with (c := (a * b)%rng).
+  rewrite add_opp_r.
+  rewrite <- mul_add_distr_r.
+  rewrite add_opp_r, mul_0_l.
+  reflexivity.
+  Qed.
+
+  Theorem mul_opp_r : ∀ a b, (a * (- b) = - (a * b))%rng.
+  Proof.
+  intros a b.
+  rewrite mul_comm; symmetry.
+  rewrite mul_comm; symmetry.
+  apply mul_opp_l.
   Qed.
 
   Theorem add_shuffle0 : ∀ n m p, (n + m + p = n + p + m)%rng.
