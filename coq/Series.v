@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.108 2013-12-12 12:24:21 deraugla Exp $ *)
+(* $Id: Series.v,v 2.109 2013-12-12 13:39:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1439,13 +1439,13 @@ Definition series_inv s :=
 
 Notation "s [ i ]" := (series_nth rng i s) (at level 1) : ring_scope.
 
-(*
+(**)
 Lemma zzz : ∀ k a a',
   a' = series_inv a
-  → convol_mul a a' (S k) =
-     (Lfield.inv fld a[0] *
-      (a [S k] -
-       Σ (i = 1, S k)   Σ (j = 0, i - 1)   a [i-j] * a [S k-i] * a'[j]))%rng.
+  → (convol_mul a a' (S k) =
+      Lfield.inv fld a[0] *
+       (a [S k] -
+        Σ (i = 1, S k)   Σ (j = 0, i - 1)   a [i-j] * a [S k-i] * a'[j]))%rng.
 Proof.
 bbb.
 *)
@@ -1492,6 +1492,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
   clear H₁.
   destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
   clear H₂.
+  rename i into k.
   rewrite zzz; [ idtac | reflexivity ].
 bbb.
   induction i as (k, IHk) using Misc.all_lt_all.
