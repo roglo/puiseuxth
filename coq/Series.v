@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.117 2013-12-12 21:05:49 deraugla Exp $ *)
+(* $Id: Series.v,v 2.118 2013-12-12 21:33:22 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -950,19 +950,13 @@ Qed.
 (*
 Definition sigma_mul_3 aa bb cc m :=
   Σ (i = 0, m)  
-  Σ (j = 0, m)  
-  Σ (k = 0, m)  
-    (δ (i + j + k) m * terms aa i * terms bb j * terms cc k)%rng.
+  Σ (j = 0, m)   terms aa i * terms bb j * terms cc (m - i - j))%rng.
 
 Lemma convol_mul_assoc_1 : ∀ aa bb cc m,
   (Σ (i = 0, m)  
-   Σ (l = 0, m)  
-    δ (i + l) m * terms aa i *
-    Σ (j = 0, l)  
-    Σ (k = 0, l)   δ (j + k) l * terms bb j * terms cc k
+   terms aa i * Σ (j = 0, m - i)   terms bb j * terms cc (m - i - j)
    = sigma_mul_3 aa bb cc m)%rng.
 Proof.
-(* à nettoyer *)
 intros a b c m.
 unfold sigma_mul_3.
 apply sigma_compat; intros i Hi.
@@ -1045,11 +1039,9 @@ Qed.
 (*
 Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
   (Σ (i = 0, k)  
-   Σ (j = 0, k)  
-    δ (i + j) k *
     (Σ (i0 = 0, i)  
      Σ (j0 = 0, i)   (δ (i0 + j0) i * terms aa i0 * terms bb j0)) *
-    terms cc j = sigma_mul_3 aa bb cc k)%rng.
+    terms cc (k - i) = sigma_mul_3 aa bb cc k)%rng.
 Proof.
 intros a b c m.
 unfold sigma_mul_3.
@@ -1155,6 +1147,10 @@ rewrite sigma_compat with (g := f); subst f.
   symmetry.
   unfold series_mul_inf; simpl.
   unfold convol_mul_inf.
+  symmetry.
+  rewrite sigma_mul_comm.
+  rewrite <- sigma_sigma_mul_swap.
+  rewrite <- sigma_sigma_mul_swap.
 bbb.
 
 intros a b c.
