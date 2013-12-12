@@ -1,4 +1,4 @@
-(* $Id: Nbar.v,v 2.10 2013-12-09 09:52:15 deraugla Exp $ *)
+(* $Id: Nbar.v,v 2.11 2013-12-12 14:32:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Compare_dec.
@@ -369,6 +369,16 @@ destruct p as [p| ].
 
  destruct n as [n| ]; [ constructor | inversion Hnm ].
  subst m; assumption.
+Qed.
+
+Theorem add_lt_mono : ∀ n m p q,
+  m ≠ ∞ → p ≠ ∞ → n < m → p < q → n + p < m + q.
+Proof.
+intros n m p q Hm Hp Hnm Hpq.
+apply lt_trans with (m := m + p).
+ apply add_lt_mono_r; auto.
+
+ apply add_lt_mono_l; auto.
 Qed.
 
 Theorem le_0_l : ∀ n, 0 ≤ n.

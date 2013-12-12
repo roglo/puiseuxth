@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.110 2013-12-12 13:58:16 deraugla Exp $ *)
+(* $Id: Series.v,v 2.111 2013-12-12 14:32:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -244,8 +244,6 @@ Qed.
 
 (* series_mul *)
 
-Definition δ i j := if eq_nat_dec i j then Lfield.one rng else Lfield.zero rng.
-
 Fixpoint sigma_aux b len f :=
   match len with
   | O => 0%rng
@@ -254,13 +252,11 @@ Fixpoint sigma_aux b len f :=
 
 Definition sigma b e f := sigma_aux b (S e - b) f.
 
-Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, f))
+Notation "'Σ' ( i = b , e ) ' ' f" := (sigma b e (λ i, (f)%rng))
   (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
+Notation "s [ i ]" := (series_nth rng i s) (at level 1).
 
-Definition convol_mul a b k :=
-  Σ (i = 0, k)   Σ (j = 0, k)  
-    (Lfield.mul rng (δ (i + j) k)
-       (Lfield.mul rng (series_nth rng i a) (series_nth rng j b))).
+Definition convol_mul a b k := Σ (i = 0, k)   a[i] * b[k-i].
 
 Definition series_mul a b :=
   {| terms k := convol_mul a b k;
@@ -371,6 +367,7 @@ apply H.
 split; [ assumption | omega ].
 Qed.
 
+(*
 Lemma delta_id : ∀ i, (δ i i = 1)%rng.
 Proof.
 intros i; unfold δ.
@@ -384,11 +381,42 @@ intros i j Hij; unfold δ.
 destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
 exfalso; apply Hij; reflexivity.
 Qed.
+*)
 
 Add Parametric Morphism : series_mul
 with signature eq_series ==> eq_series ==> eq_series
 as series_mul_morph.
 Proof.
+intros a b Hab c d Hcd.
+constructor; intros k.
+inversion Hab; subst.
+inversion Hcd; subst.
+unfold series_nth; simpl.
+destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₁| H₁].
+ destruct (Nbar.lt_dec (fin k) (stop b + stop d)) as [H₂| H₂].
+  unfold convol_mul.
+  apply sigma_compat; intros i Hi.
+  rewrite H, H0; reflexivity.
+
+  unfold convol_mul.
+  apply all_0_sigma_0; intros i Hi.
+  rewrite H, H0.
+  unfold series_nth.
+  destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
+   destruct (Nbar.lt_dec (fin (k - i)) (stop d)) as [H₅| H₅].
+    exfalso; apply H₂.
+    replace k with (i + (k - i))%nat by omega.
+    rewrite Nbar.fin_inj_add.
+    remember (stop b) as st eqn:Hst .
+    symmetry in Hst.
+    destruct st; [ idtac | constructor ].
+    apply Nbar.add_lt_mono; auto; intros HH; discriminate HH.
+
+    rewrite Lfield.mul_0_r; reflexivity.
+
+   rewrite Lfield.mul_0_l; reflexivity.
+bbb.
+
 intros a b Hab c d Hcd.
 constructor.
 intros i.
@@ -400,9 +428,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
   unfold convol_mul.
   rename i into k.
   apply sigma_compat; intros i Hi.
-  apply sigma_compat; intros j Hj.
-  rewrite H, H0.
-  reflexivity.
+  rewrite H, H0; reflexivity.
 
   unfold convol_mul.
   rename i into k.
@@ -1436,8 +1462,6 @@ Fixpoint term_inv c s n :=
 Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
-
-Notation "s [ i ]" := (series_nth rng i s) (at level 1) : ring_scope.
 
 (* pas sûr... à vérifier...
 Lemma zzz : ∀ k a a',
