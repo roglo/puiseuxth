@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.109 2013-12-12 13:39:52 deraugla Exp $ *)
+(* $Id: Series.v,v 2.110 2013-12-12 13:58:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1439,7 +1439,7 @@ Definition series_inv s :=
 
 Notation "s [ i ]" := (series_nth rng i s) (at level 1) : ring_scope.
 
-(**)
+(* pas sûr... à vérifier...
 Lemma zzz : ∀ k a a',
   a' = series_inv a
   → (convol_mul a a' (S k) =
