@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.106 2013-12-12 10:51:37 deraugla Exp $ *)
+(* $Id: Series.v,v 2.107 2013-12-12 11:19:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1437,6 +1437,20 @@ Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
 
+Lemma zzz : ∀ f b k, (Σ (i = b, S k)   f i = Σ (i = b, k)   f i + f (S k))%rng.
+Proof.
+Admitted. (*
+bbb.
+*)
+
+Lemma yyy : ∀ f b₁ k₁ b₂ k₂,
+  (Σ (i = b₁, k₁)   Σ (j = b₂, S k₂)   f i j =
+   Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j + Σ (i = b₁, k₁)   f i (S k₂))%rng.
+Proof.
+Admitted. (*
+bbb.
+*)
+
 (**)
 Theorem series_mul_inv_l : ∀ a,
   (series_nth rng 0 a ≠ 0)%rng
@@ -1479,9 +1493,6 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
   destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
   clear H₂.
   induction i as (k, IHk) using Misc.all_lt_all.
-(*
-bbb.
-*)
   destruct k.
    unfold convol_mul.
    unfold sigma; simpl.
@@ -1547,6 +1558,12 @@ bbb.
       exfalso; apply H₃; constructor.
 
     exfalso; apply H₁; constructor.
+
+   assert (k < S k)%nat as IH by omega.
+   apply IHk in IH.
+   unfold convol_mul in IH |- *.
+   rewrite zzz.
+   rewrite yyy.
 
 bbb.
 *)
