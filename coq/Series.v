@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.115 2013-12-12 18:26:27 deraugla Exp $ *)
+(* $Id: Series.v,v 2.116 2013-12-12 18:30:04 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -947,6 +947,7 @@ apply sigma_aux_sigma_aux_extend_0; [ idtac | assumption ].
 intros i Hi; omega.
 Qed.
 
+(*
 Definition sigma_mul_3 aa bb cc m :=
   Σ (i = 0, m)  
   Σ (j = 0, m)  
@@ -1039,7 +1040,9 @@ rewrite sigma_sigma_extend_0.
    rewrite delta_neq; [ idtac | assumption ].
    rewrite Lfield.mul_0_l; reflexivity.
 Qed.
+*)
 
+(*
 Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
   (Σ (i = 0, k)  
    Σ (j = 0, k)  
@@ -1121,9 +1124,25 @@ rewrite sigma_sigma_extend_0.
   rewrite delta_neq; [ idtac | omega ].
   do 2 rewrite Lfield.mul_0_l; reflexivity.
 Qed.
+*)
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
+intros a b c.
+pose proof (series_mul_mul_inf b c) as H.
+rewrite H; clear H.
+pose proof (series_mul_mul_inf a b) as H.
+rewrite H; clear H.
+rewrite series_mul_mul_inf; symmetry.
+rewrite series_mul_mul_inf; symmetry.
+remember (series_inf rng a) as aa eqn:Haa .
+remember (series_inf rng b) as bb eqn:Hbb .
+remember (series_inf rng c) as cc eqn:Hcc .
+constructor; intros k.
+do 2 rewrite series_nth_mul_inf; simpl.
+unfold convol_mul_inf; simpl.
+bbb.
+
 intros a b c.
 pose proof (series_mul_mul_inf b c) as H.
 rewrite H; clear H.
