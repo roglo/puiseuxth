@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.112 2013-12-12 14:41:06 deraugla Exp $ *)
+(* $Id: Series.v,v 2.113 2013-12-12 16:59:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -14,8 +14,8 @@ Module Lfield := Field.Make Field_inst.
 Export Field_inst.
 Export Lfield.Syntax.
 
-
 Require Import Nbar.
+Require Import Misc.
 
 Set Implicit Arguments.
 
@@ -493,6 +493,77 @@ intros f i₁ i₂ j₁ j₂ k₁ k₂.
 apply sigma_aux_sigma_aux_sigma_aux_comm; assumption.
 Qed.
 
+Lemma sigma_aux_succ : ∀ f b len,
+  (sigma_aux b (S len) f = sigma_aux b len f + f (b + len)%nat)%rng.
+Proof.
+intros f b len.
+revert b.
+induction len; intros.
+ simpl.
+ rewrite Lfield.add_0_l, Lfield.add_0_r, Nat.add_0_r.
+ reflexivity.
+
+ remember (S len) as x; simpl; subst x.
+ rewrite IHlen.
+ simpl.
+ rewrite Lfield.add_assoc, Nat.add_succ_r.
+ reflexivity.
+Qed.
+
+Lemma sigma_aux_rtl : ∀ f b len,
+  (sigma_aux b len f =
+   sigma_aux b len (λ i, f (b + len - 1 + b - i)%nat))%rng.
+Proof.
+(* supprimer ce putain de omega trop lent *)
+intros f b len.
+revert f b.
+induction len; intros; [ reflexivity | idtac ].
+remember (S len) as x.
+rewrite Heqx in |- * at 1.
+simpl; subst x.
+rewrite IHlen.
+rewrite sigma_aux_succ.
+replace (b + S len - 1 + b - (b + len))%nat with b by omega.
+rewrite Lfield.add_comm.
+apply Lfield.add_compat_r.
+apply sigma_aux_compat.
+intros i Hi.
+simpl.
+rewrite Nat.sub_0_r.
+replace (b + len + S b - S (b + i))%nat with
+ (b + S len - 1 + b - (b + i))%nat by omega.
+reflexivity.
+Qed.
+
+Lemma sigma_rtl : ∀ f b k,
+  (Σ (i = b, k)   f i = Σ (i = b, k)   f (k + b - i)%nat)%rng.
+Proof.
+(* supprimer ce putain de omega trop lent *)
+intros f b k.
+unfold sigma.
+rewrite sigma_aux_rtl.
+apply sigma_aux_compat; intros i Hi.
+simpl.
+destruct b; simpl.
+ rewrite Nat.sub_0_r; reflexivity.
+
+ rewrite Nat.sub_0_r.
+ replace (b + (k - b) + S b - S (b + i))%nat with (k + S b - S (b + i))%nat
+  by omega.
+ reflexivity.
+Qed.
+
+Theorem convol_mul_comm : ∀ a b i, (convol_mul a b i = convol_mul b a i)%rng.
+Proof.
+intros a b k.
+unfold convol_mul.
+rewrite sigma_rtl.
+apply sigma_compat; intros i Hi.
+rewrite Nat.add_0_r.
+rewrite Nat_sub_sub_distr; [ idtac | destruct Hi; auto ].
+rewrite Nat.add_comm, Nat.add_sub, Lfield.mul_comm; reflexivity.
+Qed.
+
 Theorem series_mul_comm : ∀ a b, (a * b = b * a)%ser.
 Proof.
 intros a b.
@@ -500,13 +571,7 @@ constructor; intros k.
 unfold series_nth; simpl.
 rewrite Nbar.add_comm.
 destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
- unfold convol_mul.
- rewrite sigma_sigma_comm.
- apply sigma_compat; intros i Hi.
- apply sigma_compat; intros j Hj.
- rewrite Nat.add_comm.
- do 2 rewrite Lfield.mul_assoc.
- rewrite Lfield.mul_shuffle0; reflexivity.
+ apply convol_mul_comm.
 
  reflexivity.
 Qed.
