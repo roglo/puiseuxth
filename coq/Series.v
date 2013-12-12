@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.111 2013-12-12 14:32:39 deraugla Exp $ *)
+(* $Id: Series.v,v 2.112 2013-12-12 14:41:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -415,79 +415,25 @@ destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₁| H₁].
     rewrite Lfield.mul_0_r; reflexivity.
 
    rewrite Lfield.mul_0_l; reflexivity.
-bbb.
 
-intros a b Hab c d Hcd.
-constructor.
-intros i.
-inversion Hab; subst.
-inversion Hcd; subst.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) (stop a + stop c)) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
+ destruct (Nbar.lt_dec (fin k) (stop b + stop d)) as [H₂| H₂].
   unfold convol_mul.
-  rename i into k.
-  apply sigma_compat; intros i Hi.
-  rewrite H, H0; reflexivity.
-
-  unfold convol_mul.
-  rename i into k.
-  apply all_0_sigma_0; intros i Hi.
-  apply all_0_sigma_0; intros j Hj.
-  destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
-   rewrite H₃, delta_id, Lfield.mul_1_l, H, H0.
-   unfold series_nth; simpl.
-   destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
-    destruct (Nbar.lt_dec (fin j) (stop d)) as [H₅| H₅].
-     exfalso; apply H₂.
-     rewrite <- H₃.
-     rewrite Nbar.fin_inj_add.
-     remember (stop b) as st eqn:Hst .
-     symmetry in Hst.
-     destruct st as [st| ]; [ idtac | constructor ].
-     apply Nbar.lt_trans with (m := (fin st + fin j)%Nbar).
-      apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-      intros HH; discriminate HH.
-
-      apply Nbar.add_lt_mono_l; [ idtac | assumption ].
-      intros HH; discriminate HH.
-
-     rewrite Lfield.mul_0_r; reflexivity.
-
-    rewrite Lfield.mul_0_l; reflexivity.
-
-   rewrite delta_neq; [ idtac | assumption ].
-   rewrite Lfield.mul_0_l; reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (stop b + stop d)) as [H₂| H₂].
-  unfold convol_mul.
-  rename i into k.
   symmetry.
   apply all_0_sigma_0; intros i Hi.
-  apply all_0_sigma_0; intros j Hj.
-  destruct (eq_nat_dec (i + j)%nat k) as [H₃| H₃].
-   rewrite H₃, delta_id, Lfield.mul_1_l, <- H, <- H0.
-   unfold series_nth; simpl.
-   destruct (Nbar.lt_dec (fin i) (stop a)) as [H₄| H₄].
-    destruct (Nbar.lt_dec (fin j) (stop c)) as [H₅| H₅].
-     exfalso; apply H₁.
-     rewrite <- H₃.
-     rewrite Nbar.fin_inj_add.
-     remember (stop a) as st eqn:Hst .
-     symmetry in Hst.
-     destruct st as [st| ]; [ idtac | constructor ].
-     apply Nbar.lt_trans with (m := (fin st + fin j)%Nbar).
-      apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-      intros HH; discriminate HH.
+  rewrite <- H, <- H0.
+  unfold series_nth.
+  destruct (Nbar.lt_dec (fin i) (stop a)) as [H₄| H₄].
+   destruct (Nbar.lt_dec (fin (k - i)) (stop c)) as [H₅| H₅].
+    exfalso; apply H₁.
+    replace k with (i + (k - i))%nat by omega.
+    rewrite Nbar.fin_inj_add.
+    remember (stop a) as st eqn:Hst .
+    symmetry in Hst.
+    destruct st; [ idtac | constructor ].
+    apply Nbar.add_lt_mono; auto; intros HH; discriminate HH.
 
-      apply Nbar.add_lt_mono_l; [ idtac | assumption ].
-      intros HH; discriminate HH.
+    rewrite Lfield.mul_0_r; reflexivity.
 
-     rewrite Lfield.mul_0_r; reflexivity.
-
-    rewrite Lfield.mul_0_l; reflexivity.
-
-   rewrite delta_neq; [ idtac | assumption ].
    rewrite Lfield.mul_0_l; reflexivity.
 
   reflexivity.
