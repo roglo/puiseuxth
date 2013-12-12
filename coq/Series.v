@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.113 2013-12-12 16:59:25 deraugla Exp $ *)
+(* $Id: Series.v,v 2.114 2013-12-12 17:52:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -582,35 +582,35 @@ intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
+Theorem convol_mul_0_l : ∀ a i, (convol_mul 0%ser a i = 0)%rng.
+Proof.
+intros a k.
+unfold convol_mul.
+apply all_0_sigma_0; intros i Hi.
+rewrite series_nth_series_0.
+rewrite Lfield.mul_0_l; reflexivity.
+Qed.
+
 Theorem series_mul_0_l : ∀ s, (0 * s = 0)%ser.
 Proof.
 intros s.
-constructor; intros i.
+constructor; intros k.
 unfold series_nth.
 rewrite stop_series_mul_0_l; simpl.
-destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁].
- unfold convol_mul.
- rename i into k.
- destruct (Nbar.lt_dec (fin k) 0) as [H₂| H₂].
-  apply Nbar.nle_gt in H₂.
-  exfalso; apply H₂, Nbar.le_0_l.
+destruct (Nbar.lt_dec (fin k) (stop s)) as [H₁| H₁].
+ rewrite convol_mul_0_l.
+ destruct (Nbar.lt_dec (fin k) 0); reflexivity.
 
-  apply all_0_sigma_0; intros i Hi.
-  apply all_0_sigma_0; intros j Hj.
-  rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
-  rewrite Lfield.mul_comm.
-  rewrite series_nth_series_0.
-  rewrite Lfield.mul_0_l.
-  reflexivity.
-
- destruct (Nbar.lt_dec (fin i) 0); reflexivity.
+ destruct (Nbar.lt_dec (fin k) 0); reflexivity.
 Qed.
 
+(*
 Lemma delta_0_succ : ∀ i, (δ 0 (S i) = 0)%rng.
 Proof.
 intros i; unfold δ.
 destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
 Qed.
+*)
 
 Lemma sigma_aux_mul_swap : ∀ a f b len,
   (sigma_aux b len (λ i, a * f i) = a * sigma_aux b len f)%rng.
