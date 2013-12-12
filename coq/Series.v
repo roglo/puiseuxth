@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.107 2013-12-12 11:19:18 deraugla Exp $ *)
+(* $Id: Series.v,v 2.108 2013-12-12 12:24:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1437,28 +1437,28 @@ Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
 
-Lemma zzz : ∀ f b k, (Σ (i = b, S k)   f i = Σ (i = b, k)   f i + f (S k))%rng.
-Proof.
-Admitted. (*
-bbb.
-*)
+Notation "s [ i ]" := (series_nth rng i s) (at level 1) : ring_scope.
 
-Lemma yyy : ∀ f b₁ k₁ b₂ k₂,
-  (Σ (i = b₁, k₁)   Σ (j = b₂, S k₂)   f i j =
-   Σ (i = b₁, k₁)   Σ (j = b₂, k₂)   f i j + Σ (i = b₁, k₁)   f i (S k₂))%rng.
+(*
+Lemma zzz : ∀ k a a',
+  a' = series_inv a
+  → convol_mul a a' (S k) =
+     (Lfield.inv fld a[0] *
+      (a [S k] -
+       Σ (i = 1, S k)   Σ (j = 0, i - 1)   a [i-j] * a [S k-i] * a'[j]))%rng.
 Proof.
-Admitted. (*
 bbb.
 *)
 
 (**)
-Theorem series_mul_inv_l : ∀ a,
+Theorem series_mul_inv_r : ∀ a,
   (series_nth rng 0 a ≠ 0)%rng
-  → (series_inv a * a = 1)%ser.
+  → (a * series_inv a = 1)%ser.
 Proof.
 intros a Ha.
 constructor; intros i.
 unfold series_nth; simpl.
+rewrite Nbar.add_comm; simpl.
 destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
   apply Nbar.fin_lt_mono in H₂.
@@ -1474,7 +1474,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
     unfold series_nth in Ha.
     destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
      unfold rng.
-     rewrite Lfield.mul_inv_l; [ reflexivity | idtac ].
+     rewrite Lfield.mul_inv_r; [ reflexivity | idtac ].
      intros H; apply Ha; clear Ha.
      assumption.
 
@@ -1492,6 +1492,8 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
   clear H₁.
   destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
   clear H₂.
+  rewrite zzz; [ idtac | reflexivity ].
+bbb.
   induction i as (k, IHk) using Misc.all_lt_all.
   destruct k.
    unfold convol_mul.
