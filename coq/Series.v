@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.105 2013-12-12 09:51:00 deraugla Exp $ *)
+(* $Id: Series.v,v 2.106 2013-12-12 10:51:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,7 +8,7 @@ Require Field.
 Module Field_inst : Field.FieldType.
   Parameter α : Type.
   Parameter fld : Field.Tdef.f α.
-  Definition rng := Field.Tdef.ring fld.
+  Let rng := Field.Tdef.ring fld.
 End Field_inst.
 Module Lfield := Field.Make Field_inst.
 Export Field_inst.
@@ -1437,7 +1437,7 @@ Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
 
-(*
+(**)
 Theorem series_mul_inv_l : ∀ a,
   (series_nth rng 0 a ≠ 0)%rng
   → (series_inv a * a = 1)%ser.
@@ -1482,8 +1482,8 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
 (*
 bbb.
 *)
-  unfold convol_mul.
   destruct k.
+   unfold convol_mul.
    unfold sigma; simpl.
    rewrite delta_neq; [ idtac | intros H; discriminate H ].
    rewrite delta_id.

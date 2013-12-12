@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.35 2013-12-12 01:50:45 deraugla Exp $ *)
+(* $Id: Field.v,v 2.36 2013-12-12 10:51:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -45,7 +45,7 @@ End Tdef.
 Module Type FieldType.
   Parameter α : Type.
   Parameter fld : Tdef.f α.
-  Definition rng := Tdef.ring fld.
+  Let rng := Tdef.ring fld.
 End FieldType.
 
 Module Make (F : FieldType).

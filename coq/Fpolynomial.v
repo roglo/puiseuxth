@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 2.4 2013-12-03 10:44:45 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 2.5 2013-12-12 10:51:37 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -9,7 +9,7 @@ Require Field.
 Module Field_inst : Field.FieldType.
   Variable α : Type.
   Variable fld : Field.Tdef.f α.
-  Definition rng := Field.Tdef.ring fld.
+  Let rng := Field.Tdef.ring fld.
 End Field_inst.
 Module Lfield := Field.Make Field_inst.
 Export Field_inst.
