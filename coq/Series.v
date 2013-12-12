@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.116 2013-12-12 18:30:04 deraugla Exp $ *)
+(* $Id: Series.v,v 2.117 2013-12-12 21:05:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1141,6 +1141,20 @@ remember (series_inf rng c) as cc eqn:Hcc .
 constructor; intros k.
 do 2 rewrite series_nth_mul_inf; simpl.
 unfold convol_mul_inf; simpl.
+remember (λ i, (terms aa i * terms (series_mul_inf bb cc) (k - i))%rng) as f.
+rewrite sigma_compat with (g := f); subst f.
+ Focus 2.
+ intros i Hi; rewrite series_nth_mul_inf; reflexivity.
+
+ symmetry.
+ remember (λ i, (terms (series_mul_inf aa bb) i * terms cc (k - i))%rng) as f.
+ rewrite sigma_compat with (g := f); subst f.
+  Focus 2.
+  intros i Hi; rewrite series_nth_mul_inf; reflexivity.
+
+  symmetry.
+  unfold series_mul_inf; simpl.
+  unfold convol_mul_inf.
 bbb.
 
 intros a b c.
