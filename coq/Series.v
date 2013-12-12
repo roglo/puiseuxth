@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.104 2013-12-12 01:50:45 deraugla Exp $ *)
+(* $Id: Series.v,v 2.105 2013-12-12 09:51:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1437,7 +1437,7 @@ Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
 
-(**)
+(*
 Theorem series_mul_inv_l : ∀ a,
   (series_nth rng 0 a ≠ 0)%rng
   → (series_inv a * a = 1)%ser.

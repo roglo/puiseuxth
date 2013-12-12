@@ -1,7 +1,7 @@
 CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Field.vo Misc.vo Newton.vo PolyConvexHull.vo Polynomial.vo Puiseux_base.vo Puiseux_series.vo Slope_base.vo
 ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
-Field.vo Field.glob Field.v.beautified: Field.v Ring.vo
+Field.vo Field.glob Field.v.beautified: Field.v
 Fpolynomial.vo Fpolynomial.glob Fpolynomial.v.beautified: Fpolynomial.v Field.vo Misc.vo Polynomial.vo
 InSegment.vo InSegment.glob InSegment.v.beautified: InSegment.v Misc.vo Slope_base.vo ConvexHull.vo ConvexHullMisc.vo Newton.vo
 Misc.vo Misc.glob Misc.v.beautified: Misc.v
@@ -25,5 +25,4 @@ Series.vo Series.glob Series.v.beautified: Series.v Field.vo Nbar.vo
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Misc.vo
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
-Test.vo Test.glob Test.v.beautified: Test.v Ring.vo
 Zbar.vo Zbar.glob Zbar.v.beautified: Zbar.v Nbar.vo
