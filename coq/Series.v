@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.120 2013-12-13 09:38:05 deraugla Exp $ *)
+(* $Id: Series.v,v 2.121 2013-12-13 09:54:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1131,11 +1131,26 @@ apply sigma_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
+Lemma yyy : ∀ f k d,
+  (Σ (j = 0, k)   Σ (i = 0, j - d)   f i j =
+   Σ (i = 0, k)   Σ (j = i + d, k)   f i j)%rng.
+Proof.
+bbb.
+
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
-bbb.
+intros f k.
+remember (λ j, Σ (i = 0, j - 0)   f i j) as g eqn:Hg .
+rewrite sigma_compat with (g := g); subst g.
+ rewrite yyy.
+ apply sigma_compat; intros i Hi.
+ rewrite Nat.add_0_r; reflexivity.
+
+ intros i Hi.
+ rewrite Nat.sub_0_r; reflexivity.
+qed.
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
