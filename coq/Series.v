@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.122 2013-12-13 10:37:35 deraugla Exp $ *)
+(* $Id: Series.v,v 2.123 2013-12-13 13:24:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1131,33 +1131,15 @@ apply sigma_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
-(*
-Lemma xxx : ∀ f b₁ b₂ d len,
-  (sigma_aux b₁ len
-     (λ j, sigma_aux b₂ (S (j - d)) (λ i, f i j)) =
-   sigma_aux b₁ len
-     (λ i, sigma_aux (b₂ + i + d) (len - (b₂ + i + d)) (λ j, f i j)))%rng.
+Lemma www : ∀ f j k,
+  (Σ (i = 0, j)   f i j = Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j)%rng.
 Proof.
-intros f b₁ b₂ d len.
-revert b₁ b₂ d.
-induction len; intros; [ reflexivity | idtac ].
-simpl.
-simpl in IHlen.
-rewrite IHlen.
-simpl.
 bbb.
-*)
 
-Lemma xxx : ∀ f d len,
-  (sigma_aux 0 len (λ j, sigma_aux 0 (S (j - d)) (λ i, f i j)) =
-   sigma_aux 0 len (λ i, sigma_aux (i + d) (len - (i + d)) (λ j, f i j)))%rng.
+Lemma xxx : ∀ f k,
+  (Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j) =
+   Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
-intros f d len.
-revert d.
-induction len; intros; [ reflexivity | idtac ].
-remember minus as g; simpl; subst g.
-rewrite Nat.sub_0_l.
-simpl in IHlen.
 bbb.
 
 Lemma yyy : ∀ f k d,
@@ -1165,9 +1147,20 @@ Lemma yyy : ∀ f k d,
    Σ (i = 0, k)   Σ (j = i + d, k)   f i j)%rng.
 Proof.
 intros f k d.
-unfold sigma.
-rewrite Nat.sub_0_r.
+revert k.
+induction d; intros.
+ remember (λ j, Σ (i = 0, k) f i j - Σ (i = S j, k) f i j)%rng as g.
+ rewrite sigma_compat with (g := g); subst g.
+  rewrite xxx.
+  apply sigma_compat; intros i Hi.
+  rewrite Nat.add_0_r; reflexivity.
+
+  intros i Hi.
+  rename i into l.
+  rewrite Nat.sub_0_r.
+  apply www.
 bbb.
+*)
 
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
