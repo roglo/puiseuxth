@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.125 2013-12-13 19:13:54 deraugla Exp $ *)
+(* $Id: Series.v,v 2.126 2013-12-13 20:10:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1313,7 +1313,7 @@ rewrite <- sigma_aux_succ_fst.
 rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
-Lemma www : ∀ f j k,
+Lemma sigma_append : ∀ f j k,
   (j ≤ k)%nat
   → (Σ (i = 0, j)   f i + Σ (i = S j, k)   f i = Σ (i = 0, k)   f i)%rng.
 Proof.
@@ -1342,51 +1342,35 @@ induction k; intros.
   rewrite <- IHk with (j := j); [ idtac | assumption ].
   do 2 rewrite <- Lfield.add_assoc.
   apply Lfield.add_compat_l.
-  rewrite sigma_split_first.
-bbb.
+  destruct (eq_nat_dec j k) as [H₁| H₁].
+   subst j.
+   rewrite Lfield.add_comm.
+   unfold sigma.
+   simpl.
+   rewrite Nat.sub_diag; reflexivity.
 
-(*
-Lemma xxx : ∀ f j k,
-  (j ≤ k)%nat
-  → (Σ (i = 0, j)   f i j + Σ (i = S j, k)   f i j = Σ (i = 0, k)   f i j)%rng.
-Proof.
-intros f j k Hjk.
-revert j Hjk.
-induction k; intros.
- apply Nat.le_0_r in Hjk; subst j.
- rewrite sigma_only_one.
- unfold sigma; simpl.
- rewrite Lfield.add_0_r; reflexivity.
+   rewrite sigma_split_first; [ idtac | omega ].
+   rewrite sigma_succ; [ idtac | omega ].
+   rewrite Lfield.add_assoc; reflexivity.
+Qed.
 
- destruct j.
-  rewrite sigma_only_one.
-  rewrite sigma_succ; [ idtac | apply le_n_S, Nat.le_0_l ].
-  rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
-  rewrite Lfield.add_assoc.
-  apply Lfield.add_compat_r.
-  rewrite <- IHk; [ idtac | apply Nat.le_0_l ].
-  rewrite sigma_only_one.
-  reflexivity.
-
-bbb.
-*)
-
-Lemma yyy : ∀ f k,
+Lemma sigma_sigma_sub : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j))%rng.
 Proof.
 intros f k.
-apply sigma_compat; intros j Hj.
-apply xxx.
-destruct Hj; assumption.
-bbb.
+apply sigma_compat; intros j (_, Hj).
+symmetry.
+rewrite <- sigma_append; [ idtac | eassumption ].
+rewrite Lfield.add_sub; reflexivity.
+Qed.
 
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
 intros f k.
-rewrite yyy.
+rewrite sigma_sigma_sub.
 bbb.
 
 intros f k.

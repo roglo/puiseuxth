@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.36 2013-12-12 10:51:37 deraugla Exp $ *)
+(* $Id: Field.v,v 2.37 2013-12-13 20:10:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -193,6 +193,14 @@ Module Make (F : FieldType).
   rewrite add_comm; symmetry.
   rewrite add_comm; symmetry.
   assumption.
+  Qed.
+
+  Theorem add_sub : ∀ a b, (a + b - b = a)%rng.
+  Proof.
+  intros a b.
+  rewrite <- add_assoc.
+  rewrite add_opp_r, add_0_r.
+  reflexivity.
   Qed.
 
   Theorem mul_reg_r : ∀ a b c, (c ≠ 0)%rng → (a * c = b * c)%rng → (a = b)%rng.
