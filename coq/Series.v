@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.124 2013-12-13 15:16:02 deraugla Exp $ *)
+(* $Id: Series.v,v 2.125 2013-12-13 19:13:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1176,6 +1176,7 @@ induction d; intros.
 bbb.
 *)
 
+(*
 Lemma xxx_aux : ∀ f b i len,
   i ≤ len
   → (sigma_aux (b + i) (len - i) (λ j, f (i - b)%nat j) =
@@ -1193,7 +1194,6 @@ destruct i.
  apply Nat.succ_le_mono in Hi.
  rewrite Nat.sub_succ.
  remember minus as g; simpl; subst g.
- (* marche pô *)
 bbb.
 
 intros f b i len Hi.
@@ -1231,7 +1231,9 @@ destruct (le_dec i (b + len)) as [H₁| H₁].
   replace (len - i)%nat with O by omega.
   simpl.
 bbb.
+*)
 
+(*
 Lemma xxx : ∀ f i k,
   (Σ (j = i, k)   f i j =
    Σ (l = 0, k)   if le_dec i l then f i l else 0)%rng.
@@ -1255,17 +1257,138 @@ destruct (le_dec i (S k)) as [H₁| H₁].
   destruct (le_dec i j) as [H₃| ]; [ idtac | reflexivity ].
   exfalso; omega.
 bbb.
+*)
 
+(*
 Lemma yyy : ∀ f k,
   (Σ (i = 0, k)   Σ (j = 0, i)   f i j =
    Σ (i = 0, k)   Σ (j = 0, k)   if le_dec j i then f i j else 0)%rng.
 Proof.
+bbb.
+*)
+
+(*
+Lemma xxx : ∀ f j k,
+  (j ≤ k)%nat
+  → (Σ (i = 0, j)   f i j = Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j)%rng.
+Proof.
+intros f j k Hjk.
+revert j Hjk.
+induction k; intros.
+ apply Nat.le_0_r in Hjk; subst j.
+ rewrite sigma_only_one.
+ unfold sigma; simpl.
+ rewrite Lfield.opp_0, Lfield.add_0_r; reflexivity.
+
+ destruct j.
+  rewrite sigma_only_one.
+bbb.
+*)
+
+Lemma sigma_succ : ∀ f b k,
+  (b ≤ S k)%nat
+  → (Σ (i = b, S k)   f i = Σ (i = b, k)   f i + f (S k))%rng.
+Proof.
+intros f b k Hbk.
+unfold sigma.
+rewrite Nat.sub_succ_l; [ idtac | assumption ].
+rewrite sigma_aux_succ.
+rewrite Nat.add_sub_assoc; [ idtac | assumption ].
+rewrite Nat.add_comm, Nat.add_sub.
+reflexivity.
+Qed.
+
+Lemma sigma_aux_succ_fst : ∀ f b len,
+  (sigma_aux b (S len) f = f b + sigma_aux (S b) len f)%rng.
+Proof. reflexivity. Qed.
+
+Lemma sigma_split_first : ∀ f b k,
+  b ≤ k
+  → (Σ (i = b, k)   f i = f b + Σ (i = S b, k)   f i)%rng.
+Proof.
+intros f b k Hbk.
+unfold sigma.
+rewrite Nat.sub_succ.
+rewrite <- sigma_aux_succ_fst.
+rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma www : ∀ f j k,
+  (j ≤ k)%nat
+  → (Σ (i = 0, j)   f i + Σ (i = S j, k)   f i = Σ (i = 0, k)   f i)%rng.
+Proof.
+intros f j k Hjk.
+revert j Hjk.
+induction k; intros.
+ apply Nat.le_0_r in Hjk; subst j.
+ rewrite sigma_only_one.
+ unfold sigma; simpl.
+ rewrite Lfield.add_0_r; reflexivity.
+
+ destruct j.
+  rewrite sigma_only_one.
+  rewrite sigma_succ; [ idtac | apply le_n_S, Nat.le_0_l ].
+  rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+  rewrite Lfield.add_assoc.
+  apply Lfield.add_compat_r.
+  rewrite <- IHk; [ idtac | apply Nat.le_0_l ].
+  rewrite sigma_only_one.
+  reflexivity.
+
+  apply Nat.succ_le_mono in Hjk.
+  rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+  symmetry.
+  rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+  rewrite <- IHk with (j := j); [ idtac | assumption ].
+  do 2 rewrite <- Lfield.add_assoc.
+  apply Lfield.add_compat_l.
+  rewrite sigma_split_first.
+bbb.
+
+(*
+Lemma xxx : ∀ f j k,
+  (j ≤ k)%nat
+  → (Σ (i = 0, j)   f i j + Σ (i = S j, k)   f i j = Σ (i = 0, k)   f i j)%rng.
+Proof.
+intros f j k Hjk.
+revert j Hjk.
+induction k; intros.
+ apply Nat.le_0_r in Hjk; subst j.
+ rewrite sigma_only_one.
+ unfold sigma; simpl.
+ rewrite Lfield.add_0_r; reflexivity.
+
+ destruct j.
+  rewrite sigma_only_one.
+  rewrite sigma_succ; [ idtac | apply le_n_S, Nat.le_0_l ].
+  rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+  rewrite Lfield.add_assoc.
+  apply Lfield.add_compat_r.
+  rewrite <- IHk; [ idtac | apply Nat.le_0_l ].
+  rewrite sigma_only_one.
+  reflexivity.
+
+bbb.
+*)
+
+Lemma yyy : ∀ f k,
+  (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
+   Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j))%rng.
+Proof.
+intros f k.
+apply sigma_compat; intros j Hj.
+apply xxx.
+destruct Hj; assumption.
 bbb.
 
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
+intros f k.
+rewrite yyy.
+bbb.
+
 intros f k.
 rewrite yyy.
 rewrite sigma_sigma_comm.
@@ -1283,6 +1406,7 @@ rewrite sigma_compat with (g := g); subst g.
  intros i Hi.
  rewrite Nat.sub_0_r; reflexivity.
 qed.
+*)
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
