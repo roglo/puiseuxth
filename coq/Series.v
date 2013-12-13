@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.119 2013-12-13 07:04:38 deraugla Exp $ *)
+(* $Id: Series.v,v 2.120 2013-12-13 09:38:05 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1118,11 +1118,18 @@ rewrite sigma_sigma_extend_0.
 Qed.
 *)
 
-Lemma yyy : ∀ f k,
+Lemma sigma_sigma_shift : ∀ f k,
   (Σ (i = 0, k)   Σ (j = i, k)   f i j =
    Σ (i = 0, k)   Σ (j = 0, k - i)   f i (i + j)%nat)%rng.
 Proof.
-bbb.
+intros f k.
+apply sigma_compat; intros i Hi.
+unfold sigma.
+rewrite Nat.sub_0_r.
+rewrite Nat.sub_succ_l; [ idtac | destruct Hi; assumption ].
+apply sigma_aux_compat; intros j Hj.
+rewrite Nat.add_0_l; reflexivity.
+Qed.
 
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
@@ -1164,7 +1171,7 @@ rewrite sigma_compat with (g := f); subst f.
   rewrite <- sigma_sigma_mul_swap.
   rewrite <- sigma_sigma_mul_swap.
   rewrite zzz.
-  rewrite yyy.
+  rewrite sigma_sigma_shift.
   apply sigma_compat; intros i Hi.
   apply sigma_compat; intros j Hj.
   rewrite Lfield.mul_comm, Lfield.mul_assoc.
