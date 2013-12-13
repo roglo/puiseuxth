@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.123 2013-12-13 13:24:11 deraugla Exp $ *)
+(* $Id: Series.v,v 2.124 2013-12-13 15:16:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1131,11 +1131,25 @@ apply sigma_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
+Lemma sigma_only_one : ∀ f n, (Σ (i = n, n)   f i = f n)%rng.
+Proof.
+intros f n.
+unfold sigma.
+rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
+rewrite Nat.sub_diag; simpl.
+rewrite Lfield.add_0_r; reflexivity.
+Qed.
+
+(*
 Lemma www : ∀ f j k,
-  (Σ (i = 0, j)   f i j = Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j)%rng.
+  (j < k)%nat
+  → (Σ (i = 0, j)   f i j =
+     Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j)%rng.
 Proof.
 bbb.
+*)
 
+(*
 Lemma xxx : ∀ f k,
   (Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j) =
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
@@ -1162,11 +1176,104 @@ induction d; intros.
 bbb.
 *)
 
+Lemma xxx_aux : ∀ f b i len,
+  i ≤ len
+  → (sigma_aux (b + i) (len - i) (λ j, f (i - b)%nat j) =
+     sigma_aux b len (λ j, if le_dec i j then f (i - b)%nat j else 0))%rng.
+Proof.
+intros f b i len Hi.
+revert b i Hi.
+induction len; intros; [ reflexivity | idtac ].
+destruct i.
+ rewrite Nat.add_0_r, Nat.sub_0_r.
+ apply sigma_aux_compat; intros j Hj.
+ destruct (le_dec 0 (b + j)) as [| H₁]; [ reflexivity | idtac ].
+ exfalso; apply H₁, Nat.le_0_l.
+
+ apply Nat.succ_le_mono in Hi.
+ rewrite Nat.sub_succ.
+ remember minus as g; simpl; subst g.
+ (* marche pô *)
+bbb.
+
+intros f b i len Hi.
+revert b i Hi.
+induction len; intros; [ reflexivity | idtac ].
+destruct i.
+ rewrite Nat.add_0_r, Nat.sub_0_r.
+ apply sigma_aux_compat; intros j Hj.
+ destruct (le_dec 0 (b + j)) as [| H₁]; [ reflexivity | idtac ].
+ exfalso; apply H₁, Nat.le_0_l.
+
+ apply Nat.succ_le_mono in Hi.
+ rewrite Nat.sub_succ.
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ rewrite IHlen; [ idtac | assumption ].
+bbb.
+
+intros f b i len Hi.
+bbb.
+revert b i.
+induction len; intros; [ reflexivity | idtac ].
+rewrite sigma_aux_succ.
+rewrite <- IHlen.
+destruct (le_dec i (b + len)) as [H₁| H₁].
+ destruct (le_dec i len) as [H₂| H₂].
+  replace (S len - i)%nat with (S (len - i)) by omega.
+  rewrite sigma_aux_succ.
+  rewrite Nat.add_sub_assoc; [ idtac | assumption ].
+  rewrite Nat.add_shuffle0.
+  rewrite Nat.add_sub.
+  reflexivity.
+
+  apply Nat.nle_gt in H₂.
+  replace (S len - i)%nat with O by omega.
+  replace (len - i)%nat with O by omega.
+  simpl.
+bbb.
+
+Lemma xxx : ∀ f i k,
+  (Σ (j = i, k)   f i j =
+   Σ (l = 0, k)   if le_dec i l then f i l else 0)%rng.
+Proof.
+intros f i k.
+unfold sigma.
+rewrite Nat.sub_0_r.
+destruct (le_dec i (S k)) as [H₁| H₁].
+ eapply xxx_aux with (b := O) (f := f) in H₁.
+ assumption.
+
+ replace (S k - i)%nat with O by omega.
+ simpl.
+ destruct (le_dec i 0) as [H₂| H₂].
+  apply Nat.le_0_r in H₂; subst i.
+  exfalso; apply H₁, Nat.le_0_l.
+
+  symmetry; rewrite Lfield.add_0_l.
+  apply all_0_sigma_aux_0.
+  intros j Hj.
+  destruct (le_dec i j) as [H₃| ]; [ idtac | reflexivity ].
+  exfalso; omega.
+bbb.
+
+Lemma yyy : ∀ f k,
+  (Σ (i = 0, k)   Σ (j = 0, i)   f i j =
+   Σ (i = 0, k)   Σ (j = 0, k)   if le_dec j i then f i j else 0)%rng.
+Proof.
+bbb.
+
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
 intros f k.
+rewrite yyy.
+rewrite sigma_sigma_comm.
+apply sigma_compat; intros i Hi.
+symmetry.
+apply xxx.
+bbb.
+
 remember (λ j, Σ (i = 0, j - 0)   f i j) as g eqn:Hg .
 rewrite sigma_compat with (g := g); subst g.
  rewrite yyy.
@@ -1272,15 +1379,6 @@ Lemma sigma_add : ∀ f g b e,
 Proof.
 intros f g b e.
 apply sigma_aux_add.
-Qed.
-
-Lemma sigma_only_one : ∀ f n, (Σ (i = n, n)   f i = f n)%rng.
-Proof.
-intros f n.
-unfold sigma.
-rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
-rewrite Nat.sub_diag; simpl.
-rewrite Lfield.add_0_r; reflexivity.
 Qed.
 
 Lemma series_nth_add : ∀ a b i,
