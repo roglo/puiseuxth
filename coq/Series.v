@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.118 2013-12-12 21:33:22 deraugla Exp $ *)
+(* $Id: Series.v,v 2.119 2013-12-13 07:04:38 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1118,6 +1118,18 @@ rewrite sigma_sigma_extend_0.
 Qed.
 *)
 
+Lemma yyy : ∀ f k,
+  (Σ (i = 0, k)   Σ (j = i, k)   f i j =
+   Σ (i = 0, k)   Σ (j = 0, k - i)   f i (i + j)%nat)%rng.
+Proof.
+bbb.
+
+Lemma zzz : ∀ f k,
+  (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
+   Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
+Proof.
+bbb.
+
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
 intros a b c.
@@ -1151,6 +1163,14 @@ rewrite sigma_compat with (g := f); subst f.
   rewrite sigma_mul_comm.
   rewrite <- sigma_sigma_mul_swap.
   rewrite <- sigma_sigma_mul_swap.
+  rewrite zzz.
+  rewrite yyy.
+  apply sigma_compat; intros i Hi.
+  apply sigma_compat; intros j Hj.
+  rewrite Lfield.mul_comm, Lfield.mul_assoc.
+  rewrite Nat.add_comm, Nat.add_sub.
+  rewrite Nat.add_comm, Nat.sub_add_distr.
+  reflexivity.
 bbb.
 
 intros a b c.
