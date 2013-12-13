@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.121 2013-12-13 09:54:54 deraugla Exp $ *)
+(* $Id: Series.v,v 2.122 2013-12-13 10:37:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1131,10 +1131,42 @@ apply sigma_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
+(*
+Lemma xxx : ∀ f b₁ b₂ d len,
+  (sigma_aux b₁ len
+     (λ j, sigma_aux b₂ (S (j - d)) (λ i, f i j)) =
+   sigma_aux b₁ len
+     (λ i, sigma_aux (b₂ + i + d) (len - (b₂ + i + d)) (λ j, f i j)))%rng.
+Proof.
+intros f b₁ b₂ d len.
+revert b₁ b₂ d.
+induction len; intros; [ reflexivity | idtac ].
+simpl.
+simpl in IHlen.
+rewrite IHlen.
+simpl.
+bbb.
+*)
+
+Lemma xxx : ∀ f d len,
+  (sigma_aux 0 len (λ j, sigma_aux 0 (S (j - d)) (λ i, f i j)) =
+   sigma_aux 0 len (λ i, sigma_aux (i + d) (len - (i + d)) (λ j, f i j)))%rng.
+Proof.
+intros f d len.
+revert d.
+induction len; intros; [ reflexivity | idtac ].
+remember minus as g; simpl; subst g.
+rewrite Nat.sub_0_l.
+simpl in IHlen.
+bbb.
+
 Lemma yyy : ∀ f k d,
   (Σ (j = 0, k)   Σ (i = 0, j - d)   f i j =
    Σ (i = 0, k)   Σ (j = i + d, k)   f i j)%rng.
 Proof.
+intros f k d.
+unfold sigma.
+rewrite Nat.sub_0_r.
 bbb.
 
 Lemma zzz : ∀ f k,
