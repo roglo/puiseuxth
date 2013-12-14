@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.140 2013-12-14 14:29:36 deraugla Exp $ *)
+(* $Id: Series.v,v 2.141 2013-12-14 15:05:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1561,10 +1561,8 @@ intros a b c k.
 unfold convol_mul.
 rewrite sigma_add.
 apply sigma_compat; intros i Hi.
-rewrite sigma_add.
-apply sigma_compat; intros j Hj.
 rewrite series_nth_add.
-do 2 rewrite Lfield.mul_add_distr_l.
+rewrite Lfield.mul_add_distr_l.
 reflexivity.
 Qed.
 
