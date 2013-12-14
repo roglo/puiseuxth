@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.144 2013-12-14 18:36:58 deraugla Exp $ *)
+(* $Id: Series.v,v 2.145 2013-12-14 20:45:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1770,8 +1770,14 @@ Fixpoint term_inv c s n :=
     end.
 
 Definition series_inv s :=
-  {| terms i := term_inv i s i;
+  {| terms i := term_inv (S i) s i;
      stop := ∞ |}.
+
+Lemma zzz : ∀ k a a',
+  a' = series_inv a
+  → (convol_mul a a' (S k) = 0)%rng.
+Proof.
+bbb.
 
 Lemma zzz : ∀ k a a',
   a' = series_inv a
