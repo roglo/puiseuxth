@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.142 2013-12-14 15:59:26 deraugla Exp $ *)
+(* $Id: Series.v,v 2.143 2013-12-14 16:09:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1785,9 +1785,7 @@ bbb.
 *)
 
 (**)
-Theorem series_mul_inv_r : ∀ a,
-  (series_nth rng 0 a ≠ 0)%rng
-  → (a * series_inv a = 1)%ser.
+Theorem series_mul_inv_r : ∀ a, (a [0] ≠ 0)%rng → (a * series_inv a = 1)%ser.
 Proof.
 intros a Ha.
 constructor; intros i.
@@ -1797,9 +1795,8 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
   apply Nbar.fin_lt_mono in H₂.
   apply Nat.lt_1_r in H₂; subst i.
-  unfold convol_mul.
-  do 2 rewrite sigma_only_one.
-  rewrite delta_id, Lfield.mul_1_l.
+  unfold convol_mul; simpl.
+  rewrite sigma_only_one.
   unfold series_nth; simpl.
   clear H₁.
   destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
@@ -1807,10 +1804,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
     unfold series_nth; simpl.
     unfold series_nth in Ha.
     destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
-     unfold rng.
-     rewrite Lfield.mul_inv_r; [ reflexivity | idtac ].
-     intros H; apply Ha; clear Ha.
-     assumption.
+     rewrite Lfield.mul_inv_r; [ reflexivity | assumption ].
 
      exfalso; apply Ha; reflexivity.
 
