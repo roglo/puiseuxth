@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.135 2013-12-14 08:18:00 deraugla Exp $ *)
+(* $Id: Series.v,v 2.136 2013-12-14 08:25:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1481,6 +1481,13 @@ rewrite sigma_sigma_split_first.
  rewrite Lfield.add_0_l.
  rewrite Lfield.add_comm.
  rewrite <- sigma_add_distr.
+ assert
+  (Σ (i = 0, k)_ Σ (i0 = i, k)_ f i0 i =
+   Σ (i = 0, k)_ (f i i + Σ (i0 = S i, k)_ f i0 i))%rng.
+  rewrite sigma_sigma_split_first; [ reflexivity | idtac ].
+  intros i (_, Hi); assumption.
+
+  rewrite <- H.
 bbb.
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
