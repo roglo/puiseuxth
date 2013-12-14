@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.143 2013-12-14 16:09:37 deraugla Exp $ *)
+(* $Id: Series.v,v 2.144 2013-12-14 18:36:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1760,29 +1760,42 @@ Definition series_ring : Lfield.r (series α) :=
      Lfield.mul_add_distr_l := series_mul_add_distr_l |}.
 
 Fixpoint term_inv c s n :=
-  if zerop n then Lfield.inv fld (series_nth rng O s)
+  if zerop n then Lfield.inv fld s[0]
   else
     match c with
     | O => Lfield.zero rng
     | S c₁ =>
-        (- Lfield.inv fld (series_nth rng 0 s) *
-         Σ (i = 1, n) _ series_nth rng i s * term_inv c₁ s (n - i)%nat)%rng
+        (- Lfield.inv fld s[0] *
+         Σ (i = 1, n) _ s[i] * term_inv c₁ s (n - i)%nat)%rng
     end.
 
 Definition series_inv s :=
   {| terms i := term_inv i s i;
      stop := ∞ |}.
 
-(* pas sûr... à vérifier...
 Lemma zzz : ∀ k a a',
   a' = series_inv a
   → (convol_mul a a' (S k) =
-      Lfield.inv fld a[0] *
-       (a [S k] -
-        Σ (i = 1, S k) _ Σ (j = 0, i - 1) _ a [i-j] * a [S k-i] * a'[j]))%rng.
+     Lfield.inv fld a[0] *
+      (a[S k] -
+       Σ (i = 0, k) _ Σ (j = 1, S k - i) _ a[i] * a[j] * a'[S k-i-j]))%rng.
 Proof.
+intros k a a' Ha'.
+induction k.
+ unfold convol_mul.
+ rewrite sigma_only_one.
+ rewrite Nat.sub_0_r.
+ rewrite sigma_only_one.
+ rewrite Nat.sub_diag.
+ unfold sigma.
+ rewrite Nat.sub_0_r.
+ remember minus as f; simpl; subst f.
+ rewrite Nat.sub_0_r.
+ rewrite Nat.sub_diag.
+ rewrite Lfield.add_0_r.
+ (* là, ça vaut 0, clairement, mais l'égalité à 0 est censée être dans
+    une deuxième étape ; qu'est-ce que je fais ? *)
 bbb.
-*)
 
 (**)
 Theorem series_mul_inv_r : ∀ a, (a [0] ≠ 0)%rng → (a * series_inv a = 1)%ser.
