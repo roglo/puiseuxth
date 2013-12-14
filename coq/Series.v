@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.133 2013-12-14 07:31:06 deraugla Exp $ *)
+(* $Id: Series.v,v 2.134 2013-12-14 07:59:07 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1463,32 +1463,23 @@ rewrite sigma_sub_distr.
 rewrite sigma_sigma_comm.
 symmetry.
 rewrite sigma_sigma_split_first.
-rewrite sigma_add_distr.
-rewrite sigma_sigma_sub2.
-rewrite sigma_sub_distr.
-rewrite Lfield.add_comm.
-rewrite <- Lfield.add_assoc.
-apply Lfield.add_compat_l.
+ rewrite sigma_add_distr.
+ rewrite sigma_sigma_sub2.
+ rewrite sigma_sub_distr.
+ rewrite Lfield.add_comm.
+ rewrite <- Lfield.add_assoc.
+ apply Lfield.add_compat_l.
+ rewrite Lfield.add_comm.
+ eapply Lfield.add_reg_r.
+ rewrite <- Lfield.add_assoc.
+ rewrite Lfield.add_opp_l.
+ rewrite Lfield.add_0_r.
+ eapply Lfield.add_reg_l.
+ symmetry.
+ rewrite Lfield.add_assoc.
+ rewrite Lfield.add_opp_r.
+ rewrite Lfield.add_0_l.
 bbb.
-
-intros f k.
-rewrite yyy.
-rewrite sigma_sigma_comm.
-apply sigma_compat; intros i Hi.
-symmetry.
-apply xxx.
-bbb.
-
-remember (λ j, Σ (i = 0, j - 0) _ f i j) as g eqn:Hg .
-rewrite sigma_compat with (g := g); subst g.
- rewrite yyy.
- apply sigma_compat; intros i Hi.
- rewrite Nat.add_0_r; reflexivity.
-
- intros i Hi.
- rewrite Nat.sub_0_r; reflexivity.
-qed.
-*)
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
