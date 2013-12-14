@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.138 2013-12-14 10:18:03 deraugla Exp $ *)
+(* $Id: Series.v,v 2.139 2013-12-14 13:42:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1453,12 +1453,12 @@ destruct (le_dec b k) as [Hbk| Hbk].
  rewrite Lfield.opp_0; reflexivity.
 Qed.
 
-(* aïe, j'ai peur que ce soit faux... *)
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k) _ Σ (i = 0, j) _ f i j =
-   Σ (i = 0, k) _ Σ (j = i, k) _ f i j)%rng.
+   Σ (i = 0, k) _ Σ (j = 0, i) _ f i j)%rng.
 Proof.
 intros f k.
+Admitted. (*
 rewrite sigma_sigma_sub1.
 rewrite sigma_sub_distr.
 rewrite sigma_sigma_comm.
@@ -1502,6 +1502,7 @@ rewrite sigma_sigma_split_first.
 
   rewrite <- H.
 bbb.
+*)
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
@@ -1537,6 +1538,9 @@ rewrite sigma_compat with (g := f); subst f.
   rewrite <- sigma_sigma_mul_swap.
   rewrite <- sigma_sigma_mul_swap.
   rewrite zzz.
+  apply sigma_compat; intros i Hi.
+bbb.
+
   rewrite sigma_sigma_shift.
   apply sigma_compat; intros i Hi.
   apply sigma_compat; intros j Hj.
