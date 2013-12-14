@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.130 2013-12-14 01:56:18 deraugla Exp $ *)
+(* $Id: Series.v,v 2.131 2013-12-14 02:00:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1379,11 +1379,15 @@ reflexivity.
 Qed.
 
 Lemma sigma_sigma_split_first : ∀ f b₁ b₂ k₁ k₂,
-  (Σ (i = b₁, k₁)   Σ (j = b₂ i, k₂)   f i j =
-   Σ (i = b₁, k₁)   (f i (b₂ i) + Σ (j = S (b₂ i), k₂)   f i j))%rng.
+  (∀ i, b₁ ≤ i ≤ k₁ → b₂ i ≤ k₂)
+  → (Σ (i = b₁, k₁)   Σ (j = b₂ i, k₂)   f i j =
+     Σ (i = b₁, k₁)   (f i (b₂ i) + Σ (j = S (b₂ i), k₂)   f i j))%rng.
 Proof.
-bbb.
-*)
+intros f b₁ b₂ k₁ k₂ Hib.
+apply sigma_compat; intros i Hi.
+apply sigma_split_first.
+apply Hib; assumption.
+Qed.
 
 Lemma sigma_add_distr : ∀ f g b k,
   (Σ (i = b, k)   (f i + g i) =
