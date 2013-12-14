@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.129 2013-12-14 01:43:24 deraugla Exp $ *)
+(* $Id: Series.v,v 2.130 2013-12-14 01:56:18 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1369,8 +1369,14 @@ Lemma sigma_sigma_sub2 : ∀ f k,
   (Σ (j = 0, k)   Σ (i = S j, k)   f i j =
    Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = 0, j)   f i j))%rng.
 Proof.
-bbb.
-*)
+intros f k.
+apply sigma_compat; intros j (_, Hj).
+symmetry.
+rewrite <- sigma_append; [ idtac | eassumption ].
+rewrite Lfield.add_shuffle0.
+rewrite Lfield.add_opp_r, Lfield.add_0_l.
+reflexivity.
+Qed.
 
 Lemma sigma_sigma_split_first : ∀ f b₁ b₂ k₁ k₂,
   (Σ (i = b₁, k₁)   Σ (j = b₂ i, k₂)   f i j =
