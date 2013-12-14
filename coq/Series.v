@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.134 2013-12-14 07:59:07 deraugla Exp $ *)
+(* $Id: Series.v,v 2.135 2013-12-14 08:18:00 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1479,6 +1479,8 @@ rewrite sigma_sigma_split_first.
  rewrite Lfield.add_assoc.
  rewrite Lfield.add_opp_r.
  rewrite Lfield.add_0_l.
+ rewrite Lfield.add_comm.
+ rewrite <- sigma_add_distr.
 bbb.
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
