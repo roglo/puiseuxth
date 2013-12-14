@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.126 2013-12-13 20:10:59 deraugla Exp $ *)
+(* $Id: Series.v,v 2.127 2013-12-14 00:24:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1365,12 +1365,49 @@ rewrite <- sigma_append; [ idtac | eassumption ].
 rewrite Lfield.add_sub; reflexivity.
 Qed.
 
+Lemma yyy : ∀ f g b k,
+  (Σ (i = b, k)   (f i - g i) =
+   Σ (i = b, k)   f i - Σ (i = b, k)   g i)%rng.
+Proof.
+intros f g b k.
+destruct (le_dec b k) as [Hbk| Hbk].
+ revert b Hbk.
+ induction k; intros.
+  destruct b.
+   do 3 rewrite sigma_only_one; reflexivity.
+
+   unfold sigma; simpl; rewrite Lfield.add_opp_r; reflexivity.
+
+  rewrite sigma_succ; [ idtac | assumption ].
+  rewrite sigma_succ; [ idtac | assumption ].
+  rewrite sigma_succ; [ idtac | assumption ].
+  destruct (eq_nat_dec b (S k)) as [H₂| H₂].
+   subst b.
+   unfold sigma; simpl.
+   rewrite Nat.sub_diag; simpl.
+   do 2 rewrite Lfield.add_0_l; rewrite Lfield.add_0_l.
+   reflexivity.
+
+   apply le_neq_lt in Hbk; [ idtac | assumption ].
+   apply Nat.succ_le_mono in Hbk.
+   rewrite IHk; [ idtac | assumption ].
+   rewrite <- Lfield.add_assoc.
+   rewrite <- Lfield.add_assoc.
+   apply Lfield.add_compat_l.
+   rewrite Lfield.add_comm.
+   rewrite <- Lfield.add_assoc.
+   apply Lfield.add_compat_l.
+   rewrite Lfield.add_comm.
+bbb.
+
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
 intros f k.
 rewrite sigma_sigma_sub.
+rewrite yyy.
+rewrite sigma_sigma_comm.
 bbb.
 
 intros f k.
