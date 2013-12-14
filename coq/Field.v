@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.37 2013-12-13 20:10:59 deraugla Exp $ *)
+(* $Id: Field.v,v 2.38 2013-12-14 01:14:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -267,6 +267,20 @@ Module Make (F : FieldType).
   rewrite mul_comm; symmetry.
   rewrite mul_comm; symmetry.
   apply mul_opp_l.
+  Qed.
+
+  Theorem opp_add_distr : ∀ a b, (- (a + b) = - a - b)%rng.
+  Proof.
+  intros a b.
+  apply mul_reg_l with (c := 1%rng).
+   apply neq_1_0.
+
+   rewrite mul_opp_r.
+   rewrite <- mul_opp_l.
+   rewrite mul_add_distr_l.
+   do 2 rewrite mul_opp_l.
+   do 3 rewrite mul_1_l.
+   reflexivity.
   Qed.
 
   Theorem add_shuffle0 : ∀ n m p, (n + m + p = n + p + m)%rng.

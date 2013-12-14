@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.127 2013-12-14 00:24:28 deraugla Exp $ *)
+(* $Id: Series.v,v 2.128 2013-12-14 01:14:01 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1365,7 +1365,7 @@ rewrite <- sigma_append; [ idtac | eassumption ].
 rewrite Lfield.add_sub; reflexivity.
 Qed.
 
-Lemma yyy : ∀ f g b k,
+Lemma sigma_sub_distr : ∀ f g b k,
   (Σ (i = b, k)   (f i - g i) =
    Σ (i = b, k)   f i - Σ (i = b, k)   g i)%rng.
 Proof.
@@ -1398,7 +1398,14 @@ destruct (le_dec b k) as [Hbk| Hbk].
    rewrite <- Lfield.add_assoc.
    apply Lfield.add_compat_l.
    rewrite Lfield.add_comm.
-bbb.
+   rewrite Lfield.opp_add_distr.
+   reflexivity.
+
+ unfold sigma.
+ replace (S k - b)%nat with O by omega.
+ simpl.
+ rewrite Lfield.add_opp_r; reflexivity.
+Qed.
 
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
@@ -1406,7 +1413,7 @@ Lemma zzz : ∀ f k,
 Proof.
 intros f k.
 rewrite sigma_sigma_sub.
-rewrite yyy.
+rewrite sigma_sub_distr.
 rewrite sigma_sigma_comm.
 bbb.
 
