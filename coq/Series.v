@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.136 2013-12-14 08:25:07 deraugla Exp $ *)
+(* $Id: Series.v,v 2.137 2013-12-14 08:42:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1458,6 +1458,7 @@ Lemma zzz : ∀ f k,
    Σ (i = 0, k) _ Σ (j = i, k) _ f i j)%rng.
 Proof.
 intros f k.
+bbb.
 rewrite sigma_sigma_sub1.
 rewrite sigma_sub_distr.
 rewrite sigma_sigma_comm.
