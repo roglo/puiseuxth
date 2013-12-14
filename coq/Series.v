@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.141 2013-12-14 15:05:00 deraugla Exp $ *)
+(* $Id: Series.v,v 2.142 2013-12-14 15:59:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1572,34 +1572,25 @@ Proof.
 intros a b k Habk.
 unfold convol_mul.
 apply all_0_sigma_0; intros i Hi.
-apply all_0_sigma_0; intros j Hj.
-destruct (eq_nat_dec (i + j) k) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
-  rewrite Lfield.mul_assoc.
-  apply Lfield.mul_eq_0; right.
-  unfold series_nth.
-  destruct (Nbar.lt_dec (fin j) (stop b)) as [H₃| H₃].
-   exfalso; apply Nbar.nlt_ge in Habk; apply Habk.
-   rewrite <- H₁, Nbar.fin_inj_add.
-   remember (stop b) as st eqn:Hst .
-   symmetry in Hst.
-   destruct st as [st| ].
-    apply Nbar.lt_trans with (m := (fin i + fin st)%Nbar).
-     apply Nbar.add_lt_mono_l; [ intros H; discriminate H | assumption ].
+unfold series_nth.
+destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
+ destruct (Nbar.lt_dec (fin (k - i)) (stop b)) as [H₃| H₃].
+  rewrite Nbar.fin_inj_sub in H₃.
+  apply Nbar.lt_sub_lt_add_r in H₃; [ idtac | intros H; discriminate H ].
+  apply Nbar.nlt_ge in Habk.
+  exfalso; apply Habk.
+  remember (stop b) as stb eqn:Hstb .
+  symmetry in Hstb.
+  destruct stb as [stb| ].
+   eapply Nbar.lt_trans; [ eassumption | idtac ].
+   rewrite Nbar.add_comm.
+   apply Nbar.add_lt_mono_r; [ idtac | assumption ].
+   intros H; discriminate H.
 
-     apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
+   rewrite Nbar.add_comm; constructor.
 
-    simpl; rewrite Nbar.add_comm; constructor.
+  rewrite Lfield.mul_0_r; reflexivity.
 
-   reflexivity.
-
-  rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
-  apply Lfield.mul_eq_0; right.
-  unfold series_nth.
-  destruct (Nbar.lt_dec (fin i) (stop a)); [ contradiction | idtac ].
-  reflexivity.
-
- rewrite delta_neq; [ idtac | assumption ].
  rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
