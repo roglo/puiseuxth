@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.132 2013-12-14 02:02:12 deraugla Exp $ *)
+(* $Id: Series.v,v 2.133 2013-12-14 07:31:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1393,22 +1393,14 @@ Lemma sigma_add_distr : ∀ f g b k,
   (Σ (i = b, k) _ (f i + g i) =
    Σ (i = b, k) _ f i + Σ (i = b, k) _ g i)%rng.
 Proof.
-bbb.
-*)
-
-Lemma sigma_sub_distr : ∀ f g b k,
-  (Σ (i = b, k) _ (f i - g i) =
-   Σ (i = b, k) _ f i - Σ (i = b, k) _ g i)%rng.
-Proof.
 intros f g b k.
-bbb.
 destruct (le_dec b k) as [Hbk| Hbk].
  revert b Hbk.
  induction k; intros.
   destruct b.
    do 3 rewrite sigma_only_one; reflexivity.
 
-   unfold sigma; simpl; rewrite Lfield.add_opp_r; reflexivity.
+   unfold sigma; simpl; rewrite Lfield.add_0_r; reflexivity.
 
   rewrite sigma_succ; [ idtac | assumption ].
   rewrite sigma_succ; [ idtac | assumption ].
@@ -1423,20 +1415,42 @@ destruct (le_dec b k) as [Hbk| Hbk].
    apply le_neq_lt in Hbk; [ idtac | assumption ].
    apply Nat.succ_le_mono in Hbk.
    rewrite IHk; [ idtac | assumption ].
-   rewrite <- Lfield.add_assoc.
-   rewrite <- Lfield.add_assoc.
+   do 2 rewrite <- Lfield.add_assoc.
    apply Lfield.add_compat_l.
    rewrite Lfield.add_comm.
    rewrite <- Lfield.add_assoc.
    apply Lfield.add_compat_l.
    rewrite Lfield.add_comm.
-   rewrite Lfield.opp_add_distr.
    reflexivity.
 
  unfold sigma.
- replace (S k - b)%nat with O by omega.
- simpl.
- rewrite Lfield.add_opp_r; reflexivity.
+ apply Nat.nle_gt in Hbk.
+ replace (S k - b)%nat with O by omega; simpl.
+ rewrite Lfield.add_0_r; reflexivity.
+Qed.
+
+Lemma sigma_sub_distr : ∀ f g b k,
+  (Σ (i = b, k) _ (f i - g i) =
+   Σ (i = b, k) _ f i - Σ (i = b, k) _ g i)%rng.
+Proof.
+intros f g b k.
+rewrite sigma_add_distr.
+apply Lfield.add_compat_l.
+unfold sigma.
+destruct (le_dec b k) as [Hbk| Hbk].
+ remember (S k - b)%nat as len.
+ clear Hbk Heqlen.
+ revert b.
+ induction len; intros; simpl.
+  rewrite Lfield.opp_0; reflexivity.
+
+  rewrite IHlen.
+  rewrite Lfield.opp_add_distr.
+  reflexivity.
+
+ unfold sigma.
+ replace (S k - b)%nat with O by omega; simpl.
+ rewrite Lfield.opp_0; reflexivity.
 Qed.
 
 Lemma zzz : ∀ f k,
