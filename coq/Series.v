@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.146 2013-12-14 21:13:59 deraugla Exp $ *)
+(* $Id: Series.v,v 2.147 2013-12-14 21:17:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1779,6 +1779,9 @@ Lemma zzz : ∀ k a a',
     → (convol_mul a a' (S k) = 0)%rng.
 Proof.
 intros k a a' Ha Ha'.
+(*
+induction k as (k, IHk) using Misc.all_lt_all.
+*)
 induction k.
  unfold convol_mul.
  unfold sigma.
