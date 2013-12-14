@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.139 2013-12-14 13:42:39 deraugla Exp $ *)
+(* $Id: Series.v,v 2.140 2013-12-14 14:29:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1453,56 +1453,24 @@ destruct (le_dec b k) as [Hbk| Hbk].
  rewrite Lfield.opp_0; reflexivity.
 Qed.
 
-Lemma zzz : ∀ f k,
+Lemma sigma_sigma_exch : ∀ f k,
   (Σ (j = 0, k) _ Σ (i = 0, j) _ f i j =
-   Σ (i = 0, k) _ Σ (j = 0, i) _ f i j)%rng.
+   Σ (i = 0, k) _ Σ (j = i, k) _ f i j)%rng.
 Proof.
 intros f k.
-Admitted. (*
-rewrite sigma_sigma_sub1.
-rewrite sigma_sub_distr.
-rewrite sigma_sigma_comm.
-eapply Lfield.add_reg_r.
-rewrite <- Lfield.add_assoc.
-rewrite Lfield.add_opp_l, Lfield.add_0_r.
+induction k; [ reflexivity | idtac ].
+rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+rewrite IHk.
+rewrite sigma_only_one.
+rewrite Lfield.add_assoc.
+apply Lfield.add_compat_r.
 rewrite <- sigma_add_distr.
-apply sigma_compat; intros i Hi.
-remember (f i) as g.
-
-bbb.
-intros f k.
-rewrite sigma_sigma_sub1.
-rewrite sigma_sub_distr.
-rewrite sigma_sigma_comm.
-symmetry.
-rewrite sigma_sigma_split_first.
- rewrite sigma_add_distr.
- rewrite sigma_sigma_sub2.
- rewrite sigma_sub_distr.
- rewrite Lfield.add_comm.
- rewrite <- Lfield.add_assoc.
- apply Lfield.add_compat_l.
- rewrite Lfield.add_comm.
- eapply Lfield.add_reg_r.
- rewrite <- Lfield.add_assoc.
- rewrite Lfield.add_opp_l.
- rewrite Lfield.add_0_r.
- eapply Lfield.add_reg_l.
- symmetry.
- rewrite Lfield.add_assoc.
- rewrite Lfield.add_opp_r.
- rewrite Lfield.add_0_l.
- rewrite Lfield.add_comm.
- rewrite <- sigma_add_distr.
- assert
-  (Σ (i = 0, k)_ Σ (i0 = i, k)_ f i0 i =
-   Σ (i = 0, k)_ (f i i + Σ (i0 = S i, k)_ f i0 i))%rng.
-  rewrite sigma_sigma_split_first; [ reflexivity | idtac ].
-  intros i (_, Hi); assumption.
-
-  rewrite <- H.
-bbb.
-*)
+apply sigma_compat; intros i (_, Hi).
+rewrite sigma_succ; [ reflexivity | idtac ].
+apply Nat.le_le_succ_r; assumption.
+Qed.
 
 Theorem series_mul_assoc : ∀ a b c, (a * (b * c) = (a * b) * c)%ser.
 Proof.
@@ -1521,15 +1489,9 @@ do 2 rewrite series_nth_mul_inf; simpl.
 unfold convol_mul_inf; simpl.
 remember (λ i, (terms aa i * terms (series_mul_inf bb cc) (k - i))%rng) as f.
 rewrite sigma_compat with (g := f); subst f.
- Focus 2.
- intros i Hi; rewrite series_nth_mul_inf; reflexivity.
-
  symmetry.
  remember (λ i, (terms (series_mul_inf aa bb) i * terms cc (k - i))%rng) as f.
  rewrite sigma_compat with (g := f); subst f.
-  Focus 2.
-  intros i Hi; rewrite series_nth_mul_inf; reflexivity.
-
   symmetry.
   unfold series_mul_inf; simpl.
   unfold convol_mul_inf.
@@ -1537,10 +1499,7 @@ rewrite sigma_compat with (g := f); subst f.
   rewrite sigma_mul_comm.
   rewrite <- sigma_sigma_mul_swap.
   rewrite <- sigma_sigma_mul_swap.
-  rewrite zzz.
-  apply sigma_compat; intros i Hi.
-bbb.
-
+  rewrite sigma_sigma_exch.
   rewrite sigma_sigma_shift.
   apply sigma_compat; intros i Hi.
   apply sigma_compat; intros j Hj.
@@ -1548,39 +1507,10 @@ bbb.
   rewrite Nat.add_comm, Nat.add_sub.
   rewrite Nat.add_comm, Nat.sub_add_distr.
   reflexivity.
-bbb.
 
-intros a b c.
-pose proof (series_mul_mul_inf b c) as H.
-rewrite H; clear H.
-pose proof (series_mul_mul_inf a b) as H.
-rewrite H; clear H.
-rewrite series_mul_mul_inf; symmetry.
-rewrite series_mul_mul_inf; symmetry.
-remember (series_inf rng a) as aa eqn:Haa .
-remember (series_inf rng b) as bb eqn:Hbb .
-remember (series_inf rng c) as cc eqn:Hcc .
-constructor; intros k.
-do 2 rewrite series_nth_mul_inf; simpl.
-unfold convol_mul_inf; simpl.
-remember
- (λ i j, (δ (i + j) k * terms aa i * terms (series_mul_inf bb cc) j)%rng) as f.
-rewrite sigma_sigma_compat with (g := f); subst f.
- Focus 2.
- intros i j; rewrite series_nth_mul_inf; reflexivity.
+  intros i Hi; rewrite series_nth_mul_inf; reflexivity.
 
- symmetry.
- remember
-  (λ i j, (δ (i + j) k * terms (series_mul_inf aa bb) i * terms cc j)%rng) as f.
- rewrite sigma_sigma_compat with (g := f); subst f.
-  Focus 2.
-  intros i j; rewrite series_nth_mul_inf; reflexivity.
-
-  symmetry.
-  unfold series_mul_inf; simpl.
-  unfold convol_mul_inf.
-  rewrite convol_mul_assoc_1; symmetry.
-  apply convol_mul_assoc_2.
+ intros i Hi; rewrite series_nth_mul_inf; reflexivity.
 Qed.
 
 Lemma sigma_aux_add : ∀ f g b len,
