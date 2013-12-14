@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.145 2013-12-14 20:45:47 deraugla Exp $ *)
+(* $Id: Series.v,v 2.146 2013-12-14 21:13:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1774,33 +1774,63 @@ Definition series_inv s :=
      stop := ∞ |}.
 
 Lemma zzz : ∀ k a a',
-  a' = series_inv a
-  → (convol_mul a a' (S k) = 0)%rng.
+  (a[0] ≠ 0)%rng
+  → a' = series_inv a
+    → (convol_mul a a' (S k) = 0)%rng.
 Proof.
-bbb.
-
-Lemma zzz : ∀ k a a',
-  a' = series_inv a
-  → (convol_mul a a' (S k) =
-     Lfield.inv fld a[0] *
-      (a[S k] -
-       Σ (i = 0, k) _ Σ (j = 1, S k - i) _ a[i] * a[j] * a'[S k-i-j]))%rng.
-Proof.
-intros k a a' Ha'.
+intros k a a' Ha Ha'.
 induction k.
  unfold convol_mul.
- rewrite sigma_only_one.
- rewrite Nat.sub_0_r.
- rewrite sigma_only_one.
- rewrite Nat.sub_diag.
  unfold sigma.
  rewrite Nat.sub_0_r.
  remember minus as f; simpl; subst f.
  rewrite Nat.sub_0_r.
  rewrite Nat.sub_diag.
  rewrite Lfield.add_0_r.
- (* là, ça vaut 0, clairement, mais l'égalité à 0 est censée être dans
-    une deuxième étape ; qu'est-ce que je fais ? *)
+ unfold series_nth in Ha |- *.
+ destruct (Nbar.lt_dec 0 (stop a)) as [H₁| H₁].
+  destruct (Nbar.lt_dec 1 (stop a')) as [H₂| H₂].
+   destruct (Nbar.lt_dec 1 (stop a)) as [H₃| H₃].
+    destruct (Nbar.lt_dec 0 (stop a')) as [H₄| H₄].
+     rewrite Ha'; simpl.
+     rewrite sigma_only_one; simpl.
+     unfold series_nth.
+     destruct (Nbar.lt_dec 0 (stop a)) as [H₅| H₅].
+      destruct (Nbar.lt_dec 1 (stop a)) as [H₆| H₆].
+       rewrite Lfield.mul_opp_l.
+       rewrite Lfield.mul_opp_r.
+       rewrite Lfield.mul_assoc.
+       rewrite Lfield.mul_inv_r; [ idtac | assumption ].
+       rewrite Lfield.mul_1_l.
+       rewrite Lfield.add_opp_l.
+       reflexivity.
+
+       contradiction.
+
+      contradiction.
+
+     exfalso; apply H₄; rewrite Ha'; constructor.
+
+    destruct (Nbar.lt_dec 0 (stop a')) as [H₄| H₄].
+     rewrite Ha'; simpl.
+     rewrite sigma_only_one; simpl.
+     unfold series_nth.
+     destruct (Nbar.lt_dec 0 (stop a)) as [H₅| H₅].
+      destruct (Nbar.lt_dec 1 (stop a)) as [H₆| H₆].
+       contradiction.
+
+       rewrite Lfield.mul_0_l.
+       rewrite Lfield.mul_0_r.
+       rewrite Lfield.mul_0_r.
+       rewrite Lfield.add_0_r; reflexivity.
+
+      contradiction.
+
+     exfalso; apply H₄; rewrite Ha'; constructor.
+
+   exfalso; apply H₂; rewrite Ha'; constructor.
+
+  exfalso; apply Ha; reflexivity.
 bbb.
 
 (**)
