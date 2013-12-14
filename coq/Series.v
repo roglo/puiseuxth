@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.128 2013-12-14 01:14:01 deraugla Exp $ *)
+(* $Id: Series.v,v 2.129 2013-12-14 01:43:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1354,7 +1354,7 @@ induction k; intros.
    rewrite Lfield.add_assoc; reflexivity.
 Qed.
 
-Lemma sigma_sigma_sub : ∀ f k,
+Lemma sigma_sigma_sub1 : ∀ f k,
   (Σ (j = 0, k)   Σ (i = 0, j)   f i j =
    Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = S j, k)   f i j))%rng.
 Proof.
@@ -1365,11 +1365,33 @@ rewrite <- sigma_append; [ idtac | eassumption ].
 rewrite Lfield.add_sub; reflexivity.
 Qed.
 
+Lemma sigma_sigma_sub2 : ∀ f k,
+  (Σ (j = 0, k)   Σ (i = S j, k)   f i j =
+   Σ (j = 0, k)   (Σ (i = 0, k)   f i j - Σ (i = 0, j)   f i j))%rng.
+Proof.
+bbb.
+*)
+
+Lemma sigma_sigma_split_first : ∀ f b₁ b₂ k₁ k₂,
+  (Σ (i = b₁, k₁)   Σ (j = b₂ i, k₂)   f i j =
+   Σ (i = b₁, k₁)   (f i (b₂ i) + Σ (j = S (b₂ i), k₂)   f i j))%rng.
+Proof.
+bbb.
+*)
+
+Lemma sigma_add_distr : ∀ f g b k,
+  (Σ (i = b, k)   (f i + g i) =
+   Σ (i = b, k)   f i + Σ (i = b, k)   g i)%rng.
+Proof.
+bbb.
+*)
+
 Lemma sigma_sub_distr : ∀ f g b k,
   (Σ (i = b, k)   (f i - g i) =
    Σ (i = b, k)   f i - Σ (i = b, k)   g i)%rng.
 Proof.
 intros f g b k.
+bbb.
 destruct (le_dec b k) as [Hbk| Hbk].
  revert b Hbk.
  induction k; intros.
@@ -1412,9 +1434,17 @@ Lemma zzz : ∀ f k,
    Σ (i = 0, k)   Σ (j = i, k)   f i j)%rng.
 Proof.
 intros f k.
-rewrite sigma_sigma_sub.
+rewrite sigma_sigma_sub1.
 rewrite sigma_sub_distr.
 rewrite sigma_sigma_comm.
+symmetry.
+rewrite sigma_sigma_split_first.
+rewrite sigma_add_distr.
+rewrite sigma_sigma_sub2.
+rewrite sigma_sub_distr.
+rewrite Lfield.add_comm.
+rewrite <- Lfield.add_assoc.
+apply Lfield.add_compat_l.
 bbb.
 
 intros f k.
