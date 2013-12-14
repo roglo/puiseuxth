@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.137 2013-12-14 08:42:41 deraugla Exp $ *)
+(* $Id: Series.v,v 2.138 2013-12-14 10:18:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1453,12 +1453,24 @@ destruct (le_dec b k) as [Hbk| Hbk].
  rewrite Lfield.opp_0; reflexivity.
 Qed.
 
+(* aïe, j'ai peur que ce soit faux... *)
 Lemma zzz : ∀ f k,
   (Σ (j = 0, k) _ Σ (i = 0, j) _ f i j =
    Σ (i = 0, k) _ Σ (j = i, k) _ f i j)%rng.
 Proof.
 intros f k.
+rewrite sigma_sigma_sub1.
+rewrite sigma_sub_distr.
+rewrite sigma_sigma_comm.
+eapply Lfield.add_reg_r.
+rewrite <- Lfield.add_assoc.
+rewrite Lfield.add_opp_l, Lfield.add_0_r.
+rewrite <- sigma_add_distr.
+apply sigma_compat; intros i Hi.
+remember (f i) as g.
+
 bbb.
+intros f k.
 rewrite sigma_sigma_sub1.
 rewrite sigma_sub_distr.
 rewrite sigma_sigma_comm.
