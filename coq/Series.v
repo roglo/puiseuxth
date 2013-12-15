@@ -1,4 +1,6 @@
-(* $Id: Series.v,v 2.150 2013-12-15 08:40:46 deraugla Exp $ *)
+(* $Id$ *)
+
+aaa.
 
 Require Import Utf8.
 Require Import QArith.
