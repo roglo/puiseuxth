@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.149 2013-12-15 04:05:46 deraugla Exp $ *)
+(* $Id: Series.v,v 2.150 2013-12-15 08:40:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1780,8 +1780,13 @@ Theorem series_inv_0 : ∀ a,
   → (a [0] = 0)%rng.
 Proof.
 intros a Ha.
+series_inv_0 < Show Script.
+intros a Ha.
 unfold series_nth in Ha |- *.
 simpl in Ha.
+destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
+ unfold series_nth in Ha.
+ destruct (Nbar.lt_dec 0 (stop a)) as [H₂| ]; [ idtac | reflexivity ].
 bbb.
 
 Lemma zzz : ∀ k a a',
