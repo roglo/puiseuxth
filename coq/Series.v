@@ -1797,15 +1797,12 @@ Proof.
 intros k a a' Ha Ha'.
 induction k as (k, IHk) using Misc.all_lt_all.
 unfold convol_mul.
-rewrite Ha'; remember minus as f; simpl; subst f.
-rewrite sigma_split_first; [ idtac | apply Nat.le_0_l ].
-rewrite Nat.sub_0_r.
-eapply Lfield.add_reg_r.
-rewrite <- Lfield.add_assoc.
-rewrite Lfield.add_opp_r.
-rewrite Lfield.add_0_r, Lfield.add_0_l.
-apply Lfield.mul_reg_l with (c := a' [0]%fld).
- intros H; apply Ha.
+rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+rewrite Nat.sub_diag.
+remember a' [0]%rng as x eqn:Hx .
+rewrite Ha' in Hx.
+unfold series_nth in Hx; simpl in Hx.
+destruct (Nbar.lt_dec 0 ∞) as [H| H]; [ clear H | exfalso ].
 bbb.
 
 intros k a a' Ha Ha'.
