@@ -1,4 +1,4 @@
-(* $RCSfile: Series.v,v $ $Date: 2013-12-15 11:17:29 $ *)
+(* $RCSfile: Series.v,v $ $Date: 2013-12-15 14:43:53 $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1794,6 +1794,31 @@ Lemma zzz : ∀ k a a',
   → a' = series_inv a
     → (convol_mul a a' (S k) = 0)%rng.
 Proof.
+intros k a a' Ha Ha'.
+assert (a' [S k] = - a' [0] * Σ (i = 1, S k)_ a [i] * a' [S k - i])%rng
+ as Hak.
+ rewrite Ha' in |- * at 1.
+ unfold series_inv.
+ remember minus as f; simpl; subst f.
+ unfold series_nth at 1.
+ remember minus as f; simpl; subst f.
+ destruct (Nbar.lt_dec (fin (S k)) ∞) as [H₁| H₁].
+  assert ((¹/a [0])%fld = a' [0])%rng as Haa.
+   unfold series_nth; simpl.
+   clear H₁.
+   rewrite Ha'; simpl.
+   destruct (Nbar.lt_dec 0 ∞) as [| H₁]; [ reflexivity | idtac ].
+   exfalso; apply H₁; constructor.
+
+   rewrite Haa.
+   apply Lfield.mul_compat_l.
+   apply sigma_compat; intros i Hi.
+   apply Lfield.mul_compat_l.
+   clear H₁.
+   destruct (zerop (S k - i)) as [H₁| H₁]; [ rewrite H₁; assumption | idtac ].
+   symmetry.
+bbb.
+
 intros k a a' Ha Ha'.
 induction k as (k, IHk) using Misc.all_lt_all.
 unfold convol_mul.
