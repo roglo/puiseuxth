@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.148 2013-12-15 03:32:14 deraugla Exp $ *)
+(* $Id: Series.v,v 2.149 2013-12-15 04:05:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1775,6 +1775,15 @@ Definition series_inv s :=
 
 Notation "1/ a" := (series_inv a) : series_scope.
 
+Theorem series_inv_0 : ∀ a,
+  ((series_inv a) [0] = 0)%rng
+  → (a [0] = 0)%rng.
+Proof.
+intros a Ha.
+unfold series_nth in Ha |- *.
+simpl in Ha.
+bbb.
+
 Lemma zzz : ∀ k a a',
   (a[0] ≠ 0)%rng
   → a' = series_inv a
@@ -1784,13 +1793,14 @@ intros k a a' Ha Ha'.
 induction k as (k, IHk) using Misc.all_lt_all.
 unfold convol_mul.
 rewrite Ha'; remember minus as f; simpl; subst f.
-rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
-rewrite Nat.sub_diag.
-remember (series_inv a) [0] as a₀ eqn:Ha₀ .
-unfold series_nth in Ha₀.
-simpl in Ha₀.
-destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
- subst a₀.
+rewrite sigma_split_first; [ idtac | apply Nat.le_0_l ].
+rewrite Nat.sub_0_r.
+eapply Lfield.add_reg_r.
+rewrite <- Lfield.add_assoc.
+rewrite Lfield.add_opp_r.
+rewrite Lfield.add_0_r, Lfield.add_0_l.
+apply Lfield.mul_reg_l with (c := a' [0]%fld).
+ intros H; apply Ha.
 bbb.
 
 intros k a a' Ha Ha'.
