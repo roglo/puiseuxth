@@ -1773,14 +1773,13 @@ Definition series_inv s :=
   {| terms i := term_inv (S i) s i;
      stop := ∞ |}.
 
-Notation "1/ a" := (series_inv a) : series_scope.
+Notation "¹/ a" := (series_inv a) (at level 99) : series_scope.
 
+(* likely needs decidability of equality in fields...
 Theorem series_inv_0 : ∀ a,
   ((series_inv a) [0] = 0)%rng
   → (a [0] = 0)%rng.
 Proof.
-intros a Ha.
-series_inv_0 < Show Script.
 intros a Ha.
 unfold series_nth in Ha |- *.
 simpl in Ha.
@@ -1788,6 +1787,7 @@ destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
  unfold series_nth in Ha.
  destruct (Nbar.lt_dec 0 (stop a)) as [H₂| ]; [ idtac | reflexivity ].
 bbb.
+*)
 
 Lemma zzz : ∀ k a a',
   (a[0] ≠ 0)%rng
