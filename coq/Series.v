@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.160 2013-12-15 18:06:08 deraugla Exp $ *)
+(* $Id: Series.v,v 2.161 2013-12-15 18:46:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1789,17 +1789,21 @@ destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
 bbb.
 *)
 
-Lemma www : ∀ a i, ((¹/a [i])%fld = (¹/a)%ser [i])%rng.
+Lemma inv_nth_0 : ∀ a, ((¹/a [0])%fld = (¹/a)%ser [0])%rng.
 Proof.
-bbb.
-*)
+intros a.
+unfold series_nth; simpl.
+unfold series_nth; simpl.
+destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁]; [ reflexivity | idtac ].
+exfalso; apply H₁; constructor.
+Qed.
 
 Lemma xxx : ∀ k a a' i,
   (a[0] ≠ 0)%rng
   → a' = series_inv a
    → (a' [S k - i] =
       - a' [0] *
-      Σ (j = 1, S k - i)_ a [j] * term_inv (S k - i) a (S k - i - j))%rng.
+      Σ (j = 1, S k - i)_ a [j] * term_inv (S k) a (S k - i - j))%rng.
 Proof.
 intros k a a' i Ha Ha'.
 bbb.
@@ -1823,10 +1827,10 @@ remember minus as f; simpl; subst f.
 destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
  destruct (zerop (S k - i)) as [H₂| H₂].
   reflexivity.
-bbb.
 
-  rewrite H₂.
-  destruct k; reflexivity.
+  apply Lfield.mul_compat_l.
+  apply sigma_compat; intros j Hj.
+  apply Lfield.mul_compat_l.
 bbb.
 
 Lemma zzz : ∀ k a a',
