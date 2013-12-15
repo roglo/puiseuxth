@@ -37,7 +37,7 @@ Module Tdef.
   Record f α :=
     { ring : r α;
       inv : α → α;
-      mul_inv_l : ∀ a,
+      fld_mul_inv_l : ∀ a,
         not (eq ring a (zero ring))
         → eq ring (mul ring (inv a) a) (one ring) }.
 End Tdef.
@@ -133,6 +133,12 @@ Module Make (F : FieldType).
   intros a.
   rewrite mul_comm, mul_1_l.
   reflexivity.
+  Qed.
+
+  Theorem mul_inv_l : ∀ x, (x ≠ 0)%rng → (inv fld x * x = 1)%rng.
+  Proof.
+  intros x H.
+  apply fld_mul_inv_l; assumption.
   Qed.
 
   Theorem mul_inv_r : ∀ x, (x ≠ 0)%rng → (x * inv fld x = 1)%rng.

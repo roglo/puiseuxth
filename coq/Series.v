@@ -1803,7 +1803,14 @@ remember a' [0]%rng as x eqn:Hx .
 rewrite Ha' in Hx.
 unfold series_nth in Hx; simpl in Hx.
 destruct (Nbar.lt_dec 0 ∞) as [H| H]; [ clear H | exfalso ].
+ subst x.
 bbb.
+(*
+ apply Lfield.mul_reg_r with (c := a [0]%rng); auto.
+ rewrite Lfield.mul_0_l.
+ rewrite Lfield.mul_add_distr_r.
+ rewrite <- Lfield.mul_assoc.
+*)
 
 intros k a a' Ha Ha'.
 induction k.
