@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.39 2013-12-15 03:32:14 deraugla Exp $ *)
+(* $Id$ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
