@@ -1,4 +1,4 @@
-(* $Id$ *)
+(* $RCSfile: Series.v,v $ $Date: 2013-12-15 11:17:29 $ *)
 
 Require Import Utf8.
 Require Import QArith.
