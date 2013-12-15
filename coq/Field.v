@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.39 2013-12-15 03:32:14 deraugla Exp $ *)
+(* $Id$ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
@@ -66,7 +66,7 @@ Module Make (F : FieldType).
   Notation "a * b" := (mul rng a b) : ring_scope.
 
   Delimit Scope field_scope with fld.
-  Notation "1/ a" := (inv fld a) (at level 99) : field_scope.
+  Notation "¹/ a" := (inv fld a) (at level 99) : field_scope.
 
   End Syntax.
 
