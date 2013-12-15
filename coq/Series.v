@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.147 2013-12-14 21:17:39 deraugla Exp $ *)
+(* $Id: Series.v,v 2.148 2013-12-15 03:32:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1763,7 +1763,7 @@ Fixpoint term_inv c s n :=
   if zerop n then Lfield.inv fld s[0]
   else
     match c with
-    | O => Lfield.zero rng
+    | O => 0%rng
     | S c₁ =>
         (- Lfield.inv fld s[0] *
          Σ (i = 1, n) _ s[i] * term_inv c₁ s (n - i)%nat)%rng
@@ -1773,15 +1773,27 @@ Definition series_inv s :=
   {| terms i := term_inv (S i) s i;
      stop := ∞ |}.
 
+Notation "1/ a" := (series_inv a) : series_scope.
+
 Lemma zzz : ∀ k a a',
   (a[0] ≠ 0)%rng
   → a' = series_inv a
     → (convol_mul a a' (S k) = 0)%rng.
 Proof.
 intros k a a' Ha Ha'.
-(*
 induction k as (k, IHk) using Misc.all_lt_all.
-*)
+unfold convol_mul.
+rewrite Ha'; remember minus as f; simpl; subst f.
+rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
+rewrite Nat.sub_diag.
+remember (series_inv a) [0] as a₀ eqn:Ha₀ .
+unfold series_nth in Ha₀.
+simpl in Ha₀.
+destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
+ subst a₀.
+bbb.
+
+intros k a a' Ha Ha'.
 induction k.
  unfold convol_mul.
  unfold sigma.
