@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.76 2013-12-11 18:11:35 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.77 2013-12-16 13:56:41 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -210,8 +210,8 @@ induction k₂; intros.
 Qed.
 
 Lemma sigma_add : ∀ f k₁ k₂,
-  (Σ (i = 0, k₁ + k₂)   f i
-   = Σ (i = 0, k₁)   f i + Σ (i = S k₁, k₁ + k₂)   f i)%rng.
+  (Σ (i = 0, k₁ + k₂) _ f i
+   = Σ (i = 0, k₁) _ f i + Σ (i = S k₁, k₁ + k₂) _ f i)%rng.
 Proof.
 intros f k₁ k₂.
 unfold sigma.
@@ -261,8 +261,8 @@ Qed.
 Lemma sigma_mul_sigma_sigma : ∀ f n k,
   (0 < n)%nat
   → (0 < k)%nat
-    → (Σ (i = 0, k * n - 1)   f i
-       = Σ (i = 0, k - 1)   Σ (j = 0, n - 1)   f (i * n + j)%nat)%rng.
+    → (Σ (i = 0, k * n - 1) _ f i
+       = Σ (i = 0, k - 1) _ Σ (j = 0, n - 1) _ f (i * n + j)%nat)%rng.
 Proof.
 intros f n k Hn Hk.
 unfold sigma.
@@ -283,7 +283,7 @@ Lemma inserted_0_sigma : ∀ f g k n,
   n ≠ O
   → (∀ i, i mod n ≠ O → (f i = 0)%rng)
     → (∀ i, (f (n * i)%nat = g i)%rng)
-      → (Σ (i = 0, k * n)   f i = Σ (i = 0, k)   g i)%rng.
+      → (Σ (i = 0, k * n) _ f i = Σ (i = 0, k) _ g i)%rng.
 Proof.
 intros f g k n Hn Hf Hfg.
 destruct k.
@@ -573,7 +573,7 @@ destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
 Qed.
 
 Lemma sigma_add_add_sub : ∀ f b k n,
-  (Σ (i = b, k)   f i = Σ (i = b + n, k + n)   f (i - n)%nat)%rng.
+  (Σ (i = b, k) _ f i = Σ (i = b + n, k + n) _ f (i - n)%nat)%rng.
 Proof.
 intros f b k n.
 unfold sigma.
