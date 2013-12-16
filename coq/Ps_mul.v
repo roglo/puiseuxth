@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.77 2013-12-16 13:56:41 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.78 2013-12-16 17:33:51 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -339,6 +339,7 @@ destruct k.
   rewrite Nat.add_comm; reflexivity.
 Qed.
 
+(*
 Lemma delta_mul_cancel_r : ∀ a b c, c ≠ O → (δ (a * c) (b * c) = δ a b)%rng.
 Proof.
 intros a b c Hc.
@@ -353,6 +354,7 @@ destruct (eq_nat_dec a b) as [H₁| H₁].
   apply Nat.mul_cancel_r in H; assumption.
 
 Qed.
+*)
 
 Lemma series_stretch_mul : ∀ a b k,
   (series_stretch k (a * b) = series_stretch k a * series_stretch k b)%ser.
@@ -376,33 +378,19 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
   symmetry.
   apply inserted_0_sigma; auto.
    intros i Hi.
-   apply all_0_sigma_0; intros j.
    rewrite shifted_in_stretched.
-    rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
+    rewrite Lfield.mul_0_l; reflexivity.
 
     apply neq_0_lt, Nat.neq_sym; assumption.
 
    intros i.
-   apply inserted_0_sigma; auto.
-    intros j Hj.
-    rewrite delta_neq.
-     rewrite Lfield.mul_0_l; reflexivity.
-
-     intros H.
-     apply Hj.
-     apply Nat.mod_divides; auto.
-     exists (c - i)%nat.
-     rewrite Nat.mul_sub_distr_l.
-     symmetry; apply Nat.add_sub_eq_l.
-     symmetry; rewrite Nat.mul_comm; symmetry; assumption.
-
-    intros j.
-    rewrite <- Nat.mul_add_distr_l, Nat.mul_comm.
-    rewrite delta_mul_cancel_r; auto.
-    apply Lfield.mul_compat_l.
-    rewrite series_nth_mul_stretch.
-    rewrite series_nth_mul_stretch.
-    reflexivity.
+   rewrite Nat.mul_comm.
+   rewrite <- Nat.mul_sub_distr_r.
+   rewrite Nat.mul_comm.
+   rewrite series_nth_mul_stretch.
+   rewrite Nat.mul_comm.
+   rewrite series_nth_mul_stretch.
+   reflexivity.
 
   exfalso; apply H₂.
   subst i.
@@ -418,6 +406,8 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  unfold convol_mul.
  symmetry.
  apply all_0_sigma_0; intros j Hj.
+bbb.
+
  apply all_0_sigma_0; intros l Hl.
  destruct (eq_nat_dec (j + l) i) as [H₃| H₃].
   destruct (zerop (j mod Pos.to_nat k)) as [H₄| H₄].
