@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.78 2013-12-16 17:33:51 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.79 2013-12-16 17:49:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -406,32 +406,35 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  unfold convol_mul.
  symmetry.
  apply all_0_sigma_0; intros j Hj.
-bbb.
-
- apply all_0_sigma_0; intros l Hl.
- destruct (eq_nat_dec (j + l) i) as [H₃| H₃].
-  destruct (zerop (j mod Pos.to_nat k)) as [H₄| H₄].
-   destruct (zerop (l mod Pos.to_nat k)) as [H₅| H₅].
-    apply Nat.mod_divides in H₄; auto.
-    apply Nat.mod_divides in H₅; auto.
-    destruct H₄ as (c, Hc).
-    destruct H₅ as (d, Hd).
-    subst j l.
+ destruct (zerop (j mod Pos.to_nat k)) as [H₄| H₄].
+  destruct (zerop ((i - j) mod Pos.to_nat k)) as [H₅| H₅].
+   apply Nat.mod_divides in H₄; auto.
+   apply Nat.mod_divides in H₅; auto.
+   destruct H₄ as (c, Hc).
+   destruct H₅ as (d, Hd).
+   subst j.
+   apply Nat.add_sub_eq_nz in Hd.
     subst i.
     rewrite <- Nat.mul_add_distr_l in H₂; auto.
     rewrite Nat.mul_comm in H₂.
     rewrite Nat.mod_mul in H₂; auto.
     exfalso; revert H₂; apply Nat.lt_irrefl.
 
-    rewrite Lfield.mul_assoc, Lfield.mul_shuffle0.
-    rewrite shifted_in_stretched; [ idtac | assumption ].
-    rewrite Lfield.mul_0_r, Lfield.mul_0_l; reflexivity.
+    intros H.
+    rewrite H in Hd.
+    apply Nat.sub_0_le in Hd.
+    destruct Hj as (_, Hj).
+    apply Nat.le_antisymm in Hd; auto.
+    rewrite <- Hd in H₂.
+    rewrite Nat.mul_comm in H₂.
+    rewrite Nat.mod_mul in H₂; auto.
+    exfalso; revert H₂; apply Nat.lt_irrefl.
 
-   rewrite Lfield.mul_assoc.
+   rewrite Lfield.mul_comm.
    rewrite shifted_in_stretched; [ idtac | assumption ].
-   rewrite Lfield.mul_0_r, Lfield.mul_0_l; reflexivity.
+   rewrite Lfield.mul_0_l; reflexivity.
 
-  rewrite delta_neq; [ idtac | assumption ].
+  rewrite shifted_in_stretched; [ idtac | assumption ].
   rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
@@ -586,6 +589,8 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
  destruct (lt_dec k n) as [H₂| H₂].
   symmetry; unfold convol_mul; simpl.
   apply all_0_sigma_0; intros i Hi.
+bbb.
+
   apply all_0_sigma_0; intros j Hj.
   destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
    rewrite series_nth_lt_shift.
