@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.8 2013-12-16 19:55:35 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.9 2013-12-16 20:37:14 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -180,8 +180,21 @@ remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
+  rewrite series_inv_compat with (b := ps_terms ps).
+   unfold ps_mul; simpl.
+   unfold cm_factor, cm; simpl.
+   rewrite <- series_stretch_mul.
+   rewrite series_mul_inv_l.
+    rewrite Z.mul_opp_l.
+    rewrite Z.add_opp_l.
+    rewrite Z.sub_diag.
+    constructor.
+    constructor; simpl.
+     Focus 1.
+     erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
+      rewrite Z.div_0_l.
+
 bbb.
-rewrite series_inv_compat.
 
 intros ps Hps.
 remember (ps_terms (ps_inv ps * ps)%ps) as s.
