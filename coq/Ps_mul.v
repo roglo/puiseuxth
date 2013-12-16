@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.79 2013-12-16 17:49:32 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.80 2013-12-16 19:13:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -580,6 +580,46 @@ Qed.
 Lemma series_shift_mul : ∀ a b n,
   (series_shift n (a * b) = series_shift n a * b)%ser.
 Proof.
+intros a b n.
+constructor; intros k.
+unfold series_nth; simpl.
+rewrite Nbar.add_shuffle0.
+destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
+ destruct (lt_dec k n) as [H₂| H₂].
+  symmetry; unfold convol_mul; simpl.
+  apply all_0_sigma_0; intros i Hi.
+  rewrite series_nth_lt_shift.
+   rewrite Lfield.mul_0_l; reflexivity.
+
+   eapply le_lt_trans; [ idtac | eassumption ].
+   destruct Hi; assumption.
+
+  unfold convol_mul; simpl.
+  apply Nat.nlt_ge in H₂.
+  symmetry.
+  destruct n.
+   rewrite Nat.sub_0_r.
+   apply sigma_compat; intros i Hi.
+   rewrite series_shift_0; reflexivity.
+
+   assert (k = (n + (k - n))%nat) as H by omega.
+   rewrite H in |- * at 1; clear H.
+   rewrite sigma_add.
+   rewrite Lfield.add_comm.
+   rewrite Nat.add_sub_assoc; [ idtac | omega ].
+   rewrite Nat.add_comm, Nat.add_sub.
+   rewrite Lfield.add_comm.
+   rewrite all_0_sigma_0.
+    rewrite Lfield.add_0_l.
+    symmetry.
+    rewrite sigma_add_add_sub with (n := S n).
+    rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
+    apply sigma_compat; intros i Hi.
+    assert (i = i - S n + S n)%nat as H by omega.
+    rewrite H in |- * at 3.
+    rewrite series_nth_add_shift.
+bbb.
+
 (* à nettoyer *)
 intros a b n.
 constructor; intros k.
