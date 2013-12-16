@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.7 2013-12-11 18:11:35 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.8 2013-12-16 19:55:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -154,21 +154,23 @@ induction i.
 bbb.
 *)
 
-Lemma yyy : ∀ a b,
-  (a ≠ 0)%ser
+Lemma series_inv_compat : ∀ a b,
+  (a [0] ≠ 0)%rng
   → (a = b)%ser
     → (series_inv a = series_inv b)%ser.
 Proof.
 intros a b Ha Hab.
+remember Ha as Hb; clear HeqHb.
+rewrite Hab in Hb.
 apply series_mul_compat_l with (c := series_inv a) in Hab.
 apply series_mul_compat_r with (c := series_inv b) in Hab.
-bbb.
-
-intros a b Ha Hab.
-constructor; intros i.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
-bbb.
+rewrite series_mul_inv_l in Hab; auto.
+rewrite series_mul_1_l in Hab.
+rewrite <- series_mul_assoc in Hab.
+rewrite series_mul_inv_r in Hab; auto.
+rewrite series_mul_1_r in Hab.
+symmetry; assumption.
+Qed.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
@@ -179,7 +181,7 @@ symmetry in Hn.
 destruct n as [n| ].
  destruct n.
 bbb.
-rewrite yyy.
+rewrite series_inv_compat.
 
 intros ps Hps.
 remember (ps_terms (ps_inv ps * ps)%ps) as s.
