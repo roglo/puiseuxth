@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.173 2013-12-16 15:02:48 deraugla Exp $ *)
+(* $Id: Series.v,v 2.174 2013-12-16 15:23:27 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -23,11 +23,13 @@ Record series α :=
   { terms : nat → α;
     stop : Nbar }.
 
+(*
 Definition series_nth_opt α n (s : series α) :=
   match stop s with
   | fin st => if lt_dec n st then Some (terms s n) else None
   | ∞ => Some (terms s n)
   end.
+*)
 
 Definition series_nth α rng n (s : series α) :=
   if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.Tdef.zero rng.
@@ -35,6 +37,7 @@ Definition series_nth α rng n (s : series α) :=
 Definition series_inf α fld (a : series α) :=
   {| terms i := series_nth fld i a; stop := ∞ |}.
 
+(*
 Theorem stop_0_series_nth_None : ∀ α (s : series α),
   stop s = 0%Nbar → series_nth_opt 0 s = None.
 Proof.
@@ -42,14 +45,19 @@ intros α s Hs.
 unfold series_nth_opt.
 rewrite Hs; reflexivity.
 Qed.
+*)
 
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
+(*
 Notation "x < y ≤ z" := (x < y ∧ y ≤ z)%nat (at level 70, y at next level).
+*)
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
-Definition series_0 := {| terms i := Lfield.zero rng; stop := 0 |}.
-Definition series_1 := {| terms i := Lfield.one rng; stop := 1 |}.
+Definition series_0 := {| terms i := 0%rng; stop := 0 |}.
+Definition series_1 := {| terms i := 1%rng; stop := 1 |}.
+(*
 Definition series_const (c : α) := {| terms i := c; stop := 1 |}.
+*)
 
 Inductive eq_series : series α → series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
@@ -101,6 +109,7 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
 Qed.
 
+(*
 Lemma series_inf_eq : ∀ a, (a = series_inf rng a)%ser.
 Proof.
 intros a.
@@ -110,6 +119,7 @@ unfold series_nth; simpl.
 rewrite if_lt_dec_fin_inf.
 reflexivity.
 Qed.
+*)
 
 (* series_add *)
 
@@ -200,7 +210,7 @@ destruct lt₄ as [Hlt₄| Hge₄].
     apply Nbar.max_lt_iff; right; assumption.
 Qed.
 
-Lemma stop_series_add_0_l : ∀ s, stop (series_add series_0 s) = stop s.
+Lemma stop_series_add_0_l : ∀ s, stop (0 + s)%ser = stop s.
 Proof.
 intros s; simpl.
 destruct (stop s); reflexivity.
@@ -306,6 +316,7 @@ apply Hfg.
 split; [ apply Nat.le_add_r | omega ].
 Qed.
 
+(*
 Lemma sigma_sigma_compat : ∀ f g b₁ k₁ b₂ k₂,
   (∀ i j, (f i j = g i j)%rng)
   → (Σ (i = b₁, k₁) _ Σ (j = b₂, k₂) _ f i j
@@ -316,6 +327,7 @@ apply sigma_aux_compat; intros l Hl.
 apply sigma_aux_compat; intros m Hm.
 apply Hfg.
 Qed.
+*)
 
 Lemma sigma_mul_comm : ∀ f g b k,
   (Σ (i = b, k) _ f i * g i
@@ -326,6 +338,7 @@ apply sigma_compat; intros i Hi.
 apply Lfield.mul_comm.
 Qed.
 
+(*
 Lemma sigma_mul_assoc : ∀ f g h b k,
   (Σ (i = b, k) _ f i * (g i * h i)
    = Σ (i = b, k) _ (f i * g i) * h i)%rng.
@@ -352,6 +365,7 @@ intros f g h b₁ k₁ b₂ k₂.
 apply sigma_sigma_compat; intros i j.
 apply Lfield.mul_assoc.
 Qed.
+*)
 
 Lemma all_0_sigma_aux_0 : ∀ f b len,
   (∀ i, (b ≤ i < b + len)%nat → (f i = 0)%rng)
@@ -431,6 +445,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₁| H₁].
   reflexivity.
 Qed.
 
+(*
 Lemma sigma_aux_sigma_aux_comm : ∀ f i di j dj,
   (sigma_aux i di (λ i, sigma_aux j dj (λ j, f i j))
    = sigma_aux j dj (λ j, sigma_aux i di (λ i, f i j)))%rng.
@@ -484,6 +499,7 @@ Proof.
 intros f i₁ i₂ j₁ j₂ k₁ k₂.
 apply sigma_aux_sigma_aux_sigma_aux_comm; assumption.
 Qed.
+*)
 
 Lemma sigma_aux_succ : ∀ f b len,
   (sigma_aux b (S len) f = sigma_aux b len f + f (b + len)%nat)%rng.
@@ -607,12 +623,14 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
+(*
 Lemma sigma_mul_swap : ∀ a f b k,
   (Σ (i = b, k) _ a * f i = a * Σ (i = b, k) _ f i)%rng.
 Proof.
 intros a f b k.
 apply sigma_aux_mul_swap.
 Qed.
+*)
 
 Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
   (sigma_aux b₁ len
@@ -636,6 +654,7 @@ intros f g h k.
 apply sigma_aux_sigma_aux_mul_swap.
 Qed.
 
+(*
 Lemma glop : ∀ f g h k,
   (Σ (i = 0, k) _ Σ (j = 0, k) _ g i j * (f i * h i j)
    = Σ (i = 0, k) _ f i * Σ (j = 0, k) _ g i j * h i j)%rng.
@@ -647,6 +666,7 @@ apply sigma_compat; intros j Hj.
 rewrite Lfield.mul_comm, Lfield.mul_shuffle0, Lfield.mul_assoc.
 reflexivity.
 Qed.
+*)
 
 Lemma sigma_only_one_non_0 : ∀ f b v k,
   (b ≤ v ≤ k)%nat
@@ -763,6 +783,7 @@ destruct st as [st| ].
    apply Lfield.mul_0_l.
 Qed.
 
+(*
 Lemma mul_sigma_aux_inj : ∀ f a b len,
   (a * sigma_aux b len f = sigma_aux b len (λ i, a * f i))%rng.
 Proof.
@@ -836,6 +857,7 @@ Proof.
 intros a i.
 rewrite series_inf_nth; reflexivity.
 Qed.
+*)
 
 Definition convol_mul_inf a b k :=
   (Σ (i = 0, k) _ terms a i * terms b (k - i))%rng.
@@ -882,6 +904,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₁| H₁].
    rewrite Lfield.mul_0_l; reflexivity.
 Qed.
 
+(*
 Lemma series_inf_mul : ∀ a b,
   (series_inf rng (a * b) =
    series_mul_inf (series_inf rng a) (series_inf rng b))%ser.
@@ -891,6 +914,7 @@ rewrite <- series_mul_mul_inf.
 rewrite <- series_inf_eq.
 reflexivity.
 Qed.
+*)
 
 Lemma series_nth_mul_inf : ∀ a b i,
   (series_nth rng i (series_mul_inf a b)
@@ -902,6 +926,7 @@ rewrite if_lt_dec_fin_inf.
 reflexivity.
 Qed.
 
+(*
 Lemma sigma_aux_sigma_aux_extend_0 : ∀ f g b₁ b₂ len₁ len₂,
   (∀ i, b₁ ≤ i < b₁ + len₁ → g i ≤ len₂)
   → (∀ i j, (b₂ + g i ≤ j)%nat → (f i j = 0)%rng)
@@ -926,6 +951,7 @@ intros f m Hf.
 apply sigma_aux_sigma_aux_extend_0; [ idtac | assumption ].
 intros i Hi; omega.
 Qed.
+*)
 
 Lemma sigma_sigma_shift : ∀ f k,
   (Σ (i = 0, k) _ Σ (j = i, k) _ f i j =
@@ -977,6 +1003,7 @@ rewrite <- sigma_aux_succ_fst.
 rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
+(*
 Lemma sigma_append : ∀ f j k,
   (j ≤ k)%nat
   → (Σ (i = 0, j) _ f i + Σ (i = S j, k) _ f i = Σ (i = 0, k) _ f i)%rng.
@@ -1052,6 +1079,7 @@ apply sigma_compat; intros i Hi.
 apply sigma_split_first.
 apply Hib; assumption.
 Qed.
+*)
 
 Lemma sigma_add_distr : ∀ f g b k,
   (Σ (i = b, k) _ (f i + g i) =
@@ -1093,6 +1121,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
  rewrite Lfield.add_0_r; reflexivity.
 Qed.
 
+(*
 Lemma sigma_sub_distr : ∀ f g b k,
   (Σ (i = b, k) _ (f i - g i) =
    Σ (i = b, k) _ f i - Σ (i = b, k) _ g i)%rng.
@@ -1116,6 +1145,7 @@ destruct (le_dec b k) as [Hbk| Hbk].
  replace (S k - b)%nat with O by omega; simpl.
  rewrite Lfield.opp_0; reflexivity.
 Qed.
+*)
 
 Lemma sigma_sigma_exch : ∀ f k,
   (Σ (j = 0, k) _ Σ (i = 0, j) _ f i j =
@@ -1295,8 +1325,8 @@ destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
 Qed.
 
 Add Parametric Morphism : series_add
-with  signature eq_series ==> eq_series ==> eq_series
-as series_add_morph.
+  with  signature eq_series ==> eq_series ==> eq_series
+  as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
 inversion Heq₁; subst.
@@ -1354,8 +1384,10 @@ inversion Heq; subst.
 apply H.
 Qed.
 
+(*
 Lemma eq_series_eq : ∀ a b, a = b → eq_series a b.
 Proof. intros; subst a; reflexivity. Qed.
+*)
 
 Theorem series_add_compat_l : ∀ a b c, (a = b)%ser → (c + a = c + b)%ser.
 Proof.
@@ -1371,6 +1403,7 @@ rewrite Hab.
 reflexivity.
 Qed.
 
+(*
 Theorem series_mul_compat_r : ∀ a b c, (a = b)%ser → (a * c = b * c)%ser.
 Proof.
 intros a b c Hab.
@@ -1386,6 +1419,7 @@ rewrite series_mul_comm.
 apply series_add_compat_l.
 apply series_mul_comm.
 Qed.
+*)
 
 Theorem series_neq_1_0 : (1 ≠ 0)%ser.
 Proof.
