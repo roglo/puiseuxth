@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.164 2013-12-16 10:36:44 deraugla Exp $ *)
+(* $Id: Series.v,v 2.165 2013-12-16 10:44:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1825,6 +1825,10 @@ induction i; intros.
     apply IHi; omega.
 Qed.
 
+Lemma www : ∀ f b k, (k < b)%nat → (Σ (i = b, k) _ f i = 0)%rng.
+Proof.
+bbb.
+
 Lemma xxx : ∀ k a a' i,
   (a[0] ≠ 0)%rng
   → a' = series_inv a
@@ -1866,6 +1870,8 @@ destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
     do 2 rewrite Nat.add_succ_r.
     rewrite Nat.sub_succ.
     apply Nat.le_sub_l.
+
+  rewrite www; [ idtac | apply Nat.lt_0_1 ].
 bbb.
 *)
 
