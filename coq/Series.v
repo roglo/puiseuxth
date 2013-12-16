@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.176 2013-12-16 19:55:35 deraugla Exp $ *)
+(* $Id: Series.v,v 2.177 2013-12-16 21:00:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -83,6 +83,14 @@ Proof.
 intros A i a b.
 destruct (Nbar.lt_dec (fin i) ∞) as [H| H]; [ reflexivity | idtac ].
 exfalso; apply H; constructor.
+Qed.
+
+Lemma if_lt_dec_0_1 : ∀ A (a b : A),
+  (if Nbar.lt_dec 0 1 then a else b) = a.
+Proof.
+intros A a b.
+destruct (Nbar.lt_dec 0 1) as [H| H]; [ reflexivity | idtac ].
+exfalso; apply H, Nbar.lt_0_1.
 Qed.
 
 (* series_add *)
@@ -564,13 +572,10 @@ destruct st as [st| ].
    rewrite sigma_only_one_non_0 with (v := O).
     rewrite Nat.sub_0_r.
     unfold series_nth; simpl.
-    destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-     rewrite Lfield.mul_1_l.
-     rewrite <- Hst in H₁.
-     destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
-     reflexivity.
-
-     exfalso; apply H₃, Nbar.lt_0_1.
+    rewrite if_lt_dec_0_1, Lfield.mul_1_l.
+    rewrite <- Hst in H₁.
+    destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
+    reflexivity.
 
     split; [ reflexivity | apply Nat.le_0_l ].
 
@@ -608,12 +613,9 @@ destruct st as [st| ].
  rewrite sigma_only_one_non_0 with (v := O).
   rewrite Nat.sub_0_r.
   unfold series_nth; simpl.
-  destruct (Nbar.lt_dec 0 1) as [H₃| H₃].
-   rewrite Lfield.mul_1_l.
-   rewrite Hst, if_lt_dec_fin_inf.
-   reflexivity.
-
-   exfalso; apply H₃, Nbar.lt_0_1.
+  rewrite if_lt_dec_0_1, Lfield.mul_1_l.
+  rewrite Hst, if_lt_dec_fin_inf.
+  reflexivity.
 
   split; [ reflexivity | apply Nat.le_0_l ].
 
@@ -1053,10 +1055,8 @@ pose proof (H0 O) as H.
 rewrite series_nth_series_0 in H.
 unfold series_nth in H.
 simpl in H.
-destruct (Nbar.lt_dec 0 1) as [H₁| H₁].
- revert H; apply Lfield.neq_1_0.
-
- apply H₁, Nbar.lt_0_1.
+rewrite if_lt_dec_0_1 in H.
+revert H; apply Lfield.neq_1_0.
 Qed.
 
 Definition series_ring : Lfield.r (series α) :=
@@ -1190,16 +1190,14 @@ apply Lfield.mul_compat_l.
 rewrite Ha'.
 unfold series_nth.
 remember minus as f; simpl; subst f.
-destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
- destruct (zerop (S k - i)) as [H₂| H₂].
-  reflexivity.
+rewrite if_lt_dec_fin_inf.
+destruct (zerop (S k - i)) as [H₂| H₂].
+ reflexivity.
 
-  apply Lfield.mul_compat_l.
-  apply sigma_compat; intros j Hj.
-  apply Lfield.mul_compat_l.
-  apply term_inv_iter_enough; fast_omega Hj.
-
- exfalso; apply H₁; constructor.
+ apply Lfield.mul_compat_l.
+ apply sigma_compat; intros j Hj.
+ apply Lfield.mul_compat_l.
+ apply term_inv_iter_enough; fast_omega Hj.
 Qed.
 
 Lemma convol_mul_inv_r : ∀ k a a',
@@ -1232,36 +1230,31 @@ intros a Ha.
 constructor; intros i.
 unfold series_nth; simpl.
 rewrite Nbar.add_comm; simpl.
-destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
-  apply Nbar.fin_lt_mono in H₂.
-  apply Nat.lt_1_r in H₂; subst i.
-  unfold convol_mul; simpl.
-  rewrite sigma_only_one.
+rewrite if_lt_dec_fin_inf.
+destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
+ apply Nbar.fin_lt_mono in H₂.
+ apply Nat.lt_1_r in H₂; subst i.
+ unfold convol_mul; simpl.
+ rewrite sigma_only_one.
+ unfold series_nth; simpl.
+ rewrite if_lt_dec_fin_inf.
+ destruct (Nbar.lt_dec 0 (stop a)) as [H₂| H₂].
   unfold series_nth; simpl.
-  clear H₁.
-  destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
-   destruct (Nbar.lt_dec 0 (stop a)) as [H₂| H₂].
-    unfold series_nth; simpl.
-    unfold series_nth in Ha.
-    destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
-     rewrite Lfield.mul_inv_r; [ reflexivity | assumption ].
+  unfold series_nth in Ha.
+  destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
+   rewrite Lfield.mul_inv_r; [ reflexivity | assumption ].
 
-     exfalso; apply Ha; reflexivity.
+   exfalso; apply Ha; reflexivity.
 
-    exfalso; apply Ha.
-    unfold series_nth; simpl.
-    destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
-     contradiction.
+  exfalso; apply Ha.
+  unfold series_nth; simpl.
+  destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
+   contradiction.
 
-     reflexivity.
+   reflexivity.
 
-   exfalso; apply H₁; constructor.
-
-  destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
-  apply convol_mul_inv_r; [ assumption | reflexivity ].
-
- exfalso; apply H₁; constructor.
+ destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
+ apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
 
 Theorem series_mul_inv_l : ∀ a, (a [0] ≠ 0)%rng → (series_inv a * a = 1)%ser.

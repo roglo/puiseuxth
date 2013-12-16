@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.9 2013-12-16 20:37:14 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.10 2013-12-16 21:00:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -95,40 +95,6 @@ destruct n as [n| ].
  exfalso; revert Hn; apply ps_neq_1_0.
 Qed.
 
-(* faux car ne peut s'appliquer que sur les séries non nulles...
-Add Parametric Morphism : series_inv
-  with signature eq_series ==> eq_series
-  as series_inv_morph.
-Proof.
-intros a b Hab.
-constructor; intros i.
-inversion Hab; subst.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) ∞) as [H₁| ]; [ idtac | reflexivity ].
-clear H₁.
-induction i; intros.
- simpl.
-bbb.
-rewrite H.
-
- pose proof (H O) as H₀.
- unfold series_nth; simpl.
- unfold series_nth in H₀.
- destruct (Nbar.lt_dec 0 (stop a)) as [H₁| H₁].
-  destruct (Nbar.lt_dec 0 (stop b)) as [H₂| H₂].
-   simpl.
-bbb.
-*)
-
-(*
-Lemma zzz : ∀ a,
-  (a ≠ 0)%ser
-  → (series_inv (series_shift 0 a) = a)%ser.
-Proof.
-intros a Ha.
-bbb.
-*)
-
 (* do not work with Add Morphism 'cause a must be non null:
    is it possible to add a morphism with a condition?
 Lemma xxx : ∀ a b i,
@@ -193,7 +159,21 @@ destruct n as [n| ].
      Focus 1.
      erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
       rewrite Z.div_0_l.
+       erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
+        rewrite Z.div_0_l; [ reflexivity | simpl ].
+        rewrite Pos2Z.inj_gcd.
+        rewrite Z.gcd_1_l.
+        intros H; discriminate H.
 
+        apply null_coeff_range_length_iff.
+        simpl.
+        split.
+         intros i Hi.
+         apply Nat.nle_gt in Hi.
+         exfalso; apply Hi, Nat.le_0_l.
+
+         unfold series_nth; simpl.
+         rewrite if_lt_dec_0_1; apply Lfield.neq_1_0.
 bbb.
 
 intros ps Hps.

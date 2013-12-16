@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.81 2013-12-16 19:33:25 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.82 2013-12-16 21:00:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -85,8 +85,7 @@ destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
    apply Nbar.fin_lt_mono in H₂.
    apply lt_n_Sm_le, Nat.le_0_r in H₂; subst c.
    rewrite Nat.mul_0_l.
-   destruct (Nbar.lt_dec 0 1) as [H₂| H₂]; [ reflexivity | idtac ].
-   exfalso; apply H₂, Nbar.lt_0_1.
+   rewrite if_lt_dec_0_1; reflexivity.
 
    destruct (Nbar.lt_dec (fin (c * Pos.to_nat k)) 1) as [H₃| H₃].
     exfalso; apply H₂.
@@ -178,10 +177,8 @@ simpl in H.
 pose proof (H O) as Hi.
 unfold series_nth in Hi.
 simpl in Hi.
-destruct (Nbar.lt_dec 0 1) as [H₁| H₁].
- revert Hi; apply Lfield.neq_1_0.
-
- apply H₁, Nbar.lt_0_1.
+rewrite if_lt_dec_0_1 in Hi.
+revert Hi; apply Lfield.neq_1_0.
 Qed.
 
 Lemma sigma_aux_add : ∀ f b k₁ k₂,
