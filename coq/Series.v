@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.171 2013-12-16 13:54:49 deraugla Exp $ *)
+(* $Id: Series.v,v 2.173 2013-12-16 15:02:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -375,22 +375,6 @@ apply H.
 split; [ assumption | omega ].
 Qed.
 
-(*
-Lemma delta_id : ∀ i, (δ i i = 1)%rng.
-Proof.
-intros i; unfold δ.
-destruct (eq_nat_dec i i) as [H₁| H₁]; [ reflexivity | idtac ].
-exfalso; apply H₁; reflexivity.
-Qed.
-
-Lemma delta_neq : ∀ i j, i ≠ j → (δ i j = 0)%rng.
-Proof.
-intros i j Hij; unfold δ.
-destruct (eq_nat_dec i j) as [H₁| H₁]; [ subst i | reflexivity ].
-exfalso; apply Hij; reflexivity.
-Qed.
-*)
-
 Add Parametric Morphism : series_mul
 with signature eq_series ==> eq_series ==> eq_series
 as series_mul_morph.
@@ -611,14 +595,6 @@ destruct (Nbar.lt_dec (fin k) (stop s)) as [H₁| H₁].
 
  destruct (Nbar.lt_dec (fin k) 0); reflexivity.
 Qed.
-
-(*
-Lemma delta_0_succ : ∀ i, (δ 0 (S i) = 0)%rng.
-Proof.
-intros i; unfold δ.
-destruct (eq_nat_dec 0 (S i)) as [H₁|]; [ discriminate H₁ | reflexivity ].
-Qed.
-*)
 
 Lemma sigma_aux_mul_swap : ∀ a f b len,
   (sigma_aux b len (λ i, a * f i) = a * sigma_aux b len f)%rng.
@@ -951,177 +927,6 @@ apply sigma_aux_sigma_aux_extend_0; [ idtac | assumption ].
 intros i Hi; omega.
 Qed.
 
-(*
-Definition sigma_mul_3 aa bb cc m :=
-  Σ (i = 0, m) _
-  Σ (j = 0, m) _ terms aa i * terms bb j * terms cc (m - i - j))%rng.
-
-Lemma convol_mul_assoc_1 : ∀ aa bb cc m,
-  (Σ (i = 0, m) _
-   terms aa i * Σ (j = 0, m - i) _ terms bb j * terms cc (m - i - j)
-   = sigma_mul_3 aa bb cc m)%rng.
-Proof.
-intros a b c m.
-unfold sigma_mul_3.
-apply sigma_compat; intros i Hi.
-rewrite <- sigma_mul_assoc, sigma_mul_comm, <- sigma_mul_assoc.
-rewrite sigma_mul_swap; symmetry.
-do 2 rewrite <- sigma_sigma_mul_assoc.
-rewrite sigma_sigma_mul_comm.
-rewrite <- sigma_sigma_mul_assoc.
-rewrite sigma_sigma_mul_swap, sigma_mul_swap.
-apply Lfield.mul_compat_l.
-symmetry.
-rewrite sigma_mul_comm.
-rewrite <- sigma_sigma_mul_swap.
-rewrite sigma_sigma_extend_0.
- Focus 2.
- intros u j Huhm.
- rewrite all_0_sigma_0.
-  rewrite Lfield.mul_0_r; reflexivity.
-
-  intros k.
-  rewrite delta_neq.
-   rewrite Lfield.mul_0_l, Lfield.mul_0_l; reflexivity.
-
-   intros H; subst u.
-   apply Nat.nle_gt in Huhm.
-   apply Huhm, le_plus_l.
-
- rewrite sigma_sigma_comm.
- apply sigma_compat; intros j Hj.
- rewrite <- sigma_sigma_mul_swap.
- rewrite sigma_sigma_extend_0.
-  rewrite sigma_sigma_comm.
-  apply sigma_compat; intros k Hk.
-  destruct (le_dec (j + k) m) as [H₁| H₁].
-   rewrite sigma_only_one_non_0 with (v := (j + k)%nat).
-    rewrite delta_id, Lfield.mul_1_l.
-    rewrite Nat.add_assoc, Lfield.mul_comm.
-    reflexivity.
-
-    split; [ apply Nat.le_0_l | assumption ].
-
-    intros l Hlk Hl.
-    rewrite Lfield.mul_comm.
-    apply Nat.neq_sym in Hl.
-    rewrite delta_neq; [ idtac | assumption ].
-    do 3 rewrite Lfield.mul_0_l; reflexivity.
-
-   rewrite all_0_sigma_0.
-    rewrite delta_neq.
-     rewrite Lfield.mul_0_r; reflexivity.
-
-     omega.
-
-    intros l.
-    destruct (eq_nat_dec (i + l) m) as [H₂| H₂].
-     rewrite H₂, delta_id, Lfield.mul_1_l.
-     destruct (eq_nat_dec (j + k) l) as [H₃| H₃].
-      exfalso; omega.
-
-      rewrite delta_neq; [ idtac | assumption ].
-      rewrite Lfield.mul_0_l, Lfield.mul_0_l; reflexivity.
-
-     rewrite delta_neq; [ idtac | assumption ].
-     rewrite Lfield.mul_0_l; reflexivity.
-
-  intros l k Hlk.
-  destruct (eq_nat_dec (i + l) m) as [H₂| H₂].
-   rewrite H₂, delta_id, Lfield.mul_1_l.
-   destruct (eq_nat_dec (j + k) l) as [H₃| H₃].
-    exfalso; omega.
-
-    rewrite delta_neq; [ idtac | assumption ].
-    rewrite Lfield.mul_0_l, Lfield.mul_0_l; reflexivity.
-
-   rewrite delta_neq; [ idtac | assumption ].
-   rewrite Lfield.mul_0_l; reflexivity.
-Qed.
-*)
-
-(*
-Lemma convol_mul_assoc_2 : ∀ aa bb cc k,
-  (Σ (i = 0, k) _
-    (Σ (i0 = 0, i) _
-     Σ (j0 = 0, i) _ (δ (i0 + j0) i * terms aa i0 * terms bb j0)) *
-    terms cc (k - i) = sigma_mul_3 aa bb cc k)%rng.
-Proof.
-intros a b c m.
-unfold sigma_mul_3.
-rewrite sigma_sigma_comm; symmetry.
-rewrite sigma_sigma_sigma_comm.
-rewrite sigma_sigma_comm.
-apply sigma_compat; intros k Hk.
-rewrite sigma_sigma_mul_comm.
-rewrite sigma_sigma_mul_swap.
-rewrite sigma_mul_swap; symmetry.
-rewrite sigma_mul_comm.
-rewrite sigma_mul_swap; symmetry.
-apply Lfield.mul_compat_l.
-rewrite <- sigma_sigma_mul_swap.
-symmetry.
-rewrite sigma_sigma_extend_0.
- rewrite sigma_sigma_comm.
- apply sigma_compat; intros i Hi.
- rewrite <- sigma_sigma_mul_swap.
- rewrite sigma_sigma_extend_0.
-  rewrite sigma_sigma_comm.
-  apply sigma_compat; intros j Hj.
-  rewrite sigma_mul_assoc, sigma_mul_comm.
-  rewrite sigma_mul_swap; symmetry.
-  rewrite Lfield.mul_comm.
-  apply Lfield.mul_compat_l.
-  rewrite Lfield.mul_comm; symmetry.
-  rewrite sigma_mul_assoc, sigma_mul_comm.
-  rewrite sigma_mul_swap.
-  apply Lfield.mul_compat_l.
-  destruct (eq_nat_dec (i + j + k) m) as [H₁| H₁].
-   rewrite H₁, delta_id.
-   destruct (le_dec (i + j) m) as [H₂| H₂].
-    rewrite sigma_only_one_non_0 with (v := (i + j)%nat).
-     rewrite H₁.
-     do 2 rewrite delta_id.
-     rewrite Lfield.mul_1_r; reflexivity.
-
-     split; [ apply Nat.le_0_l | assumption ].
-
-     intros l Hlk Hl.
-     rewrite Lfield.mul_comm.
-     apply Nat.neq_sym in Hl.
-     rewrite delta_neq; [ idtac | assumption ].
-     rewrite Lfield.mul_0_l; reflexivity.
-
-    exfalso; omega.
-
-   rewrite delta_neq; [ idtac | assumption ].
-   apply all_0_sigma_0.
-   intros l.
-   destruct (eq_nat_dec (i + j) l) as [H₂| H₂].
-    destruct (eq_nat_dec (l + k) m) as [H₃| H₃].
-     rewrite <- H₂ in H₃; contradiction.
-
-     rewrite delta_neq; [ idtac | assumption ].
-     rewrite Lfield.mul_0_l; reflexivity.
-
-    rewrite Lfield.mul_comm, delta_neq; [ idtac | assumption ].
-    rewrite Lfield.mul_0_l; reflexivity.
-
-  intros l j Hj.
-  rewrite Lfield.mul_comm.
-  rewrite delta_neq; [ idtac | omega ].
-  do 3 rewrite Lfield.mul_0_l; reflexivity.
-
- intros l i Hil.
- rewrite all_0_sigma_0.
-  rewrite Lfield.mul_0_r; reflexivity.
-
-  intros j.
-  rewrite delta_neq; [ idtac | omega ].
-  do 2 rewrite Lfield.mul_0_l; reflexivity.
-Qed.
-*)
-
 Lemma sigma_sigma_shift : ∀ f k,
   (Σ (i = 0, k) _ Σ (j = i, k) _ f i j =
    Σ (i = 0, k) _ Σ (j = 0, k - i) _ f i (i + j)%nat)%rng.
@@ -1143,151 +948,6 @@ rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
 rewrite Nat.sub_diag; simpl.
 rewrite Lfield.add_0_r; reflexivity.
 Qed.
-
-(*
-Lemma www : ∀ f j k,
-  (j < k)%nat
-  → (Σ (i = 0, j) _ f i j =
-     Σ (i = 0, k) _ f i j - Σ (i = S j, k) _ f i j)%rng.
-Proof.
-bbb.
-*)
-
-(*
-Lemma xxx : ∀ f k,
-  (Σ (j = 0, k) _ (Σ (i = 0, k) _ f i j - Σ (i = S j, k) _ f i j) =
-   Σ (i = 0, k) _ Σ (j = i, k) _ f i j)%rng.
-Proof.
-bbb.
-
-Lemma yyy : ∀ f k d,
-  (Σ (j = 0, k) _ Σ (i = 0, j - d) _ f i j =
-   Σ (i = 0, k) _ Σ (j = i + d, k) _ f i j)%rng.
-Proof.
-intros f k d.
-revert k.
-induction d; intros.
- remember (λ j, Σ (i = 0, k)_f i j - Σ (i = S j, k)_f i j)%rng as g.
- rewrite sigma_compat with (g := g); subst g.
-  rewrite xxx.
-  apply sigma_compat; intros i Hi.
-  rewrite Nat.add_0_r; reflexivity.
-
-  intros i Hi.
-  rename i into l.
-  rewrite Nat.sub_0_r.
-  apply www.
-bbb.
-*)
-
-(*
-Lemma xxx_aux : ∀ f b i len,
-  i ≤ len
-  → (sigma_aux (b + i) (len - i) (λ j, f (i - b)%nat j) =
-     sigma_aux b len (λ j, if le_dec i j then f (i - b)%nat j else 0))%rng.
-Proof.
-intros f b i len Hi.
-revert b i Hi.
-induction len; intros; [ reflexivity | idtac ].
-destruct i.
- rewrite Nat.add_0_r, Nat.sub_0_r.
- apply sigma_aux_compat; intros j Hj.
- destruct (le_dec 0 (b + j)) as [| H₁]; [ reflexivity | idtac ].
- exfalso; apply H₁, Nat.le_0_l.
-
- apply Nat.succ_le_mono in Hi.
- rewrite Nat.sub_succ.
- remember minus as g; simpl; subst g.
-bbb.
-
-intros f b i len Hi.
-revert b i Hi.
-induction len; intros; [ reflexivity | idtac ].
-destruct i.
- rewrite Nat.add_0_r, Nat.sub_0_r.
- apply sigma_aux_compat; intros j Hj.
- destruct (le_dec 0 (b + j)) as [| H₁]; [ reflexivity | idtac ].
- exfalso; apply H₁, Nat.le_0_l.
-
- apply Nat.succ_le_mono in Hi.
- rewrite Nat.sub_succ.
- rewrite Nat.add_succ_r, <- Nat.add_succ_l.
- rewrite IHlen; [ idtac | assumption ].
-bbb.
-
-intros f b i len Hi.
-bbb.
-revert b i.
-induction len; intros; [ reflexivity | idtac ].
-rewrite sigma_aux_succ.
-rewrite <- IHlen.
-destruct (le_dec i (b + len)) as [H₁| H₁].
- destruct (le_dec i len) as [H₂| H₂].
-  replace (S len - i)%nat with (S (len - i)) by omega.
-  rewrite sigma_aux_succ.
-  rewrite Nat.add_sub_assoc; [ idtac | assumption ].
-  rewrite Nat.add_shuffle0.
-  rewrite Nat.add_sub.
-  reflexivity.
-
-  apply Nat.nle_gt in H₂.
-  replace (S len - i)%nat with O by omega.
-  replace (len - i)%nat with O by omega.
-  simpl.
-bbb.
-*)
-
-(*
-Lemma xxx : ∀ f i k,
-  (Σ (j = i, k) _ f i j =
-   Σ (l = 0, k) _ if le_dec i l then f i l else 0)%rng.
-Proof.
-intros f i k.
-unfold sigma.
-rewrite Nat.sub_0_r.
-destruct (le_dec i (S k)) as [H₁| H₁].
- eapply xxx_aux with (b := O) (f := f) in H₁.
- assumption.
-
- replace (S k - i)%nat with O by omega.
- simpl.
- destruct (le_dec i 0) as [H₂| H₂].
-  apply Nat.le_0_r in H₂; subst i.
-  exfalso; apply H₁, Nat.le_0_l.
-
-  symmetry; rewrite Lfield.add_0_l.
-  apply all_0_sigma_aux_0.
-  intros j Hj.
-  destruct (le_dec i j) as [H₃| ]; [ idtac | reflexivity ].
-  exfalso; omega.
-bbb.
-*)
-
-(*
-Lemma yyy : ∀ f k,
-  (Σ (i = 0, k) _ Σ (j = 0, i) _ f i j =
-   Σ (i = 0, k) _ Σ (j = 0, k) _ if le_dec j i then f i j else 0)%rng.
-Proof.
-bbb.
-*)
-
-(*
-Lemma xxx : ∀ f j k,
-  (j ≤ k)%nat
-  → (Σ (i = 0, j) _ f i j = Σ (i = 0, k) _ f i j - Σ (i = S j, k) _ f i j)%rng.
-Proof.
-intros f j k Hjk.
-revert j Hjk.
-induction k; intros.
- apply Nat.le_0_r in Hjk; subst j.
- rewrite sigma_only_one.
- unfold sigma; simpl.
- rewrite Lfield.opp_0, Lfield.add_0_r; reflexivity.
-
- destruct j.
-  rewrite sigma_only_one.
-bbb.
-*)
 
 Lemma sigma_succ : ∀ f b k,
   (b ≤ S k)%nat
@@ -1779,20 +1439,6 @@ Definition series_inv s :=
 
 Notation "¹/ a" := (series_inv a) (at level 99) : series_scope.
 
-(* likely needs decidability of equality in fields...
-Theorem series_inv_0 : ∀ a,
-  ((series_inv a) [0] = 0)%rng
-  → (a [0] = 0)%rng.
-Proof.
-intros a Ha.
-unfold series_nth in Ha |- *.
-simpl in Ha.
-destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁].
- unfold series_nth in Ha.
- destruct (Nbar.lt_dec 0 (stop a)) as [H₂| ]; [ idtac | reflexivity ].
-bbb.
-*)
-
 Lemma inv_nth_0 : ∀ a, ((¹/a [0])%fld = (¹/a)%ser [0])%rng.
 Proof.
 intros a.
@@ -1827,17 +1473,6 @@ induction i; intros.
     exfalso; apply Hl; reflexivity.
 
     apply IHi; omega.
-Qed.
-
-Lemma sigma_empty : ∀ f b k, (k < b)%nat → (Σ (i = b, k) _ f i = 0)%rng.
-Proof.
-intros f b k Hkb.
-unfold sigma.
-destruct (zerop (S k - b)) as [H₁| H₁].
- rewrite H₁; reflexivity.
-
- apply lt_O_minus_lt, Nat.succ_le_mono, Nat.nlt_ge in H₁.
- contradiction.
 Qed.
 
 Lemma term_inv_nth_gen_formula : ∀ k a a' i,
