@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.163 2013-12-16 02:36:54 deraugla Exp $ *)
+(* $Id: Series.v,v 2.164 2013-12-16 10:36:44 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1857,7 +1857,15 @@ destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
     apply Lfield.mul_compat_l.
     apply sigma_compat; intros l Hl.
     apply Lfield.mul_compat_l.
-    apply term_inv_iter_enough.
+    apply term_inv_iter_enough; [ fast_omega Hl | idtac ].
+    rewrite Hki.
+    destruct Hl as (H, _).
+    apply Nat.nle_gt in H.
+    destruct l; [ exfalso; apply H, Nat.le_0_l | idtac ].
+    do 2 rewrite <- Nat.sub_add_distr.
+    do 2 rewrite Nat.add_succ_r.
+    rewrite Nat.sub_succ.
+    apply Nat.le_sub_l.
 bbb.
 *)
 
