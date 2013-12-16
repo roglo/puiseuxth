@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.175 2013-12-16 15:26:22 deraugla Exp $ *)
+(* $Id: Series.v,v 2.176 2013-12-16 19:55:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -624,6 +624,13 @@ destruct st as [st| ].
    apply Nat.lt_1_r in H₃; contradiction.
 
    apply Lfield.mul_0_l.
+Qed.
+
+Theorem series_mul_1_r : ∀ s, (s * 1 = s)%ser.
+Proof.
+intros s.
+rewrite series_mul_comm.
+apply series_mul_1_l.
 Qed.
 
 Definition convol_mul_inf a b k :=
@@ -1255,4 +1262,12 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
   apply convol_mul_inv_r; [ assumption | reflexivity ].
 
  exfalso; apply H₁; constructor.
+Qed.
+
+Theorem series_mul_inv_l : ∀ a, (a [0] ≠ 0)%rng → (series_inv a * a = 1)%ser.
+Proof.
+intros a Ha.
+rewrite series_mul_comm.
+apply series_mul_inv_r.
+assumption.
 Qed.
