@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.168 2013-12-16 12:09:52 deraugla Exp $ *)
+(* $Id: Series.v,v 2.169 2013-12-16 12:27:58 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1840,7 +1840,7 @@ destruct (zerop (S k - b)) as [H₁| H₁].
  contradiction.
 Qed.
 
-Lemma xxx : ∀ k a a' i,
+Lemma inv_a_nth_formula : ∀ k a a' i,
   (a[0] ≠ 0)%rng
   → a' = series_inv a
     → (S k - i ≠ 0)%nat
@@ -1848,33 +1848,39 @@ Lemma xxx : ∀ k a a' i,
          - a' [0] *
          Σ (j = 1, S k - i)_ a [j] * term_inv (S k) a (S k - i - j))%rng.
 Proof.
+(* à revoir... *)
 intros k a a' i Ha Ha' Hki.
 rewrite Ha'.
 rewrite <- inv_nth_0.
 unfold series_nth.
 remember minus as f; simpl; subst f.
 rewrite if_lt_dec_fin_inf.
-destruct (zerop (S k - i)) as [| H]; [ contradiction | clear H ].
-apply Lfield.mul_compat_l.
-apply sigma_compat; intros j Hj.
-apply Lfield.mul_compat_l.
-bbb.
+destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
+remember (S k - i)%nat as ki eqn:Hki₂ .
+destruct ki.
+ exfalso; apply Hki; reflexivity.
 
-destruct (zerop (S k - i - j)) as [H₁| H₁]; [ reflexivity | idtac ].
-apply Lfield.mul_compat_l.
-apply sigma_compat; intros l Hl.
-apply Lfield.mul_compat_l.
-apply term_inv_iter_enough; [ fast_omega Hl | idtac ].
-rewrite Hki.
-destruct Hl as (H, _).
-apply Nat.nle_gt in H.
-destruct l; [ exfalso; apply H, Nat.le_0_l | idtac ].
-do 2 rewrite <- Nat.sub_add_distr.
-do 2 rewrite Nat.add_succ_r.
-rewrite Nat.sub_succ.
-apply Nat.le_sub_l.
-bbb.
-*)
+ clear H₁.
+ apply Lfield.mul_compat_l.
+ apply sigma_compat; intros j Hj.
+ apply Lfield.mul_compat_l.
+ remember minus as f; simpl; subst f.
+ destruct (zerop (S ki - j)) as [H₁| H₁].
+  reflexivity.
+
+  apply Lfield.mul_compat_l.
+  apply sigma_compat; intros l Hl.
+  apply Lfield.mul_compat_l.
+  apply term_inv_iter_enough; [ fast_omega Hl | idtac ].
+  rewrite Hki₂.
+  destruct Hl as (H, _).
+  apply Nat.nle_gt in H.
+  destruct l; [ exfalso; apply H, Nat.le_0_l | idtac ].
+  do 2 rewrite <- Nat.sub_add_distr.
+  do 2 rewrite Nat.add_succ_r.
+  rewrite Nat.sub_succ.
+  apply Nat.le_sub_l.
+Qed.
 
 Lemma yyy : ∀ k a a',
   (a[0] ≠ 0)%rng
@@ -1882,9 +1888,9 @@ Lemma yyy : ∀ k a a',
     → (a' [S k] = - a' [0] * Σ (i = 1, S k)_ a [i] * a' [S k - i])%rng.
 Proof.
 intros k a a' Ha Ha'.
-pose proof (xxx k O Ha Ha') as H.
+pose proof (inv_a_nth_formula k O Ha Ha') as H.
 rewrite Nat.sub_0_r in H.
-rewrite H.
+rewrite H; [ idtac | intros HH; discriminate HH ].
 apply Lfield.mul_compat_l.
 apply sigma_compat; intros i Hi.
 apply Lfield.mul_compat_l.
