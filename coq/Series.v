@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.165 2013-12-16 10:44:03 deraugla Exp $ *)
+(* $Id: Series.v,v 2.166 2013-12-16 10:49:48 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1827,6 +1827,10 @@ Qed.
 
 Lemma www : ∀ f b k, (k < b)%nat → (Σ (i = b, k) _ f i = 0)%rng.
 Proof.
+intros f b k Hkb.
+unfold sigma.
+rewrite not_le_minus_0; [ reflexivity | idtac ].
+intros H.
 bbb.
 
 Lemma xxx : ∀ k a a' i,
