@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.169 2013-12-16 12:27:58 deraugla Exp $ *)
+(* $Id: Series.v,v 2.170 2013-12-16 13:16:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1840,7 +1840,7 @@ destruct (zerop (S k - b)) as [H₁| H₁].
  contradiction.
 Qed.
 
-Lemma inv_a_nth_formula : ∀ k a a' i,
+Lemma term_inv_nth_gen_formula : ∀ k a a' i,
   (a[0] ≠ 0)%rng
   → a' = series_inv a
     → (S k - i ≠ 0)%nat
@@ -1882,13 +1882,13 @@ destruct ki.
   apply Nat.le_sub_l.
 Qed.
 
-Lemma yyy : ∀ k a a',
+Lemma term_inv_nth_formula : ∀ k a a',
   (a[0] ≠ 0)%rng
   → a' = series_inv a
     → (a' [S k] = - a' [0] * Σ (i = 1, S k)_ a [i] * a' [S k - i])%rng.
 Proof.
 intros k a a' Ha Ha'.
-pose proof (inv_a_nth_formula k O Ha Ha') as H.
+pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
 rewrite Nat.sub_0_r in H.
 rewrite H; [ idtac | intros HH; discriminate HH ].
 apply Lfield.mul_compat_l.
@@ -1904,7 +1904,10 @@ destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
   apply Lfield.mul_compat_l.
   apply sigma_compat; intros j Hj.
   apply Lfield.mul_compat_l.
-bbb.
+  apply term_inv_iter_enough; fast_omega Hj.
+
+ exfalso; apply H₁; constructor.
+Qed.
 
 Lemma zzz : ∀ k a a',
   (a[0] ≠ 0)%rng
