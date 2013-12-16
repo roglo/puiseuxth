@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.166 2013-12-16 10:49:48 deraugla Exp $ *)
+(* $Id: Series.v,v 2.167 2013-12-16 11:06:33 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1825,13 +1825,16 @@ induction i; intros.
     apply IHi; omega.
 Qed.
 
-Lemma www : ∀ f b k, (k < b)%nat → (Σ (i = b, k) _ f i = 0)%rng.
+Lemma sigma_empty : ∀ f b k, (k < b)%nat → (Σ (i = b, k) _ f i = 0)%rng.
 Proof.
 intros f b k Hkb.
 unfold sigma.
-rewrite not_le_minus_0; [ reflexivity | idtac ].
-intros H.
-bbb.
+destruct (zerop (S k - b)) as [H₁| H₁].
+ rewrite H₁; reflexivity.
+
+ apply lt_O_minus_lt, Nat.succ_le_mono, Nat.nlt_ge in H₁.
+ contradiction.
+Qed.
 
 Lemma xxx : ∀ k a a' i,
   (a[0] ≠ 0)%rng
@@ -1875,7 +1878,7 @@ destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
     rewrite Nat.sub_succ.
     apply Nat.le_sub_l.
 
-  rewrite www; [ idtac | apply Nat.lt_0_1 ].
+  rewrite sigma_empty; [ idtac | apply Nat.lt_0_1 ].
 bbb.
 *)
 
