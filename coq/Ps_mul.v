@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.80 2013-12-16 19:13:25 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.81 2013-12-16 19:33:25 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -618,89 +618,14 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
     assert (i = i - S n + S n)%nat as H by omega.
     rewrite H in |- * at 3.
     rewrite series_nth_add_shift.
-bbb.
+    rewrite <- Nat.sub_add_distr.
+    rewrite Nat.add_comm.
+    rewrite Nat.sub_add; [ reflexivity | idtac ].
+    destruct Hi; assumption.
 
-(* à nettoyer *)
-intros a b n.
-constructor; intros k.
-unfold series_nth; simpl.
-rewrite Nbar.add_shuffle0.
-destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
- destruct (lt_dec k n) as [H₂| H₂].
-  symmetry; unfold convol_mul; simpl.
-  apply all_0_sigma_0; intros i Hi.
-bbb.
-
-  apply all_0_sigma_0; intros j Hj.
-  destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
-   rewrite series_nth_lt_shift.
-    rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
-
-    eapply le_lt_trans; [ idtac | eassumption ].
-    rewrite <- H₃; apply Nat.le_add_r.
-
-   rewrite delta_neq; [ idtac | assumption ].
-   rewrite Lfield.mul_0_l; reflexivity.
-
-  unfold convol_mul; simpl.
-  apply Nat.nlt_ge in H₂.
-  symmetry.
-  destruct n.
-   rewrite Nat.sub_0_r.
-   apply sigma_compat; intros i Hi.
-   apply sigma_compat; intros j Hj.
-   rewrite series_shift_0; reflexivity.
-
-   assert (k = (n + (k - n))%nat) as H by omega.
-   rewrite H in |- * at 1; clear H.
-   rewrite sigma_add.
-   rewrite Lfield.add_comm.
-   rewrite Nat.add_sub_assoc; [ idtac | omega ].
-   rewrite Nat.add_comm, Nat.add_sub.
-   rewrite Lfield.add_comm.
-   rewrite all_0_sigma_0.
-    Focus 2.
     intros i Hi.
-    rewrite all_0_sigma_0; [ reflexivity | idtac ].
-    intros j Hj.
     rewrite series_nth_lt_shift; [ idtac | omega ].
-    rewrite Lfield.mul_0_l, Lfield.mul_0_r; reflexivity.
-
-    rewrite Lfield.add_0_l.
-    symmetry.
-    rewrite sigma_add_add_sub with (n := S n).
-    rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
-    apply sigma_compat; intros i Hi.
-    symmetry.
-    assert (k = (k - S n + S n)%nat) as H by omega.
-    rewrite H in |- * at 1; clear H.
-    rewrite sigma_add.
-    rewrite Lfield.add_comm.
-    rewrite Nat.sub_add; [ idtac | assumption ].
-    rewrite all_0_sigma_0.
-     rewrite Lfield.add_0_l.
-     apply sigma_compat; intros j Hj.
-     assert (i = i - S n + S n)%nat as H by omega.
-     rewrite H in |- * at 2.
-     rewrite series_nth_add_shift.
-     apply Lfield.mul_compat_r.
-     rewrite <- Nat.add_sub_swap; [ idtac | destruct Hi; assumption ].
-     destruct (eq_nat_dec (i + j) k) as [H₃| H₃].
-      rewrite H₃.
-      do 2 rewrite delta_id; reflexivity.
-
-      rewrite delta_neq; [ idtac | assumption ].
-      rewrite delta_neq; [ reflexivity | idtac ].
-      clear H.
-      intros H; apply H₃.
-      omega.
-
-     intros j Hj.
-     rewrite delta_neq.
-      rewrite Lfield.mul_0_l; reflexivity.
-
-      intros H.
-      omega.
+    rewrite Lfield.mul_0_l; reflexivity.
 
  reflexivity.
 Qed.
