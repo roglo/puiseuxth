@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.161 2013-12-15 18:46:52 deraugla Exp $ *)
+(* $Id: Series.v,v 2.163 2013-12-16 02:36:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1798,6 +1798,33 @@ destruct (Nbar.lt_dec 0 ∞) as [H₁| H₁]; [ reflexivity | idtac ].
 exfalso; apply H₁; constructor.
 Qed.
 
+Lemma term_inv_iter_enough : ∀ a i j k,
+  k ≤ i → k ≤ j → (term_inv i a k = term_inv j a k)%rng.
+Proof.
+intros a i j k Hki Hkj.
+revert j k Hki Hkj.
+induction i; intros.
+ apply Nat.le_0_r in Hki; subst k.
+ destruct j; reflexivity.
+
+ simpl.
+ destruct k; simpl.
+  destruct j; reflexivity.
+
+  destruct j.
+   apply Nat.nle_succ_0 in Hkj; contradiction.
+
+   simpl.
+   apply Lfield.mul_compat_l.
+   apply sigma_compat; intros l (Hl, Hlj).
+   apply Lfield.mul_compat_l.
+   destruct l.
+    apply Nat.nle_gt in Hl.
+    exfalso; apply Hl; reflexivity.
+
+    apply IHi; omega.
+Qed.
+
 Lemma xxx : ∀ k a a' i,
   (a[0] ≠ 0)%rng
   → a' = series_inv a
@@ -1806,6 +1833,31 @@ Lemma xxx : ∀ k a a' i,
       Σ (j = 1, S k - i)_ a [j] * term_inv (S k) a (S k - i - j))%rng.
 Proof.
 intros k a a' i Ha Ha'.
+rewrite Ha'.
+rewrite <- inv_nth_0.
+unfold series_nth.
+remember minus as f; simpl; subst f.
+destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
+ clear H₁.
+ destruct (zerop (S k - i)) as [H₁| H₁].
+  rewrite H₁.
+  Focus 2.
+  remember (S k - i)%nat as ki eqn:Hki .
+  destruct ki.
+   exfalso; revert H₁; apply Nat.lt_irrefl.
+
+   clear H₁.
+   apply Lfield.mul_compat_l.
+   apply sigma_compat; intros j Hj.
+   apply Lfield.mul_compat_l.
+   remember minus as f; simpl; subst f.
+   destruct (zerop (S ki - j)) as [H₁| H₁].
+    reflexivity.
+
+    apply Lfield.mul_compat_l.
+    apply sigma_compat; intros l Hl.
+    apply Lfield.mul_compat_l.
+    apply term_inv_iter_enough.
 bbb.
 *)
 
