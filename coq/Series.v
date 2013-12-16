@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.170 2013-12-16 13:16:32 deraugla Exp $ *)
+(* $Id: Series.v,v 2.171 2013-12-16 13:54:49 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1909,87 +1909,30 @@ destruct (Nbar.lt_dec (fin (S k - i)) ∞) as [H₁| H₁].
  exfalso; apply H₁; constructor.
 Qed.
 
-Lemma zzz : ∀ k a a',
+Lemma convol_mul_inv_r : ∀ k a a',
   (a[0] ≠ 0)%rng
   → a' = series_inv a
     → (convol_mul a a' (S k) = 0)%rng.
 Proof.
 intros k a a' Ha Ha'.
-bbb.
-
-induction k as (k, IHk) using Misc.all_lt_all.
 unfold convol_mul.
-rewrite sigma_succ; [ idtac | apply Nat.le_0_l ].
-rewrite Nat.sub_diag.
-remember a' [0]%rng as x eqn:Hx .
-rewrite Ha' in Hx.
-unfold series_nth in Hx; simpl in Hx.
-destruct (Nbar.lt_dec 0 ∞) as [H| H]; [ clear H | exfalso ].
- subst x.
-bbb.
-(*
- apply Lfield.mul_reg_r with (c := a [0]%rng); auto.
- rewrite Lfield.mul_0_l.
- rewrite Lfield.mul_add_distr_r.
- rewrite <- Lfield.mul_assoc.
-*)
+pose proof (term_inv_nth_formula k Ha Ha') as Hi.
+apply Lfield.mul_compat_l with (c := a [0]%rng) in Hi.
+symmetry in Hi.
+rewrite Lfield.mul_assoc in Hi.
+rewrite Lfield.mul_opp_r in Hi.
+rewrite Ha' in Hi.
+rewrite <- inv_nth_0 in Hi.
+rewrite Lfield.mul_inv_r in Hi; auto.
+rewrite Lfield.mul_opp_l, Lfield.mul_1_l in Hi.
+rewrite <- Ha' in Hi.
+eapply Lfield.add_compat_r in Hi.
+rewrite Lfield.add_opp_l in Hi.
+symmetry in Hi.
+rewrite sigma_split_first; [ idtac | apply Nat.le_0_l ].
+rewrite Nat.sub_0_r; auto.
+Qed.
 
-intros k a a' Ha Ha'.
-induction k.
- unfold convol_mul.
- unfold sigma.
- rewrite Nat.sub_0_r.
- remember minus as f; simpl; subst f.
- rewrite Nat.sub_0_r.
- rewrite Nat.sub_diag.
- rewrite Lfield.add_0_r.
- unfold series_nth in Ha |- *.
- destruct (Nbar.lt_dec 0 (stop a)) as [H₁| H₁].
-  destruct (Nbar.lt_dec 1 (stop a')) as [H₂| H₂].
-   destruct (Nbar.lt_dec 1 (stop a)) as [H₃| H₃].
-    destruct (Nbar.lt_dec 0 (stop a')) as [H₄| H₄].
-     rewrite Ha'; simpl.
-     rewrite sigma_only_one; simpl.
-     unfold series_nth.
-     destruct (Nbar.lt_dec 0 (stop a)) as [H₅| H₅].
-      destruct (Nbar.lt_dec 1 (stop a)) as [H₆| H₆].
-       rewrite Lfield.mul_opp_l.
-       rewrite Lfield.mul_opp_r.
-       rewrite Lfield.mul_assoc.
-       rewrite Lfield.mul_inv_r; [ idtac | assumption ].
-       rewrite Lfield.mul_1_l.
-       rewrite Lfield.add_opp_l.
-       reflexivity.
-
-       contradiction.
-
-      contradiction.
-
-     exfalso; apply H₄; rewrite Ha'; constructor.
-
-    destruct (Nbar.lt_dec 0 (stop a')) as [H₄| H₄].
-     rewrite Ha'; simpl.
-     rewrite sigma_only_one; simpl.
-     unfold series_nth.
-     destruct (Nbar.lt_dec 0 (stop a)) as [H₅| H₅].
-      destruct (Nbar.lt_dec 1 (stop a)) as [H₆| H₆].
-       contradiction.
-
-       rewrite Lfield.mul_0_l.
-       rewrite Lfield.mul_0_r.
-       rewrite Lfield.mul_0_r.
-       rewrite Lfield.add_0_r; reflexivity.
-
-      contradiction.
-
-     exfalso; apply H₄; rewrite Ha'; constructor.
-
-   exfalso; apply H₂; rewrite Ha'; constructor.
-
-  exfalso; apply Ha; reflexivity.
-bbb.
-
-(**)
 Theorem series_mul_inv_r : ∀ a, (a [0] ≠ 0)%rng → (a * series_inv a = 1)%ser.
 Proof.
 intros a Ha.
@@ -2022,84 +1965,8 @@ destruct (Nbar.lt_dec (fin i) ∞) as [H₁| H₁].
 
    exfalso; apply H₁; constructor.
 
-  clear H₁.
   destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
-  clear H₂.
-  rename i into k.
-  rewrite zzz; [ idtac | reflexivity ].
-bbb.
-  induction i as (k, IHk) using Misc.all_lt_all.
-  destruct k.
-   unfold convol_mul.
-   unfold sigma; simpl.
-   rewrite delta_neq; [ idtac | intros H; discriminate H ].
-   rewrite delta_id.
-   rewrite delta_neq; [ idtac | intros H; discriminate H ].
-   do 2 rewrite Lfield.mul_0_l.
-   do 2 rewrite Lfield.mul_1_l.
-   do 2 rewrite Lfield.add_0_l.
-   do 3 rewrite Lfield.add_0_r.
-   unfold series_nth.
-   destruct (Nbar.lt_dec 0 (stop (series_inv a))) as [H₁| H₁]; simpl in H₁.
-    destruct (Nbar.lt_dec 1 (stop a)) as [H₂| H₂].
-     destruct (Nbar.lt_dec 1 (stop (series_inv a))) as [H₃| H₃]; simpl in H₃.
-      destruct (Nbar.lt_dec 0 (stop a)) as [H₄| H₄].
-       simpl.
-       rewrite sigma_only_one; simpl.
-       unfold series_nth.
-       destruct (Nbar.lt_dec 0 (stop a)) as [H₅| H₅].
-        destruct (Nbar.lt_dec 1 (stop a)) as [H₆| H₆].
-         do 2 rewrite <- Lfield.mul_assoc.
-         unfold rng.
-         rewrite Lfield.mul_inv_l.
-          rewrite Lfield.mul_1_r.
-          rewrite Lfield.mul_opp_l.
-          unfold rng.
-          rewrite Lfield.add_opp_r.
-          reflexivity.
+  apply convol_mul_inv_r; [ assumption | reflexivity ].
 
-          intros H.
-          apply Ha.
-          unfold series_nth.
-          destruct (Nbar.lt_dec 0 (stop a)) as [H₇| H₇].
-           assumption.
-
-           reflexivity.
-
-         contradiction.
-
-        contradiction.
-
-       exfalso; apply H₄.
-       eapply Nbar.lt_trans; [ idtac | eassumption ].
-       apply Nbar.lt_0_1.
-
-      exfalso; apply H₃; constructor.
-
-     destruct (Nbar.lt_dec 1 (stop (series_inv a))) as [H₃| H₃]; simpl in H₃.
-      destruct (Nbar.lt_dec 0 (stop a)) as [H₄| H₄].
-       rewrite Lfield.mul_0_r, Lfield.add_0_l.
-       simpl.
-       rewrite sigma_only_one; simpl.
-       unfold series_nth; simpl.
-       destruct (Nbar.lt_dec 1 (stop a)) as [H₅| H₅].
-        contradiction.
-
-        rewrite Lfield.mul_0_l, Lfield.mul_0_r.
-        rewrite Lfield.mul_0_l; reflexivity.
-
-       do 2 rewrite Lfield.mul_0_r.
-       rewrite Lfield.add_0_l; reflexivity.
-
-      exfalso; apply H₃; constructor.
-
-    exfalso; apply H₁; constructor.
-
-   assert (k < S k)%nat as IH by omega.
-   apply IHk in IH.
-   unfold convol_mul in IH |- *.
-   rewrite zzz.
-   rewrite yyy.
-
-bbb.
-*)
+ exfalso; apply H₁; constructor.
+Qed.
