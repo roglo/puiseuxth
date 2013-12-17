@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.12 2013-12-17 00:55:28 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.13 2013-12-17 01:09:35 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -151,6 +151,21 @@ split.
  rewrite if_lt_dec_0_1.
  apply Lfield.neq_1_0.
 Qed.
+
+Lemma greatest_series_x_power_series_1 :
+  greatest_series_x_power rng 1%ser 0 = 1%positive.
+Proof.
+apply greatest_series_x_power_iff; simpl.
+unfold is_the_greatest_series_x_power.
+split.
+ unfold is_a_series_in_x_power.
+ intros n.
+ rewrite Pos2Nat.inj_1.
+ exists (nth_null_coeff_range_length 1%ser n 0).
+ rewrite Nat.mul_1_r; reflexivity.
+
+ intros k' Hk'.
+bbb.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
