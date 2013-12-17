@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.10 2013-12-16 21:00:59 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.11 2013-12-17 00:51:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -138,6 +138,11 @@ rewrite series_mul_1_r in Hab.
 symmetry; assumption.
 Qed.
 
+Lemma null_coeff_range_length_series_1 :
+  null_coeff_range_length rng 1%ser 0 = 0%Nbar.
+Proof.
+bbb.
+
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
 intros ps Hps.
@@ -151,29 +156,22 @@ destruct n as [n| ].
    unfold cm_factor, cm; simpl.
    rewrite <- series_stretch_mul.
    rewrite series_mul_inv_l.
-    rewrite Z.mul_opp_l.
-    rewrite Z.add_opp_l.
-    rewrite Z.sub_diag.
+    rewrite Z.mul_opp_l, Z.add_opp_l, Z.sub_diag.
     constructor.
+    rewrite canonic_ps_1.
     constructor; simpl.
-     Focus 1.
      erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
-      rewrite Z.div_0_l.
-       erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
-        rewrite Z.div_0_l; [ reflexivity | simpl ].
-        rewrite Pos2Z.inj_gcd.
-        rewrite Z.gcd_1_l.
-        intros H; discriminate H.
+      rewrite Z.div_0_l; [ reflexivity | idtac ].
+      rewrite Z.gcd_0_l.
+      intros H.
+      apply -> Z.abs_0_iff in H.
+      revert H; apply Pos2Z_ne_0.
 
-        apply null_coeff_range_length_iff.
-        simpl.
-        split.
-         intros i Hi.
-         apply Nat.nle_gt in Hi.
-         exfalso; apply Hi, Nat.le_0_l.
+      rewrite stretch_series_1.
+      apply null_coeff_range_length_series_1.
 
-         unfold series_nth; simpl.
-         rewrite if_lt_dec_0_1; apply Lfield.neq_1_0.
+     erewrite ps_comden_canonic with (n := O); simpl; try reflexivity; simpl.
+      rewrite stretch_series_1.
 bbb.
 
 intros ps Hps.
