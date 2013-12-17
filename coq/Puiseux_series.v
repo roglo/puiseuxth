@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.100 2013-12-17 13:35:31 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.101 2013-12-17 22:37:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -38,7 +38,7 @@ Axiom null_coeff_range_length_iff : ∀ s n v,
 (* [greatest_series_x_power rng s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α,
-  Lfield.r α → power_series α → nat → positive.
+  Lfield.r α → power_series α → nat → nat.
 Admitted.
 
 Fixpoint nth_null_coeff_range_length s n b :=
@@ -52,16 +52,15 @@ Fixpoint nth_null_coeff_range_length s n b :=
   end.
 
 Definition is_a_series_in_x_power s b k :=
-  ∀ n, (Pos.to_nat k | nth_null_coeff_range_length s n b).
+  ∀ n, (k | nth_null_coeff_range_length s n b).
 
 Definition is_the_greatest_series_x_power s b k :=
   match null_coeff_range_length rng s (S b) with
   | fin _ =>
       is_a_series_in_x_power s b k ∧
-      (∀ k', (k < k')%positive
-       → ∃ n, ¬(Pos.to_nat k' | nth_null_coeff_range_length s n b))
+      (∀ k', (k < k')%nat → ∃ n, ¬(k' | nth_null_coeff_range_length s n b))
   | ∞ =>
-      k = 1%positive
+      k = 0%nat
   end.
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
@@ -93,7 +92,7 @@ Definition canonify_series n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps n k (ps : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_comden ps)) (' k).
+  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_comden ps)) (Z.of_nat k).
 
 Definition ps_zero := {| ps_terms := 0%ser; ps_valnum := 0; ps_comden := 1 |}.
 
@@ -1647,7 +1646,7 @@ destruct i.
 Qed.
 
 Lemma series_stretch_shrink : ∀ s k,
-  (k | greatest_series_x_power rng s 0)%positive
+  (Pos.to_nat k | greatest_series_x_power rng s 0)
   → (series_stretch k (series_shrink k s) = s)%ser.
 Proof.
 intros s k Hk.
