@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.95 2013-12-17 02:29:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.96 2013-12-17 02:43:42 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1700,8 +1700,6 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
    destruct Hk as (c, Hk).
    apply greatest_series_x_power_iff in Hk.
    unfold is_the_greatest_series_x_power in Hk.
-   destruct Hk as (Hz, Hnz).
-   symmetry.
    assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
     intros H.
     apply Nat.mod_divides in H.
@@ -1713,9 +1711,18 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
 
      apply Pos2Nat_ne_0.
 
-    apply series_nth_0_in_interval with (s := s) in H; [ idtac | assumption ].
-    unfold series_nth in H.
-    destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
+    remember (null_coeff_range_length rng s 1) as p eqn:Hp .
+    symmetry in Hp.
+    destruct p as [p| ].
+     destruct Hk as (Hz, Hnz).
+     symmetry.
+     eapply series_nth_0_in_interval in H; [ idtac | eassumption ].
+     unfold series_nth in H.
+     destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
+
+     rewrite Hk in H.
+     exfalso; apply H.
+     apply Nat.mod_1_r.
 
    reflexivity.
 
