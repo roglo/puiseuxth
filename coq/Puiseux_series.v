@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.94 2013-12-11 15:14:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.95 2013-12-17 02:29:08 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -54,9 +54,14 @@ Definition is_a_series_in_x_power s b k :=
   ∀ n, (Pos.to_nat k | nth_null_coeff_range_length s n b).
 
 Definition is_the_greatest_series_x_power s b k :=
-  is_a_series_in_x_power s b k ∧
-  (∀ k', (k < k')%positive
-   → ∃ n, ¬(Pos.to_nat k' | nth_null_coeff_range_length s n b)).
+  match null_coeff_range_length rng s (S b) with
+  | fin _ =>
+      is_a_series_in_x_power s b k ∧
+      (∀ k', (k < k')%positive
+       → ∃ n, ¬(Pos.to_nat k' | nth_null_coeff_range_length s n b))
+  | ∞ =>
+      k = 1%positive
+  end.
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
   greatest_series_x_power rng s n = k ↔
@@ -237,6 +242,11 @@ symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 unfold is_the_greatest_series_x_power in Hk |- *.
+remember (null_coeff_range_length rng s₁ (S n)) as p₁ eqn:Hp₁ .
+symmetry in Hp₁.
+rewrite Heq in Hp₁.
+rewrite Hp₁ in Hk.
+destruct p₁ as [p₁| ]; [ idtac | assumption ].
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
@@ -1282,6 +1292,11 @@ symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 unfold is_the_greatest_series_x_power in Hk |- *.
+rewrite <- Nat.add_succ_l, Nat.add_comm.
+rewrite null_coeff_range_length_shift_add.
+remember (null_coeff_range_length rng s (S b)) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ]; [ idtac | assumption ].
 destruct Hk as (Hz, Hnz).
 split.
  intros cnt.
