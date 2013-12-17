@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.99 2013-12-17 03:48:09 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.100 2013-12-17 13:35:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2109,40 +2109,50 @@ split; intros H.
     symmetry in Hp.
     apply greatest_series_x_power_iff in Hp.
     unfold is_the_greatest_series_x_power in Hp.
-    destruct Hp as (Hxp, Hnxp).
-    eapply series_null_power; [ eassumption | idtac ].
-    apply Nat.sub_gt in H₂; rewrite Nat.sub_0_r in H₂.
-    intros H₃; apply H₂; clear H₂.
-    pose proof (gcd_ps_is_pos m p ps) as Hgp.
-    rewrite <- Hg in Hgp.
-    unfold gcd_ps in Hg.
-    remember (ps_valnum ps + Z.of_nat m)%Z as x.
-    remember (Z.gcd x (' ps_comden ps)) as z.
-    pose proof (Z.gcd_divide_r z (Zpos p)) as H₄.
-    rewrite <- Hg in H₄.
-    apply Nat.mod_divide in H₃; auto.
-    apply Nat.mod_divide; auto.
-     intros H₅.
-     rewrite <- Z2Nat.inj_0 in H₅.
-     apply Z2Nat.inj in H₅.
-      rewrite H₅ in Hgp; revert Hgp; apply Z.lt_irrefl.
+    remember (null_coeff_range_length rng (ps_terms ps) (S m)) as q eqn:Hq .
+    symmetry in Hq.
+    destruct q as [q| ].
+     destruct Hp as (Hxp, Hnxp).
+     eapply series_null_power; [ eassumption | idtac ].
+     apply Nat.sub_gt in H₂; rewrite Nat.sub_0_r in H₂.
+     intros H₃; apply H₂; clear H₂.
+     pose proof (gcd_ps_is_pos m p ps) as Hgp.
+     rewrite <- Hg in Hgp.
+     unfold gcd_ps in Hg.
+     remember (ps_valnum ps + Z.of_nat m)%Z as x.
+     remember (Z.gcd x (' ps_comden ps)) as z.
+     pose proof (Z.gcd_divide_r z (Zpos p)) as H₄.
+     rewrite <- Hg in H₄.
+     apply Nat.mod_divide in H₃; auto.
+     apply Nat.mod_divide; auto.
+      intros H₅.
+      rewrite <- Z2Nat.inj_0 in H₅.
+      apply Z2Nat.inj in H₅.
+       rewrite H₅ in Hgp; revert Hgp; apply Z.lt_irrefl.
 
-      apply Z.lt_le_incl; assumption.
+       apply Z.lt_le_incl; assumption.
 
-      reflexivity.
+       reflexivity.
 
-     eapply Nat.divide_trans; [ idtac | eassumption ].
-     destruct H₄ as (c, Hc).
-     rewrite <- Z2Nat.inj_pos.
-     rewrite Hc; simpl.
-     exists (Z.to_nat c).
-     rewrite Z2Nat.inj_mul.
-      reflexivity.
+      eapply Nat.divide_trans; [ idtac | eassumption ].
+      destruct H₄ as (c, Hc).
+      rewrite <- Z2Nat.inj_pos.
+      rewrite Hc; simpl.
+      exists (Z.to_nat c).
+      rewrite Z2Nat.inj_mul.
+       reflexivity.
 
        apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
-      rewrite <- Hc; apply Pos2Z.is_nonneg.
+       rewrite <- Hc; apply Pos2Z.is_nonneg.
 
-      apply Z.lt_le_incl; assumption.
+       apply Z.lt_le_incl; assumption.
+
+     subst p.
+     unfold gcd_ps in Hg.
+     rewrite Z.gcd_1_r in Hg.
+     subst g.
+     rewrite Nat.mod_1_r in H₂.
+     exfalso; revert H₂; apply Nat.lt_irrefl.
 Qed.
 
 (*
