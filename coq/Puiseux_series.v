@@ -1,17 +1,17 @@
-(* $Id: Puiseux_series.v,v 2.97 2013-12-17 02:48:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.98 2013-12-17 02:59:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
-Require Import Series.
 Require Import Nbar.
+Require Import Power_series.
 
 Set Implicit Arguments.
 
 Record puiseux_series α := mkps
-  { ps_terms : series α;
+  { ps_terms : power_series α;
     ps_valnum : Z;
     ps_comden : positive }.
 
@@ -19,7 +19,8 @@ Section Axioms.
 
 (* [null_coeff_range_length rng s n] returns the number of consecutive
    null coefficients in the series [s], from the [n]th one. *)
-Definition null_coeff_range_length : ∀ α, Lfield.r α → series α → nat → Nbar.
+Definition null_coeff_range_length : ∀ α,
+  Lfield.r α → power_series α → nat → Nbar.
 Admitted.
 
 Definition null_coeff_range_length_prop s n v :=
@@ -37,7 +38,7 @@ Axiom null_coeff_range_length_iff : ∀ s n v,
 (* [greatest_series_x_power rng s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α,
-  Lfield.r α → series α → nat → positive.
+  Lfield.r α → power_series α → nat → positive.
 Admitted.
 
 Fixpoint nth_null_coeff_range_length s n b :=
@@ -80,15 +81,15 @@ Definition series_shift n s :=
   {| terms i := if lt_dec i n then 0%rng else terms s (i - n);
      stop := stop s + fin n |}.
 
-Definition series_shrink k (s : series α) :=
+Definition series_shrink k (s : power_series α) :=
   {| terms i := terms s (i * Pos.to_nat k);
      stop := Nbar.div_sup (stop s) (fin (Pos.to_nat k)) |}.
 
-Definition series_left_shift n (s : series α) :=
+Definition series_left_shift n (s : power_series α) :=
   {| terms i := terms s (n + i);
      stop := stop s - fin n |}.
 
-Definition canonify_series n k (s : series α) :=
+Definition canonify_series n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps n k (ps : puiseux_series α) :=
@@ -1468,7 +1469,7 @@ destruct (lt_dec (S i) (Pos.to_nat k)) as [H| H].
  assumption.
 Qed.
 
-Lemma series_shrink_shrink : ∀ (s : series α) k₁ k₂,
+Lemma series_shrink_shrink : ∀ (s : power_series α) k₁ k₂,
   (series_shrink (k₁ * k₂) s = series_shrink k₁ (series_shrink k₂ s))%ser.
 Proof.
 intros s k₁ k₂.

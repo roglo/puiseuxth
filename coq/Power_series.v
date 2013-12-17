@@ -1,4 +1,4 @@
-(* $Id: Series.v,v 2.177 2013-12-16 21:00:59 deraugla Exp $ *)
+(* $Id: Power_series.v,v 2.1 2013-12-17 02:59:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -19,14 +19,14 @@ Require Import Misc.
 
 Set Implicit Arguments.
 
-Record series α :=
+Record power_series α :=
   { terms : nat → α;
     stop : Nbar }.
 
-Definition series_nth α rng n (s : series α) :=
+Definition series_nth α rng n (s : power_series α) :=
   if Nbar.lt_dec (fin n) (stop s) then terms s n else Field.Tdef.zero rng.
 
-Definition series_inf α fld (a : series α) :=
+Definition series_inf α fld (a : power_series α) :=
   {| terms i := series_nth fld i a; stop := ∞ |}.
 
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
@@ -35,7 +35,7 @@ Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level)
 Definition series_0 := {| terms i := 0%rng; stop := 0 |}.
 Definition series_1 := {| terms i := 1%rng; stop := 1 |}.
 
-Inductive eq_series : series α → series α → Prop :=
+Inductive eq_series : power_series α → power_series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
     (∀ i, (series_nth rng i s₁ = series_nth rng i s₂)%rng)
     → eq_series s₁ s₂.
@@ -69,7 +69,7 @@ constructor.
 etransitivity; [ apply H | apply H2 ].
 Qed.
 
-Add Parametric Relation : (series α) eq_series
+Add Parametric Relation : (power_series α) eq_series
  reflexivity proved by eq_series_refl
  symmetry proved by eq_series_sym
  transitivity proved by eq_series_trans
@@ -1059,7 +1059,7 @@ rewrite if_lt_dec_0_1 in H.
 revert H; apply Lfield.neq_1_0.
 Qed.
 
-Definition series_ring : Lfield.r (series α) :=
+Definition series_ring : Lfield.r (power_series α) :=
   {| Lfield.zero := series_0;
      Lfield.one := series_1;
      Lfield.add := series_add;

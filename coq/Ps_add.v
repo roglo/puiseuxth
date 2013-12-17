@@ -1,10 +1,10 @@
-(* $Id: Ps_add.v,v 2.87 2013-12-10 22:54:09 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.88 2013-12-17 02:59:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Series.
+Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Misc.

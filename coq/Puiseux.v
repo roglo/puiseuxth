@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 2.1 2013-11-27 04:23:46 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 2.2 2013-12-17 02:59:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -12,7 +12,7 @@ Require Import Newton.
 Require Import Polynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
-Require Import Series.
+Require Import Power_series.
 Require Import CharactPolyn.
 Require Import Nbar.
 
