@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.101 2013-12-17 22:37:08 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.102 2013-12-17 23:19:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1700,29 +1700,52 @@ destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
    destruct Hk as (c, Hk).
    apply greatest_series_x_power_iff in Hk.
    unfold is_the_greatest_series_x_power in Hk.
-   assert (i mod Pos.to_nat (c * k) ≠ 0)%nat as H.
-    intros H.
-    apply Nat.mod_divides in H.
-     destruct H as (d, Hd).
-     rewrite Pos2Nat.inj_mul, Nat.mul_shuffle0 in Hd.
-     rewrite Hd in H₂.
-     rewrite Nat.mod_mul in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-     revert H₂; apply Nat.lt_irrefl.
+   remember (null_coeff_range_length rng s 1) as p eqn:Hp .
+   symmetry in Hp.
+   destruct p as [p| ].
+    destruct Hk as (Hz, Hnz).
+    symmetry.
+    destruct c.
+     simpl in Hz.
+     unfold is_a_series_in_x_power in Hz.
+     pose proof (Hz O) as H.
+     simpl in H.
+     rewrite Hp in H.
+     destruct H as (c, Hc).
+     rewrite Nat.mul_0_r in Hc.
+     discriminate Hc.
 
-     apply Pos2Nat_ne_0.
+     assert (i mod (S c * Pos.to_nat k) ≠ 0)%nat as H.
+      intros H.
+      apply Nat.mod_divides in H.
+       destruct H as (d, Hd).
+       rewrite Nat.mul_shuffle0 in Hd.
+       rewrite Hd in H₂.
+       rewrite Nat.mod_mul in H₂; [ idtac | apply Pos2Nat_ne_0 ].
+       revert H₂; apply Nat.lt_irrefl.
 
-    remember (null_coeff_range_length rng s 1) as p eqn:Hp .
-    symmetry in Hp.
-    destruct p as [p| ].
-     destruct Hk as (Hz, Hnz).
-     symmetry.
-     eapply series_nth_0_in_interval in H; [ idtac | eassumption ].
-     unfold series_nth in H.
-     destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
+       apply Nat.neq_mul_0.
+       split; auto.
 
-     rewrite Hk in H.
-     exfalso; apply H.
-     apply Nat.mod_1_r.
+      remember (S c) as d eqn:Hd .
+      rewrite <- Nat2Pos.id in Hd; auto; subst d.
+      rewrite <- Pos2Nat.inj_mul in H.
+      rewrite <- Pos2Nat.inj_mul in Hz.
+      eapply series_nth_0_in_interval in H; [ idtac | eassumption ].
+      unfold series_nth in H.
+      destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
+
+    symmetry.
+    apply null_coeff_range_length_iff in Hp.
+    simpl in Hp.
+    destruct i.
+     rewrite Nat.mod_0_l in H₂; auto.
+     exfalso; revert H₂; apply Nat.lt_irrefl.
+
+     pose proof (Hp i) as Hi.
+     unfold series_nth in Hi.
+     destruct (Nbar.lt_dec (fin (S i)) (stop s)); auto.
+     contradiction.
 
    reflexivity.
 
