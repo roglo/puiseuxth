@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.98 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.99 2013-12-17 03:48:09 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1835,6 +1835,8 @@ intros s b k.
 split; intros H.
  unfold is_the_greatest_series_x_power in H.
  unfold is_the_greatest_series_x_power₂.
+ remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
+ destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
  split; [ assumption | idtac ].
  intros n Hn.
@@ -1873,6 +1875,9 @@ split; intros H.
    apply lt_n_S, Nat.lt_0_succ.
 
  unfold is_the_greatest_series_x_power₂ in H.
+ unfold is_the_greatest_series_x_power.
+ remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
+ destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
  split; [ assumption | idtac ].
  intros k₁ Hk₁.
@@ -1915,70 +1920,76 @@ split; intros H.
 Qed.
 
 Lemma greatest_series_x_power_stretch : ∀ s b k,
-  greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =
-    (k * greatest_series_x_power rng s b)%positive.
+  null_coeff_range_length rng s (S b) ≠ ∞
+  → greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =
+      (k * greatest_series_x_power rng s b)%positive.
 Proof.
 (* à nettoyer *)
-intros s b k.
+intros s b k Hinf.
 remember (greatest_series_x_power rng s b) as m eqn:Hm .
 symmetry in Hm.
 apply greatest_series_x_power_iff.
 apply is_the_greatest_series_x_power_equiv.
 unfold is_the_greatest_series_x_power₂.
-split.
- intros n.
- apply greatest_series_x_power_iff in Hm.
- destruct Hm as (Hm, Hnm).
- unfold is_a_series_in_x_power in Hm.
- rewrite nth_null_coeff_range_length_stretch.
- apply Nat_divides_l.
- apply Nat.mod_divides; auto.
- rewrite Pos2Nat.inj_mul.
- rewrite Nat.mul_mod_distr_l; auto.
- eapply Nat.mul_eq_0; right.
- apply Nat.mod_divides; auto.
- apply Nat_divides_l, Hm.
-
- intros u Hu.
- rewrite Pos.mul_comm, <- Pos.mul_assoc.
- rewrite Pos2Nat.inj_mul.
- apply greatest_series_x_power_iff in Hm.
- unfold is_the_greatest_series_x_power in Hm.
- destruct Hm as (Hm, Hmk).
- assert (m < m * u)%positive as Hmu.
-  Focus 2.
-  apply Hmk in Hmu.
-  destruct Hmu as (n, Hn).
-  exists n.
-  intros H₁; apply Hn.
-  rewrite nth_null_coeff_range_length_stretch in H₁.
-  apply Nat.mod_divide in H₁.
-   rewrite Nat.mul_mod_distr_l in H₁; auto.
-   apply Nat.mul_eq_0_r in H₁; auto.
-   apply Nat.mod_divide; auto.
-
-   rewrite <- Pos2Nat.inj_mul.
-   apply Pos2Nat_ne_0.
-
-  apply Pos2Nat.inj_lt.
-  apply Pos2Nat.inj_lt in Hu.
-  rewrite Pos2Nat.inj_1 in Hu.
+apply greatest_series_x_power_iff in Hm.
+unfold is_the_greatest_series_x_power in Hm.
+remember (null_coeff_range_length rng s (S b)) as p eqn:Hp .
+symmetry in Hp.
+destruct p as [p| ].
+ apply null_coeff_range_length_stretch_succ with (k := k) in Hp.
+ rewrite Hp.
+ split.
+  intros n.
+  destruct Hm as (Hm, Hnm).
+  unfold is_a_series_in_x_power in Hm.
+  rewrite nth_null_coeff_range_length_stretch.
+  apply Nat_divides_l.
+  apply Nat.mod_divides; auto.
   rewrite Pos2Nat.inj_mul.
-  remember (Pos.to_nat u) as un eqn:Hun .
-  symmetry in Hun.
-  destruct un.
-   apply Nat.nle_gt in Hu.
-   exfalso; apply Hu, Nat.le_0_l.
+  rewrite Nat.mul_mod_distr_l; auto.
+  eapply Nat.mul_eq_0; right.
+  apply Nat.mod_divides; auto.
+  apply Nat_divides_l, Hm.
 
-   destruct un; [ exfalso; revert Hu; apply Nat.lt_irrefl | idtac ].
-   remember (Pos.to_nat m) as um eqn:Hum .
-   symmetry in Hum.
-   destruct um; [ exfalso; revert Hum; apply Pos2Nat_ne_0 | idtac ].
-   rewrite Nat.mul_comm; simpl.
-   apply lt_n_S.
-   rewrite Nat.add_succ_r.
-   apply le_n_S.
-   apply le_plus_l.
+  intros u Hu.
+  rewrite Pos.mul_comm, <- Pos.mul_assoc.
+  rewrite Pos2Nat.inj_mul.
+  destruct Hm as (Hm, Hmk).
+  assert (m < m * u)%positive as Hmu.
+   apply Pos2Nat.inj_lt.
+   apply Pos2Nat.inj_lt in Hu.
+   rewrite Pos2Nat.inj_1 in Hu.
+   rewrite Pos2Nat.inj_mul.
+   remember (Pos.to_nat u) as un eqn:Hun .
+   symmetry in Hun.
+   destruct un.
+    apply Nat.nle_gt in Hu.
+    exfalso; apply Hu, Nat.le_0_l.
+
+    destruct un; [ exfalso; revert Hu; apply Nat.lt_irrefl | idtac ].
+    remember (Pos.to_nat m) as um eqn:Hum .
+    symmetry in Hum.
+    destruct um; [ exfalso; revert Hum; apply Pos2Nat_ne_0 | idtac ].
+    rewrite Nat.mul_comm; simpl.
+    apply lt_n_S.
+    rewrite Nat.add_succ_r.
+    apply le_n_S.
+    apply le_plus_l.
+
+   apply Hmk in Hmu.
+   destruct Hmu as (n, Hn).
+   exists n.
+   intros H₁; apply Hn.
+   rewrite nth_null_coeff_range_length_stretch in H₁.
+   apply Nat.mod_divide in H₁.
+    rewrite Nat.mul_mod_distr_l in H₁; auto.
+    apply Nat.mul_eq_0_r in H₁; auto.
+    apply Nat.mod_divide; auto.
+
+    rewrite <- Pos2Nat.inj_mul.
+    apply Pos2Nat_ne_0.
+
+ exfalso; apply Hinf; reflexivity.
 Qed.
 
 Lemma gcd_ps_is_pos : ∀ n k ps, (0 < gcd_ps n k ps)%Z.
