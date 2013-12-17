@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.91 2013-12-17 14:27:43 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.92 2013-12-17 14:40:46 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -25,6 +25,28 @@ apply greatest_series_x_power_iff.
 unfold is_the_greatest_series_x_power.
 rewrite Hn.
 reflexivity.
+Qed.
+
+Lemma greatest_series_x_power_stretch_inf : ∀ s b k,
+  null_coeff_range_length rng s (S b) = ∞
+  → greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =
+      1%positive.
+Proof.
+intros s b k Hs.
+remember (greatest_series_x_power rng s b) as n eqn:Hn .
+symmetry in Hn.
+apply greatest_series_x_power_iff in Hn.
+apply greatest_series_x_power_iff.
+unfold is_the_greatest_series_x_power in Hn |- *.
+rewrite Hs in Hn.
+rewrite null_coeff_range_length_stretch_succ_inf; auto.
+Qed.
+
+Lemma gcd_ps_1_m : ∀ n ps, gcd_ps n 1%positive ps = 1%Z.
+Proof.
+intros n ps.
+unfold gcd_ps.
+rewrite Z.gcd_1_r; reflexivity.
 Qed.
 
 Lemma ps_canon_adjust_eq : ∀ ps n k,
@@ -73,6 +95,9 @@ constructor; simpl.
    rewrite Hp; intros H; discriminate H.
 
   rewrite ncrl_inf_gsxp; [ idtac | assumption ].
+  rewrite greatest_series_x_power_stretch_inf; auto.
+  rewrite gcd_ps_1_m.
+  rewrite gcd_ps_1_m.
 
 bbb.
 
