@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.89 2013-12-17 13:46:11 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.90 2013-12-17 14:01:24 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,6 +15,13 @@ Definition adjust_ps n k ps :=
   {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
      ps_valnum := ps_valnum ps * Zpos k - Z.of_nat n;
      ps_comden := ps_comden ps * k |}.
+
+Lemma zzz : ∀ s n,
+  null_coeff_range_length rng s 0 = fin n
+  → null_coeff_range_length rng s (S n) = ∞
+    → greatest_series_x_power rng s n = 1%positive.
+Proof.
+bbb.
 
 Lemma ps_canon_adjust_eq : ∀ ps n k,
   canonic_ps ps ≐ canonic_ps (adjust_ps n k ps).
@@ -60,6 +67,8 @@ constructor; simpl.
    revert H₁; apply Pos2Z_ne_0.
 
    rewrite Hp; intros H; discriminate H.
+
+  rewrite zzz; auto.
 
 bbb.
 
