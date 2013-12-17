@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.96 2013-12-17 02:43:42 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.97 2013-12-17 02:48:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1817,9 +1817,14 @@ rewrite Nat2Pos.id.
 Qed.
 
 Definition is_the_greatest_series_x_power₂ s b k :=
-  is_a_series_in_x_power s b k ∧
-  (∀ u, (1 < u)%positive
-   → ∃ n, ¬(Pos.to_nat (u * k) | nth_null_coeff_range_length s n b)).
+  match null_coeff_range_length rng s (S b) with
+  | fin _ =>
+      is_a_series_in_x_power s b k ∧
+      (∀ u, (1 < u)%positive
+       → ∃ n, ¬(Pos.to_nat (u * k) | nth_null_coeff_range_length s n b))
+  | ∞ =>
+      k = 1%positive
+  end.
 
 Lemma is_the_greatest_series_x_power_equiv : ∀ s b k,
   is_the_greatest_series_x_power s b k
