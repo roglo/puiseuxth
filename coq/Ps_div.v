@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.11 2013-12-17 00:51:03 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.12 2013-12-17 00:55:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -141,7 +141,16 @@ Qed.
 Lemma null_coeff_range_length_series_1 :
   null_coeff_range_length rng 1%ser 0 = 0%Nbar.
 Proof.
-bbb.
+apply null_coeff_range_length_iff; simpl.
+split.
+ intros i Hi.
+ apply Nat.nlt_ge in Hi.
+ exfalso; apply Hi, Nat.lt_0_succ.
+
+ unfold series_nth; simpl.
+ rewrite if_lt_dec_0_1.
+ apply Lfield.neq_1_0.
+Qed.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
