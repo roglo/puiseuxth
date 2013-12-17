@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.88 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.89 2013-12-17 13:46:11 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -35,26 +35,33 @@ constructor; simpl.
  rewrite Nat2Z.inj_mul, positive_nat_Z.
  rewrite <- Z.mul_add_distr_r.
  rewrite Z.mul_comm.
- erewrite greatest_series_x_power_stretch.
- unfold gcd_ps.
- remember (' k)%Z as kp.
- simpl.
- rewrite Nat2Z.inj_add.
- rewrite Z.sub_add_simpl_r_r.
- rewrite Nat2Z.inj_mul.
- rewrite positive_nat_Z.
- rewrite <- Z.mul_add_distr_r.
- rewrite Pos2Z.inj_mul.
- rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite Pos.mul_comm.
- rewrite Pos2Z.inj_mul.
- rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
- rewrite Z.mul_comm.
- subst kp.
- rewrite Z.div_mul_cancel_r; [ reflexivity | idtac | apply Pos2Z_ne_0 ].
- intros H₁.
- apply Z.gcd_eq_0_r in H₁.
- revert H₁; apply Pos2Z_ne_0.
+ remember (null_coeff_range_length rng (ps_terms ps) (S m)) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  erewrite greatest_series_x_power_stretch.
+   unfold gcd_ps.
+   remember (' k)%Z as kp.
+   simpl.
+   rewrite Nat2Z.inj_add.
+   rewrite Z.sub_add_simpl_r_r.
+   rewrite Nat2Z.inj_mul.
+   rewrite positive_nat_Z.
+   rewrite <- Z.mul_add_distr_r.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite Pos.mul_comm.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite Z.mul_comm.
+   subst kp.
+   rewrite Z.div_mul_cancel_r; [ reflexivity | idtac | apply Pos2Z_ne_0 ].
+   intros H₁.
+   apply Z.gcd_eq_0_r in H₁.
+   revert H₁; apply Pos2Z_ne_0.
+
+   rewrite Hp; intros H; discriminate H.
+
+bbb.
 
  rewrite greatest_series_x_power_shift.
  rewrite greatest_series_x_power_stretch.
