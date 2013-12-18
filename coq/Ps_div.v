@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.14 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.15 2013-12-18 19:05:30 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -74,18 +74,22 @@ destruct n as [n| ].
 
   constructor; simpl.
    erewrite ps_valnum_canonic; try reflexivity; try eassumption.
-   simpl.
-   rewrite Pos2Z.inj_gcd.
+   rewrite Z.add_0_r.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite Z.gcd_0_l.
    rewrite Z.gcd_1_l.
-   rewrite Z.div_1_r.
-   reflexivity.
+   rewrite Z.div_0_l; [ reflexivity | idtac ].
+   intros H; discriminate H.
 
    erewrite ps_comden_canonic; try reflexivity; try eassumption.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite Z.gcd_1_l.
    reflexivity.
 
    erewrite ps_terms_canonic; try reflexivity; try eassumption.
-   remember Z.to_pos as f; simpl; subst f.
-   rewrite Pos2Z.inj_gcd.
+   rewrite Z.add_0_r.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite Z.gcd_0_l.
    rewrite Z.gcd_1_l.
    unfold canonify_series; simpl.
    rewrite series_shrink_1.
@@ -153,19 +157,25 @@ split.
 Qed.
 
 Lemma greatest_series_x_power_series_1 :
-  greatest_series_x_power rng 1%ser 0 = 1%positive.
+  greatest_series_x_power rng 1%ser 0 = O.
 Proof.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
-split.
- unfold is_a_series_in_x_power.
- intros n.
- rewrite Pos2Nat.inj_1.
- exists (nth_null_coeff_range_length 1%ser n 0).
- rewrite Nat.mul_1_r; reflexivity.
+remember (null_coeff_range_length rng 1%ser 1) as n eqn:Hn .
+symmetry in Hn.
+apply null_coeff_range_length_iff in Hn.
+unfold null_coeff_range_length_prop in Hn.
+destruct n as [n| ]; [ idtac | reflexivity ].
+destruct Hn as (Hz, Hnz).
+unfold series_nth in Hnz.
+simpl in Hnz.
+destruct (Nbar.lt_dec (fin (S n)) 1) as [H₁| H₁].
+ apply Nbar.fin_lt_mono in H₁.
+ apply lt_S_n in H₁.
+ exfalso; revert H₁; apply Nat.nlt_0_r.
 
- intros k' Hk'.
-bbb.
+ exfalso; apply Hnz; reflexivity.
+Qed.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
