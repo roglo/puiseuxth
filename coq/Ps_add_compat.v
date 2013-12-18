@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.49 2013-12-18 15:24:31 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.50 2013-12-18 17:24:59 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -511,21 +511,30 @@ symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 unfold is_the_greatest_series_x_power in Hk |- *.
-bbb.
-destruct Hk as (Hxp, Hnxp).
-split.
- unfold is_a_series_in_x_power in Hxp |- *.
- rename n into m.
- intros n.
- rewrite nth_null_coeff_range_length_left_shift.
- apply Hxp.
+pose proof (nth_null_coeff_range_length_left_shift s n O p) as H.
+simpl in H.
+remember (null_coeff_range_length rng s (S (n + p))) as n₁ eqn:Hn₁ .
+remember (null_coeff_range_length rng (series_left_shift n s) (S p)) as n₂
+ eqn:Hn₂ .
+symmetry in Hn₁, Hn₂.
+destruct n₁ as [n₁| ].
+ destruct n₂ as [n₂| ]; [ idtac | discriminate H ].
+ destruct Hk as (Hxp, Hnxp).
+ split.
+  unfold is_a_series_in_x_power in Hxp |- *.
+  rename n into m.
+  intros n.
+  rewrite nth_null_coeff_range_length_left_shift.
+  apply Hxp.
 
- intros k₁ Hk₁.
- apply Hnxp in Hk₁.
- destruct Hk₁ as (m, Hm).
- exists m.
- rewrite nth_null_coeff_range_length_left_shift.
- assumption.
+  intros k₁ Hk₁.
+  apply Hnxp in Hk₁.
+  destruct Hk₁ as (m, Hm).
+  exists m.
+  rewrite nth_null_coeff_range_length_left_shift.
+  assumption.
+
+ destruct n₂; [ discriminate H | assumption ].
 Qed.
 
 Lemma canonified_exists_adjust : ∀ ps ps₁,
