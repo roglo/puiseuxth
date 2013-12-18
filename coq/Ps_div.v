@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.19 2013-12-18 23:03:39 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.20 2013-12-18 23:39:02 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,7 +16,7 @@ Definition ps_inv ps :=
   match null_coeff_range_length rng (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
-         ps_valnum := Z.of_nat n - ps_valnum ps;
+         ps_valnum := - Z.of_nat n - ps_valnum ps;
          ps_comden := ps_comden ps |}
   | ∞ =>
       ps
@@ -184,15 +184,27 @@ unfold ps_inv; simpl.
 remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
+ unfold ps_mul; simpl.
+ unfold cm_factor, cm; simpl.
+ rewrite <- series_stretch_mul.
+bbb.
+
+intros ps Hps.
+unfold ps_inv; simpl.
+remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
  rewrite series_inv_compat with (b := ps_terms ps).
   unfold ps_mul; simpl.
   unfold cm_factor, cm; simpl.
   rewrite <- series_stretch_mul.
+bbb.
   rewrite series_mul_inv_l.
    rewrite Z.mul_sub_distr_r, Z.sub_add.
    constructor.
-   rewrite canonic_ps_1.
+   rewrite canonic_ps_1, stretch_series_1.
    constructor; simpl.
+bbb.
     erewrite ps_valnum_canonic with (n := O); try reflexivity.
      Focus 1.
      remember Z.gcd as f; simpl; subst f.
@@ -202,8 +214,8 @@ destruct n as [n| ].
      rewrite Z.gcd_0_r.
      simpl.
      rewrite Pos2Z.inj_mul.
-     rewrite Z.gcd_mul_mono_r.
-     simpl.
+     rewrite Z.gcd_mul_mono_r; simpl.
+bbb.
      rewrite Z.div_mul_cancel_r.
       apply null_coeff_range_length_iff in Hn.
       simpl in Hn.
