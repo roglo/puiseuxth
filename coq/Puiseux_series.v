@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.104 2013-12-18 07:22:34 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.105 2013-12-18 07:28:20 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1883,6 +1883,7 @@ split; intros H.
  unfold is_the_greatest_series_x_power₂ in H.
  unfold is_the_greatest_series_x_power.
  remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
+ symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
  split; [ assumption | idtac ].
@@ -1893,6 +1894,13 @@ split; intros H.
  destruct Hdl as (u, Hu).
  rewrite <- Hkk in Hu.
  destruct u.
+  simpl in Hu.
+  rewrite Hu in Hk.
+  symmetry in Hk.
+  apply Nat.lcm_eq_0 in Hk.
+  destruct Hk as [Hk| Hk].
+   subst k.
+   unfold is_a_series_in_x_power in Hp.
 bbb.
 
  unfold is_the_greatest_series_x_power.
