@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.110 2013-12-18 12:55:03 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.111 2013-12-18 13:35:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2200,14 +2200,37 @@ split; intros H.
       rewrite Hq in H₅.
       destruct H₅ as (c, Hc).
       rewrite Nat.mul_0_r in Hc; discriminate Hc.
-bbb.
 
-     subst p.
-     unfold gcd_ps in Hg.
-     rewrite Z.gcd_1_r in Hg.
-     subst g.
-     rewrite Nat.mod_1_r in H₂.
-     exfalso; revert H₂; apply Nat.lt_irrefl.
+     destruct (eq_nat_dec i m) as [H₃| H₃].
+      subst i.
+      rewrite Nat.sub_diag in H₂; simpl in H₂.
+      rewrite Nat.mod_0_l in H₂.
+       exfalso; revert H₂; apply Nat.lt_irrefl.
+
+       pose proof (gcd_ps_is_pos m p ps) as H₃.
+       rewrite <- Hg in H₃.
+       intros H₄.
+       rewrite <- Z2Nat.inj_0 in H₄.
+       apply Z2Nat.inj_iff in H₄.
+        rewrite H₄ in H₃.
+        exfalso; revert H₃; apply Z.lt_irrefl.
+
+        apply Z.lt_le_incl; assumption.
+
+        reflexivity.
+
+      apply null_coeff_range_length_iff in Hq.
+      simpl in Hq.
+      pose proof (Hq (i - S m)%nat) as H₄.
+      rewrite <- Nat.add_succ_r in H₄.
+      rewrite <- Nat.sub_succ_l in H₄.
+       rewrite Nat.sub_succ in H₄.
+       rewrite Nat.add_sub_assoc in H₄; auto.
+       rewrite Nat.add_comm, Nat.add_sub in H₄.
+       assumption.
+
+       apply Nat.neq_sym in H₃.
+       apply le_neq_lt; assumption.
 Qed.
 
 (*
