@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.105 2013-12-18 07:28:20 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.106 2013-12-18 10:10:53 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1900,51 +1900,56 @@ split; intros H.
   apply Nat.lcm_eq_0 in Hk.
   destruct Hk as [Hk| Hk].
    subst k.
+   assert (1 < 2)%nat as H by omega.
+   apply Hnp in H.
+   destruct H as (n, Hn).
+   rewrite Nat.mul_0_r in Hn.
    unfold is_a_series_in_x_power in Hp.
-bbb.
+   exfalso; apply Hn, Hp.
 
- unfold is_the_greatest_series_x_power.
- remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
- destruct p as [p| ]; [ idtac | assumption ].
- destruct H as (Hp, Hnp).
- split; [ assumption | idtac ].
- intros k₁ Hk₁.
- remember (Pos_lcm k k₁) as kk eqn:Hkk .
- remember Hkk as Hk; clear HeqHk.
- apply Pos2Nat.inj_iff in Hkk.
- rewrite Pos2Nat_lcm in Hkk.
- pose proof (Nat_divides_lcm_l (Pos.to_nat k) (Pos.to_nat k₁)) as Hdl.
- destruct Hdl as (u, Hu).
- rewrite <- Hkk in Hu.
- destruct u; [ exfalso; revert Hu; apply Pos2Nat_ne_0 | idtac ].
- destruct u.
-  rewrite Nat.mul_1_l in Hu.
-  apply Pos2Nat.inj_iff in Hu.
-  move Hu at top; subst kk.
-  rewrite Hk in Hk₁.
-  apply Pos2Nat.inj_lt in Hk₁.
-  rewrite Pos2Nat_lcm in Hk₁.
-  apply Nat.nle_gt in Hk₁.
-  exfalso; apply Hk₁.
-  rewrite Nat.lcm_comm.
-  apply Nat_le_lcm_l; auto.
+   subst k₁.
+   exfalso; revert Hk₁; apply Nat.nlt_0_r.
 
-  assert (1 < Pos.of_nat (S (S u)))%positive as H₁.
-   apply Pos2Nat.inj_lt.
-   rewrite Nat2Pos.id; [ idtac | intros H; discriminate H ].
-   rewrite Pos2Nat.inj_1.
-   apply lt_n_S, Nat.lt_0_succ.
+  destruct u.
+   rewrite Nat.mul_1_l in Hu.
+   move Hu at top; subst kk.
+   rewrite Hk in Hk₁.
+   apply Nat.nle_gt in Hk₁.
+   exfalso; apply Hk₁.
+   rewrite Nat.lcm_comm.
+   destruct k.
+    unfold is_a_series_in_x_power in Hp.
+    pose proof (Hp O) as H.
+    simpl in H.
+    rewrite Hp₁ in H.
+    destruct H as (c, Hc).
+    rewrite Nat.mul_0_r in Hc.
+    discriminate Hc.
 
-   apply Hnp in H₁.
-   destruct H₁ as (m, Hm).
-   rewrite Pos2Nat.inj_mul in Hm.
-   rewrite Nat2Pos.id in Hm; [ idtac | intros H; discriminate H ].
-   rewrite <- Hu, Hkk in Hm.
-   exists m.
-   intros H₁; apply Hm.
-   unfold is_a_series_in_x_power in Hp.
-   pose proof (Hp m) as H₂.
-   apply Nat_lcm_divides; auto.
+    apply Nat_le_lcm_l; auto.
+
+   destruct k.
+    unfold is_a_series_in_x_power in Hp.
+    pose proof (Hp O) as H.
+    simpl in H.
+    rewrite Hp₁ in H.
+    destruct H as (c, Hc).
+    rewrite Nat.mul_0_r in Hc.
+    discriminate Hc.
+
+    assert (1 < S (S u))%nat as H₁.
+     apply lt_n_S, Nat.lt_0_succ.
+
+     apply Hnp in H₁.
+     destruct H₁ as (m, Hm).
+     rewrite <- Hu, Hkk in Hm.
+     exists m.
+     intros H₁; apply Hm.
+     unfold is_a_series_in_x_power in Hp.
+     pose proof (Hp m) as H₂.
+     apply Nat_lcm_divides; auto.
+     intros H; rewrite H in Hk₁.
+     exfalso; revert Hk₁; apply Nat.nlt_0_r.
 Qed.
 
 Lemma greatest_series_x_power_stretch : ∀ s b k,
