@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.107 2013-12-18 10:53:28 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.108 2013-12-18 12:07:52 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1999,43 +1999,40 @@ destruct p as [p| ].
    apply Nat.neq_mul_0; split; auto.
 
   intros u Hu.
-bbb.
-  rewrite Pos.mul_comm, <- Pos.mul_assoc.
-  rewrite Pos2Nat.inj_mul.
+  rewrite Nat.mul_comm, <- Nat.mul_assoc.
   destruct Hm as (Hm, Hmk).
-  assert (m < m * u)%positive as Hmu.
-   apply Pos2Nat.inj_lt.
-   apply Pos2Nat.inj_lt in Hu.
-   rewrite Pos2Nat.inj_1 in Hu.
-   rewrite Pos2Nat.inj_mul.
-   remember (Pos.to_nat u) as un eqn:Hun .
-   symmetry in Hun.
-   destruct un.
-    apply Nat.nle_gt in Hu.
-    exfalso; apply Hu, Nat.le_0_l.
+  destruct m.
+   exists O; simpl.
+   rewrite Hp, Nat.mul_0_r.
+   intros H.
+   destruct H as (c, Hc).
+   rewrite Nat.mul_0_r in Hc.
+   discriminate Hc.
 
-    destruct un; [ exfalso; revert Hu; apply Nat.lt_irrefl | idtac ].
-    remember (Pos.to_nat m) as um eqn:Hum .
-    symmetry in Hum.
-    destruct um; [ exfalso; revert Hum; apply Pos2Nat_ne_0 | idtac ].
-    rewrite Nat.mul_comm; simpl.
-    apply lt_n_S.
-    rewrite Nat.add_succ_r.
-    apply le_n_S.
-    apply le_plus_l.
+   assert (S m < S m * u)%nat as Hmu.
+    apply mult_lt_compat_r with (p := S m) in Hu.
+     rewrite Nat.mul_1_l, Nat.mul_comm in Hu.
+     assumption.
 
-   apply Hmk in Hmu.
-   destruct Hmu as (n, Hn).
-   exists n.
-   intros H₁; apply Hn.
-   rewrite nth_null_coeff_range_length_stretch in H₁.
-   apply Nat.mod_divide in H₁.
-    rewrite Nat.mul_mod_distr_l in H₁; auto.
-    apply Nat.mul_eq_0_r in H₁; auto.
-    apply Nat.mod_divide; auto.
+     apply Nat.lt_0_succ.
 
-    rewrite <- Pos2Nat.inj_mul.
-    apply Pos2Nat_ne_0.
+    apply Hmk in Hmu.
+    destruct Hmu as (n, Hn).
+    exists n.
+    intros H₁; apply Hn.
+    rewrite nth_null_coeff_range_length_stretch in H₁.
+    apply Nat.mod_divide in H₁.
+     rewrite Nat.mul_mod_distr_l in H₁; auto.
+      apply Nat.mul_eq_0_r in H₁; auto.
+      apply Nat.mod_divide; auto.
+      destruct u; [ exfalso; revert Hu; apply Nat.nlt_0_r | idtac ].
+      apply Nat.neq_mul_0; auto.
+
+      destruct u; [ exfalso; revert Hu; apply Nat.nlt_0_r | idtac ].
+      apply Nat.neq_mul_0; auto.
+
+     destruct u; [ exfalso; revert Hu; apply Nat.nlt_0_r | idtac ].
+     apply Nat.neq_mul_0; simpl; auto.
 
  exfalso; apply Hinf; reflexivity.
 Qed.
