@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.20 2013-12-18 23:39:02 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.21 2013-12-18 23:47:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -187,6 +187,7 @@ destruct n as [n| ].
  unfold ps_mul; simpl.
  unfold cm_factor, cm; simpl.
  rewrite <- series_stretch_mul.
+ rewrite Z.mul_sub_distr_r, Z.sub_add.
 bbb.
 
 intros ps Hps.
