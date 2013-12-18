@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.108 2013-12-18 12:07:52 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.109 2013-12-18 12:30:36 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2043,22 +2043,23 @@ intros n k ps.
 unfold gcd_ps; simpl.
 remember (ps_valnum ps + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
-remember (Z.gcd (' ps_comden ps) (' k))%Z as y eqn:Hy .
+remember (Z.gcd (' ps_comden ps) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
 destruct (Z_zerop (Z.gcd x y)) as [H₁| H₁]; [ idtac | omega ].
 apply Z.gcd_eq_0_r in H₁.
 rewrite Hy in H₁.
-apply Z.gcd_eq_0_r in H₁.
+apply Z.gcd_eq_0_l in H₁.
 exfalso; revert H₁; apply Pos2Z_ne_0.
 Qed.
 
 Lemma series_null_power : ∀ s b p,
   is_a_series_in_x_power s b p
   → ∀ i,
-    ((i - b) mod Pos.to_nat p)%nat ≠ O
+    ((i - b) mod p)%nat ≠ O
     → (series_nth rng i s = 0)%rng.
 Proof.
 intros s b p Hxp i Hip.
+destruct p; [ exfalso; apply Hip; reflexivity | idtac ].
 destruct (le_dec i b) as [H₁| H₁].
  apply Nat.sub_0_le in H₁.
  rewrite H₁, Nat.mod_0_l in Hip; auto.
@@ -2068,15 +2069,16 @@ destruct (le_dec i b) as [H₁| H₁].
  remember (i - b)%nat as j eqn:Hj .
  replace i with (b + j)%nat in * by omega.
  clear i Hj.
- eapply series_nth_0_in_interval_from_any with (c := S j).
+ remember (Pos.of_nat (S p)) as q eqn:Hq .
+ apply series_nth_0_in_interval_from_any with (c := S j) (k := q).
   apply Nat.lt_succ_r; reflexivity.
 
-  eassumption.
+  subst q; rewrite Nat2Pos.id; auto.
 
   unfold is_a_series_in_x_power in Hxp.
-  apply Hxp.
+  subst q; rewrite Nat2Pos.id; auto.
 
-  assumption.
+  subst q; rewrite Nat2Pos.id; auto.
 Qed.
 
 Lemma null_coeff_range_length_inf_iff : ∀ ps,
