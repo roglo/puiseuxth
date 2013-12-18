@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.15 2013-12-18 19:05:30 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.16 2013-12-18 19:15:13 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -195,11 +195,11 @@ destruct n as [n| ].
     rewrite canonic_ps_1.
     constructor; simpl.
      erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
+      rewrite stretch_series_1.
       rewrite Z.div_0_l; [ reflexivity | idtac ].
       rewrite Z.gcd_0_l.
-      intros H.
-      apply -> Z.abs_0_iff in H.
-      revert H; apply Pos2Z_ne_0.
+      remember (Z.of_nat (greatest_series_x_power rng 1%ser 0)) as y.
+      destruct y; simpl; apply Pos2Z_ne_0.
 
       rewrite stretch_series_1.
       apply null_coeff_range_length_series_1.
