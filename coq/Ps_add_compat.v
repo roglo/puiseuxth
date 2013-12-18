@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.50 2013-12-18 17:24:59 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.51 2013-12-18 17:56:37 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -554,6 +554,7 @@ remember (gcd_ps len₁ k₁ ps) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
  unfold gcd_ps in Heqg.
+ rewrite Z.gcd_comm, Z.gcd_assoc in Heqg.
  apply Z.gcd_eq_0_r in Heqg.
  exfalso; revert Heqg; apply Pos2Z_ne_0.
 
@@ -562,7 +563,7 @@ destruct g as [| g| g]; simpl.
   unfold gcd_ps in Heqg.
   remember (ps_valnum ps + Z.of_nat len₁)%Z as v.
   remember (Zpos (ps_comden ps))%Z as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (Zpos k₁)) as H₁.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
   pose proof (Z.gcd_divide_l v c) as H₁.
@@ -579,7 +580,7 @@ destruct g as [| g| g]; simpl.
   unfold gcd_ps in Heqg.
   remember (ps_valnum ps + Z.of_nat len₁)%Z as v.
   remember (Zpos (ps_comden ps)) as c.
-  pose proof (Z.gcd_divide_l (Z.gcd v c) (Zpos k₁)) as H₁.
+  pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
   pose proof (Z.gcd_divide_r v c) as H₁.
@@ -610,9 +611,15 @@ destruct g as [| g| g]; simpl.
    rewrite Nat.add_0_r.
    rewrite <- Heqk₁.
    unfold gcd_ps in Heqg.
-   apply Pos2Z.inj_divide.
-   rewrite <- Heqg.
-   apply Z.gcd_divide_r.
+   remember (ps_valnum ps + Z.of_nat len₁)%Z as x.
+   remember (' ps_comden ps)%Z as y.
+   pose proof (Z.gcd_divide_r (Z.gcd x y) (Z.of_nat k₁)) as H.
+   rewrite Heqg in H.
+   destruct H as (c, Hc).
+   exists (Z.to_nat c).
+   rewrite <- Z2Nat_inj_mul_pos_r.
+   rewrite <- Hc.
+   rewrite Nat2Z.id; reflexivity.
 
  exfalso.
  pose proof (Zlt_neg_0 g) as H.
