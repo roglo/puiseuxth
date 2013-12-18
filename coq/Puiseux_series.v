@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.102 2013-12-17 23:19:21 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.103 2013-12-18 06:10:32 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -60,7 +60,7 @@ Definition is_the_greatest_series_x_power s b k :=
       is_a_series_in_x_power s b k ∧
       (∀ k', (k < k')%nat → ∃ n, ¬(k' | nth_null_coeff_range_length s n b))
   | ∞ =>
-      k = 0%nat
+      k = O
   end.
 
 Axiom greatest_series_x_power_iff : ∀ s n k,
@@ -1843,10 +1843,9 @@ Definition is_the_greatest_series_x_power₂ s b k :=
   match null_coeff_range_length rng s (S b) with
   | fin _ =>
       is_a_series_in_x_power s b k ∧
-      (∀ u, (1 < u)%positive
-       → ∃ n, ¬(Pos.to_nat (u * k) | nth_null_coeff_range_length s n b))
+      (∀ u, (1 < u)%nat → ∃ n, ¬(u * k | nth_null_coeff_range_length s n b))
   | ∞ =>
-      k = 1%positive
+      k = O
   end.
 
 Lemma is_the_greatest_series_x_power_equiv : ∀ s b k,
@@ -1858,43 +1857,28 @@ split; intros H.
  unfold is_the_greatest_series_x_power in H.
  unfold is_the_greatest_series_x_power₂.
  remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
+ symmetry in Hp₁.
  destruct p as [p| ]; [ idtac | assumption ].
  destruct H as (Hp, Hnp).
  split; [ assumption | idtac ].
  intros n Hn.
- remember (Pos.to_nat n) as nn eqn:Hnn .
- symmetry in Hnn.
- destruct nn; [ exfalso; revert Hnn; apply Pos2Nat_ne_0 | idtac ].
- destruct nn.
-  rewrite <- Pos2Nat.inj_1 in Hnn.
-  apply Pos2Nat.inj in Hnn.
-  subst n; exfalso; revert Hn; apply Pos.lt_irrefl.
+ destruct n; [ exfalso; revert Hn; apply Nat.nlt_0_r | idtac ].
+ destruct n; [ exfalso; revert Hn; apply Nat.lt_irrefl | clear Hn ].
+ destruct k.
+  exfalso.
+  unfold is_a_series_in_x_power in Hp.
+  pose proof (Hnp 2%nat (Nat.lt_0_succ 1%nat)) as H.
+  destruct H as (m, H).
+  pose proof (Hp m) as Hm.
+  destruct Hm as (q, Hq).
+  rewrite Nat.mul_0_r in Hq.
+  rewrite Hq in H.
+  apply H.
+  exists O; reflexivity.
 
   apply Hnp.
-  rewrite <- SuccNat2Pos.id_succ in Hnn.
-  apply Pos2Nat.inj in Hnn.
-  subst n; simpl.
-  rewrite Pos.of_nat_succ.
-  destruct nn.
-   rewrite Pos.mul_comm; simpl.
-   replace k with (k * 1)%positive .
-    rewrite <- Pos.mul_assoc; simpl.
-    apply Pos.mul_lt_mono_l.
-    apply Pos2Nat.inj_lt.
-    unfold Pos.to_nat; simpl.
-    apply Nat.lt_1_2.
-
-    rewrite Pos.mul_1_r; reflexivity.
-
-   replace k with (1 * k)%positive by reflexivity.
-   rewrite Pos.mul_assoc.
-   apply Pos.mul_lt_mono_r.
-   rewrite Pos.mul_1_r.
-   apply Pos2Nat.inj_lt.
-   rewrite Pos2Nat.inj_succ.
-   rewrite Nat2Pos.id; [ idtac | intros H; discriminate H ].
-   unfold Pos.to_nat; simpl.
-   apply lt_n_S, Nat.lt_0_succ.
+  simpl; rewrite <- Nat.add_succ_l.
+  apply Nat.lt_add_pos_r, Nat.lt_0_succ.
 
  unfold is_the_greatest_series_x_power₂ in H.
  unfold is_the_greatest_series_x_power.
