@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.103 2013-12-18 06:10:32 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.104 2013-12-18 07:22:34 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1881,6 +1881,20 @@ split; intros H.
   apply Nat.lt_add_pos_r, Nat.lt_0_succ.
 
  unfold is_the_greatest_series_x_power₂ in H.
+ unfold is_the_greatest_series_x_power.
+ remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
+ destruct p as [p| ]; [ idtac | assumption ].
+ destruct H as (Hp, Hnp).
+ split; [ assumption | idtac ].
+ intros k₁ Hk₁.
+ remember (Nat.lcm k k₁) as kk eqn:Hkk .
+ remember Hkk as Hk; clear HeqHk.
+ pose proof (Nat_divides_lcm_l k k₁) as Hdl.
+ destruct Hdl as (u, Hu).
+ rewrite <- Hkk in Hu.
+ destruct u.
+bbb.
+
  unfold is_the_greatest_series_x_power.
  remember (null_coeff_range_length rng s (S b)) as p eqn:Hp₁ .
  destruct p as [p| ]; [ idtac | assumption ].
