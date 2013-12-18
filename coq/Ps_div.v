@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.17 2013-12-18 19:36:23 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.18 2013-12-18 19:53:47 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -179,6 +179,37 @@ Qed.
 
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
+intros ps Hps.
+unfold ps_inv; simpl.
+remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ rewrite series_inv_compat with (b := ps_terms ps).
+  unfold ps_mul; simpl.
+  unfold cm_factor, cm; simpl.
+  rewrite <- series_stretch_mul.
+  rewrite series_mul_inv_l.
+   rewrite Z.mul_sub_distr_r, Z.sub_add.
+   constructor.
+   rewrite canonic_ps_1.
+   constructor; simpl.
+    erewrite ps_valnum_canonic with (n := O); try reflexivity.
+     Focus 1.
+     remember Z.gcd as f; simpl; subst f.
+     rewrite stretch_series_1.
+     rewrite Z.add_0_r.
+     rewrite greatest_series_x_power_series_1.
+     rewrite Z.gcd_0_r.
+     simpl.
+     rewrite Pos2Z.inj_mul.
+     rewrite Z.gcd_mul_mono_r.
+     simpl.
+     rewrite Z.div_mul_cancel_r.
+      apply null_coeff_range_length_iff in Hn.
+      simpl in Hn.
+      destruct Hn as (Hz, Hnz).
+bbb.
+
 intros ps Hps.
 unfold ps_inv; simpl.
 remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
