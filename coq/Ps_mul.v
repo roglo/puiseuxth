@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.83 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.84 2013-12-18 18:44:21 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -756,78 +756,82 @@ remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; constructor.
  remember (greatest_series_x_power rng (ps_terms ps) n) as x.
- remember (gcd_ps n x ps) as g eqn:Hg ; subst x.
+ remember (gcd_ps n x ps) as g eqn:Hg .
+ pose proof (gcd_ps_is_pos n x ps) as Hgp; subst x.
+ rewrite <- Hg in Hgp.
  unfold gcd_ps in Hg; simpl in Hg.
  remember (ps_valnum ps + Z.of_nat n)%Z as x eqn:Hx .
  rewrite <- Z.gcd_assoc in Hg.
- remember (' greatest_series_x_power rng (ps_terms ps) n)%Z as z.
- remember (Z.gcd (' ps_comden ps) z) as y eqn:Hy ; subst z.
- assert (0 < g)%Z as Hgp.
-  pose proof (Z.gcd_nonneg x y) as Hp.
-  rewrite <- Hg in Hp.
-  destruct (Z_zerop g) as [H₁| H₁]; [ idtac | omega ].
-  move H₁ at top; subst g.
-  symmetry in Hg.
-  apply Z.gcd_eq_0_r in Hg.
-  rewrite Hy in Hg.
-  apply Z.gcd_eq_0_r in Hg.
-  exfalso; revert Hg; apply Pos2Z_ne_0.
+ remember (greatest_series_x_power rng (ps_terms ps) n) as z.
+ remember (Z.gcd (' ps_comden ps) (Z.of_nat z)) as y eqn:Hy ; subst z.
+ rewrite ps_canon_adjust_eq with (k := Z.to_pos g) (n := n).
+ unfold adjust_ps; simpl.
+ unfold canonify_series.
+ rewrite series_stretch_shrink.
+  rewrite series_shift_left_shift; [ idtac | assumption ].
+  rewrite <- positive_nat_Z.
+  rewrite Pos2Nat_to_pos; [ idtac | assumption ].
+  rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
+  rewrite Z.mul_comm.
+  assert (x mod g = 0)%Z as Hxk.
+   apply Z.mod_divide.
+    intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
 
-  rewrite ps_canon_adjust_eq with (k := Z.to_pos g) (n := n).
-  unfold adjust_ps; simpl.
-  unfold canonify_series.
-  rewrite series_stretch_shrink.
-   rewrite series_shift_left_shift; [ idtac | assumption ].
-   rewrite <- positive_nat_Z.
-   rewrite Pos2Nat_to_pos; [ idtac | assumption ].
-   rewrite Z2Nat.id; [ idtac | apply Z.lt_le_incl; assumption ].
-   rewrite Z.mul_comm.
-   assert (x mod g = 0)%Z as Hxk.
-    apply Z.mod_divide.
-     intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
+    rewrite Hg; apply Z.gcd_divide_l.
 
-     rewrite Hg; apply Z.gcd_divide_l.
+   apply Z.div_exact in Hxk.
+    rewrite <- Hxk, Hx, Z.add_simpl_r.
+    rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
+    remember (greatest_series_x_power rng (ps_terms ps) n) as z.
+    pose proof (Z.gcd_divide_l (' ps_comden ps) (Z.gcd (Z.of_nat z) x)) as Hgc.
+    rewrite <- Hg in Hgc.
+    destruct Hgc as (c, Hc).
+    rewrite Hc.
+    rewrite Z.div_mul.
+     rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ].
+      rewrite <- Hc; simpl.
+      destruct ps; reflexivity.
 
-    apply Z.div_exact in Hxk.
-     rewrite <- Hxk, Hx, Z.add_simpl_r.
-     rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
-     remember (greatest_series_x_power rng (ps_terms ps) n) as z.
-     pose proof (Z.gcd_divide_l (' ps_comden ps) (Z.gcd (' z) x)) as Hgc.
-     rewrite <- Hg in Hgc.
-     destruct Hgc as (c, Hc).
-     rewrite Hc.
-     rewrite Z.div_mul.
-      rewrite <- Z2Pos.inj_mul; [ idtac | idtac | assumption ].
-       rewrite <- Hc; simpl.
-       destruct ps; reflexivity.
+      destruct c as [| c| c].
+       exfalso; revert Hc; apply Pos2Z_ne_0.
 
-       destruct c as [| c| c].
+       apply Pos2Z.is_pos.
+
+       simpl in Hc.
+       destruct g as [| g| g].
         exfalso; revert Hc; apply Pos2Z_ne_0.
 
-        apply Pos2Z.is_pos.
+        rewrite <- Pos2Z.opp_pos in Hc.
+        apply Z.add_move_0_r in Hc.
+        rewrite <- Pos2Z.inj_add in Hc.
+        exfalso; revert Hc; apply Pos2Z_ne_0.
 
-        simpl in Hc.
-        destruct g as [| g| g].
-         exfalso; revert Hc; apply Pos2Z_ne_0.
-
-         rewrite <- Pos2Z.opp_pos in Hc.
-         apply Z.add_move_0_r in Hc.
-         rewrite <- Pos2Z.inj_add in Hc.
-         exfalso; revert Hc; apply Pos2Z_ne_0.
-
-         apply Z.nle_gt in Hgp.
-         exfalso; apply Hgp; apply Pos2Z.neg_is_nonpos.
-
-      intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
+        apply Z.nle_gt in Hgp.
+        exfalso; apply Hgp; apply Pos2Z.neg_is_nonpos.
 
      intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
 
-   rewrite greatest_series_x_power_left_shift, Nat.add_0_r.
-   apply Pos2Z.inj_divide.
-   rewrite Z2Pos.id; [ idtac | assumption ].
-   rewrite Hg, Hy.
-   rewrite Z.gcd_assoc, Z.gcd_comm.
-   apply Z.gcd_divide_l.
+    intros H; revert Hgp; rewrite H; apply Z.lt_irrefl.
+
+  rewrite greatest_series_x_power_left_shift, Nat.add_0_r.
+  rewrite Pos2Nat_to_pos; [ idtac | assumption ].
+  remember (greatest_series_x_power rng (ps_terms ps) n) as t.
+  rewrite Hy in Hg.
+  rewrite Z.gcd_assoc in Hg.
+  remember (Z.gcd x (' ps_comden ps)) as u.
+  pose proof (Z.gcd_divide_r u (Z.of_nat t)) as H.
+  rewrite <- Hg in H.
+  destruct H as (c, Hc).
+  exists (Z.to_nat c).
+  rewrite <- Z2Nat.inj_mul.
+   rewrite <- Hc.
+   rewrite Nat2Z.id; reflexivity.
+
+   apply Z.mul_le_mono_pos_r with (p := g); [ assumption | idtac ].
+   rewrite <- Hc; simpl.
+   apply Nat2Z.is_nonneg.
+
+   apply Z.lt_le_incl; assumption.
 
  unfold canonic_ps; simpl.
  rewrite null_coeff_range_length_series_0, Hn.
@@ -839,7 +843,7 @@ Lemma ps_valnum_canonic : ∀ ps n p vn,
   → p = greatest_series_x_power rng (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
       → ps_valnum (canonic_ps ps) =
-          (vn / Z.gcd vn (Z.gcd (' ps_comden ps) (' p)))%Z.
+          (vn / Z.gcd vn (Z.gcd (' ps_comden ps) (Z.of_nat p)))%Z.
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold canonic_ps; simpl.
