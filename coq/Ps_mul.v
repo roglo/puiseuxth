@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.84 2013-12-18 18:44:21 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.85 2013-12-18 18:47:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -860,7 +860,8 @@ Lemma ps_comden_canonic : ∀ ps n p vn,
   → p = greatest_series_x_power rng (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
       → ps_comden (canonic_ps ps) =
-        Z.to_pos (' ps_comden ps / Z.gcd (' ps_comden ps) (Z.gcd (' p) vn)).
+        Z.to_pos
+          (' ps_comden ps / Z.gcd (' ps_comden ps) (Z.gcd (Z.of_nat p) vn)).
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold canonic_ps; simpl.
@@ -877,7 +878,8 @@ Lemma ps_terms_canonic : ∀ ps n p vn,
   → p = greatest_series_x_power rng (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
       → ps_terms (canonic_ps ps) =
-        canonify_series n (Z.to_pos (Z.gcd vn (Z.gcd (' ps_comden ps) (' p))))
+        canonify_series n
+          (Z.to_pos (Z.gcd vn (Z.gcd (' ps_comden ps) (Z.of_nat p))))
           (ps_terms ps).
 Proof.
 intros ps n p vn Hn Hp Hvn.
