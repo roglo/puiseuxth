@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.106 2013-12-18 10:10:53 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.107 2013-12-18 10:53:28 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -1954,8 +1954,8 @@ Qed.
 
 Lemma greatest_series_x_power_stretch : ∀ s b k,
   null_coeff_range_length rng s (S b) ≠ ∞
-  → greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) =
-      (k * greatest_series_x_power rng s b)%positive.
+  → greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k)%nat =
+      (Pos.to_nat k * greatest_series_x_power rng s b)%nat.
 Proof.
 (* à nettoyer *)
 intros s b k Hinf.
@@ -1977,14 +1977,29 @@ destruct p as [p| ].
   unfold is_a_series_in_x_power in Hm.
   rewrite nth_null_coeff_range_length_stretch.
   apply Nat_divides_l.
-  apply Nat.mod_divides; auto.
-  rewrite Pos2Nat.inj_mul.
-  rewrite Nat.mul_mod_distr_l; auto.
-  eapply Nat.mul_eq_0; right.
-  apply Nat.mod_divides; auto.
-  apply Nat_divides_l, Hm.
+  apply Nat.mod_divides.
+   destruct m.
+    assert (0 < 1)%nat as H by apply Nat.lt_0_1.
+    apply Hnm in H.
+    clear n.
+    destruct H as (n, Hn).
+    exfalso; apply Hn.
+    exists (nth_null_coeff_range_length s n b).
+    rewrite Nat.mul_1_r; reflexivity.
+
+    apply Nat.neq_mul_0; split; auto.
+
+   pose proof (Hm n) as Hn.
+   destruct Hn as (c, Hc).
+   rewrite Hc.
+   rewrite Nat.mul_assoc, Nat.mul_shuffle0.
+   destruct m; [ rewrite Nat.mul_0_r; reflexivity | idtac ].
+   rewrite Nat.mul_comm.
+   rewrite Nat.mod_mul; [ reflexivity | idtac ].
+   apply Nat.neq_mul_0; split; auto.
 
   intros u Hu.
+bbb.
   rewrite Pos.mul_comm, <- Pos.mul_assoc.
   rewrite Pos2Nat.inj_mul.
   destruct Hm as (Hm, Hmk).
