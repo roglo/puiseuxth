@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.93 2013-12-18 14:00:45 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.94 2013-12-18 14:31:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -121,6 +121,66 @@ constructor; simpl.
   rewrite Z.gcd_mul_mono_r_nonneg.
    rewrite Z.mul_comm.
    rewrite Z.abs_mul; simpl.
+   rewrite Z.div_mul_cancel_r; auto; [ idtac | apply Pos2Z_ne_0 ].
+   intros H₁.
+   apply -> Z.abs_0_iff in H₁.
+   apply Z.gcd_eq_0_r in H₁.
+   revert H₁; apply Pos2Z_ne_0.
+
+   apply Pos2Z.is_nonneg.
+
+ rewrite greatest_series_x_power_shift.
+ remember (null_coeff_range_length rng (ps_terms ps) (S m)) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  erewrite greatest_series_x_power_stretch.
+   unfold gcd_ps.
+   remember (' k)%Z as kp; simpl.
+   rewrite Nat2Z.inj_add.
+   rewrite Z.sub_add_simpl_r_r.
+   rewrite Nat2Z.inj_mul.
+   rewrite positive_nat_Z.
+   rewrite <- Z.mul_add_distr_r.
+   rewrite Pos2Z.inj_mul.
+   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+   rewrite Nat.mul_comm.
+   rewrite Nat2Z.inj_mul.
+   rewrite positive_nat_Z.
+   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+   subst kp.
+   rewrite Z.div_mul_cancel_r; [ reflexivity | idtac | apply Pos2Z_ne_0 ].
+   intros H₁.
+   apply Z.gcd_eq_0_r in H₁.
+   rewrite <- Nat2Z.inj_0 in H₁.
+   apply Nat2Z.inj_iff in H₁.
+   apply greatest_series_x_power_iff in H₁.
+   unfold is_the_greatest_series_x_power in H₁.
+   rewrite Hp in H₁.
+   destruct H₁ as (Hs, Hns).
+   unfold is_a_series_in_x_power in Hs.
+   pose proof (Hs O) as H.
+   simpl in H.
+   rewrite Hp in H.
+   destruct H as (c, H).
+   rewrite Nat.mul_0_r in H; discriminate H.
+
+   rewrite Hp; auto.
+   intros H; discriminate H.
+
+  rewrite ncrl_inf_gsxp; [ idtac | assumption ].
+  rewrite greatest_series_x_power_stretch_inf; auto.
+  rewrite gcd_ps_0_m.
+  rewrite gcd_ps_0_m.
+  remember Z.mul as f; simpl; subst f.
+  rewrite Nat2Z.inj_add.
+  rewrite Nat2Z.inj_mul.
+  rewrite positive_nat_Z.
+  rewrite Z.sub_add_simpl_r_r.
+  rewrite <- Z.mul_add_distr_r.
+  rewrite Pos2Z.inj_mul.
+  rewrite Z.gcd_mul_mono_r_nonneg.
+   rewrite Z.abs_mul; simpl.
+   rewrite Pos2Z.inj_mul.
    rewrite Z.div_mul_cancel_r; auto; [ idtac | apply Pos2Z_ne_0 ].
    intros H₁.
    apply -> Z.abs_0_iff in H₁.
