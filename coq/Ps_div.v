@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.18 2013-12-18 19:53:47 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.19 2013-12-18 23:03:39 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,7 +15,7 @@ Set Implicit Arguments.
 Definition ps_inv ps :=
   match null_coeff_range_length rng (ps_terms ps) O with
   | fin n =>
-      {| ps_terms := series_inv (series_shift n (ps_terms ps));
+      {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
          ps_valnum := Z.of_nat n - ps_valnum ps;
          ps_comden := ps_comden ps |}
   | ∞ =>
