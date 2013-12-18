@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.109 2013-12-18 12:30:36 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.110 2013-12-18 12:55:03 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -2168,31 +2168,39 @@ split; intros H.
      unfold gcd_ps in Hg.
      remember (ps_valnum ps + Z.of_nat m)%Z as x.
      remember (Z.gcd x (' ps_comden ps)) as z.
-     pose proof (Z.gcd_divide_r z (Zpos p)) as H₄.
+     pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
      apply Nat.mod_divide in H₃; auto.
-     apply Nat.mod_divide; auto.
-      intros H₅.
-      rewrite <- Z2Nat.inj_0 in H₅.
-      apply Z2Nat.inj in H₅.
-       rewrite H₅ in Hgp; revert Hgp; apply Z.lt_irrefl.
+      apply Nat.mod_divide; auto.
+       intros H₅.
+       rewrite <- Z2Nat.inj_0 in H₅.
+       apply Z2Nat.inj in H₅.
+        rewrite H₅ in Hgp; revert Hgp; apply Z.lt_irrefl.
 
-       apply Z.lt_le_incl; assumption.
+        apply Z.lt_le_incl; assumption.
 
-       reflexivity.
+        reflexivity.
 
-      eapply Nat.divide_trans; [ idtac | eassumption ].
-      destruct H₄ as (c, Hc).
-      rewrite <- Z2Nat.inj_pos.
-      rewrite Hc; simpl.
-      exists (Z.to_nat c).
-      rewrite Z2Nat.inj_mul.
-       reflexivity.
+       eapply Nat.divide_trans; [ idtac | eassumption ].
+       destruct H₄ as (c, Hc).
+       exists (Z.to_nat c).
+       rewrite <- Z2Nat.inj_mul.
+        rewrite <- Hc.
+        rewrite Nat2Z.id; reflexivity.
 
-       apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
-       rewrite <- Hc; apply Pos2Z.is_nonneg.
+        apply <- Z.mul_le_mono_pos_r; [ idtac | eassumption ].
+        rewrite <- Hc; simpl.
+        apply Nat2Z.is_nonneg.
 
-       apply Z.lt_le_incl; assumption.
+        apply Z.lt_le_incl; assumption.
+
+      destruct p; auto.
+      unfold is_a_series_in_x_power in Hxp.
+      pose proof (Hxp O) as H₅; simpl in H₅.
+      rewrite Hq in H₅.
+      destruct H₅ as (c, Hc).
+      rewrite Nat.mul_0_r in Hc; discriminate Hc.
+bbb.
 
      subst p.
      unfold gcd_ps in Hg.
