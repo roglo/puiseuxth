@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.16 2013-12-18 19:15:13 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.17 2013-12-18 19:36:23 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -204,8 +204,49 @@ destruct n as [n| ].
       rewrite stretch_series_1.
       apply null_coeff_range_length_series_1.
 
-     erewrite ps_comden_canonic with (n := O); simpl; try reflexivity; simpl.
+     erewrite ps_comden_canonic with (n := O); try reflexivity.
+      remember Z.gcd as f; simpl; subst f.
       rewrite stretch_series_1.
+      rewrite Z.gcd_0_r.
+      rewrite greatest_series_x_power_series_1.
+      rewrite Z.gcd_0_r; simpl.
+      rewrite Z.div_same; [ reflexivity | idtac ].
+      apply Pos2Z_ne_0.
+
+      simpl.
+      rewrite stretch_series_1.
+      apply null_coeff_range_length_series_1.
+
+     erewrite ps_terms_canonic with (n := O); try reflexivity.
+      remember Z.gcd as f; simpl; subst f.
+      rewrite stretch_series_1.
+      rewrite Z.gcd_0_l.
+      rewrite greatest_series_x_power_series_1.
+      rewrite Z.gcd_0_r; simpl.
+      unfold canonify_series.
+      rewrite series_left_shift_0.
+      constructor; intros i.
+      unfold series_nth; simpl.
+      rewrite Nat.sub_0_r.
+      rewrite Nat.div_same; [ reflexivity | apply Pos2Nat_ne_0 ].
+
+      simpl.
+      rewrite stretch_series_1.
+      apply null_coeff_range_length_series_1.
+
+    apply null_coeff_range_length_iff in Hn.
+    simpl in Hn.
+    destruct Hn as (Hz, Hnz).
+    assumption.
+
+   rewrite series_shift_0.
+   apply null_coeff_range_length_iff in Hn.
+   simpl in Hn.
+   destruct Hn as (Hz, Hnz).
+   assumption.
+
+   rewrite series_shift_0.
+   reflexivity.
 bbb.
 
 intros ps Hps.
