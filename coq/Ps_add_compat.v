@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.48 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.49 2013-12-18 15:24:31 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -459,7 +459,7 @@ destruct n as [n| ].
    reflexivity.
 Qed.
 
-Lemma series_left_shift_left_shift : ∀ (s : series α) m n,
+Lemma series_left_shift_left_shift : ∀ (s : power_series α) m n,
   (series_left_shift m (series_left_shift n s) =
    series_left_shift (m + n) s)%ser.
 Proof.
@@ -511,6 +511,7 @@ symmetry in Hk.
 apply greatest_series_x_power_iff in Hk.
 apply greatest_series_x_power_iff.
 unfold is_the_greatest_series_x_power in Hk |- *.
+bbb.
 destruct Hk as (Hxp, Hnxp).
 split.
  unfold is_a_series_in_x_power in Hxp |- *.
