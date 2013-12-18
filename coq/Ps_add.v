@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.94 2013-12-18 14:31:26 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.95 2013-12-18 15:22:54 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -60,174 +60,111 @@ rewrite Nbar.add_comm, Nbar.mul_comm.
 remember (null_coeff_range_length rng (ps_terms ps) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
-constructor; simpl.
- rewrite greatest_series_x_power_shift.
- rewrite Nat2Z.inj_add, Z.add_assoc.
- rewrite Z.add_shuffle0.
- rewrite Z.sub_add.
- rewrite Nat2Z.inj_mul, positive_nat_Z.
- rewrite <- Z.mul_add_distr_r.
- rewrite Z.mul_comm.
- remember (null_coeff_range_length rng (ps_terms ps) (S m)) as p eqn:Hp .
- symmetry in Hp.
- destruct p as [p| ].
-  erewrite greatest_series_x_power_stretch.
-   unfold gcd_ps.
-   remember (' k)%Z as kp.
-   simpl.
-   rewrite Nat2Z.inj_add.
-   rewrite Z.sub_add_simpl_r_r.
-   rewrite Nat2Z.inj_mul.
-   rewrite positive_nat_Z.
-   rewrite <- Z.mul_add_distr_r.
-   rewrite Pos2Z.inj_mul.
-   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite Nat.mul_comm.
-   rewrite Nat2Z.inj_mul.
-   rewrite positive_nat_Z.
-   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite Z.mul_comm.
-   subst kp.
-   rewrite Z.div_mul_cancel_r; [ reflexivity | idtac | apply Pos2Z_ne_0 ].
-   intros H₁.
-   apply Z.gcd_eq_0_r in H₁.
-   rewrite <- Nat2Z.inj_0 in H₁.
-   apply Nat2Z.inj_iff in H₁.
-   apply greatest_series_x_power_iff in H₁.
-   unfold is_the_greatest_series_x_power in H₁.
-   rewrite Hp in H₁.
-   destruct H₁ as (Hs, Hns).
-   unfold is_a_series_in_x_power in Hs.
-   pose proof (Hs O) as H.
-   simpl in H.
-   rewrite Hp in H.
-   destruct H as (c, H).
-   rewrite Nat.mul_0_r in H; discriminate H.
-
-   rewrite Hp; auto.
-   intros H; discriminate H.
-
-  rewrite ncrl_inf_gsxp; [ idtac | assumption ].
-  rewrite greatest_series_x_power_stretch_inf; auto.
-  rewrite gcd_ps_0_m.
-  rewrite gcd_ps_0_m.
-  remember Z.mul as f; simpl; subst f.
+rewrite greatest_series_x_power_shift.
+rewrite Nat2Z.inj_add, Z.add_assoc.
+rewrite Z.add_shuffle0.
+rewrite Z.sub_add.
+rewrite Nat2Z.inj_mul, positive_nat_Z.
+rewrite <- Z.mul_add_distr_r.
+rewrite Z.mul_comm.
+remember (null_coeff_range_length rng (ps_terms ps) (S m)) as p eqn:Hp .
+symmetry in Hp.
+remember (greatest_series_x_power rng (ps_terms ps) m) as x.
+pose proof (gcd_ps_is_pos m x ps) as Hgp; subst x.
+destruct p as [p| ].
+ erewrite greatest_series_x_power_stretch.
+  unfold gcd_ps.
+  remember (' k)%Z as kp; simpl.
   rewrite Nat2Z.inj_add.
+  rewrite Z.sub_add_simpl_r_r.
+  rewrite Nat2Z.inj_mul.
   rewrite Nat2Z.inj_mul.
   rewrite positive_nat_Z.
-  rewrite Z.sub_add_simpl_r_r.
   rewrite <- Z.mul_add_distr_r.
   rewrite Pos2Z.inj_mul.
-  rewrite Z.gcd_mul_mono_r_nonneg.
-   rewrite Z.mul_comm.
-   rewrite Z.abs_mul; simpl.
-   rewrite Z.div_mul_cancel_r; auto; [ idtac | apply Pos2Z_ne_0 ].
-   intros H₁.
-   apply -> Z.abs_0_iff in H₁.
-   apply Z.gcd_eq_0_r in H₁.
-   revert H₁; apply Pos2Z_ne_0.
+  rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+  subst kp.
+  rewrite Z.mul_comm.
+  rewrite Z.gcd_mul_mono_l_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
+  rewrite Z.div_mul_cancel_l.
+   rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
+   rewrite Z.div_mul_cancel_l.
+    unfold canonify_series.
+    rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ].
+     rewrite Pos.mul_comm.
+     rewrite series_shrink_shrink.
+     rewrite series_left_shift_shift.
+      rewrite Nat.add_sub.
+      rewrite series_left_shift_stretch.
+      rewrite series_shrink_stretch.
+      reflexivity.
 
-   apply Pos2Z.is_nonneg.
+      rewrite Nat.add_comm; apply Nat.le_add_r.
 
- rewrite greatest_series_x_power_shift.
- remember (null_coeff_range_length rng (ps_terms ps) (S m)) as p eqn:Hp .
- symmetry in Hp.
- destruct p as [p| ].
-  erewrite greatest_series_x_power_stretch.
-   unfold gcd_ps.
-   remember (' k)%Z as kp; simpl.
-   rewrite Nat2Z.inj_add.
-   rewrite Z.sub_add_simpl_r_r.
-   rewrite Nat2Z.inj_mul.
-   rewrite positive_nat_Z.
-   rewrite <- Z.mul_add_distr_r.
-   rewrite Pos2Z.inj_mul.
-   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
-   rewrite Nat.mul_comm.
-   rewrite Nat2Z.inj_mul.
-   rewrite positive_nat_Z.
-   rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
-   subst kp.
-   rewrite Z.div_mul_cancel_r; [ reflexivity | idtac | apply Pos2Z_ne_0 ].
-   intros H₁.
-   apply Z.gcd_eq_0_r in H₁.
-   rewrite <- Nat2Z.inj_0 in H₁.
-   apply Nat2Z.inj_iff in H₁.
-   apply greatest_series_x_power_iff in H₁.
-   unfold is_the_greatest_series_x_power in H₁.
-   rewrite Hp in H₁.
-   destruct H₁ as (Hs, Hns).
-   unfold is_a_series_in_x_power in Hs.
-   pose proof (Hs O) as H.
-   simpl in H.
-   rewrite Hp in H.
-   destruct H as (c, H).
-   rewrite Nat.mul_0_r in H; discriminate H.
+     assumption.
 
-   rewrite Hp; auto.
-   intros H; discriminate H.
+    unfold gcd_ps in Hgp.
+    intros H; rewrite H in Hgp.
+    revert Hgp; apply Z.lt_irrefl.
 
-  rewrite ncrl_inf_gsxp; [ idtac | assumption ].
-  rewrite greatest_series_x_power_stretch_inf; auto.
-  rewrite gcd_ps_0_m.
-  rewrite gcd_ps_0_m.
-  remember Z.mul as f; simpl; subst f.
-  rewrite Nat2Z.inj_add.
-  rewrite Nat2Z.inj_mul.
-  rewrite positive_nat_Z.
-  rewrite Z.sub_add_simpl_r_r.
-  rewrite <- Z.mul_add_distr_r.
-  rewrite Pos2Z.inj_mul.
-  rewrite Z.gcd_mul_mono_r_nonneg.
-   rewrite Z.abs_mul; simpl.
-   rewrite Pos2Z.inj_mul.
-   rewrite Z.div_mul_cancel_r; auto; [ idtac | apply Pos2Z_ne_0 ].
-   intros H₁.
-   apply -> Z.abs_0_iff in H₁.
-   apply Z.gcd_eq_0_r in H₁.
-   revert H₁; apply Pos2Z_ne_0.
+    apply Pos2Z_ne_0.
 
-   apply Pos2Z.is_nonneg.
+   unfold gcd_ps in Hgp.
+   intros H; rewrite H in Hgp.
+   revert Hgp; apply Z.lt_irrefl.
 
-bbb.
+   apply Pos2Z_ne_0.
 
- rewrite greatest_series_x_power_shift.
- rewrite greatest_series_x_power_stretch.
- constructor; intros i.
- unfold canonify_series.
- unfold gcd_ps; simpl.
+  intros H; rewrite H in Hp; discriminate Hp.
+
+ rewrite ncrl_inf_gsxp; [ idtac | assumption ].
+ rewrite greatest_series_x_power_stretch_inf; auto.
+ rewrite gcd_ps_0_m.
+ rewrite gcd_ps_0_m.
+ remember Z.mul as f; simpl; subst f.
  rewrite Nat2Z.inj_add.
- rewrite Z.sub_add_simpl_r_r.
  rewrite Nat2Z.inj_mul.
  rewrite positive_nat_Z.
+ rewrite Z.sub_add_simpl_r_r.
  rewrite <- Z.mul_add_distr_r.
  rewrite Pos2Z.inj_mul.
- rewrite Z.gcd_mul_mono_r; simpl.
- rewrite Pos2Z.inj_mul.
+ rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.mul_comm.
- rewrite Z.gcd_mul_mono_l.
- rewrite Z.mul_comm; simpl.
- rewrite Z2Pos.inj_mul; simpl.
-  rewrite series_shrink_shrink.
-  rewrite series_left_shift_shift.
-   rewrite Nat.add_sub.
-   rewrite series_left_shift_stretch.
-   rewrite series_shrink_stretch.
-   reflexivity.
+ rewrite Z.abs_mul.
+ remember Z.mul as f; simpl; subst f.
+ rewrite Z.div_mul_cancel_l.
+  rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
+  rewrite Z.div_mul_cancel_l.
+   unfold canonify_series.
+   rewrite Z2Pos.inj_mul; [ idtac | apply Pos2Z.is_pos | idtac ].
+    rewrite Pos.mul_comm.
+    rewrite series_shrink_shrink.
+    rewrite series_left_shift_shift.
+     rewrite Nat.add_sub.
+     rewrite series_left_shift_stretch.
+     rewrite series_shrink_stretch.
+     reflexivity.
 
-   apply le_plus_r.
+     rewrite Nat.add_comm; apply Nat.le_add_r.
 
-  apply Z.nle_gt.
-  pose proof
-   (Z.gcd_nonneg (Z.gcd (ps_valnum ps + Z.of_nat m) (' ps_comden ps))
-      (' greatest_series_x_power rng (ps_terms ps) m)) 
-   as H₁.
-  intros H₂.
-  apply Z.le_antisymm in H₁; [ idtac | assumption ].
-  apply Z.gcd_eq_0_r in H₁.
-  revert H₁; apply Pos2Z_ne_0.
+    apply Z.abs_pos.
+    intros H.
+    apply Z.gcd_eq_0_r in H.
+    revert H; apply Pos2Z_ne_0.
 
-  apply Pos2Z.is_pos.
+   intros H.
+   apply -> Z.abs_0_iff in H.
+   apply Z.gcd_eq_0_r in H.
+   revert H; apply Pos2Z_ne_0.
+
+   apply Pos2Z_ne_0.
+
+  intros H.
+  apply -> Z.abs_0_iff in H.
+  apply Z.gcd_eq_0_r in H.
+  revert H; apply Pos2Z_ne_0.
+
+  apply Pos2Z_ne_0.
 Qed.
 
 Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps n k ps)%ps.
