@@ -1,4 +1,4 @@
-(* $Id: Power_series.v,v 2.1 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Power_series.v,v 2.2 2013-12-19 16:50:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -8,11 +8,14 @@ Require Field.
 Module Field_inst : Field.FieldType.
   Parameter α : Type.
   Parameter fld : Field.Tdef.f α.
-  Let rng := Field.Tdef.ring fld.
 End Field_inst.
+
+Module M.
+
 Module Lfield := Field.Make Field_inst.
 Export Field_inst.
 Export Lfield.Syntax.
+Definition rng := Lfield.ring fld.
 
 Require Import Nbar.
 Require Import Misc.
@@ -1264,3 +1267,5 @@ rewrite series_mul_comm.
 apply series_mul_inv_r.
 assumption.
 Qed.
+
+End M.

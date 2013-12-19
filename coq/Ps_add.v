@@ -1,13 +1,14 @@
-(* $Id: Ps_add.v,v 2.95 2013-12-18 15:22:54 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.96 2013-12-19 16:50:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Misc.
+Require Power_series.
+Import Power_series.M.
 
 Set Implicit Arguments.
 

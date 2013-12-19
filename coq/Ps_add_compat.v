@@ -1,14 +1,15 @@
-(* $Id: Ps_add_compat.v,v 2.52 2013-12-19 10:16:57 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.53 2013-12-19 16:50:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Ps_add.
 Require Import Misc.
+Require Power_series.
+Import Power_series.M.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
   (∀ i, (series_nth rng i s = 0)%rng)

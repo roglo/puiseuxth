@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 2.5 2013-12-12 10:51:37 deraugla Exp $ *)
+(* $Id: Fpolynomial.v,v 2.6 2013-12-19 16:50:12 deraugla Exp $ *)
 
 (* polynomials on a field *)
 
@@ -14,6 +14,7 @@ End Field_inst.
 Module Lfield := Field.Make Field_inst.
 Export Field_inst.
 Export Lfield.Syntax.
+Definition rng := Lfield.ring fld.
 
 Require Import Misc.
 Require Import Polynomial.

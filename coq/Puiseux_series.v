@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.113 2013-12-19 10:45:06 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.114 2013-12-19 16:50:12 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -6,7 +6,8 @@ Require Import NPeano.
 
 Require Import Misc.
 Require Import Nbar.
-Require Import Power_series.
+Require Power_series.
+Import Power_series.M.
 
 Set Implicit Arguments.
 
