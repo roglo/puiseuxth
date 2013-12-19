@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.22 2013-12-19 05:40:16 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.23 2013-12-19 10:16:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -31,6 +31,76 @@ Definition ps_left_adjust ps :=
   | ∞ =>
       ps
   end.
+
+Lemma null_coeff_range_length_left_adjust : ∀ n ps,
+  null_coeff_range_length rng (ps_terms ps) 0 = fin n
+  → null_coeff_range_length rng (ps_terms (ps_left_adjust ps)) 0 = 0%Nbar.
+Proof.
+intros n ps Hn.
+unfold ps_left_adjust; simpl.
+rewrite Hn; simpl.
+apply null_coeff_range_length_iff.
+apply null_coeff_range_length_iff in Hn.
+simpl in Hn |- *.
+destruct Hn as (Hz, Hnz).
+split.
+ intros i Hi.
+ exfalso; revert Hi; apply Nat.nlt_0_r.
+
+ unfold series_nth in Hnz |- *.
+ remember (series_left_shift n (ps_terms ps)) as x eqn:Hx .
+ destruct (Nbar.lt_dec 0 (stop x)) as [H₁| H₁].
+  destruct (Nbar.lt_dec (fin n) (stop (ps_terms ps))) as [H₂| H₂].
+   subst x.
+   simpl.
+   rewrite Nat.add_0_r; assumption.
+
+   exfalso; apply Hnz; reflexivity.
+
+  exfalso; apply H₁; subst x.
+  simpl.
+  destruct (Nbar.lt_dec (fin n) (stop (ps_terms ps))) as [H₂| H₂].
+   remember (stop (ps_terms ps)) as st eqn:Hst .
+   symmetry in Hst.
+   destruct st as [st| ].
+    apply Nbar.fin_lt_mono.
+    apply Nbar.fin_lt_mono in H₂.
+    fast_omega H₂.
+
+    constructor.
+
+   exfalso; apply Hnz; reflexivity.
+Qed.
+
+Lemma ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
+Proof.
+intros ps.
+remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ].
+ constructor; constructor; simpl.
+  erewrite ps_valnum_canonic; try reflexivity; try eassumption.
+  erewrite ps_valnum_canonic with (n := O); try reflexivity; try eassumption.
+   rewrite Z.add_0_r.
+   unfold ps_left_adjust.
+   rewrite Hn.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite greatest_series_x_power_left_shift.
+   rewrite Nat.add_0_r; reflexivity.
+
+   eapply null_coeff_range_length_left_adjust; eassumption.
+
+  erewrite ps_comden_canonic; try reflexivity; try eassumption.
+  erewrite ps_comden_canonic with (n := O); try reflexivity; try eassumption.
+   rewrite Z.add_0_r.
+   unfold ps_left_adjust.
+   rewrite Hn.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite greatest_series_x_power_left_shift.
+   rewrite Nat.add_0_r; reflexivity.
+
+   eapply null_coeff_range_length_left_adjust; eassumption.
+bbb.
 
 Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
