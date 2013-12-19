@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.21 2013-12-18 23:47:06 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.22 2013-12-19 05:40:16 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -16,7 +16,17 @@ Definition ps_inv ps :=
   match null_coeff_range_length rng (ps_terms ps) O with
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
-         ps_valnum := - Z.of_nat n - ps_valnum ps;
+         ps_valnum := - ps_valnum ps - Z.of_nat n;
+         ps_comden := ps_comden ps |}
+  | ∞ =>
+      ps
+  end.
+
+Definition ps_left_adjust ps :=
+  match null_coeff_range_length rng (ps_terms ps) O with
+  | fin n =>
+      {| ps_terms := series_left_shift n (ps_terms ps);
+         ps_valnum := ps_valnum ps + Z.of_nat n;
          ps_comden := ps_comden ps |}
   | ∞ =>
       ps
@@ -99,31 +109,6 @@ destruct n as [n| ].
  exfalso; revert Hn; apply ps_neq_1_0.
 Qed.
 
-(* do not work with Add Morphism 'cause a must be non null:
-   is it possible to add a morphism with a condition?
-Lemma xxx : ∀ a b i,
-  (a ≠ 0)%ser
-  → (a = b)%ser
-    → (term_inv i a i = term_inv i b i)%rng.
-Proof.
-intros a b i Ha Hab.
-bbb.
-(* mmm... *)
-induction i.
- simpl.
- unfold series_nth; simpl.
- destruct (Nbar.lt_dec 0 (stop a)) as [H₁| H₁].
-  destruct (Nbar.lt_dec 0 (stop b)) as [H₂| H₂].
-   inversion Hab; subst.
-   pose proof (H O) as HH.
-   apply Lfield.inv_compat.
-    intros HHH; apply Ha.
-    constructor; intros i.
-    rewrite series_nth_series_0.
-    rewrite H.
-bbb.
-*)
-
 Lemma series_inv_compat : ∀ a b,
   (a [0] ≠ 0)%rng
   → (a = b)%ser
@@ -180,47 +165,57 @@ Qed.
 Theorem ps_mul_inv_l : ∀ ps, (ps ≠ 0)%ps → (ps_inv ps * ps = 1)%ps.
 Proof.
 intros ps Hps.
-unfold ps_inv; simpl.
 remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- unfold ps_mul; simpl.
- unfold cm_factor, cm; simpl.
- rewrite <- series_stretch_mul.
- rewrite Z.mul_sub_distr_r, Z.sub_add.
-bbb.
-
-intros ps Hps.
-unfold ps_inv; simpl.
-remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ].
- rewrite series_inv_compat with (b := ps_terms ps).
+ assert (ps = ps_left_adjust ps)%ps as Hadj.
+  Focus 2.
+  rewrite ps_mul_comm.
+  rewrite Hadj in |- * at 1.
+  unfold ps_inv; simpl.
+  unfold ps_left_adjust; simpl.
+  rewrite Hn.
   unfold ps_mul; simpl.
   unfold cm_factor, cm; simpl.
   rewrite <- series_stretch_mul.
-bbb.
-  rewrite series_mul_inv_l.
-   rewrite Z.mul_sub_distr_r, Z.sub_add.
+  rewrite series_mul_inv_r.
+   rewrite stretch_series_1.
+   rewrite <- Z.mul_add_distr_r.
+   rewrite Z.add_sub_assoc.
+   rewrite Z.add_opp_r.
+   rewrite Z.add_comm.
+   rewrite Z.add_simpl_r.
+   rewrite Z.sub_diag, Z.mul_0_l.
    constructor.
-   rewrite canonic_ps_1, stretch_series_1.
-   constructor; simpl.
-bbb.
-    erewrite ps_valnum_canonic with (n := O); try reflexivity.
-     Focus 1.
-     remember Z.gcd as f; simpl; subst f.
-     rewrite stretch_series_1.
-     rewrite Z.add_0_r.
-     rewrite greatest_series_x_power_series_1.
-     rewrite Z.gcd_0_r.
-     simpl.
-     rewrite Pos2Z.inj_mul.
-     rewrite Z.gcd_mul_mono_r; simpl.
-bbb.
-     rewrite Z.div_mul_cancel_r.
-      apply null_coeff_range_length_iff in Hn.
-      simpl in Hn.
-      destruct Hn as (Hz, Hnz).
+   rewrite canonic_ps_1.
+   unfold canonic_ps.
+   simpl.
+   rewrite null_coeff_range_length_series_1.
+   simpl.
+   unfold gcd_ps.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite Z.gcd_0_l.
+   rewrite Z.div_0_l.
+    rewrite greatest_series_x_power_series_1.
+    rewrite Z.gcd_0_r.
+    simpl.
+    rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
+    unfold canonify_series; simpl.
+    rewrite series_left_shift_0.
+    unfold series_shrink.
+    simpl.
+    rewrite Nat.sub_0_r.
+    rewrite Nat.div_same.
+     reflexivity.
+
+     apply Pos2Nat_ne_0.
+
+    intros H.
+    apply Z.gcd_eq_0_l in H.
+    simpl in H.
+    revert H; apply Pos2Z_ne_0.
+
+   Unfocus.
 bbb.
 
 intros ps Hps.
