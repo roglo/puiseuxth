@@ -1,4 +1,4 @@
-# $Id: HISTORY,v 2.1 2013-11-19 02:15:06 deraugla Exp $
+# $Id: HISTORY,v 2.2 2013-12-19 13:50:53 deraugla Exp $
 
 Started around 27 Mar 2013 in directory coq_puiseux.
 Transfered in present directory 4 Apr 2013.
@@ -19,6 +19,7 @@ Theorem points_not_in_any_newton_segment : ∀ pol pts ns,
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 
+   ---
 
 On 19 Nov 2013, I managed to prove that the addition of Puiseux series
 is an abelian group compatible with the equality.
@@ -37,3 +38,11 @@ Theorem ps_add_neg : ∀ ps, ps_add ps (ps_neg ps) ≈ ps_zero _.
 
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
   ps₁ ≈ ps₂ → ps_add ps₁ ps₃ ≈ ps_add ps₂ ps₃.
+
+   ---
+
+On 19 Dec 2013, I managed to prove that the set of Puiseux series
+is a field.
+
+Time            : 1 month
+Total code size : 16444 lines
