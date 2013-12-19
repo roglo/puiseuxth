@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 2.3 2013-11-19 13:04:18 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 2.4 2013-12-19 18:35:07 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -14,9 +14,17 @@ Require Import Polynomial.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_add_compat.
-Require Import SandBox.
+Require Import Nbar.
+Require Power_series.
+Import Power_series.M.
 
 Set Implicit Arguments.
+
+Definition valuation ps :=
+  match null_coeff_range_length rng (ps_terms ps) 0 with
+  | fin v => Some (ps_valnum ps + Z.of_nat v # ps_comden ps)
+  | ∞ => None
+  end.
 
 Fixpoint power_list α pow psl (psn : puiseux_series α) :=
   match psl with
@@ -29,12 +37,12 @@ Fixpoint power_list α pow psl (psn : puiseux_series α) :=
 Definition qpower_list α pow psl (psn : puiseux_series α) :=
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl psn).
 
-Fixpoint filter_finite_val α fld (dpl : list (Q * puiseux_series α)) :=
+Fixpoint filter_finite_val (dpl : list (Q * puiseux_series α)) :=
   match dpl with
   | [(pow, ps) … dpl₁] =>
-      match valuation fld ps with
-      | Some v => [(pow, v) … filter_finite_val fld dpl₁]
-      | None => filter_finite_val fld dpl₁
+      match valuation ps with
+      | Some v => [(pow, v) … filter_finite_val dpl₁]
+      | None => filter_finite_val dpl₁
       end
   | [] =>
       []
