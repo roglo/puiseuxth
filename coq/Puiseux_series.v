@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.112 2013-12-19 10:16:57 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.113 2013-12-19 10:45:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -938,6 +938,18 @@ intros s.
 constructor; intros i.
 unfold series_shift, series_nth; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
+Qed.
+
+Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
+Proof.
+intros s.
+constructor; intros i.
+unfold series_nth.
+remember (stop (series_left_shift 0 s)) as x.
+unfold series_left_shift in Heqx.
+rewrite Nbar.sub_0_r in Heqx.
+simpl in Heqx; subst x.
+reflexivity.
 Qed.
 
 Lemma series_nth_shift_S : ∀ s n i,

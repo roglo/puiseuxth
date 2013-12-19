@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.23 2013-12-19 10:16:57 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.24 2013-12-19 10:45:06 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -72,6 +72,18 @@ split.
    exfalso; apply Hnz; reflexivity.
 Qed.
 
+Lemma null_coeff_range_length_inf_left_adjust : ∀ ps,
+  null_coeff_range_length rng (ps_terms ps) 0 = ∞
+  → null_coeff_range_length rng (ps_terms (ps_left_adjust ps)) 0 = ∞.
+Proof.
+intros ps Hn.
+apply null_coeff_range_length_iff.
+unfold ps_left_adjust; simpl.
+rewrite Hn.
+apply null_coeff_range_length_iff in Hn.
+assumption.
+Qed.
+
 Lemma ps_left_adjust_eq : ∀ ps, (ps = ps_left_adjust ps)%ps.
 Proof.
 intros ps.
@@ -100,7 +112,36 @@ destruct n as [n| ].
    rewrite Nat.add_0_r; reflexivity.
 
    eapply null_coeff_range_length_left_adjust; eassumption.
-bbb.
+
+  erewrite ps_terms_canonic; try reflexivity; try eassumption.
+  erewrite ps_terms_canonic with (n := O); try reflexivity; try eassumption.
+   rewrite Z.add_0_r.
+   unfold ps_left_adjust.
+   rewrite Hn.
+   remember Z.gcd as f; simpl; subst f.
+   rewrite greatest_series_x_power_left_shift.
+   rewrite Nat.add_0_r.
+   unfold canonify_series.
+   rewrite series_left_shift_0; reflexivity.
+
+   eapply null_coeff_range_length_left_adjust; eassumption.
+
+ constructor; constructor; simpl.
+  unfold canonic_ps.
+  rewrite Hn.
+  rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
+  assumption.
+
+  unfold canonic_ps.
+  rewrite Hn.
+  rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
+  assumption.
+
+  unfold canonic_ps.
+  rewrite Hn.
+  rewrite null_coeff_range_length_inf_left_adjust; [ reflexivity | idtac ].
+  assumption.
+Qed.
 
 Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
 Proof.
@@ -286,99 +327,28 @@ destruct n as [n| ].
     revert H; apply Pos2Z_ne_0.
 
    Unfocus.
-bbb.
+   apply ps_left_adjust_eq.
 
-intros ps Hps.
-unfold ps_inv; simpl.
-remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
-symmetry in Hn.
-destruct n as [n| ].
- destruct n.
-  rewrite series_inv_compat with (b := ps_terms ps).
-   unfold ps_mul; simpl.
-   unfold cm_factor, cm; simpl.
-   rewrite <- series_stretch_mul.
-   rewrite series_mul_inv_l.
-    rewrite Z.mul_opp_l, Z.add_opp_l, Z.sub_diag.
-    constructor.
-    rewrite canonic_ps_1.
-    constructor; simpl.
-     erewrite ps_valnum_canonic with (n := O); simpl; try reflexivity.
-      rewrite stretch_series_1.
-      rewrite Z.div_0_l; [ reflexivity | idtac ].
-      rewrite Z.gcd_0_l.
-      remember (Z.of_nat (greatest_series_x_power rng 1%ser 0)) as y.
-      destruct y; simpl; apply Pos2Z_ne_0.
-
-      rewrite stretch_series_1.
-      apply null_coeff_range_length_series_1.
-
-     erewrite ps_comden_canonic with (n := O); try reflexivity.
-      remember Z.gcd as f; simpl; subst f.
-      rewrite stretch_series_1.
-      rewrite Z.gcd_0_r.
-      rewrite greatest_series_x_power_series_1.
-      rewrite Z.gcd_0_r; simpl.
-      rewrite Z.div_same; [ reflexivity | idtac ].
-      apply Pos2Z_ne_0.
-
-      simpl.
-      rewrite stretch_series_1.
-      apply null_coeff_range_length_series_1.
-
-     erewrite ps_terms_canonic with (n := O); try reflexivity.
-      remember Z.gcd as f; simpl; subst f.
-      rewrite stretch_series_1.
-      rewrite Z.gcd_0_l.
-      rewrite greatest_series_x_power_series_1.
-      rewrite Z.gcd_0_r; simpl.
-      unfold canonify_series.
-      rewrite series_left_shift_0.
-      constructor; intros i.
-      unfold series_nth; simpl.
-      rewrite Nat.sub_0_r.
-      rewrite Nat.div_same; [ reflexivity | apply Pos2Nat_ne_0 ].
-
-      simpl.
-      rewrite stretch_series_1.
-      apply null_coeff_range_length_series_1.
-
-    apply null_coeff_range_length_iff in Hn.
-    simpl in Hn.
-    destruct Hn as (Hz, Hnz).
+  apply null_coeff_range_length_iff in Hn.
+  destruct Hn as (Hz, Hnz).
+  rewrite Nat.add_0_l in Hnz.
+  unfold series_nth in Hnz.
+  destruct (Nbar.lt_dec (fin n) (stop (ps_terms ps))) as [H₁| H₁].
+   unfold series_nth.
+   destruct (Nbar.lt_dec 0 (stop (series_left_shift n (ps_terms ps))))
+    as [H₂| H₂].
+    simpl.
+    rewrite Nat.add_0_r.
     assumption.
 
-   rewrite series_shift_0.
-   apply null_coeff_range_length_iff in Hn.
-   simpl in Hn.
-   destruct Hn as (Hz, Hnz).
-   assumption.
+    exfalso; apply H₂.
+    unfold series_left_shift.
+    remember Nbar.sub as f; simpl; subst f.
+    apply Nbar.lt_add_lt_sub_r.
+    rewrite Nbar.add_0_l; assumption.
 
-   rewrite series_shift_0.
-   reflexivity.
-bbb.
+   exfalso; apply Hnz; reflexivity.
 
-intros ps Hps.
-remember (ps_terms (ps_inv ps * ps)%ps) as s.
-remember (null_coeff_range_length rng s 0) as n eqn:Hn ; subst s.
-symmetry in Hn.
-destruct n as [n| ].
- destruct n.
-  constructor; constructor; simpl.
-   erewrite ps_valnum_canonic; try reflexivity; try eassumption.
-   pose proof canonic_ps_1 as H.
-   inversion H; subst.
-   rewrite H0; simpl.
-   clear H H0 H1 H2.
-   rewrite Z.mul_opp_l, Z.add_opp_diag_l; simpl.
-   rewrite Z.div_0_l; [ reflexivity | apply Pos2Z_ne_0 ].
-
-   erewrite ps_comden_canonic; try reflexivity; try eassumption.
-   pose proof canonic_ps_1 as H.
-   inversion H; subst.
-   rewrite H1.
-   clear H H0 H1 H2.
-   remember Z.gcd as f; simpl; subst f.
-   unfold cm, cm_factor.
-   remember Z.gcd as f; simpl; subst f.
-bbb.
+ apply null_coeff_range_length_inf_iff in Hn.
+ contradiction.
+Qed.
