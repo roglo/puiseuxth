@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.24 2013-12-19 10:45:06 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.25 2013-12-19 12:29:26 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -352,3 +352,8 @@ destruct n as [n| ].
  apply null_coeff_range_length_inf_iff in Hn.
  contradiction.
 Qed.
+
+Definition ps_field : Lfield.f (puiseux_series α) :=
+  {| Lfield.ring := ps_ring;
+     Lfield.inv := ps_inv;
+     Lfield.fld_mul_inv_l := ps_mul_inv_l |}.
