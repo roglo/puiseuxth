@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.27 2013-12-19 19:25:10 deraugla Exp $ *)
+(* Ps_div.v - $Date$ *)
 
 Require Import Utf8.
 Require Import QArith.
