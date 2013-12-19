@@ -1,4 +1,4 @@
-(* Ps_div.v - $Id$ $Date$ *)
+(* Ps_div.v - $Date$ *)
 
 Require Import Utf8.
 Require Import QArith.
