@@ -1,7 +1,9 @@
-# $Id: HISTORY,v 2.2 2013-12-19 13:50:53 deraugla Exp $
+# $Id: HISTORY,v 2.3 2013-12-19 16:40:11 deraugla Exp $
 
 Started around 27 Mar 2013 in directory coq_puiseux.
 Transfered in present directory 4 Apr 2013.
+
+   ---
 
 Convex Hull lemmas terminated 18 May 2013.
 
