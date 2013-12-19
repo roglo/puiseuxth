@@ -1,4 +1,4 @@
-(* $Id: Puiseux_series.v,v 2.114 2013-12-19 16:50:12 deraugla Exp $ *)
+(* $Id: Puiseux_series.v,v 2.115 2013-12-19 19:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -11,10 +11,13 @@ Import Power_series.M.
 
 Set Implicit Arguments.
 
+(* ps_terms: power series (in x^(1/ps_polord))
+   ps_valnum: valuation numerator
+   ps_polord: polydromy order (common denominator) *)
 Record puiseux_series α := mkps
   { ps_terms : power_series α;
     ps_valnum : Z;
-    ps_comden : positive }.
+    ps_polord : positive }.
 
 Section Axioms.
 
@@ -93,9 +96,9 @@ Definition canonify_series n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
 Definition gcd_ps n k (ps : puiseux_series α) :=
-  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_comden ps)) (Z.of_nat k).
+  Z.gcd (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)) (Z.of_nat k).
 
-Definition ps_zero := {| ps_terms := 0%ser; ps_valnum := 0; ps_comden := 1 |}.
+Definition ps_zero := {| ps_terms := 0%ser; ps_valnum := 0; ps_polord := 1 |}.
 
 Definition canonic_ps ps :=
   match null_coeff_range_length rng (ps_terms ps) 0 with
@@ -104,7 +107,7 @@ Definition canonic_ps ps :=
       let g := gcd_ps n k ps in
       {| ps_terms := canonify_series n (Z.to_pos g) (ps_terms ps);
          ps_valnum := (ps_valnum ps + Z.of_nat n) / g;
-         ps_comden := Z.to_pos (' ps_comden ps / g) |}
+         ps_polord := Z.to_pos (' ps_polord ps / g) |}
   | ∞ =>
       ps_zero
   end.
@@ -112,7 +115,7 @@ Definition canonic_ps ps :=
 Inductive eq_ps_strong : puiseux_series α → puiseux_series α → Prop :=
   | eq_strong_base : ∀ ps₁ ps₂,
       ps_valnum ps₁ = ps_valnum ps₂
-      → ps_comden ps₁ = ps_comden ps₂
+      → ps_polord ps₁ = ps_polord ps₂
         → (ps_terms ps₁ = ps_terms ps₂)%ser
           → eq_ps_strong ps₁ ps₂.
 
@@ -124,7 +127,7 @@ Inductive eq_ps : puiseux_series α → puiseux_series α → Prop :=
 Definition ps_monom (c : α) pow :=
   {| ps_terms := {| terms i := c; stop := 1 |};
      ps_valnum := Qnum pow;
-     ps_comden := Qden pow |}.
+     ps_polord := Qden pow |}.
 
 Definition ps_const c : puiseux_series α := ps_monom c 0.
 Definition ps_one := ps_const 1%rng.
@@ -2056,7 +2059,7 @@ intros n k ps.
 unfold gcd_ps; simpl.
 remember (ps_valnum ps + Z.of_nat n)%Z as x.
 rewrite <- Z.gcd_assoc.
-remember (Z.gcd (' ps_comden ps) (Z.of_nat k))%Z as y eqn:Hy .
+remember (Z.gcd (' ps_polord ps) (Z.of_nat k))%Z as y eqn:Hy .
 pose proof (Z.gcd_nonneg x y) as Hp.
 destruct (Z_zerop (Z.gcd x y)) as [H₁| H₁]; [ idtac | omega ].
 apply Z.gcd_eq_0_r in H₁.
@@ -2180,7 +2183,7 @@ split; intros H.
      rewrite <- Hg in Hgp.
      unfold gcd_ps in Hg.
      remember (ps_valnum ps + Z.of_nat m)%Z as x.
-     remember (Z.gcd x (' ps_comden ps)) as z.
+     remember (Z.gcd x (' ps_polord ps)) as z.
      pose proof (Z.gcd_divide_r z (Z.of_nat p)) as H₄.
      rewrite <- Hg in H₄.
      apply Nat.mod_divide in H₃; auto.
@@ -2392,15 +2395,15 @@ destruct n₁ as [n₁| ].
 Qed.
 
 (*
-Definition cm ps₁ ps₂ := Plcm (ps_comden ps₁) (ps_comden ps₂).
+Definition cm ps₁ ps₂ := Plcm (ps_polord ps₁) (ps_polord ps₂).
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  let l := Plcm (ps_comden ps₁) (ps_comden ps₂) in
-  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_comden ps₁))%nat.
+  let l := Plcm (ps_polord ps₁) (ps_polord ps₂) in
+  Pos.of_nat (Pos.to_nat l / Pos.to_nat (ps_polord ps₁))%nat.
 *)
 Definition cm (ps₁ ps₂ : puiseux_series α) :=
-  (ps_comden ps₁ * ps_comden ps₂)%positive.
+  (ps_polord ps₁ * ps_polord ps₂)%positive.
 Definition cm_factor α (ps₁ ps₂ : puiseux_series α) :=
-  ps_comden ps₂.
+  ps_polord ps₂.
 (**)
 
 Lemma eq_strong_eq : ∀ ps₁ ps₂, ps₁ ≐ ps₂ → (ps₁ = ps₂)%ps.

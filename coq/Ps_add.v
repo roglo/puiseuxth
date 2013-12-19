@@ -1,4 +1,4 @@
-(* $Id: Ps_add.v,v 2.96 2013-12-19 16:50:12 deraugla Exp $ *)
+(* $Id: Ps_add.v,v 2.97 2013-12-19 19:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -15,7 +15,7 @@ Set Implicit Arguments.
 Definition adjust_ps n k ps :=
   {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
      ps_valnum := ps_valnum ps * Zpos k - Z.of_nat n;
-     ps_comden := ps_comden ps * k |}.
+     ps_polord := ps_polord ps * k |}.
 
 Lemma ncrl_inf_gsxp : ∀ s n,
   null_coeff_range_length rng s (S n) = ∞
@@ -43,7 +43,7 @@ rewrite null_coeff_range_length_stretch_succ_inf; auto.
 Qed.
 
 Lemma gcd_ps_0_m : ∀ n ps,
-  gcd_ps n O ps = Z.abs (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_comden ps)).
+  gcd_ps n O ps = Z.abs (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)).
 Proof.
 intros n ps.
 unfold gcd_ps.
@@ -198,7 +198,7 @@ Definition ps_valnum_add (ps₁ ps₂ : puiseux_series α) :=
 Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
   {| ps_terms := ps_terms_add ps₁ ps₂;
      ps_valnum := ps_valnum_add ps₁ ps₂;
-     ps_comden := cm ps₁ ps₂ |}.
+     ps_polord := cm ps₁ ps₂ |}.
 
 (* I prefer this other version for addition; proved strongly equal to
    ps_add below; could be the main and only one, perhaps ? *)
@@ -206,7 +206,7 @@ Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
 Definition adjusted_ps_add ps₁ ps₂ :=
   {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
      ps_valnum := ps_valnum ps₁;
-     ps_comden := ps_comden ps₁ |}.
+     ps_polord := ps_polord ps₁ |}.
 
 Definition adjust_ps_from ps₁ ps₂ :=
   let k₁ := cm_factor ps₁ ps₂ in
@@ -327,7 +327,7 @@ Qed.
 (* Experimentation for commutativity of addition for ps_add₂,
    (in order to replace one day ps_add by ps_add₂):
    provable but a bit more complicate than ps_add version;
-   supposes to prove ps_valnum_add_comm, ps_comden_add_comm and
+   supposes to prove ps_valnum_add_comm, ps_polord_add_comm and
    ps_terms_add_comm; this could be a good thing, however, because
    has something pretty
 Theorem eq_strong_ps_add₂_comm : ∀ ps₁ ps₂, (ps₁ ₊ ps₂)%ps ≐ (ps₂ ₊ ps₁)%ps.
@@ -416,9 +416,9 @@ unfold cm_factor, cm.
 remember (ps_valnum ps₁) as v₁ eqn:Hv₁ .
 remember (ps_valnum ps₂) as v₂ eqn:Hv₂ .
 remember (ps_valnum ps₃) as v₃ eqn:Hv₃ .
-remember (ps_comden ps₁) as c₁.
-remember (ps_comden ps₂) as c₂.
-remember (ps_comden ps₃) as c₃.
+remember (ps_polord ps₁) as c₁.
+remember (ps_polord ps₂) as c₂.
+remember (ps_polord ps₃) as c₃.
 unfold adjust_series.
 do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
@@ -550,7 +550,7 @@ Proof. intros ps; rewrite ps_add_comm; apply ps_add_0_l. Qed.
 Definition ps_opp ps :=
   {| ps_terms := series_opp (ps_terms ps);
      ps_valnum := ps_valnum ps;
-     ps_comden := ps_comden ps |}.
+     ps_polord := ps_polord ps |}.
 
 Notation "- a" := (ps_opp a) : ps_scope.
 Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
@@ -575,7 +575,7 @@ unfold ps_valnum_add; simpl.
 unfold cm_factor, cm; simpl.
 rewrite Z.min_id.
 symmetry.
-remember (ps_comden ps * ps_comden ps)%positive as k eqn:Hk .
+remember (ps_polord ps * ps_polord ps)%positive as k eqn:Hk .
 rewrite ps_canon_adjust_eq with (n := O) (k := k); subst k.
 unfold adjust_ps; simpl.
 rewrite series_shift_0.
@@ -586,7 +586,7 @@ destruct v as [| v| v].
  reflexivity.
 
  symmetry.
- remember (Z.to_nat (ps_valnum ps * Zpos (ps_comden ps))) as n.
+ remember (Z.to_nat (ps_valnum ps * Zpos (ps_polord ps))) as n.
  rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as f; simpl; subst f.
@@ -597,7 +597,7 @@ destruct v as [| v| v].
  rewrite Z2Nat.id; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.sub_diag; reflexivity.
 
- remember (Z.to_nat (Zpos v * Zpos (ps_comden ps))) as n.
+ remember (Z.to_nat (Zpos v * Zpos (ps_polord ps))) as n.
  rewrite ps_canon_adjust_eq with (n := n) (k := xH); subst n.
  unfold adjust_ps.
  remember Z.sub as f; simpl; subst f.
@@ -753,8 +753,8 @@ inversion_clear Heq₂.
 unfold series_nth; simpl.
 unfold cm_factor.
 rewrite H, H0, H2, H3; simpl.
-remember (ps_comden ps₃) as c₃.
-remember (ps_comden ps₄) as c₄.
+remember (ps_polord ps₃) as c₃.
+remember (ps_polord ps₄) as c₄.
 remember (ps_valnum ps₃) as v₃.
 remember (ps_valnum ps₄) as v₄.
 remember (Z.to_nat (v₃ * ' c₄ - Z.min (v₃ * ' c₄) (v₄ * ' c₃))) as x.

@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 2.2 2013-12-17 02:59:10 deraugla Exp $ *)
+(* $Id: Puiseux.v,v 2.3 2013-12-19 19:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -218,7 +218,7 @@ Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
        | Term t _ => Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) 1)))
        | End => 0
        end;
-     ps_comden := cd |}.
+     ps_polord := cd |}.
 *)
 
 (* *)

@@ -1,4 +1,4 @@
-(* $Id: Ps_div.v,v 1.26 2013-12-19 16:50:12 deraugla Exp $ *)
+(* $Id: Ps_div.v,v 1.27 2013-12-19 19:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -18,7 +18,7 @@ Definition ps_inv ps :=
   | fin n =>
       {| ps_terms := series_inv (series_left_shift n (ps_terms ps));
          ps_valnum := - ps_valnum ps - Z.of_nat n;
-         ps_comden := ps_comden ps |}
+         ps_polord := ps_polord ps |}
   | ∞ =>
       ps
   end.
@@ -28,7 +28,7 @@ Definition ps_left_adjust ps :=
   | fin n =>
       {| ps_terms := series_left_shift n (ps_terms ps);
          ps_valnum := ps_valnum ps + Z.of_nat n;
-         ps_comden := ps_comden ps |}
+         ps_polord := ps_polord ps |}
   | ∞ =>
       ps
   end.
@@ -103,8 +103,8 @@ destruct n as [n| ].
 
    eapply null_coeff_range_length_left_adjust; eassumption.
 
-  erewrite ps_comden_canonic; try reflexivity; try eassumption.
-  erewrite ps_comden_canonic with (n := O); try reflexivity; try eassumption.
+  erewrite ps_polord_canonic; try reflexivity; try eassumption.
+  erewrite ps_polord_canonic with (n := O); try reflexivity; try eassumption.
    rewrite Z.add_0_r.
    unfold ps_left_adjust.
    rewrite Hn.
@@ -203,7 +203,7 @@ destruct n as [n| ].
    rewrite Z.div_0_l; [ reflexivity | idtac ].
    intros H; discriminate H.
 
-   erewrite ps_comden_canonic; try reflexivity; try eassumption.
+   erewrite ps_polord_canonic; try reflexivity; try eassumption.
    remember Z.gcd as f; simpl; subst f.
    rewrite Z.gcd_1_l.
    reflexivity.

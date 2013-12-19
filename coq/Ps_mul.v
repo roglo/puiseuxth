@@ -1,4 +1,4 @@
-(* $Id: Ps_mul.v,v 2.86 2013-12-19 16:50:12 deraugla Exp $ *)
+(* $Id: Ps_mul.v,v 2.87 2013-12-19 19:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -22,8 +22,8 @@ Definition ps_mul ps₁ ps₂ :=
          (series_stretch (cm_factor ps₁ ps₂) (ps_terms ps₁))
          (series_stretch (cm_factor ps₂ ps₁) (ps_terms ps₂));
      ps_valnum :=
-       (ps_valnum ps₁ * ' ps_comden ps₂ + ps_valnum ps₂ * ' ps_comden ps₁)%Z;
-     ps_comden :=
+       (ps_valnum ps₁ * ' ps_polord ps₂ + ps_valnum ps₂ * ' ps_polord ps₁)%Z;
+     ps_polord :=
        cm ps₁ ps₂ |}.
 
 Notation "a * b" := (ps_mul a b) : ps_scope.
@@ -53,8 +53,8 @@ constructor; simpl.
 
  unfold gcd_ps; simpl.
  unfold cm; rewrite Pos.mul_comm, series_mul_comm.
- remember (ps_valnum ps₁ * ' ps_comden ps₂)%Z as x eqn:Hx .
- remember (ps_valnum ps₂ * ' ps_comden ps₁)%Z as y eqn:Hy .
+ remember (ps_valnum ps₁ * ' ps_polord ps₂)%Z as x eqn:Hx .
+ remember (ps_valnum ps₂ * ' ps_polord ps₁)%Z as y eqn:Hy .
  replace (x + y)%Z with (y + x)%Z by apply Z.add_comm.
  reflexivity.
 Qed.
@@ -447,9 +447,9 @@ rewrite series_stretch_mul; symmetry.
 do 4 rewrite <- series_stretch_stretch.
 unfold cm, cm_factor; simpl.
 rewrite series_mul_assoc.
-remember (ps_comden ps₂ * ps_comden ps₃)%positive as c₂₃ eqn:Hc₂₃ .
-remember (ps_comden ps₃ * ps_comden ps₁)%positive as c₃₁ eqn:Hc₃₁ .
-remember (ps_comden ps₁ * ps_comden ps₂)%positive as c₁₂ eqn:Hc₁₂ .
+remember (ps_polord ps₂ * ps_polord ps₃)%positive as c₂₃ eqn:Hc₂₃ .
+remember (ps_polord ps₃ * ps_polord ps₁)%positive as c₃₁ eqn:Hc₃₁ .
+remember (ps_polord ps₁ * ps_polord ps₂)%positive as c₁₂ eqn:Hc₁₂ .
 rewrite Pos.mul_comm in Hc₂₃; rewrite <- Hc₂₃.
 rewrite Pos.mul_comm in Hc₃₁; rewrite <- Hc₃₁.
 remember (series_stretch c₂₃ (ps_terms ps₁)) as s₁ eqn:Hs₁ .
@@ -633,7 +633,7 @@ Lemma canonic_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
   canonic_ps (ps_mul (adjust_ps n k ps₁) ps₂).
 Proof.
 intros ps₁ ps₂ n k.
-remember (Pos.to_nat (ps_comden ps₂) * n)%nat as m eqn:Hm .
+remember (Pos.to_nat (ps_polord ps₂) * n)%nat as m eqn:Hm .
 rewrite ps_canon_adjust_eq with (n := m) (k := k); subst m.
 unfold ps_mul; simpl.
 unfold adjust_ps; simpl.
@@ -764,7 +764,7 @@ destruct n as [n| ]; constructor.
  remember (ps_valnum ps + Z.of_nat n)%Z as x eqn:Hx .
  rewrite <- Z.gcd_assoc in Hg.
  remember (greatest_series_x_power rng (ps_terms ps) n) as z.
- remember (Z.gcd (' ps_comden ps) (Z.of_nat z)) as y eqn:Hy ; subst z.
+ remember (Z.gcd (' ps_polord ps) (Z.of_nat z)) as y eqn:Hy ; subst z.
  rewrite ps_canon_adjust_eq with (k := Z.to_pos g) (n := n).
  unfold adjust_ps; simpl.
  unfold canonify_series.
@@ -784,7 +784,7 @@ destruct n as [n| ]; constructor.
     rewrite <- Hxk, Hx, Z.add_simpl_r.
     rewrite Hy, Z.gcd_comm, <- Z.gcd_assoc in Hg.
     remember (greatest_series_x_power rng (ps_terms ps) n) as z.
-    pose proof (Z.gcd_divide_l (' ps_comden ps) (Z.gcd (Z.of_nat z) x)) as Hgc.
+    pose proof (Z.gcd_divide_l (' ps_polord ps) (Z.gcd (Z.of_nat z) x)) as Hgc.
     rewrite <- Hg in Hgc.
     destruct Hgc as (c, Hc).
     rewrite Hc.
@@ -819,7 +819,7 @@ destruct n as [n| ]; constructor.
   remember (greatest_series_x_power rng (ps_terms ps) n) as t.
   rewrite Hy in Hg.
   rewrite Z.gcd_assoc in Hg.
-  remember (Z.gcd x (' ps_comden ps)) as u.
+  remember (Z.gcd x (' ps_polord ps)) as u.
   pose proof (Z.gcd_divide_r u (Z.of_nat t)) as H.
   rewrite <- Hg in H.
   destruct H as (c, Hc).
@@ -844,7 +844,7 @@ Lemma ps_valnum_canonic : ∀ ps n p vn,
   → p = greatest_series_x_power rng (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
       → ps_valnum (canonic_ps ps) =
-          (vn / Z.gcd vn (Z.gcd (' ps_comden ps) (Z.of_nat p)))%Z.
+          (vn / Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p)))%Z.
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold canonic_ps; simpl.
@@ -856,13 +856,13 @@ rewrite <- Hvn.
 reflexivity.
 Qed.
 
-Lemma ps_comden_canonic : ∀ ps n p vn,
+Lemma ps_polord_canonic : ∀ ps n p vn,
   null_coeff_range_length rng (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power rng (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
-      → ps_comden (canonic_ps ps) =
+      → ps_polord (canonic_ps ps) =
         Z.to_pos
-          (' ps_comden ps / Z.gcd (' ps_comden ps) (Z.gcd (Z.of_nat p) vn)).
+          (' ps_polord ps / Z.gcd (' ps_polord ps) (Z.gcd (Z.of_nat p) vn)).
 Proof.
 intros ps n p vn Hn Hp Hvn.
 unfold canonic_ps; simpl.
@@ -880,7 +880,7 @@ Lemma ps_terms_canonic : ∀ ps n p vn,
     → vn = (ps_valnum ps + Z.of_nat n)%Z
       → ps_terms (canonic_ps ps) =
         canonify_series n
-          (Z.to_pos (Z.gcd vn (Z.gcd (' ps_comden ps) (Z.of_nat p))))
+          (Z.to_pos (Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p))))
           (ps_terms ps).
 Proof.
 intros ps n p vn Hn Hp Hvn.
@@ -895,7 +895,7 @@ Qed.
 
 Lemma null_range_length_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
    null_coeff_range_length rng
-     (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
+     (ps_terms (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
    null_coeff_range_length rng
      (ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) 0.
 Proof.
@@ -904,11 +904,11 @@ unfold cm, cm_factor; simpl.
 do 2 rewrite series_shift_0.
 rewrite series_stretch_1.
 remember (ps_valnum ps₁) as v₁.
-remember (ps_comden ps₂) as c₂.
+remember (ps_polord ps₂) as c₂.
 remember (ps_valnum ps₂) as v₂.
-remember (ps_comden ps₁) as c₁.
+remember (ps_polord ps₁) as c₁.
 remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₃) as c₃.
+remember (ps_polord ps₃) as c₃.
 do 3 rewrite series_stretch_mul.
 do 6 rewrite <- series_stretch_stretch.
 rewrite series_stretch_add_distr.
@@ -954,7 +954,7 @@ f_equal.
 Qed.
 
 Lemma ps_valnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_valnum (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_valnum (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
   ps_valnum (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
@@ -963,11 +963,11 @@ unfold cm_factor.
 f_equal.
 rewrite Z.mul_1_r.
 remember (ps_valnum ps₁) as v₁.
-remember (ps_comden ps₂) as c₂.
+remember (ps_polord ps₂) as c₂.
 remember (ps_valnum ps₂) as v₂.
-remember (ps_comden ps₁) as c₁.
+remember (ps_polord ps₁) as c₁.
 remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₃) as c₃.
+remember (ps_polord ps₃) as c₃.
 do 3 rewrite Pos2Z.inj_mul.
 do 3 rewrite Z.mul_assoc.
 rewrite Z.mul_sub_distr_r.
@@ -997,9 +997,9 @@ f_equal.
  f_equal; ring.
 Qed.
 
-Lemma ps_comden_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_comden (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
-  ps_comden (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
+Lemma ps_polord_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
+  ps_polord (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  ps_polord (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
@@ -1011,7 +1011,7 @@ reflexivity.
 Qed.
 
 Lemma ps_terms_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  (ps_terms (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
+  (ps_terms (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
    ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)))%ser.
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
@@ -1020,11 +1020,11 @@ unfold cm_factor.
 do 2 rewrite series_shift_0.
 rewrite series_stretch_1.
 remember (ps_valnum ps₁) as v₁.
-remember (ps_comden ps₂) as c₂.
+remember (ps_polord ps₂) as c₂.
 remember (ps_valnum ps₂) as v₂.
-remember (ps_comden ps₁) as c₁.
+remember (ps_polord ps₁) as c₁.
 remember (ps_valnum ps₃) as v₃.
-remember (ps_comden ps₃) as c₃.
+remember (ps_polord ps₃) as c₃.
 do 3 rewrite series_stretch_mul.
 do 6 rewrite <- series_stretch_stretch.
 rewrite series_stretch_add_distr.
@@ -1070,7 +1070,7 @@ reflexivity.
 Qed.
 
 Lemma ps_valnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
@@ -1081,30 +1081,30 @@ erewrite ps_valnum_canonic; try reflexivity; try eassumption.
 erewrite ps_valnum_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
-rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite ps_polord_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
 
-Lemma ps_comden_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+Lemma ps_polord_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
+  ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
-        → ps_comden (canonic_ps ps₄) = ps_comden (canonic_ps ps₅).
+        → ps_polord (canonic_ps ps₄) = ps_polord (canonic_ps ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
-erewrite ps_comden_canonic; try reflexivity; try eassumption.
+erewrite ps_polord_canonic; try reflexivity; try eassumption.
+erewrite ps_polord_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
-rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite ps_polord_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
 
 Lemma ps_terms_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
+  ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
   → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
     → null_coeff_range_length rng (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length rng (ps_terms ps₅) 0 = fin n
@@ -1115,7 +1115,7 @@ erewrite ps_terms_canonic; try reflexivity; try eassumption.
 erewrite ps_terms_canonic; try reflexivity; try eassumption.
 rewrite Hps₄, Hps₅.
 rewrite ps_valnum_adjust_mul_add₂_distr_l.
-rewrite ps_comden_adjust_mul_add₂_distr_l.
+rewrite ps_polord_adjust_mul_add₂_distr_l.
 rewrite ps_terms_adjust_mul_add₂_distr_l.
 reflexivity.
 Qed.
@@ -1130,15 +1130,15 @@ rewrite <- (canonic_ps_eq ips₃).
 remember (canonic_ps ips₁) as ps₁ eqn:Hps₁ .
 remember (canonic_ps ips₂) as ps₂ eqn:Hps₂ .
 remember (canonic_ps ips₃) as ps₃ eqn:Hps₃ .
-remember (ps_valnum ps₁ * ' ps_comden ps₂ * ' ps_comden ps₃)%Z as vcc.
-remember (' ps_comden ps₁ * ps_valnum ps₂ * ' ps_comden ps₃)%Z as cvc.
-remember (' ps_comden ps₁ * ' ps_comden ps₂ * ps_valnum ps₃)%Z as ccv.
-remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₁.
-remember ((vcc + Z.min cvc ccv) * ' ps_comden ps₁)%Z as n₂.
+remember (ps_valnum ps₁ * ' ps_polord ps₂ * ' ps_polord ps₃)%Z as vcc.
+remember (' ps_polord ps₁ * ps_valnum ps₂ * ' ps_polord ps₃)%Z as cvc.
+remember (' ps_polord ps₁ * ' ps_polord ps₂ * ps_valnum ps₃)%Z as ccv.
+remember ((vcc + Z.min cvc ccv) * ' ps_polord ps₁)%Z as n₁.
+remember ((vcc + Z.min cvc ccv) * ' ps_polord ps₁)%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
-rewrite ps_adjust_eq with (n := O) (k := ps_comden ps₁); symmetry.
+rewrite ps_adjust_eq with (n := O) (k := ps_polord ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
-remember (adjust_ps 0 (ps_comden ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
+remember (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
  eqn:Hps₄ .
 remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
 remember (null_coeff_range_length rng (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
@@ -1150,7 +1150,7 @@ destruct n₄ as [n₄| ].
  constructor; constructor; simpl.
   eapply ps_valnum_adjust_canonic_mul_add₂_distr_l; eassumption.
 
-  eapply ps_comden_adjust_canonic_mul_add₂_distr_l; eassumption.
+  eapply ps_polord_adjust_canonic_mul_add₂_distr_l; eassumption.
 
   eapply ps_terms_adjust_canonic_mul_add₂_distr_l; eassumption.
 

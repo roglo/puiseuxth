@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.53 2013-12-19 16:50:12 deraugla Exp $ *)
+(* $Id: Ps_add_compat.v,v 2.54 2013-12-19 19:25:10 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -146,10 +146,10 @@ rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite <- Z.mul_min_distr_nonneg_r; [ idtac | apply Pos2Z.is_nonneg ].
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
-remember (ps_valnum ps₁ * ' ps_comden ps₂ * ' k)%Z as x eqn:Hx .
+remember (ps_valnum ps₁ * ' ps_polord ps₂ * ' k)%Z as x eqn:Hx .
 rewrite Z.mul_shuffle0 in Hx; rewrite <- Hx.
 rewrite Pos.mul_comm.
-remember (k * ps_comden ps₁)%positive as y eqn:Hy .
+remember (k * ps_polord ps₁)%positive as y eqn:Hy .
 rewrite Pos.mul_comm in Hy; rewrite <- Hy.
 rewrite Pos_mul_shuffle0, <- Hy.
 reflexivity.
@@ -259,9 +259,9 @@ do 2 rewrite ps_adjust_adjust.
 rewrite Pos2Z.inj_mul.
 rewrite Z.mul_assoc.
 remember (ps_valnum ps₁) as v₁.
-remember (ps_comden ps₂) as c₂.
+remember (ps_polord ps₂) as c₂.
 remember (ps_valnum ps₂) as v₂.
-remember (ps_comden ps₁) as c₁.
+remember (ps_polord ps₁) as c₁.
 remember (Z.of_nat n) as nn.
 remember (Z.of_nat m) as mm.
 do 2 rewrite Z.mul_sub_distr_r.
@@ -418,7 +418,7 @@ destruct g as [| g| g]; simpl.
  constructor; simpl.
   unfold gcd_ps in Heqg.
   remember (ps_valnum ps + Z.of_nat len₁)%Z as v.
-  remember (Zpos (ps_comden ps))%Z as c.
+  remember (Zpos (ps_polord ps))%Z as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
@@ -435,7 +435,7 @@ destruct g as [| g| g]; simpl.
 
   unfold gcd_ps in Heqg.
   remember (ps_valnum ps + Z.of_nat len₁)%Z as v.
-  remember (Zpos (ps_comden ps)) as c.
+  remember (Zpos (ps_polord ps)) as c.
   pose proof (Z.gcd_divide_l (Z.gcd v c) (Z.of_nat k₁)) as H₁.
   destruct H₁ as (a, Ha).
   rewrite Heqg in Ha.
@@ -468,7 +468,7 @@ destruct g as [| g| g]; simpl.
    rewrite <- Heqk₁.
    unfold gcd_ps in Heqg.
    remember (ps_valnum ps + Z.of_nat len₁)%Z as x.
-   remember (' ps_comden ps)%Z as y.
+   remember (' ps_polord ps)%Z as y.
    pose proof (Z.gcd_divide_r (Z.gcd x y) (Z.of_nat k₁)) as H.
    rewrite Heqg in H.
    destruct H as (c, Hc).
@@ -486,7 +486,7 @@ destruct g as [| g| g]; simpl.
 Qed.
 
 Definition ps_neg_zero :=
-  {| ps_terms := 0%ser; ps_valnum := -1; ps_comden := 1 |}.
+  {| ps_terms := 0%ser; ps_valnum := -1; ps_polord := 1 |}.
 
 Lemma eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
   null_coeff_range_length rng (ps_terms ps) 0 = ∞
@@ -501,7 +501,7 @@ destruct n; [ discriminate Hz | clear Hz ].
 apply null_coeff_range_length_iff in Hn.
 simpl in Hn.
 destruct (Z_le_dec 0 (ps_valnum ps)) as [H₁| H₁].
- exists (Z.to_nat (ps_valnum ps + Zpos (ps_comden ps))), O, xH, (ps_comden ps).
+ exists (Z.to_nat (ps_valnum ps + Zpos (ps_polord ps))), O, xH, (ps_polord ps).
  constructor; simpl.
   rewrite Z2Nat.id.
    rewrite Z.mul_1_r.
@@ -521,9 +521,9 @@ destruct (Z_le_dec 0 (ps_valnum ps)) as [H₁| H₁].
 
    assumption.
 
- exists (Pos.to_nat (ps_comden ps)).
+ exists (Pos.to_nat (ps_polord ps)).
  exists (Z.to_nat (- ps_valnum ps)).
- exists xH, (ps_comden ps).
+ exists xH, (ps_polord ps).
  constructor; simpl.
   rewrite Z.mul_1_r.
   rewrite Z2Nat.id; [ idtac | omega ].

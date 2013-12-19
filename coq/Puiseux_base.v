@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 2.4 2013-12-19 18:35:07 deraugla Exp $ *)
+(* $Id: Puiseux_base.v,v 2.5 2013-12-19 19:25:10 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -22,7 +22,7 @@ Set Implicit Arguments.
 
 Definition valuation ps :=
   match null_coeff_range_length rng (ps_terms ps) 0 with
-  | fin v => Some (ps_valnum ps + Z.of_nat v # ps_comden ps)
+  | fin v => Some (ps_valnum ps + Z.of_nat v # ps_polord ps)
   | ∞ => None
   end.
 
