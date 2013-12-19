@@ -25,5 +25,4 @@ SandBox.vo SandBox.glob SandBox.v.beautified: SandBox.v Ps_div.vo
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Misc.vo
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
-Test.vo Test.glob Test.v.beautified: Test.v Ring.vo
 Zbar.vo Zbar.glob Zbar.v.beautified: Zbar.v Nbar.vo
