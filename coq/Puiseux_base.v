@@ -1,4 +1,4 @@
-(* Puiseux_base.v - $Date: 2013-12-19 23:17:36 $ *)
+(* $Id: Puiseux_base.v,v 2.10 2013-12-19 23:59:27 deraugla Exp $ *)
 
 (* Most of notations are Robert Walker's ones *)
 
