@@ -1,13 +1,9 @@
-(* $Id: Field.v,v 2.42 2013-12-19 16:50:12 deraugla Exp $ *)
+(* $Id: Field.v,v 2.43 2013-12-20 08:18:57 deraugla Exp $ *)
 
 Require Import Utf8.
 Require Import Ring_theory.
 Require Import Field_theory.
 Require Import Setoid.
-
-(* begin new
-Require Ring.
-end new *)
 
 Set Implicit Arguments.
 
@@ -51,19 +47,19 @@ Module Make (F : FieldType).
 
   Import F.
   Include Tdef.
-  Let rng := Tdef.ring fld.
+  Let R := Tdef.ring fld.
 
   Module Syntax.
 
   Delimit Scope ring_scope with rng.
-  Notation "0" := (zero rng) : ring_scope.
-  Notation "1" := (one rng) : ring_scope.
-  Notation "- a" := (opp rng a) : ring_scope.
-  Notation "a = b" := (eq rng a b) : ring_scope.
-  Notation "a ≠ b" := (not (eq rng a b)) : ring_scope.
-  Notation "a + b" := (add rng a b) : ring_scope.
-  Notation "a - b" := (add rng a (opp rng b)) : ring_scope.
-  Notation "a * b" := (mul rng a b) : ring_scope.
+  Notation "0" := (zero R) : ring_scope.
+  Notation "1" := (one R) : ring_scope.
+  Notation "- a" := (opp R a) : ring_scope.
+  Notation "a = b" := (eq R a b) : ring_scope.
+  Notation "a ≠ b" := (not (eq R a b)) : ring_scope.
+  Notation "a + b" := (add R a b) : ring_scope.
+  Notation "a - b" := (add R a (opp R b)) : ring_scope.
+  Notation "a * b" := (mul R a b) : ring_scope.
 
   Delimit Scope field_scope with fld.
   Notation "¹/ a" := (inv fld a) (at level 99) : field_scope.
@@ -72,14 +68,14 @@ Module Make (F : FieldType).
 
   Import Syntax.
 
-  Add Parametric Relation : α (eq rng)
-   reflexivity proved by (eq_refl rng)
-   symmetry proved by (eq_sym rng)
-   transitivity proved by (eq_trans rng)
+  Add Parametric Relation : α (eq R)
+   reflexivity proved by (eq_refl R)
+   symmetry proved by (eq_sym R)
+   transitivity proved by (eq_trans R)
    as eq_rel.
 
-  Add Parametric Morphism : (add rng)
-    with signature eq rng ==> eq rng ==> eq rng
+  Add Parametric Morphism : (add R)
+    with signature eq R ==> eq R ==> eq R
     as add_morph.
   Proof.
   intros a b Hab c d Hcd.
@@ -91,8 +87,8 @@ Module Make (F : FieldType).
   rewrite add_compat_l; [ reflexivity | eassumption ].
   Qed.
 
-  Add Parametric Morphism : (opp rng)
-    with signature eq rng ==> eq rng
+  Add Parametric Morphism : (opp R)
+    with signature eq R ==> eq R
     as opp_morph.
   Proof.
   intros a b Heq.
@@ -109,8 +105,8 @@ Module Make (F : FieldType).
   assumption.
   Qed.
 
-  Add Parametric Morphism : (mul rng)
-    with signature eq rng ==> eq rng ==> eq rng
+  Add Parametric Morphism : (mul R)
+    with signature eq R ==> eq R ==> eq R
     as mul_morph.
   Proof.
   intros a b Hab c d Hcd.
@@ -165,7 +161,7 @@ Module Make (F : FieldType).
   rewrite mul_comm.
   rewrite mul_add_distr_l.
   rewrite mul_comm.
-  assert (eq rng (mul rng z y) (mul rng y z)) as H.
+  assert (eq R (mul R z y) (mul R y z)) as H.
    apply mul_comm.
 
    rewrite H; reflexivity.
@@ -295,16 +291,16 @@ Module Make (F : FieldType).
   Proof.
   intros n m p.
   do 2 rewrite <- add_assoc.
-  assert (eq rng (add rng m p) (add rng p m)) as H by apply add_comm.
+  assert (eq R (add R m p) (add R p m)) as H by apply add_comm.
   rewrite H; reflexivity.
   Qed.
 
   Theorem mul_shuffle0 : ∀ n m p,
-    eq rng (mul rng (mul rng n m) p) (mul rng (mul rng n p) m).
+    eq R (mul R (mul R n m) p) (mul R (mul R n p) m).
   Proof.
   intros n m p.
   do 2 rewrite <- mul_assoc.
-  assert (eq rng (mul rng m p) (mul rng p m)) as H by apply mul_comm.
+  assert (eq R (mul R m p) (mul R p m)) as H by apply mul_comm.
   rewrite H; reflexivity.
   Qed.
 
@@ -339,7 +335,7 @@ Module Make (F : FieldType).
   intros a b Ha Heq.
   remember Heq as Hab; clear HeqHab.
   apply mul_compat_l with (c := inv fld b) in Heq.
-  unfold rng in Heq.
+  unfold R in Heq.
   rewrite mul_inv_l in Heq.
    apply mul_compat_r with (c := inv fld a) in Heq.
    rewrite mul_1_l in Heq.
