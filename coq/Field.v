@@ -1,8 +1,10 @@
-(* $Id: Field.v,v 2.43 2013-12-20 08:18:57 deraugla Exp $ *)
+(* $Id: Field.v,v 2.44 2013-12-22 22:31:36 deraugla Exp $ *)
 
 Require Import Utf8.
+(*
 Require Import Ring_theory.
 Require Import Field_theory.
+*)
 Require Import Setoid.
 
 Set Implicit Arguments.
@@ -207,7 +209,10 @@ Module Make (F : FieldType).
   reflexivity.
   Qed.
 
-  Theorem mul_reg_r : ∀ a b c, (c ≠ 0)%rng → (a * c = b * c)%rng → (a = b)%rng.
+  Theorem mul_reg_r : ∀ a b c,
+    (c ≠ 0)%rng
+    → (a * c = b * c)%rng
+      → (a = b)%rng.
   Proof.
   intros a b c Hc Habc.
   apply mul_compat_r with (c := inv fld c) in Habc.
@@ -217,7 +222,10 @@ Module Make (F : FieldType).
   assumption.
   Qed.
 
-  Theorem mul_reg_l : ∀ a b c, (c ≠ 0)%rng → (c * a = c * b)%rng → (a = b)%rng.
+  Theorem mul_reg_l : ∀ a b c,
+    (c ≠ 0)%rng
+    → (c * a = c * b)%rng
+      → (a = b)%rng.
   Proof.
   intros a b c Hc Habc.
   rewrite mul_comm in Habc; symmetry in Habc.
@@ -304,20 +312,28 @@ Module Make (F : FieldType).
   rewrite H; reflexivity.
   Qed.
 
-  Theorem mul_eq_0 : ∀ n m, (n = 0)%rng ∨ (m = 0)%rng → (n * m = 0)%rng.
+  Theorem mul_eq_0 : ∀ n m,
+    (n = 0)%rng ∨ (m = 0)%rng
+    → (n * m = 0)%rng.
   Proof.
   intros n m H.
   destruct H as [H| H]; rewrite H; [ apply mul_0_l | apply mul_0_r ].
   Qed.
 
-  Theorem eq_mul_0_l : ∀ n m, (n * m = 0)%rng → (m ≠ 0)%rng → (n = 0)%rng.
+  Theorem eq_mul_0_l : ∀ n m,
+    (n * m = 0)%rng
+    → (m ≠ 0)%rng
+      → (n = 0)%rng.
   Proof.
   intros n m Hnm Hm.
   rewrite <- mul_0_l with (a := m) in Hnm.
   apply mul_reg_r in Hnm; assumption.
   Qed.
 
-  Theorem eq_mul_0_r : ∀ n m, (n * m = 0)%rng → (n ≠ 0)%rng → (m = 0)%rng.
+  Theorem eq_mul_0_r : ∀ n m,
+    (n * m = 0)%rng
+    → (n ≠ 0)%rng
+      → (m = 0)%rng.
   Proof.
   intros n m Hnm Hm.
   rewrite <- mul_0_r with (a := n) in Hnm.
