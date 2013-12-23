@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.44 2013-12-22 22:31:36 deraugla Exp $ *)
+(* $Id: Field.v,v 2.45 2013-12-23 20:41:55 deraugla Exp $ *)
 
 Require Import Utf8.
 (*
@@ -54,14 +54,15 @@ Module Make (F : FieldType).
   Module Syntax.
 
   Delimit Scope ring_scope with rng.
-  Notation "0" := (zero R) : ring_scope.
-  Notation "1" := (one R) : ring_scope.
-  Notation "- a" := (opp R a) : ring_scope.
-  Notation "a = b" := (eq R a b) : ring_scope.
-  Notation "a ≠ b" := (not (eq R a b)) : ring_scope.
-  Notation "a + b" := (add R a b) : ring_scope.
-  Notation "a - b" := (add R a (opp R b)) : ring_scope.
-  Notation "a * b" := (mul R a b) : ring_scope.
+  Notation "0" := (λ R, zero R) : ring_scope.
+  Notation "1" := (λ R, one R) : ring_scope.
+  Notation "- a" := (λ R, opp R (a R)) : ring_scope.
+  Notation "a = b" := (λ R, eq R (a R) (b R)) : ring_scope.
+  Notation "a ≠ b" := (λ R, not (eq R (a R) (b R))) : ring_scope.
+  Notation "a + b" := (λ R, add R (a R) (b R)) : ring_scope.
+  Notation "a - b" := (λ R, add R (a R) (opp R (b R))) : ring_scope.
+  Notation "a * b" := (λ R, mul R (a R) (b R)) : ring_scope.
+  Notation "! a" := (λ _, a) (at level 0, a at level 0) : ring_scope.
 
   Delimit Scope field_scope with fld.
   Notation "¹/ a" := (inv fld a) (at level 99) : field_scope.
@@ -94,10 +95,10 @@ Module Make (F : FieldType).
     as opp_morph.
   Proof.
   intros a b Heq.
-  apply add_compat_l with (c := (- b)%rng) in Heq.
+  apply add_compat_l with (c := (- !b)%rng R) in Heq.
   rewrite add_opp_l in Heq.
   rewrite add_comm in Heq.
-  apply add_compat_l with (c := (- a)%rng) in Heq.
+  apply add_compat_l with (c := (- !a)%rng R) in Heq.
   rewrite add_assoc in Heq.
   rewrite add_opp_l in Heq.
   rewrite add_0_l in Heq.
@@ -120,46 +121,51 @@ Module Make (F : FieldType).
   rewrite mul_compat_l; [ reflexivity | eassumption ].
   Qed.
 
-  Theorem add_opp_r : ∀ x, (x - x = 0)%rng.
+  Theorem add_opp_r : ∀ x, (!x - !x = 0)%rng R.
   Proof.
-  intros x; rewrite add_comm.
+  intros x; simpl; rewrite add_comm.
   apply add_opp_l.
   Qed.
 
-  Theorem mul_1_r : ∀ a, (a * 1 = a)%rng.
+  Theorem mul_1_r : ∀ a, (!a * 1 = !a)%rng R.
   Proof.
-  intros a.
+  intros a; simpl.
   rewrite mul_comm, mul_1_l.
   reflexivity.
   Qed.
 
-  Theorem mul_inv_l : ∀ x, (x ≠ 0)%rng → (inv fld x * x = 1)%rng.
+  Theorem mul_inv_l : ∀ x, (!x ≠ 0)%rng R → (!(inv fld x) * !x = 1)%rng R.
   Proof.
   intros x H.
   apply fld_mul_inv_l; assumption.
   Qed.
 
-  Theorem mul_inv_r : ∀ x, (x ≠ 0)%rng → (x * inv fld x = 1)%rng.
+  Theorem mul_inv_r : ∀ x, (!x ≠ 0)%rng R → (!x * !(inv fld x) = 1)%rng R.
   Proof.
-  intros x H; rewrite mul_comm.
+  intros x H; simpl; rewrite mul_comm.
   apply mul_inv_l; assumption.
   Qed.
 
-  Theorem add_compat_r : ∀ a b c, (a = b)%rng → (a + c = b + c)%rng.
+  Theorem add_compat_r : ∀ a b c,
+    (!a = !b)%rng R
+    → (!a + !c = !b + !c)%rng R.
   Proof.
-  intros a b c Hab.
+  intros a b c Hab; simpl in Hab |- *.
   rewrite Hab; reflexivity.
   Qed.
 
-  Theorem mul_compat_r : ∀ a b c, (a = b)%rng → (a * c = b * c)%rng.
+  Theorem mul_compat_r : ∀ a b c,
+    (!a = !b)%rng R
+    → (!a * !c = !b * !c)%rng R.
   Proof.
-  intros a b c Hab.
+  intros a b c Hab; simpl in Hab |- *.
   rewrite Hab; reflexivity.
   Qed.
 
-  Theorem mul_add_distr_r : ∀ x y z, ((x + y) * z = x * z + y * z)%rng.
+  Theorem mul_add_distr_r : ∀ x y z,
+    ((!x + !y) * !z = !x * !z + !y * !z)%rng R.
   Proof.
-  intros x y z.
+  intros x y z; simpl.
   rewrite mul_comm.
   rewrite mul_add_distr_l.
   rewrite mul_comm.
@@ -169,52 +175,52 @@ Module Make (F : FieldType).
    rewrite H; reflexivity.
   Qed.
 
-  Theorem add_0_r : ∀ a, (a + 0 = a)%rng.
+  Theorem add_0_r : ∀ a, (!a + 0 = !a)%rng R.
   Proof.
-  intros a.
+  intros a; simpl.
   rewrite add_comm.
   apply add_0_l.
   Qed.
 
-  Theorem opp_0 : (- 0 = 0)%rng.
+  Theorem opp_0 : (- 0 = 0)%rng R.
   Proof.
-  etransitivity; [ symmetry; apply add_0_l | idtac ].
+  simpl; etransitivity; [ symmetry; apply add_0_l | idtac ].
   apply add_opp_r.
   Qed.
 
-  Theorem add_reg_r : ∀ a b c, (a + c = b + c)%rng → (a = b)%rng.
+  Theorem add_reg_r : ∀ a b c, (!a + !c = !b + !c)%rng R → (!a = !b)%rng R.
   Proof.
-  intros a b c Habc.
-  apply add_compat_r with (c := (- c)%rng) in Habc.
+  intros a b c Habc; simpl in Habc; simpl.
+  apply add_compat_r with (c := (- !c)%rng R) in Habc.
   do 2 rewrite <- add_assoc in Habc.
   rewrite add_opp_r in Habc.
   do 2 rewrite add_0_r in Habc.
   assumption.
   Qed.
 
-  Theorem add_reg_l : ∀ a b c, (c + a = c + b)%rng → (a = b)%rng.
+  Theorem add_reg_l : ∀ a b c, (!c + !a = !c + !b)%rng R → (!a = !b)%rng R.
   Proof.
-  intros a b c Habc.
+  intros a b c Habc; simpl in Habc; simpl.
   apply add_reg_r with (c := c).
   rewrite add_comm; symmetry.
   rewrite add_comm; symmetry.
   assumption.
   Qed.
 
-  Theorem add_sub : ∀ a b, (a + b - b = a)%rng.
+  Theorem add_sub : ∀ a b, (!a + !b - !b = !a)%rng R.
   Proof.
-  intros a b.
+  intros a b; simpl.
   rewrite <- add_assoc.
   rewrite add_opp_r, add_0_r.
   reflexivity.
   Qed.
 
   Theorem mul_reg_r : ∀ a b c,
-    (c ≠ 0)%rng
-    → (a * c = b * c)%rng
-      → (a = b)%rng.
+    (!c ≠ 0)%rng R
+    → (!a * !c = !b * !c)%rng R
+      → (!a = !b)%rng R.
   Proof.
-  intros a b c Hc Habc.
+  intros a b c Hc Habc; simpl in Hc, Habc; simpl.
   apply mul_compat_r with (c := inv fld c) in Habc.
   do 2 rewrite <- mul_assoc in Habc.
   rewrite mul_inv_r in Habc; [ idtac | assumption ].
@@ -223,11 +229,11 @@ Module Make (F : FieldType).
   Qed.
 
   Theorem mul_reg_l : ∀ a b c,
-    (c ≠ 0)%rng
-    → (c * a = c * b)%rng
-      → (a = b)%rng.
+    (!c ≠ 0)%rng R
+    → (!c * !a = !c * !b)%rng R
+      → (!a = !b)%rng R.
   Proof.
-  intros a b c Hc Habc.
+  intros a b c Hc Habc; simpl in Hc, Habc; simpl.
   rewrite mul_comm in Habc; symmetry in Habc.
   rewrite mul_comm in Habc; symmetry in Habc.
   eapply mul_reg_r; eassumption.
