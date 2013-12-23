@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.45 2013-12-23 20:41:55 deraugla Exp $ *)
+(* $Id: Field.v,v 2.46 2013-12-23 20:47:31 deraugla Exp $ *)
 
 Require Import Utf8.
 (*
@@ -49,7 +49,6 @@ Module Make (F : FieldType).
 
   Import F.
   Include Tdef.
-  Let R := Tdef.ring fld.
 
   Module Syntax.
 
@@ -70,6 +69,8 @@ Module Make (F : FieldType).
   End Syntax.
 
   Import Syntax.
+
+  Let R := Tdef.ring fld.
 
   Add Parametric Relation : α (eq R)
    reflexivity proved by (eq_refl R)
@@ -239,19 +240,19 @@ Module Make (F : FieldType).
   eapply mul_reg_r; eassumption.
   Qed.
 
-  Theorem add_id_uniq : ∀ a b, (a + b = a)%rng → (b = 0)%rng.
+  Theorem add_id_uniq : ∀ a b, (!a + !b = !a)%rng R → (!b = 0)%rng R.
   Proof.
-  intros a b Hab.
+  intros a b Hab; simpl in Hab; simpl.
   rewrite add_comm in Hab.
   apply add_reg_r with (c := a).
   rewrite add_0_l; assumption.
   Qed.
 
-  Theorem mul_0_l : ∀ a, (0 * a = 0)%rng.
+  Theorem mul_0_l : ∀ a, (0 * !a = 0)%rng R.
   Proof.
   intros a.
-  assert (0 * a + a = a)%rng as H.
-   transitivity (0 * a + 1 * a)%rng.
+  assert ((0 * !a + !a = !a)%rng R) as H.
+   transitivity ((0 * !a + 1 * !a)%rng R).
     rewrite mul_1_l; reflexivity.
 
     rewrite <- mul_add_distr_r.
@@ -262,35 +263,35 @@ Module Make (F : FieldType).
    rewrite add_0_l; assumption.
   Qed.
 
-  Theorem mul_0_r : ∀ a, (a * 0 = 0)%rng.
+  Theorem mul_0_r : ∀ a, (!a * 0 = 0)%rng R.
   Proof.
-  intros a.
+  intros a; simpl.
   rewrite mul_comm, mul_0_l.
   reflexivity.
   Qed.
 
-  Theorem mul_opp_l : ∀ a b, ((-a) * b = - (a * b))%rng.
+  Theorem mul_opp_l : ∀ a b, ((-!a) * !b = - (!a * !b))%rng R.
   Proof.
-  intros a b.
-  apply add_reg_l with (c := (a * b)%rng).
+  intros a b; simpl.
+  apply add_reg_l with (c := (!a * !b)%rng R).
   rewrite add_opp_r.
   rewrite <- mul_add_distr_r.
   rewrite add_opp_r, mul_0_l.
   reflexivity.
   Qed.
 
-  Theorem mul_opp_r : ∀ a b, (a * (- b) = - (a * b))%rng.
+  Theorem mul_opp_r : ∀ a b, (!a * (- !b) = - (!a * !b))%rng R.
   Proof.
-  intros a b.
+  intros a b; simpl.
   rewrite mul_comm; symmetry.
   rewrite mul_comm; symmetry.
   apply mul_opp_l.
   Qed.
 
-  Theorem opp_add_distr : ∀ a b, (- (a + b) = - a - b)%rng.
+  Theorem opp_add_distr : ∀ a b, (- (!a + !b) = - !a - !b)%rng R.
   Proof.
   intros a b.
-  apply mul_reg_l with (c := 1%rng).
+  apply mul_reg_l with (c := 1%rng R).
    apply neq_1_0.
 
    rewrite mul_opp_r.
@@ -301,9 +302,9 @@ Module Make (F : FieldType).
    reflexivity.
   Qed.
 
-  Theorem add_shuffle0 : ∀ n m p, (n + m + p = n + p + m)%rng.
+  Theorem add_shuffle0 : ∀ n m p, (!n + !m + !p = !n + !p + !m)%rng R.
   Proof.
-  intros n m p.
+  intros n m p; simpl.
   do 2 rewrite <- add_assoc.
   assert (eq R (add R m p) (add R p m)) as H by apply add_comm.
   rewrite H; reflexivity.
