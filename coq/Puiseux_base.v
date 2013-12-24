@@ -26,6 +26,12 @@ Definition valuation ps :=
   | ∞ => None
   end.
 
+Definition valuation_coeff ps :=
+  match null_coeff_range_length rng (ps_terms ps) 0 with
+  | fin v => Some (series_nth rng v (ps_terms ps))
+  | ∞ => None
+  end.
+
 Fixpoint power_list α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>
