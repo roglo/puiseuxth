@@ -920,6 +920,9 @@ intros f g b e.
 apply sigma_aux_add.
 Qed.
 
+Notation "s [ i ]" := (series_nth F i s) (at level 1).
+Notation "a + b" := (series_add F a b) : series_scope.
+
 Lemma series_nth_add : ∀ a b i, (((a + b)%ser) [i] = a [i] + b [i])%K.
 Proof.
 intros a b i.
@@ -939,7 +942,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max (stop a) (stop b))) as [H₁| H₁].
 Qed.
 
 Lemma convol_mul_add_distr_l : ∀ a b c i,
-  (convol_mul a (b + c)%ser i = convol_mul a b i + convol_mul a c i)%K.
+  (convol_mul F a (b + c)%ser i = convol_mul F a b i + convol_mul F a c i)%K.
 Proof.
 intros a b c k.
 unfold convol_mul.
@@ -951,7 +954,7 @@ reflexivity.
 Qed.
 
 Lemma add_le_convol_mul_is_0 : ∀ a b i,
-  (stop a + stop b ≤ fin i)%Nbar → (convol_mul a b i = 0)%K.
+  (stop a + stop b ≤ fin i)%Nbar → (convol_mul F a b i = 0)%K.
 Proof.
 intros a b k Habk.
 unfold convol_mul.
@@ -1014,7 +1017,7 @@ destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
   reflexivity.
 Qed.
 
-End.
+End misc_lemmas.
 
 Add Parametric Morphism : series_add
   with  signature eq_series ==> eq_series ==> eq_series
