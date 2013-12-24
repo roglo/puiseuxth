@@ -14,9 +14,6 @@ Record power_series α :=
   { terms : nat → α;
     stop : Nbar }.
 
-Delimit Scope K_scope with K.
-Delimit Scope series_scope with ser.
-
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
@@ -39,6 +36,7 @@ Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
 Definition series_nth n (s : power_series α) :=
   if Nbar.lt_dec (fin n) (stop s) then terms s n else 0%K.
 
+Delimit Scope series_scope with ser.
 Notation "s [ i ]" := (series_nth i s) (at level 1).
 
 Definition series_inf (a : power_series α) :=
@@ -131,6 +129,7 @@ Definition series_add s₁ s₂ :=
 Definition series_opp s :=
   {| terms i := (- terms s i)%K; stop := stop s |}.
 
+Delimit Scope series_scope with ser.
 Notation "0" := (series_0 F) : series_scope.
 Notation "1" := (series_1 F) : series_scope.
 Notation "a = b" := (eq_series F a b) : series_scope.
@@ -411,6 +410,7 @@ Section misc_lemmas.
 Variable α : Type.
 Variable F : field α.
 
+Delimit Scope K_scope with K.
 Notation "0" := (fld_zero F) : K_scope.
 Notation "1" := (fld_one F) : K_scope.
 Notation "- a" := (fld_opp F a) : K_scope.
@@ -424,6 +424,7 @@ Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
 Notation "'Σ' ( i = b , e ) '_' f" := (sigma F b e (λ i, (f)%K))
   (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
 
+Delimit Scope series_scope with ser.
 Notation "0" := (series_0 F) : series_scope.
 Notation "1" := (series_1 F) : series_scope.
 Notation "a = b" := (eq_series F a b) : series_scope.
@@ -1019,8 +1020,8 @@ Qed.
 
 End misc_lemmas.
 
-Add Parametric Morphism : series_add
-  with  signature eq_series ==> eq_series ==> eq_series
+Add Parametric Morphism α (F : field α) : (series_add F)
+  with signature eq_series F ==> eq_series F ==> eq_series F
   as series_add_morph.
 Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
@@ -1070,14 +1071,44 @@ destruct lt₅ as [Hlt₅| Hge₅].
    rewrite fld_add_0_l; reflexivity.
 Qed.
 
-Add Parametric Morphism : (series_nth rng)
-with signature eq ==> eq_series ==> (fld_eq rng)
+Add Parametric Morphism α (F : field α) : (series_nth F)
+with signature eq ==> eq_series F ==> (fld_eq F)
 as series_nth_morph.
 Proof.
 intros s₁ s₂ i Heq.
 inversion Heq; subst.
 apply H.
 Qed.
+
+Section other_lemmas.
+
+Variable α : Type.
+Variable F : field α.
+
+Delimit Scope K_scope with K.
+Notation "0" := (fld_zero F) : K_scope.
+Notation "1" := (fld_one F) : K_scope.
+Notation "- a" := (fld_opp F a) : K_scope.
+Notation "a = b" := (fld_eq F a b) : K_scope.
+Notation "a ≠ b" := (not (fld_eq F a b)) : K_scope.
+Notation "a + b" := (fld_add F a b) : K_scope.
+Notation "a - b" := (fld_add F a (fld_opp F b)) : K_scope.
+Notation "a * b" := (fld_mul F a b) : K_scope.
+Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
+
+Delimit Scope series_scope with ser.
+Notation "0" := (series_0 F) : series_scope.
+Notation "1" := (series_1 F) : series_scope.
+Notation "a = b" := (eq_series F a b) : series_scope.
+Notation "a ≠ b" := (not (eq_series F a b)) : series_scope.
+Notation "- a" := (series_opp a) : series_scope.
+Notation "a + b" := (series_add F a b) : series_scope.
+Notation "a - b" := (series_add F a (series_opp b)) : series_scope.
+Notation "a * b" := (series_mul F a b) : series_scope.
+
+Notation "s [ i ]" := (series_nth F i s) (at level 1).
+Notation "'Σ' ( i = b , e ) '_' f" := (sigma F b e (λ i, (f)%K))
+  (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
 
 Theorem series_add_compat_l : ∀ a b c, (a = b)%ser → (c + a = c + b)%ser.
 Proof.
@@ -1121,35 +1152,13 @@ rewrite if_lt_dec_0_1 in H.
 revert H; apply fld_neq_1_0.
 Qed.
 
-Definition series_ring : fld_r (power_series α) :=
-  {| fld_zero := series_0;
-     fld_one := series_1;
-     fld_add := series_add;
-     fld_mul := series_mul;
-     fld_opp := series_opp;
-     fld_eq := eq_series;
-     fld_eq_refl := eq_series_refl;
-     fld_eq_sym := eq_series_sym;
-     fld_eq_trans := eq_series_trans;
-     fld_neq_1_0 := series_neq_1_0;
-     fld_add_comm := series_add_comm;
-     fld_add_assoc := series_add_assoc;
-     fld_add_0_l := series_add_0_l;
-     fld_add_opp_l := series_add_opp_l;
-     fld_add_compat_l := series_add_compat_l;
-     fld_mul_comm := series_mul_comm;
-     fld_mul_assoc := series_mul_assoc;
-     fld_mul_1_l := series_mul_1_l;
-     fld_mul_compat_l := series_mul_compat_l;
-     fld_mul_add_distr_l := series_mul_add_distr_l |}.
-
 Fixpoint term_inv c s n :=
-  if zerop n then fld_inv fld s[0]
+  if zerop n then fld_inv F s[0]
   else
     match c with
     | O => 0%K
     | S c₁ =>
-        (- fld_inv fld s[0] *
+        (- fld_inv F s[0] *
          Σ (i = 1, n) _ s[i] * term_inv c₁ s (n - i)%nat)%K
     end.
 
@@ -1157,9 +1166,7 @@ Definition series_inv s :=
   {| terms i := term_inv (S i) s i;
      stop := ∞ |}.
 
-Notation "¹/ a" := (series_inv a) (at level 99) : series_scope.
-
-Lemma inv_nth_0 : ∀ a, ((¹/a [0])%fld = (¹/a)%ser [0])%K.
+Lemma inv_nth_0 : ∀ a, ((¹/a [0])%K = (¹/a)%ser [0])%K.
 Proof.
 intros a.
 unfold series_nth; simpl.
