@@ -1166,7 +1166,9 @@ Definition series_inv s :=
   {| terms i := term_inv (S i) s i;
      stop := ∞ |}.
 
-Lemma inv_nth_0 : ∀ a, ((¹/a [0])%K = (¹/a)%ser [0])%K.
+Notation "¹/ a" := (series_inv a) (at level 1) : series_scope.
+
+Lemma inv_nth_0 : ∀ a, (¹/(a [0]) = (¹/a%ser) [0])%K.
 Proof.
 intros a.
 unfold series_nth; simpl.
@@ -1272,7 +1274,7 @@ Qed.
 Lemma convol_mul_inv_r : ∀ k a a',
   (a[0] ≠ 0)%K
   → a' = series_inv a
-    → (convol_mul a a' (S k) = 0)%K.
+    → (convol_mul F a a' (S k) = 0)%K.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
@@ -1334,4 +1336,4 @@ apply series_mul_inv_r.
 assumption.
 Qed.
 
-End M.
+End other_lemmas.
