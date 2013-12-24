@@ -158,20 +158,20 @@ Qed.
 Theorem eq_strong_refl α (F : field α) : reflexive _ (eq_ps_strong F).
 Proof. intros ps. constructor; reflexivity. Qed.
 
-Theorem eq_strong_sym : symmetric _ eq_ps_strong.
+Theorem eq_strong_sym α (F : field α) : symmetric _ (eq_ps_strong F).
 Proof. intros ps₁ ps₂ H; induction H; constructor; symmetry; assumption. Qed.
 
-Theorem eq_strong_trans : transitive _ eq_ps_strong.
+Theorem eq_strong_trans α (F : field α) : transitive _ (eq_ps_strong F).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁, H₂.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation : (puiseux_series α) eq_ps_strong
- reflexivity proved by eq_strong_refl
- symmetry proved by eq_strong_sym
- transitivity proved by eq_strong_trans
+Add Parametric Relation α (F : field α) : (puiseux_series α) (eq_ps_strong F)
+ reflexivity proved by (eq_strong_refl F)
+ symmetry proved by (eq_strong_sym (F := F))
+ transitivity proved by (eq_strong_trans (F := F))
  as eq_strong_rel.
 
 Lemma mul_lt_mono_positive_r : ∀ a b c,
@@ -190,16 +190,16 @@ apply Nbar.mul_lt_mono_pos_r.
  assumption.
 Qed.
 
-Add Parametric Morphism : (@mkps α)
-  with signature eq_series ==> eq ==> eq ==> eq_ps_strong
+Add Parametric Morphism α (F : field α) : (@mkps α)
+  with signature eq_series F ==> eq ==> eq ==> eq_ps_strong F
   as mkps_strong_eq_morphism.
 Proof.
 intros a b Hab v n.
 constructor; [ reflexivity | reflexivity | assumption ].
 Qed.
 
-Add Parametric Morphism : (null_coeff_range_length F)
-  with signature eq_series ==> eq ==> eq
+Add Parametric Morphism α (F : field α) : (null_coeff_range_length F)
+  with signature eq_series F ==> eq ==> eq
   as null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq n.
@@ -231,8 +231,8 @@ destruct n₁ as [n₁| ].
  exfalso; apply Hnz₂; rewrite <- Heq; apply Hn₁.
 Qed.
 
-Add Parametric Morphism : nth_null_coeff_range_length
-  with signature eq_series ==> eq ==> eq ==> eq
+Add Parametric Morphism α (F : field α) : (nth_null_coeff_range_length F)
+  with signature eq_series F ==> eq ==> eq ==> eq
   as nth_null_coeff_range_length_morph.
 Proof.
 intros s₁ s₂ Heq c n.
@@ -241,8 +241,8 @@ induction c; intros; simpl; rewrite Heq; [ reflexivity | idtac ].
 destruct (null_coeff_range_length F s₂ (S n)); [ apply IHc | reflexivity ].
 Qed.
 
-Add Parametric Morphism : (greatest_series_x_power F)
-  with signature eq_series ==> eq ==> eq
+Add Parametric Morphism α (F : field α) : (greatest_series_x_power F)
+  with signature eq_series F ==> eq ==> eq
   as greatest_series_x_power_morph.
 Proof.
 intros s₁ s₂ Heq n.
@@ -267,8 +267,8 @@ split.
  exists m; rewrite Heq; assumption.
 Qed.
 
-Add Parametric Morphism : series_stretch
-  with signature eq ==> eq_series ==> eq_series
+Add Parametric Morphism α (F : field α) : (series_stretch F)
+  with signature eq ==> eq_series F ==> eq_series F
   as stretch_morph.
 Proof.
 intros kp s₁ s₂ Heq.
