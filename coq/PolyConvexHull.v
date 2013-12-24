@@ -29,14 +29,13 @@ eapply points_in_any_newton_segment₁; try eassumption; try reflexivity.
 eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
-Theorem points_not_in_any_newton_segment :
-    ∀ fld (pol : puis_ser_pol α) pts ns,
-  pts = points_of_ps_polynom fld pol
-  → ns ∈ newton_segments fld pol
+Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
+  pts = points_of_ps_polynom pol
+  → ns ∈ newton_segments pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 Proof.
-intros fld pol pts ns Hpts Hns h αh Hαhnαh.
+intros pol pts ns Hpts Hns h αh Hαhnαh.
 eapply points_not_in_any_newton_segment₁.
  apply points_of_polyn_sorted in Hpts.
  eassumption.
@@ -49,5 +48,3 @@ eapply points_not_in_any_newton_segment₁.
 
  assumption.
 Qed.
-
-End puiseux_series.
