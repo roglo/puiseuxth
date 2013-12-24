@@ -6,6 +6,7 @@ Require Import NPeano.
 
 Require Import Misc.
 Require Import Nbar.
+Require Import Field.
 Require Import Power_series.
 
 Set Implicit Arguments.
@@ -23,25 +24,25 @@ Section Axioms.
 (* [null_coeff_range_length rng s n] returns the number of consecutive
    null coefficients in the series [s], from the [n]th one. *)
 Definition null_coeff_range_length : ∀ α,
-  Lfield.r α → power_series α → nat → Nbar.
+  field α → power_series α → nat → Nbar.
 Admitted.
 
-Definition null_coeff_range_length_prop s n v :=
+Definition null_coeff_range_length_prop α (F : field α) s n v :=
   match v with
   | fin k =>
-      (∀ i, (i < k)%nat → (series_nth rng (n + i) s = 0)%rng) ∧
-      (series_nth rng (n + k) s ≠ 0)%rng
+      (∀ i, (i < k)%nat → fld_eq F (series_nth F (n + i) s) (fld_zero F)) ∧
+      ¬ (fld_eq F (series_nth F (n + k) s) (fld_zero F))
   | ∞ =>
-      (∀ i, (series_nth rng (n + i) s = 0)%rng)
+      (∀ i, fld_eq F (series_nth F (n + i) s) (fld_zero F))
   end.
 
-Axiom null_coeff_range_length_iff : ∀ s n v,
-  null_coeff_range_length rng s n = v ↔ null_coeff_range_length_prop s n v.
+Axiom null_coeff_range_length_iff : ∀ α (F : field α) s n v,
+  null_coeff_range_length F s n = v ↔ null_coeff_range_length_prop F s n v.
 
 (* [greatest_series_x_power rng s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α,
-  Lfield.r α → power_series α → nat → nat.
+  field α → power_series α → nat → nat.
 Admitted.
 
 Fixpoint nth_null_coeff_range_length s n b :=
