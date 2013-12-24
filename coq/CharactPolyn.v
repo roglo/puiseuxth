@@ -40,7 +40,8 @@ Record algeb_closed_field :=
   { ac_field : Lfield.f α;
     ac_root : polynomial α → (α * nat);
     ac_prop : ∀ pol, degree pol ≥ 1
-      → apply_polynomial pol (fst (ac_root pol)) = Lfield.zero ac_field }.
+      → apply_polynomial pol (fst (ac_root pol)) =
+        Lfield.zero (Lfield.ring ac_field) }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -50,19 +51,19 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
-Fixpoint make_char_pol α (fld : field α) pow tl k :=
+Fixpoint make_char_pol α (rng : Lfield.r α) pow tl k :=
   match tl with
   | [] =>
-      list_pad (k - pow) (zero fld) []
+      list_pad (k - pow) (Lfield.zero rng) []
   | [t₁ … tl₁] =>
-      list_pad (power t₁ - pow) (zero fld)
-        [coeff t₁ … make_char_pol fld (S (power t₁)) tl₁ k]
+      list_pad (power t₁ - pow) (Lfield.zero rng)
+        [coeff t₁ … make_char_pol rng (S (power t₁)) tl₁ k]
     end.
 
-Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
+Definition term_of_point α (rng : Lfield.r α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h (al pol) (an pol) in
-  let c := valuation_coeff fld ps in
+  let c := valuation_coeff rng ps in
   {| coeff := c; power := h |}.
 
 Definition characteristic_polynomial α (fld : field α) pol ns :=
