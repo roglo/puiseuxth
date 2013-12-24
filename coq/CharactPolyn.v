@@ -60,18 +60,18 @@ Fixpoint make_char_pol α (rng : Lfield.r α) pow tl k :=
         [coeff t₁ … make_char_pol rng (S (power t₁)) tl₁ k]
     end.
 
-Definition term_of_point α (rng : Lfield.r α) pol (pt : (Q * Q)) :=
+Definition term_of_point pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h (al pol) (an pol) in
-  let c := valuation_coeff rng ps in
+  let c := valuation_coeff ps in
   {| coeff := c; power := h |}.
 
-Definition characteristic_polynomial α (fld : field α) pol ns :=
-  let tl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
+Definition characteristic_polynomial pol ns :=
+  let tl := List.map (term_of_point pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := make_char_pol fld j tl k; an := valuation_coeff fld kps |}.
+  {| al := make_char_pol R j tl k; an := valuation_coeff kps |}.
 
 Section field.
 
