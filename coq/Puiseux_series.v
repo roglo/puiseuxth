@@ -45,31 +45,31 @@ Definition greatest_series_x_power : ∀ α,
   field α → power_series α → nat → nat.
 Admitted.
 
-Fixpoint nth_null_coeff_range_length s n b :=
-  match null_coeff_range_length rng s (S b) with
+Fixpoint nth_null_coeff_range_length α (F : field α) s n b :=
+  match null_coeff_range_length F s (S b) with
   | fin p =>
       match n with
       | O => S p
-      | S n₁ => nth_null_coeff_range_length s n₁ (S b + p)%nat
+      | S n₁ => nth_null_coeff_range_length F s n₁ (S b + p)%nat
       end
   | ∞ => O
   end.
 
-Definition is_a_series_in_x_power s b k :=
-  ∀ n, (k | nth_null_coeff_range_length s n b).
+Definition is_a_series_in_x_power α (F : field α) s b k :=
+  ∀ n, (k | nth_null_coeff_range_length F s n b).
 
-Definition is_the_greatest_series_x_power s b k :=
-  match null_coeff_range_length rng s (S b) with
+Definition is_the_greatest_series_x_power α (F : field α) s b k :=
+  match null_coeff_range_length F s (S b) with
   | fin _ =>
-      is_a_series_in_x_power s b k ∧
-      (∀ k', (k < k')%nat → ∃ n, ¬(k' | nth_null_coeff_range_length s n b))
+      is_a_series_in_x_power F s b k ∧
+      (∀ k', (k < k')%nat → ∃ n, ¬(k' | nth_null_coeff_range_length F s n b))
   | ∞ =>
       k = O
   end.
 
-Axiom greatest_series_x_power_iff : ∀ s n k,
-  greatest_series_x_power rng s n = k ↔
-  is_the_greatest_series_x_power s n k.
+Axiom greatest_series_x_power_iff : ∀ α (F : field α) s n k,
+  greatest_series_x_power F s n = k ↔
+  is_the_greatest_series_x_power F s n k.
 
 End Axioms.
 
