@@ -1,4 +1,4 @@
-(* $Id: Fpolynomial.v,v 2.6 2013-12-19 16:50:12 deraugla Exp $ *)
+(* Fpolynomial.v *)
 
 (* polynomials on a field *)
 

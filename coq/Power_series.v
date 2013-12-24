@@ -1,4 +1,4 @@
-(* $Id: Power_series.v,v 2.2 2013-12-19 16:50:12 deraugla Exp $ *)
+(* Power_series.v *)
 
 Require Import Utf8.
 Require Import QArith.
