@@ -5,18 +5,6 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Field.
-Module Field_inst : Field.FieldType.
-  Parameter α : Type.
-  Parameter fld : Field.Tdef.f α.
-End Field_inst.
-
-Module M.
-
-Module Lfield := Field.Make Field_inst.
-Export Field_inst.
-Export Lfield.Syntax.
-Definition rng := Lfield.ring fld.
-
 Require Import Nbar.
 Require Import Misc.
 
