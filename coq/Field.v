@@ -1,4 +1,4 @@
-(* $Id: Field.v,v 2.46 2013-12-23 20:47:31 deraugla Exp $ *)
+(* $Id: Field.v,v 2.47 2013-12-24 03:47:27 deraugla Exp $ *)
 
 Require Import Utf8.
 (*
@@ -320,29 +320,29 @@ Module Make (F : FieldType).
   Qed.
 
   Theorem mul_eq_0 : ∀ n m,
-    (n = 0)%rng ∨ (m = 0)%rng
-    → (n * m = 0)%rng.
+    (!n = 0)%rng R ∨ (!m = 0)%rng R
+    → (!n * !m = 0)%rng R.
   Proof.
-  intros n m H.
+  intros n m H; simpl in H; simpl.
   destruct H as [H| H]; rewrite H; [ apply mul_0_l | apply mul_0_r ].
   Qed.
 
   Theorem eq_mul_0_l : ∀ n m,
-    (n * m = 0)%rng
-    → (m ≠ 0)%rng
-      → (n = 0)%rng.
+    (!n * !m = 0)%rng R
+    → (!m ≠ 0)%rng R
+      → (!n = 0)%rng R.
   Proof.
-  intros n m Hnm Hm.
+  intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
   rewrite <- mul_0_l with (a := m) in Hnm.
   apply mul_reg_r in Hnm; assumption.
   Qed.
 
   Theorem eq_mul_0_r : ∀ n m,
-    (n * m = 0)%rng
-    → (n ≠ 0)%rng
-      → (m = 0)%rng.
+    (!n * !m = 0)%rng R
+    → (!n ≠ 0)%rng R
+      → (!m = 0)%rng R.
   Proof.
-  intros n m Hnm Hm.
+  intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
   rewrite <- mul_0_r with (a := n) in Hnm.
   apply mul_reg_l in Hnm; assumption.
   Qed.
@@ -351,11 +351,11 @@ Module Make (F : FieldType).
      because there is a condition 'a ≠ 0'; question: is is possible
      to do a conditional morphism? *)
   Theorem inv_compat : ∀ a b,
-    (a ≠ 0)%rng
-    → (a = b)%rng
-      → (inv fld a = inv fld b)%rng.
+    (!a ≠ 0)%rng R
+    → (!a = !b)%rng R
+      → eq R (inv fld a) (inv fld b).
   Proof.
-  intros a b Ha Heq.
+  intros a b Ha Heq; simpl in Ha, Heq; simpl.
   remember Heq as Hab; clear HeqHab.
   apply mul_compat_l with (c := inv fld b) in Heq.
   unfold R in Heq.
