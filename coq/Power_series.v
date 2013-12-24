@@ -17,51 +17,35 @@ Record power_series α :=
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
-Section definitions.
-
-Variable α : Type.
-Variable F : field α.
-
-Delimit Scope K_scope with K.
-Notation "0" := (fld_zero F) : K_scope.
-Notation "1" := (fld_one F) : K_scope.
-Notation "- a" := (fld_opp F a) : K_scope.
-Notation "a = b" := (fld_eq F a b) : K_scope.
-Notation "a ≠ b" := (not (fld_eq F a b)) : K_scope.
-Notation "a + b" := (fld_add F a b) : K_scope.
-Notation "a - b" := (fld_add F a (fld_opp F b)) : K_scope.
-Notation "a * b" := (fld_mul F a b) : K_scope.
-Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
-
-Definition series_nth n (s : power_series α) :=
-  if Nbar.lt_dec (fin n) (stop s) then terms s n else 0%K.
-
 Delimit Scope series_scope with ser.
-Notation "s [ i ]" := (series_nth i s) (at level 1).
 
-Definition series_inf (a : power_series α) :=
-  {| terms i := series_nth i a; stop := ∞ |}.
+Definition series_nth α (f : field α) n (s : power_series α) :=
+  if Nbar.lt_dec (fin n) (stop s) then terms s n else .0 f%F.
+Notation "s [ i ] f" := (series_nth f i s) (at level 1, f at level 0).
 
-Definition series_0 := {| terms i := 0%K; stop := 0 |}.
-Definition series_1 := {| terms i := 1%K; stop := 1 |}.
+Definition series_inf α (f : field α) (a : power_series α) :=
+  {| terms i := a [i]f; stop := ∞ |}.
 
-Inductive eq_series : power_series α → power_series α → Prop :=
+Definition series_0 α (f : field α) := {| terms i := .0 f%F; stop := 0 |}.
+Definition series_1 α (f : field α) := {| terms i := .1 f%F; stop := 1 |}.
+Notation ".0 f" := (series_0 f) : series_scope.
+Notation ".1 f" := (series_1 f) : series_scope.
+
+Inductive eq_series α (f : field α) :
+    power_series α → power_series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, (s₁ [i] = s₂ [i])%K)
-    → eq_series s₁ s₂.
+    (∀ i, (s₁ [i]f .= f s₂ [i]f)%F)
+    → eq_series f s₁ s₂.
+Notation "a .= f b" := (eq_series f a b) : series_scope.
+Notation "a .≠ f b" := (¬ eq_series f a b) : series_scope.
 
-Notation "0" := series_0 : series_scope.
-Notation "1" := series_1 : series_scope.
-Notation "a = b" := (eq_series a b) : series_scope.
-Notation "a ≠ b" := (not (eq_series a b)) : series_scope.
-
-Theorem eq_series_refl : reflexive _ eq_series.
+Theorem eq_series_refl α (f : field α) : reflexive _ (eq_series f).
 Proof.
 intros s.
 constructor; reflexivity.
 Qed.
 
-Theorem eq_series_sym : symmetric _ eq_series.
+Theorem eq_series_sym α (f : field α) : symmetric _ (eq_series f).
 Proof.
 intros s₁ s₂ H.
 inversion H; subst.
@@ -69,7 +53,7 @@ constructor.
 intros i; symmetry; apply H0.
 Qed.
 
-Theorem eq_series_trans : transitive _ eq_series.
+Theorem eq_series_trans α (f : field α) : transitive _ (eq_series f).
 Proof.
 intros s₁ s₂ s₃ H₁ H₂.
 inversion H₁; inversion H₂; subst.
@@ -77,12 +61,10 @@ constructor.
 etransitivity; [ apply H | apply H2 ].
 Qed.
 
-End definitions.
-
-Add Parametric Relation α (F : field α) : (power_series α) (eq_series F)
- reflexivity proved by (eq_series_refl F)
- symmetry proved by (eq_series_sym (F := F))
- transitivity proved by (eq_series_trans (F := F))
+Add Parametric Relation α (f : field α) : (power_series α) (eq_series f)
+ reflexivity proved by (eq_series_refl f)
+ symmetry proved by (eq_series_sym (f := f))
+ transitivity proved by (eq_series_trans (f := f))
  as eq_series_rel.
 
 (* *)
@@ -103,40 +85,22 @@ destruct (Nbar.lt_dec 0 1) as [H| H]; [ reflexivity | idtac ].
 exfalso; apply H, Nbar.lt_0_1.
 Qed.
 
-Section add_mul.
-
-Variable α : Type.
-Variable F : field α.
-
-Delimit Scope K_scope with K.
-Notation "0" := (fld_zero F) : K_scope.
-Notation "1" := (fld_one F) : K_scope.
-Notation "- a" := (fld_opp F a) : K_scope.
-Notation "a = b" := (fld_eq F a b) : K_scope.
-Notation "a ≠ b" := (not (fld_eq F a b)) : K_scope.
-Notation "a + b" := (fld_add F a b) : K_scope.
-Notation "a - b" := (fld_add F a (fld_opp F b)) : K_scope.
-Notation "a * b" := (fld_mul F a b) : K_scope.
-Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
-Notation "s [ i ]" := (series_nth F i s) (at level 1).
-
 (* series_add *)
 
-Definition series_add s₁ s₂ :=
-  {| terms i := (s₁[i] + s₂[i])%K;
+Definition series_add α (f : field α) s₁ s₂ :=
+  {| terms i := (s₁ [i]f .+ f s₂ [i]f)%F;
      stop := Nbar.max (stop s₁) (stop s₂) |}.
+Notation "a .+ f b" := (series_add f a b) : series_scope.
 
 Definition series_opp s :=
-  {| terms i := (- terms s i)%K; stop := stop s |}.
+  {| terms i := (.- f terms s i)%F; stop := stop s |}.
+Notation ".- f a" := (series_opp f a) : series_scope.
+Notation "a .- f b" := (series_add f a (series_opp f b)) : series_scope.
 
-Delimit Scope series_scope with ser.
-Notation "0" := (series_0 F) : series_scope.
-Notation "1" := (series_1 F) : series_scope.
-Notation "a = b" := (eq_series F a b) : series_scope.
-Notation "a ≠ b" := (not (eq_series F a b)) : series_scope.
-Notation "- a" := (series_opp a) : series_scope.
-Notation "a + b" := (series_add a b) : series_scope.
-Notation "a - b" := (series_add a (series_opp b)) : series_scope.
+Section add_theorems.
+
+Variable α : Type.
+Variable f : field α.
 
 Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ = s₂ + s₁)%ser.
 Proof.
@@ -260,6 +224,8 @@ intros s.
 rewrite series_add_comm.
 apply series_add_opp_r.
 Qed.
+
+End add_theorems.
 
 (* series_mul *)
 
@@ -410,6 +376,7 @@ Section misc_lemmas.
 Variable α : Type.
 Variable F : field α.
 
+(*
 Delimit Scope K_scope with K.
 Notation "0" := (fld_zero F) : K_scope.
 Notation "1" := (fld_one F) : K_scope.
@@ -433,6 +400,7 @@ Notation "- a" := (series_opp a) : series_scope.
 Notation "a + b" := (series_add a b) : series_scope.
 Notation "a - b" := (series_add a (series_opp b)) : series_scope.
 Notation "a * b" := (series_mul F a b) : series_scope.
+*)
 
 Lemma sigma_aux_succ : ∀ f b len,
   (sigma_aux F b (S len) f = sigma_aux F b len f + f (b + len)%nat)%K.
@@ -921,8 +889,10 @@ intros f g b e.
 apply sigma_aux_add.
 Qed.
 
+(*
 Notation "s [ i ]" := (series_nth F i s) (at level 1).
 Notation "a + b" := (series_add F a b) : series_scope.
+*)
 
 Lemma series_nth_add : ∀ a b i, (((a + b)%ser) [i] = a [i] + b [i])%K.
 Proof.
@@ -1085,6 +1055,7 @@ Section other_lemmas.
 Variable α : Type.
 Variable F : field α.
 
+(*
 Delimit Scope K_scope with K.
 Notation "0" := (fld_zero F) : K_scope.
 Notation "1" := (fld_one F) : K_scope.
@@ -1109,6 +1080,7 @@ Notation "a * b" := (series_mul F a b) : series_scope.
 Notation "s [ i ]" := (series_nth F i s) (at level 1).
 Notation "'Σ' ( i = b , e ) '_' f" := (sigma F b e (λ i, (f)%K))
   (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
+*)
 
 Theorem series_add_compat_l : ∀ a b c, (a = b)%ser → (c + a = c + b)%ser.
 Proof.
@@ -1166,7 +1138,9 @@ Definition series_inv s :=
   {| terms i := term_inv (S i) s i;
      stop := ∞ |}.
 
+(*
 Notation "¹/ a" := (series_inv a) (at level 1) : series_scope.
+*)
 
 Lemma inv_nth_0 : ∀ a, (¹/(a [0]) = (¹/a%ser) [0])%K.
 Proof.
@@ -1337,3 +1311,9 @@ assumption.
 Qed.
 
 End other_lemmas.
+
+(*
+Delimit Scope series_scope with S.
+Notation "a .= f b" := (eq_series f a b) : series_scope.
+Notation ".0 f " := (series_0 f) : series_scope.
+*)

@@ -647,6 +647,8 @@ unfold series_nth; simpl.
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
+Inspect 1.
+
 Lemma series_stretch_0_if : ∀ k s, (series_stretch k s = 0)%ser → (s = 0)%ser.
 Proof.
 intros k s Hs.
