@@ -7,7 +7,6 @@ Require Import NPeano.
 
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
-Require Import Field.
 Require Import Misc.
 Require Import Newton.
 Require Import PolyConvexHull.
@@ -16,6 +15,17 @@ Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Slope_base.
 
+Require Field.
+Module Field_inst : Field.FieldType.
+  Variable α : Type.
+  Variable fld : Field.Tdef.f α.
+  Let rng := Field.Tdef.ring fld.
+End Field_inst.
+Module Lfield := Field.Make Field_inst.
+Export Field_inst.
+Export Lfield.Syntax.
+Definition R := Lfield.ring fld.
+
 Set Implicit Arguments.
 
 Definition degree α (pol : polynomial α) := List.length (al pol).
@@ -23,14 +33,14 @@ Record term α β := { coeff : α; power : β }.
 
 (* *)
 
-Definition apply_polynomial α (fld : field α) :=
-  apply_poly (λ x, x) (add fld) (mul fld).
+Definition apply_polynomial :=
+  apply_poly (λ x, x) (Lfield.add R) (Lfield.mul R).
 
-Record algeb_closed_field α :=
-  { ac_field : field α;
+Record algeb_closed_field :=
+  { ac_field : Lfield.f α;
     ac_root : polynomial α → (α * nat);
     ac_prop : ∀ pol, degree pol ≥ 1
-      → apply_polynomial ac_field pol (fst (ac_root pol)) = zero ac_field }.
+      → apply_polynomial pol (fst (ac_root pol)) = Lfield.zero ac_field }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
