@@ -92,17 +92,17 @@ Definition series_add α (f : field α) s₁ s₂ :=
      stop := Nbar.max (stop s₁) (stop s₂) |}.
 Notation "a .+ f b" := (series_add f a b) : series_scope.
 
-Definition series_opp s :=
+Definition series_opp α (f : field α) s :=
   {| terms i := (.- f terms s i)%F; stop := stop s |}.
 Notation ".- f a" := (series_opp f a) : series_scope.
 Notation "a .- f b" := (series_add f a (series_opp f b)) : series_scope.
 
-Section add_theorems.
+Section theorems_add.
 
 Variable α : Type.
 Variable f : field α.
 
-Theorem series_add_comm : ∀ s₁ s₂, (s₁ + s₂ = s₂ + s₁)%ser.
+Theorem series_add_comm : ∀ s₁ s₂, (s₁ .+ f s₂ .= f s₂ .+ f s₁)%ser.
 Proof.
 intros s₁ s₂.
 constructor; simpl.
@@ -117,7 +117,8 @@ destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
  rewrite fld_add_comm; reflexivity.
 Qed.
 
-Theorem series_add_assoc : ∀ s₁ s₂ s₃, (s₁ + (s₂ + s₃) = (s₁ + s₂) + s₃)%ser.
+Theorem series_add_assoc : ∀ s₁ s₂ s₃,
+  (s₁ .+ f (s₂ .+ f s₃) .= f (s₁ .+ f s₂) .+ f s₃)%ser.
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
@@ -176,20 +177,20 @@ destruct lt₄ as [Hlt₄| Hge₄].
     apply Nbar.max_lt_iff; right; assumption.
 Qed.
 
-Lemma stop_series_add_0_l : ∀ s, stop (0 + s)%ser = stop s.
+Lemma stop_series_add_0_l : ∀ s, stop (.0 f .+ f s)%ser = stop s.
 Proof.
 intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, (0%ser [i] = 0)%K.
+Lemma series_nth_series_0 : ∀ i, (.0 f%ser [i]f = .0 f)%F.
 Proof.
 intros i.
 unfold series_nth; simpl.
 destruct (Nbar.lt_dec (fin i) 0); reflexivity.
 Qed.
 
-Theorem series_add_0_l : ∀ s, (0 + s = s)%ser.
+Theorem series_add_0_l : ∀ s, (.0 f .+ f s .= f s)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -203,7 +204,7 @@ unfold series_nth.
 rewrite <- Heqd; reflexivity.
 Qed.
 
-Theorem series_add_opp_r : ∀ s, (s - s = 0)%ser.
+Theorem series_add_opp_r : ∀ s, (s .- f s .= f .0 f)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -218,14 +219,14 @@ destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
  apply fld_add_opp_r.
 Qed.
 
-Theorem series_add_opp_l : ∀ s, (- s + s = 0)%ser.
+Theorem series_add_opp_l : ∀ s, (.- f s .+ f s .= f .0 f)%ser.
 Proof.
 intros s.
 rewrite series_add_comm.
 apply series_add_opp_r.
 Qed.
 
-End add_theorems.
+End theorems_add.
 
 (* series_mul *)
 
