@@ -39,10 +39,6 @@ Inductive eq_series α (f : field α) :
 Notation "a .= f b" := (eq_series f a b) : series_scope.
 Notation "a .≠ f b" := (¬ eq_series f a b) : series_scope.
 
-(* temporary, just for the time when changing syntax... *)
-Definition syntax_error a b := (a + b)%Z.
-Notation "a = b" := (syntax_error a b) : series_scope.
-
 Theorem eq_series_refl α (f : field α) : reflexive _ (eq_series f).
 Proof.
 intros s.
@@ -1191,9 +1187,10 @@ destruct ki.
 Qed.
 
 Lemma term_inv_nth_formula : ∀ k a a',
-  (a[0] ≠ 0)%F
-  → a' = series_inv a
-    → (a' [S k] = - a' [0] * Σ f (i = 1, S k)_ a [i] * a' [S k - i])%F.
+  (a[0]f .≠ f .0 f)%F
+  → a' = series_inv f a
+    → (a' [S k]f .= f
+       .- f a' [0]f .* f Σ f (i = 1, S k)_ a [i]f .* f a' [S k - i]f)%F.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
@@ -1204,7 +1201,7 @@ apply sigma_compat; intros i Hi.
 apply fld_mul_compat_l.
 rewrite Ha'.
 unfold series_nth.
-remember minus as f; simpl; subst f.
+remember minus as g; simpl; subst g.
 rewrite if_lt_dec_fin_inf.
 destruct (zerop (S k - i)) as [H₂| H₂].
  reflexivity.
@@ -1216,14 +1213,14 @@ destruct (zerop (S k - i)) as [H₂| H₂].
 Qed.
 
 Lemma convol_mul_inv_r : ∀ k a a',
-  (a[0] ≠ 0)%F
-  → a' = series_inv a
-    → (convol_mul F a a' (S k) = 0)%F.
+  (a[0]f .≠ f .0 f)%F
+  → a' = series_inv f a
+    → (convol_mul f a a' (S k) .= f .0 f)%F.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
 pose proof (term_inv_nth_formula k Ha Ha') as Hi.
-apply fld_mul_compat_l with (c := a [0]%F) in Hi.
+apply fld_mul_compat_l with (c := a [0]f%F) in Hi.
 symmetry in Hi.
 rewrite fld_mul_assoc in Hi.
 rewrite fld_mul_opp_r in Hi.
@@ -1239,7 +1236,9 @@ rewrite sigma_split_first; [ idtac | apply Nat.le_0_l ].
 rewrite Nat.sub_0_r; auto.
 Qed.
 
-Theorem series_mul_inv_r : ∀ a, (a [0] ≠ 0)%F → (a * series_inv a = 1)%ser.
+Theorem series_mul_inv_r : ∀ a,
+  (a [0]f .≠ f .0 f)%F
+  → (a .* f .¹/f a .= f .1 f)%ser.
 Proof.
 intros a Ha.
 constructor; intros i.
@@ -1272,7 +1271,9 @@ destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
  apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
 
-Theorem series_mul_inv_l : ∀ a, (a [0] ≠ 0)%F → (series_inv a * a = 1)%ser.
+Theorem series_mul_inv_l : ∀ a,
+  (a [0]f .≠ f .0 f)%F
+  → (.¹/f a .* f a .= f .1 f)%ser.
 Proof.
 intros a Ha.
 rewrite series_mul_comm.
@@ -1280,4 +1281,4 @@ apply series_mul_inv_r.
 assumption.
 Qed.
 
-End other_lemmas.
+End lemmas_again.
