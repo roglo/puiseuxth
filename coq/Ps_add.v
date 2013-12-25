@@ -4,22 +4,27 @@ Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
 
-Require Import Puiseux_series.
 Require Import Nbar.
 Require Import Misc.
-Require Power_series.
-Import Power_series.M.
+Require Import Field.
+Require Import Power_series.
+Require Import Puiseux_series.
 
 Set Implicit Arguments.
 
-Definition adjust_ps n k ps :=
-  {| ps_terms := series_shift n (series_stretch k (ps_terms ps));
+Definition adjust_ps α (f : field α) n k ps :=
+  {| ps_terms := series_shift f n (series_stretch f k (ps_terms ps));
      ps_valnum := ps_valnum ps * Zpos k - Z.of_nat n;
      ps_polord := ps_polord ps * k |}.
 
+Section first_lemmas.
+
+Variable α : Type.
+Variable f : field α.
+
 Lemma ncrl_inf_gsxp : ∀ s n,
-  null_coeff_range_length rng s (S n) = ∞
-  → greatest_series_x_power rng s n = O.
+  null_coeff_range_length f s (S n) = ∞
+  → greatest_series_x_power f s n = O.
 Proof.
 intros s n Hn.
 apply greatest_series_x_power_iff.
@@ -29,11 +34,11 @@ reflexivity.
 Qed.
 
 Lemma greatest_series_x_power_stretch_inf : ∀ s b k,
-  null_coeff_range_length rng s (S b) = ∞
-  → greatest_series_x_power rng (series_stretch k s) (b * Pos.to_nat k) = O.
+  null_coeff_range_length f s (S b) = ∞
+  → greatest_series_x_power f (series_stretch f k s) (b * Pos.to_nat k) = O.
 Proof.
 intros s b k Hs.
-remember (greatest_series_x_power rng s b) as n eqn:Hn .
+remember (greatest_series_x_power f s b) as n eqn:Hn .
 symmetry in Hn.
 apply greatest_series_x_power_iff in Hn.
 apply greatest_series_x_power_iff.
@@ -42,7 +47,7 @@ rewrite Hs in Hn.
 rewrite null_coeff_range_length_stretch_succ_inf; auto.
 Qed.
 
-Lemma gcd_ps_0_m : ∀ n ps,
+Lemma gcd_ps_0_m : ∀ n (ps : puiseux_series α),
   gcd_ps n O ps = Z.abs (Z.gcd (ps_valnum ps + Z.of_nat n) (' ps_polord ps)).
 Proof.
 intros n ps.
@@ -51,14 +56,14 @@ rewrite Z.gcd_0_r; reflexivity.
 Qed.
 
 Lemma ps_canon_adjust_eq : ∀ ps n k,
-  canonic_ps ps ≐ canonic_ps (adjust_ps n k ps).
+  canonic_ps f ps ≐ f canonic_ps f (adjust_ps f n k ps).
 Proof.
 intros ps n k.
 unfold canonic_ps; simpl.
 rewrite null_coeff_range_length_shift.
 rewrite null_coeff_range_length_stretch_0.
 rewrite Nbar.add_comm, Nbar.mul_comm.
-remember (null_coeff_range_length rng (ps_terms ps) 0) as m eqn:Hm .
+remember (null_coeff_range_length f (ps_terms ps) 0) as m eqn:Hm .
 symmetry in Hm.
 destruct m as [m| ]; simpl; [ idtac | reflexivity ].
 rewrite greatest_series_x_power_shift.
@@ -68,9 +73,9 @@ rewrite Z.sub_add.
 rewrite Nat2Z.inj_mul, positive_nat_Z.
 rewrite <- Z.mul_add_distr_r.
 rewrite Z.mul_comm.
-remember (null_coeff_range_length rng (ps_terms ps) (S m)) as p eqn:Hp .
+remember (null_coeff_range_length f (ps_terms ps) (S m)) as p eqn:Hp .
 symmetry in Hp.
-remember (greatest_series_x_power rng (ps_terms ps) m) as x.
+remember (greatest_series_x_power f (ps_terms ps) m) as x.
 pose proof (gcd_ps_is_pos m x ps) as Hgp; subst x.
 destruct p as [p| ].
  erewrite greatest_series_x_power_stretch.
@@ -122,7 +127,7 @@ destruct p as [p| ].
  rewrite greatest_series_x_power_stretch_inf; auto.
  rewrite gcd_ps_0_m.
  rewrite gcd_ps_0_m.
- remember Z.mul as f; simpl; subst f.
+ remember Z.mul as g; simpl; subst g.
  rewrite Nat2Z.inj_add.
  rewrite Nat2Z.inj_mul.
  rewrite positive_nat_Z.
@@ -132,7 +137,7 @@ destruct p as [p| ].
  rewrite Z.gcd_mul_mono_r_nonneg; [ idtac | apply Pos2Z.is_nonneg ].
  rewrite Z.mul_comm.
  rewrite Z.abs_mul.
- remember Z.mul as f; simpl; subst f.
+ remember Z.mul as g; simpl; subst g.
  rewrite Z.div_mul_cancel_l.
   rewrite <- Pos2Z.inj_mul, Pos.mul_comm, Pos2Z.inj_mul.
   rewrite Z.div_mul_cancel_l.
@@ -168,12 +173,14 @@ destruct p as [p| ].
   apply Pos2Z_ne_0.
 Qed.
 
-Theorem ps_adjust_eq : ∀ ps n k, (ps = adjust_ps n k ps)%ps.
+Theorem ps_adjust_eq : ∀ ps n k, (ps .= f adjust_ps f n k ps)%ps.
 Proof.
 intros ps n k.
 constructor.
 apply ps_canon_adjust_eq.
 Qed.
+
+End first_lemmas.
 
 Definition adjust_series n k s := series_shift n (series_stretch k s).
 
@@ -218,8 +225,8 @@ Definition adjust_ps_from ps₁ ps₂ :=
 Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
   adjusted_ps_add (adjust_ps_from ps₂ ps₁) (adjust_ps_from ps₁ ps₂).
 
-Notation "a + b" := (ps_add a b) : ps_scope.
 (*
+Notation "a + b" := (ps_add a b) : ps_scope.
 Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
 *)
 
@@ -552,8 +559,10 @@ Definition ps_opp ps :=
      ps_valnum := ps_valnum ps;
      ps_polord := ps_polord ps |}.
 
+(*
 Notation "- a" := (ps_opp a) : ps_scope.
 Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
+*)
 
 Theorem ps_add_opp_r : ∀ ps, (ps - ps = 0)%ps.
 Proof.
