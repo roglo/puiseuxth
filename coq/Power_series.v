@@ -645,7 +645,7 @@ apply series_mul_1_l.
 Qed.
 
 Definition convol_mul_inf a b k :=
-  (Σ (i = 0, k) _ terms a i * terms b (k - i))%K.
+  (Σ f (i = 0, k) _ terms a i * terms b (k - i))%K.
 
 Definition series_mul_inf a b :=
   {| terms k := convol_mul_inf a b k; stop := ∞ |}.
@@ -700,8 +700,8 @@ reflexivity.
 Qed.
 
 Lemma sigma_sigma_shift : ∀ f k,
-  (Σ (i = 0, k) _ Σ (j = i, k) _ f i j =
-   Σ (i = 0, k) _ Σ (j = 0, k - i) _ f i (i + j)%nat)%K.
+  (Σ f (i = 0, k) _ Σ f (j = i, k) _ f i j =
+   Σ f (i = 0, k) _ Σ f (j = 0, k - i) _ f i (i + j)%nat)%K.
 Proof.
 intros f k.
 apply sigma_compat; intros i Hi.
@@ -712,7 +712,7 @@ apply sigma_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
-Lemma sigma_only_one : ∀ f n, (Σ (i = n, n) _ f i = f n)%K.
+Lemma sigma_only_one : ∀ f n, (Σ f (i = n, n) _ f i = f n)%K.
 Proof.
 intros f n.
 unfold sigma.
@@ -723,7 +723,7 @@ Qed.
 
 Lemma sigma_succ : ∀ f b k,
   (b ≤ S k)%nat
-  → (Σ (i = b, S k) _ f i = Σ (i = b, k) _ f i + f (S k))%K.
+  → (Σ f (i = b, S k) _ f i = Σ f (i = b, k) _ f i + f (S k))%K.
 Proof.
 intros f b k Hbk.
 unfold sigma.
@@ -740,7 +740,7 @@ Proof. reflexivity. Qed.
 
 Lemma sigma_split_first : ∀ f b k,
   b ≤ k
-  → (Σ (i = b, k) _ f i = f b + Σ (i = S b, k) _ f i)%K.
+  → (Σ f (i = b, k) _ f i = f b + Σ f (i = S b, k) _ f i)%K.
 Proof.
 intros f b k Hbk.
 unfold sigma.
@@ -750,8 +750,8 @@ rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
 Lemma sigma_add_distr : ∀ f g b k,
-  (Σ (i = b, k) _ (f i + g i) =
-   Σ (i = b, k) _ f i + Σ (i = b, k) _ g i)%K.
+  (Σ f (i = b, k) _ (f i + g i) =
+   Σ f (i = b, k) _ f i + Σ f (i = b, k) _ g i)%K.
 Proof.
 intros f g b k.
 destruct (le_dec b k) as [Hbk| Hbk].
@@ -790,8 +790,8 @@ destruct (le_dec b k) as [Hbk| Hbk].
 Qed.
 
 Lemma sigma_sigma_exch : ∀ f k,
-  (Σ (j = 0, k) _ Σ (i = 0, j) _ f i j =
-   Σ (i = 0, k) _ Σ (j = i, k) _ f i j)%K.
+  (Σ f (j = 0, k) _ Σ f (i = 0, j) _ f i j =
+   Σ f (i = 0, k) _ Σ f (j = i, k) _ f i j)%K.
 Proof.
 intros f k.
 induction k; [ reflexivity | idtac ].
@@ -864,7 +864,8 @@ apply IHlen.
 Qed.
 
 Lemma sigma_add : ∀ f g b e,
-  (Σ (i = b, e) _ f i + Σ (i = b, e) _ g i = Σ (i = b, e) _ (f i + g i))%K.
+  (Σ f (i = b, e) _ f i + Σ f (i = b, e) _ g i =
+   Σ f (i = b, e) _ (f i + g i))%K.
 Proof.
 intros f g b e.
 apply sigma_aux_add.
@@ -1080,7 +1081,7 @@ Fixpoint term_inv c s n :=
     | O => 0%K
     | S c₁ =>
         (- fld_inv F s[0] *
-         Σ (i = 1, n) _ s[i] * term_inv c₁ s (n - i)%nat)%K
+         Σ f (i = 1, n) _ s[i] * term_inv c₁ s (n - i)%nat)%K
     end.
 
 Definition series_inv s :=
@@ -1133,7 +1134,7 @@ Lemma term_inv_nth_gen_formula : ∀ k a a' i,
     → (S k - i ≠ 0)%nat
       → (a' [S k - i] =
          - a' [0] *
-         Σ (j = 1, S k - i)_ a [j] * term_inv (S k) a (S k - i - j))%K.
+         Σ f (j = 1, S k - i)_ a [j] * term_inv (S k) a (S k - i - j))%K.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
@@ -1172,7 +1173,7 @@ Qed.
 Lemma term_inv_nth_formula : ∀ k a a',
   (a[0] ≠ 0)%K
   → a' = series_inv a
-    → (a' [S k] = - a' [0] * Σ (i = 1, S k)_ a [i] * a' [S k - i])%K.
+    → (a' [S k] = - a' [0] * Σ f (i = 1, S k)_ a [i] * a' [S k - i])%K.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
