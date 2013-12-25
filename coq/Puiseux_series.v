@@ -525,24 +525,28 @@ rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
-Theorem eq_ps_refl α (f : field α) : reflexive _ (eq_ps f).
+Section eq_ps_equiv_rel.
+
+Variable α : Type.
+Variable f : field α.
+
+Theorem eq_ps_refl : reflexive _ (eq_ps f).
 Proof.
 intros ps.
 destruct ps; constructor; reflexivity.
 Qed.
 
-Theorem eq_ps_sym α (f : field α) : symmetric _ (eq_ps f).
+Theorem eq_ps_sym : symmetric _ (eq_ps f).
 Proof.
 intros ps₁ ps₂ H.
 induction H; constructor; try assumption; symmetry; assumption.
 Qed.
 
-Lemma series_stretch_stretch : ∀ α (f : field α) a b s,
-  eq_series f
-    (series_stretch f (a * b) s)
-    (series_stretch f a (series_stretch f b s)).
+Lemma series_stretch_stretch : ∀ a b s,
+  (series_stretch f (a * b) s .= f
+   series_stretch f a (series_stretch f b s))%ser.
 Proof.
-intros α f ap bp s.
+intros ap bp s.
 unfold series_stretch; simpl.
 constructor; simpl.
 intros i.
@@ -622,10 +626,9 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
   reflexivity.
 Qed.
 
-Lemma series_shift_series_0 : ∀ α (f : field α) n,
-  eq_series f (series_shift f n (series_0 f)) (series_0 f).
+Lemma series_shift_series_0 : ∀ n, (series_shift f n .0 f .= f .0 f)%ser.
 Proof.
-intros α f n.
+intros n.
 constructor; intros i.
 rewrite series_nth_series_0.
 unfold series_nth; simpl.
@@ -633,10 +636,10 @@ destruct (Nbar.lt_dec (fin i) (fin n)); [ idtac | reflexivity ].
 destruct (lt_dec i n); reflexivity.
 Qed.
 
-Lemma series_stretch_series_0 : ∀ α (f : field α) k,
+Lemma series_stretch_series_0 : ∀ k,
   (series_stretch f k .0 f .= f .0 f)%ser.
 Proof.
-intros α f k.
+intros k.
 constructor; intros i.
 unfold series_nth; simpl.
 destruct (Nbar.lt_dec (fin i) 0); [ idtac | reflexivity ].
@@ -645,9 +648,9 @@ unfold series_nth; simpl.
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
 Qed.
 
-Inspect 1.
-
-Lemma series_stretch_0_if : ∀ k s, (series_stretch k s = 0)%ser → (s = 0)%ser.
+Lemma series_stretch_0_if : ∀ k s,
+  (series_stretch f k s .= f .0 f)%ser
+  → (s .= f .0 f)%ser.
 Proof.
 intros k s Hs.
 constructor.
@@ -685,8 +688,8 @@ destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
 Qed.
 
 Lemma stretch_shift_series_distr : ∀ kp n s,
-  (series_stretch kp (series_shift n s) =
-   series_shift (n * Pos.to_nat kp) (series_stretch kp s))%ser.
+  (series_stretch f kp (series_shift f n s) .= f
+   series_shift f (n * Pos.to_nat kp) (series_stretch f kp s))%ser.
 Proof.
 intros kp n s.
 constructor; intros i.
@@ -774,7 +777,7 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
 Qed.
 
 Lemma series_shift_shift : ∀ x y ps,
-  (series_shift x (series_shift y ps) = series_shift (x + y) ps)%ser.
+  (series_shift f x (series_shift f y ps) .= f series_shift f (x + y) ps)%ser.
 Proof.
 intros x y ps.
 constructor; simpl.
@@ -812,7 +815,7 @@ Qed.
 
 Theorem series_shift_left_shift : ∀ s n,
   null_coeff_range_length f s 0 = fin n
-  → (series_shift n (series_left_shift n s) = s)%ser.
+  → (series_shift f n (series_left_shift n s) .= f s)%ser.
 Proof.
 intros s n Hn.
 apply null_coeff_range_length_iff in Hn.
@@ -872,7 +875,8 @@ Qed.
 
 Theorem series_left_shift_shift : ∀ s n m,
   (m ≤ n)%nat
-  → (series_left_shift n (series_shift m s) = series_left_shift (n - m) s)%ser.
+  → (series_left_shift n (series_shift f m s) .= f
+     series_left_shift (n - m) s)%ser.
 Proof.
 intros s n m Hmn.
 constructor; intros i.
@@ -894,8 +898,8 @@ rewrite Nbar.sub_sub_distr.
 Qed.
 
 Theorem series_left_shift_stretch : ∀ s n k,
-  (series_left_shift (n * Pos.to_nat k) (series_stretch k s) =
-   series_stretch k (series_left_shift n s))%ser.
+  (series_left_shift (n * Pos.to_nat k) (series_stretch f k s) .= f
+   series_stretch f k (series_left_shift n s))%ser.
 Proof.
 intros s n k.
 constructor; intros i.
@@ -931,7 +935,7 @@ destruct (Nbar.lt_dec (fin (n + i / Pos.to_nat k)) (stop s)) as [H₃| H₃].
   reflexivity.
 Qed.
 
-Theorem eq_ps_trans : transitive _ eq_ps.
+Theorem eq_ps_trans : transitive _ (eq_ps f).
 Proof.
 intros ps₁ ps₂ ps₃ H₁ H₂.
 induction H₁.
@@ -939,13 +943,20 @@ inversion H₂; subst.
 constructor; etransitivity; eassumption.
 Qed.
 
-Add Parametric Relation : (puiseux_series α) eq_ps
- reflexivity proved by eq_ps_refl
- symmetry proved by eq_ps_sym
- transitivity proved by eq_ps_trans
+End eq_ps_equiv_rel.
+
+Add Parametric Relation α (f : field α) : (puiseux_series α) (eq_ps f)
+ reflexivity proved by (eq_ps_refl f)
+ symmetry proved by (eq_ps_sym (f := f))
+ transitivity proved by (eq_ps_trans (f := f))
  as eq_ps_rel.
 
-Lemma series_shift_0 : ∀ s, (series_shift 0 s = s)%ser.
+Section other_lemmas.
+
+Variable α : Type.
+Variable f : field α.
+
+Lemma series_shift_0 : ∀ s, (series_shift f 0 s .= f s)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -953,7 +964,7 @@ unfold series_shift, series_nth; simpl.
 rewrite Nbar.add_0_r, Nat.sub_0_r; reflexivity.
 Qed.
 
-Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s = s)%ser.
+Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= f s)%ser.
 Proof.
 intros s.
 constructor; intros i.
@@ -966,8 +977,7 @@ reflexivity.
 Qed.
 
 Lemma series_nth_shift_S : ∀ s n i,
-  series_nth f i (series_shift n s) =
-  series_nth f (S i) (series_shift (S n) s).
+  (series_shift f n s) [i]f = (series_shift f (S n) s) [S i]f.
 Proof.
 intros s n i.
 unfold series_nth; simpl.
@@ -1000,12 +1010,12 @@ Qed.
 
 Lemma null_coeff_range_length_shift_S : ∀ s c n,
   (c ≤ n)%nat
-  → null_coeff_range_length f (series_shift (S n) s) c =
-    NS (null_coeff_range_length f (series_shift n s) c).
+  → null_coeff_range_length f (series_shift f (S n) s) c =
+    NS (null_coeff_range_length f (series_shift f n s) c).
 Proof.
 intros s c n Hcn.
-remember (null_coeff_range_length f (series_shift n s) c) as u eqn:Hu .
-remember (null_coeff_range_length f (series_shift (S n) s) c) as v eqn:Hv .
+remember (null_coeff_range_length f (series_shift f n s) c) as u eqn:Hu .
+remember (null_coeff_range_length f (series_shift f (S n) s) c) as v eqn:Hv .
 symmetry in Hu, Hv.
 apply null_coeff_range_length_iff in Hu.
 apply null_coeff_range_length_iff in Hv.
@@ -1067,7 +1077,7 @@ destruct u as [u| ].
 Qed.
 
 Theorem null_coeff_range_length_shift : ∀ s n,
-  null_coeff_range_length f (series_shift n s) 0 =
+  null_coeff_range_length f (series_shift f n s) 0 =
     (fin n + null_coeff_range_length f s 0)%Nbar.
 Proof.
 intros s n.
@@ -1081,7 +1091,7 @@ Qed.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → series_nth f i (series_stretch k s) = 0%rng.
+  → (series_stretch f k s) [i]f = .0 f%F.
 Proof.
 intros s k i Hi.
 unfold series_nth; simpl.
@@ -1093,8 +1103,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [Hz| Hnz].
 Qed.
 
 Lemma series_nth_mul_stretch : ∀ s k i,
-  series_nth f (Pos.to_nat k * i) (series_stretch k s) =
-  series_nth f i s.
+  (series_stretch f k s) [Pos.to_nat k * i]f = s [i]f.
 Proof.
 intros s k i.
 unfold series_nth; simpl.
@@ -1147,9 +1156,8 @@ destruct (Nbar.lt_dec (fin (Pos.to_nat k * i)) (stop s)) as [H₁| H₁].
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i, (series_nth f (b + i) s = 0)%rng)
-  → ∀ i,
-    (series_nth f (b * Pos.to_nat k + i) (series_stretch k s) = 0)%rng.
+  (∀ i, (series_nth f (b + i) s .= f .0 f)%F)
+  → ∀ i, ((series_stretch f k s) [b * Pos.to_nat k + i]f .= f .0 f)%F.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -1166,7 +1174,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_stretch : ∀ s b k,
-  null_coeff_range_length f (series_stretch k s) (b * Pos.to_nat k) =
+  null_coeff_range_length f (series_stretch f k s) (b * Pos.to_nat k) =
     (fin (Pos.to_nat k) * null_coeff_range_length f s b)%Nbar.
 Proof.
 intros s b k.
@@ -1204,7 +1212,7 @@ destruct n as [n| ]; simpl.
 Qed.
 
 Lemma null_coeff_range_length_stretch_0 : ∀ s k,
-  null_coeff_range_length f (series_stretch k s) 0 =
+  null_coeff_range_length f (series_stretch f k s) 0 =
     (fin (Pos.to_nat k) * null_coeff_range_length f s 0)%Nbar.
 Proof.
 intros s k.
@@ -2422,6 +2430,8 @@ constructor.
 rewrite Heq.
 reflexivity.
 Qed.
+
+End other_lemmas.
 
 Add Parametric Morphism : (@mkps α)
   with signature eq_series ==> eq ==> eq ==> eq_ps
