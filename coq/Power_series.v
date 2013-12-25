@@ -1090,27 +1090,28 @@ Qed.
 
 End other_lemmas.
 
-Fixpoint term_inv c s n :=
-  if zerop n then fld_inv F s[0]
+Fixpoint term_inv α (f : field α) c s n :=
+  if zerop n then .¹/f (s [0]f)%F
   else
-    match c with
-    | O => 0%F
-    | S c₁ =>
-        (- fld_inv F s[0] *
-         Σ f (i = 1, n) _ s[i] * term_inv c₁ s (n - i)%nat)%F
-    end.
+   match c with
+   | O => .0 f%F
+   | S c₁ =>
+       (.-f .¹/f (s [0]f) .* f
+        Σ f (i = 1, n)_ s [i]f .* f term_inv f c₁ s (n - i)%nat)%F
+   end.
 
-Definition series_inv s :=
-  {| terms i := term_inv (S i) s i;
+Definition series_inv α (f : field α) s :=
+  {| terms i := term_inv f (S i) s i;
      stop := ∞ |}.
 
-(*
-Notation "¹/ a" := (series_inv a) (at level 1) : series_scope.
-*)
+Notation ".¹/ f a" := (series_inv f a) : series_scope.
 
 Section lemmas_again.
 
-Lemma inv_nth_0 : ∀ a, (¹/(a [0]) = (¹/a%ser) [0])%F.
+Variable α : Type.
+Variable f : field α.
+
+Lemma inv_nth_0 : ∀ a, (.¹/f (a [0]f) = (.¹/f a%ser) [0]f)%F.
 Proof.
 intros a.
 unfold series_nth; simpl.
@@ -1120,7 +1121,7 @@ reflexivity.
 Qed.
 
 Lemma term_inv_iter_enough : ∀ a i j k,
-  k ≤ i → k ≤ j → (term_inv i a k = term_inv j a k)%F.
+  k ≤ i → k ≤ j → (term_inv f i a k .= f term_inv f j a k)%F.
 Proof.
 intros a i j k Hki Hkj.
 revert j k Hki Hkj.
@@ -1147,19 +1148,20 @@ induction i; intros.
 Qed.
 
 Lemma term_inv_nth_gen_formula : ∀ k a a' i,
-  (a[0] ≠ 0)%F
-  → a' = series_inv a
+  (a[0]f .≠ f .0 f)%F
+  → a' = series_inv f a
     → (S k - i ≠ 0)%nat
-      → (a' [S k - i] =
-         - a' [0] *
-         Σ f (j = 1, S k - i)_ a [j] * term_inv (S k) a (S k - i - j))%F.
+      → (a' [S k - i]f .= f
+         .- f a' [0]f .* f
+         Σ f (j = 1, S k - i) _
+         a [j]f .* f term_inv f (S k) a (S k - i - j))%F.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
 rewrite Ha'.
 rewrite <- inv_nth_0.
 unfold series_nth.
-remember minus as f; simpl; subst f.
+remember minus as g; simpl; subst g.
 rewrite if_lt_dec_fin_inf.
 destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
 remember (S k - i)%nat as ki eqn:Hki₂ .
@@ -1170,7 +1172,7 @@ destruct ki.
  apply fld_mul_compat_l.
  apply sigma_compat; intros j Hj.
  apply fld_mul_compat_l.
- remember minus as f; simpl; subst f.
+ remember minus as g; simpl; subst g.
  destruct (zerop (S ki - j)) as [H₁| H₁].
   reflexivity.
 
