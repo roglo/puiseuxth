@@ -230,73 +230,78 @@ End theorems_add.
 
 (* series_mul *)
 
-Fixpoint sigma_aux b len f :=
+Fixpoint sigma_aux α (f : field α) b len g :=
   match len with
-  | O => 0%K
-  | S len₁ => (f b + sigma_aux (S b) len₁ f)%K
+  | O => .0 f%F
+  | S len₁ => (g b .+ f sigma_aux f (S b) len₁ g)%F
   end.
 
-Definition sigma b e f := sigma_aux b (S e - b) f.
+Definition sigma α (f : field α) b e g := sigma_aux f b (S e - b) g.
+Notation "'Σ' f ( i = b , e ) '_' g" := (sigma f b e (λ i, (g)%F))
+  (at level 0, f at level 0, i at level 0, b at level 60, e at level 60,
+   g at level 40).
 
-Notation "'Σ' ( i = b , e ) '_' f" := (sigma b e (λ i, (f)%K))
-  (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
+Definition convol_mul α (f : field α) a b k :=
+  Σ f (i = 0, k) _ a [i]f .* f b [k-i]f.
 
-Definition convol_mul a b k := Σ (i = 0, k) _ a[i] * b[k-i].
-
-Definition series_mul a b :=
-  {| terms k := convol_mul a b k;
+Definition series_mul α (f : field α) a b :=
+  {| terms k := convol_mul f a b k;
      stop := Nbar.add (stop a) (stop b) |}.
+Notation "a .* f b" := (series_mul f a b) : series_scope.
 
-Notation "a * b" := (series_mul a b) : series_scope.
+Section theorems_mul.
 
-Lemma sigma_aux_compat : ∀ f g b₁ b₂ len,
-  (∀ i, 0 ≤ i < len → (f (b₁ + i)%nat = g (b₂ + i)%nat)%K)
-  → (sigma_aux b₁ len f = sigma_aux b₂ len g)%K.
+Variable α : Type.
+Variable f : field α.
+
+Lemma sigma_aux_compat : ∀ g h b₁ b₂ len,
+  (∀ i, 0 ≤ i < len → (g (b₁ + i)%nat .= f h (b₂ + i)%nat)%F)
+  → (sigma_aux f b₁ len g .= f sigma_aux f b₂ len h)%F.
 Proof.
-intros f g b₁ b₂ len Hfg.
-revert b₁ b₂ Hfg.
+intros g h b₁ b₂ len Hgh.
+revert b₁ b₂ Hgh.
 induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen.
  apply fld_add_compat_r.
  assert (0 ≤ 0 < S len) as H.
   split; [ reflexivity | apply Nat.lt_0_succ ].
 
-  apply Hfg in H.
+  apply Hgh in H.
   do 2 rewrite Nat.add_0_r in H; assumption.
 
  intros i Hi.
  do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
- apply Hfg.
+ apply Hgh.
  split; [ apply Nat.le_0_l | idtac ].
  apply lt_n_S.
  destruct Hi; assumption.
 Qed.
 
-Lemma sigma_compat : ∀ f g b k,
-  (∀ i, b ≤ i ≤ k → (f i = g i)%K)
-  → (Σ (i = b, k)_ f i = Σ (i = b, k) _ g i)%K.
+Lemma sigma_compat : ∀ g h b k,
+  (∀ i, b ≤ i ≤ k → (g i .= f h i)%F)
+  → (Σ f (i = b, k)_ g i .= f Σ f (i = b, k) _ h i)%F.
 Proof.
-intros f g b k Hfg.
+intros g h b k Hgh.
 apply sigma_aux_compat.
 intros i (_, Hi).
-apply Hfg.
+apply Hgh.
 split; [ apply Nat.le_add_r | omega ].
 Qed.
 
-Lemma sigma_mul_comm : ∀ f g b k,
-  (Σ (i = b, k) _ f i * g i
-   = Σ (i = b, k) _ g i * f i)%K.
+Lemma sigma_mul_comm : ∀ g h b k,
+  (Σ f (i = b, k) _ g i .* f h i
+   .= f Σ f (i = b, k) _ h i .* f g i)%F.
 Proof.
-intros f g b len.
+intros g h b len.
 apply sigma_compat; intros i Hi.
 apply fld_mul_comm.
 Qed.
 
-Lemma all_0_sigma_aux_0 : ∀ f b len,
-  (∀ i, (b ≤ i < b + len)%nat → (f i = 0)%K)
-  → (sigma_aux b len (λ i, f i) = 0)%K.
+Lemma all_0_sigma_aux_0 : ∀ g b len,
+  (∀ i, (b ≤ i < b + len)%nat → (g i .= f .0 f)%F)
+  → (sigma_aux f b len (λ i, g i) .= f .0 f)%F.
 Proof.
-intros f b len H.
+intros g b len H.
 revert b H.
 induction len; intros; [ reflexivity | simpl ].
 rewrite H; [ idtac | omega ].
@@ -304,17 +309,18 @@ rewrite fld_add_0_l, IHlen; [ reflexivity | idtac ].
 intros i Hi; apply H; omega.
 Qed.
 
-Lemma all_0_sigma_0 : ∀ f i₁ i₂,
-  (∀ i, i₁ ≤ i ≤ i₂ → (f i = 0)%K) → (Σ (i = i₁, i₂) _ f i = 0)%K.
+Lemma all_0_sigma_0 : ∀ g i₁ i₂,
+  (∀ i, i₁ ≤ i ≤ i₂ → (g i .= f .0 f)%F)
+  → (Σ f (i = i₁, i₂) _ g i .= f .0 f)%F.
 Proof.
-intros f i₁ i₂ H.
+intros g i₁ i₂ H.
 apply all_0_sigma_aux_0.
 intros i (H₁, H₂).
 apply H.
 split; [ assumption | omega ].
 Qed.
 
-End add_mul.
+End theorems_mul.
 
 Add Parametric Morphism α (F : field α) : (series_mul F)
   with signature eq_series F ==> eq_series F ==> eq_series F
@@ -375,38 +381,12 @@ Qed.
 Section misc_lemmas.
 
 Variable α : Type.
-Variable F : field α.
+Variable f : field α.
 
-(*
-Delimit Scope K_scope with K.
-Notation "0" := (fld_zero F) : K_scope.
-Notation "1" := (fld_one F) : K_scope.
-Notation "- a" := (fld_opp F a) : K_scope.
-Notation "a = b" := (fld_eq F a b) : K_scope.
-Notation "a ≠ b" := (not (fld_eq F a b)) : K_scope.
-Notation "a + b" := (fld_add F a b) : K_scope.
-Notation "a - b" := (fld_add F a (fld_opp F b)) : K_scope.
-Notation "a * b" := (fld_mul F a b) : K_scope.
-Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
-
-Notation "'Σ' ( i = b , e ) '_' f" := (sigma F b e (λ i, (f)%K))
-  (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
-
-Delimit Scope series_scope with ser.
-Notation "0" := (series_0 F) : series_scope.
-Notation "1" := (series_1 F) : series_scope.
-Notation "a = b" := (eq_series F a b) : series_scope.
-Notation "a ≠ b" := (not (eq_series F a b)) : series_scope.
-Notation "- a" := (series_opp a) : series_scope.
-Notation "a + b" := (series_add a b) : series_scope.
-Notation "a - b" := (series_add a (series_opp b)) : series_scope.
-Notation "a * b" := (series_mul F a b) : series_scope.
-*)
-
-Lemma sigma_aux_succ : ∀ f b len,
-  (sigma_aux F b (S len) f = sigma_aux F b len f + f (b + len)%nat)%K.
+Lemma sigma_aux_succ : ∀ g b len,
+  (sigma_aux f b (S len) g .= f sigma_aux f b len g .+ f g (b + len)%nat)%F.
 Proof.
-intros f b len.
+intros g b len.
 revert b.
 induction len; intros.
  simpl.
@@ -420,13 +400,13 @@ induction len; intros.
  reflexivity.
 Qed.
 
-Lemma sigma_aux_rtl : ∀ f b len,
-  (sigma_aux F b len f =
-   sigma_aux F b len (λ i, f (b + len - 1 + b - i)%nat))%K.
+Lemma sigma_aux_rtl : ∀ g b len,
+  (sigma_aux f b len g .= f
+   sigma_aux f b len (λ i, g (b + len - 1 + b - i)%nat))%F.
 Proof.
 (* supprimer ce putain de omega trop lent *)
-intros f b len.
-revert f b.
+intros g b len.
+revert g b.
 induction len; intros; [ reflexivity | idtac ].
 remember (S len) as x.
 rewrite Heqx in |- * at 1.
@@ -445,11 +425,11 @@ replace (b + len + S b - S (b + i))%nat with
 reflexivity.
 Qed.
 
-Lemma sigma_rtl : ∀ f b k,
-  (Σ (i = b, k) _ f i = Σ (i = b, k) _ f (k + b - i)%nat)%K.
+Lemma sigma_rtl : ∀ g b k,
+  (Σ f (i = b, k) _ g i .= f Σ f (i = b, k) _ g (k + b - i)%nat)%F.
 Proof.
 (* supprimer ce putain de omega trop lent *)
-intros f b k.
+intros g b k.
 unfold sigma.
 rewrite sigma_aux_rtl.
 apply sigma_aux_compat; intros i Hi.
@@ -464,7 +444,7 @@ destruct b; simpl.
 Qed.
 
 Theorem convol_mul_comm : ∀ a b i,
-  (convol_mul F a b i = convol_mul F b a i)%K.
+  (convol_mul f a b i .= f convol_mul f b a i)%F.
 Proof.
 intros a b k.
 unfold convol_mul.
@@ -475,7 +455,7 @@ rewrite Nat_sub_sub_distr; [ idtac | destruct Hi; auto ].
 rewrite Nat.add_comm, Nat.add_sub, fld_mul_comm; reflexivity.
 Qed.
 
-Theorem series_mul_comm : ∀ a b, (a * b = b * a)%ser.
+Theorem series_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%ser.
 Proof.
 intros a b.
 constructor; intros k.
@@ -487,13 +467,13 @@ destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma stop_series_mul_0_l : ∀ s, stop (0 * s)%ser = stop s.
+Lemma stop_series_mul_0_l : ∀ s, stop (.0 f .* f s)%ser = stop s.
 Proof.
 intros s; simpl.
 destruct (stop s); reflexivity.
 Qed.
 
-Theorem convol_mul_0_l : ∀ a i, (convol_mul F 0%ser a i = 0)%K.
+Theorem convol_mul_0_l : ∀ a i, (convol_mul f .0 f%ser a i .= f .0 f)%F.
 Proof.
 intros a k.
 unfold convol_mul.
@@ -502,7 +482,7 @@ rewrite series_nth_series_0.
 rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Theorem series_mul_0_l : ∀ s, (0 * s = 0)%ser.
+Theorem series_mul_0_l : ∀ s, (.0 f .* f s .= f .0 f)%ser.
 Proof.
 intros s.
 constructor; intros k.
@@ -515,10 +495,10 @@ destruct (Nbar.lt_dec (fin k) (stop s)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin k) 0); reflexivity.
 Qed.
 
-Lemma sigma_aux_mul_swap : ∀ a f b len,
-  (sigma_aux F b len (λ i, a * f i) = a * sigma_aux F b len f)%K.
+Lemma sigma_aux_mul_swap : ∀ a g b len,
+  (sigma_aux f b len (λ i, a .* f g i) .= f a .* f sigma_aux f b len g)%F.
 Proof.
-intros a f b len; revert b.
+intros a g b len; revert b.
 induction len; intros; simpl.
  rewrite fld_mul_0_r; reflexivity.
 
@@ -526,13 +506,13 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
-Lemma sigma_aux_sigma_aux_mul_swap : ∀ f g h b₁ b₂ len,
-  (sigma_aux F b₁ len
-     (λ i, sigma_aux F b₂ (f i) (λ j, g i * h i j))
-   = sigma_aux F b₁ len
-       (λ i, (g i * sigma_aux F b₂ (f i) (λ j, h i j))))%K.
+Lemma sigma_aux_sigma_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
+  (sigma_aux f b₁ len
+     (λ i, sigma_aux f b₂ (g₁ i) (λ j, g₂ i .* f g₃ i j))
+   .= f sigma_aux f b₁ len
+       (λ i, g₂ i .* f sigma_aux f b₂ (g₁ i) (λ j, g₃ i j)))%F.
 Proof.
-intros f g h b₁ b₂ len.
+intros g₁ g₂ g₃ b₁ b₂ len.
 revert b₁ b₂.
 induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen.
@@ -540,20 +520,20 @@ apply fld_add_compat_r.
 apply sigma_aux_mul_swap.
 Qed.
 
-Lemma sigma_sigma_mul_swap : ∀ f g h k,
-  (Σ (i = 0, k) _ Σ (j = 0, f i) _ g i * h i j
-   = Σ (i = 0, k) _ g i * Σ (j = 0, f i) _ h i j)%K.
+Lemma sigma_sigma_mul_swap : ∀ g₁ g₂ g₃ k,
+  (Σ f (i = 0, k) _ Σ f (j = 0, g₁ i) _ g₂ i .* f g₃ i j
+   .= f Σ f (i = 0, k) _ g₂ i .* f Σ f (j = 0, g₁ i) _ g₃ i j)%F.
 Proof.
-intros f g h k.
+intros g₁ g₂ g₃ k.
 apply sigma_aux_sigma_aux_mul_swap.
 Qed.
 
-Lemma sigma_only_one_non_0 : ∀ f b v k,
+Lemma sigma_only_one_non_0 : ∀ g b v k,
   (b ≤ v ≤ k)%nat
-  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → (f i = 0)%K)
-    → (Σ (i = b, k) _ f i = f v)%K.
+  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → (g i .= f .0 f)%F)
+    → (Σ f (i = b, k) _ g i .= f g v)%F.
 Proof.
-intros f b v k (Hbv, Hvk) Hi.
+intros g b v k (Hbv, Hvk) Hi.
 unfold sigma.
 rewrite Nat.sub_succ_l; [ idtac | etransitivity; eassumption ].
 remember (k - b)%nat as len.
@@ -587,7 +567,7 @@ induction len; intros.
    apply Hi; [ omega | assumption ].
 Qed.
 
-Theorem series_mul_1_l : ∀ s, (1 * s = s)%ser.
+Theorem series_mul_1_l : ∀ s, (.1 f .* f s .= f s)%ser.
 Proof.
 intros s.
 constructor; intros k.
@@ -657,7 +637,7 @@ destruct st as [st| ].
    apply fld_mul_0_l.
 Qed.
 
-Theorem series_mul_1_r : ∀ s, (s * 1 = s)%ser.
+Theorem series_mul_1_r : ∀ s, (s .* f .1 f .= f s)%ser.
 Proof.
 intros s.
 rewrite series_mul_comm.
@@ -755,7 +735,7 @@ reflexivity.
 Qed.
 
 Lemma sigma_aux_succ_fst : ∀ f b len,
-  (sigma_aux F b (S len) f = f b + sigma_aux F (S b) len f)%K.
+  (sigma_aux f b (S len) f = f b + sigma_aux f (S b) len f)%K.
 Proof. reflexivity. Qed.
 
 Lemma sigma_split_first : ∀ f b k,
@@ -870,8 +850,8 @@ rewrite sigma_compat with (g := f); subst f.
 Qed.
 
 Lemma sigma_aux_add : ∀ f g b len,
-  (sigma_aux F b len f + sigma_aux F b len g =
-   sigma_aux F b len (λ i, f i + g i))%K.
+  (sigma_aux f b len f + sigma_aux f b len g =
+   sigma_aux f b len (λ i, f i + g i))%K.
 Proof.
 intros f g b len.
 revert b.
@@ -889,11 +869,6 @@ Proof.
 intros f g b e.
 apply sigma_aux_add.
 Qed.
-
-(*
-Notation "s [ i ]" := (series_nth F i s) (at level 1).
-Notation "a + b" := (series_add F a b) : series_scope.
-*)
 
 Lemma series_nth_add : ∀ a b i, (((a + b)%ser) [i] = a [i] + b [i])%K.
 Proof.
@@ -1055,33 +1030,6 @@ Section other_lemmas.
 
 Variable α : Type.
 Variable F : field α.
-
-(*
-Delimit Scope K_scope with K.
-Notation "0" := (fld_zero F) : K_scope.
-Notation "1" := (fld_one F) : K_scope.
-Notation "- a" := (fld_opp F a) : K_scope.
-Notation "a = b" := (fld_eq F a b) : K_scope.
-Notation "a ≠ b" := (not (fld_eq F a b)) : K_scope.
-Notation "a + b" := (fld_add F a b) : K_scope.
-Notation "a - b" := (fld_add F a (fld_opp F b)) : K_scope.
-Notation "a * b" := (fld_mul F a b) : K_scope.
-Notation "¹/ a" := (fld_inv F a) (at level 1) : K_scope.
-
-Delimit Scope series_scope with ser.
-Notation "0" := (series_0 F) : series_scope.
-Notation "1" := (series_1 F) : series_scope.
-Notation "a = b" := (eq_series F a b) : series_scope.
-Notation "a ≠ b" := (not (eq_series F a b)) : series_scope.
-Notation "- a" := (series_opp a) : series_scope.
-Notation "a + b" := (series_add F a b) : series_scope.
-Notation "a - b" := (series_add F a (series_opp b)) : series_scope.
-Notation "a * b" := (series_mul F a b) : series_scope.
-
-Notation "s [ i ]" := (series_nth F i s) (at level 1).
-Notation "'Σ' ( i = b , e ) '_' f" := (sigma F b e (λ i, (f)%K))
-  (at level 0, i at level 0, b at level 60, e at level 60, f at level 40).
-*)
 
 Theorem series_add_compat_l : ∀ a b c, (a = b)%ser → (c + a = c + b)%ser.
 Proof.
@@ -1312,9 +1260,3 @@ assumption.
 Qed.
 
 End other_lemmas.
-
-(*
-Delimit Scope series_scope with S.
-Notation "a .= f b" := (eq_series f a b) : series_scope.
-Notation ".0 f " := (series_0 f) : series_scope.
-*)
