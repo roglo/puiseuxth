@@ -11,6 +11,7 @@ Require Import Misc.
 Require Import Newton.
 Require Import PolyConvexHull.
 Require Import Polynomial.
+Require Import Nbar.
 Require Import Field.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
@@ -647,16 +648,11 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Zmult_assoc.
  unfold valuation in Hv.
-bbb.
- destruct ps as [nz| ].
-  remember (f_eq f (zero f)) as f.
-  destruct (series_head f 0 (nz_terms nz)) as [(n, _)| ]; subst f.
-   injection Hv; clear Hv; intros Hαi.
-   subst αi; reflexivity.
-
-   discriminate Hv.
-
-  discriminate Hv.
+ remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ]; [ idtac | discriminate Hv ].
+ injection Hv; clear Hv; intros Hαi.
+ subst αi; reflexivity.
 
  rewrite Pos2Z.inj_mul, Z.mul_assoc.
  unfold Qeq; simpl.
@@ -1400,8 +1396,8 @@ Qed.
 
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat →
-    c = List.nth i (al pol) (zero f)
-    → f_eq f (zero f) c.
+    c = List.nth i (al pol) (fld_zero f)
+    → fld_eq f (fld_zero f) c.
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1470,10 +1466,10 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
         → (∀ hq αh, (hq, αh) ∈ tl
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
             → S i mod q ≠ 0
-              → List.nth i
+              → (List.nth i
                   (make_char_pol f (S j)
-                     (List.map (term_of_point f pol) tl) k) (zero f)
-                ≍ zero f.
+                     (List.map (term_of_point f pol) tl) k) (fld_zero f)
+                 .= f fld_zero f)%F.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
@@ -1901,7 +1897,7 @@ rewrite minus_diag in Hc; simpl in Hc.
 destruct i.
  exfalso; apply Himq.
  apply Nat.mod_0_l.
- apply pos_to_nat_ne_0.
+ apply Pos2Nat_ne_0.
 
  rewrite <- Hj, <- Hk in Hc; simpl in Hc.
  unfold nofq in Hc; simpl in Hc.

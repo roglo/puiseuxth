@@ -1,4 +1,4 @@
-CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo PolyConvexHull.vo Polynomial.vo Field.vo Puiseux_base.vo Puiseux_series.vo Slope_base.vo
+CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Newton.vo PolyConvexHull.vo Polynomial.vo Nbar.vo Field.vo Puiseux_base.vo Puiseux_series.vo Slope_base.vo
 ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
 Field.vo Field.glob Field.v.beautified: Field.v
@@ -25,4 +25,3 @@ SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Mi
 Slope_base.vo Slope_base.glob Slope_base.v.beautified: Slope_base.v
 T.vo T.glob T.v.beautified: T.v
 Zbar.vo Zbar.glob Zbar.v.beautified: Zbar.v Nbar.vo
-old_ps_mul.vo old_ps_mul.glob old_ps_mul.v.beautified: old_ps_mul.v Nbar.vo Misc.vo Puiseux_series.vo Ps_add.vo Ps_add_compat.vo Power_series.vo
