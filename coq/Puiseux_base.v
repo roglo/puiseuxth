@@ -28,6 +28,12 @@ Definition valuation α (f : field α) ps :=
   | ∞ => None
   end.
 
+Definition valuation_coeff α (f : field α) ps :=
+  match null_coeff_range_length f (ps_terms ps) 0 with
+  | fin v => series_nth f v (ps_terms ps)
+  | ∞ => (.0 f)%F
+  end.
+
 Fixpoint power_list α pow psl (psn : puiseux_series α) :=
   match psl with
   | [ps₁ … psl₁] =>

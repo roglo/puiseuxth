@@ -61,10 +61,18 @@ Definition characteristic_polynomial α (f : field α) pol ns :=
   let kps := List.nth k (al pol) (an pol) in
   {| al := make_char_pol f j tl k; an := valuation_coeff f kps |}.
 
+Definition series_list_com_den α (psl : list (puiseux_series α)) :=
+  List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
+
 (* *)
 
-Lemma pt_absc_is_nat : ∀ (pol : puis_ser_pol α) pts pt,
-  points_of_ps_polynom fld pol = pts
+Section theorems.
+
+Variable α : Type.
+Variable f : field α.
+
+Lemma pt_absc_is_nat : ∀ pol pts pt,
+  points_of_ps_polynom f pol = pts
   → pt ∈ pts
     → fst pt = Qnat (Z.to_nat (Qnum (fst pt))).
 Proof.
@@ -77,7 +85,7 @@ unfold points_of_ps_polynom_gen in Hpts.
 revert n pts Hpts Hαh.
 induction cl as [| c]; intros.
  simpl in Hpts.
- destruct (valuation fld cn) as [v| ].
+ destruct (valuation f cn) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| ]; [ subst pt; simpl | contradiction ].
   rewrite Nat2Z.id; reflexivity.
@@ -85,7 +93,7 @@ induction cl as [| c]; intros.
   subst pts; contradiction.
 
  simpl in Hpts.
- destruct (valuation fld c) as [v| ].
+ destruct (valuation f c) as [v| ].
   subst pts.
   destruct Hαh as [Hαh| Hαh]; [ subst pt; simpl | idtac ].
    rewrite Nat2Z.id; reflexivity.
@@ -312,14 +320,14 @@ destruct pts as [| pt₂].
 Qed.
 
 Lemma jq_lt_hq : ∀ (pol : puis_ser_pol α) j αj h αh ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (j, αj) = ini_pt ns
     → (h, αh) ∈ oth_pts ns
       → j < h.
 Proof.
 intros pol j αj h αh ns Hns Hjαj Hhαh.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -344,7 +352,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma j_lt_h : ∀ (pol : puis_ser_pol α) j αj jq h αh hq ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (jq, αj) = ini_pt ns
     → (hq, αh) ∈ oth_pts ns
       → jq = Qnat j
@@ -361,7 +369,7 @@ apply Nat2Z.inj_lt; assumption.
 Qed.
 
 Lemma jz_lt_hz : ∀ (pol : puis_ser_pol α) jz αj jq hz αh hq ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (jq, αj) = ini_pt ns
     → (hq, αh) ∈ oth_pts ns
       → jz = Qnum jq
@@ -372,7 +380,7 @@ intros pol jz αj jq hz αh hq ns Hns Hjq Hhq Hjz Hhz.
 subst jz hz.
 remember Hns as H; clear HeqH.
 unfold newton_segments in H.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 symmetry in Heqpts.
 remember Heqpts as Hjqn; clear HeqHjqn.
 apply pt_absc_is_nat with (pt := (jq, αj)) in Hjqn.
@@ -461,14 +469,14 @@ destruct pts₁ as [| pt₄].
 Qed.
 
 Lemma hq_lt_kq : ∀ (pol : puis_ser_pol α) hq αh kq αk ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
       → hq < kq.
 Proof.
 intros pol hq αh kq αk ns Hns Hoth Hfin.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -493,7 +501,7 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (hq, αh) ∈ oth_pts ns
     → (kq, αk) = fin_pt ns
       → hq = Qnat h
@@ -510,14 +518,14 @@ apply Nat2Z.inj_lt; assumption.
 Qed.
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → j = nofq (fst (ini_pt ns))
     → k = nofq (fst (fin_pt ns))
       → (j < k)%nat.
 Proof.
 intros pol j k ns Hns Hj Hk.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 remember Heqpts as Hj₁; clear HeqHj₁; symmetry in Hj₁.
 eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  remember Heqpts as Hk₁; clear HeqHk₁; symmetry in Hk₁.
@@ -578,7 +586,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
 Qed.
 
 Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → jz = Qnum (fst (ini_pt ns))
     → kz = Qnum (fst (fin_pt ns))
       → (jz < kz)%Z.
@@ -595,7 +603,7 @@ subst jz kz.
 unfold nofq in Hns.
 apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
  unfold newton_segments in Hns.
- remember (points_of_ps_polynom fld pol) as pts.
+ remember (points_of_ps_polynom f pol) as pts.
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (j, aj)) in Hpts.
@@ -606,7 +614,7 @@ apply Z2Nat.inj_lt; [ idtac | idtac | assumption ].
   apply ini_fin_ns_in_init_pts; assumption.
 
  unfold newton_segments in Hns.
- remember (points_of_ps_polynom fld pol) as pts.
+ remember (points_of_ps_polynom f pol) as pts.
  symmetry in Heqpts.
  remember Heqpts as Hpts; clear HeqHpts.
  apply pt_absc_is_nat with (pt := (k, ak)) in Hpts.
@@ -619,22 +627,13 @@ Qed.
 
 (* *)
 
-Definition ps_comden α (ps : puiseux_series α) :=
-  match ps with
-  | NonZero nz => nz_comden nz
-  | Zero => xH
-  end.
-
-Definition series_list_com_den α (psl : list (puiseux_series α)) :=
-  List.fold_right (λ ps a, Pos.mul a (ps_comden ps)) 1%positive psl.
-
 (* [Walker, p. 100]: « In the first place, we note that since each
    āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
    m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_den psl
   → ∀ ps αi, ps ∈ psl
-    → valuation fld ps = Some αi
+    → valuation f ps = Some αi
       → ∃ mi, αi == mi # m.
 Proof.
 intros psl m Hm ps αi Hps Hv.
@@ -648,8 +647,9 @@ induction l₁ as [| ps₁]; simpl.
  rewrite Pos2Z.inj_mul.
  rewrite Zmult_assoc.
  unfold valuation in Hv.
+bbb.
  destruct ps as [nz| ].
-  remember (fld_eq fld (zero fld)) as f.
+  remember (f_eq f (zero f)) as f.
   destruct (series_head f 0 (nz_terms nz)) as [(n, _)| ]; subst f.
    injection Hv; clear Hv; intros Hαi.
    subst αi; reflexivity.
@@ -696,14 +696,14 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma first_power_le : ∀ pow cl cn h hv,
-  (h, hv) ∈ filter_finite_val fld (qpower_list pow cl cn)
+  (h, hv) ∈ filter_finite_val f (qpower_list pow cl cn)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
 intros pow cl cn h hv Hhhv.
 revert pow Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
- remember (valuation fld cn) as v.
+ remember (valuation f cn) as v.
  symmetry in Heqv.
  destruct v as [v| ]; [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
@@ -711,7 +711,7 @@ induction cl as [| c]; intros.
  simpl; rewrite Nat2Z.id; constructor.
 
  simpl in Hhhv.
- remember (valuation fld c) as v.
+ remember (valuation f c) as v.
  symmetry in Heqv.
  destruct v as [v| ].
   destruct Hhhv as [Hhhv| Hhhv].
@@ -727,17 +727,17 @@ Qed.
 
 Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv hps def,
   ppl = qpower_list pow cl cn
-  → pts = filter_finite_val fld ppl
+  → pts = filter_finite_val f ppl
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) (cl ++ [cn]) def
-        → (h, hps) ∈ ppl ∧ valuation fld hps = Some hv.
+        → (h, hps) ∈ ppl ∧ valuation f hps = Some hv.
 Proof.
 intros pow cl cn ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
 revert pow cn h hv hps Hhps Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
- remember (valuation fld cn) as v.
+ remember (valuation f cn) as v.
  symmetry in Heqv.
  destruct v as [v| ]; [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
@@ -748,7 +748,7 @@ induction cl as [| c]; intros.
  split; [ left; reflexivity | assumption ].
 
  simpl in Hhhv.
- remember (valuation fld c) as v.
+ remember (valuation f c) as v.
  symmetry in Heqv.
  destruct v as [v| ].
   destruct Hhhv as [Hhhv| Hhhv].
@@ -788,11 +788,11 @@ induction cl as [| c]; intros.
 Qed.
 
 Lemma in_pts_in_psl : ∀ pow cl cn pts psl h hv hps def,
-  pts = filter_finite_val fld (qpower_list pow cl cn)
+  pts = filter_finite_val f (qpower_list pow cl cn)
   → psl = cl ++ [cn]
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h) - pow) psl def
-        → hps ∈ psl ∧ valuation fld hps = Some hv.
+        → hps ∈ psl ∧ valuation f hps = Some hv.
 Proof.
 intros pow cl cn pts psl h hv hps def Hpts Hpsl Hhv Hhps.
 remember (power_list pow cl cn) as ppl.
@@ -831,11 +831,11 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
 Qed.
 
 Lemma in_pts_in_pol : ∀ pol pts psl h hv hps def,
-  pts = points_of_ps_polynom fld pol
+  pts = points_of_ps_polynom f pol
   → psl = al pol ++ [an pol]
     → (h, hv) ∈ pts
       → hps = List.nth (Z.to_nat (Qnum h)) psl def
-        → hps ∈ psl ∧ valuation fld hps = Some hv.
+        → hps ∈ psl ∧ valuation f hps = Some hv.
 Proof.
 intros pol pts psl h hv hps def Hpts Hpsl Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
@@ -910,7 +910,7 @@ Qed.
      where q > 0 and p and q are integers having no common factor. » *)
 
 Theorem gamma_eq_p_nq : ∀ pol ns m,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → m = series_list_com_den (al pol ++ [an pol])
     → ∃ (p : Z) (q : positive),
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
@@ -918,7 +918,7 @@ Proof.
 (* À nettoyer *)
 intros pol ns m Hns Hm.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
 remember (ini_pt ns) as jj.
 destruct jj as (j, αj).
@@ -1072,7 +1072,7 @@ Qed.
                     h - j
    » *)
 Theorem gamma_value_jh : ∀ pol ns j αj,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (j, αj) = ini_pt ns
     → ∀ h αh, (h, αh) ∈ oth_pts ns
       → γ ns == (αj - αh) / (h - j).
@@ -1138,7 +1138,7 @@ Qed.
          q (mj - mh) = p (h - j)
    » *)
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
       → m = series_list_com_den (al pol ++ [an pol])
@@ -1153,7 +1153,7 @@ intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Heqm as Hm; clear HeqHm.
 eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
 destruct Heqm as (p, (q, (Hgamma, Hgcd))).
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
 remember (al pol ++ [an pol]) as psl.
 remember (List.nth (Z.to_nat (Qnum (inject_Z j))) psl (an pol)) as jps.
@@ -1273,7 +1273,7 @@ Qed.
    and since p and q have no common factors, q is a factor
   of h - j. » *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
       → m = series_list_com_den (al pol ++ [an pol])
@@ -1313,7 +1313,7 @@ Qed.
    Thus for every Ph on L we have h = j + s q, s being a
    non-negative integer. » *)
 Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
       → m = series_list_com_den (al pol ++ [an pol])
@@ -1400,8 +1400,8 @@ Qed.
 
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat →
-    c = List.nth i (al pol) (zero fld)
-    → fld_eq fld (zero fld) c.
+    c = List.nth i (al pol) (zero f)
+    → f_eq f (zero f) c.
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1432,8 +1432,8 @@ Open Scope nat_scope.
 Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl k d,
   s ≤ i
   → j + s ≤ power t
-    → List.nth (i - s) (make_char_pol fld (j + s) [t … tl] k) d =
-      List.nth i (make_char_pol fld j [t … tl] k) d.
+    → List.nth (i - s) (make_char_pol f (j + s) [t … tl] k) d =
+      List.nth i (make_char_pol f j [t … tl] k) d.
 Proof.
 intros i j s t tl k d Hsi Hjsk.
 revert i j t tl k d Hsi Hjsk.
@@ -1471,9 +1471,9 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
             → S i mod q ≠ 0
               → List.nth i
-                  (make_char_pol fld (S j)
-                     (List.map (term_of_point fld pol) tl) k) (zero fld)
-                ≍ zero fld.
+                  (make_char_pol f (S j)
+                     (List.map (term_of_point f pol) tl) k) (zero f)
+                ≍ zero f.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
@@ -1549,7 +1549,7 @@ induction tl as [| t]; intros.
       rewrite Heqis, Heqs.
       rewrite plus_comm, mult_comm, plus_n_Sm.
       rewrite <- mult_succ_r, mult_comm.
-      remember (List.map (term_of_point fld pol) [t … tl]) as x.
+      remember (List.map (term_of_point f pol) [t … tl]) as x.
       simpl in Heqx; subst x.
       rewrite nth_minus_char_pol_plus_cons.
        eapply IHtl; try eapply Sorted_inv_1; try eassumption.
@@ -1827,12 +1827,12 @@ destruct Hns as [Hns| Hns].
 Qed.
 
 Lemma oth_pts_sorted : ∀ pol ns,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → Sorted fst_lt (oth_pts ns).
 Proof.
 intros pol ns Hns.
 unfold newton_segments in Hns.
-remember (points_of_ps_polynom fld pol) as pts.
+remember (points_of_ps_polynom f pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
 remember (lower_convex_hull_points pts) as hsl.
 unfold lower_convex_hull_points in Heqhsl.
@@ -1862,8 +1862,8 @@ Close Scope nat_scope.
 
 (* [Walker, p. 100] « ... » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
-  ns ∈ newton_segments fld pol
-  → cpol = characteristic_polynomial fld pol ns
+  ns ∈ newton_segments f pol
+  → cpol = characteristic_polynomial f pol ns
     → (inject_Z j, αj) = ini_pt ns
       → (inject_Z k, αk) = fin_pt ns
         → m = series_list_com_den (al pol ++ [an pol])
@@ -1930,7 +1930,7 @@ destruct i.
      intros hq αh Hhαh.
      assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
       unfold newton_segments in Hns.
-      remember (points_of_ps_polynom fld pol) as pts.
+      remember (points_of_ps_polynom f pol) as pts.
       symmetry in Heqpts.
       apply pt_absc_is_nat with (pt := (hq, αh)) in Heqpts.
        simpl in Heqpts.
@@ -1949,7 +1949,7 @@ destruct i.
       split.
        replace hq with (fst (hq, αh)) by reflexivity.
        unfold newton_segments in Hns.
-       remember (points_of_ps_polynom fld pol) as pts.
+       remember (points_of_ps_polynom f pol) as pts.
        symmetry in Heqpts.
        eapply pt_absc_is_nat; [ eassumption | idtac ].
        eapply oth_pts_in_init_pts; eassumption.
@@ -1961,7 +1961,7 @@ destruct i.
          rewrite Z2Nat.inj_mul; try apply Zle_0_pos; reflexivity.
 
          unfold newton_segments in Hns.
-         remember (points_of_ps_polynom fld pol) as pts.
+         remember (points_of_ps_polynom f pol) as pts.
          symmetry in Heqpts.
          apply pt_absc_is_nat with (pt := ini_pt ns) in Heqpts.
           rewrite <- Hj in Heqpts.
@@ -1983,7 +1983,7 @@ destruct i.
          rewrite <- Hqjk.
          eapply h_lt_k; try eassumption.
           unfold newton_segments in Hns.
-          remember (points_of_ps_polynom fld pol) as pts.
+          remember (points_of_ps_polynom f pol) as pts.
           symmetry in Heqpts.
           apply pt_absc_is_nat with (pt := (hq, αh)) in Heqpts.
            assumption.
@@ -1991,7 +1991,7 @@ destruct i.
            eapply oth_pts_in_init_pts; eassumption.
 
           unfold newton_segments in Hns.
-          remember (points_of_ps_polynom fld pol) as pts.
+          remember (points_of_ps_polynom f pol) as pts.
           symmetry in Heqpts.
           apply pt_absc_is_nat with (pt := (inject_Z kz, αk)) in Heqpts.
            assumption.
@@ -2000,7 +2000,7 @@ destruct i.
            apply ini_fin_ns_in_init_pts; assumption.
 
          unfold newton_segments in Hns.
-         remember (points_of_ps_polynom fld pol) as pts.
+         remember (points_of_ps_polynom f pol) as pts.
          symmetry in Heqpts.
          apply pt_absc_is_nat with (pt := (inject_Z jz, αj)) in Heqpts.
           simpl in Heqpts.
@@ -2016,7 +2016,7 @@ destruct i.
          apply Zle_0_pos.
 
   unfold newton_segments in Hns.
-  remember (points_of_ps_polynom fld pol) as pts.
+  remember (points_of_ps_polynom f pol) as pts.
   symmetry in Heqpts.
   apply pt_absc_is_nat with (pt := (inject_Z jz, αj)) in Heqpts.
    simpl in Heqpts.
@@ -2032,4 +2032,4 @@ destruct i.
   apply Zle_0_pos.
 Qed.
 
-End field.
+End theorems.
