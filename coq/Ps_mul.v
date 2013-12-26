@@ -64,17 +64,17 @@ constructor; simpl.
  reflexivity.
 Qed.
 
-Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ * ps₂ = ps₂ * ps₁)%ps.
+Theorem ps_mul_comm : ∀ ps₁ ps₂, (ps₁ .* f ps₂ .= f ps₂ .* f ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
 apply ps_canon_mul_comm.
 Qed.
 
-Lemma fold_series_1 : {| terms := λ _, 1%F; stop := 1 |} = 1%ser.
+Lemma fold_series_1 : {| terms := λ _, .1 f%F; stop := 1 |} = .1 f%ser.
 Proof. reflexivity. Qed.
 
-Lemma stretch_series_1 : ∀ k, (series_stretch k 1 = 1)%ser.
+Lemma stretch_series_1 : ∀ k, (series_stretch f k .1 f .= f .1 f)%ser.
 Proof.
 intros k.
 constructor; intros i.
@@ -124,7 +124,7 @@ destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Theorem ps_mul_1_l : ∀ ps, (1 * ps = ps)%ps.
+Theorem ps_mul_1_l : ∀ ps, (.1 f .* f ps .= f ps)%ps.
 Proof.
 intros ps; simpl.
 constructor.
@@ -149,17 +149,17 @@ constructor; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
 
-Theorem ps_mul_1_r : ∀ ps, (ps * 1 = ps)%ps.
+Theorem ps_mul_1_r : ∀ ps, (ps .* f .1 f .= f ps)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_1_l. Qed.
 
 Lemma null_coeff_range_length_series_0 :
-  null_coeff_range_length f series_0 0 = ∞.
+  null_coeff_range_length f (.0 f)%ser 0 = ∞.
 Proof.
-apply null_coeff_range_length_iff; simpl.
-apply series_nth_series_0.
+apply null_coeff_range_length_iff; intros i.
+rewrite series_nth_series_0; reflexivity.
 Qed.
 
-Theorem ps_mul_0_l : ∀ ps, (0 * ps = 0)%ps.
+Theorem ps_mul_0_l : ∀ ps, (.0 f .* f ps .= f .0 f)%ps.
 Proof.
 intros ps.
 constructor.
@@ -171,10 +171,10 @@ rewrite null_coeff_range_length_series_0.
 reflexivity.
 Qed.
 
-Theorem ps_mul_0_r : ∀ ps, (ps * 0 = 0)%ps.
+Theorem ps_mul_0_r : ∀ ps, (ps .* f .0 f .= f .0 f)%ps.
 Proof. intros ps. rewrite ps_mul_comm. apply ps_mul_0_l. Qed.
 
-Theorem ps_neq_1_0 : (1 ≠ 0)%ps.
+Theorem ps_neq_1_0 : (.1 f .≠ f .0 f)%ps.
 Proof.
 intros H.
 apply null_coeff_range_length_inf_iff in H.
@@ -184,39 +184,40 @@ pose proof (H O) as Hi.
 unfold series_nth in Hi.
 simpl in Hi.
 rewrite if_lt_dec_0_1 in Hi.
-revert Hi; apply Lfield.neq_1_0.
+revert Hi; apply fld_neq_1_0.
 Qed.
 
-Lemma sigma_aux_add : ∀ f b k₁ k₂,
-  (sigma_aux b (k₁ + k₂) f = sigma_aux b k₁ f + sigma_aux (b + k₁) k₂ f)%F.
+Lemma sigma_aux_add : ∀ g b k₁ k₂,
+  (sigma_aux f b (k₁ + k₂) g .= f
+   sigma_aux f b k₁ g .+ f sigma_aux f (b + k₁) k₂ g)%F.
 Proof.
-intros f b k₁ k₂.
+intros g b k₁ k₂.
 revert b k₁.
 induction k₂; intros.
  simpl.
- rewrite Nat.add_0_r, Lfield.add_0_r; reflexivity.
+ rewrite Nat.add_0_r, fld_add_0_r; reflexivity.
 
  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
  rewrite IHk₂; simpl.
  rewrite <- Nat.add_succ_r.
- rewrite Lfield.add_assoc.
- apply Lfield.add_compat_r.
+ rewrite fld_add_assoc.
+ apply fld_add_compat_r.
  clear k₂ IHk₂.
  revert b.
  induction k₁; intros; simpl.
   rewrite Nat.add_0_r.
-  apply Lfield.add_comm.
+  apply fld_add_comm.
 
-  rewrite <- Lfield.add_assoc.
+  rewrite <- fld_add_assoc.
   rewrite IHk₁.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
-Lemma sigma_add : ∀ f k₁ k₂,
-  (Σ (i = 0, k₁ + k₂) _ f i
-   = Σ (i = 0, k₁) _ f i + Σ (i = S k₁, k₁ + k₂) _ f i)%F.
+Lemma sigma_add : ∀ g k₁ k₂,
+  (Σ f (i = 0, k₁ + k₂) _ g i .= f
+   Σ f (i = 0, k₁) _ g i .+ f Σ f (i = S k₁, k₁ + k₂) _ g i)%F.
 Proof.
-intros f k₁ k₂.
+intros g k₁ k₂.
 unfold sigma.
 do 2 rewrite Nat.sub_0_r.
 rewrite <- Nat.add_succ_l.
@@ -224,39 +225,39 @@ rewrite sigma_aux_add; simpl.
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma sigma_aux_succ : ∀ f b k,
-  (sigma_aux b (S k) f = f b + sigma_aux (S b) k f)%F.
+Lemma sigma_aux_succ : ∀ g b k,
+  (sigma_aux f b (S k) g .= f g b .+ f sigma_aux f (S b) k g)%F.
 Proof. reflexivity. Qed.
 
-Lemma sigma_aux_mul_sigma_aux_sigma_aux : ∀ f k n,
-  (sigma_aux 0 (S k * S n) f
-   = sigma_aux 0 (S k)
-       (λ i, sigma_aux 0 (S n) (λ j, f (i * S n + j)%nat)))%F.
+Lemma sigma_aux_mul_sigma_aux_sigma_aux : ∀ g k n,
+  (sigma_aux f 0 (S k * S n) g .= f
+   sigma_aux f 0 (S k)
+     (λ i, sigma_aux f 0 (S n) (λ j, g (i * S n + j)%nat)))%F.
 Proof.
-intros f k n.
+intros g k n.
 revert n; induction k; intros.
- simpl; rewrite Nat.add_0_r, Lfield.add_0_r; reflexivity.
+ simpl; rewrite Nat.add_0_r, fld_add_0_r; reflexivity.
 
  remember (S n) as x.
  remember (S k) as y.
  simpl; subst x y.
  rewrite Nat.add_comm.
  rewrite sigma_aux_add, IHk.
- symmetry; rewrite Lfield.add_comm.
+ symmetry; rewrite fld_add_comm.
  symmetry.
  rewrite sigma_aux_succ.
- rewrite Lfield.add_shuffle0, Lfield.add_comm.
+ rewrite fld_add_shuffle0, fld_add_comm.
  symmetry.
  replace (S k) with (k + 1)%nat by omega.
  rewrite sigma_aux_add.
- rewrite <- Lfield.add_assoc.
- apply Lfield.add_compat_l.
+ rewrite <- fld_add_assoc.
+ apply fld_add_compat_l.
  simpl.
- rewrite Lfield.add_comm.
- apply Lfield.add_compat_l.
+ rewrite fld_add_comm.
+ apply fld_add_compat_l.
  symmetry; rewrite Nat.add_comm; simpl.
- rewrite Nat.add_0_r, Lfield.add_0_r.
- apply Lfield.add_compat_l.
+ rewrite Nat.add_0_r, fld_add_0_r.
+ apply fld_add_compat_l.
  apply sigma_aux_compat; intros i Hi; simpl.
  rewrite Nat.add_succ_r; reflexivity.
 Qed.
@@ -302,12 +303,12 @@ destruct k.
   rewrite Nat_sub_succ_1, Nat.add_comm, sigma_only_one.
   symmetry.
   rewrite <- Nat.add_1_r, sigma_add, Nat.add_1_r.
-  rewrite sigma_only_one, Lfield.add_comm, <- Hfg.
+  rewrite sigma_only_one, fld_add_comm, <- Hfg.
   symmetry.
-  rewrite Lfield.add_comm.
+  rewrite fld_add_comm.
   rewrite Nat.add_sub_assoc.
    rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
-   apply Lfield.add_compat_l, sigma_compat; intros i Hi.
+   apply fld_add_compat_l, sigma_compat; intros i Hi.
    rewrite Nat_sub_succ_1.
    rewrite <- Hfg.
    rewrite Nat.mul_comm.
@@ -365,7 +366,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
   apply inserted_0_sigma; auto.
    intros i Hi.
    rewrite shifted_in_stretched.
-    rewrite Lfield.mul_0_l; reflexivity.
+    rewrite fld_mul_0_l; reflexivity.
 
     apply neq_0_lt, Nat.neq_sym; assumption.
 
@@ -416,12 +417,12 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
     rewrite Nat.mod_mul in H₂; auto.
     exfalso; revert H₂; apply Nat.lt_irrefl.
 
-   rewrite Lfield.mul_comm.
+   rewrite fld_mul_comm.
    rewrite shifted_in_stretched; [ idtac | assumption ].
-   rewrite Lfield.mul_0_l; reflexivity.
+   rewrite fld_mul_0_l; reflexivity.
 
   rewrite shifted_in_stretched; [ idtac | assumption ].
-  rewrite Lfield.mul_0_l; reflexivity.
+  rewrite fld_mul_0_l; reflexivity.
 Qed.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
@@ -575,7 +576,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
   symmetry; unfold convol_mul; simpl.
   apply all_0_sigma_0; intros i Hi.
   rewrite series_nth_lt_shift.
-   rewrite Lfield.mul_0_l; reflexivity.
+   rewrite fld_mul_0_l; reflexivity.
 
    eapply le_lt_trans; [ idtac | eassumption ].
    destruct Hi; assumption.
@@ -591,12 +592,12 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
    assert (k = (n + (k - n))%nat) as H by omega.
    rewrite H in |- * at 1; clear H.
    rewrite sigma_add.
-   rewrite Lfield.add_comm.
+   rewrite fld_add_comm.
    rewrite Nat.add_sub_assoc; [ idtac | omega ].
    rewrite Nat.add_comm, Nat.add_sub.
-   rewrite Lfield.add_comm.
+   rewrite fld_add_comm.
    rewrite all_0_sigma_0.
-    rewrite Lfield.add_0_l.
+    rewrite fld_add_0_l.
     symmetry.
     rewrite sigma_add_add_sub with (n := S n).
     rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
@@ -611,7 +612,7 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
 
     intros i Hi.
     rewrite series_nth_lt_shift; [ idtac | omega ].
-    rewrite Lfield.mul_0_l; reflexivity.
+    rewrite fld_mul_0_l; reflexivity.
 
  reflexivity.
 Qed.
@@ -1156,24 +1157,24 @@ Qed.
 
 End other_theorems.
 
-Definition ps_ring : Lfield.r (puiseux_series α) :=
-  {| Lfield.zero := ps_zero;
-     Lfield.one := ps_one;
-     Lfield.add := ps_add;
-     Lfield.mul := ps_mul;
-     Lfield.opp := ps_opp;
-     Lfield.eq := eq_ps;
-     Lfield.eq_refl := eq_ps_refl;
-     Lfield.eq_sym := eq_ps_sym;
-     Lfield.eq_trans := eq_ps_trans;
-     Lfield.neq_1_0 := ps_neq_1_0;
-     Lfield.add_comm := ps_add_comm;
-     Lfield.add_assoc := ps_add_assoc;
-     Lfield.add_0_l := ps_add_0_l;
-     Lfield.add_opp_l := ps_add_opp_l;
-     Lfield.add_compat_l := ps_add_compat_l;
-     Lfield.mul_comm := ps_mul_comm;
-     Lfield.mul_assoc := ps_mul_assoc;
-     Lfield.mul_1_l := ps_mul_1_l;
-     Lfield.mul_compat_l := ps_mul_compat_l;
-     Lfield.mul_add_distr_l := ps_mul_add_distr_l |}.
+Definition ps_ring : fld_r (puiseux_series α) :=
+  {| fld_zero := ps_zero;
+     fld_one := ps_one;
+     fld_add := ps_add;
+     fld_mul := ps_mul;
+     fld_opp := ps_opp;
+     fld_eq := eq_ps;
+     fld_eq_refl := eq_ps_refl;
+     fld_eq_sym := eq_ps_sym;
+     fld_eq_trans := eq_ps_trans;
+     fld_neq_1_0 := ps_neq_1_0;
+     fld_add_comm := ps_add_comm;
+     fld_add_assoc := ps_add_assoc;
+     fld_add_0_l := ps_add_0_l;
+     fld_add_opp_l := ps_add_opp_l;
+     fld_add_compat_l := ps_add_compat_l;
+     fld_mul_comm := ps_mul_comm;
+     fld_mul_assoc := ps_mul_assoc;
+     fld_mul_1_l := ps_mul_1_l;
+     fld_mul_compat_l := ps_mul_compat_l;
+     fld_mul_add_distr_l := ps_mul_add_distr_l |}.
