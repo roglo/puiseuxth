@@ -745,7 +745,7 @@ Section other_theorems.
 Variable α : Type.
 Variable f : field α.
 
-Theorem canonic_ps_eq : ∀ ps, (canonic_ps ps = ps)%ps.
+Theorem canonic_ps_eq : ∀ ps, (canonic_ps f ps .= f ps)%ps.
 Proof.
 intros ps.
 unfold canonic_ps.
@@ -840,7 +840,7 @@ Lemma ps_valnum_canonic : ∀ ps n p vn,
   null_coeff_range_length f (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power f (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
-      → ps_valnum (canonic_ps ps) =
+      → ps_valnum (canonic_ps f ps) =
           (vn / Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p)))%Z.
 Proof.
 intros ps n p vn Hn Hp Hvn.
@@ -875,8 +875,8 @@ Lemma ps_terms_canonic : ∀ ps n p vn,
   null_coeff_range_length f (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power f (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
-      → ps_terms (canonic_ps ps) =
-        canonify_series n
+      → ps_terms (canonic_ps f ps) =
+        canonify_series f n
           (Z.to_pos (Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p))))
           (ps_terms ps).
 Proof.
@@ -892,9 +892,11 @@ Qed.
 
 Lemma null_range_length_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
    null_coeff_range_length f
-     (ps_terms (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps)) 0 =
+     (ps_terms
+        (adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps)) 0 =
    null_coeff_range_length f
-     (ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps))) 0.
+     (ps_terms
+        (adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps))) 0.
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm, cm_factor; simpl.
@@ -951,8 +953,8 @@ f_equal.
 Qed.
 
 Lemma ps_valnum_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_valnum (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
-  ps_valnum (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
+  ps_valnum (adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps) =
+  ps_valnum (adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
@@ -995,8 +997,8 @@ f_equal.
 Qed.
 
 Lemma ps_polord_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  ps_polord (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
-  ps_polord (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)).
+  ps_polord (adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps) =
+  ps_polord (adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps)).
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
