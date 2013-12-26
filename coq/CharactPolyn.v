@@ -11,20 +11,10 @@ Require Import Misc.
 Require Import Newton.
 Require Import PolyConvexHull.
 Require Import Polynomial.
+Require Import Field.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Slope_base.
-
-Require Field.
-Module Field_inst : Field.FieldType.
-  Variable α : Type.
-  Variable fld : Field.Tdef.f α.
-  Let rng := Field.Tdef.ring fld.
-End Field_inst.
-Module Lfield := Field.Make Field_inst.
-Export Field_inst.
-Export Lfield.Syntax.
-Definition R := Lfield.ring fld.
 
 Set Implicit Arguments.
 
@@ -33,14 +23,14 @@ Record term α β := { coeff : α; power : β }.
 
 (* *)
 
-Definition apply_polynomial :=
-  apply_poly (λ x, x) (Lfield.add R) (Lfield.mul R).
+Definition apply_polynomial α (f : field α) :=
+  apply_poly (λ x, x) (fld_add f) (fld_mul f).
 
-Record algeb_closed_field :=
-  { ac_field : Lfield.f α;
+Record algeb_closed_field α :=
+  { ac_field : field α;
     ac_root : polynomial α → (α * nat);
     ac_prop : ∀ pol, degree pol ≥ 1
-      → apply_polynomial pol (fst (ac_root pol)) = Lfield.zero ac_field }.
+      → apply_polynomial ac_field pol (fst (ac_root pol)) = .0 ac_field%F }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -50,35 +40,26 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
-Fixpoint make_char_pol α (fld : field α) pow tl k :=
+Fixpoint make_char_pol α (f : field α) pow tl k :=
   match tl with
-  | [] =>
-      list_pad (k - pow) (zero fld) []
+  | [] => list_pad (k - pow) .0 f%F []
   | [t₁ … tl₁] =>
-      list_pad (power t₁ - pow) (zero fld)
-        [coeff t₁ … make_char_pol fld (S (power t₁)) tl₁ k]
+      list_pad (power t₁ - pow) .0 f%F
+        [coeff t₁ … make_char_pol f (S (power t₁)) tl₁ k]
     end.
 
-Definition term_of_point α (fld : field α) pol (pt : (Q * Q)) :=
+Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
   let ps := List.nth h (al pol) (an pol) in
-  let c := valuation_coeff fld ps in
+  let c := valuation_coeff f ps in
   {| coeff := c; power := h |}.
 
-Definition characteristic_polynomial α (fld : field α) pol ns :=
-  let tl := List.map (term_of_point fld pol) [ini_pt ns … oth_pts ns] in
+Definition characteristic_polynomial α (f : field α) pol ns :=
+  let tl := List.map (term_of_point f pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
   let kps := List.nth k (al pol) (an pol) in
-  {| al := make_char_pol fld j tl k; an := valuation_coeff fld kps |}.
-
-Section field.
-
-Variable α : Type.
-Variable acf : algeb_closed_field α.
-Let fld := ac_field acf.
-
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+  {| al := make_char_pol f j tl k; an := valuation_coeff f kps |}.
 
 (* *)
 

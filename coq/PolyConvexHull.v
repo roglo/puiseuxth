@@ -8,10 +8,9 @@ Require Import InSegment.
 Require Import Newton.
 Require Import NotInSegment.
 Require Import Polynomial.
+Require Import Power_series.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
-Require Power_series.
-Import Power_series.M.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
@@ -19,8 +18,13 @@ Notation "[ x ]" := (cons x nil).
 Notation "x ∈ l" := (List.In x l) (at level 70).
 Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
+Section theorems.
+
+Variable α : Type.
+Variable f : field α.
+
 Theorem points_in_any_newton_segment : ∀ (pol : puis_ser_pol α) ns,
-  ns ∈ newton_segments pol
+  ns ∈ newton_segments f pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == αh + h * γ ns.
 Proof.
@@ -30,8 +34,8 @@ eapply points_of_polyn_sorted; reflexivity.
 Qed.
 
 Theorem points_not_in_any_newton_segment : ∀ (pol : puis_ser_pol α) pts ns,
-  pts = points_of_ps_polynom pol
-  → ns ∈ newton_segments pol
+  pts = points_of_ps_polynom f pol
+  → ns ∈ newton_segments f pol
     → ∀ h αh, (h, αh) ∈ pts ∧ (h, αh) ∉ [ini_pt ns; fin_pt ns … oth_pts ns]
       → β ns < αh + h * (γ ns).
 Proof.
@@ -48,3 +52,5 @@ eapply points_not_in_any_newton_segment₁.
 
  assumption.
 Qed.
+
+End theorems.
