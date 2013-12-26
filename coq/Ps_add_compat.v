@@ -1,4 +1,4 @@
-(* $Id: Ps_add_compat.v,v 2.54 2013-12-19 19:25:10 deraugla Exp $ *)
+(* Ps_add_compat.v *)
 
 Require Import Utf8.
 Require Import QArith.
