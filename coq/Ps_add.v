@@ -182,57 +182,68 @@ Qed.
 
 End first_lemmas.
 
-Definition adjust_series n k s := series_shift n (series_stretch k s).
+Definition adjust_series α (f : field α) n k s :=
+  series_shift f n (series_stretch f k s).
 
-Definition ps_terms_add (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_terms_add α (f : field α) (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
   let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
   let n₁ := Z.to_nat (v₁ - Z.min v₁ v₂) in
   let n₂ := Z.to_nat (v₂ - Z.min v₂ v₁) in
-  let s₁ := adjust_series n₁ k₁ (ps_terms ps₁) in
-  let s₂ := adjust_series n₂ k₂ (ps_terms ps₂) in
-  series_add s₁ s₂.
+  let s₁ := adjust_series f n₁ k₁ (ps_terms ps₁) in
+  let s₂ := adjust_series f n₂ k₂ (ps_terms ps₂) in
+  series_add f s₁ s₂.
 
-Definition ps_valnum_add (ps₁ ps₂ : puiseux_series α) :=
+Definition ps_valnum_add α (ps₁ ps₂ : puiseux_series α) :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
   let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
   Z.min v₁ v₂.
 
-Definition ps_add (ps₁ ps₂ : puiseux_series α) :=
-  {| ps_terms := ps_terms_add ps₁ ps₂;
+Definition ps_add α (f : field α) (ps₁ ps₂ : puiseux_series α) :=
+  {| ps_terms := ps_terms_add f ps₁ ps₂;
      ps_valnum := ps_valnum_add ps₁ ps₂;
      ps_polord := cm ps₁ ps₂ |}.
 
 (* I prefer this other version for addition; proved strongly equal to
    ps_add below; could be the main and only one, perhaps ? *)
 
-Definition adjusted_ps_add ps₁ ps₂ :=
-  {| ps_terms := series_add (ps_terms ps₁) (ps_terms ps₂);
+Definition adjusted_ps_add α (f : field α) ps₁ ps₂ :=
+  {| ps_terms := series_add f (ps_terms ps₁) (ps_terms ps₂);
      ps_valnum := ps_valnum ps₁;
      ps_polord := ps_polord ps₁ |}.
 
-Definition adjust_ps_from ps₁ ps₂ :=
+Definition adjust_ps_from α (f : field α) ps₁ ps₂ :=
   let k₁ := cm_factor ps₁ ps₂ in
   let k₂ := cm_factor ps₂ ps₁ in
   let v₁ := (ps_valnum ps₁ * Zpos k₁)%Z in
   let v₂ := (ps_valnum ps₂ * Zpos k₂)%Z in
-  adjust_ps (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
+  adjust_ps f (Z.to_nat (v₂ - Z.min v₁ v₂)) k₂ ps₂.
 
-Definition ps_add₂ (ps₁ ps₂ : puiseux_series α) :=
-  adjusted_ps_add (adjust_ps_from ps₂ ps₁) (adjust_ps_from ps₁ ps₂).
+Definition ps_add₂ α (f : field α) (ps₁ ps₂ : puiseux_series α) :=
+  adjusted_ps_add f (adjust_ps_from f ps₂ ps₁) (adjust_ps_from f ps₁ ps₂).
 
-(*
-Notation "a + b" := (ps_add a b) : ps_scope.
-Notation "a ₊ b" := (ps_add₂ a b) (at level 50) : ps_scope.
-*)
+Notation "a .+ f b" := (ps_add f a b) : ps_scope.
+
+Definition ps_opp α (f : field α) ps :=
+  {| ps_terms := (.- f ps_terms ps)%ser;
+     ps_valnum := ps_valnum ps;
+     ps_polord := ps_polord ps |}.
+
+Notation ".- f a" := (ps_opp f a) : ps_scope.
+Notation "a .- f b" := (ps_add f a (ps_opp b)) : ps_scope.
+
+Section theorems_add.
+
+Variable α : Type.
+Variable f : field α.
 
 Lemma series_stretch_add_distr : ∀ k s₁ s₂,
-  (series_stretch k (s₁ + s₂) =
-   series_stretch k s₁ + series_stretch k s₂)%ser.
+  (series_stretch f k (s₁ .+ f s₂) .= f
+   series_stretch f k s₁ .+ f series_stretch f k s₂)%ser.
 Proof.
 intros kp s₁ s₂.
 unfold series_stretch; simpl.
@@ -288,32 +299,33 @@ destruct (zerop (i mod k)) as [Hz| Hnz].
     exfalso; apply Hge₁; clear Hge₁.
     apply Nbar.max_lt_iff; right; assumption.
 
-    destruct lt₄, lt₅; rewrite Lfield.add_0_l; reflexivity.
+    destruct lt₄, lt₅; rewrite fld_add_0_l; reflexivity.
 
  remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
  remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
  remember (Nbar.lt_dec (fin i) n) as b.
  remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
  remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
- destruct a, b, c, d; try rewrite Lfield.add_0_l; reflexivity.
+ destruct a, b, c, d; try rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
-  (ps_terms_add ps₁ ps₂ = ps_terms_add ps₂ ps₁)%ser.
+  (ps_terms_add f ps₁ ps₂ .= f ps_terms_add f ps₂ ps₁)%ser.
 Proof.
 intros ps₁ ps₂.
 unfold ps_terms_add.
 rewrite series_add_comm; reflexivity.
 Qed.
 
-Lemma cm_comm : ∀ ps₁ ps₂, cm ps₁ ps₂ = cm ps₂ ps₁.
+Lemma cm_comm : ∀ (ps₁ ps₂ : puiseux_series α), cm ps₁ ps₂ = cm ps₂ ps₁.
 Proof.
 intros ps₁ ps₂.
 unfold cm.
 apply Pos.mul_comm.
 Qed.
 
-Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂)%ps ≐ (ps₂ + ps₁)%ps.
+Theorem eq_strong_ps_add_comm : ∀ ps₁ ps₂,
+  (ps₁ .+ f ps₂)%ps ≐ f (ps₂ .+ f ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor; simpl.
@@ -324,7 +336,7 @@ constructor; simpl.
  apply ps_terms_add_comm.
 Qed.
 
-Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ + ps₂ = ps₂ + ps₁)%ps.
+Theorem ps_add_comm : ∀ ps₁ ps₂, (ps₁ .+ f ps₂ .= f ps₂ .+ f ps₁)%ps.
 Proof.
 intros ps₁ ps₂.
 constructor.
@@ -366,7 +378,7 @@ remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
 remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
 clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
 destruct (lt_dec i n) as [Hlt| Hge].
- destruct c₁, c₂, c₃; try rewrite Lfield.add_0_l; reflexivity.
+ destruct c₁, c₂, c₃; try rewrite fld_add_0_l; reflexivity.
 
  apply not_gt in Hge.
  remember (i - n)%nat as m.
@@ -554,16 +566,6 @@ Qed.
 Theorem ps_add_0_r : ∀ ps, (ps + 0 = ps)%ps.
 Proof. intros ps; rewrite ps_add_comm; apply ps_add_0_l. Qed.
 
-Definition ps_opp ps :=
-  {| ps_terms := series_opp (ps_terms ps);
-     ps_valnum := ps_valnum ps;
-     ps_polord := ps_polord ps |}.
-
-(*
-Notation "- a" := (ps_opp a) : ps_scope.
-Notation "a - b" := (ps_add a (ps_opp b)) : ps_scope.
-*)
-
 Theorem ps_add_opp_r : ∀ ps, (ps - ps = 0)%ps.
 Proof.
 intros ps.
@@ -661,6 +663,8 @@ intros ps₁ ps₂.
 constructor.
 apply eq_strong_ps_canon_add_add₂.
 Qed.
+
+End theorems_add.
 
 Add Parametric Morphism : adjusted_ps_add
   with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
@@ -784,7 +788,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
    exfalso; apply H₂.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite Lfield.add_0_l.
+   rewrite fld_add_0_l.
    destruct (Nbar.lt_dec (fin i) y₂) as [H₄| H₄].
     exfalso; apply H₂.
     apply Nbar.max_lt_iff; right; assumption.
@@ -800,7 +804,7 @@ destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
    exfalso; apply H₁.
    apply Nbar.max_lt_iff; left; assumption.
 
-   rewrite Lfield.add_0_l.
+   rewrite fld_add_0_l.
    destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
     exfalso; apply H₁.
     apply Nbar.max_lt_iff; right; assumption.

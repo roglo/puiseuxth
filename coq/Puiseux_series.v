@@ -92,6 +92,11 @@ Definition series_left_shift α n (s : power_series α) :=
   {| terms i := terms s (n + i);
      stop := stop s - fin n |}.
 
+Arguments series_stretch α%type _ k%positive s%ser.
+Arguments series_shift α%type _ n%nat s%ser.
+Arguments series_shrink α%type k%positive s%ser.
+Arguments series_left_shift α%type n%nat s%ser.
+
 Definition canonify_series α n k (s : power_series α) :=
   series_shrink k (series_left_shift n s).
 
@@ -457,8 +462,8 @@ unfold series_nth in Hi |- *; simpl.
 do 2 rewrite Nbar.fold_sub.
 subst g.
 remember (fin (Pos.to_nat k)) as fink.
-remember (Nbar.div_sup (stop ps₁ - fin n) fink)%Nbar as d₁ eqn:Hd₁ .
-remember (Nbar.div_sup (stop ps₂ - fin n) fink)%Nbar as d₂ eqn:Hd₂ .
+remember (Nbar.div_sup (stop ps₁ - fin n) fink) as d₁ eqn:Hd₁ .
+remember (Nbar.div_sup (stop ps₂ - fin n) fink) as d₂ eqn:Hd₂ .
 subst fink.
 destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
  destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₁)) as [H₂| H₂].
@@ -636,8 +641,7 @@ destruct (Nbar.lt_dec (fin i) (fin n)); [ idtac | reflexivity ].
 destruct (lt_dec i n); reflexivity.
 Qed.
 
-Lemma series_stretch_series_0 : ∀ k,
-  (series_stretch f k .0 f .= f .0 f)%ser.
+Lemma series_stretch_series_0 : ∀ k, (series_stretch f k .0 f .= f .0 f)%ser.
 Proof.
 intros k.
 constructor; intros i.
