@@ -1,4 +1,4 @@
-(* $Id: Puiseux.v,v 2.3 2013-12-19 19:25:10 deraugla Exp $ *)
+(* Puiseux.v *)
 
 Require Import Utf8.
 Require Import QArith.
@@ -10,15 +10,50 @@ Require Import Fpolynomial.
 Require Import Misc.
 Require Import Newton.
 Require Import Polynomial.
-Require Import Puiseux_base.
-Require Import Puiseux_series.
-Require Import Power_series.
-Require Import CharactPolyn.
 Require Import Nbar.
+Require Import Power_series.
+Require Import Puiseux_series.
+Require Import Ps_add.
+Require Import Ps_mul.
+Require Import Ps_div.
+Require Import Puiseux_base.
+Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
 (* *)
+
+(*
+Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
+Notation "a ≃ b" := (eq_series fld a b) (at level 70).
+Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
+*)
+
+Definition ps_pol_add α (f : field α) :=
+  pol_add (ps_add f).
+Definition ps_pol_mul α (f : field α) :=
+  pol_mul (ps_zero f) (ps_add f) (ps_mul f).
+
+Definition apply_poly_with_ps_poly α (f : field α) pol :=
+  apply_poly
+    (λ ps, {| al := []; an := ps |})
+    (λ pol ps, ps_pol_add f pol {| al := []; an := ps |})
+    (ps_pol_mul f) pol.
+
+(* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
+Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
+  ps_pol_mul fld {| al := []; an := ps_monom (fld_one fld) (- β₁) |}
+    (apply_poly_with_ps_poly fld f
+       (ps_pol_mul fld {| al := []; an := ps_monom (fld_one fld) γ₁ |}
+          {| al := [ps_const c₁]; an := ps_one fld |})).
+
+(* f₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
+Definition f₁' α (fld : field α) f β₁ γ₁ c₁ :=
+  ps_pol_mul fld {| al := []; an := ps_monom (fld_one fld) (- β₁) |}
+    (apply_poly_with_ps_poly fld f
+       {| al := [ps_monom c₁ γ₁]; an := ps_monom (fld_one fld) γ₁ |}).
+
+(* exercise... *)
 
 Section field.
 
@@ -26,40 +61,12 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-
-Definition ps_pol_add := pol_add (ps_add fld).
-Definition ps_pol_mul := pol_mul (ps_zero _) (ps_add fld) (ps_mul fld).
-
-Definition apply_poly_with_ps_poly pol :=
-  apply_poly
-    (λ ps, {| al := []; an := ps |})
-    (λ pol ps, ps_pol_add pol {| al := []; an := ps |})
-    ps_pol_mul pol.
-
-(* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
-Definition f₁ f β₁ γ₁ c₁ :=
-  ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}
-    (apply_poly_with_ps_poly f
-       (ps_pol_mul {| al := []; an := ps_monom (one fld) γ₁ |}
-          {| al := [ps_const c₁]; an := ps_one fld |})).
-
-(* f₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
-Definition f₁' f β₁ γ₁ c₁ :=
-  ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}
-    (apply_poly_with_ps_poly f
-       {| al := [ps_monom c₁ γ₁]; an := ps_monom (one fld) γ₁ |}).
-
-(* exercise... *)
-
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma yyy : ∀ c γ,
-  eq_poly (ps_fld fld)
-    {| al := [ps_monom c γ]; an := ps_monom (one fld) γ |}
-    (ps_pol_mul
-      {| al := []; an := ps_monom (one fld) γ |}
+  eq_poly (ps_field fld)
+    {| al := [ps_monom c γ]; an := ps_monom (fld_one fld) γ |}
+    (ps_pol_mul fld
+      {| al := []; an := ps_monom (fld_one fld) γ |}
       {| al := [ps_const c]; an := ps_one fld |}).
 Proof.
 intros c γ.
@@ -82,13 +89,13 @@ Focus 1.
 bbb.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
-  poly_eq (ps_fld fld) (f₁ f β₁ γ₁ c₁) (f₁' f β₁ γ₁ c₁).
+  poly_eq (ps_f f) (f₁ f β₁ γ₁ c₁) (f₁' f β₁ γ₁ c₁).
 Proof.
 intros f β₁ γ₁ c₁.
 unfold f₁, f₁'.
 unfold poly_eq; simpl.
 apply list_eq_append_one.
-remember (ps_pol_mul {| al := []; an := ps_monom (one fld) (- β₁) |}) as g.
+remember (ps_pol_mul {| al := []; an := ps_monom (one f) (- β₁) |}) as g.
 split.
  Focus 2.
 bbb.
@@ -124,7 +131,7 @@ Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   | [ps … _] =>
       match ps with
       | NonZero nz =>
-          match series_head (fld_eq fld (zero fld)) 0 (nz_terms nz) with
+          match series_head (f_eq f (zero f)) 0 (nz_terms nz) with
           | Some _ => false
           | None => true
           end
@@ -133,10 +140,10 @@ Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   end.
 
 Definition pol_mul_x_power_minus p pol :=
-  ps_pol_mul {| al := []; an := ps_monom (one fld) (Qopp p) |} pol.
+  ps_pol_mul {| al := []; an := ps_monom (one f) (Qopp p) |} pol.
 
 Definition puiseux_step psumo (pol : polynomial (puiseux_series α)) :=
-  let nsl₁ := newton_segments fld pol in
+  let nsl₁ := newton_segments f pol in
   let (nsl, psum) :=
     match psumo with
     | Some psum => (List.filter (λ ns, negb (Qle_bool (γ ns) 0)) nsl₁, psum)
@@ -146,7 +153,7 @@ Definition puiseux_step psumo (pol : polynomial (puiseux_series α)) :=
   match nsl with
   | [] => None
   | [ns … _] =>
-      let cpol := characteristic_polynomial fld pol ns in
+      let cpol := characteristic_polynomial f pol ns in
       let (c, r) := ac_root acf cpol in
       let pol₁ := f₁ pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
@@ -235,7 +242,7 @@ CoFixpoint series_series_take α n (s : series α) :=
   end.
 *)
 
-Lemma series_pad_left_0 : ∀ s, series_pad_left fld 0 s ≃ s.
+Lemma series_pad_left_0 : ∀ s, series_pad_left f 0 s ≃ s.
 Proof.
 intros s.
 constructor.
@@ -249,8 +256,8 @@ constructor.
  simpl; rewrite Nbar.add_0_r; reflexivity.
 Qed.
 
-Add Parametric Morphism : (series_pad_left fld) with 
-signature eq ==> eq_series fld ==> eq_series fld as series_pad_morph.
+Add Parametric Morphism : (series_pad_left f) with 
+signature eq ==> eq_series f ==> eq_series f as series_pad_morph.
 Proof.
 intros n s₁ s₂ H.
 constructor; simpl.
@@ -264,8 +271,8 @@ Qed.
 (* *)
 
 Lemma cpol_degree : ∀ (pol : puis_ser_pol α) cpol ns,
-  ns ∈ newton_segments fld pol
-  → cpol = characteristic_polynomial fld pol ns
+  ns ∈ newton_segments f pol
+  → cpol = characteristic_polynomial f pol ns
     → degree cpol ≥ 1.
 Proof.
 intros pol cpol ns Hns Hpol.
@@ -284,9 +291,9 @@ destruct kj; simpl.
 Qed.
 
 Lemma exists_root : ∀ (pol : puis_ser_pol α) cpol ns,
-  ns ∈ newton_segments fld pol
-  → cpol = characteristic_polynomial fld pol ns
-    → ∃ c, apply_polynomial fld cpol c = zero fld.
+  ns ∈ newton_segments f pol
+  → cpol = characteristic_polynomial f pol ns
+    → ∃ c, apply_polynomial f cpol c = zero f.
 Proof.
 intros pol cpol ns Hdeg Hpol.
 eapply cpol_degree in Hdeg; [ idtac | eassumption ].
@@ -301,7 +308,7 @@ Qed.
 (* *)
 
 Lemma jh_oppsl_eq_p_nq : ∀ pol ns j αj k αk h αh m,
-  ns ∈ newton_segments fld pol
+  ns ∈ newton_segments f pol
   → (j, αj) = ini_pt ns
     → (k, αk) = fin_pt ns
       → (h, αh) ∈ oth_pts ns
@@ -324,7 +331,7 @@ split.
 Qed.
 
 Lemma list_pad_app : ∀ n v cl,
-  list_eq (fld_eq fld) (list_pad n v cl) (list_pad n v [] ++ cl).
+  list_eq (f_eq f) (list_pad n v cl) (list_pad n v [] ++ cl).
 Proof.
 intros n v cl.
 revert v cl.
@@ -336,7 +343,7 @@ Qed.
 
 Lemma empty_padded : ∀ n v c,
   c ∈ list_pad n v []
-  → fld_eq fld c v.
+  → f_eq f c v.
 Proof.
 intros n v c H.
 induction n; [ contradiction | idtac ].
@@ -348,7 +355,7 @@ Qed.
 
 Lemma padded : ∀ n v c cl,
   list_pad n v [] = [c … cl]
-  → fld_eq fld c v.
+  → f_eq f c v.
 Proof.
 intros n v c cl H.
 destruct n; [ discriminate H | simpl in H ].
@@ -371,8 +378,8 @@ Qed.
 
 Lemma make_char_pol_S : ∀ pow t tl k,
   (pow < power t)%nat
-  → make_char_pol fld pow [t … tl] k =
-    [zero fld … make_char_pol fld (S pow) [t … tl] k].
+  → make_char_pol f pow [t … tl] k =
+    [zero f … make_char_pol f (S pow) [t … tl] k].
 Proof.
 intros pow t tl k Hpow.
 simpl.
@@ -395,8 +402,8 @@ Qed.
 Lemma nth_minus_char_pol_plus_nil : ∀ i j s k d,
   s ≤ i
   → j + s ≤ k
-    → List.nth (i - s) (make_char_pol fld (j + s) [] k) d =
-      List.nth i (make_char_pol fld j [] k) d.
+    → List.nth (i - s) (make_char_pol f (j + s) [] k) d =
+      List.nth i (make_char_pol f j [] k) d.
 Proof.
 intros i j s k d Hsi Hjsk.
 revert i j k d Hsi Hjsk.
@@ -428,7 +435,7 @@ Qed.
 
 (*
 Delimit Scope ps with puiseux_series.
-Notation "x * y" := (ps_mul fld x y) : ps.
+Notation "x * y" := (ps_mul f x y) : ps.
 
 Open Scope ps.
 *)
@@ -436,17 +443,17 @@ Open Scope ps.
 Definition abar (pol : polynomial (puiseux_series α)) h :=
   List.nth h (al pol) (an pol).
 
-Definition ps_pol_add := pol_add (add ps_fld).
-Definition ps_pol_mul := pol_mul (zero ps_fld) (add ps_fld) (mul ps_fld).
+Definition ps_pol_add := pol_add (add ps_f).
+Definition ps_pol_mul := pol_mul (zero ps_f) (add ps_f) (mul ps_f).
 
 Fixpoint ps_pol_power pol n :=
   match n with
-  | O => {| al := []; an := one ps_fld |}
+  | O => {| al := []; an := one ps_f |}
   | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
   end.
 
 (*
-Lemma normal_terms_end : ∀ n cd, normal_terms fld n cd (End α) = End α.
+Lemma normal_terms_end : ∀ n cd, normal_terms f n cd (End α) = End α.
 Proof.
 intros n cd.
 symmetry.
@@ -454,10 +461,10 @@ rewrite series_eta.
 reflexivity.
 Qed.
 
-Lemma normal_terms_0 : ∀ s, normal_terms fld 0 0 s = s.
+Lemma normal_terms_0 : ∀ s, normal_terms f 0 0 s = s.
 Proof.
 intros s.
-apply ext_eq_ser with (fld := fld).
+apply ext_eq_ser with (f := f).
 revert s.
 cofix IHs; intros.
 destruct s as [t s| ].
@@ -470,7 +477,7 @@ Qed.
 *)
 
 (*
-Lemma series_add_end_l : ∀ s, series_add fld (End α) s = s.
+Lemma series_add_end_l : ∀ s, series_add f (End α) s = s.
 Proof.
 intros s.
 symmetry.
@@ -481,7 +488,7 @@ Qed.
 *)
 
 (*
-Lemma ps_add_0_r : ∀ ps, ps_add fld ps (ps_zero α) = ps.
+Lemma ps_add_0_r : ∀ ps, ps_add f ps (ps_zero α) = ps.
 Proof.
 intros ps.
 rewrite ps_add_comm.
@@ -508,22 +515,22 @@ bbb.
 *)
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
-  pts = points_of_ps_polynom fld pol
-  → ns ∈ newton_segments fld pol
-    → cpol = characteristic_polynomial fld pol ns
+  pts = points_of_ps_polynom f pol
+  → ns ∈ newton_segments f pol
+    → cpol = characteristic_polynomial f pol ns
       → ac_root acf cpol = (c₁, r₁)
-        → f₁ fld pol (β ns) (γ ns) c₁
-          = pol_mul_x_power_minus fld (β ns)
+        → f₁ f pol (β ns) (γ ns) c₁
+          = pol_mul_x_power_minus f (β ns)
               (List.fold_right
                  (λ ips accu,
                     ps_pol_add
                       (ps_pol_mul
                          {| al := [];
                             an :=
-                              ps_mul fld (snd ips)
-                                (x_power fld (Qnat (fst ips) * γ ns)%Q) |}
+                              ps_mul f (snd ips)
+                                (x_power f (Qnat (fst ips) * γ ns)%Q) |}
                       (ps_pol_power
-                         {| al := [ps_const c₁]; an := ps_one fld |}
+                         {| al := [ps_const c₁]; an := ps_one f |}
                          (fst ips)))
                       accu)
                  {| al := []; an := ps_zero _ |}
@@ -543,7 +550,7 @@ remember (an pol) as cn; clear Heqcn.
 remember (al pol) as cl; clear Heqcl.
 unfold nofq in Hcpol.
 clear pol cpol Hcpol Hcr r₁.
-unfold ps_pol_mul, ps_fld; simpl.
+unfold ps_pol_mul, ps_f; simpl.
 unfold ps_pol_add.
 remember 0%nat as n; clear Heqn.
 revert pts ns c₁ cn n Hpts Hns.
@@ -562,11 +569,11 @@ bbb.
 
 (*
 Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
-  ns ∈ newton_segments fld pol
-  → cpol = characteristic_polynomial fld pol ns
+  ns ∈ newton_segments f pol
+  → cpol = characteristic_polynomial f pol ns
     → (c, r) = ac_root acf cpol
-      → pol₁ = f₁ fld pol (β ns) (γ ns) c
-        → ∃ ns₁, ns₁ ∈ newton_segments fld pol₁ → γ ns₁ > 0.
+      → pol₁ = f₁ f pol (β ns) (γ ns) c
+        → ∃ ns₁, ns₁ ∈ newton_segments f pol₁ → γ ns₁ > 0.
 Proof.
 bbb.
 *)
