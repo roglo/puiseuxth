@@ -388,8 +388,8 @@ rewrite <- Z2Nat.inj_add.
 Qed.
 
 Lemma canonic_ps_add_adjust_l : ∀ ps₁ ps₂ n k,
-  canonic_ps (ps₁ + ps₂)%ps ≐
-  canonic_ps (adjust_ps n k ps₁ + ps₂)%ps.
+  canonic_ps f (ps₁ .+ f ps₂)%ps ≐ f
+  canonic_ps f (adjust_ps f n k ps₁ .+ f ps₂)%ps.
 Proof.
 intros ps₁ ps₂ n k.
 rewrite eq_strong_ps_add_adjust_0_l with (k := k).
@@ -397,18 +397,18 @@ apply canonic_ps_add_adjust.
 Qed.
 
 Lemma canonified_exists_adjust : ∀ ps ps₁,
-  null_coeff_range_length rng (ps_terms ps) 0 ≠ ∞
-  → canonic_ps ps = ps₁
-    → ∃ n k, eq_ps_strong ps (adjust_ps n k ps₁).
+  null_coeff_range_length f (ps_terms ps) 0 ≠ ∞
+  → canonic_ps f ps = ps₁
+    → ∃ n k, eq_ps_strong f ps (adjust_ps f n k ps₁).
 Proof.
 intros ps ps₁ Hnz Heq.
 unfold canonic_ps in Heq.
-remember (null_coeff_range_length rng (ps_terms ps) 0) as len₁.
+remember (null_coeff_range_length f (ps_terms ps) 0) as len₁.
 symmetry in Heqlen₁.
 destruct len₁ as [len₁| ]; [ idtac | exfalso; apply Hnz; reflexivity ].
 subst ps₁.
 unfold adjust_ps; simpl.
-remember (greatest_series_x_power rng (ps_terms ps) len₁) as k₁.
+remember (greatest_series_x_power f (ps_terms ps) len₁) as k₁.
 remember (gcd_ps len₁ k₁ ps) as g.
 symmetry in Heqg.
 destruct g as [| g| g]; simpl.
@@ -489,16 +489,16 @@ destruct g as [| g| g]; simpl.
 Qed.
 
 Definition ps_neg_zero :=
-  {| ps_terms := 0%ser; ps_valnum := -1; ps_polord := 1 |}.
+  {| ps_terms := .0 f%ser; ps_valnum := -1; ps_polord := 1 |}.
 
 Lemma eq_strong_ps_adjust_zero_neg_zero : ∀ ps,
-  null_coeff_range_length rng (ps_terms ps) 0 = ∞
+  null_coeff_range_length f (ps_terms ps) 0 = ∞
   → ∃ n₁ n₂ k₁ k₂,
-    eq_ps_strong (adjust_ps n₁ k₁ ps) (adjust_ps n₂ k₂ ps_neg_zero).
+    eq_ps_strong f (adjust_ps f n₁ k₁ ps) (adjust_ps f n₂ k₂ ps_neg_zero).
 Proof.
 intros ps Hz.
 unfold canonic_ps in Hz.
-remember (null_coeff_range_length rng (ps_terms ps) 0) as n eqn:Hn .
+remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n; [ discriminate Hz | clear Hz ].
 apply null_coeff_range_length_iff in Hn.
@@ -549,9 +549,9 @@ destruct (Z_le_dec 0 (ps_valnum ps)) as [H₁| H₁].
 Qed.
 
 Lemma null_coeff_range_length_inf_compat : ∀ ps₁ ps₂,
-  canonic_ps ps₁ ≐ canonic_ps ps₂
-  → null_coeff_range_length rng (ps_terms ps₁) 0 = ∞
-    → null_coeff_range_length rng (ps_terms ps₂) 0 = ∞.
+  canonic_ps f ps₁ ≐ f canonic_ps f ps₂
+  → null_coeff_range_length f (ps_terms ps₁) 0 = ∞
+    → null_coeff_range_length f (ps_terms ps₂) 0 = ∞.
 Proof.
 intros ps₁ ps₂ Heq Hinf.
 apply null_coeff_range_length_inf_iff in Hinf.
@@ -561,17 +561,17 @@ rewrite <- Heq, H; reflexivity.
 Qed.
 
 Lemma ps_canon_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  canonic_ps ps₁ ≐ canonic_ps ps₂
-  → canonic_ps (ps₁ + ps₃)%ps ≐ canonic_ps (ps₂ + ps₃)%ps.
+  canonic_ps f ps₁ ≐ f canonic_ps f ps₂
+  → canonic_ps f (ps₁ .+ f ps₃)%ps ≐ f canonic_ps f (ps₂ .+ f ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
-remember (null_coeff_range_length rng (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
-remember (null_coeff_range_length rng (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
+remember (null_coeff_range_length f (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
+remember (null_coeff_range_length f (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
 symmetry in Hm₁, Hm₂.
 destruct m₁ as [m₁| ].
  destruct m₂ as [m₂| ].
-  remember (canonic_ps ps₁) as nps₁ eqn:Hps₁ .
-  remember (canonic_ps ps₂) as nps₂ eqn:Hps₂ .
+  remember (canonic_ps f ps₁) as nps₁ eqn:Hps₁ .
+  remember (canonic_ps f ps₂) as nps₂ eqn:Hps₂ .
   symmetry in Hps₁, Hps₂.
   apply canonified_exists_adjust in Hps₁.
    apply canonified_exists_adjust in Hps₂.
@@ -613,8 +613,8 @@ destruct m₁ as [m₁| ].
 Qed.
 
 Theorem ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
-  (ps₁ = ps₂)%ps
-  → (ps₁ + ps₃ = ps₂ + ps₃)%ps.
+  (ps₁ .= f ps₂)%ps
+  → (ps₁ .+ f ps₃ .= f ps₂ .+ f ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
@@ -623,8 +623,8 @@ inversion H₁₂; assumption.
 Qed.
 
 Theorem ps_add_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ = ps₂)%ps
-  → (ps₃ + ps₁ = ps₃ + ps₂)%ps.
+  (ps₁ .= f ps₂)%ps
+  → (ps₃ .+ f ps₁ .= f ps₃ .+ f ps₂)%ps.
 Proof.
 intros ps1 ps₂ ps₃ H₁₂.
 rewrite ps_add_comm; symmetry.
@@ -634,8 +634,8 @@ Qed.
 
 End theorem_add_compat.
 
-Add Parametric Morphism : ps_add
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
+Add Parametric Morphism α (f : field α) : (ps_add f)
+  with signature eq_ps_strong f ==> eq_ps_strong f ==> eq_ps_strong f
   as ps_canon_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -644,12 +644,12 @@ rewrite eq_strong_ps_add_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism : ps_add
-  with signature eq_ps ==> eq_ps ==> eq_ps
+Add Parametric Morphism α (f : field α) : (ps_add f)
+  with signature eq_ps f ==> eq_ps f ==> eq_ps f
   as ps_add_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
-transitivity (ps_add ps₁ ps₄).
+transitivity (ps_add f ps₁ ps₄).
  apply ps_add_compat_l; assumption.
 
  apply ps_add_compat_r; assumption.

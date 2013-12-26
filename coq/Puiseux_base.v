@@ -1,4 +1,4 @@
-(* $Id: Puiseux_base.v,v 2.10 2013-12-19 23:59:27 deraugla Exp $ *)
+(* Puiseux_base.v *)
 
 (* Most of notations are Robert Walker's ones *)
 
@@ -11,12 +11,13 @@ Require Import ConvexHullMisc.
 Require Import Misc.
 Require Import Newton.
 Require Import Polynomial.
+Require Import Nbar.
+Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_add_compat.
-Require Import Nbar.
-Require Power_series.
-Import Power_series.M.
+Require Import Ps_mul.
+Require Import Ps_div.
 
 Set Implicit Arguments.
 
