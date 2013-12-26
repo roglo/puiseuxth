@@ -857,7 +857,7 @@ Lemma ps_polord_canonic : ∀ ps n p vn,
   null_coeff_range_length f (ps_terms ps) 0 = fin n
   → p = greatest_series_x_power f (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
-      → ps_polord (canonic_ps ps) =
+      → ps_polord (canonic_ps f ps) =
         Z.to_pos
           (' ps_polord ps / Z.gcd (' ps_polord ps) (Z.gcd (Z.of_nat p) vn)).
 Proof.
@@ -876,7 +876,7 @@ Lemma ps_terms_canonic : ∀ ps n p vn,
   → p = greatest_series_x_power f (ps_terms ps) n
     → vn = (ps_valnum ps + Z.of_nat n)%Z
       → ps_terms (canonic_ps f ps) =
-        canonify_series f n
+        canonify_series n
           (Z.to_pos (Z.gcd vn (Z.gcd (' ps_polord ps) (Z.of_nat p))))
           (ps_terms ps).
 Proof.
@@ -1010,8 +1010,10 @@ reflexivity.
 Qed.
 
 Lemma ps_terms_adjust_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃,
-  (ps_terms (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps) =
-   ps_terms (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)))%ser.
+  (ps_terms
+     (adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps) .= f
+   ps_terms
+     (adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps)))%ser.
 Proof.
 intros ps₁ ps₂ ps₃; simpl.
 unfold cm; simpl.
@@ -1069,11 +1071,11 @@ reflexivity.
 Qed.
 
 Lemma ps_valnum_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
-  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+  ps₄ = adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps
+  → ps₅ = adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps)
     → null_coeff_range_length f (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length f (ps_terms ps₅) 0 = fin n
-        → ps_valnum (canonic_ps ps₄) = ps_valnum (canonic_ps ps₅).
+        → ps_valnum (canonic_ps f ps₄) = ps_valnum (canonic_ps f ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_valnum_canonic; try reflexivity; try eassumption.
@@ -1086,11 +1088,11 @@ reflexivity.
 Qed.
 
 Lemma ps_polord_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
-  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+  ps₄ = adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps
+  → ps₅ = adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps)
     → null_coeff_range_length f (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length f (ps_terms ps₅) 0 = fin n
-        → ps_polord (canonic_ps ps₄) = ps_polord (canonic_ps ps₅).
+        → ps_polord (canonic_ps f ps₄) = ps_polord (canonic_ps f ps₅).
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_polord_canonic; try reflexivity; try eassumption.
@@ -1103,11 +1105,11 @@ reflexivity.
 Qed.
 
 Lemma ps_terms_adjust_canonic_mul_add₂_distr_l : ∀ ps₁ ps₂ ps₃ ps₄ ps₅ n,
-  ps₄ = adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃)%ps
-  → ps₅ = adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂)%ps (ps₁ * ps₃)%ps)
+  ps₄ = adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃)%ps
+  → ps₅ = adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂)%ps (ps₁ .* f ps₃)%ps)
     → null_coeff_range_length f (ps_terms ps₄) 0 = fin n
       → null_coeff_range_length f (ps_terms ps₅) 0 = fin n
-        → (ps_terms (canonic_ps ps₄) = ps_terms (canonic_ps ps₅))%ser.
+        → (ps_terms (canonic_ps f ps₄) .= f ps_terms (canonic_ps f ps₅))%ser.
 Proof.
 intros ps₁ ps₂ ps₃ ps₄ ps₅ n Hps₄ Hps₅ Hn₄ Hn₅.
 erewrite ps_terms_canonic; try reflexivity; try eassumption.
@@ -1120,15 +1122,15 @@ reflexivity.
 Qed.
 
 Theorem ps_mul_add_distr_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ * (ps₂ + ps₃) = ps₁ * ps₂ + ps₁ * ps₃)%ps.
+  (ps₁ .* f (ps₂ .+ f ps₃) .= f ps₁ .* f ps₂ .+ f ps₁ .* f ps₃)%ps.
 Proof.
 intros ips₁ ips₂ ips₃.
 rewrite <- (canonic_ps_eq ips₁).
 rewrite <- (canonic_ps_eq ips₂).
 rewrite <- (canonic_ps_eq ips₃).
-remember (canonic_ps ips₁) as ps₁ eqn:Hps₁ .
-remember (canonic_ps ips₂) as ps₂ eqn:Hps₂ .
-remember (canonic_ps ips₃) as ps₃ eqn:Hps₃ .
+remember (canonic_ps f ips₁) as ps₁ eqn:Hps₁ .
+remember (canonic_ps f ips₂) as ps₂ eqn:Hps₂ .
+remember (canonic_ps f ips₃) as ps₃ eqn:Hps₃ .
 remember (ps_valnum ps₁ * ' ps_polord ps₂ * ' ps_polord ps₃)%Z as vcc.
 remember (' ps_polord ps₁ * ps_valnum ps₂ * ' ps_polord ps₃)%Z as cvc.
 remember (' ps_polord ps₁ * ' ps_polord ps₂ * ps_valnum ps₃)%Z as ccv.
@@ -1137,9 +1139,9 @@ remember ((vcc + Z.min cvc ccv) * ' ps_polord ps₁)%Z as n₂.
 do 2 rewrite eq_ps_add_add₂.
 rewrite ps_adjust_eq with (n := O) (k := ps_polord ps₁); symmetry.
 rewrite ps_adjust_eq with (n := O) (k := xH); symmetry.
-remember (adjust_ps 0 (ps_polord ps₁) (ps₁ * ps_add₂ ps₂ ps₃))%ps as ps₄
+remember (adjust_ps f 0 (ps_polord ps₁) (ps₁ .* f ps_add₂ f ps₂ ps₃))%ps as ps₄
  eqn:Hps₄ .
-remember (adjust_ps 0 1 (ps_add₂ (ps₁ * ps₂) (ps₁ * ps₃)))%ps as ps₅ eqn:Hps₅ .
+remember (adjust_ps f 0 1 (ps_add₂ f (ps₁ .* f ps₂) (ps₁ .* f ps₃)))%ps as ps₅ eqn:Hps₅ .
 remember (null_coeff_range_length f (ps_terms ps₄) 0) as n₄ eqn:Hn₄ .
 remember (null_coeff_range_length f (ps_terms ps₅) 0) as n₅ eqn:Hn₅ .
 symmetry in Hn₄, Hn₅.
@@ -1159,25 +1161,3 @@ destruct n₄ as [n₄| ].
 Qed.
 
 End other_theorems.
-
-Definition ps_ring : fld_r (puiseux_series α) :=
-  {| fld_zero := ps_zero;
-     fld_one := ps_one;
-     fld_add := ps_add;
-     fld_mul := ps_mul;
-     fld_opp := ps_opp;
-     fld_eq := eq_ps;
-     fld_eq_refl := eq_ps_refl;
-     fld_eq_sym := eq_ps_sym;
-     fld_eq_trans := eq_ps_trans;
-     fld_neq_1_0 := ps_neq_1_0;
-     fld_add_comm := ps_add_comm;
-     fld_add_assoc := ps_add_assoc;
-     fld_add_0_l := ps_add_0_l;
-     fld_add_opp_l := ps_add_opp_l;
-     fld_add_compat_l := ps_add_compat_l;
-     fld_mul_comm := ps_mul_comm;
-     fld_mul_assoc := ps_mul_assoc;
-     fld_mul_1_l := ps_mul_1_l;
-     fld_mul_compat_l := ps_mul_compat_l;
-     fld_mul_add_distr_l := ps_mul_add_distr_l |}.
