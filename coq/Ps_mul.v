@@ -262,13 +262,13 @@ revert n; induction k; intros.
  rewrite Nat.add_succ_r; reflexivity.
 Qed.
 
-Lemma sigma_mul_sigma_sigma : ∀ f n k,
+Lemma sigma_mul_sigma_sigma : ∀ g n k,
   (0 < n)%nat
   → (0 < k)%nat
-    → (Σ (i = 0, k * n - 1) _ f i
-       = Σ (i = 0, k - 1) _ Σ (j = 0, n - 1) _ f (i * n + j)%nat)%F.
+    → (Σ f (i = 0, k * n - 1) _ g i .= f
+       Σ f (i = 0, k - 1) _ Σ f (j = 0, n - 1) _ g (i * n + j)%nat)%F.
 Proof.
-intros f n k Hn Hk.
+intros g n k Hn Hk.
 unfold sigma.
 do 2 rewrite Nat.sub_0_r.
 destruct n; [ exfalso; revert Hn; apply Nat.lt_irrefl | clear Hn ].
@@ -283,13 +283,13 @@ rewrite <- Nat.sub_succ_l, Nat.sub_succ, Nat.sub_0_r.
  simpl; apply le_n_S, Nat.le_0_l.
 Qed.
 
-Lemma inserted_0_sigma : ∀ f g k n,
+Lemma inserted_0_sigma : ∀ g h k n,
   n ≠ O
-  → (∀ i, i mod n ≠ O → (f i = 0)%F)
-    → (∀ i, (f (n * i)%nat = g i)%F)
-      → (Σ (i = 0, k * n) _ f i = Σ (i = 0, k) _ g i)%F.
+  → (∀ i, i mod n ≠ O → (g i .= f .0 f)%F)
+    → (∀ i, (g (n * i)%nat .= f h i)%F)
+      → (Σ f (i = 0, k * n) _ g i .= f Σ f (i = 0, k) _ h i)%F.
 Proof.
-intros f g k n Hn Hf Hfg.
+intros g h k n Hn Hf Hfg.
 destruct k.
  rewrite Nat.mul_0_l.
  apply sigma_compat; intros i (_, Hi).
@@ -344,7 +344,8 @@ destruct k.
 Qed.
 
 Lemma series_stretch_mul : ∀ a b k,
-  (series_stretch k (a * b) = series_stretch k a * series_stretch k b)%ser.
+  (series_stretch f k (a .* f b) .= f
+   series_stretch f k a .* f series_stretch f k b)%ser.
 Proof.
 intros a b k.
 constructor; intros i.
@@ -426,7 +427,7 @@ destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
 Qed.
 
 Theorem ps_mul_assoc : ∀ ps₁ ps₂ ps₃,
-  (ps₁ * (ps₂ * ps₃) = (ps₁ * ps₂) * ps₃)%ps.
+  (ps₁ .* f (ps₂ .* f ps₃) .= f (ps₁ .* f ps₂) .* f ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor.
@@ -441,10 +442,10 @@ remember (ps_polord ps₃ * ps_polord ps₁)%positive as c₃₁ eqn:Hc₃₁ .
 remember (ps_polord ps₁ * ps_polord ps₂)%positive as c₁₂ eqn:Hc₁₂ .
 rewrite Pos.mul_comm in Hc₂₃; rewrite <- Hc₂₃.
 rewrite Pos.mul_comm in Hc₃₁; rewrite <- Hc₃₁.
-remember (series_stretch c₂₃ (ps_terms ps₁)) as s₁ eqn:Hs₁ .
-remember (series_stretch c₃₁ (ps_terms ps₂)) as s₂ eqn:Hs₂ .
-remember (series_stretch c₁₂ (ps_terms ps₃)) as s₃ eqn:Hs₃ .
-remember (series_mul (series_mul s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
+remember (series_stretch f c₂₃ (ps_terms ps₁)) as s₁ eqn:Hs₁ .
+remember (series_stretch f c₃₁ (ps_terms ps₂)) as s₂ eqn:Hs₂ .
+remember (series_stretch f c₁₂ (ps_terms ps₃)) as s₃ eqn:Hs₃ .
+remember (series_mul f (series_mul f s₁ s₂) s₃) as s₁₂₃ eqn:Hs₁₂₃ .
 remember (null_coeff_range_length f s₁₂₃ 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
@@ -492,8 +493,8 @@ constructor; simpl.
   rewrite series_mul_assoc; reflexivity.
 
  constructor; intros i.
- do 2 rewrite series_stretch_mul.
- do 4 rewrite <- series_stretch_stretch.
+ do 4 rewrite series_stretch_mul at 1.
+ do 8 rewrite <- series_stretch_stretch at 1.
  rewrite <- Hc₁₂, <- Hc₂₃, <- Hc₃₁.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₂₃.
  rewrite <- Z.mul_assoc, <- Pos2Z.inj_mul, Pos.mul_comm, <- Hc₃₁.
@@ -507,8 +508,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_strong_ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong ps₁ ps₂
-  → eq_ps_strong (ps_mul ps₁ ps₃) (ps_mul ps₂ ps₃).
+  eq_ps_strong f ps₁ ps₂
+  → eq_ps_strong f (ps_mul f ps₁ ps₃) (ps_mul f ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -524,8 +525,8 @@ constructor; simpl.
 Qed.
 
 Lemma eq_strong_ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  eq_ps_strong ps₁ ps₂
-  → eq_ps_strong (ps_mul ps₃ ps₁) (ps_mul ps₃ ps₂).
+  eq_ps_strong f ps₁ ps₂
+  → eq_ps_strong f (ps_mul f ps₃ ps₁) (ps_mul f ps₃ ps₂).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 induction Heq.
@@ -542,7 +543,7 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → (series_nth f i (series_shift n a) = 0)%F.
+  → (series_nth f i (series_shift f n a) .= f .0 f)%F.
 Proof.
 intros a i n Hin.
 unfold series_nth; simpl.
@@ -552,10 +553,10 @@ destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma sigma_add_add_sub : ∀ f b k n,
-  (Σ (i = b, k) _ f i = Σ (i = b + n, k + n) _ f (i - n)%nat)%F.
+Lemma sigma_add_add_sub : ∀ g b k n,
+  (Σ f (i = b, k) _ g i .= f Σ f (i = b + n, k + n) _ g (i - n)%nat)%F.
 Proof.
-intros f b k n.
+intros g b k n.
 unfold sigma.
 replace (S (k + n) - (b + n))%nat with (S k - b)%nat by omega.
 apply sigma_aux_compat.
@@ -565,7 +566,7 @@ reflexivity.
 Qed.
 
 Lemma series_shift_mul : ∀ a b n,
-  (series_shift n (a * b) = series_shift n a * b)%ser.
+  (series_shift f n (a .* f b)%ser .= f series_shift f n a .* f b)%ser.
 Proof.
 intros a b n.
 constructor; intros k.
@@ -618,8 +619,8 @@ destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
 Qed.
 
 Lemma canonic_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
-  canonic_ps (ps_mul ps₁ ps₂) ≐
-  canonic_ps (ps_mul (adjust_ps n k ps₁) ps₂).
+  canonic_ps f (ps_mul f ps₁ ps₂) ≐ f
+  canonic_ps f (ps_mul f (adjust_ps f n k ps₁) ps₂).
 Proof.
 intros ps₁ ps₂ n k.
 remember (Pos.to_nat (ps_polord ps₂) * n)%nat as m eqn:Hm .
@@ -646,13 +647,13 @@ reflexivity.
 Qed.
 
 Lemma ps_canon_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  canonic_ps ps₁ ≐ canonic_ps ps₂
-  → canonic_ps (ps_mul ps₁ ps₃) ≐ canonic_ps (ps_mul ps₂ ps₃).
+  canonic_ps f ps₁ ≐ f canonic_ps f ps₂
+  → canonic_ps f (ps_mul f ps₁ ps₃) ≐ f canonic_ps f (ps_mul f ps₂ ps₃).
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 remember Heq as Heqv; clear HeqHeqv.
-remember (canonic_ps ps₁) as nps₁ eqn:Hps₁  in Heq.
-remember (canonic_ps ps₂) as nps₂ eqn:Hps₂  in Heq.
+remember (canonic_ps f ps₁) as nps₁ eqn:Hps₁  in Heq.
+remember (canonic_ps f ps₂) as nps₂ eqn:Hps₂  in Heq.
 symmetry in Hps₁, Hps₂.
 remember (null_coeff_range_length f (ps_terms ps₁) 0) as m₁ eqn:Hm₁ .
 remember (null_coeff_range_length f (ps_terms ps₂) 0) as m₂ eqn:Hm₂ .
@@ -698,8 +699,8 @@ destruct m₁ as [m₁| ].
 Qed.
 
 Theorem ps_mul_compat_r : ∀ ps₁ ps₂ ps₃,
-  (ps₁ = ps₂)%ps
-  → (ps₁ * ps₃ = ps₂ * ps₃)%ps.
+  (ps₁ .= f ps₂)%ps
+  → (ps₁ .* f ps₃ .= f ps₂ .* f ps₃)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ H₁₂.
 constructor.
@@ -708,8 +709,8 @@ inversion H₁₂; assumption.
 Qed.
 
 Theorem ps_mul_compat_l : ∀ ps₁ ps₂ ps₃,
-  (ps₁ = ps₂)%ps
-  → (ps₃ * ps₁ = ps₃ * ps₂)%ps.
+  (ps₁ .= f ps₂)%ps
+  → (ps₃ .* f ps₁ .= f ps₃ .* f ps₂)%ps.
 Proof.
 intros ps₁ ps₂ ps₃ Heq.
 rewrite ps_mul_comm; symmetry.
@@ -719,8 +720,8 @@ Qed.
 
 End theorems_for_mul.
 
-Add Parametric Morphism : ps_mul
-  with signature eq_ps_strong ==> eq_ps_strong ==> eq_ps_strong
+Add Parametric Morphism α (f : field α) : (ps_mul f)
+  with signature eq_ps_strong f ==> eq_ps_strong f ==> eq_ps_strong f
   as ps_canon_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
@@ -729,8 +730,8 @@ rewrite eq_strong_ps_mul_compat_r; [ idtac | eassumption ].
 reflexivity.
 Qed.
 
-Add Parametric Morphism : ps_mul
-  with signature eq_ps ==> eq_ps ==> eq_ps
+Add Parametric Morphism α (f : field α) : (ps_mul f)
+  with signature eq_ps f ==> eq_ps f ==> eq_ps f
   as ps_mul_morph.
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
