@@ -23,12 +23,6 @@ Set Implicit Arguments.
 
 (* *)
 
-(*
-Notation "a ≈ b" := (eq_ps fld a b) (at level 70).
-Notation "a ≃ b" := (eq_series fld a b) (at level 70).
-Notation "a ≍ b" := (fld_eq fld a b) (at level 70).
-*)
-
 Definition ps_pol_add α (f : field α) :=
   pol_add (ps_add f).
 Definition ps_pol_mul α (f : field α) :=
