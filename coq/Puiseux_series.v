@@ -270,47 +270,16 @@ Add Parametric Morphism α (f : field α) : (series_stretch f)
 Proof.
 intros kp s₁ s₂ Heq.
 inversion Heq; subst.
-clear Heq; rename H into Heq.
-constructor; simpl.
-intros i.
-unfold series_nth; simpl.
-unfold series_nth; simpl.
-unfold series_nth in Heq; simpl in Heq.
+constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
-destruct (zerop (i mod k)) as [Hz| Hnz].
- apply Nat.mod_divides in Hz; [ idtac | assumption ].
- destruct Hz as (c, Hi).
- subst i.
- pose proof (Heq c) as Hc.
- rewrite Nat.mul_comm.
- rewrite Nat.div_mul; [ idtac | assumption ].
- destruct (Nbar.lt_dec (fin (c * k)) (stop s₁ * fin k)) as [Hlt₁| Hge₁].
-  destruct (Nbar.lt_dec (fin c) (stop s₂)) as [Hlt₄| Hge₄].
-   destruct (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)) as [Hlt₃| Hge₃].
-    assumption.
-
-    exfalso; apply Hge₃; subst k.
-    apply mul_lt_mono_positive_r; assumption.
-
-   destruct (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)); assumption.
-
-  destruct (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)) as [Hlt₂| ].
-   destruct (Nbar.lt_dec (fin c) (stop s₂)) as [Hlt₃| ].
-    destruct (Nbar.lt_dec (fin c) (stop s₁)) as [Hlt₄| ].
-     exfalso; apply Hge₁; subst k.
-     apply mul_lt_mono_positive_r; assumption.
-
-     assumption.
-
-    reflexivity.
-
-   reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (stop s₁ * fin k)).
-  destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) (stop s₂ * fin k)); reflexivity.
+destruct (zerop (i mod k)) as [Hz| Hnz]; [ idtac | reflexivity ].
+apply Nat.mod_divides in Hz; [ idtac | assumption ].
+destruct Hz as (c, Hi).
+subst i.
+pose proof (H c) as Hc.
+rewrite Nat.mul_comm.
+rewrite Nat.div_mul; assumption.
 Qed.
 
 Add Parametric Morphism α (f: field α) : (@series_shrink α)
@@ -320,55 +289,9 @@ Proof.
 intros n s₁ s₂ Heq.
 constructor; intros.
 unfold series_nth; simpl.
-do 2 rewrite Nbar.fold_sub, Nbar.fold_div, Nbar.fold_div_sup.
 inversion Heq; subst.
-clear Heq; rename H into Heq.
-unfold series_nth in Heq; simpl in Heq.
-remember (Pos.to_nat n) as nn eqn:Hnn .
-symmetry in Hnn.
-pose proof (Heq (i * nn)%nat) as Hin.
-destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₁) (fin nn))) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin (i * nn)) (stop s₁)) as [H₃| H₃].
-  destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₂) (fin nn)))
-   as [H₂| H₂].
-   destruct (Nbar.lt_dec (fin (i * nn)) (stop s₂)) as [H₄| H₄].
-    assumption.
-
-    exfalso; apply H₄.
-    rewrite Nbar.fin_inj_mul.
-    apply Nbar.lt_div_sup_lt_mul_r; assumption.
-
-   destruct (Nbar.lt_dec (fin (i * nn)) (stop s₂)) as [H₄| H₄].
-    exfalso; apply H₂.
-    rewrite Nbar.fin_inj_mul in H₄.
-    apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
-    destruct nn; [ exfalso; revert Hnn; apply Pos2Nat_ne_0 | idtac ].
-    apply Nbar.lt_fin, Nat.lt_succ_r, Nat.le_0_l.
-
-    assumption.
-
-  exfalso; apply H₃.
-  rewrite Nbar.fin_inj_mul.
-  apply Nbar.lt_div_sup_lt_mul_r; assumption.
-
- destruct (Nbar.lt_dec (fin (i * nn)) (stop s₁)) as [H₃| H₃].
-  exfalso; apply H₁.
-  rewrite Nbar.fin_inj_mul in H₃.
-  apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
-  destruct nn; [ exfalso; revert Hnn; apply Pos2Nat_ne_0 | idtac ].
-  apply Nbar.lt_fin.
-  apply Nat.lt_succ_r, Nat.le_0_l.
-
-  destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s₂) (fin nn)))
-   as [H₂| H₂].
-   destruct (Nbar.lt_dec (fin (i * nn)) (stop s₂)) as [H₄| H₄].
-    assumption.
-
-    exfalso; apply H₄.
-    rewrite Nbar.fin_inj_mul.
-    apply Nbar.lt_div_sup_lt_mul_r; assumption.
-
-   reflexivity.
+unfold series_nth in H; simpl in H.
+apply H.
 Qed.
 
 Add Parametric Morphism α (f : field α) : (series_shift f)
