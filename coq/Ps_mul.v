@@ -71,32 +71,6 @@ constructor.
 apply ps_canon_mul_comm.
 Qed.
 
-(*
-Lemma fold_series_1 : {| terms := λ _, .1 f%F |} = .1 f%ser.
-Proof. reflexivity. Qed.
-*)
-
-Lemma stretch_series_1 : ∀ k, (series_stretch f k .1 f .= f .1 f)%ser.
-Proof.
-intros k.
-constructor; intros i; simpl.
-destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
- apply Nat.mod_divides in H₂; auto.
- destruct H₂ as (c, Hc); rewrite Hc.
- rewrite Nat.mul_comm.
- rewrite Nat.div_mul; auto.
- destruct c; [ reflexivity | idtac ].
- rewrite Nat.mul_comm; simpl.
- rewrite <- Hc.
- destruct i; [ idtac | reflexivity ].
- symmetry in Hc.
- apply Nat.mul_eq_0_r in Hc; auto; discriminate Hc.
-
- destruct i; [ simpl | reflexivity ].
- rewrite Nat.mod_0_l in H₂; auto.
- exfalso; revert H₂; apply Nat.lt_irrefl.
-Qed.
-
 Theorem ps_mul_1_l : ∀ ps, (.1 f .* f ps .= f ps)%ps.
 Proof.
 intros ps.

@@ -21,8 +21,11 @@ Notation "s [ i ]" := (terms s i) (at level 1).
 
 Definition series_0 α (f : field α) :=
   {| terms i := .0 f%F |}.
+
+Definition series_const α (f : field α) c :=
+  {| terms i := if zerop i then c else .0 f%F |}.
 Definition series_1 α (f : field α) :=
-  {| terms i := if zerop i then .1 f%F else .0 f%F |}.
+  series_const f (.1 f%F).
 
 Notation ".0 f" := (series_0 f) : series_scope.
 Notation ".1 f" := (series_1 f) : series_scope.

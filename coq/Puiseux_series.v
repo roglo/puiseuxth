@@ -673,6 +673,34 @@ destruct (zerop (i mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
 exfalso; revert Hi; rewrite Hz; apply Nat.lt_irrefl.
 Qed.
 
+Lemma stretch_series_const : ∀ k c,
+  (series_stretch f k (series_const f c) .= f series_const f c)%ser.
+Proof.
+intros k c.
+constructor; intros i; simpl.
+destruct (zerop (i mod Pos.to_nat k)) as [H| H].
+ apply Nat.mod_divides in H; auto.
+ destruct H as (d, Hd); rewrite Hd.
+ rewrite Nat.mul_comm.
+ rewrite Nat.div_mul; auto.
+ destruct d; [ reflexivity | idtac ].
+ rewrite Nat.mul_comm; simpl.
+ rewrite <- Hd.
+ destruct i; [ idtac | reflexivity ].
+ symmetry in Hd.
+ apply Nat.mul_eq_0_r in Hd; auto; discriminate Hd.
+
+ destruct i; [ simpl | reflexivity ].
+ rewrite Nat.mod_0_l in H; auto.
+ exfalso; revert H; apply Nat.lt_irrefl.
+Qed.
+
+Lemma stretch_series_1 : ∀ k, (series_stretch f k .1 f .= f .1 f)%ser.
+Proof.
+intros k.
+apply stretch_series_const.
+Qed.
+
 Lemma series_nth_mul_stretch : ∀ s k i,
   (series_stretch f k s) [Pos.to_nat k * i] = s [i].
 Proof.
