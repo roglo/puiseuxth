@@ -531,22 +531,14 @@ Theorem series_left_shift_shift : ∀ s n m,
      series_left_shift (n - m) s)%ser.
 Proof.
 intros s n m Hmn.
-constructor; intros i.
-unfold series_nth; simpl.
-do 2 rewrite Nbar.fold_sub.
-rewrite Nbar.fin_inj_sub.
-rewrite Nbar.sub_sub_distr.
- destruct (Nbar.lt_dec (fin i) (stop s + fin m - fin n)) as [H₁| H₁].
-  destruct (lt_dec (n + i) m) as [H₂| H₂].
-   exfalso; fast_omega Hmn H₂.
+constructor; intros i; simpl.
+destruct (lt_dec (n + i) m) as [H₁| H₁].
+ apply Nat.nle_gt in H₁.
+ exfalso; apply H₁.
+ transitivity n; [ assumption | apply Nat.le_add_r ].
 
-   rewrite Nat.add_sub_swap; [ reflexivity | assumption ].
-
-  reflexivity.
-
- intros H; discriminate H.
-
- apply Nbar.le_fin; assumption.
+ apply Nat.nlt_ge in H₁.
+ rewrite Nat.add_sub_swap; [ reflexivity | assumption ].
 Qed.
 
 Theorem series_left_shift_stretch : ∀ s n k,
