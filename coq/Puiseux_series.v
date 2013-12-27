@@ -760,44 +760,17 @@ Lemma series_nth_add_shift : ∀ s i n,
 Proof.
 intros s i n; simpl.
 rewrite Nat.add_sub.
-destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
-  destruct (lt_dec (i + n) n) as [H₃| H₃]; [ idtac | reflexivity ].
-  apply Nat.lt_add_lt_sub_r in H₃.
-  rewrite Nat.sub_diag in H₃.
-  exfalso; revert H₃; apply Nat.nlt_0_r.
-
-  rewrite Nbar.fin_inj_add in H₁.
-  apply Nbar.add_lt_mono_r with (n := fin i) in H₁; [ contradiction | idtac ].
-  intros H; discriminate H.
-
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂]; [ idtac | reflexivity ].
- exfalso; apply H₁.
- rewrite Nbar.fin_inj_add.
- apply Nbar.add_lt_mono_r; [ intros H; discriminate H | assumption ].
+destruct (lt_dec (i + n) n) as [H| H]; [ idtac | reflexivity ].
+apply Nat.lt_add_lt_sub_r in H.
+rewrite Nat.sub_diag in H.
+exfalso; revert H; apply Nat.nlt_0_r.
 Qed.
 
-Lemma series_nth_add_left_shift : ∀ s i n,
-  series_nth f (i + n) s =
-  series_nth f i (series_left_shift n s).
+Lemma series_nth_add_left_shift : ∀ (s : power_series α) i n,
+  s [i + n] = (series_left_shift n s) [i].
 Proof.
-intros s i n.
-unfold series_nth; simpl.
-rewrite Nbar.fold_sub.
-destruct (Nbar.lt_dec (fin (i + n)) (stop s)) as [H₁| H₁].
- rewrite Nat.add_comm.
- destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
-  reflexivity.
-
-  exfalso; apply H₂.
-  apply Nbar.lt_add_lt_sub_r; assumption.
-
- destruct (Nbar.lt_dec (fin i) (stop s - fin n)) as [H₂| H₂].
-  exfalso; apply H₁.
-  rewrite Nbar.fin_inj_add.
-  apply Nbar.lt_add_lt_sub_r; assumption.
-
-  reflexivity.
+intros s i n; simpl.
+rewrite Nat.add_comm; reflexivity.
 Qed.
 
 Lemma null_coeff_range_length_shift_add : ∀ s m n,
