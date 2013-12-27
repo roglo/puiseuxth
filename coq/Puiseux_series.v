@@ -546,37 +546,12 @@ Theorem series_left_shift_stretch : ∀ s n k,
    series_stretch f k (series_left_shift n s))%ser.
 Proof.
 intros s n k.
-constructor; intros i.
-unfold series_nth; simpl.
-do 2 rewrite Nbar.fold_sub.
-rewrite Nbar.fin_inj_mul.
-rewrite <- Nbar.mul_sub_distr_r; [ idtac | intros H; discriminate H ].
+constructor; intros i; simpl.
 rewrite Nat.add_comm.
 rewrite Nat.mod_add; auto.
 rewrite Nat.div_add; auto.
-remember ((stop s - fin n) * fin (Pos.to_nat k))%Nbar as x eqn:Hx .
-destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂]; [ idtac | reflexivity ].
-unfold series_nth; simpl.
-rewrite Nbar.fold_sub.
-rewrite Nat.add_comm.
-destruct (Nbar.lt_dec (fin (n + i / Pos.to_nat k)) (stop s)) as [H₃| H₃].
- destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) (stop s - fin n)) as [H₄| H₄].
-  reflexivity.
-
-  exfalso; apply H₄.
-  apply Nbar.lt_add_lt_sub_r.
-  rewrite Nbar.add_comm.
-  rewrite <- Nbar.fin_inj_add; assumption.
-
- destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) (stop s - fin n)) as [H₄| H₄].
-  exfalso; apply H₃.
-  rewrite Nbar.fin_inj_add.
-  rewrite Nbar.add_comm.
-  apply Nbar.lt_add_lt_sub_r.
-  assumption.
-
-  reflexivity.
+rewrite Nat.add_comm; reflexivity.
 Qed.
 
 Theorem eq_ps_trans : transitive _ (eq_ps f).
