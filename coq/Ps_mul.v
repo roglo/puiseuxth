@@ -497,14 +497,10 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → (series_nth f i (series_shift f n a) .= f .0 f)%F.
+  → ((series_shift f n a) [i] .= f .0 f)%F.
 Proof.
-intros a i n Hin.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) (stop a + fin n)) as [H₁| H₁].
- destruct (lt_dec i n) as [| H₂]; [ reflexivity | contradiction ].
-
- reflexivity.
+intros a i n Hin; simpl.
+destruct (lt_dec i n); [ reflexivity | contradiction ].
 Qed.
 
 Lemma sigma_add_add_sub : ∀ g b k n,
@@ -523,53 +519,51 @@ Lemma series_shift_mul : ∀ a b n,
   (series_shift f n (a .* f b)%ser .= f series_shift f n a .* f b)%ser.
 Proof.
 intros a b n.
-constructor; intros k.
-unfold series_nth; simpl.
-rewrite Nbar.add_shuffle0.
-destruct (Nbar.lt_dec (fin k) (stop a + fin n + stop b)) as [H₁| H₁].
- destruct (lt_dec k n) as [H₂| H₂].
-  symmetry; unfold convol_mul; simpl.
-  apply all_0_sigma_0; intros i Hi.
-  rewrite series_nth_lt_shift.
-   rewrite fld_mul_0_l; reflexivity.
+constructor; intros k; simpl.
+destruct (lt_dec k n) as [H₂| H₂].
+ symmetry; unfold convol_mul; simpl.
+ apply all_0_sigma_0; intros i Hi.
+ destruct (lt_dec i n) as [H₁| H₁].
+  rewrite fld_mul_0_l; reflexivity.
 
-   eapply le_lt_trans; [ idtac | eassumption ].
-   destruct Hi; assumption.
+  exfalso; apply H₁.
+  eapply le_lt_trans; [ idtac | eassumption ].
+  destruct Hi; assumption.
 
-  unfold convol_mul; simpl.
-  apply Nat.nlt_ge in H₂.
-  symmetry.
-  destruct n.
-   rewrite Nat.sub_0_r.
+ apply Nat.nlt_ge in H₂.
+ unfold convol_mul.
+ symmetry.
+ destruct n.
+  rewrite Nat.sub_0_r.
+  apply sigma_compat; intros i Hi.
+  rewrite series_shift_0; reflexivity.
+
+  assert (k = (n + (k - n))%nat) as H by omega.
+  rewrite H in |- * at 1.
+  rewrite sigma_add.
+  rewrite fld_add_comm.
+  rewrite <- H.
+  rewrite fld_add_comm.
+  rewrite all_0_sigma_0.
+   rewrite fld_add_0_l.
+   symmetry.
+   rewrite sigma_add_add_sub with (n := S n).
+   rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
    apply sigma_compat; intros i Hi.
-   rewrite series_shift_0; reflexivity.
+   assert (i = i - S n + S n)%nat as H₁ by omega.
+   rewrite H₁ in |- * at 3.
+   rewrite series_nth_add_shift.
+   rewrite <- Nat.sub_add_distr.
+   rewrite Nat.add_comm.
+   rewrite <- H₁; reflexivity.
 
-   assert (k = (n + (k - n))%nat) as H by omega.
-   rewrite H in |- * at 1; clear H.
-   rewrite sigma_add.
-   rewrite fld_add_comm.
-   rewrite Nat.add_sub_assoc; [ idtac | omega ].
-   rewrite Nat.add_comm, Nat.add_sub.
-   rewrite fld_add_comm.
-   rewrite all_0_sigma_0.
-    rewrite fld_add_0_l.
-    symmetry.
-    rewrite sigma_add_add_sub with (n := S n).
-    rewrite Nat.add_0_l, Nat.sub_add; [ idtac | assumption ].
-    apply sigma_compat; intros i Hi.
-    assert (i = i - S n + S n)%nat as H by omega.
-    rewrite H in |- * at 3.
-    rewrite series_nth_add_shift.
-    rewrite <- Nat.sub_add_distr.
-    rewrite Nat.add_comm.
-    rewrite Nat.sub_add; [ reflexivity | idtac ].
-    destruct Hi; assumption.
-
-    intros i Hi.
-    rewrite series_nth_lt_shift; [ idtac | omega ].
+   intros i Hi; simpl.
+   destruct (lt_dec i (S n)) as [H₁| H₁].
     rewrite fld_mul_0_l; reflexivity.
 
- reflexivity.
+    exfalso; apply H₁.
+    apply Nat.lt_succ_r.
+    destruct Hi; assumption.
 Qed.
 
 Lemma canonic_ps_mul_adjust_l : ∀ ps₁ ps₂ n k,
