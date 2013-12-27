@@ -119,18 +119,9 @@ constructor; simpl.
  unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
 
-bbb.
-
- rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_ps; simpl.
- rewrite Z.mul_1_r; reflexivity.
-
- rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
- unfold gcd_ps; simpl.
- rewrite Z.mul_1_r; reflexivity.
-
- rewrite Z.mul_1_r; f_equal.
- rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
+ do 2 rewrite stretch_series_1 in |- * at 1.
+ do 2 rewrite series_stretch_1 in |- * at 1.
+ rewrite series_mul_1_l.
  unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
 Qed.
@@ -165,11 +156,7 @@ Proof.
 intros H.
 apply null_coeff_range_length_inf_iff in H.
 apply null_coeff_range_length_iff in H.
-simpl in H.
 pose proof (H O) as Hi.
-unfold series_nth in Hi.
-simpl in Hi.
-rewrite if_lt_dec_0_1 in Hi.
 revert Hi; apply fld_neq_1_0.
 Qed.
 
@@ -334,48 +321,29 @@ Lemma series_stretch_mul : ∀ a b k,
    series_stretch f k a .* f series_stretch f k b)%ser.
 Proof.
 intros a b k.
-constructor; intros i.
-unfold series_nth; simpl.
-rewrite <- Nbar.mul_add_distr_r.
-remember ((stop a + stop b) * fin (Pos.to_nat k))%Nbar as x.
-destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ subst x | reflexivity ].
+constructor; intros i; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
  apply Nat.mod_divides in H₂; auto.
  destruct H₂ as (c, Hc).
  rewrite Hc.
  rewrite Nat.mul_comm.
  rewrite Nat.div_mul; auto.
- unfold series_nth; simpl.
- destruct (Nbar.lt_dec (fin c) (stop a + stop b)) as [H₂| H₂].
-  unfold convol_mul; simpl.
-  rename k into n, i into k.
-  symmetry.
-  apply inserted_0_sigma; auto.
-   intros i Hi.
-   rewrite shifted_in_stretched.
-    rewrite fld_mul_0_l; reflexivity.
+ unfold convol_mul; simpl.
+ rename k into n, i into k.
+ symmetry.
+ apply inserted_0_sigma; auto.
+  intros i Hi.
+  destruct (zerop (i mod Pos.to_nat n)) as [| H₂]; [ contradiction | idtac ].
+  rewrite fld_mul_0_l; reflexivity.
 
-    apply neq_0_lt, Nat.neq_sym; assumption.
-
-   intros i.
-   rewrite Nat.mul_comm.
-   rewrite <- Nat.mul_sub_distr_r.
-   rewrite Nat.mul_comm.
-   rewrite series_nth_mul_stretch.
-   rewrite Nat.mul_comm.
-   rewrite series_nth_mul_stretch.
-   reflexivity.
-
-  exfalso; apply H₂.
-  subst i.
-  rewrite Nat.mul_comm in H₁.
-  rewrite Nbar.fin_inj_mul in H₁.
-  apply Nbar.mul_lt_mono_pos_r in H₁; auto.
-   apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
-
-   intros H; discriminate H.
-
-   intros H; discriminate H.
+  intros i.
+  rewrite Nat.mul_comm.
+  rewrite <- Nat.mul_sub_distr_r.
+  rewrite Nat.mod_mul; auto; simpl.
+  rewrite Nat.mod_mul; auto; simpl.
+  rewrite Nat.div_mul; auto; simpl.
+  rewrite Nat.div_mul; auto; simpl.
+  reflexivity.
 
  unfold convol_mul.
  symmetry.
