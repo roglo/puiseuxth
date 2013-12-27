@@ -10,24 +10,20 @@ Require Import Misc.
 
 Set Implicit Arguments.
 
-Record power_series α :=
-  { terms : nat → α;
-    stop : Nbar }.
+Record power_series α := { terms : nat → α }.
 
 Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
 Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
 
 Delimit Scope series_scope with ser.
 
-Definition series_nth α (f : field α) n (s : power_series α) :=
-  if Nbar.lt_dec (fin n) (stop s) then terms s n else .0 f%F.
+Definition series_nth α (f : field α) n (s : power_series α) := terms s n.
 Notation "s [ i ] f" := (series_nth f i s) (at level 1, f at level 0).
 
-Definition series_inf α (f : field α) (a : power_series α) :=
-  {| terms i := a [i]f; stop := ∞ |}.
-
-Definition series_0 α (f : field α) := {| terms i := .0 f%F; stop := 0 |}.
-Definition series_1 α (f : field α) := {| terms i := .1 f%F; stop := 1 |}.
+Definition series_0 α (f : field α) :=
+  {| terms i := .0 f%F |}.
+Definition series_1 α (f : field α) :=
+  {| terms i := if zerop i then .1 f%F else .0 f%F |}.
 Notation ".0 f" := (series_0 f) : series_scope.
 Notation ".1 f" := (series_1 f) : series_scope.
 
@@ -88,14 +84,14 @@ Qed.
 (* series_add *)
 
 Definition series_add α (f : field α) s₁ s₂ :=
-  {| terms i := (s₁ [i]f .+ f s₂ [i]f)%F;
-     stop := Nbar.max (stop s₁) (stop s₂) |}.
-Notation "a .+ f b" := (series_add f a b) : series_scope.
+  {| terms i := (s₁ [i]f .+ f s₂ [i]f)%F |}.
 
 Definition series_opp α (f : field α) s :=
-  {| terms i := (.- f terms s i)%F; stop := stop s |}.
-Notation ".- f a" := (series_opp f a) : series_scope.
+  {| terms i := (.- f terms s i)%F |}.
+
+Notation "a .+ f b" := (series_add f a b) : series_scope.
 Notation "a .- f b" := (series_add f a (series_opp f b)) : series_scope.
+Notation ".- f a" := (series_opp f a) : series_scope.
 
 Section theorems_add.
 
@@ -108,13 +104,7 @@ intros s₁ s₂.
 constructor; simpl.
 intros i.
 unfold series_nth; simpl.
-rewrite Nbar.max_comm.
-destruct (Nbar.max (stop s₂) (stop s₁)) as [n| ].
- destruct (Nbar.lt_dec (fin i) (fin n)) as [Hlt| ]; [ idtac | reflexivity ].
- rewrite fld_add_comm; reflexivity.
-
- do 2 rewrite if_lt_dec_fin_inf.
- rewrite fld_add_comm; reflexivity.
+rewrite fld_add_comm; reflexivity.
 Qed.
 
 Theorem series_add_assoc : ∀ s₁ s₂ s₃,
@@ -125,98 +115,29 @@ unfold series_add; simpl.
 constructor; simpl.
 intros i.
 unfold series_nth; simpl.
-rewrite Nbar.max_assoc.
-remember (Nbar.lt_dec (fin i) (stop s₁)) as lt₁.
-remember (Nbar.lt_dec (fin i) (stop s₂)) as lt₂.
-remember (Nbar.lt_dec (fin i) (stop s₃)) as lt₃.
-remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂))) as lt₄.
-remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₃))) as lt₅.
-clear Heqlt₁ Heqlt₂ Heqlt₃ Heqlt₄ Heqlt₅.
-remember (Nbar.max (Nbar.max (stop s₁) (stop s₂)) (stop s₃)) as n.
-destruct (Nbar.lt_dec (fin i) n) as [Hlt| ]; [ subst n | reflexivity ].
-destruct lt₄ as [Hlt₄| Hge₄].
- destruct lt₅ as [Hlt₅| Hge₅].
-  destruct lt₁ as [Hlt₁| Hge₁].
-   destruct lt₂ as [Hlt₂| Hge₂].
-    destruct lt₃ as [Hlt₃| Hge₃]; [ apply fld_add_assoc | idtac ].
-    rewrite fld_add_0_r; symmetry.
-    rewrite <- fld_add_assoc.
-    rewrite fld_add_0_r; reflexivity.
-
-    rewrite <- fld_add_assoc, fld_add_0_l; reflexivity.
-
-   rewrite <- fld_add_assoc, fld_add_0_l; reflexivity.
-
-  rewrite fld_add_0_r; symmetry.
-  destruct lt₂ as [Hlt₂| Hge₂].
-   exfalso; apply Hge₅; clear Hge₅.
-   apply Nbar.max_lt_iff; left; assumption.
-
-   rewrite <- fld_add_assoc, fld_add_0_l.
-   destruct lt₃ as [Hlt₃| Hge₃].
-    exfalso; apply Hge₅; clear Hge₅.
-    apply Nbar.max_lt_iff; right; assumption.
-
-    rewrite fld_add_0_r; reflexivity.
-
- rewrite fld_add_0_l.
- destruct lt₁ as [Hlt₁| Hge₁].
-  exfalso; apply Hge₄; clear Hge₄.
-  apply Nbar.max_lt_iff; left; assumption.
-
-  rewrite fld_add_0_l.
-  destruct lt₂ as [Hlt₂| Hge₂].
-   exfalso; apply Hge₄; clear Hge₄.
-   apply Nbar.max_lt_iff; right; assumption.
-
-   destruct lt₅ as [Hlt₅| Hge₅].
-    rewrite fld_add_0_l; reflexivity.
-
-    destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
-    exfalso; apply Hge₅; clear Hge₅.
-    apply Nbar.max_lt_iff; right; assumption.
-Qed.
-
-Lemma stop_series_add_0_l : ∀ s, stop (.0 f .+ f s)%ser = stop s.
-Proof.
-intros s; simpl.
-destruct (stop s); reflexivity.
+rewrite fld_add_assoc; reflexivity.
 Qed.
 
 Lemma series_nth_series_0 : ∀ i, (.0 f%ser [i]f = .0 f)%F.
 Proof.
 intros i.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) 0); reflexivity.
+unfold series_nth; reflexivity.
 Qed.
 
 Theorem series_add_0_l : ∀ s, (.0 f .+ f s .= f s)%ser.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_nth.
-rewrite stop_series_add_0_l; simpl.
-remember (Nbar.lt_dec (fin i) (stop s)) as d.
-destruct d as [H₁| H₁]; [ idtac | reflexivity ].
-rewrite series_nth_series_0.
-rewrite fld_add_0_l.
-unfold series_nth.
-rewrite <- Heqd; reflexivity.
+unfold series_add, series_nth; simpl.
+rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Theorem series_add_opp_r : ∀ s, (s .- f s .= f .0 f)%ser.
 Proof.
 intros s.
 constructor; intros i.
-unfold series_nth; simpl.
-rewrite Nbar.max_id.
-destruct (Nbar.lt_dec (fin i) 0) as [H₁| H₁].
- exfalso; revert H₁; apply Nbar.nlt_0_r.
-
- clear H₁.
- unfold series_nth; simpl.
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₁| H₁]; [ idtac | reflexivity ].
- apply fld_add_opp_r.
+unfold series_add, series_opp, series_nth; simpl.
+apply fld_add_opp_r.
 Qed.
 
 Theorem series_add_opp_l : ∀ s, (.- f s .+ f s .= f .0 f)%ser.
@@ -245,8 +166,8 @@ Definition convol_mul α (f : field α) a b k :=
   Σ f (i = 0, k) _ a [i]f .* f b [k-i]f.
 
 Definition series_mul α (f : field α) a b :=
-  {| terms k := convol_mul f a b k;
-     stop := Nbar.add (stop a) (stop b) |}.
+  {| terms k := convol_mul f a b k |}.
+
 Notation "a .* f b" := (series_mul f a b) : series_scope.
 
 Section theorems_mul.
@@ -328,54 +249,12 @@ Add Parametric Morphism α (F : field α) : (series_mul F)
 Proof.
 intros a b Hab c d Hcd.
 constructor; intros k.
+unfold series_nth; simpl.
+unfold convol_mul.
+apply sigma_compat; intros i Hi.
 inversion Hab; subst.
 inversion Hcd; subst.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₁| H₁].
- destruct (Nbar.lt_dec (fin k) (stop b + stop d)) as [H₂| H₂].
-  unfold convol_mul.
-  apply sigma_compat; intros i Hi.
-  rewrite H, H0; reflexivity.
-
-  unfold convol_mul.
-  apply all_0_sigma_0; intros i Hi.
-  rewrite H, H0.
-  unfold series_nth.
-  destruct (Nbar.lt_dec (fin i) (stop b)) as [H₄| H₄].
-   destruct (Nbar.lt_dec (fin (k - i)) (stop d)) as [H₅| H₅].
-    exfalso; apply H₂.
-    replace k with (i + (k - i))%nat by omega.
-    rewrite Nbar.fin_inj_add.
-    remember (stop b) as st eqn:Hst .
-    symmetry in Hst.
-    destruct st; [ idtac | constructor ].
-    apply Nbar.add_lt_mono; auto; intros HH; discriminate HH.
-
-    rewrite fld_mul_0_r; reflexivity.
-
-   rewrite fld_mul_0_l; reflexivity.
-
- destruct (Nbar.lt_dec (fin k) (stop b + stop d)) as [H₂| H₂].
-  unfold convol_mul.
-  symmetry.
-  apply all_0_sigma_0; intros i Hi.
-  rewrite <- H, <- H0.
-  unfold series_nth.
-  destruct (Nbar.lt_dec (fin i) (stop a)) as [H₄| H₄].
-   destruct (Nbar.lt_dec (fin (k - i)) (stop c)) as [H₅| H₅].
-    exfalso; apply H₁.
-    replace k with (i + (k - i))%nat by omega.
-    rewrite Nbar.fin_inj_add.
-    remember (stop a) as st eqn:Hst .
-    symmetry in Hst.
-    destruct st; [ idtac | constructor ].
-    apply Nbar.add_lt_mono; auto; intros HH; discriminate HH.
-
-    rewrite fld_mul_0_r; reflexivity.
-
-   rewrite fld_mul_0_l; reflexivity.
-
-  reflexivity.
+rewrite H, H0; reflexivity.
 Qed.
 
 Section misc_lemmas.
@@ -460,17 +339,7 @@ Proof.
 intros a b.
 constructor; intros k.
 unfold series_nth; simpl.
-rewrite Nbar.add_comm.
-destruct (Nbar.lt_dec (fin k) (stop b + stop a)) as [H₁| H₁].
- apply convol_mul_comm.
-
- reflexivity.
-Qed.
-
-Lemma stop_series_mul_0_l : ∀ s, stop (.0 f .* f s)%ser = stop s.
-Proof.
-intros s; simpl.
-destruct (stop s); reflexivity.
+apply convol_mul_comm.
 Qed.
 
 Theorem convol_mul_0_l : ∀ a i, (convol_mul f .0 f%ser a i .= f .0 f)%F.
@@ -486,13 +355,8 @@ Theorem series_mul_0_l : ∀ s, (.0 f .* f s .= f .0 f)%ser.
 Proof.
 intros s.
 constructor; intros k.
-unfold series_nth.
-rewrite stop_series_mul_0_l; simpl.
-destruct (Nbar.lt_dec (fin k) (stop s)) as [H₁| H₁].
- rewrite convol_mul_0_l.
- destruct (Nbar.lt_dec (fin k) 0); reflexivity.
-
- destruct (Nbar.lt_dec (fin k) 0); reflexivity.
+unfold series_mul; simpl.
+apply convol_mul_0_l.
 Qed.
 
 Lemma sigma_aux_mul_swap : ∀ a g b len,
@@ -572,69 +436,18 @@ Proof.
 intros s.
 constructor; intros k.
 unfold series_nth; simpl.
-remember (stop s) as st eqn:Hst .
-symmetry in Hst.
-destruct st as [st| ].
- destruct (Nbar.lt_dec (fin k) (fin st)) as [H₁| H₁].
-  destruct (Nbar.lt_dec (fin k) (fin (S st))) as [H₂| H₂].
-   unfold convol_mul.
-   rewrite sigma_only_one_non_0 with (v := O).
-    rewrite Nat.sub_0_r.
-    unfold series_nth; simpl.
-    rewrite if_lt_dec_0_1, fld_mul_1_l.
-    rewrite <- Hst in H₁.
-    destruct (Nbar.lt_dec (fin k) (stop s)); [ idtac | contradiction ].
-    reflexivity.
+unfold convol_mul; simpl.
+rewrite sigma_only_one_non_0 with (v := O).
+ rewrite Nat.sub_0_r.
+ unfold series_nth; simpl.
+ apply fld_mul_1_l.
 
-    split; [ reflexivity | apply Nat.le_0_l ].
+ split; [ reflexivity | apply Nat.le_0_l ].
 
-    intros i Hik Hi.
-    unfold series_nth at 1; simpl.
-    destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
-     apply Nbar.fin_lt_mono in H₃.
-     apply Nat.lt_1_r in H₃; contradiction.
-
-     apply fld_mul_0_l.
-
-   exfalso; apply H₂.
-   eapply Nbar.lt_trans; [ eassumption | idtac ].
-   apply Nbar.lt_fin, Nat.lt_succ_r; reflexivity.
-
-  destruct (Nbar.lt_dec (fin k) (fin (S st))) as [H₂| H₂].
-   unfold convol_mul.
-   apply all_0_sigma_0; intros i Hi.
-   unfold series_nth; simpl.
-   destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
-    destruct (Nbar.lt_dec (fin (k - i)) (stop s)) as [H₄| H₄].
-     apply Nbar.fin_lt_mono in H₃.
-     apply Nat.lt_1_r in H₃.
-     rewrite Hst in H₄.
-     subst i; rewrite Nat.sub_0_r in H₄; contradiction.
-
-     rewrite fld_mul_0_r; reflexivity.
-
-    rewrite fld_mul_0_l; reflexivity.
-
-   reflexivity.
-
- do 2 rewrite if_lt_dec_fin_inf.
- unfold convol_mul; simpl.
- rewrite sigma_only_one_non_0 with (v := O).
-  rewrite Nat.sub_0_r.
-  unfold series_nth; simpl.
-  rewrite if_lt_dec_0_1, fld_mul_1_l.
-  rewrite Hst, if_lt_dec_fin_inf.
-  reflexivity.
-
-  split; [ reflexivity | apply Nat.le_0_l ].
-
-  intros i Hik Hi.
-  unfold series_nth at 1; simpl.
-  destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
-   apply Nbar.fin_lt_mono in H₃.
-   apply Nat.lt_1_r in H₃; contradiction.
-
-   apply fld_mul_0_l.
+ intros i Hik Hi.
+ unfold series_nth.
+ destruct i; [ exfalso; apply Hi; reflexivity | simpl ].
+ apply fld_mul_0_l.
 Qed.
 
 Theorem series_mul_1_r : ∀ s, (s .* f .1 f .= f s)%ser.
@@ -642,60 +455,6 @@ Proof.
 intros s.
 rewrite series_mul_comm.
 apply series_mul_1_l.
-Qed.
-
-Definition convol_mul_inf a b k :=
-  (Σ f (i = 0, k) _ terms a i .* f terms b (k - i))%F.
-
-Definition series_mul_inf a b :=
-  {| terms k := convol_mul_inf a b k; stop := ∞ |}.
-
-Lemma series_mul_mul_inf : ∀ a b,
-  (a .* f b .= f series_mul_inf (series_inf f a) (series_inf f b))%ser.
-Proof.
-intros a b.
-constructor; intros k.
-unfold series_nth; simpl.
-rewrite if_lt_dec_fin_inf.
-destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₁| H₁].
- unfold convol_mul, convol_mul_inf.
- apply sigma_compat; intros i Hi.
- reflexivity.
-
- unfold convol_mul_inf.
- symmetry; unfold convol_mul_inf; simpl.
- apply all_0_sigma_0; intros i Hi.
- unfold series_nth.
- destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin (k - i)) (stop b)) as [H₃| H₃].
-   exfalso; apply H₁.
-   replace k with (i + (k - i))%nat by omega.
-   rewrite Nbar.fin_inj_add.
-   remember (stop a) as st eqn:Hst .
-   symmetry in Hst.
-   destruct st as [st| ].
-    apply Nbar.add_lt_mono; auto.
-     intros H; discriminate H.
-
-     intros H; discriminate H.
-
-    constructor.
-
-   rewrite fld_mul_0_r; reflexivity.
-
-  destruct (Nbar.lt_dec (fin (k - i)) (stop b)) as [H₃| H₃].
-   rewrite fld_mul_0_l; reflexivity.
-
-   rewrite fld_mul_0_l; reflexivity.
-Qed.
-
-Lemma series_nth_mul_inf : ∀ a b i,
-  (series_mul_inf a b) [i]f = terms (series_mul_inf a b) i.
-Proof.
-intros a b i.
-unfold series_nth; simpl.
-rewrite if_lt_dec_fin_inf.
-reflexivity.
 Qed.
 
 Lemma sigma_sigma_shift : ∀ g k,
@@ -811,42 +570,22 @@ Theorem series_mul_assoc : ∀ a b c,
   (a .* f (b .* f c) .= f (a .* f b) .* f c)%ser.
 Proof.
 intros a b c.
-pose proof (series_mul_mul_inf b c) as H.
-rewrite H; clear H.
-pose proof (series_mul_mul_inf a b) as H.
-rewrite H; clear H.
-rewrite series_mul_mul_inf; symmetry.
-rewrite series_mul_mul_inf; symmetry.
-remember (series_inf f a) as aa eqn:Haa .
-remember (series_inf f b) as bb eqn:Hbb .
-remember (series_inf f c) as cc eqn:Hcc .
 constructor; intros k.
-do 2 rewrite series_nth_mul_inf; simpl.
-unfold convol_mul_inf; simpl.
-remember (λ i, (terms aa i .* f terms (series_mul_inf bb cc) (k - i))%F) as g.
-rewrite sigma_compat with (h := g); subst g.
- symmetry.
- remember (λ i, (terms (series_mul_inf aa bb) i .* f terms cc (k - i))%F) as g.
- rewrite sigma_compat with (h := g); subst g.
-  symmetry.
-  unfold series_mul_inf; simpl.
-  unfold convol_mul_inf.
-  symmetry.
-  rewrite sigma_mul_comm.
-  rewrite <- sigma_sigma_mul_swap.
-  rewrite <- sigma_sigma_mul_swap.
-  rewrite sigma_sigma_exch.
-  rewrite sigma_sigma_shift.
-  apply sigma_compat; intros i Hi.
-  apply sigma_compat; intros j Hj.
-  rewrite fld_mul_comm, fld_mul_assoc.
-  rewrite Nat.add_comm, Nat.add_sub.
-  rewrite Nat.add_comm, Nat.sub_add_distr.
-  reflexivity.
-
-  intros i Hi; rewrite series_nth_mul_inf; reflexivity.
-
- intros i Hi; rewrite series_nth_mul_inf; reflexivity.
+unfold series_nth; simpl.
+unfold convol_mul; simpl.
+unfold convol_mul; simpl.
+symmetry.
+rewrite sigma_mul_comm.
+rewrite <- sigma_sigma_mul_swap.
+rewrite <- sigma_sigma_mul_swap.
+rewrite sigma_sigma_exch.
+rewrite sigma_sigma_shift.
+apply sigma_compat; intros i Hi.
+apply sigma_compat; intros j Hj.
+rewrite fld_mul_comm, fld_mul_assoc.
+rewrite Nat.add_comm, Nat.add_sub.
+rewrite Nat.add_comm, Nat.sub_add_distr.
+reflexivity.
 Qed.
 
 Lemma sigma_aux_add : ∀ g h b len,
@@ -873,22 +612,7 @@ Qed.
 
 Lemma series_nth_add : ∀ a b i,
   (((a .+ f b)%ser) [i]f .= f a [i]f .+ f b [i]f)%F.
-Proof.
-intros a b i.
-unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) (Nbar.max (stop a) (stop b))) as [H₁| H₁].
- reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
-  exfalso; apply H₁.
-  apply Nbar.max_lt_iff; left; assumption.
-
-  destruct (Nbar.lt_dec (fin i) (stop b)) as [H₃| H₃].
-   exfalso; apply H₁.
-   apply Nbar.max_lt_iff; right; assumption.
-
-   rewrite fld_add_0_l; reflexivity.
-Qed.
+Proof. reflexivity. Qed.
 
 Lemma convol_mul_add_distr_l : ∀ a b c i,
   (convol_mul f a (b .+ f c)%ser i .= f
@@ -903,69 +627,13 @@ rewrite fld_mul_add_distr_l.
 reflexivity.
 Qed.
 
-Lemma add_le_convol_mul_is_0 : ∀ a b i,
-  (stop a + stop b ≤ fin i)%Nbar → (convol_mul f a b i .= f .0 f)%F.
-Proof.
-intros a b k Habk.
-unfold convol_mul.
-apply all_0_sigma_0; intros i Hi.
-unfold series_nth.
-destruct (Nbar.lt_dec (fin i) (stop a)) as [H₂| H₂].
- destruct (Nbar.lt_dec (fin (k - i)) (stop b)) as [H₃| H₃].
-  rewrite Nbar.fin_inj_sub in H₃.
-  apply Nbar.lt_sub_lt_add_r in H₃; [ idtac | intros H; discriminate H ].
-  apply Nbar.nlt_ge in Habk.
-  exfalso; apply Habk.
-  remember (stop b) as stb eqn:Hstb .
-  symmetry in Hstb.
-  destruct stb as [stb| ].
-   eapply Nbar.lt_trans; [ eassumption | idtac ].
-   rewrite Nbar.add_comm.
-   apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-   intros H; discriminate H.
-
-   rewrite Nbar.add_comm; constructor.
-
-  rewrite fld_mul_0_r; reflexivity.
-
- rewrite fld_mul_0_l; reflexivity.
-Qed.
-
 Theorem series_mul_add_distr_l : ∀ a b c,
   (a .* f (b .+ f c) .= f a .* f b .+ f a .* f c)%ser.
 Proof.
 intros a b c.
 constructor; intros k.
 unfold series_nth; simpl.
-remember (stop a + Nbar.max (stop b) (stop c))%Nbar as x.
-destruct (Nbar.lt_dec (fin k) x) as [H₁| H₁]; subst x.
- rewrite convol_mul_add_distr_l.
- remember (Nbar.max (stop a + stop b) (stop a + stop c)) as x.
- destruct (Nbar.lt_dec (fin k) x) as [H₂| H₂]; subst x.
-  unfold series_nth; simpl.
-  destruct (Nbar.lt_dec (fin k) (stop a + stop b)) as [H₃| H₃].
-   apply fld_add_compat_l.
-   destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₄| H₄].
-    reflexivity.
-
-    apply add_le_convol_mul_is_0, Nbar.nlt_ge; assumption.
-
-   destruct (Nbar.lt_dec (fin k) (stop a + stop c)) as [H₄| H₄].
-    apply fld_add_compat_r.
-    apply add_le_convol_mul_is_0, Nbar.nlt_ge; assumption.
-
-    apply Nbar.max_lt_iff in H₂.
-    destruct H₂; contradiction.
-
-  rewrite Nbar.add_max_distr_l in H₂.
-  contradiction.
-
- remember (Nbar.max (stop a + stop b) (stop a + stop c)) as x.
- destruct (Nbar.lt_dec (fin k) x) as [H₂| H₂]; subst x.
-  rewrite Nbar.add_max_distr_l in H₂.
-  contradiction.
-
-  reflexivity.
+apply convol_mul_add_distr_l.
 Qed.
 
 End misc_lemmas.
@@ -977,48 +645,11 @@ Proof.
 intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
 inversion Heq₁; subst.
 inversion Heq₂; subst.
-constructor; simpl.
-intros i.
+constructor; intros i; simpl.
 unfold series_nth; simpl.
 unfold series_nth in H; simpl in H.
 unfold series_nth in H0; simpl in H0.
-pose proof (H i) as Hi₁.
-pose proof (H0 i) as Hi₂.
-clear H H0.
-unfold series_nth.
-remember (Nbar.lt_dec (fin i) (stop s₁)) as lt₁.
-remember (Nbar.lt_dec (fin i) (stop s₂)) as lt₂.
-remember (Nbar.lt_dec (fin i) (stop s₃)) as lt₃.
-remember (Nbar.lt_dec (fin i) (stop s₄)) as lt₄.
-remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₃))) as lt₅.
-remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₂) (stop s₄))) as lt₆.
-clear Heqlt₁ Heqlt₂ Heqlt₃ Heqlt₄ Heqlt₅ Heqlt₆.
-move Hi₁ at bottom.
-move Hi₂ at bottom.
-destruct lt₅ as [Hlt₅| Hge₅].
- rewrite Hi₁, Hi₂.
- destruct lt₆ as [Hlt₆| Hge₆]; [ reflexivity | idtac ].
- destruct lt₂ as [Hlt₂| Hge₂].
-  exfalso; apply Hge₆; clear Hge₆.
-  apply Nbar.max_lt_iff; left; assumption.
-
-  destruct lt₄ as [Hlt₄| Hge₄].
-   exfalso; apply Hge₆; clear Hge₆.
-   apply Nbar.max_lt_iff; right; assumption.
-
-   rewrite fld_add_0_l; reflexivity.
-
- destruct lt₁ as [Hlt₁| Hge₁].
-  exfalso; apply Hge₅; clear Hge₅.
-  apply Nbar.max_lt_iff; left; assumption.
-
-  destruct lt₃ as [Hlt₃| Hge₃].
-   exfalso; apply Hge₅; clear Hge₅.
-   apply Nbar.max_lt_iff; right; assumption.
-
-   destruct lt₆ as [Hlt₆| Hge₆]; [ idtac | reflexivity ].
-   rewrite <- Hi₁, <- Hi₂.
-   rewrite fld_add_0_l; reflexivity.
+rewrite H, H0; reflexivity.
 Qed.
 
 Add Parametric Morphism α (F : field α) : (series_nth F)
