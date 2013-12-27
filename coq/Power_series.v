@@ -711,7 +711,6 @@ pose proof (H0 O) as H.
 rewrite series_nth_series_0 in H.
 unfold series_nth in H.
 simpl in H.
-rewrite if_lt_dec_0_1 in H.
 revert H; apply fld_neq_1_0.
 Qed.
 
@@ -728,8 +727,7 @@ Fixpoint term_inv α (f : field α) c s n :=
    end.
 
 Definition series_inv α (f : field α) s :=
-  {| terms i := term_inv f (S i) s i;
-     stop := ∞ |}.
+  {| terms i := term_inv f (S i) s i |}.
 
 Notation ".¹/ f a" := (series_inv f a) : series_scope.
 
@@ -743,7 +741,6 @@ Proof.
 intros a.
 unfold series_nth; simpl.
 unfold series_nth; simpl.
-rewrite if_lt_dec_fin_inf.
 reflexivity.
 Qed.
 
@@ -789,7 +786,6 @@ rewrite Ha'.
 rewrite <- inv_nth_0.
 unfold series_nth.
 remember minus as g; simpl; subst g.
-rewrite if_lt_dec_fin_inf.
 destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
 remember (S k - i)%nat as ki eqn:Hki₂ .
 destruct ki.
@@ -833,7 +829,6 @@ apply fld_mul_compat_l.
 rewrite Ha'.
 unfold series_nth.
 remember minus as g; simpl; subst g.
-rewrite if_lt_dec_fin_inf.
 destruct (zerop (S k - i)) as [H₂| H₂].
  reflexivity.
 
@@ -874,31 +869,12 @@ Proof.
 intros a Ha.
 constructor; intros i.
 unfold series_nth; simpl.
-rewrite Nbar.add_comm; simpl.
-rewrite if_lt_dec_fin_inf.
-destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
- apply Nbar.fin_lt_mono in H₂.
- apply Nat.lt_1_r in H₂; subst i.
+destruct i; simpl.
  unfold convol_mul; simpl.
  rewrite sigma_only_one.
  unfold series_nth; simpl.
- rewrite if_lt_dec_fin_inf.
- destruct (Nbar.lt_dec 0 (stop a)) as [H₂| H₂].
-  unfold series_nth; simpl.
-  unfold series_nth in Ha.
-  destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
-   rewrite fld_mul_inv_r; [ reflexivity | assumption ].
+ rewrite fld_mul_inv_r; [ reflexivity | assumption ].
 
-   exfalso; apply Ha; reflexivity.
-
-  exfalso; apply Ha.
-  unfold series_nth; simpl.
-  destruct (Nbar.lt_dec 0 (stop a)) as [H₃| H₃].
-   contradiction.
-
-   reflexivity.
-
- destruct i; [ exfalso; apply H₂, Nbar.lt_0_1 | idtac ].
  apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
 
