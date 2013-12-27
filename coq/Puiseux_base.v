@@ -30,7 +30,7 @@ Definition valuation α (f : field α) ps :=
 
 Definition valuation_coeff α (f : field α) ps :=
   match null_coeff_range_length f (ps_terms ps) 0 with
-  | fin v => series_nth f v (ps_terms ps)
+  | fin v => (ps_terms ps) [v]
   | ∞ => (.0 f)%F
   end.
 
