@@ -246,67 +246,11 @@ Lemma series_stretch_add_distr : ∀ k s₁ s₂,
    series_stretch f k s₁ .+ f series_stretch f k s₂)%ser.
 Proof.
 intros kp s₁ s₂.
-unfold series_stretch; simpl.
-unfold series_add; simpl.
-constructor; simpl.
-intros i.
-unfold series_nth; simpl.
+constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
-destruct (zerop (i mod k)) as [Hz| Hnz].
- apply Nat.mod_divides in Hz; [ idtac | assumption ].
- destruct Hz as (c, Hi).
- subst i.
- rewrite Nat.mul_comm.
- rewrite Nat.div_mul; [ idtac | assumption ].
- rewrite Nbar.mul_max_distr_r.
- remember (Nbar.max (stop s₁) (stop s₂) * fin k)%Nbar as m.
- remember (Nbar.lt_dec (fin (c * k)) m) as n; subst m.
- clear Heqn.
- destruct n as [Hlt| ]; [ idtac | reflexivity ].
- remember (Nbar.max (stop s₁) (stop s₂)) as m.
- remember (Nbar.lt_dec (fin c) m) as lt₁; subst m.
- remember (Nbar.lt_dec (fin c) (stop s₁)) as lt₂.
- remember (Nbar.lt_dec (fin c) (stop s₂)) as lt₃.
- remember (Nbar.lt_dec (fin (c * k)) (stop s₁ * fin k)) as lt₄.
- remember (Nbar.lt_dec (fin (c * k)) (stop s₂ * fin k)) as lt₅.
- clear Heqlt₁ Heqlt₂ Heqlt₃ Heqlt₄ Heqlt₅.
- destruct lt₁ as [Hlt₁| Hge₁].
-  destruct lt₄ as [Hlt₄| Hge₄].
-   destruct lt₅ as [Hlt₅| Hge₅]; [ reflexivity | idtac ].
-   destruct lt₃ as [Hlt₃| ]; [ idtac | reflexivity ].
-   exfalso; apply Hge₅; subst k.
-   apply mul_lt_mono_positive_r; assumption.
-
-   destruct lt₅ as [Hlt₅| Hge₅].
-    destruct lt₂ as [Hlt₂| Hge₂]; [ idtac | reflexivity ].
-    exfalso; apply Hge₄; subst k.
-    apply mul_lt_mono_positive_r; assumption.
-
-    destruct lt₂ as [Hlt₂| Hge₂].
-     exfalso; apply Hge₄; subst k.
-     apply mul_lt_mono_positive_r; assumption.
-
-     destruct lt₃ as [Hlt₃| Hge₃]; [ idtac | reflexivity ].
-     exfalso; apply Hge₅; subst k.
-     apply mul_lt_mono_positive_r; assumption.
-
-  destruct lt₂ as [Hlt₂| Hge₂].
-   exfalso; apply Hge₁; clear Hge₁.
-   apply Nbar.max_lt_iff; left; assumption.
-
-   destruct lt₃ as [Hlt₃| Hge₃].
-    exfalso; apply Hge₁; clear Hge₁.
-    apply Nbar.max_lt_iff; right; assumption.
-
-    destruct lt₄, lt₅; rewrite fld_add_0_l; reflexivity.
-
- remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) * fin k)) as a.
- remember (Nbar.max (stop s₁ * fin k) (stop s₂ * fin k)) as n.
- remember (Nbar.lt_dec (fin i) n) as b.
- remember (Nbar.lt_dec (fin i) (stop s₁ * fin k)) as c.
- remember (Nbar.lt_dec (fin i) (stop s₂ * fin k)) as d.
- destruct a, b, c, d; try rewrite fld_add_0_l; reflexivity.
+destruct (zerop (i mod k)); [ reflexivity | idtac ].
+rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_comm : ∀ ps₁ ps₂,
@@ -368,59 +312,9 @@ Lemma series_shift_add_distr : ∀ s₁ s₂ n,
    series_shift f n s₁ .+ f series_shift f n s₂)%ser.
 Proof.
 intros s₁ s₂ n.
-constructor.
-intros i.
-unfold series_add, series_nth; simpl.
-rewrite Nbar.add_max_distr_r.
-remember (Nbar.lt_dec (fin i) (Nbar.max (stop s₁) (stop s₂) + fin n)) as c₁.
-remember (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as c₂.
-remember (Nbar.lt_dec (fin i) (stop s₂ + fin n)) as c₃.
-remember (Nbar.lt_dec (fin (i - n)) (stop s₁)) as c₄.
-remember (Nbar.lt_dec (fin (i - n)) (stop s₂)) as c₅.
-clear Heqc₁ Heqc₂ Heqc₃ Heqc₄ Heqc₅.
-destruct (lt_dec i n) as [Hlt| Hge].
- destruct c₁, c₂, c₃; try rewrite fld_add_0_l; reflexivity.
-
- apply not_gt in Hge.
- remember (i - n)%nat as m.
- assert (m + n = i)%nat by (subst m; apply Nat.sub_add; assumption).
- subst i; clear Heqm Hge.
- destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
- destruct c₂ as [H₂| H₂].
-  destruct c₄ as [H₄| H₄].
-   destruct c₃ as [H₃| H₃].
-    destruct c₅ as [H₅| H₅]; [ reflexivity | idtac ].
-    rewrite Nbar.fin_inj_add in H₃.
-    apply Nbar.add_lt_mono_r in H₃; [ idtac | intros H; discriminate H ].
-    contradiction.
-
-    destruct c₅ as [c₅| c₅]; [ idtac | reflexivity ].
-    rewrite Nbar.fin_inj_add in H₃.
-    exfalso; apply H₃.
-    apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
-    assumption.
-
-   rewrite Nbar.fin_inj_add in H₂.
-   apply Nbar.add_lt_mono_r in H₂; [ idtac | intros H; discriminate H ].
-   contradiction.
-
-  destruct c₄ as [H₄| H₄].
-   exfalso; apply H₂.
-   rewrite Nbar.fin_inj_add.
-   apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
-   assumption.
-
-   destruct c₃ as [H₃| H₃].
-    destruct c₅ as [H₅| H₅]; [ reflexivity | idtac ].
-    rewrite Nbar.fin_inj_add in H₃.
-    apply Nbar.add_lt_mono_r in H₃; [ idtac | intros H; discriminate H ].
-    contradiction.
-
-    destruct c₅ as [c₅| c₅]; [ idtac | reflexivity ].
-    exfalso; apply H₃.
-    rewrite Nbar.fin_inj_add.
-    apply Nbar.add_lt_mono_r; [ intros H; discriminate H | idtac ].
-    assumption.
+constructor; intros i; simpl.
+destruct (lt_dec i n) as [H₁| H₁]; [ idtac | reflexivity ].
+rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
