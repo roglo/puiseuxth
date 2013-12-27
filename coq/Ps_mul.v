@@ -71,57 +71,30 @@ constructor.
 apply ps_canon_mul_comm.
 Qed.
 
-Lemma fold_series_1 : {| terms := λ _, .1 f%F; stop := 1 |} = .1 f%ser.
+(*
+Lemma fold_series_1 : {| terms := λ _, .1 f%F |} = .1 f%ser.
 Proof. reflexivity. Qed.
+*)
 
 Lemma stretch_series_1 : ∀ k, (series_stretch f k .1 f .= f .1 f)%ser.
 Proof.
 intros k.
-constructor; intros i.
-unfold series_nth; simpl.
-rewrite Nat.add_0_r.
-destruct (Nbar.lt_dec (fin i) (fin (Pos.to_nat k))) as [H₁| H₁].
- destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-  unfold series_nth; simpl.
-  apply Nat.mod_divides in H₂; auto.
-  destruct H₂ as (c, Hc); rewrite Hc.
-  rewrite Nat.mul_comm.
-  rewrite Nat.div_mul; auto.
-  destruct (Nbar.lt_dec (fin c) 1) as [H₂| H₂].
-   apply Nbar.fin_lt_mono in H₂.
-   apply lt_n_Sm_le, Nat.le_0_r in H₂; subst c.
-   rewrite Nat.mul_0_l.
-   rewrite if_lt_dec_0_1; reflexivity.
+constructor; intros i; simpl.
+destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
+ apply Nat.mod_divides in H₂; auto.
+ destruct H₂ as (c, Hc); rewrite Hc.
+ rewrite Nat.mul_comm.
+ rewrite Nat.div_mul; auto.
+ destruct c; [ reflexivity | idtac ].
+ rewrite Nat.mul_comm; simpl.
+ rewrite <- Hc.
+ destruct i; [ idtac | reflexivity ].
+ symmetry in Hc.
+ apply Nat.mul_eq_0_r in Hc; auto; discriminate Hc.
 
-   destruct (Nbar.lt_dec (fin (c * Pos.to_nat k)) 1) as [H₃| H₃].
-    exfalso; apply H₂.
-    apply Nbar.fin_lt_mono in H₃.
-    apply Nbar.fin_lt_mono.
-    apply lt_n_Sm_le, Nat.le_0_r in H₃.
-    apply Nat.eq_mul_0_l in H₃; auto.
-    subst c; apply Nat.lt_0_1.
-
-    reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) 1) as [H₃| H₃].
-   apply Nbar.fin_lt_mono in H₃.
-   destruct i.
-    rewrite Nat.mod_0_l in H₂; auto.
-    exfalso; revert H₂; apply Nat.lt_irrefl.
-
-    apply lt_S_n in H₃.
-    apply Nat.nlt_ge in H₃.
-    exfalso; apply H₃, Nat.lt_0_succ.
-
-   reflexivity.
-
- destruct (Nbar.lt_dec (fin i) 1) as [H₂| H₂].
-  apply Nbar.fin_lt_mono in H₂.
-  apply lt_n_Sm_le, Nat.le_0_r in H₂; subst i.
-  exfalso; apply H₁, Nbar.fin_lt_mono.
-  apply Pos2Nat.is_pos.
-
-  reflexivity.
+ destruct i; [ simpl | reflexivity ].
+ rewrite Nat.mod_0_l in H₂; auto.
+ exfalso; revert H₂; apply Nat.lt_irrefl.
 Qed.
 
 Theorem ps_mul_1_l : ∀ ps, (.1 f .* f ps .= f ps)%ps.
