@@ -683,32 +683,15 @@ rewrite Nat.div_mul; [ simpl | apply Pos2Nat_ne_0 ].
 reflexivity.
 Qed.
 
-Lemma series_nth_mul_shrink : ∀ s k i,
-  series_nth f (Pos.to_nat k * i) s =
-  series_nth f i (series_shrink k s).
+Lemma series_nth_mul_shrink : ∀ (s : power_series α) k i,
+  s [Pos.to_nat k * i] = (series_shrink k s) [i].
 Proof.
-intros s k i.
-unfold series_nth; simpl.
-rewrite Nbar.fold_sub.
-rewrite Nbar.fold_div.
-rewrite Nbar.fold_div_sup.
-remember (Nbar.div_sup (stop s) (fin (Pos.to_nat k))) as x eqn:Hx .
-destruct (Nbar.lt_dec (fin (Pos.to_nat k * i)) (stop s)) as [H₁| H₁].
- rewrite Nat.mul_comm, Nbar.fin_inj_mul in H₁.
- rewrite Nat.mul_comm.
- destruct (Nbar.lt_dec (fin i) x) as [| H₂]; [ reflexivity | idtac ].
- exfalso; apply H₂; subst x.
- apply Nbar.lt_mul_r_lt_div_sup; [ idtac | assumption ].
- apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
-
- destruct (Nbar.lt_dec (fin i) x) as [H₂| ]; [ idtac | reflexivity ].
- exfalso; apply H₁; subst x.
- rewrite Nat.mul_comm, Nbar.fin_inj_mul.
- apply Nbar.lt_div_sup_lt_mul_r; assumption.
+intros s k i; simpl.
+rewrite Nat.mul_comm; reflexivity.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i, (series_nth f (b + i) s .= f .0 f)%F)
+  (∀ i, (s [b + i] .= f .0 f)%F)
   → ∀ i, ((series_stretch f k s) [b * Pos.to_nat k + i] .= f .0 f)%F.
 Proof.
 intros s b k Hz i.
@@ -739,25 +722,25 @@ destruct n as [n| ]; simpl.
  destruct Hn as (Hz, Hnz).
  split.
   intros i Hin.
-  destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
-   apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
-   destruct H₁ as (c, H₁).
-   rewrite H₁.
-   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
-   rewrite series_nth_mul_stretch.
-   apply Hz.
-   rewrite H₁ in Hin.
-   rewrite Nat.mul_comm in Hin.
-   apply Nat.mul_lt_mono_pos_r in Hin; [ assumption | apply Pos2Nat.is_pos ].
-
-   rewrite shifted_in_stretched; [ reflexivity | idtac ].
-   rewrite Nat.add_comm.
-   rewrite Nat.mod_add; [ assumption | apply Pos2Nat_ne_0 ].
+  rewrite Nat.add_comm.
+  rewrite Nat.mod_add; auto.
+  rewrite Nat.div_add; auto.
+  destruct (zerop (i mod Pos.to_nat k)) as [H₁| ]; [ idtac | reflexivity ].
+  apply Nat.mod_divides in H₁; [ idtac | apply Pos2Nat_ne_0 ].
+  destruct H₁ as (c, H₁).
+  rewrite H₁.
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; auto.
+  rewrite Nat.add_comm.
+  apply Hz.
+  rewrite H₁ in Hin.
+  rewrite Nat.mul_comm in Hin.
+  apply Nat.mul_lt_mono_pos_r in Hin; auto.
+  apply Pos2Nat.is_pos.
 
   rewrite <- Nat.mul_add_distr_r.
-  rewrite Nat.mul_comm.
-  rewrite series_nth_mul_stretch.
-  assumption.
+  rewrite Nat.mod_mul; auto; simpl.
+  rewrite Nat.div_mul; auto.
 
  intros i.
  apply stretch_finite_series; assumption.
@@ -775,8 +758,7 @@ Qed.
 Lemma series_nth_add_shift : ∀ s i n,
   (series_shift f n s) [i + n] = s [i].
 Proof.
-intros s i n.
-unfold series_nth; simpl.
+intros s i n; simpl.
 rewrite Nat.add_sub.
 destruct (Nbar.lt_dec (fin (i + n)) (stop s + fin n)) as [H₁| H₁].
  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
