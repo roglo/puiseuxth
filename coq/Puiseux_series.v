@@ -76,21 +76,16 @@ End Axioms.
 Definition series_stretch α (f : field α) k s :=
   {| terms i :=
        if zerop (i mod Pos.to_nat k) then series_nth f (i / Pos.to_nat k) s
-       else fld_zero f;
-     stop :=
-       stop s * fin (Pos.to_nat k) |}.
+       else fld_zero f |}.
 
 Definition series_shift α (f : field α) n s :=
-  {| terms i := if lt_dec i n then fld_zero f else terms s (i - n);
-     stop := stop s + fin n |}.
+  {| terms i := if lt_dec i n then fld_zero f else terms s (i - n) |}.
 
 Definition series_shrink α k (s : power_series α) :=
-  {| terms i := terms s (i * Pos.to_nat k);
-     stop := Nbar.div_sup (stop s) (fin (Pos.to_nat k)) |}.
+  {| terms i := terms s (i * Pos.to_nat k) |}.
 
 Definition series_left_shift α n (s : power_series α) :=
-  {| terms i := terms s (n + i);
-     stop := stop s - fin n |}.
+  {| terms i := terms s (n + i) |}.
 
 Arguments series_stretch α%type _ k%positive s%ser.
 Arguments series_shift α%type _ n%nat s%ser.
@@ -132,13 +127,13 @@ Inductive eq_ps α (f : field α) :
       eq_ps_strong f (canonic_ps f ps₁) (canonic_ps f ps₂)
       → eq_ps f ps₁ ps₂.
 
-Definition ps_monom α (c : α) pow :=
-  {| ps_terms := {| terms i := c; stop := 1 |};
+Definition ps_monom α (f : field α) (c : α) pow :=
+  {| ps_terms := {| terms i := if zerop i then c else .0 f%F |};
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
-Definition ps_const α c : puiseux_series α := ps_monom c 0.
-Definition ps_one α (f : field α) := ps_const (fld_one f).
+Definition ps_const α f c : puiseux_series α := ps_monom f c 0.
+Definition ps_one α (f : field α) := ps_const f (fld_one f).
 
 Delimit Scope ps_scope with ps.
 Notation "a ≐ f b" := (eq_ps_strong f a b) (at level 70, f at level 0).
@@ -154,8 +149,7 @@ intros α f s.
 unfold series_stretch; simpl.
 constructor; intros i.
 unfold series_nth; simpl.
-rewrite divmod_div, Nbar.mul_1_r, Nat.div_1_r.
-destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
+rewrite divmod_div, Nat.div_1_r; reflexivity.
 Qed.
 
 Theorem eq_strong_refl α (f : field α) : reflexive _ (eq_ps_strong f).
