@@ -17,21 +17,22 @@ Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level)
 
 Delimit Scope series_scope with ser.
 
-Definition series_nth α (f : field α) n (s : power_series α) := terms s n.
-Notation "s [ i ] f" := (series_nth f i s) (at level 1, f at level 0).
+Notation "s [ i ]" := (terms s i) (at level 1).
 
 Definition series_0 α (f : field α) :=
   {| terms i := .0 f%F |}.
 Definition series_1 α (f : field α) :=
   {| terms i := if zerop i then .1 f%F else .0 f%F |}.
+
 Notation ".0 f" := (series_0 f) : series_scope.
 Notation ".1 f" := (series_1 f) : series_scope.
 
 Inductive eq_series α (f : field α) :
     power_series α → power_series α → Prop :=
   eq_series_base : ∀ s₁ s₂,
-    (∀ i, (s₁ [i]f .= f s₂ [i]f)%F)
+    (∀ i, (s₁ [i] .= f s₂ [i])%F)
     → eq_series f s₁ s₂.
+
 Notation "a .= f b" := (eq_series f a b) : series_scope.
 Notation "a .≠ f b" := (¬ eq_series f a b) : series_scope.
 
@@ -84,7 +85,7 @@ Qed.
 (* series_add *)
 
 Definition series_add α (f : field α) s₁ s₂ :=
-  {| terms i := (s₁ [i]f .+ f s₂ [i]f)%F |}.
+  {| terms i := (s₁ [i] .+ f s₂ [i])%F |}.
 
 Definition series_opp α (f : field α) s :=
   {| terms i := (.- f terms s i)%F |}.
@@ -101,9 +102,7 @@ Variable f : field α.
 Theorem series_add_comm : ∀ s₁ s₂, (s₁ .+ f s₂ .= f s₂ .+ f s₁)%ser.
 Proof.
 intros s₁ s₂.
-constructor; simpl.
-intros i.
-unfold series_nth; simpl.
+constructor; intros i; simpl.
 rewrite fld_add_comm; reflexivity.
 Qed.
 
@@ -112,31 +111,24 @@ Theorem series_add_assoc : ∀ s₁ s₂ s₃,
 Proof.
 intros s₁ s₂ s₃.
 unfold series_add; simpl.
-constructor; simpl.
-intros i.
-unfold series_nth; simpl.
+constructor; intros i; simpl.
 rewrite fld_add_assoc; reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, (.0 f%ser [i]f = .0 f)%F.
-Proof.
-intros i.
-unfold series_nth; reflexivity.
-Qed.
+Lemma series_nth_series_0 : ∀ i, (.0 f%ser [i] = .0 f)%F.
+Proof. reflexivity. Qed.
 
 Theorem series_add_0_l : ∀ s, (.0 f .+ f s .= f s)%ser.
 Proof.
 intros s.
-constructor; intros i.
-unfold series_add, series_nth; simpl.
+constructor; intros i; simpl.
 rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Theorem series_add_opp_r : ∀ s, (s .- f s .= f .0 f)%ser.
 Proof.
 intros s.
-constructor; intros i.
-unfold series_add, series_opp, series_nth; simpl.
+constructor; intros i; simpl.
 apply fld_add_opp_r.
 Qed.
 
@@ -163,7 +155,7 @@ Notation "'Σ' f ( i = b , e ) '_' g" := (sigma f b e (λ i, (g)%F))
    g at level 40).
 
 Definition convol_mul α (f : field α) a b k :=
-  Σ f (i = 0, k) _ a [i]f .* f b [k-i]f.
+  Σ f (i = 0, k) _ a [i] .* f b [k-i].
 
 Definition series_mul α (f : field α) a b :=
   {| terms k := convol_mul f a b k |}.
@@ -248,8 +240,7 @@ Add Parametric Morphism α (F : field α) : (series_mul F)
   as series_mul_morph.
 Proof.
 intros a b Hab c d Hcd.
-constructor; intros k.
-unfold series_nth; simpl.
+constructor; intros k; simpl.
 unfold convol_mul.
 apply sigma_compat; intros i Hi.
 inversion Hab; subst.
@@ -337,8 +328,7 @@ Qed.
 Theorem series_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%ser.
 Proof.
 intros a b.
-constructor; intros k.
-unfold series_nth; simpl.
+constructor; intros k; simpl.
 apply convol_mul_comm.
 Qed.
 
@@ -434,18 +424,15 @@ Qed.
 Theorem series_mul_1_l : ∀ s, (.1 f .* f s .= f s)%ser.
 Proof.
 intros s.
-constructor; intros k.
-unfold series_nth; simpl.
+constructor; intros k; simpl.
 unfold convol_mul; simpl.
 rewrite sigma_only_one_non_0 with (v := O).
- rewrite Nat.sub_0_r.
- unfold series_nth; simpl.
+ rewrite Nat.sub_0_r; simpl.
  apply fld_mul_1_l.
 
  split; [ reflexivity | apply Nat.le_0_l ].
 
  intros i Hik Hi.
- unfold series_nth.
  destruct i; [ exfalso; apply Hi; reflexivity | simpl ].
  apply fld_mul_0_l.
 Qed.
@@ -570,8 +557,7 @@ Theorem series_mul_assoc : ∀ a b c,
   (a .* f (b .* f c) .= f (a .* f b) .* f c)%ser.
 Proof.
 intros a b c.
-constructor; intros k.
-unfold series_nth; simpl.
+constructor; intros k; simpl.
 unfold convol_mul; simpl.
 unfold convol_mul; simpl.
 symmetry.
@@ -611,7 +597,7 @@ apply sigma_aux_add.
 Qed.
 
 Lemma series_nth_add : ∀ a b i,
-  (((a .+ f b)%ser) [i]f .= f a [i]f .+ f b [i]f)%F.
+  (((a .+ f b)%ser) [i] .= f a [i] .+ f b [i])%F.
 Proof. reflexivity. Qed.
 
 Lemma convol_mul_add_distr_l : ∀ a b c i,
@@ -631,8 +617,7 @@ Theorem series_mul_add_distr_l : ∀ a b c,
   (a .* f (b .+ f c) .= f a .* f b .+ f a .* f c)%ser.
 Proof.
 intros a b c.
-constructor; intros k.
-unfold series_nth; simpl.
+constructor; intros k; simpl.
 apply convol_mul_add_distr_l.
 Qed.
 
@@ -646,19 +631,7 @@ intros s₁ s₂ Heq₁ s₃ s₄ Heq₂.
 inversion Heq₁; subst.
 inversion Heq₂; subst.
 constructor; intros i; simpl.
-unfold series_nth; simpl.
-unfold series_nth in H; simpl in H.
-unfold series_nth in H0; simpl in H0.
 rewrite H, H0; reflexivity.
-Qed.
-
-Add Parametric Morphism α (F : field α) : (series_nth F)
-with signature eq ==> eq_series F ==> (fld_eq F)
-as series_nth_morph.
-Proof.
-intros s₁ s₂ i Heq.
-inversion Heq; subst.
-apply H.
 Qed.
 
 Section other_lemmas.
@@ -709,7 +682,6 @@ intros H.
 inversion_clear H.
 pose proof (H0 O) as H.
 rewrite series_nth_series_0 in H.
-unfold series_nth in H.
 simpl in H.
 revert H; apply fld_neq_1_0.
 Qed.
@@ -717,13 +689,13 @@ Qed.
 End other_lemmas.
 
 Fixpoint term_inv α (f : field α) c s n :=
-  if zerop n then .¹/f (s [0]f)%F
+  if zerop n then .¹/f (s [0])%F
   else
    match c with
    | O => .0 f%F
    | S c₁ =>
-       (.-f .¹/f (s [0]f) .* f
-        Σ f (i = 1, n)_ s [i]f .* f term_inv f c₁ s (n - i)%nat)%F
+       (.-f .¹/f (s [0]) .* f
+        Σ f (i = 1, n)_ s [i] .* f term_inv f c₁ s (n - i)%nat)%F
    end.
 
 Definition series_inv α (f : field α) s :=
@@ -735,14 +707,6 @@ Section lemmas_again.
 
 Variable α : Type.
 Variable f : field α.
-
-Lemma inv_nth_0 : ∀ a, (.¹/f (a [0]f) = (.¹/f a%ser) [0]f)%F.
-Proof.
-intros a.
-unfold series_nth; simpl.
-unfold series_nth; simpl.
-reflexivity.
-Qed.
 
 Lemma term_inv_iter_enough : ∀ a i j k,
   k ≤ i → k ≤ j → (term_inv f i a k .= f term_inv f j a k)%F.
@@ -772,19 +736,17 @@ induction i; intros.
 Qed.
 
 Lemma term_inv_nth_gen_formula : ∀ k a a' i,
-  (a[0]f .≠ f .0 f)%F
+  (a[0] .≠ f .0 f)%F
   → a' = series_inv f a
     → (S k - i ≠ 0)%nat
-      → (a' [S k - i]f .= f
-         .- f a' [0]f .* f
+      → (a' [S k - i] .= f
+         .- f a' [0] .* f
          Σ f (j = 1, S k - i) _
-         a [j]f .* f term_inv f (S k) a (S k - i - j))%F.
+         a [j] .* f term_inv f (S k) a (S k - i - j))%F.
 Proof.
 (* à revoir... *)
 intros k a a' i Ha Ha' Hki.
 rewrite Ha'.
-rewrite <- inv_nth_0.
-unfold series_nth.
 remember minus as g; simpl; subst g.
 destruct (zerop (S k - i)) as [| H₁]; [ contradiction | idtac ].
 remember (S k - i)%nat as ki eqn:Hki₂ .
@@ -814,10 +776,10 @@ destruct ki.
 Qed.
 
 Lemma term_inv_nth_formula : ∀ k a a',
-  (a[0]f .≠ f .0 f)%F
+  (a[0] .≠ f .0 f)%F
   → a' = series_inv f a
-    → (a' [S k]f .= f
-       .- f a' [0]f .* f Σ f (i = 1, S k)_ a [i]f .* f a' [S k - i]f)%F.
+    → (a' [S k] .= f
+       .- f a' [0] .* f Σ f (i = 1, S k)_ a [i] .* f a' [S k - i])%F.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.
@@ -827,7 +789,6 @@ apply fld_mul_compat_l.
 apply sigma_compat; intros i Hi.
 apply fld_mul_compat_l.
 rewrite Ha'.
-unfold series_nth.
 remember minus as g; simpl; subst g.
 destruct (zerop (S k - i)) as [H₂| H₂].
  reflexivity.
@@ -839,19 +800,18 @@ destruct (zerop (S k - i)) as [H₂| H₂].
 Qed.
 
 Lemma convol_mul_inv_r : ∀ k a a',
-  (a[0]f .≠ f .0 f)%F
+  (a[0] .≠ f .0 f)%F
   → a' = series_inv f a
     → (convol_mul f a a' (S k) .= f .0 f)%F.
 Proof.
 intros k a a' Ha Ha'.
 unfold convol_mul.
 pose proof (term_inv_nth_formula k Ha Ha') as Hi.
-apply fld_mul_compat_l with (c := a [0]f%F) in Hi.
+apply fld_mul_compat_l with (c := a [0]%F) in Hi.
 symmetry in Hi.
 rewrite fld_mul_assoc in Hi.
 rewrite fld_mul_opp_r in Hi.
 rewrite Ha' in Hi.
-rewrite <- inv_nth_0 in Hi.
 rewrite fld_mul_inv_r in Hi; auto.
 rewrite fld_mul_opp_l, fld_mul_1_l in Hi.
 rewrite <- Ha' in Hi.
@@ -863,23 +823,21 @@ rewrite Nat.sub_0_r; auto.
 Qed.
 
 Theorem series_mul_inv_r : ∀ a,
-  (a [0]f .≠ f .0 f)%F
+  (a [0] .≠ f .0 f)%F
   → (a .* f .¹/f a .= f .1 f)%ser.
 Proof.
 intros a Ha.
-constructor; intros i.
-unfold series_nth; simpl.
+constructor; intros i; simpl.
 destruct i; simpl.
  unfold convol_mul; simpl.
- rewrite sigma_only_one.
- unfold series_nth; simpl.
+ rewrite sigma_only_one; simpl.
  rewrite fld_mul_inv_r; [ reflexivity | assumption ].
 
  apply convol_mul_inv_r; [ assumption | reflexivity ].
 Qed.
 
 Theorem series_mul_inv_l : ∀ a,
-  (a [0]f .≠ f .0 f)%F
+  (a [0] .≠ f .0 f)%F
   → (.¹/f a .* f a .= f .1 f)%ser.
 Proof.
 intros a Ha.
