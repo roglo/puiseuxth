@@ -67,15 +67,13 @@ intros c γ.
 unfold eq_poly, list_eq; simpl.
 constructor.
  unfold ps_monom.
- constructor.
  unfold ps_mul; simpl.
  rewrite stretch_series_1.
- rewrite Z.mul_1_r, Z.add_0_r.
  rewrite series_mul_1_l.
- unfold cm; simpl.
- rewrite Pos.mul_1_r.
- constructor; simpl.
-  Focus 1.
+ rewrite Z.mul_1_r, Z.add_0_r.
+ unfold cm; simpl; rewrite Pos.mul_1_r.
+ pose proof (stretch_series_const fld (Qden γ) c) as H.
+ rewrite H; reflexivity.
 bbb.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
