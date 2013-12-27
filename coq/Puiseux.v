@@ -39,13 +39,13 @@ Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
   ps_pol_mul fld {| al := []; an := ps_monom fld (fld_one fld) (- β₁) |}
     (apply_poly_with_ps_poly fld f
        (ps_pol_mul fld {| al := []; an := ps_monom fld (fld_one fld) γ₁ |}
-          {| al := [ps_const c₁]; an := ps_one fld |})).
+          {| al := [ps_const fld c₁]; an := ps_one fld |})).
 
 (* f₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
 Definition f₁' α (fld : field α) f β₁ γ₁ c₁ :=
-  ps_pol_mul fld {| al := []; an := ps_monom (fld_one fld) (- β₁) |}
+  ps_pol_mul fld {| al := []; an := ps_monom fld (fld_one fld) (- β₁) |}
     (apply_poly_with_ps_poly fld f
-       {| al := [ps_monom c₁ γ₁]; an := ps_monom (fld_one fld) γ₁ |}).
+       {| al := [ps_monom fld c₁ γ₁]; an := ps_monom fld (fld_one fld) γ₁ |}).
 
 (* exercise... *)
 
@@ -58,28 +58,24 @@ Let fld := ac_field acf.
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma yyy : ∀ c γ,
   eq_poly (ps_field fld)
-    {| al := [ps_monom c γ]; an := ps_monom (fld_one fld) γ |}
+    {| al := [ps_monom fld c γ]; an := ps_monom fld (fld_one fld) γ |}
     (ps_pol_mul fld
-      {| al := []; an := ps_monom (fld_one fld) γ |}
-      {| al := [ps_const c]; an := ps_one fld |}).
+      {| al := []; an := ps_monom fld (fld_one fld) γ |}
+      {| al := [ps_const fld c]; an := ps_one fld |}).
 Proof.
 intros c γ.
-unfold eq_poly, list_eq.
-simpl.
+unfold eq_poly, list_eq; simpl.
 constructor.
  unfold ps_monom.
- constructor 1 with (k₁ := Qden γ) (k₂ := xH); simpl.
-  rewrite stretch_series_1.
-  constructor; simpl.
-   intros i.
-   destruct i; simpl.
-    rewrite Nat.mod_0_l; simpl.
-     unfold series_nth; simpl.
-     rewrite Nat.add_0_r.
-     destruct (lt_dec 0 (Pos.to_nat (Qden γ))) as [Hlt| Hge];
-      [ simpl | exfalso ].
-      rewrite Nat.mod_0_l; simpl.
-Focus 1.
+ constructor.
+ unfold ps_mul; simpl.
+ rewrite stretch_series_1.
+ rewrite Z.mul_1_r, Z.add_0_r.
+ rewrite series_mul_1_l.
+ unfold cm; simpl.
+ rewrite Pos.mul_1_r.
+ constructor; simpl.
+  Focus 1.
 bbb.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
