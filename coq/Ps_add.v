@@ -323,7 +323,8 @@ Lemma ps_terms_add_assoc : ∀ ps₁ ps₂ ps₃,
 Proof.
 intros ps₁ ps₂ ps₃.
 constructor; intros i.
-unfold ps_add; simpl.
+unfold ps_terms_add.
+remember adjust_series as g; simpl.
 unfold cm_factor, cm.
 unfold ps_terms_add; simpl.
 unfold ps_valnum_add; simpl.
@@ -334,10 +335,9 @@ remember (ps_valnum ps₃) as v₃ eqn:Hv₃ .
 remember (ps_polord ps₁) as c₁.
 remember (ps_polord ps₂) as c₂.
 remember (ps_polord ps₃) as c₃.
-unfold adjust_series.
+subst g; unfold adjust_series.
 do 2 rewrite series_stretch_add_distr.
 do 2 rewrite series_shift_add_distr.
-rewrite series_add_assoc.
 do 4 rewrite stretch_shift_series_distr.
 do 4 rewrite <- series_stretch_stretch; try apply Pos2Nat_ne_0.
 do 4 rewrite series_shift_shift.
@@ -361,7 +361,7 @@ do 2 rewrite Z2Nat_sub_min1.
 do 2 rewrite Z2Nat_sub_min2.
 do 2 rewrite <- Z.min_assoc.
 do 2 rewrite Z2Nat_sub_min.
-reflexivity.
+simpl; rewrite fld_add_assoc; reflexivity.
 Qed.
 
 Lemma gcd_ps_add_assoc : ∀ ps₁ ps₂ ps₃ n k,
@@ -580,78 +580,14 @@ Qed.
 (* not used, mais bon, je les garde, on sait jamais *)
 
 Add Parametric Morphism α (f : field α) : (adjust_series f)
-with signature eq ==> eq ==> eq_series f ==> eq_series f
-as adjust_series_morph.
+  with signature eq ==> eq ==> eq_series f ==> eq_series f
+  as adjust_series_morph.
 Proof.
-(* à nettoyer *)
 intros n k s₁ s₂ Heq.
-constructor; intros.
+constructor; intros; simpl.
 induction Heq.
-unfold series_nth.
-simpl.
-destruct (Nbar.lt_dec (fin i) (stop s₁ * fin (Pos.to_nat k) + fin n))
- as [H₁| H₁].
- destruct (Nbar.lt_dec (fin i) (stop s₂ * fin (Pos.to_nat k) + fin n))
-  as [H₂| H₂].
-  destruct (lt_dec i n) as [H₃| H₃]; [ reflexivity | idtac ].
-  destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
-   [ idtac | reflexivity ].
-  apply H.
-
-  destruct (lt_dec i n) as [H₃| H₃].
-   reflexivity.
-
-   destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
-    [ idtac | reflexivity ].
-   rewrite H.
-   unfold series_nth.
-   destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₂))
-    as [H₅| H₅]; [ idtac | reflexivity ].
-   exfalso; apply H₂.
-   apply Nbar.lt_sub_lt_add_r; [ intros I; discriminate I | simpl ].
-   apply Nat.mod_divides in H₄; auto.
-   destruct H₄ as (c, H₄).
-   rewrite Nat.mul_comm in H₄.
-   rewrite H₄ in H₅ |- *.
-   rewrite Nat.div_mul in H₅; auto.
-   rewrite Nbar.fin_inj_mul.
-   apply Nbar.mul_lt_mono_pos_r.
-    apply Nbar.lt_fin, Pos2Nat.is_pos.
-
-    intros I; discriminate I.
-
-    intros I; discriminate I.
-
-    assumption.
-
- destruct (Nbar.lt_dec (fin i) (stop s₂ * fin (Pos.to_nat k) + fin n))
-  as [H₂| H₂].
-  destruct (lt_dec i n) as [H₃| H₃]; [ reflexivity | idtac ].
-  destruct (zerop ((i - n) mod Pos.to_nat k)) as [H₄| H₄];
-   [ idtac | reflexivity ].
-  symmetry.
-  rewrite <- H.
-  unfold series_nth.
-  destruct (Nbar.lt_dec (fin ((i - n) / Pos.to_nat k)) (stop s₁)) as [H₅| H₅];
-   [ idtac | reflexivity ].
-  exfalso; apply H₁.
-  apply Nbar.lt_sub_lt_add_r; [ intros I; discriminate I | simpl ].
-  apply Nat.mod_divides in H₄; auto.
-  destruct H₄ as (c, H₄).
-  rewrite Nat.mul_comm in H₄.
-  rewrite H₄ in H₅ |- *.
-  rewrite Nat.div_mul in H₅; auto.
-  rewrite Nbar.fin_inj_mul.
-  apply Nbar.mul_lt_mono_pos_r.
-   apply Nbar.lt_fin, Pos2Nat.is_pos.
-
-   intros I; discriminate I.
-
-   intros I; discriminate I.
-
-   assumption.
-
-  reflexivity.
+destruct (lt_dec i n) as [H₁| H₁]; [ reflexivity | idtac ].
+destruct (zerop ((i - n) mod Pos.to_nat k)); [ apply H | reflexivity ].
 Qed.
 
 Add Parametric Morphism α (f : field α) : (ps_terms_add f)
@@ -660,55 +596,14 @@ Add Parametric Morphism α (f : field α) : (ps_terms_add f)
 Proof.
 intros ps₁ ps₃ Heq₁ ps₂ ps₄ Heq₂.
 constructor; intros i.
-inversion_clear Heq₁.
-inversion_clear Heq₂.
-unfold series_nth; simpl.
+inversion Heq₁; subst.
+inversion Heq₂; subst.
+unfold ps_terms_add.
+remember adjust_series as g; simpl.
 unfold cm_factor.
 rewrite H, H0, H2, H3; simpl.
-remember (ps_polord ps₃) as c₃.
-remember (ps_polord ps₄) as c₄.
-remember (ps_valnum ps₃) as v₃.
-remember (ps_valnum ps₄) as v₄.
-remember (Z.to_nat (v₃ * ' c₄ - Z.min (v₃ * ' c₄) (v₄ * ' c₃))) as x.
-remember (Z.to_nat (v₄ * ' c₃ - Z.min (v₄ * ' c₃) (v₃ * ' c₄))) as y.
-remember (stop (ps_terms ps₁) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₁.
-remember (stop (ps_terms ps₂) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₁.
-remember (stop (ps_terms ps₃) * fin (Pos.to_nat c₄) + fin x)%Nbar as x₂.
-remember (stop (ps_terms ps₄) * fin (Pos.to_nat c₃) + fin y)%Nbar as y₂.
-destruct (Nbar.lt_dec (fin i) (Nbar.max x₁ y₁)) as [H₁| H₁].
- rewrite H1, H4.
- destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
-  reflexivity.
-
-  unfold adjust_series.
-  unfold series_nth; simpl.
-  rewrite <- Heqx₂, <- Heqy₂.
-  destruct (Nbar.lt_dec (fin i) x₂) as [H₃| H₃].
-   exfalso; apply H₂.
-   apply Nbar.max_lt_iff; left; assumption.
-
-   rewrite fld_add_0_l.
-   destruct (Nbar.lt_dec (fin i) y₂) as [H₄| H₄].
-    exfalso; apply H₂.
-    apply Nbar.max_lt_iff; right; assumption.
-
-    reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (Nbar.max x₂ y₂)) as [H₂| H₂].
-  rewrite <- H1, <- H4.
-  unfold adjust_series.
-  unfold series_nth; simpl.
-  rewrite <- Heqx₁, <- Heqy₁.
-  destruct (Nbar.lt_dec (fin i) x₁) as [H₃| H₃].
-   exfalso; apply H₁.
-   apply Nbar.max_lt_iff; left; assumption.
-
-   rewrite fld_add_0_l.
-   destruct (Nbar.lt_dec (fin i) y₁) as [H₄| H₄].
-    exfalso; apply H₁.
-    apply Nbar.max_lt_iff; right; assumption.
-
-    reflexivity.
-
-  reflexivity.
+subst g.
+unfold adjust_series.
+rewrite H1, H4.
+reflexivity.
 Qed.
