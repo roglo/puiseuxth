@@ -422,38 +422,13 @@ Lemma series_stretch_0_if : ∀ k s,
   → (s .= f .0 f)%ser.
 Proof.
 intros k s Hs.
-constructor.
-intros i.
-inversion Hs; subst.
+constructor; intros i.
+unfold series_0; simpl.
+inversion Hs; subst; simpl in H.
 pose proof (H (i * Pos.to_nat k)%nat) as Hi.
-unfold series_nth in Hi; simpl in Hi.
 rewrite Nat.mod_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
 rewrite Nat.div_mul in Hi; [ simpl in Hi | apply Pos2Nat_ne_0 ].
-remember (stop s * fin (Pos.to_nat k))%Nbar as ss.
-destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) ss).
- rewrite Hi.
- unfold series_nth; simpl.
- destruct (Nbar.lt_dec (fin (i * Pos.to_nat k)) 0).
-  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
-
- unfold series_nth; simpl.
- destruct (Nbar.lt_dec (fin i) (stop s)) as [Hlt| Hge].
-  exfalso; apply n; clear n Hi.
-  subst ss.
-  rewrite Nbar.fin_inj_mul.
-  apply Nbar.mul_lt_mono_pos_r.
-   constructor.
-   apply Pos2Nat.is_pos.
-
-   intros HH; discriminate HH.
-
-   intros HH; discriminate HH.
-
-   assumption.
-
-  destruct (Nbar.lt_dec (fin i) 0); reflexivity.
+assumption.
 Qed.
 
 Lemma stretch_shift_series_distr : ∀ kp n s,
@@ -461,81 +436,43 @@ Lemma stretch_shift_series_distr : ∀ kp n s,
    series_shift f (n * Pos.to_nat kp) (series_stretch f kp s))%ser.
 Proof.
 intros kp n s.
-constructor; intros i.
-unfold series_stretch, series_nth; simpl.
+constructor; intros i; simpl.
 remember (Pos.to_nat kp) as k.
 assert (k ≠ O) as Hk by (subst k; apply Pos2Nat_ne_0).
 destruct (zerop (i mod k)) as [Hz| Hnz].
  apply Nat.mod_divides in Hz; [ idtac | assumption ].
- destruct Hz as (c, Hi).
- subst i.
+ destruct Hz as (c, Hi); subst i.
  rewrite mult_comm.
  rewrite <- Nat.mul_sub_distr_r.
  rewrite Nat.div_mul; [ idtac | assumption ].
  rewrite Nat.div_mul; [ idtac | assumption ].
  rewrite Nat.mod_mul; [ simpl | assumption ].
- rewrite Nbar.fin_inj_mul.
- rewrite Nbar.fin_inj_mul.
- rewrite <- Nbar.mul_add_distr_r.
- rewrite <- Nbar.fin_inj_mul.
- remember (Nbar.lt_dec (fin (c * k)) ((stop s + fin n) * fin k)) as c₁.
- remember (Nbar.lt_dec (fin c) (stop s + fin n)) as c₂.
- remember (lt_dec (c * k) (n * k)) as c₄.
- remember (Nbar.lt_dec (fin (c - n)) (stop s)) as c₅.
- clear Heqc₁ Heqc₂ Heqc₄ Heqc₅.
- destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
- destruct (lt_dec c n) as [Hlt| Hge].
-  destruct c₄ as [| H₄]; [ destruct c₂; reflexivity | idtac ].
-  destruct c₅ as [H₅| ]; [ idtac | destruct c₂; reflexivity ].
-  exfalso; apply H₄.
+ destruct (lt_dec c n) as [H₁| H₁].
+  destruct (lt_dec (c * k) (n * k)) as [| H₂]; [ reflexivity | idtac ].
+  exfalso; apply H₂.
   apply Nat.mul_lt_mono_pos_r; [ idtac | assumption ].
   rewrite Heqk; apply Pos2Nat.is_pos.
 
-  apply not_gt in Hge.
-  remember (c - n)%nat as m.
-  assert (m + n = c)%nat by (subst m; apply Nat.sub_add; assumption).
-  subst c; clear Heqm Hge.
-  destruct c₄ as [H₄| H₄].
-   exfalso; apply lt_not_le in H₄; apply H₄.
-   rewrite Nat.mul_add_distr_r.
-   apply le_plus_r.
+  destruct (lt_dec (c * k) (n * k)) as [H₂| ]; [ idtac | reflexivity ].
+  exfalso; apply H₁.
+  apply Nat.mul_lt_mono_pos_r in H₂; [ assumption | idtac ].
+  rewrite Heqk; apply Pos2Nat.is_pos.
 
-   destruct c₂ as [H₂| H₂].
-    destruct c₅ as [| H₅]; [ reflexivity | idtac ].
-    rewrite Nbar.fin_inj_add in H₂.
-    apply Nbar.add_lt_mono_r in H₂; [ idtac | intros H; discriminate H ].
-    contradiction.
-
-    destruct c₅ as [H₅| ]; [ idtac | reflexivity ].
-    exfalso; apply H₂.
-    rewrite Nbar.fin_inj_add.
-    apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-    intros H; discriminate H.
-
- rewrite Nbar.fin_inj_mul.
- rewrite <- Nbar.mul_add_distr_r.
- remember (Nbar.lt_dec (fin i) ((stop s + fin n) * fin k)) as c₁.
- remember (lt_dec i (n * k)) as c₂.
- remember (zerop ((i - n * k) mod k)) as c₃.
- remember (Nbar.lt_dec (fin ((i - n * k) / k)) (stop s)) as c₄.
- clear Heqc₁ Heqc₂ Heqc₃ Heqc₄.
- destruct c₁ as [H₁| ]; [ idtac | reflexivity ].
- destruct c₂ as [| H₂]; [ reflexivity | idtac ].
- destruct c₃ as [H₃| ]; [ idtac | reflexivity ].
- destruct c₄ as [H₄| ]; [ idtac | reflexivity ].
- apply Nat.mod_divides in H₃; [ idtac | assumption ].
- destruct H₃ as (c, H₃).
- destruct c as [| c].
-  rewrite Nat.mul_0_r in H₃.
-  apply Nat.sub_0_le in H₃.
-  apply Nat.nlt_ge in H₂.
-  apply le_antisym in H₃; [ idtac | assumption ].
+ destruct (lt_dec i (n * k)) as [| H₁]; [ reflexivity | idtac ].
+ destruct (zerop ((i - n * k) mod k)) as [H₂| ]; [ idtac | reflexivity ].
+ apply Nat.mod_divides in H₂; [ idtac | assumption ].
+ destruct H₂ as (c, Hc).
+ destruct c.
+  rewrite Nat.mul_0_r in Hc.
+  apply Nat.sub_0_le in Hc.
+  apply Nat.nlt_ge in H₁.
+  apply le_antisym in Hc; [ idtac | assumption ].
   subst i.
   rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
   exfalso; revert Hnz; apply Nat.lt_irrefl.
 
-  apply Nat.add_sub_eq_nz in H₃.
-   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in H₃.
+  apply Nat.add_sub_eq_nz in Hc.
+   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l, Nat.mul_comm in Hc.
    subst i.
    rewrite Nat.mod_mul in Hnz; [ idtac | assumption ].
    exfalso; revert Hnz; apply Nat.lt_irrefl.
@@ -549,33 +486,21 @@ Lemma series_shift_shift : ∀ x y ps,
   (series_shift f x (series_shift f y ps) .= f series_shift f (x + y) ps)%ser.
 Proof.
 intros x y ps.
-constructor; simpl.
-intros i.
-unfold series_nth; simpl.
-rewrite Nbar.add_shuffle0.
-rewrite Nbar.fin_inj_add, Nbar.add_assoc.
-remember (Nbar.lt_dec (fin i) (stop ps + fin x + fin y)) as c₁.
-remember (lt_dec (i - x) y) as c₂.
-remember (lt_dec i (x + y)) as c₃.
-clear Heqc₁ Heqc₂ Heqc₃.
+constructor; intros i; simpl.
 destruct (lt_dec i x) as [Hlt| Hge].
- destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
- destruct c₁ as [c₁| ]; [ idtac | reflexivity ].
- exfalso; apply H₃.
+ destruct (lt_dec i (x + y)) as [| H₂]; [ reflexivity | idtac ].
+ exfalso; apply H₂.
  apply Nat.lt_lt_add_r; assumption.
 
- destruct c₂ as [H₂| H₂].
-  destruct c₃ as [H₃| H₃]; [ reflexivity | idtac ].
-  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
+ destruct (lt_dec (i - x) y) as [H₂| H₂].
+  destruct (lt_dec i (x + y)) as [| H₃]; [ reflexivity | idtac ].
   exfalso; apply H₃.
-  apply not_gt in Hge.
   apply Nat.lt_sub_lt_add_l; assumption.
 
   rewrite Nat.sub_add_distr.
-  destruct c₃ as [H₃| H₃]; [ idtac | reflexivity ].
-  destruct c₁ as [H₁| H₁]; [ idtac | reflexivity ].
-  apply not_gt in Hge.
+  destruct (lt_dec i (x + y)) as [H₃| ]; [ idtac | reflexivity ].
   exfalso; apply H₂.
+  apply not_gt in Hge.
   unfold lt.
   rewrite <- Nat.sub_succ_l; [ idtac | assumption ].
   apply Nat.le_sub_le_add_l.
