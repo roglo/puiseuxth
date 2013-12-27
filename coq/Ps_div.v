@@ -235,75 +235,52 @@ intros ps Hps.
 remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
- assert (ps .= f ps_left_adjust f ps)%ps as Hadj.
-  Focus 2.
-  rewrite ps_mul_comm.
-  rewrite Hadj in |- * at 1.
-  unfold ps_inv; simpl.
-  unfold ps_left_adjust; simpl.
-  rewrite Hn.
-  unfold ps_mul; simpl.
-  unfold cm_factor, cm; simpl.
-  rewrite <- series_stretch_mul.
-  rewrite series_mul_inv_r.
-   rewrite stretch_series_1.
-   rewrite <- Z.mul_add_distr_r.
-   rewrite Z.add_sub_assoc.
-   rewrite Z.add_opp_r.
-   rewrite Z.add_comm.
-   rewrite Z.add_simpl_r.
-   rewrite Z.sub_diag, Z.mul_0_l.
-   constructor.
-   rewrite canonic_ps_1.
-   unfold canonic_ps.
-   simpl.
-   rewrite null_coeff_range_length_series_1.
-   simpl.
-   unfold gcd_ps.
-   remember Z.gcd as g; simpl; subst g.
-   rewrite Z.gcd_0_l.
-   rewrite Z.div_0_l.
-    rewrite greatest_series_x_power_series_1.
-    rewrite Z.gcd_0_r.
-    simpl.
-    rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
-    unfold canonify_series; simpl.
-    rewrite series_left_shift_0.
-    unfold series_shrink.
-    simpl.
-    rewrite Nat.sub_0_r.
-    rewrite Nat.div_same.
-     reflexivity.
+ assert (ps .= f ps_left_adjust f ps)%ps as H by apply ps_left_adjust_eq.
+ rewrite ps_mul_comm.
+ rewrite H in |- * at 1.
+ unfold ps_inv; simpl.
+ unfold ps_left_adjust; simpl.
+ rewrite Hn.
+ unfold ps_mul; simpl.
+ unfold cm_factor, cm; simpl.
+ rewrite <- series_stretch_mul.
+ rewrite series_mul_inv_r.
+  rewrite stretch_series_1.
+  rewrite <- Z.mul_add_distr_r.
+  rewrite Z.add_sub_assoc.
+  rewrite Z.add_opp_r.
+  rewrite Z.add_comm.
+  rewrite Z.add_simpl_r.
+  rewrite Z.sub_diag, Z.mul_0_l.
+  constructor.
+  rewrite canonic_ps_1.
+  unfold canonic_ps; simpl.
+  rewrite null_coeff_range_length_series_1.
+  unfold gcd_ps.
+  remember Z.gcd as g; simpl; subst g.
+  rewrite Z.gcd_0_l.
+  rewrite Z.div_0_l.
+   rewrite greatest_series_x_power_series_1.
+   rewrite Z.gcd_0_r; simpl.
+   rewrite Z.div_same; [ idtac | apply Pos2Z_ne_0 ].
+   unfold canonify_series; simpl.
+   rewrite series_left_shift_0.
+   unfold series_shrink; simpl.
+   constructor; try reflexivity; simpl.
+   constructor; intros i; simpl.
+   destruct i; [ reflexivity | idtac ].
+   remember (S i * Pos.to_nat (ps_polord ps * ps_polord ps))%nat as x.
+   symmetry in Heqx; simpl.
+   destruct x; [ idtac | reflexivity ].
+   apply Nat.eq_mul_0_l in Heqx; auto; discriminate Heqx.
 
-     apply Pos2Nat_ne_0.
-
-    intros H.
-    apply Z.gcd_eq_0_l in H.
-    simpl in H.
-    revert H; apply Pos2Z_ne_0.
-
-   Unfocus.
-   apply ps_left_adjust_eq.
+   intros H₁.
+   apply Z.gcd_eq_0_l in H₁.
+   exfalso; revert H₁; apply Pos2Z_ne_0.
 
   apply null_coeff_range_length_iff in Hn.
   destruct Hn as (Hz, Hnz).
-  rewrite Nat.add_0_l in Hnz.
-  unfold series_nth in Hnz.
-  destruct (Nbar.lt_dec (fin n) (stop (ps_terms ps))) as [H₁| H₁].
-   unfold series_nth.
-   destruct (Nbar.lt_dec 0 (stop (series_left_shift n (ps_terms ps))))
-    as [H₂| H₂].
-    simpl.
-    rewrite Nat.add_0_r.
-    assumption.
-
-    exfalso; apply H₂.
-    unfold series_left_shift.
-    remember Nbar.sub as g; simpl; subst g.
-    apply Nbar.lt_add_lt_sub_r.
-    rewrite Nbar.add_0_l; assumption.
-
-   exfalso; apply Hnz; reflexivity.
+  rewrite Nat.add_comm in Hnz; assumption.
 
  apply null_coeff_range_length_inf_iff in Hn.
  contradiction.
