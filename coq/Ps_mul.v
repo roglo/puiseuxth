@@ -99,24 +99,37 @@ Qed.
 
 Theorem ps_mul_1_l : ∀ ps, (.1 f .* f ps .= f ps)%ps.
 Proof.
-intros ps; simpl.
+intros ps.
 constructor.
 unfold canonic_ps; simpl.
-unfold cm_factor; simpl.
-rewrite fold_series_1, series_stretch_1.
+unfold cm, cm_factor; simpl.
 rewrite stretch_series_1, series_mul_1_l.
+rewrite series_stretch_1.
 remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ]; [ idtac | reflexivity ].
 constructor; simpl.
+ rewrite Z.mul_1_r; f_equal.
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
+
+ do 2 f_equal.
+ rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
+ unfold gcd_ps; simpl.
+ rewrite Z.mul_1_r; reflexivity.
+
+bbb.
 
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
 
+ rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
+ unfold gcd_ps; simpl.
+ rewrite Z.mul_1_r; reflexivity.
+
+ rewrite Z.mul_1_r; f_equal.
  rewrite stretch_series_1, series_stretch_1, series_mul_1_l.
  unfold gcd_ps; simpl.
  rewrite Z.mul_1_r; reflexivity.
