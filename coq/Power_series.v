@@ -634,6 +634,15 @@ constructor; intros i; simpl.
 rewrite H, H0; reflexivity.
 Qed.
 
+Add Parametric Morphism α (F : field α) : (@terms α)
+  with signature eq_series F ==> eq ==> (fld_eq F)
+  as series_nth_morph.
+Proof.
+intros s₁ s₂ Heq i.
+inversion Heq; subst.
+apply H.
+Qed.
+
 Section other_lemmas.
 
 Variable α : Type.
