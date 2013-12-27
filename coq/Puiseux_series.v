@@ -1012,47 +1012,17 @@ Lemma series_shrink_shrink : ∀ (s : power_series α) k₁ k₂,
    series_shrink k₁ (series_shrink k₂ s))%ser.
 Proof.
 intros s k₁ k₂.
-constructor; intros i.
-unfold series_shrink; simpl.
-unfold series_nth; simpl.
-do 3 rewrite Nbar.fold_sub.
-do 3 rewrite Nbar.fold_div.
-do 3 rewrite Nbar.fold_div_sup.
-rewrite Pos2Nat.inj_mul, Nat.mul_assoc.
-rewrite Nbar.div_sup_div_sup.
- rewrite Nbar.fin_inj_mul.
- rewrite Nbar.mul_comm.
- reflexivity.
-
- intros H₁.
- injection H₁; apply Pos2Nat_ne_0.
-
- apply Nbar.lt_fin, Pos2Nat.is_pos.
+constructor; intros i; simpl.
+rewrite Pos2Nat.inj_mul, Nat.mul_assoc; reflexivity.
 Qed.
 
 Lemma series_shrink_stretch : ∀ s k,
   (series_shrink k (series_stretch f k s) .= f s)%ser.
 Proof.
 intros s k.
-constructor; intros i.
-unfold series_nth; simpl.
-rewrite Nbar.fold_sub.
-rewrite Nbar.fold_div.
-rewrite Nbar.fold_div_sup.
-rewrite Nbar.div_sup_mul.
- rewrite Nat.mod_mul; simpl.
-  rewrite Nat.div_mul; simpl.
-   unfold series_nth.
-   destruct (Nbar.lt_dec (fin i) (stop s)); reflexivity.
-
-   apply Pos2Nat_ne_0.
-
-  apply Pos2Nat_ne_0.
-
- intros H; apply Nbar.fin_inj_wd in H.
- revert H; apply Pos2Nat_ne_0.
-
- intros H; discriminate H.
+constructor; intros i; simpl.
+rewrite Nat.mod_mul; auto; simpl.
+rewrite Nat.div_mul; auto; reflexivity.
 Qed.
 
 Fixpoint rank_of_nonzero_after_from s n i b :=
@@ -1190,112 +1160,54 @@ Lemma series_stretch_shrink : ∀ s k,
   → (series_stretch f k (series_shrink k s) .= f s)%ser.
 Proof.
 intros s k Hk.
-constructor; intros i.
-unfold series_nth; simpl.
-rewrite Nbar.fold_sub.
-rewrite Nbar.fold_div.
-rewrite Nbar.fold_div_sup.
-remember (fin (Pos.to_nat k)) as kn eqn:Hkn .
-destruct (Nbar.lt_dec (fin i) (Nbar.div_sup (stop s) kn * kn)) as [H₁| H₁].
- destruct (zerop (i mod Pos.to_nat k)) as [H₂| H₂].
-  unfold series_nth.
-  apply Nat.mod_divides in H₂.
-   destruct H₂ as (c, Hc).
-   rewrite Hc.
-   rewrite Nat.mul_comm.
-   rewrite Nat.div_mul; [ idtac | apply Pos2Nat_ne_0 ].
-   rewrite Nat.mul_comm, <- Hc.
-   destruct (Nbar.lt_dec (fin c) (stop (series_shrink k s))) as [H₂| H₂].
-    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
-     simpl; rewrite Nat.mul_comm, <- Hc.
-     reflexivity.
+constructor; intros i; simpl.
+destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
+ apply Nat.mod_divides in H₁; auto.
+ destruct H₁ as (c, Hc); rewrite Nat.mul_comm in Hc; subst i.
+ rewrite Nat.div_mul; auto; reflexivity.
 
-     exfalso; apply H₃; clear H₃.
-     simpl in H₂.
-     rewrite Nbar.fold_sub in H₂.
-     rewrite Nbar.fold_div in H₂.
-     rewrite Nbar.fold_div_sup in H₂.
-     apply Nbar.lt_div_sup_lt_mul_r in H₂.
-     simpl in H₂.
-     rewrite Nat.mul_comm, <- Hc in H₂.
-     assumption.
+ destruct Hk as (c, Hk).
+ apply greatest_series_x_power_iff in Hk.
+ unfold is_the_greatest_series_x_power in Hk.
+ remember (null_coeff_range_length f s 1) as p eqn:Hp .
+ symmetry in Hp.
+ destruct p as [p| ].
+  destruct Hk as (Hz, Hnz).
+  symmetry.
+  destruct c.
+   simpl in Hz.
+   unfold is_a_series_in_x_power in Hz.
+   pose proof (Hz O) as H.
+   simpl in H.
+   rewrite Hp in H.
+   destruct H as (c, Hc).
+   rewrite Nat.mul_0_r in Hc.
+   discriminate Hc.
 
-    simpl in H₂.
-    rewrite Nbar.fold_sub in H₂.
-    rewrite Nbar.fold_div in H₂.
-    rewrite Nbar.fold_div_sup in H₂.
-    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
-     exfalso; apply H₂; clear H₂.
-     apply Nbar.lt_mul_r_lt_div_sup.
-      apply Nbar.lt_fin, Pos2Nat.is_pos.
+   assert (i mod (S c * Pos.to_nat k) ≠ 0)%nat as H.
+    intros H.
+    apply Nat.mod_divides in H.
+     destruct H as (d, Hd).
+     rewrite Nat.mul_shuffle0 in Hd.
+     rewrite Hd in H₁.
+     rewrite Nat.mod_mul in H₁; auto.
+     revert H₁; apply Nat.lt_irrefl.
 
-      simpl; rewrite Nat.mul_comm, <- Hc.
-      assumption.
+     apply Nat.neq_mul_0.
+     split; auto.
 
-     reflexivity.
+    remember (S c) as d eqn:Hd .
+    rewrite <- Nat2Pos.id in Hd; auto; subst d.
+    rewrite <- Pos2Nat.inj_mul in H.
+    rewrite <- Pos2Nat.inj_mul in Hz.
+    eapply series_nth_0_in_interval in H; eassumption.
 
-   apply Pos2Nat_ne_0.
-
-  destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
-   destruct Hk as (c, Hk).
-   apply greatest_series_x_power_iff in Hk.
-   unfold is_the_greatest_series_x_power in Hk.
-   remember (null_coeff_range_length f s 1) as p eqn:Hp .
-   symmetry in Hp.
-   destruct p as [p| ].
-    destruct Hk as (Hz, Hnz).
-    symmetry.
-    destruct c.
-     simpl in Hz.
-     unfold is_a_series_in_x_power in Hz.
-     pose proof (Hz O) as H.
-     simpl in H.
-     rewrite Hp in H.
-     destruct H as (c, Hc).
-     rewrite Nat.mul_0_r in Hc.
-     discriminate Hc.
-
-     assert (i mod (S c * Pos.to_nat k) ≠ 0)%nat as H.
-      intros H.
-      apply Nat.mod_divides in H.
-       destruct H as (d, Hd).
-       rewrite Nat.mul_shuffle0 in Hd.
-       rewrite Hd in H₂.
-       rewrite Nat.mod_mul in H₂; [ idtac | apply Pos2Nat_ne_0 ].
-       revert H₂; apply Nat.lt_irrefl.
-
-       apply Nat.neq_mul_0.
-       split; auto.
-
-      remember (S c) as d eqn:Hd .
-      rewrite <- Nat2Pos.id in Hd; auto; subst d.
-      rewrite <- Pos2Nat.inj_mul in H.
-      rewrite <- Pos2Nat.inj_mul in Hz.
-      eapply series_nth_0_in_interval in H; [ idtac | eassumption ].
-      unfold series_nth in H.
-      destruct (Nbar.lt_dec (fin i) (stop s)); [ assumption | contradiction ].
-
-    symmetry.
-    apply null_coeff_range_length_iff in Hp.
-    simpl in Hp.
-    destruct i.
-     rewrite Nat.mod_0_l in H₂; auto.
-     exfalso; revert H₂; apply Nat.lt_irrefl.
-
-     pose proof (Hp i) as Hi.
-     unfold series_nth in Hi.
-     destruct (Nbar.lt_dec (fin (S i)) (stop s)); auto.
-     contradiction.
-
-   reflexivity.
-
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂]; [ idtac | reflexivity ].
- exfalso; apply H₁.
- eapply Nbar.lt_le_trans; [ eassumption | idtac ].
- apply Nbar.le_mul_div_sup.
- subst kn.
- intros H.
- injection H; apply Pos2Nat_ne_0.
+  symmetry.
+  apply null_coeff_range_length_iff in Hp.
+  simpl in Hp.
+  destruct i; [ idtac | apply Hp ].
+  rewrite Nat.mod_0_l in H₁; auto.
+  exfalso; revert H₁; apply Nat.lt_irrefl.
 Qed.
 
 Lemma nth_null_coeff_range_length_stretch : ∀ s b n k,
@@ -1636,7 +1548,6 @@ split; intros H.
  apply null_coeff_range_length_iff in Hn.
  simpl in Hn.
  destruct Hn as (_, Hn).
- rewrite series_nth_series_0 in Hn.
  exfalso; apply Hn; reflexivity.
 
  inversion H; subst.
@@ -1649,8 +1560,7 @@ split; intros H.
   apply null_coeff_range_length_iff in Hn.
   simpl in Hn.
   destruct Hn as (_, Hn).
-  apply Hn.
-  rewrite series_nth_series_0; reflexivity.
+  apply Hn; reflexivity.
 
   remember (null_coeff_range_length f (ps_terms ps) 0) as m eqn:Hm .
   symmetry in Hm.
@@ -1786,58 +1696,17 @@ unfold null_coeff_range_length_prop in Hn |- *.
 destruct n as [n| ].
  destruct Hn as (Hz, Hnz).
  split.
-  intros i Hin.
-  unfold series_nth; simpl.
-  rewrite Nbar.fold_sub.
-  destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₁| H₁].
-   rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-   apply Hz in Hin.
-   unfold series_nth in Hin.
-   destruct (Nbar.lt_dec (fin (S m + i)) (stop s)) as [H₂| H₂].
-    assumption.
+  intros i Hin; simpl.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+  apply Hz; assumption.
 
-    exfalso; apply H₂.
-    apply Nbar.lt_add_lt_sub_r in H₁.
-    simpl in H₁.
-    rewrite Nat.add_comm, <- Nat.add_succ_l in H₁.
-    assumption.
+  simpl.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+  assumption.
 
-   reflexivity.
-
-  unfold series_nth; simpl.
-  rewrite Nbar.fold_sub.
-  unfold series_nth in Hnz; simpl in Hnz.
-  destruct (Nbar.lt_dec (fin (S (m + n))) (stop s)) as [H₁| H₁].
-   rewrite <- Nat.add_succ_r in Hnz.
-   destruct (Nbar.lt_dec (fin (S n)) (stop s - fin m)) as [H₂| H₂].
-    assumption.
-
-    exfalso; apply H₂.
-    apply Nbar.lt_add_lt_sub_r.
-    simpl; rewrite Nat.add_comm; assumption.
-
-   exfalso; apply Hnz; reflexivity.
-
- intros i.
- pose proof (Hn i) as Hi.
- unfold series_nth; simpl.
- rewrite Nbar.fold_sub.
- unfold series_nth in Hi; simpl in Hi.
- destruct (Nbar.lt_dec (fin (S (m + i))) (stop s)) as [H₁| H₁].
-  rewrite <- Nat.add_succ_r in Hi.
-  destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₂| H₂].
-   assumption.
-
-   reflexivity.
-
-  destruct (Nbar.lt_dec (fin (S i)) (stop s - fin m)) as [H₂| H₂].
-   exfalso; apply H₁.
-   apply Nbar.lt_add_lt_sub_r in H₂.
-   simpl in H₂.
-   rewrite Nat.add_comm, <- Nat.add_succ_l in H₂.
-   assumption.
-
-   reflexivity.
+ simpl; intros i.
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ apply Hn.
 Qed.
 
 Lemma series_left_shift_left_shift : ∀ (s : power_series α) m n,
