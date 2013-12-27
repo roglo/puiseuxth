@@ -57,29 +57,7 @@ split.
  intros i Hi.
  exfalso; revert Hi; apply Nat.nlt_0_r.
 
- unfold series_nth in Hnz |- *.
- remember (series_left_shift n (ps_terms ps)) as x eqn:Hx .
- destruct (Nbar.lt_dec 0 (stop x)) as [H₁| H₁].
-  destruct (Nbar.lt_dec (fin n) (stop (ps_terms ps))) as [H₂| H₂].
-   subst x.
-   simpl.
-   rewrite Nat.add_0_r; assumption.
-
-   exfalso; apply Hnz; reflexivity.
-
-  exfalso; apply H₁; subst x.
-  simpl.
-  destruct (Nbar.lt_dec (fin n) (stop (ps_terms ps))) as [H₂| H₂].
-   remember (stop (ps_terms ps)) as st eqn:Hst .
-   symmetry in Hst.
-   destruct st as [st| ].
-    apply Nbar.fin_lt_mono.
-    apply Nbar.fin_lt_mono in H₂.
-    fast_omega H₂.
-
-    constructor.
-
-   exfalso; apply Hnz; reflexivity.
+ rewrite Nat.add_0_r; assumption.
 Qed.
 
 Lemma null_coeff_range_length_inf_left_adjust : ∀ ps,
@@ -157,7 +135,6 @@ Lemma series_left_shift_0 : ∀ s, (series_left_shift 0 s .= f s)%ser.
 Proof.
 intros s.
 unfold series_left_shift.
-rewrite Nbar.sub_0_r; simpl.
 destruct s; reflexivity.
 Qed.
 
@@ -165,44 +142,16 @@ Lemma series_shrink_1 : ∀ s, (series_shrink 1 s .= f s)%ser.
 Proof.
 intros s.
 unfold series_shrink; simpl.
-rewrite Nbar.fold_sub.
-rewrite Nbar.add_sub; [ idtac | intros H; discriminate H ].
-remember (stop s) as st eqn:Hst .
-symmetry in Hst.
-destruct st as [st| ].
- rewrite divmod_div.
- rewrite Nat.div_1_r.
- constructor; intros n.
- unfold series_nth; simpl.
- rewrite Nat.mul_1_r.
- rewrite Hst; reflexivity.
-
- constructor; intros n.
- unfold series_nth; simpl.
- rewrite Nat.mul_1_r.
- rewrite Hst; reflexivity.
+constructor; intros n; simpl.
+rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
 Lemma canonic_ps_1 : (canonic_ps f (.1 f) ≐ f (.1 f))%ps.
 Proof.
-remember (null_coeff_range_length f (ps_terms (.1 f %ps)) 0) as n eqn:Hn .
+remember (null_coeff_range_length f (ps_terms .1 f%ps) 0) as n eqn:Hn .
 symmetry in Hn.
 destruct n as [n| ].
  destruct n.
-  Focus 2.
-  apply null_coeff_range_length_iff in Hn; simpl in Hn.
-  destruct Hn as (_, Hn).
-  unfold series_nth in Hn.
-  simpl in Hn.
-  exfalso; apply Hn.
-  destruct (Nbar.lt_dec (fin (S n)) 1) as [H₁| H₁].
-   apply Nbar.nle_gt in H₁.
-   exfalso; apply H₁.
-   apply Nbar.fin_le_mono.
-   apply le_n_S, Nat.le_0_l.
-
-   reflexivity.
-
   constructor; simpl.
    erewrite ps_valnum_canonic; try reflexivity; try eassumption.
    rewrite Z.add_0_r.
@@ -226,12 +175,16 @@ destruct n as [n| ].
    rewrite series_shrink_1.
    rewrite series_left_shift_0; reflexivity.
 
+  apply null_coeff_range_length_iff in Hn; simpl in Hn.
+  destruct Hn as (_, Hn).
+  exfalso; apply Hn; reflexivity.
+
  apply null_coeff_range_length_inf_iff in Hn.
  exfalso; revert Hn; apply ps_neq_1_0.
 Qed.
 
 Lemma series_inv_compat : ∀ a b,
-  (a [0]f .≠ f .0 f)%F
+  (a [0] .≠ f .0 f)%F
   → (a .= f b)%ser
     → (series_inv f a .= f series_inv f b)%ser.
 Proof.
@@ -257,8 +210,6 @@ split.
  apply Nat.nlt_ge in Hi.
  exfalso; apply Hi, Nat.lt_0_succ.
 
- unfold series_nth; simpl.
- rewrite if_lt_dec_0_1.
  apply fld_neq_1_0.
 Qed.
 
@@ -267,20 +218,13 @@ Lemma greatest_series_x_power_series_1 :
 Proof.
 apply greatest_series_x_power_iff; simpl.
 unfold is_the_greatest_series_x_power.
-remember (null_coeff_range_length f (.1 f)%ser 1) as n eqn:Hn .
+remember (null_coeff_range_length f .1 f%ser 1) as n eqn:Hn .
 symmetry in Hn.
+destruct n as [n| ]; [ idtac | reflexivity ].
 apply null_coeff_range_length_iff in Hn.
 unfold null_coeff_range_length_prop in Hn.
-destruct n as [n| ]; [ idtac | reflexivity ].
 destruct Hn as (Hz, Hnz).
-unfold series_nth in Hnz.
-simpl in Hnz.
-destruct (Nbar.lt_dec (fin (S n)) 1) as [H₁| H₁].
- apply Nbar.fin_lt_mono in H₁.
- apply lt_S_n in H₁.
- exfalso; revert H₁; apply Nat.nlt_0_r.
-
- exfalso; apply Hnz; reflexivity.
+exfalso; apply Hnz; reflexivity.
 Qed.
 
 Theorem ps_mul_inv_l : ∀ ps,
