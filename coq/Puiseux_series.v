@@ -515,56 +515,14 @@ intros s n Hn.
 apply null_coeff_range_length_iff in Hn.
 simpl in Hn.
 destruct Hn as (Hz, Hnz).
-constructor; intros i.
-unfold series_nth; simpl.
-rewrite Nbar.fold_sub.
-destruct (Nbar.le_dec (fin n) (stop s)) as [H₁| H₁].
- rewrite Nbar.sub_add; auto.
- destruct (Nbar.lt_dec (fin i) (stop s)) as [H₂| H₂].
-  destruct (lt_dec i n) as [H₃| H₃].
-   apply Hz in H₃.
-   unfold series_nth in H₃.
-   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
-    symmetry; assumption.
+constructor; intros i; simpl.
+destruct (lt_dec i n) as [H₁| H₁].
+ apply Hz in H₁.
+ symmetry; assumption.
 
-    contradiction.
-
-   apply Nat.nlt_ge in H₃.
-   rewrite Nat.add_sub_assoc; [ idtac | assumption ].
-   rewrite Nat.add_comm, Nat.add_sub.
-   reflexivity.
-
-  reflexivity.
-
- apply Nbar.nle_gt in H₁.
- replace (stop s - fin n + fin n)%Nbar with (fin n) .
-  destruct (Nbar.lt_dec (fin i) (fin n)) as [H₂| H₂].
-   destruct (lt_dec i n) as [H₃| H₃].
-    apply Hz in H₃.
-    unfold series_nth in H₃.
-    destruct (Nbar.lt_dec (fin i) (stop s)) as [H₄| H₄].
-     symmetry; assumption.
-
-     reflexivity.
-
-    apply Nbar.fin_lt_mono in H₂.
-    contradiction.
-
-   destruct (Nbar.lt_dec (fin i) (stop s)) as [H₃| H₃].
-    exfalso; apply H₂.
-    eapply Nbar.lt_trans; eassumption.
-
-    reflexivity.
-
-  simpl.
-  destruct (stop s) as [st| ]; simpl.
-   apply Nbar.fin_lt_mono in H₁.
-   apply Nat.lt_le_incl in H₁.
-   apply Nat.sub_0_le in H₁.
-   rewrite H₁; reflexivity.
-
-   apply Nbar.nle_gt in H₁.
-   exfalso; apply H₁; constructor.
+ apply Nat.nlt_ge in H₁.
+ rewrite Nat.add_sub_assoc; [ idtac | assumption ].
+ rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
 Theorem series_left_shift_shift : ∀ s n m,
