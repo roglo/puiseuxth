@@ -17,19 +17,12 @@ Variable α : Type.
 Variable f : field α.
 
 Lemma series_nth_0_series_nth_shift_0 : ∀ s n,
-  (∀ i, (series_nth f i s .= f .0 f)%F)
-  → ∀ i, (series_nth f i (series_shift f n s) .= f .0 f)%F.
+  (∀ i, (s [i] .= f .0 f)%F)
+  → ∀ i, ((series_shift f n s) [i] .= f .0 f)%F.
 Proof.
-intros s n H i.
-revert i.
-induction n as [| n]; intros.
- rewrite series_shift_0; apply H.
-
- destruct i.
-  unfold series_nth; simpl.
-  destruct (Nbar.lt_dec 0 (stop s + fin (S n))); reflexivity.
-
-  rewrite <- series_nth_shift_S; apply IHn.
+intros s n H i; simpl.
+destruct (lt_dec i n) as [| H₁]; [ reflexivity | idtac ].
+apply H.
 Qed.
 
 Lemma canonify_series_add_shift : ∀ s n m k,
@@ -38,30 +31,15 @@ Lemma canonify_series_add_shift : ∀ s n m k,
 Proof.
 intros s n m k.
 unfold canonify_series.
-unfold series_shrink, series_left_shift.
-constructor; intros i.
-unfold series_nth.
-remember Nbar.div_sup as g; simpl; subst g.
-do 2 rewrite Nbar.fold_sub.
-replace (stop s + fin m - fin (n + m))%Nbar with (stop s - fin n)%Nbar .
- remember (Nbar.div_sup (stop s - fin n) (fin (Pos.to_nat k))) as x eqn:Hx .
- destruct (Nbar.lt_dec (fin i) x) as [H₁| H₁]; [ idtac | reflexivity ].
- subst x.
- remember (i * Pos.to_nat k)%nat as x.
- replace (n + m + x - m)%nat with (n + x)%nat by omega.
- subst x.
- destruct (lt_dec (n + m + i * Pos.to_nat k) m) as [H₂| H₂].
-  rewrite Nat.add_shuffle0, Nat.add_comm in H₂.
-  apply Nat.nle_gt in H₂.
-  exfalso; apply H₂.
-  apply Nat.le_add_r.
+constructor; intros i; simpl.
+destruct (lt_dec (n + m + i * Pos.to_nat k) m) as [H₂| H₂].
+ rewrite Nat.add_shuffle0, Nat.add_comm in H₂.
+ apply Nat.nle_gt in H₂.
+ exfalso; apply H₂.
+ apply Nat.le_add_r.
 
-  reflexivity.
-
- simpl.
- destruct (stop s) as [st| ]; [ simpl | reflexivity ].
- apply Nbar.fin_inj_wd.
- omega.
+ rewrite Nat.add_comm, Nat.add_assoc, Nat.add_sub.
+ rewrite Nat.add_comm; reflexivity.
 Qed.
 
 Lemma eq_strong_ps_add_compat_r : ∀ ps₁ ps₂ ps₃,
