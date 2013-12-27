@@ -56,7 +56,7 @@ Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
-Lemma yyy : ∀ c γ,
+Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   eq_poly (ps_field fld)
     {| al := [ps_monom fld c γ]; an := ps_monom fld (fld_one fld) γ |}
     (ps_pol_mul fld
@@ -74,16 +74,18 @@ constructor.
  unfold cm; simpl; rewrite Pos.mul_1_r.
  pose proof (stretch_series_const fld (Qden γ) c) as H.
  rewrite H; reflexivity.
-bbb.
+
+ constructor; [ idtac | constructor ].
+ rewrite ps_mul_1_r; reflexivity.
+Qed.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
-  poly_eq (ps_f f) (f₁ f β₁ γ₁ c₁) (f₁' f β₁ γ₁ c₁).
+  eq_poly (ps_field fld) (f₁ fld f β₁ γ₁ c₁) (f₁' fld f β₁ γ₁ c₁).
 Proof.
 intros f β₁ γ₁ c₁.
 unfold f₁, f₁'.
-unfold poly_eq; simpl.
+unfold eq_poly; simpl.
 apply list_eq_append_one.
-remember (ps_pol_mul {| al := []; an := ps_monom (one f) (- β₁) |}) as g.
 split.
  Focus 2.
 bbb.
