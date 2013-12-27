@@ -303,63 +303,7 @@ constructor; intros i.
 inversion Heq; subst.
 unfold series_nth; simpl.
 unfold series_nth in H; simpl in H.
-pose proof (H (i - n)%nat) as Hi; clear H.
-destruct (lt_dec i n) as [Hlt| Hge].
- destruct (Nbar.lt_dec (fin i) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
-  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)); reflexivity.
-
-  destruct (Nbar.lt_dec (fin i) (stop s₂ + fin n)); reflexivity.
-
- apply not_gt in Hge.
- remember (i - n)%nat as m.
- assert (m + n = i)%nat by (subst m; apply Nat.sub_add; assumption).
- subst i; clear Heqm Hge.
- destruct (Nbar.lt_dec (fin (m + n)) (stop s₁ + fin n)) as [Hlt₁| Hge₁].
-  destruct (Nbar.lt_dec (fin (m + n)) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
-   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
-    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
-     assumption.
-
-     exfalso; apply Hge₄; clear Hge₄.
-     rewrite Nbar.fin_inj_add in Hlt₂.
-     apply Nbar.add_lt_mono_r in Hlt₂; [ assumption | idtac ].
-     intros H; discriminate H.
-
-    exfalso; apply Hge₃; clear Hge₃.
-    rewrite Nbar.fin_inj_add in Hlt₁.
-    apply Nbar.add_lt_mono_r in Hlt₁; [ assumption | idtac ].
-    intros H; discriminate H.
-
-   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
-    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
-     exfalso; apply Hge₂; clear Hge₂.
-     rewrite Nbar.fin_inj_add.
-     apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-     intros H; discriminate H.
-
-     assumption.
-
-    exfalso; apply Hge₃; clear Hge₃.
-    rewrite Nbar.fin_inj_add in Hlt₁.
-    apply Nbar.add_lt_mono_r in Hlt₁; [ assumption | idtac ].
-    intros H; discriminate H.
-
-  destruct (Nbar.lt_dec (fin (m + n)) (stop s₂ + fin n)) as [Hlt₂| Hge₂].
-   destruct (Nbar.lt_dec (fin m) (stop s₁)) as [Hlt₃| Hge₃].
-    exfalso; apply Hge₁; clear Hge₁.
-    rewrite Nbar.fin_inj_add.
-    apply Nbar.add_lt_mono_r; [ idtac | assumption ].
-    intros H; discriminate H.
-
-    destruct (Nbar.lt_dec (fin m) (stop s₂)) as [Hlt₄| Hge₄].
-     assumption.
-
-     exfalso; apply Hge₄; clear Hge₄.
-     rewrite Nbar.fin_inj_add in Hlt₂.
-     apply Nbar.add_lt_mono_r in Hlt₂; [ assumption | idtac ].
-     intros H; discriminate H.
-
-   reflexivity.
+destruct (lt_dec i n); [ reflexivity | apply H ].
 Qed.
 
 Add Parametric Morphism α (f : field α) : (@canonify_series α)
@@ -370,65 +314,9 @@ intros n k ps₁ ps₂ Heq.
 constructor; intros i.
 inversion Heq; subst.
 unfold canonify_series.
-unfold series_shrink, series_left_shift.
-remember Nbar.div_sup as g; simpl; subst g.
-do 2 rewrite Nbar.fold_sub.
-pose proof (H (n + i * Pos.to_nat k)%nat) as Hi.
-remember Nbar.div_sup as g.
-unfold series_nth in Hi |- *; simpl.
-do 2 rewrite Nbar.fold_sub.
-subst g.
-remember (fin (Pos.to_nat k)) as fink.
-remember (Nbar.div_sup (stop ps₁ - fin n) fink) as d₁ eqn:Hd₁ .
-remember (Nbar.div_sup (stop ps₂ - fin n) fink) as d₂ eqn:Hd₂ .
-subst fink.
-destruct (Nbar.lt_dec (fin i) d₁) as [H₁| H₁]; subst d₁.
- destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₁)) as [H₂| H₂].
-  destruct (Nbar.lt_dec (fin i) d₂) as [H₃| H₃]; subst d₂.
-   destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₂)) as [H₄| H₄].
-    assumption.
-
-    exfalso; apply H₄.
-    apply Nbar.lt_div_sup_lt_mul_r in H₃.
-    rewrite Nbar.fin_inj_add, Nbar.add_comm.
-    apply Nbar.lt_add_lt_sub_r.
-    assumption.
-
-   destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₂)) as [H₄| H₄].
-    exfalso; apply H₃.
-    apply Nbar.lt_mul_r_lt_div_sup.
-     apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
-
-     apply Nbar.lt_add_lt_sub_r.
-     rewrite Nbar.add_comm; assumption.
-
-    assumption.
-
-  exfalso; apply H₂.
-  apply Nbar.lt_div_sup_lt_mul_r in H₁.
-  rewrite Nbar.fin_inj_add, Nbar.add_comm.
-  apply Nbar.lt_add_lt_sub_r.
-  assumption.
-
- destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₁)) as [H₂| H₂].
-  exfalso; apply H₁.
-  apply Nbar.lt_mul_r_lt_div_sup.
-   apply Nbar.fin_lt_mono, Pos2Nat.is_pos.
-
-   apply Nbar.lt_add_lt_sub_r.
-   rewrite Nbar.add_comm; assumption.
-
-  destruct (Nbar.lt_dec (fin i) d₂) as [H₃| H₃]; subst d₂.
-   destruct (Nbar.lt_dec (fin (n + i * Pos.to_nat k)) (stop ps₂)) as [H₄| H₄].
-    assumption.
-
-    exfalso; apply H₄.
-    apply Nbar.lt_div_sup_lt_mul_r in H₃.
-    rewrite Nbar.fin_inj_add, Nbar.add_comm.
-    apply Nbar.lt_add_lt_sub_r.
-    assumption.
-
-   reflexivity.
+unfold series_shrink, series_left_shift; simpl.
+unfold series_nth in H.
+apply H.
 Qed.
 
 Add Parametric Morphism α (f : field α) : (canonic_ps f)
@@ -478,52 +366,17 @@ remember (Pos.to_nat ap) as a.
 remember (Pos.to_nat bp) as b.
 assert (a ≠ O) as Ha by (subst a; apply Pos2Nat_ne_0).
 assert (b ≠ O) as Hb by (subst b; apply Pos2Nat_ne_0).
-rewrite Nbar.fin_inj_mul, Nbar.mul_shuffle0, Nbar.mul_assoc.
-remember (Nbar.lt_dec (fin i) (stop s * fin a * fin b)) as n.
-destruct n as [Hlt| ]; [ clear Heqn | reflexivity ].
 destruct (zerop (i mod (a * b))) as [Hz| Hnz].
  apply Nat.mod_divides in Hz.
   destruct Hz as (c, Hz).
   subst i.
   rewrite Nat.mul_comm, Nat.div_mul.
-   destruct (Nbar.lt_dec (fin c) (stop s)) as [Hlt₁| Hge₁].
-    rewrite Nat.mul_comm, <- Nat.mul_assoc, Nat.mul_comm.
-    rewrite Nat.mod_mul; [ simpl | assumption ].
-    rewrite Nat.div_mul; [ simpl | assumption ].
-    rewrite Nbar.fin_inj_mul, Nbar.mul_comm.
-    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
-     rewrite Nat.mul_comm, Nat.mod_mul; [ simpl | assumption ].
-     rewrite Nat.div_mul; [ simpl | assumption ].
-     destruct (Nbar.lt_dec (fin c) (stop s)); [ reflexivity | contradiction ].
-
-     exfalso; apply Hge₂; clear Hge₂.
-     apply Nbar.mul_lt_mono_pos_r.
-      constructor.
-      apply neq_0_lt, Nat.neq_sym; assumption.
-
-      intros H; discriminate H.
-
-      intros H; discriminate H.
-
-      assumption.
-
-    rewrite Nat.mul_assoc, Nat.mul_shuffle0.
-    rewrite Nat.mod_mul; [ simpl | assumption ].
-    rewrite Nat.div_mul; [ simpl | assumption ].
-    rewrite Nbar.fin_inj_mul.
-    destruct (Nbar.lt_dec (fin c * fin b) (stop s * fin b)) as [Hlt₂| Hge₂].
-     exfalso; apply Hge₁.
-     apply Nbar.mul_lt_mono_pos_r in Hlt₂.
-      assumption.
-
-      constructor.
-      apply neq_0_lt, Nat.neq_sym; assumption.
-
-      intros H; discriminate H.
-
-      intros H; discriminate H.
-
-     reflexivity.
+   rewrite Nat.mul_assoc, Nat.mul_shuffle0.
+   rewrite Nat.mod_mul; [ simpl | assumption ].
+   rewrite Nat.div_mul; [ simpl | assumption ].
+   rewrite Nat.mod_mul; [ simpl | assumption ].
+   rewrite Nat.div_mul; [ simpl | assumption ].
+   reflexivity.
 
    apply Nat.neq_mul_0; split; assumption.
 
@@ -534,18 +387,15 @@ destruct (zerop (i mod (a * b))) as [Hz| Hnz].
  destruct Hz as (c, Hz).
  subst i.
  rewrite Nat.mul_comm, Nat.div_mul; [ idtac | assumption ].
- destruct (Nbar.lt_dec (fin c) (stop s * fin b)) as [Hlt₁| Hgt₁].
-  destruct (zerop (c mod b)) as [Hlt₂| ]; [ idtac | reflexivity ].
-  apply Nat.mod_divides in Hlt₂; [ idtac | assumption ].
-  destruct Hlt₂ as (c₂, Hlt₂).
-  subst c.
-  rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
-  rewrite Nat.mod_mul in Hnz.
-   exfalso; revert Hnz; apply lt_irrefl.
+ destruct (zerop (c mod b)) as [Hlt₂| ]; [ idtac | reflexivity ].
+ apply Nat.mod_divides in Hlt₂; [ idtac | assumption ].
+ destruct Hlt₂ as (c₂, Hlt₂).
+ subst c.
+ rewrite Nat.mul_assoc, Nat.mul_comm in Hnz.
+ rewrite Nat.mod_mul in Hnz.
+  exfalso; revert Hnz; apply lt_irrefl.
 
-   apply Nat.neq_mul_0; split; assumption.
-
-  reflexivity.
+  apply Nat.neq_mul_0; split; assumption.
 Qed.
 
 Lemma series_shift_series_0 : ∀ n, (series_shift f n .0 f .= f .0 f)%ser.
@@ -554,7 +404,6 @@ intros n.
 constructor; intros i.
 rewrite series_nth_series_0.
 unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) (fin n)); [ idtac | reflexivity ].
 destruct (lt_dec i n); reflexivity.
 Qed.
 
@@ -563,7 +412,6 @@ Proof.
 intros k.
 constructor; intros i.
 unfold series_nth; simpl.
-destruct (Nbar.lt_dec (fin i) 0); [ idtac | reflexivity ].
 destruct (zerop (i mod Pos.to_nat k)); [ idtac | reflexivity ].
 unfold series_nth; simpl.
 destruct (Nbar.lt_dec (fin (i / Pos.to_nat k)) 0); reflexivity.
