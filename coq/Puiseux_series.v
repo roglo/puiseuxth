@@ -1714,14 +1714,8 @@ Lemma series_left_shift_left_shift : ∀ (s : power_series α) m n,
    series_left_shift (m + n) s)%ser.
 Proof.
 intros s m n.
-constructor; intros i.
-unfold series_nth; simpl.
-do 3 rewrite Nbar.fold_sub.
-rewrite Nbar.fin_inj_add.
-rewrite Nbar.add_comm.
-rewrite Nbar.sub_add_distr.
-rewrite Nat.add_comm, Nat.add_shuffle0.
-reflexivity.
+constructor; intros i; simpl.
+rewrite Nat.add_comm, Nat.add_shuffle0; reflexivity.
 Qed.
 
 Lemma nth_null_coeff_range_length_left_shift : ∀ s m n p,
