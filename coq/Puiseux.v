@@ -57,6 +57,16 @@ Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
+  eq_poly
+    (poly_of_list [ps_monom fld c γ; ps_monom fld (fld_one fld) γ … []])
+    (ps_pol_mul
+       (poly_of_list [ps_const fld c; ps_one fld … []])
+       (poly_of_list [ps_monom fld (fld_one fld) γ])).
+Proof.
+bbb.
+
+(* c.x^γ + y.x^y = (c + y).x^γ *)
+Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   eq_poly (ps_field fld)
     {| al := [ps_monom fld c γ]; an := ps_monom fld (fld_one fld) γ |}
     (ps_pol_mul fld

@@ -30,10 +30,10 @@ Admitted.
 Definition null_coeff_range_length_prop α (f : field α) s n v :=
   match v with
   | fin k =>
-      (∀ i : nat, (i < k)%nat → (s [n + i] .= f .0 f)%F)
-      ∧ (s [n + k] .≠ f .0 f)%F
+      (∀ i : nat, (i < k)%nat → (s .[n + i] .= f .0 f)%F)
+      ∧ (s .[n + k] .≠ f .0 f)%F
   | ∞ =>
-      ∀ i : nat, (s [n + i] .= f .0 f)%F
+      ∀ i : nat, (s .[n + i] .= f .0 f)%F
   end.
 
 Axiom null_coeff_range_length_iff : ∀ α (f : field α) s n v,
@@ -75,7 +75,7 @@ End Axioms.
 
 Definition series_stretch α (f : field α) k s :=
   {| terms i :=
-       if zerop (i mod Pos.to_nat k) then s [i / Pos.to_nat k]
+       if zerop (i mod Pos.to_nat k) then s .[i / Pos.to_nat k]
        else fld_zero f |}.
 
 Definition series_shift α (f : field α) n s :=
@@ -578,7 +578,7 @@ reflexivity.
 Qed.
 
 Lemma series_nth_shift_S : ∀ s n i,
-  (series_shift f n s) [i] = (series_shift f (S n) s) [S i].
+  (series_shift f n s) .[i] = (series_shift f (S n) s) .[S i].
 Proof.
 intros s n i; simpl.
 destruct (lt_dec i n) as [H₁| H₁].
@@ -666,7 +666,7 @@ Qed.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → (series_stretch f k s) [i] = .0 f%F.
+  → (series_stretch f k s) .[i] = .0 f%F.
 Proof.
 intros s k i Hi; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
@@ -702,7 +702,7 @@ apply stretch_series_const.
 Qed.
 
 Lemma series_nth_mul_stretch : ∀ s k i,
-  (series_stretch f k s) [Pos.to_nat k * i] = s [i].
+  (series_stretch f k s) .[Pos.to_nat k * i] = s .[i].
 Proof.
 intros s k i; simpl.
 rewrite Nat.mul_comm.
@@ -712,15 +712,15 @@ reflexivity.
 Qed.
 
 Lemma series_nth_mul_shrink : ∀ (s : power_series α) k i,
-  s [Pos.to_nat k * i] = (series_shrink k s) [i].
+  s .[Pos.to_nat k * i] = (series_shrink k s) .[i].
 Proof.
 intros s k i; simpl.
 rewrite Nat.mul_comm; reflexivity.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i, (s [b + i] .= f .0 f)%F)
-  → ∀ i, ((series_stretch f k s) [b * Pos.to_nat k + i] .= f .0 f)%F.
+  (∀ i, (s .[b + i] .= f .0 f)%F)
+  → ∀ i, ((series_stretch f k s) .[b * Pos.to_nat k + i] .= f .0 f)%F.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -784,7 +784,7 @@ rewrite Nat.mul_0_l; reflexivity.
 Qed.
 
 Lemma series_nth_add_shift : ∀ s i n,
-  (series_shift f n s) [i + n] = s [i].
+  (series_shift f n s) .[i + n] = s .[i].
 Proof.
 intros s i n; simpl.
 rewrite Nat.add_sub.
@@ -795,7 +795,7 @@ exfalso; revert H; apply Nat.nlt_0_r.
 Qed.
 
 Lemma series_nth_add_left_shift : ∀ (s : power_series α) i n,
-  s [i + n] = (series_left_shift n s) [i].
+  s .[i + n] = (series_left_shift n s) .[i].
 Proof.
 intros s i n; simpl.
 rewrite Nat.add_comm; reflexivity.
@@ -1075,7 +1075,7 @@ Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
        nth_null_coeff_range_length f s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
-        → (s [b + i] .= f .0 f)%F.
+        → (s .[b + i] .= f .0 f)%F.
 Proof.
 (* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
@@ -1168,7 +1168,7 @@ Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, (Pos.to_nat k | nth_null_coeff_range_length f s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → (s [i] .= f .0 f)%F.
+    → (s .[i] .= f .0 f)%F.
 Proof.
 intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
@@ -1536,7 +1536,7 @@ Lemma series_null_power : ∀ s b p,
   is_a_series_in_x_power f s b p
   → ∀ i,
     ((i - b) mod p)%nat ≠ O
-    → (s [i] .= f .0 f)%F.
+    → (s .[i] .= f .0 f)%F.
 Proof.
 intros s b p Hxp i Hip.
 destruct p; [ exfalso; apply Hip; reflexivity | idtac ].

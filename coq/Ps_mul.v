@@ -471,7 +471,7 @@ Qed.
 
 Lemma series_nth_lt_shift : ∀ a i n,
   (i < n)%nat
-  → ((series_shift f n a) [i] .= f .0 f)%F.
+  → ((series_shift f n a) .[i] .= f .0 f)%F.
 Proof.
 intros a i n Hin; simpl.
 destruct (lt_dec i n); [ reflexivity | contradiction ].

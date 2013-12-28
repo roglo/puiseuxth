@@ -5,12 +5,20 @@
 Require Import Utf8.
 Require Import QArith.
 
-Require Import Field.
 Require Import Misc.
-Require Import Polynomial.
+Require Import Field.
+Require Import Power_series.
 
 Set Implicit Arguments.
 
+Record polyn α (f : field α) :=
+  { pseries : power_series α;
+    finprop : ∃ n, ∀ m, n ≤ m → pseries .[m] = (.0 f)%F }.
+
+Definition eq_poly α (f : field α) (p₁ p₂ : polyn f) :=
+  eq_series f (pseries p₁) (pseries p₂).
+
+(*
 Definition list_eq := List.Forall2.
 
 Section poly.
@@ -182,3 +190,4 @@ split.
 Qed.
 
 End poly.
+*)
