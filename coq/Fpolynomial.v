@@ -13,181 +13,80 @@ Set Implicit Arguments.
 
 Record polyn α (f : field α) :=
   { pseries : power_series α;
-    finprop : ∃ n, ∀ m, n ≤ m → pseries .[m] = (.0 f)%F }.
+    finprop : ∃ n, ∀ m, n ≤ m → (pseries .[m] .= f (.0 f))%F }.
 
-Definition eq_poly α (f : field α) (p₁ p₂ : polyn f) :=
+Definition eq_polyn α (f : field α) (p₁ p₂ : polyn f) :=
   eq_series f (pseries p₁) (pseries p₂).
 
-(*
-Definition list_eq := List.Forall2.
-
-Section poly.
-
-Variable α : Type.
-Variable F : field α.
-
-Definition eq_poly (x y : polynomial α) :=
-  list_eq (fld_eq F) (al x ++ [an x]) (al y ++ [an y]).
-
-Definition poly_add :=
-  pol_add (fld_add F).
-
-Definition poly_mul :=
-  pol_mul (fld_zero F) (fld_add F) (fld_mul F).
-
-Definition Pdivide (x y : polynomial α) :=
-  ∃ z, eq_poly y (poly_mul z x).
-
-Lemma list_eq_refl : ∀ l, list_eq (fld_eq F) l l.
+Lemma finprop_list : ∀ α (f : field α) l,
+  ∃ n, ∀ m, n ≤ m → ({| terms i := List.nth i l (.0 f)%F |} .[m] .= f .0 f)%F.
 Proof.
-intros l.
-induction l; constructor; [ reflexivity | assumption ].
+intros α f l.
+exists (List.length l); intros m Hm; simpl.
+rewrite List.nth_overflow; [ reflexivity | assumption ].
 Qed.
 
-Lemma list_eq_append_one : ∀ cmp (x₁ x₂ : α) l₁ l₂,
-  list_eq cmp l₁ l₂ ∧ cmp x₁ x₂
-  → list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]).
+Definition polyn_of_list α (f : field α) l :=
+  {| pseries := {| terms i := List.nth i l (.0 f)%F |};
+     finprop := finprop_list f l |}.
+
+(* addition *)
+
+Lemma finprop_add : ∀ α (f : field α) (p₁ p₂ : polyn f),
+  ∃ n, ∀ m, n ≤ m → ((pseries p₁ .+ f pseries p₂)%ser .[m] .= f .0 f)%F.
 Proof.
-intros cmp x₁ x₂ l₁ l₂.
-revert x₁ x₂ l₂.
-induction l₁ as [| x₃]; intros; simpl.
- destruct l₂ as [| x₄]; simpl.
-  constructor; destruct H; assumption.
+intros α f p₁ p₂.
+pose proof (finprop p₁) as P₁.
+pose proof (finprop p₂) as P₂.
+destruct P₁ as (n₁, Hn₁).
+destruct P₂ as (n₂, Hn₂).
+exists (max n₁ n₂); intros m Hnn; simpl.
+rewrite Hn₁, Hn₂.
+ rewrite fld_add_0_l; reflexivity.
 
-  destruct H as (H, _); inversion H.
+ transitivity (max n₁ n₂); [ idtac | assumption ].
+ apply Max.le_max_r.
 
- destruct l₂ as [| x₄]; simpl.
-  destruct H as (H, _); inversion H.
-
-  constructor.
-   destruct H as (H, _).
-   inversion H; assumption.
-
-   apply IHl₁.
-   split; [ idtac | destruct H; assumption ].
-   destruct H as (H, _).
-   inversion H; assumption.
+ transitivity (max n₁ n₂); [ idtac | assumption ].
+ apply Max.le_max_l.
 Qed.
 
-(* addition commutativity *)
+Definition polyn_add α (f : field α) p₁ p₂ :=
+  {| pseries := (pseries p₁ .+ f pseries p₂)%ser;
+     finprop := finprop_add p₁ p₂ |}.
 
-Lemma pol_add_loop_al_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add F) an₁ an₂ al₁ al₂
-  → rp₂ = pol_add_loop (fld_add F) an₂ an₁ al₂ al₁
-    → list_eq (fld_eq F) (al rp₁) (al rp₂).
+(* multiplication *)
+
+Lemma finprop_mul : ∀ α (f : field α) (p₁ p₂ : polyn f),
+  ∃ n, ∀ m, n ≤ m → ((pseries p₁ .* f pseries p₂)%ser .[m] .= f .0 f)%F.
 Proof.
-intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
-subst rp₁ rp₂.
-revert an₁ an₂ al₂.
-induction al₁; intros.
- destruct al₂; [ apply list_eq_refl | simpl ].
- constructor; [ apply fld_add_comm | apply list_eq_refl ].
+intros α f p₁ p₂.
+pose proof (finprop p₁) as P₁.
+pose proof (finprop p₂) as P₂.
+destruct P₁ as (n₁, Hn₁).
+destruct P₂ as (n₂, Hn₂).
+exists (n₁ + n₂)%nat; intros m Hnn; simpl.
+unfold convol_mul.
+apply all_0_sigma_0; intros i (_, Hi).
+destruct (le_dec n₁ i) as [H₁| H₁].
+ rewrite Hn₁; [ idtac | assumption ].
+ rewrite fld_mul_0_l; reflexivity.
 
- destruct al₂.
-  constructor; [ apply fld_add_comm | apply list_eq_refl ].
+ destruct (le_dec n₂ (m - i)) as [H₂| H₂].
+  rewrite Hn₂; [ idtac | assumption ].
+  rewrite fld_mul_0_r; reflexivity.
 
-  constructor; [ apply fld_add_comm | apply IHal₁ ].
+  exfalso; omega.
 Qed.
 
-Lemma pol_add_loop_an_comm : ∀ an₁ an₂ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add F) an₁ an₂ al₁ al₂
-  → rp₂ = pol_add_loop (fld_add F) an₂ an₁ al₂ al₁
-    → fld_eq F (an rp₁) (an rp₂).
-Proof.
-intros an₁ an₂ al₁ al₂ rp₁ rp₂ H₁ H₂.
-subst rp₁ rp₂.
-revert an₁ an₂ al₂.
-induction al₁; intros.
- destruct al₂; [ apply fld_add_comm | reflexivity ].
+Definition polyn_mul α (f : field α) p₁ p₂ :=
+  {| pseries := (pseries p₁ .* f pseries p₂)%ser;
+     finprop := finprop_mul p₁ p₂ |}.
 
- destruct al₂; [ reflexivity | eapply IHal₁; reflexivity ].
-Qed.
-
-Lemma poly_add_comm : ∀ pol₁ pol₂,
-  eq_poly (poly_add pol₁ pol₂) (poly_add pol₂ pol₁).
-Proof.
-intros pol₁ pol₂.
-unfold eq_poly.
-apply list_eq_append_one.
-split.
- eapply pol_add_loop_al_comm; reflexivity.
-
- eapply pol_add_loop_an_comm; reflexivity.
-Qed.
-
-(* addition associativity *)
-
-Lemma pol_add_loop_al_assoc : ∀ an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add F)
-          (an (pol_add_loop (fld_add F) an₁ an₂ al₁ al₂)) an₃
-          (al (pol_add_loop (fld_add F) an₁ an₂ al₁ al₂)) al₃
-  → rp₂ = pol_add_loop (fld_add F)
-           an₁ (an (pol_add_loop (fld_add F) an₂ an₃ al₂ al₃))
-           al₁ (al (pol_add_loop (fld_add F) an₂ an₃ al₂ al₃))
-    → list_eq (fld_eq F) (al rp₁) (al rp₂).
-Proof.
-intros an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
-subst rp₁ rp₂.
-revert an₁ an₂ an₃ al₂ al₃.
-induction al₁; intros.
- destruct al₂.
-  destruct al₃; [ apply list_eq_refl | idtac ].
-  constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
-
-  destruct al₃; simpl.
-   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
-
-   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
-
- destruct al₂.
-  destruct al₃; simpl.
-   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
-
-   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
-
-  destruct al₃; simpl.
-   constructor; [ symmetry; apply fld_add_assoc | apply list_eq_refl ].
-
-   constructor; [ symmetry; apply fld_add_assoc | apply IHal₁ ].
-Qed.
-
-Lemma pol_add_loop_an_assoc : ∀ an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add F)
-          (an (pol_add_loop (fld_add F) an₁ an₂ al₁ al₂)) an₃
-          (al (pol_add_loop (fld_add F) an₁ an₂ al₁ al₂)) al₃
-  → rp₂ = pol_add_loop (fld_add F)
-           an₁ (an (pol_add_loop (fld_add F) an₂ an₃ al₂ al₃))
-           al₁ (al (pol_add_loop (fld_add F) an₂ an₃ al₂ al₃))
-    → fld_eq F (an rp₁) (an rp₂).
-Proof.
-intros an₁ an₂ an₃ al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
-subst rp₁ rp₂.
-revert an₁ an₂ an₃ al₂ al₃.
-induction al₁; intros.
- destruct al₂.
-  destruct al₃; [ symmetry; apply fld_add_assoc | reflexivity ].
-
-  destruct al₃; reflexivity.
-
- destruct al₂.
-  destruct al₃; reflexivity.
-
-  destruct al₃; [ reflexivity | eapply IHal₁; reflexivity ].
-Qed.
-
-Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
-  eq_poly
-    (poly_add (poly_add pol₁ pol₂) pol₃)
-    (poly_add pol₁ (poly_add pol₂ pol₃)).
-Proof.
-intros pol₁ pol₂ pol₃.
-unfold eq_poly.
-apply list_eq_append_one.
-split.
- eapply pol_add_loop_al_assoc; reflexivity.
-
- eapply pol_add_loop_an_assoc; reflexivity.
-Qed.
-
-End poly.
+(* Horner's algorithm : to be updated
+Definition apply_polyn α β γ
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polyn β) (x : γ) :=
+  List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
+    (zero_plus_v (an pol)) (al pol).
 *)

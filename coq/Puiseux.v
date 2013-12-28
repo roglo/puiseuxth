@@ -6,11 +6,10 @@ Require Import NPeano.
 
 Require Import ConvexHullMisc.
 Require Import Field.
-Require Import Fpolynomial.
 Require Import Misc.
 Require Import Newton.
-Require Import Polynomial.
 Require Import Nbar.
+Require Import Fpolynomial.
 Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
@@ -23,10 +22,10 @@ Set Implicit Arguments.
 
 (* *)
 
-Definition ps_pol_add α (f : field α) :=
-  pol_add (ps_add f).
-Definition ps_pol_mul α (f : field α) :=
-  pol_mul (ps_zero f) (ps_add f) (ps_mul f).
+Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
+  polyn_add p₁ p₂.
+Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
+  polyn_mul p₁ p₂.
 
 Definition apply_poly_with_ps_poly α (f : field α) pol :=
   apply_poly
@@ -58,10 +57,11 @@ Let fld := ac_field acf.
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   eq_poly
-    (poly_of_list [ps_monom fld c γ; ps_monom fld (fld_one fld) γ … []])
+    (poly_of_list (ps_field fld)
+       [ps_monom fld c γ; ps_monom fld (fld_one fld) γ … []])
     (ps_pol_mul
-       (poly_of_list [ps_const fld c; ps_one fld … []])
-       (poly_of_list [ps_monom fld (fld_one fld) γ])).
+       (poly_of_list (ps_field fld) [ps_const fld c; ps_one fld … []])
+       (poly_of_list (ps_field fld) [ps_monom fld (fld_one fld) γ])).
 Proof.
 bbb.
 
