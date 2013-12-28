@@ -12,57 +12,54 @@ Require Import Power_series.
 Set Implicit Arguments.
 
 Record polyn α (f : field α) :=
-  { pseries : power_series α;
-    finprop : ∃ n, ∀ m, n ≤ m → (pseries .[m] .= f (.0 f))%F }.
+  { p_series : power_series α;
+    deg_up_bnd : nat;
+    fin_prop : ∀ i, deg_up_bnd ≤ i → (p_series .[i] .= f (.0 f))%F }.
 
 Definition eq_polyn α (f : field α) (p₁ p₂ : polyn f) :=
-  eq_series f (pseries p₁) (pseries p₂).
+  eq_series f (p_series p₁) (p_series p₂).
 
-Lemma finprop_list : ∀ α (f : field α) l,
-  ∃ n, ∀ m, n ≤ m → ({| terms i := List.nth i l (.0 f)%F |} .[m] .= f .0 f)%F.
+Lemma fin_prop_list : ∀ α (f : field α) l i,
+  List.length l ≤ i
+  → ({| terms i := List.nth i l (.0 f)%F |} .[i] .= f .0 f)%F.
 Proof.
-intros α f l.
-exists (List.length l); intros m Hm; simpl.
+intros α f l i Hlen; simpl.
 rewrite List.nth_overflow; [ reflexivity | assumption ].
 Qed.
 
 Definition polyn_of_list α (f : field α) l :=
-  {| pseries := {| terms i := List.nth i l (.0 f)%F |};
-     finprop := finprop_list f l |}.
+  {| p_series := {| terms i := List.nth i l (.0 f)%F |};
+     fin_prop := fin_prop_list f l |}.
 
 (* addition *)
 
-Lemma finprop_add : ∀ α (f : field α) (p₁ p₂ : polyn f),
-  ∃ n, ∀ m, n ≤ m → ((pseries p₁ .+ f pseries p₂)%ser .[m] .= f .0 f)%F.
+Lemma fin_prop_add : ∀ α (f : field α) (p₁ p₂ : polyn f) i,
+  max (deg_up_bnd p₁) (deg_up_bnd p₂) ≤ i
+  → ((p_series p₁ .+ f p_series p₂)%ser .[i] .= f .0 f)%F.
 Proof.
-intros α f p₁ p₂.
-pose proof (finprop p₁) as P₁.
-pose proof (finprop p₂) as P₂.
-destruct P₁ as (n₁, Hn₁).
-destruct P₂ as (n₂, Hn₂).
-exists (max n₁ n₂); intros m Hnn; simpl.
-rewrite Hn₁, Hn₂.
+intros α f p₁ p₂ i Hi; simpl.
+rewrite fin_prop, fin_prop.
  rewrite fld_add_0_l; reflexivity.
 
- transitivity (max n₁ n₂); [ idtac | assumption ].
+ etransitivity; [ idtac | eassumption ].
  apply Max.le_max_r.
 
- transitivity (max n₁ n₂); [ idtac | assumption ].
+ etransitivity; [ idtac | eassumption ].
  apply Max.le_max_l.
 Qed.
 
 Definition polyn_add α (f : field α) p₁ p₂ :=
-  {| pseries := (pseries p₁ .+ f pseries p₂)%ser;
-     finprop := finprop_add p₁ p₂ |}.
+  {| p_series := (p_series p₁ .+ f p_series p₂)%ser;
+     fin_prop := fin_prop_add p₁ p₂ |}.
 
 (* multiplication *)
 
-Lemma finprop_mul : ∀ α (f : field α) (p₁ p₂ : polyn f),
-  ∃ n, ∀ m, n ≤ m → ((pseries p₁ .* f pseries p₂)%ser .[m] .= f .0 f)%F.
+Lemma fin_prop_mul : ∀ α (f : field α) (p₁ p₂ : polyn f),
+  ∃ n, ∀ m, n ≤ m → ((p_series p₁ .* f p_series p₂)%ser .[m] .= f .0 f)%F.
 Proof.
 intros α f p₁ p₂.
-pose proof (finprop p₁) as P₁.
-pose proof (finprop p₂) as P₂.
+pose proof (fin_prop p₁) as P₁.
+pose proof (fin_prop p₂) as P₂.
 destruct P₁ as (n₁, Hn₁).
 destruct P₂ as (n₂, Hn₂).
 exists (n₁ + n₂)%nat; intros m Hnn; simpl.
@@ -80,8 +77,21 @@ destruct (le_dec n₁ i) as [H₁| H₁].
 Qed.
 
 Definition polyn_mul α (f : field α) p₁ p₂ :=
-  {| pseries := (pseries p₁ .* f pseries p₂)%ser;
-     finprop := finprop_mul p₁ p₂ |}.
+  {| p_series := (p_series p₁ .* f p_series p₂)%ser;
+     fin_prop := fin_prop_mul p₁ p₂ |}.
+
+(* application *)
+
+Fixpoint apply_polyn_loop α (f : field α) cnt deg s x :=
+  match cnt with
+  | O => (s.[deg])%F
+  | S c => (s.[deg] .+ f x .* f apply_polyn_loop f c (S deg) s x)%F
+  end.
+
+Fixpoint polyn_degree pol
+
+Definition apply_polyn α (f : field α) pol x :=
+  apply_polyn_loop f (polyn_degree pol) O (p_series pol) x.
 
 (* Horner's algorithm : to be updated
 Definition apply_polyn α β γ
