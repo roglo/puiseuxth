@@ -54,24 +54,21 @@ Definition polyn_add α (f : field α) p₁ p₂ :=
 
 (* multiplication *)
 
-Lemma fin_prop_mul : ∀ α (f : field α) (p₁ p₂ : polyn f),
-  ∃ n, ∀ m, n ≤ m → ((p_series p₁ .* f p_series p₂)%ser .[m] .= f .0 f)%F.
+Lemma fin_prop_mul : ∀ α (f : field α) (p₁ p₂ : polyn f) i,
+  deg_up_bnd p₁ + deg_up_bnd p₂ ≤ i
+  → ((p_series p₁ .* f p_series p₂)%ser .[i] .= f .0 f)%F.
 Proof.
-intros α f p₁ p₂.
-pose proof (fin_prop p₁) as P₁.
-pose proof (fin_prop p₂) as P₂.
-destruct P₁ as (n₁, Hn₁).
-destruct P₂ as (n₂, Hn₂).
-exists (n₁ + n₂)%nat; intros m Hnn; simpl.
+intros α f p₁ p₂ i Hi.
 unfold convol_mul.
-apply all_0_sigma_0; intros i (_, Hi).
-destruct (le_dec n₁ i) as [H₁| H₁].
- rewrite Hn₁; [ idtac | assumption ].
+apply all_0_sigma_0; intros j (_, Hj).
+destruct (le_dec (deg_up_bnd p₁) j) as [H₁| H₁].
+ rewrite fin_prop; [ idtac | assumption ].
  rewrite fld_mul_0_l; reflexivity.
 
- destruct (le_dec n₂ (m - i)) as [H₂| H₂].
-  rewrite Hn₂; [ idtac | assumption ].
-  rewrite fld_mul_0_r; reflexivity.
+ destruct (le_dec (deg_up_bnd p₂) (i - j)) as [H₂| H₂].
+  rewrite fld_mul_comm.
+  rewrite fin_prop; [ idtac | assumption ].
+  rewrite fld_mul_0_l; reflexivity.
 
   exfalso; omega.
 Qed.
@@ -88,10 +85,14 @@ Fixpoint apply_polyn_loop α (f : field α) cnt deg s x :=
   | S c => (s.[deg] .+ f x .* f apply_polyn_loop f c (S deg) s x)%F
   end.
 
-Fixpoint polyn_degree pol
+Fixpoint polyn_degree α (f : field α) upbnd pol :=
+  match upbnd with
+  | O => O
+  | S ub => if ah merde faut que ça soye décidable...
 
 Definition apply_polyn α (f : field α) pol x :=
-  apply_polyn_loop f (polyn_degree pol) O (p_series pol) x.
+  apply_polyn_loop f (polyn_degree (deg_up_bnd pol) (p_series pol)) O
+    (p_series pol) x.
 
 (* Horner's algorithm : to be updated
 Definition apply_polyn α β γ
