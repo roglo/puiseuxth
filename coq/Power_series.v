@@ -69,21 +69,10 @@ Add Parametric Relation α (f : field α) : (power_series α) (eq_series f)
 
 (* *)
 
-Lemma if_lt_dec_fin_inf : ∀ A i (a b : A),
-  (if Nbar.lt_dec (fin i) ∞ then a else b) = a.
-Proof.
-intros A i a b.
-destruct (Nbar.lt_dec (fin i) ∞) as [H| H]; [ reflexivity | idtac ].
-exfalso; apply H; constructor.
-Qed.
-
-Lemma if_lt_dec_0_1 : ∀ A (a b : A),
-  (if Nbar.lt_dec 0 1 then a else b) = a.
-Proof.
-intros A a b.
-destruct (Nbar.lt_dec 0 1) as [H| H]; [ reflexivity | idtac ].
-exfalso; apply H, Nbar.lt_0_1.
-Qed.
+Lemma fold_series_const : ∀ α (f : field α) c,
+  {| terms := λ i, if zerop i then c else .0 f%F |} =
+  series_const f c.
+Proof. reflexivity. Qed.
 
 (* series_add *)
 
