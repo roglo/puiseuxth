@@ -76,7 +76,18 @@ Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
    .[fld [ps_monom fld .1 fld%F γ] ].)%pspol.
 Proof.
 intros c γ.
-Show.
+unfold eq_polyn; simpl.
+constructor; intros k; simpl.
+unfold convol_mul.
+unfold convol_mul; simpl.
+destruct k; simpl.
+ Focus 1.
+ rewrite sigma_only_one; simpl.
+ unfold ps_mul; simpl.
+ rewrite stretch_series_1.
+ rewrite series_mul_1_r.
+ rewrite Z.mul_1_r.
+ unfold cm; simpl.
 bbb.
 
 (* c.x^γ + y.x^y = (c + y).x^γ (old) *)
