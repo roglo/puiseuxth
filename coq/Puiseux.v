@@ -31,22 +31,34 @@ Delimit Scope ps_poly_scope with pspol.
 Notation "a = b" := (eq_polyn a b) : ps_poly_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_poly_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_poly_scope.
-(*
-Notation "a ∙ f ^ b" := (ps_monom f a b) (at level 40, f at level 0) :
-  ps_poly_scope.
-*)
+
 Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
   (at level 0, f at level 0) :
   ps_poly_scope.
-
-Definition polyn_of_ps α (fld : field α) ps :=
-  polyn_of_list (ps_field fld) [ps].
+Notation ".{ f a .}" := (polyn_of_list (ps_field f) [a])
+  (at level 0, f at level 0, a at level 0) :
+  ps_poly_scope.
+Notation ".{ f a + b 'Y' .}" := (polyn_of_list (ps_field f) [a; b … []])
+  (at level 0, f at level 0, a at level 0, b at level 0) :
+  ps_poly_scope.
+(*
+Notation "'YPOL' f a" := (polyn_of_list (ps_field f) [a])
+  (at level 0, f at level 0, a at level 0) :
+  ps_poly_scope.
+Notation "'YPOL' f a + b * 'Y'" := (polyn_of_list (ps_field f) [a; b … []])
+  (at level 50, f at level 0, a at level 0, b at level 0) :
+  ps_poly_scope.
+Notation ".{ f c * 'X^' q .}" := (ps_monom f c q)
+  (at level 0, f at level 0, c at level 0, q at level 0) : ps_poly_scope.
+Notation ".< f c .>" := (ps_const f c)
+  (at level 0, f at level 0, c at level 0) : ps_poly_scope.
+*)
 
 Definition apply_poly_with_ps_poly α (fld : field α)
     (pol : polyn (ps_field fld)) :=
   apply_polyn
-    (polyn_of_ps fld)
-    (λ pol₁ ps, (pol₁ +  polyn_of_ps fld ps)%pspol)
+    (λ ps, polyn_of_list (ps_field fld) [ps])
+    (λ pol₁ ps, (pol₁ +  polyn_of_list (ps_field fld) [ps])%pspol)
     (λ pol₁ pol₂, (pol₁ * pol₂)%pspol)
     pol.
 
@@ -76,7 +88,7 @@ Let fld := ac_field acf.
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   (.[fld [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] .] =
    .[fld [ps_const fld c; .1 fld%ps … []] .] *
-   .[fld [ps_monom fld .1 fld%F γ] .])%pspol.
+   .{fld (ps_monom fld .1 fld%F γ).})%pspol.
 Proof.
 intros c γ.
 unfold eq_polyn; simpl.
