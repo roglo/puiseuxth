@@ -121,13 +121,11 @@ Lemma fold_eq_ps : fld_eq (ps_field fld) = eq_ps fld.
 Proof. reflexivity. Qed.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
-  eq_polyn (f₁ f β₁ γ₁ c₁ : polyn (ps_field fld)) (f'₁ f β₁ γ₁ c₁).
+  ((f₁ f β₁ γ₁ c₁:polyn (ps_field fld)) = f'₁ f β₁ γ₁ c₁)%pspol.
 Proof.
 intros f β₁ γ₁ c₁.
-unfold f₁, f'₁.
-unfold eq_polyn; simpl.
 constructor; intros k; simpl.
-unfold convol_mul.
+unfold convol_mul; simpl.
 rewrite <- fold_eq_ps.
 apply sigma_compat; intros i (_, Hi); simpl.
 apply ps_mul_compat_l.
