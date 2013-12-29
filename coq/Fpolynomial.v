@@ -87,3 +87,11 @@ Fixpoint apply_polyn_loop α (f : field α) cnt i s x :=
 
 Definition apply_polyn α (f : field α) (pol : polyn f) x :=
   apply_polyn_loop f (degree_ub pol) O (p_series pol) x.
+
+(* Horner's algorithm : to be updated
+Definition apply_polyn α β γ
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polyn β) (x : γ) :=
+  List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
+    (zero_plus_v (an pol)) (al pol).
+*)
