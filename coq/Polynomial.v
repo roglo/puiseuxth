@@ -1,5 +1,7 @@
 (* Polynomial.v *)
 
+(* may be removed one day, using only Fpolynomial.v *)
+
 Require Import Utf8.
 Require Import QArith.
 

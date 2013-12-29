@@ -28,14 +28,16 @@ Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
   polyn_mul p₁ p₂.
 
 Delimit Scope ps_poly_scope with pspol.
+Notation "a = b" := (eq_polyn a b) : ps_poly_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_poly_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_poly_scope.
 (*
 Notation "a ∙ f ^ b" := (ps_monom f a b) (at level 40, f at level 0) :
   ps_poly_scope.
-Notation ".< f l >." := (polyn_of_list (ps_field f) l) (at level 0) :
-  ps_poly_scope.
 *)
+Notation ".[ f l ]." := (polyn_of_list (ps_field f) l)
+  (at level 0, f at level 0) :
+  ps_poly_scope.
 
 Definition apply_poly_with_ps_poly α (fld : field α)
     (pol : polyn (ps_field fld)) :=
@@ -69,16 +71,15 @@ Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  eq_poly
-    (poly_of_list (ps_field fld)
-       [ps_monom fld c γ; ps_monom fld (fld_one fld) γ … []])
-    (ps_pol_mul
-       (poly_of_list (ps_field fld) [ps_const fld c; ps_one fld … []])
-       (poly_of_list (ps_field fld) [ps_monom fld (fld_one fld) γ])).
+  (.[fld [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] ]. =
+   .[fld [ps_const fld c; .1 fld%ps … []] ]. *
+   .[fld [ps_monom fld .1 fld%F γ] ].)%pspol.
 Proof.
+intros c γ.
+Show.
 bbb.
 
-(* c.x^γ + y.x^y = (c + y).x^γ *)
+(* c.x^γ + y.x^y = (c + y).x^γ (old) *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   eq_poly (ps_field fld)
     {| al := [ps_monom fld c γ]; an := ps_monom fld (fld_one fld) γ |}
