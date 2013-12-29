@@ -117,6 +117,9 @@ destruct k; simpl.
    rewrite ps_mul_0_l; reflexivity.
 Qed.
 
+Lemma fold_eq_ps : fld_eq (ps_field fld) = eq_ps fld.
+Proof. reflexivity. Qed.
+
 Lemma zzz : ∀ f β₁ γ₁ c₁,
   eq_polyn (f₁ f β₁ γ₁ c₁ : polyn (ps_field fld)) (f'₁ f β₁ γ₁ c₁).
 Proof.
@@ -124,10 +127,10 @@ intros f β₁ γ₁ c₁.
 unfold f₁, f'₁.
 unfold eq_polyn; simpl.
 constructor; intros k; simpl.
-bbb.
-apply list_eq_append_one.
-split.
- Focus 2.
+unfold convol_mul.
+rewrite <- fold_eq_ps.
+apply sigma_compat; intros i (_, Hi); simpl.
+apply ps_mul_compat_l.
 bbb.
  unfold apply_poly_with_ps_poly.
  unfold ps_pol_add; simpl.
