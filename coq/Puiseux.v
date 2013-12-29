@@ -27,11 +27,13 @@ Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
 Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
   polyn_mul p₁ p₂.
 
-Definition apply_poly_with_ps_poly α (f : field α) pol :=
-  apply_polyn f
-    (λ ps, {| al := []; an := ps |})
-    (λ pol ps, ps_pol_add f pol {| al := []; an := ps |})
-    (ps_pol_mul f) pol.
+Definition apply_poly_with_ps_poly α (fld : field α)
+    (pol : polyn (ps_field fld)) :=
+  apply_polyn
+    (λ ps, polyn_of_list (ps_field fld) [ps])
+    (λ pol₁ ps, ps_pol_add pol₁ (polyn_of_list (ps_field fld) [ps]))
+    (λ pol₁ ps, ps_pol_mul pol₁ (polyn_of_list (ps_field fld) [ps]))
+    pol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
