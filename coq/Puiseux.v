@@ -35,7 +35,7 @@ Notation "a * b" := (ps_pol_mul a b) : ps_poly_scope.
 Notation "a ∙ f ^ b" := (ps_monom f a b) (at level 40, f at level 0) :
   ps_poly_scope.
 *)
-Notation ".[ f l ]." := (polyn_of_list (ps_field f) l)
+Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
   (at level 0, f at level 0) :
   ps_poly_scope.
 
@@ -71,9 +71,9 @@ Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  (.[fld [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] ]. =
-   .[fld [ps_const fld c; .1 fld%ps … []] ]. *
-   .[fld [ps_monom fld .1 fld%F γ] ].)%pspol.
+  (.[fld [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] .] =
+   .[fld [ps_const fld c; .1 fld%ps … []] .] *
+   .[fld [ps_monom fld .1 fld%F γ] .])%pspol.
 Proof.
 intros c γ.
 unfold eq_polyn; simpl.
@@ -90,38 +90,41 @@ destruct k; simpl.
  rewrite fold_series_const.
  rewrite stretch_series_const.
  reflexivity.
-bbb.
 
-(* c.x^γ + y.x^y = (c + y).x^γ (old) *)
-Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  eq_poly (ps_field fld)
-    {| al := [ps_monom fld c γ]; an := ps_monom fld (fld_one fld) γ |}
-    (ps_pol_mul fld
-      {| al := []; an := ps_monom fld (fld_one fld) γ |}
-      {| al := [ps_const fld c]; an := ps_one fld |}).
-Proof.
-intros c γ.
-unfold eq_poly, list_eq; simpl.
-constructor.
- unfold ps_monom.
- unfold ps_mul; simpl.
- rewrite stretch_series_1.
- rewrite series_mul_1_l.
- rewrite Z.mul_1_r, Z.add_0_r.
- unfold cm; simpl; rewrite Pos.mul_1_r.
- pose proof (stretch_series_const fld (Qden γ) c) as H.
- rewrite H; reflexivity.
+ destruct k; simpl.
+  unfold sigma; simpl.
+  rewrite ps_mul_1_l, ps_add_0_r.
+  rewrite ps_mul_0_r, ps_add_0_l.
+  reflexivity.
 
- constructor; [ idtac | constructor ].
- rewrite ps_mul_1_r; reflexivity.
+  destruct k; simpl.
+   unfold sigma; simpl.
+   rewrite ps_mul_0_r, ps_add_0_l.
+   rewrite ps_mul_0_r, ps_add_0_l.
+   rewrite ps_mul_0_l, ps_add_0_l.
+   reflexivity.
+
+   unfold sigma; simpl.
+   rewrite ps_mul_0_r, ps_add_0_l.
+   rewrite ps_mul_0_r, ps_add_0_l.
+   rewrite ps_mul_0_l, ps_add_0_l.
+   rewrite ps_mul_0_l, ps_add_0_l.
+   rewrite all_0_sigma_aux_0; [ reflexivity | idtac ].
+   intros i (Hi, Hik).
+   destruct i; [ exfalso; omega | idtac ].
+   destruct i; [ exfalso; omega | idtac ].
+   destruct i; [ exfalso; omega | idtac ].
+   rewrite ps_mul_0_l; reflexivity.
 Qed.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
-  eq_poly (ps_field fld) (f₁ fld f β₁ γ₁ c₁) (f₁' fld f β₁ γ₁ c₁).
+  eq_polyn (f₁ f β₁ γ₁ c₁ : polyn (ps_field fld)) (f'₁ f β₁ γ₁ c₁).
 Proof.
 intros f β₁ γ₁ c₁.
-unfold f₁, f₁'.
-unfold eq_poly; simpl.
+unfold f₁, f'₁.
+unfold eq_polyn; simpl.
+constructor; intros k; simpl.
+bbb.
 apply list_eq_append_one.
 split.
  Focus 2.
