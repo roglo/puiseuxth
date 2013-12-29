@@ -27,22 +27,24 @@ Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
 Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
   polyn_mul p₁ p₂.
 
+Delimit Scope ps_poly_scope with pspol.
+Notation "a + b" := (ps_pol_add a b) : ps_poly_scope.
+Notation "a * b" := (ps_pol_mul a b) : ps_poly_scope.
+
 Definition apply_poly_with_ps_poly α (fld : field α)
     (pol : polyn (ps_field fld)) :=
   apply_polyn
     (λ ps, polyn_of_list (ps_field fld) [ps])
-    (λ pol₁ ps, ps_pol_add pol₁ (polyn_of_list (ps_field fld) [ps]))
-    (λ pol₁ pol₂, ps_pol_mul pol₁ pol₂)
+    (λ pol₁ ps, (pol₁ +  polyn_of_list (ps_field fld) [ps])%pspol)
+    (λ pol₁ pol₂, (pol₁ * pol₂)%pspol)
     pol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  ps_pol_mul
-    (polyn_of_list (ps_field fld) [ps_monom fld .1 fld%F (- β₁)])
-    (apply_poly_with_ps_poly f
-       (ps_pol_mul
-          (polyn_of_list (ps_field fld) [ps_monom fld .1 fld%F γ₁])
-          (polyn_of_list (ps_field fld) [ps_const fld c₁; .1 fld%ps … []]))).
+  (polyn_of_list (ps_field fld) [ps_monom fld .1 fld%F (- β₁)] *
+   apply_poly_with_ps_poly f
+     (polyn_of_list (ps_field fld) [ps_monom fld .1 fld%F γ₁] *
+      polyn_of_list (ps_field fld) [ps_const fld c₁; .1 fld%ps … []]))%pspol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
 Definition f₁' α (fld : field α) f β₁ γ₁ c₁ :=
