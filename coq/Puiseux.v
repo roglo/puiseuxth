@@ -76,6 +76,35 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
      (polyn_of_list (ps_field fld)
         [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []]))%pspol.
 
+(* *)
+
+(**)
+Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
+  with signature
+    eq_polyn (f := ps_field fld)
+    ==> eq_polyn (f := ps_field fld)
+        ==> eq_polyn (f := ps_field fld)
+  as apply_poly_with_ps_poly_morph.
+Proof.
+intros a c Hac b d Hbd.
+inversion Hac; subst.
+inversion Hbd; subst.
+constructor; intros i; simpl.
+constructor.
+constructor.
+ unfold apply_poly_with_ps_poly; simpl.
+bbb.
+*)
+
+Add Parametric Morphism α (fld : field α) : (@p_series α fld)
+  with signature @eq_polyn α fld ==> eq_series fld
+  as p_series_morph.
+Proof.
+intros a b Hab.
+inversion Hab; subst.
+constructor; assumption.
+Qed.
+
 (* exercise... *)
 
 Section field.
@@ -144,6 +173,7 @@ unfold convol_mul; simpl.
 rewrite <- fold_eq_ps.
 apply sigma_compat; intros i (_, Hi); simpl.
 apply ps_mul_compat_l.
+rewrite x_pow_γ_mul_add_distr_r.
 bbb.
  unfold apply_poly_with_ps_poly.
  unfold ps_pol_add; simpl.

@@ -31,6 +31,34 @@ Definition polyn_of_list α (f : field α) l :=
   {| p_series := {| terms i := List.nth i l (.0 f)%F |};
      fin_prop := fin_prop_list f l |}.
 
+(* eq_polyn, an equivalence relation *)
+
+Theorem eq_polyn_refl α (f : field α) : reflexive _ (@eq_polyn α f).
+Proof.
+intros a.
+unfold eq_polyn; reflexivity.
+Qed.
+
+Theorem eq_polyn_sym α (f : field α) : symmetric _ (@eq_polyn α f).
+Proof.
+intros a b H.
+unfold eq_polyn; symmetry.
+assumption.
+Qed.
+
+Theorem eq_polyn_trans α (f : field α) : transitive _ (@eq_polyn α f).
+Proof.
+intros a b c Hab Hbc.
+unfold eq_polyn.
+etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation α (f : field α) : (polyn f) (@eq_polyn α f)
+ reflexivity proved by (eq_polyn_refl (f := f))
+ symmetry proved by (eq_polyn_sym (f := f))
+ transitivity proved by (eq_polyn_trans (f := f))
+ as eq_polyn_rel.
+
 (* addition *)
 
 Lemma fin_prop_add : ∀ α (f : field α) (p₁ p₂ : polyn f) i,
