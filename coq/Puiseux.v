@@ -37,10 +37,12 @@ Definition apply_poly_with_ps_poly α (fld : field α)
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  ps_pol_mul fld {| al := []; an := ps_monom fld (fld_one fld) (- β₁) |}
-    (apply_poly_with_ps_poly fld f
-       (ps_pol_mul fld {| al := []; an := ps_monom fld (fld_one fld) γ₁ |}
-          {| al := [ps_const fld c₁]; an := ps_one fld |})).
+  ps_pol_mul
+    (polyn_of_list (ps_field fld) [ps_monom fld .1 fld%F (- β₁)])
+    (apply_poly_with_ps_poly f
+       (ps_pol_mul
+          (polyn_of_list (ps_field fld) [ps_monom fld .1 fld%F γ₁])
+          (polyn_of_list (ps_field fld) [ps_const fld c₁; .1 fld%ps … []]))).
 
 (* f₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
 Definition f₁' α (fld : field α) f β₁ γ₁ c₁ :=
