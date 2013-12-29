@@ -30,6 +30,12 @@ Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
 Delimit Scope ps_poly_scope with pspol.
 Notation "a + b" := (ps_pol_add a b) : ps_poly_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_poly_scope.
+(*
+Notation "a ∙ f ^ b" := (ps_monom f a b) (at level 40, f at level 0) :
+  ps_poly_scope.
+Notation ".< f l >." := (polyn_of_list (ps_field f) l) (at level 0) :
+  ps_poly_scope.
+*)
 
 Definition apply_poly_with_ps_poly α (fld : field α)
     (pol : polyn (ps_field fld)) :=
