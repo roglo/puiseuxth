@@ -79,6 +79,7 @@ Definition polyn_mul α (f : field α) p₁ p₂ :=
 
 (* application *)
 
+(*
 Fixpoint apply_polyn_loop α (f : field α) cnt i s x :=
   match cnt with
   | O => (s.[i])%F
@@ -87,11 +88,24 @@ Fixpoint apply_polyn_loop α (f : field α) cnt i s x :=
 
 Definition apply_polyn α (f : field α) (pol : polyn f) x :=
   apply_polyn_loop f (degree_ub pol) O (p_series pol) x.
-
-(* Horner's algorithm : to be updated
-Definition apply_polyn α β γ
-    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
-    (pol : polyn β) (x : γ) :=
-  List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
-    (zero_plus_v (an pol)) (al pol).
 *)
+
+(* Horner's algorithm *)
+Fixpoint apply_polyn_loop α β γ
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    cnt i (s : power_series β) (x : γ) :=
+  match cnt with
+  | O => zero_plus_v (terms s i)
+  | S c =>
+      add_v_coeff
+        (mul_v_x
+          (apply_polyn_loop zero_plus_v add_v_coeff mul_v_x c (S i) s x)
+          x)
+        (terms s i)
+  end.
+
+Fixpoint apply_polyn α β γ (f : field β)
+    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polyn f) (x : γ) :=
+  apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
+    (degree_ub pol) O (p_series pol) x.
