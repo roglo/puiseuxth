@@ -39,11 +39,14 @@ Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
   (at level 0, f at level 0) :
   ps_poly_scope.
 
+Definition polyn_of_ps α (fld : field α) ps :=
+  polyn_of_list (ps_field fld) [ps].
+
 Definition apply_poly_with_ps_poly α (fld : field α)
     (pol : polyn (ps_field fld)) :=
   apply_polyn
-    (λ ps, polyn_of_list (ps_field fld) [ps])
-    (λ pol₁ ps, (pol₁ +  polyn_of_list (ps_field fld) [ps])%pspol)
+    (polyn_of_ps fld)
+    (λ pol₁ ps, (pol₁ +  polyn_of_ps fld ps)%pspol)
     (λ pol₁ pol₂, (pol₁ * pol₂)%pspol)
     pol.
 
