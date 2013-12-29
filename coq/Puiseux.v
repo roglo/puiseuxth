@@ -32,7 +32,7 @@ Definition apply_poly_with_ps_poly α (fld : field α)
   apply_polyn
     (λ ps, polyn_of_list (ps_field fld) [ps])
     (λ pol₁ ps, ps_pol_add pol₁ (polyn_of_list (ps_field fld) [ps]))
-    (λ pol₁ ps, ps_pol_mul pol₁ (polyn_of_list (ps_field fld) [ps]))
+    (λ pol₁ pol₂, ps_pol_mul pol₁ pol₂)
     pol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
