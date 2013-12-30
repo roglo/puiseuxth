@@ -93,6 +93,8 @@ Lemma yyy :
          cntc i (p_series c) d)%pol.
 Proof.
 intros α fld a b c d zero_plus_v add_v_coeff mul_v_x cnta cntc i Hac Hbd.
+inversion Hac; subst.
+inversion Hbd; subst.
 bbb.
 revert i cntc.
 induction cnta; intros.
