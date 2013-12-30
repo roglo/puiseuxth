@@ -95,20 +95,10 @@ Proof.
 intros α fld a b c d zero_plus_v add_v_coeff mul_v_x cnt i Hac Hbd.
 inversion Hac; subst.
 inversion Hbd; subst.
-bbb.
-revert i cntc.
-induction cnta; intros.
+revert i.
+induction cnt; intros.
  simpl.
- revert i.
- induction cntc; intros.
-  simpl.
-  constructor; intros k; simpl.
-  destruct k; [ simpl | reflexivity ].
-  inversion Hac; apply H.
-
-  rewrite IHcntc.
 bbb.
-  hou la la, c'est pas bon du tout, ça.
 *)
 
 (**)
