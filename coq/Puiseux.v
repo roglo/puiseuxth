@@ -81,22 +81,35 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-Lemma yyy : ∀ α (fld : field α) (a b c d : polyn fld),
-  (apply_polyn_loop (λ x, polyn_of_list fld [x])
-     (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
-     (λ pol₁ pol₂, polyn_mul pol₁ pol₂) 
-     (degree_ub a) 0 (p_series a) b =
-   apply_polyn_loop (λ x, polyn_of_list fld [x])
-     (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
-     (λ pol₁ pol₂, polyn_mul pol₁ pol₂) 
-     (degree_ub c) 0 (p_series c) d)%pspol.
+Lemma yyy : ∀ α (fld : field α) (a b c d : polyn fld) cnta cntc i,
+  (a = c)%pol
+  → (b = d)%pol
+    → (apply_polyn_loop (λ x, polyn_of_list fld [x])
+         (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
+         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
+         cnta i (p_series a) b =
+       apply_polyn_loop (λ x, polyn_of_list fld [x])
+         (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
+         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
+         cntc i (p_series c) d)%pspol.
 Proof.
-intros α fld a b c d.
-Abort. (*
+intros α fld a b c d cnta cntc i Hac Hbd.
+revert i cntc.
+induction cnta; intros.
+ simpl.
+ revert i.
+ induction cntc; intros.
+  simpl.
+  constructor; intros k; simpl.
+  destruct k; [ simpl | reflexivity ].
+  inversion Hac; apply H.
+
+  rewrite IHcntc.
 bbb.
+  hou la la, c'est pas bon du tout, ça.
 *)
 
-(*
+(**)
 Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   with signature
     eq_polyn (f := ps_field fld)
@@ -105,6 +118,7 @@ Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   as apply_poly_with_ps_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
+apply yyy; assumption.
 bbb.
 inversion Hac; subst.
 inversion Hbd; subst.
