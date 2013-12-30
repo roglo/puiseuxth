@@ -84,15 +84,15 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 Lemma yyy :
      ∀ α (f : field α) (a b c d : polyn f) (zero_plus_v : α → polyn f)
        (add_v_coeff : polyn f → α → polyn f)
-       (mul_v_x : polyn f → polyn f → polyn f) cnta cntc i,
+       (mul_v_x : polyn f → polyn f → polyn f) cnt i,
   (a = c)%pol
   → (b = d)%pol
     → (apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
-         cnta i (p_series a) b =
+         cnt i (p_series a) b =
        apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
-         cntc i (p_series c) d)%pol.
+         cnt i (p_series c) d)%pol.
 Proof.
-intros α fld a b c d zero_plus_v add_v_coeff mul_v_x cnta cntc i Hac Hbd.
+intros α fld a b c d zero_plus_v add_v_coeff mul_v_x cnt i Hac Hbd.
 inversion Hac; subst.
 inversion Hbd; subst.
 bbb.
@@ -120,7 +120,8 @@ Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   as apply_poly_with_ps_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
-apply yyy; assumption.
+unfold apply_poly_with_ps_poly; simpl.
+rewrite yyy; try eassumption.
 bbb.
 inversion Hac; subst.
 inversion Hbd; subst.
