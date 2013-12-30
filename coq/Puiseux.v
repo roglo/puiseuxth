@@ -82,22 +82,24 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 (* *)
 
 Lemma yyy :
-     ∀ α (f : field α) (a b c d : polyn f) (zero_plus_v : α → polyn f)
+     ∀ α (f : field α) (a b c d : polyn f)
        (add_v_coeff : polyn f → α → polyn f)
        (mul_v_x : polyn f → polyn f → polyn f) cnt i,
   (a = c)%pol
   → (b = d)%pol
-    → (apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
+    → (apply_polyn_loop (λ x, polyn_of_list f [x]) add_v_coeff mul_v_x
          cnt i (p_series a) b =
-       apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
+       apply_polyn_loop (λ x, polyn_of_list f [x]) add_v_coeff mul_v_x
          cnt i (p_series c) d)%pol.
 Proof.
-intros α fld a b c d zero_plus_v add_v_coeff mul_v_x cnt i Hac Hbd.
+intros α fld a b c d add_v_coeff mul_v_x cnt i Hac Hbd.
 inversion Hac; subst.
 inversion Hbd; subst.
 revert i.
-induction cnt; intros.
- simpl.
+induction cnt; intros; simpl.
+ constructor; intros k; simpl.
+ destruct k; [ apply H | reflexivity ].
+
 bbb.
 *)
 
