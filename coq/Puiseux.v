@@ -61,7 +61,7 @@ Definition apply_poly_with_ps_poly α (fld : field α)
     (pol : polyn (ps_field fld)) :=
   apply_polyn
     (λ ps, polyn_of_list (ps_field fld) [ps])
-    (λ pol₁ ps, (pol₁ +  polyn_of_list (ps_field fld) [ps])%pspol)
+    (λ pol₁ ps, (pol₁ + polyn_of_list (ps_field fld) [ps])%pspol)
     (λ pol₁ pol₂, (pol₁ * pol₂)%pspol)
     pol.
 
@@ -83,16 +83,17 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 Lemma yyy :
      ∀ α (f : field α) (a b c d : polyn f)
-       (add_v_coeff : polyn f → α → polyn f)
        (mul_v_x : polyn f → polyn f → polyn f) cnt i,
   (a = c)%pol
   → (b = d)%pol
-    → (apply_polyn_loop (λ x, polyn_of_list f [x]) add_v_coeff mul_v_x
+    → (apply_polyn_loop (λ x, polyn_of_list f [x])
+         (λ pol x, polyn_add pol (polyn_of_list f [x])) mul_v_x
          cnt i (p_series a) b =
-       apply_polyn_loop (λ x, polyn_of_list f [x]) add_v_coeff mul_v_x
+       apply_polyn_loop (λ x, polyn_of_list f [x])
+         (λ pol x, polyn_add pol (polyn_of_list f [x])) mul_v_x
          cnt i (p_series c) d)%pol.
 Proof.
-intros α fld a b c d add_v_coeff mul_v_x cnt i Hac Hbd.
+intros α fld a b c d mul_v_x cnt i Hac Hbd.
 inversion Hac; subst.
 inversion Hbd; subst.
 revert i.
