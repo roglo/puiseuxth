@@ -27,13 +27,13 @@ Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
 Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
   polyn_mul p₁ p₂.
 
+Delimit Scope polyn_scope with pol.
+Notation "a = b" := (eq_polyn a b) : polyn_scope.
+
 Delimit Scope ps_polyn_scope with pspol.
 Notation "a = b" := (eq_polyn a b) : ps_polyn_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_polyn_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_polyn_scope.
-
-Delimit Scope polyn_scope with pol.
-Notation "a = b" := (eq_polyn a b) : polyn_scope.
 
 Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
   (at level 0, f at level 0) :
@@ -81,19 +81,19 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-Lemma yyy :
-     ∀ α (f : field α) (a b c d : polyn f)
-       (mul_v_x : polyn f → polyn f → polyn f) cnt i,
+Lemma yyy : ∀ α (f : field α) (a b c d : polyn f) cnt i,
   (a = c)%pol
   → (b = d)%pol
     → (apply_polyn_loop (λ x, polyn_of_list f [x])
-         (λ pol x, polyn_add pol (polyn_of_list f [x])) mul_v_x
+         (λ pol x, polyn_add pol (polyn_of_list f [x]))
+         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
          cnt i (p_series a) b =
        apply_polyn_loop (λ x, polyn_of_list f [x])
-         (λ pol x, polyn_add pol (polyn_of_list f [x])) mul_v_x
+         (λ pol x, polyn_add pol (polyn_of_list f [x]))
+         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
          cnt i (p_series c) d)%pol.
 Proof.
-intros α fld a b c d mul_v_x cnt i Hac Hbd.
+intros α fld a b c d cnt i Hac Hbd.
 inversion Hac; subst.
 inversion Hbd; subst.
 revert i.
@@ -101,7 +101,7 @@ induction cnt; intros; simpl.
  constructor; intros k; simpl.
  destruct k; [ apply H | reflexivity ].
 
-bbb.
+bbb. )
 *)
 
 (**)
@@ -123,7 +123,6 @@ constructor.
 constructor.
  unfold apply_poly_with_ps_poly; simpl.
 bbb.
-*)
 
 Add Parametric Morphism α (fld : field α) : (@p_series α fld)
   with signature @eq_polyn α fld ==> eq_series fld
