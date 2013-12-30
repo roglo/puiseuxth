@@ -27,31 +27,34 @@ Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
 Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
   polyn_mul p₁ p₂.
 
-Delimit Scope ps_poly_scope with pspol.
-Notation "a = b" := (eq_polyn a b) : ps_poly_scope.
-Notation "a + b" := (ps_pol_add a b) : ps_poly_scope.
-Notation "a * b" := (ps_pol_mul a b) : ps_poly_scope.
+Delimit Scope polyn_scope with pol.
+Notation "a = b" := (eq_polyn a b) : polyn_scope.
+
+Delimit Scope ps_polyn_scope with pspol.
+Notation "a = b" := (eq_polyn a b) : ps_polyn_scope.
+Notation "a + b" := (ps_pol_add a b) : ps_polyn_scope.
+Notation "a * b" := (ps_pol_mul a b) : ps_polyn_scope.
 
 Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
   (at level 0, f at level 0) :
-  ps_poly_scope.
+  ps_polyn_scope.
 Notation ".{ f a .}" := (polyn_of_list (ps_field f) [a])
   (at level 0, f at level 0, a at level 0) :
-  ps_poly_scope.
+  ps_polyn_scope.
 Notation ".{ f a + b 'Y' .}" := (polyn_of_list (ps_field f) [a; b … []])
   (at level 0, f at level 0, a at level 0, b at level 0) :
-  ps_poly_scope.
+  ps_polyn_scope.
 (*
 Notation "'YPOL' f a" := (polyn_of_list (ps_field f) [a])
   (at level 0, f at level 0, a at level 0) :
-  ps_poly_scope.
+  ps_polyn_scope.
 Notation "'YPOL' f a + b * 'Y'" := (polyn_of_list (ps_field f) [a; b … []])
   (at level 50, f at level 0, a at level 0, b at level 0) :
-  ps_poly_scope.
+  ps_polyn_scope.
 Notation ".{ f c * 'X^' q .}" := (ps_monom f c q)
-  (at level 0, f at level 0, c at level 0, q at level 0) : ps_poly_scope.
+  (at level 0, f at level 0, c at level 0, q at level 0) : ps_polyn_scope.
 Notation ".< f c .>" := (ps_const f c)
-  (at level 0, f at level 0, c at level 0) : ps_poly_scope.
+  (at level 0, f at level 0, c at level 0) : ps_polyn_scope.
 *)
 
 Definition apply_poly_with_ps_poly α (fld : field α)
@@ -78,7 +81,22 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-(**)
+Lemma yyy : ∀ α (fld : field α) (a b c d : polyn fld),
+  (apply_polyn_loop (λ x, polyn_of_list fld [x])
+     (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
+     (λ pol₁ pol₂, polyn_mul pol₁ pol₂) 
+     (degree_ub a) 0 (p_series a) b =
+   apply_polyn_loop (λ x, polyn_of_list fld [x])
+     (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
+     (λ pol₁ pol₂, polyn_mul pol₁ pol₂) 
+     (degree_ub c) 0 (p_series c) d)%pspol.
+Proof.
+intros α fld a b c d.
+Abort. (*
+bbb.
+*)
+
+(*
 Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   with signature
     eq_polyn (f := ps_field fld)
@@ -87,6 +105,7 @@ Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   as apply_poly_with_ps_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
+bbb.
 inversion Hac; subst.
 inversion Hbd; subst.
 constructor; intros i; simpl.
@@ -173,8 +192,9 @@ unfold convol_mul; simpl.
 rewrite <- fold_eq_ps.
 apply sigma_compat; intros i (_, Hi); simpl.
 apply ps_mul_compat_l.
-rewrite x_pow_γ_mul_add_distr_r.
 bbb.
+rewrite x_pow_γ_mul_add_distr_r.
+
  unfold apply_poly_with_ps_poly.
  unfold ps_pol_add; simpl.
  unfold pol_add; simpl.
