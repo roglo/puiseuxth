@@ -27,13 +27,13 @@ Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
 Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
   polyn_mul p₁ p₂.
 
-Delimit Scope polyn_scope with pol.
-Notation "a = b" := (eq_polyn a b) : polyn_scope.
-
 Delimit Scope ps_polyn_scope with pspol.
 Notation "a = b" := (eq_polyn a b) : ps_polyn_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_polyn_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_polyn_scope.
+
+Delimit Scope polyn_scope with pol.
+Notation "a = b" := (eq_polyn a b) : polyn_scope.
 
 Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
   (at level 0, f at level 0) :
@@ -81,19 +81,19 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-Lemma yyy : ∀ α (fld : field α) (a b c d : polyn fld) cnta cntc i,
+Lemma yyy :
+     ∀ α (f : field α) (a b c d : polyn f) (zero_plus_v : α → polyn f)
+       (add_v_coeff : polyn f → α → polyn f)
+       (mul_v_x : polyn f → polyn f → polyn f) cnta cntc i,
   (a = c)%pol
   → (b = d)%pol
-    → (apply_polyn_loop (λ x, polyn_of_list fld [x])
-         (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
-         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
+    → (apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
          cnta i (p_series a) b =
-       apply_polyn_loop (λ x, polyn_of_list fld [x])
-         (λ pol₁ x, polyn_add pol₁ (polyn_of_list fld [x]))
-         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
-         cntc i (p_series c) d)%pspol.
+       apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
+         cntc i (p_series c) d)%pol.
 Proof.
-intros α fld a b c d cnta cntc i Hac Hbd.
+intros α fld a b c d zero_plus_v add_v_coeff mul_v_x cnta cntc i Hac Hbd.
+bbb.
 revert i cntc.
 induction cnta; intros.
  simpl.
