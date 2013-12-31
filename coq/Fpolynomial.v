@@ -11,6 +11,10 @@ Require Import Power_series.
 
 Set Implicit Arguments.
 
+(* use Polynomial.v again *)
+
+bbb.
+
 Record polyn α (f : field α) :=
   { p_series : power_series α;
     degree_ub : nat;
