@@ -844,8 +844,9 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
  destruct Hhv as (Hhps₁, Hv).
  split; [ idtac | assumption ].
  subst ppl.
- revert pow cn pts h hv hps Hhps Hv Hhps₁ Hpts H.
- induction cl as [| c]; intros.
+ destruct psl as [| ps₁]; [ contradiction | idtac ].
+ revert pow pts ps₁ h hv hps Hhps Hv Hhps₁ Hpts H.
+ induction psl as [| ps]; intros.
   destruct Hhps₁ as [Hhps₁| ]; [ idtac | contradiction ].
   injection Hhps₁; clear Hhps₁; intros; subst h hps.
   left; reflexivity.
@@ -859,7 +860,7 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
     subst hps; left; reflexivity.
 
     right.
-    eapply IHcl; try eassumption; try reflexivity.
+    eapply IHpsl; try eassumption; try reflexivity.
      rewrite <- Nat.sub_succ in Hhps.
      rewrite <- minus_Sn_m in Hhps; [ assumption | idtac ].
      apply not_eq_sym in Hne.
