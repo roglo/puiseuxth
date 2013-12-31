@@ -712,29 +712,32 @@ Lemma first_power_le : ∀ pow cl h hv,
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
 intros pow cl h hv Hhhv.
+unfold qpower_list in Hhhv.
 revert pow Hhhv.
-induction cl as [| c]; intros.
+induction cl as [| c]; intros; [ contradiction | idtac ].
+simpl in Hhhv.
+destruct cl as [| c₁].
  simpl in Hhhv.
- remember (valuation f cn) as v.
- symmetry in Heqv.
- destruct v as [v| ]; [ idtac | contradiction ].
+ destruct (valuation f c); [ idtac | contradiction ].
  destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
- injection Hhhv; clear Hhhv; intros; subst h v.
- simpl; rewrite Nat2Z.id; constructor.
+ injection Hhhv; clear Hhhv; intros; subst h hv.
+ simpl.
+ rewrite Nat2Z.id; reflexivity.
 
  simpl in Hhhv.
- remember (valuation f c) as v.
- symmetry in Heqv.
- destruct v as [v| ].
+ simpl in IHcl.
+ destruct (valuation f c).
   destruct Hhhv as [Hhhv| Hhhv].
-   injection Hhhv; clear Hhhv; intros; subst h v.
-   simpl; rewrite Nat2Z.id; constructor.
+   injection Hhhv; clear Hhhv; intros; subst h hv.
+   simpl; rewrite Nat2Z.id; reflexivity.
 
    apply IHcl in Hhhv.
-   eapply le_trans; [ apply le_n_Sn | eassumption ].
+   transitivity (S pow); [ apply Nat.le_succ_r | assumption ].
+   left; reflexivity.
 
   apply IHcl in Hhhv.
-  eapply le_trans; [ apply le_n_Sn | eassumption ].
+  transitivity (S pow); [ apply Nat.le_succ_r | assumption ].
+  left; reflexivity.
 Qed.
 
 Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv hps def,
