@@ -34,16 +34,15 @@ Definition valuation_coeff α (f : field α) ps :=
   | ∞ => (.0 f)%F
   end.
 
-Fixpoint power_list α pow psl (psn : puiseux_series α) :=
+Fixpoint power_list α pow (psl : list (puiseux_series α)) :=
   match psl with
-  | [ps₁ … psl₁] =>
-      [(pow, ps₁) … power_list (S pow) psl₁ psn]
-  | [] =>
-      [(pow, psn)]
+  | [] => []
+  | [ps] => [(pow, ps)]
+  | [ps₁ … psl₁] => [(pow, ps₁) … power_list (S pow) psl₁]
   end.
 
-Definition qpower_list α pow psl (psn : puiseux_series α) :=
-  List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl psn).
+Definition qpower_list α pow (psl : list (puiseux_series α)) :=
+  List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl).
 
 Fixpoint filter_finite_val α f (dpl : list (Q * puiseux_series α)) :=
   match dpl with
@@ -56,11 +55,11 @@ Fixpoint filter_finite_val α f (dpl : list (Q * puiseux_series α)) :=
       []
   end.
 
-Definition points_of_ps_polynom_gen α f pow cl (cn : puiseux_series α) :=
-  filter_finite_val f (qpower_list pow cl cn).
+Definition points_of_ps_polynom_gen α f pow (cl : list (puiseux_series α)) :=
+  filter_finite_val f (qpower_list pow cl).
 
 Definition points_of_ps_polynom α f (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_polynom_gen f 0 (al pol) (an pol).
+  points_of_ps_polynom_gen f 0 (bl pol).
 
 Definition newton_segments α f (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom f pol in
@@ -75,42 +74,41 @@ Section theorems.
 Variable α : Type.
 Variable f : field α.
 
-Lemma fold_points_of_ps_polynom_gen : ∀ pow cl (cn : puiseux_series α),
+Lemma fold_points_of_ps_polynom_gen : ∀ pow (cl : list (puiseux_series α)),
   filter_finite_val f
-    (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl cn)) =
-  points_of_ps_polynom_gen f pow cl cn.
+    (List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow cl)) =
+  points_of_ps_polynom_gen f pow cl.
 Proof. reflexivity. Qed.
 
-Lemma points_of_polyn_sorted : ∀ deg cl (cn : puiseux_series α) pts,
-  pts = points_of_ps_polynom_gen f deg cl cn
+Lemma points_of_polyn_sorted : ∀ deg (cl : list (puiseux_series α)) pts,
+  pts = points_of_ps_polynom_gen f deg cl
   → Sorted fst_lt pts.
 Proof.
-intros deg cl cn pts Hpts.
-revert deg cn pts Hpts.
+intros deg cl pts Hpts.
+destruct cl as [| c₁]; [ subst pts; constructor | idtac ].
+revert deg c₁ pts Hpts.
 induction cl as [| c]; intros.
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- destruct (valuation f cn); subst pts; constructor; constructor.
+ destruct (valuation f c₁); subst pts; constructor; constructor.
 
  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
- rewrite fold_points_of_ps_polynom_gen in Hpts.
- destruct (valuation f c); [ idtac | eapply IHcl; eassumption ].
- remember (points_of_ps_polynom_gen f (S deg) cl cn) as pts₁.
+ destruct (valuation f c₁); [ idtac | eapply IHcl; eassumption ].
+ remember (points_of_ps_polynom_gen f (S deg) [c … cl]) as pts₁.
  subst pts; rename pts₁ into pts; rename Heqpts₁ into Hpts.
  clear IHcl.
- clear c.
- revert deg cn q pts Hpts.
+ clear c₁.
+ revert deg c q pts Hpts.
  induction cl as [| c₂]; intros.
+  simpl.
   unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-  destruct (valuation f cn).
-   subst pts.
-   apply Sorted_LocallySorted_iff.
-   constructor; [ constructor | apply Qnat_lt, lt_n_Sn ].
+  destruct (valuation f c).
+   constructor; constructor; [ constructor | constructor | idtac ].
+   apply Qnat_lt, lt_n_Sn.
 
-   subst pts; constructor; constructor.
+   constructor; constructor.
 
-  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts.
-  rewrite fold_points_of_ps_polynom_gen in Hpts.
-  destruct (valuation f c₂) as [v₂| ].
+  unfold points_of_ps_polynom_gen in Hpts; simpl in Hpts; simpl.
+  destruct (valuation f c) as [v₂| ].
    subst pts.
    apply Sorted_LocallySorted_iff.
    constructor; [ idtac | apply Qnat_lt, lt_n_Sn ].
@@ -118,15 +116,11 @@ induction cl as [| c]; intros.
    eapply IHcl; reflexivity.
 
    eapply IHcl with (q := q) in Hpts.
-   apply Sorted_LocallySorted_iff.
-   destruct pts as [| pt]; [ constructor | idtac ].
-   apply Sorted_LocallySorted_iff.
-   apply Sorted_inv_2 in Hpts.
-   destruct Hpts as (Hlt, Hpts).
-   apply Sorted_LocallySorted_iff.
-   apply Sorted_LocallySorted_iff in Hpts.
-   constructor; [ assumption | idtac ].
-   eapply Qlt_trans; [ apply Qnat_lt, lt_n_Sn | eassumption ].
+   apply Sorted_minus_2nd with (x₂ := (Qnat (S deg), q)).
+    unfold fst_lt.
+    intros x y z; apply Qlt_trans.
+
+    constructor; [ assumption | constructor; apply Qnat_lt, lt_n_Sn ].
 Qed.
 
 End theorems.
