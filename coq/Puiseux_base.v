@@ -41,6 +41,11 @@ Fixpoint power_list α pow (psl : list (puiseux_series α)) :=
   | [ps₁ … psl₁] => [(pow, ps₁) … power_list (S pow) psl₁]
   end.
 
+(*
+Definition map_qnat_fst α (l : list (nat * α)) :=
+  List.map (pair_rec (λ a b, (Qnat a, b))) l.
+*)
+
 Definition qpower_list α pow (psl : list (puiseux_series α)) :=
   List.map (pair_rec (λ pow ps, (Qnat pow, ps))) (power_list pow psl).
 

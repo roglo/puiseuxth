@@ -740,6 +740,31 @@ destruct cl as [| c₁].
   left; reflexivity.
 Qed.
 
+Lemma toto : ∀ β γ (g : list β → list γ) x l,
+  g [] = []
+  → match l with
+    | [] => [x]
+    | [_ … _] => [x … g l]
+    end = [x … g l].
+Proof.
+intros.
+destruct l; [ rewrite H; reflexivity | reflexivity ].
+Qed.
+
+Lemma titi : ∀ α β (g : α → β) x l,
+  List.map g [x … l] = [g x … List.map g l].
+Proof. reflexivity. Qed.
+
+Lemma tutu : ∀ α pow (c : puiseux_series α) cl,
+  List.map (pair_rec (λ pow ps, (Qnat pow, ps)))
+    [(pow, c) … power_list (S pow) cl] =
+  qpower_list pow [c … cl].
+Proof.
+intros; simpl.
+unfold qpower_list; simpl.
+rewrite toto; reflexivity.
+Qed.
+
 Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
   ppl = qpower_list pow cl
   → pts = filter_finite_val f ppl
@@ -747,6 +772,59 @@ Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
       → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
         → (h, hps) ∈ ppl ∧ valuation f hps = Some hv.
 Proof.
+intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
+subst ppl pts.
+destruct cl as [| c₁]; intros; [ contradiction | idtac ].
+revert pow c₁ h hv hps Hhps Hhhv.
+induction cl as [| c]; intros.
+ simpl in Hhhv.
+ remember (valuation f c₁) as v.
+ symmetry in Heqv.
+ destruct v as [v| ]; [ idtac | contradiction ].
+ destruct Hhhv as [Hhhv| ]; [ idtac | contradiction ].
+ injection Hhhv; clear Hhhv; intros; subst v h.
+ remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+ rewrite Nat2Z.id, minus_diag in Hhps.
+ simpl in Hhps; subst hps.
+ split; [ left; reflexivity | assumption ].
+
+ simpl in Hhhv.
+ remember (valuation f c₁) as v.
+ symmetry in Heqv.
+ destruct v as [v| ].
+  destruct Hhhv as [Hhhv| Hhhv].
+   injection Hhhv; clear Hhhv; intros; subst v h.
+   remember (Qnum (Qnat pow)) as x; simpl in Heqx; subst x.
+   rewrite Nat2Z.id, minus_diag in Hhps.
+   simpl in Hhps; subst hps.
+   split; [ left; reflexivity | assumption ].
+
+   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
+    eapply IHcl in Hhhv.
+     rewrite <- Nat.sub_succ in Hhps.
+     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+     simpl in Hhps.
+     destruct Hhhv as (Hhhv, Hhv).
+     split; [ right; eassumption | assumption ].
+
+     rewrite <- Nat.sub_succ in Hhps.
+     rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
+     simpl in Hhps; eassumption.
+
+    rewrite toto in Hhhv; [ idtac | reflexivity ].
+    rewrite tutu in Hhhv.
+    apply first_power_le in Hhhv; contradiction.
+
+bbb.
+    assert ((h, hv) ∈ filter_finite_val f (qpower_list (S pow) [c … cl]))
+     as H.
+     unfold qpower_list; simpl.
+     assumption.
+
+     apply first_power_le in H; contradiction.
+bbb.
+
+
 intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
 revert pow h hv hps Hhps Hhhv.
@@ -785,8 +863,8 @@ induction cl as [| c]; intros.
      rewrite <- minus_Sn_m in Hhps; [ idtac | assumption ].
      simpl in Hhps; eassumption.
 
-    apply first_power_le in Hhhv; contradiction.
-
+    apply first_power_le in Hhhv; contradiction
+.
   destruct (le_dec (S pow) (Z.to_nat (Qnum h))) as [Hle| Hgt].
    eapply IHcl in Hhhv.
     rewrite <- Nat.sub_succ in Hhps.
