@@ -740,16 +740,16 @@ destruct cl as [| c₁].
   left; reflexivity.
 Qed.
 
-Lemma in_pts_in_ppl : ∀ pow cl cn ppl pts h hv hps def,
-  ppl = qpower_list pow cl cn
+Lemma in_pts_in_ppl : ∀ pow cl ppl pts h hv hps def,
+  ppl = qpower_list pow cl
   → pts = filter_finite_val f ppl
     → (h, hv) ∈ pts
-      → hps = List.nth (Z.to_nat (Qnum h) - pow) (cl ++ [cn]) def
+      → hps = List.nth (Z.to_nat (Qnum h) - pow) cl def
         → (h, hps) ∈ ppl ∧ valuation f hps = Some hv.
 Proof.
-intros pow cl cn ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
+intros pow cl ppl pts h hv hps def Hppl Hpts Hhhv Hhps.
 subst ppl pts.
-revert pow cn h hv hps Hhps Hhhv.
+revert pow h hv hps Hhps Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
  remember (valuation f cn) as v.
