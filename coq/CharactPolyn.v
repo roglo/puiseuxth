@@ -92,27 +92,30 @@ Lemma pt_absc_is_nat : ∀ pol pts pt,
 Proof.
 intros pol pts pt Hpts Hαh.
 unfold points_of_ps_polynom in Hpts.
-remember (al pol) as cl; clear Heqcl.
-remember (an pol) as cn; clear Heqcn.
+remember (bl pol) as cl; clear Heqcl.
 remember 0%nat as n in Hpts; clear Heqn.
 unfold points_of_ps_polynom_gen in Hpts.
+unfold qpower_list in Hpts.
 revert n pts Hpts Hαh.
-induction cl as [| c]; intros.
+induction cl as [| c]; intros; [ subst pts; contradiction | idtac ].
+simpl in Hpts.
+destruct cl as [| c₁].
  simpl in Hpts.
- destruct (valuation f cn) as [v| ].
-  subst pts.
-  destruct Hαh as [Hαh| ]; [ subst pt; simpl | contradiction ].
-  rewrite Nat2Z.id; reflexivity.
-
-  subst pts; contradiction.
+ destruct (valuation f c); subst pts; [ idtac | contradiction ].
+ simpl in Hαh.
+ destruct Hαh as [Hαh| ]; [ idtac | contradiction ].
+ subst pt; simpl.
+ rewrite Nat2Z.id; reflexivity.
 
  simpl in Hpts.
- destruct (valuation f c) as [v| ].
+ simpl in IHcl.
+ destruct (valuation f c).
   subst pts.
-  destruct Hαh as [Hαh| Hαh]; [ subst pt; simpl | idtac ].
+  destruct Hαh as [Hαh| Hαh].
+   subst pt; simpl.
    rewrite Nat2Z.id; reflexivity.
 
-   eapply IHcl in Hαh; [ assumption | reflexivity ].
+   eapply IHcl; [ reflexivity | eassumption ].
 
   eapply IHcl; eassumption.
 Qed.
@@ -704,11 +707,11 @@ destruct Hns as [Hns| Hns].
  apply IHhsl; assumption.
 Qed.
 
-Lemma first_power_le : ∀ pow cl cn h hv,
-  (h, hv) ∈ filter_finite_val f (qpower_list pow cl cn)
+Lemma first_power_le : ∀ pow cl h hv,
+  (h, hv) ∈ filter_finite_val f (qpower_list pow cl)
   → pow ≤ Z.to_nat (Qnum h).
 Proof.
-intros pow cl cn h hv Hhhv.
+intros pow cl h hv Hhhv.
 revert pow Hhhv.
 induction cl as [| c]; intros.
  simpl in Hhhv.
