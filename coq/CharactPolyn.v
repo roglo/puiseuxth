@@ -19,18 +19,31 @@ Require Import Slope_base.
 
 Set Implicit Arguments.
 
-Definition degree α (pol : polynomial α) := List.length (al pol).
+Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
+  match l with
+  | [] => O
+  | [x … l₁] =>
+      match degree_plus_1_of_list is_zero l₁ with
+      | O => if is_zero x then O else 1%nat
+      | S n => S (S n)
+      end
+  end.
+
+Definition degree α is_zero (pol : polynomial α) :=
+  pred (degree_plus_1_of_list is_zero (bl pol)).
+
 Record term α β := { coeff : α; power : β }.
 
 (* *)
 
 Definition apply_polynomial α (f : field α) :=
-  apply_poly (λ x, x) (fld_add f) (fld_mul f).
+  apply_poly (fld_zero f) (fld_add f) (fld_mul f).
 
 Record algeb_closed_field α :=
   { ac_field : field α;
     ac_root : polynomial α → (α * nat);
-    ac_prop : ∀ pol, degree pol ≥ 1
+    ac_is_zero : α → bool;
+    ac_prop : ∀ pol, degree ac_is_zero pol ≥ 1
       → apply_polynomial ac_field pol (fst (ac_root pol)) = .0 ac_field%F }.
 
 Definition nofq q := Z.to_nat (Qnum q).
