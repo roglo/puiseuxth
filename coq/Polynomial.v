@@ -28,32 +28,31 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
 
 (* multiplication *)
 
-Fixpoint sigma_aux α zero_v (add_v : α → α → _) b len g :=
+Fixpoint sigma_aux α zero_c (add_c : α → α → _) b len g :=
   match len with
-  | O => zero_v
-  | S len₁ => add_v (g b) (sigma_aux zero_v add_v (S b) len₁ g)
+  | O => zero_c
+  | S len₁ => add_c (g b) (sigma_aux zero_c add_c (S b) len₁ g)
   end.
 
-Definition sigma α zero_v (add_v : α → α → _) b e g :=
-  sigma_aux zero_v add_v b (S e - b) g.
+Definition sigma α zero_c (add_c : α → α → _) b e g :=
+  sigma_aux zero_c add_c b (S e - b) g.
 
-Fixpoint pol_convol_mul α zero_v add_v (mul_v : α → α → _) al₁ al₂ i len :=
+Fixpoint pol_convol_mul α zero_c add_c (mul_c : α → α → _) al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [sigma zero_v add_v O i
-         (λ j, mul_v (List.nth j al₁ zero_v) (List.nth (i - j) al₂ zero_v)) …
-       pol_convol_mul zero_v add_v mul_v al₁ al₂ (S i) len₁]
+      [sigma zero_c add_c O i
+         (λ j, mul_c (List.nth j al₁ zero_c) (List.nth (i - j) al₂ zero_c)) …
+       pol_convol_mul zero_c add_c mul_c al₁ al₂ (S i) len₁]
   end.
 
-Definition pol_mul α (zero_v : α) add_v mul_v pol₁ pol₂ :=
+Definition pol_mul α (zero_c : α) add_c mul_c pol₁ pol₂ :=
   {| bl :=
-       pol_convol_mul zero_v add_v mul_v (bl pol₁) (bl pol₂) O
+       pol_convol_mul zero_c add_c mul_c (bl pol₁) (bl pol₂) O
          (max (List.length (bl pol₁)) (List.length (bl pol₂))) |}.
 
 (* Horner's algorithm *)
 Definition apply_poly α β γ
-    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
+    (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
-  List.fold_right (λ c accu, add_v_coeff (mul_v_x accu x) c)
-    (zero_plus_v (bl pol)) (bl pol).
+  List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (bl pol).
