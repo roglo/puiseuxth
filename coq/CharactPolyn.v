@@ -54,17 +54,17 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
-Fixpoint make_char_pol α (f : field α) pow tl k :=
+Fixpoint make_char_pol α (f : field α) pow tl k rem :=
   match tl with
-  | [] => list_pad (k - pow) .0 f%F []
+  | [] => list_pad (k - pow) .0 f%F rem
   | [t₁ … tl₁] =>
       list_pad (power t₁ - pow) .0 f%F
-        [coeff t₁ … make_char_pol f (S (power t₁)) tl₁ k]
+        [coeff t₁ … make_char_pol f (S (power t₁)) tl₁ k rem]
     end.
 
 Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
-  let ps := List.nth h (al pol) (an pol) in
+  let ps := List.nth h (bl pol) .0 f%ps in
   let c := valuation_coeff f ps in
   {| coeff := c; power := h |}.
 
@@ -72,8 +72,8 @@ Definition characteristic_polynomial α (f : field α) pol ns :=
   let tl := List.map (term_of_point f pol) [ini_pt ns … oth_pts ns] in
   let j := nofq (fst (ini_pt ns)) in
   let k := nofq (fst (fin_pt ns)) in
-  let kps := List.nth k (al pol) (an pol) in
-  {| al := make_char_pol f j tl k; an := valuation_coeff f kps |}.
+  let kps := List.nth k (bl pol) .0 f%ps in
+  {| bl := make_char_pol f j tl k [valuation_coeff f kps] |}.
 
 Definition series_list_com_den α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
