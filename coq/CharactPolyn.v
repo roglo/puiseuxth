@@ -1870,6 +1870,7 @@ Lemma oth_fin_pts_sorted : ∀ pol ns,
   → Sorted fst_lt (oth_pts ns ++ [fin_pt ns]).
 Proof.
 intros pol ns Hns.
+remember Hns as Hns_v; clear HeqHns_v.
 unfold newton_segments in Hns.
 remember (points_of_ps_polynom f pol) as pts.
 apply points_of_polyn_sorted in Heqpts.
@@ -1878,23 +1879,26 @@ unfold lower_convex_hull_points in Heqhsl.
 rename Heqhsl into Hnp.
 symmetry in Hnp.
 remember (length pts) as n; clear Heqn.
-clear pol.
-revert ns pts n Heqpts Hnp Hns.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 rewrite list_map_pairs_cons_cons in Hns.
-destruct Hns as [Hns| Hns].
- subst ns; simpl.
- eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
- rewrite Hnp; left; reflexivity.
+apply Sorted_app.
+ destruct Hns as [Hns| Hns].
+  subst ns; simpl.
+  eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
+  rewrite Hnp; left; reflexivity.
 
- destruct n; [ discriminate Hnp | simpl in Hnp ].
- destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
- destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
- injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
- remember (minimise_slope pt₁ pt₂ pts) as ms₁.
- symmetry in Heqms₁.
- eapply minimise_slope_oth_pts_sorted; eassumption.
+  destruct n; [ discriminate Hnp | simpl in Hnp ].
+  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+  injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+  symmetry in Heqms₁.
+  eapply minimise_slope_oth_pts_sorted; eassumption.
+
+ intros (hq, αh) Hh.
+ eapply hq_lt_kq; try eassumption.
+ symmetry; apply surjective_pairing.
 Qed.
 
 Close Scope nat_scope.
@@ -1965,7 +1969,7 @@ destruct i.
     subst c.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
     rewrite Pos2Z.inj_mul, <- Hqjk, Hk.
-     eapply oth_pts_sorted; eassumption.
+     eapply oth_fin_pts_sorted; eassumption.
 
      intros hq αh Hhαh.
      assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
@@ -1977,6 +1981,17 @@ destruct i.
        move Heqpts at bottom.
        rewrite Heqpts in Hhαh.
        unfold Qnat in Hhαh.
+      apply List.in_app_or in Hhαh.
+      destruct Hhαh as [Hhαh| Hhαh].
+       rewrite Z2Nat.id in Hhαh.
+        assumption.
+
+        rewrite Heqpts; simpl.
+        apply Nat2Z.is_nonneg.
+
+       destruct Hhαh as [Hhαh| ]; [ idtac | contradiction ].
+bbb.
+
        rewrite Z2Nat.id in Hhαh; [ assumption | idtac ].
        rewrite Heqpts; simpl.
        apply Zle_0_nat.
