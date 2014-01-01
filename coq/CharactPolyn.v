@@ -1913,7 +1913,6 @@ eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
 rename j into jz.
 rename k into kz.
 unfold is_polynomial_in_x_power_q.
-unfold is_polynomial_in_x_power_q.
 intros i c Himq Hc.
 subst cpol.
 unfold characteristic_polynomial in Hc; simpl in Hc.
@@ -1927,9 +1926,11 @@ destruct i.
  unfold nofq in Hc; simpl in Hc.
  destruct Hqjk as (sk, Hqjk).
  rewrite Hqjk in Hc; simpl in Hc.
+(*
  rewrite Z2Nat.inj_add in Hc; simpl in Hc.
   rewrite Pos2Nat.inj_mul in Hc.
   remember (Z.to_nat jz) as j.
+*)
   rename q into qp.
   remember (Pos.to_nat qp) as q.
   destruct q.
