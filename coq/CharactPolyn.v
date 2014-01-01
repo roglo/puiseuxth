@@ -54,12 +54,12 @@ Fixpoint list_pad α n (zero : α) rem :=
   | S n₁ => [zero … list_pad n₁ zero rem]
   end.
 
-Fixpoint make_char_pol α (f : field α) pow tl k rem :=
+Fixpoint make_char_pol α (f : field α) pow tl :=
   match tl with
-  | [] => list_pad (k - pow) .0 f%F rem
+  | [] => []
   | [t₁ … tl₁] =>
       list_pad (power t₁ - pow) .0 f%F
-        [coeff t₁ … make_char_pol f (S (power t₁)) tl₁ k rem]
+        [coeff t₁ … make_char_pol f (S (power t₁)) tl₁]
     end.
 
 Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
@@ -69,11 +69,10 @@ Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
   {| coeff := c; power := h |}.
 
 Definition characteristic_polynomial α (f : field α) pol ns :=
-  let tl := List.map (term_of_point f pol) [ini_pt ns … oth_pts ns] in
+  let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
+  let tl := List.map (term_of_point f pol) pl in
   let j := nofq (fst (ini_pt ns)) in
-  let k := nofq (fst (fin_pt ns)) in
-  let kps := List.nth k (bl pol) .0 f%ps in
-  {| bl := make_char_pol f j tl k [valuation_coeff f kps] |}.
+  {| bl := make_char_pol f j tl |}.
 
 Definition series_list_com_den α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
@@ -1466,14 +1465,14 @@ Qed.
 
 Open Scope nat_scope.
 
-Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl k d,
+Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl d,
   s ≤ i
   → j + s ≤ power t
-    → List.nth (i - s) (make_char_pol f (j + s) [t … tl] k []) d =
-      List.nth i (make_char_pol f j [t … tl] k []) d.
+    → List.nth (i - s) (make_char_pol f (j + s) [t … tl]) d =
+      List.nth i (make_char_pol f j [t … tl]) d.
 Proof.
-intros i j s t tl k d Hsi Hjsk.
-revert i j t tl k d Hsi Hjsk.
+intros i j s t tl d Hsi Hjsk.
+revert i j t tl d Hsi Hjsk.
 induction s; intros.
  rewrite plus_0_r, Nat.sub_0_r; reflexivity.
 
@@ -1508,132 +1507,114 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h < k)
             → S i mod q ≠ 0
               → (List.nth i
-                  (make_char_pol f (S j)
-                     (List.map (term_of_point f pol) tl) k []) (fld_zero f)
+                  (make_char_pol f (S j) (List.map (term_of_point f pol) tl))
+                  (fld_zero f)
                  .= f fld_zero f)%F.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
 destruct sk; [ exfalso; revert Hsk; apply lt_irrefl | clear Hsk ].
 revert q i j sk k Hk Hsh Himq.
-induction tl as [| t]; intros.
- simpl.
- remember (k - S j) as n.
- clear; revert n.
- induction i; intros.
-  destruct n; reflexivity.
+induction tl as [| t]; intros; [ destruct i; reflexivity | idtac ].
+destruct t as (hq, αh); simpl.
+unfold nofq; simpl.
+assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
+apply Hsh in H.
+destruct H as (h, (sh, (Hh, (Hsh₀, (Hhq, Hhk))))).
+destruct sh; [ exfalso; revert Hsh₀; apply lt_irrefl | clear Hsh₀ ].
+rewrite Hh; simpl.
+rewrite Nat2Z.id.
+rewrite Hhq in |- * at 1; simpl.
+rewrite <- plus_Snm_nSm, minus_plus.
+remember (q + sh * S q) as s.
+destruct (lt_dec i s) as [Hlt| Hge].
+ rewrite list_nth_pad_lt; [ reflexivity | assumption ].
 
-  destruct n; [ reflexivity | apply IHi ].
-
- destruct t as (hq, αh); simpl.
- unfold nofq; simpl.
- assert ((hq, αh) ∈ [(hq, αh) … tl]) as H by (left; reflexivity).
- apply Hsh in H.
- destruct H as (h, (sh, (Hh, (Hsh₀, (Hhq, Hhk))))).
- destruct sh; [ exfalso; revert Hsh₀; apply lt_irrefl | clear Hsh₀ ].
- rewrite Hh; simpl.
- rewrite Nat2Z.id.
- rewrite Hhq in |- * at 1; simpl.
- rewrite <- plus_Snm_nSm, minus_plus.
- remember (q + sh * S q) as s.
- destruct (lt_dec i s) as [Hlt| Hge].
-  rewrite list_nth_pad_lt; [ reflexivity | assumption ].
-
-  apply not_gt in Hge.
-  remember Hge as H; clear HeqH.
-  apply le_plus_minus in H.
-  rewrite H, plus_comm, list_nth_plus_pad.
-  remember (i - s) as is.
-  destruct is.
-   simpl.
-   rewrite plus_0_r in H.
-   subst i.
-   simpl in Heqs.
-   rewrite Heqs in Himq.
-   rewrite <- plus_Sn_m in Himq.
-   rewrite Nat.mod_add in Himq.
-    rewrite Nat.mod_same in Himq.
-     negation Himq.
-
-     intros H; discriminate H.
+ apply not_gt in Hge.
+ remember Hge as H; clear HeqH.
+ apply le_plus_minus in H.
+ rewrite H, plus_comm, list_nth_plus_pad.
+ remember (i - s) as is.
+ destruct is.
+  simpl.
+  rewrite plus_0_r in H.
+  subst i.
+  simpl in Heqs.
+  rewrite Heqs in Himq.
+  rewrite <- plus_Sn_m in Himq.
+  rewrite Nat.mod_add in Himq.
+   rewrite Nat.mod_same in Himq.
+    negation Himq.
 
     intros H; discriminate H.
 
-   simpl.
-   rewrite <- Nat.sub_succ in Heqis.
-   destruct (eq_nat_dec i s) as [Heq| Hne].
-    subst s.
-    rewrite <- Heq, minus_diag in Heqis; discriminate Heqis.
+   intros H; discriminate H.
 
-    rewrite <- minus_Sn_m in Heqis.
-     apply eq_add_S in Heqis.
-     replace (S (q + sh * S q)) with (S sh * S q) by reflexivity.
-     rewrite Hhq, <- plus_Sn_m.
-     rewrite Heqs in Hge.
-     apply le_n_S in Hge.
-     rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
-     destruct tl as [| t].
+  simpl.
+  rewrite <- Nat.sub_succ in Heqis.
+  destruct (eq_nat_dec i s) as [Heq| Hne].
+   subst s.
+   rewrite <- Heq, minus_diag in Heqis; discriminate Heqis.
+
+   rewrite <- minus_Sn_m in Heqis.
+    apply eq_add_S in Heqis.
+    replace (S (q + sh * S q)) with (S sh * S q) by reflexivity.
+    rewrite Hhq, <- plus_Sn_m.
+    rewrite Heqs in Hge.
+    apply le_n_S in Hge.
+    rewrite <- plus_Sn_m, plus_comm, <- mult_succ_l in Hge.
+    destruct tl as [| t]; [ destruct is; reflexivity | idtac ].
+    rewrite Heqis, Heqs.
+    rewrite plus_comm, mult_comm, plus_n_Sm.
+    rewrite <- mult_succ_r, mult_comm.
+    remember (List.map (term_of_point f pol) [t … tl]) as x.
+    simpl in Heqx; subst x.
+    rewrite nth_minus_char_pol_plus_cons.
+     eapply IHtl; try eapply Sorted_inv_1; try eassumption.
+     intros hq₁ αh₁ Hhαh₁.
+     destruct Hhαh₁ as [| Hhαh₁].
+      subst t.
+      eapply Hsh.
+      right; left; reflexivity.
+
+      eapply Hsh.
+      right; right; eassumption.
+
+     rewrite Heqs in Heqis.
+     rewrite plus_comm, mult_comm, plus_n_Sm in Heqis.
+     rewrite <- mult_succ_r, mult_comm in Heqis.
+     apply eq_S in H.
+     rewrite Heqs in H.
+     rewrite plus_comm, mult_comm, plus_n_Sm in H.
+     rewrite <- plus_Sn_m in H.
+     remember (S q + S q * sh) as x.
+     rewrite plus_comm, <- mult_succ_r, mult_comm in Heqx.
+     subst x; omega.
+
+     unfold term_of_point; remember (S sh) as x; simpl; subst x.
+     rewrite <- Hhq.
+     apply Sorted_inv_2 in Hsort.
+     destruct Hsort as (Hsort, _).
+     unfold fst_lt in Hsort; simpl in Hsort.
+     rewrite Hh in Hsort; unfold nofq.
+     destruct t as (h₁, αh₁).
+     simpl in Hsort |- *.
+     assert ((h₁, αh₁) ∈ [(hq, αh); (h₁, αh₁) … tl]) as H₁.
+      right; left; reflexivity.
+
+      apply Hsh in H₁.
+      destruct H₁ as (h₂, (sh₂, (Hh₂, (Hsh₂, (Hhj₂, Hhk₂))))).
+      rewrite Hh₂ in Hsort |- *.
       simpl.
-      rewrite <- Heqs.
-      remember (k - S (j + S s)) as n.
-      clear.
-      revert is.
-      induction n; intros.
-       destruct is; reflexivity.
+      rewrite Nat2Z.id.
+      unfold Qnat in Hsort.
+      unfold Qlt in Hsort.
+      simpl in Hsort.
+      do 2 rewrite Zmult_1_r in Hsort.
+      apply Nat2Z.inj_lt; assumption.
 
-       destruct is; [ reflexivity | apply IHn ].
-
-      rewrite Heqis, Heqs.
-      rewrite plus_comm, mult_comm, plus_n_Sm.
-      rewrite <- mult_succ_r, mult_comm.
-      remember (List.map (term_of_point f pol) [t … tl]) as x.
-      simpl in Heqx; subst x.
-      rewrite nth_minus_char_pol_plus_cons.
-       eapply IHtl; try eapply Sorted_inv_1; try eassumption.
-       intros hq₁ αh₁ Hhαh₁.
-       destruct Hhαh₁ as [| Hhαh₁].
-        subst t.
-        eapply Hsh.
-        right; left; reflexivity.
-
-        eapply Hsh.
-        right; right; eassumption.
-
-       rewrite Heqs in Heqis.
-       rewrite plus_comm, mult_comm, plus_n_Sm in Heqis.
-       rewrite <- mult_succ_r, mult_comm in Heqis.
-       apply eq_S in H.
-       rewrite Heqs in H.
-       rewrite plus_comm, mult_comm, plus_n_Sm in H.
-       rewrite <- plus_Sn_m in H.
-       remember (S q + S q * sh) as x.
-       rewrite plus_comm, <- mult_succ_r, mult_comm in Heqx.
-       subst x; omega.
-
-       unfold term_of_point; remember (S sh) as x; simpl; subst x.
-       rewrite <- Hhq.
-       apply Sorted_inv_2 in Hsort.
-       destruct Hsort as (Hsort, _).
-       unfold fst_lt in Hsort; simpl in Hsort.
-       rewrite Hh in Hsort; unfold nofq.
-       destruct t as (h₁, αh₁).
-       simpl in Hsort |- *.
-       assert ((h₁, αh₁) ∈ [(hq, αh); (h₁, αh₁) … tl]) as H₁.
-        right; left; reflexivity.
-
-        apply Hsh in H₁.
-        destruct H₁ as (h₂, (sh₂, (Hh₂, (Hsh₂, (Hhj₂, Hhk₂))))).
-        rewrite Hh₂ in Hsort |- *.
-        simpl.
-        rewrite Nat2Z.id.
-        unfold Qnat in Hsort.
-        unfold Qlt in Hsort.
-        simpl in Hsort.
-        do 2 rewrite Zmult_1_r in Hsort.
-        apply Nat2Z.inj_lt; assumption.
-
-     apply not_eq_sym in Hne.
-     apply le_neq_lt; assumption.
+   apply not_eq_sym in Hne.
+   apply le_neq_lt; assumption.
 Qed.
 
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
