@@ -1944,6 +1944,7 @@ destruct i.
 
     subst c.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
+    rewrite Pos2Z.inj_mul, <- Hqjk, Hk.
      eapply oth_pts_sorted; eassumption.
 
      intros hq αh Hhαh.
@@ -2049,6 +2050,6 @@ destruct i.
    apply ini_fin_ns_in_init_pts; assumption.
 
   apply Zle_0_pos.
-Qed.
+qed.
 
 End theorems.
