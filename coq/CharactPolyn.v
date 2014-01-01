@@ -1845,9 +1845,29 @@ destruct Hns as [Hns| Hns].
   eapply minimise_slope_end_lt; try eassumption; reflexivity.
 Qed.
 
-Lemma oth_pts_sorted : ∀ pol ns,
+Lemma Sorted_app : ∀ α f l (x : α),
+  Sorted f l
+  → (∀ y, y ∈ l → f y x)
+    → Sorted f (l ++ [x]).
+Proof.
+clear; intros α f l x Hs Hf.
+induction l as [| z]; [ constructor; constructor | simpl ].
+apply Sorted_inv in Hs.
+destruct Hs as (Hs, Hr).
+apply IHl in Hs.
+ constructor; [ assumption | idtac ].
+ destruct l as [| t].
+  constructor; apply Hf; left; reflexivity.
+
+  constructor; apply HdRel_inv in Hr; assumption.
+
+ intros y Hy.
+ apply Hf; right; assumption.
+Qed.
+
+Lemma oth_fin_pts_sorted : ∀ pol ns,
   ns ∈ newton_segments f pol
-  → Sorted fst_lt (oth_pts ns).
+  → Sorted fst_lt (oth_pts ns ++ [fin_pt ns]).
 Proof.
 intros pol ns Hns.
 unfold newton_segments in Hns.
