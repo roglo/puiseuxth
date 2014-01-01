@@ -965,9 +965,8 @@ remember (fin_pt ns) as kk.
 destruct kk as (k, αk).
 remember Hns as Hg; clear HeqHg.
 eapply gamma_value_jk in Hg; try eassumption.
-remember (bl pol) as psl.
 subst hsl.
-remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
+remember (List.nth (Z.to_nat (Qnum j)) (bl pol) .0 f%ps) as jps.
 eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  2: rewrite Heqjj.
  2: apply ini_fin_ns_in_init_pts; assumption.
@@ -975,7 +974,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  destruct Heqjps as (Hjps, Hjv).
  eapply com_den_of_ps_list in Hjv; try eassumption.
  destruct Hjv as (mj, Hαj).
- remember (List.nth (Z.to_nat (Qnum k)) psl (an pol)) as kps.
+ remember (List.nth (Z.to_nat (Qnum k)) (bl pol) .0 f%ps) as kps.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
   2: rewrite Heqkk.
   2: apply ini_fin_ns_in_init_pts; assumption.
