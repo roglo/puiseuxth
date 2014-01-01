@@ -1436,9 +1436,9 @@ Qed.
 (* *)
 
 Definition is_polynomial_in_x_power_q pol q :=
-  ∀ i c, (i mod q ≠ 0)%nat →
-    c = List.nth i (al pol) (fld_zero f)
-    → fld_eq f (fld_zero f) c.
+  ∀ i c, (i mod q ≠ 0)%nat
+  → c = List.nth i (bl pol) .0 f%F
+    → (c .= f .0 f)%F.
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1469,8 +1469,8 @@ Open Scope nat_scope.
 Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl k d,
   s ≤ i
   → j + s ≤ power t
-    → List.nth (i - s) (make_char_pol f (j + s) [t … tl] k) d =
-      List.nth i (make_char_pol f j [t … tl] k) d.
+    → List.nth (i - s) (make_char_pol f (j + s) [t … tl] k []) d =
+      List.nth i (make_char_pol f j [t … tl] k []) d.
 Proof.
 intros i j s t tl k d Hsi Hjsk.
 revert i j t tl k d Hsi Hjsk.
@@ -1509,7 +1509,7 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
             → S i mod q ≠ 0
               → (List.nth i
                   (make_char_pol f (S j)
-                     (List.map (term_of_point f pol) tl) k) (fld_zero f)
+                     (List.map (term_of_point f pol) tl) k []) (fld_zero f)
                  .= f fld_zero f)%F.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
@@ -1903,7 +1903,7 @@ Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk 
   → cpol = characteristic_polynomial f pol ns
     → (inject_Z j, αj) = ini_pt ns
       → (inject_Z k, αk) = fin_pt ns
-        → m = series_list_com_den (al pol ++ [an pol])
+        → m = series_list_com_den (bl pol)
           → ∃ mj mk, αj == mj # m ∧ αk == mk # m
             ∧ ∃ p q, Z.gcd p ('q) = 1
               ∧ (∃ sk, k = j + 'sk * 'q)
