@@ -950,7 +950,7 @@ Qed.
 
 Theorem gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments f pol
-  → m = series_list_com_den (al pol ++ [an pol])
+  → m = series_list_com_den (bl pol)
     → ∃ (p : Z) (q : positive),
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
@@ -965,7 +965,7 @@ remember (fin_pt ns) as kk.
 destruct kk as (k, αk).
 remember Hns as Hg; clear HeqHg.
 eapply gamma_value_jk in Hg; try eassumption.
-remember (al pol ++ [an pol]) as psl.
+remember (bl pol) as psl.
 subst hsl.
 remember (List.nth (Z.to_nat (Qnum j)) psl (an pol)) as jps.
 eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
