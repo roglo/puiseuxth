@@ -1313,7 +1313,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → m = series_list_com_den (al pol ++ [an pol])
+      → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ ('q | k - j)
@@ -1353,7 +1353,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → m = series_list_com_den (al pol ++ [an pol])
+      → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ (∃ sk, k = j + 'sk * 'q)
