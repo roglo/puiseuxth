@@ -1960,7 +1960,6 @@ destruct i.
     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
     subst c.
-    symmetry.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
      eapply oth_pts_sorted; eassumption.
 
