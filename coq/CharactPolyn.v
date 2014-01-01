@@ -1949,6 +1949,156 @@ destruct i.
  unfold nofq in Hc; simpl in Hc.
  destruct Hqjk as (sk, Hqjk).
  rewrite Hqjk in Hc; simpl in Hc.
+ rename q into qp.
+ remember (Pos.to_nat qp) as q.
+ destruct q.
+  pose proof (Pos2Nat.is_pos qp) as H.
+  rewrite <- Heqq in H; apply lt_irrefl in H; contradiction.
+
+  rename sk into skp.
+  remember (Pos.to_nat skp) as sk.
+  destruct sk.
+   pose proof (Pos2Nat.is_pos skp) as H.
+   rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
+
+   subst c.
+   apply
+    nth_is_zero
+     with (q := Pos.to_nat qp) (k := Z.to_nat kz) (sk := Pos.to_nat skp).
+    apply Pos2Nat.is_pos.
+
+    apply Pos2Nat.is_pos.
+
+    subst kz.
+    rewrite Z2Nat.inj_add; try apply Pos2Z.is_nonneg.
+     rewrite Z2Nat.inj_mul; try apply Pos2Z.is_nonneg.
+     reflexivity.
+
+     unfold newton_segments in Hns.
+     remember (points_of_ps_polynom f pol) as pts.
+     remember Heqpts as H; clear HeqH.
+     symmetry in H.
+     apply pt_absc_is_nat with (pt := ini_pt ns) in H.
+      rewrite <- Hj in H; simpl in H.
+      unfold Qnat in H.
+      injection H; clear H; intros H.
+      rewrite H.
+      apply Nat2Z.is_nonneg.
+
+      apply ini_fin_ns_in_init_pts in Hns.
+      destruct Hns; assumption.
+
+    rewrite Pos2Z.inj_mul, <- Hqjk, Hk.
+    eapply oth_fin_pts_sorted; eassumption.
+
+    intros hq αh Hhαh.
+    apply List.in_app_or in Hhαh.
+    destruct Hhαh as [Hhαh| Hhαh].
+     assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
+      unfold newton_segments in Hns.
+      remember (points_of_ps_polynom f pol) as pts.
+      symmetry in Heqpts.
+      apply pt_absc_is_nat with (pt := (hq, αh)) in Heqpts.
+       simpl in Heqpts.
+       move Heqpts at bottom.
+       rewrite Heqpts in Hhαh.
+       unfold Qnat in Hhαh.
+       rewrite Z2Nat.id in Hhαh.
+        assumption.
+
+        rewrite Heqpts; simpl.
+        apply Nat2Z.is_nonneg.
+
+       eapply oth_pts_in_init_pts; eassumption.
+
+      apply Hmh in Hin.
+      destruct Hin as (mh, (sh, (Hαh, Hhq))).
+      exists (Z.to_nat (Qnum hq)), (Pos.to_nat sh).
+      split.
+       replace hq with (fst (hq, αh)) by reflexivity.
+       unfold newton_segments in Hns.
+       remember (points_of_ps_polynom f pol) as pts.
+       symmetry in Heqpts.
+       eapply pt_absc_is_nat; [ eassumption | idtac ].
+       eapply oth_pts_in_init_pts; eassumption.
+
+       split; [ apply Pos2Nat.is_pos | idtac ].
+       split.
+        rewrite Hhq.
+        rewrite Z2Nat.inj_add.
+         rewrite Z2Nat.inj_mul; try apply Zle_0_pos.
+         simpl; rewrite <- Heqq.
+         reflexivity.
+
+         unfold newton_segments in Hns.
+         remember (points_of_ps_polynom f pol) as pts.
+         symmetry in Heqpts.
+         apply pt_absc_is_nat with (pt := ini_pt ns) in Heqpts.
+          rewrite <- Hj in Heqpts.
+          simpl in Heqpts.
+          move Heqpts at bottom.
+          unfold inject_Z, Qnat in Heqpts.
+          injection Heqpts; clear Heqpts; intros H; rewrite H.
+          apply Zle_0_nat.
+
+          apply ini_fin_ns_in_init_pts; assumption.
+
+         apply Zle_0_pos.
+
+        eapply h_lt_k; try eassumption.
+         unfold newton_segments in Hns.
+         remember (points_of_ps_polynom f pol) as pts.
+         symmetry in Heqpts.
+         apply pt_absc_is_nat with (pt := (hq, αh)) in Heqpts.
+          assumption.
+
+          eapply oth_pts_in_init_pts; try eassumption.
+
+         unfold newton_segments in Hns.
+         remember (points_of_ps_polynom f pol) as pts.
+         symmetry in Heqpts.
+         apply pt_absc_is_nat with (pt := fin_pt ns) in Heqpts.
+          rewrite <- Hk in Heqpts.
+          assumption.
+
+          apply ini_fin_ns_in_init_pts in Hns.
+          destruct Hns; assumption.
+
+     destruct Hhαh as [Hhαh| ]; [ idtac | contradiction ].
+bbb.
+
+intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
+remember Hns as H; clear HeqH.
+eapply h_is_j_plus_sq in H; try eassumption.
+destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, Hmh)))))))).
+exists mj, mk.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+exists p, q.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+remember Hns as H; clear HeqH.
+apply ini_fin_ns_in_init_pts in H.
+destruct H as (Hini, Hfin).
+eapply pt_absc_is_nat in Hini; [ idtac | reflexivity ].
+eapply pt_absc_is_nat in Hfin; [ idtac | reflexivity ].
+rename j into jz.
+rename k into kz.
+unfold is_polynomial_in_x_power_q.
+intros i c Himq Hc.
+subst cpol.
+unfold characteristic_polynomial in Hc; simpl in Hc.
+rewrite minus_diag in Hc; simpl in Hc.
+destruct i.
+ exfalso; apply Himq.
+ apply Nat.mod_0_l.
+ apply Pos2Nat_ne_0.
+
+ rewrite <- Hj, <- Hk in Hc; simpl in Hc.
+ unfold nofq in Hc; simpl in Hc.
+ destruct Hqjk as (sk, Hqjk).
+ rewrite Hqjk in Hc; simpl in Hc.
 (*
  rewrite Z2Nat.inj_add in Hc; simpl in Hc.
   rewrite Pos2Nat.inj_mul in Hc.
@@ -1967,12 +2117,14 @@ destruct i.
     rewrite <- Heqsk in H; apply lt_irrefl in H; contradiction.
 
     subst c.
+bbb.
     eapply nth_is_zero; try reflexivity; try assumption; try apply lt_0_Sn.
     rewrite Pos2Z.inj_mul, <- Hqjk, Hk.
      eapply oth_fin_pts_sorted; eassumption.
 
      intros hq αh Hhαh.
      assert ((inject_Z (Qnum hq), αh) ∈ oth_pts ns) as Hin.
+bbb.
       unfold newton_segments in Hns.
       remember (points_of_ps_polynom f pol) as pts.
       symmetry in Heqpts.
