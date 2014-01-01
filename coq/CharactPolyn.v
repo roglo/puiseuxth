@@ -1498,6 +1498,7 @@ induction s; intros.
   apply Nat.lt_le_incl; assumption.
 Qed.
 
+(* à voir...
 Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
   0 < q
   → 0 < sk
@@ -1616,6 +1617,7 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply not_eq_sym in Hne.
    apply le_neq_lt; assumption.
 Qed.
+*)
 
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
