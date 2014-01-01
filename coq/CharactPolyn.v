@@ -870,14 +870,13 @@ assert (pow ≤ Z.to_nat (Qnum h)) as H.
      apply le_neq_lt; assumption.
 Qed.
 
-Lemma in_pts_in_pol : ∀ pol pts psl h hv hps def,
+Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom f pol
-  → psl = al pol ++ [an pol]
-    → (h, hv) ∈ pts
-      → hps = List.nth (Z.to_nat (Qnum h)) psl def
-        → hps ∈ psl ∧ valuation f hps = Some hv.
+  → (h, hv) ∈ pts
+    → hps = List.nth (Z.to_nat (Qnum h)) (bl pol) def
+      → hps ∈ bl pol ∧ valuation f hps = Some hv.
 Proof.
-intros pol pts psl h hv hps def Hpts Hpsl Hhhv Hhps.
+intros pol pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
 rewrite Nat.sub_0_r; eassumption.
 Qed.
