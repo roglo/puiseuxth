@@ -1179,7 +1179,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (inject_Z j, αj) = ini_pt ns
     → (inject_Z k, αk) = fin_pt ns
-      → m = series_list_com_den (al pol ++ [an pol])
+      → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p ('q) = 1
             ∧ 'q * (mj - mk) = p * (k - j)
@@ -1193,8 +1193,7 @@ eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
 destruct Heqm as (p, (q, (Hgamma, Hgcd))).
 remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
-remember (al pol ++ [an pol]) as psl.
-remember (List.nth (Z.to_nat (Qnum (inject_Z j))) psl (an pol)) as jps.
+remember (List.nth (Z.to_nat (Qnum (inject_Z j))) (bl pol) .0 f%ps) as jps.
 eapply in_pts_in_pol in Heqjps; try eassumption.
  2: apply ini_fin_ns_in_init_pts in Hns.
  2: destruct Hns as (Hns, _).
@@ -1205,7 +1204,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply com_den_of_ps_list in Hmj; try eassumption.
  destruct Hmj as (mj, Hmj).
  exists mj.
- remember (List.nth (Z.to_nat (Qnum (inject_Z k))) psl (an pol)) as kps.
+ remember (List.nth (Z.to_nat (Qnum (inject_Z k))) (bl pol) .0 f%ps) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: apply ini_fin_ns_in_init_pts in Hns.
   2: destruct Hns as (_, Hns).
@@ -1258,7 +1257,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
      remember Hpts as Hhn; clear HeqHhn.
      symmetry in Hhn.
      apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
-      remember (List.nth (Z.to_nat (Qnum hq)) psl (an pol)) as hps.
+      remember (List.nth (Z.to_nat (Qnum hq)) (bl pol) .0 f%ps) as hps.
       eapply in_pts_in_pol in Heqhps; try eassumption.
        2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
        2: rewrite Hpts; eassumption.
