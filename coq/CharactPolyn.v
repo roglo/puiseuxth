@@ -1498,7 +1498,6 @@ induction s; intros.
   apply Nat.lt_le_incl; assumption.
 Qed.
 
-(* à voir...
 Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
   0 < q
   → 0 < sk
@@ -1571,6 +1570,7 @@ destruct (lt_dec i s) as [Hlt| Hge].
     remember (List.map (term_of_point f pol) [t … tl]) as x.
     simpl in Heqx; subst x.
     rewrite nth_minus_char_pol_plus_cons.
+     move Hk at bottom.
      eapply IHtl; try eapply Sorted_inv_1; try eassumption.
      intros hq₁ αh₁ Hhαh₁.
      destruct Hhαh₁ as [| Hhαh₁].
@@ -1617,7 +1617,6 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply not_eq_sym in Hne.
    apply le_neq_lt; assumption.
 Qed.
-*)
 
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
