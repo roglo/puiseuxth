@@ -976,6 +976,23 @@ rewrite <- Heqii in Heqpts; simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
+Lemma exists_oth_pt_nat : ∀ pol ns pt,
+  ns ∈ newton_segments f pol
+  → pt ∈ oth_pts ns
+    → ∃ h αh, pt = (Qnat h, αh).
+Proof.
+intros pol ns pt Hns Hpt.
+destruct pt as ((inum, iden), αi).
+exists (Z.to_nat inum), αi.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom f pol) as pts.
+symmetry in Heqpts.
+eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
+eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
+simpl in Heqpts.
+rewrite Heqpts; reflexivity.
+Qed.
+
 (* [Walker, p. 100]: «
                         p
           γ₁ = [...] = ---
@@ -1985,6 +2002,16 @@ destruct i.
   eapply oth_fin_pts_sorted; eassumption.
 
   intros hq αh Hhαh.
+  apply List.in_app_or in Hhαh.
+  destruct Hhαh as [Hhαh| Hhαh].
+   remember Hns as Hh; clear HeqHh.
+   eapply exists_oth_pt_nat in Hh; [ idtac | eassumption ].
+   destruct Hh as (h, (ah, Hh)).
+   injection Hh; clear Hh; intros; subst ah hq.
+   apply Hmh in Hhαh.
+   destruct Hhαh as (mh, (sh, (Hah, Hh))).
+   destruct sh.
+    rewrite Nat.add_comm in Hh; simpl in Hh.
 bbb.
   apply List.in_app_or in Hhαh.
   destruct Hhαh as [Hhαh| Hhαh].
