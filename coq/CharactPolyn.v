@@ -1305,6 +1305,28 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
      subst hq; assumption.
 Qed.
 
+Lemma mul_pos_nonneg : ∀ j k c d,
+  (j < k)%nat
+  → Z.of_nat (k - j) = c * Z.of_nat d
+    → 0 <= c.
+Proof.
+intros j k c d Hjk Hc.
+apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
+ destruct d.
+  rewrite Z.mul_comm in Hc; simpl in Hc.
+  rewrite <- Nat2Z.inj_0 in Hc.
+  apply Nat2Z.inj in Hc.
+  apply Nat.sub_0_le in Hc.
+  apply Nat.nlt_ge in Hc.
+  exfalso; apply Hc.
+  contradiction.
+
+  apply Pos2Z.is_pos.
+
+ rewrite <- Hc; simpl.
+ apply Nat2Z.is_nonneg.
+Qed.
+
 (* [Walker, p. 100]: « In the first place, we note that [...]
    and since p and q have no common factors, q is a factor
   of h - j. » *)
@@ -1321,6 +1343,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
                 ∧ (q | h - j)%nat.
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
+remember Hns as Hns_v; clear HeqHns_v.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
 destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
 exists mj, mk.
@@ -1339,31 +1362,34 @@ split.
   apply Nat2Z.inj.
   rewrite Nat2Z.inj_mul.
   rewrite Z2Nat.id; [ assumption | idtac ].
-bbb.
+  eapply mul_pos_nonneg; try eassumption.
+  eapply j_lt_k; try eassumption.
+   rewrite <- Hj.
+   unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
 
-intros pol ns j αj k αk m Hns Hj Hk Heqm.
-eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
-exists mj, mk.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-exists p, q.
-split; [ assumption | idtac ].
-split.
- rewrite Z.gcd_comm in Hgcd.
- eapply Z.gauss; [ idtac | eassumption ].
- rewrite <- Hqjk.
- apply Z.divide_factor_l.
+   rewrite <- Hk.
+   unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
 
  intros h αh Hm.
+ remember Hm as Hm_v; clear HeqHm_v.
  apply H in Hm.
  destruct Hm as (mh, (Hmh, Heq)).
  exists mh.
  split; [ assumption | idtac ].
  rewrite Z.gcd_comm in Hgcd.
- eapply Z.gauss; [ idtac | eassumption ].
- rewrite <- Heq.
- apply Z.divide_factor_l.
+ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
+  2: rewrite <- Heq.
+  2: apply Z.divide_factor_l.
+
+  destruct Hgcd as (c, Hc).
+  exists (Z.to_nat c).
+  apply Nat2Z.inj.
+  rewrite Nat2Z.inj_mul.
+  rewrite Z2Nat.id; [ assumption | idtac ].
+  eapply mul_pos_nonneg; try eassumption.
+  eapply j_lt_h; try reflexivity; try eassumption.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
