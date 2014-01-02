@@ -1322,7 +1322,19 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
+destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
+exists mj, mk.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+exists p, q.
+split; [ assumption | idtac ].
+split.
+ rewrite Z.gcd_comm in Hgcd.
+ apply Z.gauss with (p := Z.of_nat (k - j)) in Hgcd.
 bbb.
+
+intros pol ns j αj k αk m Hns Hj Hk Heqm.
+eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
 destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
