@@ -1026,42 +1026,37 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   rewrite Hg.
   setoid_rewrite Hαj.
   setoid_rewrite Hαk.
-  remember (Z.gcd (mj - mk) (Qnum k - Qnum j)) as g.
+  remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
   exists ((mj - mk) / g)%Z.
-  exists (Z.to_pos ((Qnum k - Qnum j) / g)).
+  exists (Z.to_pos ((Z.of_nat k - Z.of_nat j) / g)).
   split.
-   remember Heqpts as Hjn; clear HeqHjn.
-   symmetry in Hjn.
-   apply pt_absc_is_nat with (pt := ini_pt ns) in Hjn.
-    rewrite <- Heqjj in Hjn; simpl in Hjn.
-    remember Heqpts as Hkn; clear HeqHkn.
-    symmetry in Hkn.
-    apply pt_absc_is_nat with (pt := fin_pt ns) in Hkn.
-     rewrite <- Heqkk in Hkn; simpl in Hkn.
-     rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
-     apply p_mq_formula; [ idtac | assumption ].
-     rewrite <- Nat2Z.inj_sub.
-      rewrite <- Nat2Z.inj_0.
-      apply Nat2Z.inj_lt.
-      apply Nat.lt_add_lt_sub_r; simpl.
-      eapply j_lt_k.
-       subst pts; eassumption.
+   apply p_mq_formula; [ idtac | assumption ].
+   rewrite <- Nat2Z.inj_sub.
+    rewrite <- Nat2Z.inj_0.
+    apply Nat2Z.inj_lt.
+    apply Nat.lt_add_lt_sub_r; simpl.
+    eapply j_lt_k.
+     subst pts; eassumption.
 
-       rewrite <- Heqjj, Hjn; reflexivity.
+     rewrite <- Hini; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-       rewrite <- Heqkk, Hkn; reflexivity.
+     rewrite <- Hfin; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-      apply Nat.lt_le_incl.
-      eapply j_lt_k.
-       subst pts; eassumption.
+    apply Nat.lt_le_incl.
+    eapply j_lt_k.
+     subst pts; eassumption.
 
-       rewrite <- Heqjj, Hjn; reflexivity.
+     rewrite <- Hini; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-       rewrite <- Heqkk, Hkn; reflexivity.
-
-     apply ini_fin_ns_in_init_pts; assumption.
-
-    apply ini_fin_ns_in_init_pts; assumption.
+     rewrite <- Hfin; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
    assert (Qnum j < Qnum k)%Z as Hjk.
     remember Heqpts as Hjn; clear HeqHjn.
