@@ -1211,8 +1211,7 @@ eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
 destruct Heqm as (p, (q, (Hgamma, Hgcd))).
 remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
-bbb.
-remember (List.nth (Z.to_nat (Qnum (Qnat j))) (bl pol) .0 f%ps) as jps.
+remember (List.nth j (bl pol) .0 f%ps) as jps.
 eapply in_pts_in_pol in Heqjps; try eassumption.
  2: apply ini_fin_ns_in_init_pts in Hns.
  2: destruct Hns as (Hns, _).
@@ -1223,7 +1222,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply com_den_of_ps_list in Hmj; try eassumption.
  destruct Hmj as (mj, Hmj).
  exists mj.
- remember (List.nth (Z.to_nat (Qnum (Qnat k))) (bl pol) .0 f%ps) as kps.
+ remember (List.nth k (bl pol) .0 f%ps) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: apply ini_fin_ns_in_init_pts in Hns.
   2: destruct Hns as (_, Hns).
@@ -1236,93 +1235,74 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   exists mk.
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
-  exists p, q.
+  exists p, (Pos.to_nat q).
+  rewrite positive_nat_Z.
   split; [ assumption | idtac ].
-  remember (inject_Z j) as jq.
-  remember (inject_Z k) as kq.
+  remember (Qnat j) as jq.
+  remember (Qnat k) as kq.
   remember Hpts as Hjn; clear HeqHjn.
   symmetry in Hjn.
-  apply pt_absc_is_nat with (pt := (jq, αj)) in Hjn.
-   remember Hpts as Hkn; clear HeqHkn.
-   symmetry in Hkn.
-   apply pt_absc_is_nat with (pt := (kq, αk)) in Hkn.
-    split.
-     remember Hns as Hgh; clear HeqHgh.
-     eapply gamma_value_jk in Hgh; try eassumption.
-     apply eq_Qeq in Hgh.
-     rewrite Hmj, Hmk in Hgh.
-     rewrite <- Qnum_minus_distr_r in Hgh.
-     rewrite Heqjq, Heqkq in Hgh.
-     rewrite Hgamma in Hgh.
-     unfold inject_Z in Hgh.
-     rewrite <- Qnum_minus_distr_r in Hgh.
-     eapply pmq_qmpm; try eassumption.
-      eapply j_lt_k; try eassumption; reflexivity.
+  split.
+   remember Hns as Hgh; clear HeqHgh.
+   eapply gamma_value_jk in Hgh; try eassumption.
+   apply eq_Qeq in Hgh.
+   rewrite Hmj, Hmk in Hgh.
+   rewrite <- Qnum_minus_distr_r in Hgh.
+   rewrite Heqjq, Heqkq in Hgh.
+   rewrite Hgamma in Hgh.
+   unfold Qnat in Hgh.
+   rewrite <- Qnum_minus_distr_r in Hgh.
+   rewrite Nat2Z.inj_sub.
+    eapply pmq_qmpm; try reflexivity; [ idtac | eassumption ].
+    eapply j_lt_k; try eassumption.
+     rewrite <- Hj, Heqjq; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-      unfold nofq.
-      rewrite <- Hj; simpl.
-      rewrite Z2Nat.id; [ rewrite Heqjq; reflexivity | idtac ].
-      simpl in Hjn; rewrite Hjn; simpl.
-      apply Zle_0_nat.
+     rewrite <- Hk, Heqkq; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-      unfold nofq.
-      rewrite <- Hk; simpl.
-      rewrite Z2Nat.id; [ rewrite Heqkq; reflexivity | idtac ].
-      simpl in Hkn; rewrite Hkn; simpl.
-      apply Zle_0_nat.
+    apply Nat.lt_le_incl.
+    eapply j_lt_k; try eassumption.
+     rewrite <- Hj, Heqjq; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-     intros h αh Hh.
-     remember (inject_Z h) as hq.
-     remember Hpts as Hhn; clear HeqHhn.
-     symmetry in Hhn.
-     apply pt_absc_is_nat with (pt := (hq, αh)) in Hhn.
-      remember (List.nth (Z.to_nat (Qnum hq)) (bl pol) .0 f%ps) as hps.
-      eapply in_pts_in_pol in Heqhps; try eassumption.
-       2: eapply oth_pts_in_init_pts in Hns; [ idtac | eassumption ].
-       2: rewrite Hpts; eassumption.
+     rewrite <- Hk, Heqkq; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
 
-       destruct Heqhps as (Hhps, Hhv).
-       eapply com_den_of_ps_list in Hhps; try eassumption.
-       destruct Hhps as (mh, Hmh).
-       exists mh.
-       split; [ assumption | idtac ].
-       remember Hns as Hgh; clear HeqHgh.
-       eapply gamma_value_jh in Hgh; try eassumption.
-       rewrite Hmj, Hmh in Hgh.
-       rewrite <- Qnum_minus_distr_r in Hgh.
-       rewrite Hgamma in Hgh.
-       unfold inject_Z in Hgh.
-       eapply pmq_qmpm; try eassumption.
-        eapply j_lt_h; eassumption.
+   intros h αh Hh.
+   remember (Qnat h) as hq.
+   remember Hpts as Hhn; clear HeqHhn.
+   symmetry in Hhn.
+   remember (List.nth h (bl pol) .0 f%ps) as hps.
+   eapply in_pts_in_pol in Heqhps; try eassumption.
+    destruct Heqhps as (Hmh, Hhv).
+    eapply com_den_of_ps_list in Hmh; try eassumption.
+    destruct Hmh as (mh, Hmh).
+    exists mh.
+    split; [ eassumption | idtac ].
+    remember Hns as Hgh; clear HeqHgh.
+    eapply gamma_value_jh in Hgh; try eassumption.
+    rewrite Hmj, Hmh in Hgh.
+    rewrite <- Qnum_minus_distr_r in Hgh.
+    rewrite Hgamma in Hgh.
+    rewrite Heqjq, Heqhq in Hgh.
+    unfold Qnat in Hgh.
+    rewrite <- Qnum_minus_distr_r in Hgh.
+    rewrite Nat2Z.inj_sub.
+     eapply pmq_qmpm; try reflexivity; [ idtac | eassumption ].
+     eapply j_lt_h; try eassumption.
 
-        unfold Qnat in Hjn.
-        rewrite Heqjq in Hjn |- *.
-        unfold inject_Z in Hjn; simpl in Hjn.
-        injection Hjn; intros jj; assumption.
+     apply Nat.lt_le_incl.
+     eapply j_lt_h; eassumption.
 
-        unfold Qnat in Hhn.
-        rewrite Heqhq in Hhn |- *.
-        unfold inject_Z in Hhn; simpl in Hhn.
-        injection Hhn; intros hh; assumption.
+    eapply oth_pts_in_init_pts in Hns.
+     rewrite <- Hpts in Hns; eassumption.
 
-        rewrite Heqhq, Heqjq in Hgh.
-        unfold inject_Z in Hgh.
-        rewrite <- Qnum_minus_distr_r in Hgh.
-        eassumption.
-
-      unfold newton_segments in Hns.
-      rewrite <- Hpts in Hns.
-      eapply oth_pts_in_init_pts; eassumption.
-
-    unfold newton_segments in Hns.
-    rewrite <- Hpts in Hns.
-    rewrite Hk.
-    apply ini_fin_ns_in_init_pts; assumption.
-
-   unfold newton_segments in Hns.
-   rewrite <- Hpts in Hns.
-   rewrite Hj.
-   apply ini_fin_ns_in_init_pts; assumption.
+     subst hq; assumption.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
