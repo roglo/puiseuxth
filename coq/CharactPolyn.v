@@ -1947,8 +1947,7 @@ Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
-bbb.
-destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, Hmh)))))))).
+destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, Hmh))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
@@ -1956,6 +1955,8 @@ exists p, q.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+bbb.
 remember Hns as H; clear HeqH.
 apply ini_fin_ns_in_init_pts in H.
 destruct H as (Hini, Hfin).
