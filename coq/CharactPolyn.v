@@ -1435,36 +1435,28 @@ split.
   exists (S sk).
   symmetry.
   apply Nat.add_sub_eq_nz; [ idtac | assumption ].
-bbb.
+  destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
+  intros HH; discriminate HH.
 
  intros h αh Hm.
  remember Hm as HH; clear HeqHH.
  apply H in HH.
  destruct HH as (mh, (Hmh, Heq)).
  exists mh.
- destruct Heq as (sh, Hq).
- destruct sh as [| sh| sh].
-  simpl in Hq.
-  apply Zminus_eq in Hq.
-  eapply jz_lt_hz with (hz := h) in Hm; try eassumption; try reflexivity.
-  apply Zlt_irrefl in Hm; contradiction.
+ destruct Heq as (sh, Hsh).
+ destruct sh as [| sh].
+  simpl in Hsh.
+  apply Nat.sub_0_le in Hsh.
+  apply Nat.nlt_ge in Hsh.
+  exfalso; apply Hsh.
+  eapply j_lt_h; try eassumption; reflexivity.
 
-  exists sh.
+  exists (S sh).
   split; [ assumption | idtac ].
-  rewrite <- Hq.
-  rewrite Zplus_minus; reflexivity.
-
-  eapply jz_lt_hz with (hz := h) in Hns; try eassumption; try reflexivity.
-  simpl in Hns.
-  apply Z.sub_move_r in Hq.
-  rewrite Hq in Hns.
-  replace j with (0 + j)%Z in Hns by reflexivity.
-  rewrite Zplus_assoc, Zplus_0_r in Hns.
-  apply Zplus_lt_reg_r in Hns.
-  apply Zlt_not_le in Hns.
-  exfalso; apply Hns.
-  apply Z.lt_le_incl.
-  apply Zlt_neg_0.
+  symmetry.
+  apply Nat.add_sub_eq_nz; [ idtac | assumption ].
+  destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
+  intros HH; discriminate HH.
 Qed.
 
 (* *)
@@ -1946,7 +1938,7 @@ Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk 
       → (Qnat k, αk) = fin_pt ns
         → m = series_list_com_den (bl pol)
           → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-            ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+            ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
               ∧ (∃ sk, k = j + sk * q)%nat
               ∧ (∀ h αh, (Qnat h, αh) ∈ oth_pts ns
                  → ∃ mh sh, αh == mh # m ∧ h = j + sh * q)%nat
