@@ -871,13 +871,13 @@ Qed.
 
 Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom f pol
-  → (h, hv) ∈ pts
-    → hps = List.nth (Z.to_nat (Qnum h)) (bl pol) def
+  → (Qnat h, hv) ∈ pts
+    → hps = List.nth h (bl pol) def
       → hps ∈ bl pol ∧ valuation f hps = Some hv.
 Proof.
 intros pol pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
-rewrite Nat.sub_0_r; eassumption.
+simpl; rewrite Nat.sub_0_r, Nat2Z.id; eassumption.
 Qed.
 
 Lemma p_mq_formula : ∀ m j k mj mk g,
@@ -940,6 +940,42 @@ destruct (Z.eq_dec (mj - mk) 0)%Z as [Hz| Hnz].
   contradiction.
 Qed.
 
+Lemma exists_ini_pt_nat : ∀ pol ns,
+  ns ∈ newton_segments f pol
+  → ∃ i αi, ini_pt ns = (Qnat i, αi).
+Proof.
+intros pol ns Hns.
+remember (ini_pt ns) as ii.
+destruct ii as ((inum, iden), αi).
+exists (Z.to_nat inum), αi.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom f pol) as pts.
+symmetry in Heqpts.
+apply ini_fin_ns_in_init_pts in Hns.
+destruct Hns as (Hns, _).
+eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
+rewrite <- Heqii in Heqpts; simpl in Heqpts.
+rewrite Heqpts; reflexivity.
+Qed.
+
+Lemma exists_fin_pt_nat : ∀ pol ns,
+  ns ∈ newton_segments f pol
+  → ∃ i αi, fin_pt ns = (Qnat i, αi).
+Proof.
+intros pol ns Hns.
+remember (fin_pt ns) as ii.
+destruct ii as ((inum, iden), αi).
+exists (Z.to_nat inum), αi.
+unfold newton_segments in Hns.
+remember (points_of_ps_polynom f pol) as pts.
+symmetry in Heqpts.
+apply ini_fin_ns_in_init_pts in Hns.
+destruct Hns as (_, Hns).
+eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
+rewrite <- Heqii in Heqpts; simpl in Heqpts.
+rewrite Heqpts; reflexivity.
+Qed.
+
 (* [Walker, p. 100]: «
                         p
           γ₁ = [...] = ---
@@ -955,28 +991,34 @@ Theorem gamma_eq_p_nq : ∀ pol ns m,
 Proof.
 (* À nettoyer *)
 intros pol ns m Hns Hm.
-unfold newton_segments in Hns.
+remember Hns as Hini; clear HeqHini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_ini_pt_nat in Hini.
+apply exists_fin_pt_nat in Hfin.
+destruct Hini as (j, (αj, Hini)).
+destruct Hfin as (k, (αk, Hfin)).
 remember (points_of_ps_polynom f pol) as pts.
 remember (lower_convex_hull_points pts) as hsl.
-remember (ini_pt ns) as jj.
-destruct jj as (j, αj).
-remember (fin_pt ns) as kk.
-destruct kk as (k, αk).
 remember Hns as Hg; clear HeqHg.
+symmetry in Hini, Hfin.
 eapply gamma_value_jk in Hg; try eassumption.
 subst hsl.
-remember (List.nth (Z.to_nat (Qnum j)) (bl pol) .0 f%ps) as jps.
+remember (List.nth j (bl pol) .0 f%ps) as jps.
 eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
- 2: rewrite Heqjj.
- 2: apply ini_fin_ns_in_init_pts; assumption.
+ 2: rewrite Hini.
+ 2: apply ini_fin_ns_in_init_pts.
+ 2: unfold newton_segments in Hns.
+ 2: rewrite <- Heqpts in Hns; assumption.
 
  destruct Heqjps as (Hjps, Hjv).
  eapply com_den_of_ps_list in Hjv; try eassumption.
  destruct Hjv as (mj, Hαj).
- remember (List.nth (Z.to_nat (Qnum k)) (bl pol) .0 f%ps) as kps.
+ remember (List.nth k (bl pol) .0 f%ps) as kps.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
-  2: rewrite Heqkk.
-  2: apply ini_fin_ns_in_init_pts; assumption.
+  2: rewrite Hfin.
+  2: apply ini_fin_ns_in_init_pts.
+  2: unfold newton_segments in Hns.
+  2: rewrite <- Heqpts in Hns; assumption.
 
   destruct Heqkps as (Hkps, Hkv).
   eapply com_den_of_ps_list in Hkv; try eassumption.
@@ -1176,15 +1218,15 @@ Qed.
    » *)
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
-  → (inject_Z j, αj) = ini_pt ns
-    → (inject_Z k, αk) = fin_pt ns
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p ('q) = 1
-            ∧ 'q * (mj - mk) = p * (k - j)
-            ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+            ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
+            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh, αh == mh # m
-                ∧ 'q * (mj - mh) = p * (h - j).
+                ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Heqm as Hm; clear HeqHm.
@@ -1192,7 +1234,8 @@ eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
 destruct Heqm as (p, (q, (Hgamma, Hgcd))).
 remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
-remember (List.nth (Z.to_nat (Qnum (inject_Z j))) (bl pol) .0 f%ps) as jps.
+bbb.
+remember (List.nth (Z.to_nat (Qnum (Qnat j))) (bl pol) .0 f%ps) as jps.
 eapply in_pts_in_pol in Heqjps; try eassumption.
  2: apply ini_fin_ns_in_init_pts in Hns.
  2: destruct Hns as (Hns, _).
@@ -1203,7 +1246,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply com_den_of_ps_list in Hmj; try eassumption.
  destruct Hmj as (mj, Hmj).
  exists mj.
- remember (List.nth (Z.to_nat (Qnum (inject_Z k))) (bl pol) .0 f%ps) as kps.
+ remember (List.nth (Z.to_nat (Qnum (Qnat k))) (bl pol) .0 f%ps) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: apply ini_fin_ns_in_init_pts in Hns.
   2: destruct Hns as (_, Hns).
@@ -1310,18 +1353,19 @@ Qed.
   of h - j. » *)
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
-  → (inject_Z j, αj) = ini_pt ns
-    → (inject_Z k, αk) = fin_pt ns
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p ('q) = 1
-            ∧ ('q | k - j)
-            ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+            ∧ (q | k - j)%nat
+            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh, αh == mh # m
-                ∧ (' q | h - j).
+                ∧ (q | h - j)%nat.
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
+bbb.
 destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
@@ -1350,18 +1394,19 @@ Qed.
    non-negative integer. » *)
 Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
-  → (inject_Z j, αj) = ini_pt ns
-    → (inject_Z k, αk) = fin_pt ns
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p ('q) = 1
-            ∧ (∃ sk, k = j + 'sk * 'q)
-            ∧ ∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-              → ∃ mh (s : positive), αh == mh # m ∧ h = j + 's * 'q.
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+            ∧ (∃ sk, k = j + sk * q)%nat
+            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
+              → ∃ mh s, αh == mh # m ∧ h = (j + s * q)%nat.
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply q_is_factor_of_h_minus_j in H; try eassumption.
+bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
@@ -1907,19 +1952,20 @@ Close Scope nat_scope.
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments f pol
   → cpol = characteristic_polynomial f pol ns
-    → (inject_Z j, αj) = ini_pt ns
-      → (inject_Z k, αk) = fin_pt ns
+    → (Qnat j, αj) = ini_pt ns
+      → (Qnat k, αk) = fin_pt ns
         → m = series_list_com_den (bl pol)
           → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-            ∧ ∃ p q, Z.gcd p ('q) = 1
-              ∧ (∃ sk, k = j + 'sk * 'q)
-              ∧ (∀ h αh, (inject_Z h, αh) ∈ oth_pts ns
-                 → ∃ mh sh, αh == mh # m ∧ h = j + 'sh * 'q)
-              ∧ is_polynomial_in_x_power_q cpol (Pos.to_nat q).
+            ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+              ∧ (∃ sk, k = j + sk * q)%nat
+              ∧ (∀ h αh, (Qnat h, αh) ∈ oth_pts ns
+                 → ∃ mh sh, αh == mh # m ∧ h = j + sh * q)%nat
+              ∧ is_polynomial_in_x_power_q cpol q.
 Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
+bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, Hmh)))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
