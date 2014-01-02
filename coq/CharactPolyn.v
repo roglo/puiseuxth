@@ -1199,7 +1199,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
     → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh, αh == mh # m
@@ -1242,6 +1242,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   remember (Qnat k) as kq.
   remember Hpts as Hjn; clear HeqHjn.
   symmetry in Hjn.
+  split; [ auto | idtac ].
   split.
    remember Hns as Hgh; clear HeqHgh.
    eapply gamma_value_jk in Hgh; try eassumption.
@@ -1336,7 +1337,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
     → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ (q | k - j)%nat
             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh, αh == mh # m
@@ -1345,11 +1346,12 @@ Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as Hns_v; clear HeqHns_v.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
+destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
+split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 split.
  rewrite Z.gcd_comm in Hgcd.
@@ -1401,7 +1403,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
     → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_den (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ (∃ sk, k = j + sk * q)%nat
             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh s, αh == mh # m ∧ h = (j + s * q)%nat.
@@ -1409,46 +1411,31 @@ Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply q_is_factor_of_h_minus_j in H; try eassumption.
-bbb.
-destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hqjk, H)))))))).
+destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
+split; [ assumption | idtac ].
 split.
  destruct Hqjk as (sk, Hqjk).
- destruct sk as [| sk| sk].
+ destruct sk as [| sk].
   simpl in Hqjk.
-  apply Zminus_eq in Hqjk.
-  exfalso.
-  symmetry in Hqjk.
-  revert Hqjk.
-  apply Z.lt_neq.
-  eapply jz_lt_kz; [ eassumption | idtac | idtac ].
-   rewrite <- Hj; reflexivity.
+  apply Nat.sub_0_le in Hqjk.
+  apply Nat.nlt_ge in Hqjk.
+  exfalso; apply Hqjk.
+  eapply j_lt_k; [ eassumption | idtac | idtac ].
+   rewrite <- Hj; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
 
-   rewrite <- Hk; reflexivity.
+   rewrite <- Hk; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
 
-  exists sk.
-  rewrite <- Hqjk.
-  rewrite Zplus_minus; reflexivity.
-
-  apply jz_lt_kz with (jz := j) (kz := k) in Hns.
-   apply Z.sub_le_lt_mono with (n := k) (m := k) in Hns.
-    rewrite Zminus_diag in Hns.
-    rewrite Hqjk in Hns.
-    simpl in Hns.
-    apply Zlt_not_le in Hns.
-    exfalso; apply Hns.
-    apply Z.lt_le_incl.
-    apply Zlt_neg_0.
-
-    reflexivity.
-
-   rewrite <- Hj; reflexivity.
-
-   rewrite <- Hk; reflexivity.
+  exists (S sk).
+  symmetry.
+  apply Nat.add_sub_eq_nz; [ idtac | assumption ].
+bbb.
 
  intros h αh Hm.
  remember Hm as HH; clear HeqHH.
