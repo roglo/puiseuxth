@@ -1331,6 +1331,10 @@ split; [ assumption | idtac ].
 split.
  rewrite Z.gcd_comm in Hgcd.
  apply Z.gauss with (p := Z.of_nat (k - j)) in Hgcd.
+  2: rewrite <- Hqjk.
+  2: apply Z.divide_factor_l.
+
+  destruct Hgcd as (c, Hc).
 bbb.
 
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
