@@ -1058,27 +1058,11 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
      unfold nofq, Qnat; simpl.
      rewrite Nat2Z.id; reflexivity.
 
-   assert (Qnum j < Qnum k)%Z as Hjk.
-    remember Heqpts as Hjn; clear HeqHjn.
-    symmetry in Hjn.
-    apply pt_absc_is_nat with (pt := ini_pt ns) in Hjn.
-     rewrite <- Heqjj in Hjn; simpl in Hjn.
-     remember Heqpts as Hkn; clear HeqHkn.
-     symmetry in Hkn.
-     apply pt_absc_is_nat with (pt := fin_pt ns) in Hkn.
-      rewrite <- Heqkk in Hkn; simpl in Hkn.
-      rewrite Hjn, Hkn in Heqg |- *; simpl in Heqg |- *.
-      apply Nat2Z.inj_lt.
-      eapply j_lt_k.
-       subst pts; eassumption.
+   assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
+    eapply jz_lt_kz; try eassumption.
+     rewrite <- Hini; reflexivity.
 
-       rewrite <- Heqjj, Hjn; reflexivity.
-
-       rewrite <- Heqkk, Hkn; reflexivity.
-
-      apply ini_fin_ns_in_init_pts; assumption.
-
-     apply ini_fin_ns_in_init_pts; assumption.
+     rewrite <- Hfin; reflexivity.
 
     assert (g ≠ 0%Z) as Hgnz.
      rewrite Heqg; intros H.
@@ -1087,57 +1071,55 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
      symmetry in H; revert H.
      apply Z.lt_neq; assumption.
 
-     rewrite Z2Pos.id.
-      apply Z.gcd_div_gcd; assumption.
+     rewrite Z2Pos.id; [ apply Z.gcd_div_gcd; assumption | idtac ].
+     apply Z.div_str_pos.
+     split.
+      assert (0 <= g)%Z.
+       rewrite Heqg; apply Z.gcd_nonneg.
 
-      apply Z.div_str_pos.
-      split.
-       assert (0 <= g)%Z.
-        rewrite Heqg; apply Z.gcd_nonneg.
+       apply Z.gt_lt, Znot_le_gt.
+       intros HH.
+       apply Hgnz.
+       apply Z.le_antisymm; assumption.
 
-        apply Z.gt_lt, Znot_le_gt.
-        intros HH.
-        apply Hgnz.
-        apply Z.le_antisymm; assumption.
+      pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
+      rewrite <- Heqg in H.
+      destruct H as (v, H).
+      destruct v as [| v| v].
+       simpl in H.
+       apply Zminus_eq in H.
+       rewrite H in Hjk.
+       apply Z.lt_irrefl in Hjk; contradiction.
 
-       pose proof (Z.gcd_divide_r (mj - mk) (Qnum k - Qnum j)) as H.
-       rewrite <- Heqg in H.
-       destruct H as (v, H).
-       destruct v as [| v| v].
-        simpl in H.
-        apply Zminus_eq in H.
-        rewrite H in Hjk.
-        apply Z.lt_irrefl in Hjk; contradiction.
+       rewrite H.
+       remember (' v * g)%Z as x.
+       replace g with (1 * g)%Z by apply Zmult_1_l.
+       subst x.
+       apply Zmult_le_compat_r.
+        replace 1%Z with (Z.succ 0)%Z by reflexivity.
+        apply Zlt_le_succ.
+        apply Pos2Z.is_pos.
 
-        rewrite H.
-        remember (' v * g)%Z as x.
-        replace g with (1 * g)%Z by apply Zmult_1_l.
-        subst x.
-        apply Zmult_le_compat_r.
-         replace 1%Z with (Z.succ 0)%Z by reflexivity.
-         apply Zlt_le_succ.
-         apply Pos2Z.is_pos.
+        rewrite Heqg.
+        apply Z.gcd_nonneg.
 
-         rewrite Heqg.
-         apply Z.gcd_nonneg.
+       exfalso.
+       assert (Z.neg v * g < 0)%Z as Hn.
+        apply Z.mul_neg_pos.
+         apply Zlt_neg_0.
 
-        exfalso.
-        assert (Z.neg v * g < 0)%Z as Hn.
-         apply Z.mul_neg_pos.
-          apply Zlt_neg_0.
+         assert (0 <= g)%Z.
+          rewrite Heqg; apply Z.gcd_nonneg.
 
-          assert (0 <= g)%Z.
-           rewrite Heqg; apply Z.gcd_nonneg.
+          apply Z.gt_lt, Znot_le_gt.
+          intros HH.
+          apply Hgnz, Z.le_antisymm; assumption.
 
-           apply Z.gt_lt, Znot_le_gt.
-           intros HH.
-           apply Hgnz, Z.le_antisymm; assumption.
-
-         rewrite <- H in Hn.
-         apply Zlt_not_le in Hn.
-         apply Hn.
-         apply Z.lt_le_incl.
-         revert Hjk; clear; intros; omega.
+        rewrite <- H in Hn.
+        apply Zlt_not_le in Hn.
+        apply Hn.
+        apply Z.lt_le_incl.
+        revert Hjk; clear; intros; omega.
 Qed.
 
 (* [Walker, p. 100]: « If Ph is on L, then also
