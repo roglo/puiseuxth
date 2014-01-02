@@ -1335,6 +1335,10 @@ split.
   2: apply Z.divide_factor_l.
 
   destruct Hgcd as (c, Hc).
+  exists (Z.to_nat c).
+  apply Nat2Z.inj.
+  rewrite Nat2Z.inj_mul.
+  rewrite Z2Nat.id; [ assumption | idtac ].
 bbb.
 
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
