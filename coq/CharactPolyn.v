@@ -1553,8 +1553,8 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
             → S i mod q ≠ 0
               → (List.nth i
                   (make_char_pol f (S j) (List.map (term_of_point f pol) tl))
-                  (fld_zero f)
-                 .= f fld_zero f)%F.
+                  .0 f
+                 .= f .0 f)%F.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
