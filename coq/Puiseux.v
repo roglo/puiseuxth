@@ -92,6 +92,9 @@ inversion Hac; subst.
  inversion Hbd; subst; reflexivity.
 
  simpl.
+ apply pol_add_compat.
+  Focus 2.
+  constructor; [ assumption | constructor ].
 bbb.
 apply ps_pol_add_compat.
 

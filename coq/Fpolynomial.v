@@ -84,6 +84,13 @@ Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
  transitivity proved by (eq_poly_trans (f := f))
  as eq_poly_rel.
 
+Add Parametric Morphism α (f : field α) : (poly_add f)
+  with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
+  as ps_pol_add_morph.
+Proof.
+bbb.
+*)
+
 Section poly.
 
 Variable α : Type.
@@ -118,6 +125,17 @@ induction l₁ as [| x₃]; intros; simpl.
    split; [ idtac | destruct H; assumption ].
    destruct H as (H, _).
    inversion H; assumption.
+Qed.
+
+(* addition compatibility with equality *)
+
+Theorem pol_add_compat : ∀ a b c d,
+  (a .= f c)%pol
+  → (b .= f d)%pol
+    → (a .+ f b .= f c .+ f d)%pol.
+Proof.
+intros a b c d Hac Hbd.
+rewrite Hac, Hbd; reflexivity.
 Qed.
 
 (* addition commutativity *)
