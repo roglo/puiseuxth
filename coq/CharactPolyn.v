@@ -2008,10 +2008,26 @@ destruct i.
    eapply exists_oth_pt_nat in Hh; [ idtac | eassumption ].
    destruct Hh as (h, (ah, Hh)).
    injection Hh; clear Hh; intros; subst ah hq.
+   remember Hhαh as Hhαh_v; clear HeqHhαh_v.
    apply Hmh in Hhαh.
    destruct Hhαh as (mh, (sh, (Hah, Hh))).
    destruct sh.
     rewrite Nat.add_comm in Hh; simpl in Hh.
+    assert (j < h)%nat as Hhj.
+     eapply j_lt_h; try eassumption; reflexivity.
+
+     rewrite Hh in Hhj.
+     exfalso; revert Hhj; apply Nat.lt_irrefl.
+
+    exists h, (S sh).
+    split; [ reflexivity | idtac ].
+    split; [ apply Nat.lt_0_succ | idtac ].
+    rewrite Nat2Z.id.
+    split; [ assumption | idtac ].
+    eapply h_lt_k; try eassumption; reflexivity.
+
+   destruct Hhαh as [Hhαh| ]; [ idtac | contradiction ].
+   injection Hhαh; clear Hhαh; intros; subst hq αh.
 bbb.
   apply List.in_app_or in Hhαh.
   destruct Hhαh as [Hhαh| Hhαh].
