@@ -74,7 +74,7 @@ Definition characteristic_polynomial α (f : field α) pol ns :=
   let j := nofq (fst (ini_pt ns)) in
   {| bl := make_char_pol f j tl |}.
 
-Definition series_list_com_den α (psl : list (puiseux_series α)) :=
+Definition series_list_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
 
 (* *)
@@ -647,7 +647,7 @@ Qed.
    āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
    m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
-  m = series_list_com_den psl
+  m = series_list_com_polord psl
   → ∀ ps αi, ps ∈ psl
     → valuation f ps = Some αi
       → ∃ mi, αi == mi # m.
@@ -655,7 +655,7 @@ Proof.
 intros psl m Hm ps αi Hps Hv.
 apply List.in_split in Hps.
 destruct Hps as (l₁, (l₂, Hpsl)).
-remember (series_list_com_den (l₁ ++ l₂)) as m₁.
+remember (series_list_com_polord (l₁ ++ l₂)) as m₁.
 exists (Qnum αi * Zpos m₁)%Z.
 subst m m₁ psl.
 induction l₁ as [| ps₁]; simpl.
@@ -1002,7 +1002,7 @@ Qed.
 
 Theorem gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments f pol
-  → m = series_list_com_den (bl pol)
+  → m = series_list_com_polord (bl pol)
     → ∃ (p : Z) (q : positive),
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
@@ -1214,7 +1214,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_den (bl pol)
+      → m = series_list_com_polord (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
@@ -1352,7 +1352,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_den (bl pol)
+      → m = series_list_com_polord (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ (q | k - j)%nat
@@ -1418,7 +1418,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_den (bl pol)
+      → m = series_list_com_polord (bl pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ (∃ sk, k = j + sk * q ∧ sk ≠ O)%nat
@@ -1954,7 +1954,7 @@ Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk 
   → cpol = characteristic_polynomial f pol ns
     → (Qnat j, αj) = ini_pt ns
       → (Qnat k, αk) = fin_pt ns
-        → m = series_list_com_den (bl pol)
+        → m = series_list_com_polord (bl pol)
           → ∃ mj mk, αj == mj # m ∧ αk == mk # m
             ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
               ∧ (∃ sk, k = j + sk * q ∧ sk ≠ 0)%nat

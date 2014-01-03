@@ -11,8 +11,6 @@ Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Newton.
 
-Notation "x ∈ l" := (List.In x l) (at level 70).
-
 Lemma two_pts_slope_form : ∀ j αy seg₁ k αk seg₂ hsl,
   Sorted hs_x_lt [ahs (j, αy) seg₁; ahs (k, αk) seg₂ … hsl]
   → αy + j * ((αy - αk) / (k - j)) ==

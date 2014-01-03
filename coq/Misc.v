@@ -10,6 +10,8 @@ Notation "[ x ]" := (cons x nil).
 Notation "x ++ y" := (List.app x y) (right associativity, at level 60).
 Notation "x < y < z" := (x < y ∧ y < z) (at level 70, y at next level).
 Notation "x < y <= z" := (x < y ∧ y <= z) (at level 70, y at next level).
+Notation "x ∈ l" := (List.In x l) (at level 70).
+Notation "x ∉ l" := (not (List.In x l)) (at level 70).
 
 Ltac negation H := exfalso; apply H; reflexivity.
 Tactic Notation "fast_omega" hyp_list(Hs) := revert Hs; clear; intros; omega.
@@ -1443,4 +1445,21 @@ intros a b.
 unfold Nat.lcm.
 exists (b / gcd a b)%nat.
 apply Nat.mul_comm.
+Qed.
+
+Lemma List_in_nth : ∀ A (x : A) l d,
+  x ∈ l
+  → ∃ n, List.nth n l d = x ∧ (n < List.length l)%nat.
+Proof.
+intros A x l d Hx.
+apply List.In_split in Hx.
+destruct Hx as (l₁, (l₂, Hx)).
+exists (List.length l₁).
+subst l; split.
+ induction l₁ as [| y]; [ reflexivity | assumption ].
+
+ rewrite List.app_length; simpl.
+ apply Nat.lt_sub_lt_add_l.
+ rewrite Nat.sub_diag.
+ apply Nat.lt_0_succ.
 Qed.
