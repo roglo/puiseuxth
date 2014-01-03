@@ -96,7 +96,7 @@ inversion Hac; subst.
   Focus 2.
   constructor; [ assumption | constructor ].
 bbb.
-apply ps_pol_add_compat.
+apply pol_mul_compat ?
 
 intros α fld a b c d Hac Hbd.
 inversion Hac; subst.

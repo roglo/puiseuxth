@@ -88,8 +88,31 @@ Add Parametric Morphism α (f : field α) : (poly_add f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as ps_pol_add_morph.
 Proof.
-bbb.
-*)
+intros a c Hac b d Hbd.
+unfold eq_poly, poly_add; simpl.
+unfold eq_poly in Hac, Hbd.
+unfold list_eq in Hac, Hbd |- *.
+remember (al a) as la.
+remember (al b) as lb.
+remember (al c) as lc.
+remember (al d) as ld.
+revert Hac Hbd; clear; intros.
+revert lb lc ld Hac Hbd.
+induction la as [| a]; intros.
+ inversion Hac; subst; simpl.
+ inversion Hbd; subst; constructor; assumption.
+
+ inversion Hac; subst; simpl.
+ destruct lb as [| b].
+  destruct ld as [| d]; [ assumption | inversion Hbd ].
+
+  destruct ld as [| d]; [ inversion Hbd | idtac ].
+  constructor.
+   inversion Hbd; subst.
+   rewrite H1, H4; reflexivity.
+
+   apply IHla; [ inversion Hac | inversion Hbd ]; assumption.
+Qed.
 
 Section poly.
 
