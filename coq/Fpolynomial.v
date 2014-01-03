@@ -11,10 +11,10 @@ Require Import Polynomial.
 
 Set Implicit Arguments.
 
-Definition list_eq := List.Forall2.
+Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 
 Definition eq_poly α (f : field α) (x y : polynomial α) :=
-  list_eq (fld_eq f) (al x) (al y).
+  list_eq f (al x) (al y).
 
 Definition poly_add α (f : field α) := pol_add (fld_add f).
 Definition poly_mul α (f : field α) := pol_mul .0 f%F (fld_add f) (fld_mul f).
@@ -114,6 +114,31 @@ induction la as [| a]; intros.
    apply IHla; [ inversion Hac | inversion Hbd ]; assumption.
 Qed.
 
+(*
+Lemma zzz : ∀ α (f : field α) l i len,
+  list_eq (fld_eq f)
+    (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] l i len) [].
+Proof.
+intros α f l i len.
+bbb.
+*)
+
+Lemma fold_list_eq : ∀ α (f : field α), List.Forall2 (fld_eq f) = list_eq f.
+Proof. reflexivity. Qed.
+
+(* TODO: try to make the most general version *)
+Lemma zzz : ∀ α (f : field α) x y l l',
+  (x .= f y)%F
+  → list_eq f l l'
+    → list_eq f
+        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [x … l] 1
+           (length l))
+        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [y … l'] 1
+           (length l')).
+Proof.
+intros α f x y l l' Hxy Hll'.
+bbb.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as ps_pol_mul_morph.
@@ -121,7 +146,6 @@ Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
 unfold eq_poly in Hac, Hbd.
-unfold list_eq in Hac, Hbd |- *.
 remember (al a) as la.
 remember (al b) as lb.
 remember (al c) as lc.
@@ -135,7 +159,9 @@ induction la as [| a]; intros.
   unfold sigma; simpl.
   do 2 rewrite fld_mul_0_l; reflexivity.
 
-   clear Hac Hbd.
+  clear Hac Hbd.
+  rewrite fold_list_eq in H0.
+  rewrite fold_list_eq.
 bbb.
    remember (length l) as len.
    remember (length l') as len'.
