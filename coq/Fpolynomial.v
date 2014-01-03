@@ -139,6 +139,8 @@ induction la as [| a]; intros.
    unfold sigma; simpl.
    do 2 rewrite fld_mul_0_l; reflexivity.
 
+   clear Hac Hbd.
+bbb.
    remember (length l) as len.
    remember (length l') as len'.
    destruct len.
