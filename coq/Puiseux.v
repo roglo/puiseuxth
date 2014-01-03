@@ -29,12 +29,12 @@ Definition ps_pol_mul α (f : field α) :=
   pol_mul (ps_zero f) (ps_add f) (ps_mul f).
 
 Delimit Scope polyn_scope with pol.
-Notation "a = b" := (eq_poly a b) : polyn_scope.
+Notation "a .= f b" := (eq_poly f a b) : polyn_scope.
 
 Delimit Scope ps_polyn_scope with pspol.
-Notation "a = b" := (eq_poly a b) : ps_polyn_scope.
-Notation "a + b" := (ps_pol_add a b) : ps_polyn_scope.
-Notation "a * b" := (ps_pol_mul a b) : ps_polyn_scope.
+Notation "a .= f b" := (eq_poly f a b) : ps_polyn_scope.
+Notation "a .+ f b" := (ps_pol_add f a b) : ps_polyn_scope.
+Notation "a .* f b" := (ps_pol_mul f a b) : ps_polyn_scope.
 
 Notation ".[ f l .]" := (mkpol (ps_field f) l)
   (at level 0, f at level 0) :
@@ -60,8 +60,8 @@ Notation ".< f c .>" := (ps_const f c)
 
 Definition apply_poly_with_ps_poly α (f : field α) pol :=
   apply_poly
-    (λ ps, mkpol [ps])
-    (λ (pol₁ : polynomial f) ps, ps_pol_add f pol₁ {| al := [ps] |})
+    {| al := [] |}
+    (λ pol₁ ps, ps_pol_add f pol₁ {| al := [ps] |})
     (ps_pol_mul f) pol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
