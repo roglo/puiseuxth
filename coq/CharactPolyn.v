@@ -1987,8 +1987,8 @@ destruct i.
  unfold nofq in Hc; simpl in Hc.
  destruct Hqjk as (sk, (Hqjk, Hsk)).
  rewrite Hqjk in Hc; simpl in Hc.
- destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
- destruct sk; [ exfalso; apply Hsk; reflexivity | idtac ].
+ destruct q; [ exfalso; apply Hq; reflexivity | clear Hq ].
+ destruct sk; [ exfalso; apply Hsk; reflexivity | clear Hsk ].
  subst c.
  apply nth_is_zero with (q := S q) (k := k) (sk := S sk).
   apply Nat.lt_0_succ.
