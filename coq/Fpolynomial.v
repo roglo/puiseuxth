@@ -114,6 +114,51 @@ induction la as [| a]; intros.
    apply IHla; [ inversion Hac | inversion Hbd ]; assumption.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (poly_mul f)
+  with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
+  as ps_pol_mul_morph.
+Proof.
+intros a c Hac b d Hbd.
+unfold eq_poly, poly_mul; simpl.
+unfold eq_poly in Hac, Hbd.
+unfold list_eq in Hac, Hbd |- *.
+remember (al a) as la.
+remember (al b) as lb.
+remember (al c) as lc.
+remember (al d) as ld.
+revert Hac Hbd; clear; intros.
+revert lb lc ld Hac Hbd.
+induction la as [| a]; intros.
+ simpl.
+ inversion Hac; subst; simpl.
+ inversion Hbd; subst.
+  constructor.
+
+  simpl.
+  constructor.
+   unfold sigma; simpl.
+   do 2 rewrite fld_mul_0_l; reflexivity.
+
+   remember (length l) as len.
+   remember (length l') as len'.
+   destruct len.
+    simpl.
+    destruct len'.
+     simpl.
+     constructor.
+
+     inversion H0; subst.
+      discriminate Heqlen'.
+
+      discriminate Heqlen.
+
+    destruct len'.
+     inversion H0; subst.
+      discriminate Heqlen.
+
+      discriminate Heqlen'.
+bbb.
+
 Section poly.
 
 Variable α : Type.
@@ -226,6 +271,17 @@ Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
 eapply pol_add_loop_al_assoc; reflexivity.
+Qed.
+
+(* multiplication compatibility with equality *)
+
+Theorem pol_mul_compat : ∀ a b c d,
+  (a .= f c)%pol
+  → (b .= f d)%pol
+    → (a .* f b .= f c .* f d)%pol.
+Proof.
+intros a b c d Hac Hbd.
+rewrite Hac, Hbd; reflexivity.
 Qed.
 
 End poly.
