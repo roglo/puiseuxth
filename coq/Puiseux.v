@@ -92,6 +92,7 @@ inversion Hac; subst.
  inversion Hbd; subst.
   simpl.
 bbb.
+  reflexivity.
 
 intros α fld a b c d Hac Hbd.
 inversion Hac; subst.

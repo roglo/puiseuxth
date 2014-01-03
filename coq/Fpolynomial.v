@@ -26,6 +26,27 @@ Notation "a .* f b" := (poly_mul f a b) : poly_scope.
 
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
 
+Theorem eq_poly_refl α (f : field α) : reflexive _ (eq_poly f).
+Proof.
+bbb.
+*)
+
+Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
+Proof.
+bbb.
+*)
+
+Theorem eq_poly_trans α (f : field α) : transitive _ (eq_poly f).
+Proof.
+bbb.
+*)
+
+Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
+ reflexivity proved by (eq_poly_refl f)
+ symmetry proved by (eq_poly_sym (f := f))
+ transitivity proved by (eq_poly_trans (f := f))
+ as eq_poly_rel.
+
 Section poly.
 
 Variable α : Type.
