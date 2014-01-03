@@ -93,7 +93,7 @@ inversion Hac; subst.
 
  simpl.
 bbb.
-apply fld_add_compat.
+apply ps_pol_add_compat.
 
 intros α fld a b c d Hac Hbd.
 inversion Hac; subst.

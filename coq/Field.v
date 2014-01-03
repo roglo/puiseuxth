@@ -136,8 +136,17 @@ Theorem fld_add_compat_r : ∀ a b c,
   (a .= f b)%F
   → (a .+ f c .= f b .+ f c)%F.
 Proof.
-intros a b c Hab; simpl in Hab |- *.
+intros a b c Hab.
 rewrite Hab; reflexivity.
+Qed.
+
+Theorem fld_add_compat : ∀ a b c d,
+  (a .= f b)%F
+  → (c .= f d)%F
+    → (a .+ f c .= f b .+ f d)%F.
+Proof.
+intros a b c d Hab Hcd.
+rewrite Hab, Hcd; reflexivity.
 Qed.
 
 Theorem fld_mul_compat_r : ∀ a b c,
