@@ -1948,7 +1948,7 @@ Qed.
 
 Close Scope nat_scope.
 
-(* [Walker, p. 100] « ... » *)
+(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments f pol
   → cpol = characteristic_polynomial f pol ns
