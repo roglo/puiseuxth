@@ -13,20 +13,25 @@ Set Implicit Arguments.
 
 Definition list_eq := List.Forall2.
 
+Definition eq_poly α (f : field α) (x y : polynomial α) :=
+  list_eq (fld_eq f) (al x) (al y).
+
+Definition poly_add α (f : field α) := pol_add (fld_add f).
+Definition poly_mul α (f : field α) := pol_mul .0 f%F (fld_add f) (fld_mul f).
+
+Delimit Scope poly_scope with pol.
+Notation "a .= f b" := (eq_poly f a b) : poly_scope.
+Notation "a .+ f b" := (poly_add f a b) : poly_scope.
+Notation "a .* f b" := (poly_mul f a b) : poly_scope.
+
+Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
+
 Section poly.
 
 Variable α : Type.
-Variable F : field α.
+Variable f : field α.
 
-Definition eq_poly (x y : polynomial α) := list_eq (fld_eq F) (al x) (al y).
-
-Definition poly_add := pol_add (fld_add F).
-Definition poly_mul := pol_mul (fld_zero F) (fld_add F) (fld_mul F).
-
-Definition Pdivide (x y : polynomial α) :=
-  ∃ z, eq_poly y (poly_mul z x).
-
-Lemma list_eq_refl : ∀ l, list_eq (fld_eq F) l l.
+Lemma list_eq_refl : ∀ l, list_eq (fld_eq f) l l.
 Proof.
 intros l.
 induction l; constructor; [ reflexivity | assumption ].
@@ -60,9 +65,9 @@ Qed.
 (* addition commutativity *)
 
 Lemma pol_add_loop_al_comm : ∀ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add F) al₁ al₂
-  → rp₂ = pol_add_loop (fld_add F) al₂ al₁
-    → list_eq (fld_eq F) rp₁ rp₂.
+  rp₁ = pol_add_loop (fld_add f) al₁ al₂
+  → rp₂ = pol_add_loop (fld_add f) al₂ al₁
+    → list_eq (fld_eq f) rp₁ rp₂.
 Proof.
 intros al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -77,8 +82,7 @@ induction al₁; intros.
   constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
 
-Lemma poly_add_comm : ∀ pol₁ pol₂,
-  eq_poly (poly_add pol₁ pol₂) (poly_add pol₂ pol₁).
+Lemma poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
 unfold eq_poly.
@@ -88,9 +92,9 @@ Qed.
 (* addition associativity *)
 
 Lemma pol_add_loop_al_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add F) (pol_add_loop (fld_add F) al₁ al₂) al₃
-  → rp₂ = pol_add_loop (fld_add F) al₁ (pol_add_loop (fld_add F) al₂ al₃)
-    → list_eq (fld_eq F) rp₁ rp₂.
+  rp₁ = pol_add_loop (fld_add f) (pol_add_loop (fld_add f) al₁ al₂) al₃
+  → rp₂ = pol_add_loop (fld_add f) al₁ (pol_add_loop (fld_add f) al₂ al₃)
+    → list_eq (fld_eq f) rp₁ rp₂.
 Proof.
 intros al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -118,9 +122,7 @@ induction al₁; intros.
 Qed.
 
 Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
-  eq_poly
-    (poly_add (poly_add pol₁ pol₂) pol₃)
-    (poly_add pol₁ (poly_add pol₂ pol₃)).
+  ((pol₁ .+ f pol₂) .+ f pol₃ .= f pol₁ .+ f (pol₂ .+ f pol₃))%pol.
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.

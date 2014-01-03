@@ -28,9 +28,6 @@ Definition ps_pol_add α (f : field α) :=
 Definition ps_pol_mul α (f : field α) :=
   pol_mul (ps_zero f) (ps_add f) (ps_mul f).
 
-Delimit Scope poly_scope with pol.
-Notation "a .= f b" := (eq_poly f a b) : poly_scope.
-
 Delimit Scope ps_poly_scope with pspol.
 Notation "a .= f b" := (eq_poly f a b) : ps_poly_scope.
 Notation "a .+ f b" := (ps_pol_add f a b) : ps_poly_scope.
@@ -79,21 +76,21 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-(*
+(**)
 Lemma yyy : ∀ α (f : field α) a b c d,
-  eq_poly (ps_field f) a c
-  → eq_poly (ps_field f) b d
-    → (apply_poly {| al := [] |}
-        (λ pol₁ ps, pol₁ .+ f {| al := [ps] |}) (ps_pol_mul f) a b .= 
-       (ps_field f)
-       apply_poly {| al := [] |}
-         (λ pol₁ ps, pol₁ .+ f {| al := [ps] |}) (ps_pol_mul f) c d)%pspol.
+  (a .= (ps_field f) c)%pspol
+  → (b .= (ps_field f) d)%pspol
+    → (List.fold_right
+         (λ x accu, accu .* f b .+ f {| al := [x] |}) {| al := [] |} 
+         (al a) .= (ps_field f)
+       List.fold_right
+         (λ x accu, accu .* f d .+ f {| al := [x] |}) {| al := [] |} 
+         (al c))%pspol.
 Proof.
-intros α fld a b c d Hac Hbd.
+intros α f a b c d Hac Hbd.
 inversion Hac; subst.
  inversion Hbd; subst.
-  unfold eq_poly; simpl.
-  unfold list_eq.
+  simpl.
 bbb.
 
 intros α fld a b c d Hac Hbd.
@@ -116,8 +113,7 @@ Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   as apply_poly_with_ps_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
-unfold apply_poly_with_ps_poly; simpl.
-Show.
+unfold apply_poly_with_ps_poly, apply_poly.
 rewrite yyy; try eassumption.
 bbb.
 inversion Hac; subst.
