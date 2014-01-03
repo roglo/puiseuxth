@@ -89,10 +89,11 @@ Lemma yyy : ∀ α (f : field α) a b c d,
 Proof.
 intros α f a b c d Hac Hbd.
 inversion Hac; subst.
- inversion Hbd; subst.
-  simpl.
+ inversion Hbd; subst; reflexivity.
+
+ simpl.
 bbb.
-  reflexivity.
+apply fld_add_compat.
 
 intros α fld a b c d Hac Hbd.
 inversion Hac; subst.
