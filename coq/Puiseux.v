@@ -28,13 +28,13 @@ Definition ps_pol_add α (f : field α) :=
 Definition ps_pol_mul α (f : field α) :=
   pol_mul (ps_zero f) (ps_add f) (ps_mul f).
 
-Delimit Scope polyn_scope with pol.
-Notation "a .= f b" := (eq_poly f a b) : polyn_scope.
+Delimit Scope poly_scope with pol.
+Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
-Delimit Scope ps_polyn_scope with pspol.
-Notation "a .= f b" := (eq_poly f a b) : ps_polyn_scope.
-Notation "a .+ f b" := (ps_pol_add f a b) : ps_polyn_scope.
-Notation "a .* f b" := (ps_pol_mul f a b) : ps_polyn_scope.
+Delimit Scope ps_poly_scope with pspol.
+Notation "a .= f b" := (eq_poly f a b) : ps_poly_scope.
+Notation "a .+ f b" := (ps_pol_add f a b) : ps_poly_scope.
+Notation "a .* f b" := (ps_pol_mul f a b) : ps_poly_scope.
 
 Notation ".[ f l .]" := (mkpol (ps_field f) l)
   (at level 0, f at level 0) :
@@ -79,19 +79,24 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-Lemma yyy : ∀ α (f : field α) (a b c d : polyn f) cnt i,
-  (a = c)%pol
-  → (b = d)%pol
-    → (apply_polyn_loop (λ x, polyn_of_list f [x])
-         (λ pol x, polyn_add pol (polyn_of_list f [x]))
-         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
-         cnt i (p_series a) b =
-       apply_polyn_loop (λ x, polyn_of_list f [x])
-         (λ pol x, polyn_add pol (polyn_of_list f [x]))
-         (λ pol₁ pol₂, polyn_mul pol₁ pol₂)
-         cnt i (p_series c) d)%pol.
+(*
+Lemma yyy : ∀ α (f : field α) a b c d,
+  eq_poly (ps_field f) a c
+  → eq_poly (ps_field f) b d
+    → (apply_poly {| al := [] |}
+        (λ pol₁ ps, pol₁ .+ f {| al := [ps] |}) (ps_pol_mul f) a b .= 
+       (ps_field f)
+       apply_poly {| al := [] |}
+         (λ pol₁ ps, pol₁ .+ f {| al := [ps] |}) (ps_pol_mul f) c d)%pspol.
 Proof.
-intros α fld a b c d cnt i Hac Hbd.
+intros α fld a b c d Hac Hbd.
+inversion Hac; subst.
+ inversion Hbd; subst.
+  unfold eq_poly; simpl.
+  unfold list_eq.
+bbb.
+
+intros α fld a b c d Hac Hbd.
 inversion Hac; subst.
 inversion Hbd; subst.
 revert i.
@@ -99,19 +104,20 @@ induction cnt; intros; simpl.
  constructor; intros k; simpl.
  destruct k; [ apply H | reflexivity ].
 
-bbb. )
+bbb.
 *)
 
 (**)
 Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
   with signature
-    eq_polyn (f := ps_field fld)
-    ==> eq_polyn (f := ps_field fld)
-        ==> eq_polyn (f := ps_field fld)
+    eq_poly (ps_field fld)
+    ==> eq_poly (ps_field fld)
+        ==> eq_poly (ps_field fld)
   as apply_poly_with_ps_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
 unfold apply_poly_with_ps_poly; simpl.
+Show.
 rewrite yyy; try eassumption.
 bbb.
 inversion Hac; subst.
