@@ -131,13 +131,9 @@ revert lb lc ld Hac Hbd.
 induction la as [| a]; intros.
  simpl.
  inversion Hac; subst; simpl.
- inversion Hbd; subst.
-  constructor.
-
-  simpl.
-  constructor.
-   unfold sigma; simpl.
-   do 2 rewrite fld_mul_0_l; reflexivity.
+ inversion Hbd; subst; simpl; constructor.
+  unfold sigma; simpl.
+  do 2 rewrite fld_mul_0_l; reflexivity.
 
    clear Hac Hbd.
 bbb.
