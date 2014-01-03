@@ -9,6 +9,7 @@ Require Import Field.
 Require Import Misc.
 Require Import Newton.
 Require Import Nbar.
+Require Import Polynomial.
 Require Import Fpolynomial.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -22,26 +23,26 @@ Set Implicit Arguments.
 
 (* *)
 
-Definition ps_pol_add α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
-  polyn_add p₁ p₂.
-Definition ps_pol_mul α (f : field α) (p₁ p₂ : polyn (ps_field f)) :=
-  polyn_mul p₁ p₂.
+Definition ps_pol_add α (f : field α) :=
+  pol_add (ps_add f).
+Definition ps_pol_mul α (f : field α) :=
+  pol_mul (ps_zero f) (ps_add f) (ps_mul f).
 
 Delimit Scope polyn_scope with pol.
-Notation "a = b" := (eq_polyn a b) : polyn_scope.
+Notation "a = b" := (eq_poly a b) : polyn_scope.
 
 Delimit Scope ps_polyn_scope with pspol.
-Notation "a = b" := (eq_polyn a b) : ps_polyn_scope.
+Notation "a = b" := (eq_poly a b) : ps_polyn_scope.
 Notation "a + b" := (ps_pol_add a b) : ps_polyn_scope.
 Notation "a * b" := (ps_pol_mul a b) : ps_polyn_scope.
 
-Notation ".[ f l .]" := (polyn_of_list (ps_field f) l)
+Notation ".[ f l .]" := (mkpol (ps_field f) l)
   (at level 0, f at level 0) :
   ps_polyn_scope.
-Notation ".{ f a .}" := (polyn_of_list (ps_field f) [a])
+Notation ".{ f a .}" := (mkpol (ps_field f) [a])
   (at level 0, f at level 0, a at level 0) :
   ps_polyn_scope.
-Notation ".{ f a + b 'Y' .}" := (polyn_of_list (ps_field f) [a; b … []])
+Notation ".{ f a + b 'Y' .}" := (mkpol (ps_field f) [a; b … []])
   (at level 0, f at level 0, a at level 0, b at level 0) :
   ps_polyn_scope.
 (*
@@ -57,13 +58,11 @@ Notation ".< f c .>" := (ps_const f c)
   (at level 0, f at level 0, c at level 0) : ps_polyn_scope.
 *)
 
-Definition apply_poly_with_ps_poly α (fld : field α)
-    (pol : polyn (ps_field fld)) :=
-  apply_polyn
-    (λ ps, polyn_of_list (ps_field fld) [ps])
-    (λ pol₁ ps, (pol₁ + polyn_of_list (ps_field fld) [ps])%pspol)
-    (λ pol₁ pol₂, (pol₁ * pol₂)%pspol)
-    pol.
+Definition apply_poly_with_ps_poly α (f : field α) pol :=
+  apply_poly
+    (λ ps, mkpol [ps])
+    (λ (pol₁ : polynomial f) ps, ps_pol_add f pol₁ {| al := [ps] |})
+    (ps_pol_mul f) pol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=

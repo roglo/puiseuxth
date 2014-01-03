@@ -7,135 +7,124 @@ Require Import QArith.
 
 Require Import Misc.
 Require Import Field.
-Require Import Power_series.
+Require Import Polynomial.
 
 Set Implicit Arguments.
 
-(* use Polynomial.v again *)
+Definition list_eq := List.Forall2.
 
-Record polyn α (f : field α) :=
-  { p_series : power_series α;
-    degree_ub : nat;
-    fin_prop : ∀ i, degree_ub ≤ i → (p_series .[i] .= f (.0 f))%F }.
+Section poly.
 
-Definition eq_polyn α (f : field α) (p₁ p₂ : polyn f) :=
-  eq_series f (p_series p₁) (p_series p₂).
+Variable α : Type.
+Variable F : field α.
 
-Lemma fin_prop_list : ∀ α (f : field α) l i,
-  List.length l ≤ i
-  → ({| terms i := List.nth i l (.0 f)%F |} .[i] .= f .0 f)%F.
+Definition eq_poly (x y : polynomial α) := list_eq (fld_eq F) (al x) (al y).
+
+Definition poly_add := pol_add (fld_add F).
+Definition poly_mul := pol_mul (fld_zero F) (fld_add F) (fld_mul F).
+
+Definition Pdivide (x y : polynomial α) :=
+  ∃ z, eq_poly y (poly_mul z x).
+
+Lemma list_eq_refl : ∀ l, list_eq (fld_eq F) l l.
 Proof.
-intros α f l i Hlen; simpl.
-rewrite List.nth_overflow; [ reflexivity | assumption ].
+intros l.
+induction l; constructor; [ reflexivity | assumption ].
 Qed.
 
-Definition polyn_of_list α (f : field α) l :=
-  {| p_series := {| terms i := List.nth i l (.0 f)%F |};
-     fin_prop := fin_prop_list f l |}.
-
-(* eq_polyn, an equivalence relation *)
-
-Theorem eq_polyn_refl α (f : field α) : reflexive _ (@eq_polyn α f).
+Lemma list_eq_append_one : ∀ cmp (x₁ x₂ : α) l₁ l₂,
+  list_eq cmp l₁ l₂ ∧ cmp x₁ x₂
+  → list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]).
 Proof.
-intros a.
-unfold eq_polyn; reflexivity.
+intros cmp x₁ x₂ l₁ l₂.
+revert x₁ x₂ l₂.
+induction l₁ as [| x₃]; intros; simpl.
+ destruct l₂ as [| x₄]; simpl.
+  constructor; destruct H; assumption.
+
+  destruct H as (H, _); inversion H.
+
+ destruct l₂ as [| x₄]; simpl.
+  destruct H as (H, _); inversion H.
+
+  constructor.
+   destruct H as (H, _).
+   inversion H; assumption.
+
+   apply IHl₁.
+   split; [ idtac | destruct H; assumption ].
+   destruct H as (H, _).
+   inversion H; assumption.
 Qed.
 
-Theorem eq_polyn_sym α (f : field α) : symmetric _ (@eq_polyn α f).
+(* addition commutativity *)
+
+Lemma pol_add_loop_al_comm : ∀ al₁ al₂ rp₁ rp₂,
+  rp₁ = pol_add_loop (fld_add F) al₁ al₂
+  → rp₂ = pol_add_loop (fld_add F) al₂ al₁
+    → list_eq (fld_eq F) rp₁ rp₂.
 Proof.
-intros a b H.
-unfold eq_polyn; symmetry.
-assumption.
+intros al₁ al₂ rp₁ rp₂ H₁ H₂.
+subst rp₁ rp₂.
+revert al₂.
+induction al₁; intros.
+ destruct al₂; [ apply list_eq_refl | simpl ].
+ constructor; [ reflexivity | apply list_eq_refl ].
+
+ destruct al₂.
+  constructor; [ reflexivity | apply list_eq_refl ].
+
+  constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
 
-Theorem eq_polyn_trans α (f : field α) : transitive _ (@eq_polyn α f).
+Lemma poly_add_comm : ∀ pol₁ pol₂,
+  eq_poly (poly_add pol₁ pol₂) (poly_add pol₂ pol₁).
 Proof.
-intros a b c Hab Hbc.
-unfold eq_polyn.
-etransitivity; eassumption.
+intros pol₁ pol₂.
+unfold eq_poly.
+eapply pol_add_loop_al_comm; reflexivity.
 Qed.
 
-Add Parametric Relation α (f : field α) : (polyn f) (@eq_polyn α f)
- reflexivity proved by (eq_polyn_refl (f := f))
- symmetry proved by (eq_polyn_sym (f := f))
- transitivity proved by (eq_polyn_trans (f := f))
- as eq_polyn_rel.
+(* addition associativity *)
 
-(* addition *)
-
-Lemma fin_prop_add : ∀ α (f : field α) (p₁ p₂ : polyn f) i,
-  max (degree_ub p₁) (degree_ub p₂) ≤ i
-  → ((p_series p₁ .+ f p_series p₂)%ser .[i] .= f .0 f)%F.
+Lemma pol_add_loop_al_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
+  rp₁ = pol_add_loop (fld_add F) (pol_add_loop (fld_add F) al₁ al₂) al₃
+  → rp₂ = pol_add_loop (fld_add F) al₁ (pol_add_loop (fld_add F) al₂ al₃)
+    → list_eq (fld_eq F) rp₁ rp₂.
 Proof.
-intros α f p₁ p₂ i Hi; simpl.
-rewrite fin_prop, fin_prop.
- rewrite fld_add_0_l; reflexivity.
+intros al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
+subst rp₁ rp₂.
+revert al₂ al₃.
+induction al₁; intros.
+ destruct al₂.
+  destruct al₃; [ apply list_eq_refl | idtac ].
+  constructor; [ reflexivity | apply list_eq_refl ].
 
- etransitivity; [ idtac | eassumption ].
- apply Max.le_max_r.
+  destruct al₃; simpl.
+   constructor; [ reflexivity | apply list_eq_refl ].
 
- etransitivity; [ idtac | eassumption ].
- apply Max.le_max_l.
+   constructor; [ reflexivity | apply list_eq_refl ].
+
+ destruct al₂.
+  destruct al₃; simpl.
+   constructor; [ reflexivity | apply list_eq_refl ].
+
+   constructor; [ reflexivity | apply list_eq_refl ].
+
+  destruct al₃; simpl.
+   constructor; [ reflexivity | apply list_eq_refl ].
+
+   constructor; [ symmetry; apply fld_add_assoc | apply IHal₁ ].
 Qed.
 
-Definition polyn_add α (f : field α) p₁ p₂ :=
-  {| p_series := (p_series p₁ .+ f p_series p₂)%ser;
-     fin_prop := fin_prop_add p₁ p₂ |}.
-
-(* multiplication *)
-
-Lemma fin_prop_mul : ∀ α (f : field α) (p₁ p₂ : polyn f) i,
-  degree_ub p₁ + degree_ub p₂ ≤ i
-  → ((p_series p₁ .* f p_series p₂)%ser .[i] .= f .0 f)%F.
+Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
+  eq_poly
+    (poly_add (poly_add pol₁ pol₂) pol₃)
+    (poly_add pol₁ (poly_add pol₂ pol₃)).
 Proof.
-intros α f p₁ p₂ i Hi.
-unfold convol_mul.
-apply all_0_sigma_0; intros j (_, Hj).
-destruct (le_dec (degree_ub p₁) j) as [H₁| H₁].
- rewrite fin_prop; [ idtac | assumption ].
- rewrite fld_mul_0_l; reflexivity.
-
- destruct (le_dec (degree_ub p₂) (i - j)) as [H₂| H₂].
-  rewrite fld_mul_comm.
-  rewrite fin_prop; [ idtac | assumption ].
-  rewrite fld_mul_0_l; reflexivity.
-
-  exfalso; omega.
+intros pol₁ pol₂ pol₃.
+unfold eq_poly.
+eapply pol_add_loop_al_assoc; reflexivity.
 Qed.
 
-Definition polyn_mul α (f : field α) p₁ p₂ :=
-  {| p_series := (p_series p₁ .* f p_series p₂)%ser;
-     fin_prop := fin_prop_mul p₁ p₂ |}.
-
-(* application *)
-
-(*
-Fixpoint apply_polyn_loop α (f : field α) cnt i s x :=
-  match cnt with
-  | O => (s.[i])%F
-  | S c => (s.[i] .+ f x .* f apply_polyn_loop f c (S i) s x)%F
-  end.
-
-Definition apply_polyn α (f : field α) (pol : polyn f) x :=
-  apply_polyn_loop f (degree_ub pol) O (p_series pol) x.
-*)
-
-(* Horner's algorithm *)
-Fixpoint apply_polyn_loop α β γ
-    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
-    cnt i (s : power_series β) (x : γ) :=
-  match cnt with
-  | O => zero_plus_v (terms s i)
-  | S c =>
-      add_v_coeff
-        (mul_v_x
-          (apply_polyn_loop zero_plus_v add_v_coeff mul_v_x c (S i) s x)
-          x)
-        (terms s i)
-  end.
-
-Fixpoint apply_polyn α β γ (f : field β)
-    (zero_plus_v : β → α) (add_v_coeff : α → β → α) (mul_v_x : α → γ → α)
-    (pol : polyn f) (x : γ) :=
-  apply_polyn_loop zero_plus_v add_v_coeff mul_v_x
-    (degree_ub pol) O (p_series pol) x.
+End poly.
