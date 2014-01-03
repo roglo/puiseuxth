@@ -30,7 +30,7 @@ Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
   end.
 
 Definition degree α is_zero (pol : polynomial α) :=
-  pred (degree_plus_1_of_list is_zero (bl pol)).
+  pred (degree_plus_1_of_list is_zero (al pol)).
 
 Record term α β := { coeff : α; power : β }.
 
@@ -64,7 +64,7 @@ Fixpoint make_char_pol α (f : field α) pow tl :=
 
 Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
-  let ps := List.nth h (bl pol) .0 f%ps in
+  let ps := List.nth h (al pol) .0 f%ps in
   let c := valuation_coeff f ps in
   {| coeff := c; power := h |}.
 
@@ -72,7 +72,7 @@ Definition characteristic_polynomial α (f : field α) pol ns :=
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
   let tl := List.map (term_of_point f pol) pl in
   let j := nofq (fst (ini_pt ns)) in
-  {| bl := make_char_pol f j tl |}.
+  {| al := make_char_pol f j tl |}.
 
 Definition series_list_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
@@ -91,7 +91,7 @@ Lemma pt_absc_is_nat : ∀ pol pts pt,
 Proof.
 intros pol pts pt Hpts Hαh.
 unfold points_of_ps_polynom in Hpts.
-remember (bl pol) as cl; clear Heqcl.
+remember (al pol) as cl; clear Heqcl.
 remember 0%nat as n in Hpts; clear Heqn.
 unfold points_of_ps_polynom_gen in Hpts.
 unfold qpower_list in Hpts.
@@ -872,8 +872,8 @@ Qed.
 Lemma in_pts_in_pol : ∀ pol pts h hv hps def,
   pts = points_of_ps_polynom f pol
   → (Qnat h, hv) ∈ pts
-    → hps = List.nth h (bl pol) def
-      → hps ∈ bl pol ∧ valuation f hps = Some hv.
+    → hps = List.nth h (al pol) def
+      → hps ∈ al pol ∧ valuation f hps = Some hv.
 Proof.
 intros pol pts h hv hps def Hpts Hhhv Hhps.
 eapply in_pts_in_psl; try eassumption.
@@ -1002,7 +1002,7 @@ Qed.
 
 Theorem gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments f pol
-  → m = series_list_com_polord (bl pol)
+  → m = series_list_com_polord (al pol)
     → ∃ (p : Z) (q : positive),
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
@@ -1020,7 +1020,7 @@ remember Hns as Hg; clear HeqHg.
 symmetry in Hini, Hfin.
 eapply gamma_value_jk in Hg; try eassumption.
 subst hsl.
-remember (List.nth j (bl pol) .0 f%ps) as jps.
+remember (List.nth j (al pol) .0 f%ps) as jps.
 eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  2: rewrite Hini.
  2: apply ini_fin_ns_in_init_pts.
@@ -1030,7 +1030,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  destruct Heqjps as (Hjps, Hjv).
  eapply com_den_of_ps_list in Hjv; try eassumption.
  destruct Hjv as (mj, Hαj).
- remember (List.nth k (bl pol) .0 f%ps) as kps.
+ remember (List.nth k (al pol) .0 f%ps) as kps.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
   2: rewrite Hfin.
   2: apply ini_fin_ns_in_init_pts.
@@ -1214,7 +1214,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (bl pol)
+      → m = series_list_com_polord (al pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
@@ -1228,7 +1228,7 @@ eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
 destruct Heqm as (p, (q, (Hgamma, Hgcd))).
 remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
-remember (List.nth j (bl pol) .0 f%ps) as jps.
+remember (List.nth j (al pol) .0 f%ps) as jps.
 eapply in_pts_in_pol in Heqjps; try eassumption.
  2: apply ini_fin_ns_in_init_pts in Hns.
  2: destruct Hns as (Hns, _).
@@ -1239,7 +1239,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply com_den_of_ps_list in Hmj; try eassumption.
  destruct Hmj as (mj, Hmj).
  exists mj.
- remember (List.nth k (bl pol) .0 f%ps) as kps.
+ remember (List.nth k (al pol) .0 f%ps) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: apply ini_fin_ns_in_init_pts in Hns.
   2: destruct Hns as (_, Hns).
@@ -1295,7 +1295,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
    remember (Qnat h) as hq.
    remember Hpts as Hhn; clear HeqHhn.
    symmetry in Hhn.
-   remember (List.nth h (bl pol) .0 f%ps) as hps.
+   remember (List.nth h (al pol) .0 f%ps) as hps.
    eapply in_pts_in_pol in Heqhps; try eassumption.
     destruct Heqhps as (Hmh, Hhv).
     eapply com_den_of_ps_list in Hmh; try eassumption.
@@ -1352,7 +1352,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (bl pol)
+      → m = series_list_com_polord (al pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ (q | k - j)%nat
@@ -1418,7 +1418,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (bl pol)
+      → m = series_list_com_polord (al pol)
         → ∃ mj mk, αj == mj # m ∧ αk == mk # m
           ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
             ∧ (∃ sk, k = j + sk * q ∧ sk ≠ O)%nat
@@ -1481,7 +1481,7 @@ Qed.
 
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat
-  → c = List.nth i (bl pol) .0 f%F
+  → c = List.nth i (al pol) .0 f%F
     → (c .= f .0 f)%F.
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
@@ -1954,7 +1954,7 @@ Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk 
   → cpol = characteristic_polynomial f pol ns
     → (Qnat j, αj) = ini_pt ns
       → (Qnat k, αk) = fin_pt ns
-        → m = series_list_com_polord (bl pol)
+        → m = series_list_com_polord (al pol)
           → ∃ mj mk, αj == mj # m ∧ αk == mk # m
             ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
               ∧ (∃ sk, k = j + sk * q ∧ sk ≠ 0)%nat

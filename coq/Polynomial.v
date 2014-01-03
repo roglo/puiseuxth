@@ -9,7 +9,7 @@ Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
 Notation "[ x ]" := (cons x nil).
 
-Record polynomial α := mkpol { bl : list α }.
+Record polynomial α := mkpol { al : list α }.
 
 (* addition *)
 
@@ -24,7 +24,7 @@ Fixpoint pol_add_loop α (add_coeff : α → α → α) al₁ al₂ :=
   end.
 
 Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
-  {| bl := pol_add_loop add_coeff (bl pol₁) (bl pol₂) |}.
+  {| al := pol_add_loop add_coeff (al pol₁) (al pol₂) |}.
 
 (* multiplication *)
 
@@ -47,12 +47,12 @@ Fixpoint pol_convol_mul α zero_c add_c (mul_c : α → α → _) al₁ al₂ i 
   end.
 
 Definition pol_mul α (zero_c : α) add_c mul_c pol₁ pol₂ :=
-  {| bl :=
-       pol_convol_mul zero_c add_c mul_c (bl pol₁) (bl pol₂) O
-         (max (List.length (bl pol₁)) (List.length (bl pol₂))) |}.
+  {| al :=
+       pol_convol_mul zero_c add_c mul_c (al pol₁) (al pol₂) O
+         (max (List.length (al pol₁)) (List.length (al pol₂))) |}.
 
 (* Horner's algorithm *)
 Definition apply_poly α β γ
     (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
-  List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (bl pol).
+  List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).

@@ -59,7 +59,7 @@ Definition points_of_ps_polynom_gen α f pow (cl : list (puiseux_series α)) :=
   filter_finite_val f (qpower_list pow cl).
 
 Definition points_of_ps_polynom α f (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_polynom_gen f 0 (bl pol).
+  points_of_ps_polynom_gen f 0 (al pol).
 
 Definition newton_segments α f (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom f pol in
