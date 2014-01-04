@@ -127,9 +127,17 @@ Notation "a .* f b" := (poly_mul f a b) : poly_scope.
 
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
 
+Add Parametric Morphism α (f : field α) : (@al α)
+  with signature eq_poly f ==> list_eq f
+  as al_morph.
+Proof.
+intros a b Hab.
+inversion Hab; constructor; assumption.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (poly_add f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
-  as ps_pol_add_morph.
+  as ps_poly_add_morph.
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_add; simpl.
@@ -244,7 +252,7 @@ Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
-  as ps_pol_mul_morph.
+  as ps_poly_mul_morph.
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
@@ -287,7 +295,7 @@ Qed.
 
 (* addition theorems *)
 
-Theorem pol_add_compat : ∀ a b c d,
+Theorem poly_add_compat : ∀ a b c d,
   (a .= f c)%pol
   → (b .= f d)%pol
     → (a .+ f b .= f c .+ f d)%pol.
