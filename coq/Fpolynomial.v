@@ -19,6 +19,12 @@ Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 Definition eq_poly α (f : field α) (x y : polynomial α) :=
   list_eq f (al x) (al y).
 
+Lemma list_eq_refl : ∀ α (f : field α) l, list_eq f l l.
+Proof.
+intros α f l.
+induction l; constructor; [ reflexivity | assumption ].
+Qed.
+
 (* addition *)
 
 Fixpoint poly_add_loop α (f : field α) al₁ al₂ :=
@@ -163,7 +169,7 @@ induction l₁ as [| x₁]; intros.
  inversion Heq; assumption.
 Qed.
 
-Lemma yyy : ∀ α (f : field α) l i len,
+Lemma poly_convol_mul_succ : ∀ α (f : field α) l i len,
   list_eq f
     (poly_convol_mul f [] l i (S len))
     [.0 f%F … poly_convol_mul f [] l (S i) len].
@@ -178,19 +184,34 @@ induction len; intros.
   destruct j; rewrite fld_mul_0_l; reflexivity.
 
   constructor.
-bbb.
 
+ remember (S len) as slen; simpl; subst slen.
+ constructor; [ idtac | apply list_eq_refl ].
+ rewrite all_0_summation_0; [ reflexivity | idtac ].
+ intros j (_, Hj).
+ destruct j; rewrite fld_mul_0_l; reflexivity.
+Qed.
+
+(* TODO: try to make the most general version *)
 Lemma zzz : ∀ α (f : field α) x y l l' len,
   (x .= f y)%F
   → list_eq f l l'
     → list_eq f
-        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [x … l] 1 len)
-        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [y … l'] 1 len).
+        (poly_convol_mul f [] [x … l] 1 len)
+        (poly_convol_mul f [] [y … l'] 1 len).
 Proof.
 intros α f x y l l' len Hxy Hll'.
 revert x y l l' Hxy Hll'.
 induction len; intros; [ constructor | idtac ].
 remember [x … l]; simpl.
+constructor.
+ rewrite all_0_summation_0.
+  rewrite all_0_summation_0; [ reflexivity | idtac ].
+  intros i (_, Hi).
+  destruct i; rewrite fld_mul_0_l; reflexivity.
+
+  intros i (_, Hi).
+  destruct i; rewrite fld_mul_0_l; reflexivity.
 bbb.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
@@ -243,12 +264,6 @@ Section poly.
 
 Variable α : Type.
 Variable f : field α.
-
-Lemma list_eq_refl : ∀ l, list_eq f l l.
-Proof.
-intros l.
-induction l; constructor; [ reflexivity | assumption ].
-Qed.
 
 Lemma list_eq_append_one : ∀ x₁ x₂ l₁ l₂,
   list_eq f l₁ l₂ ∧ (x₁ .= f x₂)%F
