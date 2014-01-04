@@ -240,25 +240,20 @@ induction la as [| a]; intros.
   rewrite fold_list_eq.
   erewrite list_eq_length_eq; [ idtac | eassumption ].
   apply poly_convol_mul_nil_cons_eq; assumption.
-bbb.
-   remember (length l) as len.
-   remember (length l') as len'.
-   destruct len.
-    simpl.
-    destruct len'.
-     simpl.
-     constructor.
 
-     inversion H0; subst.
-      discriminate Heqlen'.
+ simpl.
+ destruct lb as [| b].
+  simpl.
+  inversion Hbd; subst; simpl.
+  inversion Hac; subst; simpl.
+  constructor.
+   inversion Hac; subst; simpl.
+   rewrite summation_only_one; simpl.
+   rewrite summation_only_one; simpl.
+   do 2 rewrite fld_mul_0_r.
+   reflexivity.
 
-      discriminate Heqlen.
-
-    destruct len'.
-     inversion H0; subst.
-      discriminate Heqlen.
-
-      discriminate Heqlen'.
+   erewrite list_eq_length_eq; [ simpl | eassumption ].
 bbb.
 *)
 
