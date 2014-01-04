@@ -253,6 +253,21 @@ rewrite poly_convol_mul_comm; symmetry.
 apply poly_convol_mul_nil_l.
 Qed.
 
+Lemma yyy : ∀ α (f : field α) la lb lc ld i len,
+  list_eq f la lc
+  → list_eq f lb ld
+    → list_eq f (poly_convol_mul f la lb i len)
+        (poly_convol_mul f lc ld i len).
+Proof.
+intros α f la lb lc ld i len Hac Hbd.
+revert la lb lc ld i Hac Hbd.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ apply summation_compat; intros j (_, Hj).
+ apply fld_mul_compat.
+bbb.
+
+(*
 Lemma zzz : ∀ α (f : field α) la lb lc ld i,
   list_eq f la lc
   → list_eq f lb ld
@@ -275,6 +290,7 @@ induction la as [| a]; intros.
    erewrite list_eq_length_eq; [ idtac | eassumption ].
    apply poly_convol_mul_nil_l.
 bbb.
+*)
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -288,6 +304,10 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
+erewrite list_eq_length_eq; [ idtac | eassumption ].
+rewrite Nat.max_comm; symmetry.
+rewrite Nat.max_comm; symmetry.
+erewrite list_eq_length_eq; [ idtac | eassumption ].
 bbb.
 
 revert lb lc ld Hac Hbd.
