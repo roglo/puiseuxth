@@ -65,7 +65,7 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-Lemma yyy : ∀ α (f : field α) a b c d,
+Lemma summation_fold_compat : ∀ α (f : field α) a b c d,
   (a .= f c)%pol
   → (b .= f d)%pol
     → (List.fold_right
@@ -79,21 +79,30 @@ intros α f a b c d Hac Hbd.
 inversion_clear Hac.
  inversion_clear Hbd; reflexivity.
 
- simpl.
- apply poly_add_compat.
+ simpl; apply poly_add_compat.
   apply poly_mul_compat; [ idtac | assumption ].
-  2: constructor; [ assumption | constructor ].
-bbb.
-*)
+  revert l' H0.
+  induction l; intros.
+   inversion_clear H0; reflexivity.
 
-(**)
+   inversion_clear H0; simpl.
+   apply poly_add_compat.
+    apply poly_mul_compat; [ idtac | assumption ].
+    apply IHl; assumption.
+
+    constructor; [ assumption | constructor ].
+
+  constructor; [ assumption | constructor ].
+Qed.
+
+
 Add Parametric Morphism α (fld : field α) : (@apply_poly_with_poly α fld)
   with signature eq_poly fld ==> eq_poly fld ==> eq_poly fld
   as apply_poly_with_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
 unfold apply_poly_with_poly, apply_poly.
-rewrite yyy; try eassumption.
+rewrite summation_fold_compat; try eassumption.
 bbb.
 
 inversion Hac; subst.
