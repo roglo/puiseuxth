@@ -116,6 +116,9 @@ Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
+(* think about something like distributivity; it is not distributivity
+   of polynomials but a kind of discributivity of monomials constituing
+   polynomials, something like that *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   ({| al := [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] |}
    .= (ps_field fld)
