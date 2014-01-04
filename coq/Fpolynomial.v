@@ -40,8 +40,7 @@ Fixpoint poly_convol_mul α (f : field α) al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [summation f O i
-         (λ j, List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f)%F …
+      [Σ f (j = 0, i) _ List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f …
        poly_convol_mul f al₁ al₂ (S i) len₁]
   end.
 
