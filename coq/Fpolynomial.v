@@ -253,7 +253,7 @@ rewrite poly_convol_mul_comm; symmetry.
 apply poly_convol_mul_nil_l.
 Qed.
 
-Lemma yyy : ∀ α (f : field α) la lb lc ld i len,
+Lemma poly_convol_mul_compat : ∀ α (f : field α) la lb lc ld i len,
   list_eq f la lc
   → list_eq f lb ld
     → list_eq f (poly_convol_mul f la lb i len)
@@ -265,32 +265,18 @@ induction len; intros; [ reflexivity | simpl ].
 constructor.
  apply summation_compat; intros j (_, Hj).
  apply fld_mul_compat.
-bbb.
+  clear Hj; revert j.
+  induction Hac; intros; [ reflexivity | simpl ].
+  destruct j; [ assumption | idtac ].
+  apply IHHac.
 
-(*
-Lemma zzz : ∀ α (f : field α) la lb lc ld i,
-  list_eq f la lc
-  → list_eq f lb ld
-    → list_eq f (poly_convol_mul f la lb i (max (length la) (length lb)))
-        (poly_convol_mul f lc ld (S i) (max (length lc) (length ld) - i)).
-Proof.
-intros α f la lb lc ld i Hac Hbd.
-revert lb lc ld i Hac Hbd.
-induction la as [| a]; intros.
- simpl.
- inversion Hac; subst; simpl.
- inversion Hbd; subst; simpl; [ constructor | idtac ].
- destruct i.
-  simpl.
-  constructor.
-   unfold summation; simpl.
-   do 3 rewrite fld_mul_0_l.
-   do 2 rewrite fld_add_0_l; reflexivity.
+  remember (i - j)%nat as k; clear Heqk; revert k.
+  induction Hbd; intros; [ reflexivity | simpl ].
+  destruct k; [ assumption | idtac ].
+  apply IHHbd.
 
-   erewrite list_eq_length_eq; [ idtac | eassumption ].
-   apply poly_convol_mul_nil_l.
-bbb.
-*)
+ apply IHlen; assumption.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -298,57 +284,12 @@ Add Parametric Morphism α (f : field α) : (poly_mul f)
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
-unfold eq_poly in Hac, Hbd.
-remember (al a) as la.
-remember (al b) as lb.
-remember (al c) as lc.
-remember (al d) as ld.
-revert Hac Hbd; clear; intros.
 erewrite list_eq_length_eq; [ idtac | eassumption ].
 rewrite Nat.max_comm; symmetry.
 rewrite Nat.max_comm; symmetry.
 erewrite list_eq_length_eq; [ idtac | eassumption ].
-bbb.
-
-revert lb lc ld Hac Hbd.
-induction la as [| a]; intros.
- simpl.
- inversion Hac; subst; simpl.
- inversion Hbd; subst; simpl; constructor.
-  unfold summation; simpl.
-  do 2 rewrite fld_mul_0_l; reflexivity.
-
-  clear Hac Hbd.
-  rewrite fold_list_eq in H0.
-  rewrite fold_list_eq.
-  erewrite list_eq_length_eq; [ idtac | eassumption ].
-  apply poly_convol_mul_nil_l.
-
- simpl.
- destruct lb as [| b].
-  simpl.
-  inversion Hbd; subst; simpl.
-  inversion Hac; subst; simpl.
-  constructor.
-   inversion Hac; subst; simpl.
-   rewrite summation_only_one; simpl.
-   rewrite summation_only_one; simpl.
-   do 2 rewrite fld_mul_0_r.
-   reflexivity.
-
-   erewrite list_eq_length_eq; [ simpl | eassumption ].
-   apply poly_convol_mul_nil_r.
-
-  simpl.
-  destruct lc as [| c]; [ inversion Hac | simpl ].
-  destruct ld as [| d]; [ inversion Hbd | simpl ].
-  constructor.
-   do 2 rewrite summation_only_one.
-   inversion Hac; subst.
-   inversion Hbd; subst.
-   rewrite H2, H3; reflexivity.
-bbb.
-*)
+apply poly_convol_mul_compat; assumption.
+Qed.
 
 Section poly.
 
