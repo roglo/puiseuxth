@@ -163,7 +163,6 @@ induction l₁ as [| x₁]; intros.
  inversion Heq; assumption.
 Qed.
 
-(*
 Lemma yyy : ∀ α (f : field α) l i len,
   list_eq f
     (poly_convol_mul f [] l i (S len))
@@ -174,6 +173,11 @@ revert i.
 induction len; intros.
  simpl.
  constructor.
+  rewrite all_0_summation_0; [ reflexivity | idtac ].
+  intros j (_, Hj).
+  destruct j; rewrite fld_mul_0_l; reflexivity.
+
+  constructor.
 bbb.
 
 Lemma zzz : ∀ α (f : field α) x y l l' len,
@@ -188,9 +192,7 @@ revert x y l l' Hxy Hll'.
 induction len; intros; [ constructor | idtac ].
 remember [x … l]; simpl.
 bbb.
-*)
 
-(* to be completed...
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as ps_pol_mul_morph.
@@ -208,7 +210,7 @@ induction la as [| a]; intros.
  simpl.
  inversion Hac; subst; simpl.
  inversion Hbd; subst; simpl; constructor.
-  unfold sigma; simpl.
+  unfold summation; simpl.
   do 2 rewrite fld_mul_0_l; reflexivity.
 
   clear Hac Hbd.
@@ -349,7 +351,6 @@ Qed.
 
 (* multiplication theorems *)
 
-(* to be completed
 Theorem poly_mul_compat : ∀ a b c d,
   (a .= f c)%pol
   → (b .= f d)%pol
@@ -358,7 +359,6 @@ Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
-*)
 
 End poly.
 
