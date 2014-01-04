@@ -28,20 +28,20 @@ Definition pol_add α (add_coeff : α → α → α) pol₁ pol₂ :=
 
 (* multiplication *)
 
-Fixpoint sigma_aux α zero_c (add_c : α → α → _) b len g :=
+Fixpoint summation_gen_aux α zero_c (add_c : α → α → _) b len g :=
   match len with
   | O => zero_c
-  | S len₁ => add_c (g b) (sigma_aux zero_c add_c (S b) len₁ g)
+  | S len₁ => add_c (g b) (summation_gen_aux zero_c add_c (S b) len₁ g)
   end.
 
-Definition sigma α zero_c (add_c : α → α → _) b e g :=
-  sigma_aux zero_c add_c b (S e - b) g.
+Definition summation_gen α zero_c (add_c : α → α → _) b e g :=
+  summation_gen_aux zero_c add_c b (S e - b) g.
 
 Fixpoint pol_convol_mul α zero_c add_c (mul_c : α → α → _) al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [sigma zero_c add_c O i
+      [summation_gen zero_c add_c O i
          (λ j, mul_c (List.nth j al₁ zero_c) (List.nth (i - j) al₂ zero_c)) …
        pol_convol_mul zero_c add_c mul_c al₁ al₂ (S i) len₁]
   end.
