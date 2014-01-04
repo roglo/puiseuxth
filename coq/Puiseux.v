@@ -65,13 +65,12 @@ Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-(*
 Lemma yyy : ∀ α (f : field α) a b c d,
-  (a .= (ps_field f) c)%pol
-  → (b .= (ps_field f) d)%pol
+  (a .= f c)%pol
+  → (b .= f d)%pol
     → (List.fold_right
          (λ x accu, accu .* f b .+ f {| al := [x] |}) {| al := [] |} 
-         (al a) .= (ps_field f)
+         (al a) .= f
        List.fold_right
          (λ x accu, accu .* f d .+ f {| al := [x] |}) {| al := [] |} 
          (al c))%pol.
@@ -105,8 +104,8 @@ Add Parametric Morphism α (fld : field α) : (@apply_poly_with_poly α fld)
 Proof.
 intros a c Hac b d Hbd.
 unfold apply_poly_with_poly, apply_poly.
-bbb.
 rewrite yyy; try eassumption.
+bbb.
 
 inversion Hac; subst.
 inversion Hbd; subst.
