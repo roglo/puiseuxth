@@ -4,6 +4,7 @@
 
 Require Import Utf8.
 Require Import QArith.
+Require Import NPeano.
 
 Require Import Misc.
 Require Import Field.
@@ -114,30 +115,37 @@ induction la as [| a]; intros.
    apply IHla; [ inversion Hac | inversion Hbd ]; assumption.
 Qed.
 
-(*
-Lemma zzz : ∀ α (f : field α) l i len,
-  list_eq (fld_eq f)
-    (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] l i len) [].
-Proof.
-intros α f l i len.
-bbb.
-*)
-
 Lemma fold_list_eq : ∀ α (f : field α), List.Forall2 (fld_eq f) = list_eq f.
 Proof. reflexivity. Qed.
 
+Lemma list_eq_length_eq : ∀ α (f : field α) l₁ l₂,
+  list_eq f l₁ l₂ → List.length l₁ = List.length l₂.
+Proof.
+intros α f l₁ l₂ Heq.
+revert l₂ Heq.
+induction l₁ as [| x₁]; intros.
+ inversion Heq; subst; reflexivity.
+
+ simpl.
+ destruct l₂ as [| x₂]; [ inversion Heq | simpl ].
+ apply Nat.succ_inj_wd, IHl₁.
+ inversion Heq; assumption.
+Qed.
+
 (* TODO: try to make the most general version *)
-Lemma zzz : ∀ α (f : field α) x y l l',
+Lemma zzz : ∀ α (f : field α) x y l l' len,
   (x .= f y)%F
   → list_eq f l l'
     → list_eq f
-        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [x … l] 1
-           (length l))
-        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [y … l'] 1
-           (length l')).
+        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [x … l] 1 len)
+        (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] [y … l'] 1 len).
 Proof.
-intros α f x y l l' Hxy Hll'.
+intros α f x y l l' len Hxy Hll'.
+revert x y l l' Hxy Hll'.
+induction len; intros; [ constructor | idtac ].
+remember [x … l]; simpl.
 bbb.
+*)
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -162,6 +170,7 @@ induction la as [| a]; intros.
   clear Hac Hbd.
   rewrite fold_list_eq in H0.
   rewrite fold_list_eq.
+  erewrite list_eq_length_eq; [ idtac | eassumption ].
 bbb.
    remember (length l) as len.
    remember (length l') as len'.
