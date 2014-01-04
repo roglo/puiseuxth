@@ -295,6 +295,13 @@ induction la as [| a]; intros.
    apply poly_convol_mul_nil_r.
 
   simpl.
+  destruct lc as [| c]; [ inversion Hac | simpl ].
+  destruct ld as [| d]; [ inversion Hbd | simpl ].
+  constructor.
+   do 2 rewrite summation_only_one.
+   inversion Hac; subst.
+   inversion Hbd; subst.
+   rewrite H2, H3; reflexivity.
 bbb.
 *)
 
