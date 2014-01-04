@@ -19,11 +19,50 @@ Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 Definition eq_poly α (f : field α) (x y : polynomial α) :=
   list_eq f (al x) (al y).
 
-Lemma list_eq_refl : ∀ α (f : field α) l, list_eq f l l.
+Theorem list_eq_refl α (f : field α) : reflexive _ (list_eq f).
 Proof.
-intros α f l.
+intros l.
 induction l; constructor; [ reflexivity | assumption ].
 Qed.
+
+Theorem list_eq_sym α (f : field α) : symmetric _ (list_eq f).
+Proof.
+intros l₁ l₂ Heq.
+revert l₂ Heq.
+induction l₁ as [| x₁]; intros.
+ destruct l₂; [ constructor | inversion Heq ].
+
+ destruct l₂ as [| x₂]; [ inversion Heq | idtac ].
+ constructor.
+  inversion Heq; subst; symmetry; assumption.
+
+  inversion Heq; subst; apply IHl₁; assumption.
+Qed.
+
+Theorem list_eq_trans α (f : field α) : transitive _ (list_eq f).
+Proof.
+intros l₁ l₂ l₃ H₁ H₂.
+revert l₁ l₃ H₁ H₂.
+induction l₂ as [| x₂]; intros.
+ inversion H₁; subst; assumption.
+
+ destruct l₁ as [| x₁]; [ inversion H₁ | idtac ].
+ destruct l₃ as [| x₃]; [ inversion H₂ | idtac ].
+ constructor.
+  inversion H₁; subst.
+  inversion H₂; subst.
+  transitivity x₂; assumption.
+
+  inversion H₁; subst.
+  inversion H₂; subst.
+  apply IHl₂; assumption.
+Qed.
+
+Add Parametric Relation α (f : field α) : (list α) (list_eq f)
+ reflexivity proved by (list_eq_refl f)
+ symmetry proved by (list_eq_sym (f := f))
+ transitivity proved by (list_eq_trans (f := f))
+ as list_eq_rel.
 
 (* addition *)
 
@@ -64,6 +103,7 @@ Notation "a .* f b" := (poly_mul f a b) : poly_scope.
 
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
 
+(*
 Theorem eq_poly_refl α (f : field α) : reflexive _ (eq_poly f).
 Proof.
 intros pol.
@@ -121,6 +161,7 @@ Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
  symmetry proved by (eq_poly_sym (f := f))
  transitivity proved by (eq_poly_trans (f := f))
  as eq_poly_rel.
+*)
 
 Add Parametric Morphism α (f : field α) : (poly_add f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -169,33 +210,24 @@ induction l₁ as [| x₁]; intros.
  inversion Heq; assumption.
 Qed.
 
-Lemma poly_convol_mul_succ : ∀ α (f : field α) l i len,
-  list_eq f
-    (poly_convol_mul f [] l i (S len))
-    [.0 f%F … poly_convol_mul f [] l (S i) len].
+Lemma poly_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
+  list_eq f (poly_convol_mul f l₁ l₂ i len) (poly_convol_mul f l₂ l₁ i len).
 Proof.
-intros α f l i len.
+intros α f l₁ l₂ i len.
 revert i.
-induction len; intros.
- simpl.
- constructor.
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  destruct j; rewrite fld_mul_0_l; reflexivity.
-
-  constructor.
-
- remember (S len) as slen; simpl; subst slen.
- constructor; [ idtac | apply list_eq_refl ].
- rewrite all_0_summation_0; [ reflexivity | idtac ].
- intros j (_, Hj).
- destruct j; rewrite fld_mul_0_l; reflexivity.
+induction len; intros; [ reflexivity | simpl ].
+constructor; [ idtac | apply IHlen ].
+rewrite summation_rtl.
+apply summation_compat; intros j (_, Hj).
+rewrite Nat.add_0_r.
+rewrite fld_mul_comm.
+apply fld_mul_compat; [ idtac | reflexivity ].
+rewrite Nat_sub_sub_distr; [ idtac | assumption ].
+rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_eq : ∀ α (f : field α) l l' i len,
-  list_eq f
-    (poly_convol_mul f [] l i len)
-    (poly_convol_mul f [] l' i len).
+Lemma poly_convol_mul_nil_l : ∀ α (f : field α) l l' i len,
+  list_eq f (poly_convol_mul f [] l i len) (poly_convol_mul f [] l' i len).
 Proof.
 intros α f l l' i len.
 revert l l' i.
@@ -210,6 +242,15 @@ constructor.
   destruct j; rewrite fld_mul_0_l; reflexivity.
 
  apply IHlen; assumption.
+Qed.
+
+Lemma poly_convol_mul_nil_r : ∀ α (f : field α) l l' i len,
+  list_eq f (poly_convol_mul f l [] i len) (poly_convol_mul f l' [] i len).
+Proof.
+intros α f l l' i len.
+rewrite poly_convol_mul_comm; symmetry.
+rewrite poly_convol_mul_comm; symmetry.
+apply poly_convol_mul_nil_l.
 Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
@@ -236,7 +277,7 @@ induction la as [| a]; intros.
   rewrite fold_list_eq in H0.
   rewrite fold_list_eq.
   erewrite list_eq_length_eq; [ idtac | eassumption ].
-  apply poly_convol_mul_nil_eq.
+  apply poly_convol_mul_nil_l.
 
  simpl.
  destruct lb as [| b].
@@ -251,6 +292,9 @@ induction la as [| a]; intros.
    reflexivity.
 
    erewrite list_eq_length_eq; [ simpl | eassumption ].
+   apply poly_convol_mul_nil_r.
+
+  simpl.
 bbb.
 *)
 

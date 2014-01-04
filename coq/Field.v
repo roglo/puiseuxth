@@ -157,6 +157,15 @@ intros a b c Hab; simpl in Hab |- *.
 rewrite Hab; reflexivity.
 Qed.
 
+Theorem fld_mul_compat : ∀ a b c d,
+  (a .= f b)%F
+  → (c .= f d)%F
+    → (a .* f c .= f b .* f d)%F.
+Proof.
+intros a b c d Hab Hcd.
+rewrite Hab, Hcd; reflexivity.
+Qed.
+
 Theorem fld_mul_add_distr_r : ∀ x y z,
   ((x .+ f y) .* f z .= f x .* f z .+ f y .* f z)%F.
 Proof.
