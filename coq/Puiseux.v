@@ -9,6 +9,7 @@ Require Import Field.
 Require Import Misc.
 Require Import Newton.
 Require Import Nbar.
+Require Import Fsummation.
 Require Import Fpolynomial.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -22,15 +23,15 @@ Set Implicit Arguments.
 
 (* *)
 
-Notation ".[ f l .]" := (mkpol (ps_field f) l)
-  (at level 0, f at level 0) :
-  ps_polyn_scope.
+Notation "'POL' l" := ({| al := l |})
+  (at level 1) :
+  poly_scope.
 Notation ".{ f a .}" := (mkpol (ps_field f) [a])
   (at level 0, f at level 0, a at level 0) :
-  ps_polyn_scope.
+  poly_scope.
 Notation ".{ f a + b 'Y' .}" := (mkpol (ps_field f) [a; b … []])
   (at level 0, f at level 0, a at level 0, b at level 0) :
-  ps_polyn_scope.
+  poly_scope.
 (*
 Notation "'YPOL' f a" := (polyn_of_list (ps_field f) [a])
   (at level 0, f at level 0, a at level 0) :
@@ -116,12 +117,15 @@ Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  (.[fld [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] .] =
-   .[fld [ps_const fld c; .1 fld%ps … []] .] *
-   .{fld (ps_monom fld .1 fld%F γ).})%pol.
+  ({| al := [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] |}
+   .= (ps_field fld)
+   {| al := [ps_const fld c; .1 fld%ps … []] |} .* 
+   (ps_field fld) {| al := [ps_monom fld .1 fld%F γ] |})%pol.
 Proof.
 intros c γ.
-unfold eq_polyn; simpl.
+Show.
+unfold eq_poly; simpl.
+bbb.
 constructor; intros k; simpl.
 unfold convol_mul.
 unfold convol_mul; simpl.
