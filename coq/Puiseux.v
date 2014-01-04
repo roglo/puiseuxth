@@ -103,23 +103,7 @@ Proof.
 intros a c Hac b d Hbd.
 unfold apply_poly_with_poly, apply_poly.
 rewrite summation_fold_compat; try eassumption.
-bbb.
-
-inversion Hac; subst.
-inversion Hbd; subst.
-constructor; intros i; simpl.
-constructor.
-constructor.
- unfold apply_poly_with_ps_poly; simpl.
-bbb.
-
-Add Parametric Morphism α (fld : field α) : (@p_series α fld)
-  with signature @eq_polyn α fld ==> eq_series fld
-  as p_series_morph.
-Proof.
-intros a b Hab.
-inversion Hab; subst.
-constructor; assumption.
+reflexivity.
 Qed.
 
 (* exercise... *)
@@ -134,7 +118,7 @@ Let fld := ac_field acf.
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   (.[fld [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] .] =
    .[fld [ps_const fld c; .1 fld%ps … []] .] *
-   .{fld (ps_monom fld .1 fld%F γ).})%pspol.
+   .{fld (ps_monom fld .1 fld%F γ).})%pol.
 Proof.
 intros c γ.
 unfold eq_polyn; simpl.
