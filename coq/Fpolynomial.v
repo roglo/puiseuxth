@@ -192,27 +192,28 @@ induction len; intros.
  destruct j; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-(* TODO: try to make the most general version *)
-Lemma zzz : ∀ α (f : field α) x y l l' len,
+Lemma poly_convol_mul_nil_cons_eq : ∀ α (f : field α) x y l l' i len,
   (x .= f y)%F
   → list_eq f l l'
     → list_eq f
-        (poly_convol_mul f [] [x … l] 1 len)
-        (poly_convol_mul f [] [y … l'] 1 len).
+        (poly_convol_mul f [] [x … l] i len)
+        (poly_convol_mul f [] [y … l'] i len).
 Proof.
-intros α f x y l l' len Hxy Hll'.
-revert x y l l' Hxy Hll'.
+intros α f x y l l' i len Hxy Hll'.
+revert x y l l' i Hxy Hll'.
 induction len; intros; [ constructor | idtac ].
-remember [x … l]; simpl.
+simpl.
 constructor.
  rewrite all_0_summation_0.
   rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros i (_, Hi).
-  destruct i; rewrite fld_mul_0_l; reflexivity.
+  intros j (_, Hj).
+  destruct j; rewrite fld_mul_0_l; reflexivity.
 
-  intros i (_, Hi).
-  destruct i; rewrite fld_mul_0_l; reflexivity.
-bbb.
+  intros j (_, Hj).
+  destruct j; rewrite fld_mul_0_l; reflexivity.
+
+ apply IHlen; assumption.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -238,6 +239,7 @@ induction la as [| a]; intros.
   rewrite fold_list_eq in H0.
   rewrite fold_list_eq.
   erewrite list_eq_length_eq; [ idtac | eassumption ].
+  apply poly_convol_mul_nil_cons_eq; assumption.
 bbb.
    remember (length l) as len.
    remember (length l') as len'.
