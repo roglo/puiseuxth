@@ -384,37 +384,6 @@ do 2 rewrite Zmult_1_r in Hh.
 apply Nat2Z.inj_lt; assumption.
 Qed.
 
-Lemma jz_lt_hz : ∀ (pol : puis_ser_pol α) jz αj jq hz αh hq ns,
-  ns ∈ newton_segments f pol
-  → (jq, αj) = ini_pt ns
-    → (hq, αh) ∈ oth_pts ns
-      → jz = Qnum jq
-        → hz = Qnum hq
-          → (jz < hz)%Z.
-Proof.
-intros pol jz αj jq hz αh hq ns Hns Hjq Hhq Hjz Hhz.
-subst jz hz.
-remember Hns as H; clear HeqH.
-unfold newton_segments in H.
-remember (points_of_ps_polynom f pol) as pts.
-symmetry in Heqpts.
-remember Heqpts as Hjqn; clear HeqHjqn.
-apply pt_absc_is_nat with (pt := (jq, αj)) in Hjqn.
- simpl in Hjqn.
- remember Heqpts as Hhqn; clear HeqHhqn.
- apply pt_absc_is_nat with (pt := (hq, αh)) in Hhqn.
-  simpl in Hhqn.
-  rewrite Hjqn, Hhqn.
-  simpl.
-  apply inj_lt.
-  eapply j_lt_h; try eassumption.
-
-  eapply oth_pts_in_init_pts; eassumption.
-
- rewrite Hjq.
- eapply ini_fin_ns_in_init_pts; eassumption.
-Qed.
-
 Lemma seg_bef_end_pt : ∀ pt₁ pt₂ pts ms₁ hq αh kq αk,
   Sorted fst_lt [pt₁; pt₂ … pts]
   → minimise_slope pt₁ pt₂ pts = ms₁
