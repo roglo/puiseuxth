@@ -7,10 +7,7 @@ Require Import Field.
 Require Import InSegment.
 Require Import Newton.
 Require Import NotInSegment.
-Require Import Polynomial.
-Require Import Power_series.
 Require Import Puiseux_base.
-Require Import Puiseux_series.
 
 Notation "[ ]" := nil.
 Notation "[ x ; .. ; y … l ]" := (cons x .. (cons y l) ..).
