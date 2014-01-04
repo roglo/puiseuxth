@@ -8,6 +8,7 @@ Require Import NPeano.
 
 Require Import Misc.
 Require Import Field.
+Require Import Fsummation.
 
 Set Implicit Arguments.
 
@@ -34,14 +35,6 @@ Definition poly_add α (f : field α) pol₁ pol₂ :=
   {| al := poly_add_loop f (al pol₁) (al pol₂) |}.
 
 (* multiplication *)
-
-Fixpoint summation_aux α (f : field α) b len g :=
-  match len with
-  | O => .0 f%F
-  | S len₁ => (g b .+ f summation_aux f (S b) len₁ g)%F
-  end.
-
-Definition summation α (f : field α) b e g := summation_aux f b (S e - b) g.
 
 Fixpoint poly_convol_mul α (f : field α) al₁ al₂ i len :=
   match len with

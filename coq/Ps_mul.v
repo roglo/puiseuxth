@@ -7,6 +7,7 @@ Require Import NPeano.
 Require Import Misc.
 Require Import Nbar.
 Require Import Field.
+Require Import Fsummation.
 Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
