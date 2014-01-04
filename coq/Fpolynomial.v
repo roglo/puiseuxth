@@ -192,17 +192,14 @@ induction len; intros.
  destruct j; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_cons_eq : ∀ α (f : field α) x y l l' i len,
-  (x .= f y)%F
-  → list_eq f l l'
-    → list_eq f
-        (poly_convol_mul f [] [x … l] i len)
-        (poly_convol_mul f [] [y … l'] i len).
+Lemma poly_convol_mul_nil_eq : ∀ α (f : field α) l l' i len,
+  list_eq f
+    (poly_convol_mul f [] l i len)
+    (poly_convol_mul f [] l' i len).
 Proof.
-intros α f x y l l' i len Hxy Hll'.
-revert x y l l' i Hxy Hll'.
-induction len; intros; [ constructor | idtac ].
-simpl.
+intros α f l l' i len.
+revert l l' i.
+induction len; intros; [ constructor | simpl ].
 constructor.
  rewrite all_0_summation_0.
   rewrite all_0_summation_0; [ reflexivity | idtac ].
@@ -239,7 +236,7 @@ induction la as [| a]; intros.
   rewrite fold_list_eq in H0.
   rewrite fold_list_eq.
   erewrite list_eq_length_eq; [ idtac | eassumption ].
-  apply poly_convol_mul_nil_cons_eq; assumption.
+  apply poly_convol_mul_nil_eq.
 
  simpl.
  destruct lb as [| b].
