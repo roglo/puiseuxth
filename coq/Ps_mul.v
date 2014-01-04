@@ -135,162 +135,6 @@ pose proof (H O) as Hi.
 revert Hi; apply fld_neq_1_0.
 Qed.
 
-Lemma summation_aux_add : ∀ g b k₁ k₂,
-  (summation_aux f b (k₁ + k₂) g .= f
-   summation_aux f b k₁ g .+ f summation_aux f (b + k₁) k₂ g)%F.
-Proof.
-intros g b k₁ k₂.
-revert b k₁.
-induction k₂; intros.
- simpl.
- rewrite Nat.add_0_r, fld_add_0_r; reflexivity.
-
- rewrite Nat.add_succ_r, <- Nat.add_succ_l.
- rewrite IHk₂; simpl.
- rewrite <- Nat.add_succ_r.
- rewrite fld_add_assoc.
- apply fld_add_compat_r.
- clear k₂ IHk₂.
- revert b.
- induction k₁; intros; simpl.
-  rewrite Nat.add_0_r.
-  apply fld_add_comm.
-
-  rewrite <- fld_add_assoc.
-  rewrite IHk₁.
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
-Qed.
-
-Lemma summation_add : ∀ g k₁ k₂,
-  (Σ f (i = 0, k₁ + k₂) _ g i .= f
-   Σ f (i = 0, k₁) _ g i .+ f Σ f (i = S k₁, k₁ + k₂) _ g i)%F.
-Proof.
-intros g k₁ k₂.
-unfold summation.
-do 2 rewrite Nat.sub_0_r.
-rewrite <- Nat.add_succ_l.
-rewrite summation_aux_add; simpl.
-rewrite Nat.add_comm, Nat.add_sub; reflexivity.
-Qed.
-
-Lemma summation_aux_succ : ∀ g b k,
-  (summation_aux f b (S k) g .= f g b .+ f summation_aux f (S b) k g)%F.
-Proof. reflexivity. Qed.
-
-Lemma summation_aux_mul_summation_aux_summation_aux : ∀ g k n,
-  (summation_aux f 0 (S k * S n) g .= f
-   summation_aux f 0 (S k)
-     (λ i, summation_aux f 0 (S n) (λ j, g (i * S n + j)%nat)))%F.
-Proof.
-intros g k n.
-revert n; induction k; intros.
- simpl; rewrite Nat.add_0_r, fld_add_0_r; reflexivity.
-
- remember (S n) as x.
- remember (S k) as y.
- simpl; subst x y.
- rewrite Nat.add_comm.
- rewrite summation_aux_add, IHk.
- symmetry; rewrite fld_add_comm.
- symmetry.
- rewrite summation_aux_succ.
- rewrite fld_add_shuffle0, fld_add_comm.
- symmetry.
- replace (S k) with (k + 1)%nat by omega.
- rewrite summation_aux_add.
- rewrite <- fld_add_assoc.
- apply fld_add_compat_l.
- simpl.
- rewrite fld_add_comm.
- apply fld_add_compat_l.
- symmetry; rewrite Nat.add_comm; simpl.
- rewrite Nat.add_0_r, fld_add_0_r.
- apply fld_add_compat_l.
- apply summation_aux_compat; intros i Hi; simpl.
- rewrite Nat.add_succ_r; reflexivity.
-Qed.
-
-Lemma summation_mul_summation_summation : ∀ g n k,
-  (0 < n)%nat
-  → (0 < k)%nat
-    → (Σ f (i = 0, k * n - 1) _ g i .= f
-       Σ f (i = 0, k - 1) _ Σ f (j = 0, n - 1) _ g (i * n + j)%nat)%F.
-Proof.
-intros g n k Hn Hk.
-unfold summation.
-do 2 rewrite Nat.sub_0_r.
-destruct n; [ exfalso; revert Hn; apply Nat.lt_irrefl | clear Hn ].
-destruct k; [ exfalso; revert Hk; apply Nat.lt_irrefl | clear Hk ].
-rewrite Nat.sub_succ, Nat.sub_0_r.
-rewrite <- Nat.sub_succ_l, Nat.sub_succ, Nat.sub_0_r.
- rewrite summation_aux_mul_summation_aux_summation_aux.
- apply summation_aux_compat; intros i Hi.
- rewrite Nat.sub_succ, Nat.sub_0_r, Nat.sub_0_r.
- reflexivity.
-
- simpl; apply le_n_S, Nat.le_0_l.
-Qed.
-
-Lemma inserted_0_summation : ∀ g h k n,
-  n ≠ O
-  → (∀ i, i mod n ≠ O → (g i .= f .0 f)%F)
-    → (∀ i, (g (n * i)%nat .= f h i)%F)
-      → (Σ f (i = 0, k * n) _ g i .= f Σ f (i = 0, k) _ h i)%F.
-Proof.
-intros g h k n Hn Hf Hfg.
-destruct k.
- rewrite Nat.mul_0_l.
- apply summation_compat; intros i (_, Hi).
- apply Nat.le_0_r in Hi; subst i.
- rewrite <- Hfg, Nat.mul_0_r; reflexivity.
-
- destruct n; [ exfalso; apply Hn; reflexivity | clear Hn ].
- replace (S k * S n)%nat with (S k * S n - 1 + 1)%nat .
-  rewrite summation_add.
-  rewrite summation_mul_summation_summation; try apply Nat.lt_0_succ.
-  rewrite Nat_sub_succ_1, Nat.add_comm, summation_only_one.
-  symmetry.
-  rewrite <- Nat.add_1_r, summation_add, Nat.add_1_r.
-  rewrite summation_only_one, fld_add_comm, <- Hfg.
-  symmetry.
-  rewrite fld_add_comm.
-  rewrite Nat.add_sub_assoc.
-   rewrite Nat.add_comm, Nat.add_sub, Nat.mul_comm.
-   apply fld_add_compat_l, summation_compat; intros i Hi.
-   rewrite Nat_sub_succ_1.
-   rewrite <- Hfg.
-   rewrite Nat.mul_comm.
-   rewrite summation_only_one_non_0 with (v := O).
-    rewrite Nat.add_0_r, Nat.mul_comm.
-    reflexivity.
-
-    split; [ reflexivity | apply Nat.le_0_l ].
-
-    intros j Hjn Hj.
-    rewrite Hf; [ reflexivity | idtac ].
-    rewrite Nat.add_comm.
-    rewrite Nat.mul_comm, Nat.mod_add; auto.
-    intros H; apply Hj; clear Hj.
-    apply Nat.mod_divides in H; auto.
-    destruct H as (c, Hc).
-    destruct c.
-     rewrite Nat.mul_0_r in Hc; assumption.
-
-     rewrite Hc in Hjn.
-     rewrite Nat.mul_comm in Hjn.
-     simpl in Hjn.
-     destruct Hjn as (_, H).
-     apply Nat.nlt_ge in H.
-     exfalso; apply H.
-     apply le_n_S, Nat.le_add_r.
-
-   simpl; apply le_n_S, Nat.le_0_l.
-
-  simpl.
-  rewrite Nat.sub_0_r.
-  rewrite Nat.add_comm; reflexivity.
-Qed.
-
 Lemma series_stretch_mul : ∀ a b k,
   (series_stretch f k (a .* f b) .= f
    series_stretch f k a .* f series_stretch f k b)%ser.
@@ -478,18 +322,6 @@ intros a i n Hin; simpl.
 destruct (lt_dec i n); [ reflexivity | contradiction ].
 Qed.
 
-Lemma summation_add_add_sub : ∀ g b k n,
-  (Σ f (i = b, k) _ g i .= f Σ f (i = b + n, k + n) _ g (i - n)%nat)%F.
-Proof.
-intros g b k n.
-unfold summation.
-replace (S (k + n) - (b + n))%nat with (S k - b)%nat by omega.
-apply summation_aux_compat.
-intros i Hi.
-replace (b + n + i - n)%nat with (b + i)%nat by omega.
-reflexivity.
-Qed.
-
 Lemma series_shift_mul : ∀ a b n,
   (series_shift f n (a .* f b)%ser .= f series_shift f n a .* f b)%ser.
 Proof.
@@ -515,7 +347,7 @@ destruct (lt_dec k n) as [H₂| H₂].
 
   assert (k = (n + (k - n))%nat) as H by omega.
   rewrite H in |- * at 1.
-  rewrite summation_add.
+  rewrite summation_ub_add.
   rewrite fld_add_comm.
   rewrite <- H.
   rewrite fld_add_comm.

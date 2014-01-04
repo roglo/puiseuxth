@@ -13,9 +13,6 @@ Set Implicit Arguments.
 
 Record power_series α := { terms : nat → α }.
 
-Notation "x ≤ y ≤ z" := (x ≤ y ∧ y ≤ z)%nat (at level 70, y at next level).
-Notation "x ≤ y < z" := (x ≤ y ∧ y < z)%nat (at level 70, y at next level).
-
 Delimit Scope series_scope with ser.
 
 Notation "s .[ i ]" := (terms s i) (at level 1).
@@ -144,79 +141,6 @@ Definition series_mul α (f : field α) a b :=
 
 Notation "a .* f b" := (series_mul f a b) : series_scope.
 
-Section theorems_mul.
-
-Variable α : Type.
-Variable f : field α.
-
-Lemma summation_aux_compat : ∀ g h b₁ b₂ len,
-  (∀ i, 0 ≤ i < len → (g (b₁ + i)%nat .= f h (b₂ + i)%nat)%F)
-  → (summation_aux f b₁ len g .= f summation_aux f b₂ len h)%F.
-Proof.
-intros g h b₁ b₂ len Hgh.
-revert b₁ b₂ Hgh.
-induction len; intros; [ reflexivity | simpl ].
-rewrite IHlen.
- apply fld_add_compat_r.
- assert (0 ≤ 0 < S len) as H.
-  split; [ reflexivity | apply Nat.lt_0_succ ].
-
-  apply Hgh in H.
-  do 2 rewrite Nat.add_0_r in H; assumption.
-
- intros i Hi.
- do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
- apply Hgh.
- split; [ apply Nat.le_0_l | idtac ].
- apply lt_n_S.
- destruct Hi; assumption.
-Qed.
-
-Lemma summation_compat : ∀ g h b k,
-  (∀ i, b ≤ i ≤ k → (g i .= f h i)%F)
-  → (Σ f (i = b, k)_ g i .= f Σ f (i = b, k) _ h i)%F.
-Proof.
-intros g h b k Hgh.
-apply summation_aux_compat.
-intros i (_, Hi).
-apply Hgh.
-split; [ apply Nat.le_add_r | omega ].
-Qed.
-
-Lemma summation_mul_comm : ∀ g h b k,
-  (Σ f (i = b, k) _ g i .* f h i
-   .= f Σ f (i = b, k) _ h i .* f g i)%F.
-Proof.
-intros g h b len.
-apply summation_compat; intros i Hi.
-apply fld_mul_comm.
-Qed.
-
-Lemma all_0_summation_aux_0 : ∀ g b len,
-  (∀ i, (b ≤ i < b + len)%nat → (g i .= f .0 f)%F)
-  → (summation_aux f b len (λ i, g i) .= f .0 f)%F.
-Proof.
-intros g b len H.
-revert b H.
-induction len; intros; [ reflexivity | simpl ].
-rewrite H; [ idtac | omega ].
-rewrite fld_add_0_l, IHlen; [ reflexivity | idtac ].
-intros i Hi; apply H; omega.
-Qed.
-
-Lemma all_0_summation_0 : ∀ g i₁ i₂,
-  (∀ i, i₁ ≤ i ≤ i₂ → (g i .= f .0 f)%F)
-  → (Σ f (i = i₁, i₂) _ g i .= f .0 f)%F.
-Proof.
-intros g i₁ i₂ H.
-apply all_0_summation_aux_0.
-intros i (H₁, H₂).
-apply H.
-split; [ assumption | omega ].
-Qed.
-
-End theorems_mul.
-
 Add Parametric Morphism α (F : field α) : (series_mul F)
   with signature eq_series F ==> eq_series F ==> eq_series F
   as series_mul_morph.
@@ -234,66 +158,6 @@ Section misc_lemmas.
 
 Variable α : Type.
 Variable f : field α.
-
-Lemma summation_aux_succ : ∀ g b len,
-  (summation_aux f b (S len) g .= f summation_aux f b len g .+ f g (b + len)%nat)%F.
-Proof.
-intros g b len.
-revert b.
-induction len; intros.
- simpl.
- rewrite fld_add_0_l, fld_add_0_r, Nat.add_0_r.
- reflexivity.
-
- remember (S len) as x; simpl; subst x.
- rewrite IHlen.
- simpl.
- rewrite fld_add_assoc, Nat.add_succ_r.
- reflexivity.
-Qed.
-
-Lemma summation_aux_rtl : ∀ g b len,
-  (summation_aux f b len g .= f
-   summation_aux f b len (λ i, g (b + len - 1 + b - i)%nat))%F.
-Proof.
-(* supprimer ce putain de omega trop lent *)
-intros g b len.
-revert g b.
-induction len; intros; [ reflexivity | idtac ].
-remember (S len) as x.
-rewrite Heqx in |- * at 1.
-simpl; subst x.
-rewrite IHlen.
-rewrite summation_aux_succ.
-replace (b + S len - 1 + b - (b + len))%nat with b by omega.
-rewrite fld_add_comm.
-apply fld_add_compat_r.
-apply summation_aux_compat.
-intros i Hi.
-simpl.
-rewrite Nat.sub_0_r.
-replace (b + len + S b - S (b + i))%nat with
- (b + S len - 1 + b - (b + i))%nat by omega.
-reflexivity.
-Qed.
-
-Lemma summation_rtl : ∀ g b k,
-  (Σ f (i = b, k) _ g i .= f Σ f (i = b, k) _ g (k + b - i)%nat)%F.
-Proof.
-(* supprimer ce putain de omega trop lent *)
-intros g b k.
-unfold summation.
-rewrite summation_aux_rtl.
-apply summation_aux_compat; intros i Hi.
-simpl.
-destruct b; simpl.
- rewrite Nat.sub_0_r; reflexivity.
-
- rewrite Nat.sub_0_r.
- replace (b + (k - b) + S b - S (b + i))%nat with (k + S b - S (b + i))%nat
-  by omega.
- reflexivity.
-Qed.
 
 Theorem convol_mul_comm : ∀ a b i,
   (convol_mul f a b i .= f convol_mul f b a i)%F.
@@ -331,78 +195,6 @@ unfold series_mul; simpl.
 apply convol_mul_0_l.
 Qed.
 
-Lemma summation_aux_mul_swap : ∀ a g b len,
-  (summation_aux f b len (λ i, a .* f g i) .= f a .* f summation_aux f b len g)%F.
-Proof.
-intros a g b len; revert b.
-induction len; intros; simpl.
- rewrite fld_mul_0_r; reflexivity.
-
- rewrite IHlen, fld_mul_add_distr_l.
- reflexivity.
-Qed.
-
-Lemma summation_aux_summation_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
-  (summation_aux f b₁ len
-     (λ i, summation_aux f b₂ (g₁ i) (λ j, g₂ i .* f g₃ i j))
-   .= f summation_aux f b₁ len
-       (λ i, g₂ i .* f summation_aux f b₂ (g₁ i) (λ j, g₃ i j)))%F.
-Proof.
-intros g₁ g₂ g₃ b₁ b₂ len.
-revert b₁ b₂.
-induction len; intros; [ reflexivity | simpl ].
-rewrite IHlen.
-apply fld_add_compat_r.
-apply summation_aux_mul_swap.
-Qed.
-
-Lemma summation_summation_mul_swap : ∀ g₁ g₂ g₃ k,
-  (Σ f (i = 0, k) _ Σ f (j = 0, g₁ i) _ g₂ i .* f g₃ i j
-   .= f Σ f (i = 0, k) _ g₂ i .* f Σ f (j = 0, g₁ i) _ g₃ i j)%F.
-Proof.
-intros g₁ g₂ g₃ k.
-apply summation_aux_summation_aux_mul_swap.
-Qed.
-
-Lemma summation_only_one_non_0 : ∀ g b v k,
-  (b ≤ v ≤ k)%nat
-  → (∀ i, (b ≤ i ≤ k)%nat → (i ≠ v)%nat → (g i .= f .0 f)%F)
-    → (Σ f (i = b, k) _ g i .= f g v)%F.
-Proof.
-intros g b v k (Hbv, Hvk) Hi.
-unfold summation.
-rewrite Nat.sub_succ_l; [ idtac | etransitivity; eassumption ].
-remember (k - b)%nat as len.
-replace k with (b + len)%nat in * by omega.
-clear k Heqlen.
-revert b v Hbv Hvk Hi.
-induction len; intros.
- simpl.
- rewrite fld_add_0_r.
- replace b with v ; [ reflexivity | idtac ].
- rewrite Nat.add_0_r in Hvk.
- apply Nat.le_antisymm; assumption.
-
- remember (S len) as x; simpl; subst x.
- destruct (eq_nat_dec b v) as [H₁| H₁].
-  subst b.
-  rewrite all_0_summation_aux_0.
-   rewrite fld_add_0_r; reflexivity.
-
-   intros j Hj.
-   apply Hi; omega.
-
-  rewrite Hi; [ idtac | omega | assumption ].
-  rewrite fld_add_0_l.
-  apply IHlen.
-   omega.
-
-   rewrite Nat.add_succ_l, <- Nat.add_succ_r; assumption.
-
-   intros j Hjb Hj.
-   apply Hi; [ omega | assumption ].
-Qed.
-
 Theorem series_mul_1_l : ∀ s, (.1 f .* f s .= f s)%ser.
 Proof.
 intros s.
@@ -426,115 +218,6 @@ rewrite series_mul_comm.
 apply series_mul_1_l.
 Qed.
 
-Lemma summation_summation_shift : ∀ g k,
-  (Σ f (i = 0, k) _ Σ f (j = i, k) _ g i j .= f
-   Σ f (i = 0, k) _ Σ f (j = 0, k - i) _ g i (i + j)%nat)%F.
-Proof.
-intros g k.
-apply summation_compat; intros i Hi.
-unfold summation.
-rewrite Nat.sub_0_r.
-rewrite Nat.sub_succ_l; [ idtac | destruct Hi; assumption ].
-apply summation_aux_compat; intros j Hj.
-rewrite Nat.add_0_l; reflexivity.
-Qed.
-
-Lemma summation_only_one : ∀ g n, (Σ f (i = n, n) _ g i .= f g n)%F.
-Proof.
-intros g n.
-unfold summation.
-rewrite Nat.sub_succ_l; [ idtac | reflexivity ].
-rewrite Nat.sub_diag; simpl.
-rewrite fld_add_0_r; reflexivity.
-Qed.
-
-Lemma summation_succ : ∀ g b k,
-  (b ≤ S k)%nat
-  → (Σ f (i = b, S k) _ g i .= f Σ f (i = b, k) _ g i .+ f g (S k))%F.
-Proof.
-intros g b k Hbk.
-unfold summation.
-rewrite Nat.sub_succ_l; [ idtac | assumption ].
-rewrite summation_aux_succ.
-rewrite Nat.add_sub_assoc; [ idtac | assumption ].
-rewrite Nat.add_comm, Nat.add_sub.
-reflexivity.
-Qed.
-
-Lemma summation_aux_succ_fst : ∀ g b len,
-  (summation_aux f b (S len) g .= f g b .+ f summation_aux f (S b) len g)%F.
-Proof. reflexivity. Qed.
-
-Lemma summation_split_first : ∀ g b k,
-  b ≤ k
-  → (Σ f (i = b, k) _ g i .= f g b .+ f Σ f (i = S b, k) _ g i)%F.
-Proof.
-intros g b k Hbk.
-unfold summation.
-rewrite Nat.sub_succ.
-rewrite <- summation_aux_succ_fst.
-rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
-Qed.
-
-Lemma summation_add_distr : ∀ g h b k,
-  (Σ f (i = b, k) _ (g i .+ f h i) .= f
-   Σ f (i = b, k) _ g i .+ f Σ f (i = b, k) _ h i)%F.
-Proof.
-intros g h b k.
-destruct (le_dec b k) as [Hbk| Hbk].
- revert b Hbk.
- induction k; intros.
-  destruct b.
-   do 3 rewrite summation_only_one; reflexivity.
-
-   unfold summation; simpl; rewrite fld_add_0_r; reflexivity.
-
-  rewrite summation_succ; [ idtac | assumption ].
-  rewrite summation_succ; [ idtac | assumption ].
-  rewrite summation_succ; [ idtac | assumption ].
-  destruct (eq_nat_dec b (S k)) as [H₂| H₂].
-   subst b.
-   unfold summation; simpl.
-   rewrite Nat.sub_diag; simpl.
-   do 2 rewrite fld_add_0_l; rewrite fld_add_0_l.
-   reflexivity.
-
-   apply le_neq_lt in Hbk; [ idtac | assumption ].
-   apply Nat.succ_le_mono in Hbk.
-   rewrite IHk; [ idtac | assumption ].
-   do 2 rewrite <- fld_add_assoc.
-   apply fld_add_compat_l.
-   rewrite fld_add_comm.
-   rewrite <- fld_add_assoc.
-   apply fld_add_compat_l.
-   rewrite fld_add_comm.
-   reflexivity.
-
- unfold summation.
- apply Nat.nle_gt in Hbk.
- replace (S k - b)%nat with O by omega; simpl.
- rewrite fld_add_0_r; reflexivity.
-Qed.
-
-Lemma summation_summation_exch : ∀ g k,
-  (Σ f (j = 0, k) _ Σ f (i = 0, j) _ g i j .= f
-   Σ f (i = 0, k) _ Σ f (j = i, k) _ g i j)%F.
-Proof.
-intros g k.
-induction k; [ reflexivity | idtac ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
-rewrite IHk.
-rewrite summation_only_one.
-rewrite fld_add_assoc.
-apply fld_add_compat_r.
-rewrite <- summation_add_distr.
-apply summation_compat; intros i (_, Hi).
-rewrite summation_succ; [ reflexivity | idtac ].
-apply Nat.le_le_succ_r; assumption.
-Qed.
-
 Theorem series_mul_assoc : ∀ a b c,
   (a .* f (b .* f c) .= f (a .* f b) .* f c)%ser.
 Proof.
@@ -556,28 +239,6 @@ rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
-Lemma summation_aux_add : ∀ g h b len,
-  (summation_aux f b len g .+ f summation_aux f b len h .= f
-   summation_aux f b len (λ i, g i .+ f h i))%F.
-Proof.
-intros g h b len.
-revert b.
-induction len; intros; simpl; [ apply fld_add_0_l | idtac ].
-rewrite fld_add_shuffle0.
-do 3 rewrite <- fld_add_assoc.
-do 2 apply fld_add_compat_l.
-rewrite fld_add_comm.
-apply IHlen.
-Qed.
-
-Lemma summation_add : ∀ g h b e,
-  (Σ f (i = b, e) _ g i .+ f Σ f (i = b, e) _ h i .= f
-   Σ f (i = b, e) _ (g i .+ f h i))%F.
-Proof.
-intros g h b e.
-apply summation_aux_add.
-Qed.
-
 Lemma series_nth_add : ∀ a b i,
   (((a .+ f b)%ser) .[i] .= f a .[i] .+ f b .[i])%F.
 Proof. reflexivity. Qed.
@@ -588,7 +249,7 @@ Lemma convol_mul_add_distr_l : ∀ a b c i,
 Proof.
 intros a b c k.
 unfold convol_mul.
-rewrite summation_add.
+rewrite <- summation_fun_add.
 apply summation_compat; intros i Hi.
 rewrite series_nth_add.
 rewrite fld_mul_add_distr_l.
