@@ -132,7 +132,18 @@ induction l₁ as [| x₁]; intros.
  inversion Heq; assumption.
 Qed.
 
-(* TODO: try to make the most general version *)
+Lemma yyy : ∀ α (f : field α) l i len,
+  list_eq f
+    (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] l i (S len))
+    [.0 f%F … pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] l (S i) len].
+Proof.
+intros α f l i len.
+revert i.
+induction len; intros.
+ simpl.
+ constructor.
+bbb.
+
 Lemma zzz : ∀ α (f : field α) x y l l' len,
   (x .= f y)%F
   → list_eq f l l'
