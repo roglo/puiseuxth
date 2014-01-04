@@ -8,11 +8,11 @@ Require Import NPeano.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
+Require Import Nbar.
 Require Import Newton.
 Require Import PolyConvexHull.
-Require Import Polynomial.
-Require Import Nbar.
 Require Import Field.
+Require Import Fpolynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
 Require Import Slope_base.

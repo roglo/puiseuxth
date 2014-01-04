@@ -9,7 +9,6 @@ Require Import Field.
 Require Import Misc.
 Require Import Newton.
 Require Import Nbar.
-Require Import Polynomial.
 Require Import Fpolynomial.
 Require Import Power_series.
 Require Import Puiseux_series.
@@ -22,16 +21,6 @@ Require Import CharactPolyn.
 Set Implicit Arguments.
 
 (* *)
-
-Definition ps_pol_add α (f : field α) :=
-  pol_add (ps_add f).
-Definition ps_pol_mul α (f : field α) :=
-  pol_mul (ps_zero f) (ps_add f) (ps_mul f).
-
-Delimit Scope ps_poly_scope with pspol.
-Notation "a .= f b" := (eq_poly f a b) : ps_poly_scope.
-Notation "a .+ f b" := (ps_pol_add f a b) : ps_poly_scope.
-Notation "a .* f b" := (ps_pol_mul f a b) : ps_poly_scope.
 
 Notation ".[ f l .]" := (mkpol (ps_field f) l)
   (at level 0, f at level 0) :
@@ -55,37 +44,37 @@ Notation ".< f c .>" := (ps_const f c)
   (at level 0, f at level 0, c at level 0) : ps_polyn_scope.
 *)
 
-Definition apply_poly_with_ps_poly α (f : field α) pol :=
+Definition apply_poly_with_poly α (f : field α) pol :=
   apply_poly
     {| al := [] |}
-    (λ pol₁ ps, ps_pol_add f pol₁ {| al := [ps] |})
-    (ps_pol_mul f) pol.
+    (λ pol₁ ps, poly_add f pol₁ {| al := [ps] |})
+    (poly_mul f) pol.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  ps_pol_mul fld {| al := [ps_monom fld (fld_one fld) (- β₁)] |}
-    (apply_poly_with_ps_poly fld f
-       (ps_pol_mul fld {| al := [ps_monom fld (fld_one fld) γ₁] |}
-          {| al := [ps_const fld c₁; ps_one fld … []] |})).
+  poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F (- β₁)] |}
+    (apply_poly_with_poly (ps_field fld) f
+       (poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F γ₁] |}
+          {| al := [ps_const fld c₁; .1 fld%ps … []] |})).
 
 (* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
 Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  ps_pol_mul fld {| al := [ps_monom fld (fld_one fld) (- β₁)] |}
-    (apply_poly_with_ps_poly fld f
-       {| al := [ps_monom fld c₁ γ₁; ps_monom fld (fld_one fld) γ₁ … []] |}).
+  poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F (- β₁)] |}
+    (apply_poly_with_poly (ps_field fld) f
+       {| al := [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []] |}).
 
 (* *)
 
-(**)
+(*
 Lemma yyy : ∀ α (f : field α) a b c d,
-  (a .= (ps_field f) c)%pspol
-  → (b .= (ps_field f) d)%pspol
+  (a .= (ps_field f) c)%pol
+  → (b .= (ps_field f) d)%pol
     → (List.fold_right
          (λ x accu, accu .* f b .+ f {| al := [x] |}) {| al := [] |} 
          (al a) .= (ps_field f)
        List.fold_right
          (λ x accu, accu .* f d .+ f {| al := [x] |}) {| al := [] |} 
-         (al c))%pspol.
+         (al c))%pol.
 Proof.
 intros α f a b c d Hac Hbd.
 inversion Hac; subst.
@@ -110,17 +99,15 @@ bbb.
 *)
 
 (**)
-Add Parametric Morphism α (fld : field α) : (@apply_poly_with_ps_poly α fld)
-  with signature
-    eq_poly (ps_field fld)
-    ==> eq_poly (ps_field fld)
-        ==> eq_poly (ps_field fld)
-  as apply_poly_with_ps_poly_morph.
+Add Parametric Morphism α (fld : field α) : (@apply_poly_with_poly α fld)
+  with signature eq_poly fld ==> eq_poly fld ==> eq_poly fld
+  as apply_poly_with_poly_morph.
 Proof.
 intros a c Hac b d Hbd.
-unfold apply_poly_with_ps_poly, apply_poly.
-rewrite yyy; try eassumption.
+unfold apply_poly_with_poly, apply_poly.
 bbb.
+rewrite yyy; try eassumption.
+
 inversion Hac; subst.
 inversion Hbd; subst.
 constructor; intros i; simpl.

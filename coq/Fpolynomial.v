@@ -8,17 +8,56 @@ Require Import NPeano.
 
 Require Import Misc.
 Require Import Field.
-Require Import Polynomial.
 
 Set Implicit Arguments.
+
+Record polynomial α := mkpol { al : list α }.
 
 Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 
 Definition eq_poly α (f : field α) (x y : polynomial α) :=
   list_eq f (al x) (al y).
 
-Definition poly_add α (f : field α) := pol_add (fld_add f).
-Definition poly_mul α (f : field α) := pol_mul .0 f%F (fld_add f) (fld_mul f).
+(* addition *)
+
+Fixpoint poly_add_loop α (f : field α) al₁ al₂ :=
+  match al₁ with
+  | [] => al₂
+  | [a₁ … bl₁] =>
+      match al₂ with
+      | [] => al₁
+      | [a₂ … bl₂] => [(a₁ .+ f a₂)%F … poly_add_loop f bl₁ bl₂]
+      end
+  end.
+
+Definition poly_add α (f : field α) pol₁ pol₂ :=
+  {| al := poly_add_loop f (al pol₁) (al pol₂) |}.
+
+(* multiplication *)
+
+Fixpoint summation_aux α (f : field α) b len g :=
+  match len with
+  | O => .0 f%F
+  | S len₁ => (g b .+ f summation_aux f (S b) len₁ g)%F
+  end.
+
+Definition summation α (f : field α) b e g := summation_aux f b (S e - b) g.
+
+Fixpoint poly_convol_mul α (f : field α) al₁ al₂ i len :=
+  match len with
+  | O => []
+  | S len₁ =>
+      [summation f O i
+         (λ j, List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f)%F …
+       poly_convol_mul f al₁ al₂ (S i) len₁]
+  end.
+
+Definition poly_mul α (f : field α) pol₁ pol₂ :=
+  {| al :=
+       poly_convol_mul f (al pol₁) (al pol₂) O
+         (max (List.length (al pol₁)) (List.length (al pol₂))) |}.
+
+(* *)
 
 Delimit Scope poly_scope with pol.
 Notation "a .= f b" := (eq_poly f a b) : poly_scope.
@@ -132,10 +171,11 @@ induction l₁ as [| x₁]; intros.
  inversion Heq; assumption.
 Qed.
 
+(*
 Lemma yyy : ∀ α (f : field α) l i len,
   list_eq f
-    (pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] l i (S len))
-    [.0 f%F … pol_convol_mul .0 f%F (fld_add f) (fld_mul f) [] l (S i) len].
+    (poly_convol_mul f [] l i (S len))
+    [.0 f%F … poly_convol_mul f [] l (S i) len].
 Proof.
 intros α f l i len.
 revert i.
@@ -158,6 +198,7 @@ remember [x … l]; simpl.
 bbb.
 *)
 
+(* to be completed...
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as ps_pol_mul_morph.
@@ -202,23 +243,24 @@ bbb.
 
       discriminate Heqlen'.
 bbb.
+*)
 
 Section poly.
 
 Variable α : Type.
 Variable f : field α.
 
-Lemma list_eq_refl : ∀ l, list_eq (fld_eq f) l l.
+Lemma list_eq_refl : ∀ l, list_eq f l l.
 Proof.
 intros l.
 induction l; constructor; [ reflexivity | assumption ].
 Qed.
 
-Lemma list_eq_append_one : ∀ cmp (x₁ x₂ : α) l₁ l₂,
-  list_eq cmp l₁ l₂ ∧ cmp x₁ x₂
-  → list_eq cmp (l₁ ++ [x₁]) (l₂ ++ [x₂]).
+Lemma list_eq_append_one : ∀ x₁ x₂ l₁ l₂,
+  list_eq f l₁ l₂ ∧ (x₁ .= f x₂)%F
+  → list_eq f (l₁ ++ [x₁]) (l₂ ++ [x₂]).
 Proof.
-intros cmp x₁ x₂ l₁ l₂.
+intros x₁ x₂ l₁ l₂.
 revert x₁ x₂ l₂.
 induction l₁ as [| x₃]; intros; simpl.
  destruct l₂ as [| x₄]; simpl.
@@ -239,7 +281,7 @@ induction l₁ as [| x₃]; intros; simpl.
    inversion H; assumption.
 Qed.
 
-(* addition compatibility with equality *)
+(* addition theorems *)
 
 Theorem pol_add_compat : ∀ a b c d,
   (a .= f c)%pol
@@ -250,12 +292,10 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-(* addition commutativity *)
-
-Lemma pol_add_loop_al_comm : ∀ al₁ al₂ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add f) al₁ al₂
-  → rp₂ = pol_add_loop (fld_add f) al₂ al₁
-    → list_eq (fld_eq f) rp₁ rp₂.
+Lemma poly_add_loop_al_comm : ∀ al₁ al₂ rp₁ rp₂,
+  rp₁ = poly_add_loop f al₁ al₂
+  → rp₂ = poly_add_loop f al₂ al₁
+    → list_eq f rp₁ rp₂.
 Proof.
 intros al₁ al₂ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -270,19 +310,17 @@ induction al₁; intros.
   constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
 
-Lemma poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f pol₁)%pol.
+Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
 unfold eq_poly.
-eapply pol_add_loop_al_comm; reflexivity.
+eapply poly_add_loop_al_comm; reflexivity.
 Qed.
 
-(* addition associativity *)
-
-Lemma pol_add_loop_al_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = pol_add_loop (fld_add f) (pol_add_loop (fld_add f) al₁ al₂) al₃
-  → rp₂ = pol_add_loop (fld_add f) al₁ (pol_add_loop (fld_add f) al₂ al₃)
-    → list_eq (fld_eq f) rp₁ rp₂.
+Lemma poly_add_loop_al_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
+  rp₁ = poly_add_loop f (poly_add_loop f al₁ al₂) al₃
+  → rp₂ = poly_add_loop f al₁ (poly_add_loop f al₂ al₃)
+    → list_eq f rp₁ rp₂.
 Proof.
 intros al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
 subst rp₁ rp₂.
@@ -314,12 +352,13 @@ Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
-eapply pol_add_loop_al_assoc; reflexivity.
+eapply poly_add_loop_al_assoc; reflexivity.
 Qed.
 
-(* multiplication compatibility with equality *)
+(* multiplication theorems *)
 
-Theorem pol_mul_compat : ∀ a b c d,
+(* to be completed
+Theorem poly_mul_compat : ∀ a b c d,
   (a .= f c)%pol
   → (b .= f d)%pol
     → (a .* f b .= f c .* f d)%pol.
@@ -327,5 +366,12 @@ Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
+*)
 
 End poly.
+
+(* Horner's algorithm *)
+Definition apply_poly α β γ
+    (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
+    (pol : polynomial β) (x : γ) :=
+  List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).

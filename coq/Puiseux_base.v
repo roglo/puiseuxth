@@ -9,10 +9,10 @@ Require Import Sorting.
 Require Import ConvexHull.
 Require Import ConvexHullMisc.
 Require Import Misc.
-Require Import Newton.
-Require Import Polynomial.
 Require Import Nbar.
+Require Import Newton.
 Require Import Field.
+Require Import Fpolynomial.
 Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Ps_add.
