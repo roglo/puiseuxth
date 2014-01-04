@@ -226,32 +226,55 @@ rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_l : ∀ α (f : field α) l l' i len,
-  list_eq f (poly_convol_mul f [] l i len) (poly_convol_mul f [] l' i len).
+Lemma poly_convol_mul_nil_l : ∀ α (f : field α) l l' i j len,
+  list_eq f (poly_convol_mul f [] l i len) (poly_convol_mul f [] l' j len).
 Proof.
-intros α f l l' i len.
-revert l l' i.
+intros α f l l' i j len.
+revert l l' i j.
 induction len; intros; [ constructor | simpl ].
 constructor.
  rewrite all_0_summation_0.
   rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  destruct j; rewrite fld_mul_0_l; reflexivity.
+  intros k (_, Hk).
+  destruct k; rewrite fld_mul_0_l; reflexivity.
 
-  intros j (_, Hj).
-  destruct j; rewrite fld_mul_0_l; reflexivity.
+  intros k (_, Hk).
+  destruct k; rewrite fld_mul_0_l; reflexivity.
 
  apply IHlen; assumption.
 Qed.
 
-Lemma poly_convol_mul_nil_r : ∀ α (f : field α) l l' i len,
-  list_eq f (poly_convol_mul f l [] i len) (poly_convol_mul f l' [] i len).
+Lemma poly_convol_mul_nil_r : ∀ α (f : field α) l l' i j len,
+  list_eq f (poly_convol_mul f l [] i len) (poly_convol_mul f l' [] j len).
 Proof.
-intros α f l l' i len.
+intros α f l l' i j len.
 rewrite poly_convol_mul_comm; symmetry.
 rewrite poly_convol_mul_comm; symmetry.
 apply poly_convol_mul_nil_l.
 Qed.
+
+Lemma zzz : ∀ α (f : field α) la lb lc ld i,
+  list_eq f la lc
+  → list_eq f lb ld
+    → list_eq f (poly_convol_mul f la lb i (max (length la) (length lb)))
+        (poly_convol_mul f lc ld (S i) (max (length lc) (length ld) - i)).
+Proof.
+intros α f la lb lc ld i Hac Hbd.
+revert lb lc ld i Hac Hbd.
+induction la as [| a]; intros.
+ simpl.
+ inversion Hac; subst; simpl.
+ inversion Hbd; subst; simpl; [ constructor | idtac ].
+ destruct i.
+  simpl.
+  constructor.
+   unfold summation; simpl.
+   do 3 rewrite fld_mul_0_l.
+   do 2 rewrite fld_add_0_l; reflexivity.
+
+   erewrite list_eq_length_eq; [ idtac | eassumption ].
+   apply poly_convol_mul_nil_l.
+bbb.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -265,6 +288,8 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
+bbb.
+
 revert lb lc ld Hac Hbd.
 induction la as [| a]; intros.
  simpl.
