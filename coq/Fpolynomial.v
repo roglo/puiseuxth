@@ -64,6 +64,30 @@ Add Parametric Relation α (f : field α) : (list α) (list_eq f)
  transitivity proved by (list_eq_trans (f := f))
  as list_eq_rel.
 
+Theorem eq_poly_refl α (f : field α) : reflexive _ (eq_poly f).
+Proof.
+intros pol.
+unfold eq_poly; reflexivity.
+Qed.
+
+Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
+Proof.
+intros pol₁ pol₂ Heq.
+unfold eq_poly; symmetry; assumption.
+Qed.
+
+Theorem eq_poly_trans α (f : field α) : transitive _ (eq_poly f).
+Proof.
+intros pol₁ pol₂ pol₃ H₁ H₂.
+unfold eq_poly; etransitivity; eassumption.
+Qed.
+
+Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
+ reflexivity proved by (eq_poly_refl f)
+ symmetry proved by (eq_poly_sym (f := f))
+ transitivity proved by (eq_poly_trans (f := f))
+ as eq_poly_rel.
+
 (* addition *)
 
 Fixpoint poly_add_loop α (f : field α) al₁ al₂ :=
@@ -102,66 +126,6 @@ Notation "a .+ f b" := (poly_add f a b) : poly_scope.
 Notation "a .* f b" := (poly_mul f a b) : poly_scope.
 
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
-
-(*
-Theorem eq_poly_refl α (f : field α) : reflexive _ (eq_poly f).
-Proof.
-intros pol.
-unfold eq_poly, list_eq.
-induction (al pol); constructor; [ reflexivity | assumption ].
-Qed.
-
-Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
-Proof.
-intros pol₁ pol₂ Heq.
-unfold eq_poly, list_eq.
-unfold eq_poly, list_eq in Heq.
-remember (al pol₁) as l₁.
-remember (al pol₂) as l₂.
-clear pol₁ pol₂ Heql₁ Heql₂.
-revert l₂ Heq.
-induction l₁ as [| x₁]; intros.
- destruct l₂; [ constructor | inversion Heq ].
-
- destruct l₂ as [| x₂]; [ inversion Heq | idtac ].
- constructor.
-  inversion Heq; subst; symmetry; assumption.
-
-  inversion Heq; subst; apply IHl₁; assumption.
-Qed.
-
-Theorem eq_poly_trans α (f : field α) : transitive _ (eq_poly f).
-Proof.
-intros pol₁ pol₂ pol₃ H₁ H₂.
-unfold eq_poly, list_eq.
-unfold eq_poly, list_eq in H₁.
-unfold eq_poly, list_eq in H₂.
-remember (al pol₁) as l₁.
-remember (al pol₂) as l₂.
-remember (al pol₃) as l₃.
-revert H₁ H₂; clear; intros.
-revert l₁ l₃ H₁ H₂.
-induction l₂ as [| x₂]; intros.
- inversion H₁; subst; assumption.
-
- destruct l₁ as [| x₁]; [ inversion H₁ | idtac ].
- destruct l₃ as [| x₃]; [ inversion H₂ | idtac ].
- constructor.
-  inversion H₁; subst.
-  inversion H₂; subst.
-  transitivity x₂; assumption.
-
-  inversion H₁; subst.
-  inversion H₂; subst.
-  apply IHl₂; assumption.
-Qed.
-
-Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
- reflexivity proved by (eq_poly_refl f)
- symmetry proved by (eq_poly_sym (f := f))
- transitivity proved by (eq_poly_trans (f := f))
- as eq_poly_rel.
-*)
 
 Add Parametric Morphism α (f : field α) : (poly_add f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
