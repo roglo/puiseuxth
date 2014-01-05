@@ -149,7 +149,7 @@ unfold eq_poly.
 unfold f₁, f'₁.
 unfold apply_poly_with_poly.
 unfold apply_poly.
-Show. bbb.
+bbb.
 constructor; intros k; simpl.
 unfold convol_mul; simpl.
 rewrite <- fold_eq_ps.
