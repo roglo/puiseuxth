@@ -21,7 +21,7 @@ Record puiseux_series α := mkps
 
 Section Axioms.
 
-(* [null_coeff_range_length rng s n] returns the number of consecutive
+(* [null_coeff_range_length fld s n] returns the number of consecutive
    null coefficients in the series [s], starting from the [n]th one. *)
 Definition null_coeff_range_length : ∀ α,
   field α → power_series α → nat → Nbar.
@@ -39,7 +39,7 @@ Definition null_coeff_range_length_prop α (f : field α) s n v :=
 Axiom null_coeff_range_length_iff : ∀ α (f : field α) s n v,
   null_coeff_range_length f s n = v ↔ null_coeff_range_length_prop f s n v.
 
-(* [greatest_series_x_power rng s n] returns the greatest nat value [k]
+(* [greatest_series_x_power fld s n] returns the greatest nat value [k]
    such that [s], starting at index [n], is a series in [x^k]. *)
 Definition greatest_series_x_power : ∀ α,
   field α → power_series α → nat → nat.
