@@ -107,10 +107,10 @@ Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  ({| al := [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] |}
-   .= (ps_field fld)
-   {| al := [ps_const fld c; .1 fld%ps … []] |} .* 
-   (ps_field fld) {| al := [ps_monom fld .1 fld%F γ] |})%pol.
+  (POL [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] .= 
+   (ps_field fld)
+   POL [ps_const fld c; .1 fld%ps … []] .* (ps_field fld)
+   POL [ps_monom fld .1 fld%F γ])%pol.
 Proof.
 intros c γ.
 constructor.
@@ -145,6 +145,10 @@ Lemma zzz : ∀ f β₁ γ₁ c₁,
   (f₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
 Proof.
 intros f β₁ γ₁ c₁.
+unfold eq_poly.
+unfold f₁, f'₁.
+unfold apply_poly_with_poly.
+unfold apply_poly.
 Show. bbb.
 constructor; intros k; simpl.
 unfold convol_mul; simpl.
