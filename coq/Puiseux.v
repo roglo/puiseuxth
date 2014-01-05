@@ -24,21 +24,15 @@ Set Implicit Arguments.
 (* *)
 
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
+(*
 Notation "'YPOL' a" := {| al := [a] |}
   (at level 1, a at level 1) : poly_scope.
 Notation "'YPOL' a + b 'Y'" := {| al := [a; b … []] |}
   (at level 1, a at level 1, b at level 1) : poly_scope.
-(*
-Notation "'YPOL' f a" := (polyn_of_list (ps_field f) [a])
-  (at level 0, f at level 0, a at level 0) :
-  ps_polyn_scope.
-Notation "'YPOL' f a + b * 'Y'" := (polyn_of_list (ps_field f) [a; b … []])
-  (at level 50, f at level 0, a at level 0, b at level 0) :
-  ps_polyn_scope.
-Notation ".{ f c * 'X^' q .}" := (ps_monom f c q)
-  (at level 0, f at level 0, c at level 0, q at level 0) : ps_polyn_scope.
-Notation ".< f c .>" := (ps_const f c)
-  (at level 0, f at level 0, c at level 0) : ps_polyn_scope.
+Notation "'XMON' f c g" := (ps_monom f c g)
+  (at level 2, f at level 1, c at level 1, g at level 1) : poly_scope.
+Notation "'CST' f c" := (ps_const f c)
+  (at level 2, f at level 1, c at level 1) : poly_scope.
 *)
 
 Definition apply_poly_with_poly α (f : field α) pol :=
