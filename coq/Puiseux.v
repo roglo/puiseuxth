@@ -149,33 +149,29 @@ unfold eq_poly.
 unfold f₁, f'₁.
 unfold apply_poly_with_poly.
 unfold apply_poly.
-bbb.
-constructor; intros k; simpl.
-unfold convol_mul; simpl.
-rewrite <- fold_eq_ps.
-apply sigma_compat; intros i (_, Hi); simpl.
-apply ps_mul_compat_l.
-bbb.
-rewrite x_pow_γ_mul_add_distr_r.
-
- unfold apply_poly_with_ps_poly.
- unfold ps_pol_add; simpl.
- unfold pol_add; simpl.
- unfold ps_pol_mul; simpl.
- unfold pol_mul; simpl.
-bbb.
-
-intros f β₁ γ₁ c₁.
-unfold f₁, f₁'.
-do 2 f_equal.
-unfold ps_pol_mul.
-unfold pol_mul.
+unfold ps_const.
+remember (al f) as l; clear Heql.
+induction l as [| ps]; [ reflexivity | idtac ].
+remember
+ (λ (c : puiseux_series α) (accu : polynomial (puiseux_series α)),
+  accu .* (ps_field fld)
+  (POL [ps_monom fld .1 fld%F γ₁] .* (ps_field fld)
+   POL [ps_monom fld c₁ 0; .1 fld%ps … []]) .+ (ps_field fld)
+  POL [c])%pol.
+remember
+ (λ (c : puiseux_series α) (accu : polynomial (puiseux_series α)),
+  accu .* (ps_field fld)
+  POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []] .+
+  (ps_field fld) POL [c])%pol.
 simpl.
-f_equal; simpl.
- rewrite Z.mul_1_r, Z.add_0_r.
- unfold ps_monom; simpl.
- rewrite Plcm_comm, Plcm_1_l.
- do 3 f_equal.
+remember (length (al (p ps (List.fold_right p POL []%pol l)))).
+remember (length (al (p0 ps (List.fold_right p0 POL []%pol l)))).
+destruct n.
+ destruct n0.
+  simpl.
+  constructor; [ idtac | constructor ].
+  do 2 rewrite summation_only_one.
+  apply ps_mul_compat_l.
 bbb.
 
 (* *)
