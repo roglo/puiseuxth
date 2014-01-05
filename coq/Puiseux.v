@@ -106,9 +106,6 @@ Variable acf : algeb_closed_field α.
 Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
-(* think about something like distributivity; it is not distributivity
-   of polynomials but a kind of discributivity of monomials constituing
-   polynomials, something like that *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
   ({| al := [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] |}
    .= (ps_field fld)
@@ -116,56 +113,39 @@ Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
    (ps_field fld) {| al := [ps_monom fld .1 fld%F γ] |})%pol.
 Proof.
 intros c γ.
-Show.
-unfold eq_poly; simpl.
-bbb.
-constructor; intros k; simpl.
-unfold convol_mul.
-unfold convol_mul; simpl.
-destruct k; simpl.
- rewrite sigma_only_one; simpl.
+constructor.
+ rewrite summation_only_one.
+ rewrite Nat.sub_diag; simpl.
  unfold ps_mul; simpl.
- rewrite stretch_series_1.
- rewrite series_mul_1_r.
+ rewrite series_stretch_1.
  rewrite Z.mul_1_r.
  unfold cm; simpl.
+ unfold ps_monom.
+ rewrite series_mul_1_r.
  rewrite fold_series_const.
  rewrite stretch_series_const.
  reflexivity.
 
- destruct k; simpl.
-  unfold sigma; simpl.
-  rewrite ps_mul_1_l, ps_add_0_r.
-  rewrite ps_mul_0_r, ps_add_0_l.
-  reflexivity.
-
-  destruct k; simpl.
-   unfold sigma; simpl.
-   rewrite ps_mul_0_r, ps_add_0_l.
-   rewrite ps_mul_0_r, ps_add_0_l.
-   rewrite ps_mul_0_l, ps_add_0_l.
-   reflexivity.
-
-   unfold sigma; simpl.
-   rewrite ps_mul_0_r, ps_add_0_l.
-   rewrite ps_mul_0_r, ps_add_0_l.
-   rewrite ps_mul_0_l, ps_add_0_l.
-   rewrite ps_mul_0_l, ps_add_0_l.
-   rewrite all_0_sigma_aux_0; [ reflexivity | idtac ].
-   intros i (Hi, Hik).
-   destruct i; [ exfalso; omega | idtac ].
-   destruct i; [ exfalso; omega | idtac ].
-   destruct i; [ exfalso; omega | idtac ].
-   rewrite ps_mul_0_l; reflexivity.
+ constructor; [ idtac | constructor ].
+ unfold summation.
+ rewrite Nat.sub_0_r.
+ unfold summation_aux.
+ rewrite Nat.sub_0_r; simpl.
+ rewrite ps_mul_1_l.
+ rewrite ps_add_0_r.
+ rewrite ps_mul_0_r.
+ rewrite ps_add_0_l.
+ reflexivity.
 Qed.
 
 Lemma fold_eq_ps : fld_eq (ps_field fld) = eq_ps fld.
 Proof. reflexivity. Qed.
 
 Lemma zzz : ∀ f β₁ γ₁ c₁,
-  ((f₁ f β₁ γ₁ c₁:polyn (ps_field fld)) = f'₁ f β₁ γ₁ c₁)%pspol.
+  (f₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
 Proof.
 intros f β₁ γ₁ c₁.
+Show. bbb.
 constructor; intros k; simpl.
 unfold convol_mul; simpl.
 rewrite <- fold_eq_ps.
