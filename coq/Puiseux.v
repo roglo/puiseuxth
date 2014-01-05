@@ -172,6 +172,15 @@ destruct n.
   constructor; [ idtac | constructor ].
   do 2 rewrite summation_only_one.
   apply ps_mul_compat_l.
+  revert Heqp Heqp0; clear; intros.
+  revert ps.
+  induction l as [| ps₂]; intros.
+   simpl.
+   subst p p0; simpl.
+   do 3 rewrite summation_only_one; simpl.
+   do 2 rewrite ps_mul_0_l; reflexivity.
+
+   simpl.
 bbb.
 
 (* *)
