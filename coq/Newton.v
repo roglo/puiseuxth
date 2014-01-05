@@ -1,4 +1,4 @@
-(* $Id: Newton.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* Newton.v *)
 
 Require Import Utf8.
 Require Import QArith.

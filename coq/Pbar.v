@@ -1,4 +1,4 @@
-(* $Id: Pbar.v,v 2.0 2013-11-02 01:12:58 deraugla Exp $ *)
+(* Pbar.v *)
 
 Require Import Utf8.
 Require Import ZArith.
