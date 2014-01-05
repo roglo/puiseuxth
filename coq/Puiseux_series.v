@@ -22,7 +22,7 @@ Record puiseux_series α := mkps
 Section Axioms.
 
 (* [null_coeff_range_length rng s n] returns the number of consecutive
-   null coefficients in the series [s], from the [n]th one. *)
+   null coefficients in the series [s], starting from the [n]th one. *)
 Definition null_coeff_range_length : ∀ α,
   field α → power_series α → nat → Nbar.
 Admitted.
