@@ -48,7 +48,7 @@ Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
        (poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F γ₁] |}
           {| al := [ps_const fld c₁; .1 fld%ps … []] |})).
 
-(* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ.y₁) *)
+(* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ₁.y₁) *)
 Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
   poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F (- β₁)] |}
     (apply_poly_with_poly (ps_field fld) f
