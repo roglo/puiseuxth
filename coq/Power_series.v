@@ -13,8 +13,6 @@ Set Implicit Arguments.
 
 Record power_series α := { terms : nat → α }.
 
-Delimit Scope series_scope with ser.
-
 Notation "s .[ i ]" := (terms s i) (at level 1).
 
 Definition series_0 α (f : field α) :=
@@ -25,6 +23,7 @@ Definition series_const α (f : field α) c :=
 Definition series_1 α (f : field α) :=
   series_const f (.1 f%F).
 
+Delimit Scope series_scope with ser.
 Notation ".0 f" := (series_0 f) : series_scope.
 Notation ".1 f" := (series_1 f) : series_scope.
 
