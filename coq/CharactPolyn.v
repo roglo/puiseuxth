@@ -2009,4 +2009,55 @@ destruct i.
   assumption.
 Qed.
 
+Fixpoint list_shrink cnt k (l : list α) :=
+  match l with
+  | [] => []
+  | [x₁ … l₁] =>
+      match cnt with
+      | O => [x₁ … list_shrink k k l₁]
+      | S n => list_shrink n k l₁
+      end
+  end.
+
+Definition poly_shrink k (p : polynomial α) :=
+  POL (list_shrink 0 k (al p))%pol.
+
+Definition poly_left_shift n (p : polynomial α) :=
+  POL (List.skipn n (al p))%pol.
+
+Definition Φ p j q := poly_shrink q (poly_left_shift j p).
+
+(* not real degree, since last coefficient can be null *)
+Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
+
+(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
+   where Φ(z) is a polynomial, of degree (k - j)/q » *)
+Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
+  ns ∈ newton_segments f pol
+  → cpol = characteristic_polynomial f pol ns
+    → (Qnat j, αj) = ini_pt ns
+      → (Qnat k, αk) = fin_pt ns
+        → m = series_list_com_polord (al pol)
+          → ∃ mj mk, αj == mj # m ∧ αk == mk # m
+            ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
+              ∧ (∃ sk, k = j + sk * q ∧ sk ≠ 0)%nat
+              ∧ (∀ h αh, (Qnat h, αh) ∈ oth_pts ns
+                 → ∃ mh sh, αh == mh # m ∧ h = j + sh * q)%nat
+              ∧ pseudo_degree (Φ cpol j q) = ((k - j) / q)%nat.
+Proof.
+intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
+remember Hns as H; clear HeqH.
+eapply characteristic_polynomial_is_in_x_power_q in H; try eassumption.
+destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
+destruct H as (Hmh, Hpxq).
+exists mj, mk.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+exists p, q.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+bbb.
+
 End theorems.

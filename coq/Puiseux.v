@@ -23,7 +23,6 @@ Set Implicit Arguments.
 
 (* *)
 
-Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 (*
 Notation "'YPOL' a" := {| al := [a] |}
   (at level 1, a at level 1) : poly_scope.

@@ -16,8 +16,13 @@ Record polynomial α := mkpol { al : list α }.
 
 Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 
+Delimit Scope poly_scope with pol.
+Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
+
 Definition eq_poly α (f : field α) (x y : polynomial α) :=
   list_eq f (al x) (al y).
+
+Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
 Theorem list_eq_refl α (f : field α) : reflexive _ (list_eq f).
 Proof.
@@ -120,8 +125,6 @@ Definition poly_mul α (f : field α) pol₁ pol₂ :=
 
 (* *)
 
-Delimit Scope poly_scope with pol.
-Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 Notation "a .+ f b" := (poly_add f a b) : poly_scope.
 Notation "a .* f b" := (poly_mul f a b) : poly_scope.
 
