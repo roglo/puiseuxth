@@ -962,6 +962,14 @@ simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
+Definition p_of_jk_pts j mj k mk :=
+  let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
+  ((mj - mk) / g)%Z.
+
+Definition q_of_jk_pts j mj k mk :=
+  let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
+  Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
+
 (* [Walker, p. 100]: «
                         p
           γ₁ = [...] = ---
@@ -1192,9 +1200,6 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
                 ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
-remember Heqm as Hm; clear HeqHm.
-eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
-destruct Heqm as (p, (q, (Hgamma, Hgcd))).
 remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
 remember (List.nth j (al pol) .0 f%ps) as jps.
@@ -1221,6 +1226,9 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   exists mk.
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
+  remember Heqm as Hm; clear HeqHm.
+  eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
+  destruct Heqm as (p, (q, (Hgamma, Hgcd))).
   exists p, (Pos.to_nat q).
   rewrite positive_nat_Z.
   split; [ assumption | idtac ].
