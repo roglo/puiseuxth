@@ -141,58 +141,40 @@ Qed.
 Lemma fold_eq_ps : fld_eq (ps_field fld) = eq_ps fld.
 Proof. reflexivity. Qed.
 
-Lemma zzz : ∀ f β₁ γ₁ c₁,
+Lemma f₁_eq_f'₁ : ∀ f β₁ γ₁ c₁,
   (f₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
 Proof.
 intros f β₁ γ₁ c₁.
 unfold f₁, f'₁.
-remember
- (POL [ps_monom fld .1 fld%F γ₁] .* (ps_field fld)
-  POL [ps_const fld c₁; .1 fld%ps … []])%pol as p₁.
+remember POL [ps_monom fld .1 fld%F γ₁]%pol as p.
+remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
+remember (p .* (ps_field fld) p')%pol as p₁; subst p p'.
 remember POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []]%pol as p₂.
 assert (p₁ .= (ps_field fld) p₂)%pol as Heq.
- 2: rewrite Heq; reflexivity.
-bbb.
+ subst p₁ p₂.
+ constructor.
+  rewrite summation_only_one.
+  rewrite Nat.sub_diag; simpl.
+  unfold ps_mul; simpl.
+  rewrite series_stretch_1.
+  do 2 rewrite fold_series_const.
+  rewrite stretch_series_const.
+  rewrite series_mul_1_l.
+  rewrite Z.add_0_r, Z.mul_1_r.
+  unfold cm; simpl.
+  rewrite Pos.mul_1_r.
+  reflexivity.
 
-intros f β₁ γ₁ c₁.
-unfold eq_poly.
-unfold f₁, f'₁.
-unfold apply_poly_with_poly.
-bbb.
-unfold apply_poly.
-unfold ps_const.
-remember (al f) as l; clear Heql.
-induction l as [| ps]; [ reflexivity | idtac ].
-remember
- (λ (c : puiseux_series α) (accu : polynomial (puiseux_series α)),
-  accu .* (ps_field fld)
-  (POL [ps_monom fld .1 fld%F γ₁] .* (ps_field fld)
-   POL [ps_monom fld c₁ 0; .1 fld%ps … []]) .+ (ps_field fld)
-  POL [c])%pol.
-remember
- (λ (c : puiseux_series α) (accu : polynomial (puiseux_series α)),
-  accu .* (ps_field fld)
-  POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []] .+
-  (ps_field fld) POL [c])%pol.
-simpl.
-remember (length (al (p ps (List.fold_right p POL []%pol l)))).
-remember (length (al (p0 ps (List.fold_right p0 POL []%pol l)))).
-destruct n.
- destruct n0.
-  simpl.
   constructor; [ idtac | constructor ].
-  do 2 rewrite summation_only_one.
-  apply ps_mul_compat_l.
-  revert Heqp Heqp0; clear; intros.
-  revert ps.
-  induction l as [| ps₂]; intros.
-   simpl.
-   subst p p0; simpl.
-   do 3 rewrite summation_only_one; simpl.
-   do 2 rewrite ps_mul_0_l; reflexivity.
+  remember POL [ps_monom fld .1 fld%F γ₁]%pol as p.
+  remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
+  unfold summation, summation_aux; simpl.
+  subst p p'; simpl.
+  rewrite ps_mul_1_r, ps_add_0_r, ps_mul_0_l, ps_add_0_r.
+  reflexivity.
 
-   simpl.
-bbb.
+ rewrite Heq; reflexivity.
+Qed.
 
 (* *)
 
