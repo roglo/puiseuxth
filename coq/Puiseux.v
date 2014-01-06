@@ -145,9 +145,20 @@ Lemma zzz : ∀ f β₁ γ₁ c₁,
   (f₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
 Proof.
 intros f β₁ γ₁ c₁.
+unfold f₁, f'₁.
+remember
+ (POL [ps_monom fld .1 fld%F γ₁] .* (ps_field fld)
+  POL [ps_const fld c₁; .1 fld%ps … []])%pol as p₁.
+remember POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []]%pol as p₂.
+assert (p₁ .= (ps_field fld) p₂)%pol as Heq.
+ 2: rewrite Heq; reflexivity.
+bbb.
+
+intros f β₁ γ₁ c₁.
 unfold eq_poly.
 unfold f₁, f'₁.
 unfold apply_poly_with_poly.
+bbb.
 unfold apply_poly.
 unfold ps_const.
 remember (al f) as l; clear Heql.
