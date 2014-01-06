@@ -96,7 +96,7 @@ Fixpoint poly_add_loop α (f : field α) al₁ al₂ :=
   | [a₁ … bl₁] =>
       match al₂ with
       | [] => al₁
-      | [a₂ … bl₂] => [(a₁ .+ f a₂)%F … poly_add_loop f bl₁ bl₂]
+      | [a₂ … bl₂] => [(a₁ .+ f a₂)%K … poly_add_loop f bl₁ bl₂]
       end
   end.
 
@@ -269,7 +269,7 @@ Variable α : Type.
 Variable f : field α.
 
 Lemma list_eq_append_one : ∀ x₁ x₂ l₁ l₂,
-  list_eq f l₁ l₂ ∧ (x₁ .= f x₂)%F
+  list_eq f l₁ l₂ ∧ (x₁ .= f x₂)%K
   → list_eq f (l₁ ++ [x₁]) (l₂ ++ [x₂]).
 Proof.
 intros x₁ x₂ l₁ l₂.

@@ -47,7 +47,7 @@ Record field α :=
       not (fld_eq a fld_zero)
       → fld_eq (fld_mul (fld_inv a) a) fld_one }.
 
-Delimit Scope field_scope with F.
+Delimit Scope field_scope with K.
 Notation "a .= f b" := (fld_eq f a b) : field_scope.
 Notation "a .≠ f b" := (¬ fld_eq f a b) : field_scope.
 Notation "a .+ f b" := (fld_add f a b) : field_scope.
@@ -113,61 +113,61 @@ Section misc_theorems.
 Variable α : Type.
 Variable f : field α.
 
-Theorem fld_add_opp_r : ∀ x, (x .- f x .= f .0 f)%F.
+Theorem fld_add_opp_r : ∀ x, (x .- f x .= f .0 f)%K.
 Proof.
 intros x; simpl; rewrite fld_add_comm.
 apply fld_add_opp_l.
 Qed.
 
-Theorem fld_mul_1_r : ∀ a, (a .* f .1 f .= f a)%F.
+Theorem fld_mul_1_r : ∀ a, (a .* f .1 f .= f a)%K.
 Proof.
 intros a; simpl.
 rewrite fld_mul_comm, fld_mul_1_l.
 reflexivity.
 Qed.
 
-Theorem fld_mul_inv_r : ∀ x, (x .≠ f .0 f)%F → (x .* f .¹/ f x .= f .1 f)%F.
+Theorem fld_mul_inv_r : ∀ x, (x .≠ f .0 f)%K → (x .* f .¹/ f x .= f .1 f)%K.
 Proof.
 intros x H; simpl; rewrite fld_mul_comm.
 apply fld_mul_inv_l; assumption.
 Qed.
 
 Theorem fld_add_compat_r : ∀ a b c,
-  (a .= f b)%F
-  → (a .+ f c .= f b .+ f c)%F.
+  (a .= f b)%K
+  → (a .+ f c .= f b .+ f c)%K.
 Proof.
 intros a b c Hab.
 rewrite Hab; reflexivity.
 Qed.
 
 Theorem fld_add_compat : ∀ a b c d,
-  (a .= f b)%F
-  → (c .= f d)%F
-    → (a .+ f c .= f b .+ f d)%F.
+  (a .= f b)%K
+  → (c .= f d)%K
+    → (a .+ f c .= f b .+ f d)%K.
 Proof.
 intros a b c d Hab Hcd.
 rewrite Hab, Hcd; reflexivity.
 Qed.
 
 Theorem fld_mul_compat_r : ∀ a b c,
-  (a .= f b)%F
-  → (a .* f c .= f b .* f c)%F.
+  (a .= f b)%K
+  → (a .* f c .= f b .* f c)%K.
 Proof.
 intros a b c Hab; simpl in Hab |- *.
 rewrite Hab; reflexivity.
 Qed.
 
 Theorem fld_mul_compat : ∀ a b c d,
-  (a .= f b)%F
-  → (c .= f d)%F
-    → (a .* f c .= f b .* f d)%F.
+  (a .= f b)%K
+  → (c .= f d)%K
+    → (a .* f c .= f b .* f d)%K.
 Proof.
 intros a b c d Hab Hcd.
 rewrite Hab, Hcd; reflexivity.
 Qed.
 
 Theorem fld_mul_add_distr_r : ∀ x y z,
-  ((x .+ f y) .* f z .= f x .* f z .+ f y .* f z)%F.
+  ((x .+ f y) .* f z .= f x .* f z .+ f y .* f z)%K.
 Proof.
 intros x y z; simpl.
 rewrite fld_mul_comm.
@@ -179,30 +179,30 @@ assert (fld_eq f (fld_mul f z y) (fld_mul f y z)) as H.
  rewrite H; reflexivity.
 Qed.
 
-Theorem fld_add_0_r : ∀ a, (a .+ f .0 f .= f a)%F.
+Theorem fld_add_0_r : ∀ a, (a .+ f .0 f .= f a)%K.
 Proof.
 intros a; simpl.
 rewrite fld_add_comm.
 apply fld_add_0_l.
 Qed.
 
-Theorem opp_0 : (.- f .0 f .= f .0 f)%F.
+Theorem opp_0 : (.- f .0 f .= f .0 f)%K.
 Proof.
 simpl; etransitivity; [ symmetry; apply fld_add_0_l | idtac ].
 apply fld_add_opp_r.
 Qed.
 
-Theorem fld_add_reg_r : ∀ a b c, (a .+ f c .= f b .+ f c)%F → (a .= f b)%F.
+Theorem fld_add_reg_r : ∀ a b c, (a .+ f c .= f b .+ f c)%K → (a .= f b)%K.
 Proof.
 intros a b c Habc; simpl in Habc; simpl.
-apply fld_add_compat_r with (c := (.- f c)%F) in Habc.
+apply fld_add_compat_r with (c := (.- f c)%K) in Habc.
 do 2 rewrite <- fld_add_assoc in Habc.
 rewrite fld_add_opp_r in Habc.
 do 2 rewrite fld_add_0_r in Habc.
 assumption.
 Qed.
 
-Theorem fld_add_reg_l : ∀ a b c, (c .+ f a .= f c .+ f b)%F → (a .= f b)%F.
+Theorem fld_add_reg_l : ∀ a b c, (c .+ f a .= f c .+ f b)%K → (a .= f b)%K.
 Proof.
 intros a b c Habc; simpl in Habc; simpl.
 apply fld_add_reg_r with (c := c).
@@ -211,7 +211,7 @@ rewrite fld_add_comm; symmetry.
 assumption.
 Qed.
 
-Theorem fld_add_sub : ∀ a b, (a .+ f b .- f b .= f a)%F.
+Theorem fld_add_sub : ∀ a b, (a .+ f b .- f b .= f a)%K.
 Proof.
 intros a b; simpl.
 rewrite <- fld_add_assoc.
@@ -220,12 +220,12 @@ reflexivity.
 Qed.
 
 Theorem fld_mul_reg_r : ∀ a b c,
-  (c .≠ f .0 f)%F
-  → (a .* f c .= f b .* f c)%F
-    → (a .= f b)%F.
+  (c .≠ f .0 f)%K
+  → (a .* f c .= f b .* f c)%K
+    → (a .= f b)%K.
 Proof.
 intros a b c Hc Habc; simpl in Hc, Habc; simpl.
-apply fld_mul_compat_r with (c := (.¹/ f c)%F) in Habc.
+apply fld_mul_compat_r with (c := (.¹/ f c)%K) in Habc.
 do 2 rewrite <- fld_mul_assoc in Habc.
 rewrite fld_mul_inv_r in Habc; [ idtac | assumption ].
 do 2 rewrite fld_mul_1_r in Habc.
@@ -233,9 +233,9 @@ assumption.
 Qed.
 
 Theorem fld_mul_reg_l : ∀ a b c,
-  (c .≠ f .0 f)%F
-  → (c .* f a .= f c .* f b)%F
-    → (a .= f b)%F.
+  (c .≠ f .0 f)%K
+  → (c .* f a .= f c .* f b)%K
+    → (a .= f b)%K.
 Proof.
 intros a b c Hc Habc; simpl in Hc, Habc; simpl.
 rewrite fld_mul_comm in Habc; symmetry in Habc.
@@ -243,7 +243,7 @@ rewrite fld_mul_comm in Habc; symmetry in Habc.
 eapply fld_mul_reg_r; eassumption.
 Qed.
 
-Theorem fld_add_id_uniq : ∀ a b, (a .+ f b .= f a)%F → (b .= f .0 f)%F.
+Theorem fld_add_id_uniq : ∀ a b, (a .+ f b .= f a)%K → (b .= f .0 f)%K.
 Proof.
 intros a b Hab; simpl in Hab; simpl.
 rewrite fld_add_comm in Hab.
@@ -251,11 +251,11 @@ apply fld_add_reg_r with (c := a).
 rewrite fld_add_0_l; assumption.
 Qed.
 
-Theorem fld_mul_0_l : ∀ a, (.0 f .* f a .= f .0 f)%F.
+Theorem fld_mul_0_l : ∀ a, (.0 f .* f a .= f .0 f)%K.
 Proof.
 intros a.
-assert ((.0 f .* f a .+ f a .= f a)%F) as H.
- transitivity ((.0 f .* f a .+ f .1 f .* f a)%F).
+assert ((.0 f .* f a .+ f a .= f a)%K) as H.
+ transitivity ((.0 f .* f a .+ f .1 f .* f a)%K).
   rewrite fld_mul_1_l; reflexivity.
 
   rewrite <- fld_mul_add_distr_r.
@@ -266,24 +266,24 @@ assert ((.0 f .* f a .+ f a .= f a)%F) as H.
  rewrite fld_add_0_l; assumption.
 Qed.
 
-Theorem fld_mul_0_r : ∀ a, (a .* f .0 f .= f .0 f)%F.
+Theorem fld_mul_0_r : ∀ a, (a .* f .0 f .= f .0 f)%K.
 Proof.
 intros a; simpl.
 rewrite fld_mul_comm, fld_mul_0_l.
 reflexivity.
 Qed.
 
-Theorem fld_mul_opp_l : ∀ a b, ((.- f a) .* f b .= f .- f (a .* f b))%F.
+Theorem fld_mul_opp_l : ∀ a b, ((.- f a) .* f b .= f .- f (a .* f b))%K.
 Proof.
 intros a b; simpl.
-apply fld_add_reg_l with (c := (a .* f b)%F).
+apply fld_add_reg_l with (c := (a .* f b)%K).
 rewrite fld_add_opp_r.
 rewrite <- fld_mul_add_distr_r.
 rewrite fld_add_opp_r, fld_mul_0_l.
 reflexivity.
 Qed.
 
-Theorem fld_mul_opp_r : ∀ a b, (a .* f (.- f b) .= f .- f (a .* f b))%F.
+Theorem fld_mul_opp_r : ∀ a b, (a .* f (.- f b) .= f .- f (a .* f b))%K.
 Proof.
 intros a b; simpl.
 rewrite fld_mul_comm; symmetry.
@@ -291,10 +291,10 @@ rewrite fld_mul_comm; symmetry.
 apply fld_mul_opp_l.
 Qed.
 
-Theorem opp_add_distr : ∀ a b, (.- f (a .+ f b) .= f .- f a .- f b)%F.
+Theorem opp_add_distr : ∀ a b, (.- f (a .+ f b) .= f .- f a .- f b)%K.
 Proof.
 intros a b.
-apply fld_mul_reg_l with (c := .1 f%F).
+apply fld_mul_reg_l with (c := .1 f%K).
  apply fld_neq_1_0.
 
  rewrite fld_mul_opp_r.
@@ -305,34 +305,34 @@ apply fld_mul_reg_l with (c := .1 f%F).
  reflexivity.
 Qed.
 
-Theorem fld_add_shuffle0 : ∀ n m p, (n .+ f m .+ f p .= f n .+ f p .+ f m)%F.
+Theorem fld_add_shuffle0 : ∀ n m p, (n .+ f m .+ f p .= f n .+ f p .+ f m)%K.
 Proof.
 intros n m p; simpl.
 do 2 rewrite <- fld_add_assoc.
-assert (m .+ f p .= f p .+ f m)%F as H by apply fld_add_comm.
+assert (m .+ f p .= f p .+ f m)%K as H by apply fld_add_comm.
 rewrite H; reflexivity.
 Qed.
 
-Theorem fld_mul_shuffle0 : ∀ n m p, (n .* f m .* f p .= f n .* f p .* f m)%F.
+Theorem fld_mul_shuffle0 : ∀ n m p, (n .* f m .* f p .= f n .* f p .* f m)%K.
 Proof.
 intros n m p.
 do 2 rewrite <- fld_mul_assoc.
-assert (m .* f p .= f p .* f m)%F as H by apply fld_mul_comm.
+assert (m .* f p .= f p .* f m)%K as H by apply fld_mul_comm.
 rewrite H; reflexivity.
 Qed.
 
 Theorem fld_mul_eq_0 : ∀ n m,
-  (n .= f .0 f)%F ∨ (m .= f .0 f)%F
-  → (n .* f m .= f .0 f)%F.
+  (n .= f .0 f)%K ∨ (m .= f .0 f)%K
+  → (n .* f m .= f .0 f)%K.
 Proof.
 intros n m H; simpl in H; simpl.
 destruct H as [H| H]; rewrite H; [ apply fld_mul_0_l | apply fld_mul_0_r ].
 Qed.
 
 Theorem eq_mul_0_l : ∀ n m,
-  (n .* f m .= f .0 f)%F
-  → (m .≠ f .0 f)%F
-    → (n .= f .0 f)%F.
+  (n .* f m .= f .0 f)%K
+  → (m .≠ f .0 f)%K
+    → (n .= f .0 f)%K.
 Proof.
 intros n m Hnm Hm.
 rewrite <- fld_mul_0_l with (a := m) in Hnm.
@@ -340,9 +340,9 @@ apply fld_mul_reg_r in Hnm; assumption.
 Qed.
 
 Theorem eq_mul_0_r : ∀ n m,
-  (n .* f m .= f .0 f)%F
-  → (n .≠ f .0 f)%F
-    → (m .= f .0 f)%F.
+  (n .* f m .= f .0 f)%K
+  → (n .≠ f .0 f)%K
+    → (m .= f .0 f)%K.
 Proof.
 intros n m Hnm Hm; simpl in Hnm, Hm; simpl.
 rewrite <- fld_mul_0_r with (a := n) in Hnm.
@@ -353,15 +353,15 @@ Qed.
    because there is a condition 'a ≠ 0'; question: is is possible
    to do a conditional morphism? *)
 Theorem inv_compat : ∀ a b,
-  (a .≠ f .0 f)%F
-  → (a .= f b)%F
-    → (.¹/ f a .= f .¹/ f b)%F.
+  (a .≠ f .0 f)%K
+  → (a .= f b)%K
+    → (.¹/ f a .= f .¹/ f b)%K.
 Proof.
 intros a b Ha Heq.
 remember Heq as Hab; clear HeqHab.
-apply fld_mul_compat_l with (c := .¹/ f b%F) in Heq.
+apply fld_mul_compat_l with (c := .¹/ f b%K) in Heq.
 rewrite fld_mul_inv_l in Heq.
- apply fld_mul_compat_r with (c := .¹/ f a%F) in Heq.
+ apply fld_mul_compat_r with (c := .¹/ f a%K) in Heq.
  rewrite fld_mul_1_l in Heq.
  rewrite <- fld_mul_assoc in Heq.
  rewrite fld_mul_inv_r in Heq; [ idtac | assumption ].

@@ -184,7 +184,7 @@ destruct n as [n| ].
 Qed.
 
 Lemma series_inv_compat : ∀ a b,
-  (a .[0] .≠ f .0 f)%F
+  (a .[0] .≠ f .0 f)%K
   → (a .= f b)%ser
     → (series_inv f a .= f series_inv f b)%ser.
 Proof.

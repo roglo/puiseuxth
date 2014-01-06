@@ -41,18 +41,30 @@ Definition apply_poly_with_poly α (f : field α) pol :=
     (λ pol₁ ps, poly_add f pol₁ {| al := [ps] |})
     (poly_mul f) pol.
 
+
+(* I'd like to write f₁ like this:
+
+Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
+  (POL [ps_monom fld 1%(K fld) (- β₁)] *
+   apply_poly_with_poly (ps_field fld) f
+     (POL [ps_monom fld 1%(K fld) γ₁] *
+      POL [ps_const fld c₁; 1%(ps fld) … []]))%(pol (ps_field fld)).
+
+  I need the syntax %(...)
+*)
+
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL [ps_monom fld .1 fld%F (- β₁)] .* (ps_field fld)
+  (POL [ps_monom fld .1 fld%K (- β₁)] .* (ps_field fld)
    apply_poly_with_poly (ps_field fld) f
-     (POL [ps_monom fld .1 fld%F γ₁] .* (ps_field fld)
+     (POL [ps_monom fld .1 fld%K γ₁] .* (ps_field fld)
       POL [ps_const fld c₁; .1 fld%ps … []]))%pol.
 
 (* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ₁.y₁) *)
 Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL [ps_monom fld .1 fld%F (- β₁)] .* (ps_field fld)
+  (POL [ps_monom fld .1 fld%K (- β₁)] .* (ps_field fld)
    apply_poly_with_poly (ps_field fld) f
-     POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []])%pol.
+     POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []])%pol.
 
 (* *)
 
@@ -107,10 +119,10 @@ Let fld := ac_field acf.
 
 (* c.x^γ + y.x^y = (c + y).x^γ *)
 Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  (POL [ps_monom fld c γ; ps_monom fld .1 fld%F γ … []] .= 
+  (POL [ps_monom fld c γ; ps_monom fld .1 fld%K γ … []] .= 
    (ps_field fld)
    POL [ps_const fld c; .1 fld%ps … []] .* (ps_field fld)
-   POL [ps_monom fld .1 fld%F γ])%pol.
+   POL [ps_monom fld .1 fld%K γ])%pol.
 Proof.
 intros c γ.
 constructor.
@@ -146,10 +158,10 @@ Lemma f₁_eq_f'₁ : ∀ f β₁ γ₁ c₁,
 Proof.
 intros f β₁ γ₁ c₁.
 unfold f₁, f'₁.
-remember POL [ps_monom fld .1 fld%F γ₁]%pol as p.
+remember POL [ps_monom fld .1 fld%K γ₁]%pol as p.
 remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
 remember (p .* (ps_field fld) p')%pol as p₁; subst p p'.
-remember POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []]%pol as p₂.
+remember POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []]%pol as p₂.
 assert (p₁ .= (ps_field fld) p₂)%pol as Heq.
  subst p₁ p₂.
  constructor.
@@ -166,7 +178,7 @@ assert (p₁ .= (ps_field fld) p₂)%pol as Heq.
   reflexivity.
 
   constructor; [ idtac | constructor ].
-  remember POL [ps_monom fld .1 fld%F γ₁]%pol as p.
+  remember POL [ps_monom fld .1 fld%K γ₁]%pol as p.
   remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
   unfold summation, summation_aux; simpl.
   subst p p'; simpl.

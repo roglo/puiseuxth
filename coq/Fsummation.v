@@ -18,13 +18,13 @@ Notation "x ≤ y < z" := (x ≤ y ∧ y < z) (at level 70, y at next level).
 
 Fixpoint summation_aux α (f : field α) b len g :=
   match len with
-  | O => .0 f%F
-  | S len₁ => (g b .+ f summation_aux f (S b) len₁ g)%F
+  | O => .0 f%K
+  | S len₁ => (g b .+ f summation_aux f (S b) len₁ g)%K
   end.
 
 Definition summation α (f : field α) b e g := summation_aux f b (S e - b) g.
 
-Notation "'Σ' f ( i = b , e ) '_' g" := (summation f b e (λ i, (g)%F))
+Notation "'Σ' f ( i = b , e ) '_' g" := (summation f b e (λ i, (g)%K))
   (at level 0, f at level 0, i at level 0, b at level 60, e at level 60,
    g at level 40).
 
@@ -34,8 +34,8 @@ Variable α : Type.
 Variable f : field α.
 
 Lemma summation_aux_compat : ∀ g h b₁ b₂ len,
-  (∀ i, 0 ≤ i < len → (g (b₁ + i) .= f h (b₂ + i))%F)
-  → (summation_aux f b₁ len g .= f summation_aux f b₂ len h)%F.
+  (∀ i, 0 ≤ i < len → (g (b₁ + i) .= f h (b₂ + i))%K)
+  → (summation_aux f b₁ len g .= f summation_aux f b₂ len h)%K.
 Proof.
 intros g h b₁ b₂ len Hgh.
 revert b₁ b₂ Hgh.
@@ -57,8 +57,8 @@ rewrite IHlen.
 Qed.
 
 Lemma summation_compat : ∀ g h b k,
-  (∀ i, b ≤ i ≤ k → (g i .= f h i)%F)
-  → (Σ f (i = b, k)_ g i .= f Σ f (i = b, k) _ h i)%F.
+  (∀ i, b ≤ i ≤ k → (g i .= f h i)%K)
+  → (Σ f (i = b, k)_ g i .= f Σ f (i = b, k) _ h i)%K.
 Proof.
 intros g h b k Hgh.
 apply summation_aux_compat.
@@ -69,7 +69,7 @@ Qed.
 
 Lemma summation_mul_comm : ∀ g h b k,
   (Σ f (i = b, k) _ g i .* f h i
-   .= f Σ f (i = b, k) _ h i .* f g i)%F.
+   .= f Σ f (i = b, k) _ h i .* f g i)%K.
 Proof.
 intros g h b len.
 apply summation_compat; intros i Hi.
@@ -77,8 +77,8 @@ apply fld_mul_comm.
 Qed.
 
 Lemma all_0_summation_aux_0 : ∀ g b len,
-  (∀ i, (b ≤ i < b + len) → (g i .= f .0 f)%F)
-  → (summation_aux f b len (λ i, g i) .= f .0 f)%F.
+  (∀ i, (b ≤ i < b + len) → (g i .= f .0 f)%K)
+  → (summation_aux f b len (λ i, g i) .= f .0 f)%K.
 Proof.
 intros g b len H.
 revert b H.
@@ -89,8 +89,8 @@ intros i Hi; apply H; omega.
 Qed.
 
 Lemma all_0_summation_0 : ∀ g i₁ i₂,
-  (∀ i, i₁ ≤ i ≤ i₂ → (g i .= f .0 f)%F)
-  → (Σ f (i = i₁, i₂) _ g i .= f .0 f)%F.
+  (∀ i, i₁ ≤ i ≤ i₂ → (g i .= f .0 f)%K)
+  → (Σ f (i = i₁, i₂) _ g i .= f .0 f)%K.
 Proof.
 intros g i₁ i₂ H.
 apply all_0_summation_aux_0.
@@ -101,7 +101,7 @@ Qed.
 
 Lemma summation_aux_succ_last : ∀ g b len,
   (summation_aux f b (S len) g .= f
-   summation_aux f b len g .+ f g (b + len))%F.
+   summation_aux f b len g .+ f g (b + len))%K.
 Proof.
 intros g b len.
 revert b.
@@ -119,7 +119,7 @@ Qed.
 
 Lemma summation_aux_rtl : ∀ g b len,
   (summation_aux f b len g .= f
-   summation_aux f b len (λ i, g (b + len - 1 + b - i)))%F.
+   summation_aux f b len (λ i, g (b + len - 1 + b - i)))%K.
 Proof.
 (* supprimer ce putain de omega trop lent *)
 intros g b len.
@@ -143,7 +143,7 @@ reflexivity.
 Qed.
 
 Lemma summation_rtl : ∀ g b k,
-  (Σ f (i = b, k) _ g i .= f Σ f (i = b, k) _ g (k + b - i))%F.
+  (Σ f (i = b, k) _ g i .= f Σ f (i = b, k) _ g (k + b - i))%K.
 Proof.
 (* supprimer ce putain de omega trop lent *)
 intros g b k.
@@ -162,7 +162,7 @@ Qed.
 
 Lemma summation_aux_mul_swap : ∀ a g b len,
   (summation_aux f b len (λ i, a .* f g i) .= f
-   a .* f summation_aux f b len g)%F.
+   a .* f summation_aux f b len g)%K.
 Proof.
 intros a g b len; revert b.
 induction len; intros; simpl.
@@ -176,7 +176,7 @@ Lemma summation_aux_summation_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
   (summation_aux f b₁ len
      (λ i, summation_aux f b₂ (g₁ i) (λ j, g₂ i .* f g₃ i j))
    .= f summation_aux f b₁ len
-       (λ i, g₂ i .* f summation_aux f b₂ (g₁ i) (λ j, g₃ i j)))%F.
+       (λ i, g₂ i .* f summation_aux f b₂ (g₁ i) (λ j, g₃ i j)))%K.
 Proof.
 intros g₁ g₂ g₃ b₁ b₂ len.
 revert b₁ b₂.
@@ -188,7 +188,7 @@ Qed.
 
 Lemma summation_summation_mul_swap : ∀ g₁ g₂ g₃ k,
   (Σ f (i = 0, k) _ Σ f (j = 0, g₁ i) _ g₂ i .* f g₃ i j
-   .= f Σ f (i = 0, k) _ g₂ i .* f Σ f (j = 0, g₁ i) _ g₃ i j)%F.
+   .= f Σ f (i = 0, k) _ g₂ i .* f Σ f (j = 0, g₁ i) _ g₃ i j)%K.
 Proof.
 intros g₁ g₂ g₃ k.
 apply summation_aux_summation_aux_mul_swap.
@@ -196,8 +196,8 @@ Qed.
 
 Lemma summation_only_one_non_0 : ∀ g b v k,
   (b ≤ v ≤ k)
-  → (∀ i, (b ≤ i ≤ k) → (i ≠ v) → (g i .= f .0 f)%F)
-    → (Σ f (i = b, k) _ g i .= f g v)%F.
+  → (∀ i, (b ≤ i ≤ k) → (i ≠ v) → (g i .= f .0 f)%K)
+    → (Σ f (i = b, k) _ g i .= f g v)%K.
 Proof.
 intros g b v k (Hbv, Hvk) Hi.
 unfold summation.
@@ -235,7 +235,7 @@ Qed.
 
 Lemma summation_summation_shift : ∀ g k,
   (Σ f (i = 0, k) _ Σ f (j = i, k) _ g i j .= f
-   Σ f (i = 0, k) _ Σ f (j = 0, k - i) _ g i (i + j))%F.
+   Σ f (i = 0, k) _ Σ f (j = 0, k - i) _ g i (i + j))%K.
 Proof.
 intros g k.
 apply summation_compat; intros i Hi.
@@ -246,7 +246,7 @@ apply summation_aux_compat; intros j Hj.
 rewrite Nat.add_0_l; reflexivity.
 Qed.
 
-Lemma summation_only_one : ∀ g n, (Σ f (i = n, n) _ g i .= f g n)%F.
+Lemma summation_only_one : ∀ g n, (Σ f (i = n, n) _ g i .= f g n)%K.
 Proof.
 intros g n.
 unfold summation.
@@ -257,7 +257,7 @@ Qed.
 
 Lemma summation_succ : ∀ g b k,
   (b ≤ S k)
-  → (Σ f (i = b, S k) _ g i .= f Σ f (i = b, k) _ g i .+ f g (S k))%F.
+  → (Σ f (i = b, S k) _ g i .= f Σ f (i = b, k) _ g i .+ f g (S k))%K.
 Proof.
 intros g b k Hbk.
 unfold summation.
@@ -269,12 +269,12 @@ reflexivity.
 Qed.
 
 Lemma summation_aux_succ_fst : ∀ g b len,
-  (summation_aux f b (S len) g .= f g b .+ f summation_aux f (S b) len g)%F.
+  (summation_aux f b (S len) g .= f g b .+ f summation_aux f (S b) len g)%K.
 Proof. reflexivity. Qed.
 
 Lemma summation_split_first : ∀ g b k,
   b ≤ k
-  → (Σ f (i = b, k) _ g i .= f g b .+ f Σ f (i = S b, k) _ g i)%F.
+  → (Σ f (i = b, k) _ g i .= f g b .+ f Σ f (i = S b, k) _ g i)%K.
 Proof.
 intros g b k Hbk.
 unfold summation.
@@ -285,7 +285,7 @@ Qed.
 
 Lemma summation_add_distr : ∀ g h b k,
   (Σ f (i = b, k) _ (g i .+ f h i) .= f
-   Σ f (i = b, k) _ g i .+ f Σ f (i = b, k) _ h i)%F.
+   Σ f (i = b, k) _ g i .+ f Σ f (i = b, k) _ h i)%K.
 Proof.
 intros g h b k.
 destruct (le_dec b k) as [Hbk| Hbk].
@@ -325,7 +325,7 @@ Qed.
 
 Lemma summation_summation_exch : ∀ g k,
   (Σ f (j = 0, k) _ Σ f (i = 0, j) _ g i j .= f
-   Σ f (i = 0, k) _ Σ f (j = i, k) _ g i j)%F.
+   Σ f (i = 0, k) _ Σ f (j = i, k) _ g i j)%K.
 Proof.
 intros g k.
 induction k; [ reflexivity | idtac ].
@@ -344,7 +344,7 @@ Qed.
 
 Lemma summation_aux_fun_add : ∀ g h b len,
   (summation_aux f b len (λ i, g i .+ f h i) .= f
-   summation_aux f b len g .+ f summation_aux f b len h)%F.
+   summation_aux f b len g .+ f summation_aux f b len h)%K.
 Proof.
 intros g h b len.
 symmetry.
@@ -359,7 +359,7 @@ Qed.
 
 Lemma summation_fun_add : ∀ g h b e,
   (Σ f (i = b, e) _ (g i .+ f h i) .= f
-   Σ f (i = b, e) _ g i .+ f Σ f (i = b, e) _ h i)%F.
+   Σ f (i = b, e) _ g i .+ f Σ f (i = b, e) _ h i)%K.
 Proof.
 intros g h b e.
 apply summation_aux_fun_add.
@@ -367,7 +367,7 @@ Qed.
 
 Lemma summation_aux_ub_add : ∀ g b k₁ k₂,
   (summation_aux f b (k₁ + k₂) g .= f
-   summation_aux f b k₁ g .+ f summation_aux f (b + k₁) k₂ g)%F.
+   summation_aux f b k₁ g .+ f summation_aux f (b + k₁) k₂ g)%K.
 Proof.
 intros g b k₁ k₂.
 revert b k₁.
@@ -393,7 +393,7 @@ Qed.
 
 Lemma summation_ub_add : ∀ g k₁ k₂,
   (Σ f (i = 0, k₁ + k₂) _ g i .= f
-   Σ f (i = 0, k₁) _ g i .+ f Σ f (i = S k₁, k₁ + k₂) _ g i)%F.
+   Σ f (i = 0, k₁) _ g i .+ f Σ f (i = S k₁, k₁ + k₂) _ g i)%K.
 Proof.
 intros g k₁ k₂.
 unfold summation.
@@ -404,13 +404,13 @@ rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
 Lemma summation_aux_succ_first : ∀ g b k,
-  (summation_aux f b (S k) g .= f g b .+ f summation_aux f (S b) k g)%F.
+  (summation_aux f b (S k) g .= f g b .+ f summation_aux f (S b) k g)%K.
 Proof. reflexivity. Qed.
 
 Lemma summation_aux_mul_summation_aux_summation_aux : ∀ g k n,
   (summation_aux f 0 (S k * S n) g .= f
    summation_aux f 0 (S k)
-     (λ i, summation_aux f 0 (S n) (λ j, g (i * S n + j)%nat)))%F.
+     (λ i, summation_aux f 0 (S n) (λ j, g (i * S n + j)%nat)))%K.
 Proof.
 intros g k n.
 revert n; induction k; intros.
@@ -444,7 +444,7 @@ Lemma summation_mul_summation_summation : ∀ g n k,
   (0 < n)%nat
   → (0 < k)%nat
     → (Σ f (i = 0, k * n - 1) _ g i .= f
-       Σ f (i = 0, k - 1) _ Σ f (j = 0, n - 1) _ g (i * n + j)%nat)%F.
+       Σ f (i = 0, k - 1) _ Σ f (j = 0, n - 1) _ g (i * n + j)%nat)%K.
 Proof.
 intros g n k Hn Hk.
 unfold summation.
@@ -463,9 +463,9 @@ Qed.
 
 Lemma inserted_0_summation : ∀ g h k n,
   n ≠ O
-  → (∀ i, i mod n ≠ O → (g i .= f .0 f)%F)
-    → (∀ i, (g (n * i)%nat .= f h i)%F)
-      → (Σ f (i = 0, k * n) _ g i .= f Σ f (i = 0, k) _ h i)%F.
+  → (∀ i, i mod n ≠ O → (g i .= f .0 f)%K)
+    → (∀ i, (g (n * i)%nat .= f h i)%K)
+      → (Σ f (i = 0, k * n) _ g i .= f Σ f (i = 0, k) _ h i)%K.
 Proof.
 intros g h k n Hn Hf Hfg.
 destruct k.
@@ -522,7 +522,7 @@ destruct k.
 Qed.
 
 Lemma summation_add_add_sub : ∀ g b k n,
-  (Σ f (i = b, k) _ g i .= f Σ f (i = b + n, k + n) _ g (i - n)%nat)%F.
+  (Σ f (i = b, k) _ g i .= f Σ f (i = b + n, k + n) _ g (i - n)%nat)%K.
 Proof.
 intros g b k n.
 unfold summation.

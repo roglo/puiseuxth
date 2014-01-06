@@ -44,7 +44,7 @@ Record algeb_closed_field α :=
     ac_root : polynomial α → (α * nat);
     ac_is_zero : α → bool;
     ac_prop : ∀ pol, degree ac_is_zero pol ≥ 1
-      → apply_polynomial ac_field pol (fst (ac_root pol)) = .0 ac_field%F }.
+      → apply_polynomial ac_field pol (fst (ac_root pol)) = .0 ac_field%K }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -58,7 +58,7 @@ Fixpoint make_char_pol α (f : field α) pow tl :=
   match tl with
   | [] => []
   | [t₁ … tl₁] =>
-      list_pad (power t₁ - pow) .0 f%F
+      list_pad (power t₁ - pow) .0 f%K
         [coeff t₁ … make_char_pol f (S (power t₁)) tl₁]
     end.
 
@@ -1450,8 +1450,8 @@ Qed.
 
 Definition is_polynomial_in_x_power_q pol q :=
   ∀ i c, (i mod q ≠ 0)%nat
-  → c = List.nth i (al pol) .0 f%F
-    → (c .= f .0 f)%F.
+  → c = List.nth i (al pol) .0 f%K
+    → (c .= f .0 f)%K.
 
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
@@ -1523,7 +1523,7 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
               → (List.nth i
                   (make_char_pol f (S j) (List.map (term_of_point f pol) tl))
                   .0 f
-                 .= f .0 f)%F.
+                 .= f .0 f)%K.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].

@@ -30,10 +30,10 @@ Admitted.
 Definition null_coeff_range_length_prop α (f : field α) s n v :=
   match v with
   | fin k =>
-      (∀ i : nat, (i < k)%nat → (s .[n + i] .= f .0 f)%F)
-      ∧ (s .[n + k] .≠ f .0 f)%F
+      (∀ i : nat, (i < k)%nat → (s .[n + i] .= f .0 f)%K)
+      ∧ (s .[n + k] .≠ f .0 f)%K
   | ∞ =>
-      ∀ i : nat, (s .[n + i] .= f .0 f)%F
+      ∀ i : nat, (s .[n + i] .= f .0 f)%K
   end.
 
 Axiom null_coeff_range_length_iff : ∀ α (f : field α) s n v,
@@ -128,7 +128,7 @@ Inductive eq_ps α (f : field α) :
       → eq_ps f ps₁ ps₂.
 
 Definition ps_monom α (f : field α) (c : α) pow :=
-  {| ps_terms := {| terms i := if zerop i then c else .0 f%F |};
+  {| ps_terms := {| terms i := if zerop i then c else .0 f%K |};
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
@@ -666,7 +666,7 @@ Qed.
 
 Lemma shifted_in_stretched : ∀ s k i,
   (0 < i mod Pos.to_nat k)%nat
-  → (series_stretch f k s) .[i] = .0 f%F.
+  → (series_stretch f k s) .[i] = .0 f%K.
 Proof.
 intros s k i Hi; simpl.
 destruct (zerop (i mod Pos.to_nat k)) as [Hz| ]; [ idtac | reflexivity ].
@@ -719,8 +719,8 @@ rewrite Nat.mul_comm; reflexivity.
 Qed.
 
 Lemma stretch_finite_series : ∀ s b k,
-  (∀ i, (s .[b + i] .= f .0 f)%F)
-  → ∀ i, ((series_stretch f k s) .[b * Pos.to_nat k + i] .= f .0 f)%F.
+  (∀ i, (s .[b + i] .= f .0 f)%K)
+  → ∀ i, ((series_stretch f k s) .[b * Pos.to_nat k + i] .= f .0 f)%K.
 Proof.
 intros s b k Hz i.
 destruct (zerop (i mod Pos.to_nat k)) as [H₁| H₁].
@@ -1075,7 +1075,7 @@ Lemma series_nth_0_in_interval_from_any : ∀ s i c b k,
        nth_null_coeff_range_length f s
          (pred (rank_of_nonzero_after_from s c (b + i) b)) b)%nat
       → i mod Pos.to_nat k ≠ O
-        → (s .[b + i] .= f .0 f)%F.
+        → (s .[b + i] .= f .0 f)%K.
 Proof.
 (* à nettoyer *)
 intros s i c b k Hic Has Hs Hm.
@@ -1168,7 +1168,7 @@ Lemma series_nth_0_in_interval : ∀ s k,
   (∀ n, (Pos.to_nat k | nth_null_coeff_range_length f s n 0)%nat)
   → ∀ i,
     (i mod Pos.to_nat k ≠ 0)%nat
-    → (s .[i] .= f .0 f)%F.
+    → (s .[i] .= f .0 f)%K.
 Proof.
 intros s k Hs i Hi.
 remember (rank_of_nonzero_before s i) as cnt.
@@ -1536,7 +1536,7 @@ Lemma series_null_power : ∀ s b p,
   is_a_series_in_x_power f s b p
   → ∀ i,
     ((i - b) mod p)%nat ≠ O
-    → (s .[i] .= f .0 f)%F.
+    → (s .[i] .= f .0 f)%K.
 Proof.
 intros s b p Hxp i Hip.
 destruct p; [ exfalso; apply Hip; reflexivity | idtac ].
