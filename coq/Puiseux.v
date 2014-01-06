@@ -43,16 +43,16 @@ Definition apply_poly_with_poly α (f : field α) pol :=
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F (- β₁)] |}
-    (apply_poly_with_poly (ps_field fld) f
-       (poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F γ₁] |}
-          {| al := [ps_const fld c₁; .1 fld%ps … []] |})).
+  (POL [ps_monom fld .1 fld%F (- β₁)] .* (ps_field fld)
+   apply_poly_with_poly (ps_field fld) f
+     (POL [ps_monom fld .1 fld%F γ₁] .* (ps_field fld)
+      POL [ps_const fld c₁; .1 fld%ps … []]))%pol.
 
 (* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ₁.y₁) *)
 Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  poly_mul (ps_field fld) {| al := [ps_monom fld .1 fld%F (- β₁)] |}
-    (apply_poly_with_poly (ps_field fld) f
-       {| al := [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []] |}).
+  (POL [ps_monom fld .1 fld%F (- β₁)] .* (ps_field fld)
+   apply_poly_with_poly (ps_field fld) f
+     POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%F γ₁ … []])%pol.
 
 (* *)
 
