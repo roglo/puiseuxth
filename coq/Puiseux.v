@@ -245,72 +245,6 @@ CoFixpoint puiseux_loop psumo (pol : polynomial (puiseux_series α)) :=
 
 bbb.
 
-(* ... *)
-
-(*
-Fixpoint puiseux_comden α n cd (s : series (term α Q)) :=
-  match n with
-  | O => cd
-  | S n₁ =>
-      match s with
-      | Term t ss => puiseux_comden n₁ (Plcm cd (Qden (Qred (power t)))) ss
-      | End => cd
-      end
-  end.
-*)
-
-(*
-CoFixpoint complete α (zero : α) cd p s :=
-  match s with
-  | Term t ns =>
-      let p₁ := Qplus p (Qmake 1 cd) in
-      if Qlt_le_dec p₁ (power t) then
-        Term {| coeff := zero; power := p₁ |} (complete zero cd p₁ s)
-      else
-        Term t ns
-  | End =>
-      End _
-  end.
-
-CoFixpoint term_series_to_coeff_series α zero cd s : series α :=
-  match s with
-  | Term t ns =>
-      Term (coeff t)
-        (term_series_to_coeff_series α zero cd
-           (complete zero cd (power t) ns))
-  | End =>
-      End _
-  end.
-*)
-
-(*
-Definition puiseux_root α acf niter (pol : polynomial (puiseux_series α)) :
-    puiseux_series α :=
-  let s := puiseux_loop None acf pol in
-  let cd := puiseux_comden niter 1 s in
-  {| ps_terms := term_series_to_coeff_series (zero (ac_field acf)) cd s;
-     ps_valnum :=
-       match s with
-       | Term t _ => Qnum (Qred (Qmult (power t) (Qmake (Zpos cd) 1)))
-       | End => 0
-       end;
-     ps_polord := cd |}.
-*)
-
-(* *)
-
-(*
-CoFixpoint series_series_take α n (s : series α) :=
-  match n with
-  | O => End _
-  | S n₁ =>
-      match s with
-      | Term a t => Term a (series_series_take n₁ t)
-      | End => End _
-      end
-  end.
-*)
-
 Lemma series_pad_left_0 : ∀ s, series_pad_left f 0 s ≃ s.
 Proof.
 intros s.
@@ -502,13 +436,6 @@ Qed.
 
 (* *)
 
-(*
-Delimit Scope ps with puiseux_series.
-Notation "x * y" := (ps_mul f x y) : ps.
-
-Open Scope ps.
-*)
-
 Definition abar (pol : polynomial (puiseux_series α)) h :=
   List.nth h (al pol) (an pol).
 
@@ -520,68 +447,6 @@ Fixpoint ps_pol_power pol n :=
   | O => {| al := []; an := one ps_f |}
   | S n₁ => ps_pol_mul pol (ps_pol_power pol n₁)
   end.
-
-(*
-Lemma normal_terms_end : ∀ n cd, normal_terms f n cd (End α) = End α.
-Proof.
-intros n cd.
-symmetry.
-rewrite series_eta.
-reflexivity.
-Qed.
-
-Lemma normal_terms_0 : ∀ s, normal_terms f 0 0 s = s.
-Proof.
-intros s.
-apply ext_eq_ser with (f := f).
-revert s.
-cofix IHs; intros.
-destruct s as [t s| ].
- eapply eq_ser_term; [ idtac | reflexivity | reflexivity | apply IHs ].
- symmetry; rewrite series_eta; reflexivity.
-
- apply eq_ser_end; [ idtac | reflexivity ].
- symmetry; rewrite series_eta; reflexivity.
-Qed.
-*)
-
-(*
-Lemma series_add_end_l : ∀ s, series_add f (End α) s = s.
-Proof.
-intros s.
-symmetry.
-rewrite series_eta.
-simpl.
-destruct s; reflexivity.
-Qed.
-*)
-
-(*
-Lemma ps_add_0_r : ∀ ps, ps_add f ps (ps_zero α) = ps.
-Proof.
-intros ps.
-rewrite ps_add_comm.
-unfold ps_add.
-rewrite Zminus_0_r.
-rewrite Plcm_1_l.
-rewrite Nat.div_same.
- rewrite Nat.div_1_r.
- simpl.
- rewrite Zmult_1_r.
- rewrite normal_terms_end.
- rewrite series_add_end_l.
- remember (ps_valnum ps) as v.
- symmetry in Heqv.
- destruct v as [| n| n].
-  destruct ps; simpl in Heqv |- *; rewrite Heqv.
-  f_equal.
-  apply normal_terms_0.
-
-  rewrite series_add_end_l.
-  destruct ps; simpl in Heqv |- *; rewrite Heqv.
-  rewrite normal_terms_0.
-bbb.
-*)
 
 Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   pts = points_of_ps_polynom f pol
@@ -635,16 +500,5 @@ induction cl as [| c]; intros.
   unfold x_power; simpl.
   Focus 1.
 bbb.
-
-(*
-Theorem has_neg_slope : ∀ pol ns cpol (c : α) r pol₁,
-  ns ∈ newton_segments f pol
-  → cpol = characteristic_polynomial f pol ns
-    → (c, r) = ac_root acf cpol
-      → pol₁ = f₁ f pol (β ns) (γ ns) c
-        → ∃ ns₁, ns₁ ∈ newton_segments f pol₁ → γ ns₁ > 0.
-Proof.
-bbb.
-*)
 
 End field.
