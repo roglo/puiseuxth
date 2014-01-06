@@ -34,7 +34,7 @@ Variable α : Type.
 Variable f : field α.
 
 Lemma summation_aux_compat : ∀ g h b₁ b₂ len,
-  (∀ i, 0 ≤ i < len → (g (b₁ + i) .= f h (b₂ + i))%K)
+  (∀ i, 0 ≤ i < len → (g (b₁ + i)%nat .= f h (b₂ + i)%nat)%K)
   → (summation_aux f b₁ len g .= f summation_aux f b₂ len h)%K.
 Proof.
 intros g h b₁ b₂ len Hgh.
@@ -101,7 +101,7 @@ Qed.
 
 Lemma summation_aux_succ_last : ∀ g b len,
   (summation_aux f b (S len) g .= f
-   summation_aux f b len g .+ f g (b + len))%K.
+   summation_aux f b len g .+ f g (b + len)%nat)%K.
 Proof.
 intros g b len.
 revert b.
@@ -119,7 +119,7 @@ Qed.
 
 Lemma summation_aux_rtl : ∀ g b len,
   (summation_aux f b len g .= f
-   summation_aux f b len (λ i, g (b + len - 1 + b - i)))%K.
+   summation_aux f b len (λ i, g (b + len - 1 + b - i)%nat))%K.
 Proof.
 (* supprimer ce putain de omega trop lent *)
 intros g b len.
@@ -143,7 +143,7 @@ reflexivity.
 Qed.
 
 Lemma summation_rtl : ∀ g b k,
-  (Σ f (i = b, k) _ g i .= f Σ f (i = b, k) _ g (k + b - i))%K.
+  (Σ f (i = b, k) _ g i .= f Σ f (i = b, k) _ g (k + b - i)%nat)%K.
 Proof.
 (* supprimer ce putain de omega trop lent *)
 intros g b k.
@@ -235,7 +235,7 @@ Qed.
 
 Lemma summation_summation_shift : ∀ g k,
   (Σ f (i = 0, k) _ Σ f (j = i, k) _ g i j .= f
-   Σ f (i = 0, k) _ Σ f (j = 0, k - i) _ g i (i + j))%K.
+   Σ f (i = 0, k) _ Σ f (j = 0, k - i) _ g i (i + j)%nat)%K.
 Proof.
 intros g k.
 apply summation_compat; intros i Hi.

@@ -104,7 +104,7 @@ constructor; intros i; simpl.
 rewrite fld_add_assoc; reflexivity.
 Qed.
 
-Lemma series_nth_series_0 : ∀ i, (.0 f%ser .[i] = .0 f)%K.
+Lemma series_nth_series_0 : ∀ i, (.0 f%ser .[i])%K = .0 f%K.
 Proof. reflexivity. Qed.
 
 Theorem series_add_0_l : ∀ s, (.0 f .+ f s .= f s)%ser.

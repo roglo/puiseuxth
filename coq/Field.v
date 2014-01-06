@@ -15,6 +15,9 @@ Reserved Notation ".¹/ x a" (at level 1, x at level 0).
 Reserved Notation ".0 x" (at level 0, x at level 0).
 Reserved Notation ".1 x" (at level 0, x at level 0).
 
+Reserved Notation "¹/ a" (at level 1).
+Reserved Notation "! x" (at level 1).
+
 Record field α :=
   { fld_zero : α;
     fld_one : α;
@@ -57,6 +60,17 @@ Notation ".- f a" := (fld_opp f a) : field_scope.
 Notation ".¹/ f a" := (fld_inv f a) : field_scope.
 Notation ".0 f" := (fld_zero f) : field_scope.
 Notation ".1 f" := (fld_one f) : field_scope.
+
+Notation "a = b" := (λ f, fld_eq f a b) : field_scope.
+Notation "a ≠ b" := (λ f, ¬ fld_eq f a b) : field_scope.
+Notation "a + b" := (λ f, fld_add f a b) : field_scope.
+Notation "a - b" := (λ f, fld_add f a (fld_opp f b)) : field_scope.
+Notation "a * b" := (λ f, fld_mul f a b) : field_scope.
+Notation "- a" := (λ f, fld_opp f a) : field_scope.
+Notation "¹/ a" := (λ f, fld_inv f a) : field_scope.
+Notation "0" := (λ f, fld_zero f) : field_scope.
+Notation "1" := (λ f, fld_one f) : field_scope.
+Notation "! x" := (λ _, x) : field_scope.
 
 Add Parametric Relation α (F : field α) : α (fld_eq F)
  reflexivity proved by (fld_eq_refl F)
