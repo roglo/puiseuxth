@@ -2025,7 +2025,13 @@ Definition poly_shrink k (p : polynomial α) :=
 Definition poly_left_shift n (p : polynomial α) :=
   POL (List.skipn n (al p))%pol.
 
-Definition Φ p j q := poly_shrink q (poly_left_shift j p).
+Definition summation_ah_xh_pol pol ns :=
+  let j := nofq (fst (ini_pt ns)) in
+  POL (list_pad j .0 f%K (al (characteristic_polynomial f pol ns)))%pol.
+
+Definition Φ pol ns q :=
+  let j := nofq (fst (ini_pt ns)) in
+  poly_shrink q (poly_left_shift j (summation_ah_xh_pol pol ns)).
 
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
@@ -2043,7 +2049,7 @@ Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
               ∧ (∃ sk, k = j + sk * q ∧ sk ≠ 0)%nat
               ∧ (∀ h αh, (Qnat h, αh) ∈ oth_pts ns
                  → ∃ mh sh, αh == mh # m ∧ h = j + sh * q)%nat
-              ∧ pseudo_degree (Φ cpol j q) = ((k - j) / q)%nat.
+              ∧ pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat.
 Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
 remember Hns as H; clear HeqH.
@@ -2058,6 +2064,11 @@ split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
+unfold pseudo_degree; simpl.
+rewrite Nat.sub_diag; simpl.
+rewrite <- Hj; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id.
 bbb.
 
 End theorems.
