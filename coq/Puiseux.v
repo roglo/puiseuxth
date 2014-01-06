@@ -192,6 +192,7 @@ Qed.
 
 (* rest to be used later perhaps *)
 
+(*
 bbb.
 
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
@@ -500,5 +501,6 @@ induction cl as [| c]; intros.
   unfold x_power; simpl.
   Focus 1.
 bbb.
+*)
 
 End field.
