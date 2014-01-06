@@ -1226,11 +1226,21 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   exists mk.
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
+(**)
   remember Heqm as Hm; clear HeqHm.
   eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
   destruct Heqm as (p, (q, (Hgamma, Hgcd))).
   exists p, (Pos.to_nat q).
   rewrite positive_nat_Z.
+(*
+  remember (p_of_jk_pts j mj k mk) as p.
+  remember (q_of_jk_pts j mj k mk) as q.
+  exists p, (Pos.to_nat q).
+  rewrite positive_nat_Z.
+  split.
+   subst p q; unfold p_of_jk_pts, q_of_jk_pts.
+   bbb.
+*)
   split; [ assumption | idtac ].
   remember (Qnat j) as jq.
   remember (Qnat k) as kq.
