@@ -2060,6 +2060,28 @@ intros n z l.
 induction n; [ reflexivity | apply IHn ].
 Qed.
 
+(*
+List.length (list_shrink 0 k l) = S ((List.length l - 1) / S k).
+List.length (list_shrink 1 k l) = S ((List.length l - 1 - 1) / S k).
+*)
+
+(* try to find the good formula! *)
+Lemma zzz : ∀ cnt k l,
+  k ≠ O
+  → List.length (list_shrink 0 k l) = S ((List.length l - 1) / S k).
+Proof.
+bbb.
+intros cnt k l Hk.
+revert cnt k Hk.
+induction l; intros.
+ simpl.
+ rewrite Nat.div_0_l; [ reflexivity | assumption ].
+
+ simpl.
+ destruct cnt; simpl.
+  rewrite IHl; [ idtac | assumption ].
+bbb.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
