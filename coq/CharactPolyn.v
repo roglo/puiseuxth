@@ -2054,6 +2054,12 @@ Definition Φ pol ns q :=
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
 
+Lemma skipn_pad : ∀ n (z : α) l, List.skipn n (list_pad n z l) = l.
+Proof.
+intros n z l.
+induction n; [ reflexivity | apply IHn ].
+Qed.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
@@ -2086,7 +2092,7 @@ unfold pseudo_degree; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite <- Hj; simpl.
 unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id.
+rewrite Nat2Z.id, skipn_pad.
 bbb.
 
 End theorems.
