@@ -2060,26 +2060,48 @@ intros n z l.
 induction n; [ reflexivity | apply IHn ].
 Qed.
 
-(*
-List.length (list_shrink 0 k l) = S ((List.length l - 1) / S k).
-List.length (list_shrink 1 k l) = S ((List.length l - 1 - 1) / S k).
-*)
-
-(* try to find the good formula! *)
 Lemma zzz : ∀ cnt k l,
   k ≠ O
-  → List.length (list_shrink 0 k l) = S ((List.length l - 1) / S k).
+  → (S k < length l)%nat
+    → List.length (list_shrink cnt k l) = S ((List.length l - cnt - 1) / S k).
 Proof.
-bbb.
-intros cnt k l Hk.
-revert cnt k Hk.
+intros cnt k l Hk Hlk.
+revert cnt k Hk Hlk.
 induction l; intros.
- simpl.
- rewrite Nat.div_0_l; [ reflexivity | assumption ].
+ exfalso; revert Hlk; apply Nat.nlt_0_r.
 
- simpl.
- destruct cnt; simpl.
-  rewrite IHl; [ idtac | assumption ].
+ remember (S k) as k'; simpl; subst k'.
+ remember (S k) as k'; destruct cnt; simpl; subst k'.
+  rewrite Nat.sub_0_r.
+  destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
+   Focus 2.
+   rewrite IHl; [ idtac | assumption | idtac ].
+    rewrite <- Nat.sub_add_distr, Nat.add_1_r.
+    simpl in Hlk.
+    assert (length l = length l - S k + 1 * S k)%nat as H.
+     rewrite Nat.mul_1_l; omega.
+
+     rewrite H in |- * at 2; clear H.
+     rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+     rewrite Nat.add_1_r; reflexivity.
+
+    simpl in Hlk; omega.
+
+   Focus 2.
+   destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
+    Focus 2.
+    rewrite IHl; [ reflexivity | assumption | idtac ].
+    simpl in Hlk; omega.
+
+    Unfocus.
+    destruct l; [ reflexivity | simpl ].
+    destruct k; simpl.
+     simpl in H₁.
+     destruct l.
+      simpl.
+      reflexivity.
+
+      discriminate H₁.
 bbb.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
