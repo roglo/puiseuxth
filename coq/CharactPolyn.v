@@ -2049,7 +2049,7 @@ Definition summation_ah_xh_pol pol ns :=
 
 Definition Φ pol ns q :=
   let j := nofq (fst (ini_pt ns)) in
-  poly_shrink q (poly_left_shift j (summation_ah_xh_pol pol ns)).
+  poly_shrink (q - 1) (poly_left_shift j (summation_ah_xh_pol pol ns)).
 
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
