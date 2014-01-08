@@ -2060,6 +2060,33 @@ intros n z l.
 induction n; [ reflexivity | apply IHn ].
 Qed.
 
+Lemma list_shrink_skipn : ∀ cnt k l,
+  list_shrink cnt k l = list_shrink 0 k (List.skipn cnt l).
+Proof.
+intros cnt k l.
+revert cnt.
+induction l as [| x]; intros; [ idtac | simpl ].
+ destruct cnt; reflexivity.
+
+ destruct cnt; [ reflexivity | simpl ].
+ apply IHl.
+Qed.
+
+Lemma length_shrink_skipn : ∀ k l m,
+  S k = length l
+  → length (list_shrink 0 m (List.skipn k l)) = 1%nat.
+Proof.
+intros k l m Hk.
+revert k m Hk.
+induction l as [| x]; intros; [ discriminate Hk | simpl ].
+simpl in Hk.
+apply -> Nat.succ_inj_wd in Hk.
+destruct k.
+ destruct l; [ reflexivity | discriminate Hk ].
+
+ simpl; apply IHl; assumption.
+Qed.
+
 Lemma zzz : ∀ cnt k l,
   k ≠ O
   → (S k < length l)%nat
@@ -2095,18 +2122,10 @@ induction l; intros.
 
     Unfocus.
     apply Nat.succ_inj_wd.
-    revert H₁; clear; intros.
     rewrite <- H₁.
     rewrite Nat.div_same; auto.
-bbb.
-    destruct l; [ reflexivity | simpl ].
-    destruct k; simpl.
-     simpl in H₁.
-     destruct l.
-      simpl.
-      reflexivity.
-
-      discriminate H₁.
+    rewrite list_shrink_skipn.
+    apply length_shrink_skipn; assumption.
 bbb.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
