@@ -2139,6 +2139,12 @@ induction l; intros.
   apply IHl; assumption.
 Qed.
 
+Lemma zzz : ∀ pow tl, List.length (make_char_pol f pow tl) = List.length tl.
+Proof.
+intros pow tl.
+induction tl as [| t]; [ reflexivity | simpl ].
+bbb.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
@@ -2175,6 +2181,7 @@ rewrite Nat2Z.id, skipn_pad.
 rewrite list_length_shrink; simpl.
  rewrite divmod_div.
  rewrite Nat.sub_0_r.
+ f_equal.
 bbb.
 
 End theorems.
