@@ -2101,7 +2101,12 @@ induction l; intros.
  remember (S k) as k'; destruct cnt; simpl; subst k'.
   rewrite Nat.sub_0_r.
   destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
-   Focus 2.
+   apply Nat.succ_inj_wd.
+   rewrite <- H₁.
+   rewrite Nat.div_same; auto.
+   rewrite list_shrink_skipn.
+   apply length_shrink_skipn; assumption.
+
    rewrite IHl; [ idtac | assumption | idtac ].
     rewrite <- Nat.sub_add_distr, Nat.add_1_r.
     simpl in Hlk.
@@ -2114,18 +2119,10 @@ induction l; intros.
 
     simpl in Hlk; omega.
 
+  destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
    Focus 2.
-   destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
-    Focus 2.
-    rewrite IHl; [ reflexivity | assumption | idtac ].
-    simpl in Hlk; omega.
-
-    Unfocus.
-    apply Nat.succ_inj_wd.
-    rewrite <- H₁.
-    rewrite Nat.div_same; auto.
-    rewrite list_shrink_skipn.
-    apply length_shrink_skipn; assumption.
+   rewrite IHl; [ reflexivity | assumption | idtac ].
+   simpl in Hlk; omega.
 bbb.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
