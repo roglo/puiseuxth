@@ -2094,6 +2094,7 @@ induction l; intros.
     simpl in Hlk; omega.
 
     Unfocus.
+bbb.
     destruct l; [ reflexivity | simpl ].
     destruct k; simpl.
      simpl in H₁.
