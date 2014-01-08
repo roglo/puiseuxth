@@ -2094,6 +2094,10 @@ induction l; intros.
     simpl in Hlk; omega.
 
     Unfocus.
+    apply Nat.succ_inj_wd.
+    revert H₁; clear; intros.
+    rewrite <- H₁.
+    rewrite Nat.div_same; auto.
 bbb.
     destruct l; [ reflexivity | simpl ].
     destruct k; simpl.
