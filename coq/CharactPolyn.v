@@ -2172,6 +2172,9 @@ rewrite Nat.sub_diag; simpl.
 rewrite <- Hj; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id, skipn_pad.
+rewrite list_length_shrink; simpl.
+ rewrite divmod_div.
+ rewrite Nat.sub_0_r.
 bbb.
 
 End theorems.
