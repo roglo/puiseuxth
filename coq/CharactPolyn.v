@@ -2072,8 +2072,23 @@ induction l as [| x]; intros; [ idtac | simpl ].
  apply IHl.
 Qed.
 
-Lemma length_shrink_skipn : ∀ k l m,
-  S k = length l
+Lemma length_shrink_skipn_lt : ∀ k l m,
+  (length l < S k)%nat
+  → length (list_shrink 0 m (List.skipn k l)) = 0%nat.
+Proof.
+intros k l m Hk.
+revert k m Hk.
+induction l as [| x]; intros; [ destruct k; reflexivity | simpl ].
+simpl in Hk.
+apply Nat.succ_lt_mono in Hk.
+destruct k.
+ exfalso; revert Hk; apply Nat.nlt_0_r.
+
+ simpl; apply IHl; assumption.
+Qed.
+
+Lemma length_shrink_skipn_eq : ∀ k l m,
+  length l = S k
   → length (list_shrink 0 m (List.skipn k l)) = 1%nat.
 Proof.
 intros k l m Hk.
@@ -2087,47 +2102,42 @@ destruct k.
  simpl; apply IHl; assumption.
 Qed.
 
-Lemma zzz : ∀ cnt k l,
-  k ≠ O
-  → (S k < length l)%nat
-    → List.length (list_shrink cnt k l) = S ((List.length l - cnt - 1) / S k).
+Lemma list_length_shrink : ∀ cnt k l,
+  (S cnt < length l)%nat
+  → List.length (list_shrink cnt k l) = S ((List.length l - S cnt) / S k).
 Proof.
-intros cnt k l Hk Hlk.
-revert cnt k Hk Hlk.
+intros cnt k l Hcl.
+revert cnt k Hcl.
 induction l; intros.
- exfalso; revert Hlk; apply Nat.nlt_0_r.
+ exfalso; revert Hcl; apply Nat.nlt_0_r.
 
  remember (S k) as k'; simpl; subst k'.
  remember (S k) as k'; destruct cnt; simpl; subst k'.
   rewrite Nat.sub_0_r.
-  destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
-   apply Nat.succ_inj_wd.
+  apply Nat.succ_inj_wd.
+  destruct (lt_eq_lt_dec (S k) (length l)) as [[H₁| H₁]| H₁].
+   rewrite IHl; [ idtac | assumption ].
+   simpl in Hcl.
+   assert (length l = length l - S k + 1 * S k)%nat as H.
+    rewrite Nat.mul_1_l; omega.
+
+    rewrite H in |- * at 2; clear H.
+    rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
+    rewrite Nat.add_1_r; reflexivity.
+
    rewrite <- H₁.
    rewrite Nat.div_same; auto.
    rewrite list_shrink_skipn.
-   apply length_shrink_skipn; assumption.
+   apply length_shrink_skipn_eq; symmetry; assumption.
 
-   rewrite IHl; [ idtac | assumption | idtac ].
-    rewrite <- Nat.sub_add_distr, Nat.add_1_r.
-    simpl in Hlk.
-    assert (length l = length l - S k + 1 * S k)%nat as H.
-     rewrite Nat.mul_1_l; omega.
+   rewrite Nat.div_small; [ idtac | assumption ].
+   rewrite list_shrink_skipn.
+   apply length_shrink_skipn_lt; assumption.
 
-     rewrite H in |- * at 2; clear H.
-     rewrite Nat.div_add; [ idtac | intros H; discriminate H ].
-     rewrite Nat.add_1_r; reflexivity.
-
-    simpl in Hlk; omega.
-
-  destruct (eq_nat_dec (S k) (length l)) as [H₁| H₁].
-   Focus 2.
-   rewrite IHl; [ reflexivity | assumption | idtac ].
-   simpl in Hlk; omega.
-
-   rewrite <- H₁.
-   rewrite Nat.div_small; [ idtac | omega ].
-   (* FAUX ! *)
-bbb.
+  simpl in Hcl.
+  apply Nat.succ_lt_mono in Hcl.
+  apply IHl; assumption.
+Qed.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
