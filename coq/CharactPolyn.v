@@ -2139,11 +2139,30 @@ induction l; intros.
   apply IHl; assumption.
 Qed.
 
-(*
-Lemma zzz : ∀ pow tl, List.length (make_char_pol f pow tl) = List.length tl.
+Lemma list_length_pad : ∀ n (z : α) l,
+  List.length (list_pad n z l) = (n + List.length l)%nat.
 Proof.
-intros pow tl.
-induction tl as [| t]; [ reflexivity | simpl ].
+intros n z l.
+induction n; [ reflexivity | simpl ].
+rewrite IHn; reflexivity.
+Qed.
+
+Lemma list_length_char_pol_cons : ∀ pow t tl,
+  List.length (make_char_pol f pow [t … tl]) =
+  (S (power t - pow) + List.length (make_char_pol f (S (power t)) tl))%nat.
+Proof.
+intros pow t tl; simpl.
+rewrite list_length_pad; simpl.
+rewrite Nat.add_succ_r; reflexivity.
+Qed.
+
+(* voir si c'est vraiment comme ça qu'il faut faire...
+Lemma zzz : ∀ pow t₁ tl₁ tl₂,
+  make_char_pol f pow ([t₁ … tl₁] ++ tl₂) =
+  make_char_pol f pow [t₁ … tl₁] ++
+  make_char_pol f (S (power (List.last [t₁ … tl₁] t₁))) tl₂.
+Proof.
+intros pow t₁ tl₁ tl₂.
 bbb.
 *)
 
@@ -2184,6 +2203,29 @@ rewrite list_length_shrink; simpl.
  rewrite divmod_div.
  rewrite Nat.sub_0_r.
  f_equal.
+  rewrite List.map_app; simpl.
+  remember (oth_pts ns) as pts eqn:Hpts .
+  symmetry in Hpts.
+  destruct pts as [| pt₁].
+   simpl.
+   rewrite list_length_pad; simpl.
+   rewrite <- Hk; simpl.
+   unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id.
+   rewrite <- Nat.add_sub_swap.
+    rewrite Nat.add_1_r; reflexivity.
+
+    eapply j_lt_k; [ eassumption | idtac | idtac ].
+     rewrite <- Hj; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
+
+     unfold nofq, Qnat; simpl.
+     rewrite <- Hk; simpl.
+     rewrite Nat2Z.id; reflexivity.
+
+   simpl.
+   rewrite list_length_pad; simpl.
 bbb.
 
 End theorems.
