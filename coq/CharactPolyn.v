@@ -2123,6 +2123,10 @@ induction l; intros.
    Focus 2.
    rewrite IHl; [ reflexivity | assumption | idtac ].
    simpl in Hlk; omega.
+
+   rewrite <- H₁.
+   rewrite Nat.div_small; [ idtac | omega ].
+   (* FAUX ! *)
 bbb.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
