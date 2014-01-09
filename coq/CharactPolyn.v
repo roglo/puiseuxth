@@ -2156,7 +2156,7 @@ rewrite list_length_pad; simpl.
 rewrite Nat.add_succ_r; reflexivity.
 Qed.
 
-(* voir si c'est vraiment comme ça qu'il faut faire...
+(* voir si c'est vraiment comme ça qu'il faut faire... *)
 Lemma zzz : ∀ pow t₁ tl₁ tl₂,
   make_char_pol f pow ([t₁ … tl₁] ++ tl₂) =
   make_char_pol f pow [t₁ … tl₁] ++
@@ -2225,8 +2225,14 @@ rewrite list_length_shrink; simpl.
      rewrite <- Hk; simpl.
      rewrite Nat2Z.id; reflexivity.
 
+   remember make_char_pol as g; simpl; subst g.
+   rewrite List.app_comm_cons.
+   rewrite zzz.
    simpl.
-   rewrite list_length_pad; simpl.
+   rewrite List.app_length.
+   rewrite list_length_pad.
+   rewrite list_length_pad.
+   simpl.
 bbb.
 
 End theorems.
