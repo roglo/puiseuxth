@@ -2156,13 +2156,21 @@ rewrite list_length_pad; simpl.
 rewrite Nat.add_succ_r; reflexivity.
 Qed.
 
-(* voir si c'est vraiment comme ça qu'il faut faire... *)
+Lemma list_pad_app : ∀ n z (l₁ l₂ : list α),
+  list_pad n z l₁ ++ l₂ = list_pad n z (l₁ ++ l₂).
+Proof.
+intros n z l₁ l₂.
+induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
+Qed.
+
 Lemma zzz : ∀ pow t₁ tl₁ tl₂,
   make_char_pol f pow ([t₁ … tl₁] ++ tl₂) =
   make_char_pol f pow [t₁ … tl₁] ++
   make_char_pol f (S (power (List.last [t₁ … tl₁] t₁))) tl₂.
 Proof.
-intros pow t₁ tl₁ tl₂.
+intros pow t₁ tl₁ tl₂; simpl.
+rewrite list_pad_app; f_equal.
+simpl; f_equal.
 bbb.
 *)
 
