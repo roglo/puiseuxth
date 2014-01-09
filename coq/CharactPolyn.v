@@ -2206,7 +2206,8 @@ rewrite list_length_shrink; simpl.
   rewrite List.map_app; simpl.
   remember (oth_pts ns) as pts eqn:Hpts .
   symmetry in Hpts.
-  destruct pts as [| pt₁].
+  revert Hns Hj Hk; clear; intros.
+  induction pts as [| pt₁].
    simpl.
    rewrite list_length_pad; simpl.
    rewrite <- Hk; simpl.
