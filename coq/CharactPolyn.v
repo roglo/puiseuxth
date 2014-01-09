@@ -2168,9 +2168,32 @@ Lemma zzz : ∀ pow t₁ tl₁ tl₂,
   make_char_pol f pow [t₁ … tl₁] ++
   make_char_pol f (S (power (List.last [t₁ … tl₁] t₁))) tl₂.
 Proof.
-intros pow t₁ tl₁ tl₂; simpl.
+intros pow t₁ tl₁ tl₂.
+simpl.
 rewrite list_pad_app; f_equal.
 simpl; f_equal.
+revert t₁ tl₁.
+induction tl₂ as [| t₂]; intros.
+ simpl.
+ rewrite List.app_nil_r.
+ rewrite List.app_nil_r.
+ reflexivity.
+
+ replace (tl₁ ++ [t₂ … tl₂]) with (tl₁ ++ [t₂] ++ tl₂) by reflexivity.
+ rewrite List.app_assoc.
+ rewrite IHtl₂.
+ simpl.
+ destruct tl₁ as [| t₃].
+  simpl.
+  rewrite list_pad_app; reflexivity.
+
+  simpl.
+  rewrite list_pad_app.
+  simpl.
+  rewrite list_pad_app.
+  simpl.
+  f_equal.
+  f_equal.
 bbb.
 *)
 
