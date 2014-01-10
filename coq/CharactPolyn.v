@@ -963,13 +963,74 @@ simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
-Definition p_of_jk_pts j mj k mk :=
+Definition p_of_jk_pts α (pol : polynomial (puiseux_series α)) ns :=
+  let m := series_list_com_polord (al pol) in
+  let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
+  let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
+  let αj := snd (ini_pt ns) in
+  let αk := snd (fin_pt ns) in
+  let mj := Qnum (αj * inject_Z (' m)) in
+  let mk := Qnum (αk * inject_Z (' m)) in
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   ((mj - mk) / g)%Z.
 
-Definition q_of_jk_pts j mj k mk :=
+Definition q_of_jk_pts α (pol : polynomial (puiseux_series α)) ns :=
+  let m := series_list_com_polord (al pol) in
+  let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
+  let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
+  let αj := snd (ini_pt ns) in
+  let αk := snd (fin_pt ns) in
+  let mj := Qnum (αj * inject_Z (' m)) in
+  let mk := Qnum (αk * inject_Z (' m)) in
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
+
+Theorem gamma_eq_p_nq : ∀ pol ns m p q,
+  ns ∈ newton_segments f pol
+  → m = series_list_com_polord (al pol)
+    → p = p_of_jk_pts pol ns
+      → q = q_of_jk_pts pol ns
+        → γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
+Proof.
+intros pol ns m p q Hns Hm Hp Hq.
+remember Hns as Hini; clear HeqHini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_ini_pt_nat in Hini.
+apply exists_fin_pt_nat in Hfin.
+destruct Hini as (j, (αj, Hini)).
+destruct Hfin as (k, (αk, Hfin)).
+remember (points_of_ps_polynom f pol) as pts.
+remember (lower_convex_hull_points pts) as hsl.
+remember Hns as Hg; clear HeqHg.
+symmetry in Hini, Hfin.
+eapply gamma_value_jk in Hg; try eassumption.
+subst hsl.
+remember (List.nth j (al pol) .0 f%ps) as jps.
+eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
+ 2: rewrite Hini.
+ 2: apply ini_fin_ns_in_init_pts.
+ 2: unfold newton_segments in Hns.
+ 2: rewrite <- Heqpts in Hns; assumption.
+
+ destruct Heqjps as (Hjps, Hαj).
+ eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
+ remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
+ remember (List.nth k (al pol) .0 f%ps) as kps.
+ eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
+  2: rewrite Hfin.
+  2: apply ini_fin_ns_in_init_pts.
+  2: unfold newton_segments in Hns.
+  2: rewrite <- Heqpts in Hns; assumption.
+
+  destruct Heqkps as (Hkps, Hαk).
+  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
+  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
+  rewrite Hg.
+  setoid_rewrite Hαj.
+  setoid_rewrite Hαk.
+  remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
+  split.
+bbb.
 
 (* [Walker, p. 100]: «
                         p
@@ -1022,6 +1083,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   setoid_rewrite Hαj.
   setoid_rewrite Hαk.
   remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
+bbb.
   exists ((mj - mk) / g)%Z.
   exists (Z.to_pos ((Z.of_nat k - Z.of_nat j) / g)).
   split.
