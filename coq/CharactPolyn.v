@@ -2225,10 +2225,51 @@ destruct l' as [| z].
 Qed.
 
 Lemma yyy : ∀ j k l d,
-  power (List.last l d) = k
-  → List.length (make_char_pol f (S j) l) = (k - j)%nat.
+  (j < k)%nat
+  → (∀ a, a ∈ l → (j < power a < k)%nat)
+    → power (List.last l d) = k
+      → List.length (make_char_pol f (S j) l) = (k - j)%nat.
 Proof.
-intros j k l d Hlk.
+intros j k l d Hjk Hak Hlk.
+revert j k d Hjk Hak Hlk.
+induction l as [| a]; intros.
+ simpl.
+ simpl in Hlk.
+ Focus 2.
+ simpl.
+ rewrite list_length_pad; simpl.
+ simpl in Hlk.
+ destruct l as [| b].
+  rewrite Hlk.
+  simpl.
+  omega.
+
+  erewrite IHl; try eassumption.
+   rewrite <- Nat.sub_succ_l.
+    rewrite Nat.add_sub_assoc.
+     rewrite <- Nat.add_sub_swap.
+      rewrite <- Nat.sub_add_distr.
+      remember (power a + S k)%nat as x; rewrite Nat.add_comm; subst x.
+      rewrite Nat.sub_add_distr.
+      rewrite Nat.add_comm, Nat.add_sub.
+      reflexivity.
+
+      apply Hak; left; reflexivity.
+
+     apply Nat.lt_le_incl.
+     apply Nat.lt_le_incl.
+     apply lt_n_S.
+     apply Hak; left; reflexivity.
+
+    apply Nat.lt_le_incl.
+    apply Hak; left; reflexivity.
+
+   apply Hak; left; reflexivity.
+
+   intros c Hc.
+   split.
+    Focus 2.
+    apply Hak; right; assumption.
 bbb.
 *)
 
