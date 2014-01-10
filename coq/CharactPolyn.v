@@ -985,7 +985,7 @@ Definition q_of_jk_pts α (pol : polynomial (puiseux_series α)) ns :=
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
-Theorem gamma_eq_p_nq : ∀ pol ns m p q,
+Theorem xxx : ∀ pol ns m p q,
   ns ∈ newton_segments f pol
   → m = series_list_com_polord (al pol)
     → p = p_of_jk_pts pol ns
@@ -1030,6 +1030,13 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   setoid_rewrite Hαk.
   remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
   split.
+   subst p q.
+   unfold p_of_jk_pts, q_of_jk_pts; simpl.
+   rewrite <- Hini, <- Hfin; simpl.
+   do 2 rewrite Nat2Z.id.
+   unfold Qnat.
+   rewrite p_mq_formula; [ idtac | idtac | eassumption ].
+    rewrite <- Hm.
 bbb.
 
 (* [Walker, p. 100]: «
