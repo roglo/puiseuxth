@@ -1231,6 +1231,7 @@ intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember (points_of_ps_polynom f pol) as pts.
 rename Heqpts into Hpts.
 remember (List.nth j (al pol) .0 f%ps) as jps.
+remember Heqjps as Hjps_v; clear HeqHjps_v.
 eapply in_pts_in_pol in Heqjps; try eassumption.
  2: apply ini_fin_ns_in_init_pts in Hns.
  2: destruct Hns as (Hns, _).
@@ -1241,6 +1242,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
  remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
  remember (List.nth k (al pol) .0 f%ps) as kps.
+ remember Heqkps as Hkps_v; clear HeqHkps_v.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: apply ini_fin_ns_in_init_pts in Hns.
   2: destruct Hns as (_, Hns).
@@ -1253,23 +1255,15 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   exists mj, mk.
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
-(**)
   remember Heqm as Hm; clear HeqHm.
+  eapply gamma_eq_p_nq in Heqm; try eassumption; try reflexivity.
+  destruct Heqm as (Hgamma, Hgcd).
+  remember (p_of_jk_pts pol ns) as p eqn:Hp .
+  remember (Pos.to_nat (q_of_jk_pts pol ns)) as q eqn:Hq .
+  exists p, q.
+  split; [ rewrite Hq, positive_nat_Z; assumption | idtac ].
+  split; [ subst q; apply Pos2Nat_ne_0 | idtac ].
 bbb.
-  eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
-  destruct Heqm as (p, (q, (Hgamma, Hgcd))).
-  exists p, (Pos.to_nat q).
-  rewrite positive_nat_Z.
-(*
-  remember (p_of_jk_pts j mj k mk) as p.
-  remember (q_of_jk_pts j mj k mk) as q.
-  exists p, (Pos.to_nat q).
-  rewrite positive_nat_Z.
-  split.
-   subst p q; unfold p_of_jk_pts, q_of_jk_pts.
-   bbb.
-*)
-  split; [ assumption | idtac ].
   remember (Qnat j) as jq.
   remember (Qnat k) as kq.
   remember Hpts as Hjn; clear HeqHjn.
