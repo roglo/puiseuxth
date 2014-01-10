@@ -1035,76 +1035,70 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   setoid_rewrite Hαj.
   setoid_rewrite Hαk.
   remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
-  split.
-   subst p q.
-   unfold p_of_jk_pts, q_of_jk_pts; simpl.
-   rewrite <- Hini, <- Hfin; simpl.
-   do 2 rewrite Nat2Z.id.
-   unfold Qnat.
-   rewrite p_mq_formula; [ idtac | idtac | eassumption ].
-    rewrite <- Hm.
-    unfold Qeq; simpl.
-    subst g.
-    rewrite Pos.mul_comm, Pos2Z.inj_mul.
-    rewrite Pos.mul_comm, Pos2Z.inj_mul.
-    do 2 rewrite Z.mul_assoc.
-    f_equal.
-    subst mj mk.
-    rewrite <- Hjps_v, <- Hkps_v.
-    reflexivity.
+  assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
+   eapply jz_lt_kz; try eassumption.
+    rewrite <- Hini; reflexivity.
 
-    assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
-     eapply jz_lt_kz; try eassumption.
-      rewrite <- Hini; reflexivity.
+    rewrite <- Hfin; reflexivity.
 
-      rewrite <- Hfin; reflexivity.
+   split.
+    subst p q.
+    unfold p_of_jk_pts, q_of_jk_pts; simpl.
+    rewrite <- Hini, <- Hfin; simpl.
+    do 2 rewrite Nat2Z.id.
+    unfold Qnat.
+    rewrite p_mq_formula; [ idtac | idtac | eassumption ].
+     rewrite <- Hm.
+     unfold Qeq; simpl.
+     subst g.
+     rewrite Pos.mul_comm, Pos2Z.inj_mul.
+     rewrite Pos.mul_comm, Pos2Z.inj_mul.
+     do 2 rewrite Z.mul_assoc.
+     f_equal.
+     subst mj mk.
+     rewrite <- Hjps_v, <- Hkps_v.
+     reflexivity.
 
      apply Zplus_lt_reg_r with (p := Z.of_nat j).
      rewrite Z.sub_add; assumption.
 
-   subst p q.
-   unfold p_of_jk_pts, q_of_jk_pts; simpl.
-   rewrite <- Hini, <- Hfin; simpl.
-   do 2 rewrite Nat2Z.id.
-   rewrite <- Hm.
-   rewrite <- Hjps_v, <- Hkps_v.
-   rewrite <- Hmj, <- Hmk.
-   rewrite <- Heqg.
-   rewrite Z2Pos.id.
-    apply Z.gcd_div_gcd; [ idtac | assumption ].
+    subst p q.
     unfold p_of_jk_pts, q_of_jk_pts; simpl.
-    rewrite Heqg; intros H.
-    apply Z.gcd_eq_0_r in H.
-    apply Zminus_eq in H.
-    symmetry in H; revert H.
-    apply Z.lt_neq.
-    eapply jz_lt_kz; try eassumption.
-     rewrite <- Hini; reflexivity.
+    rewrite <- Hini, <- Hfin; simpl.
+    do 2 rewrite Nat2Z.id.
+    rewrite <- Hm.
+    rewrite <- Hjps_v, <- Hkps_v.
+    rewrite <- Hmj, <- Hmk.
+    rewrite <- Heqg.
+    rewrite Z2Pos.id.
+     apply Z.gcd_div_gcd; [ idtac | assumption ].
+     unfold p_of_jk_pts, q_of_jk_pts; simpl.
+     rewrite Heqg; intros H.
+     apply Z.gcd_eq_0_r in H.
+     apply Zminus_eq in H.
+     symmetry in H; revert H.
+     apply Z.lt_neq.
+     assumption.
 
-     rewrite <- Hfin; reflexivity.
+     apply Z.div_str_pos.
+     split.
+      assert (g ≠ 0%Z) as Hgnz.
+       rewrite Heqg; intros H.
+       apply Z.gcd_eq_0_r in H.
+       apply Zminus_eq in H.
+       symmetry in H; revert H.
+       apply Z.lt_neq.
+       assumption.
 
-    apply Z.div_str_pos.
-    split.
-     assert (g ≠ 0%Z) as Hgnz.
-      rewrite Heqg; intros H.
-      apply Z.gcd_eq_0_r in H.
-      apply Zminus_eq in H.
-      symmetry in H; revert H.
-      apply Z.lt_neq.
-      eapply jz_lt_kz; try eassumption.
-       rewrite <- Hini; reflexivity.
+       assert (0 <= g)%Z as H.
+        subst g.
+        apply Z.gcd_nonneg.
 
-       rewrite <- Hfin; reflexivity.
+        fast_omega Hgnz H.
 
-      assert (0 <= g)%Z as H.
-       subst g.
-       apply Z.gcd_nonneg.
-
-       fast_omega Hgnz H.
-
-     pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
-     rewrite <- Heqg in H.
-     destruct H as (v, H).
+      pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
+      rewrite <- Heqg in H.
+      destruct H as (v, H).
 bbb.
 
 (* [Walker, p. 100]: «
