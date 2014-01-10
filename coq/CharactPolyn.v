@@ -989,7 +989,14 @@ Definition q_of_jk_pts (pol : polynomial (puiseux_series α)) ns :=
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
-Theorem xxx : ∀ pol ns m p q,
+(* [Walker, p. 100]: «
+                        p
+          γ₁ = [...] = ---
+                       m q
+
+     where q > 0 and p and q are integers having no common factor. » *)
+
+Theorem gamma_eq_p_nq : ∀ pol ns m p q,
   ns ∈ newton_segments f pol
   → m = series_list_com_polord (al pol)
     → p = p_of_jk_pts pol ns
@@ -1080,173 +1087,62 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
      apply Z.lt_neq.
      assumption.
 
-     apply Z.div_str_pos.
-     split.
-      assert (g ≠ 0%Z) as Hgnz.
-       rewrite Heqg; intros H.
-       apply Z.gcd_eq_0_r in H.
-       apply Zminus_eq in H.
-       symmetry in H; revert H.
-       apply Z.lt_neq.
-       assumption.
+     assert (g ≠ 0%Z) as Hgnz.
+      rewrite Heqg; intros H.
+      apply Z.gcd_eq_0_r in H.
+      apply Zminus_eq in H.
+      symmetry in H; revert H.
+      apply Z.lt_neq.
+      assumption.
 
-       assert (0 <= g)%Z as H.
-        subst g.
-        apply Z.gcd_nonneg.
+      assert (0 <= g)%Z as Hgnn.
+       subst g.
+       apply Z.gcd_nonneg.
 
-        fast_omega Hgnz H.
+       apply Z.div_str_pos.
+       split; [ fast_omega Hgnz Hgnn | idtac ].
+       pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
+       rewrite <- Heqg in H.
+       destruct H as (v, H).
+       destruct v as [| v| v].
+        simpl in H.
+        apply Zminus_eq in H.
+        rewrite H in Hjk.
+        apply Z.lt_irrefl in Hjk; contradiction.
 
-      pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
-      rewrite <- Heqg in H.
-      destruct H as (v, H).
-bbb.
+        rewrite H.
+        remember (' v * g)%Z as x.
+        replace g with (1 * g)%Z by apply Zmult_1_l.
+        subst x.
+        apply Zmult_le_compat_r.
+         replace 1%Z with (Z.succ 0)%Z by reflexivity.
+         apply Zlt_le_succ.
+         apply Pos2Z.is_pos.
 
-(* [Walker, p. 100]: «
-                        p
-          γ₁ = [...] = ---
-                       m q
+         rewrite Heqg.
+         apply Z.gcd_nonneg.
 
-     where q > 0 and p and q are integers having no common factor. » *)
+        exfalso.
+        assert (Z.neg v * g < 0)%Z as Hn.
+         apply Z.mul_neg_pos.
+          apply Zlt_neg_0.
 
+          fast_omega Hgnz Hgnn.
+
+         rewrite <- H in Hn.
+         apply Zlt_not_le in Hn.
+         apply Hn.
+         apply Z.lt_le_incl.
+         revert Hjk; clear; intros; omega.
+Qed.
+
+(* old
 Theorem gamma_eq_p_nq : ∀ pol ns m,
   ns ∈ newton_segments f pol
   → m = series_list_com_polord (al pol)
     → ∃ (p : Z) (q : positive),
       γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
-Proof.
-(* À nettoyer *)
-intros pol ns m Hns Hm.
-remember Hns as Hini; clear HeqHini.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_ini_pt_nat in Hini.
-apply exists_fin_pt_nat in Hfin.
-destruct Hini as (j, (αj, Hini)).
-destruct Hfin as (k, (αk, Hfin)).
-remember (points_of_ps_polynom f pol) as pts.
-remember (lower_convex_hull_points pts) as hsl.
-remember Hns as Hg; clear HeqHg.
-symmetry in Hini, Hfin.
-eapply gamma_value_jk in Hg; try eassumption.
-subst hsl.
-remember (List.nth j (al pol) .0 f%ps) as jps.
-eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
- 2: rewrite Hini.
- 2: apply ini_fin_ns_in_init_pts.
- 2: unfold newton_segments in Hns.
- 2: rewrite <- Heqpts in Hns; assumption.
-
- destruct Heqjps as (Hjps, Hαj).
- eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
- remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
- remember (List.nth k (al pol) .0 f%ps) as kps.
- eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
-  2: rewrite Hfin.
-  2: apply ini_fin_ns_in_init_pts.
-  2: unfold newton_segments in Hns.
-  2: rewrite <- Heqpts in Hns; assumption.
-
-  destruct Heqkps as (Hkps, Hαk).
-  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
-  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
-  rewrite Hg.
-  setoid_rewrite Hαj.
-  setoid_rewrite Hαk.
-  remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g.
-bbb.
-  exists ((mj - mk) / g)%Z.
-  exists (Z.to_pos ((Z.of_nat k - Z.of_nat j) / g)).
-  split.
-   apply p_mq_formula; [ idtac | assumption ].
-   rewrite <- Nat2Z.inj_sub.
-    rewrite <- Nat2Z.inj_0.
-    apply Nat2Z.inj_lt.
-    apply Nat.lt_add_lt_sub_r; simpl.
-    eapply j_lt_k.
-     subst pts; eassumption.
-
-     rewrite <- Hini; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-     rewrite <- Hfin; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-    apply Nat.lt_le_incl.
-    eapply j_lt_k.
-     subst pts; eassumption.
-
-     rewrite <- Hini; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-     rewrite <- Hfin; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-   assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
-    eapply jz_lt_kz; try eassumption.
-     rewrite <- Hini; reflexivity.
-
-     rewrite <- Hfin; reflexivity.
-
-    assert (g ≠ 0%Z) as Hgnz.
-     rewrite Heqg; intros H.
-     apply Z.gcd_eq_0_r in H.
-     apply Zminus_eq in H.
-     symmetry in H; revert H.
-     apply Z.lt_neq; assumption.
-
-     rewrite Z2Pos.id; [ apply Z.gcd_div_gcd; assumption | idtac ].
-     apply Z.div_str_pos.
-     split.
-      assert (0 <= g)%Z.
-       rewrite Heqg; apply Z.gcd_nonneg.
-
-       apply Z.gt_lt, Znot_le_gt.
-       intros HH.
-       apply Hgnz.
-       apply Z.le_antisymm; assumption.
-
-      pose proof (Z.gcd_divide_r (mj - mk) (Z.of_nat k - Z.of_nat j)) as H.
-      rewrite <- Heqg in H.
-      destruct H as (v, H).
-      destruct v as [| v| v].
-       simpl in H.
-       apply Zminus_eq in H.
-       rewrite H in Hjk.
-       apply Z.lt_irrefl in Hjk; contradiction.
-
-       rewrite H.
-       remember (' v * g)%Z as x.
-       replace g with (1 * g)%Z by apply Zmult_1_l.
-       subst x.
-       apply Zmult_le_compat_r.
-        replace 1%Z with (Z.succ 0)%Z by reflexivity.
-        apply Zlt_le_succ.
-        apply Pos2Z.is_pos.
-
-        rewrite Heqg.
-        apply Z.gcd_nonneg.
-
-       exfalso.
-       assert (Z.neg v * g < 0)%Z as Hn.
-        apply Z.mul_neg_pos.
-         apply Zlt_neg_0.
-
-         assert (0 <= g)%Z.
-          rewrite Heqg; apply Z.gcd_nonneg.
-
-          apply Z.gt_lt, Znot_le_gt.
-          intros HH.
-          apply Hgnz, Z.le_antisymm; assumption.
-
-        rewrite <- H in Hn.
-        apply Zlt_not_le in Hn.
-        apply Hn.
-        apply Z.lt_le_incl.
-        revert Hjk; clear; intros; omega.
-Qed.
+*)
 
 (* [Walker, p. 100]: « If Ph is on L, then also
                    αj - αh
@@ -1359,6 +1255,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   split; [ assumption | idtac ].
 (**)
   remember Heqm as Hm; clear HeqHm.
+bbb.
   eapply gamma_eq_p_nq in Heqm; [ idtac | eassumption ].
   destruct Heqm as (p, (q, (Hgamma, Hgcd))).
   exists p, (Pos.to_nat q).
