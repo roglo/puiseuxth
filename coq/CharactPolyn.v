@@ -612,7 +612,10 @@ Qed.
 
 (* *)
 
-Theorem xxx : ∀ (psl : list (puiseux_series α)) m,
+(* [Walker, p. 100]: « In the first place, we note that since each
+   āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
+   m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
+Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_polord psl
   → ∀ ps αi mi, ps ∈ psl
     → valuation f ps = Some αi
@@ -620,42 +623,38 @@ Theorem xxx : ∀ (psl : list (puiseux_series α)) m,
         → αi == mi # m.
 Proof.
 intros psl m Hm ps αi mi Hps Hv Hmi.
-bbb.
+subst mi.
+unfold valuation in Hv.
+remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
+symmetry in Hn.
+destruct n as [n| ]; [ idtac | discriminate Hv ].
+injection Hv; clear Hv; intros Hαi.
+subst αi; simpl.
+unfold Qeq; simpl.
+symmetry; rewrite Z.mul_comm.
+rewrite <- Z.divide_div_mul_exact; [ idtac | apply Pos2Z_ne_0 | idtac ].
+ rewrite Z.mul_comm.
+ rewrite Z.div_mul; [ reflexivity | apply Pos2Z_ne_0 ].
 
-(* [Walker, p. 100]: « In the first place, we note that since each
-   āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
-   m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
+ apply Z.divide_mul_r.
+ subst m.
+ apply List.in_split in Hps.
+ destruct Hps as (l₁, (l₂, Hpsl)).
+ remember (series_list_com_polord (l₁ ++ l₂)) as m₁.
+ exists (Zpos m₁); subst m₁ psl.
+ induction l₁ as [| ps₁]; [ reflexivity | simpl ].
+ rewrite Pos2Z.inj_mul.
+ rewrite IHl₁; simpl.
+ rewrite Pos_mul_shuffle0; reflexivity.
+Qed.
+
+(* old
 Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
   m = series_list_com_polord psl
   → ∀ ps αi, ps ∈ psl
     → valuation f ps = Some αi
       → ∃ mi, αi == mi # m.
-Proof.
-intros psl m Hm ps αi Hps Hv.
-apply List.in_split in Hps.
-destruct Hps as (l₁, (l₂, Hpsl)).
-remember (series_list_com_polord (l₁ ++ l₂)) as m₁.
-exists (Qnum αi * Zpos m₁)%Z.
-subst m m₁ psl.
-induction l₁ as [| ps₁]; simpl.
- unfold Qeq; simpl.
- rewrite Pos2Z.inj_mul.
- rewrite Zmult_assoc.
- unfold valuation in Hv.
- remember (null_coeff_range_length f (ps_terms ps) 0) as n eqn:Hn .
- symmetry in Hn.
- destruct n as [n| ]; [ idtac | discriminate Hv ].
- injection Hv; clear Hv; intros Hαi.
- subst αi; reflexivity.
-
- rewrite Pos2Z.inj_mul, Z.mul_assoc.
- unfold Qeq; simpl.
- rewrite Pos2Z.inj_mul.
- rewrite Z.mul_assoc, Z.mul_comm, <- Z.mul_assoc.
- symmetry; rewrite Z.mul_comm, <- Z.mul_assoc.
- apply Z.mul_cancel_l; [ apply Pos2Z_ne_0 | idtac ].
- rewrite Z.mul_comm; symmetry; assumption.
-Qed.
+*)
 
 (* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends
    of the segment L, v + γ₁ u = β₁ of the Newton polygon, then
