@@ -612,6 +612,16 @@ Qed.
 
 (* *)
 
+Theorem xxx : ∀ (psl : list (puiseux_series α)) m,
+  m = series_list_com_polord psl
+  → ∀ ps αi mi, ps ∈ psl
+    → valuation f ps = Some αi
+      → mi = (Qnum αi * Zpos m / Zpos (ps_polord ps))%Z
+        → αi == mi # m.
+Proof.
+intros psl m Hm ps αi mi Hps Hv Hmi.
+bbb.
+
 (* [Walker, p. 100]: « In the first place, we note that since each
    āi, i=0,...,n is an element of some K(x^(1/ni))', there is an
    m such that all the āi ∈ K(x^(1/m))'. Hence we have αi = mi/m. » *)
