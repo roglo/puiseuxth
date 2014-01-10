@@ -963,7 +963,7 @@ simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
-Definition p_of_jk_pts (pol : polynomial (puiseux_series α)) ns :=
+Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let m := series_list_com_polord (al pol) in
   let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
   let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
@@ -974,19 +974,14 @@ Definition p_of_jk_pts (pol : polynomial (puiseux_series α)) ns :=
   let mj := (Qnum αj * ' m / ' ps_polord jps)%Z in
   let mk := (Qnum αk * ' m / ' ps_polord kps)%Z in
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
+  (j, k, mj, mk, g).
+
+Definition p_of_ns (pol : polynomial (puiseux_series α)) ns :=
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   ((mj - mk) / g)%Z.
 
-Definition q_of_jk_pts (pol : polynomial (puiseux_series α)) ns :=
-  let m := series_list_com_polord (al pol) in
-  let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
-  let k := Z.to_nat (Qnum (fst (fin_pt ns))) in
-  let αj := snd (ini_pt ns) in
-  let αk := snd (fin_pt ns) in
-  let jps := List.nth j (al pol) .0 f%ps in
-  let kps := List.nth k (al pol) .0 f%ps in
-  let mj := (Qnum αj * ' m / ' ps_polord jps)%Z in
-  let mk := (Qnum αk * ' m / ' ps_polord kps)%Z in
-  let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
+Definition q_of_ns (pol : polynomial (puiseux_series α)) ns :=
+  let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
 (* [Walker, p. 100]: «
@@ -999,8 +994,8 @@ Definition q_of_jk_pts (pol : polynomial (puiseux_series α)) ns :=
 Theorem gamma_eq_p_nq : ∀ pol ns m p q,
   ns ∈ newton_segments f pol
   → m = series_list_com_polord (al pol)
-    → p = p_of_jk_pts pol ns
-      → q = q_of_jk_pts pol ns
+    → p = p_of_ns pol ns
+      → q = q_of_ns pol ns
         → γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
 Proof.
 intros pol ns m p q Hns Hm Hp Hq.
@@ -1050,7 +1045,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
 
    split.
     subst p q.
-    unfold p_of_jk_pts, q_of_jk_pts; simpl.
+    unfold p_of_ns, q_of_ns; simpl.
     rewrite <- Hini, <- Hfin; simpl.
     do 2 rewrite Nat2Z.id.
     unfold Qnat.
@@ -1070,7 +1065,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
      rewrite Z.sub_add; assumption.
 
     subst p q.
-    unfold p_of_jk_pts, q_of_jk_pts; simpl.
+    unfold p_of_ns, q_of_ns; simpl.
     rewrite <- Hini, <- Hfin; simpl.
     do 2 rewrite Nat2Z.id.
     rewrite <- Hm.
@@ -1079,7 +1074,7 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
     rewrite <- Heqg.
     rewrite Z2Pos.id.
      apply Z.gcd_div_gcd; [ idtac | assumption ].
-     unfold p_of_jk_pts, q_of_jk_pts; simpl.
+     unfold p_of_ns, q_of_ns; simpl.
      rewrite Heqg; intros H.
      apply Z.gcd_eq_0_r in H.
      apply Zminus_eq in H.
@@ -1258,49 +1253,54 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   remember Heqm as Hm; clear HeqHm.
   eapply gamma_eq_p_nq in Heqm; try eassumption; try reflexivity.
   destruct Heqm as (Hgamma, Hgcd).
-  remember (p_of_jk_pts pol ns) as p eqn:Hp .
-  remember (Pos.to_nat (q_of_jk_pts pol ns)) as q eqn:Hq .
+  remember (p_of_ns pol ns) as p eqn:Hp .
+  remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
   exists p, q.
   split; [ rewrite Hq, positive_nat_Z; assumption | idtac ].
   split; [ subst q; apply Pos2Nat_ne_0 | idtac ].
-bbb.
-  remember (Qnat j) as jq.
-  remember (Qnat k) as kq.
-  remember Hpts as Hjn; clear HeqHjn.
-  symmetry in Hjn.
-  split; [ auto | idtac ].
   split.
-   remember Hns as Hgh; clear HeqHgh.
-   eapply gamma_value_jk in Hgh; try eassumption.
-   apply eq_Qeq in Hgh.
-   rewrite Hmj, Hmk in Hgh.
-   rewrite <- Qnum_minus_distr_r in Hgh.
-   rewrite Heqjq, Heqkq in Hgh.
-   rewrite Hgamma in Hgh.
-   unfold Qnat in Hgh.
-   rewrite <- Qnum_minus_distr_r in Hgh.
-   rewrite Nat2Z.inj_sub.
-    eapply pmq_qmpm; try reflexivity; [ idtac | eassumption ].
-    eapply j_lt_k; try eassumption.
-     rewrite <- Hj, Heqjq; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-     rewrite <- Hk, Heqkq; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
+   subst p q.
+   unfold p_of_ns, q_of_ns; simpl.
+   rewrite <- Hm.
+   rewrite <- Hj, <- Hk; simpl.
+   do 2 rewrite Nat2Z.id.
+   rewrite <- Hjps_v, <- Hkps_v.
+   rewrite <- Hmj, <- Hmk.
+   rewrite positive_nat_Z.
+   rewrite Z2Pos.id.
+    rewrite Z.gcd_comm, Z.gcd_div_swap, Z.mul_comm.
+    rewrite Nat2Z.inj_sub; [ reflexivity | idtac ].
     apply Nat.lt_le_incl.
     eapply j_lt_k; try eassumption.
-     rewrite <- Hj, Heqjq; simpl.
-     unfold nofq, Qnat; simpl.
+     rewrite <- Hj; unfold nofq, Qnat; simpl.
      rewrite Nat2Z.id; reflexivity.
 
-     rewrite <- Hk, Heqkq; simpl.
-     unfold nofq, Qnat; simpl.
+     rewrite <- Hk; unfold nofq, Qnat; simpl.
      rewrite Nat2Z.id; reflexivity.
+
+    apply Z.div_str_pos.
+    remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g eqn:Hg .
+    assert (0 <= g)%Z as Hgpos by (subst g; apply Z.gcd_nonneg).
+    assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
+     eapply jz_lt_kz; try eassumption.
+      rewrite <- Hj; reflexivity.
+
+      rewrite <- Hk; reflexivity.
+
+     assert (g ≠ 0%Z) as Hgnz.
+      rewrite Hg; intros H.
+      apply Z.gcd_eq_0_r in H.
+      apply Zminus_eq in H.
+      symmetry in H; revert H.
+      apply Z.lt_neq.
+      assumption.
+
+      split; [ fast_omega Hgpos Hgnz | idtac ].
+      apply Z.divide_pos_le; [ fast_omega Hjk | idtac ].
+      rewrite Hg; apply Z.gcd_divide_r.
 
    intros h αh Hh.
+bbb.
    remember (Qnat h) as hq.
    remember Hpts as Hhn; clear HeqHhn.
    symmetry in Hhn.
