@@ -1037,6 +1037,13 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
    unfold Qnat.
    rewrite p_mq_formula; [ idtac | idtac | eassumption ].
     rewrite <- Hm.
+    unfold Qeq; simpl.
+    subst g.
+    rewrite Pos.mul_comm, Pos2Z.inj_mul.
+    rewrite Pos.mul_comm, Pos2Z.inj_mul.
+    do 2 rewrite Z.mul_assoc.
+    f_equal.
+    subst mj mk.
 bbb.
 
 (* [Walker, p. 100]: «
