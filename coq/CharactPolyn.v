@@ -2163,6 +2163,7 @@ intros n z l₁ l₂.
 induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
 Qed.
 
+(* I have difficulties to prove that, but is it really useful?
 Lemma zzz : ∀ pow t₁ tl₁ tl₂,
   make_char_pol f pow ([t₁ … tl₁] ++ tl₂) =
   make_char_pol f pow [t₁ … tl₁] ++
@@ -2172,6 +2173,7 @@ intros pow t₁ tl₁ tl₂.
 simpl.
 rewrite list_pad_app; f_equal.
 simpl; f_equal.
+bbb.
 revert t₁ tl₁.
 induction tl₂ as [| t₂]; intros.
  simpl.
@@ -2194,6 +2196,39 @@ induction tl₂ as [| t₂]; intros.
   simpl.
   f_equal.
   f_equal.
+bbb.
+*)
+
+Lemma list_last_map : ∀ A B (g : A → B) l d,
+  l ≠ []
+  → List.last (List.map g l) (g d) = g (List.last l d).
+Proof.
+intros A B g l d Hl.
+induction l; [ exfalso; apply Hl; reflexivity | simpl ].
+destruct l as [| b]; [ reflexivity | simpl ].
+simpl in IHl; apply IHl.
+intros H; discriminate H.
+Qed.
+
+Lemma list_last_app_at : ∀ A (l : list A) x d, List.last (l ++ [x]) d = x.
+Proof.
+intros A l x d.
+revert x d.
+induction l as [| y]; intros; [ reflexivity | simpl ].
+remember (l ++ [x]) as l'.
+symmetry in Heql'.
+destruct l' as [| z].
+ apply List.app_eq_nil in Heql'.
+ destruct Heql' as (_, H); discriminate H.
+
+ rewrite <- Heql'; apply IHl.
+Qed.
+
+Lemma yyy : ∀ j k l d,
+  power (List.last l d) = k
+  → List.length (make_char_pol f (S j) l) = (k - j)%nat.
+Proof.
+intros j k l d Hlk.
 bbb.
 *)
 
@@ -2234,6 +2269,22 @@ rewrite list_length_shrink; simpl.
  rewrite divmod_div.
  rewrite Nat.sub_0_r.
  f_equal.
+  rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
+   reflexivity.
+
+   rewrite list_last_map; simpl.
+    rewrite list_last_app_at.
+    rewrite <- Hk; simpl.
+    unfold nofq, Qnat; simpl.
+    rewrite Nat2Z.id; reflexivity.
+
+    intros H.
+    apply List.app_eq_nil in H.
+    destruct H as (_, H); discriminate H.
+
+  destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
+  simpl; rewrite Nat.sub_0_r; reflexivity.
+bbb.
   rewrite List.map_app; simpl.
   remember (oth_pts ns) as pts eqn:Hpts .
   symmetry in Hpts.
