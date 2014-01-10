@@ -648,14 +648,6 @@ rewrite <- Z.divide_div_mul_exact; [ idtac | apply Pos2Z_ne_0 | idtac ].
  rewrite Pos_mul_shuffle0; reflexivity.
 Qed.
 
-(* old
-Theorem com_den_of_ps_list : ∀ (psl : list (puiseux_series α)) m,
-  m = series_list_com_polord psl
-  → ∀ ps αi, ps ∈ psl
-    → valuation f ps = Some αi
-      → ∃ mi, αi == mi # m.
-*)
-
 (* [Walker, p. 100]: « If Pj and Pk are the left and right hand ends
    of the segment L, v + γ₁ u = β₁ of the Newton polygon, then
            αj + j γ₁ = αk + k γ₁
@@ -1013,9 +1005,9 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
  2: unfold newton_segments in Hns.
  2: rewrite <- Heqpts in Hns; assumption.
 
- destruct Heqjps as (Hjps, Hjv).
- eapply com_den_of_ps_list in Hjv; try eassumption.
- destruct Hjv as (mj, Hαj).
+ destruct Heqjps as (Hjps, Hαj).
+ eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
+ remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
  remember (List.nth k (al pol) .0 f%ps) as kps.
  eapply in_pts_in_pol with (hv := αk) in Heqkps; try eassumption.
   2: rewrite Hfin.
@@ -1023,9 +1015,9 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
   2: unfold newton_segments in Hns.
   2: rewrite <- Heqpts in Hns; assumption.
 
-  destruct Heqkps as (Hkps, Hkv).
-  eapply com_den_of_ps_list in Hkv; try eassumption.
-  destruct Hkv as (mk, Hαk).
+  destruct Heqkps as (Hkps, Hαk).
+  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
+  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
   rewrite Hg.
   setoid_rewrite Hαj.
   setoid_rewrite Hαk.
@@ -1218,10 +1210,9 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
  2: rewrite <- Hj, <- Hpts in Hns.
  2: eassumption.
 
- destruct Heqjps as (Hmj, Hjv).
- eapply com_den_of_ps_list in Hmj; try eassumption.
- destruct Hmj as (mj, Hmj).
- exists mj.
+ destruct Heqjps as (Hjps, Hαj).
+ eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
+ remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
  remember (List.nth k (al pol) .0 f%ps) as kps.
  eapply in_pts_in_pol in Heqkps; try eassumption.
   2: apply ini_fin_ns_in_init_pts in Hns.
@@ -1229,10 +1220,10 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   2: rewrite <- Hk, <- Hpts in Hns.
   2: eassumption.
 
-  destruct Heqkps as (Hmk, Hkv).
-  eapply com_den_of_ps_list in Hmk; try eassumption.
-  destruct Hmk as (mk, Hmk).
-  exists mk.
+  destruct Heqkps as (Hkps, Hαk).
+  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
+  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
+  exists mj, mk.
   split; [ assumption | idtac ].
   split; [ assumption | idtac ].
 (**)
