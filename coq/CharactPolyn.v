@@ -1328,8 +1328,16 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
       eapply j_lt_h; try eassumption; reflexivity.
 
       rewrite Hgh.
+      remember Heqhps as Hhps; clear HeqHhps.
+      eapply in_pts_in_pol in Hhps; try eassumption.
+       destruct Hhps as (Hhps, Hαh).
+bbb.
+       eapply com_den_of_ps_list in Hαh.
+        2: eassumption.
 
-Check com_den_of_ps_list.
+        3: reflexivity.
+
+        2: assumption.
 bbb.
    remember (Qnat h) as hq.
    remember Hpts as Hhn; clear HeqHhn.
