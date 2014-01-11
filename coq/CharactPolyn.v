@@ -1206,6 +1206,32 @@ rewrite Qden_inv in Hpq.
  apply Z.lt_0_sub, inj_lt; assumption.
 Qed.
 
+Theorem com_den_of_ini_pt : ∀ pol ns m j αj mj,
+  ns ∈ newton_segments f pol
+  → m = series_list_com_polord (al pol)
+    → (Qnat j, αj) = ini_pt ns
+      → mj = mj_of_ns pol ns
+        → αj == mj # m.
+Proof.
+intros pol ns m j αj mj Hns Hm Hini Hmj.
+remember (List.nth j (al pol) .0 f%ps) as jps.
+eapply com_den_of_ps_list with (ps := jps); try eassumption.
+ eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
+ rewrite Hini.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ eapply in_pts_in_pol with (hv := αj); try eassumption; try reflexivity.
+ rewrite Hini.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ subst mj.
+ unfold mj_of_ns; simpl.
+ rewrite <- Hini; simpl.
+ rewrite <- Hm.
+ rewrite Nat2Z.id.
+ rewrite <- Heqjps; reflexivity.
+Qed.
+
 Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
