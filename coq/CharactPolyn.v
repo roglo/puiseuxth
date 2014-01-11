@@ -1305,7 +1305,6 @@ eapply com_den_of_ps_list with (ps := kps); try eassumption.
  rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
 
-(*
 Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -1315,13 +1314,63 @@ Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
           → mk = mk_of_ns pol ns
             → p = p_of_ns pol ns
               → q = Pos.to_nat (q_of_ns pol ns)
-                → Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
-                  ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
+                → Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
                   ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
                     → ∃ mh, αh == mh # m
                       ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
-intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
+intros pol ns j αj k αk m mj mk p q Hns Hj Hk Hm Hmj Hmk Hp Hq.
+split.
+ subst p q.
+ unfold p_of_ns, q_of_ns; simpl.
+ rewrite <- Hm.
+ rewrite <- Hj, <- Hk; simpl.
+ do 2 rewrite Nat2Z.id.
+ remember (List.nth j (al pol) .0 f%ps) as jps eqn:Hjps .
+ remember (List.nth k (al pol) .0 f%ps) as kps eqn:Hkps .
+ rewrite positive_nat_Z.
+ unfold mj_of_ns in Hmj; simpl in Hmj.
+ unfold mk_of_ns in Hmk; simpl in Hmk.
+ rewrite <- Hj in Hmj; simpl in Hmj.
+ rewrite <- Hk in Hmk; simpl in Hmk.
+ rewrite <- Hm in Hmj, Hmk.
+ rewrite Nat2Z.id in Hmj, Hmk.
+ rewrite <- Hjps in Hmj.
+ rewrite <- Hkps in Hmk.
+ rewrite <- Hmj, <- Hmk.
+ rewrite Z2Pos.id.
+  rewrite Z.gcd_comm, Z.gcd_div_swap, Z.mul_comm.
+  rewrite Nat2Z.inj_sub; [ reflexivity | idtac ].
+  apply Nat.lt_le_incl.
+  eapply j_lt_k; try eassumption.
+   rewrite <- Hj; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+   rewrite <- Hk; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+  apply Z.div_str_pos.
+  remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g eqn:Hg .
+  assert (0 <= g)%Z as Hgpos by (subst g; apply Z.gcd_nonneg).
+  assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
+   eapply jz_lt_kz; try eassumption.
+    rewrite <- Hj; reflexivity.
+
+    rewrite <- Hk; reflexivity.
+
+   assert (g ≠ 0%Z) as Hgnz.
+    rewrite Hg; intros H.
+    apply Z.gcd_eq_0_r in H.
+    apply Zminus_eq in H.
+    symmetry in H; revert H.
+    apply Z.lt_neq.
+    assumption.
+
+    split; [ fast_omega Hgpos Hgnz | idtac ].
+    apply Z.divide_pos_le; [ fast_omega Hjk | idtac ].
+    rewrite Hg; apply Z.gcd_divide_r.
+
+ intros h αh Hh.
 bbb.
 *)
 
@@ -1423,6 +1472,7 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
       rewrite Hg; apply Z.gcd_divide_r.
 
    intros h αh Hh.
+bbb.
    remember (List.nth h (al pol) .0 f%ps) as hps.
    exists (Qnum αh * ' m / ' ps_polord hps).
    split.
