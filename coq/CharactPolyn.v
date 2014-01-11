@@ -1223,6 +1223,18 @@ Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
                       ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
 intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
+split.
+ subst mj; simpl.
+ unfold mj_of_ns; simpl.
+ rewrite <- Hj; simpl.
+ rewrite Nat2Z.id.
+ eapply com_den_of_ps_list.
+  eassumption.
+
+  2: eapply in_pts_in_pol.
+   2: reflexivity.
+
+   3: reflexivity.
 bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
