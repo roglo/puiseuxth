@@ -1487,8 +1487,16 @@ remember (List.nth k (al pol) .0 f%ps) as kps eqn:Hkps .
 remember (Qnum αj * ' m / ' ps_polord jps) as mj eqn:Hmj .
 remember (Qnum αk * ' m / ' ps_polord kps) as mk eqn:Hmk .
 exists mj, mk.
-bbb.
+remember Hj as Hαj; clear HeqHαj.
+eapply com_den_of_ini_pt in Hαj; try eassumption; try reflexivity.
+unfold mj_of_ns in Hαj; simpl in Hαj.
+rewrite <- Hj in Hαj; simpl in Hαj.
+rewrite Nat2Z.id in Hαj.
+rewrite <- Heqm in Hαj.
+rewrite <- Hjps in Hαj.
+rewrite <- Hmj in Hαj.
 split; [ assumption | idtac ].
+bbb.
 split; [ assumption | idtac ].
 exists p, q.
 split; [ assumption | idtac ].
