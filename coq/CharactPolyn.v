@@ -1226,10 +1226,32 @@ eapply com_den_of_ps_list with (ps := jps); try eassumption.
 
  subst mj.
  unfold mj_of_ns; simpl.
- rewrite <- Hini; simpl.
- rewrite <- Hm.
- rewrite Nat2Z.id.
- rewrite <- Heqjps; reflexivity.
+ rewrite <- Hini, <- Hm; simpl.
+ rewrite Nat2Z.id, <- Heqjps; reflexivity.
+Qed.
+
+Theorem com_den_of_fin_pt : ∀ pol ns m k αk mk,
+  ns ∈ newton_segments f pol
+  → m = series_list_com_polord (al pol)
+    → (Qnat k, αk) = fin_pt ns
+      → mk = mk_of_ns pol ns
+        → αk == mk # m.
+Proof.
+intros pol ns m k αk mk Hns Hm Hfin Hmk.
+remember (List.nth k (al pol) .0 f%ps) as kps.
+eapply com_den_of_ps_list with (ps := kps); try eassumption.
+ eapply in_pts_in_pol with (hv := αk); try eassumption; try reflexivity.
+ rewrite Hfin.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ eapply in_pts_in_pol with (hv := αk); try eassumption; try reflexivity.
+ rewrite Hfin.
+ apply ini_fin_ns_in_init_pts; assumption.
+
+ subst mk.
+ unfold mk_of_ns; simpl.
+ rewrite <- Hfin, <- Hm; simpl.
+ rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
 
 Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
@@ -1241,8 +1263,7 @@ Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
           → mk = mk_of_ns pol ns
             → p = p_of_ns pol ns
               → q = Pos.to_nat (q_of_ns pol ns)
-                → αj == mj # m ∧ αk == mk # m
-                  ∧ Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
+                → Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
                   ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
                   ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
                     → ∃ mh, αh == mh # m
@@ -1250,17 +1271,6 @@ Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
 Proof.
 intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
 split.
- subst mj; simpl.
- unfold mj_of_ns; simpl.
- rewrite <- Hj; simpl.
- rewrite Nat2Z.id.
- eapply com_den_of_ps_list.
-  eassumption.
-
-  2: eapply in_pts_in_pol.
-   2: reflexivity.
-
-   3: reflexivity.
 bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
