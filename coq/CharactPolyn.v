@@ -1427,20 +1427,6 @@ split.
    eapply j_lt_h; try eassumption; reflexivity.
 Qed.
 
-(* old
-Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
-            ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
-            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-              → ∃ mh, αh == mh # m
-                ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
-*)
-
 Lemma mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
   → Z.of_nat (k - j) = c * Z.of_nat d
@@ -1535,7 +1521,6 @@ split.
    rewrite Nat2Z.id; reflexivity.
 
  intros h αh Hm.
-bbb.
  remember Hm as Hm_v; clear HeqHm_v.
  apply H in Hm.
  destruct Hm as (mh, (Hmh, Heq)).
@@ -2427,7 +2412,7 @@ induction l as [| a]; intros.
    split.
     Focus 2.
     apply Hak; right; assumption.
-bbb.
+ccc.
 *)
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
