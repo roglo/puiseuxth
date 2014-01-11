@@ -1305,6 +1305,7 @@ eapply com_den_of_ps_list with (ps := kps); try eassumption.
  rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
 
+(*
 Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -1321,7 +1322,6 @@ Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
                       ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
 intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
-Abort. (*
 bbb.
 *)
 
@@ -1371,11 +1371,15 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
   split; [ assumption | idtac ].
   remember Heqm as Hm; clear HeqHm.
   eapply gamma_eq_p_nq in Heqm; try eassumption; try reflexivity.
-  destruct Heqm as (Hgamma, Hgcd).
+  rename Heqm into Hgamma.
   remember (p_of_ns pol ns) as p eqn:Hp .
   remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
   exists p, q.
-  split; [ rewrite Hq, positive_nat_Z; assumption | idtac ].
+  split.
+   subst q.
+   rewrite positive_nat_Z.
+   eapply p_and_q_have_no_common_factors; try eassumption; reflexivity.
+
   split; [ subst q; apply Pos2Nat_ne_0 | idtac ].
   split.
    subst p q.
