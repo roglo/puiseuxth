@@ -1480,10 +1480,14 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as Hns_v; clear HeqHns_v.
-eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
-bbb.
-destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
+eapply q_mj_mk_eq_p_h_j in Hns; try eassumption; try reflexivity.
+destruct Hns as (Hqjk, H).
+remember (List.nth j (al pol) .0 f%ps) as jps eqn:Hjps .
+remember (List.nth k (al pol) .0 f%ps) as kps eqn:Hkps .
+remember (Qnum αj * ' m / ' ps_polord jps) as mj eqn:Hmj .
+remember (Qnum αk * ' m / ' ps_polord kps) as mk eqn:Hmk .
 exists mj, mk.
+bbb.
 split; [ assumption | idtac ].
 split; [ assumption | idtac ].
 exists p, q.
