@@ -1305,7 +1305,12 @@ eapply com_den_of_ps_list with (ps := kps); try eassumption.
  rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
 
-Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+
+         q (mj - mh) = p (h - j)
+   » *)
+
+Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
@@ -1406,13 +1411,23 @@ split.
     eapply in_pts_in_pol in Hhps; try eassumption.
      destruct Hhps as (Hhps, Hαh).
      remember (Qnum αh * ' m / ' ps_polord hps) as mh eqn:Hmh .
-bbb.
-*)
+     remember Hj as Hαj; clear HeqHαj.
+     eapply com_den_of_ini_pt in Hαj; try eassumption.
+     rewrite Hαj.
+     rewrite Qnum_minus_distr_r.
+     rewrite Qnum_minus_distr_r.
+     eapply com_den_of_ps_list in Hmh; try eassumption.
+     rewrite Hmh; reflexivity.
 
-(* [Walker, p. 100]: « In the first place, we note that [...]
+     eapply oth_pts_in_init_pts; try eassumption.
+     unfold newton_segments in Hns.
+     rewrite <- Hpts in Hns; assumption.
 
-         q (mj - mh) = p (h - j)
-   » *)
+   apply Nat.lt_le_incl.
+   eapply j_lt_h; try eassumption; reflexivity.
+Qed.
+
+(* old
 Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -1424,135 +1439,7 @@ Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m,
             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh, αh == mh # m
                 ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
-Proof.
-intros pol ns j αj k αk m Hns Hj Hk Heqm.
-remember (points_of_ps_polynom f pol) as pts.
-rename Heqpts into Hpts.
-remember (List.nth j (al pol) .0 f%ps) as jps.
-remember Heqjps as Hjps_v; clear HeqHjps_v.
-eapply in_pts_in_pol in Heqjps; try eassumption.
- 2: apply ini_fin_ns_in_init_pts in Hns.
- 2: destruct Hns as (Hns, _).
- 2: rewrite <- Hj, <- Hpts in Hns.
- 2: eassumption.
-
- destruct Heqjps as (Hjps, Hαj).
- eapply com_den_of_ps_list in Hαj; try eassumption; [ idtac | reflexivity ].
- remember (Qnum αj * ' m / ' ps_polord jps)%Z as mj eqn:Hmj .
- remember (List.nth k (al pol) .0 f%ps) as kps.
- remember Heqkps as Hkps_v; clear HeqHkps_v.
- eapply in_pts_in_pol in Heqkps; try eassumption.
-  2: apply ini_fin_ns_in_init_pts in Hns.
-  2: destruct Hns as (_, Hns).
-  2: rewrite <- Hk, <- Hpts in Hns.
-  2: eassumption.
-
-  destruct Heqkps as (Hkps, Hαk).
-  eapply com_den_of_ps_list in Hαk; try eassumption; [ idtac | reflexivity ].
-  remember (Qnum αk * ' m / ' ps_polord kps)%Z as mk eqn:Hmk .
-  exists mj, mk.
-  split; [ assumption | idtac ].
-  split; [ assumption | idtac ].
-  remember Heqm as Hm; clear HeqHm.
-  eapply gamma_eq_p_nq in Heqm; try eassumption; try reflexivity.
-  rename Heqm into Hgamma.
-  remember (p_of_ns pol ns) as p eqn:Hp .
-  remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
-  exists p, q.
-  split.
-   subst q.
-   rewrite positive_nat_Z.
-   eapply p_and_q_have_no_common_factors; try eassumption; reflexivity.
-
-  split; [ subst q; apply Pos2Nat_ne_0 | idtac ].
-  split.
-   subst p q.
-   unfold p_of_ns, q_of_ns; simpl.
-   rewrite <- Hm.
-   rewrite <- Hj, <- Hk; simpl.
-   do 2 rewrite Nat2Z.id.
-   rewrite <- Hjps_v, <- Hkps_v.
-   rewrite <- Hmj, <- Hmk.
-   rewrite positive_nat_Z.
-   rewrite Z2Pos.id.
-    rewrite Z.gcd_comm, Z.gcd_div_swap, Z.mul_comm.
-    rewrite Nat2Z.inj_sub; [ reflexivity | idtac ].
-    apply Nat.lt_le_incl.
-    eapply j_lt_k; try eassumption.
-     rewrite <- Hj; unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-     rewrite <- Hk; unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
-
-    apply Z.div_str_pos.
-    remember (Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j)) as g eqn:Hg .
-    assert (0 <= g)%Z as Hgpos by (subst g; apply Z.gcd_nonneg).
-    assert (Z.of_nat j < Z.of_nat k)%Z as Hjk.
-     eapply jz_lt_kz; try eassumption.
-      rewrite <- Hj; reflexivity.
-
-      rewrite <- Hk; reflexivity.
-
-     assert (g ≠ 0%Z) as Hgnz.
-      rewrite Hg; intros H.
-      apply Z.gcd_eq_0_r in H.
-      apply Zminus_eq in H.
-      symmetry in H; revert H.
-      apply Z.lt_neq.
-      assumption.
-
-      split; [ fast_omega Hgpos Hgnz | idtac ].
-      apply Z.divide_pos_le; [ fast_omega Hjk | idtac ].
-      rewrite Hg; apply Z.gcd_divide_r.
-
-   intros h αh Hh.
-   remember (List.nth h (al pol) .0 f%ps) as hps.
-   exists (Qnum αh * ' m / ' ps_polord hps).
-   split.
-    eapply com_den_of_ps_list with (ps := hps); try eassumption.
-     eapply in_pts_in_pol; try eassumption.
-     eapply oth_pts_in_init_pts; [ idtac | eassumption ].
-     unfold newton_segments in Hns.
-     rewrite <- Hpts in Hns; assumption.
-
-     eapply in_pts_in_pol; try eassumption.
-     eapply oth_pts_in_init_pts; [ idtac | eassumption ].
-     unfold newton_segments in Hns.
-     rewrite <- Hpts in Hns; assumption.
-
-     reflexivity.
-
-    remember Hns as Hgh; clear HeqHgh.
-    eapply gamma_value_jh in Hgh; try eassumption.
-    rewrite Hgamma in Hgh.
-    unfold Qnat in Hgh.
-    rewrite <- Qnum_minus_distr_r in Hgh.
-    rewrite Nat2Z.inj_sub.
-     rewrite Hq.
-     rewrite positive_nat_Z.
-     eapply pmq_qmpm; try reflexivity.
-      eapply j_lt_h; try eassumption; reflexivity.
-
-      rewrite Hgh.
-      remember Heqhps as Hhps; clear HeqHhps.
-      eapply in_pts_in_pol in Hhps; try eassumption.
-       destruct Hhps as (Hhps, Hαh).
-       remember (Qnum αh * ' m / ' ps_polord hps) as mh eqn:Hmh .
-bbb.
-       rewrite Hαj.
-       rewrite Qnum_minus_distr_r.
-       rewrite Qnum_minus_distr_r.
-       eapply com_den_of_ps_list in Hmh; try eassumption.
-       rewrite Hmh; reflexivity.
-
-       eapply oth_pts_in_init_pts; try eassumption.
-       unfold newton_segments in Hns.
-       rewrite <- Hpts in Hns; assumption.
-
-     apply Nat.lt_le_incl.
-     eapply j_lt_h; try eassumption; reflexivity.
-Qed.
+*)
 
 Lemma mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
@@ -1594,6 +1481,7 @@ Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as Hns_v; clear HeqHns_v.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption.
+bbb.
 destruct Hns as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
