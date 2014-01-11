@@ -1508,14 +1508,11 @@ split; [ assumption | idtac ].
 remember (p_of_ns pol ns) as p eqn:Hp .
 remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
 exists p, q.
-split.
- rewrite Hq.
- rewrite positive_nat_Z.
- eapply p_and_q_have_no_common_factors; try eassumption; reflexivity.
-
- split; [ rewrite Hq; apply Pos2Nat_ne_0 | idtac ].
-bbb.
-
+remember Hns_v as Hgcd; clear HeqHgcd.
+eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
+rewrite <- Hp, <- positive_nat_Z, <- Hq in Hgcd.
+split; [ assumption | idtac ].
+split; [ rewrite Hq; apply Pos2Nat_ne_0 | idtac ].
 split.
  rewrite Z.gcd_comm in Hgcd.
  apply Z.gauss with (p := Z.of_nat (k - j)) in Hgcd.
@@ -1538,6 +1535,7 @@ split.
    rewrite Nat2Z.id; reflexivity.
 
  intros h αh Hm.
+bbb.
  remember Hm as Hm_v; clear HeqHm_v.
  apply H in Hm.
  destruct Hm as (mh, (Hmh, Heq)).
