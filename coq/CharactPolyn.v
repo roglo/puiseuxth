@@ -1496,11 +1496,26 @@ rewrite <- Heqm in Hαj.
 rewrite <- Hjps in Hαj.
 rewrite <- Hmj in Hαj.
 split; [ assumption | idtac ].
-bbb.
+remember Hk as Hαk; clear HeqHαk.
+eapply com_den_of_fin_pt in Hαk; try eassumption; try reflexivity.
+unfold mk_of_ns in Hαk; simpl in Hαk.
+rewrite <- Hk in Hαk; simpl in Hαk.
+rewrite Nat2Z.id in Hαk.
+rewrite <- Heqm in Hαk.
+rewrite <- Hkps in Hαk.
+rewrite <- Hmk in Hαk.
 split; [ assumption | idtac ].
+remember (p_of_ns pol ns) as p eqn:Hp .
+remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
 exists p, q.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
+split.
+ rewrite Hq.
+ rewrite positive_nat_Z.
+ eapply p_and_q_have_no_common_factors; try eassumption; reflexivity.
+
+ split; [ rewrite Hq; apply Pos2Nat_ne_0 | idtac ].
+bbb.
+
 split.
  rewrite Z.gcd_comm in Hgcd.
  apply Z.gauss with (p := Z.of_nat (k - j)) in Hgcd.
