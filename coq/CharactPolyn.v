@@ -1206,21 +1206,23 @@ rewrite Qden_inv in Hpq.
  apply Z.lt_0_sub, inj_lt; assumption.
 Qed.
 
-Theorem xxx : ∀ pol ns j αj k αk m mj mk,
+Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → m = series_list_com_polord (al pol)
         → mj = mj_of_ns pol ns
           → mk = mk_of_ns pol ns
-            → αj == mj # m ∧ αk == mk # m
-              ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
-                ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
-                ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-                  → ∃ mh, αh == mh # m
-                    ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
+            → p = p_of_ns pol ns
+              → q = Pos.to_nat (q_of_ns pol ns)
+                → αj == mj # m ∧ αk == mk # m
+                  ∧ Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
+                  ∧ Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
+                  ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
+                    → ∃ mh, αh == mh # m
+                      ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
 Proof.
-intros pol ns j αj k αk m mj mk Hns Hj Hk Heqm Hmj Hmk.
+intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
 bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
