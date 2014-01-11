@@ -1371,6 +1371,41 @@ split.
     rewrite Hg; apply Z.gcd_divide_r.
 
  intros h αh Hh.
+ remember (points_of_ps_polynom f pol) as pts eqn:Hpts.
+ remember (List.nth h (al pol) .0 f%ps) as hps.
+ exists (Qnum αh * ' m / ' ps_polord hps).
+ split.
+  eapply com_den_of_ps_list with (ps := hps); try eassumption.
+   eapply in_pts_in_pol; try eassumption.
+   eapply oth_pts_in_init_pts; [ idtac | eassumption ].
+   unfold newton_segments in Hns.
+   rewrite <- Hpts in Hns; assumption.
+
+   eapply in_pts_in_pol; try eassumption.
+   eapply oth_pts_in_init_pts; [ idtac | eassumption ].
+   unfold newton_segments in Hns.
+   rewrite <- Hpts in Hns; assumption.
+
+   reflexivity.
+
+  remember Hns as Hgh; clear HeqHgh.
+  eapply gamma_value_jh in Hgh; try eassumption.
+  remember Hm as Hgamma; clear HeqHgamma.
+  eapply gamma_eq_p_nq in Hgamma; try eassumption; try reflexivity.
+  rewrite Hgamma in Hgh.
+  unfold Qnat in Hgh.
+  rewrite <- Qnum_minus_distr_r in Hgh.
+  rewrite Nat2Z.inj_sub.
+   rewrite Hq.
+   rewrite positive_nat_Z.
+   eapply pmq_qmpm; try reflexivity.
+    eapply j_lt_h; try eassumption; reflexivity.
+
+    rewrite Hgh.
+    remember Heqhps as Hhps; clear HeqHhps.
+    eapply in_pts_in_pol in Hhps; try eassumption.
+     destruct Hhps as (Hhps, Hαh).
+     remember (Qnum αh * ' m / ' ps_polord hps) as mh eqn:Hmh .
 bbb.
 *)
 
@@ -1472,7 +1507,6 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
       rewrite Hg; apply Z.gcd_divide_r.
 
    intros h αh Hh.
-bbb.
    remember (List.nth h (al pol) .0 f%ps) as hps.
    exists (Qnum αh * ' m / ' ps_polord hps).
    split.
@@ -1505,6 +1539,7 @@ bbb.
       eapply in_pts_in_pol in Hhps; try eassumption.
        destruct Hhps as (Hhps, Hαh).
        remember (Qnum αh * ' m / ' ps_polord hps) as mh eqn:Hmh .
+bbb.
        rewrite Hαj.
        rewrite Qnum_minus_distr_r.
        rewrite Qnum_minus_distr_r.
