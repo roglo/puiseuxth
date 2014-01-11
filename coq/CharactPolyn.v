@@ -992,6 +992,11 @@ Definition mk_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   mk.
 
+Definition mh_of_ns (pol : polynomial (puiseux_series α)) h αh :=
+ let m := series_list_com_polord (al pol) in
+ let hps := List.nth h (al pol) .0 f%ps in
+ (Qnum αh * ' m / ' ps_polord hps)%Z.
+
 (* [Walker, p. 100]: «
                         p
           γ₁ = [...] = ---
@@ -1304,6 +1309,23 @@ eapply com_den_of_ps_list with (ps := kps); try eassumption.
  rewrite <- Hfin, <- Hm; simpl.
  rewrite Nat2Z.id, <- Heqkps; reflexivity.
 Qed.
+
+Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
+      → m = series_list_com_polord (al pol)
+        → mj = mj_of_ns pol ns
+          → mk = mk_of_ns pol ns
+            → p = p_of_ns pol ns
+              → q = Pos.to_nat (q_of_ns pol ns)
+                → Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
+                  ∧ ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns
+                    → mh = mh_of_ns pol h αh
+                      → αh == mh # m
+                        ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
+Proof.
+bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
 
