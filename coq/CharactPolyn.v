@@ -1131,14 +1131,6 @@ eapply in_pts_in_pol with (hv := αj) in Heqjps; try eassumption.
          revert Hjk; clear; intros; omega.
 Qed.
 
-(* old
-Theorem gamma_eq_p_nq : ∀ pol ns m,
-  ns ∈ newton_segments f pol
-  → m = series_list_com_polord (al pol)
-    → ∃ (p : Z) (q : positive),
-      γ ns == p # (m * q) ∧ Z.gcd p (' q) = 1%Z.
-*)
-
 (* [Walker, p. 100]: « If Ph is on L, then also
                    αj - αh
       [...] = γ₁ = ------- = [...]
@@ -1331,43 +1323,19 @@ eapply in_pts_in_pol in Heqjps; try eassumption.
       remember Heqhps as Hhps; clear HeqHhps.
       eapply in_pts_in_pol in Hhps; try eassumption.
        destruct Hhps as (Hhps, Hαh).
-bbb.
-       eapply com_den_of_ps_list in Hαh.
-        2: eassumption.
+       remember (Qnum αh * ' m / ' ps_polord hps) as mh eqn:Hmh .
+       rewrite Hαj.
+       rewrite Qnum_minus_distr_r.
+       rewrite Qnum_minus_distr_r.
+       eapply com_den_of_ps_list in Hmh; try eassumption.
+       rewrite Hmh; reflexivity.
 
-        3: reflexivity.
-
-        2: assumption.
-bbb.
-   remember (Qnat h) as hq.
-   remember Hpts as Hhn; clear HeqHhn.
-   symmetry in Hhn.
-   remember (List.nth h (al pol) .0 f%ps) as hps.
-   eapply in_pts_in_pol in Heqhps; try eassumption.
-    destruct Heqhps as (Hmh, Hhv).
-    eapply com_den_of_ps_list in Hmh; try eassumption.
-    destruct Hmh as (mh, Hmh).
-    exists mh.
-    split; [ eassumption | idtac ].
-    remember Hns as Hgh; clear HeqHgh.
-    eapply gamma_value_jh in Hgh; try eassumption.
-    rewrite Hmj, Hmh in Hgh.
-    rewrite <- Qnum_minus_distr_r in Hgh.
-    rewrite Hgamma in Hgh.
-    rewrite Heqjq, Heqhq in Hgh.
-    unfold Qnat in Hgh.
-    rewrite <- Qnum_minus_distr_r in Hgh.
-    rewrite Nat2Z.inj_sub.
-     eapply pmq_qmpm; try reflexivity; [ idtac | eassumption ].
-     eapply j_lt_h; try eassumption.
+       eapply oth_pts_in_init_pts; try eassumption.
+       unfold newton_segments in Hns.
+       rewrite <- Hpts in Hns; assumption.
 
      apply Nat.lt_le_incl.
-     eapply j_lt_h; eassumption.
-
-    eapply oth_pts_in_init_pts in Hns.
-     rewrite <- Hpts in Hns; eassumption.
-
-     subst hq; assumption.
+     eapply j_lt_h; try eassumption; reflexivity.
 Qed.
 
 Lemma mul_pos_nonneg : ∀ j k c d,
