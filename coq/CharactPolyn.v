@@ -2114,6 +2114,21 @@ destruct i.
     apply Nat.le_0_r; assumption.
 
     eapply oth_fin_pts_sorted; eassumption.
+
+    intros hq αh Hhαh.
+    apply List.in_app_or in Hhαh.
+    destruct Hhαh as [Hhαh| [Hhαh| ]]; [ idtac | idtac | contradiction ].
+     remember Hns as Hh; clear HeqHh.
+     eapply exists_oth_pt_nat in Hh; [ idtac | eassumption ].
+     destruct Hh as (h, (ah, Hh)).
+     injection Hh; clear Hh; intros; subst ah hq.
+     remember ((h - j) / q)%nat as sh eqn:Hsh .
+     exists h, sh.
+     split; [ reflexivity | idtac ].
+     destruct sh.
+      symmetry in Hsh.
+      apply Nat.div_small_iff in Hsh; [ idtac | rewrite Hq; auto ].
+      apply Nat.nle_gt in Hsh.
 bbb.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
