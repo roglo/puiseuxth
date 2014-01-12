@@ -2101,10 +2101,20 @@ destruct i.
  symmetry in Hk, Hj.
  remember (series_list_com_polord (al pol)) as m eqn:Hm .
  remember Hns as H; clear HeqH.
- eapply h_is_j_plus_sq in H; try eassumption; try reflexivity.
-  eapply nth_is_zero with (k := k); try eassumption; try reflexivity.
+ destruct (eq_nat_dec i k) as [Hi| Hi].
+  subst i.
+  eapply h_is_j_plus_sq with (h := k) (αh := αk) in H; try eassumption;
+   try reflexivity.
+   destruct H as (Hkjsq, Hkjq).
+   eapply nth_is_zero with (k := k); try eassumption; try reflexivity.
+    rewrite Hq; apply Pos2Nat.is_pos.
+
+    apply Nat.nle_gt.
+    intros H; apply Hkjq.
+    apply Nat.le_0_r; assumption.
+
+    eapply oth_fin_pts_sorted; eassumption.
 bbb.
-mmm... faut voir...
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
