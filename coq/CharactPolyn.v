@@ -1675,11 +1675,11 @@ Lemma nth_is_zero : ∀ (pol : polynomial (puiseux_series α)) q i j k sk tl,
       → Sorted fst_lt tl
         → (∀ hq αh, (hq, αh) ∈ tl
            → ∃ h sh, hq = Qnat h ∧ 0 < sh ∧ h = j + sh * q ∧ h ≤ k)
-            → S i mod q ≠ 0
-              → (List.nth i
-                  (make_char_pol f (S j) (List.map (term_of_point f pol) tl))
-                  .0 f
-                 .= f .0 f)%K.
+          → S i mod q ≠ 0
+            → (List.nth i
+                (make_char_pol f (S j) (List.map (term_of_point f pol) tl))
+                .0 f
+               .= f .0 f)%K.
 Proof.
 intros pol q i j k sk tl Hq Hsk Hk Hsort Hsh Himq.
 destruct q; [ exfalso; revert Hq; apply lt_irrefl | clear Hq ].
@@ -2089,6 +2089,7 @@ destruct i.
  exfalso; apply Himq.
  apply Nat.mod_0_l; subst q; auto.
 bbb.
+ eapply nth_is_zero; try eassumption; try reflexivity.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
