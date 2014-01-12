@@ -1478,7 +1478,10 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  apply Nat2Z.is_nonneg.
 Qed.
 
-Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+   and since p and q have no common factors, q is a factor
+  of h - j. » *)
+Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
@@ -1491,58 +1494,18 @@ Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
                   ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns → (q | h - j)%nat.
 Proof.
 intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
-bbb.
-
-(* [Walker, p. 100]: « In the first place, we note that [...]
-   and since p and q have no common factors, q is a factor
-  of h - j. » *)
-Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
-            ∧ (q | k - j)%nat
-            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-              → ∃ mh, αh == mh # m
-                ∧ (q | h - j)%nat.
-Proof.
-intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as Hns_v; clear HeqHns_v.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption; try reflexivity.
 destruct Hns as (Hqjk, H).
 remember (List.nth j (al pol) .0 f%ps) as jps eqn:Hjps .
 remember (List.nth k (al pol) .0 f%ps) as kps eqn:Hkps .
-remember (Qnum αj * ' m / ' ps_polord jps) as mj eqn:Hmj .
-remember (Qnum αk * ' m / ' ps_polord kps) as mk eqn:Hmk .
-exists mj, mk.
 remember Hj as Hαj; clear HeqHαj.
 eapply com_den_of_ini_pt in Hαj; try eassumption; try reflexivity.
-unfold mj_of_ns in Hαj; simpl in Hαj.
-rewrite <- Hj in Hαj; simpl in Hαj.
-rewrite Nat2Z.id in Hαj.
-rewrite <- Heqm in Hαj.
-rewrite <- Hjps in Hαj.
-rewrite <- Hmj in Hαj.
-split; [ assumption | idtac ].
 remember Hk as Hαk; clear HeqHαk.
 eapply com_den_of_fin_pt in Hαk; try eassumption; try reflexivity.
-unfold mk_of_ns in Hαk; simpl in Hαk.
-rewrite <- Hk in Hαk; simpl in Hαk.
-rewrite Nat2Z.id in Hαk.
-rewrite <- Heqm in Hαk.
-rewrite <- Hkps in Hαk.
-rewrite <- Hmk in Hαk.
-split; [ assumption | idtac ].
-remember (p_of_ns pol ns) as p eqn:Hp .
-remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
-exists p, q.
 remember Hns_v as Hgcd; clear HeqHgcd.
 eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
 rewrite <- Hp, <- positive_nat_Z, <- Hq in Hgcd.
-split; [ assumption | idtac ].
-split; [ rewrite Hq; apply Pos2Nat_ne_0 | idtac ].
 split.
  rewrite Z.gcd_comm in Hgcd.
  apply Z.gauss with (p := Z.of_nat (k - j)) in Hgcd.
@@ -1569,8 +1532,6 @@ split.
  remember (mh_of_ns pol h αh) as mh eqn:Hmh .
  eapply H in Hm; [ idtac | eassumption ].
  destruct Hm as (Hm, Heq).
- exists mh.
- split; [ assumption | idtac ].
  rewrite Z.gcd_comm in Hgcd.
  apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
   2: rewrite <- Heq.
@@ -1584,6 +1545,20 @@ split.
   eapply mul_pos_nonneg; try eassumption.
   eapply j_lt_h; try reflexivity; try eassumption.
 Qed.
+
+(* old
+Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
+      → m = series_list_com_polord (al pol)
+        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
+          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
+            ∧ (q | k - j)%nat
+            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
+              → ∃ mh, αh == mh # m
+                ∧ (q | h - j)%nat.
+*)
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
    Thus for every Ph on L we have h = j + s q, s being a
@@ -1601,7 +1576,8 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
 Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as H; clear HeqH.
-eapply q_is_factor_of_h_minus_j in H; try eassumption.
+eapply q_is_factor_of_h_minus_j in H; try eassumption; try reflexivity.
+bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
