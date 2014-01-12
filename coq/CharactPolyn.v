@@ -1456,22 +1456,6 @@ split.
    eapply j_lt_h; try eassumption; reflexivity.
 Qed.
 
-(* old
-Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m mj mk p q,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → mj = mj_of_ns pol ns
-          → mk = mk_of_ns pol ns
-            → p = p_of_ns pol ns
-              → q = Pos.to_nat (q_of_ns pol ns)
-                → Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
-                  ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-                    → ∃ mh, αh == mh # m
-                      ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
-*)
-
 Lemma mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
   → Z.of_nat (k - j) = c * Z.of_nat d
@@ -1493,6 +1477,21 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  rewrite <- Hc; simpl.
  apply Nat2Z.is_nonneg.
 Qed.
+
+Theorem xxx : ∀ pol ns j αj k αk m mj mk p q,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
+      → m = series_list_com_polord (al pol)
+        → mj = mj_of_ns pol ns
+          → mk = mk_of_ns pol ns
+            → p = p_of_ns pol ns
+              → q = Pos.to_nat (q_of_ns pol ns)
+                → (q | k - j)%nat
+                  ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns → (q | h - j)%nat.
+Proof.
+intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
+bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
    and since p and q have no common factors, q is a factor
