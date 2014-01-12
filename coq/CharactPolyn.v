@@ -1544,54 +1544,23 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
    rewrite Nat2Z.id; reflexivity.
 Qed.
 
-(* old
-Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m mj mk p q,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → mj = mj_of_ns pol ns
-          → mk = mk_of_ns pol ns
-            → p = p_of_ns pol ns
-              → q = Pos.to_nat (q_of_ns pol ns)
-                → (q | k - j)%nat
-                  ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns → (q | h - j)%nat.
-*)
-
-(* old
-Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
-            ∧ (q | k - j)%nat
-            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-              → ∃ mh, αh == mh # m
-                ∧ (q | h - j)%nat.
-*)
-
-Theorem xxx (*h_is_j_plus_sq*) : ∀ pol ns j αj m q,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+   Thus for every Ph on L we have h = j + s q, s being a
+   non-negative integer. » *)
+Theorem h_is_j_plus_sq : ∀ pol ns j αj m q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → m = series_list_com_polord (al pol)
       → q = Pos.to_nat (q_of_ns pol ns)
-        → ∀ h αh sh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
-          → sh = ((h - j) / q)%nat
-            → h = (j + sh * q)%nat ∧ sh ≠ O.
+        → ∀ h αh s, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+          → s = ((h - j) / q)%nat
+            → h = (j + s * q)%nat ∧ s ≠ O.
 Proof.
-intros pol ns j αj m q Hns Hj Heqm Hq h αh sh Hh Hsh.
+intros pol ns j αj m q Hns Hj Heqm Hq h αh s Hh Hs.
 remember Hns as H; clear HeqH.
 eapply q_is_factor_of_h_minus_j in H; try eassumption; try reflexivity.
 apply List.in_app_or in Hh.
-split.
- subst sh.
- rewrite Nat.mul_comm.
- rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | eassumption ].
- rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
- rewrite Nat.add_comm, Nat.sub_add; [ reflexivity | idtac ].
- apply Nat.lt_le_incl.
+assert (j < h)%nat as Hjh.
  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
   eapply j_lt_h; try eassumption; reflexivity.
 
@@ -1601,11 +1570,26 @@ split.
 
    rewrite Hk; unfold nofq, Qnat; simpl.
    rewrite Nat2Z.id; reflexivity.
-bbb.
 
-(* [Walker, p. 100]: « In the first place, we note that [...]
-   Thus for every Ph on L we have h = j + s q, s being a
-   non-negative integer. » *)
+ split.
+  subst s.
+  rewrite Nat.mul_comm.
+  rewrite <- Nat.divide_div_mul_exact;
+   [ idtac | subst q; auto | eassumption ].
+  rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
+  rewrite Nat.add_comm, Nat.sub_add; [ reflexivity | idtac ].
+  apply Nat.lt_le_incl; assumption.
+
+  destruct H as (c, Hc).
+  rewrite Hc in Hs.
+  rewrite Nat.div_mul in Hs; [ subst c | subst q; auto ].
+  destruct s; [ simpl in Hc | intros H; discriminate H ].
+  apply Nat.sub_0_le in Hc.
+  apply Nat.nlt_ge in Hc.
+  exfalso; apply Hc; assumption.
+Qed.
+
+(* old
 Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -1616,59 +1600,7 @@ Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
             ∧ (∃ sk, k = j + sk * q ∧ sk ≠ O)%nat
             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
               → ∃ mh s, αh == mh # m ∧ h = (j + s * q)%nat.
-Proof.
-intros pol ns j αj k αk m Hns Hj Hk Heqm.
-remember Hns as H; clear HeqH.
-eapply q_is_factor_of_h_minus_j in H; try eassumption; try reflexivity.
-bbb.
-destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
-exists mj, mk.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-exists p, q.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-split.
- destruct Hqjk as (sk, Hqjk).
- destruct sk as [| sk].
-  simpl in Hqjk.
-  apply Nat.sub_0_le in Hqjk.
-  apply Nat.nlt_ge in Hqjk.
-  exfalso; apply Hqjk.
-  eapply j_lt_k; [ eassumption | idtac | idtac ].
-   rewrite <- Hj; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
-   rewrite <- Hk; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
-  exists (S sk).
-  split; [ idtac | intros HH; discriminate HH ].
-  symmetry.
-  apply Nat.add_sub_eq_nz; [ idtac | assumption ].
-  destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
-  intros HH; discriminate HH.
-
- intros h αh Hm.
- remember Hm as HH; clear HeqHH.
- apply H in HH.
- destruct HH as (mh, (Hmh, Heq)).
- exists mh.
- destruct Heq as (sh, Hsh).
- destruct sh as [| sh].
-  simpl in Hsh.
-  apply Nat.sub_0_le in Hsh.
-  apply Nat.nlt_ge in Hsh.
-  exfalso; apply Hsh.
-  eapply j_lt_h; try eassumption; reflexivity.
-
-  exists (S sh).
-  split; [ assumption | idtac ].
-  symmetry.
-  apply Nat.add_sub_eq_nz; [ idtac | assumption ].
-  destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
-  intros HH; discriminate HH.
-Qed.
+*)
 
 (* *)
 
@@ -2158,6 +2090,7 @@ Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
+bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, Hmh))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
