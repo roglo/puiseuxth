@@ -2088,8 +2088,23 @@ rewrite minus_diag; simpl.
 destruct i.
  exfalso; apply Himq.
  apply Nat.mod_0_l; subst q; auto.
+
+ remember Hns as H; clear HeqH.
+ apply exists_fin_pt_nat in H.
+ destruct H as (k, (αk, Hk)).
+ remember Hns as H; clear HeqH.
+ apply exists_ini_pt_nat in H.
+ destruct H as (j, (αj, Hj)).
+ rewrite Hj; simpl.
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id.
+ symmetry in Hk, Hj.
+ remember (series_list_com_polord (al pol)) as m eqn:Hm .
+ remember Hns as H; clear HeqH.
+ eapply h_is_j_plus_sq in H; try eassumption; try reflexivity.
+  eapply nth_is_zero with (k := k); try eassumption; try reflexivity.
 bbb.
- eapply nth_is_zero; try eassumption; try reflexivity.
+mmm... faut voir...
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
