@@ -1560,6 +1560,19 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
                 ∧ (q | h - j)%nat.
 *)
 
+Theorem xxx : ∀ pol ns j αj k αk m q,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
+      → m = series_list_com_polord (al pol)
+        → q = Pos.to_nat (q_of_ns pol ns)
+          → (∃ sk, k = j + sk * q ∧ sk ≠ O)%nat
+             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
+               → ∃ s, h = (j + s * q)%nat.
+Proof.
+intros pol ns j αj k αk m q Hns Hj Hk Heqm Hq.
+bbb.
+
 (* [Walker, p. 100]: « In the first place, we note that [...]
    Thus for every Ph on L we have h = j + s q, s being a
    non-negative integer. » *)
