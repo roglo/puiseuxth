@@ -1582,6 +1582,25 @@ Theorem xxx (*h_is_j_plus_sq*) : ∀ pol ns j αj m q,
             → h = (j + sh * q)%nat ∧ sh ≠ O.
 Proof.
 intros pol ns j αj m q Hns Hj Heqm Hq h αh sh Hh Hsh.
+remember Hns as H; clear HeqH.
+eapply q_is_factor_of_h_minus_j in H; try eassumption; try reflexivity.
+apply List.in_app_or in Hh.
+split.
+ subst sh.
+ rewrite Nat.mul_comm.
+ rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | eassumption ].
+ rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
+ rewrite Nat.add_comm, Nat.sub_add; [ reflexivity | idtac ].
+ apply Nat.lt_le_incl.
+ destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
+  eapply j_lt_h; try eassumption; reflexivity.
+
+  eapply j_lt_k; try eassumption.
+   rewrite <- Hj; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+   rewrite Hk; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
 bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
