@@ -1512,7 +1512,6 @@ Proof.
 intros pol ns j αj k αk m Hns Hj Hk Heqm.
 remember Hns as Hns_v; clear HeqHns_v.
 eapply q_mj_mk_eq_p_h_j in Hns; try eassumption; try reflexivity.
-bbb.
 destruct Hns as (Hqjk, H).
 remember (List.nth j (al pol) .0 f%ps) as jps eqn:Hjps .
 remember (List.nth k (al pol) .0 f%ps) as kps eqn:Hkps .
@@ -1568,8 +1567,9 @@ split.
 
  intros h αh Hm.
  remember Hm as Hm_v; clear HeqHm_v.
- apply H in Hm.
- destruct Hm as (mh, (Hmh, Heq)).
+ remember (mh_of_ns pol h αh) as mh eqn:Hmh .
+ eapply H in Hm; [ idtac | eassumption ].
+ destruct Hm as (Hm, Heq).
  exists mh.
  split; [ assumption | idtac ].
  rewrite Z.gcd_comm in Hgcd.
