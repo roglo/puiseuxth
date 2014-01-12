@@ -1503,6 +1503,17 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  apply Nat2Z.is_nonneg.
 Qed.
 
+Theorem www (*q_is_factor_of_h_minus_j*) : ∀ pol ns j αj p q,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → p = p_of_ns pol ns
+      → q = Pos.to_nat (q_of_ns pol ns)
+        → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+          → (q | h - j)%nat.
+Proof.
+intros pol ns j αj p q Hns Hj Hp Hq h αh Hh.
+bbb.
+
 (* [Walker, p. 100]: « In the first place, we note that [...]
    and since p and q have no common factors, q is a factor
   of h - j. » *)
