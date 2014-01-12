@@ -1503,7 +1503,10 @@ apply Z.mul_le_mono_pos_r with (p := Z.of_nat d).
  apply Nat2Z.is_nonneg.
 Qed.
 
-Theorem www (*q_is_factor_of_h_minus_j*) : ∀ pol ns j αj p q,
+(* [Walker, p. 100]: « In the first place, we note that [...]
+   and since p and q have no common factors, q is a factor
+   of h - j. » *)
+Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → p = p_of_ns pol ns
@@ -1512,11 +1515,36 @@ Theorem www (*q_is_factor_of_h_minus_j*) : ∀ pol ns j αj p q,
           → (q | h - j)%nat.
 Proof.
 intros pol ns j αj p q Hns Hj Hp Hq h αh Hh.
-bbb.
+remember Hns as H; clear HeqH.
+eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
+destruct H as (Hαh, Hqjh).
+apply List.in_app_or in Hh.
+remember Hns as Hgcd; clear HeqHgcd.
+eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
+rewrite <- positive_nat_Z, <- Hp, <- Hq in Hgcd.
+rewrite Z.gcd_comm in Hgcd.
+apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
+ 2: rewrite <- Hqjh.
+ 2: apply Z.divide_factor_l.
 
-(* [Walker, p. 100]: « In the first place, we note that [...]
-   and since p and q have no common factors, q is a factor
-  of h - j. » *)
+ destruct Hgcd as (c, Hc).
+ exists (Z.to_nat c).
+ apply Nat2Z.inj.
+ rewrite Nat2Z.inj_mul.
+ rewrite Z2Nat.id; [ assumption | idtac ].
+ eapply mul_pos_nonneg; try eassumption.
+ destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
+  eapply j_lt_h; try eassumption; reflexivity.
+
+  eapply j_lt_k; try eassumption.
+   rewrite <- Hj; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+   rewrite Hk; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+Qed.
+
+(* old
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m mj mk p q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -1528,60 +1556,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m mj mk p q,
               → q = Pos.to_nat (q_of_ns pol ns)
                 → (q | k - j)%nat
                   ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns → (q | h - j)%nat.
-Proof.
-intros pol ns j αj k αk m mj mk p q Hns Hj Hk Heqm Hmj Hmk Hp Hq.
-remember Hns as Hns_v; clear HeqHns_v.
-eapply q_mj_mk_eq_p_h_j in Hns; try eassumption; try reflexivity.
-bbb.
-destruct Hns as (Hqjk, H).
-remember (List.nth j (al pol) .0 f%ps) as jps eqn:Hjps .
-remember (List.nth k (al pol) .0 f%ps) as kps eqn:Hkps .
-remember Hj as Hαj; clear HeqHαj.
-eapply com_den_of_ini_pt in Hαj; try eassumption; try reflexivity.
-remember Hk as Hαk; clear HeqHαk.
-eapply com_den_of_fin_pt in Hαk; try eassumption; try reflexivity.
-remember Hns_v as Hgcd; clear HeqHgcd.
-eapply p_and_q_have_no_common_factors in Hgcd; try reflexivity.
-rewrite <- Hp, <- positive_nat_Z, <- Hq in Hgcd.
-split.
- rewrite Z.gcd_comm in Hgcd.
- apply Z.gauss with (p := Z.of_nat (k - j)) in Hgcd.
-  2: rewrite <- Hqjk.
-  2: apply Z.divide_factor_l.
-
-  destruct Hgcd as (c, Hc).
-  exists (Z.to_nat c).
-  apply Nat2Z.inj.
-  rewrite Nat2Z.inj_mul.
-  rewrite Z2Nat.id; [ assumption | idtac ].
-  eapply mul_pos_nonneg; try eassumption.
-  eapply j_lt_k; try eassumption.
-   rewrite <- Hj.
-   unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
-   rewrite <- Hk.
-   unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
- intros h αh Hm.
- remember Hm as Hm_v; clear HeqHm_v.
- remember (mh_of_ns pol h αh) as mh eqn:Hmh .
- eapply H in Hm; [ idtac | eassumption ].
- destruct Hm as (Hm, Heq).
- rewrite Z.gcd_comm in Hgcd.
- apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
-  2: rewrite <- Heq.
-  2: apply Z.divide_factor_l.
-
-  destruct Hgcd as (c, Hc).
-  exists (Z.to_nat c).
-  apply Nat2Z.inj.
-  rewrite Nat2Z.inj_mul.
-  rewrite Z2Nat.id; [ assumption | idtac ].
-  eapply mul_pos_nonneg; try eassumption.
-  eapply j_lt_h; try reflexivity; try eassumption.
-Qed.
+*)
 
 (* old
 Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
@@ -1597,7 +1572,7 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
                 ∧ (q | h - j)%nat.
 *)
 
-Theorem xxx : ∀ pol ns j αj m q,
+Theorem xxx (*h_is_j_plus_sq*) : ∀ pol ns j αj m q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → m = series_list_com_polord (al pol)
