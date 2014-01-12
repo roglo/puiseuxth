@@ -2073,6 +2073,23 @@ Qed.
 
 Close Scope nat_scope.
 
+Theorem xxx (*characteristic_polynomial_is_in_x_power_q*) : ∀ pol ns cpol q,
+  ns ∈ newton_segments f pol
+  → cpol = characteristic_polynomial f pol ns
+    → q = Pos.to_nat (q_of_ns pol ns)
+      → is_polynomial_in_x_power_q cpol q.
+Proof.
+intros pol ns cpol q Hns Hcpol Hq.
+unfold is_polynomial_in_x_power_q.
+intros i c Himq Hc.
+subst cpol c.
+unfold characteristic_polynomial; simpl.
+rewrite minus_diag; simpl.
+destruct i.
+ exfalso; apply Himq.
+ apply Nat.mod_0_l; subst q; auto.
+bbb.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments f pol
@@ -2090,7 +2107,6 @@ Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
 remember Hns as H; clear HeqH.
 eapply h_is_j_plus_sq in H; try eassumption.
-bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, Hmh))))))))).
 exists mj, mk.
 split; [ assumption | idtac ].
