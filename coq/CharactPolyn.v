@@ -2129,6 +2129,51 @@ destruct i.
       symmetry in Hsh.
       apply Nat.div_small_iff in Hsh; [ idtac | rewrite Hq; auto ].
       apply Nat.nle_gt in Hsh.
+      exfalso; apply Hsh.
+      remember Hns as H; clear HeqH.
+      eapply q_is_factor_of_h_minus_j with (h := h) in H; eauto .
+       destruct H as (c, Hc).
+       destruct c.
+        simpl in Hc.
+        apply Nat.sub_0_le in Hc.
+        apply Nat.nlt_ge in Hc.
+        exfalso; apply Hc.
+        eapply j_lt_h; try eassumption; reflexivity.
+
+        rewrite Hc; simpl.
+        apply Nat.le_sub_le_add_l.
+        rewrite Nat.sub_diag; apply Nat.le_0_l.
+
+       apply List.in_or_app; left; eassumption.
+
+      split; [ apply Nat.lt_0_succ | idtac ].
+      split.
+       rewrite Hsh; simpl.
+       rewrite Nat.mul_comm.
+       rewrite <- Nat.divide_div_mul_exact.
+        rewrite Nat.mul_comm.
+        rewrite Nat.div_mul; [ idtac | subst q; auto ].
+        rewrite Nat.add_comm, Nat.sub_add; [ reflexivity | idtac ].
+        apply Nat.lt_le_incl.
+        eapply j_lt_h; try eassumption; reflexivity.
+
+        subst q; auto.
+
+        eapply q_is_factor_of_h_minus_j; try eassumption; try reflexivity.
+        apply List.in_or_app; left; eassumption.
+
+       apply Nat.lt_le_incl.
+       eapply h_lt_k; try eassumption; reflexivity.
+
+     remember ((k - j) / q)%nat as s eqn:Hs .
+     exists k, s.
+     rewrite <- Hk in Hhαh; injection Hhαh; intros; subst hq αh.
+     split; [ reflexivity | idtac ].
+     split; [ apply Nat.neq_0_lt_0; assumption | idtac ].
+     split; [ assumption | reflexivity ].
+
+   rewrite Hk.
+   apply List.in_or_app; right; left; reflexivity.
 bbb.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
