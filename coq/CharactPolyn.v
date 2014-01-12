@@ -1337,6 +1337,105 @@ eapply com_den_of_ps_list with (ps := hps); try eassumption.
  reflexivity.
 Qed.
 
+Theorem www : ∀ pol ns j αj m mj p q,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → m = series_list_com_polord (al pol)
+      → mj = mj_of_ns pol ns
+        → p = p_of_ns pol ns
+          → q = Pos.to_nat (q_of_ns pol ns)
+            → ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+              → mh = mh_of_ns pol h αh
+                → αh == mh # m
+                  ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
+Proof.
+intros pol ns j αj m mj p q Hns Hj Hm Hmj Hp Hq h αh mh Hh Hmh.
+remember (points_of_ps_polynom f pol) as pts eqn:Hpts .
+remember (List.nth h (al pol) .0 f%ps) as hps.
+apply List.in_app_or in Hh.
+unfold newton_segments in Hns.
+rewrite <- Hpts in Hns.
+split.
+ eapply com_den_of_ps_list with (ps := hps); try eassumption.
+  eapply in_pts_in_pol; try eassumption.
+  destruct Hh as [Hh| [Hk| ]]; [ idtac | idtac | contradiction ].
+   eapply oth_pts_in_init_pts; eassumption.
+
+   rewrite <- Hk.
+   apply ini_fin_ns_in_init_pts; assumption.
+
+  eapply in_pts_in_pol; try eassumption.
+  destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
+   eapply oth_pts_in_init_pts; eassumption.
+
+   rewrite <- Hh.
+   apply ini_fin_ns_in_init_pts; assumption.
+
+  rewrite Hmh.
+  unfold mh_of_ns; simpl.
+  rewrite <- Hm, <- Heqhps; reflexivity.
+
+ destruct Hh as [Hh| [Hh| ]]; [ idtac | idtac | contradiction ].
+  rewrite Hpts in Hns.
+  remember Hns as Hgh; clear HeqHgh.
+  eapply gamma_value_jh in Hgh; try eassumption.
+  remember Hm as Hgamma; clear HeqHgamma.
+  eapply gamma_eq_p_nq in Hgamma; try eassumption; try reflexivity.
+  rewrite Hgamma in Hgh.
+  unfold Qnat in Hgh.
+  rewrite <- Qnum_minus_distr_r in Hgh.
+  rewrite Nat2Z.inj_sub.
+   rewrite Hq.
+   rewrite positive_nat_Z.
+   eapply pmq_qmpm; try reflexivity.
+    eapply j_lt_h; try eassumption; reflexivity.
+
+    rewrite Hgh.
+    remember Heqhps as Hhps; clear HeqHhps.
+    eapply in_pts_in_pol in Hhps; try eassumption.
+     destruct Hhps as (Hhps, Hαh).
+     do 2 rewrite Qnum_minus_distr_r.
+     eapply com_den_of_ini_pt in Hj; try eassumption; rewrite Hj.
+     eapply com_den_of_oth_pt in Hh; try eassumption.
+     rewrite Hh; reflexivity.
+
+     eapply oth_pts_in_init_pts; try eassumption.
+     unfold newton_segments in Hns.
+     rewrite <- Hpts in Hns; assumption.
+
+   apply Nat.lt_le_incl.
+   eapply j_lt_h; try eassumption; reflexivity.
+
+  rewrite Hpts in Hns.
+  remember Hns as Hgh; clear HeqHgh.
+  symmetry in Hh.
+  eapply gamma_value_jk in Hgh; try eassumption.
+  remember Hm as Hgamma; clear HeqHgamma.
+  eapply gamma_eq_p_nq in Hgamma; try eassumption; try reflexivity.
+  rewrite Hgh in Hgamma.
+  unfold Qnat in Hgamma.
+  rewrite <- Qnum_minus_distr_r in Hgamma.
+  rewrite Nat2Z.inj_sub.
+   rewrite Hq.
+   rewrite positive_nat_Z.
+   eapply pmq_qmpm; try reflexivity.
+    eapply j_lt_k; try eassumption.
+     rewrite <- Hj; unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
+
+     rewrite <- Hh; unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
+
+    rewrite <- Hgamma.
+    remember Heqhps as Hhps; clear HeqHhps.
+    eapply in_pts_in_pol in Hhps; try eassumption.
+     destruct Hhps as (Hhps, Hαh).
+     do 2 rewrite Qnum_minus_distr_r.
+     eapply com_den_of_ini_pt in Hj; try eassumption; rewrite Hj.
+     eapply com_den_of_fin_pt in Hh; try eassumption.
+      rewrite Hh; reflexivity.
+bbb.
+
 (* [Walker, p. 100]: « In the first place, we note that [...]
 
          q (mj - mh) = p (h - j)
@@ -1560,17 +1659,16 @@ Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj k αk m,
                 ∧ (q | h - j)%nat.
 *)
 
-Theorem xxx : ∀ pol ns j αj k αk m q,
+Theorem xxx : ∀ pol ns j αj m q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → q = Pos.to_nat (q_of_ns pol ns)
-          → (∃ sk, k = j + sk * q ∧ sk ≠ O)%nat
-             ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-               → ∃ s, h = (j + s * q)%nat.
+    → m = series_list_com_polord (al pol)
+      → q = Pos.to_nat (q_of_ns pol ns)
+        → ∀ h αh sh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+          → sh = ((h - j) / q)%nat
+            → h = (j + sh * q)%nat ∧ sh ≠ O.
 Proof.
-intros pol ns j αj k αk m q Hns Hj Hk Heqm Hq.
+intros pol ns j αj m q Hns Hj Heqm Hq h αh sh Hh Hsh.
 bbb.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
