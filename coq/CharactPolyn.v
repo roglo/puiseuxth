@@ -2569,7 +2569,20 @@ split.
       intros a Ha.
       2: eapply oth_fin_pts_sorted; eassumption.
 
-      eapply pt_absc_is_nat; [ reflexivity | idtac ].
+      remember (points_of_ps_polynom f pol) as pts.
+      symmetry in Heqpts.
+      eapply pt_absc_is_nat; [ eassumption | idtac ].
+      apply List.in_app_or in Ha.
+      unfold newton_segments in Hns.
+      rewrite Heqpts in Hns.
+      destruct Ha as [Ha| [Ha| ]]; [ idtac | idtac | contradiction ].
+       eapply oth_pts_in_init_pts; eassumption.
+
+       subst a.
+       apply ini_fin_ns_in_init_pts; eassumption.
+
+    rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
+    subst q; apply Pos2Nat.is_pos.
 
 bbb.
      apply Sorted_app.
