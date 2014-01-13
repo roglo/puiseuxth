@@ -2451,8 +2451,8 @@ split.
   rewrite list_length_shrink; simpl.
    rewrite divmod_div.
    rewrite Nat.sub_0_r.
+   subst sk; f_equal.
 bbb.
-   f_equal.
     rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
      reflexivity.
 
