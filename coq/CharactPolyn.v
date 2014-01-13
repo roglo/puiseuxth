@@ -2345,6 +2345,7 @@ Lemma yyy : ∀ j k l d,
       → List.length (make_char_pol f (S j) l) = (k - j)%nat.
 Proof.
 intros j k l d Hjk Hak Hlk.
+Abort. (*
 revert j k d Hjk Hak Hlk.
 induction l as [| a]; intros.
  simpl.
@@ -2403,8 +2404,21 @@ Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
               ∧ pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat.
 Proof.
 intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
-remember Hns as H; clear HeqH.
-eapply characteristic_polynomial_is_in_x_power_q in H; try eassumption.
+remember Hns as Hαj; clear HeqHαj.
+eapply com_den_of_ini_pt in Hαj; eauto .
+remember Hns as Hαk; clear HeqHαk.
+eapply com_den_of_fin_pt in Hαk; eauto .
+remember (mj_of_ns pol ns) as mj eqn:Hmj .
+remember (mk_of_ns pol ns) as mk eqn:Hmk .
+exists mj, mk.
+split; [ assumption | idtac ].
+split; [ assumption | idtac ].
+remember (p_of_ns pol ns) as p eqn:Hp .
+remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
+exists p, q.
+remember Hns as Hpxq; clear HeqHpxq.
+eapply characteristic_polynomial_is_in_x_power_q in Hpxq; eauto.
+bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 destruct H as (Hmh, Hpxq).
 exists mj, mk.
