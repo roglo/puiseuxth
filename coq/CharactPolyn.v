@@ -2417,7 +2417,13 @@ remember (p_of_ns pol ns) as p eqn:Hp .
 remember (Pos.to_nat (q_of_ns pol ns)) as q eqn:Hq .
 exists p, q.
 remember Hns as Hpxq; clear HeqHpxq.
-eapply characteristic_polynomial_is_in_x_power_q in Hpxq; eauto.
+eapply characteristic_polynomial_is_in_x_power_q in Hpxq; eauto .
+remember Hns as Hgcd; clear HeqHgcd.
+eapply p_and_q_have_no_common_factors in Hgcd; eauto .
+rewrite <- positive_nat_Z in Hgcd.
+rewrite <- Hq in Hgcd.
+split; [ assumption | idtac ].
+split; [ subst q; auto | idtac ].
 bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 destruct H as (Hmh, Hpxq).
