@@ -2437,41 +2437,37 @@ split.
   remember (mh_of_ns pol h αh) as mh eqn:Hmh .
   exists mh, sh.
   eapply h_is_j_plus_sq in Hsh; try eassumption.
+   destruct Hsh as (Hhsq, Hsh).
+   split; [ idtac | assumption ].
+   eapply com_den_of_oth_pt; eassumption.
+
+   apply List.in_or_app; left; eassumption.
+
+  unfold pseudo_degree; simpl.
+  rewrite Nat.sub_diag; simpl.
+  rewrite <- Hj; simpl.
+  unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id, skipn_pad.
+  rewrite list_length_shrink; simpl.
+   rewrite divmod_div.
+   rewrite Nat.sub_0_r.
 bbb.
-destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
-destruct H as (Hmh, Hpxq).
-exists mj, mk.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-exists p, q.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-unfold pseudo_degree; simpl.
-rewrite Nat.sub_diag; simpl.
-rewrite <- Hj; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id, skipn_pad.
-rewrite list_length_shrink; simpl.
- rewrite divmod_div.
- rewrite Nat.sub_0_r.
- f_equal.
-  rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
-   reflexivity.
+   f_equal.
+    rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
+     reflexivity.
 
-   rewrite list_last_map; simpl.
-    rewrite list_last_app_at.
-    rewrite <- Hk; simpl.
-    unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
+     rewrite list_last_map; simpl.
+      rewrite list_last_app_at.
+      rewrite <- Hk; simpl.
+      unfold nofq, Qnat; simpl.
+      rewrite Nat2Z.id; reflexivity.
 
-    intros H.
-    apply List.app_eq_nil in H.
-    destruct H as (_, H); discriminate H.
+      intros H.
+      apply List.app_eq_nil in H.
+      destruct H as (_, H); discriminate H.
 
-  destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
-  simpl; rewrite Nat.sub_0_r; reflexivity.
+    destruct q; [ exfalso; apply Hq; reflexivity | idtac ].
+    simpl; rewrite Nat.sub_0_r; reflexivity.
 bbb.
   rewrite List.map_app; simpl.
   remember (oth_pts ns) as pts eqn:Hpts .
