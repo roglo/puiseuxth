@@ -485,6 +485,7 @@ destruct Hns as [Hns| Hns].
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
+(*
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
   ns ∈ newton_segments f pol
   → (hq, αh) ∈ oth_pts ns
@@ -501,6 +502,7 @@ unfold Qlt in Hoth; simpl in Hoth.
 do 2 rewrite Zmult_1_r in Hoth.
 apply Nat2Z.inj_lt; assumption.
 Qed.
+*)
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
   ns ∈ newton_segments f pol
@@ -570,6 +572,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  apply ini_fin_ns_in_init_pts; eassumption.
 Qed.
 
+(*
 Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
   ns ∈ newton_segments f pol
   → jz = Qnum (fst (ini_pt ns))
@@ -962,6 +965,7 @@ eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
 simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
+*)
 
 Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let m := series_list_com_polord (al pol) in
@@ -976,14 +980,17 @@ Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   (j, k, mj, mk, g).
 
+(*
 Definition p_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   ((mj - mk) / g)%Z.
+*)
 
 Definition q_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
+(*
 Definition mj_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   mj.
@@ -1602,9 +1609,11 @@ induction s; intros.
 
  rewrite <- plus_n_Sm; assumption.
 Qed.
+*)
 
 Open Scope nat_scope.
 
+(*
 Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl d,
   s ≤ i
   → j + s ≤ power t
@@ -1757,6 +1766,7 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply not_eq_sym in Hne.
    apply le_neq_lt; assumption.
 Qed.
+*)
 
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
@@ -2041,6 +2051,7 @@ apply Sorted_app.
  symmetry; apply surjective_pairing.
 Qed.
 
+(*
 Close Scope nat_scope.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
@@ -2125,6 +2136,7 @@ destruct i.
 
   assumption.
 Qed.
+*)
 
 Fixpoint list_shrink cnt k₁ (l : list α) :=
   match l with
@@ -2246,6 +2258,7 @@ induction n; [ reflexivity | simpl ].
 rewrite IHn; reflexivity.
 Qed.
 
+(*
 Lemma list_length_char_pol_cons : ∀ pow t tl,
   List.length (make_char_pol f pow [t … tl]) =
   (S (power t - pow) + List.length (make_char_pol f (S (power t)) tl))%nat.
@@ -2286,6 +2299,7 @@ destruct l' as [| z].
 
  rewrite <- Heql'; apply IHl.
 Qed.
+*)
 
 Lemma length_char_pol : ∀ j x l,
   (j < power (List.hd x l))%nat
