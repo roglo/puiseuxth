@@ -2474,6 +2474,38 @@ split.
    subst sk; f_equal.
     rewrite List.map_app; simpl.
     rewrite length_char_pol.
+     rewrite <- Hk; simpl.
+     unfold nofq, Qnat; simpl.
+     rewrite Nat2Z.id; reflexivity.
+
+     remember (oth_pts ns) as opts eqn:Hopts .
+     symmetry in Hopts.
+     destruct opts as [| (h, αh)].
+      simpl.
+      rewrite <- Hk; simpl.
+      unfold nofq, Qnat; simpl.
+      rewrite Nat2Z.id.
+      eapply j_lt_k; try eassumption.
+       rewrite <- Hj; simpl.
+       unfold nofq, Qnat; simpl.
+       rewrite Nat2Z.id; reflexivity.
+
+       rewrite <- Hk; simpl.
+       unfold nofq, Qnat; simpl.
+       rewrite Nat2Z.id; reflexivity.
+
+      simpl.
+      assert ((h, αh) ∈ oth_pts ns) as H.
+       rewrite Hopts; left; reflexivity.
+
+       eapply j_lt_h; try eassumption; try reflexivity.
+       unfold newton_segments in Hns.
+       eapply oth_pts_in_init_pts in H; try eassumption.
+       eapply pt_absc_is_nat in H; [ idtac | reflexivity ].
+       simpl in H.
+       assumption.
+
+     apply Sorted_app.
 bbb.
     rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
      reflexivity.
