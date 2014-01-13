@@ -485,7 +485,6 @@ destruct Hns as [Hns| Hns].
  eapply minimise_slope_sorted; [ eassumption | reflexivity ].
 Qed.
 
-(*
 Lemma h_lt_k : ∀ (pol : puis_ser_pol α) h αh hq k αk kq ns,
   ns ∈ newton_segments f pol
   → (hq, αh) ∈ oth_pts ns
@@ -502,7 +501,6 @@ unfold Qlt in Hoth; simpl in Hoth.
 do 2 rewrite Zmult_1_r in Hoth.
 apply Nat2Z.inj_lt; assumption.
 Qed.
-*)
 
 Lemma j_lt_k : ∀ (pol : puis_ser_pol α) j k ns,
   ns ∈ newton_segments f pol
@@ -572,7 +570,6 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
  apply ini_fin_ns_in_init_pts; eassumption.
 Qed.
 
-(*
 Lemma jz_lt_kz : ∀ (pol : puis_ser_pol α) jz kz ns,
   ns ∈ newton_segments f pol
   → jz = Qnum (fst (ini_pt ns))
@@ -965,7 +962,6 @@ eapply pt_absc_is_nat in Heqpts; [ idtac | eassumption ].
 simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
-*)
 
 Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let m := series_list_com_polord (al pol) in
@@ -980,17 +976,14 @@ Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let g := Z.gcd (mj - mk) (Z.of_nat k - Z.of_nat j) in
   (j, k, mj, mk, g).
 
-(*
 Definition p_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   ((mj - mk) / g)%Z.
-*)
 
 Definition q_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   Z.to_pos ((Z.of_nat k - Z.of_nat j) / g).
 
-(*
 Definition mj_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let '(j, k, mj, mk, g) := jk_mjk_g_of_ns pol ns in
   mj.
@@ -1009,7 +1002,6 @@ Definition mh_of_ns (pol : polynomial (puiseux_series α)) h αh :=
           γ₁ = [...] = ---
                        m q
   » *)
-
 Theorem gamma_eq_p_nq : ∀ pol ns m p q,
   ns ∈ newton_segments f pol
   → m = series_list_com_polord (al pol)
@@ -1085,7 +1077,6 @@ Qed.
 
 (* [Walker, p. 100]: « [...] where q > 0 and p and q are integers having
    no common factor. » *)
-
 Theorem p_and_q_have_no_common_factors : ∀ pol ns p q,
   ns ∈ newton_segments f pol
   → p = p_of_ns pol ns
@@ -1228,9 +1219,6 @@ apply points_in_any_newton_segment with (h := h) (αh := αh) in Hh.
 
  right; right; assumption.
 Qed.
-
-Lemma eq_Qeq : ∀ a b, a = b → a == b.
-Proof. intros a b H; subst a; reflexivity. Qed.
 
 Open Scope Z_scope.
 
@@ -1609,11 +1597,9 @@ induction s; intros.
 
  rewrite <- plus_n_Sm; assumption.
 Qed.
-*)
 
 Open Scope nat_scope.
 
-(*
 Lemma nth_minus_char_pol_plus_cons : ∀ i j s t tl d,
   s ≤ i
   → j + s ≤ power t
@@ -1766,7 +1752,6 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply not_eq_sym in Hne.
    apply le_neq_lt; assumption.
 Qed.
-*)
 
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
@@ -2051,7 +2036,6 @@ apply Sorted_app.
  symmetry; apply surjective_pairing.
 Qed.
 
-(*
 Close Scope nat_scope.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
@@ -2136,7 +2120,6 @@ destruct i.
 
   assumption.
 Qed.
-*)
 
 Fixpoint list_shrink cnt k₁ (l : list α) :=
   match l with
@@ -2257,49 +2240,6 @@ intros n z l.
 induction n; [ reflexivity | simpl ].
 rewrite IHn; reflexivity.
 Qed.
-
-(*
-Lemma list_length_char_pol_cons : ∀ pow t tl,
-  List.length (make_char_pol f pow [t … tl]) =
-  (S (power t - pow) + List.length (make_char_pol f (S (power t)) tl))%nat.
-Proof.
-intros pow t tl; simpl.
-rewrite list_length_pad; simpl.
-rewrite Nat.add_succ_r; reflexivity.
-Qed.
-
-Lemma list_pad_app : ∀ n z (l₁ l₂ : list α),
-  list_pad n z l₁ ++ l₂ = list_pad n z (l₁ ++ l₂).
-Proof.
-intros n z l₁ l₂.
-induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
-Qed.
-
-Lemma list_last_map : ∀ A B (g : A → B) l d,
-  l ≠ []
-  → List.last (List.map g l) (g d) = g (List.last l d).
-Proof.
-intros A B g l d Hl.
-induction l; [ exfalso; apply Hl; reflexivity | simpl ].
-destruct l as [| b]; [ reflexivity | simpl ].
-simpl in IHl; apply IHl.
-intros H; discriminate H.
-Qed.
-
-Lemma list_last_app_at : ∀ A (l : list A) x d, List.last (l ++ [x]) d = x.
-Proof.
-intros A l x d.
-revert x d.
-induction l as [| y]; intros; [ reflexivity | simpl ].
-remember (l ++ [x]) as l'.
-symmetry in Heql'.
-destruct l' as [| z].
- apply List.app_eq_nil in Heql'.
- destruct Heql' as (_, H); discriminate H.
-
- rewrite <- Heql'; apply IHl.
-Qed.
-*)
 
 Lemma length_char_pol : ∀ j x l,
   (j < power (List.hd x l))%nat
