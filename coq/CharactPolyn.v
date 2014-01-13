@@ -2415,6 +2415,16 @@ induction l as [| b]; [ reflexivity | simpl ].
 rewrite IHl; reflexivity.
 Qed.
 
+Theorem zzz (*phi_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
+  ns ∈ newton_segments f pol
+  → (Qnat j, αj) = ini_pt ns
+    → (Qnat k, αk) = fin_pt ns
+      → q = Pos.to_nat (q_of_ns pol ns)
+        → pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat.
+Proof.
+intros pol ns j αj k αk q Hns Hj Hk Hq.
+bbb.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
