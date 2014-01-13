@@ -2262,42 +2262,6 @@ intros n z l₁ l₂.
 induction n; [ reflexivity | simpl; rewrite IHn; reflexivity ].
 Qed.
 
-(* I have difficulties to prove that, but is it really useful?
-Lemma zzz : ∀ pow t₁ tl₁ tl₂,
-  make_char_pol f pow ([t₁ … tl₁] ++ tl₂) =
-  make_char_pol f pow [t₁ … tl₁] ++
-  make_char_pol f (S (power (List.last [t₁ … tl₁] t₁))) tl₂.
-Proof.
-intros pow t₁ tl₁ tl₂.
-simpl.
-rewrite list_pad_app; f_equal.
-simpl; f_equal.
-bbb.
-revert t₁ tl₁.
-induction tl₂ as [| t₂]; intros.
- simpl.
- rewrite List.app_nil_r.
- rewrite List.app_nil_r.
- reflexivity.
-
- replace (tl₁ ++ [t₂ … tl₂]) with (tl₁ ++ [t₂] ++ tl₂) by reflexivity.
- rewrite List.app_assoc.
- rewrite IHtl₂.
- simpl.
- destruct tl₁ as [| t₃].
-  simpl.
-  rewrite list_pad_app; reflexivity.
-
-  simpl.
-  rewrite list_pad_app.
-  simpl.
-  rewrite list_pad_app.
-  simpl.
-  f_equal.
-  f_equal.
-bbb.
-*)
-
 Lemma list_last_map : ∀ A B (g : A → B) l d,
   l ≠ []
   → List.last (List.map g l) (g d) = g (List.last l d).
