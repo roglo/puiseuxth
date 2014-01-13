@@ -2371,7 +2371,7 @@ Qed.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
-Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
+Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
