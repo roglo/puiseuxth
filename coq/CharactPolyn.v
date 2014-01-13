@@ -2408,6 +2408,21 @@ induction l as [| a]; intros.
   destruct Hsort; assumption.
 Qed.
 
+Lemma Sorted_map : ∀ A B P (Q : A → B) (l : list A),
+  Sorted (λ x y, P (Q x) (Q y)) l
+  → Sorted P (List.map Q l).
+Proof.
+intros A B P Q l Hsort.
+apply Sorted_LocallySorted_iff in Hsort.
+apply Sorted_LocallySorted_iff.
+induction l as [| a]; [ constructor | simpl ].
+destruct l as [| b]; simpl; constructor.
+ apply IHl.
+ inversion Hsort; subst; assumption.
+
+ inversion Hsort; subst; assumption.
+Qed.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
@@ -2506,6 +2521,7 @@ split.
        assumption.
 
      apply Sorted_app.
+      apply Sorted_map; simpl.
 bbb.
     rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
      reflexivity.
