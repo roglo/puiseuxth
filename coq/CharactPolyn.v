@@ -2424,6 +2424,19 @@ rewrite <- positive_nat_Z in Hgcd.
 rewrite <- Hq in Hgcd.
 split; [ assumption | idtac ].
 split; [ subst q; auto | idtac ].
+remember ((k - j) / q)%nat as sk eqn:Hsk .
+split.
+ exists sk.
+ eapply h_is_j_plus_sq in Hsk; try eassumption.
+ rewrite <- Hk.
+ apply List.in_or_app; right; left; reflexivity.
+
+ split.
+  intros h αh Hh.
+  remember ((h - j) / q)%nat as sh eqn:Hsh .
+  remember (mh_of_ns pol h αh) as mh eqn:Hmh .
+  exists mh, sh.
+  eapply h_is_j_plus_sq in Hsh; try eassumption.
 bbb.
 destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, H))))))))).
 destruct H as (Hmh, Hpxq).
