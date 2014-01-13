@@ -2338,55 +2338,75 @@ destruct l' as [| z].
  rewrite <- Heql'; apply IHl.
 Qed.
 
-Lemma yyy : ∀ j k l d,
-  (j < k)%nat
-  → (∀ a, a ∈ l → (j < power a < k)%nat)
-    → power (List.last l d) = k
-      → List.length (make_char_pol f (S j) l) = (k - j)%nat.
+Lemma length_char_pol : ∀ j x l,
+  (j < power (List.hd x l))%nat
+  → Sorted (λ a b, (power a < power b)%nat) (l ++ [x])
+    → List.length (make_char_pol f (S j) (l ++ [x])) = (power x - j)%nat.
 Proof.
-intros j k l d Hjk Hak Hlk.
-Abort. (*
-revert j k d Hjk Hak Hlk.
+(* to be simplified; add a (general) lemma about Sorted *)
+intros j x l Hjpx Hsort.
+revert j x Hjpx Hsort.
 induction l as [| a]; intros.
  simpl.
- simpl in Hlk.
- Focus 2.
+ rewrite list_length_pad; simpl.
+ simpl in Hjpx.
+ omega.
+
  simpl.
  rewrite list_length_pad; simpl.
- simpl in Hlk.
- destruct l as [| b].
-  rewrite Hlk.
-  simpl.
-  omega.
+ simpl in Hjpx.
+ rewrite IHl.
+  simpl in Hsort.
+  assert (power a < power x)%nat as H; [ idtac | omega ].
+  revert Hsort; clear; intros.
+  revert a x Hsort.
+  induction l as [| b]; intros.
+   simpl in Hsort.
+   apply Sorted_inv_2 in Hsort.
+   destruct Hsort; assumption.
 
-  erewrite IHl; try eassumption.
-   rewrite <- Nat.sub_succ_l.
-    rewrite Nat.add_sub_assoc.
-     rewrite <- Nat.add_sub_swap.
-      rewrite <- Nat.sub_add_distr.
-      remember (power a + S k)%nat as x; rewrite Nat.add_comm; subst x.
-      rewrite Nat.sub_add_distr.
-      rewrite Nat.add_comm, Nat.add_sub.
-      reflexivity.
+   apply IHl.
+   constructor.
+    simpl in Hsort.
+    apply Sorted_inv in Hsort.
+    destruct Hsort as (Hsort, _).
+    apply Sorted_inv in Hsort.
+    destruct Hsort; assumption.
 
-      apply Hak; left; reflexivity.
+    simpl in Hsort.
+    apply Sorted_inv in Hsort.
+    destruct Hsort as (Hsort, Hrel).
+    inversion Hrel; subst.
+    revert Hsort H0; clear; intros.
+    induction l as [| c].
+     simpl in Hsort.
+     inversion Hsort; subst.
+     simpl.
+     inversion H3; subst.
+     constructor.
+     eapply Nat.lt_trans; eassumption.
 
-     apply Nat.lt_le_incl.
-     apply Nat.lt_le_incl.
-     apply lt_n_S.
-     apply Hak; left; reflexivity.
+     simpl.
+     constructor.
+     inversion Hsort; subst.
+     inversion H3; subst.
+     eapply Nat.lt_trans; eassumption.
 
-    apply Nat.lt_le_incl.
-    apply Hak; left; reflexivity.
+  simpl in Hsort.
+  destruct l as [| b].
+   simpl.
+   simpl in Hsort.
+   apply Sorted_inv_2 in Hsort.
+   destruct Hsort; assumption.
 
-   apply Hak; left; reflexivity.
+   simpl in Hsort; simpl.
+   apply Sorted_inv_2 in Hsort.
+   destruct Hsort; assumption.
 
-   intros c Hc.
-   split.
-    Focus 2.
-    apply Hak; right; assumption.
-ccc.
-*)
+  simpl in Hsort.
+  apply Sorted_inv in Hsort.
+  destruct Hsort; assumption.
+Qed.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
@@ -2452,6 +2472,8 @@ split.
    rewrite divmod_div.
    rewrite Nat.sub_0_r.
    subst sk; f_equal.
+    rewrite List.map_app; simpl.
+    rewrite length_char_pol.
 bbb.
     rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
      reflexivity.
