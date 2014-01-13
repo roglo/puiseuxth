@@ -2458,6 +2458,14 @@ destruct l as [| b]; constructor.
  assumption.
 Qed.
 
+Lemma list_map_app_at : ∀ A B (g : A → B) l x,
+  List.map g l ++ [g x] = List.map g (l ++ [x]).
+Proof.
+intros.
+induction l as [| b]; [ reflexivity | simpl ].
+rewrite IHl; reflexivity.
+Qed.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
@@ -2555,8 +2563,41 @@ split.
        simpl in H.
        assumption.
 
+     rewrite list_map_app_at.
+     apply Sorted_map.
+     apply Sorted_fst_lt_nofq_fst.
+      intros a Ha.
+      2: eapply oth_fin_pts_sorted; eassumption.
+
+      eapply pt_absc_is_nat; [ reflexivity | idtac ].
+
+bbb.
      apply Sorted_app.
       apply Sorted_map; simpl.
+      apply Sorted_fst_lt_nofq_fst.
+       intros a Ha.
+       remember (points_of_ps_polynom f pol) as pts.
+       symmetry in Heqpts.
+       eapply pt_absc_is_nat; [ eassumption | idtac ].
+       eapply oth_pts_in_init_pts; [ idtac | eassumption ].
+       unfold newton_segments in Hns.
+       rewrite Heqpts in Hns.
+       assumption.
+
+       apply oth_fin_pts_sorted in Hns.
+       apply ConvexHullMisc.Sorted_app in Hns.
+       destruct Hns; assumption.
+
+      intros a Ha.
+      remember (points_of_ps_polynom f pol) as pts.
+      symmetry in Heqpts.
+      unfold newton_segments in Hns.
+      rewrite Heqpts in Hns.
+vvv.
+       inversion Hns.
+        symmetry in H0.
+        apply List.app_eq_nil in H0.
+        destruct H0 as (_, H); discriminate H.
 bbb.
     rewrite yyy with (k := k) (d := term_of_point f pol (fin_pt ns)).
      reflexivity.
