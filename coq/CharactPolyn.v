@@ -2423,6 +2423,41 @@ destruct l as [| b]; simpl; constructor.
  inversion Hsort; subst; assumption.
 Qed.
 
+Lemma Sorted_fst_lt_nofq_fst : ∀ l,
+  (∀ a, a ∈ l → fst a = Qnat (Z.to_nat (Qnum (fst a))))
+  → Sorted fst_lt l
+    → Sorted (λ x y, (nofq (fst x) < nofq (fst y))%nat) l.
+Proof.
+intros l Hnat Hsort.
+apply Sorted_LocallySorted_iff in Hsort.
+apply Sorted_LocallySorted_iff.
+induction l as [| a]; [ constructor | idtac ].
+destruct l as [| b]; constructor.
+ apply IHl.
+  intros c Hc.
+  apply Hnat; right; assumption.
+
+  inversion Hsort; assumption.
+
+ inversion Hsort; subst.
+ rewrite Hnat; [ idtac | left; reflexivity ].
+ apply Nat.nle_gt.
+ rewrite Hnat; [ idtac | right; left; reflexivity ].
+ apply Nat.nle_gt.
+ unfold nofq, Qnat; simpl.
+ do 2 rewrite Nat2Z.id.
+ unfold fst_lt in H3.
+ rewrite Hnat in H3; [ idtac | left; reflexivity ].
+ apply Qlt_not_le in H3.
+ rewrite Hnat in H3; [ idtac | right; left; reflexivity ].
+ apply Qnot_le_lt in H3.
+ unfold Qlt in H3.
+ simpl in H3.
+ do 2 rewrite Z.mul_1_r in H3.
+ apply Nat2Z.inj_lt in H3.
+ assumption.
+Qed.
+
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q » *)
 Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns cpol j αj k αk m,
