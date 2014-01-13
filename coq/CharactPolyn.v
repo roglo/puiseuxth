@@ -1464,23 +1464,6 @@ split.
     rewrite Nat2Z.id; reflexivity.
 Qed.
 
-(* old
-Theorem q_mj_mk_eq_p_h_j : ∀ pol ns j αj k αk m mj mk p q,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → mj = mj_of_ns pol ns
-          → mk = mk_of_ns pol ns
-            → p = p_of_ns pol ns
-              → q = Pos.to_nat (q_of_ns pol ns)
-                → Z.of_nat q * (mj - mk) = p * Z.of_nat (k - j)
-                  ∧ ∀ h αh mh, (Qnat h, αh) ∈ oth_pts ns
-                    → mh = mh_of_ns pol h αh
-                      → αh == mh # m
-                        ∧ Z.of_nat q * (mj - mh) = p * Z.of_nat (h - j).
-*)
-
 Lemma mul_pos_nonneg : ∀ j k c d,
   (j < k)%nat
   → Z.of_nat (k - j) = c * Z.of_nat d
@@ -1588,19 +1571,6 @@ assert (j < h)%nat as Hjh.
   apply Nat.nlt_ge in Hc.
   exfalso; apply Hc; assumption.
 Qed.
-
-(* old
-Theorem h_is_j_plus_sq : ∀ pol ns j αj k αk m,
-  ns ∈ newton_segments f pol
-  → (Qnat j, αj) = ini_pt ns
-    → (Qnat k, αk) = fin_pt ns
-      → m = series_list_com_polord (al pol)
-        → ∃ mj mk, αj == mj # m ∧ αk == mk # m
-          ∧ ∃ p q, Z.gcd p (Z.of_nat q) = 1 ∧ q ≠ O
-            ∧ (∃ sk, k = j + sk * q ∧ sk ≠ O)%nat
-            ∧ ∀ h αh, (Qnat h, αh) ∈ oth_pts ns
-              → ∃ mh s, αh == mh # m ∧ h = (j + s * q)%nat.
-*)
 
 (* *)
 
@@ -2073,110 +2043,90 @@ Qed.
 
 Close Scope nat_scope.
 
-Theorem xxx (*characteristic_polynomial_is_in_x_power_q*) : ∀ pol ns cpol q,
+(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
+Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol q,
   ns ∈ newton_segments f pol
   → cpol = characteristic_polynomial f pol ns
     → q = Pos.to_nat (q_of_ns pol ns)
       → is_polynomial_in_x_power_q cpol q.
 Proof.
 intros pol ns cpol q Hns Hcpol Hq.
+remember Hns as H; clear HeqH.
+apply exists_ini_pt_nat in H.
+destruct H as (j, (αj, Hj)).
+symmetry in Hj.
+remember Hns as H; clear HeqH.
+apply exists_fin_pt_nat in H.
+destruct H as (k, (αk, Hk)).
+symmetry in Hk.
+remember (series_list_com_polord (al pol)) as m eqn:Hm .
 unfold is_polynomial_in_x_power_q.
 intros i c Himq Hc.
-subst cpol c.
-unfold characteristic_polynomial; simpl.
-rewrite minus_diag; simpl.
+subst cpol.
+unfold characteristic_polynomial in Hc; simpl in Hc.
+rewrite minus_diag in Hc; simpl in Hc.
 destruct i.
  exfalso; apply Himq.
  apply Nat.mod_0_l; subst q; auto.
 
- remember Hns as H; clear HeqH.
- apply exists_fin_pt_nat in H.
- destruct H as (k, (αk, Hk)).
- remember Hns as H; clear HeqH.
- apply exists_ini_pt_nat in H.
- destruct H as (j, (αj, Hj)).
- rewrite Hj; simpl.
- unfold nofq, Qnat; simpl.
- rewrite Nat2Z.id.
- symmetry in Hk, Hj.
- remember (series_list_com_polord (al pol)) as m eqn:Hm .
- remember Hns as H; clear HeqH.
- destruct (eq_nat_dec i k) as [Hi| Hi].
-  subst i.
-  eapply h_is_j_plus_sq with (h := k) (αh := αk) in H; try eassumption;
-   try reflexivity.
-   destruct H as (Hkjsq, Hkjq).
-   eapply nth_is_zero with (k := k); try eassumption; try reflexivity.
-    rewrite Hq; apply Pos2Nat.is_pos.
+ rewrite <- Hj, <- Hk in Hc; simpl in Hc.
+ unfold nofq in Hc; simpl in Hc.
+ rewrite Nat2Z.id in Hc.
+ remember ((k - j) / q)%nat as sk eqn:H .
+ eapply h_is_j_plus_sq in H; try eassumption.
+  2: apply List.in_or_app; right; left; symmetry; eassumption.
 
-    apply Nat.nle_gt.
-    intros H; apply Hkjq.
-    apply Nat.le_0_r; assumption.
+  destruct H as (Hqjk, Hsk).
+  rewrite Hqjk in Hc; simpl in Hc.
+  destruct q; [ exfalso; revert Hq; auto | idtac ].
+  destruct sk; [ exfalso; apply Hsk; reflexivity | clear Hsk ].
+  subst c.
+  apply nth_is_zero with (q := S q) (k := k) (sk := S sk).
+   apply Nat.lt_0_succ.
 
-    eapply oth_fin_pts_sorted; eassumption.
+   apply Nat.lt_0_succ.
 
-    intros hq αh Hhαh.
-    apply List.in_app_or in Hhαh.
-    destruct Hhαh as [Hhαh| [Hhαh| ]]; [ idtac | idtac | contradiction ].
-     remember Hns as Hh; clear HeqHh.
-     eapply exists_oth_pt_nat in Hh; [ idtac | eassumption ].
-     destruct Hh as (h, (ah, Hh)).
-     injection Hh; clear Hh; intros; subst ah hq.
-     remember ((h - j) / q)%nat as sh eqn:Hsh .
-     exists h, sh.
+   assumption.
+
+   rewrite <- Hqjk, Hk.
+   eapply oth_fin_pts_sorted; eassumption.
+
+   intros hq αh Hhαh.
+   apply List.in_app_or in Hhαh.
+   destruct Hhαh as [Hhαh| Hhαh].
+    remember Hns as Hh; clear HeqHh.
+    eapply exists_oth_pt_nat in Hh; [ idtac | eassumption ].
+    destruct Hh as (h, (ah, Hh)).
+    injection Hh; clear Hh; intros; subst ah hq.
+    remember ((h - j) / S q)%nat as sh eqn:H .
+    eapply h_is_j_plus_sq in H; try eassumption.
+     destruct H as (Hh, Hshnz).
+     remember Hhαh as H; clear HeqH.
+     eapply com_den_of_oth_pt in H; try eassumption; [ idtac | reflexivity ].
+     remember (mh_of_ns pol h) as mh eqn:Hmh .
+     rename H into Hah.
+     destruct sh; [ exfalso; apply Hshnz; reflexivity | clear Hshnz ].
+     exists h, (S sh).
      split; [ reflexivity | idtac ].
-     destruct sh.
-      symmetry in Hsh.
-      apply Nat.div_small_iff in Hsh; [ idtac | rewrite Hq; auto ].
-      apply Nat.nle_gt in Hsh.
-      exfalso; apply Hsh.
-      remember Hns as H; clear HeqH.
-      eapply q_is_factor_of_h_minus_j with (h := h) in H; eauto .
-       destruct H as (c, Hc).
-       destruct c.
-        simpl in Hc.
-        apply Nat.sub_0_le in Hc.
-        apply Nat.nlt_ge in Hc.
-        exfalso; apply Hc.
-        eapply j_lt_h; try eassumption; reflexivity.
+     split; [ apply Nat.lt_0_succ | idtac ].
+     split; [ assumption | idtac ].
+     apply Nat.lt_le_incl.
+     eapply h_lt_k; try eassumption; reflexivity.
 
-        rewrite Hc; simpl.
-        apply Nat.le_sub_le_add_l.
-        rewrite Nat.sub_diag; apply Nat.le_0_l.
+     apply List.in_or_app; left; eassumption.
 
-       apply List.in_or_app; left; eassumption.
+    destruct Hhαh as [Hhαh| ]; [ idtac | contradiction ].
+    injection Hhαh; clear Hhαh; intros; subst hq αh.
+    exists k, (S sk).
+    simpl in Hqjk; rewrite <- Hqjk.
+    split; [ reflexivity | idtac ].
+    split; [ apply Nat.lt_0_succ | idtac ].
+    split; [ assumption | reflexivity ].
 
-      split; [ apply Nat.lt_0_succ | idtac ].
-      split.
-       rewrite Hsh; simpl.
-       rewrite Nat.mul_comm.
-       rewrite <- Nat.divide_div_mul_exact.
-        rewrite Nat.mul_comm.
-        rewrite Nat.div_mul; [ idtac | subst q; auto ].
-        rewrite Nat.add_comm, Nat.sub_add; [ reflexivity | idtac ].
-        apply Nat.lt_le_incl.
-        eapply j_lt_h; try eassumption; reflexivity.
+  assumption.
+Qed.
 
-        subst q; auto.
-
-        eapply q_is_factor_of_h_minus_j; try eassumption; try reflexivity.
-        apply List.in_or_app; left; eassumption.
-
-       apply Nat.lt_le_incl.
-       eapply h_lt_k; try eassumption; reflexivity.
-
-     remember ((k - j) / q)%nat as s eqn:Hs .
-     exists k, s.
-     rewrite <- Hk in Hhαh; injection Hhαh; intros; subst hq αh.
-     split; [ reflexivity | idtac ].
-     split; [ apply Nat.neq_0_lt_0; assumption | idtac ].
-     split; [ assumption | reflexivity ].
-
-   rewrite Hk.
-   apply List.in_or_app; right; left; reflexivity.
-bbb.
-
-(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0 » *)
+(* old
 Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk m,
   ns ∈ newton_segments f pol
   → cpol = characteristic_polynomial f pol ns
@@ -2189,84 +2139,7 @@ Theorem characteristic_polynomial_is_in_x_power_q : ∀ pol ns cpol j αj k αk 
               ∧ (∀ h αh, (Qnat h, αh) ∈ oth_pts ns
                  → ∃ mh sh, αh == mh # m ∧ h = j + sh * q)%nat
               ∧ is_polynomial_in_x_power_q cpol q.
-Proof.
-intros pol ns cpol j αj k αk m Hns Hcpol Hj Hk Heqm.
-remember Hns as H; clear HeqH.
-eapply h_is_j_plus_sq in H; try eassumption.
-destruct H as (mj, (mk, (Hmj, (Hmk, (p, (q, (Hgcd, (Hq, (Hqjk, Hmh))))))))).
-exists mj, mk.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-exists p, q.
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-split; [ assumption | idtac ].
-unfold is_polynomial_in_x_power_q.
-intros i c Himq Hc.
-subst cpol.
-unfold characteristic_polynomial in Hc; simpl in Hc.
-rewrite minus_diag in Hc; simpl in Hc.
-destruct i.
- exfalso; apply Himq.
- apply Nat.mod_0_l; assumption.
-
- rewrite <- Hj, <- Hk in Hc; simpl in Hc.
- unfold nofq in Hc; simpl in Hc.
- destruct Hqjk as (sk, (Hqjk, Hsk)).
- rewrite Hqjk in Hc; simpl in Hc.
- destruct q; [ exfalso; apply Hq; reflexivity | clear Hq ].
- destruct sk; [ exfalso; apply Hsk; reflexivity | clear Hsk ].
- subst c.
- apply nth_is_zero with (q := S q) (k := k) (sk := S sk).
-  apply Nat.lt_0_succ.
-
-  apply Nat.lt_0_succ.
-
-  subst k.
-  rewrite Nat2Z.id; reflexivity.
-
-  rewrite <- Hqjk, Hk.
-  eapply oth_fin_pts_sorted; eassumption.
-
-  intros hq αh Hhαh.
-  apply List.in_app_or in Hhαh.
-  destruct Hhαh as [Hhαh| Hhαh].
-   remember Hns as Hh; clear HeqHh.
-   eapply exists_oth_pt_nat in Hh; [ idtac | eassumption ].
-   destruct Hh as (h, (ah, Hh)).
-   injection Hh; clear Hh; intros; subst ah hq.
-   remember Hhαh as Hhαh_v; clear HeqHhαh_v.
-   apply Hmh in Hhαh.
-   destruct Hhαh as (mh, (sh, (Hah, Hh))).
-   destruct sh.
-    rewrite Nat.add_comm in Hh; simpl in Hh.
-    assert (j < h)%nat as Hhj.
-     eapply j_lt_h; try eassumption; reflexivity.
-
-     rewrite Hh in Hhj.
-     exfalso; revert Hhj; apply Nat.lt_irrefl.
-
-    exists h, (S sh).
-    split; [ reflexivity | idtac ].
-    split; [ apply Nat.lt_0_succ | idtac ].
-    rewrite Nat2Z.id.
-    split; [ assumption | idtac ].
-    apply Nat.lt_le_incl.
-    eapply h_lt_k; try eassumption; reflexivity.
-
-   destruct Hhαh as [Hhαh| ]; [ idtac | contradiction ].
-   injection Hhαh; clear Hhαh; intros; subst hq αh.
-   exists k, (S sk).
-   simpl in Hqjk; rewrite <- Hqjk.
-   rewrite Nat2Z.id.
-   simpl; rewrite <- Hqjk.
-   split; [ reflexivity | idtac ].
-   split; [ apply Nat.lt_0_succ | idtac ].
-   split; reflexivity.
-
-  assumption.
-Qed.
+*)
 
 Fixpoint list_shrink cnt k₁ (l : list α) :=
   match l with
