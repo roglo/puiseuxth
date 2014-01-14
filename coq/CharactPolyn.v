@@ -2501,6 +2501,26 @@ Lemma yyy : ∀ pol ns j αj k αk,
           valuation_coeff f (List.nth h (al pol) .0 f%ps).
 Proof.
 intros pol ns j αj k αk Hns Hj Hk h (Hjh, Hhk).
+induction h.
+ simpl.
+ rewrite Hj, Hk; simpl.
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id.
+ rewrite Nat.sub_diag; simpl.
+ apply Nat.le_0_r in Hjh; subst j; reflexivity.
+
+ destruct (eq_nat_dec j (S h)) as [Heq| Hne].
+  rewrite <- Heq, Nat.sub_diag; simpl.
+  rewrite Hj.
+  unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id.
+  rewrite Nat.sub_diag; simpl.
+  reflexivity.
+
+  assert (j ≤ h)%nat as Hjh' by omega.
+  assert (h ≤ k)%nat as Hhk' by omega.
+  remember Hhk' as H; clear HeqH.
+  apply IHh in H; [ idtac | assumption ].
 bbb.
 *)
 
