@@ -2488,6 +2488,22 @@ rewrite Nat.sub_diag; simpl.
 reflexivity.
 Qed.
 
+Lemma yyy : ∀ pol ns j αj k αk,
+  ns ∈ newton_segments f pol
+  → ini_pt ns = (Qnat j, αj)
+    → fin_pt ns = (Qnat k, αk)
+      → ∀ h, (j ≤ h ∧ h ≤ k)%nat
+        → List.nth (h - j)
+            (make_char_pol f j
+               (List.map (term_of_point f pol)
+                  [ini_pt ns … oth_pts ns ++ [fin_pt ns]]))
+            .0 f%K =
+          valuation_coeff f (List.nth h (al pol) .0 f%ps).
+Proof.
+intros pol ns j αj k αk Hns Hj Hk h (Hjh, Hhk).
+bbb.
+*)
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -2518,6 +2534,7 @@ assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
   rewrite Nat.add_0_l.
   rewrite fold_char_pol with (αj := αj).
   rewrite Hj.
+  erewrite yyy; [ idtac | eassumption | symmetry; eassumption ].
 bbb.
 
 End theorems.
