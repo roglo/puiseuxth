@@ -2475,6 +2475,25 @@ destruct n; simpl.
  destruct cnt; simpl; rewrite IHl; reflexivity.
 Qed.
 
+
+Lemma xxx : ∀ h j l t c,
+  List.nth (h - j) [coeff (List.nth j l c) … make_char_pol f (S j) l] t =
+  coeff (List.nth h l c).
+Proof.
+bbb.
+
+Lemma yyy : ∀ pol ns h j d,
+  ns ∈ newton_segments f pol
+  → List.nth (h - j)
+      [valuation_coeff f (List.nth j (al pol) .0 f%ps)
+      … make_char_pol f (S j)
+          (List.map (term_of_point f pol) (oth_pts ns ++ [fin_pt ns]))]
+      d =
+    valuation_coeff f (List.nth h (al pol) .0 f%ps).
+Proof.
+intros pol ns h j d Hns.
+bbb.
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -2503,6 +2522,7 @@ assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
   rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
   rewrite Nat.add_0_l.
+  rewrite yyy.
 bbb.
 
 End theorems.
