@@ -2463,10 +2463,17 @@ Qed.
 Definition has_degree pol d :=
   pseudo_degree pol = d ∧ (List.nth d (al pol) .0 f .≠ f .0 f)%K.
 
-Lemma list_nth_shrink : ∀ n k l d,
-  List.nth n (list_shrink 0 k l) d = List.nth (n * S k) l d.
+Lemma list_nth_shrink : ∀ n k l d cnt,
+  List.nth n (list_shrink cnt k l) d = List.nth (cnt + n * S k) l d.
 Proof.
-bbb.
+intros n k l d cnt.
+revert n k cnt.
+induction l as [| a]; intros; [ destruct n, cnt; reflexivity | idtac ].
+destruct n; simpl.
+ destruct cnt; simpl; [ reflexivity | rewrite IHl; reflexivity ].
+
+ destruct cnt; simpl; rewrite IHl; reflexivity.
+Qed.
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
@@ -2495,6 +2502,7 @@ assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
  rewrite Nat.mul_comm.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
   rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
+  rewrite Nat.add_0_l.
 bbb.
 
 End theorems.
