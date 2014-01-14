@@ -2460,20 +2460,26 @@ rewrite list_length_shrink; simpl.
    apply le_plus_r.
 Qed.
 
+Definition has_degree pol d :=
+  pseudo_degree pol = d ∧ (List.nth d (al pol) .0 f .≠ f .0 f)%K.
+
+Lemma list_nth_shrink : ∀ n k l d,
+  List.nth n (list_shrink 0 k l) d = List.nth (n * S k) l d.
+Proof.
+bbb.
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat ∧
-          (List.nth ((k - j) / q) (al (Φ pol ns q)) .0 f .≠ f .0 f)%K.
+        → has_degree (Φ pol ns q) ((k - j) / q).
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
 
- split; [ assumption | idtac ].
- simpl.
+ split; [ assumption | simpl ].
  unfold pseudo_degree in P; simpl in P.
  rewrite Nat.sub_diag; simpl.
  rewrite Nat.sub_diag in P; simpl in P.
@@ -2483,6 +2489,12 @@ assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
  unfold nofq, Qnat in P; simpl in P.
  rewrite Nat2Z.id, skipn_pad.
  rewrite Nat2Z.id, skipn_pad in P.
+ rewrite list_nth_shrink.
+ rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
+ rewrite Nat_sub_succ_1.
+ rewrite Nat.mul_comm.
+ rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
+  rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
 bbb.
 
 End theorems.
