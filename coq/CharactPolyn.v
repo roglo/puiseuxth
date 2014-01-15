@@ -2539,15 +2539,6 @@ Lemma list_nth_last : ∀ (l : list α) d len,
    pred (length l) = len
    → List.nth len l d = List.last l d.
 Proof.
-intros pol ns j αj k αk q Hns Hj Hk Hq.
-unfold has_degree.
-unfold pseudo_degree.
-remember (al (Φ pol ns q)) as l.
-apply imp_or_tauto.
- intros H.
- rewrite list_nth_last; [ idtac | assumption ].
-bbb.
-
 intros l d len H.
 revert d len H.
 induction l as [| x]; intros.
@@ -2573,6 +2564,15 @@ Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
       → q = Pos.to_nat (q_of_ns pol ns)
         → has_degree (Φ pol ns q) ((k - j) / q).
 Proof.
+intros pol ns j αj k αk q Hns Hj Hk Hq.
+unfold has_degree.
+unfold pseudo_degree.
+remember (al (Φ pol ns q)) as l.
+apply imp_or_tauto.
+ intros H.
+ rewrite list_nth_last; [ idtac | assumption ].
+bbb.
+
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold has_degree.
 unfold pseudo_degree; simpl.
