@@ -2494,6 +2494,42 @@ Lemma make_char_pol_cons : ∀ pow t tl,
     [coeff t … make_char_pol f (S (power t)) tl].
 Proof. reflexivity. Qed.
 
+(*
+Lemma xxx : ∀ pol j h k αk pts,
+  (j < h ∧ h < k)%nat
+  → List.nth (h - S j)
+      (make_char_pol f (S j)
+         (List.map (term_of_point f pol) (pts ++ [(Qnat k, αk)])))
+      .0 f%K = valuation_coeff f (List.nth h (al pol) .0 f%ps).
+Proof.
+intros pol j h k αk pts (Hjh, Hhk).
+revert j h k αk Hjh Hhk.
+induction pts as [| pt]; intros; simpl.
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id; simpl.
+ rewrite list_nth_pad_lt; [ idtac | omega ].
+
+bbb.
+
+intros pol j h k αk pts, 
+
+revert h j lpt Hhl.
+induction pts as [| pt]; intros.
+ simpl.
+ destruct (eq_nat_dec h (nofq (fst lpt))) as [H₁| H₁].
+  rewrite <- H₁.
+  remember (list_pad (h - S j)) as g.
+  replace (h - S j)%nat with (0 + (h - S j))%nat by reflexivity.
+  subst g.
+  rewrite list_nth_plus_pad; reflexivity.
+
+  apply le_neq_lt in H₁; [ idtac | assumption ].
+bbb.
+  destruct (eq_nat_dec h (S j)) as [H₂| H₂].
+   Focus 2.
+   rewrite list_nth_pad_lt.
+bbb.
+
 Lemma yyy : ∀ pol ns j αj k αk,
   ns ∈ newton_segments f pol
   → ini_pt ns = (Qnat j, αj)
@@ -2507,7 +2543,7 @@ Lemma yyy : ∀ pol ns j αj k αk,
           valuation_coeff f (List.nth h (al pol) .0 f%ps).
 Proof.
 intros pol ns j αj k αk Hns Hj Hk h (Hjh, Hhk); simpl.
-rewrite Hj, Hk; simpl.
+rewrite Hj; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id.
 rewrite Nat.sub_diag; simpl.
@@ -2555,7 +2591,8 @@ assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
   rewrite Nat.add_0_l.
   rewrite fold_char_pol with (αj := αj).
   rewrite Hj.
-  erewrite yyy; [ idtac | eassumption | symmetry; eassumption ].
 bbb.
+  erewrite yyy; [ idtac | eassumption | symmetry; eassumption ].
+  rewrite <- Hk.
 
 End theorems.
