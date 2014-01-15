@@ -2495,72 +2495,34 @@ Lemma make_char_pol_cons : ∀ pow t tl,
     [coeff t … make_char_pol f (S (power t)) tl].
 Proof. reflexivity. Qed.
 
-(*
-Lemma xxx : ∀ pol j h k αk pts,
-  (j < h ∧ h < k)%nat
-  → List.nth (h - S j)
-      (make_char_pol f (S j)
-         (List.map (term_of_point f pol) (pts ++ [(Qnat k, αk)])))
-      .0 f%K = valuation_coeff f (List.nth h (al pol) .0 f%ps).
-Proof.
-intros pol j h k αk pts (Hjh, Hhk).
-revert j h k αk Hjh Hhk.
-induction pts as [| pt]; intros; simpl.
- unfold nofq, Qnat; simpl.
- rewrite Nat2Z.id; simpl.
- rewrite list_nth_pad_lt; [ idtac | omega ].
-
-bbb.
-
-intros pol j h k αk pts, 
-
-revert h j lpt Hhl.
-induction pts as [| pt]; intros.
- simpl.
- destruct (eq_nat_dec h (nofq (fst lpt))) as [H₁| H₁].
-  rewrite <- H₁.
-  remember (list_pad (h - S j)) as g.
-  replace (h - S j)%nat with (0 + (h - S j))%nat by reflexivity.
-  subst g.
-  rewrite list_nth_plus_pad; reflexivity.
-
-  apply le_neq_lt in H₁; [ idtac | assumption ].
-bbb.
-  destruct (eq_nat_dec h (S j)) as [H₂| H₂].
-   Focus 2.
-   rewrite list_nth_pad_lt.
-bbb.
-
-Lemma yyy : ∀ pol ns j αj k αk,
+Lemma yyy : ∀ pol ns h αh hps,
   ns ∈ newton_segments f pol
-  → ini_pt ns = (Qnat j, αj)
-    → fin_pt ns = (Qnat k, αk)
-      → ∀ h, (j ≤ h ∧ h ≤ k)%nat
-        → List.nth (h - j)
-            (make_char_pol f j
-               (List.map (term_of_point f pol)
-                  [ini_pt ns … oth_pts ns ++ [fin_pt ns]]))
-            .0 f%K =
-          valuation_coeff f (List.nth h (al pol) .0 f%ps).
+  → (Qnat h, αh) ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → hps = List.nth h (al pol) .0 f%ps
+      → (valuation_coeff f hps .≠ f .0 f)%K.
 Proof.
-intros pol ns j αj k αk Hns Hj Hk h (Hjh, Hhk); simpl.
-rewrite Hj; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id.
-rewrite Nat.sub_diag; simpl.
-remember (h - j)%nat as hj eqn:Hhj .
-symmetry in Hhj.
-destruct hj.
- apply Nat.sub_0_le in Hhj.
- apply Nat.le_antisymm in Hhj; [ idtac | assumption ].
- subst j; reflexivity.
+intros pol ns h αh hps Hns Hh Hhps.
+destruct Hh as [Hh| Hh].
+ unfold valuation_coeff.
+ remember (null_coeff_range_length f (ps_terms hps) 0) as n eqn:Hn .
+ symmetry in Hn.
+ destruct n as [n| ].
+  apply null_coeff_range_length_iff in Hn.
+  destruct Hn; assumption.
 
- rewrite <- Nat.sub_succ in Hhj.
- rewrite Nat.sub_succ_l in Hhj; [ idtac | omega ].
- apply Nat.succ_inj in Hhj.
- subst hj.
+  remember (points_of_ps_polynom f pol) as pts eqn:Hpts .
+  remember Hpts as H; clear HeqH.
+  eapply in_pts_in_pol in H; try eassumption.
+   destruct H as (Hhp, Hhhv).
+   unfold valuation in Hhhv.
+   rewrite Hn in Hhhv; discriminate Hhhv.
+
+   unfold newton_segments in Hns.
+   rewrite <- Hpts in Hns.
+   apply ini_fin_ns_in_init_pts in Hns.
+   rewrite Hh in Hns.
+   destruct Hns; eassumption.
 bbb.
-*)
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
