@@ -2488,6 +2488,12 @@ rewrite Nat.sub_diag; simpl.
 reflexivity.
 Qed.
 
+Lemma make_char_pol_cons : ∀ pow t tl,
+  make_char_pol f pow [t … tl] =
+  list_pad (power t - pow) .0 f%K
+    [coeff t … make_char_pol f (S (power t)) tl].
+Proof. reflexivity. Qed.
+
 Lemma yyy : ∀ pol ns j αj k αk,
   ns ∈ newton_segments f pol
   → ini_pt ns = (Qnat j, αj)
@@ -2511,6 +2517,11 @@ destruct hj.
  apply Nat.sub_0_le in Hhj.
  apply Nat.le_antisymm in Hhj; [ idtac | assumption ].
  subst j; reflexivity.
+
+ rewrite <- Nat.sub_succ in Hhj.
+ rewrite Nat.sub_succ_l in Hhj; [ idtac | omega ].
+ apply Nat.succ_inj in Hhj.
+ subst hj.
 bbb.
 *)
 
