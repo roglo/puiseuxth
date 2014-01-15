@@ -2571,6 +2571,11 @@ remember (al (Φ pol ns q)) as l.
 apply imp_or_tauto.
  intros H.
  rewrite list_nth_last; [ idtac | assumption ].
+ subst l; simpl.
+ rewrite Nat.sub_diag; simpl.
+ rewrite <- Hj; simpl.
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id, skipn_pad.
 bbb.
 
 intros pol ns j αj k αk q Hns Hj Hk Hq.
