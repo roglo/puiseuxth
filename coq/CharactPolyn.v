@@ -14,6 +14,7 @@ Require Import PolyConvexHull.
 Require Import Field.
 Require Import Fpolynomial.
 Require Import Puiseux_base.
+Require Import Power_series.
 Require Import Puiseux_series.
 Require Import Slope_base.
 
@@ -2568,6 +2569,49 @@ Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
       → q = Pos.to_nat (q_of_ns pol ns)
         → has_degree (Φ pol ns q) ((k - j) / q).
 Proof.
+intros pol ns j αj k αk q Hns Hj Hk Hq.
+unfold has_degree.
+unfold pseudo_degree; simpl.
+rewrite Nat.sub_diag; simpl.
+rewrite <- Hj; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id, skipn_pad.
+rewrite list_length_shrink; simpl.
+ rewrite divmod_div.
+ rewrite Nat.sub_0_r.
+ rewrite List.map_app; simpl.
+ rewrite length_char_pol.
+  rewrite <- Hk; simpl.
+  unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id.
+  rewrite divmod_div.
+  rewrite <- Nat.sub_succ_l; [ rewrite Nat_sub_succ_1 | idtac ].
+   split; [ reflexivity | idtac ].
+   remember ((k - j) / q)%nat as kjq eqn:Hkjq .
+   symmetry in Hkjq.
+   destruct kjq; simpl.
+    remember (List.nth j (al pol) .0 f%ps) as jps eqn:Hjps .
+    unfold valuation_coeff.
+    remember (null_coeff_range_length f (ps_terms jps) 0) as v eqn:Hv .
+    symmetry in Hv.
+    destruct v as [v| ].
+     apply null_coeff_range_length_iff in Hv.
+     destruct Hv; assumption.
+
+     remember (points_of_ps_polynom f pol) as pts eqn:Hpts .
+     remember Hpts as H; clear HeqH.
+     eapply in_pts_in_pol in H; try eassumption.
+      destruct H as (Hjp, Hhjv).
+      unfold valuation in Hhjv.
+      rewrite Hv in Hhjv; discriminate Hhjv.
+
+      unfold newton_segments in Hns.
+      rewrite <- Hpts in Hns.
+      apply ini_fin_ns_in_init_pts in Hns.
+      rewrite <- Hj in Hns.
+      destruct Hns; eassumption.
+
+bbb.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
