@@ -1754,7 +1754,7 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply le_neq_lt; assumption.
 Qed.
 
-(* faux, mais voir si c'est rattrappable...
+(* faux, mais voir si c'est rattrapable...
 Lemma yyy : ∀ pol tl i j,
   Sorted fst_lt tl
   → Qnat (j + i) ∈ (List.map (λ pt, fst pt) tl)
