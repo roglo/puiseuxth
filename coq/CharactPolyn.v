@@ -2573,7 +2573,6 @@ unfold pseudo_degree.
 remember (al (Φ pol ns q)) as l.
 apply imp_or_tauto.
  intros H.
- rewrite list_nth_last; [ idtac | assumption ].
  subst l; simpl.
  rewrite Nat.sub_diag; simpl.
  rewrite <- Hj; simpl.
@@ -2581,7 +2580,15 @@ apply imp_or_tauto.
  rewrite Nat2Z.id, skipn_pad.
  rewrite fold_char_pol with (αj := αj).
  rewrite Hj.
-
+ unfold list_shrink.
+ rewrite list_nth_shrink.
+ rewrite Nat.add_0_l.
+ rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
+ rewrite Nat_sub_succ_1.
+ rewrite Nat.mul_comm.
+ rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
+  rewrite Nat.mul_comm.
+  rewrite Nat.div_mul; [ idtac | subst q; auto ].
 bbb.
 
 intros pol ns j αj k αk q Hns Hj Hk Hq.
