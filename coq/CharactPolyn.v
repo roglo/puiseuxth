@@ -2589,57 +2589,16 @@ apply imp_or_tauto.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
   rewrite Nat.mul_comm.
   rewrite Nat.div_mul; [ idtac | subst q; auto ].
+  remember make_char_pol as g; simpl; subst g.
+  remember (List.nth (k - j)) as g.
+  replace j with (0 + j)%nat by reflexivity; subst g.
+  rewrite nth_minus_char_pol_plus_cons.
+   simpl.
+   rewrite <- Hj; simpl.
+   rewrite Nat.sub_0_r.
+   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
+   rewrite fold_char_pol with (αj := αj).
+   rewrite Hj.
 bbb.
-
-intros pol ns j αj k αk q Hns Hj Hk Hq.
-unfold has_degree.
-unfold pseudo_degree; simpl.
-bbb.
-rewrite Nat.sub_diag; simpl.
-rewrite <- Hj; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id, skipn_pad.
-rewrite list_length_shrink; simpl.
- rewrite Nat.sub_0_r.
- rewrite List.map_app; simpl.
- rewrite length_char_pol.
-  rewrite <- Hk; simpl.
-  unfold nofq, Qnat; simpl.
-  rewrite Nat2Z.id.
-  rewrite divmod_div.
-  rewrite <- Nat.sub_succ_l; [ rewrite Nat_sub_succ_1 | idtac ].
-   split; [ reflexivity | idtac ].
-   remember ((k - j) / q)%nat as kjq eqn:Hkjq .
-   symmetry in Hkjq.
-   destruct kjq; simpl.
-    eapply val_coeff_non_zero_in_newt_segm; eauto .
-    left; symmetry; eauto .
-bbb.
-intros pol ns j αj k αk q Hns Hj Hk Hq.
-assert (pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat) as P.
- eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
-
- split; [ assumption | simpl ].
- unfold pseudo_degree in P; simpl in P.
- rewrite Nat.sub_diag; simpl.
- rewrite Nat.sub_diag in P; simpl in P.
- rewrite <- Hj; simpl.
- rewrite <- Hj in P; simpl in P.
- unfold nofq, Qnat; simpl.
- unfold nofq, Qnat in P; simpl in P.
- rewrite Nat2Z.id, skipn_pad.
- rewrite Nat2Z.id, skipn_pad in P.
- rewrite list_nth_shrink.
- rewrite <- Nat.sub_succ_l; [ idtac | subst q; apply Pos2Nat.is_pos ].
- rewrite Nat_sub_succ_1.
- rewrite Nat.mul_comm.
- rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
-  rewrite Nat.mul_comm, Nat.div_mul; [ idtac | subst q; auto ].
-  rewrite Nat.add_0_l.
-  rewrite fold_char_pol with (αj := αj).
-  rewrite Hj.
-bbb.
-  erewrite yyy; [ idtac | eassumption | symmetry; eassumption ].
-  rewrite <- Hk.
 
 End theorems.
