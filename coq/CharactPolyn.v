@@ -1754,18 +1754,6 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply le_neq_lt; assumption.
 Qed.
 
-(* faux, mais voir si c'est rattrapable...
-Lemma yyy : ∀ pol tl i j,
-  Sorted fst_lt tl
-  → Qnat (j + i) ∈ (List.map (λ pt, fst pt) tl)
-    → List.nth i (make_char_pol f j (List.map (term_of_point f pol) tl))
-        .0 f%K =
-      coeff (term_of_point f pol (List.nth (j + i) tl (0, 0)%Q)).
-Proof.
-intros pol tl i j Hsort Hin.
-bbb.
-*)
-
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₂
@@ -2571,6 +2559,33 @@ induction l as [| x]; intros.
 
    rewrite H; reflexivity.
 Qed.
+
+Lemma yyy : ∀ pol j αj k αk tl,
+  (Qnat j, αj) = List.hd (0, 0)%Q tl
+  → (Qnat k, αk) = List.last tl (0, 0)%Q
+    → (j < k)%nat
+      → List.nth (k - j)
+          (make_char_pol f j (List.map (term_of_point f pol) tl)) .0 f%K =
+        coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
+Proof.
+intros pol j αj k αk tl Hj Hk Hjk.
+revert j αj k αk Hj Hk Hjk.
+induction tl as [| t]; intros.
+ simpl.
+ simpl in Hj, Hk.
+ injection Hj; clear Hj; intros; subst αj.
+ injection Hk; clear Hk; intros; subst αk.
+ rewrite <- Nat2Z.inj_0 in H0.
+ rewrite <- Nat2Z.inj_0 in H1.
+ apply Nat2Z.inj in H0.
+ apply Nat2Z.inj in H1.
+ subst j k.
+ exfalso; revert Hjk; apply Nat.lt_irrefl.
+
+ remember coeff as g; simpl; subst g.
+Abort. (*
+bbb.
+*)
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
