@@ -2122,18 +2122,20 @@ destruct i.
   assumption.
 Qed.
 
-Fixpoint list_shrink cnt k₁ (l : list α) :=
+Fixpoint list_shrink_aux cnt k₁ (l : list α) :=
   match l with
   | [] => []
   | [x₁ … l₁] =>
       match cnt with
-      | O => [x₁ … list_shrink k₁ k₁ l₁]
-      | S n => list_shrink n k₁ l₁
+      | O => [x₁ … list_shrink_aux k₁ k₁ l₁]
+      | S n => list_shrink_aux n k₁ l₁
       end
   end.
 
+Definition list_shrink k (l : list α) := list_shrink_aux 0 (k - 1) l.
+
 Definition poly_shrink k (p : polynomial α) :=
-  POL (list_shrink 0 (k - 1) (al p))%pol.
+  POL (list_shrink k (al p))%pol.
 
 Definition poly_left_shift n (p : polynomial α) :=
   POL (List.skipn n (al p))%pol.
@@ -2156,7 +2158,7 @@ induction n; [ reflexivity | apply IHn ].
 Qed.
 
 Lemma list_shrink_skipn : ∀ cnt k l,
-  list_shrink cnt k l = list_shrink 0 k (List.skipn cnt l).
+  list_shrink_aux cnt k l = list_shrink_aux 0 k (List.skipn cnt l).
 Proof.
 intros cnt k l.
 revert cnt.
@@ -2169,7 +2171,7 @@ Qed.
 
 Lemma length_shrink_skipn_lt : ∀ k l m,
   (length l < S k)%nat
-  → length (list_shrink 0 m (List.skipn k l)) = 0%nat.
+  → length (list_shrink_aux 0 m (List.skipn k l)) = 0%nat.
 Proof.
 intros k l m Hk.
 revert k m Hk.
@@ -2184,7 +2186,7 @@ Qed.
 
 Lemma length_shrink_skipn_eq : ∀ k l m,
   length l = S k
-  → length (list_shrink 0 m (List.skipn k l)) = 1%nat.
+  → length (list_shrink_aux 0 m (List.skipn k l)) = 1%nat.
 Proof.
 intros k l m Hk.
 revert k m Hk.
@@ -2199,7 +2201,7 @@ Qed.
 
 Lemma list_length_shrink : ∀ cnt k l,
   (S cnt < length l)%nat
-  → List.length (list_shrink cnt k l) = S ((List.length l - S cnt) / S k).
+  → List.length (list_shrink_aux cnt k l) = S ((List.length l - S cnt) / S k).
 Proof.
 intros cnt k l Hcl.
 revert cnt k Hcl.
@@ -2385,6 +2387,7 @@ rewrite Nat.sub_diag; simpl.
 rewrite <- Hj; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id, skipn_pad.
+unfold list_shrink.
 rewrite list_length_shrink; simpl.
  rewrite divmod_div.
  rewrite Nat.sub_0_r.
@@ -2465,7 +2468,7 @@ Definition has_degree pol d :=
   pseudo_degree pol = d ∧ (List.nth d (al pol) .0 f .≠ f .0 f)%K.
 
 Lemma list_nth_shrink : ∀ n k l d cnt,
-  List.nth n (list_shrink cnt k l) d = List.nth (cnt + n * S k) l d.
+  List.nth n (list_shrink_aux cnt k l) d = List.nth (cnt + n * S k) l d.
 Proof.
 intros n k l d cnt.
 revert n k cnt.
