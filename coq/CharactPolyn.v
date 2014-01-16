@@ -2589,6 +2589,7 @@ apply imp_or_tauto.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
   rewrite Nat.mul_comm.
   rewrite Nat.div_mul; [ idtac | subst q; auto ].
+bbb.
   remember make_char_pol as g; simpl; subst g.
   remember (List.nth (k - j)) as g.
   replace j with (0 + j)%nat by reflexivity; subst g.
