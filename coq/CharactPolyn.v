@@ -1754,6 +1754,18 @@ destruct (lt_dec i s) as [Hlt| Hge].
    apply le_neq_lt; assumption.
 Qed.
 
+(* faux, mais voir si c'est rattrappable...
+Lemma yyy : ∀ pol tl i j,
+  Sorted fst_lt tl
+  → Qnat (j + i) ∈ (List.map (λ pt, fst pt) tl)
+    → List.nth i (make_char_pol f j (List.map (term_of_point f pol) tl))
+        .0 f%K =
+      coeff (term_of_point f pol (List.nth (j + i) tl (0, 0)%Q)).
+Proof.
+intros pol tl i j Hsort Hin.
+bbb.
+*)
+
 Lemma minimise_slope_lt_seg : ∀ pt₁ pt₂ pt₃ pts ms₂,
   Sorted fst_lt [pt₁; pt₂; pt₃ … pts]
   → minimise_slope pt₁ pt₃ pts = ms₂
