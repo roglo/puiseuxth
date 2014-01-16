@@ -2565,12 +2565,12 @@ Lemma yyy : ∀ pol j αj k αk tl,
   → (Qnat k, αk) = List.last tl (0, 0)%Q
     → (j < k)%nat
       → List.nth (k - j)
-          (make_char_pol f j (List.map (term_of_point f pol) tl)) .0 f%K =
+          (make_char_pol f j
+             (List.map (term_of_point f pol) tl)) .0 f%K =
         coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
 Proof.
 intros pol j αj k αk tl Hj Hk Hjk.
-revert j αj k αk Hj Hk Hjk.
-induction tl as [| t]; intros.
+destruct tl as [| t₁].
  simpl.
  simpl in Hj, Hk.
  injection Hj; clear Hj; intros; subst αj.
@@ -2582,8 +2582,53 @@ induction tl as [| t]; intros.
  subst j k.
  exfalso; revert Hjk; apply Nat.lt_irrefl.
 
+ simpl in Hj.
+ rewrite <- Hk.
  remember coeff as g; simpl; subst g.
-Abort. (*
+ remember coeff as g.
+ rewrite <- Hj; simpl.
+ unfold nofq, Qnat; simpl; rewrite Nat2Z.id; simpl.
+ rewrite Nat.sub_diag.
+ unfold list_pad.
+ subst g.
+ destruct tl as [| t₂].
+  simpl in Hk.
+  subst t₁.
+  injection Hk; clear Hk; intros.
+  apply Nat2Z.inj in H0.
+  subst k.
+  exfalso; revert Hjk; apply Nat.lt_irrefl.
+
+  simpl.
+  remember (k - j)%nat as kj eqn:Hkj .
+  symmetry in Hkj.
+  destruct kj; [ exfalso; omega | idtac ].
+  destruct k; [ discriminate Hkj | idtac ].
+  rewrite Nat.sub_succ_l in Hkj; [ idtac | omega ].
+  apply eq_add_S in Hkj.
+  subst kj.
+  unfold nofq, Qnat.
+  remember (S k) as k₁; simpl; subst k₁.
+  rewrite Nat2Z.id.
+  destruct tl as [| t₃].
+   simpl in Hk.
+   subst t₂.
+   remember (S k) as k₁; simpl; subst k₁.
+   rewrite Nat2Z.id.
+   rewrite Nat.sub_succ.
+   remember (list_pad (k - j)) as g.
+   replace (k - j)%nat with (0 + (k - j))%nat by reflexivity; subst g.
+   rewrite list_nth_plus_pad.
+   reflexivity.
+
+   destruct tl as [| t₄].
+    simpl in Hk.
+    subst t₃.
+    remember (S k) as k₁; simpl; subst k₁.
+    unfold nofq, Qnat.
+    remember (S k) as k₁; simpl; subst k₁.
+    rewrite Nat2Z.id.
+    rewrite Nat.sub_succ.
 bbb.
 *)
 
