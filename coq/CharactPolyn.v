@@ -2621,6 +2621,7 @@ destruct tl as [| t₁].
    rewrite list_nth_plus_pad.
    reflexivity.
 
+   remember (Z.to_nat (Qnum (fst t₂))) as h₁ eqn:Hh₁ .
    destruct tl as [| t₄].
     simpl in Hk.
     subst t₃.
