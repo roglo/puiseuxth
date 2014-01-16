@@ -2576,6 +2576,9 @@ apply imp_or_tauto.
  rewrite <- Hj; simpl.
  unfold nofq, Qnat; simpl.
  rewrite Nat2Z.id, skipn_pad.
+ rewrite fold_char_pol with (αj := αj).
+ rewrite Hj.
+
 bbb.
 
 intros pol ns j αj k αk q Hns Hj Hk Hq.
