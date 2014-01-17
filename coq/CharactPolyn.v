@@ -2572,7 +2572,7 @@ Lemma yyy : ∀ pol j αj k αk tl,
   (Qnat j, αj) = List.hd (0, 0)%Q tl
   → (Qnat k, αk) = List.last tl (0, 0)%Q
     → (j < k)%nat
-      → Sorted fst_lt tl
+      → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) tl
         → List.nth (k - j)
             (make_char_pol f j
                (List.map (term_of_point f pol) tl)) .0 f%K =
@@ -2626,13 +2626,27 @@ destruct tl as [| t₁].
       rewrite Nat.add_succ_r.
       rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
       Focus 2.
+      remember (h₁ - S j)%nat as x.
+      rewrite <- Nat.sub_succ; subst x.
+      apply Nat.sub_le_mono_r.
       apply Sorted_inv in Hsort.
-      destruct Hsort as (_, H).
-      apply HdRel_inv in H.
-      unfold fst_lt in H.
-      subst t₁ h₁; simpl in H; simpl.
+      destruct Hsort as (Hsort, H₁).
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, H₂).
+      apply HdRel_inv in H₁.
+      apply HdRel_inv in H₂.
+      remember (S k) as x; simpl in H₂; subst x.
+      subst h₁.
       unfold nofq; simpl.
-      unfold Qnat in H; simpl in H.
+      apply Nat.lt_le_incl.
+      apply Z2Nat.inj_lt in H₂.
+       rewrite Nat2Z.id in H₂; assumption.
+
+       subst t₁; simpl in H₁.
+       apply Z.lt_le_incl.
+       eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
+
+       apply Nat2Z.is_nonneg.
 bbb.
 
    remember (Z.to_nat (Qnum (fst t₂))) as h₁ eqn:Hh₁ .
