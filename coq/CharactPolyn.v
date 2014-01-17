@@ -2626,6 +2626,22 @@ destruct tl as [| t₁].
       rewrite Nat.add_succ_r.
       rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
       Focus 2.
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, H).
+      apply HdRel_inv in H.
+      unfold fst_lt in H.
+      subst t₁ h₁; simpl in H; simpl.
+      unfold nofq; simpl.
+      unfold Qnat in H; simpl in H.
+      apply Z2Nat.inj_lt in H.
+       rewrite Nat2Z.id in H; assumption.
+
+       apply Nat2Z.is_nonneg.
+
+       apply Z.lt_le_incl.
+       eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
+
+      Focus 2.
       remember (h₁ - S j)%nat as x.
       rewrite <- Nat.sub_succ; subst x.
       apply Nat.sub_le_mono_r.
@@ -2647,7 +2663,20 @@ destruct tl as [| t₁].
        eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 
        apply Nat2Z.is_nonneg.
+
+     rewrite Nat.sub_succ_l.
+      simpl.
+      rewrite list_nth_pad_sub; [ idtac | reflexivity ].
+      rewrite Nat.sub_diag; reflexivity.
 bbb.
+  Hj : (Qnat j, αj) = t₁
+  h₁ : nat
+  Hh₁ : h₁ = nofq (fst t₂)
+  Hjk : (j < S k)%nat
+  Hsort : Sorted (λ pt₁ pt₂ : Q * Q, Qnum (fst pt₁) < Qnum (fst pt₂))
+            [t₁; t₂; (Qnat (S k), αk) … []]
+  ============================
+   h₁ ≤ k
 
    remember (Z.to_nat (Qnum (fst t₂))) as h₁ eqn:Hh₁ .
    destruct tl as [| t₄].
