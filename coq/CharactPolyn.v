@@ -1575,6 +1575,9 @@ Definition is_polynomial_in_x_power_q pol q :=
   → c = List.nth i (al pol) .0 f%K
     → (c .= f .0 f)%K.
 
+Lemma list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
+Proof. reflexivity. Qed.
+
 Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
   (i < s)%nat
   → List.nth i (list_pad s v cl) d = v.
@@ -2569,14 +2572,14 @@ Lemma yyy : ∀ pol j αj k αk tl,
   (Qnat j, αj) = List.hd (0, 0)%Q tl
   → (Qnat k, αk) = List.last tl (0, 0)%Q
     → (j < k)%nat
-      → List.nth (k - j)
-          (make_char_pol f j
-             (List.map (term_of_point f pol) tl)) .0 f%K =
-        coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
+      → Sorted fst_lt tl
+        → List.nth (k - j)
+            (make_char_pol f j
+               (List.map (term_of_point f pol) tl)) .0 f%K =
+          coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
 Proof.
-intros pol j αj k αk tl Hj Hk Hjk.
+intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
 destruct tl as [| t₁].
- simpl.
  simpl in Hj, Hk.
  injection Hj; clear Hj; intros; subst αj.
  injection Hk; clear Hk; intros; subst αk.
@@ -2587,41 +2590,50 @@ destruct tl as [| t₁].
  subst j k.
  exfalso; revert Hjk; apply Nat.lt_irrefl.
 
- simpl in Hj.
- rewrite <- Hk.
- remember coeff as g; simpl; subst g.
- remember coeff as g.
- rewrite <- Hj; simpl.
- unfold nofq, Qnat; simpl; rewrite Nat2Z.id; simpl.
- rewrite Nat.sub_diag.
- unfold list_pad.
- subst g.
+ simpl in Hj; rewrite <- Hk; simpl.
+ unfold nofq, Qnat; rewrite <- Hj; simpl.
+ do 2 rewrite Nat2Z.id.
+ rewrite Nat.sub_diag, list_pad_0.
  destruct tl as [| t₂].
-  simpl in Hk.
-  subst t₁.
+  simpl in Hk; subst t₁.
   injection Hk; clear Hk; intros.
-  apply Nat2Z.inj in H0.
-  subst k.
+  apply Nat2Z.inj in H0; subst k.
   exfalso; revert Hjk; apply Nat.lt_irrefl.
 
   simpl.
   remember (k - j)%nat as kj eqn:Hkj .
   symmetry in Hkj.
-  destruct kj; [ exfalso; omega | idtac ].
+  destruct kj; [ exfalso; fast_omega Hjk Hkj | idtac ].
   destruct k; [ discriminate Hkj | idtac ].
-  rewrite Nat.sub_succ_l in Hkj; [ idtac | omega ].
-  apply eq_add_S in Hkj.
-  subst kj.
-  unfold nofq, Qnat.
-  remember (S k) as k₁; simpl; subst k₁.
-  rewrite Nat2Z.id.
+  rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
+  apply eq_add_S in Hkj; subst kj.
   destruct tl as [| t₃].
-   simpl in Hk.
-   subst t₂.
-   remember (S k) as k₁; simpl; subst k₁.
-   rewrite Nat2Z.id.
-   rewrite Nat.sub_succ.
+   simpl in Hk; subst t₂; simpl.
+   unfold nofq, Qnat.
+   remember (S k) as x; simpl; subst x.
+   rewrite Nat2Z.id, Nat.sub_succ.
    rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
+
+   simpl.
+   remember (nofq (fst t₂)) as h₁ eqn:Hh₁ .
+   destruct tl as [| t₄].
+    simpl in Hk; subst t₃; simpl.
+    unfold nofq, Qnat.
+    remember (S k) as x; simpl; subst x.
+    rewrite Nat2Z.id, Nat.sub_succ.
+    rewrite list_nth_pad_sub.
+     rewrite Nat_sub_sub_distr.
+      rewrite Nat.add_succ_r.
+      rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
+      Focus 2.
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, H).
+      apply HdRel_inv in H.
+      unfold fst_lt in H.
+      subst t₁ h₁; simpl in H; simpl.
+      unfold nofq; simpl.
+      unfold Qnat in H; simpl in H.
+bbb.
 
    remember (Z.to_nat (Qnum (fst t₂))) as h₁ eqn:Hh₁ .
    destruct tl as [| t₄].
