@@ -1589,7 +1589,7 @@ induction s; intros.
  apply IHs, lt_S_n; assumption.
 Qed.
 
-Lemma list_nth_plus_pad : ∀ i s (v : α) cl d,
+Lemma list_nth_add_pad : ∀ i s (v : α) cl d,
   List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
 Proof.
 intros i s v cl d.
@@ -1597,6 +1597,19 @@ induction s; intros.
  rewrite plus_0_r; reflexivity.
 
  rewrite <- plus_n_Sm; assumption.
+Qed.
+
+Lemma list_nth_pad_sub : ∀ i s (v : α) cl d,
+  (s ≤ i)%nat
+  → List.nth i (list_pad s v cl) d = List.nth (i - s) cl d.
+Proof.
+intros i s v cl d Hsi.
+revert i Hsi.
+induction s; intros; [ rewrite Nat.sub_0_r; reflexivity | simpl ].
+destruct i; [ exfalso; revert Hsi; apply Nat.nle_succ_0 | idtac ].
+apply le_S_n in Hsi.
+rewrite Nat.sub_succ.
+apply IHs; assumption.
 Qed.
 
 Open Scope nat_scope.
@@ -1667,24 +1680,18 @@ destruct (lt_dec i s) as [Hlt| Hge].
  rewrite list_nth_pad_lt; [ reflexivity | assumption ].
 
  apply not_gt in Hge.
- remember Hge as H; clear HeqH.
- apply le_plus_minus in H.
- rewrite H, plus_comm, list_nth_plus_pad.
+ rewrite list_nth_pad_sub; [ idtac | assumption ].
  remember (i - s) as is.
  destruct is.
   simpl.
-  rewrite plus_0_r in H.
-  subst i.
-  simpl in Heqs.
+  symmetry in Heqis.
+  apply Nat.sub_0_le in Heqis.
+  apply Nat.le_antisymm in Hge; [ subst i | assumption ].
   rewrite Heqs in Himq.
   rewrite <- plus_Sn_m in Himq.
-  rewrite Nat.mod_add in Himq.
-   rewrite Nat.mod_same in Himq.
-    negation Himq.
-
-    intros H; discriminate H.
-
-   intros H; discriminate H.
+  rewrite Nat.mod_add in Himq; [ idtac | intros H; discriminate H ].
+  rewrite Nat.mod_same in Himq; [ idtac | intros H; discriminate H ].
+  exfalso; apply Himq; reflexivity.
 
   simpl.
   rewrite <- Nat.sub_succ in Heqis.
@@ -1720,13 +1727,11 @@ destruct (lt_dec i s) as [Hlt| Hge].
      rewrite Heqs in Heqis.
      rewrite plus_comm, mult_comm, plus_n_Sm in Heqis.
      rewrite <- mult_succ_r, mult_comm in Heqis.
-     apply eq_S in H.
-     rewrite Heqs in H.
-     rewrite plus_comm, mult_comm, plus_n_Sm in H.
-     rewrite <- plus_Sn_m in H.
-     remember (S q + S q * sh) as x.
-     rewrite plus_comm, <- mult_succ_r, mult_comm in Heqx.
-     subst x; omega.
+     simpl in Hge; simpl.
+     rewrite <- Heqs in Hge |- *.
+     apply le_S_n in Hge.
+     apply Nat.neq_sym in Hne.
+     apply le_neq_lt; assumption.
 
      unfold term_of_point; remember (S sh) as x; simpl; subst x.
      rewrite <- Hhq.
@@ -2616,10 +2621,7 @@ destruct tl as [| t₁].
    remember (S k) as k₁; simpl; subst k₁.
    rewrite Nat2Z.id.
    rewrite Nat.sub_succ.
-   remember (list_pad (k - j)) as g.
-   replace (k - j)%nat with (0 + (k - j))%nat by reflexivity; subst g.
-   rewrite list_nth_plus_pad.
-   reflexivity.
+   rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
 
    remember (Z.to_nat (Qnum (fst t₂))) as h₁ eqn:Hh₁ .
    destruct tl as [| t₄].
@@ -2628,8 +2630,8 @@ destruct tl as [| t₁].
     remember (S k) as k₁; simpl; subst k₁.
     unfold nofq, Qnat.
     remember (S k) as k₁; simpl; subst k₁.
-    rewrite Nat2Z.id.
-    rewrite Nat.sub_succ.
+    rewrite Nat2Z.id, Nat.sub_succ.
+    rewrite list_nth_pad_sub.
 bbb.
 *)
 
