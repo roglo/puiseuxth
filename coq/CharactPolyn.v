@@ -2723,8 +2723,8 @@ destruct tl as [| t₁].
            eapply Sorted_minus_3rd; [ idtac | eassumption ].
            intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 
-          eapply truc; try eassumption.
 bbb.
+          eapply truc; try eassumption.
 *)
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
