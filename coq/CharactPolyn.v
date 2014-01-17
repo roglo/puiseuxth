@@ -2625,6 +2625,15 @@ destruct tl as [| t₁].
      rewrite Nat_sub_sub_distr.
       rewrite Nat.add_succ_r.
       rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
+      rewrite Nat.sub_succ_l.
+       simpl.
+       rewrite list_nth_pad_sub; [ idtac | reflexivity ].
+       rewrite Nat.sub_diag; reflexivity.
+
+       3: remember (h₁ - S j)%nat as x.
+       3: rewrite <- Nat.sub_succ; subst x.
+       3: apply Nat.sub_le_mono_r.
+bbb.
       Focus 2.
       apply Sorted_inv in Hsort.
       destruct Hsort as (_, H).
@@ -2642,9 +2651,6 @@ destruct tl as [| t₁].
        eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 
       Focus 2.
-      remember (h₁ - S j)%nat as x.
-      rewrite <- Nat.sub_succ; subst x.
-      apply Nat.sub_le_mono_r.
       apply Sorted_inv in Hsort.
       destruct Hsort as (Hsort, H₁).
       apply Sorted_inv in Hsort.
@@ -2663,11 +2669,6 @@ destruct tl as [| t₁].
        eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 
        apply Nat2Z.is_nonneg.
-
-     rewrite Nat.sub_succ_l.
-      simpl.
-      rewrite list_nth_pad_sub; [ idtac | reflexivity ].
-      rewrite Nat.sub_diag; reflexivity.
 bbb.
   Hj : (Qnat j, αj) = t₁
   h₁ : nat
