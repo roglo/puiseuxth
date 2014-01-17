@@ -2568,13 +2568,13 @@ induction l as [| x]; intros.
    rewrite H; reflexivity.
 Qed.
 
-Lemma truc : ∀ j αj h₁ (t₁ t₂ t₃ : Q * Q),
+Lemma truc : ∀ j αj h₁ (t₁ t₂ t₃ : Q * Q) tl,
   (Qnat j, αj) = t₁
-  → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂))  [t₁; t₂; t₃ … []]
+  → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂))  [t₁; t₂; t₃ … tl]
     → h₁ = nofq (fst t₂)
       → S j ≤ h₁.
 Proof.
-intros j αj h₁ t₁ t₂ t₃ Hj Hsort Hh₁.
+intros j αj h₁ t₁ t₂ t₃ tl Hj Hsort Hh₁.
 apply Sorted_inv in Hsort.
 destruct Hsort as (_, H).
 apply HdRel_inv in H.
@@ -2590,15 +2590,15 @@ apply Z2Nat.inj_lt in H.
  eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 Qed.
 
-Lemma machin : ∀ j k αj αk h₁ (t₁ t₂ t₃ : Q * Q),
+Lemma machin : ∀ j k αj αk h₁ (t₁ t₂ t₃ : Q * Q) tl,
   (Qnat j, αj) = t₁
   → (Qnat (S k), αk) = t₃
     → (j < S k)%nat
-      → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … []]
+      → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
         → h₁ = nofq (fst t₂)
           → h₁ ≤ k.
 Proof.
-intros j k αj αk h₁ t₁ t₂ t₃ Hj Hk Hjk Hsort Hh₁.
+intros j k αj αk h₁ t₁ t₂ t₃ tl Hj Hk Hjk Hsort Hh₁.
 apply Sorted_inv in Hsort.
 destruct Hsort as (Hsort, H₁).
 apply Sorted_inv in Hsort.
@@ -2629,7 +2629,6 @@ Lemma yyy : ∀ pol j αj k αk tl,
                (List.map (term_of_point f pol) tl)) .0 f%K =
           coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
 Proof.
-unfold nofq; simpl.
 intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
 destruct tl as [| t₁].
  simpl in Hj, Hk.
@@ -2692,6 +2691,39 @@ destruct tl as [| t₁].
      apply Nat.sub_le_mono_r.
      apply Nat.le_le_succ_r.
      eapply machin with (j := j); eassumption.
+
+    simpl.
+    remember (nofq (fst t₃)) as h₂ eqn:Hh₂ .
+    destruct tl as [| t₅].
+     simpl in Hk; simpl.
+     rewrite list_nth_pad_sub.
+      rewrite Nat_sub_sub_distr.
+       rewrite Nat.add_succ_r.
+       rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
+       rewrite Nat.sub_succ_l.
+        simpl.
+        rewrite list_nth_pad_sub.
+         rewrite Nat_sub_sub_distr.
+          rewrite Nat.add_succ_r.
+          rewrite Nat.sub_add.
+           rewrite Nat.sub_succ_l.
+            simpl.
+            subst t₄; simpl.
+            unfold nofq, Qnat.
+            remember (S k) as x; simpl; subst x.
+            rewrite Nat2Z.id, Nat.sub_succ.
+            rewrite list_nth_pad_sub; [ idtac | reflexivity ].
+            rewrite Nat.sub_diag; reflexivity.
+
+            eapply machin with (j := j); try eassumption.
+            eapply Sorted_minus_2nd; [ idtac | eassumption ].
+            intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+
+           eapply machin with (j := j); try eassumption.
+           eapply Sorted_minus_3rd; [ idtac | eassumption ].
+           intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+
+          eapply truc; try eassumption.
 bbb.
 *)
 
