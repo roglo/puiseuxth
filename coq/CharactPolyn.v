@@ -2727,6 +2727,14 @@ destruct tl as [| t₁].
           apply Z.lt_le_incl.
           eapply Z.le_lt_trans; [ idtac | eassumption ].
           rewrite <- Hj; apply Nat2Z.is_nonneg.
+
+         remember (h₂ - S h₁)%nat as x.
+         rewrite <- Nat.sub_succ; subst x.
+         apply Nat.sub_le_mono_r.
+         apply Nat.le_le_succ_r.
+         eapply machin with (j := j); try eassumption.
+         eapply Sorted_minus_2nd; [ idtac | eassumption ].
+         intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 bbb.
 *)
 
