@@ -2654,6 +2654,54 @@ destruct tl as [| t₁].
   destruct k; [ discriminate Hkj | idtac ].
   rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
   apply eq_add_S in Hkj; subst kj.
+  revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort.
+  induction tl as [| t₃]; intros.
+   simpl in Hk; subst t₂; simpl.
+   unfold nofq, Qnat.
+   remember (S k) as x; simpl; subst x.
+   rewrite Nat2Z.id, Nat.sub_succ.
+   rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
+
+   simpl.
+   rewrite list_nth_pad_sub.
+    rewrite Nat_sub_sub_distr.
+     rewrite Nat.add_succ_r.
+     rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
+     rewrite Nat.sub_succ_l.
+      simpl.
+      eapply IHtl; try eassumption.
+       reflexivity.
+bbb.
+
+intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
+destruct tl as [| t₁].
+ simpl in Hj, Hk.
+ injection Hj; clear Hj; intros; subst αj.
+ injection Hk; clear Hk; intros; subst αk.
+ rewrite <- Nat2Z.inj_0 in H0.
+ rewrite <- Nat2Z.inj_0 in H1.
+ apply Nat2Z.inj in H0.
+ apply Nat2Z.inj in H1.
+ subst j k.
+ exfalso; revert Hjk; apply Nat.lt_irrefl.
+
+ simpl in Hj; rewrite <- Hk; simpl.
+ unfold nofq, Qnat; rewrite <- Hj; simpl.
+ do 2 rewrite Nat2Z.id.
+ rewrite Nat.sub_diag, list_pad_0.
+ destruct tl as [| t₂].
+  simpl in Hk; subst t₁.
+  injection Hk; clear Hk; intros.
+  apply Nat2Z.inj in H0; subst k.
+  exfalso; revert Hjk; apply Nat.lt_irrefl.
+
+  simpl.
+  remember (k - j)%nat as kj eqn:Hkj .
+  symmetry in Hkj.
+  destruct kj; [ exfalso; fast_omega Hjk Hkj | idtac ].
+  destruct k; [ discriminate Hkj | idtac ].
+  rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
+  apply eq_add_S in Hkj; subst kj.
   destruct tl as [| t₃].
    simpl in Hk; subst t₂; simpl.
    unfold nofq, Qnat.
