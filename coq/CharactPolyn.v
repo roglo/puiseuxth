@@ -2661,6 +2661,7 @@ destruct tl as [| t₁].
    rewrite Nat2Z.id, Nat.sub_succ.
    rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
 
+(*2*)
    simpl.
    remember (nofq (fst t₂)) as h₁ eqn:Hh₁ .
    destruct tl as [| t₄].
@@ -2690,6 +2691,7 @@ destruct tl as [| t₁].
      apply Nat.le_le_succ_r.
      eapply machin with (j := j); eassumption.
 
+(*3*)
     simpl.
     remember (nofq (fst t₃)) as h₂ eqn:Hh₂ .
     destruct tl as [| t₅].
@@ -2735,6 +2737,28 @@ destruct tl as [| t₁].
          eapply machin with (j := j); try eassumption.
          eapply Sorted_minus_2nd; [ idtac | eassumption ].
          intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+
+        eapply machin with (j := j); try eassumption.
+        eapply Sorted_minus_3rd; [ idtac | eassumption ].
+        intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+
+       apply Sorted_inv in Hsort; destruct Hsort as (Hsort, Hrel).
+       eapply truc with (t₁ := t₁); try eassumption.
+        constructor; eassumption.
+
+        rewrite <- Hj; apply Nat2Z.is_nonneg.
+
+        rewrite <- Hj; unfold nofq, Qnat; simpl.
+        rewrite Nat2Z.id; reflexivity.
+
+      remember (h₁ - S j)%nat as x.
+      rewrite <- Nat.sub_succ; subst x.
+      apply Nat.sub_le_mono_r.
+      apply Nat.le_le_succ_r.
+      eapply machin with (j := j); try eassumption.
+      eapply Sorted_minus_3rd; [ idtac | eassumption ].
+      intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+(*4*)
 bbb.
 *)
 
