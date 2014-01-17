@@ -2568,26 +2568,22 @@ induction l as [| x]; intros.
    rewrite H; reflexivity.
 Qed.
 
-Lemma truc : ∀ j αj h₁ (t₁ t₂ t₃ : Q * Q) tl,
-  (Qnat j, αj) = t₁
-  → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂))  [t₁; t₂; t₃ … tl]
-    → h₁ = nofq (fst t₂)
-      → S j ≤ h₁.
+Lemma truc : ∀ h₁ h₂ (t₁ t₂ : Q * Q) tl,
+  Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂))  [t₁; t₂ … tl]
+  → 0 <= Qnum (fst t₁)
+    → h₁ = nofq (fst t₁)
+      → h₂ = nofq (fst t₂)
+        → (h₁ < h₂)%nat.
 Proof.
-intros j αj h₁ t₁ t₂ t₃ tl Hj Hsort Hh₁.
+intros h₁ h₂ t₁ t₂ tl Hsort H₀ Hh₁ Hh₂.
 apply Sorted_inv in Hsort.
-destruct Hsort as (_, H).
+destruct Hsort as (Hsort, H).
 apply HdRel_inv in H.
-unfold fst_lt in H.
-subst t₁ h₁; simpl in H; simpl.
-unfold nofq; simpl.
-apply Z2Nat.inj_lt in H.
- rewrite Nat2Z.id in H; assumption.
-
- apply Nat2Z.is_nonneg.
-
- apply Z.lt_le_incl.
- eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
+subst h₁ h₂.
+unfold nofq.
+apply Z2Nat.inj_lt; auto.
+apply Z.lt_le_incl.
+eapply Z.le_lt_trans; eassumption.
 Qed.
 
 Lemma machin : ∀ j k αj αk h₁ (t₁ t₂ t₃ : Q * Q) tl,
@@ -2684,7 +2680,9 @@ destruct tl as [| t₁].
 
        eapply machin with (j := j); eassumption.
 
-      eapply truc; eassumption.
+      subst t₁.
+      eapply truc; try eassumption; [ apply Nat2Z.is_nonneg | simpl ].
+      unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
 
      remember (h₁ - S j)%nat as x.
      rewrite <- Nat.sub_succ; subst x.
@@ -2723,8 +2721,13 @@ destruct tl as [| t₁].
            eapply Sorted_minus_3rd; [ idtac | eassumption ].
            intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 
-bbb.
+          apply Sorted_inv in Hsort; destruct Hsort as (Hsort, Hrel).
           eapply truc; try eassumption.
+          apply HdRel_inv in Hrel.
+          apply Z.lt_le_incl.
+          eapply Z.le_lt_trans; [ idtac | eassumption ].
+          rewrite <- Hj; apply Nat2Z.is_nonneg.
+bbb.
 *)
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
