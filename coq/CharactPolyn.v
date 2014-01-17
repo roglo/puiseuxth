@@ -2615,6 +2615,40 @@ apply Z2Nat.inj_lt in H₂.
  apply Nat2Z.is_nonneg.
 Qed.
 
+Lemma bidule : ∀ j αj k αk t₁ t₂ t₃ tl,
+  Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
+  → (Qnat j, αj) = t₁
+    → (Qnat (S k), αk) = List.last [t₃ … tl] (0, 0)%Q
+      → (nofq (fst t₂) < S k)%nat.
+Proof.
+intros j αj k αk t₁ t₂ t₃ tl Hsort Hj Hk.
+revert k αk t₃ Hsort Hk.
+induction tl as [| t₄]; intros.
+ simpl in Hk.
+ apply Sorted_inv in Hsort.
+ destruct Hsort as (Hsort, Hrel).
+ apply Sorted_inv in Hsort.
+ destruct Hsort as (Hsort, Hrel₁).
+ apply HdRel_inv in Hrel₁.
+ rewrite <- Hk in Hrel₁; remember (S k) as x; simpl in Hrel₁; subst x.
+ apply Z2Nat.inj_lt in Hrel₁.
+  rewrite Nat2Z.id in Hrel₁.
+  assumption.
+
+  apply Z.lt_le_incl.
+  apply HdRel_inv in Hrel.
+  subst t₁.
+  simpl in Hrel.
+  eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
+
+  apply Nat2Z.is_nonneg.
+
+ remember [t₄ … tl] as x; simpl in Hk; subst x.
+ eapply IHtl; try eassumption.
+ eapply Sorted_minus_3rd; [ idtac | eassumption ].
+ intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+Qed.
+
 Lemma yyy : ∀ pol j αj k αk tl,
   (Qnat j, αj) = List.hd (0, 0)%Q tl
   → (Qnat k, αk) = List.last tl (0, 0)%Q
@@ -2671,6 +2705,8 @@ destruct tl as [| t₁].
       simpl.
       eapply IHtl; try eassumption.
        reflexivity.
+
+       remember [t₃ … tl] as x; simpl in Hk; subst x.
 bbb.
 
 intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
