@@ -2568,53 +2568,6 @@ induction l as [| x]; intros.
    rewrite H; reflexivity.
 Qed.
 
-Lemma truc : ∀ h₁ h₂ (t₁ t₂ : Q * Q) tl,
-  Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂))  [t₁; t₂ … tl]
-  → 0 <= Qnum (fst t₁)
-    → h₁ = nofq (fst t₁)
-      → h₂ = nofq (fst t₂)
-        → (h₁ < h₂)%nat.
-Proof.
-intros h₁ h₂ t₁ t₂ tl Hsort H₀ Hh₁ Hh₂.
-apply Sorted_inv in Hsort.
-destruct Hsort as (Hsort, H).
-apply HdRel_inv in H.
-subst h₁ h₂.
-unfold nofq.
-apply Z2Nat.inj_lt; auto.
-apply Z.lt_le_incl.
-eapply Z.le_lt_trans; eassumption.
-Qed.
-
-Lemma machin : ∀ j k αj αk h₁ (t₁ t₂ t₃ : Q * Q) tl,
-  (Qnat j, αj) = t₁
-  → (Qnat (S k), αk) = t₃
-    → (j < S k)%nat
-      → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
-        → h₁ = nofq (fst t₂)
-          → h₁ ≤ k.
-Proof.
-intros j k αj αk h₁ t₁ t₂ t₃ tl Hj Hk Hjk Hsort Hh₁.
-apply Sorted_inv in Hsort.
-destruct Hsort as (Hsort, H₁).
-apply Sorted_inv in Hsort.
-destruct Hsort as (_, H₂).
-apply HdRel_inv in H₁.
-apply HdRel_inv in H₂.
-subst t₁ t₃; simpl in H₁.
-remember (S k) as x; simpl in H₂; subst x.
-subst h₁.
-unfold nofq; simpl.
-apply Z2Nat.inj_lt in H₂.
- rewrite Nat2Z.id in H₂.
- apply Nat.succ_le_mono; assumption.
-
- apply Z.lt_le_incl.
- eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
-
- apply Nat2Z.is_nonneg.
-Qed.
-
 Lemma bidule : ∀ j αj k αk t₁ t₂ t₃ tl,
   Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
   → (Qnat j, αj) = t₁
@@ -2649,7 +2602,7 @@ induction tl as [| t₄]; intros.
  intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 Qed.
 
-Lemma yyy : ∀ pol j αj k αk tl,
+Lemma list_nth_coeff_last : ∀ pol j αj k αk tl,
   (Qnat j, αj) = List.hd (0, 0)%Q tl
   → (Qnat k, αk) = List.last tl (0, 0)%Q
     → (j < k)%nat
@@ -2743,219 +2696,32 @@ destruct tl as [| t₁].
         unfold Qnat in H; simpl in H.
         apply Z.lt_le_incl.
         eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
-bbb.
-*)
-(*
-intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
-destruct tl as [| t₁].
- simpl in Hj, Hk.
- injection Hj; clear Hj; intros; subst αj.
- injection Hk; clear Hk; intros; subst αk.
- rewrite <- Nat2Z.inj_0 in H0.
- rewrite <- Nat2Z.inj_0 in H1.
- apply Nat2Z.inj in H0.
- apply Nat2Z.inj in H1.
- subst j k.
- exfalso; revert Hjk; apply Nat.lt_irrefl.
 
- simpl in Hj; rewrite <- Hk; simpl.
- unfold nofq, Qnat; rewrite <- Hj; simpl.
- do 2 rewrite Nat2Z.id.
- rewrite Nat.sub_diag, list_pad_0.
- destruct tl as [| t₂].
-  simpl in Hk; subst t₁.
-  injection Hk; clear Hk; intros.
-  apply Nat2Z.inj in H0; subst k.
-  exfalso; revert Hjk; apply Nat.lt_irrefl.
+      apply Nat.lt_succ_r.
+      eapply bidule; eassumption.
 
-  simpl.
-  remember (k - j)%nat as kj eqn:Hkj .
-  symmetry in Hkj.
-  destruct kj; [ exfalso; fast_omega Hjk Hkj | idtac ].
-  destruct k; [ discriminate Hkj | idtac ].
-  rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
-  apply eq_add_S in Hkj; subst kj.
-  destruct tl as [| t₃].
-   simpl in Hk; subst t₂; simpl.
-   unfold nofq, Qnat.
-   remember (S k) as x; simpl; subst x.
-   rewrite Nat2Z.id, Nat.sub_succ.
-   rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
+     subst t₁.
+     apply Sorted_inv in Hsort.
+     destruct Hsort as (_, H).
+     apply HdRel_inv in H; simpl in H.
+     apply Z2Nat.inj_lt in H.
+      rewrite Nat2Z.id in H.
+      assumption.
 
-   simpl.
-   remember (nofq (fst t₂)) as h₁ eqn:Hh₁ .
-   rewrite list_nth_pad_sub.
-    rewrite Nat_sub_sub_distr.
-     rewrite Nat.add_succ_r.
-     rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
-     rewrite Nat.sub_succ_l.
-      simpl.
-      revert j αj k αk t₁ t₂ t₃ h₁ Hj Hk Hjk Hsort Hh₁.
-      induction tl as [| t₄]; intros.
-       simpl in Hk; simpl.
-       subst t₃; simpl.
-       unfold nofq, Qnat.
-       remember (S k) as x; simpl; subst x.
-       rewrite Nat2Z.id, Nat.sub_succ.
-       rewrite list_nth_pad_sub; [ idtac | reflexivity ].
-       rewrite Nat.sub_diag; reflexivity.
+      apply Nat2Z.is_nonneg.
 
-       simpl.
-       rewrite list_nth_pad_sub.
-        rewrite Nat_sub_sub_distr.
-         rewrite Nat.add_succ_r.
-         rewrite Nat.sub_add.
-          rewrite Nat.sub_succ_l.
-           simpl.
-           subst t₁.
-           remember [t₄ … tl] as x; simpl in Hk; subst x.
-           eapply IHtl; try reflexivity.
-            remember [t₄ … tl] as x; simpl; subst x.
-            eassumption.
+      apply Z.lt_le_incl.
+      eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 
-            eassumption.
-
-            eapply Sorted_minus_2nd; [ idtac | eassumption ].
-            intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-bbb.
-
-intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
-destruct tl as [| t₁].
- simpl in Hj, Hk.
- injection Hj; clear Hj; intros; subst αj.
- injection Hk; clear Hk; intros; subst αk.
- rewrite <- Nat2Z.inj_0 in H0.
- rewrite <- Nat2Z.inj_0 in H1.
- apply Nat2Z.inj in H0.
- apply Nat2Z.inj in H1.
- subst j k.
- exfalso; revert Hjk; apply Nat.lt_irrefl.
-
- simpl in Hj; rewrite <- Hk; simpl.
- unfold nofq, Qnat; rewrite <- Hj; simpl.
- do 2 rewrite Nat2Z.id.
- rewrite Nat.sub_diag, list_pad_0.
- destruct tl as [| t₂].
-  simpl in Hk; subst t₁.
-  injection Hk; clear Hk; intros.
-  apply Nat2Z.inj in H0; subst k.
-  exfalso; revert Hjk; apply Nat.lt_irrefl.
-
-  simpl.
-  remember (k - j)%nat as kj eqn:Hkj .
-  symmetry in Hkj.
-  destruct kj; [ exfalso; fast_omega Hjk Hkj | idtac ].
-  destruct k; [ discriminate Hkj | idtac ].
-  rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
-  apply eq_add_S in Hkj; subst kj.
-  destruct tl as [| t₃].
-   simpl in Hk; subst t₂; simpl.
-   unfold nofq, Qnat.
-   remember (S k) as x; simpl; subst x.
-   rewrite Nat2Z.id, Nat.sub_succ.
-   rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
-
-(*2*)
-bbb.
-   simpl.
-   remember (nofq (fst t₂)) as h₁ eqn:Hh₁ .
-   destruct tl as [| t₄].
-    simpl in Hk; simpl.
-    rewrite list_nth_pad_sub.
-     rewrite Nat_sub_sub_distr.
-      rewrite Nat.add_succ_r.
-      rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
-      rewrite Nat.sub_succ_l.
-       simpl.
-       subst t₃; simpl.
-       unfold nofq, Qnat.
-       remember (S k) as x; simpl; subst x.
-       rewrite Nat2Z.id, Nat.sub_succ.
-       rewrite list_nth_pad_sub; [ idtac | reflexivity ].
-       rewrite Nat.sub_diag; reflexivity.
-
-       eapply machin with (j := j); eassumption.
-
-      subst t₁.
-      eapply truc; try eassumption; [ apply Nat2Z.is_nonneg | simpl ].
-      unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
-
-     remember (h₁ - S j)%nat as x.
-     rewrite <- Nat.sub_succ; subst x.
-     apply Nat.sub_le_mono_r.
-     apply Nat.le_le_succ_r.
-     eapply machin with (j := j); eassumption.
-
-(*3*)
-    simpl.
-    remember (nofq (fst t₃)) as h₂ eqn:Hh₂ .
-    destruct tl as [| t₅].
-     simpl in Hk; simpl.
-     rewrite list_nth_pad_sub.
-      rewrite Nat_sub_sub_distr.
-       rewrite Nat.add_succ_r.
-       rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
-       rewrite Nat.sub_succ_l.
-        simpl.
-        rewrite list_nth_pad_sub.
-         rewrite Nat_sub_sub_distr.
-          rewrite Nat.add_succ_r.
-          rewrite Nat.sub_add.
-           rewrite Nat.sub_succ_l.
-            simpl.
-            subst t₄; simpl.
-            unfold nofq, Qnat.
-            remember (S k) as x; simpl; subst x.
-            rewrite Nat2Z.id, Nat.sub_succ.
-            rewrite list_nth_pad_sub; [ idtac | reflexivity ].
-            rewrite Nat.sub_diag; reflexivity.
-
-            eapply machin with (j := j); try eassumption.
-            eapply Sorted_minus_2nd; [ idtac | eassumption ].
-            intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-
-           eapply machin with (j := j); try eassumption.
-           eapply Sorted_minus_3rd; [ idtac | eassumption ].
-           intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-
-          apply Sorted_inv in Hsort; destruct Hsort as (Hsort, Hrel).
-          eapply truc; try eassumption.
-          apply HdRel_inv in Hrel.
-          apply Z.lt_le_incl.
-          eapply Z.le_lt_trans; [ idtac | eassumption ].
-          rewrite <- Hj; apply Nat2Z.is_nonneg.
-
-         remember (h₂ - S h₁)%nat as x.
-         rewrite <- Nat.sub_succ; subst x.
-         apply Nat.sub_le_mono_r.
-         apply Nat.le_le_succ_r.
-         eapply machin with (j := j); try eassumption.
-         eapply Sorted_minus_2nd; [ idtac | eassumption ].
-         intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-
-        eapply machin with (j := j); try eassumption.
-        eapply Sorted_minus_3rd; [ idtac | eassumption ].
-        intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-
-       apply Sorted_inv in Hsort; destruct Hsort as (Hsort, Hrel).
-       eapply truc with (t₁ := t₁); try eassumption.
-        constructor; eassumption.
-
-        rewrite <- Hj; apply Nat2Z.is_nonneg.
-
-        rewrite <- Hj; unfold nofq, Qnat; simpl.
-        rewrite Nat2Z.id; reflexivity.
-
-      remember (h₁ - S j)%nat as x.
-      rewrite <- Nat.sub_succ; subst x.
-      apply Nat.sub_le_mono_r.
-      apply Nat.le_le_succ_r.
-      eapply machin with (j := j); try eassumption.
-      eapply Sorted_minus_3rd; [ idtac | eassumption ].
-      intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
-(*4*)
-bbb.
-*)
+    remember (nofq (fst t₂)) as h₁ eqn:Hh₁ .
+    remember (h₁ - S j)%nat as x.
+    rewrite <- Nat.sub_succ; subst x.
+    apply Nat.sub_le_mono_r.
+    apply Nat.le_le_succ_r.
+    apply Nat.lt_succ_r.
+    subst h₁.
+    eapply bidule; eassumption.
+Qed.
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
@@ -2986,6 +2752,7 @@ apply imp_or_tauto.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
   rewrite Nat.mul_comm.
   rewrite Nat.div_mul; [ idtac | subst q; auto ].
+  erewrite list_nth_coeff_last; try eassumption.
 bbb.
   remember make_char_pol as g; simpl; subst g.
   remember (List.nth (k - j)) as g.
