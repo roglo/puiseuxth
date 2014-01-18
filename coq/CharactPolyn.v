@@ -2873,6 +2873,16 @@ apply imp_or_tauto.
      apply Sorted_Qnat_Sorted_Qnum in Hsort.
       eapply Sorted_trans_app in Hsort; try eassumption.
       intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
+
+      apply List.Forall_forall; intros x Hx.
+      apply List.in_app_or in Hx.
+      destruct Hx as [Hx| Hx].
+       revert x Hx.
+       apply List.Forall_forall.
+       eapply oth_pts_den_1; eassumption.
+
+       destruct Hx as [Hx| ]; [ idtac | contradiction ].
+       rewrite <- Hx, <- Hk; reflexivity.
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
