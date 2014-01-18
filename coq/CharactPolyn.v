@@ -2649,20 +2649,18 @@ induction tl as [| t₄]; intros.
  intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 Qed.
 
-(* mmm... I have to add an hypothesis that numerators of points are 1
-   or (another solution, perhaps) write pt₁ < pt₂ instead of
-   Qnum (fst pt₁) < Qnum (fst pt₂) *)
 Lemma yyy : ∀ pol j αj k αk tl,
   (Qnat j, αj) = List.hd (0, 0)%Q tl
   → (Qnat k, αk) = List.last tl (0, 0)%Q
     → (j < k)%nat
       → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) tl
-        → List.nth (k - j)
-            (make_char_pol f j
-               (List.map (term_of_point f pol) tl)) .0 f%K =
-          coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
+        → List.Forall (λ pt, Qden (fst pt) = xH) tl
+          → List.nth (k - j)
+              (make_char_pol f j
+                 (List.map (term_of_point f pol) tl)) .0 f%K =
+            coeff (term_of_point f pol (List.last tl (0, 0)%Q)).
 Proof.
-intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
+intros pol j αj k αk tl Hj Hk Hjk Hsort Hden; simpl.
 destruct tl as [| t₁].
  simpl in Hj, Hk.
  injection Hj; clear Hj; intros; subst αj.
@@ -2691,7 +2689,7 @@ destruct tl as [| t₁].
   destruct k; [ discriminate Hkj | idtac ].
   rewrite Nat.sub_succ_l in Hkj; [ idtac | fast_omega Hjk ].
   apply eq_add_S in Hkj; subst kj.
-  revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort.
+  revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort Hden.
   induction tl as [| t₃]; intros.
    simpl in Hk; subst t₂; simpl.
    unfold nofq, Qnat.
@@ -2706,11 +2704,22 @@ destruct tl as [| t₁].
      rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
      rewrite Nat.sub_succ_l.
       simpl.
-      eapply IHtl; try eassumption; try reflexivity.
+      destruct t₂ as (h₁, αh₁).
+      eapply IHtl with (αj := αh₁); try eassumption; try reflexivity.
        eapply bidule; eassumption.
 
        unfold Qnat, nofq; simpl.
        rewrite Z2Nat.id.
+        apply Sorted_inv in Hsort.
+        destruct Hsort as (Hsort, Hrel).
+        simpl.
+        apply list_Forall_inv in Hden.
+        destruct Hden as (_, Hden).
+        apply list_Forall_inv in Hden.
+        destruct Hden as (Hden, _).
+        simpl in Hden.
+        rewrite <- Hden.
+        destruct h₁; assumption.
 bbb.
 *)
 (*
