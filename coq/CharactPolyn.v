@@ -2723,6 +2723,16 @@ destruct tl as [| t₁].
     eapply bidule; eassumption.
 Qed.
 
+Lemma list_last_cons_app : ∀ A x y (l : list A) d,
+  List.last [x … l ++ [y]] d = y.
+Proof.
+intros A x y l d.
+revert x.
+induction l as [| z]; [ reflexivity | intros ].
+simpl in IHl; simpl.
+apply IHl.
+Qed.
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -2753,6 +2763,25 @@ apply imp_or_tauto.
   rewrite Nat.mul_comm.
   rewrite Nat.div_mul; [ idtac | subst q; auto ].
   erewrite list_nth_coeff_last; try eassumption.
+   rewrite list_last_cons_app; simpl.
+   rewrite <- Hk; simpl.
+   unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id.
+   eapply val_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+   rewrite <- Hk; right.
+   apply List.in_or_app; right; left; reflexivity.
+
+   rewrite list_last_cons_app; eassumption.
+
+   eapply j_lt_k; try eassumption.
+    rewrite <- Hj; unfold nofq, Qnat; simpl.
+    rewrite Nat2Z.id; reflexivity.
+
+    rewrite <- Hk; unfold nofq, Qnat; simpl.
+    rewrite Nat2Z.id; reflexivity.
+
+   constructor.
+    apply Sorted_app.
 bbb.
   remember make_char_pol as g; simpl; subst g.
   remember (List.nth (k - j)) as g.
