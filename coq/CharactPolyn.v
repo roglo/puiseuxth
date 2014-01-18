@@ -2832,6 +2832,9 @@ apply imp_or_tauto.
       eapply oth_pts_den_1; eassumption.
 
      intros pt Hpt.
+     remember Hns as Hsort; clear HeqHsort.
+     apply oth_fin_pts_sorted in Hsort.
+     apply Sorted_Qnat_Sorted_Qnum in Hsort.
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
