@@ -2777,6 +2777,24 @@ Lemma yyy : ∀ A g x y (l : list A),
     → g x y.
 Proof.
 intros A g x y l Hx Hsort.
+induction l as [| z]; [ contradiction | idtac ].
+destruct Hx as [Hx| Hx].
+ Focus 2.
+ apply IHl; [ assumption | idtac ].
+ eapply Sorted_inv_1; eassumption.
+
+ subst z; simpl in Hsort.
+ apply Sorted_inv in Hsort.
+ destruct Hsort as (Hsort, Hrel).
+ clear IHl.
+ revert x y Hsort Hrel.
+ induction l as [| z]; intros.
+  simpl in Hrel.
+  apply HdRel_inv in Hrel; assumption.
+
+  simpl in Hrel.
+  simpl in Hsort.
+  inversion Hrel; subst.
 bbb.
 *)
 
