@@ -1989,7 +1989,7 @@ destruct Hns as [Hns| Hns].
   eapply minimise_slope_end_lt; try eassumption; reflexivity.
 Qed.
 
-Lemma Sorted_app : ∀ α f l (x : α),
+Lemma Sorted_app_at_r : ∀ α f l (x : α),
   Sorted f l
   → (∀ y, y ∈ l → f y x)
     → Sorted f (l ++ [x]).
@@ -2026,7 +2026,7 @@ remember (length pts) as n; clear Heqn.
 induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
 destruct hsl as [| hs₂]; [ contradiction | idtac ].
 rewrite list_map_pairs_cons_cons in Hns.
-apply Sorted_app.
+apply Sorted_app_at_r.
  destruct Hns as [Hns| Hns].
   subst ns; simpl.
   eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
@@ -2781,8 +2781,17 @@ apply imp_or_tauto.
     rewrite Nat2Z.id; reflexivity.
 
    constructor.
-    apply Sorted_app.
+    apply Sorted_app_at_r.
+     apply oth_fin_pts_sorted in Hns.
+     apply Sorted_app in Hns.
+     destruct Hns as (Hsort, _).
+     unfold fst_lt in Hsort.
+     remember (λ x : Q * Q, Qnum (fst x)) as g.
 bbb.
+  Hsort : Sorted (λ x y : Q * Q, (fst x < fst y)%Q) (oth_pts ns)
+  ============================
+   Sorted (λ pt₁ pt₂ : Q * Q, Qnum (fst pt₁) < Qnum (fst pt₂)) (oth_pts ns)
+
   remember make_char_pol as g; simpl; subst g.
   remember (List.nth (k - j)) as g.
   replace j with (0 + j)%nat by reflexivity; subst g.
