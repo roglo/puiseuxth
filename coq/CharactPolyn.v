@@ -2771,32 +2771,41 @@ destruct pts as [| pt₂]; constructor.
  do 2 rewrite Z.mul_1_r in H3; assumption.
 Qed.
 
-Lemma yyy : ∀ A g x y (l : list A),
-  x ∈ l
-  → Sorted g (l ++ [y])
-    → g x y.
+Lemma Sorted_trans_app : ∀ A (g : A → A → Prop) x y l,
+  (∀ x y z, g x y → g y z → g x z)
+  → x ∈ l
+    → Sorted g (l ++ [y])
+      → g x y.
 Proof.
-intros A g x y l Hx Hsort.
-induction l as [| z]; [ contradiction | idtac ].
-destruct Hx as [Hx| Hx].
- Focus 2.
- apply IHl; [ assumption | idtac ].
- eapply Sorted_inv_1; eassumption.
+intros A g x y l Htrans Hx Hsort.
+apply Sorted_LocallySorted_iff in Hsort.
+revert x y Hx Hsort.
+induction l as [| z]; intros; [ contradiction | idtac ].
+simpl in Hsort.
+inversion Hsort.
+ symmetry in H1.
+ apply List.app_eq_nil in H1.
+ destruct H1 as (_, H); discriminate H.
 
- subst z; simpl in Hsort.
- apply Sorted_inv in Hsort.
- destruct Hsort as (Hsort, Hrel).
- clear IHl.
- revert x y Hsort Hrel.
- induction l as [| z]; intros.
-  simpl in Hrel.
-  apply HdRel_inv in Hrel; assumption.
+ subst.
+ destruct Hx as [Hx| Hx].
+  subst z.
+  destruct l as [| z].
+   simpl in H0.
+   injection H0; clear H0; intros; subst.
+   assumption.
 
-  simpl in Hrel.
-  simpl in Hsort.
-  inversion Hrel; subst.
-bbb.
-*)
+   eapply Htrans; [ eassumption | idtac ].
+   apply IHl.
+    simpl in H0.
+    injection H0; clear H0; intros; subst.
+    left; reflexivity.
+
+    rewrite <- H0; assumption.
+
+  apply IHl; [ assumption | idtac ].
+  rewrite <- H0; assumption.
+Qed.
 
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
@@ -2862,7 +2871,8 @@ apply imp_or_tauto.
      remember Hns as Hsort; clear HeqHsort.
      apply oth_fin_pts_sorted in Hsort.
      apply Sorted_Qnat_Sorted_Qnum in Hsort.
-      eapply yyy in Hsort; eassumption.
+      eapply Sorted_trans_app in Hsort; try eassumption.
+      intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
