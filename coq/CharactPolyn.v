@@ -2703,10 +2703,11 @@ destruct tl as [| t₁].
      rewrite Nat.sub_add; [ idtac | fast_omega Hjk ].
      rewrite Nat.sub_succ_l.
       simpl.
-      eapply IHtl; try eassumption.
-       reflexivity.
+      eapply IHtl; try eassumption; try reflexivity.
+       eapply bidule; eassumption.
 
-       remember [t₃ … tl] as x; simpl in Hk; subst x.
+       unfold Qnat, nofq; simpl.
+       rewrite Z2Nat.id.
 bbb.
 
 intros pol j αj k αk tl Hj Hk Hjk Hsort; simpl.
