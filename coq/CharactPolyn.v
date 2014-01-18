@@ -2771,6 +2771,15 @@ destruct pts as [| pt₂]; constructor.
  do 2 rewrite Z.mul_1_r in H3; assumption.
 Qed.
 
+Lemma yyy : ∀ A g x y (l : list A),
+  x ∈ l
+  → Sorted g (l ++ [y])
+    → g x y.
+Proof.
+intros A g x y l Hx Hsort.
+bbb.
+*)
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -2835,6 +2844,7 @@ apply imp_or_tauto.
      remember Hns as Hsort; clear HeqHsort.
      apply oth_fin_pts_sorted in Hsort.
      apply Sorted_Qnat_Sorted_Qnum in Hsort.
+      eapply yyy in Hsort; eassumption.
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
