@@ -2733,6 +2733,44 @@ simpl in IHl; simpl.
 apply IHl.
 Qed.
 
+Lemma oth_pts_den_1 : ∀ pol ns,
+  ns ∈ newton_segments f pol
+  → List.Forall (λ pt, Qden (fst pt) = 1%positive) (oth_pts ns).
+Proof.
+intros pol ns Hns.
+apply List.Forall_forall.
+intros pt Hpt.
+eapply exists_oth_pt_nat in Hpt; [ idtac | eassumption ].
+destruct Hpt as (h, (αh, Hpt)).
+subst pt; reflexivity.
+Qed.
+
+Lemma Sorted_Qnat_Sorted_Qnum : ∀ pts,
+  Sorted fst_lt pts
+  → List.Forall (λ pt, Qden (fst pt) = 1%positive) pts
+    → Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) pts.
+Proof.
+intros pts Hsort Hden1.
+apply Sorted_LocallySorted_iff in Hsort.
+apply Sorted_LocallySorted_iff.
+induction pts as [| pt]; [ constructor | idtac ].
+destruct pts as [| pt₂]; constructor.
+ apply IHpts.
+  inversion Hsort; assumption.
+
+  eapply list_Forall_inv; eassumption.
+
+ inversion Hsort; subst.
+ apply list_Forall_inv in Hden1.
+ destruct Hden1 as (Hden1, H).
+ apply list_Forall_inv in H.
+ destruct H as (Hden₂, _).
+ unfold fst_lt in H3.
+ unfold Qlt in H3.
+ rewrite Hden1, Hden₂ in H3.
+ do 2 rewrite Z.mul_1_r in H3; assumption.
+Qed.
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -2782,15 +2820,19 @@ apply imp_or_tauto.
 
    constructor.
     apply Sorted_app_at_r.
-     apply oth_fin_pts_sorted in Hns.
-     apply Sorted_app in Hns.
-     destruct Hns as (Hsort, _).
-     unfold fst_lt in Hsort.
-     remember (λ x : Q * Q, Qnum (fst x)) as g.
+     remember Hns as Hsort; clear HeqHsort.
+     apply oth_fin_pts_sorted in Hsort.
+     apply Sorted_app in Hsort.
+     destruct Hsort as (Hsort, _).
+     apply Sorted_Qnat_Sorted_Qnum.
+      apply oth_fin_pts_sorted in Hns.
+      apply Sorted_app in Hns.
+      destruct Hns; assumption.
+
+      eapply oth_pts_den_1; eassumption.
+
+     intros pt Hpt.
 bbb.
-  Hsort : Sorted (λ x y : Q * Q, (fst x < fst y)%Q) (oth_pts ns)
-  ============================
-   Sorted (λ pt₁ pt₂ : Q * Q, Qnum (fst pt₁) < Qnum (fst pt₂)) (oth_pts ns)
 
   remember make_char_pol as g; simpl; subst g.
   remember (List.nth (k - j)) as g.
