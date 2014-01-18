@@ -2720,6 +2720,29 @@ destruct tl as [| t₁].
         simpl in Hden.
         rewrite <- Hden.
         destruct h₁; assumption.
+
+        rewrite <- Hj in Hsort.
+        apply Sorted_inv in Hsort.
+        destruct Hsort as (_, H).
+        apply HdRel_inv in H.
+        unfold Qnat in H; simpl in H.
+        apply Z.lt_le_incl.
+        eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
+
+       unfold Qnat, nofq; simpl; rewrite Z2Nat.id.
+        constructor; [ reflexivity | idtac ].
+        apply list_Forall_inv in Hden.
+        destruct Hden as (_, H).
+        apply list_Forall_inv in H.
+        destruct H as (_, H); assumption.
+
+        rewrite <- Hj in Hsort.
+        apply Sorted_inv in Hsort.
+        destruct Hsort as (_, H).
+        apply HdRel_inv in H.
+        unfold Qnat in H; simpl in H.
+        apply Z.lt_le_incl.
+        eapply Z.le_lt_trans; [ apply Nat2Z.is_nonneg | eassumption ].
 bbb.
 *)
 (*
