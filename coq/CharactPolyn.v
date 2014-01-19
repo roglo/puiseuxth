@@ -2807,6 +2807,16 @@ inversion Hsort.
   rewrite <- H0; assumption.
 Qed.
 
+Lemma HdRel_app : ∀ A (R : A → A → Prop) a l₁ l₂,
+  HdRel R a l₁
+  → HdRel R a l₂
+    → HdRel R a (l₁ ++ l₂).
+Proof.
+intros A R a l₁ l₂ H₁ H₂.
+destruct l₁ as [| b]; [ assumption | constructor ].
+apply HdRel_inv in H₁; assumption.
+Qed.
+
 Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
@@ -2883,6 +2893,8 @@ apply imp_or_tauto.
 
        destruct Hx as [Hx| ]; [ idtac | contradiction ].
        rewrite <- Hx, <- Hk; reflexivity.
+
+    apply HdRel_app; [ idtac | constructor ].
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
