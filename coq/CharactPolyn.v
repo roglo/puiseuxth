@@ -2895,6 +2895,12 @@ apply imp_or_tauto.
        rewrite <- Hx, <- Hk; reflexivity.
 
     apply HdRel_app; [ idtac | constructor ].
+     remember (oth_pts ns) as pts eqn:Hpts .
+     symmetry in Hpts.
+     destruct pts as [| pt]; constructor.
+     rewrite <- Hj; simpl.
+     apply Z2Nat.inj_lt.
+      apply Nat2Z.is_nonneg.
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
