@@ -2901,6 +2901,48 @@ apply imp_or_tauto.
      rewrite <- Hj; simpl.
      apply Z2Nat.inj_lt.
       apply Nat2Z.is_nonneg.
+
+      apply oth_pts_in_init_pts with (pt := pt) in Hns.
+       eapply pt_absc_is_nat in Hns; [ idtac | reflexivity ].
+       rewrite Hns; simpl.
+       apply Nat2Z.is_nonneg.
+
+       rewrite Hpts; left; reflexivity.
+
+      rewrite Nat2Z.id.
+      destruct pt as (h, αh); simpl.
+      eapply j_lt_h; try eassumption; try reflexivity.
+      rewrite Hpts; left.
+      unfold Qnat; simpl.
+      remember Hns as Hpt; clear HeqHpt.
+      apply oth_pts_in_init_pts with (pt := (h, αh)) in Hpt.
+       eapply pt_absc_is_nat in Hpt; [ idtac | reflexivity ].
+       simpl in Hpt; rewrite Hpt.
+       unfold Qnat; simpl.
+       rewrite Nat2Z.id; reflexivity.
+
+       rewrite Hpts; left; reflexivity.
+
+     rewrite <- Hj, <- Hk; simpl.
+     eapply jz_lt_kz; try eassumption.
+      rewrite <- Hj; reflexivity.
+
+      rewrite <- Hk; reflexivity.
+
+   constructor.
+    rewrite <- Hj; reflexivity.
+
+    apply List.Forall_forall; intros pt Hpt.
+    apply List.in_app_or in Hpt.
+    destruct Hpt as [Hpt| Hpt].
+     revert pt Hpt.
+     apply List.Forall_forall.
+     eapply oth_pts_den_1; eassumption.
+
+     destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
+     rewrite <- Hpt, <- Hk; reflexivity.
+
+  eapply q_is_factor_of_h_minus_j; try eassumption; [ reflexivity | idtac ].
 bbb.
 
   remember make_char_pol as g; simpl; subst g.
