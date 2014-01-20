@@ -2833,7 +2833,7 @@ Definition apply_K_poly := (apply_poly .0 f (fld_add f) (fld_mul f))%K.
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
 Theorem phi_0_ne_0 : ∀ pol ns,
   ns ∈ newton_segments f pol
-  → (apply_K_poly (Φ pol ns) .0 f .= f .0 f)%K.
+  → (apply_K_poly (Φ pol ns) .0 f .≠ f .0 f)%K.
 Proof.
 intros pol ns Hns.
 unfold apply_K_poly; simpl.
@@ -2843,6 +2843,14 @@ destruct jj as (jq, αj); simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
 rewrite fld_mul_0_r, fld_add_0_l.
-bbb.
+eapply val_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
+left; rewrite <- Hj.
+unfold Qnat, nofq; simpl.
+apply exists_ini_pt_nat in Hns.
+destruct Hns as (i, (αi, Hi)).
+rewrite Hi in Hj.
+injection Hj; clear Hj; intros; subst jq αj.
+rewrite Z2Nat.id; [ reflexivity | apply Nat2Z.is_nonneg ].
+Qed.
 
 End theorems.
