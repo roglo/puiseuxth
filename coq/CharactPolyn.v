@@ -2836,6 +2836,13 @@ Theorem phi_0_ne_0 : ∀ pol ns,
   → (apply_K_poly (Φ pol ns) .0 f .= f .0 f)%K.
 Proof.
 intros pol ns Hns.
+unfold apply_K_poly; simpl.
+unfold apply_poly; simpl.
+remember (ini_pt ns) as jj eqn:Hj .
+destruct jj as (jq, αj); simpl.
+rewrite Nat.sub_diag; simpl.
+rewrite skipn_pad; simpl.
+rewrite fld_mul_0_r, fld_add_0_l.
 bbb.
 
 End theorems.
