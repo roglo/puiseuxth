@@ -39,7 +39,7 @@ Fixpoint poly_power α (f : field α) pol n :=
   end.
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
-Notation "a ./ f b" := (poly_div f a) : poly_scope.
+Notation "a ./ f b" := (poly_quotient f a) : poly_scope.
 
 Definition Ψ α (f : field α) pol ns c₁ r :=
   (Φq f pol ns ./ f POL [(.- f c₁)%K; .1 f … []] .^ f r)%pol.
