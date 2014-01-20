@@ -2132,8 +2132,9 @@ Definition summation_ah_xh_pol pol ns :=
   let j := nofq (fst (ini_pt ns)) in
   POL (list_pad j .0 f%K (al (characteristic_polynomial f pol ns)))%pol.
 
-Definition Φ pol ns q :=
+Definition Φ pol ns :=
   let j := nofq (fst (ini_pt ns)) in
+  let q := Pos.to_nat (q_of_ns pol ns) in
   poly_shrink q (poly_left_shift j (summation_ah_xh_pol pol ns)).
 
 (* not real degree, since last coefficient can be null *)
@@ -2342,7 +2343,7 @@ Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → pseudo_degree (Φ pol ns q) = ((k - j) / q)%nat.
+        → pseudo_degree (Φ pol ns) = ((k - j) / q)%nat.
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold pseudo_degree; simpl.
@@ -2405,8 +2406,9 @@ rewrite list_length_shrink; simpl.
 
     eapply oth_fin_pts_sorted; eassumption.
 
+  subst q.
   rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
-  subst q; apply Pos2Nat.is_pos.
+  apply Pos2Nat.is_pos.
 
  apply lt_n_S.
  clear Hj.
@@ -2698,12 +2700,12 @@ Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
       → q = Pos.to_nat (q_of_ns pol ns)
-        → has_degree (Φ pol ns q) ((k - j) / q).
+        → has_degree (Φ pol ns) ((k - j) / q).
 Proof.
 intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold has_degree.
 unfold pseudo_degree.
-remember (al (Φ pol ns q)) as l.
+remember (al (Φ pol ns)) as l.
 apply imp_or_tauto.
  intros H.
  subst l; simpl.
@@ -2720,7 +2722,7 @@ apply imp_or_tauto.
  rewrite Nat_sub_succ_1.
  rewrite Nat.mul_comm.
  rewrite <- Nat.divide_div_mul_exact; [ idtac | subst q; auto | idtac ].
-  rewrite Nat.mul_comm.
+  rewrite Nat.mul_comm, <- Hq.
   rewrite Nat.div_mul; [ idtac | subst q; auto ].
   erewrite list_nth_coeff_last; try eassumption.
    rewrite list_last_cons_app; simpl.
@@ -2824,5 +2826,14 @@ apply imp_or_tauto.
  subst l.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
 Qed.
+
+(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
+   where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
+(*
+Theorem phi_0_ne_0 :
+  ns ∈ newton_segments f pol
+  → q = Pos.to_nat (q_of_ns pol ns)
+    → Φ pol ns
+*)
 
 End theorems.
