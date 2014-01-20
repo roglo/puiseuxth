@@ -10,6 +10,8 @@ Reserved Notation "a .≠ x b" (at level 70, x at level 0).
 Reserved Notation "a .+ x b" (at level 50, x at level 0).
 Reserved Notation "a .- x b" (at level 50, x at level 0).
 Reserved Notation "a .* x b" (at level 40, x at level 0).
+Reserved Notation "a ./ x b" (at level 40, x at level 0).
+Reserved Notation "a .^ x b" (at level 30, x at level 0).
 Reserved Notation ".- x a" (at level 35, x at level 0).
 Reserved Notation ".¹/ x a" (at level 1, x at level 0).
 Reserved Notation ".0 x" (at level 0, x at level 0).

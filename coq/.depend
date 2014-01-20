@@ -1,4 +1,4 @@
-AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified: AlgCloCharPol.v Misc.vo Field.vo Fpolynomial.vo
+AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified: AlgCloCharPol.v Misc.vo Field.vo Fpolynomial.vo CharactPolyn.vo
 CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Nbar.vo Newton.vo PolyConvexHull.vo Field.vo Fpolynomial.vo Puiseux_base.vo Power_series.vo Puiseux_series.vo Slope_base.vo
 ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo

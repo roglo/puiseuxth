@@ -24,6 +24,9 @@ Definition eq_poly α (f : field α) (x y : polynomial α) :=
 
 Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
+Definition poly_one α (f : field α) := POL [.1 f%K]%pol.
+Notation ".1 f" := (poly_one f) : poly_scope.
+
 Theorem list_eq_refl α (f : field α) : reflexive _ (list_eq f).
 Proof.
 intros l.
