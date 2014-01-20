@@ -1463,3 +1463,46 @@ subst l; split.
  rewrite Nat.sub_diag.
  apply Nat.lt_0_succ.
 Qed.
+
+Lemma list_map_app_at : ∀ A B (g : A → B) l x,
+  List.map g l ++ [g x] = List.map g (l ++ [x]).
+Proof.
+intros.
+induction l as [| b]; [ reflexivity | simpl ].
+rewrite IHl; reflexivity.
+Qed.
+
+Lemma imp_or_tauto : ∀ A B : Prop, (A → B) → A → A ∧ B.
+Proof. tauto. Qed.
+
+Lemma list_nth_last : ∀ A (l : list A) d len,
+  pred (length l) = len
+  → List.nth len l d = List.last l d.
+Proof.
+intros A l d len H.
+revert d len H.
+induction l as [| x]; intros.
+ subst len; reflexivity.
+
+ simpl in H.
+ destruct len.
+  simpl.
+  destruct l; [ reflexivity | discriminate H ].
+
+  remember List.last as g; simpl; subst g.
+  rewrite IHl.
+   simpl.
+   destruct l; [ discriminate H | reflexivity ].
+
+   rewrite H; reflexivity.
+Qed.
+
+Lemma list_last_cons_app : ∀ A x y (l : list A) d,
+  List.last [x … l ++ [y]] d = y.
+Proof.
+intros A x y l d.
+revert x.
+induction l as [| z]; [ reflexivity | intros ].
+simpl in IHl; simpl.
+apply IHl.
+Qed.

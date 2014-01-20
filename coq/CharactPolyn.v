@@ -1989,26 +1989,6 @@ destruct Hns as [Hns| Hns].
   eapply minimise_slope_end_lt; try eassumption; reflexivity.
 Qed.
 
-Lemma Sorted_app_at_r : ∀ α f l (x : α),
-  Sorted f l
-  → (∀ y, y ∈ l → f y x)
-    → Sorted f (l ++ [x]).
-Proof.
-clear; intros α f l x Hs Hf.
-induction l as [| z]; [ constructor; constructor | simpl ].
-apply Sorted_inv in Hs.
-destruct Hs as (Hs, Hr).
-apply IHl in Hs.
- constructor; [ assumption | idtac ].
- destruct l as [| t].
-  constructor; apply Hf; left; reflexivity.
-
-  constructor; apply HdRel_inv in Hr; assumption.
-
- intros y Hy.
- apply Hf; right; assumption.
-Qed.
-
 Lemma oth_fin_pts_sorted : ∀ pol ns,
   ns ∈ newton_segments f pol
   → Sorted fst_lt (oth_pts ns ++ [fin_pt ns]).
@@ -2322,21 +2302,6 @@ induction l as [| a]; intros.
   destruct Hsort; assumption.
 Qed.
 
-Lemma Sorted_map : ∀ A B P (Q : A → B) (l : list A),
-  Sorted (λ x y, P (Q x) (Q y)) l
-  → Sorted P (List.map Q l).
-Proof.
-intros A B P Q l Hsort.
-apply Sorted_LocallySorted_iff in Hsort.
-apply Sorted_LocallySorted_iff.
-induction l as [| a]; [ constructor | simpl ].
-destruct l as [| b]; simpl; constructor.
- apply IHl.
- inversion Hsort; subst; assumption.
-
- inversion Hsort; subst; assumption.
-Qed.
-
 Lemma Sorted_fst_lt_nofq_fst : ∀ l,
   (∀ a, a ∈ l → fst a = Qnat (Z.to_nat (Qnum (fst a))))
   → Sorted fst_lt l
@@ -2370,14 +2335,6 @@ destruct l as [| b]; constructor.
  do 2 rewrite Z.mul_1_r in H3.
  apply Nat2Z.inj_lt in H3.
  assumption.
-Qed.
-
-Lemma list_map_app_at : ∀ A B (g : A → B) l x,
-  List.map g l ++ [g x] = List.map g (l ++ [x]).
-Proof.
-intros.
-induction l as [| b]; [ reflexivity | simpl ].
-rewrite IHl; reflexivity.
 Qed.
 
 Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
@@ -2541,31 +2498,6 @@ destruct n as [n| ].
     destruct Hns; eassumption.
 Qed.
 
-Lemma imp_or_tauto : ∀ A B : Prop, (A → B) → A → A ∧ B.
-Proof. tauto. Qed.
-
-Lemma list_nth_last : ∀ (l : list α) d len,
-   pred (length l) = len
-   → List.nth len l d = List.last l d.
-Proof.
-intros l d len H.
-revert d len H.
-induction l as [| x]; intros.
- subst len; reflexivity.
-
- simpl in H.
- destruct len.
-  simpl.
-  destruct l; [ reflexivity | discriminate H ].
-
-  remember List.last as g; simpl; subst g.
-  rewrite IHl.
-   simpl.
-   destruct l; [ discriminate H | reflexivity ].
-
-   rewrite H; reflexivity.
-Qed.
-
 Lemma bidule : ∀ j αj k αk t₁ t₂ t₃ tl,
   Sorted (λ pt₁ pt₂, Qnum (fst pt₁) < Qnum (fst pt₂)) [t₁; t₂; t₃ … tl]
   → (Qnat j, αj) = t₁
@@ -2721,16 +2653,6 @@ destruct tl as [| t₁].
     eapply bidule; eassumption.
 Qed.
 
-Lemma list_last_cons_app : ∀ A x y (l : list A) d,
-  List.last [x … l ++ [y]] d = y.
-Proof.
-intros A x y l d.
-revert x.
-induction l as [| z]; [ reflexivity | intros ].
-simpl in IHl; simpl.
-apply IHl.
-Qed.
-
 Lemma oth_pts_den_1 : ∀ pol ns,
   ns ∈ newton_segments f pol
   → List.Forall (λ pt, Qden (fst pt) = 1%positive) (oth_pts ns).
@@ -2767,52 +2689,6 @@ destruct pts as [| pt₂]; constructor.
  unfold Qlt in H3.
  rewrite Hden1, Hden₂ in H3.
  do 2 rewrite Z.mul_1_r in H3; assumption.
-Qed.
-
-Lemma Sorted_trans_app : ∀ A (g : A → A → Prop) x y l,
-  (∀ x y z, g x y → g y z → g x z)
-  → x ∈ l
-    → Sorted g (l ++ [y])
-      → g x y.
-Proof.
-intros A g x y l Htrans Hx Hsort.
-apply Sorted_LocallySorted_iff in Hsort.
-revert x y Hx Hsort.
-induction l as [| z]; intros; [ contradiction | idtac ].
-simpl in Hsort.
-inversion Hsort.
- symmetry in H1.
- apply List.app_eq_nil in H1.
- destruct H1 as (_, H); discriminate H.
-
- subst.
- destruct Hx as [Hx| Hx].
-  subst z.
-  destruct l as [| z].
-   simpl in H0.
-   injection H0; clear H0; intros; subst.
-   assumption.
-
-   eapply Htrans; [ eassumption | idtac ].
-   apply IHl.
-    simpl in H0.
-    injection H0; clear H0; intros; subst.
-    left; reflexivity.
-
-    rewrite <- H0; assumption.
-
-  apply IHl; [ assumption | idtac ].
-  rewrite <- H0; assumption.
-Qed.
-
-Lemma HdRel_app : ∀ A (R : A → A → Prop) a l₁ l₂,
-  HdRel R a l₁
-  → HdRel R a l₂
-    → HdRel R a (l₁ ++ l₂).
-Proof.
-intros A R a l₁ l₂ H₁ H₂.
-destruct l₁ as [| b]; [ assumption | constructor ].
-apply HdRel_inv in H₁; assumption.
 Qed.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0

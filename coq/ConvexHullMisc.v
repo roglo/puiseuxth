@@ -70,6 +70,26 @@ split.
  eapply Sorted_inv_1; eassumption.
 Qed.
 
+Lemma Sorted_app_at_r : ∀ α f l (x : α),
+  Sorted f l
+  → (∀ y, y ∈ l → f y x)
+    → Sorted f (l ++ [x]).
+Proof.
+clear; intros α f l x Hs Hf.
+induction l as [| z]; [ constructor; constructor | simpl ].
+apply Sorted_inv in Hs.
+destruct Hs as (Hs, Hr).
+apply IHl in Hs.
+ constructor; [ assumption | idtac ].
+ destruct l as [| t].
+  constructor; apply Hf; left; reflexivity.
+
+  constructor; apply HdRel_inv in Hr; assumption.
+
+ intros y Hy.
+ apply Hf; right; assumption.
+Qed.
+
 Lemma Sorted_hd : ∀ (pt₁ pt₂ : Q * Q) pts,
   Sorted fst_lt [pt₁ … pts]
   → pt₂ ∈ pts
@@ -153,6 +173,67 @@ destruct Hin as [Hin| Hin].
 
   apply IHl; [ idtac | assumption ].
   eapply Sorted_minus_2nd; eassumption.
+Qed.
+
+Lemma Sorted_map : ∀ A B P (Q : A → B) (l : list A),
+  Sorted (λ x y, P (Q x) (Q y)) l
+  → Sorted P (List.map Q l).
+Proof.
+intros A B P Q l Hsort.
+apply Sorted_LocallySorted_iff in Hsort.
+apply Sorted_LocallySorted_iff.
+induction l as [| a]; [ constructor | simpl ].
+destruct l as [| b]; simpl; constructor.
+ apply IHl.
+ inversion Hsort; subst; assumption.
+
+ inversion Hsort; subst; assumption.
+Qed.
+
+Lemma Sorted_trans_app : ∀ A (g : A → A → Prop) x y l,
+  (∀ x y z, g x y → g y z → g x z)
+  → x ∈ l
+    → Sorted g (l ++ [y])
+      → g x y.
+Proof.
+intros A g x y l Htrans Hx Hsort.
+apply Sorted_LocallySorted_iff in Hsort.
+revert x y Hx Hsort.
+induction l as [| z]; intros; [ contradiction | idtac ].
+simpl in Hsort.
+inversion Hsort.
+ symmetry in H1.
+ apply List.app_eq_nil in H1.
+ destruct H1 as (_, H); discriminate H.
+
+ subst.
+ destruct Hx as [Hx| Hx].
+  subst z.
+  destruct l as [| z].
+   simpl in H0.
+   injection H0; clear H0; intros; subst.
+   assumption.
+
+   eapply Htrans; [ eassumption | idtac ].
+   apply IHl.
+    simpl in H0.
+    injection H0; clear H0; intros; subst.
+    left; reflexivity.
+
+    rewrite <- H0; assumption.
+
+  apply IHl; [ assumption | idtac ].
+  rewrite <- H0; assumption.
+Qed.
+
+Lemma HdRel_app : ∀ A (R : A → A → Prop) a l₁ l₂,
+  HdRel R a l₁
+  → HdRel R a l₂
+    → HdRel R a (l₁ ++ l₂).
+Proof.
+intros A R a l₁ l₂ H₁ H₂.
+destruct l₁ as [| b]; [ assumption | constructor ].
+apply HdRel_inv in H₁; assumption.
 Qed.
 
 (* *)
