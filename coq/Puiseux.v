@@ -18,6 +18,7 @@ Require Import Ps_mul.
 Require Import Ps_div.
 Require Import Puiseux_base.
 Require Import CharactPolyn.
+Require Import AlgCloCharPol.
 
 Set Implicit Arguments.
 

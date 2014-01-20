@@ -1,3 +1,4 @@
+AlgCloCharPol.vo AlgCloCharPol.glob AlgCloCharPol.v.beautified: AlgCloCharPol.v Misc.vo Field.vo Fpolynomial.vo
 CharactPolyn.vo CharactPolyn.glob CharactPolyn.v.beautified: CharactPolyn.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Nbar.vo Newton.vo PolyConvexHull.vo Field.vo Fpolynomial.vo Puiseux_base.vo Power_series.vo Puiseux_series.vo Slope_base.vo
 ConvexHull.vo ConvexHull.glob ConvexHull.v.beautified: ConvexHull.v Slope_base.vo
 ConvexHullMisc.vo ConvexHullMisc.glob ConvexHullMisc.v.beautified: ConvexHullMisc.v ConvexHull.vo Slope_base.vo
@@ -16,7 +17,7 @@ Ps_add.vo Ps_add.glob Ps_add.v.beautified: Ps_add.v Nbar.vo Misc.vo Field.vo Pow
 Ps_add_compat.vo Ps_add_compat.glob Ps_add_compat.v.beautified: Ps_add_compat.v Nbar.vo Misc.vo Field.vo Power_series.vo Puiseux_series.vo Ps_add.vo
 Ps_div.vo Ps_div.glob Ps_div.v.beautified: Ps_div.v Misc.vo Nbar.vo Field.vo Puiseux_series.vo Ps_add.vo Ps_add_compat.vo Ps_mul.vo Power_series.vo
 Ps_mul.vo Ps_mul.glob Ps_mul.v.beautified: Ps_mul.v Misc.vo Nbar.vo Field.vo Fsummation.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_add_compat.vo
-Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHullMisc.vo Field.vo Misc.vo Newton.vo Nbar.vo Fsummation.vo Fpolynomial.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_mul.vo Ps_div.vo Puiseux_base.vo CharactPolyn.vo
+Puiseux.vo Puiseux.glob Puiseux.v.beautified: Puiseux.v ConvexHullMisc.vo Field.vo Misc.vo Newton.vo Nbar.vo Fsummation.vo Fpolynomial.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_mul.vo Ps_div.vo Puiseux_base.vo CharactPolyn.vo AlgCloCharPol.vo
 Puiseux_base.vo Puiseux_base.glob Puiseux_base.v.beautified: Puiseux_base.v ConvexHull.vo ConvexHullMisc.vo Misc.vo Nbar.vo Newton.vo Field.vo Fpolynomial.vo Power_series.vo Puiseux_series.vo Ps_add.vo Ps_add_compat.vo Ps_mul.vo Ps_div.vo
 Puiseux_series.vo Puiseux_series.glob Puiseux_series.v.beautified: Puiseux_series.v Misc.vo Nbar.vo Field.vo Power_series.vo
 SlopeMisc.vo SlopeMisc.glob SlopeMisc.v.beautified: SlopeMisc.v Slope_base.vo Misc.vo

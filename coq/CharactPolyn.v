@@ -20,32 +20,9 @@ Require Import Slope_base.
 
 Set Implicit Arguments.
 
-Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
-  match l with
-  | [] => O
-  | [x … l₁] =>
-      match degree_plus_1_of_list is_zero l₁ with
-      | O => if is_zero x then O else 1%nat
-      | S n => S (S n)
-      end
-  end.
-
-Definition degree α is_zero (pol : polynomial α) :=
-  pred (degree_plus_1_of_list is_zero (al pol)).
-
 Record term α β := { coeff : α; power : β }.
 
 (* *)
-
-Definition apply_polynomial α (f : field α) :=
-  apply_poly (fld_zero f) (fld_add f) (fld_mul f).
-
-Record algeb_closed_field α :=
-  { ac_field : field α;
-    ac_root : polynomial α → (α * nat);
-    ac_is_zero : α → bool;
-    ac_prop : ∀ pol, degree ac_is_zero pol ≥ 1
-      → apply_polynomial ac_field pol (fst (ac_root pol)) = .0 ac_field%K }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
@@ -2132,10 +2109,13 @@ Definition summation_ah_xh_pol pol ns :=
   let j := nofq (fst (ini_pt ns)) in
   POL (list_pad j .0 f%K (al (characteristic_polynomial f pol ns)))%pol.
 
-Definition Φ pol ns :=
+Definition Φq pol ns :=
   let j := nofq (fst (ini_pt ns)) in
+  poly_left_shift j (summation_ah_xh_pol pol ns).
+
+Definition Φ pol ns :=
   let q := Pos.to_nat (q_of_ns pol ns) in
-  poly_shrink q (poly_left_shift j (summation_ah_xh_pol pol ns)).
+  poly_shrink q (Φq pol ns).
 
 (* not real degree, since last coefficient can be null *)
 Definition pseudo_degree (p : polynomial α) := pred (List.length (al p)).
