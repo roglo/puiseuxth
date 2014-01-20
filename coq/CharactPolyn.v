@@ -2380,9 +2380,7 @@ induction l as [| b]; [ reflexivity | simpl ].
 rewrite IHl; reflexivity.
 Qed.
 
-(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
-   where Φ(z) is a polynomial, of degree (k - j)/q » *)
-Theorem phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
+Lemma phi_pseudo_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
@@ -2817,7 +2815,9 @@ destruct l₁ as [| b]; [ assumption | constructor ].
 apply HdRel_inv in H₁; assumption.
 Qed.
 
-Theorem zzz (*phi_pseudo_degree_is_k_sub_j_div_q*) : ∀ pol ns j αj k αk q,
+(* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
+   where Φ(z) is a polynomial, of degree (k - j)/q » *)
+Theorem phi_degree_is_k_sub_j_div_q : ∀ pol ns j αj k αk q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
     → (Qnat k, αk) = fin_pt ns
@@ -2943,18 +2943,10 @@ apply imp_or_tauto.
      rewrite <- Hpt, <- Hk; reflexivity.
 
   eapply q_is_factor_of_h_minus_j; try eassumption; [ reflexivity | idtac ].
-bbb.
+  apply List.in_or_app; right; left; symmetry; eassumption.
 
-  remember make_char_pol as g; simpl; subst g.
-  remember (List.nth (k - j)) as g.
-  replace j with (0 + j)%nat by reflexivity; subst g.
-  rewrite nth_minus_char_pol_plus_cons.
-   simpl.
-   rewrite <- Hj; simpl.
-   rewrite Nat.sub_0_r.
-   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
-   rewrite fold_char_pol with (αj := αj).
-   rewrite Hj.
-bbb.
+ subst l.
+ eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
+Qed.
 
 End theorems.
