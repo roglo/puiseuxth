@@ -30,7 +30,8 @@ Record algeb_closed_field α :=
     ac_root : polynomial α → (α * nat);
     ac_is_zero : α → bool;
     ac_prop : ∀ pol, degree ac_is_zero pol ≥ 1
-      → apply_polynomial ac_field pol (fst (ac_root pol)) = .0 ac_field%K }.
+      → (apply_polynomial ac_field pol (fst (ac_root pol)) .= ac_field
+         .0 ac_field)%K }.
 
 Fixpoint poly_power α (f : field α) pol n :=
   match n with
