@@ -25,17 +25,11 @@ Definition degree α is_zero (pol : polynomial α) :=
 Definition apply_polynomial α (f : field α) :=
   apply_poly (fld_zero f) (fld_add f) (fld_mul f).
 
-Fixpoint list_mod_div_mono_coeff A zero (add : A → A → A) mul (c : A) al :=
-  match al with
-  | [] => zero
-  | [a₁ … al₁] => add a₁ (mul c (list_mod_div_mono_coeff zero add mul c al₁))
-  end.
-
-Fixpoint list_mod_div_mono A zero (add : A → A → A) mul c al :=
+Fixpoint list_mod_div_mono A zero (add : A → A → A) mul (c : A) al :=
   match al with
   | [] => []
   | [a₁ … al₁] =>
-      [list_mod_div_mono_coeff zero add mul c al …
+      [apply_poly zero add mul (POL al)%pol c …
        list_mod_div_mono zero add mul c al₁]
   end.
 
@@ -48,8 +42,8 @@ Definition poly_div_mod_mono A zero (add : A → A → A) mul pol c :=
 (* test
 Require Import QArith.
 Definition test cl c := poly_div_mod_mono 0 Qplus Qmult (POL cl)%pol c.
- Eval vm_compute in test [Qnat 2; -Qnat 3; 1 … []] (Qnat 4).
- Eval vm_compute in test [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
+Eval vm_compute in test [Qnat 2; -Qnat 3; 1 … []] (Qnat 4).
+Eval vm_compute in test [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 *)
 
 Record algeb_closed_field α :=
