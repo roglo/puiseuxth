@@ -59,6 +59,32 @@ Eval vm_compute in Qtest_div [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2
 Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 *)
 
+(* trying to compute i-th derivative divided by factorial i *)
+
+Fixpoint comb n k :=
+  match n with
+  | O => O
+  | 1 => 1
+  | S n₁ =>
+      match n - k with
+      | O => 1
+      | _ =>
+          match k with
+          | O => 1
+          | S k₁ => comb n₁ k₁ + comb n₁ k
+          end
+      end
+  end.
+
+Fixpoint glop A (mul : nat → A → A) al i j :=
+  match al with
+  | [] => []
+  | [a₁ … al₁] => [mul (comb i j) a₁ … glop mul al₁ i (S j)]
+  end.
+
+Definition ith_der_on_fact_i A (mul : nat → A → A) pol i :=
+  glop mul (List.skipn i (al pol)) i i.
+
 (* *)
 
 Record algeb_closed_field α :=
