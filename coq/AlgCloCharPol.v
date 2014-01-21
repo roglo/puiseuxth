@@ -25,6 +25,8 @@ Definition degree α is_zero (pol : polynomial α) :=
 Definition apply_polynomial α (f : field α) :=
   apply_poly (fld_zero f) (fld_add f) (fld_mul f).
 
+(* euclidean division of a polynomial by (x - c) *)
+
 Fixpoint list_mod_div_mono A zero (add : A → A → A) mul (c : A) al :=
   match al with
   | [] => []
@@ -33,18 +35,31 @@ Fixpoint list_mod_div_mono A zero (add : A → A → A) mul (c : A) al :=
        list_mod_div_mono zero add mul c al₁]
   end.
 
-Definition poly_div_mod_mono A zero (add : A → A → A) mul pol c :=
+Definition poly_div_mono A zero (add : A → A → A) mul pol c :=
   match list_mod_div_mono zero add mul c (al pol) with
-  | [] => (POL []%pol, zero)
-  | [m … ml] => (POL ml%pol, m)
+  | [] => POL []%pol
+  | [m … ml] => POL ml%pol
+  end.
+
+Definition poly_mod_mono A zero (add : A → A → A) mul pol c :=
+  match list_mod_div_mono zero add mul c (al pol) with
+  | [] => zero
+  | [m … ml] => m
   end.
 
 (* test
 Require Import QArith.
-Definition test cl c := poly_div_mod_mono 0 Qplus Qmult (POL cl)%pol c.
-Eval vm_compute in test [Qnat 2; -Qnat 3; 1 … []] (Qnat 4).
-Eval vm_compute in test [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
+Definition Ztest_div cl c := poly_div_mono Z0 Z.add Z.mul (POL cl)%pol c.
+Definition Ztest_mod cl c := poly_mod_mono Z0 Z.add Z.mul (POL cl)%pol c.
+Definition Qtest_div cl c := poly_div_mono 0 Qplus Qmult (POL cl)%pol c.
+Definition Qtest_mod cl c := poly_mod_mono 0 Qplus Qmult (POL cl)%pol c.
+Eval vm_compute in Ztest_div [2; -3; 1 … []]%Z 4.
+Eval vm_compute in Ztest_mod [2; -3; 1 … []]%Z 4.
+Eval vm_compute in Qtest_div [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
+Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 *)
+
+(* *)
 
 Record algeb_closed_field α :=
   { ac_field : field α;
