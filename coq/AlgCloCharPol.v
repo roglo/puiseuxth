@@ -47,7 +47,9 @@ Definition poly_div_mod_mono A zero (add : A → A → A) mul pol c :=
 
 (* test
 Require Import QArith.
-Eval vm_compute in (poly_div_mod_mono 0 Qplus Qmult (POL [Qnat 2; -Qnat 3; 1 … []])%pol (Qnat 4)).
+Definition test cl c := poly_div_mod_mono 0 Qplus Qmult (POL cl)%pol c.
+ Eval vm_compute in test [Qnat 2; -Qnat 3; 1 … []] (Qnat 4).
+ Eval vm_compute in test [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 *)
 
 Record algeb_closed_field α :=
