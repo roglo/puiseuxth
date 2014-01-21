@@ -102,26 +102,28 @@ Fixpoint poly_power α (f : field α) pol n :=
   end.
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
-Notation "a ./ f b" := (poly_div f a b) : poly_scope.
 
-Fixpoint multiplicity_and_quotient pol ns c d :=
-  match d with
-  | O => (
-
+(*
 Definition Ψ α (f : field α) pol ns c₁ r :=
   (Φq f pol ns ./ f POL [(.- f c₁)%K; .1 f … []] .^ f r)%pol.
+*)
 
 Section theorems.
 
 Variable α : Type.
-Variable f : field α.
+Variable acf : algeb_closed_field α.
+Let f := ac_field acf.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
-Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r,
-  (Φq f pol ns .= f
-   POL [(.- f c₁)%K; .1 f … []] .^ f r .* f Ψ f pol ns c₁ r)%pol.
+Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
+  ns ∈ newton_segments
+  → c₁ = ac_root acf (Φq f pol ns)
+    → r = multiplicity acf c₁ (Φq f pol ns)
+      → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c
+        → (Φq f pol ns .= f
+           POL [(.- f c₁)%K; .1 f … []] .^ f r .* f Ψ f pol ns c₁ r)%pol.
 Proof.
 bbb.
 
