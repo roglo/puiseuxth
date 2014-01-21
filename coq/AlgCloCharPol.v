@@ -25,6 +25,31 @@ Definition degree α is_zero (pol : polynomial α) :=
 Definition apply_polynomial α (f : field α) :=
   apply_poly (fld_zero f) (fld_add f) (fld_mul f).
 
+Fixpoint list_mod_div_mono_coeff A zero (add : A → A → A) mul (c : A) al :=
+  match al with
+  | [] => zero
+  | [a₁ … al₁] => add a₁ (mul c (list_mod_div_mono_coeff zero add mul c al₁))
+  end.
+
+Fixpoint list_mod_div_mono A zero (add : A → A → A) mul c al :=
+  match al with
+  | [] => []
+  | [a₁ … al₁] =>
+      [list_mod_div_mono_coeff zero add mul c al …
+       list_mod_div_mono zero add mul c al₁]
+  end.
+
+Definition poly_div_mod_mono A zero (add : A → A → A) mul pol c :=
+  match list_mod_div_mono zero add mul c (al pol) with
+  | [] => (POL []%pol, zero)
+  | [m … ml] => (POL ml%pol, m)
+  end.
+
+(* test
+Require Import QArith.
+Eval vm_compute in (poly_div_mod_mono 0 Qplus Qmult (POL [Qnat 2; -Qnat 3; 1 … []])%pol (Qnat 4)).
+*)
+
 Record algeb_closed_field α :=
   { ac_field : field α;
     ac_root : polynomial α → (α * nat);
@@ -41,6 +66,10 @@ Fixpoint poly_power α (f : field α) pol n :=
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 Notation "a ./ f b" := (poly_div f a b) : poly_scope.
+
+Fixpoint multiplicity_and_quotient pol ns c d :=
+  match d with
+  | O => (
 
 Definition Ψ α (f : field α) pol ns c₁ r :=
   (Φq f pol ns ./ f POL [(.- f c₁)%K; .1 f … []] .^ f r)%pol.
