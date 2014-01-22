@@ -5,6 +5,7 @@ Require Import Utf8.
 Require Import Misc.
 Require Import Field.
 Require Import Fpolynomial.
+Require Import Puiseux_base.
 Require Import CharactPolyn.
 
 Set Implicit Arguments.
@@ -108,6 +109,30 @@ Definition Ψ α (f : field α) pol ns c₁ r :=
   (Φq f pol ns ./ f POL [(.- f c₁)%K; .1 f … []] .^ f r)%pol.
 *)
 
+Fixpoint list_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
+  let f := ac_field acf in
+  match d with
+  | O => O
+  | S d₁ =>
+      match list_mod_div_mono (.0 f)%K (fld_add f) (fld_mul f) c₁ al with
+      | [] => O
+      | [m … ml] =>
+          if ac_is_zero acf m then S (list_multiplicity acf c₁ ml d₁)
+          else O
+      end
+  end.
+
+Definition multiplicity α (acf : algeb_closed_field α) c₁ pol :=
+  list_multiplicity acf c₁ (al pol) (List.length (al pol)).
+
+Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
+  match r with
+  | O => pol
+  | S r₁ =>
+      quotient_phi_x_sub_c_pow_r f
+        (poly_div_mono (.0 f)%K (fld_add f) (fld_mul f) pol c₁) c₁ r₁
+  end.
+
 Section theorems.
 
 Variable α : Type.
@@ -118,12 +143,13 @@ Let f := ac_field acf.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
-  ns ∈ newton_segments
+  ns ∈ newton_segments f pol
   → c₁ = ac_root acf (Φq f pol ns)
     → r = multiplicity acf c₁ (Φq f pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁
-        → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f … []] .^ f r .* f Ψ)%pol.
+      → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
+        → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
+intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
 bbb.
 
 End theorems.
