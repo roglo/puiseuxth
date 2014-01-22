@@ -19,8 +19,10 @@ Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 Delimit Scope poly_scope with pol.
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 
-Definition eq_poly α (f : field α) (x y : polynomial α) :=
-  list_eq f (al x) (al y).
+Inductive eq_poly α (f : field α) : polynomial α → polynomial α → Prop :=
+  | eq_poly_zero_l : eq_poly f (POL [.0 f%K])%pol (POL [])%pol
+  | eq_poly_zero_r : eq_poly f (POL [])%pol (POL [.0 f%K])%pol
+  | eq_poly_base : ∀ x y, list_eq f (al x) (al y) → eq_poly f x y.
 
 Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
@@ -75,13 +77,14 @@ Add Parametric Relation α (f : field α) : (list α) (list_eq f)
 Theorem eq_poly_refl α (f : field α) : reflexive _ (eq_poly f).
 Proof.
 intros pol.
-unfold eq_poly; reflexivity.
+constructor; reflexivity.
 Qed.
 
 Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
 Proof.
 intros pol₁ pol₂ Heq.
-unfold eq_poly; symmetry; assumption.
+inversion Heq; subst; constructor.
+symmetry; assumption.
 Qed.
 
 Theorem eq_poly_trans α (f : field α) : transitive _ (eq_poly f).
@@ -383,6 +386,16 @@ Proof.
 intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
+
+Theorem poly_mul_1_l : ∀ a, (a .* f .1 f .= f a)%pol.
+Proof.
+intros a.
+unfold eq_poly; simpl.
+remember (al a) as cl eqn:Hcl .
+symmetry in Hcl.
+destruct cl as [| c].
+ simpl.
+bbb.
 
 End poly.
 
