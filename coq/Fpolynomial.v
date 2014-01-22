@@ -122,53 +122,13 @@ Qed.
 Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
 Proof.
 intros pol₁ pol₂ Heq.
-unfold eq_poly in Heq |- *.
-inversion Heq; subst; constructor.
- assumption.
-
- assumption.
-
- symmetry; assumption.
+unfold eq_poly; symmetry; assumption.
 Qed.
 
 Theorem eq_poly_trans α (f : field α) : transitive _ (eq_poly f).
 Proof.
 intros pol₁ pol₂ pol₃ H₁ H₂.
-unfold eq_poly in H₁, H₂ |- *.
-inversion H₁; subst.
- inversion H₂; subst.
-  constructor; assumption.
-
-  constructor; constructor; [ idtac | constructor ].
-  etransitivity; [ eassumption | symmetry; assumption ].
-
-  rewrite <- H0 in H2.
-  inversion H2; constructor; assumption.
-
- inversion H₂; subst.
-  constructor; constructor.
-
-  constructor; assumption.
-
-  rewrite <- H0 in H2.
-  inversion H2; subst.
-  inversion H7; subst.
-  constructor.
-  etransitivity; [ symmetry; eassumption | assumption ].
-
- inversion H₂; subst.
-  rewrite <- H0 in H.
-  inversion H; subst.
-  inversion H7; subst.
-  constructor.
-  etransitivity; eassumption.
-
-  rewrite <- H0 in H.
-  inversion H; subst.
-  constructor; assumption.
-
-  constructor.
-  etransitivity; eassumption.
+unfold eq_poly; etransitivity; eassumption.
 Qed.
 
 Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
