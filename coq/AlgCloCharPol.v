@@ -121,9 +121,8 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
   ns ∈ newton_segments
   → c₁ = ac_root acf (Φq f pol ns)
     → r = multiplicity acf c₁ (Φq f pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c
-        → (Φq f pol ns .= f
-           POL [(.- f c₁)%K; .1 f … []] .^ f r .* f Ψ f pol ns c₁ r)%pol.
+      → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁
+        → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f … []] .^ f r .* f Ψ)%pol.
 Proof.
 bbb.
 
