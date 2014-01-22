@@ -189,7 +189,6 @@ Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_add; simpl.
 unfold eq_poly in Hac, Hbd.
-unfold list_eq in Hac, Hbd |- *.
 remember (al a) as la.
 remember (al b) as lb.
 remember (al c) as lc.
@@ -197,8 +196,21 @@ remember (al d) as ld.
 revert Hac Hbd; clear; intros.
 revert lb lc ld Hac Hbd.
 induction la as [| a]; intros.
- inversion Hac; subst; simpl.
- inversion Hbd; subst; constructor; assumption.
+ simpl.
+ inversion Hac; subst; [ assumption | simpl ].
+ destruct ld as [| d]; [ etransitivity; eassumption | idtac ].
+ etransitivity; [ eassumption | idtac ].
+ constructor; [ rewrite H, fld_add_0_l; reflexivity | idtac ].
+ revert H H0; clear; intros.
+ revert x ld H.
+ induction l as [| y]; intros; [ reflexivity | simpl ].
+ destruct ld as [| d]; [ assumption | idtac ].
+ constructor.
+  inversion H0; subst.
+  rewrite H3, fld_add_0_l; reflexivity.
+
+  eapply IHl; [ idtac | eassumption ].
+bbb.
 
  inversion Hac; subst; simpl.
  destruct lb as [| b].
