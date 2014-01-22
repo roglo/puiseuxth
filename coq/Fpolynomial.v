@@ -19,10 +19,12 @@ Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
 Delimit Scope poly_scope with pol.
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 
-Inductive eq_poly α (f : field α) : polynomial α → polynomial α → Prop :=
-  | eq_poly_zero_l : eq_poly f (POL [.0 f%K])%pol (POL [])%pol
-  | eq_poly_zero_r : eq_poly f (POL [])%pol (POL [.0 f%K])%pol
-  | eq_poly_base : ∀ x y, list_eq f (al x) (al y) → eq_poly f x y.
+Inductive eq_mono_list α (f : field α) : list α → list α → Prop :=
+  | eq_mono_list_zero_l : ∀ c, (c .= f .0 f)%K → eq_mono_list f [c] []
+  | eq_mono_list_zero_r : ∀ c, (c .= f .0 f)%K → eq_mono_list f [] [c]
+  | eq_mono_list_base : ∀ x y, list_eq f x y → eq_mono_list f x y.
+
+Definition eq_poly α (f : field α) x y := eq_mono_list f (al x) (al y).
 
 Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
@@ -48,6 +50,14 @@ induction l₁ as [| x₁]; intros.
 
   inversion Heq; subst; apply IHl₁; assumption.
 Qed.
+
+(*
+Add Parametric Morphism α (f : field α) : (@cons α)
+  with signature fld_eq f ==> eq ==> list_eq
+  as cons_fld_eq.
+Proof.
+bbb.
+*)
 
 Theorem list_eq_trans α (f : field α) : transitive _ (list_eq f).
 Proof.
@@ -83,14 +93,53 @@ Qed.
 Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
 Proof.
 intros pol₁ pol₂ Heq.
+unfold eq_poly in Heq |- *.
 inversion Heq; subst; constructor.
-symmetry; assumption.
+ assumption.
+
+ assumption.
+
+ symmetry; assumption.
 Qed.
 
 Theorem eq_poly_trans α (f : field α) : transitive _ (eq_poly f).
 Proof.
 intros pol₁ pol₂ pol₃ H₁ H₂.
-unfold eq_poly; etransitivity; eassumption.
+unfold eq_poly in H₁, H₂ |- *.
+inversion H₁; subst.
+ inversion H₂; subst.
+  constructor; assumption.
+
+  constructor; constructor; [ idtac | constructor ].
+  etransitivity; [ eassumption | symmetry; assumption ].
+
+  rewrite <- H0 in H2.
+  inversion H2; constructor; assumption.
+
+ inversion H₂; subst.
+  constructor; constructor.
+
+  constructor; assumption.
+
+  rewrite <- H0 in H2.
+  inversion H2; subst.
+  inversion H7; subst.
+  constructor.
+  etransitivity; [ symmetry; eassumption | assumption ].
+
+ inversion H₂; subst.
+  rewrite <- H0 in H.
+  inversion H; subst.
+  inversion H7; subst.
+  constructor.
+  etransitivity; eassumption.
+
+  rewrite <- H0 in H.
+  inversion H; subst.
+  constructor; assumption.
+
+  constructor.
+  etransitivity; eassumption.
 Qed.
 
 Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
