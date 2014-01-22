@@ -70,18 +70,41 @@ Proof.
 intros l₁ l₂ l₃ H₁ H₂.
 revert l₁ l₃ H₁ H₂.
 induction l₂ as [| x₂]; intros.
- inversion H₁; subst; assumption.
-
- destruct l₁ as [| x₁]; [ inversion H₁ | idtac ].
- destruct l₃ as [| x₃]; [ inversion H₂ | idtac ].
+ revert l₃ H₂.
+ induction l₁ as [| x₁]; intros; [ assumption | idtac ].
+ destruct l₃ as [| x₃]; [ assumption | idtac ].
  constructor.
   inversion H₁; subst.
   inversion H₂; subst.
-  transitivity x₂; assumption.
+  symmetry in H3.
+  etransitivity; eassumption.
 
-  inversion H₁; subst.
+  apply IHl₁.
+   inversion H₁; assumption.
+
+   inversion H₂; assumption.
+
+ inversion H₁; subst.
   inversion H₂; subst.
-  apply IHl₂; assumption.
+   constructor.
+    etransitivity; eassumption.
+
+    apply IHl₂; assumption.
+
+   constructor; [ etransitivity; eassumption | idtac ].
+   apply IHl₂; assumption.
+
+  clear H₁ IHl₂.
+  revert x₂ l₂ H₂ H2 H3.
+  induction l₃ as [| x₃]; intros; [ constructor | idtac ].
+  constructor.
+   inversion H₂; subst.
+   symmetry in H4.
+   etransitivity; eassumption.
+
+   inversion H₂; subst.
+   inversion H3; subst; [ assumption | idtac ].
+   eapply IHl₃; eassumption.
 Qed.
 
 Add Parametric Relation α (f : field α) : (list α) (list_eq f)
