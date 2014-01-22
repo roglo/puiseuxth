@@ -334,14 +334,30 @@ constructor.
  apply summation_compat; intros j (_, Hj).
  apply fld_mul_compat.
   clear Hj; revert j.
-  induction Hac; intros; [ reflexivity | simpl ].
-  destruct j; [ assumption | idtac ].
-  apply IHHac.
+  induction Hac; intros.
+   reflexivity.
+
+   destruct j; [ assumption | apply IHHac ].
+
+   destruct j; [ assumption | simpl; rewrite IHHac ].
+   destruct j; reflexivity.
+
+   symmetry.
+   destruct j; [ assumption | simpl; rewrite <- IHHac ].
+   destruct j; reflexivity.
 
   remember (i - j)%nat as k; clear Heqk; revert k.
-  induction Hbd; intros; [ reflexivity | simpl ].
-  destruct k; [ assumption | idtac ].
-  apply IHHbd.
+  induction Hbd; intros.
+   reflexivity.
+
+   destruct k; [ assumption | apply IHHbd ].
+
+   destruct k; [ assumption | simpl; rewrite IHHbd ].
+   destruct k; reflexivity.
+
+   symmetry.
+   destruct k; [ assumption | simpl; rewrite <- IHHbd ].
+   destruct k; reflexivity.
 
  apply IHlen; assumption.
 Qed.
