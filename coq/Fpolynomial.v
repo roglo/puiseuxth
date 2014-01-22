@@ -116,7 +116,7 @@ Add Parametric Relation α (f : field α) : (list α) (list_eq f)
 Theorem eq_poly_refl α (f : field α) : reflexive _ (eq_poly f).
 Proof.
 intros pol.
-constructor; reflexivity.
+unfold eq_poly; reflexivity.
 Qed.
 
 Theorem eq_poly_sym α (f : field α) : symmetric _ (eq_poly f).
