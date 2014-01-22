@@ -14,17 +14,25 @@ Set Implicit Arguments.
 
 Record polynomial α := mkpol { al : list α }.
 
-Definition list_eq α (f : field α) := List.Forall2 (fld_eq f).
+Inductive list_eq α (f : field α) : list α → list α → Prop :=
+  | list_eq_nil : list_eq f [] []
+  | list_eq_cons : ∀ x₁ x₂ l₁ l₂,
+      (x₁ .= f x₂)%K
+      → list_eq f l₁ l₂
+        → list_eq f [x₁ … l₁] [x₂ … l₂]
+  | list_eq_nil_right : ∀ x l,
+      (x .= f .0 f)%K
+      → list_eq f l []
+        → list_eq f [x … l] []
+  | list_eq_nil_left : ∀ x l,
+      (x .= f .0 f)%K
+      → list_eq f [] l
+        → list_eq f [] [x … l].
 
 Delimit Scope poly_scope with pol.
 Notation "'POL' l" := {| al := l |} (at level 1) : poly_scope.
 
-Inductive eq_mono_list α (f : field α) : list α → list α → Prop :=
-  | eq_mono_list_zero_l : ∀ c, (c .= f .0 f)%K → eq_mono_list f [c] []
-  | eq_mono_list_zero_r : ∀ c, (c .= f .0 f)%K → eq_mono_list f [] [c]
-  | eq_mono_list_base : ∀ x y, list_eq f x y → eq_mono_list f x y.
-
-Definition eq_poly α (f : field α) x y := eq_mono_list f (al x) (al y).
+Definition eq_poly α (f : field α) x y := list_eq f (al x) (al y).
 
 Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 
@@ -42,22 +50,20 @@ Proof.
 intros l₁ l₂ Heq.
 revert l₂ Heq.
 induction l₁ as [| x₁]; intros.
- destruct l₂; [ constructor | inversion Heq ].
+ induction l₂ as [| x₂]; constructor; inversion Heq.
+  assumption.
 
- destruct l₂ as [| x₂]; [ inversion Heq | idtac ].
- constructor.
-  inversion Heq; subst; symmetry; assumption.
+  apply IHl₂; assumption.
 
-  inversion Heq; subst; apply IHl₁; assumption.
+ induction l₂ as [| x₂]; constructor; inversion Heq.
+  assumption.
+
+  apply IHl₁; assumption.
+
+  symmetry; assumption.
+
+  apply IHl₁; assumption.
 Qed.
-
-(*
-Add Parametric Morphism α (f : field α) : (@cons α)
-  with signature fld_eq f ==> eq ==> list_eq
-  as cons_fld_eq.
-Proof.
-bbb.
-*)
 
 Theorem list_eq_trans α (f : field α) : transitive _ (list_eq f).
 Proof.
