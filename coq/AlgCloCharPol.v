@@ -1,9 +1,11 @@
 (* AlgCloCharPol.v *)
 
 Require Import Utf8.
+Require Import NPeano.
 
 Require Import Misc.
 Require Import Field.
+Require Import Newton.
 Require Import Fpolynomial.
 Require Import Puiseux_base.
 Require Import CharactPolyn.
@@ -150,6 +152,9 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
 intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
+subst r Ψ; simpl.
+unfold multiplicity; simpl.
+rewrite Nat.sub_diag; simpl.
 bbb.
 
 End theorems.
