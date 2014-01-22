@@ -230,85 +230,49 @@ induction la as [| a]; intros.
     apply IHld.
     inversion Hbd; assumption.
 
-  inversion Hac; subst.
+  destruct lc as [| c].
    simpl.
    destruct ld as [| d].
     constructor.
+     inversion Hac; subst.
      inversion Hbd; subst.
-     rewrite H2, fld_add_0_r; assumption.
+     rewrite H1, fld_add_0_l; assumption.
 
-     revert Hbd H3; clear; intros.
+     inversion Hac; subst.
      inversion Hbd; subst.
-     revert H3 H2; clear; intros.
-     destruct lb as [| b]; simpl.
-      destruct la; assumption.
+     rewrite IHla; try eassumption.
+     reflexivity.
 
-      inversion H2; subst.
-      inversion H4; subst.
-       revert H3 H1; clear; intros.
-       revert b l₂ H3 H1.
-       induction la as [| a]; intros.
-        simpl.
-        inversion H3; subst.
-         constructor; assumption.
+    constructor.
+     inversion Hac; subst.
+     inversion Hbd; subst.
+     rewrite H1, fld_add_0_l; assumption.
 
-         constructor.
-          symmetry in H.
-          etransitivity; eassumption.
+     inversion Hac; subst.
+     inversion Hbd; subst.
+     rewrite IHla; try eassumption.
+     reflexivity.
 
-          assumption.
+   simpl.
+   destruct ld as [| d].
+    constructor.
+     inversion Hac; subst.
+     inversion Hbd; subst.
+     rewrite H1, fld_add_0_r; assumption.
 
-        simpl.
-        inversion H3; subst.
-         simpl.
-         constructor.
-          rewrite H1, fld_add_0_r; assumption.
+     inversion Hac; subst.
+     inversion Hbd; subst.
+     rewrite IHla; try eassumption.
+     destruct lc; reflexivity.
 
-          inversion H5; subst.
-           constructor.
+    constructor.
+     inversion Hac; subst.
+     inversion Hbd; subst.
+     rewrite H2, H3; reflexivity.
 
-           simpl.
-           constructor.
-            assumption.
-
-            assumption.
-
-           simpl.
-           assumption.
-
-           simpl.
-           assumption.
-
-         inversion H5; subst.
-          simpl.
-          constructor.
-           rewrite H1, fld_add_0_r; assumption.
-
-           constructor.
-
-          simpl.
-          constructor.
-           rewrite H2, fld_add_0_l; assumption.
-
-           assumption.
-
-       destruct la as [| a].
-        simpl.
-        etransitivity; eassumption.
-
-        simpl.
-bbb.
-
- inversion Hac; subst; simpl.
- destruct lb as [| b].
-  destruct ld as [| d]; [ assumption | inversion Hbd ].
-
-  destruct ld as [| d]; [ inversion Hbd | idtac ].
-  constructor.
-   inversion Hbd; subst.
-   rewrite H1, H4; reflexivity.
-
-   apply IHla; [ inversion Hac | inversion Hbd ]; assumption.
+     inversion Hac; subst.
+     inversion Hbd; subst.
+     apply IHla; assumption.
 Qed.
 
 Lemma fold_list_eq : ∀ α (f : field α), List.Forall2 (fld_eq f) = list_eq f.
