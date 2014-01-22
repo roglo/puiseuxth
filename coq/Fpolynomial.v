@@ -221,8 +221,7 @@ induction la as [| a]; intros.
    simpl.
    destruct lc; reflexivity.
 
-   destruct lc as [| c]; [ assumption | idtac ].
-   simpl.
+   destruct lc as [| c]; [ assumption | simpl ].
    constructor.
     inversion Hbd; subst.
     rewrite H1, fld_add_0_r; reflexivity.
@@ -230,54 +229,40 @@ induction la as [| a]; intros.
     apply IHld.
     inversion Hbd; assumption.
 
-  destruct lc as [| c].
-   simpl.
+  destruct lc as [| c]; simpl.
    destruct ld as [| d].
     constructor.
-     inversion Hac; subst.
-     inversion Hbd; subst.
+     inversion Hac; inversion Hbd; subst.
      rewrite H1, fld_add_0_l; assumption.
 
-     inversion Hac; subst.
-     inversion Hbd; subst.
-     rewrite IHla; try eassumption.
-     reflexivity.
+     inversion Hac; inversion Hbd; subst.
+     rewrite IHla; try eassumption; reflexivity.
 
     constructor.
-     inversion Hac; subst.
-     inversion Hbd; subst.
+     inversion Hac; inversion Hbd; subst.
      rewrite H1, fld_add_0_l; assumption.
 
-     inversion Hac; subst.
-     inversion Hbd; subst.
-     rewrite IHla; try eassumption.
-     reflexivity.
+     inversion Hac; inversion Hbd; subst.
+     rewrite IHla; try eassumption; reflexivity.
 
-   simpl.
    destruct ld as [| d].
     constructor.
-     inversion Hac; subst.
-     inversion Hbd; subst.
-     rewrite H1, fld_add_0_r; assumption.
+     inversion Hac; inversion Hbd; subst.
+     rewrite H7, fld_add_0_r; assumption.
 
-     inversion Hac; subst.
-     inversion Hbd; subst.
+     inversion Hac; inversion Hbd; subst.
      rewrite IHla; try eassumption.
      destruct lc; reflexivity.
 
     constructor.
-     inversion Hac; subst.
-     inversion Hbd; subst.
-     rewrite H2, H3; reflexivity.
+     inversion Hac; inversion Hbd; subst.
+     rewrite H2, H8; reflexivity.
 
-     inversion Hac; subst.
-     inversion Hbd; subst.
+     inversion Hac; inversion Hbd; subst.
      apply IHla; assumption.
 Qed.
 
-Lemma fold_list_eq : ∀ α (f : field α), List.Forall2 (fld_eq f) = list_eq f.
-Proof. reflexivity. Qed.
-
+(* faux maintenant
 Lemma list_eq_length_eq : ∀ α (f : field α) l₁ l₂,
   list_eq f l₁ l₂ → List.length l₁ = List.length l₂.
 Proof.
@@ -291,6 +276,7 @@ induction l₁ as [| x₁]; intros.
  apply Nat.succ_inj_wd, IHl₁.
  inversion Heq; assumption.
 Qed.
+*)
 
 Lemma poly_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
   list_eq f (poly_convol_mul f l₁ l₂ i len) (poly_convol_mul f l₂ l₁ i len).
