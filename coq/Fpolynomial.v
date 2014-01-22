@@ -210,6 +210,93 @@ induction la as [| a]; intros.
   rewrite H3, fld_add_0_l; reflexivity.
 
   eapply IHl; [ idtac | eassumption ].
+  inversion H0; assumption.
+
+ simpl.
+ destruct lb as [| b].
+  etransitivity; [ eassumption | idtac ].
+  revert Hbd; clear; intros.
+  revert lc Hbd.
+  induction ld as [| d]; intros.
+   simpl.
+   destruct lc; reflexivity.
+
+   destruct lc as [| c]; [ assumption | idtac ].
+   simpl.
+   constructor.
+    inversion Hbd; subst.
+    rewrite H1, fld_add_0_r; reflexivity.
+
+    apply IHld.
+    inversion Hbd; assumption.
+
+  inversion Hac; subst.
+   simpl.
+   destruct ld as [| d].
+    constructor.
+     inversion Hbd; subst.
+     rewrite H2, fld_add_0_r; assumption.
+
+     revert Hbd H3; clear; intros.
+     inversion Hbd; subst.
+     revert H3 H2; clear; intros.
+     destruct lb as [| b]; simpl.
+      destruct la; assumption.
+
+      inversion H2; subst.
+      inversion H4; subst.
+       revert H3 H1; clear; intros.
+       revert b l₂ H3 H1.
+       induction la as [| a]; intros.
+        simpl.
+        inversion H3; subst.
+         constructor; assumption.
+
+         constructor.
+          symmetry in H.
+          etransitivity; eassumption.
+
+          assumption.
+
+        simpl.
+        inversion H3; subst.
+         simpl.
+         constructor.
+          rewrite H1, fld_add_0_r; assumption.
+
+          inversion H5; subst.
+           constructor.
+
+           simpl.
+           constructor.
+            assumption.
+
+            assumption.
+
+           simpl.
+           assumption.
+
+           simpl.
+           assumption.
+
+         inversion H5; subst.
+          simpl.
+          constructor.
+           rewrite H1, fld_add_0_r; assumption.
+
+           constructor.
+
+          simpl.
+          constructor.
+           rewrite H2, fld_add_0_l; assumption.
+
+           assumption.
+
+       destruct la as [| a].
+        simpl.
+        etransitivity; eassumption.
+
+        simpl.
 bbb.
 
  inversion Hac; subst; simpl.
