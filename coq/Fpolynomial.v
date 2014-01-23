@@ -394,8 +394,7 @@ revert Hac Hbd; clear; intros.
 destruct la as [| a].
  destruct lb as [| b].
   simpl.
-  destruct lc as [| c].
-   simpl.
+  destruct lc as [| c]; simpl.
    destruct ld as [| d]; [ reflexivity | simpl ].
    constructor.
     rewrite summation_only_one.
@@ -403,16 +402,13 @@ destruct la as [| a].
 
     rewrite poly_convol_mul_nil_l; reflexivity.
 
-   simpl.
-   destruct ld as [| d].
-    simpl.
+   destruct ld as [| d]; simpl.
     constructor.
      rewrite summation_only_one.
      rewrite fld_mul_0_r; reflexivity.
 
      rewrite poly_convol_mul_nil_r; reflexivity.
 
-    simpl.
     constructor.
      rewrite summation_only_one.
      apply list_eq_nil_cons_inv in Hac.
