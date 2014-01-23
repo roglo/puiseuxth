@@ -421,60 +421,15 @@ destruct la as [| a].
   apply list_eq_nil_poly_convol_mul_nil.
   symmetry; assumption.
 
-bbb.
-
-intros a c Hac b d Hbd.
-unfold eq_poly, poly_mul; simpl.
-unfold eq_poly in Hac, Hbd.
-remember (al a) as la.
-remember (al b) as lb.
-remember (al c) as lc.
-remember (al d) as ld.
-revert Hac Hbd; clear; intros.
-destruct la as [| a].
- destruct lb as [| b].
-  simpl.
-bbb.
-  destruct lc as [| c]; simpl.
-   destruct ld as [| d]; [ reflexivity | simpl ].
-   constructor.
-    rewrite summation_only_one.
-    rewrite fld_mul_0_l; reflexivity.
-
-    rewrite poly_convol_mul_nil_l; reflexivity.
-
-   destruct ld as [| d]; simpl.
-    constructor.
-     rewrite summation_only_one.
-     rewrite fld_mul_0_r; reflexivity.
-
-     rewrite poly_convol_mul_nil_r; reflexivity.
-
-    constructor.
-     rewrite summation_only_one.
-     apply list_eq_nil_cons_inv in Hac.
-     destruct Hac as (Hc, Hlc).
-     rewrite Hc, fld_mul_0_l; reflexivity.
-bbb.
-
-intros a c Hac b d Hbd.
-unfold eq_poly, poly_mul; simpl.
-inversion Hac; subst.
- inversion Hbd; simpl.
-  reflexivity.
-
+  symmetry.
+  rewrite list_eq_nil_poly_convol_mul_nil; [ idtac | symmetry; assumption ].
   constructor.
-   do 2 rewrite summation_only_one.
-   do 2 rewrite fld_mul_0_l; reflexivity.
+   rewrite summation_only_one, fld_mul_0_l; reflexivity.
 
+   symmetry.
    apply poly_convol_mul_nil_l.
 
-  constructor.
-   rewrite all_0_summation_0; [ reflexivity | idtac ].
-   intros k (_, Hk).
-   destruct k; rewrite fld_mul_0_l; reflexivity.
-
-   clear.
+ simpl.
 bbb.
 
 intros a c Hac b d Hbd.
