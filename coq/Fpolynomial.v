@@ -95,18 +95,15 @@ induction l₂ as [| x₂]; intros.
  revert l₃ H₂.
  induction l₁ as [| x₁]; intros; [ assumption | idtac ].
  destruct l₃ as [| x₃]; [ assumption | idtac ].
+ apply list_eq_cons_nil_inv in H₁.
+ apply list_eq_nil_cons_inv in H₂.
  constructor.
+  etransitivity; [ destruct H₁; eassumption | idtac ].
+  destruct H₂; symmetry; assumption.
+
+  apply IHl₁; [ destruct H₁ | destruct H₂ ]; assumption.
+
 bbb.
-  inversion H₁; subst.
-  inversion H₂; subst.
-  symmetry in H3.
-  etransitivity; eassumption.
-
-  apply IHl₁.
-   inversion H₁; assumption.
-
-   inversion H₂; assumption.
-
  inversion H₁; subst.
   inversion H₂; subst.
    constructor.
