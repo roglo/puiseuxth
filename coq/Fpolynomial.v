@@ -379,6 +379,30 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
+Lemma list_eq_nil_poly_convol_mul_nil : ∀ α (f : field α) la lb i len,
+  list_eq f la []
+  → list_eq f (poly_convol_mul f la lb i len) [].
+Proof.
+intros α f la lb i len Heq.
+revert la lb i Heq.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ rewrite all_0_summation_0; [ reflexivity | idtac ].
+ intros j (_, Hj).
+ remember (i - j)%nat as h.
+ revert Heq; clear; intros.
+ revert j.
+ induction la as [| a]; intros.
+  simpl; destruct j; rewrite fld_mul_0_l; reflexivity.
+
+  apply list_eq_cons_nil_inv in Heq.
+  destruct Heq as (Ha, Hla).
+  destruct j; simpl; [ rewrite Ha, fld_mul_0_l; reflexivity | idtac ].
+  apply IHla; assumption.
+
+ apply IHlen; assumption.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as ps_poly_mul_morph.
@@ -391,10 +415,26 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
+destruct la as [| a].
+ destruct lb as [| b]; simpl.
+  symmetry.
+  apply list_eq_nil_poly_convol_mul_nil.
+  symmetry; assumption.
+
 bbb.
+
+intros a c Hac b d Hbd.
+unfold eq_poly, poly_mul; simpl.
+unfold eq_poly in Hac, Hbd.
+remember (al a) as la.
+remember (al b) as lb.
+remember (al c) as lc.
+remember (al d) as ld.
+revert Hac Hbd; clear; intros.
 destruct la as [| a].
  destruct lb as [| b].
   simpl.
+bbb.
   destruct lc as [| c]; simpl.
    destruct ld as [| d]; [ reflexivity | simpl ].
    constructor.
