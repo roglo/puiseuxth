@@ -262,22 +262,6 @@ induction la as [| a]; intros.
      apply IHla; assumption.
 Qed.
 
-(* faux maintenant
-Lemma list_eq_length_eq : ∀ α (f : field α) l₁ l₂,
-  list_eq f l₁ l₂ → List.length l₁ = List.length l₂.
-Proof.
-intros α f l₁ l₂ Heq.
-revert l₂ Heq.
-induction l₁ as [| x₁]; intros.
- inversion Heq; subst; reflexivity.
-
- simpl.
- destruct l₂ as [| x₂]; [ inversion Heq | simpl ].
- apply Nat.succ_inj_wd, IHl₁.
- inversion Heq; assumption.
-Qed.
-*)
-
 Lemma poly_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
   list_eq f (poly_convol_mul f l₁ l₂ i len) (poly_convol_mul f l₂ l₁ i len).
 Proof.
@@ -294,30 +278,23 @@ rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_l : ∀ α (f : field α) l l' i j len,
-  list_eq f (poly_convol_mul f [] l i len) (poly_convol_mul f [] l' j len).
+Lemma poly_convol_mul_nil_l : ∀ α (f : field α) l i len,
+  list_eq f (poly_convol_mul f [] l i len) [].
 Proof.
-intros α f l l' i j len.
-revert l l' i j.
-induction len; intros; [ constructor | simpl ].
-constructor.
- rewrite all_0_summation_0.
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros k (_, Hk).
-  destruct k; rewrite fld_mul_0_l; reflexivity.
-
-  intros k (_, Hk).
-  destruct k; rewrite fld_mul_0_l; reflexivity.
-
- apply IHlen; assumption.
+intros α f l i len.
+revert i.
+induction len; intros; [ reflexivity | simpl ].
+constructor; [ idtac | apply IHlen ].
+rewrite all_0_summation_0; [ reflexivity | idtac ].
+intros k (_, Hk).
+destruct k; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_r : ∀ α (f : field α) l l' i j len,
-  list_eq f (poly_convol_mul f l [] i len) (poly_convol_mul f l' [] j len).
+Lemma poly_convol_mul_nil_r : ∀ α (f : field α) l i len,
+  list_eq f (poly_convol_mul f l [] i len) [].
 Proof.
-intros α f l l' i j len.
-rewrite poly_convol_mul_comm; symmetry.
-rewrite poly_convol_mul_comm; symmetry.
+intros α f l i len.
+rewrite poly_convol_mul_comm.
 apply poly_convol_mul_nil_l.
 Qed.
 
@@ -366,6 +343,40 @@ Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as ps_poly_mul_morph.
 Proof.
+intros a c Hac b d Hbd.
+unfold eq_poly, poly_mul; simpl.
+inversion Hac; subst.
+ do 2 rewrite poly_convol_mul_nil_l; reflexivity.
+
+ inversion Hbd.
+  do 2 rewrite poly_convol_mul_nil_r; reflexivity.
+
+  simpl.
+  constructor.
+   do 2 rewrite summation_only_one.
+   rewrite H1, H5; reflexivity.
+bbb.
+
+intros a c Hac b d Hbd.
+unfold eq_poly, poly_mul; simpl.
+inversion Hac; subst.
+ inversion Hbd; simpl.
+  reflexivity.
+
+  constructor.
+   do 2 rewrite summation_only_one.
+   do 2 rewrite fld_mul_0_l; reflexivity.
+
+   apply poly_convol_mul_nil_l.
+
+  constructor.
+   rewrite all_0_summation_0; [ reflexivity | idtac ].
+   intros k (_, Hk).
+   destruct k; rewrite fld_mul_0_l; reflexivity.
+
+   clear.
+bbb.
+
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
 erewrite list_eq_length_eq; [ idtac | eassumption ].
