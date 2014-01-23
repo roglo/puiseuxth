@@ -20,11 +20,11 @@ Inductive list_eq α (f : field α) : list α → list α → Prop :=
       (x₁ .= f x₂)%K
       → list_eq f l₁ l₂
         → list_eq f [x₁ … l₁] [x₂ … l₂]
-  | list_eq_nil_right : ∀ x l,
+  | list_eq_cons_nil : ∀ x l,
       (x .= f .0 f)%K
       → list_eq f l []
         → list_eq f [x … l] []
-  | list_eq_nil_left : ∀ x l,
+  | list_eq_nil_cons : ∀ x l,
       (x .= f .0 f)%K
       → list_eq f [] l
         → list_eq f [] [x … l].
@@ -39,6 +39,30 @@ Notation "a .= f b" := (eq_poly f a b) : poly_scope.
 Definition poly_one α (f : field α) := POL [.1 f%K]%pol.
 Notation ".1 f" := (poly_one f) : poly_scope.
 
+Lemma list_eq_cons_inv : ∀ α (f : field α) x₁ x₂ l₁ l₂,
+  list_eq f [x₁ … l₁] [x₂ … l₂]
+  → (x₁ .= f x₂)%K ∧ list_eq f l₁ l₂.
+Proof.
+intros α f x₁ x₂ l₁ l₂ H.
+inversion H; split; assumption.
+Qed.
+
+Lemma list_eq_cons_nil_inv : ∀ α (f : field α) x l,
+  list_eq f [x … l] []
+  → (x .= f .0 f)%K ∧ list_eq f l [].
+Proof.
+intros α f x l H.
+inversion H; split; assumption.
+Qed.
+
+Lemma list_eq_nil_cons_inv : ∀ α (f : field α) x l,
+  list_eq f [] [x … l]
+  → (x .= f .0 f)%K ∧ list_eq f [] l.
+Proof.
+intros α f x l H.
+inversion H; split; assumption.
+Qed.
+
 Theorem list_eq_refl α (f : field α) : reflexive _ (list_eq f).
 Proof.
 intros l.
@@ -50,19 +74,17 @@ Proof.
 intros l₁ l₂ Heq.
 revert l₂ Heq.
 induction l₁ as [| x₁]; intros.
- induction l₂ as [| x₂]; constructor; inversion Heq.
-  assumption.
+ induction l₂ as [| x₂]; constructor; apply list_eq_nil_cons_inv in Heq.
+  destruct Heq; assumption.
 
-  apply IHl₂; assumption.
+  apply IHl₂; destruct Heq; assumption.
 
- induction l₂ as [| x₂]; constructor; inversion Heq.
-  assumption.
+ induction l₂ as [| x₂].
+  apply list_eq_cons_nil_inv in Heq; destruct Heq.
+  constructor; [ assumption | apply IHl₁; assumption ].
 
-  apply IHl₁; assumption.
-
-  symmetry; assumption.
-
-  apply IHl₁; assumption.
+  apply list_eq_cons_inv in Heq; destruct Heq.
+  constructor; [ symmetry; assumption | apply IHl₁; assumption ].
 Qed.
 
 Theorem list_eq_trans α (f : field α) : transitive _ (list_eq f).
@@ -74,6 +96,7 @@ induction l₂ as [| x₂]; intros.
  induction l₁ as [| x₁]; intros; [ assumption | idtac ].
  destruct l₃ as [| x₃]; [ assumption | idtac ].
  constructor.
+bbb.
   inversion H₁; subst.
   inversion H₂; subst.
   symmetry in H3.
