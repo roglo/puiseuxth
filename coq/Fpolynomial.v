@@ -385,17 +385,39 @@ Add Parametric Morphism α (f : field α) : (poly_mul f)
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
-bbb.
-inversion Hac; subst.
- do 2 rewrite poly_convol_mul_nil_l; reflexivity.
-
- inversion Hbd.
-  do 2 rewrite poly_convol_mul_nil_r; reflexivity.
-
+unfold eq_poly in Hac, Hbd.
+remember (al a) as la.
+remember (al b) as lb.
+remember (al c) as lc.
+remember (al d) as ld.
+revert Hac Hbd; clear; intros.
+destruct la as [| a].
+ destruct lb as [| b].
   simpl.
-  constructor.
-   do 2 rewrite summation_only_one.
-   rewrite H1, H5; reflexivity.
+  destruct lc as [| c].
+   simpl.
+   destruct ld as [| d]; [ reflexivity | simpl ].
+   constructor.
+    rewrite summation_only_one.
+    rewrite fld_mul_0_l; reflexivity.
+
+    rewrite poly_convol_mul_nil_l; reflexivity.
+
+   simpl.
+   destruct ld as [| d].
+    simpl.
+    constructor.
+     rewrite summation_only_one.
+     rewrite fld_mul_0_r; reflexivity.
+
+     rewrite poly_convol_mul_nil_r; reflexivity.
+
+    simpl.
+    constructor.
+     rewrite summation_only_one.
+     apply list_eq_nil_cons_inv in Hac.
+     destruct Hac as (Hc, Hlc).
+     rewrite Hc, fld_mul_0_l; reflexivity.
 bbb.
 
 intros a c Hac b d Hbd.
