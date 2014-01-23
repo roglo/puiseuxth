@@ -103,28 +103,31 @@ induction l₂ as [| x₂]; intros.
 
   apply IHl₁; [ destruct H₁ | destruct H₂ ]; assumption.
 
-bbb.
- inversion H₁; subst.
-  inversion H₂; subst.
-   constructor.
-    etransitivity; eassumption.
+ destruct l₁ as [| x₁].
+  apply list_eq_nil_cons_inv in H₁.
+  destruct l₃ as [| x₃]; constructor.
+   apply list_eq_cons_inv in H₂.
+   destruct H₁, H₂.
+   etransitivity; [ symmetry; eassumption | assumption ].
 
-    apply IHl₂; assumption.
+   apply list_eq_cons_inv in H₂.
+   apply IHl₂; [ destruct H₁ | destruct H₂ ]; assumption.
 
-   constructor; [ etransitivity; eassumption | idtac ].
-   apply IHl₂; assumption.
-
-  clear H₁ IHl₂.
-  revert x₂ l₂ H₂ H2 H3.
-  induction l₃ as [| x₃]; intros; [ constructor | idtac ].
-  constructor.
-   inversion H₂; subst.
-   symmetry in H4.
+  apply list_eq_cons_inv in H₁.
+  destruct l₃ as [| x₃]; constructor.
+   apply list_eq_cons_nil_inv in H₂.
+   destruct H₁, H₂.
    etransitivity; eassumption.
 
-   inversion H₂; subst.
-   inversion H3; subst; [ assumption | idtac ].
-   eapply IHl₃; eassumption.
+   apply list_eq_cons_nil_inv in H₂.
+   apply IHl₂; [ destruct H₁ | destruct H₂ ]; assumption.
+
+   apply list_eq_cons_inv in H₂.
+   destruct H₁, H₂.
+   etransitivity; eassumption.
+
+   apply list_eq_cons_inv in H₂.
+   apply IHl₂; [ destruct H₁ | destruct H₂ ]; assumption.
 Qed.
 
 Add Parametric Relation α (f : field α) : (list α) (list_eq f)
@@ -199,6 +202,7 @@ Add Parametric Morphism α (f : field α) : (@al α)
   as al_morph.
 Proof.
 intros a b Hab.
+bbb.
 inversion Hab; constructor; assumption.
 Qed.
 
