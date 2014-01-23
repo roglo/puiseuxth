@@ -212,20 +212,23 @@ induction la as [| a]; intros; [ reflexivity | simpl ].
 destruct lb as [| b]; [ assumption | idtac ].
 apply list_eq_nil_cons_inv in H.
 destruct H as (Ha, Hla).
-constructor.
- rewrite Ha, fld_add_0_l; reflexivity.
-
- apply IHla; assumption.
+constructor; [ rewrite Ha, fld_add_0_l; reflexivity | idtac ].
+apply IHla; assumption.
 Qed.
 
-(*
 Lemma list_eq_nil_poly_add_loop_l : ∀ α (f : field α) la lb,
   list_eq f [] lb
   → list_eq f la (poly_add_loop f la lb).
 Proof.
 intros α f la lb H.
-bbb.
-*)
+revert la.
+induction lb as [| b]; intros; [ destruct la; reflexivity | idtac ].
+destruct la as [| a]; [ assumption | simpl ].
+apply list_eq_nil_cons_inv in H.
+destruct H as (Hb, Hlb).
+constructor; [ rewrite Hb, fld_add_0_r; reflexivity | idtac ].
+apply IHlb; assumption.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_add f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -239,14 +242,14 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
-destruct la as [| a].
+revert lb lc ld Hac Hbd.
+induction la as [| a]; intros.
  destruct lc as [| c]; intros; [ assumption | idtac ].
  apply list_eq_nil_cons_inv in Hac.
+ destruct Hac as (Hc, Hlc); simpl.
  destruct ld as [| d].
-  destruct Hac.
   etransitivity; [ eassumption | constructor; assumption ].
 
-  destruct Hac as (Hc, Hlc); simpl.
   destruct lb as [| b].
    apply list_eq_nil_cons_inv in Hbd.
    destruct Hbd as (Hd, Hld).
@@ -260,83 +263,43 @@ destruct la as [| a].
    etransitivity; [ eassumption | idtac ].
    apply list_eq_nil_poly_add_loop_r; assumption.
 
- simpl.
  destruct lb as [| b].
   destruct lc as [| c]; [ etransitivity; eassumption | idtac ].
-  simpl.
-  destruct ld as [| d]; [ assumption | idtac ].
+  destruct ld as [| d]; [ assumption | simpl ].
   apply list_eq_cons_inv in Hac.
   destruct Hac as (Hac, Hlac).
   apply list_eq_nil_cons_inv in Hbd.
   destruct Hbd as (Hd, Hld).
-  constructor.
-   rewrite Hd, fld_add_0_r; assumption.
-
-   etransitivity; [ eassumption | idtac ].
-bbb.
- inversion Hac; subst; [ assumption | simpl ].
- destruct ld as [| d]; [ etransitivity; eassumption | idtac ].
- etransitivity; [ eassumption | idtac ].
- constructor; [ rewrite H, fld_add_0_l; reflexivity | idtac ].
- revert H H0; clear; intros.
- revert x ld H.
- induction l as [| y]; intros; [ reflexivity | simpl ].
- destruct ld as [| d]; [ assumption | idtac ].
- constructor.
-  inversion H0; subst.
-  rewrite H3, fld_add_0_l; reflexivity.
-
-  eapply IHl; [ idtac | eassumption ].
-  inversion H0; assumption.
-
- simpl.
- destruct lb as [| b].
+  constructor; [ rewrite Hd, fld_add_0_r; assumption | idtac ].
   etransitivity; [ eassumption | idtac ].
-  revert Hbd; clear; intros.
-  revert lc Hbd.
-  induction ld as [| d]; intros.
-   simpl.
-   destruct lc; reflexivity.
+  apply list_eq_nil_poly_add_loop_l; assumption.
 
-   destruct lc as [| c]; [ assumption | simpl ].
-   constructor.
-    inversion Hbd; subst.
-    rewrite H1, fld_add_0_r; reflexivity.
-
-    apply IHld.
-    inversion Hbd; assumption.
-
-  destruct lc as [| c]; simpl.
+  destruct lc as [| c].
+   apply list_eq_cons_nil_inv in Hac.
+   destruct Hac as (Ha, Hla); simpl.
    destruct ld as [| d].
-    constructor.
-     inversion Hac; inversion Hbd; subst.
-     rewrite H1, fld_add_0_l; assumption.
+    apply list_eq_cons_nil_inv in Hbd.
+    destruct Hbd as (Hb, Hlb).
+    constructor; [ rewrite Ha, fld_add_0_l; assumption | idtac ].
+    rewrite IHla; try eassumption; reflexivity.
 
-     inversion Hac; inversion Hbd; subst.
-     rewrite IHla; try eassumption; reflexivity.
+    apply list_eq_cons_inv in Hbd.
+    destruct Hbd as (Hbd, Hlbd).
+    constructor; [ rewrite Ha, fld_add_0_l; assumption | idtac ].
+    rewrite IHla; try eassumption; reflexivity.
 
-    constructor.
-     inversion Hac; inversion Hbd; subst.
-     rewrite H1, fld_add_0_l; assumption.
-
-     inversion Hac; inversion Hbd; subst.
-     rewrite IHla; try eassumption; reflexivity.
-
+   apply list_eq_cons_inv in Hac.
+   destruct Hac as (Hac, Hlac); simpl.
    destruct ld as [| d].
-    constructor.
-     inversion Hac; inversion Hbd; subst.
-     rewrite H7, fld_add_0_r; assumption.
+    apply list_eq_cons_nil_inv in Hbd.
+    destruct Hbd as (Hb, Hlb).
+    constructor; [ rewrite Hb, fld_add_0_r; assumption | idtac ].
+    rewrite IHla; try eassumption.
+    destruct lc; reflexivity.
 
-     inversion Hac; inversion Hbd; subst.
-     rewrite IHla; try eassumption.
-     destruct lc; reflexivity.
-
-    constructor.
-     inversion Hac; inversion Hbd; subst.
-     rewrite H2, H8; reflexivity.
-
-     inversion Hac; inversion Hbd; subst.
-     apply IHla; assumption.
+    apply list_eq_cons_inv in Hbd.
+    destruct Hbd as (Hbd, Hlbd).
+    constructor; [ rewrite Hac, Hbd; reflexivity | apply IHla; assumption ].
 Qed.
 
 Lemma poly_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
@@ -422,6 +385,7 @@ Add Parametric Morphism α (f : field α) : (poly_mul f)
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
+bbb.
 inversion Hac; subst.
  do 2 rewrite poly_convol_mul_nil_l; reflexivity.
 
