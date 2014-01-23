@@ -200,11 +200,32 @@ Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
 Add Parametric Morphism α (f : field α) : (@al α)
   with signature eq_poly f ==> list_eq f
   as al_morph.
+Proof. intros; assumption. Qed.
+
+Lemma list_eq_nil_poly_add_loop_r : ∀ α (f : field α) la lb,
+  list_eq f [] la
+  → list_eq f lb (poly_add_loop f la lb).
 Proof.
-intros a b Hab.
-bbb.
-inversion Hab; constructor; assumption.
+intros α f la lb H.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; [ assumption | idtac ].
+apply list_eq_nil_cons_inv in H.
+destruct H as (Ha, Hla).
+constructor.
+ rewrite Ha, fld_add_0_l; reflexivity.
+
+ apply IHla; assumption.
 Qed.
+
+(*
+Lemma list_eq_nil_poly_add_loop_l : ∀ α (f : field α) la lb,
+  list_eq f [] lb
+  → list_eq f la (poly_add_loop f la lb).
+Proof.
+intros α f la lb H.
+bbb.
+*)
 
 Add Parametric Morphism α (f : field α) : (poly_add f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -218,9 +239,41 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
-revert lb lc ld Hac Hbd.
-induction la as [| a]; intros.
+destruct la as [| a].
+ destruct lc as [| c]; intros; [ assumption | idtac ].
+ apply list_eq_nil_cons_inv in Hac.
+ destruct ld as [| d].
+  destruct Hac.
+  etransitivity; [ eassumption | constructor; assumption ].
+
+  destruct Hac as (Hc, Hlc); simpl.
+  destruct lb as [| b].
+   apply list_eq_nil_cons_inv in Hbd.
+   destruct Hbd as (Hd, Hld).
+   constructor; [ rewrite Hc, fld_add_0_l; assumption | idtac ].
+   etransitivity; [ eassumption | idtac ].
+   apply list_eq_nil_poly_add_loop_r; assumption.
+
+   apply list_eq_cons_inv in Hbd.
+   destruct Hbd as (Hbd, Hlbd).
+   constructor; [ rewrite Hc, fld_add_0_l; assumption | idtac ].
+   etransitivity; [ eassumption | idtac ].
+   apply list_eq_nil_poly_add_loop_r; assumption.
+
  simpl.
+ destruct lb as [| b].
+  destruct lc as [| c]; [ etransitivity; eassumption | idtac ].
+  simpl.
+  destruct ld as [| d]; [ assumption | idtac ].
+  apply list_eq_cons_inv in Hac.
+  destruct Hac as (Hac, Hlac).
+  apply list_eq_nil_cons_inv in Hbd.
+  destruct Hbd as (Hd, Hld).
+  constructor.
+   rewrite Hd, fld_add_0_r; assumption.
+
+   etransitivity; [ eassumption | idtac ].
+bbb.
  inversion Hac; subst; [ assumption | simpl ].
  destruct ld as [| d]; [ etransitivity; eassumption | idtac ].
  etransitivity; [ eassumption | idtac ].
