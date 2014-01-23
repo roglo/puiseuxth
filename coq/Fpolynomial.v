@@ -391,6 +391,7 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
+bbb.
 destruct la as [| a].
  destruct lb as [| b].
   simpl.
