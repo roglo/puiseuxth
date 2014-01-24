@@ -497,6 +497,37 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
+Lemma list_eq_app_0s : ∀ α (f : field α) la lb,
+  List.Forall (λ b, b .= f .0 f)%K lb
+  → list_eq f la (la ++ lb).
+Proof.
+intros α f la lb Hz.
+induction la as [| a]; simpl.
+ induction lb as [| b]; [ reflexivity | idtac ].
+ constructor.
+  apply list_Forall_inv in Hz; destruct Hz; assumption.
+
+  apply IHlb.
+  apply list_Forall_inv in Hz; destruct Hz; assumption.
+
+ constructor; [ reflexivity | assumption ].
+Qed.
+
+Lemma zzz : ∀ α (f : field α) la lb i n,
+  list_eq f (poly_convol_mul f la lb i (pred (length la + length lb)))
+    (poly_convol_mul f la lb i (pred (length la + length lb) + n)).
+Proof.
+intros α f la lb i n.
+induction n; [ rewrite Nat.add_0_r; reflexivity | idtac ].
+rewrite Nat.add_succ_r.
+rewrite poly_convol_mul_succ.
+rewrite IHn.
+apply list_eq_app_0s.
+constructor; [ idtac | constructor ].
+apply all_0_summation_0.
+intros j (_, Hj).
+bbb.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as poly_mul_morph.
