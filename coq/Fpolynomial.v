@@ -430,6 +430,19 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (@List.nth α)
+  with signature eq ==> list_eq f ==> fld_eq f ==> fld_eq f
+  as list_nth_list_eq_morph.
+Proof.
+intros n la lb Heql da db Heqd; subst.
+bbb.
+induction n.
+ destruct la as [| a].
+  destruct lb as [| b]; [ assumption | simpl ].
+  apply list_eq_nil_cons_inv in Heql.
+  destruct Heql as (Hb, Hlb).
+bbb.
+
 Add Parametric Morphism α (f : field α) : (poly_convol_mul f)
   with signature (list_eq f) ==> (list_eq f) ==> eq ==> eq ==> (list_eq f)
   as poly_convol_mul_morph.
@@ -439,6 +452,14 @@ revert i.
 induction len; intros; [ reflexivity | simpl ].
 constructor.
  apply summation_compat; intros j (_, Hj).
+ apply fld_mul_compat.
+bbb.
+  destruct la as [| a]; simpl.
+   destruct lc as [| c]; simpl.
+    reflexivity.
+
+    destruct j.
+     apply list_eq_nil_cons_inv in Hac.
 bbb.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
