@@ -478,6 +478,46 @@ apply summation_compat; intros j (_, Hj).
 apply fld_mul_compat; apply list_eq_list_nth; assumption.
 Qed.
 
+(* mouais, bof, chais pas si c'est vrai...
+Lemma www : ∀ α (f : field α) la lb i len,
+  length lb ≤ len
+  → list_eq f (poly_convol_mul f la lb i len)
+     (poly_convol_mul f la lb i (length lb)).
+Proof.
+intros α f la lb i len Hlen.
+revert la lb i Hlen.
+induction len; intros.
+ apply Nat.le_0_r in Hlen; rewrite Hlen; reflexivity.
+
+ simpl.
+ destruct (eq_nat_dec (length lb) (S len)) as [Heq| Hne].
+  rewrite Heq; reflexivity.
+
+  apply le_neq_lt in Hlen; [ clear Hne | assumption ].
+  apply le_S_n in Hlen.
+  rewrite <- IHlen; [ idtac | assumption ].
+  clear IHlen.
+  revert la lb i Hlen.
+  induction len; intros.
+   simpl.
+   constructor.
+    rewrite all_0_summation_0; [ reflexivity | idtac ].
+    intros j (_, Hj).
+    destruct lb as [| b].
+     simpl.
+     destruct (i - j)%nat; rewrite fld_mul_0_r; reflexivity.
+
+     simpl in Hlen.
+     exfalso; revert Hlen; apply Nat.nle_succ_0.
+
+    reflexivity.
+
+   simpl.
+   constructor; [ reflexivity | idtac ].
+   destruct (eq_nat_dec (length lb) (S len)) as [Heq| Hne].
+    2: apply IHlen; omega.
+bbb.
+
 Lemma xxx : ∀ α (f : field α) la lb i len,
   length la ≤ len
   → list_eq f (poly_convol_mul f la lb i len)
@@ -536,6 +576,7 @@ Lemma zzz : ∀ α (f : field α) la lb lc i,
 Proof.
 intros α f la lb lc i Heq.
 bbb.
+*)
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
