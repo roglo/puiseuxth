@@ -469,6 +469,19 @@ destruct la as [| a].
     apply list_eq_cons_nil_inv in Hac.
     destruct Hac as (Ha, Hla).
     rewrite Ha, fld_mul_0_l; reflexivity.
+
+    rewrite list_eq_nil_poly_convol_mul_nil_l; [ reflexivity | assumption ].
+
+   destruct ld as [| d]; simpl.
+    constructor.
+     do 2 rewrite summation_only_one.
+     rewrite fld_mul_0_r.
+     apply list_eq_cons_nil_inv in Hbd.
+     destruct Hbd as (Hb, Hlb).
+     rewrite Hb, fld_mul_0_r; reflexivity.
+
+     rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | assumption ].
+     rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | constructor ].
 bbb.
 
 intros a c Hac b d Hbd.
