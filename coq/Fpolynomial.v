@@ -513,7 +513,7 @@ induction la as [| a]; simpl.
  constructor; [ reflexivity | assumption ].
 Qed.
 
-Lemma zzz : ∀ α (f : field α) la lb i n,
+Lemma poly_convol_mul_more : ∀ α (f : field α) la lb i n,
   list_eq f (poly_convol_mul f la lb i (pred (length la + length lb)))
     (poly_convol_mul f la lb i (pred (length la + length lb) + n)).
 Proof.
@@ -526,9 +526,19 @@ apply list_eq_app_0s.
 constructor; [ idtac | constructor ].
 apply all_0_summation_0.
 intros j (_, Hj).
+apply fld_mul_eq_0.
 destruct (le_dec (length la) j) as [H₁| H₁].
- apply fld_mul_eq_0.
-bbb.
+ left.
+ rewrite List.nth_overflow; [ reflexivity | assumption ].
+
+ apply Nat.nle_gt in H₁.
+ destruct (le_dec (length lb) (i + (pred (length la + length lb) + n) - j))
+  as [H₂| H₂].
+  right.
+  rewrite List.nth_overflow; [ reflexivity | assumption ].
+
+  exfalso; apply H₂; fast_omega H₁.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
@@ -542,114 +552,10 @@ remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
-bbb.
-revert lb lc ld Hac Hbd.
-induction la as [| a]; intros; simpl.
- rewrite poly_convol_mul_nil_l.
- symmetry in Hac.
- rewrite list_eq_nil_poly_convol_mul_nil_l; [ reflexivity | assumption ].
-
- destruct lb as [| b]; simpl.
-  rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | reflexivity ].
-  symmetry in Hbd.
-  rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | assumption ].
-
-  destruct lc as [| c]; simpl.
-   rewrite list_eq_nil_poly_convol_mul_nil_l; [ idtac | assumption ].
-   rewrite list_eq_nil_poly_convol_mul_nil_l; reflexivity.
-
-   destruct ld as [| d]; simpl.
-    symmetry.
-    rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | reflexivity ].
-    rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | assumption ].
-
-    apply list_eq_cons_inv in Hac.
-    destruct Hac as (Hac, Hlac).
-    apply list_eq_cons_inv in Hbd.
-    destruct Hbd as (Hbd, Hlbd).
-    eapply IHla in Hlbd; [ idtac | eassumption ].
-    do 2 rewrite Nat.add_succ_r; simpl.
-    constructor.
-     do 2 rewrite summation_only_one.
-     rewrite Hac, Hbd; reflexivity.
-bbb.
-
-destruct (le_dec (length (al c)) (length (al d))) as [H₁| H₁].
- symmetry.
- rewrite Nat.max_r; [ idtac | assumption ].
- destruct (le_dec (length (al a)) (length (al b))) as [H₂| H₂].
-  symmetry.
-  rewrite Nat.max_r; [ idtac | assumption ].
-  rewrite <- zzz; [ reflexivity | idtac ].
-  symmetry; assumption.
-
-  apply Nat.nle_gt, Nat.lt_le_incl in H₂.
-  rewrite Nat.max_l; [ idtac | assumption ].
-bbb.
-
-intros la lc Hac lb ld Hbd.
-bbb.
-revert Hac Hbd; clear; intros.
-destruct la as [| a].
- destruct lb as [| b]; simpl.
-  symmetry.
-  apply list_eq_nil_poly_convol_mul_nil_l.
-  symmetry; assumption.
-
-  symmetry.
-  rewrite list_eq_nil_poly_convol_mul_nil_l; [ idtac | symmetry; assumption ].
-  constructor.
-   rewrite summation_only_one, fld_mul_0_l; reflexivity.
-
-   symmetry.
-   apply poly_convol_mul_nil_l.
-
- destruct lb as [| b]; simpl.
-  symmetry in Hbd; symmetry.
-  rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | assumption ].
-  constructor.
-   rewrite summation_only_one.
-   rewrite fld_mul_0_r; reflexivity.
-
-   rewrite poly_convol_mul_nil_r; reflexivity.
-
-  destruct lc as [| c]; simpl.
-   rewrite poly_convol_mul_nil_l.
-   constructor.
-    rewrite summation_only_one.
-    apply list_eq_cons_nil_inv in Hac.
-    destruct Hac as (Ha, Hla).
-    rewrite Ha, fld_mul_0_l; reflexivity.
-
-    rewrite list_eq_nil_poly_convol_mul_nil_l; [ reflexivity | assumption ].
-
-   destruct ld as [| d]; simpl.
-    constructor.
-     do 2 rewrite summation_only_one.
-     rewrite fld_mul_0_r.
-     apply list_eq_cons_nil_inv in Hbd.
-     destruct Hbd as (Hb, Hlb).
-     rewrite Hb, fld_mul_0_r; reflexivity.
-
-     rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | assumption ].
-     rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | constructor ].
-
-    constructor.
-     do 2 rewrite summation_only_one.
-     apply list_eq_cons_inv in Hac.
-     destruct Hac as (Hac, Hlac).
-     apply list_eq_cons_inv in Hbd.
-     destruct Hbd as (Hbd, Hlbd).
-     rewrite Hac, Hbd; reflexivity.
-bbb.
-
-intros a c Hac b d Hbd.
-unfold eq_poly, poly_mul; simpl.
-erewrite list_eq_length_eq; [ idtac | eassumption ].
-rewrite Nat.max_comm; symmetry.
-rewrite Nat.max_comm; symmetry.
-erewrite list_eq_length_eq; [ idtac | eassumption ].
-apply poly_convol_mul_compat; assumption.
+do 2 rewrite poly_convol_mul_more.
+rewrite Hac, Hbd in |- * at 1.
+rewrite Nat.add_comm.
+reflexivity.
 Qed.
 
 Section poly.
@@ -667,6 +573,7 @@ induction l₁ as [| x₃]; intros; simpl.
  destruct l₂ as [| x₄]; simpl.
   constructor; destruct H; assumption.
 
+bbb.
   destruct H as (H, _); inversion H.
 
  destruct l₂ as [| x₄]; simpl.
