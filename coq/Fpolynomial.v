@@ -478,6 +478,65 @@ apply summation_compat; intros j (_, Hj).
 apply fld_mul_compat; apply list_eq_list_nth; assumption.
 Qed.
 
+Lemma xxx : ∀ α (f : field α) la lb i len,
+  length la ≤ len
+  → list_eq f (poly_convol_mul f la lb i len)
+     (poly_convol_mul f la lb i (length la)).
+Proof.
+intros α f la lb i len Hlen.
+revert la lb i Hlen.
+induction len; intros.
+ apply Nat.le_0_r in Hlen; rewrite Hlen; reflexivity.
+
+ simpl.
+ destruct (eq_nat_dec (length la) (S len)) as [Heq| Hne].
+  rewrite Heq.
+  simpl.
+  reflexivity.
+
+  apply le_neq_lt in Hlen; [ clear Hne | assumption ].
+  apply le_S_n in Hlen.
+  rewrite <- IHlen; [ idtac | assumption ].
+  clear IHlen.
+  revert la lb i Hlen.
+  induction len; intros.
+   simpl.
+   constructor.
+    rewrite all_0_summation_0; [ reflexivity | idtac ].
+    intros j (_, Hj).
+    destruct la as [| a].
+     simpl.
+     destruct j; rewrite fld_mul_0_l; reflexivity.
+
+     simpl in Hlen.
+     exfalso; revert Hlen; apply Nat.nle_succ_0.
+
+    reflexivity.
+
+   simpl.
+   constructor; [ reflexivity | idtac ].
+   destruct (eq_nat_dec (length la) (S len)) as [Heq| Hne].
+    2: apply IHlen; omega.
+bbb.
+
+Lemma yyy : ∀ α (f : field α) la lb i,
+  list_eq f (poly_convol_mul f la lb i (max (length la) (length lb)))
+    (poly_convol_mul f la lb i (min (length la) (length lb))).
+Proof.
+intros α f la lb i.
+destruct (le_dec (length la) (length lb)) as [H₁| H₁].
+ rewrite Nat.max_r; [ idtac | assumption ].
+ rewrite Nat.min_l; [ idtac | assumption ].
+bbb.
+
+Lemma zzz : ∀ α (f : field α) la lb lc i,
+  list_eq f lb lc
+  → list_eq f (poly_convol_mul f la lb i (length lb))
+       (poly_convol_mul f la lb i (length lc)).
+Proof.
+intros α f la lb lc i Heq.
+bbb.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as poly_mul_morph.
@@ -486,6 +545,17 @@ intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
 unfold eq_poly in Hac, Hbd.
 rewrite Hac, Hbd in |- * at 1.
+destruct (le_dec (length (al c)) (length (al d))) as [H₁| H₁].
+ symmetry.
+ rewrite Nat.max_r; [ idtac | assumption ].
+ destruct (le_dec (length (al a)) (length (al b))) as [H₂| H₂].
+  symmetry.
+  rewrite Nat.max_r; [ idtac | assumption ].
+  rewrite <- zzz; [ reflexivity | idtac ].
+  symmetry; assumption.
+
+  apply Nat.nle_gt, Nat.lt_le_incl in H₂.
+  rewrite Nat.max_l; [ idtac | assumption ].
 bbb.
 
 intros la lc Hac lb ld Hbd.
