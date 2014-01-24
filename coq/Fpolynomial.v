@@ -485,7 +485,41 @@ Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
 unfold eq_poly in Hac, Hbd.
-rewrite Hac, Hbd in |- * at 1.
+remember (al a) as la.
+remember (al b) as lb.
+remember (al c) as lc.
+remember (al d) as ld.
+revert Hac Hbd; clear; intros.
+bbb.
+revert lb lc ld Hac Hbd.
+induction la as [| a]; intros; simpl.
+ rewrite poly_convol_mul_nil_l.
+ symmetry in Hac.
+ rewrite list_eq_nil_poly_convol_mul_nil_l; [ reflexivity | assumption ].
+
+ destruct lb as [| b]; simpl.
+  rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | reflexivity ].
+  symmetry in Hbd.
+  rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | assumption ].
+
+  destruct lc as [| c]; simpl.
+   rewrite list_eq_nil_poly_convol_mul_nil_l; [ idtac | assumption ].
+   rewrite list_eq_nil_poly_convol_mul_nil_l; reflexivity.
+
+   destruct ld as [| d]; simpl.
+    symmetry.
+    rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | reflexivity ].
+    rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | assumption ].
+
+    apply list_eq_cons_inv in Hac.
+    destruct Hac as (Hac, Hlac).
+    apply list_eq_cons_inv in Hbd.
+    destruct Hbd as (Hbd, Hlbd).
+    eapply IHla in Hlbd; [ idtac | eassumption ].
+    do 2 rewrite Nat.add_succ_r; simpl.
+    constructor.
+     do 2 rewrite summation_only_one.
+     rewrite Hac, Hbd; reflexivity.
 bbb.
 
 destruct (le_dec (length (al c)) (length (al d))) as [H₁| H₁].
