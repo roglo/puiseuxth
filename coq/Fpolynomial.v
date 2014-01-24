@@ -188,7 +188,7 @@ Fixpoint poly_convol_mul α (f : field α) al₁ al₂ i len :=
 Definition poly_mul α (f : field α) pol₁ pol₂ :=
   {| al :=
        poly_convol_mul f (al pol₁) (al pol₂) O
-         (max (List.length (al pol₁)) (List.length (al pol₂))) |}.
+         (pred (List.length (al pol₁) + List.length (al pol₂))) |}.
 
 (* *)
 
