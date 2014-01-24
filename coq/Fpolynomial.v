@@ -478,6 +478,25 @@ apply summation_compat; intros j (_, Hj).
 apply fld_mul_compat; apply list_eq_list_nth; assumption.
 Qed.
 
+Lemma poly_convol_mul_succ : ∀ α (f : field α) la lb i len,
+  list_eq f
+    (poly_convol_mul f la lb i (S len))
+    (poly_convol_mul f la lb i len ++
+     [Σ f (j = 0, i + len)_
+      List.nth j la .0 f .* f List.nth (i + len - j) lb .0 f])%K.
+Proof.
+intros α f la lb i len.
+revert la lb i.
+induction len; intros; simpl.
+ rewrite Nat.add_0_r; reflexivity.
+
+ constructor; [ reflexivity | idtac ].
+ simpl in IHlen.
+ rewrite IHlen.
+ rewrite Nat.add_succ_r, Nat.add_succ_l.
+ reflexivity.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as poly_mul_morph.
