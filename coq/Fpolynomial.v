@@ -230,18 +230,11 @@ constructor; [ rewrite Hb, fld_add_0_r; reflexivity | idtac ].
 apply IHlb; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (poly_add f)
-  with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
-  as ps_poly_add_morph.
+Add Parametric Morphism α (f : field α) : (poly_add_loop f)
+  with signature (list_eq f) ==> (list_eq f) ==> (list_eq f)
+  as poly_add_loop_morph.
 Proof.
-intros a c Hac b d Hbd.
-unfold eq_poly, poly_add; simpl.
-unfold eq_poly in Hac, Hbd.
-remember (al a) as la.
-remember (al b) as lb.
-remember (al c) as lc.
-remember (al d) as ld.
-revert Hac Hbd; clear; intros.
+intros la lc Hac lb ld Hbd.
 revert lb lc ld Hac Hbd.
 induction la as [| a]; intros.
  destruct lc as [| c]; intros; [ assumption | idtac ].
@@ -300,6 +293,16 @@ induction la as [| a]; intros.
     apply list_eq_cons_inv in Hbd.
     destruct Hbd as (Hbd, Hlbd).
     constructor; [ rewrite Hac, Hbd; reflexivity | apply IHla; assumption ].
+Qed.
+
+Add Parametric Morphism α (f : field α) : (poly_add f)
+  with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
+  as poly_add_morph.
+Proof.
+intros a c Hac b d Hbd.
+unfold eq_poly, poly_add; simpl.
+unfold eq_poly in Hac, Hbd.
+rewrite Hac, Hbd; reflexivity.
 Qed.
 
 Lemma poly_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
@@ -427,17 +430,29 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (poly_convol_mul f)
+  with signature (list_eq f) ==> (list_eq f) ==> eq ==> eq ==> (list_eq f)
+  as poly_convol_mul_morph.
+Proof.
+intros la lc Hac lb ld Hbd i len.
+revert i.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ apply summation_compat; intros j (_, Hj).
+bbb.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
-  as ps_poly_mul_morph.
+  as poly_mul_morph.
 Proof.
 intros a c Hac b d Hbd.
 unfold eq_poly, poly_mul; simpl.
 unfold eq_poly in Hac, Hbd.
-remember (al a) as la.
-remember (al b) as lb.
-remember (al c) as lc.
-remember (al d) as ld.
+rewrite Hac, Hbd in |- * at 1.
+bbb.
+
+intros la lc Hac lb ld Hbd.
+bbb.
 revert Hac Hbd; clear; intros.
 destruct la as [| a].
  destruct lb as [| b]; simpl.
@@ -482,6 +497,14 @@ destruct la as [| a].
 
      rewrite list_eq_nil_poly_convol_mul_nil_r; [ idtac | assumption ].
      rewrite list_eq_nil_poly_convol_mul_nil_r; [ reflexivity | constructor ].
+
+    constructor.
+     do 2 rewrite summation_only_one.
+     apply list_eq_cons_inv in Hac.
+     destruct Hac as (Hac, Hlac).
+     apply list_eq_cons_inv in Hbd.
+     destruct Hbd as (Hbd, Hlbd).
+     rewrite Hac, Hbd; reflexivity.
 bbb.
 
 intros a c Hac b d Hbd.
