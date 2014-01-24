@@ -430,18 +430,41 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (@List.nth α)
-  with signature eq ==> list_eq f ==> fld_eq f ==> fld_eq f
-  as list_nth_list_eq_morph.
+Lemma list_eq_list_nth : ∀ α (f : field α) la lb n,
+  list_eq f la lb
+  → (List.nth n la .0 f .= f List.nth n lb .0 f)%K.
 Proof.
-intros n la lb Heql da db Heqd; subst.
-bbb.
-induction n.
+intros α f la lb n Heq.
+revert la lb Heq.
+induction n; intros.
  destruct la as [| a].
-  destruct lb as [| b]; [ assumption | simpl ].
-  apply list_eq_nil_cons_inv in Heql.
-  destruct Heql as (Hb, Hlb).
-bbb.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  apply list_eq_nil_cons_inv in Heq.
+  destruct Heq; symmetry; assumption.
+
+  destruct lb as [| b].
+   apply list_eq_cons_nil_inv in Heq.
+   destruct Heq; assumption.
+
+   apply list_eq_cons_inv in Heq.
+   destruct Heq; assumption.
+
+ destruct la as [| a]; simpl.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  apply list_eq_nil_cons_inv in Heq.
+  destruct Heq as (Hb, Hlb).
+  rewrite <- IHn; [ idtac | eassumption ].
+  destruct n; reflexivity.
+
+  destruct lb as [| b]; simpl.
+   apply list_eq_cons_nil_inv in Heq.
+   destruct Heq as (Ha, Hla).
+   rewrite IHn; [ idtac | eassumption ].
+   destruct n; reflexivity.
+
+   apply list_eq_cons_inv in Heq.
+   apply IHn; destruct Heq; assumption.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_convol_mul f)
   with signature (list_eq f) ==> (list_eq f) ==> eq ==> eq ==> (list_eq f)
@@ -450,17 +473,10 @@ Proof.
 intros la lc Hac lb ld Hbd i len.
 revert i.
 induction len; intros; [ reflexivity | simpl ].
-constructor.
- apply summation_compat; intros j (_, Hj).
- apply fld_mul_compat.
-bbb.
-  destruct la as [| a]; simpl.
-   destruct lc as [| c]; simpl.
-    reflexivity.
-
-    destruct j.
-     apply list_eq_nil_cons_inv in Hac.
-bbb.
+constructor; [ idtac | apply IHlen ].
+apply summation_compat; intros j (_, Hj).
+apply fld_mul_compat; apply list_eq_list_nth; assumption.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
