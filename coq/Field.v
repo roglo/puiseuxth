@@ -345,7 +345,7 @@ intros n m H; simpl in H; simpl.
 destruct H as [H| H]; rewrite H; [ apply fld_mul_0_l | apply fld_mul_0_r ].
 Qed.
 
-Theorem eq_mul_0_l : ∀ n m,
+Theorem fld_eq_mul_0_l : ∀ n m,
   (n .* f m .= f .0 f)%K
   → (m .≠ f .0 f)%K
     → (n .= f .0 f)%K.
@@ -355,7 +355,7 @@ rewrite <- fld_mul_0_l with (a := m) in Hnm.
 apply fld_mul_reg_r in Hnm; assumption.
 Qed.
 
-Theorem eq_mul_0_r : ∀ n m,
+Theorem fld_eq_mul_0_r : ∀ n m,
   (n .* f m .= f .0 f)%K
   → (n .≠ f .0 f)%K
     → (m .= f .0 f)%K.

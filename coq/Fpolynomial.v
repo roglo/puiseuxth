@@ -526,6 +526,8 @@ apply list_eq_app_0s.
 constructor; [ idtac | constructor ].
 apply all_0_summation_0.
 intros j (_, Hj).
+destruct (le_dec (length la) j) as [H₁| H₁].
+ apply fld_mul_eq_0.
 bbb.
 
 Add Parametric Morphism α (f : field α) : (poly_mul f)
