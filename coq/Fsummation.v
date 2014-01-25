@@ -269,12 +269,12 @@ reflexivity.
 Qed.
 
 Lemma summation_aux_succ_fst : ∀ g b len,
-  (summation_aux f b (S len) g .= f g b .+ f summation_aux f (S b) len g)%K.
+  summation_aux f b (S len) g = (g b .+ f summation_aux f (S b) len g)%K.
 Proof. reflexivity. Qed.
 
 Lemma summation_split_first : ∀ g b k,
   b ≤ k
-  → (Σ f (i = b, k) _ g i .= f g b .+ f Σ f (i = S b, k) _ g i)%K.
+  → Σ f (i = b, k) _ g i = (g b .+ f Σ f (i = S b, k) _ g i)%K.
 Proof.
 intros g b k Hbk.
 unfold summation.

@@ -668,6 +668,18 @@ induction len; intros.
  apply Nat.le_0_r in Hlen.
  destruct cl; [ destruct i; reflexivity | discriminate Hlen ].
 
+ simpl.
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+bbb.
+rewrite all_0_summation_0.
+
+intros cl i len Hlen.
+revert i cl Hlen.
+induction len; intros.
+ simpl.
+ apply Nat.le_0_r in Hlen.
+ destruct cl; [ destruct i; reflexivity | discriminate Hlen ].
+
  destruct cl as [| c].
   simpl.
   destruct i; simpl.
