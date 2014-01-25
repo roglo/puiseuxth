@@ -654,27 +654,31 @@ intros a.
 unfold eq_poly; simpl.
 remember (al a) as cl; clear.
 destruct cl as [| c₁]; simpl; constructor.
- unfold summation; simpl.
- rewrite fld_mul_1_l.
- rewrite fld_add_0_r; reflexivity.
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite all_0_summation_0.
+  rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+  intros i (Hi₁, Hi₂).
+  destruct i; [ exfalso; omega | idtac ].
+  destruct i; rewrite fld_mul_0_l; reflexivity.
 
  destruct cl as [| c₂]; simpl; constructor.
-  unfold summation; simpl.
-  rewrite fld_mul_1_l.
-  rewrite fld_mul_0_l.
-  do 2 rewrite fld_add_0_r; reflexivity.
+  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+  rewrite all_0_summation_0.
+   rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+   intros i (Hi₁, Hi₂).
+   destruct i; [ exfalso; omega | idtac ].
+   destruct i; rewrite fld_mul_0_l; reflexivity.
 
   destruct cl as [| c₃]; simpl; constructor.
-   unfold summation; simpl.
-   rewrite fld_mul_1_l.
-   do 2 rewrite fld_mul_0_l.
-   do 3 rewrite fld_add_0_r; reflexivity.
+   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+   rewrite all_0_summation_0.
+    rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
 
-   destruct cl as [| c₄]; simpl; constructor.
-    unfold summation; simpl.
-    rewrite fld_mul_1_l.
-    do 3 rewrite fld_mul_0_l.
-    do 4 rewrite fld_add_0_r; reflexivity.
+    intros i (Hi₁, Hi₂).
+    destruct i; [ exfalso; omega | idtac ].
+    destruct i; rewrite fld_mul_0_l; reflexivity.
 bbb.
 
 End poly.
