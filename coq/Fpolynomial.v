@@ -652,10 +652,11 @@ Theorem poly_mul_1_l : ∀ a, (a .* f .1 f .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
-remember (al a) as cl eqn:Hcl .
-symmetry in Hcl.
-destruct cl as [| c].
- simpl.
+rewrite Nat.add_comm; simpl.
+remember (al a) as cl; clear.
+induction cl as [| c]; simpl; constructor.
+ rewrite summation_only_one.
+ rewrite fld_mul_1_r; reflexivity.
 bbb.
 
 End poly.
