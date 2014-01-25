@@ -648,8 +648,64 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
+(*
+Lemma yyy : ∀ cl i,
+  list_eq f (poly_convol_mul f [.1 f%K] cl i (length cl - i))
+    (List.skipn i cl).
+Proof.
+intros cl i.
+bbb.
+*)
+
+Lemma zzz : ∀ cl i len,
+  length cl ≤ len
+  → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
+Proof.
+intros cl i len Hlen.
+bbb.
+revert i cl Hlen.
+induction len; intros.
+ simpl.
+ apply Nat.le_0_r in Hlen.
+ destruct cl; [ destruct i; reflexivity | discriminate Hlen ].
+
+ destruct cl as [| c].
+  simpl.
+  destruct i; simpl.
+   constructor.
+    rewrite summation_only_one.
+    rewrite fld_mul_1_l; reflexivity.
+
+    apply poly_convol_mul_nil_r.
+
+   constructor.
+    rewrite all_0_summation_0; [ reflexivity | idtac ].
+    intros j (_, Hj).
+    destruct j.
+     rewrite fld_mul_1_l; reflexivity.
+
+     destruct j; rewrite fld_mul_0_l; reflexivity.
+
+    apply poly_convol_mul_nil_r.
+
+  simpl.
+  destruct i; simpl.
+   constructor.
+    rewrite summation_only_one.
+    rewrite fld_mul_1_l; reflexivity.
+bbb.
+
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
+intros a.
+unfold eq_poly; simpl.
+remember (al a) as cl; clear.
+replace (length cl) with (length cl - 0)%nat .
+ rewrite yyy; reflexivity.
+
+ rewrite Nat.sub_0_r; reflexivity.
+bbb.
+
 intros a.
 unfold eq_poly; simpl.
 remember (al a) as cl; clear.
