@@ -662,7 +662,6 @@ Lemma zzz : ∀ cl i len,
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
-bbb.
 revert i cl Hlen.
 induction len; intros.
  simpl.
@@ -693,6 +692,9 @@ induction len; intros.
    constructor.
     rewrite summation_only_one.
     rewrite fld_mul_1_l; reflexivity.
+
+    simpl in Hlen.
+    apply Nat.succ_le_mono in Hlen.
 bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
