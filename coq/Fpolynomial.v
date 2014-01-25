@@ -670,8 +670,28 @@ induction len; intros.
 
  simpl.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite Nat.sub_0_r.
+ remember (List.skipn i cl) as ccl eqn:Hccl .
+ destruct ccl as [| cc].
+  constructor.
+   rewrite all_0_summation_0.
+    rewrite List.nth_overflow.
+     rewrite fld_mul_0_r, fld_add_0_r; reflexivity.
+
+     revert Hccl; clear; intros.
+     symmetry in Hccl.
+     revert cl Hccl.
+     induction i; intros.
+      simpl in Hccl; subst cl; reflexivity.
+
+      destruct cl as [| c]; [ apply Nat.le_0_l | simpl ].
+      apply le_n_S.
+      apply IHi; assumption.
+
+    intros j (Hj, Hji).
+    destruct j; [ exfalso; omega | idtac ].
+    destruct j; apply fld_mul_0_l; reflexivity.
 bbb.
-rewrite all_0_summation_0.
 
 intros cl i len Hlen.
 revert i cl Hlen.
