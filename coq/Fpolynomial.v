@@ -653,10 +653,28 @@ Proof.
 intros a.
 unfold eq_poly; simpl.
 remember (al a) as cl; clear.
-bbb.
-induction cl as [| c]; simpl; constructor.
- rewrite summation_only_one.
- rewrite fld_mul_1_l; reflexivity.
+destruct cl as [| c₁]; simpl; constructor.
+ unfold summation; simpl.
+ rewrite fld_mul_1_l.
+ rewrite fld_add_0_r; reflexivity.
+
+ destruct cl as [| c₂]; simpl; constructor.
+  unfold summation; simpl.
+  rewrite fld_mul_1_l.
+  rewrite fld_mul_0_l.
+  do 2 rewrite fld_add_0_r; reflexivity.
+
+  destruct cl as [| c₃]; simpl; constructor.
+   unfold summation; simpl.
+   rewrite fld_mul_1_l.
+   do 2 rewrite fld_mul_0_l.
+   do 3 rewrite fld_add_0_r; reflexivity.
+
+   destruct cl as [| c₄]; simpl; constructor.
+    unfold summation; simpl.
+    rewrite fld_mul_1_l.
+    do 3 rewrite fld_mul_0_l.
+    do 4 rewrite fld_add_0_r; reflexivity.
 bbb.
 
 End poly.
