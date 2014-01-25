@@ -694,8 +694,7 @@ induction len; intros.
 
    symmetry in Hccl; revert Hccl; clear; intros.
    revert i cl Hccl.
-   induction len; intros; [ reflexivity | idtac ].
-   simpl.
+   induction len; intros; [ reflexivity | simpl ].
    rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
    constructor.
     rewrite List.nth_overflow.
@@ -723,8 +722,7 @@ induction len; intros.
 
      remember (S i) as ii; simpl; subst ii.
      destruct cl as [| c]; [ reflexivity | idtac ].
-     apply IHi.
-     assumption.
+     apply IHi; assumption.
 
   constructor.
 bbb.
