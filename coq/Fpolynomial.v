@@ -648,15 +648,15 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Theorem poly_mul_1_r : ∀ a, (.1 f .* f a .= f a)%pol.
+Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
-rewrite Nat.add_comm; simpl.
 remember (al a) as cl; clear.
+bbb.
 induction cl as [| c]; simpl; constructor.
  rewrite summation_only_one.
- rewrite fld_mul_1_r; reflexivity.
+ rewrite fld_mul_1_l; reflexivity.
 bbb.
 
 End poly.
