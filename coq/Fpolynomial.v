@@ -563,32 +563,6 @@ Section poly.
 Variable α : Type.
 Variable f : field α.
 
-Lemma list_eq_append_one : ∀ x₁ x₂ l₁ l₂,
-  list_eq f l₁ l₂ ∧ (x₁ .= f x₂)%K
-  → list_eq f (l₁ ++ [x₁]) (l₂ ++ [x₂]).
-Proof.
-intros x₁ x₂ l₁ l₂.
-revert x₁ x₂ l₂.
-induction l₁ as [| x₃]; intros; simpl.
- destruct l₂ as [| x₄]; simpl.
-  constructor; destruct H; assumption.
-
-bbb.
-  destruct H as (H, _); inversion H.
-
- destruct l₂ as [| x₄]; simpl.
-  destruct H as (H, _); inversion H.
-
-  constructor.
-   destruct H as (H, _).
-   inversion H; assumption.
-
-   apply IHl₁.
-   split; [ idtac | destruct H; assumption ].
-   destruct H as (H, _).
-   inversion H; assumption.
-Qed.
-
 (* addition theorems *)
 
 Theorem poly_add_compat : ∀ a b c d,
