@@ -648,7 +648,7 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Theorem poly_mul_1_l : ∀ a, (a .* f .1 f .= f a)%pol.
+Theorem poly_mul_1_r : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
