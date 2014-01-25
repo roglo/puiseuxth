@@ -691,42 +691,42 @@ induction len; intros.
     intros j (Hj, Hji).
     destruct j; [ exfalso; omega | idtac ].
     destruct j; apply fld_mul_0_l; reflexivity.
-bbb.
 
-intros cl i len Hlen.
-revert i cl Hlen.
-induction len; intros.
- simpl.
- apply Nat.le_0_r in Hlen.
- destruct cl; [ destruct i; reflexivity | discriminate Hlen ].
-
- destruct cl as [| c].
-  simpl.
-  destruct i; simpl.
+   symmetry in Hccl; revert Hccl; clear; intros.
+   revert i cl Hccl.
+   induction len; intros; [ reflexivity | idtac ].
+   simpl.
+   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
    constructor.
-    rewrite summation_only_one.
-    rewrite fld_mul_1_l; reflexivity.
+    rewrite List.nth_overflow.
+     rewrite all_0_summation_0.
+      rewrite fld_mul_0_r, fld_add_0_r; reflexivity.
 
-    apply poly_convol_mul_nil_r.
+      intros j (Hj, Hji).
+      destruct j; [ exfalso; omega | idtac ].
+      destruct j; rewrite fld_mul_0_l; reflexivity.
 
-   constructor.
-    rewrite all_0_summation_0; [ reflexivity | idtac ].
-    intros j (_, Hj).
-    destruct j.
-     rewrite fld_mul_1_l; reflexivity.
+     clear IHlen.
+     revert cl Hccl.
+     induction i; intros.
+      destruct cl as [| c]; [ apply Nat.le_0_l | discriminate Hccl ].
 
-     destruct j; rewrite fld_mul_0_l; reflexivity.
+      simpl in Hccl.
+      destruct cl as [| c]; [ apply Nat.le_0_l | simpl ].
+      apply le_n_S, IHi; assumption.
 
-    apply poly_convol_mul_nil_r.
+    apply IHlen.
+    clear IHlen.
+    revert cl Hccl.
+    induction i; intros.
+     destruct cl as [| c]; [ reflexivity | discriminate Hccl ].
 
-  simpl.
-  destruct i; simpl.
-   constructor.
-    rewrite summation_only_one.
-    rewrite fld_mul_1_l; reflexivity.
+     remember (S i) as ii; simpl; subst ii.
+     destruct cl as [| c]; [ reflexivity | idtac ].
+     apply IHi.
+     assumption.
 
-    simpl in Hlen.
-    apply Nat.succ_le_mono in Hlen.
+  constructor.
 bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
