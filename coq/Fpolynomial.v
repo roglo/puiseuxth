@@ -667,6 +667,39 @@ Qed.
 Lemma list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
 Proof. intros A n; destruct n; reflexivity. Qed.
 
+Lemma list_nth_list_eq : ∀ a b,
+  (∀ i, List.nth i a .0 f .= f List.nth i b .0 f)%K
+  → list_eq f a b.
+Proof.
+intros la lb Hi.
+revert lb Hi.
+induction la as [| a]; intros.
+ induction lb as [| b]; [ reflexivity | constructor ].
+  pose proof (Hi O) as H.
+  symmetry; assumption.
+
+  apply IHlb; intros i.
+  pose proof (Hi (S i)) as H; simpl in H; rewrite <- H.
+  destruct i; reflexivity.
+
+ induction lb as [| b].
+  constructor.
+   pose proof (Hi O) as H.
+   assumption.
+
+   apply IHla; intros i.
+   pose proof (Hi (S i)) as H; simpl in H; rewrite H.
+   destruct i; reflexivity.
+
+  constructor.
+   pose proof (Hi O) as H.
+   assumption.
+
+   apply IHla; intros i.
+   pose proof (Hi (S i)) as H.
+   assumption.
+Qed.
+
 Lemma zzz : ∀ cl i len,
   length cl + i ≤ len
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
@@ -850,7 +883,9 @@ destruct cl as [| c₁]; simpl.
      intros i (Hi₁, Hi₂).
      destruct i; [ exfalso; omega | idtac ].
      destruct i; rewrite fld_mul_0_l; reflexivity.
+Abort. (*
 bbb.
+*)
 
 Lemma yyy : ∀ cl i,
   i ≤ List.length cl
@@ -925,12 +960,15 @@ destruct cl as [| c₁]; simpl.
           intros i (Hi₁, Hi₂).
           destruct i; [ exfalso; omega | idtac ].
           destruct i; rewrite fld_mul_0_l; reflexivity.
+Abort. (*
 bbb.
+*)
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
+bbb.
 remember (al a) as cl; clear.
 replace (length cl) with (length cl - 0)%nat .
  rewrite yyy; reflexivity.
