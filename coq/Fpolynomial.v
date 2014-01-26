@@ -788,6 +788,15 @@ induction len; intros.
 bbb.
 *)
 
+Fixpoint glop α (f : field α) al₁ al₂ i len :=
+  match len with
+  | O => []
+  | S len₁ =>
+      [(List.nth 0 al₁ .0 f .* f List.nth i al₂ .0 f .+ f
+        Σ f (j = 1, i) _ List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f)%K
+       … glop f al₁ al₂ (S i) len₁]
+  end.
+
 Lemma www : ∀ c cl₁ cl₂ i,
   List.length cl₁ = i
   → list_eq f (poly_convol_mul f [.1 f%K] (cl₁ ++ [c … cl₂]) (S i)
@@ -811,6 +820,36 @@ destruct cl₂; simpl; constructor.
  simpl in Heq.
  apply list_eq_cons_inv in Heq.
  destruct Heq as (Hmul, Heq).
+Abort. (*
+bbb.
+*)
+
+Lemma vvv : ∀ cl i,
+  i ≤ List.length cl
+  → list_eq f (glop f [.1 f%K] cl i (length (List.skipn i cl)))
+     (List.skipn i cl).
+Proof.
+intros cl i Hi.
+destruct cl as [| c₁]; simpl.
+ rewrite list_skipn_nil; reflexivity.
+
+ revert c₁ cl Hi.
+ destruct i; intros; simpl.
+  constructor.
+   rewrite all_0_summation_0.
+    rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+    intros i (Hi₁, Hi₂).
+    destruct i; [ exfalso; omega | idtac ].
+    destruct i; rewrite fld_mul_0_l; reflexivity.
+
+   destruct cl; simpl; constructor.
+    rewrite all_0_summation_0.
+     rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+     intros i (Hi₁, Hi₂).
+     destruct i; [ exfalso; omega | idtac ].
+     destruct i; rewrite fld_mul_0_l; reflexivity.
 bbb.
 
 Lemma yyy : ∀ cl i,
