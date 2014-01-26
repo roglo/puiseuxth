@@ -700,18 +700,27 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
-(* à rectifier... *)
-Lemma xxx : ∀ la lb n i len,
-  List.nth n (poly_convol_mul f la lb i len) .0 f%K =
-  (Σ f (j = 0, i + n) _ List.nth j la .0 f .* f List.nth (i + n - j) lb .0 f).
+Lemma uuu : ∀ la lb n i len,
+  length la + length lb ≤ len
+  → List.nth n (poly_convol_mul f la lb i len) .0 f%K =
+    Σ f (j = 0, n + i)_ List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f.
 Proof.
-intros la lb n i len.
-revert la lb i len.
-induction n; intros.
- rewrite Nat.add_0_r.
- destruct len; intros.
-  simpl.
+intros la lb n i len Hlen.
+revert la lb i n Hlen.
+induction len; intros.
+ simpl.
 bbb.
+
+Lemma xxx : ∀ la lb i,
+  List.nth i (poly_convol_mul f la lb 0 (pred (length la + length lb)))
+    .0 f%K =
+  (Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f).
+Proof.
+intros la lb i.
+revert la lb.
+induction i; intros.
+bbb.
+*)
 
 Lemma zzz : ∀ cl i len,
   length cl + i ≤ len
