@@ -664,6 +664,9 @@ induction i; intros.
  apply IHi; assumption.
 Qed.
 
+Lemma list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
+Proof. intros A n; destruct n; reflexivity. Qed.
+
 Lemma zzz : ∀ cl i len,
   length cl + i ≤ len
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
@@ -672,7 +675,7 @@ intros cl i len Hlen.
 revert i len Hlen.
 induction cl as [| c]; intros; simpl.
  rewrite poly_convol_mul_nil_r.
- destruct i; reflexivity.
+ rewrite list_skipn_nil; reflexivity.
 
  destruct len.
   simpl in Hlen.
@@ -781,6 +784,22 @@ induction len; intros.
     destruct j; rewrite fld_mul_0_l; reflexivity.
 
    destruct cl as [| c]; [ destruct i; discriminate Hccl | idtac ].
+bbb.
+
+Theorem yyy : ∀ cl i,
+  i ≤ List.length cl
+  → list_eq f (poly_convol_mul f [.1 f%K] cl i (length (List.skipn i cl)))
+     (List.skipn i cl).
+Proof.
+intros cl i Hi.
+revert i Hi.
+induction cl as [| c]; intros; simpl.
+ rewrite list_skipn_nil; reflexivity.
+
+ destruct i; simpl.
+  constructor.
+   rewrite summation_only_one.
+   rewrite fld_mul_1_l; reflexivity.
 bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
