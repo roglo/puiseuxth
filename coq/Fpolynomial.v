@@ -665,7 +665,7 @@ induction i; intros.
 Qed.
 
 Lemma zzz : ∀ cl i len,
-  length cl ≤ len
+  length cl + i ≤ len
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
@@ -753,7 +753,7 @@ replace (length cl) with (length cl - 0)%nat .
 
  rewrite Nat.sub_0_r; reflexivity.
 bbb.
-
+*)
 intros a.
 unfold eq_poly; simpl.
 remember (al a) as cl; clear.
