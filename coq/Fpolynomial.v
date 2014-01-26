@@ -709,6 +709,7 @@ induction cl as [| c]; intros; simpl.
         destruct Hlen as (H₁, H₂).
         Focus 1.
         rewrite summation_only_one in H₁.
+Abort. (*
 bbb.
 
 intros cl i len Hlen.
@@ -785,6 +786,7 @@ induction len; intros.
 
    destruct cl as [| c]; [ destruct i; discriminate Hccl | idtac ].
 bbb.
+*)
 
 Theorem yyy : ∀ cl i,
   i ≤ List.length cl
@@ -792,14 +794,73 @@ Theorem yyy : ∀ cl i,
      (List.skipn i cl).
 Proof.
 intros cl i Hi.
-revert i Hi.
-induction cl as [| c]; intros; simpl.
+destruct cl as [| c₁]; simpl.
  rewrite list_skipn_nil; reflexivity.
 
- destruct i; simpl.
+ revert c₁ cl Hi.
+ destruct i; intros; simpl.
   constructor.
-   rewrite summation_only_one.
-   rewrite fld_mul_1_l; reflexivity.
+   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+   rewrite all_0_summation_0.
+    rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+    intros i (Hi₁, Hi₂).
+    destruct i; [ exfalso; omega | idtac ].
+    destruct i; rewrite fld_mul_0_l; reflexivity.
+
+   destruct cl; simpl; constructor.
+    rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+    rewrite all_0_summation_0.
+     rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+     intros i (Hi₁, Hi₂).
+     destruct i; [ exfalso; omega | idtac ].
+     destruct i; rewrite fld_mul_0_l; reflexivity.
+
+    destruct cl; simpl; constructor.
+     rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+     rewrite all_0_summation_0.
+      rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+      intros i (Hi₁, Hi₂).
+      destruct i; [ exfalso; omega | idtac ].
+      destruct i; rewrite fld_mul_0_l; reflexivity.
+
+     destruct cl; simpl; constructor.
+      rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+      rewrite all_0_summation_0.
+       rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+       intros i (Hi₁, Hi₂).
+       destruct i; [ exfalso; omega | idtac ].
+       destruct i; rewrite fld_mul_0_l; reflexivity.
+
+      destruct cl; simpl; constructor.
+       rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+       rewrite all_0_summation_0.
+        rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+        intros i (Hi₁, Hi₂).
+        destruct i; [ exfalso; omega | idtac ].
+        destruct i; rewrite fld_mul_0_l; reflexivity.
+
+       destruct cl; simpl; constructor.
+        rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+        rewrite all_0_summation_0.
+         rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+         intros i (Hi₁, Hi₂).
+         destruct i; [ exfalso; omega | idtac ].
+         destruct i; rewrite fld_mul_0_l; reflexivity.
+
+        destruct cl; simpl; constructor.
+         rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+         rewrite all_0_summation_0.
+          rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+          intros i (Hi₁, Hi₂).
+          destruct i; [ exfalso; omega | idtac ].
+          destruct i; rewrite fld_mul_0_l; reflexivity.
 bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
