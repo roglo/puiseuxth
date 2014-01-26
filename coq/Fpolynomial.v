@@ -788,7 +788,32 @@ induction len; intros.
 bbb.
 *)
 
-Theorem yyy : ∀ cl i,
+Lemma www : ∀ c cl₁ cl₂ i,
+  List.length cl₁ = i
+  → list_eq f (poly_convol_mul f [.1 f%K] (cl₁ ++ [c … cl₂]) (S i)
+      (length cl₂)) cl₂
+    → list_eq f (poly_convol_mul f [.1 f%K] (cl₁ ++ cl₂) i (length cl₂)) cl₂.
+Proof.
+intros c cl₁ cl₂ i Hcl Heq.
+destruct cl₂; simpl; constructor.
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite all_0_summation_0.
+  rewrite fld_mul_1_l, fld_add_0_r, Nat.sub_0_r.
+  rewrite List.app_nth2.
+   rewrite Hcl, Nat.sub_diag; reflexivity.
+
+   unfold ge; rewrite Hcl; reflexivity.
+
+  intros j (Hi₁, Hi₂).
+  destruct j; [ exfalso; omega | idtac ].
+  destruct j; rewrite fld_mul_0_l; reflexivity.
+
+ simpl in Heq.
+ apply list_eq_cons_inv in Heq.
+ destruct Heq as (Hmul, Heq).
+bbb.
+
+Lemma yyy : ∀ cl i,
   i ≤ List.length cl
   → list_eq f (poly_convol_mul f [.1 f%K] cl i (length (List.skipn i cl)))
      (List.skipn i cl).
