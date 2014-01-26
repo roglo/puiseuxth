@@ -648,14 +648,21 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-(*
-Lemma yyy : ∀ cl i,
-  list_eq f (poly_convol_mul f [.1 f%K] cl i (length cl - i))
-    (List.skipn i cl).
+Lemma list_skipn_cons_nth : ∀ A c₁ (cl cl₁ : list A) i d,
+  List.skipn i cl = [c₁ … cl₁]
+  → List.nth i cl d = c₁.
 Proof.
-intros cl i.
-bbb.
-*)
+intros A c₁ cl cl₁ i d H.
+revert cl H.
+induction i; intros.
+ destruct cl as [| c]; [ discriminate H | idtac ].
+ simpl in H; simpl.
+ injection H; intros; subst; reflexivity.
+
+ destruct cl as [| c]; [ discriminate H | idtac ].
+ simpl in H; simpl.
+ apply IHi; assumption.
+Qed.
 
 Lemma zzz : ∀ cl i len,
   length cl ≤ len
@@ -725,6 +732,15 @@ induction len; intros.
      apply IHi; assumption.
 
   constructor.
+   rewrite all_0_summation_0.
+    rewrite fld_mul_1_l, fld_add_0_r.
+    erewrite list_skipn_cons_nth; [ reflexivity | symmetry; eassumption ].
+
+    intros j (Hj, Hji).
+    destruct j; [ exfalso; omega | idtac ].
+    destruct j; rewrite fld_mul_0_l; reflexivity.
+
+   destruct cl as [| c]; [ destruct i; discriminate Hccl | idtac ].
 bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
