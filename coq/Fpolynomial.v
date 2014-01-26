@@ -669,6 +669,46 @@ Lemma zzz : ∀ cl i len,
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
+revert i len Hlen.
+induction cl as [| c]; intros; simpl.
+ rewrite poly_convol_mul_nil_r.
+ destruct i; reflexivity.
+
+ destruct len.
+  simpl in Hlen.
+  exfalso; revert Hlen; apply Nat.nle_succ_0.
+
+  simpl in Hlen; apply le_S_n in Hlen.
+  simpl.
+  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+  destruct i; simpl.
+   constructor.
+    rewrite all_0_summation_0.
+     rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+     intros; exfalso; omega.
+
+    apply IHcl in Hlen.
+    simpl in Hlen.
+    destruct len.
+     assumption.
+
+     simpl in Hlen; simpl.
+     rewrite <- Hlen in |- * at 2.
+     constructor.
+      rewrite summation_only_one.
+      rewrite all_0_summation_0.
+       destruct cl as [| c₁]; simpl.
+        rewrite fld_mul_0_r; reflexivity.
+
+        apply list_eq_cons_inv in Hlen.
+        simpl in Hlen.
+        destruct Hlen as (H₁, H₂).
+        Focus 1.
+        rewrite summation_only_one in H₁.
+bbb.
+
+intros cl i len Hlen.
 revert i cl Hlen.
 induction len; intros.
  simpl.
