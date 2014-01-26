@@ -968,6 +968,11 @@ Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
+apply list_nth_list_eq; intros i.
+bbb.
+
+intros a.
+unfold eq_poly; simpl.
 bbb.
 remember (al a) as cl; clear.
 replace (length cl) with (length cl - 0)%nat .
