@@ -667,9 +667,9 @@ Qed.
 Lemma list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
 Proof. intros A n; destruct n; reflexivity. Qed.
 
-Lemma list_nth_list_eq : ∀ a b,
-  (∀ i, List.nth i a .0 f .= f List.nth i b .0 f)%K
-  → list_eq f a b.
+Lemma list_nth_list_eq : ∀ la lb,
+  (∀ i, List.nth i la .0 f .= f List.nth i lb .0 f)%K
+  → list_eq f la lb.
 Proof.
 intros la lb Hi.
 revert lb Hi.
@@ -699,6 +699,19 @@ induction la as [| a]; intros.
    pose proof (Hi (S i)) as H.
    assumption.
 Qed.
+
+(* à rectifier... *)
+Lemma xxx : ∀ la lb n i len,
+  List.nth n (poly_convol_mul f la lb i len) .0 f%K =
+  (Σ f (j = 0, i + n) _ List.nth j la .0 f .* f List.nth (i + n - j) lb .0 f).
+Proof.
+intros la lb n i len.
+revert la lb i len.
+induction n; intros.
+ rewrite Nat.add_0_r.
+ destruct len; intros.
+  simpl.
+bbb.
 
 Lemma zzz : ∀ cl i len,
   length cl + i ≤ len
@@ -969,6 +982,7 @@ Proof.
 intros a.
 unfold eq_poly; simpl.
 apply list_nth_list_eq; intros i.
+remember (al a) as cl; clear.
 bbb.
 
 intros a.
