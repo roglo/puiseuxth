@@ -733,6 +733,49 @@ induction len; intros.
   Focus 2.
   rewrite IHlen; [ idtac | omega ].
   rewrite Nat.add_succ_l, <- Nat.add_succ_r; reflexivity.
+
+  destruct la as [| a].
+   rewrite all_0_summation_0.
+    clear; revert n lb i.
+    induction len; intros; [ destruct n; reflexivity | simpl ].
+    destruct n.
+     rewrite all_0_summation_0; [ reflexivity | idtac ].
+     intros j (_, Hj).
+     destruct j; rewrite fld_mul_0_l; reflexivity.
+
+     apply IHlen.
+
+    intros j (_, Hj).
+    rewrite list_nth_nil, fld_mul_0_l; reflexivity.
+
+   destruct lb as [| b].
+    rewrite all_0_summation_0.
+     clear; revert n a la i.
+     induction len; intros; [ destruct n; reflexivity | simpl ].
+     destruct n.
+      rewrite all_0_summation_0; [ reflexivity | idtac ].
+      intros j (_, Hj).
+      destruct j; simpl.
+       rewrite fld_mul_0_r; reflexivity.
+
+       destruct (i - j)%nat; rewrite fld_mul_0_r; reflexivity.
+
+      apply IHlen.
+
+     intros j (_, Hj).
+     rewrite list_nth_nil, fld_mul_0_r; reflexivity.
+
+    simpl in H₁.
+    rewrite Nat.add_succ_r in H₁.
+    apply Nat.succ_inj in H₁.
+    destruct len; [ discriminate H₁ | idtac ].
+    apply Nat.succ_inj in H₁.
+    simpl in Hlen.
+    apply Nat.succ_le_mono in Hlen.
+    rewrite Nat.add_succ_r in Hlen.
+    apply Nat.succ_le_mono in Hlen.
+    destruct n; [ reflexivity | idtac ].
+    simpl.
 bbb.
 
 Lemma xxx : ∀ la lb i,
