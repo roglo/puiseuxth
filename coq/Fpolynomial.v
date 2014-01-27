@@ -783,6 +783,7 @@ induction len; intros.
     rewrite Nat.add_succ_r in Hlen.
     apply Nat.succ_le_mono in Hlen.
     destruct n; [ reflexivity | simpl ].
+Abort. (*
 bbb.
 *)
 
@@ -1067,17 +1068,7 @@ Proof.
 intros a.
 unfold eq_poly; simpl.
 remember (al a) as cl; clear.
-bbb.
-replace (length cl) with (length cl - 0)%nat .
- rewrite yyy; reflexivity.
-
- rewrite Nat.sub_0_r; reflexivity.
-bbb.
-*)
-intros a.
-unfold eq_poly; simpl.
-remember (al a) as cl; clear.
-destruct cl as [| c₁]; simpl; constructor.
+destruct cl; simpl; constructor.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
  rewrite all_0_summation_0.
   rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
@@ -1086,7 +1077,7 @@ destruct cl as [| c₁]; simpl; constructor.
   destruct i; [ exfalso; omega | idtac ].
   destruct i; rewrite fld_mul_0_l; reflexivity.
 
- destruct cl as [| c₂]; simpl; constructor.
+ destruct cl; simpl; constructor.
   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
   rewrite all_0_summation_0.
    rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
@@ -1095,7 +1086,7 @@ destruct cl as [| c₁]; simpl; constructor.
    destruct i; [ exfalso; omega | idtac ].
    destruct i; rewrite fld_mul_0_l; reflexivity.
 
-  destruct cl as [| c₃]; simpl; constructor.
+  destruct cl; simpl; constructor.
    rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
    rewrite all_0_summation_0.
     rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
@@ -1103,6 +1094,24 @@ destruct cl as [| c₁]; simpl; constructor.
     intros i (Hi₁, Hi₂).
     destruct i; [ exfalso; omega | idtac ].
     destruct i; rewrite fld_mul_0_l; reflexivity.
+
+   destruct cl; simpl; constructor.
+    rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+    rewrite all_0_summation_0.
+     rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+     intros i (Hi₁, Hi₂).
+     destruct i; [ exfalso; omega | idtac ].
+     destruct i; rewrite fld_mul_0_l; reflexivity.
+
+    destruct cl; simpl; constructor.
+     rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+     rewrite all_0_summation_0.
+      rewrite fld_mul_1_l, fld_add_0_r; reflexivity.
+
+      intros i (Hi₁, Hi₂).
+      destruct i; [ exfalso; omega | idtac ].
+      destruct i; rewrite fld_mul_0_l; reflexivity.
 bbb.
 
 End poly.
