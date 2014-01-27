@@ -703,6 +703,14 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
+Theorem poly_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%pol.
+Proof.
+intros a b.
+unfold eq_poly; simpl.
+rewrite Nat.add_comm.
+rewrite poly_convol_mul_comm; reflexivity.
+Qed.
+
 Lemma uuu : ∀ la lb n i len,
   length la + length lb ≤ len
   → (List.nth n (poly_convol_mul f la lb i len) .0 f%K .= f
@@ -1055,12 +1063,6 @@ bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
-intros a.
-unfold eq_poly; simpl.
-apply list_nth_list_eq; intros i.
-remember (al a) as cl; clear.
-bbb.
-
 intros a.
 unfold eq_poly; simpl.
 bbb.
