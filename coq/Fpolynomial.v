@@ -730,6 +730,9 @@ induction len; intros.
  simpl.
  destruct n; [ reflexivity | idtac ].
  destruct (eq_nat_dec (length la + length lb) (S len)) as [H₁| H₁].
+  Focus 2.
+  rewrite IHlen; [ idtac | omega ].
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r; reflexivity.
 bbb.
 
 Lemma xxx : ∀ la lb i,
