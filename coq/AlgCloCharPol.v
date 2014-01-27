@@ -154,6 +154,7 @@ Proof.
 intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
 destruct r.
  simpl.
+ rewrite poly_mul_1_l.
 bbb.
 
 intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
