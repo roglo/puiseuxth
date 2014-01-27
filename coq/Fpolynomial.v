@@ -558,6 +558,14 @@ rewrite Nat.add_comm.
 reflexivity.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (@cons α)
+  with signature fld_eq f ==> list_eq f ==> list_eq f
+  as cons_list_eq_morph.
+Proof.
+intros a b H la lb Hab.
+constructor; assumption.
+Qed.
+
 Section poly.
 
 Variable α : Type.
@@ -711,8 +719,8 @@ rewrite Nat.add_comm.
 rewrite poly_convol_mul_comm; reflexivity.
 Qed.
 
-Lemma uuu : ∀ la lb n i len,
-  length la + length lb ≤ len
+Lemma list_nth_poly_convol_mul_aux : ∀ la lb n i len,
+  pred (List.length la + List.length lb) = (i + len)%nat
   → (List.nth n (poly_convol_mul f la lb i len) .0 f%K .= f
      Σ f (j = 0, n + i)_
      List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f)%K.
@@ -721,71 +729,26 @@ intros la lb n i len Hlen.
 revert la lb i n Hlen.
 induction len; intros.
  simpl.
- apply Nat.le_0_r in Hlen.
- apply Nat.eq_add_0 in Hlen.
- destruct Hlen as (Ha, Hb).
- destruct la; [ idtac | discriminate Ha ].
- destruct lb; [ simpl | discriminate Hb ].
- destruct n.
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  destruct j; rewrite fld_mul_0_l; reflexivity.
+ rewrite Nat.add_0_r in Hlen.
+ rewrite all_0_summation_0; [ destruct n; reflexivity | idtac ].
+ intros j (_, Hj).
+ destruct (le_dec (length la) j) as [H₁| H₁].
+  rewrite List.nth_overflow; [ idtac | assumption ].
+  rewrite fld_mul_0_l; reflexivity.
 
-  rewrite all_0_summation_0; [ reflexivity | idtac ].
-  intros j (_, Hj).
-  destruct j; rewrite fld_mul_0_l; reflexivity.
+  destruct (le_dec (length lb) (n + i - j)) as [H₂| H₂].
+   rewrite fld_mul_comm.
+   rewrite List.nth_overflow; [ idtac | assumption ].
+   rewrite fld_mul_0_l; reflexivity.
+
+   exfalso; fast_omega Hlen H₁ H₂.
 
  simpl.
  destruct n; [ reflexivity | idtac ].
- destruct (eq_nat_dec (length la + length lb) (S len)) as [H₁| H₁].
-  Focus 2.
-  rewrite IHlen; [ idtac | omega ].
-  rewrite Nat.add_succ_l, <- Nat.add_succ_r; reflexivity.
-
-  destruct la as [| a].
-   rewrite all_0_summation_0.
-    clear; revert n lb i.
-    induction len; intros; [ destruct n; reflexivity | simpl ].
-    destruct n.
-     rewrite all_0_summation_0; [ reflexivity | idtac ].
-     intros j (_, Hj).
-     destruct j; rewrite fld_mul_0_l; reflexivity.
-
-     apply IHlen.
-
-    intros j (_, Hj).
-    rewrite list_nth_nil, fld_mul_0_l; reflexivity.
-
-   destruct lb as [| b].
-    rewrite all_0_summation_0.
-     clear; revert n a la i.
-     induction len; intros; [ destruct n; reflexivity | simpl ].
-     destruct n.
-      rewrite all_0_summation_0; [ reflexivity | idtac ].
-      intros j (_, Hj).
-      destruct j; simpl.
-       rewrite fld_mul_0_r; reflexivity.
-
-       destruct (i - j)%nat; rewrite fld_mul_0_r; reflexivity.
-
-      apply IHlen.
-
-     intros j (_, Hj).
-     rewrite list_nth_nil, fld_mul_0_r; reflexivity.
-
-    simpl in H₁.
-    rewrite Nat.add_succ_r in H₁.
-    apply Nat.succ_inj in H₁.
-    destruct len; [ discriminate H₁ | idtac ].
-    apply Nat.succ_inj in H₁.
-    simpl in Hlen.
-    apply Nat.succ_le_mono in Hlen.
-    rewrite Nat.add_succ_r in Hlen.
-    apply Nat.succ_le_mono in Hlen.
-    destruct n; [ reflexivity | simpl ].
-Abort. (*
-bbb.
-*)
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
+ rewrite IHlen; [ idtac | assumption ].
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
+Qed.
 
 Lemma xxx : ∀ la lb i,
   List.nth i (poly_convol_mul f la lb 0 (pred (length la + length lb)))
@@ -795,7 +758,6 @@ Proof.
 intros la lb i.
 revert la lb.
 induction i; intros.
-Abort. (*
 bbb.
 *)
 
@@ -1065,6 +1027,14 @@ bbb.
 
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
+intros a.
+unfold eq_poly; simpl.
+remember (al a) as cl; clear.
+destruct cl; simpl; [ constructor | idtac ].
+rewrite summation_only_one.
+rewrite fld_mul_1_l.
+bbb.
+
 intros a.
 unfold eq_poly; simpl.
 remember (al a) as cl; clear.
