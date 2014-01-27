@@ -750,16 +750,15 @@ induction len; intros.
  rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
-Lemma xxx : ∀ la lb i,
-  List.nth i (poly_convol_mul f la lb 0 (pred (length la + length lb)))
-    .0 f%K =
-  (Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f).
+Lemma list_nth_poly_convol_mul : ∀ la lb i,
+  (List.nth i (poly_convol_mul f la lb 0 (pred (length la + length lb)))
+     .0 f .= f
+   Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
 Proof.
 intros la lb i.
-revert la lb.
-induction i; intros.
-bbb.
-*)
+rewrite list_nth_poly_convol_mul_aux; [ idtac | reflexivity ].
+rewrite Nat.add_0_r; reflexivity.
+Qed.
 
 Lemma zzz : ∀ cl i len,
   length cl + i ≤ len
