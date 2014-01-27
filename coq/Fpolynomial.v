@@ -782,9 +782,9 @@ induction len; intros.
     apply Nat.succ_le_mono in Hlen.
     rewrite Nat.add_succ_r in Hlen.
     apply Nat.succ_le_mono in Hlen.
-    destruct n; [ reflexivity | idtac ].
-    simpl.
+    destruct n; [ reflexivity | simpl ].
 bbb.
+*)
 
 Lemma xxx : ∀ la lb i,
   List.nth i (poly_convol_mul f la lb 0 (pred (length la + length lb)))
@@ -794,6 +794,7 @@ Proof.
 intros la lb i.
 revert la lb.
 induction i; intros.
+Abort. (*
 bbb.
 *)
 
@@ -1065,8 +1066,8 @@ Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
-bbb.
 remember (al a) as cl; clear.
+bbb.
 replace (length cl) with (length cl - 0)%nat .
  rewrite yyy; reflexivity.
 
