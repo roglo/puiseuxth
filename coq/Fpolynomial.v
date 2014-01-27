@@ -802,6 +802,13 @@ unfold eq_poly; simpl.
 rewrite poly_convol_mul_1_l; reflexivity.
 Qed.
 
+Theorem poly_mul_1_r : ∀ a, (a .* f .1 f .= f a)%pol.
+Proof.
+intros a.
+rewrite poly_mul_comm.
+apply poly_mul_1_l.
+Qed.
+
 End poly.
 
 (* Horner's algorithm *)

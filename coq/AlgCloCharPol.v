@@ -155,6 +155,13 @@ intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
 destruct r.
  simpl.
  rewrite poly_mul_1_l.
+ subst Ψ; reflexivity.
+
+ simpl.
+ destruct r; simpl.
+  rewrite poly_mul_1_r.
+  subst Ψ; simpl.
+
 bbb.
 
 intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
