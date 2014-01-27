@@ -750,21 +750,23 @@ induction len; intros.
  rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
-Lemma list_nth_poly_convol_mul : ∀ la lb i,
-  (List.nth i (poly_convol_mul f la lb 0 (pred (length la + length lb)))
-     .0 f .= f
-   Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+Lemma list_nth_poly_convol_mul : ∀ la lb i len,
+  len = pred (length la + length lb)
+  → (List.nth i (poly_convol_mul f la lb 0 len) .0 f .= f
+     Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
 Proof.
-intros la lb i.
-rewrite list_nth_poly_convol_mul_aux; [ idtac | reflexivity ].
+intros la lb i len Hlen.
+symmetry in Hlen.
+rewrite list_nth_poly_convol_mul_aux; [ idtac | assumption ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
 Lemma zzz : ∀ cl i len,
-  length cl + i ≤ len
+  length cl = (i + len)%nat
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
+bbb.
 revert i len Hlen.
 induction cl as [| c]; intros; simpl.
  rewrite poly_convol_mul_nil_r.
@@ -802,7 +804,6 @@ induction cl as [| c]; intros; simpl.
         destruct Hlen as (H₁, H₂).
         Focus 1.
         rewrite summation_only_one in H₁.
-Abort. (*
 bbb.
 
 intros cl i len Hlen.
@@ -1028,6 +1029,9 @@ Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
+rewrite zzz; reflexivity.
+
+bbb.
 remember (al a) as cl; clear.
 destruct cl; simpl; [ constructor | idtac ].
 rewrite summation_only_one.
