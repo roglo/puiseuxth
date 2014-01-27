@@ -710,10 +710,9 @@ Lemma uuu : ∀ la lb n i len,
      List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f)%K.
 Proof.
 intros la lb n i len Hlen.
-remember (length la + length lb)%nat as lab eqn:Hlab .
-revert la lb lab i n Hlab Hlen.
+revert la lb i n Hlen.
 induction len; intros.
- subst lab; simpl.
+ simpl.
  apply Nat.le_0_r in Hlen.
  apply Nat.eq_add_0 in Hlen.
  destruct Hlen as (Ha, Hb).
@@ -730,24 +729,7 @@ induction len; intros.
 
  simpl.
  destruct n; [ reflexivity | idtac ].
- destruct lab.
-  symmetry in Hlab.
-  apply Nat.eq_add_0 in Hlab.
-  destruct Hlab as (Ha, Hb).
-  destruct la; [ idtac | discriminate Ha ].
-  destruct lb; [ simpl | discriminate Hb ].
-  rewrite all_0_summation_0.
-   clear.
-   revert n i.
-   induction len; intros; [ destruct n; reflexivity | simpl ].
-   destruct n; [ idtac | apply IHlen ].
-   rewrite all_0_summation_0; [ reflexivity | idtac ].
-   intros j (_, Hj).
-   destruct j; rewrite fld_mul_0_l; reflexivity.
-
-   intros j (_, Hj).
-   destruct j; rewrite fld_mul_0_l; reflexivity.
-
+ destruct (eq_nat_dec (length la + length lb) (S len)) as [H₁| H₁].
 bbb.
 
 Lemma xxx : ∀ la lb i,
