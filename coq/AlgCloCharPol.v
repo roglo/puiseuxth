@@ -151,6 +151,9 @@ destruct cl as [| c₁]; simpl.
  constructor; reflexivity.
 
  constructor.
+  rename c into x.
+  rename c₁ into c.
+  rename x into c₁.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
