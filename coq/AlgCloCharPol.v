@@ -8,6 +8,7 @@ Require Import Field.
 Require Import Newton.
 Require Import Fpolynomial.
 Require Import Puiseux_base.
+Require Import Puiseux_series.
 Require Import CharactPolyn.
 
 Set Implicit Arguments.
@@ -151,13 +152,11 @@ destruct r.
  destruct r; simpl.
   rewrite poly_mul_1_r.
   subst Ψ; simpl.
-
-bbb.
-
-intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
-subst r Ψ; simpl.
-unfold multiplicity; simpl.
-rewrite Nat.sub_diag; simpl.
+  unfold Φq; simpl.
+  unfold poly_left_shift; simpl.
+  unfold poly_div_mono; simpl.
+  rewrite skipn_pad.
+  rewrite Nat.sub_diag; simpl.
 bbb.
 
 End theorems.
