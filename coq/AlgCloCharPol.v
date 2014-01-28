@@ -135,12 +135,11 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
 
-Lemma zzz : ∀ c c₁ cl,
-  (apply_polynomial f (POL [c … cl])%pol c₁ .= f .0 f)%K
-  → (POL [c … cl] .= f
-     POL [(.-f c₁)%K; .1 f%K … []] .* f POL (list_mod_div_mono f c₁ cl))%pol.
+Lemma zzz : ∀ c p,
+  (apply_polynomial f p c .= f .0 f)%K
+  → (p .= f POL [(.-f c)%K; .1 f%K … []] .* f poly_div_mono f p c)%pol.
 Proof.
-intros c c₁ cl Hz.
+intros c p Hz.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
