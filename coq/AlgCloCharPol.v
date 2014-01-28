@@ -12,36 +12,36 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
+Definition apply_polynomial α (f : field α) :=
+  apply_poly (fld_zero f) (fld_add f) (fld_mul f).
+
 (* euclidean division of a polynomial by (x - c) *)
 
-Fixpoint list_mod_div_mono A zero (add : A → A → A) mul (c : A) al :=
+Fixpoint list_mod_div_mono α (f : field α) c al :=
   match al with
   | [] => []
   | [a₁ … al₁] =>
-      [apply_poly zero add mul (POL al)%pol c …
-       list_mod_div_mono zero add mul c al₁]
+      [apply_polynomial f (POL al)%pol c … list_mod_div_mono f c al₁]
   end.
 
-Definition poly_div_mono A zero (add : A → A → A) mul pol c :=
-  match list_mod_div_mono zero add mul c (al pol) with
+Definition poly_div_mono α (f : field α) pol c :=
+  match list_mod_div_mono f c (al pol) with
   | [] => POL []%pol
   | [m … ml] => POL ml%pol
   end.
 
-Definition poly_mod_mono A zero (add : A → A → A) mul pol c :=
-  match list_mod_div_mono zero add mul c (al pol) with
-  | [] => zero
+Definition poly_mod_mono α (f : field α) pol c :=
+  match list_mod_div_mono f c (al pol) with
+  | [] => .0 f%K
   | [m … ml] => m
   end.
 
 (* test
-Require Import QArith.
-Definition Ztest_div cl c := poly_div_mono Z0 Z.add Z.mul (POL cl)%pol c.
-Definition Ztest_mod cl c := poly_mod_mono Z0 Z.add Z.mul (POL cl)%pol c.
-Definition Qtest_div cl c := poly_div_mono 0 Qplus Qmult (POL cl)%pol c.
-Definition Qtest_mod cl c := poly_mod_mono 0 Qplus Qmult (POL cl)%pol c.
-Eval vm_compute in Ztest_div [2; -3; 1 … []]%Z 4.
-Eval vm_compute in Ztest_mod [2; -3; 1 … []]%Z 4.
+Load Q_field.
+Definition Qtest_div cl c := poly_div_mono Q_field (POL cl)%pol c.
+Definition Qtest_mod cl c := poly_mod_mono Q_field (POL cl)%pol c.
+Eval vm_compute in Qtest_div [2#1; -3#1; 1#1 … []] (4#1).
+Eval vm_compute in Qtest_mod [2#1; -3#1; 1#1 … []] (4#1).
 Eval vm_compute in Qtest_div [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 *)
@@ -87,9 +87,6 @@ Fixpoint degree_plus_1_of_list α (is_zero : α → bool) (l : list α) :=
 Definition degree α is_zero (pol : polynomial α) :=
   pred (degree_plus_1_of_list is_zero (al pol)).
 
-Definition apply_polynomial α (f : field α) :=
-  apply_poly (fld_zero f) (fld_add f) (fld_mul f).
-
 Record algeb_closed_field α :=
   { ac_field : field α;
     ac_is_zero : α → bool;
@@ -106,17 +103,12 @@ Fixpoint poly_power α (f : field α) pol n :=
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 
-(*
-Definition Ψ α (f : field α) pol ns c₁ r :=
-  (Φq f pol ns ./ f POL [(.- f c₁)%K; .1 f … []] .^ f r)%pol.
-*)
-
 Fixpoint list_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
   let f := ac_field acf in
   match d with
   | O => O
   | S d₁ =>
-      match list_mod_div_mono (.0 f)%K (fld_add f) (fld_mul f) c₁ al with
+      match list_mod_div_mono f c₁ al with
       | [] => O
       | [m … ml] =>
           if ac_is_zero acf m then S (list_multiplicity acf c₁ ml d₁)
@@ -130,9 +122,7 @@ Definition multiplicity α (acf : algeb_closed_field α) c₁ pol :=
 Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   match r with
   | O => pol
-  | S r₁ =>
-      quotient_phi_x_sub_c_pow_r f
-        (poly_div_mono (.0 f)%K (fld_add f) (fld_mul f) pol c₁) c₁ r₁
+  | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_mono f pol c₁) c₁ r₁
   end.
 
 Section theorems.
