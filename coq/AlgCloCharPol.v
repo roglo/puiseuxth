@@ -135,6 +135,14 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
 
+Lemma zzz : ∀ c c₁ cl,
+  (apply_polynomial f (POL [c … cl])%pol c₁ .= f .0 f)%K
+  → (POL [c … cl] .= f
+     POL [(.-f c₁)%K; .1 f%K … []] .* f POL (list_mod_div_mono f c₁ cl))%pol.
+Proof.
+intros c c₁ cl Hz.
+bbb.
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -169,8 +177,7 @@ destruct r.
   rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
   symmetry in Hj.
-  rewrite fold_char_pol with (αj := αj).
-  rewrite <- Hj.
+  apply zzz.
 bbb.
 
 End theorems.
