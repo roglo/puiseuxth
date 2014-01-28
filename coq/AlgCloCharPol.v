@@ -1,6 +1,7 @@
 (* AlgCloCharPol.v *)
 
 Require Import Utf8.
+Require Import QArith.
 Require Import NPeano.
 
 Require Import Misc.
@@ -49,6 +50,7 @@ Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2
 
 (* trying to compute i-th derivative divided by factorial i *)
 
+Open Scope nat_scope.
 Fixpoint comb n k :=
   match n with
   | O => O
@@ -63,6 +65,7 @@ Fixpoint comb n k :=
           end
       end
   end.
+Close Scope nat_scope.
 
 Fixpoint glop A (mul : nat → A → A) al i j :=
   match al with
@@ -157,6 +160,8 @@ destruct r.
   unfold poly_div_mono; simpl.
   rewrite skipn_pad.
   rewrite Nat.sub_diag; simpl.
+  remember (ini_pt ns) as jj eqn:Hj .
+  destruct jj as (jq, αj); simpl.
 bbb.
 
 End theorems.
