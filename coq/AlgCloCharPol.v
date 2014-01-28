@@ -130,6 +130,42 @@ Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_mono f pol c₁) c₁ r₁
   end.
 
+Add Parametric Morphism α (f : field α) : (apply_polynomial f)
+  with signature eq_poly f ==> fld_eq f ==> fld_eq f
+  as apply_polynomial_morph.
+Proof.
+intros p₁ p₂ Hpp v₁ v₂ Hvv.
+unfold eq_poly in Hpp.
+unfold apply_polynomial.
+unfold apply_poly.
+remember (al p₁) as la₁ eqn:Hla₁ .
+remember (al p₂) as la₂ eqn:Hla₂ .
+revert Hpp Hvv; clear; intros.
+revert la₂ v₁ v₂ Hpp Hvv.
+induction la₁ as [| a₁]; intros; simpl.
+ revert v₁ v₂ Hvv.
+ induction la₂ as [| a₂]; intros; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hpp.
+ destruct Hpp as (Ha, Hla).
+ rewrite Ha, fld_add_0_r.
+ rewrite <- IHla₂; try eassumption.
+ rewrite fld_mul_0_l; reflexivity.
+
+ destruct la₂ as [| a₂].
+  apply list_eq_cons_nil_inv in Hpp.
+  destruct Hpp as (Ha, Hla).
+  rewrite Ha, fld_add_0_r; simpl.
+  rewrite IHla₁; try eassumption; simpl.
+  rewrite fld_mul_0_l; reflexivity.
+
+  simpl.
+  apply list_eq_cons_inv in Hpp.
+  destruct Hpp as (Ha, Hla).
+  rewrite Ha, Hvv.
+  rewrite IHla₁; try eassumption.
+  reflexivity.
+Qed.
+
 Section theorems.
 
 Variable α : Type.
@@ -180,6 +216,7 @@ destruct cl as [| c₁]; simpl.
   rename c₁ into c.
   rename x into c₁.
   pose proof (poly_eq_add_const_mul_x_poly c cl) as Hc.
+  rewrite Hc in Hz; simpl in Hz.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
