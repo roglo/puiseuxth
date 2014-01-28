@@ -7,6 +7,7 @@ Require Import NPeano.
 Require Import Misc.
 Require Import Field.
 Require Import Newton.
+Require Import Fsummation.
 Require Import Fpolynomial.
 Require Import Puiseux_base.
 Require Import Puiseux_series.
@@ -135,11 +136,21 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
 
+(* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma zzz : ∀ c p,
   (apply_polynomial f p c .= f .0 f)%K
   → (p .= f POL [(.-f c)%K; .1 f%K … []] .* f poly_div_mono f p c)%pol.
 Proof.
 intros c p Hz.
+unfold poly_div_mono.
+destruct p as (cl); simpl.
+unfold eq_poly; simpl.
+rewrite summation_only_one.
+destruct cl as [| c₁]; simpl.
+ rewrite fld_mul_0_r.
+ constructor; reflexivity.
+
+ constructor.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
