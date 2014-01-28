@@ -217,6 +217,10 @@ destruct cl as [| c₁]; simpl.
   rename x into c₁.
   pose proof (poly_eq_add_const_mul_x_poly c cl) as Hc.
   rewrite Hc in Hz; simpl in Hz.
+  unfold apply_polynomial in Hz; simpl in Hz.
+  unfold apply_poly in Hz.
+  simpl in Hz.
+  rewrite summation_only_one in Hz.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
