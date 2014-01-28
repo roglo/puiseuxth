@@ -136,6 +136,17 @@ Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
 
+(* P(x) = P(0) + x Q(x) *)
+Lemma yyy : ∀ c cl,
+  (POL [c … cl] .= f POL [c] .+ f POL [.0 f; .1 f … []]%K .* f POL cl)%pol.
+Proof.
+intros c cl.
+unfold eq_poly; simpl.
+rewrite summation_only_one.
+rewrite fld_mul_0_l, fld_add_0_r.
+constructor; [ reflexivity | idtac ].
+bbb.
+
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma zzz : ∀ c p,
   (apply_polynomial f p c .= f .0 f)%K
@@ -154,6 +165,7 @@ destruct cl as [| c₁]; simpl.
   rename c into x.
   rename c₁ into c.
   rename x into c₁.
+  pose proof (yyy c cl) as Hc.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
