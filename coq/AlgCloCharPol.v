@@ -163,6 +163,14 @@ destruct r.
   rewrite Nat.sub_diag; simpl.
   remember (ini_pt ns) as jj eqn:Hj .
   destruct jj as (jq, αj); simpl.
+  remember Hns as H; clear HeqH.
+  apply exists_ini_pt_nat in H.
+  destruct H as (j, (x, Hx)).
+  rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
+  unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
+  symmetry in Hj.
+  rewrite fold_char_pol with (αj := αj).
+  rewrite <- Hj.
 bbb.
 
 End theorems.
