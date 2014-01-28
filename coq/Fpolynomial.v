@@ -809,6 +809,34 @@ induction len; intros.
   destruct j; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
+Lemma poly_convol_mul_x_l : ∀ cl i len,
+  length cl = (i + len)%nat
+  → list_eq f
+      (poly_convol_mul f [.0 f%K; .1 f%K … []] cl (S i) len)
+      (List.skipn i cl).
+Proof.
+intros cl i len Hlen.
+revert cl i Hlen.
+induction len; intros.
+ simpl.
+ rewrite Nat.add_0_r in Hlen.
+ rewrite list_skipn_overflow; subst; reflexivity.
+
+ simpl.
+ rewrite summation_only_one_non_0 with (v := 1%nat).
+  rewrite fld_mul_1_l, Nat.sub_0_r.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
+  rewrite IHlen; [ idtac | assumption ].
+  apply list_eq_skipn_succ.
+
+  split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
+
+  intros j (_, Hj) Hjn1.
+  destruct j; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+  destruct j; [ exfalso; apply Hjn1; reflexivity | idtac ].
+  destruct j; rewrite fld_mul_0_l; reflexivity.
+Qed.
+
 Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
