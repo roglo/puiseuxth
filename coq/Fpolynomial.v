@@ -678,6 +678,19 @@ Proof. intros A n d; destruct n; reflexivity. Qed.
 Lemma list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
 Proof. intros A n; destruct n; reflexivity. Qed.
 
+Lemma list_skipn_overflow : ∀ A n (cl : list A),
+  length cl ≤ n → List.skipn n cl = [].
+Proof.
+intros A n cl H.
+revert n H.
+induction cl as [| c]; intros.
+ rewrite list_skipn_nil; reflexivity.
+
+ destruct n; [ exfalso; simpl in H; fast_omega H | simpl ].
+ apply IHcl.
+ apply le_S_n; assumption.
+Qed.
+
 Lemma list_nth_list_eq : ∀ la lb,
   (∀ i, List.nth i la .0 f .= f List.nth i lb .0 f)%K
   → list_eq f la lb.
@@ -761,6 +774,17 @@ rewrite list_nth_poly_convol_mul_aux; [ idtac | assumption ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
+Lemma list_eq_skipn_succ : ∀ cl i,
+  list_eq f [List.nth i cl .0 f%K … List.skipn (S i) cl] (List.skipn i cl).
+Proof.
+intros cl i.
+revert i.
+induction cl as [| c]; intros; simpl.
+ destruct i; constructor; reflexivity.
+
+ destruct i; [ reflexivity | apply IHcl ].
+Qed.
+
 Lemma poly_convol_mul_1_l : ∀ cl i len,
   length cl = (i + len)%nat
   → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
@@ -770,13 +794,7 @@ revert cl i Hlen.
 induction len; intros.
  simpl.
  rewrite Nat.add_0_r in Hlen.
- revert i Hlen.
- induction cl as [| c]; intros.
-  rewrite list_skipn_nil; reflexivity.
-
-  destruct i; [ discriminate Hlen | simpl ].
-  apply IHcl.
-  apply Nat.succ_inj_wd; assumption.
+ rewrite list_skipn_overflow; subst; reflexivity.
 
  simpl.
  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
@@ -784,11 +802,7 @@ induction len; intros.
  rewrite all_0_summation_0.
   rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
   rewrite fld_add_0_r, IHlen; [ clear | assumption ].
-  revert i.
-  induction cl as [| c]; intros; simpl.
-   destruct i; constructor; reflexivity.
-
-   destruct i; [ reflexivity | apply IHcl ].
+  apply list_eq_skipn_succ.
 
   intros j (Hj, Hji).
   destruct j; [ exfalso; omega | idtac ].
