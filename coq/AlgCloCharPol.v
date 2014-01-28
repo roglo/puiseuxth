@@ -221,6 +221,7 @@ destruct cl as [| c₁]; simpl.
   unfold apply_poly in Hz.
   simpl in Hz.
   rewrite summation_only_one in Hz.
+  rewrite fld_mul_0_l, fld_add_0_r in Hz.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
