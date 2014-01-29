@@ -266,11 +266,11 @@ induction la as [| a]; intros; simpl.
 
   apply poly_convol_mul_nil_l.
 
- destruct lb as [| b].
+ induction lb as [| b].
   simpl.
-  rewrite fld_mul_0_r.
   rewrite list_fold_right_apply_compat with (lb := []).
-   reflexivity.
+   simpl.
+   rewrite fld_mul_0_r; reflexivity.
 
    apply poly_convol_mul_nil_r.
 
