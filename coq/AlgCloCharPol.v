@@ -257,6 +257,26 @@ Lemma fold_list_apply : ∀ al x,
   list_apply al x.
 Proof. reflexivity. Qed.
 
+(*
+  Hlen : pred (length la + length lb) = len
+  ============================
+   (list_apply la x .* f list_apply lb x .= f
+    list_apply (poly_convol_mul f la lb 0 len) x)%K
+
+  Hlen : pred (length la + length lb) = S len
+  ============================
+   (list_apply la x .* f list_apply lb x .= f
+    list_apply (poly_convol_mul f la lb 1 len) x .* f x .+ f
+    List.nth 0 la .0 f .* f List.nth 0 lb .0 f)%K
+
+  Hlen : pred (length la + length lb) = S (S len)
+  ============================
+   (list_apply la x .* f list_apply lb x .= f
+    (list_apply (poly_convol_mul f la lb 2 len) x .* f x .+ f
+     Σf (j = 0, 1)_ List.nth j la .0 f .* f List.nth (1 - j) lb .0 f) .* f x
+    .+ f List.nth 0 la .0 f .* f List.nth 0 lb .0 f)%K
+*)
+
 Lemma yyy : ∀ la lb x len,
   pred (length la + length lb) = len
   → (list_apply la x .* f list_apply lb x .= f
@@ -276,8 +296,27 @@ destruct len.
 
  simpl.
  destruct len.
+  rewrite summation_only_one.
   simpl.
   rewrite fld_mul_0_l, fld_add_0_l.
+  destruct la as [| a]; simpl.
+   do 2 rewrite fld_mul_0_l; reflexivity.
+
+   simpl in Hlen.
+   rewrite Nat.add_comm in Hlen.
+   destruct lb as [| b]; simpl.
+    do 2 rewrite fld_mul_0_r; reflexivity.
+
+    simpl in Hlen.
+    apply Nat.succ_inj in Hlen.
+    destruct lb; [ idtac | discriminate Hlen ].
+    simpl in Hlen.
+    destruct la; [ idtac | discriminate Hlen ].
+    simpl.
+    rewrite fld_mul_0_l, fld_add_0_l, fld_add_0_l; reflexivity.
+
+  rewrite summation_only_one.
+  remember 1%nat as z; simpl; subst z.
 bbb.
 
 Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
