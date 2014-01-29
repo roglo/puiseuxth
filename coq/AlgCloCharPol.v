@@ -258,8 +258,10 @@ unfold apply_polynomial, apply_poly; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
-revert x lb.
+remember (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f)%K as g.
+revert lb.
 induction la as [| a]; intros; simpl.
+ subst g.
  rewrite fld_mul_0_l.
  rewrite list_fold_right_apply_compat with (lb := []).
   reflexivity.
@@ -268,6 +270,7 @@ induction la as [| a]; intros; simpl.
 
  induction lb as [| b].
   simpl.
+  subst g.
   rewrite list_fold_right_apply_compat with (lb := []).
    simpl.
    rewrite fld_mul_0_r; reflexivity.
