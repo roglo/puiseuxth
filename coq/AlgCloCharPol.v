@@ -130,6 +130,46 @@ Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_mono f pol c₁) c₁ r₁
   end.
 
+Definition list_apply α (f : field α) al x :=
+  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K.
+
+Lemma fold_list_apply : ∀ α (f : field α) al x,
+  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
+  list_apply f al x.
+Proof. reflexivity. Qed.
+
+Add Parametric Morphism α (f : field α) : (list_apply f)
+  with signature list_eq f ==> fld_eq f ==> fld_eq f
+  as list_apply_morph.
+Proof.
+intros la lb Hab x y Hxy.
+revert lb Hab x y Hxy.
+induction la as [| a]; intros; simpl.
+ revert x y Hxy.
+ induction lb as [| b]; intros; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hab.
+ destruct Hab as (Hb, Hlb).
+ rewrite Hb, fld_add_0_r.
+ rewrite <- IHlb; try eassumption.
+ rewrite fld_mul_0_l; reflexivity.
+
+ destruct lb as [| b].
+  apply list_eq_cons_nil_inv in Hab.
+  destruct Hab as (Ha, Hla).
+  rewrite Ha, fld_add_0_r; simpl.
+  rewrite IHla; try eassumption; simpl.
+  rewrite fld_mul_0_l; reflexivity.
+
+  simpl.
+  apply list_eq_cons_inv in Hab.
+  destruct Hab as (Hab, Hlab).
+  unfold list_apply.
+  rewrite Hab, Hxy.
+  do 2 rewrite fold_list_apply.
+  rewrite IHla; try eassumption.
+  reflexivity.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (apply_polynomial f)
   with signature eq_poly f ==> fld_eq f ==> fld_eq f
   as apply_polynomial_morph.
@@ -138,32 +178,8 @@ intros p₁ p₂ Hpp v₁ v₂ Hvv.
 unfold eq_poly in Hpp.
 unfold apply_polynomial.
 unfold apply_poly.
-remember (al p₁) as la₁ eqn:Hla₁ .
-remember (al p₂) as la₂ eqn:Hla₂ .
-revert Hpp Hvv; clear; intros.
-revert la₂ v₁ v₂ Hpp Hvv.
-induction la₁ as [| a₁]; intros; simpl.
- revert v₁ v₂ Hvv.
- induction la₂ as [| a₂]; intros; [ reflexivity | simpl ].
- apply list_eq_nil_cons_inv in Hpp.
- destruct Hpp as (Ha, Hla).
- rewrite Ha, fld_add_0_r.
- rewrite <- IHla₂; try eassumption.
- rewrite fld_mul_0_l; reflexivity.
-
- destruct la₂ as [| a₂].
-  apply list_eq_cons_nil_inv in Hpp.
-  destruct Hpp as (Ha, Hla).
-  rewrite Ha, fld_add_0_r; simpl.
-  rewrite IHla₁; try eassumption; simpl.
-  rewrite fld_mul_0_l; reflexivity.
-
-  simpl.
-  apply list_eq_cons_inv in Hpp.
-  destruct Hpp as (Ha, Hla).
-  rewrite Ha, Hvv.
-  rewrite IHla₁; try eassumption.
-  reflexivity.
+do 2 rewrite fold_list_apply.
+rewrite Hpp, Hvv; reflexivity.
 Qed.
 
 Section theorems.
@@ -249,14 +265,6 @@ induction la as [| a]; intros; simpl.
   rewrite Hab, IHla; [ reflexivity | eassumption ].
 Qed.
 
-Definition list_apply al x :=
-  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K.
-
-Lemma fold_list_apply : ∀ al x,
-  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
-  list_apply al x.
-Proof. reflexivity. Qed.
-
 (*
   Hlen : pred (length la + length lb) = len
   ============================
@@ -279,8 +287,8 @@ Proof. reflexivity. Qed.
 
 Lemma yyy : ∀ la lb x len,
   pred (length la + length lb) = len
-  → (list_apply la x .* f list_apply lb x .= f
-     list_apply (poly_convol_mul f la lb 0 len) x)%K.
+  → (list_apply f la x .* f list_apply f lb x .= f
+     list_apply f (poly_convol_mul f la lb 0 len) x)%K.
 Proof.
 intros la lb x len Hlen.
 destruct len.
@@ -317,6 +325,15 @@ destruct len.
 
   rewrite summation_only_one.
   remember 1%nat as z; simpl; subst z.
+  destruct la as [| a].
+   remember 1%nat as z; simpl; subst z.
+   do 2 rewrite fld_mul_0_l.
+   rewrite all_0_summation_0.
+    do 2 rewrite fld_add_0_r.
+    rewrite poly_convol_mul_nil_l; simpl.
+    do 2 rewrite fld_mul_0_l; reflexivity.
+
+    intros i (_, Hi).
 bbb.
 
 Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
