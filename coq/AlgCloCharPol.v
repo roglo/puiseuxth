@@ -249,6 +249,14 @@ induction la as [| a]; intros; simpl.
   rewrite Hab, IHla; [ reflexivity | eassumption ].
 Qed.
 
+Definition list_apply al x :=
+  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K.
+
+Lemma fold_list_apply : ∀ al x,
+  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
+  list_apply al x.
+Proof. reflexivity. Qed.
+
 Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
   (apply_polynomial f (p₁ .* f p₂)%pol x .= f
    apply_polynomial f p₁ x .* f apply_polynomial f p₂ x)%K.
@@ -258,6 +266,9 @@ unfold apply_polynomial, apply_poly; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
+do 3 rewrite fold_list_apply.
+bbb.
+
 remember (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f)%K as g.
 revert lb.
 induction la as [| a]; intros; simpl.
