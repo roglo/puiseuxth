@@ -257,16 +257,63 @@ Lemma fold_list_apply : ∀ al x,
   list_apply al x.
 Proof. reflexivity. Qed.
 
+Lemma yyy : ∀ la lb x len,
+  pred (length la + length lb) = len
+  → (list_apply la x .* f list_apply lb x .= f
+     list_apply (poly_convol_mul f la lb 0 len) x)%K.
+Proof.
+intros la lb x len Hlen.
+destruct len.
+ simpl.
+ destruct la as [| a]; simpl.
+  rewrite fld_mul_0_l; reflexivity.
+
+  destruct lb as [| b]; simpl.
+   rewrite fld_mul_0_r; reflexivity.
+
+   simpl in Hlen.
+   rewrite Nat.add_succ_r in Hlen; discriminate Hlen.
+
+ simpl.
+ destruct len.
+  simpl.
+  rewrite fld_mul_0_l, fld_add_0_l.
+bbb.
+
 Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
   (apply_polynomial f (p₁ .* f p₂)%pol x .= f
    apply_polynomial f p₁ x .* f apply_polynomial f p₂ x)%K.
 Proof.
+intros p₁ p₂ x.
+symmetry.
+unfold apply_polynomial, apply_poly; simpl.
+remember (al p₁) as la eqn:Hla .
+remember (al p₂) as lb eqn:Hlb .
+clear.
+do 3 rewrite fold_list_apply.
+remember (pred (length la + length lb)) as n eqn:Hn .
+symmetry in Hn.
+bbb.
+
 intros p₁ p₂ x.
 unfold apply_polynomial, apply_poly; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
 do 3 rewrite fold_list_apply.
+remember (pred (length la + length lb)) as n eqn:Hn .
+symmetry in Hn.
+destruct n; simpl.
+ destruct la as [| a]; simpl.
+  rewrite fld_mul_0_l; reflexivity.
+
+  destruct lb as [| b]; simpl.
+   rewrite fld_mul_0_r; reflexivity.
+
+   simpl in Hn.
+   rewrite Nat.add_succ_r in Hn; discriminate Hn.
+
+ rewrite summation_only_one; simpl.
 bbb.
 
 remember (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f)%K as g.
