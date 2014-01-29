@@ -197,6 +197,28 @@ constructor.
  apply poly_convol_mul_x_l; reflexivity.
 Qed.
 
+Lemma apply_polynomial_add : ∀ p₁ p₂ x,
+  (apply_polynomial f (p₁ .+ f p₂)%pol x .= f
+   apply_polynomial f p₁ x .+ f apply_polynomial f p₂ x)%K.
+Proof.
+intros p₁ p₂ x.
+unfold apply_polynomial, apply_poly; simpl.
+remember (al p₁) as la eqn:Hla .
+remember (al p₂) as lb eqn:Hlb .
+clear.
+revert x lb.
+induction la as [| a]; intros; simpl.
+ rewrite fld_add_0_l; reflexivity.
+
+ destruct lb as [| b]; simpl; [ rewrite fld_add_0_r; reflexivity | idtac ].
+ rewrite IHla.
+ do 2 rewrite fld_add_assoc.
+ apply fld_add_compat_r.
+ rewrite fld_mul_add_distr_r.
+ do 2 rewrite <- fld_add_assoc.
+ apply fld_add_compat_l, fld_add_comm.
+Qed.
+
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma zzz : ∀ c p,
   (apply_polynomial f p c .= f .0 f)%K
@@ -217,11 +239,7 @@ destruct cl as [| c₁]; simpl.
   rename x into c₁.
   pose proof (poly_eq_add_const_mul_x_poly c cl) as Hc.
   rewrite Hc in Hz; simpl in Hz.
-  unfold apply_polynomial in Hz; simpl in Hz.
-  unfold apply_poly in Hz.
-  simpl in Hz.
-  rewrite summation_only_one in Hz.
-  rewrite fld_mul_0_l, fld_add_0_r in Hz.
+  rewrite apply_polynomial_add in Hz.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
