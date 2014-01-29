@@ -219,6 +219,64 @@ induction la as [| a]; intros; simpl.
  apply fld_add_compat_l, fld_add_comm.
 Qed.
 
+Lemma list_fold_right_apply_compat : ∀ la lb x,
+  list_eq f la lb
+  → (List.fold_right (λ c accu, accu .* f x .+ f c) .0 f la .= f
+     List.fold_right (λ c accu, accu .* f x .+ f c) .0 f lb)%K.
+Proof.
+intros la lb x Heq.
+revert lb x Heq.
+induction la as [| a]; intros; simpl.
+ revert x.
+ induction lb as [| b]; intros; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Heq.
+ destruct Heq as (Hb, Hlb).
+ rewrite Hb, fld_add_0_r.
+ rewrite <- IHlb; [ idtac | assumption ].
+ rewrite fld_mul_0_l; reflexivity.
+
+ destruct lb as [| b].
+  simpl.
+  apply list_eq_cons_nil_inv in Heq.
+  destruct Heq as (Ha, Hla).
+  rewrite IHla; [ idtac | eassumption ].
+  simpl.
+  rewrite Ha, fld_mul_0_l, fld_add_0_r; reflexivity.
+
+  apply list_eq_cons_inv in Heq.
+  destruct Heq as (Hab, Hlab).
+  simpl.
+  rewrite Hab, IHla; [ reflexivity | eassumption ].
+Qed.
+
+Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
+  (apply_polynomial f (p₁ .* f p₂)%pol x .= f
+   apply_polynomial f p₁ x .* f apply_polynomial f p₂ x)%K.
+Proof.
+intros p₁ p₂ x.
+unfold apply_polynomial, apply_poly; simpl.
+remember (al p₁) as la eqn:Hla .
+remember (al p₂) as lb eqn:Hlb .
+clear.
+revert x lb.
+induction la as [| a]; intros; simpl.
+ rewrite fld_mul_0_l.
+ rewrite list_fold_right_apply_compat with (lb := []).
+  reflexivity.
+
+  apply poly_convol_mul_nil_l.
+
+ destruct lb as [| b].
+  simpl.
+  rewrite fld_mul_0_r.
+  rewrite list_fold_right_apply_compat with (lb := []).
+   reflexivity.
+
+   apply poly_convol_mul_nil_r.
+
+  simpl.
+bbb.
+
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma zzz : ∀ c p,
   (apply_polynomial f p c .= f .0 f)%K
