@@ -283,6 +283,15 @@ Qed.
     (list_apply (poly_convol_mul f la lb 2 len) x .* f x .+ f
      Σf (j = 0, 1)_ List.nth j la .0 f .* f List.nth (1 - j) lb .0 f) .* f x
     .+ f List.nth 0 la .0 f .* f List.nth 0 lb .0 f)%K
+
+  Hlen : (length la + length lb)%nat = S len
+  ============================
+   ((list_apply f la x .* f x .+ f a) .* f (list_apply f lb x .* f x .+ f b)
+    .= f
+    (list_apply f (poly_convol_mul f [a … la] [b … lb] 2 len) x .* f x .+ f
+     Σf (j = 0, 1)
+     _ List.nth j [a … la] .0 f .* f List.nth (1 - j) [b … lb] .0 f) .* f x
+    .+ f a .* f b)%K
 *)
 
 Lemma yyy : ∀ la lb x len,
@@ -334,6 +343,33 @@ destruct len.
     do 2 rewrite fld_mul_0_l; reflexivity.
 
     intros i (_, Hi).
+    destruct i; rewrite fld_mul_0_l; reflexivity.
+
+   remember 1%nat as z; remember [a … la] as ala.
+   rewrite Heqala in |- * at 3.
+   simpl; subst z ala.
+   simpl in Hlen.
+   destruct lb as [| b].
+    simpl.
+    do 2 rewrite fld_mul_0_r.
+    rewrite poly_convol_mul_nil_r, fld_mul_0_l, fld_add_0_l.
+    rewrite all_0_summation_0.
+     rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
+
+     intros i (_, Hi).
+     destruct i; rewrite fld_mul_0_r; reflexivity.
+
+    rewrite Nat.add_comm in Hlen; simpl in Hlen.
+    apply Nat.succ_inj in Hlen.
+    rewrite Nat.add_comm in Hlen.
+    remember [a … la] as ala.
+    remember [b … lb] as alb.
+    remember 1%nat as z.
+    rewrite Heqala in |- * at 1.
+    rewrite Heqala in |- * at 1.
+    rewrite Heqalb in |- * at 1.
+    rewrite Heqalb in |- * at 2.
+    simpl; subst z ala alb.
 bbb.
 
 Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
