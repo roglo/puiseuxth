@@ -294,11 +294,35 @@ Qed.
     .+ f a .* f b)%K
 *)
 
+Lemma xxx : ∀ a b la lb x len,
+  S (length la + length lb) = len
+  → (list_apply f [a … la] x .* f list_apply f [b … lb] x .= f
+     list_apply f (poly_convol_mul f [a … la] [b … lb] 0 len) x)%K.
+Proof.
+intros a b la lb x len Hlen.
+simpl.
+destruct len; [ discriminate Hlen | simpl ].
+rewrite summation_only_one.
+bbb.
+
 Lemma yyy : ∀ la lb x len,
   pred (length la + length lb) = len
   → (list_apply f la x .* f list_apply f lb x .= f
      list_apply f (poly_convol_mul f la lb 0 len) x)%K.
 Proof.
+intros la lb x len Hlen.
+destruct la as [| a].
+ rewrite fld_mul_0_l.
+ rewrite poly_convol_mul_nil_l; reflexivity.
+
+ destruct lb as [| b].
+  rewrite fld_mul_0_r.
+  rewrite poly_convol_mul_nil_r; reflexivity.
+
+  simpl in Hlen.
+  rewrite Nat.add_succ_r in Hlen.
+bbb.
+
 intros la lb x len Hlen.
 destruct len.
  simpl.
@@ -370,7 +394,9 @@ destruct len.
     rewrite Heqalb in |- * at 1.
     rewrite Heqalb in |- * at 2.
     simpl; subst z ala alb.
+Abort. (*
 bbb.
+*)
 
 Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
   (apply_polynomial f (p₁ .* f p₂)%pol x .= f
