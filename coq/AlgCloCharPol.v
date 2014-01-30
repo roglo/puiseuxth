@@ -265,14 +265,6 @@ induction la as [| a]; intros; simpl.
   rewrite Hab, IHla; [ reflexivity | eassumption ].
 Qed.
 
-Lemma www : ∀ a la lb x len,
-  (length la + length lb)%nat = len
-  → (list_apply f [a … la] x .* f list_apply f lb x .= f
-     list_apply f (poly_convol_mul f [a … la] lb 0 len) x)%K.
-Proof.
-intros a la lb x len Hlen; simpl.
-bbb.
-
 (*
   Hlen : pred (length la + length lb) = len
   ============================
