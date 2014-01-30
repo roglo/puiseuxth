@@ -317,6 +317,30 @@ assert
  rewrite H; clear H.
  do 2 rewrite <- fld_mul_add_distr_r.
  apply fld_mul_compat_r.
+ destruct len; simpl.
+  Focus 2.
+  unfold summation; simpl.
+  rewrite fld_add_0_r.
+  rename a into a₀.
+  rename b into b₀.
+  destruct la as [| a₁].
+   simpl.
+   Focus 2.
+   destruct lb as [| b₁].
+    simpl.
+    Focus 2.
+    simpl.
+    rewrite fld_add_assoc.
+    do 3 rewrite fld_mul_add_distr_r.
+    rewrite fld_add_assoc, fld_add_comm, fld_add_assoc.
+    apply fld_add_compat_r.
+    rewrite fld_mul_add_distr_l.
+    rewrite <- fld_add_assoc, fld_add_comm.
+    do 2 rewrite <- fld_add_assoc.
+    rewrite fld_add_comm.
+    apply fld_add_compat_r.
+    rewrite fld_mul_assoc.
+    rewrite fld_add_assoc.
 bbb.
 
 Lemma yyy : ∀ la lb x len,
