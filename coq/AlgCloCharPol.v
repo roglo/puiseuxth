@@ -303,6 +303,11 @@ intros a b la lb x len Hlen.
 simpl.
 destruct len; [ discriminate Hlen | simpl ].
 rewrite summation_only_one.
+apply Nat.succ_inj in Hlen.
+rewrite fld_mul_add_distr_r.
+do 2 rewrite fld_mul_add_distr_l.
+rewrite fld_add_assoc.
+apply fld_add_compat_r.
 bbb.
 
 Lemma yyy : ∀ la lb x len,
