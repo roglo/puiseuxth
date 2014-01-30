@@ -299,8 +299,7 @@ Lemma xxx : ∀ a b la lb x len,
   → (list_apply f [a … la] x .* f list_apply f [b … lb] x .= f
      list_apply f (poly_convol_mul f [a … la] [b … lb] 0 len) x)%K.
 Proof.
-intros a b la lb x len Hlen.
-simpl.
+intros a b la lb x len Hlen; simpl.
 destruct len; [ discriminate Hlen | simpl ].
 rewrite summation_only_one.
 apply Nat.succ_inj in Hlen.
@@ -308,6 +307,16 @@ rewrite fld_mul_add_distr_r.
 do 2 rewrite fld_mul_add_distr_l.
 rewrite fld_add_assoc.
 apply fld_add_compat_r.
+rewrite fld_mul_assoc.
+rewrite fld_mul_assoc.
+assert
+ (list_apply f la x .* f x .* f b .= f list_apply f la x .* f b .* f x)%K
+ as H.
+ apply fld_mul_shuffle0.
+
+ rewrite H; clear H.
+ do 2 rewrite <- fld_mul_add_distr_r.
+ apply fld_mul_compat_r.
 bbb.
 
 Lemma yyy : ∀ la lb x len,
