@@ -341,6 +341,25 @@ assert
     apply fld_add_compat_r.
     rewrite fld_mul_assoc.
     rewrite fld_add_assoc.
+    rewrite fld_mul_add_distr_l.
+    rewrite fld_mul_add_distr_l.
+    rewrite fld_mul_assoc.
+    rewrite fld_mul_assoc.
+    rewrite fld_add_assoc.
+    assert
+     (list_apply f la x .* f x .* f b₀ .= f list_apply f la x .* f b₀ .* f x)%K
+     as H by apply fld_mul_shuffle0.
+    rewrite H; clear H.
+    assert (a₁ .* f x .* f b₁ .= f a₁ .* f b₁ .* f x)%K 
+     as H by apply fld_mul_shuffle0.
+    rewrite H; clear H.
+    assert
+     (list_apply f la x .* f x .* f x .* f b₁ .= f
+      list_apply f la x .* f x .* f b₁ .* f x)%K as H
+     by apply fld_mul_shuffle0.
+    rewrite H; clear H.
+    do 5 rewrite <- fld_mul_add_distr_r.
+    apply fld_mul_compat_r.
 bbb.
 
 Lemma yyy : ∀ la lb x len,
