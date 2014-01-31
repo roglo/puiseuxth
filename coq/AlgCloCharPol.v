@@ -132,7 +132,7 @@ destruct k.
   erewrite list_skipn_cons_nth; [ reflexivity | eassumption ].
 Qed.
 
-Lemma sss : ∀ α (f : field α) la x cnt n,
+Lemma taylor_formula_0_loop : ∀ α (f : field α) la x cnt n,
   length la = (cnt + n)%nat
   → (apply_list f (List.skipn n la) x .= f
      apply_list f (coeff_taylor_list f cnt la .0 f n) x)%K.
@@ -144,13 +144,18 @@ induction cnt; intros.
  rewrite list_skipn_overflow; reflexivity.
 
  simpl.
- rewrite <- IHcnt.
-  rewrite taylor_coeff_0.
-  destruct la as [| a]; simpl.
-   rewrite list_skipn_nil; simpl.
-   rewrite fld_mul_0_l, fld_add_0_l.
-   destruct n; reflexivity.
-bbb.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hlen.
+ rewrite <- IHcnt; [ idtac | assumption ].
+ rewrite taylor_coeff_0; clear.
+ revert x n.
+ induction la as [| a]; intros.
+  rewrite list_skipn_nil; simpl.
+  rewrite fld_mul_0_l, fld_add_0_l.
+  destruct n; reflexivity.
+
+  destruct n; [ reflexivity | simpl ].
+  rewrite IHla; reflexivity.
+Qed.
 
 Theorem taylor_formula_0 : ∀ α (f : field α) x P,
   (apply_poly f P (x) .= f
@@ -160,6 +165,7 @@ intros α f x P.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
 unfold taylor_list.
+rewrite <- taylor_formula_0_loop.
 bbb.
 
 intros α f x P.
