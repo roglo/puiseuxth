@@ -656,41 +656,6 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Lemma list_skipn_cons_nth : ∀ A c₁ (cl cl₁ : list A) i d,
-  List.skipn i cl = [c₁ … cl₁]
-  → List.nth i cl d = c₁.
-Proof.
-intros A c₁ cl cl₁ i d H.
-revert cl H.
-induction i; intros.
- destruct cl as [| c]; [ discriminate H | idtac ].
- simpl in H; simpl.
- injection H; intros; subst; reflexivity.
-
- destruct cl as [| c]; [ discriminate H | idtac ].
- simpl in H; simpl.
- apply IHi; assumption.
-Qed.
-
-Lemma list_nth_nil : ∀ A n (d : A), List.nth n [] d = d.
-Proof. intros A n d; destruct n; reflexivity. Qed.
-
-Lemma list_skipn_nil : ∀ A n, List.skipn n [] = ([] : list A).
-Proof. intros A n; destruct n; reflexivity. Qed.
-
-Lemma list_skipn_overflow : ∀ A n (cl : list A),
-  length cl ≤ n → List.skipn n cl = [].
-Proof.
-intros A n cl H.
-revert n H.
-induction cl as [| c]; intros.
- rewrite list_skipn_nil; reflexivity.
-
- destruct n; [ exfalso; simpl in H; fast_omega H | simpl ].
- apply IHcl.
- apply le_S_n; assumption.
-Qed.
-
 Lemma list_nth_list_eq : ∀ la lb,
   (∀ i, List.nth i la .0 f .= f List.nth i lb .0 f)%K
   → list_eq f la lb.

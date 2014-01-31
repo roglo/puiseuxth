@@ -101,61 +101,36 @@ Definition taylor_list α (f : field α) la c :=
 Definition taylor_poly α (f : field α) P c :=
   (POL (taylor_list f (al P) c))%pol.
 
-(*
-Lemma ttt : ∀ α (f : field α) la n i lb,
-  list_eq f (coeff_list_nth_deriv f la n i) lb.
+Lemma apply_list_0 : ∀ α (f : field α) la,
+  (apply_list f la .0 f .= f List.nth 0 la .0 f)%K.
 Proof.
-bbb.
-    apply_list f (coeff_list_nth_deriv f la 1 1) c
-    apply_list f (coeff_list_nth_deriv f la 0 1) c
-    apply_list f (coeff_list_nth_deriv f la 0 0) c
-*)
-
-Lemma uuu : ∀ α (f : field α) a la c x,
-  (apply_list f (taylor_list f [a … la] c) x .= f
-   apply_list f (taylor_list f la c) x .* f (x .+ f c) .+ f a)%K.
-Proof.
-intros α f a la c x.
-unfold taylor_list; simpl.
-rewrite fld_add_0_l.
-rewrite fld_add_assoc.
-apply fld_add_compat_r.
-remember (length la) as cnt.
-destruct cnt; simpl.
- do 2 rewrite fld_mul_0_l; rewrite fld_add_0_l.
- destruct la; [ simpl | discriminate Heqcnt ].
- rewrite fld_mul_0_l; reflexivity.
-
- unfold list_nth_deriv_on_fact_n; simpl.
-Abort. (*
-bbb.
-*)
-
-Lemma vvv : ∀ α (f : field α) la x c,
-  (apply_list f la (x .+ f c) .= f apply_list f (taylor_list f la c) x)%K.
-Proof.
-intros α f la x c.
-induction la as [| a]; [ reflexivity | idtac ].
-remember taylor_list as g; simpl; subst g.
-rewrite IHla.
-Abort. (*
-bbb.
-*)
+intros α f la.
+destruct la as [| a]; [ reflexivity | simpl ].
+rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
+Qed.
 
 Theorem taylor_coeff_0 : ∀ α (f : field α) la k,
   (apply_list f (list_nth_deriv_on_fact_n f k la) .0 f .= f
    List.nth k la .0 f)%K.
 Proof.
 intros α f la k.
-unfold list_nth_deriv_on_fact_n; simpl.
-revert la.
-induction k; intros.
- destruct la as [| a]; [ reflexivity | simpl ].
- rewrite fld_mul_0_r, fld_add_0_l, fld_add_0_l.
- reflexivity.
+rewrite apply_list_0.
+destruct k.
+ destruct la; [ reflexivity | simpl ].
+ rewrite fld_add_0_l; reflexivity.
 
+ unfold list_nth_deriv_on_fact_n; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
-bbb.
+ remember (List.skipn k la) as lb eqn:Hlb .
+ symmetry in Hlb.
+ destruct lb as [| b]; simpl.
+  rewrite List.nth_overflow; [ reflexivity | idtac ].
+  apply list_skipn_overflow_if; assumption.
+
+  rewrite Nat.sub_diag; simpl.
+  rewrite fld_add_0_l.
+  erewrite list_skipn_cons_nth; [ reflexivity | eassumption ].
+Qed.
 
 Theorem taylor_formula_0 : ∀ α (f : field α) x P,
   (apply_poly f P (x) .= f
@@ -170,9 +145,9 @@ rewrite fld_add_assoc.
 apply fld_add_compat_r.
 rewrite fld_mul_0_r, fld_add_0_r.
 apply fld_mul_compat_r.
+bbb.
 *)
 
-(* seems difficult to proof... *)
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
    apply_poly f (taylor_poly f P c) x)%K.
