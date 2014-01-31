@@ -52,28 +52,78 @@ Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2
 (* trying to compute i-th derivative divided by factorial i *)
 
 Fixpoint comb n k :=
-  match n with
-  | 0%nat => 0%nat
-  | 1%nat => 1%nat
-  | S (S _ as n₁) =>
+  match k with
+  | 0%nat => 1%nat
+  | S k₁ =>
       match (n - k)%nat with
       | 0%nat => 1%nat
       | S _ =>
-          match k with
-          | 0%nat => 1%nat
-          | S k₁ => (comb n₁ k₁ + comb n₁ k)%nat
+          match n with
+          | 0%nat => 0%nat
+          | S n₁ => (comb n₁ k₁ + comb n₁ k)%nat
           end
       end
   end.
 
-Fixpoint glop A (mul : nat → A → A) al n i :=
-  match al with
-  | [] => []
-  | [a₁ … al₁] => [mul (comb n i) a₁ … glop mul al₁ n (S i)]
+Fixpoint mul_int α (f : field α) x n :=
+  match n with
+  | O => .0 f%K
+  | S n₁ => (mul_int f x n₁ .+ f x)%K
   end.
 
-Definition nth_der_on_fact_n A (mul : nat → A → A) pol n :=
-  glop mul (List.skipn n (al pol)) n 0.
+Fixpoint coeff_list_nth_deriv α (f : field α) la n i :=
+  match la with
+  | [] => []
+  | [a₁ … la₁] =>
+      [mul_int f a₁ (comb i n) … coeff_list_nth_deriv f la₁ n (S i)]
+  end.
+
+Definition list_nth_deriv_on_fact_n α (f : field α) n la :=
+  coeff_list_nth_deriv f (List.skipn n la) n n.
+
+Definition poly_nth_deriv_on_fact_n α (f : field α) n pol :=
+  (POL (list_nth_deriv_on_fact_n f n (al pol)))%pol.
+
+(* test
+Load Q_field.
+Definition Qtest_deriv n la := list_nth_deriv_on_fact_n Q_field n la.
+Eval vm_compute in Qtest_deriv 0 [2#1; -3#1; 1#1 … []].
+Eval vm_compute in Qtest_deriv 1 [2#1; -3#1; 1#1 … []].
+Eval vm_compute in Qtest_deriv 2 [2#1; -3#1; 1#1 … []].
+Eval vm_compute in Qtest_deriv 0 [1; 1; 1; 1; 1; 1; 1 … []].
+Eval vm_compute in Qtest_deriv 1 [1; 1; 1; 1; 1; 1; 1 … []].
+Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
+Eval vm_compute in Qtest_deriv 3 [1; 1; 1; 1; 1; 1; 1 … []].
+*)
+
+Fixpoint coeff_Taylor_poly α (f : field α) cnt P c n :=
+  match cnt with
+  | 0%nat => []
+  | S cnt₁ =>
+      [apply_polynomial f (poly_nth_deriv_on_fact_n f n P) c …
+       coeff_Taylor_poly f cnt₁ P c (S n)]
+  end.
+
+Definition Taylor_list α (f : field α) P c :=
+  coeff_Taylor_poly f (length (al P)) P c 0.
+
+Definition Taylor_polynomial α (f : field α) P c :=
+  (POL (Taylor_list f P c))%pol.
+
+Theorem Taylor_formula : ∀ α (f : field α) x c P,
+  (apply_polynomial f P (x .+ f c) .= f
+   apply_polynomial f (Taylor_polynomial f P c) x)%K.
+Proof.
+bbb.
+
+(* test
+Load Q_field.
+Definition Qtest_taylor la c := Taylor_list Q_field (POL la)%pol c.
+Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] 0.
+Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] (2#1).
+Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] 0.
+Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] (2#1).
+*)
 
 (* *)
 
