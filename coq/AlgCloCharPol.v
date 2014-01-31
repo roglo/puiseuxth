@@ -132,6 +132,17 @@ destruct k.
   erewrite list_skipn_cons_nth; [ reflexivity | eassumption ].
 Qed.
 
+Lemma sss : ∀ α (f : field α) la x cnt n,
+  length la = (cnt + n)%nat
+  → (apply_list f la x .= f
+     apply_list f (coeff_taylor_list f cnt la .0 f n) x)%K.
+Proof.
+intros α f la x cnt n Hlen.
+revert la x n Hlen.
+induction cnt; intros.
+ simpl.
+bbb.
+
 Theorem taylor_formula_0 : ∀ α (f : field α) x P,
   (apply_poly f P (x) .= f
    apply_poly f (taylor_poly f P .0 f) x)%K.
@@ -139,9 +150,54 @@ Proof.
 intros α f x P.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
-induction la as [| a]; [ reflexivity | simpl ].
-rewrite fld_add_0_l.
-rewrite fld_add_assoc.
+unfold taylor_list.
+bbb.
+
+intros α f x P.
+unfold apply_poly; simpl.
+remember (al P) as la; clear Heqla.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_0_r, fld_add_0_r.
+apply fld_mul_compat_r.
+destruct la; [ reflexivity | simpl ].
+rewrite fld_add_0_l, fld_add_assoc.
 apply fld_add_compat_r.
 rewrite fld_mul_0_r, fld_add_0_r.
 apply fld_mul_compat_r.
