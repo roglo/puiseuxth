@@ -15,8 +15,8 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
-Definition apply_polynomial α (f : field α) :=
-  apply_poly (fld_zero f) (fld_add f) (fld_mul f).
+Definition apply_poly α (f : field α) :=
+  horner (fld_zero f) (fld_add f) (fld_mul f).
 
 (* euclidean division of a polynomial by (x - c) *)
 
@@ -24,7 +24,7 @@ Fixpoint list_mod_div_mono α (f : field α) c al :=
   match al with
   | [] => []
   | [a₁ … al₁] =>
-      [apply_polynomial f (POL al)%pol c … list_mod_div_mono f c al₁]
+      [apply_poly f (POL al)%pol c … list_mod_div_mono f c al₁]
   end.
 
 Definition poly_div_mono α (f : field α) pol c :=
@@ -100,7 +100,7 @@ Fixpoint coeff_Taylor_poly α (f : field α) cnt P c n :=
   match cnt with
   | 0%nat => []
   | S cnt₁ =>
-      [apply_polynomial f (poly_nth_deriv_on_fact_n f n P) c …
+      [apply_poly f (poly_nth_deriv_on_fact_n f n P) c …
        coeff_Taylor_poly f cnt₁ P c (S n)]
   end.
 
@@ -111,10 +111,13 @@ Definition Taylor_polynomial α (f : field α) P c :=
   (POL (Taylor_list f P c))%pol.
 
 Theorem Taylor_formula : ∀ α (f : field α) x c P,
-  (apply_polynomial f P (x .+ f c) .= f
-   apply_polynomial f (Taylor_polynomial f P c) x)%K.
+  (apply_poly f P (x .+ f c) .= f
+   apply_poly f (Taylor_polynomial f P c) x)%K.
 Proof.
+intros α f x c P.
+unfold apply_poly, horner; simpl.
 bbb.
+*)
 
 (* test
 Load Q_field.
@@ -145,7 +148,7 @@ Record algeb_closed_field α :=
     ac_is_zero : α → bool;
     ac_root : polynomial α → α;
     ac_prop : ∀ pol, degree ac_is_zero pol ≥ 1
-      → (apply_polynomial ac_field pol (ac_root pol) .= ac_field
+      → (apply_poly ac_field pol (ac_root pol) .= ac_field
          .0 ac_field)%K }.
 
 Fixpoint poly_power α (f : field α) pol n :=
@@ -218,14 +221,13 @@ induction la as [| a]; intros; simpl.
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (apply_polynomial f)
+Add Parametric Morphism α (f : field α) : (apply_poly f)
   with signature eq_poly f ==> fld_eq f ==> fld_eq f
-  as apply_polynomial_morph.
+  as apply_poly_morph.
 Proof.
 intros p₁ p₂ Hpp v₁ v₂ Hvv.
 unfold eq_poly in Hpp.
-unfold apply_polynomial.
-unfold apply_poly.
+unfold apply_poly, horner.
 do 2 rewrite fold_list_apply.
 rewrite Hpp, Hvv; reflexivity.
 Qed.
@@ -261,12 +263,12 @@ constructor.
  apply poly_convol_mul_x_l; reflexivity.
 Qed.
 
-Lemma apply_polynomial_add : ∀ p₁ p₂ x,
-  (apply_polynomial f (p₁ .+ f p₂)%pol x .= f
-   apply_polynomial f p₁ x .+ f apply_polynomial f p₂ x)%K.
+Lemma apply_poly_add : ∀ p₁ p₂ x,
+  (apply_poly f (p₁ .+ f p₂)%pol x .= f
+   apply_poly f p₁ x .+ f apply_poly f p₂ x)%K.
 Proof.
 intros p₁ p₂ x.
-unfold apply_polynomial, apply_poly; simpl.
+unfold apply_poly, horner; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
@@ -506,13 +508,13 @@ Abort. (*
 bbb.
 *)
 
-Lemma apply_polynomial_mul : ∀ p₁ p₂ x,
-  (apply_polynomial f (p₁ .* f p₂)%pol x .= f
-   apply_polynomial f p₁ x .* f apply_polynomial f p₂ x)%K.
+Lemma apply_poly_mul : ∀ p₁ p₂ x,
+  (apply_poly f (p₁ .* f p₂)%pol x .= f
+   apply_poly f p₁ x .* f apply_poly f p₂ x)%K.
 Proof.
 intros p₁ p₂ x.
 symmetry.
-unfold apply_polynomial, apply_poly; simpl.
+unfold apply_poly, apply_poly; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
@@ -522,7 +524,7 @@ symmetry in Hn.
 bbb.
 
 intros p₁ p₂ x.
-unfold apply_polynomial, apply_poly; simpl.
+unfold apply_poly, apply_poly; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
@@ -566,7 +568,7 @@ bbb.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma zzz : ∀ c p,
-  (apply_polynomial f p c .= f .0 f)%K
+  (apply_poly f p c .= f .0 f)%K
   → (p .= f POL [(.-f c)%K; .1 f%K … []] .* f poly_div_mono f p c)%pol.
 Proof.
 intros c p Hz.
@@ -584,7 +586,7 @@ destruct cl as [| c₁]; simpl.
   rename x into c₁.
   pose proof (poly_eq_add_const_mul_x_poly c cl) as Hc.
   rewrite Hc in Hz; simpl in Hz.
-  rewrite apply_polynomial_add in Hz.
+  rewrite apply_poly_add in Hz.
 bbb.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,

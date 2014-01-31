@@ -2807,7 +2807,7 @@ apply imp_or_tauto.
  eapply phi_pseudo_degree_is_k_sub_j_div_q; eassumption.
 Qed.
 
-Definition apply_K_poly := (apply_poly .0 f (fld_add f) (fld_mul f))%K.
+Definition apply_K_poly := (horner .0 f (fld_add f) (fld_mul f))%K.
 
 (* [Walker, p. 100] « Therefore (3.4) has the form c^j Φ(c^q) = 0
    where Φ(z) is a polynomial, of degree (k - j)/q, with Φ(0) ≠ 0 » *)
@@ -2817,7 +2817,7 @@ Theorem phi_0_ne_0 : ∀ pol ns,
 Proof.
 intros pol ns Hns.
 unfold apply_K_poly; simpl.
-unfold apply_poly; simpl.
+unfold horner; simpl.
 remember (ini_pt ns) as jj eqn:Hj .
 destruct jj as (jq, αj); simpl.
 rewrite Nat.sub_diag; simpl.

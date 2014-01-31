@@ -854,7 +854,7 @@ Qed.
 End poly.
 
 (* Horner's algorithm *)
-Definition apply_poly α β γ
+Definition horner α β γ
     (zero_c : α) (add_v_c : α → β → α) (mul_v_x : α → γ → α)
     (pol : polynomial β) (x : γ) :=
   List.fold_right (λ c accu, add_v_c (mul_v_x accu x) c) zero_c (al pol).
