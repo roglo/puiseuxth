@@ -142,6 +142,7 @@ Abort. (*
 bbb.
 *)
 
+(* seems difficult to proof... *)
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
    apply_poly f (taylor_poly f P c) x)%K.
@@ -155,11 +156,15 @@ bbb.
 
 (* test
 Load Q_field.
-Definition Qtest_taylor la c := taylor_list Q_field (POL la)%pol c.
+Definition Qtest_taylor la c := taylor_list Q_field la c.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] 0.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] (2#1).
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] 0.
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] (2#1).
+Definition Qtest_deriv n la := list_nth_deriv_on_fact_n Q_field n la.
+Eval vm_compute in Qtest_deriv 0 [1; 1; 1; 1; 1; 1; 1 … []].
+Eval vm_compute in Qtest_deriv 1 [1; 1; 1; 1; 1; 1; 1 … []].
+Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
 *)
 
 (* *)
