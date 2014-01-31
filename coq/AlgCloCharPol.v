@@ -23,8 +23,7 @@ Definition apply_poly α (f : field α) :=
 Fixpoint list_mod_div_mono α (f : field α) c al :=
   match al with
   | [] => []
-  | [a₁ … al₁] =>
-      [apply_poly f (POL al)%pol c … list_mod_div_mono f c al₁]
+  | [a₁ … al₁] => [apply_poly f (POL al)%pol c … list_mod_div_mono f c al₁]
   end.
 
 Definition poly_div_mono α (f : field α) pol c :=
@@ -49,7 +48,7 @@ Eval vm_compute in Qtest_div [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2
 Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
 *)
 
-(* trying to compute i-th derivative divided by factorial i *)
+(* n-th derivative divided by factorial n *)
 
 Fixpoint comb n k :=
   match k with
