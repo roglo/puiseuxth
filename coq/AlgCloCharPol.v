@@ -142,6 +142,21 @@ Abort. (*
 bbb.
 *)
 
+Theorem taylor_coeff_0 : ∀ α (f : field α) la k,
+  (apply_list f (list_nth_deriv_on_fact_n f k la) .0 f .= f
+   List.nth k la .0 f)%K.
+Proof.
+intros α f la k.
+unfold list_nth_deriv_on_fact_n; simpl.
+revert la.
+induction k; intros.
+ destruct la as [| a]; [ reflexivity | simpl ].
+ rewrite fld_mul_0_r, fld_add_0_l, fld_add_0_l.
+ reflexivity.
+
+ destruct la as [| a]; [ reflexivity | simpl ].
+bbb.
+
 Theorem taylor_formula_0 : ∀ α (f : field α) x P,
   (apply_poly f P (x) .= f
    apply_poly f (taylor_poly f P .0 f) x)%K.
