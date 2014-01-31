@@ -51,22 +51,20 @@ Eval vm_compute in Qtest_mod [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2
 
 (* trying to compute i-th derivative divided by factorial i *)
 
-Open Scope nat_scope.
 Fixpoint comb n k :=
   match n with
-  | O => O
-  | 1 => 1
-  | S n₁ =>
-      match n - k with
-      | O => 1
-      | _ =>
+  | 0%nat => 0%nat
+  | 1%nat => 1%nat
+  | S (S _ as n₁) =>
+      match (n - k)%nat with
+      | 0%nat => 1%nat
+      | S _ =>
           match k with
-          | O => 1
-          | S k₁ => comb n₁ k₁ + comb n₁ k
+          | 0%nat => 1%nat
+          | S k₁ => (comb n₁ k₁ + comb n₁ k)%nat
           end
       end
   end.
-Close Scope nat_scope.
 
 Fixpoint glop A (mul : nat → A → A) al i j :=
   match al with
