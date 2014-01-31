@@ -15,8 +15,11 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
-Definition apply_poly α (f : field α) :=
-  horner (fld_zero f) (fld_add f) (fld_mul f).
+Definition apply_list α (f : field α) la x :=
+  (List.fold_right (λ c accu, accu .* f x .+ f c) (.0 f) la)%K.
+
+Definition apply_poly α (f : field α) pol :=
+  apply_list f (al pol).
 
 (* euclidean division of a polynomial by (x - c) *)
 
@@ -95,26 +98,26 @@ Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 3 [1; 1; 1; 1; 1; 1; 1 … []].
 *)
 
-Fixpoint coeff_taylor_poly α (f : field α) cnt P c n :=
+Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
   match cnt with
   | 0%nat => []
   | S cnt₁ =>
-      [apply_poly f (poly_nth_deriv_on_fact_n f n P) c …
-       coeff_taylor_poly f cnt₁ P c (S n)]
+      [apply_list f (list_nth_deriv_on_fact_n f n la) c …
+       coeff_taylor_list f cnt₁ la c (S n)]
   end.
 
-Definition taylor_list α (f : field α) P c :=
-  coeff_taylor_poly f (length (al P)) P c 0.
+Definition taylor_list α (f : field α) la c :=
+  coeff_taylor_list f (length la) la c 0.
 
 Definition taylor_poly α (f : field α) P c :=
-  (POL (taylor_list f P c))%pol.
+  (POL (taylor_list f (al P) c))%pol.
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
    apply_poly f (taylor_poly f P c) x)%K.
 Proof.
 intros α f x c P.
-unfold apply_poly, horner; simpl.
+unfold apply_poly; simpl.
 bbb.
 *)
 
@@ -180,17 +183,14 @@ Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_mono f pol c₁) c₁ r₁
   end.
 
-Definition list_apply α (f : field α) al x :=
-  (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K.
-
-Lemma fold_list_apply : ∀ α (f : field α) al x,
+Lemma fold_apply_list : ∀ α (f : field α) al x,
   (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
-  list_apply f al x.
+  apply_list f al x.
 Proof. reflexivity. Qed.
 
-Add Parametric Morphism α (f : field α) : (list_apply f)
+Add Parametric Morphism α (f : field α) : (apply_list f)
   with signature list_eq f ==> fld_eq f ==> fld_eq f
-  as list_apply_morph.
+  as apply_list_morph.
 Proof.
 intros la lb Hab x y Hxy.
 revert lb Hab x y Hxy.
@@ -213,9 +213,9 @@ induction la as [| a]; intros; simpl.
   simpl.
   apply list_eq_cons_inv in Hab.
   destruct Hab as (Hab, Hlab).
-  unfold list_apply.
+  unfold apply_list.
   rewrite Hab, Hxy.
-  do 2 rewrite fold_list_apply.
+  do 2 rewrite fold_apply_list.
   rewrite IHla; try eassumption.
   reflexivity.
 Qed.
@@ -226,8 +226,7 @@ Add Parametric Morphism α (f : field α) : (apply_poly f)
 Proof.
 intros p₁ p₂ Hpp v₁ v₂ Hvv.
 unfold eq_poly in Hpp.
-unfold apply_poly, horner.
-do 2 rewrite fold_list_apply.
+unfold apply_poly.
 rewrite Hpp, Hvv; reflexivity.
 Qed.
 
@@ -317,27 +316,27 @@ Qed.
 (*
   Hlen : pred (length la + length lb) = len
   ============================
-   (list_apply la x .* f list_apply lb x .= f
-    list_apply (poly_convol_mul f la lb 0 len) x)%K
+   (apply_list la x .* f apply_list lb x .= f
+    apply_list (poly_convol_mul f la lb 0 len) x)%K
 
   Hlen : pred (length la + length lb) = S len
   ============================
-   (list_apply la x .* f list_apply lb x .= f
-    list_apply (poly_convol_mul f la lb 1 len) x .* f x .+ f
+   (apply_list la x .* f apply_list lb x .= f
+    apply_list (poly_convol_mul f la lb 1 len) x .* f x .+ f
     List.nth 0 la .0 f .* f List.nth 0 lb .0 f)%K
 
   Hlen : pred (length la + length lb) = S (S len)
   ============================
-   (list_apply la x .* f list_apply lb x .= f
-    (list_apply (poly_convol_mul f la lb 2 len) x .* f x .+ f
+   (apply_list la x .* f apply_list lb x .= f
+    (apply_list (poly_convol_mul f la lb 2 len) x .* f x .+ f
      Σf (j = 0, 1)_ List.nth j la .0 f .* f List.nth (1 - j) lb .0 f) .* f x
     .+ f List.nth 0 la .0 f .* f List.nth 0 lb .0 f)%K
 
   Hlen : (length la + length lb)%nat = S len
   ============================
-   ((list_apply f la x .* f x .+ f a) .* f (list_apply f lb x .* f x .+ f b)
+   ((apply_list f la x .* f x .+ f a) .* f (apply_list f lb x .* f x .+ f b)
     .= f
-    (list_apply f (poly_convol_mul f [a … la] [b … lb] 2 len) x .* f x .+ f
+    (apply_list f (poly_convol_mul f [a … la] [b … lb] 2 len) x .* f x .+ f
      Σf (j = 0, 1)
      _ List.nth j [a … la] .0 f .* f List.nth (1 - j) [b … lb] .0 f) .* f x
     .+ f a .* f b)%K
@@ -345,8 +344,8 @@ Qed.
 
 Lemma xxx : ∀ a b la lb x len,
   S (length la + length lb) = len
-  → (list_apply f [a … la] x .* f list_apply f [b … lb] x .= f
-     list_apply f (poly_convol_mul f [a … la] [b … lb] 0 len) x)%K.
+  → (apply_list f [a … la] x .* f apply_list f [b … lb] x .= f
+     apply_list f (poly_convol_mul f [a … la] [b … lb] 0 len) x)%K.
 Proof.
 intros a b la lb x len Hlen; simpl.
 destruct len; [ discriminate Hlen | simpl ].
@@ -359,7 +358,7 @@ apply fld_add_compat_r.
 rewrite fld_mul_assoc.
 rewrite fld_mul_assoc.
 assert
- (list_apply f la x .* f x .* f b .= f list_apply f la x .* f b .* f x)%K
+ (apply_list f la x .* f x .* f b .= f apply_list f la x .* f b .* f x)%K
  as H.
  apply fld_mul_shuffle0.
 
@@ -396,15 +395,15 @@ assert
     rewrite fld_mul_assoc.
     rewrite fld_add_assoc.
     assert
-     (list_apply f la x .* f x .* f b₀ .= f list_apply f la x .* f b₀ .* f x)%K
+     (apply_list f la x .* f x .* f b₀ .= f apply_list f la x .* f b₀ .* f x)%K
      as H by apply fld_mul_shuffle0.
     rewrite H; clear H.
     assert (a₁ .* f x .* f b₁ .= f a₁ .* f b₁ .* f x)%K
      as H by apply fld_mul_shuffle0.
     rewrite H; clear H.
     assert
-     (list_apply f la x .* f x .* f x .* f b₁ .= f
-      list_apply f la x .* f x .* f b₁ .* f x)%K as H
+     (apply_list f la x .* f x .* f x .* f b₁ .= f
+      apply_list f la x .* f x .* f b₁ .* f x)%K as H
      by apply fld_mul_shuffle0.
     rewrite H; clear H.
     do 5 rewrite <- fld_mul_add_distr_r.
@@ -416,8 +415,8 @@ bbb.
 
 Lemma yyy : ∀ la lb x len,
   pred (length la + length lb) = len
-  → (list_apply f la x .* f list_apply f lb x .= f
-     list_apply f (poly_convol_mul f la lb 0 len) x)%K.
+  → (apply_list f la x .* f apply_list f lb x .= f
+     apply_list f (poly_convol_mul f la lb 0 len) x)%K.
 Proof.
 intros la lb x len Hlen.
 destruct la as [| a].
@@ -513,21 +512,21 @@ Lemma apply_poly_mul : ∀ p₁ p₂ x,
 Proof.
 intros p₁ p₂ x.
 symmetry.
-unfold apply_poly, apply_poly; simpl.
+unfold apply_poly, apply_list; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
-do 3 rewrite fold_list_apply.
+do 3 rewrite fold_apply_list.
 remember (pred (length la + length lb)) as n eqn:Hn .
 symmetry in Hn.
 bbb.
 
 intros p₁ p₂ x.
-unfold apply_poly, apply_poly; simpl.
+unfold apply_poly, apply_list; simpl.
 remember (al p₁) as la eqn:Hla .
 remember (al p₂) as lb eqn:Hlb .
 clear.
-do 3 rewrite fold_list_apply.
+do 3 rewrite fold_apply_list.
 remember (pred (length la + length lb)) as n eqn:Hn .
 symmetry in Hn.
 destruct n; simpl.
