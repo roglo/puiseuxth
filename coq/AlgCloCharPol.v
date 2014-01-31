@@ -188,6 +188,7 @@ induction cnt; intros.
  simpl.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hlen.
  rewrite <- IHcnt; [ idtac | assumption ].
+Abort. (*
 bbb.
  clear; revert x c n.
  induction la as [| a]; intros.
@@ -206,6 +207,7 @@ bbb.
    unfold list_nth_deriv_on_fact_n.
    simpl.
 bbb.
+*)
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
@@ -215,6 +217,25 @@ intros α f x c P.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
 unfold taylor_list.
+clear.
+revert x c.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite IHla.
+rewrite fld_add_0_l.
+rewrite fld_add_assoc.
+apply fld_add_compat_r.
+rewrite fld_mul_add_distr_l.
+apply fld_add_compat.
+ clear.
+ revert a x c.
+ induction la as [| a₂]; intros; [ reflexivity | simpl ].
+ rewrite fld_add_assoc.
+ rewrite fld_add_assoc.
+ rewrite fld_add_assoc.
+ rewrite fld_add_assoc.
+ apply fld_mul_compat_r.
+ apply fld_add_compat_r.
+ apply fld_add_compat_r.
 bbb.
 *)
 
