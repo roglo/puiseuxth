@@ -157,6 +157,9 @@ induction cnt; intros.
   rewrite IHla; reflexivity.
 Qed.
 
+Theorem list_skipn_0 : ∀ A (l : list A), List.skipn 0 l = l.
+Proof. intros A l; destruct l; reflexivity. Qed.
+
 Theorem taylor_formula_0 : ∀ α (f : field α) x P,
   (apply_poly f P (x) .= f
    apply_poly f (taylor_poly f P .0 f) x)%K.
@@ -166,58 +169,10 @@ unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
 unfold taylor_list.
 rewrite <- taylor_formula_0_loop.
-bbb.
+ rewrite list_skipn_0; reflexivity.
 
-intros α f x P.
-unfold apply_poly; simpl.
-remember (al P) as la; clear Heqla.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-destruct la; [ reflexivity | simpl ].
-rewrite fld_add_0_l, fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_0_r, fld_add_0_r.
-apply fld_mul_compat_r.
-bbb.
-*)
+ rewrite Nat.add_0_r; reflexivity.
+Qed.
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
@@ -226,7 +181,6 @@ Proof.
 intros α f x c P.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
-Abort. (*
 bbb.
 *)
 
