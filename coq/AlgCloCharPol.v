@@ -66,14 +66,14 @@ Fixpoint comb n k :=
       end
   end.
 
-Fixpoint glop A (mul : nat → A → A) al i j :=
+Fixpoint glop A (mul : nat → A → A) al n i :=
   match al with
   | [] => []
-  | [a₁ … al₁] => [mul (comb i j) a₁ … glop mul al₁ i (S j)]
+  | [a₁ … al₁] => [mul (comb n i) a₁ … glop mul al₁ n (S i)]
   end.
 
-Definition ith_der_on_fact_i A (mul : nat → A → A) pol i :=
-  glop mul (List.skipn i (al pol)) i i.
+Definition nth_der_on_fact_n A (mul : nat → A → A) pol n :=
+  glop mul (List.skipn n (al pol)) n 0.
 
 (* *)
 
