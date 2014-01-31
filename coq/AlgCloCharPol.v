@@ -96,23 +96,23 @@ Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 3 [1; 1; 1; 1; 1; 1; 1 … []].
 *)
 
-Fixpoint coeff_Taylor_poly α (f : field α) cnt P c n :=
+Fixpoint coeff_taylor_poly α (f : field α) cnt P c n :=
   match cnt with
   | 0%nat => []
   | S cnt₁ =>
       [apply_poly f (poly_nth_deriv_on_fact_n f n P) c …
-       coeff_Taylor_poly f cnt₁ P c (S n)]
+       coeff_taylor_poly f cnt₁ P c (S n)]
   end.
 
-Definition Taylor_list α (f : field α) P c :=
-  coeff_Taylor_poly f (length (al P)) P c 0.
+Definition taylor_list α (f : field α) P c :=
+  coeff_taylor_poly f (length (al P)) P c 0.
 
-Definition Taylor_polynomial α (f : field α) P c :=
-  (POL (Taylor_list f P c))%pol.
+Definition taylor_poly α (f : field α) P c :=
+  (POL (taylor_list f P c))%pol.
 
-Theorem Taylor_formula : ∀ α (f : field α) x c P,
+Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
-   apply_poly f (Taylor_polynomial f P c) x)%K.
+   apply_poly f (taylor_poly f P c) x)%K.
 Proof.
 intros α f x c P.
 unfold apply_poly, horner; simpl.
@@ -121,7 +121,7 @@ bbb.
 
 (* test
 Load Q_field.
-Definition Qtest_taylor la c := Taylor_list Q_field (POL la)%pol c.
+Definition Qtest_taylor la c := taylor_list Q_field (POL la)%pol c.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] 0.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] (2#1).
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] 0.
