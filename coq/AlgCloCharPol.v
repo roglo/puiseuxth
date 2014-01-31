@@ -86,18 +86,6 @@ Definition list_nth_deriv_on_fact_n α (f : field α) n la :=
 Definition poly_nth_deriv_on_fact_n α (f : field α) n pol :=
   (POL (list_nth_deriv_on_fact_n f n (al pol)))%pol.
 
-(* test
-Load Q_field.
-Definition Qtest_deriv n la := list_nth_deriv_on_fact_n Q_field n la.
-Eval vm_compute in Qtest_deriv 0 [2#1; -3#1; 1#1 … []].
-Eval vm_compute in Qtest_deriv 1 [2#1; -3#1; 1#1 … []].
-Eval vm_compute in Qtest_deriv 2 [2#1; -3#1; 1#1 … []].
-Eval vm_compute in Qtest_deriv 0 [1; 1; 1; 1; 1; 1; 1 … []].
-Eval vm_compute in Qtest_deriv 1 [1; 1; 1; 1; 1; 1; 1 … []].
-Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
-Eval vm_compute in Qtest_deriv 3 [1; 1; 1; 1; 1; 1; 1 … []].
-*)
-
 Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
   match cnt with
   | 0%nat => []
@@ -109,8 +97,50 @@ Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
 Definition taylor_list α (f : field α) la c :=
   coeff_taylor_list f (length la) la c 0.
 
+(* P(x+c) = P(c) + P'(c)/1!.x + P''(c)/2!.x² + ... *)
 Definition taylor_poly α (f : field α) P c :=
   (POL (taylor_list f (al P) c))%pol.
+
+(*
+Lemma ttt : ∀ α (f : field α) la n i lb,
+  list_eq f (coeff_list_nth_deriv f la n i) lb.
+Proof.
+bbb.
+    apply_list f (coeff_list_nth_deriv f la 1 1) c
+    apply_list f (coeff_list_nth_deriv f la 0 1) c
+    apply_list f (coeff_list_nth_deriv f la 0 0) c
+*)
+
+Lemma uuu : ∀ α (f : field α) a la c x,
+  (apply_list f (taylor_list f [a … la] c) x .= f
+   apply_list f (taylor_list f la c) x .* f (x .+ f c) .+ f a)%K.
+Proof.
+intros α f a la c x.
+unfold taylor_list; simpl.
+rewrite fld_add_0_l.
+rewrite fld_add_assoc.
+apply fld_add_compat_r.
+remember (length la) as cnt.
+destruct cnt; simpl.
+ do 2 rewrite fld_mul_0_l; rewrite fld_add_0_l.
+ destruct la; [ simpl | discriminate Heqcnt ].
+ rewrite fld_mul_0_l; reflexivity.
+
+ unfold list_nth_deriv_on_fact_n; simpl.
+Abort. (*
+bbb.
+*)
+
+Lemma vvv : ∀ α (f : field α) la x c,
+  (apply_list f la (x .+ f c) .= f apply_list f (taylor_list f la c) x)%K.
+Proof.
+intros α f la x c.
+induction la as [| a]; [ reflexivity | idtac ].
+remember taylor_list as g; simpl; subst g.
+rewrite IHla.
+Abort. (*
+bbb.
+*)
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
@@ -118,6 +148,8 @@ Theorem taylor_formula : ∀ α (f : field α) x c P,
 Proof.
 intros α f x c P.
 unfold apply_poly; simpl.
+remember (al P) as la; clear Heqla.
+Abort. (*
 bbb.
 *)
 
