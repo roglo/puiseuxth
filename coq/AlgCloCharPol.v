@@ -214,6 +214,59 @@ induction n; [ reflexivity | simpl ].
 rewrite fld_add_0_r; assumption.
 Qed.
 
+Lemma list_nth_fld_eq : ∀ α (f : field α) la lb n,
+  list_eq f la lb → (List.nth n la .0 f .= f List.nth n lb .0 f)%K.
+Proof.
+intros α f la lb n Hlab.
+revert lb n Hlab.
+induction la as [| a]; intros.
+ revert n.
+ induction lb as [| b]; intros; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hlab.
+ destruct Hlab as (Hb, Hlb).
+ symmetry in Hb.
+ destruct n; [ assumption | idtac ].
+ rewrite <- IHlb; [ destruct n; reflexivity | assumption ].
+
+ revert n.
+ induction lb as [| b]; intros.
+  simpl.
+  apply list_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  destruct n; [ assumption | idtac ].
+  rewrite IHla; [ idtac | eassumption ].
+  destruct n; reflexivity.
+
+  apply list_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  destruct n; [ assumption | simpl ].
+  apply IHla; assumption.
+Qed.
+
+Add Parametric Morphism α (f : field α) : (list_convol_mul f)
+  with signature list_eq f ==> list_eq f ==> eq ==> eq ==> list_eq f
+  as list_convol_mul_morph.
+Proof.
+intros la lb Hlab lc ld Hlcd i len.
+revert la lb lc ld Hlab Hlcd i.
+induction len; intros; [ reflexivity | simpl ].
+constructor; [ idtac | apply IHlen; assumption ].
+apply summation_compat; intros j (_, Hj).
+apply fld_mul_compat; apply list_nth_fld_eq; assumption.
+Qed.
+
+Add Parametric Morphism α (f : field α) : (list_mul f)
+  with signature list_eq f ==> list_eq f ==> list_eq f
+  as list_mul_morph.
+Proof.
+intros la lb Hlab lc ld Hlcd.
+unfold list_mul; simpl.
+rewrite list_convol_mul_more; symmetry.
+rewrite list_convol_mul_more; symmetry.
+rewrite Nat.add_comm.
+apply list_convol_mul_morph; try assumption; reflexivity.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (mul_int f)
   with signature fld_eq f ==> eq ==> fld_eq f
   as mul_int_morph.
@@ -264,6 +317,7 @@ induction la as [| a]; intros.
  assert (list_eq f [b] []) as H by (rewrite Hb; constructor; reflexivity).
  rewrite H; clear H.
  rewrite list_add_0_r.
+ rewrite <- IHlb.
 bbb.
 
 Lemma list_deriv_convol_mul : ∀ α (f : field α) la lb i j k len,
