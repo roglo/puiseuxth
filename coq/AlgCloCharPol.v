@@ -174,6 +174,32 @@ rewrite <- taylor_formula_0_loop.
  rewrite Nat.add_0_r; reflexivity.
 Qed.
 
+Lemma mul_int_add_distr_r : ∀ α (f : field α) a b n,
+  (mul_int f (a .+ f b) n .= f mul_int f a n .+ f mul_int f b n)%K.
+Proof.
+intros α f a b n.
+revert a b.
+induction n; intros; simpl; [ rewrite fld_add_0_l; reflexivity | idtac ].
+rewrite IHn.
+do 2 rewrite <- fld_add_assoc.
+apply fld_add_compat_l.
+rewrite fld_add_comm, <- fld_add_assoc.
+apply fld_add_compat_l.
+apply fld_add_comm.
+Qed.
+
+Lemma list_deriv_add : ∀ α (f : field α) la lb n i,
+  list_eq f
+    (coeff_list_deriv f (list_add f la lb) n i)
+    (list_add f (coeff_list_deriv f la n i) (coeff_list_deriv f lb n i)).
+Proof.
+intros α f la lb n i.
+revert lb n i.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; [ reflexivity | simpl ].
+constructor; [ apply mul_int_add_distr_r | apply IHla ].
+Qed.
+
 Lemma list_deriv_compose : ∀ α (f : field α) k la b,
   list_eq f (list_deriv_on_fact f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_deriv_on_fact f k la) [b; .1 f%K … []]).
@@ -185,6 +211,7 @@ induction k; intros.
  rewrite list_skipn_0; simpl.
  induction la as [| a]; [ reflexivity | simpl ].
  rewrite fld_add_0_l.
+ rewrite list_deriv_add.
 bbb.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
