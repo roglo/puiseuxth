@@ -180,6 +180,11 @@ Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
 Proof.
 intros α f x P a.
 remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
+assert
+ (∀ k,
+  poly_deriv_on_fact f k Q .= f
+  poly_compose f (poly_deriv_on_fact f k P) POL [a; .1 f%K … []])%pol
+ as H.
 bbb.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
