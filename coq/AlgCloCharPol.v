@@ -174,6 +174,30 @@ rewrite <- taylor_formula_0_loop.
  rewrite Nat.add_0_r; reflexivity.
 Qed.
 
+Lemma list_deriv_compose : ∀ α (f : field α) k la b,
+  list_eq f (list_deriv_on_fact f k (list_compose f la [b; .1 f%K … []]))
+    (list_compose f (list_deriv_on_fact f k la) [b; .1 f%K … []]).
+Proof.
+intros α f k la b.
+revert la b.
+induction k; intros.
+ destruct la as [| a]; simpl.
+  reflexivity.
+
+  unfold list_deriv_on_fact; simpl.
+  rewrite fld_add_0_l.
+bbb.
+
+Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
+  (poly_deriv_on_fact f k (poly_compose f P POL [a; .1 f%K … []]) .= f
+   poly_compose f (poly_deriv_on_fact f k P) POL [a; .1 f%K … []])%pol.
+Proof.
+intros α f k P a.
+unfold poly_deriv_on_fact; simpl.
+unfold poly_compose; simpl.
+unfold eq_poly; simpl.
+bbb.
+
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
    apply_poly f (taylor_poly f P a) (x .- f a))%K.
