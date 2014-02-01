@@ -183,17 +183,19 @@ remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
 assert
  (∀ k,
   poly_deriv_on_fact f k Q .= f
-  poly_compose f (poly_deriv_on_fact f k P) POL [a; .1 f%K … []])%pol
+  poly_compose f (poly_deriv_on_fact f k P) POL [a; .1 f%K … []])%pol 
  as H.
+ intros k.
+ subst Q.
+ unfold poly_deriv_on_fact; simpl.
+ unfold poly_compose; simpl.
+ unfold eq_poly; simpl.
+ remember (al P) as la.
+ clear.
+ revert a k.
+ induction la as [| a₁]; intros.
+  simpl.
 bbb.
-unfold apply_poly; simpl.
-remember (al P) as la; clear Heqla.
-unfold taylor_list.
-rewrite <- taylor_formula_0_loop.
- rewrite list_skipn_0; reflexivity.
-
- rewrite Nat.add_0_r; reflexivity.
-Qed.
 
 Lemma taylor_formula_loop : ∀ α (f : field α) la x cnt n c,
   length la = (cnt + n)%nat
