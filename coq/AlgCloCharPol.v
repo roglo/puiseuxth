@@ -179,6 +179,7 @@ Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
    apply_poly f (taylor_poly f P a) (x .- f a))%K.
 Proof.
 intros α f x P a.
+remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
 bbb.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
