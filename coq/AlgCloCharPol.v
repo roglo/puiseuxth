@@ -242,8 +242,13 @@ induction la as [| a]; intros; simpl.
   apply list_eq_cons_nil_inv in Hlab.
   destruct Hlab as (Ha, Hla).
   constructor; [ rewrite Ha; apply mul_int_0_l | idtac ].
-  rewrite IHla with (lb := []); [ idtac | eassumption ].
-bbb.
+  rewrite IHla with (lb := []); [ reflexivity | eassumption ].
+
+  apply list_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  rewrite Hab; simpl.
+  rewrite IHla; [ reflexivity | eassumption ].
+Qed.
 
 Lemma list_deriv_mul : ∀ α (f : field α) la lb n i,
   list_eq f
@@ -257,10 +262,9 @@ revert la b.
 induction k; intros.
  simpl.
  unfold list_mul; simpl.
- rewrite list_convol_mul_nil_l in |- * at 2; simpl.
- rewrite list_add_nil_r.
+ do 2 rewrite list_convol_mul_nil_l.
+ reflexivity.
 bbb.
-> rewrite list_convol_mul_nil_l.
 
 Lemma list_deriv_compose : ∀ α (f : field α) k la b,
   list_eq f (list_deriv_on_fact f k (list_compose f la [b; .1 f%K … []]))
