@@ -207,6 +207,13 @@ intros α f la.
 destruct la; reflexivity.
 Qed.
 
+Lemma mul_int_0_l : ∀ α (f : field α) n, (mul_int f .0 f n .= f .0 f)%K.
+Proof.
+intros α f n.
+induction n; [ reflexivity | simpl ].
+rewrite fld_add_0_r; assumption.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (mul_int f)
   with signature fld_eq f ==> eq ==> fld_eq f
   as mul_int_morph.
@@ -222,13 +229,20 @@ Add Parametric Morphism α (f : field α) : (coeff_list_deriv f)
 Proof.
 intros la lb Hlab n i.
 revert lb Hlab n i.
-induction la as [| a]; intros.
- simpl.
- destruct lb as [| b]; [ reflexivity | simpl ].
+induction la as [| a]; intros; simpl.
+ revert i.
+ induction lb as [| b]; intros; [ reflexivity | simpl ].
  apply list_eq_nil_cons_inv in Hlab.
  destruct Hlab as (Hb, Hlb).
- constructor.
-  rewrite Hb.
+ constructor; [ rewrite Hb; apply mul_int_0_l | idtac ].
+ apply IHlb; assumption.
+
+ destruct lb as [| b].
+  simpl.
+  apply list_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  constructor; [ rewrite Ha; apply mul_int_0_l | idtac ].
+  rewrite IHla with (lb := []); [ idtac | eassumption ].
 bbb.
 
 Lemma list_deriv_mul : ∀ α (f : field α) la lb n i,
