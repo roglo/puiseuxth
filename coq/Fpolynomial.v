@@ -675,6 +675,9 @@ unfold eq_poly.
 eapply list_add_assoc; reflexivity.
 Qed.
 
+Lemma list_add_0_r : ∀ la, list_eq f (list_add f la []) la.
+Proof. intros la; destruct la; reflexivity. Qed.
+
 (* multiplication theorems *)
 
 Theorem poly_mul_compat : ∀ a b c d,

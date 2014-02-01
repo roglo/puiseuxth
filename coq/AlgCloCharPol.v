@@ -250,6 +250,22 @@ induction la as [| a]; intros; simpl.
   rewrite IHla; [ reflexivity | eassumption ].
 Qed.
 
+Add Parametric Morphism α (f : field α) : (list_compose f)
+  with signature list_eq f ==> list_eq f ==> list_eq f
+  as list_compose_morph.
+Proof.
+intros la lb Hlab lc ld Hlcd.
+revert lb lc ld Hlab Hlcd.
+induction la as [| a]; intros.
+ induction lb as [| b]; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hlab.
+ destruct Hlab as (Hb, Hlb).
+ simpl in IHlb.
+ assert (list_eq f [b] []) as H by (rewrite Hb; constructor; reflexivity).
+ rewrite H; clear H.
+ rewrite list_add_0_r.
+bbb.
+
 Lemma list_deriv_convol_mul : ∀ α (f : field α) la lb i j k len,
   list_eq f
     (coeff_list_deriv f (list_convol_mul f la lb j len) k i)
