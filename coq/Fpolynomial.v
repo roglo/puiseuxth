@@ -162,33 +162,34 @@ Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
 
 (* addition *)
 
-Fixpoint poly_add_loop α (f : field α) al₁ al₂ :=
+Fixpoint list_add α (f : field α) al₁ al₂ :=
   match al₁ with
   | [] => al₂
   | [a₁ … bl₁] =>
       match al₂ with
       | [] => al₁
-      | [a₂ … bl₂] => [(a₁ .+ f a₂)%K … poly_add_loop f bl₁ bl₂]
+      | [a₂ … bl₂] => [(a₁ .+ f a₂)%K … list_add f bl₁ bl₂]
       end
   end.
 
 Definition poly_add α (f : field α) pol₁ pol₂ :=
-  {| al := poly_add_loop f (al pol₁) (al pol₂) |}.
+  {| al := list_add f (al pol₁) (al pol₂) |}.
 
 (* multiplication *)
 
-Fixpoint poly_convol_mul α (f : field α) al₁ al₂ i len :=
+Fixpoint list_convol_mul α (f : field α) al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
       [Σ f (j = 0, i) _ List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f …
-       poly_convol_mul f al₁ al₂ (S i) len₁]
+       list_convol_mul f al₁ al₂ (S i) len₁]
   end.
 
+Definition list_mul α (f : field α) la lb :=
+  list_convol_mul f la lb 0 (pred (length la + length lb)).
+
 Definition poly_mul α (f : field α) pol₁ pol₂ :=
-  {| al :=
-       poly_convol_mul f (al pol₁) (al pol₂) O
-         (pred (List.length (al pol₁) + List.length (al pol₂))) |}.
+  {| al := list_mul f (al pol₁) (al pol₂) |}.
 
 (* *)
 
@@ -202,9 +203,9 @@ Add Parametric Morphism α (f : field α) : (@al α)
   as al_morph.
 Proof. intros; assumption. Qed.
 
-Lemma list_eq_nil_poly_add_loop_r : ∀ α (f : field α) la lb,
+Lemma list_eq_nil_list_add_r : ∀ α (f : field α) la lb,
   list_eq f [] la
-  → list_eq f lb (poly_add_loop f la lb).
+  → list_eq f lb (list_add f la lb).
 Proof.
 intros α f la lb H.
 revert lb.
@@ -216,9 +217,9 @@ constructor; [ rewrite Ha, fld_add_0_l; reflexivity | idtac ].
 apply IHla; assumption.
 Qed.
 
-Lemma list_eq_nil_poly_add_loop_l : ∀ α (f : field α) la lb,
+Lemma list_eq_nil_list_add_l : ∀ α (f : field α) la lb,
   list_eq f [] lb
-  → list_eq f la (poly_add_loop f la lb).
+  → list_eq f la (list_add f la lb).
 Proof.
 intros α f la lb H.
 revert la.
@@ -230,9 +231,9 @@ constructor; [ rewrite Hb, fld_add_0_r; reflexivity | idtac ].
 apply IHlb; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (poly_add_loop f)
+Add Parametric Morphism α (f : field α) : (list_add f)
   with signature (list_eq f) ==> (list_eq f) ==> (list_eq f)
-  as poly_add_loop_morph.
+  as list_add_morph.
 Proof.
 intros la lc Hac lb ld Hbd.
 revert lb lc ld Hac Hbd.
@@ -248,13 +249,13 @@ induction la as [| a]; intros.
    destruct Hbd as (Hd, Hld).
    constructor; [ rewrite Hc, fld_add_0_l; assumption | idtac ].
    etransitivity; [ eassumption | idtac ].
-   apply list_eq_nil_poly_add_loop_r; assumption.
+   apply list_eq_nil_list_add_r; assumption.
 
    apply list_eq_cons_inv in Hbd.
    destruct Hbd as (Hbd, Hlbd).
    constructor; [ rewrite Hc, fld_add_0_l; assumption | idtac ].
    etransitivity; [ eassumption | idtac ].
-   apply list_eq_nil_poly_add_loop_r; assumption.
+   apply list_eq_nil_list_add_r; assumption.
 
  destruct lb as [| b].
   destruct lc as [| c]; [ etransitivity; eassumption | idtac ].
@@ -265,7 +266,7 @@ induction la as [| a]; intros.
   destruct Hbd as (Hd, Hld).
   constructor; [ rewrite Hd, fld_add_0_r; assumption | idtac ].
   etransitivity; [ eassumption | idtac ].
-  apply list_eq_nil_poly_add_loop_l; assumption.
+  apply list_eq_nil_list_add_l; assumption.
 
   destruct lc as [| c].
    apply list_eq_cons_nil_inv in Hac.
@@ -305,8 +306,8 @@ unfold eq_poly in Hac, Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
-  list_eq f (poly_convol_mul f l₁ l₂ i len) (poly_convol_mul f l₂ l₁ i len).
+Lemma list_convol_mul_comm : ∀ α (f : field α) l₁ l₂ i len,
+  list_eq f (list_convol_mul f l₁ l₂ i len) (list_convol_mul f l₂ l₁ i len).
 Proof.
 intros α f l₁ l₂ i len.
 revert i.
@@ -321,8 +322,8 @@ rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_l : ∀ α (f : field α) l i len,
-  list_eq f (poly_convol_mul f [] l i len) [].
+Lemma list_convol_mul_nil_l : ∀ α (f : field α) l i len,
+  list_eq f (list_convol_mul f [] l i len) [].
 Proof.
 intros α f l i len.
 revert i.
@@ -333,19 +334,19 @@ intros k (_, Hk).
 destruct k; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_nil_r : ∀ α (f : field α) l i len,
-  list_eq f (poly_convol_mul f l [] i len) [].
+Lemma list_convol_mul_nil_r : ∀ α (f : field α) l i len,
+  list_eq f (list_convol_mul f l [] i len) [].
 Proof.
 intros α f l i len.
-rewrite poly_convol_mul_comm.
-apply poly_convol_mul_nil_l.
+rewrite list_convol_mul_comm.
+apply list_convol_mul_nil_l.
 Qed.
 
-Lemma poly_convol_mul_compat : ∀ α (f : field α) la lb lc ld i len,
+Lemma list_convol_mul_compat : ∀ α (f : field α) la lb lc ld i len,
   list_eq f la lc
   → list_eq f lb ld
-    → list_eq f (poly_convol_mul f la lb i len)
-        (poly_convol_mul f lc ld i len).
+    → list_eq f (list_convol_mul f la lb i len)
+        (list_convol_mul f lc ld i len).
 Proof.
 intros α f la lb lc ld i len Hac Hbd.
 revert la lb lc ld i Hac Hbd.
@@ -382,9 +383,9 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
-Lemma list_eq_nil_poly_convol_mul_nil_l : ∀ α (f : field α) la lb i len,
+Lemma list_eq_nil_list_convol_mul_nil_l : ∀ α (f : field α) la lb i len,
   list_eq f la []
-  → list_eq f (poly_convol_mul f la lb i len) [].
+  → list_eq f (list_convol_mul f la lb i len) [].
 Proof.
 intros α f la lb i len Heq.
 revert la lb i Heq.
@@ -406,9 +407,9 @@ constructor.
  apply IHlen; assumption.
 Qed.
 
-Lemma list_eq_nil_poly_convol_mul_nil_r : ∀ α (f : field α) la lb i len,
+Lemma list_eq_nil_list_convol_mul_nil_r : ∀ α (f : field α) la lb i len,
   list_eq f lb []
-  → list_eq f (poly_convol_mul f la lb i len) [].
+  → list_eq f (list_convol_mul f la lb i len) [].
 Proof.
 intros α f la lb i len Heq.
 revert la lb i Heq.
@@ -466,9 +467,9 @@ induction n; intros.
    apply IHn; destruct Heq; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (poly_convol_mul f)
+Add Parametric Morphism α (f : field α) : (list_convol_mul f)
   with signature (list_eq f) ==> (list_eq f) ==> eq ==> eq ==> (list_eq f)
-  as poly_convol_mul_morph.
+  as list_convol_mul_morph.
 Proof.
 intros la lc Hac lb ld Hbd i len.
 revert i.
@@ -478,10 +479,10 @@ apply summation_compat; intros j (_, Hj).
 apply fld_mul_compat; apply list_eq_list_nth; assumption.
 Qed.
 
-Lemma poly_convol_mul_succ : ∀ α (f : field α) la lb i len,
+Lemma list_convol_mul_succ : ∀ α (f : field α) la lb i len,
   list_eq f
-    (poly_convol_mul f la lb i (S len))
-    (poly_convol_mul f la lb i len ++
+    (list_convol_mul f la lb i (S len))
+    (list_convol_mul f la lb i len ++
      [Σ f (j = 0, i + len)_
       List.nth j la .0 f .* f List.nth (i + len - j) lb .0 f])%K.
 Proof.
@@ -513,14 +514,14 @@ induction la as [| a]; simpl.
  constructor; [ reflexivity | assumption ].
 Qed.
 
-Lemma poly_convol_mul_more : ∀ α (f : field α) la lb i n,
-  list_eq f (poly_convol_mul f la lb i (pred (length la + length lb)))
-    (poly_convol_mul f la lb i (pred (length la + length lb) + n)).
+Lemma list_convol_mul_more : ∀ α (f : field α) la lb i n,
+  list_eq f (list_convol_mul f la lb i (pred (length la + length lb)))
+    (list_convol_mul f la lb i (pred (length la + length lb) + n)).
 Proof.
 intros α f la lb i n.
 induction n; [ rewrite Nat.add_0_r; reflexivity | idtac ].
 rewrite Nat.add_succ_r.
-rewrite poly_convol_mul_succ.
+rewrite list_convol_mul_succ.
 rewrite IHn.
 apply list_eq_app_0s.
 constructor; [ idtac | constructor ].
@@ -545,14 +546,14 @@ Add Parametric Morphism α (f : field α) : (poly_mul f)
   as poly_mul_morph.
 Proof.
 intros a c Hac b d Hbd.
-unfold eq_poly, poly_mul; simpl.
+unfold eq_poly, poly_mul, list_mul; simpl.
 unfold eq_poly in Hac, Hbd.
 remember (al a) as la.
 remember (al b) as lb.
 remember (al c) as lc.
 remember (al d) as ld.
 revert Hac Hbd; clear; intros.
-do 2 rewrite poly_convol_mul_more.
+do 2 rewrite list_convol_mul_more.
 rewrite Hac, Hbd in |- * at 1.
 rewrite Nat.add_comm.
 reflexivity.
@@ -565,6 +566,35 @@ Proof.
 intros a b H la lb Hab.
 constructor; assumption.
 Qed.
+
+(* composition *)
+
+Definition list_compose α (f : field α) la lb :=
+  List.fold_right (λ c accu, list_add f (list_mul f accu lb) [c]) [] la.
+
+Definition poly_compose α (f : field α) a b :=
+  POL (list_compose f (al a) (al b))%pol.
+
+(* test
+Load Q_field.
+Definition Qtest_comp := list_compose Q_field.
+Eval vm_compute in Qtest_comp [5#1; -4#1; 3#1; 2#1 … []] [2#1; -4#1; 7#1; 6#1 … []].
+     = [25 # 1; -128 # 1; 464 # 1; -776 # 1; 687 # 1;
+       660 # 1; -790 # 1; 900 # 1; 1512 # 1; 432 # 1; 0; 0 …
+       []]
+     : list Q
+Eval vm_compute in Qtest_comp [2#1; -4#1; 7#1; 6#1 … []] [5#1; -4#1; 3#1; 2#1 … []].
+     = [907 # 1; -2064 # 1; 3100 # 1; -1680 # 1; 185 # 1;
+       1092 # 1; -314 # 1; 36 # 1; 216 # 1; 48 # 1; 0; 0 …
+       []]
+     : list Q
+Eval vm_compute in Qtest_comp [-2#1; 4#1; -3#1 … []] [-1#1; 4#1 … []].
+     = [-9 # 1; 40 # 1; -48 # 1 … []]
+     : list Q
+Eval vm_compute in Qtest_comp [-1#1; 4#1 … []] [-2#1; 4#1; -3#1 … []].
+     = [-9 # 1; 16 # 1; -12 # 1; 0 … []]
+     : list Q
+*)
 
 Section poly.
 
@@ -582,9 +612,9 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
-Lemma poly_add_loop_al_comm : ∀ al₁ al₂ rp₁ rp₂,
-  rp₁ = poly_add_loop f al₁ al₂
-  → rp₂ = poly_add_loop f al₂ al₁
+Lemma list_add_comm : ∀ al₁ al₂ rp₁ rp₂,
+  rp₁ = list_add f al₁ al₂
+  → rp₂ = list_add f al₂ al₁
     → list_eq f rp₁ rp₂.
 Proof.
 intros al₁ al₂ rp₁ rp₂ H₁ H₂.
@@ -604,12 +634,12 @@ Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f 
 Proof.
 intros pol₁ pol₂.
 unfold eq_poly.
-eapply poly_add_loop_al_comm; reflexivity.
+eapply list_add_comm; reflexivity.
 Qed.
 
-Lemma poly_add_loop_al_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = poly_add_loop f (poly_add_loop f al₁ al₂) al₃
-  → rp₂ = poly_add_loop f al₁ (poly_add_loop f al₂ al₃)
+Lemma list_add_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
+  rp₁ = list_add f (list_add f al₁ al₂) al₃
+  → rp₂ = list_add f al₁ (list_add f al₂ al₃)
     → list_eq f rp₁ rp₂.
 Proof.
 intros al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
@@ -642,7 +672,7 @@ Lemma poly_add_assoc : ∀ pol₁ pol₂ pol₃,
 Proof.
 intros pol₁ pol₂ pol₃.
 unfold eq_poly.
-eapply poly_add_loop_al_assoc; reflexivity.
+eapply list_add_assoc; reflexivity.
 Qed.
 
 (* multiplication theorems *)
@@ -693,13 +723,14 @@ Theorem poly_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%pol.
 Proof.
 intros a b.
 unfold eq_poly; simpl.
+unfold list_mul; simpl.
 rewrite Nat.add_comm.
-rewrite poly_convol_mul_comm; reflexivity.
+rewrite list_convol_mul_comm; reflexivity.
 Qed.
 
-Lemma list_nth_poly_convol_mul_aux : ∀ la lb n i len,
+Lemma list_nth_list_convol_mul_aux : ∀ la lb n i len,
   pred (List.length la + List.length lb) = (i + len)%nat
-  → (List.nth n (poly_convol_mul f la lb i len) .0 f%K .= f
+  → (List.nth n (list_convol_mul f la lb i len) .0 f%K .= f
      Σ f (j = 0, n + i)_
      List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f)%K.
 Proof.
@@ -728,14 +759,14 @@ induction len; intros.
  rewrite Nat.add_succ_r, <- Nat.add_succ_l; reflexivity.
 Qed.
 
-Lemma list_nth_poly_convol_mul : ∀ la lb i len,
+Lemma list_nth_list_convol_mul : ∀ la lb i len,
   len = pred (length la + length lb)
-  → (List.nth i (poly_convol_mul f la lb 0 len) .0 f .= f
+  → (List.nth i (list_convol_mul f la lb 0 len) .0 f .= f
      Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
 Proof.
 intros la lb i len Hlen.
 symmetry in Hlen.
-rewrite list_nth_poly_convol_mul_aux; [ idtac | assumption ].
+rewrite list_nth_list_convol_mul_aux; [ idtac | assumption ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
@@ -750,9 +781,9 @@ induction cl as [| c]; intros; simpl.
  destruct i; [ reflexivity | apply IHcl ].
 Qed.
 
-Lemma poly_convol_mul_1_l : ∀ cl i len,
+Lemma list_convol_mul_1_l : ∀ cl i len,
   length cl = (i + len)%nat
-  → list_eq f (poly_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
+  → list_eq f (list_convol_mul f [.1 f%K] cl i len) (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
 revert cl i Hlen.
@@ -774,10 +805,10 @@ induction len; intros.
   destruct j; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma poly_convol_mul_x_l : ∀ cl i len,
+Lemma list_convol_mul_x_l : ∀ cl i len,
   length cl = (i + len)%nat
   → list_eq f
-      (poly_convol_mul f [.0 f%K; .1 f%K … []] cl (S i) len)
+      (list_convol_mul f [.0 f%K; .1 f%K … []] cl (S i) len)
       (List.skipn i cl).
 Proof.
 intros cl i len Hlen.
@@ -806,7 +837,8 @@ Theorem poly_mul_1_l : ∀ a, (.1 f .* f a .= f a)%pol.
 Proof.
 intros a.
 unfold eq_poly; simpl.
-rewrite poly_convol_mul_1_l; reflexivity.
+unfold list_mul; simpl.
+rewrite list_convol_mul_1_l; reflexivity.
 Qed.
 
 Theorem poly_mul_1_r : ∀ a, (a .* f .1 f .= f a)%pol.

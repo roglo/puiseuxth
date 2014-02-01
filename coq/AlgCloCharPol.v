@@ -174,33 +174,6 @@ rewrite <- taylor_formula_0_loop.
  rewrite Nat.add_0_r; reflexivity.
 Qed.
 
-(*
-Definition compose_list_loop α (f : field α) la lb cnt i :=
-  match cnt with
-  | O => []
-  | S cnt₁ =>
-      [apply_list f la (apply_list f lb .0 f%K) …
-
-A = a₀ + a₁x + a₂x² + a₃x³ + ...
-B = b₀ + b₁x + b₂x² + b₃x³ + ...
-
-a₀ + a₁ (b₀ + b₁x + b₂x² + b₃x³ + ...)
-   + a₂ (b₀ + b₁x + b₂x² + b₃x³ + ...)²
-   + a₃ (b₀ + b₁x + b₂x² + b₃x³ + ...)³ + ...
-
-a₀ = A(0)
-a₁ = A'(0)
-a₂ = A''(0)/2!
-a₃ = A⁽³⁾(0)/3!
-
-c₀ = (AoB)(0) = A(B(0))
-c₁ = (AoB)'(0) = A'(B(0)).B'(0)
-c₂ = (AoB)''(0) = A''(B(0)).B'(0)² + A'(B(0)).B''(0)
-
-Definition compose_list α (f : field α) la lb :=
-  [apply_list f la (apply_list f lb .0 f%K)].
-*)
-
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
    apply_poly f (taylor_poly f P a) (x .- f a))%K.
