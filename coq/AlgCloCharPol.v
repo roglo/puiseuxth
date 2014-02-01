@@ -258,6 +258,13 @@ Lemma list_deriv_convol_mul : ∀ α (f : field α) la lb i j k len,
        (list_convol_mul f (coeff_list_deriv f la k i) lb j len)).
 Proof.
 intros α f la lb i j k len.
+revert la lb i j k.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ Focus 2.
+ simpl.
+ rewrite IHlen.
+Abort. (*
 bbb.
 *)
 
@@ -280,6 +287,7 @@ Proof.
 intros α f la lb n i.
 unfold list_mul.
 do 2 rewrite length_deriv_list.
+Abort. (*
 bbb.
 apply list_deriv_convol_mul.
 
@@ -304,6 +312,24 @@ induction la as [| a]; intros.
   do 3 rewrite summation_only_one.
   constructor.
 bbb.
+*)
+
+Lemma comb_0_r : ∀ n, comb n 0 = 1%nat.
+Proof. intros n; destruct n; reflexivity. Qed.
+
+Lemma coeff_list_0th_deriv : ∀ α (f : field α) la i,
+  list_eq f (coeff_list_deriv f la 0 i) la.
+Proof.
+intros α f la i; revert i.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+constructor; [ idtac | apply IHla ].
+rewrite comb_0_r; simpl.
+rewrite fld_add_0_l; reflexivity.
+Qed.
+
+Lemma list_0th_deriv : ∀ α (f : field α) la,
+  list_eq f (list_deriv_on_fact f 0 la) la.
+Proof. intros α f la; apply coeff_list_0th_deriv. Qed.
 
 Lemma list_deriv_compose : ∀ α (f : field α) k la b,
   list_eq f (list_deriv_on_fact f k (list_compose f la [b; .1 f%K … []]))
@@ -312,14 +338,18 @@ Proof.
 intros α f k la b.
 revert la b.
 induction k; intros.
+ rewrite list_0th_deriv.
+bbb.
+ rewrite list_0th_deriv.
+
  unfold list_deriv_on_fact.
  rewrite list_skipn_0; simpl.
  induction la as [| a]; [ reflexivity | simpl ].
  rewrite fld_add_0_l.
  rewrite list_deriv_add; simpl.
  rewrite fld_add_0_l.
- rewrite list_deriv_mul; simpl.
 bbb.
+ rewrite list_deriv_mul; simpl.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
   (poly_deriv_on_fact f k (poly_compose f P POL [a; .1 f%K … []]) .= f
