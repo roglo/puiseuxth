@@ -250,10 +250,9 @@ induction la as [| a]; intros; simpl.
   rewrite IHla; [ reflexivity | eassumption ].
 Qed.
 
-(*
 Lemma list_deriv_convol_mul : ∀ α (f : field α) la lb i j k len,
   list_eq f
-    (coeff_list_deriv f (list_convol_mul f la lb j (S len)) k i)
+    (coeff_list_deriv f (list_convol_mul f la lb j len) k i)
     (list_add f
        (list_convol_mul f la (coeff_list_deriv f lb k i) j len)
        (list_convol_mul f (coeff_list_deriv f la k i) lb j len)).
@@ -262,11 +261,14 @@ intros α f la lb i j k len.
 bbb.
 *)
 
-Lemma www : ∀ α (f : field α) la n i,
-  length (coeff_list_deriv f la n i) = (length la - n)%nat.
+Lemma length_deriv_list : ∀ α (f : field α) la n i,
+  length (coeff_list_deriv f la n i) = length la.
 Proof.
 intros α f la n i.
-bbb.
+revert i.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+apply eq_S, IHla.
+Qed.
 
 Lemma list_deriv_mul : ∀ α (f : field α) la lb n i,
   list_eq f
@@ -277,7 +279,9 @@ Lemma list_deriv_mul : ∀ α (f : field α) la lb n i,
 Proof.
 intros α f la lb n i.
 unfold list_mul.
+do 2 rewrite length_deriv_list.
 bbb.
+apply list_deriv_convol_mul.
 
 intros α f la lb n i.
 revert lb n i.
