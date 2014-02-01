@@ -257,13 +257,26 @@ Lemma list_deriv_mul : ∀ α (f : field α) la lb n i,
        (list_mul f la (coeff_list_deriv f lb n i))
        (list_mul f (coeff_list_deriv f la n i) lb)).
 Proof.
-intros α f k la b.
-revert la b.
-induction k; intros.
+intros α f la lb n i.
+revert lb n i.
+induction la as [| a]; intros.
  simpl.
  unfold list_mul; simpl.
  do 2 rewrite list_convol_mul_nil_l.
  reflexivity.
+
+ simpl.
+ destruct lb as [| b].
+  simpl.
+  unfold list_mul; simpl.
+  do 2 rewrite list_convol_mul_nil_r.
+  reflexivity.
+
+  simpl.
+  unfold list_mul; simpl.
+  do 3 rewrite Nat.add_succ_r; simpl.
+  do 3 rewrite summation_only_one.
+  constructor.
 bbb.
 
 Lemma list_deriv_compose : ∀ α (f : field α) k la b,
