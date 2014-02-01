@@ -73,24 +73,24 @@ Fixpoint mul_int α (f : field α) x n :=
   | S n₁ => (mul_int f x n₁ .+ f x)%K
   end.
 
-Fixpoint coeff_list_nth_deriv α (f : field α) la n i :=
+Fixpoint coeff_list_deriv α (f : field α) la n i :=
   match la with
   | [] => []
   | [a₁ … la₁] =>
-      [mul_int f a₁ (comb i n) … coeff_list_nth_deriv f la₁ n (S i)]
+      [mul_int f a₁ (comb i n) … coeff_list_deriv f la₁ n (S i)]
   end.
 
-Definition list_nth_deriv_on_fact_n α (f : field α) n la :=
-  coeff_list_nth_deriv f (List.skipn n la) n n.
+Definition list_deriv_on_fact α (f : field α) n la :=
+  coeff_list_deriv f (List.skipn n la) n n.
 
-Definition poly_nth_deriv_on_fact_n α (f : field α) n pol :=
-  (POL (list_nth_deriv_on_fact_n f n (al pol)))%pol.
+Definition poly_deriv_on_fact α (f : field α) n pol :=
+  (POL (list_deriv_on_fact f n (al pol)))%pol.
 
 Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
   match cnt with
   | 0%nat => []
   | S cnt₁ =>
-      [apply_list f (list_nth_deriv_on_fact_n f n la) c …
+      [apply_list f (list_deriv_on_fact f n la) c …
        coeff_taylor_list f cnt₁ la c (S n)]
   end.
 
@@ -110,7 +110,7 @@ rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
 Theorem taylor_coeff_0 : ∀ α (f : field α) la k,
-  (apply_list f (list_nth_deriv_on_fact_n f k la) .0 f .= f
+  (apply_list f (list_deriv_on_fact f k la) .0 f .= f
    List.nth k la .0 f)%K.
 Proof.
 intros α f la k.
@@ -119,7 +119,7 @@ destruct k.
  destruct la; [ reflexivity | simpl ].
  rewrite fld_add_0_l; reflexivity.
 
- unfold list_nth_deriv_on_fact_n; simpl.
+ unfold list_deriv_on_fact; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
  remember (List.skipn k la) as lb eqn:Hlb .
  symmetry in Hlb.
@@ -161,10 +161,28 @@ Theorem list_skipn_0 : ∀ A (l : list A), List.skipn 0 l = l.
 Proof. intros A l; destruct l; reflexivity. Qed.
 
 Theorem taylor_formula_0 : ∀ α (f : field α) x P,
-  (apply_poly f P (x) .= f
+  (apply_poly f P x .= f
    apply_poly f (taylor_poly f P .0 f) x)%K.
 Proof.
 intros α f x P.
+unfold apply_poly; simpl.
+remember (al P) as la; clear Heqla.
+unfold taylor_list.
+rewrite <- taylor_formula_0_loop.
+ rewrite list_skipn_0; reflexivity.
+
+ rewrite Nat.add_0_r; reflexivity.
+Qed.
+
+Definition compose_list α (f : field α) la lb :=
+  [apply_list f la (apply_list f lb .0 f%K)].
+
+Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
+  (apply_poly f P x .= f
+   apply_poly f (taylor_poly f P a) (x .- f a))%K.
+Proof.
+intros α f x P a.
+bbb.
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
 unfold taylor_list.
@@ -204,7 +222,7 @@ bbb.
    rewrite IHla.
    simpl.
    apply fld_add_compat_l.
-   unfold list_nth_deriv_on_fact_n.
+   unfold list_deriv_on_fact.
    simpl.
 bbb.
 *)
@@ -246,7 +264,7 @@ Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] 0.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] (2#1).
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] 0.
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] (2#1).
-Definition Qtest_deriv n la := list_nth_deriv_on_fact_n Q_field n la.
+Definition Qtest_deriv n la := list_deriv_on_fact Q_field n la.
 Eval vm_compute in Qtest_deriv 0 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 1 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
