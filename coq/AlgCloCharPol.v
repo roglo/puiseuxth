@@ -200,6 +200,29 @@ destruct lb as [| b]; [ reflexivity | simpl ].
 constructor; [ apply mul_int_add_distr_r | apply IHla ].
 Qed.
 
+Lemma list_add_nil_r : ∀ α (f : field α) la,
+  list_eq f (list_add f la []) la.
+Proof.
+intros α f la.
+destruct la; reflexivity.
+Qed.
+
+Lemma list_deriv_mul : ∀ α (f : field α) la lb n i,
+  list_eq f
+    (coeff_list_deriv f (list_mul f la lb) n i)
+    (list_add f
+       (list_mul f la (coeff_list_deriv f lb n i))
+       (list_mul f (coeff_list_deriv f la n i) lb)).
+Proof.
+intros α f k la b.
+revert la b.
+induction k; intros.
+ simpl.
+ unfold list_mul; simpl.
+ rewrite list_convol_mul_nil_l in |- * at 2; simpl.
+ rewrite list_add_nil_r.
+bbb.
+
 Lemma list_deriv_compose : ∀ α (f : field α) k la b,
   list_eq f (list_deriv_on_fact f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_deriv_on_fact f k la) [b; .1 f%K … []]).
@@ -211,7 +234,9 @@ induction k; intros.
  rewrite list_skipn_0; simpl.
  induction la as [| a]; [ reflexivity | simpl ].
  rewrite fld_add_0_l.
- rewrite list_deriv_add.
+ rewrite list_deriv_add; simpl.
+ rewrite fld_add_0_l.
+ rewrite list_deriv_mul; simpl.
 bbb.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
