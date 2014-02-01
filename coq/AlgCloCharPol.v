@@ -181,11 +181,10 @@ Proof.
 intros α f k la b.
 revert la b.
 induction k; intros.
- destruct la as [| a]; simpl.
-  reflexivity.
-
-  unfold list_deriv_on_fact; simpl.
-  rewrite fld_add_0_l.
+ unfold list_deriv_on_fact.
+ rewrite list_skipn_0; simpl.
+ induction la as [| a]; [ reflexivity | simpl ].
+ rewrite fld_add_0_l.
 bbb.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
