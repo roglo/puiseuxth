@@ -424,6 +424,16 @@ Lemma list_deriv_compose : ∀ α (f : field α) k la b,
     (list_compose f (list_deriv_on_fact f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
+revert k b.
+induction la as [| a]; intros.
+ simpl.
+ unfold list_deriv_on_fact; simpl.
+ rewrite list_skipn_nil; reflexivity.
+
+ simpl.
+bbb.
+
+intros α f k la b.
 revert la b.
 induction k; intros.
  do 2 rewrite list_0th_deriv; reflexivity.
