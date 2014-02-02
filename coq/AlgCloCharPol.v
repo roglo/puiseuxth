@@ -200,12 +200,32 @@ destruct lb as [| b]; [ reflexivity | simpl ].
 constructor; [ apply mul_int_add_distr_r | apply IHla ].
 Qed.
 
-Lemma list_add_nil_r : ∀ α (f : field α) la,
-  list_eq f (list_add f la []) la.
+Lemma list_derifact_nil_r : ∀ α (f : field α) k,
+  list_eq f (list_derifact f k []) [].
 Proof.
-intros α f la.
-destruct la; reflexivity.
+intros α f k.
+unfold list_derifact.
+rewrite list_skipn_nil; reflexivity.
 Qed.
+
+Lemma list_derifact_add : ∀ α (f : field α) la lb k,
+  list_eq f
+     (list_derifact f k (list_add f la lb))
+     (list_add f (list_derifact f k la) (list_derifact f k lb)).
+Proof.
+intros α f la lb k.
+revert lb k.
+induction la as [| a]; intros.
+ simpl.
+ rewrite list_derifact_nil_r.
+ rewrite list_add_nil_l; reflexivity.
+
+ simpl.
+ destruct lb as [| b].
+  rewrite list_derifact_nil_r.
+  rewrite list_add_nil_r.
+  reflexivity.
+bbb.
 
 Lemma mul_int_0_l : ∀ α (f : field α) n, (mul_int f .0 f n .= f .0 f)%K.
 Proof.
@@ -424,6 +444,18 @@ Lemma list_deriv_compose : ∀ α (f : field α) k la b,
     (list_compose f (list_derifact f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
+revert la b.
+induction k; intros.
+ do 2 rewrite list_0th_deriv; reflexivity.
+
+ induction la as [| a].
+  simpl.
+  apply list_derifact_nil_r.
+
+  simpl.
+bbb.
+
+intros α f k la b.
 revert k b.
 induction la as [| a]; intros.
  simpl.
@@ -432,21 +464,6 @@ induction la as [| a]; intros.
 
  simpl.
 bbb.
-
-intros α f k la b.
-revert la b.
-induction k; intros.
- do 2 rewrite list_0th_deriv; reflexivity.
-bbb.
-
- unfold list_derifact.
- rewrite list_skipn_0; simpl.
- induction la as [| a]; [ reflexivity | simpl ].
- rewrite fld_add_0_l.
- rewrite list_deriv_add; simpl.
- rewrite fld_add_0_l.
-bbb.
- rewrite list_deriv_mul; simpl.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
   (poly_derifact f k (poly_compose f P POL [a; .1 f%K … []]) .= f
