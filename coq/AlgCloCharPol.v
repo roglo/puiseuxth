@@ -465,7 +465,15 @@ Lemma list_0th_deriv : ∀ α (f : field α) la,
   list_eq f (list_derifact f 0 la) la.
 Proof. intros α f la; apply coeff_list_0th_deriv. Qed.
 
-Lemma list_deriv_compose : ∀ α (f : field α) k la b,
+Lemma list_derifact_succ_1 : ∀ α (f : field α) k a,
+  list_eq f (list_derifact f (S k) [a]) [].
+Proof.
+intros α f k a.
+unfold list_derifact; simpl.
+rewrite list_skipn_nil; reflexivity.
+Qed.
+
+Lemma list_derifact_compose : ∀ α (f : field α) k la b,
   list_eq f (list_derifact f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derifact f k la) [b; .1 f%K … []]).
 Proof.
@@ -476,7 +484,9 @@ induction k; intros.
 
  induction la as [| a]; [ apply list_derifact_nil | simpl ].
  rewrite list_derifact_add.
-bbb.
+ rewrite list_derifact_succ_1.
+ rewrite list_add_nil_r.
+zbbb.
 
 intros α f k la b.
 revert k b.
