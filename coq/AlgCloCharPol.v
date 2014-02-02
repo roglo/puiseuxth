@@ -188,7 +188,7 @@ apply fld_add_compat_l.
 apply fld_add_comm.
 Qed.
 
-Lemma list_deriv_add : ∀ α (f : field α) la lb n i,
+Lemma coeff_list_deriv_add : ∀ α (f : field α) la lb n i,
   list_eq f
     (coeff_list_deriv f (list_add f la lb) n i)
     (list_add f (coeff_list_deriv f la n i) (coeff_list_deriv f lb n i)).
@@ -256,6 +256,14 @@ induction la as [| a]; intros; simpl.
    rewrite list_derifact_0.
    do 2 rewrite fld_add_0_l.
    constructor; [ reflexivity | idtac ].
+   rewrite <- coeff_list_deriv_add.
+   rewrite coeff_list_deriv_0_l.
+   reflexivity.
+
+   unfold list_derifact.
+   simpl.
+   rewrite <- coeff_list_deriv_add.
+   unfold list_derifact in IHla.
 bbb.
 
 Lemma list_nth_fld_eq : ∀ α (f : field α) la lb n,
