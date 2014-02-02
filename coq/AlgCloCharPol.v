@@ -200,12 +200,43 @@ destruct lb as [| b]; [ reflexivity | simpl ].
 constructor; [ apply mul_int_add_distr_r | apply IHla ].
 Qed.
 
-Lemma list_derifact_nil_r : ∀ α (f : field α) k,
+Lemma list_derifact_nil : ∀ α (f : field α) k,
   list_eq f (list_derifact f k []) [].
 Proof.
 intros α f k.
 unfold list_derifact.
 rewrite list_skipn_nil; reflexivity.
+Qed.
+
+Lemma comb_0_r : ∀ i, comb i 0 = 1%nat.
+Proof. intros i; destruct i; reflexivity. Qed.
+
+Lemma mul_int_0_l : ∀ α (f : field α) n, (mul_int f .0 f n .= f .0 f)%K.
+Proof.
+intros α f n.
+induction n; [ reflexivity | simpl ].
+rewrite fld_add_0_r; assumption.
+Qed.
+
+Lemma mul_int_1_r : ∀ α (f : field α) a, (mul_int f a 1 .= f a)%K.
+Proof. intros α f a; simpl; rewrite fld_add_0_l; reflexivity. Qed.
+
+Lemma coeff_list_deriv_0_l : ∀ α (f : field α) la i,
+  list_eq f (coeff_list_deriv f la 0 i) la.
+Proof.
+intros α f la i; revert i.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite comb_0_r, mul_int_1_r.
+constructor; [ reflexivity | apply IHla ].
+Qed.
+
+Lemma list_derifact_0 : ∀ α (f : field α) la,
+  list_eq f (list_derifact f 0 la) la.
+Proof.
+intros α f la.
+unfold list_derifact.
+rewrite list_skipn_0; simpl.
+rewrite coeff_list_deriv_0_l; reflexivity.
 Qed.
 
 Lemma list_derifact_add : ∀ α (f : field α) la lb k,
@@ -215,24 +246,17 @@ Lemma list_derifact_add : ∀ α (f : field α) la lb k,
 Proof.
 intros α f la lb k.
 revert lb k.
-induction la as [| a]; intros.
- simpl.
- rewrite list_derifact_nil_r.
- rewrite list_add_nil_l; reflexivity.
+induction la as [| a]; intros; simpl.
+ rewrite list_derifact_nil, list_add_nil_l; reflexivity.
 
- simpl.
  destruct lb as [| b].
-  rewrite list_derifact_nil_r.
-  rewrite list_add_nil_r.
-  reflexivity.
-bbb.
+  rewrite list_derifact_nil, list_add_nil_r; reflexivity.
 
-Lemma mul_int_0_l : ∀ α (f : field α) n, (mul_int f .0 f n .= f .0 f)%K.
-Proof.
-intros α f n.
-induction n; [ reflexivity | simpl ].
-rewrite fld_add_0_r; assumption.
-Qed.
+  destruct k; simpl.
+   rewrite list_derifact_0.
+   do 2 rewrite fld_add_0_l.
+   constructor; [ reflexivity | idtac ].
+bbb.
 
 Lemma list_nth_fld_eq : ∀ α (f : field α) la lb n,
   list_eq f la lb → (List.nth n la .0 f .= f List.nth n lb .0 f)%K.
