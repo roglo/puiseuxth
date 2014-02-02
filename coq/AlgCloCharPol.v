@@ -80,17 +80,17 @@ Fixpoint coeff_list_deriv α (f : field α) la n i :=
       [mul_int f a₁ (comb i n) … coeff_list_deriv f la₁ n (S i)]
   end.
 
-Definition list_deriv_on_fact α (f : field α) n la :=
+Definition list_derifact α (f : field α) n la :=
   coeff_list_deriv f (List.skipn n la) n n.
 
-Definition poly_deriv_on_fact α (f : field α) n pol :=
-  (POL (list_deriv_on_fact f n (al pol)))%pol.
+Definition poly_derifact α (f : field α) n pol :=
+  (POL (list_derifact f n (al pol)))%pol.
 
 Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
   match cnt with
   | 0%nat => []
   | S cnt₁ =>
-      [apply_list f (list_deriv_on_fact f n la) c …
+      [apply_list f (list_derifact f n la) c …
        coeff_taylor_list f cnt₁ la c (S n)]
   end.
 
@@ -110,7 +110,7 @@ rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
 Theorem taylor_coeff_0 : ∀ α (f : field α) la k,
-  (apply_list f (list_deriv_on_fact f k la) .0 f .= f
+  (apply_list f (list_derifact f k la) .0 f .= f
    List.nth k la .0 f)%K.
 Proof.
 intros α f la k.
@@ -119,7 +119,7 @@ destruct k.
  destruct la; [ reflexivity | simpl ].
  rewrite fld_add_0_l; reflexivity.
 
- unfold list_deriv_on_fact; simpl.
+ unfold list_derifact; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
  remember (List.skipn k la) as lb eqn:Hlb .
  symmetry in Hlb.
@@ -416,18 +416,18 @@ rewrite fld_add_0_l; reflexivity.
 Qed.
 
 Lemma list_0th_deriv : ∀ α (f : field α) la,
-  list_eq f (list_deriv_on_fact f 0 la) la.
+  list_eq f (list_derifact f 0 la) la.
 Proof. intros α f la; apply coeff_list_0th_deriv. Qed.
 
 Lemma list_deriv_compose : ∀ α (f : field α) k la b,
-  list_eq f (list_deriv_on_fact f k (list_compose f la [b; .1 f%K … []]))
-    (list_compose f (list_deriv_on_fact f k la) [b; .1 f%K … []]).
+  list_eq f (list_derifact f k (list_compose f la [b; .1 f%K … []]))
+    (list_compose f (list_derifact f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
 revert k b.
 induction la as [| a]; intros.
  simpl.
- unfold list_deriv_on_fact; simpl.
+ unfold list_derifact; simpl.
  rewrite list_skipn_nil; reflexivity.
 
  simpl.
@@ -439,7 +439,7 @@ induction k; intros.
  do 2 rewrite list_0th_deriv; reflexivity.
 bbb.
 
- unfold list_deriv_on_fact.
+ unfold list_derifact.
  rewrite list_skipn_0; simpl.
  induction la as [| a]; [ reflexivity | simpl ].
  rewrite fld_add_0_l.
@@ -449,11 +449,11 @@ bbb.
  rewrite list_deriv_mul; simpl.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
-  (poly_deriv_on_fact f k (poly_compose f P POL [a; .1 f%K … []]) .= f
-   poly_compose f (poly_deriv_on_fact f k P) POL [a; .1 f%K … []])%pol.
+  (poly_derifact f k (poly_compose f P POL [a; .1 f%K … []]) .= f
+   poly_compose f (poly_derifact f k P) POL [a; .1 f%K … []])%pol.
 Proof.
 intros α f k P a.
-unfold poly_deriv_on_fact; simpl.
+unfold poly_derifact; simpl.
 unfold poly_compose; simpl.
 unfold eq_poly; simpl.
 bbb.
@@ -466,12 +466,12 @@ intros α f x P a.
 remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
 assert
  (∀ k,
-  poly_deriv_on_fact f k Q .= f
-  poly_compose f (poly_deriv_on_fact f k P) POL [a; .1 f%K … []])%pol 
+  poly_derifact f k Q .= f
+  poly_compose f (poly_derifact f k P) POL [a; .1 f%K … []])%pol 
  as H.
  intros k.
  subst Q.
- unfold poly_deriv_on_fact; simpl.
+ unfold poly_derifact; simpl.
  unfold poly_compose; simpl.
  unfold eq_poly; simpl.
  remember (al P) as la.
@@ -511,7 +511,7 @@ bbb.
    rewrite IHla.
    simpl.
    apply fld_add_compat_l.
-   unfold list_deriv_on_fact.
+   unfold list_derifact.
    simpl.
 bbb.
 *)
@@ -553,7 +553,7 @@ Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] 0.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] (2#1).
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] 0.
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] (2#1).
-Definition Qtest_deriv n la := list_deriv_on_fact Q_field n la.
+Definition Qtest_deriv n la := list_derifact Q_field n la.
 Eval vm_compute in Qtest_deriv 0 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 1 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
