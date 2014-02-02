@@ -239,32 +239,65 @@ rewrite list_skipn_0; simpl.
 rewrite coeff_list_deriv_0_l; reflexivity.
 Qed.
 
-Lemma list_derifact_add : ∀ α (f : field α) la lb k,
-  list_eq f
-     (list_derifact f k (list_add f la lb))
-     (list_add f (list_derifact f k la) (list_derifact f k lb)).
+Add Parametric Morphism α (f : field α) : (mul_int f)
+  with signature fld_eq f ==> eq ==> fld_eq f
+  as mul_int_morph.
 Proof.
-intros α f la lb k.
-revert lb k.
+intros a b Hab n.
+induction n; [ reflexivity | simpl ].
+rewrite IHn, Hab; reflexivity.
+Qed.
+
+Add Parametric Morphism α (f : field α) : (coeff_list_deriv f)
+  with signature list_eq f ==> eq ==> eq ==> list_eq f
+  as coeff_list_deriv_morph.
+Proof.
+intros la lb Hlab n i.
+revert lb Hlab n i.
 induction la as [| a]; intros; simpl.
- rewrite list_derifact_nil, list_add_nil_l; reflexivity.
+ revert i.
+ induction lb as [| b]; intros; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hlab.
+ destruct Hlab as (Hb, Hlb).
+ constructor; [ rewrite Hb; apply mul_int_0_l | idtac ].
+ apply IHlb; assumption.
 
  destruct lb as [| b].
-  rewrite list_derifact_nil, list_add_nil_r; reflexivity.
+  simpl.
+  apply list_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  constructor; [ rewrite Ha; apply mul_int_0_l | idtac ].
+  rewrite IHla with (lb := []); [ reflexivity | eassumption ].
 
-  destruct k; simpl.
-   rewrite list_derifact_0.
-   do 2 rewrite fld_add_0_l.
-   constructor; [ reflexivity | idtac ].
-   rewrite <- coeff_list_deriv_add.
-   rewrite coeff_list_deriv_0_l.
-   reflexivity.
+  apply list_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  rewrite Hab; simpl.
+  rewrite IHla; [ reflexivity | eassumption ].
+Qed.
 
-   unfold list_derifact.
-   simpl.
-   rewrite <- coeff_list_deriv_add.
-   unfold list_derifact in IHla.
-bbb.
+Lemma list_skipn_add : ∀ α (f : field α) k la lb,
+  list_eq f (List.skipn k (list_add f la lb))
+    (list_add f (List.skipn k la) (List.skipn k lb)).
+Proof.
+intros α f k la lb.
+revert la lb.
+induction k; intros; [ rewrite list_skipn_0; reflexivity | simpl ].
+destruct la as [| a]; [ reflexivity | simpl ].
+destruct lb as [| b]; [ simpl | apply IHk ].
+rewrite list_add_nil_r; reflexivity.
+Qed.
+
+Lemma list_derifact_add : ∀ α (f : field α) la lb k,
+  list_eq f
+    (list_derifact f k (list_add f la lb))
+    (list_add f (list_derifact f k la) (list_derifact f k lb)).
+Proof.
+intros α f la lb k.
+unfold list_derifact.
+rewrite list_skipn_add.
+rewrite coeff_list_deriv_add.
+reflexivity.
+Qed.
 
 Lemma list_nth_fld_eq : ∀ α (f : field α) la lb n,
   list_eq f la lb → (List.nth n la .0 f .= f List.nth n lb .0 f)%K.
@@ -319,42 +352,6 @@ rewrite Nat.add_comm.
 apply list_convol_mul_morph; try assumption; reflexivity.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (mul_int f)
-  with signature fld_eq f ==> eq ==> fld_eq f
-  as mul_int_morph.
-Proof.
-intros a b Hab n.
-induction n; [ reflexivity | simpl ].
-rewrite IHn, Hab; reflexivity.
-Qed.
-
-Add Parametric Morphism α (f : field α) : (coeff_list_deriv f)
-  with signature list_eq f ==> eq ==> eq ==> list_eq f
-  as coeff_list_deriv_morph.
-Proof.
-intros la lb Hlab n i.
-revert lb Hlab n i.
-induction la as [| a]; intros; simpl.
- revert i.
- induction lb as [| b]; intros; [ reflexivity | simpl ].
- apply list_eq_nil_cons_inv in Hlab.
- destruct Hlab as (Hb, Hlb).
- constructor; [ rewrite Hb; apply mul_int_0_l | idtac ].
- apply IHlb; assumption.
-
- destruct lb as [| b].
-  simpl.
-  apply list_eq_cons_nil_inv in Hlab.
-  destruct Hlab as (Ha, Hla).
-  constructor; [ rewrite Ha; apply mul_int_0_l | idtac ].
-  rewrite IHla with (lb := []); [ reflexivity | eassumption ].
-
-  apply list_eq_cons_inv in Hlab.
-  destruct Hlab as (Hab, Hlab).
-  rewrite Hab; simpl.
-  rewrite IHla; [ reflexivity | eassumption ].
-Qed.
-
 Add Parametric Morphism α (f : field α) : (list_compose f)
   with signature list_eq f ==> list_eq f ==> list_eq f
   as list_compose_morph.
@@ -368,7 +365,7 @@ induction la as [| a]; intros.
  simpl in IHlb.
  assert (list_eq f [b] []) as H by (rewrite Hb; constructor; reflexivity).
  rewrite H; clear H.
- rewrite list_add_0_r.
+ rewrite list_add_nil_r.
  rewrite <- IHlb; [ rewrite list_mul_0_l; reflexivity | assumption ].
 
  simpl.
@@ -377,7 +374,7 @@ induction la as [| a]; intros.
   destruct Hlab as (Ha, Hla).
   assert (list_eq f [a] []) as H by (rewrite Ha; constructor; reflexivity).
   rewrite H; clear H.
-  rewrite list_add_0_r.
+  rewrite list_add_nil_r.
   rewrite IHla; try eassumption; simpl.
   rewrite list_mul_0_l; reflexivity.
 
@@ -454,9 +451,6 @@ induction la as [| a]; intros.
 bbb.
 *)
 
-Lemma comb_0_r : ∀ n, comb n 0 = 1%nat.
-Proof. intros n; destruct n; reflexivity. Qed.
-
 Lemma coeff_list_0th_deriv : ∀ α (f : field α) la i,
   list_eq f (coeff_list_deriv f la 0 i) la.
 Proof.
@@ -480,11 +474,8 @@ revert la b.
 induction k; intros.
  do 2 rewrite list_0th_deriv; reflexivity.
 
- induction la as [| a].
-  simpl.
-  apply list_derifact_nil_r.
-
-  simpl.
+ induction la as [| a]; [ apply list_derifact_nil | simpl ].
+ rewrite list_derifact_add.
 bbb.
 
 intros α f k la b.
