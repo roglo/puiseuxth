@@ -317,7 +317,23 @@ induction la as [| a]; intros.
  assert (list_eq f [b] []) as H by (rewrite Hb; constructor; reflexivity).
  rewrite H; clear H.
  rewrite list_add_0_r.
- rewrite <- IHlb.
+ rewrite <- IHlb; [ rewrite list_mul_0_l; reflexivity | assumption ].
+
+ simpl.
+ induction lb as [| b].
+  simpl.
+  apply list_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  assert (list_eq f [a] []) as H by (rewrite Ha; constructor; reflexivity).
+  rewrite H; clear H.
+  rewrite list_add_0_r.
+  rewrite IHla; try eassumption; simpl.
+  rewrite list_mul_0_l; reflexivity.
+
+  simpl.
+  apply list_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  rewrite Hab.
 bbb.
 
 Lemma list_deriv_convol_mul : ∀ α (f : field α) la lb i j k len,

@@ -851,6 +851,18 @@ rewrite poly_mul_comm.
 apply poly_mul_1_l.
 Qed.
 
+Lemma list_mul_0_l : ∀ la, list_eq f (list_mul f [] la) [].
+Proof.
+intros la.
+apply list_convol_mul_nil_l.
+Qed.
+
+Lemma list_mul_0_r : ∀ la, list_eq f (list_mul f la []) [].
+Proof.
+intros la.
+apply list_convol_mul_nil_r.
+Qed.
+
 End poly.
 
 (* Horner's algorithm *)
