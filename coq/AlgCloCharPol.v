@@ -320,8 +320,7 @@ induction la as [| a]; intros.
  rewrite <- IHlb; [ rewrite list_mul_0_l; reflexivity | assumption ].
 
  simpl.
- induction lb as [| b].
-  simpl.
+ destruct lb as [| b]; simpl.
   apply list_eq_cons_nil_inv in Hlab.
   destruct Hlab as (Ha, Hla).
   assert (list_eq f [a] []) as H by (rewrite Ha; constructor; reflexivity).
@@ -330,11 +329,14 @@ induction la as [| a]; intros.
   rewrite IHla; try eassumption; simpl.
   rewrite list_mul_0_l; reflexivity.
 
-  simpl.
   apply list_eq_cons_inv in Hlab.
   destruct Hlab as (Hab, Hlab).
   rewrite Hab.
-bbb.
+  rewrite IHla; try eassumption.
+  apply list_add_compat; [ idtac | reflexivity ].
+  apply list_mul_compat; [ idtac | assumption ].
+  reflexivity.
+Qed.
 
 Lemma list_deriv_convol_mul : ∀ α (f : field α) la lb i j k len,
   list_eq f
@@ -424,9 +426,8 @@ Proof.
 intros α f k la b.
 revert la b.
 induction k; intros.
- rewrite list_0th_deriv.
+ do 2 rewrite list_0th_deriv; reflexivity.
 bbb.
- rewrite list_0th_deriv.
 
  unfold list_deriv_on_fact.
  rewrite list_skipn_0; simpl.

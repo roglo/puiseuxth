@@ -541,6 +541,18 @@ destruct (le_dec (length la) j) as [H₁| H₁].
   exfalso; apply H₂; fast_omega H₁.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (list_mul f)
+  with signature list_eq f ==> list_eq f ==> list_eq f
+  as list_mul_morph.
+Proof.
+intros a c Hac b d Hbd.
+unfold list_mul; simpl.
+do 2 rewrite list_convol_mul_more.
+rewrite Hac, Hbd in |- * at 1.
+rewrite Nat.add_comm.
+reflexivity.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (poly_mul f)
   with signature (eq_poly f) ==> (eq_poly f) ==> (eq_poly f)
   as poly_mul_morph.
@@ -602,6 +614,15 @@ Variable α : Type.
 Variable f : field α.
 
 (* addition theorems *)
+
+Lemma list_add_compat : ∀ a b c d,
+  list_eq f a c
+  → list_eq f b d
+    → list_eq f (list_add f a b) (list_add f c d).
+Proof.
+intros a b c d Hac Hbd.
+rewrite Hac, Hbd; reflexivity.
+Qed.
 
 Theorem poly_add_compat : ∀ a b c d,
   (a .= f c)%pol
@@ -679,6 +700,15 @@ Lemma list_add_0_r : ∀ la, list_eq f (list_add f la []) la.
 Proof. intros la; destruct la; reflexivity. Qed.
 
 (* multiplication theorems *)
+
+Lemma list_mul_compat : ∀ a b c d,
+  list_eq f a c
+  → list_eq f b d
+    → list_eq f (list_mul f a b) (list_mul f c d).
+Proof.
+intros a b c d Hac Hbd.
+rewrite Hac, Hbd; reflexivity.
+Qed.
 
 Theorem poly_mul_compat : ∀ a b c d,
   (a .= f c)%pol
