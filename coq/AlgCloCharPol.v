@@ -188,6 +188,18 @@ apply fld_add_compat_l.
 apply fld_add_comm.
 Qed.
 
+Lemma mul_int_add_distr_l : ∀ α (f : field α) a m n,
+  (mul_int f a (m + n) .= f mul_int f a m .+ f mul_int f a n)%K.
+Proof.
+intros α f a m n.
+revert a n.
+induction m; intros; simpl.
+ rewrite fld_add_0_l; reflexivity.
+
+ rewrite IHm.
+ apply fld_add_shuffle0.
+Qed.
+
 Lemma coeff_list_deriv_add : ∀ α (f : field α) la lb n i,
   list_eq f
     (coeff_list_deriv f (list_add f la lb) n i)
@@ -558,7 +570,7 @@ rewrite Nat.sub_0_r.
 rewrite IHn; reflexivity.
 Qed.
 
-Lemma www : ∀ α (f : field α) la i,
+Lemma map_coeff_list_deriv : ∀ α (f : field α) la i,
   list_eq f
     (List.map (λ x : α, (x .+ f x)%K) (coeff_list_deriv f la 2 (S (S i))))
     (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S i))) 1 (S i)).
@@ -578,7 +590,25 @@ induction i.
  remember (S (S i)) as ii.
  simpl; subst ii.
  rewrite Nat_sub_succ_1.
-bbb.
+ rewrite comb_1_r.
+ rewrite mul_int_add_distr_r.
+ remember (comb (S (S i)) 2) as nn eqn:Hnn .
+ simpl in IHi; simpl; symmetry; rewrite <- IHi.
+ rewrite mul_int_add_distr_l.
+ do 7 rewrite fld_add_assoc.
+ do 2 apply fld_add_compat_r.
+ rewrite fld_add_comm.
+ do 7 rewrite <- fld_add_assoc.
+ apply fld_add_compat_l.
+ apply fld_add_compat_l.
+ do 4 rewrite fld_add_assoc.
+ rewrite fld_add_comm.
+ do 3 rewrite <- fld_add_assoc.
+ apply fld_add_compat_l.
+ rewrite fld_add_assoc, fld_add_comm.
+ apply fld_add_compat_l.
+ apply fld_add_comm.
+Qed.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
@@ -601,7 +631,9 @@ destruct k; simpl.
    do 2 rewrite list_skipn_succ_cons.
    rewrite list_skipn_0; clear a.
    destruct la as [| a]; [ reflexivity | simpl; clear a ].
-   apply www.
+   apply map_coeff_list_deriv.
+
+   intros a; rewrite fld_add_0_l; reflexivity.
 bbb.
 
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
