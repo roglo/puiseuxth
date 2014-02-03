@@ -473,6 +473,24 @@ unfold list_derifact; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
 
+Lemma list_derifact_succ' : ∀ α (f : field α) la k,
+  list_eq f (list_derifact f (S k) la)
+    (list_derifact f k (list_derifact f 1 la)).
+Proof.
+intros α f la k.
+revert la.
+induction k; intros; simpl.
+ unfold list_derifact; simpl.
+ destruct la as [| a]; [ reflexivity | simpl ].
+ rewrite coeff_list_deriv_0_l.
+ reflexivity.
+
+ unfold list_derifact at 3.
+ simpl.
+ destruct la as [| a]; simpl.
+  do 2 rewrite list_derifact_nil; reflexivity.
+bbb.
+
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
   list_eq f (list_derifact f (S k) la)
     (list_derifact f 1 (list_derifact f k la)).
@@ -485,9 +503,13 @@ induction k; intros; simpl.
  rewrite coeff_list_deriv_0_l.
  reflexivity.
 
- unfold list_derifact; simpl.
- destruct la as [| a]; [ reflexivity | simpl ].
- unfold list_derifact in IHk; simpl in IHk.
+ unfold list_derifact at 2.
+ simpl.
+ pose proof (IHk la) as H.
+ remember (list_derifact f (S k) la) as lb eqn:Hlb .
+ symmetry in Hlb.
+ destruct lb as [| b].
+  simpl.
 bbb.
 
 Lemma list_derifact_compose : ∀ α (f : field α) k la b,
