@@ -529,6 +529,15 @@ destruct k.
    reflexivity.
 Qed.
 
+Lemma list_eq_map_ext : ∀ α (f : field α) A g h,
+   (∀ a : A, fld_eq f (g a) (h a))
+   → ∀ la, list_eq f (List.map g la) (List.map h la).
+Proof.
+intros α f A g h Hgh la.
+induction la as [| a]; [ reflexivity | simpl ].
+constructor; [ apply Hgh | assumption ].
+Qed.
+
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ g, mul_int f g (S k)) (list_derifact f (S k) la))
     (list_derifact f k (list_derifact f 1 la)).
@@ -540,51 +549,19 @@ destruct la as [| a]; simpl.
 
  clear.
  destruct k; simpl.
-  destruct la as [| a]; [ reflexivity | simpl ].
-  constructor; [ reflexivity | idtac ].
-  rewrite coeff_list_deriv_0_l.
-  induction (coeff_list_deriv f la 1 2) as [| x l]; [ reflexivity | simpl ].
-  rewrite fld_add_0_l; constructor; [ reflexivity | assumption ].
+  rewrite list_eq_map_ext with (h := λ x, x).
+   rewrite List.map_id.
+   rewrite coeff_list_deriv_0_l; reflexivity.
 
-  destruct k; simpl.
-bbb.
-
-
-intros α f la k.
-unfold list_derifact; simpl.
-destruct la as [| a]; simpl.
- rewrite list_skipn_nil; reflexivity.
-
- clear.
- destruct k; simpl.
-  destruct la as [| a]; [ reflexivity | simpl ].
-  constructor; [ reflexivity | idtac ].
-  rewrite coeff_list_deriv_0_l.
-  induction (coeff_list_deriv f la 1 2) as [| x l]; [ reflexivity | simpl ].
-  rewrite fld_add_0_l; constructor; [ reflexivity | assumption ].
-
-  destruct k; simpl.
-   destruct la; [ reflexivity | simpl ].
-   repeat rewrite fld_add_0_l; simpl; clear.
-   destruct la; [ reflexivity | simpl ].
-   repeat rewrite fld_add_0_l; simpl; clear.
-   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
-   destruct la; [ reflexivity | simpl ].
-   repeat rewrite fld_add_0_l; simpl; clear.
-   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
-   destruct la; [ reflexivity | simpl ].
-   repeat rewrite fld_add_0_l; simpl; clear.
-   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
-   destruct la; [ reflexivity | simpl ].
-   repeat rewrite fld_add_0_l; simpl; clear.
-   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
+   intros a; rewrite fld_add_0_l; reflexivity.
 bbb.
 
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
-  list_eq f (list_derifact f (S k) la)
+  list_eq f (List.map (λ g, mul_int f g (S k)) (list_derifact f (S k) la))
     (list_derifact f 1 (list_derifact f k la)).
 Proof.
 intros α f la k.
+bbb.
 revert la.
 induction k; intros; simpl.
  unfold list_derifact; simpl.
