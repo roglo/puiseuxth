@@ -632,21 +632,14 @@ revert n i.
 induction la as [| a]; intros; [ reflexivity | idtac ].
 remember (S n) as sn; simpl; subst sn.
 constructor; [ clear | do 2 rewrite <- Nat.add_succ_r; apply IHla ].
-revert n.
-induction i; intros.
- simpl.
- do 2 rewrite Nat.add_comm, Nat.add_sub.
- rewrite Nat.add_0_r.
- rewrite comb_0_r, comb_id.
- destruct n; [ reflexivity | idtac ].
- rewrite comb_1_r.
- do 2 rewrite mul_int_1_r.
+rewrite Nat.add_succ_l, comb_1_r.
+induction i; intros; simpl.
+ rewrite Nat.add_comm, Nat.add_sub; simpl.
+ rewrite fld_add_0_l.
+ rewrite comb_id, mul_int_1_r.
  reflexivity.
 
- simpl.
  rewrite Nat.add_comm, Nat.add_sub.
- rewrite Nat.sub_0_r.
- rewrite comb_0_r.
  remember (comb (S i + n)) as x; simpl; subst x.
 bbb.
 
