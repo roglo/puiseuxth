@@ -538,26 +538,44 @@ induction la as [| a]; [ reflexivity | simpl ].
 constructor; [ apply Hgh | assumption ].
 Qed.
 
+Lemma list_skipn_succ_cons : ∀ A (a : A) la k,
+  List.skipn (S k) [a … la] = List.skipn k la.
+Proof. reflexivity. Qed.
+
+Lemma www : ∀ α (f : field α) la n i,
+  list_eq f
+    (List.map (λ x : α, (x .+ f x)%K) (coeff_list_deriv f la (S n) (S i)))
+    (coeff_list_deriv f (coeff_list_deriv f la 1 (S i)) n i).
+Proof.
+intros α f la n i.
+revert n i.
+induction la as [| a]; intros; [ reflexivity | idtac ].
+remember (S i) as ii; simpl; subst ii.
+constructor; [ clear | apply IHla ].
+bbb.
+
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
     (list_derifact f k (list_derifact f 1 la)).
 Proof.
 intros α f la k.
-unfold list_derifact; simpl.
-destruct la as [| a]; simpl.
- rewrite list_skipn_nil; reflexivity.
+destruct k; simpl.
+ rewrite list_eq_map_ext with (h := λ x, x).
+  rewrite List.map_id.
+  unfold list_derifact.
+  rewrite coeff_list_deriv_0_l; reflexivity.
 
- clear.
- revert la.
- induction k; intros.
-  rewrite list_eq_map_ext with (h := λ x, x).
-   rewrite List.map_id.
-   rewrite coeff_list_deriv_0_l; reflexivity.
+  intros a; rewrite fld_add_0_l; reflexivity.
 
-   intros a; rewrite fld_add_0_l; reflexivity.
-
+ destruct k.
   simpl.
-  destruct la as [| a]; [ reflexivity | simpl; clear a ].
+  rewrite list_eq_map_ext with (h := (λ x, x .+ f x)%K).
+   unfold list_derifact.
+   destruct la as [| a]; [ reflexivity | idtac ].
+   do 2 rewrite list_skipn_succ_cons.
+   rewrite list_skipn_0; clear a.
+   destruct la as [| a]; [ reflexivity | simpl; clear a ].
+   apply www.
 bbb.
 
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
