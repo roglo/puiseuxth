@@ -504,31 +504,30 @@ Add Parametric Morphism α (f : field α) : (list_derifact f)
   as list_derifact_morph.
 Proof.
 intros k la lb Hlab.
-bbb.
-revert la lb Hlab.
-induction k; intros.
- do 2 rewrite list_derifact_0; assumption.
+unfold list_derifact.
+destruct k.
+ do 2 rewrite list_skipn_0; simpl.
+ do 2 rewrite coeff_list_deriv_0_l; assumption.
 
+ simpl.
  destruct la as [| a]; simpl.
-  rewrite list_derifact_nil.
-  revert Hlab; clear; intros.
-  revert k.
-  induction lb as [| b]; intros.
-   rewrite list_derifact_nil; reflexivity.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  apply list_eq_nil_cons_inv in Hlab.
+  destruct Hlab as (Hb, Hlb).
+  rewrite <- Hlb, list_skipn_nil.
+  reflexivity.
 
-   apply list_eq_nil_cons_inv in Hlab.
-   destruct Hlab as (Hb, Hlb).
-   unfold list_derifact; simpl.
-   apply IHlb with (k := k) in Hlb.
-   unfold list_derifact in Hlb.
-   simpl in Hlb.
-   destruct lb as [| b₁].
-    simpl in Hlb.
-    simpl.
-    rewrite list_skipn_nil.
-    simpl.
-    reflexivity.
-bbb.
+  destruct lb as [| b]; simpl.
+   apply list_eq_cons_nil_inv in Hlab.
+   destruct Hlab as (Ha, Hla).
+   rewrite Hla, list_skipn_nil.
+   reflexivity.
+
+   apply list_eq_cons_inv in Hlab.
+   destruct Hlab as (Hab, Hlab).
+   rewrite Hlab.
+   reflexivity.
+Qed.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (list_derifact f (S k) la)
