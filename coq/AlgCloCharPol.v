@@ -572,7 +572,7 @@ Qed.
 
 Lemma map_coeff_list_deriv : ∀ α (f : field α) la i,
   list_eq f
-    (List.map (λ x : α, (x .+ f x)%K) (coeff_list_deriv f la 2 (S (S i))))
+    (List.map (λ x, mul_int f x 2) (coeff_list_deriv f la 2 (S (S i))))
     (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S i))) 1 (S i)).
 Proof.
 intros α f la i.
@@ -585,8 +585,10 @@ constructor; [ clear | apply IHla ].
 do 2 rewrite comb_1_r.
 induction i.
  simpl.
- do 2 rewrite fld_add_0_l; reflexivity.
+ do 3 rewrite fld_add_0_l; reflexivity.
 
+ rewrite fld_add_0_l in IHi.
+ rewrite fld_add_0_l.
  remember (S (S i)) as ii.
  simpl; subst ii.
  rewrite Nat_sub_succ_1.
@@ -610,6 +612,14 @@ induction i.
  apply fld_add_comm.
 Qed.
 
+Lemma map_coeff_list_deriv3 : ∀ α (f : field α) la i,
+  list_eq f
+    (List.map (λ x, mul_int f x 3) (coeff_list_deriv f la 3 (S (S (S i)))))
+    (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S (S i)))) 2 (S (S i))).
+Proof.
+intros α f la i.
+bbb.
+
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
     (list_derifact f k (list_derifact f 1 la)).
@@ -625,15 +635,22 @@ destruct k; simpl.
 
  destruct k.
   simpl.
-  rewrite list_eq_map_ext with (h := (λ x, x .+ f x)%K).
+  unfold list_derifact.
+  destruct la as [| a]; [ reflexivity | idtac ].
+  do 2 rewrite list_skipn_succ_cons.
+  rewrite list_skipn_0; clear a.
+  destruct la as [| a]; [ reflexivity | simpl; clear a ].
+  apply map_coeff_list_deriv.
+
+  destruct k.
+   simpl.
    unfold list_derifact.
    destruct la as [| a]; [ reflexivity | idtac ].
    do 2 rewrite list_skipn_succ_cons.
    rewrite list_skipn_0; clear a.
    destruct la as [| a]; [ reflexivity | simpl; clear a ].
-   apply map_coeff_list_deriv.
-
-   intros a; rewrite fld_add_0_l; reflexivity.
+   destruct la as [| a]; [ reflexivity | simpl; clear a ].
+   apply map_coeff_list_deriv3.
 bbb.
 
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
