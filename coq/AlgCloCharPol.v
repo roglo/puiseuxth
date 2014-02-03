@@ -633,6 +633,7 @@ induction la as [| a]; intros; [ reflexivity | idtac ].
 remember (S n) as sn; simpl; subst sn.
 constructor; [ clear | do 2 rewrite <- Nat.add_succ_r; apply IHla ].
 rewrite Nat.add_succ_l, comb_1_r.
+revert n.
 induction i; intros; simpl.
  rewrite Nat.add_comm, Nat.add_sub; simpl.
  rewrite fld_add_0_l.
@@ -640,7 +641,15 @@ induction i; intros; simpl.
  reflexivity.
 
  rewrite Nat.add_comm, Nat.add_sub.
- remember (comb (S i + n)) as x; simpl; subst x.
+ replace (S i + n)%nat with (S (n + i)) by omega.
+ pose proof (IHi n) as H.
+ remember (n + i)%nat as ni eqn:Hni .
+ rewrite mul_int_add_distr_l.
+ do 2 rewrite mul_int_add_distr_r.
+ rewrite fld_add_assoc.
+ rewrite fld_add_shuffle0.
+ rewrite fld_add_comm, <- fld_add_assoc.
+ rewrite H.
 bbb.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
