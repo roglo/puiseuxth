@@ -221,24 +221,6 @@ Qed.
 Lemma mul_int_1_r : ∀ α (f : field α) a, (mul_int f a 1 .= f a)%K.
 Proof. intros α f a; simpl; rewrite fld_add_0_l; reflexivity. Qed.
 
-Lemma coeff_list_deriv_0_l : ∀ α (f : field α) la i,
-  list_eq f (coeff_list_deriv f la 0 i) la.
-Proof.
-intros α f la i; revert i.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite comb_0_r, mul_int_1_r.
-constructor; [ reflexivity | apply IHla ].
-Qed.
-
-Lemma list_derifact_0 : ∀ α (f : field α) la,
-  list_eq f (list_derifact f 0 la) la.
-Proof.
-intros α f la.
-unfold list_derifact.
-rewrite list_skipn_0; simpl.
-rewrite coeff_list_deriv_0_l; reflexivity.
-Qed.
-
 Add Parametric Morphism α (f : field α) : (mul_int f)
   with signature fld_eq f ==> eq ==> fld_eq f
   as mul_int_morph.
@@ -451,19 +433,23 @@ induction la as [| a]; intros.
 bbb.
 *)
 
-Lemma coeff_list_0th_deriv : ∀ α (f : field α) la i,
+Lemma coeff_list_deriv_0_l : ∀ α (f : field α) la i,
   list_eq f (coeff_list_deriv f la 0 i) la.
 Proof.
 intros α f la i; revert i.
 induction la as [| a]; intros; [ reflexivity | simpl ].
-constructor; [ idtac | apply IHla ].
-rewrite comb_0_r; simpl.
-rewrite fld_add_0_l; reflexivity.
+rewrite comb_0_r, mul_int_1_r.
+constructor; [ reflexivity | apply IHla ].
 Qed.
 
-Lemma list_0th_deriv : ∀ α (f : field α) la,
+Lemma list_derifact_0 : ∀ α (f : field α) la,
   list_eq f (list_derifact f 0 la) la.
-Proof. intros α f la; apply coeff_list_0th_deriv. Qed.
+Proof.
+intros α f la.
+unfold list_derifact.
+rewrite list_skipn_0; simpl.
+rewrite coeff_list_deriv_0_l; reflexivity.
+Qed.
 
 Lemma list_derifact_succ_1 : ∀ α (f : field α) k a,
   list_eq f (list_derifact f (S k) [a]) [].
@@ -472,6 +458,37 @@ intros α f k a.
 unfold list_derifact; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
+
+Add Parametric Morphism α (f : field α) : (list_derifact f)
+  with signature eq ==> list_eq f ==> list_eq f
+  as list_derifact_morph.
+Proof.
+intros k la lb Hlab.
+bbb.
+revert la lb Hlab.
+induction k; intros.
+ do 2 rewrite list_derifact_0; assumption.
+
+ destruct la as [| a]; simpl.
+  rewrite list_derifact_nil.
+  revert Hlab; clear; intros.
+  revert k.
+  induction lb as [| b]; intros.
+   rewrite list_derifact_nil; reflexivity.
+
+   apply list_eq_nil_cons_inv in Hlab.
+   destruct Hlab as (Hb, Hlb).
+   unfold list_derifact; simpl.
+   apply IHlb with (k := k) in Hlb.
+   unfold list_derifact in Hlb.
+   simpl in Hlb.
+   destruct lb as [| b₁].
+    simpl in Hlb.
+    simpl.
+    rewrite list_skipn_nil.
+    simpl.
+    reflexivity.
+bbb.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (list_derifact f (S k) la)
@@ -484,6 +501,12 @@ induction k; intros; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
  rewrite coeff_list_deriv_0_l.
  reflexivity.
+
+ clear IHla.
+ destruct la as [| a₂]; simpl.
+  rewrite list_derifact_succ_1.
+bbb.
+> rewrite list_derifact_succ_1.
 
  unfold list_derifact at 3.
  simpl.
