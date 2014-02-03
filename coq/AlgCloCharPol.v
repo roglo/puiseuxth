@@ -530,27 +530,54 @@ destruct k.
 Qed.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
-  list_eq f (list_derifact f (S k) la)
+  list_eq f (List.map (λ g, mul_int f g (S k)) (list_derifact f (S k) la))
     (list_derifact f k (list_derifact f 1 la)).
 Proof.
 intros α f la k.
-revert la.
-induction k; intros; simpl.
- unfold list_derifact; simpl.
- destruct la as [| a]; [ reflexivity | simpl ].
- rewrite coeff_list_deriv_0_l.
- reflexivity.
+unfold list_derifact; simpl.
+destruct la as [| a]; simpl.
+ rewrite list_skipn_nil; reflexivity.
 
- clear IHla.
- destruct la as [| a₂]; simpl.
-  rewrite list_derifact_succ_1.
+ clear.
+ destruct k; simpl.
+  destruct la as [| a]; [ reflexivity | simpl ].
+  constructor; [ reflexivity | idtac ].
+  rewrite coeff_list_deriv_0_l.
+  induction (coeff_list_deriv f la 1 2) as [| x l]; [ reflexivity | simpl ].
+  rewrite fld_add_0_l; constructor; [ reflexivity | assumption ].
+
+  destruct k; simpl.
 bbb.
-> rewrite list_derifact_succ_1.
 
- unfold list_derifact at 3.
- simpl.
- destruct la as [| a]; simpl.
-  do 2 rewrite list_derifact_nil; reflexivity.
+
+intros α f la k.
+unfold list_derifact; simpl.
+destruct la as [| a]; simpl.
+ rewrite list_skipn_nil; reflexivity.
+
+ clear.
+ destruct k; simpl.
+  destruct la as [| a]; [ reflexivity | simpl ].
+  constructor; [ reflexivity | idtac ].
+  rewrite coeff_list_deriv_0_l.
+  induction (coeff_list_deriv f la 1 2) as [| x l]; [ reflexivity | simpl ].
+  rewrite fld_add_0_l; constructor; [ reflexivity | assumption ].
+
+  destruct k; simpl.
+   destruct la; [ reflexivity | simpl ].
+   repeat rewrite fld_add_0_l; simpl; clear.
+   destruct la; [ reflexivity | simpl ].
+   repeat rewrite fld_add_0_l; simpl; clear.
+   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
+   destruct la; [ reflexivity | simpl ].
+   repeat rewrite fld_add_0_l; simpl; clear.
+   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
+   destruct la; [ reflexivity | simpl ].
+   repeat rewrite fld_add_0_l; simpl; clear.
+   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
+   destruct la; [ reflexivity | simpl ].
+   repeat rewrite fld_add_0_l; simpl; clear.
+   constructor; [ repeat rewrite fld_add_assoc; reflexivity | idtac ].
 bbb.
 
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
