@@ -646,10 +646,9 @@ induction i; intros; simpl.
  remember (n + i)%nat as ni eqn:Hni .
  rewrite mul_int_add_distr_l.
  do 2 rewrite mul_int_add_distr_r.
- rewrite fld_add_assoc.
- rewrite fld_add_shuffle0.
- rewrite fld_add_comm, <- fld_add_assoc.
- rewrite H.
+ rewrite fld_add_assoc, fld_add_comm.
+ do 2 rewrite fld_add_assoc.
+ apply fld_add_compat_r.
 bbb.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
