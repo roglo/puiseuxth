@@ -618,8 +618,25 @@ Lemma map_coeff_list_deriv3 : ∀ α (f : field α) la i,
     (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S (S i)))) 2 (S (S i))).
 Proof.
 intros α f la i.
+Abort. (*
 bbb.
 *)
+
+Lemma map_coeff_list_deriv : ∀ α (f : field α) la n i,
+  list_eq f
+    (List.map (λ x, mul_int f x (S n)) (coeff_list_deriv f la (S n) (S n + i)))
+    (coeff_list_deriv f (coeff_list_deriv f la 1 (S n + i)) n (n + i)).
+Proof.
+intros α f la n i.
+revert la i.
+induction n; intros.
+ simpl.
+ rewrite coeff_list_deriv_0_l.
+ rewrite list_eq_map_ext.
+  rewrite List.map_id; reflexivity.
+
+  intros a; rewrite fld_add_0_l; reflexivity.
+bbb.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
