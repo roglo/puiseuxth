@@ -570,7 +570,7 @@ rewrite Nat.sub_0_r.
 rewrite IHn; reflexivity.
 Qed.
 
-Lemma map_coeff_list_deriv : ∀ α (f : field α) la i,
+Lemma map_coeff_list_deriv2 : ∀ α (f : field α) la i,
   list_eq f
     (List.map (λ x, mul_int f x 2) (coeff_list_deriv f la 2 (S (S i))))
     (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S i))) 1 (S i)).
@@ -619,6 +619,7 @@ Lemma map_coeff_list_deriv3 : ∀ α (f : field α) la i,
 Proof.
 intros α f la i.
 bbb.
+*)
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
@@ -640,7 +641,7 @@ destruct k; simpl.
   do 2 rewrite list_skipn_succ_cons.
   rewrite list_skipn_0; clear a.
   destruct la as [| a]; [ reflexivity | simpl; clear a ].
-  apply map_coeff_list_deriv.
+  apply map_coeff_list_deriv2.
 
   destruct k.
    simpl.
