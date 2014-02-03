@@ -628,14 +628,26 @@ Lemma map_coeff_list_deriv : ∀ α (f : field α) la n i,
     (coeff_list_deriv f (coeff_list_deriv f la 1 (S n + i)) n (n + i)).
 Proof.
 intros α f la n i.
-revert la i.
-induction n; intros.
+revert n i.
+induction la as [| a]; intros; [ reflexivity | idtac ].
+remember (S n) as sn; simpl; subst sn.
+constructor; [ clear | do 2 rewrite <- Nat.add_succ_r; apply IHla ].
+revert n.
+induction i; intros.
  simpl.
- rewrite coeff_list_deriv_0_l.
- rewrite list_eq_map_ext.
-  rewrite List.map_id; reflexivity.
+ do 2 rewrite Nat.add_comm, Nat.add_sub.
+ rewrite Nat.add_0_r.
+ rewrite comb_0_r, comb_id.
+ destruct n; [ reflexivity | idtac ].
+ rewrite comb_1_r.
+ do 2 rewrite mul_int_1_r.
+ reflexivity.
 
-  intros a; rewrite fld_add_0_l; reflexivity.
+ simpl.
+ rewrite Nat.add_comm, Nat.add_sub.
+ rewrite Nat.sub_0_r.
+ rewrite comb_0_r.
+ remember (comb (S i + n)) as x; simpl; subst x.
 bbb.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
