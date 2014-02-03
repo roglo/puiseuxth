@@ -542,16 +542,42 @@ Lemma list_skipn_succ_cons : ∀ A (a : A) la k,
   List.skipn (S k) [a … la] = List.skipn k la.
 Proof. reflexivity. Qed.
 
-Lemma www : ∀ α (f : field α) la n i,
-  list_eq f
-    (List.map (λ x : α, (x .+ f x)%K) (coeff_list_deriv f la (S n) (S i)))
-    (coeff_list_deriv f (coeff_list_deriv f la 1 (S i)) n i).
+Lemma comb_id : ∀ n, comb n n = 1%nat.
 Proof.
-intros α f la n i.
-revert n i.
+intros n.
+destruct n; [ reflexivity | simpl ].
+rewrite Nat.sub_diag; reflexivity.
+Qed.
+
+Lemma comb_1_r : ∀ n, comb (S n) 1 = S n%nat.
+Proof.
+intros n.
+induction n; [ reflexivity | idtac ].
+remember (S n) as x; simpl; subst x.
+rewrite Nat.sub_0_r.
+rewrite IHn; reflexivity.
+Qed.
+
+Lemma www : ∀ α (f : field α) la i,
+  list_eq f
+    (List.map (λ x : α, (x .+ f x)%K) (coeff_list_deriv f la 2 (S (S i))))
+    (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S i))) 1 (S i)).
+Proof.
+intros α f la i.
+revert i.
 induction la as [| a]; intros; [ reflexivity | idtac ].
-remember (S i) as ii; simpl; subst ii.
+remember (S i) as ii.
+remember (S ii) as iii.
+simpl; subst.
 constructor; [ clear | apply IHla ].
+do 2 rewrite comb_1_r.
+induction i.
+ simpl.
+ do 2 rewrite fld_add_0_l; reflexivity.
+
+ remember (S (S i)) as ii.
+ simpl; subst ii.
+ rewrite Nat_sub_succ_1.
 bbb.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
