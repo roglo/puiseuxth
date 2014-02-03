@@ -459,6 +459,46 @@ unfold list_derifact; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
 
+Lemma list_skipn_is_nil : ∀ α (f : field α) la n,
+  list_eq f la []
+  → list_eq f (List.skipn n la) [].
+Proof.
+intros α f la n Heq.
+revert n.
+induction la as [| a]; intros.
+ rewrite list_skipn_nil; reflexivity.
+
+ destruct n; [ assumption | simpl ].
+ apply list_eq_cons_nil_inv in Heq.
+ destruct Heq as (Ha, Hla).
+ apply IHla; assumption.
+Qed.
+
+Add Parametric Morphism α (f : field α) : (@List.skipn α)
+  with signature eq ==> list_eq f ==> list_eq f
+  as list_skipn_morph.
+Proof.
+intros n la lb Hlab.
+revert la lb Hlab.
+induction n; intros.
+ do 2 rewrite list_skipn_0; assumption.
+
+ destruct la as [| a]; simpl.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  symmetry; apply list_skipn_is_nil; symmetry.
+  apply list_eq_nil_cons_inv in Hlab.
+  destruct Hlab; assumption.
+
+  destruct lb as [| b].
+   apply list_skipn_is_nil.
+   apply list_eq_cons_nil_inv in Hlab.
+   destruct Hlab; assumption.
+
+   apply IHn.
+   apply list_eq_cons_inv in Hlab.
+   destruct Hlab; assumption.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (list_derifact f)
   with signature eq ==> list_eq f ==> list_eq f
   as list_derifact_morph.
