@@ -539,7 +539,7 @@ constructor; [ apply Hgh | assumption ].
 Qed.
 
 Lemma list_derifact_succ' : ∀ α (f : field α) la k,
-  list_eq f (List.map (λ g, mul_int f g (S k)) (list_derifact f (S k) la))
+  list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
     (list_derifact f k (list_derifact f 1 la)).
 Proof.
 intros α f la k.
@@ -548,12 +548,16 @@ destruct la as [| a]; simpl.
  rewrite list_skipn_nil; reflexivity.
 
  clear.
- destruct k; simpl.
+ revert la.
+ induction k; intros.
   rewrite list_eq_map_ext with (h := λ x, x).
    rewrite List.map_id.
    rewrite coeff_list_deriv_0_l; reflexivity.
 
    intros a; rewrite fld_add_0_l; reflexivity.
+
+  simpl.
+  destruct la as [| a]; [ reflexivity | simpl; clear a ].
 bbb.
 
 Lemma list_derifact_succ : ∀ α (f : field α) la k,
