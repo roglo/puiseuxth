@@ -644,6 +644,20 @@ intros α f a b m n Hab Hmn.
 rewrite Hab, Hmn; reflexivity.
 Qed.
 
+Lemma comb_succ_l : ∀ n, comb (S n) n = S n.
+Proof.
+intros n.
+induction n; [ reflexivity | idtac ].
+simpl in IHn; simpl.
+destruct n.
+ reflexivity.
+
+ rewrite minus_Sn_n in IHn.
+ rewrite minus_Sn_n.
+ rewrite Nat.sub_diag.
+ rewrite IHn, Nat.add_comm; reflexivity.
+Qed.
+
 Lemma comb_succ_succ : ∀ n k,
   k ≤ n
   → (comb (S n) (S k) * S k = comb n k * (S n))%nat.
