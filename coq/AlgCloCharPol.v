@@ -622,6 +622,56 @@ Abort. (*
 bbb.
 *)
 
+Lemma mul_int_assoc : ∀ α (f : field α) a m n,
+  (mul_int f (mul_int f a m) n .= f mul_int f a (m * n))%K.
+Proof.
+intros α f a m n.
+revert a m.
+induction n; intros; [ rewrite Nat.mul_0_r; reflexivity | simpl ].
+rewrite IHn.
+symmetry.
+rewrite Nat.mul_comm; simpl.
+rewrite mul_int_add_distr_l.
+rewrite fld_add_comm, Nat.mul_comm; reflexivity.
+Qed.
+
+Lemma mul_int_compat : ∀ α (f : field α) a b m n,
+  (a .= f b)%K
+  → (m = n)%nat
+    → (mul_int f a m .= f mul_int f b n)%K.
+Proof.
+intros α f a b m n Hab Hmn.
+rewrite Hab, Hmn; reflexivity.
+Qed.
+
+Lemma comb_succ_succ : ∀ n k,
+  k ≤ n
+  → (comb (S n) (S k) * S k = comb n k * (S n))%nat.
+Proof.
+intros n k Hkn.
+bbb.
+revert k Hkn.
+induction n; intros.
+ apply Nat.le_0_r in Hkn; subst k; reflexivity.
+
+ destruct k.
+  rewrite comb_0_r, Nat.mul_1_l, Nat.mul_1_r.
+  apply comb_1_r.
+
+  apply le_S_n in Hkn.
+  pose proof (IHn k Hkn) as H.
+  simpl.
+  destruct (eq_nat_dec k n) as [H₁| H₁].
+   subst n; rewrite Nat.sub_diag; reflexivity.
+
+   apply le_neq_lt in Hkn; [ idtac | assumption ].
+   remember (n - k)%nat as nk eqn:Hnk .
+   symmetry in Hnk.
+   destruct nk; [ exfalso; omega | idtac ].
+   simpl in H.
+   rewrite Hnk in H.
+bbb.
+
 Lemma map_coeff_list_deriv : ∀ α (f : field α) la n i,
   list_eq f
     (List.map (λ x, mul_int f x (S n)) (coeff_list_deriv f la (S n) (S n + i)))
@@ -633,6 +683,11 @@ induction la as [| a]; intros; [ reflexivity | idtac ].
 remember (S n) as sn; simpl; subst sn.
 constructor; [ clear | do 2 rewrite <- Nat.add_succ_r; apply IHla ].
 rewrite Nat.add_succ_l, comb_1_r.
+do 2 rewrite mul_int_assoc.
+apply mul_int_compat; [ reflexivity | idtac ].
+rewrite comb_succ_succ.
+apply Nat.mul_comm.
+bbb.
 revert n.
 induction i; intros; simpl.
  rewrite Nat.add_comm, Nat.add_sub; simpl.
