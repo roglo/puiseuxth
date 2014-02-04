@@ -659,11 +659,33 @@ destruct n.
 Qed.
 
 Lemma comb_succ_succ : ∀ n k,
+  (k < n)%nat
+  → comb (S n) (S k) = (comb n k + comb n (S k))%nat.
+Proof.
+intros n k Hk.
+destruct k.
+ rewrite comb_1_r, comb_0_r; simpl.
+ destruct n; [ exfalso; omega | idtac ].
+ rewrite comb_1_r; reflexivity.
+
+ simpl.
+ remember (n - S k)%nat as nk eqn:Hnk .
+ destruct nk; [ exfalso; omega | reflexivity ].
+Qed.
+
+Lemma comb_succ_succ_mul : ∀ n k,
   k ≤ n
   → (comb (S n) (S k) * S k = comb n k * (S n))%nat.
 Proof.
 intros n k Hkn.
+destruct (eq_nat_dec k n) as [H₁| H₁].
+ subst k.
+ do 2 rewrite comb_id; reflexivity.
+
+ apply le_neq_lt in Hkn; [ idtac | assumption ].
+ rewrite comb_succ_succ; [ idtac | assumption ].
 bbb.
+intros n k Hkn.
 revert k Hkn.
 induction n; intros.
  apply Nat.le_0_r in Hkn; subst k; reflexivity.
@@ -699,7 +721,7 @@ constructor; [ clear | do 2 rewrite <- Nat.add_succ_r; apply IHla ].
 rewrite Nat.add_succ_l, comb_1_r.
 do 2 rewrite mul_int_assoc.
 apply mul_int_compat; [ reflexivity | idtac ].
-rewrite comb_succ_succ.
+rewrite comb_succ_succ_mul.
 apply Nat.mul_comm.
 bbb.
 revert n.
