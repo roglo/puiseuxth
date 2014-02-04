@@ -572,13 +572,11 @@ Lemma list_skipn_succ_cons : ∀ A (a : A) la k,
   List.skipn (S k) [a … la] = List.skipn k la.
 Proof. reflexivity. Qed.
 
-Lemma comb_1_r : ∀ n, comb (S n) 1 = S n%nat.
+Lemma comb_1_r : ∀ n, comb n 1 = n.
 Proof.
 intros n.
-induction n; [ reflexivity | idtac ].
-remember (S n) as x; simpl; subst x.
-rewrite comb_0_r, Nat.add_1_l.
-apply Nat.succ_inj_wd; assumption.
+induction n; [ reflexivity | simpl ].
+rewrite comb_0_r, IHn; reflexivity.
 Qed.
 
 Lemma map_coeff_list_deriv2 : ∀ α (f : field α) la i,
@@ -663,24 +661,33 @@ rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
 Qed.
 
 Lemma comb_succ_succ : ∀ n k,
-  (k < n)%nat
-  → comb (S n) (S k) = (comb n k + comb n (S k))%nat.
-Proof.
-intros n k Hk.
-destruct k.
- rewrite comb_1_r, comb_0_r; simpl.
- destruct n; [ exfalso; omega | idtac ].
- rewrite comb_1_r; reflexivity.
+  comb (S n) (S k) = (comb n k + comb n (S k))%nat.
+Proof. intros; reflexivity. Qed.
 
- simpl.
- remember (n - S k)%nat as nk eqn:Hnk .
- destruct nk; [ exfalso; omega | reflexivity ].
-Qed.
+Lemma comb_add_l : ∀ n k, comb (n + k) k = comb n k.
+Proof.
+intros n k.
+bbb.
 
 Lemma comb_add_succ_mul : ∀ n k,
-  1 ≤ n
-  → (comb (n + k) (S k) * S k = comb (n + k) k * n)%nat.
+  (comb (n + k) (S k) * S k = comb (n + k) k * n)%nat.
 Proof.
+intros n k.
+bbb.
+revert k.
+induction n; intros.
+ rewrite comb_lt; [ idtac | omega ].
+ rewrite Nat.mul_0_l, Nat.mul_0_r; reflexivity.
+
+ rewrite Nat.add_succ_l, comb_succ_succ.
+ rewrite Nat.mul_add_distr_r.
+ rewrite IHn.
+ rewrite <- Nat.mul_add_distr_l.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+ rewrite Nat.mul_add_distr_l.
+ rewrite <- Nat.add_succ_r.
+bbb.
+
 intros n k Hn.
 destruct (eq_nat_dec (n + k) (S k)) as [H₁| H₁].
  rewrite <- Nat.add_1_l in H₁.
