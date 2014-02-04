@@ -664,7 +664,38 @@ Lemma comb_succ_succ : ∀ n k,
   comb (S n) (S k) = (comb n k + comb n (S k))%nat.
 Proof. intros; reflexivity. Qed.
 
-Lemma comb_add_l : ∀ n k, comb (n + k) k = comb n k.
+Lemma comb_sub : ∀ n k, k ≤ n → comb n (n - k) = comb n k.
+Proof.
+intros n k Hkn.
+destruct k.
+ rewrite Nat.sub_0_r, comb_id, comb_0_r; reflexivity.
+
+ destruct k.
+  rewrite comb_1_r.
+  destruct n; [ exfalso; omega | simpl ].
+  rewrite Nat.sub_0_r.
+  destruct n; [ reflexivity | simpl ].
+  rewrite comb_id, comb_lt.
+   2: omega.
+
+   rewrite Nat.add_0_r, Nat.add_comm.
+   apply eq_S.
+   destruct n.
+    reflexivity.
+
+    clear.
+    rewrite Nat.add_1_r.
+    apply eq_S.
+    induction n.
+     rewrite comb_0_r; reflexivity.
+
+     remember (S n) as x; simpl; subst x.
+     rewrite IHn, comb_id.
+     rewrite Nat.add_1_r; reflexivity.
+
+bbb.
+
+Lemma comb_add : ∀ n k, comb (n + k) k = comb (n + k) n.
 Proof.
 intros n k.
 bbb.
