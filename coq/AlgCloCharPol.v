@@ -57,13 +57,9 @@ Fixpoint comb n k :=
   match k with
   | 0%nat => 1%nat
   | S k₁ =>
-      match (n - k)%nat with
-      | 0%nat => 1%nat
-      | S _ =>
-          match n with
-          | 0%nat => 0%nat
-          | S n₁ => (comb n₁ k₁ + comb n₁ k)%nat
-          end
+      match n with
+      | 0%nat => 0%nat
+      | S n₁ => (comb n₁ k₁ + comb n₁ k)%nat
       end
   end.
 
@@ -80,17 +76,17 @@ Fixpoint coeff_list_deriv α (f : field α) la n i :=
       [mul_int f a₁ (comb i n) … coeff_list_deriv f la₁ n (S i)]
   end.
 
-Definition list_derifact α (f : field α) n la :=
+Definition list_derivial α (f : field α) n la :=
   coeff_list_deriv f (List.skipn n la) n n.
 
-Definition poly_derifact α (f : field α) n pol :=
-  (POL (list_derifact f n (al pol)))%pol.
+Definition poly_derivial α (f : field α) n pol :=
+  (POL (list_derivial f n (al pol)))%pol.
 
 Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
   match cnt with
   | 0%nat => []
   | S cnt₁ =>
-      [apply_list f (list_derifact f n la) c …
+      [apply_list f (list_derivial f n la) c …
        coeff_taylor_list f cnt₁ la c (S n)]
   end.
 
@@ -109,8 +105,33 @@ destruct la as [| a]; [ reflexivity | simpl ].
 rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
+Lemma comb_lt : ∀ n k, (n < k)%nat → comb n k = 0%nat.
+Proof.
+intros n k Hnk.
+revert k Hnk.
+induction n; intros; simpl.
+ destruct k; [ exfalso; omega | reflexivity ].
+
+ destruct k; [ exfalso; omega | idtac ].
+ apply Nat.succ_lt_mono in Hnk.
+ rewrite IHn; [ idtac | assumption ].
+ rewrite IHn; [ reflexivity | idtac ].
+ apply Nat.lt_lt_succ_r; assumption.
+Qed.
+
+Lemma comb_id : ∀ n, comb n n = 1%nat.
+Proof.
+intros n.
+induction n; [ reflexivity | simpl ].
+rewrite IHn, comb_lt; [ idtac | apply Nat.lt_succ_r; reflexivity ].
+rewrite Nat.add_0_r; reflexivity.
+Qed.
+
+Lemma mul_int_1_r : ∀ α (f : field α) a, (mul_int f a 1 .= f a)%K.
+Proof. intros α f a; simpl; rewrite fld_add_0_l; reflexivity. Qed.
+
 Theorem taylor_coeff_0 : ∀ α (f : field α) la k,
-  (apply_list f (list_derifact f k la) .0 f .= f
+  (apply_list f (list_derivial f k la) .0 f .= f
    List.nth k la .0 f)%K.
 Proof.
 intros α f la k.
@@ -119,7 +140,7 @@ destruct k.
  destruct la; [ reflexivity | simpl ].
  rewrite fld_add_0_l; reflexivity.
 
- unfold list_derifact; simpl.
+ unfold list_derivial; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
  remember (List.skipn k la) as lb eqn:Hlb .
  symmetry in Hlb.
@@ -127,8 +148,8 @@ destruct k.
   rewrite List.nth_overflow; [ reflexivity | idtac ].
   apply list_skipn_overflow_if; assumption.
 
-  rewrite Nat.sub_diag; simpl.
-  rewrite fld_add_0_l.
+  rewrite comb_id, comb_lt; [ idtac | apply Nat.lt_succ_r; reflexivity ].
+  rewrite Nat.add_0_r, mul_int_1_r.
   erewrite list_skipn_cons_nth; [ reflexivity | eassumption ].
 Qed.
 
@@ -212,11 +233,11 @@ destruct lb as [| b]; [ reflexivity | simpl ].
 constructor; [ apply mul_int_add_distr_r | apply IHla ].
 Qed.
 
-Lemma list_derifact_nil : ∀ α (f : field α) k,
-  list_eq f (list_derifact f k []) [].
+Lemma list_derivial_nil : ∀ α (f : field α) k,
+  list_eq f (list_derivial f k []) [].
 Proof.
 intros α f k.
-unfold list_derifact.
+unfold list_derivial.
 rewrite list_skipn_nil; reflexivity.
 Qed.
 
@@ -229,9 +250,6 @@ intros α f n.
 induction n; [ reflexivity | simpl ].
 rewrite fld_add_0_r; assumption.
 Qed.
-
-Lemma mul_int_1_r : ∀ α (f : field α) a, (mul_int f a 1 .= f a)%K.
-Proof. intros α f a; simpl; rewrite fld_add_0_l; reflexivity. Qed.
 
 Add Parametric Morphism α (f : field α) : (mul_int f)
   with signature fld_eq f ==> eq ==> fld_eq f
@@ -281,13 +299,13 @@ destruct lb as [| b]; [ simpl | apply IHk ].
 rewrite list_add_nil_r; reflexivity.
 Qed.
 
-Lemma list_derifact_add : ∀ α (f : field α) la lb k,
+Lemma list_derivial_add : ∀ α (f : field α) la lb k,
   list_eq f
-    (list_derifact f k (list_add f la lb))
-    (list_add f (list_derifact f k la) (list_derifact f k lb)).
+    (list_derivial f k (list_add f la lb))
+    (list_add f (list_derivial f k la) (list_derivial f k lb)).
 Proof.
 intros α f la lb k.
-unfold list_derifact.
+unfold list_derivial.
 rewrite list_skipn_add.
 rewrite coeff_list_deriv_add.
 reflexivity.
@@ -454,20 +472,20 @@ rewrite comb_0_r, mul_int_1_r.
 constructor; [ reflexivity | apply IHla ].
 Qed.
 
-Lemma list_derifact_0 : ∀ α (f : field α) la,
-  list_eq f (list_derifact f 0 la) la.
+Lemma list_derivial_0 : ∀ α (f : field α) la,
+  list_eq f (list_derivial f 0 la) la.
 Proof.
 intros α f la.
-unfold list_derifact.
+unfold list_derivial.
 rewrite list_skipn_0; simpl.
 rewrite coeff_list_deriv_0_l; reflexivity.
 Qed.
 
-Lemma list_derifact_succ_1 : ∀ α (f : field α) k a,
-  list_eq f (list_derifact f (S k) [a]) [].
+Lemma list_derivial_succ_1 : ∀ α (f : field α) k a,
+  list_eq f (list_derivial f (S k) [a]) [].
 Proof.
 intros α f k a.
-unfold list_derifact; simpl.
+unfold list_derivial; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
 
@@ -511,12 +529,12 @@ induction n; intros.
    destruct Hlab; assumption.
 Qed.
 
-Add Parametric Morphism α (f : field α) : (list_derifact f)
+Add Parametric Morphism α (f : field α) : (list_derivial f)
   with signature eq ==> list_eq f ==> list_eq f
-  as list_derifact_morph.
+  as list_derivial_morph.
 Proof.
 intros k la lb Hlab.
-unfold list_derifact.
+unfold list_derivial.
 destruct k.
  do 2 rewrite list_skipn_0; simpl.
  do 2 rewrite coeff_list_deriv_0_l; assumption.
@@ -553,13 +571,6 @@ Qed.
 Lemma list_skipn_succ_cons : ∀ A (a : A) la k,
   List.skipn (S k) [a … la] = List.skipn k la.
 Proof. reflexivity. Qed.
-
-Lemma comb_id : ∀ n, comb n n = 1%nat.
-Proof.
-intros n.
-destruct n; [ reflexivity | simpl ].
-rewrite Nat.sub_diag; reflexivity.
-Qed.
 
 Lemma comb_1_r : ∀ n, comb (S n) 1 = S n%nat.
 Proof.
@@ -745,22 +756,22 @@ induction i; intros; simpl.
  apply fld_add_compat_r.
 bbb.
 
-Lemma list_derifact_succ' : ∀ α (f : field α) la k,
-  list_eq f (List.map (λ a, mul_int f a (S k)) (list_derifact f (S k) la))
-    (list_derifact f k (list_derifact f 1 la)).
+Lemma list_derivial_succ' : ∀ α (f : field α) la k,
+  list_eq f (List.map (λ a, mul_int f a (S k)) (list_derivial f (S k) la))
+    (list_derivial f k (list_derivial f 1 la)).
 Proof.
 intros α f la k.
 destruct k; simpl.
  rewrite list_eq_map_ext with (h := λ x, x).
   rewrite List.map_id.
-  unfold list_derifact.
+  unfold list_derivial.
   rewrite coeff_list_deriv_0_l; reflexivity.
 
   intros a; rewrite fld_add_0_l; reflexivity.
 
  destruct k.
   simpl.
-  unfold list_derifact.
+  unfold list_derivial.
   destruct la as [| a]; [ reflexivity | idtac ].
   do 2 rewrite list_skipn_succ_cons.
   rewrite list_skipn_0; clear a.
@@ -769,7 +780,7 @@ destruct k; simpl.
 
   destruct k.
    simpl.
-   unfold list_derifact.
+   unfold list_derivial.
    destruct la as [| a]; [ reflexivity | idtac ].
    do 2 rewrite list_skipn_succ_cons.
    rewrite list_skipn_0; clear a.
@@ -778,31 +789,31 @@ destruct k; simpl.
    apply map_coeff_list_deriv3.
 bbb.
 
-Lemma list_derifact_succ : ∀ α (f : field α) la k,
-  list_eq f (List.map (λ g, mul_int f g (S k)) (list_derifact f (S k) la))
-    (list_derifact f 1 (list_derifact f k la)).
+Lemma list_derivial_succ : ∀ α (f : field α) la k,
+  list_eq f (List.map (λ g, mul_int f g (S k)) (list_derivial f (S k) la))
+    (list_derivial f 1 (list_derivial f k la)).
 Proof.
 intros α f la k.
 bbb.
 revert la.
 induction k; intros; simpl.
- unfold list_derifact; simpl.
+ unfold list_derivial; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
  rewrite coeff_list_deriv_0_l.
  reflexivity.
 
- unfold list_derifact at 2.
+ unfold list_derivial at 2.
  simpl.
  pose proof (IHk la) as H.
- remember (list_derifact f (S k) la) as lb eqn:Hlb .
+ remember (list_derivial f (S k) la) as lb eqn:Hlb .
  symmetry in Hlb.
  destruct lb as [| b].
   simpl.
 bbb.
 
-Lemma list_derifact_compose : ∀ α (f : field α) k la b,
-  list_eq f (list_derifact f k (list_compose f la [b; .1 f%K … []]))
-    (list_compose f (list_derifact f k la) [b; .1 f%K … []]).
+Lemma list_derivial_compose : ∀ α (f : field α) k la b,
+  list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
+    (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
 revert la b.
@@ -810,9 +821,9 @@ induction k; intros.
  do 2 rewrite list_0th_deriv; reflexivity.
 
 bbb.
- induction la as [| a]; [ apply list_derifact_nil | simpl ].
- rewrite list_derifact_add.
- rewrite list_derifact_succ_1.
+ induction la as [| a]; [ apply list_derivial_nil | simpl ].
+ rewrite list_derivial_add.
+ rewrite list_derivial_succ_1.
  rewrite list_add_nil_r.
 bbb.
 
@@ -820,18 +831,18 @@ intros α f k la b.
 revert k b.
 induction la as [| a]; intros.
  simpl.
- unfold list_derifact; simpl.
+ unfold list_derivial; simpl.
  rewrite list_skipn_nil; reflexivity.
 
  simpl.
 bbb.
 
 Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
-  (poly_derifact f k (poly_compose f P POL [a; .1 f%K … []]) .= f
-   poly_compose f (poly_derifact f k P) POL [a; .1 f%K … []])%pol.
+  (poly_derivial f k (poly_compose f P POL [a; .1 f%K … []]) .= f
+   poly_compose f (poly_derivial f k P) POL [a; .1 f%K … []])%pol.
 Proof.
 intros α f k P a.
-unfold poly_derifact; simpl.
+unfold poly_derivial; simpl.
 unfold poly_compose; simpl.
 unfold eq_poly; simpl.
 bbb.
@@ -844,12 +855,12 @@ intros α f x P a.
 remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
 assert
  (∀ k,
-  poly_derifact f k Q .= f
-  poly_compose f (poly_derifact f k P) POL [a; .1 f%K … []])%pol 
+  poly_derivial f k Q .= f
+  poly_compose f (poly_derivial f k P) POL [a; .1 f%K … []])%pol 
  as H.
  intros k.
  subst Q.
- unfold poly_derifact; simpl.
+ unfold poly_derivial; simpl.
  unfold poly_compose; simpl.
  unfold eq_poly; simpl.
  remember (al P) as la.
@@ -889,7 +900,7 @@ bbb.
    rewrite IHla.
    simpl.
    apply fld_add_compat_l.
-   unfold list_derifact.
+   unfold list_derivial.
    simpl.
 bbb.
 *)
@@ -931,7 +942,7 @@ Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] 0.
 Eval vm_compute in Qtest_taylor [2#1; -3#1; 1#1 … []] (2#1).
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] 0.
 Eval vm_compute in Qtest_taylor [1; 1; 1; 1; 1; 1; 1 … []] (2#1).
-Definition Qtest_deriv n la := list_derifact Q_field n la.
+Definition Qtest_deriv n la := list_derivial Q_field n la.
 Eval vm_compute in Qtest_deriv 0 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 1 [1; 1; 1; 1; 1; 1; 1 … []].
 Eval vm_compute in Qtest_deriv 2 [1; 1; 1; 1; 1; 1; 1 … []].
