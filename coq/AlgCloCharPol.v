@@ -673,6 +673,24 @@ destruct k.
  destruct nk; [ exfalso; omega | reflexivity ].
 Qed.
 
+Lemma comb_add_succ_mul : ∀ n k,
+  1 ≤ n
+  → (comb (n + k) (S k) * S k = comb (n + k) k * n)%nat.
+Proof.
+intros n k Hn.
+destruct (eq_nat_dec (n + k) (S k)) as [H₁| H₁].
+ rewrite <- Nat.add_1_l in H₁.
+ apply Nat.add_cancel_r in H₁; subst n.
+ rewrite Nat.add_1_l.
+ rewrite comb_id, comb_succ_l.
+ apply Nat.mul_comm.
+
+ destruct n; [ exfalso; omega | idtac ].
+ rewrite Nat.add_succ_l.
+ destruct n; [ exfalso; omega | idtac ].
+ rewrite comb_succ_succ; [ idtac | omega ].
+bbb.
+
 Lemma comb_succ_succ_mul : ∀ n k,
   k ≤ n
   → (comb (S n) (S k) * S k = comb n k * (S n))%nat.
@@ -684,29 +702,14 @@ destruct (eq_nat_dec k n) as [H₁| H₁].
 
  apply le_neq_lt in Hkn; [ idtac | assumption ].
  rewrite comb_succ_succ; [ idtac | assumption ].
-bbb.
-intros n k Hkn.
-revert k Hkn.
-induction n; intros.
- apply Nat.le_0_r in Hkn; subst k; reflexivity.
-
- destruct k.
-  rewrite comb_0_r, Nat.mul_1_l, Nat.mul_1_r.
-  apply comb_1_r.
-
-  apply le_S_n in Hkn.
-  pose proof (IHn k Hkn) as H.
-  simpl.
-  destruct (eq_nat_dec k n) as [H₁| H₁].
-   subst n; rewrite Nat.sub_diag; reflexivity.
-
-   apply le_neq_lt in Hkn; [ idtac | assumption ].
-   remember (n - k)%nat as nk eqn:Hnk .
-   symmetry in Hnk.
-   destruct nk; [ exfalso; omega | idtac ].
-   simpl in H.
-   rewrite Hnk in H.
-bbb.
+ replace n with (n - k + k)%nat by omega.
+ rewrite Nat.mul_add_distr_r.
+ rewrite comb_add_succ_mul.
+ replace (n - k + k)%nat with n by omega.
+ rewrite <- Nat.mul_add_distr_l.
+ replace (S k + (n - k))%nat with (S n) by omega.
+ reflexivity.
+Qed.
 
 Lemma map_coeff_list_deriv : ∀ α (f : field α) la n i,
   list_eq f
