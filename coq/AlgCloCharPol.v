@@ -577,8 +577,8 @@ Proof.
 intros n.
 induction n; [ reflexivity | idtac ].
 remember (S n) as x; simpl; subst x.
-rewrite Nat.sub_0_r.
-rewrite IHn; reflexivity.
+rewrite comb_0_r, Nat.add_1_l.
+apply Nat.succ_inj_wd; assumption.
 Qed.
 
 Lemma map_coeff_list_deriv2 : ∀ α (f : field α) la i,
@@ -602,7 +602,6 @@ induction i.
  rewrite fld_add_0_l.
  remember (S (S i)) as ii.
  simpl; subst ii.
- rewrite Nat_sub_succ_1.
  rewrite comb_1_r.
  rewrite mul_int_add_distr_r.
  remember (comb (S (S i)) 2) as nn eqn:Hnn .
@@ -659,14 +658,8 @@ Lemma comb_succ_l : ∀ n, comb (S n) n = S n.
 Proof.
 intros n.
 induction n; [ reflexivity | idtac ].
-simpl in IHn; simpl.
-destruct n.
- reflexivity.
-
- rewrite minus_Sn_n in IHn.
- rewrite minus_Sn_n.
- rewrite Nat.sub_diag.
- rewrite IHn, Nat.add_comm; reflexivity.
+remember (S n) as x; simpl; subst x.
+rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
 Qed.
 
 Lemma comb_succ_succ : ∀ n k,
