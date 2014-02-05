@@ -760,13 +760,11 @@ Lemma list_derivial_succ' : ∀ α (f : field α) la k,
     (list_derivial f k (list_derivial f 1 la)).
 Proof.
 intros α f la k.
-destruct k; simpl.
- rewrite list_eq_map_ext with (h := λ x, x).
-  rewrite List.map_id.
-  unfold list_derivial.
-  rewrite coeff_list_deriv_0_l; reflexivity.
-
-  intros a; rewrite fld_add_0_l; reflexivity.
+destruct k.
+ simpl.
+ unfold list_derivial.
+ destruct la; [ reflexivity | simpl; clear ].
+ rewrite <- map_coeff_list_deriv; reflexivity.
 
  destruct k.
   simpl.
