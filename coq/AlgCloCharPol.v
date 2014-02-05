@@ -685,56 +685,44 @@ Lemma comb_fact2 : ∀ m n,
   (comb (m + n) m * (fact m * fact n) = fact (m + n))%nat.
 Proof.
 intros m n.
-destruct n.
+revert m.
+induction n; intros.
  rewrite Nat.add_0_r, comb_id; simpl.
  rewrite Nat.add_0_r, Nat.mul_1_r; reflexivity.
 
- destruct m.
+ induction m.
   simpl.
   do 2 rewrite Nat.add_0_r; reflexivity.
 
   rewrite Nat.add_succ_l.
   rewrite comb_succ_succ.
-bbb.
-
-Lemma comb_fact : ∀ n k,
-  k ≤ n → (comb n k * fact k * fact (n - k) = fact n)%nat.
-Proof.
-intros n k Hkn.
-revert k Hkn.
-induction n; intros.
- apply Nat.le_0_r in Hkn; subst k; reflexivity.
-
- simpl.
- destruct k.
-  simpl.
-  rewrite Nat.add_0_r; reflexivity.
-
   rewrite Nat.mul_add_distr_r.
-  rewrite Nat.mul_add_distr_r.
-  simpl.
-  rewrite Nat.mul_add_distr_l.
-  rewrite Nat.mul_add_distr_l.
-  rewrite Nat.mul_add_distr_r.
-  rewrite Nat.mul_add_distr_r.
-  apply le_S_n in Hkn.
-  rewrite IHn; [ idtac | assumption ].
-  rewrite <- Nat.add_assoc.
-  apply Nat.add_cancel_l.
-  rewrite Nat.mul_assoc.
-  rewrite Nat.mul_assoc.
-  rewrite Nat.add_assoc.
-  replace (comb n k * k * fact k * fact (n - k))%nat with
-   (comb n k * fact k * fact (n - k) * k)%nat .
-   Focus 2.
-   do 4 rewrite <- Nat.mul_assoc.
-   apply Nat.mul_cancel_l; [ apply comb_neq_0; assumption | idtac ].
-   symmetry; rewrite Nat.mul_comm.
-   rewrite <- Nat.mul_assoc.
-   reflexivity.
+  replace (fact (S m)) with (S m * fact m)%nat by reflexivity.
+  rewrite Nat.mul_comm.
+  do 2 rewrite <- Nat.mul_assoc.
+  rewrite Nat.mul_comm.
+  do 3 rewrite Nat.mul_assoc.
+  rewrite Nat.mul_comm in IHm; rewrite IHm.
+  rewrite Nat.add_comm.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+  replace (fact (S n)) with (fact n * S n)%nat .
+   rewrite Nat.mul_comm.
+   do 2 rewrite <- Nat.mul_assoc.
+   replace (S m * fact m)%nat with (fact (S m)) by reflexivity.
+   rewrite Nat.mul_comm.
+   do 2 rewrite <- Nat.mul_assoc.
+   rewrite IHn.
+   rewrite Nat.mul_comm, <- Nat.mul_add_distr_l.
+   replace (S n + S m)%nat with (S (S m + n)) .
+    rewrite Nat.mul_comm; reflexivity.
 
-   rewrite IHn; [ idtac | assumption ].
-bbb.
+    simpl.
+    apply eq_S.
+    rewrite Nat.add_succ_r.
+    apply eq_S, Nat.add_comm.
+
+   rewrite Nat.mul_comm; reflexivity.
+Qed.
 
 Lemma comb_sub : ∀ n k, k ≤ n → comb n (n - k) = comb n k.
 Proof.
