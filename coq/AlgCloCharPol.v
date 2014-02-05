@@ -790,9 +790,8 @@ Proof.
 intros α f k la b.
 revert la b.
 induction k; intros.
- do 2 rewrite list_0th_deriv; reflexivity.
+ do 2 rewrite list_derivial_0; reflexivity.
 
-bbb.
  induction la as [| a]; [ apply list_derivial_nil | simpl ].
  rewrite list_derivial_add.
  rewrite list_derivial_succ_1.
