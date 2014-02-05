@@ -664,9 +664,66 @@ Lemma comb_succ_succ : ∀ n k,
   comb (S n) (S k) = (comb n k + comb n (S k))%nat.
 Proof. intros; reflexivity. Qed.
 
+Lemma comb_neq_0 : ∀ n k, k ≤ n → comb n k ≠ O.
+Proof.
+intros n k Hkn.
+revert k Hkn.
+induction n; intros.
+ apply Nat.le_0_r in Hkn; subst k.
+ intros H; discriminate H.
+
+ simpl.
+ destruct k; [ intros H; discriminate H | idtac ].
+ apply le_S_n in Hkn.
+ intros H.
+ apply Nat.eq_add_0 in H.
+ destruct H as (H, _).
+ revert H; apply IHn; assumption.
+Qed.
+
+Lemma comb_fact : ∀ n k,
+  k ≤ n → (comb n k * fact k * fact (n - k) = fact n)%nat.
+Proof.
+intros n k Hkn.
+revert k Hkn.
+induction n; intros.
+ apply Nat.le_0_r in Hkn; subst k; reflexivity.
+
+ simpl.
+ destruct k.
+  simpl.
+  rewrite Nat.add_0_r; reflexivity.
+
+  rewrite Nat.mul_add_distr_r.
+  rewrite Nat.mul_add_distr_r.
+  simpl.
+  rewrite Nat.mul_add_distr_l.
+  rewrite Nat.mul_add_distr_l.
+  rewrite Nat.mul_add_distr_r.
+  rewrite Nat.mul_add_distr_r.
+  apply le_S_n in Hkn.
+  rewrite IHn; [ idtac | assumption ].
+  rewrite <- Nat.add_assoc.
+  apply Nat.add_cancel_l.
+  rewrite Nat.mul_assoc.
+  rewrite Nat.mul_assoc.
+  rewrite Nat.add_assoc.
+  replace (comb n k * k * fact k * fact (n - k))%nat with
+   (comb n k * fact k * fact (n - k) * k)%nat .
+   Focus 2.
+   do 4 rewrite <- Nat.mul_assoc.
+   apply Nat.mul_cancel_l; [ apply comb_neq_0; assumption | idtac ].
+   symmetry; rewrite Nat.mul_comm.
+   rewrite <- Nat.mul_assoc.
+   reflexivity.
+
+   rewrite IHn; [ idtac | assumption ].
+bbb.
+
 Lemma comb_sub : ∀ n k, k ≤ n → comb n (n - k) = comb n k.
 Proof.
 intros n k Hkn.
+bbb.
 destruct k.
  rewrite Nat.sub_0_r, comb_id, comb_0_r; reflexivity.
 
