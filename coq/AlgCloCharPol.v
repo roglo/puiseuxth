@@ -580,57 +580,6 @@ induction n; [ reflexivity | simpl ].
 rewrite comb_0_r, IHn; reflexivity.
 Qed.
 
-Lemma map_coeff_list_deriv2 : ∀ α (f : field α) la i,
-  list_eq f
-    (List.map (λ x, mul_int f x 2) (coeff_list_deriv f la 2 (S (S i))))
-    (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S i))) 1 (S i)).
-Proof.
-intros α f la i.
-revert i.
-induction la as [| a]; intros; [ reflexivity | idtac ].
-remember (S i) as ii.
-remember (S ii) as iii.
-simpl; subst.
-constructor; [ clear | apply IHla ].
-do 2 rewrite comb_1_r.
-induction i.
- simpl.
- do 3 rewrite fld_add_0_l; reflexivity.
-
- rewrite fld_add_0_l in IHi.
- rewrite fld_add_0_l.
- remember (S (S i)) as ii.
- simpl; subst ii.
- rewrite comb_1_r.
- rewrite mul_int_add_distr_r.
- remember (comb (S (S i)) 2) as nn eqn:Hnn .
- simpl in IHi; simpl; symmetry; rewrite <- IHi.
- rewrite mul_int_add_distr_l.
- do 7 rewrite fld_add_assoc.
- do 2 apply fld_add_compat_r.
- rewrite fld_add_comm.
- do 7 rewrite <- fld_add_assoc.
- apply fld_add_compat_l.
- apply fld_add_compat_l.
- do 4 rewrite fld_add_assoc.
- rewrite fld_add_comm.
- do 3 rewrite <- fld_add_assoc.
- apply fld_add_compat_l.
- rewrite fld_add_assoc, fld_add_comm.
- apply fld_add_compat_l.
- apply fld_add_comm.
-Qed.
-
-Lemma map_coeff_list_deriv3 : ∀ α (f : field α) la i,
-  list_eq f
-    (List.map (λ x, mul_int f x 3) (coeff_list_deriv f la 3 (S (S (S i)))))
-    (coeff_list_deriv f (coeff_list_deriv f la 1 (S (S (S i)))) 2 (S (S i))).
-Proof.
-intros α f la i.
-Abort. (*
-bbb.
-*)
-
 Lemma mul_int_assoc : ∀ α (f : field α) a m n,
   (mul_int f (mul_int f a m) n .= f mul_int f a (m * n))%K.
 Proof.
@@ -792,26 +741,8 @@ constructor; [ clear | do 2 rewrite <- Nat.add_succ_r; apply IHla ].
 rewrite Nat.add_succ_l, comb_1_r.
 do 2 rewrite mul_int_assoc.
 apply mul_int_compat; [ reflexivity | idtac ].
-rewrite comb_succ_succ_mul.
-apply Nat.mul_comm.
-bbb.
-revert n.
-induction i; intros; simpl.
- rewrite Nat.add_comm, Nat.add_sub; simpl.
- rewrite fld_add_0_l.
- rewrite comb_id, mul_int_1_r.
- reflexivity.
-
- rewrite Nat.add_comm, Nat.add_sub.
- replace (S i + n)%nat with (S (n + i)) by omega.
- pose proof (IHi n) as H.
- remember (n + i)%nat as ni eqn:Hni .
- rewrite mul_int_add_distr_l.
- do 2 rewrite mul_int_add_distr_r.
- rewrite fld_add_assoc, fld_add_comm.
- do 2 rewrite fld_add_assoc.
- apply fld_add_compat_r.
-bbb.
+rewrite comb_succ_succ_mul; [ apply Nat.mul_comm | apply Nat.le_add_r ].
+Qed.
 
 Lemma list_derivial_succ' : ∀ α (f : field α) la k,
   list_eq f (List.map (λ a, mul_int f a (S k)) (list_derivial f (S k) la))
@@ -833,7 +764,9 @@ destruct k; simpl.
   do 2 rewrite list_skipn_succ_cons.
   rewrite list_skipn_0; clear a.
   destruct la as [| a]; [ reflexivity | simpl; clear a ].
-  apply map_coeff_list_deriv2.
+  pose proof (map_coeff_list_deriv f la 1 0) as H.
+  do 2 rewrite Nat.add_0_r in H.
+  assumption.
 
   destruct k.
    simpl.
@@ -843,7 +776,9 @@ destruct k; simpl.
    rewrite list_skipn_0; clear a.
    destruct la as [| a]; [ reflexivity | simpl; clear a ].
    destruct la as [| a]; [ reflexivity | simpl; clear a ].
-   apply map_coeff_list_deriv3.
+   pose proof (map_coeff_list_deriv f la 2 0) as H.
+   do 2 rewrite Nat.add_0_r in H.
+   assumption.
 bbb.
 
 Lemma list_derivial_succ : ∀ α (f : field α) la k,
