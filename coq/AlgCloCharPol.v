@@ -681,6 +681,22 @@ induction n; intros.
  revert H; apply IHn; assumption.
 Qed.
 
+Lemma comb_fact2 : ∀ m n,
+  (comb (m + n) m * (fact m * fact n) = fact (m + n))%nat.
+Proof.
+intros m n.
+destruct n.
+ rewrite Nat.add_0_r, comb_id; simpl.
+ rewrite Nat.add_0_r, Nat.mul_1_r; reflexivity.
+
+ destruct m.
+  simpl.
+  do 2 rewrite Nat.add_0_r; reflexivity.
+
+  rewrite Nat.add_succ_l.
+  rewrite comb_succ_succ.
+bbb.
+
 Lemma comb_fact : ∀ n k,
   k ≤ n → (comb n k * fact k * fact (n - k) = fact n)%nat.
 Proof.
