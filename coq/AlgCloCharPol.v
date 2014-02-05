@@ -728,7 +728,7 @@ destruct (eq_nat_dec k n) as [H₁| H₁].
  reflexivity.
 Qed.
 
-Lemma map_coeff_list_deriv : ∀ α (f : field α) la n i,
+Lemma map_coeff_list_deriv_gen : ∀ α (f : field α) la n i,
   list_eq f
     (List.map (λ x, mul_int f x (S n)) (coeff_list_deriv f la (S n) (S n + i)))
     (coeff_list_deriv f (coeff_list_deriv f la 1 (S n + i)) n (n + i)).
@@ -742,6 +742,17 @@ rewrite Nat.add_succ_l, comb_1_r.
 do 2 rewrite mul_int_assoc.
 apply mul_int_compat; [ reflexivity | idtac ].
 rewrite comb_succ_succ_mul; [ apply Nat.mul_comm | apply Nat.le_add_r ].
+Qed.
+
+Lemma map_coeff_list_deriv : ∀ α (f : field α) la n,
+  list_eq f
+    (List.map (λ x, mul_int f x (S n)) (coeff_list_deriv f la (S n) (S n)))
+    (coeff_list_deriv f (coeff_list_deriv f la 1 (S n)) n n).
+Proof.
+intros α f la n.
+pose proof (map_coeff_list_deriv_gen f la n 0) as H.
+do 2 rewrite Nat.add_0_r in H.
+assumption.
 Qed.
 
 Lemma list_derivial_succ' : ∀ α (f : field α) la k,
@@ -760,38 +771,26 @@ destruct k; simpl.
  destruct k.
   simpl.
   unfold list_derivial.
-  destruct la as [| a]; [ reflexivity | idtac ].
-  do 2 rewrite list_skipn_succ_cons.
-  rewrite list_skipn_0; clear a.
-  destruct la as [| a]; [ reflexivity | simpl; clear a ].
-  pose proof (map_coeff_list_deriv f la 1 0) as H.
-  do 2 rewrite Nat.add_0_r in H.
-  assumption.
+  destruct la; [ reflexivity | idtac ].
+  destruct la; [ reflexivity | simpl; clear ].
+  rewrite <- map_coeff_list_deriv; reflexivity.
 
   destruct k.
    simpl.
    unfold list_derivial.
-   destruct la as [| a]; [ reflexivity | idtac ].
-   do 2 rewrite list_skipn_succ_cons.
-   rewrite list_skipn_0; clear a.
-   destruct la as [| a]; [ reflexivity | simpl; clear a ].
-   destruct la as [| a]; [ reflexivity | simpl; clear a ].
-   pose proof (map_coeff_list_deriv f la 2 0) as H.
-   do 2 rewrite Nat.add_0_r in H.
-   assumption.
+   destruct la; [ reflexivity | idtac ].
+   destruct la; [ reflexivity | idtac ].
+   destruct la; [ reflexivity | simpl; clear ].
+   rewrite <- map_coeff_list_deriv; reflexivity.
 
    destruct k.
     simpl.
     unfold list_derivial.
-    destruct la as [| a]; [ reflexivity | idtac ].
-    do 2 rewrite list_skipn_succ_cons.
-    rewrite list_skipn_0; clear a.
-    destruct la as [| a]; [ reflexivity | simpl; clear a ].
-    destruct la as [| a]; [ reflexivity | simpl; clear a ].
-    destruct la as [| a]; [ reflexivity | simpl; clear a ].
-    pose proof (map_coeff_list_deriv f la 3 0) as H.
-    do 2 rewrite Nat.add_0_r in H.
-    assumption.
+    destruct la; [ reflexivity | idtac ].
+    destruct la; [ reflexivity | idtac ].
+    destruct la; [ reflexivity | idtac ].
+    destruct la; [ reflexivity | simpl; clear ].
+    rewrite <- map_coeff_list_deriv; reflexivity.
 bbb.
 
 Lemma list_derivial_succ : ∀ α (f : field α) la k,
