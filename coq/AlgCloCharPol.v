@@ -3,6 +3,7 @@
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
+Require Import ArithRing.
 
 Require Import Misc.
 Require Import Field.
@@ -741,34 +742,22 @@ Lemma comb_add_succ_mul : ∀ n k,
   (comb (n + k) (S k) * S k = comb (n + k) k * n)%nat.
 Proof.
 intros n k.
-bbb.
 revert k.
 induction n; intros.
- rewrite comb_lt; [ idtac | omega ].
- rewrite Nat.mul_0_l, Nat.mul_0_r; reflexivity.
+ simpl; rewrite comb_lt; [ ring | omega ].
 
- rewrite Nat.add_succ_l, comb_succ_succ.
- rewrite Nat.mul_add_distr_r.
- rewrite IHn.
- rewrite <- Nat.mul_add_distr_l.
  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
- rewrite Nat.mul_add_distr_l.
- rewrite <- Nat.add_succ_r.
-bbb.
+ rewrite Nat.add_comm.
+ pose proof (comb_fact (S k) n) as Hnk.
+ replace (fact (S k)) with (S k * fact k)%nat in Hnk by reflexivity.
+ do 2 rewrite Nat.mul_assoc in Hnk.
+ apply Nat.mul_cancel_r with (p := (fact k * fact n)%nat).
+  apply Nat.neq_mul_0; split; apply fact_neq_0.
 
-intros n k Hn.
-destruct (eq_nat_dec (n + k) (S k)) as [H₁| H₁].
- rewrite <- Nat.add_1_l in H₁.
- apply Nat.add_cancel_r in H₁; subst n.
- rewrite Nat.add_1_l.
- rewrite comb_id, comb_succ_l.
- apply Nat.mul_comm.
-
- destruct n; [ exfalso; omega | idtac ].
- rewrite Nat.add_succ_l.
- destruct n; [ exfalso; omega | idtac ].
- rewrite comb_succ_succ; [ idtac | omega ].
-bbb.
+  rewrite Nat.mul_assoc, Hnk.
+  rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+  rewrite <- comb_fact; simpl; ring.
+Qed.
 
 Lemma comb_succ_succ_mul : ∀ n k,
   k ≤ n
@@ -780,7 +769,7 @@ destruct (eq_nat_dec k n) as [H₁| H₁].
  do 2 rewrite comb_id; reflexivity.
 
  apply le_neq_lt in Hkn; [ idtac | assumption ].
- rewrite comb_succ_succ; [ idtac | assumption ].
+ rewrite comb_succ_succ.
  replace n with (n - k + k)%nat by omega.
  rewrite Nat.mul_add_distr_r.
  rewrite comb_add_succ_mul.
