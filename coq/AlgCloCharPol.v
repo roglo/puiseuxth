@@ -779,6 +779,19 @@ destruct k; simpl.
    pose proof (map_coeff_list_deriv f la 2 0) as H.
    do 2 rewrite Nat.add_0_r in H.
    assumption.
+
+   destruct k.
+    simpl.
+    unfold list_derivial.
+    destruct la as [| a]; [ reflexivity | idtac ].
+    do 2 rewrite list_skipn_succ_cons.
+    rewrite list_skipn_0; clear a.
+    destruct la as [| a]; [ reflexivity | simpl; clear a ].
+    destruct la as [| a]; [ reflexivity | simpl; clear a ].
+    destruct la as [| a]; [ reflexivity | simpl; clear a ].
+    pose proof (map_coeff_list_deriv f la 3 0) as H.
+    do 2 rewrite Nat.add_0_r in H.
+    assumption.
 bbb.
 
 Lemma list_derivial_succ : ∀ α (f : field α) la k,
