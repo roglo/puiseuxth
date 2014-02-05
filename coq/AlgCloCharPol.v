@@ -681,7 +681,7 @@ induction n; intros.
  revert H; apply IHn; assumption.
 Qed.
 
-Lemma comb_fact2 : ∀ m n,
+Lemma comb_fact : ∀ m n,
   (comb (m + n) m * (fact m * fact n) = fact (m + n))%nat.
 Proof.
 intros m n.
@@ -724,42 +724,18 @@ induction n; intros.
    rewrite Nat.mul_comm; reflexivity.
 Qed.
 
-Lemma comb_sub : ∀ n k, k ≤ n → comb n (n - k) = comb n k.
-Proof.
-intros n k Hkn.
-bbb.
-destruct k.
- rewrite Nat.sub_0_r, comb_id, comb_0_r; reflexivity.
-
- destruct k.
-  rewrite comb_1_r.
-  destruct n; [ exfalso; omega | simpl ].
-  rewrite Nat.sub_0_r.
-  destruct n; [ reflexivity | simpl ].
-  rewrite comb_id, comb_lt.
-   2: omega.
-
-   rewrite Nat.add_0_r, Nat.add_comm.
-   apply eq_S.
-   destruct n.
-    reflexivity.
-
-    clear.
-    rewrite Nat.add_1_r.
-    apply eq_S.
-    induction n.
-     rewrite comb_0_r; reflexivity.
-
-     remember (S n) as x; simpl; subst x.
-     rewrite IHn, comb_id.
-     rewrite Nat.add_1_r; reflexivity.
-
-bbb.
-
 Lemma comb_add : ∀ n k, comb (n + k) k = comb (n + k) n.
 Proof.
 intros n k.
-bbb.
+pose proof (comb_fact n k) as Hnk.
+pose proof (comb_fact k n) as Hkn.
+rewrite Nat.add_comm in Hkn.
+rewrite <- Hkn in Hnk.
+rewrite Nat.mul_assoc, Nat.mul_shuffle0 in Hnk.
+rewrite <- Nat.mul_assoc in Hnk.
+apply Nat.mul_cancel_r in Hnk; [ symmetry; assumption | idtac ].
+apply Nat.neq_mul_0; split; apply fact_neq_0.
+Qed.
 
 Lemma comb_add_succ_mul : ∀ n k,
   (comb (n + k) (S k) * S k = comb (n + k) k * n)%nat.
