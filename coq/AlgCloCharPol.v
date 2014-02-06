@@ -820,7 +820,7 @@ unfold eq_poly; simpl.
 bbb.
 *)
 
-(**)
+(*
 Lemma www : ∀ α (f : field α) la x a n k,
   length la = (n + k)%nat
   → (List.fold_right (λ c accu, accu .* f x .+ f c) .0 f la .= f
