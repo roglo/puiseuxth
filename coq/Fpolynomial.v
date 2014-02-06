@@ -898,6 +898,33 @@ intros la.
 apply list_convol_mul_nil_r.
 Qed.
 
+Lemma list_mul_add_distr_l : ∀ la lb lc,
+  list_eq f (list_mul f la (list_add f lb lc))
+    (list_add f (list_mul f la lb) (list_mul f la lc)).
+Proof.
+intros la lb lc.
+unfold list_mul; simpl.
+revert lb lc.
+induction la as [| a]; intros.
+ simpl.
+ do 3 rewrite list_convol_mul_nil_l.
+ reflexivity.
+
+ simpl.
+ revert lc.
+ induction lb as [| b]; intros.
+  simpl.
+  rewrite list_convol_mul_nil_r, list_add_nil_l.
+  reflexivity.
+
+  simpl.
+  destruct lc as [| c].
+   rewrite list_convol_mul_nil_r, list_add_nil_r.
+   reflexivity.
+
+   simpl.
+bbb.
+
 End poly.
 
 (* Horner's algorithm *)

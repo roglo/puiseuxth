@@ -849,18 +849,19 @@ Lemma vvv : ∀ α (f : field α) la lb x,
    apply_list f la (apply_list f lb x))%K.
 Proof.
 intros α f la lb x.
-revert lb x.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite <- IHla.
-clear.
-revert a la x.
-induction lb as [| b]; intros.
- simpl.
- rewrite fld_mul_0_r, fld_add_0_l.
- rewrite list_mul_nil_r, list_add_nil_l; simpl.
+unfold list_compose; simpl.
+destruct la as [| a₁]; [ reflexivity | simpl ].
+destruct lb as [| b₁]; simpl.
+ rewrite list_mul_nil_r, list_add_nil_l.
+ rewrite fld_mul_0_r, fld_add_0_l; simpl.
  rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
 
- simpl.
+ destruct la as [| a₂].
+  simpl.
+  rewrite list_mul_nil_l, list_add_nil_l; simpl.
+  do 2 rewrite fld_mul_0_l; reflexivity.
+
+  simpl.
 bbb.
 
 Lemma www : ∀ α (f : field α) la a x,
