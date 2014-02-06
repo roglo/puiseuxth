@@ -908,7 +908,23 @@ Fixpoint list_convol_mul_add al₁ al₂ al₃ i len :=
        list_convol_mul_add al₁ al₂ al₃ (S i) len₁]
   end.
 
-Lemma zzz : ∀ la lb lc i len,
+Lemma list_nth_add : ∀ k la lb,
+  (List.nth k (list_add f la lb) .0 f .= f
+   List.nth k la .0 f .+ f List.nth k lb .0 f)%K.
+Proof.
+intros k la lb.
+revert la lb.
+induction k; intros.
+ destruct la as [| a]; simpl; [ rewrite fld_add_0_l; reflexivity | idtac ].
+ destruct lb as [| b]; simpl; [ rewrite fld_add_0_r; reflexivity | idtac ].
+ reflexivity.
+
+ destruct la as [| a]; simpl; [ rewrite fld_add_0_l; reflexivity | idtac ].
+ destruct lb as [| b]; simpl; [ rewrite fld_add_0_r; reflexivity | idtac ].
+ apply IHk.
+Qed.
+
+Lemma list_convol_mul_list_add : ∀ la lb lc i len,
    list_eq f
      (list_convol_mul f la (list_add f lb lc) i len)
      (list_convol_mul_add la lb lc i len).
@@ -919,7 +935,10 @@ induction len; intros; [ reflexivity | simpl ].
 constructor.
  apply summation_compat; intros j (_, Hj).
  apply fld_mul_compat_l.
-bbb.
+ rewrite list_nth_add; reflexivity.
+
+ apply IHlen.
+Qed.
 
 Lemma list_mul_add_distr_l : ∀ la lb lc,
   list_eq f (list_mul f la (list_add f lb lc))
@@ -927,6 +946,8 @@ Lemma list_mul_add_distr_l : ∀ la lb lc,
 Proof.
 intros la lb lc.
 unfold list_mul.
+rewrite list_convol_mul_list_add.
+
 bbb.
 revert lb lc.
 induction la as [| a]; intros.
