@@ -848,12 +848,10 @@ Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
 Proof.
 intros α f x P a.
 remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
-pose proof (taylor_formula_0 f x Q) as H.
+pose proof (taylor_formula_0 f (x .- f a)%K Q) as H.
 subst Q.
-unfold poly_compose in H.
-simpl in H.
-unfold apply_poly in H.
-simpl in H.
+unfold poly_compose in H; simpl in H.
+unfold apply_poly in H; simpl in H.
 unfold apply_poly; simpl.
 bbb.
 
