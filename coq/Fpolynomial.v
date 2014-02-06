@@ -947,6 +947,10 @@ Proof.
 intros la lb lc.
 unfold list_mul.
 rewrite list_convol_mul_list_add.
+revert lb lc.
+induction la as [| a]; intros; simpl.
+ rewrite list_convol_mul_nil_l.
+ rewrite list_convol_mul_nil_l.
 
 bbb.
 revert lb lc.
