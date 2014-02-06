@@ -83,12 +83,12 @@ Definition list_derivial α (f : field α) n la :=
 Definition poly_derivial α (f : field α) n pol :=
   (POL (list_derivial f n (al pol)))%pol.
 
-Fixpoint coeff_taylor_list α (f : field α) cnt la c n :=
-  match cnt with
+Fixpoint coeff_taylor_list α (f : field α) n la c k :=
+  match n with
   | 0%nat => []
-  | S cnt₁ =>
-      [apply_list f (list_derivial f n la) c …
-       coeff_taylor_list f cnt₁ la c (S n)]
+  | S n₁ =>
+      [apply_list f (list_derivial f k la) c …
+       coeff_taylor_list f n₁ la c (S k)]
   end.
 
 Definition taylor_list α (f : field α) la c :=
@@ -783,6 +783,7 @@ destruct la as [| a].
  rewrite <- coeff_list_deriv_skipn; reflexivity.
 Qed.
 
+(*
 Lemma list_derivial_compose : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
@@ -817,11 +818,45 @@ unfold poly_derivial; simpl.
 unfold poly_compose; simpl.
 unfold eq_poly; simpl.
 bbb.
+*)
+
+(**)
+Lemma www : ∀ α (f : field α) la x a n k,
+  length la = (n + k)%nat
+  → (List.fold_right (λ c accu, accu .* f x .+ f c) .0 f la .= f
+     List.fold_right (λ c accu, accu .* f (x .- f a) .+ f c) 
+       .0 f (coeff_taylor_list f n la a k))%K.
+Proof.
+intros α f la x a n k Hlen.
+revert x a n k Hlen.
+induction la as [| a₁]; intros.
+ simpl.
+ symmetry in Hlen.
+ apply Nat.eq_add_0 in Hlen.
+ destruct Hlen; subst; reflexivity.
+
+ simpl.
+ simpl in Hlen.
+ destruct n.
+  simpl.
+bbb.
+*)
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
    apply_poly f (taylor_poly f P a) (x .- f a))%K.
 Proof.
+intros α f x P a.
+remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
+pose proof (taylor_formula_0 f x Q) as H.
+subst Q.
+unfold poly_compose in H.
+simpl in H.
+unfold apply_poly in H.
+simpl in H.
+unfold apply_poly; simpl.
+bbb.
+
 intros α f x P a.
 remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
 assert
