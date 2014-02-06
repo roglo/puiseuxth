@@ -898,12 +898,36 @@ intros la.
 apply list_convol_mul_nil_r.
 Qed.
 
+Fixpoint list_convol_mul_add al₁ al₂ al₃ i len :=
+  match len with
+  | O => []
+  | S len₁ =>
+      [Σ f (j = 0, i) _
+       List.nth j al₁ .0 f .* f
+       (List.nth (i - j) al₂ .0 f .+ f List.nth (i - j) al₃ .0 f) …
+       list_convol_mul_add al₁ al₂ al₃ (S i) len₁]
+  end.
+
+Lemma zzz : ∀ la lb lc i len,
+   list_eq f
+     (list_convol_mul f la (list_add f lb lc) i len)
+     (list_convol_mul_add la lb lc i len).
+Proof.
+intros la lb lc i len.
+revert la lb lc i.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ apply summation_compat; intros j (_, Hj).
+ apply fld_mul_compat_l.
+bbb.
+
 Lemma list_mul_add_distr_l : ∀ la lb lc,
   list_eq f (list_mul f la (list_add f lb lc))
     (list_add f (list_mul f la lb) (list_mul f la lc)).
 Proof.
 intros la lb lc.
-unfold list_mul; simpl.
+unfold list_mul.
+bbb.
 revert lb lc.
 induction la as [| a]; intros.
  simpl.
