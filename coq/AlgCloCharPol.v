@@ -862,6 +862,11 @@ destruct lb as [| b₁]; simpl.
   do 2 rewrite fld_mul_0_l; reflexivity.
 
   simpl.
+  rewrite list_mul_add_distr_r.
+  rewrite list_add_assoc.
+  simpl.
+  rewrite summation_only_one.
+  rewrite list_add_nil_r.
 bbb.
 
 Lemma www : ∀ α (f : field α) la a x,

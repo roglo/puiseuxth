@@ -648,26 +648,6 @@ induction al₁; intros.
   constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
 
-(*
-Lemma list_add_comm : ∀ al₁ al₂ rp₁ rp₂,
-  rp₁ = list_add f al₁ al₂
-  → rp₂ = list_add f al₂ al₁
-    → list_eq f rp₁ rp₂.
-Proof.
-intros al₁ al₂ rp₁ rp₂ H₁ H₂.
-subst rp₁ rp₂.
-revert al₂.
-induction al₁; intros.
- destruct al₂; [ apply list_eq_refl | simpl ].
- constructor; [ reflexivity | apply list_eq_refl ].
-
- destruct al₂.
-  constructor; [ reflexivity | apply list_eq_refl ].
-
-  constructor; [ apply fld_add_comm | apply IHal₁ ].
-Qed.
-*)
-
 Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f pol₁)%pol.
 Proof.
 intros pol₁ pol₂.
@@ -675,13 +655,11 @@ unfold eq_poly.
 eapply list_add_comm; reflexivity.
 Qed.
 
-Lemma list_add_assoc : ∀ al₁ al₂ al₃ rp₁ rp₂,
-  rp₁ = list_add f (list_add f al₁ al₂) al₃
-  → rp₂ = list_add f al₁ (list_add f al₂ al₃)
-    → list_eq f rp₁ rp₂.
+Lemma list_add_assoc : ∀ al₁ al₂ al₃,
+  list_eq f (list_add f (list_add f al₁ al₂) al₃)
+    (list_add f al₁ (list_add f al₂ al₃)).
 Proof.
-intros al₁ al₂ al₃ rp₁ rp₂ H₁ H₂.
-subst rp₁ rp₂.
+intros al₁ al₂ al₃.
 revert al₂ al₃.
 induction al₁; intros.
  destruct al₂.
@@ -774,6 +752,13 @@ induction la as [| a]; intros.
    assumption.
 Qed.
 
+Lemma list_mul_comm : ∀ a b, list_eq f (list_mul f a b) (list_mul f b a).
+Proof.
+intros a b.
+unfold list_mul.
+rewrite list_convol_mul_comm, Nat.add_comm; reflexivity.
+Qed.
+
 Theorem poly_mul_comm : ∀ a b, (a .* f b .= f b .* f a)%pol.
 Proof.
 intros a b.
@@ -782,6 +767,13 @@ unfold list_mul; simpl.
 rewrite Nat.add_comm.
 rewrite list_convol_mul_comm; reflexivity.
 Qed.
+
+Lemma list_mul_assoc : ∀ al₁ al₂ al₃,
+  list_eq f (list_mul f (list_mul f al₁ al₂) al₃)
+    (list_mul f al₁ (list_mul f al₂ al₃)).
+Proof.
+intros al₁ al₂ al₃.
+bbb.
 
 Lemma list_nth_list_convol_mul_aux : ∀ la lb n i len,
   pred (List.length la + List.length lb) = (i + len)%nat
@@ -998,6 +990,15 @@ symmetry.
 rewrite list_convol_mul_list_add.
 rewrite list_add_list_convol_mul.
 reflexivity.
+Qed.
+
+Lemma list_mul_add_distr_r : ∀ la lb lc,
+  list_eq f (list_mul f (list_add f la lb) lc)
+    (list_add f (list_mul f la lc) (list_mul f lb lc)).
+Proof.
+intros la lb lc.
+rewrite list_mul_comm, list_mul_add_distr_l, list_mul_comm.
+apply list_add_compat; [ reflexivity | apply list_mul_comm ].
 Qed.
 
 End poly.
