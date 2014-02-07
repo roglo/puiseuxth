@@ -852,14 +852,15 @@ rewrite Nat.add_comm.
 rewrite list_convol_mul_comm; reflexivity.
 Qed.
 
-Fixpoint list_convol_mul_mul al₁ al₂ al₃ i len :=
+mouais...
+
+Fixpoint list_convol_mul_mul α (f : field α) al₁ al₂ al₃ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [Σ f (j = 0, i) _
-       List.nth j al₁ .0 f .* f
-       List.nth (i - j) al₂ .0 f .* f List.nth (i - j) al₃ .0 f …
-       list_convol_mul_mul al₁ al₂ al₃ (S i) len₁]
+      let al₂₃ := list_convol_mul f al₂ al₃ i len in
+      [Σ f (j = 0, i) _ List.nth j al₁ .0 f .* f List.nth (i - j) al₂₃ .0 f …
+       list_convol_mul_mul f al₁ al₂ al₃ (S i) len₁]
   end.
 
 Lemma list_nth_list_convol_mul_nil_l : ∀ n la i len,
@@ -943,33 +944,21 @@ Qed.
 *)
 
 Lemma list_convol_mul_list_mul : ∀ la lb lc i len,
-  list_eq f (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
-    (list_convol_mul_mul la lb lc i len).
+  list_eq f (list_convol_mul f la (list_mul f lb lc) i len)
+    (list_convol_mul_mul f la lb lc i len).
 Proof.
 intros la lb lc i len.
 revert la lb lc i.
 induction len; intros; [ reflexivity | simpl ].
-constructor.
- apply summation_compat; intros j (_, Hj).
- destruct (eq_nat_dec i j) as [H₁| H₁].
-  subst j; simpl.
-  rewrite Nat.sub_diag.
-  rewrite <- fld_mul_assoc.
-  apply fld_mul_compat_l.
-bbb.
+constructor; [ reflexivity | apply IHlen ].
+Qed.
 
-  list_eq f
-    (list_convol_mul f la (list_mul f lb lc) i len)
-    (list_convol_mul_mul la lb lc i len).
+Lemma glop : ∀ la lb lc i len,
+  list_eq f (list_convol_mul_mul f la lb lc i len)
+    (list_convol_mul_mul f lc la lb i len).
 Proof.
 intros la lb lc i len.
-revert la lb lc i.
-induction len; intros; [ reflexivity | simpl ].
-constructor; [ idtac | apply IHlen ].
-apply summation_compat; intros j (_, Hj).
-rewrite <- fld_mul_assoc.
 bbb.
-*)
 
 Lemma list_mul_assoc : ∀ al₁ al₂ al₃,
   list_eq f (list_mul f (list_mul f al₁ al₂) al₃)
@@ -977,7 +966,6 @@ Lemma list_mul_assoc : ∀ al₁ al₂ al₃,
 Proof.
 intros al₁ al₂ al₃.
 rewrite list_mul_comm.
-bbb.
 unfold list_mul at 1.
 unfold list_mul at 3.
 remember (pred (length al₃ + length (list_mul f al₁ al₂))) as len₁.
@@ -991,6 +979,8 @@ rewrite list_convol_mul_more with (n := len₁).
 rewrite list_convol_mul_list_mul.
 rewrite <- Heqlen₁, <- Heqlen₂.
 rewrite Nat.add_comm.
+rewrite list_convol_mul_list_mul.
+rewrite list_convol_mul_list_mul.
 bbb.
 *)
 
