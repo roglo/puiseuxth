@@ -852,8 +852,7 @@ rewrite Nat.add_comm.
 rewrite list_convol_mul_comm; reflexivity.
 Qed.
 
-mouais...
-
+(*
 Fixpoint list_convol_mul_mul α (f : field α) al₁ al₂ al₃ i len :=
   match len with
   | O => []
@@ -894,6 +893,7 @@ Proof. intros n la; apply list_nth_list_convol_mul_nil_l. Qed.
 Lemma list_nth_list_mul_nil_r : ∀ n la,
   (List.nth n (list_mul f la []) .0 f .= f .0 f)%K.
 Proof. intros n la; apply list_nth_list_convol_mul_nil_r. Qed.
+*)
 
 (*
 Lemma list_nth_convol_mul : ∀ k la lb i len,
@@ -943,6 +943,7 @@ bbb.
 Qed.
 *)
 
+(*
 Lemma list_convol_mul_list_mul : ∀ la lb lc i len,
   list_eq f (list_convol_mul f la (list_mul f lb lc) i len)
     (list_convol_mul_mul f la lb lc i len).
@@ -959,11 +960,78 @@ Lemma glop : ∀ la lb lc i len,
 Proof.
 intros la lb lc i len.
 bbb.
+*)
 
-Lemma list_mul_assoc : ∀ al₁ al₂ al₃,
-  list_eq f (list_mul f (list_mul f al₁ al₂) al₃)
-    (list_mul f al₁ (list_mul f al₂ al₃)).
+Lemma glip : ∀ la lb lc i len,
+   list_eq f
+     (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
+     (list_convol_mul f (list_convol_mul f la lb i len) lc i len).
 Proof.
+intros la lb lc i len.
+revert la lb lc i.
+induction len; intros; [ reflexivity | idtac ].
+remember (S len) as slen eqn:Hslen .
+rewrite Hslen in |- * at 2.
+rewrite Hslen in |- * at 3; simpl.
+remember List.nth as g; subst slen; simpl; subst g.
+constructor.
+ symmetry.
+ rewrite summation_mul_comm.
+bbb.
+
+Lemma list_mul_assoc : ∀ la lb lc,
+  list_eq f (list_mul f la (list_mul f lb lc))
+    (list_mul f (list_mul f la lb) lc).
+Proof.
+intros la lb lc.
+bbb.
+unfold list_mul.
+remember (pred (length al₁ + length al₂)) as a.
+remember (list_convol_mul f al₁ al₂ 0 a) as m.
+remember (pred (length m + length al₃)) as b; subst m.
+remember (pred (length al₂ + length al₃)) as c.
+remember (list_convol_mul f al₂ al₃ 0 c) as m.
+remember (pred (length al₁ + length m)) as d; subst m.
+rewrite Heqb.
+rewrite list_convol_mul_more with (n := (a + c + d)%nat).
+rewrite <- Heqb.
+rewrite Heqa.
+rewrite list_convol_mul_more with (n := (b + c + d)%nat).
+rewrite <- Heqa.
+rewrite Heqd.
+rewrite list_convol_mul_more with (n := (a + b + c)%nat).
+rewrite <- Heqd.
+rewrite Heqc.
+rewrite list_convol_mul_more with (n := (a + b + d)%nat).
+rewrite <- Heqc.
+remember (a + (b + c + d))%nat as len.
+replace (b + (a + c + d))%nat with len by fast_omega Heqlen.
+replace (c + (a + b + d))%nat with len by fast_omega Heqlen.
+replace (d + (a + b + c))%nat with len by fast_omega Heqlen.
+bbb.
+
+intros al₁ al₂ al₃.
+unfold list_mul.
+remember (pred (length al₁ + length al₂)) as len₁₂.
+remember (list_convol_mul f al₁ al₂ 0 len₁₂) as m.
+remember (pred (length m + length al₃)) as len₁₂_₃; subst m.
+remember (pred (length al₂ + length al₃)) as len₂₃.
+remember (list_convol_mul f al₂ al₃ 0 len₂₃) as m.
+remember (pred (length al₁ + length m)) as len₁_₂₃; subst m.
+rewrite Heqlen₁₂_₃.
+rewrite list_convol_mul_more with (n := (len₁₂ + len₂₃ + len₁_₂₃)%nat).
+rewrite <- Heqlen₁₂_₃.
+rewrite Heqlen₁₂.
+rewrite list_convol_mul_more with (n := (len₁₂_₃ + len₂₃ + len₁_₂₃)%nat).
+rewrite <- Heqlen₁₂.
+rewrite Heqlen₁_₂₃.
+rewrite list_convol_mul_more with (n := (len₁₂ + len₁₂_₃ + len₂₃)%nat).
+rewrite <- Heqlen₁_₂₃.
+rewrite Heqlen₂₃.
+rewrite list_convol_mul_more with (n := (len₁₂ + len₁₂_₃ + len₁_₂₃)%nat).
+rewrite <- Heqlen₂₃.
+bbb.
+
 intros al₁ al₂ al₃.
 rewrite list_mul_comm.
 unfold list_mul at 1.
