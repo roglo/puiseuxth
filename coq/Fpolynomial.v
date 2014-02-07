@@ -896,12 +896,12 @@ Proof. intros n la; apply list_nth_list_convol_mul_nil_r. Qed.
 
 (*
 Lemma list_nth_convol_mul : ∀ k la lb i len,
-  (List.nth k (list_convol_mul f la lb i len) .0 f .= f
-   List.nth k la .0 f .* f List.nth k lb .0 f)%K.
+  (i + len)%nat = pred (length la + length lb)
+  → (List.nth k (list_convol_mul f la lb i len) .0 f .= f
+     List.nth k la .0 f .* f List.nth k lb .0 f)%K.
 Proof.
-intros k la lb i len.
+intros k la lb i len Hlen.
 bbb.
-*)
 
 Lemma list_nth_mul : ∀ k la lb,
   (List.nth k (list_mul f la lb) .0 f .= f
@@ -943,6 +943,21 @@ Qed.
 *)
 
 Lemma list_convol_mul_list_mul : ∀ la lb lc i len,
+  list_eq f (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
+    (list_convol_mul_mul la lb lc i len).
+Proof.
+intros la lb lc i len.
+revert la lb lc i.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ apply summation_compat; intros j (_, Hj).
+ destruct (eq_nat_dec i j) as [H₁| H₁].
+  subst j; simpl.
+  rewrite Nat.sub_diag.
+  rewrite <- fld_mul_assoc.
+  apply fld_mul_compat_l.
+bbb.
+
   list_eq f
     (list_convol_mul f la (list_mul f lb lc) i len)
     (list_convol_mul_mul la lb lc i len).
@@ -952,6 +967,7 @@ revert la lb lc i.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHlen ].
 apply summation_compat; intros j (_, Hj).
+rewrite <- fld_mul_assoc.
 bbb.
 *)
 
@@ -961,6 +977,7 @@ Lemma list_mul_assoc : ∀ al₁ al₂ al₃,
 Proof.
 intros al₁ al₂ al₃.
 rewrite list_mul_comm.
+bbb.
 unfold list_mul at 1.
 unfold list_mul at 3.
 remember (pred (length al₃ + length (list_mul f al₁ al₂))) as len₁.
