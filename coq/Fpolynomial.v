@@ -962,6 +962,12 @@ intros la lb lc i len.
 bbb.
 *)
 
+Lemma glup : ∀ g₁ g₂ k,
+  (Σ f (i = 0, k) _ g₁ i .* f List.nth i (g₂ i) .0 f .= f
+   Σ f (i = 0, k) _ List.nth i (List.map (λ a, g₁ i .* f a) (g₂ i)) .0 f)%K.
+Proof.
+bbb.
+
 Lemma glip : ∀ la lb lc i len,
    list_eq f
      (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
@@ -977,6 +983,8 @@ remember List.nth as g; subst slen; simpl; subst g.
 constructor.
  symmetry.
  rewrite summation_mul_comm.
+ rewrite glup.
+ remember List.nth as g; simpl; subst g.
 bbb.
 
 Lemma list_mul_assoc : ∀ la lb lc,
