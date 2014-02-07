@@ -949,12 +949,10 @@ Proof.
 intros la lb lc i len.
 revert la lb lc i.
 induction len; intros; [ reflexivity | simpl ].
-constructor.
- apply summation_compat; intros j (_, Hj).
- apply fld_mul_compat_l.
- rewrite list_nth_add; reflexivity.
-
- apply IHlen.
+constructor; [ idtac | apply IHlen ].
+apply summation_compat; intros j (_, Hj).
+apply fld_mul_compat_l.
+rewrite list_nth_add; reflexivity.
 Qed.
 
 Lemma list_add_list_convol_mul : ∀ la lb lc i len,
@@ -967,10 +965,11 @@ Proof.
 intros la lb lc i len.
 revert la lb lc i.
 induction len; intros; [ reflexivity | simpl ].
-constructor.
- rewrite <- summation_add_distr.
-bbb.
-*)
+constructor; [ idtac | apply IHlen ].
+rewrite <- summation_add_distr.
+apply summation_compat; intros j (_, Hj).
+rewrite fld_mul_add_distr_l; reflexivity.
+Qed.
 
 Lemma list_mul_add_distr_l : ∀ la lb lc,
   list_eq f (list_mul f la (list_add f lb lc))
