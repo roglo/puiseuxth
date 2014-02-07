@@ -962,6 +962,7 @@ intros la lb lc i len.
 bbb.
 *)
 
+(*
 Lemma glup : ∀ g₁ g₂ k,
   (Σ f (i = 0, k) _ g₁ i .* f List.nth i (g₂ i) .0 f .= f
    Σ f (i = 0, k) _ List.nth i (List.map (λ a, g₁ i .* f a) (g₂ i)) .0 f)%K.
@@ -986,6 +987,7 @@ constructor.
  rewrite glup.
  remember List.nth as g; simpl; subst g.
 bbb.
+*)
 
 Lemma list_mul_assoc : ∀ la lb lc,
   list_eq f (list_mul f la (list_mul f lb lc))
@@ -994,12 +996,12 @@ Proof.
 intros la lb lc.
 bbb.
 unfold list_mul.
-remember (pred (length al₁ + length al₂)) as a.
-remember (list_convol_mul f al₁ al₂ 0 a) as m.
-remember (pred (length m + length al₃)) as b; subst m.
-remember (pred (length al₂ + length al₃)) as c.
-remember (list_convol_mul f al₂ al₃ 0 c) as m.
-remember (pred (length al₁ + length m)) as d; subst m.
+remember (pred (length la + length lb)) as a.
+remember (list_convol_mul f la lb 0 a) as m.
+remember (pred (length m + length lc)) as b; subst m.
+remember (pred (length lb + length lc)) as c.
+remember (list_convol_mul f lb lc 0 c) as m.
+remember (pred (length la + length m)) as d; subst m.
 rewrite Heqb.
 rewrite list_convol_mul_more with (n := (a + c + d)%nat).
 rewrite <- Heqb.
