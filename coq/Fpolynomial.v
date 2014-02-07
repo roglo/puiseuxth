@@ -633,6 +633,22 @@ intros a b c d Hac Hbd.
 rewrite Hac, Hbd; reflexivity.
 Qed.
 
+Lemma list_add_comm : ∀ al₁ al₂,
+  list_eq f (list_add f al₁ al₂) (list_add f al₂ al₁).
+Proof.
+intros al₁ al₂.
+revert al₂.
+induction al₁; intros.
+ destruct al₂; [ apply list_eq_refl | simpl ].
+ constructor; [ reflexivity | apply list_eq_refl ].
+
+ destruct al₂.
+  constructor; [ reflexivity | apply list_eq_refl ].
+
+  constructor; [ apply fld_add_comm | apply IHal₁ ].
+Qed.
+
+(*
 Lemma list_add_comm : ∀ al₁ al₂ rp₁ rp₂,
   rp₁ = list_add f al₁ al₂
   → rp₂ = list_add f al₂ al₁
@@ -650,6 +666,7 @@ induction al₁; intros.
 
   constructor; [ apply fld_add_comm | apply IHal₁ ].
 Qed.
+*)
 
 Theorem poly_add_comm : ∀ pol₁ pol₂, (pol₁ .+ f pol₂ .= f pol₂ .+ f pol₁)%pol.
 Proof.
@@ -940,39 +957,45 @@ constructor.
  apply IHlen.
 Qed.
 
+Lemma list_add_list_convol_mul : ∀ la lb lc i len,
+   list_eq f
+     (list_add f
+        (list_convol_mul f la lb i len)
+        (list_convol_mul f la lc i len))
+     (list_convol_mul_add la lb lc i len).
+Proof.
+intros la lb lc i len.
+bbb.
+*)
+
 Lemma list_mul_add_distr_l : ∀ la lb lc,
   list_eq f (list_mul f la (list_add f lb lc))
     (list_add f (list_mul f la lb) (list_mul f la lc)).
 Proof.
 intros la lb lc.
 unfold list_mul.
+remember (pred (length la + length (list_add f lb lc))) as labc.
+remember (pred (length la + length lb)) as lab.
+remember (pred (length la + length lc)) as lac.
+rewrite Heqlabc.
+rewrite list_convol_mul_more with (n := (lab + lac)%nat).
+rewrite <- Heqlabc.
+symmetry.
+rewrite Heqlab.
+rewrite list_convol_mul_more with (n := (labc + lac)%nat).
+rewrite <- Heqlab.
+rewrite list_add_comm.
+rewrite Heqlac.
+rewrite list_convol_mul_more with (n := (labc + lab)%nat).
+rewrite <- Heqlac.
+rewrite Nat.add_comm.
+rewrite list_add_comm.
+rewrite Nat.add_assoc, Nat.add_shuffle0, Nat.add_comm, Nat.add_assoc.
+symmetry.
 rewrite list_convol_mul_list_add.
-revert lb lc.
-induction la as [| a]; intros; simpl.
- rewrite list_convol_mul_nil_l.
- rewrite list_convol_mul_nil_l.
-
-bbb.
-revert lb lc.
-induction la as [| a]; intros.
- simpl.
- do 3 rewrite list_convol_mul_nil_l.
- reflexivity.
-
- simpl.
- revert lc.
- induction lb as [| b]; intros.
-  simpl.
-  rewrite list_convol_mul_nil_r, list_add_nil_l.
-  reflexivity.
-
-  simpl.
-  destruct lc as [| c].
-   rewrite list_convol_mul_nil_r, list_add_nil_r.
-   reflexivity.
-
-   simpl.
-bbb.
+rewrite list_add_list_convol_mul.
+reflexivity.
+Qed.
 
 End poly.
 
