@@ -248,7 +248,7 @@ Lemma convol_mul_add_distr_l : ∀ a b c i,
 Proof.
 intros a b c k.
 unfold convol_mul.
-rewrite <- summation_fun_add.
+rewrite <- summation_add_distr.
 apply summation_compat; intros i Hi.
 rewrite series_nth_add.
 rewrite fld_mul_add_distr_l.

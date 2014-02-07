@@ -965,6 +965,10 @@ Lemma list_add_list_convol_mul : ∀ la lb lc i len,
      (list_convol_mul_add la lb lc i len).
 Proof.
 intros la lb lc i len.
+revert la lb lc i.
+induction len; intros; [ reflexivity | simpl ].
+constructor.
+ rewrite <- summation_add_distr.
 bbb.
 *)
 

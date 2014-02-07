@@ -342,29 +342,6 @@ rewrite summation_succ; [ reflexivity | idtac ].
 apply Nat.le_le_succ_r; assumption.
 Qed.
 
-Lemma summation_aux_fun_add : ∀ g h b len,
-  (summation_aux f b len (λ i, g i .+ f h i) .= f
-   summation_aux f b len g .+ f summation_aux f b len h)%K.
-Proof.
-intros g h b len.
-symmetry.
-revert b.
-induction len; intros; simpl; [ apply fld_add_0_l | idtac ].
-rewrite fld_add_shuffle0.
-do 3 rewrite <- fld_add_assoc.
-do 2 apply fld_add_compat_l.
-rewrite fld_add_comm.
-apply IHlen.
-Qed.
-
-Lemma summation_fun_add : ∀ g h b e,
-  (Σ f (i = b, e) _ (g i .+ f h i) .= f
-   Σ f (i = b, e) _ g i .+ f Σ f (i = b, e) _ h i)%K.
-Proof.
-intros g h b e.
-apply summation_aux_fun_add.
-Qed.
-
 Lemma summation_aux_ub_add : ∀ g b k₁ k₂,
   (summation_aux f b (k₁ + k₂) g .= f
    summation_aux f b k₁ g .+ f summation_aux f (b + k₁) k₂ g)%K.
