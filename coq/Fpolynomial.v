@@ -987,6 +987,19 @@ induction len; intros; simpl.
  apply IHlen; assumption.
 Qed.
 
+Lemma summation_list_nth_convol_mul : ∀ la lb a n len,
+  (n < len)%nat
+  → (Σ f (i = 0, n) _ a i .* f
+       List.nth (n - i) (list_convol_mul f la lb n len) .0 f .= f
+     Σ f (i = 0, n) _ a i .* f
+       Σ f (k = 0, n - i + n) _
+         List.nth k la .0 f .* f List.nth (n - i + n - k) lb .0 f)%K.
+Proof.
+intros la lb a n len Hlen.
+apply summation_compat; intros i (_, Hi).
+rewrite list_nth_convol_mul; [ reflexivity | fast_omega Hlen ].
+Qed.
+
 Lemma glip : ∀ la lb lc i len,
    list_eq f
      (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
@@ -995,16 +1008,15 @@ Proof.
 intros la lb lc i len.
 symmetry.
 rewrite list_convol_mul_comm.
-bbb.
 revert la lb lc i.
 induction len; intros; [ reflexivity | idtac ].
 remember (S len) as slen eqn:Hslen .
 rewrite Hslen in |- * at 2.
 rewrite Hslen in |- * at 3; simpl.
-remember List.nth as g; subst slen; simpl; subst g.
 constructor.
- symmetry.
- rewrite summation_mul_comm.
+ destruct (lt_dec i slen) as [H₁| H₁].
+  rewrite summation_list_nth_convol_mul; [ idtac | assumption ].
+  rewrite summation_list_nth_convol_mul; [ idtac | assumption ].
 bbb.
 *)
 
