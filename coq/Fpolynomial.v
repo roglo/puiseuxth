@@ -970,6 +970,23 @@ Proof.
 bbb.
 *)
 
+Lemma list_nth_convol_mul : ∀ la lb n i len,
+  (n < len)%nat
+  → (List.nth n (list_convol_mul f la lb i len) .0 f .= f
+     Σ f (j = 0, n + i) _
+     List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f)%K.
+Proof.
+intros la lb n i len Hlen.
+revert la lb n i Hlen.
+induction len; intros; simpl.
+ exfalso; revert Hlen; apply Nat.nlt_0_r.
+
+ destruct n; [ reflexivity | idtac ].
+ apply lt_S_n in Hlen.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+ apply IHlen; assumption.
+Qed.
+
 Lemma glip : ∀ la lb lc i len,
    list_eq f
      (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
