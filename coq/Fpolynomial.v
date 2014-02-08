@@ -1017,6 +1017,9 @@ constructor.
  destruct (lt_dec i slen) as [H₁| H₁].
   rewrite summation_list_nth_convol_mul; [ idtac | assumption ].
   rewrite summation_list_nth_convol_mul; [ idtac | assumption ].
+  rewrite summation_rtl; symmetry.
+  rewrite summation_rtl; symmetry.
+  rewrite Nat.add_0_r.
 bbb.
 *)
 
