@@ -1005,6 +1005,17 @@ Lemma glip : ∀ la lb lc i len,
      (list_convol_mul f la (list_convol_mul f lb lc i len) i len)
      (list_convol_mul f (list_convol_mul f la lb i len) lc i len).
 Proof.
+intros la lb lc k len.
+revert la lb lc k.
+induction len; intros; [ reflexivity | idtac ].
+remember (S len) as slen eqn:Hslen .
+rewrite Hslen in |- * at 2.
+rewrite Hslen in |- * at 3; simpl.
+constructor.
+ destruct (lt_dec k slen) as [H₁| H₁].
+
+bbb.
+
 intros la lb lc i len.
 symmetry.
 rewrite list_convol_mul_comm.
