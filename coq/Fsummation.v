@@ -510,6 +510,18 @@ replace (b + n + i - n)%nat with (b + i)%nat by omega.
 reflexivity.
 Qed.
 
+Lemma summation_succ_succ : ∀ b k g,
+  (Σ f (i = S b, S k) _ g i .= f Σ f (i = b, k) _ g (S i))%K.
+Proof.
+intros b k g.
+unfold summation.
+rewrite Nat.sub_succ.
+remember (S k - b)%nat as len; clear Heqlen.
+revert b.
+induction len; intros; [ reflexivity | simpl ].
+rewrite IHlen; reflexivity.
+Qed.
+
 End theorems_summation.
 
 Close Scope nat_scope.

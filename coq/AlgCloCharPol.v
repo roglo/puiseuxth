@@ -778,11 +778,6 @@ Qed.
 Lemma list_eq_0 : ∀ α (f : field α), list_eq f [.0 f%K] [].
 Proof. intros α f; constructor; reflexivity. Qed.
 
-Lemma summation_shift : ∀ α (f : field α) b k g,
-  (Σ f (i = S b, S k) _ g i .= f Σ f (i = b, k) _ g (S i))%K.
-Proof.
-bbb.
-
 Lemma list_mul_cons_l : ∀ α (f : field α) a la lb,
   list_eq f (list_mul f [a … la] lb)
     (list_add f (list_mul f [a] lb) [.0 f%K … list_mul f la lb]).
@@ -808,10 +803,9 @@ destruct k.
   rewrite fld_add_0_r.
   apply fld_add_compat_l.
   rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
-  rewrite summation_shift; reflexivity.
+  rewrite summation_succ_succ; reflexivity.
 
-  intros i (Hi, Hik).
-  simpl.
+  intros i (Hi, Hik); simpl.
   destruct i; [ exfalso; omega | simpl ].
   destruct i; rewrite fld_mul_0_l; reflexivity.
 Qed.
