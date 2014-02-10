@@ -472,56 +472,6 @@ apply summation_compat; intros j (_, Hj).
 apply fld_mul_compat; apply list_nth_fld_eq; assumption.
 Qed.
 
-(*
-Lemma list_eq_list_nth : ∀ α (f : field α) la lb n,
-  list_eq f la lb
-  → (List.nth n la .0 f .= f List.nth n lb .0 f)%K.
-Proof.
-intros α f la lb n Heq.
-revert la lb Heq.
-induction n; intros.
- destruct la as [| a].
-  destruct lb as [| b]; [ reflexivity | simpl ].
-  apply list_eq_nil_cons_inv in Heq.
-  destruct Heq; symmetry; assumption.
-
-  destruct lb as [| b].
-   apply list_eq_cons_nil_inv in Heq.
-   destruct Heq; assumption.
-
-   apply list_eq_cons_inv in Heq.
-   destruct Heq; assumption.
-
- destruct la as [| a]; simpl.
-  destruct lb as [| b]; [ reflexivity | simpl ].
-  apply list_eq_nil_cons_inv in Heq.
-  destruct Heq as (Hb, Hlb).
-  rewrite <- IHn; [ idtac | eassumption ].
-  destruct n; reflexivity.
-
-  destruct lb as [| b]; simpl.
-   apply list_eq_cons_nil_inv in Heq.
-   destruct Heq as (Ha, Hla).
-   rewrite IHn; [ idtac | eassumption ].
-   destruct n; reflexivity.
-
-   apply list_eq_cons_inv in Heq.
-   apply IHn; destruct Heq; assumption.
-Qed.
-
-Add Parametric Morphism α (f : field α) : (list_convol_mul f)
-  with signature (list_eq f) ==> (list_eq f) ==> eq ==> eq ==> (list_eq f)
-  as list_convol_mul_morph.
-Proof.
-intros la lc Hac lb ld Hbd i len.
-revert i.
-induction len; intros; [ reflexivity | simpl ].
-constructor; [ idtac | apply IHlen ].
-apply summation_compat; intros j (_, Hj).
-apply fld_mul_compat; apply list_eq_list_nth; assumption.
-Qed.
-*)
-
 Lemma list_convol_mul_succ : ∀ α (f : field α) la lb i len,
   list_eq f
     (list_convol_mul f la lb i (S len))
@@ -852,78 +802,6 @@ rewrite Nat.add_comm.
 rewrite list_convol_mul_comm; reflexivity.
 Qed.
 
-Lemma list_mul_assoc : ∀ la lb lc,
-  list_eq f (list_mul f la (list_mul f lb lc))
-    (list_mul f (list_mul f la lb) lc).
-Proof.
-intros la lb lc.
-unfold list_mul.
-remember (pred (length la + length lb)) as a.
-remember (list_convol_mul f la lb 0 a) as m.
-remember (pred (length m + length lc)) as b; subst m.
-remember (pred (length lb + length lc)) as c.
-remember (list_convol_mul f lb lc 0 c) as m.
-remember (pred (length la + length m)) as d; subst m.
-rewrite Heqb.
-rewrite list_convol_mul_more with (n := (a + c + d)%nat).
-rewrite <- Heqb.
-rewrite Heqa.
-rewrite list_convol_mul_more with (n := (b + c + d)%nat).
-rewrite <- Heqa.
-rewrite Heqd.
-rewrite list_convol_mul_more with (n := (a + b + c)%nat).
-rewrite <- Heqd.
-rewrite Heqc.
-rewrite list_convol_mul_more with (n := (a + b + d)%nat).
-rewrite <- Heqc.
-remember (a + (b + c + d))%nat as len.
-replace (b + (a + c + d))%nat with len by fast_omega Heqlen.
-replace (c + (a + b + d))%nat with len by fast_omega Heqlen.
-replace (d + (a + b + c))%nat with len by fast_omega Heqlen.
-bbb.
-
-intros al₁ al₂ al₃.
-unfold list_mul.
-remember (pred (length al₁ + length al₂)) as len₁₂.
-remember (list_convol_mul f al₁ al₂ 0 len₁₂) as m.
-remember (pred (length m + length al₃)) as len₁₂_₃; subst m.
-remember (pred (length al₂ + length al₃)) as len₂₃.
-remember (list_convol_mul f al₂ al₃ 0 len₂₃) as m.
-remember (pred (length al₁ + length m)) as len₁_₂₃; subst m.
-rewrite Heqlen₁₂_₃.
-rewrite list_convol_mul_more with (n := (len₁₂ + len₂₃ + len₁_₂₃)%nat).
-rewrite <- Heqlen₁₂_₃.
-rewrite Heqlen₁₂.
-rewrite list_convol_mul_more with (n := (len₁₂_₃ + len₂₃ + len₁_₂₃)%nat).
-rewrite <- Heqlen₁₂.
-rewrite Heqlen₁_₂₃.
-rewrite list_convol_mul_more with (n := (len₁₂ + len₁₂_₃ + len₂₃)%nat).
-rewrite <- Heqlen₁_₂₃.
-rewrite Heqlen₂₃.
-rewrite list_convol_mul_more with (n := (len₁₂ + len₁₂_₃ + len₁_₂₃)%nat).
-rewrite <- Heqlen₂₃.
-bbb.
-
-intros al₁ al₂ al₃.
-rewrite list_mul_comm.
-unfold list_mul at 1.
-unfold list_mul at 3.
-remember (pred (length al₃ + length (list_mul f al₁ al₂))) as len₁.
-remember (pred (length al₁ + length (list_mul f al₂ al₃))) as len₂.
-rewrite Heqlen₁.
-rewrite list_convol_mul_more with (n := len₂).
-rewrite list_convol_mul_list_mul.
-symmetry.
-rewrite Heqlen₂.
-rewrite list_convol_mul_more with (n := len₁).
-rewrite list_convol_mul_list_mul.
-rewrite <- Heqlen₁, <- Heqlen₂.
-rewrite Nat.add_comm.
-rewrite list_convol_mul_list_mul.
-rewrite list_convol_mul_list_mul.
-bbb.
-*)
-
 Lemma list_nth_list_convol_mul_aux : ∀ la lb n i len,
   pred (List.length la + List.length lb) = (i + len)%nat
   → (List.nth n (list_convol_mul f la lb i len) .0 f%K .= f
@@ -965,6 +843,57 @@ symmetry in Hlen.
 rewrite list_nth_list_convol_mul_aux; [ idtac | assumption ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
+
+Lemma summation_mul_list_nth_list_convol_mul : ∀ la lb lc k,
+  (Σ f (i = 0, k) _
+     List.nth i la .0 f .* f
+     List.nth (k - i)
+       (list_convol_mul f lb lc 0 (pred (length lb + length lc))) 
+       .0 f .= f
+   Σ f (i = 0, k) _
+     List.nth i la .0 f .* f
+     Σ f (j = 0, k - i) _
+       List.nth j lb .0 f .* f List.nth (k - i - j) lc .0 f)%K.
+Proof.
+intros la lb lc k.
+apply summation_compat; intros i (_, Hi).
+apply fld_mul_compat_l.
+rewrite list_nth_list_convol_mul; reflexivity.
+Qed.
+
+Lemma summation_mul_list_nth_list_convol_mul_2 : ∀ la lb lc k,
+   (Σ f (i = 0, k) _
+      List.nth i lc .0 f .* f
+      List.nth (k - i)
+        (list_convol_mul f la lb 0 (pred (length la + length lb)))  .0 f .= f
+    Σ f (i = 0, k) _
+      List.nth (k - i) lc .0 f .* f
+      Σ f (j = 0, i) _
+        List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+Proof.
+intros la lb lc k.
+rewrite summation_rtl.
+apply summation_compat; intros i (_, Hi).
+rewrite Nat.add_0_r.
+apply fld_mul_compat_l.
+rewrite Nat_sub_sub_distr; [ idtac | assumption ].
+rewrite Nat.add_comm, Nat.add_sub.
+apply list_nth_list_convol_mul; reflexivity.
+Qed.
+
+Lemma list_mul_assoc : ∀ la lb lc,
+  list_eq f (list_mul f la (list_mul f lb lc))
+    (list_mul f (list_mul f la lb) lc).
+Proof.
+intros la lb lc.
+symmetry; rewrite list_mul_comm.
+unfold list_mul.
+apply list_nth_list_eq; intros k.
+rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
+rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
+rewrite summation_mul_list_nth_list_convol_mul_2; symmetry.
+rewrite summation_mul_list_nth_list_convol_mul.
+bbb.
 
 Lemma list_eq_skipn_succ : ∀ cl i,
   list_eq f [List.nth i cl .0 f%K … List.skipn (S i) cl] (List.skipn i cl).
