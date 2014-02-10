@@ -1077,10 +1077,18 @@ apply summation_compat; intros i (_, Hi).
 rewrite list_nth_convol_mul; [ reflexivity | apply Hlen, Hi ].
 Qed.
 
-Lemma foo : ∀ la lb i k,
-  (List.nth i (list_convol_mul f la lb k 0) .0 f .= f
-   Σ f (j = 0, i)_ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+Lemma foo : ∀ la lb i k len,
+  (List.nth k (list_convol_mul f la lb i len) .0 f .= f
+   Σ f (j = 0, k)_ List.nth j la .0 f .* f List.nth (k - j) lb .0 f)%K.
 Proof.
+intros la lb i k len.
+revert la lb i k.
+induction len; intros; simpl.
+ Focus 2.
+ destruct k.
+  simpl.
+  Focus 2.
+  rewrite IHlen.
 bbb.
 
 (**)
