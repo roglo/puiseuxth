@@ -970,7 +970,7 @@ Proof.
 bbb.
 *)
 
-(*
+(**)
 Lemma list_nth_convol_mul_0 : ∀ la lb n i len,
   (n < len)%nat
   → (List.nth n (list_convol_mul f la lb i len) .0 f .= f
@@ -1004,7 +1004,7 @@ rewrite Nat.add_0_r.
 rewrite Nat_sub_sub_distr; [ idtac | assumption ].
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
-*)
+(**)
 
 Lemma list_nth_convol_mul : ∀ la lb k i len,
   (k < len)%nat
@@ -1077,6 +1077,13 @@ apply summation_compat; intros i (_, Hi).
 rewrite list_nth_convol_mul; [ reflexivity | apply Hlen, Hi ].
 Qed.
 
+Lemma foo : ∀ la lb i k,
+  (List.nth i (list_convol_mul f la lb k 0) .0 f .= f
+   Σ f (j = 0, i)_ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+Proof.
+bbb.
+
+(**)
 Lemma glup : ∀ a lb lc k len,
   (Σ f (i = 0, k) _ a i .* f
      List.nth (k - i) (list_convol_mul f lb lc k len) .0 f .= f
@@ -1084,7 +1091,14 @@ Lemma glup : ∀ a lb lc k len,
      Σ f (j = 0, k - i) _
        List.nth j lb .0 f .* f List.nth (k - i - j) lc .0 f)%K.
 Proof.
+intros a la lb k len.
+revert a la lb k.
+induction len; intros.
+ apply summation_compat; intros i (_, Hi).
+ apply fld_mul_compat_l.
+ apply foo.
 bbb.
+*)
 
 Lemma glip : ∀ la lb lc i len,
    list_eq f
@@ -1100,7 +1114,6 @@ remember (S len) as slen eqn:Hslen .
 rewrite Hslen in |- * at 2.
 rewrite Hslen in |- * at 3; simpl.
 constructor.
- symmetry.
 bbb.
  rewrite summation_list_nth_convol_mul.
   symmetry.
