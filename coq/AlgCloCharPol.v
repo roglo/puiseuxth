@@ -923,24 +923,18 @@ apply fld_add_compat_r.
 apply apply_list_mul.
 Qed.
 
-Lemma www : ∀ α (f : field α) la a x,
+Lemma apply_list_compose_add_sub : ∀ α (f : field α) la a x,
   (apply_list f (list_compose f la [a; .1 f … []]) (x .- f a) .= f
    apply_list f la x)%K.
 Proof.
 intros α f la a x.
 rewrite apply_list_compose; simpl.
 rewrite fld_mul_0_l, fld_add_0_l.
-bbb.
-
-unfold apply_list; simpl.
-revert a x.
-induction la as [| a₁]; intros; [ reflexivity | simpl ].
-rewrite IHla.
-rewrite fld_mul_0_l, fld_add_0_l, fld_mul_1_l.
-apply fld_add_compat_r.
-apply fld_mul_compat_l.
-rewrite fld_add_comm.
-bbb.
+rewrite fld_mul_1_l.
+rewrite fld_add_comm, fld_add_assoc.
+rewrite fld_add_comm, fld_add_assoc.
+rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
+Qed.
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
@@ -952,9 +946,9 @@ pose proof (taylor_formula_0 f (x .- f a)%K Q) as H.
 subst Q.
 unfold poly_compose in H; simpl in H.
 unfold apply_poly in H; simpl in H.
+unfold apply_poly in H; simpl in H.
 unfold apply_poly; simpl.
-rewrite vvv in H.
-simpl in H.
+rewrite apply_list_compose_add_sub in H.
 bbb.
 rewrite fld_mul_0_l in H.
 
