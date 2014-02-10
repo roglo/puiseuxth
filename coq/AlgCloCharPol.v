@@ -783,8 +783,8 @@ Lemma list_mul_cons_l : ∀ α (f : field α) a la lb,
     (list_add f (list_mul f [a] lb) [.0 f%K … list_mul f la lb]).
 Proof.
 intros α f a la lb.
-apply list_nth_list_eq; intros k.
 unfold list_mul.
+apply list_nth_list_eq; intros k.
 rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
 rewrite list_nth_add.
 rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
@@ -810,6 +810,34 @@ destruct k.
   destruct i; rewrite fld_mul_0_l; reflexivity.
 Qed.
 
+Lemma list_mul_cons_r : ∀ α (f : field α) la b lb,
+  list_eq f (list_mul f la [b … lb])
+    (list_add f (list_mul f la [b]) [.0 f%K … list_mul f la lb]).
+Proof.
+intros α f la b lb.
+rewrite list_mul_comm.
+rewrite list_mul_cons_l.
+rewrite list_mul_comm.
+apply list_add_compat; [ reflexivity | idtac ].
+rewrite list_mul_comm; reflexivity.
+Qed.
+
+Lemma list_convol_mul_cons_succ : ∀ α (f : field α) a b lb i len,
+  list_eq f (list_convol_mul f [a] [b … lb] (S i) len)
+    (list_convol_mul f [a] lb i len).
+Proof.
+intros α f a b lb i len.
+revert a b lb i.
+induction len; intros; [ reflexivity | idtac ].
+constructor; [ idtac | apply IHlen ].
+rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
+rewrite List.nth_overflow; [ idtac | simpl; fast_omega  ].
+rewrite fld_mul_0_l, fld_add_0_r.
+apply summation_compat; intros j (_, Hj).
+apply fld_mul_compat_l.
+rewrite Nat.sub_succ_l; [ reflexivity | assumption ].
+Qed.
+
 Lemma list_mul_cons : ∀ α (f : field α) a b la lb,
   list_eq f (list_mul f [a … la] [b … lb])
     [(a .* f b)%K
@@ -817,46 +845,32 @@ Lemma list_mul_cons : ∀ α (f : field α) a b la lb,
         [.0 f%K … list_mul f la lb]].
 Proof.
 intros α f a b la lb.
+rewrite list_mul_cons_l; simpl.
+rewrite summation_only_one.
+rewrite fld_add_0_r.
+constructor; [ reflexivity | idtac ].
+rewrite list_mul_cons_r.
+unfold list_mul; simpl.
+rewrite <- list_add_assoc.
+apply list_add_compat; [ idtac | reflexivity ].
+rewrite list_add_comm.
+apply list_add_compat; [ reflexivity | idtac ].
 bbb.
-revert b la lb.
-induction la as [| a₂]; intros; simpl.
- rewrite list_mul_nil_l.
- rewrite list_eq_0, list_add_nil_r.
- unfold list_mul; simpl.
- rewrite summation_only_one.
- constructor; [ reflexivity | idtac ].
- revert a b.
- induction lb as [| b₂]; intros; simpl.
-  reflexivity.
+induction (length lb); [ reflexivity | simpl ].
+rewrite summation_only_one.
+unfold summation; simpl.
+rewrite fld_mul_0_l, fld_add_0_r, fld_add_0_r.
+apply list_add_compat; [ reflexivity | idtac ].
+apply list_convol_mul_cons_succ.
+Qed.
 
-  rewrite summation_only_one.
-  unfold summation; simpl.
-  rewrite fld_mul_0_l, fld_add_0_r, fld_add_0_r.
-  constructor; [ reflexivity | idtac ].
-bbb.
-
-intros α f a b la lb.
-simpl.
-do 2 rewrite fld_add_0_r.
-revert b la lb.
-induction la as [| a₂]; intros; simpl.
- rewrite list_mul_nil_l.
- assert (list_eq f (list_add f lb [.0 f%K]) lb) as H.
-  induction lb; [ constructor; reflexivity | idtac ].
-  simpl.
-  rewrite fld_add_0_r; constructor; [ reflexivity | idtac ].
-  rewrite list_add_nil_r; reflexivity.
-
-  rewrite H.
-bbb.
-
-(* not sure *)
 Lemma apply_list_mul : ∀ α (f : field α) la lb x,
   (apply_list f (list_mul f la lb) x .= f
    apply_list f la x .* f apply_list f lb x)%K.
 Proof.
 intros α f la lb x.
 revert lb x.
+bbb.
 induction la as [| a]; intros; simpl.
  rewrite list_mul_nil_l, fld_mul_0_l; reflexivity.
 
