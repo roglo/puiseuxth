@@ -339,6 +339,69 @@ rewrite list_skipn_0; simpl.
 rewrite coeff_list_deriv_0_l; reflexivity.
 Qed.
 
+Lemma comb_neq_0 : ∀ n k, k ≤ n → comb n k ≠ O.
+Proof.
+intros n k Hkn.
+revert k Hkn.
+induction n; intros.
+ apply Nat.le_0_r in Hkn; subst k.
+ intros H; discriminate H.
+
+ simpl.
+ destruct k; [ intros H; discriminate H | idtac ].
+ apply le_S_n in Hkn.
+ intros H.
+ apply Nat.eq_add_0 in H.
+ destruct H as (H, _).
+ revert H; apply IHn; assumption.
+Qed.
+
+Lemma comb_succ_l : ∀ n, comb (S n) n = S n.
+Proof.
+intros n.
+induction n; [ reflexivity | idtac ].
+remember (S n) as x; simpl; subst x.
+rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
+Qed.
+
+(* supposes that f is of characteristic 0
+Lemma zzz : ∀ α (f : field α) la i n,
+  i ≤ n
+  → list_eq f (coeff_list_deriv f la i n) []
+    → list_eq f (coeff_list_deriv f la (S i) (S n)) [].
+Proof.
+intros α f la i n Hin Heq.
+revert i n Hin Heq.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+simpl in Heq.
+apply list_eq_cons_nil_inv in Heq.
+destruct Heq as (Ha, Hla).
+constructor.
+ remember (comb n i) as c.
+ symmetry in Heqc.
+ destruct c.
+  exfalso; revert Heqc; apply comb_neq_0; assumption.
+
+  Focus 2.
+  apply IHla; [ omega | assumption ].
+bbb.
+*)
+
+Lemma list_derivial_le : ∀ α (f : field α) k la,
+  (length la ≤ k)%nat
+  → list_eq f (list_derivial f k la) [].
+Proof.
+intros α f k la Hlen.
+unfold list_derivial; simpl.
+revert k Hlen.
+induction la as [| a]; intros; simpl.
+ rewrite list_skipn_nil; reflexivity.
+
+ simpl in Hlen.
+ destruct k; [ exfalso; omega | simpl ].
+ apply le_S_n in Hlen.
+bbb.
+
 Lemma list_derivial_succ_1 : ∀ α (f : field α) k a,
   list_eq f (list_derivial f (S k) [a]) [].
 Proof.
@@ -506,34 +569,9 @@ intros α f a b m n Hab Hmn.
 rewrite Hab, Hmn; reflexivity.
 Qed.
 
-Lemma comb_succ_l : ∀ n, comb (S n) n = S n.
-Proof.
-intros n.
-induction n; [ reflexivity | idtac ].
-remember (S n) as x; simpl; subst x.
-rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
-Qed.
-
 Lemma comb_succ_succ : ∀ n k,
   comb (S n) (S k) = (comb n k + comb n (S k))%nat.
 Proof. intros; reflexivity. Qed.
-
-Lemma comb_neq_0 : ∀ n k, k ≤ n → comb n k ≠ O.
-Proof.
-intros n k Hkn.
-revert k Hkn.
-induction n; intros.
- apply Nat.le_0_r in Hkn; subst k.
- intros H; discriminate H.
-
- simpl.
- destruct k; [ intros H; discriminate H | idtac ].
- apply le_S_n in Hkn.
- intros H.
- apply Nat.eq_add_0 in H.
- destruct H as (H, _).
- revert H; apply IHn; assumption.
-Qed.
 
 Lemma comb_fact : ∀ m n,
   (comb (m + n) m * (fact m * fact n) = fact (m + n))%nat.
@@ -935,6 +973,25 @@ rewrite fld_add_comm, fld_add_assoc.
 rewrite fld_add_comm, fld_add_assoc.
 rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
 Qed.
+
+Lemma yyy : ∀ α (f : field α) la n c k i,
+  (n + k = length la)%nat
+  → (List.nth i (coeff_taylor_list f n la c k) .0 f .= f
+     apply_list f (list_derivial f (i + k) la) c)%K.
+Proof.
+intros α f la n c k i Hlen.
+revert la c k i Hlen.
+induction n; intros; simpl.
+bbb.
+
+Lemma zzz : ∀ α (f : field α) a la,
+  list_eq f
+    (taylor_list f (list_compose f la [a; .1 f … []]) .0 f)%K
+    (taylor_list f la a).
+Proof.
+intros α f a la.
+apply list_nth_list_eq; intros k.
+bbb.
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
