@@ -881,6 +881,7 @@ rewrite Nat.add_comm, Nat.add_sub.
 apply list_nth_list_convol_mul; reflexivity.
 Qed.
 
+(* inspired from series_mul_assoc *)
 Lemma list_mul_assoc : ∀ la lb lc,
   list_eq f (list_mul f la (list_mul f lb lc))
     (list_mul f (list_mul f la lb) lc).
@@ -892,8 +893,18 @@ apply list_nth_list_eq; intros k.
 rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
 rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
 rewrite summation_mul_list_nth_list_convol_mul_2; symmetry.
-rewrite summation_mul_list_nth_list_convol_mul.
-bbb.
+rewrite summation_mul_list_nth_list_convol_mul; symmetry.
+rewrite <- summation_summation_mul_swap.
+rewrite <- summation_summation_mul_swap.
+rewrite summation_summation_exch.
+rewrite summation_summation_shift.
+apply summation_compat; intros i Hi.
+apply summation_compat; intros j Hj.
+rewrite fld_mul_comm, fld_mul_assoc.
+rewrite Nat.add_comm, Nat.add_sub.
+rewrite Nat.add_comm, Nat.sub_add_distr.
+reflexivity.
+Qed.
 
 Lemma list_eq_skipn_succ : ∀ cl i,
   list_eq f [List.nth i cl .0 f%K … List.skipn (S i) cl] (List.skipn i cl).
