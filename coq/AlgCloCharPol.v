@@ -756,10 +756,178 @@ rewrite list_mul_nil_r, list_add_nil_l; simpl.
 rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
 Qed.
 
+Lemma apply_list_add : ∀ α (f : field α) la lb x,
+  (apply_list f (list_add f la lb) x .= f
+   apply_list f la x .+ f apply_list f lb x)%K.
+Proof.
+intros α f la lb x.
+revert lb x.
+induction la as [| a]; intros; simpl.
+ rewrite fld_add_0_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  rewrite fld_add_0_r; reflexivity.
+
+  rewrite IHla.
+  do 2 rewrite fld_add_assoc.
+  apply fld_add_compat_r.
+  rewrite fld_add_shuffle0.
+  rewrite fld_mul_add_distr_r; reflexivity.
+Qed.
+
+Lemma list_eq_0 : ∀ α (f : field α), list_eq f [.0 f%K] [].
+Proof. intros α f; constructor; reflexivity. Qed.
+
+Lemma summation_shift : ∀ α (f : field α) b k g,
+  (Σ f (i = S b, S k) _ g i .= f Σ f (i = b, k) _ g (S i))%K.
+Proof.
+bbb.
+
+Lemma list_mul_cons_l : ∀ α (f : field α) a la lb,
+  list_eq f (list_mul f [a … la] lb)
+    (list_add f (list_mul f [a] lb) [.0 f%K … list_mul f la lb]).
+Proof.
+intros α f a la lb.
+apply list_nth_list_eq; intros k.
+unfold list_mul.
+rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
+rewrite list_nth_add.
+rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
+destruct k.
+ rewrite summation_only_one.
+ rewrite summation_only_one.
+ rewrite fld_add_0_r; reflexivity.
+
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite Nat.sub_0_r.
+ symmetry.
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite all_0_summation_0.
+  rewrite Nat.sub_0_r.
+  simpl.
+  rewrite fld_add_0_r.
+  apply fld_add_compat_l.
+  rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
+  rewrite summation_shift; reflexivity.
+
+  intros i (Hi, Hik).
+  simpl.
+  destruct i; [ exfalso; omega | simpl ].
+  destruct i; rewrite fld_mul_0_l; reflexivity.
+Qed.
+
+Lemma list_mul_cons : ∀ α (f : field α) a b la lb,
+  list_eq f (list_mul f [a … la] [b … lb])
+    [(a .* f b)%K
+    … list_add f (list_add f (list_mul f la [b]) (list_mul f [a] lb))
+        [.0 f%K … list_mul f la lb]].
+Proof.
+intros α f a b la lb.
+bbb.
+revert b la lb.
+induction la as [| a₂]; intros; simpl.
+ rewrite list_mul_nil_l.
+ rewrite list_eq_0, list_add_nil_r.
+ unfold list_mul; simpl.
+ rewrite summation_only_one.
+ constructor; [ reflexivity | idtac ].
+ revert a b.
+ induction lb as [| b₂]; intros; simpl.
+  reflexivity.
+
+  rewrite summation_only_one.
+  unfold summation; simpl.
+  rewrite fld_mul_0_l, fld_add_0_r, fld_add_0_r.
+  constructor; [ reflexivity | idtac ].
+bbb.
+
+intros α f a b la lb.
+simpl.
+do 2 rewrite fld_add_0_r.
+revert b la lb.
+induction la as [| a₂]; intros; simpl.
+ rewrite list_mul_nil_l.
+ assert (list_eq f (list_add f lb [.0 f%K]) lb) as H.
+  induction lb; [ constructor; reflexivity | idtac ].
+  simpl.
+  rewrite fld_add_0_r; constructor; [ reflexivity | idtac ].
+  rewrite list_add_nil_r; reflexivity.
+
+  rewrite H.
+bbb.
+
+(* not sure *)
+Lemma apply_list_mul : ∀ α (f : field α) la lb x,
+  (apply_list f (list_mul f la lb) x .= f
+   apply_list f la x .* f apply_list f lb x)%K.
+Proof.
+intros α f la lb x.
+revert lb x.
+induction la as [| a]; intros; simpl.
+ rewrite list_mul_nil_l, fld_mul_0_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  rewrite list_mul_nil_r, fld_mul_0_r; reflexivity.
+
+  rewrite list_mul_cons; simpl.
+  do 2 rewrite fld_add_0_r.
+  rewrite apply_list_add; simpl.
+  rewrite fld_add_0_r.
+  rewrite apply_list_add.
+  rewrite IHla.
+  rewrite fld_mul_add_distr_r.
+  rewrite fld_mul_add_distr_r.
+  rewrite fld_mul_add_distr_r.
+  rewrite fld_mul_add_distr_l.
+  rewrite fld_mul_add_distr_l.
+  rewrite fld_mul_assoc.
+  rewrite fld_mul_assoc.
+  rewrite fld_add_assoc.
+  apply fld_add_compat_r.
+  rewrite fld_add_comm, fld_add_assoc.
+bbb.
+
+intros α f la lb x.
+revert lb x.
+induction la as [| a]; intros; simpl.
+ rewrite fld_add_0_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  rewrite fld_add_0_r; reflexivity.
+
+  rewrite IHla.
+  do 2 rewrite fld_add_assoc.
+  apply fld_add_compat_r.
+  rewrite fld_add_shuffle0.
+  rewrite fld_mul_add_distr_r; reflexivity.
+Qed.
+
 Lemma vvv : ∀ α (f : field α) la lb x,
   (apply_list f (list_compose f la lb) x .= f
    apply_list f la (apply_list f lb x))%K.
 Proof.
+intros α f la lb x.
+unfold list_compose.
+revert lb x.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite <- IHla; clear.
+rewrite apply_list_add; simpl.
+rewrite fld_mul_0_l, fld_add_0_l.
+apply fld_add_compat_r.
+bbb.
+
+intros α f la lb x.
+unfold list_compose.
+destruct la as [| a₁]; [ reflexivity | simpl ].
+destruct la as [| a₂]; simpl.
+ rewrite list_mul_nil_l, list_add_nil_l; simpl.
+ do 2 rewrite fld_mul_0_l; reflexivity.
+
+ destruct la as [| a₃]; simpl.
+  rewrite list_mul_nil_l, list_add_nil_l; simpl.
+  rewrite fld_mul_0_l, fld_add_0_l.
+bbb.
+
 intros α f la lb x.
 unfold list_compose; simpl.
 destruct la as [| a₁]; [ reflexivity | simpl ].
@@ -779,6 +947,7 @@ destruct lb as [| b₁]; simpl.
   simpl.
   rewrite summation_only_one.
   rewrite list_add_nil_r.
+  rewrite <- list_mul_assoc.
 bbb.
 
 Lemma www : ∀ α (f : field α) la a x,
