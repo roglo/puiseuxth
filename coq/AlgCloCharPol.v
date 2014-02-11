@@ -904,15 +904,6 @@ unfold list_derivial; simpl.
 rewrite list_skipn_nil; reflexivity.
 Qed.
 
-Lemma coeff_list_deriv_0 : ∀ α (f : field α) la i,
-  list_eq f (coeff_list_deriv f la 0 i) la.
-Proof.
-intros α f la i; revert i.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite comb_0_r, mul_int_1_r.
-constructor; [ reflexivity | apply IHla ].
-Qed.
-
 Lemma list_mul_const_l : ∀ α (f : field α) a lb,
   list_eq f (list_mul f [a] lb) (List.map (fld_mul f a) lb).
 Proof.
@@ -924,14 +915,24 @@ constructor; [ reflexivity | idtac ].
 rewrite list_convol_mul_cons_succ; assumption.
 Qed.
 
-Lemma www : ∀ α (f : field α) A i k,
-  (mul_int f (List.nth i (list_derivial f (S k) A) .0 f) (S k) .= f
-   mul_int f (List.nth (S i) (list_derivial f k A) .0 f) (S i))%K.
+(*
+Lemma vvv :
+  (mul_int f
+     (List.nth i (coeff_list_deriv f (List.skipn (S k) P) (S k) (S k)) .0 f)
+     (S k) .= f
+   mul_int f (List.nth (S i) (coeff_list_deriv f (List.skipn k P) k k) .0 f)
+     (S i))%K.
 Proof.
-intros α f A i k.
+bbb.
+*)
+
+Lemma www : ∀ α (f : field α) P i k,
+  (mul_int f (List.nth i (list_derivial f (S k) P) .0 f) (S k) .= f
+   mul_int f (List.nth (S i) (list_derivial f k P) .0 f) (S i))%K.
+Proof.
+intros α f P i k.
 unfold list_derivial.
-revert i k.
-induction A as [| a₀]; intros; simpl.
+destruct P as [| a]; simpl.
  rewrite list_skipn_nil; simpl.
  rewrite fld_add_0_r, mul_int_0_l.
  destruct i; rewrite mul_int_0_l, fld_add_0_l; reflexivity.
@@ -974,7 +975,7 @@ intros α f k la b.
 unfold list_derivial.
 revert la b.
 induction k; intros; simpl.
- do 2 rewrite coeff_list_deriv_0; reflexivity.
+ do 2 rewrite coeff_list_deriv_0_l; reflexivity.
 
  unfold list_derivial; simpl.
  destruct la as [| a]; [ reflexivity | simpl ].
