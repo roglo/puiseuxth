@@ -364,29 +364,6 @@ remember (S n) as x; simpl; subst x.
 rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
 Qed.
 
-(* supposes that f is of characteristic 0
-Lemma zzz : ∀ α (f : field α) la i n,
-  i ≤ n
-  → list_eq f (coeff_list_deriv f la i n) []
-    → list_eq f (coeff_list_deriv f la (S i) (S n)) [].
-Proof.
-intros α f la i n Hin Heq.
-revert i n Hin Heq.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-simpl in Heq.
-apply list_eq_cons_nil_inv in Heq.
-destruct Heq as (Ha, Hla).
-constructor.
- remember (comb n i) as c.
- symmetry in Heqc.
- destruct c.
-  exfalso; revert Heqc; apply comb_neq_0; assumption.
-
-  Focus 2.
-  apply IHla; [ omega | assumption ].
-bbb.
-*)
-
 Lemma length_coeff_list_deriv : ∀ α (f : field α) la i k,
   length (coeff_list_deriv f la i k) = (length la)%nat.
 Proof.
@@ -413,16 +390,10 @@ Lemma list_derivial_le : ∀ α (f : field α) k la,
   (length la ≤ k)%nat
   → list_eq f (list_derivial f k la) [].
 Proof.
-intros α f k la Hlen.
-unfold list_derivial; simpl.
-revert k Hlen.
-induction la as [| a]; intros; simpl.
- rewrite list_skipn_nil; reflexivity.
-
- simpl in Hlen.
- destruct k; [ exfalso; omega | simpl ].
- apply le_S_n in Hlen.
-bbb.
+intros α f k la Hle.
+unfold list_derivial.
+rewrite list_skipn_overflow; [ reflexivity | assumption ].
+Qed.
 
 Lemma list_derivial_succ_1 : ∀ α (f : field α) k a,
   list_eq f (list_derivial f (S k) [a]) [].
