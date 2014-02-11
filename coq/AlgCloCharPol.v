@@ -913,6 +913,17 @@ rewrite comb_0_r, mul_int_1_r.
 constructor; [ reflexivity | apply IHla ].
 Qed.
 
+Lemma list_mul_const_l : ∀ α (f : field α) a lb,
+  list_eq f (list_mul f [a] lb) (List.map (fld_mul f a) lb).
+Proof.
+intros α f a lb.
+unfold list_mul; simpl.
+induction lb as [| b]; [ reflexivity | simpl ].
+rewrite summation_only_one.
+constructor; [ reflexivity | idtac ].
+rewrite list_convol_mul_cons_succ; assumption.
+Qed.
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
@@ -924,6 +935,25 @@ destruct la as [| a₁]; simpl.
  rewrite list_derivial_add.
  destruct la as [| a₂]; simpl.
   rewrite list_mul_nil_l, list_derivial_nil, list_add_nil_l.
+  unfold list_derivial; simpl.
+  destruct k; simpl.
+   rewrite summation_only_one.
+   rewrite fld_mul_0_l.
+   do 2 rewrite fld_add_0_l; reflexivity.
+
+   rewrite list_skipn_nil; reflexivity.
+
+  rewrite list_mul_add_distr_r.
+  rewrite list_mul_cons_l.
+  simpl.
+  rewrite summation_only_one.
+  rewrite fld_add_0_r.
+  rewrite summation_only_one.
+  rewrite fld_mul_0_l, fld_add_0_r.
+  unfold summation; simpl.
+  rewrite fld_mul_1_r, fld_mul_0_l, fld_add_0_r.
+  rewrite fld_add_0_r.
+  rewrite <- list_mul_assoc.
 bbb.
 
 intros α f k la b.

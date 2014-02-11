@@ -522,6 +522,16 @@ induction len; intros; [ reflexivity | simpl ].
 rewrite IHlen; reflexivity.
 Qed.
 
+Lemma summation_lt : ∀ k b g,
+  (k < b)%nat
+  → (Σ f (i = b, k) _ g i .= f .0 f)%K.
+Proof.
+intros k b g Hkb.
+unfold summation.
+replace (S k - b)%nat with O by omega.
+reflexivity.
+Qed.
+
 End theorems_summation.
 
 Close Scope nat_scope.
