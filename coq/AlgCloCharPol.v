@@ -387,6 +387,28 @@ constructor.
 bbb.
 *)
 
+Lemma length_coeff_list_deriv : ∀ α (f : field α) la i k,
+  length (coeff_list_deriv f la i k) = (length la)%nat.
+Proof.
+intros α f la i k.
+revert i k.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite IHla; reflexivity.
+Qed.
+
+Lemma length_list_derivial : ∀ α (f : field α) la k,
+  length (list_derivial f k la) = (length la - k)%nat.
+Proof.
+intros α f la k.
+unfold list_derivial.
+rewrite length_coeff_list_deriv.
+revert k.
+induction la as [| a]; intros; simpl.
+ rewrite list_skipn_nil; reflexivity.
+
+ destruct k; [ reflexivity | simpl; apply IHla ].
+Qed.
+
 Lemma list_derivial_le : ∀ α (f : field α) k la,
   (length la ≤ k)%nat
   → list_eq f (list_derivial f k la) [].
