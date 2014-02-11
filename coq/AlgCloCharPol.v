@@ -689,6 +689,12 @@ destruct la as [| a].
 Qed.
 
 (*
+Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
+  list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
+    (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
+*)
+
+(*
 Lemma list_derivial_compose : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
