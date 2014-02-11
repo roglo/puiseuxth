@@ -364,28 +364,6 @@ remember (S n) as x; simpl; subst x.
 rewrite IHn, comb_id, Nat.add_1_r; reflexivity.
 Qed.
 
-Lemma length_coeff_list_deriv : ∀ α (f : field α) la i k,
-  length (coeff_list_deriv f la i k) = (length la)%nat.
-Proof.
-intros α f la i k.
-revert i k.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite IHla; reflexivity.
-Qed.
-
-Lemma length_list_derivial : ∀ α (f : field α) la k,
-  length (list_derivial f k la) = (length la - k)%nat.
-Proof.
-intros α f la k.
-unfold list_derivial.
-rewrite length_coeff_list_deriv.
-revert k.
-induction la as [| a]; intros; simpl.
- rewrite list_skipn_nil; reflexivity.
-
- destruct k; [ reflexivity | simpl; apply IHla ].
-Qed.
-
 Lemma list_derivial_le : ∀ α (f : field α) k la,
   (length la ≤ k)%nat
   → list_eq f (list_derivial f k la) [].
@@ -393,14 +371,6 @@ Proof.
 intros α f k la Hle.
 unfold list_derivial.
 rewrite list_skipn_overflow; [ reflexivity | assumption ].
-Qed.
-
-Lemma list_derivial_succ_1 : ∀ α (f : field α) k a,
-  list_eq f (list_derivial f (S k) [a]) [].
-Proof.
-intros α f k a.
-unfold list_derivial; simpl.
-rewrite list_skipn_nil; reflexivity.
 Qed.
 
 Lemma list_skipn_is_nil : ∀ α (f : field α) la n,
@@ -967,7 +937,7 @@ rewrite fld_add_comm, fld_add_assoc.
 rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
 Qed.
 
-Lemma yyy : ∀ α (f : field α) la n c k i,
+Lemma list_nth_taylor : ∀ α (f : field α) la n c k i,
   (n + k = length la)%nat
   → (List.nth i (coeff_taylor_list f n la c k) .0 f .= f
      apply_list f (list_derivial f (i + k) la) c)%K.
@@ -975,7 +945,15 @@ Proof.
 intros α f la n c k i Hlen.
 revert la c k i Hlen.
 induction n; intros; simpl.
-bbb.
+ rewrite list_derivial_le; [ destruct i; reflexivity | idtac ].
+ rewrite <- Hlen.
+ apply Nat.add_le_mono_r, Nat.le_0_l.
+
+ destruct i; [ reflexivity | simpl ].
+ rewrite <- Nat.add_succ_r.
+ rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hlen.
+ apply IHn; assumption.
+Qed.
 
 Lemma zzz : ∀ α (f : field α) a la,
   list_eq f
@@ -984,6 +962,10 @@ Lemma zzz : ∀ α (f : field α) a la,
 Proof.
 intros α f a la.
 apply list_nth_list_eq; intros k.
+unfold taylor_list.
+rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].
+rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].
+rewrite Nat.add_0_r.
 bbb.
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
