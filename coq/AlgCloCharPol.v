@@ -689,12 +689,6 @@ destruct la as [| a].
 Qed.
 
 (*
-Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
-  list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
-    (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
-*)
-
-(*
 Lemma list_derivial_compose : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
@@ -961,6 +955,13 @@ induction n; intros; simpl.
  apply IHn; assumption.
 Qed.
 
+Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
+  list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
+    (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
+Proof.
+intros α f k la b.
+bbb.
+
 Lemma zzz : ∀ α (f : field α) a la,
   list_eq f
     (taylor_list f (list_compose f la [a; .1 f … []]) .0 f)%K
@@ -972,6 +973,9 @@ unfold taylor_list.
 rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].
 rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].
 rewrite Nat.add_0_r.
+rewrite list_derivial_compose_deg_1.
+rewrite apply_list_compose; simpl.
+rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 bbb.
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
