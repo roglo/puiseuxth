@@ -924,6 +924,19 @@ constructor; [ reflexivity | idtac ].
 rewrite list_convol_mul_cons_succ; assumption.
 Qed.
 
+Lemma www : ∀ α (f : field α) A i k,
+  (mul_int f (List.nth i (list_derivial f (S k) A) .0 f) (S k) .= f
+   mul_int f (List.nth (S i) (list_derivial f k A) .0 f) (S i))%K.
+Proof.
+intros α f A i k.
+unfold list_derivial.
+revert i k.
+induction A as [| a₀]; intros; simpl.
+ rewrite list_skipn_nil; simpl.
+ rewrite fld_add_0_r, mul_int_0_l.
+ destruct i; rewrite mul_int_0_l, fld_add_0_l; reflexivity.
+bbb.
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
