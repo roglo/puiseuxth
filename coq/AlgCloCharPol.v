@@ -933,7 +933,8 @@ destruct la as [| a₁]; simpl.
  rewrite list_derivial_nil; reflexivity.
 
  rewrite list_derivial_add.
- destruct la as [| a₂]; simpl.
+ revert k a₁ b.
+ induction la as [| a₂]; intros; simpl.
   rewrite list_mul_nil_l, list_derivial_nil, list_add_nil_l.
   unfold list_derivial; simpl.
   destruct k; simpl.
