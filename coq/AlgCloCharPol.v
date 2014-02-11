@@ -688,65 +688,6 @@ destruct la as [| a].
  rewrite <- coeff_list_deriv_skipn; reflexivity.
 Qed.
 
-(*
-Lemma list_derivial_compose : ∀ α (f : field α) k la b,
-  list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
-    (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
-Proof.
-intros α f k la b.
-revert la b.
-induction k; intros.
- do 2 rewrite list_derivial_0; reflexivity.
-
- induction la as [| a]; [ apply list_derivial_nil | simpl ].
- rewrite list_derivial_add.
- rewrite list_derivial_succ_1.
- rewrite list_add_nil_r.
-bbb.
-
-intros α f k la b.
-revert k b.
-induction la as [| a]; intros.
- simpl.
- unfold list_derivial; simpl.
- rewrite list_skipn_nil; reflexivity.
-
- simpl.
-bbb.
-
-Lemma poly_deriv_compose : ∀ α (f : field α) k P a,
-  (poly_derivial f k (poly_compose f P POL [a; .1 f%K … []]) .= f
-   poly_compose f (poly_derivial f k P) POL [a; .1 f%K … []])%pol.
-Proof.
-intros α f k P a.
-unfold poly_derivial; simpl.
-unfold poly_compose; simpl.
-unfold eq_poly; simpl.
-bbb.
-*)
-
-(*
-Lemma www : ∀ α (f : field α) la x a n k,
-  length la = (n + k)%nat
-  → (List.fold_right (λ c accu, accu .* f x .+ f c) .0 f la .= f
-     List.fold_right (λ c accu, accu .* f (x .- f a) .+ f c) 
-       .0 f (coeff_taylor_list f n la a k))%K.
-Proof.
-intros α f la x a n k Hlen.
-revert x a n k Hlen.
-induction la as [| a₁]; intros.
- simpl.
- symmetry in Hlen.
- apply Nat.eq_add_0 in Hlen.
- destruct Hlen; subst; reflexivity.
-
- simpl.
- simpl in Hlen.
- destruct n.
-  simpl.
-bbb.
-*)
-
 Lemma apply_list_compose_nil_r : ∀ α (f : field α) la x,
   (apply_list f (list_compose f la []) x .= f apply_list f la .0 f)%K.
 Proof.
@@ -955,11 +896,28 @@ induction n; intros; simpl.
  apply IHn; assumption.
 Qed.
 
+(* ah bin non, faut la dérivée k-ième...
+Lemma list_derivial_mul : ∀ α (f : field α) k la lb,
+  list_eq f (list_derivial f 1 (list_mul f la lb))
+    (list_add f
+       (list_mul f la (list_derivial f 1 lb))
+       (list_mul f (list_derivial f 1 la) lb)).
+Proof.
+intros α f k la lb.
+bbb.
+*)
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
+revert la b.
+induction k; intros; simpl.
+ destruct la as [| a]; simpl.
+  rewrite list_derivial_nil; reflexivity.
+
+  rewrite list_derivial_add.
 bbb.
 
 Lemma zzz : ∀ α (f : field α) a la,
