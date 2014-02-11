@@ -918,19 +918,39 @@ Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
-revert la b.
-induction k; intros; simpl.
- unfold list_derivial.
- do 2 rewrite list_skipn_0.
- do 2 rewrite coeff_list_deriv_0; reflexivity.
-bbb.
-
-intros α f k la b.
-revert k b.
-induction la as [| a]; intros; simpl.
+destruct la as [| a₁]; simpl.
  rewrite list_derivial_nil; reflexivity.
 
  rewrite list_derivial_add.
+ destruct la as [| a₂]; simpl.
+  rewrite list_mul_nil_l, list_derivial_nil, list_add_nil_l.
+bbb.
+
+intros α f k la b.
+unfold list_derivial.
+revert la b.
+induction k; intros; simpl.
+ do 2 rewrite coeff_list_deriv_0; reflexivity.
+
+ unfold list_derivial; simpl.
+ destruct la as [| a]; [ reflexivity | simpl ].
+ destruct la as [| a₂]; simpl.
+  rewrite list_skipn_nil; reflexivity.
+
+  destruct la as [| a₃]; simpl.
+   unfold summation; simpl.
+   repeat rewrite fld_mul_0_l.
+   repeat rewrite fld_add_0_l.
+   rewrite fld_add_0_r.
+   destruct k; simpl.
+    rewrite summation_only_one; simpl.
+    rewrite fld_mul_0_l.
+    rewrite fld_add_0_l.
+    rewrite fld_add_0_l.
+    rewrite fld_add_0_l.
+    rewrite fld_mul_1_r; reflexivity.
+
+    rewrite list_skipn_nil; reflexivity.
 bbb.
 
 Lemma zzz : ∀ α (f : field α) a la,
