@@ -1550,3 +1550,16 @@ induction cl as [| c]; intros; [ apply Nat.le_0_l | simpl ].
 destruct n; [ discriminate H | idtac ].
 apply le_n_S, IHcl; assumption.
 Qed.
+
+Lemma list_nth_skipn : ∀ α i j (l : list α) d,
+  List.nth i (List.skipn j l) d = List.nth (i + j) l d.
+Proof.
+intros α i j l d.
+revert i j d.
+induction l as [| x]; intros; simpl.
+ rewrite list_skipn_nil; simpl.
+ destruct (i + j)%nat, i; reflexivity.
+
+ destruct j; simpl; [ rewrite Nat.add_0_r; reflexivity | idtac ].
+ rewrite IHl, Nat.add_succ_r; reflexivity.
+Qed.

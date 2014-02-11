@@ -915,16 +915,28 @@ constructor; [ reflexivity | idtac ].
 rewrite list_convol_mul_cons_succ; assumption.
 Qed.
 
-(*
-Lemma vvv :
-  (mul_int f
-     (List.nth i (coeff_list_deriv f (List.skipn (S k) P) (S k) (S k)) .0 f)
-     (S k) .= f
-   mul_int f (List.nth (S i) (coeff_list_deriv f (List.skipn k P) k k) .0 f)
-     (S i))%K.
+Lemma list_nth_coeff_list_deriv : ∀ α (f : field α) P i k n,
+  (List.nth i (coeff_list_deriv f P n k) .0 f .= f
+   mul_int f (List.nth i P .0 f) (comb (k + i) n))%K.
 Proof.
-bbb.
-*)
+intros α f P i k n.
+revert i k n.
+induction P as [| a]; intros; simpl.
+ destruct i; rewrite mul_int_0_l; reflexivity.
+
+ destruct i; simpl; [ rewrite Nat.add_0_r; reflexivity | idtac ].
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l; apply IHP.
+Qed.
+
+Lemma list_nth_derivial : ∀ α (f : field α) P i k,
+  (List.nth i (list_derivial f k P) .0 f .= f
+   mul_int f (List.nth (k + i) P .0 f) (comb (k + i) k))%K.
+Proof.
+intros α f P i k.
+unfold list_derivial.
+rewrite list_nth_coeff_list_deriv.
+rewrite list_nth_skipn, Nat.add_comm; reflexivity.
+Qed.
 
 Lemma www : ∀ α (f : field α) P i k,
   (mul_int f (List.nth i (list_derivial f (S k) P) .0 f) (S k) .= f
