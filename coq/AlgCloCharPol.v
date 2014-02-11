@@ -938,22 +938,16 @@ rewrite list_nth_coeff_list_deriv.
 rewrite list_nth_skipn, Nat.add_comm; reflexivity.
 Qed.
 
-Lemma www : ∀ α (f : field α) P i k,
-  (mul_int f (List.nth i (list_derivial f (S k) P) .0 f) (S k) .= f
-   mul_int f (List.nth (S i) (list_derivial f k P) .0 f) (S i))%K.
-Proof.
-intros α f P i k.
-unfold list_derivial.
-destruct P as [| a]; simpl.
- rewrite list_skipn_nil; simpl.
- rewrite fld_add_0_r, mul_int_0_l.
- destruct i; rewrite mul_int_0_l, fld_add_0_l; reflexivity.
-bbb.
-
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
 Proof.
+intros α f k la b.
+apply list_nth_list_eq; intros i.
+rewrite list_nth_derivial.
+(* est-ce qu'il n'y aurait as un list_nth (list_compose ...) à faire ? *)
+bbb.
+
 intros α f k la b.
 destruct la as [| a₁]; simpl.
  rewrite list_derivial_nil; reflexivity.
