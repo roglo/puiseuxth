@@ -896,16 +896,22 @@ induction n; intros; simpl.
  apply IHn; assumption.
 Qed.
 
-(* ah bin non, faut la dérivée k-ième...
-Lemma list_derivial_mul : ∀ α (f : field α) k la lb,
-  list_eq f (list_derivial f 1 (list_mul f la lb))
-    (list_add f
-       (list_mul f la (list_derivial f 1 lb))
-       (list_mul f (list_derivial f 1 la) lb)).
+Lemma list_derivial_const : ∀ α (f : field α) k a,
+  list_eq f (list_derivial f (S k) [a]) [].
 Proof.
-intros α f k la lb.
-bbb.
-*)
+intros α f k a.
+unfold list_derivial; simpl.
+rewrite list_skipn_nil; reflexivity.
+Qed.
+
+Lemma coeff_list_deriv_0 : ∀ α (f : field α) la i,
+  list_eq f (coeff_list_deriv f la 0 i) la.
+Proof.
+intros α f la i; revert i.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite comb_0_r, mul_int_1_r.
+constructor; [ reflexivity | apply IHla ].
+Qed.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
@@ -914,10 +920,17 @@ Proof.
 intros α f k la b.
 revert la b.
 induction k; intros; simpl.
- destruct la as [| a]; simpl.
-  rewrite list_derivial_nil; reflexivity.
+ unfold list_derivial.
+ do 2 rewrite list_skipn_0.
+ do 2 rewrite coeff_list_deriv_0; reflexivity.
+bbb.
 
-  rewrite list_derivial_add.
+intros α f k la b.
+revert k b.
+induction la as [| a]; intros; simpl.
+ rewrite list_derivial_nil; reflexivity.
+
+ rewrite list_derivial_add.
 bbb.
 
 Lemma zzz : ∀ α (f : field α) a la,
