@@ -940,15 +940,15 @@ Qed.
 
 Fixpoint list_pow α (f : field α) P n :=
   match n with
-  | 0%nat => []
+  | 0%nat => [.1 f%K]
   | S n₁ => list_mul f P (list_pow f P n₁)
   end.
 
 Definition list_compose2 α (f : field α) P Q :=
-  List.fold_right (list_add f) []
-    (List.map
-      (λ i, list_mul f [List.nth i P .0 f] (list_pow f Q i))%K
-      (List.seq 0 (length P))).
+  List.fold_right
+    (λ i accu,
+     list_add f accu (list_mul f [List.nth i P .0 f] (list_pow f Q i)))%K
+    [] (List.seq 0 (length P)).
 
 Lemma www : ∀ α (f : field α) P Q,
   list_eq f (list_compose f P Q) (list_compose2 f P Q).
@@ -957,6 +957,7 @@ intros α f P Q.
 revert Q.
 induction P as [| a]; intros; [ reflexivity | simpl ].
 rewrite IHP.
+bbb.
 unfold list_compose2; simpl.
 bbb.
 
