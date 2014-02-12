@@ -938,6 +938,12 @@ rewrite list_nth_coeff_list_deriv.
 rewrite list_nth_skipn, Nat.add_comm; reflexivity.
 Qed.
 
+Definition poly_pow α (f : field α) P n :=
+  match n with
+  | 0%nat => []
+  | S n₁ => poly_mul f P (poly_pow P n₁)
+  end.
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
