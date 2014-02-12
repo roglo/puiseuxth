@@ -945,10 +945,10 @@ Fixpoint list_pow α (f : field α) P n :=
   end.
 
 Definition list_compose2 α (f : field α) P Q :=
-  List.fold_right
-    (λ i accu,
-     list_add f accu (list_mul f [List.nth i P .0 f] (list_pow f Q i)))%K
-    [] (List.seq 0 (length P)).
+  List.fold_right (list_add f) []
+    (List.map
+      (λ i, list_mul f [List.nth i P .0 f] (list_pow f Q i))%K
+      (List.seq 0 (length P))).
 
 Lemma www : ∀ α (f : field α) P Q,
   list_eq f (list_compose f P Q) (list_compose2 f P Q).
