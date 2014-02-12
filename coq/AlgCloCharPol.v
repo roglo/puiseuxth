@@ -944,11 +944,19 @@ Fixpoint list_pow α (f : field α) P n :=
   | S n₁ => list_mul f P (list_pow f P n₁)
   end.
 
+(*
 Definition list_compose2 α (f : field α) P Q :=
   List.fold_right (list_add f) []
     (List.map
       (λ i, list_mul f [List.nth i P .0 f] (list_pow f Q i))%K
       (List.seq 0 (length P))).
+*)
+Definition list_compose2 α (f : field α) la lb :=
+  List.fold_right
+    (λ i accu,
+     list_add f accu (list_mul f [List.nth i la .0 f] (list_pow f lb i)))%K
+    [] (List.seq 0 (length la)).
+(**)
 
 Lemma list_compose_cons_l : ∀ α (f : field α) a la lb,
   list_eq f (list_compose f [a … la] lb)
@@ -958,33 +966,25 @@ intros α f a la lb.
 rewrite list_add_comm, list_mul_comm; reflexivity.
 Qed.
 
-Lemma list_map_seq_split : ∀ α (g : nat → α) s len,
-  (0 < len)%nat
-  → List.map g (List.seq s len) =
-    [g s%nat … List.map g (List.seq (S s) (pred len))].
-Proof.
-intros α g s len Hlen.
-bbb.
-
 Lemma vvv : ∀ α (f : field α) a la,
   list_eq f (list_compose2 f [a … la] []) [a].
 Proof.
 intros α f a la.
-unfold list_compose2.
-rewrite list_map_seq_split.
- remember List.fold_right as g; simpl; subst g.
+unfold list_compose2; simpl.
+unfold list_mul at 2; simpl.
+rewrite summation_only_one, fld_mul_1_r.
 bbb.
 
-Lemma www : ∀ α (f : field α) P Q,
-  list_eq f (list_compose f P Q) (list_compose2 f P Q).
+Lemma www : ∀ α (f : field α) la lb,
+  list_eq f (list_compose f la lb) (list_compose2 f la lb).
 Proof.
-intros α f P Q.
-revert Q.
-induction P as [| a]; intros; [ reflexivity | simpl ].
-rewrite IHP.
+intros α f la lb.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite IHla.
 symmetry; clear.
-revert a P.
-induction Q as [| b]; intros; simpl.
+revert a la.
+induction lb as [| b]; intros; simpl.
  rewrite list_mul_nil_r, list_add_nil_l.
 bbb.
 
