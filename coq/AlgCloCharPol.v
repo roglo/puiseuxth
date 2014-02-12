@@ -950,6 +950,14 @@ Definition list_compose2 α (f : field α) P Q :=
       (λ i, list_mul f [List.nth i P .0 f] (list_pow f Q i))%K
       (List.seq 0 (length P))).
 
+Lemma list_compose_cons_l : ∀ α (f : field α) a la lb,
+  list_eq f (list_compose f [a … la] lb)
+    (list_add f [a] (list_mul f lb (list_compose f la lb))).
+Proof.
+intros α f a la lb.
+rewrite list_add_comm, list_mul_comm; reflexivity.
+Qed.
+
 Lemma www : ∀ α (f : field α) P Q,
   list_eq f (list_compose f P Q) (list_compose2 f P Q).
 Proof.
