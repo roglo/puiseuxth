@@ -958,6 +958,23 @@ intros α f a la lb.
 rewrite list_add_comm, list_mul_comm; reflexivity.
 Qed.
 
+Lemma list_map_seq_split : ∀ α (g : nat → α) s len,
+  (0 < len)%nat
+  → List.map g (List.seq s len) =
+    [g s%nat … List.map g (List.seq (S s) (pred len))].
+Proof.
+intros α g s len Hlen.
+bbb.
+
+Lemma vvv : ∀ α (f : field α) a la,
+  list_eq f (list_compose2 f [a … la] []) [a].
+Proof.
+intros α f a la.
+unfold list_compose2.
+rewrite list_map_seq_split.
+ remember List.fold_right as g; simpl; subst g.
+bbb.
+
 Lemma www : ∀ α (f : field α) P Q,
   list_eq f (list_compose f P Q) (list_compose2 f P Q).
 Proof.
@@ -965,8 +982,10 @@ intros α f P Q.
 revert Q.
 induction P as [| a]; intros; [ reflexivity | simpl ].
 rewrite IHP.
-bbb.
-unfold list_compose2; simpl.
+symmetry; clear.
+revert a P.
+induction Q as [| b]; intros; simpl.
+ rewrite list_mul_nil_r, list_add_nil_l.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
