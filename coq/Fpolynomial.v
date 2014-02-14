@@ -1100,7 +1100,11 @@ induction len; intros; simpl.
   apply list_eq_skipn_succ.
 
   intros j (Hj, Hji).
-bbb.
+  rewrite Nat_sub_sub_distr; [ idtac | assumption ].
+  rewrite Nat.add_comm, Nat.add_sub.
+  destruct j; [ exfalso; omega | idtac ].
+  destruct j; rewrite fld_mul_0_r; reflexivity.
+Qed.
 
 Lemma list_mul_1_r : ∀ la, list_eq f (list_mul f la [.1 f%K]) la.
 Proof.
@@ -1108,7 +1112,7 @@ intros la.
 unfold list_mul.
 apply list_convol_mul_1_r; simpl.
 rewrite Nat.add_comm; reflexivity.
-bbb.
+Qed.
 
 End poly.
 
