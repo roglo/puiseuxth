@@ -981,38 +981,40 @@ destruct H as [H| H].
  apply Nat.lt_lt_succ_r; assumption.
 Qed.
 
-(*
-Lemma uuu : ∀ α (f : field α) β g l,
-  (∀ (i : β), i ∈ l → list_eq f (g i []) [])
-  → list_eq f (List.fold_right g [] l) [].
+Lemma list_fold_right_some_compat : ∀ α (f : field α) β g l,
+  (∀ x y z, list_eq f y z → list_eq f (g x y) (g x z))
+  → (∀ (i : β), i ∈ l → list_eq f (g i []) [])
+    → list_eq f (List.fold_right g [] l) [].
 Proof.
-intros α f β g l Hil.
+intros α f β g l Hg Hil.
 induction l as [| x]; [ reflexivity | simpl ].
-bbb.
-rewrite IHl.
- apply Hil; left; reflexivity.
-
- intros i Hi.
- apply Hil; right; assumption.
+rewrite <- Hil in |- * at 2; [ idtac | left; reflexivity ].
+apply Hg, IHl.
+intros i Hi.
+apply Hil; right; assumption.
 Qed.
-*)
 
-Lemma vvv : ∀ α (f : field α) a la,
+Lemma list_compose2_cons_nil : ∀ α (f : field α) a la,
   list_eq f (list_compose2 f [a … la] []) [a].
 Proof.
 intros α f a la.
 unfold list_compose2; simpl.
 unfold list_mul at 2; simpl.
 rewrite summation_only_one, fld_mul_1_r.
-rewrite uuu; [ rewrite list_add_nil_l; reflexivity | idtac ].
-intros i Hi.
-destruct i.
- exfalso; revert Hi.
- apply list_seq_bef_start_not_in; apply Nat.lt_0_1.
+rewrite list_fold_right_some_compat.
+ rewrite list_add_nil_l; reflexivity.
 
- simpl.
- rewrite list_mul_nil_l, list_mul_nil_r; reflexivity.
-qed.
+ intros x y z Hyz.
+ rewrite Hyz; reflexivity.
+
+ intros i Hi.
+ destruct i.
+  exfalso; revert Hi.
+  apply list_seq_bef_start_not_in; apply Nat.lt_0_1.
+
+  simpl.
+  rewrite list_mul_nil_l, list_mul_nil_r; reflexivity.
+Qed.
 
 Lemma www : ∀ α (f : field α) la lb,
   list_eq f (list_compose f la lb) (list_compose2 f la lb).
@@ -1025,6 +1027,7 @@ symmetry; clear.
 revert a la.
 induction lb as [| b]; intros; simpl.
  rewrite list_mul_nil_r, list_add_nil_l.
+ apply list_compose2_cons_nil.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
