@@ -1016,6 +1016,20 @@ rewrite list_fold_right_some_compat.
   rewrite list_mul_nil_l, list_mul_nil_r; reflexivity.
 Qed.
 
+Lemma list_mul_fold_add_distr : ∀ α (f : field α) la li (g : nat → list α) x,
+  list_eq f
+    (list_mul f x
+       (List.fold_right (λ i accu, list_add f accu (g i)) la li))
+    (List.fold_right (λ i accu, list_add f accu (list_mul f x (g i)))
+       (list_mul f x la) li).
+Proof.
+intros α f la li g x.
+revert la x.
+induction li as [| j]; intros; [ reflexivity | simpl ].
+rewrite list_mul_add_distr_l.
+rewrite IHli; reflexivity.
+Qed.
+
 Lemma www : ∀ α (f : field α) la lb,
   list_eq f (list_compose f la lb) (list_compose2 f la lb).
 Proof.
@@ -1024,6 +1038,10 @@ revert lb.
 induction la as [| a]; intros; [ reflexivity | simpl ].
 rewrite IHla.
 symmetry; clear.
+unfold list_compose2.
+rewrite list_mul_comm.
+rewrite list_mul_fold_add_distr.
+bbb.
 revert a la.
 induction lb as [| b]; intros; simpl.
  rewrite list_mul_nil_r, list_add_nil_l.
