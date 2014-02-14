@@ -1018,8 +1018,7 @@ Qed.
 
 Lemma list_mul_fold_add_distr : ∀ α (f : field α) la li (g : nat → list α) x,
   list_eq f
-    (list_mul f x
-       (List.fold_right (λ i accu, list_add f accu (g i)) la li))
+    (list_mul f x (List.fold_right (λ i accu, list_add f accu (g i)) la li))
     (List.fold_right (λ i accu, list_add f accu (list_mul f x (g i)))
        (list_mul f x la) li).
 Proof.
@@ -1027,6 +1026,19 @@ intros α f la li g x.
 revert la x.
 induction li as [| j]; intros; [ reflexivity | simpl ].
 rewrite list_mul_add_distr_l.
+rewrite IHli; reflexivity.
+Qed.
+
+Lemma list_add_fold_assoc : ∀ α (f : field α) la li (g : nat → list α) x,
+  list_eq f
+    (list_add f x (List.fold_right (λ i accu, list_add f accu (g i)) la li))
+    (List.fold_right (λ i accu, list_add f accu (g i))
+       (list_add f x la) li).
+Proof.
+intros α f la li g x.
+revert la x.
+induction li as [| j]; intros; [ reflexivity | simpl ].
+rewrite <- list_add_assoc.
 rewrite IHli; reflexivity.
 Qed.
 
@@ -1041,6 +1053,8 @@ symmetry; clear.
 unfold list_compose2.
 rewrite list_mul_comm.
 rewrite list_mul_fold_add_distr.
+rewrite list_add_comm.
+rewrite list_add_fold_assoc.
 bbb.
 revert a la.
 induction lb as [| b]; intros; simpl.
