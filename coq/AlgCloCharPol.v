@@ -1042,17 +1042,26 @@ rewrite <- list_add_assoc.
 rewrite IHli; reflexivity.
 Qed.
 
-Lemma vvv : ∀ α (f : field α) g h la lb s t len,
+Lemma list_fold_right_seq : ∀ α (f : field α) g h la lb s t len,
   list_eq f la lb
-  → (∀ i accu, list_eq f (g (s + i)%nat accu) (h (t + i)%nat accu))
-    → list_eq f
-        (List.fold_right g la (List.seq s len))
-        (List.fold_right h lb (List.seq t len)).
+  → (∀ x y z, list_eq f y z → list_eq f (g x y) (g x z))
+    → (∀ i accu, list_eq f (g (s + i)%nat accu) (h (t + i)%nat accu))
+      → list_eq f
+          (List.fold_right g la (List.seq s len))
+          (List.fold_right h lb (List.seq t len)).
 Proof.
-intros α f g h la lb s t len Hab Hgh.
-revert g h la lb s t Hab Hgh.
+intros α f g h la lb s t len Hab Hg Hgh.
+revert g h la lb s t Hab Hg Hgh.
 induction len; intros; [ assumption | simpl ].
-bbb.
+pose proof (Hgh O (List.fold_right h lb (List.seq (S t) len))) as H.
+do 2 rewrite Nat.add_0_r in H.
+rewrite <- H.
+apply Hg.
+apply IHlen; [ assumption | assumption | idtac ].
+intros i accu.
+do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
+apply Hgh.
+Qed.
 
 Lemma www : ∀ α (f : field α) la lb,
   list_eq f (list_compose f la lb) (list_compose2 f la lb).
@@ -1070,8 +1079,11 @@ remember [a] as aa; simpl; subst aa.
 rewrite list_add_comm.
 apply list_add_compat.
  Focus 2.
- apply vvv.
+ apply list_fold_right_seq.
   rewrite list_mul_nil_r; reflexivity.
+
+  intros x y z Hyz.
+  rewrite Hyz; reflexivity.
 
   intros i accu.
   simpl.
