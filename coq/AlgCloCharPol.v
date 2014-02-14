@@ -1054,12 +1054,10 @@ unfold list_compose2.
 rewrite list_mul_comm.
 rewrite list_mul_fold_add_distr.
 rewrite list_add_comm.
-rewrite list_add_fold_assoc.
-bbb.
-revert a la.
-induction lb as [| b]; intros; simpl.
- rewrite list_mul_nil_r, list_add_nil_l.
- apply list_compose2_cons_nil.
+remember [a] as aa; simpl; subst aa.
+rewrite list_add_comm.
+apply list_add_compat.
+ Focus 2.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
