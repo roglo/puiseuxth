@@ -1042,12 +1042,16 @@ rewrite <- list_add_assoc.
 rewrite IHli; reflexivity.
 Qed.
 
-Lemma vvv₁ : ∀ α (f : field α) g h a b s t len,
-  (∀ i accu, list_eq f (g (s + i)%nat accu) (h (t + i)%nat accu))
-  → list_eq f
-      (List.fold_right g a (List.seq s len))
-      (List.fold_right h b (List.seq t len)).
+Lemma vvv : ∀ α (f : field α) g h la lb s t len,
+  list_eq f la lb
+  → (∀ i accu, list_eq f (g (s + i)%nat accu) (h (t + i)%nat accu))
+    → list_eq f
+        (List.fold_right g la (List.seq s len))
+        (List.fold_right h lb (List.seq t len)).
 Proof.
+intros α f g h la lb s t len Hab Hgh.
+revert g h la lb s t Hab Hgh.
+induction len; intros; [ assumption | simpl ].
 bbb.
 
 Lemma www : ∀ α (f : field α) la lb,
@@ -1066,12 +1070,15 @@ remember [a] as aa; simpl; subst aa.
 rewrite list_add_comm.
 apply list_add_compat.
  Focus 2.
- apply vvv₁; intros i accu.
- simpl.
- apply list_add_compat; [ reflexivity | simpl ].
- rewrite list_mul_comm, <- list_mul_assoc.
- apply list_mul_compat; [ reflexivity | idtac ].
- apply list_mul_comm.
+ apply vvv.
+  rewrite list_mul_nil_r; reflexivity.
+
+  intros i accu.
+  simpl.
+  apply list_add_compat; [ reflexivity | simpl ].
+  rewrite list_mul_comm, <- list_mul_assoc.
+  apply list_mul_compat; [ reflexivity | idtac ].
+  apply list_mul_comm.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
