@@ -1063,7 +1063,7 @@ do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
 apply Hgh.
 Qed.
 
-Lemma www : ∀ α (f : field α) la lb,
+Lemma list_compose_compose2 : ∀ α (f : field α) la lb,
   list_eq f (list_compose f la lb) (list_compose2 f la lb).
 Proof.
 intros α f la lb.
@@ -1077,31 +1077,28 @@ rewrite list_mul_fold_add_distr.
 rewrite list_add_comm.
 remember [a] as aa; simpl; subst aa.
 rewrite list_add_comm.
-apply list_add_compat.
-bbb.
+apply list_add_compat; [ apply list_mul_1_r | idtac ].
+apply list_fold_right_seq.
+ rewrite list_mul_nil_r; reflexivity.
 
- apply list_fold_right_seq.
-  rewrite list_mul_nil_r; reflexivity.
+ intros x y z Hyz.
+ rewrite Hyz; reflexivity.
 
-  intros x y z Hyz.
-  rewrite Hyz; reflexivity.
-
-  intros i accu.
-  simpl.
-  apply list_add_compat; [ reflexivity | simpl ].
-  rewrite list_mul_comm, <- list_mul_assoc.
-  apply list_mul_compat; [ reflexivity | idtac ].
-  apply list_mul_comm.
-bbb.
+ intros i accu; simpl.
+ apply list_add_compat; [ reflexivity | simpl ].
+ rewrite list_mul_comm, <- list_mul_assoc.
+ apply list_mul_compat; [ reflexivity | idtac ].
+ apply list_mul_comm.
+Qed.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
+do 2 rewrite list_compose_compose2.
 apply list_nth_list_eq; intros i.
 rewrite list_nth_derivial.
-(* est-ce qu'il n'y aurait as un list_nth (list_compose ...) à faire ? *)
 bbb.
 
 intros α f k la b.
