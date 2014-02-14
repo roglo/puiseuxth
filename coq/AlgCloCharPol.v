@@ -966,6 +966,37 @@ intros α f a la lb.
 rewrite list_add_comm, list_mul_comm; reflexivity.
 Qed.
 
+Lemma list_seq_bef_start_not_in : ∀ i s len,
+  (i < s)%nat
+  → i ∉ List.seq s len.
+Proof.
+intros i s len His H.
+revert s His H.
+induction len; intros; [ assumption | simpl ].
+simpl in H.
+destruct H as [H| H].
+ subst s; revert His; apply Nat.lt_irrefl.
+
+ eapply IHlen; [ idtac | eassumption ].
+ apply Nat.lt_lt_succ_r; assumption.
+Qed.
+
+(*
+Lemma uuu : ∀ α (f : field α) β g l,
+  (∀ (i : β), i ∈ l → list_eq f (g i []) [])
+  → list_eq f (List.fold_right g [] l) [].
+Proof.
+intros α f β g l Hil.
+induction l as [| x]; [ reflexivity | simpl ].
+bbb.
+rewrite IHl.
+ apply Hil; left; reflexivity.
+
+ intros i Hi.
+ apply Hil; right; assumption.
+Qed.
+*)
+
 Lemma vvv : ∀ α (f : field α) a la,
   list_eq f (list_compose2 f [a … la] []) [a].
 Proof.
@@ -973,7 +1004,15 @@ intros α f a la.
 unfold list_compose2; simpl.
 unfold list_mul at 2; simpl.
 rewrite summation_only_one, fld_mul_1_r.
-bbb.
+rewrite uuu; [ rewrite list_add_nil_l; reflexivity | idtac ].
+intros i Hi.
+destruct i.
+ exfalso; revert Hi.
+ apply list_seq_bef_start_not_in; apply Nat.lt_0_1.
+
+ simpl.
+ rewrite list_mul_nil_l, list_mul_nil_r; reflexivity.
+qed.
 
 Lemma www : ∀ α (f : field α) la lb,
   list_eq f (list_compose f la lb) (list_compose2 f la lb).
