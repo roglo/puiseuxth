@@ -1095,14 +1095,11 @@ induction len; intros; simpl.
  rewrite fld_mul_1_r.
  rewrite all_0_summation_0.
   rewrite fld_add_0_r.
-  rewrite IHlen.
-bbb.
-   simpl.
-   destruct la as [| a]; simpl.
-    rewrite list_skipn_nil.
-    destruct i; constructor; reflexivity.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hlen.
+  rewrite IHlen; [ idtac | assumption ].
+  apply list_eq_skipn_succ.
 
-    destruct i; [ reflexivity | simpl ].
+  intros j (Hj, Hji).
 bbb.
 
 Lemma list_mul_1_r : ∀ la, list_eq f (list_mul f la [.1 f%K]) la.
