@@ -1078,6 +1078,56 @@ rewrite list_mul_comm, list_mul_add_distr_l, list_mul_comm.
 apply list_add_compat; [ reflexivity | apply list_mul_comm ].
 Qed.
 
+Lemma list_convol_mul_1_r : ∀ la i len,
+  (i + len = length la)%nat
+  → list_eq f (list_convol_mul f la [.1 f%K] i len) (List.skipn i la).
+Proof.
+intros la i len Hlen.
+revert la i Hlen.
+induction len; intros; simpl.
+ rewrite Nat.add_0_r in Hlen.
+ subst i.
+ rewrite list_skipn_overflow; reflexivity.
+
+bbb.
+ rewrite Nat.add_succ_r in Hlen.
+ destruct la as [| a]; [ discriminate Hlen | simpl ].
+ simpl in Hlen.
+ apply eq_add_S in Hlen.
+ destruct i; simpl.
+  rewrite summation_only_one.
+  constructor.
+   apply fld_mul_1_r.
+
+   rewrite IHlen.
+    reflexivity.
+
+    simpl.
+    apply eq_S; assumption.
+
+  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+  rewrite all_0_summation_0.
+   rewrite fld_add_0_r.
+   destruct i; simpl.
+    rewrite fld_mul_0_r.
+    rewrite IHlen.
+     simpl.
+     clear a.
+     destruct la as [| a]; simpl.
+      constructor; reflexivity.
+
+      constructor.
+       simpl in Hlen.
+bbb.
+
+Lemma list_mul_1_r : ∀ la, list_eq f (list_mul f la [.1 f%K]) la.
+Proof.
+intros la.
+unfold list_mul.
+apply list_convol_mul_1_r; simpl.
+rewrite Nat.add_comm; reflexivity.
+bbb.
+
 End poly.
 
 (* Horner's algorithm *)

@@ -1078,7 +1078,8 @@ rewrite list_add_comm.
 remember [a] as aa; simpl; subst aa.
 rewrite list_add_comm.
 apply list_add_compat.
- Focus 2.
+bbb.
+
  apply list_fold_right_seq.
   rewrite list_mul_nil_r; reflexivity.
 
