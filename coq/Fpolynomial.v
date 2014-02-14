@@ -1085,39 +1085,24 @@ Proof.
 intros la i len Hlen.
 revert la i Hlen.
 induction len; intros; simpl.
- rewrite Nat.add_0_r in Hlen.
- subst i.
+ rewrite Nat.add_0_r in Hlen; subst i.
  rewrite list_skipn_overflow; reflexivity.
 
+ rewrite summation_rtl.
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite Nat.add_0_r, Nat.sub_0_r.
+ rewrite Nat.sub_diag; simpl.
+ rewrite fld_mul_1_r.
+ rewrite all_0_summation_0.
+  rewrite fld_add_0_r.
+  rewrite IHlen.
 bbb.
- rewrite Nat.add_succ_r in Hlen.
- destruct la as [| a]; [ discriminate Hlen | simpl ].
- simpl in Hlen.
- apply eq_add_S in Hlen.
- destruct i; simpl.
-  rewrite summation_only_one.
-  constructor.
-   apply fld_mul_1_r.
+   simpl.
+   destruct la as [| a]; simpl.
+    rewrite list_skipn_nil.
+    destruct i; constructor; reflexivity.
 
-   rewrite IHlen.
-    reflexivity.
-
-    simpl.
-    apply eq_S; assumption.
-
-  rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
-  rewrite all_0_summation_0.
-   rewrite fld_add_0_r.
-   destruct i; simpl.
-    rewrite fld_mul_0_r.
-    rewrite IHlen.
-     simpl.
-     clear a.
-     destruct la as [| a]; simpl.
-      constructor; reflexivity.
-
-      constructor.
-       simpl in Hlen.
+    destruct i; [ reflexivity | simpl ].
 bbb.
 
 Lemma list_mul_1_r : ∀ la, list_eq f (list_mul f la [.1 f%K]) la.
