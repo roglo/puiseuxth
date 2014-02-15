@@ -1176,20 +1176,20 @@ apply Hg.
 rewrite IHlen; [ reflexivity | apply Hg ].
 Qed.
 
-Lemma vvv : ∀ α (f : field α) a la lb da s len,
+Lemma vvv : ∀ α (f : field α) a la lb lc da s len,
   list_eq f
     (List.fold_right
       (λ i accu,
        list_add f accu
          (list_mul f [List.nth (S i) [a … la] da]
             (list_pow f lb (S i))))
-      [] (List.seq s len))
+      [] lc)
     (list_mul f lb
        (List.fold_right
           (λ i accu,
            list_add f accu
              (list_mul f [List.nth i la da] (list_pow f lb i)))
-          [] (List.seq s len))).
+          [] lc))
 Proof.
 bbb.
 
