@@ -245,7 +245,7 @@ Qed.
 Lemma comb_0_r : ∀ i, comb i 0 = 1%nat.
 Proof. intros i; destruct i; reflexivity. Qed.
 
-Lemma mul_nat_0_l : ∀ α (f : field α) n, (mul_nat f n .0 f .= f .0 f)%K.
+Lemma mul_nat_0_r : ∀ α (f : field α) n, (mul_nat f n .0 f .= f .0 f)%K.
 Proof.
 intros α f n.
 induction n; [ reflexivity | simpl ].
@@ -272,14 +272,14 @@ induction la as [| a]; intros; simpl.
  induction lb as [| b]; intros; [ reflexivity | simpl ].
  apply list_eq_nil_cons_inv in Hlab.
  destruct Hlab as (Hb, Hlb).
- constructor; [ rewrite Hb; apply mul_nat_0_l | idtac ].
+ constructor; [ rewrite Hb; apply mul_nat_0_r | idtac ].
  apply IHlb; assumption.
 
  destruct lb as [| b].
   simpl.
   apply list_eq_cons_nil_inv in Hlab.
   destruct Hlab as (Ha, Hla).
-  constructor; [ rewrite Ha; apply mul_nat_0_l | idtac ].
+  constructor; [ rewrite Ha; apply mul_nat_0_r | idtac ].
   rewrite IHla with (lb := []); [ reflexivity | eassumption ].
 
   apply list_eq_cons_inv in Hlab.
@@ -973,7 +973,7 @@ Proof.
 intros α f P i k n.
 revert i k n.
 induction P as [| a]; intros; simpl.
- destruct i; rewrite mul_nat_0_l; reflexivity.
+ destruct i; rewrite mul_nat_0_r; reflexivity.
 
  destruct i; simpl; [ rewrite Nat.add_0_r; reflexivity | idtac ].
  rewrite Nat.add_succ_r, <- Nat.add_succ_l; apply IHP.
@@ -1149,19 +1149,25 @@ intros α f k.
 destruct k; reflexivity.
 Qed.
 
+Fixpoint fld_power α (f : field α) a n :=
+  match n with
+  | 0%nat => .1 f%K
+  | S n₁ => (a .* f fld_power f a n₁)%K
+  end.
+
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
   → (List.nth k (list_compose2 f la [b; .1 f … []]) .0 f .= f
      Σ f (i = 0, n - k) _
-     mul_nat f (List.nth (k + i) la .0 f .* f power_nat f b j)
-       (comb (k + i) k))%K.
+     mul_nat f (comb (k + i) k)
+      (List.nth (k + i) la .0 f .* f fld_power f b i))%K.
 Proof.
 intros α f la b k n Hlen.
 unfold list_compose2; subst n.
 destruct la as [| a₁]; simpl.
  rewrite summation_only_one.
  do 2 rewrite match_id.
- rewrite mul_nat_0_l; reflexivity.
+ rewrite fld_mul_0_l, mul_nat_0_r; reflexivity.
 
  rewrite fold_list_nth_def_0.
  rewrite list_mul_1_r.
@@ -1169,14 +1175,39 @@ destruct la as [| a₁]; simpl.
  destruct la as [| a₂]; simpl.
   destruct k; simpl.
    unfold summation; simpl.
-   do 3 rewrite fld_add_0_l; rewrite fld_add_0_r; reflexivity.
+   do 2 rewrite fld_add_0_l; rewrite fld_add_0_r.
+   rewrite fld_mul_0_l, fld_mul_1_r, fld_add_0_r; reflexivity.
 
    rewrite summation_only_one.
    unfold list_nth_def_0; simpl.
    do 2 rewrite match_id.
-   rewrite mul_nat_0_l; reflexivity.
+   rewrite fld_mul_0_l, mul_nat_0_r; reflexivity.
 
   rewrite fold_sub_succ_l.
+  destruct la as [| a₃]; simpl.
+   do 2 rewrite summation_only_one.
+   unfold summation; simpl.
+   rewrite fld_mul_0_r.
+   rewrite fld_add_0_l.
+   do 3 rewrite fld_add_0_r.
+   rewrite fld_mul_0_l.
+   do 4 rewrite fld_mul_1_r.
+   rewrite fld_add_0_r.
+   rewrite Nat.add_0_r, comb_id, mul_nat_1_l.
+   unfold list_nth_def_0.
+   destruct k; simpl.
+    rewrite fld_mul_0_l.
+    do 3 rewrite fld_add_0_l.
+    rewrite fld_mul_1_r, fld_add_0_r.
+    apply fld_add_comm.
+
+    destruct k; simpl.
+     rewrite fld_mul_0_l.
+     do 4 rewrite fld_add_0_r; reflexivity.
+
+     rewrite fld_add_0_r; reflexivity.
+bbb.
+
   destruct la as [| a₃]; simpl.
    do 2 rewrite summation_only_one.
    Focus 1.
