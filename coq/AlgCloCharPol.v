@@ -1155,6 +1155,13 @@ Fixpoint fld_power α (f : field α) a n :=
   | S n₁ => (a .* f fld_power f a n₁)%K
   end.
 
+Lemma fold_nth_succ : ∀ α n a l (d : α),
+  match n with
+  | 0%nat => a
+  | S n₁ => List.nth n₁ l d
+  end = List.nth n [a … l] d.
+Proof. intros; destruct n; reflexivity. Qed.
+
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
   → (List.nth k (list_compose2 f la [b; .1 f … []]) .0 f .= f
@@ -1162,6 +1169,16 @@ Lemma www : ∀ α (f : field α) la b k n,
      mul_nat f (comb (k + i) k)
       (List.nth (k + i) la .0 f .* f fld_power f b i))%K.
 Proof.
+intros α f la b k n Hlen.
+unfold list_compose2; subst n.
+revert b k.
+induction la as [| a]; intros.
+ simpl.
+ rewrite summation_only_one.
+ do 2 rewrite match_id.
+ rewrite fld_mul_0_l, mul_nat_0_r; reflexivity.
+bbb.
+
 intros α f la b k n Hlen.
 unfold list_compose2; subst n.
 destruct la as [| a₁]; simpl.
@@ -1185,7 +1202,7 @@ destruct la as [| a₁]; simpl.
 
   rewrite fold_sub_succ_l.
   destruct la as [| a₃]; simpl.
-   do 2 rewrite summation_only_one.
+z   do 2 rewrite summation_only_one.
    unfold summation; simpl.
    rewrite fld_mul_0_r.
    rewrite fld_add_0_l.
@@ -1206,6 +1223,8 @@ destruct la as [| a₁]; simpl.
      do 4 rewrite fld_add_0_r; reflexivity.
 
      rewrite fld_add_0_r; reflexivity.
+
+   rewrite fold_sub_succ_l.
 bbb.
 
   destruct la as [| a₃]; simpl.
