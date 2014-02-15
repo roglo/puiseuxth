@@ -1098,6 +1098,16 @@ intros α f k.
 destruct k; reflexivity.
 Qed.
 
+Lemma www : ∀ α (f : field α) la b i k n,
+  n = length la
+  → (List.nth (k + i) (list_compose2 f la [b; .1 f … []]) .0 f .= f
+     Σ f (j = 0, n - k - i) _
+     mul_int f (List.nth (k + i + j) la .0 f) (comb (k + i + j) (k + j)))%K.
+Proof.
+intros α f la b i k n Hlen.
+unfold list_compose2.
+bbb.
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
