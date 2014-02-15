@@ -1162,7 +1162,7 @@ Lemma fold_nth_succ : ∀ α n a l (d : α),
   end = List.nth n [a … l] d.
 Proof. intros; destruct n; reflexivity. Qed.
 
-Lemma vvv : ∀ α (f : field α) g s len,
+Lemma fold_seq_succ : ∀ α (f : field α) g s len,
   (∀ t a b, list_eq f a b → list_eq f (g t a) (g t b))
   → list_eq f
       (List.fold_right g [] (List.seq s (S len)))
@@ -1175,6 +1175,23 @@ remember (S len) as x; simpl; subst x.
 apply Hg.
 rewrite IHlen; [ reflexivity | apply Hg ].
 Qed.
+
+Lemma vvv : ∀ α (f : field α) a la lb da s len,
+  list_eq f
+    (List.fold_right
+      (λ i accu,
+       list_add f accu
+         (list_mul f [List.nth (S i) [a … la] da]
+            (list_pow f lb (S i))))
+      [] (List.seq s len))
+    (list_mul f lb
+       (List.fold_right
+          (λ i accu,
+           list_add f accu
+             (list_mul f [List.nth i la da] (list_pow f lb i)))
+          [] (List.seq s len))).
+Proof.
+bbb.
 
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
@@ -1194,13 +1211,16 @@ induction la as [| a]; intros.
 
  remember (length [a … la]) as x; simpl in Heqx; subst x.
  rewrite fold_list_nth_def_0.
- rewrite vvv.
+ rewrite fold_seq_succ.
   Focus 2.
   intros t lc ld Hcd.
   rewrite Hcd; reflexivity.
 
   unfold list_nth_def_0.
   rewrite list_nth_add.
+  rewrite fold_list_nth_def_0.
+  rewrite vvv.
+  unfold list_nth_def_0.
 bbb.
 
 intros α f la b k n Hlen.
