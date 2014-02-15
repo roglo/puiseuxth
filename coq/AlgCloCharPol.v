@@ -1153,14 +1153,13 @@ Lemma www : ∀ α (f : field α) la b i k n,
   n = length la
   → (List.nth (k + i) (list_compose2 f la [b; .1 f … []]) .0 f .= f
      Σ f (j = 0, n - k - i) _
-     mul_int f (List.nth (k + i + j) la .0 f) (comb (k + i + j) (k + j)))%K.
+     mul_int f (List.nth (k + i + j) la .0 f) (comb (k + i + j) (k + i)))%K.
 Proof.
 intros α f la b i k n Hlen.
 unfold list_compose2; subst n.
 destruct la as [| a₁]; simpl.
  rewrite summation_only_one.
  do 2 rewrite match_id.
- do 2 rewrite Nat.add_0_r.
  rewrite mul_int_0_l; reflexivity.
 
  rewrite fold_list_nth_def_0.
@@ -1168,13 +1167,14 @@ destruct la as [| a₁]; simpl.
  rewrite fold_sub_succ_l.
  destruct la as [| a₂]; simpl.
   destruct k; simpl.
-   Focus 1.
    destruct i; simpl.
     unfold summation; simpl.
     do 3 rewrite fld_add_0_l; rewrite fld_add_0_r; reflexivity.
 
     rewrite summation_only_one.
-    rewrite mul_int_1_r, Nat.add_0_r; reflexivity.
+    unfold list_nth_def_0; simpl.
+    do 2 rewrite match_id.
+    rewrite mul_int_0_l; reflexivity.
 
    rewrite summation_only_one.
    unfold list_nth_def_0; simpl.
