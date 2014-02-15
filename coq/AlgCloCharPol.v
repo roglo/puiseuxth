@@ -1106,6 +1106,9 @@ Lemma www : ∀ α (f : field α) la b i k n,
 Proof.
 intros α f la b i k n Hlen.
 unfold list_compose2.
+unfold summation.
+rewrite Nat.sub_0_r; simpl.
+rewrite Nat.add_0_r.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
