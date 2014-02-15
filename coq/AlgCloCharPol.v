@@ -443,6 +443,57 @@ destruct k.
    reflexivity.
 Qed.
 
+Definition list_nth_def_0 α (f : field α) n l := List.nth n l .0 f%K.
+
+Lemma fold_list_nth_def_0 : ∀ α (f : field α) n l,
+  List.nth n l .0 f%K = list_nth_def_0 f n l.
+Proof. reflexivity. Qed.
+
+Add Parametric Morphism α (f : field α) : (list_nth_def_0 f)
+  with signature eq ==> list_eq f ==> fld_eq f
+  as list_nth_fld_morph.
+Proof.
+intros n la lb Hab.
+unfold list_nth_def_0.
+revert n lb Hab.
+induction la as [| a]; intros; simpl.
+ rewrite match_id.
+ symmetry.
+ revert n.
+ induction lb as [| b]; intros; [ destruct n; reflexivity | idtac ].
+ apply list_eq_nil_cons_inv in Hab.
+ destruct Hab as (Hb, Hlb).
+ destruct n; [ assumption | simpl ].
+ apply IHlb; assumption.
+
+ destruct n; simpl.
+  destruct lb as [| b]; simpl.
+   apply list_eq_cons_nil_inv in Hab.
+   destruct Hab; assumption.
+
+   apply list_eq_cons_inv in Hab.
+   destruct Hab; assumption.
+
+  destruct lb as [| b]; simpl.
+   apply list_eq_cons_nil_inv in Hab.
+   destruct Hab as (_, Hla).
+   clear a IHla.
+   revert n.
+   induction la as [| a]; intros.
+    destruct n; reflexivity.
+
+    destruct n; simpl.
+     apply list_eq_cons_nil_inv in Hla.
+     destruct Hla; assumption.
+
+     apply list_eq_cons_nil_inv in Hla.
+     apply IHla; destruct Hla; assumption.
+
+   apply list_eq_cons_inv in Hab.
+   destruct Hab as (_, Hab).
+   apply IHla; assumption.
+Qed.
+
 Lemma fold_apply_list : ∀ α (f : field α) al x,
   (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
   apply_list f al x.
@@ -1112,20 +1163,25 @@ destruct la as [| a₁]; simpl.
  do 2 rewrite Nat.add_0_r.
  rewrite mul_int_0_l; reflexivity.
 
+ rewrite fold_list_nth_def_0.
+ rewrite list_mul_1_r.
  rewrite fold_sub_succ_l.
  destruct la as [| a₂]; simpl.
   destruct k; simpl.
+   Focus 1.
    destruct i; simpl.
-    rewrite summation_only_one; unfold summation; simpl.
-    rewrite fld_mul_1_r, fld_add_0_l.
-    do 3 rewrite fld_add_0_r; reflexivity.
+    unfold summation; simpl.
+    do 3 rewrite fld_add_0_l; rewrite fld_add_0_r; reflexivity.
 
     rewrite summation_only_one.
     rewrite mul_int_1_r, Nat.add_0_r; reflexivity.
 
    rewrite summation_only_one.
+   unfold list_nth_def_0; simpl.
    do 2 rewrite match_id.
    rewrite mul_int_0_l; reflexivity.
+
+  rewrite fold_sub_succ_l.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
