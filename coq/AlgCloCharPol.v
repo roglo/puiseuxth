@@ -1163,12 +1163,18 @@ Lemma fold_nth_succ : ∀ α n a l (d : α),
 Proof. intros; destruct n; reflexivity. Qed.
 
 Lemma vvv : ∀ α (f : field α) g s len,
-  list_eq f
-    (List.fold_right g [] (List.seq s (S len)))
-    (g O (List.fold_right (λ i accu, g (S i) accu) [] (List.seq s len)))%K.
+  (∀ t a b, list_eq f a b → list_eq f (g t a) (g t b))
+  → list_eq f
+      (List.fold_right g [] (List.seq s (S len)))
+      (g s (List.fold_right (λ i accu, g (S i) accu) [] (List.seq s len)))%K.
 Proof.
-intros α f g s len.
-bbb.
+intros α f g s len Hg.
+revert s Hg.
+induction len; intros; [ reflexivity | idtac ].
+remember (S len) as x; simpl; subst x.
+apply Hg.
+rewrite IHlen; [ reflexivity | apply Hg ].
+Qed.
 
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
@@ -1189,8 +1195,12 @@ induction la as [| a]; intros.
  remember (length [a … la]) as x; simpl in Heqx; subst x.
  rewrite fold_list_nth_def_0.
  rewrite vvv.
- unfold list_nth_def_0.
- rewrite list_nth_add.
+  Focus 2.
+  intros t lc ld Hcd.
+  rewrite Hcd; reflexivity.
+
+  unfold list_nth_def_0.
+  rewrite list_nth_add.
 bbb.
 
 intros α f la b k n Hlen.
