@@ -1563,3 +1563,10 @@ induction l as [| x]; intros; simpl.
  destruct j; simpl; [ rewrite Nat.add_0_r; reflexivity | idtac ].
  rewrite IHl, Nat.add_succ_r; reflexivity.
 Qed.
+
+Lemma match_id : ∀ α a (b : α), match a with O => b | S _ => b end = b.
+Proof. intros α a b; destruct a; reflexivity. Qed.
+
+Lemma fold_sub_succ_l : ∀ a b,
+  (match a with 0 => S b | S c => b - c end = S b - a)%nat.
+Proof. reflexivity. Qed.

@@ -1105,10 +1105,27 @@ Lemma www : ∀ α (f : field α) la b i k n,
      mul_int f (List.nth (k + i + j) la .0 f) (comb (k + i + j) (k + j)))%K.
 Proof.
 intros α f la b i k n Hlen.
-unfold list_compose2.
-unfold summation.
-rewrite Nat.sub_0_r; simpl.
-rewrite Nat.add_0_r.
+unfold list_compose2; subst n.
+destruct la as [| a₁]; simpl.
+ rewrite summation_only_one.
+ do 2 rewrite match_id.
+ do 2 rewrite Nat.add_0_r.
+ rewrite mul_int_0_l; reflexivity.
+
+ rewrite fold_sub_succ_l.
+ destruct la as [| a₂]; simpl.
+  destruct k; simpl.
+   destruct i; simpl.
+    rewrite summation_only_one; unfold summation; simpl.
+    rewrite fld_mul_1_r, fld_add_0_l.
+    do 3 rewrite fld_add_0_r; reflexivity.
+
+    rewrite summation_only_one.
+    rewrite mul_int_1_r, Nat.add_0_r; reflexivity.
+
+   rewrite summation_only_one.
+   do 2 rewrite match_id.
+   rewrite mul_int_0_l; reflexivity.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
