@@ -1091,14 +1091,27 @@ apply list_fold_right_seq.
  apply list_mul_comm.
 Qed.
 
+Lemma length_derivial_nil : ∀ α (f : field α) k,
+  length (list_derivial f k []) = O.
+Proof.
+intros α f k.
+destruct k; reflexivity.
+Qed.
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
 Proof.
 intros α f k la b.
 do 2 rewrite list_compose_compose2.
-apply list_nth_list_eq; intros i.
+apply list_nth_list_eq; intros j.
 rewrite list_nth_derivial.
+bbb.
+unfold list_compose2; simpl.
+revert b j.
+induction la as [| a]; intros; simpl.
+ rewrite length_derivial_nil; simpl.
+ destruct (k + j)%nat, j; rewrite mul_int_0_l; reflexivity.
 bbb.
 
 intros α f k la b.
