@@ -1436,33 +1436,10 @@ Theorem taylor_formula : ∀ α (f : field α) x c P,
    apply_poly f (taylor_poly f P c) x)%K.
 Proof.
 intros α f x c P.
-(* à voir à partir de taylor_formula_sub *)
-bbb.
-
-unfold apply_poly; simpl.
-remember (al P) as la; clear Heqla.
-unfold taylor_list.
-clear.
-revert x c.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite IHla.
-rewrite fld_add_0_l.
-rewrite fld_add_assoc.
-apply fld_add_compat_r.
-rewrite fld_mul_add_distr_l.
-apply fld_add_compat.
- clear.
- revert a x c.
- induction la as [| a₂]; intros; [ reflexivity | simpl ].
- rewrite fld_add_assoc.
- rewrite fld_add_assoc.
- rewrite fld_add_assoc.
- rewrite fld_add_assoc.
- apply fld_mul_compat_r.
- apply fld_add_compat_r.
- apply fld_add_compat_r.
-bbb.
-*)
+pose proof (taylor_formula_sub f (x .+ f c)%K P c) as H.
+rewrite H, fld_add_sub.
+reflexivity.
+Qed.
 
 (* test
 Load Q_field.
