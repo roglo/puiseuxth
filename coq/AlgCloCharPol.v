@@ -1205,6 +1205,14 @@ induction lc as [| c]; intros; simpl.
  apply list_mul_comm.
 Qed.
 
+(*
+Lemma vvv : ∀ α (f : field α) a lb k,
+  (List.nth (S k) (list_mul f [a; .1 f … []] lb) .0 f .= f
+   a .* f List.nth (S k) lb .0 f .+ f List.nth k lb .0 f)%K.
+Proof.
+bbb.
+*)
+
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
   → (List.nth k (list_compose2 f la [b; .1 f … []]) .0 f .= f
@@ -1233,70 +1241,28 @@ induction la as [| a]; intros.
   rewrite fold_list_nth_def_0.
   rewrite fold_add_pow.
   unfold list_nth_def_0.
-bbb.
-
-intros α f la b k n Hlen.
-unfold list_compose2; subst n.
-destruct la as [| a₁]; simpl.
- rewrite summation_only_one.
- do 2 rewrite match_id.
- rewrite fld_mul_0_l, fld_mul_nat_0_r; reflexivity.
-
- rewrite fold_list_nth_def_0.
- rewrite list_mul_1_r.
- rewrite fold_sub_succ_l.
- destruct la as [| a₂]; simpl.
-  destruct k; simpl.
-   unfold summation; simpl.
-   do 2 rewrite fld_add_0_l; rewrite fld_add_0_r.
-   rewrite fld_mul_0_l, fld_mul_1_r, fld_add_0_r; reflexivity.
-
-   rewrite summation_only_one.
-   unfold list_nth_def_0; simpl.
-   do 2 rewrite match_id.
-   rewrite fld_mul_0_l, fld_mul_nat_0_r; reflexivity.
-
-  rewrite fold_sub_succ_l.
-  destruct la as [| a₃]; simpl.
-z   do 2 rewrite summation_only_one.
-   unfold summation; simpl.
-   rewrite fld_mul_0_r.
-   rewrite fld_add_0_l.
-   do 3 rewrite fld_add_0_r.
-   rewrite fld_mul_0_l.
-   do 4 rewrite fld_mul_1_r.
-   rewrite fld_add_0_r.
-   rewrite Nat.add_0_r, comb_id, fld_mul_nat_1_l.
-   unfold list_nth_def_0.
-   destruct k; simpl.
-    rewrite fld_mul_0_l.
-    do 3 rewrite fld_add_0_l.
-    rewrite fld_mul_1_r, fld_add_0_r.
-    apply fld_add_comm.
-
-    destruct k; simpl.
-     rewrite fld_mul_0_l.
-     do 4 rewrite fld_add_0_r; reflexivity.
-
-     rewrite fld_add_0_r; reflexivity.
-
-   rewrite fold_sub_succ_l.
-bbb.
-
-  destruct la as [| a₃]; simpl.
+  destruct k.
+   simpl.
    do 2 rewrite summation_only_one.
-   Focus 1.
-   unfold summation; simpl.
-   do 2 rewrite fld_mul_1_r.
-   rewrite fld_mul_0_r.
-   do 3 rewrite fld_add_0_r.
-   rewrite fld_mul_0_l.
-   rewrite fld_add_0_r, fld_add_0_l.
+   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+   rewrite fld_mul_1_r, comb_id.
+   rewrite fld_mul_nat_1_l.
+   simpl.
    rewrite fld_mul_1_r.
-   destruct k; simpl.
-    do 4 rewrite fld_add_0_l.
-    rewrite fld_add_0_r.
-    unfold list_nth_def_0; simpl.
+   rewrite fld_add_comm.
+   apply fld_add_compat_l.
+   rewrite IHla.
+   rewrite Nat.sub_0_r; simpl.
+   rewrite summation_succ_succ.
+   rewrite <- summation_mul_swap.
+   apply summation_compat; intros i (_, Hi).
+   do 2 rewrite comb_0_r, fld_mul_nat_1_l; simpl.
+   do 2 rewrite fld_mul_assoc.
+   apply fld_mul_compat_r, fld_mul_comm.
+
+   rewrite vvv.
+   rewrite IHla; simpl.
+   rewrite match_id, fld_add_0_r.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,

@@ -172,6 +172,13 @@ induction len; intros; simpl.
  reflexivity.
 Qed.
 
+Lemma summation_mul_swap : ∀ a g k,
+  (Σ f (i = 0, k) _ a .* f g i .= f a .* f Σ f (i = 0, k) _ g i)%K.
+Proof.
+intros a g k.
+apply summation_aux_mul_swap.
+Qed.
+
 Lemma summation_aux_summation_aux_mul_swap : ∀ g₁ g₂ g₃ b₁ b₂ len,
   (summation_aux f b₁ len
      (λ i, summation_aux f b₂ (g₁ i) (λ j, g₂ i .* f g₃ i j))
