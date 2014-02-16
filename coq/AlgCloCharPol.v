@@ -1205,13 +1205,25 @@ induction lc as [| c]; intros; simpl.
  apply list_mul_comm.
 Qed.
 
-(*
-Lemma vvv : ∀ α (f : field α) a lb k,
+Lemma nth_mul_deg_1 : ∀ α (f : field α) a lb k,
   (List.nth (S k) (list_mul f [a; .1 f … []] lb) .0 f .= f
    a .* f List.nth (S k) lb .0 f .+ f List.nth k lb .0 f)%K.
 Proof.
-bbb.
-*)
+intros α f a lb k.
+unfold list_mul.
+rewrite list_nth_list_convol_mul; [ idtac | reflexivity ].
+rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+rewrite summation_split_first; [ idtac | omega ].
+simpl.
+rewrite all_0_summation_0.
+ rewrite fld_mul_1_l, Nat.sub_0_r, fld_add_0_r.
+ reflexivity.
+
+ intros i (Hi, Hik).
+ destruct i; [ exfalso; omega | idtac ].
+ destruct i; [ exfalso; omega | idtac ].
+ rewrite match_id, fld_mul_0_l; reflexivity.
+Qed.
 
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
@@ -1260,8 +1272,8 @@ induction la as [| a]; intros.
    do 2 rewrite fld_mul_assoc.
    apply fld_mul_compat_r, fld_mul_comm.
 
-   rewrite vvv.
-   rewrite IHla; simpl.
+   rewrite nth_mul_deg_1.
+   do 2 rewrite IHla; simpl.
    rewrite match_id, fld_add_0_r.
 bbb.
 
