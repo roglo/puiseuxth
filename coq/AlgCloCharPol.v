@@ -1535,7 +1535,7 @@ constructor.
   destruct i; rewrite fld_mul_0_l; reflexivity.
 
  symmetry.
- apply poly_convol_mul_x_l; reflexivity.
+ apply list_convol_mul_x_l; reflexivity.
 Qed.
 
 Lemma apply_poly_add : ∀ p₁ p₂ x,
@@ -1622,7 +1622,7 @@ Qed.
 Lemma xxx : ∀ a b la lb x len,
   S (length la + length lb) = len
   → (apply_list f [a … la] x .* f apply_list f [b … lb] x .= f
-     apply_list f (poly_convol_mul f [a … la] [b … lb] 0 len) x)%K.
+     apply_list f (list_convol_mul f [a … la] [b … lb] 0 len) x)%K.
 Proof.
 intros a b la lb x len Hlen; simpl.
 destruct len; [ discriminate Hlen | simpl ].
