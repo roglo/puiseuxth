@@ -1275,6 +1275,33 @@ induction la as [| a]; intros.
    rewrite nth_mul_deg_1.
    do 2 rewrite IHla; simpl.
    rewrite match_id, fld_add_0_r.
+   rewrite <- summation_mul_swap.
+   rewrite fld_add_comm.
+   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+   rewrite Nat.add_0_r, comb_id; simpl.
+   rewrite fld_add_0_l, fld_mul_1_r; symmetry.
+   rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+   rewrite Nat.add_0_r, comb_id, comb_lt; [ idtac | omega ].
+   rewrite Nat.add_0_r; simpl.
+   rewrite fld_add_0_l, fld_mul_1_r.
+   rewrite <- fld_add_assoc.
+   apply fld_add_compat_l.
+   destruct (le_dec (length la) k) as [H₁| H₁].
+    rewrite summation_lt; [ idtac | omega ].
+    rewrite summation_lt; [ idtac | omega ].
+    replace (length la - S k)%nat with O by omega.
+    rewrite summation_only_one; simpl.
+    rewrite Nat.add_0_r.
+    rewrite comb_id, comb_lt; [ idtac | omega ].
+    rewrite Nat.add_0_r; simpl.
+    rewrite List.nth_overflow; [ idtac | omega ].
+    do 2 rewrite fld_add_0_l; rewrite fld_mul_0_l, fld_mul_0_r.
+    reflexivity.
+
+    replace (length la - k)%nat with (S (length la - S k)) by omega.
+    do 2 rewrite summation_succ_succ.
+    rewrite <- summation_add_distr.
+    apply summation_compat; intros i (_, Hi); simpl.
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
