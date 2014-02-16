@@ -1176,7 +1176,7 @@ apply Hg.
 rewrite IHlen; [ reflexivity | apply Hg ].
 Qed.
 
-Lemma vvv : ∀ α (f : field α) a la lb lc da s len,
+Lemma fold_add_pow : ∀ α (f : field α) a la lb lc da,
   list_eq f
     (List.fold_right
       (λ i accu,
@@ -1189,9 +1189,21 @@ Lemma vvv : ∀ α (f : field α) a la lb lc da s len,
           (λ i accu,
            list_add f accu
              (list_mul f [List.nth i la da] (list_pow f lb i)))
-          [] lc))
+          [] lc)).
 Proof.
-bbb.
+intros α f a la lb lc da; simpl; clear.
+revert la lb da.
+induction lc as [| c]; intros; simpl.
+ rewrite list_mul_nil_r; reflexivity.
+
+ rewrite IHlc.
+ rewrite list_mul_add_distr_l.
+ apply list_add_compat; [ reflexivity | idtac ].
+ rewrite list_mul_assoc.
+ rewrite list_mul_assoc.
+ apply list_mul_compat; [ idtac | reflexivity ].
+ apply list_mul_comm.
+Qed.
 
 Lemma www : ∀ α (f : field α) la b k n,
   n = length la
@@ -1219,7 +1231,7 @@ induction la as [| a]; intros.
   unfold list_nth_def_0.
   rewrite list_nth_add.
   rewrite fold_list_nth_def_0.
-  rewrite vvv.
+  rewrite fold_add_pow.
   unfold list_nth_def_0.
 bbb.
 
