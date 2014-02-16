@@ -1333,6 +1333,28 @@ induction la as [| a]; intros.
   rewrite Hcd; reflexivity.
 Qed.
 
+Lemma summation_mul_nat_swap: ∀ α (f : field α) a g k,
+  (Σ f (i = 0, k)_ fld_mul_nat f a (g i) .= f
+   fld_mul_nat f a (Σ f (i = 0, k)_ g i))%K.
+Proof.
+intros α f a g k.
+induction k.
+ do 2 rewrite summation_only_one; reflexivity.
+
+ rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
+ rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
+ rewrite IHk.
+ rewrite fld_mul_nat_add_distr_l.
+ reflexivity.
+Qed.
+
+Lemma comb_mul_add_add : ∀ i j k,
+  (comb (k + i) k * comb (k + i + j) (k + i) =
+   comb (i + j) i * comb (k + i + j) k)%nat.
+Proof.
+intros i j k.
+bbb.
+
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
     (list_compose f (list_derivial f k la) [b; .1 f%K … []]).
@@ -1345,7 +1367,20 @@ rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 rewrite list_length_derivial.
 rewrite <- Nat.sub_add_distr.
-bbb.
+rewrite <- summation_mul_nat_swap.
+apply summation_compat; intros i (_, Hi).
+rewrite list_nth_derivial.
+rewrite Nat.add_assoc.
+rewrite fld_mul_comm.
+rewrite fld_mul_nat_mul_swap.
+symmetry; rewrite fld_mul_comm.
+rewrite fld_mul_nat_mul_swap.
+rewrite fld_mul_nat_mul_swap.
+apply fld_mul_compat_l.
+do 2 rewrite fld_mul_nat_assoc.
+rewrite comb_mul_add_add.
+reflexivity.
+Qed.
 
 Lemma zzz : ∀ α (f : field α) a la,
   list_eq f
