@@ -1436,9 +1436,8 @@ Theorem taylor_formula : ∀ α (f : field α) x c P,
    apply_poly f (taylor_poly f P c) x)%K.
 Proof.
 intros α f x c P.
-pose proof (taylor_formula_sub f (x .+ f c)%K P c) as H.
-rewrite H, fld_add_sub.
-reflexivity.
+rewrite taylor_formula_sub.
+rewrite fld_add_sub; reflexivity.
 Qed.
 
 (* test
