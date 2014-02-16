@@ -1302,6 +1302,10 @@ induction la as [| a]; intros.
     do 2 rewrite summation_succ_succ.
     rewrite <- summation_add_distr.
     apply summation_compat; intros i (_, Hi); simpl.
+    rewrite <- Nat.add_succ_r.
+    do 2 rewrite <- comb_succ_succ.
+    remember (List.nth (k + S i) la .0 f)%K as n eqn:Hn .
+    remember (fld_pow_nat f b i) as p eqn:Hp .
 bbb.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
