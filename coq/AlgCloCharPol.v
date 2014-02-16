@@ -1353,7 +1353,23 @@ Lemma comb_mul_add_add : ∀ i j k,
    comb (i + j) i * comb (k + i + j) k)%nat.
 Proof.
 intros i j k.
-bbb.
+pose proof (comb_fact k i) as H₁.
+pose proof (comb_fact i j) as H₂.
+pose proof (comb_fact (k + i) j) as H₃.
+pose proof (comb_fact k (i + j)) as H₄.
+rewrite Nat.add_assoc in H₄.
+rewrite <- H₄ in H₃.
+rewrite <- H₁, <- H₂ in H₃.
+revert H₃; clear; intros H.
+do 6 rewrite Nat.mul_assoc in H.
+apply Nat.mul_cancel_r in H; [ idtac | apply fact_neq_0 ].
+apply Nat.mul_cancel_r in H; [ idtac | apply fact_neq_0 ].
+symmetry in H.
+rewrite Nat.mul_shuffle0 in H.
+apply Nat.mul_cancel_r in H; [ idtac | apply fact_neq_0 ].
+rewrite Nat.mul_comm in H; rewrite H.
+apply Nat.mul_comm.
+Qed.
 
 Lemma list_derivial_compose_deg_1 : ∀ α (f : field α) k la b,
   list_eq f (list_derivial f k (list_compose f la [b; .1 f%K … []]))
@@ -1382,7 +1398,7 @@ rewrite comb_mul_add_add.
 reflexivity.
 Qed.
 
-Lemma zzz : ∀ α (f : field α) a la,
+Lemma taylor_list_compose_deg_1 : ∀ α (f : field α) a la,
   list_eq f
     (taylor_list f (list_compose f la [a; .1 f … []]) .0 f)%K
     (taylor_list f la a).
@@ -1396,7 +1412,7 @@ rewrite Nat.add_0_r.
 rewrite list_derivial_compose_deg_1.
 rewrite apply_list_compose; simpl.
 rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
-bbb.
+Qed.
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
@@ -1411,68 +1427,18 @@ unfold apply_poly in H; simpl in H.
 unfold apply_poly in H; simpl in H.
 unfold apply_poly; simpl.
 rewrite apply_list_compose_add_sub in H.
-bbb.
-rewrite fld_mul_0_l in H.
-
-intros α f x P a.
-remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
-assert
- (∀ k,
-  poly_derivial f k Q .= f
-  poly_compose f (poly_derivial f k P) POL [a; .1 f%K … []])%pol 
- as H.
- intros k.
- subst Q.
- unfold poly_derivial; simpl.
- unfold poly_compose; simpl.
- unfold eq_poly; simpl.
- remember (al P) as la.
- clear.
- revert a k.
- induction la as [| a₁]; intros.
-  simpl.
-bbb.
-
-Lemma taylor_formula_loop : ∀ α (f : field α) la x cnt n c,
-  length la = (cnt + n)%nat
-  → (apply_list f (List.skipn n la) (x .+ f c) .= f
-     apply_list f (coeff_taylor_list f cnt la c n) x)%K.
-Proof.
-intros α f la x cnt n c Hlen.
-revert la x n c Hlen.
-induction cnt; intros.
- simpl in Hlen; subst n; simpl.
- rewrite list_skipn_overflow; reflexivity.
-
- simpl.
- rewrite Nat.add_succ_l, <- Nat.add_succ_r in Hlen.
- rewrite <- IHcnt; [ idtac | assumption ].
-Abort. (*
-bbb.
- clear; revert x c n.
- induction la as [| a]; intros.
-  rewrite list_skipn_nil; simpl.
-  rewrite fld_mul_0_l, fld_add_0_l.
-  destruct n; reflexivity.
-
-  destruct n; simpl.
-   rewrite fld_add_0_l.
-   rewrite fld_add_assoc.
-   apply fld_add_compat_r.
-   Focus 2.
-   rewrite IHla.
-   simpl.
-   apply fld_add_compat_l.
-   unfold list_derivial.
-   simpl.
-bbb.
-*)
+rewrite H.
+rewrite taylor_list_compose_deg_1; reflexivity.
+Qed.
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
    apply_poly f (taylor_poly f P c) x)%K.
 Proof.
 intros α f x c P.
+(* à voir à partir de taylor_formula_sub *)
+bbb.
+
 unfold apply_poly; simpl.
 remember (al P) as la; clear Heqla.
 unfold taylor_list.
