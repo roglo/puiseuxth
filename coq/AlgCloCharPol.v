@@ -1610,7 +1610,18 @@ intros p₁ p₂ x.
 apply apply_list_mul.
 Qed.
 
-Lemma yyy : ∀ la c,
+Lemma list_nth_mod_div_deg_1 : ∀ la c i,
+  (List.nth i (list_mod_div_deg_1 f la c) .0 f .= f
+   apply_list f (List.skipn i la) c)%K.
+Proof.
+intros la c i; revert i.
+induction la as [| a]; intros; simpl.
+ rewrite match_id, list_skipn_nil; reflexivity.
+
+ destruct i; [ reflexivity | apply IHla ].
+Qed.
+
+Lemma root_formula : ∀ la c,
   (apply_list f la c .= f .0 f)%K
   → list_eq f la
        (list_mul f [(.-f c)%K; .1 f%K … []] (list_div_deg_1 f la c)).
@@ -1652,32 +1663,27 @@ destruct md as [| r d].
    assumption.
 
   rewrite nth_mul_deg_1; simpl.
-bbb.
+  clear a₀ Hc.
+  do 2 rewrite list_nth_mod_div_deg_1.
+  revert i.
+  induction la as [| a]; intros; simpl.
+   rewrite match_id, list_skipn_nil; simpl.
+   rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
+
+   destruct i; [ simpl | apply IHla ].
+   rewrite fld_add_assoc.
+   rewrite fld_mul_opp_l, fld_mul_comm.
+   rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
+Qed.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
-Lemma zzz : ∀ c p,
+Lemma poly_root_formula : ∀ c p,
   (apply_poly f p c .= f .0 f)%K
   → (p .= f POL [(.-f c)%K; .1 f%K … []] .* f poly_div_deg_1 f p c)%pol.
 Proof.
 intros c p Hz.
-unfold poly_div_deg_1.
-unfold eq_poly; simpl.
-unfold apply_poly in Hz; simpl in Hz.
-remember (al p) as la; clear p Heqla.
-bbb.
-rewrite summation_only_one.
-destruct cl as [| c₁]; simpl.
- rewrite fld_mul_0_r.
- constructor; reflexivity.
-
- constructor.
-  rename c into x.
-  rename c₁ into c.
-  rename x into c₁.
-  pose proof (poly_eq_add_const_mul_x_poly c cl) as Hc.
-  rewrite Hc in Hz; simpl in Hz.
-  rewrite apply_poly_add in Hz.
-bbb.
+apply root_formula; assumption.
+Qed.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
