@@ -1630,19 +1630,17 @@ destruct md as [| r d].
  subst d; clear r Hr.
  rename a into a₀.
  apply list_nth_list_eq; intros i.
- revert a₀ c i Hc.
- induction la as [| a]; intros.
-  simpl in Hc.
-  rewrite fld_mul_0_l, fld_add_0_l in Hc.
-  destruct i; [ simpl | reflexivity ].
+ destruct i.
+  simpl.
   rewrite summation_only_one.
-  rewrite fld_mul_0_r; assumption.
-
-  destruct i.
+  destruct la as [| a₁].
    simpl.
-   rewrite summation_only_one.
+   rewrite fld_mul_0_r.
    simpl in Hc.
-   remember (apply_list f la c .* f c .+ f a)%K as v eqn:Hv .
+   rewrite fld_mul_0_l, fld_add_0_l in Hc; assumption.
+
+   simpl in Hc; simpl.
+   remember (apply_list f la c .* f c .+ f a₁)%K as v eqn:Hv .
    rewrite fld_mul_comm in Hc.
    apply fld_add_compat_r with (c := (.-f c .* f v)%K) in Hc.
    rewrite fld_add_0_l in Hc.
@@ -1653,8 +1651,7 @@ destruct md as [| r d].
    rewrite fld_mul_opp_l.
    assumption.
 
-   remember [.-f c; .1 f … []]%K as x.
-   remember [a … la] as y; simpl; subst x y.
+  rewrite nth_mul_deg_1; simpl.
 bbb.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
