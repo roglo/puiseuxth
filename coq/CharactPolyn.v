@@ -1462,15 +1462,15 @@ Qed.
 (* [Walker, p. 100]: « In the first place, we note that [...]
    and since p and q have no common factors, q is a factor
    of h - j. » *)
-Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj p q,
+Theorem q_is_factor_of_h_minus_j : ∀ pol ns j αj q,
   ns ∈ newton_segments f pol
   → (Qnat j, αj) = ini_pt ns
-    → p = p_of_ns pol ns
-      → q = Pos.to_nat (q_of_ns pol ns)
-        → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
-          → (q | h - j)%nat.
+    → q = Pos.to_nat (q_of_ns pol ns)
+      → ∀ h αh, (Qnat h, αh) ∈ oth_pts ns ++ [fin_pt ns]
+        → (q | h - j)%nat.
 Proof.
-intros pol ns j αj p q Hns Hj Hp Hq h αh Hh.
+intros pol ns j αj q Hns Hj Hq h αh Hh.
+remember (p_of_ns pol ns) as p eqn:Hp.
 remember Hns as H; clear HeqH.
 eapply q_mj_mk_eq_p_h_j in H; try eassumption; try reflexivity.
 destruct H as (Hαh, Hqjh).
@@ -2800,7 +2800,7 @@ apply imp_or_tauto.
      destruct Hpt as [Hpt| ]; [ idtac | contradiction ].
      rewrite <- Hpt, <- Hk; reflexivity.
 
-  eapply q_is_factor_of_h_minus_j; try eassumption; [ reflexivity | idtac ].
+  eapply q_is_factor_of_h_minus_j; try eassumption.
   apply List.in_or_app; right; left; symmetry; eassumption.
 
  subst l.

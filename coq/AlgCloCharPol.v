@@ -1730,6 +1730,12 @@ destruct r.
    eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
    unfold has_degree in Hdeg.
    destruct Hdeg as (Hdeg, Hcnz).
+   remember Hns as Hqkj; clear HeqHqkj.
+   eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
+    destruct Hqkj as (n, Hqkj).
+    rewrite Hqkj in Hdeg.
+    unfold pseudo_degree in Hdeg.
+    unfold degree.
 bbb.
    unfold ge, degree; simpl.
    rewrite Hj; simpl.
