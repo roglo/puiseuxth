@@ -1629,14 +1629,15 @@ destruct md as [| r d].
  injection Hmd; clear Hmd; intros Hd Hr.
  subst d; clear r Hr.
  rename a into a₀.
- revert a₀ c Hc.
- induction la as [| a]; intros; simpl.
+ apply list_nth_list_eq; intros i.
+ revert a₀ c i Hc.
+ induction la as [| a]; intros.
   simpl in Hc.
   rewrite fld_mul_0_l, fld_add_0_l in Hc.
-  rewrite Hc, list_mul_nil_r.
-  constructor; reflexivity.
+  destruct i; [ simpl | reflexivity ].
+  rewrite summation_only_one.
+  rewrite fld_mul_0_r; assumption.
 
-  apply list_nth_list_eq; intros i.
   destruct i.
    simpl.
    rewrite summation_only_one.
@@ -1651,6 +1652,9 @@ destruct md as [| r d].
    rewrite fld_add_0_l in Hc.
    rewrite fld_mul_opp_l.
    assumption.
+
+   remember [.-f c; .1 f … []]%K as x.
+   remember [a … la] as y; simpl; subst x y.
 bbb.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
