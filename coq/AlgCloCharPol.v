@@ -1618,6 +1618,7 @@ Qed.
     .+ f a .* f b)%K
 *)
 
+(*
 Lemma xxx : ∀ a b la lb x len,
   S (length la + length lb) = len
   → (apply_list f [a … la] x .* f apply_list f [b … lb] x .= f
@@ -1688,7 +1689,9 @@ assert
     rewrite Nat.add_succ_r in Hlen.
     apply Nat.succ_inj in Hlen.
 bbb.
+*)
 
+(*
 Lemma yyy : ∀ la lb x len,
   pred (length la + length lb) = len
   → (apply_list f la x .* f apply_list f lb x .= f
@@ -1778,7 +1781,6 @@ destruct len.
     rewrite Heqalb in |- * at 1.
     rewrite Heqalb in |- * at 2.
     simpl; subst z ala alb.
-Abort. (*
 bbb.
 *)
 
@@ -1786,6 +1788,13 @@ Lemma apply_poly_mul : ∀ p₁ p₂ x,
   (apply_poly f (p₁ .* f p₂)%pol x .= f
    apply_poly f p₁ x .* f apply_poly f p₂ x)%K.
 Proof.
+intros p₁ p₂ x.
+unfold apply_poly; simpl.
+remember (al p₁) as la eqn:Hla .
+remember (al p₂) as lb eqn:Hlb .
+clear.
+
+bbb.
 intros p₁ p₂ x.
 symmetry.
 unfold apply_poly, apply_list; simpl.
