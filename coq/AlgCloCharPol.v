@@ -1719,7 +1719,7 @@ destruct r.
   rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
   symmetry in Hj.
-  apply zzz.
+  apply poly_root_formula.
 bbb.
 
 End theorems.
