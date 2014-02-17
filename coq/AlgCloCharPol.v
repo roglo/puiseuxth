@@ -1646,6 +1646,11 @@ destruct md as [| r d].
    apply fld_add_compat_r with (c := (.-f c .* f v)%K) in Hc.
    rewrite fld_add_0_l in Hc.
    rewrite fld_add_comm, fld_add_assoc in Hc.
+   rewrite fld_mul_opp_l in Hc.
+   rewrite fld_add_opp_l in Hc.
+   rewrite fld_add_0_l in Hc.
+   rewrite fld_mul_opp_l.
+   assumption.
 bbb.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
