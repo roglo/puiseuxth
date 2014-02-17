@@ -24,10 +24,10 @@ Definition apply_poly α (f : field α) pol :=
 
 (* euclidean division of a polynomial by (x - c) *)
 
-Fixpoint list_mod_div_deg_1 α (f : field α) c al :=
-  match al with
+Fixpoint list_mod_div_deg_1 α (f : field α) c la :=
+  match la with
   | [] => []
-  | [a₁ … al₁] => [apply_poly f (POL al)%pol c … list_mod_div_deg_1 f c al₁]
+  | [a₁ … la₁] => [apply_list f la c … list_mod_div_deg_1 f c la₁]
   end.
 
 Definition list_div_deg_1 α (f : field α) la c :=
