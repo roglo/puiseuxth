@@ -24,28 +24,31 @@ Definition apply_poly α (f : field α) pol :=
 
 (* euclidean division of a polynomial by (x - c) *)
 
-Fixpoint list_mod_div_mono α (f : field α) c al :=
+Fixpoint list_mod_div_deg_1 α (f : field α) c al :=
   match al with
   | [] => []
-  | [a₁ … al₁] => [apply_poly f (POL al)%pol c … list_mod_div_mono f c al₁]
+  | [a₁ … al₁] => [apply_poly f (POL al)%pol c … list_mod_div_deg_1 f c al₁]
   end.
 
-Definition poly_div_mono α (f : field α) pol c :=
-  match list_mod_div_mono f c (al pol) with
-  | [] => POL []%pol
-  | [m … ml] => POL ml%pol
+Definition list_div_deg_1 α (f : field α) la c :=
+  match list_mod_div_deg_1 f c la with
+  | [] => []
+  | [m … ml] => ml
   end.
 
-Definition poly_mod_mono α (f : field α) pol c :=
-  match list_mod_div_mono f c (al pol) with
+Definition list_mod_deg_1 α (f : field α) la c :=
+  match list_mod_div_deg_1 f c la with
   | [] => .0 f%K
   | [m … ml] => m
   end.
 
+Definition poly_div_deg_1 α (f : field α) pol c :=
+  (POL (list_div_deg_1 f (al pol) c))%pol.
+
 (* test
 Load Q_field.
-Definition Qtest_div cl c := poly_div_mono Q_field (POL cl)%pol c.
-Definition Qtest_mod cl c := poly_mod_mono Q_field (POL cl)%pol c.
+Definition Qtest_div cl c := poly_div_deg_1 Q_field (POL cl)%pol c.
+Definition Qtest_mod cl c := poly_mod_deg_1 Q_field (POL cl)%pol c.
 Eval vm_compute in Qtest_div [2#1; -3#1; 1#1 … []] (4#1).
 Eval vm_compute in Qtest_mod [2#1; -3#1; 1#1 … []] (4#1).
 Eval vm_compute in Qtest_div [-Qnat 5; -Qnat 13; Qnat 0; Qnat 4 … []] (- 1 # 2).
@@ -1489,7 +1492,7 @@ Fixpoint list_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
   match d with
   | O => O
   | S d₁ =>
-      match list_mod_div_mono f c₁ al with
+      match list_mod_div_deg_1 f c₁ al with
       | [] => O
       | [m … ml] =>
           if ac_is_zero acf m then S (list_multiplicity acf c₁ ml d₁)
@@ -1503,7 +1506,7 @@ Definition multiplicity α (acf : algeb_closed_field α) c₁ pol :=
 Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   match r with
   | O => pol
-  | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_mono f pol c₁) c₁ r₁
+  | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_deg_1 f pol c₁) c₁ r₁
   end.
 
 Section theorems.
@@ -1597,16 +1600,25 @@ intros p₁ p₂ x.
 apply apply_list_mul.
 Qed.
 
+Lemma yyy : ∀ la c,
+  (apply_list f la c .= f .0 f)%K
+  → list_eq f la
+       (list_mul f [(.-f c)%K; .1 f%K … []] (list_div_deg_1 f la c)).
+Proof.
+intros la c Hc.
+bbb.
+
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
 Lemma zzz : ∀ c p,
   (apply_poly f p c .= f .0 f)%K
-  → (p .= f POL [(.-f c)%K; .1 f%K … []] .* f poly_div_mono f p c)%pol.
+  → (p .= f POL [(.-f c)%K; .1 f%K … []] .* f poly_div_deg_1 f p c)%pol.
 Proof.
 intros c p Hz.
-unfold poly_div_mono.
-destruct p as (cl); simpl.
+unfold poly_div_deg_1.
 unfold eq_poly; simpl.
-Show. bbb.
+unfold apply_poly in Hz; simpl in Hz.
+remember (al p) as la; clear p Heqla.
+bbb.
 rewrite summation_only_one.
 destruct cl as [| c₁]; simpl.
  rewrite fld_mul_0_r.
@@ -1644,7 +1656,7 @@ destruct r.
   subst Ψ; simpl.
   unfold Φq; simpl.
   unfold poly_left_shift; simpl.
-  unfold poly_div_mono; simpl.
+  unfold poly_div_deg_1; simpl.
   rewrite skipn_pad.
   rewrite Nat.sub_diag; simpl.
   remember (ini_pt ns) as jj eqn:Hj .
