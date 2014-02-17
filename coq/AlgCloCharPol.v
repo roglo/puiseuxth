@@ -191,18 +191,24 @@ Qed.
 Theorem list_skipn_0 : ∀ A (l : list A), List.skipn 0 l = l.
 Proof. intros A l; destruct l; reflexivity. Qed.
 
-Theorem taylor_formula_0 : ∀ α (f : field α) x P,
-  (apply_poly f P x .= f
-   apply_poly f (taylor_poly f P .0 f) x)%K.
+Lemma taylor_list_formula_0 : ∀ α (f : field α) x la,
+  (apply_list f la x .= f
+   apply_list f (taylor_list f la .0 f) x)%K.
 Proof.
-intros α f x P.
-unfold apply_poly; simpl.
-remember (al P) as la; clear Heqla.
+intros α f x la.
 unfold taylor_list.
 rewrite <- taylor_formula_0_loop.
  rewrite list_skipn_0; reflexivity.
 
  rewrite Nat.add_0_r; reflexivity.
+Qed.
+
+Theorem taylor_formula_0 : ∀ α (f : field α) x P,
+  (apply_poly f P x .= f
+   apply_poly f (taylor_poly f P .0 f) x)%K.
+Proof.
+intros α f x P.
+apply taylor_list_formula_0.
 Qed.
 
 Lemma fld_mul_nat_add_distr_l : ∀ α (f : field α) a b n,
@@ -1417,21 +1423,25 @@ rewrite apply_list_compose; simpl.
 rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
+Lemma taylor_list_formula_sub : ∀ α (f : field α) x la a,
+  (apply_list f la x .= f
+   apply_list f (taylor_list f la a) (x .- f a))%K.
+Proof.
+intros α f x la a.
+remember (list_compose f la [a; .1 f%K … []]) as lb eqn:Hlb .
+pose proof (taylor_list_formula_0 f (x .- f a)%K lb) as H.
+subst lb.
+rewrite apply_list_compose_add_sub in H.
+rewrite H.
+rewrite taylor_list_compose_deg_1; reflexivity.
+Qed.
+
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
   (apply_poly f P x .= f
    apply_poly f (taylor_poly f P a) (x .- f a))%K.
 Proof.
 intros α f x P a.
-remember (poly_compose f P POL [a; .1 f%K … []]%pol) as Q eqn:HQ .
-pose proof (taylor_formula_0 f (x .- f a)%K Q) as H.
-subst Q.
-unfold poly_compose in H; simpl in H.
-unfold apply_poly in H; simpl in H.
-unfold apply_poly in H; simpl in H.
-unfold apply_poly; simpl.
-rewrite apply_list_compose_add_sub in H.
-rewrite H.
-rewrite taylor_list_compose_deg_1; reflexivity.
+apply taylor_list_formula_sub.
 Qed.
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
