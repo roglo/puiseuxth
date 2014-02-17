@@ -1721,6 +1721,8 @@ destruct r.
   symmetry in Hj.
   apply poly_root_formula.
   assert (degree (ac_is_zero acf) (Φq f pol ns) ≥ 1) as Hdeg.
+(* use phi_degree_is_k_sub_j_div_q *)
+bbb.
    unfold ge, degree; simpl.
    rewrite Hj; simpl.
    rewrite Nat.sub_diag; simpl.
