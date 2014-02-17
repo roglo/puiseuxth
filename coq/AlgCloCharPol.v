@@ -1616,6 +1616,36 @@ Lemma yyy : ∀ la c,
        (list_mul f [(.-f c)%K; .1 f%K … []] (list_div_deg_1 f la c)).
 Proof.
 intros la c Hc.
+unfold list_div_deg_1.
+remember (list_mod_div_deg_1 f c la) as md eqn:Hmd .
+symmetry in Hmd.
+destruct md as [| r d].
+ rewrite list_mul_nil_r.
+ destruct la as [| a]; [ reflexivity | discriminate Hmd ].
+
+ destruct la as [| a]; [ discriminate Hmd | simpl ].
+ simpl in Hmd.
+ simpl in Hc.
+ injection Hmd; clear Hmd; intros Hd Hr.
+ subst d; clear r Hr.
+ rename a into a₀.
+ revert a₀ c Hc.
+ induction la as [| a]; intros; simpl.
+  simpl in Hc.
+  rewrite fld_mul_0_l, fld_add_0_l in Hc.
+  rewrite Hc, list_mul_nil_r.
+  constructor; reflexivity.
+
+  apply list_nth_list_eq; intros i.
+  destruct i.
+   simpl.
+   rewrite summation_only_one.
+   simpl in Hc.
+   remember (apply_list f la c .* f c .+ f a)%K as v eqn:Hv .
+   rewrite fld_mul_comm in Hc.
+   apply fld_add_compat_r with (c := (.-f c .* f v)%K) in Hc.
+   rewrite fld_add_0_l in Hc.
+   rewrite fld_add_comm, fld_add_assoc in Hc.
 bbb.
 
 (* p(c) = 0 ⇒ p = (x-c) * (p / (x-c)) *)
