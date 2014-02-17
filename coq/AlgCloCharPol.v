@@ -1720,6 +1720,22 @@ destruct r.
   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
   symmetry in Hj.
   apply poly_root_formula.
+  assert (degree (ac_is_zero acf) (Φq f pol ns) ≥ 1) as Hdeg.
+   unfold ge, degree; simpl.
+   rewrite Hj; simpl.
+   rewrite Nat.sub_diag; simpl.
+   rewrite skipn_pad.
+   unfold nofq, Qnat.
+   remember degree_plus_1_of_list as g; simpl; subst g.
+   rewrite Nat2Z.id.
+   remember (oth_pts ns ++ [fin_pt ns]) as ptl.
+   remember (List.map (term_of_point f pol) ptl) as tl eqn:Htl ; subst ptl.
+   remember (valuation_coeff f (List.nth j (al pol) .0 f%ps)) as v eqn:Hv .
+   simpl.
+   remember (make_char_pol f (S j) tl) as cpol eqn:Hcpol .
+   remember (degree_plus_1_of_list (ac_is_zero acf) cpol) as d.
+   symmetry in Heqd.
+   destruct d; [ exfalso | omega ].
 bbb.
 
 End theorems.
