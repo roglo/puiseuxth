@@ -24,20 +24,20 @@ Definition apply_poly α (f : field α) pol :=
 
 (* euclidean division of a polynomial by (x - c) *)
 
-Fixpoint list_mod_div_deg_1 α (f : field α) c la :=
+Fixpoint list_mod_div_deg_1 α (f : field α) la c :=
   match la with
   | [] => []
-  | [a₁ … la₁] => [apply_list f la c … list_mod_div_deg_1 f c la₁]
+  | [a₁ … la₁] => [apply_list f la c … list_mod_div_deg_1 f la₁ c]
   end.
 
 Definition list_div_deg_1 α (f : field α) la c :=
-  match list_mod_div_deg_1 f c la with
+  match list_mod_div_deg_1 f la c with
   | [] => []
   | [m … ml] => ml
   end.
 
 Definition list_mod_deg_1 α (f : field α) la c :=
-  match list_mod_div_deg_1 f c la with
+  match list_mod_div_deg_1 f la c with
   | [] => .0 f%K
   | [m … ml] => m
   end.
@@ -1502,7 +1502,7 @@ Fixpoint list_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
   match d with
   | O => O
   | S d₁ =>
-      match list_mod_div_deg_1 f c₁ al with
+      match list_mod_div_deg_1 f al c₁ with
       | [] => O
       | [m … ml] =>
           if ac_is_zero acf m then S (list_multiplicity acf c₁ ml d₁)
@@ -1617,7 +1617,7 @@ Lemma yyy : ∀ la c,
 Proof.
 intros la c Hc.
 unfold list_div_deg_1.
-remember (list_mod_div_deg_1 f c la) as md eqn:Hmd .
+remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
 symmetry in Hmd.
 destruct md as [| r d].
  rewrite list_mul_nil_r.
