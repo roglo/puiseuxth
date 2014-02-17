@@ -1721,7 +1721,15 @@ destruct r.
   symmetry in Hj.
   apply poly_root_formula.
   assert (degree (ac_is_zero acf) (Φq f pol ns) ≥ 1) as Hdeg.
-(* use phi_degree_is_k_sub_j_div_q *)
+   remember Hns as Hk; clear HeqHk.
+   apply exists_fin_pt_nat in Hk.
+   destruct Hk as (k, (αk, Hk)).
+   remember (Pos.to_nat (q_of_ns f pol ns)) as q eqn:Hq .
+   symmetry in Hj, Hk.
+   remember Hns as Hdeg; clear HeqHdeg.
+   eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
+   unfold has_degree in Hdeg.
+   destruct Hdeg as (Hdeg, Hcnz).
 bbb.
    unfold ge, degree; simpl.
    rewrite Hj; simpl.
