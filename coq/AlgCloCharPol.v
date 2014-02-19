@@ -1773,7 +1773,13 @@ destruct r.
  rewrite poly_mul_1_l.
  subst Ψ; reflexivity.
 
- simpl.
+ remember (ini_pt ns) as jj eqn:Hj .
+ destruct jj as (jq, αj); simpl.
+ remember Hns as H; clear HeqH.
+ apply exists_ini_pt_nat in H.
+ destruct H as (j, (x, Hx)).
+ rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
+ symmetry in Hj.
  destruct r; simpl.
   rewrite poly_mul_1_r.
   subst Ψ; simpl.
@@ -1782,14 +1788,8 @@ destruct r.
   unfold poly_div_deg_1; simpl.
   rewrite skipn_pad.
   rewrite Nat.sub_diag; simpl.
-  remember (ini_pt ns) as jj eqn:Hj .
-  destruct jj as (jq, αj); simpl.
-  remember Hns as H; clear HeqH.
-  apply exists_ini_pt_nat in H.
-  destruct H as (j, (x, Hx)).
-  rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
+  rewrite Hj; simpl.
   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
-  symmetry in Hj.
   apply poly_root_formula.
   assert (degree (ac_is_zero acf) (Φq f pol ns) ≥ 1) as Hdeg.
    remember Hns as Hk; clear HeqHk.
