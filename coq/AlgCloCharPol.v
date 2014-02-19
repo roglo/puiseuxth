@@ -1499,7 +1499,7 @@ Fixpoint poly_power α (f : field α) pol n :=
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 
-Fixpoint list_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
+Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
   let f := ac_field acf in
   match d with
   | O => O
@@ -1507,13 +1507,13 @@ Fixpoint list_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
       match list_mod_div_deg_1 f al c₁ with
       | [] => O
       | [m … ml] =>
-          if ac_is_zero acf m then S (list_multiplicity acf c₁ ml d₁)
+          if ac_is_zero acf m then S (list_root_multiplicity acf c₁ ml d₁)
           else O
       end
   end.
 
-Definition multiplicity α (acf : algeb_closed_field α) c₁ pol :=
-  list_multiplicity acf c₁ (al pol) (List.length (al pol)).
+Definition root_multiplicity α (acf : algeb_closed_field α) c₁ pol :=
+  list_root_multiplicity acf c₁ (al pol) (List.length (al pol)).
 
 Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   match r with
@@ -1687,6 +1687,22 @@ intros c p Hz.
 apply root_formula; assumption.
 Qed.
 
+Lemma poly_multi_root_formula : ∀ c P r,
+  root_multiplicity acf c P = r
+  → (P .= f
+      poly_power f (POL [(.-f c)%K; .1 f%K … []]) r .* f
+      List.fold_right (λ n accu, poly_div_deg_1 f accu c) P
+        (List.seq 1 r))%pol.
+Proof.
+intros c P r Hmult.
+destruct r; simpl.
+ rewrite poly_mul_1_l; reflexivity.
+
+ destruct r; simpl.
+  rewrite poly_mul_1_r.
+  apply root_formula.
+bbb.
+
 Lemma list_length_shrink_le : ∀ k (l : list α),
   length (list_shrink k l) ≤ length l.
 Proof.
@@ -1846,7 +1862,7 @@ Qed.
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
   ns ∈ newton_segments f pol
   → c₁ = ac_root acf (Φq f pol ns)
-    → r = multiplicity acf c₁ (Φq f pol ns)
+    → r = root_multiplicity acf c₁ (Φq f pol ns)
       → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
@@ -1863,6 +1879,10 @@ destruct r.
   rewrite Hc₁.
   apply ac_prop_root.
   apply cpol_degree_ge_1; assumption.
+
+  destruct r; simpl.
+   rewrite poly_mul_1_r.
+   subst Ψ; simpl.
 bbb.
 
 End theorems.
