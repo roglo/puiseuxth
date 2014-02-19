@@ -1864,6 +1864,20 @@ destruct r.
      apply list_eq_nil_nth; assumption.
 
     apply List.in_or_app; right; left; symmetry; eassumption.
+
+   apply ac_prop_root in Hdeg.
+   fold f in Hdeg.
+   rewrite Hc₁ in Hdeg.
+   unfold Φq in Hdeg.
+   unfold poly_left_shift in Hdeg.
+   simpl in Hdeg.
+   rewrite Nat.sub_diag in Hdeg; simpl in Hdeg.
+   rewrite skipn_pad in Hdeg.
+   rewrite Hj in Hdeg.
+   simpl in Hdeg.
+   unfold nofq, Qnat in Hdeg; simpl in Hdeg.
+   rewrite Nat2Z.id in Hdeg.
+   assumption.
 bbb.
 
 End theorems.
