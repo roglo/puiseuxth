@@ -1851,14 +1851,6 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
 intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
-symmetry in Hc₁, Hr.
-remember (ini_pt ns) as jj eqn:Hj .
-destruct jj as (jq, αj); simpl.
-remember Hns as H; clear HeqH.
-apply exists_ini_pt_nat in H.
-destruct H as (j, (x, Hx)).
-rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
-symmetry in Hj.
 destruct r.
  simpl.
  rewrite poly_mul_1_l.
@@ -1867,29 +1859,10 @@ destruct r.
  destruct r; simpl.
   rewrite poly_mul_1_r.
   subst Ψ; simpl.
-  unfold Φq; simpl.
-  unfold poly_left_shift; simpl.
-  unfold poly_div_deg_1; simpl.
-  rewrite skipn_pad.
-  rewrite Nat.sub_diag; simpl.
-  rewrite Hj; simpl.
-  unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
   apply poly_root_formula.
-  remember Hns as Hdeg; clear HeqHdeg.
-  apply cpol_degree_ge_1 in Hdeg.
-  apply ac_prop_root in Hdeg.
-  fold f in Hdeg.
-  rewrite Hc₁ in Hdeg.
-  unfold Φq in Hdeg.
-  unfold poly_left_shift in Hdeg.
-  simpl in Hdeg.
-  rewrite Nat.sub_diag in Hdeg; simpl in Hdeg.
-  rewrite skipn_pad in Hdeg.
-  rewrite Hj in Hdeg.
-  simpl in Hdeg.
-  unfold nofq, Qnat in Hdeg; simpl in Hdeg.
-  rewrite Nat2Z.id in Hdeg.
-  assumption.
+  rewrite Hc₁.
+  apply ac_prop_root.
+  apply cpol_degree_ge_1; assumption.
 bbb.
 
 End theorems.
