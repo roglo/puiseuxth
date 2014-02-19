@@ -1723,6 +1723,12 @@ apply Heq.
 rewrite IHl; reflexivity.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (list_div_deg_1 f)
+  with signature list_eq f ==> fld_eq f ==> list_eq f
+  as list_div_deg_1_morph.
+Proof.
+bbb.
+
 Lemma poly_multi_root_formula : ∀ c P r,
   (apply_poly f P c .= f .0 f)%K
   → root_multiplicity acf c P = r
@@ -1739,7 +1745,7 @@ unfold poly_div_deg_1; simpl.
 rewrite list_fold_pol_list; simpl.
  Focus 2.
  intros la lb Heq.
- unfold list_div_deg_1.
+ rewrite Heq; reflexivity.
 bbb.
 
 intros c P r Hz Hmult.
