@@ -1709,12 +1709,19 @@ apply eq_add_S in Hn.
 split; [ reflexivity | assumption ].
 Qed.
 
-Lemma zzz : ∀ A g P (l : list A) (c : α),
-  (List.fold_right (λ _ accu, POL (g f (al accu) c))%pol P l .= f
-   POL (List.fold_right (λ _ accu, g f accu c) (al P) l))%pol.
+Lemma list_fold_pol_list : ∀ A g P (l : list A) (c : α),
+  (∀ lb lc, list_eq f lb lc → list_eq f (g f lb c) (g f lc c))
+  → (List.fold_right (λ _ accu, POL (g f (al accu) c))%pol P l .= f
+     POL (List.fold_right (λ _ accu, g f accu c) (al P) l))%pol.
 Proof.
-intros A g P l c.
-bbb.
+intros A g P l c Heq.
+destruct P as (la); simpl.
+revert la.
+induction l as [| n]; intros; [ reflexivity | simpl ].
+unfold eq_poly; simpl.
+apply Heq.
+rewrite IHl; reflexivity.
+Qed.
 
 Lemma poly_multi_root_formula : ∀ c P r,
   (apply_poly f P c .= f .0 f)%K
@@ -1729,7 +1736,10 @@ unfold apply_poly in Hz; simpl in Hz.
 unfold root_multiplicity in Hmult; simpl in Hmult.
 unfold eq_poly; simpl.
 unfold poly_div_deg_1; simpl.
-rewrite zzz; simpl.
+rewrite list_fold_pol_list; simpl.
+ Focus 2.
+ intros la lb Heq.
+ unfold list_div_deg_1.
 bbb.
 
 intros c P r Hz Hmult.
