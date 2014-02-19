@@ -1756,6 +1756,90 @@ destruct cnt; simpl.
  pose proof (H (S n)); assumption.
 Qed.
 
+Lemma cpol_degree_ge_1 : ∀ pol ns,
+  ns ∈ newton_segments f pol
+  → degree (ac_is_zero acf) (Φq f pol ns) ≥ 1.
+Proof.
+intros pol ns Hns.
+remember (Pos.to_nat (q_of_ns f pol ns)) as q eqn:Hq .
+remember (ini_pt ns) as jj eqn:Hj .
+destruct jj as (jq, αj); simpl.
+remember Hns as H; clear HeqH.
+apply exists_ini_pt_nat in H.
+destruct H as (j, (x, Hx)).
+rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
+remember Hns as Hk; clear HeqHk.
+apply exists_fin_pt_nat in Hk.
+destruct Hk as (k, (αk, Hk)).
+symmetry in Hk.
+remember Hns as Hdeg; clear HeqHdeg.
+eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
+unfold has_degree in Hdeg.
+destruct Hdeg as (Hdeg, Hcnz).
+remember Hns as Hqkj; clear HeqHqkj.
+eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
+ destruct Hqkj as (n, Hqkj).
+ destruct n.
+  simpl in Hqkj.
+  exfalso.
+  remember Hns as H; clear HeqH.
+  apply j_lt_k with (j := j) (k := k) in H.
+   fast_omega Hqkj H.
+
+   rewrite <- Hj; simpl.
+   unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+   rewrite <- Hk; simpl.
+   unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+  rewrite Hqkj in Hdeg, Hcnz.
+  rewrite Nat.div_mul in Hdeg; [ idtac | subst q; apply Pos2Nat_ne_0 ].
+  rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
+  unfold pseudo_degree in Hdeg.
+  unfold degree.
+  remember (al (Φ f pol ns)) as la eqn:Hla .
+  simpl in Hla.
+  rewrite Nat.sub_diag in Hla; simpl in Hla.
+  rewrite skipn_pad in Hla.
+  rewrite <- Hj in Hla; simpl in Hla.
+  unfold nofq, Qnat in Hla; simpl in Hla.
+  rewrite Nat2Z.id in Hla; simpl.
+  rewrite Nat.sub_diag; simpl.
+  rewrite skipn_pad.
+  rewrite <- Hj; unfold fst.
+  unfold nofq, Qnat.
+  unfold Qnum.
+  rewrite Nat2Z.id.
+  remember (valuation_coeff f (List.nth j (al pol) .0 f%ps)) as v eqn:Hv .
+  remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+  remember (List.map (term_of_point f pol) pts) as tl eqn:Htl .
+  subst la; simpl.
+  remember (make_char_pol f (S j) tl) as cpol eqn:Hcpol .
+  remember (degree_plus_1_of_list (ac_is_zero acf) cpol) as d eqn:Hd .
+  symmetry in Hd.
+  destruct d; [ exfalso | omega ].
+  subst cpol.
+  remember (Pos.to_nat (q_of_ns f pol ns)) as nq.
+  remember (make_char_pol f (S j) tl) as cpol.
+  pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
+  remember [v … cpol] as vcpol.
+  rewrite Heqvcpol in Hlen at 2.
+  simpl in Hlen.
+  subst vcpol.
+  apply degree_plus_1_is_0 in Hd.
+  simpl in Hcnz.
+  simpl in Hdeg.
+  simpl in Hlen.
+  apply le_S_n in Hlen.
+  apply Hcnz.
+  apply all_0_shrink_0; intros m.
+  apply list_eq_nil_nth; assumption.
+
+ apply List.in_or_app; right; left; symmetry; eassumption.
+Qed.
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -1775,109 +1859,37 @@ apply exists_ini_pt_nat in H.
 destruct H as (j, (x, Hx)).
 rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
 symmetry in Hj.
-assert (degree (ac_is_zero acf) (Φq f pol ns) ≥ 1) as Hdeg.
- remember Hns as Hk; clear HeqHk.
- apply exists_fin_pt_nat in Hk.
- destruct Hk as (k, (αk, Hk)).
- remember (Pos.to_nat (q_of_ns f pol ns)) as q eqn:Hq .
- symmetry in Hj, Hk.
- remember Hns as Hdeg; clear HeqHdeg.
- eapply phi_degree_is_k_sub_j_div_q in Hdeg; try eassumption.
- unfold has_degree in Hdeg.
- destruct Hdeg as (Hdeg, Hcnz).
- remember Hns as Hqkj; clear HeqHqkj.
- eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
-  destruct Hqkj as (n, Hqkj).
-  destruct n.
-   simpl in Hqkj.
-   exfalso.
-   remember Hns as H; clear HeqH.
-   apply j_lt_k with (j := j) (k := k) in H.
-    fast_omega Hqkj H.
+destruct r.
+ simpl.
+ rewrite poly_mul_1_l.
+ subst Ψ; reflexivity.
 
-    rewrite <- Hj; simpl.
-    unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
-
-    rewrite <- Hk; simpl.
-    unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
-
-   rewrite Hqkj in Hdeg, Hcnz.
-   rewrite Nat.div_mul in Hdeg; [ idtac | subst q; apply Pos2Nat_ne_0 ].
-   rewrite Nat.div_mul in Hcnz; [ idtac | subst q; apply Pos2Nat_ne_0 ].
-   unfold pseudo_degree in Hdeg.
-   unfold degree.
-   remember (al (Φ f pol ns)) as la eqn:Hla .
-   simpl in Hla.
-   rewrite Nat.sub_diag in Hla; simpl in Hla.
-   rewrite skipn_pad in Hla.
-   rewrite <- Hj in Hla; simpl in Hla.
-   unfold nofq, Qnat in Hla; simpl in Hla.
-   rewrite Nat2Z.id in Hla.
-   simpl.
-   rewrite Nat.sub_diag; simpl.
-   rewrite skipn_pad.
-   rewrite <- Hj; unfold fst.
-   unfold nofq, Qnat.
-   unfold Qnum.
-   rewrite Nat2Z.id.
-   remember (valuation_coeff f (List.nth j (al pol) .0 f%ps)) as v eqn:Hv .
-   remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
-   remember (List.map (term_of_point f pol) pts) as tl eqn:Htl .
-   subst la; simpl.
-   remember (make_char_pol f (S j) tl) as cpol eqn:Hcpol .
-   remember (degree_plus_1_of_list (ac_is_zero acf) cpol) as d eqn:Hd .
-   symmetry in Hd.
-   destruct d; [ exfalso | omega ].
-   subst cpol.
-   remember (Pos.to_nat (q_of_ns f pol ns)) as nq.
-   remember (make_char_pol f (S j) tl) as cpol.
-   pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
-   remember [v … cpol] as vcpol.
-   rewrite Heqvcpol in Hlen at 2.
-   simpl in Hlen.
-   subst vcpol.
-   apply degree_plus_1_is_0 in Hd.
-   simpl in Hcnz.
-   simpl in Hdeg.
-   simpl in Hlen.
-   apply le_S_n in Hlen.
-   apply Hcnz.
-   apply all_0_shrink_0; intros m.
-   apply list_eq_nil_nth; assumption.
-
-  apply List.in_or_app; right; left; symmetry; eassumption.
-
- destruct r.
-  simpl.
-  rewrite poly_mul_1_l.
-  subst Ψ; reflexivity.
-
-  destruct r; simpl.
-   rewrite poly_mul_1_r.
-   subst Ψ; simpl.
-   unfold Φq; simpl.
-   unfold poly_left_shift; simpl.
-   unfold poly_div_deg_1; simpl.
-   rewrite skipn_pad.
-   rewrite Nat.sub_diag; simpl.
-   rewrite Hj; simpl.
-   unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
-   apply poly_root_formula.
-   apply ac_prop_root in Hdeg.
-   fold f in Hdeg.
-   rewrite Hc₁ in Hdeg.
-   unfold Φq in Hdeg.
-   unfold poly_left_shift in Hdeg.
-   simpl in Hdeg.
-   rewrite Nat.sub_diag in Hdeg; simpl in Hdeg.
-   rewrite skipn_pad in Hdeg.
-   rewrite Hj in Hdeg.
-   simpl in Hdeg.
-   unfold nofq, Qnat in Hdeg; simpl in Hdeg.
-   rewrite Nat2Z.id in Hdeg.
-   assumption.
+ destruct r; simpl.
+  rewrite poly_mul_1_r.
+  subst Ψ; simpl.
+  unfold Φq; simpl.
+  unfold poly_left_shift; simpl.
+  unfold poly_div_deg_1; simpl.
+  rewrite skipn_pad.
+  rewrite Nat.sub_diag; simpl.
+  rewrite Hj; simpl.
+  unfold nofq, Qnat; simpl; rewrite Nat2Z.id.
+  apply poly_root_formula.
+  remember Hns as Hdeg; clear HeqHdeg.
+  apply cpol_degree_ge_1 in Hdeg.
+  apply ac_prop_root in Hdeg.
+  fold f in Hdeg.
+  rewrite Hc₁ in Hdeg.
+  unfold Φq in Hdeg.
+  unfold poly_left_shift in Hdeg.
+  simpl in Hdeg.
+  rewrite Nat.sub_diag in Hdeg; simpl in Hdeg.
+  rewrite skipn_pad in Hdeg.
+  rewrite Hj in Hdeg.
+  simpl in Hdeg.
+  unfold nofq, Qnat in Hdeg; simpl in Hdeg.
+  rewrite Nat2Z.id in Hdeg.
+  assumption.
 bbb.
 
 End theorems.
