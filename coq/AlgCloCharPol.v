@@ -1491,11 +1491,14 @@ Record algeb_closed_field α :=
       → (apply_poly ac_field pol (ac_root pol) .= ac_field
          .0 ac_field)%K }.
 
-Fixpoint poly_power α (f : field α) pol n :=
+Fixpoint list_power α (f : field α) la n :=
   match n with
-  | O => .1 f%pol
-  | S m => (pol .* f poly_power f pol m)%pol
+  | O => [.1 f%K]
+  | S m => list_mul f la (list_power f la m)
   end.
+
+Definition poly_power α (f : field α) pol n :=
+  (POL (list_power f (al pol) n))%pol.
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 
@@ -1687,6 +1690,32 @@ intros c p Hz.
 apply root_formula; assumption.
 Qed.
 
+Lemma list_root_mult_succ_if : ∀ la d c md n,
+  list_root_multiplicity acf c la d = S n
+  → list_mod_div_deg_1 f la c = md
+    → d ≠ O ∧ md ≠ [] ∧
+      ac_is_zero acf (List.hd .0 f%K md) = true ∧
+      list_root_multiplicity acf c (List.tl md) (pred d) = n.
+Proof.
+intros la d c md n Hn Hmd.
+destruct d; [ discriminate Hn | simpl in Hn ].
+split; [ intros H; discriminate H | idtac ].
+fold f in Hn.
+rewrite Hmd in Hn.
+destruct md as [| m]; [ discriminate Hn | idtac ].
+split; [ intros H; discriminate H | simpl ].
+destruct (ac_is_zero acf m) as [H₁| ]; [ idtac | discriminate Hn ].
+apply eq_add_S in Hn.
+split; [ reflexivity | assumption ].
+Qed.
+
+Lemma zzz : ∀ A g P (l : list A) (c : α),
+  (List.fold_right (λ _ accu, POL (g f (al accu) c))%pol P l .= f
+   POL (List.fold_right (λ _ accu, g f accu c) (al P) l))%pol.
+Proof.
+intros A g P l c.
+bbb.
+
 Lemma poly_multi_root_formula : ∀ c P r,
   (apply_poly f P c .= f .0 f)%K
   → root_multiplicity acf c P = r
@@ -1696,6 +1725,14 @@ Lemma poly_multi_root_formula : ∀ c P r,
           (List.seq 1 r))%pol.
 Proof.
 intros c P r Hz Hmult.
+unfold apply_poly in Hz; simpl in Hz.
+unfold root_multiplicity in Hmult; simpl in Hmult.
+unfold eq_poly; simpl.
+unfold poly_div_deg_1; simpl.
+rewrite zzz; simpl.
+bbb.
+
+intros c P r Hz Hmult.
 revert P Hz Hmult.
 induction r; intros; simpl.
  rewrite poly_mul_1_l; reflexivity.
@@ -1703,7 +1740,28 @@ induction r; intros; simpl.
  remember (poly_div_deg_1 f P c) as Q eqn:HQ .
  assert (apply_poly f Q c .= f .0 f)%K as HQz.
   subst Q.
-  unfold root_multiplicity in Hmult.
+  apply list_root_mult_succ_if with (md := al P) in Hmult.
+   destruct Hmult as (Hlen, (Hal, (Hiz, Hmult))).
+   remember (al P) as la eqn:Hla .
+   symmetry in Hla.
+   destruct la as [| a]; [ exfalso; apply Hal; reflexivity | idtac ].
+   simpl in Hiz.
+   simpl in Hmult.
+   apply ac_prop_is_zero in Hiz.
+   fold f in Hiz.
+   remember POL la%pol as Q.
+   replace la with (al Q) in Hmult by (subst Q; reflexivity).
+   apply IHr in Hmult.
+    subst Q.
+    unfold eq_poly in Hmult; simpl in Hmult.
+    replace P with POL [a … la]%pol .
+     2: rewrite <- Hla; simpl.
+     2: destruct P; reflexivity.
+
+     unfold poly_div_deg_1.
+     simpl.
+     unfold apply_poly; simpl.
+     unfold list_div_deg_1; simpl.
 bbb.
 
 Lemma list_length_shrink_le : ∀ k (l : list α),
