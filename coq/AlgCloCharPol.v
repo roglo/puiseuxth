@@ -1485,7 +1485,9 @@ Record algeb_closed_field α :=
   { ac_field : field α;
     ac_is_zero : α → bool;
     ac_root : polynomial α → α;
-    ac_prop : ∀ pol, degree ac_is_zero pol ≥ 1
+    ac_prop_is_zero : ∀ a,
+      ac_is_zero a = true ↔ (a .= ac_field .0 ac_field)%K;
+    ac_prop_root : ∀ pol, degree ac_is_zero pol ≥ 1
       → (apply_poly ac_field pol (ac_root pol) .= ac_field
          .0 ac_field)%K }.
 
@@ -1685,6 +1687,75 @@ intros c p Hz.
 apply root_formula; assumption.
 Qed.
 
+Lemma list_length_shrink_le : ∀ k (l : list α),
+  length (list_shrink k l) ≤ length l.
+Proof.
+intros k l.
+unfold list_shrink.
+assert (∀ cnt k₁, length (list_shrink_aux cnt k₁ l) ≤ length l) as H.
+ intros cnt k₁.
+ revert cnt.
+ induction l as [| x]; intros; [ reflexivity | simpl ].
+ destruct cnt; simpl.
+  apply le_n_S, IHl.
+
+  etransitivity; [ apply IHl | idtac ].
+  apply Nat.le_succ_r; left; reflexivity.
+
+ apply H.
+Qed.
+
+Lemma degree_plus_1_is_0 : ∀ la,
+  degree_plus_1_of_list (ac_is_zero acf) la = 0%nat
+  → list_eq f la [].
+Proof.
+intros la H.
+induction la as [| a]; [ reflexivity | idtac ].
+simpl in H.
+remember (degree_plus_1_of_list (ac_is_zero acf) la) as d eqn:Hd .
+symmetry in Hd.
+destruct d; [ idtac | discriminate H ].
+constructor; [ idtac | apply IHla; reflexivity ].
+remember (ac_is_zero acf a) as iz eqn:Hiz .
+symmetry in Hiz.
+destruct iz; [ idtac | discriminate H].
+apply ac_prop_is_zero in Hiz.
+assumption.
+Qed.
+
+Lemma list_eq_nil_nth : ∀ la,
+  list_eq f la []
+  → ∀ n, (List.nth n la .0 f .= f .0 f)%K.
+Proof.
+intros la H n.
+revert n.
+induction la as [| a]; intros; simpl.
+ rewrite match_id; reflexivity.
+
+ apply list_eq_cons_nil_inv in H.
+ destruct H as (Ha, Hla).
+ destruct n; [ assumption | idtac ].
+ apply IHla; assumption.
+Qed.
+
+Lemma all_0_shrink_0 : ∀ la cnt k,
+  (∀ n, List.nth n la .0 f .= f .0 f)%K
+  → (∀ n, List.nth n (list_shrink_aux cnt k la) .0 f .= f .0 f)%K.
+Proof.
+intros la cnt k H n.
+revert cnt k n.
+induction la as [| a]; intros; [ destruct n; reflexivity | simpl ].
+destruct cnt; simpl.
+ destruct n; simpl.
+  pose proof (H O); assumption.
+
+  apply IHla; clear n; intros n.
+  pose proof (H (S n)); assumption.
+
+ apply IHla; clear n; intros n.
+ pose proof (H (S n)); assumption.
+Qed.
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -1776,6 +1847,23 @@ destruct r.
      symmetry in Hd.
      destruct d; [ exfalso | omega ].
      subst cpol.
+     remember (Pos.to_nat (q_of_ns f pol ns)) as nq.
+     remember (make_char_pol f (S j) tl) as cpol.
+     pose proof (list_length_shrink_le nq [v … cpol]) as Hlen.
+     remember [v … cpol] as vcpol.
+     rewrite Heqvcpol in Hlen at 2.
+     simpl in Hlen.
+     subst vcpol.
+     apply degree_plus_1_is_0 in Hd.
+     simpl in Hcnz.
+     simpl in Hdeg.
+     simpl in Hlen.
+     apply le_S_n in Hlen.
+     apply Hcnz.
+     apply all_0_shrink_0; intros m.
+     apply list_eq_nil_nth; assumption.
+
+    apply List.in_or_app; right; left; symmetry; eassumption.
 bbb.
 
 End theorems.
