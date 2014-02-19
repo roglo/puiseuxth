@@ -1688,19 +1688,22 @@ apply root_formula; assumption.
 Qed.
 
 Lemma poly_multi_root_formula : ∀ c P r,
-  root_multiplicity acf c P = r
-  → (P .= f
-      poly_power f (POL [(.-f c)%K; .1 f%K … []]) r .* f
-      List.fold_right (λ n accu, poly_div_deg_1 f accu c) P
-        (List.seq 1 r))%pol.
+  (apply_poly f P c .= f .0 f)%K
+  → root_multiplicity acf c P = r
+    → (P .= f
+        poly_power f (POL [(.-f c)%K; .1 f%K … []]) r .* f
+        List.fold_right (λ n accu, poly_div_deg_1 f accu c) P
+          (List.seq 1 r))%pol.
 Proof.
-intros c P r Hmult.
-destruct r; simpl.
+intros c P r Hz Hmult.
+revert P Hz Hmult.
+induction r; intros; simpl.
  rewrite poly_mul_1_l; reflexivity.
 
- destruct r; simpl.
-  rewrite poly_mul_1_r.
-  apply root_formula.
+ remember (poly_div_deg_1 f P c) as Q eqn:HQ .
+ assert (apply_poly f Q c .= f .0 f)%K as HQz.
+  subst Q.
+  unfold root_multiplicity in Hmult.
 bbb.
 
 Lemma list_length_shrink_le : ∀ k (l : list α),
