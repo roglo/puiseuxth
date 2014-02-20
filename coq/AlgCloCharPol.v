@@ -2037,14 +2037,6 @@ unfold eq_poly; simpl.
 rewrite list_mul_1_r; reflexivity.
 Qed.
 
-Lemma zzz : ∀ la c,
-  (apply_list f la c .= f .0 f)%K
-  → list_eq f la
-      (list_mul f [(.-f c)%K; .1 f%K … []] (list_div_deg_1 f la c)).
-Proof.
-intros la c Happ.
-bbb.
-
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -2055,8 +2047,10 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
       → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
-intros pol ns c r Ψ Hns Hc₁ Hr HΨ.
+intros pol ns c r Ψ Hns Hc Hr HΨ.
 symmetry in Hr.
+remember Hns as Hdeg; clear HeqHdeg.
+apply cpol_degree_ge_1 in Hdeg.
 destruct r; simpl.
  rewrite poly_mul_1_l.
  subst Ψ; reflexivity.
@@ -2065,20 +2059,29 @@ destruct r; simpl.
   subst Ψ; simpl.
   rewrite poly_power_1_r.
   apply poly_root_formula.
-  rewrite Hc₁.
+  rewrite Hc.
   apply ac_prop_root.
   apply cpol_degree_ge_1; assumption.
 
   destruct r; simpl.
    subst Ψ; simpl.
+   remember (Φq f pol ns) as phi eqn:Hphi .
+   unfold Φq in Hphi; simpl in Hphi.
+   unfold poly_left_shift in Hphi; simpl in Hphi.
+   rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.
    unfold poly_power; simpl.
    unfold eq_poly; simpl.
-   rewrite Nat.sub_diag; simpl.
-   rewrite skipn_pad; simpl.
    rewrite list_mul_1_r.
    rewrite <- list_mul_assoc.
-   rewrite <- zzz.
-    rewrite <- zzz; [ reflexivity | idtac ].
+   rewrite <- root_formula.
+    rewrite <- root_formula; [ reflexivity | idtac ].
+    remember Hdeg as Hroot; clear HeqHroot.
+    apply ac_prop_root in Hroot.
+    fold f in Hroot.
+    unfold apply_poly in Hroot.
+    subst c; assumption.
+
+    simpl.
 bbb.
 
 End theorems.
