@@ -566,6 +566,41 @@ unfold apply_poly.
 rewrite Hpp, Hvv; reflexivity.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (list_mod_div_deg_1 f)
+  with signature list_eq f ==> fld_eq f ==> list_eq f
+  as list_mod_div_deg_1_morph.
+Proof.
+intros la lb Hlab ca cb Hcab.
+revert lb ca cb Hlab Hcab.
+induction la as [| a]; intros; simpl.
+ induction lb as [| b]; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hlab.
+ destruct Hlab as (Hb, Hlb).
+ constructor; [ idtac | apply IHlb; assumption ].
+ rewrite Hb, fld_add_0_r.
+ rewrite <- Hlb; simpl.
+ rewrite fld_mul_0_l; reflexivity.
+bbb.
+
+Add Parametric Morphism α (f : field α) : (list_div_deg_1 f)
+  with signature list_eq f ==> fld_eq f ==> list_eq f
+  as list_div_deg_1_morph.
+Proof.
+intros la lb Hlab ca cb Hcab.
+unfold list_div_deg_1.
+bbb.
+revert lb ca cb Hlab Hcab.
+induction la as [| a]; intros; simpl.
+ induction lb as [| b]; [ reflexivity | simpl ].
+ apply list_eq_nil_cons_inv in Hlab.
+ destruct Hlab as (Hb, Hlb).
+ apply IHlb in Hlb.
+ remember (list_mod_div_deg_1 f lb cb) as md eqn:Hmd .
+ symmetry in Hmd.
+ destruct md as [| r]; [ reflexivity | idtac ].
+ constructor.
+bbb.
+
 Lemma list_eq_map_ext : ∀ α (f : field α) A g h,
    (∀ a : A, fld_eq f (g a) (h a))
    → ∀ la, list_eq f (List.map g la) (List.map h la).
@@ -1722,12 +1757,6 @@ unfold eq_poly; simpl.
 apply Heq.
 rewrite IHl; reflexivity.
 Qed.
-
-Add Parametric Morphism α (f : field α) : (list_div_deg_1 f)
-  with signature list_eq f ==> fld_eq f ==> list_eq f
-  as list_div_deg_1_morph.
-Proof.
-bbb.
 
 Lemma poly_multi_root_formula : ∀ c P r,
   (apply_poly f P c .= f .0 f)%K
