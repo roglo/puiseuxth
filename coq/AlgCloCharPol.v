@@ -2060,6 +2060,11 @@ destruct r; simpl.
   rewrite list_mul_1_l.
   rewrite <- root_formula.
    rewrite <- root_formula; [ reflexivity | assumption ].
+
+   remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
+   symmetry in Hmd.
+   eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
+   destruct Hmult as (Hlen, (Hz, Hmult)).
 bbb.
 *)
 
