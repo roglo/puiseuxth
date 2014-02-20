@@ -1743,38 +1743,22 @@ intros c p Hz.
 apply root_formula; assumption.
 Qed.
 
-(*
 Lemma list_root_mult_succ_if : ∀ la d c md n,
   list_root_multiplicity acf c la d = S n
   → list_mod_div_deg_1 f la c = md
-    → d ≠ O ∧ md ≠ [] ∧
-      ac_is_zero acf (List.hd .0 f%K md) = true ∧
-      list_root_multiplicity acf c (List.tl md) (pred d) = n.
+    → d ≠ O ∧ ac_is_zero acf (list_mod_deg_1 f la c) = true ∧
+      list_root_multiplicity acf c (list_div_deg_1 f la c) (pred d) = n.
 Proof.
 intros la d c md n Hn Hmd.
 destruct d; [ discriminate Hn | simpl in Hn ].
 split; [ intros H; discriminate H | idtac ].
 fold f in Hn.
-destruct md as [| m ml].
- destruct la as [| a].
-  unfold list_mod_deg_1 in Hn.
-  unfold list_div_deg_1 in Hn.
-  rewrite Hmd in Hn.
-bbb.
-
-intros la d c md n Hn Hmd.
-destruct d; [ discriminate Hn | simpl in Hn ].
-split; [ intros H; discriminate H | idtac ].
-fold f in Hn.
-bbb.
-rewrite Hmd in Hn.
-destruct md as [| m]; [ discriminate Hn | idtac ].
-split; [ intros H; discriminate H | simpl ].
-destruct (ac_is_zero acf m) as [H₁| ]; [ idtac | discriminate Hn ].
-apply eq_add_S in Hn.
-split; [ reflexivity | assumption ].
+remember (ac_is_zero acf (list_mod_deg_1 f la c)) as z eqn:Hz .
+symmetry in Hz.
+destruct z; [ idtac | discriminate Hn ].
+split; [ reflexivity | idtac ].
+apply eq_add_S; assumption.
 Qed.
-*)
 
 Lemma list_fold_pol_list : ∀ A g P (l : list A) (c : α),
   (∀ lb lc, list_eq f lb lc → list_eq f (g f lb c) (g f lc c))
@@ -1801,6 +1785,25 @@ Lemma list_multi_root_formula : ∀ c la r s,
               (List.seq s r))).
 Proof.
 intros c la r s Hz Hmult.
+destruct r; [ rewrite list_mul_1_l; reflexivity | idtac ].
+remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
+symmetry in Hmd.
+eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
+destruct Hmult as (Hlen, (Hzm, Hmult)).
+destruct la as [| a]; [ exfalso; apply Hlen; reflexivity | idtac ].
+clear Hlen.
+unfold list_mod_deg_1 in Hzm; simpl in Hzm.
+apply ac_prop_is_zero in Hzm.
+fold f in Hzm.
+simpl in Hz.
+unfold list_div_deg_1 in Hmult.
+simpl in Hmult.
+clear md Hmd.
+simpl.
+clear Hzm.
+bbb.
+
+intros c la r s Hz Hmult.
 bbb.
 revert la s Hz Hmult.
 induction r; intros; [ rewrite list_mul_1_l; reflexivity | idtac ].
@@ -1819,7 +1822,9 @@ destruct r; simpl.
  rewrite Hmd.
  simpl in Hzm.
 bbb.
+*)
 
+(*
 Lemma poly_multi_root_formula : ∀ c P r,
   (apply_poly f P c .= f .0 f)%K
   → root_multiplicity acf c P = r
@@ -2032,6 +2037,14 @@ unfold eq_poly; simpl.
 rewrite list_mul_1_r; reflexivity.
 Qed.
 
+Lemma zzz : ∀ la c,
+  (apply_list f la c .= f .0 f)%K
+  → list_eq f la
+      (list_mul f [(.-f c)%K; .1 f%K … []] (list_div_deg_1 f la c)).
+Proof.
+intros la c Happ.
+bbb.
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -2042,7 +2055,8 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
       → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
-intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
+intros pol ns c r Ψ Hns Hc₁ Hr HΨ.
+symmetry in Hr.
 destruct r; simpl.
  rewrite poly_mul_1_l.
  subst Ψ; reflexivity.
@@ -2057,6 +2071,14 @@ destruct r; simpl.
 
   destruct r; simpl.
    subst Ψ; simpl.
+   unfold poly_power; simpl.
+   unfold eq_poly; simpl.
+   rewrite Nat.sub_diag; simpl.
+   rewrite skipn_pad; simpl.
+   rewrite list_mul_1_r.
+   rewrite <- list_mul_assoc.
+   rewrite <- zzz.
+    rewrite <- zzz; [ reflexivity | idtac ].
 bbb.
 
 End theorems.
