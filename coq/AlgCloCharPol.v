@@ -1558,21 +1558,18 @@ Definition poly_power α (f : field α) pol n :=
 
 Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 
-Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c₁ al d :=
+Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c la d :=
   let f := ac_field acf in
   match d with
   | O => O
   | S d₁ =>
-      match list_mod_div_deg_1 f al c₁ with
-      | [] => O
-      | [m … ml] =>
-          if ac_is_zero acf m then S (list_root_multiplicity acf c₁ ml d₁)
-          else O
-      end
+      if ac_is_zero acf (list_mod_deg_1 f la c) then
+        S (list_root_multiplicity acf c (list_div_deg_1 f la c) d₁)
+      else O
   end.
 
-Definition root_multiplicity α (acf : algeb_closed_field α) c₁ pol :=
-  list_root_multiplicity acf c₁ (al pol) (List.length (al pol)).
+Definition root_multiplicity α (acf : algeb_closed_field α) c pol :=
+  list_root_multiplicity acf c (al pol) (List.length (al pol)).
 
 Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   match r with
@@ -1757,6 +1754,18 @@ intros la d c md n Hn Hmd.
 destruct d; [ discriminate Hn | simpl in Hn ].
 split; [ intros H; discriminate H | idtac ].
 fold f in Hn.
+destruct md as [| m ml].
+ destruct la as [| a].
+  unfold list_mod_deg_1 in Hn.
+  unfold list_div_deg_1 in Hn.
+  rewrite Hmd in Hn.
+bbb.
+
+intros la d c md n Hn Hmd.
+destruct d; [ discriminate Hn | simpl in Hn ].
+split; [ intros H; discriminate H | idtac ].
+fold f in Hn.
+bbb.
 rewrite Hmd in Hn.
 destruct md as [| m]; [ discriminate Hn | idtac ].
 split; [ intros H; discriminate H | simpl ].
