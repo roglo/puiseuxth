@@ -580,26 +580,47 @@ induction la as [| a]; intros; simpl.
  rewrite Hb, fld_add_0_r.
  rewrite <- Hlb; simpl.
  rewrite fld_mul_0_l; reflexivity.
-bbb.
+
+ destruct lb as [| b]; simpl.
+  apply list_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  constructor.
+   rewrite Ha, Hla; simpl.
+   rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
+
+   rewrite IHla; try eassumption; reflexivity.
+
+  apply list_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  constructor; [ idtac | apply IHla; assumption ].
+  rewrite Hab, Hlab, Hcab; reflexivity.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (list_div_deg_1 f)
   with signature list_eq f ==> fld_eq f ==> list_eq f
   as list_div_deg_1_morph.
 Proof.
 intros la lb Hlab ca cb Hcab.
-unfold list_div_deg_1.
-bbb.
 revert lb ca cb Hlab Hcab.
 induction la as [| a]; intros; simpl.
  induction lb as [| b]; [ reflexivity | simpl ].
  apply list_eq_nil_cons_inv in Hlab.
  destruct Hlab as (Hb, Hlb).
- apply IHlb in Hlb.
- remember (list_mod_div_deg_1 f lb cb) as md eqn:Hmd .
- symmetry in Hmd.
- destruct md as [| r]; [ reflexivity | idtac ].
- constructor.
-bbb.
+ unfold list_div_deg_1; simpl.
+ unfold list_div_deg_1 in IHlb; simpl in IHlb.
+ rewrite <- Hlb; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  apply list_eq_cons_nil_inv in Hlab.
+  destruct Hlab as (Ha, Hla).
+  unfold list_div_deg_1; simpl.
+  rewrite Hla; reflexivity.
+
+  apply list_eq_cons_inv in Hlab.
+  destruct Hlab as (Hab, Hlab).
+  unfold list_div_deg_1; simpl.
+  rewrite Hlab, Hcab; reflexivity.
+Qed.
 
 Lemma list_eq_map_ext : ∀ α (f : field α) A g h,
    (∀ a : A, fld_eq f (g a) (h a))
