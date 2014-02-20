@@ -2083,9 +2083,13 @@ destruct r; simpl.
    symmetry in Hmd.
    eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
    destruct Hmult as (Hlen, (Hz, Hmult)).
+   remember (list_mod_div_deg_1 f (list_div_deg_1 f la c) c) as md₁ eqn:Hmd₁ .
+   symmetry in Hmd₁.
+   eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
+   destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
    apply ac_prop_is_zero in Hz.
-   apply list_prop_root in Hdeg.
-   unfold list_root in Hdeg.
+   apply ac_prop_is_zero in Hz₁.
+   fold f in Hz, Hz₁.
 bbb.
 *)
 
