@@ -1571,11 +1571,14 @@ Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c la d :=
 Definition root_multiplicity α (acf : algeb_closed_field α) c pol :=
   list_root_multiplicity acf c (al pol) (List.length (al pol)).
 
-Fixpoint quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
+Fixpoint list_quotient_phi_x_sub_c_pow_r α (f : field α) la c₁ r :=
   match r with
-  | O => pol
-  | S r₁ => quotient_phi_x_sub_c_pow_r f (poly_div_deg_1 f pol c₁) c₁ r₁
+  | O => la
+  | S r₁ => list_quotient_phi_x_sub_c_pow_r f (list_div_deg_1 f la c₁) c₁ r₁
   end.
+
+Definition quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
+  (POL (list_quotient_phi_x_sub_c_pow_r f (al pol) c₁ r))%pol.
 
 Section theorems.
 
@@ -2037,6 +2040,18 @@ unfold eq_poly; simpl.
 rewrite list_mul_1_r; reflexivity.
 Qed.
 
+Lemma zzz : ∀ la c r,
+  list_root_multiplicity acf c la (length la) = r
+  → degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
+    → (apply_list f la c .= f .0 f)%K
+      → list_eq f la
+           (list_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
+           (list_quotient_phi_x_sub_c_pow_r f la c r)).
+Proof.
+intros la c r Hmult Hdeg Happ.
+bbb.
+*)
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -2047,6 +2062,28 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
       → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
+intros pol ns c r Ψ Hns Hc Hr HΨ.
+remember Hns as Hdeg; clear HeqHdeg.
+apply cpol_degree_ge_1 in Hdeg.
+remember (Φq f pol ns) as phi eqn:Hphi .
+unfold Φq in Hphi; simpl in Hphi.
+unfold poly_left_shift in Hphi; simpl in Hphi.
+rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.
+subst Ψ; simpl.
+symmetry in Hr.
+unfold eq_poly; simpl.
+unfold root_multiplicity in Hr.
+remember Hdeg as Hroot; clear HeqHroot.
+apply ac_prop_root in Hroot.
+fold f in Hroot.
+rewrite <- Hc in Hroot.
+unfold apply_poly in Hroot.
+simpl in Hroot.
+unfold degree in Hdeg.
+apply zzz; try assumption.
+omega.
+bbb.
+
 intros pol ns c r Ψ Hns Hc Hr HΨ.
 symmetry in Hr.
 remember Hns as Hdeg; clear HeqHdeg.
