@@ -1788,6 +1788,13 @@ Lemma list_multi_root_formula : ∀ c la r,
               (List.seq 1 r))).
 Proof.
 intros c la r Hz Hmult.
+revert la Hz Hmult.
+induction r; intros; [ rewrite list_mul_1_l; reflexivity | idtac ].
+remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
+symmetry in Hmd.
+eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
+destruct Hmult as (Hlen, (Hmnz, (Hzm, Hmult))).
+simpl.
 bbb.
 
 Lemma poly_multi_root_formula : ∀ c P r,

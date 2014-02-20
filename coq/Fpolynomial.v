@@ -1106,6 +1106,14 @@ induction len; intros; simpl.
   destruct j; rewrite fld_mul_0_r; reflexivity.
 Qed.
 
+Lemma list_mul_1_l : ∀ la, list_eq f (list_mul f [.1 f%K] la) la.
+Proof.
+intros la.
+unfold list_mul.
+apply list_convol_mul_1_l; simpl.
+reflexivity.
+Qed.
+
 Lemma list_mul_1_r : ∀ la, list_eq f (list_mul f la [.1 f%K]) la.
 Proof.
 intros la.
