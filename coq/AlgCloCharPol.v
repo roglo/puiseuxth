@@ -1784,7 +1784,7 @@ Lemma list_multi_root_formula : ∀ c la r,
   → list_root_multiplicity acf c la (length la) = r
     → list_eq f la
         (list_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
-           (List.fold_right !(λ accu : list α, list_div_deg_1 f accu c)%K la
+           (List.fold_right (λ _ accu, list_div_deg_1 f accu c)%K la
               (List.seq 1 r))).
 Proof.
 intros c la r Hz Hmult.
@@ -1795,7 +1795,7 @@ Lemma poly_multi_root_formula : ∀ c P r,
   → root_multiplicity acf c P = r
     → (P .= f
         poly_power f (POL [(.-f c)%K; .1 f%K … []]) r .* f
-        List.fold_right (λ n accu, poly_div_deg_1 f accu c) P
+        List.fold_right (λ _ accu, poly_div_deg_1 f accu c) P
           (List.seq 1 r))%pol.
 Proof.
 intros c P r Hz Hmult.

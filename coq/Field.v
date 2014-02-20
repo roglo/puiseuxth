@@ -72,7 +72,9 @@ Notation "- a" := (λ f, fld_opp f a) : field_scope.
 Notation "¹/ a" := (λ f, fld_inv f a) : field_scope.
 Notation "0" := (λ f, fld_zero f) : field_scope.
 Notation "1" := (λ f, fld_one f) : field_scope.
+(*
 Notation "! x" := (λ _, x) : field_scope.
+*)
 
 Add Parametric Relation α (F : field α) : α (fld_eq F)
  reflexivity proved by (fld_eq_refl F)
