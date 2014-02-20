@@ -2058,6 +2058,14 @@ unfold eq_poly; simpl.
 rewrite list_mul_1_r; reflexivity.
 Qed.
 
+Lemma list_mod_deg_1_apply : ∀ la c,
+  (list_mod_deg_1 f la c .= f .0 f)%K
+  → (apply_list f la c .= f .0 f)%K.
+Proof.
+intros la c Hmod.
+destruct la as [| a]; [ reflexivity | assumption ].
+Qed.
+
 Lemma zzz : ∀ la c r,
   list_root_multiplicity acf c la (length la) = r
   → degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
@@ -2079,17 +2087,15 @@ destruct r; simpl.
   rewrite <- root_formula.
    rewrite <- root_formula; [ reflexivity | assumption ].
 
-   remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
-   symmetry in Hmd.
-   eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
+   apply list_mod_deg_1_apply.
+   eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
    destruct Hmult as (Hlen, (Hz, Hmult)).
-   remember (list_mod_div_deg_1 f (list_div_deg_1 f la c) c) as md₁ eqn:Hmd₁ .
-   symmetry in Hmd₁.
-   eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
+   eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
    destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
-   apply ac_prop_is_zero in Hz.
    apply ac_prop_is_zero in Hz₁.
-   fold f in Hz, Hz₁.
+   assumption.
+
+  simpl.
 bbb.
 *)
 
