@@ -2049,6 +2049,17 @@ Lemma zzz : ∀ la c r,
            (list_quotient_phi_x_sub_c_pow_r f la c r)).
 Proof.
 intros la c r Hmult Hdeg Happ.
+destruct r; [ rewrite list_mul_1_l; reflexivity | simpl ].
+rewrite <- list_mul_assoc.
+destruct r; simpl.
+ rewrite list_mul_1_l.
+ rewrite <- root_formula; [ reflexivity | assumption ].
+
+ rewrite <- list_mul_assoc.
+ destruct r; simpl.
+  rewrite list_mul_1_l.
+  rewrite <- root_formula.
+   rewrite <- root_formula; [ reflexivity | assumption ].
 bbb.
 *)
 
