@@ -2095,7 +2095,33 @@ destruct r; simpl.
    apply ac_prop_is_zero in Hz₁.
    assumption.
 
-  simpl.
+  rewrite <- list_mul_assoc.
+  destruct r; simpl.
+   rewrite list_mul_1_l.
+   rewrite <- root_formula.
+    rewrite <- root_formula.
+     rewrite <- root_formula; [ reflexivity | assumption ].
+
+     apply list_mod_deg_1_apply.
+     eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+     destruct Hmult as (Hlen, (Hz, Hmult)).
+     eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+     destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
+     apply ac_prop_is_zero in Hz₁.
+     assumption.
+
+    apply list_mod_deg_1_apply.
+    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+    destruct Hmult as (Hlen, (Hz, Hmult)).
+    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+    destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
+    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+    destruct Hmult as (Hlen₂, (Hz₂, Hmult)).
+    apply ac_prop_is_zero in Hz₂.
+    assumption.
+
+   rewrite <- list_mul_assoc.
+   destruct r; simpl.
 bbb.
 *)
 
