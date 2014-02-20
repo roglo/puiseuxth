@@ -1743,6 +1743,7 @@ intros c p Hz.
 apply root_formula; assumption.
 Qed.
 
+(*
 Lemma list_root_mult_succ_if : ∀ la d c md n,
   list_root_multiplicity acf c la d = S n
   → list_mod_div_deg_1 f la c = md
@@ -1773,6 +1774,7 @@ destruct (ac_is_zero acf m) as [H₁| ]; [ idtac | discriminate Hn ].
 apply eq_add_S in Hn.
 split; [ reflexivity | assumption ].
 Qed.
+*)
 
 Lemma list_fold_pol_list : ∀ A g P (l : list A) (c : α),
   (∀ lb lc, list_eq f lb lc → list_eq f (g f lb c) (g f lc c))
