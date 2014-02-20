@@ -1580,11 +1580,29 @@ Fixpoint list_quotient_phi_x_sub_c_pow_r α (f : field α) la c₁ r :=
 Definition quotient_phi_x_sub_c_pow_r α (f : field α) pol c₁ r :=
   (POL (list_quotient_phi_x_sub_c_pow_r f (al pol) c₁ r))%pol.
 
+Definition list_root α (acf : algeb_closed_field α) la :=
+  ac_root acf (POL la)%pol.
+
 Section theorems.
 
 Variable α : Type.
 Variable acf : algeb_closed_field α.
 Let f := ac_field acf.
+
+Lemma list_prop_root : ∀ la,
+  degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
+  → (apply_list f la (list_root acf la) .= f .0 f)%K.
+Proof.
+intros la Hdeg.
+remember POL la%pol as pol eqn:Hpol .
+assert (degree (ac_is_zero acf) pol ≥ 1) as H.
+ subst pol; unfold degree; simpl.
+ unfold ge in Hdeg; unfold ge.
+ apply Nat.le_succ_le_pred; assumption.
+
+ apply ac_prop_root in H.
+ subst pol; assumption.
+Qed.
 
 (* P(x) = P(0) + x Q(x) *)
 Lemma poly_eq_add_const_mul_x_poly : ∀ c cl,
@@ -2065,6 +2083,9 @@ destruct r; simpl.
    symmetry in Hmd.
    eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
    destruct Hmult as (Hlen, (Hz, Hmult)).
+   apply ac_prop_is_zero in Hz.
+   apply list_prop_root in Hdeg.
+   unfold list_root in Hdeg.
 bbb.
 *)
 
