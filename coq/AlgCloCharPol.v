@@ -1790,6 +1790,7 @@ apply Heq.
 rewrite IHl; reflexivity.
 Qed.
 
+(*
 Lemma list_multi_root_formula : ∀ c la r s,
   (apply_list f la c .= f .0 f)%K
   → list_root_multiplicity acf c la (length la) = r
@@ -1869,6 +1870,7 @@ induction r; intros; simpl.
      unfold apply_poly; simpl.
      unfold list_div_deg_1; simpl.
 bbb.
+*)
 
 Lemma list_length_shrink_le : ∀ k (l : list α),
   length (list_shrink k l) ≤ length l.
@@ -2023,6 +2025,13 @@ eapply q_is_factor_of_h_minus_j with (h := k) in Hqkj; try eassumption.
  apply List.in_or_app; right; left; symmetry; eassumption.
 Qed.
 
+Lemma poly_power_1_r : ∀ P, (poly_power f P 1 .= f P)%pol.
+Proof.
+intros P.
+unfold eq_poly; simpl.
+rewrite list_mul_1_r; reflexivity.
+Qed.
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -2034,21 +2043,19 @@ Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
         → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
 intros pol ns c₁ r Ψ Hns Hc₁ Hr HΨ.
-destruct r.
- simpl.
+destruct r; simpl.
  rewrite poly_mul_1_l.
  subst Ψ; reflexivity.
 
  destruct r; simpl.
-  rewrite poly_mul_1_r.
   subst Ψ; simpl.
+  rewrite poly_power_1_r.
   apply poly_root_formula.
   rewrite Hc₁.
   apply ac_prop_root.
   apply cpol_degree_ge_1; assumption.
 
   destruct r; simpl.
-   rewrite poly_mul_1_r.
    subst Ψ; simpl.
 bbb.
 
