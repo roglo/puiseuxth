@@ -1779,22 +1779,33 @@ apply Heq.
 rewrite IHl; reflexivity.
 Qed.
 
-Lemma list_multi_root_formula : ∀ c la r,
+Lemma list_multi_root_formula : ∀ c la r s,
   (apply_list f la c .= f .0 f)%K
   → list_root_multiplicity acf c la (length la) = r
     → list_eq f la
-        (list_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
+        (list_mul f
+           (list_power f [(.-f c)%K; .1 f%K … []] r)
            (List.fold_right (λ _ accu, list_div_deg_1 f accu c)%K la
-              (List.seq 1 r))).
+              (List.seq s r))).
 Proof.
-intros c la r Hz Hmult.
-revert la Hz Hmult.
+intros c la r s Hz Hmult.
+bbb.
+revert la s Hz Hmult.
 induction r; intros; [ rewrite list_mul_1_l; reflexivity | idtac ].
 remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
 symmetry in Hmd.
 eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
 destruct Hmult as (Hlen, (Hmnz, (Hzm, Hmult))).
 simpl.
+destruct md as [| b lb]; [ exfalso; apply Hmnz; reflexivity | idtac ].
+clear Hmnz.
+simpl in Hmult.
+rewrite <- list_mul_assoc.
+destruct r; simpl.
+ rewrite list_mul_1_l.
+ unfold list_div_deg_1; simpl.
+ rewrite Hmd.
+ simpl in Hzm.
 bbb.
 
 Lemma poly_multi_root_formula : ∀ c P r,
