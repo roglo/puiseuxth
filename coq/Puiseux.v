@@ -24,29 +24,22 @@ Set Implicit Arguments.
 
 (* *)
 
-(*
-Definition apply_poly_with_poly α (f : field α) pol :=
-  apply_poly
-    {| al := [] |}
-    (λ pol₁ ps, poly_add f pol₁ {| al := [ps] |})
-    (poly_mul f) pol.
-*)
-
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
-Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL [ps_monom fld .1 fld%K (- β₁)] .* (ps_field fld)
-   poly_compose (ps_field fld) f
-     (POL [ps_monom fld .1 fld%K γ₁] .* (ps_field fld)
-      POL [ps_const fld c₁; .1 fld%ps … []]))%pol.
+Definition list_f₁ α (fld : field α) f β₁ γ₁ c₁ :=
+  list_mul (ps_field fld) [ps_monom fld .1 fld%K (- β₁)]
+    (list_compose (ps_field fld) f
+       [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []]).
 
-(* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ₁.y₁) *)
-Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL [ps_monom fld .1 fld%K (- β₁)] .* (ps_field fld)
-   poly_compose (ps_field fld) f
-     POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []])%pol.
+Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
+  (POL (list_f₁ fld (al f) β₁ γ₁ c₁))%pol.
 
 (* *)
 
+bbb.
+
+(* rest to be used later perhaps *)
+
+(*
 Lemma summation_fold_compat : ∀ α (f : field α) a b c d,
   (a .= f c)%pol
   → (b .= f d)%pol
@@ -168,8 +161,6 @@ assert (p₁ .= (ps_field fld) p₂)%pol as Heq.
 Qed.
 
 (* *)
-
-(* rest to be used later perhaps *)
 
 (*
 bbb.
