@@ -35,6 +35,16 @@ Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
+Theorem zzz :
+  (f₁ .= fld
+   [ps_monom fld .1f%K (- β₁)] .* fld
+    poly_summation_on_L (λ h, val fld h .* fld ...
+
+   ... .+ fld
+   [ps_monom fld .1f%K (- β₁)] .* fld ...)%pol.
+Proof.
+bbb.
+
 bbb.
 
 (* rest to be used later perhaps *)
