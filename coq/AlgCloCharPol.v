@@ -2038,16 +2038,47 @@ induction r; intros; simpl.
     constructor; [ assumption | idtac ].
     destruct len.
      destruct la; [ reflexivity | exfalso; simpl in Hlen; omega ].
-bbb.
-    revert Hmd H Happ; clear; intros.
-    revert md Hmd H.
-    induction la as [| a]; intros; [ reflexivity | simpl ].
-    simpl in Hmd.
-    rewrite <- Hmd in H.
-    apply list_eq_cons_nil_inv in H.
-    destruct H as (Happ₂, H).
-bbb.
-*)
+
+     simpl in Hmult.
+     fold f in Hmult.
+     unfold list_div_deg_1 in Hmult; simpl in Hmult.
+     revert Hmd H; clear; intros.
+     revert md Hmd H.
+     induction la as [| a]; intros; [ reflexivity | simpl ].
+     constructor.
+      simpl in Hmd.
+      subst md.
+      apply list_eq_cons_nil_inv in H.
+      destruct H as (Happ, H).
+      assert (apply_list f la c .= f .0 f)%K as Haz.
+       apply list_mod_deg_1_apply.
+       unfold list_mod_deg_1.
+       remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
+       symmetry in Hmd.
+       destruct md as [| m]; [ reflexivity | idtac ].
+       apply list_eq_cons_nil_inv in H.
+       destruct H; assumption.
+
+       rewrite Haz, fld_mul_0_l, fld_add_0_l in Happ.
+       assumption.
+
+      simpl in Hmd.
+      subst md.
+      apply list_eq_cons_nil_inv in H.
+      destruct H as (Happ, H).
+      eapply IHla; [ reflexivity | eassumption ].
+
+   eassumption.
+
+   unfold list_div_deg_1; simpl.
+   revert Hlen; clear; intros.
+   revert len Hlen.
+   induction la as [| a]; intros; [ apply Nat.le_0_l | simpl ].
+   destruct len; [ exfalso; simpl in Hlen; omega | simpl ].
+   simpl in Hlen.
+   apply le_S_n in Hlen.
+   apply le_n_S, IHla; assumption.
+Qed.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
@@ -2082,7 +2113,12 @@ unfold root_multiplicity in Hr.
 remember (al phi) as la eqn:Hla .
 subst phi; simpl in Hla.
 symmetry in Hr.
-eapply list_div_x_sub_c_ne_0; [ reflexivity | assumption ].
+eapply list_div_x_sub_c_ne_0; [ idtac | eassumption | reflexivity ].
+rewrite Hla; intros H.
+apply list_eq_cons_nil_inv in H.
+destruct H as (H, _).
+revert H.
+eapply val_coeff_non_zero_in_newt_segm.
 bbb.
 symmetry in Hr.
 destruct r; simpl.
