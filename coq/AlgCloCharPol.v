@@ -1983,6 +1983,7 @@ Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
          .0 f)%K.
 Proof.
 intros la c r len Hla Hmult Hlen.
+bbb.
 destruct r; simpl.
  simpl in Hlen.
  intros Happ; apply Hla; clear Hla.
