@@ -2103,8 +2103,6 @@ Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
     → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
       → (apply_poly f Ψ c₁ .≠ f .0 f)%K.
 Proof.
-(* nettoyable, peut-être : par exemple est-ce que ns ∈ newton_segments pol\
-   est nécessaire ? *)
 intros pol ns c r Ψ Hns Hr HΨ.
 remember (Φq f pol ns) as phi eqn:Hphi .
 unfold Φq in Hphi; simpl in Hphi.
