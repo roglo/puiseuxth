@@ -1077,19 +1077,11 @@ Fixpoint list_pow α (f : field α) P n :=
   | S n₁ => list_mul f P (list_pow f P n₁)
   end.
 
-(*
-Definition list_compose2 α (f : field α) P Q :=
-  List.fold_right (list_add f) []
-    (List.map
-      (λ i, list_mul f [List.nth i P .0 f] (list_pow f Q i))%K
-      (List.seq 0 (length P))).
-*)
 Definition list_compose2 α (f : field α) la lb :=
   List.fold_right
     (λ i accu,
      list_add f accu (list_mul f [List.nth i la .0 f] (list_pow f lb i)))%K
     [] (List.seq 0 (length la)).
-(**)
 
 Lemma list_compose_cons_l : ∀ α (f : field α) a la lb,
   list_eq f (list_compose f [a … la] lb)
@@ -1795,109 +1787,6 @@ apply Heq.
 rewrite IHl; reflexivity.
 Qed.
 
-(*
-Lemma list_multi_root_formula : ∀ c la r s,
-  (apply_list f la c .= f .0 f)%K
-  → list_root_multiplicity acf c la (length la) = r
-    → list_eq f la
-        (list_mul f
-           (list_power f [(.-f c)%K; .1 f%K … []] r)
-           (List.fold_right (λ _ accu, list_div_deg_1 f accu c)%K la
-              (List.seq s r))).
-Proof.
-intros c la r s Hz Hmult.
-destruct r; [ rewrite list_mul_1_l; reflexivity | idtac ].
-remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
-symmetry in Hmd.
-eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
-destruct Hmult as (Hlen, (Hzm, Hmult)).
-destruct la as [| a]; [ exfalso; apply Hlen; reflexivity | idtac ].
-clear Hlen.
-unfold list_mod_deg_1 in Hzm; simpl in Hzm.
-apply ac_prop_is_zero in Hzm.
-fold f in Hzm.
-simpl in Hz.
-unfold list_div_deg_1 in Hmult.
-simpl in Hmult.
-clear md Hmd.
-simpl.
-clear Hzm.
-bbb.
-
-intros c la r s Hz Hmult.
-bbb.
-revert la s Hz Hmult.
-induction r; intros; [ rewrite list_mul_1_l; reflexivity | idtac ].
-remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
-symmetry in Hmd.
-eapply list_root_mult_succ_if in Hmult; [ idtac | eassumption ].
-destruct Hmult as (Hlen, (Hmnz, (Hzm, Hmult))).
-simpl.
-destruct md as [| b lb]; [ exfalso; apply Hmnz; reflexivity | idtac ].
-clear Hmnz.
-simpl in Hmult.
-rewrite <- list_mul_assoc.
-destruct r; simpl.
- rewrite list_mul_1_l.
- unfold list_div_deg_1; simpl.
- rewrite Hmd.
- simpl in Hzm.
-bbb.
-*)
-
-(*
-Lemma poly_multi_root_formula : ∀ c P r,
-  (apply_poly f P c .= f .0 f)%K
-  → root_multiplicity acf c P = r
-    → (P .= f
-        poly_power f (POL [(.-f c)%K; .1 f%K … []]) r .* f
-        List.fold_right (λ _ accu, poly_div_deg_1 f accu c) P
-          (List.seq 1 r))%pol.
-Proof.
-intros c P r Hz Hmult.
-unfold apply_poly in Hz; simpl in Hz.
-unfold root_multiplicity in Hmult; simpl in Hmult.
-unfold eq_poly; simpl.
-unfold poly_div_deg_1; simpl.
-rewrite list_fold_pol_list; simpl.
- Focus 2.
- intros la lb Heq.
- rewrite Heq; reflexivity.
-bbb.
-
-intros c P r Hz Hmult.
-revert P Hz Hmult.
-induction r; intros; simpl.
- rewrite poly_mul_1_l; reflexivity.
-
- remember (poly_div_deg_1 f P c) as Q eqn:HQ .
- assert (apply_poly f Q c .= f .0 f)%K as HQz.
-  subst Q.
-  apply list_root_mult_succ_if with (md := al P) in Hmult.
-   destruct Hmult as (Hlen, (Hal, (Hiz, Hmult))).
-   remember (al P) as la eqn:Hla .
-   symmetry in Hla.
-   destruct la as [| a]; [ exfalso; apply Hal; reflexivity | idtac ].
-   simpl in Hiz.
-   simpl in Hmult.
-   apply ac_prop_is_zero in Hiz.
-   fold f in Hiz.
-   remember POL la%pol as Q.
-   replace la with (al Q) in Hmult by (subst Q; reflexivity).
-   apply IHr in Hmult.
-    subst Q.
-    unfold eq_poly in Hmult; simpl in Hmult.
-    replace P with POL [a … la]%pol .
-     2: rewrite <- Hla; simpl.
-     2: destruct P; reflexivity.
-
-     unfold poly_div_deg_1.
-     simpl.
-     unfold apply_poly; simpl.
-     unfold list_div_deg_1; simpl.
-bbb.
-*)
-
 Lemma list_length_shrink_le : ∀ k (l : list α),
   length (list_shrink k l) ≤ length l.
 Proof.
@@ -2066,129 +1955,38 @@ intros la c Hmod.
 destruct la as [| a]; [ reflexivity | assumption ].
 Qed.
 
-Lemma zzz : ∀ la c r,
-  list_root_multiplicity acf c la (length la) = r
+Lemma list_root_mul_power_quotient : ∀ la c r len,
+  list_root_multiplicity acf c la len = r
   → list_eq f la
        (list_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
        (list_quotient_phi_x_sub_c_pow_r f la c r)).
 Proof.
-intros la c r Hmult.
-destruct r; [ rewrite list_mul_1_l; reflexivity | simpl ].
-rewrite <- list_mul_assoc.
-destruct r; simpl.
- rewrite list_mul_1_l.
- rewrite <- root_formula; [ reflexivity | idtac ].
- apply list_mod_deg_1_apply, ac_prop_is_zero.
- eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
- destruct Hmult as (_, (Hz, _)); assumption.
+intros la c r len Hmult.
+revert la len Hmult.
+induction r; intros; simpl.
+ rewrite list_mul_1_l; reflexivity.
 
  rewrite <- list_mul_assoc.
  eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
  destruct Hmult as (_, (Hz, Hmult)).
- destruct r; simpl.
-  rewrite list_mul_1_l.
-  rewrite <- root_formula.
-   rewrite <- root_formula; [ reflexivity | idtac ].
-   apply list_mod_deg_1_apply, ac_prop_is_zero.
-   assumption.
-
-   clear Hz.
-   apply list_mod_deg_1_apply, ac_prop_is_zero.
-   eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-   destruct Hmult as (_, (Hz, _)); assumption.
-
-  rewrite <- list_mul_assoc.
-  eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-  destruct r; simpl.
-   rewrite list_mul_1_l.
-   rewrite <- root_formula.
-    rewrite <- root_formula.
-     rewrite <- root_formula; [ reflexivity | idtac ].
-     apply list_mod_deg_1_apply, ac_prop_is_zero.
-     assumption.
-
-     clear Hz.
-     destruct Hmult as (_, (Hz, Hmult)).
-     apply list_mod_deg_1_apply, ac_prop_is_zero.
-     assumption.
-
-    clear Hz.
-    destruct Hmult as (_, (Hz, Hmult)).
-    clear Hz.
-    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-    destruct Hmult as (_, (Hz, Hmult)).
-    apply list_mod_deg_1_apply, ac_prop_is_zero.
-    assumption.
-bbb.
-*)
+ rewrite <- IHr; [ idtac | eassumption ].
+ apply root_formula.
+ apply list_mod_deg_1_apply, ac_prop_is_zero.
+ assumption.
+Qed.
 
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
 Theorem phi_zq_eq_z_sub_c₁_psy : ∀ pol ns c₁ r Ψ,
-  ns ∈ newton_segments f pol
-  → c₁ = ac_root acf (Φq f pol ns)
-    → r = root_multiplicity acf c₁ (Φq f pol ns)
-      → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
-        → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
+  r = root_multiplicity acf c₁ (Φq f pol ns)
+  → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
+    → (Φq f pol ns .= f POL [(.- f c₁)%K; .1 f%K … []] .^ f r .* f Ψ)%pol.
 Proof.
-intros pol ns c r Ψ Hns Hc Hr HΨ.
-remember Hns as Hdeg; clear HeqHdeg.
-apply cpol_degree_ge_1 in Hdeg.
-remember (Φq f pol ns) as phi eqn:Hphi .
-unfold Φq in Hphi; simpl in Hphi.
-unfold poly_left_shift in Hphi; simpl in Hphi.
-rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.
+intros pol ns c r Ψ Hr HΨ.
 subst Ψ; simpl.
-symmetry in Hr.
-unfold eq_poly; simpl.
-unfold root_multiplicity in Hr.
-remember Hdeg as Hroot; clear HeqHroot.
-apply ac_prop_root in Hroot.
-fold f in Hroot.
-rewrite <- Hc in Hroot.
-unfold apply_poly in Hroot.
-simpl in Hroot.
-unfold degree in Hdeg.
-apply zzz; try assumption.
-omega.
-bbb.
-
-intros pol ns c r Ψ Hns Hc Hr HΨ.
-symmetry in Hr.
-remember Hns as Hdeg; clear HeqHdeg.
-apply cpol_degree_ge_1 in Hdeg.
-destruct r; simpl.
- rewrite poly_mul_1_l.
- subst Ψ; reflexivity.
-
- destruct r; simpl.
-  subst Ψ; simpl.
-  rewrite poly_power_1_r.
-  apply poly_root_formula.
-  rewrite Hc.
-  apply ac_prop_root.
-  apply cpol_degree_ge_1; assumption.
-
-  destruct r; simpl.
-   subst Ψ; simpl.
-   remember (Φq f pol ns) as phi eqn:Hphi .
-   unfold Φq in Hphi; simpl in Hphi.
-   unfold poly_left_shift in Hphi; simpl in Hphi.
-   rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.
-   unfold poly_power; simpl.
-   unfold eq_poly; simpl.
-   rewrite list_mul_1_r.
-   rewrite <- list_mul_assoc.
-   rewrite <- root_formula.
-    rewrite <- root_formula; [ reflexivity | idtac ].
-    remember Hdeg as Hroot; clear HeqHroot.
-    apply ac_prop_root in Hroot.
-    fold f in Hroot.
-    unfold apply_poly in Hroot.
-    subst c; assumption.
-
-    simpl.
-bbb.
+eapply list_root_mul_power_quotient.
+symmetry; eassumption.
+Qed.
 
 End theorems.
