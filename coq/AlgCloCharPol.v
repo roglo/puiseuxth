@@ -2036,6 +2036,8 @@ induction r; intros; simpl.
     rewrite Happ in Hz.
     rewrite fld_mul_0_l, fld_add_0_l in Hz.
     constructor; [ assumption | idtac ].
+    destruct len.
+     destruct la; [ reflexivity | exfalso; simpl in Hlen; omega ].
 bbb.
     revert Hmd H Happ; clear; intros.
     revert md Hmd H.
