@@ -1975,29 +1975,36 @@ induction r; intros; simpl.
  assumption.
 Qed.
 
-(* non, c'est pas ça... y a sûrement un truc à faire, là...
 Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
-  la ≠ []
-  → r ≠ O
-    → list_root_multiplicity acf c la len = r
+  not (list_eq f la [])
+  → list_root_multiplicity acf c la len = r
+    → (length la ≤ r + len)%nat
       → (apply_list f (list_quotient_phi_x_sub_c_pow_r f la c r) c .≠ f
          .0 f)%K.
 Proof.
-intros la c r len Hla Hr Hmult.
-bbb.
-destruct r; [ exfalso; apply Hr; reflexivity | clear Hr ].
-simpl.
-destruct la as [| a]; [ exfalso; apply Hla; reflexivity | clear Hla ].
-revert a la len Hmult.
-induction r; intros; simpl.
- eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
- destruct Hmult as (Hlen, (Hz, Hmult)).
- apply ac_prop_is_zero in Hz.
- fold f in Hz.
- destruct len; [ exfalso; apply Hlen; reflexivity | clear Hlen ].
- simpl in Hmult.
- destruct len.
+intros la c r len Hla Hmult Hlen.
+destruct r; simpl.
+ simpl in Hlen.
+ intros Happ; apply Hla; clear Hla.
+ revert la Hmult Hlen Happ.
+ induction len; intros.
+  destruct la; [ reflexivity | simpl in Hlen; exfalso; omega ].
+
+  destruct la as [| a]; [ reflexivity | idtac ].
   simpl in Hmult.
+  fold f in Hmult.
+  unfold list_mod_deg_1 in Hmult; simpl in Hmult.
+  simpl in Hlen.
+  apply le_S_n in Hlen.
+  simpl in Happ.
+  remember (ac_is_zero acf (apply_list f la c .* f c .+ f a)%K) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z.
+   discriminate Hmult.
+
+   exfalso; revert Hz.
+   apply not_false_iff_true.
+   apply ac_prop_is_zero; assumption.
 bbb.
 *)
 
