@@ -25,45 +25,24 @@ Set Implicit Arguments.
 (* *)
 
 (*
-Notation "'YPOL' a" := {| al := [a] |}
-  (at level 1, a at level 1) : poly_scope.
-Notation "'YPOL' a + b 'Y'" := {| al := [a; b … []] |}
-  (at level 1, a at level 1, b at level 1) : poly_scope.
-Notation "'XMON' f c g" := (ps_monom f c g)
-  (at level 2, f at level 1, c at level 1, g at level 1) : poly_scope.
-Notation "'CST' f c" := (ps_const f c)
-  (at level 2, f at level 1, c at level 1) : poly_scope.
-*)
-
 Definition apply_poly_with_poly α (f : field α) pol :=
   apply_poly
     {| al := [] |}
     (λ pol₁ ps, poly_add f pol₁ {| al := [ps] |})
     (poly_mul f) pol.
-
-
-(* I'd like to write f₁ like this:
-
-Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL [ps_monom fld 1%(K fld) (- β₁)] *
-   apply_poly_with_poly (ps_field fld) f
-     (POL [ps_monom fld 1%(K fld) γ₁] *
-      POL [ps_const fld c₁; 1%(ps fld) … []]))%(pol (ps_field fld)).
-
-  I need the syntax %(...)
 *)
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
   (POL [ps_monom fld .1 fld%K (- β₁)] .* (ps_field fld)
-   apply_poly_with_poly (ps_field fld) f
+   poly_compose (ps_field fld) f
      (POL [ps_monom fld .1 fld%K γ₁] .* (ps_field fld)
       POL [ps_const fld c₁; .1 fld%ps … []]))%pol.
 
 (* f'₁(x,y₁) = x^(-β₁).f(x,c₁.x^γ₁ + x^γ₁.y₁) *)
 Definition f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
   (POL [ps_monom fld .1 fld%K (- β₁)] .* (ps_field fld)
-   apply_poly_with_poly (ps_field fld) f
+   poly_compose (ps_field fld) f
      POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []])%pol.
 
 (* *)
