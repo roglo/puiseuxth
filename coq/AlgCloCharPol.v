@@ -2098,11 +2098,14 @@ Qed.
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
 Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
-  r = root_multiplicity acf c₁ (Φq f pol ns)
-  → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
-    → (apply_poly f Ψ c₁ .≠ f .0 f)%K.
+  ns ∈ newton_segments f pol
+  → r = root_multiplicity acf c₁ (Φq f pol ns)
+    → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
+      → (apply_poly f Ψ c₁ .≠ f .0 f)%K.
 Proof.
-intros pol ns c r Ψ Hr HΨ.
+(* nettoyable, peut-être : par exemple est-ce que ns ∈ newton_segments pol\
+   est nécessaire ? *)
+intros pol ns c r Ψ Hns Hr HΨ.
 remember (Φq f pol ns) as phi eqn:Hphi .
 unfold Φq in Hphi; simpl in Hphi.
 unfold poly_left_shift in Hphi; simpl in Hphi.
@@ -2117,28 +2120,20 @@ eapply list_div_x_sub_c_ne_0; [ idtac | eassumption | reflexivity ].
 rewrite Hla; intros H.
 apply list_eq_cons_nil_inv in H.
 destruct H as (H, _).
+remember (ini_pt ns) as jj eqn:Hj .
+destruct jj as (jq, αj); simpl.
+remember Hns as HH; clear HeqHH.
+apply exists_ini_pt_nat in HH.
+destruct HH as (j, (x, Hx)).
+rewrite <- Hj in Hx; injection Hx; clear Hx; intros; subst jq x.
+simpl in H.
 revert H.
-eapply val_coeff_non_zero_in_newt_segm.
-bbb.
-symmetry in Hr.
-destruct r; simpl.
- destruct la as [| a]; [ discriminate Hla | simpl ].
- simpl in Hr.
- fold f in Hr.
- injection Hla; clear Hla; intros Hla Ha.
- remember (ac_is_zero acf (list_mod_deg_1 f [a … la] c)) as z eqn:Hz .
- symmetry in Hz.
- destruct z; [ discriminate Hr | clear Hr ].
- intros H; revert Hz.
- apply not_false_iff_true.
- apply ac_prop_is_zero.
- fold f.
- unfold list_mod_deg_1; simpl.
- assumption.
+eapply val_coeff_non_zero_in_newt_segm; [ eassumption | idtac | idtac ].
+ symmetry in Hj.
+ left; eassumption.
 
- remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
- symmetry in Hmd.
-bbb.
- eapply list_root_mult_succ_if in Hr; [ idtac | eassumption ].
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id; reflexivity.
+Qed.
 
 End theorems.
