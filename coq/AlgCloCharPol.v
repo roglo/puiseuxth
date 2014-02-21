@@ -1975,6 +1975,32 @@ induction r; intros; simpl.
  assumption.
 Qed.
 
+(* non, c'est pas ça... y a sûrement un truc à faire, là...
+Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
+  la ≠ []
+  → r ≠ O
+    → list_root_multiplicity acf c la len = r
+      → (apply_list f (list_quotient_phi_x_sub_c_pow_r f la c r) c .≠ f
+         .0 f)%K.
+Proof.
+intros la c r len Hla Hr Hmult.
+bbb.
+destruct r; [ exfalso; apply Hr; reflexivity | clear Hr ].
+simpl.
+destruct la as [| a]; [ exfalso; apply Hla; reflexivity | clear Hla ].
+revert a la len Hmult.
+induction r; intros; simpl.
+ eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+ destruct Hmult as (Hlen, (Hz, Hmult)).
+ apply ac_prop_is_zero in Hz.
+ fold f in Hz.
+ destruct len; [ exfalso; apply Hlen; reflexivity | clear Hlen ].
+ simpl in Hmult.
+ destruct len.
+  simpl in Hmult.
+bbb.
+*)
+
 (* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
    we have:
       Φ(z^q) = (z - c₁)^r Ψ(z), [...] » *)
@@ -1988,5 +2014,47 @@ subst Ψ; simpl.
 eapply list_root_mul_power_quotient.
 symmetry; eassumption.
 Qed.
+
+(* [Walker, p. 100] « If c₁ ≠ 0 is an r-fold root, r ≥ 1, of Φ(z^q) = 0,
+   we have:
+      Φ(z^q) = (z - c₁)^r Ψ(z), Ψ(c₁) ≠ 0 » *)
+Theorem psy_c₁_ne_0 : ∀ pol ns c₁ r Ψ,
+  r = root_multiplicity acf c₁ (Φq f pol ns)
+  → Ψ = quotient_phi_x_sub_c_pow_r f (Φq f pol ns) c₁ r
+    → (apply_poly f Ψ c₁ .≠ f .0 f)%K.
+Proof.
+intros pol ns c r Ψ Hr HΨ.
+remember (Φq f pol ns) as phi eqn:Hphi .
+unfold Φq in Hphi; simpl in Hphi.
+unfold poly_left_shift in Hphi; simpl in Hphi.
+rewrite Nat.sub_diag, skipn_pad in Hphi; simpl in Hphi.
+subst Ψ; simpl.
+unfold apply_poly; simpl.
+unfold root_multiplicity in Hr.
+remember (al phi) as la eqn:Hla .
+subst phi; simpl in Hla.
+symmetry in Hr.
+eapply list_div_x_sub_c_ne_0; [ reflexivity | assumption ].
+bbb.
+symmetry in Hr.
+destruct r; simpl.
+ destruct la as [| a]; [ discriminate Hla | simpl ].
+ simpl in Hr.
+ fold f in Hr.
+ injection Hla; clear Hla; intros Hla Ha.
+ remember (ac_is_zero acf (list_mod_deg_1 f [a … la] c)) as z eqn:Hz .
+ symmetry in Hz.
+ destruct z; [ discriminate Hr | clear Hr ].
+ intros H; revert Hz.
+ apply not_false_iff_true.
+ apply ac_prop_is_zero.
+ fold f.
+ unfold list_mod_deg_1; simpl.
+ assumption.
+
+ remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
+ symmetry in Hmd.
+bbb.
+ eapply list_root_mult_succ_if in Hr; [ idtac | eassumption ].
 
 End theorems.
