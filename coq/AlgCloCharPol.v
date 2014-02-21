@@ -1978,14 +1978,13 @@ Qed.
 Lemma list_div_x_sub_c_ne_0 : ∀ la c r len,
   not (list_eq f la [])
   → list_root_multiplicity acf c la len = r
-    → (length la ≤ r + len)%nat
+    → length la ≤ len
       → (apply_list f (list_quotient_phi_x_sub_c_pow_r f la c r) c .≠ f
          .0 f)%K.
 Proof.
 intros la c r len Hla Hmult Hlen.
-bbb.
-destruct r; simpl.
- simpl in Hlen.
+revert la len Hla Hmult Hlen.
+induction r; intros; simpl.
  intros Happ; apply Hla; clear Hla.
  revert la Hmult Hlen Happ.
  induction len; intros.
@@ -2000,12 +1999,51 @@ destruct r; simpl.
   simpl in Happ.
   remember (ac_is_zero acf (apply_list f la c .* f c .+ f a)%K) as z eqn:Hz .
   symmetry in Hz.
-  destruct z.
-   discriminate Hmult.
+  destruct z; [ discriminate Hmult | idtac ].
+  exfalso; revert Hz.
+  apply not_false_iff_true.
+  apply ac_prop_is_zero; assumption.
 
-   exfalso; revert Hz.
-   apply not_false_iff_true.
-   apply ac_prop_is_zero; assumption.
+ destruct len.
+  destruct la; [ idtac | exfalso; simpl in Hlen; fast_omega Hlen ].
+  exfalso; apply Hla; reflexivity.
+
+  simpl in Hmult.
+  fold f in Hmult.
+  remember (ac_is_zero acf (list_mod_deg_1 f la c)) as z eqn:Hz .
+  symmetry in Hz.
+  destruct z; [ idtac | discriminate Hmult ].
+  apply ac_prop_is_zero in Hz.
+  fold f in Hz.
+  apply eq_add_S in Hmult.
+  destruct la as [| a]; [ exfalso; apply Hla; reflexivity | idtac ].
+  simpl in Hlen.
+  apply le_S_n in Hlen.
+  eapply IHr.
+   intros H; apply Hla; clear Hla.
+   unfold list_div_deg_1 in H; simpl in H.
+   unfold list_mod_deg_1 in Hz; simpl in Hz.
+   remember (list_mod_div_deg_1 f la c) as md eqn:Hmd .
+   symmetry in Hmd.
+   assert (apply_list f la c .= f .0 f)%K as Happ.
+    apply list_mod_deg_1_apply.
+    unfold list_mod_deg_1; simpl.
+    rewrite Hmd.
+    destruct md as [| d]; [ reflexivity | idtac ].
+    apply list_eq_cons_nil_inv in H.
+    destruct H; assumption.
+
+    rewrite Happ in Hz.
+    rewrite fld_mul_0_l, fld_add_0_l in Hz.
+    constructor; [ assumption | idtac ].
+bbb.
+    revert Hmd H Happ; clear; intros.
+    revert md Hmd H.
+    induction la as [| a]; intros; [ reflexivity | simpl ].
+    simpl in Hmd.
+    rewrite <- Hmd in H.
+    apply list_eq_cons_nil_inv in H.
+    destruct H as (Happ₂, H).
 bbb.
 *)
 
