@@ -2068,60 +2068,57 @@ Qed.
 
 Lemma zzz : ∀ la c r,
   list_root_multiplicity acf c la (length la) = r
-  → degree_plus_1_of_list (ac_is_zero acf) la ≥ 2
-    → (apply_list f la c .= f .0 f)%K
-      → list_eq f la
-           (list_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
-           (list_quotient_phi_x_sub_c_pow_r f la c r)).
+  → list_eq f la
+       (list_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
+       (list_quotient_phi_x_sub_c_pow_r f la c r)).
 Proof.
-intros la c r Hmult Hdeg Happ.
+intros la c r Hmult.
 destruct r; [ rewrite list_mul_1_l; reflexivity | simpl ].
 rewrite <- list_mul_assoc.
 destruct r; simpl.
  rewrite list_mul_1_l.
- rewrite <- root_formula; [ reflexivity | assumption ].
+ rewrite <- root_formula; [ reflexivity | idtac ].
+ apply list_mod_deg_1_apply, ac_prop_is_zero.
+ eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+ destruct Hmult as (_, (Hz, _)); assumption.
 
  rewrite <- list_mul_assoc.
+ eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+ destruct Hmult as (_, (Hz, Hmult)).
  destruct r; simpl.
   rewrite list_mul_1_l.
   rewrite <- root_formula.
-   rewrite <- root_formula; [ reflexivity | assumption ].
-
-   apply list_mod_deg_1_apply.
-   eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-   destruct Hmult as (Hlen, (Hz, Hmult)).
-   eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-   destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
-   apply ac_prop_is_zero in Hz₁.
+   rewrite <- root_formula; [ reflexivity | idtac ].
+   apply list_mod_deg_1_apply, ac_prop_is_zero.
    assumption.
 
+   clear Hz.
+   apply list_mod_deg_1_apply, ac_prop_is_zero.
+   eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+   destruct Hmult as (_, (Hz, _)); assumption.
+
   rewrite <- list_mul_assoc.
+  eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
   destruct r; simpl.
    rewrite list_mul_1_l.
    rewrite <- root_formula.
     rewrite <- root_formula.
-     rewrite <- root_formula; [ reflexivity | assumption ].
-
-     apply list_mod_deg_1_apply.
-     eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-     destruct Hmult as (Hlen, (Hz, Hmult)).
-     eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-     destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
-     apply ac_prop_is_zero in Hz₁.
+     rewrite <- root_formula; [ reflexivity | idtac ].
+     apply list_mod_deg_1_apply, ac_prop_is_zero.
      assumption.
 
-    apply list_mod_deg_1_apply.
-    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-    destruct Hmult as (Hlen, (Hz, Hmult)).
-    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-    destruct Hmult as (Hlen₁, (Hz₁, Hmult)).
-    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
-    destruct Hmult as (Hlen₂, (Hz₂, Hmult)).
-    apply ac_prop_is_zero in Hz₂.
-    assumption.
+     clear Hz.
+     destruct Hmult as (_, (Hz, Hmult)).
+     apply list_mod_deg_1_apply, ac_prop_is_zero.
+     assumption.
 
-   rewrite <- list_mul_assoc.
-   destruct r; simpl.
+    clear Hz.
+    destruct Hmult as (_, (Hz, Hmult)).
+    clear Hz.
+    eapply list_root_mult_succ_if in Hmult; [ idtac | reflexivity ].
+    destruct Hmult as (_, (Hz, Hmult)).
+    apply list_mod_deg_1_apply, ac_prop_is_zero.
+    assumption.
 bbb.
 *)
 
