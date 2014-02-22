@@ -89,41 +89,15 @@ destruct la as [| ps₁]; simpl.
   symmetry in Hv.
   destruct v; [ discriminate Hov | clear Hov ].
   apply null_coeff_range_length_inf_iff; assumption.
-bbb.
 
-intros α fld la γ₁ c₁ psf Hpsf.
-unfold ps_lap_summation; simpl.
-destruct la as [| ps₀]; [ reflexivity | simpl ].
-destruct la as [| ps₁]; simpl.
- Focus 1.
- rewrite summation_only_one.
- rewrite fld_mul_0_l, fld_add_0_l.
- remember (valuation fld ps₀) as ov eqn:Hov .
- symmetry in Hov.
- destruct ov as [v| ]; simpl.
-bbb.
-  unfold Qnat; simpl.
   rewrite lap_mul_1_r.
-  unfold ā_list; simpl.
-  unfold x_power; simpl.
-  unfold Qmult; simpl.
-  unfold ps_monom; simpl.
-  unfold ps_mul; simpl.
-  unfold cm, cm_factor; simpl.
-  rewrite Z.add_0_r.
   constructor; [ idtac | reflexivity ].
   subst psf; simpl.
-  constructor.
-  simpl.
-  constructor; simpl.
-   Focus 1.
-   remember (null_coeff_range_length fld (ps_terms ps) 0) as n eqn:Hn .
-   symmetry in Hn.
-   destruct n as [n| ]; simpl.
-    erewrite ps_valnum_canonic; try reflexivity; [ idtac | eassumption ].
-    erewrite ps_valnum_canonic; simpl; try reflexivity.
-     Focus 1.
-    (* parti en couille *)
+  unfold ā_list; simpl.
+  rewrite <- ps_mul_1_r in |- * at 1.
+  apply ps_mul_compat_l.
+  symmetry.
+  unfold Qnat; simpl.
 bbb.
 *)
 
