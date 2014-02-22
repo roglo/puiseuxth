@@ -74,7 +74,6 @@ intros α fld la γ₁ c₁ psf Hpsf.
 unfold ps_lap_summation; simpl.
 destruct la as [| ps₀]; [ reflexivity | simpl ].
 destruct la as [| ps₁]; simpl.
- Focus 1.
  rewrite summation_only_one.
  rewrite fld_mul_0_l, fld_add_0_l.
  remember (valuation fld ps₀) as ov eqn:Hov .
@@ -86,14 +85,11 @@ destruct la as [| ps₁]; simpl.
   unfold ā_list; simpl.
   rewrite <- ps_mul_1_r in |- * at 1.
   apply ps_mul_compat_l.
-  symmetry.
   unfold Qnat; simpl.
   unfold x_power.
   unfold ps_one, ps_const; simpl.
   unfold ps_monom; simpl.
-  symmetry.
   rewrite ps_adjust_eq with (n := O) (k := Qden γ₁).
-  simpl.
   unfold adjust_ps; simpl.
   rewrite series_shift_0.
   rewrite mkps_morphism; try reflexivity.
