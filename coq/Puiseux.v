@@ -64,8 +64,8 @@ Theorem zzz : ∀ α (fld : field α) pol ns j k f β₁ γ₁ c₁ psf,
            POL [x_power fld (- β₁)] .* psf
             poly_summation fld pol j k
               (λ h,
-               POL [ā fld h pol .* fld x_power psf (Qnat h .* psf γ₁)] .* psf
-               (POL [c₁; .1 fld … []]) .^ fld h) .+ psf
+               POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
+               (POL [c₁; .1 fld%K … []]) .^ fld h) .+ psf
            ([x_power psf (- β₁)] .* psf
              poly_summation psf pol 0 (pred j)
                (λ l,
