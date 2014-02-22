@@ -39,8 +39,8 @@ Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
 
 (* *)
 
-Definition ā_list α (fld : field α) h la := (List.nth h la .0 fld)%ps.
-Definition ā α (fld : field α) h pol := (ā_list fld h (al pol)).
+Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
+Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
 
 Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
   List.fold_left
@@ -60,6 +60,19 @@ Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
 Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
   (POL (ps_lap_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
 
+(*
+Lemma www : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
+  List.fold_left g (power_list 0 la) v₀ =
+  snd
+    (List.fold_left
+       (λ pow_v a,
+        let (pow, v) := (pow_v : nat * β) in
+        (S pow, g v (pow, a)))
+       la (O, v₀)).
+Proof.
+bbb.
+*)
+
 Lemma xxx : ∀ α (fld : field α) la γ₁ c₁ psf,
   psf = ps_field fld
   → lap_eq psf
@@ -67,7 +80,7 @@ Lemma xxx : ∀ α (fld : field α) la γ₁ c₁ psf,
       (ps_lap_summation fld la 0 (length la)
           (λ h,
            lap_mul psf
-             [(ā_list fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
+             [(ā_lap fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
              (list_power psf [ps_const fld c₁; .1 fld%ps … []] h))).
 Proof.
 intros α fld la γ₁ c₁ psf Hpsf.
@@ -82,7 +95,7 @@ destruct la as [| ps₁]; simpl.
   rewrite lap_mul_1_r.
   constructor; [ idtac | reflexivity ].
   subst psf; simpl.
-  unfold ā_list; simpl.
+  unfold ā_lap; simpl.
   rewrite <- ps_mul_1_r in |- * at 1.
   apply ps_mul_compat_l.
   unfold Qnat; simpl.
