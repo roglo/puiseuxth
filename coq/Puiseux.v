@@ -60,7 +60,7 @@ Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
 Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
   (POL (ps_lap_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
 
-(*
+(**)
 Lemma www : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
   List.fold_left g (power_list 0 la) v₀ =
   snd
@@ -70,6 +70,11 @@ Lemma www : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
         (S pow, g v (pow, a)))
        la (O, v₀)).
 Proof.
+intros α β la g v₀.
+destruct la as [| a₀]; [ reflexivity | simpl ].
+destruct la as [| a₁]; [ reflexivity | simpl ].
+destruct la as [| a₂]; [ reflexivity | simpl ].
+destruct la as [| a₃]; [ reflexivity | simpl ].
 bbb.
 *)
 
@@ -83,6 +88,12 @@ Lemma xxx : ∀ α (fld : field α) la γ₁ c₁ psf,
              [(ā_lap fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
              (list_power psf [ps_const fld c₁; .1 fld%ps … []] h))).
 Proof.
+(*
+intros α fld la γ₁ c₁ psf Hpsf.
+unfold ā_lap, lap_compose.
+unfold ps_lap_summation; simpl.
+rewrite www.
+*)
 intros α fld la γ₁ c₁ psf Hpsf.
 unfold ps_lap_summation; simpl.
 destruct la as [| ps₀]; [ reflexivity | simpl ].
