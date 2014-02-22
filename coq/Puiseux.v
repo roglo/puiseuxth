@@ -48,8 +48,28 @@ Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 (* *)
 
-Definition ā α (fld : field α) h pol := (List.nth h (al pol) .0 fld)%ps.
+Definition ā_list α (fld : field α) h la := (List.nth h la .0 fld)%ps.
+Definition ā α (fld : field α) h pol := (ā_list fld h (al pol)).
 
+Definition ps_list_summation α (fld : field α) la h₁ h₂ body :=
+  List.fold_left
+    (λ accu h_hps,
+     let h := fst h_hps in
+     let hps := snd h_hps in
+     match valuation fld hps with
+     | Some αh =>
+         if le_dec h₁ h then
+           if le_dec h h₂ then list_add (ps_field fld) accu (body h)
+           else accu
+         else accu
+     | None => accu
+     end)
+    (power_list 0 la) [].
+
+Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
+  (POL (ps_list_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
+
+(*
 Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
   List.fold_left
     (λ accu h_hps,
@@ -64,6 +84,37 @@ Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
      | None => accu
      end)
     (power_list 0 (al pol)) (POL [])%pol.
+*)
+
+Lemma xxx : ∀ α (fld : field α) la fla γ₁ c₁ psf,
+  psf = ps_field fld
+  → list_eq psf
+      (list_compose psf fla [c_x_power fld c₁ γ₁; x_power fld γ₁ … []])
+      (ps_list_summation fld la 0 (length la)
+          (λ h,
+           list_mul psf
+             [(ā_list fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
+             (list_power psf [ps_const fld c₁; .1 fld%ps … []] h))).
+Proof.
+intros α fld la fla γ₁ c₁ psf Hpsf.
+bbb.
+
+Theorem yyy : ∀ α (fld : field α) pol f β₁ γ₁ c₁ psf,
+  psf = ps_field fld
+  → (f₁ fld f β₁ γ₁ c₁ .= psf
+     POL [x_power fld (- β₁)] .* psf
+     ps_poly_summation fld pol 0 (length (al pol))
+       (λ h,
+        POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
+        (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf h))%pol.
+Proof.
+intros α fld pol f β₁ γ₁ c₁ psf Hpsf.
+unfold f₁, list_f₁.
+unfold eq_poly; simpl.
+rewrite <- Hpsf.
+apply list_mul_compat; [ reflexivity | idtac ].
+apply xxx; assumption.
+bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k f β₁ γ₁ c₁ psf,
   ns ∈ newton_segments fld pol
