@@ -28,23 +28,14 @@ Definition c_x_power := ps_monom.
 Definition x_power α (fld : field α) q := (ps_monom fld .1 fld q)%K.
 Definition var_y α (fld : field α) := [.0 fld; .1 fld … []]%K.
 
-(* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
-Definition lap_f₁ α (fld : field α) f β₁ γ₁ c₁ :=
+(* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
+Definition lap_pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
   lap_mul (ps_field fld) [x_power fld (- β₁)]
-    (lap_compose (ps_field fld) f
+    (lap_compose (ps_field fld) pol
        [c_x_power fld c₁ γ₁; x_power fld γ₁ … []]).
 
-(*
-Definition list_f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  let psf := ps_field fld in
-  lap_mul psf [x_power fld (- β₁)]
-    (lap_compose psf f
-       (lap_add psf [c_x_power fld c₁ γ₁]
-          (lap_mul psf [x_power fld γ₁] (var_y psf)))).
-*)
-
-Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL (lap_f₁ fld (al f) β₁ γ₁ c₁))%pol.
+Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
+  (POL (lap_pol₁ fld (al pol) β₁ γ₁ c₁))%pol.
 
 (* *)
 
@@ -69,59 +60,44 @@ Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
 Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
   (POL (ps_lap_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
 
-(*
-Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
-  List.fold_left
-    (λ accu h_hps,
-     let h := fst h_hps in
-     let hps := snd h_hps in
-     match valuation fld hps with
-     | Some αh =>
-         if le_dec h₁ h then
-           if le_dec h h₂ then (accu .+ (ps_field fld) body h)%pol
-           else accu
-         else accu
-     | None => accu
-     end)
-    (power_list 0 (al pol)) (POL [])%pol.
-*)
-
-Lemma xxx : ∀ α (fld : field α) la fla γ₁ c₁ psf,
+Lemma xxx : ∀ α (fld : field α) la γ₁ c₁ psf,
   psf = ps_field fld
   → lap_eq psf
-      (lap_compose psf fla [c_x_power fld c₁ γ₁; x_power fld γ₁ … []])
+      (lap_compose psf la [c_x_power fld c₁ γ₁; x_power fld γ₁ … []])
       (ps_lap_summation fld la 0 (length la)
           (λ h,
            lap_mul psf
              [(ā_list fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
              (list_power psf [ps_const fld c₁; .1 fld%ps … []] h))).
 Proof.
-intros α fld la fla γ₁ c₁ psf Hpsf.
+intros α fld la γ₁ c₁ psf Hpsf.
 bbb.
+*)
 
-Theorem yyy : ∀ α (fld : field α) pol f β₁ γ₁ c₁ psf,
+Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
-  → (f₁ fld f β₁ γ₁ c₁ .= psf
+  → (pol₁ fld pol β₁ γ₁ c₁ .= psf
      POL [x_power fld (- β₁)] .* psf
      ps_poly_summation fld pol 0 (length (al pol))
        (λ h,
         POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
         (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf h))%pol.
 Proof.
-intros α fld pol f β₁ γ₁ c₁ psf Hpsf.
-unfold f₁, lap_f₁.
+intros α fld pol β₁ γ₁ c₁ psf Hpsf.
+unfold pol₁, lap_pol₁.
 unfold eq_poly; simpl.
 rewrite <- Hpsf.
 apply lap_mul_compat; [ reflexivity | idtac ].
 apply xxx; assumption.
 bbb.
+*)
 
-Theorem zzz : ∀ α (fld : field α) pol ns j k f β₁ γ₁ c₁ psf,
+Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
   ns ∈ newton_segments fld pol
   → j = nofq (fst (ini_pt ns))
     → k = nofq (fst (fin_pt ns))
       → psf = ps_field fld
-        → (f₁ fld f β₁ γ₁ c₁ .= psf
+        → (pol₁ fld pol β₁ γ₁ c₁ .= psf
            POL [x_power fld (- β₁)] .* psf
            ps_poly_summation fld pol j k
              (λ h,
@@ -138,10 +114,10 @@ Theorem zzz : ∀ α (fld : field α) pol ns j k f β₁ γ₁ c₁ psf,
                POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
                (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf l)))%pol.
 Proof.
-intros α fld pol ns j k f β₁ γ₁ c₁ psf Hns Hj Hk Hpsf.
+intros α fld pol ns j k β₁ γ₁ c₁ psf Hns Hj Hk Hpsf.
 bbb.
 
-        → (f₁ fld f β₁ γ₁ c₁ =
+        → (pol₁ fld f β₁ γ₁ c₁ =
            POL [x_power fld (- β₁)] *
            ps_poly_summation fld pol j k
              (λ h,
@@ -249,11 +225,11 @@ Qed.
 Lemma fold_eq_ps : fld_eq (ps_field fld) = eq_ps fld.
 Proof. reflexivity. Qed.
 
-Lemma f₁_eq_f'₁ : ∀ f β₁ γ₁ c₁,
-  (f₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
+Lemma pol₁_eq_f'₁ : ∀ f β₁ γ₁ c₁,
+  (pol₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
 Proof.
 intros f β₁ γ₁ c₁.
-unfold f₁, f'₁.
+unfold pol₁, f'₁.
 remember POL [ps_monom fld .1 fld%K γ₁]%pol as p.
 remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
 remember (p .* (ps_field fld) p')%pol as p₁; subst p p'.
@@ -319,7 +295,7 @@ Definition puiseux_step psumo (pol : polynomial (puiseux_series α)) :=
   | [ns … _] =>
       let cpol := characteristic_polynomial f pol ns in
       let (c, r) := ac_root acf cpol in
-      let pol₁ := f₁ pol (β ns) (γ ns) c in
+      let pol₁ := pol₁ pol (β ns) (γ ns) c in
       let p := Qplus psum (γ ns) in
       Some ({| coeff := c; power := p |}, pol₁)
   end.
@@ -548,7 +524,7 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
   → ns ∈ newton_segments f pol
     → cpol = characteristic_polynomial f pol ns
       → ac_root acf cpol = (c₁, r₁)
-        → f₁ f pol (β ns) (γ ns) c₁
+        → pol₁ f pol (β ns) (γ ns) c₁
           = pol_mul_x_power_minus f (β ns)
               (List.fold_right
                  (λ ips accu,
@@ -567,7 +543,7 @@ Lemma zzz : ∀ pol pts ns cpol c₁ r₁,
 Proof.
 intros pol pts ns cpol c₁ r₁ Hpts Hns Hcpol Hcr.
 unfold poly_eq; simpl.
-unfold f₁.
+unfold pol₁.
 unfold apply_poly_with_ps_poly, apply_poly.
 unfold ps_one, abar.
 unfold newton_segments in Hns.
