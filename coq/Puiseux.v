@@ -40,7 +40,7 @@ Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 Definition ā α (fld : field α) h pol := (List.nth h (al pol) .0 fld)%ps.
 
-Definition poly_summation α (fld : field α) pol h₁ h₂ body :=
+Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
   List.fold_left
     (λ accu h_hps,
      let h := fst h_hps in
@@ -48,7 +48,7 @@ Definition poly_summation α (fld : field α) pol h₁ h₂ body :=
      match valuation fld hps with
      | Some αh =>
          if le_dec h₁ h then
-           if le_dec h h₂ then (accu .+ fld body h)%pol
+           if le_dec h h₂ then (accu .+ (ps_field fld) body h)%pol
            else accu
          else accu
      | None => accu
@@ -62,21 +62,22 @@ Theorem zzz : ∀ α (fld : field α) pol ns j k f β₁ γ₁ c₁ psf,
       → psf = ps_field fld
         → (f₁ fld f β₁ γ₁ c₁ .= psf
            POL [x_power fld (- β₁)] .* psf
-            poly_summation fld pol j k
-              (λ h,
-               POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
-               (POL [c₁; .1 fld%K … []]) .^ fld h) .+ psf
-           ([x_power psf (- β₁)] .* psf
-             poly_summation psf pol 0 (pred j)
+           ps_poly_summation fld pol j k
+             (λ h,
+              POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
+              (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf h) .+ psf
+           (POL [x_power fld (- β₁)] .* psf
+             ps_poly_summation fld pol 0 (pred j)
                (λ l,
-                POL [ā psf l pol .* psf x_power psf (Qnat l .* psf γ₁)] .* psf
-                (POL [c₁; .1 psf … []]) .^ psf l) .+ psf
-            [x_power psf (- β₁)] .* psf
-             poly_summation psf pol (S k) (length (al pol))
+                POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
+                (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf l) .+ psf
+            POL [x_power fld (- β₁)] .* psf
+             ps_poly_summation fld pol (S k) (length (al pol))
                (λ l,
-                POL [ā psf l pol .* psf x_power psf (Qnat l .* psf γ₁)] .* psf
-                (POL [c₁; .1 psf … []]) .^ psf l)))%pol.
+                POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
+                (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf l)))%pol.
 Proof.
+intros α fld pol ns j k f β₁ γ₁ c₁ psf Hns Hj Hk Hpsf.
 bbb.
 
 bbb.
