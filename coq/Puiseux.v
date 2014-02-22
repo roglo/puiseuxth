@@ -26,12 +26,22 @@ Set Implicit Arguments.
 
 Definition c_x_power := ps_monom.
 Definition x_power α (fld : field α) q := (ps_monom fld .1 fld q)%K.
+Definition var_y α (fld : field α) := [.0 fld; .1 fld … []]%K.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition list_f₁ α (fld : field α) f β₁ γ₁ c₁ :=
   list_mul (ps_field fld) [x_power fld (- β₁)]
     (list_compose (ps_field fld) f
        [c_x_power fld c₁ γ₁; x_power fld γ₁ … []]).
+
+(*
+Definition list_f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
+  let psf := ps_field fld in
+  list_mul psf [x_power fld (- β₁)]
+    (list_compose psf f
+       (list_add psf [c_x_power fld c₁ γ₁]
+          (list_mul psf [x_power fld γ₁] (var_y psf)))).
+*)
 
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
   (POL (list_f₁ fld (al f) β₁ γ₁ c₁))%pol.
