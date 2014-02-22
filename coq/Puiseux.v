@@ -24,24 +24,37 @@ Set Implicit Arguments.
 
 (* *)
 
+Definition c_x_power := ps_monom.
+Definition x_power α (fld : field α) q := (ps_monom fld .1 fld q)%K.
+
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
 Definition list_f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  list_mul (ps_field fld) [ps_monom fld .1 fld%K (- β₁)]
+  list_mul (ps_field fld) [x_power fld (- β₁)]
     (list_compose (ps_field fld) f
-       [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []]).
+       [c_x_power fld c₁ γ₁; x_power fld γ₁ … []]).
 
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
   (POL (list_f₁ fld (al f) β₁ γ₁ c₁))%pol.
 
 (* *)
 
-Theorem zzz :
-  (f₁ .= fld
-   [ps_monom fld .1f%K (- β₁)] .* fld
-    poly_summation_on_L (λ h, val fld h .* fld ...
+Definition ā α (fld : field α) h pol := (List.nth h (al pol) .0 fld)%ps.
 
-   ... .+ fld
-   [ps_monom fld .1f%K (- β₁)] .* fld ...)%pol.
+Definition poly_summation α (fld : field α) pol cond body :=
+  match
+
+Theorem zzz : ∀ α (fld : field α) pol β₁ γ₁ c₁,
+  (f₁ .= fld
+   [x_power fld (- β₁)] .* fld
+    poly_summation fld pol (λ h, j ≤ h < k)
+      (λ h,
+       POL [ā fld h pol .* fld x_power fld (Qnat h .* fld γ₁)] .* fld
+       (POL [c₁; .1 fld … []]) .^ fld h) .+ fld
+   [x_power fld (- β₁)] .* fld
+    poly_summation fld pol (λ l, l < j || l > k)%nat
+      (λ l,
+       POL [ā fld l pol .* fld x_power fld (Qnat l .* fld γ₁)] .* fld
+       (POL [c₁; .1 fld … []]) .^ fld l))%pol.
 Proof.
 bbb.
 
