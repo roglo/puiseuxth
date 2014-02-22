@@ -29,29 +29,29 @@ Definition x_power α (fld : field α) q := (ps_monom fld .1 fld q)%K.
 Definition var_y α (fld : field α) := [.0 fld; .1 fld … []]%K.
 
 (* f₁(x,y₁) = x^(-β₁).f(x,x^γ₁.(c₁ + y₁)) *)
-Definition list_f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  list_mul (ps_field fld) [x_power fld (- β₁)]
-    (list_compose (ps_field fld) f
+Definition lap_f₁ α (fld : field α) f β₁ γ₁ c₁ :=
+  lap_mul (ps_field fld) [x_power fld (- β₁)]
+    (lap_compose (ps_field fld) f
        [c_x_power fld c₁ γ₁; x_power fld γ₁ … []]).
 
 (*
 Definition list_f'₁ α (fld : field α) f β₁ γ₁ c₁ :=
   let psf := ps_field fld in
-  list_mul psf [x_power fld (- β₁)]
-    (list_compose psf f
-       (list_add psf [c_x_power fld c₁ γ₁]
-          (list_mul psf [x_power fld γ₁] (var_y psf)))).
+  lap_mul psf [x_power fld (- β₁)]
+    (lap_compose psf f
+       (lap_add psf [c_x_power fld c₁ γ₁]
+          (lap_mul psf [x_power fld γ₁] (var_y psf)))).
 *)
 
 Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
-  (POL (list_f₁ fld (al f) β₁ γ₁ c₁))%pol.
+  (POL (lap_f₁ fld (al f) β₁ γ₁ c₁))%pol.
 
 (* *)
 
 Definition ā_list α (fld : field α) h la := (List.nth h la .0 fld)%ps.
 Definition ā α (fld : field α) h pol := (ā_list fld h (al pol)).
 
-Definition ps_list_summation α (fld : field α) la h₁ h₂ body :=
+Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
   List.fold_left
     (λ accu h_hps,
      let h := fst h_hps in
@@ -59,7 +59,7 @@ Definition ps_list_summation α (fld : field α) la h₁ h₂ body :=
      match valuation fld hps with
      | Some αh =>
          if le_dec h₁ h then
-           if le_dec h h₂ then list_add (ps_field fld) accu (body h)
+           if le_dec h h₂ then lap_add (ps_field fld) accu (body h)
            else accu
          else accu
      | None => accu
@@ -67,7 +67,7 @@ Definition ps_list_summation α (fld : field α) la h₁ h₂ body :=
     (power_list 0 la) [].
 
 Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
-  (POL (ps_list_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
+  (POL (ps_lap_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
 
 (*
 Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
@@ -88,11 +88,11 @@ Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
 
 Lemma xxx : ∀ α (fld : field α) la fla γ₁ c₁ psf,
   psf = ps_field fld
-  → list_eq psf
-      (list_compose psf fla [c_x_power fld c₁ γ₁; x_power fld γ₁ … []])
-      (ps_list_summation fld la 0 (length la)
+  → lap_eq psf
+      (lap_compose psf fla [c_x_power fld c₁ γ₁; x_power fld γ₁ … []])
+      (ps_lap_summation fld la 0 (length la)
           (λ h,
-           list_mul psf
+           lap_mul psf
              [(ā_list fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
              (list_power psf [ps_const fld c₁; .1 fld%ps … []] h))).
 Proof.
@@ -109,10 +109,10 @@ Theorem yyy : ∀ α (fld : field α) pol f β₁ γ₁ c₁ psf,
         (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf h))%pol.
 Proof.
 intros α fld pol f β₁ γ₁ c₁ psf Hpsf.
-unfold f₁, list_f₁.
+unfold f₁, lap_f₁.
 unfold eq_poly; simpl.
 rewrite <- Hpsf.
-apply list_mul_compat; [ reflexivity | idtac ].
+apply lap_mul_compat; [ reflexivity | idtac ].
 apply xxx; assumption.
 bbb.
 
@@ -429,12 +429,12 @@ split.
 Qed.
 
 Lemma list_pad_app : ∀ n v cl,
-  list_eq (f_eq f) (list_pad n v cl) (list_pad n v [] ++ cl).
+  lap_eq (f_eq f) (list_pad n v cl) (list_pad n v [] ++ cl).
 Proof.
 intros n v cl.
 revert v cl.
 induction n; intros; simpl.
- apply list_eq_refl.
+ apply lap_eq_refl.
 
  constructor; [ reflexivity | apply IHn ].
 Qed.
