@@ -80,16 +80,6 @@ destruct la as [| ps₁]; simpl.
  remember (valuation fld ps₀) as ov eqn:Hov .
  symmetry in Hov.
  destruct ov as [v| ]; simpl.
-  Focus 2.
-  constructor; [ idtac | reflexivity ].
-  subst psf; simpl.
-  unfold valuation in Hov.
-  simpl in Hov.
-  remember (null_coeff_range_length fld (ps_terms ps₀) 0) as v eqn:Hv .
-  symmetry in Hv.
-  destruct v; [ discriminate Hov | clear Hov ].
-  apply null_coeff_range_length_inf_iff; assumption.
-
   rewrite lap_mul_1_r.
   constructor; [ idtac | reflexivity ].
   subst psf; simpl.
@@ -98,6 +88,38 @@ destruct la as [| ps₁]; simpl.
   apply ps_mul_compat_l.
   symmetry.
   unfold Qnat; simpl.
+  unfold x_power.
+  unfold ps_one, ps_const; simpl.
+  unfold ps_monom; simpl.
+  symmetry.
+  rewrite ps_adjust_eq with (n := O) (k := Qden γ₁).
+  simpl.
+  unfold adjust_ps; simpl.
+  rewrite series_shift_0.
+  rewrite mkps_morphism; try reflexivity.
+  constructor; intros i; simpl.
+  destruct i; simpl.
+   rewrite Nat.mod_0_l; simpl; auto.
+   rewrite Nat.div_0_l; simpl; auto.
+   reflexivity.
+
+   destruct (zerop (S i mod Pos.to_nat (Qden γ₁))) as [H₁| ].
+    apply Nat.mod_divides in H₁; auto.
+    destruct H₁ as (c, Hc).
+    rewrite Nat.mul_comm in Hc.
+    rewrite Hc, Nat.div_mul; auto.
+    destruct c; [ discriminate Hc | reflexivity ].
+
+    reflexivity.
+
+  constructor; [ idtac | reflexivity ].
+  subst psf; simpl.
+  unfold valuation in Hov.
+  simpl in Hov.
+  remember (null_coeff_range_length fld (ps_terms ps₀) 0) as v eqn:Hv .
+  symmetry in Hv.
+  destruct v; [ discriminate Hov | clear Hov ].
+  apply null_coeff_range_length_inf_iff; assumption.
 bbb.
 *)
 
