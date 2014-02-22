@@ -40,21 +40,42 @@ Definition f₁ α (fld : field α) f β₁ γ₁ c₁ :=
 
 Definition ā α (fld : field α) h pol := (List.nth h (al pol) .0 fld)%ps.
 
-Definition poly_summation α (fld : field α) pol cond body :=
-  match
+Definition poly_summation α (fld : field α) pol h₁ h₂ body :=
+  List.fold_left
+    (λ accu h_hps,
+     let h := fst h_hps in
+     let hps := snd h_hps in
+     match valuation fld hps with
+     | Some αh =>
+         if le_dec h₁ h then
+           if le_dec h h₂ then (accu .+ fld body h)%pol
+           else accu
+         else accu
+     | None => accu
+     end)
+    (power_list 0 (al pol)) (POL [])%pol.
 
-Theorem zzz : ∀ α (fld : field α) pol β₁ γ₁ c₁,
-  (f₁ .= fld
-   [x_power fld (- β₁)] .* fld
-    poly_summation fld pol (λ h, j ≤ h < k)
-      (λ h,
-       POL [ā fld h pol .* fld x_power fld (Qnat h .* fld γ₁)] .* fld
-       (POL [c₁; .1 fld … []]) .^ fld h) .+ fld
-   [x_power fld (- β₁)] .* fld
-    poly_summation fld pol (λ l, l < j || l > k)%nat
-      (λ l,
-       POL [ā fld l pol .* fld x_power fld (Qnat l .* fld γ₁)] .* fld
-       (POL [c₁; .1 fld … []]) .^ fld l))%pol.
+Theorem zzz : ∀ α (fld : field α) pol ns j k f β₁ γ₁ c₁ psf,
+  ns ∈ newton_segments fld pol
+  → j = nofq (fst (ini_pt ns))
+    → k = nofq (fst (fin_pt ns))
+      → psf = ps_field fld
+        → (f₁ fld f β₁ γ₁ c₁ .= psf
+           POL [x_power fld (- β₁)] .* psf
+            poly_summation fld pol j k
+              (λ h,
+               POL [ā fld h pol .* fld x_power psf (Qnat h .* psf γ₁)] .* psf
+               (POL [c₁; .1 fld … []]) .^ fld h) .+ psf
+           ([x_power psf (- β₁)] .* psf
+             poly_summation psf pol 0 (pred j)
+               (λ l,
+                POL [ā psf l pol .* psf x_power psf (Qnat l .* psf γ₁)] .* psf
+                (POL [c₁; .1 psf … []]) .^ psf l) .+ psf
+            [x_power psf (- β₁)] .* psf
+             poly_summation psf pol (S k) (length (al pol))
+               (λ l,
+                POL [ā psf l pol .* psf x_power psf (Qnat l .* psf γ₁)] .* psf
+                (POL [c₁; .1 psf … []]) .^ psf l)))%pol.
 Proof.
 bbb.
 
