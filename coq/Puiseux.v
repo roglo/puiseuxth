@@ -42,6 +42,13 @@ Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
 Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
 Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
 
+bbb.
+
+(* chuis en train de faire des merdes, là...
+   quel rapport avec les valuations ? *)
+
+recommencer plus bas...
+
 Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
   List.fold_left
     (λ accu h_hps,
@@ -88,7 +95,6 @@ Lemma fold_left_power : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
        la (O, v₀)).
 Proof.
 intros α β la g v₀.
-bbb.
 destruct la as [| a]; [ reflexivity | simpl ].
 apply fold_left_power_gen.
 Qed.
