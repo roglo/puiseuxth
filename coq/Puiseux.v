@@ -88,9 +88,24 @@ Lemma fold_left_power : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
        la (O, v₀)).
 Proof.
 intros α β la g v₀.
+bbb.
 destruct la as [| a]; [ reflexivity | simpl ].
 apply fold_left_power_gen.
 Qed.
+
+(* à voir...
+   g (g v₀ (0%nat, p)) (1%nat, p0) = g (g v₀ (1%nat, p0)) (0%nat, p)
+Lemma fold_right_power : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
+  List.fold_left g (power_list 0 la) v₀ =
+  snd
+    (List.fold_right
+       (λ a pow_v,
+        let (pow, v) := (pow_v : nat * β) in (pred pow, g v (pred pow, a)))
+       (length la, v₀) la).
+Proof.
+intros α β la g v₀.
+bbb.
+*)
 
 Lemma xxx : ∀ α (fld : field α) la γ₁ c₁ psf,
   psf = ps_field fld
