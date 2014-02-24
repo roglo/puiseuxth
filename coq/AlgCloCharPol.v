@@ -1083,6 +1083,9 @@ Definition lap_compose2 α (f : field α) la lb :=
      lap_add f accu (lap_mul f [List.nth i la .0 f] (list_pow f lb i)))%K
     [] (List.seq 0 (length la)).
 
+Definition poly_compose2 α (f : field α) a b :=
+  POL (lap_compose2 f (al a) (al b))%pol.
+
 Lemma lap_compose_cons_l : ∀ α (f : field α) a la lb,
   lap_eq f (lap_compose f [a … la] lb)
     (lap_add f [a] (lap_mul f lb (lap_compose f la lb))).
@@ -1214,6 +1217,13 @@ apply list_fold_right_seq.
  rewrite lap_mul_comm, <- lap_mul_assoc.
  apply lap_mul_compat; [ reflexivity | idtac ].
  apply lap_mul_comm.
+Qed.
+
+Lemma poly_compose_compose2 : ∀ α (f : field α) P Q,
+  (P .∘ f Q .= f poly_compose2 f P Q)%pol.
+Proof.
+intros α f P Q.
+apply lap_compose_compose2.
 Qed.
 
 Lemma length_derivial_nil : ∀ α (f : field α) k,

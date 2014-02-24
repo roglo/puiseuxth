@@ -118,6 +118,42 @@ intros α fld pol β₁ γ₁ c₁ psf Hpsf.
 apply lap_f₁_eq_x_min_β₁_comp; assumption.
 Qed.
 
+(* [Walker, p. 100] «
+    f₁(x,y₁) = x^(-β₁).[ā₀ + ā₁x^γ₁(c₁+y₁) + ... + ān.x^(n.γ₁)(c₁+y₁)^n]
+  » *)
+Theorem f₁_eq_x_min_β₁_comp2 : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
+  psf = ps_field fld
+  → (pol₁ fld pol β₁ γ₁ c₁ .= psf
+     POL [x_power fld (- β₁)] .* psf
+     poly_compose2 psf pol
+       (POL [x_power fld γ₁] .* psf
+        POL [c_x_power fld c₁ 0; .1 fld%ps … []]))%pol.
+Proof.
+intros α fld pol β₁ γ₁ c₁ psf Hpsf.
+rewrite <- poly_compose_compose2.
+apply f₁_eq_x_min_β₁_comp; assumption.
+Qed.
+
+bbb.
+
+Definition lap_summation α (f : field α) la li :=
+  List.fold_right (λ i accu, lap_add f accu [List.nth i la .0 f])%K [] li.
+
+Definition poly_summation α (f : field α) P li :=
+  (POL (lap_summation f (al P) li))%pol.
+
+Theorem zzz : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
+  psf = ps_field fld
+  → (pol₁ fld pol β₁ γ₁ c₁ .= psf
+     POL [x_power fld (- β₁)] .* psf
+     poly_summation fld
+       (POL [c_x_power fld c₁ 0; .1 fld%ps … []]))%pol.
+...
+     POL [x_power fld (- β₁)] .* psf
+...
+     )%pol.
+Proof.
+
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
