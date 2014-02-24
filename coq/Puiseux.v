@@ -42,160 +42,34 @@ Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
 Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
 Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
 
-bbb.
-
-(* chuis en train de faire des merdes, là...
-   quel rapport avec les valuations ? *)
-
-recommencer plus bas...
-
-Definition ps_lap_summation α (fld : field α) la h₁ h₂ body :=
-  List.fold_left
-    (λ accu h_hps,
-     let h := fst h_hps in
-     let hps := snd h_hps in
-     match valuation fld hps with
-     | Some αh =>
-         if le_dec h₁ h then
-           if le_dec h h₂ then lap_add (ps_field fld) accu (body h)
-           else accu
-         else accu
-     | None => accu
-     end)
-    (power_list 0 la) [].
-
-Definition ps_poly_summation α (fld : field α) pol h₁ h₂ body :=
-  (POL (ps_lap_summation fld (al pol) h₁ h₂ (λ h, al (body h))))%pol.
-
-Lemma fold_left_power_gen :
-  ∀ α β (la : list (puiseux_series α)) g (v₀ : β) a₀ n,
-  List.fold_left g
-    match la with
-    | [] => [(n, a₀)]
-    | [_ … _] => [(n, a₀) … power_list (S n) la]
-    end v₀ =
-  snd
-    (List.fold_left
-       (λ (pow_v : nat * β) (a : puiseux_series α),
-        let (pow, v) := pow_v in (S pow, g v (pow, a))) la
-       (S n, g v₀ (n, a₀))).
-Proof.
-intros α β la g v₀ a₀ n.
-revert v₀ a₀ n.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-apply IHla.
-Qed.
-
-Lemma fold_left_power : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
-  List.fold_left g (power_list 0 la) v₀ =
-  snd
-    (List.fold_left
-       (λ pow_v a,
-        let (pow, v) := (pow_v : nat * β) in (S pow, g v (pow, a)))
-       la (O, v₀)).
-Proof.
-intros α β la g v₀.
-destruct la as [| a]; [ reflexivity | simpl ].
-apply fold_left_power_gen.
-Qed.
-
-(* à voir...
-   g (g v₀ (0%nat, p)) (1%nat, p0) = g (g v₀ (1%nat, p0)) (0%nat, p)
-Lemma fold_right_power : ∀ α β (la : list (puiseux_series α)) g (v₀ : β),
-  List.fold_left g (power_list 0 la) v₀ =
-  snd
-    (List.fold_right
-       (λ a pow_v,
-        let (pow, v) := (pow_v : nat * β) in (pred pow, g v (pred pow, a)))
-       (length la, v₀) la).
-Proof.
-intros α β la g v₀.
-bbb.
-*)
-
-Lemma xxx : ∀ α (fld : field α) la γ₁ c₁ psf,
+Theorem vvv : ∀ α (fld : field α) la β₁ γ₁ c₁ psf,
   psf = ps_field fld
-  → lap_eq psf
-      (lap_compose psf la [c_x_power fld c₁ γ₁; x_power fld γ₁ … []])
-      (ps_lap_summation fld la 0 (length la)
-          (λ h,
-           lap_mul psf
-             [(ā_lap fld h la .* fld x_power fld (Qnat h * γ₁))%ps]
-             (list_power psf [ps_const fld c₁; .1 fld%ps … []] h))).
+  → lap_eq psf (lap_pol₁ fld la β₁ γ₁ c₁)
+      (lap_mul psf [x_power fld (- β₁)]
+         (lap_compose psf la
+            (lap_mul psf
+               [x_power fld γ₁]
+               [ps_const fld c₁; .1 fld%ps … []]))).
 Proof.
-intros α fld la γ₁ c₁ psf Hpsf.
-unfold ā_lap, lap_compose.
-unfold ps_lap_summation; simpl.
-rewrite fold_left_power.
-(* essayer plutôt de faire un fold_right_power *)
+intros α fld la β₁ γ₁ c₁ psf Hpsf.
+unfold lap_pol₁.
+rewrite <- Hpsf.
+apply lap_mul_compat; [ reflexivity | idtac ].
 bbb.
 
-intros α fld la γ₁ c₁ psf Hpsf.
-unfold ps_lap_summation; simpl.
-destruct la as [| ps₀]; [ reflexivity | simpl ].
-destruct la as [| ps₁]; simpl.
- rewrite summation_only_one.
- rewrite fld_mul_0_l, fld_add_0_l.
- remember (valuation fld ps₀) as ov eqn:Hov .
- symmetry in Hov.
- destruct ov as [v| ]; simpl.
-  rewrite lap_mul_1_r.
-  constructor; [ idtac | reflexivity ].
-  subst psf; simpl.
-  unfold ā_lap; simpl.
-  rewrite <- ps_mul_1_r in |- * at 1.
-  apply ps_mul_compat_l.
-  unfold Qnat; simpl.
-  unfold x_power.
-  unfold ps_one, ps_const; simpl.
-  unfold ps_monom; simpl.
-  rewrite ps_adjust_eq with (n := O) (k := Qden γ₁).
-  unfold adjust_ps; simpl.
-  rewrite series_shift_0.
-  rewrite mkps_morphism; try reflexivity.
-  constructor; intros i; simpl.
-  destruct i; simpl.
-   rewrite Nat.mod_0_l; simpl; auto.
-   rewrite Nat.div_0_l; simpl; auto.
-   reflexivity.
-
-   destruct (zerop (S i mod Pos.to_nat (Qden γ₁))) as [H₁| ].
-    apply Nat.mod_divides in H₁; auto.
-    destruct H₁ as (c, Hc).
-    rewrite Nat.mul_comm in Hc.
-    rewrite Hc, Nat.div_mul; auto.
-    destruct c; [ discriminate Hc | reflexivity ].
-
-    reflexivity.
-
-  constructor; [ idtac | reflexivity ].
-  subst psf; simpl.
-  unfold valuation in Hov.
-  simpl in Hov.
-  remember (null_coeff_range_length fld (ps_terms ps₀) 0) as v eqn:Hv .
-  symmetry in Hv.
-  destruct v; [ discriminate Hov | clear Hov ].
-  apply null_coeff_range_length_inf_iff; assumption.
-bbb.
-*)
-
-Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
+(* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
+Theorem www : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
   → (pol₁ fld pol β₁ γ₁ c₁ .= psf
      POL [x_power fld (- β₁)] .* psf
-     ps_poly_summation fld pol 0 (length (al pol))
-       (λ h,
-        POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
-        (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf h))%pol.
+     poly_compose psf pol
+       (POL [x_power fld γ₁] .* psf
+        POL [ps_const fld c₁; .1 fld%ps … []]))%pol.
 Proof.
 intros α fld pol β₁ γ₁ c₁ psf Hpsf.
-unfold pol₁, lap_pol₁.
 unfold eq_poly; simpl.
-rewrite <- Hpsf.
-apply lap_mul_compat; [ reflexivity | idtac ].
-apply xxx; assumption.
+remember (al pol) as la; clear pol Heqla.
 bbb.
-*)
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
   ns ∈ newton_segments fld pol
