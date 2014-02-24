@@ -194,10 +194,40 @@ Definition lap_mul α (f : field α) la lb :=
 Definition poly_mul α (f : field α) pol₁ pol₂ :=
   {| al := lap_mul f (al pol₁) (al pol₂) |}.
 
+(* power *)
+
+Fixpoint lap_power α (f : field α) la n :=
+  match n with
+  | O => [.1 f%K]
+  | S m => lap_mul f la (lap_power f la m)
+  end.
+
+Definition poly_power α (f : field α) pol n :=
+  (POL (lap_power f (al pol) n))%pol.
+
+(* composition *)
+
+Definition lap_compose α (f : field α) la lb :=
+  List.fold_right (λ c accu, lap_add f (lap_mul f accu lb) [c]) [] la.
+
+Definition poly_compose α (f : field α) a b :=
+  POL (lap_compose f (al a) (al b))%pol.
+
+Definition lap_compose2 α (f : field α) la lb :=
+  List.fold_right
+    (λ i accu,
+     lap_add f accu (lap_mul f [List.nth i la .0 f] (lap_power f lb i)))%K
+    [] (List.seq 0 (length la)).
+
+Definition poly_compose2 α (f : field α) a b :=
+  POL (lap_compose2 f (al a) (al b))%pol.
+
 (* *)
 
 Notation "a .+ f b" := (poly_add f a b) : poly_scope.
 Notation "a .* f b" := (poly_mul f a b) : poly_scope.
+Notation "a .^ f b" := (poly_power f a b) : poly_scope.
+Notation "a .∘ f b" := (poly_compose f a b) : poly_scope.
 
 Definition Pdivide α (f : field α) x y := ∃ z, (y .= f z .* f x)%pol.
 
@@ -607,15 +637,6 @@ induction la as [| a]; intros.
    pose proof (Hi (S i)) as H.
    assumption.
 Qed.
-
-(* composition *)
-
-Definition lap_compose α (f : field α) la lb :=
-  List.fold_right (λ c accu, lap_add f (lap_mul f accu lb) [c]) [] la.
-
-Definition poly_compose α (f : field α) a b :=
-  POL (lap_compose f (al a) (al b))%pol.
-Notation "a .∘ f b" := (poly_compose f a b) : poly_scope.
 
 (* test
 Load Q_field.

@@ -1071,26 +1071,6 @@ rewrite list_nth_coeff_lap_deriv.
 rewrite list_nth_skipn, Nat.add_comm; reflexivity.
 Qed.
 
-Fixpoint list_power α (f : field α) la n :=
-  match n with
-  | O => [.1 f%K]
-  | S m => lap_mul f la (list_power f la m)
-  end.
-
-Definition poly_power α (f : field α) pol n :=
-  (POL (list_power f (al pol) n))%pol.
-
-Notation "a .^ f b" := (poly_power f a b) : poly_scope.
-
-Definition lap_compose2 α (f : field α) la lb :=
-  List.fold_right
-    (λ i accu,
-     lap_add f accu (lap_mul f [List.nth i la .0 f] (list_power f lb i)))%K
-    [] (List.seq 0 (length la)).
-
-Definition poly_compose2 α (f : field α) a b :=
-  POL (lap_compose2 f (al a) (al b))%pol.
-
 Lemma lap_compose_cons_l : ∀ α (f : field α) a la lb,
   lap_eq f (lap_compose f [a … la] lb)
     (lap_add f [a] (lap_mul f lb (lap_compose f la lb))).
@@ -1265,13 +1245,13 @@ Lemma fold_add_pow : ∀ α (f : field α) a la lb lc da,
       (λ i accu,
        lap_add f accu
          (lap_mul f [List.nth (S i) [a … la] da]
-            (list_power f lb (S i))))
+            (lap_power f lb (S i))))
       [] lc)
     (lap_mul f lb
        (List.fold_right
           (λ i accu,
            lap_add f accu
-             (lap_mul f [List.nth i la da] (list_power f lb i)))
+             (lap_mul f [List.nth i la da] (lap_power f lb i)))
           [] lc)).
 Proof.
 intros α f a la lb lc da; simpl; clear.
@@ -1962,7 +1942,7 @@ Qed.
 Lemma list_root_mul_power_quotient : ∀ la c r len,
   list_root_multiplicity acf c la len = r
   → lap_eq f la
-       (lap_mul f (list_power f [(.-f c)%K; .1 f%K … []] r)
+       (lap_mul f (lap_power f [(.-f c)%K; .1 f%K … []] r)
        (list_quotient_phi_x_sub_c_pow_r f la c r)).
 Proof.
 intros la c r len Hmult.

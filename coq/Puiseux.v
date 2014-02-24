@@ -151,8 +151,8 @@ Qed.
 
 Lemma lap_power_mul : ∀ α (f : field α) la lb n,
   lap_eq f
-    (list_power f (lap_mul f la lb) n)
-    (lap_mul f (list_power f la n) (list_power f lb n)).
+    (lap_power f (lap_mul f la lb) n)
+    (lap_mul f (lap_power f la n) (lap_power f lb n)).
 Proof.
 intros α f la lb n.
 revert la lb.
@@ -167,16 +167,52 @@ induction n; intros; simpl.
  apply lap_mul_comm.
 Qed.
 
-(* faux : mon erreur habituelle...
-Lemma ps_monom_mul_r : ∀ α (f : field α) c p q,
-  (ps_monom f c (p * q) .= f ps_monom f c p .* f ps_monom f .1 f%K q)%ps.
+(* mmm... should be able to do 'rewrite Qmult_0_l' but refused by Coq;
+   it 'accepts' 'setoid_rewrite Qmult_0_l' but morphism problem: ok
+   but why rationals do not work with 'rewrite' like my other structures?
+   to investigate... *)
+Lemma ps_monom_mul_0 : ∀ α (f : field α) c p,
+  (ps_monom f c (0 * p) .= f ps_monom f c 0)%ps.
 Proof.
-intros α f c p q.
-unfold ps_mul; simpl.
-unfold ps_monom; simpl.
-unfold cm; simpl.
-rewrite ps_adjust_eq with (k := xH).
+intros α f c p.
+unfold ps_monom; simpl; symmetry.
+rewrite ps_adjust_eq with (n := O) (k := Qden p); simpl.
 unfold adjust_ps; simpl.
+apply mkps_morphism; try reflexivity.
+rewrite series_shift_0.
+unfold series_stretch; simpl.
+constructor; simpl; intros i.
+destruct (zerop (i mod Pos.to_nat (Qden p))) as [H| H].
+ apply Nat.mod_divides in H; auto.
+ destruct H as (d, Hd).
+ rewrite Nat.mul_comm in Hd.
+ rewrite Hd, Nat.div_mul; auto.
+ destruct d; [ reflexivity | idtac ].
+ destruct (zerop (S d * Pos.to_nat (Qden p))) as [H| H]; simpl.
+  apply Nat.mul_eq_0 in H.
+  destruct H as [H| H]; [ discriminate H | idtac ].
+  exfalso; revert H; apply Pos2Nat_ne_0.
+
+  reflexivity.
+
+ destruct i; [ simpl | reflexivity ].
+ rewrite Nat.mod_0_l in H; auto.
+ exfalso; revert H; apply Nat.lt_irrefl.
+Qed.
+
+Lemma ps_monom_mul_r_pow : ∀ α (f : field α) c p n,
+  (ps_monom f c (Qnat n * p) .= f
+   ps_monom f c 0 .* f ps_monom f .1 f%K p .^ f n)%ps.
+Proof.
+intros α f c p n.
+induction n; simpl.
+ rewrite ps_mul_1_r.
+ unfold Qnat; simpl.
+ rewrite ps_monom_mul_0; reflexivity.
+
+ rewrite ps_mul_assoc.
+ rewrite fld_mul_shuffle0; simpl.
+ rewrite <- IHn.
 bbb.
 *)
 
@@ -215,31 +251,7 @@ induction i; intros; simpl.
  rewrite <- ps_mul_1_r in |- * at 1.
  apply ps_mul_compat_l.
  unfold x_power; simpl.
- unfold ps_monom; simpl.
- unfold ps_one; simpl.
- unfold ps_monom; simpl.
- rewrite ps_adjust_eq with (n := O) (k := Qden γ₁); simpl.
- unfold adjust_ps; simpl.
- rewrite series_shift_0.
- apply mkps_morphism; try reflexivity.
- unfold series_stretch; simpl.
- constructor; simpl; intros i.
- destruct (zerop (i mod Pos.to_nat (Qden γ₁))) as [H| H].
-  apply Nat.mod_divides in H; auto.
-  destruct H as (c, Hc).
-  rewrite Nat.mul_comm in Hc.
-  rewrite Hc, Nat.div_mul; auto.
-  destruct c; [ reflexivity | idtac ].
-  destruct (zerop (S c * Pos.to_nat (Qden γ₁))) as [H| ]; simpl.
-   apply Nat.mul_eq_0 in H.
-   destruct H as [H| H]; [ discriminate H | idtac ].
-   exfalso; revert H; apply Pos2Nat_ne_0.
-
-   reflexivity.
-
-  destruct i; [ simpl | reflexivity ].
-  rewrite Nat.mod_0_l in H; auto.
-  exfalso; revert H; apply Nat.lt_irrefl.
+ rewrite ps_monom_mul_0; reflexivity.
 
  destruct la as [| a]; simpl.
   rewrite lap_mul_assoc; simpl.

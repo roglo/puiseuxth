@@ -311,3 +311,13 @@ Definition ps_field α (f : field α) : field (puiseux_series α) :=
      fld_mul_add_distr_l := ps_mul_add_distr_l f;
      fld_inv := ps_inv f;
      fld_mul_inv_l := @ps_mul_inv_l α f |}.
+
+Canonical Structure ps_field.
+
+Fixpoint ps_power α (f : field α) la n :=
+  match n with
+  | O => .1 f%ps
+  | S m => ps_mul f la (ps_power f la m)
+  end.
+
+Notation "a .^ f b" := (ps_power f a b) : ps_scope.
