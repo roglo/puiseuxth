@@ -43,8 +43,7 @@ Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
 Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
 
 Lemma ps_monom_split_mul : ∀ α (f : field α) c pow,
-  (ps_monom f c pow .= (ps_field f)
-   (ps_monom f c 0 .* f ps_monom f .1 f%K pow)%ps)%K.
+  (ps_monom f c pow .= f ps_monom f c 0 .* f ps_monom f .1 f%K pow)%ps.
 Proof.
 intros α f c pow.
 unfold ps_mul; simpl.
@@ -98,7 +97,7 @@ rewrite fld_mul_0_l.
 do 3 rewrite fld_add_0_r.
 subst psf; simpl.
 constructor.
- rewrite ps_mul_comm.
+ rewrite ps_mul_comm; simpl.
  apply ps_monom_split_mul.
 
  constructor; [ idtac | reflexivity ].
@@ -167,6 +166,19 @@ induction n; intros; simpl.
  apply lap_mul_compat; [ idtac | reflexivity ].
  apply lap_mul_comm.
 Qed.
+
+(* faux : mon erreur habituelle...
+Lemma ps_monom_mul_r : ∀ α (f : field α) c p q,
+  (ps_monom f c (p * q) .= f ps_monom f c p .* f ps_monom f .1 f%K q)%ps.
+Proof.
+intros α f c p q.
+unfold ps_mul; simpl.
+unfold ps_monom; simpl.
+unfold cm; simpl.
+rewrite ps_adjust_eq with (k := xH).
+unfold adjust_ps; simpl.
+bbb.
+*)
 
 Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
