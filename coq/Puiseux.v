@@ -192,6 +192,62 @@ unfold ā, ā_lap.
 rewrite lap_power_mul.
 rewrite lap_mul_assoc.
 apply lap_mul_compat; [ idtac | reflexivity ].
+clear la lb Heq.
+remember (al pol) as la; clear pol Heqla.
+revert la.
+induction i; intros; simpl.
+ rewrite lap_mul_1_r.
+ constructor; [ idtac | reflexivity ].
+ unfold Qnat; simpl.
+ subst psf; simpl.
+ rewrite <- ps_mul_1_r in |- * at 1.
+ apply ps_mul_compat_l.
+ unfold x_power; simpl.
+ unfold ps_monom; simpl.
+ unfold ps_one; simpl.
+ unfold ps_monom; simpl.
+ rewrite ps_adjust_eq with (n := O) (k := Qden γ₁); simpl.
+ unfold adjust_ps; simpl.
+ rewrite series_shift_0.
+ apply mkps_morphism; try reflexivity.
+ unfold series_stretch; simpl.
+ constructor; simpl; intros i.
+ destruct (zerop (i mod Pos.to_nat (Qden γ₁))) as [H| H].
+  apply Nat.mod_divides in H; auto.
+  destruct H as (c, Hc).
+  rewrite Nat.mul_comm in Hc.
+  rewrite Hc, Nat.div_mul; auto.
+  destruct c; [ reflexivity | idtac ].
+  destruct (zerop (S c * Pos.to_nat (Qden γ₁))) as [H| ]; simpl.
+   apply Nat.mul_eq_0 in H.
+   destruct H as [H| H]; [ discriminate H | idtac ].
+   exfalso; revert H; apply Pos2Nat_ne_0.
+
+   reflexivity.
+
+  destruct i; [ simpl | reflexivity ].
+  rewrite Nat.mod_0_l in H; auto.
+  exfalso; revert H; apply Nat.lt_irrefl.
+
+ destruct la as [| a]; simpl.
+  rewrite lap_mul_assoc; simpl.
+  rewrite lap_eq_0.
+  rewrite lap_mul_nil_l.
+  rewrite lap_mul_nil_l.
+  constructor; [ idtac | reflexivity ].
+  subst psf; simpl.
+  rewrite ps_mul_0_l; reflexivity.
+
+  rewrite lap_mul_assoc.
+  rewrite lap_mul_shuffle0.
+  rewrite IHi.
+  unfold lap_mul; simpl.
+  rewrite summation_only_one; simpl.
+  constructor; [ idtac | reflexivity ].
+  subst psf; simpl.
+  rewrite <- ps_mul_assoc.
+  apply ps_mul_compat_l.
+  unfold x_power.
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,

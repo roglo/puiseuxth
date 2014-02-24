@@ -910,6 +910,14 @@ rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
+Lemma lap_mul_shuffle0 : ∀ la lb lc,
+  lap_eq f (lap_mul f (lap_mul f la lb) lc) (lap_mul f (lap_mul f la lc) lb).
+Proof.
+intros la lb lc.
+do 2 rewrite <- lap_mul_assoc.
+apply lap_mul_compat; [ reflexivity | apply lap_mul_comm ].
+Qed.
+
 Lemma lap_eq_skipn_succ : ∀ cl i,
   lap_eq f [List.nth i cl .0 f%K … List.skipn (S i) cl] (List.skipn i cl).
 Proof.
