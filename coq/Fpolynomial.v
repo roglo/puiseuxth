@@ -1125,6 +1125,26 @@ apply lap_convol_mul_1_r; simpl.
 rewrite Nat.add_comm; reflexivity.
 Qed.
 
+(* compose theorems *)
+
+Lemma lap_compose_compat : ∀ la lb lc ld,
+  lap_eq f la lc
+  → lap_eq f lb ld
+    → lap_eq f (lap_compose f la lb) (lap_compose f lc ld).
+Proof.
+intros la lb lc ld Hac Hbd.
+rewrite Hac, Hbd; reflexivity.
+Qed.
+
+Theorem poly_compose_compat : ∀ a b c d,
+  (a .= f c)%pol
+  → (b .= f d)%pol
+    → (poly_compose f a b .= f poly_compose f c  d)%pol.
+Proof.
+intros a b c d Hac Hbd.
+apply lap_compose_compat; assumption.
+Qed.
+
 End poly.
 
 (* Horner's algorithm *)
