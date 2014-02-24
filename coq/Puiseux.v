@@ -134,26 +134,29 @@ rewrite <- poly_compose_compose2.
 apply f₁_eq_x_min_β₁_comp; assumption.
 Qed.
 
-bbb.
+Definition lap_summation α (f : field α) g (li : list nat) :=
+  List.fold_right (λ i accu, lap_add f accu (g i)) [] li.
 
-Definition lap_summation α (f : field α) la li :=
-  List.fold_right (λ i accu, lap_add f accu [List.nth i la .0 f])%K [] li.
+Definition poly_summation α (f : field α) g (li : list nat) :=
+  (POL (lap_summation f (λ i, al (g i)) li))%pol.
 
-Definition poly_summation α (f : field α) P li :=
-  (POL (lap_summation f (al P) li))%pol.
-
-Theorem zzz : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
+Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
   → (pol₁ fld pol β₁ γ₁ c₁ .= psf
      POL [x_power fld (- β₁)] .* psf
-     poly_summation fld
-       (POL [c_x_power fld c₁ 0; .1 fld%ps … []]))%pol.
-...
-     POL [x_power fld (- β₁)] .* psf
-...
-     )%pol.
+     poly_summation psf
+       (λ h,
+        POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
+        POL [c_x_power fld c₁ 0; .1 fld%ps … []])
+       (List.seq 0 (length (al pol))))%pol.
 Proof.
-
+intros α fld pol β₁ γ₁ c₁ psf Hpsf.
+rewrite f₁_eq_x_min_β₁_comp2; [ idtac | assumption ].
+apply poly_mul_compat; [ reflexivity | idtac ].
+unfold poly_compose2; simpl.
+unfold lap_compose2, poly_summation; simpl.
+unfold lap_summation; simpl.
+unfold eq_poly; simpl.
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
