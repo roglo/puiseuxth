@@ -150,13 +150,23 @@ induction l as [| x]; intros; [ assumption | idtac ].
 apply Hcomp; assumption.
 Qed.
 
-Lemma xxx : ∀ α (f : field α) la lb n,
+Lemma lap_power_mul : ∀ α (f : field α) la lb n,
   lap_eq f
     (list_power f (lap_mul f la lb) n)
     (lap_mul f (list_power f la n) (list_power f lb n)).
 Proof.
 intros α f la lb n.
-bbb.
+revert la lb.
+induction n; intros; simpl.
+ rewrite lap_mul_1_l; reflexivity.
+
+ rewrite IHn.
+ do 2 rewrite <- lap_mul_assoc.
+ apply lap_mul_compat; [ reflexivity | idtac ].
+ do 2 rewrite lap_mul_assoc.
+ apply lap_mul_compat; [ idtac | reflexivity ].
+ apply lap_mul_comm.
+Qed.
 
 Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
@@ -179,7 +189,7 @@ apply list_fold_right_compat; [ idtac | reflexivity ].
 intros la lb i Heq.
 apply lap_add_compat; [ assumption | idtac ].
 unfold ā, ā_lap.
-rewrite xxx.
+rewrite lap_power_mul.
 rewrite lap_mul_assoc.
 apply lap_mul_compat; [ idtac | reflexivity ].
 bbb.
