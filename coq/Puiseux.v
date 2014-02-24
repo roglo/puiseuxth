@@ -140,11 +140,22 @@ Definition lap_summation α (f : field α) g (li : list nat) :=
 Definition poly_summation α (f : field α) g (li : list nat) :=
   (POL (lap_summation f (λ i, al (g i)) li))%pol.
 
-Lemma xxx : ∀ α β (equal : α → α → Prop) g h (a₀ : α) (l : list β),
-  (∀ x y, equal (g x y) (h x y))
-  → equal (List.fold_right g a₀ l) (List.fold_right h a₀ l).
+Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
+  (∀ x y z, equal x y → equal (g z x) (h z y))
+  → equal a₀ a₀
+    → equal (List.fold_right g a₀ l) (List.fold_right h a₀ l).
 Proof.
-intros α β equal g h a₀ l Heq.
+intros α β equal g h a₀ l Hcomp Heq.
+induction l as [| x]; intros; [ assumption | idtac ].
+apply Hcomp; assumption.
+Qed.
+
+Lemma xxx : ∀ α (f : field α) la lb n,
+  lap_eq f
+    (list_power f (lap_mul f la lb) n)
+    (lap_mul f (list_power f la n) (list_power f lb n)).
+Proof.
+intros α f la lb n.
 bbb.
 
 Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
@@ -154,7 +165,7 @@ Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
      poly_summation psf
        (λ h,
         POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
-        POL [c_x_power fld c₁ 0; .1 fld%ps … []])
+        POL [c_x_power fld c₁ 0; .1 fld%ps … []] .^ psf h)
        (List.seq 0 (length (al pol))))%pol.
 Proof.
 intros α fld pol β₁ γ₁ c₁ psf Hpsf.
@@ -164,8 +175,13 @@ unfold poly_compose2; simpl.
 unfold lap_compose2, poly_summation; simpl.
 unfold lap_summation; simpl.
 unfold eq_poly; simpl.
-apply xxx; intros x y.
-apply lap_add_compat; [ reflexivity | idtac ].
+apply list_fold_right_compat; [ idtac | reflexivity ].
+intros la lb i Heq.
+apply lap_add_compat; [ assumption | idtac ].
+unfold ā, ā_lap.
+rewrite xxx.
+rewrite lap_mul_assoc.
+apply lap_mul_compat; [ idtac | reflexivity ].
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,

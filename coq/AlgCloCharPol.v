@@ -1071,16 +1071,21 @@ rewrite list_nth_coeff_lap_deriv.
 rewrite list_nth_skipn, Nat.add_comm; reflexivity.
 Qed.
 
-Fixpoint list_pow α (f : field α) P n :=
+Fixpoint list_power α (f : field α) la n :=
   match n with
-  | 0%nat => [.1 f%K]
-  | S n₁ => lap_mul f P (list_pow f P n₁)
+  | O => [.1 f%K]
+  | S m => lap_mul f la (list_power f la m)
   end.
+
+Definition poly_power α (f : field α) pol n :=
+  (POL (list_power f (al pol) n))%pol.
+
+Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 
 Definition lap_compose2 α (f : field α) la lb :=
   List.fold_right
     (λ i accu,
-     lap_add f accu (lap_mul f [List.nth i la .0 f] (list_pow f lb i)))%K
+     lap_add f accu (lap_mul f [List.nth i la .0 f] (list_power f lb i)))%K
     [] (List.seq 0 (length la)).
 
 Definition poly_compose2 α (f : field α) a b :=
@@ -1260,13 +1265,13 @@ Lemma fold_add_pow : ∀ α (f : field α) a la lb lc da,
       (λ i accu,
        lap_add f accu
          (lap_mul f [List.nth (S i) [a … la] da]
-            (list_pow f lb (S i))))
+            (list_power f lb (S i))))
       [] lc)
     (lap_mul f lb
        (List.fold_right
           (λ i accu,
            lap_add f accu
-             (lap_mul f [List.nth i la da] (list_pow f lb i)))
+             (lap_mul f [List.nth i la da] (list_power f lb i)))
           [] lc)).
 Proof.
 intros α f a la lb lc da; simpl; clear.
@@ -1548,17 +1553,6 @@ Record algeb_closed_field α :=
     ac_prop_root : ∀ pol, degree ac_is_zero pol ≥ 1
       → (apply_poly ac_field pol (ac_root pol) .= ac_field
          .0 ac_field)%K }.
-
-Fixpoint list_power α (f : field α) la n :=
-  match n with
-  | O => [.1 f%K]
-  | S m => lap_mul f la (list_power f la m)
-  end.
-
-Definition poly_power α (f : field α) pol n :=
-  (POL (list_power f (al pol) n))%pol.
-
-Notation "a .^ f b" := (poly_power f a b) : poly_scope.
 
 Fixpoint list_root_multiplicity α (acf : algeb_closed_field α) c la d :=
   let f := ac_field acf in
