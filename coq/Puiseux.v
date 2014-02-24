@@ -55,6 +55,9 @@ intros α fld la β₁ γ₁ c₁ psf Hpsf.
 unfold lap_pol₁.
 rewrite <- Hpsf.
 apply lap_mul_compat; [ reflexivity | idtac ].
+unfold lap_mul; simpl.
+unfold summation; simpl.
+rewrite fld_add_0_r, fld_mul_0_l, fld_add_0_l, fld_add_0_r.
 bbb.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
