@@ -615,6 +615,7 @@ Definition lap_compose α (f : field α) la lb :=
 
 Definition poly_compose α (f : field α) a b :=
   POL (lap_compose f (al a) (al b))%pol.
+Notation "a .∘ f b" := (poly_compose f a b) : poly_scope.
 
 (* test
 Load Q_field.
