@@ -140,6 +140,13 @@ Definition lap_summation α (f : field α) g (li : list nat) :=
 Definition poly_summation α (f : field α) g (li : list nat) :=
   (POL (lap_summation f (λ i, al (g i)) li))%pol.
 
+Lemma xxx : ∀ α β (equal : α → α → Prop) g h (a₀ : α) (l : list β),
+  (∀ x y, equal (g x y) (h x y))
+  → equal (List.fold_right g a₀ l) (List.fold_right h a₀ l).
+Proof.
+intros α β equal g h a₀ l Heq.
+bbb.
+
 Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
   → (pol₁ fld pol β₁ γ₁ c₁ .= psf
@@ -157,6 +164,8 @@ unfold poly_compose2; simpl.
 unfold lap_compose2, poly_summation; simpl.
 unfold lap_summation; simpl.
 unfold eq_poly; simpl.
+apply xxx; intros x y.
+apply lap_add_compat; [ reflexivity | idtac ].
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
