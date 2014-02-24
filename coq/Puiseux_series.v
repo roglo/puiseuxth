@@ -132,8 +132,7 @@ Definition ps_monom α (f : field α) (c : α) pow :=
      ps_valnum := Qnum pow;
      ps_polord := Qden pow |}.
 
-Definition ps_const α f c : puiseux_series α := ps_monom f c 0.
-Definition ps_one α (f : field α) := ps_const f (fld_one f).
+Definition ps_one α (f : field α) := ps_monom f (fld_one f) 0.
 
 Delimit Scope ps_scope with ps.
 Notation "a ≐ f b" := (eq_ps_strong f a b) (at level 70, f at level 0).

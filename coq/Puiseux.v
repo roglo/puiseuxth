@@ -42,14 +42,50 @@ Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
 Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
 Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
 
-Theorem vvv : ∀ α (fld : field α) la β₁ γ₁ c₁ psf,
+Lemma ps_monom_split_mul : ∀ α (f : field α) c pow,
+  (ps_monom f c pow .= (ps_field f)
+   (ps_monom f c 0 .* f ps_monom f .1 f%K pow)%ps)%K.
+Proof.
+intros α f c pow.
+unfold ps_mul; simpl.
+rewrite series_stretch_1, Z.mul_1_r.
+unfold cm; simpl.
+unfold ps_monom; simpl.
+apply mkps_morphism; try reflexivity.
+constructor; intros i; simpl.
+unfold series_stretch; simpl.
+unfold convol_mul; simpl.
+destruct i; simpl.
+ rewrite summation_only_one; simpl.
+ rewrite Nat.mod_0_l; auto.
+ rewrite Nat.div_0_l; auto; simpl.
+ rewrite fld_mul_1_r; reflexivity.
+
+ rewrite all_0_summation_0; [ reflexivity | idtac ].
+ intros j (_, Hj).
+ destruct j; simpl.
+  rewrite fld_mul_0_r; reflexivity.
+
+  apply le_S_n in Hj.
+  destruct (zerop (S j mod Pos.to_nat (Qden pow))) as [H₁| H₁].
+   apply Nat.mod_divides in H₁; auto.
+   destruct H₁ as (d, Hd).
+   rewrite Nat.mul_comm in Hd.
+   rewrite Hd, Nat.div_mul; auto.
+   destruct d; [ discriminate Hd | simpl ].
+   rewrite fld_mul_0_l; reflexivity.
+
+   rewrite fld_mul_0_l; reflexivity.
+Qed.
+
+Lemma lap_f₁_eq_x_min_β₁_comp : ∀ α (fld : field α) la β₁ γ₁ c₁ psf,
   psf = ps_field fld
   → lap_eq psf (lap_pol₁ fld la β₁ γ₁ c₁)
       (lap_mul psf [x_power fld (- β₁)]
          (lap_compose psf la
             (lap_mul psf
                [x_power fld γ₁]
-               [ps_const fld c₁; .1 fld%ps … []]))).
+               [c_x_power fld c₁ 0; .1 fld%ps … []]))).
 Proof.
 intros α fld la β₁ γ₁ c₁ psf Hpsf.
 unfold lap_pol₁.
@@ -62,24 +98,26 @@ rewrite fld_mul_0_l.
 do 3 rewrite fld_add_0_r.
 subst psf; simpl.
 constructor.
- 2: constructor; [ idtac | reflexivity ].
- 2: rewrite ps_mul_1_r; reflexivity.
+ rewrite ps_mul_comm.
+ apply ps_monom_split_mul.
 
- unfold x_power.
-bbb.
+ constructor; [ idtac | reflexivity ].
+ rewrite ps_mul_1_r; reflexivity.
+Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
-Theorem www : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
+Theorem f₁_eq_x_min_β₁_comp : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
   → (pol₁ fld pol β₁ γ₁ c₁ .= psf
      POL [x_power fld (- β₁)] .* psf
      poly_compose psf pol
        (POL [x_power fld γ₁] .* psf
-        POL [ps_const fld c₁; .1 fld%ps … []]))%pol.
+        POL [c_x_power fld c₁ 0; .1 fld%ps … []]))%pol.
 Proof.
 intros α fld pol β₁ γ₁ c₁ psf Hpsf.
-unfold eq_poly; simpl.
-remember (al pol) as la; clear pol Heqla.
+apply lap_f₁_eq_x_min_β₁_comp; assumption.
+Qed.
+
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
