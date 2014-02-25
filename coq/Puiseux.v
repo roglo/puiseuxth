@@ -354,25 +354,39 @@ Inductive split_seq : nat → list nat → list nat → Prop :=
   | ss_cons_r : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n l₁ [n … l₂].
 
 (*
-Lemma xxx : ∀ α (f : field α) g n₁ n₂ l₁ l₂ k,
-  (∀ n l₂,
-   split_seq n l₁ l₂
-   → lap_eq f
-       (lap_add f (lap_summation f (λ i : nat, al (g i)) l₁)
-          (lap_summation f (λ i : nat, al (g i)) l₂))
-       (lap_summation f (λ i : nat, al (g i))
-          (List.seq n (length l₁ + length l₂))))
-  → split_seq (k + n₂) [n₁ … l₁] l₂
-    → lap_eq f
-        (lap_add f
-           (lap_add f (lap_summation f (λ i : nat, al (g i)) l₁) (al (g n₁)))
-           (lap_summation f (λ i : nat, al (g i)) l₂))
-        (lap_add f
-           (lap_summation f (λ i : nat, al (g i))
-              (List.seq (S k + n₂) (length l₁ + length l₂)))
-           (al (g (k + n₂)%nat))).
+Fixpoint list_merge n l₁ l₂ :=
+  match n with
+  | 0%nat => []
+  | S n₁ =>
+      match l₁ with
+      | [] => l₂
+      | [m₁ … l'₁] =>
+          match l₂ with
+          | [] => l₁
+          | [m₂ … l'₂] =>
+              if lt_dec m₁ m₂
+              then [m₁ … list_merge n₁ l'₁ l₂]
+              else [m₂ … list_merge n₁ l₁ l'₂]
+          end
+      end
+  end.
+
+Lemma xxx : ∀ n l₁ l₂ len,
+  len = (length l₁ + length l₂)%nat
+  → split_seq n l₁ l₂
+    → List.seq n len = list_merge len l₁ l₂.
 Proof.
-intros α f g n₁ n₂ l₁ l₂ k IHl₁ Hss.
+intros n l₁ l₂ len Hlen H.
+bbb.
+revert l₁ l₂ n Hlen H.
+induction len; intros; [ reflexivity | simpl ].
+destruct l₁ as [| x₁]; simpl.
+ simpl in Hlen.
+ destruct l₂ as [| n₂]; [ discriminate Hlen | simpl ].
+ simpl in Hlen.
+ apply eq_add_S in Hlen.
+ inversion H; subst.
+ erewrite IHlen; try eassumption; try reflexivity.
 bbb.
 *)
 
