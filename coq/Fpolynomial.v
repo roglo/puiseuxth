@@ -800,6 +800,16 @@ unfold eq_poly.
 eapply lap_add_assoc; reflexivity.
 Qed.
 
+Lemma lap_add_shuffle0 : ∀ la lb lc,
+  lap_eq f (lap_add f (lap_add f la lb) lc)
+     (lap_add f (lap_add f la lc) lb).
+Proof.
+intros la lb lc.
+do 2 rewrite lap_add_assoc.
+apply lap_add_compat; [ reflexivity | simpl ].
+apply lap_add_comm.
+Qed.
+
 (* multiplication theorems *)
 
 Theorem poly_mul_compat : ∀ a b c d,

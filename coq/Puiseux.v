@@ -348,44 +348,84 @@ induction i; intros; simpl.
   reflexivity.
 Qed.
 
-(* mmm... c'est trop merdique... *)
-Lemma yyy : ∀ α (f : field α) g l₁ l₂ l,
-  (∀ x, x ∈ l₁ → x ∈ l)
-  → (∀ x, x ∈ l₂ → x ∈ l)
-    → (∀ x, x ∈ l ∧ x ∉ l₁ → x ∈ l₂)
-      → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
-         poly_summation f g l)%pol.
+Inductive split_seq : nat → list nat → list nat → Prop :=
+  | ss_nil : ∀ n, split_seq n [] []
+  | ss_cons_l : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n [n … l₁] l₂
+  | ss_cons_r : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n l₁ [n … l₂].
+
+Lemma yyy : ∀ α (f : field α) g n l₁ l₂,
+  split_seq n l₁ l₂
+  → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
+      poly_summation f g (List.seq n (length l₁ + length l₂)))%pol.
 Proof.
-intros α f g l₁ l₂ l Hin₁ Hin₂ Hout.
-revert l₂ l Hin₁ Hin₂ Hout.
-induction l₁ as [| x₁]; intros; simpl.
- unfold poly_summation; simpl.
- unfold eq_poly; simpl.
- assert (l₂ = l) as H.
-  clear Hin₁.
-  simpl in Hout.
-  revert l Hin₂ Hout.
-  induction l₂ as [| x₂]; intros; simpl.
-   destruct l as [| x]; [ reflexivity | simpl ].
-   rename x into y.
-   assert (y ∈ []) as H.
-    apply Hout.
-    split; [ left; reflexivity | intros H; assumption ].
+intros α f g n l₁ l₂ Hss.
+unfold poly_summation; simpl.
+unfold eq_poly; simpl.
+revert n l₂ Hss.
+induction l₁ as [| n₁]; intros; simpl.
+ revert n Hss.
+ induction l₂ as [| n₂]; intros; [ reflexivity | simpl ].
+ inversion Hss; subst.
+ rewrite IHl₂; [ reflexivity | assumption ].
 
-    contradiction.
+ destruct l₂ as [| n₂]; simpl.
+  rewrite Nat.add_0_r.
+  rewrite lap_add_nil_r.
+  inversion Hss; subst.
+  apply lap_add_compat; [ idtac | reflexivity ].
+  clear IHl₁ Hss.
+  assert (l₁ = List.seq (S n₁) (length l₁)) as H.
+   revert H3; clear; intros H.
+   revert n₁ H.
+   induction l₁ as [| n₁]; intros; [ reflexivity | simpl ].
+   rename n₁0 into n₂.
+   inversion H; subst.
+   rewrite <- IHl₁; [ reflexivity | assumption ].
 
-   destruct l as [| y]; simpl.
-    assert (x₂ ∈ []); [ idtac | contradiction ].
-    apply Hin₂; left; reflexivity.
+   rewrite H in |- * at 1; reflexivity.
 
-    assert (x₂ = y); [ idtac | subst x₂ ].
-     assert (x₂ ∈ [y … l]) as H₂.
-      apply Hin₂; left; reflexivity.
+  inversion Hss; subst.
+   replace (S (length l₂)) with (length [n₂ … l₂]) by reflexivity.
+   rewrite <- IHl₁; [ simpl | assumption ].
+   do 3 rewrite lap_add_assoc.
+   apply lap_add_compat; [ reflexivity | idtac ].
+   rewrite lap_add_comm, lap_add_assoc; reflexivity.
 
-      assert (y ∈ [x₂ … l]) as H₁.
-       simpl in H₂.
-       destruct H₂ as [H₂| H₂].
-        subst y; left; reflexivity.
+   rewrite <- lap_add_assoc.
+   apply lap_add_compat; [ idtac | reflexivity ].
+   clear Hss; rename H2 into Hss.
+   rewrite Nat.add_succ_r; simpl.
+   rewrite lap_add_shuffle0.
+   inversion Hss; subst.
+    rewrite IHl₁; [ reflexivity | eassumption ].
+
+    rewrite lap_add_shuffle0. 
+    rename l₂0 into l₂; simpl.
+    rewrite <- lap_add_assoc.
+    apply lap_add_compat; [ idtac | reflexivity ].
+    clear Hss; rename H into Hss.
+    rewrite Nat.add_succ_r; simpl.
+    inversion Hss; subst.
+     rewrite lap_add_shuffle0.
+     rewrite IHl₁; [ reflexivity | eassumption ].
+
+     rename l₂0 into l₂; simpl.
+     rewrite <- lap_add_assoc.
+     apply lap_add_compat; [ idtac | reflexivity ].
+     clear Hss; rename H into Hss.
+     rewrite Nat.add_succ_r; simpl.
+     inversion Hss; subst.
+      rewrite lap_add_shuffle0.
+      rewrite IHl₁; [ reflexivity | eassumption ].
+
+      rename l₂0 into l₂; simpl.
+      rewrite <- lap_add_assoc.
+      apply lap_add_compat; [ idtac | reflexivity ].
+      clear Hss; rename H into Hss.
+      rewrite Nat.add_succ_r; simpl.
+      inversion Hss; subst.
+       rewrite lap_add_shuffle0.
+       rewrite IHl₁; [ reflexivity | eassumption ].
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
