@@ -240,6 +240,25 @@ induction n; simpl.
  rewrite ps_mul_assoc.
  rewrite fld_mul_shuffle0; simpl.
  rewrite <- IHn.
+ assert (Qnat (S n) * p == Qnat n * p + p) as H.
+  unfold Qnat; simpl.
+  rewrite Zpos_P_of_succ_nat.
+  unfold Qmult, Qplus; simpl.
+  unfold Qeq.
+  simpl.
+  rewrite <- Z.mul_add_distr_r.
+  rewrite Pos2Z.inj_mul.
+  symmetry.
+  rewrite <- Z.mul_assoc.
+  apply Z.mul_cancel_r.
+   simpl.
+   apply Pos2Z_ne_0.
+
+   unfold Z.succ; simpl.
+   rewrite Z.mul_add_distr_r.
+   rewrite Z.mul_1_l; reflexivity.
+
+  rewrite H.
 bbb.
 *)
 
