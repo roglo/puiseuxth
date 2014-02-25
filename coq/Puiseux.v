@@ -356,7 +356,7 @@ Inductive split_seq : nat → list nat → list nat → Prop :=
 Lemma yyy : ∀ α (f : field α) g n l₁ l₂,
   split_seq n l₁ l₂
   → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
-      poly_summation f g (List.seq n (length l₁ + length l₂)))%pol.
+     poly_summation f g (List.seq n (length l₁ + length l₂)))%pol.
 Proof.
 intros α f g n l₁ l₂ Hss.
 unfold poly_summation; simpl.
@@ -395,11 +395,10 @@ induction l₁ as [| n₁]; intros; simpl.
    apply lap_add_compat; [ idtac | reflexivity ].
    clear Hss; rename H2 into Hss.
    rewrite Nat.add_succ_r; simpl.
-   rewrite lap_add_shuffle0.
    inversion Hss; subst.
+    rewrite lap_add_shuffle0.
     rewrite IHl₁; [ reflexivity | eassumption ].
 
-    rewrite lap_add_shuffle0. 
     rename l₂0 into l₂; simpl.
     rewrite <- lap_add_assoc.
     apply lap_add_compat; [ idtac | reflexivity ].
