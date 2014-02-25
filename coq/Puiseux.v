@@ -348,6 +348,44 @@ induction i; intros; simpl.
   reflexivity.
 Qed.
 
+(* mmm... c'est trop merdique... *)
+Lemma yyy : ∀ α (f : field α) g l₁ l₂ l,
+  (∀ x, x ∈ l₁ → x ∈ l)
+  → (∀ x, x ∈ l₂ → x ∈ l)
+    → (∀ x, x ∈ l ∧ x ∉ l₁ → x ∈ l₂)
+      → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
+         poly_summation f g l)%pol.
+Proof.
+intros α f g l₁ l₂ l Hin₁ Hin₂ Hout.
+revert l₂ l Hin₁ Hin₂ Hout.
+induction l₁ as [| x₁]; intros; simpl.
+ unfold poly_summation; simpl.
+ unfold eq_poly; simpl.
+ assert (l₂ = l) as H.
+  clear Hin₁.
+  simpl in Hout.
+  revert l Hin₂ Hout.
+  induction l₂ as [| x₂]; intros; simpl.
+   destruct l as [| x]; [ reflexivity | simpl ].
+   rename x into y.
+   assert (y ∈ []) as H.
+    apply Hout.
+    split; [ left; reflexivity | intros H; assumption ].
+
+    contradiction.
+
+   destruct l as [| y]; simpl.
+    assert (x₂ ∈ []); [ idtac | contradiction ].
+    apply Hin₂; left; reflexivity.
+
+    assert (x₂ = y); [ idtac | subst x₂ ].
+     assert (x₂ ∈ [y … l]) as H₂.
+      apply Hin₂; left; reflexivity.
+
+      assert (y ∈ [x₂ … l]) as H₁.
+       simpl in H₂.
+       destruct H₂ as [H₂| H₂].
+        subst y; left; reflexivity.
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
