@@ -183,7 +183,7 @@ constructor.
  apply ps_monom_split_mul.
 
  constructor; [ idtac | reflexivity ].
- rewrite ps_mul_1_r; reflexivity.
+ rewrite fld_mul_1_r; reflexivity.
 Qed.
 
 (* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
@@ -255,7 +255,7 @@ Lemma ps_monom_mul_r_pow : ∀ α (f : field α) c p n,
 Proof.
 intros α f c p n.
 induction n; simpl.
- rewrite ps_mul_1_r.
+ rewrite fld_mul_1_r.
  unfold Qnat; simpl.
  rewrite Qmult_0_l; reflexivity.
 
