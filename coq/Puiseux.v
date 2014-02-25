@@ -102,39 +102,61 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Lemma ps_monom_split_mul : ∀ α (f : field α) c pow,
-  (ps_monom f c pow .= f ps_monom f c 0 .* f ps_monom f .1 f%K pow)%ps.
+Lemma ps_monom_add_r : ∀ α (f : field α) c p q,
+ (ps_monom f c (p + q) .= f
+  ps_monom f c p .* f ps_monom f .1 f%K q)%ps.
 Proof.
-intros α f c pow.
+intros α f c p q.
 unfold ps_mul; simpl.
-rewrite series_stretch_1, Z.mul_1_r.
 unfold cm; simpl.
 unfold ps_monom; simpl.
 apply mkps_morphism; try reflexivity.
+unfold ps_mul; simpl.
+unfold cm; simpl.
+unfold ps_monom; simpl.
 constructor; intros i; simpl.
 unfold series_stretch; simpl.
 unfold convol_mul; simpl.
 destruct i; simpl.
  rewrite summation_only_one; simpl.
- rewrite Nat.mod_0_l; auto.
+ rewrite Nat.mod_0_l; auto; simpl.
+ rewrite Nat.mod_0_l; auto; simpl.
+ rewrite Nat.div_0_l; auto; simpl.
  rewrite Nat.div_0_l; auto; simpl.
  rewrite fld_mul_1_r; reflexivity.
 
- rewrite all_0_summation_0; [ reflexivity | idtac ].
+ rewrite all_0_summation_0; [ reflexivity | simpl ].
  intros j (_, Hj).
  destruct j; simpl.
-  rewrite fld_mul_0_r; reflexivity.
+  rewrite Nat.mod_0_l; auto; simpl.
+  rewrite Nat.div_0_l; auto; simpl.
+  destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
+   apply Nat.mod_divides in H; auto.
+   destruct H as (d, Hd).
+   rewrite Nat.mul_comm in Hd; rewrite Hd.
+   rewrite Nat.div_mul; auto.
+   destruct d; [ discriminate Hd | simpl ].
+   rewrite fld_mul_0_r; reflexivity.
 
-  apply le_S_n in Hj.
-  destruct (zerop (S j mod Pos.to_nat (Qden pow))) as [H₁| H₁].
-   apply Nat.mod_divides in H₁; auto.
-   destruct H₁ as (d, Hd).
-   rewrite Nat.mul_comm in Hd.
-   rewrite Hd, Nat.div_mul; auto.
+   rewrite fld_mul_0_r; reflexivity.
+
+  destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
+   apply Nat.mod_divides in H; auto.
+   destruct H as (d, Hd).
+   rewrite Nat.mul_comm in Hd; rewrite Hd.
+   rewrite Nat.div_mul; auto.
    destruct d; [ discriminate Hd | simpl ].
    rewrite fld_mul_0_l; reflexivity.
 
    rewrite fld_mul_0_l; reflexivity.
+Qed.
+
+Lemma ps_monom_split_mul : ∀ α (f : field α) c pow,
+  (ps_monom f c pow .= f ps_monom f c 0 .* f ps_monom f .1 f%K pow)%ps.
+Proof.
+intros α f c pow.
+rewrite <- ps_monom_add_r.
+rewrite Qplus_0_l; reflexivity.
 Qed.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ α (fld : field α) la β₁ γ₁ c₁ psf,
@@ -259,10 +281,11 @@ induction n; simpl.
    rewrite Z.mul_1_l; reflexivity.
 
   rewrite H.
-bbb.
-*)
+  rewrite ps_monom_add_r.
+  reflexivity.
+Qed.
 
-Theorem yyy : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
+Theorem f₁_eq_x_min_β₁_summation : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
   psf = ps_field fld
   → (pol₁ fld pol β₁ γ₁ c₁ .= psf
      POL [x_power fld (- β₁)] .* psf
@@ -297,7 +320,7 @@ induction i; intros; simpl.
  rewrite <- ps_mul_1_r in |- * at 1.
  apply ps_mul_compat_l.
  unfold x_power; simpl.
- rewrite ps_monom_mul_0; reflexivity.
+ rewrite Qmult_0_l; reflexivity.
 
  destruct la as [| a]; simpl.
   rewrite lap_mul_assoc; simpl.
@@ -318,6 +341,13 @@ induction i; intros; simpl.
   rewrite <- ps_mul_assoc.
   apply ps_mul_compat_l.
   unfold x_power.
+  rewrite ps_monom_mul_r_pow; symmetry.
+  rewrite ps_monom_mul_r_pow; symmetry.
+  rewrite fld_mul_shuffle0; simpl.
+  rewrite fld_mul_assoc; simpl.
+  reflexivity.
+Qed.
+
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
