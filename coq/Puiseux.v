@@ -353,6 +353,29 @@ Inductive split_seq : nat → list nat → list nat → Prop :=
   | ss_cons_l : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n [n … l₁] l₂
   | ss_cons_r : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n l₁ [n … l₂].
 
+(*
+Lemma xxx : ∀ α (f : field α) g n₁ n₂ l₁ l₂ k,
+  (∀ n l₂,
+   split_seq n l₁ l₂
+   → lap_eq f
+       (lap_add f (lap_summation f (λ i : nat, al (g i)) l₁)
+          (lap_summation f (λ i : nat, al (g i)) l₂))
+       (lap_summation f (λ i : nat, al (g i))
+          (List.seq n (length l₁ + length l₂))))
+  → split_seq (k + n₂) [n₁ … l₁] l₂
+    → lap_eq f
+        (lap_add f
+           (lap_add f (lap_summation f (λ i : nat, al (g i)) l₁) (al (g n₁)))
+           (lap_summation f (λ i : nat, al (g i)) l₂))
+        (lap_add f
+           (lap_summation f (λ i : nat, al (g i))
+              (List.seq (S k + n₂) (length l₁ + length l₂)))
+           (al (g (k + n₂)%nat))).
+Proof.
+intros α f g n₁ n₂ l₁ l₂ k IHl₁ Hss.
+bbb.
+*)
+
 Lemma yyy : ∀ α (f : field α) g n l₁ l₂,
   split_seq n l₁ l₂
   → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
