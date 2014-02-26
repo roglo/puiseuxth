@@ -1121,6 +1121,20 @@ rewrite lap_mul_comm, lap_mul_add_distr_l, lap_mul_comm.
 apply lap_add_compat; [ reflexivity | apply lap_mul_comm ].
 Qed.
 
+Lemma poly_mul_add_distr_l : ∀ P Q R,
+  (P .* f (Q .+ f R) .= f P .* f Q .+ f P .* f R)%pol.
+Proof.
+intros P Q R.
+apply lap_mul_add_distr_l.
+Qed.
+
+Lemma poly_mul_add_distr_r : ∀ P Q R,
+  ((P .+ f Q) .* f R .= f P .* f R .+ f Q .* f R)%pol.
+Proof.
+intros P Q R.
+apply lap_mul_add_distr_r.
+Qed.
+
 Lemma lap_convol_mul_1_r : ∀ la i len,
   (i + len = length la)%nat
   → lap_eq f (lap_convol_mul f la [.1 f%K] i len) (List.skipn i la).

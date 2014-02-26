@@ -398,181 +398,37 @@ induction l₁ as [| n₁]; intros; simpl.
    rewrite Nat.add_succ_r; reflexivity.
 Qed.
 
-bbb.
-
-Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
-  ns ∈ newton_segments fld pol
-  → j = nofq (fst (ini_pt ns))
-    → k = nofq (fst (fin_pt ns))
-      → psf = ps_field fld
-        → (pol₁ fld pol β₁ γ₁ c₁ .= psf
-           POL [x_power fld (- β₁)] .* psf
-           ps_poly_summation fld pol j k
-             (λ h,
-              POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
-              (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf h) .+ psf
-           (POL [x_power fld (- β₁)] .* psf
-            ps_poly_summation fld pol 0 (pred j)
-              (λ l,
-               POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
-               (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf l) .+ psf
-            POL [x_power fld (- β₁)] .* psf
-            ps_poly_summation fld pol (S k) (length (al pol))
-              (λ l,
-               POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
-               (POL [ps_const fld c₁; .1 fld%ps … []]) .^ psf l)))%pol.
+(* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
+Theorem  f₁_eq_x_min_β₁_summation_split :
+    ∀ α (fld : field α) pol β₁ γ₁ c₁ l₁ l₂ psf,
+  psf = ps_field fld
+  → split_seq 0 l₁ l₂
+    → (length l₁ + length l₂)%nat = length (al pol)
+      → (pol₁ fld pol β₁ γ₁ c₁ .= psf
+         POL [x_power fld (- β₁)] .* psf
+         poly_summation psf
+           (λ h,
+            POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
+            POL [c_x_power fld c₁ 0; .1 fld%ps … []] .^ psf h)
+            l₁ .+ psf
+         POL [x_power fld (- β₁)] .* psf
+         poly_summation psf
+           (λ l,
+            POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
+            POL [c_x_power fld c₁ 0; .1 fld%ps … []] .^ psf l)
+            l₂)%pol.
 Proof.
-intros α fld pol ns j k β₁ γ₁ c₁ psf Hns Hj Hk Hpsf.
-bbb.
-
-        → (pol₁ fld f β₁ γ₁ c₁ =
-           POL [x_power fld (- β₁)] *
-           ps_poly_summation fld pol j k
-             (λ h,
-              POL [(ā fld h pol * x_power fld (Qnat h * γ₁))%ps] *
-              (POL [ps_const fld c₁; .1 fld%ps … []]) ^ h) +
-           (POL [x_power fld (- β₁)] *
-            ps_poly_summation fld pol 0 (pred j)
-              (λ l,
-               POL [(ā fld l pol * x_power fld (Qnat l * γ₁))%ps] *
-               (POL [ps_const fld c₁; .1 fld%ps … []]) ^ l) +
-            POL [x_power fld (- β₁)] *
-            ps_poly_summation fld pol (S k) (length (al pol))
-              (λ l,
-               POL [(ā fld l pol * x_power fld (Qnat l * γ₁))%ps] *
-               (POL [ps_const fld c₁; .1 fld%ps … []]) ^ l)))%pol.
-Proof.
+intros α fld pol β₁ γ₁ c₁ l₁ l₂ psf Hpsf Hss Hlen.
+rewrite <- poly_mul_add_distr_l.
+rewrite split_summation; [ rewrite Hlen | eassumption ].
+apply f₁_eq_x_min_β₁_summation; assumption.
+Qed.
 
 bbb.
 
 (* old stuff; to be used later perhaps *)
 
 (*
-Lemma summation_fold_compat : ∀ α (f : field α) a b c d,
-  (a .= f c)%pol
-  → (b .= f d)%pol
-    → (List.fold_right
-         (λ x accu, accu .* f b .+ f {| al := [x] |}) {| al := [] |} 
-         (al a) .= f
-       List.fold_right
-         (λ x accu, accu .* f d .+ f {| al := [x] |}) {| al := [] |} 
-         (al c))%pol.
-Proof.
-intros α f a b c d Hac Hbd.
-inversion_clear Hac.
- inversion_clear Hbd; reflexivity.
-
- simpl; apply poly_add_compat.
-  apply poly_mul_compat; [ idtac | assumption ].
-  revert l' H0.
-  induction l; intros.
-   inversion_clear H0; reflexivity.
-
-   inversion_clear H0; simpl.
-   apply poly_add_compat.
-    apply poly_mul_compat; [ idtac | assumption ].
-    apply IHl; assumption.
-
-    constructor; [ assumption | constructor ].
-
-  constructor; [ assumption | constructor ].
-Qed.
-
-
-Add Parametric Morphism α (fld : field α) : (@apply_poly_with_poly α fld)
-  with signature eq_poly fld ==> eq_poly fld ==> eq_poly fld
-  as apply_poly_with_poly_morph.
-Proof.
-intros a c Hac b d Hbd.
-unfold apply_poly_with_poly, apply_poly.
-rewrite summation_fold_compat; try eassumption.
-reflexivity.
-Qed.
-
-(* exercise... *)
-
-Section field.
-
-Variable α : Type.
-Variable acf : algeb_closed_field α.
-Let fld := ac_field acf.
-
-(* c.x^γ + y.x^y = (c + y).x^γ *)
-Lemma x_pow_γ_mul_add_distr_r : ∀ c γ,
-  (POL [ps_monom fld c γ; ps_monom fld .1 fld%K γ … []] .= 
-   (ps_field fld)
-   POL [ps_const fld c; .1 fld%ps … []] .* (ps_field fld)
-   POL [ps_monom fld .1 fld%K γ])%pol.
-Proof.
-intros c γ.
-constructor.
- rewrite summation_only_one.
- rewrite Nat.sub_diag; simpl.
- unfold ps_mul; simpl.
- rewrite series_stretch_1.
- rewrite Z.mul_1_r.
- unfold cm; simpl.
- unfold ps_monom.
- rewrite series_mul_1_r.
- rewrite fold_series_const.
- rewrite stretch_series_const.
- reflexivity.
-
- constructor; [ idtac | constructor ].
- unfold summation.
- rewrite Nat.sub_0_r.
- unfold summation_aux.
- rewrite Nat.sub_0_r; simpl.
- rewrite ps_mul_1_l.
- rewrite ps_add_0_r.
- rewrite ps_mul_0_r.
- rewrite ps_add_0_l.
- reflexivity.
-Qed.
-
-Lemma fold_eq_ps : fld_eq (ps_field fld) = eq_ps fld.
-Proof. reflexivity. Qed.
-
-Lemma pol₁_eq_f'₁ : ∀ f β₁ γ₁ c₁,
-  (pol₁ fld f β₁ γ₁ c₁ .= (ps_field fld) f'₁ fld f β₁ γ₁ c₁)%pol.
-Proof.
-intros f β₁ γ₁ c₁.
-unfold pol₁, f'₁.
-remember POL [ps_monom fld .1 fld%K γ₁]%pol as p.
-remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
-remember (p .* (ps_field fld) p')%pol as p₁; subst p p'.
-remember POL [ps_monom fld c₁ γ₁; ps_monom fld .1 fld%K γ₁ … []]%pol as p₂.
-assert (p₁ .= (ps_field fld) p₂)%pol as Heq.
- subst p₁ p₂.
- constructor.
-  rewrite summation_only_one.
-  rewrite Nat.sub_diag; simpl.
-  unfold ps_mul; simpl.
-  rewrite series_stretch_1.
-  do 2 rewrite fold_series_const.
-  rewrite stretch_series_const.
-  rewrite series_mul_1_l.
-  rewrite Z.add_0_r, Z.mul_1_r.
-  unfold cm; simpl.
-  rewrite Pos.mul_1_r.
-  reflexivity.
-
-  constructor; [ idtac | constructor ].
-  remember POL [ps_monom fld .1 fld%K γ₁]%pol as p.
-  remember POL [ps_const fld c₁; .1 fld%ps … []]%pol as p'.
-  unfold summation, summation_aux; simpl.
-  subst p p'; simpl.
-  rewrite ps_mul_1_r, ps_add_0_r, ps_mul_0_l, ps_add_0_r.
-  reflexivity.
-
- rewrite Heq; reflexivity.
-Qed.
-
-(* *)
-
-(*
-bbb.
-
 Definition zero_is_root (pol : polynomial (puiseux_series α)) :=
   match al pol with
   | [] => false
