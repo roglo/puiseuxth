@@ -481,7 +481,7 @@ Qed.
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+γ₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
    » *)
-Theorem zzz : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
+Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
@@ -508,6 +508,14 @@ Theorem zzz : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
                  POL [(ā K l pol .* K x_power K (Qnat l * γ₁))%ps] .* Kx
                  POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx l)))%pol.
 Proof.
+intros pol ns β₁ γ₁ c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
+rewrite poly_mul_add_distr_l.
+rewrite <- poly_add_assoc.
+rewrite <- poly_mul_add_distr_l.
+rewrite <- summation_split_val; try eassumption.
+apply f₁_eq_x_min_β₁_summation_split; assumption.
+Qed.
+
 bbb.
 
 (* old stuff; to be used later perhaps *)
