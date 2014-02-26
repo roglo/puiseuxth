@@ -381,8 +381,11 @@ induction i; intros; simpl.
   reflexivity.
 Qed.
 
+(* [Walker, p. 100] «
+    f₁(x,y₁) = x^(-β₁)Σāh.x^(h.γ₁).(c₁+y₁)^h + x^(-β₁)Σāl.x^(l.γ₁).(c₁+y₁)^l
+  » *)
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
-Theorem  f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
+Theorem f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
   split_list (List.seq 0 (length (al pol))) l₁ l₂
   → (pol₁ K pol β₁ γ₁ c₁ .= Kx
      POL [x_power K (- β₁)] .* Kx
@@ -401,6 +404,36 @@ rewrite <- poly_mul_add_distr_l.
 rewrite split_summation; [ idtac | eassumption ].
 apply f₁_eq_x_min_β₁_summation; assumption.
 Qed.
+
+Let pht := {| coeff := .0 K%K; power := O |}.
+
+(* Σāh.x^(hγ₁).(c₁+y₁)^h =
+   Σah.x^(αh+hγ₁).(c₁+γ₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+γ₁)^h *)
+Lemma zzz : ∀ pol ns γ₁ c₁ pl tl l,
+  ns ∈ newton_segments K pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point K pol) pl
+      → l = List.map (λ t, power t) tl
+        → (poly_summation Kx l
+             (λ h,
+              POL [(ā K h pol .* K x_power K (Qnat h * γ₁))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
+           poly_summation Kx l
+             (λ h,
+              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let αh := snd (List.nth h pl (0, 0)) in
+              POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+           poly_summation Kx l
+             (λ h,
+              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let αh := snd (List.nth h pl (0, 0)) in
+              POL [((ā K h pol .- K ah .* K x_power K αh) .* K
+                    x_power K (Qnat h * γ₁))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
+Proof.
+intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
+bbb.
 
 bbb.
 
