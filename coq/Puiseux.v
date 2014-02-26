@@ -261,6 +261,19 @@ induction n; simpl.
   reflexivity.
 Qed.
 
+Lemma poly_summation_add : ∀ g h l,
+  (poly_summation K l g .+ K poly_summation K l h .= K
+   poly_summation K l (λ i, g i .+ K h i))%pol.
+Proof.
+intros g h l.
+unfold poly_summation, eq_poly; simpl.
+induction l as [| i]; intros; [ reflexivity | simpl ].
+do 2 rewrite <- lap_add_assoc.
+apply lap_add_compat; [ idtac | reflexivity ].
+rewrite lap_add_shuffle0.
+apply lap_add_compat; [ assumption | reflexivity ].
+Qed.
+
 End on_fields.
 
 Section theorems.
@@ -433,8 +446,7 @@ Lemma zzz : ∀ pol ns γ₁ c₁ pl tl l,
                POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
 intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
-bbb.
-
+rewrite poly_summation_add; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
