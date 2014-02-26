@@ -274,6 +274,15 @@ rewrite lap_add_shuffle0.
 apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
+Lemma lap_eq_list_fold_right : ∀ β g h x (l : list β),
+  (∀ i a b, lap_eq K a b → lap_eq K (g i a) (h i b))
+  → lap_eq K (List.fold_right g x l) (List.fold_right h x l).
+Proof.
+intros β g h x l H.
+induction l; intros; [ reflexivity | simpl ].
+apply H; assumption.
+Qed.
+
 End on_fields.
 
 Section theorems.
@@ -447,6 +456,25 @@ Lemma zzz : ∀ pol ns γ₁ c₁ pl tl l,
 Proof.
 intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
 rewrite poly_summation_add; simpl.
+unfold eq_poly; simpl.
+unfold lap_summation; simpl.
+apply lap_eq_list_fold_right; intros i a b Heq.
+apply lap_add_compat; [ assumption | simpl ].
+rewrite <- lap_mul_add_distr_r; simpl.
+apply lap_mul_compat; [ idtac | reflexivity ].
+constructor; [ simpl | reflexivity ].
+unfold x_power.
+rewrite ps_monom_add_r.
+rewrite fld_mul_assoc.
+rewrite fld_mul_add_distr_r.
+subst Kx; simpl.
+rewrite fld_mul_opp_l; simpl.
+rewrite fld_add_assoc; simpl.
+rewrite fld_add_comm; simpl.
+rewrite fld_add_assoc; simpl.
+rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
+Qed.
+
 bbb.
 
 (* old stuff; to be used later perhaps *)
