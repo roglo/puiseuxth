@@ -348,6 +348,14 @@ induction i; intros; simpl.
   reflexivity.
 Qed.
 
+(* [split n l₁ l₂] is a proposition which means that l₁ and l₂ are two
+   disjoint sub-lists covering [n; n+1; n+2 ... n+len] such that len is
+   [length l₁ + length l₂].
+     For example, if
+        l₁=[3; 6; 7]
+        l₂=[0; 1; 2; 4; 5; 8]
+     we have
+        [split 0 l₁ l₂] *)
 Inductive split_seq : nat → list nat → list nat → Prop :=
   | ss_nil : ∀ n, split_seq n [] []
   | ss_cons_l : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n [n … l₁] l₂
