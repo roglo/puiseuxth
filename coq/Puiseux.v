@@ -25,22 +25,22 @@ Set Implicit Arguments.
 (* *)
 
 Definition c_x_power := ps_monom.
-Definition x_power α (fld : field α) q := (ps_monom fld .1 fld q)%K.
-Definition var_y α (fld : field α) := [.0 fld; .1 fld … []]%K.
+Definition x_power α (K : field α) q := (ps_monom K .1 K q)%K.
+Definition var_y α (K : field α) := [.0 K; .1 K … []]%K.
 
 (* pol₁(x,y₁) = x^(-β₁).pol(x,x^γ₁.(c₁ + y₁)) *)
-Definition lap_pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
-  lap_mul (ps_field fld) [x_power fld (- β₁)]
-    (lap_compose (ps_field fld) pol
-       [c_x_power fld c₁ γ₁; x_power fld γ₁ … []]).
+Definition lap_pol₁ α (K : field α) pol β₁ γ₁ c₁ :=
+  lap_mul (ps_field K) [x_power K (- β₁)]
+    (lap_compose (ps_field K) pol
+       [c_x_power K c₁ γ₁; x_power K γ₁ … []]).
 
-Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
-  (POL (lap_pol₁ fld (al pol) β₁ γ₁ c₁))%pol.
+Definition pol₁ α (K : field α) pol β₁ γ₁ c₁ :=
+  (POL (lap_pol₁ K (al pol) β₁ γ₁ c₁))%pol.
 
 (* *)
 
-Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
-Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
+Definition ā_lap α (K : field α) h la := (List.nth h la .0 K)%ps.
+Definition ā α (K : field α) h pol := (ā_lap K h (al pol)).
 
 Definition lap_summation α (f : field α) (li : list nat) g :=
   List.fold_right (λ i accu, lap_add f accu (g i)) [] li.
@@ -54,26 +54,6 @@ Inductive split_list α : list α → list α → list α → Prop :=
       split_list l l₁ l₂ → split_list [x … l] [x … l₁] l₂
   | sl_cons_r : ∀ x l l₁ l₂,
       split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
-
-Lemma split_summation : ∀ α (K : field α) g l l₁ l₂,
-  split_list l l₁ l₂
-  → (poly_summation K l₁ g .+ K poly_summation K l₂ g .= K
-     poly_summation K l g)%pol.
-Proof.
-intros α K g l l₁ l₂ Hss.
-unfold poly_summation; simpl.
-unfold eq_poly; simpl.
-revert l₁ l₂ Hss.
-induction l as [| n]; intros; simpl.
- inversion Hss; subst; reflexivity.
-
- inversion Hss; subst; simpl.
-  rewrite lap_add_shuffle0.
-  rewrite IHl; [ reflexivity | assumption ].
-
-  rewrite <- lap_add_assoc.
-  rewrite IHl; [ reflexivity | assumption ].
-Qed.
 
 Add Parametric Morphism α (f : field α) : (ps_monom f)
   with signature fld_eq f ==> Qeq ==> eq_ps f
@@ -135,11 +115,46 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Lemma ps_monom_add_r : ∀ α (f : field α) c p q,
- (ps_monom f c (p + q) .= f
-  ps_monom f c p .* f ps_monom f .1 f%K q)%ps.
+Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
+  (∀ x y z, equal x y → equal (g z x) (h z y))
+  → equal a₀ a₀
+    → equal (List.fold_right g a₀ l) (List.fold_right h a₀ l).
 Proof.
-intros α f c p q.
+intros α β equal g h a₀ l Hcomp Heq.
+induction l as [| x]; intros; [ assumption | idtac ].
+apply Hcomp; assumption.
+Qed.
+
+Section on_fields.
+
+Variable α : Type.
+Variable K : field α.
+
+Lemma split_summation : ∀ g l l₁ l₂,
+  split_list l l₁ l₂
+  → (poly_summation K l₁ g .+ K poly_summation K l₂ g .= K
+     poly_summation K l g)%pol.
+Proof.
+intros g l l₁ l₂ Hss.
+unfold poly_summation; simpl.
+unfold eq_poly; simpl.
+revert l₁ l₂ Hss.
+induction l as [| n]; intros; simpl.
+ inversion Hss; subst; reflexivity.
+
+ inversion Hss; subst; simpl.
+  rewrite lap_add_shuffle0.
+  rewrite IHl; [ reflexivity | assumption ].
+
+  rewrite <- lap_add_assoc.
+  rewrite IHl; [ reflexivity | assumption ].
+Qed.
+
+Lemma ps_monom_add_r : ∀ c p q,
+ (ps_monom K c (p + q) .= K
+  ps_monom K c p .* K ps_monom K .1 K%K q)%ps.
+Proof.
+intros c p q.
 unfold ps_mul; simpl.
 unfold cm; simpl.
 unfold ps_monom; simpl.
@@ -184,30 +199,20 @@ destruct i; simpl.
    rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma ps_monom_split_mul : ∀ α (f : field α) c pow,
-  (ps_monom f c pow .= f ps_monom f c 0 .* f ps_monom f .1 f%K pow)%ps.
+Lemma ps_monom_split_mul : ∀ c pow,
+  (ps_monom K c pow .= K ps_monom K c 0 .* K ps_monom K .1 K%K pow)%ps.
 Proof.
-intros α f c pow.
+intros c pow.
 rewrite <- ps_monom_add_r.
 rewrite Qplus_0_l; reflexivity.
 Qed.
 
-Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
-  (∀ x y z, equal x y → equal (g z x) (h z y))
-  → equal a₀ a₀
-    → equal (List.fold_right g a₀ l) (List.fold_right h a₀ l).
+Lemma lap_power_mul : ∀ la lb n,
+  lap_eq K
+    (lap_power K (lap_mul K la lb) n)
+    (lap_mul K (lap_power K la n) (lap_power K lb n)).
 Proof.
-intros α β equal g h a₀ l Hcomp Heq.
-induction l as [| x]; intros; [ assumption | idtac ].
-apply Hcomp; assumption.
-Qed.
-
-Lemma lap_power_mul : ∀ α (f : field α) la lb n,
-  lap_eq f
-    (lap_power f (lap_mul f la lb) n)
-    (lap_mul f (lap_power f la n) (lap_power f lb n)).
-Proof.
-intros α f la lb n.
+intros la lb n.
 revert la lb.
 induction n; intros; simpl.
  rewrite lap_mul_1_l; reflexivity.
@@ -220,11 +225,11 @@ induction n; intros; simpl.
  apply lap_mul_comm.
 Qed.
 
-Lemma ps_monom_mul_r_pow : ∀ α (f : field α) c p n,
-  (ps_monom f c (Qnat n * p) .= f
-   ps_monom f c 0 .* f ps_monom f .1 f%K p .^ f n)%ps.
+Lemma ps_monom_mul_r_pow : ∀ c p n,
+  (ps_monom K c (Qnat n * p) .= K
+   ps_monom K c 0 .* K ps_monom K .1 K%K p .^ K n)%ps.
 Proof.
-intros α f c p n.
+intros c p n.
 induction n; simpl.
  rewrite fld_mul_1_r.
  unfold Qnat; simpl.
@@ -255,6 +260,8 @@ induction n; simpl.
   rewrite ps_monom_add_r.
   reflexivity.
 Qed.
+
+End on_fields.
 
 Section theorems.
 
