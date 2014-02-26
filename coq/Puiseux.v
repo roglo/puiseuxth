@@ -431,28 +431,28 @@ Let pht := {| coeff := .0 K%K; power := O |}.
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+γ₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+γ₁)^h *)
-Lemma zzz : ∀ pol ns γ₁ c₁ pl tl l,
+Lemma summation_split_val_ : ∀ pol ns γ₁ c₁ pl tl l,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
       → l = List.map (λ t, power t) tl
         → (poly_summation Kx l
-              (λ h,
-               POL [(ā K h pol .* K x_power K (Qnat h * γ₁))%ps] .* Kx
-               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
-            poly_summation Kx l
-              (λ h,
-               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-               let αh := snd (List.nth h pl (0, 0)) in
-               POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
-               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
-            poly_summation Kx l
-              (λ h,
-               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-               let αh := snd (List.nth h pl (0, 0)) in
-               POL [((ā K h pol .- K ah .* K x_power K αh) .* K
-                     x_power K (Qnat h * γ₁))%ps] .* Kx
-               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
+             (λ h,
+              POL [(ā K h pol .* K x_power K (Qnat h * γ₁))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
+           poly_summation Kx l
+             (λ h,
+              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let αh := snd (List.nth h pl (0, 0)) in
+              POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+           poly_summation Kx l
+             (λ h,
+              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let αh := snd (List.nth h pl (0, 0)) in
+              POL [((ā K h pol .- K ah .* K x_power K αh) .* K
+                    x_power K (Qnat h * γ₁))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
 intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
 rewrite poly_summation_add; simpl.
