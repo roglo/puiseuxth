@@ -431,7 +431,7 @@ Let pht := {| coeff := .0 K%K; power := O |}.
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+γ₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+γ₁)^h *)
-Lemma summation_split_val_ : ∀ pol ns γ₁ c₁ pl tl l,
+Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
