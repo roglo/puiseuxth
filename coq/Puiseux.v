@@ -42,6 +42,39 @@ Definition pol₁ α (fld : field α) pol β₁ γ₁ c₁ :=
 Definition ā_lap α (fld : field α) h la := (List.nth h la .0 fld)%ps.
 Definition ā α (fld : field α) h pol := (ā_lap fld h (al pol)).
 
+Definition lap_summation α (f : field α) (li : list nat) g :=
+  List.fold_right (λ i accu, lap_add f accu (g i)) [] li.
+
+Definition poly_summation α (f : field α) (li : list nat) g :=
+  (POL (lap_summation f li (λ i, al (g i))))%pol.
+
+Inductive split_list α : list α → list α → list α → Prop :=
+  | sl_nil : split_list [] [] []
+  | sl_cons_l : ∀ x l l₁ l₂,
+      split_list l l₁ l₂ → split_list [x … l] [x … l₁] l₂
+  | sl_cons_r : ∀ x l l₁ l₂,
+      split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
+
+Lemma split_summation : ∀ α (K : field α) g l l₁ l₂,
+  split_list l l₁ l₂
+  → (poly_summation K l₁ g .+ K poly_summation K l₂ g .= K
+     poly_summation K l g)%pol.
+Proof.
+intros α K g l l₁ l₂ Hss.
+unfold poly_summation; simpl.
+unfold eq_poly; simpl.
+revert l₁ l₂ Hss.
+induction l as [| n]; intros; simpl.
+ inversion Hss; subst; reflexivity.
+
+ inversion Hss; subst; simpl.
+  rewrite lap_add_shuffle0.
+  rewrite IHl; [ reflexivity | assumption ].
+
+  rewrite <- lap_add_assoc.
+  rewrite IHl; [ reflexivity | assumption ].
+Qed.
+
 Add Parametric Morphism α (f : field α) : (ps_monom f)
   with signature fld_eq f ==> Qeq ==> eq_ps f
   as ps_monom_qeq_morph.
@@ -159,95 +192,6 @@ rewrite <- ps_monom_add_r.
 rewrite Qplus_0_l; reflexivity.
 Qed.
 
-Lemma lap_f₁_eq_x_min_β₁_comp : ∀ α (fld : field α) la β₁ γ₁ c₁ psf,
-  psf = ps_field fld
-  → lap_eq psf (lap_pol₁ fld la β₁ γ₁ c₁)
-      (lap_mul psf [x_power fld (- β₁)]
-         (lap_compose psf la
-            (lap_mul psf
-               [x_power fld γ₁]
-               [c_x_power fld c₁ 0; .1 fld%ps … []]))).
-Proof.
-intros α fld la β₁ γ₁ c₁ psf Hpsf.
-unfold lap_pol₁.
-rewrite <- Hpsf.
-apply lap_mul_compat; [ reflexivity | idtac ].
-apply lap_compose_compat; [ reflexivity | idtac ].
-unfold lap_mul; simpl.
-unfold summation; simpl.
-rewrite fld_mul_0_l.
-do 3 rewrite fld_add_0_r.
-subst psf; simpl.
-constructor.
- rewrite ps_mul_comm; simpl.
- apply ps_monom_split_mul.
-
- constructor; [ idtac | reflexivity ].
- rewrite fld_mul_1_r; reflexivity.
-Qed.
-
-(* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
-Theorem f₁_eq_x_min_β₁_comp : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
-  psf = ps_field fld
-  → (pol₁ fld pol β₁ γ₁ c₁ .= psf
-     POL [x_power fld (- β₁)] .* psf
-     poly_compose psf pol
-       (POL [x_power fld γ₁] .* psf
-        POL [c_x_power fld c₁ 0; .1 fld%ps … []]))%pol.
-Proof.
-intros α fld pol β₁ γ₁ c₁ psf Hpsf.
-apply lap_f₁_eq_x_min_β₁_comp; assumption.
-Qed.
-
-(* [Walker, p. 100] «
-    f₁(x,y₁) = x^(-β₁).[ā₀ + ā₁x^γ₁(c₁+y₁) + ... + ān.x^(n.γ₁)(c₁+y₁)^n]
-  » *)
-Theorem f₁_eq_x_min_β₁_comp2 : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
-  psf = ps_field fld
-  → (pol₁ fld pol β₁ γ₁ c₁ .= psf
-     POL [x_power fld (- β₁)] .* psf
-     poly_compose2 psf pol
-       (POL [x_power fld γ₁] .* psf
-        POL [c_x_power fld c₁ 0; .1 fld%ps … []]))%pol.
-Proof.
-intros α fld pol β₁ γ₁ c₁ psf Hpsf.
-rewrite <- poly_compose_compose2.
-apply f₁_eq_x_min_β₁_comp; assumption.
-Qed.
-
-Definition lap_summation α (f : field α) (li : list nat) g :=
-  List.fold_right (λ i accu, lap_add f accu (g i)) [] li.
-
-Definition poly_summation α (f : field α) (li : list nat) g :=
-  (POL (lap_summation f li (λ i, al (g i))))%pol.
-
-Inductive split_list α : list α → list α → list α → Prop :=
-  | sl_nil : split_list [] [] []
-  | sl_cons_l : ∀ x l l₁ l₂,
-      split_list l l₁ l₂ → split_list [x … l] [x … l₁] l₂
-  | sl_cons_r : ∀ x l l₁ l₂,
-      split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
-
-Lemma split_summation : ∀ α (K : field α) g l l₁ l₂,
-  split_list l l₁ l₂
-  → (poly_summation K l₁ g .+ K poly_summation K l₂ g .= K
-     poly_summation K l g)%pol.
-Proof.
-intros α K g l l₁ l₂ Hss.
-unfold poly_summation; simpl.
-unfold eq_poly; simpl.
-revert l₁ l₂ Hss.
-induction l as [| n]; intros; simpl.
- inversion Hss; subst; reflexivity.
-
- inversion Hss; subst; simpl.
-  rewrite lap_add_shuffle0.
-  rewrite IHl; [ reflexivity | assumption ].
-
-  rewrite <- lap_add_assoc.
-  rewrite IHl; [ reflexivity | assumption ].
-Qed.
-
 Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
   (∀ x y z, equal x y → equal (g z x) (h z y))
   → equal a₀ a₀
@@ -318,6 +262,58 @@ Variable α : Type.
 Variable K : field α.
 Let Kx := ps_field K.
 
+Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
+  lap_eq Kx (lap_pol₁ K la β₁ γ₁ c₁)
+    (lap_mul Kx [x_power K (- β₁)]
+       (lap_compose Kx la
+          (lap_mul Kx
+             [x_power K γ₁]
+             [c_x_power K c₁ 0; .1 K%ps … []]))).
+Proof.
+intros la β₁ γ₁ c₁.
+unfold lap_pol₁.
+apply lap_mul_compat; [ reflexivity | idtac ].
+apply lap_compose_compat; [ reflexivity | idtac ].
+unfold lap_mul; simpl.
+unfold summation; simpl.
+rewrite fld_mul_0_l.
+do 3 rewrite fld_add_0_r.
+subst Kx; simpl.
+constructor.
+ rewrite ps_mul_comm; simpl.
+ apply ps_monom_split_mul.
+
+ constructor; [ idtac | reflexivity ].
+ rewrite fld_mul_1_r; reflexivity.
+Qed.
+
+(* [Walker, p. 100] « f₁(x,y₁) = x^(-β₁).f(x,x^γ₁(c₁+y₁)) » *)
+Theorem f₁_eq_x_min_β₁_comp : ∀ pol β₁ γ₁ c₁,
+  (pol₁ K pol β₁ γ₁ c₁ .= Kx
+   POL [x_power K (- β₁)] .* Kx
+   poly_compose Kx pol
+     (POL [x_power K γ₁] .* Kx
+      POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
+Proof.
+intros pol β₁ γ₁ c₁.
+apply lap_f₁_eq_x_min_β₁_comp; reflexivity.
+Qed.
+
+(* [Walker, p. 100] «
+    f₁(x,y₁) = x^(-β₁).[ā₀ + ā₁x^γ₁(c₁+y₁) + ... + ān.x^(n.γ₁)(c₁+y₁)^n]
+  » *)
+Theorem f₁_eq_x_min_β₁_comp2 : ∀ pol β₁ γ₁ c₁,
+  (pol₁ K pol β₁ γ₁ c₁ .= Kx
+   POL [x_power K (- β₁)] .* Kx
+   poly_compose2 Kx pol
+     (POL [x_power K γ₁] .* Kx
+      POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
+Proof.
+intros pol β₁ γ₁ c₁.
+rewrite <- poly_compose_compose2.
+apply f₁_eq_x_min_β₁_comp; assumption.
+Qed.
+
 Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
   (pol₁ K pol β₁ γ₁ c₁ .= Kx
    POL [x_power K (- β₁)] .* Kx
@@ -327,7 +323,7 @@ Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
       POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
 intros pol β₁ γ₁ c₁.
-rewrite f₁_eq_x_min_β₁_comp2; [ idtac | reflexivity ].
+rewrite f₁_eq_x_min_β₁_comp2.
 apply poly_mul_compat; [ reflexivity | idtac ].
 unfold poly_compose2; simpl.
 unfold lap_compose2, poly_summation; simpl.
