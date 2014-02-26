@@ -215,11 +215,38 @@ rewrite <- poly_compose_compose2.
 apply f₁_eq_x_min_β₁_comp; assumption.
 Qed.
 
-Definition lap_summation α (f : field α) g (li : list nat) :=
+Definition lap_summation α (f : field α) (li : list nat) g :=
   List.fold_right (λ i accu, lap_add f accu (g i)) [] li.
 
-Definition poly_summation α (f : field α) g (li : list nat) :=
-  (POL (lap_summation f (λ i, al (g i)) li))%pol.
+Definition poly_summation α (f : field α) (li : list nat) g :=
+  (POL (lap_summation f li (λ i, al (g i))))%pol.
+
+Inductive split_list α : list α → list α → list α → Prop :=
+  | sl_nil : split_list [] [] []
+  | sl_cons_l : ∀ x l l₁ l₂,
+      split_list l l₁ l₂ → split_list [x … l] [x … l₁] l₂
+  | sl_cons_r : ∀ x l l₁ l₂,
+      split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
+
+Lemma split_summation : ∀ α (K : field α) g l l₁ l₂,
+  split_list l l₁ l₂
+  → (poly_summation K l₁ g .+ K poly_summation K l₂ g .= K
+     poly_summation K l g)%pol.
+Proof.
+intros α K g l l₁ l₂ Hss.
+unfold poly_summation; simpl.
+unfold eq_poly; simpl.
+revert l₁ l₂ Hss.
+induction l as [| n]; intros; simpl.
+ inversion Hss; subst; reflexivity.
+
+ inversion Hss; subst; simpl.
+  rewrite lap_add_shuffle0.
+  rewrite IHl; [ reflexivity | assumption ].
+
+  rewrite <- lap_add_assoc.
+  rewrite IHl; [ reflexivity | assumption ].
+Qed.
 
 Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
   (∀ x y z, equal x y → equal (g z x) (h z y))
@@ -285,18 +312,22 @@ induction n; simpl.
   reflexivity.
 Qed.
 
-Theorem f₁_eq_x_min_β₁_summation : ∀ α (fld : field α) pol β₁ γ₁ c₁ psf,
-  psf = ps_field fld
-  → (pol₁ fld pol β₁ γ₁ c₁ .= psf
-     POL [x_power fld (- β₁)] .* psf
-     poly_summation psf
-       (λ h,
-        POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
-        POL [c_x_power fld c₁ 0; .1 fld%ps … []] .^ psf h)
-       (List.seq 0 (length (al pol))))%pol.
+Section theorems.
+
+Variable α : Type.
+Variable K : field α.
+Let Kx := ps_field K.
+
+Theorem f₁_eq_x_min_β₁_summation : ∀ pol β₁ γ₁ c₁,
+  (pol₁ K pol β₁ γ₁ c₁ .= Kx
+   POL [x_power K (- β₁)] .* Kx
+   poly_summation Kx (List.seq 0 (length (al pol)))
+     (λ h,
+      POL [(ā K h pol .* K x_power K (Qnat h * γ₁))%ps] .* Kx
+      POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
-intros α fld pol β₁ γ₁ c₁ psf Hpsf.
-rewrite f₁_eq_x_min_β₁_comp2; [ idtac | assumption ].
+intros pol β₁ γ₁ c₁.
+rewrite f₁_eq_x_min_β₁_comp2; [ idtac | reflexivity ].
 apply poly_mul_compat; [ reflexivity | idtac ].
 unfold poly_compose2; simpl.
 unfold lap_compose2, poly_summation; simpl.
@@ -313,10 +344,9 @@ clear la lb Heq.
 remember (al pol) as la; clear pol Heqla.
 revert la.
 induction i; intros; simpl.
- rewrite lap_mul_1_r.
+ subst Kx; rewrite lap_mul_1_r.
  constructor; [ idtac | reflexivity ].
  unfold Qnat; simpl.
- subst psf; simpl.
  rewrite <- ps_mul_1_r in |- * at 1.
  apply ps_mul_compat_l.
  unfold x_power; simpl.
@@ -328,7 +358,7 @@ induction i; intros; simpl.
   rewrite lap_mul_nil_l.
   rewrite lap_mul_nil_l.
   constructor; [ idtac | reflexivity ].
-  subst psf; simpl.
+  subst Kx; simpl.
   rewrite ps_mul_0_l; reflexivity.
 
   rewrite lap_mul_assoc.
@@ -337,7 +367,7 @@ induction i; intros; simpl.
   unfold lap_mul; simpl.
   rewrite summation_only_one; simpl.
   constructor; [ idtac | reflexivity ].
-  subst psf; simpl.
+  subst Kx; simpl.
   rewrite <- ps_mul_assoc.
   apply ps_mul_compat_l.
   unfold x_power.
@@ -348,87 +378,24 @@ induction i; intros; simpl.
   reflexivity.
 Qed.
 
-(* [split n l₁ l₂] is a proposition which means that l₁ and l₂ are two
-   disjoint sub-lists covering [n; n+1; n+2 ... n+len] such that len is
-   [length l₁ + length l₂].
-     For example, if
-        l₁=[3; 6; 7]
-        l₂=[0; 1; 2; 4; 5; 8]
-     we have
-        [split 0 l₁ l₂] *)
-Inductive split_seq : nat → list nat → list nat → Prop :=
-  | ss_nil : ∀ n, split_seq n [] []
-  | ss_cons_l : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n [n … l₁] l₂
-  | ss_cons_r : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n l₁ [n … l₂].
-
-Lemma split_summation : ∀ α (f : field α) g n l₁ l₂,
-  split_seq n l₁ l₂
-  → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
-     poly_summation f g (List.seq n (length l₁ + length l₂)))%pol.
-Proof.
-intros α f g n l₁ l₂ Hss.
-unfold poly_summation; simpl.
-unfold eq_poly; simpl.
-revert n l₂ Hss.
-induction l₁ as [| n₁]; intros; simpl.
- revert n Hss.
- induction l₂ as [| n₂]; intros; [ reflexivity | simpl ].
- inversion Hss; subst.
- rewrite IHl₂; [ reflexivity | assumption ].
-
- revert n₁ n Hss.
- induction l₂ as [| n₂]; intros; simpl.
-  rewrite Nat.add_0_r.
-  rewrite lap_add_nil_r.
-  inversion Hss; subst.
-  apply lap_add_compat; [ idtac | reflexivity ].
-  clear IHl₁ Hss.
-  assert (l₁ = List.seq (S n₁) (length l₁)) as H.
-   revert H3; clear; intros H.
-   revert n₁ H.
-   induction l₁ as [| n₁]; intros; [ reflexivity | simpl ].
-   rename n₁0 into n₂.
-   inversion H; subst.
-   rewrite <- IHl₁; [ reflexivity | assumption ].
-
-   rewrite H in |- * at 1; reflexivity.
-
-  inversion Hss; subst.
-   replace (S (length l₂)) with (length [n₂ … l₂]) by reflexivity.
-   rewrite <- IHl₁; [ simpl | assumption ].
-   do 3 rewrite lap_add_assoc.
-   apply lap_add_compat; [ reflexivity | idtac ].
-   rewrite lap_add_comm, lap_add_assoc; reflexivity.
-
-   rewrite <- lap_add_assoc.
-   apply lap_add_compat; [ idtac | reflexivity ].
-   rewrite IHl₂; [ idtac | eassumption ].
-   rewrite Nat.add_succ_r; reflexivity.
-Qed.
-
 (* we can split the sum on 0..n into two sub lists l₁, l₂ in any way *)
-Theorem  f₁_eq_x_min_β₁_summation_split :
-    ∀ α (fld : field α) pol β₁ γ₁ c₁ l₁ l₂ psf,
-  psf = ps_field fld
-  → split_seq 0 l₁ l₂
-    → (length l₁ + length l₂)%nat = length (al pol)
-      → (pol₁ fld pol β₁ γ₁ c₁ .= psf
-         POL [x_power fld (- β₁)] .* psf
-         poly_summation psf
-           (λ h,
-            POL [(ā fld h pol .* fld x_power fld (Qnat h * γ₁))%ps] .* psf
-            POL [c_x_power fld c₁ 0; .1 fld%ps … []] .^ psf h)
-            l₁ .+ psf
-         POL [x_power fld (- β₁)] .* psf
-         poly_summation psf
-           (λ l,
-            POL [(ā fld l pol .* fld x_power fld (Qnat l * γ₁))%ps] .* psf
-            POL [c_x_power fld c₁ 0; .1 fld%ps … []] .^ psf l)
-            l₂)%pol.
+Theorem  f₁_eq_x_min_β₁_summation_split : ∀ pol β₁ γ₁ c₁ l₁ l₂,
+  split_list (List.seq 0 (length (al pol))) l₁ l₂
+  → (pol₁ K pol β₁ γ₁ c₁ .= Kx
+     POL [x_power K (- β₁)] .* Kx
+     poly_summation Kx l₁
+       (λ h,
+        POL [(ā K h pol .* K x_power K (Qnat h * γ₁))%ps] .* Kx
+        POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+     POL [x_power K (- β₁)] .* Kx
+     poly_summation Kx l₂
+       (λ l,
+        POL [(ā K l pol .* K x_power K (Qnat l * γ₁))%ps] .* Kx
+        POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx l))%pol.
 Proof.
-intros α fld pol β₁ γ₁ c₁ l₁ l₂ psf Hpsf Hss Hlen.
+intros pol β₁ γ₁ c₁ l₁ l₂ Hss.
 rewrite <- poly_mul_add_distr_l.
-rewrite split_summation; [ rewrite Hlen | eassumption ].
+rewrite split_summation; [ idtac | eassumption ].
 apply f₁_eq_x_min_β₁_summation; assumption.
 Qed.
 
