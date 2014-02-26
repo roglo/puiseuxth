@@ -475,6 +475,39 @@ rewrite fld_add_assoc; simpl.
 rewrite fld_add_opp_l, fld_add_0_l; reflexivity.
 Qed.
 
+(* [Walker, p. 101] « Since āh = ah.x^αh + ...,
+
+     f₁(x,y₁) = x^(-β₁).Σah.x^(αh+h.γ₁).(c₁+γ₁)^h +
+                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+γ₁)^h +
+                         Σāl.x^(l.γ₁).(c₁+y₁)^l]
+   » *)
+Theorem zzz : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
+  ns ∈ newton_segments K pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point K pol) pl
+      → l₁ = List.map (λ t, power t) tl
+        → split_list (List.seq 0 (length (al pol))) l₁ l₂
+          → (pol₁ K pol β₁ γ₁ c₁ .= Kx
+             POL [x_power K (- β₁)] .* Kx
+             poly_summation Kx l₁
+               (λ h,
+                let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                let αh := snd (List.nth h pl (0, 0)) in
+                POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
+                POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+             POL [x_power K (- β₁)] .* Kx
+             (poly_summation Kx l₁
+                (λ h,
+                 let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                 let αh := snd (List.nth h pl (0, 0)) in
+                 POL [((ā K h pol .- K ah .* K x_power K αh) .* K
+                       x_power K (Qnat h * γ₁))%ps] .* Kx
+                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+              poly_summation Kx l₂
+                (λ l,
+                 POL [(ā K l pol .* K x_power K (Qnat l * γ₁))%ps] .* Kx
+                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx l)))%pol.
+Proof.
 bbb.
 
 (* old stuff; to be used later perhaps *)
