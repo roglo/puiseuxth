@@ -353,44 +353,7 @@ Inductive split_seq : nat → list nat → list nat → Prop :=
   | ss_cons_l : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n [n … l₁] l₂
   | ss_cons_r : ∀ n l₁ l₂, split_seq (S n) l₁ l₂ → split_seq n l₁ [n … l₂].
 
-(*
-Fixpoint list_merge n l₁ l₂ :=
-  match n with
-  | 0%nat => []
-  | S n₁ =>
-      match l₁ with
-      | [] => l₂
-      | [m₁ … l'₁] =>
-          match l₂ with
-          | [] => l₁
-          | [m₂ … l'₂] =>
-              if lt_dec m₁ m₂
-              then [m₁ … list_merge n₁ l'₁ l₂]
-              else [m₂ … list_merge n₁ l₁ l'₂]
-          end
-      end
-  end.
-
-Lemma xxx : ∀ n l₁ l₂ len,
-  len = (length l₁ + length l₂)%nat
-  → split_seq n l₁ l₂
-    → List.seq n len = list_merge len l₁ l₂.
-Proof.
-intros n l₁ l₂ len Hlen H.
-bbb.
-revert l₁ l₂ n Hlen H.
-induction len; intros; [ reflexivity | simpl ].
-destruct l₁ as [| x₁]; simpl.
- simpl in Hlen.
- destruct l₂ as [| n₂]; [ discriminate Hlen | simpl ].
- simpl in Hlen.
- apply eq_add_S in Hlen.
- inversion H; subst.
- erewrite IHlen; try eassumption; try reflexivity.
-bbb.
-*)
-
-Lemma yyy : ∀ α (f : field α) g n l₁ l₂,
+Lemma split_summation : ∀ α (f : field α) g n l₁ l₂,
   split_seq n l₁ l₂
   → (poly_summation f g l₁ .+ f poly_summation f g l₂ .= f
      poly_summation f g (List.seq n (length l₁ + length l₂)))%pol.
@@ -405,7 +368,8 @@ induction l₁ as [| n₁]; intros; simpl.
  inversion Hss; subst.
  rewrite IHl₂; [ reflexivity | assumption ].
 
- destruct l₂ as [| n₂]; simpl.
+ revert n₁ n Hss.
+ induction l₂ as [| n₂]; intros; simpl.
   rewrite Nat.add_0_r.
   rewrite lap_add_nil_r.
   inversion Hss; subst.
@@ -430,38 +394,10 @@ induction l₁ as [| n₁]; intros; simpl.
 
    rewrite <- lap_add_assoc.
    apply lap_add_compat; [ idtac | reflexivity ].
-   clear Hss; rename H2 into Hss.
-   rewrite Nat.add_succ_r; simpl.
-   inversion Hss; subst.
-    rewrite lap_add_shuffle0.
-    rewrite IHl₁; [ reflexivity | eassumption ].
+   rewrite IHl₂; [ idtac | eassumption ].
+   rewrite Nat.add_succ_r; reflexivity.
+Qed.
 
-    rename l₂0 into l₂; simpl.
-    rewrite <- lap_add_assoc.
-    apply lap_add_compat; [ idtac | reflexivity ].
-    clear Hss; rename H into Hss.
-    rewrite Nat.add_succ_r; simpl.
-    inversion Hss; subst.
-     rewrite lap_add_shuffle0.
-     rewrite IHl₁; [ reflexivity | eassumption ].
-
-     rename l₂0 into l₂; simpl.
-     rewrite <- lap_add_assoc.
-     apply lap_add_compat; [ idtac | reflexivity ].
-     clear Hss; rename H into Hss.
-     rewrite Nat.add_succ_r; simpl.
-     inversion Hss; subst.
-      rewrite lap_add_shuffle0.
-      rewrite IHl₁; [ reflexivity | eassumption ].
-
-      rename l₂0 into l₂; simpl.
-      rewrite <- lap_add_assoc.
-      apply lap_add_compat; [ idtac | reflexivity ].
-      clear Hss; rename H into Hss.
-      rewrite Nat.add_succ_r; simpl.
-      inversion Hss; subst.
-       rewrite lap_add_shuffle0.
-       rewrite IHl₁; [ reflexivity | eassumption ].
 bbb.
 
 Theorem zzz : ∀ α (fld : field α) pol ns j k β₁ γ₁ c₁ psf,
