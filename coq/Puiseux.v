@@ -575,6 +575,10 @@ destruct Hh as [Hh| Hh].
  destruct Hh as [Hh| Hh].
   right; right.
   rewrite Hpl, Hini; simpl.
+  destruct (Qeq_dec (Qnat h) (Qnat j)) as [H| H].
+   symmetry in Hini.
+   eapply jq_lt_hq in Hns; try eassumption.
+    exfalso; revert Hns; apply Qlt_irrefl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
