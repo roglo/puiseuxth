@@ -5,6 +5,7 @@ Require Import QArith.
 Require Import NPeano.
 
 Require Import ConvexHullMisc.
+Require Import PolyConvexHull.
 Require Import Field.
 Require Import Misc.
 Require Import Newton.
@@ -430,7 +431,7 @@ Qed.
 Let pht := {| coeff := .0 K%K; power := O |}.
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
-   Σah.x^(αh+hγ₁).(c₁+γ₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+γ₁)^h *)
+   Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
 Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -477,8 +478,8 @@ Qed.
 
 (* [Walker, p. 101] « Since āh = ah.x^αh + ...,
 
-     f₁(x,y₁) = x^(-β₁).Σah.x^(αh+h.γ₁).(c₁+γ₁)^h +
-                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+γ₁)^h +
+     f₁(x,y₁) = x^(-β₁).Σah.x^(αh+h.γ₁).(c₁+y₁)^h +
+                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
    » *)
 Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂,
@@ -516,8 +517,27 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
-(* cf PolyConvexHull.points_in_any_newton_segment *)
-
+(* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
+Lemma zzz : ∀ pol ns pl tl l₁ c₁,
+  ns ∈ newton_segments K pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point K pol) pl
+      → l₁ = List.map (λ t, power t) tl
+        → (poly_summation Kx l₁
+             (λ h,
+              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let αh := snd (List.nth h pl (0, 0)) in
+              POL [(ah .* K x_power K (αh + Qnat h * γ ns))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
+           poly_summation Kx l₁
+             (λ h,
+              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let αh := snd (List.nth h pl (0, 0)) in
+              POL [(ah .* K x_power K (β ns))%ps] .* Kx
+              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
+Proof.
+intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
+(* use PolyConvexHull.points_in_any_newton_segment *)
 bbb.
 
 (* old stuff; to be used later perhaps *)

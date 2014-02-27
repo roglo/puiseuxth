@@ -20,7 +20,7 @@ Section theorems.
 Variable α : Type.
 Variable f : field α.
 
-Theorem points_in_any_newton_segment : ∀ (pol : puis_ser_pol α) ns,
+Theorem points_in_any_newton_segment : ∀ pol ns,
   ns ∈ newton_segments f pol
   → ∀ h αh, (h, αh) ∈ [ini_pt ns; fin_pt ns … oth_pts ns]
     → β ns == αh + h * γ ns.
