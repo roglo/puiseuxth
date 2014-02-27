@@ -445,6 +445,7 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
            poly_summation Kx l
              (λ h,
               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+bbb. (* error in following line: should be something like List.assoc... *)
               let αh := snd (List.nth h pl (0, 0)) in
               POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
@@ -551,6 +552,11 @@ rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
 rewrite Hl, Htl, Hpl in Hi; simpl in Hi.
 destruct Hi as [Hi| Hi].
  left; subst i; simpl.
+ apply exists_ini_pt_nat in Hns.
+ destruct Hns as (i, (αi, Hini)).
+ rewrite Hini; simpl.
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id.
 bbb.
 
 (* old stuff; to be used later perhaps *)
