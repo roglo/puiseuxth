@@ -431,6 +431,12 @@ Qed.
 
 Let pht := {| coeff := .0 K%K; power := O |}.
 
+Fixpoint val_of_pt i pl :=
+  match pl with
+  | [] => 0
+  | [(x, y) … pl₁] => if Qeq_dec (Qnat i) x then y else val_of_pt i pl₁
+  end.
+
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
 Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
@@ -445,14 +451,13 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
            poly_summation Kx l
              (λ h,
               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-bbb. (* error in following line: should be something like List.assoc... *)
-              let αh := snd (List.nth h pl (0, 0)) in
+              let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
            poly_summation Kx l
              (λ h,
               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-              let αh := snd (List.nth h pl (0, 0)) in
+              let αh := val_of_pt h pl in
               POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                     x_power K (Qnat h * γ₁))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
@@ -495,14 +500,14 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              poly_summation Kx l₁
                (λ h,
                 let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-                let αh := snd (List.nth h pl (0, 0)) in
+                let αh := val_of_pt h pl in
                 POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
              POL [x_power K (- β₁)] .* Kx
              (poly_summation Kx l₁
                 (λ h,
                  let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-                 let αh := snd (List.nth h pl (0, 0)) in
+                 let αh := val_of_pt h pl in
                  POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                        x_power K (Qnat h * γ₁))%ps] .* Kx
                  POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
@@ -528,13 +533,13 @@ Lemma zzz : ∀ pol ns pl tl l₁ c₁,
         → (poly_summation Kx l₁
              (λ h,
               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-              let αh := snd (List.nth h pl (0, 0)) in
+              let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (αh + Qnat h * γ ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
            poly_summation Kx l₁
              (λ h,
               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-              let αh := snd (List.nth h pl (0, 0)) in
+              let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (β ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
@@ -542,21 +547,34 @@ intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
 apply lap_eq_list_fold_right.
-intros i a b Hi Heq.
+intros h a b Hh Heq.
 apply lap_add_compat; [ assumption | simpl ].
 apply lap_mul_compat; [ simpl | reflexivity ].
 constructor; [ idtac | reflexivity ].
 apply fld_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
-rewrite Hl, Htl, Hpl in Hi; simpl in Hi.
-destruct Hi as [Hi| Hi].
- left; subst i; simpl.
- apply exists_ini_pt_nat in Hns.
- destruct Hns as (i, (αi, Hini)).
+rewrite Hl, Htl, Hpl in Hh; simpl in Hh.
+remember Hns as Hini; clear HeqHini.
+apply exists_ini_pt_nat in Hini.
+destruct Hini as (j, (αj, Hini)).
+destruct Hh as [Hh| Hh].
+ left; subst h; simpl.
  rewrite Hini; simpl.
  unfold nofq, Qnat; simpl.
  rewrite Nat2Z.id.
+ subst pl; simpl.
+ rewrite Hini; simpl.
+ destruct (Qeq_dec (Qnat j) (Qnat j)) as [| H]; [ reflexivity | idtac ].
+ exfalso; apply H; reflexivity.
+
+ rewrite List.map_app in Hh.
+ rewrite List.map_app in Hh.
+ simpl in Hh.
+ apply List.in_app_or in Hh.
+ destruct Hh as [Hh| Hh].
+  right; right.
+  rewrite Hpl, Hini; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
