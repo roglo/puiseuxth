@@ -537,7 +537,16 @@ Lemma zzz : ∀ pol ns pl tl l₁ c₁,
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
 intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
-(* use PolyConvexHull.points_in_any_newton_segment *)
+unfold eq_poly; simpl.
+unfold lap_summation; simpl.
+apply lap_eq_list_fold_right.
+intros i a b Heq.
+apply lap_add_compat; [ assumption | simpl ].
+apply lap_mul_compat; [ simpl | reflexivity ].
+constructor; [ idtac | reflexivity ].
+apply fld_mul_compat; [ reflexivity | simpl ].
+unfold x_power; simpl.
+rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
 bbb.
 
 (* old stuff; to be used later perhaps *)
