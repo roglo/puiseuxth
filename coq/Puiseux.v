@@ -606,6 +606,7 @@ Proof.
 intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
+bbb.
 apply lap_eq_list_fold_right.
 intros h a b Hh Heq.
 apply lap_add_compat; [ assumption | simpl ].
@@ -614,13 +615,14 @@ constructor; [ idtac | reflexivity ].
 apply fld_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
-rewrite Hl, Htl, Hpl in Hh; simpl in Hh.
 remember Hns as Hini; clear HeqHini.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_ini_pt_nat in Hini.
 apply exists_fin_pt_nat in Hfin.
 destruct Hini as (j, (αj, Hini)).
 destruct Hfin as (k, (αk, Hfin)).
+bbb.
+rewrite Hl, Htl, Hpl in Hh; simpl in Hh.
 destruct Hh as [Hh| Hh].
  left; subst h; simpl.
  rewrite Hini; simpl.
@@ -633,11 +635,12 @@ destruct Hh as [Hh| Hh].
 
  rewrite List.map_app in Hh.
  rewrite List.map_app in Hh.
+ rewrite List.map_map in Hh; simpl in Hh.
  simpl in Hh.
+bbb.
  apply List.in_app_or in Hh.
  destruct Hh as [Hh| Hh].
   right; right.
-  rewrite List.map_map in Hh; simpl in Hh.
   apply List.in_map_iff in Hh.
   destruct Hh as (x, (Hhx, Hx)).
   subst h.
@@ -659,7 +662,10 @@ destruct Hh as [Hh| Hh].
    simpl.
    rewrite Hfin; simpl.
    destruct (Qeq_dec (Qnat h) (Qnat k)) as [H₁| H₁].
-    Focus 2.
+    symmetry in Hfin.
+    eapply hq_lt_kq in Hns; try eassumption.
+    rewrite H₁ in Hns.
+    exfalso; revert Hns; apply Qlt_irrefl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
