@@ -599,14 +599,12 @@ Lemma zzz : ∀ pol ns pl tl l₁ c₁,
            poly_summation Kx l₁
              (λ h,
               let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-              let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (β ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
 intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
-bbb.
 apply lap_eq_list_fold_right.
 intros h a b Hh Heq.
 apply lap_add_compat; [ assumption | simpl ].
@@ -621,7 +619,6 @@ apply exists_ini_pt_nat in Hini.
 apply exists_fin_pt_nat in Hfin.
 destruct Hini as (j, (αj, Hini)).
 destruct Hfin as (k, (αk, Hfin)).
-bbb.
 rewrite Hl, Htl, Hpl in Hh; simpl in Hh.
 destruct Hh as [Hh| Hh].
  left; subst h; simpl.
@@ -637,7 +634,6 @@ destruct Hh as [Hh| Hh].
  rewrite List.map_app in Hh.
  rewrite List.map_map in Hh; simpl in Hh.
  simpl in Hh.
-bbb.
  apply List.in_app_or in Hh.
  destruct Hh as [Hh| Hh].
   right; right.
