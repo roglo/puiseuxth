@@ -524,6 +524,66 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
+Lemma val_of_pt_app_comm : ∀ pol ns h,
+  ns ∈ newton_segments K pol
+  → val_of_pt h (oth_pts ns ++ [fin_pt ns]) =
+    val_of_pt h [fin_pt ns … oth_pts ns].
+Proof.
+(* à nettoyer *)
+intros pol ns h Hns.
+apply oth_fin_pts_sorted in Hns.
+remember (oth_pts ns) as pts; clear Heqpts.
+induction pts as [| pt]; intros; [ reflexivity | simpl ].
+destruct pt as (l, al); simpl.
+destruct (Qeq_dec (Qnat h) l) as [H₁| H₁]; simpl.
+ destruct (fin_pt ns) as (k, ak); simpl.
+ simpl in Hns.
+ destruct (Qeq_dec (Qnat h) k) as [H₂| ]; [ idtac | reflexivity ].
+ rewrite H₁ in H₂.
+ apply Sorted.Sorted_inv in Hns.
+ destruct Hns as (Hsort, Hrel).
+ remember Hsort as Hval; clear HeqHval.
+ apply IHpts in Hval.
+ revert Hsort Hrel Hval H₂; clear; intros; exfalso.
+ revert l al k ak Hrel H₂ Hsort Hval.
+ induction pts as [| (m, am)]; intros; simpl.
+  simpl in Hrel.
+  inversion Hrel; subst.
+  unfold fst_lt in H0; simpl in H0.
+  rewrite H₂ in H0.
+  revert H0; apply Qlt_irrefl.
+
+  simpl in Hrel.
+  inversion Hrel; subst.
+  unfold fst_lt in H0; simpl in H0.
+  eapply Sorted_trans_app in Hsort; [ idtac | idtac | left; reflexivity ].
+   unfold fst_lt in Hsort; simpl in Hsort.
+   eapply Qlt_trans in Hsort; [ idtac | eassumption ].
+   rewrite H₂ in Hsort.
+   revert Hsort; apply Qlt_irrefl.
+
+   intros; eapply Qlt_trans; eassumption.
+
+ destruct (fin_pt ns) as (k, ak).
+ destruct (Qeq_dec (Qnat h) k) as [H₂| H₂].
+  rewrite IHpts.
+   simpl.
+   destruct (Qeq_dec (Qnat h) k) as [| H₃]; [ reflexivity | idtac ].
+   exfalso; apply H₃; assumption.
+
+   simpl in Hns.
+   apply Sorted_inv_1 in Hns; assumption.
+
+  rewrite IHpts.
+   simpl.
+   destruct (Qeq_dec (Qnat h) k) as [H₃| H₃].
+    exfalso; apply H₂; assumption.
+
+    reflexivity.
+
+   eapply Sorted_inv_1; eassumption.
+Qed.
+
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
 Lemma zzz : ∀ pol ns pl tl l₁ c₁,
   ns ∈ newton_segments K pol
@@ -594,6 +654,12 @@ destruct Hh as [Hh| Hh].
    eapply jq_lt_hq in Hns; try eassumption.
    rewrite H in Hns.
    exfalso; revert Hns; apply Qlt_irrefl.
+
+   erewrite val_of_pt_app_comm; [ idtac | eassumption ].
+   simpl.
+   rewrite Hfin; simpl.
+   destruct (Qeq_dec (Qnat h) (Qnat k)) as [H₁| H₁].
+    Focus 2.
 bbb.
 
 (* old stuff; to be used later perhaps *)
