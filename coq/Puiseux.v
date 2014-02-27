@@ -516,6 +516,8 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
+(* cf PolyConvexHull.points_in_any_newton_segment *)
+
 bbb.
 
 (* old stuff; to be used later perhaps *)
