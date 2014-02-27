@@ -556,8 +556,11 @@ unfold x_power; simpl.
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
 rewrite Hl, Htl, Hpl in Hh; simpl in Hh.
 remember Hns as Hini; clear HeqHini.
+remember Hns as Hfin; clear HeqHfin.
 apply exists_ini_pt_nat in Hini.
+apply exists_fin_pt_nat in Hfin.
 destruct Hini as (j, (αj, Hini)).
+destruct Hfin as (k, (αk, Hfin)).
 destruct Hh as [Hh| Hh].
  left; subst h; simpl.
  rewrite Hini; simpl.
