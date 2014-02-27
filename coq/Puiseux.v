@@ -574,11 +574,23 @@ destruct Hh as [Hh| Hh].
  apply List.in_app_or in Hh.
  destruct Hh as [Hh| Hh].
   right; right.
+  rewrite List.map_map in Hh; simpl in Hh.
+  apply List.in_map_iff in Hh.
+  destruct Hh as (x, (Hhx, Hx)).
+  subst h.
+  destruct x as (xq, αx); simpl.
+  remember Hns as Hhx; clear HeqHhx.
+  eapply exists_oth_pt_nat in Hhx; [ idtac | eassumption ].
+  destruct Hhx as (h, (αh, Hhx)).
+  injection Hhx; clear Hhx; intros; subst xq αx; simpl.
+  unfold nofq; simpl.
+  rewrite Nat2Z.id; simpl.
   rewrite Hpl, Hini; simpl.
   destruct (Qeq_dec (Qnat h) (Qnat j)) as [H| H].
    symmetry in Hini.
    eapply jq_lt_hq in Hns; try eassumption.
-    exfalso; revert Hns; apply Qlt_irrefl.
+   rewrite H in Hns.
+   exfalso; revert Hns; apply Qlt_irrefl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
