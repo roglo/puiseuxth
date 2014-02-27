@@ -276,12 +276,13 @@ apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
 Lemma lap_eq_list_fold_right : ∀ β g h x (l : list β),
-  (∀ i a b, lap_eq K a b → lap_eq K (g i a) (h i b))
+  (∀ i a b, i ∈ l → lap_eq K a b → lap_eq K (g i a) (h i b))
   → lap_eq K (List.fold_right g x l) (List.fold_right h x l).
 Proof.
-intros β g h x l H.
-induction l; intros; [ reflexivity | simpl ].
-apply H; assumption.
+induction l as [| y]; intros; [ reflexivity | simpl ].
+apply H; [ left; reflexivity | idtac ].
+apply IHl; intros i a b Hi Heq.
+apply H; [ right; assumption | assumption ].
 Qed.
 
 End on_fields.
@@ -459,7 +460,7 @@ intros pol ns γ₁ c₁ pl tl l Hns Hpl Htl Hl.
 rewrite poly_summation_add; simpl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
-apply lap_eq_list_fold_right; intros i a b Heq.
+apply lap_eq_list_fold_right; intros i a b Hi Heq.
 apply lap_add_compat; [ assumption | simpl ].
 rewrite <- lap_mul_add_distr_r; simpl.
 apply lap_mul_compat; [ idtac | reflexivity ].
@@ -540,13 +541,16 @@ intros pol ns pl tl l₁ c₁ Hns Hpl Htl Hl.
 unfold eq_poly; simpl.
 unfold lap_summation; simpl.
 apply lap_eq_list_fold_right.
-intros i a b Heq.
+intros i a b Hi Heq.
 apply lap_add_compat; [ assumption | simpl ].
 apply lap_mul_compat; [ simpl | reflexivity ].
 constructor; [ idtac | reflexivity ].
 apply fld_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
+rewrite Hl, Htl, Hpl in Hi; simpl in Hi.
+destruct Hi as [Hi| Hi].
+ left; subst i; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
