@@ -675,7 +675,7 @@ Qed.
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
-Theorem zzz : ∀ pol ns c₁ pl tl l₁ l₂,
+Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
@@ -718,17 +718,19 @@ unfold lap_mul; simpl.
 rewrite summation_only_one; simpl.
 unfold x_power; simpl.
 constructor; [ idtac | reflexivity ].
-unfold ps_one; simpl.
 unfold ps_monom; simpl.
 unfold ps_mul; simpl.
 unfold cm; simpl.
 rewrite Z.mul_opp_l.
 rewrite Z.add_opp_diag_l.
-rewrite
- ps_adjust_eq with (k := (Qden (β ns) * Qden (β ns))%positive) (n := O).
+rewrite stretch_series_1, series_mul_1_l.
+remember (Qden (β ns) * Qden (β ns))%positive as k.
+rewrite ps_adjust_eq with (k := k) (n := O).
 unfold adjust_ps; simpl.
-rewrite series_shift_0.
-rewrite series_stretch_stretch.
+rewrite series_shift_0, stretch_series_1.
+reflexivity.
+Qed.
+
 bbb.
 
 (* old stuff; to be used later perhaps *)
