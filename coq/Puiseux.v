@@ -649,6 +649,13 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  apply val_is_val_of_pt; assumption.
 Qed.
 
+Lemma yyy : ∀ l x g₁ g₂,
+  (poly_summation Kx l (λ h, POL [(g₁ h .* K x)%ps] .* Kx g₂ h) .= Kx
+   POL [x] .* Kx poly_summation Kx l (λ h, POL [g₁ h] .* Kx g₂ h))%pol.
+Proof.
+intros l x g₁ g₂.
+bbb.
+
 (* Replacing αh + h.γ₁ with β₁, and simplifying the first summation, we get:
      f₁(x,y₁) = Σah.(c₁+y₁)^h +
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
@@ -685,6 +692,7 @@ eapply f₁_eq_sum_α_hγ_to_rest in H; try eassumption.
 rewrite H.
 apply poly_add_compat; [ idtac | reflexivity ].
 rewrite subst_αh_hγ; try eassumption.
+rewrite yyy.
 bbb.
 
 (* old stuff; to be used later perhaps *)
