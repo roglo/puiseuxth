@@ -603,17 +603,89 @@ destruct H as [H| H].
  destruct H as [H| H]; [ left | right; right ]; assumption.
 Qed.
 
-Lemma yyy : ∀ pl h,
+Lemma val_is_val_of_pt : ∀ pl h,
   Sorted fst_lt pl
   → (∀ pt, pt ∈ pl → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh))
     → h ∈ List.map (λ x, nofq (fst x)) pl
       → (Qnat h, val_of_pt h pl) ∈ pl.
 Proof.
+(* à nettoyer sérieusement *)
 intros pl h Hsort Hnat Hin.
-bbb.
+induction pl as [| (l, al)]; [ contradiction | simpl ].
+destruct (Qeq_dec (Qnat h) l) as [H| H].
+ simpl in Hin.
+ destruct Hin as [Hin| Hin].
+  left; subst h.
+  assert ((l, al) ∈ [(l, al) … pl]) as Hpt by (left; reflexivity).
+  apply Hnat in Hpt.
+  destruct Hpt as (h, (ah, Hpt)).
+  injection Hpt; clear Hpt; intros; subst l al.
+  unfold nofq, Qnat; simpl.
+  rewrite Z2Nat.id; [ reflexivity | idtac ].
+  apply Nat2Z.is_nonneg.
+
+  exfalso.
+  revert Hnat Hsort Hin H; clear; intros.
+  revert al h Hnat Hsort Hin H.
+  induction pl as [| (m, am)]; intros; [ contradiction | simpl ].
+  simpl in Hin.
+  destruct Hin as [Hin| Hin].
+   subst h.
+   apply Sorted_inv_2 in Hsort.
+   destruct Hsort as (Hrel, Hsort).
+   unfold fst_lt in Hrel; simpl in Hrel.
+   rewrite <- H in Hrel.
+   unfold Qnat, nofq in Hrel.
+   rewrite Z2Nat.id in Hrel; simpl in Hrel.
+    assert ((m, am) ∈ [(l, al); (m, am) … pl]) as Hpt
+     by (right; left; reflexivity).
+    apply Hnat in Hpt.
+    destruct Hpt as (p, (ap, Hp)).
+    injection Hp; clear Hp; intros; subst m am.
+    simpl in Hrel.
+    revert Hrel; apply Z.lt_irrefl.
+
+    assert ((m, am) ∈ [(l, al); (m, am) … pl]) as Hpt
+     by (right; left; reflexivity).
+    apply Hnat in Hpt.
+    destruct Hpt as (p, (ap, Hp)).
+    injection Hp; clear Hp; intros; subst m am.
+    simpl.
+    apply Nat2Z.is_nonneg.
+
+   apply Sorted_minus_2nd in Hsort.
+    eapply IHpl; try eassumption.
+    intros pt Hpt.
+    apply Hnat.
+    destruct Hpt as [Hpt| Hpt].
+     rewrite Hpt; left; reflexivity.
+
+     right; right; assumption.
+
+    intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+ right.
+ apply IHpl.
+  eapply Sorted_inv_1; eassumption.
+
+  intros pt Hpt.
+  apply Hnat.
+  right; assumption.
+
+  destruct Hin as [Hin| Hin]; [ idtac | assumption ].
+  simpl in Hin.
+  exfalso; apply H; clear H.
+  subst h.
+  assert ((l, al) ∈ [(l, al) … pl]) as Hpt by (left; reflexivity).
+  apply Hnat in Hpt.
+  destruct Hpt as (p, (ap, Hp)).
+  injection Hp; clear Hp; intros; subst l al.
+  unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id; reflexivity.
+Qed.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
-Lemma zzz : ∀ pol ns pl tl l₁ c₁,
+Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
@@ -651,103 +723,10 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  intros pt Hpt.
  eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
  subst pl; assumption.
-bbb.
-remember Hns as Hini; clear HeqHini.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_ini_pt_nat in Hini.
-apply exists_fin_pt_nat in Hfin.
-destruct Hini as (j, (αj, Hini)).
-destruct Hfin as (k, (αk, Hfin)).
-rewrite Hl, Htl, Hpl in Hh; simpl in Hh.
-destruct Hh as [Hh| Hh].
- left; subst h; simpl.
- rewrite Hini; simpl.
- unfold nofq, Qnat; simpl.
- rewrite Nat2Z.id.
- subst pl; simpl.
- rewrite Hini; simpl.
- destruct (Qeq_dec (Qnat j) (Qnat j)) as [| H]; [ reflexivity | idtac ].
- exfalso; apply H; reflexivity.
 
- rewrite List.map_map in Hh; simpl in Hh.
- right.
- remember (val_of_pt h pl) as v eqn:Hv .
- subst pl tl l₁.
- rewrite Hini in Hv; simpl in Hv.
- destruct (Qeq_dec (Qnat h) (Qnat j)) as [H| H].
-  subst v.
-bbb.
- rewrite List.map_app in Hh.
- rewrite List.map_app in Hh.
- simpl in Hh.
- apply List.in_app_or in Hh.
- destruct Hh as [Hh| Hh].
-  right; right.
-  apply List.in_map_iff in Hh.
-  destruct Hh as (x, (Hhx, Hx)).
-  subst h.
-  destruct x as (xq, αx); simpl.
-  remember Hns as Hhx; clear HeqHhx.
-  eapply exists_oth_pt_nat in Hhx; [ idtac | eassumption ].
-  destruct Hhx as (h, (αh, Hhx)).
-  injection Hhx; clear Hhx; intros; subst xq αx; simpl.
-  unfold nofq; simpl.
-  rewrite Nat2Z.id; simpl.
-  rewrite Hpl, Hini; simpl.
-  destruct (Qeq_dec (Qnat h) (Qnat j)) as [H| H].
-   symmetry in Hini.
-   eapply jq_lt_hq in Hns; try eassumption.
-   rewrite H in Hns.
-   exfalso; revert Hns; apply Qlt_irrefl.
+ apply val_is_val_of_pt; assumption.
+Qed.
 
-   erewrite val_of_pt_app_comm; [ idtac | eassumption ].
-   simpl.
-   rewrite Hfin; simpl.
-   destruct (Qeq_dec (Qnat h) (Qnat k)) as [H₁| H₁].
-    symmetry in Hfin.
-    eapply hq_lt_kq in Hns; try eassumption.
-    rewrite H₁ in Hns.
-    exfalso; revert Hns; apply Qlt_irrefl.
-
-    subst pl tl l₁.
-    apply List.in_split in Hx.
-    destruct Hx as (l₁, (l₂, Hx)).
-    clear H H₁.
-    revert Hns Hx; clear; intros.
-    apply oth_fin_pts_sorted in Hns.
-    apply Sorted_app in Hns.
-    destruct Hns as (Hsort, _).
-    rewrite Hx in Hsort.
-    rewrite Hx; simpl.
-    clear Hx.
-    induction l₁ as [| (l, al)]; simpl.
-     destruct (Qeq_dec (Qnat h) (Qnat h)) as [H₁| H₁].
-      left; reflexivity.
-
-      exfalso; apply H₁; reflexivity.
-
-     destruct (Qeq_dec (Qnat h) l) as [H₁| H₁].
-      right.
-      apply List.in_or_app.
-      right; left.
-      simpl in Hsort.
-      revert Hsort H₁; clear; intros; exfalso.
-      induction l₁ as [| (m, am)].
-       simpl in Hsort.
-       apply Sorted_inv_2 in Hsort.
-       destruct Hsort as (Hsort, _).
-       unfold fst_lt in Hsort; simpl in Hsort.
-       rewrite H₁ in Hsort.
-       revert Hsort; apply Qlt_irrefl.
-
-       apply IHl₁.
-       simpl in Hsort.
-       eapply Sorted_minus_2nd; [ idtac | eassumption ].
-       intros; eapply Qlt_trans; eassumption.
-
-      right.
-      apply List.in_or_app.
-      right; left.
 bbb.
 
 (* old stuff; to be used later perhaps *)
