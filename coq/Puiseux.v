@@ -525,12 +525,12 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
+(* bon mais peut-être pas utile...
 Lemma val_of_pt_app_comm : ∀ pol ns h,
   ns ∈ newton_segments K pol
   → val_of_pt h (oth_pts ns ++ [fin_pt ns]) =
     val_of_pt h [fin_pt ns … oth_pts ns].
 Proof.
-(* à nettoyer *)
 intros pol ns h Hns.
 apply ini_oth_fin_pts_sorted in Hns.
 apply Sorted_inv_1 in Hns.
@@ -585,6 +585,7 @@ destruct (Qeq_dec (Qnat h) l) as [H₁| H₁]; simpl.
 
    eapply Sorted_inv_1; eassumption.
 Qed.
+*)
 
 Lemma list_in_cons_app : ∀ A (a : A) x y l,
   List.In a [x … l ++ [y]] → List.In a [x; y … l].
@@ -601,6 +602,15 @@ destruct H as [H| H].
  apply IHl in H.
  destruct H as [H| H]; [ left | right; right ]; assumption.
 Qed.
+
+Lemma yyy : ∀ pl h,
+  Sorted fst_lt pl
+  → (∀ pt, pt ∈ pl → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh))
+    → h ∈ List.map (λ x, nofq (fst x)) pl
+      → (Qnat h, val_of_pt h pl) ∈ pl.
+Proof.
+intros pl h Hsort Hnat Hin.
+bbb.
 
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
 Lemma zzz : ∀ pol ns pl tl l₁ c₁,
