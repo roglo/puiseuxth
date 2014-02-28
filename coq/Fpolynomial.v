@@ -941,6 +941,13 @@ rewrite Nat.add_comm, Nat.sub_add_distr.
 reflexivity.
 Qed.
 
+Lemma poly_mul_assoc : ∀ P Q R,
+  (P .* f (Q .* f R) .= f (P .* f Q) .* f R)%pol.
+Proof.
+intros P Q R.
+apply lap_mul_assoc.
+Qed.
+
 Lemma lap_mul_shuffle0 : ∀ la lb lc,
   lap_eq f (lap_mul f (lap_mul f la lb) lc) (lap_mul f (lap_mul f la lc) lb).
 Proof.

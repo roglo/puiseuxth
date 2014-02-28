@@ -649,12 +649,26 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  apply val_is_val_of_pt; assumption.
 Qed.
 
-Lemma yyy : ∀ l x g₁ g₂,
+Lemma poly_summation_mul : ∀ l x g₁ g₂,
   (poly_summation Kx l (λ h, POL [(g₁ h .* K x)%ps] .* Kx g₂ h) .= Kx
    POL [x] .* Kx poly_summation Kx l (λ h, POL [g₁ h] .* Kx g₂ h))%pol.
 Proof.
 intros l x g₁ g₂.
-bbb.
+unfold eq_poly; simpl.
+unfold lap_summation; simpl.
+induction l as [| i]; intros; simpl.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite IHl.
+ rewrite lap_mul_add_distr_l.
+ simpl.
+ apply lap_add_compat; [ reflexivity | simpl ].
+ rewrite lap_mul_assoc.
+ apply lap_mul_compat; [ idtac | reflexivity ].
+ unfold lap_mul; simpl.
+ rewrite summation_only_one; simpl.
+ rewrite fld_mul_comm; reflexivity.
+Qed.
 
 (* Replacing αh + h.γ₁ with β₁, and simplifying the first summation, we get:
      f₁(x,y₁) = Σah.(c₁+y₁)^h +
@@ -691,8 +705,30 @@ remember Hns as H; clear HeqH.
 eapply f₁_eq_sum_α_hγ_to_rest in H; try eassumption.
 rewrite H.
 apply poly_add_compat; [ idtac | reflexivity ].
-rewrite subst_αh_hγ; try eassumption.
-rewrite yyy.
+rewrite subst_αh_hγ; try eassumption; simpl.
+rewrite poly_summation_mul.
+rewrite poly_mul_assoc.
+symmetry.
+rewrite <- poly_mul_1_l in |- * at 1.
+apply poly_mul_compat; [ idtac | reflexivity ].
+unfold poly_mul; simpl.
+unfold eq_poly; simpl.
+unfold ps_one; simpl.
+unfold lap_mul; simpl.
+rewrite summation_only_one; simpl.
+unfold x_power; simpl.
+constructor; [ idtac | reflexivity ].
+unfold ps_one; simpl.
+unfold ps_monom; simpl.
+unfold ps_mul; simpl.
+unfold cm; simpl.
+rewrite Z.mul_opp_l.
+rewrite Z.add_opp_diag_l.
+rewrite
+ ps_adjust_eq with (k := (Qden (β ns) * Qden (β ns))%positive) (n := O).
+unfold adjust_ps; simpl.
+rewrite series_shift_0.
+rewrite series_stretch_stretch.
 bbb.
 
 (* old stuff; to be used later perhaps *)
