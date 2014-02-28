@@ -941,6 +941,25 @@ simpl in Heqpts.
 rewrite Heqpts; reflexivity.
 Qed.
 
+Lemma points_in_newton_segment_have_nat_abscissa : ∀ pol ns,
+  ns ∈ newton_segments f pol
+  → ∀ pt, pt ∈ [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → ∃ h αh, pt = (Qnat h, αh).
+Proof.
+intros pol ns Hns pt Hpt.
+destruct Hpt as [H| H].
+ rewrite <- H.
+ eapply exists_ini_pt_nat; eassumption.
+
+ apply List.in_app_or in H.
+ destruct H as [H| H].
+  eapply exists_oth_pt_nat; eassumption.
+
+  destruct H as [H| ]; [ idtac | contradiction ].
+  rewrite <- H.
+  eapply exists_fin_pt_nat; eassumption.
+Qed.
+
 Definition jk_mjk_g_of_ns (pol : polynomial (puiseux_series α)) ns :=
   let m := series_list_com_polord (al pol) in
   let j := Z.to_nat (Qnum (fst (ini_pt ns))) in
@@ -1966,40 +1985,65 @@ destruct Hns as [Hns| Hns].
   eapply minimise_slope_end_lt; try eassumption; reflexivity.
 Qed.
 
-Lemma oth_fin_pts_sorted : ∀ pol ns,
+Lemma ini_oth_fin_pts_sorted : ∀ pol ns,
   ns ∈ newton_segments f pol
-  → Sorted fst_lt (oth_pts ns ++ [fin_pt ns]).
+  → Sorted fst_lt [ini_pt ns … oth_pts ns ++ [fin_pt ns]].
 Proof.
 intros pol ns Hns.
-remember Hns as Hns_v; clear HeqHns_v.
-unfold newton_segments in Hns.
-remember (points_of_ps_polynom f pol) as pts.
-apply points_of_polyn_sorted in Heqpts.
-remember (lower_convex_hull_points pts) as hsl.
-unfold lower_convex_hull_points in Heqhsl.
-rename Heqhsl into Hnp.
-symmetry in Hnp.
-remember (length pts) as n; clear Heqn.
-induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
-destruct hsl as [| hs₂]; [ contradiction | idtac ].
-rewrite list_map_pairs_cons_cons in Hns.
-apply Sorted_app_at_r.
- destruct Hns as [Hns| Hns].
-  subst ns; simpl.
-  eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
-  rewrite Hnp; left; reflexivity.
+constructor.
+ remember Hns as Hns_v; clear HeqHns_v.
+ unfold newton_segments in Hns.
+ remember (points_of_ps_polynom f pol) as pts.
+ apply points_of_polyn_sorted in Heqpts.
+ remember (lower_convex_hull_points pts) as hsl.
+ unfold lower_convex_hull_points in Heqhsl.
+ rename Heqhsl into Hnp.
+ symmetry in Hnp.
+ remember (length pts) as n; clear Heqn.
+ induction hsl as [| hs₁]; intros; [ contradiction | idtac ].
+ destruct hsl as [| hs₂]; [ contradiction | idtac ].
+ rewrite list_map_pairs_cons_cons in Hns.
+ apply Sorted_app_at_r.
+  destruct Hns as [Hns| Hns].
+   subst ns; simpl.
+   eapply edge_pts_sorted with (n := n); [ eassumption | idtac ].
+   rewrite Hnp; left; reflexivity.
 
-  destruct n; [ discriminate Hnp | simpl in Hnp ].
-  destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
-  destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
-  injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
-  remember (minimise_slope pt₁ pt₂ pts) as ms₁.
-  symmetry in Heqms₁.
-  eapply minimise_slope_oth_pts_sorted; eassumption.
+   destruct n; [ discriminate Hnp | simpl in Hnp ].
+   destruct pts as [| pt₁]; [ discriminate Hnp | idtac ].
+   destruct pts as [| pt₂]; [ discriminate Hnp | idtac ].
+   injection Hnp; clear Hnp; intros Hnp; intros; subst hs₁.
+   remember (minimise_slope pt₁ pt₂ pts) as ms₁.
+   symmetry in Heqms₁.
+   eapply minimise_slope_oth_pts_sorted; eassumption.
 
- intros (hq, αh) Hh.
- eapply hq_lt_kq; try eassumption.
- symmetry; apply surjective_pairing.
+  intros (hq, αh) Hh.
+  eapply hq_lt_kq; try eassumption.
+  symmetry; apply surjective_pairing.
+
+ remember Hns as Hini; clear HeqHini.
+ apply exists_ini_pt_nat in Hini.
+ destruct Hini as (j, (aj, Hini)).
+ remember Hns as Hfin; clear HeqHfin.
+ apply exists_fin_pt_nat in Hfin.
+ destruct Hfin as (k, (ak, Hfin)).
+ symmetry in Hini, Hfin.
+ apply HdRel_app.
+  remember (oth_pts ns) as pts eqn:Hpts .
+  symmetry in Hpts.
+  destruct pts as [| (h, ah)]; constructor.
+  rewrite <- Hini; unfold fst_lt; simpl.
+  eapply jq_lt_hq; try eassumption.
+  rewrite Hpts; left; reflexivity.
+
+  constructor.
+  rewrite <- Hini, <- Hfin; unfold fst_lt; simpl.
+  unfold Qlt; simpl.
+  do 2 rewrite Z.mul_1_r.
+  eapply jz_lt_kz; try eassumption.
+   rewrite <- Hini; reflexivity.
+
+   rewrite <- Hfin; reflexivity.
 Qed.
 
 Close Scope nat_scope.
@@ -2050,7 +2094,8 @@ destruct i.
    assumption.
 
    rewrite <- Hqjk, Hk.
-   eapply oth_fin_pts_sorted; eassumption.
+   eapply Sorted_inv_1.
+   eapply ini_oth_fin_pts_sorted; eassumption.
 
    intros hq αh Hhαh.
    apply List.in_app_or in Hhαh.
@@ -2384,7 +2429,8 @@ rewrite list_length_shrink; simpl.
      subst a.
      apply ini_fin_ns_in_init_pts; eassumption.
 
-    eapply oth_fin_pts_sorted; eassumption.
+    eapply Sorted_inv_1.
+    eapply ini_oth_fin_pts_sorted; eassumption.
 
   subst q.
   rewrite <- Nat.sub_succ_l; [ apply Nat_sub_succ_1 | idtac ].
@@ -2725,11 +2771,13 @@ apply imp_or_tauto.
    constructor.
     apply Sorted_app_at_r.
      remember Hns as Hsort; clear HeqHsort.
-     apply oth_fin_pts_sorted in Hsort.
+     apply ini_oth_fin_pts_sorted in Hsort.
+     apply Sorted_inv_1 in Hsort.
      apply Sorted_app in Hsort.
      destruct Hsort as (Hsort, _).
      apply Sorted_Qnat_Sorted_Qnum.
-      apply oth_fin_pts_sorted in Hns.
+      apply ini_oth_fin_pts_sorted in Hns.
+      apply Sorted_inv_1 in Hns.
       apply Sorted_app in Hns.
       destruct Hns; assumption.
 
@@ -2737,7 +2785,8 @@ apply imp_or_tauto.
 
      intros pt Hpt.
      remember Hns as Hsort; clear HeqHsort.
-     apply oth_fin_pts_sorted in Hsort.
+     apply ini_oth_fin_pts_sorted in Hsort.
+     apply Sorted_inv_1 in Hsort.
      apply Sorted_Qnat_Sorted_Qnum in Hsort.
       eapply Sorted_trans_app in Hsort; try eassumption.
       intros x y z H₁ H₂; eapply Z.lt_trans; eassumption.

@@ -3,6 +3,7 @@
 Require Import Utf8.
 Require Import QArith.
 Require Import NPeano.
+Require Import Sorted.
 
 Require Import ConvexHullMisc.
 Require Import PolyConvexHull.
@@ -531,7 +532,8 @@ Lemma val_of_pt_app_comm : ∀ pol ns h,
 Proof.
 (* à nettoyer *)
 intros pol ns h Hns.
-apply oth_fin_pts_sorted in Hns.
+apply ini_oth_fin_pts_sorted in Hns.
+apply Sorted_inv_1 in Hns.
 remember (oth_pts ns) as pts; clear Heqpts.
 induction pts as [| pt]; intros; [ reflexivity | simpl ].
 destruct pt as (l, al); simpl.
@@ -584,6 +586,22 @@ destruct (Qeq_dec (Qnat h) l) as [H₁| H₁]; simpl.
    eapply Sorted_inv_1; eassumption.
 Qed.
 
+Lemma list_in_cons_app : ∀ A (a : A) x y l,
+  List.In a [x … l ++ [y]] → List.In a [x; y … l].
+Proof.
+intros A a x y l H.
+simpl in H; simpl.
+destruct H as [| H]; [ left; assumption | right ].
+revert H; clear; intros.
+induction l as [| x]; intros; [ assumption | simpl ].
+simpl in H.
+destruct H as [H| H].
+ right; left; assumption.
+
+ apply IHl in H.
+ destruct H as [H| H]; [ left | right; right ]; assumption.
+Qed.
+
 (* Σah.x^(αh+h.γ).(c₁+y₁)^h = Σah.x^β.(c₁+y₁)^h *)
 Lemma zzz : ∀ pol ns pl tl l₁ c₁,
   ns ∈ newton_segments K pol
@@ -613,6 +631,17 @@ constructor; [ idtac | reflexivity ].
 apply fld_mul_compat; [ reflexivity | simpl ].
 unfold x_power; simpl.
 rewrite points_in_any_newton_segment; [ reflexivity | eassumption | idtac ].
+apply list_in_cons_app.
+remember Hns as Hsort; clear HeqHsort.
+apply ini_oth_fin_pts_sorted in Hsort.
+rewrite <- Hpl in Hsort; rewrite <- Hpl.
+subst tl l₁.
+rewrite List.map_map in Hh; simpl in Hh.
+assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
+ intros pt Hpt.
+ eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
+ subst pl; assumption.
+bbb.
 remember Hns as Hini; clear HeqHini.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_ini_pt_nat in Hini.
@@ -630,9 +659,16 @@ destruct Hh as [Hh| Hh].
  destruct (Qeq_dec (Qnat j) (Qnat j)) as [| H]; [ reflexivity | idtac ].
  exfalso; apply H; reflexivity.
 
- rewrite List.map_app in Hh.
- rewrite List.map_app in Hh.
  rewrite List.map_map in Hh; simpl in Hh.
+ right.
+ remember (val_of_pt h pl) as v eqn:Hv .
+ subst pl tl l₁.
+ rewrite Hini in Hv; simpl in Hv.
+ destruct (Qeq_dec (Qnat h) (Qnat j)) as [H| H].
+  subst v.
+bbb.
+ rewrite List.map_app in Hh.
+ rewrite List.map_app in Hh.
  simpl in Hh.
  apply List.in_app_or in Hh.
  destruct Hh as [Hh| Hh].
