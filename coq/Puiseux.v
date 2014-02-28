@@ -649,13 +649,11 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  apply val_is_val_of_pt; assumption.
 Qed.
 
-(* Replacing αh + h.γ₁ with β₁, we get:
-     f₁(x,y₁) = x^(-β₁).Σah.x^β₁.(c₁+y₁)^h +
+(* Replacing αh + h.γ₁ with β₁, and simplifying the first summation, we get:
+     f₁(x,y₁) = Σah.(c₁+y₁)^h +
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
-(* TODO: more changes, in particular change the theorem where x^(-β₁)
-   and x^β₁ cancel themselves in the first term *)
 Theorem zzz : ∀ pol ns c₁ pl tl l₁ l₂,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -663,11 +661,10 @@ Theorem zzz : ∀ pol ns c₁ pl tl l₁ l₂,
       → l₁ = List.map (λ t, power t) tl
         → split_list (List.seq 0 (length (al pol))) l₁ l₂
           → (pol₁ K pol (β ns) (γ ns) c₁ .= Kx
-             POL [x_power K (- β ns)] .* Kx
              poly_summation Kx l₁
                (λ h,
                 let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
-                POL [(ah .* K x_power K (β ns))%ps] .* Kx
+                POL [ah] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
              POL [x_power K (- β ns)] .* Kx
              (poly_summation Kx l₁
@@ -683,10 +680,11 @@ Theorem zzz : ∀ pol ns c₁ pl tl l₁ l₂,
                  POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx l)))%pol.
 Proof.
 intros pol ns c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
-rewrite <- subst_αh_hγ; try eassumption.
-eapply f₁_eq_sum_α_hγ_to_rest; eassumption.
-Qed.
-
+remember Hns as H; clear HeqH.
+eapply f₁_eq_sum_α_hγ_to_rest in H; try eassumption.
+rewrite H.
+apply poly_add_compat; [ idtac | reflexivity ].
+rewrite subst_αh_hγ; try eassumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
