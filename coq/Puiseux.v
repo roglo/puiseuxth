@@ -662,6 +662,46 @@ destruct Hh as [Hh| Hh].
     eapply hq_lt_kq in Hns; try eassumption.
     rewrite H₁ in Hns.
     exfalso; revert Hns; apply Qlt_irrefl.
+
+    subst pl tl l₁.
+    apply List.in_split in Hx.
+    destruct Hx as (l₁, (l₂, Hx)).
+    clear H H₁.
+    revert Hns Hx; clear; intros.
+    apply oth_fin_pts_sorted in Hns.
+    apply Sorted_app in Hns.
+    destruct Hns as (Hsort, _).
+    rewrite Hx in Hsort.
+    rewrite Hx; simpl.
+    clear Hx.
+    induction l₁ as [| (l, al)]; simpl.
+     destruct (Qeq_dec (Qnat h) (Qnat h)) as [H₁| H₁].
+      left; reflexivity.
+
+      exfalso; apply H₁; reflexivity.
+
+     destruct (Qeq_dec (Qnat h) l) as [H₁| H₁].
+      right.
+      apply List.in_or_app.
+      right; left.
+      simpl in Hsort.
+      revert Hsort H₁; clear; intros; exfalso.
+      induction l₁ as [| (m, am)].
+       simpl in Hsort.
+       apply Sorted_inv_2 in Hsort.
+       destruct Hsort as (Hsort, _).
+       unfold fst_lt in Hsort; simpl in Hsort.
+       rewrite H₁ in Hsort.
+       revert Hsort; apply Qlt_irrefl.
+
+       apply IHl₁.
+       simpl in Hsort.
+       eapply Sorted_minus_2nd; [ idtac | eassumption ].
+       intros; eapply Qlt_trans; eassumption.
+
+      right.
+      apply List.in_or_app.
+      right; left.
 bbb.
 
 (* old stuff; to be used later perhaps *)
