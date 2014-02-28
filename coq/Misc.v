@@ -1464,6 +1464,22 @@ subst l; split.
  apply Nat.lt_0_succ.
 Qed.
 
+Lemma list_in_cons_app : ∀ A (a : A) x y l,
+  List.In a [x … l ++ [y]] → List.In a [x; y … l].
+Proof.
+intros A a x y l H.
+simpl in H; simpl.
+destruct H as [| H]; [ left; assumption | right ].
+revert H; clear; intros.
+induction l as [| x]; intros; [ assumption | simpl ].
+simpl in H.
+destruct H as [H| H].
+ right; left; assumption.
+
+ apply IHl in H.
+ destruct H as [H| H]; [ left | right; right ]; assumption.
+Qed.
+
 Lemma list_map_app_at : ∀ A B (g : A → B) l x,
   List.map g l ++ [g x] = List.map g (l ++ [x]).
 Proof.

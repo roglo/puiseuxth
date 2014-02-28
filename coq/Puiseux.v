@@ -525,84 +525,6 @@ rewrite <- summation_split_val; try eassumption.
 apply f₁_eq_x_min_β₁_summation_split; assumption.
 Qed.
 
-(* bon mais peut-être pas utile...
-Lemma val_of_pt_app_comm : ∀ pol ns h,
-  ns ∈ newton_segments K pol
-  → val_of_pt h (oth_pts ns ++ [fin_pt ns]) =
-    val_of_pt h [fin_pt ns … oth_pts ns].
-Proof.
-intros pol ns h Hns.
-apply ini_oth_fin_pts_sorted in Hns.
-apply Sorted_inv_1 in Hns.
-remember (oth_pts ns) as pts; clear Heqpts.
-induction pts as [| pt]; intros; [ reflexivity | simpl ].
-destruct pt as (l, al); simpl.
-destruct (Qeq_dec (Qnat h) l) as [H₁| H₁]; simpl.
- destruct (fin_pt ns) as (k, ak); simpl.
- simpl in Hns.
- destruct (Qeq_dec (Qnat h) k) as [H₂| ]; [ idtac | reflexivity ].
- rewrite H₁ in H₂.
- apply Sorted.Sorted_inv in Hns.
- destruct Hns as (Hsort, Hrel).
- remember Hsort as Hval; clear HeqHval.
- apply IHpts in Hval.
- revert Hsort Hrel Hval H₂; clear; intros; exfalso.
- revert l al k ak Hrel H₂ Hsort Hval.
- induction pts as [| (m, am)]; intros; simpl.
-  simpl in Hrel.
-  inversion Hrel; subst.
-  unfold fst_lt in H0; simpl in H0.
-  rewrite H₂ in H0.
-  revert H0; apply Qlt_irrefl.
-
-  simpl in Hrel.
-  inversion Hrel; subst.
-  unfold fst_lt in H0; simpl in H0.
-  eapply Sorted_trans_app in Hsort; [ idtac | idtac | left; reflexivity ].
-   unfold fst_lt in Hsort; simpl in Hsort.
-   eapply Qlt_trans in Hsort; [ idtac | eassumption ].
-   rewrite H₂ in Hsort.
-   revert Hsort; apply Qlt_irrefl.
-
-   intros; eapply Qlt_trans; eassumption.
-
- destruct (fin_pt ns) as (k, ak).
- destruct (Qeq_dec (Qnat h) k) as [H₂| H₂].
-  rewrite IHpts.
-   simpl.
-   destruct (Qeq_dec (Qnat h) k) as [| H₃]; [ reflexivity | idtac ].
-   exfalso; apply H₃; assumption.
-
-   simpl in Hns.
-   apply Sorted_inv_1 in Hns; assumption.
-
-  rewrite IHpts.
-   simpl.
-   destruct (Qeq_dec (Qnat h) k) as [H₃| H₃].
-    exfalso; apply H₂; assumption.
-
-    reflexivity.
-
-   eapply Sorted_inv_1; eassumption.
-Qed.
-*)
-
-Lemma list_in_cons_app : ∀ A (a : A) x y l,
-  List.In a [x … l ++ [y]] → List.In a [x; y … l].
-Proof.
-intros A a x y l H.
-simpl in H; simpl.
-destruct H as [| H]; [ left; assumption | right ].
-revert H; clear; intros.
-induction l as [| x]; intros; [ assumption | simpl ].
-simpl in H.
-destruct H as [H| H].
- right; left; assumption.
-
- apply IHl in H.
- destruct H as [H| H]; [ left | right; right ]; assumption.
-Qed.
-
 Lemma val_is_val_of_pt : ∀ pl h,
   Sorted fst_lt pl
   → (∀ pt, pt ∈ pl → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh))
@@ -725,6 +647,44 @@ assert (∀ pt, pt ∈ pl → ∃ h αh, pt = (Qnat h, αh)) as Hnat.
  subst pl; assumption.
 
  apply val_is_val_of_pt; assumption.
+Qed.
+
+(* Replacing αh + h.γ₁ with β₁, we get:
+     f₁(x,y₁) = x^(-β₁).Σah.x^β₁.(c₁+y₁)^h +
+                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
+                         Σāl.x^(l.γ₁).(c₁+y₁)^l]
+*)
+(* TODO: more changes, in particular change the theorem where x^(-β₁)
+   and x^β₁ cancel themselves in the first term *)
+Theorem zzz : ∀ pol ns c₁ pl tl l₁ l₂,
+  ns ∈ newton_segments K pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point K pol) pl
+      → l₁ = List.map (λ t, power t) tl
+        → split_list (List.seq 0 (length (al pol))) l₁ l₂
+          → (pol₁ K pol (β ns) (γ ns) c₁ .= Kx
+             POL [x_power K (- β ns)] .* Kx
+             poly_summation Kx l₁
+               (λ h,
+                let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                POL [(ah .* K x_power K (β ns))%ps] .* Kx
+                POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+             POL [x_power K (- β ns)] .* Kx
+             (poly_summation Kx l₁
+                (λ h,
+                 let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                 let αh := val_of_pt h pl in
+                 POL [((ā K h pol .- K ah .* K x_power K αh) .* K
+                       x_power K (Qnat h * γ ns))%ps] .* Kx
+                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+              poly_summation Kx l₂
+                (λ l,
+                 POL [(ā K l pol .* K x_power K (Qnat l * γ ns))%ps] .* Kx
+                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx l)))%pol.
+Proof.
+intros pol ns c₁ pl tl l₁ l₂ Hns Hpl Htl Hl Hss.
+rewrite <- subst_αh_hγ; try eassumption.
+eapply f₁_eq_sum_α_hγ_to_rest; eassumption.
 Qed.
 
 bbb.
