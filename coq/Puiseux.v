@@ -724,6 +724,20 @@ rewrite series_shift_0, stretch_series_1.
 reflexivity.
 Qed.
 
+Lemma lap_summation_compat_r : ∀ A (f : field A) g h la,
+  (∀ i, lap_eq f (g i) (h i))
+  → lap_eq f (lap_summation f la g) (lap_summation f la h).
+Proof.
+intros A f g h la Hi.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite IHla.
+rewrite Hi.
+reflexivity.
+Qed.
+
+(λ i, List.map (fld_mul Kx (c_x_power K (coeff (List.nth i tl pht)) 0)) 
+(lap_power Kx la i))
+
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -750,11 +764,16 @@ rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
 subst lm; simpl.
 rewrite <- Htl.
 remember [c_x_power K c₁ 0; .1 K%ps … []] as la eqn:Hla .
-apply list_nth_lap_eq; intros i; simpl.
-unfold lap_mul; simpl.
-subst Kx; simpl.
-rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
-remember (ps_field K) as Kx eqn:HKx .
+remember
+ (λ i,
+  List.map (fld_mul Kx (c_x_power K (coeff (List.nth i tl pht)) 0))
+    (lap_power Kx la i)) as toto.
+rewrite lap_summation_compat_r with (h := toto).
+ Focus 2.
+ subst toto; intros i.
+ apply lap_mul_const_l.
+
+ subst toto.
 bbb.
 
 (* old stuff; to be used later perhaps *)
