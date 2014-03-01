@@ -750,6 +750,11 @@ rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
 subst lm; simpl.
 rewrite <- Htl.
 remember [c_x_power K c₁ 0; .1 K%ps … []] as la eqn:Hla .
+apply list_nth_lap_eq; intros i; simpl.
+unfold lap_mul; simpl.
+subst Kx; simpl.
+rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+remember (ps_field K) as Kx eqn:HKx .
 bbb.
 
 (* old stuff; to be used later perhaps *)
