@@ -279,16 +279,6 @@ rewrite lap_add_shuffle0.
 apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
-Lemma lap_eq_list_fold_right : ∀ β g h x (l : list β),
-  (∀ i a b, i ∈ l → lap_eq K a b → lap_eq K (g i a) (h i b))
-  → lap_eq K (List.fold_right g x l) (List.fold_right h x l).
-Proof.
-induction l as [| y]; intros; [ reflexivity | simpl ].
-apply H; [ left; reflexivity | idtac ].
-apply IHl; intros i a b Hi Heq.
-apply H; [ right; assumption | assumption ].
-Qed.
-
 End on_fields.
 
 Section theorems.
@@ -745,15 +735,19 @@ Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
                 POL [c_x_power K (coeff (List.nth h tl pht)) 0] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
-             poly_inject_K_in_Kx K (Φ K pol ns))%pol.
+             poly_inject_K_in_Kx K (Φq K pol ns))%pol.
 Proof.
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
-unfold poly_inject_K_in_Kx; simpl.
+unfold poly_inject_K_in_Kx.
+remember List.map as lm; simpl.
 rewrite Hini; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id.
 rewrite Nat.sub_diag; simpl.
 rewrite skipn_pad; simpl.
+unfold eq_poly; simpl.
+rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
+subst lm; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)

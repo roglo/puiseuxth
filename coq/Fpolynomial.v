@@ -163,6 +163,17 @@ Add Parametric Relation α (f : field α) : (polynomial α) (eq_poly f)
  transitivity proved by (eq_poly_trans (f := f))
  as eq_poly_rel.
 
+Lemma lap_eq_list_fold_right : ∀ α (K : field α) β g h x (l : list β),
+  (∀ i a b, i ∈ l → lap_eq K a b → lap_eq K (g i a) (h i b))
+  → lap_eq K (List.fold_right g x l) (List.fold_right h x l).
+Proof.
+intros α K β g h x l H.
+induction l as [| y]; intros; [ reflexivity | simpl ].
+apply H; [ left; reflexivity | idtac ].
+apply IHl; intros i a b Hi Heq.
+apply H; [ right; assumption | assumption ].
+Qed.
+
 (* addition *)
 
 Fixpoint lap_add α (f : field α) al₁ al₂ :=
