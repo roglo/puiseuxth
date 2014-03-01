@@ -747,6 +747,13 @@ Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
              poly_inject_K_in_Kx K (Φ K pol ns))%pol.
 Proof.
+intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
+unfold poly_inject_K_in_Kx; simpl.
+rewrite Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id.
+rewrite Nat.sub_diag; simpl.
+rewrite skipn_pad; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
