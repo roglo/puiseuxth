@@ -451,13 +451,13 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
            poly_summation Kx l
              (λ h,
-              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
               let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
            poly_summation Kx l
              (λ h,
-              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
               let αh := val_of_pt h pl in
               POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                     x_power K (Qnat h * γ₁))%ps] .* Kx
@@ -500,14 +500,14 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              POL [x_power K (- β₁)] .* Kx
              poly_summation Kx l₁
                (λ h,
-                let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
                 let αh := val_of_pt h pl in
                 POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
              POL [x_power K (- β₁)] .* Kx
              (poly_summation Kx l₁
                 (λ h,
-                 let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                 let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
                  let αh := val_of_pt h pl in
                  POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                        x_power K (Qnat h * γ₁))%ps] .* Kx
@@ -614,13 +614,13 @@ Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
       → l₁ = List.map (λ t, power t) tl
         → (poly_summation Kx l₁
              (λ h,
-              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
               let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (αh + Qnat h * γ ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
            poly_summation Kx l₁
              (λ h,
-              let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
               POL [(ah .* K x_power K (β ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
@@ -684,13 +684,13 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
           → (pol₁ K pol (β ns) (γ ns) c₁ .= Kx
              poly_summation Kx l₁
                (λ h,
-                let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
                 POL [ah] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
              POL [x_power K (- β ns)] .* Kx
              (poly_summation Kx l₁
                 (λ h,
-                 let ah := c_x_power K (coeff (List.nth 0 tl pht)) 0 in
+                 let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
                  let αh := val_of_pt h pl in
                  POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                        x_power K (Qnat h * γ ns))%ps] .* Kx
@@ -731,6 +731,20 @@ rewrite series_shift_0, stretch_series_1.
 reflexivity.
 Qed.
 
+(* typing problem, for the moment... *)
+Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
+  ns ∈ newton_segments K pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point K pol) pl
+      → l = List.map (λ t, power t) tl
+        → ini_pt ns = (Qnat j, αj)
+          → (poly_summation Kx l
+               (λ h,
+                POL [c_x_power K (coeff (List.nth h tl pht)) 0] .* Kx
+                POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
+             POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
+             Φ K pol ns)%pol.
+Proof.
 bbb.
 
 (* old stuff; to be used later perhaps *)
