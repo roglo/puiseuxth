@@ -735,9 +735,6 @@ rewrite Hi.
 reflexivity.
 Qed.
 
-(λ i, List.map (fld_mul Kx (c_x_power K (coeff (List.nth i tl pht)) 0)) 
-(lap_power Kx la i))
-
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -749,8 +746,26 @@ Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
                 POL [c_x_power K (coeff (List.nth h tl pht)) 0] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
-             poly_inject_K_in_Kx K (Φq K pol ns))%pol.
+             poly_compose Kx (poly_inject_K_in_Kx K (Φq K pol ns))
+               (POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
 Proof.
+intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
+unfold poly_inject_K_in_Kx.
+remember List.map as lm; simpl.
+rewrite Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id.
+rewrite Nat.sub_diag; simpl.
+rewrite skipn_pad; simpl.
+unfold eq_poly; simpl.
+rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
+subst lm; simpl.
+rewrite <- Htl.
+remember [c_x_power K c₁ 0; .1 K%ps … []] as la eqn:Hla .
+unfold lap_compose.
+unfold lap_summation.
+bbb.
+
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
 unfold poly_inject_K_in_Kx.
 remember List.map as lm; simpl.

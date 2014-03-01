@@ -1129,13 +1129,13 @@ rewrite list_fold_right_some_compat.
   rewrite lap_mul_nil_l, lap_mul_nil_r; reflexivity.
 Qed.
 
-Lemma lap_mul_fold_add_distr : ∀ α (f : field α) la li (g : nat → list α) x,
+Lemma lap_mul_fold_add_distr : ∀ α (f : field α) β la li (g : β → list α) x,
   lap_eq f
     (lap_mul f x (List.fold_right (λ i accu, lap_add f accu (g i)) la li))
     (List.fold_right (λ i accu, lap_add f accu (lap_mul f x (g i)))
        (lap_mul f x la) li).
 Proof.
-intros α f la li g x.
+intros α f β la li g x.
 revert la x.
 induction li as [| j]; intros; [ reflexivity | simpl ].
 rewrite lap_mul_add_distr_l.
