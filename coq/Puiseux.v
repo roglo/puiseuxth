@@ -749,6 +749,7 @@ unfold eq_poly; simpl.
 rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
 subst lm; simpl.
 rewrite <- Htl.
+remember [c_x_power K c₁ 0; .1 K%ps … []] as la eqn:Hla .
 bbb.
 
 (* old stuff; to be used later perhaps *)
