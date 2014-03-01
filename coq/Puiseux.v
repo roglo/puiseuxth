@@ -748,6 +748,7 @@ rewrite skipn_pad; simpl.
 unfold eq_poly; simpl.
 rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
 subst lm; simpl.
+rewrite <- Htl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
