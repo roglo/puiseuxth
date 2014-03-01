@@ -50,6 +50,9 @@ Definition lap_summation α (f : field α) (li : list nat) g :=
 Definition poly_summation α (f : field α) (li : list nat) g :=
   (POL (lap_summation f li (λ i, al (g i))))%pol.
 
+Definition poly_inject_K_in_Kx α (K : field α) pol :=
+  (POL (List.map (λ c, ps_monom K c 0) (al pol)))%pol.
+
 Inductive split_list α : list α → list α → list α → Prop :=
   | sl_nil : split_list [] [] []
   | sl_cons_l : ∀ x l l₁ l₂,
@@ -731,7 +734,6 @@ rewrite series_shift_0, stretch_series_1.
 reflexivity.
 Qed.
 
-(* typing problem, for the moment... *)
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -743,7 +745,7 @@ Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
                 POL [c_x_power K (coeff (List.nth h tl pht)) 0] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
-             Φ K pol ns)%pol.
+             poly_inject_K_in_Kx K (Φ K pol ns))%pol.
 Proof.
 bbb.
 
