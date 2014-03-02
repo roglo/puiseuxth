@@ -762,8 +762,10 @@ rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
 subst lm; simpl.
 rewrite <- Htl.
 remember [c_x_power K c₁ 0; .1 K%ps … []] as la eqn:Hla .
-unfold lap_compose.
+rewrite lap_compose_compose2.
+unfold lap_compose2.
 unfold lap_summation.
+rewrite lap_mul_fold_add_distr; simpl.
 bbb.
 
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
