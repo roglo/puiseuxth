@@ -766,6 +766,7 @@ rewrite lap_compose_compose2.
 unfold lap_compose2.
 unfold lap_summation.
 rewrite lap_mul_fold_add_distr; simpl.
+rewrite list_length_map.
 bbb.
 
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.

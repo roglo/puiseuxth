@@ -1586,3 +1586,10 @@ Proof. intros α a b; destruct a; reflexivity. Qed.
 Lemma fold_sub_succ_l : ∀ a b,
   (match a with 0 => S b | S c => b - c end = S b - a)%nat.
 Proof. reflexivity. Qed.
+
+Lemma list_length_map : ∀ A B (f : A → B) l, length (List.map f l) = length l.
+Proof.
+intros A B f l.
+induction l; [ reflexivity | simpl ].
+rewrite IHl; reflexivity.
+Qed.
