@@ -735,6 +735,44 @@ rewrite Hi.
 reflexivity.
 Qed.
 
+Lemma yyy : ∀ pol ns pl tl j αj k αk,
+  ns ∈ newton_segments K pol
+  → ini_pt ns = (Qnat j, αj)
+    → fin_pt ns = (Qnat k, αk)
+      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+        → tl = List.map (term_of_point K pol) pl
+          → length (make_char_pol K j tl) = S (k - j).
+Proof.
+intros pol ns pl tl j αj k αk Hns Hini Hfin Hpl Htl.
+rewrite Htl, Hpl, Hini, Hfin; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id, Nat.sub_diag; simpl.
+rewrite List.map_app; simpl.
+rewrite length_char_pol; simpl.
+ unfold nofq; simpl.
+ rewrite Nat2Z.id.
+ reflexivity.
+
+ clear pl tl Hpl Htl.
+ remember (List.map (term_of_point K pol) (oth_pts ns)) as tl eqn:Htl .
+ remember (term_of_point K pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
+ unfold term_of_point in Htk; simpl in Htk.
+ unfold nofq in Htk; simpl in Htk.
+ rewrite Nat2Z.id in Htk.
+ subst tk; simpl.
+ destruct tl as [| t]; simpl.
+  eapply j_lt_k; try eassumption.
+   rewrite Hini; simpl; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+   rewrite Hfin; simpl; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+  symmetry in Hini, Hfin.
+  eapply j_lt_h; try eassumption; try reflexivity.
+bbb.
+*)
+
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -750,6 +788,9 @@ Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
                (POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
 Proof.
 intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hfin)).
 unfold poly_inject_K_in_Kx.
 remember List.map as lm; simpl.
 rewrite Hini; simpl.
@@ -768,6 +809,8 @@ unfold lap_summation.
 rewrite lap_mul_fold_add_distr; simpl.
 rewrite list_length_map.
 subst l.
+rewrite Hini, Hfin in Hpl.
+erewrite yyy; try eassumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
