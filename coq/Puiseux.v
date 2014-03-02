@@ -767,31 +767,7 @@ unfold lap_compose2.
 unfold lap_summation.
 rewrite lap_mul_fold_add_distr; simpl.
 rewrite list_length_map.
-bbb.
-
-intros pol ns pl tl l c₁ j αj Hns Hpl Htl Hl Hini.
-unfold poly_inject_K_in_Kx.
-remember List.map as lm; simpl.
-rewrite Hini; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id.
-rewrite Nat.sub_diag; simpl.
-rewrite skipn_pad; simpl.
-unfold eq_poly; simpl.
-rewrite fold_char_pol with (αj := αj); rewrite <- Hini, <- Hpl.
-subst lm; simpl.
-rewrite <- Htl.
-remember [c_x_power K c₁ 0; .1 K%ps … []] as la eqn:Hla .
-remember
- (λ i,
-  List.map (fld_mul Kx (c_x_power K (coeff (List.nth i tl pht)) 0))
-    (lap_power Kx la i)) as toto.
-rewrite lap_summation_compat_r with (h := toto).
- Focus 2.
- subst toto; intros i.
- apply lap_mul_const_l.
-
- subst toto.
+subst l.
 bbb.
 
 (* old stuff; to be used later perhaps *)
