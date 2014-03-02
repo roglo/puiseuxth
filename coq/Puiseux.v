@@ -735,6 +735,7 @@ rewrite Hi.
 reflexivity.
 Qed.
 
+(* c'est compliqué...
 Lemma yyy : ∀ pol ns pl tl j αj k αk,
   ns ∈ newton_segments K pol
   → ini_pt ns = (Qnat j, αj)
@@ -753,14 +754,13 @@ rewrite length_char_pol; simpl.
  rewrite Nat2Z.id.
  reflexivity.
 
- clear pl tl Hpl Htl.
- remember (List.map (term_of_point K pol) (oth_pts ns)) as tl eqn:Htl .
+ remember (List.map (term_of_point K pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .
  remember (term_of_point K pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
  unfold term_of_point in Htk; simpl in Htk.
  unfold nofq in Htk; simpl in Htk.
  rewrite Nat2Z.id in Htk.
  subst tk; simpl.
- destruct tl as [| t]; simpl.
+ destruct tl₂ as [| t]; simpl.
   eapply j_lt_k; try eassumption.
    rewrite Hini; simpl; unfold nofq, Qnat; simpl.
    rewrite Nat2Z.id; reflexivity.
@@ -768,8 +768,10 @@ rewrite length_char_pol; simpl.
    rewrite Hfin; simpl; unfold nofq, Qnat; simpl.
    rewrite Nat2Z.id; reflexivity.
 
-  symmetry in Hini, Hfin.
-  eapply j_lt_h; try eassumption; try reflexivity.
+  remember (power t) as h eqn:Hh .
+  remember (val_of_pt h pl) as αh eqn:Hαh .
+  assert ((Qnat h, αh) ∈ oth_pts ns) as Hoth.
+   subst h αh; simpl.
 bbb.
 *)
 
