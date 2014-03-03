@@ -747,6 +747,13 @@ rewrite Hi.
 reflexivity.
 Qed.
 
+  pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+  lap_eq K
+    (List.fold_right f
+       [] (List.map (λ pt, nofq (fst pt)) pl))
+    (List.fold_right f
+       [] (List.map (λ pt, nofq (fst pt)) pl)).
+
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
