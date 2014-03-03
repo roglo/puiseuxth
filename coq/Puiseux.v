@@ -747,6 +747,36 @@ rewrite Hi.
 reflexivity.
 Qed.
 
+(*
+Lemma xxx : ∀ k n j,
+  (k - (n + j))%nat = 1%nat
+  → (n + j < k)%nat
+    → [k] =
+      (if match j with
+          | 0%nat => false
+          | S j₁ => Nat.eqb j j₁
+          end
+          || (if Nat.leb k n then false else Nat.eqb j (k - S n))
+       then [S n + j]
+       else []).
+Proof.
+bbb.
+*)
+
+Lemma match_nat_eq_false : ∀ i,
+  match i with
+  | 0%nat => false
+  | S j => Nat.eqb i j
+  end = false.
+Proof.
+intros i.
+destruct i; [ reflexivity | idtac ].
+induction i; [ reflexivity | idtac ].
+remember (S i) as j.
+rewrite Heqj in |- * at 2.
+assumption.
+Qed.
+
 Lemma yyy : ∀ pol ns pts j k αj αk,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -757,6 +787,45 @@ Lemma yyy : ∀ pol ns pts j k αj αk,
             (λ i, List.existsb (λ pt, Nat.eqb i (nofq (fst pt))) pts)
             (List.seq j (S (k - j))).
 Proof.
+intros pol ns pts j k αj αk Hns Hpl Hini Hfin.
+subst pts; simpl.
+rewrite Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id; simpl.
+rewrite Nat.eqb_refl; simpl.
+f_equal.
+remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+symmetry in Hpts.
+destruct pts as [| (hq, αh)]; simpl.
+ destruct (oth_pts ns); discriminate Hpts.
+
+ destruct pts as [| (hq₂, αh₂)]; simpl.
+  destruct (oth_pts ns) as [| x l]; [ idtac | destruct l; discriminate Hpts ].
+  simpl in Hpts.
+  rewrite Hfin in Hpts.
+  injection Hpts; clear Hpts; intros; subst hq αh; simpl.
+  rewrite Nat2Z.id.
+  remember (k - j)%nat as kj eqn:Hkj .
+  assert (j < k)%nat as Hjk.
+   eapply j_lt_k; try eassumption.
+    rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+    rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+   revert Hkj Hjk; clear; intros.
+   symmetry in Hkj.
+   destruct kj; intros; [ exfalso; omega | idtac ].
+   destruct kj.
+    destruct j; simpl in Hkj; simpl.
+     destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+     destruct k; simpl in Hkj; [ reflexivity | discriminate Hkj ].
+
+     rewrite match_nat_eq_false; simpl.
+     destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+     destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+     rewrite orb_false_r.
+bbb.
+
 intros pol ns pts j k αj αk Hns Hpl Hini Hfin.
 subst pts; simpl.
 rewrite Hini; simpl.
