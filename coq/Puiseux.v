@@ -787,6 +787,7 @@ erewrite length_char_pol; try eassumption.
 rewrite Htl, List.map_map.
 symmetry.
 rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
+rewrite List.map_ext with (g := λ x, nofq (fst x)); [ idtac | reflexivity ].
 bbb.
 
 (* old stuff; to be used later perhaps *)
