@@ -792,19 +792,24 @@ destruct pts as [| (hq, αh)]; simpl.
      rewrite Nat.sub_0_r in Hkj; subst k.
      reflexivity.
 
-     destruct k; [ exfalso; fast_omega Hjk | idtac ].
-     rewrite Nat.sub_succ in Hkj.
-     apply Nat.succ_lt_mono in Hjk.
-     apply IHj in Hkj; [ idtac | assumption ].
      simpl in Hkj; simpl.
      destruct j; simpl in Hkj; simpl.
-      destruct k; simpl in Hkj; simpl.
-       discriminate Hkj.
+      destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+      destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+      destruct k; simpl in Hkj; [ reflexivity | discriminate Hkj ].
 
-       destruct k; simpl in Hkj; simpl.
-        reflexivity.
+      destruct j; simpl in Hkj; simpl.
+       destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+       destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+       destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+       destruct k; simpl in Hkj; [ reflexivity | discriminate Hkj ].
 
-        discriminate Hkj.
+       destruct j; simpl in Hkj; simpl.
+        destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+        destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+        destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+        destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+        destruct k; simpl in Hkj; [ reflexivity | discriminate Hkj ].
 bbb.
 *)
 
