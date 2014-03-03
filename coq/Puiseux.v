@@ -279,6 +279,18 @@ rewrite lap_add_shuffle0.
 apply lap_add_compat; [ assumption | reflexivity ].
 Qed.
 
+Lemma lap_fold_compat_l : ∀ A (f g : A → _) la lb l,
+  lap_eq K la lb
+  → lap_eq K
+      (List.fold_right (λ v accu, lap_add K accu (lap_mul K (f v) (g v)))
+         la l)
+      (List.fold_right (λ v accu, lap_add K accu (lap_mul K (f v) (g v)))
+         lb l).
+Proof.
+intros A f g la lb l Heq.
+induction l; [ assumption | simpl; rewrite IHl; reflexivity ].
+Qed.
+
 End on_fields.
 
 Section theorems.
@@ -772,6 +784,9 @@ rewrite lap_mul_fold_add_distr; simpl.
 rewrite list_length_map.
 subst l.
 erewrite length_char_pol; try eassumption.
+rewrite Htl, List.map_map.
+symmetry.
+rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
 bbb.
 
 (* old stuff; to be used later perhaps *)
