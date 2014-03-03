@@ -754,10 +754,7 @@ Lemma yyy : ∀ pol ns pts j k αj αk,
       → fin_pt ns = (Qnat k, αk)
         → List.map (λ pt, nofq (fst pt)) pts =
           List.filter
-            (λ i,
-             List.existsb
-               (λ pt, if eq_nat_dec i (nofq (fst pt)) then true else false)
-               pts)
+            (λ i, List.existsb (λ pt, Nat.eqb i (nofq (fst pt))) pts)
             (List.seq j (S (k - j))).
 Proof.
 intros pol ns pts j k αj αk Hns Hpl Hini Hfin.
@@ -765,37 +762,49 @@ subst pts; simpl.
 rewrite Hini; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id; simpl.
-destruct (eq_nat_dec j j) as [H| H]; [ clear H; simpl | idtac ].
- 2: exfalso; apply H; reflexivity.
+rewrite Nat.eqb_refl; simpl.
+f_equal.
+remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+symmetry in Hpts.
+destruct pts as [| (hq, αh)]; simpl.
+ destruct (oth_pts ns); discriminate Hpts.
 
- f_equal.
- remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
- symmetry in Hpts.
- destruct pts as [| (hq, αh)]; simpl.
-  destruct (oth_pts ns); discriminate Hpts.
+ destruct pts as [| (hq₂, αh₂)]; simpl.
+  destruct (oth_pts ns) as [| x l]; [ idtac | destruct l; discriminate Hpts ].
+  simpl in Hpts.
+  rewrite Hfin in Hpts.
+  injection Hpts; clear Hpts; intros; subst hq αh; simpl.
+  rewrite Nat2Z.id.
+  remember (k - j)%nat as kj eqn:Hkj .
+  assert (j < k)%nat as Hjk.
+   eapply j_lt_k; try eassumption.
+    rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
 
-  destruct pts as [| (hq₂, αh₂)]; simpl.
-   destruct (oth_pts ns) as [| x l];
-    [ idtac | destruct l; discriminate Hpts ].
-   simpl in Hpts.
-   rewrite Hfin in Hpts.
-   injection Hpts; clear Hpts; intros; subst hq αh.
-   simpl.
-   remember (k - j)%nat as kj eqn:Hkj .
+    rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+   revert Hkj Hjk; clear; intros.
    symmetry in Hkj.
-   destruct kj.
-    exfalso.
-    apply j_lt_k with (j := j) (k := k) in Hns.
-     fast_omega Hns Hkj.
+   destruct kj; intros; [ exfalso; omega | idtac ].
+   revert j k Hkj Hjk.
+   induction kj; intros.
+    revert k Hkj Hjk.
+    induction j; intros; [ simpl | idtac ].
+     rewrite Nat.sub_0_r in Hkj; subst k.
+     reflexivity.
 
-     rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+     destruct k; [ exfalso; fast_omega Hjk | idtac ].
+     rewrite Nat.sub_succ in Hkj.
+     apply Nat.succ_lt_mono in Hjk.
+     apply IHj in Hkj; [ idtac | assumption ].
+     simpl in Hkj; simpl.
+     destruct j; simpl in Hkj; simpl.
+      destruct k; simpl in Hkj; simpl.
+       discriminate Hkj.
 
-     rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+       destruct k; simpl in Hkj; simpl.
+        reflexivity.
 
-    unfold nofq, Qnat; rewrite Nat2Z.id.
-    remember List.filter as f.
-    simpl.
-    subst f.
+        discriminate Hkj.
 bbb.
 *)
 
