@@ -735,7 +735,6 @@ rewrite Hi.
 reflexivity.
 Qed.
 
-(* c'est compliqué...
 Lemma yyy : ∀ pol ns pl tl j αj k αk,
   ns ∈ newton_segments K pol
   → ini_pt ns = (Qnat j, αj)
@@ -745,11 +744,12 @@ Lemma yyy : ∀ pol ns pl tl j αj k αk,
           → length (make_char_pol K j tl) = S (k - j).
 Proof.
 intros pol ns pl tl j αj k αk Hns Hini Hfin Hpl Htl.
-rewrite Htl, Hpl, Hini, Hfin; simpl.
+rewrite Htl, Hpl, Hini; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id, Nat.sub_diag; simpl.
 rewrite List.map_app; simpl.
 rewrite length_char_pol; simpl.
+ rewrite Hfin.
  unfold nofq; simpl.
  rewrite Nat2Z.id.
  reflexivity.
@@ -760,7 +760,12 @@ rewrite length_char_pol; simpl.
  unfold nofq in Htk; simpl in Htk.
  rewrite Nat2Z.id in Htk.
  subst tk; simpl.
- destruct tl₂ as [| t]; simpl.
+ remember (oth_pts ns) as pts eqn:Hpts .
+ symmetry in Hpts.
+ destruct pts as [| (h, αh)].
+  subst tl₂; simpl.
+  rewrite Hfin; unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id.
   eapply j_lt_k; try eassumption.
    rewrite Hini; simpl; unfold nofq, Qnat; simpl.
    rewrite Nat2Z.id; reflexivity.
@@ -768,10 +773,16 @@ rewrite length_char_pol; simpl.
    rewrite Hfin; simpl; unfold nofq, Qnat; simpl.
    rewrite Nat2Z.id; reflexivity.
 
-  remember (power t) as h eqn:Hh .
-  remember (val_of_pt h pl) as αh eqn:Hαh .
-  assert ((Qnat h, αh) ∈ oth_pts ns) as Hoth.
-   subst h αh; simpl.
+  subst tl₂; simpl.
+  assert ((h, αh) ∈ oth_pts ns) as Hh by (rewrite Hpts; left; reflexivity).
+  remember Hh as H; clear HeqH.
+  eapply exists_oth_pt_nat in H; [ idtac | eassumption ].
+  destruct H as (i, (ai, Hi)).
+  injection Hi; clear Hi; intros; subst h ai; rename i into h.
+  unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id.
+  symmetry in Hini.
+  eapply j_lt_h; try eassumption; reflexivity.
 bbb.
 *)
 
