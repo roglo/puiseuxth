@@ -747,13 +747,56 @@ rewrite Hi.
 reflexivity.
 Qed.
 
-(*
-  pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-  lap_eq K
-    (List.fold_right f
-       [] (List.map (λ pt, nofq (fst pt)) pl))
-    (List.fold_right f
-       [] (List.map (λ pt, nofq (fst pt)) pl)).
+Lemma yyy : ∀ pol ns pts j k αj αk,
+  ns ∈ newton_segments K pol
+  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → ini_pt ns = (Qnat j, αj)
+      → fin_pt ns = (Qnat k, αk)
+        → List.map (λ pt, nofq (fst pt)) pts =
+          List.filter
+            (λ i,
+             List.existsb
+               (λ pt, if eq_nat_dec i (nofq (fst pt)) then true else false)
+               pts)
+            (List.seq j (S (k - j))).
+Proof.
+intros pol ns pts j k αj αk Hns Hpl Hini Hfin.
+subst pts; simpl.
+rewrite Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id; simpl.
+destruct (eq_nat_dec j j) as [H| H]; [ clear H; simpl | idtac ].
+ 2: exfalso; apply H; reflexivity.
+
+ f_equal.
+ remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+ symmetry in Hpts.
+ destruct pts as [| (hq, αh)]; simpl.
+  destruct (oth_pts ns); discriminate Hpts.
+
+  destruct pts as [| (hq₂, αh₂)]; simpl.
+   destruct (oth_pts ns) as [| x l];
+    [ idtac | destruct l; discriminate Hpts ].
+   simpl in Hpts.
+   rewrite Hfin in Hpts.
+   injection Hpts; clear Hpts; intros; subst hq αh.
+   simpl.
+   remember (k - j)%nat as kj eqn:Hkj .
+   symmetry in Hkj.
+   destruct kj.
+    exfalso.
+    apply j_lt_k with (j := j) (k := k) in Hns.
+     fast_omega Hns Hkj.
+
+     rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+     rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+    unfold nofq, Qnat; rewrite Nat2Z.id.
+    remember List.filter as f.
+    simpl.
+    subst f.
+bbb.
 *)
 
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
