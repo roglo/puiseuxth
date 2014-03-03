@@ -2258,7 +2258,7 @@ induction n; [ reflexivity | simpl ].
 rewrite IHn; reflexivity.
 Qed.
 
-Lemma length_char_pol : ∀ j x l,
+Lemma length_char_pol_succ : ∀ j x l,
   (j < power (List.hd x l))%nat
   → Sorted (λ a b, (power a < power b)%nat) (l ++ [x])
     → List.length (make_char_pol f (S j) (l ++ [x])) = (power x - j)%nat.
@@ -2328,6 +2328,100 @@ induction l as [| a]; intros.
   destruct Hsort; assumption.
 Qed.
 
+Lemma length_char_pol : ∀ pol ns pl tl j αj k αk,
+  ns ∈ newton_segments f pol
+  → ini_pt ns = (Qnat j, αj)
+    → fin_pt ns = (Qnat k, αk)
+      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+        → tl = List.map (term_of_point f pol) pl
+          → length (make_char_pol f j tl) = S (k - j).
+Proof.
+intros pol ns pl tl j αj k αk Hns Hini Hfin Hpl Htl.
+rewrite Htl, Hpl, Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id, Nat.sub_diag; simpl.
+rewrite List.map_app; simpl.
+rewrite length_char_pol_succ; simpl.
+ rewrite Hfin.
+ unfold nofq; simpl.
+ rewrite Nat2Z.id.
+ reflexivity.
+
+ remember (List.map (term_of_point f pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .
+ remember (term_of_point f pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
+ unfold term_of_point in Htk; simpl in Htk.
+ unfold nofq in Htk; simpl in Htk.
+ rewrite Nat2Z.id in Htk.
+ subst tk; simpl.
+ remember (oth_pts ns) as pts eqn:Hpts .
+ symmetry in Hpts.
+ destruct pts as [| (h, αh)].
+  subst tl₂; simpl.
+  rewrite Hfin; unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id.
+  eapply j_lt_k; try eassumption.
+   rewrite Hini; simpl; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+   rewrite Hfin; simpl; unfold nofq, Qnat; simpl.
+   rewrite Nat2Z.id; reflexivity.
+
+  subst tl₂; simpl.
+  assert ((h, αh) ∈ oth_pts ns) as Hh by (rewrite Hpts; left; reflexivity).
+  remember Hh as H; clear HeqH.
+  eapply exists_oth_pt_nat in H; [ idtac | eassumption ].
+  destruct H as (i, (ai, Hi)).
+  injection Hi; clear Hi; intros; subst h ai; rename i into h.
+  unfold nofq, Qnat; simpl.
+  rewrite Nat2Z.id.
+  symmetry in Hini.
+  eapply j_lt_h; try eassumption; reflexivity.
+
+ remember Hns as Hsort; clear HeqHsort.
+ apply ini_oth_fin_pts_sorted in Hsort.
+ apply Sorted_inv_1 in Hsort.
+ remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+ remember (List.map (term_of_point f pol) pts) as li eqn:Hli .
+ remember Hli as H; clear HeqH.
+ rewrite Hpts in Hli.
+ rewrite List.map_app in Hli; simpl in Hli.
+ rewrite <- Hli, H.
+ assert (∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh)) as Hnat.
+  intros pt Hpt.
+  eapply points_in_newton_segment_have_nat_abscissa; try eassumption.
+  right; rewrite <- Hpts; assumption.
+
+  revert Hsort Hnat; clear; intros.
+  induction pts as [| pt]; [ constructor | simpl ].
+  constructor.
+   apply IHpts.
+    eapply Sorted_inv_1; eassumption.
+
+    intros pt₁ Hpt₁.
+    apply Hnat.
+    right; assumption.
+
+   apply Sorted_inv in Hsort.
+   destruct Hsort as (_, Hrel).
+   unfold fst_lt in Hrel.
+   revert Hrel Hnat; clear; intros.
+   destruct pts as [| pt₁]; constructor; simpl.
+   apply HdRel_inv in Hrel.
+   assert (pt ∈ [pt; pt₁ … pts]) as H₁ by (left; reflexivity).
+   assert (pt₁ ∈ [pt; pt₁ … pts]) as H₂ by (right; left; reflexivity).
+   apply Hnat in H₁.
+   apply Hnat in H₂.
+   destruct H₁ as (h₁, (ah₁, Hh₁)).
+   destruct H₂ as (h₂, (ah₂, Hh₂)).
+   subst pt pt₁; simpl in Hrel; simpl.
+   unfold nofq; simpl.
+   do 2 rewrite Nat2Z.id.
+   unfold Qnat in Hrel.
+   unfold Qlt in Hrel; simpl in Hrel.
+   do 2 rewrite Z.mul_1_r in Hrel.
+   apply Nat2Z.inj_lt; assumption.
+Qed.
+
 Lemma Sorted_fst_lt_nofq_fst : ∀ l,
   (∀ a, a ∈ l → fst a = Qnat (Z.to_nat (Qnum (fst a))))
   → Sorted fst_lt l
@@ -2382,7 +2476,7 @@ rewrite list_length_shrink; simpl.
  rewrite Nat.sub_0_r.
  f_equal.
   rewrite List.map_app; simpl.
-  rewrite length_char_pol.
+  rewrite length_char_pol_succ.
    rewrite <- Hk; simpl.
    unfold nofq, Qnat; simpl.
    rewrite Nat2Z.id; reflexivity.

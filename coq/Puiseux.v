@@ -735,57 +735,6 @@ rewrite Hi.
 reflexivity.
 Qed.
 
-Lemma yyy : ∀ pol ns pl tl j αj k αk,
-  ns ∈ newton_segments K pol
-  → ini_pt ns = (Qnat j, αj)
-    → fin_pt ns = (Qnat k, αk)
-      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-        → tl = List.map (term_of_point K pol) pl
-          → length (make_char_pol K j tl) = S (k - j).
-Proof.
-intros pol ns pl tl j αj k αk Hns Hini Hfin Hpl Htl.
-rewrite Htl, Hpl, Hini; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id, Nat.sub_diag; simpl.
-rewrite List.map_app; simpl.
-rewrite length_char_pol; simpl.
- rewrite Hfin.
- unfold nofq; simpl.
- rewrite Nat2Z.id.
- reflexivity.
-
- remember (List.map (term_of_point K pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .
- remember (term_of_point K pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
- unfold term_of_point in Htk; simpl in Htk.
- unfold nofq in Htk; simpl in Htk.
- rewrite Nat2Z.id in Htk.
- subst tk; simpl.
- remember (oth_pts ns) as pts eqn:Hpts .
- symmetry in Hpts.
- destruct pts as [| (h, αh)].
-  subst tl₂; simpl.
-  rewrite Hfin; unfold nofq, Qnat; simpl.
-  rewrite Nat2Z.id.
-  eapply j_lt_k; try eassumption.
-   rewrite Hini; simpl; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
-   rewrite Hfin; simpl; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
-
-  subst tl₂; simpl.
-  assert ((h, αh) ∈ oth_pts ns) as Hh by (rewrite Hpts; left; reflexivity).
-  remember Hh as H; clear HeqH.
-  eapply exists_oth_pt_nat in H; [ idtac | eassumption ].
-  destruct H as (i, (ai, Hi)).
-  injection Hi; clear Hi; intros; subst h ai; rename i into h.
-  unfold nofq, Qnat; simpl.
-  rewrite Nat2Z.id.
-  symmetry in Hini.
-  eapply j_lt_h; try eassumption; reflexivity.
-bbb.
-*)
-
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -822,8 +771,7 @@ unfold lap_summation.
 rewrite lap_mul_fold_add_distr; simpl.
 rewrite list_length_map.
 subst l.
-rewrite Hini, Hfin in Hpl.
-erewrite yyy; try eassumption.
+erewrite length_char_pol; try eassumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
