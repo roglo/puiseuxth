@@ -785,14 +785,11 @@ destruct pts as [| (hq, αh)]; simpl.
    revert Hkj Hjk; clear; intros.
    symmetry in Hkj.
    destruct kj; intros; [ exfalso; omega | idtac ].
-   revert j k Hkj Hjk.
-   induction kj; intros.
-    revert k Hkj Hjk.
-    induction j; intros; [ simpl | idtac ].
-     rewrite Nat.sub_0_r in Hkj; subst k.
-     reflexivity.
+   destruct kj.
+    destruct j; simpl in Hkj; simpl.
+     destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
+     destruct k; simpl in Hkj; [ reflexivity | discriminate Hkj ].
 
-     simpl in Hkj; simpl.
      destruct j; simpl in Hkj; simpl.
       destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
       destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
