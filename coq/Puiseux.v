@@ -808,6 +808,11 @@ destruct pts as [| (hq, αh)]; simpl.
   rewrite Hfin in Hpts.
   injection Hpts; clear Hpts; intros; subst hq αh; simpl.
   rewrite Nat2Z.id.
+  assert (j < k)%nat as Hjk.
+   eapply j_lt_k; try eassumption.
+    rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+    rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
 bbb.
   remember (k - j)%nat as kj eqn:Hkj .
   assert (j < k)%nat as Hjk.
