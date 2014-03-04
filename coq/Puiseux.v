@@ -777,6 +777,7 @@ rewrite Heqj in |- * at 2.
 assumption.
 Qed.
 
+(*
 Lemma yyy : ∀ pol ns pts j k αj αk,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -815,6 +816,56 @@ destruct pts as [| (hq, αh)]; simpl.
    revert Hkj Hjk; clear; intros.
    symmetry in Hkj.
    destruct kj; intros; [ exfalso; omega | idtac ].
+   clear Hjk.
+   simpl.
+   rewrite match_nat_eq_false; simpl.
+   rewrite orb_false_r.
+   destruct k; [ discriminate Hkj | idtac ].
+   remember (Nat.eqb j k) as b eqn:Hb .
+   symmetry in Hb.
+   destruct b.
+    apply Nat.eqb_eq in Hb.
+    subst j.
+    rewrite minus_Sn_n in Hkj.
+    apply eq_add_S in Hkj.
+    subst kj; simpl.
+    reflexivity.
+
+    apply Nat.eqb_neq in Hb.
+    rewrite Nat.sub_succ_l in Hkj; [ idtac | omega ].
+    apply eq_add_S in Hkj.
+    destruct kj.
+     simpl.
+bbb.
+
+intros pol ns pts j k αj αk Hns Hpl Hini Hfin.
+subst pts; simpl.
+rewrite Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id; simpl.
+rewrite Nat.eqb_refl; simpl.
+f_equal.
+remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+symmetry in Hpts.
+destruct pts as [| (hq, αh)]; simpl.
+ destruct (oth_pts ns); discriminate Hpts.
+
+ destruct pts as [| (hq₂, αh₂)]; simpl.
+  destruct (oth_pts ns) as [| x l]; [ idtac | destruct l; discriminate Hpts ].
+  simpl in Hpts.
+  rewrite Hfin in Hpts.
+  injection Hpts; clear Hpts; intros; subst hq αh; simpl.
+  rewrite Nat2Z.id.
+  remember (k - j)%nat as kj eqn:Hkj .
+  assert (j < k)%nat as Hjk.
+   eapply j_lt_k; try eassumption.
+    rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+    rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
+
+   revert Hkj Hjk; clear; intros.
+   symmetry in Hkj.
+   destruct kj; intros; [ exfalso; omega | idtac ].
    destruct kj.
     destruct j; simpl in Hkj; simpl.
      destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
@@ -824,6 +875,11 @@ destruct pts as [| (hq, αh)]; simpl.
      destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
      destruct k; simpl in Hkj; [ discriminate Hkj | simpl ].
      rewrite orb_false_r.
+     rewrite fold_sub_succ_l in Hkj.
+     rewrite Nat.sub_succ_l in Hkj; [ idtac | omega ].
+     apply eq_add_S in Hkj.
+     replace j with k by omega.
+     rewrite Nat.eqb_refl; reflexivity.
 bbb.
 
 intros pol ns pts j k αj αk Hns Hpl Hini Hfin.
