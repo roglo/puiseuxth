@@ -777,7 +777,7 @@ rewrite Heqj in |- * at 2.
 assumption.
 Qed.
 
-(*
+(**)
 Lemma yyy : ∀ pol ns pts j k αj αk,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -801,11 +801,14 @@ destruct pts as [| (hq, αh)]; simpl.
  destruct (oth_pts ns); discriminate Hpts.
 
  destruct pts as [| (hq₂, αh₂)]; simpl.
-  destruct (oth_pts ns) as [| x l]; [ idtac | destruct l; discriminate Hpts ].
+  remember (oth_pts ns) as pts eqn:Hoth .
+  symmetry in Hoth.
+  destruct pts as [| x l]; [ idtac | destruct l; discriminate Hpts ].
   simpl in Hpts.
   rewrite Hfin in Hpts.
   injection Hpts; clear Hpts; intros; subst hq αh; simpl.
   rewrite Nat2Z.id.
+bbb.
   remember (k - j)%nat as kj eqn:Hkj .
   assert (j < k)%nat as Hjk.
    eapply j_lt_k; try eassumption.
