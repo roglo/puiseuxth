@@ -902,6 +902,11 @@ assert (j < k)%nat as Hjk.
            Unfocus.
            Focus 2.
            rewrite fold_nothing.
+            subst x; simpl.
+            remember (k - S h)%nat as kh eqn:Hkh .
+            symmetry in Hkh.
+            destruct kh; [ exfalso | idtac ].
+             Focus 2.
 bbb.
 
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
