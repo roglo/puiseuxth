@@ -960,63 +960,64 @@ Lemma yyy : ∀ pol ns pts j k αj αk f la,
                  (List.seq j (S (k - j)))).
 Proof.
 intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
-subst pts; simpl.
-rewrite Hini; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id; simpl.
-rewrite Nat.eqb_refl; simpl.
-apply Hi.
-remember Hns as Hsort; clear HeqHsort.
-apply ini_oth_fin_pts_sorted in Hsort.
-remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
-assert (∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh)) as Hnat.
- intros pt Hpt.
- eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
- right; subst pts; assumption.
+assert (j < k)%nat as Hjk.
+ eapply j_lt_k; try eassumption.
+  rewrite Hini; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
 
- rewrite Hini in Hsort; clear Hini.
- rewrite Hfin in Hpts; clear Hfin.
- assert (List.last pts (0, 0) = (Qnat k, αk)) as Hlast.
-  subst pts; simpl.
-  clear; induction (oth_pts ns) as [| x l]; [ reflexivity | simpl ].
-  destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
-  assumption.
+  rewrite Hfin; unfold nofq, Qnat; simpl; rewrite Nat2Z.id; reflexivity.
 
-  revert Hi Hsort Hlast Hnat; clear; intros.
-  revert j k αj αk la Hsort Hlast.
-  induction pts as [| (h, αh)]; intros; simpl.
-   simpl in Hlast.
-   injection Hlast; clear; intros; subst.
-   rewrite <- Nat2Z.inj_0 in H0.
-   apply Nat2Z.inj in H0; subst k; reflexivity.
+ subst pts; simpl.
+ rewrite Hini; simpl.
+ unfold nofq, Qnat; simpl.
+ rewrite Nat2Z.id; simpl.
+ rewrite Nat.eqb_refl; simpl.
+ apply Hi.
+ remember Hns as Hsort; clear HeqHsort.
+ apply ini_oth_fin_pts_sorted in Hsort.
+ remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+ assert (∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh)) as Hnat.
+  intros pt Hpt.
+  eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
+  right; subst pts; assumption.
 
-   destruct k.
-    simpl.
-    Focus 1.
-    exfalso.
-    apply Sorted_inv in Hsort.
-    destruct Hsort as (Hsort, Hrel).
-    unfold fst_lt in Hrel; simpl in Hrel.
-    apply HdRel_inv in Hrel; simpl in Hrel.
-    revert Hsort Hrel Hlast Hnat; clear; intros.
-    revert h αh j αk Hsort Hrel Hlast Hnat.
-    induction pts as [| (l, al)]; intros.
-     simpl in Hlast.
-     injection Hlast; intros; subst.
-     unfold Qnat in Hrel.
-     simpl in Hrel.
-     unfold Qlt in Hrel; simpl in Hrel.
-     rewrite Z.mul_1_r in Hrel.
-     apply Z.nle_gt in Hrel.
-     apply Hrel, Nat2Z.is_nonneg.
+  rewrite Hini in Hsort; clear Hini.
+  rewrite Hfin in Hpts; clear Hfin.
+  assert (List.last pts (0, 0) = (Qnat k, αk)) as Hlast.
+   subst pts; simpl.
+   clear; induction (oth_pts ns) as [| x l]; [ reflexivity | simpl ].
+   destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
+   assumption.
 
-     eapply IHpts.
-      eapply Sorted_inv_1; eassumption.
+   revert Hi Hsort Hlast Hnat Hjk; clear; intros.
+   revert j k αj αk la Hsort Hlast Hjk.
+   induction pts as [| (h, αh)]; intros; simpl.
+    simpl in Hlast.
+    injection Hlast; clear; intros; subst.
+    rewrite <- Nat2Z.inj_0 in H0.
+    apply Nat2Z.inj in H0; subst k; reflexivity.
 
+    assert ((h, αh) ∈ [(h, αh) … pts]) as Hh by (left; reflexivity).
+    apply Hnat in Hh.
+    destruct Hh as (i, (αi, Hh)).
+    injection Hh; clear Hh; intros; subst h αi.
+    rename i into h.
+    unfold Qnat; simpl.
+    rewrite Nat2Z.id.
+    remember (k - j)%nat as len eqn:Hlen .
+    destruct len; [ exfalso; fast_omega Hjk Hlen | idtac ].
+    clear Hlen.
+    revert j h Hjk Hnat Hsort Hlast.
+    induction len; intros.
+     simpl.
+     rewrite match_nat_eq_false; simpl.
+     destruct h.
+      simpl.
       apply Sorted_inv in Hsort.
-      destruct Hsort as (_, Hrel₂).
-      apply HdRel_inv in Hrel₂.
-      unfold fst_lt in Hrel₂; simpl in Hrel₂.
+      destruct Hsort as (_, Hrel).
+      unfold fst_lt in Hrel.
+      apply HdRel_inv in Hrel; simpl in Hrel.
+      unfold Qlt in Hrel; simpl in Hrel.
+      exfalso; fast_omega Hrel.
 bbb.
 *)
 
