@@ -797,6 +797,21 @@ induction len; intros.
   erewrite IHlen; [ reflexivity | eassumption ].
 Qed.
 
+Lemma fold_nothing : ∀ A j len (f : _ → _ → A) g la,
+  (∀ i, j ≤ i → i ≤ j + len → g i = false)
+  → List.fold_right (λ i accu, if g i then f i accu else accu) la
+       (List.seq j len) = la.
+Proof.
+intros A j len f g la Hg.
+revert j la Hg.
+induction len; intros; [ reflexivity | simpl ].
+rewrite Hg; [ idtac | reflexivity | apply le_plus_l ].
+rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hg.
+apply IHlen.
+intros i Hji Hij.
+apply Hg; [ omega | assumption ].
+Qed.
+
 Lemma yyy : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -870,8 +885,12 @@ assert (j < k)%nat as Hjk.
        eapply Sorted_minus_2nd; [ idtac | eassumption ].
        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-      rewrite list_seq_app with (dj := (h - j)%nat).
+      rewrite list_seq_app with (dj := (h - S (S j))%nat).
        rewrite List.fold_right_app.
+       rewrite fold_nothing.
+        symmetry.
+        rewrite List.fold_right_app.
+        rewrite fold_nothing.
 bbb.
 
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
