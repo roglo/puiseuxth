@@ -798,14 +798,14 @@ induction len; intros.
 Qed.
 
 Lemma fold_nothing : ∀ A j len (f : _ → _ → A) g la,
-  (∀ i, j ≤ i → i ≤ j + len → g i = false)
+  (∀ i, j ≤ i → (i < j + len)%nat → g i = false)
   → List.fold_right (λ i accu, if g i then f i accu else accu) la
        (List.seq j len) = la.
 Proof.
 intros A j len f g la Hg.
 revert j la Hg.
 induction len; intros; [ reflexivity | simpl ].
-rewrite Hg; [ idtac | reflexivity | apply le_plus_l ].
+rewrite Hg; [ idtac | reflexivity | fast_omega  ].
 rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hg.
 apply IHlen.
 intros i Hji Hij.
@@ -885,12 +885,23 @@ assert (j < k)%nat as Hjk.
        eapply Sorted_minus_2nd; [ idtac | eassumption ].
        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-      rewrite list_seq_app with (dj := (h - S (S j))%nat).
-       rewrite List.fold_right_app.
+      rewrite list_seq_app with (dj := (h - S j)%nat).
+       do 2 rewrite List.fold_right_app.
        rewrite fold_nothing.
-        symmetry.
-        rewrite List.fold_right_app.
-        rewrite fold_nothing.
+        replace (S j + (h - S j))%nat with h .
+         replace (k - j - (h - S j))%nat with (k - S h)%nat .
+          remember [(h₂, αh₂) … pts] as pts₂ eqn:Hpts₂ .
+          Focus 1.
+          symmetry.
+          remember (List.seq h (k - S h)) as x.
+          destruct (eq_nat_dec h (S j)) as [H₁| H₁].
+           Focus 1.
+           subst h.
+           rewrite Nat.sub_diag; simpl.
+           subst x.
+           Unfocus.
+           Focus 2.
+           rewrite fold_nothing.
 bbb.
 
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
