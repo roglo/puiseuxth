@@ -988,6 +988,33 @@ assert (j < k)%nat as Hjk.
    assumption.
 
    rewrite fold_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
+   revert Hi Hsort Hlast Hnat Hjk; clear; intros.
+   revert j k αj αk la Hsort Hlast Hjk.
+   induction pts as [| (h, αh)]; intros; simpl.
+    simpl in Hlast.
+    injection Hlast; clear; intros; subst.
+    rewrite <- Nat2Z.inj_0 in H0.
+    apply Nat2Z.inj in H0; subst k; reflexivity.
+
+    assert ((h, αh) ∈ [(h, αh) … pts]) as Hh by (left; reflexivity).
+    apply Hnat in Hh.
+    destruct Hh as (i, (αi, Hh)).
+    injection Hh; clear Hh; intros; subst h αi.
+    rename i into h.
+    unfold Qnat; simpl.
+    rewrite Nat2Z.id.
+    destruct pts as [| (h₂, αh₂)].
+     Focus 2.
+     remember [(h₂, αh₂) … pts] as x; simpl in Hlast; subst x.
+     rewrite Hi.
+      Focus 2.
+      apply IHpts with (αj := αj) (αk := αk); try eassumption.
+       intros pt Hpt.
+       apply Hnat.
+       right; assumption.
+
+       eapply Sorted_minus_2nd; [ idtac | eassumption ].
+       intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 bbb.
 
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
