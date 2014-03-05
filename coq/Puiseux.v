@@ -969,21 +969,54 @@ apply Hi.
 remember Hns as Hsort; clear HeqHsort.
 apply ini_oth_fin_pts_sorted in Hsort.
 remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
-rewrite Hini in Hsort; clear Hini.
-rewrite Hfin in Hpts; clear Hfin.
-assert (List.last pts (0, 0) = (Qnat k, αk)) as Hlast.
- subst pts; simpl.
- clear; induction (oth_pts ns) as [| x l]; [ reflexivity | simpl ].
- destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
- assumption.
+assert (∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh)) as Hnat.
+ intros pt Hpt.
+ eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
+ right; subst pts; assumption.
 
- revert Hi Hsort Hlast; clear; intros.
- revert j k αj αk la Hsort Hlast.
- induction pts as [| (h, αh)]; intros; simpl.
-  simpl in Hlast.
-  injection Hlast; clear; intros; subst.
-  rewrite <- Nat2Z.inj_0 in H0.
-  apply Nat2Z.inj in H0; subst k; reflexivity.
+ rewrite Hini in Hsort; clear Hini.
+ rewrite Hfin in Hpts; clear Hfin.
+ assert (List.last pts (0, 0) = (Qnat k, αk)) as Hlast.
+  subst pts; simpl.
+  clear; induction (oth_pts ns) as [| x l]; [ reflexivity | simpl ].
+  destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
+  assumption.
+
+  revert Hi Hsort Hlast Hnat; clear; intros.
+  revert j k αj αk la Hsort Hlast.
+  induction pts as [| (h, αh)]; intros; simpl.
+   simpl in Hlast.
+   injection Hlast; clear; intros; subst.
+   rewrite <- Nat2Z.inj_0 in H0.
+   apply Nat2Z.inj in H0; subst k; reflexivity.
+
+   destruct k.
+    simpl.
+    Focus 1.
+    exfalso.
+    apply Sorted_inv in Hsort.
+    destruct Hsort as (Hsort, Hrel).
+    unfold fst_lt in Hrel; simpl in Hrel.
+    apply HdRel_inv in Hrel; simpl in Hrel.
+    revert Hsort Hrel Hlast Hnat; clear; intros.
+    revert h αh j αk Hsort Hrel Hlast Hnat.
+    induction pts as [| (l, al)]; intros.
+     simpl in Hlast.
+     injection Hlast; intros; subst.
+     unfold Qnat in Hrel.
+     simpl in Hrel.
+     unfold Qlt in Hrel; simpl in Hrel.
+     rewrite Z.mul_1_r in Hrel.
+     apply Z.nle_gt in Hrel.
+     apply Hrel, Nat2Z.is_nonneg.
+
+     eapply IHpts.
+      eapply Sorted_inv_1; eassumption.
+
+      apply Sorted_inv in Hsort.
+      destruct Hsort as (_, Hrel₂).
+      apply HdRel_inv in Hrel₂.
+      unfold fst_lt in Hrel₂; simpl in Hrel₂.
 bbb.
 *)
 
