@@ -1593,3 +1593,24 @@ intros A B f l.
 induction l; [ reflexivity | simpl ].
 rewrite IHl; reflexivity.
 Qed.
+
+Lemma fold_eqb_or : ∀ A j k len f (g : _ → A → A) la,
+  (j < k)%nat
+  → List.fold_right (λ i accu, if Nat.eqb i j || f i then g i accu else accu)
+      la (List.seq k len) =
+    List.fold_right (λ i accu, if f i then g i accu else accu) la
+       (List.seq k len).
+Proof.
+intros A j k len f g la Hjk.
+revert j k Hjk.
+induction len; intros; [ reflexivity | idtac ].
+simpl.
+rewrite IHlen.
+ remember (Nat.eqb k j) as b eqn:Hb .
+ symmetry in Hb.
+ destruct b; [ idtac | reflexivity ].
+ apply Nat.eqb_eq in Hb.
+ exfalso; subst k; revert Hjk; apply Nat.lt_irrefl.
+
+ apply Nat.lt_lt_succ_r; assumption.
+Qed.

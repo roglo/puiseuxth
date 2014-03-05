@@ -943,22 +943,6 @@ destruct pts as [| (hq, αh)]; simpl.
 bbb.
 *)
 
-Lemma xxx : ∀ A j len f (g : _ → A → A) la,
-  List.fold_right (λ i accu, if Nat.eqb i j || f i then g i accu else accu)
-    la (List.seq (S j) len) =
-  List.fold_right (λ i accu, if f i then g i accu else accu) la
-     (List.seq (S j) len).
-Proof.
-intros A j len f g la.
-revert j.
-induction len; intros; [ reflexivity | simpl ].
-rewrite match_nat_eq_false; simpl.
-destruct (f (S j)) as [H₁| H₁].
- f_equal.
-bbb.
-*)
-
-(**)
 Lemma yyy : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -1003,8 +987,8 @@ assert (j < k)%nat as Hjk.
    destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
    assumption.
 
+   rewrite fold_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
 bbb.
-rewrite xxx.
 
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
    revert j k αj αk la Hsort Hlast Hjk.
