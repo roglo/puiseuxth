@@ -943,6 +943,21 @@ destruct pts as [| (hq, αh)]; simpl.
 bbb.
 *)
 
+Lemma xxx : ∀ A j len f (g : _ → A → A) la,
+  List.fold_right (λ i accu, if Nat.eqb i j || f i then g i accu else accu)
+    la (List.seq (S j) len) =
+  List.fold_right (λ i accu, if f i then g i accu else accu) la
+     (List.seq (S j) len).
+Proof.
+intros A j len f g la.
+revert j.
+induction len; intros; [ reflexivity | simpl ].
+rewrite match_nat_eq_false; simpl.
+destruct (f (S j)) as [H₁| H₁].
+ f_equal.
+bbb.
+*)
+
 (**)
 Lemma yyy : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments K pol
@@ -988,6 +1003,9 @@ assert (j < k)%nat as Hjk.
    destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
    assumption.
 
+bbb.
+rewrite xxx.
+
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
    revert j k αj αk la Hsort Hlast Hjk.
    induction pts as [| (h, αh)]; intros; simpl.
@@ -1003,6 +1021,7 @@ assert (j < k)%nat as Hjk.
     rename i into h.
     unfold Qnat; simpl.
     rewrite Nat2Z.id.
+bbb.
     remember (k - j)%nat as len eqn:Hlen .
     destruct len; [ exfalso; fast_omega Hjk Hlen | idtac ].
     clear Hlen.
