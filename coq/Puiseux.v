@@ -949,21 +949,41 @@ Lemma yyy : ∀ pol ns pts j k αj αk f la,
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
       → fin_pt ns = (Qnat k, αk)
-        → lap_eq Kx
-            (List.fold_right f la (List.map (λ pt, nofq (fst pt)) pts))
-            (List.fold_right
-               (λ i accu,
-                if List.existsb (λ pt, Nat.eqb i (nofq (fst pt))) pts then
-                  f i accu
-                else accu) la
-               (List.seq j (S (k - j)))).
+        → (∀ i a b, lap_eq Kx a b → lap_eq Kx (f i a) (f i b))
+          → lap_eq Kx
+              (List.fold_right f la (List.map (λ pt, nofq (fst pt)) pts))
+              (List.fold_right
+                 (λ i accu,
+                  if List.existsb (λ pt, Nat.eqb i (nofq (fst pt))) pts then
+                    f i accu
+                  else accu) la
+                 (List.seq j (S (k - j)))).
 Proof.
-intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin.
+intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
 subst pts; simpl.
 rewrite Hini; simpl.
 unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id; simpl.
 rewrite Nat.eqb_refl; simpl.
+apply Hi.
+remember Hns as Hsort; clear HeqHsort.
+apply ini_oth_fin_pts_sorted in Hsort.
+remember (oth_pts ns ++ [fin_pt ns]) as pts eqn:Hpts .
+rewrite Hini in Hsort; clear Hini.
+rewrite Hfin in Hpts; clear Hfin.
+assert (List.last pts (0, 0) = (Qnat k, αk)) as Hlast.
+ subst pts; simpl.
+ clear; induction (oth_pts ns) as [| x l]; [ reflexivity | simpl ].
+ destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
+ assumption.
+
+ revert Hi Hsort Hlast; clear; intros.
+ revert j k αj αk la Hsort Hlast.
+ induction pts as [| (h, αh)]; intros; simpl.
+  simpl in Hlast.
+  injection Hlast; clear; intros; subst.
+  rewrite <- Nat2Z.inj_0 in H0.
+  apply Nat2Z.inj in H0; subst k; reflexivity.
 bbb.
 *)
 
