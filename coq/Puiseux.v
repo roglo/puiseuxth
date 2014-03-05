@@ -777,7 +777,7 @@ rewrite Heqj in |- * at 2.
 assumption.
 Qed.
 
-(**)
+(*
 Lemma yyy : ∀ pol ns pts j k αj αk,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -943,6 +943,30 @@ destruct pts as [| (hq, αh)]; simpl.
 bbb.
 *)
 
+(**)
+Lemma yyy : ∀ pol ns pts j k αj αk f la,
+  ns ∈ newton_segments K pol
+  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → ini_pt ns = (Qnat j, αj)
+      → fin_pt ns = (Qnat k, αk)
+        → lap_eq Kx
+            (List.fold_right f la (List.map (λ pt, nofq (fst pt)) pts))
+            (List.fold_right
+               (λ i accu,
+                if List.existsb (λ pt, Nat.eqb i (nofq (fst pt))) pts then
+                  f i accu
+                else accu) la
+               (List.seq j (S (k - j)))).
+Proof.
+intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin.
+subst pts; simpl.
+rewrite Hini; simpl.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id; simpl.
+rewrite Nat.eqb_refl; simpl.
+bbb.
+*)
+
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -984,6 +1008,7 @@ rewrite Htl, List.map_map.
 symmetry.
 rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
 rewrite List.map_ext with (g := λ x, nofq (fst x)); [ idtac | reflexivity ].
+rewrite yyy; try eassumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
