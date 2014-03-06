@@ -953,6 +953,18 @@ assert (j < k)%nat as Hjk.
        apply Sorted_inv_1 in Hsort.
        apply Sorted_inv in Hsort.
        destruct Hsort as (Hsort, Hrel).
+       apply HdRel_inv in Hrel.
+       unfold fst_lt in Hrel; simpl in Hrel.
+       assert ((l, al) ∈ [(Qnat h, αh); (l, al) … pts])
+        as Hl by (right; left; reflexivity).
+       apply Hnat in Hl.
+       destruct Hl as (m, (am, Hl)).
+       injection Hl; clear Hl; intros; subst l am.
+       rename m into l.
+       unfold Qlt in Hrel; simpl in Hrel.
+       do 2 rewrite Z.mul_1_r in Hrel.
+       apply Nat2Z.inj_lt in Hrel.
+       eapply Nat.lt_le_trans; [ eassumption | idtac ].
 bbb.
 *)
 
