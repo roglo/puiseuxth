@@ -856,6 +856,7 @@ assert (j < k)%nat as Hjk.
    destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
    assumption.
 
+bbb.
    rewrite fold_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
    revert j k αj αk la Hsort Hlast Hjk.
@@ -907,39 +908,38 @@ assert (j < k)%nat as Hjk.
             symmetry in Hkh.
             destruct kh; [ exfalso | idtac ].
              Focus 2.
-bbb.
-
-   revert Hi Hsort Hlast Hnat Hjk; clear; intros.
-   revert j k αj αk la Hsort Hlast Hjk.
-   induction pts as [| (h, αh)]; intros; simpl.
-    simpl in Hlast.
-    injection Hlast; clear; intros; subst.
-    rewrite <- Nat2Z.inj_0 in H0.
-    apply Nat2Z.inj in H0; subst k; reflexivity.
-
-    assert ((h, αh) ∈ [(h, αh) … pts]) as Hh by (left; reflexivity).
-    apply Hnat in Hh.
-    destruct Hh as (i, (αi, Hh)).
-    injection Hh; clear Hh; intros; subst h αi.
-    rename i into h.
-    unfold Qnat; simpl.
-    rewrite Nat2Z.id.
-bbb.
-    remember (k - j)%nat as len eqn:Hlen .
-    destruct len; [ exfalso; fast_omega Hjk Hlen | idtac ].
-    clear Hlen.
-    revert j h Hjk Hnat Hsort Hlast.
-    induction len; intros.
-     simpl.
-     rewrite match_nat_eq_false; simpl.
-     destruct h.
-      simpl.
-      apply Sorted_inv in Hsort.
-      destruct Hsort as (_, Hrel).
-      unfold fst_lt in Hrel.
-      apply HdRel_inv in Hrel; simpl in Hrel.
-      unfold Qlt in Hrel; simpl in Hrel.
-      exfalso; fast_omega Hrel.
+             clear Hkh.
+             induction kh.
+              simpl.
+              rewrite Nat.eqb_refl; simpl.
+              remember
+               (List.existsb
+                  (λ pt : Q * Q, Nat.eqb h (Z.to_nat (Qnum (fst pt)))) pts₂) as b.
+              symmetry in Heqb.
+              destruct b; [ idtac | reflexivity ].
+              exfalso.
+              apply List.existsb_exists in Heqb.
+              destruct Heqb as ((l, al), (Hpt, Hb)).
+              simpl in Hb.
+              assert ((l, al) ∈ [(Qnat h, αh) … pts₂]) 
+               as H by (right; assumption).
+              apply Hnat in H.
+              destruct H as (m, (am, H)).
+              injection H; clear H; intros; subst l al.
+              simpl in Hb.
+              rewrite Nat2Z.id in Hb.
+              apply Nat.eqb_eq in Hb; subst m.
+              apply Sorted_inv in Hsort.
+              destruct Hsort as (Hsort, _).
+              apply Sorted_inv in Hsort.
+              destruct Hsort as (Hsort, Hrel).
+              apply List.in_split in Hpt.
+              destruct Hpt as (pts₁, (pts₃, Hpt)).
+              rewrite Hpt in Hrel.
+              Unfocus.
+              Unfocus.
+              Unfocus.
+              Unfocus.
 bbb.
 *)
 
