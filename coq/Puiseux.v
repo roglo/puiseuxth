@@ -943,6 +943,16 @@ assert (j < k)%nat as Hjk.
         apply Hnat.
         destruct Hpt₃; [ subst pt₃; left; reflexivity | idtac ].
         right; right; assumption.
+
+     assert (h < k)%nat as Hhk.
+      simpl in Hlast.
+      destruct pts as [| (l, al)]; [ exfalso | idtac ].
+       injection Hlast; clear Hlast; intros HH H.
+       apply H₁, Nat2Z.inj; assumption.
+
+       apply Sorted_inv_1 in Hsort.
+       apply Sorted_inv in Hsort.
+       destruct Hsort as (Hsort, Hrel).
 bbb.
 *)
 
