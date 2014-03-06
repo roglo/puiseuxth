@@ -945,26 +945,40 @@ assert (j < k)%nat as Hjk.
         right; right; assumption.
 
      assert (h < k)%nat as Hhk.
-      simpl in Hlast.
-      destruct pts as [| (l, al)]; [ exfalso | idtac ].
+      apply Sorted_inv_1 in Hsort.
+      clear Hjk.
+      clear IHpts.
+      revert h k αh αk Hsort Hlast Hnat H₁.
+      induction pts as [| (l, al)]; intros.
        injection Hlast; clear Hlast; intros HH H.
-       apply H₁, Nat2Z.inj; assumption.
+       exfalso; apply H₁, Nat2Z.inj; assumption.
 
-       apply Sorted_inv_1 in Hsort.
-       apply Sorted_inv in Hsort.
-       destruct Hsort as (Hsort, Hrel).
-       apply HdRel_inv in Hrel.
-       unfold fst_lt in Hrel; simpl in Hrel.
        assert ((l, al) ∈ [(Qnat h, αh); (l, al) … pts])
         as Hl by (right; left; reflexivity).
        apply Hnat in Hl.
        destruct Hl as (m, (am, Hl)).
        injection Hl; clear Hl; intros; subst l am.
        rename m into l.
-       unfold Qlt in Hrel; simpl in Hrel.
-       do 2 rewrite Z.mul_1_r in Hrel.
-       apply Nat2Z.inj_lt in Hrel.
-       eapply Nat.lt_le_trans; [ eassumption | idtac ].
+       apply Nat.lt_le_trans with (m := l).
+        apply Sorted_inv in Hsort.
+        destruct Hsort as (_, Hrel).
+        apply HdRel_inv in Hrel.
+        unfold fst_lt in Hrel; simpl in Hrel.
+        unfold Qlt in Hrel; simpl in Hrel.
+        do 2 rewrite Z.mul_1_r in Hrel.
+        apply Nat2Z.inj_lt in Hrel.
+        assumption.
+
+        destruct (eq_nat_dec l k) as [H₂| H₂].
+         subst l; reflexivity.
+
+         apply Sorted_inv_1 in Hsort.
+         remember [(Qnat l, al) … pts] as p; simpl in Hlast; subst p.
+         apply Nat.lt_le_incl.
+         eapply IHpts; try eassumption.
+         intros (m, am) Hpt.
+         apply Hnat.
+         right; assumption.
 bbb.
 *)
 
