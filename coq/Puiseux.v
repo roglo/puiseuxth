@@ -923,6 +923,26 @@ assert (j < k)%nat as Hjk.
 
         revert Hsort Hlast Hnat; clear; intros.
         apply Sorted_inv_1 in Hsort.
+        revert pt Hsort Hlast Hnat.
+        induction pts as [| pt₂]; intros.
+         simpl in Hlast.
+         subst pt.
+         apply Sorted_inv in Hsort.
+         destruct Hsort as (_, Hrel).
+         unfold fst_lt in Hrel; apply HdRel_inv in Hrel.
+         simpl in Hrel.
+         revert Hrel; apply Qlt_irrefl.
+
+         apply IHpts with (pt := pt₂).
+          eapply Sorted_minus_2nd; [ idtac | eassumption ].
+          intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+          assumption.
+
+          intros pt₃ Hpt₃.
+          apply Hnat.
+          destruct Hpt₃; [ subst pt₃; left; reflexivity | idtac ].
+          right; right; assumption.
 bbb.
 *)
 
