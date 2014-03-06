@@ -812,6 +812,38 @@ intros i Hji Hij.
 apply Hg; [ omega | assumption ].
 Qed.
 
+Lemma fold_right_if_compat : ∀ A B f₁ f₂ (g h : A → bool) (la : B) li,
+  (∀ i, i ∈ li → g i = h i)
+  → List.fold_right (λ i a, if g i then f₁ i a else f₂ i a) la li =
+    List.fold_right (λ i a, if h i then f₁ i a else f₂ i a) la li.
+Proof.
+intros A B f₁ f₂ g h la li Hi.
+induction li as [| i]; [ reflexivity | simpl ].
+rewrite IHli; [ idtac | intros; apply Hi; right; assumption ].
+replace (h i) with (g i) ; [ idtac | apply Hi; left; reflexivity ].
+reflexivity.
+Qed.
+
+Lemma fold_right_eqb_or : ∀ A j k len f (g : _ → A → A) la,
+  (j < k)%nat
+  → List.fold_right (λ i accu, if Nat.eqb i j || f i then g i accu else accu)
+      la (List.seq k len) =
+    List.fold_right (λ i accu, if f i then g i accu else accu) la
+       (List.seq k len).
+Proof.
+intros A j k len f g la Hjk.
+revert j k Hjk.
+induction len; intros; [ reflexivity | simpl ].
+rewrite IHlen.
+ remember (Nat.eqb k j) as b eqn:Hb .
+ symmetry in Hb.
+ destruct b; [ idtac | reflexivity ].
+ apply Nat.eqb_eq in Hb.
+ exfalso; subst k; revert Hjk; apply Nat.lt_irrefl.
+
+ apply Nat.lt_lt_succ_r; assumption.
+Qed.
+
 Lemma yyy : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -856,11 +888,9 @@ assert (j < k)%nat as Hjk.
    destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
    assumption.
 
-   rewrite fold_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
-bbb.
+   rewrite fold_right_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
-   revert j k αj αk la Hsort Hlast Hjk.
-   induction pts as [| (h, αh)]; intros; simpl.
+   destruct pts as [| (h, αh)]; simpl.
     simpl in Hlast.
     injection Hlast; clear; intros; subst.
     rewrite <- Nat2Z.inj_0 in H0.
@@ -873,7 +903,14 @@ bbb.
     rename i into h.
     unfold Qnat; simpl.
     rewrite Nat2Z.id.
-    destruct pts as [| (h₂, αh₂)].
+    revert Hi Hjk Hsort Hlast Hnat; clear; intros.
+    revert h j k αh αj αk la Hjk Hsort Hlast Hnat.
+    induction pts as [| (h₂, αh₂)]; intros.
+     simpl in Hlast; simpl.
+     injection Hlast; clear Hlast; intros HH H; subst αh.
+     apply Nat2Z.inj in H; subst h.
+     erewrite fold_right_if_compat; [ simpl | intros; apply orb_false_r ].
+bbb.
      Focus 2.
      remember [(h₂, αh₂) … pts] as x; simpl in Hlast; subst x.
      rewrite Hi.
