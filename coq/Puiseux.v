@@ -856,8 +856,8 @@ assert (j < k)%nat as Hjk.
    destruct l as [| y]; [ reflexivity | simpl in IHl; simpl ].
    assumption.
 
-bbb.
    rewrite fold_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
+bbb.
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
    revert j k αj αk la Hsort Hlast Hjk.
    induction pts as [| (h, αh)]; intros; simpl.
