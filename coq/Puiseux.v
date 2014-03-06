@@ -909,40 +909,40 @@ assert (j < k)%nat as Hjk.
      subst h.
      rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | omega ].
      rewrite List.fold_right_app; simpl.
-     replace (S (j + (k - S j)))%nat with k .
-      replace (k - j - (k - S j))%nat with 1%nat ; simpl.
-       rewrite Nat.eqb_refl; simpl.
+     replace (S (j + (k - S j)))%nat with k ; [ idtac | fast_omega Hjk ].
+     replace (k - j - (k - S j))%nat with 1%nat ; [ simpl | fast_omega Hjk ].
+     rewrite Nat.eqb_refl; simpl.
+     simpl in Hlast.
+     destruct pts as [| pt]; [ simpl | exfalso ].
+      rewrite fold_nothing; [ reflexivity | idtac ].
+      intros i Hji Hij.
+      rewrite orb_false_r.
+      apply Nat.eqb_neq.
+      intros H; subst i.
+      fast_omega Hjk Hij.
+
+      revert Hsort Hlast Hnat; clear; intros.
+      apply Sorted_inv_1 in Hsort.
+      revert pt Hsort Hlast Hnat.
+      induction pts as [| pt₂]; intros.
        simpl in Hlast.
-       destruct pts as [| pt]; [ simpl | exfalso ].
-        rewrite fold_nothing; [ reflexivity | idtac ].
-        intros i Hji Hij.
-        rewrite orb_false_r.
-        apply Nat.eqb_neq.
-        intros H; subst i.
-        fast_omega Hjk Hij.
+       subst pt.
+       apply Sorted_inv in Hsort.
+       destruct Hsort as (_, Hrel).
+       unfold fst_lt in Hrel; apply HdRel_inv in Hrel.
+       simpl in Hrel.
+       revert Hrel; apply Qlt_irrefl.
 
-        revert Hsort Hlast Hnat; clear; intros.
-        apply Sorted_inv_1 in Hsort.
-        revert pt Hsort Hlast Hnat.
-        induction pts as [| pt₂]; intros.
-         simpl in Hlast.
-         subst pt.
-         apply Sorted_inv in Hsort.
-         destruct Hsort as (_, Hrel).
-         unfold fst_lt in Hrel; apply HdRel_inv in Hrel.
-         simpl in Hrel.
-         revert Hrel; apply Qlt_irrefl.
+       apply IHpts with (pt := pt₂).
+        eapply Sorted_minus_2nd; [ idtac | eassumption ].
+        intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 
-         apply IHpts with (pt := pt₂).
-          eapply Sorted_minus_2nd; [ idtac | eassumption ].
-          intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+        assumption.
 
-          assumption.
-
-          intros pt₃ Hpt₃.
-          apply Hnat.
-          destruct Hpt₃; [ subst pt₃; left; reflexivity | idtac ].
-          right; right; assumption.
+        intros pt₃ Hpt₃.
+        apply Hnat.
+        destruct Hpt₃; [ subst pt₃; left; reflexivity | idtac ].
+        right; right; assumption.
 bbb.
 *)
 
