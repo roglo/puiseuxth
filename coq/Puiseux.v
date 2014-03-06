@@ -890,12 +890,14 @@ assert (j < k)%nat as Hjk.
 
    rewrite fold_right_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
    revert Hi Hsort Hlast Hnat Hjk; clear; intros.
-   destruct pts as [| (h, αh)]; simpl.
+   revert j k αj αk la Hjk Hsort Hlast Hnat.
+   induction pts as [| (h, αh)]; intros.
     simpl in Hlast.
     injection Hlast; clear; intros; subst.
     rewrite <- Nat2Z.inj_0 in H0.
     apply Nat2Z.inj in H0; subst k; reflexivity.
 
+    simpl.
     assert ((h, αh) ∈ [(h, αh) … pts]) as Hh by (left; reflexivity).
     apply Hnat in Hh.
     destruct Hh as (i, (αi, Hh)).
@@ -903,80 +905,24 @@ assert (j < k)%nat as Hjk.
     rename i into h.
     unfold Qnat; simpl.
     rewrite Nat2Z.id.
-    revert Hi Hjk Hsort Hlast Hnat; clear; intros.
-    revert h j k αh αj αk la Hjk Hsort Hlast Hnat.
-    induction pts as [| (h₂, αh₂)]; intros.
-     simpl in Hlast; simpl.
-     injection Hlast; clear Hlast; intros HH H; subst αh.
-     apply Nat2Z.inj in H; subst h.
-     erewrite fold_right_if_compat; [ simpl | intros; apply orb_false_r ].
-bbb.
-     Focus 2.
-     remember [(h₂, αh₂) … pts] as x; simpl in Hlast; subst x.
-     rewrite Hi.
-      Focus 2.
-      apply IHpts with (αj := αj) (αk := αk); try eassumption.
-       intros pt Hpt.
-       apply Hnat.
-       right; assumption.
+    destruct (eq_nat_dec h k) as [H₁| H₁].
+     subst h.
+     rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | omega ].
+     rewrite List.fold_right_app; simpl.
+     replace (S (j + (k - S j)))%nat with k .
+      replace (k - j - (k - S j))%nat with 1%nat ; simpl.
+       rewrite Nat.eqb_refl; simpl.
+       simpl in Hlast.
+       destruct pts as [| pt]; [ simpl | exfalso ].
+        rewrite fold_nothing; [ reflexivity | idtac ].
+        intros i Hji Hij.
+        rewrite orb_false_r.
+        apply Nat.eqb_neq.
+        intros H; subst i.
+        fast_omega Hjk Hij.
 
-       eapply Sorted_minus_2nd; [ idtac | eassumption ].
-       intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
-
-      rewrite list_seq_app with (dj := (h - S j)%nat).
-       do 2 rewrite List.fold_right_app.
-       rewrite fold_nothing.
-        replace (S j + (h - S j))%nat with h .
-         replace (k - j - (h - S j))%nat with (k - S h)%nat .
-          remember [(h₂, αh₂) … pts] as pts₂ eqn:Hpts₂ .
-          Focus 1.
-          symmetry.
-          remember (List.seq h (k - S h)) as x.
-          destruct (eq_nat_dec h (S j)) as [H₁| H₁].
-           Focus 1.
-           subst h.
-           rewrite Nat.sub_diag; simpl.
-           subst x.
-           Unfocus.
-           Focus 2.
-           rewrite fold_nothing.
-            subst x; simpl.
-            remember (k - S h)%nat as kh eqn:Hkh .
-            symmetry in Hkh.
-            destruct kh; [ exfalso | idtac ].
-             Focus 2.
-             clear Hkh.
-             induction kh.
-              simpl.
-              rewrite Nat.eqb_refl; simpl.
-              remember
-               (List.existsb
-                  (λ pt : Q * Q, Nat.eqb h (Z.to_nat (Qnum (fst pt)))) pts₂) as b.
-              symmetry in Heqb.
-              destruct b; [ idtac | reflexivity ].
-              exfalso.
-              apply List.existsb_exists in Heqb.
-              destruct Heqb as ((l, al), (Hpt, Hb)).
-              simpl in Hb.
-              assert ((l, al) ∈ [(Qnat h, αh) … pts₂]) 
-               as H by (right; assumption).
-              apply Hnat in H.
-              destruct H as (m, (am, H)).
-              injection H; clear H; intros; subst l al.
-              simpl in Hb.
-              rewrite Nat2Z.id in Hb.
-              apply Nat.eqb_eq in Hb; subst m.
-              apply Sorted_inv in Hsort.
-              destruct Hsort as (Hsort, _).
-              apply Sorted_inv in Hsort.
-              destruct Hsort as (Hsort, Hrel).
-              apply List.in_split in Hpt.
-              destruct Hpt as (pts₁, (pts₃, Hpt)).
-              rewrite Hpt in Hrel.
-              Unfocus.
-              Unfocus.
-              Unfocus.
-              Unfocus.
+        revert Hsort Hlast Hnat; clear; intros.
+        apply Sorted_inv_1 in Hsort.
 bbb.
 *)
 
