@@ -1194,6 +1194,13 @@ rewrite fold_right_exists; try eassumption.
    replace .0 K%ps with (f .0 K%K) .
     rewrite List.map_nth; subst f.
     simpl.
+    unfold c_x_power.
+    unfold ps_monom; simpl.
+    apply mkps_morphism; try reflexivity.
+    constructor; intros l; simpl.
+    destruct l; [ simpl | reflexivity ].
+    rewrite <- Hjh.
+    rewrite Nat.add_comm, <- list_nth_skipn.
 bbb.
 
 (* old stuff; to be used later perhaps *)
