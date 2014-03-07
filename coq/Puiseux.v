@@ -856,6 +856,22 @@ rewrite IHlen.
  apply Nat.lt_lt_succ_r; assumption.
 Qed.
 
+Lemma ns_nat : ∀ pol ns pts,
+  ns ∈ newton_segments K pol
+  → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → ∀ iq αi, (iq, αi) ∈ pts
+      → ∃ i : nat, iq = Qnat i.
+Proof.
+intros pol ns pts Hns Hpts iq αi Hi.
+assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
+ eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
+ subst pts; assumption.
+
+ destruct Hnat as (h, (ah, Hh)).
+ injection Hh; intros; subst iq ah.
+ exists h; reflexivity.
+Qed.
+
 Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -904,14 +920,8 @@ assert (j < k)%nat as Hjk.
 
   assert (∀ iq αi, (iq, αi) ∈ pts → ∃ i, iq = Qnat i) as Hnat.
    intros iq αi Hip.
-   assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
-    eapply points_in_newton_segment_have_nat_abscissa;
-     [ eassumption | idtac ].
-    right; subst pts; assumption.
-
-    destruct Hnat as (h, (ah, Hh)).
-    injection Hh; intros; subst iq ah.
-    exists h; reflexivity.
+   eapply ns_nat; [ eassumption | reflexivity | idtac ].
+   right; subst pts; eassumption.
 
    rewrite Hini in Hsort; clear Hini.
    rewrite Hfin in Hpts; clear Hfin.
@@ -1171,6 +1181,19 @@ rewrite fold_right_exists; try eassumption.
    rewrite lap_mul_comm.
    apply lap_mul_compat; [ reflexivity | idtac ].
    constructor; [ idtac | reflexivity ].
+   apply List.existsb_exists in Hb.
+   destruct Hb as ((hq, ah), (Hh, Hjh)); simpl in Hjh.
+   remember Hpl as Hpts; clear HeqHpts.
+   eapply ns_nat in Hpts; try eassumption.
+   destruct Hpts as (h, H); subst hq.
+   unfold nofq, Qnat in Hjh; simpl in Hjh.
+   rewrite Nat2Z.id in Hjh.
+   apply Nat.eqb_eq in Hjh.
+   rewrite Hjh.
+   remember (λ c, ps_monom K c 0) as f.
+   replace .0 K%ps with (f .0 K%K) .
+    rewrite List.map_nth; subst f.
+    simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
