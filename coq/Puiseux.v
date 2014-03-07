@@ -455,6 +455,15 @@ Fixpoint val_of_pt i pl :=
   | [(x, y) … pl₁] => if Qeq_dec (Qnat i) x then y else val_of_pt i pl₁
   end.
 
+bbb.
+
+(*
+I suspect something wrong in "List.nth h tl pht" below, because "h"
+scans "l" which is the irregular list [j, h₁, h₂ ..., k] of points
+of the Newton segment, but tl comes from that list. In that case,
+"h" should be in the interval 0..length tl-1, not j,h₁,h₂..k
+*)
+
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
 Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
@@ -758,22 +767,6 @@ rewrite IHla.
 rewrite Hi.
 reflexivity.
 Qed.
-
-(*
-Lemma xxx : ∀ k n j,
-  (k - (n + j))%nat = 1%nat
-  → (n + j < k)%nat
-    → [k] =
-      (if match j with
-          | 0%nat => false
-          | S j₁ => Nat.eqb j j₁
-          end
-          || (if Nat.leb k n then false else Nat.eqb j (k - S n))
-       then [S n + j]
-       else []).
-Proof.
-bbb.
-*)
 
 Lemma match_nat_eq_false : ∀ i,
   match i with
