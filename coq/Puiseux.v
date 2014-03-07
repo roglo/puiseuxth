@@ -1123,6 +1123,13 @@ assert (j < k)%nat as Hjk.
              intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
+Lemma nofq_Qnat : ∀ i, nofq (Qnat i) = i.
+Proof.
+intros i.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id; reflexivity.
+Qed.
+
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -1192,10 +1199,8 @@ rewrite fold_right_exists; try eassumption.
    rewrite Hjh.
    remember (λ c, ps_monom K c 0) as f.
    replace .0 K%ps with (f .0 K%K) .
-    rewrite List.map_nth; subst f.
-    simpl.
-    unfold c_x_power.
-    unfold ps_monom; simpl.
+    rewrite List.map_nth; subst f; simpl.
+    unfold c_x_power, ps_monom; simpl.
     apply mkps_morphism; try reflexivity.
     constructor; intros l; simpl.
     destruct l; [ simpl | reflexivity ].
