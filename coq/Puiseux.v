@@ -979,6 +979,8 @@ assert (j < k)%nat as Hjk.
          intros (m, am) Hpt.
          apply Hnat.
          right; assumption.
+
+      assert (j < h)%nat as Hjh.
 bbb.
 *)
 
