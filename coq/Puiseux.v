@@ -889,10 +889,16 @@ assert (j < k)%nat as Hjk.
    apply Nat2Z.inj in H.
    subst h; assumption.
 
-  assert (∀ pt, pt ∈ pts → ∃ (h : nat) (αh : Q), pt = (Qnat h, αh)) as Hnat.
-   intros pt Hpt.
-   eapply points_in_newton_segment_have_nat_abscissa; [ eassumption | idtac ].
-   right; subst pts; assumption.
+  assert (∀ iq αi, (iq, αi) ∈ pts → ∃ i, iq = Qnat i) as Hnat.
+   intros iq αi Hip.
+   assert (∃ h ah, (iq, αi) = (Qnat h, ah)) as Hnat.
+    eapply points_in_newton_segment_have_nat_abscissa;
+     [ eassumption | idtac ].
+    right; subst pts; assumption.
+
+    destruct Hnat as (h, (ah, Hh)).
+    injection Hh; intros; subst iq ah.
+    exists h; reflexivity.
 
    rewrite Hini in Hsort; clear Hini.
    rewrite Hfin in Hpts; clear Hfin.
@@ -903,8 +909,8 @@ assert (j < k)%nat as Hjk.
     assumption.
 
     rewrite fold_right_eqb_or; [ idtac | apply Nat.lt_succ_r; reflexivity ].
-    revert Hi Hsort Hlast Hnat Hjh Hjk; clear; intros.
-    revert j k αj αk la Hjk Hsort Hlast Hnat Hjh.
+    revert Hi Hjk Hjh Hnat Hlast Hsort; clear; intros.
+    revert j k αj αk la Hjk Hjh Hlast Hsort.
     induction pts as [| (h, αh)]; intros.
      simpl in Hlast.
      injection Hlast; clear; intros; subst.
@@ -914,11 +920,9 @@ assert (j < k)%nat as Hjk.
      simpl.
      assert ((h, αh) ∈ [(h, αh) … pts]) as Hh by (left; reflexivity).
      apply Hnat in Hh.
-     destruct Hh as (i, (αi, Hh)).
-     injection Hh; clear Hh; intros; subst h αi.
-     rename i into h.
-     unfold Qnat; simpl.
-     rewrite Nat2Z.id.
+     destruct Hh as (i, Hh).
+     subst h; rename i into h.
+     unfold Qnat; simpl; rewrite Nat2Z.id.
      destruct (eq_nat_dec h k) as [H₁| H₁].
       subst h.
       rewrite list_seq_app with (dj := (k - S j)%nat); [ idtac | omega ].
@@ -953,9 +957,9 @@ assert (j < k)%nat as Hjk.
 
          assumption.
 
-         intros pt₃ Hpt₃.
-         apply Hnat.
-         destruct Hpt₃; [ subst pt₃; left; reflexivity | idtac ].
+         intros iq αi Hpti.
+         apply Hnat with (αi := αi).
+         destruct Hpti as [H| H]; [ rewrite H; left; reflexivity | idtac ].
          right; right; assumption.
 
       assert (h < k)%nat as Hhk.
@@ -970,9 +974,7 @@ assert (j < k)%nat as Hjk.
         assert ((l, al) ∈ [(Qnat h, αh); (l, al) … pts])
          as Hl by (right; left; reflexivity).
         apply Hnat in Hl.
-        destruct Hl as (m, (am, Hl)).
-        injection Hl; clear Hl; intros; subst l am.
-        rename m into l.
+        destruct Hl as (m, Hl); subst l; rename m into l.
         apply Nat.lt_le_trans with (m := l).
          apply Sorted_inv in Hsort.
          destruct Hsort as (_, Hrel).
@@ -990,21 +992,22 @@ assert (j < k)%nat as Hjk.
           remember [(Qnat l, al) … pts] as p; simpl in Hlast; subst p.
           apply Nat.lt_le_incl.
           eapply IHpts; try eassumption.
-           intros; apply Hnat; right; assumption.
+           intros; apply Hnat with (αi := αi); right; assumption.
 
-           intros; eapply Hjh; right; eassumption.
+           intros; apply Hjh with (αi := αi); right; assumption.
 
-       assert (j < h)%nat as Hjhh by (eapply Hjh; left; reflexivity).
        rewrite list_seq_app with (dj := (h - S j)%nat); [ idtac | omega ].
-       replace (S j + (h - S j))%nat with h by omega.
-       replace (k - j - (h - S j))%nat with (S (k - h)) by omega.
-       rewrite List.fold_right_app.
-       simpl.
-       rewrite Nat.eqb_refl; simpl.
-       rewrite fold_nothing.
-        apply Hi.
-        rewrite fold_right_eqb_or.
-         eapply IHpts; try eassumption.
+       assert (j < h)%nat as Hjh₁.
+        apply Hjh with (αi := αh); left; reflexivity.
+
+        replace (S j + (h - S j))%nat with h by omega.
+        replace (k - j - (h - S j))%nat with (S (k - h)) by omega.
+        rewrite List.fold_right_app; simpl.
+        rewrite Nat.eqb_refl; simpl.
+        rewrite fold_nothing.
+         apply Hi.
+         rewrite fold_right_eqb_or.
+          eapply IHpts; try eassumption.
 bbb.
 *)
 
