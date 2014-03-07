@@ -291,6 +291,18 @@ intros A f g la lb l Heq.
 induction l; [ assumption | simpl; rewrite IHl; reflexivity ].
 Qed.
 
+Lemma lap_power_add : ∀ la i j,
+  lap_eq K (lap_power K la (i + j))
+    (lap_mul K (lap_power K la i) (lap_power K la j)).
+Proof.
+intros la i j.
+revert j.
+induction i; intros; simpl.
+ rewrite lap_mul_1_l; reflexivity.
+
+ rewrite IHi, lap_mul_assoc; reflexivity.
+Qed.
+
 End on_fields.
 
 Section theorems.
@@ -1143,6 +1155,22 @@ symmetry.
 rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
 rewrite List.map_ext with (g := λ x, nofq (fst x)); [ idtac | reflexivity ].
 rewrite fold_right_exists; try eassumption.
+ rewrite list_fold_right_seq with (t := j); try reflexivity.
+  intros i a b Hab.
+  rewrite Hab; reflexivity.
+
+  intros i accu; simpl.
+  remember (List.existsb (λ pt, Nat.eqb (j + i) (nofq (fst pt))) pl) as b.
+  rename Heqb into Hb.
+  symmetry in Hb.
+  destruct b.
+   apply lap_add_compat; [ reflexivity | idtac ].
+   symmetry; rewrite lap_mul_comm; symmetry.
+   rewrite lap_power_add, <- lap_mul_assoc.
+   apply lap_mul_compat; [ reflexivity | idtac ].
+   rewrite lap_mul_comm.
+   apply lap_mul_compat; [ reflexivity | idtac ].
+   constructor; [ idtac | reflexivity ].
 bbb.
 
 (* old stuff; to be used later perhaps *)
