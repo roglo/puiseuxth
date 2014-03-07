@@ -844,7 +844,7 @@ rewrite IHlen.
  apply Nat.lt_lt_succ_r; assumption.
 Qed.
 
-Lemma yyy : ∀ pol ns pts j k αj αk f la,
+Lemma fold_right_exists : ∀ pol ns pts j k αj αk f la,
   ns ∈ newton_segments K pol
   → pts = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → ini_pt ns = (Qnat j, αj)
@@ -859,6 +859,7 @@ Lemma yyy : ∀ pol ns pts j k αj αk f la,
                   else accu) la
                  (List.seq j (S (k - j)))).
 Proof.
+(* sûrement nettoyable ; putain, j'en ai chié *)
 intros pol ns pts j k αj αk f la Hns Hpl Hini Hfin Hi.
 assert (j < k)%nat as Hjk.
  eapply j_lt_k; try eassumption.
@@ -1062,8 +1063,43 @@ assert (j < k)%nat as Hjk.
           exfalso; revert Hij; apply Nat.lt_irrefl.
 
           simpl.
-bbb.
-*)
+          apply Sorted_inv_1 in Hsort.
+          revert Hnat Hsort Hij; clear; intros.
+          revert h i Hnat Hsort Hij.
+          induction pts as [| (l, al)]; intros; [ reflexivity | simpl ].
+          assert ((l, al) ∈ [(Qnat h, αh); (l, al) … pts]) as H.
+           right; left; reflexivity.
+
+           apply Hnat in H.
+           destruct H as (m, Hm); subst l; rename m into l.
+           simpl; rewrite Nat2Z.id.
+           remember (Nat.eqb i l) as b eqn:Hb .
+           symmetry in Hb.
+           destruct b; simpl.
+            apply Nat.eqb_eq in Hb; subst l.
+            apply Sorted_inv in Hsort.
+            destruct Hsort as (_, Hrel).
+            apply HdRel_inv in Hrel.
+            unfold fst_lt in Hrel; simpl in Hrel.
+            unfold Qlt in Hrel; simpl in Hrel.
+            do 2 rewrite Z.mul_1_r in Hrel.
+            apply Nat2Z.inj_lt in Hrel.
+            apply Nat.nle_gt in Hrel.
+            exfalso; apply Hrel, Nat.lt_le_incl; assumption.
+
+            eapply IHpts; try eassumption.
+             intros iq αi Hpti.
+             apply Hnat with (αi := αi).
+             simpl in Hpti.
+             destruct Hpti as [H| H].
+              injection H; intros; subst.
+              left; reflexivity.
+
+              right; right; assumption.
+
+             eapply Sorted_minus_2nd; [ idtac | eassumption ].
+             intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+Qed.
 
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
@@ -1106,7 +1142,7 @@ rewrite Htl, List.map_map.
 symmetry.
 rewrite lap_fold_compat_l; [ idtac | rewrite lap_mul_nil_r; reflexivity ].
 rewrite List.map_ext with (g := λ x, nofq (fst x)); [ idtac | reflexivity ].
-rewrite yyy; try eassumption.
+rewrite fold_right_exists; try eassumption.
 bbb.
 
 (* old stuff; to be used later perhaps *)
