@@ -1007,7 +1007,61 @@ assert (j < k)%nat as Hjk.
         rewrite fold_nothing.
          apply Hi.
          rewrite fold_right_eqb_or.
-          eapply IHpts; try eassumption.
+          simpl in Hlast.
+          destruct pts as [| (l, al)].
+           injection Hlast; clear Hlast; intros HH H; subst αh.
+           apply Nat2Z.inj in H; subst h.
+           exfalso; apply H₁; reflexivity.
+
+           eapply IHpts with (αj := αh); try eassumption.
+            intros; apply Hnat with (αi := αi); right; assumption.
+
+            intros i αi Hpti.
+            apply Sorted_inv_1 in Hsort.
+            simpl in Hpti.
+            destruct Hpti as [H| H].
+             injection H; clear H; intros; subst l al.
+             apply Sorted_inv in Hsort.
+             destruct Hsort as (_, Hrel).
+             apply HdRel_inv in Hrel; unfold fst_lt in Hrel; simpl in Hrel.
+             unfold Qlt in Hrel; simpl in Hrel.
+             do 2 rewrite Z.mul_1_r in Hrel.
+             apply Nat2Z.inj_lt; assumption.
+
+             apply Sorted_minus_2nd in Hsort.
+              revert Hsort H; clear; intros.
+              revert h i αi Hsort H.
+              induction pts as [| (l, al)]; [ contradiction | intros ].
+              destruct H as [H| H].
+               injection H; clear H; intros; subst l al.
+               apply Sorted_inv in Hsort.
+               destruct Hsort as (_, Hrel).
+               apply HdRel_inv in Hrel.
+               unfold fst_lt in Hrel; simpl in Hrel.
+               unfold Qlt in Hrel; simpl in Hrel.
+               do 2 rewrite Z.mul_1_r in Hrel.
+               apply Nat2Z.inj_lt; assumption.
+
+               eapply IHpts; [ idtac | eassumption ].
+               eapply Sorted_minus_2nd; [ idtac | eassumption ].
+               intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
+
+              intros; eapply Qlt_trans; eassumption.
+
+            eapply Sorted_inv_1; eassumption.
+
+          apply Nat.lt_succ_r; reflexivity.
+
+         intros i Hji Hij.
+         replace (S j + (h - S j))%nat with h in Hij by omega.
+         remember (Nat.eqb i h) as b eqn:Hb .
+         symmetry in Hb.
+         destruct b.
+          apply Nat.eqb_eq in Hb.
+          rewrite Hb in Hij.
+          exfalso; revert Hij; apply Nat.lt_irrefl.
+
+          simpl.
 bbb.
 *)
 
