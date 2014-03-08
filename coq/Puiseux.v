@@ -1198,6 +1198,33 @@ rewrite fold_right_exists; try eassumption.
     constructor; intros l; simpl.
     destruct l; [ simpl | reflexivity ].
     rewrite <- Hjh.
+    remember Hns as Hsort; clear HeqHsort.
+    apply ini_oth_fin_pts_sorted in Hsort.
+    rewrite <- Hpl in Hsort.
+    revert Hh Hjh Hsort; clear; intros.
+    revert i j h ah Hh Hjh.
+    induction pl as [| (m, am)]; intros; simpl.
+     rewrite match_id; reflexivity.
+
+     simpl in Hh.
+     destruct Hh as [Hh| Hh].
+      injection Hh; clear Hh; intros; subst m am.
+      rewrite nofq_Qnat, <- Hjh.
+      rewrite Nat.add_comm, Nat.add_sub.
+      rewrite list_nth_pad_sub; [ idtac | reflexivity ].
+      rewrite Nat.sub_diag; simpl.
+      destruct (eq_nat_dec (i + j) (i + j)) as [| H]; [ reflexivity | idtac ].
+      exfalso; apply H; reflexivity.
+
+      destruct (eq_nat_dec (j + i) (nofq m)) as [H| H].
+       rewrite <- H, Nat.add_comm, Nat.add_sub.
+       rewrite list_nth_pad_sub, Nat.sub_diag; reflexivity.
+
+       Focus 1.
+       apply Sorted_inv in Hsort.
+       destruct Hsort as (Hsort, Hrel).
+       rewrite <- IHpl; try eassumption.
+       rewrite list_nth_pad_sub.
 bbb.
 (*
     rewrite Nat.add_comm, <- list_nth_skipn.
