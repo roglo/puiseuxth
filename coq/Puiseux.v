@@ -1201,6 +1201,19 @@ rewrite fold_right_exists; try eassumption.
     remember Hns as Hsort; clear HeqHsort.
     apply ini_oth_fin_pts_sorted in Hsort.
     rewrite <- Hpl in Hsort.
+    subst pl; simpl.
+    rewrite Hini; simpl; rewrite nofq_Qnat, Nat.sub_diag.
+    rewrite list_pad_0.
+    simpl.
+    destruct i.
+     rewrite Nat.add_0_r.
+     destruct (eq_nat_dec j j) as [| H]; [ reflexivity | idtac ].
+     exfalso; apply H; reflexivity.
+
+     destruct (eq_nat_dec (j + S i) j) as [| H]; [ exfalso; omega | clear H ].
+     remember (oth_pts ns ++ [fin_pt ns]) as pl eqn:Hpl .
+     revert Hh Hjh Hsort; clear; intros.
+bbb.
     revert Hh Hjh Hsort; clear; intros.
     revert i j h ah Hh Hjh.
     induction pl as [| (m, am)]; intros; simpl.
