@@ -1123,6 +1123,31 @@ unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
 
+Fixpoint make_char_lap_of_hl la pow hl :=
+  match hl with
+  | [] => []
+  | [hq … hl₁] =>
+      let h := nofq hq in
+      let ps := List.nth h la .0 K%ps in
+      let c := valuation_coeff K ps in
+      list_pad (h - pow) .0 K%K [c … make_char_lap_of_hl la (S h) hl₁]
+  end.
+
+Definition make_char_pol_of_pts pol j (pts : list (Q * Q)) :=
+  make_char_lap_of_hl (al pol) j (List.map (λ pt, fst pt) pts).
+
+Fixpoint coeff_of_hl la i hl :=
+  match hl with
+  | [] => .0 K%K
+  | [hq … hl₁] =>
+      let h := nofq hq in
+      if eq_nat_dec i h then valuation_coeff K (List.nth h la .0 K%ps)
+      else coeff_of_hl la i hl₁
+  end.
+
+Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
+  coeff_of_hl (al pol) i (List.map (λ pt, fst pt) pts).
+
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
@@ -1201,6 +1226,7 @@ rewrite fold_right_exists; try eassumption.
     remember Hns as Hsort; clear HeqHsort.
     apply ini_oth_fin_pts_sorted in Hsort.
     rewrite <- Hpl in Hsort.
+bbb.
     subst pl; simpl.
     rewrite Hini; simpl; rewrite nofq_Qnat, Nat.sub_diag.
     rewrite list_pad_0; simpl.
@@ -1217,6 +1243,7 @@ rewrite fold_right_exists; try eassumption.
       apply Nat2Z.inj in H₂; rewrite H₂ in Hjh.
       exfalso; fast_omega Hjh.
 
+bbb.
       apply Sorted_inv_1 in Hsort.
       revert Hh Hjh Hsort; clear; intros.
       revert i j h ah Hh Hjh.
