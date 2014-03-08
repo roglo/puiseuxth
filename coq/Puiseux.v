@@ -447,22 +447,22 @@ rewrite split_summation; [ idtac | eassumption ].
 apply f₁_eq_x_min_β₁_summation; assumption.
 Qed.
 
+(*
 Let pht := {| coeff := .0 K%K; power := O |}.
+*)
+
+Fixpoint coeff_of_term i tl :=
+  match tl with
+  | [] => .0 K%K
+  | [t₁ … tl₁] =>
+      if eq_nat_dec i (power t₁) then coeff t₁ else coeff_of_term i tl₁
+  end.
 
 Fixpoint val_of_pt i pl :=
   match pl with
   | [] => 0
   | [(x, y) … pl₁] => if Qeq_dec (Qnat i) x then y else val_of_pt i pl₁
   end.
-
-bbb.
-
-(*
-I suspect something wrong in "List.nth h tl pht" below, because "h"
-scans "l" which is the irregular list [j, h₁, h₂ ..., k] of points
-of the Newton segment, but tl comes from that list. In that case,
-"h" should be in the interval 0..length tl-1, not j,h₁,h₂..k
-*)
 
 (* Σāh.x^(hγ₁).(c₁+y₁)^h =
    Σah.x^(αh+hγ₁).(c₁+y₁)^h + Σ(āh-ah.x^αh).x^(hγ₁).(c₁+y₁)^h *)
@@ -477,13 +477,13 @@ Lemma summation_split_val : ∀ pol ns γ₁ c₁ pl tl l,
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
            poly_summation Kx l
              (λ h,
-              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+              let ah := c_x_power K (coeff_of_term h tl) 0 in
               let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
            poly_summation Kx l
              (λ h,
-              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+              let ah := c_x_power K (coeff_of_term h tl) 0 in
               let αh := val_of_pt h pl in
               POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                     x_power K (Qnat h * γ₁))%ps] .* Kx
@@ -526,14 +526,14 @@ Theorem f₁_eq_sum_α_hγ_to_rest : ∀ pol ns β₁ γ₁ c₁ pl tl l₁ l₂
              POL [x_power K (- β₁)] .* Kx
              poly_summation Kx l₁
                (λ h,
-                let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+                let ah := c_x_power K (coeff_of_term h tl) 0 in
                 let αh := val_of_pt h pl in
                 POL [(ah .* K x_power K (αh + Qnat h * γ₁))%ps] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
              POL [x_power K (- β₁)] .* Kx
              (poly_summation Kx l₁
                 (λ h,
-                 let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+                 let ah := c_x_power K (coeff_of_term h tl) 0 in
                  let αh := val_of_pt h pl in
                  POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                        x_power K (Qnat h * γ₁))%ps] .* Kx
@@ -640,13 +640,13 @@ Lemma subst_αh_hγ : ∀ pol ns pl tl l₁ c₁,
       → l₁ = List.map (λ t, power t) tl
         → (poly_summation Kx l₁
              (λ h,
-              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+              let ah := c_x_power K (coeff_of_term h tl) 0 in
               let αh := val_of_pt h pl in
               POL [(ah .* K x_power K (αh + Qnat h * γ ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
            poly_summation Kx l₁
              (λ h,
-              let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+              let ah := c_x_power K (coeff_of_term h tl) 0 in
               POL [(ah .* K x_power K (β ns))%ps] .* Kx
               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h))%pol.
 Proof.
@@ -710,13 +710,13 @@ Theorem f₁_eq_sum_without_x_β₁_plus_sum : ∀ pol ns c₁ pl tl l₁ l₂,
           → (pol₁ K pol (β ns) (γ ns) c₁ .= Kx
              poly_summation Kx l₁
                (λ h,
-                let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+                let ah := c_x_power K (coeff_of_term h tl) 0 in
                 POL [ah] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
              POL [x_power K (- β ns)] .* Kx
              (poly_summation Kx l₁
                 (λ h,
-                 let ah := c_x_power K (coeff (List.nth h tl pht)) 0 in
+                 let ah := c_x_power K (coeff_of_term h tl) 0 in
                  let αh := val_of_pt h pl in
                  POL [((ā K h pol .- K ah .* K x_power K αh) .* K
                        x_power K (Qnat h * γ ns))%ps] .* Kx
@@ -1131,7 +1131,7 @@ Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
         → ini_pt ns = (Qnat j, αj)
           → (poly_summation Kx l
                (λ h,
-                POL [c_x_power K (coeff (List.nth h tl pht)) 0] .* Kx
+                POL [c_x_power K (coeff_of_term h tl) 0] .* Kx
                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .= Kx
              POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
              poly_compose Kx (poly_inject_K_in_Kx K (Φq K pol ns))
@@ -1198,8 +1198,10 @@ rewrite fold_right_exists; try eassumption.
     constructor; intros l; simpl.
     destruct l; [ simpl | reflexivity ].
     rewrite <- Hjh.
-    rewrite Nat.add_comm, <- list_nth_skipn.
 bbb.
+(*
+    rewrite Nat.add_comm, <- list_nth_skipn.
+*)
 
 (* old stuff; to be used later perhaps *)
 
