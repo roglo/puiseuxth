@@ -1203,8 +1203,7 @@ rewrite fold_right_exists; try eassumption.
     rewrite <- Hpl in Hsort.
     subst pl; simpl.
     rewrite Hini; simpl; rewrite nofq_Qnat, Nat.sub_diag.
-    rewrite list_pad_0.
-    simpl.
+    rewrite list_pad_0; simpl.
     destruct i.
      rewrite Nat.add_0_r.
      destruct (eq_nat_dec j j) as [| H]; [ reflexivity | idtac ].
@@ -1212,32 +1211,38 @@ rewrite fold_right_exists; try eassumption.
 
      destruct (eq_nat_dec (j + S i) j) as [| H]; [ exfalso; omega | clear H ].
      remember (oth_pts ns ++ [fin_pt ns]) as pl eqn:Hpl .
-     revert Hh Hjh Hsort; clear; intros.
-bbb.
-    revert Hh Hjh Hsort; clear; intros.
-    revert i j h ah Hh Hjh.
-    induction pl as [| (m, am)]; intros; simpl.
-     rewrite match_id; reflexivity.
-
-     simpl in Hh.
      destruct Hh as [Hh| Hh].
-      injection Hh; clear Hh; intros; subst m am.
-      rewrite nofq_Qnat, <- Hjh.
-      rewrite Nat.add_comm, Nat.add_sub.
-      rewrite list_nth_pad_sub; [ idtac | reflexivity ].
-      rewrite Nat.sub_diag; simpl.
-      destruct (eq_nat_dec (i + j) (i + j)) as [| H]; [ reflexivity | idtac ].
-      exfalso; apply H; reflexivity.
+      rewrite Hini in Hh.
+      injection Hh; intros H₁ H₂; subst ah.
+      apply Nat2Z.inj in H₂; rewrite H₂ in Hjh.
+      exfalso; fast_omega Hjh.
 
-      destruct (eq_nat_dec (j + i) (nofq m)) as [H| H].
-       rewrite <- H, Nat.add_comm, Nat.add_sub.
-       rewrite list_nth_pad_sub, Nat.sub_diag; reflexivity.
+      apply Sorted_inv_1 in Hsort.
+      revert Hh Hjh Hsort; clear; intros.
+      revert i j h ah Hh Hjh.
+      induction pl as [| (m, am)]; intros; simpl.
+       rewrite match_id; reflexivity.
 
-       Focus 1.
-       apply Sorted_inv in Hsort.
-       destruct Hsort as (Hsort, Hrel).
-       rewrite <- IHpl; try eassumption.
-       rewrite list_nth_pad_sub.
+       destruct Hh as [Hh| Hh].
+        injection Hh; clear Hh; intros; subst m am.
+        rewrite nofq_Qnat, <- Hjh.
+        rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+        rewrite Nat.add_comm, Nat.add_sub.
+        rewrite list_nth_pad_sub; [ idtac | reflexivity ].
+        rewrite Nat.sub_diag; simpl.
+        rewrite Nat.add_succ_r, <- Nat.add_succ_l, Nat.add_comm, Hjh.
+        destruct (eq_nat_dec h h) as [| H]; [ reflexivity | idtac ].
+        exfalso; apply H; reflexivity.
+
+        destruct (eq_nat_dec (j + S i) (nofq m)) as [H| H].
+         rewrite <- H.
+         rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+         rewrite Nat.add_comm, Nat.add_sub.
+         rewrite list_nth_pad_sub, Nat.sub_diag; reflexivity.
+
+         apply Sorted_inv in Hsort.
+         destruct Hsort as (Hsort, Hrel).
+         rewrite <- IHpl; try eassumption.
 bbb.
 (*
     rewrite Nat.add_comm, <- list_nth_skipn.
