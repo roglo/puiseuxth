@@ -58,8 +58,11 @@ Fixpoint filter_finite_val α f (dpl : list (Q * puiseux_series α)) :=
 Definition points_of_ps_polynom_gen α f pow (cl : list (puiseux_series α)) :=
   filter_finite_val f (qpower_list pow cl).
 
+Definition points_of_ps_lap α f (lps : list (puiseux_series α)) :=
+  points_of_ps_polynom_gen f 0 lps.
+
 Definition points_of_ps_polynom α f (pol : polynomial (puiseux_series α)) :=
-  points_of_ps_polynom_gen f 0 (al pol).
+  points_of_ps_lap f (al pol).
 
 Definition newton_segments α f (pol : polynomial (puiseux_series α)) :=
   let gdpl := points_of_ps_polynom f pol in
