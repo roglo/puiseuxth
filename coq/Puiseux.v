@@ -1123,6 +1123,8 @@ unfold nofq, Qnat; simpl.
 rewrite Nat2Z.id; reflexivity.
 Qed.
 
+(* experiments... *)
+
 Fixpoint make_char_lap_of_hl la pow hl :=
   match hl with
   | [] => []
@@ -1147,6 +1149,24 @@ Fixpoint coeff_of_hl la i hl :=
 
 Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
   coeff_of_hl (al pol) i (List.map (λ pt, fst pt) pts).
+
+Definition make_char_pol2 pol j k :=
+  List.firstn (S (k - j))
+    (List.skipn j (List.map (valuation_coeff K) (al pol))).
+
+Lemma char_pol_char_pol2 : ∀ pol ns j k αj αk pl,
+  ns ∈ newton_segments K pol
+  → ini_pt ns = (Qnat j, αj)
+    → fin_pt ns = (Qnat k, αk)
+      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+        → lap_eq K
+            (make_char_pol K j (List.map (term_of_point K pol) pl))
+            (make_char_pol2 pol j k).
+Proof.
+intros pol ns j k αj αk pl Hns Hini Hfin Hpl.
+bbb.
+
+(* experiments end... *)
 
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
