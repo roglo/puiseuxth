@@ -1593,3 +1593,14 @@ intros A B f l.
 induction l; [ reflexivity | simpl ].
 rewrite IHl; reflexivity.
 Qed.
+
+Lemma list_skipn_map : ∀ A B (f : A → B) n l,
+  List.skipn n (List.map f l) = List.map f (List.skipn n l).
+Proof.
+intros A B f n l.
+revert n.
+induction l as [| x]; intros; simpl.
+ do 2 rewrite list_skipn_nil; reflexivity.
+
+ destruct n; [ reflexivity | apply IHl ].
+Qed.
