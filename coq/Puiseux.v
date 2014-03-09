@@ -1116,13 +1116,6 @@ assert (j < k)%nat as Hjk.
              intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-Lemma nofq_Qnat : ∀ i, nofq (Qnat i) = i.
-Proof.
-intros i.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id; reflexivity.
-Qed.
-
 (* experiments... *)
 
 Fixpoint make_char_lap_of_hl la pow hl :=
@@ -1154,6 +1147,17 @@ Definition make_char_pol2 pol j k :=
   List.firstn (S (k - j))
     (List.skipn j (List.map (valuation_coeff K) (al pol))).
 
+Lemma list_skipn_map : ∀ A B (f : A → B) n l,
+  List.skipn n (List.map f l) = List.map f (List.skipn n l).
+Proof.
+intros A B f n l.
+revert n.
+induction l as [| x]; intros; simpl.
+ do 2 rewrite list_skipn_nil; reflexivity.
+
+ destruct n; [ reflexivity | apply IHl ].
+Qed.
+
 Lemma char_pol_char_pol2 : ∀ pol ns j k αj αk pl,
   ns ∈ newton_segments K pol
   → ini_pt ns = (Qnat j, αj)
@@ -1164,6 +1168,11 @@ Lemma char_pol_char_pol2 : ∀ pol ns j k αj αk pl,
             (make_char_pol2 pol j k).
 Proof.
 intros pol ns j k αj αk pl Hns Hini Hfin Hpl.
+subst pl; simpl.
+rewrite Hini; simpl; rewrite nofq_Qnat.
+rewrite Nat.sub_diag; simpl.
+unfold make_char_pol2.
+remember (al pol) as la eqn:Hla .
 bbb.
 
 (* experiments end... *)

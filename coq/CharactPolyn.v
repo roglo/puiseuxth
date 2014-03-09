@@ -40,11 +40,14 @@ Fixpoint make_char_pol α (f : field α) pow tl :=
         [coeff t₁ … make_char_pol f (S (power t₁)) tl₁]
     end.
 
-Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
+Definition lap_term_of_point α (f : field α) la (pt : (Q * Q)) :=
   let h := nofq (fst pt) in
-  let ps := List.nth h (al pol) .0 f%ps in
+  let ps := List.nth h la .0 f%ps in
   let c := valuation_coeff f ps in
   {| coeff := c; power := h |}.
+
+Definition term_of_point α (f : field α) pol (pt : (Q * Q)) :=
+  lap_term_of_point f (al pol) pt.
 
 Definition characteristic_polynomial α (f : field α) pol ns :=
   let pl := [ini_pt ns … oth_pts ns ++ [fin_pt ns]] in
@@ -56,6 +59,13 @@ Definition series_list_com_polord α (psl : list (puiseux_series α)) :=
   List.fold_right (λ ps a, Pos.mul a (ps_polord ps)) 1%positive psl.
 
 (* *)
+
+Lemma nofq_Qnat : ∀ i, nofq (Qnat i) = i.
+Proof.
+intros i.
+unfold nofq, Qnat; simpl.
+rewrite Nat2Z.id; reflexivity.
+Qed.
 
 Section theorems.
 
@@ -519,9 +529,7 @@ eapply pt_absc_is_nat with (pt := ini_pt ns) in Hj₁.
    unfold Qlt in Hlt.
    rewrite Hj₁ in Hj, Hlt.
    rewrite Hk₁ in Hk, Hlt.
-   unfold nofq, Qnat in Hj, Hk.
-   simpl in Hj, Hk.
-   rewrite Nat2Z.id in Hj, Hk.
+   rewrite nofq_Qnat in Hj, Hk.
    subst j k.
    unfold Qnat in Hlt; simpl in Hlt.
    do 2 rewrite Zmult_1_r in Hlt.
@@ -1426,11 +1434,9 @@ split.
    rewrite positive_nat_Z.
    eapply pmq_qmpm; try reflexivity.
     eapply j_lt_k; try eassumption.
-     rewrite <- Hj; unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
+     rewrite <- Hj; simpl; rewrite nofq_Qnat; reflexivity.
 
-     rewrite <- Hh; unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
+     rewrite <- Hh; simpl; rewrite nofq_Qnat; reflexivity.
 
     rewrite <- Hgamma.
     remember Heqhps as Hhps; clear HeqHhps.
@@ -1449,11 +1455,9 @@ split.
 
    apply Nat.lt_le_incl.
    eapply j_lt_k; try eassumption.
-    rewrite <- Hj; unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
+    rewrite <- Hj; simpl; rewrite nofq_Qnat; reflexivity.
 
-    rewrite <- Hh; unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
+    rewrite <- Hh; simpl; rewrite nofq_Qnat; reflexivity.
 Qed.
 
 Lemma mul_pos_nonneg : ∀ j k c d,
@@ -1512,11 +1516,9 @@ apply Z.gauss with (p := Z.of_nat (h - j)) in Hgcd.
   eapply j_lt_h; try eassumption; reflexivity.
 
   eapply j_lt_k; try eassumption.
-   rewrite <- Hj; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite <- Hj; simpl; rewrite nofq_Qnat; reflexivity.
 
-   rewrite Hk; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite Hk; simpl; rewrite nofq_Qnat; reflexivity.
 Qed.
 
 (* [Walker, p. 100]: « In the first place, we note that [...]
@@ -1540,11 +1542,9 @@ assert (j < h)%nat as Hjh.
   eapply j_lt_h; try eassumption; reflexivity.
 
   eapply j_lt_k; try eassumption.
-   rewrite <- Hj; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite <- Hj; simpl; rewrite nofq_Qnat; reflexivity.
 
-   rewrite Hk; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite Hk; simpl; rewrite nofq_Qnat; reflexivity.
 
  split.
   subst s.
@@ -2338,8 +2338,7 @@ Lemma length_char_pol : ∀ pol ns pl tl j αj k αk,
 Proof.
 intros pol ns pl tl j αj k αk Hns Hini Hfin Hpl Htl.
 rewrite Htl, Hpl, Hini; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id, Nat.sub_diag; simpl.
+rewrite nofq_Qnat, Nat.sub_diag; simpl.
 rewrite List.map_app; simpl.
 rewrite length_char_pol_succ; simpl.
  rewrite Hfin.
@@ -2349,7 +2348,7 @@ rewrite length_char_pol_succ; simpl.
 
  remember (List.map (term_of_point f pol) (oth_pts ns)) as tl₂ eqn:Htl₂ .
  remember (term_of_point f pol (Z.of_nat k # 1, αk)) as tk eqn:Htk .
- unfold term_of_point in Htk; simpl in Htk.
+ unfold term_of_point, lap_term_of_point in Htk; simpl in Htk.
  unfold nofq in Htk; simpl in Htk.
  rewrite Nat2Z.id in Htk.
  subst tk; simpl.
@@ -2357,14 +2356,11 @@ rewrite length_char_pol_succ; simpl.
  symmetry in Hpts.
  destruct pts as [| (h, αh)].
   subst tl₂; simpl.
-  rewrite Hfin; unfold nofq, Qnat; simpl.
-  rewrite Nat2Z.id.
+  rewrite Hfin; simpl; rewrite nofq_Qnat;
   eapply j_lt_k; try eassumption.
-   rewrite Hini; simpl; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite Hini; simpl; rewrite nofq_Qnat; reflexivity.
 
-   rewrite Hfin; simpl; unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite Hfin; simpl; rewrite nofq_Qnat; reflexivity.
 
   subst tl₂; simpl.
   assert ((h, αh) ∈ oth_pts ns) as Hh by (rewrite Hpts; left; reflexivity).
@@ -2372,8 +2368,7 @@ rewrite length_char_pol_succ; simpl.
   eapply exists_oth_pt_nat in H; [ idtac | eassumption ].
   destruct H as (i, (ai, Hi)).
   injection Hi; clear Hi; intros; subst h ai; rename i into h.
-  unfold nofq, Qnat; simpl.
-  rewrite Nat2Z.id.
+  rewrite nofq_Qnat.
   symmetry in Hini.
   eapply j_lt_h; try eassumption; reflexivity.
 
@@ -2414,8 +2409,7 @@ rewrite length_char_pol_succ; simpl.
    destruct H₁ as (h₁, (ah₁, Hh₁)).
    destruct H₂ as (h₂, (ah₂, Hh₂)).
    subst pt pt₁; simpl in Hrel; simpl.
-   unfold nofq; simpl.
-   do 2 rewrite Nat2Z.id.
+   do 2 rewrite nofq_Qnat.
    unfold Qnat in Hrel.
    unfold Qlt in Hrel; simpl in Hrel.
    do 2 rewrite Z.mul_1_r in Hrel.
@@ -2443,8 +2437,7 @@ destruct l as [| b]; constructor.
  apply Nat.nle_gt.
  rewrite Hnat; [ idtac | right; left; reflexivity ].
  apply Nat.nle_gt.
- unfold nofq, Qnat; simpl.
- do 2 rewrite Nat2Z.id.
+ do 2 rewrite nofq_Qnat.
  unfold fst_lt in H3.
  rewrite Hnat in H3; [ idtac | left; reflexivity ].
  apply Qlt_not_le in H3.
@@ -2468,8 +2461,7 @@ intros pol ns j αj k αk q Hns Hj Hk Hq.
 unfold pseudo_degree; simpl.
 rewrite Nat.sub_diag; simpl.
 rewrite <- Hj; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id, skipn_pad.
+rewrite nofq_Qnat, skipn_pad.
 unfold list_shrink.
 rewrite list_length_shrink; simpl.
  rewrite divmod_div.
@@ -2478,24 +2470,20 @@ rewrite list_length_shrink; simpl.
   rewrite List.map_app; simpl.
   rewrite length_char_pol_succ.
    rewrite <- Hk; simpl.
-   unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id; reflexivity.
+   rewrite nofq_Qnat; reflexivity.
 
    remember (oth_pts ns) as opts eqn:Hopts .
    symmetry in Hopts.
    destruct opts as [| (h, αh)].
     simpl.
     rewrite <- Hk; simpl.
-    unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id.
+    rewrite nofq_Qnat.
     eapply j_lt_k; try eassumption.
      rewrite <- Hj; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
+     rewrite nofq_Qnat; reflexivity.
 
      rewrite <- Hk; simpl.
-     unfold nofq, Qnat; simpl.
-     rewrite Nat2Z.id; reflexivity.
+     rewrite nofq_Qnat; reflexivity.
 
     simpl.
     assert ((h, αh) ∈ oth_pts ns) as H.
@@ -2537,8 +2525,7 @@ rewrite list_length_shrink; simpl.
   simpl.
   rewrite list_length_pad; simpl.
   rewrite <- Hk; simpl.
-  unfold nofq, Qnat; simpl.
-  rewrite Nat2Z.id; omega.
+  rewrite nofq_Qnat; omega.
 
   simpl.
   rewrite list_length_pad; simpl.
@@ -2571,9 +2558,7 @@ Lemma fold_char_pol : ∀ pol j αj tl,
     (List.map (term_of_point f pol) [(Qnat j, αj) … tl]).
 Proof.
 intros pol j αj tl; simpl.
-unfold nofq, Qnat; simpl.
-rewrite Nat2Z.id.
-rewrite Nat.sub_diag; simpl.
+rewrite nofq_Qnat, Nat.sub_diag; simpl.
 reflexivity.
 Qed.
 
@@ -2677,10 +2662,8 @@ destruct tl as [| t₁].
  subst j k.
  exfalso; revert Hjk; apply Nat.lt_irrefl.
 
- simpl in Hj; rewrite <- Hk; simpl.
- unfold nofq, Qnat; rewrite <- Hj; simpl.
- do 2 rewrite Nat2Z.id.
- rewrite Nat.sub_diag, list_pad_0.
+ simpl in Hj; rewrite <- Hk, <- Hj; simpl.
+ rewrite nofq_Qnat, Nat.sub_diag, list_pad_0.
  destruct tl as [| t₂].
   simpl in Hk; subst t₁.
   injection Hk; clear Hk; intros.
@@ -2697,9 +2680,9 @@ destruct tl as [| t₁].
   revert j αj k αk t₁ t₂ Hj Hk Hjk Hsort Hden.
   induction tl as [| t₃]; intros.
    simpl in Hk; subst t₂; simpl.
-   unfold nofq, Qnat.
+   rewrite nofq_Qnat.
    remember (S k) as x; simpl; subst x.
-   rewrite Nat2Z.id, Nat.sub_succ.
+   rewrite Nat.sub_succ.
    rewrite list_nth_pad_sub; [ rewrite Nat.sub_diag | idtac ]; reflexivity.
 
    simpl.
@@ -2831,8 +2814,7 @@ apply imp_or_tauto.
  subst l; simpl.
  rewrite Nat.sub_diag; simpl.
  rewrite <- Hj; simpl.
- unfold nofq, Qnat; simpl.
- rewrite Nat2Z.id, skipn_pad.
+ rewrite nofq_Qnat, skipn_pad.
  rewrite fold_char_pol with (αj := αj).
  rewrite Hj.
  unfold list_shrink.
@@ -2847,8 +2829,7 @@ apply imp_or_tauto.
   erewrite list_nth_coeff_last; try eassumption.
    rewrite list_last_cons_app; simpl.
    rewrite <- Hk; simpl.
-   unfold nofq, Qnat; simpl.
-   rewrite Nat2Z.id.
+   rewrite nofq_Qnat; simpl.
    eapply val_coeff_non_zero_in_newt_segm; try eassumption; try reflexivity.
    rewrite <- Hk; right.
    apply List.in_or_app; right; left; reflexivity.
@@ -2856,11 +2837,9 @@ apply imp_or_tauto.
    rewrite list_last_cons_app; eassumption.
 
    eapply j_lt_k; try eassumption.
-    rewrite <- Hj; unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
+    rewrite <- Hj; simpl; rewrite nofq_Qnat; reflexivity.
 
-    rewrite <- Hk; unfold nofq, Qnat; simpl.
-    rewrite Nat2Z.id; reflexivity.
+    rewrite <- Hk; simpl; rewrite nofq_Qnat; reflexivity.
 
    constructor.
     apply Sorted_app_at_r.
