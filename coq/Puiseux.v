@@ -1160,8 +1160,10 @@ intros pol ns j k αj αk pl Hns Hini Hfin Hpl.
 subst pl; simpl.
 rewrite Hini; simpl; rewrite nofq_Qnat.
 rewrite Nat.sub_diag; simpl.
+unfold term_of_point.
 unfold make_char_pol2.
-remember (al pol) as la eqn:Hla .
+remember Hns as Hsort; clear HeqHsort.
+apply ini_oth_fin_pts_sorted in Hsort.
 bbb.
 
 (* experiments end... *)
