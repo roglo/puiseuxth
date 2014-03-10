@@ -1119,27 +1119,25 @@ Qed.
 Fixpoint make_char_lap_of_hl la pow hl :=
   match hl with
   | [] => []
-  | [hq … hl₁] =>
-      let h := nofq hq in
+  | [h … hl₁] =>
       let ps := List.nth h la .0 K%ps in
       let c := valuation_coeff K ps in
       list_pad (h - pow) .0 K%K [c … make_char_lap_of_hl la (S h) hl₁]
   end.
 
 Definition make_char_pol_of_pts pol j (pts : list (Q * Q)) :=
-  make_char_lap_of_hl (al pol) j (List.map (λ pt, fst pt) pts).
+  make_char_lap_of_hl (al pol) j (List.map (λ pt, nofq (fst pt)) pts).
 
 Fixpoint coeff_of_hl la i hl :=
   match hl with
   | [] => .0 K%K
-  | [hq … hl₁] =>
-      let h := nofq hq in
+  | [h … hl₁] =>
       if eq_nat_dec i h then valuation_coeff K (List.nth h la .0 K%ps)
       else coeff_of_hl la i hl₁
   end.
 
 Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
-  coeff_of_hl (al pol) i (List.map (λ pt, fst pt) pts).
+  coeff_of_hl (al pol) i (List.map (λ pt, nofq (fst pt)) pts).
 
 Lemma make_char_pol_of_pts_eq : ∀ pol pts j,
   make_char_pol K j (List.map (term_of_point K pol) pts) =
@@ -1244,7 +1242,17 @@ rewrite fold_right_exists; try eassumption.
     unfold make_char_pol_of_pts.
     rewrite coeff_of_term_pt_eq.
     unfold coeff_of_pt.
-    remember (List.map (λ pt, fst pt) pl) as li eqn:Hli .
+    remember (List.map (λ pt, nofq (fst pt)) pl) as li eqn:Hli .
+    assert ((j + i)%nat ∈ li) as Hjil.
+     subst li; rewrite Hjh; simpl.
+     revert Hh Hsort; clear; intros.
+     induction pl as [| (m, am)]; [ contradiction | simpl ].
+     destruct Hh as [Hh| Hh].
+      injection Hh; clear Hh; intros; subst m am.
+      rewrite nofq_Qnat; left; reflexivity.
+
+      apply Sorted_inv_1 in Hsort.
+      right; apply IHpl; assumption.
 bbb.
     subst pl; simpl.
     rewrite Hini; simpl; rewrite nofq_Qnat, Nat.sub_diag.
