@@ -308,8 +308,13 @@ Lemma fld_list_map_nth : ∀ A n f l (d : A) fd,
   → (List.nth n (List.map f l) fd .= K f (List.nth n l d))%K.
 Proof.
 intros A n f l d fd Hfd.
-bbb.
-*)
+revert n d fd Hfd.
+induction l as [| x]; intros; simpl.
+ destruct n; assumption.
+
+ destruct n; [ reflexivity | idtac ].
+ apply IHl; assumption.
+Qed.
 
 End on_fields.
 
