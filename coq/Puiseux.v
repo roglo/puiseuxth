@@ -1227,6 +1227,7 @@ rewrite fold_right_exists; try eassumption.
    rewrite Nat2Z.id in Hjh.
    apply Nat.eqb_eq in Hjh.
    rewrite Hjh.
+bbb.
    remember (λ c, ps_monom K c 0) as f.
    replace .0 K%ps with (f .0 K%K) .
     rewrite List.map_nth; subst f; simpl.
