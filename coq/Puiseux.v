@@ -303,6 +303,14 @@ induction i; intros; simpl.
  rewrite IHi, lap_mul_assoc; reflexivity.
 Qed.
 
+Lemma fld_list_map_nth : ∀ A n f l (d : A) fd,
+  (fd .= K f d)%K
+  → (List.nth n (List.map f l) fd .= K f (List.nth n l d))%K.
+Proof.
+intros A n f l d fd Hfd.
+bbb.
+*)
+
 End on_fields.
 
 Section theorems.
@@ -1227,10 +1235,7 @@ rewrite fold_right_exists; try eassumption.
    rewrite Nat2Z.id in Hjh.
    apply Nat.eqb_eq in Hjh.
    rewrite Hjh.
-bbb.
-   remember (λ c, ps_monom K c 0) as f.
-   replace .0 K%ps with (f .0 K%K) .
-    rewrite List.map_nth; subst f; simpl.
+   rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
     unfold c_x_power, ps_monom; simpl.
     apply mkps_morphism; try reflexivity.
     constructor; intros l; simpl.
@@ -1420,7 +1425,10 @@ bbb.
 
               apply IHli; assumption.
 
-    subst f; simpl.
+    unfold ps_zero, ps_monom; simpl.
+    apply mkps_morphism; try reflexivity.
+    constructor; intros n; simpl.
+    destruct (zerop n); reflexivity.
 bbb.
 
 (* old stuff; to be used later perhaps *)
