@@ -1399,6 +1399,27 @@ rewrite fold_right_exists; try eassumption.
 
                 apply Nat.lt_le_incl.
                 apply IHli; assumption.
+
+            assert (n ≤ i + j) as HH; [ idtac | omega ].
+            revert Hs H; clear; intros.
+            rewrite Nat.add_comm.
+            remember (j + i)%nat as m; clear i j Heqm.
+            revert n m Hs H.
+            induction li as [| i]; intros; [ contradiction | simpl ].
+            apply Sorted_inv in Hs.
+            destruct Hs as (Hs, Hrel).
+            destruct H as [H| H].
+             subst m.
+             apply HdRel_inv in Hrel.
+             apply Nat.lt_le_incl; assumption.
+
+             apply HdRel_inv in Hrel.
+             apply Nat.le_trans with (m := i).
+              apply Nat.lt_le_incl; assumption.
+
+              apply IHli; assumption.
+
+    subst f; simpl.
 bbb.
 
 (* old stuff; to be used later perhaps *)
