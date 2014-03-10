@@ -1434,6 +1434,8 @@ rewrite fold_right_exists; try eassumption.
     apply mkps_morphism; try reflexivity.
     constructor; intros n; simpl.
     destruct (zerop n); reflexivity.
+
+   rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
 bbb.
 
 (* old stuff; to be used later perhaps *)
