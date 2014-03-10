@@ -1289,6 +1289,24 @@ rewrite fold_right_exists; try eassumption.
           do 2 rewrite Z.mul_1_r in Hrel.
           apply Nat2Z.inj_lt; assumption.
 
+       assert (∀ m, m ∈ li → (j ≤ m)%nat) as Hm.
+        intros m Hm.
+        rewrite Hpl in Hli.
+        simpl in Hli.
+        rewrite Hini in Hli; simpl in Hli.
+        rewrite nofq_Qnat in Hli; simpl in Hli.
+        rewrite Hli in Hs, Hm.
+        destruct Hm as [Hm| Hm].
+         rewrite Hm; reflexivity.
+
+         apply Sorted_inv in Hs.
+         destruct Hs as (_, Hrel).
+         remember (oth_pts ns ++ [fin_pt ns]) as pl1.
+         remember (List.map (λ pt : Q * Q, nofq (fst pt)) pl1) as jl.
+         apply Nat.lt_le_incl.
+         revert Hrel Hm; clear; intros.
+
+bbb.
        revert Hjil Hs; clear; intros.
        revert i j Hjil.
        induction li as [| n]; intros; simpl.
