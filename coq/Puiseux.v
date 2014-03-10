@@ -1436,6 +1436,17 @@ rewrite fold_right_exists; try eassumption.
     destruct (zerop n); reflexivity.
 
    rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
+    rewrite <- Htl.
+    assert (List.nth i (make_char_pol K j tl) .0 K%K = .0 K%K) as Hz.
+     Focus 2.
+     rewrite Hz; simpl.
+     rewrite lap_eq_cons_nil; [ idtac | idtac | reflexivity ].
+      rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
+
+      unfold ps_zero, ps_monom; simpl.
+      apply mkps_morphism; try reflexivity.
+      constructor; intros n; simpl.
+      destruct (zerop n); reflexivity.
 bbb.
 
 (* old stuff; to be used later perhaps *)
