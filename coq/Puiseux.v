@@ -1116,8 +1116,6 @@ assert (j < k)%nat as Hjk.
              intros x y z H₁ H₂; eapply Qlt_trans; eassumption.
 Qed.
 
-(* experiments... *)
-
 Fixpoint make_char_lap_of_hl la pow hl :=
   match hl with
   | [] => []
@@ -1143,30 +1141,26 @@ Fixpoint coeff_of_hl la i hl :=
 Definition coeff_of_pt pol i (pts : list (Q * Q)) :=
   coeff_of_hl (al pol) i (List.map (λ pt, fst pt) pts).
 
-Definition make_char_pol2 pol j k :=
-  List.firstn (S (k - j))
-    (List.skipn j (List.map (valuation_coeff K) (al pol))).
-
-Lemma char_pol_char_pol2 : ∀ pol ns j k αj αk pl,
-  ns ∈ newton_segments K pol
-  → ini_pt ns = (Qnat j, αj)
-    → fin_pt ns = (Qnat k, αk)
-      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-        → lap_eq K
-            (make_char_pol K j (List.map (term_of_point K pol) pl))
-            (make_char_pol2 pol j k).
+Lemma make_char_pol_of_pts_eq : ∀ pol pts j,
+  make_char_pol K j (List.map (term_of_point K pol) pts) =
+  make_char_pol_of_pts pol j pts.
 Proof.
-intros pol ns j k αj αk pl Hns Hini Hfin Hpl.
-subst pl; simpl.
-rewrite Hini; simpl; rewrite nofq_Qnat.
-rewrite Nat.sub_diag; simpl.
-unfold term_of_point.
-unfold make_char_pol2.
-remember Hns as Hsort; clear HeqHsort.
-apply ini_oth_fin_pts_sorted in Hsort.
-bbb.
+intros pol pts j.
+revert j.
+induction pts as [| (h, ah)]; intros; [ reflexivity | simpl ].
+rewrite IHpts; reflexivity.
+Qed.
 
-(* experiments end... *)
+Lemma coeff_of_term_pt_eq : ∀ pol pts i,
+  coeff_of_term i (List.map (term_of_point K pol) pts) =
+  coeff_of_pt pol i pts.
+Proof.
+intros pol pts i.
+unfold coeff_of_pt; simpl.
+revert i.
+induction pts as [| (h, ah)]; intros; [ reflexivity | simpl ].
+rewrite IHpts; reflexivity.
+Qed.
 
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
@@ -1246,6 +1240,11 @@ rewrite fold_right_exists; try eassumption.
     remember Hns as Hsort; clear HeqHsort.
     apply ini_oth_fin_pts_sorted in Hsort.
     rewrite <- Hpl in Hsort.
+    rewrite make_char_pol_of_pts_eq.
+    unfold make_char_pol_of_pts.
+    rewrite coeff_of_term_pt_eq.
+    unfold coeff_of_pt.
+    remember (List.map (λ pt, fst pt) pl) as li eqn:Hli .
 bbb.
     subst pl; simpl.
     rewrite Hini; simpl; rewrite nofq_Qnat, Nat.sub_diag.
