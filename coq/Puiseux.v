@@ -1447,6 +1447,18 @@ rewrite fold_right_exists; try eassumption.
       apply mkps_morphism; try reflexivity.
       constructor; intros n; simpl.
       destruct (zerop n); reflexivity.
+
+     rewrite Htl; simpl.
+     rewrite make_char_pol_of_pts_eq.
+     revert Hb; clear; intros.
+     unfold make_char_pol_of_pts; simpl.
+     revert j i Hb.
+     induction pl as [| (m, am)]; intros; simpl.
+      rewrite match_id; reflexivity.
+
+      simpl in Hb.
+      apply orb_false_iff in Hb.
+      destruct Hb as (Hijm, Hb).
 bbb.
 
 (* old stuff; to be used later perhaps *)
