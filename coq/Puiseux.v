@@ -1286,8 +1286,8 @@ Lemma nth_char_lap_eq_0 : ∀ i j li la,
     → (∀ m : nat, m ∈ li → j ≤ m)
       → List.nth i (make_char_lap_of_hl la j [j … li]) .0 K%K = .0 K%K.
 Proof.
-Admitted. (*
 intros i j li la Hjil Hs Hm.
+bbb.
 revert i j Hjil Hm.
 induction li as [| n]; intros; simpl.
  rewrite match_id; reflexivity.
