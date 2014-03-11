@@ -1281,13 +1281,22 @@ induction li as [| n]; intros; simpl.
 Qed.
 
 Lemma nth_char_lap_eq_0 : ∀ i j li la,
-  (j + i)%nat ∉ li
-  → Sorted Nat.lt li
+  (j + i)%nat ∉ [j … li]
+  → Sorted Nat.lt [j … li]
     → (∀ m : nat, m ∈ li → j ≤ m)
-      → List.nth i (make_char_lap_of_hl la j li) .0 K%K = .0 K%K.
+      → List.nth i (make_char_lap_of_hl la j [j … li]) .0 K%K = .0 K%K.
 Proof.
+Admitted. (*
 intros i j li la Hjil Hs Hm.
+revert i j Hjil Hm.
+induction li as [| n]; intros; simpl.
+ rewrite match_id; reflexivity.
+
+ simpl in Hjil.
+ apply Decidable.not_or in Hjil.
+ destruct Hjil as (Hn, Hjil).
 bbb.
+*)
 
 Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
@@ -1557,9 +1566,17 @@ rewrite fold_right_exists; try eassumption.
             apply Sorted_inv in Hs.
             destruct Hs as (Hs, Hrel').
             apply IHjl; assumption.
-            apply IHjl; assumption.
 
-         apply nth_char_lap_eq_0; assumption.
+         rewrite Hpl in Hli.
+         simpl in Hli.
+         rewrite Hini in Hli; simpl in Hli.
+         rewrite nofq_Qnat in Hli.
+         remember (oth_pts ns ++ [fin_pt ns]) as pl'.
+         remember (List.map (λ pt, nofq (fst pt)) pl') as li'.
+         subst li; rename li' into li.
+         apply nth_char_lap_eq_0; try assumption.
+         intros m Hm2.
+         apply Hm; right; assumption.
 
     unfold ps_zero, ps_monom; simpl.
     apply mkps_morphism; try reflexivity.
