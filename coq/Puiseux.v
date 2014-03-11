@@ -1298,6 +1298,26 @@ destruct i.
  revert i j Hjil Hs Hm.
  induction li as [| n]; intros; simpl.
   rewrite match_id; reflexivity.
+
+  destruct (le_dec (n - S j) i) as [H₁| H₁].
+   rewrite list_nth_pad_sub; [ idtac | assumption ].
+   simpl in Hjil.
+   apply Decidable.not_or in Hjil.
+   destruct Hjil as (Hjji, Hjil).
+   remember (i - (n - S j))%nat as p eqn:Hp .
+   symmetry in Hp.
+   destruct p; simpl.
+    assert (n ≤ i + S j)%nat as Hnij; [ fast_omega H₁ | idtac ].
+    assert (S j ≤ n); [ idtac | exfalso; omega ].
+    destruct (eq_nat_dec j n) as [H| H].
+     subst n.
+     apply Sorted_inv in Hs.
+     destruct Hs as (_, Hrel).
+     apply HdRel_inv in Hrel.
+     exfalso; revert Hrel; apply Nat.lt_irrefl.
+
+     assert (j ≤ n) as Hj; [ idtac | fast_omega H Hj ].
+     apply Hm; left; reflexivity.
 bbb.
 
 intros i j li la Hjil Hs Hm.
