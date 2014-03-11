@@ -1180,6 +1180,7 @@ Lemma nth_char_lap_eq_coeff : ∀ i j li la,
       → (List.nth i (make_char_lap_of_hl la j li) .0 K .= K
          coeff_of_hl la (j + i) li)%K.
 Proof.
+(* à nettoyer *)
 intros i j li la Hjil Hs Hm.
 revert i j Hjil Hm.
 induction li as [| n]; intros; simpl.
@@ -1286,6 +1287,7 @@ Lemma nth_char_lap_eq_0 : ∀ i j li la,
     → (∀ m : nat, m ∈ li → j ≤ m)
       → List.nth i (make_char_lap_of_hl la j [j … li]) .0 K%K = .0 K%K.
 Proof.
+(* à nettoyer *)
 intros i j li la Hjil Hs Hm; simpl.
 rewrite Nat.sub_diag; simpl.
 destruct i.
@@ -1368,10 +1370,24 @@ destruct i.
       intros x y z H₁ H₂; eapply Nat.lt_trans; eassumption.
 
    apply Nat.nle_gt in H₁.
-bbb.
-*)
+   revert H₁; clear; intros.
+   remember (valuation_coeff K (List.nth n la .0 K%ps)) as v.
+   remember (make_char_lap_of_hl la (S n) li) as l.
+   remember [v … l] as vl.
+   revert H₁; clear; intros.
+   remember (n - S j)%nat as k.
+   revert H₁; clear; intros.
+   revert k vl H₁.
+   induction i; intros; simpl.
+    destruct k; [ exfalso; revert H₁; apply Nat.lt_irrefl | reflexivity ].
 
-Lemma zzz : ∀ pol ns pl tl l c₁ j αj,
+    destruct k; [ exfalso; omega | idtac ].
+    apply lt_S_n in H₁; simpl.
+    apply IHi; assumption.
+Qed.
+
+(* Σah.(c₁+y)^h = (c₁+y)^j.Φ(c₁+y) *)
+Lemma sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
@@ -1657,7 +1673,9 @@ rewrite fold_right_exists; try eassumption.
     destruct (zerop h); reflexivity.
 
  intros i a b Hab; rewrite Hab; reflexivity.
-qed.
+Qed.
+
+bbb.
 
 (* old stuff; to be used later perhaps *)
 
