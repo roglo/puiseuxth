@@ -1286,15 +1286,54 @@ Lemma nth_char_lap_eq_0 : ∀ i j li la,
     → (∀ m : nat, m ∈ li → j ≤ m)
       → List.nth i (make_char_lap_of_hl la j [j … li]) .0 K%K = .0 K%K.
 Proof.
-intros i j li la Hjil Hs Hm.
-bbb.
-revert i j Hjil Hm.
-induction li as [| n]; intros; simpl.
- rewrite match_id; reflexivity.
-
+intros i j li la Hjil Hs Hm; simpl.
+rewrite Nat.sub_diag; simpl.
+destruct i.
  simpl in Hjil.
  apply Decidable.not_or in Hjil.
- destruct Hjil as (Hn, Hjil).
+ destruct Hjil as (Hjji, Hjil).
+ rewrite Nat.add_0_r in Hjji.
+ exfalso; apply Hjji; reflexivity.
+
+ revert i j Hjil Hs Hm.
+ induction li as [| n]; intros; simpl.
+  rewrite match_id; reflexivity.
+bbb.
+
+intros i j li la Hjil Hs Hm.
+simpl in Hjil.
+apply Decidable.not_or in Hjil.
+destruct Hjil as (Hjji, Hjil).
+revert i j Hjil Hjji Hs Hm.
+induction li as [| n]; intros; simpl.
+ rewrite Nat.sub_diag; simpl.
+ destruct i; [ exfalso; omega | idtac ].
+ rewrite match_id; reflexivity.
+
+ rewrite Nat.sub_diag; simpl.
+ destruct i; [ exfalso; omega | idtac ].
+ rewrite list_nth_pad_sub.
+  simpl in Hjil.
+  apply Decidable.not_or in Hjil.
+  clear Hjji.
+  destruct Hjil as (Hjji, Hjil).
+  remember (i - (n - S j))%nat as p eqn:Hp .
+  symmetry in Hp.
+  destruct p; simpl.
+   assert (n ≤ i + S j)%nat as Hnij.
+    Focus 2.
+    assert (S j ≤ n); [ idtac | exfalso; omega ].
+    destruct (eq_nat_dec j n) as [H| H].
+     subst n.
+     apply Sorted_inv in Hs.
+     destruct Hs as (_, Hrel).
+     apply HdRel_inv in Hrel.
+     exfalso; revert Hrel; apply Nat.lt_irrefl.
+
+     assert (j ≤ n) as Hj.
+      apply Hm; left; reflexivity.
+
+      fast_omega H Hj.
 bbb.
 *)
 
