@@ -1450,15 +1450,28 @@ rewrite fold_right_exists; try eassumption.
 
      rewrite Htl; simpl.
      rewrite make_char_pol_of_pts_eq.
-     revert Hb; clear; intros.
-     unfold make_char_pol_of_pts; simpl.
-     revert j i Hb.
-     induction pl as [| (m, am)]; intros; simpl.
-      rewrite match_id; reflexivity.
+     assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
+      intros iq αi Hip.
+      eapply ns_nat; [ eassumption | reflexivity | idtac ].
+      subst pl; eassumption.
 
-      simpl in Hb.
-      apply orb_false_iff in Hb.
-      destruct Hb as (Hijm, Hb).
+      revert Hb Hnat; clear; intros.
+      unfold make_char_pol_of_pts; simpl.
+      revert j i Hb.
+      induction pl as [| (m, am)]; intros; simpl.
+       rewrite match_id; reflexivity.
+
+       assert (∃ i : nat, m = Qnat i) as H.
+        eapply Hnat; left; reflexivity.
+
+        rename m into mq.
+        destruct H as (m, H); subst mq.
+        rewrite nofq_Qnat.
+        simpl in Hb.
+        rewrite nofq_Qnat in Hb.
+        apply orb_false_iff in Hb.
+        destruct Hb as (Hijm, Hb).
+        apply Nat.eqb_neq in Hijm.
 bbb.
 
 (* old stuff; to be used later perhaps *)
