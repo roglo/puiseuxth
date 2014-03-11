@@ -1386,7 +1386,7 @@ destruct i.
     apply IHi; assumption.
 Qed.
 
-(* Σah.(c₁+y)^h = (c₁+y)^j.Φ(c₁+y) *)
+(* Σah.(c₁+y)^h = (c₁+y)^j.Φ((c₁+y)^q) *)
 Lemma sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
