@@ -120,22 +120,16 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-Add Parametric Morphism α (K : field α) : (poly_inject_K_in_Kx K)
-  with signature eq_poly K ==> eq_poly (ps_field K)
-  as poly_inject_k_in_Kx_morph.
+Add Parametric Morphism α (K : field α) : (List.map (λ c, ps_monom K c 0))
+  with signature lap_eq K ==> lap_eq (ps_field K)
+  as lap_inject_k_in_Kx_morph.
 Proof.
-intros P Q HPQ.
-unfold poly_inject_K_in_Kx.
-unfold eq_poly in HPQ.
-remember (al P) as la.
-remember (al Q) as lb.
-clear P Q Heqla Heqlb.
-unfold eq_poly; simpl.
-revert lb HPQ.
+intros la lb Hab.
+revert lb Hab.
 induction la as [| a]; intros; simpl.
  induction lb as [| b]; [ reflexivity | simpl ].
- apply lap_eq_nil_cons_inv in HPQ.
- destruct HPQ as (Hb, Hlb).
+ apply lap_eq_nil_cons_inv in Hab.
+ destruct Hab as (Hb, Hlb).
  constructor.
   rewrite Hb; simpl.
   apply ps_zero_monom_eq.
@@ -143,8 +137,8 @@ induction la as [| a]; intros; simpl.
   apply IHlb; assumption.
 
  destruct lb as [| b]; simpl.
-  apply lap_eq_cons_nil_inv in HPQ.
-  destruct HPQ as (Ha, Hla).
+  apply lap_eq_cons_nil_inv in Hab.
+  destruct Hab as (Ha, Hla).
   constructor.
    rewrite Ha; simpl.
    apply ps_zero_monom_eq.
@@ -152,11 +146,20 @@ induction la as [| a]; intros; simpl.
    rewrite IHla; [ idtac | eassumption ].
    reflexivity.
 
-  apply lap_eq_cons_inv in HPQ.
-  destruct HPQ as (Hab, Hlab).
+  apply lap_eq_cons_inv in Hab.
+  destruct Hab as (Hab, Hlab).
   rewrite Hab.
   constructor; [ reflexivity | idtac ].
   apply IHla; assumption.
+Qed.
+
+Add Parametric Morphism α (K : field α) : (poly_inject_K_in_Kx K)
+  with signature eq_poly K ==> eq_poly (ps_field K)
+  as poly_inject_k_in_Kx_morph.
+Proof.
+intros P Q HPQ.
+unfold eq_poly; simpl.
+rewrite HPQ; reflexivity.
 Qed.
 
 Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
@@ -1597,7 +1600,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
         apply nth_char_lap_eq_coeff; assumption.
 
-       apply ps_zero_monom_eq.
+       rewrite ps_zero_monom_eq; reflexivity.
 
       rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
        rewrite <- Htl.
@@ -1644,31 +1647,50 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          intros m Hm2.
          apply Hm; right; assumption.
 
-       apply ps_zero_monom_eq.
+       rewrite ps_zero_monom_eq; reflexivity.
 
     intros i a b Hab; rewrite Hab; reflexivity.
 Qed.
+
+Lemma lap_inject_inj_mul : ∀ la lb,
+   lap_eq Kx (List.map (λ c, ps_monom K c 0) (lap_mul K la lb))
+     (lap_mul Kx
+        (List.map (λ c, ps_monom K c 0) la)
+        (List.map (λ c, ps_monom K c 0) lb)).
+Proof.
+intros la lb.
+revert lb.
+induction la as [| a]; intros; simpl.
+ do 2 rewrite lap_mul_nil_l; reflexivity.
+bbb.
 
 Lemma poly_inject_inj_mul : ∀ P Q,
   (poly_inject_K_in_Kx K (P .* K Q) .= Kx
    (poly_inject_K_in_Kx K P .* Kx poly_inject_K_in_Kx K Q))%pol.
 Proof.
 intros P Q.
-unfold eq_poly; simpl.
-remember (al P) as la.
-remember (al Q) as lb.
-clear Heqla Heqlb.
+apply lap_inject_inj_mul.
+Qed.
+
+bbb.
+
 revert lb.
 induction la as [| a]; intros; simpl.
  remember (lap_mul K [] lb) as x.
  rewrite lap_mul_nil_l; subst x.
- induction lb as [| b]; [ reflexivity | simpl ].
  unfold lap_mul; simpl.
- destruct (length lb) as [| len]; [ reflexivity | simpl ].
+ remember 0%nat as n; clear Heqn.
+ remember (pred (length lb)) as len; clear Heqlen.
+ revert n.
+ induction len; intros; [ reflexivity | simpl ].
  constructor.
-  rewrite summation_only_one; simpl.
-  rewrite fld_mul_0_l.
-  apply ps_zero_monom_eq.
+  rewrite all_0_summation_0.
+   apply ps_zero_monom_eq.
+
+   intros i (_, Hi).
+   rewrite match_id, fld_mul_0_l; reflexivity.
+
+  apply IHlen.
 bbb.
 
 (* to be moved to the right file *)
