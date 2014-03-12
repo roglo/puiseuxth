@@ -165,14 +165,6 @@ induction la as [| a]; intros; simpl.
   apply IHla; assumption.
 Qed.
 
-(* to be moved to the right file *)
-Add Parametric Morphism α (K : field α) : (poly_compose K)
-  with signature eq_poly K ==> eq_poly K ==> eq_poly K
-  as poly_compose_morph.
-Proof.
-bbb.
-*)
-
 Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
   (∀ x y z, equal x y → equal (g z x) (h z y))
   → equal a₀ a₀

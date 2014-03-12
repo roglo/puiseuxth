@@ -737,6 +737,15 @@ induction la as [| a]; intros.
   reflexivity.
 Qed.
 
+Add Parametric Morphism α (K : field α) : (poly_compose K)
+  with signature eq_poly K ==> eq_poly K ==> eq_poly K
+  as poly_compose_morph.
+Proof.
+intros A C HAC B D HBD.
+unfold eq_poly; simpl.
+rewrite HAC, HBD; reflexivity.
+Qed.
+
 Section poly.
 
 Variable α : Type.
