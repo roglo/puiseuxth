@@ -1731,6 +1731,26 @@ Lemma lap_extentionality : ∀ la lb,
 Proof.
 intros la lb Hx.
 apply list_nth_lap_eq; intros i.
+rewrite list_nth_lap_deriv.
+rewrite list_nth_lap_deriv.
+bbb.
+unfold lap_derivial.
+induction i; simpl.
+ do 2 rewrite coeff_lap_deriv_0_l.
+ apply Hx.
+
+ destruct la as [| a]; simpl.
+  destruct lb as [| b]; simpl.
+   reflexivity.
+
+   rewrite <- list_nth_coeff_lap_deriv.
+   rewrite list_skipn_nil in IHi; simpl in IHi.
+   rewrite <- list_nth_coeff_lap_deriv in IHi.
+   simpl in IHi.
+bbb.
+
+intros la lb Hx.
+apply list_nth_lap_eq; intros i.
 revert la lb Hx.
 induction i; intros; simpl.
  do 2 rewrite <- apply_lap_0.
