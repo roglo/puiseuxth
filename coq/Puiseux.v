@@ -120,14 +120,50 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
-(* to be moved to the right file *)
-Add Parametric Morphism α (K : field α) (Kx : field (puiseux_series α)) :
-    (poly_inject_K_in_Kx K)
-  with signature eq_poly K ==> eq_poly Kx
+Add Parametric Morphism α (K : field α) : (poly_inject_K_in_Kx K)
+  with signature eq_poly K ==> eq_poly (ps_field K)
   as poly_inject_k_in_Kx_morph.
 Proof.
-bbb.
-*)
+intros P Q HPQ.
+unfold poly_inject_K_in_Kx.
+unfold eq_poly in HPQ.
+remember (al P) as la.
+remember (al Q) as lb.
+clear P Q Heqla Heqlb.
+unfold eq_poly; simpl.
+revert lb HPQ.
+induction la as [| a]; intros; simpl.
+ induction lb as [| b]; [ reflexivity | simpl ].
+ apply lap_eq_nil_cons_inv in HPQ.
+ destruct HPQ as (Hb, Hlb).
+ constructor.
+  rewrite Hb; simpl.
+  unfold ps_monom, ps_zero; simpl.
+  apply mkps_morphism; try reflexivity.
+  constructor; intros i; simpl.
+  destruct (zerop i); reflexivity.
+
+  apply IHlb; assumption.
+
+ destruct lb as [| b]; simpl.
+  apply lap_eq_cons_nil_inv in HPQ.
+  destruct HPQ as (Ha, Hla).
+  constructor.
+   rewrite Ha; simpl.
+   unfold ps_monom, ps_zero; simpl.
+   apply mkps_morphism; try reflexivity.
+   constructor; intros i; simpl.
+   destruct (zerop i); reflexivity.
+
+   rewrite IHla; [ idtac | eassumption ].
+   reflexivity.
+
+  apply lap_eq_cons_inv in HPQ.
+  destruct HPQ as (Hab, Hlab).
+  rewrite Hab.
+  constructor; [ reflexivity | idtac ].
+  apply IHla; assumption.
+Qed.
 
 (* to be moved to the right file *)
 Add Parametric Morphism α (K : field α) : (poly_compose K)
