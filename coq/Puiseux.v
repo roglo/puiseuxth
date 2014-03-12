@@ -1618,11 +1618,19 @@ apply IHlen.
 Qed.
 
 (* to be moved to the right file... *)
-Lemma yyy : ∀ f n,
+Lemma ps_monom_summation : ∀ f n,
   (ps_monom K (Σ K (i = 0, n) _ f i) 0 .= K
    Σ Kx (i = 0, n) _ ps_monom K (f i) 0)%ps.
 Proof.
 intros f n.
+apply ps_monom_summation_aux.
+Qed.
+
+(* to be moved to Ps_mul.v *)
+Lemma ps_monom_mul_l : ∀ c d n,
+  (ps_monom K (c .* K d)%K n .= K ps_monom K c n .* K ps_monom K d n)%ps.
+Proof.
+intros c d n.
 bbb.
 
 Lemma lap_inject_inj_mul : ∀ la lb,
@@ -1640,11 +1648,11 @@ remember 0%nat as n; clear Heqn.
 revert n la lb.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ simpl | apply IHlen ].
-clear len IHlen.
-simpl.
-rewrite yyy.
-apply summation_compat; intros i (_, Hi).
-bbb.
+clear len IHlen; simpl.
+rewrite ps_monom_summation.
+apply summation_compat; intros i (_, Hi); simpl.
+rewrite ps_monom_mul_l.
+bb.
 
 intros la lb.
 revert lb.
