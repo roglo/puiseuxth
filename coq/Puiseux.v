@@ -1700,7 +1700,17 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
-(* to be moved to the right file *)
+(* to be moved to Fpolynomial.v *)
+Theorem lap_compose_mul_distr_r : ∀ la lb lc,
+   lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) lc)
+     (lap_mul Kx (lap_compose Kx la lc) (lap_compose Kx lb lc)).
+Proof.
+intros la lb lc; simpl.
+unfold lap_compose; simpl.
+unfold lap_mul; simpl.
+bbb.
+
+(* to be moved to Fpolynomial.v *)
 Theorem poly_compose_mul_distr_r : ∀ P Q R,
   ((P .* Kx Q) .∘ Kx R .= Kx (P .∘ Kx R) .* Kx (Q .∘ Kx R))%pol.
 Proof.
