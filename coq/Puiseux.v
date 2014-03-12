@@ -1700,12 +1700,25 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
+Lemma lap_extentionality : ∀ la lb,
+  (∀ x, apply_lap K la x .= K apply_lap K lb x)%K
+  → lap_eq K la lb.
+Proof.
+intros la lb Hx.
+apply list_nth_lap_eq; intros i.
+revert la lb Hx.
+induction i; intros; simpl.
+ do 2 rewrite <- apply_lap_0.
+ apply Hx.
+bbb.
+
 (* to be moved to Fpolynomial.v *)
 Theorem lap_compose_mul_distr_r : ∀ la lb lc,
    lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) lc)
      (lap_mul Kx (lap_compose Kx la lc) (lap_compose Kx lb lc)).
 Proof.
 intros la lb lc; simpl.
+bbb.
 revert lb lc.
 induction la as [| a]; intros; simpl.
  do 2 rewrite lap_mul_nil_l.
