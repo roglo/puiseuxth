@@ -1386,8 +1386,13 @@ destruct i.
     apply IHi; assumption.
 Qed.
 
-(* Σah.(c₁+y)^h = (c₁+y)^j.Φ((c₁+y)^q) *)
-Lemma sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
+(* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
+      x^β₁.(c₁+y₁)^j.Φ((c₁+y₁)^q = ... ».
+
+   Therefore, here, we proof that
+      Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
+ *)
+Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
@@ -1613,6 +1618,46 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
     intros i a b Hab; rewrite Hab; reflexivity.
 Qed.
 
+(* [Walker, p. 101] « Since āh = ah.x^αh + ...,
+
+     f₁(x,y₁) = x^(-β₁).Σah.x^(αh+h.γ₁).(c₁+y₁)^h +
+                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
+                         Σāl.x^(l.γ₁).(c₁+y₁)^l]
+
+   Since αh + h.γ₁ = β₁, the first summation reduces to
+      x^β₁.(c₁+y₁)^j.Φ((c₁+y₁)^q = ...
+  ».
+
+  We therefore have
+     f₁(x,y₁) = (c₁+y₁)^j.Φ((c₁+y₁)^q +
+                x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
+                         Σāl.x^(l.γ₁).(c₁+y₁)^l]
+*)
+Theorem zzz : ∀ pol ns c₁ pl tl j αj l₁ l₂,
+  ns ∈ newton_segments K pol
+  → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+    → tl = List.map (term_of_point K pol) pl
+      → l₁ = List.map (λ t, power t) tl
+        → split_list (List.seq 0 (length (al pol))) l₁ l₂
+          → ini_pt ns = (Qnat j, αj)
+            → (pol₁ K pol (β ns) (γ ns) c₁ .= Kx
+               POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
+               poly_compose Kx (poly_inject_K_in_Kx K (Φq K pol ns))
+                 (POL [c_x_power K c₁ 0; .1 K%ps … []]) .+ Kx
+               POL [x_power K (- β ns)] .* Kx
+               (poly_summation Kx l₁
+                  (λ h,
+                   let ah := c_x_power K (coeff_of_term h tl) 0 in
+                   let αh := val_of_pt h pl in
+                   POL [((ā K h pol .- K ah .* K x_power K αh) .* K
+                         x_power K (Qnat h * γ ns))%ps] .* Kx
+                   POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx h) .+ Kx
+                poly_summation Kx l₂
+                  (λ l,
+                   POL [(ā K l pol .* K x_power K (Qnat l * γ ns))%ps] .* Kx
+                   POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx l)))%pol.
+Proof.
+intros pol ns c₁ pl tl j αj l₁ l₂ Hns Hpl Htl Hl Hss Hini.
 bbb.
 
 (* old stuff; to be used later perhaps *)
