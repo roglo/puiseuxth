@@ -1706,8 +1706,20 @@ Theorem lap_compose_mul_distr_r : ∀ la lb lc,
      (lap_mul Kx (lap_compose Kx la lc) (lap_compose Kx lb lc)).
 Proof.
 intros la lb lc; simpl.
-unfold lap_compose; simpl.
-unfold lap_mul; simpl.
+revert lb lc.
+induction la as [| a]; intros; simpl.
+ do 2 rewrite lap_mul_nil_l.
+ reflexivity.
+
+ revert lc.
+ induction lb as [| b]; intros; simpl.
+  do 2 rewrite lap_mul_nil_r; reflexivity.
+
+  rewrite lap_mul_add_distr_l.
+  rewrite lap_mul_add_distr_r.
+  rewrite lap_mul_cons; simpl.
+  do 2 rewrite lap_add_assoc.
+  do 2 rewrite lap_mul_assoc.
 bbb.
 
 (* to be moved to Fpolynomial.v *)
