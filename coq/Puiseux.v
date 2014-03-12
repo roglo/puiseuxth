@@ -1628,10 +1628,41 @@ Qed.
 
 (* to be moved to Ps_mul.v *)
 Lemma ps_monom_mul_l : ∀ c d n,
-  (ps_monom K (c .* K d)%K n .= K ps_monom K c n .* K ps_monom K d n)%ps.
+  (ps_monom K (c .* K d)%K n .= K ps_monom K c 0 .* K ps_monom K d n)%ps.
 Proof.
 intros c d n.
-bbb.
+unfold ps_monom; simpl.
+apply mkps_morphism; simpl; [ idtac | idtac | reflexivity ].
+ constructor; intros i; simpl.
+ destruct i; simpl.
+  unfold convol_mul; simpl.
+  rewrite summation_only_one; simpl.
+  rewrite Nat.mod_0_l; auto; simpl.
+  rewrite Nat.div_0_l; auto; simpl.
+  reflexivity.
+
+  unfold convol_mul; simpl.
+  rewrite all_0_summation_0; [ reflexivity | idtac ].
+  intros j (_, Hj).
+  rewrite divmod_div.
+  rewrite fold_sub_succ_l.
+  rewrite Nat.div_1_r.
+  destruct (zerop (j mod Pos.to_nat (Qden n))) as [H₁| H₁].
+   apply Nat.mod_divides in H₁; auto.
+   destruct H₁ as (e, He).
+   rewrite Nat.mul_comm in He.
+   rewrite He.
+   rewrite Nat.div_mul; auto.
+   destruct (zerop e) as [H₂| H₂].
+    subst e; rewrite Nat.sub_0_r; simpl.
+    rewrite fld_mul_0_r; reflexivity.
+
+    rewrite fld_mul_0_l; reflexivity.
+
+   rewrite fld_mul_0_l; reflexivity.
+
+ rewrite Z.mul_1_r; reflexivity.
+Qed.
 
 Lemma lap_inject_inj_mul : ∀ la lb,
    lap_eq Kx (List.map (λ c, ps_monom K c 0) (lap_mul K la lb))
@@ -1652,13 +1683,14 @@ clear len IHlen; simpl.
 rewrite ps_monom_summation.
 apply summation_compat; intros i (_, Hi); simpl.
 rewrite ps_monom_mul_l.
-bb.
+rewrite fld_list_map_nth.
+ rewrite fld_list_map_nth.
+  reflexivity.
 
-intros la lb.
-revert lb.
-induction la as [| a]; intros; simpl.
- do 2 rewrite lap_mul_nil_l; reflexivity.
-bbb.
+  rewrite ps_zero_monom_eq; reflexivity.
+
+ rewrite ps_zero_monom_eq; reflexivity.
+Qed.
 
 Lemma poly_inject_inj_mul : ∀ P Q,
   (poly_inject_K_in_Kx K (P .* K Q) .= Kx
@@ -1668,31 +1700,11 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
-bbb.
-
-revert lb.
-induction la as [| a]; intros; simpl.
- remember (lap_mul K [] lb) as x.
- rewrite lap_mul_nil_l; subst x.
- unfold lap_mul; simpl.
- remember 0%nat as n; clear Heqn.
- remember (pred (length lb)) as len; clear Heqlen.
- revert n.
- induction len; intros; [ reflexivity | simpl ].
- constructor.
-  rewrite all_0_summation_0.
-   apply ps_zero_monom_eq.
-
-   intros i (_, Hi).
-   rewrite match_id, fld_mul_0_l; reflexivity.
-
-  apply IHlen.
-bbb.
-
 (* to be moved to the right file *)
 Theorem poly_compose_mul_distr_r : ∀ P Q R,
   ((P .* Kx Q) .∘ Kx R .= Kx (P .∘ Kx R) .* Kx (Q .∘ Kx R))%pol.
 Proof.
+intros P Q R.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
