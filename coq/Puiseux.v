@@ -1659,6 +1659,18 @@ Lemma lap_inject_inj_mul : ∀ la lb,
         (List.map (λ c, ps_monom K c 0) lb)).
 Proof.
 intros la lb.
+unfold lap_mul; simpl.
+do 2 rewrite list_length_map.
+remember (pred (length la + length lb)) as len.
+clear Heqlen.
+remember 0%nat as n; clear Heqn.
+revert n la lb.
+induction len; intros; [ reflexivity | simpl ].
+constructor; [ simpl | apply IHlen ].
+clear len IHlen.
+bbb.
+
+intros la lb.
 revert lb.
 induction la as [| a]; intros; simpl.
  do 2 rewrite lap_mul_nil_l; reflexivity.
