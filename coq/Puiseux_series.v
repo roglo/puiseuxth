@@ -570,7 +570,7 @@ Section other_lemmas.
 Variable α : Type.
 Variable f : field α.
 
-Lemma ps_zero_monom_eq : (.0 f .= f ps_monom f .0 f%K 0)%ps.
+Lemma ps_zero_monom_eq : (ps_monom f .0 f%K 0 .= f .0 f)%ps.
 Proof.
 unfold ps_zero, ps_monom; simpl.
 apply mkps_morphism; try reflexivity.

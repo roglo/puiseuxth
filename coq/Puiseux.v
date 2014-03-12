@@ -138,7 +138,7 @@ induction la as [| a]; intros; simpl.
  destruct HPQ as (Hb, Hlb).
  constructor.
   rewrite Hb; simpl.
-  rewrite ps_zero_monom_eq; reflexivity.
+  apply ps_zero_monom_eq.
 
   apply IHlb; assumption.
 
@@ -147,7 +147,7 @@ induction la as [| a]; intros; simpl.
   destruct HPQ as (Ha, Hla).
   constructor.
    rewrite Ha; simpl.
-   rewrite ps_zero_monom_eq; reflexivity.
+   apply ps_zero_monom_eq.
 
    rewrite IHla; [ idtac | eassumption ].
    reflexivity.
@@ -1597,17 +1597,17 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
         apply nth_char_lap_eq_coeff; assumption.
 
-       rewrite ps_zero_monom_eq; reflexivity.
+       apply ps_zero_monom_eq.
 
       rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
        rewrite <- Htl.
        assert (List.nth i (make_char_pol K j tl) .0 K%K = .0 K%K) as Hz.
         Focus 2.
         rewrite Hz; simpl.
-        rewrite lap_eq_cons_nil; [ idtac | idtac | reflexivity ].
+        rewrite lap_eq_cons_nil; [ idtac | simpl | reflexivity ].
          rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
 
-         rewrite ps_zero_monom_eq; reflexivity.
+         apply ps_zero_monom_eq.
 
         rewrite Htl; simpl.
         rewrite make_char_pol_of_pts_eq.
@@ -1644,7 +1644,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          intros m Hm2.
          apply Hm; right; assumption.
 
-       rewrite ps_zero_monom_eq; reflexivity.
+       apply ps_zero_monom_eq.
 
     intros i a b Hab; rewrite Hab; reflexivity.
 Qed.
@@ -1668,6 +1668,7 @@ induction la as [| a]; intros; simpl.
  constructor.
   rewrite summation_only_one; simpl.
   rewrite fld_mul_0_l.
+  apply ps_zero_monom_eq.
 bbb.
 
 (* to be moved to the right file *)
