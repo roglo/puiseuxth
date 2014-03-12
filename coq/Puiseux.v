@@ -18,6 +18,7 @@ Require Import Puiseux_series.
 Require Import Ps_add.
 Require Import Ps_mul.
 Require Import Ps_div.
+Require Import Ps_add_compat.
 Require Import Puiseux_base.
 Require Import CharactPolyn.
 Require Import AlgCloCharPol.
@@ -195,55 +196,6 @@ induction l as [| n]; intros; simpl.
 
   rewrite <- lap_add_assoc.
   rewrite IHl; [ reflexivity | assumption ].
-Qed.
-
-Lemma ps_monom_add_r : ∀ c p q,
- (ps_monom K c (p + q) .= K
-  ps_monom K c p .* K ps_monom K .1 K%K q)%ps.
-Proof.
-intros c p q.
-unfold ps_mul; simpl.
-unfold cm; simpl.
-unfold ps_monom; simpl.
-apply mkps_morphism; try reflexivity.
-unfold ps_mul; simpl.
-unfold cm; simpl.
-unfold ps_monom; simpl.
-constructor; intros i; simpl.
-unfold series_stretch; simpl.
-unfold convol_mul; simpl.
-destruct i; simpl.
- rewrite summation_only_one; simpl.
- rewrite Nat.mod_0_l; auto; simpl.
- rewrite Nat.mod_0_l; auto; simpl.
- rewrite Nat.div_0_l; auto; simpl.
- rewrite Nat.div_0_l; auto; simpl.
- rewrite fld_mul_1_r; reflexivity.
-
- rewrite all_0_summation_0; [ reflexivity | simpl ].
- intros j (_, Hj).
- destruct j; simpl.
-  rewrite Nat.mod_0_l; auto; simpl.
-  rewrite Nat.div_0_l; auto; simpl.
-  destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
-   apply Nat.mod_divides in H; auto.
-   destruct H as (d, Hd).
-   rewrite Nat.mul_comm in Hd; rewrite Hd.
-   rewrite Nat.div_mul; auto.
-   destruct d; [ discriminate Hd | simpl ].
-   rewrite fld_mul_0_r; reflexivity.
-
-   rewrite fld_mul_0_r; reflexivity.
-
-  destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
-   apply Nat.mod_divides in H; auto.
-   destruct H as (d, Hd).
-   rewrite Nat.mul_comm in Hd; rewrite Hd.
-   rewrite Nat.div_mul; auto.
-   destruct d; [ discriminate Hd | simpl ].
-   rewrite fld_mul_0_l; reflexivity.
-
-   rewrite fld_mul_0_l; reflexivity.
 Qed.
 
 Lemma ps_monom_split_mul : ∀ c pow,
@@ -1652,6 +1604,27 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
     intros i a b Hab; rewrite Hab; reflexivity.
 Qed.
 
+(* to be moved to the right file... *)
+Lemma ps_monom_summation_aux : ∀ f b len,
+  (ps_monom K (summation_aux K b len f) 0 .= K
+   summation_aux Kx b len (λ i, ps_monom K (f i) 0))%ps.
+Proof.
+intros f b len.
+revert b.
+induction len; intros; [ apply ps_zero_monom_eq | simpl ].
+rewrite ps_monom_add_l.
+apply ps_add_compat_l.
+apply IHlen.
+Qed.
+
+(* to be moved to the right file... *)
+Lemma yyy : ∀ f n,
+  (ps_monom K (Σ K (i = 0, n) _ f i) 0 .= K
+   Σ Kx (i = 0, n) _ ps_monom K (f i) 0)%ps.
+Proof.
+intros f n.
+bbb.
+
 Lemma lap_inject_inj_mul : ∀ la lb,
    lap_eq Kx (List.map (λ c, ps_monom K c 0) (lap_mul K la lb))
      (lap_mul Kx
@@ -1668,6 +1641,9 @@ revert n la lb.
 induction len; intros; [ reflexivity | simpl ].
 constructor; [ simpl | apply IHlen ].
 clear len IHlen.
+simpl.
+rewrite yyy.
+apply summation_compat; intros i (_, Hi).
 bbb.
 
 intros la lb.

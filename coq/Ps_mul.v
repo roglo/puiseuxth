@@ -915,4 +915,82 @@ destruct n₄ as [n₄| ].
  rewrite Hn₄, Hn₅; reflexivity.
 Qed.
 
+Lemma ps_monom_add_l : ∀ c d n,
+  (ps_monom f (c .+ f d)%K n .= f ps_monom f c n .+ f ps_monom f d n)%ps.
+Proof.
+intros c d n.
+unfold ps_monom; simpl.
+rewrite ps_adjust_eq with (n := 0%nat) (k := Qden n).
+unfold adjust_ps; simpl.
+rewrite series_shift_0.
+rewrite Z.sub_0_r.
+apply mkps_morphism; simpl.
+ constructor; intros i; simpl.
+ rewrite Z.min_id; simpl.
+ rewrite Z.sub_diag; simpl.
+ rewrite Nat.sub_0_r.
+ destruct (zerop (i mod Pos.to_nat (Qden n))) as [H| H].
+  destruct (zerop (i / Pos.to_nat (Qden n))) as [H₁| H₁].
+   reflexivity.
+
+   rewrite fld_add_0_l; reflexivity.
+
+  rewrite fld_add_0_l; reflexivity.
+
+ unfold ps_valnum_add; simpl.
+ rewrite Z.min_id; reflexivity.
+
+ unfold cm; simpl.
+ reflexivity.
+Qed.
+
+Lemma ps_monom_add_r : ∀ c p q,
+ (ps_monom f c (p + q) .= f
+  ps_monom f c p .* f ps_monom f .1 f%K q)%ps.
+Proof.
+intros c p q.
+unfold ps_mul; simpl.
+unfold cm; simpl.
+unfold ps_monom; simpl.
+apply mkps_morphism; try reflexivity.
+unfold ps_mul; simpl.
+unfold cm; simpl.
+unfold ps_monom; simpl.
+constructor; intros i; simpl.
+unfold series_stretch; simpl.
+unfold convol_mul; simpl.
+destruct i; simpl.
+ rewrite summation_only_one; simpl.
+ rewrite Nat.mod_0_l; auto; simpl.
+ rewrite Nat.mod_0_l; auto; simpl.
+ rewrite Nat.div_0_l; auto; simpl.
+ rewrite Nat.div_0_l; auto; simpl.
+ rewrite fld_mul_1_r; reflexivity.
+
+ rewrite all_0_summation_0; [ reflexivity | simpl ].
+ intros j (_, Hj).
+ destruct j; simpl.
+  rewrite Nat.mod_0_l; auto; simpl.
+  rewrite Nat.div_0_l; auto; simpl.
+  destruct (zerop (S i mod Pos.to_nat (Qden p))) as [H| H].
+   apply Nat.mod_divides in H; auto.
+   destruct H as (d, Hd).
+   rewrite Nat.mul_comm in Hd; rewrite Hd.
+   rewrite Nat.div_mul; auto.
+   destruct d; [ discriminate Hd | simpl ].
+   rewrite fld_mul_0_r; reflexivity.
+
+   rewrite fld_mul_0_r; reflexivity.
+
+  destruct (zerop (S j mod Pos.to_nat (Qden q))) as [H| H].
+   apply Nat.mod_divides in H; auto.
+   destruct H as (d, Hd).
+   rewrite Nat.mul_comm in Hd; rewrite Hd.
+   rewrite Nat.div_mul; auto.
+   destruct d; [ discriminate Hd | simpl ].
+   rewrite fld_mul_0_l; reflexivity.
+
+   rewrite fld_mul_0_l; reflexivity.
+Qed.
+
 End other_theorems.
