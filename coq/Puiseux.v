@@ -138,10 +138,7 @@ induction la as [| a]; intros; simpl.
  destruct HPQ as (Hb, Hlb).
  constructor.
   rewrite Hb; simpl.
-  unfold ps_monom, ps_zero; simpl.
-  apply mkps_morphism; try reflexivity.
-  constructor; intros i; simpl.
-  destruct (zerop i); reflexivity.
+  rewrite ps_zero_monom_eq; reflexivity.
 
   apply IHlb; assumption.
 
@@ -150,10 +147,7 @@ induction la as [| a]; intros; simpl.
   destruct HPQ as (Ha, Hla).
   constructor.
    rewrite Ha; simpl.
-   unfold ps_monom, ps_zero; simpl.
-   apply mkps_morphism; try reflexivity.
-   constructor; intros i; simpl.
-   destruct (zerop i); reflexivity.
+   rewrite ps_zero_monom_eq; reflexivity.
 
    rewrite IHla; [ idtac | eassumption ].
    reflexivity.
@@ -1603,10 +1597,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
 
         apply nth_char_lap_eq_coeff; assumption.
 
-       unfold ps_zero, ps_monom; simpl.
-       apply mkps_morphism; try reflexivity.
-       constructor; intros n; simpl.
-       destruct (zerop n); reflexivity.
+       rewrite ps_zero_monom_eq; reflexivity.
 
       rewrite fld_list_map_nth with (A := α) (d := .0 K%K).
        rewrite <- Htl.
@@ -1616,10 +1607,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
         rewrite lap_eq_cons_nil; [ idtac | idtac | reflexivity ].
          rewrite lap_mul_nil_l, lap_mul_nil_r, lap_add_nil_r; reflexivity.
 
-         unfold ps_zero, ps_monom; simpl.
-         apply mkps_morphism; try reflexivity.
-         constructor; intros n; simpl.
-         destruct (zerop n); reflexivity.
+         rewrite ps_zero_monom_eq; reflexivity.
 
         rewrite Htl; simpl.
         rewrite make_char_pol_of_pts_eq.
@@ -1656,13 +1644,37 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
          intros m Hm2.
          apply Hm; right; assumption.
 
-       unfold ps_zero, ps_monom; simpl.
-       apply mkps_morphism; try reflexivity.
-       constructor; intros h; simpl.
-       destruct (zerop h); reflexivity.
+       rewrite ps_zero_monom_eq; reflexivity.
 
     intros i a b Hab; rewrite Hab; reflexivity.
 Qed.
+
+Lemma poly_inject_inj_mul : ∀ P Q,
+  (poly_inject_K_in_Kx K (P .* K Q) .= Kx
+   (poly_inject_K_in_Kx K P .* Kx poly_inject_K_in_Kx K Q))%pol.
+Proof.
+intros P Q.
+unfold eq_poly; simpl.
+remember (al P) as la.
+remember (al Q) as lb.
+clear Heqla Heqlb.
+revert lb.
+induction la as [| a]; intros; simpl.
+ remember (lap_mul K [] lb) as x.
+ rewrite lap_mul_nil_l; subst x.
+ induction lb as [| b]; [ reflexivity | simpl ].
+ unfold lap_mul; simpl.
+ destruct (length lb) as [| len]; [ reflexivity | simpl ].
+ constructor.
+  rewrite summation_only_one; simpl.
+  rewrite fld_mul_0_l.
+bbb.
+
+(* to be moved to the right file *)
+Theorem poly_compose_mul_distr_r : ∀ P Q R,
+  ((P .* Kx Q) .∘ Kx R .= Kx (P .∘ Kx R) .* Kx (Q .∘ Kx R))%pol.
+Proof.
+bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
@@ -1694,7 +1706,13 @@ symmetry.
 subst K.
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 remember (ac_field acf) as K eqn:HK .
+rewrite poly_inject_inj_mul.
+rewrite poly_compose_mul_distr_r.
+rewrite poly_mul_comm.
+apply poly_mul_compat; [ reflexivity | idtac ].
 bbb.
+
+......
 
 (* [Walker, p. 101] « Since āh = ah.x^αh + ...,
 

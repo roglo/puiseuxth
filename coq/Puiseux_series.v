@@ -328,6 +328,14 @@ rewrite H, H0.
 constructor; simpl; rewrite H1; reflexivity.
 Qed.
 
+Add Parametric Morphism α (f : field α) : (@mkps α)
+  with signature eq_series f ==> eq ==> eq ==> eq_ps f
+  as mkps_morphism.
+Proof.
+intros a b Hab v n.
+constructor; rewrite Hab; reflexivity.
+Qed.
+
 Section eq_ps_equiv_rel.
 
 Variable α : Type.
@@ -561,6 +569,14 @@ Section other_lemmas.
 
 Variable α : Type.
 Variable f : field α.
+
+Lemma ps_zero_monom_eq : (.0 f .= f ps_monom f .0 f%K 0)%ps.
+Proof.
+unfold ps_zero, ps_monom; simpl.
+apply mkps_morphism; try reflexivity.
+constructor; intros n; simpl.
+destruct (zerop n); reflexivity.
+Qed.
 
 Lemma series_shift_0 : ∀ s, (series_shift f 0 s .= f s)%ser.
 Proof.
@@ -1829,11 +1845,3 @@ reflexivity.
 Qed.
 
 End other_lemmas.
-
-Add Parametric Morphism α (f : field α) : (@mkps α)
-  with signature eq_series f ==> eq ==> eq ==> eq_ps f
-  as mkps_morphism.
-Proof.
-intros a b Hab v n.
-constructor; rewrite Hab; reflexivity.
-Qed.
