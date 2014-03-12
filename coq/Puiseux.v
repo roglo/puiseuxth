@@ -1700,6 +1700,33 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
+Lemma yyy : ∀ la lb n i,
+  (∀ x, apply_lap K la x .= K apply_lap K lb x)%K
+  → (apply_lap K (coeff_lap_deriv K (List.skipn n la) i i) .0 K .= K
+     apply_lap K (coeff_lap_deriv K (List.skipn n lb) i i) .0 K)%K.
+Proof.
+intros la lb n i Hx.
+revert la lb i Hx.
+induction n; intros; simpl.
+ revert la lb Hx.
+ induction i; intros; simpl.
+  do 2 rewrite coeff_lap_deriv_0_l.
+  apply Hx.
+
+  destruct la as [| a]; simpl.
+   destruct lb as [| b]; [ reflexivity | simpl ].
+   rewrite fld_mul_0_r, fld_add_0_l.
+   rewrite comb_id, comb_lt; [ simpl | apply Nat.lt_succ_r; reflexivity ].
+   simpl in Hx.
+   pose proof (Hx .0 K%K) as H.
+   rewrite fld_mul_0_r in H; assumption.
+
+   rewrite fld_mul_0_r, fld_add_0_l.
+   rewrite comb_id, comb_lt; [ simpl | apply Nat.lt_succ_r; reflexivity ].
+   rewrite fld_add_0_l.
+   simpl in Hx.
+bbb.
+
 Lemma lap_extentionality : ∀ la lb,
   (∀ x, apply_lap K la x .= K apply_lap K lb x)%K
   → lap_eq K la lb.
@@ -1707,20 +1734,16 @@ Proof.
 intros la lb Hx.
 apply list_nth_lap_eq; intros i.
 do 2 rewrite <- taylor_coeff_0.
-bbb.
 unfold lap_derivial.
-induction i; simpl.
+bbb.
+revert la lb Hx.
+induction i; intros; simpl.
+ unfold lap_derivial.
  do 2 rewrite coeff_lap_deriv_0_l.
  apply Hx.
 
  destruct la as [| a]; simpl.
-  destruct lb as [| b]; simpl.
-   reflexivity.
-
-   rewrite <- list_nth_coeff_lap_deriv.
-   rewrite list_skipn_nil in IHi; simpl in IHi.
-   rewrite <- list_nth_coeff_lap_deriv in IHi.
-   simpl in IHi.
+  destruct lb as [| b]; [ reflexivity | simpl ].
 bbb.
 
 intros la lb Hx.
