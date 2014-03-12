@@ -120,6 +120,23 @@ destruct (zerop (i mod Pos.to_nat (Qden p))) as [H₁| H₁].
   reflexivity.
 Qed.
 
+(* to be moved to the right file *)
+Add Parametric Morphism α (K : field α) (Kx : field (puiseux_series α)) :
+    (poly_inject_K_in_Kx K)
+  with signature eq_poly K ==> eq_poly Kx
+  as poly_inject_k_in_Kx_morph.
+Proof.
+bbb.
+*)
+
+(* to be moved to the right file *)
+Add Parametric Morphism α (K : field α) : (poly_compose K)
+  with signature eq_poly K ==> eq_poly K ==> eq_poly K
+  as poly_compose_morph.
+Proof.
+bbb.
+*)
+
 Lemma list_fold_right_compat : ∀ α β equal g h (a₀ : α) (l : list β),
   (∀ x y z, equal x y → equal (g z x) (h z y))
   → equal a₀ a₀
@@ -321,7 +338,8 @@ End on_fields.
 Section theorems.
 
 Variable α : Type.
-Variable K : field α.
+Variable acf : algeb_closed_field α.
+Let K := ac_field acf.
 Let Kx := ps_field K.
 
 Lemma lap_f₁_eq_x_min_β₁_comp : ∀ la β₁ γ₁ c₁,
@@ -1387,9 +1405,9 @@ destruct i.
 Qed.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
-      x^β₁.(c₁+y₁)^j.Φ((c₁+y₁)^q = ... ».
+      x^β₁.(c₁+y₁)^j.Φ((c₁+y₁)^q) = ... ».
 
-   Therefore, here, we proof that
+   We proof here that
       Σah.(c₁+y₁)^h = (c₁+y₁)^j.Φ((c₁+y₁)^q)
  *)
 Theorem sum_ah_c₁y_h_eq : ∀ pol ns pl tl l c₁ j αj,
@@ -1618,22 +1636,57 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
     intros i a b Hab; rewrite Hab; reflexivity.
 Qed.
 
+(* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
+      (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
+
+   We proof here that
+      (c₁+y₁)^j.Φ((c₁+y₁)^q) = y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁)
+ *)
+Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
+  ns ∈ newton_segments K pol
+  → r = root_multiplicity acf c₁ (Φq K pol ns)
+    → Ψ = quotient_phi_x_sub_c_pow_r K (Φq K pol ns) c₁ r
+      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+        → tl = List.map (term_of_point K pol) pl
+          → l = List.map (λ t, power t) tl
+            → ini_pt ns = (Qnat j, αj)
+              → (POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
+                 poly_compose Kx (poly_inject_K_in_Kx K (Φq K pol ns))
+                   (POL [c_x_power K c₁ 0; .1 K%ps … []]) .= Kx
+                 POL [.0 K%ps; .1 K%ps … []] .^ Kx r .* Kx
+                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
+                 poly_compose Kx (poly_inject_K_in_Kx K Ψ)
+                   (POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
+Proof.
+intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
+symmetry.
+rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+apply poly_mul_compat; [ reflexivity | idtac ].
+symmetry.
+subst K.
+rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+remember (ac_field acf) as K eqn:HK .
+bbb.
+
 (* [Walker, p. 101] « Since āh = ah.x^αh + ...,
 
      f₁(x,y₁) = x^(-β₁).Σah.x^(αh+h.γ₁).(c₁+y₁)^h +
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 
+.......
+
    Since αh + h.γ₁ = β₁, the first summation reduces to
       x^β₁.(c₁+y₁)^j.Φ((c₁+y₁)^q = ...
   ».
 
-  We therefore have
-     f₁(x,y₁) = (c₁+y₁)^j.Φ((c₁+y₁)^q +
+  We therefore have ...... to be rewritten
+     f₁(x,y₁) = (c₁+y₁)^j.Φ((c₁+y₁)^q) +
                 x^(-β₁).[Σ(āh-ah.x^αh).x^(h.γ₁).(c₁+y₁)^h +
                          Σāl.x^(l.γ₁).(c₁+y₁)^l]
 *)
-Theorem zzz : ∀ pol ns c₁ pl tl j αj l₁ l₂,
+bbb.
+Theorem ......... : ∀ pol ns c₁ pl tl j αj l₁ l₂,
   ns ∈ newton_segments K pol
   → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
     → tl = List.map (term_of_point K pol) pl
