@@ -1744,6 +1744,8 @@ apply list_nth_lap_eq; intros k; simpl.
 remember (length (lap_mul Kx la lb)) as n eqn:Hn .
 subst Kx; simpl.
 rewrite list_nth_compose_deg_1; [ idtac | eassumption ].
+rewrite <- taylor_coeff_0.
+rewrite <- HKx.
 remember (ps_field K) as Kx eqn:HKx .
 bbb.
 
