@@ -1700,6 +1700,7 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
+(* pas certain que ça soit vrai...
 Lemma yyy : ∀ la lb n i,
   (∀ x, apply_lap K la x .= K apply_lap K lb x)%K
   → (apply_lap K (coeff_lap_deriv K (List.skipn n la) i i) .0 K .= K
@@ -1744,46 +1745,9 @@ induction n; intros; simpl.
   destruct lb as [| b]; [ reflexivity | simpl ].
   simpl in Hx.
 bbb.
-  pose proof (Hx .0 K%K) as H.
-  rewrite fld_mul_0_r, fld_add_0_l in H.
-  assert (∀ x, apply_lap K lb x .* K x .= K .0 K)%K as Hxx.
-   intros x.
-   rewrite Hx.
-   rewrite <- H, fld_add_0_r; reflexivity.
+*)
 
-   clear b Hx H; rename Hxx into Hx.
-   clear IHn.
-   revert n; induction lb as [| b]; intros; simpl.
-    rewrite list_skipn_nil; reflexivity.
-
-    simpl in Hx.
-    destruct n; simpl.
-     rewrite fld_mul_0_r, fld_add_0_l.
-     rewrite comb_id; simpl.
-     rewrite fld_add_0_l.
-     pose proof (Hx b) as Hb.
-     pose proof (Hx .1 K%K) as H1.
-     do 2 rewrite fld_mul_1_r in H1.
-     remember (ac_is_zero acf b) as z eqn:Hz .
-     symmetry in Hz.
-     destruct z.
-      apply ac_prop_is_zero in Hz.
-      rewrite Hz.
-      reflexivity.
-
-      apply fld_eq_mul_0_l in Hb.
-       Focus 2.
-       intros H.
-       apply ac_prop_is_zero in H.
-       rewrite Hz in H; discriminate H.
-
-       assert (apply_lap K lb b .* K b .+ K .1 K .* K b .= K .0 K)%K as H.
-        rewrite fld_mul_1_l; assumption.
-
-        rewrite <- fld_mul_add_distr_r in H.
-        apply fld_eq_mul_0_l in H.
-bbb.
-
+(* pas certain que ça soit vrai...
 Lemma lap_extentionality : ∀ la lb,
   (∀ x, apply_lap K la x .= K apply_lap K lb x)%K
   → lap_eq K la lb.
@@ -1802,14 +1766,7 @@ induction i; intros; simpl.
  destruct la as [| a]; simpl.
   destruct lb as [| b]; [ reflexivity | simpl ].
 bbb.
-
-intros la lb Hx.
-apply list_nth_lap_eq; intros i.
-revert la lb Hx.
-induction i; intros; simpl.
- do 2 rewrite <- apply_lap_0.
- apply Hx.
-bbb.
+*)
 
 (* to be moved to Fpolynomial.v *)
 Theorem lap_compose_mul_distr_r : ∀ la lb lc,
