@@ -1725,6 +1725,63 @@ induction n; intros; simpl.
    rewrite comb_id, comb_lt; [ simpl | apply Nat.lt_succ_r; reflexivity ].
    rewrite fld_add_0_l.
    simpl in Hx.
+   destruct lb as [| b]; simpl.
+    simpl in Hx.
+    pose proof (Hx .0 K%K) as H.
+    rewrite fld_mul_0_r, fld_add_0_l in H.
+    assumption.
+
+    simpl.
+    simpl in Hx.
+    rewrite fld_mul_0_r, fld_add_0_l.
+    rewrite comb_id, comb_lt; [ simpl | apply Nat.lt_succ_r; reflexivity ].
+    rewrite fld_add_0_l.
+    pose proof (Hx .0 K%K) as H.
+    do 2 rewrite fld_mul_0_r, fld_add_0_l in H.
+    assumption.
+
+ destruct la as [| a]; simpl.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  simpl in Hx.
+bbb.
+  pose proof (Hx .0 K%K) as H.
+  rewrite fld_mul_0_r, fld_add_0_l in H.
+  assert (∀ x, apply_lap K lb x .* K x .= K .0 K)%K as Hxx.
+   intros x.
+   rewrite Hx.
+   rewrite <- H, fld_add_0_r; reflexivity.
+
+   clear b Hx H; rename Hxx into Hx.
+   clear IHn.
+   revert n; induction lb as [| b]; intros; simpl.
+    rewrite list_skipn_nil; reflexivity.
+
+    simpl in Hx.
+    destruct n; simpl.
+     rewrite fld_mul_0_r, fld_add_0_l.
+     rewrite comb_id; simpl.
+     rewrite fld_add_0_l.
+     pose proof (Hx b) as Hb.
+     pose proof (Hx .1 K%K) as H1.
+     do 2 rewrite fld_mul_1_r in H1.
+     remember (ac_is_zero acf b) as z eqn:Hz .
+     symmetry in Hz.
+     destruct z.
+      apply ac_prop_is_zero in Hz.
+      rewrite Hz.
+      reflexivity.
+
+      apply fld_eq_mul_0_l in Hb.
+       Focus 2.
+       intros H.
+       apply ac_prop_is_zero in H.
+       rewrite Hz in H; discriminate H.
+
+       assert (apply_lap K lb b .* K b .+ K .1 K .* K b .= K .0 K)%K as H.
+        rewrite fld_mul_1_l; assumption.
+
+        rewrite <- fld_mul_add_distr_r in H.
+        apply fld_eq_mul_0_l in H.
 bbb.
 
 Lemma lap_extentionality : ∀ la lb,
