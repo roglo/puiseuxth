@@ -1754,6 +1754,29 @@ Lemma lap_extentionality : ∀ la lb,
 Proof.
 intros la lb Hx.
 apply list_nth_lap_eq; intros i.
+do 2 rewrite <- taylor_coeff_0.
+revert la lb Hx.
+induction i; intros; simpl.
+ do 2 rewrite lap_derivial_0.
+ apply Hx.
+
+ destruct lb as [| b]; simpl.
+  destruct la as [| a]; [ reflexivity | simpl ].
+  simpl in Hx.
+  rewrite taylor_coeff_0; simpl.
+  rewrite <- taylor_coeff_0.
+  pose proof (Hx .0 K%K) as H.
+  rewrite fld_mul_0_r, fld_add_0_l in H.
+  assert (∀ x, apply_lap K la x .* K x .= K .0 K)%K as HH.
+   intros x.
+   pose proof (Hx x) as Hxx.
+   rewrite H in Hxx.
+   rewrite fld_add_0_r in Hxx.
+   assumption.
+
+   clear a Hx H; rename HH into Hx.
+bbb.
+
 revert la Hx i.
 induction lb as [| b]; intros; simpl.
  rewrite match_id; simpl in Hx.
