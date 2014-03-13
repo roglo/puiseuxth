@@ -1755,6 +1755,39 @@ Proof.
 intros la lb Hx.
 apply list_nth_lap_eq; intros i.
 do 2 rewrite <- taylor_coeff_0.
+revert la lb Hx.
+induction i; intros; simpl.
+ do 2 rewrite lap_derivial_0.
+ apply Hx.
+
+ destruct la as [| a]; simpl.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  simpl in Hx.
+  rewrite taylor_coeff_0; simpl.
+  rewrite <- taylor_coeff_0.
+bbb.
+
+intros la lb Hx.
+apply list_nth_lap_eq; intros i.
+revert la lb Hx.
+induction i; intros; simpl.
+ pose proof (Hx .0 K%K) as H.
+bbb.
+ Focus 2.
+ destruct la as [| a]; simpl.
+  simpl in Hx.
+  destruct lb as [| b]; [ reflexivity | simpl ].
+  simpl in Hx.
+bbb.
+
+intros la lb Hx.
+apply list_nth_lap_eq; intros i.
+do 2 rewrite <- taylor_coeff_0.
+bbb.
+
+intros la lb Hx.
+apply list_nth_lap_eq; intros i.
+do 2 rewrite <- taylor_coeff_0.
 unfold lap_derivial.
 revert la lb Hx.
 induction i; intros; simpl.
