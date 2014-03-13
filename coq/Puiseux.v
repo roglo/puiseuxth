@@ -312,6 +312,43 @@ Qed.
 
 End on_fields.
 
+Fixpoint fld_power α (K : field α) a n :=
+  match n with
+  | O => .1 K%K
+  | S m => (a .* K fld_power α K a m)%K
+  end.
+
+Notation "a .^ f b" := (fld_power f a b) : field_scope.
+
+Definition apply_lap2 α (K : field α) la x :=
+  Σ K (i = 0, pred (length la)) _ List.nth i la .0 K .* K x .^ K i.
+
+Lemma summation_shift : ∀ α (K : field α) b g k,
+  (Σ K (i = b, k) _ g i .= K
+   Σ K (i = 0, k - b) _ g (b + i)%nat)%K.
+Proof.
+intros b g k.
+bbb.
+
+Lemma apply_lap_lap2 : ∀ α (K : field α) la x,
+  (apply_lap K la x .= K apply_lap2 K la x)%K.
+Proof.
+intros α K la x.
+induction la as [| a]; simpl.
+ unfold apply_lap2; simpl.
+ rewrite summation_only_one, fld_mul_0_l; reflexivity.
+
+ rewrite IHla.
+ unfold apply_lap2.
+ simpl.
+ rewrite fld_add_comm.
+ symmetry.
+ rewrite summation_split_first; [ simpl | apply Nat.le_0_l ].
+ rewrite fld_mul_1_r.
+ apply fld_add_compat_l.
+ rewrite summation_shift; simpl.
+bbb.
+
 Section theorems.
 
 Variable α : Type.
