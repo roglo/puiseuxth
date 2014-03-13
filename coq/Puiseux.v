@@ -1747,11 +1747,76 @@ induction n; intros; simpl.
 bbb.
 *)
 
+(* only with decidability, I guess...
+Lemma fld_eq_mul_0 : ∀ n m,
+  (n .* K m .= K .0 K)%K → (n .= K .0 K ∨ m .= K .0 K)%K.
+Proof.
+intros n m H.
+bbb.
+*)
+
 (* pas certain que ça soit vrai... *)
 Lemma lap_extentionality : ∀ la lb,
   (∀ x, apply_lap K la x .= K apply_lap K lb x)%K
   → lap_eq K la lb.
 Proof.
+intros la lb Hx.
+remember (max (length la) (length lb)) as n eqn:Hn .
+symmetry in Hn.
+apply list_nth_lap_eq; intros i.
+revert la lb Hx Hn i.
+induction n; intros; simpl.
+ destruct la as [| a]; [ idtac | destruct lb; discriminate Hn ].
+ destruct lb as [| b]; [ reflexivity | discriminate Hn ].
+
+ destruct la as [| a].
+  simpl in Hx, Hn; simpl.
+  rewrite match_id.
+  clear IHn.
+  revert n i Hn.
+  induction lb as [| b]; intros; [ discriminate Hn | simpl ].
+  destruct i.
+   pose proof (Hx .0 K%K) as H.
+   simpl in H.
+   rewrite fld_mul_0_r, fld_add_0_l in H.
+   assumption.
+
+   simpl in Hn.
+   apply eq_add_S in Hn.
+   destruct n.
+    destruct lb; [ idtac | discriminate Hn ].
+    rewrite list_nth_nil; reflexivity.
+
+    simpl in Hx.
+    pose proof (Hx .0 K%K) as H.
+    rewrite fld_mul_0_r, fld_add_0_l in H.
+    assert (∀ x, apply_lap K lb x .* K x .= K .0 K)%K as HH.
+     intros x.
+     pose proof (Hx x) as Hxx.
+     rewrite <- H in Hxx.
+     rewrite fld_add_0_r in Hxx.
+     rewrite <- Hxx; reflexivity.
+
+     clear b Hx H; rename HH into Hx.
+     clear IHlb.
+     destruct lb as [| b]; [ discriminate Hn | idtac ].
+     simpl in Hn.
+     apply eq_add_S in Hn.
+     simpl in Hx.
+     simpl.
+     destruct i.
+      pose proof (Hx b) as Hb.
+      remember (ac_is_zero acf b) as bz eqn:Hbz .
+      symmetry in Hbz.
+      destruct bz.
+       apply ac_prop_is_zero in Hbz.
+       rewrite Hbz; reflexivity.
+
+       apply fld_eq_mul_0_l in Hb.
+        pose proof (Hx .1 K%K) as H1.
+        do 2 rewrite fld_mul_1_r in H1.
+bbb.
+
 intros la lb Hx.
 apply list_nth_lap_eq; intros i.
 do 2 rewrite <- taylor_coeff_0.
