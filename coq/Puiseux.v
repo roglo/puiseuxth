@@ -315,17 +315,17 @@ End on_fields.
 Fixpoint fld_power α (K : field α) a n :=
   match n with
   | O => .1 K%K
-  | S m => (a .* K fld_power α K a m)%K
+  | S m => (a .* K fld_power K a m)%K
   end.
 
 Notation "a .^ f b" := (fld_power f a b) : field_scope.
 
 Definition apply_lap2 α (K : field α) la x :=
-  Σ K (i = 0, pred (length la)) _ List.nth i la .0 K .* K x .^ K i.
+  Σ K (i = 0, pred (length la)), List.nth i la .0 K .* K x .^ K i.
 
 Lemma summation_shift : ∀ α (K : field α) b g k,
-  (Σ K (i = b, k) _ g i .= K
-   Σ K (i = 0, k - b) _ g (b + i)%nat)%K.
+  (Σ K (i = b, k), g i .= K
+   Σ K (i = 0, k - b), g (b + i)%nat)%K.
 Proof.
 intros b g k.
 bbb.
@@ -1656,8 +1656,8 @@ Qed.
 
 (* to be moved to the right file... *)
 Lemma ps_monom_summation : ∀ f n,
-  (ps_monom K (Σ K (i = 0, n) _ f i) 0 .= K
-   Σ Kx (i = 0, n) _ ps_monom K (f i) 0)%ps.
+  (ps_monom K (Σ K (i = 0, n), f i) 0 .= K
+   Σ Kx (i = 0, n), ps_monom K (f i) 0)%ps.
 Proof.
 intros f n.
 apply ps_monom_summation_aux.

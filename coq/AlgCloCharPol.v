@@ -1301,7 +1301,7 @@ Qed.
 Lemma list_nth_compose_deg_1 : ∀ α (f : field α) la b k n,
   n = length la
   → (List.nth k (lap_compose2 f la [b; .1 f … []]) .0 f .= f
-     Σ f (i = 0, n - k) _
+     Σ f (i = 0, n - k),
      fld_mul_nat f (comb (k + i) k)
       (List.nth (k + i) la .0 f .* f fld_pow_nat f b i))%K.
 Proof.
@@ -1386,8 +1386,8 @@ induction la as [| a]; intros.
 Qed.
 
 Lemma summation_mul_nat_swap: ∀ α (f : field α) a g k,
-  (Σ f (i = 0, k)_ fld_mul_nat f a (g i) .= f
-   fld_mul_nat f a (Σ f (i = 0, k)_ g i))%K.
+  (Σ f (i = 0, k), fld_mul_nat f a (g i) .= f
+   fld_mul_nat f a (Σ f (i = 0, k), g i))%K.
 Proof.
 intros α f a g k.
 induction k.

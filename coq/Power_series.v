@@ -133,7 +133,7 @@ End theorems_add.
 (* series_mul *)
 
 Definition convol_mul α (f : field α) a b k :=
-  Σ f (i = 0, k) _ a .[i] .* f b .[k-i].
+  Σ f (i = 0, k), a .[i] .* f b .[k-i].
 
 Definition series_mul α (f : field α) a b :=
   {| terms k := convol_mul f a b k |}.
@@ -346,7 +346,7 @@ Fixpoint term_inv α (f : field α) c s n :=
    | O => .0 f%K
    | S c₁ =>
        (.-f .¹/f (s .[0]) .* f
-        Σ f (i = 1, n)_ s .[i] .* f term_inv f c₁ s (n - i)%nat)%K
+        Σ f (i = 1, n), s .[i] .* f term_inv f c₁ s (n - i)%nat)%K
    end.
 
 Definition series_inv α (f : field α) s :=
@@ -392,7 +392,7 @@ Lemma term_inv_nth_gen_formula : ∀ k a a' i,
     → (S k - i ≠ 0)%nat
       → (a' .[S k - i] .= f
          .- f a' .[0] .* f
-         Σ f (j = 1, S k - i) _
+         Σ f (j = 1, S k - i),
          a .[j] .* f term_inv f (S k) a (S k - i - j))%K.
 Proof.
 (* à revoir... *)
@@ -430,7 +430,7 @@ Lemma term_inv_nth_formula : ∀ k a a',
   (a.[0] .≠ f .0 f)%K
   → a' = series_inv f a
     → (a' .[S k] .= f
-       .- f a' .[0] .* f Σ f (i = 1, S k)_ a .[i] .* f a' .[S k - i])%K.
+       .- f a' .[0] .* f Σ f (i = 1, S k), a .[i] .* f a' .[S k - i])%K.
 Proof.
 intros k a a' Ha Ha'.
 pose proof (term_inv_nth_gen_formula k O Ha Ha') as H.

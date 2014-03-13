@@ -195,7 +195,7 @@ Fixpoint lap_convol_mul α (f : field α) al₁ al₂ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [Σ f (j = 0, i) _ List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f …
+      [Σ f (j = 0, i), List.nth j al₁ .0 f .* f List.nth (i - j) al₂ .0 f …
        lap_convol_mul f al₁ al₂ (S i) len₁]
   end.
 
@@ -520,7 +520,7 @@ Lemma lap_convol_mul_succ : ∀ α (f : field α) la lb i len,
   lap_eq f
     (lap_convol_mul f la lb i (S len))
     (lap_convol_mul f la lb i len ++
-     [Σ f (j = 0, i + len)_
+     [Σ f (j = 0, i + len),
       List.nth j la .0 f .* f List.nth (i + len - j) lb .0 f])%K.
 Proof.
 intros α f la lb i len.
@@ -860,7 +860,7 @@ Qed.
 Lemma list_nth_lap_convol_mul_aux : ∀ la lb n i len,
   pred (List.length la + List.length lb) = (i + len)%nat
   → (List.nth n (lap_convol_mul f la lb i len) .0 f%K .= f
-     Σ f (j = 0, n + i)_
+     Σ f (j = 0, n + i),
      List.nth j la .0 f .* f List.nth (n + i - j) lb .0 f)%K.
 Proof.
 intros la lb n i len Hlen.
@@ -891,7 +891,7 @@ Qed.
 Lemma list_nth_lap_convol_mul : ∀ la lb i len,
   len = pred (length la + length lb)
   → (List.nth i (lap_convol_mul f la lb 0 len) .0 f .= f
-     Σ f (j = 0, i) _ List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
+     Σ f (j = 0, i), List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
 Proof.
 intros la lb i len Hlen.
 symmetry in Hlen.
@@ -900,14 +900,14 @@ rewrite Nat.add_0_r; reflexivity.
 Qed.
 
 Lemma summation_mul_list_nth_lap_convol_mul : ∀ la lb lc k,
-  (Σ f (i = 0, k) _
+  (Σ f (i = 0, k),
      List.nth i la .0 f .* f
      List.nth (k - i)
        (lap_convol_mul f lb lc 0 (pred (length lb + length lc))) 
        .0 f .= f
-   Σ f (i = 0, k) _
+   Σ f (i = 0, k),
      List.nth i la .0 f .* f
-     Σ f (j = 0, k - i) _
+     Σ f (j = 0, k - i),
        List.nth j lb .0 f .* f List.nth (k - i - j) lc .0 f)%K.
 Proof.
 intros la lb lc k.
@@ -917,13 +917,13 @@ rewrite list_nth_lap_convol_mul; reflexivity.
 Qed.
 
 Lemma summation_mul_list_nth_lap_convol_mul_2 : ∀ la lb lc k,
-   (Σ f (i = 0, k) _
+   (Σ f (i = 0, k),
       List.nth i lc .0 f .* f
       List.nth (k - i)
         (lap_convol_mul f la lb 0 (pred (length la + length lb)))  .0 f .= f
-    Σ f (i = 0, k) _
+    Σ f (i = 0, k),
       List.nth (k - i) lc .0 f .* f
-      Σ f (j = 0, i) _
+      Σ f (j = 0, i),
         List.nth j la .0 f .* f List.nth (i - j) lb .0 f)%K.
 Proof.
 intros la lb lc k.
@@ -1058,7 +1058,7 @@ Fixpoint lap_convol_mul_add al₁ al₂ al₃ i len :=
   match len with
   | O => []
   | S len₁ =>
-      [Σ f (j = 0, i) _
+      [Σ f (j = 0, i),
        List.nth j al₁ .0 f .* f
        (List.nth (i - j) al₂ .0 f .+ f List.nth (i - j) al₃ .0 f) …
        lap_convol_mul_add al₁ al₂ al₃ (S i) len₁]
