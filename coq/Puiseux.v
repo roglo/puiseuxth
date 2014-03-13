@@ -1700,7 +1700,7 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
-(* to be moved to Fpolynomial.v when done *)
+(* to be moved to Fpolynomial.v when done
 Theorem lap_compose_mul_distr_r : ∀ la lb lc,
    lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) lc)
      (lap_mul Kx (lap_compose Kx la lc) (lap_compose Kx lb lc)).
@@ -1722,12 +1722,37 @@ induction la as [| a]; intros; simpl.
   do 2 rewrite lap_add_assoc.
   do 2 rewrite lap_mul_assoc.
 bbb.
+*)
 
-(* to be moved to Fpolynomial.v *)
+(* to be moved to Fpolynomial.v when done
 Theorem poly_compose_mul_distr_r : ∀ P Q R,
   ((P .* Kx Q) .∘ Kx R .= Kx (P .∘ Kx R) .* Kx (Q .∘ Kx R))%pol.
 Proof.
 intros P Q R.
+bbb.
+*)
+
+Lemma xxx : ∀ la lb c,
+  lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) [c; .1 K%ps … []])
+    (lap_mul Kx
+       (lap_compose Kx la [c; .1 K%ps … []])
+       (lap_compose Kx lb [c; .1 K%ps … []])).
+Proof.
+intros la lb c.
+rewrite lap_compose_compose2.
+apply list_nth_lap_eq; intros k; simpl.
+remember (length (lap_mul Kx la lb)) as n eqn:Hn .
+subst Kx; simpl.
+rewrite list_nth_compose_deg_1; [ idtac | eassumption ].
+remember (ps_field K) as Kx eqn:HKx .
+bbb.
+
+Lemma yyy : ∀ P Q c,
+  ((P .* Kx Q) .∘ Kx POL [c; .1 K%ps … []] .= Kx
+   (P .∘ Kx POL [c; .1 K%ps … []]) .* Kx (Q .∘ Kx POL [c; .1 K%ps … []]))%pol.
+Proof.
+intros P Q c.
+unfold eq_poly; simpl.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
@@ -1761,7 +1786,7 @@ subst K.
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 remember (ac_field acf) as K eqn:HK .
 rewrite poly_inject_inj_mul.
-rewrite poly_compose_mul_distr_r.
+rewrite yyy.
 rewrite poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | idtac ].
 bbb.
