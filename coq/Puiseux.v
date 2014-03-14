@@ -1776,7 +1776,7 @@ rewrite length_lap_mul.
 do 2 rewrite length_lap_compose_deg_1; simpl.
 rewrite <- Hn.
 remember (ps_field K) as Kx eqn:HKx .
-Qed.
+bbb.
 
 Lemma yyy : ∀ P Q c,
   ((P .* Kx Q) .∘ Kx POL [c; .1 K%ps … []] .= Kx
