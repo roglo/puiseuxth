@@ -61,6 +61,18 @@ Inductive split_list α : list α → list α → list α → Prop :=
   | sl_cons_r : ∀ x l l₁ l₂,
       split_list l l₁ l₂ → split_list [x … l] l₁ [x … l₂].
 
+(* *)
+
+Fixpoint fld_power α (K : field α) a n :=
+  match n with
+  | O => .1 K%K
+  | S m => (a .* K fld_power K a m)%K
+  end.
+
+Notation "a .^ f b" := (fld_power f a b) : field_scope.
+
+(* *)
+
 Add Parametric Morphism α (f : field α) : (ps_monom f)
   with signature fld_eq f ==> Qeq ==> eq_ps f
   as ps_monom_qeq_morph.
@@ -323,15 +335,14 @@ rewrite Nat.max_0_r.
 reflexivity.
 Qed.
 
+Lemma fld_power_0_l : ∀ n, n ≠ O → (.0 K .^ K n .= K .0 K)%K.
+Proof.
+intros n Hn; simpl.
+destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
+rewrite fld_mul_0_l; reflexivity.
+Qed.
+
 End on_fields.
-
-Fixpoint fld_power α (K : field α) a n :=
-  match n with
-  | O => .1 K%K
-  | S m => (a .* K fld_power K a m)%K
-  end.
-
-Notation "a .^ f b" := (fld_power f a b) : field_scope.
 
 Definition apply_lap2 α (K : field α) la x :=
   Σ K (i = 0, pred (length la)), List.nth i la .0 K .* K x .^ K i.
@@ -1774,8 +1785,22 @@ unfold apply_lap2.
 rewrite list_length_derivial.
 rewrite length_lap_mul.
 do 2 rewrite length_lap_compose_deg_1; simpl.
-rewrite <- Hn.
-remember (ps_field K) as Kx eqn:HKx .
+rewrite <- Hn; symmetry.
+rewrite summation_only_one_non_0 with (v := O).
+ rewrite ps_mul_1_r.
+ 2: split; apply Nat.le_0_l.
+
+ Focus 2.
+ intros i (_, Hink) Hi.
+ simpl.
+ rewrite fld_power_0_l; [ idtac | assumption ].
+ rewrite fld_mul_0_r.
+ reflexivity.
+
+ rewrite list_nth_derivial; simpl.
+ rewrite Nat.add_0_r, comb_id; simpl.
+ rewrite fld_add_0_l.
+ remember (ps_field K) as Kx.
 bbb.
 
 Lemma yyy : ∀ P Q c,
