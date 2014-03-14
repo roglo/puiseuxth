@@ -310,6 +310,19 @@ induction l as [| x]; intros; simpl.
  apply IHl; assumption.
 Qed.
 
+Lemma length_lap_compose_deg_1 : ∀ la c,
+  length (lap_compose K la [c; .1 K%K … []]) = length la.
+Proof.
+intros la c.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite length_lap_add; simpl.
+rewrite length_lap_mul; simpl.
+rewrite IHla.
+rewrite Nat.add_comm; simpl.
+rewrite Nat.max_0_r.
+reflexivity.
+Qed.
+
 End on_fields.
 
 Fixpoint fld_power α (K : field α) a n :=
@@ -1742,38 +1755,6 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
-(* to be moved to Fpolynomial.v when done
-Theorem lap_compose_mul_distr_r : ∀ la lb lc,
-   lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) lc)
-     (lap_mul Kx (lap_compose Kx la lc) (lap_compose Kx lb lc)).
-Proof.
-intros la lb lc; simpl.
-bbb.
-revert lb lc.
-induction la as [| a]; intros; simpl.
- do 2 rewrite lap_mul_nil_l.
- reflexivity.
-
- revert lc.
- induction lb as [| b]; intros; simpl.
-  do 2 rewrite lap_mul_nil_r; reflexivity.
-
-  rewrite lap_mul_add_distr_l.
-  rewrite lap_mul_add_distr_r.
-  rewrite lap_mul_cons; simpl.
-  do 2 rewrite lap_add_assoc.
-  do 2 rewrite lap_mul_assoc.
-bbb.
-*)
-
-(* to be moved to Fpolynomial.v when done
-Theorem poly_compose_mul_distr_r : ∀ P Q R,
-  ((P .* Kx Q) .∘ Kx R .= Kx (P .∘ Kx R) .* Kx (Q .∘ Kx R))%pol.
-Proof.
-intros P Q R.
-bbb.
-*)
-
 Lemma xxx : ∀ la lb c,
   lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) [c; .1 K%ps … []])
     (lap_mul Kx
@@ -1786,12 +1767,16 @@ apply list_nth_lap_eq; intros k; simpl.
 remember (length (lap_mul Kx la lb)) as n eqn:Hn .
 subst Kx; simpl.
 rewrite list_nth_compose_deg_1; [ idtac | eassumption ].
+rewrite length_lap_mul in Hn.
 rewrite <- taylor_coeff_0.
 rewrite apply_lap_lap2.
-remember (ps_field K) as Kx eqn:HKx .
 unfold apply_lap2.
 rewrite list_length_derivial.
-bbb.
+rewrite length_lap_mul.
+do 2 rewrite length_lap_compose_deg_1; simpl.
+rewrite <- Hn.
+remember (ps_field K) as Kx eqn:HKx .
+Qed.
 
 Lemma yyy : ∀ P Q c,
   ((P .* Kx Q) .∘ Kx POL [c; .1 K%ps … []] .= Kx

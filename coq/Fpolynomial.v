@@ -830,6 +830,16 @@ apply lap_add_compat; [ reflexivity | simpl ].
 apply lap_add_comm.
 Qed.
 
+Lemma length_lap_add : ∀ la lb,
+  length (lap_add f la lb) = max (length la) (length lb).
+Proof.
+intros la lb.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; [ reflexivity | simpl ].
+rewrite IHla; reflexivity.
+Qed.
+
 (* multiplication theorems *)
 
 Theorem poly_mul_compat : ∀ a b c d,
@@ -1204,6 +1214,19 @@ intros la.
 unfold lap_mul.
 apply lap_convol_mul_1_r; simpl.
 rewrite Nat.add_comm; reflexivity.
+Qed.
+
+Lemma length_lap_mul : ∀ la lb,
+  length (lap_mul f la lb) = pred (length la + length lb).
+Proof.
+intros la lb.
+unfold lap_mul.
+remember (pred (length la + length lb)) as len.
+remember 0%nat as i.
+clear Heqlen Heqi.
+revert i.
+induction len; intros; [ reflexivity | simpl ].
+rewrite IHlen; reflexivity.
 Qed.
 
 (* compose theorems *)
