@@ -1801,11 +1801,49 @@ rewrite summation_only_one_non_0 with (v := O).
  rewrite Nat.add_0_r, comb_id; simpl.
  rewrite fld_add_0_l.
  symmetry in Hn.
- revert la lb Hn.
+ revert la lb k Hn.
  induction n; intros; simpl.
   rewrite summation_only_one; simpl.
   rewrite Nat.add_0_r, comb_id; simpl.
   rewrite fld_add_0_l, fld_mul_1_r.
+  apply list_nth_fld_eq.
+  destruct la as [| a]; simpl in Hn; simpl.
+   do 2 rewrite lap_mul_nil_l; reflexivity.
+
+   destruct la; [ idtac | discriminate Hn ].
+   destruct lb; [ simpl | discriminate Hn ].
+   do 2 rewrite lap_mul_nil_r; reflexivity.
+
+  destruct la as [| a]; simpl in Hn; simpl.
+   destruct lb as [| b]; [ discriminate Hn | simpl in Hn; simpl ].
+   rewrite list_nth_fld_eq; [ idtac | rewrite lap_mul_nil_l; reflexivity ].
+   rewrite list_nth_nil.
+   rewrite all_0_summation_0; [ reflexivity | idtac ].
+   intros i (_, Hi).
+   rewrite list_nth_fld_eq; [ idtac | rewrite lap_mul_nil_l; reflexivity ].
+   rewrite list_nth_nil; simpl.
+   rewrite fld_mul_0_l; simpl.
+   rewrite fld_mul_nat_0_r; reflexivity.
+
+   rewrite fold_sub_succ_l.
+   destruct k.
+    rewrite Nat.sub_0_r; simpl.
+    destruct la as [| a']; simpl in Hn; simpl.
+     rewrite list_nth_fld_eq;
+      [ idtac | rewrite summation_only_one; reflexivity ].
+     destruct lb as [| b]; [ discriminate Hn | simpl ].
+     rewrite list_nth_fld_eq; [ idtac | rewrite fld_mul_0_l; reflexivity ].
+     rewrite list_nth_fld_eq; [ idtac | rewrite fld_add_0_l; reflexivity ].
+Focus 1.
+bbb.
+     rewrite all_0_summation_0.
+      Focus 2.
+      intros i (_, Hi).
+      rewrite comb_0_r; simpl.
+      rewrite fld_add_0_l.
+      destruct i; simpl.
+       rewrite fld_mul_1_r.
+       rewrite summation_only_one; simpl.
 bbb.
 
 Lemma yyy : ∀ P Q c,
