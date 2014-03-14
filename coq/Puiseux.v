@@ -1804,6 +1804,18 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
+Lemma www : ∀ la b c k,
+  (Σ Kx (i = 0, k),
+   (List.nth i (lap_compose2 Kx la [b; .1 Kx … []]) .0 Kx .* Kx c) .= Kx
+   Σ Kx (i = 0, k),
+   (Σ Kx (j = 0, length la - i),
+    fld_mul_nat Kx (comb (i + j) i)
+      (List.nth (i + j) la .0 Kx .* Kx fld_pow_nat Kx b j) .* Kx c))%K.
+Proof.
+Admitted. (*
+bbb.
+*)
+
 Lemma xxx : ∀ la lb c,
   lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) [c; .1 K%ps … []])
     (lap_mul Kx
