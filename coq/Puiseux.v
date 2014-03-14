@@ -342,6 +342,44 @@ destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
 rewrite fld_mul_0_l; reflexivity.
 Qed.
 
+Lemma list_nth_convol_mul : ∀ la lb i k len,
+  (i + len)%nat = pred (length la + length lb)
+  → (List.nth k (lap_convol_mul K la lb i len) .0 K .= K
+     Σ K (j = 0, i + k),
+     List.nth j la .0 K .* K List.nth (i + k - j) lb .0 K)%K.
+Proof.
+intros la lb i k len Hilen.
+revert la lb i k Hilen.
+induction len; intros; simpl.
+ rewrite match_id; simpl.
+ rewrite all_0_summation_0; [ reflexivity | simpl ].
+ intros j (_, Hj).
+ destruct (lt_dec j (length la)) as [Hja| Hja].
+  destruct (lt_dec (i + k - j) (length lb)) as [Hjb| Hjb].
+   exfalso; omega.
+
+   apply fld_mul_eq_0; right.
+   apply Nat.nlt_ge in Hjb.
+   rewrite List.nth_overflow; [ reflexivity | assumption ].
+
+  apply fld_mul_eq_0; left.
+  apply Nat.nlt_ge in Hja.
+  rewrite List.nth_overflow; [ reflexivity | assumption ].
+
+ destruct k; [ rewrite Nat.add_0_r; reflexivity | idtac ].
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l in Hilen.
+ rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+ apply IHlen; assumption.
+Qed.
+
+Lemma list_nth_mul : ∀ la lb k,
+  (List.nth k (lap_mul K la lb) .0 K .= K
+   Σ K (i = 0, k), List.nth i la .0 K .* K List.nth (k - i) lb .0 K)%K.
+Proof.
+intros la lb k.
+apply list_nth_convol_mul; reflexivity.
+Qed.
+
 End on_fields.
 
 Definition apply_lap2 α (K : field α) la x :=
@@ -1800,6 +1838,15 @@ rewrite summation_only_one_non_0 with (v := O).
  rewrite list_nth_derivial; simpl.
  rewrite Nat.add_0_r, comb_id; simpl.
  rewrite fld_add_0_l.
+ set (Kx := ps_field K).
+ move Kx before K.
+ rewrite fold_list_nth_def_0.
+ fold Kx.
+ do 2 rewrite lap_compose_compose2.
+ unfold list_nth_def_0.
+ rewrite list_nth_mul.
+
+bbb.
  symmetry in Hn.
  revert la lb k Hn.
  induction n; intros; simpl.
@@ -1814,6 +1861,8 @@ rewrite summation_only_one_non_0 with (v := O).
    destruct lb; [ simpl | discriminate Hn ].
    do 2 rewrite lap_mul_nil_r; reflexivity.
 
+  rewrite fold_sub_succ_l.
+bbb.
   destruct la as [| a]; simpl in Hn; simpl.
    destruct lb as [| b]; [ discriminate Hn | simpl in Hn; simpl ].
    rewrite list_nth_fld_eq; [ idtac | rewrite lap_mul_nil_l; reflexivity ].
