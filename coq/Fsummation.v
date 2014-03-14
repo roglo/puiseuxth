@@ -240,6 +240,19 @@ induction len; intros.
    apply Hi; [ omega | assumption ].
 Qed.
 
+Lemma summation_shift : ∀ b g k,
+  b ≤ k
+  → (Σ f (i = b, k), g i .= f
+     Σ f (i = 0, k - b), g (b + i)%nat)%K.
+Proof.
+intros b g k Hbk.
+unfold summation.
+rewrite Nat.sub_0_r.
+rewrite Nat.sub_succ_l; [ idtac | assumption ].
+apply summation_aux_compat; intros j Hj.
+reflexivity.
+Qed.
+
 Lemma summation_summation_shift : ∀ g k,
   (Σ f (i = 0, k), Σ f (j = i, k), g i j .= f
    Σ f (i = 0, k), Σ f (j = 0, k - i), g i (i + j)%nat)%K.
@@ -275,7 +288,7 @@ rewrite Nat.add_comm, Nat.add_sub.
 reflexivity.
 Qed.
 
-Lemma summation_aux_succ_fst : ∀ g b len,
+Lemma summation_aux_succ_first : ∀ g b len,
   summation_aux f b (S len) g = (g b .+ f summation_aux f (S b) len g)%K.
 Proof. reflexivity. Qed.
 
@@ -286,7 +299,7 @@ Proof.
 intros g b k Hbk.
 unfold summation.
 rewrite Nat.sub_succ.
-rewrite <- summation_aux_succ_fst.
+rewrite <- summation_aux_succ_first.
 rewrite <- Nat.sub_succ_l; [ reflexivity | assumption ].
 Qed.
 
@@ -386,10 +399,6 @@ rewrite <- Nat.add_succ_l.
 rewrite summation_aux_ub_add; simpl.
 rewrite Nat.add_comm, Nat.add_sub; reflexivity.
 Qed.
-
-Lemma summation_aux_succ_first : ∀ g b k,
-  (summation_aux f b (S k) g .= f g b .+ f summation_aux f (S b) k g)%K.
-Proof. reflexivity. Qed.
 
 Lemma summation_aux_mul_summation_aux_summation_aux : ∀ g k n,
   (summation_aux f 0 (S k * S n) g .= f
