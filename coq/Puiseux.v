@@ -1800,7 +1800,12 @@ rewrite summation_only_one_non_0 with (v := O).
  rewrite list_nth_derivial; simpl.
  rewrite Nat.add_0_r, comb_id; simpl.
  rewrite fld_add_0_l.
- remember (ps_field K) as Kx.
+ symmetry in Hn.
+ revert la lb Hn.
+ induction n; intros; simpl.
+  rewrite summation_only_one; simpl.
+  rewrite Nat.add_0_r, comb_id; simpl.
+  rewrite fld_add_0_l, fld_mul_1_r.
 bbb.
 
 Lemma yyy : ∀ P Q c,
