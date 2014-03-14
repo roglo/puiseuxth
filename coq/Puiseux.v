@@ -1787,7 +1787,10 @@ remember (length (lap_mul Kx la lb)) as n eqn:Hn .
 subst Kx; simpl.
 rewrite list_nth_compose_deg_1; [ idtac | eassumption ].
 rewrite <- taylor_coeff_0.
+rewrite apply_lap_lap2.
 remember (ps_field K) as Kx eqn:HKx .
+unfold apply_lap2.
+rewrite list_length_derivial.
 bbb.
 
 Lemma yyy : ∀ P Q c,
