@@ -1587,13 +1587,6 @@ Lemma fold_sub_succ_l : ∀ a b,
   (match a with 0 => S b | S c => b - c end = S b - a)%nat.
 Proof. reflexivity. Qed.
 
-Lemma list_length_map : ∀ A B (f : A → B) l, length (List.map f l) = length l.
-Proof.
-intros A B f l.
-induction l; [ reflexivity | simpl ].
-rewrite IHl; reflexivity.
-Qed.
-
 Lemma list_skipn_map : ∀ A B (f : A → B) n l,
   List.skipn n (List.map f l) = List.map f (List.skipn n l).
 Proof.

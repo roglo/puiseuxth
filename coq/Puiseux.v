@@ -1596,7 +1596,7 @@ assert (∀ iq αi, (iq, αi) ∈ pl → ∃ i, iq = Qnat i) as Hnat.
    unfold lap_compose2.
    unfold lap_summation.
    rewrite lap_mul_fold_add_distr; simpl.
-   rewrite list_length_map.
+   rewrite List.map_length.
    subst l.
    erewrite length_char_pol; try eassumption.
    rewrite Htl, List.map_map.
@@ -1776,7 +1776,7 @@ Lemma lap_inject_inj_mul : ∀ la lb,
 Proof.
 intros la lb.
 unfold lap_mul; simpl.
-do 2 rewrite list_length_map.
+do 2 rewrite List.map_length.
 remember (pred (length la + length lb)) as len.
 clear Heqlen.
 remember 0%nat as n; clear Heqn.
@@ -1862,55 +1862,9 @@ rewrite summation_only_one_non_0 with (v := O).
  unfold list_nth_def_0.
  rewrite list_nth_mul.
  do 2 rewrite summation_lap_compose_deg_1_mul, summation_mul_comm.
+Abort. (*
 bbb.
-
- symmetry in Hn.
- revert la lb k Hn.
- induction n; intros; simpl.
-  rewrite summation_only_one; simpl.
-  rewrite Nat.add_0_r, comb_id; simpl.
-  rewrite fld_add_0_l, fld_mul_1_r.
-  apply list_nth_fld_eq.
-  destruct la as [| a]; simpl in Hn; simpl.
-   do 2 rewrite lap_mul_nil_l; reflexivity.
-
-   destruct la; [ idtac | discriminate Hn ].
-   destruct lb; [ simpl | discriminate Hn ].
-   do 2 rewrite lap_mul_nil_r; reflexivity.
-
-  rewrite fold_sub_succ_l.
-bbb.
-  destruct la as [| a]; simpl in Hn; simpl.
-   destruct lb as [| b]; [ discriminate Hn | simpl in Hn; simpl ].
-   rewrite list_nth_fld_eq; [ idtac | rewrite lap_mul_nil_l; reflexivity ].
-   rewrite list_nth_nil.
-   rewrite all_0_summation_0; [ reflexivity | idtac ].
-   intros i (_, Hi).
-   rewrite list_nth_fld_eq; [ idtac | rewrite lap_mul_nil_l; reflexivity ].
-   rewrite list_nth_nil; simpl.
-   rewrite fld_mul_0_l; simpl.
-   rewrite fld_mul_nat_0_r; reflexivity.
-
-   rewrite fold_sub_succ_l.
-   destruct k.
-    rewrite Nat.sub_0_r; simpl.
-    destruct la as [| a']; simpl in Hn; simpl.
-     rewrite list_nth_fld_eq;
-      [ idtac | rewrite summation_only_one; reflexivity ].
-     destruct lb as [| b]; [ discriminate Hn | simpl ].
-     rewrite list_nth_fld_eq; [ idtac | rewrite fld_mul_0_l; reflexivity ].
-     rewrite list_nth_fld_eq; [ idtac | rewrite fld_add_0_l; reflexivity ].
-Focus 1.
-bbb.
-     rewrite all_0_summation_0.
-      Focus 2.
-      intros i (_, Hi).
-      rewrite comb_0_r; simpl.
-      rewrite fld_add_0_l.
-      destruct i; simpl.
-       rewrite fld_mul_1_r.
-       rewrite summation_only_one; simpl.
-bbb.
+*)
 
 Lemma yyy : ∀ P Q c,
   ((P .* Kx Q) .∘ Kx POL [c; .1 K%ps … []] .= Kx
@@ -1918,7 +1872,9 @@ Lemma yyy : ∀ P Q c,
 Proof.
 intros P Q c.
 unfold eq_poly; simpl.
+Abort. (*
 bbb.
+*)
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
@@ -1951,9 +1907,13 @@ subst K.
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 remember (ac_field acf) as K eqn:HK .
 rewrite poly_inject_inj_mul.
-rewrite yyy.
-rewrite poly_mul_comm.
-apply poly_mul_compat; [ reflexivity | idtac ].
+unfold eq_poly; simpl.
+rewrite lap_compose_compose2.
+apply list_nth_lap_eq; intros k; simpl.
+subst Kx; simpl.
+rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
+rewrite length_lap_mul; simpl.
+do 2 rewrite List.map_length.
 bbb.
 
 ......
