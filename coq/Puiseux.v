@@ -1820,6 +1820,21 @@ rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
 
+(* difficile à prouver... on tombe sur une formule qu'a pas l'air de la
+   tarte...
+  Hn : n = pred (length la + length lb)
+  ============================
+   (ΣKx (i = 0, k),
+    ΣKx (j = 0, length la - i),
+    fld_mul_nat Kx (comb (i + j) i)
+      (List.nth (i + j) la .0 Kx .* Kx fld_pow_nat Kx c j) .* Kx
+    ΣKx (j = 0, length lb - (k - i)),
+    fld_mul_nat Kx (comb (k - i + j) (k - i))
+      (List.nth (k - i + j) lb .0 Kx .* Kx fld_pow_nat Kx c j) .= K
+    ΣKx (i = 0, n - k),
+    fld_mul_nat Kx (comb (k + i) k)
+      (List.nth (k + i) (lap_mul Kx la lb) .0 K .* K fld_pow_nat Kx c i)%ps)%ps
+
 Lemma xxx : ∀ la lb c,
   lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) [c; .1 K%ps … []])
     (lap_mul Kx
@@ -1862,10 +1877,10 @@ rewrite summation_only_one_non_0 with (v := O).
  unfold list_nth_def_0.
  rewrite list_nth_mul.
  do 2 rewrite summation_lap_compose_deg_1_mul, summation_mul_comm.
-Abort. (*
 bbb.
 *)
 
+(*
 Lemma yyy : ∀ P Q c,
   ((P .* Kx Q) .∘ Kx POL [c; .1 K%ps … []] .= Kx
    (P .∘ Kx POL [c; .1 K%ps … []]) .* Kx (Q .∘ Kx POL [c; .1 K%ps … []]))%pol.
@@ -1914,6 +1929,13 @@ subst Kx; simpl.
 rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 rewrite length_lap_mul; simpl.
 do 2 rewrite List.map_length.
+rewrite <- taylor_coeff_0.
+rewrite apply_lap_lap2.
+unfold apply_lap2.
+rewrite list_length_derivial.
+rewrite length_lap_mul.
+rewrite length_lap_compose_deg_1; simpl.
+rewrite List.map_length; simpl.
 bbb.
 
 ......
