@@ -1903,6 +1903,45 @@ unfold eq_poly; simpl.
 bbb.
 *)
 
+(* un peu compliqué... mais je n'ai besoin que du cas où a = 1
+Lemma list_nth_power_deg_1 : ∀ a n k,
+  (List.nth k (lap_power K [a; .1 K%K … []] n) .0 K .= K
+   fld_mul_nat K (comb n k) (a .^ K (n - k)))%K.
+Proof.
+intros a n k.
+revert k.
+induction n; intros; simpl.
+ destruct k; simpl.
+  rewrite fld_add_0_l; reflexivity.
+
+  rewrite match_id; reflexivity.
+
+ destruct k; simpl.
+  rewrite summation_only_one.
+  rewrite IHn.
+  rewrite comb_0_r; simpl.
+  do 2 rewrite fld_add_0_l.
+  rewrite Nat.sub_0_r.
+  reflexivity.
+
+  rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+  destruct k; simpl.
+   unfold summation, summation_aux; simpl.
+   rewrite fld_mul_1_l, fld_add_0_r, Nat.sub_0_r.
+   rewrite IHn; simpl.
+   rewrite comb_1_r, comb_0_r; simpl.
+   rewrite IHn.
+   rewrite comb_0_r; simpl.
+   rewrite Nat.sub_0_r, fld_add_0_l.
+   destruct n; simpl.
+    rewrite fld_mul_0_r; reflexivity.
+
+    rewrite Nat.sub_0_r.
+    Focus 2.
+    simpl.
+bbb.
+*)
+
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1946,6 +1985,9 @@ set (Kx := ps_field K); move Kx before K.
 rewrite summation_lap_compose_deg_1_mul.
 rewrite List.map_length.
 rewrite summation_mul_comm.
+rewrite summation_only_one_non_0 with (v := (k - r)%nat).
+ rewrite Nat_sub_sub_distr.
+  rewrite Nat.add_comm, Nat.add_sub.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
