@@ -1858,6 +1858,7 @@ rewrite summation_only_one_non_0 with (v := O).
  unfold list_nth_def_0.
  rewrite list_nth_mul.
  replace (ps_one K) with (fld_one Kx) by reflexivity.
+bbb.
  rewrite summation_compat.
   2: intros i (_, Hik).
   2: erewrite fld_mul_compat.
