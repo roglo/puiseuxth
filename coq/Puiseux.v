@@ -1804,6 +1804,7 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
+(*
 Lemma www : ∀ la b c k,
   (Σ Kx (i = 0, k),
    (List.nth i (lap_compose2 Kx la [b; .1 Kx … []]) .0 Kx .* Kx c) .= Kx
@@ -1812,7 +1813,6 @@ Lemma www : ∀ la b c k,
     fld_mul_nat Kx (comb (i + j) i)
       (List.nth (i + j) la .0 Kx .* Kx fld_pow_nat Kx b j) .* Kx c))%K.
 Proof.
-Admitted. (*
 bbb.
 *)
 
@@ -1857,6 +1857,10 @@ rewrite summation_only_one_non_0 with (v := O).
  do 2 rewrite lap_compose_compose2.
  unfold list_nth_def_0.
  rewrite list_nth_mul.
+ replace (ps_one K) with (fld_one Kx) by reflexivity.
+ rewrite summation_compat.
+  2: intros i (_, Hik).
+  2: erewrite fld_mul_compat.
 
 bbb.
  symmetry in Hn.
