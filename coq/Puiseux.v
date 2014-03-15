@@ -1858,12 +1858,14 @@ rewrite summation_only_one_non_0 with (v := O).
  unfold list_nth_def_0.
  rewrite list_nth_mul.
  replace (ps_one K) with (fld_one Kx) by reflexivity.
-bbb.
  rewrite summation_compat.
-  2: intros i (_, Hik).
-  2: erewrite fld_mul_compat.
+  2: intros i (Hi, Hik).
+  2: rewrite fld_mul_compat in |- * at 1.
+   3: rewrite list_nth_compose_deg_1; [ idtac | reflexivity ]; reflexivity.
 
+   3: rewrite list_nth_compose_deg_1; [ idtac | reflexivity ]; reflexivity.
 bbb.
+
  symmetry in Hn.
  revert la lb k Hn.
  induction n; intros; simpl.
