@@ -380,6 +380,19 @@ intros la lb k.
 apply list_nth_convol_mul; reflexivity.
 Qed.
 
+Lemma length_lap_power : ∀ la n,
+  la ≠ []
+  → length (lap_power K la n) = S (n * pred (length la)).
+Proof.
+intros la n Hla.
+induction n; [ reflexivity | simpl ].
+rewrite length_lap_mul; simpl.
+rewrite IHn; simpl.
+rewrite Nat.add_succ_r; simpl.
+rewrite <- Nat.add_succ_l.
+destruct la; [ exfalso; apply Hla; reflexivity | reflexivity ].
+Qed.
+
 End on_fields.
 
 Definition apply_lap2 α (K : field α) la x :=
@@ -1887,7 +1900,6 @@ Lemma yyy : ∀ P Q c,
 Proof.
 intros P Q c.
 unfold eq_poly; simpl.
-Abort. (*
 bbb.
 *)
 
@@ -1936,6 +1948,13 @@ rewrite list_length_derivial.
 rewrite length_lap_mul.
 rewrite length_lap_compose_deg_1; simpl.
 rewrite List.map_length; simpl.
+rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+rewrite Nat.mul_1_r.
+rewrite Nat.add_succ_r; simpl.
+rewrite Nat.add_comm.
+set (Kx := ps_field K).
+move Kx before K.
 bbb.
 
 ......
