@@ -1928,6 +1928,29 @@ Proof.
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
 symmetry.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+apply poly_mul_compat; [ reflexivity | subst K ].
+rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+set (K := ac_field acf); move K after Kx.
+fold K in Kx.
+rewrite poly_inject_inj_mul.
+unfold eq_poly; simpl.
+do 2 rewrite lap_compose_compose2.
+apply list_nth_lap_eq; intros k; simpl.
+subst Kx; simpl.
+rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
+rewrite length_lap_mul; simpl.
+do 2 rewrite List.map_length.
+rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+rewrite Nat.mul_1_r, list_nth_mul.
+set (Kx := ps_field K); move Kx before K.
+rewrite summation_lap_compose_deg_1_mul.
+rewrite List.map_length.
+rewrite summation_mul_comm.
+bbb.
+
+intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
+symmetry.
+rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | idtac ].
 symmetry.
 subst K.
@@ -1935,7 +1958,7 @@ rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 remember (ac_field acf) as K eqn:HK .
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
-rewrite lap_compose_compose2.
+do 2 rewrite lap_compose_compose2.
 apply list_nth_lap_eq; intros k; simpl.
 subst Kx; simpl.
 rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
@@ -1953,8 +1976,25 @@ rewrite length_lap_power; [ simpl | intros H; discriminate H ].
 rewrite Nat.mul_1_r.
 rewrite Nat.add_succ_r; simpl.
 rewrite Nat.add_comm.
-set (Kx := ps_field K).
-move Kx before K.
+symmetry.
+rewrite summation_only_one_non_0 with (v := O).
+ 2: split; apply Nat.le_0_l.
+
+ Focus 2.
+ intros i (_, Hil) Hi; simpl.
+ destruct i; [ exfalso; apply Hi; reflexivity | simpl ].
+ rewrite fld_mul_0_l, fld_mul_0_r; reflexivity.
+
+ simpl.
+ rewrite fld_mul_1_r.
+ rewrite list_nth_derivial; simpl.
+ rewrite Nat.add_0_r, comb_id.
+ rewrite fld_mul_nat_1_l.
+ rewrite list_nth_mul.
+ rewrite summation_lap_compose_deg_1_mul; simpl.
+ symmetry.
+ set (Kx := ps_field K).
+ move Kx before K.
 bbb.
 
 ......
