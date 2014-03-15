@@ -1804,17 +1804,16 @@ intros P Q.
 apply lap_inject_inj_mul.
 Qed.
 
-(*
-Lemma www : ∀ la b c k,
+Lemma www : ∀ la c d k,
   (Σ Kx (i = 0, k),
-   (List.nth i (lap_compose2 Kx la [b; .1 Kx … []]) .0 Kx .* Kx c) .= Kx
+   List.nth i (lap_compose2 Kx la [c; .1 K%ps … []]) .0 Kx .* Kx d i .= K
    Σ Kx (i = 0, k),
-   (Σ Kx (j = 0, length la - i),
-    fld_mul_nat Kx (comb (i + j) i)
-      (List.nth (i + j) la .0 Kx .* Kx fld_pow_nat Kx b j) .* Kx c))%K.
+   Σ Kx (j = 0, length la - i),
+   fld_mul_nat Kx (comb (i + j) i)
+    (List.nth (i + j) la .0 Kx .* Kx fld_pow_nat Kx c j) .* Kx d i)%ps.
 Proof.
+intros la c d k.
 bbb.
-*)
 
 Lemma xxx : ∀ la lb c,
   lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) [c; .1 K%ps … []])
@@ -1857,6 +1856,7 @@ rewrite summation_only_one_non_0 with (v := O).
  do 2 rewrite lap_compose_compose2.
  unfold list_nth_def_0.
  rewrite list_nth_mul.
+bbb.
  replace (ps_one K) with (fld_one Kx) by reflexivity.
  rewrite summation_compat.
   2: intros i (Hi, Hik).
