@@ -1904,6 +1904,7 @@ set (Kx := ps_field K); move Kx before K.
 rewrite summation_lap_compose_deg_1_mul.
 rewrite List.map_length.
 rewrite summation_mul_comm.
+bbb.
 rewrite summation_only_one_non_0 with (v := (k - r)%nat).
  rewrite Nat_sub_sub_distr.
   rewrite Nat.add_comm, Nat.add_sub.
