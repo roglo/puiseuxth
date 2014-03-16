@@ -1966,6 +1966,7 @@ rewrite Nat.mul_1_r.
 bbb.
 *)
 
+(*
 Lemma ttt : ∀ n i,
   (Σ K (j = 0, i),
    List.nth j [.0 K; .1 K … []] .0 K .* K
@@ -1991,54 +1992,39 @@ destruct (le_dec (S n) i) as [H₁| H₁].
    destruct n; simpl.
     rewrite fld_mul_1_l, Nat.sub_0_r; reflexivity.
 bbb.
+*)
 
 Lemma uuu : ∀ n,
   lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
 Proof.
 intros n.
-induction n; [ reflexivity | simpl ].
-rewrite IHn.
 apply list_nth_lap_eq; intros i.
-rewrite list_nth_mul; clear.
-bbb.
+destruct (lt_dec i n) as [Hin| Hin].
+ rewrite list_nth_pad_lt; [ idtac | assumption ].
+ revert i Hin.
+ induction n; intros; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
+ destruct i; simpl.
+  unfold summation; simpl.
+  rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
 
-intros n.
-destruct n; [ reflexivity | simpl ].
-unfold lap_mul.
-rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-remember S as f; simpl; subst f.
-rewrite Nat.mul_1_r.
-rewrite summation_only_one.
-rewrite fld_mul_0_l.
-constructor; [ reflexivity | simpl ].
-unfold summation; simpl.
-rewrite fld_mul_0_l, fld_add_0_l, fld_mul_1_l, fld_add_0_r.
-destruct n; [ reflexivity | simpl ].
-unfold summation; simpl.
-rewrite fld_mul_0_l, fld_add_0_l.
-constructor; [ reflexivity | idtac ].
-rewrite fld_mul_0_l, fld_add_0_l, fld_mul_1_l, fld_add_0_r.
-rewrite fld_mul_0_l, fld_add_0_r.
-rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-remember S as f; simpl; subst f.
-rewrite Nat.mul_1_r.
-rewrite list_nth_convol_mul.
- 2: simpl.
- 2: rewrite length_lap_power; [ simpl | intros H; discriminate H ].
- 2: rewrite Nat.mul_1_r; reflexivity.
+  apply lt_S_n in Hin.
+  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+  unfold length; rewrite Nat.mul_1_r.
+  rewrite list_nth_convol_mul.
+   rewrite all_0_summation_0; [ reflexivity | idtac ].
+   intros j (_, Hj).
+   destruct (lt_dec (1 + i - j) n) as [Hijn| Hijn].
+    rewrite IHn; [ idtac | assumption ].
+    rewrite fld_mul_0_r; reflexivity.
 
- rewrite Nat.add_0_r.
- rewrite summation_only_one_non_0 with (v := 1%nat).
-  simpl.
-  rewrite fld_mul_1_l.
-  2: split; [ apply Nat.le_0_l | reflexivity ].
+    apply Nat.nlt_ge in Hijn.
+    destruct j; [ rewrite fld_mul_0_l; reflexivity | idtac ].
+    exfalso; fast_omega Hin Hijn.
 
-  2: intros i (_, Hi1) Hi.
-  2: destruct i; simpl.
-   2: rewrite fld_mul_0_l; reflexivity.
+   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+   rewrite Nat.mul_1_r; reflexivity.
 
-   2: destruct i; [ idtac | exfalso; omega ].
-   2: rewrite fld_mul_1_l.
+ apply Nat.nlt_ge in Hin.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
