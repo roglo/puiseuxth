@@ -1994,7 +1994,7 @@ destruct (le_dec (S n) i) as [H₁| H₁].
 bbb.
 *)
 
-Lemma uuu : ∀ n,
+Lemma lap_power_x : ∀ n,
   lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
 Proof.
 intros n.
@@ -2048,7 +2048,39 @@ destruct (lt_dec i n) as [Hin| Hin].
 
    rewrite length_lap_power; [ simpl | intros H; discriminate H ].
    rewrite Nat.mul_1_r; reflexivity.
-bbb.
+
+  apply le_neq_lt in Hin; [ idtac | assumption ].
+  symmetry.
+  rewrite List.nth_overflow; [ idtac | simpl; omega ].
+  symmetry; clear Hne.
+  revert i Hin.
+  induction n; intros.
+   simpl.
+   destruct i; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
+   rewrite match_id; reflexivity.
+
+   destruct i.
+    exfalso; revert Hin; apply Nat.nlt_0_r.
+
+    apply lt_S_n in Hin.
+    simpl.
+    rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+    remember S as f; simpl; subst f.
+    rewrite Nat.mul_1_r.
+    rewrite list_nth_convol_mul.
+     rewrite all_0_summation_0; [ reflexivity | idtac ].
+     intros j (_, Hj).
+     destruct j; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+     destruct j.
+      rewrite Nat.sub_0_r.
+      rewrite IHn; [ idtac | assumption ].
+      rewrite fld_mul_0_r; reflexivity.
+
+      rewrite match_id, fld_mul_0_l; reflexivity.
+
+     rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+     rewrite Nat.mul_1_r; reflexivity.
+Qed.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
