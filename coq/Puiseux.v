@@ -393,6 +393,94 @@ rewrite <- Nat.add_succ_l.
 destruct la; [ exfalso; apply Hla; reflexivity | reflexivity ].
 Qed.
 
+Lemma lap_power_x : ∀ n,
+  lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
+Proof.
+intros n.
+apply list_nth_lap_eq; intros i.
+destruct (lt_dec i n) as [Hin| Hin].
+ rewrite list_nth_pad_lt; [ idtac | assumption ].
+ revert i Hin.
+ induction n; intros; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
+ destruct i; simpl.
+  unfold summation; simpl.
+  rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
+
+  apply lt_S_n in Hin.
+  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+  unfold length; rewrite Nat.mul_1_r.
+  rewrite list_nth_convol_mul.
+   rewrite all_0_summation_0; [ reflexivity | idtac ].
+   intros j (_, Hj).
+   destruct (lt_dec (1 + i - j) n) as [Hijn| Hijn].
+    rewrite IHn; [ idtac | assumption ].
+    rewrite fld_mul_0_r; reflexivity.
+
+    apply Nat.nlt_ge in Hijn.
+    destruct j; [ rewrite fld_mul_0_l; reflexivity | idtac ].
+    exfalso; fast_omega Hin Hijn.
+
+   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+   rewrite Nat.mul_1_r; reflexivity.
+
+ apply Nat.nlt_ge in Hin.
+ rewrite list_nth_pad_sub; [ idtac | assumption ].
+ destruct (eq_nat_dec n i) as [Heq| Hne].
+  subst i; clear Hin.
+  rewrite Nat.sub_diag.
+  remember S as f; simpl; subst f.
+  induction n; [ reflexivity | simpl ].
+  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+  unfold length; rewrite Nat.mul_1_r.
+  rewrite list_nth_convol_mul.
+   rewrite summation_only_one_non_0 with (v := 1%nat).
+    rewrite Nat.add_comm, Nat.add_sub.
+    rewrite IHn; simpl.
+    rewrite fld_mul_1_r; reflexivity.
+
+    split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
+
+    intros i (_, Hin) Hi.
+    destruct i; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+    destruct i; [ exfalso; apply Hi; reflexivity | idtac ].
+    rewrite match_id, fld_mul_0_l; reflexivity.
+
+   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+   rewrite Nat.mul_1_r; reflexivity.
+
+  apply le_neq_lt in Hin; [ idtac | assumption ].
+  symmetry.
+  rewrite List.nth_overflow; [ idtac | simpl; omega ].
+  symmetry; clear Hne.
+  revert i Hin.
+  induction n; intros.
+   simpl.
+   destruct i; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
+   rewrite match_id; reflexivity.
+
+   destruct i.
+    exfalso; revert Hin; apply Nat.nlt_0_r.
+
+    apply lt_S_n in Hin.
+    simpl.
+    rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+    remember S as f; simpl; subst f.
+    rewrite Nat.mul_1_r.
+    rewrite list_nth_convol_mul.
+     rewrite all_0_summation_0; [ reflexivity | idtac ].
+     intros j (_, Hj).
+     destruct j; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+     destruct j.
+      rewrite Nat.sub_0_r.
+      rewrite IHn; [ idtac | assumption ].
+      rewrite fld_mul_0_r; reflexivity.
+
+      rewrite match_id, fld_mul_0_l; reflexivity.
+
+     rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+     rewrite Nat.mul_1_r; reflexivity.
+Qed.
+
 End on_fields.
 
 Definition apply_lap2 α (K : field α) la x :=
@@ -1993,94 +2081,6 @@ destruct (le_dec (S n) i) as [H₁| H₁].
     rewrite fld_mul_1_l, Nat.sub_0_r; reflexivity.
 bbb.
 *)
-
-Lemma lap_power_x : ∀ n,
-  lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
-Proof.
-intros n.
-apply list_nth_lap_eq; intros i.
-destruct (lt_dec i n) as [Hin| Hin].
- rewrite list_nth_pad_lt; [ idtac | assumption ].
- revert i Hin.
- induction n; intros; [ exfalso; revert Hin; apply Nat.nlt_0_r | simpl ].
- destruct i; simpl.
-  unfold summation; simpl.
-  rewrite fld_mul_0_l, fld_add_0_l; reflexivity.
-
-  apply lt_S_n in Hin.
-  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-  unfold length; rewrite Nat.mul_1_r.
-  rewrite list_nth_convol_mul.
-   rewrite all_0_summation_0; [ reflexivity | idtac ].
-   intros j (_, Hj).
-   destruct (lt_dec (1 + i - j) n) as [Hijn| Hijn].
-    rewrite IHn; [ idtac | assumption ].
-    rewrite fld_mul_0_r; reflexivity.
-
-    apply Nat.nlt_ge in Hijn.
-    destruct j; [ rewrite fld_mul_0_l; reflexivity | idtac ].
-    exfalso; fast_omega Hin Hijn.
-
-   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-   rewrite Nat.mul_1_r; reflexivity.
-
- apply Nat.nlt_ge in Hin.
- rewrite list_nth_pad_sub; [ idtac | assumption ].
- destruct (eq_nat_dec n i) as [Heq| Hne].
-  subst i; clear Hin.
-  rewrite Nat.sub_diag.
-  remember S as f; simpl; subst f.
-  induction n; [ reflexivity | simpl ].
-  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-  unfold length; rewrite Nat.mul_1_r.
-  rewrite list_nth_convol_mul.
-   rewrite summation_only_one_non_0 with (v := 1%nat).
-    rewrite Nat.add_comm, Nat.add_sub.
-    rewrite IHn; simpl.
-    rewrite fld_mul_1_r; reflexivity.
-
-    split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
-
-    intros i (_, Hin) Hi.
-    destruct i; [ rewrite fld_mul_0_l; reflexivity | simpl ].
-    destruct i; [ exfalso; apply Hi; reflexivity | idtac ].
-    rewrite match_id, fld_mul_0_l; reflexivity.
-
-   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-   rewrite Nat.mul_1_r; reflexivity.
-
-  apply le_neq_lt in Hin; [ idtac | assumption ].
-  symmetry.
-  rewrite List.nth_overflow; [ idtac | simpl; omega ].
-  symmetry; clear Hne.
-  revert i Hin.
-  induction n; intros.
-   simpl.
-   destruct i; [ exfalso; revert Hin; apply Nat.lt_irrefl | idtac ].
-   rewrite match_id; reflexivity.
-
-   destruct i.
-    exfalso; revert Hin; apply Nat.nlt_0_r.
-
-    apply lt_S_n in Hin.
-    simpl.
-    rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-    remember S as f; simpl; subst f.
-    rewrite Nat.mul_1_r.
-    rewrite list_nth_convol_mul.
-     rewrite all_0_summation_0; [ reflexivity | idtac ].
-     intros j (_, Hj).
-     destruct j; [ rewrite fld_mul_0_l; reflexivity | simpl ].
-     destruct j.
-      rewrite Nat.sub_0_r.
-      rewrite IHn; [ idtac | assumption ].
-      rewrite fld_mul_0_r; reflexivity.
-
-      rewrite match_id, fld_mul_0_l; reflexivity.
-
-     rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-     rewrite Nat.mul_1_r; reflexivity.
-Qed.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
