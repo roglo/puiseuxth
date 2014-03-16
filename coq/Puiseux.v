@@ -1970,6 +1970,7 @@ Lemma uuu : ∀ n,
   lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
 Proof.
 intros n.
+bbb. (* ??????? *)
 destruct n; [ reflexivity | simpl ].
 unfold lap_mul.
 rewrite length_lap_power; [ idtac | intros H; discriminate H ].
@@ -1989,6 +1990,23 @@ rewrite fld_mul_0_l, fld_add_0_r.
 rewrite length_lap_power; [ idtac | intros H; discriminate H ].
 remember S as f; simpl; subst f.
 rewrite Nat.mul_1_r.
+rewrite list_nth_convol_mul.
+ 2: simpl.
+ 2: rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+ 2: rewrite Nat.mul_1_r; reflexivity.
+
+ rewrite Nat.add_0_r.
+ rewrite summation_only_one_non_0 with (v := 1%nat).
+  simpl.
+  rewrite fld_mul_1_l.
+  2: split; [ apply Nat.le_0_l | reflexivity ].
+
+  2: intros i (_, Hi1) Hi.
+  2: destruct i; simpl.
+   2: rewrite fld_mul_0_l; reflexivity.
+
+   2: destruct i; [ idtac | exfalso; omega ].
+   2: rewrite fld_mul_1_l.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
