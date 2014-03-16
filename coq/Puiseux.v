@@ -1966,11 +1966,43 @@ rewrite Nat.mul_1_r.
 bbb.
 *)
 
+Lemma ttt : ∀ n i,
+  (Σ K (j = 0, i),
+   List.nth j [.0 K; .1 K … []] .0 K .* K
+   List.nth (i - j) (list_pad n .0 K [.1 K]) .0 K .= K
+   List.nth i [.0 K … list_pad n .0 K [.1 K]] .0 K)%K.
+Proof.
+intros n i.
+revert n.
+induction i; intros.
+ rewrite summation_only_one; simpl.
+ rewrite fld_mul_0_l; reflexivity.
+bbb.
+
+intros n i.
+destruct (le_dec (S n) i) as [H₁| H₁].
+ rewrite summation_only_one_non_0 with (v := S n).
+  2: split; [ apply Nat.le_0_l | assumption ].
+
+  simpl.
+  destruct i; simpl.
+   exfalso; omega.
+
+   destruct n; simpl.
+    rewrite fld_mul_1_l, Nat.sub_0_r; reflexivity.
+bbb.
+
 Lemma uuu : ∀ n,
   lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
 Proof.
 intros n.
-bbb. (* ??????? *)
+induction n; [ reflexivity | simpl ].
+rewrite IHn.
+apply list_nth_lap_eq; intros i.
+rewrite list_nth_mul; clear.
+bbb.
+
+intros n.
 destruct n; [ reflexivity | simpl ].
 unfold lap_mul.
 rewrite length_lap_power; [ idtac | intros H; discriminate H ].
