@@ -1909,15 +1909,12 @@ rewrite summation_only_one_non_0 with (v := (k - r)%nat).
   rewrite Nat.add_comm, Nat.add_sub.
   subst Kx.
   rewrite nth_lap_power_x, fld_mul_1_l.
-  set (Kx := ps_field K); move Kx before K.
   rewrite Nat_sub_sub_distr.
    rewrite Nat.add_comm.
    apply summation_compat; intros i (_, Hi).
-   rewrite <- fld_mul_nat_assoc2.
-   subst Kx.
-   rewrite list_nth_lap_mul; simpl.
+   do 2 rewrite <- fld_mul_nat_assoc2.
+   apply fld_mul_compat_r.
    set (Kx := ps_field K); move Kx before K.
-   rename i into h.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
