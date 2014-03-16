@@ -1970,24 +1970,25 @@ Lemma uuu : ∀ n,
   lap_eq K (lap_power K [.0 K; .1 K … []] n)%K (list_pad n .0 K [.1 K])%K.
 Proof.
 intros n.
-bbb.
-induction n; [ reflexivity | simpl ].
-rewrite IHn.
-unfold lap_mul; simpl.
-constructor.
- rewrite summation_only_one; simpl.
- rewrite fld_mul_0_l; reflexivity.
-
- rewrite list_length_pad; simpl.
- rewrite Nat.add_comm; simpl.
- unfold summation; simpl.
- rewrite fld_mul_0_l.
- rewrite fld_add_0_l.
- rewrite fld_mul_1_l.
- rewrite fld_add_0_r.
- destruct n; [ reflexivity | simpl ].
- constructor.
-  reflexivity.
+destruct n; [ reflexivity | simpl ].
+unfold lap_mul.
+rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+remember S as f; simpl; subst f.
+rewrite Nat.mul_1_r.
+rewrite summation_only_one.
+rewrite fld_mul_0_l.
+constructor; [ reflexivity | simpl ].
+unfold summation; simpl.
+rewrite fld_mul_0_l, fld_add_0_l, fld_mul_1_l, fld_add_0_r.
+destruct n; [ reflexivity | simpl ].
+unfold summation; simpl.
+rewrite fld_mul_0_l, fld_add_0_l.
+constructor; [ reflexivity | idtac ].
+rewrite fld_mul_0_l, fld_add_0_l, fld_mul_1_l, fld_add_0_r.
+rewrite fld_mul_0_l, fld_add_0_r.
+rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+remember S as f; simpl; subst f.
+rewrite Nat.mul_1_r.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
