@@ -468,57 +468,6 @@ destruct k.
    reflexivity.
 Qed.
 
-Definition list_nth_def_0 α (f : field α) n l := List.nth n l .0 f%K.
-
-Lemma fold_list_nth_def_0 : ∀ α (f : field α) n l,
-  List.nth n l .0 f%K = list_nth_def_0 f n l.
-Proof. reflexivity. Qed.
-
-Add Parametric Morphism α (f : field α) : (list_nth_def_0 f)
-  with signature eq ==> lap_eq f ==> fld_eq f
-  as list_nth_fld_morph.
-Proof.
-intros n la lb Hab.
-unfold list_nth_def_0.
-revert n lb Hab.
-induction la as [| a]; intros; simpl.
- rewrite match_id.
- symmetry.
- revert n.
- induction lb as [| b]; intros; [ destruct n; reflexivity | idtac ].
- apply lap_eq_nil_cons_inv in Hab.
- destruct Hab as (Hb, Hlb).
- destruct n; [ assumption | simpl ].
- apply IHlb; assumption.
-
- destruct n; simpl.
-  destruct lb as [| b]; simpl.
-   apply lap_eq_cons_nil_inv in Hab.
-   destruct Hab; assumption.
-
-   apply lap_eq_cons_inv in Hab.
-   destruct Hab; assumption.
-
-  destruct lb as [| b]; simpl.
-   apply lap_eq_cons_nil_inv in Hab.
-   destruct Hab as (_, Hla).
-   clear a IHla.
-   revert n.
-   induction la as [| a]; intros.
-    destruct n; reflexivity.
-
-    destruct n; simpl.
-     apply lap_eq_cons_nil_inv in Hla.
-     destruct Hla; assumption.
-
-     apply lap_eq_cons_nil_inv in Hla.
-     apply IHla; destruct Hla; assumption.
-
-   apply lap_eq_cons_inv in Hab.
-   destruct Hab as (_, Hab).
-   apply IHla; assumption.
-Qed.
-
 Lemma fold_apply_lap : ∀ α (f : field α) al x,
   (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
   apply_lap f al x.
@@ -652,6 +601,16 @@ rewrite IHm; symmetry.
 rewrite Nat.mul_comm; simpl.
 rewrite fld_mul_nat_add_distr_r.
 rewrite fld_add_comm, Nat.mul_comm; reflexivity.
+Qed.
+
+Lemma fld_mul_nat_assoc2 : ∀ α (K : field α) n a b,
+  (fld_mul_nat K n a .* K b .= K fld_mul_nat K n (a .* K b))%K.
+Proof.
+intros α K n a b.
+induction n; simpl.
+ rewrite fld_mul_0_l; reflexivity.
+
+ rewrite fld_mul_add_distr_r, IHn; reflexivity.
 Qed.
 
 Lemma fld_mul_nat_compat : ∀ α (f : field α) a b m n,

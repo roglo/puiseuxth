@@ -26,12 +26,6 @@ Record term α β := { coeff : α; power : β }.
 
 Definition nofq q := Z.to_nat (Qnum q).
 
-Fixpoint list_pad α n (zero : α) rem :=
-  match n with
-  | O => rem
-  | S n₁ => [zero … list_pad n₁ zero rem]
-  end.
-
 Fixpoint make_char_pol α (f : field α) pow tl :=
   match tl with
   | [] => []
@@ -1574,20 +1568,6 @@ Definition is_polynomial_in_x_power_q pol q :=
 Lemma list_pad_0 : ∀ z (r : list α), list_pad 0 z r = r.
 Proof. reflexivity. Qed.
 
-Lemma list_nth_pad_lt : ∀ i s (v : α) cl d,
-  (i < s)%nat
-  → List.nth i (list_pad s v cl) d = v.
-Proof.
-intros i s v cl d His.
-revert i His.
-induction s; intros.
- exfalso; revert His; apply lt_n_0.
-
- simpl.
- destruct i; [ reflexivity | idtac ].
- apply IHs, lt_S_n; assumption.
-Qed.
-
 Lemma list_nth_add_pad : ∀ i s (v : α) cl d,
   List.nth (i + s) (list_pad s v cl) d = List.nth i cl d.
 Proof.
@@ -1596,19 +1576,6 @@ induction s; intros.
  rewrite plus_0_r; reflexivity.
 
  rewrite <- plus_n_Sm; assumption.
-Qed.
-
-Lemma list_nth_pad_sub : ∀ i s (v : α) cl d,
-  (s ≤ i)%nat
-  → List.nth i (list_pad s v cl) d = List.nth (i - s) cl d.
-Proof.
-intros i s v cl d Hsi.
-revert i Hsi.
-induction s; intros; [ rewrite Nat.sub_0_r; reflexivity | simpl ].
-destruct i; [ exfalso; revert Hsi; apply Nat.nle_succ_0 | idtac ].
-apply le_S_n in Hsi.
-rewrite Nat.sub_succ.
-apply IHs; assumption.
 Qed.
 
 Open Scope nat_scope.
