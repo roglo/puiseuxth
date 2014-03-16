@@ -2025,6 +2025,11 @@ destruct (lt_dec i n) as [Hin| Hin].
    rewrite Nat.mul_1_r; reflexivity.
 
  apply Nat.nlt_ge in Hin.
+ destruct (eq_nat_dec n i) as [Heq| Hne].
+  subst i; clear Hin.
+  induction n; [ reflexivity | simpl ].
+  rewrite length_lap_power; [ idtac | intros H; discriminate H ].
+  unfold length; rewrite Nat.mul_1_r.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
