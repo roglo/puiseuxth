@@ -2025,11 +2025,29 @@ destruct (lt_dec i n) as [Hin| Hin].
    rewrite Nat.mul_1_r; reflexivity.
 
  apply Nat.nlt_ge in Hin.
+ rewrite list_nth_pad_sub; [ idtac | assumption ].
  destruct (eq_nat_dec n i) as [Heq| Hne].
   subst i; clear Hin.
+  rewrite Nat.sub_diag.
+  remember S as f; simpl; subst f.
   induction n; [ reflexivity | simpl ].
   rewrite length_lap_power; [ idtac | intros H; discriminate H ].
   unfold length; rewrite Nat.mul_1_r.
+  rewrite list_nth_convol_mul.
+   rewrite summation_only_one_non_0 with (v := 1%nat).
+    rewrite Nat.add_comm, Nat.add_sub.
+    rewrite IHn; simpl.
+    rewrite fld_mul_1_r; reflexivity.
+
+    split; [ apply Nat.le_0_l | apply le_n_S, Nat.le_0_l ].
+
+    intros i (_, Hin) Hi.
+    destruct i; [ rewrite fld_mul_0_l; reflexivity | simpl ].
+    destruct i; [ exfalso; apply Hi; reflexivity | idtac ].
+    rewrite match_id, fld_mul_0_l; reflexivity.
+
+   rewrite length_lap_power; [ simpl | intros H; discriminate H ].
+   rewrite Nat.mul_1_r; reflexivity.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
