@@ -481,6 +481,16 @@ destruct (lt_dec i n) as [Hin| Hin].
      rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
+Lemma nth_lap_power_x : ∀ n,
+  (List.nth n (lap_power K [.0 K; .1 K … []] n) .0 K .= K .1 K)%K.
+Proof.
+intros n.
+rewrite fold_list_nth_def_0.
+rewrite lap_power_x.
+unfold list_nth_def_0; simpl.
+rewrite list_nth_pad_sub, Nat.sub_diag; reflexivity.
+Qed.
+
 End on_fields.
 
 Definition apply_lap2 α (K : field α) la x :=
@@ -2042,46 +2052,6 @@ rewrite Nat.mul_1_r.
 bbb.
 *)
 
-(*
-Lemma vvv : ∀ n,
-  (List.nth n (lap_power K [.0 K; .1 K … []] n) .0 K .= K .1 K)%K.
-Proof.
-intros n.
-induction n; [ reflexivity | simpl ].
-rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-remember S as f; simpl; subst f.
-rewrite Nat.mul_1_r.
-bbb.
-*)
-
-(*
-Lemma ttt : ∀ n i,
-  (Σ K (j = 0, i),
-   List.nth j [.0 K; .1 K … []] .0 K .* K
-   List.nth (i - j) (list_pad n .0 K [.1 K]) .0 K .= K
-   List.nth i [.0 K … list_pad n .0 K [.1 K]] .0 K)%K.
-Proof.
-intros n i.
-revert n.
-induction i; intros.
- rewrite summation_only_one; simpl.
- rewrite fld_mul_0_l; reflexivity.
-bbb.
-
-intros n i.
-destruct (le_dec (S n) i) as [H₁| H₁].
- rewrite summation_only_one_non_0 with (v := S n).
-  2: split; [ apply Nat.le_0_l | assumption ].
-
-  simpl.
-  destruct i; simpl.
-   exfalso; omega.
-
-   destruct n; simpl.
-    rewrite fld_mul_1_l, Nat.sub_0_r; reflexivity.
-bbb.
-*)
-
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -2128,6 +2098,12 @@ rewrite summation_mul_comm.
 rewrite summation_only_one_non_0 with (v := (k - r)%nat).
  rewrite Nat_sub_sub_distr.
   rewrite Nat.add_comm, Nat.add_sub.
+  subst Kx.
+  rewrite nth_lap_power_x, fld_mul_1_l.
+  set (Kx := ps_field K); move Kx before K.
+  rewrite Nat_sub_sub_distr.
+   rewrite Nat.add_comm.
+   apply summation_compat; intros i (_, Hi).
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
