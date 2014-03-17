@@ -1812,11 +1812,22 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  rewrite list_nth_pad_ne; [ idtac | fast_omega Him Hi ].
  rewrite fld_mul_0_l; reflexivity.
 
+ remember (length (al Ψ)) as lΨ eqn:HlΨ .
+ rewrite HΨ in HlΨ; simpl in HlΨ.
+ rewrite Hini in HlΨ; simpl in HlΨ.
+ rewrite nofq_Qnat in HlΨ; simpl in HlΨ.
+ rewrite skipn_pad in HlΨ.
+ rewrite Nat.sub_diag in HlΨ; simpl in HlΨ.
+ rewrite fold_char_pol with (αj := αj) in HlΨ.
+ rewrite <- Hini in HlΨ.
+ rewrite length_list_quotient_phi_x_sub_c_pow_r in HlΨ.
+ rewrite <- Hpl in HlΨ.
+ erewrite length_char_pol in HlΨ; try eassumption; try reflexivity.
  destruct (le_dec r m) as [Hrm| Hrm].
   rewrite Nat_sub_sub_distr; [ idtac | assumption ].
   rewrite Nat.add_comm, Nat.add_sub.
   subst Kx.
-  rewrite nth_lap_power_x, fld_mul_1_l.
+  rewrite nth_lap_power_id, fld_mul_1_l.
   rewrite Nat_sub_sub_distr; [ idtac | assumption ].
   rewrite Nat.add_comm.
   apply summation_compat; intros i (_, Hi).
@@ -1824,6 +1835,7 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
   apply fld_mul_compat_r.
   rewrite list_nth_lap_mul.
   set (Kx := ps_field K); move Kx before K.
+bbb.
   rewrite HΨ in Hi; simpl in Hi.
   rewrite Hini in Hi; simpl in Hi.
   rewrite nofq_Qnat in Hi; simpl in Hi.
@@ -1836,6 +1848,13 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
   erewrite length_char_pol in Hi; try eassumption; try reflexivity.
   rewrite Nat.add_sub_assoc in Hi.
    rewrite Nat.add_comm, Nat.add_sub in Hi.
+   Focus 3.
+   apply Nat.nle_gt in Hrm.
+   replace (m - r)%nat with O by omega.
+   do 2 rewrite Nat.sub_0_r; simpl.
+   subst Kx.
+   rewrite nth_lap_power_lt; [ idtac | assumption ].
+   rewrite fld_mul_0_l.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.

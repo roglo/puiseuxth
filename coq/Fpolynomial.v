@@ -1508,7 +1508,7 @@ destruct (lt_dec i n) as [Hin| Hin].
      rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
-Lemma nth_lap_power_x : ∀ n,
+Lemma nth_lap_power_id : ∀ n,
   (List.nth n (lap_power f [.0 f; .1 f … []] n) .0 f .= f .1 f)%K.
 Proof.
 intros n.
@@ -1517,6 +1517,13 @@ rewrite lap_power_x.
 unfold list_nth_def_0; simpl.
 rewrite list_nth_pad_sub, Nat.sub_diag; reflexivity.
 Qed.
+
+Lemma nth_lap_power_lt : ∀ i n,
+  (i < n)%nat
+  → (List.nth i (lap_power f [.0 f; .1 f … []] n) .0 f .= f .0 f)%K.
+Proof.
+intros i n Hin.
+Admitted.
 
 (* *)
 
