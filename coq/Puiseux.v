@@ -1755,127 +1755,6 @@ rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
 
-(* difficile à prouver... on tombe sur une formule qu'a pas l'air de la
-   tarte...
-  Hn : n = pred (length la + length lb)
-  ============================
-   (ΣKx (i = 0, k),
-    ΣKx (j = 0, length la - i),
-    fld_mul_nat Kx (comb (i + j) i)
-      (List.nth (i + j) la .0 Kx .* Kx fld_pow_nat Kx c j) .* Kx
-    ΣKx (j = 0, length lb - (k - i)),
-    fld_mul_nat Kx (comb (k - i + j) (k - i))
-      (List.nth (k - i + j) lb .0 Kx .* Kx fld_pow_nat Kx c j) .= K
-    ΣKx (i = 0, n - k),
-    fld_mul_nat Kx (comb (k + i) k)
-      (List.nth (k + i) (lap_mul Kx la lb) .0 K .* K fld_pow_nat Kx c i)%ps)%ps
-
-Lemma xxx : ∀ la lb c,
-  lap_eq Kx (lap_compose Kx (lap_mul Kx la lb) [c; .1 K%ps … []])
-    (lap_mul Kx
-       (lap_compose Kx la [c; .1 K%ps … []])
-       (lap_compose Kx lb [c; .1 K%ps … []])).
-Proof.
-intros la lb c.
-rewrite lap_compose_compose2.
-apply list_nth_lap_eq; intros k; simpl.
-remember (length (lap_mul Kx la lb)) as n eqn:Hn .
-subst Kx; simpl.
-rewrite list_nth_compose_deg_1; [ idtac | eassumption ].
-rewrite length_lap_mul in Hn.
-rewrite <- taylor_coeff_0.
-rewrite apply_lap_lap2.
-unfold apply_lap2.
-rewrite list_length_derivial.
-rewrite length_lap_mul.
-do 2 rewrite length_lap_compose_deg_1; simpl.
-rewrite <- Hn; symmetry.
-rewrite summation_only_one_non_0 with (v := O).
- rewrite ps_mul_1_r.
- 2: split; apply Nat.le_0_l.
-
- Focus 2.
- intros i (_, Hink) Hi.
- simpl.
- rewrite fld_power_0_l; [ idtac | assumption ].
- rewrite fld_mul_0_r.
- reflexivity.
-
- rewrite list_nth_derivial; simpl.
- rewrite Nat.add_0_r, comb_id; simpl.
- rewrite fld_add_0_l.
- set (Kx := ps_field K).
- move Kx before K.
- rewrite fold_list_nth_def_0.
- fold Kx.
- do 2 rewrite lap_compose_compose2.
- unfold list_nth_def_0.
- rewrite list_nth_lap_mul.
- do 2 rewrite summation_lap_compose_deg_1_mul, summation_mul_comm.
-bbb.
-*)
-
-(*
-Lemma yyy : ∀ P Q c,
-  ((P .* Kx Q) .∘ Kx POL [c; .1 K%ps … []] .= Kx
-   (P .∘ Kx POL [c; .1 K%ps … []]) .* Kx (Q .∘ Kx POL [c; .1 K%ps … []]))%pol.
-Proof.
-intros P Q c.
-unfold eq_poly; simpl.
-bbb.
-*)
-
-(* un peu compliqué... mais je n'ai besoin que du cas où a = 1
-Lemma list_nth_power_deg_1 : ∀ a n k,
-  (List.nth k (lap_power K [a; .1 K%K … []] n) .0 K .= K
-   fld_mul_nat K (comb n k) (a .^ K (n - k)))%K.
-Proof.
-intros a n k.
-revert k.
-induction n; intros; simpl.
- destruct k; simpl.
-  rewrite fld_add_0_l; reflexivity.
-
-  rewrite match_id; reflexivity.
-
- destruct k; simpl.
-  rewrite summation_only_one.
-  rewrite IHn.
-  rewrite comb_0_r; simpl.
-  do 2 rewrite fld_add_0_l.
-  rewrite Nat.sub_0_r.
-  reflexivity.
-
-  rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-  destruct k; simpl.
-   unfold summation, summation_aux; simpl.
-   rewrite fld_mul_1_l, fld_add_0_r, Nat.sub_0_r.
-   rewrite IHn; simpl.
-   rewrite comb_1_r, comb_0_r; simpl.
-   rewrite IHn.
-   rewrite comb_0_r; simpl.
-   rewrite Nat.sub_0_r, fld_add_0_l.
-   destruct n; simpl.
-    rewrite fld_mul_0_r; reflexivity.
-
-    rewrite Nat.sub_0_r.
-    Focus 2.
-    simpl.
-bbb.
-*)
-
-(*
-Lemma www : ∀ a n,
-  (List.nth n (lap_power K [a; .1 K … []] n) .0 K .= K .1 K)%K.
-Proof.
-intros a n.
-induction n; [ reflexivity | simpl ].
-rewrite length_lap_power; [ idtac | intros H; discriminate H ].
-remember S as f; simpl; subst f.
-rewrite Nat.mul_1_r.
-bbb.
-*)
-
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1939,7 +1818,18 @@ rewrite summation_only_one_non_0 with (v := (k - r)%nat).
    apply summation_compat; intros i (_, Hi).
    do 2 rewrite <- fld_mul_nat_assoc2.
    apply fld_mul_compat_r.
+   rewrite list_nth_lap_mul.
    set (Kx := ps_field K); move Kx before K.
+   rewrite HΨ in Hi; simpl in Hi.
+   rewrite Hini in Hi; simpl in Hi.
+   rewrite nofq_Qnat in Hi; simpl in Hi.
+   rewrite skipn_pad in Hi.
+   rewrite Nat.sub_diag in Hi; simpl in Hi.
+   rewrite fold_char_pol with (αj := αj) in Hi.
+   rewrite <- Hini in Hi.
+   rewrite length_list_quotient_phi_x_sub_c_pow_r in Hi.
+   rewrite <- Hpl in Hi.
+   erewrite length_char_pol in Hi; try eassumption; try reflexivity.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.

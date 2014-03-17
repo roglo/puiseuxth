@@ -1635,6 +1635,31 @@ induction la as [| a]; intros; simpl.
  destruct i; [ reflexivity | apply IHla ].
 Qed.
 
+Lemma length_lap_mod_div_deg_1 : ∀ l c,
+  length (lap_mod_div_deg_1 f l c) = length l.
+Proof.
+intros l c.
+induction l; [ reflexivity | simpl ].
+rewrite IHl; reflexivity.
+Qed.
+
+Lemma length_list_quotient_phi_x_sub_c_pow_r : ∀ l c r,
+  length (list_quotient_phi_x_sub_c_pow_r f l c r) = (length l - r)%nat.
+Proof.
+intros l c r.
+revert l c.
+induction r; intros; simpl.
+ rewrite Nat.sub_0_r; reflexivity.
+
+ destruct l as [| x]; simpl.
+  unfold lap_div_deg_1; simpl.
+  rewrite IHr; reflexivity.
+
+  unfold lap_div_deg_1; simpl.
+  rewrite IHr.
+  rewrite length_lap_mod_div_deg_1; reflexivity.
+Qed.
+
 Lemma root_formula : ∀ la c,
   (apply_lap f la c .= f .0 f)%K
   → lap_eq f la
