@@ -1778,6 +1778,9 @@ Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
                    (POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
 Proof.
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hk)).
 symmetry.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
 apply poly_mul_compat; [ reflexivity | subst K ].
@@ -1787,7 +1790,7 @@ fold K in Kx.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 do 2 rewrite lap_compose_compose2.
-apply list_nth_lap_eq; intros k; simpl.
+apply list_nth_lap_eq; intros m; simpl.
 subst Kx; simpl.
 rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 rewrite length_lap_mul; simpl.
@@ -1798,15 +1801,15 @@ set (Kx := ps_field K); move Kx before K.
 rewrite summation_lap_compose_deg_1_mul.
 rewrite List.map_length.
 rewrite summation_mul_comm.
-rewrite summation_only_one_non_0 with (v := (k - r)%nat).
+rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  Focus 3.
- intros i (_, Hik) Hi.
+ intros i (_, Him) Hi.
  rewrite fold_list_nth_def_0.
  subst Kx.
  rewrite lap_power_x.
  unfold list_nth_def_0; simpl.
  set (Kx := ps_field K); move Kx before K.
- rewrite list_nth_pad_ne; [ idtac | fast_omega Hik Hi ].
+ rewrite list_nth_pad_ne; [ idtac | fast_omega Him Hi ].
  rewrite fld_mul_0_l; reflexivity.
 
  rewrite Nat_sub_sub_distr.
@@ -1830,6 +1833,8 @@ rewrite summation_only_one_non_0 with (v := (k - r)%nat).
    rewrite length_list_quotient_phi_x_sub_c_pow_r in Hi.
    rewrite <- Hpl in Hi.
    erewrite length_char_pol in Hi; try eassumption; try reflexivity.
+   rewrite Nat.add_sub_assoc in Hi.
+    rewrite Nat.add_comm, Nat.add_sub in Hi.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
