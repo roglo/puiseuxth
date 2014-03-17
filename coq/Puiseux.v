@@ -1812,6 +1812,8 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  rewrite list_nth_pad_ne; [ idtac | fast_omega Him Hi ].
  rewrite fld_mul_0_l; reflexivity.
 
+ (* discriminate here betwen r ≤ m (=> continue) and r > m (to be seen) *)
+bbb.
  rewrite Nat_sub_sub_distr.
   rewrite Nat.add_comm, Nat.add_sub.
   subst Kx.
