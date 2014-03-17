@@ -1812,31 +1812,30 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  rewrite list_nth_pad_ne; [ idtac | fast_omega Him Hi ].
  rewrite fld_mul_0_l; reflexivity.
 
- (* discriminate here betwen r ≤ m (=> continue) and r > m (to be seen) *)
-bbb.
- rewrite Nat_sub_sub_distr.
+ destruct (le_dec r m) as [Hrm| Hrm].
+  rewrite Nat_sub_sub_distr; [ idtac | assumption ].
   rewrite Nat.add_comm, Nat.add_sub.
   subst Kx.
   rewrite nth_lap_power_x, fld_mul_1_l.
-  rewrite Nat_sub_sub_distr.
-   rewrite Nat.add_comm.
-   apply summation_compat; intros i (_, Hi).
-   do 2 rewrite <- fld_mul_nat_assoc2.
-   apply fld_mul_compat_r.
-   rewrite list_nth_lap_mul.
-   set (Kx := ps_field K); move Kx before K.
-   rewrite HΨ in Hi; simpl in Hi.
-   rewrite Hini in Hi; simpl in Hi.
-   rewrite nofq_Qnat in Hi; simpl in Hi.
-   rewrite skipn_pad in Hi.
-   rewrite Nat.sub_diag in Hi; simpl in Hi.
-   rewrite fold_char_pol with (αj := αj) in Hi.
-   rewrite <- Hini in Hi.
-   rewrite length_list_quotient_phi_x_sub_c_pow_r in Hi.
-   rewrite <- Hpl in Hi.
-   erewrite length_char_pol in Hi; try eassumption; try reflexivity.
-   rewrite Nat.add_sub_assoc in Hi.
-    rewrite Nat.add_comm, Nat.add_sub in Hi.
+  rewrite Nat_sub_sub_distr; [ idtac | assumption ].
+  rewrite Nat.add_comm.
+  apply summation_compat; intros i (_, Hi).
+  do 2 rewrite <- fld_mul_nat_assoc2.
+  apply fld_mul_compat_r.
+  rewrite list_nth_lap_mul.
+  set (Kx := ps_field K); move Kx before K.
+  rewrite HΨ in Hi; simpl in Hi.
+  rewrite Hini in Hi; simpl in Hi.
+  rewrite nofq_Qnat in Hi; simpl in Hi.
+  rewrite skipn_pad in Hi.
+  rewrite Nat.sub_diag in Hi; simpl in Hi.
+  rewrite fold_char_pol with (αj := αj) in Hi.
+  rewrite <- Hini in Hi.
+  rewrite length_list_quotient_phi_x_sub_c_pow_r in Hi.
+  rewrite <- Hpl in Hi.
+  erewrite length_char_pol in Hi; try eassumption; try reflexivity.
+  rewrite Nat.add_sub_assoc in Hi.
+   rewrite Nat.add_comm, Nat.add_sub in Hi.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
