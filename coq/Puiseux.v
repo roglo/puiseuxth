@@ -1904,8 +1904,17 @@ set (Kx := ps_field K); move Kx before K.
 rewrite summation_lap_compose_deg_1_mul.
 rewrite List.map_length.
 rewrite summation_mul_comm.
-bbb.
 rewrite summation_only_one_non_0 with (v := (k - r)%nat).
+ Focus 3.
+ intros i (_, Hik) Hi.
+ rewrite fold_list_nth_def_0.
+ subst Kx.
+ rewrite lap_power_x.
+ unfold list_nth_def_0; simpl.
+ set (Kx := ps_field K); move Kx before K.
+ (* montrer que List.nth (k - i) (list_pad r .0 K [.1 K]) .0 K vaut 0
+    car (k - i) ≠ r ; faire un lemme *)
+bbb.
  rewrite Nat_sub_sub_distr.
   rewrite Nat.add_comm, Nat.add_sub.
   subst Kx.
