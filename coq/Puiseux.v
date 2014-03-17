@@ -1835,17 +1835,7 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
   apply fld_mul_compat_r.
   rewrite list_nth_lap_mul.
   set (Kx := ps_field K); move Kx before K.
-bbb.
-  rewrite HΨ in Hi; simpl in Hi.
-  rewrite Hini in Hi; simpl in Hi.
-  rewrite nofq_Qnat in Hi; simpl in Hi.
-  rewrite skipn_pad in Hi.
-  rewrite Nat.sub_diag in Hi; simpl in Hi.
-  rewrite fold_char_pol with (αj := αj) in Hi.
-  rewrite <- Hini in Hi.
-  rewrite length_list_quotient_phi_x_sub_c_pow_r in Hi.
-  rewrite <- Hpl in Hi.
-  erewrite length_char_pol in Hi; try eassumption; try reflexivity.
+  rewrite HlΨ in Hi.
   rewrite Nat.add_sub_assoc in Hi.
    rewrite Nat.add_comm, Nat.add_sub in Hi.
    Focus 3.
