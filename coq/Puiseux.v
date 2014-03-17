@@ -300,13 +300,20 @@ destruct n; [ exfalso; apply Hn; reflexivity | simpl ].
 rewrite fld_mul_0_l; reflexivity.
 Qed.
 
-Lemma www : ∀ i n,
+Lemma list_nth_pad_ne : ∀ i n,
   i ≠ n
   → (List.nth i (list_pad n .0 K [.1 K]) .0 K .= K .0 K)%K.
 Proof.
 intros i n Hin.
-bbb.
-*)
+revert i Hin.
+induction n; intros; simpl.
+ destruct i; [ exfalso; apply Hin; reflexivity | simpl ].
+ destruct i; reflexivity.
+
+ destruct i; [ reflexivity | simpl ].
+ rewrite IHn; [ reflexivity | idtac ].
+ intros H; apply Hin, eq_S; assumption.
+Qed.
 
 End on_fields.
 
@@ -1920,7 +1927,7 @@ rewrite summation_only_one_non_0 with (v := (k - r)%nat).
  rewrite lap_power_x.
  unfold list_nth_def_0; simpl.
  set (Kx := ps_field K); move Kx before K.
- rewrite www; [ idtac | fast_omega Hik Hi ].
+ rewrite list_nth_pad_ne; [ idtac | fast_omega Hik Hi ].
  rewrite fld_mul_0_l; reflexivity.
 
  rewrite Nat_sub_sub_distr.
