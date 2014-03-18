@@ -1802,6 +1802,24 @@ set (Kx := ps_field K); move Kx before K.
 rewrite summation_lap_compose_deg_1_mul.
 rewrite List.map_length.
 rewrite summation_mul_comm.
+remember (length (al Ψ)) as lΨ eqn:HlΨ .
+rewrite HΨ in HlΨ; simpl in HlΨ.
+rewrite Hini in HlΨ; simpl in HlΨ.
+rewrite nofq_Qnat in HlΨ; simpl in HlΨ.
+rewrite skipn_pad in HlΨ.
+rewrite Nat.sub_diag in HlΨ; simpl in HlΨ.
+rewrite fold_char_pol with (αj := αj) in HlΨ.
+rewrite <- Hini in HlΨ.
+rewrite length_list_quotient_phi_x_sub_c_pow_r in HlΨ.
+rewrite <- Hpl in HlΨ.
+erewrite length_char_pol in HlΨ; try eassumption; try reflexivity.
+rewrite HlΨ.
+rewrite Nat.add_sub_assoc.
+ rewrite Nat.add_comm, Nat.add_sub.
+ (* problem : if m < r the first factor of the lhp is null but the
+    rhp is not *)
+bbb.
+
 rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  Focus 3.
  intros i (_, Him) Hi.
@@ -1813,17 +1831,7 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  rewrite list_nth_pad_ne; [ idtac | fast_omega Him Hi ].
  rewrite fld_mul_0_l; reflexivity.
 
- remember (length (al Ψ)) as lΨ eqn:HlΨ .
- rewrite HΨ in HlΨ; simpl in HlΨ.
- rewrite Hini in HlΨ; simpl in HlΨ.
- rewrite nofq_Qnat in HlΨ; simpl in HlΨ.
- rewrite skipn_pad in HlΨ.
- rewrite Nat.sub_diag in HlΨ; simpl in HlΨ.
- rewrite fold_char_pol with (αj := αj) in HlΨ.
- rewrite <- Hini in HlΨ.
- rewrite length_list_quotient_phi_x_sub_c_pow_r in HlΨ.
- rewrite <- Hpl in HlΨ.
- erewrite length_char_pol in HlΨ; try eassumption; try reflexivity.
+bbb.
  destruct (le_dec r m) as [Hrm| Hrm].
   rewrite Nat_sub_sub_distr; [ idtac | assumption ].
   rewrite Nat.add_comm, Nat.add_sub.
