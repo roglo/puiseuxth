@@ -1755,6 +1755,29 @@ rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
 reflexivity.
 Qed.
 
+Lemma Ψ_length : ∀ pol ns j k αj αk c₁ r Ψ,
+  ns ∈ newton_segments K pol
+  → ini_pt ns = (Qnat j, αj)
+    → fin_pt ns = (Qnat k, αk)
+      → r = root_multiplicity acf c₁ (Φq K pol ns)
+        → Ψ = quotient_phi_x_sub_c_pow_r K (Φq K pol ns) c₁ r
+          → length (al Ψ) = (S (k - j) - r)%nat.
+Proof.
+intros pol ns j k αj αk c₁ r Ψ Hns Hini Hfin Hr HΨ.
+remember S as s.
+subst Ψ; simpl.
+rewrite Hini; simpl.
+rewrite nofq_Qnat; simpl.
+rewrite skipn_pad; simpl.
+rewrite Nat.sub_diag; simpl.
+rewrite fold_char_pol with (αj := αj).
+rewrite <- Hini.
+subst K.
+rewrite length_list_quotient_phi_x_sub_c_pow_r.
+erewrite length_char_pol; try eassumption; try reflexivity.
+subst s; reflexivity.
+Qed.
+
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1802,18 +1825,7 @@ set (Kx := ps_field K); move Kx before K.
 rewrite summation_lap_compose_deg_1_mul.
 rewrite List.map_length.
 rewrite summation_mul_comm.
-remember (length (al Ψ)) as lΨ eqn:HlΨ .
-rewrite HΨ in HlΨ; simpl in HlΨ.
-rewrite Hini in HlΨ; simpl in HlΨ.
-rewrite nofq_Qnat in HlΨ; simpl in HlΨ.
-rewrite skipn_pad in HlΨ.
-rewrite Nat.sub_diag in HlΨ; simpl in HlΨ.
-rewrite fold_char_pol with (αj := αj) in HlΨ.
-rewrite <- Hini in HlΨ.
-rewrite length_list_quotient_phi_x_sub_c_pow_r in HlΨ.
-rewrite <- Hpl in HlΨ.
-erewrite length_char_pol in HlΨ; try eassumption; try reflexivity.
-rewrite HlΨ.
+erewrite Ψ_length; try eassumption.
 rewrite summation_only_one_non_0 with (v := (m - r)%nat).
  Focus 3.
  intros i (_, Him) Hi.
@@ -1843,11 +1855,9 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
    apply Nat.nle_gt in Hrm.
    replace (m - r)%nat with O by omega.
    do 2 rewrite Nat.sub_0_r.
-   rewrite <- HlΨ; simpl.
    subst Kx.
    rewrite nth_lap_power_lt; [ idtac | assumption ].
    rewrite fld_mul_0_l.
-   rewrite HlΨ.
    rewrite Nat.add_sub_assoc.
     rewrite Nat.add_comm, Nat.add_sub.
     remember Hns as Hphi; clear HeqHphi.
