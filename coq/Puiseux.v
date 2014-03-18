@@ -1763,21 +1763,22 @@ Qed.
  *)
 Theorem zzz : ∀ pol ns pl tl l c₁ r Ψ j αj,
   ns ∈ newton_segments K pol
-  → r = root_multiplicity acf c₁ (Φq K pol ns)
-    → Ψ = quotient_phi_x_sub_c_pow_r K (Φq K pol ns) c₁ r
-      → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
-        → tl = List.map (term_of_point K pol) pl
-          → l = List.map (λ t, power t) tl
-            → ini_pt ns = (Qnat j, αj)
-              → (POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
-                 poly_compose Kx (poly_inject_K_in_Kx K (Φq K pol ns))
-                   (POL [c_x_power K c₁ 0; .1 K%ps … []]) .= Kx
-                 POL [.0 K%ps; .1 K%ps … []] .^ Kx r .* Kx
-                 POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
-                 poly_compose Kx (poly_inject_K_in_Kx K Ψ)
-                   (POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
+  → ac_root acf (Φq K pol ns) = c₁
+    → r = root_multiplicity acf c₁ (Φq K pol ns)
+      → Ψ = quotient_phi_x_sub_c_pow_r K (Φq K pol ns) c₁ r
+        → pl = [ini_pt ns … oth_pts ns ++ [fin_pt ns]]
+          → tl = List.map (term_of_point K pol) pl
+            → l = List.map (λ t, power t) tl
+              → ini_pt ns = (Qnat j, αj)
+                → (POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
+                   poly_compose Kx (poly_inject_K_in_Kx K (Φq K pol ns))
+                     (POL [c_x_power K c₁ 0; .1 K%ps … []]) .= Kx
+                   POL [.0 K%ps; .1 K%ps … []] .^ Kx r .* Kx
+                   POL [c_x_power K c₁ 0; .1 K%ps … []] .^ Kx j .* Kx
+                   poly_compose Kx (poly_inject_K_in_Kx K Ψ)
+                     (POL [c_x_power K c₁ 0; .1 K%ps … []]))%pol.
 Proof.
-intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
+intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
 remember Hns as Hfin; clear HeqHfin.
 apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hk)).
@@ -1845,6 +1846,12 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
    subst Kx.
    rewrite nth_lap_power_lt; [ idtac | assumption ].
    rewrite fld_mul_0_l.
+   assert (degree (ac_is_zero acf) (Φq (ac_field acf) pol ns) ≥ 1) as Hphi.
+    unfold degree; simpl.
+    rewrite Hini; simpl.
+    rewrite nofq_Qnat; simpl.
+    rewrite skipn_pad; simpl.
+    rewrite Nat.sub_diag; simpl.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
