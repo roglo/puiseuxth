@@ -1854,6 +1854,16 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
    unfold apply_poly in Hphi.
    rewrite apply_lap_lap2 in Hphi.
    unfold apply_lap2 in Hphi.
+   simpl in Hphi.
+   rewrite Hini in Hphi; simpl in Hphi.
+   rewrite nofq_Qnat in Hphi.
+   rewrite skipn_pad in Hphi; simpl in Hphi.
+   rewrite Nat.sub_diag in Hphi.
+   rewrite fold_char_pol with (αj := αj) in Hphi.
+   rewrite <- Hini, <- Hpl in Hphi.
+   simpl in Hphi.
+   erewrite length_char_pol in Hphi; try eassumption; [ idtac | reflexivity ].
+   simpl in Hphi.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
