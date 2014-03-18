@@ -290,17 +290,6 @@ induction cnt; intros.
   rewrite IHla; reflexivity.
 Qed.
 
-(*
-Lemma apply_taylor_formula_0_loop : ∀ α (f : field α) la x cnt n,
-  length la = (cnt + n)%nat
-  → (apply_lap f (List.skipn n la) x .= f
-     apply_lap f (coeff_taylor_lap f cnt la .0 f n) x)%K.
-Proof.
-intros α f la x cnt n Hlen.
-rewrite taylor_formula_0_loop; [ reflexivity | assumption ].
-Qed.
-*)
-
 Theorem list_skipn_0 : ∀ A (l : list A), List.skipn 0 l = l.
 Proof. intros A l; destruct l; reflexivity. Qed.
 
@@ -333,17 +322,6 @@ Proof.
 intros α f P.
 apply taylor_lap_formula_0.
 Qed.
-
-(*
-Theorem apply_taylor_formula_0 : ∀ α (f : field α) x P,
-  (apply_poly f P x .= f
-   apply_poly f (taylor_poly f P .0 f) x)%K.
-Proof.
-intros α f x P.
-bbb.
-apply taylor_lap_formula_0.
-Qed.
-*)
 
 Lemma fld_mul_nat_add_distr_l : ∀ α (f : field α) a b n,
   (fld_mul_nat f n (a .+ f b) .= f fld_mul_nat f n a .+ f fld_mul_nat f n b)%K.
