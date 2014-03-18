@@ -1474,7 +1474,7 @@ rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
 (* à voir...
-Lemma lap_formula_sub : ∀ α (f : field α) la a,
+Lemma taylor_lap_formula_sub : ∀ α (f : field α) la a,
   lap_eq f la (lap_compose f (taylor_lap f la a) [.- f a; .1 f … []])%K.
 Proof.
 intros α f la a.
@@ -1486,7 +1486,7 @@ rewrite <- H.
 bbb.
 *)
 
-Lemma taylor_lap_formula_sub : ∀ α (f : field α) x la a,
+Lemma apply_taylor_lap_formula_sub : ∀ α (f : field α) x la a,
   (apply_lap f la x .= f
    apply_lap f (taylor_lap f la a) (x .- f a))%K.
 Proof.
@@ -1509,7 +1509,7 @@ Theorem taylor_formula_sub : ∀ α (f : field α) x P a,
    apply_poly f (taylor_poly f P a) (x .- f a))%K.
 Proof.
 intros α f x P a.
-apply taylor_lap_formula_sub.
+apply apply_taylor_lap_formula_sub.
 Qed.
 
 Theorem taylor_formula : ∀ α (f : field α) x c P,
