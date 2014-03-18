@@ -1846,12 +1846,14 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
    subst Kx.
    rewrite nth_lap_power_lt; [ idtac | assumption ].
    rewrite fld_mul_0_l.
-   assert (degree (ac_is_zero acf) (Φq (ac_field acf) pol ns) ≥ 1) as Hphi.
-    unfold degree; simpl.
-    rewrite Hini; simpl.
-    rewrite nofq_Qnat; simpl.
-    rewrite skipn_pad; simpl.
-    rewrite Nat.sub_diag; simpl.
+   remember Hns as Hphi; clear HeqHphi.
+   apply cpol_degree_ge_1 in Hphi.
+   apply ac_prop_root in Hphi.
+   rewrite Hc₁ in Hphi.
+   fold K in Hphi.
+   unfold apply_poly in Hphi.
+   rewrite apply_lap_lap2 in Hphi.
+   unfold apply_lap2 in Hphi.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
