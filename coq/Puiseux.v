@@ -1846,24 +1846,27 @@ rewrite summation_only_one_non_0 with (v := (m - r)%nat).
    subst Kx.
    rewrite nth_lap_power_lt; [ idtac | assumption ].
    rewrite fld_mul_0_l.
-   remember Hns as Hphi; clear HeqHphi.
-   apply cpol_degree_ge_1 in Hphi.
-   apply ac_prop_root in Hphi.
-   rewrite Hc₁ in Hphi.
-   fold K in Hphi.
-   unfold apply_poly in Hphi.
-   rewrite apply_lap_lap2 in Hphi.
-   unfold apply_lap2 in Hphi.
-   simpl in Hphi.
-   rewrite Hini in Hphi; simpl in Hphi.
-   rewrite nofq_Qnat in Hphi.
-   rewrite skipn_pad in Hphi; simpl in Hphi.
-   rewrite Nat.sub_diag in Hphi.
-   rewrite fold_char_pol with (αj := αj) in Hphi.
-   rewrite <- Hini, <- Hpl in Hphi.
-   simpl in Hphi.
-   erewrite length_char_pol in Hphi; try eassumption; [ idtac | reflexivity ].
-   simpl in Hphi.
+   rewrite HlΨ.
+   rewrite Nat.add_sub_assoc.
+    rewrite Nat.add_comm, Nat.add_sub.
+    remember Hns as Hphi; clear HeqHphi.
+    apply cpol_degree_ge_1 in Hphi.
+    apply ac_prop_root in Hphi.
+    rewrite Hc₁ in Hphi.
+    fold K in Hphi.
+    unfold apply_poly in Hphi.
+    rewrite apply_lap_lap2 in Hphi.
+    unfold apply_lap2 in Hphi.
+    simpl in Hphi.
+    rewrite Hini in Hphi; simpl in Hphi.
+    rewrite nofq_Qnat in Hphi.
+    rewrite skipn_pad in Hphi; simpl in Hphi.
+    rewrite Nat.sub_diag in Hphi.
+    rewrite fold_char_pol with (αj := αj) in Hphi.
+    rewrite <- Hini, <- Hpl in Hphi.
+    simpl in Hphi.
+    erewrite length_char_pol in Hphi; try eassumption; try reflexivity.
+    simpl in Hphi.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hr HΨ Hpl Htl Hl Hini.
