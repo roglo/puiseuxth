@@ -302,16 +302,6 @@ rewrite taylor_formula_0_loop; [ reflexivity | idtac ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
 
-(**)
-Lemma apply_taylor_lap_formula_0 : ∀ α (f : field α) x la,
-  (apply_lap f la x .= f
-   apply_lap f (taylor_lap f la .0 f) x)%K.
-Proof.
-intros α f x la.
-rewrite <- taylor_lap_formula_0; reflexivity.
-Qed.
-(**)
-
 Theorem taylor_formula_0 : ∀ α (f : field α) P,
   (P .= f taylor_poly f P .0 f%K)%pol.
 Proof.
@@ -1037,6 +1027,26 @@ rewrite Nat.max_0_r.
 reflexivity.
 Qed.
 
+Lemma list_seq_app : ∀ j dj len,
+  (dj ≤ len)%nat
+  → List.seq j len = List.seq j dj ++ List.seq (j + dj) (len - dj).
+Proof.
+intros j dj len Hjlen.
+revert j dj Hjlen.
+induction len; intros.
+ simpl.
+ apply Nat.le_0_r in Hjlen; subst dj; reflexivity.
+
+ destruct dj; simpl.
+  rewrite Nat.add_0_r.
+  reflexivity.
+
+  f_equal.
+  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
+  apply le_S_n in Hjlen.
+  erewrite IHlen; [ reflexivity | eassumption ].
+Qed.
+
 (*
 Lemma lap_compose_add_sub : ∀ α (f : field α) la a,
   lap_eq f
@@ -1048,6 +1058,12 @@ rewrite lap_compose_compose2.
 unfold lap_compose2; simpl.
 rewrite length_lap_compose_deg_1.
 induction la as [| b]; [ reflexivity | idtac ].
+rewrite list_seq_app with (dj := length la).
+ rewrite List.fold_right_app.
+ remember (length [b … la]) as x; simpl in Heqx; subst x.
+ rewrite minus_Sn_n.
+ rewrite Nat.add_0_l.
+ simpl.
 bbb.
 *)
 
@@ -1457,24 +1473,35 @@ rewrite apply_lap_compose; simpl.
 rewrite fld_mul_0_r, fld_add_0_l; reflexivity.
 Qed.
 
+(* à voir...
+Lemma lap_formula_sub : ∀ α (f : field α) la a,
+  lap_eq f la (lap_compose f (taylor_lap f la a) [.- f a; .1 f … []])%K.
+Proof.
+intros α f la a.
+remember (lap_compose f la [a; .1 f%K … []]) as lb eqn:Hlb .
+pose proof (taylor_lap_formula_0 f lb) as H.
+subst lb.
+rewrite taylor_lap_compose_deg_1 in H.
+rewrite <- H.
+bbb.
+*)
+
 Lemma taylor_lap_formula_sub : ∀ α (f : field α) x la a,
   (apply_lap f la x .= f
    apply_lap f (taylor_lap f la a) (x .- f a))%K.
 Proof.
-(*
 intros α f x la a.
 remember (lap_compose f la [a; .1 f%K … []]) as lb eqn:Hlb .
-pose proof (taylor_lap_formula_0 f lb) as H.
-subst lb.
-bbb.
-*)
-intros α f x la a.
-remember (lap_compose f la [a; .1 f%K … []]) as lb eqn:Hlb .
-pose proof (apply_taylor_lap_formula_0 f (x .- f a)%K lb) as H.
-subst lb.
-rewrite apply_lap_compose_add_sub in H.
-rewrite H.
-rewrite taylor_lap_compose_deg_1; reflexivity.
+assert
+ (apply_lap f lb (x .- f a)%K .= f
+  apply_lap f (taylor_lap f lb .0 f) (x .- f a))%K
+ as H.
+ rewrite <- taylor_lap_formula_0; reflexivity.
+
+ subst lb.
+ rewrite apply_lap_compose_add_sub in H.
+ rewrite H.
+ rewrite taylor_lap_compose_deg_1; reflexivity.
 Qed.
 
 Theorem taylor_formula_sub : ∀ α (f : field α) x P a,

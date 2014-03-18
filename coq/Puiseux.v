@@ -816,26 +816,6 @@ rewrite Heqj in |- * at 2.
 assumption.
 Qed.
 
-Lemma list_seq_app : ∀ j dj len,
-  (dj ≤ len)%nat
-  → List.seq j len = List.seq j dj ++ List.seq (j + dj) (len - dj).
-Proof.
-intros j dj len Hjlen.
-revert j dj Hjlen.
-induction len; intros.
- simpl.
- apply Nat.le_0_r in Hjlen; subst dj; reflexivity.
-
- destruct dj; simpl.
-  rewrite Nat.add_0_r.
-  reflexivity.
-
-  f_equal.
-  rewrite Nat.add_succ_r, <- Nat.add_succ_l.
-  apply le_S_n in Hjlen.
-  erewrite IHlen; [ reflexivity | eassumption ].
-Qed.
-
 Lemma fold_nothing : ∀ A j len (f : _ → _ → A) g la,
   (∀ i, j ≤ i → (i < j + len)%nat → g i = false)
   → List.fold_right (λ i accu, if g i then f i accu else accu) la
