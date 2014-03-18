@@ -1024,6 +1024,19 @@ apply list_fold_right_seq.
  apply lap_mul_comm.
 Qed.
 
+Lemma length_lap_compose_deg_1 : ∀ α (K : field α) la c,
+  length (lap_compose K la [c; .1 K%K … []]) = length la.
+Proof.
+intros α K la c.
+induction la as [| a]; [ reflexivity | simpl ].
+rewrite length_lap_add; simpl.
+rewrite length_lap_mul; simpl.
+rewrite IHla.
+rewrite Nat.add_comm; simpl.
+rewrite Nat.max_0_r.
+reflexivity.
+Qed.
+
 (*
 Lemma lap_compose_add_sub : ∀ α (f : field α) la a,
   lap_eq f
@@ -1031,6 +1044,10 @@ Lemma lap_compose_add_sub : ∀ α (f : field α) la a,
     la.
 Proof.
 intros α f la a.
+rewrite lap_compose_compose2.
+unfold lap_compose2; simpl.
+rewrite length_lap_compose_deg_1.
+induction la as [| b]; [ reflexivity | idtac ].
 bbb.
 *)
 

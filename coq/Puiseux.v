@@ -280,19 +280,6 @@ induction l as [| x]; intros; simpl.
  apply IHl; assumption.
 Qed.
 
-Lemma length_lap_compose_deg_1 : ∀ la c,
-  length (lap_compose K la [c; .1 K%K … []]) = length la.
-Proof.
-intros la c.
-induction la as [| a]; [ reflexivity | simpl ].
-rewrite length_lap_add; simpl.
-rewrite length_lap_mul; simpl.
-rewrite IHla.
-rewrite Nat.add_comm; simpl.
-rewrite Nat.max_0_r.
-reflexivity.
-Qed.
-
 Lemma fld_power_0_l : ∀ n, n ≠ O → (.0 K .^ K n .= K .0 K)%K.
 Proof.
 intros n Hn; simpl.
