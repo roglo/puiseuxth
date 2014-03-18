@@ -1784,6 +1784,7 @@ apply exists_fin_pt_nat in Hfin.
 destruct Hfin as (k, (αk, Hk)).
 symmetry.
 rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+bbb.
 apply poly_mul_compat; [ reflexivity | subst K ].
 rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
 set (K := ac_field acf); move K after Kx.
