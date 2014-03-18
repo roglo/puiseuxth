@@ -293,20 +293,6 @@ Qed.
 Theorem list_skipn_0 : ∀ A (l : list A), List.skipn 0 l = l.
 Proof. intros A l; destruct l; reflexivity. Qed.
 
-(**)
-Lemma apply_taylor_lap_formula_0 : ∀ α (f : field α) x la,
-  (apply_lap f la x .= f
-   apply_lap f (taylor_lap f la .0 f) x)%K.
-Proof.
-intros α f x la.
-unfold taylor_lap.
-rewrite taylor_formula_0_loop.
- rewrite list_skipn_0; reflexivity.
-
- rewrite Nat.add_0_r; reflexivity.
-Qed.
-(**)
-
 Lemma taylor_lap_formula_0 : ∀ α (f : field α) la,
   lap_eq f la (taylor_lap f la .0 f)%K.
 Proof.
@@ -315,6 +301,16 @@ unfold taylor_lap.
 rewrite taylor_formula_0_loop; [ reflexivity | idtac ].
 rewrite Nat.add_0_r; reflexivity.
 Qed.
+
+(**)
+Lemma apply_taylor_lap_formula_0 : ∀ α (f : field α) x la,
+  (apply_lap f la x .= f
+   apply_lap f (taylor_lap f la .0 f) x)%K.
+Proof.
+intros α f x la.
+rewrite <- taylor_lap_formula_0; reflexivity.
+Qed.
+(**)
 
 Theorem taylor_formula_0 : ∀ α (f : field α) P,
   (P .= f taylor_poly f P .0 f%K)%pol.
