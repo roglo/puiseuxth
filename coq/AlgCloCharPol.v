@@ -1450,7 +1450,14 @@ intros α f x P a.
 apply apply_taylor_lap_formula_sub.
 Qed.
 
-Theorem taylor_formula : ∀ α (f : field α) x c P,
+(* À faire...
+Theorem lap_taylor_formula : ∀ α (f : field α) c P,
+  lap_eq f (lap_compose f P [c; .1 f%K … []]) (taylor_lap f P c).
+Proof.
+bbb.
+*)
+
+Theorem apply_taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
    apply_poly f (taylor_poly f P c) x)%K.
 Proof.
