@@ -952,68 +952,6 @@ apply fld_add_compat_r.
 apply apply_lap_mul.
 Qed.
 
-Lemma lap_mul_fold_add_distr : ∀ α (f : field α) β la li (g : β → list α) x,
-  lap_eq f
-    (lap_mul f x (List.fold_right (λ i accu, lap_add f accu (g i)) la li))
-    (List.fold_right (λ i accu, lap_add f accu (lap_mul f x (g i)))
-       (lap_mul f x la) li).
-Proof.
-intros α f β la li g x.
-revert la x.
-induction li as [| j]; intros; [ reflexivity | simpl ].
-rewrite lap_mul_add_distr_l.
-rewrite IHli; reflexivity.
-Qed.
-
-Lemma list_fold_right_seq : ∀ α (f : field α) g h la lb s t len,
-  lap_eq f la lb
-  → (∀ x y z, lap_eq f y z → lap_eq f (g x y) (g x z))
-    → (∀ i accu, lap_eq f (g (s + i)%nat accu) (h (t + i)%nat accu))
-      → lap_eq f
-          (List.fold_right g la (List.seq s len))
-          (List.fold_right h lb (List.seq t len)).
-Proof.
-intros α f g h la lb s t len Hab Hg Hgh.
-revert g h la lb s t Hab Hg Hgh.
-induction len; intros; [ assumption | simpl ].
-pose proof (Hgh O (List.fold_right h lb (List.seq (S t) len))) as H.
-do 2 rewrite Nat.add_0_r in H.
-rewrite <- H.
-apply Hg.
-apply IHlen; [ assumption | assumption | idtac ].
-intros i accu.
-do 2 rewrite Nat.add_succ_l, <- Nat.add_succ_r.
-apply Hgh.
-Qed.
-
-Lemma lap_compose_compose2 : ∀ α (f : field α) la lb,
-  lap_eq f (lap_compose f la lb) (lap_compose2 f la lb).
-Proof.
-intros α f la lb.
-revert lb.
-induction la as [| a]; intros; [ reflexivity | simpl ].
-rewrite IHla.
-symmetry; clear.
-unfold lap_compose2.
-rewrite lap_mul_comm.
-rewrite lap_mul_fold_add_distr.
-rewrite lap_add_comm.
-remember [a] as aa; simpl; subst aa.
-rewrite lap_add_comm.
-apply lap_add_compat; [ apply lap_mul_1_r | idtac ].
-apply list_fold_right_seq.
- rewrite lap_mul_nil_r; reflexivity.
-
- intros x y z Hyz.
- rewrite Hyz; reflexivity.
-
- intros i accu; simpl.
- apply lap_add_compat; [ reflexivity | simpl ].
- rewrite lap_mul_comm, <- lap_mul_assoc.
- apply lap_mul_compat; [ reflexivity | idtac ].
- apply lap_mul_comm.
-Qed.
-
 Lemma length_lap_compose_deg_1 : ∀ α (K : field α) la c,
   length (lap_compose K la [c; .1 K%K … []]) = length la.
 Proof.
