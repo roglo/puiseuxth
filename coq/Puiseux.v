@@ -63,16 +63,6 @@ Inductive split_list α : list α → list α → list α → Prop :=
 
 (* *)
 
-Fixpoint fld_power α (K : field α) a n :=
-  match n with
-  | O => .1 K%K
-  | S m => (a .* K fld_power K a m)%K
-  end.
-
-Notation "a .^ f b" := (fld_power f a b) : field_scope.
-
-(* *)
-
 Add Parametric Morphism α (f : field α) : (ps_monom f)
   with signature fld_eq f ==> Qeq ==> eq_ps f
   as ps_monom_qeq_morph.
@@ -303,40 +293,6 @@ induction n; intros; simpl.
 Qed.
 
 End on_fields.
-
-Definition apply_lap2 α (K : field α) la x :=
-  Σ K (i = 0, pred (length la)), List.nth i la .0 K .* K x .^ K i.
-
-Lemma apply_lap_lap2 : ∀ α (K : field α) la x,
-  (apply_lap K la x .= K apply_lap2 K la x)%K.
-Proof.
-intros α K la x.
-induction la as [| a]; simpl.
- unfold apply_lap2; simpl.
- rewrite summation_only_one, fld_mul_0_l; reflexivity.
-
- rewrite IHla.
- unfold apply_lap2.
- simpl.
- rewrite fld_add_comm.
- symmetry.
- rewrite summation_split_first; [ simpl | apply Nat.le_0_l ].
- rewrite fld_mul_1_r.
- apply fld_add_compat_l.
- destruct la as [| b].
-  simpl.
-  rewrite summation_lt; [ idtac | apply Nat.lt_0_1 ].
-  rewrite summation_only_one, fld_mul_0_l, fld_mul_0_l.
-  reflexivity.
-
-  rewrite summation_shift; [ simpl | apply le_n_S, Nat.le_0_l ].
-  rewrite Nat.sub_0_r.
-  rewrite fld_mul_comm.
-  rewrite <- summation_mul_swap.
-  apply summation_compat; intros i (_, Hi).
-  rewrite fld_mul_assoc, fld_mul_shuffle0, fld_mul_comm.
-  reflexivity.
-Qed.
 
 Section theorems.
 

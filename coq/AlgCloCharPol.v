@@ -16,11 +16,24 @@ Require Import CharactPolyn.
 
 Set Implicit Arguments.
 
+Fixpoint fld_power α (K : field α) a n :=
+  match n with
+  | O => .1 K%K
+  | S m => (a .* K fld_power K a m)%K
+  end.
+
+Notation "a .^ f b" := (fld_power f a b) : field_scope.
+
+(* *)
+
 Definition apply_lap α (f : field α) la x :=
   (List.fold_right (λ c accu, accu .* f x .+ f c) (.0 f) la)%K.
 
 Definition apply_poly α (f : field α) pol :=
   apply_lap f (al pol).
+
+Definition apply_lap2 α (K : field α) la x :=
+  Σ K (i = 0, pred (length la)), List.nth i la .0 K .* K x .^ K i.
 
 (* euclidean division of a polynomial by (x - c) *)
 
@@ -167,6 +180,37 @@ Lemma fold_apply_lap : ∀ α (f : field α) al x,
   (List.fold_right (λ c accu : α, accu .* f x .+ f c) .0 f al)%K =
   apply_lap f al x.
 Proof. reflexivity. Qed.
+
+Lemma apply_lap_lap2 : ∀ α (K : field α) la x,
+  (apply_lap K la x .= K apply_lap2 K la x)%K.
+Proof.
+intros α K la x.
+induction la as [| a]; simpl.
+ unfold apply_lap2; simpl.
+ rewrite summation_only_one, fld_mul_0_l; reflexivity.
+
+ rewrite IHla.
+ unfold apply_lap2.
+ simpl.
+ rewrite fld_add_comm.
+ symmetry.
+ rewrite summation_split_first; [ simpl | apply Nat.le_0_l ].
+ rewrite fld_mul_1_r.
+ apply fld_add_compat_l.
+ destruct la as [| b].
+  simpl.
+  rewrite summation_lt; [ idtac | apply Nat.lt_0_1 ].
+  rewrite summation_only_one, fld_mul_0_l, fld_mul_0_l.
+  reflexivity.
+
+  rewrite summation_shift; [ simpl | apply le_n_S, Nat.le_0_l ].
+  rewrite Nat.sub_0_r.
+  rewrite fld_mul_comm.
+  rewrite <- summation_mul_swap.
+  apply summation_compat; intros i (_, Hi).
+  rewrite fld_mul_assoc, fld_mul_shuffle0, fld_mul_comm.
+  reflexivity.
+Qed.
 
 Add Parametric Morphism α (f : field α) : (apply_lap f)
   with signature lap_eq f ==> fld_eq f ==> fld_eq f
@@ -1450,10 +1494,31 @@ intros α f x P a.
 apply apply_taylor_lap_formula_sub.
 Qed.
 
-(* À faire...
-Theorem lap_taylor_formula : ∀ α (f : field α) c P,
-  lap_eq f (lap_compose f P [c; .1 f%K … []]) (taylor_lap f P c).
+(* À finir...
+Theorem lap_taylor_formula : ∀ α (f : field α) c la,
+  lap_eq f (lap_compose f la [c; .1 f%K … []]) (taylor_lap f la c).
 Proof.
+intros α K c la.
+rewrite lap_compose_compose2.
+apply list_nth_lap_eq; intros i.
+rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
+rename i into k.
+unfold taylor_lap.
+rewrite list_nth_taylor; [ idtac | rewrite Nat.add_0_r; reflexivity ].
+rewrite Nat.add_0_r.
+unfold lap_derivial.
+rewrite apply_lap_lap2.
+unfold apply_lap2.
+rewrite length_deriv_list.
+rewrite list_length_skipn.
+destruct la as [| a]; simpl.
+ do 2 rewrite summation_only_one.
+ rewrite Nat.add_0_r, comb_id.
+ simpl.
+ rewrite list_skipn_nil; simpl.
+ rewrite match_id, fld_add_0_l, fld_mul_0_l; reflexivity.
+
+ destruct k; simpl.
 bbb.
 *)
 
