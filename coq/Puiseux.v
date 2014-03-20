@@ -1701,6 +1701,23 @@ erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
 Qed.
 
+(*
+Lemma list_nth_taylor_lap : ∀ α (K : field α) la c i,
+  List.nth i (taylor_lap K la c) (.0 K)%K =
+  apply_lap K (lap_derivial K i la) c.
+Proof.
+clear.
+intros α K la c i.
+unfold taylor_lap.
+revert i.
+induction la as [| a]; intros; simpl.
+ unfold lap_derivial; simpl.
+ rewrite match_id, list_skipn_nil; reflexivity.
+
+ destruct i; [ reflexivity | simpl ].
+bbb.
+*)
+
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1738,6 +1755,33 @@ rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 subst Kx.
 do 2 rewrite lap_taylor_formula; simpl.
+apply list_nth_lap_eq; intros i.
+unfold taylor_lap.
+rewrite list_nth_taylor; [ simpl | rewrite Nat.add_0_r; reflexivity ].
+rewrite Nat.add_0_r.
+rewrite List.map_length.
+erewrite Ψ_length; try eassumption.
+set (Kx := ps_field K); move Kx before K.
+bbb.
+ rewrite Nat.add_0_r.
+ rewrite List.map_length.
+ rewrite apply_lap_lap2.
+ rewrite list_nth_lap_mul.
+ unfold apply_lap2.
+ simpl.
+ rewrite list_length_derivial.
+ rewrite length_lap_mul.
+ rewrite List.map_length.
+ rewrite length_lap_power.
+  simpl.
+  rewrite Nat.mul_1_r, List.map_length.
+  rename i into n.
+  erewrite Ψ_length; try eassumption.
+  rewrite Nat.add_sub_assoc.
+   rewrite Nat.add_comm, Nat.add_sub.
+   symmetry.
+   rewrite Nat.sub_succ_l.
+    simpl.
 bbb.
 
 intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
