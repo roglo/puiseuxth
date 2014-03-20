@@ -1758,15 +1758,19 @@ do 2 rewrite lap_taylor_formula; simpl.
 apply list_nth_lap_eq; intros i.
 unfold taylor_lap.
 rewrite length_lap_mul.
-rewrite List.map_length.
-rewrite List.map_length.
+do 2 rewrite List.map_length.
 rewrite length_lap_power; [ idtac | intros H; discriminate H ].
 erewrite Ψ_length; try eassumption.
 remember minus as f; simpl; subst f.
 rewrite Nat.mul_1_r.
 rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
- set (Kx := ps_field K); move Kx before K.
+ rewrite list_nth_taylor.
+  rewrite Nat.add_0_r.
+  rewrite fold_list_nth_def_0.
+  rewrite lap_mul_comm.
+  unfold list_nth_def_0.
+  set (Kx := ps_field K); move Kx before K.
 bbb.
  rewrite Nat.add_0_r.
  rewrite List.map_length.
