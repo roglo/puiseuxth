@@ -903,7 +903,7 @@ intros α f a b lb i len.
 revert a b lb i.
 induction len; intros; [ reflexivity | idtac ].
 constructor; [ idtac | apply IHlen ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
+rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
 rewrite List.nth_overflow; [ idtac | simpl; fast_omega  ].
 rewrite fld_mul_0_l, fld_add_0_r.
 apply summation_compat; intros j (_, Hj).
@@ -1382,8 +1382,8 @@ intros α f a g k.
 induction k.
  do 2 rewrite summation_only_one; reflexivity.
 
- rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
- rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
+ rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+ rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
  rewrite IHk.
  rewrite fld_mul_nat_add_distr_l.
  reflexivity.
@@ -1511,14 +1511,33 @@ rewrite apply_lap_lap2.
 unfold apply_lap2.
 rewrite length_deriv_list.
 rewrite list_length_skipn.
-destruct la as [| a]; simpl.
- do 2 rewrite summation_only_one.
- rewrite Nat.add_0_r, comb_id.
- simpl.
- rewrite list_skipn_nil; simpl.
- rewrite match_id, fld_add_0_l, fld_mul_0_l; reflexivity.
+revert la.
+induction k; intros; simpl.
+ rewrite Nat.sub_0_r.
+ destruct la as [| a]; simpl.
+  do 2 rewrite summation_only_one.
+  rewrite comb_id; simpl.
+  rewrite fld_add_0_l; reflexivity.
 
- destruct k; simpl.
+  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+  rewrite List.nth_overflow; [ idtac | reflexivity ].
+  rewrite fld_mul_0_l; simpl.
+  do 2 rewrite fld_add_0_r.
+  apply summation_compat; intros i (_, Hi).
+  rewrite comb_0_r; simpl.
+  rewrite fld_add_0_l.
+  destruct i; [ rewrite fld_add_0_l; reflexivity | idtac ].
+  rewrite list_nth_coeff_lap_deriv.
+  rewrite comb_0_r; simpl.
+  rewrite fld_add_0_l.
+  reflexivity.
+
+ destruct la as [| a]; simpl.
+  do 2 rewrite summation_only_one.
+  rewrite Nat.add_0_r, fld_mul_0_l; simpl.
+  rewrite comb_id, comb_lt; [ idtac | apply Nat.lt_succ_r; reflexivity ].
+  simpl.
+  rewrite fld_add_0_l, fld_mul_0_l; reflexivity.
 bbb.
 *)
 

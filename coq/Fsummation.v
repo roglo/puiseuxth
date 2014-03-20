@@ -275,7 +275,7 @@ rewrite Nat.sub_diag; simpl.
 rewrite fld_add_0_r; reflexivity.
 Qed.
 
-Lemma summation_succ : ∀ g b k,
+Lemma summation_split_last : ∀ g b k,
   (b ≤ S k)
   → (Σ f (i = b, S k), g i .= f Σ f (i = b, k), g i .+ f g (S k))%K.
 Proof.
@@ -316,9 +316,9 @@ destruct (le_dec b k) as [Hbk| Hbk].
 
    unfold summation; simpl; rewrite fld_add_0_r; reflexivity.
 
-  rewrite summation_succ; [ idtac | assumption ].
-  rewrite summation_succ; [ idtac | assumption ].
-  rewrite summation_succ; [ idtac | assumption ].
+  rewrite summation_split_last; [ idtac | assumption ].
+  rewrite summation_split_last; [ idtac | assumption ].
+  rewrite summation_split_last; [ idtac | assumption ].
   destruct (eq_nat_dec b (S k)) as [H₂| H₂].
    subst b.
    unfold summation; simpl.
@@ -349,16 +349,16 @@ Lemma summation_summation_exch : ∀ g k,
 Proof.
 intros g k.
 induction k; [ reflexivity | idtac ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
-rewrite summation_succ; [ idtac | apply Nat.le_0_l ].
+rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
 rewrite IHk.
 rewrite summation_only_one.
 rewrite fld_add_assoc.
 apply fld_add_compat_r.
 rewrite <- summation_add_distr.
 apply summation_compat; intros i (_, Hi).
-rewrite summation_succ; [ reflexivity | idtac ].
+rewrite summation_split_last; [ reflexivity | idtac ].
 apply Nat.le_le_succ_r; assumption.
 Qed.
 
