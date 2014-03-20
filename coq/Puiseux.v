@@ -1736,6 +1736,22 @@ set (K := ac_field acf); move K after Kx.
 fold K in Kx.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
+subst Kx.
+do 2 rewrite lap_taylor_formula; simpl.
+bbb.
+
+intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
+remember Hns as Hfin; clear HeqHfin.
+apply exists_fin_pt_nat in Hfin.
+destruct Hfin as (k, (αk, Hk)).
+symmetry.
+rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
+apply poly_mul_compat; [ reflexivity | subst K ].
+rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
+set (K := ac_field acf); move K after Kx.
+fold K in Kx.
+rewrite poly_inject_inj_mul.
+unfold eq_poly; simpl.
 do 2 rewrite lap_compose_compose2.
 apply list_nth_lap_eq; intros m; simpl.
 subst Kx; simpl.
