@@ -1494,7 +1494,6 @@ intros α f x P a.
 apply apply_taylor_lap_formula_sub.
 Qed.
 
-(* À finir...
 Theorem lap_taylor_formula : ∀ α (f : field α) c la,
   lap_eq f (lap_compose f la [c; .1 f%K … []]) (taylor_lap f la c).
 Proof.
@@ -1511,36 +1510,33 @@ rewrite apply_lap_lap2.
 unfold apply_lap2.
 rewrite length_deriv_list.
 rewrite list_length_skipn.
-revert la.
-induction k; intros; simpl.
- rewrite Nat.sub_0_r.
- destruct la as [| a]; simpl.
-  do 2 rewrite summation_only_one.
-  rewrite comb_id; simpl.
-  rewrite fld_add_0_l; reflexivity.
+remember (length la - k)%nat as len eqn:Hlen .
+symmetry in Hlen.
+destruct len; simpl.
+ do 2 rewrite summation_only_one.
+ rewrite list_nth_coeff_lap_deriv; simpl.
+ rewrite Nat.add_0_r, comb_id; simpl.
+ do 2 rewrite fld_mul_1_r.
+ do 2 rewrite fld_add_0_l.
+ revert la Hlen.
+ induction k; intros; [ reflexivity | simpl ].
+ destruct la as [| a]; [ reflexivity | simpl ].
+ apply IHk; assumption.
 
-  rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
-  rewrite List.nth_overflow; [ idtac | reflexivity ].
-  rewrite fld_mul_0_l; simpl.
-  do 2 rewrite fld_add_0_r.
-  apply summation_compat; intros i (_, Hi).
-  rewrite comb_0_r; simpl.
-  rewrite fld_add_0_l.
-  destruct i; [ rewrite fld_add_0_l; reflexivity | idtac ].
-  rewrite list_nth_coeff_lap_deriv.
-  rewrite comb_0_r; simpl.
-  rewrite fld_add_0_l.
-  reflexivity.
+ rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+ rewrite List.nth_overflow; [ idtac | omega ].
+ rewrite fld_mul_0_l; simpl.
+ rewrite fld_mul_nat_0_r, fld_add_0_r.
+ apply summation_compat; intros i (_, Hi).
+ rewrite list_nth_coeff_lap_deriv.
+ rewrite <- fld_mul_nat_assoc2.
+ apply fld_mul_compat_r.
+ rewrite list_nth_skipn.
+ remember (k + i)%nat as x.
+ rewrite Nat.add_comm; subst x; reflexivity.
+Qed.
 
- destruct la as [| a]; simpl.
-  do 2 rewrite summation_only_one.
-  rewrite Nat.add_0_r, fld_mul_0_l; simpl.
-  rewrite comb_id, comb_lt; [ idtac | apply Nat.lt_succ_r; reflexivity ].
-  simpl.
-  rewrite fld_add_0_l, fld_mul_0_l; reflexivity.
-bbb.
-*)
-
+(*
 Theorem apply_taylor_formula : ∀ α (f : field α) x c P,
   (apply_poly f P (x .+ f c) .= f
    apply_poly f (taylor_poly f P c) x)%K.
@@ -1549,6 +1545,7 @@ intros α f x c P.
 rewrite taylor_formula_sub.
 rewrite fld_add_sub; reflexivity.
 Qed.
+*)
 
 (* test
 Load Q_field.
