@@ -1701,6 +1701,7 @@ erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
 Qed.
 
+(*
 Lemma yyy : ∀ α (K : field α) la lb n,
   lap_eq K (lap_derivial K n (lap_mul K la lb))
     (lap_summation K (List.seq 0 (S n))
@@ -1715,6 +1716,21 @@ rewrite coeff_lap_deriv_0_l.
 destruct n.
  simpl.
  do 2 rewrite coeff_lap_deriv_0_l; reflexivity.
+bbb.
+*)
+
+Lemma xxx : ∀ α (K : field α) f c₁ k r n,
+  lap_eq K
+    (lap_mul K (coeff_taylor_lap K n f c₁ k)
+       (lap_power K [.0 K; .1 K … []] r))%K
+    (coeff_taylor_lap K n (lap_mul K [.- K c₁; .1 K … []] f) c₁ k)%K.
+Proof.
+clear.
+intros α K f c₁ k r n.
+revert k.
+induction n; intros; simpl.
+ rewrite lap_mul_nil_l; reflexivity.
+
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
@@ -1754,7 +1770,6 @@ rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
 subst Kx.
 do 2 rewrite lap_taylor_formula; simpl.
-apply list_nth_lap_eq; intros i.
 unfold taylor_lap.
 rewrite length_lap_mul.
 do 2 rewrite List.map_length.
@@ -1764,8 +1779,7 @@ remember minus as f; simpl; subst f.
 rewrite Nat.mul_1_r.
 rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
- rewrite list_nth_taylor.
-  rewrite Nat.add_0_r.
+ set (Kx := ps_field K); move Kx before K.
 bbb.
   rewrite fold_list_nth_def_0.
   rewrite lap_mul_comm.
