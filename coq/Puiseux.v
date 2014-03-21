@@ -1765,6 +1765,7 @@ remember minus as f; simpl; subst f.
 rewrite Nat.mul_1_r.
 rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
+bbb.
  rewrite list_nth_taylor.
   rewrite Nat.add_0_r.
   rewrite fold_list_nth_def_0.
