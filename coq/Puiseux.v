@@ -1701,39 +1701,76 @@ erewrite length_char_pol; try eassumption; try reflexivity.
 subst s; reflexivity.
 Qed.
 
-(*
-Lemma yyy : ∀ α (K : field α) la lb n,
-  lap_eq K (lap_derivial K n (lap_mul K la lb))
-    (lap_summation K (List.seq 0 (S n))
-       (λ i, lap_mul K (lap_derivial K i la) (lap_derivial K (n - i) lb))%K).
+Lemma lap_add_map : ∀ la lb,
+  lap_eq Kx
+    (lap_add Kx
+       (List.map (λ c, ps_monom K c 0) la)
+       (List.map (λ c, ps_monom K c 0) lb))
+    (List.map (λ c, ps_monom K c 0) (lap_add K la lb)).
 Proof.
-clear.
-intros α K la lb n.
-unfold lap_derivial.
-simpl.
-rewrite Nat.sub_0_r.
-rewrite coeff_lap_deriv_0_l.
-destruct n.
- simpl.
- do 2 rewrite coeff_lap_deriv_0_l; reflexivity.
-bbb.
-*)
+intros la lb.
+revert lb.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+destruct lb as [| b]; [ reflexivity | simpl ].
+rewrite ps_monom_add_l.
+constructor; [ reflexivity | idtac ].
+apply IHla.
+Qed.
 
-(*
-Lemma xxx : ∀ α (K : field α) f c₁ k r n,
-  lap_eq K
-    (lap_mul K (coeff_taylor_lap K n f c₁ k)
-       (lap_power K [.0 K; .1 K … []] r))%K
-    (coeff_taylor_lap K n (lap_mul K [.- K c₁; .1 K … []] f) c₁ k)%K.
+Theorem lap_mul_map : ∀ la lb,
+  lap_eq Kx
+    (lap_mul Kx
+       (List.map (λ c, ps_monom K c 0) la)
+       (List.map (λ c, ps_monom K c 0) lb))
+    (List.map (λ c, ps_monom K c 0) (lap_mul K la lb)).
 Proof.
-clear.
-intros α K f c₁ k r n.
-revert k.
-induction n; intros; simpl.
- rewrite lap_mul_nil_l; reflexivity.
+intros la lb.
+revert lb.
+induction la as [| a]; intros; simpl.
+ do 2 rewrite lap_mul_nil_l; reflexivity.
 
-bbb.
-*)
+ destruct lb as [| b]; simpl.
+  do 2 rewrite lap_mul_nil_r; reflexivity.
+
+  do 2 rewrite lap_mul_cons; simpl.
+  rewrite ps_monom_mul_l.
+  constructor; [ reflexivity | idtac ].
+  do 2 rewrite <- lap_add_map.
+  rewrite IHla; simpl.
+  apply lap_add_compat.
+   apply lap_add_compat.
+    rewrite <- IHla; reflexivity.
+
+    clear.
+    induction lb as [| b]; simpl.
+     rewrite lap_mul_nil_r; reflexivity.
+
+     rewrite summation_only_one.
+     rewrite lap_mul_cons; simpl.
+     rewrite ps_monom_mul_l.
+     constructor; [ reflexivity | idtac ].
+     rewrite lap_mul_nil_l.
+     rewrite lap_eq_0.
+     rewrite lap_add_nil_r.
+     rewrite IHlb.
+     unfold lap_mul; simpl.
+     rewrite <- lap_convol_mul_cons_succ; reflexivity.
+
+   constructor; [ idtac | reflexivity ].
+   rewrite ps_zero_monom_eq; reflexivity.
+Qed.
+
+Lemma lap_power_map : ∀ la n,
+  lap_eq Kx
+    (lap_power Kx (List.map (λ c, ps_monom K c 0) la) n)
+    (List.map (λ c, ps_monom K c 0) (lap_power K la n)).
+Proof.
+intros la n.
+revert la.
+induction n; intros; [ reflexivity | simpl ].
+rewrite IHn.
+apply lap_mul_map.
+Qed.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
@@ -1770,11 +1807,12 @@ set (K := ac_field acf); move K after Kx.
 fold K in Kx.
 rewrite poly_inject_inj_mul.
 unfold eq_poly; simpl.
+rewrite <- lap_power_map; simpl.
 subst Kx.
 do 2 rewrite lap_taylor_formula; simpl.
 unfold taylor_lap.
 rewrite length_lap_mul.
-do 2 rewrite List.map_length.
+rewrite List.map_length.
 rewrite length_lap_power; [ idtac | intros H; discriminate H ].
 erewrite Ψ_length; try eassumption.
 remember minus as f; simpl; subst f.
