@@ -1570,6 +1570,120 @@ destruct (lt_dec i n) as [Hin| Hin].
      rewrite Nat.mul_1_r; reflexivity.
 Qed.
 
+Lemma lap_mul_cons_l : ∀ a la lb,
+  lap_eq f (lap_mul f [a … la] lb)
+    (lap_add f (lap_mul f [a] lb) [.0 f%K … lap_mul f la lb]).
+Proof.
+intros a la lb.
+unfold lap_mul.
+apply list_nth_lap_eq; intros k.
+rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+rewrite list_nth_add.
+rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+destruct k.
+ rewrite summation_only_one.
+ rewrite summation_only_one.
+ rewrite fld_add_0_r; reflexivity.
+
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite Nat.sub_0_r.
+ symmetry.
+ rewrite summation_split_first; [ idtac | apply Nat.le_0_l ].
+ rewrite all_0_summation_0.
+  rewrite Nat.sub_0_r.
+  simpl.
+  rewrite fld_add_0_r.
+  apply fld_add_compat_l.
+  rewrite list_nth_lap_convol_mul; [ idtac | reflexivity ].
+  rewrite summation_succ_succ; reflexivity.
+
+  intros i (Hi, Hik); simpl.
+  destruct i; [ exfalso; omega | simpl ].
+  destruct i; rewrite fld_mul_0_l; reflexivity.
+Qed.
+
+Lemma lap_mul_cons_r : ∀ la b lb,
+  lap_eq f (lap_mul f la [b … lb])
+    (lap_add f (lap_mul f la [b]) [.0 f%K … lap_mul f la lb]).
+Proof.
+intros la b lb.
+rewrite lap_mul_comm.
+rewrite lap_mul_cons_l.
+rewrite lap_mul_comm.
+apply lap_add_compat; [ reflexivity | idtac ].
+rewrite lap_mul_comm; reflexivity.
+Qed.
+
+Lemma lap_eq_0 : lap_eq f [.0 f%K] [].
+Proof. constructor; reflexivity. Qed.
+
+Lemma lap_convol_mul_cons_succ : ∀ a b lb i len,
+  lap_eq f (lap_convol_mul f [a] [b … lb] (S i) len)
+    (lap_convol_mul f [a] lb i len).
+Proof.
+intros a b lb i len.
+revert a b lb i.
+induction len; intros; [ reflexivity | idtac ].
+constructor; [ idtac | apply IHlen ].
+rewrite summation_split_last; [ idtac | apply Nat.le_0_l ].
+rewrite List.nth_overflow; [ idtac | simpl; fast_omega  ].
+rewrite fld_mul_0_l, fld_add_0_r.
+apply summation_compat; intros j (_, Hj).
+apply fld_mul_compat_l.
+rewrite Nat.sub_succ_l; [ reflexivity | assumption ].
+Qed.
+
+Lemma lap_mul_cons : ∀ a b la lb,
+  lap_eq f (lap_mul f [a … la] [b … lb])
+    [(a .* f b)%K
+    … lap_add f (lap_add f (lap_mul f la [b]) (lap_mul f [a] lb))
+        [.0 f%K … lap_mul f la lb]].
+Proof.
+intros a b la lb.
+rewrite lap_mul_cons_l; simpl.
+rewrite summation_only_one.
+rewrite fld_add_0_r.
+constructor; [ reflexivity | idtac ].
+rewrite lap_mul_cons_r.
+unfold lap_mul; simpl.
+rewrite <- lap_add_assoc.
+apply lap_add_compat; [ idtac | reflexivity ].
+rewrite lap_add_comm.
+apply lap_add_compat; [ reflexivity | idtac ].
+apply lap_convol_mul_cons_succ.
+Qed.
+
+Lemma lap_mul_power : ∀ n la,
+  lap_eq f
+    (lap_mul f (lap_power f [.0 f; .1 f … []] n) la)%K
+    (list_pad n .0 f la)%K.
+Proof.
+intros n la.
+rewrite lap_power_x.
+revert la.
+induction n; intros; [ rewrite lap_mul_1_l; reflexivity | simpl ].
+destruct la as [| a]; simpl.
+ rewrite lap_mul_nil_r; simpl.
+ constructor; [ reflexivity | idtac ].
+ clear IHn; induction n; [ reflexivity | simpl ].
+ constructor; [ reflexivity | assumption ].
+
+ rewrite lap_mul_cons.
+ rewrite fld_mul_0_l.
+ constructor; [ reflexivity | simpl ].
+ rewrite lap_eq_0, lap_mul_nil_l.
+ rewrite lap_add_nil_r.
+ do 2 rewrite IHn.
+ clear.
+ revert a la.
+ induction n; intros; simpl.
+  rewrite fld_add_0_r; reflexivity.
+
+  rewrite fld_add_0_r.
+  constructor; [ reflexivity | idtac ].
+  apply IHn.
+Qed.
+
 Lemma nth_lap_power_id : ∀ n,
   (List.nth n (lap_power f [.0 f; .1 f … []] n) .0 f .= f .1 f)%K.
 Proof.

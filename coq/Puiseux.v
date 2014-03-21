@@ -1735,47 +1735,6 @@ induction n; intros; simpl.
 bbb.
 *)
 
-(**)
-Lemma www : ∀ α (K : field α) n la,
-  lap_eq K
-    (lap_mul K (lap_power K [.0 K; .1 K … []] n) la)%K
-    (list_pad n .0 K la)%K.
-Proof.
-clear.
-intros α K n la.
-rewrite lap_power_x.
-destruct n; simpl.
- rewrite lap_mul_1_l; reflexivity.
-
- destruct la as [| a]; simpl.
-  rewrite lap_mul_nil_r; simpl.
-  constructor; [ reflexivity | idtac ].
-  induction n; [ reflexivity | simpl ].
-  constructor; [ reflexivity | assumption ].
-
-  rewrite lap_mul_cons.
-  rewrite fld_mul_0_l.
-  constructor; [ reflexivity | simpl ].
-  rewrite lap_eq_0, lap_mul_nil_l.
-  rewrite lap_add_nil_r.
-  destruct n; simpl.
-   unfold summation; simpl.
-   rewrite fld_mul_1_l, fld_add_0_r, fld_add_0_r.
-   rewrite lap_mul_1_l; reflexivity.
-
-   rewrite lap_mul_cons.
-   rewrite fld_mul_0_l.
-   simpl.
-   rewrite fld_add_0_l.
-   constructor; [ reflexivity | simpl ].
-   rewrite lap_mul_nil_r.
-   rewrite lap_add_nil_r.
-   rewrite lap_add_shuffle0.
-   rewrite lap_add_comm.
-   rewrite <- lap_add_assoc.
-bbb.
-*)
-
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1822,6 +1781,7 @@ remember minus as f; simpl; subst f.
 rewrite Nat.mul_1_r.
 rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
+ rewrite lap_mul_comm, lap_mul_power.
  set (Kx := ps_field K); move Kx before K.
 bbb.
   rewrite fold_list_nth_def_0.
