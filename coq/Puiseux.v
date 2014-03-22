@@ -1785,7 +1785,7 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite fld_opp_0; reflexivity.
 Qed.
 
-(**)
+(* probablement faux...
 Lemma yyy : ∀ la c₁ n r k,
   k ≤ r
   → lap_eq Kx
