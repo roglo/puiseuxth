@@ -1860,6 +1860,23 @@ intros la c₁ n r k.
 revert r k.
 induction n; intros; [ reflexivity | simpl ].
 constructor; [ idtac | apply IHn ].
+clear.
+revert r.
+induction k; intros; simpl.
+ rewrite lap_derivial_0.
+ destruct r.
+bbb.
+  simpl.
+  subst Kx.
+  rewrite lap_mul_1_l.
+  rewrite lap_mul_1_r.
+  unfold lap_derivial; simpl.
+  destruct la as [| a]; [ reflexivity | simpl ].
+  Focus 1.
+  rewrite fld_add_0_l.
+  unfold summation; simpl.
+  rewrite fld_add_0_r.
+  unfold c_x_power.
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
