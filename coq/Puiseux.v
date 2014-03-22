@@ -1785,18 +1785,41 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite fld_opp_0; reflexivity.
 Qed.
 
-Lemma yyy : ∀ la c₁ n r,
-  lap_eq Kx
-    (list_pad r .0 Kx%K
-       (coeff_taylor_lap Kx n la (ps_monom K c₁ 0) 0))
-    (coeff_taylor_lap Kx n
-       (lap_mul Kx
-          (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
-             r) la)
-       (ps_monom K c₁ 0) 0).
+(**)
+Lemma yyy : ∀ la c₁ n r k,
+  k ≤ r
+  → lap_eq Kx
+      (list_pad r .0 Kx%K
+         (coeff_taylor_lap Kx n la (ps_monom K c₁ 0) k))
+      (coeff_taylor_lap Kx n
+         (lap_mul Kx
+            (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+               r) la)
+         (ps_monom K c₁ 0) k).
 Proof.
-intros la c₁ n r.
-revert la r.
+intros la c₁ n r k Hkr.
+clear Hkr.
+revert la r k.
+induction n; intros; simpl.
+ induction r; [ reflexivity | simpl ].
+ constructor; [ reflexivity | assumption ].
+
+ revert k.
+ induction r; intros.
+  simpl.
+  constructor.
+   subst Kx; rewrite lap_mul_1_l; reflexivity.
+
+   subst Kx; rewrite lap_mul_1_l; reflexivity.
+
+  remember (S r) as sr.
+  rewrite Heqsr in |- * at 1; simpl; subst sr.
+  constructor.
+   clear.
+bbb.
+
+intros la c₁ n r k Hkr.
+revert la r k Hkr.
 induction n; intros; simpl.
  induction r; [ reflexivity | simpl ].
  constructor; [ reflexivity | assumption ].
@@ -1816,6 +1839,7 @@ induction n; intros; simpl.
    rewrite ps_add_opp_r.
    do 2 rewrite fld_mul_0_l; reflexivity.
 bbb.
+*)
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
