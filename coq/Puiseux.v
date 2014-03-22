@@ -1772,6 +1772,13 @@ rewrite IHn.
 apply lap_mul_map.
 Qed.
 
+Lemma xxx : ∀ c pow,
+  (ps_monom K (.- K c)%K pow .= K .- K ps_monom K c pow)%ps.
+Proof.
+intros c pow.
+bbb.
+*)
+
 Lemma yyy : ∀ la c₁ n r,
   lap_eq Kx
     (list_pad r .0 Kx%K
@@ -1790,12 +1797,19 @@ induction n; intros; simpl.
 
  induction r; simpl.
   constructor.
-   subst Kx.
-   rewrite lap_mul_1_l; reflexivity.
+   subst Kx; rewrite lap_mul_1_l; reflexivity.
 
-   subst Kx.
+   subst Kx; rewrite lap_mul_1_l; reflexivity.
+
+  constructor.
+   simpl.
+   rewrite lap_derivial_0.
+   do 2 rewrite apply_lap_mul; simpl.
+   rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
+   rewrite xxx in |- * at 1.
+   rewrite ps_add_opp_r.
+   do 2 rewrite fld_mul_0_l; reflexivity.
 bbb.
-   rewrite lap_mul_1_l; reflexivity.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
