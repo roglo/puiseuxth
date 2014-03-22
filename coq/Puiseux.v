@@ -1890,6 +1890,31 @@ rewrite Nat.add_sub_assoc.
  rewrite Nat.add_comm, Nat.add_sub.
  rewrite lap_mul_comm, lap_mul_power.
  set (Kx := ps_field K); move Kx before K.
+ clear HΨ Hr.
+ remember (S (k - j)) as n; clear Heqn.
+ revert n.
+ induction r; intros; simpl.
+  rewrite Nat.sub_0_r.
+  subst Kx; rewrite lap_mul_1_l; reflexivity.
+
+  destruct n; simpl.
+   clear.
+   constructor; [ reflexivity | idtac ].
+   induction r; [ reflexivity | simpl ].
+   constructor; [ reflexivity | assumption ].
+
+   constructor.
+    rewrite lap_derivial_0.
+    do 2 rewrite apply_lap_mul; simpl.
+    rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
+    rewrite ps_monom_opp in |- * at 1.
+    rewrite ps_add_opp_r.
+    do 2 rewrite fld_mul_0_l; reflexivity.
+
+    subst Kx.
+    rewrite IHr.
+    clear IHr.
+    set (Kx := ps_field K); move Kx before K.
 bbb.
   rewrite fold_list_nth_def_0.
   rewrite lap_mul_comm.
