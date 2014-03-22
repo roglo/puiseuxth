@@ -610,6 +610,16 @@ destruct k.
    reflexivity.
 Qed.
 
+Add Parametric Morphism α (K : field α) : (coeff_taylor_lap K)
+  with signature eq ==> lap_eq K ==> fld_eq K ==> eq ==> lap_eq K
+  as coeff_taylor_lap_morph.
+Proof.
+intros n la lb Hlab c d Hcd k.
+revert k.
+induction n; intros; [ reflexivity | simpl ].
+constructor; [ rewrite Hlab, Hcd; reflexivity | apply IHn ].
+Qed.
+
 Lemma lap_eq_map_ext : ∀ α (f : field α) A g h,
    (∀ a : A, fld_eq f (g a) (h a))
    → ∀ la, lap_eq f (List.map g la) (List.map h la).

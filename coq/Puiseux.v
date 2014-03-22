@@ -1772,6 +1772,31 @@ rewrite IHn.
 apply lap_mul_map.
 Qed.
 
+Lemma yyy : ∀ la c₁ n r,
+  lap_eq Kx
+    (list_pad r .0 Kx%K
+       (coeff_taylor_lap Kx n la (ps_monom K c₁ 0) 0))
+    (coeff_taylor_lap Kx n
+       (lap_mul Kx
+          (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+             r) la)
+       (ps_monom K c₁ 0) 0).
+Proof.
+intros la c₁ n r.
+revert la r.
+induction n; intros; simpl.
+ induction r; [ reflexivity | simpl ].
+ constructor; [ reflexivity | assumption ].
+
+ induction r; simpl.
+  constructor.
+   subst Kx.
+   rewrite lap_mul_1_l; reflexivity.
+
+   subst Kx.
+bbb.
+   rewrite lap_mul_1_l; reflexivity.
+
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
