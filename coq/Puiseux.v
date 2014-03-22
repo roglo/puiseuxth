@@ -1841,6 +1841,24 @@ induction n; intros; simpl.
 bbb.
 *)
 
+Lemma xxx : ∀ la c₁ n r k,
+  lap_eq Kx
+    (coeff_taylor_lap Kx n
+       (lap_mul Kx
+          (lap_power Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+             r) la)
+       (c_x_power K c₁ 0) k)
+    (coeff_taylor_lap Kx n
+       (lap_mul Kx
+          (lap_mul Kx [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []]
+             (lap_power Kx
+                [ps_monom K (.-K c₁)%K 0; ps_monom K .1 K%K 0 … []] r))
+          la)
+       (c_x_power K c₁ 0) (S k)).
+Proof.
+intros la c₁ n r k.
+bbb.
+
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
       (c₁+y₁)^j.Φ((c₁+y₁)^q) = x^β₁.y₁^r.(c₁+y₁)^j.Ψ(c₁+y₁) ».
 
@@ -1913,124 +1931,8 @@ rewrite Nat.add_sub_assoc.
 
     subst Kx.
     rewrite IHr.
-    clear IHr.
     set (Kx := ps_field K); move Kx before K.
-bbb.
-  rewrite fold_list_nth_def_0.
-  rewrite lap_mul_comm.
-  unfold list_nth_def_0.
-  set (Kx := ps_field K); move Kx before K.
-bbb.
- rewrite Nat.add_0_r.
- rewrite List.map_length.
- rewrite apply_lap_lap2.
- rewrite list_nth_lap_mul.
- unfold apply_lap2.
- simpl.
- rewrite list_length_derivial.
- rewrite length_lap_mul.
- rewrite List.map_length.
- rewrite length_lap_power.
-  simpl.
-  rewrite Nat.mul_1_r, List.map_length.
-  rename i into n.
-  erewrite Ψ_length; try eassumption.
-  rewrite Nat.add_sub_assoc.
-   rewrite Nat.add_comm, Nat.add_sub.
-   symmetry.
-   rewrite Nat.sub_succ_l.
-    simpl.
-bbb.
-
-intros pol ns pl tl l c₁ r Ψ j αj Hns Hc₁ Hr HΨ Hpl Htl Hl Hini.
-remember Hns as Hfin; clear HeqHfin.
-apply exists_fin_pt_nat in Hfin.
-destruct Hfin as (k, (αk, Hk)).
-symmetry.
-rewrite poly_mul_comm, poly_mul_assoc, poly_mul_comm.
-apply poly_mul_compat; [ reflexivity | subst K ].
-rewrite phi_zq_eq_z_sub_c₁_psy; try eassumption.
-set (K := ac_field acf); move K after Kx.
-fold K in Kx.
-rewrite poly_inject_inj_mul.
-unfold eq_poly; simpl.
-do 2 rewrite lap_compose_compose2.
-apply list_nth_lap_eq; intros m; simpl.
-subst Kx; simpl.
-rewrite list_nth_compose_deg_1; [ idtac | reflexivity ].
-rewrite length_lap_mul; simpl.
-do 2 rewrite List.map_length.
-rewrite length_lap_power; [ simpl | intros H; discriminate H ].
-rewrite Nat.mul_1_r, list_nth_lap_mul.
-set (Kx := ps_field K); move Kx before K.
-rewrite summation_lap_compose_deg_1_mul.
-rewrite List.map_length.
-rewrite summation_mul_comm.
-erewrite Ψ_length; try eassumption.
-rewrite summation_only_one_non_0 with (v := (m - r)%nat).
- Focus 3.
- intros i (_, Him) Hi.
- rewrite fold_list_nth_def_0.
- subst Kx.
- rewrite lap_power_x.
- unfold list_nth_def_0; simpl.
- set (Kx := ps_field K); move Kx before K.
- rewrite list_nth_pad_ne; [ idtac | fast_omega Him Hi ].
- rewrite fld_mul_0_l; reflexivity.
-
- destruct (le_dec r m) as [Hrm| Hrm].
-  rewrite Nat_sub_sub_distr; [ idtac | assumption ].
-  rewrite Nat.add_comm, Nat.add_sub.
-  subst Kx.
-  rewrite nth_lap_power_id, fld_mul_1_l.
-  rewrite Nat_sub_sub_distr; [ idtac | assumption ].
-  rewrite Nat.add_comm.
-  apply summation_compat; intros i (_, Hi).
-  do 2 rewrite <- fld_mul_nat_assoc2.
-  apply fld_mul_compat_r.
-  rewrite list_nth_lap_mul.
-  set (Kx := ps_field K); move Kx before K.
-  rewrite Nat.add_sub_assoc in Hi.
-   rewrite Nat.add_comm, Nat.add_sub in Hi.
-   Focus 3.
-   apply Nat.nle_gt in Hrm.
-   replace (m - r)%nat with O by omega.
-   do 2 rewrite Nat.sub_0_r.
-   subst Kx.
-   rewrite nth_lap_power_lt; [ idtac | assumption ].
-   rewrite fld_mul_0_l.
-   rewrite Nat.add_sub_assoc.
-    rewrite Nat.add_comm, Nat.add_sub.
-    remember Hns as Hphi; clear HeqHphi.
-    apply cpol_degree_ge_1 in Hphi.
-    apply ac_prop_root in Hphi.
-    rewrite Hc₁ in Hphi.
-    fold K in Hphi.
-    unfold apply_poly in Hphi.
-    rewrite apply_lap_lap2 in Hphi.
-    unfold apply_lap2 in Hphi.
-    simpl in Hphi.
-    rewrite Hini in Hphi; simpl in Hphi.
-    rewrite nofq_Qnat in Hphi.
-    rewrite skipn_pad in Hphi; simpl in Hphi.
-    rewrite Nat.sub_diag in Hphi.
-    rewrite fold_char_pol with (αj := αj) in Hphi.
-    rewrite <- Hini, <- Hpl in Hphi.
-    simpl in Hphi.
-    erewrite length_char_pol in Hphi; try eassumption; try reflexivity.
-    simpl in Hphi.
-bbb.
-
- simpl.
- rewrite fld_mul_1_r.
- rewrite list_nth_derivial; simpl.
- rewrite Nat.add_0_r, comb_id.
- rewrite fld_mul_nat_1_l.
- rewrite list_nth_lap_mul.
- rewrite summation_lap_compose_deg_1_mul; simpl.
- symmetry.
- set (Kx := ps_field K).
- move Kx before K.
+    apply xxx.
 bbb.
 
 ......
