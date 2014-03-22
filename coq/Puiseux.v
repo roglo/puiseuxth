@@ -1857,6 +1857,9 @@ Lemma xxx : ∀ la c₁ n r k,
        (c_x_power K c₁ 0) (S k)).
 Proof.
 intros la c₁ n r k.
+revert r k.
+induction n; intros; [ reflexivity | simpl ].
+constructor; [ idtac | apply IHn ].
 bbb.
 
 (* [Walker, p. 101] « Since αh + h.γ₁ = β₁, the first summation reduces to
