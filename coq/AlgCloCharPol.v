@@ -212,6 +212,49 @@ induction la as [| a]; simpl.
   reflexivity.
 Qed.
 
+Lemma lap_derivial_nil : ∀ α (K : field α) k,
+  lap_eq K (lap_derivial K k []) [].
+Proof.
+intros α K k.
+unfold lap_derivial; simpl.
+rewrite list_skipn_nil; reflexivity.
+Qed.
+
+Lemma comb_0_r : ∀ i, comb i 0 = 1%nat.
+Proof. intros i; destruct i; reflexivity. Qed.
+
+Lemma comb_1_r : ∀ n, comb n 1 = n.
+Proof.
+intros n.
+induction n; [ reflexivity | simpl ].
+rewrite comb_0_r, IHn; reflexivity.
+Qed.
+
+Lemma coeff_lap_deriv_1_succ : ∀ α (K : field α) la n,
+  lap_eq K (coeff_lap_deriv K la 1 (S n))
+    (lap_add K la (coeff_lap_deriv K la 1 n)).
+Proof.
+intros α K la n.
+revert n.
+induction la as [| a]; intros; [ reflexivity | simpl ].
+rewrite comb_0_r, comb_1_r.
+constructor; [ apply fld_add_comm | apply IHla ].
+Qed.
+
+Lemma lap_derivial_1_cons : ∀ α (K : field α) a la,
+  lap_eq K (lap_derivial K 1 [a … la])
+    (lap_add K la [.0 K … lap_derivial K 1 la])%K.
+Proof.
+intros α K a la.
+unfold lap_derivial; simpl.
+clear a.
+destruct la as [| a]; simpl.
+ rewrite lap_eq_0; reflexivity.
+
+ constructor; [ apply fld_add_comm | clear a ].
+ apply coeff_lap_deriv_1_succ.
+Qed.
+
 Add Parametric Morphism α (f : field α) : (apply_lap f)
   with signature lap_eq f ==> fld_eq f ==> fld_eq f
   as apply_lap_morph.
@@ -417,9 +460,6 @@ unfold lap_derivial.
 rewrite length_deriv_list.
 apply list_length_skipn.
 Qed.
-
-Lemma comb_0_r : ∀ i, comb i 0 = 1%nat.
-Proof. intros i; destruct i; reflexivity. Qed.
 
 Lemma fld_mul_nat_0_r : ∀ α (f : field α) n, (fld_mul_nat f n .0 f .= f .0 f)%K.
 Proof.
@@ -632,13 +672,6 @@ Qed.
 Lemma list_skipn_succ_cons : ∀ A (a : A) la k,
   List.skipn (S k) [a … la] = List.skipn k la.
 Proof. reflexivity. Qed.
-
-Lemma comb_1_r : ∀ n, comb n 1 = n.
-Proof.
-intros n.
-induction n; [ reflexivity | simpl ].
-rewrite comb_0_r, IHn; reflexivity.
-Qed.
 
 Lemma fld_mul_nat_assoc : ∀ α (f : field α) a m n,
   (fld_mul_nat f m (fld_mul_nat f n a) .= f fld_mul_nat f (m * n) a)%K.

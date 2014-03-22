@@ -1841,6 +1841,39 @@ induction n; intros; simpl.
 bbb.
 *)
 
+Lemma www : ∀ α (K : field α) la lb,
+  lap_eq K
+    (lap_derivial K 1 (lap_mul K la lb))
+    (lap_add K
+       (lap_mul K (lap_derivial K 1 la) lb)
+       (lap_mul K la (lap_derivial K 1 lb))).
+Proof.
+clear.
+intros α K la lb.
+revert lb.
+induction la as [| a]; intros; simpl.
+ do 3 rewrite lap_mul_nil_l.
+ rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
+
+ induction lb as [| b]; simpl.
+  do 3 rewrite lap_mul_nil_r.
+  rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
+
+  rewrite lap_mul_cons.
+  do 3 rewrite lap_derivial_1_cons.
+  symmetry.
+  rewrite lap_mul_cons_r.
+  rewrite lap_mul_cons_l.
+  simpl.
+  do 2 rewrite lap_mul_add_distr_r.
+  do 2 rewrite lap_mul_add_distr_l.
+  do 2 rewrite lap_derivial_add.
+  rewrite lap_derivial_1_cons.
+  do 2 rewrite IHla.
+  do 7 rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+bbb.
+
 Lemma xxx : ∀ la c₁ n r k,
   lap_eq Kx
     (coeff_taylor_lap Kx n
