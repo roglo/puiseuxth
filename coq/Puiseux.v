@@ -1772,12 +1772,18 @@ rewrite IHn.
 apply lap_mul_map.
 Qed.
 
-Lemma xxx : ∀ c pow,
+Lemma ps_monom_opp : ∀ c pow,
   (ps_monom K (.- K c)%K pow .= K .- K ps_monom K c pow)%ps.
 Proof.
 intros c pow.
-bbb.
-*)
+unfold ps_monom; simpl.
+unfold ps_opp; simpl.
+unfold series_opp; simpl.
+apply mkps_morphism; try reflexivity.
+constructor; intros i; simpl.
+destruct (zerop i); [ reflexivity | idtac ].
+rewrite fld_opp_0; reflexivity.
+Qed.
 
 Lemma yyy : ∀ la c₁ n r,
   lap_eq Kx
@@ -1806,7 +1812,7 @@ induction n; intros; simpl.
    rewrite lap_derivial_0.
    do 2 rewrite apply_lap_mul; simpl.
    rewrite fld_mul_0_l, fld_add_0_l, ps_mul_1_l.
-   rewrite xxx in |- * at 1.
+   rewrite ps_monom_opp in |- * at 1.
    rewrite ps_add_opp_r.
    do 2 rewrite fld_mul_0_l; reflexivity.
 bbb.

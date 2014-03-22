@@ -205,7 +205,7 @@ rewrite fld_add_comm.
 apply fld_add_0_l.
 Qed.
 
-Theorem opp_0 : (.- f .0 f .= f .0 f)%K.
+Theorem fld_opp_0 : (.- f .0 f .= f .0 f)%K.
 Proof.
 simpl; etransitivity; [ symmetry; apply fld_add_0_l | idtac ].
 apply fld_add_opp_r.
@@ -310,7 +310,7 @@ rewrite fld_mul_comm; symmetry.
 apply fld_mul_opp_l.
 Qed.
 
-Theorem opp_add_distr : ∀ a b, (.- f (a .+ f b) .= f .- f a .- f b)%K.
+Theorem fld_opp_add_distr : ∀ a b, (.- f (a .+ f b) .= f .- f a .- f b)%K.
 Proof.
 intros a b.
 apply fld_mul_reg_l with (c := .1 f%K).
@@ -371,7 +371,7 @@ Qed.
 (* AFAIK cannot be do with 'Add Parametric Morphim: (inv fld)
    because there is a condition 'a ≠ 0'; question: is is possible
    to do a conditional morphism? *)
-Theorem inv_compat : ∀ a b,
+Theorem fld_inv_compat : ∀ a b,
   (a .≠ f .0 f)%K
   → (a .= f b)%K
     → (.¹/ f a .= f .¹/ f b)%K.
