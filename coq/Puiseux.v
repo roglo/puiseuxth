@@ -1870,6 +1870,9 @@ induction lb as [| b]; intros; simpl.
  reflexivity.
 Qed.
 
+Delimit Scope lap_scope with lap.
+Notation "a .+ K b" := (lap_add K a b) : lap_scope.
+
 Lemma www : ∀ α (K : field α) la lb,
   lap_eq K
     (lap_derivial K 1 (lap_mul K la lb))
@@ -1933,6 +1936,8 @@ induction la as [| a]; intros; simpl.
   rewrite lap_eq_0.
   rewrite lap_add_nil_r.
   remember (lap_mul K D [b]) as G.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
 bbb.
 
 clear.
