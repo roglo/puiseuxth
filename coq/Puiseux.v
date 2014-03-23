@@ -1879,11 +1879,12 @@ Lemma www : ∀ α (K : field α) la lb,
 Proof.
 clear.
 intros α K la lb.
-destruct la as [| a]; intros; simpl.
+revert lb.
+induction la as [| a]; intros; simpl.
  do 3 rewrite lap_mul_nil_l.
  rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
 
- destruct lb as [| b]; simpl.
+ induction lb as [| b]; simpl.
   do 3 rewrite lap_mul_nil_r.
   rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
 
@@ -1917,6 +1918,21 @@ destruct la as [| a]; intros; simpl.
   rewrite fld_mul_0_r.
   rewrite <- lap_derivial_1_mul_const.
   rewrite <- HeqA.
+  subst C.
+  rewrite IHla.
+  subst.
+  rewrite IHla.
+  remember (lap_mul K [a] lb) as A.
+  remember (lap_mul K la [b]) as B.
+  remember (lap_mul K la lb) as C.
+  remember (lap_derivial K 1 la) as D.
+  remember (lap_derivial K 1 lb) as E.
+  remember (lap_derivial K 1 [b]) as F.
+  rewrite lap_mul_cons_r.
+  rewrite lap_mul_nil_r.
+  rewrite lap_eq_0.
+  rewrite lap_add_nil_r.
+  remember (lap_mul K D [b]) as G.
 bbb.
 
 clear.
