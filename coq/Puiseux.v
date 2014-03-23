@@ -1785,7 +1785,7 @@ destruct (zerop i); [ reflexivity | idtac ].
 rewrite fld_opp_0; reflexivity.
 Qed.
 
-Lemma www : ∀ α (K : field α) la lb,
+Lemma lap_derivial_mul : ∀ α (K : field α) la lb,
   lap_eq K
     (lap_derivial K 1 (lap_mul K la lb))
     (lap_add K
@@ -1803,119 +1803,103 @@ induction la as [| a]; intros; simpl.
   do 3 rewrite lap_mul_nil_r.
   rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
 
-  rewrite lap_mul_cons.
-  symmetry.
-  rewrite lap_mul_cons_l.
-  rewrite lap_mul_cons_r.
-  symmetry.
+  rewrite lap_mul_cons; symmetry.
+  rewrite lap_mul_cons_l, lap_mul_cons_r; symmetry.
   do 3 rewrite lap_derivial_1_cons.
   do 2 rewrite lap_derivial_add.
   rewrite lap_derivial_1_cons.
-  repeat rewrite lap_mul_add_distr_l.
-  repeat rewrite lap_mul_add_distr_r.
-  repeat rewrite <- lap_add_assoc.
-  remember (lap_mul K [a] lb) as A.
-  remember (lap_mul K la [b]) as B.
-  remember (lap_mul K la lb) as C.
-  rewrite lap_mul_cons.
-  rewrite lap_mul_nil_r.
-  rewrite lap_add_nil_r.
-  rewrite lap_mul_nil_r.
-  rewrite lap_eq_0.
-  rewrite lap_add_nil_r.
-  rewrite fld_mul_0_l.
-  rewrite lap_mul_cons.
-  rewrite lap_mul_nil_l.
-  rewrite lap_add_nil_l.
-  rewrite lap_mul_nil_l.
-  rewrite lap_eq_0.
-  rewrite lap_add_nil_r.
-  rewrite fld_mul_0_r.
-  rewrite <- lap_derivial_1_mul_const.
-  rewrite <- HeqA.
-  subst C.
+  rewrite lap_mul_add_distr_l.
+  rewrite lap_mul_add_distr_l.
+  rewrite lap_mul_add_distr_r.
+  rewrite lap_mul_add_distr_r.
+  rewrite lap_add_comm.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  rewrite lap_cons_add.
+  symmetry.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  rewrite lap_cons_add.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  symmetry.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
   rewrite IHla.
-  subst.
   rewrite IHla.
-  remember (lap_mul K [a] lb) as A.
-  remember (lap_mul K la [b]) as B.
-  remember (lap_mul K la lb) as C.
-  remember (lap_derivial K 1 la) as D.
-  remember (lap_derivial K 1 lb) as E.
-  remember (lap_derivial K 1 [b]) as F.
-  rewrite lap_mul_cons_r.
-  rewrite lap_mul_nil_r.
+  rewrite lap_derivial_const.
+  rewrite lap_mul_nil_r, lap_add_nil_r.
+  rewrite lap_cons_add.
+  rewrite lap_cons_add.
+  rewrite lap_cons_add.
+  rewrite lap_cons_add.
+  rewrite lap_cons_add.
+  symmetry.
+  rewrite lap_mul_cons_l.
+  rewrite lap_mul_nil_l.
   rewrite lap_eq_0.
   rewrite lap_add_nil_r.
-  remember (lap_mul K D [b]) as G.
-  repeat rewrite lap_add_assoc.
-  apply lap_add_compat; [ reflexivity | idtac ].
-  symmetry.
-  rewrite lap_add_comm.
-  repeat rewrite lap_add_assoc.
-  rewrite lap_add_comm.
-  repeat rewrite lap_add_assoc.
-  apply lap_add_compat; [ reflexivity | idtac ].
-  rewrite lap_add_comm.
-  repeat rewrite lap_add_assoc.
-  rewrite lap_cons_add.
-  repeat rewrite lap_add_assoc.
-  apply lap_add_compat; [ reflexivity | idtac ].
-  rewrite lap_add_comm.
-  symmetry.
-  rewrite lap_cons_add.
-  repeat rewrite lap_add_assoc.
-  apply lap_add_compat; [ reflexivity | idtac ].
-  rewrite lap_cons_add.
-  rewrite lap_cons_add.
   rewrite lap_add_comm.
   symmetry.
   rewrite lap_add_comm.
-  repeat rewrite lap_add_assoc.
-  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
   rewrite lap_add_comm.
-  rewrite lap_cons_add.
-  symmetry.
-  rewrite lap_cons_add.
-  repeat rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
-  rewrite lap_cons_add.
+  symmetry.
+  rewrite lap_add_comm.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_comm.
   rewrite lap_mul_cons_l.
-  rewrite lap_eq_0.
-  rewrite lap_mul_nil_l.
+  rewrite lap_eq_0, lap_mul_nil_l.
   rewrite lap_add_nil_l.
-  rewrite lap_cons_add.
-  repeat rewrite lap_add_assoc.
-  apply lap_add_compat; [ reflexivity | idtac ].
-bbb.
-
-clear.
-intros α K la lb.
-revert lb.
-induction la as [| a]; intros; simpl.
- do 3 rewrite lap_mul_nil_l.
- rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
-
- induction lb as [| b]; simpl.
-  do 3 rewrite lap_mul_nil_r.
-  rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
-
-  rewrite lap_mul_cons.
-  do 3 rewrite lap_derivial_1_cons.
-  symmetry.
-  rewrite lap_mul_cons_r.
-  rewrite lap_mul_cons_l.
-  simpl.
-  do 2 rewrite lap_mul_add_distr_r.
-  do 2 rewrite lap_mul_add_distr_l.
-  do 2 rewrite lap_derivial_add.
-  rewrite lap_derivial_1_cons.
-  do 2 rewrite IHla.
-  do 7 rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
+  rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   rewrite lap_add_comm.
-  repeat rewrite lap_add_assoc.
-bbb.
+  rewrite lap_add_assoc.
+  rewrite lap_mul_cons_r.
+  rewrite lap_eq_0.
+  rewrite lap_mul_nil_r, lap_add_nil_l.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_mul_cons_l.
+  rewrite lap_eq_0, lap_mul_nil_l, lap_add_nil_l.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_mul_cons.
+  rewrite fld_mul_0_r, lap_mul_nil_l, lap_add_nil_l.
+  constructor; [ reflexivity | idtac ].
+  rewrite lap_mul_nil_l.
+  rewrite lap_eq_0, lap_add_nil_r.
+  rewrite lap_derivial_1_mul_const.
+  reflexivity.
+qed.
 
 Lemma xxx : ∀ la c₁ n r k,
   lap_eq Kx
