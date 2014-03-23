@@ -1841,6 +1841,35 @@ induction n; intros; simpl.
 bbb.
 *)
 
+Lemma lap_derivial_1_mul_const : ∀ α (K : field α) a lb,
+  lap_eq K
+    (lap_derivial K 1 (lap_mul K [a] lb))
+    (lap_mul K [a] (lap_derivial K 1 lb)).
+Proof.
+clear.
+intros α K a lb.
+induction lb as [| b]; intros; simpl.
+ rewrite lap_mul_nil_r.
+ rewrite lap_derivial_nil.
+ rewrite lap_mul_nil_r; reflexivity.
+
+ rewrite lap_mul_cons.
+ do 2 rewrite lap_mul_nil_l.
+ rewrite lap_add_nil_l.
+ rewrite lap_eq_0, lap_add_nil_r.
+ do 2 rewrite lap_derivial_1_cons.
+ rewrite lap_mul_add_distr_l.
+ rewrite IHlb.
+ apply lap_add_compat; [ reflexivity | idtac ].
+ rewrite lap_mul_cons.
+ rewrite fld_mul_0_r.
+ constructor; [ reflexivity | idtac ].
+ rewrite lap_mul_nil_l, lap_add_nil_l.
+ rewrite lap_mul_nil_l.
+ rewrite lap_eq_0, lap_add_nil_r.
+ reflexivity.
+Qed.
+
 Lemma www : ∀ α (K : field α) la lb,
   lap_eq K
     (lap_derivial K 1 (lap_mul K la lb))
@@ -1866,6 +1895,28 @@ destruct la as [| a]; intros; simpl.
   do 3 rewrite lap_derivial_1_cons.
   do 2 rewrite lap_derivial_add.
   rewrite lap_derivial_1_cons.
+  repeat rewrite lap_mul_add_distr_l.
+  repeat rewrite lap_mul_add_distr_r.
+  repeat rewrite <- lap_add_assoc.
+  remember (lap_mul K [a] lb) as A.
+  remember (lap_mul K la [b]) as B.
+  remember (lap_mul K la lb) as C.
+  rewrite lap_mul_cons.
+  rewrite lap_mul_nil_r.
+  rewrite lap_add_nil_r.
+  rewrite lap_mul_nil_r.
+  rewrite lap_eq_0.
+  rewrite lap_add_nil_r.
+  rewrite fld_mul_0_l.
+  rewrite lap_mul_cons.
+  rewrite lap_mul_nil_l.
+  rewrite lap_add_nil_l.
+  rewrite lap_mul_nil_l.
+  rewrite lap_eq_0.
+  rewrite lap_add_nil_r.
+  rewrite fld_mul_0_r.
+  rewrite <- lap_derivial_1_mul_const.
+  rewrite <- HeqA.
 bbb.
 
 clear.
