@@ -1880,6 +1880,13 @@ induction la as [| a]; intros; simpl.
   repeat rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
   rewrite lap_cons_add.
+  rewrite lap_mul_cons_l.
+  rewrite lap_eq_0.
+  rewrite lap_mul_nil_l.
+  rewrite lap_add_nil_l.
+  rewrite lap_cons_add.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
 bbb.
 
 clear.
