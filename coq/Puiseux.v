@@ -1861,6 +1861,25 @@ induction la as [| a]; intros; simpl.
   rewrite lap_cons_add.
   repeat rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  symmetry.
+  rewrite lap_cons_add.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_cons_add.
+  rewrite lap_cons_add.
+  rewrite lap_add_comm.
+  symmetry.
+  rewrite lap_add_comm.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  rewrite lap_cons_add.
+  symmetry.
+  rewrite lap_cons_add.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_cons_add.
 bbb.
 
 clear.
