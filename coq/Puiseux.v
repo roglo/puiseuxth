@@ -1850,6 +1850,26 @@ Lemma www : ∀ α (K : field α) la lb,
 Proof.
 clear.
 intros α K la lb.
+destruct la as [| a]; intros; simpl.
+ do 3 rewrite lap_mul_nil_l.
+ rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
+
+ destruct lb as [| b]; simpl.
+  do 3 rewrite lap_mul_nil_r.
+  rewrite lap_derivial_nil, lap_add_nil_l; reflexivity.
+
+  rewrite lap_mul_cons.
+  symmetry.
+  rewrite lap_mul_cons_l.
+  rewrite lap_mul_cons_r.
+  symmetry.
+  do 3 rewrite lap_derivial_1_cons.
+  do 2 rewrite lap_derivial_add.
+  rewrite lap_derivial_1_cons.
+bbb.
+
+clear.
+intros α K la lb.
 revert lb.
 induction la as [| a]; intros; simpl.
  do 3 rewrite lap_mul_nil_l.
