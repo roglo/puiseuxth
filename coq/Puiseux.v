@@ -1872,6 +1872,15 @@ Qed.
 
 Delimit Scope lap_scope with lap.
 Notation "a .+ K b" := (lap_add K a b) : lap_scope.
+Notation "a .* K b" := (lap_mul K a b) : lap_scope.
+Notation "a .= K b" := (lap_eq K a b) : lap_scope.
+
+Lemma xxx : ∀ α (K : field α) a lb lc,
+  ([a … lb .+ K lc] .= K [a … lb] .+ K [.0 K%K … lc])%lap.
+Proof.
+clear.
+intros α K a lb lc.
+bbb.
 
 Lemma www : ∀ α (K : field α) la lb,
   lap_eq K
@@ -1938,6 +1947,17 @@ induction la as [| a]; intros; simpl.
   remember (lap_mul K D [b]) as G.
   repeat rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
+  symmetry.
+  rewrite lap_add_comm.
+  repeat rewrite lap_add_assoc.
+  rewrite lap_add_comm.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  repeat rewrite lap_add_assoc.
+  rewrite xxx.
+  repeat rewrite lap_add_assoc.
+  apply lap_add_compat; [ reflexivity | idtac ].
 bbb.
 
 clear.
@@ -1964,6 +1984,8 @@ induction la as [| a]; intros; simpl.
   do 2 rewrite IHla.
   do 7 rewrite lap_add_assoc.
   apply lap_add_compat; [ reflexivity | idtac ].
+  rewrite lap_add_comm.
+  repeat rewrite lap_add_assoc.
 bbb.
 
 Lemma xxx : ∀ la c₁ n r k,
